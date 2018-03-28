@@ -383,7 +383,7 @@
 #cmakedefine HAVE_SRENVIRONMENT_H 
 #endif
 
-
+#cmakedefine HAVE_LINUX_EXCEPTIONS
 
 /* -- Xyce configuration ---------------------------------------------------- */
 

@@ -1,8 +1,9 @@
+#
+# CMakeLists.txt for AnalysisPKG
+#
 
-# -- process files for this library ------------------------------------------
-
-# class source list  
-set ( Analysis_SOURCES
+add_to_xyce_library( NAME Analysis
+	FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_AC.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_AnalysisBase.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_AnalysisEvent.C
@@ -28,20 +29,13 @@ set ( Analysis_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_Step.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_SweepParam.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_Transient.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_UQSupport.C 
-      CACHE INTERNAL "X_S" )
+)
 
-
-# add header files to project
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} 
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      CACHE INTERNAL "X_I" )
-
-
-
-
-# -- build requested libraries ------------------------------------------------
-set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES} 
-      Analysis 
-      CACHE INTERNAL "X_L" )
+set( AnalysisHeaders
+	N_ANP_fwd.h
+	N_ANP_NoiseData.h
+)
+install( FILES ${AnalysisHeaders}
+	DESTINATION include
+)
 

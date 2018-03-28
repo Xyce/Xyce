@@ -1,58 +1,24 @@
-# -- process generated files for this library ---------------------------------
+#
+# CMakeLists.txt for Core Device Model stuff.
+#
+set( Xyce_REACTION_PARSER 1 )
+if( Xyce_REACTION_PARSER)
+	BISON_TARGET( XyceReactionParser "${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ReactionParser.yxx"
+		"${CMAKE_CURRENT_BINARY_DIR}/N_DEV_ReactionParser.cxx" )
+	FLEX_TARGET( XyceReactionScanner "${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ReactionLexer.l"
+		"${CMAKE_CURRENT_BINARY_DIR}/N_DEV_ReactionLexer.cxx")
+	ADD_FLEX_BISON_DEPENDENCY( XyceReactionScanner XyceReactionParser )
 
-if ( Xyce_REACTION_PARSER )
+	set( ReactionParserSrc
+		${BISON_XyceReactionParser_OUTPUTS}
+		${FLEX_XyceReactionScanner_OUTPUTS}
+	)
+	include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
+endif()
 
-  # TODO: Use BISON_TARGET and FLEX_TARGET here.
-
-  # create source and header files
-  add_custom_command ( OUTPUT ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionParser.hxx
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/location.hh
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/position.hh
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/stack.hh
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionLexer.cxx
-
-                      COMMAND ${BISON_EXECUTABLE}  -o ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx
-                              ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionParser.yxx
-
-                      COMMAND ${FLEX_EXECUTABLE} -+ -o${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionLexer.cxx
-                              ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionLexer.l
-
-                      DEPENDS ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionParser.yxx
-                              ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionLexer.l )
-
-  # force (re-)generation at build time
-  add_custom_target ( reaction_parser_sources
-                      DEPENDS ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionParser.hxx
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/location.hh
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/position.hh
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/stack.hh
-                              ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionLexer.cxx )
-
-  # add to list of subpackage target dependencies
-  set ( XYCE_TARGET_DEPENDENCIES ${XYCE_TARGET_DEPENDENCIES}
-        "reaction_parser_sources"
-        CACHE INTERNAL "X_T_D" )
-
-  # save source location and header paths
-  set ( REACTION_PARSER_SRC ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx
-                            ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core/N_DEV_ReactionLexer.cxx )
-
-  set ( REACTION_PARSER_INC ${Xyce_BINARY_DIR}/src/DeviceModelPKG/Core )
-
-  # pass list of generated files into global scope
-  set ( XYCE_GENERATED_SOURCES ${XYCE_GENERATED_SOURCES}
-        ${REACTION_PARSER_SRC}
-        CACHE INTERNAL "X_G_S" )
-
-endif ( Xyce_REACTION_PARSER )
-
-# -- process files for this library ------------------------------------------
-
-# class source list
-set ( Core_SOURCES
-      ${REACTION_PARSER_SRC}
+add_to_xyce_library( NAME Core
+	FILES
+		${ReactionParserSrc}
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_RegisterDevices.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_DeviceInstance.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_DeviceBlock.C
@@ -91,18 +57,31 @@ set ( Core_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Configuration.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Algorithm.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Print.C
-      CACHE INTERNAL "X_S" )
+)
 
-# add header files to project
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES}
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      ${REACTION_PARSER_INC}
-      CACHE INTERNAL "X_I" )
-
-# -- build requested libraries -----------------------------------------------
-set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}
-      Core
-      CACHE INTERNAL "X_L" )
-
-
+set( Core_Headers
+	N_DEV_Configuration.h
+	N_DEV_Const.h
+	N_DEV_Device.h
+	N_DEV_DeviceBlock.h
+	N_DEV_DeviceEntity.h
+	N_DEV_DeviceInstance.h
+	N_DEV_DeviceMaster.h
+	N_DEV_DeviceModel.h
+	N_DEV_DeviceOptions.h
+	N_DEV_DeviceSupport.h
+	N_DEV_InstanceName.h
+	N_DEV_ExternalSimulationData.h
+	N_DEV_ExternData.h
+	N_DEV_fwd.h
+	N_DEV_Message.h
+	N_DEV_Param.h
+	N_DEV_Pars.h
+	N_DEV_SolverState.h
+	N_DEV_Units.h
+	N_DEV_VectorComputeInterface.h
+)
+install( FILES ${Core_Headers}
+	DESTINATION include
+)
 

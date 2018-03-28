@@ -1,3 +1,10 @@
+#
+# .gitignore file for Xyce project
+#
+
+# Ignore Mac OS X artifact files.
+
+**/.DS_Store
 *~
 .*.swp
 Makefile.in

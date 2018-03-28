@@ -1,893 +1,625 @@
-
-# ----------------------------------------------------------------------------
-# CMake Setup          
-# ----------------------------------------------------------------------------
-
-# -- configure the CMake environment -----------------------------------------
-
-# set CMake minimum version
-cmake_minimum_required ( VERSION 2.6 )
-
-
-# set makefile verbosity level 
-set ( CMAKE_VERBOSE_MAKEFILE ON )
-
-# accept new policy while it is in transition
-# this policy "now prefer to link the check executable 
-# to the libraries listed in the CMAKE_REQUIRED_LIBRARIES variable."
-# rather than just check that the library exists.'
-# cmake_policy(SET CMP0075 NEW)
-# can't do this yet as CMake is old on some of our platforms.
-
-# load CMake macros
-include ( CheckIncludeFileCXX )
-include ( CheckFortranFunctionExists )
-include ( CheckFunctionExists )
-include ( CheckLibraryExists )
-include ( CheckSymbolExists )
-include ( CheckCXXSourceCompiles )
-
-
-
-# Xyce library macro 
-macro ( XYCE_FIND_LIBRARY LIBNAME )
-  message ( STATUS "Looking for library ${LIBNAME}" )
-  find_library ( LIBRARY_${LIBNAME} 
-                 NAMES ${LIBNAME} lib${LIBNAME}
-                 PATHS ${CMAKE_LIBRARY_PATH} )
-
-  if ( LIBRARY_${LIBNAME} )
-    message ( STATUS "Looking for library ${LIBNAME} - found" )
-
-    # DEBUG:  /link flag broken on win32; use full paths
-    if ( CMAKE_HOST_WIN32 )
-      set ( ARCH_LIBRARIES ${LIBRARY_${LIBNAME}} ${ARCH_LIBRARIES} )
-    else ( CMAKE_HOST_WIN32 )
-      set ( ARCH_LIBRARIES ${LIBNAME} ${ARCH_LIBRARIES} )
-    endif ( CMAKE_HOST_WIN32 )
-  else ( LIBRARY_${LIBNAME} )
-    message ( FATAL_ERROR "Looking for library ${LIBNAME} - not found" )
-  endif ( LIBRARY_${LIBNAME} )
-endmacro ( XYCE_FIND_LIBRARY LIBNAME )
-
-# Xyce find library from list macro.
-# Any arguments passed to this macro are assumed to be 
-# library names for which to search.  They are processed 
-# with the variable ARGV which is all the unnamed values
-# passed in.  When a working library is found, the search
-# is exited rather than continue.  
-macro ( XYCE_FIND_LIBRARY_FROM_LIST  )
-  set (LIB_FOUND 0)
-  foreach( LIBNAME ${ARGV})
-    if( ${LIB_FOUND} EQUAL 0)
-      # only search if we haven't found a library yet.
-      message ( STATUS "Looking for library ${LIBNAME}" )
-      find_library ( LIBRARY_${LIBNAME} 
-                   NAMES ${LIBNAME} lib${LIBNAME}
-                   PATHS ${CMAKE_LIBRARY_PATH} )
-                   
-      if ( LIBRARY_${LIBNAME} )
-        message ( STATUS "Looking for library ${LIBNAME} - found" )
-        set (LIB_FOUND 1)
-
-        # DEBUG:  /link flag broken on win32; use full paths
-        if ( CMAKE_HOST_WIN32 )
-          set ( ARCH_LIBRARIES ${LIBRARY_${LIBNAME}} ${ARCH_LIBRARIES} )
-        else ( CMAKE_HOST_WIN32 )
-          set ( ARCH_LIBRARIES ${LIBNAME} ${ARCH_LIBRARIES} )
-        endif ( CMAKE_HOST_WIN32 )
-      endif ( LIBRARY_${LIBNAME} )
-    endif( ${LIB_FOUND} EQUAL 0)
-  endforeach( LIBNAME ${ARGV})
-  
-  if ( $(LIB_FOUND) EQUAL 0 )
-    message ( FATAL_ERROR "Looking for library ${ARGV} - not found" )
-  endif ( $(LIB_FOUND) EQUAL 0 )
-endmacro ( XYCE_FIND_LIBRARY_FROM_LIST )
-
-macro ( XYCE_FIND_OPTIONAL_LIBRARY LIBNAME )
-  message ( STATUS "Looking for library ${LIBNAME}" )
-  find_library ( LIBRARY_${LIBNAME} 
-                 NAMES ${LIBNAME} lib${LIBNAME}
-                 PATHS ${CMAKE_LIBRARY_PATH} )
-
-  if ( LIBRARY_${LIBNAME} )
-    message ( STATUS "Looking for library ${LIBNAME} - found" )
-
-    # DEBUG:  /link flag broken on win32; use full paths
-    if ( CMAKE_HOST_WIN32 )
-      set ( ARCH_LIBRARIES ${LIBRARY_${LIBNAME}} ${ARCH_LIBRARIES} )
-    else ( CMAKE_HOST_WIN32 )
-      set ( ARCH_LIBRARIES ${LIBNAME} ${ARCH_LIBRARIES} )
-    endif ( CMAKE_HOST_WIN32 )
-  endif ( LIBRARY_${LIBNAME} )
-
-endmacro ( XYCE_FIND_OPTIONAL_LIBRARY LIBNAME )
-
-set(Xyce_CMAKE_OPTIONS "" CACHE FILEPATH "List of option files to load")
-
-# load configuration files;  cmd line flags override;  no trap for missing file
-foreach (CONFIG_OPTS_FILE ${Xyce_CMAKE_OPTIONS})
-  message ( STATUS "Reading in configuration options from ${CONFIG_OPTS_FILE} ..." )
-  include ( ${CONFIG_OPTS_FILE} )
-endforeach (CONFIG_OPTS_FILE ${Xyce_CMAKE_OPTIONS})
-
-# All of the default options are gathered in one file.
-message ( STATUS "Loading ${CMAKE_HOME_DIRECTORY}/defaultConfig.cmake" )
-include ( "${CMAKE_HOME_DIRECTORY}/defaultConfig.cmake" )
-
-
-
-# -- process build option dependencies; notify user of configuration changes--
-
-# check for consistent library and binary flags                         
-
-if ( Xyce_STATIC_BINARY AND CMAKE_HOST_APPLE )
-  message ( STATUS "STATIC_BINARY is not supported on OSX.  Disabling static linkage." )
-  set ( Xyce_STATIC_BINARY OFF )
-endif ( Xyce_STATIC_BINARY AND CMAKE_HOST_APPLE )
-
-if ( Xyce_STATIC_BINARY AND NOT Xyce_ENABLE_STATIC ) 
-  message ( STATUS "STATIC_BINARY requires ENABLE_STATIC.  Enabling static libaries." )
-  set ( Xyce_ENABLE_STATIC ON ) 
-endif ( Xyce_STATIC_BINARY AND NOT Xyce_ENABLE_STATIC ) 
-
-if ( Xyce_STATIC_BINARY AND Xyce_DISABLE_BINARY )
-  message ( STATUS "STATIC_BINARY conflicts with DISABLE_BINARY.  Enabling binary." )
-  set ( Xyce_DISABLE_BINARY OFF )
-endif ( Xyce_STATIC_BINARY AND Xyce_DISABLE_BINARY )
-
-if ( Xyce_DISABLE_BINARY AND NOT Xyce_ENABLE_SHARED AND NOT Xyce_ENABLE_STATIC )
-  message ( STATUS "No targets are enabled.  Resetting defaults." )
-  set ( Xyce_DISABLE_BINARY OFF )
-  set ( Xyce_ENABLE_STATIC ON )
-endif ( Xyce_DISABLE_BINARY AND NOT Xyce_ENABLE_SHARED AND NOT Xyce_ENABLE_STATIC )
-
-set ( Xyce_BELOS ON )
-set ( Xyce_USE_ISORROPIA ON )
-set ( Xyce_USE_ZOLTAN ON  )
-
-# disable options that conflict with MPI 
-if ( Xyce_SUPERLUDIST AND NOT Xyce_PARALLEL_MPI )
-  message ( STATUS "SUPERLUDIST requires PARALLEL_MPI.  Disabling SUPERLUDIST" )      
-  set ( Xyce_SUPERLUDIST OFF )
-endif ( Xyce_SUPERLUDIST AND NOT Xyce_PARALLEL_MPI )
-
-
-# disable Sandia models if the source directory is missing
-if ( Xyce_RAD_MODELS AND NOT EXISTS ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/SandiaModels ) 
-  message ( STATUS "SandiaModels directory cannot be found.  Disabling RAD_MODELS" )      
-  set ( Xyce_RAD_MODELS OFF )  
-endif ( Xyce_RAD_MODELS AND NOT EXISTS ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/SandiaModels ) 
-
-# disable non-free models if the source directory is missing
-if ( Xyce_NONFREE_MODELS AND NOT EXISTS ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/Xyce_NonFree ) 
-  message ( STATUS "Xyce_NonFree directory cannot be found.  Disabling NONFREE_MODELS" )      
-  set ( Xyce_NONFREE_MODELS OFF )  
-endif ( Xyce_NONFREE_MODELS AND NOT EXISTS ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/Xyce_NonFree )
-
-if ( NOT EXISTS ${Xyce_SOURCE_DIR}/.git )
-	set ( Xyce_REPO_ACCESS OFF )
-	message ( STATUS ".git not found.  Disabling git SHA-1 timestamp." )
-else ( NOT EXISTS ${Xyce_SOURCE_DIR}/.git )
-	set ( Xyce_REPO_ACCESS ON )
-	message ( STATUS ".git found.  Enabling git SHA-1 timestamp." )
-endif ( NOT EXISTS ${Xyce_SOURCE_DIR}/.git )
-
-
-# Set up RPATH for shared libraries based on link path
-# and location of "lib" directory in install path
-SET( CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-
-# -- prepare CMake environment for system inspection -------------------------
-
-# enable Fortran test   
-if ( Xyce_FORTRAN_TEST )
-  enable_language ( Fortran )
-endif ( Xyce_FORTRAN_TEST )
-
-# Only if Xyce_ARCHDIR is defined...
-if ( DEFINED Xyce_ARCHDIR )
-  # inspect ARCHDIR
-  if (    NOT EXISTS ${Xyce_ARCHDIR}
-       OR NOT EXISTS ${Xyce_ARCHDIR}/include
-       OR NOT EXISTS ${Xyce_ARCHDIR}/lib )
-    message ( FATAL_ERROR "${Xyce_ARCHDIR} failed inspection." )
-  endif ()
-
-  # Add it to CMake's prefix paths.
-  list ( APPEND CMAKE_PREFIX_PATH ${Xyce_ARCHDIR} )
-
-  # add common include file directories
-  set ( CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
-      ${Xyce_ARCHDIR}/include
-      ${Xyce_ARCHDIR}/include/trilinos )
-
-
-  # add common library directories
-  set ( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
-      ${Xyce_ARCHDIR}/lib
-      ${Xyce_BINARY_DIR}/src )
-endif ( DEFINED Xyce_ARCHDIR )
-
-
-# set Dakota support header and library paths
-if ( Xyce_Dakota AND DEFINED Xyce_ARCHDIR )
-
-  if ( EXISTS ${Xyce_ARCHDIR}/dakota/include )
-    set ( CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${Xyce_ARCHDIR}/dakota/include )
-  endif ( EXISTS ${Xyce_ARCHDIR}/dakota/include )
-
-  if ( EXISTS ${Xyce_ARCHDIR}/reference/lib ) 
-    set ( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${Xyce_ARCHDIR}/reference/lib )
-  endif ( EXISTS ${Xyce_ARCHDIR}/reference/lib ) 
-
-  if ( EXISTS ${Xyce_ARCHDIR}/dakota/lib )
-    set ( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${Xyce_ARCHDIR}/dakota/lib )
-  endif ( EXISTS ${Xyce_ARCHDIR}/dakota/lib )
-
-endif ( Xyce_Dakota AND DEFINED Xyce_ARCHDIR )
-
-# set header and linker flags
-set (CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH} )
-include_directories( ${CMAKE_INCLUDE_PATH} )
-link_directories( ${CMAKE_LIBRARY_PATH} )
-
-
-# get compiler vendor
-get_property ( COMPILER_VENDOR VARIABLE PROPERTY CMAKE_CXX_COMPILER_ID ) 
-
-
-# set Windows (native & cygwin) specific flags
-if ( CMAKE_HOST_WIN32 )
-
-  set ( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -nologo" )
-  set ( WINDOWS_BUILD ON )
-
-  # disable "safe" features of MSVS
-  add_definitions ( -D_SECURE_SCL=0 )
-
-  # Make "cmath" and math.h include constants like M_PI
-  add_definitions ( -D_USE_MATH_DEFINES=1 )
-
-
-  ###### Eric R does this in his local version with a comment "DEBUG ELR: 
-  ######  broken static builds!
-
-  add_definitions ( -MD )
-
-  # replace stl components with their MSVS "safe" counterparts
-  ## add_definitions ( -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1 )
-
-  set ( Xyce_RESTART_NOPACK ON )
-
-  # remove linker conflicts
-  ## set ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcmtd.lib" )
-  #set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:libmmd.lib /DEFAULTLIB:libmmt.lib")
-
-endif ( CMAKE_HOST_WIN32 )
-
-
-
-
-# -- system inspection --------------------------------------------------------
-
-# -- search for required programs
-
-if ( Xyce_REACTION_PARSER )
-  find_package ( BISON 2.3 )
-  find_package ( FLEX )
-  if ( NOT FLEX_FOUND OR NOT BISON_FOUND )
-    message ( STATUS "Could not find bison/flex.  Disabling REACTION_PARSER" )
-    set ( Xyce_REACTION_PARSER OFF )  
-  endif ( NOT FLEX_FOUND OR NOT BISON_FOUND )
-endif ( Xyce_REACTION_PARSER )
-
-
-# -- search for libraries
-
-# base math library (no usually available under windows)
-find_library( LIB_M m )
-
-if ( Xyce_USE_FFTW )
-  XYCE_FIND_LIBRARY ( fftw3 )
-endif ( Xyce_USE_FFTW )
-
-if ( Xyce_USE_HDF5 )
-  XYCE_FIND_LIBRARY ( hdf5 sz z )
-  # need to update this so that sz and z are only used if needed 
-  # as we don't use those components
-  # and if hdf5 is not compiled with parallel support, then don't
-  # activate it for mpi parallel builds
-  XYCE_FIND_LIBRARY ( sz )
-  XYCE_FIND_LIBRARY ( z )
-endif ( Xyce_USE_HDF5 )
-
-
-if ( Xyce_USE_CURL )
-  XYCE_FIND_LIBRARY ( curl )
-  if ( DEFINED  TRACKING_URL)
-     add_definitions( -DXyce_TRACKING_URL="${TRACKING_URL}" )
-  else (DEFINED TRACKING_URL)
-     add_definitions( -DXyce_TRACKING_URL="http://localhost/" )
-  endif (DEFINED TRACKING_URL)
-endif ( Xyce_USE_CURL )
-
-
-# add lapack / blas and associated dependencies
-if ( COMPILER_VENDOR STREQUAL "Intel" )
-
-  # use the pure linking mesthod from Intel 10+
-
-  find_library ( LIB_MKL_INTERFACE   
-                 NAMES mkl_intel mkl_intel_lp64 mkl_intel_c
-                 PATHS ENV "LIBRARY_PATH" ENV "LD_LIBRARY_PATH" ENV "DYLD_LIBRARY_PATH" )
-
-  find_library ( LIB_MKL_THREADING         
-                 NAMES mkl_sequential
-                 PATHS ENV "LIBRARY_PATH" ENV "LD_LIBRARY_PATH" ENV "DYLD_LIBRARY_PATH" )
-
-  find_library ( LIB_MKL_COMPUTATION       
-                 NAMES mkl_core                        
-                 PATHS ENV "LIBRARY_PATH" ENV "LD_LIBRARY_PATH" ENV "DYLD_LIBRARY_PATH" )
-
-  if ( Xyce_Dakota )
-    find_library ( LIB_FORTRAN               
-                   NAMES ifcore                           
-                   PATHS ENV "LIBRARY_PATH" ENV "LD_LIBRARY_PATH" ENV "DYLD_LIBRARY_PATH" )
-  endif ( Xyce_Dakota )
-
-  set ( MKL_LIBRARIES 
-        ${LIB_MKL_INTERFACE} ${LIB_MKL_THREADING} ${LIB_MKL_COMPUTATION}
-        ${LIB_MKL_INTERFACE} ${LIB_MKL_THREADING} ${LIB_MKL_COMPUTATION}
-        ${LIB_FORTRAN} )
-
-
-#if ( CMAKE_HOST_APPLE AND Xyce_PARALLEL_MPI )
-#  find_library ( LIBIRC
-#                 NAMES irc
-#                 PATHS $ENV{INTEL_PATH}/$ENV{INTEL_COM_VER}/lib )
-#endif ( CMAKE_HOST_APPLE AND Xyce_PARALLEL_MPI )
-
-
-  # Windows (native & cygwin) and Open MPI do not require additional threading support
-  if ( NOT Xyce_PARALLEL_MPI AND NOT CMAKE_HOST_WIN32 )
-    find_library ( LIB_PTHREAD               
-                   NAMES pthread                         
-                   PATHS ENV "LIBRARY_PATH" ENV "LD_LIBRARY_PATH" ENV "DYLD_LIBRARY_PATH" )
-  endif ( NOT Xyce_PARALLEL_MPI AND NOT CMAKE_HOST_WIN32 )
-
-
-  # collect all libraries
-  set ( EXTERNAL_LIBRARIES 
-        ${MKL_LIBRARIES} ${LIB_PTHREAD} ${LIBIRC} )
-
-
-
-else ( COMPILER_VENDOR STREQUAL "Intel" )
-
-  find_library ( LIB_LAPACK lapack )
-  find_library ( LIB_BLAS blas )
-
-  # This stuff is unreliable and should be replaced by proper probing of
-  # the fortran link requirements.  
-  # Autoconf will run the Fortran compiler with options to display what 
-  # libraries it needs, and add those to the link line.  CMake won't do
-  # that automatically unless your project contains Fortran files.
-  # This mess tries to add -lgfortran for specific system combinations, but
-  # it gets it wrong for some (e.g. FreeBSD with clang).  Needed to add
-  # a similar wrong block to get mingw builds to work, too.
-  # DEBUG:  fix for peculiar CMake behavior for static linked binary and FBSD
-  if ( Xyce_STATIC_BINARY OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" )
-    set ( LIB_FORTRAN "gfortran" )
-  endif ( Xyce_STATIC_BINARY OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD" )
-
-  if ( CMAKE_SYSTEM_NAME STREQUAL "Windows" AND COMPILER_VENDOR STREQUAL "GNU" )
-    set ( LIB_FORTRAN "gfortran" )
-
-  # as long as we've got this mingw-specific conditional, make sure to set
-  # this, too:
-    set ( Xyce_RESTART_NOPACK ON )
-
-  endif ( CMAKE_SYSTEM_NAME STREQUAL "Windows" AND COMPILER_VENDOR STREQUAL "GNU" )
-
-  # collect all libraries
-  set ( EXTERNAL_LIBRARIES 
-        ${LIB_LAPACK} ${LIB_BLAS} ${LIB_FORTRAN} )
-
-endif ( COMPILER_VENDOR STREQUAL "Intel" )
-
-
-if ( Xyce_PARALLEL_MPI )
-
-  # expecting openmpi to be present in /usr/local/* or /usr/local/mpi/*
-  message ( STATUS "Looking for library mpi" )                 
-  file ( GLOB OPENMPI_SEARCH_PATH "/usr/local/openmpi*" "/usr/local/mpi/openmpi*" )
-  find_library ( LIB_MPI 
-                 NAMES mpi 
-                 PATHS ${OPENMPI_SEARCH_PATH}
-                 PATH_SUFFIXES lib lib/openmpi 
-                 NO_DEFAULT_PATH )
-  find_path ( INC_MPI 
-                 NAMES mpi mpi.h
-                 PATHS ${OPENMPI_SEARCH_PATH}
-                 PATH_SUFFIXES include         
-                 NO_DEFAULT_PATH )
-
-  if ( NOT LIB_MPI )
-    message ( STATUS "Looking for library mpi - not found" )                 
-  else ( NOT LIB_MPI )
-    message ( STATUS "Looking for library mpi - found" )                 
-    set ( ARCH_LIBRARIES ${LIB_MPI} ${ARCH_LIBRARIES} )
-    include_directories ( ${INC_MPI} )
-  endif ( NOT LIB_MPI )
-
-  if ( Xyce_USE_PARMETIS )
-    XYCE_FIND_LIBRARY ( metis ) 
-    XYCE_FIND_LIBRARY ( parmetis )
-  endif ( Xyce_USE_PARMETIS )
- 
-  if ( Xyce_USE_ZOLTAN OR Xyce_USE_ISORROPIA )
-    if ( DEFINED Xyce_ARCHDIR AND EXISTS ${Xyce_ARCHDIR}/include/zoltan )
-      include_directories ( ${Xyce_ARCHDIR}/include/zoltan )
-    endif ( DEFINED Xyce_ARCHDIR AND EXISTS ${Xyce_ARCHDIR}/include/zoltan )
-    XYCE_FIND_LIBRARY ( zoltan )
-  endif ( Xyce_USE_ZOLTAN OR Xyce_USE_ISORROPIA )
-
-  add_definitions ( -DXyce_PARALLEL_MPI )
-endif ( Xyce_PARALLEL_MPI )
-
-# This check for the Amesos_Umfpack.h header needs to be performed BEFORE
-# the check for umfpack and amd libraries.
-
-find_path(HAVE_AMESOS_UMFPACK_H Amesos_Umfpack.h)
-if (NOT HAVE_AMESOS_UMFPACK_H)
-   message ( STATUS "Xyce_UMFPACK was set on, but Amesos_Umfpack.h not found.  Disabling Xyce_UMFPACK.")
-   set (Xyce_UMFPACK OFF)
-else (NOT HAVE_AMESOS_UMFPACK_H)
-   message ( STATUS "Amesos_Umfpack.h found.  Enabling Xyce_UMFPACK.")
-   set (Xyce_UMFPACK ON)
-endif (NOT HAVE_AMESOS_UMFPACK_H) 
-
-if ( Xyce_AMD OR Xyce_UMFPACK )
-  XYCE_FIND_LIBRARY ( amd )
-endif ( Xyce_AMD OR Xyce_UMFPACK )
-
-# We no longer support Trilinos 11.0 in CMake. Upgrade to 11.2.X or later.
-# XYCE_FIND_LIBRARY ( teuchos )
-# The old single teuchos library of <=11.0 has been replaced by these 5:
-XYCE_FIND_LIBRARY ( teuchoscore )
-XYCE_FIND_LIBRARY ( teuchosremainder )
-XYCE_FIND_LIBRARY ( teuchosnumerics )
-XYCE_FIND_LIBRARY ( teuchoscomm )
-XYCE_FIND_LIBRARY ( teuchosparameterlist )
-
-XYCE_FIND_LIBRARY ( triutils )
-XYCE_FIND_LIBRARY ( epetra )
-XYCE_FIND_LIBRARY ( epetraext )
-
-if ( Xyce_PARALLEL_MPI AND Xyce_USE_ISORROPIA )
-  XYCE_FIND_LIBRARY ( isorropia ) 
-endif ( Xyce_PARALLEL_MPI AND Xyce_USE_ISORROPIA )
-
-if ( Xyce_SUPERLUDIST )
-  XYCE_FIND_LIBRARY ( superludist )
-endif ( Xyce_SUPERLUDIST )
-
-if ( Xyce_UMFPACK )
-  XYCE_FIND_OPTIONAL_LIBRARY (suitesparseconfig)
-  XYCE_FIND_OPTIONAL_LIBRARY ( colamd )
-  XYCE_FIND_OPTIONAL_LIBRARY ( cholmod )
-  XYCE_FIND_LIBRARY ( umfpack )
-endif ( Xyce_UMFPACK )
-
-if ( Xyce_SHYLU )
-  XYCE_FIND_LIBRARY ( shylu )
-endif ( Xyce_SHYLU )
-
-if ( Xyce_AMESOS2 )
-  XYCE_FIND_LIBRARY ( amesos2 )
-endif ( Xyce_AMESOS2 )
-
-if ( Xyce_SUPERLU )
-  XYCE_FIND_LIBRARY ( superlu )
-endif ( Xyce_SUPERLU )
-
-# This is absolutely NOT correct, but it'll do for now.  Trilinos
-# 12.12 and later have moved some of the functions that amesos needs
-# into trilinosss.  If this library exists, assume we need it, and if
-# it doesn't assume we're using an older version.  This assumption
-# will be WRONG if someone has a busted Trilinos install and will
-# result in a link failure at the end, but it is close enough if the 
-# install isn't busted.
 #
-# This would be better if we were just picking up amesos' dependencies
-# properly. That would require doing this CMakeLists correctly (with
-# FIND_PACKAGE instead of FIND_LIBRARY).
+# CMakeLists.txt for Xyce
+#
+# Build Xyce!
+#
 
-XYCE_FIND_OPTIONAL_LIBRARY ( trilinosss )
-XYCE_FIND_LIBRARY ( amesos )
-XYCE_FIND_LIBRARY ( trilinoscouplings )
+# The minimum required version is currently 2.8.8. We need to support RHEL6.
+# If you have the chance, it is better to use a newer version of CMake.
+cmake_minimum_required( VERSION 2.8.8 )
 
-if ( Xyce_ML )
-  XYCE_FIND_LIBRARY ( ml )
-endif ( Xyce_ML )
+project( Xyce )
 
-XYCE_FIND_LIBRARY ( ifpack )
-XYCE_FIND_LIBRARY ( aztecoo )
+# Add our custom CMake scripts to the module search path.
+list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 
-if ( Xyce_BELOS )
-  XYCE_FIND_LIBRARY ( belos )
-  XYCE_FIND_LIBRARY ( belosepetra )
-endif ( Xyce_BELOS )
+# Store a variable with our linking libraries for Xyce.
+list( APPEND Xyce_LINK_LIBS )
 
-XYCE_FIND_LIBRARY ( nox )
-XYCE_FIND_LIBRARY ( loca )
+#-------------------------------------------------------
+# CMake Options and Includes
+#-------------------------------------------------------
+#
+# Define some macros here that are used throughout the Xyce build.
+# Note that we use CMakeParseArguments, available in CMake 2.8.3 and newer.
+include( CMakeParseArguments )
+include( CheckIncludeFileCXX )
+include( CheckCXXSymbolExists )
+include( CheckCXXSourceCompiles )
 
-if (CMAKE_HOST_WIN32)
-  XYCE_FIND_LIBRARY(advapi32)
-  XYCE_FIND_LIBRARY(user32)
-  XYCE_FIND_LIBRARY(ws2_32)
-  XYCE_FIND_LIBRARY(wldap32)
-endif (CMAKE_HOST_WIN32)
+# Set the main directory for the source of our custom platform check programs.
+set( PLATFORM_CHECK_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/platformCheck" )
 
-# check for the dakota library if the user wants to link to it
-# this library list is for Dakota 5.2.  We need a more flexible 
-# way to get Dakota's dependent libs automatically.  The Dakota
-# team is working on this for Dakota 5.2+
-if ( Xyce_Dakota  ) 
-  XYCE_FIND_LIBRARY ( dakota_src )
-  XYCE_FIND_LIBRARY ( nidr )
-  XYCE_FIND_LIBRARY ( pecos ) 
-  XYCE_FIND_LIBRARY ( pecos_src )
-  XYCE_FIND_LIBRARY ( lhs )
-  XYCE_FIND_LIBRARY ( mods )
-  XYCE_FIND_LIBRARY ( mod )
-  XYCE_FIND_LIBRARY ( dfftpack )
-  XYCE_FIND_LIBRARY ( sparsegrid )
-  XYCE_FIND_LIBRARY ( surfpack )
-  XYCE_FIND_LIBRARY ( surfpack )
-  XYCE_FIND_LIBRARY ( utilib )
-  XYCE_FIND_LIBRARY ( colin )
-  XYCE_FIND_LIBRARY ( interfaces )
-  XYCE_FIND_LIBRARY ( scolib )
-  XYCE_FIND_LIBRARY ( 3po )
-  XYCE_FIND_LIBRARY ( pebbl )
-  XYCE_FIND_LIBRARY ( tinyxml )
-  XYCE_FIND_LIBRARY ( conmin )
-  XYCE_FIND_LIBRARY ( dace )
-  XYCE_FIND_LIBRARY ( analyzer )
-  XYCE_FIND_LIBRARY ( random )
-  XYCE_FIND_LIBRARY ( sampling )
-  XYCE_FIND_LIBRARY ( bose )
-  XYCE_FIND_LIBRARY ( fsudace )
-  XYCE_FIND_LIBRARY ( hopspack )
-  XYCE_FIND_LIBRARY ( jega )
-  XYCE_FIND_LIBRARY ( jega_fe )
-  XYCE_FIND_LIBRARY ( moga )
-  XYCE_FIND_LIBRARY ( soga )
-  XYCE_FIND_LIBRARY ( eutils )
-  XYCE_FIND_LIBRARY ( utilities )
-  XYCE_FIND_LIBRARY ( ncsuopt )
-  XYCE_FIND_LIBRARY ( nlpql )
-  XYCE_FIND_LIBRARY ( cport ) 
-  XYCE_FIND_LIBRARY ( npsol )
-  XYCE_FIND_LIBRARY ( optpp )
-  XYCE_FIND_LIBRARY ( psuade )
-  XYCE_FIND_LIBRARY ( amplsolver )
-  
-  XYCE_FIND_LIBRARY ( boost_regex ) 
-  XYCE_FIND_LIBRARY ( boost_signals ) 
-  XYCE_FIND_LIBRARY ( boost_filesystem )
-  XYCE_FIND_LIBRARY ( boost_system )
-              
-endif ( Xyce_Dakota  )
+#-------------------------------------------------------
+# Find Trilinos
+#-------------------------------------------------------
+#
+# Be nice... Users are likely to set Trilinos_DIR to the root install directory
+# and not the directory that explicitly contains the "TrilinosConfig.cmake" file,
+# which is what is expected by find_package(). We try and process that here.
+if( Trilinos_DIR )
+	if( NOT EXISTS "${Trilinos_DIR}/TrilinosConfig.cmake" )
+		if( EXISTS "${Trilinos_DIR}/lib/cmake/Trilinos" )
+			# We only set this field if the TrilinosConfig.cmake doesn't exist in the 
+			# first place, so we don't need to worry too much about overwriting what the
+			# user may have explicitly set prior.
+			set( Trilinos_DIR "${Trilinos_DIR}/lib/cmake/Trilinos" CACHE PATH "Path to the directory containing TrilinosConfig.cmake." FORCE )
+		endif()
+	endif()
+endif()
 
-# -- search for header files
+find_package( Trilinos CONFIG REQUIRED )
+include_directories( ${Trilinos_INCLUDE_DIRS} )
 
-# system headers
-CHECK_INCLUDE_FILE_CXX ( Windows.h HAVE_WINDOWS_H )
-CHECK_INCLUDE_FILE_CXX ( fftw3.h HAVE_FFTW3_H )
-CHECK_INCLUDE_FILE_CXX ( float.h HAVE_FLOAT_H )
-CHECK_INCLUDE_FILE_CXX ( hdf5.h HAVE_HDF5_H )
-CHECK_INCLUDE_FILE_CXX ( limits.h HAVE_LIMITS_H )
-CHECK_INCLUDE_FILE_CXX ( mathimf.h HAVE_MATHIMF_H )
-CHECK_INCLUDE_FILE_CXX ( unistd.h HAVE_UNISTD_H )
-CHECK_INCLUDE_FILE_CXX ( values.h HAVE_VALUES_H )
-CHECK_INCLUDE_FILE_CXX ( unordered_map HAVE_UNORDERED_MAP)
-CHECK_INCLUDE_FILE_CXX ( tr1/unordered_map HAVE_TR1_UNORDERED_MAP)
-CHECK_INCLUDE_FILE_CXX ( unordered_set HAVE_UNORDERED_SET)
-CHECK_INCLUDE_FILE_CXX ( tr1/unordered_set HAVE_TR1_UNORDERED_SET)
-CHECK_INCLUDE_FILE_CXX ( functional HAVE_FUNCTIONAL)
-CHECK_INCLUDE_FILE_CXX ( tr1/functional HAVE_TR1_FUNCTIONAL)
-CHECK_INCLUDE_FILE_CXX ( sys/resource.h HAVE_SYS_RESOURCE_H )
-CHECK_INCLUDE_FILE_CXX ( sys/stat.h HAVE_SYS_STAT_H )
-CHECK_INCLUDE_FILE_CXX ( curl/curl.h HAVE_CURL_CURL_H )
+# Check if Trilinos is compiled to have shared libraries, or if the static
+# libraries were compiled in a manner to be used in shared libraries (i.e.
+# with the -fPIC flag or equivalent). 
+set( SHOULD_BUILD_SHARED_LIBS TRUE )
+if( NOT Trilinos_BUILD_SHARED_LIBS )
+	if( NOT "${Trilinos_CXX_COMPILER_FLAGS}" MATCHES "-f(PIC)|(pic)" )
+		set( SHOULD_BUILD_SHARED_LIBS FALSE )
+	endif()
+endif()
+set( Xyce_BUILD_SHARED ${SHOULD_BUILD_SHARED_LIBS} CACHE BOOL "Build the Xyce Shared libraries." )
+set( Xyce_BUILD_STATIC TRUE CACHE BOOL "Build Xyce Static libraries." )
+set( Xyce_LINK_EXE_WITH_SHARED ${Xyce_BUILD_SHARED} CACHE BOOL "Link Xyce executable with shared library." )
 
-# state information
-CHECK_INCLUDE_FILE_CXX ( unistd.h HAVE_UNISTD_H )
-CHECK_INCLUDE_FILE_CXX ( malloc.h HAVE_MALLOC_H )
-CHECK_INCLUDE_FILE_CXX ( pwd.h HAVE_PWD_H )
-CHECK_INCLUDE_FILE_CXX ( sys/utsname.h HAVE_SYS_UTSNAME_H )
-CHECK_FUNCTION_EXISTS( mallinfo HAVE_MALLINFO )
-CHECK_FUNCTION_EXISTS( getpwuid HAVE_GETPWUID )
-CHECK_FUNCTION_EXISTS( gethostname HAVE_GETHOSTNAME )
-CHECK_FUNCTION_EXISTS( getdomainname HAVE_GETDOMAINNAME )
-CHECK_FUNCTION_EXISTS( uname HAVE_UNAME )
-CHECK_FUNCTION_EXISTS( erf HAVE_ERF )
-CHECK_FUNCTION_EXISTS( erfc HAVE_ERFC )
+# Check if Trilinos is compiled to use OpenMPI. If so, we try and "reuse" those
+# settings here for consistency.
+set( SHOULD_USE_MPI FALSE )
+if( EXISTS "${Trilinos_MPI_EXEC}" )
+	set( SHOULD_USE_MPI TRUE )
+endif()
+set( Xyce_PARALLEL_MPI ${SHOULD_USE_MPI} CACHE BOOL "Build Xyce to use MPI." )
+
+if( Xyce_PARALLEL_MPI )
+	# Note that the caller may have explicitly set the MPI_<lang>_COMPILER
+	# flags as a hint already. We only default to use what Trilinos is using
+	# if these parameters weren't explicitly set.
+	if( NOT MPI_C_COMPILER )
+		set( MPI_C_COMPILER "${Trilinos_C_COMPILER}" )
+	endif()
+	if( NOT MPI_CXX_COMPILER )
+		set( MPI_CXX_COMPILER "${Trilinos_CXX_COMPILER}" )
+	endif()
+	#if( NOT MPI_Fortran_COMPILER )
+	#	set( MPI_Fortran_COMPILER "${Trilinos_Fortran_COMPILER}" )
+	#endif()
+	
+	# Try to find MPI with our current settings. 
+	find_package( MPI )
+		
+	# If we found our libraries, set that we should build with MPI.
+	if( NOT MPI_C_FOUND )
+		message( FATAL_ERROR "Xyce is expected to build with MPI, but no MPI C compiler found! Please specify this directly via: MPI_C_COMPILER." )
+	endif()
+	if( NOT MPI_CXX_FOUND )
+		message( FATAL_ERROR "Xyce is expected to build with MPI, but no MPI C++ compiler found! Please specify this directly via: MPI_CXX_COMPILER." )
+	endif()
+
+	set( CMAKE_C_COMPILER "${MPI_C_COMPILER}" )
+	set( CMAKE_CXX_COMPILER "${MPI_CXX_COMPILER}" )
+	include_directories( SYSTEM ${MPI_CXX_INCLUDE_DIRS} )
+	list( APPEND Xyce_LINK_LIBS ${MPI_CXX_LIBRARIES} )
+endif()
+
+# Check if Trilinos is compiled with C++11 enabled. We need to build Xyce with
+# the same standard for C++, so check that before doing anything else.
+set( SHOULD_USE_CXX11 TRUE )
+if( Trilinos_ENABLE_CXX11 )
+	message( "-- Enabling CXX11 for Xyce, since it is enabled in Trilinos." )
+	set( SHOULD_USE_CXX11 TRUE )
+endif()
+set( Xyce_ENABLE_CXX11 ${SHOULD_USE_CXX11} CACHE BOOL "Enable C++11 for Xyce" )
+
+if( Xyce_ENABLE_CXX11 )
+	set( CMAKE_CXX_STANDARD 11 )
+endif()
+
+#-------------------------------------------------------
+# Find Other Packages (Non-Trilinos)
+#-------------------------------------------------------
+#
+
+find_package( CURL )
+
+# Handle the tracking URL here.
+set( ENABLE_CURL_TRACKING FALSE )
+if( CURL_FOUND )
+	if( NOT DEFINED ENV{XYCE_NO_TRACKING} )
+		if( DEFINED TRACKING_URL )
+			set( ENABLE_CURL_TRACKING TRUE )
+		elseif( DEFINED ENV{TRACKING_URL} )
+			set( TRACKING_URL "$ENV{TRACKING_URL}" )
+			set( ENABLE_CURL_TRACKING TRUE )
+		endif()
+	endif()
+endif()
+if( NOT ENABLE_CURL_TRACKING )
+	set( TRACKING_URL "" )
+endif()
+
+set( Xyce_TRACKING_URL "${TRACKING_URL}" CACHE STRING "Xyce Usage Tracking URL" )
+set( Xyce_USE_CURL     ${ENABLE_CURL_TRACKING} CACHE BOOL "Enable Xyce usage tracking." )
+
+# Check for any external FFT libraries.
+# Check Intel FFT.
+#if ( Xyce_USE_INTEL_FFT )
+#	set( FFT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_IntelFFT_Interface.C )
+#endif()
+#if ( Xyce_USE_FFTW OR NOT Xyce_USE_INTEL_FFT )
+#	set( FFTW_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_FFTW_Interface.C )
+#endif()
+
+# Look for BLAS
+
+# Look for LAPACK
+
+# Look for MPI
+
+# Check for Intel headers.
+check_include_file_cxx( "mkl_dfti.h" Xyce_USE_INTEL_FFT )
+if( Xyce_USE_INTEL_FFT )
+	message("-- Will enable Intel FFT")
+endif()
+
+find_package( FFTW )
+if( FFTW-NOTFOUND )
+	message( "-- Could not find FFTW libraries." )
+	set( FOUND_FFTW FALSE )
+else()
+	include_directories( ${FFTW_INCLUDE_DIRS} )
+
+	set( FOUND_FFTW TRUE )
+endif()
+set( Xyce_USE_FFTW ${FOUND_FFTW} CACHE BOOL "Enable the FFTW library for FFT." )
+
+find_package( FLEX )
+find_package( BISON )
+
+find_package( Dakota CONFIG QUIET)
+if( Dakota-NOTFOUND )
+	message( "-- Did NOT find Dakota installation." )
+	# Don't use Dakota.
+endif()
+
+#-------------------------------------------------------
+# Print Initial Config and Third-Party Library Results
+#-------------------------------------------------------
+message( "Build Details:" )
+message( "-- Enable C++11: ${Xyce_ENABLE_CXX11}" )
+message( "-- Build Shared libraries: ${Xyce_BUILD_SHARED}" )
+message( "-- Build Static libraries: ${Xyce_BUILD_STATIC}" )
+message( "-- Link Xyce against Shared: ${Xyce_LINK_EXE_WITH_SHARED}" )
+message( "-- Enable MPI: ${Xyce_PARALLEL_MPI}" )
+message( " " )
+message( "Compiler Details:")
+message( "-- C Compiler  : ${CMAKE_C_COMPILER}" )
+message( "-- CXX Compiler: ${CMAKE_CXX_COMPILER}" )
+message( " " )
+message( "Third Party Libraries:" )
+message( "-- Trilinos Include Dir: ${Trilinos_INCLUDE_DIRS}" )
+if( FLEX_FOUND )
+	message( "-- Found Flex (${FLEX_VERSION}): ${FLEX_EXECUTABLE}" )
+endif()
+if( BISON_FOUND )
+	message( "-- Found Bison (${BISON_VERSION}): ${BISON_EXECUTABLE}" )
+endif()
+message( "-- Found FFTW: ${Xyce_USE_FFTW}" )
+if( Xyce_USE_FFTW )
+	message( "-- * FFTW Include Path: ${FFTW_INCLUDE_DIRS}" )
+	message( "-- * FFTW Libraries: ${FFTW_LIBRARIES}" )
+endif()
+message( "-- Enable Usage Tracking: ${Xyce_USE_CURL}" )
+if( Xyce_USE_CURL )
+	message( "-- * Curl Version: ${CURL_VERSION_STRING}" )
+	message( "-- * Curl Include Path: ${CURL_INCLUDE_DIRS}" )
+	message( "-- * Curl Library Path: ${CURL_LIBRARIES}" )
+	message( "-- * Tracking URL: ${Xyce_TRACKING_URL}" )
+endif()
+
+# For formatting
+message( " " )
+
+#-------------------------------------------------------
+# CMake checks
+#-------------------------------------------------------
+#
+# Before running all of these checks, we should set the compiler flags
+# to be what they would be when we perform our full compile. Unfortunately,
+# CMake doesn't do this by default, because it is hypothetically possible
+# for some projects that the flags used are related to the results of the
+# check.
+# In our case, we just need to know if we are invoking the compiler in a
+# C++11 setting or not and add that flag. We know the version we are using
+# based on what Trilinos used, since that is the massive library that we
+# are linking against.
+set( CMAKE_REQUIRED_FLAGS "${CMAKE_CXX_FLAGS}" )
+if( Xyce_ENABLE_CXX11 )
+	set( CMAKE_REQUIRED_DEFINITIONS ${CMAKE_CXX11_STANDARD_COMPILE_OPTION} )
+endif()
+
+# This macro invokes check_cxx_source_compiles on the given file.
+# 
+# Unfortunately, check_cxx_source_compiles() expects the actual source code that
+# is to be compiled to be stored in the variable, not just the filepath. This 
+# quietly reads the file automatically before invoking check_cxx_source_compiles()
+macro( check_cxx_source_compiles_file COMPILATION_FILE CMAKE_VAR_TO_STORE )
+	file( READ "${COMPILATION_FILE}" TMPSRC )
+	check_cxx_source_compiles( "${TMPSRC}" ${CMAKE_VAR_TO_STORE} )
+endmacro()
+
+# Check for <unordered_map>
+check_include_file_cxx( "unordered_map" HAVE_UNORDERED_MAP )
+check_include_file_cxx( "tr1/unordered_map" HAVE_TR1_UNORDERED_MAP )
+
+# Check for <unordered_set>
+check_include_file_cxx( "unordered_set" HAVE_UNORDERED_SET )
+check_include_file_cxx( "tr1/unordered_set" HAVE_TR1_UNORDERED_SET )
+
+# Check for C++ common headers.
+check_include_file_cxx( "numeric" HAVE_NUMERIC )
+check_include_file_cxx( "algorithm" HAVE_ALGORITHM )
+check_include_file_cxx( "functional" HAVE_FUNCTIONAL )
+check_include_file_cxx( "cstdlib" HAVE_CSTDLIB )
+check_include_file_cxx( "iostream" HAVE_IOSTREAM )
+check_include_file_cxx( "fstream" HAVE_FSTREAM )
+
+check_include_file_cxx( "unistd.h" HAVE_UNISTD_H )
+check_include_file_cxx( "dlfcn.h" HAVE_DLFCN_H )
+check_include_file_cxx( "float.h" HAVE_FLOAT_H )
+check_include_file_cxx( "strings.h" HAVE_STRINGS_H )
+check_include_file_cxx( "string.h" HAVE_STRING_H )
+check_include_file_cxx( "inttypes.h" HAVE_INTTYPES_H ) 
+check_include_file_cxx( "limits.h" HAVE_LIMITS_H )
+check_include_file_cxx( "malloc.h" HAVE_MALLOC_H )
+check_include_file_cxx( "math.h" HAVE_MATH_H )
+check_include_file_cxx( "mathimf.h" HAVE_MATHIMF_H )
+
+# Check for Windoze header.
+check_include_file_cxx( "Windows.h" HAVE_WINDOWS_H )
+
+# Check for sys/* headers.
+check_include_file_cxx( "sys/resource.h" HAVE_SYS_RESOURCE_H )
+check_include_file_cxx( "sys/stat.h" HAVE_SYS_STAT_H )
+check_include_file_cxx( "sys/types.h" HAVE_SYS_TYPES_H )
+
+# Check for std::iota function.
+check_cxx_source_compiles_file( "${PLATFORM_CHECK_SRC_DIR}/CheckForIota.cxx" HAVE_IOTA )
+
+# Check for linux exceptions
+check_cxx_source_compiles_file( "${PLATFORM_CHECK_SRC_DIR}/CheckForLinuxExceptions.cxx" HAVE_LINUX_EXCEPTIONS )
+
+#-------------------------------------------------------
+# Trilinos Checks
+#-------------------------------------------------------
+#
+# Define a special macro to compile source with Trilinos on the include path.
+macro( check_cxx_source_compiles_with_trilinos COMPILATION_FILE CMAKE_VAR_TO_STORE )
+	set( _BACKUP_INC ${CMAKE_REQUIRED_INCLUDES} )
+	set( _BACKUP_LIB ${CMAKE_REQUIRED_LIBRARIES} )
+
+	set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${Trilinos_INCLUDE_DIRS} )
+	set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${Trilinos_LIBRARIES} )
+
+	file( READ "${COMPILATION_FILE}" TMPSRC )
+	check_cxx_source_compiles( "${TMPSRC}" ${CMAKE_VAR_TO_STORE} )
+
+	set( CMAKE_REQUIRED_INCLUDES ${_BACKUP_INC} )
+	set( CMAKE_REQUIRED_LIBRARIES ${_BACKUP_LIB} )
+endmacro()
+
+# Define a special macro to search for Trilinos headers.
+macro( check_trilinos_header HeaderFileToCheck CMAKE_VAR_TO_STORE )
+	# Note that we cannot simply use 'check_include_file_cxx' because
+	# CMake tries to link the result, and this macro doesn't let us 
+	# specify the libraries to link against.
+	# 
+	# Trilinos may implicitly define some symbols that we need to link
+	# against for it to properly compile, even if we only include the
+	# header. This is due to the way that it initializes things. So, we
+	# instead invoke our macro:
+	# check_cxx_source_compiles_with_trilinos() to go ahead and do the
+	# full compile, but in a way that let's us include the Trilinos 
+	# libraries during the linking stage.
+	#
+	# The code below borrows heavily from what the CheckIncludeFileCXX
+	# defines anyway:
+	set( FILE_TO_COMPILE
+		"${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/CheckIncludeFile.cxx" )
+	# Setup our configuration file with the actual include to test.
+	set(CHECK_INCLUDE_FILE_VAR ${HeaderFileToCheck})
+	configure_file( ${PLATFORM_CHECK_SRC_DIR}/CheckIncludeFile.cxx.in
+		"${FILE_TO_COMPILE}" )
+
+	check_cxx_source_compiles_with_trilinos( "${FILE_TO_COMPILE}" ${CMAKE_VAR_TO_STORE} )
+endmacro()
+
+if( NOT Trilinos_Teuchos_FOUND )
+	message( SEND_ERROR "Xyce requires the Teuchos package of Trilinos.\n"
+		"Try setting: Trilinos_ENABLE_Teuchos=ON in your Trilinos build."
+	)
+endif()
+
+check_cxx_source_compiles_with_trilinos(
+	"${PLATFORM_CHECK_SRC_DIR}/CheckTeuchosComplex.cxx" HAS_TEUCHOS_COMPLEX
+)
+if( NOT HAS_TEUCHOS_COMPLEX )
+	# Remember to unset this variable, so we run the check again next time.
+	# We do this here explicitly, because this is a required Xyce parameter.
+	unset( HAS_TEUCHOS_COMPLEX CACHE )
+	message( FATAL_ERROR
+		"Error with Trilinos install: Teuchos was not built with COMPLEX enabled.\n"
+		"To enable, make sure to set 'Teuchos_ENABLE_COMPLEX=ON' in your Trilinos build."
+	)
+endif()
+
+# BELOS -- Add this library if we found it.
+if ( Trilinos_Belos_FOUND )
+	set( Xyce_BELOS ON CACHE BOOL "Use Belos" )
+endif()
+
+# NOX FOUND -- If NOX stuff was found, enable features.
+if( Trilinos_NOX_FOUND )
+	set( Xyce_NOX_USE_VECTOR_COPY ON )
+endif()
+
+# Check for Amesos libraries
+if( Trilinos_Amesos_FOUND )
+	check_trilinos_header( "Amesos2.hpp" HAS_AMESOS2_HEADER )
+endif()
+set( Xyce_AMESOS2 ${HAS_AMESOS2_HEADER} CACHE BOOL "Enable Amesos2 Library." )
+
+# Check for libraries that depend on EPetraExt
+if( NOT Trilinos_EpetraExt_FOUND )
+	message( FATAL_ERROR "Trilinos requires the EpetraExt libraries to be enabled.\n"
+		"Try rebuilding Trilinos with: Trilinos_ENABLE_EpetraExt=ON\n"
+		"You will also likely need to set: EpetraExt_BUILD_BTF=ON\n"
+		"Epetra_BUILD_EXPERIMENTAL=ON, EpetraExt_BUILD_GRAPH_REORDERINGS=ON"
+	)
+endif()
+
+# Check for the EpetraExt_BTF_CrsGraph.h header.
+check_trilinos_header( "EpetraExt_BTF_CrsGraph.h" HAS_EPETRA_BTF )
+
+# Check for the EpetraExt_AMD_CrsGraph.h header.
+check_trilinos_header( "EpetraExt_AMD_CrsGraph.h" HAS_EPETRA_AMD_HEADER )
+
+# Check for the EpetraExt_AmesosBTFGlobal_LinearProblem.h header.
+check_trilinos_header( "EpetraExt_AmesosBTFGlobal_LinearProblem.h"
+	HAS_EPETRA_AMESOS_BTF_GLOBAL_LP_HEADER )
+
+# Check for the EpetraExt_Isorropia_CrsGraph.h header.
+check_trilinos_header( "EpetraExt_Isorropia_CrsGraph.h" HAS_EPETRAEXT_ISOROPPIA )
+
+# If Xyce_PARALLEL_MPI is set, we also need a few additional headers in
+# order for Xyce to build:
+set( SHOULD_USE_ISORROPIA OFF )
+if( HAS_EPETRAEXT_ISOROPPIA AND HAS_EPETRA_AMESOS_BTF_GLOBAL_LP_HEADER )
+	set( SHOULD_USE_ISORROPIA ON )
+endif()
+if( Xyce_PARALLEL_MPI AND NOT SHOULD_USE_ISOROPPIA )
+	if( NOT HAS_EPETRAEXT_ISOROPPIA )
+		message( SEND_ERROR
+		"Parallel builds of Xyce require Trilinos to have the following header\n"
+		"EpetraExt_Isorropia_CrsGraph.h, but it was not found!"
+		)
+	endif()
+	if( NOT HAS_EPETRA_AMESOS_BTF_GLOBAL_LP_HEADER )
+		message( SEND_ERROR
+		"Parallel builds of Xyce require Trilinos to have the following header\n"
+		"EpetraExt_AmesosBTFGlobal_LinearProblem.h, but it was not found!"
+		)
+	endif()
+endif()
+set( Xyce_USE_ISORROPIA ${SHOULD_USE_ISORROPIA} CACHE BOOL "Enable Isorropia in Xyce. (Needed for Parallel builds!)" )
+
+#	# Check for the ML header.
+#	check_trilinos_header( "ml_MultiLevelPreconditioner.h" HAS_ML_HEADER )
+
+# Check for KSparse header
+check_trilinos_header( "Epetra_CrsKundertSparse.h" HAS_KSPARSE_HEADER )
+
+# Check for Trilinos Zoltan. 
+# NOTE: Zoltan is required for Parallel Xyce builds!
+set( SHOULD_ENABLE_ZOLTAN FALSE )
+if( Trilinos_Zoltan_FOUND )
+	set( SHOULD_ENABLE_ZOLTAN TRUE )
+endif()
+set( Xyce_USE_ZOLTAN ${SHOULD_ENABLE_ZOLTAN} CACHE BOOL "Use Zoltan library from Trilinos." )
+
+if( Xyce_PARALLEL_MPI AND NOT Xyce_USE_ZOLTAN )
+	message( SEND_ERROR "Parallel builds of Xyce require the Zoltan library in Trilinos.\n"
+			"Try enabling this when building Trilinos: Trilinos_ENABLE_ZOLTAN=ON"
+	)
+endif()
 
 
-# Trilinos headers
-CHECK_INCLUDE_FILE_CXX ( Epetra_MultiVector.h HAVE_EPETRA_MULTIVECTOR_H )
-#Don't do :
-#CHECK_INCLUDE_FILE_CXX ( Ifpack_CrsRiluk.h HAVE_IFPACK_CRSRILUK_H )
-# as it tries to link a test program, which fails due to dependence on teuchos
-# libraries.  check_include_file_cxx can't be forced to add libraries to its
-# link line!
-find_path ( HAVE_IFPACK_CRSRILUK_H Ifpack_CrsRiluk.h )
-find_path ( HAVE_AMESOS_KLU_H Amesos_Klu.h )
-find_path ( HAVE_LOCA_PARAMETER_VECTOR_H LOCA_Parameter_Vector.H  )
-find_path ( HAVE_NOX_ABSTRACT_VECTOR_H NOX_Abstract_Vector.H )
+if( Xyce_ENABLE_CXX11 )
+	# We only check for the ShyLU header if C++11 is enabled.
+	# Check for the ShyLU header
+	check_trilinos_header( "Ifpack_ShyLU.h" HAS_SHYLU_HEADER )
+endif()
 
-#if ( Xyce_PARALLEL_MPI AND Xyce_USE_ZOLTAN AND NOT Xyce_USE_HMETIS )
-  find_path ( HAVE_ZOLTAN_QUERYOBJECT_H Zoltan_QueryObject.h )
-#endif ( Xyce_PARALLEL_MPI AND Xyce_USE_ZOLTAN AND NOT Xyce_USE_HMETIS )
+# Note that Isorropia is required if Parallel MPI is enabled for Xyce!
+if( Xyce_PARALLEL_MPI AND NOT Trilinos_Isorropia_FOUND )
+	message( SEND_ERROR "Parallel Builds of Xyce require the Isorropia library \n"
+				"in Trilinos! Try and enable it in Trilinos using:\n"
+				"Trilinos_ENABLE_Isorropia=ON"
+	)
+endif()
 
-#if ( Xyce_SUPERLU )
-   find_path(HAVE_AMESOS_SUPERLU_H Amesos_Superlu.h)
-#endif ( Xyce_SUPERLU )
+# Xyce ML is deprecated and should likely be removed.
+#set( Xyce_ML      ${HAS_ML_HEADER}      CACHE BOOL "Use ML Solver")
 
-#if ( Xyce_Dakota )
-  find_path ( HAVE_DAKOTA_STRATEGY_H DakotaStrategy.H ) 
-#endif ( Xyce_Dakota )
+set( Xyce_KSPARSE FALSE CACHE BOOL "Include Kundert's Sparse direct solver." )
+if( Xyce_KSPARSE AND NOT HAS_KSPARSE_HEADER )
+	message( SEND_ERROR "KParse was explicitly enabled, but missing required header! To disable, use -DXyce_KSPARSE=OFF" )
+endif()
 
+# Set the ShyLU solver off by default. We can update this later.
+#
+# NOTE: I think this currently expects to use OpenMPI, because when I enabled it, I got
+# errors involving redefinitions because "#include <mpi.h>" is (indirectly) included by
+# the ShyLU stuff. Bear this in mind when enabling?
+#
+set( Xyce_SHYLU FALSE CACHE BOOL "Use ShyLU Solver" )
+if( Xyce_SHYLU AND NOT HAS_SHYLU_HEADER )
+	message( SEND_ERROR "ShyLU Solver is explicitly enabled, but the header does not exist! To disable, use -DXyce_SHYLU=NO" )
+endif()
 
-# -- search for symbols
+message( "Trilinos Details:" )
+message( "-- Enable Amesos2: ${Xyce_AMESOS2}" )
+message( "-- Enable Belos: ${Xyce_BELOS}" )
+message( "-- Enable KSparse: ${Xyce_KSPARSE}" )
+message( "-- Enable ShyLU Solver: ${Xyce_SHYLU}" )
+message( "-- Enable Isorropia: ${Xyce_USE_ISORROPIA}" )
+message( "-- Enable Zoltan: ${Xyce_USE_ZOLTAN}" )
+message( "-- Using NOX Vector Copy: ${Xyce_NOX_USE_VECTOR_COPY}" )
+message( " " )
 
-CHECK_FUNCTION_EXISTS ( strcasecmp HAVE_STRCASECMP )
+#-------------------------------------------------------
+# Xyce Version Information
+#-------------------------------------------------------
+set( Xyce_VERSION "D::7.0" )
+set( Xyce_VERSION_MAJOR "7" )
+set( Xyce_VERSION_MINOR "0" )
+set( Xyce_VERSION_PATCH "0" )
+add_definitions( "-DVERSION=\"${Xyce_VERSION}\"" )
 
-#    set ( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} )
-if( HAVE_FLOAT_H )
-  CHECK_FUNCTION_EXISTS( _isnan FUNCTION__ISNAN )
-  CHECK_FUNCTION_EXISTS( _finite FUNCTION__FINITE )
-  if( FUNCTION__ISNAN AND FUNCTION__FINITE ) 
-    set( HAVE__ISNAN_AND__FINITE_SUPPORT on )
-  endif( FUNCTION__ISNAN AND FUNCTION__FINITE ) 
-endif( HAVE_FLOAT_H )
+add_definitions( -DXYCEBUILDTIMESTAMP )
 
+#-------------------------------------------------------
+# Platform-Specific Details
+#-------------------------------------------------------
+if( APPLE )
+	set( CMAKE_MACOSX_RPATH 1 )
+endif()
 
-if (NOT (FUNCTION__ISNAN AND FUNCTION__FINITE))
-    set ( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${LIB_M} )
-    CHECK_FUNCTION_EXISTS ( isnan FUNCTION_ISNAN )
-    CHECK_FUNCTION_EXISTS ( isinf FUNCTION_ISINF )
-    if ( FUNCTION_ISNAN AND FUNCTION_ISINF )
-      set ( HAVE_NAN_INF_SUPPORT ON )
-    endif ( FUNCTION_ISNAN AND FUNCTION_ISINF )
-endif(NOT (FUNCTION__ISNAN AND FUNCTION__FINITE))
+# use, i.e. don't skip the full RPATH for the build tree
+set(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
-
-# message ( STATUS "Warning: Your compiler doesn't support isnan() and isinf().  We will supply a default checker but it is *NOT* guaranteed to work on your platform!" )
-
-if ( HAVE_FFTW3_H )
-  CHECK_SYMBOL_EXISTS ( fftw_plan_dft_1d fftw3.h Xyce_USE_FFTW )
-endif( HAVE_FFTW3_H )
-
-if ( HAVE_HDF5_H )
-  CHECK_SYMBOL_EXISTS ( H5Fclose hdf5.h Xyce_USE_HDF5 )
-endif( HAVE_HDF5_H )
-
-if ( HAVE_CURL_CURL_H )
-  CHECK_SYMBOL_EXISTS ( CURL curl/curl.h Xyce_USE_CURL )
-endif( HAVE_CURL_CURL_H )
-
-# search for Intel  MKL FFT header and library compatibility
-CHECK_INCLUDE_FILE_CXX ( mkl_dfti.h HAVE_MKL_DFTI_H )
-if ( HAVE_MKL_DFTI_H )
-  if ( CMAKE_HOST_WIN32 AND COMPILER_VENDOR STREQUAL "Intel" )
-    set ( Xyce_USE_INTEL_FFT ON )
-  else ( CMAKE_HOST_WIN32 AND COMPILER_VENDOR STREQUAL "Intel" )
-    CHECK_SYMBOL_EXISTS ( Dfti_CreateDescriptor mkl_dfti.h Xyce_USE_INTEL_FFT )
-  endif ( CMAKE_HOST_WIN32 AND COMPILER_VENDOR STREQUAL "Intel" )
-endif ( HAVE_MKL_DFTI_H )
-
-if (Xyce_USE_INTEL_FFT OR Xyce_USE_FFTW)
-  set (Xyce_USE_FFT ON)
-else (Xyce_USE_INTEL_FFT OR Xyce_USE_FFTW)
-  set (Xyce_USE_FFT OFF)
-endif (Xyce_USE_INTEL_FFT OR Xyce_USE_FFTW)
+# when building, don't use the install RPATH already
+# (but later on when installing)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+set( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
 
 
+# Don't add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+set( CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE )
 
-# -- search for required functions
-
-if ( Xyce_FORTRAN_TEST )
-  CHECK_FORTRAN_FUNCTION_EXISTS ( dcopy HAVE_FORTRAN_DCOPY )  
-  CHECK_FORTRAN_FUNCTION_EXISTS ( dgetrs HAVE_FORTRAN_DGETRS )  
-else ( Xyce_FORTRAN_TEST )
-  CHECK_FUNCTION_EXISTS ( dcopy HAVE_DCOPY )  
-  CHECK_FUNCTION_EXISTS ( dgetrs HAVE_DGETRS )  
-endif ( Xyce_FORTRAN_TEST )
-
-CHECK_FUNCTION_EXISTS ( sqrt HAVE_SQRT )
-CHECK_FUNCTION_EXISTS ( getopts HAVE_GETOPTS )
-CHECK_FUNCTION_EXISTS ( drand48 HAVE_DRAND48 )
-
-try_compile ( HAVE_IOTA           
-              ${CMAKE_BINARY_DIR}
-              ${CMAKE_SOURCE_DIR}/config/cmake_check_iota.cxx )
+#list( FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
+#if( "${isSystemDir}" STREQUAL "-1" )
+#	set( CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
+#endif()
 
 
+# Now, create a configuration file that we will use.
+set( XYCE_CONFIG_FILEPATH "${CMAKE_CURRENT_BINARY_DIR}/Xyce_config.h" )
+configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/src/Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
+install( FILES "${XYCE_CONFIG_FILEPATH}"
+	DESTINATION include
+)
+include_directories( "${CMAKE_CURRENT_BINARY_DIR}" )
 
-# -- check for Windows or Unix directory commands
-
-if ( HAVE_UNISTD_H )
-      CHECK_FUNCTION_EXISTS ( _chdir HAVE_WIN_CHDIR )
-      CHECK_FUNCTION_EXISTS ( _getcwd HAVE_WIN_GETCWD )
-      if ( HAVE_WIN_CHDIR AND HAVE_WIN_GETCWD )
-	      add_definitions ( -DHAVE_WIN_DIRCOMMANDS )
-      endif ( HAVE_WIN_CHDIR AND HAVE_WIN_GETCWD )
-endif ( HAVE_UNISTD_H )
-
-
-# -- Check if the NOX abstract solver is collecting statistics
-
-CHECK_CXX_SOURCE_COMPILES ( "#include <NOX_SolverStats.hpp>
-      int main(void)
-      {
-      return 0;
-      }"
-      USING_NOX_SOLVERSTATS )
-
-if ( USING_NOX_SOLVERSTATS )
-      add_definitions ( -DXyce_NOX_SOLVERSTATS )
-endif ( USING_NOX_SOLVERSTATS )
-
-# -- post-processing ----------------------------------------------------------
+# Useful for debugging!
+if( PRINT_DEBUG )
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
+endif()
 
 
-# use the config.h files for Trilinos
-set ( HAVE_CONFIG_H ON )
+#Xyce_NOX_USE_VECTOR_COPY
 
-# flag use of CMake
-set ( USING_CMAKE ON )   
-
-# add flag to config files
-set ( Xyce_NOX_LOCA_SUPPORT ON )
-
-
-# set lexer flags
-if ( Xyce_REACTION_PARSER ) 
-  if ( NOT HAVE_UNISTD_H )
-    set ( YY_NO_UNISTD_H ON ) 
-  endif ( NOT HAVE_UNISTD_H )
-endif ( Xyce_REACTION_PARSER )
-
-# DEBUG:  holdover to old version string approach
-# generate the build timestamp and make available from timestamp.h
-if ( ${CMAKE_VERSION} VERSION_GREATER 2.8.11 )
-	string ( TIMESTAMP DATETIMESTAMP %Y%m%d%H%M )
-	message ( STATUS "DATETIMESTAMP set as ${DATETIMESTAMP}" )
-	if ( Xyce_REPO_ACCESS )
-		execute_process ( COMMAND git log --format=format:%h -1 WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY} OUTPUT_VARIABLE SHA1STAMP )
-		message ( STATUS "SHA1STAMP set as ${SHA1STAMP}" )
-		set ( XYCEBUILDTIMESTAMP "${DATETIMESTAMP}-g-${SHA1STAMP}" CACHE INTERNAL "MUTABLE" FORCE )
-	else ( Xyce_REPO_ACCESS )
-		set ( XYCEBUILDTIMESTAMP "${DATETIMESTAMP}" CACHE INTERNAL "MUTABLE" FORCE )
-	endif ( Xyce_REPO_ACCESS )
-	message ( STATUS "XYCEBUILDTIMESTAMP set as ${XYCEBUILDTIMESTAMP}" )
-else( ${CMAKE_VERSION} VERSION_GREATER 2.8.11 )
-	message ( STATUS "CMake version is less than 2.8.11.  Reverting to old timestamp generation.  This will fail if you are configuring with Windows CMake and not under Cygwin." )
-	execute_process ( COMMAND date "+%Y%m%d%H%M" 
-		OUTPUT_VARIABLE DATETIMESTAMP
-		OUTPUT_STRIP_TRAILING_WHITESPACE )
-	set ( DATETIMESTAMP "${DATETIMESTAMP}" CACHE INTERNAL "MUTABLE" FORCE )
-	add_custom_target ( TIMESTAMP_H ALL
-		COMMAND /usr/bin/touch ${Xyce_SOURCE_DIR}/src/UtilityPKG/timestamp.h.cmake )
-	message ( STATUS "DATETIMESTAMP set as ${DATETIMESTAMP}" )
-	if ( Xyce_REPO_ACCESS )
-		execute_process ( COMMAND git log --format=format:%h -1 WORKING_DIRECTORY ${CMAKE_HOME_DIRECTORY} OUTPUT_VARIABLE SHA1STAMP )
-		message ( STATUS "SHA1STAMP set as ${SHA1STAMP}" )
-		set ( XYCEBUILDTIMESTAMP "${DATETIMESTAMP}-g-${SHA1STAMP}" CACHE INTERNAL "MUTABLE" FORCE )
-	else ( Xyce_REPO_ACCESS )
-		set ( XYCEBUILDTIMESTAMP "${DATETIMESTAMP}" CACHE INTERNAL "MUTABLE" FORCE )
-	endif ( Xyce_REPO_ACCESS )
-	message ( STATUS "XYCEBUILDTIMESTAMP set as ${XYCEBUILDTIMESTAMP}" )
-endif( ${CMAKE_VERSION} VERSION_GREATER 2.8.11 )
-
-configure_file ( ${Xyce_SOURCE_DIR}/src/UtilityPKG/timestamp.h.cmake
-                 ${Xyce_BINARY_DIR}/src/UtilityPKG/timestamp.h )
-include_directories ( ${Xyce_BINARY_DIR}/src/UtilityPKG )
-
-
-
-# generate the version strings
-set ( Xyce_VERSION_STRING_SHORT "${Xyce_VERSION_MAJOR}.${Xyce_VERSION_MINOR}" )
-
-if ( DEFINED Xyce_VERSION_PATCH AND NOT (Xyce_VERSION_PATCH STREQUAL "" OR Xyce_VERSION_PATCH STREQUAL "0"))
-  set ( Xyce_VERSION_STRING_SHORT "${Xyce_VERSION_STRING_SHORT}.${Xyce_VERSION_PATCH}" )
-endif ( DEFINED Xyce_VERSION_PATCH AND NOT (Xyce_VERSION_PATCH STREQUAL "" OR Xyce_VERSION_PATCH STREQUAL "0"))
-
-set ( Xyce_VERSION_STRING_LONG "${Xyce_VERSION_STRING_SHORT}" )
-
-if ( DEFINED Xyce_VERSION_EXTRA AND NOT(Xyce_VERSION_EXTRA STREQUAL ""))
-    set ( Xyce_VERSION_STRING_LONG "${Xyce_VERSION_STRING_LONG} ${Xyce_VERSION_EXTRA}" )
-endif ( DEFINED Xyce_VERSION_EXTRA AND NOT( Xyce_VERSION_EXTRA STREQUAL ""))
-
-
-if ( Xyce_ATHENA )
-  if ( Xyce_RAD_MODELS )
-    if( EXISTS ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/SandiaModels/ATHENA/ )
-      find_package(Boost 1.41 REQUIRED COMPONENTS)
-      include_directories(${Boost_INCLUDE_DIRS})
-      set ( EXTERNAL_LIBRARIES ${EXTERNAL_LIBRARIES} ${Boost_LIBRARIES})
-      # MacPorts adds "-mt" to boot library names for "multi-threaded" and the 
-      # regular boost library names will not be present.  So look for the -mt 
-      # library names if the expected ones are not found
-      add_definitions ( -DBOOST_ALL_NO_LIB )
-    else ( EXISTS ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/SandiaModels/ATHENA/ )
-      message ( STATUS "Xyce_RAD_MODELS is enabled, but the SandiaModels/ATHENA directory was not found." )
-      message ( STATUS "Try updating your version of SandiaModels." )
-      message ( STATUS "Disabling Xyce_ATHENA." )
-      set ( Xyce_ATHENA OFF )
-    endif ( EXISTS ${Xyce_SOURCE_DIR}/src/DeviceModelPKG/SandiaModels/ATHENA/ )
-  else ( Xyce_RAD_MODELS )
-    set ( Xyce_ATHENA OFF )
-  endif ( Xyce_RAD_MODELS )
-endif ( Xyce_ATHENA )
-
-if ( Xyce_RELEASE_NOTES_VERSION )
-  message ( STATUS "Release notes version manually specified as " ${Xyce_RELEASE_NOTES_VERSION} )
-else ( Xyce_RELEASE_NOTES_VERSION )
-  set ( Xyce_RELEASE_NOTES_VERSION ${Xyce_VERSION_STRING_SHORT} )
-  message ( STATUS "Release notes version defaulting to " ${Xyce_RELEASE_NOTES_VERSION} )
-endif ( Xyce_RELEASE_NOTES_VERSION )
+#-------------------------------------------------------
+# Macro Definitions
+#-------------------------------------------------------
 
 #
-# not great but need the boost libraries that ATHENA uses 
-# for the ARAEnv library to be useful
+# add_to_xyce_library macro
 #
-if( Xyce_ATHENA AND Xyce_RAD_MODELS )
-  XYCE_FIND_OPTIONAL_LIBRARY( ARAEnv )
-  if( LIBRARY_ARAEnv )
-    # have to set the compiler to just compile, not link as the tested header file has static 
-    # member functions that don't get resolved by just this check.  Could avoid this by 
-    # checking for simpler header like SRdata.h 
-    if ( CMAKE_HOST_WIN32 )
-      set( CMAKE_REQUIRED_FLAGS "/C")
-    else ( CMAKE_HOST_WIN32 )
-      set( CMAKE_REQUIRED_FLAGS "-c")
-    endif ( CMAKE_HOST_WIN32 )
-    CHECK_INCLUDE_FILE_CXX ( SRenvironment.h HAVE_SRENVIRONMENT_H)
-  
-    set ( HAVE_LIBARAENV ON  )
-  endif( LIBRARY_ARAEnv )
-endif( Xyce_ATHENA AND Xyce_RAD_MODELS )
+# Usage:
+# add_to_xyce_library( NAME XycePackageA
+#     FILES
+#         packageAFile.cpp
+#         packageBFile.cpp
+# )
+#
+# This macro is designed to add source files in some package into the final Xyce library
+# that is compiled. This macro will automatically handle both the shared and static
+# library linking case.
+#
+macro( add_to_xyce_library )
+	set( _OPTIONS_ARGS )
+	set( _ONE_VALUE_ARGS )
+	set( _MULTI_VALUE_ARGS NAME FILES )
 
-# -- generate source files and update the include list -----------------------
+	cmake_parse_arguments( _ADDXYCELIB "${_OPTIONS_ARGS}" "${_ONE_VALUE_ARGS}" "${_MULTI_VALUE_ARGS}" "${ARGN}")
 
-configure_file ( "${Xyce_SOURCE_DIR}/src/Xyce_config.h.cmake"
-                 "${Xyce_BINARY_DIR}/src/Xyce_config.h" )
+	if( NOT _ADDXYCELIB_NAME )
+		message( FATAL_ERROR "add_to_xyce_library: 'NAME' argument required.")
+	endif()
+	
+	list( GET _ADDXYCELIB_NAME 0 LIBNAME )
 
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES}
-      ${Xyce_BINARY_DIR}/src 
-      CACHE INTERNAL "X_I" )
+	# WHEW, CMake object libraries are supported in CMake 2.8.8, which is just barely
+	# our required version. The Xyce build system relies on this feature heavily.
+	#
+	# I spoke too soon -- Note that we could use the same object library for both the
+	# static and shared libraries IF AND ONLY IF we permit the static library to be
+	# compiled with -fPIC or similar (allow position-independent code). This flag is
+	# necessary for shared libraries, and only minorly affects some optimization for
+	# static libraries, so we'll add it here.
+	#
+	# The CMake way to do this is via the "POSITION_INDEPENDENT_CODE" property, but this
+	# property only exists in CMake 2.8.9 onwards, so we need to handle a stupid case
+	# just to be safe. If the CMake version is incremented, we can get rid of the check.
+	#
+	add_library( "${LIBNAME}" OBJECT "${_ADDXYCELIB_FILES}")
+	if( ${CMAKE_VERSION} EQUAL "2.8.8" )
+		# The stupid case here.
+		set_property( TARGET "${LIBNAME}" PROPERTY COMPILE_FLAGS "-fPIC" )
+	else()
+		# The usual/desired case here. Using the CMake property directly is safer,
+		# since it should work across multiple platforms with no additional checks.
+		set_property( TARGET "${LIBNAME}" PROPERTY POSITION_INDEPENDENT_CODE ON )
+	endif()
+	
+	# Add the created object library into our global list of libraries, so that we
+	# include it when we create the final Xyce libraries.
+	set_property( GLOBAL APPEND PROPERTY xyce_object_library_list "${LIBNAME}" )
+endmacro()
 
+#-------------------------------------------------------
+# Xyce Libraries
+#-------------------------------------------------------
+#
+# The code for the Xyce libraries are listed out in the subdirectories below.
+# These subdirectories should use the "add_to_xyce_library" macro to add their files 
+# into the final library, so that these objects are registered in the
+# "XYCE_LIBRARY_IMPL_LIST" CMake variable that is used to actually build Xyce.
+#
+add_subdirectory( src )
 
+#-------------------------------------------------------
+# Xyce Installer Details.
+#-------------------------------------------------------
+set( CPACK_PACKAGE_NAME "Xyce" )
+set( CPACK_PACKAGE_VENDOR "Sandia National Laboratories" )
+set( CPACK_PACKAGE_VERSION_MAJOR "${Xyce_VERSION_MAJOR}" )
+set( CPACK_PACKAGE_VERSION_MINOR "${Xyce_VERSION_MINOR}" )
+set( CPACK_PACKAGE_VERSION_PATCH "${Xyce_VERSION_PATCH}" )
+set( CPACK_PACKAGE_INSTALL_DIRECTORY "Xyce" )
+set( CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}" )
 
+# Unset the PRINT_DEBUG variable, since we don't want the variables to keep printing
+# all the time.
+unset( PRINT_DEBUG CACHE )
 
-# -- process subdirectories --------------------------------------------------
+# NOTE: This MUST be the last line in our CMake build!
+include( CPack )
 
-add_subdirectory ( src )
-add_subdirectory ( utils )
-
-
-
-# -- enable dashboard and CTest ----------------------------------------------
-
-# DEBUG: should this be in Xyce_Regression as an include() instead?
-set ( DROP_METHOD "http" )
-set ( DROP_SITE "s858869.sandia.gov" )
-set ( DROP_LOCATION "/CDash/submit.php?project=Xyce" )
-include ( CTest )

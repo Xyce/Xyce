@@ -1,7 +1,12 @@
+#
+# CMakeLists.txt for NonlinearSolverPKG
+#
 
-# -- process files for this library ------------------------------------------
+# This instructs N_NLS_NOX_Vector to use NOX::SizeType, which is in turn
+# defined through Trilinos. I'm not sure why it is still an option, but
+# let's define it here for now.
+add_definitions( -DXyce_NOX_SIZETYPE )
 
-# add class files that should be included in this directory's library
 set ( NonlinearSolver_SOURCES  
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_ConductanceExtractor.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_ConstraintBT.C 
@@ -28,18 +33,17 @@ set ( NonlinearSolver_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_Sensitivity.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_SensitivityResiduals.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_TwoLevelNewton.C 
-      CACHE INTERNAL "X_S" )
+)
+add_to_xyce_library( NAME NonlinearSolver
+	FILES ${NonlinearSolver_SOURCES}
+)
 
-  
-# add header files to project
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} 
-      ${CMAKE_CURRENT_SOURCE_DIR}
-      CACHE INTERNAL "X_I" )
+# Add headers for NonlinearSolver
+set( NonlinearSolver_Headers
+	N_NLS_fwd.h
+	N_NLS_TwoLevelEnum.h
+)
+install(FILES ${NonlinearSolver_Headers}
+	DESTINATION include
+)
 
-
-
-
-# -- build requested libraries -----------------------------------------------
-set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES} 
-      NonlinearSolver 
-      CACHE INTERNAL "X_L" )
