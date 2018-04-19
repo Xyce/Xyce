@@ -10,7 +10,7 @@
 
 int main(int argc, char** argv)
 {
-	std::vector<int> v;
+	std::vector<int> v(5, 0);
 	std::iota(v.begin(), v.end(), 1);
 
 	return 0;

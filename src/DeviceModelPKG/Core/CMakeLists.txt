@@ -1,8 +1,7 @@
 #
 # CMakeLists.txt for Core Device Model stuff.
 #
-set( Xyce_REACTION_PARSER 1 )
-if( Xyce_REACTION_PARSER)
+if( Xyce_REACTION_PARSER )
 	BISON_TARGET( XyceReactionParser "${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ReactionParser.yxx"
 		"${CMAKE_CURRENT_BINARY_DIR}/N_DEV_ReactionParser.cxx" )
 	FLEX_TARGET( XyceReactionScanner "${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ReactionLexer.l"

@@ -26,362 +26,268 @@
 */
 
 /* Define to 1 if you have the <algorithm> header file. */
-#ifndef HAVE_ALGORITHM
 #cmakedefine HAVE_ALGORITHM
-#endif 
 
 /* Define to 1 if you have the <algo.h> header file. */
-#ifndef HAVE_ALGO_H
 #cmakedefine HAVE_ALGO_H
-#endif
 
 /* define if you have the bison parser generator */
-#ifndef HAVE_BISON
 #cmakedefine HAVE_BISON
-#endif
 
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#ifndef HAVE_DLFCN_H
-#cmakedefine HAVE_DLFCN_H
-#endif
+/* Define to 1 if you have the <cctype> header file. */
+#cmakedefine HAVE_CCTYPE
 
-/* define if you have the flex lexical scanner generator */
-#ifndef HAVE_FLEX
-#cmakedefine HAVE_FLEX
-#endif
+/* Define to 1 if you have the <climits> header file. */
+#cmakedefine HAVE_CLIMITS
 
-/* define if the Standard Template Library has flexible insert */
-#ifndef HAVE_FLEXIBLE_INSERT
-#cmakedefine HAVE_FLEXIBLE_INSERT
-#endif
+/* Define to 1 if you have the <cmath> header file. */
+#cmakedefine HAVE_CMATH
 
-/* Define to 1 if you have the <float.h> header file. */
-#ifndef HAVE_FLOAT_H
-#cmakedefine HAVE_FLOAT_H
-#endif
+/* Define to 1 if you have the <cstdio> header file. */
+#cmakedefine HAVE_CSTDIO
 
-/* Define to 1 if you have the `getopt' function. */
-#ifndef HAVE_GETOPT
-#cmakedefine HAVE_GETOPT
-#endif
+/* Define to 1 if you have the <cstdlib> header file. */
+#cmakedefine HAVE_CSTDLIB
 
-/* Define to 1 if you have the `DRAND48' function. */
-#ifndef HAVE_DRAND48
-#cmakedefine HAVE_DRAND48
-#endif
-
-/* Define to 1 if you have the <inttypes.h> header file. */
-#ifndef HAVE_INTTYPES_H
-#cmakedefine HAVE_INTTYPES_H
-#endif
-
-/* define if the Standard Template Library algorithms include iota */
-#ifndef HAVE_IOTA
-#cmakedefine HAVE_IOTA
-#endif
-
-/* Define to 1 if you have the `amd' library (-lamd). */
-#ifndef HAVE_LIBAMD
-#cmakedefine HAVE_LIBAMD
-#endif
-
-/* Define to 1 if you have the `expr' library (-lexpr). */
-#ifndef HAVE_LIBEXPR
-#cmakedefine HAVE_LIBEXPR
-#endif
-
-/* Define to 1 if you have the `metis' library (-lmetis). */
-#ifndef HAVE_LIBMETIS
-#cmakedefine HAVE_LIBMETIS
-#endif
-
-/* Define to 1 if you have the `parmetis' library (-lparmetis). */
-#ifndef HAVE_LIBPARMETIS
-#cmakedefine HAVE_LIBPARMETIS
-#endif
-
-/* Define to 1 if you have the `superlu' library (-lsuperlu). */
-#ifndef HAVE_LIBSUPERLU
-#cmakedefine HAVE_LIBSUPERLU
-#endif
-
-/* Define to 1 if you have the `superludist' library (-lsuperludist). */
-#ifndef HAVE_LIBSUPERLUDIST
-#cmakedefine HAVE_LIBSUPERLUDIST
-#endif
-
-/* Define to 1 if you have the `umfpack' library (-lumfpack). */
-#ifndef HAVE_LIBUMFPACK
-#cmakedefine HAVE_LIBUMFPACK
-#endif
-
-/* Define to 1 if you have the `y12m' library (-ly12m). */
-#ifndef HAVE_LIBY12M
-#cmakedefine HAVE_LIBY12M
-#endif
-
-/* Define to 1 if you have the `zoltan' library (-lzoltan). */
-#ifndef HAVE_LIBZOLTAN
-#cmakedefine HAVE_LIBZOLTAN
-#endif
-
-/* Define to 1 if you have the <limits.h> header file. */
-#ifndef HAVE_LIMITS_H 
-#cmakedefine HAVE_LIMITS_H
-#endif
-
-/* Define to 1 if you have the 'mallinfo' function. */
-#ifndef HAVE_MALLINFO
-#cmakedefine HAVE_MALLINFO
-#endif
-
-/* Define to 1 if you have the <malloc.h> header file. */
-#ifndef HAVE_MALLOC_H 
-#cmakedefine HAVE_MALLOC_H
-#endif
-
-/* Define to 1 if you have the <mathimf.h> header file. */
-#ifndef HAVE_MATHIMF_H
-#cmakedefine HAVE_MATHIMF_H
-#endif
-
-/* Define to 1 if you have the <memory.h> header file. */
-#ifndef HAVE_MEMORY_H
-#cmakedefine HAVE_MEMORY_H
-#endif
-
-/* define if the compiler implements namespaces */
-#ifndef HAVE_NAMESPACES
-#cmakedefine HAVE_NAMESPACES
-#endif
-
-/* define if the compiler supports isnan and isinf checks */
-#ifndef HAVE_NAN_INF_SUPPORT
-#cmakedefine HAVE_NAN_INF_SUPPORT
-#endif
-
-/* define if the compiler supports _isnan and _finite checks */
-#ifndef HAVE__ISNAN_AND__FINITE_SUPPORT
-#cmakedefine HAVE__ISNAN_AND__FINITE_SUPPORT
-#endif
-
-/* Define to 1 if you have the <pwd.h> header file. */
-#ifndef HAVE_PWD_H 
-#cmakedefine HAVE_PWD_H
-#endif
-
-/* Define to 1 if you have the <stdint.h> header file. */
-#ifndef HAVE_STDINT_H
-#cmakedefine HAVE_STDINT_H
-#endif
-
-/* Define to 1 if you have the <stdlib.h> header file. */
-#ifndef HAVE_STDLIB_H
-#cmakedefine HAVE_STDLIB_H
-#endif
-
-/* define if the compiler supports Standard Template Library */
-#ifndef HAVE_STL
-#cmakedefine HAVE_STL
-#endif
+/* Define to 1 if you have the <cstring> header file. */
+#cmakedefine HAVE_CSTRING
 
 /* Define to 1 if you have the <strings.h> header file. */
-#ifndef HAVE_STRINGS_H
 #cmakedefine HAVE_STRINGS_H
-#endif
 
 /* Define to 1 if you have the <string.h> header file. */
-#ifndef HAVE_STRING_H
 #cmakedefine HAVE_STRING_H
-#endif
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#cmakedefine HAVE_DLFCN_H
+
+/* define if you have the flex lexical scanner generator */
+#cmakedefine HAVE_FLEX
+
+/* define if the Standard Template Library has flexible insert */
+#cmakedefine HAVE_FLEXIBLE_INSERT
+
+/* Define to 1 if you have the <float.h> header file. */
+#cmakedefine HAVE_FLOAT_H
+
+/* Define to 1 if you have the <fstream> header file. */
+#cmakedefine HAVE_FSTREAM
+
+/* Define to 1 if you have the `getopt' function. */
+#cmakedefine HAVE_GETOPT
+
+/* Define to 1 if you have the `DRAND48' function. */
+#cmakedefine HAVE_DRAND48
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#cmakedefine HAVE_INTTYPES_H
+
+/* Define to 1 if you have the <iostream> header file. */
+#cmakedefine HAVE_IOSTREAM
+
+/* define if the Standard Template Library algorithms include iota */
+#cmakedefine HAVE_IOTA
+
+/* Define to 1 if you have the `amd' library (-lamd). */
+#cmakedefine HAVE_LIBAMD
+
+/* Define to 1 if you have the `expr' library (-lexpr). */
+#cmakedefine HAVE_LIBEXPR
+
+/* Define to 1 if you have the `metis' library (-lmetis). */
+#cmakedefine HAVE_LIBMETIS
+
+/* Define to 1 if you have the `parmetis' library (-lparmetis). */
+#cmakedefine HAVE_LIBPARMETIS
+
+/* Define to 1 if you have the `superlu' library (-lsuperlu). */
+#cmakedefine HAVE_LIBSUPERLU
+
+/* Define to 1 if you have the `superludist' library (-lsuperludist). */
+#cmakedefine HAVE_LIBSUPERLUDIST
+
+/* Define to 1 if you have the `umfpack' library (-lumfpack). */
+#cmakedefine HAVE_LIBUMFPACK
+
+/* Define to 1 if you have the `y12m' library (-ly12m). */
+#cmakedefine HAVE_LIBY12M
+
+/* Define to 1 if you have the `zoltan' library (-lzoltan). */
+#cmakedefine HAVE_LIBZOLTAN
+
+/* Define to 1 if you have the <limits.h> header file. */
+#cmakedefine HAVE_LIMITS_H
+
+/* Define to 1 if you have the 'mallinfo' function. */
+#cmakedefine HAVE_MALLINFO
+
+/* Define to 1 if you have the <malloc.h> header file. */
+#cmakedefine HAVE_MALLOC_H
+
+/* Define to 1 if you have the <math.h> header file. */
+#cmakedefine HAVE_MATH_H
+
+/* Define to 1 if you have the <mathimf.h> header file. */
+#cmakedefine HAVE_MATHIMF_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#cmakedefine HAVE_MEMORY_H
+
+/* define if the compiler implements namespaces */
+#cmakedefine HAVE_NAMESPACES
+
+/* define if the compiler supports isnan and isinf checks */
+#cmakedefine HAVE_NAN_INF_SUPPORT
+
+/* define if the compiler supports _isnan and _finite checks */
+#cmakedefine HAVE__ISNAN_AND__FINITE_SUPPORT
+
+
+/* Define to 1 if you have the <ostream> header file. */
+#cmakedefine HAVE_OSTREAM
+
+/* Define to 1 if you have the <pwd.h> header file. */
+#cmakedefine HAVE_PWD_H
+
+/* Define to 1 if you have the <ostream.h> header file. */
+#cmakedefine HAVE_OSTREAM_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#cmakedefine HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#cmakedefine HAVE_STDLIB_H
+
+/* define if the compiler supports Standard Template Library */
+#cmakedefine HAVE_STL
+
+/* Define to 1 if you have the <strings.h> header file. */
+#cmakedefine HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#cmakedefine HAVE_STRING_H
 
 /* Define to 1 if you have the <Windows.h> header file. */
-#ifndef HAVE_WINDOWS_H
 #cmakedefine HAVE_WINDOWS_H
-#endif
 
 /* Define to 1 if you have the <sys/resource.h> header file. */
-#ifndef HAVE_SYS_RESOURCE_H
 #cmakedefine HAVE_SYS_RESOURCE_H
-#endif
 
 /* Define to 1 if you have the <functional> header file. */
-#ifndef HAVE_FUNCTIONAL
 #cmakedefine HAVE_FUNCTIONAL
-#endif
 
 /* Define to 1 if you have the 'getdomainname' function. */
-#ifndef HAVE_GETDOMAINNAME
 #cmakedefine HAVE_GETDOMAINNAME
-#endif
 
 /* Define to 1 if you have the 'gethostname' function. */
-#ifndef HAVE_GETHOSTNAME
 #cmakedefine HAVE_GETHOSTNAME
-#endif
 
 /* Define to 1 if you have the 'getpwuid' function. */
-#ifndef HAVE_GETPWUID
 #cmakedefine HAVE_GETPWUID
-#endif
 
 /* Define to 1 if you have the 'erf' function. */
-#ifndef HAVE_ERF
 #cmakedefine HAVE_ERF
-#endif
 
 /* Define to 1 if you have the 'erf' function. */
-#ifndef HAVE_ERFC
 #cmakedefine HAVE_ERFC
-#endif
 
 /* Define to 1 if you have the <tr1/functional> header file. */
-#ifndef HAVE_TR1_FUNCTIONAL
 #cmakedefine HAVE_TR1_FUNCTIONAL
-#endif
 
 /* Define to 1 if you have the <unordered_map> header file. */
-#ifndef HAVE_UNORDERED_MAP
 #cmakedefine HAVE_UNORDERED_MAP
-#endif
 
 /* Define to 1 if you have the <tr1/unordered_map> header file. */
-#ifndef HAVE_TR1_UNORDERED_MAP
 #cmakedefine HAVE_TR1_UNORDERED_MAP
-#endif
 
 /* Define to 1 if you have the <unordered_set> header file. */
-#ifndef HAVE_UNORDERED_SET
 #cmakedefine HAVE_UNORDERED_SET
-#endif
 
 /* Define to 1 if you have the <tr1/unordered_set> header file. */
-#ifndef HAVE_TR1_UNORDERED_SET
 #cmakedefine HAVE_TR1_UNORDERED_SET
-#endif
 
 /* define if the compiler has strcasecmp function */
-#ifndef HAVE_STRCASECMP
 #cmakedefine HAVE_STRCASECMP
-#endif
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#ifndef HAVE_SYS_STAT_H
 #cmakedefine HAVE_SYS_STAT_H
-#endif
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#ifndef HAVE_SYS_TYPES_H
 #cmakedefine HAVE_SYS_TYPES_H
-#endif
 
 /* Define to 1 if you have the <sys/utsname.h> header file. */
-#ifndef HAVE_SYS_UTSNAME_H 
 #cmakedefine HAVE_SYS_UTSNAME_H
-#endif
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#ifndef HAVE_UNISTD_H
 #cmakedefine HAVE_UNISTD_H
-#endif
 
 /* Define to 1 if you have the <values.h> header file. */
-#ifndef HAVE_VALUES_H
 #cmakedefine HAVE_VALUES_H
-#endif
 
 /* Define to 1 if you have the <Epetra_MultiVector.h> header file. */
-#ifndef HAVE_EPETRA_MULTIVECTOR_H
 #cmakedefine HAVE_EPETRA_MULTIVECTOR_H
-#endif
 
 /* Define to 1 if you have the <Ifpack_CrsRiluk.h> header file. */
-#ifndef HAVE_IFPACK_CRSRILUK_H
 #cmakedefine HAVE_IFPACK_CRSRILUK_H
-#endif
 
 /* Define to 1 if you have the <Amesos_Klu.h> header file. */
-#ifndef HAVE_AMESOS_KLU_H
 #cmakedefine HAVE_AMESOS_KLU_H
-#endif
 
 /* Define to 1 if you have the <Amesos_Umfpack.h> header file. */
-#ifndef HAVE_AMESOS_UMFPACK_H
 #cmakedefine HAVE_AMESOS_UMFPACK_H
-#endif
 
 /* Define to 1 if you have the <Amesos_Superlu.h> header file. */
-#ifndef HAVE_AMESOS_SUPERLU_H
 #cmakedefine HAVE_AMESOS_SUPERLU_H
-#endif
 
 /* Define to 1 if you have the <NOX_Abstract_Vector.h> header file. */
-#ifndef HAVE_NOX_ABSTRACT_VECTOR_H
 #cmakedefine HAVE_NOX_ABSTRACT_VECTOR_H
-#endif
 
 /* Define to 1 if you have the <LOCA_Parameter_Vector.h> header file. */
-#ifndef HAVE_LOCA_PARAMETER_VECTOR_H
 #cmakedefine HAVE_LOCA_PARAMETER_VECTOR_H
-#endif
+
+/* define if math.h defines M_PI */
+#cmakedefine MATH_H_HAS_M_PI
 
 /* define if stl string header does not cause pair.h to be included */
-#ifndef NEED_PAIR_H
 #cmakedefine NEED_PAIR_H
-#endif
-
 
 /*
   These are carried over from autotools.  Don't really need them except
   that N_UTL_Version.C references them
 */
 /* Name of package */
-#ifndef PACKAGE
 #cmakedefine PACKAGE
-#endif
 
 /* Define to the address where bug reports for this package should be sent. */
-#ifndef PACKAGE_BUGREPORT
 #cmakedefine PACKAGE_BUGREPORT
-#endif
 
 /* Define to the full name of this package. */
-#ifndef PACKAGE_NAME
 #cmakedefine PACKAGE_NAME
-#endif
 
 /* Define to the full name and version of this package. */
-#ifndef PACKAGE_STRING
 #cmakedefine PACKAGE_STRING
-#endif
 
 /* Define to the one symbol short name of this package. */
-#ifndef PACKAGE_TARNAME
 #cmakedefine PACKAGE_TARNAME
-#endif
 
 
 
 /* DEBUG:  Define to the version of this package. */
-#ifndef PACKAGE_VERSION
 #cmakedefine PACKAGE_VERSION
-#endif
+
+/* Define to 1 if you have the ANSI C header files. */
+#cmakedefine STDC_HEADERS
+
 
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
-#ifndef YYTEXT_POINTER
 #cmakedefine YYTEXT_POINTER
-#endif
 
 /* Define to 1 if unistd.h header is not found */
-#ifndef YY_NO_UNISTD_H 
 #cmakedefine YY_NO_UNISTD_H
-#endif
 
 /* Define to 1 if SRenvironment.h header is found */
-#ifndef HAVE_SRENVIRONMENT_H 
 #cmakedefine HAVE_SRENVIRONMENT_H 
-#endif
 
 #cmakedefine HAVE_LINUX_EXCEPTIONS
 
@@ -407,9 +313,7 @@
 #cmakedefine Xyce_NEW_DAE_FORMULATION 
 
 // The autotools build system only passes this in on the commandline.
-#ifndef Xyce_PARALLEL_MPI
 #cmakedefine Xyce_PARALLEL_MPI
-#endif
 
 #cmakedefine Xyce_PARDISO_MKL 
 #cmakedefine Xyce_RAD_MODELS

@@ -1,0 +1,25 @@
+#
+# BundleTPLScript.cmake
+#
+# Author: Aaron Gibson (asgibso@sandia.gov)
+#
+# Handles the bundling of Third-Party Libraries in a Xyce install.
+#
+# This is a necessary step for creating a self-contained bundle so the user
+# doesn't need to install a multitude of other libraries.
+#
+
+#include( GetPrerequisites )
+
+message( "BUNDLING TARGET: ${TARGET_TO_BUNDLE} " )
+
+#get_prerequisites( "${TARGET_TO_BUNDLE}" EXTERNAL_LIBS_TMP 1 1 "${CMAKE_INSTALL_PREFIX}/bin" "" )
+#message(" DEPS: ${EXTERNAL_LIBS_TMP}" )
+
+# First, include the BundleUtilities cmake module.
+include( BundleUtilities )
+fixup_bundle( "${TARGET_TO_BUNDLE}"
+	"${OTHER_LIBRARIES}"
+	"${DIRS}"
+)
+

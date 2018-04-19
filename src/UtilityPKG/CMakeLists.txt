@@ -1,25 +1,25 @@
 #
-# CMakeLists.txt
+# CMakeLists.txt for UtilityPKG
 #
-
-configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/timestamp.h.cmake"
-	"${CMAKE_CURRENT_BINARY_DIR}/timestamp.h" @ONLY
-)
-
+# Author: Aaron Gibson (asgibso@sandia.gov)
+#
 include_directories( "${CMAKE_CURRENT_BINARY_DIR}" )
 
-# process source file options
-if ( Xyce_USE_INTEL_FFT )
-	set( FFT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_IntelFFT_Interface.C )
+#
+# Handle FFT options
+#
+set( FFT_SOURCES )
+if( Xyce_USE_FFT )
+	if( Xyce_USE_INTEL_FFT )
+		set( FFT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_IntelFFT_Interface.C )
+	elseif( Xyce_USE_FFTW )
+		set( FFT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_FFTW_Interface.C )
+	endif()
 endif()
 
-if ( Xyce_USE_FFTW )
-	set( FFTW_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_FFTW_Interface.C )
-endif()
-
+# Set the source files for this package.
 set( Utility_SOURCES
 	${FFT_SOURCES}
-	${FFTW_SOURCES}
 	${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_BreakPoint.C
 	${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_Demangle.C
 	${CMAKE_CURRENT_SOURCE_DIR}/N_UTL_DeviceNameConverters.C

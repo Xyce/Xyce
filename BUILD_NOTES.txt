@@ -1,0 +1,156 @@
+#
+# CMake Build notes for Xyce
+#
+#---------------------------------------------
+Xyce was originally written to compile with autotools, but autotools is getting
+older, and there are other build tools that are more common now. So, we are
+migrating the build to use CMake, to make it (somewhat) easier to compile on
+new architectures and systems, and to make the Windows build consistent with
+the Linux/Mac builds.
+ 
+Xyce depends heavily on "Trilinos" and the configuration of Xyce should be
+defined in terms of what works with Trilinos wherever possible. Trilinos
+uses CMake (though perhaps badly...), so this new build can query certain
+parameters more directly.
+
+Assuming that you have Trilinos installed at some path, you can build Xyce
+(in Serial mode) with the following:
+
+$ mkdir build && cd build
+$ cmake -DTrilinos_DIR=<path to trilinos install> <path to Xyce source>
+
+Note that the CMake command is invoked inside of the build directory; the
+current working directory is where cmake generates all of its build files.
+
+Assuming no problems, CMake will internally query the build system for the
+different libraries that it can use, and will err out if the Trilinos does
+not have the correct libraries. To see what options were sent (provided 
+there were no errors in configuration), you can run cmake again to print
+out the current settings:
+
+$ cmake .
+
+The resulting options and settings should print to the console, in a format
+that indicates how that feature could be set. For example, the output might
+include a line like:
+-- Enable Reaction Parser (Xyce_REACTION_PARSER): TRUE
+
+If you want to disable the Reaction parser, then you can run CMake again
+with the command:
+
+$ cmake -DXyce_REACTION_PARSER=FALSE .
+
+#---------------------------------------------
+# Build System Macros (and Functions)
+#---------------------------------------------
+To help probe the build system consistently, the Xyce build defines a set
+of macros that should be used whenever running a command to attempt to
+compile a program, because of some of the subtle details. In particular,
+the macro: check_cxx_source_file_compiles
+This macro allows for setting the directories to include, the libraries to
+link against, along with the variable to store the result to. In the
+CMakeLists.txt file, the following code would try and compile "Test.cxx",
+and store the result to TEST_COMPILED:
+
+check_cxx_source_file_compiles( FILE Test.cxx
+  VAR_TO_STORE TEST_COMPILED
+  INCLUDE_DIRS
+    # List additional include directories here
+    "${CMAKE_CURRECT_SOURCE_DIR}/test_include"
+  EXTERNAL_LIBS
+    # List of external libraries to link the result against.
+    TestLib
+)
+
+Some additional macros around check_cxx_source_file_compiles exist to 
+automatically add and link against Trilinos are also defined for convenience.
+
+
+Xyce's source code is laid out into a set of packages; unfortunately, there
+are some interdependencies, so several more macros were written to mitigate
+some of the cruft, inside of the "src/CMakeLists.txt" file. The complication
+arises from the fact that Xyce compiles into a static and/or shared library,
+then into an executable, and not a numerous libraries for each package. To
+work around this, each package is compiled into an OBJECT library (an archive
+of object files) that are all linked together at the end. To help with this,
+and to make sure that the object files are all included in the final Xyce 
+library, the following macro is defined: add_to_xyce_library
+
+This macro should be invoked as follows:
+
+add_to_xyce_library(
+  NAME "TestLibrary"
+  FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/test.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/test2.cpp"
+)
+
+where NAME is set to a unique library name (this library name is only used for
+logical grouping in CMake itself and is not used or meaningful elsewhere), and
+FILES are set to the files that are a part of the package.
+
+One other problem that arises is that "add_subdirectory" calls are scoped in 
+CMake. This means that calling: "include_directories()" inside of a package
+will not likely propagate to the other packages in different (sibling)
+directories. To work around this, call "add_xyce_subdirectory" instead, which
+will add the given path to "include_directories()" before calling
+"add_subdirectory()".
+
+#---------------------------------------------
+# Some External Library Dependencies
+#---------------------------------------------
+Xyce probes for a few external libraries that can enable additional features.
+The FFT packages for Xyce are only enabled if Xyce finds FFTW or Intel's Math
+Kernel Libraries (MKL). Often times, the find scripts may not find them, but
+they can be explicitly configured.
+
+When trying to use the Intel MKL libraries, the find script may not set the
+proper compiler or linker flags to use MKL correctly. The Xyce build will try
+and build a sample program to see whether the current settings will actually
+work before enabling them; if it fails, the flags can be explicitly set in 
+CMake via:
+
+$ cmake . -DXyce_INTEL_MKL_LINK_FLAGS=... -DXyce_INTEL_MKL_CXX_FLAGS=...
+
+NOTES: These variables should NOT include anything other than what the Intel
+Math Kernel Library link line advisor suggests (i.e. compiler optimization
+or debug flags)! Use only the flags defined from this link directly:
+https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
+
+#---------------------------------------------
+# Building on the same machine as Trilinos
+#---------------------------------------------
+Since it is common to build Trilinos on the same machine as Xyce, a setting
+has been added for convenience that will try and use the same compilers and
+flags as the found Trilinos build, to avoid setting the compiler/linker paths
+or anything else (especially helpful for Parallel builds). This can be done 
+by setting the CMake option: USE_TRILINOS_COMPILERS=TRUE
+
+#---------------------------------------------
+# Installers
+#---------------------------------------------
+The Xyce build will try to autodetect the available installers on the system
+and enable some of them as applicable. Some installers can be enabled/disabled
+by setting the applicable options in CMake. Check the build output line to see
+which installers are currently enabled and the option name to enable/disable
+them.
+
+The installers can be created by building the "package" target.
+
+#---------------------------------------------
+# Debugging CMake
+#---------------------------------------------
+Since CMake can be a pain to debug, a function has been defined that will print
+all of the variables to the console when running: debug_print
+
+By default, adding the option "-DPRINT_DEBUG=1" when running cmake will print 
+all of the CMake variables that are defined at the end of the invocation. Note
+that this only works when CMake makes it all the way through; feel free to 
+invoke the debug_print function elsewhere (and earlier) as needed for more info.
+
+Note also that CMake supports the "--debug-trycompile" flag if you want to debug
+one of the probing compilation command failures. The resulting build project will
+be located at: <build directory>/CMakeCache/CMakeTmp,
+but only if you pass it "--debug-trycompile".
+
+Read more about CMake for more details.

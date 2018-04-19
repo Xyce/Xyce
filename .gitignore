@@ -4,6 +4,7 @@
 
 # Ignore Mac OS X artifact files.
 
+**/._*
 **/.DS_Store
 *~
 .*.swp

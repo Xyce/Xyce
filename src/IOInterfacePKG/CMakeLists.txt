@@ -2,7 +2,10 @@
 # CMakeLists.txt for IOInterfacePKG
 #
 
+# First, remember to include our "Output" directory, which contains more stuff
+# for this package.
 add_subdirectory( Output )
+
 set( IOInterface_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/N_IO_CmdParse.C
 	${CMAKE_CURRENT_SOURCE_DIR}/N_IO_NetlistImportTool.C
@@ -85,7 +88,7 @@ set( IOInterface_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/N_IO_PkgOptionsMgr.C
 	${CMAKE_CURRENT_SOURCE_DIR}/N_IO_FourierMgr.C
 	${CMAKE_CURRENT_SOURCE_DIR}/N_IO_ParsingHelpers.C
-	
+
 	${OutputInterface_SOURCES}
 )
 add_to_xyce_library( NAME IOInterface
