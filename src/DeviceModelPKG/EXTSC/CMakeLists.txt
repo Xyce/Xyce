@@ -3,26 +3,24 @@
 #
 
 add_to_xyce_library( NAME EXTSC
-	FILES
-		${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_1D_Interface.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_CharonInterface.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ExternCodeInterface.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ExternDevice.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_RegisterExternalDevices.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_XyceInterface.C 
-)
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_1D_Interface.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_CharonInterface.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ExternCodeInterface.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ExternDevice.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_RegisterExternalDevices.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_XyceInterface.C )
 
 set( EXTSC_Headers
-	${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_1D_Interface.h
-	${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_CharonInterface.h
-	${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ExternCodeInterface.h
-	${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ExternDevice.h
-	${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_RegisterExternalDevices.h
-	${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_XyceInterface.h
-)
+    ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_1D_Interface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_CharonInterface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ExternCodeInterface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ExternDevice.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_RegisterExternalDevices.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_XyceInterface.h )
+
 install(FILES ${EXTSC_Headers}
-	DESTINATION include
-)
+    DESTINATION include )
 
 # -- process files for this library ------------------------------------------
 #

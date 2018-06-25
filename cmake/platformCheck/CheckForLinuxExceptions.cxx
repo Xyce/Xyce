@@ -11,8 +11,8 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-	feenableexcept(FE_DIVBYZERO | FE_INVALID);
-	return 0;
+  feenableexcept(FE_DIVBYZERO | FE_INVALID);
+  return 0;
 }
 
 

@@ -17,11 +17,11 @@
 
 int main(int argc, char** argv)
 {
-	::Dakota::ProgramOptions opts;
+  ::Dakota::ProgramOptions opts;
 
-	// Defaults constructs the MPIManager, which assumes COMM_WORLD
-	::Dakota::LibraryEnvironment* dakotaEnv = new ::Dakota::LibraryEnvironment(opts);
-	delete dakotaEnv;
+  // Defaults constructs the MPIManager, which assumes COMM_WORLD
+  ::Dakota::LibraryEnvironment* dakotaEnv = new ::Dakota::LibraryEnvironment(opts);
+  delete dakotaEnv;
 
-	return 0;
+  return 0;
 }

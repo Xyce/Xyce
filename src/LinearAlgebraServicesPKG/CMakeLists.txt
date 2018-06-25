@@ -3,89 +3,87 @@
 #
 
 if ( Xyce_BELOS )
-	set ( BELOS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BelosSolver.C )
+    set ( BELOS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BelosSolver.C )
 endif ( Xyce_BELOS )
 
 if ( Xyce_ML )
-	set ( ML_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_MLPrecond.C )
+    set ( ML_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_MLPrecond.C )
 endif ( Xyce_ML )
 
 if ( Xyce_SHYLU )
-	set ( SHYLU_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_ShyLUSolver.C )
+    set ( SHYLU_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_ShyLUSolver.C )
 endif ( Xyce_SHYLU )
 
 if ( Xyce_AMESOS2 )
-	set ( AMESOS2_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Amesos2Solver.C )
+    set ( AMESOS2_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Amesos2Solver.C )
 endif ( Xyce_AMESOS2 )
 
 
 # DEBUG:  ksparse is in subdir, but is not a lib
 if ( Xyce_KSPARSE )
-	set ( KSPARSE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_KSparseSolver.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/Epetra_CrsKundertSparse.C
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/alloc.c
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/driver.c
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/smplinkrows.c
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spalloc.c
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spbuild.c
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spfactor.c
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spoutput.c
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spsmp.c
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spsolve.c
-		${CMAKE_CURRENT_SOURCE_DIR}/ksparse/sputils.c
-	)
-	set ( KSPARSE_INC ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/ )
+    set ( KSPARSE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_KSparseSolver.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/Epetra_CrsKundertSparse.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/alloc.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/driver.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/smplinkrows.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spalloc.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spbuild.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spfactor.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spoutput.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spsmp.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spsolve.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/sputils.c )
+
+    set ( KSPARSE_INC ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/ )
 endif ( Xyce_KSPARSE )
 
 add_to_xyce_library( NAME LinearAlgebraServices
-	FILES
-		${BELOS_SRC}
-		${ML_SRC}
-		${SHYLU_SRC}
-		${AMESOS2_SRC}
-		${KSPARSE_SRC}
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_SimpleSolver.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_AmesosSolver.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_AztecOOSolver.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockMatrix.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockVector.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockSystemHelpers.C
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_EpetraHelpers.C
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Builder.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBDirectSolver.C
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBBlockMatrixEntry.C
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBBlockJacobiPrecond.C
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBBlockJacobiEpetraOperator.C
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBBuilder.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBPrecondFactory.C
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBSolverFactory.C
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_IfpackPrecond.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_LAFactory.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Matrix.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_FilteredMatrix.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_FilteredMultiVector.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_MultiVector.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_MOROperators.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Problem.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_QueryUtil.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_TranSolverFactory.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_System.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_SystemHelpers.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_TransformTool.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_TrilinosPrecondFactory.C
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Vector.C
-)
+    FILES
+        ${BELOS_SRC}
+        ${ML_SRC}
+        ${SHYLU_SRC}
+        ${AMESOS2_SRC}
+        ${KSPARSE_SRC}
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_SimpleSolver.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_AmesosSolver.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_AztecOOSolver.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockMatrix.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockVector.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockSystemHelpers.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_EpetraHelpers.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Builder.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBDirectSolver.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBBlockMatrixEntry.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBBlockJacobiPrecond.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBBlockJacobiEpetraOperator.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBBuilder.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBPrecondFactory.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_HBSolverFactory.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_IfpackPrecond.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_LAFactory.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Matrix.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_FilteredMatrix.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_FilteredMultiVector.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_MultiVector.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_MOROperators.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Problem.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_QueryUtil.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_TranSolverFactory.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_System.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_SystemHelpers.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_TransformTool.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_TrilinosPrecondFactory.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Vector.C )
 
 # Add the headers to install.
 set( LinearAlgebraServices_Headers
-	N_LAS_fwd.h
-	N_LAS_Vector.h
-	N_LAS_Matrix.h
-	N_LAS_MultiVector.h
-)
+    N_LAS_fwd.h
+    N_LAS_Vector.h
+    N_LAS_Matrix.h
+    N_LAS_MultiVector.h )
+
 install( FILES ${LinearAlgebraServices_Headers}
-	DESTINATION include
-)
+    DESTINATION include )
 
 #
 # -- process files for this library ------------------------------------------

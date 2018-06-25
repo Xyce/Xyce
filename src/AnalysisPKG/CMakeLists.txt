@@ -3,7 +3,7 @@
 #
 
 add_to_xyce_library( NAME Analysis
-	FILES
+    FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_AC.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_AnalysisBase.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_AnalysisEvent.C
@@ -28,14 +28,12 @@ add_to_xyce_library( NAME Analysis
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_SecondLevelManager.C  
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_Step.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_SweepParam.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_Transient.C 
-)
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_ANP_Transient.C  )
 
 set( AnalysisHeaders
-	N_ANP_fwd.h
-	N_ANP_NoiseData.h
-)
+    N_ANP_fwd.h
+    N_ANP_NoiseData.h )
+
 install( FILES ${AnalysisHeaders}
-	DESTINATION include
-)
+    DESTINATION include )
 

@@ -19,7 +19,7 @@ message( "BUNDLING TARGET: ${TARGET_TO_BUNDLE} " )
 # First, include the BundleUtilities cmake module.
 include( BundleUtilities )
 fixup_bundle( "${TARGET_TO_BUNDLE}"
-	"${OTHER_LIBRARIES}"
-	"${DIRS}"
+    "${OTHER_LIBRARIES}"
+    "${DIRS}"
 )
 

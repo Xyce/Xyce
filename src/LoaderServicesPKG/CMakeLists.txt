@@ -3,21 +3,20 @@
 #
 
 add_to_xyce_library( NAME LoaderServices
-	FILES
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_CktLoader.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_HBLoader.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_Loader.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_NonlinearEquationLoader.C
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_CktLoader.C
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_HBLoader.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_Loader.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_NonlinearEquationLoader.C
 )
 
 # Add headers from LoaderServicesPKG
 set( LoaderServices_Headers
-	N_LOA_fwd.h
-	N_LOA_Loader.h
-)
+    N_LOA_fwd.h
+    N_LOA_Loader.h )
+
 install(FILES ${LoaderServices_Headers}
-	DESTINATION include
-)
+    DESTINATION include )
 
 # -- process files for this library ------------------------------------------
 

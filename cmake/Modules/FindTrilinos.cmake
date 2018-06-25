@@ -13,9 +13,8 @@ file( GLOB SuiteSparse_STATIC_LIB "/Users/asgibso/Documents/Xyce/SuiteSparse/lib
 file( GLOB SuiteSparse_SHARED_LIB "/Users/asgibso/Documents/Xyce/SuiteSparse/lib/*.dylib" )
 
 set( Trilinos_LIBRARIES
-	${Trilinos_TEUCHOS_STATIC_LIB}
-	${Trilinos_TEUCHOS_SHARED_LIB}
-	${SuiteSparse_STATIC_LIB}
-	${SuiteSparse_SHARED_LIB}
-)
+    ${Trilinos_TEUCHOS_STATIC_LIB}
+    ${Trilinos_TEUCHOS_SHARED_LIB}
+    ${SuiteSparse_STATIC_LIB}
+    ${SuiteSparse_SHARED_LIB} )
 

@@ -3,20 +3,18 @@
 #
 
 add_to_xyce_library( NAME ErrorHandling
-	FILES
-		${CMAKE_CURRENT_SOURCE_DIR}/N_ERH_ErrorMgr.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_ERH_Message.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_ERH_Messenger.C 
-		${CMAKE_CURRENT_SOURCE_DIR}/N_ERH_Progress.C 
-)
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_ERH_ErrorMgr.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_ERH_Message.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_ERH_Messenger.C 
+        ${CMAKE_CURRENT_SOURCE_DIR}/N_ERH_Progress.C  )
 
 set( ErrorHandling_Headers
-	N_ERH_fwd.h
-	N_ERH_Message.h
-)
+    N_ERH_fwd.h
+    N_ERH_Message.h )
+
 install( FILES ${ErrorHandling_Headers}
-	DESTINATION include
-)
+    DESTINATION include )
 
 #
 # -- process files for this library ------------------------------------------

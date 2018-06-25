@@ -17,14 +17,14 @@ libfind_pkg_check_modules( FFTW_PKGCONF fftw )
 
 # Include dir.
 find_path( FFTW_INCLUDE_DIR
-	NAMES fftw3.h
-	PATHS ${FFTW_PKGCONF_INCLUDE_DIRS}
+    NAMES fftw3.h
+    PATHS ${FFTW_PKGCONF_INCLUDE_DIRS}
 )
 
 # Library itself.
 find_library( FFTW_LIBRARY
-	NAMES fftw3
-	PATHS ${FFTW_PKGCONF_LIBRARY_DIRS}
+    NAMES fftw3
+    PATHS ${FFTW_PKGCONF_LIBRARY_DIRS}
 )
 
 # Set include dir and libraries.
@@ -39,7 +39,7 @@ set( FFTW_LIBRARIES ${FFTW_LIBRARY} )
 
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( FFTW
-	REQUIRED_VARS
-		FFTW_INCLUDE_DIRS
-		FFTW_LIBRARIES
+    REQUIRED_VARS
+        FFTW_INCLUDE_DIRS
+        FFTW_LIBRARIES
 )
