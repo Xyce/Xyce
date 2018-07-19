@@ -240,13 +240,17 @@ std::vector<Teuchos::RCP<N_PDS_ParMap> > createBlockParMaps( int numBlocks, N_PD
      }
 
      // Setting up GIDs for the map with overlap and ground nodes
-     for( int j = 0; j < olocalBlockSize-1; ++j )
+     for( int j = 0; j < (olocalBlockSize+oBaseIndex); ++j )
      {
        oGIDs[i*olocalBlockSize+j] = oBaseGIDs[j] + offset*i;
      }
-     // Assuming the last GID is the ground node (-1)
-     gnd_node--;
-     oGIDs[(i+1)*olocalBlockSize-1] = gnd_node;
+
+     if (oBaseIndex == -1)
+     {
+       // The last GID is the ground node (-1)
+       gnd_node--;
+       oGIDs[(i+1)*olocalBlockSize-1] = gnd_node;
+     }
    }
 
    // Adapt base index for unique ground node numbering.
@@ -486,7 +490,8 @@ Teuchos::RCP<Epetra_CrsGraph> createBlockGraph( int offset, std::vector<std::vec
       newGraph->InsertGlobalIndices( blockRow, numBlockCols*numIndices, &newIndices[0] );
     }
   }
-  newGraph->TransformToLocal();
+  newGraph->FillComplete();
+  newGraph->OptimizeStorage();
  
   return newGraph;
 }

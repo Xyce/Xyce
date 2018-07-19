@@ -196,7 +196,7 @@ Matrix * Builder::createMatrix(const double initialValue) const
 
   Matrix * mat = 0;
 
-  Epetra_CrsGraph * overlapGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN_OVERLAP_GND );
+  Epetra_CrsGraph * overlapGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN_OVERLAP );
   Epetra_CrsGraph * baseGraph = pdsMgr_->getMatrixGraph( Parallel::JACOBIAN );
 
   mat = new Matrix( overlapGraph, baseGraph );

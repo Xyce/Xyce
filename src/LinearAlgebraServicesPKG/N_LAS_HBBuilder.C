@@ -337,8 +337,10 @@ bool HBBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
   //Xyce::dout() << "oHBMap_" << std::endl;
   //oHBMap_->petraMap()->Print(std::cout); 
 
-  // Helpful names for various sizes (subtract 1 for ground node):
-  numSolVariables_ = oBaseMap_->numLocalEntities()-1;
+  int indexBase = oBaseMap_->indexBase();
+
+  // Helpful names for various sizes (subtract indexBase to remove ground node, if there is one):
+  numSolVariables_ = oBaseMap_->numLocalEntities() + indexBase;
 
   if (hbOsc_)
   {

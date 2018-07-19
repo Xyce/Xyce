@@ -71,11 +71,6 @@ Manager::Manager(
     matrixGraphTransforms_()
 {
   pdsComm_ = Xyce::Parallel::createPDSComm(iargs, cargs, comm);
-
-  // std::fill(&parMaps_[0], &parMaps_[MAP_COUNT], (N_PDS_ParMap *) 0);
-  // std::fill(&globalAccessors_[0], &globalAccessors_[MAP_COUNT], 0);
-  // std::fill(&matrixGraphs_[0], &matrixGraphs_[MAP_COUNT], 0);
-  // std::fill(&matrixGraphTransforms_[0], &matrixGraphTransforms_[MAP_COUNT], 0);
 }
 
 //-----------------------------------------------------------------------------

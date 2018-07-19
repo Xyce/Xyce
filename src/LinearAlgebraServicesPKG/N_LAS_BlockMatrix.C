@@ -68,11 +68,11 @@ namespace Linear {
 // Creation Date : 03/13/04
 //-----------------------------------------------------------------------------
 BlockMatrix::BlockMatrix( int size,
-                                      int offset,
-                                      const std::vector< std::vector<int> > & blockColumns,
-                                      const Epetra_CrsGraph & globalGraph,
-                                      const Epetra_CrsGraph & subBlockGraph,
-                                      int augmentCount )
+                          int offset,
+                          const std::vector< std::vector<int> > & blockColumns,
+                          const Epetra_CrsGraph & globalGraph,
+                          const Epetra_CrsGraph & subBlockGraph,
+                          int augmentCount )
 : Matrix( new Epetra_CrsMatrix( Copy, globalGraph ), true ),
   blocksViewGlobalMat_(true),
   blockSize_( subBlockGraph.NumMyRows() ),

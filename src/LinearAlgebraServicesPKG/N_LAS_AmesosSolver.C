@@ -333,10 +333,11 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
 
 
 #ifndef Xyce_PARALLEL_MPI
-    //setup optimized storage version of problem for serial
+    //setup optimized storage version of problem for serial when a transformed is applied
     //only do this if the linear system is nontrivial (not a single equation)
+    //CAUTION: this results in a matrix copy, which is a non-trivial amount of overhead.
     origMat_ = dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix());
-    if (origMat_->NumGlobalRows() > 1) {
+    if (origMat_->NumGlobalRows() > 1 || transform_.get()) {
       Epetra_Map const& rowMap = origMat_->RowMap();
       Epetra_BlockMap const& blockRowMap = dynamic_cast<Epetra_BlockMap const&>(rowMap);
       optMat_ = new Epetra_CrsMatrix( Copy, rowMap, 0 );

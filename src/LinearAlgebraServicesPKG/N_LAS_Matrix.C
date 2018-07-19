@@ -119,7 +119,10 @@ Matrix::Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray )
   offsetIndex_(0),
   aColMap_(0),
   oColMap_(0),
-  isOwned_(true)
+  isOwned_(true),
+  groundLID_(-1),
+  groundNode_(0.0),
+  proxy_( 0, *this )
 {
   aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *map.petraMap() , &(diagArray[0]) );
   oDCRSMatrix_ = aDCRSMatrix_;
@@ -143,7 +146,10 @@ Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
   offsetIndex_(0),
   aColMap_(0),
   oColMap_(0),
-  isOwned_(isOwned)
+  isOwned_(isOwned),
+  groundLID_(-1),
+  groundNode_(0.0),
+  proxy_( 0, *this )
 {
   oDCRSMatrix_ = aDCRSMatrix_;
 }
@@ -165,20 +171,34 @@ Matrix::Matrix( Epetra_CrsGraph * overlapGraph,
   offsetIndex_(0),
   aColMap_(0),
   oColMap_(0),
-  isOwned_(true)
+  isOwned_(true),
+  groundLID_(-1),
+  groundNode_(0.0),
+  proxy_( 0, *this )
 {
-  oDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *overlapGraph );
+  if ( baseGraph != overlapGraph )
+  {
+    oDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *overlapGraph );
 
-  if ( (oDCRSMatrix_->Comm()).NumProc() > 1 )
-  { 
-    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *baseGraph );
-    exporter_ = new Epetra_Export( overlapGraph->RowMap(), baseGraph->RowMap() );
-    offsetIndex_ = new Epetra_OffsetIndex( *overlapGraph, *baseGraph, *exporter_ );
+    // Get ground node, if there is one.
+    groundLID_ = overlapGraph->LRID( -1 );
+
+    if ( (oDCRSMatrix_->Comm()).NumProc() > 1 )
+    {
+      aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *baseGraph );
+      exporter_ = new Epetra_Export( overlapGraph->RowMap(), baseGraph->RowMap() );
+      offsetIndex_ = new Epetra_OffsetIndex( *overlapGraph, *baseGraph, *exporter_ );
+    }
+    else
+    {
+      viewTransform_ = new EpetraExt::CrsMatrix_View( *overlapGraph, *baseGraph );
+      aDCRSMatrix_ = &((*viewTransform_)( *oDCRSMatrix_ ));
+    }
   }
   else
   {
-    viewTransform_ = new EpetraExt::CrsMatrix_View( *overlapGraph, *baseGraph );
-    aDCRSMatrix_ = &((*viewTransform_)( *oDCRSMatrix_ ));
+    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *baseGraph );
+    oDCRSMatrix_ = aDCRSMatrix_;
   }
 }
 
@@ -234,6 +254,7 @@ void Matrix::put( double s )
     aDCRSMatrix_->PutScalar(s);
   }
   oDCRSMatrix_->PutScalar(s);
+  groundNode_ = s;
 }
 
 //-----------------------------------------------------------------------------
@@ -523,26 +544,28 @@ bool Matrix::sumIntoLocalRow(int row, int length, const double * coeffs,
 //-----------------------------------------------------------------------------
 double * Matrix::returnRawEntryPointer (int lidRow, int lidCol)
 {
-  double * retPtr=0;
+  double * retPtr = &groundNode_;
 
-  int num_entries;
-  int * indices;
-  double * values;
-
-  // Convert the lidCol, which is based on the row map, to be based on the column map.
-  int newColLID = oDCRSMatrix_->ColMap().LID( oDCRSMatrix_->Graph().RowMap().GID(lidCol) );
-
-  oDCRSMatrix_->ExtractMyRowView( lidRow, num_entries, values, indices );
-
-  for( int j = 0; j < num_entries; ++j )
+  if (lidRow >= 0 && lidCol >= 0)
   {
-     if (indices[j] == newColLID)
-     {
-       retPtr = &(values[j]);
-       break;
-     }
-  }
+    int num_entries;
+    int * indices;
+    double * values;
 
+    // Convert the lidCol, which is based on the row map, to be based on the column map.
+    int newColLID = oDCRSMatrix_->ColMap().LID( oDCRSMatrix_->Graph().RowMap().GID(lidCol) );
+
+    oDCRSMatrix_->ExtractMyRowView( lidRow, num_entries, values, indices );
+
+    for( int j = 0; j < num_entries; ++j )
+    {
+       if (indices[j] == newColLID)
+       {
+         retPtr = &(values[j]);
+         break;
+       }
+    }
+  }
   return retPtr;
 }
 
@@ -655,10 +678,15 @@ void Matrix::linearCombo( const double a, const Matrix & A,
 // Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 9/5/02
 //-----------------------------------------------------------------------------
-double * Matrix::operator[]( int row )
+Matrix::bracketProxy& Matrix::operator[]( int row )
+{
+  proxy_.rowLID_ = row;
+  return proxy_;
+}
+/*double * Matrix::operator[]( int row )
 {
   return (*oDCRSMatrix_)[row];
-}
+}*/
 
 //-----------------------------------------------------------------------------
 // Function      : Matrix::operator[] const
@@ -668,9 +696,46 @@ double * Matrix::operator[]( int row )
 // Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 9/5/02
 //-----------------------------------------------------------------------------
-double * Matrix::operator[]( int row ) const
+const Matrix::bracketProxy& Matrix::operator[]( int row ) const
+{
+  proxy_.rowLID_ = row;
+  return proxy_;
+}
+/*double * Matrix::operator[]( int row ) const
 {
   return (*oDCRSMatrix_)[row];
+}*/
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::operator()
+// Purpose       : Direct access into matrix values using local indexing
+// Special Notes :
+// Scope         : Public
+// Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 9/5/02
+//-----------------------------------------------------------------------------
+double * Matrix::operator()( int row, int col_offset )
+{
+  if ( row != groundLID_ && col_offset >= 0)
+    return (*oDCRSMatrix_)[row]+col_offset;
+  else
+    return &groundNode_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Matrix::operator() const
+// Purpose       : Direct access into matrix values using local indexing
+// Special Notes : const version
+// Scope         : Public
+// Creator       : Robert J. Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 9/5/02
+//-----------------------------------------------------------------------------
+const double * Matrix::operator()( int row, int col_offset ) const
+{
+  if ( row != groundLID_ && col_offset >= 0)
+    return (*oDCRSMatrix_)[row]+col_offset;
+  else
+    return &groundNode_;
 }
 
 //-----------------------------------------------------------------------------
