@@ -3218,6 +3218,12 @@ other variables does not get propagated into a variable's
               <admst:when test="[$a1Deriv = '0.0' and $a2Deriv ='0.0']">
                 <admst:variable name="expressionDeriv" select="0.0"/>
               </admst:when>
+              <admst:when test="[$a1Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="$a2Deriv"/>
+              </admst:when>
+              <admst:when test="[$a2Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="$a1Deriv"/>
+              </admst:when>
               <admst:otherwise>
                 <admst:variable name="expressionDeriv" select="($a1Deriv+$a2Deriv)"/>
               </admst:otherwise>
@@ -3259,6 +3265,12 @@ other variables does not get propagated into a variable's
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0' and $a2Deriv ='0.0']">
                 <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="(-$a2Deriv)"/>
+              </admst:when>
+              <admst:when test="[$a2Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="$a1Deriv"/>
               </admst:when>
               <admst:otherwise>
                 <admst:variable name="expressionDeriv" select="($a1Deriv-$a2Deriv)"/>
@@ -4228,7 +4240,7 @@ other variables does not get propagated into a variable's
       </admst:otherwise>
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
-    <!-- NOT CORRECT --- FIXME-->
+    <!-- NOT CORRECT YET --- FIXME for everything other than ddt!-->
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
   </admst:template>
 
@@ -4240,6 +4252,7 @@ other variables does not get propagated into a variable's
   -->
   <admst:template match="string">
     <admst:return name="returnedExpression" value="&quot;%(value)&quot;"/>
+    <admst:return name="returnedExpressionDeriv" value="0.0"/>
   </admst:template>
 
   <!--
