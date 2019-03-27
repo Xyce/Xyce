@@ -52,6 +52,11 @@
   <!-- save the module so we can reference it later -->
   <admst:variable name="theModule" select="%(.)"/>
 
+  <!-- some variables we'll use later -->
+  <!-- This one will be set to the current probe with respect to which we're
+       differentiating -->
+  <admst:variable name="derivProbe" value=""/>
+
   <!-- Set up some useful variables: the N_DEV_(foo) class, and its
      related Instance and Model classes -->
   <admst:apply-templates select="." match="xyceClassBaseName">
