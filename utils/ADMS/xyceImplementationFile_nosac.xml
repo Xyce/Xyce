@@ -55,7 +55,9 @@
   <!-- some variables we'll use later -->
   <!-- This one will be set to the current probe with respect to which we're
        differentiating -->
-  <admst:variable name="derivProbe" value=""/>
+  <admst:variable name="derivProbe"/>
+
+  <admst:variable name="skipFunctionPrecomp" select="y"/>
 
   <!-- Set up some useful variables: the N_DEV_(foo) class, and its
      related Instance and Model classes -->
