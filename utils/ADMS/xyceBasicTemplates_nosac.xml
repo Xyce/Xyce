@@ -2941,6 +2941,78 @@ other variables does not get propagated into a variable's
   </admst:template>
   <!--
    =================================================================-
+   functionDerivativePrecomputation
+     When evaluating assignments, we also need to evaluate (sometimes)
+     the derivatives of the variables.  If the RHS of an assignment
+     contains function calls, generating the assignment and its
+     derivative assignments becomes problematic.  As with
+     functionPrecomputation, we go over the function in advance of
+     emitting the assignment, and compute as needed the derivatives of
+     function calls with respect to their arguments.  Note that to get
+     the actual derivative of the function call with respect to solution,
+     you still have to use the chain rule.
+
+     We will name these derivative variables:
+       deriv_<function name>_<index>_d<argnum>
+     where index is the unique index of this function call within
+     the expression, and the argnum is the number of the argument
+     starting at zero.
+
+     Note that while initially I have no intention of doing all this
+     in sensitivity context, I have kept the possibility open of
+     doing this in the future, so we can do derivatives w.r.t parameters
+     using Sacado, but also do derivatives with respect to solution
+     without --- that could make AC sensitivities possible.  But
+     NOT YET.
+   =================================================================-
+  -->
+  <admst:template match="functionDerivativePrecomputation">
+    <admst:if test="[hasVoltageDependentFunction='yes']">
+      <admst:for-each select="function">
+        <admst:variable name="functionIndex" select="%(index(../function,.))"/>
+        <admst:variable name="functionNameS" select="%(funcnameSimple(.)/[name='fname']/value)"/>
+        <admst:variable name="functionName" select="%(funcname(.)/[name='fname']/value)"/>
+        <admst:choose>
+          <admst:when test="[$globalCurrentScope='sensitivity' and exists(../../lhs/#Pdependent)]">
+            <admst:variable name="varType" select="AdmsSensFadType "/>
+          </admst:when>
+          <admst:otherwise>
+            <admst:variable name="varType" select="double "/>
+          </admst:otherwise>
+        </admst:choose>
+
+        <admst:choose>
+          <admst:when test="[name='exp']">
+            <admst:if test="arguments/math[dependency!='constant']">
+              <admst:text format="%($varType) deriv_exp_%($functionIndex)_d0 = value_exp_%($functionIndex);\n"/>
+            </admst:if>
+          </admst:when>
+          <admst:when test="[name='pow']">
+            <admst:apply-templates select="arguments[1]" match="processTerm">
+              <admst:value-of select="returned('returnedExpression')/value"/>
+              <admst:variable name="a1" select="%s"/>
+            </admst:apply-templates>
+
+            <admst:apply-templates select="arguments[2]" match="processTerm">
+              <admst:value-of select="returned('returnedExpression')/value"/>
+              <admst:variable name="a2" select="%s"/>
+            </admst:apply-templates>
+            <admst:if test="arguments[1]/math[dependency!='constant']">
+              <admst:text format="%($varType) deriv_pow_%($functionIndex)_d0 = (%($a1) == 0.0)?0.0:(value_pow_%($functionIndex))*%($a2)/%($a1);\n"/>
+            </admst:if>
+            <admst:if test="arguments[2]/math[dependency!='constant']">
+              <admst:text format="%($varType) deriv_pow_%($functionIndex)_d1 = (%($a1) == 0.0)?0.0:(log($a1)*value_pow_%($functionIndex));\n"/>
+            </admst:if>
+          </admst:when>
+          <admst:otherwise>
+            <admst:text format="//function deriv %(name) not implemented yet.\n"/>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:for-each>
+    </admst:if>
+  </admst:template>
+  <!--
+   =================================================================-
    verilog2CXXtype
      given an admst data tree node, return the C++ datatype
      corresponding to its type
@@ -3540,6 +3612,7 @@ other variables does not get propagated into a variable's
       <!-- HACK:  if not in sensitivity context, let's dump out comments
            about the probe-dependence of the assignment we just emitted -->
       <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(lhs/probe))]">
+      <admst:apply-templates select="rhs/[not(nilled(function))]" match="functionDerivativePrecomputation"/>
         <admst:text format="\n"/>
         <admst:variable name="needinitialize" select="no"/>
         <admst:for-each select="lhs/probe">
