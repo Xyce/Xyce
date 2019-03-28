@@ -3186,7 +3186,15 @@ other variables does not get propagated into a variable's
           <admst:value-of select="returned('returnedExpression')/value"/>
           <admst:variable name="expression" select="($op%s)"/>
           <admst:value-of select="returned('returnedExpressionDeriv')/value"/>
-          <admst:variable name="expressionDeriv" select="($op%s)"/>
+          <admst:variable name="a1Deriv" select="%s"/>
+          <admst:choose>
+            <admst:when test="[$a1Deriv='0.0']">
+              <admst:variable name="expressionDeriv" select="0.0"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:variable name="expressionDeriv" select="($op$a1Deriv)"/>
+            </admst:otherwise>
+          </admst:choose>
         </admst:apply-templates>
       </admst:otherwise>
     </admst:choose>
@@ -3376,6 +3384,9 @@ other variables does not get propagated into a variable's
           <admst:otherwise>
             <admst:variable name="expression" select="($a1/$a2)"/>
             <admst:choose>
+              <admst:when test="[$a1Deriv='0.0' and $a2Deriv='0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
               <admst:when test="[$a1 = '1.0']">
                 <admst:choose>
                   <admst:when test="[$a2Deriv = '1.0']">
