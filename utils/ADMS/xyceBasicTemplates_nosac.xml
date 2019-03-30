@@ -3004,6 +3004,7 @@ other variables does not get propagated into a variable's
           </admst:when>
           <admst:otherwise>
             <admst:text format="//function deriv %(name) not implemented yet.\n"/>
+            <admst:warning format="function derivative for %(name) not implemented yet.\n"/>
           </admst:otherwise>
         </admst:choose>
       </admst:for-each>
