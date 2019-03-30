@@ -33,6 +33,12 @@
      If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<!-- this shouldn't really be needed, but makes sure this template can be
+     used in any order, even with the non-sacado version of the basic
+     templates, forcing it to fall back to the version that doesn't
+     try to insert precomputed function variables -->
+<admst:variable name="skipFunctionPrecomp" select="y"/>
+
 <admst:for-each select="/module">
   <admst:variable name="thisModule" select="%(.)"/>
   <!-- Set up some useful variables: the N_DEV_(foo) class, and its
