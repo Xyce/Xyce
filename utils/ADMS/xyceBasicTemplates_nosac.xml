@@ -2980,9 +2980,27 @@ other variables does not get propagated into a variable's
         </admst:choose>
 
         <admst:choose>
-          <admst:when test="[name='exp']">
+          <admst:when test="[name='exp' or name='ln' or name='sqrt']">
             <admst:if test="arguments/math[dependency!='constant']">
-              <admst:text format="%($varType) deriv_exp_%($functionIndex)_d0 = value_exp_%($functionIndex);\n"/>
+              <admst:choose>
+                <admst:when test="[name='exp']">
+                  <admst:text format="%($varType) deriv_exp_%($functionIndex)_d0 = value_exp_%($functionIndex);\n"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:apply-templates select="arguments[1]" match="processTerm">
+                    <admst:value-of select="returned('returnedExpression')/value"/>
+                    <admst:variable name="a1" select="%s"/>
+                  </admst:apply-templates>
+                  <admst:choose>
+                    <admst:when test="[name='ln']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/$a1);\n"/>
+                    </admst:when>
+                    <admst:when test="[name='sqrt']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (0.5/value_sqrt_%($functionIndex)));\n"/>
+                    </admst:when>
+                  </admst:choose>
+                </admst:otherwise>
+              </admst:choose>
             </admst:if>
           </admst:when>
           <admst:when test="[name='pow']">
@@ -4340,7 +4358,7 @@ other variables does not get propagated into a variable's
         <!-- now try to deal with derivatives -->
         <admst:choose>
           <!-- Single-argument functions -->
-          <admst:when test="[name='exp']">
+          <admst:when test="[name='exp' or name='ln' or name='sqrt']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
             </admst:apply-templates>
