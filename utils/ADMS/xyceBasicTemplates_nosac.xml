@@ -2931,6 +2931,12 @@ other variables does not get propagated into a variable's
       <admst:when test="[$globalCurrentScope='sensitivity' and exists(../../lhs/#Pdependent)]">
         <admst:text format="AdmsSensFadType "/>
       </admst:when>
+      <admst:when test="[$globalCurrentScope='sensitivity' and ../../datatypename='contribution']">
+        <admst:text format="AdmsSensFadType "/>
+      </admst:when>
+      <admst:when test="[$globalCurrentScope='sensitivity' and ../../lhs/scope='global_model']">
+        <admst:text format="AdmsSensFadType "/>
+      </admst:when>
       <admst:otherwise>
         <admst:text format="double "/>
       </admst:otherwise>
@@ -2980,7 +2986,7 @@ other variables does not get propagated into a variable's
         </admst:choose>
 
         <admst:choose>
-          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='atan']">
+          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='atan']">
             <admst:if test="arguments/math[dependency!='constant']">
               <admst:choose>
                 <admst:when test="[name='exp']">
@@ -3007,6 +3013,9 @@ other variables does not get propagated into a variable's
                     <admst:when test="[name='sin']">
                       <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (cos($a1));\n"/>
                     </admst:when>
+                    <admst:when test="[name='tan']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/cos($a1)/cos($a1));\n"/>
+                    </admst:when>
                     <admst:when test="[name='atan']">
                       <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (+1.0/(1+$a1*$a1));\n"/>
                     </admst:when>
@@ -3018,7 +3027,7 @@ other variables does not get propagated into a variable's
               </admst:choose>
             </admst:if>
           </admst:when>
-          <admst:when test="[name='pow']">
+          <admst:when test="[name='pow' or name='min' or name='max']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:value-of select="returned('returnedExpression')/value"/>
               <admst:variable name="a1" select="%s"/>
@@ -3029,10 +3038,30 @@ other variables does not get propagated into a variable's
               <admst:variable name="a2" select="%s"/>
             </admst:apply-templates>
             <admst:if test="arguments[1]/math[dependency!='constant']">
-              <admst:text format="%($varType) deriv_pow_%($functionIndex)_d0 = (%($a1) == 0.0)?0.0:(value_pow_%($functionIndex))*%($a2)/%($a1);\n"/>
+              <admst:choose>
+                <admst:when test="[name='pow']">
+                  <admst:text format="%($varType) deriv_pow_%($functionIndex)_d0 = ((%($a1) == 0.0)?0.0:(value_pow_%($functionIndex))*%($a2)/%($a1));\n"/>
+                </admst:when>
+                <admst:when test="[name='min']">
+                  <admst:text format="%($varType) deriv_min_%($functionIndex)_d0 = ((%($a1)&lt;%($a2))?1.0:0.0);\n"/>
+                </admst:when>
+                <admst:when test="[name='max']">
+                  <admst:text format="%($varType) deriv_max_%($functionIndex)_d0 = ((%($a1)&gt;%($a2))?1.0:0.0);\n"/>
+                </admst:when>
+              </admst:choose>
             </admst:if>
             <admst:if test="arguments[2]/math[dependency!='constant']">
-              <admst:text format="%($varType) deriv_pow_%($functionIndex)_d1 = (%($a1) == 0.0)?0.0:(log($a1)*value_pow_%($functionIndex));\n"/>
+              <admst:choose>
+                <admst:when test="[name='pow']">
+                  <admst:text format="%($varType) deriv_pow_%($functionIndex)_d1 = (%($a1) == 0.0)?0.0:(log($a1)*value_pow_%($functionIndex));\n"/>
+                </admst:when>
+                <admst:when test="[name='min']">
+                  <admst:text format="%($varType) deriv_min_%($functionIndex)_d1 = ((%($a1)&lt;%($a2))?0.0:1.0);\n"/>
+                </admst:when>
+                <admst:when test="[name='max']">
+                  <admst:text format="%($varType) deriv_max_%($functionIndex)_d1 = ((%($a1)&gt;%($a2))?0.0:1.0);\n"/>
+                </admst:when>
+              </admst:choose>
             </admst:if>
           </admst:when>
           <admst:otherwise>
@@ -3821,15 +3850,6 @@ other variables does not get propagated into a variable's
     -->
     <admst:assert test="adms[datatypename='contribution']" format="contribution template called with something that is not a contribution\n"/>
 
-    <!-- Error out if this module uses contribution types we don't grok -->
-    <!--
-    <admst:if test="[lhs/discipline/potential=lhs/nature and rhs/datatypename='expression' and not(rhs/tree/datatypename='number' and (rhs/tree/value='0' or rhs/tree/value='0.0'))]">
-      <admst:error format="this version of the Xyce ADMS interface does not support contributions into voltages unless one is setting them to 0 or 0.0.  Attempt to do %(lhs) &lt; %(rhs) failed\n"/>
-    </admst:if>
-    -->
-    <!-- don't let rhs evaluation be short-circuited with emission of precomputed
-         function calls -->
-    <admst:variable name="skipFunctionPrecomp" select="n"/>
     <!-- force template functions used on rhs to be explicitly instantiated -->
     <admst:variable name="saveTemplateUse" select="$globalMustUseTemplate"/>
     <admst:variable name="globalMustUseTemplate" select="yes"/>
@@ -3881,6 +3901,7 @@ other variables does not get propagated into a variable's
               <admst:text format="contribTemp = %(printTerm(rhs));\n"/>
               <admst:for-each select="rhs/probe">
                 <admst:text format="d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode) = /*diff(%(printTerm(..)),%(nature)_%(branch/pnode)_%(branch/nnode))*/;\n"/>
+                <admst:warning format="Model uses nonzero contributions into voltage branch and RHS is probe-dependent.  This is not correctly handled yet.\n"/>
               </admst:for-each>
               <admst:text format="%($mode)Contributions[%($branchConstant)] += contribTemp;\n"/>
               <admst:for-each select="rhs/probe">
@@ -3897,8 +3918,14 @@ other variables does not get propagated into a variable's
             <admst:otherwise>
               <!-- this is the simple case, no limiting needed -->
               <!-- Branch equation gets + the RHS -->
+              <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="{\n"/>
+              <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" match="functionPrecomputation"/>
+              <admst:if test="[$globalCurrentScope != 'sensitivity']">
+                <admst:apply-templates select="rhs/[not(nilled(function))]" match="functionDerivativePrecomputation"/>
+              </admst:if>
               <admst:text format="%($mode)Contributions[%($branchConstant)] += %(printTerm(rhs));\n"/>
               <admst:if test="[not($globalCurrentScope='sensitivity')]">
+                <admst:apply-templates select="rhs/[not(nilled(function))]" match="functionDerivativePrecomputation"/>
                 <admst:for-each select="rhs/probe">
                   <admst:variable name="derivProbe" select="%(.)"/>
                   <admst:apply-templates select="../tree" match="%(adms/datatypename)">
@@ -3908,6 +3935,7 @@ other variables does not get propagated into a variable's
                   <admst:text format="d_%($mode)Contributions[%($branchConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)] += %($rhsDeriv);\n"/>
                 </admst:for-each>
               </admst:if>
+              <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="}\n"/>
             </admst:otherwise>
           </admst:choose>
 
@@ -3927,6 +3955,11 @@ other variables does not get propagated into a variable's
           <admst:variable name="pnode" select="%(lhs/branch/pnode)"/>
           <admst:variable name="pnodeConstant" select="%(xyceNodeConstantName($pnode)/[name='nodeConstant']/value)"/>
           <admst:variable name="nnode" select="%(lhs/branch/nnode)"/>
+          <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="{\n"/>
+          <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" match="functionPrecomputation"/>
+          <admst:if test="[$globalCurrentScope != 'sensitivity']">
+            <admst:apply-templates select="rhs/[not(nilled(function))]" match="functionDerivativePrecomputation"/>
+          </admst:if>
           <!-- special processing when contribution RHS involves limited
                probes.  We must compute the rhs of the contribution,
                but also generate the Jdxp terms-->
@@ -4011,6 +4044,7 @@ other variables does not get propagated into a variable's
               </admst:if>
             </admst:otherwise>
           </admst:choose>
+          <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="}\n"/>
         </admst:if>
           <!-- we will handle only very specific types of  noise contributions,
                those whose RHS is strictly a single noise function.  This is
@@ -4382,7 +4416,7 @@ other variables does not get propagated into a variable's
         <!-- now try to deal with derivatives -->
         <admst:choose>
           <!-- Single-argument functions -->
-          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='atan']">
+          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='atan']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
             </admst:apply-templates>
@@ -4396,7 +4430,7 @@ other variables does not get propagated into a variable's
             </admst:choose>
           </admst:when>
           <!-- two-argument functions -->
-          <admst:when test="[name='pow']">
+          <admst:when test="[name='pow' or name='min' or name='max']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
             </admst:apply-templates>
@@ -4414,7 +4448,7 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2Deriv))"/>
               </admst:when>
               <admst:otherwise>
-                <admst:variable name="expressionDeriv" select="((deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv))+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2Deriv))"/>
+                <admst:variable name="expressionDeriv" select="((deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv))+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2Deriv)))"/>
               </admst:otherwise>
             </admst:choose>
           </admst:when>
@@ -4443,13 +4477,6 @@ other variables does not get propagated into a variable's
         <admst:variable name="expression" select="std::min"/>
         <admst:variable name="args" select=""/>
         <admst:for-each select="arguments">
-          <!-- if *ANY* argument depends on probes, can't use std::min, must
-               use Sacado's overloaded min -->
-          <admst:if test="[exists(math/dependency)]">
-            <admst:if test="[((math/dependency='linear' or math/dependency='nonlinear') and $globalCurrentScope != 'sensitivity')]">
-              <admst:variable name="expression" select="min"/>
-            </admst:if>
-          </admst:if>
           <admst:if test="[($globalCurrentScope='sensitivity' and exists(#Pdependent))]">
             <admst:variable name="expression" select="min"/>
           </admst:if>
@@ -4466,13 +4493,6 @@ other variables does not get propagated into a variable's
         <admst:variable name="expression" select="std::max"/>
         <admst:variable name="args" select=""/>
         <admst:for-each select="arguments">
-          <!-- if *ANY* argument depends on probes, can't use std::max, must
-               use Sacado's overloaded max -->
-          <admst:if test="[exists(math/dependency)]">
-            <admst:if test="[((math/dependency='linear' or math/dependency='nonlinear') and $globalCurrentScope != 'sensitivity')]">
-              <admst:variable name="expression" select="max"/>
-            </admst:if>
-          </admst:if>
           <admst:if test="[($globalCurrentScope='sensitivity' and exists(#Pdependent))]">
             <admst:variable name="expression" select="max"/>
           </admst:if>
