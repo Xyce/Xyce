@@ -182,7 +182,7 @@ end
 //
 
 `ifdef threeTerminal
-    module vbic13(c,b,e) `XYCE_ATTR("BJT","111","VBIC 1.3 3T","VBICtype");
+    module vbic13(c,b,e) `XYCE_ATTR("BJT","11","VBIC 1.3 3T","VBICtype");
     inout       c,b,e;                           // external nodes
     electrical  c,b,e;
     // TVR MOD: our ADMS back-end assigns node ID numbers in order of declaration, and these
