@@ -2980,7 +2980,7 @@ other variables does not get propagated into a variable's
         </admst:choose>
 
         <admst:choose>
-          <admst:when test="[name='exp' or name='ln' or name='sqrt']">
+          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs']">
             <admst:if test="arguments/math[dependency!='constant']">
               <admst:choose>
                 <admst:when test="[name='exp']">
@@ -2997,6 +2997,9 @@ other variables does not get propagated into a variable's
                     </admst:when>
                     <admst:when test="[name='sqrt']">
                       <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (0.5/value_sqrt_%($functionIndex));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='abs']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = ((($a1)&gt;0)?(+1.0):(-1.0));\n"/>
                     </admst:when>
                   </admst:choose>
                 </admst:otherwise>
@@ -4367,7 +4370,7 @@ other variables does not get propagated into a variable's
         <!-- now try to deal with derivatives -->
         <admst:choose>
           <!-- Single-argument functions -->
-          <admst:when test="[name='exp' or name='ln' or name='sqrt']">
+          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
             </admst:apply-templates>
@@ -4701,7 +4704,10 @@ other variables does not get propagated into a variable's
   <admst:template match="conditional">
     <admst:assert test="adms[datatypename='conditional']" format="conditional template called on something other than conditional\n"/>
 
+    <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+    <admst:variable name="skipFunctionPrecomp" select="y"/>
     <admst:text format="if (%(printTerm(if)))\n"/>
+    <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
     <!-- blocks will print their own braces, but we always want them -->
     <admst:text select="then/adms[datatypename!='block']" format="{\n"/>
     <admst:apply-templates select="then" match="%(adms/datatypename)"/>
@@ -4764,7 +4770,10 @@ other variables does not get propagated into a variable's
    =================================================================-
   -->
   <admst:template match="whileloop">
+    <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+    <admst:variable name="skipFunctionPrecomp" select="y"/>
     <admst:text format="while (%(printTerm(while)))\n"/>
+    <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
     <admst:text select="whileblock/adms[datatypename!='block']" format="{\n"/>
     <admst:apply-templates select="whileblock" match="%(adms/datatypename)"/>
     <admst:text select="whileblock/adms[datatypename!='block']" format="}\n"/>
