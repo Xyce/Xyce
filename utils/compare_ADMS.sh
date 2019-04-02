@@ -1,11 +1,11 @@
 #/bin/sh
 
-# Be sure to trun this from the project root!
+# Be sure to run this from the project root!
 
 diff -u -Bb utils/ADMS/examples/fbh_hbt-2.1/N_DEV_ADMSHBT_X.h src/DeviceModelPKG/ADMS/N_DEV_ADMSHBT_X.h
 diff -u -Bb utils/ADMS/examples/fbh_hbt-2.1/N_DEV_ADMSHBT_X.C src/DeviceModelPKG/ADMS/N_DEV_ADMSHBT_X.C
-#diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13.C src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13.C
-#diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13.h src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13.h
+diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13.C src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13.C
+diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13.h src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13.h
 diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13_4t.C src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13_4t.C
 diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13_4t.h src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13_4t.h
 diff -u -Bb utils/ADMS/examples/bsimcmg_107.0.0/code/N_DEV_ADMSbsimcmg.h src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg.h
