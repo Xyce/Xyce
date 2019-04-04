@@ -2889,9 +2889,12 @@ other variables does not get propagated into a variable's
          <admst:otherwise>
            <!-- ICK.  In this case, we don't usually HAVE a probe variable,
                 and so we must calculate the drop V(branch) directly.
-                We can't rely on Sacado to do derivatives w.r.t. this,
-                and will have to have a manual +/- dependence in the
+                We don't rely on automatic differentiation to do derivatives
+                w.r.t. this, and will have to have a manual +/- dependence in
+                the
                 branch's static jacobian. -->
+           <admst:text format="// Derivative of this term with respect to node is +/-1\n"/>
+           <admst:text format="// Handling of that derivative is done explicitly in the loadDAEdFdX method\n"/>
            <admst:text format="  staticContributions[%(xyceBranchConstantName(.)/[name='branchConstant']/value)] -= (*solVectorPtr)[%(xyceNodeLIDVariable(./pnode))]"/>
            <admst:if test="[nnode/grounded='no']">
              <admst:text format="-(*solVectorPtr)[%(xyceNodeLIDVariable(./nnode))]"/>
