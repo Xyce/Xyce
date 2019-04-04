@@ -3685,7 +3685,7 @@ other variables does not get propagated into a variable's
           </admst:if>
         </admst:for-each>
         <admst:if test="[$needinitialize = 'yes']">
-          <admst:text format=" 0.0; \n"/>
+          <admst:text format=" 0.0;\n"/>
         </admst:if>
       </admst:if>
       <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(rhs/probe))]">
