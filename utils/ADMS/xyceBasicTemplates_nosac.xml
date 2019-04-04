@@ -3040,7 +3040,7 @@ other variables does not get propagated into a variable's
             <admst:if test="arguments[1]/math[dependency!='constant']">
               <admst:choose>
                 <admst:when test="[name='pow']">
-                  <admst:text format="%($varType) deriv_pow_%($functionIndex)_d0 = ((%($a1) == 0.0)?0.0:(value_pow_%($functionIndex))*%($a2)/%($a1));\n"/>
+                  <admst:text format="%($varType) deriv_pow_%($functionIndex)_d0 = ((%($a1) == 0.0)?0.0:(value_pow_%($functionIndex)*%($a2)/%($a1)));\n"/>
                 </admst:when>
                 <admst:when test="[name='min']">
                   <admst:text format="%($varType) deriv_min_%($functionIndex)_d0 = ((%($a1)&lt;%($a2))?1.0:0.0);\n"/>
