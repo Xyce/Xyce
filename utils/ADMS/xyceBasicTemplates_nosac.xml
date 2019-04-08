@@ -3008,7 +3008,7 @@ other variables does not get propagated into a variable's
                       <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (0.5/value_sqrt_%($functionIndex));\n"/>
                     </admst:when>
                     <admst:when test="[name='abs']">
-                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = ((($a1)&gt;0)?(+1.0):(-1.0));\n"/>
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = ((($a1)&gt;=0)?(+1.0):(-1.0));\n"/>
                     </admst:when>
                     <admst:when test="[name='cos']">
                       <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (-sin($a1));\n"/>
@@ -3046,10 +3046,10 @@ other variables does not get propagated into a variable's
                   <admst:text format="%($varType) deriv_pow_%($functionIndex)_d0 = ((%($a1) == 0.0)?0.0:(value_pow_%($functionIndex)*%($a2)/%($a1)));\n"/>
                 </admst:when>
                 <admst:when test="[name='min']">
-                  <admst:text format="%($varType) deriv_min_%($functionIndex)_d0 = ((%($a1)&lt;%($a2))?1.0:0.0);\n"/>
+                  <admst:text format="%($varType) deriv_min_%($functionIndex)_d0 = ((%($a1)&lt;=%($a2))?1.0:0.0);\n"/>
                 </admst:when>
                 <admst:when test="[name='max']">
-                  <admst:text format="%($varType) deriv_max_%($functionIndex)_d0 = ((%($a1)&gt;%($a2))?1.0:0.0);\n"/>
+                  <admst:text format="%($varType) deriv_max_%($functionIndex)_d0 = ((%($a1)&gt;=%($a2))?1.0:0.0);\n"/>
                 </admst:when>
               </admst:choose>
             </admst:if>
@@ -3059,10 +3059,10 @@ other variables does not get propagated into a variable's
                   <admst:text format="%($varType) deriv_pow_%($functionIndex)_d1 = (%($a1) == 0.0)?0.0:(log($a1)*value_pow_%($functionIndex));\n"/>
                 </admst:when>
                 <admst:when test="[name='min']">
-                  <admst:text format="%($varType) deriv_min_%($functionIndex)_d1 = ((%($a1)&lt;%($a2))?0.0:1.0);\n"/>
+                  <admst:text format="%($varType) deriv_min_%($functionIndex)_d1 = ((%($a1)&lt;=%($a2))?0.0:1.0);\n"/>
                 </admst:when>
                 <admst:when test="[name='max']">
-                  <admst:text format="%($varType) deriv_max_%($functionIndex)_d1 = ((%($a1)&gt;%($a2))?0.0:1.0);\n"/>
+                  <admst:text format="%($varType) deriv_max_%($functionIndex)_d1 = ((%($a1)&gt;=%($a2))?0.0:1.0);\n"/>
                 </admst:when>
               </admst:choose>
             </admst:if>
