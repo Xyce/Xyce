@@ -2989,7 +2989,7 @@ other variables does not get propagated into a variable's
         </admst:choose>
 
         <admst:choose>
-          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='atan']">
+          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh']">
             <admst:if test="arguments/math[dependency!='constant']">
               <admst:choose>
                 <admst:when test="[name='exp']">
@@ -3019,8 +3019,32 @@ other variables does not get propagated into a variable's
                     <admst:when test="[name='tan']">
                       <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/cos($a1)/cos($a1));\n"/>
                     </admst:when>
+                    <admst:when test="[name='acos']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (-1.0/sqrt(1.0-$a1*$a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='asin']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (+1.0/sqrt(1.0-$a1*$a1));\n"/>
+                    </admst:when>
                     <admst:when test="[name='atan']">
                       <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (+1.0/(1+$a1*$a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='cosh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (sinh($a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='sinh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (cosh($a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='tanh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/cosh($a1)/cosh($a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='acosh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/(sqrt($a1-1.0)*sqrt($a1+1.0)));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='asinh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/(sqrt($a1*$a1+1.0)));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='atanh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/(1-$a1*$a1));\n"/>
                     </admst:when>
                     <admst:when test="[name='limexp']">
                       <admst:text format="%($varType) deriv_limexp_%($functionIndex)_d0 = ((($a1)&lt;80)?(value_limexp_%($functionIndex)):exp(80.0));\n"/>
@@ -4413,13 +4437,20 @@ other variables does not get propagated into a variable's
         </admst:choose>
       </admst:when>
       <admst:otherwise>
-        <!-- we must use precomputed function vars -->
-        <admst:variable name="expression" select="value_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))"/>
-
+        <admst:choose>
+          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' or name='pow' or name='min' or name='max']">
+            <!-- we must use precomputed function vars -->
+            <admst:variable name="expression" select="value_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))"/>
+          </admst:when>
+          <admst:otherwise>
+            <admst:message format="Falling back on direct function call instead of precomputation for function %(name) of class %(class).  May be a sign of incomplete back end.\n"/>
+            <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
+          </admst:otherwise>
+        </admst:choose>
         <!-- now try to deal with derivatives -->
         <admst:choose>
           <!-- Single-argument functions -->
-          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='atan']">
+          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' ]">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
             </admst:apply-templates>
@@ -4455,7 +4486,26 @@ other variables does not get propagated into a variable's
               </admst:otherwise>
             </admst:choose>
           </admst:when>
-
+          <admst:otherwise>
+            <admst:warning format="Do not know how to differentiate function %(name).  Code will be wrong!\n"/>
+            <admst:variable name="argsDep" select="no"/>
+            <admst:for-each select="arguments">
+              <admst:apply-templates select="." match="processTerm">
+                <admst:variable name="aDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+                <admst:if test="[$aDeriv != '0.0']">
+                  <admst:variable name="argsDep" select="yes"/>
+                </admst:if>
+              </admst:apply-templates>
+            </admst:for-each>
+            <admst:choose>
+              <admst:when test="[$argsDep = 'no']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="(0.0 /* should have deriv_%(funcnameSimple(.)/[name='fname']/value) here */)"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:otherwise>
         </admst:choose>
       </admst:otherwise>
     </admst:choose>
