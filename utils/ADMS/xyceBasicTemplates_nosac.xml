@@ -3678,7 +3678,6 @@ other variables does not get propagated into a variable's
   -->
   <admst:template match="assignment">
     <admst:assert test="adms[datatypename='assignment']" format="assignment template called with something that is not an assignment\n"/>
-    <admst:variable name="skipFunctionPrecomp" select="n"/>
     <admst:choose>
     <admst:when test="[nilled(rhs/function/[name='\$limit'])]">
       <admst:variable name="saveTemplateUse" select="$globalMustUseTemplate"/>
@@ -3695,11 +3694,11 @@ other variables does not get propagated into a variable's
       </admst:if>
       <!-- If RHS contains any function calls other than
            $simparam, ddt, and ddx, precompute them -->
-      <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="{\n"/>
-      <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" match="functionPrecomputation"/>
+      <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" format="{\n"/>
+      <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" match="functionPrecomputation"/>
       <!-- If not in sensitivity context, let's emit the derivatives
            of the assignment first -->
-      <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(lhs/probe))]">
+      <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(lhs/probe)) and $skipFunctionPrecomp='n']">
         <admst:apply-templates select="rhs/[not(nilled(function))]" match="functionDerivativePrecomputation"/>
         <admst:text format="\n"/>
         <admst:variable name="needinitialize" select="no"/>
@@ -3755,7 +3754,7 @@ other variables does not get propagated into a variable's
 
       <admst:variable name="globalMustUseTemplate" select="$saveTemplateUse"/>
       <admst:variable name="globalMustForceScalar" select="$saveScalarForce"/>
-      <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="}\n"/>
+      <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" format="}\n"/>
     </admst:when>
     <admst:otherwise>
       <admst:apply-templates select="." match="limiterAssignment"/>
@@ -4220,7 +4219,14 @@ other variables does not get propagated into a variable's
     <admst:variable name="expressionDeriv" select="0.0"/>
     <admst:choose>
       <admst:when test="[name='min' or name='max']">
-        <admst:variable name="expression" select="value_%(name)_%(index(subexpression/expression/function,.))"/>
+        <admst:choose>
+          <admst:when test="[$skipFunctionPrecomp='y']">
+            <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
+          </admst:when>
+          <admst:otherwise>
+            <admst:variable name="expression" select="value_%(name)_%(index(subexpression/expression/function,.))"/>
+          </admst:otherwise>
+        </admst:choose>
       </admst:when>
       <admst:when test="[name='absdelay']">
         <admst:apply-templates select="arguments[1]" match="processTerm">

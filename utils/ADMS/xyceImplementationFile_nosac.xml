@@ -518,6 +518,7 @@ void Traits::loadModelParameters(ParametricData&lt;%($nameSpace)::Model&gt; &amp
     </admst:for-each>
 }
 
+<admst:variable name="skipFunctionPrecomp" select="n"/>
 //-----------------------------------------------------------------------------
 // Function      : Instance::processParams
 // Purpose       :
@@ -2365,7 +2366,6 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 
 <admst:apply-templates select="$theModule" match="xyceDeviceFactoryandRegisterDevice"/>
 
-
 <admst:variable name="globalCurrentScope" select="sensitivity"/>
 <admst:variable name="globalSensitivityScope" select="instance"/>
 
@@ -3111,6 +3111,7 @@ probeVars,
 }
 
 #endif // Xyce_ADMS_SENSITIVITIES
+<admst:variable name="skipFunctionPrecomp" select="y"/>
 
 } // namespace %($nameSpace)
 } // namespace Device
