@@ -42,6 +42,8 @@
   <admst:variable name="globalMustUseTemplate" select="no"/>
   <admst:variable name="globalMustForceScalar" select="no"/>
   <admst:variable name="globalCurrentScope" select="instance"/>
+  <admst:variable name="skipFunctionPrecomp" select="y"/>
+  <admst:variable name="derivProbe"/>
   <admst:apply-templates select="/module" match="xyceClassBaseName">
     <admst:value-of select="returned('classname')/value"/>
     <admst:variable name="classname" select="%s"/>
