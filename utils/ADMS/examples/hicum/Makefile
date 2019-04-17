@@ -9,7 +9,7 @@ XyceADMSFILES = $(ADMSDIR)/xyceVersion_nosac.xml \
 all-source: N_DEV_ADMShicumL2va.C
 
 clean:
-	rm -f N_DEV_ADMShicumL2va.C *.o *.so*
+	rm -f N_DEV_ADMShicumL2va.C N_DEV_ADMShicumL2va.h *.o *.so*
 
 N_DEV_ADMShicumL2va.C: hicumL2V2p4p0.va  $(XyceADMSFILES)
 	admsXml  -e $(ADMSDIR)/xyceVersion_nosac.xml -e $(ADMSDIR)/xyceBasicTemplates_nosac.xml -e $(ADMSDIR)/xyceHeaderFile.xml -e $(ADMSDIR)/xyceImplementationFile_nosac.xml hicumL2V2p4p0.va

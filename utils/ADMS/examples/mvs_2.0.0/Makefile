@@ -9,7 +9,7 @@ XyceADMSFILES = $(ADMSDIR)/xyceVersion_nosac.xml \
 all-source: N_DEV_ADMSmvs_2_0_0_hemt.C N_DEV_ADMSmvs_2_0_0_etsoi.C
 
 clean:
-	rm -f N_DEV_ADMSmvs_2_0_0_hemt.C N_DEV_ADMSmvs_2_0_0_etsoi.C *.o *.so*
+	rm -f N_DEV_ADMSmvs_2_0_0_hemt.C N_DEV_ADMSmvs_2_0_0_etsoi.C N_DEV_ADMSmvs_2_0_0_hemt.h N_DEV_ADMSmvs_2_0_0_etsoi.h *.o *.so*
 
 N_DEV_ADMSmvs_2_0_0_hemt.C: mvs_2_0_0_hemt.va  $(XyceADMSFILES)
 	admsXml  -e $(ADMSDIR)/xyceVersion_nosac.xml -e $(ADMSDIR)/xyceBasicTemplates_nosac.xml -e $(ADMSDIR)/xyceHeaderFile.xml -e $(ADMSDIR)/xyceImplementationFile_nosac.xml mvs_2_0_0_hemt.va

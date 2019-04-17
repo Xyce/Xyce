@@ -7,7 +7,7 @@ XyceADMSDeps = $(ADMSDIR)/xyceVersion_nosac.xml \
 all-source: N_DEV_ADMSvbic13_4t.C N_DEV_ADMSvbic13.C
 
 clean:
-	rm -f N_DEV_ADMSvbic13.C N_DEV_ADMSvbic13_4t.C *.o *.so*
+	rm -f N_DEV_ADMSvbic13.C N_DEV_ADMSvbic13_4t.C N_DEV_ADMSvbic13.h N_DEV_ADMSvbic13_4t.h *.o *.so*
 
 N_DEV_ADMSvbic13_4t.C: vbic_1p3.va cmcGeneralMacrosAndDefines.va cmcStandardModelMacros.va make_vbic13_usable.diff make_vbic13_headers_usable.diff $(XyceADMSDeps)
 	admsXml -D__XYCE_COMPACT_MODELING__=1 -e $(ADMSDIR)/xyceVersion_nosac.xml -e $(ADMSDIR)/xyceBasicTemplates_nosac.xml -e $(ADMSDIR)/xyceImplementationFile_nosac.xml  -e $(ADMSDIR)/xyceHeaderFile.xml vbic_1p3.va

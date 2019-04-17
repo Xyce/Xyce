@@ -19,7 +19,7 @@ XyceADMSFILES = $(ADMSDIR)/xyceVersion_nosac.xml \
 	$(ADMSDIR)/xyceHeaderFile.xml \
 	$(ADMSDIR)/xyceImplementationFile_nosac.xml
 
-CLEANFILES = N_DEV_ADMSPSP102VA.C N_DEV_ADMSJUNCAP200.h discipline.h
+CLEANFILES = N_DEV_ADMSPSP102VA.C N_DEV_ADMSPSP102VA.h N_DEV_ADMSJUNCAP200.C N_DEV_ADMSJUNCAP200.h discipline.h
 
 all-source: N_DEV_ADMSPSP102VA.C
 
