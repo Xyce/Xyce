@@ -2969,7 +2969,7 @@ other variables does not get propagated into a variable's
      in sensitivity context, I have kept the possibility open of
      doing this in the future, so we can do derivatives w.r.t parameters
      using Sacado, but also do derivatives with respect to solution
-     without --- that could make AC sensitivities possible.  But
+     without.  That could make AC sensitivities possible.  But
      NOT YET.
    =================================================================-
   -->
@@ -4516,7 +4516,7 @@ other variables does not get propagated into a variable's
       </admst:otherwise>
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
-    <!-- NOT CORRECT YET --- FIXME for everything other than ddt!-->
+    <!-- NOT CORRECT YET: Lots of missing function!-->
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
   </admst:template>
 

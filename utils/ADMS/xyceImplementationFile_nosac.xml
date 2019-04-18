@@ -1894,7 +1894,7 @@ bool Instance::loadDAEdFdx()
 bool Instance::loadDAEdQdx()
 {
   bool bsuccess = true;
-  Linear::Matrix & dQdx = *(extData.dQdxMatrixPtr);
+  Linear::Matrix &amp; dQdx = *(extData.dQdxMatrixPtr);
 
 #ifndef Xyce_NONPOINTER_MATRIX_LOAD
 
