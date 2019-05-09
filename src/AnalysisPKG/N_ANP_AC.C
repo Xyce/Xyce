@@ -116,7 +116,10 @@ bool AC::setTimeIntegratorOptions(
     else if (setDCOPOption(param))
       ;
     else
+    {
       Report::UserError() << param.uTag() << " is not a recognized time integration option";
+      return false;
+    }
   }
 
   return true;
@@ -547,6 +550,7 @@ bool AC::setACOptions(const Util::OptionBlock & OB)
     else
     {
       Report::UserError() << "Unrecognized ACLIN option " << tag;
+      return false;
     }
   }
 
@@ -721,28 +725,31 @@ bool AC::doInit()
 
     Z0sVec_.assign(numPorts_, 0);
 
-
     for (int i=0; i<len; ++i)
     {
       portPID_[ portNumVec_[i] - 1] = myPID;
       Z0sVec_[ portNumVec_[i] - 1] = tempZ0s[i];
-
     }
 
     Xyce::Parallel::AllReduce(comm, MPI_MAX, &portPID_[0], numPorts_);
 
     Xyce::Parallel::AllReduce(comm, MPI_SUM, &Z0sVec_[0], numPorts_);       
 
+    // error checking
     if (myPID == 0)
     {
       for (int i=0; i< numPorts_;  ++i)
       {
-        if (portPID_[i] == -1)  
-          Report::UserError() << "Did not find port " << i + 1;
-
+        if ( portPID_[i] == -1 )
+	{
+          Report::UserFatal() << "Did not find port " << i + 1 << " for .LIN analysis";
+        }
 
         if ( Z0sVec_[i] < 0.0 )
-          Report::UserError() << " The negative impedance " << Z0sVec_[i] << " for port " << i + 1 <<  " is not supported ";
+	{
+          Report::UserFatal() << " The negative impedance " << Z0sVec_[i] << " for port " << i + 1
+                              <<  " is not supported for .LIN analysis";
+        }
       }
     }
 
@@ -1602,6 +1609,7 @@ bool AC::loadSensitivityRHS_(const std::string & name)
     else
     {
       Report::UserError0() << "AC::loadSensitivityRHS_: ERROR, can't compute RHS\n";
+      return false;
     }
 
     dGdp_->put(0.0);
@@ -1727,6 +1735,7 @@ bool AC::setupObjectiveFuncGIDs_()
     if (!found && !found2)
     {
       Report::UserError() << "Objective function variable " << objFuncVars_[iout] << " not found";
+      return false;
     }
 
     if (found || found2)
