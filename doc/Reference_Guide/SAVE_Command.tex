@@ -1,0 +1,52 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+\index{\texttt{.SAVE}}
+\index{output!save} \index{save operating point conditions}
+Stores the operating point of a circuit in the specified file for use in subsequent simulations.  The data may be saved as \texttt{.IC} or \texttt{.NODESET} lines.
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.SAVE [TYPE=<IC|NODESET>] [FILE=<filename>] [LEVEL=<all|none>]
++ [TIME=<save\_time>]
+\end{alltt}
+
+\examples
+\begin{alltt}
+.SAVE TYPE=IC FILE=mycircuit.ic
+.SAVE TYPE=NODESET FILE=myothercircuit.ic
+
+.include mycircuit.ic
+\end{alltt}
+
+\comments
+
+  The file created by \texttt{.SAVE} will contain \texttt{.IC} or
+  \texttt{.NODESET} lines containing all the voltage node values at the DC
+  operating point of the circuit. The default \textrmb{TYPE} is
+  \texttt{NODESET}. The default \texttt{filename} is
+  \texttt{\emph{netlist.cir}.ic}.
+  
+  The resulting file may be used in subsequent simulations to obtain quick DC
+  convergence simply by including it in the netlist, as in the third example
+  line above.  \Xyce{} has no corresponding \texttt{.LOAD} statement.
+  
+  The \textrmb{LEVEL} parameter is included for compatability with HSPICE
+  netlists. If \texttt{none} is specified, then no save file is created. The
+  default \textrmb{LEVEL} is \texttt{all}.
+  
+  \textrmb{TIME} is also an HSPICE compatibility parameter. This is unsupported
+  in \Xyce{}. \Xyce{} outputs the save file only at time=0.0.
+
+\end{Command}
+

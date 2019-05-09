@@ -1,0 +1,413 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Fixed Defects.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+     \caption{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline
+     \endfirsthead
+     \caption[]{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia Users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline
+     \endhead
+
+     %\textbf{bug xxxx }: Describe issue & Describe fix.  \\ \hline
+     \textbf{302-SON}:  Support re-measure of existing \Xyce{} simulation data  & 
+     Re-measure was documented in the \Xyce{} 6.3 Reference Guide.  Subsequent testing showed
+     that re-measure did not work correctly for: a) parallel execution of \Xyce{}; or b)
+     when the measure line used an expression. This has been fixed.  
+     \\ \hline 
+
+     \textbf{308-SON}: \texttt{.STEP} analysis has a subtle bug for transient
+     simulation & \texttt{.STEP} analysis applies an outer parameter stepper
+     loop around another analysis type such as transient.  When \texttt{.STEP}
+     was applied to transient, the transient output was not identical to the
+     output from equivalent stand-alone transient analyses. This bug was only
+     present in the BDF time integrator.  This has been fixed.  
+     \\ \hline 
+
+     \textbf{414-SON}:  Fix the nonlinear solver convergence tests to be
+     simpler and make more sense & The nonlinear solver in \Xyce{} had an
+     overly-complex set of convergence tests that were not necessary.
+     Occasionally, this complexity would prevent convergence of circuits, or under very
+     rare instances, allow solver failures to be declared as passed.  This
+     has been fixed.  
+     \\ \hline 
+
+     \textbf{440-SON}: \texttt{.MEASURE} should properly support signals with DC offsets and
+     measures that use resistor lead currents & \texttt{.MEASURE} statements did not 
+     function correctly if the measured quantity either did not start at 0 at time=0 or 
+     used a resistor lead current.  
+     Simple examples were measuring the maximum level of the voltage source defined as
+     \texttt{VCOS 1 1a SIN(0 5 100K -2.5U)} or measuring the maximum current level
+     through a resistor with \texttt{.MEASURE TRAN MAXIR MAX I(RTEST)}.  
+     \\ \hline 
+
+     \textbf{540-SON }: \Xyce{} incorrectly added extensions to file names
+     specified on print lines & In \Xyce{} 6.2, the behavior of the
+     \texttt{FILE=} option to \texttt{.PRINT} lines was inadvertently changed.
+     In versions 6.2 and 6.3, the code incorrectly added format-specific
+     extensions to the file name specified, e.g. \texttt{FILE=myfile} would
+     actually result in a file called \texttt{myfile.prn} for the standard
+     output format.  This was not intended, and was reported by users too soon
+     before the 6.3 release to be corrected in that release.  \Xyce{} 6.4 does
+     not add this undesired extension, and the file name specified is once
+     again used exactly as specified.
+
+     {\bf NOTE:} The file name specified by \texttt{FILE=} is used only for the
+     primary output file associated with the print line.  For print lines that
+     result in multiple output files the secondary outputs are still given
+     default file names based on the netlist name and output format.  As an
+     example, if the input file is called ``netlist.cir'', \texttt{.print HB
+     FILE=a} will output the primary data (frequency-domain solution) to the
+     file ``a'', but the secondary data (time-domain solution) to
+     ``netlist.cir.HB.TD.prn'' rather than using the file name specified as a
+     base name.  {\bf This choice of file name for secondary outputs may change
+     in future releases.} Additional \texttt{.PRINT} options exist to specify
+     file names for these secondary outputs, such as \texttt{.print HB\_TD
+     FILE=b} to output the time domain data to file ``b''.  
+     \\ \hline
+
+     \textbf{554-SON}: PDE\_1D\_BJT/gilbert\_cell\_pde\_four test failing on
+     parallel RHEL5 since mid-October & The ``gilbert\_cell\_pde\_four'' test
+     was failing on Windows and RHEL5 builds at various times prior to the
+     release of \Xyce{} 6.3. The problem was with the test circuit not having
+     tight enough tolerances, so it had variable results. The tolerances were
+     tightened and the failures stopped.
+     \\ \hline
+
+     \textbf{573-SON}: Continuation does not work in HB solves & Prior to \Xyce{}
+     6.3, specification of LOCA continuation options in \texttt{.OPTIONS
+     NONLIN-HB} would be accepted but continuation would not actually be
+     applied.  This was fixed in \Xyce{} 6.3, but had not been documented in the
+     6.3 Release Notes.  
+     \\ \hline
+
+
+     \textbf{592-SON}: Make \texttt{.IC} and \texttt{.NODESET} be able to use expressions & 
+     In \Xyce{} 6.3, if one attempted to use expressions on the \texttt{.IC} line,
+     the simulation would fail, as the code was not instrumented to handle this
+     properly.  The same was true for \texttt{.NODESET}.  This has been fixed
+     for \Xyce{} 6.4.
+     \\ \hline
+
+     \textbf{606-SON and 654-SON}: Make TEMP and Vt work correctly in B source
+     expressions & It was observed that if a B source expression used the TEMP
+     variable, the value of the expression was not correctly being updated if
+     TEMP was swept in a \texttt{.STEP} loop.  Furthermore, the \Xyce{}
+     documentation has always stated that Vt is a reserved variable name, but
+     \Xyce{} neither defined the Vt variable nor allowed it to be used in B
+     source expressions.  Release 6.4 fixes both of these issues, allowing TEMP
+     and Vt to be used in B source expressions, and correctly updating them in
+     \texttt{.STEP} loops.
+     \\ \hline
+
+
+     \textbf{614-SON}: PDE (TCAD) Device nonlinear Poisson initialization needs 
+     to work properly with LOCA & Prior to \Xyce{} 6.3, specification of LOCA 
+     continuation in \texttt{.OPTIONS NONLIN} for a PDE(TCAD) problem would lead 
+     to a logic error that often resulted in nonconvergence.  The TCAD devices
+     by default solve a nonlinear Poisson problem first, followed by the full 
+     drift-diffusion formulation at the DCOP.  The nonlinear Poisson calculation 
+     can be manually turned off, but typically is not, as it provides a good initial 
+     guess.  The logic error was that if running a continuation loop, the nonlinear 
+     Poisson calculation would be re-computed at each step of the continuation, and 
+     it only should have been computed for the very first step.  This has been fixed 
+     for \Xyce{} 6.4.
+     \\ \hline
+
+     \textbf{624-SON}: GMIN stepping output gets put into TRAN output file under 
+     some circumstances  &  This issue happened when the user specified an 
+     output filename on the \texttt{.PRINT} line.  \Xyce{} would incorrectly 
+     use that filename for all the outputs, even if it had only been specified for 
+     one type of analysis (such as transient).  When this happened, output that 
+     should have been in separate files was all concatenated into the same file.  
+     This was not the intended behavior, and it has been fixed in \Xyce{} 6.4.
+     For example, if the user specifies a output file name for the transient 
+     \texttt{.PRINT} line, the resulting file with this name will only contain 
+     transient output.  Other outputs, such as output for GMIN stepping will 
+     be directed to a separate file using the default filename for that analysis
+     type.
+     \\ \hline
+
+     \textbf{629-SON}: Power accessors (P() and W()) do not work in expressions
+     & P() and W() now work in expressions in both top-level circuits and
+     subcircuits.
+     \\ \hline
+
+     \textbf{632-SON}: Fix LOCA interface so that we can use arclength 
+     continuation with voltage limiting on & Arclength continuation only worked
+     if voltage limiting was turned off by setting \texttt{.options device voltlim=0}.
+     This was because the arclength equation was required the sensitivity 
+     of the system with respect to the continuation parameter.  This was computed 
+     using a finite-difference calculation, that conflicted with voltage limiting.
+     This issue has been fixed in \Xyce{} 6.4.  Many devices are now instrumented
+     to provide analytic parameter sensitivities to support \texttt{.SENS}.  The
+     interface to LOCA has been refactored to use these sensitivities when available.
+     When not available, a new finite-difference has been implemented that temporarily
+     disables voltage limiting.  
+     \\ \hline
+
+
+     \textbf{636-SON}: \Xyce{} core dumps on invalid \texttt{.TRAN} line & A
+     \texttt{.TRAN} line with only one of the two required arguments caused
+     \Xyce{} versions 6.1 through 6.3 to crash with a core dump.  This error was
+     fixed in \Xyce{} 6.4.  
+     \\ \hline
+
+     \textbf{641-SON}: Core Dumps Caused by OBJFUNC Contents in .SENS & This occurred
+     if an invalid objective function was specified for a sensitivity analysis.  For 
+     example, sensitivity analysis objective functions currently cannot process
+     output functions such as the power accessors, so a specification such as
+     \texttt{.SENS objfunc={P(R1)}}  would cause a core dump in \Xyce{} 6.3.  This
+     has been fixed for \Xyce{} 6.4.
+     \\ \hline
+
+     \textbf{644-SON}: Wrong number of arguments on .DC line causes segfault &
+     This line (\texttt{ .DC V1 -8.0 -4.0 0.0 4.0}) would cause a core dump,
+     since the last 4.0 is extraneous.  Incorrect .DC lines should now produce
+     useful error messages and graceful exits.  
+     \\ \hline
+
+     \textbf{646-SON}: .csd format for PROBE output is incorrect for specific
+     numbers of output variables & This line (\texttt{.PRINT TRAN FORMAT=PROBE
+     V(1) V(2) V(3) V(4)}) would produce an incorrectly formatted .csd file
+     that would not open in PSpice.  In general, the bug occurred if the number
+     of output variables (N) on the \texttt{FORMAT=PROBE} print line satisfied
+     this equation: (N+1)mod5 = 0.  It works correctly now.  
+     \\ \hline
+
+     \textbf{647-SON }: Instance parameters copied from model at wrong time,
+     breaking step loops  & Some devices have default values of instance
+     parameters that are computed from model parameters.  If a device is
+     instantiated without specifying these instance parameters, the default is
+     computed and used.  In versions of \Xyce{} prior to 6.4, this computation
+     was performed once, when the device was first created.  This is incorrect
+     if any of the model parameters used in the computation are being varied in
+     a \texttt{.STEP} loop.  In such a case, the instance parameter would not
+     properly be updated as the model parameter was varied.  This has been
+     fixed in \Xyce{} 6.4 for all devices that had the problem, which included
+     most MOSFET devices and all devices that had been generated from Verilog-A
+     sources.  
+     \\ \hline
+
+     \textbf{648-SON}: .print HOMOTOPY doesn't work with .DC or .TRAN &
+     An error trap in the \Xyce{} 6.3 parser was too agressive.  It was attempting
+     to check that the specified \texttt{.print} lines matched the specified 
+     analysis lines.  As the keyword \texttt{HOMOTOPY} didn't match \texttt{DC}
+     or \texttt{TRAN}, the parser incorrectly threw an error.  Continuation
+     methods are often used to compute DC operating points, that are then used
+     as the starting point for a transient analysis.  So, it was natural that one might request
+     such output.  This has been fixed for \Xyce{} 6.4.
+     \\ \hline
+
+     \textbf{652-SON (partially) }: HB output is buggy & Release 6.3 of
+     \Xyce{} had a bug that would garble harmonic balance output if a
+     \texttt{FILE} keyword was used on the \texttt{.print HB} line to redirect
+     output to a specified file name instead of the default file name.  The
+     result was that time- and frequency-domain data were improperly placed on
+     the same line of the same output file, and the output file contained both
+     time- and frequency-domain header lines.  This part of bug 652 was
+     resolved: the \texttt{FILE} option of the \texttt{.print HB} line now
+     redirects only the frequency-domain data, and the time-domain data is sent
+     to the default-named file (the netlist name with a ``.HB.TD'' suffix and
+     an extension.
+
+     A further bug in HB output from release 6.3 was fixed, in that the special
+     \texttt{.print HB\_TD} and \texttt{.print HB\_FD} output lines may be used
+     as documented in the Reference Guide in order to specify different
+     variables to be printed for time- and frequency-domain harmonic balance
+     output, and to redirect that output to non-default file names with
+     \texttt{FILE} keywords.  But an unresolved part of this bug means that
+     these options must be used as a pair --- \Xyce{} 6.4 will not output
+     anything at all if only time- or frequency-domain data is requested.  See
+     also the ``Known Defects'' table for further description of this bug.  \\
+     \hline
+
+     \textbf{657-SON}: \Xyce{} core dumps during PWL source parsing if the
+     time-voltage pair list is missing & A piecewise linear (PWL) source
+     definition without a list of time-voltage pairs caused a core dump.  An
+     example instance line was: \texttt{V4 4 0 PWL TD=1 R=1}. This is now
+     fixed.  
+     \\ \hline
+
+     \textbf{658-SON }: Multiple print lines to same file should work
+     intuitively & In prior releases of \Xyce{}, having multiple print lines
+     that output to the same file was not supported, and if attempted would not
+     do what a user would have expected --- and the specific behavior observed
+     would depend on which version of \Xyce{} was used.  
+
+     The feature has been implemented, and if multiple \texttt{.PRINT} lines
+     for the same analysis type are specified that output to the same file, the
+     variable lists of each are aggregated so that the net effect is the same
+     as having a single print line with all the specified variables.   Multiple
+     print lines for the same analysis to different files do not aggregate in
+     this manner.  Multiple print lines for analyses that result in multiple
+     files, such as \texttt{.print HB}, aggregate the variable lists for all
+     the secondary files as well as the primary file.  It is an error to
+     attempt to have multiple print lines to the same file with different
+     \texttt{FORMAT} specifications.  
+     \\ \hline
+
+     \textbf{663-SON}:  Lead currents for the method=trap integrator have a
+     mistake in the first transient time step  &  The lead current feature in
+     \Xyce{} has undergone numerous internal changes recently.  As a result, a bug
+     was introduced into the trapezoid rule integration version of lead
+     currents, which resulted in incorrect lead currents in some circuits, in
+     the initial time step out of the DCOP calculation.  Time derivatives
+     should have always been near zero at this phase of the calculation, but
+     this bug caused them to be much larger under some circumstances.  This has
+     been fixed.  
+     \\ \hline 
+
+     \textbf{664-SON}: Fix the old nonlinear solver's convergence tests to be 
+     consistent with the NOX convergence test & This is approximately the same
+     bug as 414-SON (described above).  The only difference is that it is applied
+     to the non-default, older nonlinear solver.  As with the default solver (NOX),
+     the convergence tests were too complex and occasionally resulted in 
+     nonlinear solver failures, or cases where failed solves were declared
+     as passed.  This has been fixed for \Xyce{} 6.4.
+     \\ \hline 
+
+     \textbf{668-SON}: \Xyce{} Core dumps on some invald .OPTIONS lines &
+     Examples of the offending, incorrect .OPTIONS lines included:
+     \texttt{.OPTIONS} and \texttt{.OPTIONS LINSOL type=}. This is fixed now.
+     \\ \hline
+
+     \textbf{669-SON}: Sensitivity analysis does not recognize default device parameters &
+     If performing sensitivity analysis, it was not possible to use default device parameters.
+     For example, \texttt{.sens param=Rtest:R} would work, but \texttt{.sens param=Rtest} would not.
+     This is fixed now.
+     \\ \hline
+
+     \textbf{673-SON}: Core dumps caused by incomplete \texttt{.MEASURE} lines & \Xyce{}
+     would core dump on some incomplete \texttt{.MEASURE} lines.  Examples included:
+     \texttt{.MEASURE TRAN} and \texttt{.MEASURE}.  Another cause was when the
+     \texttt{<variable>=<val>} portion of the line was missing, such as
+     \texttt{.MEASURE TRAN DERIV1 DERIV}.  This is fixed now.  
+     \\ \hline
+
+
+\textbf{674-SON}: HB startup output is broken and HB tecplot output
+has a bug   & The HB startup output contains wrong information. It
+was the same information as HB IC output. The HB IC output for tecplot
+format is not correct if the transient analysis needs to be re-run
+with tighter tolerance during the initial guess calculation. This has
+been fixed.
+\\ \hline
+
+\textbf{675-SON}: HB has a bug when the tolerance is tightened during
+the initial guess calculation &  
+When the transient analysis is re-run with a tighter tolerance during
+the initial guess calculation, the second transient run could fail at
+DCOP or after a few steps. However, the equivalent stand-alone
+transient analysis runs to completion. This has been fixed.
+\\ \hline
+
+     \textbf{679-SON}: TRIG V(A)=V(B) or TARG V(C)=V(D) syntax did not work in
+     \texttt{.MEASURE} & The TRIG and TARG clauses did not work correctly if the trig or
+     targ level was a variable level rather than a fixed level (e.g.,
+     \texttt{TRIG V(A)=V(B) TARG V(C)=0.5}). In this example, the TRIG clause
+     uses a variable level (\texttt{V(B)}), while the TARG clause uses a fixed
+     level of 0.5V.  This is fixed now.  
+     \\ \hline
+
+     \textbf{681-SON }: Stepping over BSIM3 and BSIM4 model parameters gives
+     wrong results  & The mechanism used in the BSIM3 and BSIM4 to share
+     size-dependent quantities derived from model parameters between several
+     instances of the same size was not set up to work with \texttt{.STEP}
+     loops. If the \texttt{.STEP} loop was over a BSIM3 or BSIM4 model
+     parameter, the derived quantities would not be updated after the initial
+     computation.  This is similar, but not identical, to bug 647-SON, above .
+     The BSIM3 and BSIM4 devices now clear out their saved lists of derived
+     parameters if any model parameters change.
+     \\ \hline
+
+     \textbf{682-SON}: ``Spice strategy'' only attempted on first DC bias point
+     & Since \Xyce{} 6.2, \Xyce{} will attempt to solve a DC bias point using a
+     three-step strategy:  Newton iteration, GMIN-stepping, and
+     source-stepping.  This is the same strategy that SPICE 3F5 uses.  In \Xyce{} 6.2 and
+     \Xyce{} 6.3 there was a bug that caused this strategy only to be applied at
+     the first step of a \texttt{.DC} sweep.  If subsequent points in the sweep
+     failed Newton iteration, no further attempts were made to obtain a
+     solution for those points.  This error has been corrected in release 6.4;
+     the strategy will be followed any time a DC bias point is computed.  \\
+     \hline
+
+     \textbf{690-SON}: Fix various WHEN syntaxes for the DERIV measure &  The
+     DERIV measure did not work correctly for some syntaxes in the WHEN clause.
+     This included having a variable as the target level (e.g., \texttt{WHEN
+     V(A)=V(B)}).  It also included the syntax \texttt{DERIV V(A) WHEN
+     V(B)=0.5} if A and B were different.  This is fixed now.  
+     \\ \hline 
+
+     \textbf{694-SON}: Core dumps from invalid \texttt{.PRINT} lines & Examples of the
+     offending, incorrect \texttt{.PRINT} lines included: \texttt{.PRINT V(1} and
+     \texttt{.PRINT V()}. This is fixed now.  
+     \\ \hline
+
+     \textbf{699-SON}: Fix core dumps in \texttt{.FOUR} and FOURIER measure
+     statements & \Xyce{} would core dump on several invalid or poorly
+     chosen \texttt{.FOUR} lines and \texttt{FOURIER} measure statements.
+     The first was when a negative fundamental frequency was requested, for
+     either \texttt{.FOUR} or \texttt{.MEASURE}.  The second was when
+     the measurement window, for a \texttt{.MEASURE} statement, only contained
+     one time point.  The last was when a netlist contained multiple 
+     \texttt{.FOUR} lines.  These issues have been fixed.  
+     \\ \hline
+
+     \textbf{700-SON}: Random number use in level 3 synapse limited to one
+     instance & Random number use within this synapse device has been fixed so
+     that individual instances share the same underlying random number
+     generator, and will get a unique random number each time the generator is
+     called.  Thus, they will no longer follow the same sequence of random
+     numbers.
+     \\ \hline
+
+     \textbf{705-SON}: Bad argument to \texttt{.SAVE} causes \Xyce{} to go into an infinite loop &
+     This invalid line (\texttt{.SAVE filename=<name>}) would cause \Xyce{} to 
+     enter an infinite loop during netlist parsing.  This is fixed now.  The overall
+     error handling and error messages for invalid and ill-formatted \texttt{.SAVE} lines 
+     were improved.
+     \\ \hline
+
+     \textbf{710-SON}: dQdx derivatives in the BSIM3 and BSIM4 devices need to be 
+     loaded into the matrix unconditionally &
+     In some devices, the capacitive terms are excluded from the DCOP Jacobian, and
+     also from the Jacobian of the first Newton iteration of the first time step.
+     This was done because the capacitive currents at the DCOP are by definition zero.
+     However, there are use cases (such as using a MOSFET device as a capacitor), where
+     doing it this way caused singular matrices.  This has been fixed for \Xyce{} 6.4.
+     \\ \hline
+
+     \textbf{1794-SRN}: Fix core dump in outputting when the number of devices is less
+     than number of processors & This issue only applies to a parallel build of \Xyce{}.
+     If the devices are distributed such that one processor does not have any
+     devices, then the code for outputting data could attempt to access an empty 
+     container resulting in a segmentation fault.  This issue has been fixed.
+     \\ \hline
+
+     \textbf{1958-SRN}: LOCA fails to reset properly after a failed step, for
+     PDE devices & This issue was specific to PDE devices.  If attempting to
+     obtain a steady-state solution using a homotopy method, PDE devices were
+     not having their previous state restored after failed steps.  As a result,
+     all subsequent attempts at the step would fail, and the steady-state
+     solution would not be obtained.  This was due to a logic error in these
+     device models and has been fixed.  The issue applied to all PDE devices.
+     \\ \hline 
+
+\end{longtable}
+}

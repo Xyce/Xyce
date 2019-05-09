@@ -1,0 +1,162 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%
+%% Analog Device Description Table.
+%%
+
+\newenvironment{DeviceList}[1]
+               {\renewcommand{\arraystretch}{1.2}
+                 \begin{longtable}{>{\raggedright\small}m{1.5in}>{\ttfamily\small}m{0.75in}<{\normalfont}>{\small}m{3.5in}}
+                   \caption{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Device Type &
+                   \color{white}\bf Letter &
+                   \color{white}\bf Typical Netlist Format \endhead}
+               {\end{longtable}}
+
+\index{device!analog device summary}
+\begin{DeviceList}{Analog Device Quick Reference.  \label{Device_Summary}}
+\index{device!nonlinear dependent source}\index{device!B source}%
+Nonlinear Dependent Source (B Source) & B &
+\verb|B<name> <+ node> <- node>|\linebreak
+\verb|+ <I or V>={<expression>}|
+ \\ \hline
+
+\index{device!capacitor}%
+Capacitor & C &
+\verb|C<name> <+ node> <- node> [model name] <value>|\linebreak
+\verb|+ [IC=<initial value>]| \\ \hline
+
+\index{device!diode}%
+Diode & D &
+\verb|D<name> <anode node> <cathode node>|\linebreak
+\verb|+ <model name> [area value]| \\ \hline
+
+\index{device!voltage controlled voltage source}%
+Voltage Controlled Voltage Source & E&
+\verb|E<name> <+ node> <- node> <+ controlling node>|\linebreak
+\verb|+ <- controlling node> <gain>| \\ \hline
+
+\index{device!current controlled current source}%
+Current Controlled Current Source & F &
+\verb|F<name> <+ node> <- node> |\linebreak
+\verb|+ <controlling V device name> <gain>| \\ \hline
+
+\index{device!voltage controlled current source}%
+Voltage Controlled Current Source & G &
+\verb|G<name> <+ node> <- node> <+ controlling node>|\linebreak
+\verb|+ <- controlling node> <transconductance>| \\ \hline
+
+\index{device!current controlled voltage source}%
+Current Controlled Voltage Source & H &
+\verb|H<name> <+ node> <- node>|\linebreak
+\verb|+ <controlling V device name> <gain>| \\ \hline
+
+\index{device!independent current source}%
+Independent Current Source & I &
+\verb|I<name> <+ node> <- node> [[DC] <value>]|\linebreak
+\verb|+ [AC [magnitude value [phase value] ] ]|\linebreak
+\verb|+ [transient specification]| \\ \hline
+
+\index{device!mutual inductor}%
+Mutual Inductor & K &
+\verb|K<name> <inductor 1> [<ind. n>*]|\linebreak
+\verb|+ <linear coupling or model>| \\ \hline
+
+\index{device!inductor}%
+Inductor & L &
+\verb|L<name> <+ node> <- node> [model name] <value>|\linebreak
+\verb|+ [IC=<initial value>]| \\ \hline
+
+\index{device!JFET}%
+JFET & J &
+\verb|J<name> <drain node> <gate node> <source node>|\linebreak
+\verb|+ <model name> [area value]| \\ \hline
+
+\index{device!MOSFET}%
+MOSFET & M &
+\verb|M<name> <drain node> <gate node> <source node>|\linebreak
+\verb|+ <bulk/substrate node> [SOI node(s)]|\linebreak
+\verb|+ <model name> [common model parameter]*| \\ \hline
+
+\index{device!LTRA}%
+Lossy Transmission Line (LTRA) & O &
+\verb|O<name> <A port (+) node> <A port (-) node>|\linebreak
+\verb|+ <B port (+) node> <B port (-) node>|\linebreak
+\verb|+ <model name>| \\ \hline
+
+\index{device!bipolar junction transistor (BJT}%
+Bipolar Junction Transistor (BJT)& Q &
+\verb|Q<name> <collector node> <base node>|\linebreak
+\verb|+ <emitter node> [substrate node]|\linebreak
+\verb|+ <model name> [area value]| \\ \hline
+
+\index{device!resistor}%
+Resistor & R &
+\verb|R<name> <+ node> <- node> [model name] <value>|\linebreak
+\verb|+  [L=<length>] [W=<width>]| \\ \hline
+
+\index{device!voltage controlled switch}%
+Voltage Controlled Switch & S &
+\verb|S<name> <+ switch node> <- switch node> |\linebreak
+\verb|+ <+ controlling node> <- controlling node>|\linebreak
+\verb|+ <model name>| \\ \hline
+
+\index{device!transmission line}%
+Transmission Line & T &
+\verb|T<name> <A port + node> <A port - node>|\linebreak
+\verb|+ <B port + node> <B port - node> |\linebreak
+\verb|+ <ideal specification> | \\ \hline
+
+\index{device!digital devices}\index{Digital Devices}%
+Digital Devices & U &
+\verb|U<name> <type> <digital power node> |\linebreak  
+\verb|+ <digital ground node> [node]* <model name> | \\ \hline
+
+\index{device!independent voltage source}%
+Independent Voltage Source & V &
+\verb|V<name> <+ node> <- node> [[DC] <value>] |\linebreak
+\verb|+ [AC [magnitude value [phase value] ] ]|\linebreak
+\verb|+ [transient specification]| \\ \hline
+
+\index{device!subcircuit}%
+Subcircuit & X &
+\verb|X<name> [node]* <subcircuit name> |\linebreak
+\verb|+ [PARAMS:[<name>=<value>]*]| \\ \hline
+
+\index{device!current controlled switch}%
+Current Controlled Switch & W &
+\verb|W<name> <+ switch node> <- switch node> |\linebreak
+\verb|+ <controlling V device name> <model name>| \\ \hline
+
+\index{device!digital devices}\index{Digital Devices}%
+Digital Devices, Y Type (deprecated) & Y<type> &
+\verb|Y<type> <name> [node]* <model name>| \\ \hline
+
+\index{device!PDE Devices}\index{PDE Devices}%
+PDE Devices & YPDE &
+\verb|YPDE <name> [node]* <model name>| \\ \hline
+
+\index{device!ACC Devices}\index{device!accelerated mass devices}\index{Accelerated Mass Devices}%
+Accelerated masses & YACC &
+\verb|YACC <name> <acceleration> <velocity> <position>|\linebreak
+\verb|+ [x0=<initial position>] [v0=<initial velocity>]| \\ \hline
+
+\index{device!memristor}%
+Memristor Device & YMEMRISTOR &
+\verb|YMEMRISTOR <name> <+ node> <- node> <model name>|\\ \hline
+
+\index{device!MESFET}%
+MESFET & Z &
+\verb|Z<name> <drain node> <gate node> <source node>|\linebreak
+\verb|+ <model name> [area value]| \\ \hline
+
+\end{DeviceList}
+

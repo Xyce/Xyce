@@ -1,0 +1,61 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+Simulation of electromechanical devices or magnetically driven machines may
+require that \Xyce{} simulate the movement of an accelerated mass, that is, to
+solve the second order initial value problem
+\begin{eqnarray*}
+\frac{d^2x}{dt} &= a(t) \\
+x(0) &= x_0 \\
+\dot{x}_0 &= v_0 \\
+\end{eqnarray*}
+where $x$ is the position of the object, $\dot{x}$ its velocity, and $a(t)$ the
+acceleration.  In \Xyce{}, this simulation capability is provided by the
+accelerated mass device.
+
+\begin{Device}
+
+\device
+\begin{alltt}
+YACC <name> <acceleration node> <velocity node> <position node>
++ [v0=<initial velocity>] [x0=<initial position>]
+\end{alltt}
+
+\examples
+\begin{alltt}
+* Simulate a projectile thrown upward against gravity
+V1 acc 0 -9.8
+R1 acc 0 1
+YACC acc1 acc vel pos v0=10 x0=0
+.print tran v(pos)
+.tran 1u 10s
+.end
+
+* Simulate a damped, forced harmonic oscillator
+* assuming K, c, mass, amplitude and frequency
+* are defined in .param statements
+B1 acc 0 V=\{(-K * v(pos) - c*v(vel))/mass
++            + amplitude*sin(frequency*TIME)\}
+R1 acc 0 1
+YACC acc2 acc vel pos v0=0 x0=0.4
+.print tran v(pos)
+.tran 1u 10s
+.end
+\end{alltt}
+
+\comments
+
+When used as in the examples, \Xyce{} will emit warning messages about the
+\texttt{pos} and \texttt{vel} nodes not having a DC path to ground.  This is
+normal and should be ignored. The position and velocity nodes should not be
+connected to any real circuit elements.  Their values may, however, be used in
+behavioral sources; this is done in the second example.
+
+\end{Device}

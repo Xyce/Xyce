@@ -1,0 +1,56 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\label{XDevicesection}
+A subcircuit can be introduced into the circuit netlist
+using the specified nodes to substitute for the argument nodes in the
+definition.  It provides a building block of circuitry to be defined a single
+time and subsequently used multiple times in the overall circuit netlists.
+See Section~\ref{SUBCKTsection} for more information about subcircuits.
+
+\begin{Device}
+
+\device
+X<name> [node]* <subcircuit name> [PARAMS: [<name> = <value>]*]
+
+\examples
+\begin{alltt}
+  X12 100 101 200 201 DIFFAMP
+  XBUFF 13 15 UNITAMP
+  XFOLLOW IN OUT VCC VEE OUT OPAMP
+  XFELT 1 2 FILTER PARAMS: CENTER=200kHz
+  XNANDI 25 28 7 MYPWR MYGND PARAMS: IO\_LEVEL=2
+\end{alltt}
+
+\parameters
+
+\begin{Parameters}
+
+\param{subcircuit name}
+The name of the subcircuit's definition.
+
+\param{PARAMS:}
+
+Passed into subcircuits as arguments and into expressions inside the
+subcircuit.
+
+\end{Parameters}
+
+\comments
+
+There must be an equal number of nodes in the subcircuit call and in its
+definition.
+
+Subcircuit references may be nested to any level. However, the nesting
+cannot be circular. For example, if subcircuit \texttt{A}'s definition
+includes a call to subcircuit \texttt{B}, then subcircuit \texttt{B}'s
+definition cannot include a call to subcircuit \texttt{A}.
+
+\end{Device}

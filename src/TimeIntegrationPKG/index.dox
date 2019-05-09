@@ -1,0 +1,2 @@
+/// @defgroup xyce_time_integration_package Circuit Time integration Package (N_TIA)
+/// @brief The Xyce Circuit time integration package provides the classes and interfaces to define time integration methods 

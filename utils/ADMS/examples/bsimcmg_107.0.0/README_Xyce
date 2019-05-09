@@ -1,0 +1,19 @@
+The bsimcmg_body.include code in the code directory has been modified
+from the original in the following ways:
+
+  - All parameters that are noted in the BSIM-CMG technical note as being
+    instance parameters have had the "type" attribute set to "instance"
+
+  - Parameters that have been noted as both instance and model in the technical
+    note have been had the "type" attribute set to "instance" and the Xyce-
+    specific "xyceAlsoModel" attribute set to "YES"
+
+  - Attributes have been added to the module statements so that Xyce can use
+    the model as a MOSFET more easily with less hand-editing of the ADMS
+    output.
+
+  - In a number of cases, integer constants "0" were being passed as
+    arguments to the min or max functions.  This is problematic in
+    emitting C++, and resulted in compilation errors when a matching
+    templatized function could not be found.  These integer "0" were
+    replaced with "0.0".

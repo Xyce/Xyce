@@ -1,0 +1,23 @@
+`include "disciplines.vams"
+`include "constants.vams"
+
+`define attr(txt) (*txt*)
+
+module capacitor (p,n) `attr(xyceModelGroup="Capacitor" xyceSpiceDeviceName="C" xyceLevelNumber="6") ;
+  electrical p,n;
+  inout p,n;
+
+  parameter real C=1p from (0:inf) `attr(info="Capacitance" type="instance");
+  real Q;
+
+  analog
+  begin
+    //  Note:  It is explicitly assumed here that C is constant!
+    // This is wrong if C is externally defined as some time- or
+    // solution-dependent parameter.  Fortunately, Xyce doesn't let you
+    // make parameters solution-dependent, and special coding is necessary
+    // external to the device even to enable such a thing.
+    Q=C*V(p,n);
+    I(p,n) <+ ddt(Q);
+  end
+endmodule

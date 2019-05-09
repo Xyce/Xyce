@@ -1,0 +1,48 @@
+# For multi-project documentation, this command is expecting to have Doxygen.input generated as:
+#
+#   for i in ../../*/dox/Doxyfile.input; do echo @INCLUDE = $i >> Doxyfile.input; done
+#
+# which may be accomplished as:
+#
+#  rm -f Doxyfile.input && for i in ../../*/dox/Doxyfile.input; do echo @INCLUDE = $i >> Doxyfile.input; done && doxygen
+#
+@INCLUDE = Doxyfile.options
+#
+# Package options
+#
+PROJECT_NAME           = "Xyce"
+OUTPUT_DIRECTORY       = .
+
+#
+# What and how documentation is extracted
+#
+#INPUT                  = ./index.dox
+
+RECURSIVE = YES
+#
+# Also include doxygen documentation for the other products:
+#
+@INCLUDE =	Doxyfile.input
+# INPUT = ../../src
+
+FILE_PATTERNS          = *.dox *.cpp *.hpp *.C *.h
+
+IMAGE_PATH             =
+EXCLUDE                =
+EXAMPLE_PATTERNS       =
+INPUT_FILTER           =
+ALPHABETICAL_INDEX     = YES
+IGNORE_PREFIX          =
+RECURSIVE              = YES
+
+LOOKUP_CACHE_SIZE      = 1
+#
+# Links to other packages
+#
+ALLEXTERNALS           = YES
+EXTERNAL_GROUPS        = YES
+
+GENERATE_TREEVIEW      = YES
+TREEVIEW_WIDTH         = 250
+
+GENERATE_TAGFILE       = ./tags

@@ -1,0 +1,45 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\begin{Device}
+
+\device
+SW<name> <(+) switch node> <(-) switch node> <model name> [ON] [OFF] <control = { expression }>
+
+\model
+\begin{alltt}
+.MODEL <model name> VSWITCH [model parameters]
+.MODEL <model name> ISWITCH [model parameters]
+.MODEL <model name> SWITCH [model parameters]
+\end{alltt}
+
+\examples
+\begin{alltt}
+SW 1 2 SWI OFF CONTROL=\{I(VMON)\}
+SW 1 2 SWV OFF CONTROL=\{V(3)-V(4)\}
+SW 1 2 SW OFF CONTROL=\{if(time>0.001,1,0)\}
+\end{alltt}
+
+\comments
+
+The generic switch is similar to the voltage- or current-controlled
+switch except that the control variable is anything that can be writen
+as an expression.  The examples show how a voltage- or
+current-controlled switch can be implemented with the generic switch.
+Also shown is a relay that turns on when a certain time is reached.
+Model parameters are given in Table ~\ref{S_1_Device_Model_Params}.
+
+The power dissipated in the generic switch is calculated with $I \cdot \Delta V$ 
+where the voltage drop is calculated as $(V_+ - V_-)$ and positive current 
+flows from $V_+$ to $V_-$.  This will essentially be the power dissipated
+in either \texttt{RON} or \texttt{ROFF}, since the generic switch is a particular 
+type of controlled resistor.
+
+\end{Device}

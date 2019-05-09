@@ -1,0 +1,77 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% PDE Device Description Table
+%%
+\small
+\begin{longtable}[Hh]{>{\setlength{\hsize}{.3\hsize}}YY}
+\hline
+
+\underline{\bf General Form, 1D:} &
+\verb|YPDE <name> <node> [node] [model name]|
+\verb|[na=<value>] [nd=<value>] |
+\verb|[nx=<value>] [area=<value>]|
+\verb|[graded=<value>]|
+\verb|[wj=<value>] [l=<value>] [w=<value>]|
+\verb|[tecplotlevel=<value>]|
+\verb|[gnuplotlevel=<value>]|
+\verb|[node=<tabular data>]|
+\verb|[region=<tabular data>]|
+\verb|[bulkmaterial=<string>]|
+\verb|[temp=<value>]|
+\\ 
+\hline
+\\
+\hline
+\underline{\bf General Form, 2D:} &
+\verb|YPDE <name> <node> <node> [node][node] [model name]|
+\verb|[na=<value>] [nd=<value>] |
+\verb|[meshfile=<filename.msh>]|
+\verb|[nx=<value>][ny=<value>]|
+\verb|[l=<value>][w=<value>]|
+\verb|[type=<string>|
+\verb|[node=<tabular data>]|
+\verb|[region=<tabular data>]|
+\verb|[x0=<value>] [cyl=<value>]|
+\verb|[tecplotlevel=<value>]|
+\verb|[gnuplotlevel=<value>] [txtdatalevel=<value>]| 
+\verb|[ph.a1=<value>] [ph.type=<string>]|
+\verb|[ph.tstart=<value>] [ph.tstop=<value>]|
+\verb|[photogen=<value>]|
+\verb|[ph.td=<value>] [ph.tr=<value>]|
+\verb|[ph.tf=<value>] [ph.pw=<value>]|
+\verb|[ph.per=<value>]|
+\verb|[bulkmaterial=<string>]|
+\verb|[temp=<value>]|
+
+\\ \hline
+\\
+\hline
+\underline{\bf Comments:} & Most of the PDE parameters are specified on the
+instance level. At this point the model statement is only used for specifying
+if the device is 1D or 2D, via the level parameter.  Both the 1D and the 
+2D devices can construct evenly spaced meshes, internally. The 2D device also 
+has the option of reading in an unstructured mesh from an external mesh file.  
+\linebreak \linebreak
+The electrode tabular data specification is explained in detail in 
+table~\ref {PDE_Electrode_Params} Similarly, the doping region tabular 
+data specification is explained in detail in 
+table~\ref{PDE_Doping_Params}. \linebreak
+\\ \hline
+\end{longtable}
+% Eric Keiter.  1/19/04:
+% As this table does not have a caption, it should not have a number
+% assigned to it.  This line is needed to fix latex so that the tables in
+% chapter 2, which actually have their numbers printed in table captions, 
+% and the list of tables,  do not start at 2.9, but start at 2.1.
+\addtocounter{table}{-1}
+
+

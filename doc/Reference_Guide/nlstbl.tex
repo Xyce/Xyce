@@ -1,0 +1,144 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Nonlinear Solver Options Table
+%%
+\index{solvers!nonlinear!options}
+\begin{OptionTable4}{Options for Nonlinear Solver Package.}
+\label{NonlinPKG}
+NOX & Use NOX nonlinear solver. & 1 (TRUE) & 0 (FALSE) \\ \hline
+
+NLSTRATEGY & Nonlinear solution strategy.  Supported Strategies:
+\begin{XyceItemize}
+\item 0 (Newton)
+\item 1 (Gradient)
+\item 2 (Trust Region)
+\end{XyceItemize} &
+0 (Newton) &
+0 (Newton) \\ \hline
+
+SEARCHMETHOD &
+Line-search method used by the nonlinear solver.  Supported
+line-search methods:
+\begin{XyceItemize}
+\item 0 (Full Newton - no line search)
+\item 1 (Interval Halving)
+\item 2 (Quadratic Interpolation)
+\item 3 (Cubic Interpolation)
+\item 4 (More'-Thuente)
+\end{XyceItemize} &
+0 (Full Newton) & 
+0 (Full Newton) \\ \hline
+
+CONTINUATION & Enables the use of Homotopy/Continuation algorithms for the nonlinear solve.  Options are:
+\begin{XyceItemize}
+\item 0 (Standard nonlinear solve)
+\item 1 (Natural parameter homotopy.  See LOCA options list)
+\item 2/mos (Specialized dual parameter homotopy for MOSFET circuits)
+\item 3/gmin (GMIN stepping, similar to that of SPICE)
+\end{XyceItemize} & 
+0 (Standard nonlinear solve) &
+0 (Standard nonlinear solve) \\ \hline
+
+ABSTOL\index{\texttt{ABSTOL}} & Absolute residual vector tolerance &
+1.0E-12 & 1.0E-06 \\ \hline
+
+RELTOL\index{\texttt{RELTOL}} & Relative residual vector tolerance &
+1.0E-03 & 1.0E-02 \\ \hline
+
+DELTAXTOL & Weighted nonlinear-solution update norm convergence
+tolerance & 1.0 & 0.33 \\ \hline
+
+RHSTOL & Residual convergence tolerance (unweighted 2-norm) &
+1.0E-06 & 1.0E-02 \\ \hline
+
+SMALLUPDATETOL & Minimum acceptable norm for weighted nonlinear-solution update & 
+1.0E-06 & 1.0E-06 \\ \hline
+
+MAXSTEP\index{\texttt{MAXSTEP}} & Maximum number of Newton steps & 200 & 20 \\ \hline
+
+MAXSEARCHSTEP & Maximum number of line-search steps & 2 & 2 \\ \hline
+
+NORMLVL & Norm level used by the nonlinear solver algorithms
+\textcolor{red}{\emph{(NOTE: not used for convergence tests)}} & 2 & 2
+\\ \hline
+
+IN\_FORCING & Inexact Newton-Krylov forcing flag & 
+0 (FALSE) &
+0 (FALSE) \\ \hline
+
+AZ\_TOL &  Sets the minimum allowed linear solver tolerance. Valid only if \texttt{IN\_FORCING}=1.  & 
+1.0E-12 &
+1.0E-12 \\ \hline
+
+RECOVERYSTEPTYPE &  If using a line search, this option determines the type of step to take if the line search fails. Supported strategies:
+\begin{XyceItemize}
+\item 0 (Take the last computed step size in the line search algorithm)
+\item 1 (Take a constant step size set by \texttt{RECOVERYSTEP})
+\end{XyceItemize} & 
+0 &
+0 \\ \hline
+
+RECOVERYSTEP & Value of the recovery step if a constant step length is selected & 
+1.0 &
+1.0 \\ \hline
+
+\debug{DLSDEBUG} & \debug{Debug output for direct linear solver} &
+\debug{0 (FALSE)} &
+\debug{0 (FALSE)} \\ \hline
+
+\debug{DEBUGLEVEL} & \debug{The higher this number, the more info is output} & 
+\debug{1} &
+\debug{1} 
+\\ \hline
+
+\debug{DEBUGMINTIMESTEP} & \debug{First time-step debug information is output} & 
+\debug{0} &
+\debug{0}
+\\ \hline
+
+\debug{DEBUGMAXTIMESTEP} & \debug{Last time-step of debug output} &
+\debug{99999999} &
+\debug{99999999} \\
+\hline
+
+\debug{DEBUGMINTIME} & \debug{Same as \texttt{DEBUGMINTIMESTEP} except controlled by
+time (sec.) instead of step number} & 
+\debug{0.0}  &
+\debug{0.0} 
+\\ \hline
+
+\debug{DEBUGMAXTIME} & \debug{Same as \texttt{DEBUGMAXTIMESTEP} except controlled by
+time (sec.) instead of step number} & 
+\debug{1.0E+99} &
+\debug{1.0E+99} 
+\\ \hline
+
+\multicolumn{4}{|c|}{\color{XyceDarkBlue}\em\bfseries Parameters not supported by NOX} \\ \hline\hline
+
+LINOPT & Linear optimization flag & 0 (FALSE) & 0 (FALSE) \\ \hline
+
+CONSTRAINTBT & Constraint backtracking flag & 0 (FALSE) & 0 (FALSE) \\ \hline
+
+CONSTRAINTMAX & Global maximum setting for constraint backtracking
+& DBL\_MAX (Machine Dependent Constant) &
+ DBL\_MAX  \\ \hline
+
+CONSTRAINTMIN & Global minimum setting for constraint backtracking
+& -DBL\_MAX (Machine Dependent Constant) &
+ -DBL\_MAX \\ \hline
+
+CONSTRAINTCHANGE & Global percentage-change setting for constraint
+backtracking & 
+sqrt(DBL\_MAX) (Machine Dependent Constant) &
+sqrt(DBL\_MAX) \\ \hline
+
+\end{OptionTable4}

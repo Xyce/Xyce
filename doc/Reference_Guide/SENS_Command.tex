@@ -1,0 +1,85 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\index{\texttt{.SENS}}
+\index{results!sens} \index{sensitivity}
+Computes sensitivies for a user-specificed objective function
+with respect to a user-specified list of circuit parameters.  
+
+
+\begin{Command}
+
+\format
+.SENS objfunc=<output expression(s)> param=<circuit parameter(s)>  
+
+\examples
+\begin{alltt}
+.SENS objfunc=\{0.5*(V(B)-3.0)**2.0\} param=R1:R,R2:R
+.options SENSITIVITY direct=1 adjoint=1
+
+.SENS objfunc=\{I(VM)\},\{V(3)*V(3)\} param= Q2N2222:bf
+
+.param RES=1k
+.SENS objfunc=\{RES*V(3)*V(3)\} param=C1:C
+
+.param res=2
+.func powerTestFunc(I) \{res*I*I\}
+.SENS objfunc=\{powerTestFunc(I(V1))\} param=R1:R
+
+.global\_param res=2
+.SENS objfunc=\{res*I(V1)\} param=R1:R
+\end{alltt}
+
+\comments
+
+This capability can be applied to either DC or transient analysis.  For
+both DC and transient, both direct and adjoint sensitivities are supported, 
+and the user can optionally request either direct or adjoint sensitivities, 
+or both.  
+
+Although \Xyce{} will allow the user to specify both direct and 
+adjoint, one would generally not choose to do both.
+The best choice of sensitivity method depends on the problem.  For problems 
+with a small number of parameters, and (possibly) lots of objective functions, 
+then the direct method is a more efficient choice.  For problems with large 
+numbers of parameters, but a small number of objective functions, the 
+adjoint method is more efficient.
+
+For all variants of sensitivity analysis, it is necessary to specify 
+circuit parameters on the \texttt{.SENS} line in a comma-separated list.  Unlike the SPICE version, 
+this capability will not automatically use every parameter in the circuit.
+It is also necessary for all variations of sensitivity analysis to specify at least 
+one objective function.  This capability will not assume any particular 
+objective function.  Also, it is possible to specify multiple
+objective functions, in a comma-separated list.
+
+As noted, for transient analysis, both types of sensitivities are supported.
+Direct sensitivities are computed at each time step during the forward 
+calculation.  Transient adjoint sensitivities, in contrast, must be computed
+using a reverse time integration method.  The reverse time integration must be 
+performed after the original forward calculation is complete.  As such, transient 
+adjoint sensitivity calculations can be thought of as a post-processing step.  
+One consequence of this is that transient adjoint output must be specified using 
+the \texttt{.PRINT TRANADJOINT} type, rather than the \texttt{.PRINT SENS} 
+type.
+
+If transient adjoints are specified, the default behavior for the capability is 
+for a transient sensitivity calculation be performed for each time step, even 
+if the forward transient simulation consists of millions of steps.  For adjoint 
+calculations, this can be problematic, as adjoint methods (noted above) are not 
+very efficient when applied to problems with a large number of objective functions.
+Each time step, from the point of view of transient adjoints, is effectively a 
+separate objective function.  As such, this isn't the best use of adjoints.  
+One can specify  a list of time points for which to compute transient adjoint
+sensitivities. For many practical problems, the sensitivies at only one or a 
+handful of points is needed, so this is a good way to mitigate the computational 
+cost of adjoints.
+
+\end{Command}

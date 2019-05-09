@@ -1,0 +1,87 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\begin{Device}\label{B_DEVICE}
+
+\device
+\begin{alltt}
+B<name> <(+) node> <(-) node> V={ABM expression} [device parameters]
+B<name> <(+) node> <(-) node> I={ABM expression}
+\end{alltt}
+
+\examples
+\begin{alltt}
+B1 2 0 V=\{sqrt(V(1))\}
+B2 4 0 V=\{V(1)*TIME\}
+B3 4 2 I=\{I(V1) + V(4,2)/100\}
+B4 5 0 V=\{Table \{V(5)\}=(0,0) (1.0,2.0) (2.0,3.0) (3.0,10.0)\}
+B5 6 0 V=tablefile("file.dat")
+B6 7 0 I=tablefile("file.dat")
+\end{alltt}
+
+\comments
+
+The nonlinear dependent source device, also known as the B-source
+device, is used in analog behavioral modeling (ABM).  The \texttt{(+)}
+and \texttt{(-)} nodes are the output nodes. Positive current flows from
+the \texttt{(+)} node through the source to the \texttt{(-)}
+node. 
+
+The power supplied or dissipated by the nonlinear dependent source is calculated 
+with $I \cdot \Delta V$ where the voltage drop is calculated as $(V_+ - V_-)$ 
+and positive current flows from $V_+$ to $V_-$.  Dissipated power has a
+positive sign, while supplied power has a negative sign.
+
+The syntax involving the \texttt{tablefile} keyword internally attempts to load the
+data in \texttt{"file.dat"} into a \texttt{TABLE} expression.  The data file must
+be in plain-text and contain just two pairs of data per line.  For an example see 
+the ``Analog Behavioral Modeling'' chapter of the \Xyce{} User's
+Guide.
+
+It is important to note that the B-source allows the user to specify
+expressions that could have infinite-slope transitions, such as the
+following.  (Note: the braces surrounding all expressions are required in this definition.)
+\begin{alltt} Bcrtl OUTA 0 V=\{ IF( (V(IN) > 3.5), 5, 0 ) \} \end{alltt}
+This can lead to ``timestep too small'' errors when \Xyce{} reaches the
+transition point.  Infinite-slope transitions in expressions dependent only on
+the \texttt{time} variable are a special case, because \Xyce{} can detect that
+they are going to happen in the future and set a ``breakpoint'' to capture
+them.  Infinite-slope transitions depending on other solution variables cannot
+be predicted in advance, and cause the time integrator to scale back the
+timestep repeatedly in an attempt to capture the feature until the timestep is
+too small to continue.
+
+One solution to the problem is to modify the expression to allow a continuous transition. 
+However, this can become complicated with multiple inputs. The other solution is to specify
+device options or instance parameters to allow smooth transitions. The parameter
+\texttt{smoothbsrc} enables the smooth transitions. This is done by adding a RC network to the  
+output of B sources. For example,
+
+\begin{alltt} Bcrtl OUTA 0 V=\{ IF( (V(IN) > 3.5), 5, 0 ) \} smoothbsrc=1 \end{alltt}
+
+\begin{alltt} .options device  smoothbsrc=1 \end{alltt}
+
+The smoothness of the transition can be controlled by specifying the rc constant of 
+the RC network. For example, 
+
+\begin{alltt} Bcrtl OUTA 0 V=\{ IF( (V(IN) > 3.5), 5, 0 ) \} smoothbsrc=1   
+ + rcconst = 1e-10 \end{alltt}
+
+Note that this smoothed B-source only applies to voltage sources. The voltage behavioral source supports
+two instance parameters \texttt{smoothbsrc} and \texttt{rcconst}. Parameters may be provided as space  
+separated \texttt{<parameter>=<value>} specifications as needed. The default value for \texttt{smoothbsrc}
+is 0 and the default for \texttt{rcconst} is 1e-9.
+
+See the ``Analog Behavioral Modeling'' chapter of the \Xyce{} User's
+Guide for guidance on using the B-source device and ABM expressions,
+and the Expressions Section (\ref{ExpressionDocumentation}) for
+complete documentation of expressions and expression operators.
+
+\end{Device}

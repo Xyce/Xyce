@@ -1,0 +1,214 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Known defects and workarounds.
+%%
+%% This section should highlight significant defects that were not fixed in
+%% the release
+
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Known Defects and Workarounds.} \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description
+  \\ \hline \endfirsthead
+  \caption[]{Known Defects and Workarounds.} \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description
+  \\ \hline \endhead
+% EXAMPLE:
+%\textbf{bug number-SRN}: bug title & Description of KNOWN BUG THAT HAS NOT BEEN
+  %FIXED.
+
+%\textbf{\textit{Workaround}}: Describe how to work around this bug.
+%\\ \hline
+%
+%
+
+   
+\textbf{27-SON}: Fix handling of .options parameters & When specifying .options
+  for a particular package, what gets applied as the non-specified default
+  options might change.  \\ \hline
+
+
+\textbf{37-SON}: Connectivity checking is broken for devices with more than 10
+leads & The diagnostic code used by the \Xyce{} setup that checks circuit
+topology for basic errors such as a node having no DC path to ground or a node
+being connected to only one device has a bug in it that causes the code to emit
+a cryptic error message, after which the code will exit.  This error has so far
+only been seen when a user has attempted to connect a large number of inductors
+together using multiple mutual inductor lines.  The maximum number of
+non-ground leads that can be used without confusing this piece of code is 10.
+If your circuit has that type of large, highly-connected mutual inductor and
+the code exits with an error message, this bug may be the source of the problem.
+
+The error message now includes a recommendation to use the workaround below.
+
+\textbf{\textit{Workaround}}: Disable connectivity checking by adding the line
+
+\begin{alltt} .OPTIONS TOPOLOGY CHECK_CONNECTIVITY=0 \end{alltt}
+
+to your netlist.  This will disable the check for the basic errors such as
+floating nodes and improperly connected devices, but will allow the netlist to
+run with a highly-connected mutual inductor.
+\\ \hline
+
+
+\textbf{49-SON} Xyce BSIM models recognize the model TNOM, but not the
+instance TNOM & 
+\\ \hline
+
+
+\textbf{195-SON}: Restart files are not produced if initial\_interval is not
+specified & The users' guide states that if \texttt{.OPTIONS RESTART} is
+specified without an \texttt{INITIAL\_INTERVAL} that the restart file will be
+saved at every time step.  This is not working, and if no initial interval is
+specified, no restart is saved at all.  
+
+\textbf{\textit{Workaround}}: Always specify a suitable initial interval when requesting
+restart.
+\\ \hline
+
+
+\textbf{244-SON}: The defaults in Xyce bsimsoi do not match defaults in spice3
+bsimsoi & Some of the default parameters used in the BSIM3 SOI (level 10)
+MOSFET do not match SPICE3F5's defaults, leading to observed differences in
+behavior if a model card does not specify these parameters.  
+
+\textbf{\textit{Workaround}}:  The parameters at issue appear all to be parameters that
+have \textit{computed} rather than hard-coded defaults.  These include
+\texttt{CGDO}, \texttt{CGSO}, \texttt{K1}, \texttt{K2}, \texttt{XJ}.  It is
+best to use extracted values for these parameters rather than relying on the
+defaults until this bug is fixed.
+\\ \hline
+
+
+\textbf{247-SON}: Expressions don't work on .options lines & Expressions enclosed
+in braces (\{ \}) are handled specially throughout Xyce, and may only be used
+in certain contexts such as in device model or instance parameters or on
+\texttt{.PRINT} lines.
+\\ \hline
+
+
+\textbf{250-SON}: NODESET in xyce is not equivalent to NODESET in SPICE & As
+currently implemented, .NODESET applies the initial conditions given throughout
+a full nonlinear solve for the operating point, then uses the result as an
+initial guess for a second nonlinear solve with no constraints.  This is not
+the same as SPICE, which merely applies the given initial conditions to a
+single nonlinear solve for the first two iterations, then lets the problem
+converge with no further constraints.  This can lead to Xyce's .NODESET failing
+where the same netlist in SPICE might not, if the initial conditions are such
+that a full nonlinear solve cannot converge with those constraints in place.
+There is no workaround.
+\\ \hline
+
+
+\textbf{365-SON}: Missing Default Instance Length Parameter in Resistor Model
+Parameters & The resistor allows a semiconductor resistor formulation given a
+sheet resistance, length, and width, but no reasonable default is given for the
+length.  A default width parameter is provided through the model card, and is
+used if no width is specified on the instance line.
+
+\textbf{\textit{Workaround}}: Always specify a length on the instance line for any
+resistor for which the semiconductor resistor syntax is used (see the \Xyce{} Reference Guide for usage).
+\\ \hline
+
+\textbf{466-SON}: .RESULT output doesn't recognize .param parameters &  As an
+example, consider: 
+{\tt
+\begin{verbatim}
+.param par1=1.0 
+.param par2=2.0 
+.result {par1/par2} 
+\end{verbatim}
+}
+The code will run for a while, and then when the first .RESULT output is
+processed (at the end of the first .STEP iteration) it will exit with an error,
+claiming that par1 and par2 are not recognized variables.
+
+This .print line does work though:
+{\tt
+\begin{verbatim}
+.print tran {par1/par2}
+\end{verbatim}
+}
+\\ \hline
+
+
+\textbf{468-SON}: It should be legal to have two model cards with the same model
+name, but different model types. & SPICE3F5 and ngspice only require that
+model cards of the same type have unique model names. They accept model cards
+of different types with the same name.  Xyce requires that all model card names be unique.
+\\ \hline
+
+
+\textbf{469-SON}: Belos memory consumption on FreeBSD and excessive CPU on other
+platforms &
+Memory or thread bloat can result when using multithreaded dense linear algebra
+libraries, which are employed by Belos.  If this situation is observed, either build
+Xyce with a serial dense linear algebra library or use environment variables to control
+the number of spawned threads in a multithreaded library.
+\\ \hline
+
+
+\textbf{477-SON}: Internal variables are not accessible inside expressions &
+An internal variable, accessed via n(…), is not properly resolved in an
+expression. As an example, this fails parsing. 
+{\tt
+\begin{verbatim}
+.print tran {n(yneuron!neuron1_V1)} 
+\end{verbatim}
+}
+\textbf{\textit{Workaround}}: If the braces are removed then the netlist
+runs without problems.
+\\ \hline
+
+
+\textbf{478-SON}: Measure min/max functions need to support secondary extrema &
+The \texttt{RISE} and \texttt{FALL} features of \texttt{.MEASURE} do not work
+consistently for noisy waveforms. Every sign change in the waveform’s slope
+is interpreted as the start of a new rise or fall.
+\\ \hline
+
+
+\textbf{1595-SRN}: Xyce won't allow access to inductors within subcircuits for
+mutual inductors external to subcircuits & It is not possible to have a mutual
+inductor outside of a subcircuit couple to inductors in a subcircuit.
+
+\textbf{\textit{Workaround}}: Put all inductors and mutual inductance lines that couple to
+them together at the same level of circuit hierarchy.
+\\ \hline
+
+
+\textbf{1903-SRN}: Xyce fails to collect several inductors into a linear mutual inductor &
+This syntax does not work. \Xyce{} will return an error message that it can not find 
+\texttt{L\_L1}:
+{\tt
+\begin{verbatim}
+L_L1         node1 node1 inductance1
+L_L2         node3 node4  inductance2
+L_L3         node5  node6  inductance3
+L_L4         node7 node8  inductance4
+K_K1         L_L1 L_L2 L_L3 L_L4   .999 
+\end{verbatim}
+}
+ 
+\\ \hline
+
+
+\textbf{1923-SRN}: LC lines run out of memory, even if equivalent (larger) RLC
+lines do not. &  In some cases, circuits that run fine using an RLC approximation for a
+transmission line, exit with an out-of-memory error if the (supposedly smaller) LC
+approximation is used.
+\\ \hline
+
+\end{longtable}
+

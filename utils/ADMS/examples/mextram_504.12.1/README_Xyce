@@ -1,0 +1,31 @@
+The MEXTRAM code here has been modified from the code distributed by its
+authors.  This file documents the changes needed:
+
+  - Xyce-specific attributes were added to the "module" line for ease of
+    implementation in Xyce.  bjt504 becomes Xyce Q device level 504,
+    and bjt504t becomes Xyce Q device level 505.  bjtd504 and bjtd504t are
+    not used in Xyce.
+
+  - The include of "opinfo.inc" was commented out.  Xyce does nothing with
+    these variables.
+    
+  - An analog function "trunc_ev" was added for voltage-limiting of
+    some junction voltages, and (very Xyce-specific) "$limit" uses
+    were hacked into evaluate.inc.  This dramatically improves MEXTRAM
+    convergence on CMC QA tests.  Without these limiters imposed, MEXTRAM
+    fails to converge the operating point on some of the tests.
+
+  - variables.inc was modified to add a "tempx" variable, and tscaling.inc
+    was modified to use this variable as a temporary instead of the
+    "x" variable.  x is now used only in main module scope, and tempx is
+    used only in initial_instance scope.  This keeps both of those uses
+    separate, and lets ADMS flag them as "local" variables instead of
+    "global_instance" variables.
+
+  - An attribute was added to the MULT parameter to flag it as being accepted
+    as both instance and model parameter.  If given in the model and not on
+    the instance line, the model value is used.  If given on the instance line,
+    the value there overrides any in the model.
+
+  - The parameter "M" was made an alias for "MULT".
+  

@@ -1,0 +1,60 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% MOSFET Equation Capacitance Table
+%%
+\small
+\begin{longtable}[H]{>{\setlength{\hsize}{\textwidth}}W}
+\hline \\
+\bf All Levels \\
+
+\begin{eqnarray*}
+&& \mathbf{IS}(T) = \mathbf{IS}\cdot\exp\left(E_g(T_0)\cdot
+T/T_0 - E_g(T)\right)/V_t \\
+&& \mathbf{JS}(T) = \mathbf{JS}\cdot\exp\left(E_g(T_0)\cdot
+T/T_0 - E_g(T)\right)/V_t \\
+&& \mathbf{JSSW}(T) = \mathbf{JSSW}\cdot\exp\left(E_g(T_0)\cdot
+T/T_0 - E_g(T)\right)/V_t \\
+&& \mathbf{PB}(T) = \mathbf{PB}\cdot T/T_0 - 3V_t\ln(T/T_0) -
+E_g(T_0)\cdot T/T_0 + E_g{T} \\
+&& \mathbf{PBSW}(T) = \mathbf{PBSW}\cdot T/T_0 - 3V_t\ln(T/T_0) -
+E_g(T_0)\cdot T/T_0 + E_g{T} \\
+&& \mathbf{PHI}(T) = \mathbf{PHI}\cdot T/T_0 - 3V_t\ln(T/T_0) -
+E_g(T_0)\cdot T/T_0 + E_g{T}
+\end{eqnarray*}
+where
+\begin{eqnarray*}
+&& E_g(T) = \mbox{\rm silicon bandgap energy} = 1.16 -
+0.000702T^2 /(T + 1108) \\
+&& \mathbf{CBD}(T) = \mathbf{CBD}\cdot(1 + \mathbf{MJ}\cdot
+(0.0004(T - T_0) + (1 - \mathbf{PB}(T)/\mathbf{PB}))) \\
+&& \mathbf{CBS}(T) = \mathbf{CBS}\cdot(1 + \mathbf{MJ}\cdot
+(0.0004(T - T_0) + (1 - \mathbf{PB}(T)/\mathbf{PB}))) \\
+&& \mathbf{CJ}(T) = \mathbf{CJ}\cdot(1 + \mathbf{MJ}\cdot
+(0.0004(T - T_0) + (1 - \mathbf{PB}(T)/\mathbf{PB}))) \\
+&& \mathbf{CJSW}(T) = \mathbf{CJSW}\cdot(1 + \mathbf{MJSW}\cdot
+(0.0004(T - T_0) + (1 - \mathbf{PB}(T)/\mathbf{PB}))) \\
+&& \mathbf{KP}(T) = \mathbf{KP}\cdot(T/T_0)^{-3/2} \\
+&& \mathbf{UO}(T) = \mathbf{UO}\cdot(T/T_0)^{-3/2} \\
+&& \mathbf{MUS}(T) = \mathbf{MUS}\cdot(T/T_0)^{-3/2} \\
+&& \mathbf{MUZ}(T) = \mathbf{MUZ}\cdot(T/T_0)^{-3/2} \\
+&& \mathbf{X3MS}(T) = \mathbf{X3MS}\cdot(T/T_0)^{-3/2}%
+\end{eqnarray*}
+\end{longtable}
+
+% Eric Keiter.  1/19/04:
+% As this table does not have a caption, it should not have a number
+% assigned to it.  This line is needed to fix latex so that the tables in
+% chapter 2, which actually have their numbers printed in table captions, 
+% and the list of tables,  do not start at 2.9, but start at 2.1.
+\addtocounter{table}{-1}
+
+

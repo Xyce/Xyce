@@ -1,0 +1,36 @@
+--- N_DEV_ADMSbsimcmg_110.C	2016-10-03 14:30:54.784694000 -0600
++++ N_DEV_ADMSbsimcmg_110.C	2016-10-03 14:36:01.565885000 -0600
+@@ -11148,6 +11148,23 @@
+   // Right now, we only have store for limited probes...
+   setNumStoreVars(0);
+ 
++  // Manually inserted code:  detect extra nodes given on instance line,
++  // set external node mode for those normally-internal nodes.
++  devConMap.resize(numExtVars);
++  for (int j=0; j< numExtVars; j++)
++    devConMap[j] = 1;
++
++  if (instance_block.numExtVars > numExtVars)
++  {
++    devConMap.resize(instance_block.numExtVars);
++    if (instance_block.numExtVars >= numExtVars+1)
++    {
++      --numIntVars;
++      devConMap[numExtVars] = 2;
++    }
++  }
++  // END manually inserted code
++  
+   // Do not allocate "branch" (lead current) vectors by default
+   setNumBranchDataVars(0);
+   numBranchDataVarsIfAllocated = 4;
+--- N_DEV_ADMSbsimcmg_110.h	2016-10-03 14:31:56.735338000 -0600
++++ N_DEV_ADMSbsimcmg_110.h	2016-10-03 14:34:27.082162000 -0600
+@@ -7396,6 +7396,7 @@
+   static const char *deviceTypeName() {return "m level 110";}
+ 
+   static int numNodes() {return 4;}
++  static int numOptionalNodes() {return 1;}
+   static bool modelRequired() {return true;}
+   static bool isLinearDevice() {return false;}
+ 

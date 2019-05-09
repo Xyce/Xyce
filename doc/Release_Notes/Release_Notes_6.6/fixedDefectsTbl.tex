@@ -1,0 +1,113 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Fixed Defects.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+     \caption{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline
+     \endfirsthead
+     \caption[]{Fixed Defects.  Note that we have two different Bugzilla systems for Sandia Users.
+     SON, which is on the open network, and SRN, which is on the restricted network. } \\ \hline
+     \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description \\ \hline
+     \endhead
+
+     %\textbf{bug xxxx }: Describe issue & Describe fix.  \\ \hline
+     \textbf{804-SON}: \texttt{outputIC\_or\_NODESET} is not correct in parallel &
+     \texttt{.SAVE} uses this method to output \texttt{.IC} or \texttt{.NODESET} files after the DCOP calculation.
+     In parallel \Xyce{}, this method was only outputting the DCOP solution for one MPI processor, duplicated for the total number of MPI
+     processes.  This has been corrected. \\ \hline
+
+\textbf{836-SON }: Segfaults on CSV and Tecplot HB output & \Xyce{} would get a segmentation fault and crash if CSV or Tecplot output were used when the number of time points was not equal to the number of frequency points.  This would occur if oversampling was used.  Standard (PRN) format did not have this problem.  \Xyce{} 6.6 now handles these alternate output formats correctly when oversampling is employed.  \\ \hline
+
+\textbf{828-SON}: ``Unable to differentiate'' error & All versions of \Xyce{} prior to this release would throw a cryptic error, ``Unable to diffentiate'' when they encountered a use of a user-defined function (one defined via the \texttt{.FUNC} mechanism) when the function definition made use of certain ``special'' variables, such as \texttt{TIME}, \texttt{TEMP}, or \texttt{VT}.  This was traced to a bookkeeping error in the expression parser, and is fixed in this release.  \\ \hline
+
+\textbf{547-SON}: ``Data not in directory'' error & A bug in the expression library caused some well-formed expressions in B sources to throw an error.  In some versions of \Xyce{} this was reported as ``Data not in directory'' and in others as ``Directory node not found''.  The issue was tracked down to an error in the handling of terms of the form I(instance) when they were used repeatedly in an expression.  The error was a memory access problem, and therefore its behavior was unpredictable --- minor variations in how the expression was ordered could change the error or make it go away altogether. \\ \hline
+
+\textbf{754-SON}: Problems with use of dependent parameters for DC source values & The internal handling of global parameters in expressions for device parameters had logic errors that interfered with the handling of DC source sweeps and ``source stepping'' continuation.  The logic errors have been corrected, and these analysis functions now work properly when the devices they impact have their default parmeters set to expressions that depend on global parameters. \\ \hline
+
+     \textbf{813-SON}: Fix lead currents in expressions &  An error in the ExpressionData class ``setup'' method led to incorrect data being passed to expressions if the expression involved more than one lead current from the same device (e.g. ID(M1) and IG(M1)).  The result was that the value of the first lead current was being reused for subsequent lead currents of the same device in that expression.  This error was present in all versions of \Xyce{} since at least release 6.2.  It is fixed in Release 6.6.\\ \hline
+     
+     \textbf{691-SON}: Add power and lead current support to Xyce/ADMS & Xyce/ADMS now generates lead current support code for all Verilog-A models, and generates code to support P() and W() (power) output for two-terminal devices and those devices imported as Q (BJT) devices.  For two-terminal devices, the lead current is accessed with I(devicename).  For BJTs, the collector, base, and emitter lead currents are accessed with IC(devicename), IB(devicename), and IE(devicename), respectively.  For MOSFETS, the drain, gate, and source currents are accessed with ID(devicename), IG(devicename), and IS(devicename).  For BJTs and MOSFETs that have more than three nodes on their instance lines, the additional lead currents (including the substrate and bulk nodes for BJTs and MOSFETs) are printed  using I\#(devicename), where \# is the position of the lead on the instance line (e.g. I4, for substrate and bulk nodes) \\ \hline
+
+     \textbf{736-SON}: Error Messages for Lossy Transmission Line (LTRA) Device & \Xyce{} 6.5 would 
+     sometimes not emit all of the relevant error messages for an invalid instance line for a
+     Lossy Transmission Line (LTRA) device during parallel execution.  This is fixed now. \\ \hline
+
+     \textbf{746-SON}: Incorrect Information in RAW File Output & The information in the
+     Variables section of the .RAW file output could be incorrect in \Xyce{} 6.4, or earlier.
+     The variable names (and subsequent data) in the Values block was correct.  However,
+     the ``Type'' (e.g., current or voltage) for each variable could be incorrect
+     in the Variables section of the .RAW file output.  This bug was actually fixed in the
+     \Xyce{} 6.5 release.  However, it was not fully tested for parallel execution until the
+     \Xyce{} 6.6 release. \\ \hline
+
+     \textbf{763-SON}: Support remeasure of .CSV files and comma-delimited .PRN files & 
+     \Xyce{} 6.5 only supported remeasure of \texttt{.CSD} files and \texttt{.PRN} files 
+     delimited with whitespace.  \Xyce{} now also supports the remeasure of \texttt{.CSV} 
+     files and comma-delimited\texttt{.PRN} files.\\ \hline
+
+     \textbf{802-SON}: Fix Core Dumps on Ill-Formed Device Instance Parameters & \Xyce{} 6.5 
+     could core dump on some ill-formed instance parameters, like \texttt{TC} for the 
+     resistor. Examples would be \texttt{TC=} where both values for the vector parameter 
+     were missing, or \texttt{TC=0,} where the second value was missing.  This could
+     also occur for non-vector instance parameters.  An example would be \texttt{TEMP=}.
+     This is fixed now.\\ \hline
+
+     \textbf{817-SON}: Fix Error in Lead Current Calculations for Lossless Transmission Line &
+     The lead current calculations for ``Terminal 2'' of the lossless transmission line (T Device) 
+     would have the correct amplitude but the wrong sign. This has been corrected.  
+     The polarity conventions are now that positive current flows into the positive node 
+     of the specified terminal, and negative current flows out of the positive node of the specified
+     terminal.  The Reference Guide section was also updated to correctly refer to Terminals 1
+     and 2, rather than Terminals A and B.  So, the lead currents for the two terminals, of the T device
+     \texttt{Line1}, are accessed with \texttt{I1(TLine1)} and \texttt{I2(TLine1)}. \\ \hline
+
+     \textbf{182-SON}: Test case NEURON/HH\_Patch.cir fails in paralel testing. &
+     This test case was sensitive to how the device's internal variables were 
+     interpolated for output in parallel.  Output interpolation routines were improved 
+     in an earlier \Xyce{} release so that this test now works correctly. \\ \hline
+
+     \textbf{704-SON}: \Xyce{} segfaults when attempting to print current outputs like IP (phase) on lead currents in AC analysis. &
+     The underlying data for lead current output is not available during AC analysis.  However, the code did
+     not safely check for the existence of the lead current data structure before trying to use it to output a current.
+     The code now safely checks the lead current data structure before using it for output.  Since lead currents are not 
+     calculated under AC analysis, \Xyce{} will output zero for the \texttt{IR}, \texttt{II}, \texttt{IP} and \texttt{IM}
+     lead current quantities. \Xyce{} will output a meaningless value (e.g., \texttt{NAN}) for the \texttt{IDB} lead current quantity. \\ \hline
+
+     \textbf{667-SON}: Make \texttt{.IC} and \texttt{.NODESET} usable inside subcircuits &
+     \texttt{.IC} and \texttt{.NODESET} statements within subcircuits were silently ignored by \Xyce{}. 
+     This has been corrected. Now \texttt{.IC} and \texttt{.NODESET} statements inside subcircuits will be
+     resolved by the parser, eliminating the need to move the statements to the top-level of the
+     circuit. \\ \hline
+
+     \textbf{815-SON}: Spice strategy for DCOP solve doesn't properly enforce \texttt{.IC/.NODESET} conditions &
+     The internal Spice strategy for performing the DCOP calculation was ignoring \texttt{.IC} and \texttt{.NODESET}
+     statements if the initial Newton solve failed.  This has been corrected. \\ \hline
+
+     \textbf{830-SON}: HB does not work with \texttt{.IC} & HB analysis would exit with an error when \texttt{.IC} was used in the netlist. This has been corrected. The \texttt{.IC} statements only apply to the transient phase of HB, which is used to generate a good initial guess for HB analysis.  \\ \hline
+
+     \textbf{1823-SRN}: Implement collapse of nodes to ground in the Xyce/ADMS back-end & Xyce/ADMS can now handle Verilog-A models that collapse internal nodes to ground via contributions of the form ``\texttt{V(node) <+ 0;}''.  In version 6.5 of \Xyce{} this appeared to work, but generated incorrect code that could crash \Xyce{} under some circumstances.  In versions of \Xyce{} prior to 6.5, Xyce/ADMS would have generated a fatal error refusing to proceed upon encountering such a contribution.  Xyce/ADMS is not able to collapse {\em external} nodes to ground, and cannot be made to do so at this time.  \\ \hline
+
+     \textbf{797-SON}: Transient Adjoint sensitivity calculation incorrect when dQdx-terms are non-constant & There was a book-keeping mistake that prevented the correct dQdx matrix terms from being used during the reverse time integration required by adjoints.  This has been fixed.
+     \\ \hline
+     \textbf{799-SON}: Transient adjoint sensitivity analysis has "glitch" at the last time point when using Backward Euler &  An indexing mistake that was specific to Backward Euler time integration caused the t=tmax time point to be evaluated incorrectly.  This has been fixed.
+     \\ \hline
+     \textbf{842-SON}: Transient adjoint sensitivity analysis has incorrect answers near time=0 & There were a few mistakes related to saving the solution and function derivative histories.  These histories are stored during the forward solve, and then used during the reverse time integration used by transient adjoint sensitivity analysis.  The mistakes were related to the DCOP history, and thus had the most impact on the adjoint calculation near time=0.  This has been fixed.
+     \\ \hline
+
+\end{longtable}
+}

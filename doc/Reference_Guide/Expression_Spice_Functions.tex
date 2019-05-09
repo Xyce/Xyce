@@ -1,0 +1,54 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+{\renewcommand{\arraystretch}{1.2}
+  \newcommand{\category}[1]{\multicolumn{2}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries #1}}
+  \begin{longtable}{>{\raggedright\small}m{2.5in}>{\raggedright\let\\\tabularnewline\small}m{2.5in}}
+    \caption{SPICE Compatibility Functions\label{SPICE_Functions}} \\ \hline
+    \rowcolor{XyceDarkBlue}
+    \color{white}\bf Function &
+    \color{white}\bf Explanation \endfirsthead
+    \caption[]{Arithmetic Functions} \\ \hline
+    \rowcolor{XyceDarkBlue}
+    \color{white}\bf Function &
+    \color{white}\bf Explanation \endhead
+
+    SPICE\_EXP(V1,V2,TD1,TAU1,TD2,TAU2)  & SPICE style transient exponential \\
+     & V1 = initial value \\
+     & V2 = pulsed value \\
+     & TD1 = rise delay time \\
+     & TAU1 = rise time constant \\
+     & TD2 = fall delay time \\
+     & TAU2 = fall time constant \\ \hline
+
+    SPICE\_PULSE(V1,V2,TD,TR,TF,PW,PER) & SPICE style transient pulse \\
+     & V1 = initial value \\
+     & V2 = pulsed value \\
+     & TD = delay \\
+     & TR = rise time \\
+     & TF = fall time \\
+     & PW = pulse width \\
+     & PER = period \\ \hline
+
+    SPICE\_SFFM(V0,VA,FC,MDI,FS) & SPICE style transient single frequency FM \\
+     & V0 = offset \\
+     & VA = amplitude \\
+     & FC = carrier frequency \\
+     & MDI = modulation index \\
+     & FS = signal frequency \\ \hline
+
+    SPICE\_SIN(V0,VA,FREQ,TD,THETA) & SPICE style transient sine wave \\
+     & V0 = offset \\
+     & VA = amplitude \\
+     & FREQ = frequency (hz) \\
+     & TD = delay \\
+     & THETA = damping factor \\ \hline
+
+  \end{longtable}
+}

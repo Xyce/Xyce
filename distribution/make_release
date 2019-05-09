@@ -1,0 +1,312 @@
+#!/bin/sh
+
+#   make_release
+#   
+#   builds a platform specific install tarball using
+#       <XYCE_ROOT>/distribution/<INSTALL FILES>
+#       <XYCE_ROOT>/distribution/<README FILES>
+#       <USERS GUIDE>
+#       <REFERENCE GUIDE>
+#       <RELEASE NOTES>
+#       <XYCE_EXEC>
+#       <PLAT>
+#
+#   XYCE_ROOT is the dir containing checked out cvs sources; the default
+#       order looks at %1, then ../../Xyce, else it complains bitterly
+#
+#   INSTALL FILES are platform specific scripts for installing Xyce and 
+#       building the Xyce execution scripts:
+#       xmpirun       shell script for parallel Xyce (calls mpirun)
+#
+#   README FILES are quickstart notes for both the installation (README
+#       and README.TXT) and for starting Xyce 
+#
+#   cyg.tar.gz has a subset of cygwin binaries for win32; these are used
+#       run the install4win.sh script on Windows boxes
+#
+#   USERS GUIDE pdf of same (Xyce_UG.pdf)
+#
+#   REFERENCE GUIDE pdf of same (Xyce_RG.pdf)
+#
+#   RELEASE_NOTES pdf of same (Xyce_Release_1.0.1_Notes.pdf)
+#
+#   XYCE_EXEC is a Xyce executable
+#
+#   PLAT is the build platform
+
+
+
+#   Set up trap for interrupted installations
+clean_up () 
+{
+    echo
+    echo "ERROR:  Install tarball creation was interrupted."
+    echo "ERROR:  Deleting files:  $BUILDIR $BUILDIR.tar.gz $BUILDIR.zip"
+    #   avoid bizarre eradication of directories & files :)
+    if [ "x$BUILDIR" != "x" ]; then
+        rm -rf $BUILDIR
+        rm -f $BUILDIR.tar.gz
+        rm -f $BUILDIR.zip
+    fi
+    exit 1;
+}
+trap "clean_up" 1 2 3 4 6 8 10 12 13 15
+
+
+
+if [ "$1" = "-h" ]; then
+        echo "usage:"
+        echo "  make_release [ SRC_DIR [ XYCE_EXEC [ USERS_GUIDE [ REFERENCE_GUIDE [ NOTES [ PLATFORM ] ] ] ] ] ]"
+        echo 
+        echo "  SRC_DIR         top level directory of checked out Xyce"
+        echo "  XYCE_EXEC       /path/to/Xyce executable"
+        echo "  USERS_GUIDE     /path/to/Xyce pdf User's Guide"
+        echo "  REFERENCE_GUIDE /path/to/Xyce pdf Reference Guide"
+        echo "  NOTES           /path/to/Xyce pdf Release Notes"
+        echo "  PLATFORM        target platform (eg. linux_MPI, osx, freebsd, etc.)"
+        echo
+        echo "    No arguments are required, but if present they must be in this order"
+	exit 0;
+fi
+
+
+
+# set build parameters 
+SRC=$1
+EXEC=$2
+DOC1=$3 
+DOC2=$4 
+NOTES=$5
+PLAT=$6        
+XTRA=$7
+
+if [ "x$SRC" = "x" ]; then
+	SRC="../../Xyce"
+fi
+
+if [ "x$EXEC" = "x" ]; then
+	EXEC="./src/Xyce"
+fi
+
+if [ "x$DOC1" = "x" ]; then
+	DOC1="$SRC/doc/Users_Guide/Xyce_UG.pdf"
+fi
+
+if [ "x$DOC2" = "x" ]; then
+	DOC2="$SRC/doc/Reference_Guide/Xyce_RG.pdf"
+fi
+
+if [ "x$NOTES" = "x" ]; then
+	NOTES="$SRC/doc/Release_Notes_4.0/Release_Notes_4.0.pdf"
+fi
+
+if [ "x$XTRA" = "x" ]; then
+      XTRA="NONE"
+fi
+
+if [ "x$PLAT" = "x" ]; then
+	PLAT=`pwd | sed "s/.*Xyce_//"`
+fi
+
+if [ "x$PLATTYPE" = "x" ]; then
+	PLATTYPE="unix"
+fi
+
+# This exists solely to canonicalize case on windows builds, should we
+# try to use this script there (which doesn't even work).
+case $PLAT in
+ *[wW]indows*)
+    PLATTYPE="windows"
+    ;;
+esac
+
+#   a few tests before we begin
+if [ ! -d $SRC -o ! -d $SRC/src ]; then
+    echo "ERROR:  $SRC does not seem to be the Xyce source tree. Stopping"
+    exit 1;
+fi
+
+if [ -d $EXEC -o ! -x $EXEC ]; then
+    echo "ERROR:  $EXEC does not look like a Xyce executable. Stopping"
+    exit 1;
+fi
+
+if [ ! -f $DOC1 ]; then
+    echo "ERROR:  $DOC1 does not appear to be the Xyce User Guide"
+    exit 1;
+fi
+
+if [ ! -f $DOC2 ]; then
+    echo "ERROR:  $DOC2 does not appear to be the Xyce Reference Guide"
+    exit 1;
+fi
+
+if [ ! -f $NOTES ]; then
+    echo "ERROR:  $NOTES does not appear to be the Xyce Release Notes"
+    exit 1;
+fi
+
+#   quick note about what will be used to build this
+case $PLAT in
+    * | alpha* | freebsd* | linux* | windows* | ppc* | sgi* | solaris* ) 
+        echo "Building install tarball using the following:"
+        echo "    platform:           $PLAT"
+        echo "    executable:         $EXEC"
+        echo "    user guide:         $DOC1" 
+        echo "    reference guide:    $DOC2" 
+        echo "    release notes:      $NOTES"
+        echo "    source tree:        $SRC"
+        echo "    RAD docs:           $XTRA"
+    ;;
+    
+    * )
+        echo "ERROR:  $PLAT is not a platform I know to use."
+##         FIXME allow this to pass
+##         exit 1
+    ;;
+esac
+         
+
+
+#   create a place to build
+BUILDIR="Install_Xyce_$PLAT"
+mkdir $BUILDIR
+mkdir $BUILDIR/bin
+mkdir $BUILDIR/doc
+mkdir $BUILDIR/lib
+
+#   copy the Xyce executable to proper place and normalize name
+if [ "$PLATTYPE" = "windows" ]; then  
+    echo "This script should not be used to build installers for Windows.  Go away."
+    exit 1
+else
+    cp $EXEC $BUILDIR/bin/Xyce
+fi
+
+
+#   copy libs to proper place (currently just metadata)
+#cp $SRC/src/IOInterfacePKG/metadata/* $BUILDIR/lib/metadata/
+
+# bundle Intel libs 
+# Let's try to be more selective and only copy what we actually use!
+# prior to 3 May 2013, this copied *everything* in the various intel
+# libraries directories, which is not right, and made for very slow
+# package building, and large packages.
+
+case $PLAT in
+
+  Intel64_RHEL6*icc14*|Intel64_RHEL6*icc16*|Intel64_RHEL*icc18* )
+    cp -v $MKLROOT/lib/intel64/libmkl_intel_lp64.so*   $BUILDIR/lib/
+    cp -v $MKLROOT/lib/intel64/libmkl_intel_thread.so* $BUILDIR/lib/
+    cp -v $MKLROOT/lib/intel64/libmkl_core.so*         $BUILDIR/lib/
+    cp -v $MKLROOT/lib/intel64/libmkl_def.so*         $BUILDIR/lib/
+    cp -v $MKLROOT/lib/intel64/libmkl_mc.so*         $BUILDIR/lib/
+    # CEE intel compiler module has no symlink to make lib/intel64
+    # right for us.  Let's special case it to see if it can be made
+    # to work as-is
+    if [ -e $INTEL_PATH/lib ]
+    then
+        cp -v $INTEL_PATH/lib/intel64/libiomp5.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/lib/intel64/libifport.so*    $BUILDIR/lib/
+        cp -v $INTEL_PATH/lib/intel64/libifcoremt.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/lib/intel64/libimf.so*    $BUILDIR/lib/
+        cp -v $INTEL_PATH/lib/intel64/libirc.so*    $BUILDIR/lib/
+        cp -v $INTEL_PATH/lib/intel64/libintlc.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/lib/intel64/libsvml.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/lib/intel64/libirng.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/lib/intel64/libcilkrts.so*  $BUILDIR/lib/
+    else
+        cp -v $INTEL_PATH/compiler/lib/intel64_lin/libiomp5.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/compiler/lib/intel64_lin/libifport.so*    $BUILDIR/lib/
+        cp -v $INTEL_PATH/compiler/lib/intel64_lin/libifcoremt.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/compiler/lib/intel64_lin/libimf.so*    $BUILDIR/lib/
+        cp -v $INTEL_PATH/compiler/lib/intel64_lin/libirc.so*    $BUILDIR/lib/
+        cp -v $INTEL_PATH/compiler/lib/intel64_lin/libintlc.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/compiler/lib/intel64_lin/libsvml.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/compiler/lib/intel64_lin/libirng.so*  $BUILDIR/lib/
+        cp -v $INTEL_PATH/compiler/lib/intel64_lin/libcilkrts.so*  $BUILDIR/lib/
+    fi
+  ;;
+
+  Intel64_OSX*icc16* )
+    cp -v $MKLROOT/lib/libmkl_intel_lp64.dylib     $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_avx.dylib     $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_avx2.dylib     $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_avx512.dylib     $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_intel_thread.dylib   $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_core.dylib           $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_mc.dylib             $BUILDIR/lib/
+    cp -v $MKLROOT/lib/libmkl_mc3.dylib     $BUILDIR/lib/
+
+    cp -v /opt/intel/lib/libiomp5.dylib     $BUILDIR/lib/
+    cp -v /opt/intel/lib/libirc.dylib     $BUILDIR/lib/
+  ;;
+
+  Intel_Windows*icc*)
+    echo "Adding DLLS..."
+    cp -v "$(echo `cygpath -u $ICPP_COMPILER12_CYGWIN | sed -e 's/ /\\ /g' -e 's/(/\\(/g' -e 's/)/\\)/g'`)"/redist/ia32/compiler/libmmd.dll $BUILDIR/lib
+    cp -v /cygdrive/c/Windows/system32/msvcp100.dll $BUILDIR/lib
+    cp -v /cygdrive/c/Windows/system32/msvcr100.dll $BUILDIR/lib
+  ;;
+
+  * )
+    echo "skipping Intel redistributable libs"
+  ;;
+
+esac
+
+
+#   copy documentation
+if [ "$PLATTYPE" = "windows" ]; then
+    echo "What are you doing here?  This script is not for windows."
+    exit 1
+else 
+    cp $SRC/distribution/README.TXT $BUILDIR/bin/README
+    cp $SRC/distribution/README.TXT $BUILDIR/README
+fi
+
+cp $DOC1 $BUILDIR/doc/Users_Guide.pdf
+cp $DOC2 $BUILDIR/doc/Reference_Guide.pdf
+cp $NOTES $BUILDIR/doc/Release_Notes.pdf
+if [ "x$XTRA" != "xNONE" ]; then
+  cp $XTRA $BUILDIR/doc/
+fi
+
+
+#   remember where we started this
+ORIG_PWD=`pwd`
+
+#   zip and tar up the Xyce top level & cleanup
+#   Make sure files are world read/execute (if necessary)
+#   The RHEL6 packages were getting o-rwx for some reason!
+cd $BUILDIR
+tar cf xtl.tar *
+gzip xtl.tar
+rm -rf bin
+rm -rf doc
+rm -rf lib
+rm -rf test
+rm -rf README*
+cd $ORIG_PWD
+
+
+
+#   copy the proper install files (all unix or windows) and
+#   archive to the platforms tastes & cleanup
+if [ "$PLATTYPE" = "windows" ]; then
+    echo This script is now no longer usable on Windows.  Go away.
+    exit 1
+else
+    cp $SRC/distribution/install.sh $BUILDIR/install_$PLAT.sh
+    cp $SRC/distribution/README.TXT $BUILDIR/README
+    tar cf $BUILDIR.tar $BUILDIR
+    gzip $BUILDIR.tar
+    rm -rf $BUILDIR
+    BUILDIR="$BUILDIR.tar.gz"
+fi
+
+
+echo "Xyce $PLAT Installer build completed.  Created:  ./$BUILDIR"
+
+
+

@@ -1,0 +1,17 @@
+@INCLUDE = ../../src/AnalysisPKG/Doxyfile.input
+@INCLUDE = ../../src/CircuitPKG/Doxyfile.input
+# @INCLUDE = ../../src/DakotaLinkPKG/Doxyfile.input
+@INCLUDE = ../../src/DeviceModelPKG/Doxyfile.input
+@INCLUDE = ../../src/ErrorHandlingPKG/Doxyfile.input
+@INCLUDE = ../../src/IOInterfacePKG/Doxyfile.input
+#@INCLUDE = ../../src/LinearAlgebraServicesPKG/Doxyfile.input
+@INCLUDE = ../../src/LoaderServicesPKG/Doxyfile.input
+# INCLUDE = ../../src/MultiTimePDEPKG/Doxyfile.input
+@INCLUDE = ../../src/NonlinearSolverPKG/Doxyfile.input
+# @INCLUDE = ../../src/ParallelDistPKG/Doxyfile.input
+@INCLUDE = ../../src/TimeIntegrationPKG/Doxyfile.input
+@INCLUDE = ../../src/TopoManagerPKG/Doxyfile.input
+@INCLUDE = ../../src/UtilityPKG/Doxyfile.input
+@INCLUDE = ../../src/test/Doxyfile.input
+
+INPUT += ../../src/index.dox

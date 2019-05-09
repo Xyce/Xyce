@@ -1,0 +1,227 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Release notes for Xyce version 6.4.
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  
+%% Creation Date  : {03/24/2006}
+%%-------------------------------------------------------------------------
+
+\documentclass{article}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{ltxtable, multirow}
+\usepackage{Xyce}
+\usepackage{geometry}
+
+\pdfcatalog {/PageMode /UseNone}
+\renewcommand{\arraystretch}{1.2}
+
+% Sets the page margins to be the same as the Guides (SAND reports)
+\geometry{pdftex, inner=1in, textwidth=6.5in, textheight=9in}
+
+% Gets rid of Section numbers
+\setcounter{secnumdepth}{0}
+
+% Set this here once, and use \XyceVersionVar{} in the document
+\XyceVersion{6.4}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+\title{\XyceTitle{} Parallel Electronic Simulator\\
+Version \XyceVersionVar{} Release Notes} 
+
+\author{ Sandia National Laboratories}
+
+\date{\today}
+
+% Submitted to R&A 01 Dec 2015 Tracking number 365201, approved 03 Dec 2015
+% SAND Number SAND2015-10522 O
+
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+
+The \XyceTM{} Parallel Electronic Simulator has been written to support the
+simulation needs of Sandia National Laboratories' electrical designers.
+\XyceTM{} is a SPICE-compatible simulator with the ability to solve extremely
+large circuit problems on large-scale parallel computing platforms, but also
+includes support for most popular parallel and serial computers.
+
+For up-to-date information not available at the time these notes were produced,
+please visit the \XyceTM{} web page at
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov}}.
+
+Highlights for the \XyceTM{} \XyceVersionVar{} Release include:
+\begin{XyceItemize}
+  \item New devices, such as VBIC 1.3, MEXTRAM with self-heating, and the
+    Yakopcic Memristor
+  \item New Local truncation Error (LTE) criterions for time-step control
+  \item Oversampling capability for Harmonic Balance time domain output
+  \item Last release with full support for Red Hat Linux 5
+\end{XyceItemize}
+
+\tableofcontents
+\vspace*{\fill}
+\parbox{\textwidth}
+{
+  \raisebox{0.13in}{\includegraphics[height=0.5in]{snllineblubrd}}
+  \hfill
+  \includegraphics[width=1.5in]{xyce_flat_white}
+}
+
+
+\newpage
+\section{New Features and Enhancements}
+
+\subsubsection*{New Devices and Device Model Improvements}
+\begin{XyceItemize}
+  \item VBIC version 1.3, 3- and 4-terminal variants (Q levels 11 and 12)
+  \item MEXTRAM 504.11 with self-heating (Q level 505)
+  \item A new memristor device using the Yakopcic model
+  \item Support for Reactive Power limits in the Power Grid Generator Bus
+        model.
+  \item Improved compatibility between \Xyce{} and PSpice Digital Behavioral
+        models. 
+\end{XyceItemize}
+
+\subsubsection*{Enhanced Solver Stability, Performance and Features}
+\begin{XyceItemize}
+  \item The Kundert SPARSE linear solver has been added as a linear solver option in Xyce.  
+  \item The netlist parser has been significantly refactored to reduce memory
+        consumption and improve parsing speeds for large circuits.
+  \item Improved Harmonic Balance (HB) robustness during the initial guess calculation.
+  \item New Local truncation Error (LTE) criterions that use history information of signals improve time stepping for all time integrators.
+  \item Oversampling capability for Harmonic Balance time domain output enables users to produce well-resolved time-domain outputs.
+  \item Arclength continuation is now much more useful and robust.
+  \item Sensitivity analysis can now allow multiple objective functions.
+\end{XyceItemize}
+
+\subsubsection*{Interface Improvements}
+\begin{XyceItemize}
+  \item Power calculations supported for controlled-source devices (B,E,F,G and H).
+  \item Support for additional .MEASURE statement syntaxes.
+  \item New output options, that allow the user to suppress the header and
+        footer of standard-format output files.
+  \item Improved error handling during netlist parsing.
+  \item Improved Harmonic Balance Output.
+  \item New support for the DIGINITSTATE option, which sets the initial state of
+        the Digital Flip-Flip and Latch devices.
+\end{XyceItemize}
+
+
+\newpage
+\section{Defects Fixed in this Release}
+\input{fixedDefectsTbl}
+
+
+\newpage
+\section{Interface Changes in this Release}
+\input{changesInputTbl}
+
+
+\newpage
+\section{Known Defects and Workarounds}
+\input{knownDefectsTbl}
+
+
+\newpage
+\section{Supported Platforms}
+\subsection*{Certified Support}
+The following platforms have been subject to certification testing for the
+\Xyce{} version 6.4 release.
+\begin{XyceItemize}
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 5, x86 (serial only) and x86-64 (serial and parallel)
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 6, x86-64 (serial and parallel)
+  \item Microsoft Windows 7${}^{\mbox{\textregistered}}$, x86 (serial)
+  \item Apple${}^{\mbox{\textregistered}}$ OS X Yosemite, x86-64 (serial and parallel)
+\end{XyceItemize}
+Note that this is the last release with Certified Support for Red Hat
+Enterprise Linux${}^{\mbox{\textregistered}}$ 5. In subsequent releases, RHEL5
+will be in the ``Build Support'' category.
+
+\subsection*{Build Support}
+Though not certified platforms, \Xyce{} has been known to run on the following
+systems.
+\begin{XyceItemize}
+  \item FreeBSD 9.x and 10.x on Intel x86 and x86-64 architectures (serial and parallel)
+  \item Distributions of Linux other than Red Hat Enterprise Linux
+  \item Microsoft Windows under Cygwin and MinGW.
+\end{XyceItemize}
+
+
+\section{\Xyce{} Release \XyceVersionVar{} Documentation}
+The following \Xyce{} documentation is available on the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+  \item \Xyce{} Version \XyceVersionVar{} Release Notes (this document)
+  \item \Xyce{} Users' Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Reference Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Mathematical Formulation
+  \item Application Node: Using Open Source Schematic Capture Tools with \Xyce{}
+  \item Application Note: Power Grid Modeling With \Xyce{}
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+  \item Building Guide (instructions for building Xyce{} from the source code)
+  \item Running the \Xyce{} Regression Test Suite
+  \item Frequently Asked Questions
+\end{XyceItemize}
+
+
+\section{External User Resources}
+\begin{itemize}
+  \item Website: {\color{XyceDeepRed}\url{http://xyce.sandia.gov}}
+  \item Google Groups discussion forum:
+    {\color{XyceDeepRed}\url{https://groups.google.com/forum/#!forum/xyce-users}}
+  \item Email support:
+    {\color{XyceDeepRed}\href{mailto:xyce@sandia.gov}{xyce@sandia.gov}}
+  \item Address:
+    \begin{quote}
+            Electrical Models and Simulation Department,\\
+            Sandia National Laboratories\\
+            P.O. Box 5800, M.S. 1177\\
+            Albuquerque, NM 87185-1177 \\
+    \end{quote}
+\end{itemize}
+
+\vspace*{\fill}
+\HeadingC{Trademarks}
+The information herein is subject to change without notice.\\[0.5em]
+Copyright \copyright{} 2002-2016 Sandia Corporation.  All rights
+reserved.\\[0.5em]
+\XyceTM{} Electronic Simulator and \XyceTM{} are trademarks of Sandia
+Corporation.\\[0.5em]
+Portions of the \XyceTM{} code are:  \\
+Copyright \copyright{} 2002, The Regents of the University of California. \\
+Produced at the Lawrence Livermore National Laboratory. \\
+Written by Alan Hindmarsh, Allan Taylor, Radu Serban. \\
+UCRL-CODE-2002-59 \\
+All rights reserved. \\[0.5em]
+Orcad, Orcad Capture, PSpice and Probe are registered trademarks of Cadence
+Design Systems, Inc.\\[0.5em]
+Microsoft, Windows and Windows 7 are registered trademarks of Microsoft
+Corporation.\\[0.5em]
+\Xyce{}'s expression library is based on that inside Spice 3F5 developed by
+the
+EECS Department at the University of California. \\[0.5em]
+All other trademarks are property of their respective owners. \\
+
+\vspace*{\fill}
+Sandia National Laboratories is a multi-program laboratory managed and
+operated by Sandia Corporation, a wholly owned subsidiary of Lockheed Martin
+Corporation, for the U.S. Department of Energy's National Nuclear Security
+Administration under contract DE-AC04-94AL85000.
+
+\end{document}
+

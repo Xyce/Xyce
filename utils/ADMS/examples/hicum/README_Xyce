@@ -1,0 +1,25 @@
+The HICUM Level 2, version 2.4.0 Verilog-A source was obtained from 
+https://www.iee.et.tu-dresden.de/iee/eb/hic_new/hic_intro.html
+
+The following modifications to the original have been made:
+
+- Xyce/ADMS cannot perform collapse of external nodes to ground.  The
+  block of code in HICUM that does this has been commented out, and
+  the alternate block of code provided by developers in case
+  collapse-to-ground is not supported has been uncommented
+
+- A single contribution that mixed static and dynamice (ddt) terms has
+  been broken into two separate contributions, one wholly static, the
+  other wholly dynamic.  Xyce/ADMS cannot handle mixed contributions
+  of this sort.
+
+- The "MODEL" block of code has been turned into an "INSTANCE" block.
+  It contains variables that are used in the main block later to add
+  dependence on the tnode probe, and as such those variables should
+  belong to an instance, not the model.  This change means nothing
+  unless one is using ADMS, as the "MODEL" macro is defined as empty
+  except for ADMS.
+
+- module attributes have been added to allow HICUM to plug in to Xyce as
+  BJT level 234.
+  

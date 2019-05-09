@@ -1,0 +1,8 @@
+Test of series RLC circuit
+
+V1 1 0 SIN (5v 5v 20MEG) 
+Yrlc rlc1 1 0 R=1kohm L=1mH C=1pf
+
+.tran 1n 4u
+.print tran v(1) I(v1)
+.end

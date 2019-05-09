@@ -1,0 +1,114 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\index{\texttt{.TRAN}}
+\index{analysis!transient} \index{transient analysis}
+Calculates the time-domain response of a circuit for a specified duration.
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.TRAN <initial step value> <final time value>
++ [<start time value> [<step ceiling value>]] [NOOP] [UIC]
++ [\{schedule( <time>, <maximum time step>, ... )\}]
+\end{alltt}
+
+\examples
+\begin{alltt}
+.TRAN 1us 100ms
+.TRAN 1ms 100ms 0ms .1ms
+.TRAN 0 2.0e-3  \{schedule( 0.5e-3, 0, 1.0e-3, 1.0e-6, 2.0e-3, 0 )\}
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{initial step value}
+
+Used to calculate the initial time step (see below).
+
+\argument{final time value}
+
+Sets the end time (duration) for the analysis.
+
+\argument{start time value}
+
+Sets the time at which output of the simulation results is to begin.  Defaults to zero.
+
+\argument{step ceiling value}
+
+Sets a maximum time step.  Defaults to ((final time value)-(start time
+value))/10, unless there are breakpoints (see below).
+
+\argument{NOOP or UIC}
+
+These two options are synonyms which specify that no operating point
+calculation is to be performed, and that the specified initial
+condition (from .IC lines or capacitor ``IC'' parameters) should be
+used as the transient initial condition instead. Unspecified values
+are set to zero.  Finally, the .IC capability can only set voltage
+values, not current values.
+
+\argument{schedule(<time>, <maximum time step>, \ldots)}
+
+Specifies a schedule for maximum allowed time steps. The list of
+arguments, $t_0$, $\Delta t_0$, $t_1$, $\Delta t_1$, \emph{ etc.\/}
+implies that a maximum time step of $\Delta t_0$ will be used while the
+simulation time is greater than or equal to $t_0$ and less than $t_1$.
+A maximum time step of $\Delta t_1$ will be used when the simulation
+time is greater or equal to than $t_1$ and less than $t_2$. This
+sequence will continue for all pairs of $t_i$, $\Delta t_i$ that are
+given in the \{schedule()\}.  If $\Delta t$ is zero or negative, then no
+maximum time step is enforced (other than hardware limits of the host
+computer).
+
+\end{Arguments}
+
+\comments
+
+The transient analysis calculates the circuit's response over an
+interval of time beginning with \texttt{TIME=0} and finishing at
+\texttt{<final time value>}. Use a \texttt{.PRINT}
+(print)\index{\texttt{.PRINT}}\index{results!print}\index{\texttt{.PRINT}!\texttt{TRAN}}
+statement to get the results of the transient analysis.
+
+Before calculating the transient response \Xyce{} computes a bias
+point\index{bias point} for the circuit that is different from the
+regular bias point. This is necessary because at the start of a
+transient analysis\index{analysis!transient}, the independent sources
+can have different values than their DC values. Specifying \texttt{NOOP}
+on the \texttt{.TRAN} line causes \Xyce{} to begin the transient
+analysis without performing the usual bias point calculation.
+
+The time integration\index{solvers!time integration} algorithms within
+\Xyce{} use adaptive time-stepping methods that adjust the time-step
+size\index{time step!size} according to the activity in the
+analysis. The default ceiling for the internal time step is
+\texttt{(<final time value>-<start time value>)/10}.  This default
+ceiling value is automatically adjusted if breakpoints are present, to
+ensure that there are always at least 10 time steps between breakpoints.
+If the user specifies a ceiling value, however, it overrides any
+internally generated ceiling values.
+
+\Xyce{} is not strictly compatible with SPICE in its use of the values on the
+\texttt{.TRAN} line. In SPICE, the first number on the \texttt{.TRAN} line
+specifies the printing interval. In \Xyce{}, the first number is the
+\texttt{<initial step value>}, which is used in determining the initial step
+size.  The actual initial step size is chosen to be the smallest of three
+quantities: the \texttt{<inital step value>}, the \texttt{<step ceiling
+value>}, or 1/200th of the time until the next breakpoint.
+
+The third argument to \texttt{.TRAN} simply determines the earliest time
+for which results are to be output.  Simulation of the circuit always
+begins at \texttt{TIME=0} irrespective of the setting of \texttt{<start time value>}.
+
+\end{Command}

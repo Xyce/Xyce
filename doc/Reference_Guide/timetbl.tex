@@ -1,0 +1,185 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Time Integration Package Table
+%%
+
+\begin{OptionTable}{Options for Time Integration Package.}
+\label{TimeIntPKG}
+METHOD & Time integration method.  This parameter is only
+relevant when running \Xyce{} in transient mode.  Supported methods:
+\begin{XyceItemize}
+\item trap or 7 (variable order Trapezoid)
+\item gear or 8 (Gear method) 
+\end{XyceItemize} &
+trap or 7 (variable order Trapezoid) \\ \hline
+RELTOL\index{\texttt{RELTOL}}  & Relative error tolerance & 
+1.0E-03 \\ \hline
+ABSTOL\index{\texttt{ABSTOL}}  & Absolute error tolerance & 1.0E-06 \\
+\hline
+RESTARTSTEPSCALE\index{\texttt{RESTARTSTEPSCALE}}  & 
+This parameter is a scalar which determines how small the initial
+time step out of a breakpoint should be.  In the current version of the
+time integrator, the first step after a breakpoint isn't subjected to
+much error analysis, so for very stiff circuits, this step can be 
+problematic. & 0.005 \\ \hline
+NLNEARCONV\index{\texttt{NLNEARCONV}}  & 
+This flag sets if ``soft'' 
+failures of the nonlinear solver, when the convergence criteria are almost, 
+but not quite, met, should result in a "success" code being returned from
+the nonlinear solver to the time integrator.
+If this is enabled, it is expected that the error analysis performed by the 
+time integrator will be the sole determination of whether or not the time 
+step is considered a ``pass'' or a ``fail''.  This is on by default, but
+occasionally circuits need tighter convergence criteria.  
+& 0 (FALSE)  \\ \hline
+NLSMALLUPDATE\index{\texttt{NLSMALLUPDATE}} &   
+This flag is another ``soft'' nonlinear solver failure flag.  In
+this case, if the flag is set, time steps in which the nonlinear solver 
+stalls, and is using updates that are numerically tiny, can be considered
+to have converged by the nonlinear solver.  If this flag is set, 
+the time integrator is responsible for determining
+if a step should be accepted or not.
+& 1 (TRUE) \\ \hline
+
+RESETTRANNLS & The nonlinear solver resets its settings for the
+transient part of the run to something more efficient (basically a simpler set
+of options with smaller numbers for things like max Newton step).  If this is
+set to false, this resetting is turned off. Normally should be left as
+default. & 1 (TRUE) \\ \hline
+
+MAXORD & This parameter determines the maximum order of integration
+that time integrators will attempt.  Setting this option
+does not guarantee that the integrator will integrate at this order, it just
+sets the maximum order the integrator will attempt.  In order to guarantee a
+particular order is used, see the option \texttt{MINORD} below.  & 
+2 for variable order Trapezoid and Gear \\ \hline
+
+MINORD & This parameter determines the minimum order of integration
+that  time integrators will attempt to maintain.  The integrator will
+start at Backward Euler and move up in order as quickly as possible to achive
+\texttt{MINORD} and then it will keep the order above this.  If \texttt{MINORD}
+is set at 2 and \texttt{MAXORD} is set at 2, then the integrator will move to
+second order as quickly as possible and stay there.  & 1 \\ \hline
+
+NEWLTE & This parameter determines the reference value for relative
+convergence criterion in the local truncation error based time step control.
+The  supported choices
+\begin{XyceItemize}
+\item 0. The reference value is the current value on each node.
+\item 1. The reference value is the maximum of all the signals at the current time.
+\item 2. The reference value is the maximum of all the signals over all past time.
+\item 3. The reference value is the maximum value on each signal over all past time.
+\end{XyceItemize}   & 1 \\ \hline
+
+NEWBPSTEPPING & This flag sets a new time stepping method after a break point. 
+Previously, \Xyce{} treats each breakpoint identically to the DCOP point, in which
+the intitial time step out of the DCOP is made to be very very small, because
+the LTE calculation is unreliable.  As a result, \Xyce{} takes an incredibly small
+step out of each breakpoint and then tries to grow the stepsize from there. 
+When \texttt{NEWBPSTEPPING} is set, \Xyce{} can take a reasonable
+large step out of every non-DCOP breakpoint, and then just relies on the step
+control to ensure that the step is small enough.  
+
+Note that the new time stepping method after a break point does not work
+well with the old LTE calculation since the old LTE calculation is
+conservative and it tends to reject the first time step out of a break
+point. We recommend to use newlte if you choose to use the new time
+stepping method out of a break point. & 1 (TRUE) \\ \hline
+
+MASKIVARS & This parameter masks out current variables in the local truncation error (LTE) based time step
+control. & 0 (FALSE) \\  \hline
+
+ERROPTION & This parameter determines if Local Truncation Error (LTE)
+control is turned on or not.  If \texttt{ERROPTION} is  on, then step-size
+selection is based on the number of Newton iterations nonlinear solve.  
+For Trapezoid and Gear, if the number of nonlinear
+iterations is below \texttt{NLMIN} then the step is doubled.  If the number
+of nonlinear iterations is above \texttt{NLMAX} then the step is cut by one
+eighth.  In between, the step-size is left alone.  Because this option can
+lead to very large time-steps, it is very important   to specify an appropriate
+\texttt{DELMAX} option.  If the circuit has breakpoints, then the option
+\texttt{MINTIMESTEPSBP} can also help to adjust the maximum time-step by
+specifying the minimum number of time points between breakpoints. & 0 (Local Truncation Error is used)  \\ \hline
+
+NLMIN &  This parameter determines the lower bound for the desired
+number of nonlinear iterations during a Trapezoid time or Gear integration solve with
+\texttt{ERROPTION}=1.
+& 3  \\ \hline
+
+NLMAX & This parameter determines the upper bound for the desired
+number of nonlinear iterations during a Trapezoid time or Gear integration solve with
+\texttt{ERROPTION}=1.
+& 8  \\ \hline
+
+DELMAX & This parameter determines the maximum time step-size used
+with \texttt{ERROPTION}=1.  If a maximum time-step is also specified on the
+\texttt{.TRAN} line, then the minimum of that value and \texttt{DELMAX} is
+used.
+& 1e99 \\ \hline
+
+MINTIMESTEPSBP & This parameter determines the minimum number of
+time-steps to use between breakpoints.  This enforces a maximum time-step
+between breakpoints equal to the distance between the last breakpoint and the
+next breakpoint divided by \texttt{MINTIMESTEPSBP}.
+& 10  \\ \hline
+
+TIMESTEPSREVERSAL & This parameter determines whether time-steps are
+rejected based upon the step-size selection strategy in \texttt{ERROPTION}=1.
+If it is set to 0, then a step will be accepted with successful nonlinear
+solves independent of whether the number of nonlinear iterations is between
+\texttt{NLMIN} and \texttt{NLMAX}.  If it is set to 1, then when the number of
+nonlinear iterations is above \texttt{NLMAX}, the step will be rejected and the
+step-size cut by one eighth and retried.  If \texttt{ERROPTION}=0 (use LTE) then
+\texttt{TIMESTEPSREVERSAL}=1 (reject steps) is set.  
+& 0 (do not reject steps) \\ \hline
+
+DOUBLEDCOPSTEP \index{PDE Devices!time integration parameters} \index{TCAD Devices!time integration parameters} & 
+TCAD devices by default will solve an extra "setup" problem to mitigate
+some of the convergence problems that TCAD devices often exhibit.
+This extra setup problem solves a nonlinear Poisson equation first to establish 
+an initial guess for the full drift-diffusion(DD) problem.  The name of this 
+parameter refers to the fact that the code is solving two DC operating point 
+steps instead of one.  To solve only the nonlinear Poisson problem, then set 
+\texttt{DOUBLEDCOP=nl\_poisson}.  To solve only the drift-diffusion problem 
+(skipping the nonlinear Poisson), set \texttt{DOUBLEDCOP=drift\_diffusion}.
+To explicitly set the default behavior, then set \texttt{DOUBLEDCOP=nl\_poisson, drift\_diffusion}.
+& 
+Default value, for TCAD circuits, is a combination: nl\_poisson, drift\_diffusion.
+Default value, for non-TCAD circuits is a moot point.  If no TCAD devices are present
+in the circuit, then there will not be an extra DCOP solve.
+\\ \hline
+
+BREAKPOINTS & This parameter specifies a comma-separated list of timepoints that 
+should be used as breakpoints.  They do not replace the existing breakpoints 
+already being set internally by Xyce, but instead will add to them.
+& N/A  \\ \hline
+
+\debug{BPENABLE}\index{\texttt{BPENABLE}} & \debug{Flag for
+  turning on/off breakpoints (1 = ON, 0 = OFF).  It is unlikely anyone would
+  ever set this to FALSE, except to help debug the breakpoint capability.}
+& \debug{1 (TRUE)} \\ \hline
+
+\debug{EXITTIME}\index{\texttt{EXITTIME}} & \debug{If this is set
+  to nonzero, the code will check the simulation time at the end of each step.
+  If the total time exceeds the exittime, the code will ungracefully exit.
+  This is a debugging option, the point of which is the have the code stop at a
+  certain time during a run without affecting the step size control.  If not
+  set by the user, it isn't activated.}& \debug{-} \\ \hline
+
+\debug{EXITSTEP}\index{\texttt{EXITSTEP}} &
+\debug{Same as \texttt{EXITTIME}, only applied to step number.
+The code will exit at the specified step.  If not set by the user,
+it isn't activated.} &
+\debug{-} \\ \hline
+
+\index{solvers!time integration!options}
+\end{OptionTable}

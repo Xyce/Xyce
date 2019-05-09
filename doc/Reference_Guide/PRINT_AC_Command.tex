@@ -1,0 +1,52 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+AC Analysis generates two output files, the primary output is in the
+frequency domain and the initial conditions output is in the time domain.
+
+Note that when using the \texttt{.PRINT AC} to create the variable list
+for DC type output, usage of frequency domain functions like \texttt{VDB} can result
+in -Inf output being written to the output file.  This is easily solved
+by defining a \texttt{.PRINT AC\_IC} command to specify the correct
+output for initial condition data.
+
+Homotopy output can also be generated.
+
+{
+\begin{PrintCommandTable}{Print AC Analysis Type}
+.PRINT AC & \emph{circuit-file}.FD.prn & INDEX FREQ \\ \hline
+.PRINT AC FORMAT=GNUPLOT & \emph{circuit-file}.FD.prn & INDEX FREQ \\ \hline
+.PRINT AC FORMAT=NOINDEX & \emph{circuit-file}.FD.prn & FREQ \\ \hline
+.PRINT AC FORMAT=CSV & \emph{circuit-file}.FD.csv & FREQ \\ \hline
+.PRINT AC FORMAT=RAW & \emph{circuit-file}.raw & FREQ \\ \hline
+Xyce -a \newline .PRINT AC FORMAT=RAW & \emph{circuit-file}.raw & FREQ \\ \hline
+.PRINT AC FORMAT=TECPLOT & \emph{circuit-file}.FD.dat & FREQ \\ \hline
+.PRINT AC FORMAT=PROBE & \emph{circuit-file}.csd & -- \\ \hline
+
+
+\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Add \texttt{.OP} To Netlist To Enable AC\_IC Output} \\ \hline
+.PRINT AC\_IC & \emph{circuit-file}.TD.prn & INDEX TIME \\ \hline
+.PRINT AC\_IC FORMAT=GNUPLOT & \emph{circuit-file}.TD.prn & INDEX TIME \\ \hline
+.PRINT AC\_IC FORMAT=CSV & \emph{circuit-file}.TD.csv & TIME \\ \hline
+.PRINT AC\_IC FORMAT=RAW & \emph{circuit-file}.raw & TIME \\ \hline
+Xyce -a \newline .PRINT AC\_IC FORMAT=RAW & \emph{circuit-file}.raw & TIME \\ \hline
+.PRINT AC\_IC FORMAT=TECPLOT & \emph{circuit-file}.TD.dat & TIME \\ \hline
+.PRINT AC\_IC FORMAT=PROBE & \emph{circuit-file}.TD.csd & -- \\ \hline
+
+\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Command Line Raw Override Output} \\ \hline
+Xyce -r & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
+Xyce -r -a & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
+
+\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Additional Output Available} \\ \hline
+.OP & \emph{log file} & Operating point data \\ \hline
+.SENS \newline .PRINT SENS & \multicolumn{2}{c}{see~\nameref{Print_Sensitivity}} \\ \hline
+.OPTIONS NONLIN CONTINUATION=<method> \newline .PRINT HOMOTOPY & \multicolumn{2}{c}{see~\nameref{Print_Homotopy}} \\ \hline
+\end{PrintCommandTable}
+}
+

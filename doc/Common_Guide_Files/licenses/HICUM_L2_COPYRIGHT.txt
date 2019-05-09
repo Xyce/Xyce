@@ -1,0 +1,27 @@
+The Software is distributed as is, completely without expressed 
+or implied warranty or service support. Michael Schroter and his team 
+members are not liable for the condition or performance of the software. 
+
+Michael Schroter owns the copyright and grants users a perpetual, 
+irrevocable, worldwide, non-exclusive, royalty-free license with respect 
+to the software as set forth below.  
+
+Michael Schroter hereby disclaims all implied warranties.
+
+Michael Schroter grants the users the right to modify, copy, and  
+redistribute the software and documentation, both within the user's 
+organization and externally, subject to the following restrictions.
+
+1. The users agree not to charge for the model owner code itself but may 
+charge for additions, extensions, or support.
+
+2. In any product based on the software, the users agree to acknowledge 
+Michael Schroter that developed the model and software. This 
+acknowledgment shall appear in the product documentation.
+
+3. Users agree to obey all government restrictions governing 
+redistribution or export of the software. 
+
+4. The Users agree to reproduce any copyright notice which appears on 
+the software and documentation on any copy or modification of such 
+made available to others. 

@@ -1,0 +1,46 @@
+`include "disciplines.vams"
+`include "constants.vams"
+
+//adms specific definitions
+`define attr(txt) (*txt*)
+
+`define CONSTroot2 1.41421356237309504880
+
+module diode_simple(a,c) `attr(xyceModelGroup="Diode" xyceSpiceDeviceName="D" xyceLevelNumber="2001") ;
+  //device terminals
+  inout a,c;
+  electrical a,c;
+  //internal node
+  electrical ci;
+
+// model parameters
+  parameter real Is = 1e-5 from [0:1] `attr(info="Saturation current");
+  parameter real Cp = 1e-12 from [0:1] `attr(info="Parallel capacitance");
+  parameter real Rs = 1 from (0:inf) `attr(info="Series resistance");
+  parameter real Temp = 300 from (0:inf) `attr(info="Temperature" type="instance");
+
+  real Vd, Id, fourkt, twoq, Qp;
+  real exparg;
+  real vcrit;
+
+  analog 
+  begin
+
+    vcrit = $vt/ln($vt/(`CONSTroot2*Is));
+
+    Vd = $limit(V(ci,a),"pnjlim",$vt,vcrit);
+    exparg=Vd/26e-3;
+    Id = Is*(limexp(exparg)-1);
+    Qp = Cp*Vd;
+
+    I(a,ci) <+ Id;
+    I(a,ci) <+ ddt(Qp);
+    if (Rs>0) begin
+       I(ci,c) <+ V(ci,c)/Rs;
+    end else begin
+       V(ci,c) <+ 0.0;
+    end
+      
+
+  end // analog
+endmodule

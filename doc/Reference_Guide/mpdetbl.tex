@@ -1,0 +1,47 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% MPDE Options Table
+%%
+%\begin{table}[htbp]
+\begin{longtable}[htbp]{|>{\setlength{\hsize}{.8\hsize}}Y|
+>{\setlength{\hsize}{1.4\hsize}}Y|
+>{\setlength{\hsize}{.8\hsize}}Y|} 
+
+\caption{Options for MPDE Package.\label{MPDEPKG}\index{mpde}} \\ \hline
+
+\rowcolor{XyceDarkBlue}\color{white}\textbf{Multi-Time Partial Differential Equation Analysis Option} & \color{white}\bf Description
+& \color{white}\bf Default \endhead
+
+\texttt{N2} & Number of time points in the fast time domain & 20\\ \hline
+\texttt{AUTON2} & Do a one period initial transient run to determine the number and location of the fast time points.& false \\ \hline
+\texttt{AUTON2MAX} & The maximum number of fast time points to keep from an initial transient run. & 20 \\ \hline
+\texttt{OSCSRC} & A list of voltage or current sources which change on the fast time scale. & \texttt{VIN} \\ \hline
+\texttt{STARTUPPERIODS} & The number of fast time periods to integrate through before calculating the MPDE initial conditions.& 0\\ \hline
+\texttt{OSCOUT} & Node for periodicity condition for Warped MPDE & \\ \hline
+\texttt{PHASE} & Phase specification for Warped MPDE & 0\\ \hline
+\texttt{PHASECOEFF} & Phase coefficient for Warped MPDE & \\ \hline
+\texttt{T2} & The time in seconds of the fast time period. This overrides any automatically determined period from \texttt{OSCSRC}.& 0\\ \hline
+\texttt{WAMPDE} & Flag specifying that this will be Warped MPDE calculation & false \\ \hline
+\texttt{FREQDOMAIN} & & \\ \hline
+\texttt{ICPER} & & \\ \hline
+\texttt{IC} & Initial condition calculation method to use.  Use 0 for Sawtooth or 1 for a transient run. & 0 \\ \hline
+\texttt{DIFF} & Differentiation scheme to use on the fast time scale.  Use 0 for backwards difference and 1 for central differences. & 0\\ \hline
+\texttt{DIFFORDER} & Differentiation order for fast time scale time derivatives.& 1 \\ \hline
+
+
+
+\end{longtable}
+%\end{table}
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:

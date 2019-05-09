@@ -1,0 +1,49 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Changes to Xyce input since the last release.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endfirsthead
+  \caption[]{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endhead
+
+
+The default value for the NL parameter for the lossless transmission line
+(T device) was changed & The default value for the NL (length in wavelengths) 
+parameter for the lossless transmission line (T device) was changed from 
+0 to 0.25 wavelengths. This default value matches SPICE3f5 and PSpice.
+\\ \hline
+
+\texttt{PRINT} qualifier added for \texttt{.MEASURE} lines.  & This qualifier
+is available for all measure types  It allows the user to control where 
+the measure output appears (suppressed, stdout only, \texttt{.mt0} file 
+only or both places).  The default is both stdout and the \texttt{.mt0} file.
+\\ \hline
+
+\texttt{OUTPUT} qualifier added for \texttt{.MEASURE} lines  & This qualifier
+is only available for the \texttt{MAX} and {MIN} measure types.  It allows the
+user to control whether the measure's value or time (i.e., the maximum value
+of the measured waveform or the time when that maximum value occurred) appears
+in the \texttt{.mt0} file.  This qualifier does not affect the
+descriptive output for the measure that is printed to standard output.
+
+\end{longtable}
+}

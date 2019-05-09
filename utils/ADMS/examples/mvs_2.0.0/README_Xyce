@@ -1,0 +1,10 @@
+The MVS 2.0.0 HEMT model was modified from the original source, which
+had been obtained from https://nanohub.org/publications/74/1.
+
+The model tested Es and Ed, setting variables sign_Es and sign_Ed, but
+did so before Es or Ed had been set.  As a result, the sign_Es and
+sign_Ed variables were basically dependent on whatever garbage was in the
+unintialized Es and Ed variables.
+
+We have move the code that sets sign_Es and sign_Ed to be right after
+Es and Ed are set.

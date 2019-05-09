@@ -1,0 +1,97 @@
+// Copyright (c) 2000-2007, NXP Semiconductor
+// Copyright (c) 2007-2014, Delft University of Technology
+// Copyright (c) 2015, Auburn University
+// All rights reserved, see IP_NOTICE_DISCLAIMER_LICENSE for further information.
+
+`include "frontdef.inc" 
+`define  SELFHEATING
+`define  SUBSTRATE
+ 
+module bjt504tva (c, b, e, s, dt) (* xyceModelGroup="BJT" xyceLevelNumber="505" xyceDeviceName="MEXTRAM 504.12.1 with self heating" xyceTypeVariable="TYPE" *); 
+  
+  // External ports  
+     inout c, b, e, s, dt; 
+  
+     electrical e, b, c, s; 
+     electrical dt; 
+  
+  // Internal nodes  
+     electrical e1, b1, b2, c1, c2, c3, c4;
+
+  // Noise node
+     electrical noi;     // for correlated noise implementation
+     
+`include "parameters.inc"
+`include "variables.inc"
+`include "opvars.inc"
+
+// Xyce: insert analog function for voltage limiting
+analog function real trunc_ev;
+
+   input Val, Vprev, Vmin, Vmax;
+   
+   real  Val, Vprev, Vmin, Vmax, result;
+   
+   
+   begin
+      
+      result = Val;
+      
+      
+      if (Val > Vmax)
+        begin
+           if (Vprev > (Vmax-0.05) )
+             begin
+                if ( (Val-Vprev) > 0.05 )
+                  result = Vprev + 0.05;
+                /* ~2Vt */
+                /* else no action taken, step is already small */
+             end
+           else
+             result = Vmax;
+           
+        end // if (Val > Vmax)
+      else
+        if (Val < Vmin)
+          begin
+             if (Vprev < (0.9*Vmin) )
+               begin
+                  if (Val < (1.5*Vprev + 0.10*Vmin) )
+                    result = 1.5 * Vprev + 0.10*Vmin;
+                  
+                  /* else no action taken, step is already small */
+               end
+             else
+               result = Vmin;
+             
+          end // if (Val < Vmin)
+      
+      trunc_ev = result;
+      
+      
+   end
+endfunction // trunc_ev
+  
+analog begin   
+
+`ifdef insideADMS 
+   @(initial_instance) begin 
+`endif   
+
+`include "initialize.inc"
+
+`ifdef insideADMS 
+   end // initial_instance   
+`endif   
+      
+`include "tscaling.inc"
+`include "evaluate.inc"
+`include "noise.inc"
+//`include "opinfo.inc"
+
+// The following can be used to print OP-info to std out:
+// `include "op_print.inc"
+
+end  // analog                                                         
+endmodule                     
+

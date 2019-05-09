@@ -1,0 +1,95 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Linear Solver Options Table
+%%
+\index{solvers!linear!options}
+\begin{OptionTable}{Options for Linear Solver Package.}  
+\label{LinSolPKG}
+TYPE & Determines which linear solver will be used.
+\begin{XyceItemize}
+\item KLU
+\item KSparse
+\item SuperLU (optional) 
+\item AztecOO
+\item Belos
+\item ShyLU (optional) 
+\end{XyceItemize}
+Note that while KLU, KSparse, and SuperLU (optional) are available for parallel execution they will solve the linear system in serial.  Therefore they will be useful for moderate problem sizes but will not scale in memory or performance for large problems  &
+KLU (Serial) AztecOO (Parallel) \\ \hline
+
+TR\_partition & Perform load-balance partitioning on the linear system & 0 (NONE, Serial) \hspace{3em} 1 (Isorropia, Parallel) \\ \hline
+
+TR\_partition\_type & Type of load-balance partitioning on the linear system & ``HYPERGRAPH'' \\ \hline
+
+TR\_singleton\_filter & Triggers use of singleton filter for linear system & 0 (FALSE, Serial) 1 (TRUE, Parallel) \\ \hline
+
+TR\_amd & Triggers use of approximate minimum-degree (AMD) ordering for linear system & 0 (FALSE, Serial) \hspace{3em} 1 (TRUE, Parallel) \\ \hline
+
+TR\_global\_btf & Triggers use of block triangular form (BTF) ordering for linear system, requires \texttt{TR\_amd}=0 and \texttt{TR\_partition}=0 & 0 (FALSE) \\ \hline
+
+TR\_reindex & Reindexes linear system parallel global indices in lexigraphical order, recommended with singleton filter  & 1 (TRUE) \\ \hline
+
+TR\_solvermap & Triggers remapping of column indices for parallel runs, recommended with singleton filter & 1 (TRUE) \\ \hline
+
+\multicolumn{3}{|c|}{\color{XyceDarkBlue}\em\bfseries Iterative linear solver parameters} \\ \hline\hline
+
+adaptive\_solve & Triggers use of AztecOO adaptive solve algorithm for preconditioning of iterative linear solves & 0 (FALSE) \\ \hline
+
+use\_aztec\_precond & Triggers use of native AztecOO preconditioners for the iterative linear solves & 0 (FALSE) \\ \hline
+
+AZ\_max\_iter & Maximum number of iterative solver iterations & 200 \\ \hline
+
+AZ\_precond & AztecOO iterative solver preconditioner flag (used only when \texttt{use\_aztec\_precond}=1) &
+\texttt{AZ\_dom\_decomp (14)}
+\\ \hline
+
+AZ\_solver & Iterative solver type & \texttt{AZ\_gmres (1)} \\ \hline
+
+AZ\_conv & Convergence type & \texttt{AZ\_r0 (0)} \\ \hline
+
+AZ\_pre\_calc & Type of precalculation & \texttt{AZ\_recalc (1)} \\ \hline
+
+AZ\_keep\_info & Retain calculation info & \texttt{AZ\_true (1)} \\ \hline
+
+AZ\_orthog & Type of orthogonalization & \texttt{AZ\_modified (1)} \\ \hline
+
+AZ\_subdomain\_solve & Subdomain solution for domain decomposition preconditioners & \texttt{AZ\_ilut (9)} \\ \hline
+
+AZ\_ilut\_fill & Approximate allowed fill-in factor for the ILUT preconditioner & 2.0 \\ \hline
+
+AZ\_drop & Specifies drop tolerance used in conjunction with LU or ILUT preconditioners & 1.0E-03 \\ \hline
+
+AZ\_reorder & Reordering type & \texttt{AZ\_none (0)} \\ \hline
+
+AZ\_scaling & Type of scaling & \texttt{AZ\_none (0)} \\ \hline
+
+AZ\_kspace & Maximum size of Krylov subspace & 50 \\ \hline
+
+AZ\_tol & Convergence tolerance & 1.0E-9 \\ \hline
+
+AZ\_output & Output level & AZ\_none (0) \\
+& & 50 (if verbose build) \\ \hline
+
+AZ\_diagnostics & Diagnostic information level & AZ\_none (0) \\ \hline
+
+AZ\_overlap & Schwarz overlap level for ILU preconditioners & 0 \\ \hline
+
+AZ\_rthresh & Diagonal shifting relative threshold for ILU preconditioners & 1.0001 \\ \hline
+
+AZ\_athresh & Diagonal shifting absolute threshold for ILU preconditioners & 1.0E-04 \\ \hline
+
+ShyLU\_rthresh & Relative dropping threshold for Schur complement preconditioner (ShyLU only) & 1.0E-03 \\ \hline
+\end{OptionTable}
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:

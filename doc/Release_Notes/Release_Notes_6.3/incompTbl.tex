@@ -1,0 +1,35 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Incompatibilities with other circuit simulators.
+%%
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Resolved incompatibilities with other circuit simulators.\label{incomp}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue &
+  \color{white}\bf Comment
+  \\ \hline
+  \endfirsthead
+  \caption[]{Resolved incompatibilities with other circuit simulators.\label{incomp}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue &
+  \color{white}\bf Comment
+  \\ \hline
+  \endhead
+
+  Some parameter defaults in the BSIM SOI v3.2 device did not match SPICE. &  
+  The \texttt{CGDO}, \texttt{CGSO}, \texttt{K1} and \texttt{K2} parameters now 
+  have the correct defaults. \\ \hline
+
+\end{longtable}
+

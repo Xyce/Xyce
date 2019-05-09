@@ -1,0 +1,225 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+ 
+%%
+%% Behavioral Digital Description Table
+%%
+\begin{Device}\label{U_DEVICE}
+
+ 
+\device
+\begin{alltt}
+U<name> <type>(<num inputs>) [digital power node] 
++ [digital ground node] <input node>* <output node>* 
++ <model name> [device parameters]
+\end{alltt}
+ 
+\model
+.MODEL <model name> DIG [model parameters]
+ 
+\examples
+\begin{alltt}
+UMYAND AND(2) DPWR DGND in1 in2 out DMOD IC=TRUE
+UTHEINV INV DPWR DGND in out DMOD
+.model DMOD DIG (
++ CLO=1e-12  CHI=1e-12
++ S0RLO=5  S0RHI=5  S0TSW=5e-9
++ S0VLO=-1  S0VHI=1.8
++ S1RLO=200  S1RHI=5  S1TSW=5e-9
++ S1VLO=1  S1VHI=3
++ RLOAD=1000
++ CLOAD=1e-12
++ DELAY=20ns )
+\end{alltt}
+
+\parameters 
+\begin{Parameters}
+
+\param{type} 
+
+Type of digital device.  Supported devices are: INV, BUF, AND, NAND, OR, NOR, XOR,
+NXOR, DFF, JKFF, TFF, DLTCH and ADD.  (Note: NOT is an allowed synonym for INV, but will be
+deprecated in future \Xyce{} releases.)
+
+The following gates have a fixed number of inputs.  INV and BUF have only one
+input and one output node.  XOR and NXOR have two inputs and one output.
+ADD has three inputs (in1, in2, carryIn) and two outputs (sumOut
+and carryOut).  DFF has four inputs (PREB, CLRB, Clock and Data) and
+two outputs ($Q$ and $\bar{Q}$).  TFF has two inputs (T and CLK) and two
+outputs ($Q$ and $\bar{Q}$).  The TFF uses ``positive'' (``rising'') edge clocking.
+The JKFF has five inputs (PREB, CLRB, Clock, J and K) and two outputs ($Q$ and $\bar{Q}$).
+The JKFF uses ``negative'' (``falling'') edge clocking.
+DLTCH has four inputs (PREB, CLRB, Enable and Data) and two outputs ($Q$ and $\bar{Q}$).  
+
+The AND, NAND, OR and NOR gates have one output but a variable number of inputs.  
+There is no limit on the number of inputs for AND, NAND, OR and NOR gates, but
+there must be at least two inputs.
+
+\param{num inputs}
+
+For AND, NAND, OR and NOR gates, with N inputs, the syntax is (N), as shown for the
+MYAND example given above, where AND(2) is specified.  The inclusion of (N) is mandatory
+for gates with a variable number of inputs, and both the left and right parentheses must
+be used to enclose N.  
+
+This parameter is optional, and typically omitted, for gates with a fixed number of
+inputs, such as INV, BUF, XOR, NXOR, DFF, JKFF, TFF, DLTCH and ADD.  This is illustrated by the THEINV
+example given above, where the device type is INV rather than INV(1).
+
+\param{digital power node}
+
+Dominant node to be connected to the output node(s) to establish high
+output state.  This node is connected to the output by a resistor and
+capacitor in parallel, whose values are set by the model.  This node must
+be specified on the instance line.
+
+\param{digital ground node}
+
+This node serves two purposes, and must be specified on the instance line.
+It is the dominant node to be connected to the output node(s) to establish
+low output state.  This node is connected to the output by a resistor and 
+capacitor in parallel, whose values are set by the model.  This node is also
+connected to the input node by a resistor and capacitor in parallel, whose
+values are set by the model.  Determination of the input state is based on the
+voltage drop between the input node and this node.
+
+\param{input nodes, output nodes}
+
+Input and output nodes that connect to the circuit.
+
+\param{model name}
+
+ Name of the model defined in a .MODEL line.
+
+\param{device parameters}
+
+Parameter listed in Table~\ref{Digital_1_Device_Instance_Params_Udevice} may be
+provided as \texttt{<parameter>=<value>} specifications as needed.  For
+devices with more than one output, multiple output initial states may be
+provided as Boolean values in either a comma separated list (e.g.
+IC=TRUE,FALSE for a device with two outputs) or individually 
+(e.g. IC1=TRUE IC2=FALSE or IC2=FALSE).  Finally, the IC specification
+must use TRUE and FALSE rather than T and F.
+
+\end{Parameters}
+\end{Device}
+
+\paragraph{Device Parameters}
+
+%%
+%% Digital Device Param Table
+%%
+\input{Digital_1_Device_Instance_Params_Udevice}
+
+\paragraph{Model Parameters}
+
+%%
+%% Digital Model Param Table
+%%
+\input{Digital_1_Device_Model_Params_Udevice}
+
+\paragraph{Model Description}
+
+The input interface model consists of the input node connected with a resistor and
+capacitor in parallel to the digital ground node.  The values of these are: \textrmb{RLOAD}
+and \textrmb{CLOAD}.  
+
+The logical state of any input node is determined by comparing the voltage relative
+to the reference to the range for the low and high state.  The range for the low
+state is \textrmb{S0VLO} to \textrmb{S0VHI}.  Similarly, the range for the high state
+is \textrmb{S1VLO} to \textrmb{S1VHI}.  The state of an input node will remain fixed as
+long as its voltage stays within the range for its current state.  That input node will
+transition to the other state only when its state goes outside the voltage range of
+its current state.
+
+The output interface model is more complex than the input model, but shares the same
+basic configuration of a resistor and capacitor in parallel to simulate loading.  For
+the output case, there are such parallel RC connections to two nodes, the digital
+ground node and the digital power node.  Both of these nodes must be specified on
+the instance line.
+
+The capacitance to the high node is specified by \textrmb{CHI}, and the capacitance to the low
+node is \textrmb{CLO}.  The resistors in parallel with these capacitors are variable, and have
+values that depend on the state.  In the low state (S0), the resistance values are:
+\textrmb{S0RLO} and \textrmb{S0RHI}.  In the high state (S1) ,the resistance values are: 
+\textrmb{S1RLO} and \textrmb{S1RHI}.  Transition to the high state occurs exponentially over
+a time of \textrmb{S1TSW}, and to the low state \textrmb{S0TSW}.
+
+The device's delay is given by the model parameter \textrmb{DELAY}.  Any input changes
+that affect the device's outputs are propagated after this delay.
+
+As a note, the model parameters \textrmb{VREF}, \textrmb{VLO} and \textrmb{VHI} are used
+by the now deprecated Y-type digital device, but are
+ignored by the U device.  A warning message is emitted if any of these three parameters
+are used in the model card for a U device.
+
+Another caveat is that closely spaced input transitions to the \Xyce{} digital behavioral
+models may not be accurately reflected in the output states.  In particular, input-state
+changes spaced by more than \texttt{DELAY} seconds have independent effects on the output
+states. However, two input-state changes (S1 and S2) that occur within \texttt{DELAY} seconds
+(e.g., at time=t1 and time=t1+0.5*\texttt{DELAY}) have the effect of masking the effects
+of S1 on the device's output states, and only the effects of S2 are propagated to the
+device's output states.
+
+\paragraph{DCOP Calculations for Flip-Flops and Latches}
+The behavior of the digital devices during the DC Operating Point (DCOP) calculations
+can be controlled via the \texttt{IC1} and \texttt{IC2} instance parameters and the
+\texttt{DIGINITSTATE} device option.  See ~\ref{Options_Reference} for more details on the
+syntax for device options.  Also, this section applies to the Y-Type Behavioral Digital Devices
+discussed in ~\ref{YTypeDigitalDevice}.
+
+The \texttt{IC1} instance parameter is supported for all gate types.  The \texttt{IC2}
+instance parameter is supported for all gate types that have two outputs.  These instance
+parameters allow the outputs of individual gates to be set to known states (either
+\texttt{TRUE (1)} or \texttt{FALSE (0)}) during the DCOP calculation, irregardless of their 
+input state(s).  There are two caveats.  First, the \texttt{IC1} and \texttt{IC2} settings 
+at a given gate will override the global effects of the \texttt{DIGINITSTATE} option, 
+discussed below, at that gate.  Second, \texttt{IC1} and \texttt{IC2} do not support the
+\texttt{X}, or ``undetermined'', state discussed below.
+
+The \texttt{DIGINITSTATE} option only applies to the DLTCH, DFF, JKFF and TFF devices.  It was added
+for improved compatibility with PSpice.  It sets the initial state of all flip-flops and 
+latches in the circuit: 0=clear, 1=set, 2=\texttt{X}.  At present, the use of the
+\texttt{DIGINITSTATE} option during the DCOP is the only place that \Xyce{} supports the
+\texttt{X}, or ``undetermined'', state.  The \texttt{X} state is modeled in \Xyce{} by having the
+DLTCH, DFF, JKFF and TFF outputs simultaneously ``pulled-up'' and ``pulled-down''.  That approach typically 
+produces an output level, for the \texttt{X} state, that is approximately halfway between the 
+voltage levels for \texttt{TRUE} and \texttt{FALSE} (e.g., halfway between \texttt{V\_HI} and 
+\texttt{V\_LO}). As mentioned above, the \texttt{IC1} and
+\texttt{IC2} instance parameters take precedence at a given gate.
+
+\Xyce{} also supports a default \texttt{DIGINITSTATE}, whose value is 3.  For this default value,
+for the DFF, JKFF, TFF and DLTCH devices, \Xyce{} enforces $Q$ and $\bar{Q}$ being different at DCOP, if 
+both \texttt{PREB} and \texttt{CLRB} are \texttt{TRUE} . The behavior of the DFF, JKFF and DLTCH 
+devices at the DCOP for \texttt{DIGINITSTATE=3} is shown in Tables ~\ref{dffTruthTable},  ~\ref{jkffTruthTable}
+and ~\ref{dltchTruthTable}.  In these three tables, the $X$ state denotes the ``Don't Care'' 
+condition, where the input state can be 0, 1 or the ``undetermined'' state.
+The first row in each truth-table (annotated with $*$) is ``unstable'', and will change to 
+a state with $Q$ and $\bar{Q}$ being different once both \texttt{PREB} and \texttt{CLRB} are not 
+both in the \texttt{FALSE} state.
+
+The behavior of the TFF device at the DCOP, for the default \texttt{DIGINITSTATE} of 3, is
+simpler, and is not shown as a table.  The design decision was to have $Q$ and $\bar{Q}$ be
+different, with the $Q$ value equal to the state of the $T$ input.
+
+%%
+%% DFF Truth Table for DIGINITSTATE=3
+%%
+\LTXtable{\textwidth}{dffTruthTableTbl}
+
+%%
+%% DLTCH Truth Table for DIGINITSTATE=3
+%%
+\LTXtable{\textwidth}{dltchTruthTableTbl}
+
+%%
+%% JKFF Truth Table for DIGINITSTATE=3
+%%
+\LTXtable{\textwidth}{jkffTruthTableTbl}

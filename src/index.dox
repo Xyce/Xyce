@@ -1,0 +1,13 @@
+///
+/// @mainpage
+/// Xyce
+/// - @subpage xyce_device_howto  
+///
+
+/**
+ * @brief Root namespace for the Xyce project
+ */
+namespace Xyce {
+
+} // namespace Xyce
+

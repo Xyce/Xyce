@@ -1,0 +1,115 @@
+--- N_DEV_ADMSvbic13_4t.C	2018-08-29 14:40:58.063222942 -0600
++++ N_DEV_ADMSvbic13_4t.C	2018-08-29 14:41:10.871632820 -0600
+@@ -1800,7 +1800,13 @@
+     A_b_Equ_c_NodeOffset(-1),
+     A_c_Equ_b_NodeOffset(-1),
+     A_xf1_Equ_xf1_NodeOffset(-1),
+-    admsTemperature(getDeviceOptions().temp.getImmutableValue<double>())
++    admsTemperature(getDeviceOptions().temp.getImmutableValue<double>()),
++    dtExternalNodeMode(false),
++    cxExternalNodeMode(false),
++    ciExternalNodeMode(false),
++    bxExternalNodeMode(false),
++    biExternalNodeMode(false),
++    eiExternalNodeMode(false)
+ 
+ {
+   numIntVars = 10 + 0;
+@@ -1810,6 +1816,55 @@
+   // Right now, we only have store for limited probes...
+   setNumStoreVars(8);
+ 
++  // Manually inserted code:  detect extra nodes given on instance line,
++  // set external node mode for those normally-internal nodes.
++  devConMap.resize(numExtVars);
++  for (int j=0; j< numExtVars; j++)
++    devConMap[j] = 1;
++
++  if (instance_block.numExtVars > numExtVars)
++  {
++    devConMap.resize(instance_block.numExtVars);
++    if (instance_block.numExtVars >= numExtVars+1)
++    {
++      dtExternalNodeMode=true;
++      --numIntVars;
++      devConMap[numExtVars] = 2;       
++    }
++    if (instance_block.numExtVars >= numExtVars+2)
++    {
++      cxExternalNodeMode=true;
++      --numIntVars;
++      devConMap[numExtVars+1] = 1;       
++    }
++    if (instance_block.numExtVars >= numExtVars+3)
++    {
++      ciExternalNodeMode=true;
++      --numIntVars;
++      devConMap[numExtVars+2] = 1;       
++    }
++    if (instance_block.numExtVars >= numExtVars+4)
++    {
++      bxExternalNodeMode=true;
++      --numIntVars;
++      devConMap[numExtVars+3] = 1;       
++    }
++    if (instance_block.numExtVars >= numExtVars+5)
++    {
++      biExternalNodeMode=true;
++      --numIntVars;
++      devConMap[numExtVars+4] = 1;       
++    }
++    if (instance_block.numExtVars >= numExtVars+6)
++    {
++      eiExternalNodeMode=true;
++      --numIntVars;
++      devConMap[numExtVars+5] = 1;       
++    }
++    numExtVars=instance_block.numExtVars;
++  }
++  // End manually inserted code
++  
+   // Do not allocate "branch" (lead current) vectors by default
+   setNumBranchDataVars(0);
+   numBranchDataVarsIfAllocated = 4;
+@@ -2055,12 +2110,18 @@
+ //-----------------------------------------------------------------------------
+ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
+ {
+-  addInternalNode(symbol_table, li_dt, getName(), "dt");
+-  addInternalNode(symbol_table, li_cx, getName(), "cx");
+-  addInternalNode(symbol_table, li_ci, getName(), "ci");
+-  addInternalNode(symbol_table, li_bx, getName(), "bx");
+-  addInternalNode(symbol_table, li_bi, getName(), "bi");
+-  addInternalNode(symbol_table, li_ei, getName(), "ei");
++  if (!dtExternalNodeMode)
++    addInternalNode(symbol_table, li_dt, getName(), "dt");
++  if (!cxExternalNodeMode)
++    addInternalNode(symbol_table, li_cx, getName(), "cx");
++  if (!ciExternalNodeMode)
++    addInternalNode(symbol_table, li_ci, getName(), "ci");
++  if (!bxExternalNodeMode)
++    addInternalNode(symbol_table, li_bx, getName(), "bx");
++  if (!biExternalNodeMode)
++    addInternalNode(symbol_table, li_bi, getName(), "bi");
++  if (!eiExternalNodeMode)
++    addInternalNode(symbol_table, li_ei, getName(), "ei");
+   addInternalNode(symbol_table, li_bp, getName(), "bp");
+   addInternalNode(symbol_table, li_si, getName(), "si");
+   addInternalNode(symbol_table, li_xf1, getName(), "xf1");
+@@ -3044,6 +3105,16 @@
+     dt_et_old = ((*extData.nextStoVectorPtr))[li_store_admsProbeID_Temp_dt_GND];
+   }
+   // -- code converted from analog/code block
++
++  // Manually inserted code for voltage drop initialization
++  if (getSolverState().newtonIter == 0 && getSolverState().initJctFlag_ && getDeviceOptions().voltageLimiterFlag)
++  {
++    Vbci_limited = Vbcx_limited = Vbxcx_limited = Vbep_limited = 0;
++    Vbe_limited = Vbei_limited = Vbex_limited = tVCrit;
++    dt_et_limited = 0;
++    origFlag = false;
++  }        
++          
+   //Begin block evaluateStatic
+   {
+ 

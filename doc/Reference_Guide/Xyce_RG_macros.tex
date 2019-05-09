@@ -1,0 +1,193 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+% Macro Definition file for shortening LaTex commands
+
+
+%Diode equation variables
+\newcommand{\bBV}{\mathbf{BV}}
+\newcommand{\bIBV}{\mathbf{IBV}}
+\newcommand{\bBVeff}{\mathbf{BV_{eff}}}
+\newcommand{\bIBVeff}{\mathbf{IBV_{eff}}}
+\newcommand{\bIS}{\mathbf{IS}}
+\newcommand{\bIRF}{\mathbf{IRF}}
+\newcommand{\bN}{\mathbf{N}}
+
+% users guide reference
+\newcommand{\UsersGuide}{~\cite{Xyce_Users_Guide_6_11}~}
+
+\newenvironment{Command}
+               {\begin{basedescript}{
+                     \desclabelstyle{\multilinelabel}
+                     \desclabelwidth{1.2in}
+                     \renewcommand{\makelabel}[1]{\normalfont\bfseries ##1\hfill}}
+                   \def\format{\goodbreak\item[General Form]\ttfamily}
+                   \def\examples{\goodbreak\vbox{\hrulefill}\item[Examples]\ttfamily}
+                   \def\arguments{\goodbreak\vbox{\hrulefill}\item[Arguments and Options]\normalfont}
+                   \def\comments{\goodbreak\vbox{\hrulefill}\item[Comments]\normalfont}
+               }
+               {\end{basedescript}\normalfont}
+
+\newenvironment{Device}
+               {\begin{basedescript}{
+                     \desclabelstyle{\multilinelabel}
+                     \desclabelwidth{1.2in}
+                     \renewcommand{\makelabel}[1]{\normalfont\bfseries ##1\hfill}}
+                   \def\symbol{\goodbreak\item[Symbol]\normalfont}
+                   \def\device{\goodbreak\vbox{\hrulefill}\item[Instance Form]\ttfamily}
+                   \def\model{\goodbreak\vbox{\hrulefill}\item[Model Form]\ttfamily}
+                   \def\examples{\goodbreak\vbox{\hrulefill}\item[Examples]\ttfamily}
+                   \def\parameters{\goodbreak\vbox{\hrulefill}\item[Parameters and Options]\normalfont}
+                   \def\comments{\goodbreak\vbox{\hrulefill}\item[Comments]\normalfont}
+               }
+               {\end{basedescript}\normalfont}
+
+\newenvironment{Parameters}
+               {\vrule height 1pt depth 0pt width 0pt
+                 \begin{basedescript}{
+                     \desclabelstyle{\nextlinelabel}
+                     \desclabelwidth{0.25in}
+                     \setlength{\rightmargin}{0.25in}
+                     \setlength{\itemindent}{0ex}
+                     \setlength{\parsep}{0.5ex plus0.2ex}
+                     \setlength{\itemsep}{1ex plus0.2ex}
+                   \newcommand\param[1]{\item[\texttt{##1}]}}
+               }
+               {\end{basedescript}}
+
+\newenvironment{Arguments}
+               {\vrule height 1pt depth 0pt width 0pt
+                 \begin{basedescript}{
+                     \desclabelstyle{\nextlinelabel}
+                     \desclabelwidth{0.25in}
+                     \renewcommand{\makelabel}[1]{\texttt{##1}\hfill}
+                     \setlength{\rightmargin}{0.25in}
+                     \setlength{\itemindent}{0ex}
+                     \setlength{\parsep}{1ex plus0.2ex}
+                     \setlength{\itemsep}{1ex plus0.2ex}
+                     \newcommand\argument[1]{\item[##1]}}
+               }
+               {\end{basedescript}}
+
+\newenvironment{DeviceParamTableGenerated}[2]
+               {\renewcommand{\arraystretch}{1.2}
+                 \newcommand{\category}[1]{\multicolumn{4}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries ##1}}
+                 \begin{longtable}{>{\ttfamily\small}m{2in}<{\normalfont}>{\raggedright\small}m{3in}>{\raggedright\small}m{0.5in}>{\raggedright\let\\\tabularnewline\small}m{0.75in}}
+                   \caption{#1}\label{#2} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Parameter &
+                   \color{white}\bf Description &
+                   \color{white}\bf Units &
+                   \color{white}\bf Default \endfirsthead
+                   \caption[]{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Parameter &
+                   \color{white}\bf Description &
+                   \color{white}\bf Units &
+                   \color{white}\bf Default \endhead}
+               {\end{longtable}}
+
+\newenvironment{CompositeParamTableGenerated}[2]
+               {\renewcommand{\arraystretch}{1.2}
+                 \newcommand{\category}[1]{\multicolumn{4}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries ##1}}
+                 \begin{longtable}{>{\ttfamily\small}m{2in}<{\normalfont}>{\raggedright\small}m{3in}>{\raggedright\small}m{0.5in}>{\raggedright\let\\\tabularnewline\small}m{0.75in}}
+                   \caption{#1}\label{#2} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Parameter &
+                   \color{white}\bf Description &
+                   \color{white}\bf Units &
+                   \color{white}\bf Default \endfirsthead
+                   \caption[]{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Parameter &
+                   \color{white}\bf Description &
+                   \color{white}\bf Units &
+                   \color{white}\bf Default \endhead}
+               {\end{longtable}}
+
+\newenvironment{DeviceParamTable}[1]
+               {\renewcommand{\arraystretch}{1.2}
+                 \newcommand{\category}[1]{\multicolumn{4}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries ##1}}
+                 \begin{longtable}{>{\ttfamily\small}m{1in}<{\normalfont}>{\raggedright\small}m{3in}>{\raggedright\small}m{0.5in}>{\raggedright\let\\\tabularnewline\small}m{0.75in}}
+                   \caption{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Parameter &
+                   \color{white}\bf Description &
+                   \color{white}\bf Units &
+                   \color{white}\bf Default \endfirsthead
+                   \caption[]{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Parameter &
+                   \color{white}\bf Description &
+                   \color{white}\bf Units &
+                   \color{white}\bf Default \endhead}
+               {\end{longtable}}
+
+\newenvironment{ParamTable}[1]
+               {\renewcommand{\arraystretch}{1.2}
+                 \newcommand{\category}[1]{\multicolumn{4}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries ##1}}
+                 \begin{longtable}{>{\ttfamily\small}m{1in}<{\normalfont}>{\raggedright\small}m{3in}>{\raggedright\small}m{0.5in}>{\raggedright\let\\\tabularnewline\small}m{0.75in}}
+                   \caption{#1} \\ \hline}
+               {\end{longtable}}
+
+\newenvironment{DeviceParamTable4}[2][\empty]
+               {\renewcommand{\arraystretch}{1.2}
+                 \newcommand{\category}[1]{\multicolumn{5}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries ##1}}
+                 \begin{longtable}{>{\ttfamily\small}m{1in}<{\normalfont}>{\raggedright\small}m{3in}>{\raggedright\small}m{0.5in}>{\raggedright\small}m{0.75in}>{\raggedright\let\\\tabularnewline\small}m{0.75in}}
+                   \ifx\empty#1\caption{#2} \else \caption[#1]{#2}\fi
+                    \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Parameter &
+                   \color{white}\bf Description &
+                   \color{white}\bf Units &
+                   \color{white}\bf Default &
+                   \color{white}\bf Device Type \endfirsthead
+                   \caption[]{#2} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Parameter &
+                   \color{white}\bf Description &
+                   \color{white}\bf Units &
+                   \color{white}\bf Default &
+                   \color{white}\bf Device Type \endhead}
+               {\end{longtable}}
+
+\newenvironment{OptionTable}[1]
+               {\renewcommand{\arraystretch}{1.2}
+                 \begin{longtable}[hb]{>{\ttfamily\small}m{1.2in}<{\normalfont}>{\raggedright\small}m{3.5in}>{\raggedright\let\\\tabularnewline\small}m{0.75in}}
+                   \caption{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Option &
+                   \color{white}\bf Description &
+                   \color{white}\bf Default \endfirsthead
+                   \caption[]{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Option &
+                   \color{white}\bf Description &
+                   \color{white}\bf Default \endhead}
+               {\end{longtable}}
+
+\newenvironment{OptionTable4}[1]
+               {\renewcommand{\arraystretch}{1.2}
+                 \begin{longtable}[hb]{>{\ttfamily\small}m{1.2in}<{\normalfont}>{\raggedright\small}m{3.5in}>{\small}m{0.75in}>{\raggedright\let\\\tabularnewline\small}m{0.75in}}
+                   \caption{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Option &
+                   \color{white}\bf Description &
+                   \color{white}\bf NONLIN Default &
+                   \color{white}\bf NONLIN-TRAN Default \endfirsthead
+                   \caption[]{#1} \\ \hline
+                   \rowcolor{XyceDarkBlue}
+                   \color{white}\normalfont\bf Option &
+                   \color{white}\bf Description &
+                   \color{white}\bf NONLIN Default &
+                   \color{white}\bf NONLIN-TRAN Default \endhead}
+               {\end{longtable}}
+
+\def\debug{\cellcolor[gray]{0.75}}

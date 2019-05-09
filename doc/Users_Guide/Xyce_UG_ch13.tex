@@ -1,0 +1,687 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Main LaTeX Xyce Users' Guide
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postcript versions.  Not sure why.
+%% Creator        : Robert Hoektra, Computational Sciences, SNL
+%% Creation Date  : {12/22/2003}
+%%
+%%-------------------------------------------------------------------------
+
+\chapter{Guidance for Running Xyce in Parallel}
+\label{Parallel}
+\index{\Xyce{}!running in parallel}
+
+\chapteroverview{Chapter Overview}
+{
+This chapter provides guidance for running a parallel version of \Xyce{}, and includes the following sections:
+\begin{XyceItemize}
+\item Section~\ref{Parallel_Introduction}, {\em Introduction}
+\item Section~\ref{paffinity}, {\em Processor Affinity on Linux systems}
+\item Section~\ref{ProblemSize_Guidance}, {\em Problem Size}
+\item Section~\ref{LinearSolver_Options}, {\em Linear Solver Options}
+\item Section~\ref{Transformation_Options}, {\em Transformation Options}
+\item Section~\ref{Device_Distribution_Options}, {\em Device Distribution Options}
+\end{XyceItemize}
+}
+
+\section{Introduction}
+\label{Parallel_Introduction}
+
+\Xyce{} is designed from the ground up to be distributed-memory parallel, supported by the message-passing interface (MPI)
+standard. Although many of the issues pertinent to running in parallel are still being researched, \Xyce{} is mature
+enough that some general principles have emerged for efficiently running
+problems in a parallel environment.  In addition to the information in this chapter, reference~\cite{xyceBookChapter:2011} provides
+supplemental information about \Xyce{} parallel performance. 
+
+Parallel simulations must be run from the command line.  Section~\ref{command_line_simulation} provides 
+information about the parallel execution syntax for \Xyce{}.
+
+\section{Processor Affinity on Linux systems}
+\label{paffinity}
+
+Beginning with release 1.8 of OpenMPI, the default behavior on Linux
+systems is for OpenMPI to apply ``processor affinity'' to runs invoked
+with mpirun.  This is intended to improve performance of parallel runs
+by preventing the processes from moving around the system, possibly
+degrading memory access efficiency.  Since most users of OpenMPI are
+trying to maximize the performance of their systems, this is generally
+a good change.
+
+Prior to that release, the default behavior was to allow
+MPI processes to be moved from processor to processor by the Linux
+system as needed.
+
+If you are the only person running MPI jobs on a system, and you are
+only running one job, this change will have no impact on you, but if
+you are running more than one MPI job at a time, or more than one user
+on your system is running MPI jobs and the system is not using a
+resource manager such as slurm, then this change has a profound impact
+that must be understood and adapted to with mpirun options.
+
+\subsection{Default OpenMPI Behavior with Processor Affinity Support}
+
+At the time of this writing, OpenMPI's mpirun will, by default, bind
+processes to a core if the number of processors requested is 2 or
+less.  If the number of processes requested is greater than 2, it
+will bind processes to a socket.
+
+What this means is that once your run starts, each process of your
+parallel job will be locked onto the processor (core or socket) on
+which it started.
+
+\subsection{Why You Have to Know About This}
+Unfortunately, OpenMPI by default allocates processors to processes in
+a round-robin fashion starting from the lowest numbered processor on
+the system, and each mpirun makes this determination without any
+access to what other mpirun invocations have done.
+
+The effect of this is that if you start five identical 2-processor
+parallel runs of \Xyce{} simultaneously on a 16-core system and don't add
+extra mpirun options, each of these five jobs will be locked to the
+\emph{same\/} two processors (processors 0 and 1) on the system.
+
+{\bf Rather than getting five jobs run in the time it takes to run one,
+each will only get 20\% of the two processors and take at least five
+times longer to run than a single job would have.}
+
+The same thing
+would be true if five different users each ran one 2-processor \Xyce{}
+job.  All jobs would be running on processors 0 and 1 of this
+16-processor system.
+
+Therefore, unless you are the only person on your system and you are
+only running one job, you must be aware if OpenMPI is using processor
+affinity on your system, and take appropriate steps to avoid
+oversubscribing cores.
+
+\subsection{Affected Systems}
+
+At the time of this writing, OpenMPI supports processor affinity only
+on Linux systems, and so the issues of this section apply only to
+Linux.  The OS X kernel does not support jobs setting their own
+processor affinity.  Some other systems have processor affinity
+support in their kernels, but it is not yet supported by OpenMPI on
+those systems.
+
+Systems that are running a resource manager such as slurm (which
+includes all of Sandia's high performance computing systems) are not
+impacted by this issue, because slurm will allocate a specific set of
+CPUs to be exclusive to your job, and no other jobs of yours or other
+users can run on these CPUs.
+
+\subsection{mpirun Command Line Options to Change Default Behavior}
+
+If squeezing maximum performance out of the hardware is not important,
+then the simplest way to avoid the oversubscription issue described
+above is to use the \texttt{--bind-to none} option to mpirun.  This
+was the default behavior of mpirun prior to release 1.8 of OpenMPI and
+the default behavior of OpenMPI on every system other than Linux.
+While the \texttt{--bind-to none} option will potentially allow your 
+mpi processes to move around the
+system and have degraded memory performance, it will \emph{NOT\/}
+accidentally stack multiple jobs onto the same small set of
+processors.  Any number of mpirun jobs may be run with this option,
+and they will not compete for resources unless the Linux task
+scheduler makes them do so.
+
+If you do not want to do without the benefits that processor affinity
+can bring, you can manually specify the set of CPUs that OpenMPI will
+use for your job by using the \texttt{-cpu-set} option to mpirun,
+chosing as your CPU set some numbered processors that you know are not
+being used by other MPI jobs.  For example, \texttt{mpirun -np 2
+  -cpu-set 2-3} will run your 2 processor job with the jobs locked to
+processors 2 and 3 instead of to processors 0 and 1.  You will have to
+make sure to use a different CPU set for each job, and make sure that
+you are not using the same CPU set as some other user on the system.
+
+There are other options for modifying OpenMPI's processor binding
+behavior, so consult OpenMPI documentation if you wish to understand
+them better.
+
+Finally, if you really want to solve the problem correctly, reaping
+both the benefits of processor affinity and the simplicity of using
+mpirun's defaults, you can install and configure a resource manager on
+your system.  This is a topic that is far outside the scope of \Xyce{}
+documentation.  See \url{http://slurm.schedmd.com/} for documentation
+on one such resource manager.
+
+
+\section{Problem Size}
+\label{ProblemSize_Guidance}
+
+Running \Xyce{} in parallel is often useful for circuits with thousands of devices or more.  However, due to the overhead of interprocessor communication,
+ there is an optimal number of processors that will achieve the best performance.  This number is dependent upon many factors, including the number and 
+type of devices, the topology of the circuit, and the characteristics of the computing architecture.  It is difficult to know a priori what this optimal 
+number of processors is.  However, it is apparent when that optimal number is exceeded because, as the number of processors is increased, 
+the total simulation time will also increase.  This is due to the increasing amount of required communication and decreasing amount of work per processor.
+In other words, the benefit of distributing the problem is outweighed by the communication overhead, so increasing the processor count beyond this
+optimal point is counterproductive.
+
+\subsection{Ideal Problem Size}
+In general, a circuit needs to be relatively large to take full advantage of the parallel capability of \Xyce{}. 
+However, parallelism is achieved in two distinct phases of the code:  the device evaluation and the linear solve.
+The device evaluation is, as the name implies, the evaluation of all the device equations in order to compute the residual vector 
+and Jacobian entries for Newton's method.  \Xyce{} distributes the number of devices over the number of processors in parallel, 
+so their evaluation enables speedups in the total simulation time even for thousands of devices. 
+
+The linear solve phase is more computationally complex.  The Jacobian matrix generated by most circuits is sparse and has heterogeneous structure, in 
+that there is not a regular sparsity pattern in the matrix nonzeros.  Sparse, direct linear solvers have proven to be efficient on these types of 
+linear systems up into the tens to hundreds of thousands of unknowns.  They become less efficient for linear systems in the hundreds of thousands of unknowns.  
+This is where iterative linear solvers can provide scalable performance because of their inherent parallelism.  Unfortunately, the effectiveness of 
+iterative linear solvers is dependent upon preconditioning the linear system (see Section~\ref{Preconditioning_Options}).  
+The benefit of direct over iterative linear solvers is that they rarely fail to compute a solution, so direct
+linear solvers are the more robust option for enabling simulations to complete.  
+
+In general, there are three modes in which \Xyce{} can
+be executed:  ``Serial load, serial solve'', ``Parallel load, serial solve'', and ``Parallel load, parallel solve''.  
+Each of these modes optimizes the amount of available parallelism for a given linear system size, as summarized in Table~\ref{tab:sim:modes}.  The ``load'' refers to the device evaluation phase combined with the assembly of the Jacobian matrix and residual vector, while
+the ``solve'' refers to the linear solve phase. 
+``Serial load, serial solve'' is the only mode of computation that a serial version of \Xyce{} will perform, but it can also be
+obtained in a parallel version of \Xyce{} by using only one MPI processor.  Both of the ``Parallel load'' simulation modes require a parallel build of \Xyce{}, where the linear solver method can be a direct method (``serial solve'') or an iterative method (``parallel solve'') using
+the options discussed in Section~\ref{LinearSolver_Options}.
+Hybrid linear solvers, which combine the best attributes of both direct and iterative methods, provide a robust and scalable option. 
+They are not reflected in Table~\ref{tab:sim:modes}, but more information about these types of linear solvers will be discussed in 
+Section~\ref{HybridLinearSolver_Options}.  
+
+\begin{table}[htp]
+\caption[\Xyce{} Simulation Modes]{Xyce simulation modes.}
+\label{tab:sim:modes}
+\begin{center}
+\begin{tabular}{| p{5cm} | p{3.5cm} | p{7cm} |}
+\hline
+Mode & Linear System Size & Reason \\
+\hline
+``Serial load, serial solve'' & $10^0$ - $10^3$ & MPI overhead cannot speed up device evaluation or linear solve. \\
+``Parallel load, serial solve'' & $10^3$ - $10^5$ & Distributed device evaluations can speed up the simulation, but 
+iterative linear solvers are not more efficient than direct methods.\\
+``Parallel load, parallel solve'' & $10^5$ or more & Distributed device evaluations can speed up the simulation and
+so can iterative linear solvers, if an efficient preconditioner is available. \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{Smallest Possible Problem Size}
+Circuits consist of a discrete set of components (voltage nodes, devices, etc.). For parallel simulation, it is preferable that \Xyce{} be able to put 
+at least one discrete component of the problem on each processor. In practice, this means the circuit should be distributed across fewer processors than 
+the number of nodes and devices it contains.
+
+\section{Linear Solver Options}
+\label{LinearSolver_Options}
+
+The different linear solvers available in \Xyce{} are:
+
+\begin{XyceItemize}
+  \item KLU
+  \item KSparse
+  \item SuperLU and SuperLU DIST (optional)
+  \item The AztecOO iterative solver library
+  \item The Belos iterative solver library
+  \item The ShyLU hybrid solver library (optional)
+\end{XyceItemize}
+
+AztecOO and Belos are the parallel iterative solvers and KLU, KSparse, and SuperLU (optional)
+are the serial direct solvers that are available for both serial and parallel builds of \Xyce{}.  
+If KLU, KSparse, or SuperLU is used with a parallel version of \Xyce{}, the devices are evaluated and
+linear problem is assembled in parallel, but the linear system is solved in serial
+on one processor.  This can be quite effective for circuits with tens of thousands of devices
+or fewer (see Table~\ref{tab:sim:modes}). The ShyLU hybrid linear solver, which combines the robustness
+of a direct solver with the scalability of an iterative solver, will be discussed in 
+Section~\ref{HybridLinearSolver_Options}.  
+
+The user can specify the solver through the \texttt{.OPTIONS LINSOL} control line 
+in the netlist.  The default linear solver used by \Xyce{} is described in Table~\ref{tab:default:solver}.
+By default, a parallel version of \Xyce{} uses AztecOO as the linear solver when the linear
+system is larger than a thousand unknowns.  For any linear system smaller than ten thousand unknowns,
+\Xyce{} uses KLU as the linear solver.  A serial version of \Xyce{} uses KLU as its default linear 
+solver.  To use a solver other than the default the user needs to add the option 
+``\texttt{TYPE=<solver>}'' to the \texttt{.OPTIONS LINSOL}
+control line in the netlist, where \texttt{<solver>}
+is `\texttt{KLU},' `\texttt{KSPARSE},' `\texttt{SUPERLU},' `\texttt{SUPERLUDIST},' `\texttt{AZTECOO},' `\texttt{BELOS},' or `\texttt{SHYLU}.'
+
+\begin{table}[htp]
+\caption[\Xyce{} Default Linear Solver]{Xyce default linear solver.}
+\label{tab:default:solver}
+\begin{center}
+\begin{tabular}{| p{3cm} | p{3cm} | p{3.5cm} |}
+\hline
+Solver & Version & Linear System Size\\
+\hline
+KLU & Serial & {\it all} \\
+KLU & Parallel & $1-(10^4-1)$ unknowns \\
+AztecOO & Parallel & $10^4+$ unknowns \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{KLU}
+KLU is a serial, sparse direct solver native to the Amesos package in Trilinos~\cite{trilinos:toms} and is the default solver for serial builds of \Xyce{}. 
+KLU is the default solver for small circuits in parallel builds of \Xyce{} as well, but this requires the linear system to be solved 
+on one processor and the solution communicated back to all processors. As long as the linear system can fit on one processor, KLU is 
+often a superior approach to using an iterative linear solver.  So, if a parallel build of \Xyce{} is run in serial on a circuit that generates a linear system
+larger than one thousand unknowns and the simulation fails to converge, then specifying KLU as the linear solver may fix that problem.  
+
+Some of the solver parameters for KLU can be altered through the `\texttt{.OPTIONS LINSOL}' control line in the netlist.  
+Table \ref{tab:klu:options} lists solver parameters and their default values for KLU.
+   
+\begin{table}[htp]
+\caption[ KLU linear solver options.] {KLU linear solver options.}
+\label{tab:klu:options}
+\begin{center}
+\begin{tabular}{| p{3.5cm} | p{9cm} | p{2.5cm} |}
+\hline
+Option & Description & Default Value \\
+\hline
+{\tt KLU\_REPIVOT}         & Recompute pivot order each solve & 1 (true) \\
+{\tt OUTPUT\_LS}           & Write out linear systems solved by KLU to file every \# solves & 0 (false)\\
+{\tt OUTPUT\_BASE\_LS}     & Write out linear systems before any transformations to file every \# solves & 0 (false)\\
+{\tt OUTPUT\_FAILED\_LS}   & Write out linear systems KLU failed to solve to file & 0 (false) \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{KSparse}
+KSparse is a serial, sparse direct solver based on Ken Kundert's sparse solver, Sparse 1.3.  Kundert's sparse solver was developed 
+as part of the SPICE circuit simulation code.  KSparse is built, by default, in \Xyce{}.  Similar to KLU,
+KSparse can be used in a parallel version of \Xyce{}, but the linear system is solved on one processor.
+
+\subsection{SuperLU and SuperLU DIST}
+SuperLU is a serial, sparse direct solver and SuperLU DIST is a parallel, sparse direct solver with an interface in the 
+Amesos package.  SuperLU and SuperLU DIST support are {\it optionally} built in \Xyce{},
+so they are not available by default in any \Xyce{} build or provided binary.  Furthermore, to enable SuperLU and 
+SuperLU DIST support in \Xyce{}, it is necessary to build SuperLU and SuperLU DIST support in Amesos/Trilinos.  Similar to KLU, 
+SuperLU can be used in a parallel version of \Xyce{}, but the linear system is 
+solved on one processor.  SuperLU DIST can only be used in a parallel version of \Xyce{}, the Amesos interface handles the redistribution
+of the matrix into the format required by SuperLU DIST.  
+\Xyce{} does not allow modifications to SuperLU and SuperLU DIST solver parameters. 
+
+
+\subsection{AztecOO}
+AztecOO is a package in Trilinos~\cite{trilinos:toms} that offers an assortment of iterative linear solver algorithms.  
+\Xyce{} uses the Generalized Minimal Residual (GMRES) method~\cite{sasc86} from this suite of iterative solvers.  
+Some of the solver parameters for GMRES can be altered through the `\texttt{.OPTIONS LINSOL}' control line in the netlist. 
+Table~\ref{tab:aztecoo:options} provides a list of solver parameters for AztecOO and their default values.
+
+\begin{table}[htp]
+\caption[AztecOO linear solver options.]{AztecOO linear solver options.}
+\label{tab:aztecoo:options}
+\begin{center}
+\begin{tabular}{| p{3cm} | p{9cm} | p{2.5cm} |}
+\hline
+Option & Description & Default Value \\
+\hline
+{\tt AZ\_max\_iter}        & Maximum allowed iterations & 200 \\
+{\tt AZ\_tol}              & Iterative solver (relative residual) tolerance & 1.0e-9 \\
+{\tt AZ\_kspace}           & Krylov subspace size & 50 \\
+{\tt OUTPUT\_LS}           & Write out linear systems solved by AztecOO to file every \# solves & 0 (false)\\
+{\tt OUTPUT\_BASE\_LS}     & Write out linear systems before any transformations to file every \# solves & 0 (false)\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{Common AztecOO Warnings}
+
+If \Xyce{} is built with the verbosity enabled for the linear algebra package, it is not
+uncommon to see warnings from AztecOO usually indicating the solver returned unconverged due to a numerical issue.
+
+\begin{center}
+\begin{minipage}{0.85\textwidth}
+\color{XyceRed} {\bf NOTE:  }\color{black}  AztecOO warnings {\em do not} indicate the entire simulation has failed, \Xyce{} uses a hierarchy of solvers so if the iterative linear solver fails, the nonlinear solver or time integrator will usually make adjustments and attempt the step again; so the warnings can often be ignored. If the entire simulation eventually fails (i.e., gets a ``time-step-too-small'' error), then the AztecOO warnings might contain clues as to what went wrong.
+\end{minipage}
+\end{center}
+
+The simplest reason for AztecOO to return unconverged would be when the maximum number of 
+iterations is reached, resulting in the following warning:
+\begin{verbatim}
+***************************************************************
+Warning: maximum number of iterations exceeded without convergence
+***************************************************************
+\end{verbatim}
+Another reason AztecOO may return unconverged is when the GMRES Hessenberg
+matrix is ill-conditioned, which is usually a sign that the matrix and/or
+preconditioner is nearly singular, resulting in the following warning:
+\begin{verbatim}
+***************************************************************
+Warning: the GMRES Hessenberg matrix is ill-conditioned.  This may
+indicate that the application matrix is singular. In this case, GMRES
+may have a least-squares solution.
+***************************************************************
+\end{verbatim}
+It is also common to lose accuracy when either the matrix or preconditioner, or both,
+are nearly singular.  GMRES relies on an estimate of the residual norm,
+called the recursive residual, to determine convergence.  \Xyce{} uses the recursive
+residual instead of the actual residual for computational efficiency.
+However, numerical issues can cause the recursive residual to differ
+from the actual residual.  When AztecOO detects but
+cannot rectify this situation, it outputs the following warning:
+\begin{verbatim}
+***************************************************************
+Warning: recursive residual indicates convergence
+though the true residual is too large.
+
+Sometimes this occurs when storage is overwritten (e.g. the
+solution vector was not dimensioned large enough to hold
+external variables). Other times, this is due to roundoff. In
+this case, the solution has either converged to the accuracy
+of the machine or intermediate roundoff errors occurred
+preventing full convergence. In the latter case, try solving
+again using the new solution as an initial guess.
+***************************************************************
+\end{verbatim}
+
+\subsection{Belos}
+\label{Belos_Options}
+Belos is a package in Trilinos~\cite{trilinos:toms} that offers an assortment of iterative linear
+solver algorithms.  Many of the algorithms available in Belos can also be found in AztecOO.  However, Belos
+offers a few computational advantages because its solvers are implemented using templated C++.  
+In particular, AztecOO can solve linear systems only in double-precision arithmetic, while Belos
+can solve linear systems that are complex-valued or in extended-precision arithmetic.  At this time,
+\Xyce{} is using a subset of Belos capabilities, the default method is GMRES, and the 
+interface to Belos will recognize most of the AztecOO linear solver options, as shown in 
+Table~\ref{tab:belos:options}.
+
+\begin{table}[htp]
+\caption[Belos linear solver options.]{Belos linear solver options.}
+\label{tab:belos:options}
+\begin{center}
+\begin{tabular}{| p{3cm} | p{9cm} | p{2.5cm} |}
+\hline
+Option & Description & Default Value \\
+\hline
+{\tt AZ\_max\_iter}        & Maximum allowed iterations & 200 \\
+{\tt AZ\_tol}              & Iterative solver (relative residual) tolerance & 1.0e-9 \\
+{\tt AZ\_kspace}           & Krylov subspace size & 50 \\
+{\tt OUTPUT\_LS}           & Write out linear systems solved by Belos to file every \# solves & 0 (false)\\
+{\tt OUTPUT\_BASE\_LS}     & Write out linear systems before any transformations to file every \# solves & 0 (false)\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection{Preconditioning Options}
+\label{Preconditioning_Options}
+
+Iterative linear solvers often require the assistance of a preconditioner
+to efficiently compute a solution of the linear system
+\begin{equation}
+\label{axb}
+Ax=b
+\end{equation}
+\noindent to the requested accuracy.  
+A preconditioner, $M$, is an approximation to the original matrix $A$ that is inexpensive
+to solve.  Then (\ref{axb}) can be rewritten to include this (right) preconditioner as
+\begin{equation}
+\label{axb:prec}
+AM^{-1}y=b,
+\end{equation}
+\noindent where $x=M^{-1}y$ is the solution to the original linear system.
+If $M=A$, then the solution to the linear system is found in one iteration.
+In practice, $M$ is a good approximation to $A$, then it will take few iterations
+to compute the solution of the linear system to the requested accuracy.
+By default, \Xyce{} uses a non-overlapped additive Schwartz preconditioner with 
+an incomplete LU factorization on each subdomain~\cite{Saad:2003:IMSLS}.  
+The parameters of the incomplete LU factorization are found in Table~\ref{tab:prec_options}.  
+This is a simple preconditioner that always works, but is not always the most effective, 
+so other preconditioning options will be presented in this section.    
+
+\Xyce{} provides access to preconditioning packages in Trilinos~\cite{trilinos:toms}, 
+such as Ifpack, through an expanded preconditioning interface.  
+If modifications to the preconditioner are necessary, the user may specify the preconditioner 
+through the `\texttt{.OPTIONS LINSOL}' control line in the netlist. 
+Table \ref{tab:prec_options} provides a list of preconditioner parameters and
+their default values.  
+
+\begin{table}[htp]
+\caption[Preconditioner options.]{Preconditioner options.}
+\label{tab:prec_options}
+\begin{center}
+\begin{tabular}{| p{3.5cm} | p{8cm} | p{2.5cm} |}
+\hline
+Option & Description & Default Value \\
+\hline
+{\tt prec\_type}           & Preconditioner & Ifpack \\
+{\tt AZ\_ilut\_fill}       & ILU fill level & 2.0 \\
+{\tt AZ\_drop}             & ILU drop tolerance & 1.0e-3 \\
+{\tt AZ\_overlap}          & ILU subdomain overlap & 0 \\
+{\tt AZ\_athresh}          & ILU absolute threshold & 0.0001 \\
+{\tt AZ\_rthresh}          & ILU relative threshold & 1.0001 \\
+{\tt USE\_IFPACK\_FACTORY} & Additive Schwarz w/ KLU subdomain solve & 0 (false) \\ 
+{\tt USE\_AZTEC\_PRECOND} & Use native ILU from AztecOO package & 0 (false) \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+In practice, the choice of an effective preconditioner is highly problem dependent.  By default,
+\Xyce{} provides a preconditioner that works for most circuits, but is not the best preconditioner
+for all circuits.  One simple modification to the default preconditioner that often makes it more
+effective is the use of a sparse direct solver on each subdomain, instead of an inexact factorization: \\[0.5em] 
+\noindent \verb|.OPTIONS LINSOL USE_IFPACK_FACTORY=1| \\[0.5em]
+This preconditioner will fail if there is a singular subdomain matrix because the KLU solver on that subdomain will fail.
+If numerical difficulties are not encountered during the simulation, this preconditioner is superior to inexact factorizations.
+A more advanced preconditioner that has been effective for certain types of circuits uses the block triangular form (BTF)
+permutation of the original matrix before generating the additive Schwartz preconditioner.  This preconditioner, which
+is published in ~\cite{ICCAD09_precond}, will be presented in Section~\ref{BTF_Precond}.
+
+
+\subsection{ShyLU}
+\label{HybridLinearSolver_Options}
+ShyLU is a package in Trilinos~\cite{trilinos:toms} that provides a hybrid linear solver 
+designed to be a black-box algebraic solver~\cite{ShyLU-IPDPS}. 
+ShyLU support is {\it optionally} built in \Xyce{},
+so it is not available by default in any \Xyce{} build or provided binary.
+Furthermore, to enable ShyLU support in \Xyce{}, it is necessary to build 
+the ShyLU package in Trilinos.
+
+ShyLU is hybrid in both the
+parallel programming sense - using MPI and threads - and in the mathematical
+sense - using features from direct and iterative methods. \Xyce{} uses ShyLU as a global
+Schur complement solver~\cite{Saad:2003:IMSLS}.  This solver can be expensive, but also
+has proven to be a robust and scalable approach for some circuit matrices~\cite{bomhof00}. 
+
+ShyLU is under active development and testing in \Xyce{}, so a minimum number of options are 
+provided to the user for controlling this solver.  The solution approach is static, 
+the diagonal blocks of the partitioned matrix are solved using KLU, while the Schur complement 
+is solved using an iterative method (AztecOO's GMRES specifically). 
+The matrix partitioning is generated using a wide separator, which is a conventional 
+vertex separator where all the vertices that are adjacent to the separator in one of the subgraphs
+are added in.  The only options that can be modified are shown
+in Table~\ref{tab:shylu:options}.  This includes the maximum number of iterations and solver tolerance
+used by GMRES and the dropping threshold that ShyLU uses to generate a preconditioner for GMRES.
+
+\begin{table}[htp]
+\caption[ShyLU linear solver options.]{ShyLU linear solver options.}
+\label{tab:shylu:options}
+\begin{center}
+\begin{tabular}{| p{3cm} | p{9cm} | p{2.5cm} |}
+\hline
+Option & Description & Default Value \\
+\hline
+{\tt AZ\_max\_iter}        & Maximum allowed iterations & 30 \\
+{\tt AZ\_tol}              & Iterative solver (relative residual) tolerance & 1.0e-12 \\
+{\tt ShyLU\_rthresh}       & Relative dropping threshold for Schur complement preconditioner & 1.0e-3 \\ 
+{\tt OUTPUT\_LS}           & Write out linear systems solved by ShyLU to file every \# solves & 0 (false)\\
+{\tt OUTPUT\_BASE\_LS}     & Write out linear systems before any transformations to file every \# solves & 0 (false)\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+
+
+\section{Transformation Options}
+\label{Transformation_Options}
+
+Transformations are often used to permute the original linear system to one that
+is easier or more efficient for direct or iterative linear solvers.  \Xyce{} has many different permutations 
+that can be applied to remove dense rows and columns from a matrix, reduce fill-in, find a block triangular form, 
+or partition the linear system for improved parallel performance. 
+
+\subsection{Removing Dense Rows and Columns}
+The transformation that reduces the linear system through removal of all rows and 
+columns with single non-zero entries in the matrix is called singleton filtering.  The values
+associated with these removed entries can be resolved in a pre- or post-processing
+phase with the linear solve.
+A by-product of this transformation is a more tractable and sparse 
+linear system for the load balancing and linear solver
+algorithms.  This functionality can be turned on by adding 
+`\texttt{TR\_SINGLETON\_FILTER=1}' to the `\texttt{.OPTIONS LINSOL}'
+control line in the netlist.  This option is enabled by default whenever iterative
+solvers are used in \Xyce{}.
+
+\subsection{Reordering the Linear System}
+Approximate Minimum Degree (AMD) ordering is a symmetric permutation that 
+reduces the fill-in for direct factorizations.  If given a nonsymmetric
+matrix $A$, the transformation computes the AMD ordering of $A + A^T$.  
+This functionality may be turned on by adding `\texttt{TR\_AMD=1}' 
+to the `\texttt{.OPTIONS LINSOL}' control line in the netlist. 
+For parallel builds of \Xyce{}, AMD ordering is enabled by default whenever iterative solvers
+are used.  In parallel, the AMD ordering is performed only on the local graph for
+each processor, not the global graph.  This is to reduce the fill-in for the incomplete
+LU factorization used by the additive Schwartz preconditioner, see Section~\ref{Preconditioning_Options}.
+
+\subsection{Partitioning the Linear System}
+\label{Partitioning_Linear_System}
+
+Partitioning subdivides the linear system and 
+then distributes it to the available processors.  A good partition can have a dramatic 
+effect on the parallel performance of a circuit simulation tool.  
+There are two key components to a good partition:
+
+\begin{XyceItemize}
+  \item Effective load balance\index{parallel!load balance}
+  \item Minimizing communication\index{parallel!communication} overhead.  
+\end{XyceItemize}
+
+An effective load balance ensures the computational load of the calculation is equally distributed among 
+available processors. Minimizing communication overhead seeks to distribute the problem in a way to reduce 
+impacts of underlying message passing during the simulation run. For runs with a small number of devices 
+per processor the communication overhead becomes the critical issue, while for runs with larger numbers 
+of devices per processor the load balancing becomes more important.  
+
+\Xyce{} provides hypergraph partitioning via the \textbf{Zoltan}\index{ZOLTAN} library of parallel 
+partitioning heuristics integrated into \Xyce{}.  The Isorropia package in Trilinos provides access to \textbf{Zoltan}\index{ZOLTAN} and 
+can be controlled through the `\texttt{.OPTIONS LINSOL}'\index{\texttt{.OPTIONS}!\texttt{LINSOL}} 
+control line in the netlist. Table \ref{tab:partitioning:options} provides
+the partitioning options and their default parameters. For parallel builds of 
+\Xyce{}, when iterative solvers are used, \textbf{Isorropia} is enabled by default to use hypergraph partitioning. 
+The linear system is statically load balanced at the beginning of the simulation based 
+on the graph of the Jacobian matrix.  
+
+\begin{table}[htp]
+\caption[Partitioning options.]{Partitioning options.}
+\label{tab:partitioning:options}
+\begin{center}
+\begin{tabular}{| p{3.5cm} | p{6cm} | p{4.5cm} |}
+\hline
+Option & Description & Default Value \\
+\hline
+{\tt TR\_PARTITION}        & Partitioning package & 0 (none), serial, \\
+                           &                      & 1 (Isorropia), parallel \\
+{\tt TR\_PARTITION\_TYPE}  & Isorropia partitioner type & \verb|HYPERGRAPH| \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\Xyce{} includes an expanded partitioning interface to allow the user to access multiple partitioners through Isorropia. 
+Users may change the partitioner provided by adding `\texttt{TR\_PARTITION\_TYPE}' to the `\texttt{.OPTIONS LINSOL}' control line in
+the netlist. There are two options for partitioning:  hypergraph
+(`\texttt{TR\_PARTITION\_TYPE=HYPERGRAPH}') and, optionally, graph (`\texttt{TR\_PARTITION\_TYPE=GRAPH}') partitioning through ParMETIS.
+Occasionally it is desirable to turn off the partitioning option, even for parallel simulations.   To do so, users can add the 
+`\texttt{TR\_PARTITION=0}' to the `\texttt{.OPTIONS LINSOL}' control line.
+
+These techniques can be very effective for improving the
+efficiency of the iterative linear solvers\index{solvers!iterative linear}.
+See the \textbf{Zoltan User Guide}~\cite{zoltan:user} for more details.
+
+\subsection{Permuting the Linear System to Block Triangular Form}
+\label{BTF_Precond}
+The block triangular form (BTF) permutation is often useful for direct and iterative
+solvers, enabling a more efficient computation of the linear system solution.
+In particular, the BTF permutation has shown promise when it is combined with
+an additive Schwartz preconditioner (see Section~\ref{Preconditioning_Options}) in the simulation of
+circuits with unidirectional flow.  
+
+The global BTF transformation computes the permutation of the linear system to
+block triangular form, and uses the block structure to partition the linear system. The partitioning can be
+a simple linear distribution of block rows, `\texttt{TR\_GLOBAL\_BTF=1}', or a
+hypergraph partitioning of block rows, `\texttt{TR\_GLOBAL\_BTF=2}.'
+As the global BTF transformation includes elements of other tranformations,
+it is imperative to turn off other linear solver options.  
+To use the global BTF, the linear solver control line in the netlist should 
+contain: \\[0.5em] 
+\noindent \verb|.OPTIONS LINSOL TR_GLOBAL_BTF=<1,2> TR_SINGLETON_FILTER=1|\\
+\noindent \verb|+ TR_AMD=0 TR_PARTITION=0|
+
+This transformation is only useful in parallel when using a preconditioned iterative solver.
+It is often more effective when combined with the exact factorization of each subdomain,
+given by the `\texttt{USE\_IFPACK\_FACTORY=1}' option.  In practice, the structure
+that this transformation takes advantage of is found in CMOS memory circuits~\cite{ICCAD09_precond}.
+
+
+\section{Device Distribution Options}
+\label{Device_Distribution_Options} 
+\Xyce{} uses different parallel distributions for the objects that evaluate the
+device models and the linear system.  As discussed in Section~\ref{Partitioning_Linear_System}, a good
+parallel partition of the linear system can improve load balance and minimize communication. 
+The same is true for the parallel distribution of devices, since they have widely varying
+computational cost and the circuit connectivity graph is often irregular.  Furthermore, a more efficient
+device distribution strategy can overlap netlist processing with the simulation setup, enabling scalable
+parsing for larger netlists.
+
+\begin{table}[htp]
+\caption[Device Distribution options.]{Distribution options.}
+\label{tab:distribution:options}
+\begin{center}
+\begin{tabular}{| p{3.5cm} | p{6cm} | p{4.5cm} |}
+\hline
+Option & Description & Default Value \\
+\hline
+{\tt STRATEGY}        & Distribution strategy & 0 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\Xyce{} provides three different device distribution strategies that can be controlled through
+the \texttt{.OPTIONS DIST}\index{\texttt{.OPTIONS}!\texttt{DIST}} control line in the netlist,
+see Table \ref{tab:distribution:options}.  The default strategy (\texttt{STRATEGY=0}) that \Xyce{} 
+uses for parallel device distribution is a first-come-first-served
+approach, in that the total number of devices in a circuit is divided evenly over the number
+of parallel processors in the order of parsing.  This is the simplest distribution strategy, but
+it does not take into account the connectivity of a circuit or balance device model computation.
+Therefore, this strategy can exhibit parallel imbalance for post-layout circuits that have a 
+substantial portion of parasitic devices.
+
+\Xyce{} provides two other distribution strategies that enable scalable parsing for
+flattened circuits or distribute devices in a more balanced manner.  The "flat round robin" strategy
+(\texttt{STRATEGY=1}) will generate the same device distribution as the default strategy, but every
+parallel processor will participate in reading their portion of the netlist.  In that way, this
+strategy provides a more scalable setup than the default strategy, but can only be applied to flattened
+(non-hierarchical) netlists.  The "device balanced" strategy (\texttt{STRATEGY=2}) will evenly divide
+each of the device types over the number of parallel processors, so each processor will have a balanced
+number of each model type.  This allieviates the parallel imbalance in the device model computation that
+can be experienced with post-layout circuits.  However, it does not take into account the circuit
+connectivity, so the communication will not be minimized by this strategy.
+
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+%% END of Xyce_UG_ch13.tex ************

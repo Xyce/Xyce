@@ -1,0 +1,89 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%%
+%%% Transient Analysis Table
+%%%
+
+Calculates the the small signal noise response of a circuit over a range of frequencies.
+The .NOISE command can specify a linear sweep, decade logarithmic sweep, or octave logarithmic sweep.
+
+\begin{Command}
+
+\format
+\begin{alltt}
+  .NOISE V(OUTPUT <, REF>) SRC <sweep type> <points value>
++ <start frequency value> <end frequency value>
+\end{alltt}
+
+\examples
+\begin{alltt}
+  .NOISE V(5) VIN LIN 101 100Hz 200Hz
+  .NOISE V(5,3) V1 OCT 10 1kHz 16kHz
+  .NOISE V(4) V2 DEC 20 1MEG 100MEG
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{V(OUTPUT <,REF>)}
+   The node at which the total output noise is desired. If REF is 
+   specified, then the noise voltage V(OUTPUT) - V(REF) is calculated. By default, 
+   REF is assumed to be ground. 
+
+\argument{SRC}
+   The name of an independent source to which input noise is referred. 
+
+\argument{sweep type}
+
+Must be \texttt{LIN}, \texttt{OCT}, or \texttt{DEC}, as described below.
+\begin{description}
+
+\item[\tt LIN] Linear sweep\\
+The sweep variable is swept linearly from the starting to the ending value.
+
+\item[\tt OCT] Sweep by octaves\\
+The sweep variable is swept logarithmically by octaves.
+
+\item[\tt DEC] Sweep by decades\\
+The sweep variable is swept logarithmically by decades.
+
+\end{description}
+
+\argument{points value}
+Specifies the number of points in the sweep, using an integer.
+
+\argument{\vbox{\hbox{start frequency value\hfil}\hbox{end frequency value}}}
+
+The end frequency value must not be less than the start frequency value,
+and both must be greater than zero. The whole sweep must include at
+least one point.
+
+\end{Arguments}
+
+\comments
+
+Noise analysis is a linear analysis. The simulator calculates the noise
+response by linearizing the circuit around the bias point.
+
+\index{\texttt{.PRINT}}\index{results!print}\index{\texttt{.PRINT}!\texttt{NOISE}}
+A \texttt{.PRINT NOISE} must be used to get the results of the NOISE sweep
+analysis.  See Section \ref{.PRINT}.
+
+Noise analysis is a relatively new feature to \Xyce{}, so not all noise models
+have been supported.
+
+Power calculations (\texttt{P(<device>} and \texttt{W(<device>}) are not supported for any
+devices for noise analysis.  Current variables (e.g., \texttt{I(<device>)} are only supported
+for devices that have ``branch currents'' that are part of the solution vector. This includes
+the V, E, H and L devices.  It also includes the voltage-form of the B device.
+
+\end{Command}

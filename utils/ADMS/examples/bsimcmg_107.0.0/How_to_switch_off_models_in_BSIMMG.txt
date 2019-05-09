@@ -1,0 +1,94 @@
+This file documents how various modules are turned on/off in BSIM-CMG.
+
+To turn off a module, set the parameters as follows:
+
+Subthreshold slope degradation
+	CDSC=0
+	CDSCD=0
+	CIT=0
+
+Drain induced barrier lowering
+	ETA0=0
+
+Vt roll-off (at low drain bias)
+	DVT0=0
+
+Reverse short channel effect
+	K1RSCE=0
+
+Quantum effect
+	QMFACTOR=0
+	QMTCENIV=0
+	QMTCENCV=0
+
+Mobility degradation due to vertical field & Coulomb scattering
+	UA=0
+	EU=1 (to prevent 0 to the 0'th power)
+	UD=0
+
+Source drain resistance
+	RGEOMOD=0
+	RSHS=0
+	RSHD=0
+	RDSMOD=0
+	RDSWMIN=0
+	RDSW=0
+
+Asymmetry Model
+	ASYMMOD=0
+
+Drain saturation voltage
+	KSATIV=1000
+	VSAT=1e9
+    
+Polysilicon Depletion
+	NGATE=0
+
+Channel Length Modulation
+	PCLM=0
+
+Effect of velocity saturation in the linear region
+	THETASAT=0
+
+Output conductance due to DIBL
+	PDIBL1=0
+	PDIBL2=0
+        
+Parasitic Capacitance
+	CGEOMOD=0
+	CFS=0
+	CFD=0
+	CGSO=0
+	CGDO=0
+	CSDESW=0
+	CGBO=0
+	ASEO=0
+	ADEO=0
+
+Impact Ionization
+	IIMOD=0
+
+Gate Current
+	IGBMOD=0
+	IGCMOD=0
+
+GIDL Current
+	GIDLMOD=0
+
+NQS Gate Resistance
+	NQSMOD=0
+	XRCRG1=0
+
+Flicker Noise
+	NOIA=0
+	NOIB=0
+	NOIC=0
+
+Thermal Noise
+	NTNOI=0
+
+Self-heating
+	SHMOD=0
+
+Gate electrode resistance
+	RGATEMOD=0

@@ -1,0 +1,106 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%
+%% Latex graphic file for .PREPROCESS chapter.
+%%
+
+\setlength{\unitlength}{3947sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(3467,2047)(976,-3248)
+\thinlines
+{\color[rgb]{0,0,0}\put(2551,-1486){\line(-1, 0){145}}
+\multiput(2406,-1486)(-2.76667,8.30000){10}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(2382,-1411)(-2.76667,-8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(2334,-1561)(-2.76667,8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(2286,-1411)(-2.76667,-8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(2238,-1561)(-2.76667,8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(2190,-1411)(-2.76667,-8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(2142,-1561)(-2.76667,8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(2094,-1411)(-2.76667,-8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(2046,-1561)(-2.76667,8.30000){10}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\put(2022,-1486){\line(-1, 0){146}}
+}%
+{\color[rgb]{0,0,0}\put(3376,-1486){\line( 1, 0){145}}
+\multiput(3521,-1486)(2.76667,-8.30000){10}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(3545,-1561)(2.76667,8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(3593,-1411)(2.76667,-8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(3641,-1561)(2.76667,8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(3689,-1411)(2.76667,-8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(3737,-1561)(2.76667,8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(3785,-1411)(2.76667,-8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(3833,-1561)(2.76667,8.30000){19}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(3881,-1411)(2.76667,-8.30000){10}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\put(3905,-1486){\line( 1, 0){146}}
+}%
+{\color[rgb]{0,0,0}\put(2551,-1486){\line( 1, 0){450}}
+}%
+{\color[rgb]{0,0,0}\put(3001,-1486){\line( 0,-1){150}}
+}%
+{\color[rgb]{0,0,0}\put(2926,-1486){\line( 1, 0){450}}
+}%
+{\color[rgb]{0,0,0}\put(4051,-1486){\line( 1, 0){150}}
+}%
+{\color[rgb]{0,0,0}\put(1501,-1936){\line( 0, 1){450}}
+\put(1501,-1486){\line( 1, 0){375}}
+}%
+{\color[rgb]{0,0,0}\put(1501,-2461){\line( 0,-1){450}}
+\put(1501,-2911){\line( 1, 0){1500}}
+}%
+{\color[rgb]{0,0,0}\put(3001,-2911){\line( 0, 1){ 75}}
+}%
+\put(2101,-1336){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt R1}}%
+}}}}
+\put(3586,-1336){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt R2}}%
+}}}}
+\put(2551,-1936){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt C1}}%
+}}}}
+\put(2551,-2536){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt C2}}%
+}}}}
+\put(976,-2201){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt V1}}%
+}}}}
+\put(1426,-1336){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt 1}}%
+}}}}
+\put(2946,-1336){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt 2}}%
+}}}}
+\put(3076,-2236){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt 3}}%
+}}}}
+\put(4351,-1551){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt 4}}%
+}}}}
+\put(1801,-3136){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}{\tt 0}}%
+}}}}
+\put(3001,-2011){\oval(300,144)[tr]}
+\put(3001,-2011){\oval(300,144)[tl]}
+\put(2851,-1861){\line( 1, 0){300}}
+\put(3001,-1636){\line( 0,-1){225}}
+\put(3001,-1936){\line( 0,-1){300}}
+\put(3001,-2611){\oval(300,144)[tr]}
+\put(3001,-2611){\oval(300,144)[tl]}
+\put(2851,-2461){\line( 1, 0){300}}
+\put(3001,-2236){\line( 0,-1){225}}
+\put(3001,-2536){\line( 0,-1){300}}
+\put(1501,-1936){\line( 0,-1){150}}
+\put(1501,-2311){\line( 0,-1){150}}
+\put(1276,-2086){\line( 1, 0){450}}
+\put(1426,-2161){\line( 1, 0){150}}
+\put(1276,-2236){\line( 1, 0){450}}
+\put(1426,-2311){\line( 1, 0){150}}
+\put(1276,-2439){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}-}}}}
+\put(1276,-2011){\makebox(0,0)[lb]{\smash{{\SetFigFont{12}{14.4}{\rmdefault}{\mddefault}{\updefault}+}}}}
+\put(2266,-2936){\line( 0,-1){150}}
+\put(2116,-3086){\line( 1, 0){300}}
+\multiput(2416,-3086)(-6.00000,-6.00000){26}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\multiput(2266,-3236)(-6.00000,6.00000){26}{\makebox(1.6667,11.6667){\SetFigFont{5}{6}{\rmdefault}{\mddefault}{\updefault}.}}
+\end{picture}%

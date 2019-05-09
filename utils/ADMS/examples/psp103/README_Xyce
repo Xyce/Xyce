@@ -1,0 +1,32 @@
+PSP 103.4 has had very few changes applied to make it Xyce-specific.
+
+  - Module attributes have been added to make it plug in to Xyce as an
+    "M" device.  Similarly, attributes have been added to JUNCAP200 so
+    it plugs in as the level 200 diode.
+
+  - The two TR parameters have been declared with units of "degC" instead of
+    "C".  Xyce's ADMS compiler interprets "C" as "Coulomb."  This has no impact
+    on the model except to make Xyce output correct units in its documentation
+    tables.
+
+  - Several parameters had descriptions that included "^" to indicate
+    exponentiation.  Because Xyce copies these descriptions into a
+    data structure that is used to emit LaTeX tables, these characters
+    cause syntax errors in the generated LaTeX.  They have been changed
+    to "**".
+
+  - The instance parameter  "M" has been added as a synonym for "MULT."
+    Unlike many commercial simulators, Xyce does not define a universal
+    "M" multiplier for devices, each device must define its own.
+
+  - The definition of OPderiv has been commented out.  Xyce/ADMS does not
+    currently support the ddx operator needed for the ifdefed code.
+
+  - All computation of operating-point output variables has been wrapped in
+    an ifdef.  Xyce does not currently support output of these variables,
+    so there is no point in spending cycles computing them.
+
+  - PSP 103.4 has a rewritten noise model that attempts to use one fewer
+    node for correlated noise than previous versions of PSP do.  This method
+    does NOT work in Xyce/ADMS yet, and so the noise contributions have
+    been rewritten in this version to reinstate the second noise node.

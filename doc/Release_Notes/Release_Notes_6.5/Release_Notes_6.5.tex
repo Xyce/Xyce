@@ -1,0 +1,188 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Release notes for Xyce version 6.5.
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  
+%% Creation Date  : {03/24/2006}
+%%-------------------------------------------------------------------------
+
+\documentclass{article}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{ltxtable, multirow}
+\usepackage{Xyce}
+\usepackage{geometry}
+
+\pdfcatalog {/PageMode /UseNone}
+\renewcommand{\arraystretch}{1.2}
+
+% Sets the page margins to be the same as the Guides (SAND reports)
+\geometry{pdftex, inner=1in, textwidth=6.5in, textheight=9in}
+
+% Gets rid of Section numbers
+\setcounter{secnumdepth}{0}
+
+% Set this here once, and use \XyceVersionVar{} in the document
+\XyceVersion{6.5}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+\title{\XyceTitle{} Parallel Electronic Simulator\\
+Version \XyceVersionVar{} Release Notes} 
+
+\author{ Sandia National Laboratories}
+
+\date{\today}
+
+% Submitted to R&A 26 May 2016 Tracking number 463822
+% Approved 01 Jun 2016, SAND Report # SAND2016-5187 O
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+
+The \XyceTM{} Parallel Electronic Simulator has been written to support the
+simulation needs of Sandia National Laboratories' electrical designers.
+\XyceTM{} is a SPICE-compatible simulator with the ability to solve extremely
+large circuit problems on large-scale parallel computing platforms, but also
+includes support for most popular parallel and serial computers.
+
+For up-to-date information not available at the time these notes were produced,
+please visit the \XyceTM{} web page at
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov}}.
+
+\tableofcontents
+\vspace*{\fill}
+\parbox{\textwidth}
+{
+  \raisebox{0.13in}{\includegraphics[height=0.5in]{snllineblubrd}}
+  \hfill
+  \includegraphics[width=1.5in]{xyce_flat_white}
+}
+
+
+\newpage
+\section{New Features and Enhancements}
+
+\subsubsection*{New Devices and Device Model Improvements}
+\begin{XyceItemize}
+  \item BSIM6 and VBIC 1.3 enhancements with observed performance gains as high as 25\% on some circuits.
+  \item Xyce/ADMS Verilog-A model compiler code generation enhancements: improved support for \@(initial\_model) and \@(initial\_instance) blocks.
+  \item Xyce/ADMS new feature: added support of white\_noise and flicker\_noise for use in small-signal noise analysis.
+  \item Noise models have been added for all devices generated from Verilog-A using ADMS, except for the FBH HBT model.
+  \item Support for tap-changing in the Power Grid Transformer model.
+  \item The JUNCAP200 diode model has been added as Diode level 200.
+  \item The MVS MOSFET model has been added as models level 2000 (ETSOI version) and 2001 (HEMT version).
+  \item The BSIM3 and BSIM4 models can now output transconductance on the .PRINT line.
+\end{XyceItemize}
+
+\subsubsection*{Enhanced Solver Stability, Performance and Features}
+\begin{XyceItemize}
+  \item Internal full-step Newton method is now the default for transient simulation, which improves memory efficiency and performance.
+  \item Xyce has been updated to use Trilinos 12.6.3.
+  \item Transient adjoint parameter sensitivities are now supported.
+  \item NOTE: THE BDF TIME INTEGRATION METHOD (METHOD=BDF or METHOD=6) IS NOW DEPRECATED.  It will be removed in version 6.6 of \Xyce{}.  The Trapezoid (METHOD=TRAP or METHOD=7) and Gear (METHOD=GEAR or METHOD=8) methods will be the only supported time integration methods in version 6.6.  Please update any netlists you have that explicitly use the BDF time integration method to use the Gear method instead.  If this results in convergence or accuracy issues, please contact the Xyce Development Team as soon as possible.
+\end{XyceItemize}
+
+\subsubsection*{Interface Improvements}
+\begin{XyceItemize}
+  \item Improved support for RISE, FALL, CROSS and LAST qualifiers in .MEASURE statements.
+  \item Re-measure now supports .CSD files and .STEP with .TRAN.
+  \item Improved support for lead currents, expressions and power in 
+.MEASURE and .FOUR statements.
+  \item Restart can now provide seamless checkpointing for all time integration methods.
+  \item Power calculations are now supported for the level 1 BJT.
+  \item Improved output for restart result interpolations.
+\end{XyceItemize}
+
+\newpage
+\section{Defects Fixed in this Release}
+\input{fixedDefectsTbl}
+
+
+\newpage
+\section{Interface Changes in this Release}
+\input{changesInputTbl}
+
+
+\newpage
+\section{Known Defects and Workarounds}
+\input{knownDefectsTbl}
+
+
+\newpage
+\section{Supported Platforms}
+\subsection*{Certified Support}
+The following platforms have been subject to certification testing for the
+\Xyce{} version 6.5 release.
+\begin{XyceItemize}
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 6, x86-64 (serial and parallel)
+  \item Microsoft Windows 7${}^{\mbox{\textregistered}}$, x86 (serial)
+  \item Apple${}^{\mbox{\textregistered}}$ OS X Yosemite, x86-64 (serial and parallel)
+\end{XyceItemize}
+Note that the \Xyce{} team has dropped Certified Support for Red Hat
+Enterprise Linux${}^{\mbox{\textregistered}}$ 5. RHEL5 is now in the
+``Build Support'' category.
+
+\subsection*{Build Support}
+Though not certified platforms, \Xyce{} has been known to run on the following
+systems.
+\begin{XyceItemize}
+  \item FreeBSD 9.x and 10.x on Intel x86 and x86-64 architectures (serial and parallel)
+  \item Distributions of Linux other than Red Hat Enterprise Linux 6
+  \item Microsoft Windows under Cygwin and MinGW.
+\end{XyceItemize}
+
+
+\section{\Xyce{} Release \XyceVersionVar{} Documentation}
+The following \Xyce{} documentation is available on the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+  \item \Xyce{} Version \XyceVersionVar{} Release Notes (this document)
+  \item \Xyce{} Users' Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Reference Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Mathematical Formulation
+  \item Application Node: Using Open Source Schematic Capture Tools with \Xyce{}
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+  \item Building Guide (instructions for building Xyce from the source code)
+  \item Running the Xyce Regression Test Suite
+  \item Frequently Asked Questions
+\end{XyceItemize}
+
+
+\section{External User Resources}
+\begin{itemize}
+  \item Website: {\color{XyceDeepRed}\url{http://xyce.sandia.gov}}
+  \item Google Groups discussion forum:
+    {\color{XyceDeepRed}\url{https://groups.google.com/forum/#!forum/xyce-users}}
+  \item Email support:
+    {\color{XyceDeepRed}\href{mailto:xyce@sandia.gov}{xyce@sandia.gov}}
+  \item Address:
+    \begin{quote}
+            Electrical Models and Simulation Department,\\
+            Sandia National Laboratories\\
+            P.O. Box 5800, M.S. 1177\\
+            Albuquerque, NM 87185-1177 \\
+    \end{quote}
+\end{itemize}
+
+\vspace*{\fill}
+Sandia National Laboratories is a multi-program laboratory managed and
+operated by Sandia Corporation, a wholly owned subsidiary of Lockheed Martin
+Corporation, for the U.S. Department of Energy's National Nuclear Security
+Administration under contract DE-AC04-94AL85000.
+
+\end{document}
+

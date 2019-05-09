@@ -1,0 +1,154 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Differences between PSpice and Xyce table.
+%%
+
+\index{PSpice}
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{4in}}
+  \caption{Incompatibilities with PSpice.} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue & 
+  \color{white}\bf Comment \\ \hline \endfirsthead
+  \label{Incompat_PS}
+
+\texttt{.VECTOR}, \texttt{.WATCH}, and \texttt{.PLOT}  output 
+control analysis are not supported. & \Xyce{} does 
+not support these commands.  \\ \hline
+
+
+\texttt{.PZ} analysis is not supported. & \Xyce{} does not support this command.  
+\\ \hline
+
+
+\texttt{.DISTO} analysis is not supported. & \Xyce{} does not support this command.  
+\\ \hline
+
+\texttt{.TF} analysis is not supported. & \Xyce{} does not support this command.  
+\\ \hline
+
+\texttt{.AUTOCONVERGE} is not supported. & \Xyce{} does not support this command.  
+\\ \hline
+
+\texttt{.SENS} analysis is supported, but has a different syntax than PSpice. & The \Xyce{} version of \texttt{.SENS} requires that the user specify exactly which parameters are the subject of the sensitivity analysis.  Additionally, \Xyce{} can compute sensitivities in transient as well as the \texttt{.DC} case (unlike PSpice).
+\\ \hline
+
+\texttt{.NOISE} analysis is supported, but not all devices supported. & The \Xyce{} version of \texttt{.NOISE} is new enough that not all noise models have been implemented.
+\\ \hline
+
+\texttt{.MC} and \texttt{.WCASE} statistical analyses are not supported.  
+& \Xyce{} does not support these commands.  
+\\ \hline
+
+\texttt{.DISTRIBUTION}, which defines a user distribution for tolerances, is not supported.  
+& \Xyce{} does not support this command.  This command goes along with 
+\texttt{.MC} and \texttt{.WCASE} statistical analyses, which are also not supported. \\ \hline
+
+\texttt{.LOADBIAS} and \texttt{.SAVEBIAS} initial condition commands are not supported.  
+& \Xyce{} does not support these commands.  \\ \hline
+
+\texttt{.ALIASES}, \texttt{.ENDALIASES}, are not supported.
+& \Xyce{} does not support these commands.  \\ \hline
+
+\texttt{.STIMULUS} is not supported.  & \Xyce{} does not support this command.  \\ \hline
+
+\texttt{.TEXT} is not supported.  & \Xyce{} does not support this command.  \\ \hline
+
+\texttt{.PROBE} does not work & \Xyce{} does not support this.  Use the 
+\texttt{FORMAT=PROBE} option of .PRINT instead.  See 
+section~\ref{.PRINT} for syntax.\\ \hline
+
+\texttt{.OP} only produces output in serial & .OP is supported in \Xyce{}, but will not
+produce the extra output normally associated with the .OP statement, if running a parallel build.\\ \hline
+
+Pulsed source rise time of zero & A requested pulsed source rise/fall time of
+zero really is zero in \Xyce{}.  In other simulators, requesting a zero
+rise/fall time causes them to use the printing interval found on the tran
+line.\\ \hline
+
+Mutual Inductor Model & Not the same as PSpice.  This is a Sandia developed
+model. \\ \hline
+
+\texttt{.PRINT} line shorthand & Output variables have to be specified as a
+V(node) or I(source). Listing the node alone will not work. \\ \hline
+
+BSIM3 level & In \Xyce{} the BSIM3 level=9.  In PSpice the BSIM3 is
+level=7. \\ \hline
+
+Interactive mode & \Xyce{} does not have an interactive mode.  \\ \hline
+
+Time integrator default tolerances & \Xyce{} has much tighter default solver
+tolerances than some other simulators (e.g., PSpice), and thus often takes
+smaller time steps.  As a result, it will often take a greater number of total
+time steps for a given time interval.  To have \Xyce{} take time steps
+comparable to those of PSpice, set the \texttt{RELTOL} and \texttt{ABSTOL} time
+integrator options to larger values (e.g., \texttt{RELTOL=1.0E-2, ABSTOL=1.0E-6}).
+\\ \hline
+
+{\tt.OPTIONS} statements \index{\texttt{.OPTIONS}} & \Xyce{} does 
+not support PSpice style
+\texttt{.OPTION} statements. In \Xyce{}, the various packages all (potentially)
+have their own separate \texttt{.OPTIONS} line in the netlist.  For a complete
+description, see section~\ref{Options_Reference}.  \\ \hline
+
+\texttt{DTMAX} & \Xyce{} does support a maximum time step-size
+control on the .tran line, but we discourage its use. The time 
+integration\index{solvers!time integration}
+\index{algorithm!time integration} algorithms within
+\Xyce{} use adaptive time-stepping methods that adjust the time-step
+size\index{time step!size} according to the activity in the analysis.  If the
+simulator is not providing enough accuracy, the \texttt{RELTOL} and
+\texttt{ABSTOL} parameters should be decreased for both the time integration
+package (\texttt{.OPTIONS TIMEINT}) and the transient nonlinear solver package
+(\texttt{.OPTIONS NONLIN-TRAN}).  We have found that in most cases specifying 
+the same maximum timestep that PSpice requires for convergence actually 
+slows \Xyce{} down by preventing it from taking larger timesteps when the 
+behavior warrants.  \\ \hline
+
+%Analog Behavioral Models & PSpice supports analog behavioral
+%modeling in the same way as PSpice through the E, F, G and H devices,
+%but \Xyce{} supports only the general ``B'' source.  \Xyce{}'s E and G
+%sources are purely SPICE 3F5 compatible linear sources.  For a
+%complete description, including rules for conversion to the \Xyce{}
+%equivalent, see section~\ref{PSpice_Ref}.  \\ \hline
+
+\texttt{.TRAN} ``\texttt{UIC}'' keyword & PSpice requires the use
+of a keyword \texttt{UIC} on the \texttt{.TRAN} line in order to use
+initial conditions via \texttt{IC} keywords on instance lines.  Doing so 
+also tells PSpice not to perform an operating point calculation. In
+\Xyce{}, \texttt{UIC} is ignored and produces a warning message.  \Xyce{} 
+always uses initial conditions specified with
+\texttt{IC} keywords, and the case of inductors and capacitors automatically 
+inserts a fictitious voltage source around the device that guarantees 
+the correct potential drop across the device during the operating point.  
+If the user desires that \Xyce{} not perform an operating point calculation, 
+but rather use an initial condition for a transient run of all zero 
+voltages, then the user should specify \texttt{NOOP} instead. \\ \hline
+
+Temperature specification & Device temperatures in \Xyce{} are 
+specified through the \texttt{.OPTIONS DEVICE} line.  PSpice 
+allows a \texttt{.TEMP} line that is not recognized (and is ignored) 
+by \Xyce{}. \\ \hline
+
+Lead currents for lossless transmission lines & PSpice uses \texttt{A} and
+\texttt{B} to reference the two terminals of the lossless tranmission line.  
+So, \Xyce{} uses \texttt{I1()} and \texttt{I2()}, while PSpice uses \texttt{IA()} 
+and \texttt{IB()} to access the lead currents for the device. \\ \hline
+
+Extended ASCII characters in \texttt{.LIB} files & The use of those characters 
+is fine in \Xyce{} comment lines.  It may be best to replace them with the 
+printable equivalent on other \Xyce{} netlist lines though. 
+\end{longtable}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:

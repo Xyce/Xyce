@@ -1,0 +1,968 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\chapter{Netlist Reference}
+\label{Netlist_Reference}
+\index{netlist!reference}
+
+\chapteroverview{Chapter Overview}
+{
+This chapter contains reference material directed towards working with circuit
+analyses in \Xyce{} using the netlist interface.  Included are
+detailed command descriptions, start-up option definitions and a list of
+devices supported by the \Xyce{} netlist interface.
+}
+
+\section{Netlist Commands}
+\label{Netlist_Commands}
+\index{netlist!commands}
+
+This section outlines the netlist commands that can be used with \Xyce{} to
+setup and control circuit analysis.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%\newpage
+\subsection{\texttt{.AC} (AC Analysis) }
+\index{\texttt{.AC}}
+\index{analysis!AC} \index{AC analysis}
+\input{AC_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.DATA} (Data Table for sweeps) }
+\index{\texttt{DATA}}
+\input{DATA_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.DC} (DC Sweep Analysis) }
+\index{\texttt{DC}}
+\index{analysis!DC} \index{DC analysis}
+\input{DC_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.DCVOLT} (Initial Condition, Bias point)}
+\index{\texttt{.DCVOLT}}
+\index{initial condition!DCVOLT}
+\index{initial condition}
+
+The \texttt{.DCVOLT} sets initial conditions for an operating point calculation.
+It is identical in function to the \texttt{.IC} command.  See
+section~\ref{IC_section} for detailed guidance.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.END} (End of Circuit)}
+Marks the end of netlist file.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.ENDS} (End of Subcircuit)}
+Marks the end of a subcircuit definition.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.FOUR} (Fourier Analysis)}
+\input{FOUR_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.FUNC} (Function)}
+\index{\texttt{.FUNC}}
+\input{FUNC_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.GLOBAL} (Global Node)}
+\index{\texttt{.GLOBAL}}
+\input{GLOBAL_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.GLOBAL\_PARAM} (Global parameter)}
+\index{\texttt{.GLOBAL\_PARAM}}
+\input{GLOBAL_PARAM_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.HB} (Harmonic Balance Analysis)}
+\input{HB_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.IC} (Initial Condition, Bias point)}
+\index{\texttt{.IC}}
+\input{IC_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.INC or .INCLUDE} (Include file)}
+\index{\texttt{.INC}}
+\input{INCLUDE_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.LIB} (Library file)}
+\index{\texttt{.LIB}}
+\input{LIB_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.LIN} (Linear Analysis)}
+\index{\texttt{.LIN}}
+\input{LIN_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.MEASURE or .MEAS} (Measure output)}
+\index{output!control}
+\index{results!output control}
+\index{\texttt{.MEASURE}}
+\input{MEASURE_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.MODEL} (Model Definition)}
+\index{model!definition}
+\input{MODEL_Command}
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% \newpage
+%% \subsection{\texttt{.MPDE} (Multi-Time Partial Differential Equation Analysis)}
+%% \input{MPDE_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.NODESET} (Approximate Initial Condition, Bias point)}
+\input{NODESET_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.NOISE} (Noise Analysis) }
+\index{\texttt{.NOISE}}
+\index{analysis!Noise} \index{Noise analysis}
+\input{NOISE_Command}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.OP} (Bias Point Analysis)}
+\input{OP_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.OPTIONS} Statements}
+\input{OPTIONS_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.PARAM} (Parameter)}
+\index{\texttt{.PARAM}}
+\input{PARAM_Command}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{PREPROCESS_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.PRINT} (Print output)}\label{.PRINT}
+\input{PRINT_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.RESULT} (Print results)}\label{.RESULT}
+\input{RESULT_Command}
+
+%%{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.SAMPLING} (Sampling UQ Analysis)}\label{.SAMPLING}
+\input{SAMPLING_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.SAVE} (Save operating point conditions)}
+\input{SAVE_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.SENS} (Compute DC or transient sensitivities)}
+\input{SENS_Command}
+
+%%{%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.STEP} (Step Parametric Analysis)}\label{.STEP}
+\input{STEP_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.SUBCKT} (Subcircuit)}
+\label{SubcircuitDefinition}
+\index{subcircuit}
+\input{SUBCKT_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{\texttt{.TRAN} (Transient Analysis)}
+\input{TRAN_Command}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\subsection{Miscellaneous Commands}
+\subsubsection{\texttt{*} (Comment)}
+\index{netlist!comment} A netlist comment line.  Whitespace at
+the beginning of a line is also interpreted as a comment unless it
+is followed by a \verb|+| symbol, in which case it treats the line as a continuation.
+
+\subsubsection{\texttt{;} (In-line Comment)}
+\index{netlist!in-line comment} Add a netlist in-line comment.
+
+\subsubsection{\texttt{+} (Line Continuation)}
+\index{netlist!line continuation} Continue the text of the previous line.
+
+\newpage
+\section{Expressions}
+\label{ExpressionDocumentation}
+\Xyce{} supports use of mathematical expressions in several contexts:
+\begin{XyceItemize}
+\item for the values of device instance and model parameters.
+\item in definition of parameters in \texttt{.PARAM} and \texttt{.GLOBAL\_PARAM} statements.
+\item for output on \texttt{.PRINT} lines.
+\end{XyceItemize}
+
+In all contexts where expressions are allowed, they should be enclosed
+in braces (\{\}).  For netlist compatibility with other simulators
+they may be enclosed in single quotation marks instead (\texttt{'}),
+but these are simply replaced with braces at a very early stage of
+netlist parsing.  It is recommended that the braces be used in
+netlists written specifically for \Xyce{}.
+
+The expression package in \Xyce{} supports all standard arithmetic
+operators, trigonometric functions, a collection of arithmetic
+functions, and some functions to mimic the pulse, sine, exp, and sffm
+time-dependent functions in the independent current and voltage sources.
+These functions are listed in tables \ref{Arithmetic_Functions} and
+\ref{SPICE_Functions}.
+
+\paragraph{Operators}
+\index{netlist!expression operators}
+\index{expressions!operators}
+\input{Expression_Operator}
+
+\paragraph{Special note on ternary operator}
+Note that the ternary operator is available for use in \Xyce{}.  This
+operator is the same as the ternary conditional operator in C, C++,
+Perl, and others.  The ternary expression \texttt{t?a : b} is
+equivalent to the function \texttt{IF(t,a,b)} described below.
+However, please be aware that the ternary operator has extremely low
+precedence just as it has in these other languages, and if parentheses
+are not used to make explicit which expressions are supposed to be
+part of the condition or true and false values, the resolution of the
+expression may be surprising.
+
+For example, the expression
+\begin{alltt}
+  1+a==b?1:0+1
+\end{alltt}
+is equivalent to the expression
+\begin{alltt}
+  IF(1+a==b,1,0+1)
+\end{alltt}
+because the ``+'' and ``=='' operators have higher precedence than
+either ``?'' or ``:''.  Similarly:
+\begin{alltt}
+  A==B?1:0 + A==C?2:0 + A==D?3:0
+\end{alltt}
+is equivalent to
+\begin{alltt}
+  if(A==B,1,IF(0 + A==C,2,IF(0 + A==D,3,0)))
+\end{alltt}
+Given the way the original expression is written, it appears that the
+intent was that the expression be evaluated as:
+\begin{alltt}
+  If(A==B,1,0) + IF(A==C,2,0) + IF(A==D,3,0)
+\end{alltt}
+This is not how the expression will be evaluated.  Fortunately,
+because of the use of ``0'' to the right of the colons in each case,
+the expression just happens to give the desired result in either
+interpretation, but Xyce is using the nested IF equivalent.
+
+Finally, due to restrictions on the expression parser, {\bf it is essential
+that ternary operators never be written so that a bare parameter is
+directly to the left of a colon}.  This is because colons are actually
+legal characters in parameters --- the colon represents hierarchy, so
+that \texttt{R1:R} means the R parameter of device R1, and
+\texttt{X1:A} refers to the node A of subcircuit X1.  Therefore, it is
+necessary to put at least one character that is invalid in parameter names
+in between the colon and the parameter.  It is sufficient to use a space.
+\begin{alltt}
+    {\color{red} (A==B)?C:D}  ; this expression will generate a syntax error
+    {(A==B)?C :D}  ; this expression is acceptable
+    {(A==B)?C+0:D}  ; this expression is acceptable
+    {(A==B)?(C):D}  ; this expression is acceptable
+\end{alltt}
+
+\paragraph{Arithmetic Functions}
+\input{Expression_Arithmetic_Functions}
+
+\paragraph{Spice Compatable Functions}
+\index{netlist!functions}
+\index{expressions!SPICE functions}
+\input{Expression_Spice_Functions}
+
+Information about the restrictions on expressions in specific contexts
+is given in the subsections that follow.
+
+\subsection{Expressions in \texttt{.PARAM} or \texttt{.GLOBAL\_PARAM} Statements}
+
+Expressions used in \texttt{.PARAM} statements are the most highly
+constrained.  They must evaluate to a constant at the beginning of a
+run, and therefore must involve only numerical constants and other
+previously defined \texttt{.PARAM}s.  The value of the parameter will
+be computed when the netlist is parsed, and will replace the name
+wherever it is used.
+
+\Example{.PARAM SQUARES=5.0}
+\Example{.PARAM SHEETRES=25}
+\Example{.PARAM RESISTANCE=\{SQUARES*SHEETRES\}}
+
+Global parameters are somewhat less constrained.  These parameters are
+allowed to depend on parameters defined in \texttt{.PARAMS} or
+\texttt{.GLOBAL\_PARAMS} statements, and may contain special variables
+such as \textrm{TIME}, \textrm{TEMP} or \textrm{VT}.  They may not contain any
+references to solution variables or lead currents.
+
+\Example{.PARAM dTdt=.01}
+\Example{.GLOBAL\_PARAM Temperature=\{27+dTdt*TIME\}}
+
+\subsection{Expressions in \texttt{.PRINT} Lines}
+
+Expressions on \texttt{.PRINT} lines may contain references to
+parameters defined in either \texttt{.PARAM} or
+\texttt{.GLOBAL\_PARAM} statements, device parameters using the syntax
+\texttt{<device name>:<parameter name>}, and may also contain solution
+variables.
+
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+\color{blue}*example with .print expressions\color{black}
+.PARAM RES=50
+R1 1 0 \{RES\}
+V1 1 0 sin(0 5 100khz)
+.tran 1u 1m
+*Print power dissipated through resistor,
+*and actual resistance used in the R1
+*device
+.print tran \{V(1)*V(1)/RES\} \{R1:R\}
+.end
+\end{vquote}
+\end{minipage}
+}
+\end{centering}
+
+\subsection{Limitations on Using Complex Values in Expressions}
+\label{ComplexExpressions}
+The \Xyce{} expression library was not written to work with complex
+quantities.  If AC voltages are used in expressions then the
+expression library uses only the real part.  While the expression
+library was expanded recently to recognize the various components of
+complex quantities, such as real and imaginary parts (\texttt{VR(A)}
+and \texttt{VI(A)}) or the magnitude and phase (\texttt{VM(A)} or
+\texttt{VP(A)}), the arithmetic operators in the \Xyce{} expression
+library only work on real quantities.  The following approaches can be
+used to work around those limitations.
+
+The voltage drop between two nodes \texttt{N0} and \texttt{N1} can be
+printed with the two-node variant of the \texttt{V()} accessor:
+\begin{vquote}
+.PRINT AC  V(N0,N1)
+\end{vquote}
+For any other sort of complex arithmetic, the expression must use the
+real and imaginary parts of the variables in question.  An example is
+as follows, where the real and imaginary parts of the desired
+quantities are calculated and printed separately:
+\begin{vquote}
+.PRINT AC \{VR(N0)-VR(N1)\} \{VI(N0)-VI(N1)\}
++ \{VR(N0)*VR(N1)-VI(N0)*VI(N1)\} \{VR(N0)*VI(N1)+VI(N0)*VR(N1)\}
+\end{vquote}
+instead of:
+\begin{vquote}
+.PRINT AC \{V(N0)-V(N1)\}  \{V(N0)*V(N1)\}
+\end{vquote}
+
+\subsection{Expressions for Device Instance and Model Parameters}
+
+Expressions of constants and \texttt{.PARAM} parameters may be used
+for the values of any device parameters in instance and model lines.
+
+Except in very specific devices, expressions used for device parameter
+values must evaluate to a time-independent constant, and must not
+contain dependence on solution variables such as nodal voltages or
+currents.  In these cases, \texttt{.GLOBAL\_PARAM} parameters may also
+be used as long as they are not time-dependent.
+
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+\color{blue}*example of use of expressions for device parameters \color{black}
+.PARAM RES=50
+.GLOBAL\_PARAM theSaturationCurrent=1.5e-14
+R1 1 0 \{RES\}
+V1 1 0 sin(0 5 100khz)
+D1 1 0 DMODEL
+.MODEL D DMODEL IS={theSaturationCurrent}
+
+.step theSaturationCurrent 1e-14 5e-14 1e-14
+\end{vquote}
+\end{minipage}
+}
+\end{centering}
+
+Some parameters of specific devices are exceptions to the general
+rule.  These parameters have no restrictions and may depend on any
+parameters, time, or solution variables in the
+netlist:
+\begin{XyceItemize}
+\item The \textrm{V} or \textrm{I} instance parameters of the
+  \texttt{B} source.
+\item The \textrm{CONTROL} instance parameter of the switch (\texttt{S}
+  device).
+\item The \textrm{C} (capacitance) instance parameter for the capacitor.
+\item The coupling coefficient instance parameter for the {\em LINEAR}
+  mutual inductor (\texttt{K} device with no model card specified)
+\end{XyceItemize}
+
+These specific instance parameters may be time-depdendent (i.e. they
+may reference the \texttt{TIME} special variable, but may not depend
+on any solution variables:
+
+\begin{XyceItemize}
+\item The \textrm{TEMP} instance parameter of all devices.
+\item The \textrm{L} (inductance) parameter of the inductor.
+\item The \textrm{R} (resistance) parameter of the resistor.
+\item The \textrm{R}, \textrm{RESISTIVITY}, \textrm{DENSITY}, \textrm{HEATCAPACITY} and \textrm{THERMAL\_HEATCAPACITY} parameters of the thermal resistor (resistor level 2).
+\end{XyceItemize}
+%\newpage
+
+%%
+%% PSpice POLY
+%\clearpage
+\subsection{Special PSpice POLY expression}
+\label{PspicePoly}
+\index{analog behavioral modeling!POLY}
+\index{analog behavioral modeling!polynomial expression}
+\index{POLY}
+\input{POLY_Keyword}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\section{Devices}
+\label{Analog_Devices}
+\index{device!analog}
+
+\Xyce{} supports many devices, with an emphasis on analog devices, including
+sources, subcircuits and behavioral models.  This section serves as a reference
+for the devices supported by \Xyce{}.  Each device is described separately and
+includes the following information, if applicable:
+\begin{XyceItemize}
+\item a description and an example of the correct netlist syntax.
+\item the matching model types and their description.
+\item the matching list of model parameters and associated descriptions.
+\item the corresponding
+%circuit diagram and
+ characteristic equations for the model (as required).
+\item references to publications on which the model is based.
+\end{XyceItemize}
+User-defined models may be implemented using the \index{netlist!model
+definition}\index{\texttt{.MODEL}} \texttt{.MODEL} (model definition)
+statement, and macromodels can be created as subcircuits using the
+\index{netlist!subcircuit} \texttt{.SUBCKT}\index{\texttt{.SUBCKT}}
+(subcircuit) statement.
+
+Please note that the characteristic equations\index{device!equations} are
+provided to give a general representation of the device behavior.  The actual
+\Xyce{} implementation of the device may be slightly different in order to
+improve, for example, the robustness of the device.
+
+Table~\ref{Device_Summary} gives a summary of the device types and the form of
+their netlist formats.  Each of these is described below in detail.
+
+\input{analogtbl}
+
+\input{deviceFeatureSupportTbl}
+
+\clearpage
+\subsection{Voltage Nodes}
+\label{Voltage_Nodes}
+\index{device!nodes} \index{Voltage Nodes} \index{netlist!nodes}
+
+Devices in a netlist are connected between {\em nodes}, and all device
+types in \Xyce{} require at least two nodes on each instance line. Section
+~\ref{legalCharacters} lists the characters that are legal and illegal in
+\Xyce{} node and device names.
+
+Except for global nodes (below), voltage node names appearing in a
+subcircuit that are not listed in the subcircuit's argument list are
+accessible only to that subcircuit; devices outside the subcircuit
+cannot connect to local nodes.
+
+\subsubsection{Global nodes}
+A special syntax is used to designate certain nodes as {\em global}
+nodes.  Any node whose name starts with the two characters ``\$G'' is
+a global node, and such nodes are available to be used in any
+subcircuit.  A typical usage of such global nodes is to define a \texttt{VDD}
+or \texttt{VSS} signal that all subcircuits need to be able to access, but
+without having to provide \texttt{VSS} and \texttt{VDD} input
+nodes to every subcircuit.  In this case, a global \texttt{\$GVDD} node
+would be use for the VDD signal.
+
+The node named \texttt{0} is a special global node.  Node \texttt{0}
+is always ground, and is accessible to all levels of a hierarchical
+netlist.
+
+For compatibility with HSPICE, the \texttt{.GLOBAL} command can
+be used to define global nodes that do not start with the two
+characters ``\$G''.  See section \ref{GLOBAL_section} for more details.
+
+\subsubsection{Subcircuit Nodes}
+
+Hierarchical netlists may be created using
+\texttt{.SUBCKT} [\ref{SubcircuitDefinition}] to define common subcircuit
+types, and \texttt{X} [\ref{SubcircuitInstance}] lines to create
+instances of those subcircuits.  There are two types of nodes
+associated with such subcircuits, {\em interface\/} nodes and {\em
+internal\/} nodes.
+
+Interface nodes are the nodes named on the \texttt{.SUBCKT} line.
+These are effectively local aliases internal to the subcircuit
+definition for the node names used on the \texttt{X} instance lines.
+Internal nodes are nodes inside the subcircuit definition that are
+strictly local to that subcircuit.  Inside a subcircuit, these node
+names may be used without restriction in device instance lines and
+expressions on \texttt{B} source lines.
+
+There are some circumstances when it is desirable to access internal
+nodes of a subcircuit from outside that subcircuit.  \Xyce{} provides a
+syntax that allows this to be done in {\em some\/} contexts.  The
+primary context in which this is supported is on \texttt{.PRINT}
+lines, to allow the user to print out signals that are usually local
+to a subcircuit.
+
+The syntax used by \Xyce{} to refer to nodes within a subcircuit is to
+prefix the name of the node with the full path of subcircuit instances
+in which the node is contained, with colons (:) separating the
+instance names.  So, to reference a node ``A'' that is inside a
+subcircuit instance called ``Xnot1'' inside another subcircuit
+instance called ``Xmain'', one would refer to ``Xmain:Xnot1:A''
+
+The same syntax works on \texttt{.PRINT} lines even if the subcircuit
+node is one of the interface nodes on the \texttt{.SUBCKT} line, but
+those nodes can also be accessed by using the names of the nodes at
+the higher level of circuit hierarchy that are used on its instance
+line.
+
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+\color{blue}* Netlist file demonstrating subcircuit node access\color{black}
+V1  1   0   1
+X1  1   2   demosubc
+X2  2   0   demosubc
+.subckt demosubc A B
+R1 A C 1
+R2 C B 1
+.ends
+
+.dc V1 1 5 1
+
+*V(X1:A) and V(1) are the same signal.
+*V(X1:C) is the internal C node of the X1 instance
+*V(X2:C) is the internal C node of the X2 instance
+*V(X1:B), V(X2:A) and V(2) are the same signal
+.print DC V(X1:C) V(X2:C) V(X1:A) V(1)  V(X1:B) V(X2:A) V(2)
+.end
+\end{vquote}
+\end{minipage}
+}
+\end{centering}
+
+Subcircuit nodes may also be accessed from outside of the subcircuit
+in \texttt{B} source voltage or current expressions, though this usage
+violates the strict hierarchy of the netlist.  The one difference
+between this usage and \texttt{.PRINT} usage is that it is not
+possible to use the subcircuit node syntax to access interface nodes.
+These must be accessed using the node names being used on the instance
+line, as in the ``V(1)'' example in the netlist fragment above.
+
+%%
+%% Legal and illegal characters in device names and node names
+%%
+\subsection{Legal Characters in Node and Device Names}
+\label{legalCharacters}
+\index{legal characters} \index{illegal characters}
+\Xyce{} node names and device names can consist of any printable ASCII
+characters, with the following exceptions and caveats which may be
+different than other SPICE-like circuit simulators.  The exceptions are:
+\begin{XyceItemize}
+\item White space (space, tab, newline) is not allowed.
+\item Parentheses (``('' or ``)''), braces (``\{'' or ``\}''), commas,
+colons, semi-colons, double quotes and single quotes are also not
+allowed, since they do not work correctly in node names or device names
+in all netlist contexts in \Xyce{}.
+\end{XyceItemize}
+The caveats are as follows:
+\begin{XyceItemize}
+\item The star character (*) is allowed in both node names and device
+names.  However, \texttt{.PRINT TRAN V(*)} has a special meaning in \Xyce{}.
+So, the single-character node name of * is discouraged.
+\item Global nodes in \Xyce{} begin with the two characters ``\$G''.
+\item The node named \texttt{0} (``zero'') is a special global node,
+which is always the ground node.
+\item These arithmetic operators \verb|%| \verb|^| \verb|&|
+\verb|~| \verb|*| \verb|-| \verb|+| \verb|<| \verb|>| \verb|/|
+\verb+|+ should not be used in node or device names that will
+be used outside of a \Xyce{} ``operator'', such as \texttt{V()}, within
+a \Xyce{} expresson.  Examples of this caveat are given below.
+\item The \verb|#| character should not be used as the first character
+of a node name that will be used within an expression.  Examples of this
+caveat are also given below.
+\end{XyceItemize}
+These are some examples of the caveats of the use of arithmetic operators
+and \verb|#| character within expressions:
+\begin{verbatim}
+* Okay since the + in the node name is enclosed within the V() operator.
+.PRINT TRAN {V(1+) - V(+)}
+* Okay since the R+ and R- device names are enclosed within the I() operator.
+.PRINT TRAN {I(R+) * I(R-)}
+* Okay, for printing the resistance value, since the R-1 device name
+* is not used in an expression.
+.PRINT TRAN R-1:R
+* Will produce a parsing error, since the R-1 device name is used outside
+* of an operator.  That makes this statement ambiguous within an expression.
+.PRINT TRAN {R-1:R}
+* These uses of # are okay.
+.PRINT TRAN V(#) {V(1#) -1}
+* These usages of # are parsing errors, since # is the first character
+* in the node names.
+.PRINT TRAN {V(#) - 2} {V(#1) -1}
+\end{verbatim}
+
+%%
+%% Lead Current and Power Calculations
+%%
+\subsection{Lead Currents and Power Calculations}
+\label{leadCurrentPowerCalculations}
+\index{lead currents} \index{power calculations} For some devices,
+such as independent voltage and current sources, the current through
+that device is a ``solution'' variable.  For other devices, the
+current through the device is a ``lead current'', whose value is
+calculated during a post-processing step.  This approach has
+ramifications in \Xyce{} for the availability and accuracy of lead
+current values.  In particular, both lead currents and power
+calculations need to have been explicitly enabled for a given device,
+analysis type (e.g., \texttt{.AC}) or netlist command (e.g.,
+\texttt{.MEASURE}).
+
+For voltage sources, both V and I are solution variables.  So, their
+accuracy is more likely to be limited by the nonlinear solver
+tolerances (\texttt{RELTOL} and \texttt{ABSTOL}).  The lead current
+accuracy, for a device like the resistor, can also be limited by the
+right-hand side tolerance \texttt{RHSTOL}.  So, the calculated lead
+currents through very small resistances (e.g., 1e-12) may be
+inaccurate if the default solver tolerances for \Xyce{} are used.
+
+Lead currents have the following additional limitations:
+\begin{XyceItemize}
+\item They are not enabled for \texttt{.AC} analyses.
+\item They are not allowed in the expression controlling a B-Source.
+\item They do not work for \texttt{.RESULT} statements.
+\end{XyceItemize}
+
+Lead currents and power calculations are available in
+\texttt{.MEASURE} and \texttt{.FOUR} statements.
+
+At this time the power calculations are only supported for {\tt .DC}
+and {\tt .TRAN} analysis types and for a limited set of devices. In
+addition, the results for semiconductor devices (D, J, M, Q and Z
+devices) and the lossless transmission device (T device) may differ
+from other simulators.  Consult the Features Supported by Xyce Device
+Models table in section \ref{Analog_Devices} and the individual
+sections on each device for more details.
+
+As an example, the power supplied or dissipated by the voltage source
+{\tt V} is calculated as $I \cdot \Delta V$ where the voltage drop is
+calculated as $(V_+ - V_-)$ and positive current flows from $V_+$ to
+$V_-$.  Dissipated power has a positive sign, while supplied power has
+a negative sign.
+
+An important note is that the power calculations are also a
+post-processing step, which places a limit on the accuracy of
+circuit-wide ``energy conservation'' calculations (e.g., total power
+supplied by sources - total power dissipated in non-source devices) in
+\Xyce{}.  The accuracy of the inputs ({\tt V} and {\tt I}) to the
+power calculations is limited by the nonlinear solver and right-hand
+side tolerances, as noted above, and the error in the power
+calculations is upper-bounded by the sum of the product-terms of {\tt
+  V*(error in I)} and {\tt I*(error in V)}.
+
+
+%%
+%% Capacitor
+%%
+\clearpage
+\subsection{Capacitor}
+\index{device!capacitor} \index{capacitor}
+\input{C_Device}
+
+%%
+%% Inductor
+%%
+\clearpage
+\subsection{Inductor}
+\index{device!inductor} \index{inductor}
+\input{L_Device}
+
+%%
+%% Mutual Inductors
+%%
+\clearpage
+\subsection{Mutual Inductors}
+\label{MutualInductor}
+\index{device!mutualinductor} \index{mutualinductor}
+\input{K_Device}
+
+%%
+%% Resistor
+%%
+\clearpage
+\subsection{Resistor}
+\index{device!resistor} \index{resistor}
+\input{R_Device}
+
+%%
+%% Diode
+%%
+\clearpage
+\subsection{Diode}
+\index{device!diode} \index{diode}
+\input{D_Device}
+
+%%
+%% Independent Current Source
+%%
+\clearpage
+\subsection{Independent Current Source}
+\index{device!independent voltage source} \index{independent voltage source}
+\index{current source!independent}
+\label{IndependentCurrentSource}
+\input{I_Device}
+
+%%
+%% Independent Voltage Source
+%%
+\clearpage
+\subsection{Independent Voltage Source}
+\index{device!independent voltage source} \index{independent voltage source}
+\index{voltage source!independent}
+\input{V_Device}
+
+%%
+%% Voltage-Controlled Voltage-Source Section
+%%
+\clearpage
+\subsection{Voltage Controlled Voltage Source}
+\index{device!voltage controlled voltage source} \index{voltage controlled voltage source}
+\index{voltage source!voltage controlled}
+\input{E_Device}
+
+%%
+%% Current-Controlled Current-Source Section
+%%
+\clearpage
+\subsection{Current Controlled Current Source}
+\index{device!current controlled current source} \index{current controlled current source}
+\index{current source!current controlled}
+\input{F_Device}
+
+%%
+%% Voltage-Controlled Current-Source Section
+%%
+\clearpage
+\subsection{Voltage Controlled Current Source}
+\index{device!voltage controlled current source} \index{voltage controlled current source}
+\index{current source!voltage controlled}
+\input{G_Device}
+
+%%
+%% Current-Controlled Voltage-Source Section
+%%
+\clearpage
+\subsection{Current Controlled Voltage Source}
+\index{device!current controlled voltage source} \index{current controlled voltage source}
+\index{voltage source!current controlled}
+\input{H_Device}
+
+%%
+%% BSource Section
+%%
+\clearpage
+\subsection{Nonlinear Dependent Source}
+\label{B_Source_Device}
+\index{device!bsource} \index{bsource}
+\index{voltage source!nonlinear dependent} \index{current source!nonlinear dependent}
+\input{B_Device}
+
+%%
+%% BJT Section
+%%
+\clearpage
+\subsection{Bipolar Junction Transistor (BJT)}
+\index{device!BJT} \index{BJT}
+\input{Q_Device}
+
+%%
+%% JFET Section
+%%
+\clearpage
+\subsection{Junction Field-Effect Transistor (JFET)}
+\index{device!JFET} \index{JFET}
+\input{J_Device}
+
+%%
+%% MESFET Section
+%%
+\clearpage
+\subsection{Metal-Semiconductor FET (MESFET)}
+\index{device!MESFET} \index{MESFET}
+\input {Z_Device}
+
+%%
+%% MOSFET Subsection
+%%
+\clearpage
+\subsection{MOS Field Effect Transistor (MOSFET)}
+\index{device!MOSFET} \index{MOSFET}
+\input{M_Device}
+
+%%
+%% Lossy Transmission Line Model (LTRA)
+%%
+\clearpage
+\subsection{Lossy Transmission Line (LTRA)}
+\index{device!ltra} \index{lossy transmission line}
+\index{device!transmission line!lossy}
+\input{O_Device}
+
+%%
+%% Voltage- or Current-controlled Switch Subsection
+%%
+\clearpage
+\subsection{Voltage- or Current-controlled Switch}
+\index{device!controlled switch} \index{controlled switch}
+\input{S_Device}
+
+%%
+%% Generic Switch Subsection
+%%
+\clearpage
+\subsection{Generic Switch}
+\index{device!generic switch} \index{generic switch}
+\input{SW_Device}
+
+%%
+%% Lossless, Ideal Transmission Line Subsection
+%%
+\clearpage
+\subsection{Lossless (Ideal) Transmission Line}
+\index{device!lossless transmission line} \index{lossless transmission line}
+\index{device!transmission line!lossless}
+\input{T_Device}
+
+%%
+%% Lumped Transmission Line Subsection
+%%
+\clearpage
+\subsection{Lumped Transmission Line}
+\index{device!lumped transmission line} \index{lumped transmission line}
+\index{device!transmission line!lumped}
+\input{Transline_Device}
+
+%%
+%% U Type Digital Device
+%%
+\clearpage
+\subsection{Behavioral Digital Devices}
+\index{device!digital devices} \index{digital devices}
+\input{U_Device}
+
+%%
+%% Behavioral Digital Devices - Y Type now deprecated
+%%
+\clearpage
+\subsection{Y-Type Behavioral Digital Devices (Deprecated)}
+\index{device!digital devices, Y type} \index{Y type digital devices}
+\input{DIGITAL_Device}
+
+%%
+%% YACC device Subsection
+%%
+\clearpage
+\subsection{Accelerated mass}
+\index{accelerated mass device}
+\input{ACC_Device}
+
+%%
+%% Power Grid device Subsection
+\clearpage
+\subsection{Power Grid}
+\index{power grid}
+\input{Power_Grid_Device}
+
+%%
+%% Anti-Windup Limiter device Subsection
+%\clearpage
+%\subsection{Anti-Windup Limiter}
+%\index{anti-windup limiter}
+%\input{Anti_Windup_Limiter_Device}
+
+%%
+%% Memristor Device subsection
+%%
+\clearpage
+\subsection{Memristor Device}
+\index{memristor}
+\input{MemristorTEAM}
+\input{MemristorYakopcic}
+\input{MemristorPEM}
+
+%%
+%% Subcircuit Subsection
+%%
+\clearpage
+\subsection{Subcircuit}
+\label{SubcircuitInstance}
+\index{subcircuit}
+\input{X_Device}
+
+%%
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+% END of Xyce_RG_app1.tex ************

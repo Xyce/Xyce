@@ -1,0 +1,196 @@
+
+======================================================================================
+======================================================================================
+                      Silicon Integration Initiative (Si2)
+                    Compact Model Coalition In-Code Statement
+
+  Software is distributed as is, completely without warranty or service support. The
+  Commissariat a l'energie atomique et aux energies alternatives (CEA), NXP
+  Semiconductors, and Delft University of Technology, along with their employees are
+  not liable for the condition or performance of the software.
+
+  NXP Semiconductors, Delft University of Technology, and CEA own the copyright and
+  grant users a perpetual, irrevocable, worldwide, non-exclusive, royalty-free license
+  with respect to the software as set forth below.
+  
+  NXP Semiconductors, Delft University of Technology, and CEA hereby disclaim all
+  implied warranties.
+
+  NXP Semiconductors, Delft University of Technology, and CEA grant the users the right
+  to modify, copy, and redistribute the software and documentation, both within the
+  user's organization and externally, subject to the following restrictions:
+  
+    1. The users agree not to charge for the NXP Semiconductors, Delft University of
+       Technology, and CEA-developed code itself but may charge for additions,
+       extensions, or support.
+
+    2. In any product based on the software, the users agree to acknowledge NXP
+       Semiconductors, Delft University of Technology, and CEA that developed the
+       software. This acknowledgment shall appear in the product documentation.
+
+    3. Redistributions to others of source code and documentation must retain the
+       copyright notice, disclaimer, and list of conditions.
+
+    4. Redistributions to others in binary form must reproduce the copyright notice,
+       disclaimer, and list of conditions in the documentation and/or other materials
+       provided with the distribution.
+
+
+  CMC In-Code Statement Revision: 103.4.0 (PSP), 9/9/2016
+                                  200.5.0 (JUNCAP),9/9/2016
+
+======================================================================================
+======================================================================================
+
+  Authors: G.D.J. Smit, A.J. Scholten, and D.B.M. Klaassen (NXP Semiconductors)
+           O. Rozeau, S. Martinie, T. Poiroux, J.C. Barbé (CEA-Leti)
+
+  Former contributers:
+           G. Gildenblat, W. Yao, Z. Zhu, X. Li and W. Wu (Arizona State University)
+           R. van Langevelde (Philips Research)
+           R. van der Toorn (Delft University of Technology)
+
+  The most recent version of the model code, the documentation, and contact
+  information can be found on:
+
+       http://www.cea.fr/cea-tech/leti/pspsupport
+       
+======================================================================================
+======================================================================================
+
+This package consists of the following files:
+
+     - releasenotesPSP103.txt         This file
+
+     - psp103.va                      Main file for PSP model
+     - psp103t.va                     Main file for PSP model with self heating
+     - psp103_nqs.va                  Main file for PSP model with NQS-effects
+     - juncap200.va                   Main file for JUNCAP2 stand-alone model
+
+     - Common103_macrodefs.include    Common macro definitions
+     - PSP103_macrodefs.include       Macro definitions for PSP
+     - PSP103_module.include          Actual model code for intrinsic MOS model
+     - PSP103_SPCalculation.include   Surface potential and related calculations
+     - PSP103_binning.include         Geometry scaling equation for binning
+     - PSP103_binpars.include         Parameterlist for global PSP binning model
+     - PSP103_nqs_macrodefs.include   Macro definitions for PSP-NQS
+     - PSP103_InitNQS.include         PSP-NQS initialization code
+     - PSP103_ChargesNQS.include      Calculation of NQS-charge contributions
+     - JUNCAP200_macrodefs.include    Macro definitions for JUNCAP2 model
+     - JUNCAP200_parlist.include      JUNCAP2 parameter list
+     - JUNCAP200_varlist1.include     JUNCAP2 variable declarations
+     - JUNCAP200_varlist2.include     JUNCAP2 variable declarations
+     - JUNCAP200_InitModel.include    JUNCAP2 model initialization code
+
+======================================================================================
+======================================================================================
+
+Usage
+-----
+
+Depending which model one wants to use, one should compile one of the four .va-files
+(psp103.va, psp103t.va, psp103_nqs.va, and juncap200.va). The module names are
+"PSP103VA", "PSP103TVA", and "PSPNQS103VA" (for QS, self heating, and NQS,
+respectively), and "JUNCAP200" for the JUNCAP2-model.
+
+
+======================================================================================
+======================================================================================
+
+Release notes vA-code of PSP 103.4.0 (August 2016)
+---------------------------------------------------------
+
+Changes:
+
+- Common103_macrodefs.include: 
+    - Bug fix on expl function
+    - Addition of CMC functions for parameter and .OP variable declarations
+
+- PSP103_macrodefs.include:
+    - new macro for inversion charge calculation of edge transistors
+    - TempInit1 becomes TempInitialize
+    - TempInit2, TempInit3 and TempScaling macros are merged into TempScaling macro
+    - Calculation of qq variable is now into initial_instance section of
+      PSP103_module.include
+    - Calculation of Dch variable is now into "gate-channel component of gate current"
+      of PSP103_module.include
+    - Temperature dependences of edge transistor variables
+    - Vdsat_lim variable is now calculated into "TempScaling" section
+    - phit1 is replaced by phit0
+    - In the MNE and MXE functions: temp1 and temp2 are replaced by tme1 and tme2,
+      respectively.
+    - Variables LEN and WEN are defined as constants
+    - In the sp_s function: x1 is replaced by the value 1.25
+    - Changing of variable declaration is SPcalcLocalVarDecl function
+
+- PSP103_module.include:
+    - Changing of variable declaration
+    - New parameter for induced gate noise selection: SWIGN
+    - Use CMC functions for parameter declarations
+    - Use CMC functions for OP variable declarations
+    - Calculation of qq variable is now in initial_instance section (independent
+      temperature variable)
+    - Calculation of Dch variable is now into "gate-channel component of gate current"
+      (to include PSCE effect on phit1)
+    - Addition of local and global parameters for short channel effect on subthreshold
+      slope
+    - Addition of local and global parameters for DIBL
+    - Addition of local and global parameters for edge transistors
+    - Drain current calculation of edge transistors
+    - Addition of .OP variables related to the edge transistors
+    - Addition of .OP variables related to new parameters: PSCE, PSCEB and PSCED
+    - Modification of induced gate noise calculation using one internal node
+    - Addition of noise sources related to the edge transistors
+    - denom variable is named deltaRth
+    - tempM variable is named B_fact
+    - RTHt is named RTH_T
+    - temp, temp1 and temp2 variables are initialized in evaluateStatic section
+    - the impact ionization current is calculated by including the edge current
+    - Gf_ac and x_m_ac are declared and used only when NSQ is activated
+    - In OPinfo section; temp variable is replaced by the neww variable ids_i
+
+- PSP103_SPCalculation.include:
+    - Vdsat_lim is now into "TempScaling" section of PSP103_macrodefs.include
+    - phit1 is calculated using PSCE, PSCED and PSCEB parameters for SCE effect on
+      subthreshold slope
+    - Modification of DIBL expression including new parameter CFD (backward compatible
+      if CFD=0)
+
+- PSP103_binning.include:
+    - Addition of binning functions for edge transistors
+    - Addition of binning parameters for short channel effect on subthreshold slope
+      and DIBL
+
+- PSP103_binpars.include:
+    - Use CMC functions for parameter declarations
+    - Addition of binning parameters for edge transistors
+    - Addition of binning parameters for short channel effect on subthreshold slope
+      and DIBL
+
+- juncap200.va:
+    - In mypower3 function: "result = pow(x, power)" is replaced by
+      "result = pow(abs(x), power);"
+    - In juncapfunction function: "`mypower3(abs(vav * VBRinv), PBR, tmp)" is replaced
+      by "`mypower3(vav * VBRinv, PBR, tmp)"
+
+- juncap200.va:
+    - Use CMC functions for parameter declarations
+    - Use CMC functions for OP variable declarations
+
+- JUNCAP200_parlist.include:
+    - Use CMC functions for parameter declarations
+    - New model parameter FREV related to the reverse breakdown current limitation
+
+- JUNCAP200_InitModel.include:
+   - Calculation of alphaav variable (that replaces the constant 'alphaav) related to
+     the reverse breakdown current limitation 
+
+PSP 103.4.0 is backwards compatible with the previous version, PSP 103.3.0
+
+======================================================================================
+======================================================================================
+
+The authors want to thank Laurent Lemaitre and Colin McAndrew (Freescale)
+for their help with ADMS and the implementation of the model code. Geoffrey
+Coram (Analog Devices) is acknowledged for input concerning the Verilog-A
+implementation of the model.

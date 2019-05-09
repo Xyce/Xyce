@@ -1,0 +1,63 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+HB Analysis generates one output file in the frequency domain and one in the
+time domain based on the format specified by the \texttt{.PRINT}
+command.  Additional startup and initial conditions output can be
+generated based on \texttt{.OPTIONS} commands.
+
+Note that when using the \texttt{.PRINT HB} to create the variable list
+for time domain output, usage of frequency domain functions like \texttt{VDB} can
+result in -Inf output being written to the output file.  This is easily
+solved by defining a \texttt{.PRINT HB\_TD}, \texttt{.PRINT HB\_IC} and
+\texttt{.PRINT HB\_STARTUP} commands to specify the correct output for
+the time domain data.
+
+Homotopy output can also be generated.
+
+{
+\begin{PrintCommandTable}{Print HB Analysis Type}
+.PRINT HB & \emph{circuit-file}.HB.TD.prn \newline \emph{circuit-file}.HB.FD.prn  \newline \emph{circuit-file}.hb\_ic.prn & INDEX TIME \newline INDEX FREQ \newline INDEX TIME \\ \hline
+.PRINT HB FORMAT=GNUPLOT & \emph{circuit-file}.HB.TD.prn \newline \emph{circuit-file}.HB.FD.prn  \newline \emph{circuit-file}.hb\_ic.prn & INDEX TIME \newline INDEX FREQ \newline INDEX TIME \\ \hline
+.PRINT HB FORMAT=NOINDEX & \emph{circuit-file}.HB.TD.prn \newline \emph{circuit-file}.HB.FD.prn  \newline \emph{circuit-file}.hb\_ic.prn & TIME \newline FREQ \newline TIME \\ \hline
+.PRINT HB FORMAT=CSV & \emph{circuit-file}.HB.TD.csv \newline \emph{circuit-file}.HB.FD.csv  \newline \emph{circuit-file}.hb\_ic.csv &  TIME \newline FREQ \newline TIME \\ \hline
+.PRINT HB FORMAT=TECPLOT & \emph{circuit-file}.HB.TD.dat \newline \emph{circuit-file}.HB.FD.dat  \newline \emph{circuit-file}.hb\_ic.dat &  TIME \newline FREQ \newline TIME \\ \hline
+
+.PRINT HB\_FD & \emph{circuit-file}.HB.FD.prn & INDEX FREQ \\ \hline
+.PRINT HB\_FD FORMAT=GNUPLOT& \emph{circuit-file}.HB.FD.prn & INDEX FREQ \\ \hline
+.PRINT HB\_FD FORMAT=NOINDEX & \emph{circuit-file}.HB.FD.prn & FREQ \\ \hline
+.PRINT HB\_FD FORMAT=CSV & \emph{circuit-file}.HB.FD.csv &  FREQ \\ \hline
+.PRINT HB\_FD FORMAT=TECPLOT & \emph{circuit-file}.HB.FD.dat & FREQ \\ \hline
+
+.PRINT HB\_TD & \emph{circuit-file}.HB.TD.prn & INDEX TIME \\ \hline
+.PRINT HB\_TD FORMAT=GNUPLOT & \emph{circuit-file}.HB.TD.prn & INDEX TIME \\ \hline
+.PRINT HB\_TD FORMAT=NOINDEX & \emph{circuit-file}.HB.TD.prn & TIME \\ \hline
+.PRINT HB\_TD FORMAT=CSV & \emph{circuit-file}.HB.TD.csv & TIME \\ \hline
+.PRINT HB\_TD FORMAT=TECPLOT & \emph{circuit-file}.HB.TD.dat & TIME \\ \hline
+
+\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries  Startup Period} \\ \hline
+.OPTIONS HBINT STARTUPPERIODS=<n> \newline .PRINT HB\_STARTUP & \emph{circuit-file}.startup.prn & INDEX TIME \\ \hline
+.OPTIONS HBINT STARTUPPERIODS=<n> \newline .PRINT HB\_STARTUP FORMAT=GNUPLOT & \emph{circuit-file}.startup.prn & INDEX TIME \\ \hline
+.OPTIONS HBINT STARTUPPERIODS=<n> \newline .PRINT HB\_STARTUP FORMAT=NOINDEX & \emph{circuit-file}.startup.prn & TIME \\ \hline
+.OPTIONS HBINT STARTUPPERIODS=<n> \newline .PRINT HB\_STARTUP FORMAT=CSV \newline .OPTIONS HBINT STARTUPPERIODS=<n> & \emph{circuit-file}.startup.csv & TIME \\ \hline
+.OPTIONS HBINT STARTUPPERIODS=<n> \newline .PRINT HB\_STARTUP FORMAT=TECPLOT \newline .OPTIONS HBINT STARTUPPERIODS=<n> & \emph{circuit-file}.startup.dat & TIME \\ \hline
+
+\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries  Initial Conditions} \\ \hline
+.OPTIONS HBINT SAVEICDATA=1 \newline .PRINT HB\_IC & \emph{circuit-file}.hb\_ic.prn  & INDEX TIME \\ \hline
+.OPTIONS HBINT SAVEICDATA=1 \newline .PRINT HB\_IC FORMAT=GNUPLOT & \emph{circuit-file}.hb\_ic.prn  & INDEX TIME \\ \hline
+.OPTIONS HBINT SAVEICDATA=1 \newline .PRINT HB\_IC FORMAT=NOINDEX & \emph{circuit-file}.hb\_ic.prn  & TIME \\ \hline
+.OPTIONS HBINT SAVEICDATA=1 \newline .PRINT HB\_IC FORMAT=CSV  & \emph{circuit-file}.hb\_ic.csv & TIME \\ \hline
+.OPTIONS HBINT SAVEICDATA=1 \newline .PRINT HB\_IC FORMAT=TECPLOT & \emph{circuit-file}.hb\_ic.dat & TIME \\ \hline
+
+\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Additional Output Available} \\ \hline
+.OP & \emph{log file} & Operating point data \\ \hline
+.SENS \newline .PRINT SENS & \multicolumn{2}{c}{see~\nameref{Print_Sensitivity}} \\ \hline
+.OPTIONS NONLIN CONTINUATION=<method> \newline .PRINT HOMOTOPY & \multicolumn{2}{c}{see~\nameref{Print_Homotopy}} \\ \hline
+\end{PrintCommandTable}
+}

@@ -1,0 +1,43 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\label{GLOBAL_section}
+
+The \texttt{.GLOBAL} command provides another way to designate certain 
+nodes as global nodes, besides starting their node name with the two 
+characters ``\$G'' as discussed in section \ref{Voltage_Nodes}.  A typical 
+usage of such global nodes is to define a VDD or VSS signal that all
+subcircuits need to be able to access, but without having to provide 
+VSS and VDD input nodes to every subcircuit. 
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.GLOBAL <node>
+\end{alltt}
+
+\examples
+\begin{alltt}
+.GLOBAL g1
+.subckt rsub  a  b
+Rab  a  b  2
+* since node G1 is global, it may be used here without
+* being listed on the .subckt line
+Rbg  G1  b  3  
+.ends
+\end{alltt}
+
+\comments
+The name of the global node can be any legal node name, per 
+section \ref{legalCharacters}.
+
+\end{Command}
+

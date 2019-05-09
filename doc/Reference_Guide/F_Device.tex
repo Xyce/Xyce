@@ -1,0 +1,67 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\begin{Device}
+
+\symbol
+{\includegraphics{cccsSymbol}}
+
+\device
+\begin{alltt}
+F<name> <(+) node> <(-) node>
++ <controlling V device name> <gain>
+F<name> <(+) node> <(-) node> POLY(<value>)
++ <controlling V device name>*
++ < <polynomial coefficient value> >*
+\end{alltt}
+
+\examples
+\begin{alltt}
+FSENSE 1 2 VSENSE 10.0
+FAMP 13 0 POLY(1) VIN 0 500
+FNONLIN 100 101 POLY(2) VCNTRL1 VCINTRL2 0.0 13.6 0.2 0.005
+\end{alltt}
+
+\parameters
+
+\begin{Parameters}
+
+\param{\vbox{\hbox{(+) node\hfil}\hbox{(-) node}}}
+Output nodes. Positive current flows from the \texttt{(+)} node through
+the source to the \texttt{(-)} node.
+
+\param{controlling V device}
+The controlling voltage source which must be an independent voltage source
+(V device).
+
+\end{Parameters}
+
+\comments
+
+In the first form, a specified current through a controlling device is
+multiplied by the gain to determine this device's output current.  The
+gain may be expressed either as a number, a parameter, or an arbitrary
+brace-delimited ABM expression.
+
+The second form using the \texttt{POLY} keyword is used in analog behavioral
+modeling.
+
+Both forms are automatically converted within \Xyce{} to its principal
+ABM device, the \texttt{B} nonlinear dependent source device. See the B-source
+section (\ref{B_Source_Device}) and the \Xyce{} User's Guide for more guidance
+on analog behavioral modeling.  For details concerning the use of the
+\texttt{POLY} format, see section~\ref{PspicePoly}.
+
+The power supplied or dissipated by this source device is calculated 
+with $I \cdot \Delta V$ where the voltage drop is calculated as $(V_+ - V_-)$ 
+and positive current flows from $V_+$ to $V_-$.  Dissipated power has a
+positive sign, while supplied power has a negative sign.
+
+\end{Device}

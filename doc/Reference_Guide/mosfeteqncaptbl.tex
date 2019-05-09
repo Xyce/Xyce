@@ -1,0 +1,89 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% MOSFET Equation Capacitance Table
+%%
+\small
+\begin{longtable}[H]{>{\setlength{\hsize}{\textwidth}}W}
+\hline \\
+\bf Level 1 ,2, and 3 \\
+
+$C_{bs} = \mbox{\rm bulk-source capacitance =  area cap. +
+sidewall cap. + transit time cap.}$
+$C_{bd} = \mbox{\rm bulk-drain capacitance = area cap. + sidewall
+cap. + transit time cap.}$ \\
+where
+\begin{eqnarray*}
+if && \\
+&&\mbox{\textrmb{CBS} = 0 \textit{\rm and} \textrmb{CBD} = 0} \\
+then && \\
+&& C_{bs} = \mathrm{AS}\cdot \mathbf{CJ}\cdot C_{bsj} +
+\mathrm{PS}\cdot \mathbf{CJSW}\cdot C_{bss} + \mathbf{TT}\cdot
+G_{bs} \\
+&& C_{bd} = \mathrm{AD}\cdot \mathbf{CJ}\cdot C_{bdj} +
+\mathrm{PD}\cdot \mathbf{CJSW}\cdot C_{bds} + \mathbf{TT}\cdot
+G_{ds} \\
+else && \\
+&& C_{bs} = \mathrm{CBS}\cdot C_{bsj} + \mathrm{PS}\cdot
+\mathbf{CJSW}\cdot C_{bss} + \mathbf{TT}\cdot G_{bs} \\
+&& C_{bd} = \mathrm{CBD}\cdot C_{bdj} + \mathrm{PD}\cdot
+\mathbf{CJSW}\cdot C_{bds} + \mathbf{TT}\cdot G_{ds} \\
+where && \\
+&& G_{bs} = \mbox{\rm DC bulk-source conductance} =
+dI_{bs}/dV_{bs}\\
+&& G_{bd} = \mbox{\rm DC bulk-drain conductance} =
+dI_{bd}/dV_{bd}
+\end{eqnarray*}
+
+\begin{eqnarray*}
+if & & \\
+& & V_{bs} \leq \bf FC\cdot PB\\
+then && \\
+&& C_{bsj} = (1 - V_{bs}/\bf PB)^{-MJ}\\
+&& C_{bss} = (1 - V_{bs}/\bf PBSW)^{-MJSW}\\
+if && \\
+&& V_{bs} > \bf FC\cdot PB \\
+then && \\
+&& C_{bsj} = (1 - \mathbf{FC})^{-(1+\mathbf{MJ})}(1 - \mathbf{FC}
+(1 + \mathbf{MJ}) + \mathbf{MJ}\cdot V_{bs}/\mathbf{PB})\\
+&& C_{bss} = (1 - \mathbf{FC})^{-(1+\mathbf{MJSW})}(1 - \mathbf{FC}
+(1 + \mathbf{MJSW}) + \mathbf{MJSW}\cdot V_{bs}/\mathbf{PBSW})\\
+if && \\
+&& V_{bd} \leq \bf FC\cdot PB \\
+then && \\
+&& C_{bdj} = (1 - V_{bd}/\bf PB)^{-MJ} \\
+&& C_{bds} = (1 - V_{bd}/\bf PBSW)^{-MJSW} \\
+if && \\
+&& V_{bd} > \bf FC\cdot PB \\
+then &&\\
+&& C_{bdj} = (1 - \mathbf{FC})^{-(1+\mathbf{MJ})}(1 - \mathbf{FC}
+(1 + \mathbf{MJ}) + \mathbf{MJ}\cdot V_{bd}/\mathbf{PB})\\
+&& C_{bds} = (1 - \mathbf{FC})^{-(1+\mathbf{MJSW})}(1 - \mathbf{FC}
+(1 + \mathbf{MJSW}))\\
+\\
+&& C_{gs} = \mbox{\rm gate-source overlap capacitance} = \bf
+CGSO\cdot W \\
+&& C_{gd} = \mbox{\rm gate-drain overlap capacitance} = \bf
+CGDO\cdot W \\
+&& C_{gb} = \mbox{\rm gate-bulk overlap capacitance} = \bf
+CGBO\cdot L
+\end{eqnarray*}
+
+\end{longtable}
+
+% Eric Keiter.  1/19/04:
+% As this table does not have a caption, it should not have a number
+% assigned to it.  This line is needed to fix latex so that the tables in
+% chapter 2, which actually have their numbers printed in table captions, 
+% and the list of tables,  do not start at 2.9, but start at 2.1.
+\addtocounter{table}{-1}
+
+

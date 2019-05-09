@@ -1,0 +1,759 @@
+
+//
+//	Verilog-A definition of VBIC
+//
+
+`include "disciplines.h"
+
+//adms specific definitions
+`define attr(txt) (*txt*)
+
+`define	KB	1.380662e-23		// Boltzmann constant (J/K)
+`define	QQ	1.602189e-19		// mag. of electronic charge (C)
+`define	TABS	2.731500e+02		// 0C in K
+`define CONSTroot2 1.41421356237309504880
+
+
+//
+//	There are 8 separate versions of VBIC, defined as follows:
+//
+//				#Elect	Electro	Excess
+//		Name		Terms	Thermal	Phase
+//		=============	=======	=======	======
+//		vbic_3T_it_cf	3	no	no
+//		vbic_3T_it_xf	3	no	yes
+//		vbic_3T_et_cf	3	yes	no
+//		vbic_3T_et_xf	3	yes	yes
+//		vbic_4T_it_cf	4	no	no
+//		vbic_4T_it_xf	4	no	yes
+//		vbic_4T_et_cf	4	yes	no
+//		vbic_4T_et_xf	4	yes	yes
+//
+//	These can be selected by appropriate specification of
+//	the following `define text macros. Note that the specification
+//	of a 3- or 4-terminal model relates to the number of
+//	electrical terminals, and does not include the local temperature
+//	node for the electrothermal version of the model.
+//
+//	There are two separate versions of each of the above,
+//	with and without homotopy. When the homotopy is included
+//	this code will not work in Verilog-A, but will be
+//	handled by the VBIC code generator properly.
+//
+//	The excess phase version does not need to be implemented strictly
+//	using 3 extra system variables, as at first seems to be the
+//	case for MNA, the inductor current and the two node voltages.
+//	The resistor in the excess phase network is 1 ohm, therefore
+//	the voltage at node xf2 is the same as the current through
+//	the inductor. The extra system equations to solve are then:
+//	Itzf-V(xf2)-j*w*C*V(xf1)=0
+//	j*w*L*V(xf2)+V(xf2)-V(xf1)=0
+//	where C=TD and L=TD/3.
+//
+
+//`define ThreeTerminal		// default is FourTerminal
+//`define ExcessPhase		// default is ConstantPhase
+//`define ElectroThermal	// default is IsoThermal
+//`define WithHomotopy		// default is NoHomotopy
+
+//
+//	Start of VBIC model code
+//
+
+module vbic(c,b,e,dt) `attr(xyceModelGroup="BJT" xyceLevelNumber="10" xyceDeviceName="*DEPRECATED*VBIC 3T et cf v1.2" xyceTypeVariable="dtype");
+
+// limiter for Rth
+// This is total cheese, but is what I did when I hacked RTH limiting
+// by hand
+   analog function real limRTH;
+      input orig, old;
+      real  orig,old;
+      real  t0,t1,retval;
+
+      begin
+         t0=orig-old;
+         t1=abs(t0);
+         retval=orig;
+         
+         if (t1>5.0) begin
+           if (t0>0)
+             retval=old+5.0;
+           else
+             retval=old-5.0;
+         end
+         limRTH=retval;
+      end
+   endfunction
+         
+         
+//
+//	Node definitions
+//
+
+	inout		c,b,e,dt;			// external nodes
+	electrical	c,b,e,dt;			// external nodes
+	electrical	cx,ci,bx,bi,ei,bp;		// internal nodes
+
+//
+//	Branch definitions
+//
+
+	branch (b ,e )		be;			//           base-emit
+	branch (b ,c )		bc;			//           base-coll
+	branch (bi,ei)		bei;			// intrinsic base-emit
+	branch (bx,ei)		bex;			// extrinsic base-emit
+	branch (bi,ci)		bci;			// intrinsic base-coll
+	branch (bi,cx)		bcx;			// extrinsic base-coll
+	branch (ci,ei)		cei;			// intrinsic coll-emit
+	branch (ei,ci)		eci;			// intrinsic emit-coll
+	branch (bx,bp)		bep;			// parasitic base-emit
+	branch (e ,ei)		re;			// emit resistance
+	branch (c ,cx)		rcx;			// coll resistance, extrinsic
+	branch (cx,ci)		rci;			// coll resistance, intrinsic
+	branch (b ,bx)		rbx;			// base resistance, extrinsic
+	branch (bx,bi)		rbi;			// base resistance, intrinsic
+	branch (bp,cx)		rbp;			// base resistance, parasitic
+	branch (dt)		rth;			// local thermal branch
+	branch (dt)		ith;			// local thermal branch
+
+//
+//	Parameter definitions
+//
+
+	parameter	real	TNOM	=  27.0                       `attr(xyceUnit="U_DEGC" info="Nominal temperature");
+	parameter	real	RCX	=   0.0		from[0.0:inf] `attr(xyceUnit="U_OHM" info="Extrinsic Collector resistance" dependence="MIN_RES");
+	parameter	real	RCI	=   0.0		from[0.0:inf] `attr(xyceUnit="U_OHM" info="Intrinsic Collector resistance" dependence="MIN_RES");
+	parameter	real	VO	=   0.0		from[0.0:inf] `attr(xyceUnit="U_VOLT" info="Epi drift saturation voltage");
+	parameter	real	GAMM	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="Epi doping parameter");
+	parameter	real	HRCF	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="High current RC factor");
+	parameter	real	RBX	=   0.0		from[0.0:inf] `attr(xyceUnit="U_OHM" info="Extrinsic base resistance" dependence="MIN_RES");
+	parameter	real	RBI	=   0.0		from[0.0:inf] `attr(xyceUnit="U_OHM" info="Intrinsic base resistance" dependence="MIN_RES");
+	parameter	real	RE	=   0.0		from[0.0:inf] `attr(xyceUnit="U_OHM" info="Emitter resistance" dependence="MIN_RES");
+	parameter	real	RS	=   0.0		from[0.0:inf] `attr(xyceUnit="U_OHM" info="Substrate resistance" dependence="MIN_RES");
+	parameter	real	RBP	=   0.0		from[0.0:inf] `attr(xyceUnit="U_OHM" info="Parasitic base resistance" dependence="MIN_RES");
+	parameter	real	IS	=   1.0e-16	from(0.0:inf] `attr(xyceUnit="U_AMP" info="Transport saturation current");
+	parameter	real	NF	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Forward emission coefficient");
+	parameter	real	NR	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Reverse emission coefficient");
+	parameter	real	FC	=   0.9		from[0.0:1.0) `attr(xyceUnit="U_NONE" info="Forward-bias depletion capacitance limit");
+	parameter	real	CBEO	=   0.0		from[0.0:inf] `attr(xyceUnit="U_FARAD" info="Extrinsic B-E overlap capacitance" dependence="MIN_CAP");
+	parameter	real	CJE	=   0.0		from[0.0:inf] `attr(xyceUnit="U_FARAD" info="B-E zero-bias capacitance" dependence="MIN_CAP");
+	parameter	real	PE	=   0.75	from(0.0:inf] `attr(xyceUnit="U_NONE" info="B-E built-in potential");
+	parameter	real	ME	=   0.33	from(0.0:1.0] `attr(xyceUnit="U_NONE" info="B-E grading coefficient");
+	parameter	real	AJE	=  -0.5                       `attr(xyceUnit="U_NONE" info="Base-Emitter capacitor smoothing factor");
+	parameter	real	CBCO	=   0.0		from[0.0:inf] `attr(xyceUnit="U_FARAD" info="Extrinsic B-C overlap capacitance" dependence="MIN_CAP");
+	parameter	real	CJC	=   0.0		from[0.0:inf] `attr(xyceUnit="U_FARAD" info="B-C zero-bias capacitance" dependence="MIN_CAP");
+	parameter	real	QCO	=   0.0		from[0.0:inf] `attr(xyceUnit="U_COULOMB" info="Epi charge parameter");
+	parameter	real	CJEP	=   0.0		from[0.0:inf] `attr(xyceUnit="U_FARAD" info="S-E zero-bias capacitance" dependence="MIN_CAP");
+	parameter	real	PC	=   0.75	from(0.0:inf] `attr(xyceUnit="U_NONE" info="B-C built-in potential");
+	parameter	real	MC	=   0.33	from(0.0:1.0] `attr(xyceUnit="U_NONE" info="B-C grading coefficient");
+	parameter	real	AJC	=  -0.5                       `attr(xyceUnit="U_NONE" info="Base-Collector capacitor smoothing factor");
+	parameter	real	CJCP	=   0.0		from[0.0:inf] `attr(xyceUnit="U_FARAD" info="S-C zero-bias capacitance" dependence="MIN_CAP");
+	parameter	real	PS	=   0.75	from(0.0:inf] `attr(xyceUnit="U_NONE" info="S-C built-in potential");
+	parameter	real	MS	=   0.33	from(0.0:1.0] `attr(xyceUnit="U_NONE" info="S-C grading coefficient");
+	parameter	real	AJS	=  -0.5                       `attr(xyceUnit="U_NONE" info="Substrate-collector capacitor smoothing factor (unused)");
+	parameter	real	IBEI	=   1.0e-18	from(0.0:inf] `attr(xyceUnit="U_AMP" info="Ideal B-E saturation current");
+	parameter	real	WBE	=   1.0		from[0.0:1.0] `attr(xyceUnit="U_NONE" info="Portion of Ibei from Vbei");
+	parameter	real	NEI	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Ideal B-E emission coefficient");
+	parameter	real	IBEN	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Nonideal B-E saturation current");
+	parameter	real	NEN	=   2.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Non-ideal B-E emission coefficient");
+	parameter	real	IBCI	=   1.0e-16	from(0.0:inf] `attr(xyceUnit="U_AMP" info="Ideal B-C saturation current");
+	parameter	real	NCI	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Ideal B-C emission coefficient");
+	parameter	real	IBCN	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Nonideal B-C saturation current");
+	parameter	real	NCN	=   2.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Non-ideal B-C emission coefficient");
+	parameter	real	AVC1	=   0.0		from[0.0:inf] `attr(xyceUnit="U_VOLTM1" info="B-C weak avalanche parameter");
+	parameter	real	AVC2	=   0.0		from[0.0:inf] `attr(xyceUnit="U_VOLTM1" info="B-C weak avalanche parameter");
+	parameter	real	ISP	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Parasitic transport saturation current");
+	parameter	real	WSP	=   1.0		from[0.0:1.0] `attr(xyceUnit="U_NONE" info="Portion of Iccp from Vbep");
+	parameter	real	NFP	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Parasitic forward emission coefficient");
+	parameter	real	IBEIP	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Ideal parasitic B-E saturation current");
+	parameter	real	IBENP	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Nonideal parasitic B-E saturation current");
+	parameter	real	IBCIP	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Ideal parasitic B-C saturation current");
+	parameter	real	NCIP	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Ideal parasitic B-C emission coefficient");
+	parameter	real	IBCNP	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Nonideal parasitic B-C saturation current");
+	parameter	real	NCNP	=   2.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Non-ideal parasitic B-C emission coefficient");
+	parameter	real	VEF	=   0.0		from[0.0:inf] `attr(xyceUnit="U_VOLT" info="Forward Early voltage");
+	parameter	real	VER	=   0.0		from[0.0:inf] `attr(xyceUnit="U_VOLT" info="Reverse Early voltage");
+	parameter	real	IKF	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Forward knee current");
+	parameter	real	IKR	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Reverse knee current");
+	parameter	real	IKP	=   0.0		from[0.0:inf] `attr(xyceUnit="U_AMP" info="Parasitic knee current");
+	parameter	real	TF	=   0.0		from[0.0:inf] `attr(xyceUnit="U_SECOND" info="Forward transit time");
+	parameter	real	QTF	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="Variation of tf with base width modulation");
+	parameter	real	XTF	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="Coefficient of tf with bias dependence");
+	parameter	real	VTF	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="Coefficient of tf dependence on Vbc");
+	parameter	real	ITF	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="Coefficient of tf dependence on Ic");
+	parameter	real	TR	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="Reverse transit time");
+	parameter	real	TD	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="Forward excess-phase delay time (unused in this version)");
+	parameter	real	KFN	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="B-E flicker (1/f) noise coefficient (unused)");
+	parameter	real	AFN	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Base-Emitter Flicker Noise coefficient (unused)");
+	parameter	real	BFN	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="B-E flicker noise dependence (unused)");
+	parameter	real	XRE	=   0                         `attr(xyceUnit="U_NONE" info="Temperature exponent of re");
+	parameter	real	XRBI	=   0                         `attr(xyceUnit="U_NONE" info="");
+	parameter	real	XRCI	=   0                         `attr(xyceUnit="U_NONE" info="");
+	parameter	real	XRS	=   0                         `attr(xyceUnit="U_NONE" info="Temperature exponent of rs");
+	parameter	real	XVO	=   0                         `attr(xyceUnit="U_NONE" info="Temperature exponent of vo");
+	parameter	real	EA	=   1.12                      `attr(xyceUnit="U_EV" info="Activation energy for IS");
+	parameter	real	EAIE	=   1.12                      `attr(xyceUnit="U_EV" info="Activation energy for IBEI");
+	parameter	real	EAIC	=   1.12                      `attr(xyceUnit="U_EV" info="Activation energy for IBCI");
+	parameter	real	EAIS	=   1.12                      `attr(xyceUnit="U_EV" info="Activation energy for IBCIP");
+	parameter	real	EANE	=   1.12                      `attr(xyceUnit="U_EV" info="Activation energy for IBEN");
+	parameter	real	EANC	=   1.12                      `attr(xyceUnit="U_EV" info="Activation energy for IBCN");
+	parameter	real	EANS	=   1.12                      `attr(xyceUnit="U_EV" info="Activation energy for IBCNP");
+	parameter	real	XIS	=   3.0                       `attr(xyceUnit="U_NONE" info="Temperature exponent of IS");
+	parameter	real	XII	=   3.0                       `attr(xyceUnit="U_NONE" info="Temperature exponent of Ibei, Ibci, Ibeip, and Ibcip");
+	parameter	real	XIN	=   3.0                       `attr(xyceUnit="U_NONE" info="Temperature exponent of Iben, Ibcn, Ibenp, and Ibcnp");
+	parameter	real	TNF	=   0.0                       `attr(xyceUnit="U_NONE" info="Temperature coefficient of Nf");
+	parameter	real	TAVC	=   0.0                       `attr(xyceUnit="U_NONE" info="Temperature coefficient of Avc2");
+	parameter	real	RTH	=   0.0		from[0.0:inf] `attr(xyceUnit="U_OHM" info="Thermal resistance, must be given for self-heating");
+	parameter	real	CTH	=   0.0		from[0.0:inf] `attr(xyceUnit="U_FARAD" info="Thermal capacitance");
+	parameter	real	VRT	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="");
+	parameter	real	ART	=   0.1		from(0.0:inf] `attr(xyceUnit="U_NONE" info="");
+	parameter	real	CCSO	=   0.0		from[0.0:inf] `attr(xyceUnit="U_NONE" info="(unused)");
+	parameter	real	QBM	=   0.0                       `attr(xyceUnit="U_NONE" info="");
+	parameter	real	NKF	=   0.5		from(0.0:inf] `attr(xyceUnit="U_NONE" info="");
+	parameter	real	XIKF	=   0                         `attr(xyceUnit="U_NONE" info="");
+	parameter	real	XRCX	=   0                         `attr(xyceUnit="U_NONE" info="");
+	parameter	real	XRBX	=   0                         `attr(xyceUnit="U_NONE" info="");
+	parameter	real	XRBP	=   0                         `attr(xyceUnit="U_NONE" info="");
+	parameter	real	ISRR	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="Saturation current for reverse operation");
+	parameter	real	XISR	=   0.0                       `attr(xyceUnit="U_NONE" info="Temperature exponent of ISRR");
+	parameter	real	DEAR	=   0.0                       `attr(xyceUnit="U_NONE" info="Activation energy for ISRR");
+	parameter	real	EAP	=   1.12                      `attr(xyceUnit="U_NONE" info="Activation energy for ISP");
+	parameter	real	VBBE	=   0.0                       `attr(xyceUnit="U_NONE" info="");
+	parameter	real	NBBE	=   1.0		from(0.0:inf] `attr(xyceUnit="U_NONE" info="");
+	parameter	real	IBBE	=   1.0e-6                    `attr(xyceUnit="U_NONE" info="");
+	parameter	real	TVBBE1	=   0.0                       `attr(xyceUnit="U_NONE" info="");
+	parameter	real	TVBBE2	=   0.0                       `attr(xyceUnit="U_NONE" info="");
+	parameter	real	TNBBE	=   0.0                       `attr(xyceUnit="U_NONE" info="");
+	parameter	real	EBBE	=   0.0                       `attr(xyceUnit="U_NONE" info="(unused)");
+	parameter	real	DTEMP	=   0.0                       `attr(xyceUnit="U_NONE" info="Device temperature (use 0.0 for ambient)" type="instance" xyceAlsoModel="YES");
+	parameter	real	VERS	=   1.2                       `attr(xyceUnit="U_NONE" info="Version of this VBIC model");
+	parameter	real	VREV	=   0.0                       `attr(xyceUnit="U_NONE" info="");
+	parameter       integer dtype   = 1 from [-1:1] exclude [0:0]   `attr(hidden="yes");  
+        parameter       integer M       = 1 from [1:inf)              `attr(xyceUnit="U_NONE" info="Number of devices in parallel" type="instance");
+
+//
+//	parameter	alias	TNOM	TN0M, TREF
+//	parameter	alias	VO	V0
+//	parameter	alias	GAMM	GAMMA
+//	parameter	alias	CBEO	CBE0
+//	parameter	alias	CBCO	CBC0
+//	parameter	alias	CCSO	CCS0
+//	parameter	alias	QCO	QC0
+//	parameter	alias	XVO	XV0
+//	parameter	alias	DTEMP	DTMP
+//	parameter	alias	VERS	VERSION
+//	parameter	alias	VREV	REV REVISION
+//
+
+	real	ISatT,ISRRatT,IKFatT,IBEIatT,IBCIatT,ISPatT,IBENatT,IBCNatT;
+	real	IBEIPatT,IBENPatT,IBCIPatT,IBCNPatT;
+	real	RCXatT,RCIatT,RBXatT,RBIatT,REatT,RSatT,RBPatT;
+	real	PEatT,PCatT,PSatT;
+	real	CJEatT,CJCatT,CJEPatT,CJCPatT;
+	real	NFatT,NRatT,AVC2atT,VBBEatT,NBBEatT,GAMMatT,VOatT,EBBEatT;
+	real	Tdev,Tini,rT,dT;
+	real	IVEF,IVER,IIKF,IIKR,IIKP,IVO,IHRCF,IVTF,IITF,slTF,LEP,CEP;
+
+	real	Vtv,Vcbj,Ifi,Iri,Itzf,Ixzf,Itxf,Ixxf,Itzr,q1z,q1,q2,qb,Ifp,Irp,Iccp,q2p,qbp;
+	real	Ibe,Ibex,Ibcj,Ibc,Ibep,Ibcp,Igc,avalf,avalf_exparg;
+	real	Ircx,Irci,Irbx,Irbi,Ire,Irbp,Irs;
+	real	Kbci,Kbcx,rKp1,Iohm,derf;
+// TVR trying to get rid of temporaries with meaningless "dependencies"
+// tacked on by ADMS:
+//	real	argi,expi,argn,expn,argx,expx;
+// These variables are reused several times with the result that they seem
+// to depend on every voltage difference, thereby polluting downstream
+// calculations with dependencies!
+	real	argi_vbei,expi_vbei;
+	real	argn_vbei,expn_vbei;
+	real	argx_vbei,expx_vbei;
+	real	argi_vbci,expi_vbci;
+	real	argn_vbci,expn_vbci;
+	real	argx_vbci,expx_vbci;
+	real	argi_vbep,expi_vbep;
+	real	argn_vbep,expn_vbep;
+	real	argi_vbex,expi_vbex;
+	real	argn_vbex,expn_vbex;
+	real	argx_vbex,expx_vbex;
+	real	argx_vbcx,expx_vbcx;
+
+// more frequently used temporaries:
+        real    dv_vbei, mv_vbei,vl_vbei;
+        real    dv_vbex, mv_vbex,vl_vbex;
+        real    dv_vbci, mv_vbci,vl_vbci, vn_vbci, vnl_vbci, sel_vbci, cl_vbci, ql_vbci;
+        real    dv_vbep, mv_vbep,vl_vbep, vn_vbep, vnl_vbep, sel_vbep, cl_vbep, ql_vbep;
+        real    qlo_vbei,qhi_vbei;
+        real    qlo_vbci,qhi_vbci;
+        real    qlo_vbex,qhi_vbex;
+        real    qlo_vbep,qhi_vbep;
+        real    dvh_vbei;
+        real    dvh_vbex;
+        real    dvh_vbci;
+        real    dvh_vbep;
+
+	real	qdbe,qdbex,qdbc,qdbep,qdbcp;
+	real	sgIf,rIf,mIf,tff,tff_exparg;
+	real	Qbe,Qbex,Qbc,Qbcx,Qbep,Qbcp,Qbeo,Qbco;
+	real	Ith,Irth,Qcth;
+	real	Qcxf,Flxf;
+
+//	real	psiio,psiin,dv0,dvh,pwq,qlo;
+	real	psiio,psiin,dv0,pwq;
+//	real	qhi,mv0,vl0,q0,dv,mv;
+	real	mv0,vl0,q0;
+//	real	vl,vn0,vnl0,qlo0,vn,vnl;
+	real	vn0,vnl0,qlo0;
+//	real	sel,crt,cmx,cl,ql;
+	real	crt,cmx;
+        real    tVCrit;
+        real    Vbei,Vbci,Vbex,Vbcx,Vbep,Vrth;
+        real    Vrcx,Vrci,Vrbx,Vrbi,Vre,Vrbp,Vbe,Vbc,Vcei;
+	analog begin
+
+
+           tVCrit = $vt($temperature)*ln($vt($temperature)/(`CONSTroot2*IS));
+           Vbei = $limit(V(bei),"typedpnjlim_new",$vt,tVCrit,dtype);
+           Vbci = $limit(V(bci),"typedpnjlim_new",$vt,tVCrit,dtype);
+           Vbex = $limit(V(bex),"typedpnjlim_new",$vt,tVCrit,dtype);
+           Vbcx = $limit(V(bcx),"typedpnjlim_new",$vt,tVCrit,dtype);
+           Vbep = $limit(V(bep),"typedpnjlim_new",$vt,tVCrit,dtype);
+           Vrth = $limit(V(rth),"limRTH");
+           Vbe  = $limit(V(be),"typeddummy",$vt,tVCrit,dtype);
+           //Vbe = dtype*V(be);
+           Vrcx = dtype*V(rcx);           
+           Vrci = dtype*V(rci);           
+           Vrbi = dtype*V(rbi);
+           Vrbx = dtype*V(rbx);
+           Vre  = dtype*V(re);
+           Vrbp = dtype*V(rbp);
+           Vbc  = dtype*V(bc);
+           Vcei = dtype*V(cei);
+
+//
+//		Temperature mappings
+//
+
+		Tini	=  `TABS+TNOM;
+		Tdev	=  $temperature+DTEMP+Vrth;
+		Vtv	=  `KB*Tdev/`QQ;
+		rT	=  Tdev/Tini;
+		dT	=  Tdev-Tini;
+		IKFatT	=  IKF*pow(rT,XIKF);
+		RCXatT	=  RCX*pow(rT,XRCX);
+		RCIatT	=  RCI*pow(rT,XRCI);
+		RBXatT	=  RBX*pow(rT,XRBX);
+		RBIatT	=  RBI*pow(rT,XRBI);
+		REatT	=  RE*pow(rT,XRE);
+		RSatT	=  RS*pow(rT,XRS);
+		RBPatT	=  RBP*pow(rT,XRBP);
+		ISatT	=  IS*pow((pow(rT,XIS)*exp(-EA*(1.0-rT)/Vtv)),(1.0/NF));
+		ISRRatT	=  ISRR*pow((pow(rT,XISR)*exp(-DEAR*(1.0-rT)/Vtv)),(1.0/NR));
+		ISPatT	=  ISP*pow((pow(rT,XIS)*exp(-EAP*(1.0-rT)/Vtv)),(1.0/NFP));
+		IBEIatT	=  IBEI*pow((pow(rT,XII)*exp(-EAIE*(1.0-rT)/Vtv)),(1.0/NEI));
+		IBENatT	=  IBEN*pow((pow(rT,XIN)*exp(-EANE*(1.0-rT)/Vtv)),(1.0/NEN));
+		IBCIatT	=  IBCI*pow((pow(rT,XII)*exp(-EAIC*(1.0-rT)/Vtv)),(1.0/NCI));
+		IBCNatT	=  IBCN*pow((pow(rT,XIN)*exp(-EANC*(1.0-rT)/Vtv)),(1.0/NCN));
+		IBEIPatT=  IBEIP*pow((pow(rT,XII)*exp(-EAIC*(1.0-rT)/Vtv)),(1.0/NCI));
+		IBENPatT=  IBENP*pow((pow(rT,XIN)*exp(-EANC*(1.0-rT)/Vtv)),(1.0/NCN));
+		IBCIPatT=  IBCIP*pow((pow(rT,XII)*exp(-EAIS*(1.0-rT)/Vtv)),(1.0/NCIP));
+		IBCNPatT=  IBCNP*pow((pow(rT,XIN)*exp(-EANS*(1.0-rT)/Vtv)),(1.0/NCNP));
+		NFatT	=  NF*(1.0+dT*TNF);
+		NRatT	=  NR*(1.0+dT*TNF);
+		AVC2atT	=  AVC2*(1.0+dT*TAVC);
+		VBBEatT	=  VBBE*(1.0+dT*(TVBBE1+dT*TVBBE2));
+		NBBEatT	=  NBBE*(1.0+dT*TNBBE);
+		psiio = 2.0*(Vtv/rT)*ln(exp(0.5*PE*rT/Vtv)-exp(-0.5*PE*rT/Vtv));
+		psiin = psiio*rT-3.0*Vtv*ln(rT)-EAIE*(rT-1.0);
+		PEatT = psiin+2.0*Vtv*ln(0.5*(1.0+sqrt(1.0+4.0*exp(-psiin/Vtv))));
+		psiio = 2.0*(Vtv/rT)*ln(exp(0.5*PC*rT/Vtv)-exp(-0.5*PC*rT/Vtv));
+		psiin = psiio*rT-3.0*Vtv*ln(rT)-EAIC*(rT-1.0);
+		PCatT = psiin+2.0*Vtv*ln(0.5*(1.0+sqrt(1.0+4.0*exp(-psiin/Vtv))));
+		psiio = 2.0*(Vtv/rT)*ln(exp(0.5*PS*rT/Vtv)-exp(-0.5*PS*rT/Vtv));
+		psiin = psiio*rT-3.0*Vtv*ln(rT)-EAIS*(rT-1.0);
+		PSatT = psiin+2.0*Vtv*ln(0.5*(1.0+sqrt(1.0+4.0*exp(-psiin/Vtv))));
+		CJEatT	=  CJE*pow(PE/PEatT,ME);
+		CJCatT	=  CJC*pow(PC/PCatT,MC);
+		CJEPatT	=  CJEP*pow(PC/PCatT,MC);
+		CJCPatT	=  CJCP*pow(PS/PSatT,MS);
+		GAMMatT	=  GAMM*pow(rT,XIS)*exp(-EA*(1.0-rT)/Vtv);
+		VOatT	=  VO*pow(rT,XVO);
+		EBBEatT	=  exp(-VBBEatT/(NBBEatT*Vtv));
+
+//
+//		Parameter mappings
+//
+
+		IVEF	=  VEF>0.0   ? 1.0/VEF    : 0.0;
+		IVER	=  VER>0.0   ? 1.0/VER    : 0.0;
+                IIKF=0.0;
+                if (IKF>0.0) begin
+                   IIKF=1.0/IKFatT;
+                end
+           
+//		IIKF	=  IKF>0.0   ? 1.0/IKFatT : 0.0;
+		IIKR	=  IKR>0.0   ? 1.0/IKR    : 0.0;
+		IIKP	=  IKP>0.0   ? 1.0/IKP    : 0.0;
+
+                IVO=0.0;
+                if (VO>0.0) begin
+                   IVO=1.0/VOatT;
+                end
+
+//		IVO	=  VO>0.0    ? 1.0/VOatT  : 0.0;
+		IHRCF	=  HRCF>0.0  ? 1.0/HRCF   : 0.0;
+		IVTF	=  VTF>0.0   ? 1.0/VTF    : 0.0;
+		IITF	=  ITF>0.0   ? 1.0/ITF    : 0.0;
+		slTF	=  ITF>0.0   ? 0.0        : 1.0;
+
+//
+//		Electrical branch constituent relations
+//
+
+		dv0 = -PEatT*FC;
+		if (AJE<=0.0) begin
+			dvh_vbei = Vbei+dv0;
+			if (dvh_vbei>0.0) begin
+				pwq = pow((1.0-FC),(-1.0-ME));
+				qlo_vbei = PEatT*(1.0-pwq*(1.0-FC)*(1.0-FC))/(1.0-ME);
+				qhi_vbei = dvh_vbei*(1.0-FC+0.5*ME*dvh_vbei/PEatT)*pwq;
+			end else begin
+				qlo_vbei = PEatT*(1.0-pow((1.0-Vbei/PEatT),(1.0-ME)))/(1.0-ME);
+				qhi_vbei = 0.0;
+			end
+			qdbe = qlo_vbei+qhi_vbei;
+		end else begin
+			mv0 = sqrt(dv0*dv0+4*AJE*AJE);
+			vl0 = -0.5*(dv0+mv0);
+			q0 = -PEatT*pow((1.0-vl0/PEatT),(1.0-ME))/(1.0-ME);
+			dv_vbei = Vbei+dv0;
+			mv_vbei = sqrt(dv_vbei*dv_vbei+4*AJE*AJE);
+			vl_vbei = 0.5*(dv_vbei-mv_vbei)-dv0;
+			qlo_vbei = -PEatT*pow((1.0-vl_vbei/PEatT),(1.0-ME))/(1.0-ME);
+			qdbe = qlo_vbei+pow((1.0-FC),(-ME))*(Vbei-vl_vbei+vl0)-q0;
+		end
+		dv0 = -PEatT*FC;
+		if (AJE<=0.0) begin
+			dvh_vbex = Vbex+dv0;
+			if (dvh_vbex>0.0) begin
+				pwq = pow((1.0-FC),(-1.0-ME));
+				qlo_vbex = PEatT*(1.0-pwq*(1.0-FC)*(1.0-FC))/(1.0-ME);
+				qhi_vbex = dvh_vbex*(1.0-FC+0.5*ME*dvh_vbex/PEatT)*pwq;
+			end else begin
+				qlo_vbex = PEatT*(1.0-pow((1.0-Vbex/PEatT),(1.0-ME)))/(1.0-ME);
+				qhi_vbex = 0.0;
+			end
+			qdbex = qlo_vbex+qhi_vbex;
+		end else begin
+			mv0 = sqrt(dv0*dv0+4*AJE*AJE);
+			vl0 = -0.5*(dv0+mv0);
+			q0 = -PEatT*pow((1.0-vl0/PEatT),(1.0-ME))/(1.0-ME);
+			dv_vbex = Vbex+dv0;
+			mv_vbex = sqrt(dv_vbex*dv_vbex+4*AJE*AJE);
+			vl_vbex = 0.5*(dv_vbex-mv_vbex)-dv0;
+			qlo_vbex = -PEatT*pow((1.0-vl_vbex/PEatT),(1.0-ME))/(1.0-ME);
+			qdbex = qlo_vbex+pow((1.0-FC),(-ME))*(Vbex-vl_vbex+vl0)-q0;
+		end
+		dv0 = -PCatT*FC;
+		if (AJC<=0.0) begin
+			dvh_vbci = Vbci+dv0;
+			if (dvh_vbci>0.0) begin
+				pwq = pow((1.0-FC),(-1.0-MC));
+				qlo_vbci = PCatT*(1.0-pwq*(1.0-FC)*(1.0-FC))/(1.0-MC);
+				qhi_vbci = dvh_vbci*(1.0-FC+0.5*MC*dvh_vbci/PCatT)*pwq;
+			end else begin
+				if ((VRT>0.0)&&(Vbci<-VRT)) begin
+					qlo_vbci = PCatT*(1.0-pow((1.0+VRT/PCatT),(1.0-MC))*(1.0-((1.0-MC)*(Vbci+VRT))/(PCatT+VRT)))/(1.0-MC);
+				end else begin
+					qlo_vbci = PCatT*(1.0-pow((1.0-Vbci/PCatT),(1.0-MC)))/(1.0-MC);
+				end
+				qhi_vbci = 0.0;
+			end
+			qdbc = qlo_vbci+qhi_vbci;
+		end else begin
+			if ((VRT>0.0)&&(ART>0.0)) begin
+				vn0 = (VRT+dv0)/(VRT-dv0);
+				vnl0 = 2.0*vn0/(sqrt((vn0-1.0)*(vn0-1)+4*AJC*AJC)+sqrt((vn0+1.0)*(vn0+1)+4*ART*ART));
+				vl0 = 0.5*(vnl0*(VRT-dv0)-VRT-dv0);
+				qlo0 = PCatT*(1.0-pow((1.0-vl0/PCatT),(1.0-MC)))/(1.0-MC);
+				vn_vbci = (2*Vbci+VRT+dv0)/(VRT-dv0);
+				vnl_vbci = 2.0*vn_vbci/(sqrt((vn_vbci-1.0)*(vn_vbci-1)+4*AJC*AJC)+sqrt((vn_vbci+1.0)*(vn_vbci+1)+4*ART*ART));
+				vl_vbci = 0.5*(vnl_vbci*(VRT-dv0)-VRT-dv0);
+				qlo_vbci = PCatT*(1.0-pow((1.0-vl_vbci/PCatT),(1.0-MC)))/(1.0-MC);
+				sel_vbci = 0.5*(vnl_vbci+1.0);
+				crt = pow((1.0+VRT/PCatT),(-MC));
+				cmx = pow((1.0+dv0/PCatT),(-MC));
+				cl_vbci = (1.0-sel_vbci)*crt+sel_vbci*cmx;
+				ql_vbci = (Vbci-vl_vbci+vl0)*cl_vbci;
+				qdbc = ql_vbci+qlo_vbci-qlo0;
+			end else begin
+				mv0 = sqrt(dv0*dv0+4*AJC*AJC);
+				vl0 = -0.5*(dv0+mv0);
+				q0 = -PCatT*pow((1.0-vl0/PCatT),(1.0-MC))/(1.0-MC);
+				dv_vbci = Vbci+dv0;
+				mv_vbci = sqrt(dv_vbci*dv_vbci+4*AJC*AJC);
+				vl_vbci = 0.5*(dv_vbci-mv_vbci)-dv0;
+				qlo_vbci = -PCatT*pow((1.0-vl_vbci/PCatT),(1.0-MC))/(1.0-MC);
+				qdbc = qlo_vbci+pow((1.0-FC),(-MC))*(Vbci-vl_vbci+vl0)-q0;
+			end
+		end
+		dv0 = -PCatT*FC;
+		if (AJC<=0.0) begin
+			dvh_vbep = Vbep+dv0;
+			if (dvh_vbep>0.0) begin
+				pwq = pow((1.0-FC),(-1.0-MC));
+				qlo_vbep = PCatT*(1.0-pwq*(1.0-FC)*(1.0-FC))/(1.0-MC);
+				qhi_vbep = dvh_vbep*(1.0-FC+0.5*MC*dvh_vbep/PCatT)*pwq;
+			end else begin
+				if ((VRT>0.0)&&(Vbep<-VRT)) begin
+					qlo_vbep = PCatT*(1.0-pow((1.0+VRT/PCatT),(1.0-MC))*(1.0-((1.0-MC)*(Vbep+VRT))/(PCatT+VRT)))/(1.0-MC);
+				end else begin
+					qlo_vbep = PCatT*(1.0-pow((1.0-Vbep/PCatT),(1.0-MC)))/(1.0-MC);
+				end
+				qhi_vbep = 0.0;
+			end
+			qdbep = qlo_vbep+qhi_vbep;
+		end else begin
+			if ((VRT>0.0)&&(ART>0.0)) begin
+				vn0 = (VRT+dv0)/(VRT-dv0);
+				vnl0 = 2.0*vn0/(sqrt((vn0-1.0)*(vn0-1)+4*AJC*AJC)+sqrt((vn0+1.0)*(vn0+1)+4*ART*ART));
+				vl0 = 0.5*(vnl0*(VRT-dv0)-VRT-dv0);
+				qlo0 = PCatT*(1.0-pow((1.0-vl0/PCatT),(1.0-MC)))/(1.0-MC);
+				vn_vbep = (2*Vbep+VRT+dv0)/(VRT-dv0);
+				vnl_vbep = 2.0*vn_vbep/(sqrt((vn_vbep-1.0)*(vn_vbep-1)+4*AJC*AJC)+sqrt((vn_vbep+1.0)*(vn_vbep+1)+4*ART*ART));
+				vl_vbep = 0.5*(vnl_vbep*(VRT-dv0)-VRT-dv0);
+				qlo_vbep= PCatT*(1.0-pow((1.0-vl_vbep/PCatT),(1.0-MC)))/(1.0-MC);
+				sel_vbep = 0.5*(vnl_vbep+1.0);
+				crt = pow((1.0+VRT/PCatT),(-MC));
+				cmx = pow((1.0+dv0/PCatT),(-MC));
+				cl_vbep = (1.0-sel_vbep)*crt+sel_vbep*cmx;
+				ql_vbep = (Vbep-vl_vbep+vl0)*cl_vbep;
+				qdbep = ql_vbep+qlo_vbep-qlo0;
+			end else begin
+				mv0 = sqrt(dv0*dv0+4*AJC*AJC);
+				vl0 = -0.5*(dv0+mv0);
+				q0 = -PCatT*pow((1.0-vl0/PCatT),(1.0-MC))/(1.0-MC);
+				dv_vbep = Vbep+dv0;
+				mv_vbep = sqrt(dv_vbep*dv_vbep+4*AJC*AJC);
+				vl_vbep = 0.5*(dv_vbep-mv_vbep)-dv0;
+				qlo_vbep = -PCatT*pow((1.0-vl_vbep/PCatT),(1.0-MC))/(1.0-MC);
+				qdbep = qlo_vbep+pow((1.0-FC),(-MC))*(Vbep-vl_vbep+vl0)-q0;
+			end
+		end
+		argi_vbei	=  Vbei/(NFatT*Vtv);
+		expi_vbei	=  $limexp(argi_vbei);
+		Ifi	=  ISatT*(expi_vbei-1.0);
+		argi_vbci	=  Vbci/(NRatT*Vtv);
+		expi_vbci	=  $limexp(argi_vbci);
+		Iri	=  ISatT*ISRRatT*(expi_vbci-1.0);
+		q1z	=  1.0+qdbe*IVER+qdbc*IVEF;
+		q1	=  0.5*(sqrt((q1z-1.0e-4)*(q1z-1.0e-4)+1.0e-8)+q1z-1.0e-4)+1.0e-4;
+		q2	=  Ifi*IIKF+Iri*IIKR;
+                if (q2 > 0) begin
+		   if (QBM<0.5) begin
+			qb	=  0.5*(q1+pow((pow(q1,1.0/NKF)+4.0*q2),NKF));
+		   end else begin
+			qb	=  0.5*q1*(1.0+pow((1.0+4.0*q2),NKF));
+		   end
+                end else begin
+                   qb = q1;
+                end
+		Itzr	=  Iri/qb;
+		Itzf	=  Ifi/qb;
+		if (ISP>0.0) begin
+			argi_vbep	=  Vbep/(NFP*Vtv);
+			expi_vbep	=  $limexp(argi_vbep);
+			argx_vbci	=  Vbci/(NFP*Vtv);
+			expx_vbci	=  $limexp(argx_vbci);
+			Ifp	=  ISPatT*(WSP*expi_vbep+(1.0-WSP)*expx_vbci-1.0);
+			q2p	=  Ifp*IIKP;
+			qbp	=  0.5*(1.0+sqrt(1.0+4.0*q2p));		// assumes IKP>4*ISP if IKP>0
+		end else begin
+			Ifp	=  0.0;
+			qbp	=  1.0;
+		end
+
+		if (WBE==1.0) begin
+		argi_vbei	=  Vbei/(NEI*Vtv);
+		expi_vbei	=  $limexp(argi_vbei);
+		argn_vbei	=  Vbei/(NEN*Vtv);
+		expn_vbei	=  $limexp(argn_vbei);
+		if (VBBE>0.0) begin
+		argx_vbei	=  (-VBBEatT-Vbei)/(NBBEatT*Vtv);
+		expx_vbei	=  $limexp(argx_vbei);
+		Ibe	=  IBEIatT*(expi_vbei-1.0)+IBENatT*(expn_vbei-1.0)-IBBE*(expx_vbei-EBBEatT);
+		end else begin
+		Ibe	=  IBEIatT*(expi_vbei-1.0)+IBENatT*(expn_vbei-1.0);
+		end
+		Ibex	=  0.0;
+		end else if (WBE==0.0) begin
+		Ibe	=  0.0;
+		argi_vbex	=  Vbex/(NEI*Vtv);
+		expi_vbex	=  $limexp(argi_vbex);
+		argn_vbex	=  Vbex/(NEN*Vtv);
+		expn_vbex	=  $limexp(argn_vbex);
+		if (VBBE>0.0) begin
+		argx_vbex	=  (-VBBEatT-Vbex)/(NBBEatT*Vtv);
+		expx_vbex	=  $limexp(argx_vbex);
+		Ibex	=  IBEIatT*(expi_vbex-1.0)+IBENatT*(expn_vbex-1.0)-IBBE*(expx_vbex-EBBEatT);
+		end else begin
+		Ibex	=  IBEIatT*(expi_vbex-1.0)+IBENatT*(expn_vbex-1.0);
+		end
+		end else begin
+		argi_vbei	=  Vbei/(NEI*Vtv);
+		expi_vbei	=  $limexp(argi_vbei);
+		argn_vbei	=  Vbei/(NEN*Vtv);
+		expn_vbei	=  $limexp(argn_vbei);
+		if (VBBE>0.0) begin
+		argx_vbei	=  (-VBBEatT-Vbei)/(NBBEatT*Vtv);
+		expx_vbei	=  $limexp(argx_vbei);
+		Ibe	=  WBE*(IBEIatT*(expi_vbei-1.0)+IBENatT*(expn_vbei-1.0)-IBBE*(expx_vbei-EBBEatT));
+		end else begin
+		Ibe	=  WBE*(IBEIatT*(expi_vbei-1.0)+IBENatT*(expn_vbei-1.0));
+		end
+		argi_vbex	=  Vbex/(NEI*Vtv);
+		expi_vbex	=  $limexp(argi_vbex);
+		argn_vbex	=  Vbex/(NEN*Vtv);
+		expn_vbex	=  $limexp(argn_vbex);
+		if (VBBE>0.0) begin
+		argx_vbex	=  (-VBBEatT-Vbex)/(NBBEatT*Vtv);
+		expx_vbex	=  $limexp(argx_vbex);
+		Ibex	=  (1.0-WBE)*(IBEIatT*(expi_vbex-1.0)+IBENatT*(expn_vbex-1.0)-IBBE*(expx_vbex-EBBEatT));
+		end else begin
+		Ibex	=  (1.0-WBE)*(IBEIatT*(expi_vbex-1.0)+IBENatT*(expn_vbex-1.0));
+		end
+		end
+		argi_vbci	=  Vbci/(NCI*Vtv);
+		expi_vbci	=  $limexp(argi_vbci);
+		argn_vbci	=  Vbci/(NCN*Vtv);
+		expn_vbci	=  $limexp(argn_vbci);
+		Ibcj	=  IBCIatT*(expi_vbci-1.0)+IBCNatT*(expn_vbci-1.0);
+		if ((IBEIP>0.0)||(IBENP>0.0)) begin
+		argi_vbep	=  Vbep/(NCI*Vtv);
+		expi_vbep	=  $limexp(argi_vbep);
+		argn_vbep	=  Vbep/(NCN*Vtv);
+		expn_vbep	=  $limexp(argn_vbep);
+		Ibep	=  IBEIPatT*(expi_vbep-1.0)+IBENPatT*(expn_vbep-1.0);
+		end else begin
+		Ibep	=  0.0;
+		end
+		if (AVC1>0.0) begin
+			vl_vbci = 0.5*(sqrt((PCatT-Vbci)*(PCatT-Vbci)+0.01)+(PCatT-Vbci));
+                        avalf_exparg=-AVC2atT*pow(vl_vbci,(MC-1.0));
+			avalf = AVC1*vl_vbci*$limexp(avalf_exparg);
+			Igc	=  (Itzf-Itzr-Ibcj)*avalf;
+		end else begin
+			Igc	=  0.0;
+		end
+		Ibc	=  Ibcj-Igc;
+
+		if (RCX>0.0) begin
+			Ircx	=  Vrcx/RCXatT;
+		end else begin
+			Ircx	=  0.0;
+		end
+		argi_vbci	=  Vbci/Vtv;
+		expi_vbci	=  $limexp(argi_vbci);
+		argx_vbcx	=  Vbcx/Vtv;
+		expx_vbcx	=  $limexp(argx_vbcx);
+		Kbci	=  sqrt(1.0+GAMMatT*expi_vbci);
+		Kbcx	=  sqrt(1.0+GAMMatT*expx_vbcx);
+		if (RCI>0.0) begin
+			rKp1	=  (Kbci+1.0)/(Kbcx+1.0);
+			Iohm	=  (Vrci+Vtv*(Kbci-Kbcx-ln(rKp1)))/RCIatT;
+			derf	=  IVO*RCIatT*Iohm/(1.0+0.5*IVO*IHRCF*sqrt(Vrci*Vrci+0.01));
+			Irci	=  Iohm/sqrt(1+derf*derf);
+		end else begin
+			Irci	=  0.0;
+		end
+		if (RBX>0.0) begin
+			Irbx	=  Vrbx/RBXatT;
+		end else begin
+			Irbx	=  0.0;
+		end
+		if (RBI>0.0) begin
+			Irbi	=  Vrbi*qb/RBIatT;
+		end else begin
+			Irbi	=  0.0;
+		end
+		if (RE>0.0) begin
+			Ire	=  Vre/REatT;
+		end else begin
+			Ire	=  0.0;
+		end
+		if (RBP>0.0) begin
+			Irbp	=  Vrbp*qbp/RBPatT;
+		end else begin
+			Irbp	=  0.0;
+		end
+
+		sgIf	=  Ifi>0.0?1.0:0.0;
+		rIf	=  Ifi*sgIf*IITF;
+		mIf	=  rIf/(rIf+1.0);
+                tff_exparg=Vbci*IVTF/1.44;
+		tff	=  TF*(1.0+QTF*q1)*(1.0+XTF*$limexp(tff_exparg)*(slTF+mIf*mIf)*sgIf);
+		Qbe	=  CJEatT*qdbe*WBE+tff*Ifi/qb;
+		Qbex	=  CJEatT*qdbex*(1.0-WBE);
+		Qbc	=  CJCatT*qdbc+TR*Iri+QCO*Kbci;
+		Qbcx	=  QCO*Kbcx;
+		Qbep	=  CJEPatT*qdbep+TR*Ifp;
+		Qbeo	=  Vbe*CBEO;
+		Qbco	=  Vbc*CBCO;
+
+		Ith	= -(Ibe*Vbei+Ibc*Vbci+(Itzf-Itzr)*Vcei+Ibex*Vbex+Ibep*Vbep+Ircx*Vrcx+Irci*Vrci+Irbx*Vrbx+Irbi*Vrbi+Ire*Vre+Irbp*Vrbp);
+		if (RTH>0.0) begin
+		Irth	=  Vrth/RTH;
+		end else begin
+		Irth	=  0.0;
+		end
+		Qcth	=  Vrth*CTH;
+
+//
+//		Branch contributions to VBIC model
+//
+
+		I(bei)	<+  M*dtype*(Ibe+$simparam("gmin")*Vbei);
+		I(bex)	<+  M*dtype*(Ibex+$simparam("gmin")*Vbex);
+		I(cei)	<+  M*dtype*Itzf;
+		I(eci)	<+  M*dtype*Itzr;
+		I(bci)	<+  M*dtype*(Ibc+$simparam("gmin")*Vbci);
+		I(bep)	<+  M*dtype*(Ibep+$simparam("gmin")*Vbep);
+                if (RCX>0)
+                  I(rcx) <+  M*dtype*Ircx;
+                else
+                  V(rcx) <+ 0.0;
+		I(rci)	<+  M*dtype*(Irci+$simparam("gmin")*Vrci);
+//		I(bei)	<+  dtype*Ibe;
+//		I(bex)	<+  dtype*Ibex;
+//		I(cei)	<+  dtype*Itzf;
+//		I(eci)	<+  dtype*Itzr;
+//		I(bci)	<+  dtype*Ibc;
+//		I(bep)	<+  dtype*Ibep;
+//		I(rcx)	<+  dtype*Ircx;
+//		I(rci)	<+  dtype*Irci;
+                if (RBX>0)
+		  I(rbx)	<+  M*dtype*Irbx;
+                else
+                  V(rbx) <+ 0.0;
+           
+		I(rbi)	<+  M*dtype*Irbi;
+
+                if (RE>0)
+		  I(re)	<+  M*dtype*Ire;
+                else
+                  V(re) <+ 0.0;
+
+           
+		I(rbp)	<+  M*dtype*Irbp;
+		I(bei)	<+  M*dtype*ddt(Qbe);
+		I(bex)	<+  M*dtype*ddt(Qbex);
+		I(bci)	<+  M*dtype*ddt(Qbc);
+		I(bcx)	<+  M*dtype*ddt(Qbcx);
+		I(bep)	<+  M*dtype*ddt(Qbep);
+		I(be)	<+  M*dtype*ddt(Qbeo);
+		I(bc)	<+  M*dtype*ddt(Qbco);
+                // Thermal network is NOT multiplied by M
+		I(rth)	<+  Irth;
+		I(ith)	<+  Ith;
+		I(rth)	<+  ddt(Qcth);
+	end
+endmodule

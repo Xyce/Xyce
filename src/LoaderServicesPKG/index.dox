@@ -1,0 +1,12 @@
+/// @defgroup xyce_loaderservices_package Loader Services Package (N_LOA)
+/// @brief The Xyce Loader Services package provides the classes and interfaces to define a circuit loader
+
+namespace Xyce {
+
+/**
+ * @brief Loader Services Definitions
+ */
+namespace Loader{
+
+} // namespace Loader
+} // namespace Xyce

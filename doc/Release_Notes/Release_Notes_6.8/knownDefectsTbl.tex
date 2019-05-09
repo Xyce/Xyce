@@ -1,0 +1,273 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Known defects and workarounds.
+%%
+%% This section should highlight significant defects that were not fixed in
+%% the release
+
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Known Defects and Workarounds.} \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description
+  \\ \hline \endfirsthead
+  \caption[]{Known Defects and Workarounds.} \\ \hline
+  \rowcolor{XyceDarkBlue} \color{white}\bf Defect & \color{white}\bf Description
+  \\ \hline \endhead
+% EXAMPLE:
+%\textbf{bug number-SRN}: bug title & Description of KNOWN BUG THAT HAS NOT BEEN
+  %FIXED.
+
+%\textbf{\textit{Workaround}}: Describe how to work around this bug.
+%\\ \hline
+%
+%
+\textbf{939-SON}: Invalid fields (XBEGIN, XEND and SUBTITLE) in \Xyce{}-generated
+.HOMOTOPY.csd files &  The  fields in the \#H header block of the .HOMOTOPY.csd
+files are currently hard-coded to 0 and 1, respectively.  The \texttt{SUBTITLE} 
+field is incorrect for \texttt{.STEP} data.  It is missing the values for the 
+stepped parameters.
+
+\textbf{\textit{Workaround}}: There is no workaround for the \texttt{XBEGIN} 
+and \texttt{XEND} issue.  However, it should not affect the ``viewability'' of 
+those files in the PSpice A/D viewer.  The workaround for the \texttt{SUBTITLE}
+issue is to put the stepped parameters on the \texttt{.PRINT HOMOTOPY} line.
+\\ \hline
+
+\textbf{928-SON}: The .hb\_ic.prn file can be incorrect when .STEP is used 
+with .HB &  \Xyce{} should only output the initial condition (ic) data for
+the accepted tolerance in the \texttt{<netlist-name>.hb\_ic.prn} file.  
+However, it currently outputs all of the intermediate ic data while harmonic 
+balance tries to find a good tolerance if \texttt{.STEP} is used with 
+\texttt{.HB}. 
+
+\textbf{\textit{Workaround}}: There is no workaround. \\ \hline
+
+\textbf{911-SON}:  Improve compatibility of multi-file output with the -o command
+line option & If \Xyce{} is invoked with the -o command line option then
+the output may be ``interleaved'' in one file rather than appearing correctly
+in multiple files.  For example, if the netlist \texttt{example.cir} has these
+two \texttt{.PRINT} lines:
+{\tt
+\begin{verbatim}
+.PRINT TRAN V(1)
+.PRINT HOMOTOPY V(1) 
+\end{verbatim}
+}
+and is invoked with \texttt{Xyce -o output.text example.cir} then the output that
+would normally appear in separate \texttt{example.cir.prn} and
+\texttt{example.cir.HOMOTOPY.prn} files would be jumbled together in the single
+file \texttt{output.txt}.  This may not be what the user intended.
+
+\textbf{\textit{Workaround}}: There are two workarounds.  First, don't use -o if 
+your netlist could output more than one file.  Instead, use separate \texttt{FILE=} 
+qualifiers on every \texttt{.PRINT} line.  Second, use -o if desired but add 
+\texttt{FILE=} to every \texttt{.PRINT} line other than \texttt{.PRINT TRAN} and 
+\texttt{.PRINT DC} lines in your netlist.\\ \hline
+
+\textbf{883-SON} .PREPROCESS REPLACEGROUND does not work on nodes referenced 
+in expressions &  The \texttt{.PREPROCESS REPLACEGROUND} feature does not 
+replace ground synonyms if they appear in B source expressions.
+  
+\textbf{\textit{Workaround}}: There is none.\\ \hline
+
+\textbf{855-SON}: Missing error message when a netlist uses an operator (e.g., IR or P) that 
+is not supported for .AC analyses & This is related to SON Bug
+718.  \Xyce{} will output all zeroes or all NaNs, for the requested
+quantity, when a netlist uses an operator (e.g.,
+\texttt{IR} or \texttt{P}) that is unsupported for .AC analyses.  Instead, \Xyce{} 
+should report a netlist-parsing warning or error for this case.
+
+\textbf{\textit{Workaround}}: There is none, other than noticing that an output waveform 
+value is unexpectedly all zeroes or all NaNs. \\ \hline
+
+\textbf{812-SON}: Undocumented limitations on, and bugs with, parameter and global 
+parameter names & Based on external customer input and pre-release testing, there are
+some bugs and undocumented limitations on parameter and global parameter names in 
+\Xyce{}. Parameters and global parameters should start with a letter, rather than with a
+number or ``special'' character like \#.  In addition, the use of a single 
+character $V$ as a global parameter name can result in either netlist parsing failures
+or incorrect results from \texttt{.PRINT} lines.  \\ \hline
+
+\textbf{807-SON}: BSIM4 convergence problems with non-zero rgatemod value &
+There have been reports of convergence problems (e.g., the \Xyce{} simulation
+fails part way through and says that the ``time step is too small'')  when the 
+\texttt{rgatemod} parameter is non-zero. \\ \hline
+
+\textbf{794-SON}: Bug in TABLE Form of \Xyce{} Controlled Sources & In some case, a \Xyce{}
+netlist with a controlled source, that uses the TABLE form, will get the correct answer 
+at first.  However, it may then ``stall'' (e.g, keep taking really small time-steps)
+and never complete the simulation run.  
+
+\textbf{\textit{Workaround}}: In some cases, the TABLE specification for the controlled
+source can be replaced with a Piecewise Linear (PWL) source that uses nested IF 
+statements. \\ \hline
+
+\textbf{783-SON}: Use of ddt in a B-Source definition may produce incorrect results  & The \texttt{DDT()} 
+function from the \Xyce{} expression package, which implements a time derivative, may not function 
+correctly in a B-Source definition.
+
+\textbf{\textit{Workaround}}: None. \\ \hline
+
+\textbf{727-SON}: \Xyce{} parallel builds hang randomly on OS X & During Sandia's internal 
+nightly testing of the OSX parallel builds, we see that \Xyce{} ``hangs on exit'' with an 
+estimated frequency of less than 1-in-5000 simulation runs.  We have not seen this issue 
+with parallel builds for either RHEL6 or BSD.  The hang is on exit, whether on a successful 
+exit or on an error exit.  The hang occurs after all of the \Xyce{} output has occurred though.  
+So, the user will get their sim results, but might have trouble if the individual \Xyce{} runs 
+are part of a larger script.
+
+\textbf{\textit{Workaround}}: None. \\ \hline
+
+\textbf{718-SON}: Missing error message for invalid nodes in expressions on .PRINT lines & If an invalid node
+is specified on a \Xyce{} \texttt{.PRINT TRAN} line then \Xyce{} should return a fatal error during netlist
+parsing (e.g., \texttt{.PRINT TRAN V(BOGONODE)} will produce an error message of \texttt{undefined 
+symbol in .PRINT command: node BOGONODE}, if \texttt{BOGONODE} does not exist in the netlist).  However, if the
+invalid node is inside a \Xyce{} expression (e.g., \texttt{.PRINT TRAN \{V(BOGONODE)\}}) then \Xyce{} will 
+not produce an error message during netlist parsing and the output value for \texttt{\{V(BOGONODE)\}} will 
+be zero for all time-steps.
+
+\textbf{\textit{Workaround}}: There is none, other than noticing that an output waveform value is 
+unexpectedly all zeroes, and correcting the \texttt{.PRINT} statement. \\ \hline
+
+\textbf{715-SON}: I(*) for subcircuit nodes does not work properly on .PRINT lines & 
+\texttt{.PRINT TRAN I(*)} works for nodes at the top-level of the netlist.  However, it will
+fail during netlist parsing if there are nodes in subcircuits.  The error message will be 
+something like \texttt{Function or variable I(V:X1:1) is not defined}.
+
+\textbf{\textit{Workaround}}: Explicitly put the desired lead or branch currents, using the
+fully qualified device names, in the \texttt{.PRINT} statement. \\ \hline
+
+\textbf{707-SON}: Behavior for invalid nodes on .FOUR lines and in .MEASURE statements &
+There are issues with \texttt{.FOUR} lines and \texttt{.MEASURE} statements that accidentally
+use node names that are not in the netlist.  In that case, the \texttt{.cir.four} output file 
+will contain a mix of all zero's and NaN's, and \Xyce{} will not produce a warning or error 
+message about the invalid node name.  Similarly, the measure statement will run without a 
+warning message about the invalid node name.  The measure result will then be zero, rather than 
+FAILED. \\ \hline
+
+\textbf{661-SON} Branch Currents and Power Accessors (I(), P() and W()) Do Not Work 
+Properly in .RESULT Statements  & There are two issues.  First, \texttt{.RESULT} statements 
+will fail netlist parsing if the requested branch current is omitted from the \texttt{.PRINT TRAN} 
+line.  As an example, this statement (\texttt{.RESULT I(R1)}) requires either \texttt{I(R1)},
+\texttt{P(R1)} or \texttt{W(R1)} to be on the \texttt{.PRINT TRAN} line.  Second, the
+output value, in the \texttt{.res} file, for the lead current or power calculation will 
+always be zero.
+\\ \hline 
+
+\textbf{652-SON}: HB output is buggy & While a straightforward use of \texttt{.print HB} works as described in the users and reference guides, several of the documented features do not work as intended.
+
+\texttt{.print HB\_FD} and \texttt{.print HB\_TD} are intended as a way of specifying variable lists for frequency- and time-domain outputs, respectively.  It has been discovered that these only produce output if there are print specifications for {\em both\/} frequency and time domain.  That is, if only one of \texttt{.print HB\_FD} or \texttt{.print HB\_TD} is present in the netlist, no output will be produced at all.   
+
+\textbf{\textit{Workaround}}: When performing harmonic balance analysis, always specify enough print lines so that both time- and frequency-domain variables are output.  This could be by specifing \texttt{.print HB} alone, by specifying both \texttt{.print HB} and \texttt{.print HB\_TD}, or by specifying both \texttt{.print HB\_FD} and \texttt{.print HB\_TD}.
+\\ \hline
+
+
+\textbf{583-SON}: Switch with RON=0 leads to convergence failure. &  The switch device does not prevent a user from specifying \texttt{RON=0} in its model, but then takes the inverse of this value to get the ``on'' conductance.  The resulting invalid division will either lead to a division by zero error on platforms that throw such errors, or produce a conductance with ``Not A Number'' or ``Infinity'' as value.  This will lead to a convergence failure.
+
+\textbf{\textit{Workaround}}: Do not specify an identically zero resistance for the switch's ``on'' value.  A small value of resistance such as 1e-15 or smaller will generally work well as a substitute. \\ \hline
+
+
+\textbf{469-SON}: Belos memory consumption on FreeBSD and excessive CPU on other
+platforms &
+Memory or thread bloat can result when using multithreaded dense linear algebra
+libraries, which are employed by Belos.  If this situation is observed, either build
+\Xyce{} with a serial dense linear algebra library or use environment variables to control
+the number of spawned threads in a multithreaded library.
+\\ \hline
+
+
+\textbf{468-SON}: It should be legal to have two model cards with the same model
+name, but different model types. & SPICE3F5 and ngspice only require that
+model cards of the same type have unique model names. They accept model cards
+of different types with the same name.  \Xyce{} requires that all model card names be unique.
+\\ \hline
+
+
+\textbf{250-SON}: NODESET in \Xyce{} is not equivalent to NODESET in SPICE & As
+currently implemented, \texttt{.NODESET} applies the initial conditions given throughout
+a full nonlinear solve for the operating point, then uses the result as an
+initial guess for a second nonlinear solve with no constraints.  This is not
+the same as SPICE, which merely applies the given initial conditions to a
+single nonlinear solve for the first two iterations, then lets the problem
+converge with no further constraints.  This can lead to a \Xyce{} \texttt{.NODESET} failing
+where the same netlist in SPICE might not, if the initial conditions are such
+that a full nonlinear solve cannot converge with those constraints in place.
+There is no workaround.
+\\ \hline
+
+\textbf{247-SON}: Expressions don't work on .options lines & Expressions enclosed
+in braces (\{ \}) are handled specially throughout \Xyce{}, and may only be used
+in certain contexts such as in device model or instance parameters or on
+\texttt{.PRINT} lines.
+\\ \hline
+
+
+\textbf{49-SON} \Xyce{} BSIM models recognize the model TNOM, but not the
+instance TNOM & Some simulators allow the model parameter TNOM of BSIM devices to be specified on the instance line, overriding the model parameter TNOM.  \Xyce{} does not support this.
+\\ \hline
+
+\textbf{37-SON}: Connectivity checking is broken for devices with more than 10
+leads & The diagnostic code used by the \Xyce{} setup that checks circuit
+topology for basic errors such as a node having no DC path to ground or a node
+being connected to only one device has a bug in it that causes the code to emit
+a cryptic error message, after which the code will exit.  This error has so far
+only been seen when a user has attempted to connect a large number of inductors
+together using multiple mutual inductor lines.  The maximum number of
+non-ground leads that can be used without confusing this piece of code is 10.
+If your circuit has that type of large, highly-connected mutual inductor and
+the code exits with an error message, this bug may be the source of the problem.
+
+The error message now includes a recommendation to use the workaround below.
+
+\textbf{\textit{Workaround}}: Disable connectivity checking by adding the line
+
+\begin{alltt} .OPTIONS TOPOLOGY CHECK_CONNECTIVITY=0 \end{alltt}
+
+to your netlist.  This will disable the check for the basic errors such as
+floating nodes and improperly connected devices, but will allow the netlist to
+run with a highly-connected mutual inductor.
+\\ \hline
+
+
+\textbf{27-SON}: Fix handling of .options parameters & When specifying .options
+  for a particular package, what gets applied as the non-specified default
+  options might change.  \\ \hline
+
+\textbf{1962-SRN}: Voltages from interface nodes for subcircuits may not work
+correctly in expressions on \texttt{.PRINT} lines & An expression that uses a 
+voltage from an interface node to a subcircuit on a \texttt{.PRINT} line 
+may only work if that voltage node is also used outside of the expression on 
+the \texttt{.PRINT} line.  A simple example is as follows.  The expression 
+\texttt{\{V(X1:a)*I(X1:R1)\}} prints out as 0, unless \texttt{V(X1:a)} is also on 
+the \texttt{.PRINT} line.
+\\ \hline
+
+\textbf{1923-SRN}: LC lines run out of memory, even if equivalent (larger) RLC
+lines do not. &  In some cases, circuits that run fine using an RLC approximation for a
+transmission line, exit with an out-of-memory error if the (supposedly smaller) LC
+approximation is used.
+\\ \hline
+
+\textbf{1595-SRN}: \Xyce{} won't allow access to inductors within subcircuits for
+mutual inductors external to subcircuits & It is not possible to have a mutual
+inductor outside of a subcircuit couple to inductors in a subcircuit.
+
+\textbf{\textit{Workaround}}: Put all inductors and mutual inductance lines that couple to
+them together at the same level of circuit hierarchy.
+\\ \hline
+
+
+\end{longtable}
+}

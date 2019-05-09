@@ -1,0 +1,91 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+\begin{Device}\label{G_DEVICE}
+
+\symbol
+{\includegraphics{vccsSymbol}}
+
+\device
+\begin{alltt}
+G<name> <(+) node> <(-) node> <(+) controlling node>
++ <(-) controlling node> <transconductance>
+G<name> <(+) <node> <(-) node> VALUE = \{ <expression> \}
+G<name> <(+) <node> <(-) node> TABLE \{ <expression> \} =
++ < <input value>,<output value> >*
+G<name> <(+) <node> <(-) node> POLY(<value>)
++ [<+ controlling node> <- controlling node>]*
++ [<polynomial coefficient>]*
+\end{alltt}
+
+\examples
+\begin{alltt}
+GBUFFER 1 2 10 11 5.0
+GPSK 11 6 VALUE = \{5MA*SIN(6.28*10kHz*TIME+V(3))\}
+GA2 2 0 TABLE \{V(5)\} = (0,0) (1,5) (10,5) (11,0)
+\end{alltt}
+
+\parameters
+
+\begin{Parameters}
+
+\param{\vbox{\hbox{(+) node\hfil}\hbox{(-) node}}}
+
+Output nodes. Positive current flows from the \texttt{(+)} node through
+the source to the \texttt{(-)} node.
+
+\param{\vbox{\hbox{(+) controlling node\hfil}\hbox{(-) controlling node}}}
+
+Node pairs that define a set of controlling voltages. A given node may
+appear multiple times and the output and controlling nodes may be the
+same.
+
+\end{Parameters}
+
+\comments
+
+In the first form, the voltage drop between the controlling nodes is
+multiplied by the transconductance to obtain the current-source
+output of the \texttt{G} device. 
+
+The second through fourth forms using the \texttt{VALUE}, \texttt{TABLE}, and
+\texttt{POLY} keywords, respectively, are used in analog behavioral modeling.
+They are provided primarily for netlist compatibility with other simulators.
+These two forms are automatically converted within \Xyce{} to its principal ABM
+device, the B nonlinear dependent source device. See the B-source section
+(\ref{B_Source_Device}) and the \Xyce{} User's Guide for more guidance on
+analog behavioral modeling.  For details concerning the use of the
+\texttt{POLY} format, see section~\ref{PspicePoly}.
+
+For HSPICE compatibility, \texttt{CUR} is an allowed synonym for
+\texttt{VALUE} for the G-source.
+
+The power supplied or dissipated by this source device is calculated 
+with $I \cdot \Delta V$ where the voltage drop is calculated as $(V_+ - V_-)$ 
+and positive current flows from $V_+$ to $V_-$.  Dissipated power has a
+positive sign, while supplied power has a negative sign.
+
+{\bf NOTE:} The expression given on the left hand side of the equals
+sign in G source TABLE expressions may be enclosed in braces, but is
+not required to be.  Further, if braces are present there must be
+exactly one pair of braces and it must enclose the entire expression.
+It is not legal to use additional pairs of braces as parentheses
+inside these expressions.  So
+\begin{alltt}
+GA2 2 0 TABLE \{V(5)+5\} = (0,0) (1,5) (10,5) (11,0)
+GA3 2 0 TABLE V(5) = (0,0) (1,5) (10,5) (11,0)
+\end{alltt}
+are legal, but
+\begin{alltt}
+GA2 2 0 TABLE \{V(5)+\{5\}\} = (0,0) (1,5) (10,5) (11,0)
+\end{alltt}
+is not.  This last will result in a parsing error.
+\end{Device}

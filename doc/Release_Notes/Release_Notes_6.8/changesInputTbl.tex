@@ -1,0 +1,57 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Changes to Xyce input since the last release.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endfirsthead
+  \caption[]{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endhead
+
+The \texttt{FORMAT=RAW} print format for homotopy output has changed &
+The \texttt{FORMAT=RAW} print format is still unsupported for homotopy 
+output.  However, it now defaults to \texttt{FORMAT=STD} with the file 
+extension of .HOMOTOPY.prn. In earlier versions of \Xyce{}, the 
+file extension was .HOMOTOPY.unknown. \\ \hline
+
+The \texttt{FORMAT=PROBE} and \texttt{FORMAT=RAW} print formats for noise
+output have changed & Those two print formats are still unsupported for 
+noise output.  However, they now default to \texttt{FORMAT=STD} with the 
+file  extensions of .NOISE.prn. In earlier versions of \Xyce{}, their 
+file extensions were .NOISE\_unknown. \\ \hline
+
+A \texttt{.PRINT HOMOTOPY} line is now required to get homotopy output
+during a .transient simulation &  In previous versions of \Xyce{}, the 
+contents of the \texttt{.PRINT TRAN} line was used to generate homotopy
+output during a transient simulation if there was no \texttt{.PRINT 
+HOMOTOPY} line in the netlist.  An explicit \texttt{.PRINT HOMOTOPY}
+line is now required for all analyses types in order to generate 
+\Xyce{} homotopy output.  \\ \hline
+
+The simulation footers for \texttt{.PRINT HOMOTOPY} and \texttt{.PRINT SENS}
+have changed slightly & For the \texttt{FORMAT=STD}, \texttt{FORMAT=GNUPLOT} 
+and \texttt{FORMAT=TECPLOT} print formats, \texttt{.PRINT HOMOTOPY} will now print 
+the simulation footer ``End of Xyce(TM) Homotopy Simulation'' for all simulations 
+(with and without \texttt{.STEP}).  Similarly, \texttt{.PRINT SENS} will now
+print the simulation footer ``End of Xyce(TM) Sensitivity Simulation'' for 
+all simulations (with and without \texttt{.STEP}). \\ \hline
+
+\end{longtable}
+}

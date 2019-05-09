@@ -1,0 +1,70 @@
+--- N_DEV_ADMSHBT_X.C	2013-04-24 14:19:54.266373926 -0600
++++ N_DEV_ADMSHBT_X.C	2013-04-24 14:32:31.122368762 -0600
+@@ -1310,9 +1315,48 @@
+ 
+   origFlag = true;
+ 
++  //Manually moved from below
++  tVCrit = (adms_vt_nom*log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12)))));
+   if (getSolverState().newtonIter == 0)
+   {
+ 
++    if (getSolverState().initJctFlag_ && getDeviceOptions().voltageLimiterFlag)
++    {
++      // manually inserted code:
++      if (getSolverState().inputOPFlag)
++      {
++        Linear::Vector * flagSolVectorPtr = (extData.flagSolVectorPtr);
++        if ((*flagSolVectorPtr)[li_e] == 0 ||
++            (*flagSolVectorPtr)[li_ei] == 0 ||
++            (*flagSolVectorPtr)[li_ex] == 0 ||
++            (*flagSolVectorPtr)[li_exx] == 0 ||
++            (*flagSolVectorPtr)[li_b] == 0 ||
++            (*flagSolVectorPtr)[li_bi] == 0 ||
++            (*flagSolVectorPtr)[li_bii] == 0 ||
++            (*flagSolVectorPtr)[li_c] == 0 ||
++            (*flagSolVectorPtr)[li_ci] == 0 ||
++            (*flagSolVectorPtr)[li_cx] == 0 ||
++            (*flagSolVectorPtr)[li_t] == 0 ||
++            (*flagSolVectorPtr)[li_ti] == 0 )
++        {
++          vbcx_limited = vbci_limited = 0;
++          vbei_limited = tVCrit;
++          origFlag = false;
++        }
++      }
++      else
++      {
++        vbcx_limited = vbci_limited = 0;
++        vbei_limited = tVCrit;
++        origFlag = false;
++        if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
++        {
++          Xyce::dout() << " Setting device initial condition to Base-Emitter drop=tVCri (" << tVCrit << ")" << std::endl;
++        }
++      }
++    }
++    // end manually inserted code
++
+     if (!(getSolverState().dcopFlag)||(getSolverState().locaEnabledFlag && getSolverState().dcopFlag))
+     {
+       vbei_old = ((*extData.currStaVectorPtr))[li_state_admsProbeID_V_bii_ei];
+@@ -1334,7 +1380,8 @@
+   }
+ 
+   // -- code converted from analog/code block
+-  tVCrit = (adms_vt_nom*log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12)))));
++  // Manually moved to above
++  //tVCrit = (adms_vt_nom*log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12)))));
+ 
+ 
+   //vbcx = ($limit(V(bi,ci),"typedpnjlim",$vt(),tVCrit,dtype));
+@@ -1401,7 +1448,7 @@
+   Ic1ra = AnalogFunctions::diode<AdmsFadType>(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom));
+   if ((((model_.VAF)>0.0)&&((model_.VAR)>0.0)))
+   {
+-    q1 = ((1.0+((AnalogFunctions::charge<AdmsFadType>(vbei,1.0,(model_.Vje),(model_.mje),1.0)-AnalogFunctions::charge<AdmsFadType>(0.0,1.0,(model_.Vje),(model_.mje),1.0))/(model_.VAR)))+((AnalogFunctions::charge<AdmsFadType>(vbci,1.0,(model_.Vjc),(model_.mjc),1.0)-AnalogFunctions::charge<AdmsFadType>(0.0,1.0,(model_.Vjc),(model_.mjc),1.0))/(model_.VAF)));
++    q1 = ((1.0+((AnalogFunctions::charge<AdmsFadType>(vbei,1.0,(model_.Vje),(model_.mje),1.0)-AnalogFunctions::charge<double>(0.0,1.0,(model_.Vje),(model_.mje),1.0))/(model_.VAR)))+((AnalogFunctions::charge<AdmsFadType>(vbci,1.0,(model_.Vjc),(model_.mjc),1.0)-AnalogFunctions::charge<double>(0.0,1.0,(model_.Vjc),(model_.mjc),1.0))/(model_.VAF)));
+   }
+   else
+   {

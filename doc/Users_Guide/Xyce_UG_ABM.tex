@@ -1,0 +1,449 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Main LaTeX Xyce Users' Guide
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postcript versions.  Not sure why.
+%% Creator        : Scott A. Hutchinson, Computational Sciences, SNL
+%% Creation Date  : {05/23/2002}
+%%
+%%-------------------------------------------------------------------------
+
+\chapter{Analog Behavioral Modeling}
+\index{behavioral model!analog behavioral modeling (ABM)}
+\index{analog behavioral modeling (ABM)}
+\label{Behavioral_Modeling}
+
+\chapteroverview{Chapter Overview}
+{
+This chapter describes analog behavioral
+modeling in \Xyce{}.  Sections include:
+\begin{XyceItemize}
+\item Section~\ref{Behavioral_Overview},{\em Overview of Analog Behavioral Modeling}
+\item Section~\ref{ABM_Devices}, {\em Specifying ABM Devices}
+\item Section~\ref{ABM_Guidance}, {\em Guidance for ABM Use}
+\end{XyceItemize}
+}
+
+\section{Overview of Analog Behavioral Modeling (ABM)}
+\label{Behavioral_Overview}
+
+The analog behavioral modeling
+\index{behavioral model!analog behavioral modeling (ABM)} 
+\index{analog behavioral modeling (ABM)} 
+capability of \Xyce{} provides for flexible descriptions of
+electronic components or subsystems in terms of a transfer function or lookup table. In other
+words, a mathematical relationship is used to model a circuit segment thereby removing
+the need for component-by-component design information for those components or subsystems.
+
+The \verb+B+\index{device!\verb+B+ (nonlinear dependent) source}
+\index{device!behavioral} device, or nonlinear dependent source, is
+the primary device used for analog behavioral modeling in \Xyce{}.  A
+\verb+B+ device can serve as either a voltage or current source, and by using
+expressions dependent on voltages and currents elsewhere in the
+circuit the user can produce a wide range of behaviors.
+
+\section{Specifying ABM Devices}
+\label{ABM_Devices}
+\index{device!specifying ABM devices}
+
+ABM devices\index{device!\verb+B+ (nonlinear dependent) source} (\verb+B+
+devices) are specified in a netlist the same way as other devices.  Customizing
+the operational behavior of the device is achieved by defining an ABM
+expression describing how inputs are transformed into outputs.
+
+For example, the following pair of lines would provide exactly the same
+behavior as a 10K resistor between nodes 1 and 2, and is
+written to be a current source with current specified using Ohm's
+law and the constant resistance value of 10K $\Omega$.
+
+\begin{vquote}
+.PARAM Res1=10K
+Blinearres 1 2 I=\{(V(2)-V(1))/Res1\}
+\end{vquote}
+
+A nonlinear resistor could be specified similarly:
+\begin{vquote}
+.PARAM R1=0.15
+.PARAM R2=6
+.PARAM E2 = \{2*E1\}
+.PARAM delr = \{R1-R0\}
+.PARAM k1 = \{1/E1**2\}
+.PARAM r2 = \{R0+sqrt(2)*delr\}
+
+.FUNC Rreg1(a,b,c,d) \{a +(b-a)*c/d\}
+.Func Rreg2(a,b,c,d,f) \{a+sqrt(2-b*(2*c-d)**2)*f\}
+
+Bnlr 4 2 V = \{I(Vmon) * IF(
++ V(101) < E1, Rreg1(R0,R1,V(101),E1),
++ IF(
++ V(101) < E2, Rreg2(R0,k1,E1,V(101),delr), R2
++ )
++ )\}
+\end{vquote}
+
+In this example, \verb+Bnlr+ provides a voltage between nodes 4 and 2,
+determined using Ohm's law with a resistance that is a function of the
+voltage on node 101 and a number of parameters.  These two examples
+demonstrate how the \verb+B+ source can be used either as a voltage
+source (by specifying \verb+V={expression}+) or as a current source
+(with \verb+I={expression}+).
+
+NOTE: Unlike expressions used in parameters or function declarations,
+expressions in the nonlinear dependent source may contain voltages and
+currents from other parts of the circuit, or even explicit
+time-dependent functions.  \Xyce{} evaluates these expressions when the
+current or voltage through the ABM source is needed.  In contrast, expressions
+used in parameters or function declarations are evaluated only once, prior
+to the start of the circuit simulation.
+
+\subsection{Additional constructs for use in ABM expressions}
+
+ABM expressions follow the same rules as other expressions in a
+netlist, with the additional ability to specify signals (node voltages
+and voltage source currents) and explicitly time-dependent functions
+in the expression.  In ABM expressions, refer to signals by
+name. \Xyce{} recognizes the following constructs in ABM expressions:
+\index{expressions!additional constructs for ABM modeling}
+\index{expressions!time-dependent}
+\begin{XyceItemize}
+\item \texttt{V(<node name>)}
+\item \texttt{V(<node name>,<node name>)} (the voltage difference between the first and second nodes)
+\item \texttt{I(<voltage source name>)}
+\item The variable, \texttt{TIME}
+\item The constants, \texttt{PI} and \texttt{EXP}, which equal $\pi$ and $e$, respectively.
+\item Lookup tables
+\end{XyceItemize}
+
+In a hierarchical circuit (a circuit with possibly nested levels of
+subcircuits), voltage source names in an ABM expression must be the
+name of a voltage source in the same subcircuit as the ABM device, or in a
+subcircuit instantiated by that subcircuit.  Similarly, node names in an ABM 
+expression must be the node names of one or more devices in the same subcircuit
+as the ABM device, or in a subcircuit instantiated by that subcircuit. 
+
+\subsection{Examples of Analog Behavioral Modeling}
+\index{behavioral model!lookup table}
+\index{behavioral model!examples}
+\index{expressions!lookup table}
+A variety of examples of legal usage of analog behavioral modeling is
+probably the most effective means of demonstrating what is
+allowed. The following netlist fragment shows the range of 
+simple items allowed in ABM  expressions:
+
+\begin{vquote}
+* Current through B1 given as expression of voltage drop between 
+* nodes 2 and 3 plus current through voltage source Vr4mon
+B1  1  0  I=\{V(2,3) + I(Vr4mon)\}
+R4  2  0  10K
+Vr4mon  2a 2  0V
+* Voltage across device Em given as time-dependent expression 
+Em  3  2a  VALUE=\{PAR3+1000*time\}
+* Voltage across device B2 set to  current through device Em
+B2  2a  0  V=\{I(Em)\}
+M3  Drain  6  0  NMOD
+VdrainM3 DrainPrime Drain 0v
+* Voltage across B3 is function of voltage on node two and current through
+* device VdrainM3
+B3  6  4  V=\{I(VdrainM3)+V(2)\}
+* Voltage across device B4 is function of an internal node named "5" of 
+* subcircuit instance X1
+X1 1 3 mysubcircuit
+B4 4 5 V=\{V(X1:5)\}
+* Current through device B5 taken from current through internal device V4
+* of subcircuit instance X1
+B5 4 5 I=\{I(X1:V4)\}
+\end{vquote}
+
+The range of items that can be used in the current and voltage
+parameters of a B (or E, F, G, or H) source is far greater than what
+is allowed for expressions in other contexts. In particular, the use
+of solution values (V(*), V(*,*), I(V*)) are prohibited in all other
+expressions because they lead to unstable behavior if used
+elsewhere beside ABM. Time-dependent expressions are allowed for some device
+parameters, but this feature should be used with caution, as the
+behavior of a non-ABM device cannot be guaranteed to be correct when its 
+device parameters are not constant throughout a simulation run.
+
+In addition to these simple items, lookup tables provide a means of
+specifying a piecewise linear function in an expression.  A table expression is
+specified with the keyword \verb+TABLE+ followed by an expression that
+is evaluated as the independent variable of the function, followed by a
+list of pairs of independent variable/dependent variable values.  For
+example:
+
+\Example{B1 1 0 V=\{TABLE \{time\} = (0, 0) (1, 2) (2, 4) (3, 6)\}}
+
+An equivalent example uses the table function, which has a simpler syntax, but
+ may be hard to read for long tables:
+
+\Example{B1 1 0 V=\{TABLE(time, 0, 0, 1, 2, 2, 4, 3, 6)\}}
+
+The previous two examples will produce a voltage source (B1) whose voltage
+is a simple linear function of time.  At $t=0$ the voltage is $0$ volts and 
+at time $t=1s$ the voltage is $2$ volts.  Similarly, the voltage will
+be $4$ volts at $t=2s$ and $6$ volts at $t=3s$. Linear interpolation is
+used at times in between those tabulated values.
+
+It is also possible to create ABM sources from files of time-value pairs by providing the name of the file containing the pairs between quotation marks \texttt{(")}:
+
+\Example{Bfile 1 0 V=tablefile("myfile")}
+
+The file provided must have one time-voltage pair per line, separated
+by spaces.  Comma-separated files are not supported, and will not be
+parsed correctly.  If the file ``myfile'' contains the following data:
+\begin{verbatim}
+0 0
+1 2
+2 4
+3 6
+\end{verbatim}
+then the ``Bfile'' example above will be identical to either of the
+``B1'' examples given above.  The quoted-file sytax is in fact converted
+internally to precisely the same TABLE format as the first B1 example,
+with an independent variable of TIME and the given time-value pairs
+inserted.\footnote{The use of a B source in this manner is similar to using the \texttt{FILE} option to the piecewise linear (\texttt{PWL}) voltage source as documented in the \Xyce{} Reference Guide\ReferenceGuide, but unlike the PWL source, the file-based table function does {\em NOT\/} support reading comma-separated files.}
+
+Finally, the independent variable of the table source does not have to be a
+simple expression.  In the example shown below, the independent variable is
+a function of voltages and currents throughout the circuit.
+
+\Example{Bcomplicated 1 0 V=\{TABLE \{V(5)-V(3)/4+I(V6)*Res1\} = (0, 0) (1, 2) (2, 4) (3, 6)\}}
+
+\subsection{Alternate behavioral modeling sources}
+
+In addition to the primary nonlinear dependent source, the \verb+B+
+source, \Xyce{} also supports the PSpice extensions to the standard
+Spice voltage- and current-controlled sources, the \verb+E+, \verb+F+,
+\verb+G+, and \verb+H+ sources.  \Xyce{} provides these sources for
+PSpice compatibility, and converts them internally into equivalent
+\verb+B+ sources.  The \Xyce{} Reference Guide\ReferenceGuide{} netlist
+reference chapter provides the syntax of these compatibility devices.
+
+\section{Guidance for ABM Use}
+\label{ABM_Guidance}
+
+\subsection{ABM devices add equations to the system of equations used by the solver}
+
+As \Xyce{} solves a complex nonlinear set of equations at each time
+step, it is important to remember this system of equations is solved
+iteratively to obtain a converged solution. Specifying an ABM device
+in a \Xyce{} netlist adds one or more equations to the nonlinear
+problem that \Xyce{} must solve.
+
+When the nonlinear solver has converged, the expression given in the
+ABM device will be satisfied to within a solver tolerance. However,
+during the course of the iterative solve, the unconverged values of
+nodal voltages and currents, which are often inputs and outputs of ABM
+devices, are not guaranteed to be solutions to the system of
+equations.
+
+During this preconverged phase, solution variables are not guaranteed
+to have physically reasonable values. They could, for example,
+temporarily have the wrong sign. Only at the end of a successful
+nonlinear iterative solve are the solution variables consistent, legal
+values. This convergence behavior motivates the caveats on ABM usage given 
+in the next subsection.   
+
+\subsection{Expressions used in ABM devices must be valid for any possible input}
+
+While ABM devices look temptingly like calculators, it is potentially
+dangerous to use them as such. The previous subsection stated that
+during the nonlinear solution of each timestep equations, nodal
+voltages and currents are usually not solutions to the full set of
+equations, and often violate Kirchhoff's laws. Only at the end of the
+nonlinear solution are all the constraints on voltages and currents
+satisfied. This has some important consequences to the user of ABM
+devices.
+
+All expressions involving nodal voltages and currents used in ABM
+devices should be valid for any possible value they might see --- even
+those that appear to be physically meaningless and those that a
+knowledgeable user might never expect to see in the real circuit. This
+is particularly important when using square roots or exponentiating to
+a fractional power. For example, consider the following netlist
+fragment:
+
+
+\begin{vquote}
+*...other parts of more complex circuit deleted...
+\color{blue}* potentially bad usage of ABM device \color{black}
+Vexample 1 0 5V
+d1 1 0 diode_model
+\color{red}B1 2 0 V=\{sqrt(v(1))\}\color{black}
+r1 2 0 10k
+*...other parts of more complex circuit deleted...
+\end{vquote}
+
+This example demonstrates a potentially dangerous usage. It is
+assumed, because node 1 is connected to a 5V DC source, that the argument
+of the square root function is always positive. However, it could be
+the case that during the nonlinear solution of the full circuit that an
+unconverged value of node 1 might be negative. Tracking down mistakes
+such as this can be difficult, as on most
+platforms B1 will result in a ``Not a Number'' value for the nodal voltage
+of node 2 but the program will not crash. This frequently results in
+inexplicable ``timestep too small'' errors.
+
+Although such things can be avoided by protecting the arguments of
+functions with a limited domain, care must be taken when doing this. One
+obvious way to protect the example circuit fragment would be to take
+the absolute value of V(1) before calling the square root (sqrt)
+function:
+
+\begin{vquote}
+*...other parts of more complex circuit deleted...
+\color{blue}* safer usage of ABM device \color{black}
+Vexample 1 0 5V
+d1 1 0 diode_model
+B1 2 0 V=\{sqrt(abs(v(1)))\}
+r1 2 0 10k
+*...other parts of more complex circuit deleted...
+\end{vquote}
+
+There are many other ways to protect the square root function from
+negative arguments, such as by using the maximum of zero and V(1).
+Some alternatives might be more appropriate than others in different
+contexts.
+
+Note, though, that it would be a mistake to attempt to generate the absolute 
+value as shown here: 
+\begin{vquote}
+*...other parts of more complex circuit deleted...
+\color{blue}* really bad misuse of ABM device \color{black}
+Vexample 1 0 5V
+d1 1 0 diode_model
+\color{red}B2 3 0 V=\{abs(v(1))\} ; watch out!
+B1 2 0 V=\{sqrt(v(3))\}; just as bad as first example!\color{black}
+r1 2 0 10k
+*...other parts of more complex circuit deleted...
+\end{vquote}
+
+There are two things wrong with this example --- first, node 3 is floating
+and this alone could lead to convergence problems. Second, by adding
+the second ABM device one has merely created an equation whose
+solution is that node 3 contains the absolute value of the voltage on
+node 1. However, until convergence is reached there is no guarantee
+node 3 will be precisely the absolute value of V(3), nor is it
+guaranteed that node 3 will have a positive voltage. To re-iterate, nodes have 
+values that are solutions to the set of equations created by the netlist only at
+convergence.
+
+\subsection{Infinite slope transitions can cause convergence problems}
+
+It is possible for a user to specify expressions that could have
+infinite-slope transitions with B-, E-, F-, G- and H-sources.  This
+can lead to ``timestep too small'' errors when \Xyce{} reaches the
+transition point.  For example, inclusion of the following B-source
+expression in a circuit can cause the simulation to fail when
+\texttt{V(IN)=3.5}:
+\begin{alltt} Bcrtl OUTA 0 V=\{ IF( (V(IN) > 3.5), 5, 0 ) \} \end{alltt}
+
+Infinite-slope transitions in expressions dependent only on the
+\texttt{time} variable are a special case, because \Xyce{} can detect
+that they are going to happen, and set a ``breakpoint'' to capture
+them.  Infinite-slope transitions depending on other solution
+variables, however, cannot be predicted in advance, and will cause the
+time integrator to scale back the timestep repeatedly in an attempt to
+capture the feature until the timestep is too small to continue. One
+solution to this problem is to modify the expression to allow a
+continuous transition. For example, the above expression could be
+modified to:
+\begin{alltt} Bcrtl OUTA 0 V=\{IF( (V(IN) > 3.4), IF( (V(IN) > 3.5), 5, 50*(V(IN)-3.4) ), 0 )\}\end{alltt}
+
+However, this can become complicated with multiple inputs. The other
+solution is to specify device options or instance parameters to allow
+smooth transitions. The parameter \texttt{smoothbsrc} enables the
+smooth transitions. This is done by adding a RC network to the output
+of B sources. For example,
+
+\begin{alltt} Bcrtl OUTA 0 V=\{ IF( (V(IN) > 3.5), 5, 0 ) \} smoothbsrc=1 \end{alltt}
+
+\begin{alltt} .options device  smoothbsrc=1 \end{alltt}
+
+The smoothness of the transition can be controlled by specifying the
+rc constant of the RC network. For example,
+
+\begin{alltt} Bcrtl OUTA 0 V=\{ IF( (V(IN) > 3.5), 5, 0 ) \} smoothbsrc=1   
+ + rcconst = 1e-10 \end{alltt}
+
+     
+\begin{alltt} .options device  smoothbsrc=1 rcconst = 1e-10 \end{alltt}
+
+Note that this smoothed ABM only applies to voltage sources, such as voltage
+B sources and E sources. The voltage behavioral source supports two instance
+parameters \texttt{smoothbsrc} and \texttt{rcconst}. Parameters may be provided
+as space  separated \texttt{<parameter>=<value>} specifications as needed. The
+default value for \texttt{smoothbsrc} is 0 and the default for \texttt{rcconst}
+is 1e-9.
+
+If the device options are specified, they apply to all voltage ABM devices in
+the circuit. If the device instance parameters are specified, they apply to that
+device. When both the device options and instance parameters are specified, the
+device instance parameters take precedence over the device options.
+
+
+\subsection{ABM devices should not be used purely for output postprocessing}
+
+Users sometimes use ABM devices to provide output postprocessing. For
+example, if a user was interested in the absolute value, or the log of
+an output voltage, then that user might create an ABM circuit element to
+calculate the desired output value.
+
+Using ABM sources in this manner is bad practice though. By creating a
+circuit element whose only purpose is postprocessing, \Xyce{} is forced
+to include it and the corresponding nonlinear solve in the circuit,
+which can cause unnecessary solver problems. If postprocessing is the
+goal, it is much better to use expressions directly on the
+\verb|.PRINT| line.
+
+An example of a ``bad use'' of ABM sources can be found in the
+following code fragment:
+
+\begin{vquote}
+\color{blue}* Bad example
+\color{XyceRed}B1 test1 0 V = \{(abs(I(VMON)))*1.0e-10\} \color{black}
+VIN 1 0 DC 5V
+R1 1 2 2K
+D1 3 0 DMOD
+VMON 2 3 0
+.MODEL DMOD D (IS=100FA)
+.DC VIN 5 5 1
+.PRINT DC I(VMON) V(3) V(test1)
+\end{vquote}
+
+Although the source \texttt{B1} provides a 
+postprocessing output, it doesn't play a functional role in the 
+circuit and \Xyce{} would still be forced to include \texttt{B1} in 
+the problem it is attempting to solve.  
+
+A better solution to the previous problem is given here, where the
+post-processing is done on a \verb|.PRINT| line:
+
+\begin{vquote}
+\color{blue}* Good example \color{black}
+VIN 1 0 DC 5V
+R1 1 2 2K
+D1 3 0 DMOD
+VMON 2 3 0
+.MODEL DMOD D (IS=100FA)
+.DC VIN 5 5 1
+.PRINT DC I(VMON) V(3) \color{XyceRed} \{(abs(I(VMON)))*1.0e-10\} \color{black}
+\end{vquote}
+
+Section~\ref{Output_Control} and the \Xyce{} Reference
+Guide\ReferenceGuide provide a more detailed explanation of how to use
+expressions in the \texttt{.PRINT} line.
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+%%% END of Xyce_UG_ABM.tex ************

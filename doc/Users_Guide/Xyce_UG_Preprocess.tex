@@ -1,0 +1,581 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Main LaTeX Xyce Users' Guide
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  To use
+%%                  LaTeX, we need to use postcript versions.  Not sure why.
+%% Creator        : Keith Santarelli
+%% Creation Date  : 12/17/2007
+%%
+%%-------------------------------------------------------------------------
+
+% -------------------------------------------------------------------------
+% .PREPROCESS statements Chapter --------------------------------
+% -------------------------------------------------------------------------
+
+\chapter{Working with .PREPROCESS Commands}
+\label{Preprocess_Chap}
+\index{\texttt{.PREPROCESS}}
+%%%%%%%%%%%%%%HAVE TO ADD LABEL TO TABLE OF CONTENTS, OR INDEX, OR SOMETHING??
+
+%\index{}
+%%%%%%%%%%%%%%HAVE TO ADD IN INDEXING STUFF AT SOME POINT, TOO!!!!!
+
+\chapteroverview{Chapter Overview}
+{
+This chapter includes the following sections:
+\begin{XyceItemize}
+\item Section~\ref{PP_Intro}, {\em Introduction}
+\item Section~\ref{PP_gndsyn}, {\em Ground Synonym Replacement}
+\item Section~\ref{PP_removeunused}, {\em Removal of Unused Components}
+\item Section~\ref{PP_dangling}, {\em Adding Resistors to Dangling Nodes}
+
+\end{XyceItemize}
+}
+
+\section{Introduction}
+\label{PP_Intro}
+
+In an effort to make \Xyce{} more compatible with other commercial circuit 
+simulators (e.g., HSPICE), some optional tools have been added to increase the netlist processing capabilities of \Xyce{}.  These options, which occur toward
+the beginning of a simulation, have been incorporated not only to make 
+\Xyce{} more compatible with different (i.e. non-\Xyce{}) netlist syntaxes, but also 
+to help detect and remove certain singular netlist configurations that can often 
+cause a \Xyce{} simulation to fail.  Because all of the commands described 
+in this section occur as a precursory step to setting up a \Xyce{} simulation, they are 
+all invoked in a netlist file via the keyword \texttt{.PREPROCESS}.  This 
+chapter describes each of the different functionalities that can be invoked 
+via a \texttt{.PREPROCESS} statement in detail and provides examples to illustrate 
+their use.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%GROUND SYNONYM CHECKING
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Ground Synonym Replacement}
+\label{PP_gndsyn}
+\index{\texttt{.PREPROCESS}!\texttt{REPLACEGROUND}}
+In certain versions of SPICE, keywords such as \texttt{GROUND}, \texttt{GND}, and 
+\texttt{GND!} can be used as node names in a netlist file to represent the ground 
+node of a circuit.  \Xyce{}, however, only recognizes node \texttt{0} as an official
+name for ground.  Hence, if any of the prior node names is encountered in a 
+netlist file, \Xyce{} will treat these as different nodes from ground.  To 
+illustrate this point, consider the netlist of figure\ \ref{fig:nlgndrepl2}.  
+When the node \texttt{Gnd} is encountered in the definition of resistor \texttt{R3}, 
+\Xyce{} instantiates this as a new node.  The schematic diagram corresponding to
+this netlist (figure\ \ref{fig:gndreplace2}) shows that the resistor 
+\texttt{R3} is ``floating'' between node \texttt{2} and a node with only a 
+single device connection, node \texttt{Gnd}.  When \Xyce{} executes the netlist of figure\ 
+\ref{fig:nlgndrepl2}, the voltage \texttt{V(2)} will evaluate to 0.5V.  
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Circuit with "floating" resistor R3
+
+V1 1 0 1
+R1 1 2 1
+R2 2 0 1
+R3 2 Gnd 1
+
+.DC V1 1 1 0.1
+.PRINT DC V(2)
+.END
+\end{vquote}
+\end{minipage}
+}
+\caption[Example netlist -- \texttt{Gnd} treated {\em different}
+from node \texttt{0}.] {Example netlist where \texttt{Gnd} is treated as being {\em different}
+from node \texttt{0}.}
+\label{fig:nlgndrepl2}
+\end{centering}
+\end{figure}
+
+\begin{figure}
+\centering{\input{gndreplace2.latex}}
+\caption[Circuit diagram corresponding to figure\ 
+\ref{fig:nlgndrepl2}.] {Circuit diagram corresponding to the netlist of figure\ 
+\ref{fig:nlgndrepl2} where node \texttt{Gnd} is treated as being {\em different} 
+from node \texttt{0}.} 
+\label{fig:gndreplace2}
+\end{figure}
+
+If one would rather treat \texttt{Gnd} the same as node \texttt{0} in the above example, use the  figure\ 
+\ref{fig:nlgndrepl1} netlist instead.  When the statement \texttt{.PREPROCESS REPLACEGROUND
+TRUE} is present in a netlist, \Xyce{} will treat any nodes named \texttt{GND}, \texttt{GND!}, \texttt{GROUND}, or any capital/lowercase variant of these keywords (e.g., \texttt{gROunD}) as synonyms
+for node \texttt{0}.  Hence, according to \Xyce{}, the figure\ \ref{fig:nlgndrepl1} netlist corresponds to figure\ 
+\ref{fig:gndreplace1} schematic diagram, and the voltage \texttt{V(2)} will evaluate to 0.33V.
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+
+Circuit where resistor R3 does *not* float
+
+V1 1 0 1
+R1 1 2 1
+R2 2 0 1
+R3 2 Gnd 1
+
+.PREPROCESS REPLACEGROUND TRUE
+
+.DC V1 1 1 0.1
+.PRINT DC V(2)
+.END
+\end{vquote}
+\end{minipage}
+}
+\caption[Example netlist --- \texttt{Gnd} as a synonym for node 
+\texttt{0}.] {Example netlist where \texttt{Gnd} is treated as a synonym for node 
+\texttt{0}.}
+\label{fig:nlgndrepl1}
+\end{centering}
+\end{figure}
+
+\begin{figure}
+\centering{\input{gndreplace1.latex}}
+\caption [Circuit diagram corresponding to figure\ \ref{fig:nlgndrepl1}.]{Circuit diagram corresponding to figure\ \ref{fig:nlgndrepl1} where 
+node \texttt{Gnd} is treated as a synonym for node \texttt{0}.} 
+\label{fig:gndreplace1}
+\end{figure}
+
+NOTE:	Only one \texttt{.PREPROCESS REPLACEGROUND} statement is allowed per netlist file. This constraint prevents the user from setting \texttt{REPLACEGROUND} to \texttt{TRUE} on one line and then to \texttt{FALSE} on 
+another line.  Also, there is no way to differentiate between different keywords. So, for example, it is not possible to treat \texttt{GROUND} as a synonym for node \texttt{0} while allowing \texttt{GND} to represent an independent
+node).  If \texttt{REPLACEGROUND} is set to \texttt{TRUE}, \Xyce{} will treat {\em both} of these keywords as node \texttt{0}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%REMOVING UNUSED COMPONENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Removal of Unused Components}
+\label{PP_removeunused}
+\index{\texttt{.PREPROCESS}!\texttt{REMOVEUNUSED}}
+
+Consider a slight variant of the circuit in figure\ \ref{fig:nlgndrepl1} with
+the netlist given in figure\ \ref{fig:nlunused1}.  Here, the resistor \texttt{R3}
+is connected in a peculiar configuration:  both terminals of the resistor are 
+tied to the same circuit node, as is illustrated in figure\ \ref{fig:unused1}.
+Clearly, the presence of this resistor has no effect on the other voltages and
+currents in the circuit since, by the very nature of its configuration, it has
+no voltage across it and, hence, does not draw any current.  Therefore, in 
+some sense, the component can be considered as ``unused.''  The presence of a resistor such as \texttt{R3} is rarely or never introduced by design, rather the presence of such components is the 
+result of either human or automated error during netlist creation.
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Circuit with an unused resistor R3
+
+V1 1 0 1
+R1 1 2 1
+R2 2 0 1
+R3 2 2 1
+
+.DC V1 1 1 0.1
+.PRINT DC V(2)
+.END
+\end{vquote}
+\end{minipage}
+}
+\caption[Netlist with a resistor with terminals both the
+same node.] {Netlist with a resistor \texttt{R3} whose device terminals are both the
+same node (node \texttt{2}).}
+\label{fig:nlunused1}
+\end{centering}
+\end{figure}
+
+\begin{figure}
+\centering{\input{unused1.latex}}
+\caption[Circuit of figure\ \ref{fig:nlunused1}.] {Circuit of figure\ \ref{fig:nlunused1} containing a resistor \texttt{R3} whose terminals are tied to the same node (node \texttt{2}).} 
+\label{fig:unused1}
+\end{figure}
+
+While the presence of the resistor \texttt{R3} in figure\ \ref{fig:nlgndrepl1} does not 
+change the behavior of the circuit, it adds an additional component to 
+the netlist  \Xyce{} must include when solving for the voltages and 
+currents in the circuit.  If the number of such components in a given netlist
+is large, it is potentially desirable to remove them from the
+netlist to ease the burden on \Xyce's solver engines.  This, in turn, can help
+to avoid possible convergence issues.  For example, even though the netlist in
+figure\ \ref{fig:nlunused1} will run properly in \Xyce{}, the netlist of figure\ 
+\ref{fig:nlunused3} will abort.  The voltage source \texttt{V2} attempts to place
+a 1V difference between its two device terminals; however, as both nodes of
+the voltage source are the same, the voltage source is effectively shorted.
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Circuit with improperly connected voltage source V2
+
+V1 1 0 1
+R1 1 2 1
+R2 2 0 1
+V2 2 2 1
+
+.DC V1 1 1 0.1
+.PRINT DC V(2)
+.END
+\end{vquote}
+\end{minipage}
+}
+\caption[Circuit with an improperly connected voltage source.] {Circuit with an improperly connected voltage source \texttt{V2}.}
+\label{fig:nlunused3}
+\end{centering}
+\end{figure}
+
+\Xyce{} includes the following command to prevent similar situations:
+
+\texttt{.PREPROCESS REMOVEUNUSED <component list>}
+
+where \texttt{<component list>} is a list of device types separated by commas.
+For each device type specified in the list, \Xyce{} checks for instances of
+that device type for which all of the device's terminals are connected to the
+same node.  If such a device is found, \Xyce{} removes that device from the
+netlist.  For instance, when executing the netlist of figure\ \ref{fig:nlunused2},
+\Xyce{} will seek out such devices and remove them from the netlist.  This causes the
+resistor \texttt{R3} to be removed from the netlist. Figure\ \ref{fig:unused2} presents the schematic of the 
+resulting \Xyce{}-simulated circuit.  
+NOTE:	The presence of  ``\texttt{C}'' in the \texttt{REMOVEUNUSED} statement does
+not cause \Xyce{} to abort even though there are no capacitors in the netlist.
+Also, as in the case of a \texttt{REPLACEGROUND} statement, only one 
+\texttt{.PREPROCESS REMOVEUNUSED} line may be present in a netlist, or \Xyce{} will abort.
+
+Table \ref{tbl:removeunusedtbl} lists devices that can be removed via a \texttt{REMOVEUNUSED} 
+statement.  In the case of MOSFETs and BJTs, three device terminals must be the same (the gate, source,
+and drain in the case of a MOSFET; the base, collector, and emitter in the
+case of a BJT) to remove either device from the netlist.
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Circuit with improperly connected voltage source V2
+
+V1 1 0 1
+R1 1 2 1
+R2 2 0 1
+R3 2 2 1
+
+.PREPROCESS REMOVEUNUSED R,C
+
+.DC V1 1 1 0.1
+.PRINT DC V(2)
+.END
+\end{vquote}
+\end{minipage}
+}
+\caption{Circuit with an ``unused'' resistor R3 removed from the 
+netlist.}
+\label{fig:nlunused2}
+\end{centering}
+\end{figure}
+
+\begin{figure}[h]
+\centering{\input{unused2.latex}}
+\caption[Circuit of figure\ \ref{fig:nlunused2}.] {Circuit of figure\ \ref{fig:nlunused2} where resistor R3 has been removed via the \texttt{.PREPROCESS REMOVEUNUSED} statement.} 
+\label{fig:unused2}
+\end{figure}
+
+\LTXtable{0.5\textwidth}{removeunusedtbl}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%ADDING RESISTORS TO NO-DC-PATH AND 
+%%CONN-TO-ONE-TERMINAL NODES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Adding Resistors to Dangling Nodes}
+\label{PP_dangling}
+\index{\texttt{.PREPROCESS}!\texttt{ADDRESISTORS}}
+Consider the netlist of figure\ \ref{fig:nldangling1} and the corresponding
+schematic of figure\ \ref{fig:dangle1}.  Nodes \texttt{3} and \texttt{4} of the 
+netlist are what we will henceforth refer to as {\em dangling nodes}.  We say
+that node \texttt{4} dangles because it is only connected to the terminal of a
+single device, while we say that node \texttt{3} dangles because it has no DC
+path to ground.  The first of these situations---connection to a single 
+device terminal only---can arise, for example, in a netlist which contains 
+nodes representing output pins that are not connected to a load device.  For 
+instance, the resistance \texttt{R2} in figure\ \ref{fig:nldangling1} could 
+represent the resistance of an output pin of a package that is meant to drive 
+resistive loads.  Hence, an actual physical implementation of the circuit of 
+figure\ \ref{fig:dangle1} would normally include a resistor between node \texttt{4} 
+and ground, but, in creating the netlist, the presence of such an output load 
+has been (either intentionally or unintentionally) left out.
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Circuit with two dangling nodes, nodes 3 and 4
+
+V1 1 0 1
+R1 1 2 1
+C1 2 3 1 
+C2 3 0 1
+R2 2 4 1
+
+.DC V1 0 1 0.1
+.PRINT DC V(2)
+.END
+\end{vquote}
+\end{minipage}
+}
+\caption[Netlist of circuit with two dangling nodes.] {Netlist of circuit with two dangling nodes, nodes \texttt{3} and 
+\texttt{4}.}
+\label{fig:nldangling1}
+\end{centering}
+\end{figure}
+
+\begin{figure}[h]
+\centering{\input{dangle1.latex}}
+\caption{Schematic of netlist in figure\ \ref{fig:nldangling1}.} 
+\label{fig:dangle1}
+\end{figure}
+
+The second situation---where a node has no DC path to ground---is sometimes an
+effect that is purposely incorporated into a design (e.g., the design of
+switched capacitor integrators (e.g., see \cite{JohnsMartin}, chapter 10), but
+oftentimes it is also the result of some form of error in the process of
+creating the netlist.  For instance, when graphical user interfaces (GUIs) are
+used to create circuit schematics that are then translated into netlists via
+software, one very common unintentional error is to fail to connect two nodes
+that are intended to be connected.  To illustrate this point, consider the
+schematic of figure\ \ref{fig:dangle3}.  The schematic seems to indicate that
+the lower terminal of resistor \texttt{R2} should be connected to node
+\texttt{3}. This is not the case as there is a small gap between node
+\texttt{3} and the line intended to connect node \texttt{3} to the resistor.
+Such an error can often go unnoticed when creating a schematic of the netlist
+in a GUI.  Thus, when the schematic is translated into a netlist file, the
+resulting netlist would {\em not} connect the resistor to node \texttt{3} and
+would instead create a new node at the bottom of the resistor, resulting in the
+circuit depicted in figure\ \ref{fig:dangle1}.  
+
+While neither of the previous situations is necessarily threatening (\Xyce{}
+will run the figure\ \ref{fig:nldangling1} netlist successfully to completion),
+there are times when it is desirable to somehow make a dangling node {\em not}
+dangle.  For instance, returning to the example in which the resistor
+\texttt{R2} represents the resistance of an output pin, one may want to
+simulate the circuit when a 1K load is attached between node \texttt{4} and
+ground in figure\ \ref{fig:dangle1}.  In the case where a node has no DC path
+to ground, the situation is slightly more dangerous if, for instance, the node
+in question is also connected to a high-gain device such as the gate of a
+MOSFET.  As the DC gate bias has a great impact on the DC current traveling
+through the drain and source of the transistor, not having a well-defined DC
+gate voltage can greatly degrade the simulated performance of the circuit.
+
+In both prior examples, the only true way to ``fix'' each of these issues is to
+find all dangling nodes in a particular netlist file and augment the netlist
+at/near these nodes to obtain the desired behavior.  If, however, the number of
+components in a circuit is very large (say on the order of hundreds of
+thousands of components), manually augmenting the netlist file for each
+dangling node becomes a practical impossibility if the number of such nodes is
+large.  
+
+Hence, it is desirable for \Xyce{} to be capabable of automatically augmenting
+netlist files so as to help remove dangling nodes from a given netlist.  The
+command \texttt{.PREPROCESS ADDRESISTORS} is designed to do just this. Assuming
+the netlist of figure\ \ref{fig:nldangling2} is stored in the file
+\texttt{filename}, the \texttt{.PREPROCESS ADDRESISTORS} statements will cause
+\Xyce{} to create a new netlist file called \texttt{filename\_xyce.cir}
+(depicted in figure\ \ref{fig:nlnotdangling}).  The line \texttt{.PREPROCESS
+ADDRESISTORS NODCPATH 1G} instructs \Xyce{} to create a copy of the netlist
+file containing a set of resistors of value 1~G$\mathsf{\Omega}$ that are
+connected between ground and the nodes that did not have a DC path to ground.
+Similarly, the line \texttt{.PREPROCESS ADDRESISTORS ONETERMINAL 1M} instructs
+\Xyce{} to add to the same netlist file a set of resistors of value
+1~M$\mathsf{\Omega}$ that are connected between ground and devices that are
+connected to only one terminal.  The resistor \texttt{RNODCPATH1} in figure\
+\ref{fig:nlnotdangling} achieves the first of these goals while
+\texttt{RONETERM1} achieves the second.  Figure\ \ref{fig:dangle2} shows a
+schematic of the resulting circuit represented by the netlist in figure\
+\ref{fig:nlnotdangling}.
+
+\begin{figure}[h]
+\centering{\input{dangle3.latex}}
+\caption[Schematic  with an incomplete connection.] {Schematic of a circuit with an incomplete connection between the 
+resistor \texttt{R2} and node \texttt{3}.} 
+\label{fig:dangle3}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+Circuit with two dangling nodes, nodes 3 and 4
+
+V1 1 0 1
+R1 1 2 1
+C1 2 3 1 
+C2 3 0 1
+R2 2 4 1
+
+.PREPROCESS ADDRESISTORS NODCPATH 1G
+.PREPROCESS ADDRESISTORS ONETERMINAL 1M
+
+.DC V1 0 1 0.1
+.PRINT DC V(2)
+.END
+\end{vquote}
+\end{minipage}
+}
+\caption[Netlist of circuit with two dangling nodes with \texttt{.PREPROCESS ADDRESISTORS} statements.] {Netlist of circuit with two dangling nodes, nodes \texttt{3} and \texttt{4}, with \texttt{.PREPROCESS ADDRESISTORS} statements.}
+\label{fig:nldangling2}
+\end{centering}
+\end{figure}
+
+
+
+\begin{figure}[htbp]
+\begin{centering}
+\shadowbox{
+\begin{minipage}{0.8\textwidth}
+\begin{vquote}
+XYCE-generated Netlist file copy:  TIME='07:32:31 AM' 
+* DATE='Dec 19, 2007' 
+*Original Netlist Title:  
+
+*Circuit with two dangling nodes, nodes 3 and 4.
+
+
+V1 1 0 1
+R1 1 2 1
+C1 2 3 1 
+C2 3 0 1
+R2 2 4 1
+
+*.PREPROCESS ADDRESISTORS NODCPATH 1G
+*Xyce:  ".PREPROCESS ADDRESISTORS" statement 
+* automatically commented out in netlist copy.
+*.PREPROCESS ADDRESISTORS ONETERMINAL 1M
+*Xyce:  ".PREPROCESS ADDRESISTORS" statement 
+* automatically commented out in netlist copy.
+
+.DC V1 0 1 0.1
+.PRINT DC V(2)
+
+
+*XYCE-GENERATED OUTPUT:  Adding resistors between ground 
+* and nodes connected to only 1 device terminal:
+
+RONETERM1 4 0 1M
+
+
+*XYCE-GENERATED OUTPUT:  Adding resistors between ground 
+* and nodes with no DC path to ground:
+
+RNODCPATH1 3 0 1G
+
+.END
+\end{vquote}
+\end{minipage}
+}
+\caption[Output file resulting from  
+\texttt{.PREPROCESS ADDRESISTOR} statements for figure~\ref{fig:dangle3}.] {Output file \texttt{filename\_xyce.cir} which results from the 
+\texttt{.PREPROCESS ADDRESISTOR} statements for the netlist of figure\ 
+\ref{fig:dangle3} (with assumed file name \texttt{filename}).}
+\label{fig:nlnotdangling}
+\end{centering}
+\end{figure}
+
+
+
+\begin{figure}[h]
+\centering{\input{dangle2.latex}}
+\caption[Schematic corresponding to figure\ 
+\ref{fig:nlnotdangling}.] {Schematic corresponding to the \Xyce{}-generated netlist of figure\ 
+\ref{fig:nlnotdangling}.} 
+\label{fig:dangle2}
+\end{figure}
+
+Some general comments regarding the use of \texttt{.PREPROCESS ADDRESISTOR} 
+statements include:
+
+\begin{itemize}
+\item \Xyce{} does not terminate immediately after the netlist file is created.
+In other words, if \Xyce{} is run on the \texttt{filename} of figure\ 
+\ref{fig:nldangling2} netlist, it will attempt to execute this netlist as given 
+(i.e., it tries to simulate the circuit of figure\ \ref{fig:dangle1}) and 
+generates the file \texttt{filename\_xyce.cir} as a byproduct.  It is important to
+point out that the resistors that are added at the bottom of the netlist 
+file \texttt{filename\_xyce.cir} do {\bf not} get added to the original netlist
+when \Xyce{} is running on the file \texttt{filename}.  If one wishes to simulate
+\Xyce{} with these resistors in place, one must run \Xyce{} on 
+\texttt{filename\_xyce.cir} explicitly.
+
+\item The naming convention for resistors which connect to ground nodes which 
+do not have a DC path to ground is \texttt{RNODCPATH<i>}, where \texttt{i} is an 
+integer greater than 0; the naming convention is similar for nodes which are 
+connected to only one device terminal (i.e., of the form \texttt{RONETERM<i>}).   
+\Xyce{} will not change this naming convention if a 
+resistor with one of the above names already exists in the netlist.  
+
+Hence, if a resistor named \texttt{RNODCPATH1} exists in netlist file 
+\texttt{filename}, and \Xyce{} detects there is a node in this netlist file 
+that has no DC path to ground, \Xyce{} will add {\em another} resistor with name 
+\texttt{RNODCPATH1} to the netlist file \texttt{filename\_xyce.cir} (assuming that 
+either \texttt{.PREPROCESS ADDRESISTORS NODCPATH} or \texttt{.PREPROCESS ADDRESISTORS
+ONETERMINAL} are present in \texttt{filename}).  If \Xyce{} is subsequently run on 
+\texttt{filename\_xyce.cir}, it will exit in error due to the presence of two 
+resistors with the same name.
+
+\item Commands \texttt{.PREPROCESS ADDRESISTORS NODCPATH}  and 
+\texttt{.PREPROCESS} \newline \texttt{ADDRESISTORS ONETERMINAL} do {\bf not} have to be 
+simultaneously present in a netlist file.  The presence of either command will
+generate a file \texttt{filename\_xyce.cir}, and the presence of both will not
+generate two separate files.  As with other \texttt{.PREPROCESS} commands, 
+however, a netlist file is allowed to contain only one \texttt{NODCPATH} and
+one \texttt{ONETERMINAL} command each.  If multiple \texttt{NODCPATH} and/or 
+\texttt{ONETERMINAL} lines are found in a single netlist file, \Xyce{} will exit in
+error.
+
+\item It is possible that a single node can have no DC path to ground 
+{\em and} be connected to only one device terminal.  If a \texttt{NODCPATH}
+and \texttt{ONETERMINAL} command are present in a given netlist file, {\bf only}
+the resistor corresponding to the \texttt{ONETERMINAL} command is added to 
+the netlist file \texttt{filename\_xyce.cir} and the resistor corresponding to 
+the \texttt{NODCPATH} command is omitted.  If a \texttt{NODCPATH} command is 
+present but a \texttt{ONETERMINAL} command is not, then \Xyce{} will add a resistor corresponding
+to the \texttt{NODCPATH} command to the netlist, as usual.
+\item In generating the file \texttt{filename\_xyce.cir}, the original 
+\texttt{.PREPROCESS ADDRESISTOR} statements are commented out with a warning 
+message.  This is to prevent \Xyce{} from creating the file 
+\texttt{filename\_xyce.cir\_xyce.cir} when the file \texttt{filename\_xyce.cir} is
+run.  
+
+NOTE:	 This feature avoids generating redundant
+files.  While \texttt{filename\_xyce.cir\_xyce.cir} would be slightly different 
+from \texttt{filename\_xyce.cir} (e.g., a different date and time stamp), both 
+files would functionally implement the same netlist.
+
+\end{itemize}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
+
+% END of Xyce_UG_Preprocess.tex ************

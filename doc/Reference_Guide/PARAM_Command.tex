@@ -1,0 +1,64 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Function Table
+%%
+
+User defined parameter that can be used in expressions throughout the netlist.
+
+\begin{Command}
+
+\format
+.PARAM [<name>=<value>]*
+
+\examples
+\begin{alltt}
+.PARAM A_Param=1K
+.PARAM B_Param=\{A_Param*3.1415926535\}
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+\argument{\vbox{\hbox{name\hfil}\hbox{value}}}
+
+The name of a parameter and its value.
+\medskip
+
+\end{Arguments}
+
+\comments
+Parameters defined using \verb+.PARAM+ are evaluated when the netlist is read in, and therefore must evaluate to constants at the time the netlist is parsed.  It is therefore illegal to use any time- or solution-dependent terms in parameter definitions, including the TIME variable or any nodal voltages.   Since they must be constants, these parameters may also not be used in \texttt{.STEP} loops.
+
+There are several reserved words that may not be used as names for parameters.  These parameters are:
+\begin{XyceItemize}
+\item \verb+Time+ 
+\item \verb+Vt+
+\item \verb+Temp+
+\item \verb+GMIN+
+\end{XyceItemize}
+
+\index{\texttt{.PARAM}!subcircuit scoping}The scoping rules for parameters are:
+\begin{XyceItemize}
+\item If a \texttt{.PARAM}, statement is included in the main circuit 
+netlist, then it is accessible from the main circuit and all subcircuits. 
+\item \texttt{.PARAM} statements defined within a subcircuit are scoped 
+to that subciruit definition.  So, their parameters are only accessible within 
+that subcircuit definition, as well as within ``nested subcircuits'' also 
+defined within that subcircuit definition.
+\end{XyceItemize}
+
+Additional illustative examples of scoping are given in the
+``Working with Subcircuits and Models'' section of the \Xyce{} Users' 
+Guide\UsersGuide. 
+
+\end{Command}
+

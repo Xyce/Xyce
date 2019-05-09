@@ -1,0 +1,22 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Sensitivity Solver Options Table
+%%
+\index{solvers!sensitivity!options}
+\begin{OptionTable}{Options for Sampling Package.} \label{SamplesPKG}
+NUMSAMPLES   & Total number of samples & 0 \\ \hline
+SAMPLE\_TYPE & Sampling type (MC or LHS) & MC \\ \hline
+OUTPUTS      & Comma separated list of outputs (anything that would be a valid \texttt{.RESULT} output command) & -- \\ \hline
+MEASURES     & Comma separated list of measure names (must refer to \texttt{.MEASURE} commands in the netlist) & -- \\ \hline
+COVMATRIX    & Covariance matrix specified in row major form as comma-separated double precision numbers. & -- \\ \hline
+\end{OptionTable}
+

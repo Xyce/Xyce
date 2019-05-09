@@ -1,0 +1,50 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+User-defined data table, which can be used to specify sweep points for \texttt{.AC}, \texttt{.DC} or \texttt{.STEP}
+
+\begin{Command}
+
+\format
+.DATA [<name>] \\
++ <parameter name> [parameter name]* \\
++ <parameter value> [parameter value]* \\
+.ENDDATA
+
+\examples
+.data test \\
++ r1   r2 \\
++ 8.0000e+00  4.0000e+00 \\
++ 9.0000e+00  4.0000e+00 \\
+.enddata
+
+\arguments
+
+\begin{Arguments}
+\argument{name}
+Name of the data table.
+
+\argument{parameter name}
+Name of sweep parameter.  This can be a device instance parameter, a device model parameter or a global parameter specified using \texttt{.global\_param}.
+
+\argument{parameter value}
+Value of sweep parameter for the given sweep point.  This must be a double precision number.  Each row of the table corresponds to a different sweep step, so multiple parameters can be changed simultaneously.
+
+\end{Arguments}
+
+\comments
+
+Each column of a data table corresponds to a different parameter, and each row corresponds to a different sweep point.
+
+If using \texttt{.DATA} with \texttt{.DC} or \texttt{.STEP}, then any instance parameter, model parameter, or global parameter is allowed.
+
+  However, if using \texttt{.DATA} with \texttt{.AC}, then one can sweep the magnitude and phase of an AC source, and linear model parameters (such as resistance and capacitance) in addition to the traditional AC sweep variable, frequency.  Parameters associated with nonlinear models (like transistors) are not allowed.  This is because AC analysis is a linear analysis, performed after the DCOP calculation.  Changing nonlinear device model parameters would result in a different DCOP solution, so changing them during the AC analysis phase is not valid.
+
+\end{Command}

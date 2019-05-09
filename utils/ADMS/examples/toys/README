@@ -1,0 +1,19 @@
+The Verilog-A examples in this directory are just here to show how
+various simple devices can be implemented.
+
+Some have had module attributes added so that they can be imported
+into Xyce as extra model levels of existing device types, others
+(e.g. the rlc examples) are left without module attributes to
+demonstrate how these devices can be imported by default as Y devices.
+
+The rlc.va example here is identical to the one in the user_plugin
+directory.
+
+The DiodeClipper.cir file in this directory may be used to test the 
+diode2.va, vsrc.va, resistor.va, and capacitor.va models in this directory.
+
+Build a plugin from these models using the instructions in the Xyce/ADMS
+Users' Guide, and run Xyce with the plugin on DiodeClipper.cir.  You will
+see signals similar to (but not identical to) those described in the 
+Xyce Users' Guide.  The differences are due to the simplicity of the 
+diode2.va model compared to the SPICE diode.

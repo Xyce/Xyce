@@ -1,0 +1,53 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\label{IC_section}
+\index{\texttt{.IC}}
+\index{\texttt{.DCVOLT}}
+\index{initial condition!IC}
+\index{initial condition!DCVOLT}
+\index{initial condition}
+
+The \texttt{.IC/.DCVOLT} command sets initial conditions for operating point calculations.
+These operating point conditions will be enforced the entire way through the
+nonlinear solve.  Initial conditions can be given for some or all of the
+circuit nodes.
+
+As the conditions are enforced for the entire solve, only the nodes not
+specified with \texttt{.IC} statements will change over the course of the
+operating point calculation.
+
+Note that it is possible to specify conditions that are not solvable.
+Consult the \Xyce{} User's Guide for more guidance.
+
+\begin{Command}
+\format
+\begin{alltt}
+.IC V(<node>)=<value>
+.IC <node> <value>
+.DCVOLT V(<node>)=<value>
+.DCVOLT <node> <value>
+\end{alltt}
+
+\examples
+\begin{alltt}
+.IC V(2)=3.1
+.IC 2 3.1
+.DCVOLT V(2)=3.1
+.DCVOLT 2 3.1
+\end{alltt}
+
+\comments
+The \texttt{.IC} capability can only set voltage values, not current values.
+
+The \texttt{.IC} capability can not be used, within subcircuits, to set voltage values on global nodes.
+
+\end{Command}
+

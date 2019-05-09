@@ -1,0 +1,92 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Incompatibilities with other circuit simulators.
+%%
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Incompatibilities with other circuit simulators.} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue &
+  \color{white}\bf Comment
+  \\ \hline
+  \endfirsthead
+  \caption[]{Incompatibilities with other circuit simulators.} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Issue &
+  \color{white}\bf Comment
+  \\ \hline
+  \endhead
+
+    \texttt{.DC} sweep output. & The \texttt{.DC} sweep calculation does not
+    automatically output the sweep variable.  Only variables explicitly listed on
+    the \texttt{.PRINT} line are output.\\ \hline
+
+    Pulsed source rise time of zero. & A requested pulsed source rise/fall
+    time of zero really is zero in \Xyce{}.  In other simulators, requesting a
+    zero rise/fall time causes them to use the printing interval found on
+    the \texttt{.TRAN} line.\\ \hline
+
+    Mutual Inductor Model. & Not the same as PSpice.  This is a Jiles-Atherton non-linear
+    model developed at Sandia. However, it is compatible with the PSpice parameter set.\\ \hline
+
+    \texttt{.PRINT} line shorthand. & Output variables have to be specified
+    as V(node) or I(source).  Specifying the node alone will not work.  \\ \hline
+
+    MOSFET levels. & In \Xyce{} the MOSFET levels are not the same. A BSIM3 is MOSEFET level 9.  Other simulators have
+    different levels for the BSIM3. \\ \hline
+
+    BSIM SOI v3.2 level. & In \Xyce{} the BSIM SOI (v3.2) is MOSFET level 10.  
+    Other simulators have different levels for the BSIM SOI. \\ \hline
+
+    BSIM4 level. & In \Xyce{} the BSIM4 is MOSFET levels 14 and 54.  
+    Other simulators have different levels for the BSIM4. \\ \hline
+
+    The `\texttt{\%}' symbol is not a valid in a device or node name. &
+    The `\texttt{\%}' symbol has a special meaning in \Xyce{}, and therefore cannot
+    be used in other cases. \\ \hline
+
+    Interactive mode. & \Xyce{} does not have an interactive mode. \\ \hline
+
+    Syntax for \texttt{.STEP} is different. & The manner of specifying
+    a model parameter to be swept is slightly different than in some
+    other simulators.  See the \Xyce{} Users' and Reference Guides for
+    details.  \\ \hline
+
+    Switch is not the same as SPICE. &  The \Xyce{} switches are not
+	compatible with the simple switch implementation in SPICE3F5.  The
+	switch in \Xyce{} smoothly transitions between the ON and OFF
+	resistances over a small range between the ON and OFF values of the
+	control signal (voltage, current, or control expression).  See the
+	\Xyce{} Reference Guide for the precise equations that are used to compute the
+	switch resistance from the control signal values.  The SPICE3F5 switch
+	has a single switching threshold voltage or current, and RON is used
+	above threshold while ROFF is used below threshold.  \Xyce{}'s switch is
+	considerably less likely to cause transient simulation failures. Results
+	similar to SPICE3F5 can be obtained by setting VON and VOFF to the same
+	threshold value, but this is not a recommended practice.  \\ \hline
+
+    U digital device syntax differs from PSpice U Device. &  \Xyce{} 6.1 
+       contains a new U device with the goal of improved compatibility between
+       the instance lines of \Xyce{} and PSpice digital devices.  Known
+       incompatibilities are that PSpice uses separate model cards for
+       IO and timing characteristics, while \Xyce{} combines the IO and timing
+       characteristics in one model card.  The PSpice and \Xyce{} model cards
+       also have different parameters. \\ \hline
+
+    U device is different from SPICE3F5 U device. &  The \Xyce{} U devices are
+       digital behavioral models, which are intended to be similar to the
+       PSpice U digital devices.  The SPICE3F5 U device is a uniform RC
+       transmission line model. \\ \hline 
+
+\end{longtable}
+

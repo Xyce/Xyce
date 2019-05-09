@@ -1,0 +1,280 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Release notes for Xyce version 6.3.
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  
+%% Creation Date  : {03/24/2006}
+%%-------------------------------------------------------------------------
+
+\documentclass[11pt,report,strict]{SANDreport}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{makeidx, ltxtable, multirow}
+\usepackage{Xyce}
+\pdfcatalog {/PageMode /UseNone}
+
+{\renewcommand{\arraystretch}{1.2}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+    \title{\XyceTitle{} Parallel Electronic Simulator Release Notes\\Release 6.3}
+    \XyceVersion{6.3}
+
+    % There is a "Printed" date on the title page of a SAND report, so
+    % the generic \date should generally be empty.
+    \date{}
+
+% ---------------------------------------------------------------------------- %
+% Set some things we need for SAND reports. These are mandatory
+%
+%Submitted to R&A 23 Apr 2015 Tracking number 264759,  approved 28 Apr 2015
+
+\SANDnum{SAND2015-3379}
+\SANDprintDate{April 2015}
+\author{Eric R. Keiter, 
+            Ting Mei, 
+            Thomas V. Russo, \\
+            Richard L. Schiek, 
+            Peter E. Sholander,
+            Heidi K. Thornquist,
+            Jason C. Verley\\
+            Electrical Models and Simulation \\[1ex]
+\\
+            Sandia National Laboratories\\
+            P.O. Box 5800, M/S 1177\\
+            Albuquerque, NM 87185-1177 \\
+\\
+\and 
+David G. Baur\\
+  Raytheon\\
+  1300 Eubank Blvd\\
+  Albuquerque, NM 87123 \\
+}
+\SANDauthor{Eric R. Keiter, Ting Mei, Thomas V. Russo, Richard L. Schiek, Peter E. Sholander, Heidi K. Thornquist, Jason C. Verley, David G. Baur}
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+%\draft
+\begin{abstract}
+  The highlights of the \XyceTM\ 6.3 release are documented.
+\end{abstract}
+\cleardoublepage
+\tableofcontents
+
+
+% ---------------------------------------------------------------------- %
+% This is where the body of the report begins; usually with an Introduction
+%
+\SANDmain		% Start the main part of the report
+\section{Scope/Product Definition}
+
+The \Xyce{} Parallel Electronic Simulator has been written to support, in a
+rigorous manner, the simulation needs of the Sandia National Laboratories
+electrical designers.  Specific requirements include, among others, the
+ability to solve extremely large circuit problems by supporting large-scale
+parallel computing platforms, improved numerical performance and
+object-oriented code design and implementation.
+
+The \Xyce{} release notes describe:
+\begin{XyceItemize}
+  \item New features and enhancements
+  \item Any defects fixed since the last release
+  \item Current known defects and defect workarounds
+  \item Incompatibilities With Other Circuit Simulators
+  \item Hardware and software requirements
+\end{XyceItemize}
+
+For up-to-date information not available at the time these notes 
+were produced, please visit the \Xyce{} web page at 
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov/}}.
+
+
+\section{New Features and Enhancements}
+
+Highlights for \Xyce{} Release 6.3 include:
+\begin{XyceItemize}
+\item New devices (MEXTRAM version 504, BSIM 6.1.0 and TEAM Memristor added).
+\item DC operating point strategy now applies source-stepping if other attempts fail.
+\item New devices (Branch, Bus shunt, Transformer and Generator Bus) 
+  for modeling steady-state power flow in electric power grids.
+\item ADMS back-end enhanced to generate code for analytic sensitivity derivatives. 
+\item Support for measure statements when {\texttt .STEP} is used.
+\item The ability to re-measure existing data in {\texttt .PRN} files.
+\item New multi-tone Harmonic Balance (HB) analysis.
+\item Small signal noise analysis (\texttt{.NOISE}).
+  
+\end{XyceItemize}
+For details of each of these new features, see the \Xyce{} Users' Guide, the
+\Xyce{} Installation Guide, and the \Xyce{} Reference Guide.  A more complete
+listing of new features and improvements is given in the following sections.
+
+\subsection{Robustness Improvements}
+\begin{XyceItemize}
+\item DC operating point solution strategy now includes SPICE-like source stepping if Newton or GMIN stepping fail.
+\item Extensive bug fixes and usability improvements for {\texttt .MEASURE}.  This includes
+user-configurable output precision, and more informative output to standard output 
+and log files.
+\end{XyceItemize}
+
+% new device types:
+\subsection{New Devices}
+\begin{XyceItemize}
+\item BSIM6 version 6.1.0
+\item MEXTRAM version 504.11.0
+\item TEAM Memristor
+\item Power Grid Branch, Bus Shunt, Transformer and Generator Bus
+\end{XyceItemize}
+
+\subsection{Interface Improvements}
+\begin{XyceItemize}
+\item   Analytic derivatives are now computed for all ADMS-generated devices (VBIC, FBH HBT, MEXTRAM, BSIM6, BSIMCMG, PSP, EKV).  Sensitivities computed for these devices will be more accurate than the finite-difference method used prior to this implementation.
+\item   ADMS back-end improved to more correctly support Verilog-A ternary operators.
+\end{XyceItemize}
+
+\newpage
+\section{Defects of Release 6.2 Fixed in this Release}
+\input{fixedDefectsTbl}
+
+\newpage
+
+\section{Known Defects and Workarounds}
+\input{knownDefectsTbl}
+\newpage
+
+\section{Resolved Incompatibilities With Other Circuit Simulators}
+Table ~\ref{incomp} lists incompatibilities between Xyce{} and other circuit
+simulators that were resolved in this release.  Please consult the Xyce{} Reference
+Guide for a list of known incompatibilities, and how to work around them.
+\input{incompTbl}
+
+\newpage
+\section{Important Changes to \Xyce{} Usage Since the Release 6.2.}
+Table ~\ref{newUsage} lists some usage changes for \Xyce{}.
+\input{changesInputTbl}
+
+\newpage
+\section{Hardware/Software}
+This section gives basic information on supported platforms and hardware
+and software requirements for running \Xyce{} 6.3.
+
+\subsection{Supported Platforms (Certified Support)}
+\Xyce\ 6.3 currently supports any of the following operating system platforms
+(all versions imply the earliest supported---\Xyce{} generally works on later
+versions as well).  These platforms are supported in the sense that they have
+been subject to certification testing for the \Xyce{} version 6.3 release.  
+
+\begin{XyceItemize}
+\item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 5, x86 (serial only) and x86-64 (serial and parallel)
+\item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 6, x86-64 (serial and parallel)
+\item Microsoft Windows 7${}^{\mbox{\textregistered}}$, x86 (serial)
+\item Apple${}^{\mbox{\textregistered}}$ OS X, x86-64 (serial and parallel)
+\item TLCC (serial and parallel)
+\item Red Sky (serial and parallel)
+\end{XyceItemize}
+
+\subsection{Build Supported Platforms (not Certified)}
+The platforms listed in this section are ``not supported'' in the
+sense that they are not subject to nightly regression testing, and
+they also were not subject to certification testing for the \Xyce{}
+version 6.3 release.  Despite this lack of testing rigor, \Xyce{} has
+been known to run under these configurations.
+
+\begin{XyceItemize}
+\item FreeBSD 9.x and 10.x on Intel x86 and x86-64 architectures (serial and parallel)
+\item Distributions of Linux other than Red Hat Enterprise Linux
+\item Microsoft Windows under Cygwin and MinGW.
+\end{XyceItemize}
+
+Please contact the Xyce development team for platform and configuration availability.
+
+\subsection{Hardware Requirements}
+
+The \Xyce{} team has not determined a minimum memory or processor
+speed requirement.  Any modern computer should have enough memory and
+processor power to run moderately sized circuits in serial with
+\Xyce{}.  Naturally, memory requirements grow with problem size.  
+
+Running \Xyce{} in parallel will require a system with at least two
+processors. For problems of the size where parallel operation is
+beneficial (thousands of devices per processor), one can expect to
+need several gigabytes of memory per processor. 
+
+For the very largest problems that \Xyce{} can run (millions of
+devices), one will require a cluster system with a sufficient number
+of nodes to distribute the problem efficiently, and sufficient memory
+per node to support the distributed problem.  
+
+\subsection{Software Requirements}
+Several libraries are required to run \Xyce{} or build \Xyce{} from source on a
+platform.  Serial versions of the \Xyce{} binary have no run-time software
+requirements, as they ship with all the shared libraries they need.  However,
+parallel versions require Open MPI
+({\color{XyceDeepRed}\url{http://www.open-mpi.org/}}) (version 1.4 or higher)
+at run time.  TLCC and Red Sky users can load the \textbf{xyce} module to properly
+set the environment. 
+
+Several libraries (all freely available from Sandia National
+Laboratories or other sites) are always required when building \Xyce{}
+from source.  A complete list of these required libraries is available
+in the building guide on the \Xyce{} web site.
+
+\section{\Xyce{} Release 6.3 Documentation}
+The following \Xyce{} documentation is available at the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+\item \Xyce{} Release Notes, Version 6.3 (this document)
+\item \Xyce{} Users' Guide, Version 6.3
+\item \Xyce{} Reference Guide, Version 6.3
+\item \Xyce{} Mathematical Formulation
+\item Application Node: Using Open Source Schematic Capture Tools with \Xyce{}
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+\item Building Guide (instructions for building Xyce from the source code)
+\item Running the Xyce Regression Test Suite
+\item Frequently Asked Questions
+\end{XyceItemize}
+
+\subsection{Device Support}
+Table~\ref{deviceListTable} contains a complete list of devices for \Xyce{}
+Release 6.3.
+
+% device list 
+\input{deviceListTbl}
+
+
+\clearpage
+% acknowledgements, trademarks, contact information.
+\input{acktrade}
+\begin{SANDdistribution}[NM]% or [CA]
+    % \SANDdistCRADA	% If this report is about CRADA work
+    % \SANDdistPatent	% If this report has a Patent Caution or Patent Interest
+    % \SANDdistLDRD	% If this report is about LDRD work
+
+    % External Address Format: {num copies}{Address}
+%    \SANDdistExternal{}{}
+    \bigskip
+
+    % The following MUST BE between the external and internal distributions!
+    % \SANDdistClassified % If this report is classified
+
+    % Internal Address Format: {num copies}{Mail stop}{Name}{Org}
+%    \SANDdistInternal{}{}{}{}
+
+    % Mail Channel Address Format: {num copies}{Mail Channel}{Name}{Org}
+%    \SANDdistInternalM{}{}{}{}
+\end{SANDdistribution}
+
+
+\end{document}

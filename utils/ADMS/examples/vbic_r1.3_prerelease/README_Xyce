@@ -1,0 +1,45 @@
+The VBIC 1.3 model has been modified for inclusion in Xyce:
+
+  - Module attributes have been added to make the VBIC 1.3 accessible as
+    BJT model levels 11 (3-terminal) and 12 (4-terminal).
+
+  - The dt node, normally an internal node of the VBIC 1.3, has been made  an
+    external node to satisfy Sandia user requirements.
+
+  - The external dt node has been made optional by post-ADMS patches.
+
+  - Xyce-specific attributes have been added to all parameters
+
+  - Since Xyce/ADMS supports some---but not all---of the features
+    selected by the VAMS_COMPACT_MODELING ifdef in
+    cmcGeneralMacrosAndDefines.va, this file has been modified to add
+    an ifdef for "__XYCE_COMPACT_MODELING__" that selects the features
+    of the former that Xyce/ADMS actually accepts, without sacrificing
+    as much as turning off VAMS_COMPACT_MODELING would have done in
+    the original.
+
+  - pnjlim voltage limiting and junction voltage initialization have
+    been applied to the base-emitter and base-collector junctions, as
+    recommended in earlier VBIC documentation.
+
+  - A simple $limit has been applied to the thermal node.  This uses
+    an analog function defined in xyceSpecificAnalogFunctions.va.
+
+  - @(initial_instance) and @(initial_model) have been added to the
+    initializeInstance and initializeModel blocks, ifdef'd with an
+    "`ifdef insideADMS".
+
+  - One line of instance-variable-dependent initialization has been
+    moved out of the initializeModel block and into the
+    intializeInstance block.  It is illegal in Xyce/ADMS to reference
+    instance parameters from the code in an @(initial_model) block,
+    because models do not know what instance to use.
+
+  - All variables that had been declared inside the top-level "analog
+    block begin/end" block have been moved out of the block and into
+    the module level.  This is to work around an ADMS limitation that
+    renders it impossible to render variables used in
+    @(initial_instance) or @(initial_model) and the main block as
+    "global_instance" or "global_model" variables.  Declaring them
+    inside the block makes them block-local, always.
+    

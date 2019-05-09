@@ -1,0 +1,83 @@
+//-------------------------------------------------------------------------
+//   Copyright 2002-2018 National Technology & Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, the U.S. Government retains certain rights in this software.
+//
+//   This file is part of the Xyce(TM) Parallel Electrical Simulator.
+//
+//   Xyce(TM) is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Xyce(TM) is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Xyce(TM).
+//   If not, see <http://www.gnu.org/licenses/>.
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+//
+// Purpose        : 
+// This example verilog file implements a two-terminal parallel RLC device.
+// Its purpose is to demonstrate how to work around Xyce/ADMS's mishandling
+// of branch aliases, as documented in the Xyce/ADMS Users' Guide
+//
+// Special Notes  : 
+// The "R_dummy" resistor defaults to zero-value, and causes the internal1
+// node to collapse by default to the p node.  Its mere presence in the
+// input Verilog-A source leads to correct handling of the inductor branch
+// current.  Attempting to implement this device using only branch declarations
+// to isolate the inductor current would lead to incorrect Xyce code.
+// 
+//
+// Creator        : Tom Russo
+//
+// Creation Date  : 10/25/2016
+//
+//-------------------------------------------------------------------------
+
+`include "disciplines.vams"
+`include "constants.vams"
+
+`define attr(txt) (*txt*)
+
+module rlc3 (p,n);
+   electrical p,n;
+   inout p,n;
+   electrical internal1;
+   
+   parameter real L=1e-3 from (0:inf) `attr(info="Inductance" type="instance");
+   parameter real R=1e3 from (0:inf) `attr(info="Resistance" type="instance");
+   parameter real C=1e-12 from (0:inf) `attr(info="Capacitance" type="instance");
+   parameter real R_dummy=0 from [0:inf) `attr(info="Inductor in-line resistance" type="instance");
+   
+   real           InductorCurrent;
+   real           CapacitorCharge;
+
+   // This model would fail to operate properly in Xyce if
+   // ind_branch were defined as (p,n) and the R_dummy resistor omitted.
+   branch (internal1,n) ind_branch;
+
+   analog
+     begin
+        
+        I(p,n)<+ V(p,n)/R;
+        
+        CapacitorCharge = V(p,n)*C;
+        I(p,n) <+ ddt(CapacitorCharge);
+        
+        InductorCurrent=I(ind_branch);
+        V(ind_branch) <+ L*ddt(InductorCurrent);
+        
+        if (R_dummy > 0)
+          I(p,internal1) <+ V(p,internal1)/R_dummy;
+        else
+          V(p,internal1) <+ 0;
+        
+     end
+endmodule

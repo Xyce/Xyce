@@ -1,0 +1,131 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\begin{Device}
+
+\device
+\begin{alltt}
+S<name> <(+) switch node> <(-) switch node>
++ <(+) control node> <(-) control node>
++ <model name> [ON] [OFF]
+
+W<name> <(+) switch node> <(-) switch node>
++ <control node voltage source>
++ <model name> [ON] [OFF]
+\end{alltt}
+
+\model
+\begin{alltt}
+.MODEL <model name> VSWITCH [model parameters]
+.MODEL <model name> ISWITCH [model parameters]
+\end{alltt}
+
+\examples
+\begin{alltt}
+S1 21 23 12 10 SMOD1
+SSET 15 10 1 13 SRELAY
+W1 1 2 VCLOCK SWITCHMOD1
+W2 3 0 VRAMP SM1 ON
+\end{alltt}
+
+\comments
+
+The voltage- or current-controlled switch is a particular type of
+controlled resistor. This model is designed to help reduce numerical
+issues. See Special considerations below.
+
+The resistance between the \texttt{<(+) switch node>} and the
+\texttt{<(-) switch node>} is dependent on either the voltage between
+the \texttt{<(+) control node>} and the \texttt{<(-) control node>} or
+the current through the control node voltage source. The resistance
+changes in a continuous manner between the \texttt{RON} and
+\texttt{ROFF} model parameters.
+
+No resistance is inserted between the control nodes.  It is up to the
+user to make sure that these nodes are not floating.
+
+Even though evaluating the switch model is computationally
+inexpensive, for transient analysis \Xyce{} steps through the
+transition section using small time-steps in order to calculate the
+waveform accurately. Thus, a circuit with many switch transitions can
+result in lengthy run times.
+
+The ON and OFF parameters are used to specify the initial state of the
+switch at the first step of the operating point calculation; this does
+not force the switch to be in that state, it only gives the operating
+point solver an initial state to work with.  If it is known that the
+switch should be in a particular state in the operating point it could
+help convergence to specify one of these keywords.
+
+The power dissipated in the switch is calculated with $I \cdot \Delta V$ 
+where the voltage drop is calculated as $(V_+ - V_-)$ and positive current 
+flows from $V_+$ to $V_-$.  This will essentially be the power dissipated
+in either \texttt{RON} or \texttt{ROFF}, since the switch is a particular 
+type of controlled resistor.
+
+\end{Device}
+
+\pagebreak
+
+\paragraph{Model Parameters}
+\input{S_1_Device_Model_Params}
+
+\paragraph{Special Considerations}
+
+\begin{XyceItemize}
+\item Due to numerical limitations, \Xyce{} can only manage a dynamic range of
+  approximately 12 decades.  Thus, it is recommended the user limit the ratio
+  \textrmb{ROFF}/\textrmb{RON} to less than $10^{12}$.  This soft limitation is not enforced by the code, and larger ratios might converge for some problems.
+\item Do not set \textrmb{RON} to 0.0, as the code computes the ``on'' conductance as the inverse of \textrmb{RON}.  Using 0.0 will cause the simulation to fail when this invalid division results in an infinite conductance.  Use a very small, but non-zero, on resistance instead.
+\item Furthermore, it is a good idea to limit the narrowness of the transition
+  region. This is because in the transition region, the switch has gain and the
+  narrower the region, the higher the gain and the more potential for numerical
+  problems.  The smallest value recommended for $\|\mathbf{VON - VOFF}\|$ or
+  $\|\mathbf{ION - IOFF}\|$ is $1\times10^{-12}$.  This recommendation is not a restriction, and you might find for some problems that narrower transition regions might work well.
+\end{XyceItemize}
+
+\paragraph{Controlled switch equations}
+The equations in this section use the following variables:
+\[
+\begin{array}{rllll}
+R_s & = & \mbox{switch resistance} \\
+V_c & = & \mbox{voltage across control nodes} \\
+I_c & = & \mbox{current through control node voltage source} \\
+L_m & = & \mbox{log-mean of resistor values} & = &
+\ln \left(\sqrt{\mathbf{RON \cdot ROFF}} \right) \\
+L_r & = & \mbox{log - ratio of resistor values} & = &
+\ln \left(\mathbf{RON / ROFF} \right) \\
+V_d & = & \mbox{difference of control voltages} & = & \mathbf{VON - VOFF} \\
+I_d & = & \mbox{difference of control currents} & = & \mathbf{ION - IOFF} \\
+\end{array}
+\]
+
+\subparagraph{Switch Resistance}
+
+To compute the switch resistance, \Xyce{} first calculates the
+``switch state'' $S$ as $S=(V_c-\mathbf{VOFF})/V_d$ or
+$S=(I_c-\mathbf{IOFF})/I_d$.  The switch resistance is then:
+\[ R_s = \left\{ \begin{array}{ll}
+\mathbf{RON}, & S \geq 1.0 \\
+\mathbf{ROFF}, & S \leq 0.0 \\
+\exp \left(L_m + 0.75L_r(2S-1) - 0.25L_r(2S-1)^3 \right),
+& 0< S < 1
+\end{array}
+\right.
+\]
+
+%\subparagraph{Noise}
+%Noise is computed using a 1.0 Hz bandwidth.  The voltage-controlled switch
+%produces thermal noise as though it were a resistor with the resistance a
+%switch has at its bias point.  It uses a spectral power density (per unit
+%bandwidth):
+%\[
+%i^2 = 4kT/R_s
+%\]

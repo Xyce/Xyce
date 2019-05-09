@@ -1,0 +1,870 @@
+template vbic_4T_it_cf 4 = model
+electrical c b e s
+struc {
+	number	TNOM=27.0,
+		RCX=0.0,
+		RCI=0.0,
+		VO=0.0,
+		GAMM=0.0,
+		HRCF=0.0,
+		RBX=0.0,
+		RBI=0.0,
+		RE=0.0,
+		RS=0.0,
+		RBP=0.0,
+		IS=1.0e-16,
+		NF=1.0,
+		NR=1.0,
+		FC=0.9,
+		CBEO=0.0,
+		CJE=0.0,
+		PE=0.75,
+		ME=0.33,
+		AJE=-0.5,
+		CBCO=0.0,
+		CJC=0.0,
+		QCO=0.0,
+		CJEP=0.0,
+		PC=0.75,
+		MC=0.33,
+		AJC=-0.5,
+		CJCP=0.0,
+		PS=0.75,
+		MS=0.33,
+		AJS=-0.5,
+		IBEI=1.0e-18,
+		WBE=1.0,
+		NEI=1.0,
+		IBEN=0.0,
+		NEN=2.0,
+		IBCI=1.0e-16,
+		NCI=1.0,
+		IBCN=0.0,
+		NCN=2.0,
+		AVC1=0.0,
+		AVC2=0.0,
+		ISP=0.0,
+		WSP=1.0,
+		NFP=1.0,
+		IBEIP=0.0,
+		IBENP=0.0,
+		IBCIP=0.0,
+		NCIP=1.0,
+		IBCNP=0.0,
+		NCNP=2.0,
+		VEF=0.0,
+		VER=0.0,
+		IKF=0.0,
+		IKR=0.0,
+		IKP=0.0,
+		TF=0.0,
+		QTF=0.0,
+		XTF=0.0,
+		VTF=0.0,
+		ITF=0.0,
+		TR=0.0,
+		TD=0.0,
+		KFN=0.0,
+		AFN=1.0,
+		BFN=1.0,
+		XRE=0,
+		XRBI=0,
+		XRCI=0,
+		XRS=0,
+		XVO=0,
+		EA=1.12,
+		EAIE=1.12,
+		EAIC=1.12,
+		EAIS=1.12,
+		EANE=1.12,
+		EANC=1.12,
+		EANS=1.12,
+		XIS=3.0,
+		XII=3.0,
+		XIN=3.0,
+		TNF=0.0,
+		TAVC=0.0,
+		RTH=0.0,
+		CTH=0.0,
+		VRT=0.0,
+		ART=0.1,
+		CCSO=0.0,
+		QBM=0.0,
+		NKF=0.5,
+		XIKF=0,
+		XRCX=0,
+		XRBX=0,
+		XRBP=0,
+		ISRR=1.0,
+		XISR=0.0,
+		DEAR=0.0,
+		EAP=1.12,
+		VBBE=0.0,
+		NBBE=1.0,
+		IBBE=1.0e-6,
+		TVBBE1=0.0,
+		TVBBE2=0.0,
+		TNBBE=0.0,
+		EBBE=0.0,
+		DTEMP=0.0,
+		VERS=1.2,
+		VREV=0.0
+	} model =()
+{
+external number temp
+electrical 7
+val v Vbei
+val v Vbex
+val v Vbci
+val v Vbep
+val v Vbcp
+val v Vrcx
+val v Vbcx
+val v Vrci
+val v Vrbx
+val v Vrbi
+val v Vre
+val v Vrbp
+val v Vrs
+val v Vbe
+val v Vbc
+val i Ibe
+val i Ibex
+val i Itzf
+val i Itzr
+val i Ibc
+val i Ibep
+val i Ircx
+val i Irci
+val i Irbx
+val i Irbi
+val i Ire
+val i Irbp
+val q Qbe
+val q Qbex
+val q Qbc
+val q Qbcx
+val q Qbep
+val q Qbeo
+val q Qbco
+val i Ibcp
+val i Iccp
+val i Irs
+val q Qbcp
+parameters {
+
+#
+#	Temperature mappings
+#
+
+	Tini=2.731500e+02+TNOM
+	Tdev=temp+DTEMP
+	Vtv=1.380662e-23*Tdev/1.602189e-19
+	rT=Tdev/Tini
+	dT=Tdev-Tini
+	xvar1=rT**XIKF
+	IKFatT=IKF*xvar1
+	xvar1=rT**XRCX
+	RCXatT=RCX*xvar1
+	xvar1=rT**XRCI
+	RCIatT=RCI*xvar1
+	xvar1=rT**XRBX
+	RBXatT=RBX*xvar1
+	xvar1=rT**XRBI
+	RBIatT=RBI*xvar1
+	xvar1=rT**XRE
+	REatT=RE*xvar1
+	xvar1=rT**XRS
+	RSatT=RS*xvar1
+	xvar1=rT**XRBP
+	RBPatT=RBP*xvar1
+	xvar2=rT**XIS
+	xvar3=-EA*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NF)
+	xvar6=xvar1**xvar5
+	ISatT=IS*xvar6
+	xvar2=rT**XISR
+	xvar3=-DEAR*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NR)
+	xvar6=xvar1**xvar5
+	ISRRatT=ISRR*xvar6
+	xvar2=rT**XIS
+	xvar3=-EAP*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NFP)
+	xvar6=xvar1**xvar5
+	ISPatT=ISP*xvar6
+	xvar2=rT**XII
+	xvar3=-EAIE*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NEI)
+	xvar6=xvar1**xvar5
+	IBEIatT=IBEI*xvar6
+	xvar2=rT**XIN
+	xvar3=-EANE*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NEN)
+	xvar6=xvar1**xvar5
+	IBENatT=IBEN*xvar6
+	xvar2=rT**XII
+	xvar3=-EAIC*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NCI)
+	xvar6=xvar1**xvar5
+	IBCIatT=IBCI*xvar6
+	xvar2=rT**XIN
+	xvar3=-EANC*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NCN)
+	xvar6=xvar1**xvar5
+	IBCNatT=IBCN*xvar6
+	xvar2=rT**XII
+	xvar3=-EAIC*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NCI)
+	xvar6=xvar1**xvar5
+	IBEIPatT=IBEIP*xvar6
+	xvar2=rT**XIN
+	xvar3=-EANC*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NCN)
+	xvar6=xvar1**xvar5
+	IBENPatT=IBENP*xvar6
+	xvar2=rT**XII
+	xvar3=-EAIS*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NCIP)
+	xvar6=xvar1**xvar5
+	IBCIPatT=IBCIP*xvar6
+	xvar2=rT**XIN
+	xvar3=-EANS*(1.0-rT)/Vtv
+	xvar4=exp(xvar3)
+	xvar1=(xvar2*xvar4)
+	xvar5=(1.0/NCNP)
+	xvar6=xvar1**xvar5
+	IBCNPatT=IBCNP*xvar6
+	NFatT=NF*(1.0+dT*TNF)
+	NRatT=NR*(1.0+dT*TNF)
+	AVC2atT=AVC2*(1.0+dT*TAVC)
+	VBBEatT=VBBE*(1.0+dT*(TVBBE1+dT*TVBBE2))
+	NBBEatT=NBBE*(1.0+dT*TNBBE)
+	xvar2=0.5*PE*rT/Vtv
+	xvar3=exp(xvar2)
+	xvar4=-0.5*PE*rT/Vtv
+	xvar5=exp(xvar4)
+	xvar1=xvar3-xvar5
+	xvar6=ln(xvar1)
+	psiio=2.0*(Vtv/rT)*xvar6
+	xvar1=ln(rT)
+	psiin=psiio*rT-3.0*Vtv*xvar1-EAIE*(rT-1.0)
+	xvar2=-psiin/Vtv
+	xvar3=exp(xvar2)
+	xvar1=0.5*(1.0+sqrt(1.0+4.0*xvar3))
+	xvar4=ln(xvar1)
+	PEatT=psiin+2.0*Vtv*xvar4
+	xvar2=0.5*PC*rT/Vtv
+	xvar3=exp(xvar2)
+	xvar4=-0.5*PC*rT/Vtv
+	xvar5=exp(xvar4)
+	xvar1=xvar3-xvar5
+	xvar6=ln(xvar1)
+	psiio=2.0*(Vtv/rT)*xvar6
+	xvar1=ln(rT)
+	psiin=psiio*rT-3.0*Vtv*xvar1-EAIC*(rT-1.0)
+	xvar2=-psiin/Vtv
+	xvar3=exp(xvar2)
+	xvar1=0.5*(1.0+sqrt(1.0+4.0*xvar3))
+	xvar4=ln(xvar1)
+	PCatT=psiin+2.0*Vtv*xvar4
+	xvar2=0.5*PS*rT/Vtv
+	xvar3=exp(xvar2)
+	xvar4=-0.5*PS*rT/Vtv
+	xvar5=exp(xvar4)
+	xvar1=xvar3-xvar5
+	xvar6=ln(xvar1)
+	psiio=2.0*(Vtv/rT)*xvar6
+	xvar1=ln(rT)
+	psiin=psiio*rT-3.0*Vtv*xvar1-EAIS*(rT-1.0)
+	xvar2=-psiin/Vtv
+	xvar3=exp(xvar2)
+	xvar1=0.5*(1.0+sqrt(1.0+4.0*xvar3))
+	xvar4=ln(xvar1)
+	PSatT=psiin+2.0*Vtv*xvar4
+	xvar1=PE/PEatT
+	xvar2=xvar1**ME
+	CJEatT=CJE*xvar2
+	xvar1=PC/PCatT
+	xvar2=xvar1**MC
+	CJCatT=CJC*xvar2
+	xvar1=PC/PCatT
+	xvar2=xvar1**MC
+	CJEPatT=CJEP*xvar2
+	xvar1=PS/PSatT
+	xvar2=xvar1**MS
+	CJCPatT=CJCP*xvar2
+	xvar1=rT**XIS
+	xvar2=-EA*(1.0-rT)/Vtv
+	xvar3=exp(xvar2)
+	GAMMatT=GAMM*xvar1*xvar3
+	xvar1=rT**XVO
+	VOatT=VO*xvar1
+	xvar1=-VBBEatT/(NBBEatT*Vtv)
+	EBBEatT=exp(xvar1)
+}
+values {
+
+#
+#	Branch current and charge calculations
+#
+
+	Vbe=v(b)-v(e)
+	Vbc=v(b)-v(c)
+	Vbei=v(bi)-v(ei)
+	Vbex=v(bx)-v(ei)
+	Vbci=v(bi)-v(ci)
+	Vbcx=v(bi)-v(cx)
+	Vcei=v(ci)-v(ei)
+	Veci=v(ei)-v(ci)
+	Vbep=v(bx)-v(bp)
+	Vre=v(e)-v(ei)
+	Vrcx=v(c)-v(cx)
+	Vrci=v(cx)-v(ci)
+	Vrbx=v(b)-v(bx)
+	Vrbi=v(bx)-v(bi)
+	Vrbp=v(bp)-v(cx)
+	Vbcp=v(si)-v(bp)
+	Vcep=v(bx)-v(si)
+	Vrs=v(s)-v(si)
+	if (VEF>0.0) {
+		IVEF=1.0/VEF
+	} else {
+		IVEF=0.0
+	}
+	if (VER>0.0) {
+		IVER=1.0/VER
+	} else {
+		IVER=0.0
+	}
+	if (IKF>0.0) {
+		IIKF=1.0/IKF
+	} else {
+		IIKF=0.0
+	}
+	if (IKR>0.0) {
+		IIKR=1.0/IKR
+	} else {
+		IIKR=0.0
+	}
+	if (IKP>0.0) {
+		IIKP=1.0/IKP
+	} else {
+		IIKP=0.0
+	}
+	if (VO>0.0) {
+		IVO=1.0/VO
+	} else {
+		IVO=0.0
+	}
+	if (HRCF>0.0) {
+		IHRCF=1.0/HRCF
+	} else {
+		IHRCF=0.0
+	}
+	if (VTF>0.0) {
+		IVTF=1.0/VTF
+	} else {
+		IVTF=0.0
+	}
+	if (ITF>0.0) {
+		IITF=1.0/ITF
+	} else {
+		IITF=0.0
+	}
+	if (ITF>0.0) {
+		slTF=0.0
+	} else {
+		slTF=1.0
+	}
+	dv0=-PE*FC
+	if (AJE<=0.0) {
+		dvh=Vbei+dv0
+		if (dvh>0.0) {
+			xvar1=(1.0-FC)
+			xvar2=(-1.0-ME)
+			pwq=xvar1**xvar2
+			qlo=PE*(1.0-pwq*(1.0-FC)*(1.0-FC))/(1.0-ME)
+			qhi=dvh*(1.0-FC+0.5*ME*dvh/PE)*pwq
+		} else {
+			xvar1=(1.0-Vbei/PE)
+			xvar2=(1.0-ME)
+			xvar3=xvar1**xvar2
+			qlo=PE*(1.0-xvar3)/(1.0-ME)
+			qhi=0.0
+		}
+		qdbe=qlo+qhi
+	} else {
+		mv0=sqrt(dv0*dv0+4.0*AJE*AJE)
+		vl0=-0.5*(dv0+mv0)
+		xvar1=(1.0-vl0/PE)
+		xvar2=(1.0-ME)
+		xvar3=xvar1**xvar2
+		q0=-PE*xvar3/(1.0-ME)
+		dv=Vbei+dv0
+		mv=sqrt(dv*dv+4.0*AJE*AJE)
+		vl=0.5*(dv-mv)-dv0
+		xvar1=(1.0-vl/PE)
+		xvar2=(1.0-ME)
+		xvar3=xvar1**xvar2
+		qlo=-PE*xvar3/(1.0-ME)
+		xvar1=(1.0-FC)
+		xvar2=(-ME)
+		xvar3=xvar1**xvar2
+		qdbe=qlo+xvar3*(Vbei-vl+vl0)-q0
+	}
+	dv0=-PE*FC
+	if (AJE<=0.0) {
+		dvh=Vbex+dv0
+		if (dvh>0.0) {
+			xvar1=(1.0-FC)
+			xvar2=(-1.0-ME)
+			pwq=xvar1**xvar2
+			qlo=PE*(1.0-pwq*(1.0-FC)*(1.0-FC))/(1.0-ME)
+			qhi=dvh*(1.0-FC+0.5*ME*dvh/PE)*pwq
+		} else {
+			xvar1=(1.0-Vbex/PE)
+			xvar2=(1.0-ME)
+			xvar3=xvar1**xvar2
+			qlo=PE*(1.0-xvar3)/(1.0-ME)
+			qhi=0.0
+		}
+		qdbex=qlo+qhi
+	} else {
+		mv0=sqrt(dv0*dv0+4.0*AJE*AJE)
+		vl0=-0.5*(dv0+mv0)
+		xvar1=(1.0-vl0/PE)
+		xvar2=(1.0-ME)
+		xvar3=xvar1**xvar2
+		q0=-PE*xvar3/(1.0-ME)
+		dv=Vbex+dv0
+		mv=sqrt(dv*dv+4.0*AJE*AJE)
+		vl=0.5*(dv-mv)-dv0
+		xvar1=(1.0-vl/PE)
+		xvar2=(1.0-ME)
+		xvar3=xvar1**xvar2
+		qlo=-PE*xvar3/(1.0-ME)
+		xvar1=(1.0-FC)
+		xvar2=(-ME)
+		xvar3=xvar1**xvar2
+		qdbex=qlo+xvar3*(Vbex-vl+vl0)-q0
+	}
+	dv0=-PC*FC
+	if (AJC<=0.0) {
+		dvh=Vbci+dv0
+		if (dvh>0.0) {
+			xvar1=(1.0-FC)
+			xvar2=(-1.0-MC)
+			pwq=xvar1**xvar2
+			qlo=PC*(1.0-pwq*(1.0-FC)*(1.0-FC))/(1.0-MC)
+			qhi=dvh*(1.0-FC+0.5*MC*dvh/PC)*pwq
+		} else {
+			if ((VRT>0.0)&&(Vbci<-VRT)) {
+				xvar1=(1.0+VRT/PC)
+				xvar2=(1.0-MC)
+				xvar3=xvar1**xvar2
+				qlo=PC*(1.0-xvar3*(1.0-((1.0-MC)*(Vbci+VRT))/(PC+VRT)))/(1.0-MC)
+			} else {
+				xvar1=(1.0-Vbci/PC)
+				xvar2=(1.0-MC)
+				xvar3=xvar1**xvar2
+				qlo=PC*(1.0-xvar3)/(1.0-MC)
+			}
+			qhi=0.0
+		}
+		qdbc=qlo+qhi
+	} else {
+		if ((VRT>0.0)&&(ART>0.0)) {
+			vn0=(VRT+dv0)/(VRT-dv0)
+			vnl0=2.0*vn0/(sqrt((vn0-1.0)*(vn0-1.0)+4.0*AJC*AJC)+sqrt((vn0+1.0)*(vn0+1.0)+4.0*ART*ART))
+			vl0=0.5*(vnl0*(VRT-dv0)-VRT-dv0)
+			xvar1=(1.0-vl0/PC)
+			xvar2=(1.0-MC)
+			xvar3=xvar1**xvar2
+			qlo0=PC*(1.0-xvar3)/(1.0-MC)
+			vn=(2.0*Vbci+VRT+dv0)/(VRT-dv0)
+			vnl=2.0*vn/(sqrt((vn-1.0)*(vn-1.0)+4.0*AJC*AJC)+sqrt((vn+1.0)*(vn+1.0)+4.0*ART*ART))
+			vl=0.5*(vnl*(VRT-dv0)-VRT-dv0)
+			xvar1=(1.0-vl/PC)
+			xvar2=(1.0-MC)
+			xvar3=xvar1**xvar2
+			qlo=PC*(1.0-xvar3)/(1.0-MC)
+			sel=0.5*(vnl+1.0)
+			xvar1=(1.0+VRT/PC)
+			xvar2=(-MC)
+			crt=xvar1**xvar2
+			xvar1=(1.0+dv0/PC)
+			xvar2=(-MC)
+			cmx=xvar1**xvar2
+			cl=(1.0-sel)*crt+sel*cmx
+			ql=(Vbci-vl+vl0)*cl
+			qdbc=ql+qlo-qlo0
+		} else {
+			mv0=sqrt(dv0*dv0+4.0*AJC*AJC)
+			vl0=-0.5*(dv0+mv0)
+			xvar1=(1.0-vl0/PC)
+			xvar2=(1.0-MC)
+			xvar3=xvar1**xvar2
+			q0=-PC*xvar3/(1.0-MC)
+			dv=Vbci+dv0
+			mv=sqrt(dv*dv+4.0*AJC*AJC)
+			vl=0.5*(dv-mv)-dv0
+			xvar1=(1.0-vl/PC)
+			xvar2=(1.0-MC)
+			xvar3=xvar1**xvar2
+			qlo=-PC*xvar3/(1.0-MC)
+			xvar1=(1.0-FC)
+			xvar2=(-MC)
+			xvar3=xvar1**xvar2
+			qdbc=qlo+xvar3*(Vbci-vl+vl0)-q0
+		}
+	}
+	dv0=-PC*FC
+	if (AJC<=0.0) {
+		dvh=Vbep+dv0
+		if (dvh>0.0) {
+			xvar1=(1.0-FC)
+			xvar2=(-1.0-MC)
+			pwq=xvar1**xvar2
+			qlo=PC*(1.0-pwq*(1.0-FC)*(1.0-FC))/(1.0-MC)
+			qhi=dvh*(1.0-FC+0.5*MC*dvh/PC)*pwq
+		} else {
+			if ((VRT>0.0)&&(Vbep<-VRT)) {
+				xvar1=(1.0+VRT/PC)
+				xvar2=(1.0-MC)
+				xvar3=xvar1**xvar2
+				qlo=PC*(1.0-xvar3*(1.0-((1.0-MC)*(Vbep+VRT))/(PC+VRT)))/(1.0-MC)
+			} else {
+				xvar1=(1.0-Vbep/PC)
+				xvar2=(1.0-MC)
+				xvar3=xvar1**xvar2
+				qlo=PC*(1.0-xvar3)/(1.0-MC)
+			}
+			qhi=0.0
+		}
+		qdbep=qlo+qhi
+	} else {
+		if ((VRT>0.0)&&(ART>0.0)) {
+			vn0=(VRT+dv0)/(VRT-dv0)
+			vnl0=2.0*vn0/(sqrt((vn0-1.0)*(vn0-1.0)+4.0*AJC*AJC)+sqrt((vn0+1.0)*(vn0+1.0)+4.0*ART*ART))
+			vl0=0.5*(vnl0*(VRT-dv0)-VRT-dv0)
+			xvar1=(1.0-vl0/PC)
+			xvar2=(1.0-MC)
+			xvar3=xvar1**xvar2
+			qlo0=PC*(1.0-xvar3)/(1.0-MC)
+			vn=(2.0*Vbep+VRT+dv0)/(VRT-dv0)
+			vnl=2.0*vn/(sqrt((vn-1.0)*(vn-1.0)+4.0*AJC*AJC)+sqrt((vn+1.0)*(vn+1.0)+4.0*ART*ART))
+			vl=0.5*(vnl*(VRT-dv0)-VRT-dv0)
+			xvar1=(1.0-vl/PC)
+			xvar2=(1.0-MC)
+			xvar3=xvar1**xvar2
+			qlo=PC*(1.0-xvar3)/(1.0-MC)
+			sel=0.5*(vnl+1.0)
+			xvar1=(1.0+VRT/PC)
+			xvar2=(-MC)
+			crt=xvar1**xvar2
+			xvar1=(1.0+dv0/PC)
+			xvar2=(-MC)
+			cmx=xvar1**xvar2
+			cl=(1.0-sel)*crt+sel*cmx
+			ql=(Vbep-vl+vl0)*cl
+			qdbep=ql+qlo-qlo0
+		} else {
+			mv0=sqrt(dv0*dv0+4.0*AJC*AJC)
+			vl0=-0.5*(dv0+mv0)
+			xvar1=(1.0-vl0/PC)
+			xvar2=(1.0-MC)
+			xvar3=xvar1**xvar2
+			q0=-PC*xvar3/(1.0-MC)
+			dv=Vbep+dv0
+			mv=sqrt(dv*dv+4.0*AJC*AJC)
+			vl=0.5*(dv-mv)-dv0
+			xvar1=(1.0-vl/PC)
+			xvar2=(1.0-MC)
+			xvar3=xvar1**xvar2
+			qlo=-PC*xvar3/(1.0-MC)
+			xvar1=(1.0-FC)
+			xvar2=(-MC)
+			xvar3=xvar1**xvar2
+			qdbep=qlo+xvar3*(Vbep-vl+vl0)-q0
+		}
+	}
+	if (CJCP>0.0) {
+		dv0=-PS*FC
+		if (AJS<=0.0) {
+			dvh=Vbcp+dv0
+			if (dvh>0.0) {
+				xvar1=(1.0-FC)
+				xvar2=(-1.0-MS)
+				pwq=xvar1**xvar2
+				qlo=PS*(1.0-pwq*(1.0-FC)*(1.0-FC))/(1.0-MS)
+				qhi=dvh*(1.0-FC+0.5*MS*dvh/PS)*pwq
+			} else {
+				xvar1=(1.0-Vbcp/PS)
+				xvar2=(1.0-MS)
+				xvar3=xvar1**xvar2
+				qlo=PS*(1.0-xvar3)/(1.0-MS)
+				qhi=0.0
+			}
+			qdbcp=qlo+qhi
+		} else {
+			mv0=sqrt(dv0*dv0+4.0*AJS*AJS)
+			vl0=-0.5*(dv0+mv0)
+			xvar1=(1.0-vl0/PS)
+			xvar2=(1.0-MS)
+			xvar3=xvar1**xvar2
+			q0=-PS*xvar3/(1.0-MS)
+			dv=Vbcp+dv0
+			mv=sqrt(dv*dv+4.0*AJS*AJS)
+			vl=0.5*(dv-mv)-dv0
+			xvar1=(1.0-vl/PS)
+			xvar2=(1.0-MS)
+			xvar3=xvar1**xvar2
+			qlo=-PS*xvar3/(1.0-MS)
+			xvar1=(1.0-FC)
+			xvar2=(-MS)
+			xvar3=xvar1**xvar2
+			qdbcp=qlo+xvar3*(Vbcp-vl+vl0)-q0
+		}
+	} else {
+		qdbcp=0.0
+	}
+	argi=Vbei/(NF*Vtv)
+	expi=limexp(argi)
+	Ifi=IS*(expi-1.0)
+	argi=Vbci/(NR*Vtv)
+	expi=limexp(argi)
+	Iri=IS*ISRR*(expi-1.0)
+	q1z=1.0+qdbe*IVER+qdbc*IVEF
+	q1=0.5*(sqrt((q1z-1.0e-4)*(q1z-1.0e-4)+1.0e-8)+q1z-1.0e-4)+1.0e-4
+	q2=Ifi*IIKF+Iri*IIKR
+	if (QBM<0.5) {
+		xvar2=1.0/NKF
+		xvar3=q1**xvar2
+		xvar1=(xvar3+4.0*q2)
+		xvar4=xvar1**NKF
+		qb=0.5*(q1+xvar4)
+	} else {
+		xvar1=(1.0+4.0*q2)
+		xvar2=xvar1**NKF
+		qb=0.5*q1*(1.0+xvar2)
+	}
+	Itzr=Iri/qb
+	Itzf=Ifi/qb
+	if (ISP>0.0) {
+		argi=Vbep/(NFP*Vtv)
+		expi=limexp(argi)
+		argx=Vbci/(NFP*Vtv)
+		expx=limexp(argx)
+		Ifp=ISP*(WSP*expi+(1.0-WSP)*expx-1.0)
+		q2p=Ifp*IIKP
+		qbp=0.5*(1.0+sqrt(1.0+4.0*q2p))
+		argi=Vbcp/(NFP*Vtv)
+		expi=limexp(argi)
+		Irp=ISP*(expi-1.0)
+		Iccp=(Ifp-Irp)/qbp
+	} else {
+		Ifp=0.0
+		qbp=1.0
+		Iccp=0.0
+	}
+	if (WBE==1.0) {
+		argi=Vbei/(NEI*Vtv)
+		expi=limexp(argi)
+		argn=Vbei/(NEN*Vtv)
+		expn=limexp(argn)
+		if (VBBE>0.0) {
+			argx=(-VBBE-Vbei)/(NBBE*Vtv)
+			expx=limexp(argx)
+			Ibe=IBEI*(expi-1.0)+IBEN*(expn-1.0)-IBBE*(expx-EBBE)
+		} else {
+			Ibe=IBEI*(expi-1.0)+IBEN*(expn-1.0)
+		}
+		Ibex=0.0
+	} else if (WBE==0.0) {
+		Ibe=0.0
+		argi=Vbex/(NEI*Vtv)
+		expi=limexp(argi)
+		argn=Vbex/(NEN*Vtv)
+		expn=limexp(argn)
+		if (VBBE>0.0) {
+			argx=(-VBBE-Vbex)/(NBBE*Vtv)
+			expx=limexp(argx)
+			Ibex=IBEI*(expi-1.0)+IBEN*(expn-1.0)-IBBE*(expx-EBBE)
+		} else {
+			Ibex=IBEI*(expi-1.0)+IBEN*(expn-1.0)
+		}
+	} else {
+		argi=Vbei/(NEI*Vtv)
+		expi=limexp(argi)
+		argn=Vbei/(NEN*Vtv)
+		expn=limexp(argn)
+		if (VBBE>0.0) {
+			argx=(-VBBE-Vbei)/(NBBE*Vtv)
+			expx=limexp(argx)
+			Ibe=WBE*(IBEI*(expi-1.0)+IBEN*(expn-1.0)-IBBE*(expx-EBBE))
+		} else {
+			Ibe=WBE*(IBEI*(expi-1.0)+IBEN*(expn-1.0))
+		}
+		argi=Vbex/(NEI*Vtv)
+		expi=limexp(argi)
+		argn=Vbex/(NEN*Vtv)
+		expn=limexp(argn)
+		if (VBBE>0.0) {
+			argx=(-VBBE-Vbex)/(NBBE*Vtv)
+			expx=limexp(argx)
+			Ibex=(1.0-WBE)*(IBEI*(expi-1.0)+IBEN*(expn-1.0)-IBBE*(expx-EBBE))
+		} else {
+			Ibex=(1.0-WBE)*(IBEI*(expi-1.0)+IBEN*(expn-1.0))
+		}
+	}
+	argi=Vbci/(NCI*Vtv)
+	expi=limexp(argi)
+	argn=Vbci/(NCN*Vtv)
+	expn=limexp(argn)
+	Ibcj=IBCI*(expi-1.0)+IBCN*(expn-1.0)
+	if ((IBEIP>0.0)||(IBENP>0.0)) {
+		argi=Vbep/(NCI*Vtv)
+		expi=limexp(argi)
+		argn=Vbep/(NCN*Vtv)
+		expn=limexp(argn)
+		Ibep=IBEIP*(expi-1.0)+IBENP*(expn-1.0)
+	} else {
+		Ibep=0.0
+	}
+	if (AVC1>0.0) {
+		vl=0.5*(sqrt((PC-Vbci)*(PC-Vbci)+0.01)+(PC-Vbci))
+		xvar2=(MC-1.0)
+		xvar3=vl**xvar2
+		xvar1=-AVC2*xvar3
+		xvar4=limexp(xvar1)
+		avalf=AVC1*vl*xvar4
+		Igc=(Itzf-Itzr-Ibcj)*avalf
+	} else {
+		Igc=0.0
+	}
+	Ibc=Ibcj-Igc
+	if (RCX>0.0) {
+		Ircx=Vrcx/RCX
+	} else {
+		Ircx=0.0
+	}
+	argi=Vbci/Vtv
+	expi=limexp(argi)
+	argx=Vbcx/Vtv
+	expx=limexp(argx)
+	Kbci=sqrt(1.0+GAMM*expi)
+	Kbcx=sqrt(1.0+GAMM*expx)
+	if (RCI>0.0) {
+		rKp1=(Kbci+1.0)/(Kbcx+1.0)
+		xvar1=ln(rKp1)
+		Iohm=(Vrci+Vtv*(Kbci-Kbcx-xvar1))/RCI
+		derf=IVO*RCI*Iohm/(1.0+0.5*IVO*IHRCF*sqrt(Vrci*Vrci+0.01))
+		Irci=Iohm/sqrt(1.0+derf*derf)
+	} else {
+		Irci=0.0
+	}
+	if (RBX>0.0) {
+		Irbx=Vrbx/RBX
+	} else {
+		Irbx=0.0
+	}
+	if (RBI>0.0) {
+		Irbi=Vrbi*qb/RBI
+	} else {
+		Irbi=0.0
+	}
+	if (RE>0.0) {
+		Ire=Vre/RE
+	} else {
+		Ire=0.0
+	}
+	if (RBP>0.0) {
+		Irbp=Vrbp*qbp/RBP
+	} else {
+		Irbp=0.0
+	}
+	if ((IBCIP>0.0)||(IBCNP>0.0)) {
+		argi=Vbcp/(NCIP*Vtv)
+		expi=limexp(argi)
+		argn=Vbcp/(NCNP*Vtv)
+		expn=limexp(argn)
+		Ibcp=IBCIP*(expi-1.0)+IBCNP*(expn-1.0)
+	} else {
+		Ibcp=0.0
+	}
+	if (RS>0.0) {
+		Irs=Vrs/RS
+	} else {
+		Irs=0.0
+	}
+	if (Ifi>0.0) {
+		sgIf=1.0
+	} else {
+		sgIf=0.0
+	}
+	rIf=Ifi*sgIf*IITF
+	mIf=rIf/(rIf+1.0)
+	xvar1=Vbci*IVTF/1.44
+	xvar2=limexp(xvar1)
+	tff=TF*(1.0+QTF*q1)*(1.0+XTF*xvar2*(slTF+mIf*mIf)*sgIf)
+	Qbe=CJE*qdbe*WBE+tff*Ifi/qb
+	Qbex=CJE*qdbex*(1.0-WBE)
+	Qbc=CJC*qdbc+TR*Iri+QCO*Kbci
+	Qbcx=QCO*Kbcx
+	Qbep=CJEP*qdbep+TR*Ifp
+	Qbcp=CJCP*qdbcp+CCSO*Vbcp
+	Qbeo=Vbe*CBEO
+	Qbco=Vbc*CBCO
+}
+equations {
+
+#
+#	Current and charge contributions
+#
+
+	i(bi->ei)+=Ibe
+	i(bx->ei)+=Ibex
+	i(ci->ei)+=Itzf
+	i(ei->ci)+=Itzr
+	i(bi->ci)+=Ibc
+	i(bx->bp)+=Ibep
+	i(c->cx)+=Ircx
+	i(cx->ci)+=Irci
+	i(b->bx)+=Irbx
+	i(bx->bi)+=Irbi
+	i(e->ei)+=Ire
+	i(bp->cx)+=Irbp
+	i(bi->ei)+=d_by_dt(Qbe)
+	i(bx->ei)+=d_by_dt(Qbex)
+	i(bi->ci)+=d_by_dt(Qbc)
+	i(bi->cx)+=d_by_dt(Qbcx)
+	i(bx->bp)+=d_by_dt(Qbep)
+	i(b->e)+=d_by_dt(Qbeo)
+	i(b->c)+=d_by_dt(Qbco)
+	i(si->bp)+=Ibcp
+	i(bx->si)+=Iccp
+	i(s->si)+=Irs
+	i(si->bp)+=d_by_dt(Qbcp)
+}
+}

@@ -1,0 +1,103 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%
+%% Analog Device Description Table.
+%%
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Devices Supported by Xyce\label{deviceListTable}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Device &
+  \color{white}\bf Comments \\ \hline \endfirsthead
+  \caption[]{Devices Supported by Xyce} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Device &
+  \color{white}\bf Comments \\ \hline \endhead
+    Capacitor & Age-aware, semiconductor \\ \hline
+
+    Inductor & Nonlinear mutual inductor (see below) \\ \hline
+
+    Nonlinear Mutual Inductor & Stability improvements to Sandia Core model
+(not fully PSpice compatible)\\ \hline
+
+    Resistor (Level 1) & Semiconductor \\ \hline
+
+    Resistor (Level 2) & Thermal Resistor \\ \hline
+
+    Diode (Level 1) &  \\ \hline
+
+    Diode (Level 2) & Addition of PSpice enhancements \\ \hline
+
+    Independent Voltage Source (VSRC) & \\ \hline
+
+    Independent Current Source (ISRC) & \\ \hline
+
+    Voltage Controlled Voltage Source (VCVS) & \\ \hline
+    Voltage Controlled Current Source (VCCS) & \\ \hline
+    Current Controlled Voltage Source (CCVS) & \\ \hline
+    Current Controlled Current Source (CCCS) & \\ \hline
+
+    Nonlinear Dependent Source  (B Source) & \\ \hline
+
+    Bipolar Junction Transistor (BJT) (Level 1)&  \\ \hline
+
+    Bipolar Junction Transistor (BJT) (Level 10)& 
+Vertical Bipolar Intercompany (VBIC) model, version 1.2 \\ \hline
+
+    Bipolar Junction Transistor (BJT) (Level 23)& 
+FBH (Ferdinand-Braun-Institut f\"ur H\"ochstfrequenztechnik) HBT model, version 2.1 \\ \hline
+
+    Bipolar Junction Transistor (BJT) (Level 504)& 
+MEXTRAM version 504.11 {\color{red}\textbf{New!}} \\ \hline
+
+    Junction Field Effect Transistor (JFET) (Level 1)  &  
+SPICE-compatible JFET model\\ \hline
+    Junction Field Effect Transistor (JFET) (Level 2) &  
+Shockley JFET model\\ \hline
+
+    MESFET &  \\ \hline
+
+    MOSFET (Level 1) &  \\ \hline
+    MOSFET (Level 2) &  SPICE level 2 MOSFET \\ \hline
+    MOSFET (Level 3) &  \\ \hline
+    MOSFET (Level 6) &  SPICE level 6 MOSFET \\ \hline
+    MOSFET (Level 9) &  BSIM3 model \\ \hline
+    MOSFET (Level 10) & BSIM SOI model \\ \hline
+    MOSFET (Level 14) & BSIM4 model \\ \hline
+    MOSFET (Level 18) &  VDMOS general model \\ \hline
+    MOSFET (Level 77) & BSIM6 model version 6.1.0 {\color{red}\textbf{New!}} \\ \hline
+    MOSFET (Level 103) & PSP model \\ \hline
+    MOSFET (Level 107)  & BSIM-CMG version 107.0.0 \\ \hline
+    MOSFET (Level 301)& EKV model version 3.0.1 \\ \hline
+
+    Transmission Line (TRA) &  Lossless \\ \hline
+    Transmission Line (LTRA) &  Lossy  \\ \hline
+    Lumped Transmission Line &  Lossy or Lossless \\ \hline
+
+    Controlled Switch (S,W) (VSWITCH/ISWITCH) & Voltage or current controlled\\ \hline
+
+    Generic Switch (SW) & Controlled by an expression\\ \hline
+
+    PDE Devices (Level 1) & one-dimensional\\ \hline
+
+    PDE Devices (Level 2) & two-dimensional\\ \hline
+
+    Digital (Level 1)  & Behavioral Digital \\ \hline
+
+    ACC & Accelerated mass device, used for simulation of electromechanical and magnetically-driven machines \\ \hline
+
+    Power Grid & Separate models for Branch, Bus Shunt, Transformer and Generator 
+                 Bus {\color{red}\textbf{New!}}\\ \hline
+
+    Memristor & TEAM formulation {\color{red}\textbf{New!}}\\ \hline
+
+\end{longtable}
+

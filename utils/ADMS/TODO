@@ -1,0 +1,136 @@
+Things that need to be done for a fully-functional ADMS/Xyce interface.
+
+- Fix handling of $temperature
+  As a first pass, I handled $temperature by creating an instance variable
+  into which devOptions.temp.dval() is simply copied.  Unfortunately, the
+  MEXTRAM model uses $temperature in the "initial_model" block, which means
+  we can't just use the instance variable (a model may have multiple instances)
+  and have to rethink the process.
+
+- Fix handling of analog functions (and limexp)
+
+   At the moment, this is pretty badly broken, because it is too primitive.
+
+   Given an analog function:
+
+     analog function func
+     input a1,a2,a3;
+     real a1,a2,a3;
+       begin
+        (function definition)
+       end
+     endfunction
+
+   it emits C++ for a templated version of the function:
+
+     template <typename T>
+       T func(T &a1, T &a2, T &a3)
+     {
+        (compute function, return a scalar of type T )
+     }
+
+   and when it encounters verilog function calls such as
+       a = func(b,c,d);
+   it simply emits C++:
+       a = func<AdmsFadType>(b,c,d);
+   if "a" has any dependence on probes (AdmsFadType is a typedef for  
+   Sacado::Fad::SFad<double,n>).  This is wrong.
+
+   If b, c, and d are all constant expressions (no probe dependence) then
+   there's no reason to use the AdmsFadType to force use of the instantiated
+   template function with T as AdmsFadType, even if the LHS is probe-dependent
+   (because it is modified elsewhere with a probe-dependent expression).
+
+   Further, if any argument is actually an expression:
+
+      a = func(b,c,(d+5)/e);
+
+   then the emitted code doesn't even compile, because the expression turns
+   out not to be convertable to type AdmsFadType.
+
+   What probably has to happen is that we emit something more like this:
+
+
+   {
+      AdmsFadType a1=b;
+      AdmsFadType a2=c;
+      AdmsFadType a3=(d+5)/e;
+      a=func(a1,a2,a3);
+   }
+
+   if ANY of the arguments are probe dependent (which implies that they are
+   AdmsFadType, and emit:
+
+   a=func(b,c,(d+5)/e);
+
+   if NONE of the arguments are probe dependent.
+
+   The function "limexp" also needs to be handled in an identical
+   fashion, because it, too, is implemented as a template function.  Other
+   built-in verilog functions might need the same treatment, but at the moment
+   none of those are implemented.
+
+   The HBT and mextram models both use analog functions extensively, so this
+   is an essential thing to get right.
+
+-  Provide for the possibility of eliminating internal nodes
+
+   Verilog allows the following type of construct:
+
+     if (rs > 0) 
+       I(ci,c) <+ V(ci,c)/rs;
+     else
+       V(ci,c) <+ 0;
+
+    where rs is a constant.
+
+    This is an extremely simplified use of the "voltage branch" contribution.
+    In effect, it says that if the constant expression (rs>0) is false, 
+    then there's a short between nodes ci and c.  ADMS does provide the means
+    of detecting this kind of thing, and we can use it to emit the appropriate
+    jacStampMap (or rather, jacStampMap_fixOrder) calls to reduce our 
+    problem.
+
+    To do this, the thing in the conditional MUST be constant (i.e. not
+    probe dependent), and the RHS of the contribution must be zero.
+
+    ng-spice does something like this in its "ngspiceMODULEguesstopology.c.xml"
+    library, but they don't actually check the RHS of the contribution; that
+    means that if ng-spice is given verilog with:
+
+     if (rs > 0) 
+       I(ci,c) <+ V(ci,c)/rs;
+     else
+       V(ci,c) <+ 1;
+
+     it'll also treat ci and c as shorted, even though the verilog says it's
+     supposed to have a constant voltage drop.
+
+     Implementing general contributions to voltage branches is much harder,
+     because it'll involve creating branch currents and such.  Without that,
+     one could not have a verilog inductor model, for example.  But that's 
+     distinct from this very simple usage, and we should be able to handle
+     that.
+
+     At least one version of the EKV model I've seen uses this construct to
+     eliminate internal nodes when there is no contact resistance, so this
+     needs to be done.  
+
+ - Fix handling of "TEMP" and "TNOM" parameters.
+
+   Unfortunately, Xyce assumes that any parameter named TEMP or TNOM must
+   always be input by the user in Celsius, and used internally to the model
+   in Kelvin --- it gets converted automatically in a special case inside
+   setParam in the device entity class.
+
+   There is no such standard in verilog models.  Verilog defines a value
+   $temperature that models can use to get at the temperature from the 
+   simulator (in Kelvin), but many opt to define a model or instance parameter
+   called TEMP (or Temp, or temp) so the user can input a temperature for this
+   specific device, and use it instead.  Some of these models assume the 
+   TEMP parameter is in celsius and include conversions of their own, others
+   assume it's in Kelvin.  Xyce's auto-conversion screws up either of these.
+
+   I attempted to un-do the conversion of TEMP in the processParams function.
+   This attempt was ill-conceived and doen incorrectly.
+

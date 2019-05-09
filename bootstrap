@@ -1,0 +1,36 @@
+#!/bin/sh
+#set -x
+echo  "5) autoheader"
+autoheader
+echo  "4) libtoolize"
+which glibtoolize > /dev/null 2>&1
+if [ $? = 0 ]
+then
+  glibtoolize --force --copy
+else
+  libtoolize --force --copy
+fi
+echo  "3) aclocal"
+aclocal -I config
+echo  "2) automake"
+automake --foreign --add-missing --copy 
+if [ -d src/DeviceModelPKG/SandiaModels ]
+then
+  automake src/DeviceModelPKG/SandiaModels/Makefile 
+  automake src/DeviceModelPKG/SandiaModels/ATHENA/Makefile 
+fi
+if [ -d src/DeviceModelPKG/Xyce_NonFree ]
+then
+  automake src/DeviceModelPKG/Xyce_NonFree/Makefile
+fi
+if [ -d src/DeviceModelPKG/BERKELEY ]
+then
+  automake src/DeviceModelPKG/BERKELEY/Makefile
+  automake src/DeviceModelPKG/BERKELEY/Xyce_ModSpec_Interface/Makefile
+fi
+
+echo  "1) autoconf"
+autoconf
+echo  "0) autoheader, again"
+# without this second run, Xyce_config.in might not be complete
+autoheader

@@ -1,0 +1,314 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Release notes for Xyce version 6.1.
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  
+%% Creation Date  : {03/24/2006}
+%%-------------------------------------------------------------------------
+
+\documentclass[11pt,report,strict]{SANDreport}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{makeidx, ltxtable, multirow}
+\usepackage{Xyce}
+\pdfcatalog {/PageMode /UseNone}
+
+{\renewcommand{\arraystretch}{1.2}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+    \title{\XyceTitle{} Parallel Electronic Simulator Release Notes\\Release 6.1}
+    \XyceVersion{6.1}
+
+    % There is a "Printed" date on the title page of a SAND report, so
+    % the generic \date should generally be empty.
+    \date{}
+
+% ---------------------------------------------------------------------------- %
+% Set some things we need for SAND reports. These are mandatory
+%
+%Submitted to R&A 28 Aug 2013 Tracking number 5327111,  approved 29 Aug
+
+\SANDnum{SAND2014-2402}
+\SANDprintDate{March 2014}
+\author{Eric R. Keiter, 
+            Ting Mei, 
+            Thomas V. Russo, \\
+            Richard L. Schiek, 
+            Peter E. Sholander,
+            Heidi K. Thornquist,
+            Jason C. Verley\\
+            Electrical Models and Simulation \\[1ex]
+\\
+            Sandia National Laboratories\\
+            P.O. Box 5800\\
+            Albuquerque, NM 87185-1177 \\
+\\
+\and 
+David G. Baur\\
+  Raytheon\\
+  1300 Eubank Blvd\\
+  Albuquerque, NM 87123 \\
+}
+\SANDauthor{Eric R. Keiter, Ting Mei, Thomas V. Russo, Richard L. Schiek, Peter E. Sholander, Heidi K. Thornquist, Jason C. Verley, David G. Baur}
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+%\draft
+\begin{abstract}
+  The highlights of the \XyceTM\ 6.1 release are documented.
+\end{abstract}
+\cleardoublepage
+\tableofcontents
+
+
+% ---------------------------------------------------------------------- %
+% This is where the body of the report begins; usually with an Introduction
+%
+\SANDmain		% Start the main part of the report
+\section{Scope/Product Definition}
+
+The \Xyce{} Parallel Electronic Simulator has been written to support, in a
+rigorous manner, the simulation needs of the Sandia National Laboratories
+electrical designers.  Specific requirements include, among others, the
+ability to solve extremely large circuit problems by supporting large-scale
+parallel computing platforms, improved numerical performance and
+object-oriented code design and implementation.
+
+The \Xyce{} release notes describe:
+\begin{XyceItemize}
+  \item Hardware and software requirements
+  \item New features and enhancements
+  \item Any defects fixed since the last release
+  \item Current known defects and defect workarounds
+  \item Incompatibilities With Other Circuit Simulators
+\end{XyceItemize}
+
+For up-to-date information not available at the time these notes 
+were produced, please visit the \Xyce{} web page at 
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov/}}.
+
+
+\section{Hardware/Software}
+This section gives basic information on supported platforms and hardware
+and software requirements for running \Xyce{} 6.1.
+
+\subsection{Supported Platforms (Certified Support)}
+\Xyce\ 6.1 currently supports any of the following operating system platforms
+(all versions imply the earliest supported---\Xyce{} generally works on later
+versions as well).  These platforms are supported in the sense that they have
+been subject to certification testing for the \Xyce{} version 6.1 release.  
+
+\begin{XyceItemize}
+\item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 5, x86 (serial only) and x86-64 (serial and parallel)
+\item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 6, x86-64 (serial and parallel)
+\item Microsoft Windows 7${}^{\mbox{\textregistered}}$, x86 (serial)
+\item Apple${}^{\mbox{\textregistered}}$ OS X, x86-64 (serial and parallel)
+\item TLCC (serial and parallel)
+\item Red Sky (serial and parallel)
+\end{XyceItemize}
+
+\subsection{Build Supported Platforms (not Certified)}
+The platforms listed in this section are ``not supported'' in the
+sense that they are not subject to nightly regression testing, and
+they also were not subject to certification testing for the \Xyce{}
+version 6.1 release.  Despite this lack of testing rigor, \Xyce{} has
+been known to run under these configurations.
+
+\begin{XyceItemize}
+\item FreeBSD 9.x on Intel x86 and x86-64 architectures (serial and parallel)
+\item Distributions of Linux other than Red Hat Enterprise Linux
+\item Microsoft Windows under Cygwin and MinGW.
+\end{XyceItemize}
+
+Please contact the Xyce development team for platform and configuration availability.
+
+\subsection{Hardware Requirements}
+
+The \Xyce{} team has not determined a minimum memory or processor
+speed requirement.  Any modern computer should have enough memory and
+processor power to run moderately sized circuits in serial with
+\Xyce{}.  Naturally, memory requirements grow with problem size.  
+
+Running \Xyce{} in parallel will require a system with at least two
+processors. For problems of the size where parallel operation is
+beneficial (thousands of devices per processor), one can expect to
+need several gigabytes of memory per processor. 
+
+For the very largest problems that \Xyce{} can run (millions of
+devices), one will require a cluster system with a sufficient number
+of nodes to distribute the problem efficiently, and sufficient memory
+per node to support the distributed problem.  
+
+\subsection{Software Requirements}
+Several libraries are required to run \Xyce{} or build \Xyce{} from source on a
+platform.  Serial versions of the \Xyce{} binary have no run-time software
+requirements, as they ship with all the shared libraries they need.  However,
+parallel versions require Open MPI
+({\color{XyceDeepRed}\url{http://www.open-mpi.org/}}) (version 1.4 or higher)
+at run time.  TLCC and Red Sky users can load the \textbf{xyce} module to properly
+set the environment. 
+
+Several libraries (all freely available from Sandia National Laboratories or
+other sites) are always required when building \Xyce{} from source.  These are:
+\begin{XyceItemize}
+\item Trilinos Solver Library version 11.6.1
+  ({\color{XyceDeepRed}\url{http://trilinos.org}}).  Trilinos is a suite of
+  packages that includes solver and partitioning libraries in parallel and
+  serial, in addition to many other utilites.
+\item UMFPACK version 4.1 and AMD version 1.0 (libumfpack.a, libamd.a)
+  ({\color{XyceDeepRed}
+  \url{http://www.cise.ufl.edu/research/sparse/umfpack/}}).  This is also
+  provided by the SuiteSparse package that is available on many systems.
+\item BLAS (Basic Linear Algebra Subprograms). This may be included with the
+  compiler, or it may require separate package installation. One may also use
+  ATLAS ({\color{XyceDeepRed} \url{http://math-atlas.sourceforge.net}}).
+\item LAPACK (Linear Algebra PACKage). This may be included with the
+  compiler, or it may require separate package installation. One may also use
+  ATLAS ({\color{XyceDeepRed} \url{http://math-atlas.sourceforge.net}}).
+\end{XyceItemize}
+For parallel builds, the following libraries are additionally required:
+\begin{XyceItemize}
+\item Open MPI ({\color{XyceDeepRed}\url{http://www.open-mpi.org}}) library for
+  message passing (version 1.4 or higher).  The version used to build Xyce must
+  be the same that is used for building Trilinos.
+\item ParMETIS ({\color{XyceDeepRed}
+  \url{http://glaros.dtc.umn.edu/gkhome/metis/parmetis/overview}}) library for
+  graph partitioning (version 3.1 or higher).  The MPI compiler used to compile
+  ParMETIS must be the same that is used for Trilinos and Xyce.
+\end{XyceItemize}
+
+\section{\Xyce{} Release 6.1 Documentation}
+The following \Xyce{} documentation is available at the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+\item \Xyce{} Release Notes, Version 6.1 (this document)
+\item \Xyce{} Users' Guide, Version 6.1
+\item \Xyce{} Reference Guide, Version 6.1
+\item \Xyce{} Mathematical Formulation
+\item Application Node: Using Open Source Schematic Capture Tools with \Xyce{}
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+\item Building Guide (instructions for building Xyce from the source code)
+\item Running the Xyce Regression Test Suite
+\end{XyceItemize}
+
+\section{New Features and Enhancements}
+
+Highlights for \Xyce{} Release 6.1 include:
+\begin{XyceItemize}
+\item Simplified device code interface.
+\item Improved robustness of Harmonic Balance analysis.
+\item Improved voltage limiting handling for both the Trapezoid and Gear time integrators.
+\item Parallel AC, harmonic balance and MPDE analysis.
+\item Support for multi-input ($\geq$2) AND, NAND, OR and NOR gates and a new digital Buffer (BUF) model.
+\item Improved compatibility between Xyce and PSpice digital device models.
+\end{XyceItemize}
+For details of each of these new features, see the \Xyce{} Users' Guide, the
+\Xyce{} Installation Guide, and the \Xyce{} Reference Guide.  A more complete
+listing of new features and improvements is given in the following sections.
+
+\subsection{Device Support}
+
+The device model package has been reworked to simplify the process of
+adding new devices to \Xyce{}.
+
+An alpha-release capability for using dynamic device plug-ins has
+been added.  This feature is supported on Linux, Macintosh, FreeBSD,
+and other true Unix-like operating systems.  Accessing this feature
+requires that the user build \Xyce{} from source code; it is not
+available in the pre-compiled binaries we provide.  In this initial
+implementation, the feature is not yet supported in Cygwin builds on
+Windows, nor is it supported on native Windows builds.
+
+An example of using this capability is provided with the \Xyce{} source code in
+the \texttt{user\_plugin} directory.  The example demonstrates how to use a
+simple model defined in Verilog to create a new model in Xyce, and to use this
+model directly as a plug-in without recompiling the rest of \Xyce{}.
+
+Table~\ref{deviceListTable} contains a complete list of devices for \Xyce{}
+Release 6.1.
+
+% device list 
+\input{deviceListTbl}
+
+\subsection{Robustness Improvements}
+\begin{XyceItemize}
+\item Solver defaults have been modified for increased robustness of
+  parallel runs with a minimum of user-specified options.
+\end{XyceItemize}
+
+% new device types:
+\subsection{New Devices}
+\begin{XyceItemize}
+\item BSIM-CMG version 107.0.0.
+%\item Uniform lumped LRC transmission line model.
+\item Digital buffer model (BUF).
+\item Multi-input ($\geq$2) AND, NAND, OR and NOR gates.
+\end{XyceItemize}
+
+\subsection{Enhanced Solver Stability, Performance and Features}
+\begin{XyceItemize}
+\item The AC, harmonic balance, and MPDE analysis features have been improved, and are now available in parallel builds of \Xyce{}.
+\item Xyce has been updated to use Trilinos 11.6, which has resulted in significant performance improvements.
+\end{XyceItemize}
+
+%\subsection{Interface Improvements}
+%\begin{XyceItemize}
+%\item   
+%\end{XyceItemize}
+
+\newpage
+\section{Defects of Release 6.0.1 Fixed in this Release}
+\input{fixedDefectsTbl}
+
+\newpage
+
+\section{Known Defects and Workarounds}
+\input{knownDefectsTbl}
+\newpage
+
+\section{Incompatibilities With Other Circuit Simulators}
+\input{incompTbl}
+
+\newpage
+\section{Important Changes to \Xyce{} Usage Since the Release 6.0.1.}
+Table ~\ref{newUsage} lists some usage changes for \Xyce{}.
+\input{changesInputTbl}
+
+\clearpage
+% acknowledgements, trademarks, contact information.
+\input{acktrade}
+\begin{SANDdistribution}[NM]% or [CA]
+    % \SANDdistCRADA	% If this report is about CRADA work
+    % \SANDdistPatent	% If this report has a Patent Caution or Patent Interest
+    % \SANDdistLDRD	% If this report is about LDRD work
+
+    % External Address Format: {num copies}{Address}
+%    \SANDdistExternal{}{}
+    \bigskip
+
+    % The following MUST BE between the external and internal distributions!
+    % \SANDdistClassified % If this report is classified
+
+    % Internal Address Format: {num copies}{Mail stop}{Name}{Org}
+%    \SANDdistInternal{}{}{}{}
+
+    % Mail Channel Address Format: {num copies}{Mail Channel}{Name}{Org}
+%    \SANDdistInternalM{}{}{}{}
+\end{SANDdistribution}
+
+
+\end{document}

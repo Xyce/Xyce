@@ -1,0 +1,63 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+Performs Fourier analysis of transient analysis output.
+
+\begin{Command}
+
+\format
+.FOUR <freq> <ov> [ov]*
+
+\examples
+\begin{alltt}
+.FOUR 100K v(5)
+.FOUR 1MEG v(5,3) v(3)
+\end{alltt}
+
+\arguments
+
+\begin {Arguments}
+
+\argument{freq}
+The fundamental frequency used for Fourier analysis.
+Fourier analysis is performed over the last period (\texttt{1/freq}) of the transient simulation.
+The DC component and the first nine harmonics are calculated.  
+
+\argument{ov}
+The desired solution variable, or variables, to be analyzed. Fourier analysis can be performed
+on several solution variables for each fundamental frequency, \texttt{freq}. At least one
+solution variable must be specified in the {\tt .FOUR} line.
+The available solution variables are:
+
+\begin{itemize}
+\item \texttt{V(<circuit node>)} the voltage at \texttt{<circuit node>}
+\item \texttt{V(<circuit node>,<circuit node>)} to output the voltage difference between the first \texttt{<circuit node>} and second \texttt{<circuit node>}  
+\item \texttt{I(<device>)} the current through a two terminal device
+\item \texttt{I<lead abbreviation>(<device>)} the current into a particular lead of a three or more terminal device (see the Comments, below, for details)
+\item \texttt{N(<device parameter>)} a specific device parameter (see the individual devices in Section~\ref{Analog_Devices} for syntax)
+\end{itemize}
+
+\end{Arguments}
+
+\comments
+Multiple \texttt{.FOUR} lines may be used in a netlist.  All results from Fourier analysis will be 
+returned to the user in a file with the same name as the netlist file suffixed with a \texttt{.FOUR}. 
+
+\texttt{<lead abbreviation>} is a single character designator for individual
+leads on a device with three or more leads.  For bipolar transistors these are:
+c (collector), b (base), e (emitter), and s (substrate).  For mosfets, lead
+abbreviations are: d (drain), g (gate), s (source), and b (bulk).  SOI
+transistors have: d, g, s, e (bulk), and b (body).  For PDE devices, the nodes
+are numbered according to the order they appear, so lead currents are
+referenced like I1(\texttt{<device>}), I2(\texttt{<device>}), etc.
+
+\end{Command}
+

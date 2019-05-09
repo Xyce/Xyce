@@ -1,0 +1,32 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+Transient Analysis generates time domain output based on the format specified by the \texttt{.PRINT} command.
+
+Homotopy and sensitivty output can also be generated.
+{
+\begin{PrintCommandTable}{Print Transient Analysis Type}
+.PRINT TRAN & \emph{circuit-file}.prn & INDEX TIME \\ \hline
+.PRINT TRAN FORMAT=GNUPLOT & \emph{circuit-file}.prn & INDEX TIME \\ \hline
+.PRINT TRAN FORMAT=NOINDEX & \emph{circuit-file}.prn & TIME \\ \hline
+.PRINT TRAN FORMAT=CSV & \emph{circuit-file}.csv & TIME \\ \hline
+.PRINT TRAN FORMAT=RAW & \emph{circuit-file}.raw & TIME \\ \hline
+Xyce -a \newline .PRINT TRAN FORMAT=RAW & \emph{circuit-file}.raw & TIME \\ \hline
+.PRINT TRAN FORMAT=TECPLOT & \emph{circuit-file}.dat & TIME \\ \hline
+.PRINT TRAN FORMAT=PROBE & \emph{circuit-file}.csd & -- \\ \hline
+\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Command Line Raw Override Output} \\ \hline
+Xyce -r & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
+Xyce -r -a & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
+\multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Additional Output Available} \\ \hline
+.OP & \emph{log file} & Operating point data \\ \hline
+.SENS \newline .PRINT SENS & \multicolumn{2}{c}{see~\nameref{Print_Sensitivity}} \\ \hline
+.OPTIONS NONLIN CONTINUATION=<method> \newline .PRINT HOMOTOPY & \multicolumn{2}{c}{see~\nameref{Print_Homotopy}} \\ \hline
+\end{PrintCommandTable}
+}

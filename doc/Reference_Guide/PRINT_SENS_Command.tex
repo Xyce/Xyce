@@ -1,0 +1,66 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+Sensitivity is enabled by inclusion of the \newline .SENS command.
+
+Steady-state sensitivities (adjoint or direct) and transient direct sensitivities
+will be handled by the .PRINT SENS command. Transient adjoint, on the other hand,
+is handled by the .PRINT TRANADJOINT command.
+
+For transient sensitivity output, a \texttt{TIME} column will be included for the
+STD, GNUPLOT, NOINDEX and CSV formats.  For AC sensitivity output, a \texttt{FREQ}
+column will be included for the STD, GNUPLOT, NOINDEX and CSV formats.
+
+{
+\begin{PrintCommandTable}{Print Sensitivities for .TRAN and .DC}
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT SENS & \emph{circuit-file}.SENS.prn & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT SENS FORMAT=GNUPLOT & \emph{circuit-file}.SENS.prn & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT SENS FORMAT=NOINDEX & \emph{circuit-file}.SENS.prn & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT SENS FORMAT=CSV & \emph{circuit-file}.SENS.csv & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$][,$p_n$]* \newline
+.PRINT SENS FORMAT=TECPLOT & \emph{circuit-file}.SENS.dat & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+
+\end{PrintCommandTable}
+}
+
+{
+\begin{PrintCommandTable}{Print Sensitivities for .AC}
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT SENS & \emph{circuit-file}.FD.SENS.prn & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT SENS FORMAT=GNUPLOT & \emph{circuit-file}.FD.SENS.prn & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT SENS FORMAT=NOINDEX & \emph{circuit-file}.FD.SENS.prn & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT SENS FORMAT=CSV & \emph{circuit-file}.FD.SENS.csv & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$][,$p_n$]* \newline
+.PRINT SENS FORMAT=TECPLOT & \emph{circuit-file}.FD.SENS.dat & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+
+\end{PrintCommandTable}
+}
+
+{
+\begin{PrintCommandTable}{Print Transient Adjoint Sensitivities}
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT TRANADJOINT & \emph{circuit-file}.TRADJ.prn & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT TRANADJOINT FORMAT=GNUPLOT & \emph{circuit-file}.TRADJ.prn & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT TRANADJOINT FORMAT=NOINDEX & \emph{circuit-file}.TRADJ.prn & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$1][,$p_n$]* \newline
+.PRINT TRANADJOINT FORMAT=CSV & \emph{circuit-file}.TRADJ.csv & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+.SENS objfunc={<$obj$>} p=[$p_1$][,$p_n$]* \newline
+.PRINT TRANADJOINT FORMAT=TECPLOT & \emph{circuit-file}.TRADJ.dat & $obj$ d{$obj$}/d($p_1$) d{$obj$}/d($p_n$) \newline \\ \hline
+
+\end{PrintCommandTable}
+}

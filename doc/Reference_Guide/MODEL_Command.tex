@@ -1,0 +1,216 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+\label{modelCommand}
+The \texttt{.MODEL} command provides a set of device parameters to be
+referenced  by device instances in the circuit.
+
+\begin{Command}
+
+\format
+.MODEL <model name> <model type> (<name>=<value>)*
+
+\examples
+\begin{alltt}
+.MODEL RMOD R (RSH=1)
+.MODEL MOD1 NPN BF=50 VAF=50 IS=1.E-12 RB=100 CJC=.5PF TF=.6NS
+.MODEL NFET NMOS(LEVEL=1 KP=0.5M VTO=2V)
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{model name}
+The model name used to reference the model.
+
+\argument{model type}
+
+The model type used to define the model.  This determines if the model
+is (for example) a resistor, or a MOSFET, or a diode, etc.  For
+transistors, there will usually be more than one type possible, such as
+NPN and PNP for BJTs, and NMOS and PMOS for MOSFETs.
+
+\argument{\vbox{\hbox{name\hfil}\hbox{value}}}
+
+The name of a parameter and its value.  Most models will have a list of
+parameters available for specification.  Those which are not set will
+receive default values.  Most will be floating point numbers, but some
+can be integers and some can be strings, depending on the definition of
+the model.
+
+\end{Arguments}
+
+\comments
+\index{\texttt{.MODEL}!subcircuit scoping}The scoping rules for models are:
+\begin{XyceItemize}
+\item If a \texttt{.MODEL}, statement is included in the main circuit 
+netlist, then it is accessible from the main circuit and all subcircuits. 
+\item \texttt{.MODEL} statements defined within a subcircuit are scoped 
+to that subciruit definition.  So, their models are only accessible within 
+that subcircuit definition, as well as within ``nested subcircuits'' also 
+defined within that subcircuit definition.
+\end{XyceItemize}
+
+Additional illustative examples of scoping are given in the
+``Working with Subcircuits and Models'' section of the \Xyce{} Users' 
+Guide\UsersGuide. 
+
+A model name can be the same as a device name in \Xyce{}.  However, that
+usage will generate a warning message during netlist parsing.  
+The reason is that it can lead to ambiguous \texttt{.PRINT} lines 
+when a model parameter and instance parameter, for a given device, have
+the same name but a different meaning.  For example, \texttt{R1} 
+could be used as both a resistor device-name, and as a resistor model-name.
+However, \texttt{.PRINT TRAN R1:R} would then be ambiguous.  In addition,
+the use of duplicate model and device names is not recommended if those
+names will be used within a \Xyce{} expression since that can result in 
+an ambiguous expression.
+
+\end{Command}
+
+\subsubsection{\textrmb{LEVEL} Parameter}
+\index{model!level parameter}
+\index{level parameter}
+
+A common parameter is the \textrmb{LEVEL} parameter, which is set to an
+integer value.  This parameter will define exactly which model of the
+given type is to be used.  For example, there are many different
+available MOSFET models.  All of them will be specified using the same
+possible names and types.  The way to differentiate (for example)
+between the BSIM3 model and the PSP model is by setting the appropriate
+\textrmb{LEVEL}.
+
+\subsubsection{Model Binning}
+\index{model!binning}
+\index{model binning}
+
+Model binning is supported for MOSFET models.  For model binning, the netlist 
+contains a set of similar \texttt{.MODEL} cards which correspond to different 
+sizing information (length and width).  They are similar in that they are for the same
+model (and same \texttt{LEVEL} number), and have the same prefix.  They are different in that 
+they have different \texttt{lmin,lmax,wmin,wmax} parameters, and the name suffix will be
+the bin number.  For a MOSFET device instance, \Xyce{} will automatically select the
+appropriate binned model, based on the \texttt{L} and \texttt{W} parameters of that 
+instance.   It will only seach the models with matching name prefixes, and can only work if
+all the binned models have specified all the \texttt{lmin,lmax,wmin,wmax} parameters.
+
+Model binning is not enabled by default.  To enable it, it is necessary to 
+specify \texttt{.options parser model\_binning=true}.
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+\color{blue}* Model binning example adapted from the BSIM4 test suite\color{black}
+m1 2 1 0 b nch L=0.11u W=10.1u NF=5 rgeomod=1 geomod=0
+vgs 1 0 1.2
+vds 2 0 1.2
+Vb b 0 0.0
+
+.dc vds 0.0 1.21 0.02 vgs 0.2 1.21 0.2
+
+.print dc v(2) v(1) i(vds)
+
+* model binning
+.model nch.1 nmos(level=14 lmin=0.1u lmax=20u wmin=0.1u wmax=10u)
+.model nch.2 nmos(level=14 lmin=0.1u lmax=20u wmin=10u  wmax=100u)
+
+.options parser model\_binning=true
+
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption[Model Binning Example]
+{Model Binning Example\label{binningExample} }
+\end{centering}
+\end{figure}
+
+\subsubsection{Model Interpolation}
+\label{Model_Interpolation}
+\index{model!model interpolation}
+\index{model!tempmodel}
+
+Traditionally, SPICE simulators handle thermal effects by coding temperature
+dependence of model parameters into each device.  These expressions modify the
+nominal device parameters given in the \texttt{.MODEL} card when the ambient
+temperature is not equal to \textrmb{TNOM}, the temperature at which parameters
+were extracted.
+
+These temperature correction equations may be reasonable at temperatures close
+to \textrmb{TNOM}, but Sandia users of \Xyce{} have found them inadequate when
+simulations must be performed over a wide range of temperatures.  To address
+this inadequacy, \Xyce{} implements a model interpolation option that allows
+the user to specify multiple \texttt{.MODEL} cards, each extracted from real
+device measurements at a different \textrmb{TNOM}.  From these model cards,
+\Xyce{} will interpolate parameters based on the ambient temperature using
+either piecewise linear or quadratic interpolation.
+
+Interpolation of models is accessed through the model parameter
+\textrmb{TEMPMODEL} in the models that support this capability.  In the
+netlist, a base model is specified, and is followed by multiple models at other
+temperatures.  
+
+Interpolation of model cards in this fashion is implemented in the BJT level 1,
+JFET, MESFET, and MOSFETS levels 1-6, 10, and 18.
+
+The use of model interpolation is best shown by example:
+
+\begin{vquote}
+Jtest 1a 2a 3 SA2108 TEMP= 40
+*
+.MODEL SA2108 PJF ( TEMPMODEL=QUADRATIC TNOM = 27
++ LEVEL=2 BETA= 0.003130 VTO = -1.9966 PB = 1.046
++ LAMBDA = 0.00401 DELTA = 0.578; THETA = 0;
++ IS = 1.393E-10          RS = 1e-3)
+*
+.MODEL SA2108 PJF ( TEMPMODEL=QUADRATIC TNOM = -55
++ LEVEL=2 BETA = 0.00365 VTO = -1.9360 PB = 0.304
++ LAMBDA = 0.00286 DELTA = 0.2540 THETA = 0.0
++ IS = 1.393E-10 RD = 0.0 RS = 1e-3)
+* 
+.MODEL SA2108 PJF ( TEMPMODEL=QUADRATIC TNOM = 90
++ LEVEL=2 BETA = 0.002770 VTO = -2.0350 PB = 1.507
++ LAMBDA = 0.00528 DELTA = 0.630 THETA = 0.0
++ IS = 1.393E-10          RS = 5.66)
+\end{vquote}
+
+Note that the model names are all identical for the three \texttt{.MODEL}
+lines, and that they all specify \texttt{TEMPMODEL=QUADRATIC}, but with
+different \textrmb{TNOM}.  For parameters that appear in all three
+\texttt{.MODEL} lines, the value of the parameter will be interpolated using
+the \texttt{TEMP=} value in the device line, which in this example is
+40$^\circ$C, in the first line.  For parameters that are not interpolated, such
+as \textrmb{RD}, it is not necessary to include these in the second and third
+\texttt{.MODEL} lines.
+
+The only valid arguments for \textrmb{TEMPMODEL} are \textrmb{QUADRATIC} and
+\textrmb{PWL} (piecewise linear).  The quadratic method includes a limiting
+feature that prevents the parameter value from exceeding the range of values
+specified in the \texttt{.MODEL} lines.  For example, the \textrmb{RS} value in
+the example would take on negative values for most of the interval between -55
+and 27, as the value at 90 is very high.  This truncation is necessary as
+parameters can easily take on values (such as the negative resistance of
+\textrmb{RS} in this example) that will cause a \Xyce{} failure.
+
+With the BJT parameters \textrmb{IS} and \textrmb{ISE}, interpolation is done
+not on the parameter itself, but on the the log of the parameter, which
+provides for excellent interpolation of these parameters that vary over many
+orders of magnitude, and with this type of temperature dependence.
+
+The interpolation scheme used for model interpolation bases the interpolation
+on the difference between the ambient temperature and the \textrmb{TNOM} value
+of the first model card in the netlist, which can sometimes lead to poorly
+conditioned interpolation.  Thus it is often best that the first model card in
+the netlist be the one that has the ``middle'' \textrmb{TNOM}, as in the
+example above.  This ensures that no matter where in the range of temperature
+values the ambient temperature lies, it is a minimal distance from the base
+point of the interpolation.

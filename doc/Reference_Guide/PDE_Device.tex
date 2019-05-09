@@ -1,0 +1,87 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+Semiconductor device simulation, which is based on a coupled set of partial
+differential equations (PDE's) is supported in \Xyce{}.  Such devices can be
+invoked from the circuit netlist in a manner similar to traditional SPICE-style
+analog devices.  One dimensional and two dimensional devices are supported,
+with the dimensionality determined by the device model level.
+
+\begin{Device}
+
+\item[1D Device Form]
+\begin{alltt}
+YPDE <name> <node> [node] [model name]
++ [device parameters]
+\end{alltt}
+
+\vbox{\hrulefill}
+\item[2D Device Form]
+\begin{alltt}
+YPDE <name> <node> <node> [node][node] [model name]|
++ [device parameters]
+\end{alltt}
+
+\model
+\begin{alltt}
+.MODEL <model name> ZOD [model parameters]
+\end{alltt}
+
+\comments
+
+All of the PDE parameters are specified on the instance level.  The model
+statement is used only for specifying if the device is 1D or 2D, via the level
+parameter.  Both the 1D and the 2D devices can construct evenly-spaced meshes
+internally, or an unstructured mesh can be read in from an external mesh file.
+
+The eletrode, doping and material parameters are specified using a special
+format that is described in the tables that are referenced in the instance
+parameter tables.
+\end{Device}
+
+\paragraph{TCAD Device Parameters}
+Most TCAD device parameters are specified on the instance level.
+\noindent
+The only TCAD device model parameter is the level, which specifies whether the
+model is one or two dimensions.
+
+\label{PDE_Model_Params}
+\index{PDE Devices!model parameters}
+\begin{DeviceParamTable}{PDE Device Model Parameters}
+LEVEL & Determines if the device is 1D or 2D  1=1D, 2=2D & -- & 1 \\ \hline
+\end{DeviceParamTable}
+
+\index{PDE Devices!1D instance parameters}
+\input{Pde_1_Device_Instance_Params}
+\clearpage
+
+\index{PDE Devices!1D instance parameters}
+\input{Pde_2_Device_Instance_Params}
+\clearpage
+
+\paragraph{Layer Parameters}
+\input{LAYER_Composite_Params}
+
+\paragraph{Electrode Parameters 1D}
+\input{NODE_Composite_Params}
+
+\paragraph{Electrode Parameters 2D}
+\input{NODE_2D_Composite_Params}
+
+\paragraph{Doping or Region Parameters}
+The \texttt{DOPINGPROFILES} and \texttt{REGION} parameters are synonyms,
+therefore their tables of values are identical.  The use of both parameters in
+the same device instance could lead to unpredictable behavior.
+\input{DOPINGPROFILES_Composite_Params}
+\input{REGION_Composite_Params}
+
+\paragraph{Flat Parameters}
+\input{flattbl}
+

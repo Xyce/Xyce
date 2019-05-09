@@ -1,0 +1,4 @@
+*/* export-ignore
+* export-ignore
+doxygen/* -export-ignore
+doxygen -export-ignore

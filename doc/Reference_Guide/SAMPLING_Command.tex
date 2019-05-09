@@ -1,0 +1,109 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+\index{\texttt{.SAMPLING}}
+\index{analysis!sampling} \index{sampling analysis}
+Calculates a full analysis (\verb|.DC|, \verb|.TRAN|, \verb|.AC|, etc.) over a distribution of
+parameter values.  Sampling operates in similarly to \verb|.STEP|, except that the parameter 
+values are generated from random distributions rather than sweeps.  
+
+\index{analysis!SAMPLING} 
+\index{SAMPLING analysis}
+\index{analysis!MC} 
+\index{MC analysis}
+\index{analysis!Monte Carlo} 
+\index{Monte Carlo analysis}
+\index{analysis!LHS} 
+\index{LHS analysis}
+\index{Latin Hypercube Sampling analysis}
+
+\begin{Command}
+\format
+.SAMPLING  \\
++ param=<parameter name>,[parameter name]*  \\
++ type=<parameter type>,[parameter type]*  \\
++ means=<mean>,[mean]*  \\
++ std\_deviations=<standard deviation>,[standard deviation]* 
+
+\examples
+\begin{alltt}
+.SAMPLING
++ param=R1
++ type=normal
++ means=3K
++ std\_deviations=1K
+
+.SAMPLING
++ param=R1,R2
++ type=uniform,uniform
++ lower\_bounds=1K,2K
++ upper\_bounds=5K,6K
+
+.options SAMPLES numsamples=10000
+
+.options SAMPLES numsamples=25000
++ OUTPUTS=\{R1:R\},\{V(1)\}
++ SAMPLE\_TYPE=MC
+
+.options SAMPLES numsamples=1000
++ MEASURES=maxSine
++ SAMPLE\_TYPE=LHS
+
+.options samples numsamples=30
++ covmatrix=1e6,1.0e-3,1.0e-3,4e-14
++ OUTPUTS=\{V(1)\},\{R1:R\},\{C1:C\}
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{param}
+Names of the parameters to be sampled.  This may be any of the parameters that are valid 
+for \verb|.STEP|, including device instance, device model, or global parameters.  
+  If more than one parameter, then specify as a comma-separated list.
+
+\argument{type}
+Distribution type for each parameter.  This may be uniform or normal.  
+  If more than one parameter, then specify as a comma-separated list.
+
+\argument{means}
+If using normal distributions, the mean for each parameter must be specified.
+  If more than one parameter, then specify as a comma-separated list.
+
+\argument{std\_deviations}
+If using normal distributions, the standard deviation for each parameter must be specified.
+  If more than one parameter, then specify as a comma-separated list.
+
+\argument{lower\_bounds}
+If using uniform distributions, the lower bound must be specified.  This is optional for normal distributions.  
+  If used with normal distributions, may alter the mean and standard deviation.
+  If more than one parameter, then specify as a comma-separated list.
+
+\argument{upper\_bounds}
+If using uniform distributions, the upper bound must be specified.  This is optional for normal distributions.
+  If used with normal distributions, may alter the mean and standard deviation.
+  If more than one parameter, then specify as a comma-separated list.
+
+\end{Arguments}
+
+\comments
+
+In addition to the \verb|.SAMPLING| command, this analysis requires a 
+  \verb|.options SAMPLES| command as well.  The \verb|.SAMPLING| command specifies 
+  parameters and their attributes.  The \verb|.options SAMPLES| command specifies 
+  analysis options, including the number of samples, the type of sampling (LHS or MC), 
+  and the outputs and/or measures for which to compute statistics.
+
+On the \verb|.SAMPLING| command line, parameters and their attributes must be specified 
+  using comma-separated lists.  The comma-separated lists must all be the same length.
+
+\end{Command}
+

@@ -1,0 +1,68 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+
+%%
+%% Changes to Xyce input since the last release.
+%%
+{
+\small
+
+\begin{longtable}[h] {>{\raggedright\small}m{2in}|>{\raggedright\let\\\tabularnewline\small}m{3.5in}}
+  \caption{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endfirsthead
+  \caption[]{Changes to netlist specification since the last release.\label{newUsage}} \\ \hline
+  \rowcolor{XyceDarkBlue}
+  \color{white}\bf Change &
+  \color{white}\bf Detail \\ \hline \endhead
+
+The \texttt{FORMAT=PROBE} and \texttt{FORMAT=RAW} print formats for 
+\texttt{.PRINT SENS} output have changed & Those two print formats are 
+still unsupported for \texttt{.PRINT SENS} output. However, they now 
+default to \texttt{FORMAT=STD} with the file extensions of
+``\texttt{.SENS.prn.}'' In earlier versions of \Xyce{}, their format was
+\texttt{FORMAT=NOINDEX.} 
+\\ \hline
+
+The \texttt{FORMAT=PROBE} and \texttt{FORMAT=RAW} print formats for 
+\texttt{.PRINT TRANADJOINT} output have changed & Those two print formats 
+are still unsupported for \texttt{.PRINT TRANADJOINT} output. However,
+they now default to \texttt{FORMAT=STD} with the file extensions of 
+``\texttt{.TRADJ.prn.}'' In earlier versions of \Xyce{}, their format was 
+\texttt{FORMAT=NOINDEX}. \\ \hline
+
+The expression package now supports floor and ceil functions & Support
+for \texttt{floor} (greatest integer less than or equal to argument)
+and \texttt{ceil} (smallest integer greater than or equal to argument)
+functions has been added to the expression package, and these
+functions may be used anywhere expressions are valid.  Note that
+because the functions are discontinuous, use in B source expressions
+could lead to timestep-too-small errors in some cases, as documented
+in the Users' Guide chapter on ABM guidance. \\ \hline
+
+The allowed syntax for \texttt{.LIB} statements was changed & \Xyce{} 
+now rigorously supports the HSPICE .LIB syntax where there is a 
+library definition (\texttt{.LIB <library\_name>}) and a 
+library inclusion (\texttt{.LIB <library\_file> <library\_name>}).
+The use of \texttt{.LIB <name>} as a synonym for
+\texttt{.INC <name>} is no longer supported.\\ \hline
+
+A new \texttt{.OPTIONS DIST} category to support parallel distribution options &
+There is a new \texttt{.OPTIONS DIST} category to support parallel
+distribution options that a user can use to improve the parallel
+performance of \Xyce{}.  At this time the only option available is
+\texttt{STRATEGY}, which can be used to select the device distribution
+strategy being used by \Xyce{}.  The new options are described in the
+Users' Guide chapter on ``Guidance for Running Xyce in Parallel''.
+
+\end{longtable}
+}

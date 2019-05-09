@@ -1,0 +1,133 @@
+Obscure, apparently undocumented syntax issues.
+
+1)  <admst:value-of select="path"/>
+    <admst:text format="%s"/>
+
+     is the same as
+    <admst:text format="%(path)"/>
+
+----
+2)  Looks like one can apply templates without using "apply-templates":
+
+    <admst:text format="$e=%(e(rhs/tree));\n"/>
+
+    applies the template "e" to rhs/tree before output.
+
+    This works fine  as long as what "e" does is output with "adms:text", and
+    as long as we're using it to output with adms:text.  Where it becomes
+    wrong is if one were trying, say, to create a variable with the output
+    of "e" embedded in it.  That doesn't work:
+
+
+    <admst:variable name="foo" select="%(e(rhs/tree))"/> 
+
+    does NOT save the output of e(rhs/tree) into the variable foo.  To get
+    that done generally requires using apply-templates to templates that
+    don't do output (but rather return values).
+  
+----
+3) Each variable/parameter has a node called "parametertype" that defaults to
+   "model".  Apparently, when there is an attribute called "type" in the
+   parameter's definition, e.g. 
+
+`ifdef insideADMS
+ `define P(p) (*p*)
+ `define PGIVEN(p)              $given(p)
+ `define INITIAL_MODEL          @(initial_model)
+`else
+ `define P(p)
+ `define PGIVEN(p)              p
+ `define INITIAL_MODEL          @(initial_step)
+`endif
+parameter real dt       = 0.0   `P(spice:name="dt" type="instance" info="Temperature change for particular transistor" unit="K");                   
+
+
+then that parameter gets the "type" attribute turned into a "parametertype".
+NOTHING documents this fact except that if you look at adms.xml it shows up 
+there --- as long as you aren't browsing it with a web browser.
+
+--- I modify that.  If you open the "math" top-level entity then browse to 
+"subexpression" and open it, then open "variable" you'll find a "parametertype" 
+line.  But nothing gets displayed showing what it means or what the defaults
+are.  You have to look at the raw, unstyled XML to see that.  GRRRR.
+
+Lots of elements are hidden in that "math" element, and aren't displayed by
+the "styled" version unless you have math open.  Grrr^2
+
+-----
+4) Yet another completely undocumented bit of admst:
+
+   <admst:return name="returnname" value="text"/>
+
+   This allows you to return values, and not even just a single value ---
+   you can have multiple returns.  It is not a flow-of-control thing, but
+   something that adds to the tree.
+
+   Return values are retrieved pretty easily.
+
+   <admst:apply-templates select="/path" match="templatename">
+     <admst:value-of select="returned('returnname')/value"/>
+     <admst:variable name="variablename" select="%s"/>
+   </admst:apply-templates>
+
+
+-------
+5) apply-templates will work on all members of a container.  For example,
+   a block often (usually) has multiple items.  Doing:
+
+   <admst:apply-templates select="item" match="sometemplate"/>
+
+   while . is a block will apply sometemplate to each item in the block.  It
+   is pretty much equivalent to:
+     <admst:for-each select="item">
+       <admst:apply-templates select="." match="sometemplate"/>
+     </admst:for-each>
+
+-------
+  Completely undocumented, learned only through email with Laurent Lamaitre:
+
+  You can push an array of items or a scalar value into any part of the
+  ADMS data tree using the "@variable" or "#variable" constructs.  These are
+  used in the uncommented, undocumented adms scripts "arobavariable.xml" and
+  "croixvariable.xml"
+
+  On Laurent's recommendation, I used this feature in the
+  "collectAssignedVariables" template.  This template recursively gathers a 
+  list of all the variables that are on the left-hand-side of any assignment
+  at or below the part of the tree passed to it.  It is roughly patterned on
+  a similar template in qucs, ng-spice, and zspice ("block:local:variables")
+  that used a deprecated part of the adms data tree 
+  (/module/evaluation/variable).  
+  
+  To use this method to push something into an array, you can do:
+
+   <admst:push into="/some/data/path/@variable" select="somenode"/>
+
+ which will create the @variable sub-node of /some/data/path if it doesn't
+ exist and add somenode to that list.  
+
+   <admst:push into="/some/data/path/#variable" select="somevalue"/>
+
+ pushes a scalar named #variable, and assigns it the given value instead.
+
+ admst:push takes an "onduplicate" option that allows one to control what it
+ does if there's already a value in the list like the one you're pushing:
+
+   onduplicate="ignore"  --- do nothing (don't push), the default
+   onduplicate="abort"   --- exit with error
+   onduplicate="ignore-abort"  
+   onduplicate="passthrough"  --- ??
+
+----------------
+Documented, but not obvious:
+
+-  The module tree contains a "contribution" item that is a list of all the
+   contributions that appear in the module.  This will be *vital* to use
+   for Xyce's purposes, as it means there's one place we can go to figure out
+   all of the dependencies between probes on the RHS of contributions and
+   currents on the LHS.  It will also probably help to figure out how to 
+   declare the Sacado Fad types.
+
+-  DUH!  There is a /module/jacobian item that tells EXACTLY what jacobian
+   terms arise from the various contributions.  This should make jacstamp
+   and offset generation very simple.

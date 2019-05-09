@@ -1,0 +1,2 @@
+Welcome to Xyce(TM) Installation.  This program will guide you through
+the installation of the Xyce(TM) Parallel Electronic Simulator.

@@ -1,0 +1,85 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+Calculates the frequency response of a circuit over a range of frequencies.
+
+The .AC command can specify a linear sweep, decade logarithmic sweep,
+octave logarithmic sweep, or a data table of multivariate values.
+
+\begin{Command}
+
+\format
+\begin{alltt}
+.AC <sweep type> <points value>
++ <start frequency value> <end frequency value>
+\end{alltt}
+
+\examples
+\begin{alltt}
+.AC LIN 101 100Hz 200Hz
+.AC OCT 10 1kHz 16kHz
+.AC DEC 20 1MEG 100MEG
+.AC DATA=<table name>
+\end{alltt}
+
+\arguments
+
+\begin{Arguments}
+
+\argument{sweep type}
+Must be \texttt{LIN}, \texttt{OCT}, \texttt{DEC}, or \texttt{DATA} as described below.
+\begin{description}
+
+\item[\tt LIN] Linear sweep\\
+The sweep variable is swept linearly from the starting to the ending value.
+
+\item[\tt OCT] Sweep by octaves\\
+The sweep variable is swept logarithmically by octaves.
+
+\item[\tt DEC] Sweep by decades\\
+The sweep variable is swept logarithmically by decades.
+
+\item[\tt DATA] Sweep values from a table\\
+Sweep variables are applied based on the rows of a data table.  This format allows magnitude and phase to be swept in addition to frequency.    If using this format, no other arguments are needed on the \texttt{.AC} line.
+
+\end{description}
+
+\argument{points value}
+Specifies the number of points in the sweep, using an integer.
+
+\argument{\vbox{\hbox{start frequency value\hfil}\hbox{end frequency value}}}
+
+The end frequency value must not be less than the start frequency value,
+and both must be greater than zero. The whole sweep must include at
+least one point.
+
+\end{Arguments}
+
+\comments
+
+AC analysis is a linear analysis. The simulator calculates the frequency
+response by linearizing the circuit around the DCOP bias point.
+
+If specifying the sweep points using the \texttt{DATA} type, one can also sweep the magnitude and phase of an AC source, as well as the values of linear model parameters.  However, unlike the use of \texttt{DATA} for \texttt{.STEP} and \texttt{.DC}, it is not possible to sweep nonlinear device parameters.  This is because changing other nonlinear device parameters would alter the correct DCOP solution, and the AC sweep happens after the DCOP calculation in the analysis flow.  To sweep a nonlinear device parameter on an AC problem, add a \texttt{.STEP} command to the netlist to provide an outer parametric sweep around the analysis.
+
+\index{\texttt{.PRINT}}\index{results!print}\index{\texttt{.PRINT}!\texttt{AC}}
+A \texttt{.PRINT AC} must be used to get the results of the AC sweep
+analysis.  See Section \ref{.PRINT}.
+
+Some devices that may be expected to work in AC analysis do not at this time.  This includes,
+but is not limited to, the lossy transmission line (LTRA) and lossless transmission line (TRA).
+The LTRA and TRA models will need to be replaced with lumped transmission line models (YTRANSLINE).
+
+Power calculations (\texttt{P(<device>} and \texttt{W(<device>}) are not supported for any
+devices for AC analysis.  Current variables (e.g., \texttt{I(<device>)} are only supported for
+devices that have ``branch currents'' that are part of the solution vector. This includes
+the V, E, H and L devices.  It also includes the voltage-form of the B device.
+
+\end{Command}

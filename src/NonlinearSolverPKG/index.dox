@@ -1,0 +1,2 @@
+/// @defgroup xyce_nonlinear_solver_package Circuit Nonlinear Solver Package (N_NLS)
+/// @brief The Xyce Circuit nonlinear solver package provides the classes and interfaces to define nonlinear solution and continuation methods 

@@ -1,0 +1,50 @@
+Diode clipper circuit with transient analysis statement
+* This is from Figure 3.5 of the Users Guide
+*
+* It has been modified to use only devices generated from Verilog-A, as
+* contained in this directory.
+*
+* To run this netlist, you must first process the Verilog-A files in this
+* directory into C++ and link them into a shared-library plugin for Xyce.
+* See the Xyce/ADMS Users' Guide on the Xyce web site http://xyce.sandia.gov
+* for details.
+*
+
+* Voltage Sources
+YVSRC VCC 1 0 Voltage=5V
+YVSRC VIN 3 0 Voltage={SPICE_SIN(0V,10V,1kHz)}
+* Analysis Command
+.TRAN 2ns 2ms
+* Output
+.PRINT TRAN V(3) V(2) V(4) I(YVSRC!VCC) I(YVSRC!VIN) I(D1) I(D2) I(R1) I(R2) I(R3) I(R4) I(C1)
+* Diodes
+D1 2 1 D1N3940
+D2 0 2 D1N3940
+* Resistors
+R1 2 3 rmod R=1K
+R2 1 2 rmod R=3.3K
+R3 2 0 rmod R=3.3K
+R4 4 0 rmod R=5.6K
+* Capacitor
+C1 2 4 cmod C=0.47u
+
+.model rmod r level=6
+.model cmod c level=6
+*
+* GENERIC FUNCTIONAL EQUIVALENT = 1N3940
+* TYPE: DIODE
+* SUBTYPE: RECTIFIER
+.MODEL D1N3940 D(
++ level=2002
++ IS = 4E-10
++ N = 1.48
++ CJO = 1.95E-11
++ M = .38
++ PHI = .4
++ FC = .9
++ TT = 8E-7
++ BV = 600
++ RS = .105
++ )
+*
+.END

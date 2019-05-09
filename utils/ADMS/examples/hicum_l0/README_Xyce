@@ -1,0 +1,23 @@
+The HICUM Level 0, version 1.32 Verilog-A source was obtained from 
+https://www.iee.et.tu-dresden.de/iee/eb/hic_new/hic_start.html
+
+The following modifications to the original have been made:
+
+- Omitted the calculation of operating point values by commenting out:
+     `define CALC_OP
+  Xyce does not yet support outputting device-specific operating point
+  variables (as of version 6.7).
+
+- module attributes have been added to allow HICUM to plug in to Xyce as BJT
+  level 230.
+
+- Xyce/ADMS cannot perform collapse of external nodes to ground.  The block of
+  code in HICUM that does this has been commented out, and the alternate block
+  of code provided by developers in case collapse-to-ground is not supported
+  has been uncommented
+
+- The "INITIAL_MODEL" macro was added to the commented-out code that followed
+  it, since the use of @(initial_model) throws an error otherwise; the code
+  appears to be commented out due to a change in handling of the transistor
+  type (NPN vs. PNP), so INITAL_MODEL should do nothing.
+

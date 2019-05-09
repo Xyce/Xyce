@@ -1,0 +1,217 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+
+%%-------------------------------------------------------------------------
+%% Purpose        : Release notes for Xyce version 6.8.
+%% Special Notes  : Graphic files (pdf format) work with pdflatex.  
+%% Creation Date  : {03/24/2006}
+%%-------------------------------------------------------------------------
+
+\documentclass{article}
+\usepackage[hyperindex=true, colorlinks=false]{hyperref}
+\usepackage{ltxtable, multirow}
+\usepackage{Xyce}
+\usepackage{geometry}
+
+\pdfcatalog {/PageMode /UseNone}
+\renewcommand{\arraystretch}{1.2}
+
+% Sets the page margins to be the same as the Guides (SAND reports)
+\geometry{pdftex, inner=1in, textwidth=6.5in, textheight=9in}
+
+% Gets rid of Section numbers
+\setcounter{secnumdepth}{0}
+
+% Set this here once, and use \XyceVersionVar{} in the document
+\XyceVersion{6.8}
+
+% ---------------------------------------------------------------------------- %
+%
+% Set the title, author, and date
+%
+\title{\XyceTitle{} Parallel Electronic Simulator\\
+Version \XyceVersionVar{} Release Notes} 
+
+\author{ Sandia National Laboratories}
+
+\date{\today}
+
+% Submitted to R&A 05 October 2017, Tracking number 703121, approved 18 October 2017
+% SAND Number SAND2017-11342 O
+% ---------------------------------------------------------------------------- %
+% Start the document
+
+\begin{document}
+\maketitle
+
+The \XyceTM{} Parallel Electronic Simulator has been written to support the
+simulation needs of Sandia National Laboratories' electrical designers.
+\XyceTM{} is a SPICE-compatible simulator with the ability to solve extremely
+large circuit problems on large-scale parallel computing platforms, but also
+includes support for most popular parallel and serial computers.
+
+For up-to-date information not available at the time these notes were produced,
+please visit the \XyceTM{} web page at
+{\color{XyceDeepRed}\url{http://xyce.sandia.gov}}.
+
+
+\tableofcontents
+\vspace*{\fill}
+\parbox{\textwidth}
+{
+  \raisebox{0.13in}{\includegraphics[height=0.5in]{snllineblubrd}}
+  \hfill
+  \includegraphics[width=1.5in]{xyce_flat_white}
+}
+
+
+\newpage
+\section{New Features and Enhancements}
+
+\subsubsection*{New Devices and Device Model Improvements}
+\begin{XyceItemize}
+\item A code optimization of the BSIM-CMG model 110 (MOSFET level 110)
+  has improved performance of this model when self-heating effects are
+  disabled by setting SHMOD=0 or RTH=0 in the .model card.
+  
+\item The VBIC 1.2 (Level=10) model has been deprecated since \Xyce{}
+  Release 6.6.  It is still available in \Xyce{} 6.8, but is
+  unmaintained and will be removed in a future release.  To remind
+  users that this model is slated for future removal, \Xyce{} will show
+  the text ``*DEPRECATED*'' next to the model name in its device count
+  summary.
+
+  The VBIC 1.3 model (levels 11 and 12) will be the only supported
+  VBIC models in the future.  Please update any netlists you have that
+  use the level=10 model to use one of these VBIC 1.3 models instead.
+  See the \Xyce{} Reference Guide for details on the differences between
+  the 1.2 and 1.3 versions of VBIC.
+
+  Users are advised to update their VBIC netlists as soon as possible.
+  
+\item The Piecewise Empirical Model (PEM) memristor model has been added to \Xyce{}.  See the 
+  \Xyce{} Reference Guide for details.
+  
+\end{XyceItemize}
+
+\subsubsection*{Enhanced Solver Stability, Performance and Features}
+\begin{XyceItemize}
+ \item The BDF time integration method (METHOD=BDF or METHOD=6) has
+   been deprecated since version 6.6 of \Xyce{}, and has been removed in
+   this release. The Trapezoid (METHOD=TRAP or METHOD=7) and Gear
+   (METHOD=GEAR or METHOD=8) methods are the only supported time
+   integration methods in version 6.8.  Please update any netlists you
+   have that explicitly use the BDF time integration method to use the
+   Gear method instead.
+
+ \item Improved robustness of GMIN stepping and SPICE DC OP strategy.
+\end{XyceItemize}
+
+\subsubsection*{Interface Improvements}
+\begin{XyceItemize}
+\item The CSV print format is now supported for homotopy and noise output.
+\item A new GNUPLOT print format that outputs data in standard columns, like a
+.prn file, but with improved Gnuplot compatibility for .STEP data.
+\end{XyceItemize}
+
+\subsubsection*{Deployment Improvements}
+\begin{XyceItemize}
+\item The wrapper scripts \texttt{runxyce} and \texttt{xmpirun} are no
+  longer provided by our packaged installers.  \Xyce{} is now run
+  directly without the use of these scripts.  For details please see
+  the \Xyce{} Users' Guide.
+\item This version of \Xyce{} has been built against the latest
+  released version 12.12.1 of Trilinos.
+\item \Xyce{} no longer requires the UMFPACK library for serial builds 
+  and neither UMFPACK nor ParMETIS are required for parallel builds.
+\end{XyceItemize}
+
+\newpage
+\section{Defects Fixed in this Release}
+\input{fixedDefectsTbl}
+
+
+\newpage
+\section{Interface Changes in this Release}
+\input{changesInputTbl}
+
+
+\newpage
+\section{Known Defects and Workarounds}
+\input{knownDefectsTbl}
+
+
+\newpage
+\section{Supported Platforms}
+\subsection*{Certified Support}
+The following platforms have been subject to certification testing for the
+\Xyce{} version 6.8 release.
+\begin{XyceItemize}
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
+  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 6, x86-64 (serial and parallel)
+  \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)
+  \item Apple${}^{\mbox{\textregistered}}$ OS X Sierra, x86-64 (serial and parallel)
+\end{XyceItemize}
+
+\subsection*{Build Support}
+Though not certified platforms, \Xyce{} has been known to run on the following
+systems.
+\begin{XyceItemize}
+  \item FreeBSD 10.x on Intel x86-64 architectures (serial and parallel)
+  \item Distributions of Linux other than Red Hat Enterprise Linux 6
+  \item Microsoft Windows under Cygwin and MinGW.
+\end{XyceItemize}
+
+
+\section{\Xyce{} Release \XyceVersionVar{} Documentation}
+The following \Xyce{} documentation is available on the \Xyce{} website in pdf
+form.
+\begin{XyceItemize}
+  \item \Xyce{} Version \XyceVersionVar{} Release Notes (this document)
+  \item \Xyce{} Users' Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Reference Guide, Version \XyceVersionVar{}
+  \item \Xyce{} Mathematical Formulation
+  \item Power Grid Modeling with \Xyce{}
+  \item Application Node: Using Open Source Schematic Capture Tools with \Xyce{}
+\end{XyceItemize}
+Also included at the \Xyce{} website as web pages are the following.
+\begin{XyceItemize}
+  \item Frequently Asked Questions
+  \item Building Guide (instructions for building \Xyce{} from the source code)
+  \item Running the \Xyce{} Regression Test Suite
+  \item \Xyce{}/ADMS Users' Guide
+  \item Tutorial:  Adding a new compact model to \Xyce{}
+\end{XyceItemize}
+
+
+\section{External User Resources}
+\begin{itemize}
+  \item Website: {\color{XyceDeepRed}\url{http://xyce.sandia.gov}}
+  \item Google Groups discussion forum:
+    {\color{XyceDeepRed}\url{https://groups.google.com/forum/#!forum/xyce-users}}
+  \item Email support:
+    {\color{XyceDeepRed}\href{mailto:xyce@sandia.gov}{xyce@sandia.gov}}
+  \item Address:
+    \begin{quote}
+            Electrical Models and Simulation Department,\\
+            Sandia National Laboratories\\
+            P.O. Box 5800, M.S. 1177\\
+            Albuquerque, NM 87185-1177 \\
+    \end{quote}
+\end{itemize}
+
+\vspace*{\fill}
+Sandia National Laboratories is a multimission laboratory managed and operated by 
+National Technology and Engineering Solutions of Sandia, LLC, a wholly owned subsidiary
+of Honeywell International, Inc., for the U.S. Department of Energy's National Nuclear 
+Security Administration under contract DE-NA0003525.
+
+\end{document}
+

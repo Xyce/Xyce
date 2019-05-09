@@ -1,0 +1,860 @@
+/// @defgroup xyce_device_package Circuit Device Package (N_DEV)
+/// @brief The Xyce Circuit Device package provides the classes and interfaces to define a circuit device.
+///
+/// @{
+///   @defgroup xyce_device_parameters Parameter Definitions
+///   @brief This section describes the device parameters processing
+///
+///   @{
+///     @defgroup xyce_device_parameters_detail Parameter Details
+///
+///     @defgroup xyce_device_parameters_declaration Circuit Device Declarations for Parameter Processing
+///
+///     @defgroup xyce_device_parameters_implementation Device Implementation
+///
+///     @defgroup xyce_device_model_implementation Model Implementation
+///     The Model class.
+///
+///     @defgroup xyce_device_instance_implementation Instance Implementation
+///     The Instance class.
+///
+///     @defgroup xyce_device_master_implementation Master Implementation
+///     @par
+///   @}
+///
+///   @defgroup xyce_device_numerical_functions Numerical Functions
+/// @}
+///
+/// @page xyce_device_howto Circuit Device How To ...
+/// Xyce Circuit Device Definitions
+///
+/// Device Definition, Creation and Initialization
+///  - @ref xyce_device_howto_overview
+///  - @ref xyce_device_howto_definition
+///    - @ref xyce_device_howto_definition_traits
+///    - @ref xyce_device_howto_definition_registration
+///  - @ref xyce_device_howto_creation
+///    - @ref xyce_device_howto_creation_device_factory
+///    - @ref xyce_device_howto_creation_parameter_parse
+///  - @ref xyce_device_howto_parameters
+///  - @ref xyce_device_howto_parameters_binding
+///  - @ref xyce_device_howto_parameters_processing
+///  - @ref xyce_device_howto_master
+///
+/// Numerical Function Implementation
+///  - @ref xyce_device_howto_numerical_functions
+///
+/// Sample Implementation
+///  - @ref xyce_device_howto_resistor
+///
+/// @section xyce_device_howto_overview Device Development Overview
+///
+/// The primary task of Xyce device code is to load the F and Q
+/// vectors and the dFdx and dQdx matrices as described in the Xyce
+/// Math Formulation Document.  Description of the details of how Xyce
+/// uses these vectors and matrices is beyond the scope of this Doxygen
+/// text, and the Math Formulation document should be read before attempting
+/// to write a device from scratch.
+///
+/// The general flow of work for a device flows roughly as follows:
+///
+///  - When Xyce starts up, the list of accepted parameters for all
+///    device types and their associated models are read from the Traits
+///    class associated with the device type.
+///
+///  - The netlist is parsed to determine which devices and models need to
+///    be instantiated for the given circuit.  "ModelBlock" and "InstanceBlock"
+///    objects are created by the parser containing parameters and other
+///    information provided in the netlist for use later in instantiating
+///    devices.
+///
+///  - Model objects of the appropriate class for each .model card are created
+///    and Instance objects of the corresponding device type are associated
+///    with them.  These operations are performed using the constructors for
+///    the Instance and Model classes of the device, and the addInstance method
+///    of the Model class.  The constructors initialize certain internal data
+///    that will be queried later by the Topology package when it is determining
+///    the circuit connectivity and assigning locations in the solution vector
+///    and Jacobian matrix.
+///
+///  - After the Topology package is done with its work, devices are notified
+///    through a number of "register*LIDs" functions what elements of the 
+///    vectors and matrices correspond to its data.
+///
+///  - During solution of the problem, the updateState,
+///    loadDAEVectors, and loadDAEMatrices of the device type's
+///    "Master" class are called.  By default, these functions call
+///    the updatePrimaryState, loadDAEFVector/loadDAEQVector, and
+///    loadDAEdFdx/loadDAEdQdx methods of the Instance class for each
+///    device of that type.
+///
+/// Writing device code requires understanding each step of this process,
+/// and coding the various methods to implement the device's function.
+/// 
+/// When creating a new device, you will need to create a header file
+/// and an implementation file.  The header file contains declarations of
+/// the classes associated with a device type and the internal data used by 
+/// those classes.  The implementation file contains the code for the member
+/// methods of the classes declared in the header file.
+///
+/// In the include file, you will declare a device Instance class,
+/// a device Model class and a device Traits class.  The device
+/// Instance class must inherit from the DeviceInstance class and the
+/// Model class must inherit from the DeviceModel class.  The device
+/// Traits class must inherit from the DeviceTraits class template.
+/// You may also define a Master class which inherits from the
+/// DeviceMaster class template.  Though the operation of device
+/// instance and models are implemented in separate classes, they are
+/// all considered to be one functional unit.  As such, it is common
+/// for these component classes to "friend" one another to allow them
+/// to access each other's private data, eliminiating the need for
+/// accessor functions while restricting access from other devices and
+/// subsystems.
+///
+/// The Instance and the Model classes each provide functionality for
+/// instance and model creation, parameter value setting, registration
+/// of solver components, and loading and processing of numeric
+/// values.
+///
+/// The Instance and Model classes parameters are implemented as
+/// member variables and will be referred to as "parameter member
+/// variables."  The parameter member variables provide data for the
+/// numerical methods used to describe the behavior of the device.
+/// The Traits class functions loadInstanceParameters() and
+/// loadModelParameters() describe these parameter member variables to
+/// the parsing subsystem which will populate them as each device is
+/// created.
+///
+/// Instance and Model objects are created by the DeviceMaster or its
+/// derived class.  The Traits factory() function creates the device,
+/// while the addInstance() and addModel() functions of the
+/// DeviceMaster class create Instance and Model objects.
+///
+/// The Traits class defines the configuration of the device, its
+/// parameters and the device creation factory.  Since a device may have
+/// special numerical processing based on the class of device, a model
+/// group exists to identify the device class.  Each of the model
+/// groups has a lead device that serves to identify the group.  In
+/// most cases, the group lead is the device assigned to level one.
+/// The third template parameter to the DeviceTraits templates is used
+/// to identify the model group of a device.  If this parameter is not
+/// specified, the device becomes a model group lead.
+///
+/// @subsection xyce_device_howto_overview_header Header File Layout
+///
+/// All open source circuit devices files are in the
+/// Xyce/src/DeviceModelPKG/OpenModels directory.  Proprietary and
+/// other devices exists in appropriately named sibling directies.
+///
+/// Each device is declared in its own namespace within the
+/// Xyce::Device namespace.  This allows you to place device specific
+/// classes and functions without concern for naming conflicts.
+///
+/// @code
+/// #include <N_DEV_fwd.h>
+/// #include <N_DEV_Configuration.h>
+/// #include <N_DEV_DeviceInstance.h>
+/// #include <N_DEV_DeviceModel.h>
+/// #include <N_DEV_DeviceMaster.h>
+///
+/// namespace Xyce {
+/// namespace Device {
+/// namespace Resistor {
+///
+/// class Model;
+/// class Instance;
+///
+/// struct Traits : public DeviceTraits<Model, Instance>
+/// {
+/// ...
+/// };
+///
+/// class Instance : public DeviceInstance
+/// {
+///     friend class ParametricData<Instance>;              ///< Allow ParametricData to change member values
+///     friend class Model;                                 ///< Don't force a lot of pointless getters
+///     friend struct Traits;
+///     friend class Master;                                ///< Don't force a lot of pointless getters
+/// ...
+/// };
+///
+/// class Model : public DeviceModel
+/// {
+///     friend class ParametricData<Model>;               ///< Allow ParametricData to changes member values
+///     friend class Instance;                            ///< Don't force a lot of pointless getters
+///     friend struct Traits;
+///     friend class Master;                              ///< Don't force a lot of pointless getters
+///
+/// ...
+/// };
+///
+/// class Master : public DeviceMaster<Traits>
+/// {
+///     friend class Instance;                            ///< Don't force a lot of pointless getters
+///     friend class Model;                               ///< Don't force a lot of pointless getters
+/// ...
+/// };
+///
+/// void registerDevice();
+///
+/// } // namespace Resistor
+/// } // namespace Device
+/// } // namespace Xyce
+/// @endcode
+///
+/// @subsection xyce_device_howto_overview_implementation Implementation File Layout
+///
+/// All open source circuit devices files are in the
+/// Xyce/src/DeviceModelPKG/OpenModels directory.  Proprietary and
+/// other devices exists in appropriately named sibling directies.
+///
+/// Each device is declared in its own namespace within the
+/// Xyce::Device namespace.  This allows you to place device specific
+/// classes and functions without concern for naming conflicts.
+///
+/// @code
+/// #include <Xyce_config.h>
+///
+/// #include <N_DEV_Resistor.h>
+///
+/// namespace Xyce {
+/// namespace Device {
+/// namespace Resistor {
+///
+/// void Traits::loadInstanceParameters(ParametricData<Resistor::Instance> &p)
+/// {
+/// ...
+/// }
+///
+/// void Traits::loadModelParameters(ParametricData<Resistor::Model> &p)
+/// {
+/// ...
+/// }
+/// .
+/// .
+/// .
+/// Instance::Instance(
+///   const Configuration & configuration,
+///   const InstanceBlock & instance_block,
+///   Model &               model,
+///   const FactoryBlock &  factory_block)
+///   : DeviceInstance(instance_block, configuration.getInstanceParameters(), factory_block),
+///     model_(model),
+/// ...
+/// }
+/// .
+/// .
+/// .
+/// Model::Model(
+///   const Configuration & configuration,
+///   const ModelBlock &    model_block,
+///   const FactoryBlock &  factory_block)
+///   : DeviceModel(model_block, configuration.getModelParameters(), factory_block),
+/// ...
+/// }
+/// .
+/// .
+/// .
+/// Device *
+/// Traits::factory(const Configuration &configuration, const FactoryBlock &factory_block)
+/// {
+/// ...
+/// }
+///
+/// void
+/// registerDevice()
+/// {
+/// ...
+/// }
+///
+/// } // namespace Resistor
+/// } // namespace Device
+/// } // namespace Xyce
+/// @endcode
+///
+/// @section xyce_device_howto_definition Define a Device for the Xyce Simulator
+///
+/// To define a device for the Xyce Simuator, a few properties must be
+/// provided.  The properties are provided via a device traits class.
+/// The traits class binds the device Model and Instance and
+/// associates the Model with its Model Group.  It also defines
+/// numeric and string properties such as node count and name.  And,
+/// it declares the device creation factory and parameter binding
+/// functions.
+///
+/// @subsection xyce_device_howto_definition_traits Device Traits
+///
+/// Every device must define a Traits class. This class gives the
+/// properties of the device to DeviceMaster and the Config classes as
+/// a template parameter.  The Traits class defined three types:
+/// InstanceType, ModelType and ModelGroupType.  The typeid() of each
+/// of these types is used as an identifier for that type.
+///
+/// The InstanceType is the device instance class as in
+/// Resistor::Instance.  The ModelType is the device model class as in
+/// Resistor::Model.  And the ModelGroupType is the root model of the
+/// model group.  I.E. for the ThermalResistor and Resistor3 devices,
+/// it is defined as Resistor::Model.  If no model group it provided,
+/// then the ModellGroupType defaults to the ModelType and the device
+/// defines a model group.
+///
+/// The Traits also defines numeric, boolean and string properties.
+/// Many of these have an implementation in the DeviceTraits base
+/// class.  However, numNodes() and isLinearDevice() are not
+/// implemented and must be implemented in each device's traits.
+///
+/// @see Xyce::Device::DeviceTraits
+///
+/// @code
+/// namespace Xyce {
+/// namespace Device {
+/// namespace Resistor {
+///
+/// class Model;
+/// class Instance;
+///
+/// struct Traits : public DeviceTraits<Model, Instance>
+/// {
+///     static const char *name() {return "Resistor";}
+///     static const char *deviceTypeName() {return "R level 1";}
+///     static const int numNodes() {return 2;}
+///     static const char *primaryParameter() {return "R";}
+///     static const bool isLinearDevice() {return true;}
+///
+///     static Device *factory(const Configuration &configuration, const FactoryBlock &factory_block);
+///     static void loadModelParameters(ParametricData<Model> &model_parameters);
+///     static void loadInstanceParameters(ParametricData<Instance> &instance_parameters);
+/// };
+///
+/// } // namespace Resistor
+/// } // namespace Device
+/// } // namespace Xyce
+/// @endcode
+///
+/// @subsection xyce_device_howto_definition_registration Device Registration
+///
+/// Registration of a device to the device configuration is performed
+/// by the registerDevice() function in each device.  This function
+/// must be called for the device to exist.  Generally, each \e
+/// Library has a registerLibraryDevices() function which calls all of
+/// the registerDevice() functions defined in the device library.
+///
+/// To implement dynamic loading, a static object may be defined whose
+/// construtor calls registerDevice().  When the shareable object is
+/// loaded, static objects are constructed automatically resulting in
+/// the registration of the device.
+///
+/// @code
+/// namespace Xyce {
+/// namespace Device {
+/// namespace Resistor {
+///
+/// void
+/// registerDevice()
+/// {
+///   Config<Traits>::addConfiguration()
+///     .registerDevice("r", 1)
+///     .registerModelType("r", 1);
+/// }
+///
+/// } // namespace Resistor
+/// } // namespace Device
+/// } // namespace Xyce
+/// @endcode
+///
+/// The registerDevice() function calls the
+/// Config<Traits>::addConfiguration() function which defines the
+/// device.  The registerDevice() and registerModelType() member
+/// functions are then called to define the device instance name and
+/// model names for the device.  Note that some devices define several
+/// instance names and model names and some devices define no model
+/// names.
+///
+/// @section xyce_device_howto_parameters Device Parameters
+///
+/// The binding process assigns a name, type, default value and
+/// documentation to each of the parameter member variables.  It also
+/// assigns an optional boolean member variable, known as a given
+/// member variable, which is a flag that is set to true if the
+/// parameter member variable was provided by the netlist.
+///
+/// The parser uses the binding information to populate the parameter
+/// member variables with values provided in the netlist and to set
+/// the given member variables to true when the parameter member
+/// variable was provided in the netlist.
+///
+/// The ParameterData<void>::addPar() function binds the parameter
+/// name and default value to the paremeter member variable.  The
+/// parameter member variable data type and default value data type
+/// identifies the parameter type to the netlist parser.  The addPar()
+/// function returns the parameter description object which can be
+/// chained to describe additional characteristics of the parameter.
+/// These characteristics include expression dependency, data units,
+/// and a brief description.
+///
+/// @subsection xyce_device_howto_parameter_member_variable Device Parameter Member Variables
+///
+/// Instance and Model parameters are defined as private data members.
+/// Boolean variables which indicate when a parameter has been
+/// specified in the netlist are also defined as private data members.
+///
+/// @code
+/// namespace Xyce {
+/// namespace Device {
+/// namespace Resistor {
+///
+/// class Instance : public DeviceInstance
+/// {
+/// .
+/// .
+/// .
+///   private:
+///     double      R;              ///< resistance (ohms)
+///
+///     // These are for the semiconductor resistor
+///     double      length;         ///< resistor length.
+///     double      width;          ///< resistor width.
+///     double      temp;           ///< temperature of this instance
+///
+///     // Temperature dependence parameters, these can override values specified in the model
+///     double      tempCoeff1;     ///< first order temperature coeff.
+///     double      tempCoeff2;     ///< second order temperature coeff.
+///     double      dtemp;          ///< externally specified device temperature.
+/// .
+/// .
+/// .
+///     bool        tempCoeff1Given;
+///     bool        tempCoeff2Given;
+///     bool        dtempGiven;
+/// .
+/// .
+/// .
+/// }
+///
+/// class Model : public DeviceModel
+/// {
+/// .
+/// .
+/// .
+///   private:
+///     // Semiconductor resistor parameters
+///     double      tempCoeff1;     ///< first order temperature coeff.
+///     double      tempCoeff2;     ///< second order temperature coeff.
+///     double      sheetRes;       ///< sheet resistance
+///     double      defWidth;       ///< default width
+///     double      narrow;         ///< narrowing due to side etching
+///     double      tnom;           ///< parameter measurement temperature
+/// .
+/// .
+/// .
+/// }
+///
+/// } // namespace Resistor
+/// } // namespace Device
+/// } // namespace Xyce
+/// @endcode
+///
+/// @subsection xyce_device_howto_parameters_binding Binding a Name to a Device Parameter
+///
+/// The parameter bindings are managed by the ParametricData class
+/// template.  The addPar() functions make the binding with the
+/// device's class.  The makeVector() function makes the parsing of
+/// the parameter vectorized, i.e. can be specified as a list of
+/// values rather that assigned individually.
+///
+/// The addPar() function binds the parameter member variable to the
+/// name, type and default value to its paremeter member variable.
+/// The setGivenMember() function binds data member variable used as
+/// the netlist specified value indicator.  The setExpressionAccess()
+/// function indicates what variable dependencies may be specified for
+/// the parameter.  The setOriginalValueStored() function tells the
+/// Xyce simulator that the original specifies value should be
+/// maintained so that it may be reinitialized.  The setUnit()
+/// function defines the units of the parameter.  The setCategory()
+/// and setDescription() provide runtime documentation for the
+/// parameter.
+///
+/// @code
+/// namespace Xyce {
+/// namespace Device {
+/// namespace Resistor {
+///
+/// void Traits::loadInstanceParameters(ParametricData<Resistor::Instance> &p)
+/// {
+///   p.addPar("R", 1000.0, &Resistor::Instance::R)
+///     .setExpressionAccess(ParameterType::TIME_DEP)
+///     .setUnit(U_OHM)
+///     .setDescription("Resistance");
+///   p.addPar("L", 0.0, &Resistor::Instance::length)
+///     .setUnit(U_METER)
+///     .setDescription("Length");
+///   p.addPar("W", 0.0, &Resistor::Instance::width)
+///     .setUnit(U_METER)
+///     .setDescription("Width");
+///   p.addPar("TEMP", 0.0, &Resistor::Instance::temp)
+///     .setExpressionAccess(ParameterType::TIME_DEP)
+///     .setUnit(U_DEGC)
+///     .setDescription("Temperature");
+///
+///   p.addPar("TC1", 0.0, &Resistor::Instance::tempCoeff1)
+///     .setGivenMember(&Resistor::Instance::tempCoeff1Given)
+///     .setUnit(U_DEGCM1)
+///     .setDescription("Linear Temperature Coefficient");
+///   p.addPar("TC2", 0.0, &Resistor::Instance::tempCoeff2)
+///     .setGivenMember(&Resistor::Instance::tempCoeff2Given)
+///     .setUnit(U_DEGCM2)
+///     .setDescription("Quadratic Temperature Coefficient");
+///   p.makeVector("TC", 2); ///< Allow TC to be entered as a vector (TC=1,2)
+///
+///   p.addPar("DTEMP", 0.0, &Resistor::Instance::dtemp)
+///     .setGivenMember(&Resistor::Instance::dtempGiven)
+///     .setUnit(U_DEGC)
+///     .setDescription("Device Temperature -- For compatibility only. Parameter is NOT used");
+/// }
+///
+/// void Traits::loadModelParameters(ParametricData<Resistor::Model> &p)
+/// {
+///   // Create parameter definitions for parameter member variables
+///   p.addPar("TC1", 0.0, &Resistor::Model::tempCoeff1)
+///     .setUnit(U_DEGCM1)
+///     .setDescription("Linear Temperature Coefficient");
+///   p.addPar("TC2", 0.0, &Resistor::Model::tempCoeff2)
+///     .setUnit(U_DEGCM2)
+///     .setDescription("Quadratic Temperature Coefficient");
+///   p.addPar("RSH",   0.0, &Resistor::Model::sheetRes)
+///     .setUnit(U_OHM)
+///     .setDescription("Sheet Resistance");
+///   p.addPar("DEFW",  1.e-5, &Resistor::Model::defWidth)
+///     .setUnit(U_METER)
+///     .setDescription("Default Instance Width");
+///   p.addPar("NARROW",0.0, &Resistor::Model::narrow)
+///     .setUnit(U_METER)
+///     .setDescription("Narrowing due to side etching");
+///   p.addPar("TNOM",  0.0, &Resistor::Model::tnom)
+///     .setUnit(U_DEGC)
+///     .setDescription("Parameter Measurement Temperature");
+/// }
+///
+/// } // namespace Resistor
+/// } // namespace Device
+/// } // namespace Xyce
+/// @endcode
+///
+/// @section xyce_device_howto_parameters_processing Initialize and Process Parameters
+///
+/// The device model and device instance are derived from DeviceModel
+/// and DeviceInstance base classes, respectively.  These classes and
+/// their base classes implement the functions to bind names specified
+/// in the netlist to their corresponding member variables.  These
+/// functions initialize the parameter member variables to the
+/// binding's default value, assign the value specified in the netlist
+/// or to a value calculated from other parameters or the device
+/// environment.
+///
+/// During construction of a device model or instance,
+/// setDefaultParams(), setParams() should be calls to populate the
+/// parameter member variables with the default value or the value
+/// provided by the netlist.  Then the given() function or the use of
+/// the given member variable can be used to determine if a
+/// parameter's value was provided by the netlist.
+///
+/// @warning The parameter member variable values in the initializers
+/// of the constructor are always overwritten by the parameter binding
+/// operation to be the default value from the binding or the value
+/// from the netlist.  
+///
+/// @code
+/// namespace Xyce {
+/// namespace Device {
+/// namespace Resistor {
+///
+/// Instance::Instance(
+///   const Configuration & configuration,
+///   const InstanceBlock & instance_block,
+///   Model &               model,
+///   const FactoryBlock &  factory_block)
+///   : DeviceInstance(instance_block, configuration.getInstanceParameters(), factory_block),
+///     model_(model),
+///     R(0.0),
+///     width(0.0),
+///     length(0.0),
+///     temp(device_options.temp.dVal()),
+///     tempCoeff1(0.0),
+///     tempCoeff2(0.0),
+///     dtemp(0.0),
+///     tempCoeff1Given(false),
+///     tempCoeff2Given(false),
+///     dtempGiven(false),
+/// ...
+/// {
+/// ...
+///   // Set params to constant default values:
+///   setDefaultParams();
+///
+///   // Set params according to instance line and constant defaults from metadata.
+///   setParams(instance_block.params);
+///
+///   // Set any non-constant parameter defaults:
+///   if (!given("TEMP"))
+///     temp = device_options.temp.dVal();
+///   if (!given("W"))
+///     width = model_.defWidth;
+///
+///   if (!tempCoeff1Given)
+///     tempCoeff1 = model_.tempCoeff1;
+///   if (!tempCoeff2Given)
+///     tempCoeff2 = model_.tempCoeff2;
+///
+///   // Calculate any parameters specified as expressions:
+///   updateDependentParameters();
+///
+///   // calculate dependent (ie computed) params and check for errors:
+///   if (!given("R"))
+///   {
+///     if (model_.given("RSH") && given("L") && (model_.sheetRes != 0) &&
+///         (length != 0))
+///     {
+///       R = model_.sheetRes * (length - model_.narrow)
+///           / (width - model_.narrow);
+///     }
+///     else
+///     {
+///       R = 1000.0;
+///       UserWarning0(*this) << "Resistance is set to 0, setting to the default, " << R << " ohms";
+///     }
+///   }
+///
+///   processParams();
+/// }
+///
+/// bool Instance::processParams(string param)
+/// {
+///   // now set the temperature related stuff.
+///   return updateTemperature(temp);
+/// }
+/// .
+/// .
+/// .
+/// Model::Model(
+///   const Configuration & configuration,
+///   const ModelBlock &    model_block,
+///   const FactoryBlock &  factory_block)
+///   : DeviceModel(model_block, configuration.getModelParameters(), factory_block),
+///     tempCoeff1(0.0),
+///     tempCoeff2(0.0),
+///     sheetRes(0.0),
+///     defWidth(10e-6),
+///     narrow(0.0),
+///     tnom(device_options.tnom),
+/// ...
+/// {
+/// ...
+///   // Set params to constant default values:
+///   setDefaultParams();
+///
+///   // Set params according to .model line and constant defaults from metadata:
+///   setModParams(model_block.params);
+///
+///   // Set any non-constant parameter defaults:
+///   if (!given("TNOM"))
+///     tnom = device_options.tnom;
+///
+///   // Calculate any parameters specified as expressions:
+///   updateDependentParameters();
+///
+///   // calculate dependent (ie computed) params and check for errors:
+///   processParams();
+/// }
+///
+/// bool Model::processParams(string param)
+/// {
+///   return true;
+/// }
+///
+/// bool Model::processInstanceParams(string param)
+/// {
+///   for (InstanceVector::const_iterator it = getInstanceVector().begin(); it != getInstanceVector().end(); ++it)
+///   {
+///     (*it)->processParams();
+///   }
+///
+///   return true;
+/// }
+///
+/// } // namespace Resistor
+/// } // namespace Device
+/// } // namespace Xyce
+/// @endcode
+///
+/// @section xyce_device_howto_master Device, DeviceMaster<Model, Instance> and Device Master
+///
+/// The Device base class serves as the interface for managing
+/// devices.  The DeviceMaster template is the primary implementer of
+/// that interface and several devices inherit from this and call this
+/// class Master.
+///
+/// The Device interface class implements the Device::addDevice() and
+/// Device::addModel() functions which create a new device model or a
+/// new device instance of that model type.  It also manages a map of
+/// all device models of that model type and a vector of device
+/// instances of that model type.
+///
+/// The default Master or the DeviceMaster<Model, Instance> methods
+/// updateState, loadDAEVectors, and loadDAEMatrices simply loop over
+/// all device instances of the associated Instance class and call
+/// their updatePrimaryState, loadDAEFVector/loadDAEQVector, and
+/// loadDAEdFdx/loadDAEdQdx methods, respectively.  By overloading the
+/// Master methods it is possible to improve performance iterating
+/// over all the instances of a device class and performing
+/// computations or loads directly rather that iterating over the
+/// instances of those models and calling member methods.  
+///
+/// Refer to @ref xyce_device_howto_numerical_functions for detail on the Device interface numerical functions.
+///
+/// @code
+/// class Master : public DeviceMaster<Model, Instance>
+/// {
+///     friend class Instance;                            ///< Don't force a lot of pointless getters
+///     friend class Model;                               ///< Don't force a lot of pointless getters
+///
+///   public:
+///     Master(
+///       const Configuration &     configuration,
+///       const FactoryBlock &      factory_block,
+///       const SolverState &       solver_state,
+///       const DeviceOptions &     device_options)
+///       : DeviceMaster<Traits>(configuration, factory_block, solver_state, device_options)
+///     {}
+/// .
+/// .
+/// .
+/// };
+/// @endcode
+///
+/// @section xyce_device_howto_creation Device Factory Registry and Parameter Parsing
+///
+/// While a netlist is being read, Model objects are created and for
+/// each Model created one or more Instances are attached to that
+/// Model.  There may be several different Models of the same type
+/// created, each having its own values of the common model parameter
+/// member variables, and each Instance created may have it own
+/// parameter member variables.
+///
+/// The parser reads a line from the netlist.  If it is a model
+/// command, it creates a new device model of the appropriate model
+/// type with the specified name.  If it is a device command, it
+/// creates a new device instance and adds it to the specified device
+/// model or to the default device model for the model type.  The
+/// device manager functions, DeviceMgr::addDeviceModel() and
+/// DeviceMgr::addDeviceInstance(), perform these tasks.
+///
+/// @subsection xyce_device_howto_creation_device_factory Device Factory Registry
+///
+/// @code
+/// namespace Xyce {
+/// namespace Device {
+/// namespace Resistor {
+///
+/// Device *
+/// Traits::factory(const Configuration &configuration, const FactoryBlock &factory_block)
+/// {
+///   return new Master(configuration, factory_block, factory_block.solverState_, factory_block.deviceOptions_);
+/// }
+///
+/// } // namespace Resistor
+/// } // namespace Device
+/// } // namespace Xyce
+/// @endcode
+///
+/// @subsection xyce_device_howto_creation_parameter_parse Parameter Parsing
+///
+/// As the netlist is parsed, ModelBlock and InstanceBlock objects are
+/// created and the parameters added for each device and model
+/// command.  After the netlist has been loaded, the toplogy is
+/// constructed from the node connections, then device models are
+/// constructed first using the ModelBlocks objects and the the device
+/// instances are then created using the InstanceBlocks.  The
+/// DeviceMgr::addDeviceModel() function discovers the model type,
+/// then creates a new device model of that type and initializes it
+/// with values from the ModelBlock.  The
+/// DeviceMgr::addDeviceInstance() function finds the model for the
+/// model type, then creates a new device instance and initializes it
+/// the the values from the InstanceBlock.
+///
+/// @section xyce_device_howto_numerical_functions Numerical Implementation
+///
+/// @subsection xyce_device_howto_numerical_allocation
+///
+/// The constructor for the device
+/// establishes a count of required numbers of internal and external solution
+/// variables, store variables, and solution variables.  It also sets a data
+/// structure called a "Jacobian Stamp" that informs the Topology package
+/// how the equations of the device depend on solution variables.  The topology
+/// package will use this information to assign locations in the various vectors
+/// and matrices to the device, and will return that information to the device
+/// in the form of vectors of "Local IDs" (LIDs).
+/// 
+/// The registerLIDs(), registerStateLIDs() and registerStoreLIDs()
+/// functions provide the storage location information to the
+/// instance.  These methods should save the information in instance variables,
+/// so they can used by the device each time it is required to load vectors
+/// and matrices.
+///
+/// @subsection xyce_device_howto_device_computation
+///
+/// The updatePrimaryState and updateIntermediateVars are where most
+/// of the computations for a device occur.  The
+/// updateIntermediateVars method computes all the quantities needed
+/// to load the F and Q, the dFdx and dQdx matrices, and the state
+/// variables, but does not load them.  updatePrimaryState loads the
+/// state vector as appropriate from information computed by
+/// updateIntermediateVars.
+///
+/// loadDAEFVector and loadDAEQVector load the F and Q vectors that
+/// appear in the DAE formulation of the circuit problem, using
+/// quantities computed in updateIntermediateVars.  loadDAEdFdx and
+/// loadDAEdQdx similarly load the derivative matrices of the F and Q
+/// vectors with respect to the solution variables.
+/// 
+///
+/// @section xyce_device_howto_resistor Sample Device Implementation
+///
+/// Several devices in Xyce have been commented extensively to aid the process
+/// of learning how to implement new devices.  The Doxygen documentation 
+/// for these is useful for an overview of what the methods should do,
+/// and the code itself can be browsed for more detail.
+///
+/// The resistor device is the simplest device in Xyce, and serves as
+/// a reference implementation for the tasks of parameter definition
+/// and device creation.  Further, it shows how to overload the Master
+/// class functions for efficiency, and how to implement computation
+/// and vector/matrix loading in a device.
+///
+///  - @see Xyce::Device::Resistor::Master
+///  - @see Xyce::Device::Resistor::Instance
+///  - @see Xyce::Device::Resistor::Model
+///  - @see Xyce::Device::Resistor::Traits
+///
+/// The capacitor device is as simple as the resistor, but since it is
+/// a charge storage device, also demonstrates how the Q and dQdx
+/// structures are used.
+///
+///  - @see Xyce::Device::Capacitor::Master
+///  - @see Xyce::Device::Capacitor::Instance
+///  - @see Xyce::Device::Capacitor::Model
+///  - @see Xyce::Device::Capacitor::Traits
+///
+namespace Xyce {
+
+///
+/// @brief Circuit Device Definitions
+///
+/// All Open Source devices are defined in the device class.  Each device type is defined in its own namespace which
+/// holds the device model class, instance class, master class, traits and associated functions.  @ref
+/// xyce_device_howto_overview describes the contents of each device namespace and how to write a new device.
+///
+
+namespace Device {
+
+} // namespace Device
+} // namespace Xyce

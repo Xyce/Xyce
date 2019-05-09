@@ -1,0 +1,71 @@
+//-------------------------------------------------------------------------
+//   Copyright 2002-2018 National Technology & Engineering Solutions of
+//   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
+//   NTESS, the U.S. Government retains certain rights in this software.
+//
+//   This file is part of the Xyce(TM) Parallel Electrical Simulator.
+//
+//   Xyce(TM) is free software: you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation, either version 3 of the License, or
+//   (at your option) any later version.
+//
+//   Xyce(TM) is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with Xyce(TM).
+//   If not, see <http://www.gnu.org/licenses/>.
+//-------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------
+//
+// Purpose        : 
+// This example verilog file implements a two-terminal serial RLC device.
+// Its purpose is merely to provide an extremely simple Verilog device
+// to serve as a demonstration of the ADMS/Xyce capability.
+//
+// Special Notes  : 
+// This version of the device uses a somewhat less naive implementation
+// than rlc.va does.  This version uses one fewer internal variable, 
+// taking advantage of the fact that the currents through the resistor and 
+// inductor are equal, and that the voltage drop across the pair is the sum
+// of voltage drops across each.
+//
+// Creator        : Tom Russo
+//
+// Creation Date  : 1/11/2012
+//
+//-------------------------------------------------------------------------
+`include "disciplines.vams"
+`include "constants.vams"
+
+`define attr(txt) (*txt*)
+
+module rlc2 (p,n);
+  electrical p,n;
+  inout p,n;
+  electrical internal1;
+
+  parameter real L=1e-3 from (0:inf) `attr(info="Inductance" type="instance");
+  parameter real R=1e3 from (0:inf) `attr(info="Resistance" type="instance");
+  parameter real C=1e-12 from (0:inf) `attr(info="Capacitance" type="instance");
+  real totalCurrent;
+  real CapacitorCharge;
+
+  analog
+  begin
+
+    totalCurrent=I(p,internal1);
+    // Resistor voltage drop
+    V(p,internal1) <+ R*totalCurrent;
+    V(p,internal1) <+ L*ddt(totalCurrent);
+
+    CapacitorCharge = V(internal1,n)*C;
+    I(internal1,n) <+ ddt(CapacitorCharge);
+    
+
+  end
+endmodule

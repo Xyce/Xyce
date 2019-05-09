@@ -1,0 +1,1175 @@
+#!/usr/local/bin/perl -w
+#
+#	Simple tests for VBIC
+#
+
+undef($Imin);
+undef($DoPlot);
+$Imin=1.0e-13;
+$ReferenceResults="ReferenceResults";
+
+$\="\n";
+$,=" ";
+$DoPlot="no";
+$DoFg="yes";
+$DoFo="yes";
+$DoFoEt="yes";
+$DoRg="yes";
+$DoRo="yes";
+$DoTemp="yes";
+$DoAc="yes";
+$DoXf="yes";
+$DoFgHbt="yes";
+$DoFoHbt="yes";
+
+$ParameterFile="Pars";
+open(OF,">$ParameterFile") ||
+	die("ERROR: cannot open file parameter file $ParameterFile, stopped");
+print OF "IS 1e-16
+IBEI 1e-18
+IBEN 5e-15
+IBCI 2e-17
+IBCN 5e-15
+ISP 1e-15
+RCX 10
+RCI 60
+RBX 10
+RBI 40
+RE 2
+RS 20
+RBP 40
+VEF 10
+VER 4
+IKF 2e-3
+ITF 8e-2
+XTF 20
+IKR 2e-4
+IKP 2e-4
+CJE 1e-13
+CJC 2e-14
+CJEP 1e-13
+CJCP 4e-13
+VO 2
+GAMM 2e-11
+HRCF 2
+QCO 1e-12
+AVC1 2
+AVC2 15
+TF 10e-12
+TR 100e-12
+TD 1.0e-20
+RTH 300";
+close(OF);
+open(IF,"$ParameterFile") ||
+	die("ERROR: cannot open file $ParameterFile, stopped");
+$ParameterFile="ParsTd";
+open(OF,">$ParameterFile") ||
+	die("ERROR: cannot open file $ParameterFile, stopped");
+while (<IF>) {
+	chomp;
+	if ($_ =~ /^TD /) {
+		print OF "TD 2e-11";
+	} else {
+		print OF;
+	}
+}
+close(IF);close(OF);
+
+$ParameterFile="HbtPars";
+open(OF,">$ParameterFile") ||
+	die("ERROR: cannot open file parameter file $ParameterFile, stopped");
+print OF "IS 4.70047e-25
+NF 1.09575
+NR 1.020
+IBEI 1.484E-23
+NEI 1.302
+IBEN 6.096E-18
+NEN 2.081
+IBCI 5.618E-24
+NCI 1.110
+IBCN 3.297E-14
+NCN 2.000
+RCX 10.26
+RCI 0.001
+RBX 122.23
+RBI 0.001
+RE 17.61
+RS 1
+RBP 1
+VEF 800
+VER 700
+CJE 7e-15
+CJC 11e-15
+CJCP 3e-15
+TF 2.3e-12
+RTH 159.177
+EA 1.1095
+EAIE 1.489271313
+EANE 1.489271313
+EAIC 1.489271313
+EANC 1.489271313
+XRE 2
+XRBX 2
+XRBI 2
+XRCX 2
+XRCI 2
+XRS 2";
+close(OF);
+
+if ($DoFg eq "yes") {
+	$Test="FG";
+	$Model="vbic_4T_it_cf";
+	$ParameterFile="Pars";
+	$Executable="${Model}_solverv";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$ve=0;$vs=0;
+	for ($vb=0.2;$vb<=1.200001;$vb+=0.01) {
+		$vc=$vb;
+		print OF $vc,$vb,$ve,$vs;
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	open(OF,">$Test.simulation");
+	print OF "Vbe Ic Ib Is";
+	open(VBIC,"$Executable $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	@Vcb=();@Vbe=();@Ic=();@Ib=();@Is=();
+	while(<VBIC>){
+		chomp;@Field=split;
+		push(@Vcb,$Field[0]-$Field[1]);
+		push(@Vbe,$Field[1]);
+		$_=<VBIC>;chomp;@Field=split;
+		push(@Ic,$Field[0]);
+		push(@Ib,$Field[1]);
+		push(@Is,-$Field[3]);
+		print OF $Vbe[$#Vbe],$Ic[$#Ic],$Ib[$#Ib],$Is[$#Is];
+	}
+	close(VBIC);
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@VbeR=();@IcR=();@IbR=();@IsR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@VbeR,$Field[0]);
+		push(@IcR,$Field[1]);
+		push(@IbR,$Field[2]);
+		push(@IsR,$Field[3]);
+	}
+	close(IF);
+	if ($#Vbe != $#VbeR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@Vbe,\@Ic,\@Ib,"xax=Vbe","yax=Ic and Ib","args=-log y","title=$Test plot");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#Vbe;++$i) {
+			if ($Vbe[$i] != $VbeR[$i]) {
+				print "	WARNING: bias sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if ($IcR[$i]<1.0e-12) {next;}
+			if (abs($Ic[$i]-$IcR[$i])>1.0e-12) {
+				if (abs($Ic[$i]-$IcR[$i])/abs($IcR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ic[$i]-$IcR[$i])/abs($IcR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i] IcRef=$IcR[$i] but IcTest=$Ic[$i], delta=$err\%";
+				}
+			}
+			if ($IbR[$i]<1.0e-12) {next;}
+			if (abs($Ib[$i]-$IbR[$i])>1.0e-12) {
+				if (abs($Ib[$i]-$IbR[$i])/abs($IbR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ib[$i]-$IbR[$i])/abs($IbR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i] IbRef=$IbR[$i] but IbTest=$Ib[$i], delta=$err\%";
+				}
+			}
+			if ($IsR[$i]<1.0e-12) {next;}
+			if (abs($Is[$i]-$IsR[$i])>1.0e-12) {
+				if (abs($Is[$i]-$IsR[$i])/abs($IsR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Is[$i]-$IsR[$i])/abs($IsR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i] IsRef=$IsR[$i] but IsTest=$Is[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		for ($i=0;$i<=$#Vbe;++$i) {
+			if ($Ic[$i]<$Imin||$Ib[$i]<$Imin) {
+				splice(@Vbe,$i,1);
+				splice(@Ic,$i,1);
+				splice(@Ib,$i,1);
+				--$i;
+			}
+		}
+		for ($i=0;$i<=$#VbeR;++$i) {
+			if ($IcR[$i]<$Imin||$IbR[$i]<$Imin) {
+				splice(@VbeR,$i,1);
+				splice(@IcR,$i,1);
+				splice(@IbR,$i,1);
+				--$i;
+			}
+		}
+		&doplotx(\@Vbe,\@Ic,\@VbeR,\@IcR,\@Vbe,\@Ib,\@VbeR,\@IbR,"xax=Vbe","yax=Ic and Ib","args=-log y","title=$Test plot");
+	}
+}
+
+if ($DoFo eq "yes") {
+	$Test="FO";
+	$Model="vbic_4T_it_cf";
+	$ParameterFile="Pars";
+	$Executable="${Model}_solverv";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$ve=0;$vs=0;
+	for ($vb=0.7;$vb<=1.000001;$vb+=0.05) {
+	for ($vc=0.0;$vc<=5.000001;$vc+=0.05) {
+		print OF $vc,$vb,$ve,$vs;
+	}
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	open(OF,">$Test.simulation");
+	print OF "Vce Vbe Ic Ib Is";
+	open(VBIC,"$Executable $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	@Vce=();@Vbe=();@Ic=();@Ib=();@Is=();
+	while(<VBIC>){
+		chomp;@Field=split;
+		push(@Vce,$Field[0]);
+		push(@Vbe,$Field[1]);
+		$_=<VBIC>;chomp;@Field=split;
+		push(@Ic,$Field[0]);
+		push(@Ib,$Field[1]);
+		push(@Is,-$Field[3]);
+		print OF $Vce[$#Vce],$Vbe[$#Vbe],$Ic[$#Ic],$Ib[$#Ib],$Is[$#Is];
+	}
+	close(VBIC);
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@VceR=();@VbeR=();@IcR=();@IbR=();@IsR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@VceR,$Field[0]);
+		push(@VbeR,$Field[1]);
+		push(@IcR,$Field[2]);
+		push(@IbR,$Field[3]);
+		push(@IsR,$Field[4]);
+	}
+	close(IF);
+	if ($#Vbe != $#VbeR||$#Vce != $#VceR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@Vce,\@Ic,"xax=Vce","yax=Ic","title=$Test plot Ic");
+		&doplot(\@Vce,\@Ib,"xax=Vce","yax=Ib","title=$Test plot Ib");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#Vbe;++$i) {
+			if ($Vbe[$i] != $VbeR[$i]||$Vce[$i] != $VceR[$i]) {
+				print "	WARNING: bias sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if (abs($IcR[$i])<1.0e-12) {next;}
+			if (abs($Ic[$i]-$IcR[$i])>1.0e-12) {
+				if (abs($Ic[$i]-$IcR[$i])/abs($IcR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ic[$i]-$IcR[$i])/abs($IcR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i]/Vce=$Vce[$i] IcRef=$IcR[$i] but IcTest=$Ic[$i], delta=$err\%";
+				}
+			}
+			if ($IbR[$i]<1.0e-12) {next;}
+			if (abs($Ib[$i]-$IbR[$i])>1.0e-12) {
+				if (abs($Ib[$i]-$IbR[$i])/abs($IbR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ib[$i]-$IbR[$i])/abs($IbR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i]/Vce=$Vce[$i] IbRef=$IbR[$i] but IbTest=$Ib[$i], delta=$err\%";
+				}
+			}
+			if ($IsR[$i]<1.0e-12) {next;}
+			if (abs($Is[$i]-$IsR[$i])>1.0e-12) {
+				if (abs($Is[$i]-$IsR[$i])/abs($IsR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Is[$i]-$IsR[$i])/abs($IsR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i]/Vce=$Vce[$i] IsRef=$IsR[$i] but IsTest=$Is[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		&doplotx(\@Vce,\@Ic,\@VceR,\@IcR,"xax=Vce","yax=Ic","title=$Test plot Ic");
+		&doplotx(\@Vce,\@Ib,\@VceR,\@IbR,"xax=Vce","yax=Ib","title=$Test plot Ib");
+	}
+}
+
+if ($DoFoEt eq "yes") {
+	$Test="FO_ET";
+	$Model="vbic_4T_et_cf";
+	$ParameterFile="Pars";
+	$Executable="${Model}_solverv";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$ve=0;$vs=0;
+	for ($vb=0.7;$vb<=1.000001;$vb+=0.05) {
+	for ($vc=0.0;$vc<=5.000001;$vc+=0.05) {
+		print OF $vc,$vb,$ve,$vs;
+	}
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	open(OF,">$Test.simulation");
+	print OF "Vce Vbe Ic Ib Is";
+	open(VBIC,"$Executable $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	@Vce=();@Vbe=();@Ic=();@Ib=();@Is=();
+	while(<VBIC>){
+		chomp;@Field=split;
+		push(@Vce,$Field[0]);
+		push(@Vbe,$Field[1]);
+		$_=<VBIC>;chomp;@Field=split;
+		push(@Ic,$Field[0]);
+		push(@Ib,$Field[1]);
+		push(@Is,-$Field[3]);
+		print OF $Vce[$#Vce],$Vbe[$#Vbe],$Ic[$#Ic],$Ib[$#Ib],$Is[$#Is];
+	}
+	close(VBIC);
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@VceR=();@VbeR=();@IcR=();@IbR=();@IsR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@VceR,$Field[0]);
+		push(@VbeR,$Field[1]);
+		push(@IcR,$Field[2]);
+		push(@IbR,$Field[3]);
+		push(@IsR,$Field[4]);
+	}
+	close(IF);
+	if ($#Vbe != $#VbeR||$#Vce != $#VceR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@Vce,\@Ic,"xax=Vce","yax=Ic","title=$Test plot Ic");
+		&doplot(\@Vce,\@Ib,"xax=Vce","yax=Ib","title=$Test plot Ib");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#Vbe;++$i) {
+			if ($Vbe[$i] != $VbeR[$i]||$Vce[$i] != $VceR[$i]) {
+				print "	WARNING: bias sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if (abs($IcR[$i])<1.0e-12) {next;}
+			if (abs($Ic[$i]-$IcR[$i])>1.0e-12) {
+				if (abs($Ic[$i]-$IcR[$i])/abs($IcR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ic[$i]-$IcR[$i])/abs($IcR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i]/Vce=$Vce[$i] IcRef=$IcR[$i] but IcTest=$Ic[$i], delta=$err\%";
+				}
+			}
+			if ($IbR[$i]<1.0e-12) {next;}
+			if (abs($Ib[$i]-$IbR[$i])>1.0e-12) {
+				if (abs($Ib[$i]-$IbR[$i])/abs($IbR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ib[$i]-$IbR[$i])/abs($IbR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i]/Vce=$Vce[$i] IbRef=$IbR[$i] but IbTest=$Ib[$i], delta=$err\%";
+				}
+			}
+			if ($IsR[$i]<1.0e-12) {next;}
+			if (abs($Is[$i]-$IsR[$i])>1.0e-12) {
+				if (abs($Is[$i]-$IsR[$i])/abs($IsR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Is[$i]-$IsR[$i])/abs($IsR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i]/Vce=$Vce[$i] IsRef=$IsR[$i] but IsTest=$Is[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		&doplotx(\@Vce,\@Ic,\@VceR,\@IcR,"xax=Vce","yax=Ic","title=$Test plot Ic");
+		&doplotx(\@Vce,\@Ib,\@VceR,\@IbR,"xax=Vce","yax=Ib","title=$Test plot Ib");
+	}
+}
+
+if ($DoRg eq "yes") {
+	$Test="RG";
+	$Model="vbic_4T_it_cf";
+	$ParameterFile="Pars";
+	$Executable="${Model}_solverv";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$vc=0;$vs=0;
+	for ($vb=0.2;$vb<=1.00001;$vb+=0.01) {
+		$ve=$vb;
+		print OF $vc,$vb,$ve,$vs;
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	open(OF,">$Test.simulation");
+	print OF "Vbc Ie Ib Is";
+	open(VBIC,"$Executable $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	@Vbc=();@Ie=();@Ib=();@Is=();
+	while(<VBIC>){
+		chomp;@Field=split;
+		push(@Vbc,$Field[1]);
+		$_=<VBIC>;chomp;@Field=split;
+		push(@Ie,$Field[2]);
+		push(@Ib,$Field[1]);
+		push(@Is,-$Field[3]);
+		print OF $Vbc[$#Vbc],$Ie[$#Ie],$Ib[$#Ib],$Is[$#Is];
+	}
+	close(VBIC);
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@VbcR=();@IeR=();@IbR=();@IsR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@VbcR,$Field[0]);
+		push(@IeR,$Field[1]);
+		push(@IbR,$Field[2]);
+		push(@IsR,$Field[3]);
+	}
+	close(IF);
+	if ($#Vbc != $#VbcR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@Vbc,\@Ie,\@Ib,"xax=Vbc","yax=Ie and Ib","args=-log y","title=$Test plot");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#Vbc;++$i) {
+			if ($Vbc[$i] != $VbcR[$i]) {
+				print "	WARNING: bias sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if ($IeR[$i]<1.0e-12) {next;}
+			if (abs($Ie[$i]-$IeR[$i])>1.0e-12) {
+				if (abs($Ie[$i]-$IeR[$i])/abs($IeR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ie[$i]-$IeR[$i])/abs($IeR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbc=$Vbc[$i] IeRef=$IeR[$i] but IeTest=$Ie[$i], delta=$err\%";
+				}
+			}
+			if ($IbR[$i]<1.0e-12) {next;}
+			if (abs($Ib[$i]-$IbR[$i])>1.0e-12) {
+				if (abs($Ib[$i]-$IbR[$i])/abs($IbR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ib[$i]-$IbR[$i])/abs($IbR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbc=$Vbc[$i] IbRef=$IbR[$i] but IbTest=$Ib[$i], delta=$err\%";
+				}
+			}
+			if ($IsR[$i]<1.0e-12) {next;}
+			if (abs($Is[$i]-$IsR[$i])>1.0e-12) {
+				if (abs($Is[$i]-$IsR[$i])/abs($IsR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Is[$i]-$IsR[$i])/abs($IsR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbc=$Vbc[$i] IsRef=$IsR[$i] but IsTest=$Is[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		&doplotx(\@Vbc,\@Ie,\@VbcR,\@IeR,\@Vbc,\@Ib,\@VbcR,\@IbR,\@Vbc,\@Is,\@VbcR,\@IsR,"xax=Vbc","yax=Ie, Ib and Is","args=-log y","title=$Test plot");
+	}
+}
+
+if ($DoRo eq "yes") {
+	$Test="RO";
+	$Model="vbic_4T_it_cf";
+	$ParameterFile="Pars";
+	$Executable="${Model}_solverv";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$vc=0;$vs=0;
+	for ($vb=0.7;$vb<=1.000001;$vb+=0.05) {
+	for ($ve=0.0;$ve<=5.000001;$ve+=0.05) {
+		print OF $vc,$vb,$ve,$vs;
+	}
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	open(OF,">$Test.simulation");
+	print OF "Vec Vbc Ie Ib Is";
+	open(VBIC,"$Executable $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	@Vec=();@Vbc=();@Ie=();@Ib=();@Is=();
+	while(<VBIC>){
+		chomp;@Field=split;
+		push(@Vec,$Field[2]);
+		push(@Vbc,$Field[1]);
+		$_=<VBIC>;chomp;@Field=split;
+		push(@Ie,$Field[2]);
+		push(@Ib,$Field[1]);
+		push(@Is,-$Field[3]);
+		print OF $Vec[$#Vec],$Vbc[$#Vbc],$Ie[$#Ie],$Ib[$#Ib],$Is[$#Is];
+	}
+	close(VBIC);
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@VecR=();@VbcR=();@IeR=();@IbR=();@IsR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@VecR,$Field[0]);
+		push(@VbcR,$Field[1]);
+		push(@IeR,$Field[2]);
+		push(@IbR,$Field[3]);
+		push(@IsR,$Field[4]);
+	}
+	close(IF);
+	if ($#Vbc != $#VbcR||$#Vec != $#VecR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@Vec,\@Ie,"xax=Vec","yax=Ie","title=$Test plot Ie");
+		&doplot(\@Vec,\@Ib,"xax=Vec","yax=Ib","title=$Test plot Ib");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#Vbc;++$i) {
+			if ($Vbc[$i] != $VbcR[$i]||$Vec[$i] != $VecR[$i]) {
+				print "	WARNING: bias sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if (abs($IeR[$i])<1.0e-12) {next;}
+			if (abs($Ie[$i]-$IeR[$i])>1.0e-12) {
+				if (abs($Ie[$i]-$IeR[$i])/abs($IeR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ie[$i]-$IeR[$i])/abs($IeR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbc=$Vbc[$i]/Vec=$Vec[$i] IeRef=$IeR[$i] but IeTest=$Ie[$i], delta=$err\%";
+				}
+			}
+			if ($IbR[$i]<1.0e-12) {next;}
+			if (abs($Ib[$i]-$IbR[$i])>1.0e-12) {
+				if (abs($Ib[$i]-$IbR[$i])/abs($IbR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ib[$i]-$IbR[$i])/abs($IbR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbc=$Vbc[$i]/Vec=$Vec[$i] IbRef=$IbR[$i] but IbTest=$Ib[$i], delta=$err\%";
+				}
+			}
+			if ($IsR[$i]<1.0e-12) {next;}
+			if (abs($Is[$i]-$IsR[$i])>1.0e-12) {
+				if (abs($Is[$i]-$IsR[$i])/abs($IsR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Is[$i]-$IsR[$i])/abs($IsR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbc=$Vbc[$i]/Vec=$Vec[$i] IsRef=$IsR[$i] but IsTest=$Is[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		&doplotx(\@Vec,\@Ie,\@VecR,\@IeR,"xax=Vec","yax=Ie","title=$Test plot Ie");
+		&doplotx(\@Vec,\@Ib,\@VecR,\@IbR,"xax=Vec","yax=Ib","title=$Test plot Ib");
+	}
+}
+
+if ($DoTemp eq "yes") {
+	$Test="TEMP";
+	$Model="vbic_4T_it_cf";
+	$ParameterFile="Pars";
+	$Executable="${Model}_solverv";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$ve=0;$vs=0;
+	for ($vb=0.2;$vb<=1.200001;$vb+=0.01) {
+		$vc=$vb;
+		print OF $vc,$vb,$ve,$vs;
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	open(OF,">$Test.simulation");
+	print OF "Vbe Ic Ib";
+	@Vbe=();@Ic=();@Ib=();
+	foreach $Temperature (-50,50,150) {
+		open(VBIC,"$Executable -t $Temperature $ParameterFile < biases|") ||
+			die("ERROR: cannot run executable $Executable, stopped");
+		while(<VBIC>){
+			chomp;@Field=split;
+			push(@Vbe,$Field[1]);
+			$_=<VBIC>;chomp;@Field=split;
+			push(@Ic,$Field[0]);
+			push(@Ib,$Field[1]);
+			print OF $Vbe[$#Vbe],$Ic[$#Ic],$Ib[$#Ib];
+		}
+		close(VBIC);
+	}
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@VbeR=();@IcR=();@IbR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@VbeR,$Field[0]);
+		push(@IcR,$Field[1]);
+		push(@IbR,$Field[2]);
+	}
+	close(IF);
+	if ($#Vbe != $#VbeR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@Vbe,\@Ic,\@Ib,"xax=Vbe","yax=Ic and Ib","args=-log y","title=$Test plot");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#Vbe;++$i) {
+			if ($Vbe[$i] != $VbeR[$i]) {
+				print "	WARNING: bias sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if ($IcR[$i]<1.0e-12) {next;}
+			if (abs($Ic[$i]-$IcR[$i])>1.0e-12) {
+				if (abs($Ic[$i]-$IcR[$i])/abs($IcR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ic[$i]-$IcR[$i])/abs($IcR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i] IcRef=$IcR[$i] but IcTest=$Ic[$i], delta=$err\%";
+				}
+			}
+			if ($IbR[$i]<1.0e-12) {next;}
+			if (abs($Ib[$i]-$IbR[$i])>1.0e-12) {
+				if (abs($Ib[$i]-$IbR[$i])/abs($IbR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ib[$i]-$IbR[$i])/abs($IbR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i] IbRef=$IbR[$i] but IbTest=$Ib[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		for ($i=0;$i<=$#Vbe;++$i) {
+			if ($Ic[$i]<$Imin||$Ib[$i]<$Imin) {
+				splice(@Vbe,$i,1);
+				splice(@Ic,$i,1);
+				splice(@Ib,$i,1);
+				--$i;
+			}
+		}
+		for ($i=0;$i<=$#VbeR;++$i) {
+			if ($IcR[$i]<$Imin||$IbR[$i]<$Imin) {
+				splice(@VbeR,$i,1);
+				splice(@IcR,$i,1);
+				splice(@IbR,$i,1);
+				--$i;
+			}
+		}
+		&doplotx(\@Vbe,\@Ic,\@VbeR,\@IcR,\@Vbe,\@Ib,\@VbeR,\@IbR,"xax=Vbe","yax=Ic and Ib","args=-log y","title=$Test plot");
+	}
+}
+
+if ($DoAc eq "yes") {
+	$Test="AC";
+	$Model="vbic_4T_it_cf";
+	$ParameterFile="Pars";
+	$Executable="${Model}_solverv";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$ve=0;$vs=0;
+	for ($vc=1.0;$vc<=3.000001;$vc+=2.0) {
+	for ($vb=0.6;$vb<=1.000001;$vb+=0.02) {
+	for ($efreq=0.0;$efreq<=9.000001;$efreq+=0.1) {
+		$freq=10**$efreq;
+		print OF $vc,$vb,$ve,$vs,$freq;
+	}
+	}
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	open(OF,">$Test.simulation");
+	print OF "Ic Vce Vbe ft";
+	open(VBIC,"$Executable -ac $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	undef(@Vce);@Vbe=();@Ic=();@Ft=();@f=();@mh21=();
+	while(<VBIC>){
+		chomp;@Field=split;
+		if (!defined(@Vce)) {
+			push(@Vbe,$Field[1]);
+			push(@Vce,$Field[0]);
+			$_=<VBIC>;chomp;@Field=split;push(@Ic,$Field[0]);
+			$_=<VBIC>;chomp;@Field=split;push(@f,$Field[0]);
+			$_=<VBIC>;chomp;@Field=split;push(@mh21,$Field[0]);
+			$_=<VBIC>;$_=<VBIC>;$_=<VBIC>;$_=<VBIC>;
+			next;
+		}
+		if ($Field[1]!=$Vbe[$#Vbe]) {
+			$ft=&ft(\@f,\@mh21);
+			push(@Ft,$ft);
+			print OF $Ic[$#Ic],$Vce[$#Vce],$Vbe[$#Vbe],$Ft[$#Ft];
+			@f=();@mh21=();
+			push(@Vbe,$Field[1]);
+			push(@Vce,$Field[0]);
+			$_=<VBIC>;chomp;@Field=split;push(@Ic,$Field[0]);
+			$_=<VBIC>;chomp;@Field=split;push(@f,$Field[0]);
+			$_=<VBIC>;chomp;@Field=split;push(@mh21,$Field[0]);
+			$_=<VBIC>;$_=<VBIC>;$_=<VBIC>;$_=<VBIC>;
+			next;
+		}
+		$_=<VBIC>;
+		$_=<VBIC>;chomp;@Field=split;push(@f,$Field[0]);
+		$_=<VBIC>;chomp;@Field=split;push(@mh21,$Field[0]);
+		$_=<VBIC>;$_=<VBIC>;$_=<VBIC>;$_=<VBIC>;
+	}
+	close(VBIC);
+	$ft=&ft(\@f,\@mh21);
+	push(@Ft,$ft);
+	print OF $Ic[$#Ic],$Vce[$#Vce],$Vbe[$#Vbe],$Ft[$#Ft];
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@VceR=();@VbeR=();@IcR=();@FtR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@IcR,$Field[0]);
+		push(@VceR,$Field[1]);
+		push(@VbeR,$Field[2]);
+		push(@FtR,$Field[3]);
+	}
+	close(IF);
+	if ($#Vbe != $#VbeR||$#Vce != $#VceR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@Ic,\@Ft,"args=-log x","xax=Ic","yax=Ft","title=$Test plot Ft(Ic)");
+		&doplot(\@Ic,\@Ft,"args=-log xy","xax=Ic","yax=Ft","title=$Test plot Ft(Ic)");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#Vbe;++$i) {
+			if ($Vbe[$i] != $VbeR[$i]||$Vce[$i] != $VceR[$i]) {
+				print "	WARNING: bias sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if (abs($IcR[$i])<1.0e-12) {next;}
+			if (abs($Ic[$i]-$IcR[$i])>1.0e-12) {
+				if (abs($Ic[$i]-$IcR[$i])/abs($IcR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ic[$i]-$IcR[$i])/abs($IcR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i]/Vce=$Vce[$i] IcRef=$IcR[$i] but IcTest=$Ic[$i], delta=$err\%";
+				}
+			}
+			if ($FtR[$i]<1.0e-12) {next;}
+			if (abs($Ft[$i]-$FtR[$i])>1.0e-12) {
+				if (abs($Ft[$i]-$FtR[$i])/abs($FtR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ft[$i]-$FtR[$i])/abs($FtR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i]/Vce=$Vce[$i] FtRef=$FtR[$i] but FtTest=$Ft[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		&doplotx(\@Ic,\@Ft,\@IcR,\@FtR,"args=-log x","xax=Ic","yax=Ft","title=$Test plot Ft(Ic)");
+		&doplotx(\@Ic,\@Ft,\@IcR,\@FtR,"args=-log xy","xax=Ic","yax=Ft","title=$Test plot Ft(Ic)");
+	}
+}
+
+sub ft {
+	my(@f)=@{$_[0]};
+	my(@g)=@{$_[1]};
+	my($i,$g0,$g3,$f3,$ft);
+
+	$g0=$g[0];
+	if ($g0<=1) {return(0);}
+	$g3=$g0/sqrt(2);
+	for ($i=0;$i<$#g;++$i) {
+		$ft=$f[$i];
+		if ($g[$i]>$g3&&$g[$i+1]<=$g3) {
+			$f3=exp(log($f[$i])+(log($f[$i+1])-log($f[$i]))*(log($g3)-log($g[$i]))/(log($g[$i+1])-log($g[$i])));
+			$ft=$f3*sqrt($g0*$g0-1);
+			last;
+		}
+	}
+	return($ft);
+}
+
+if ($DoXf eq "yes") {
+	$Test="XF";
+	$Model="vbic_4T_it_xf";
+	$Executable="${Model}_solverv";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$ve=0;$vs=0;$vc=3.0;$vb=0.7;
+	for ($efreq=6.0;$efreq<=10.000001;$efreq+=0.1) {
+		$freq=10**$efreq;
+		print OF $vc,$vb,$ve,$vs,$freq;
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	@f=();@y21m_zf=();@y21p_zf=();@y21m_xf=();@y21p_xf=();
+	$ParameterFile="Pars";
+	open(VBIC,"$Executable -ac $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	while(<VBIC>){
+		$_=<VBIC>;
+		$_=<VBIC>;chomp;@Field=split;$f=$Field[0];
+		$_=<VBIC>;
+		$_=<VBIC>;
+		$_=<VBIC>;
+		$_=<VBIC>;chomp;@Field=split;$y21r=$Field[0];$y21i=$Field[1];
+		$_=<VBIC>;
+		$y21m=sqrt($y21r*$y21r+$y21i*$y21i);
+		$y21p=(180/3.141592654)*atan2($y21i,$y21r);
+		push(@f,$f);push(@y21m_zf,$y21m);push(@y21p_zf,$y21p);
+	}
+	close(VBIC);
+	$ParameterFile="ParsTd";
+	open(VBIC,"$Executable -ac $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	while(<VBIC>){
+		$_=<VBIC>;
+		$_=<VBIC>;chomp;@Field=split;$f=$Field[0];
+		$_=<VBIC>;
+		$_=<VBIC>;
+		$_=<VBIC>;
+		$_=<VBIC>;chomp;@Field=split;$y21r=$Field[0];$y21i=$Field[1];
+		$_=<VBIC>;
+		$y21m=sqrt($y21r*$y21r+$y21i*$y21i);
+		$y21p=(180/3.141592654)*atan2($y21i,$y21r);
+		push(@y21m_xf,$y21m);push(@y21p_xf,$y21p);
+	}
+	close(VBIC);
+	open(OF,">$Test.simulation");
+	print OF "f my21_zf py21_zf my21_xf py21_xf";
+	for ($i=0;$i<=$#f;++$i) {
+		print OF $f[$i],$y21m_zf[$i],$y21p_zf[$i],$y21m_xf[$i],$y21p_xf[$i];
+	}
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@fR=();@y21m_zfR=();@y21p_zfR=();@y21m_xfR=();@y21p_xfR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@fR,$Field[0]);
+		push(@y21m_zfR,$Field[1]);
+		push(@y21p_zfR,$Field[2]);
+		push(@y21m_xfR,$Field[3]);
+		push(@y21p_xfR,$Field[4]);
+	}
+	close(IF);
+	if ($#f != $#fR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@f,\@y21m_zf,\@y21m_xfR,"args=-log xy","xax=f","yax=mag(y21)","title=$Test magnitude plot");
+		&doplot(\@f,\@y21p_zf,\@y21p_xfR,"args=-log x","xax=f","yax=ph(y21)","title=$Test phase plot");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#f;++$i) {
+			if ($f[$i] != $f[$i]) {
+				print "	WARNING: frequency sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if (abs($y21p_zf[$i]-$y21p_zfR[$i])>0.001) {
+				if (abs($y21p_zf[$i]-$y21p_zfR[$i])/abs($y21p_zfR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($y21p_zf[$i]-$y21p_zfR[$i])/abs($y21p_zfR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: f=$f[$i] y21p_zfRef=$y21p_zfR[$i] but y21p_zfTest=$y21p_zf[$i], delta=$err\%";
+				}
+			}
+			if (abs($y21p_xf[$i]-$y21p_xfR[$i])>0.001) {
+				if (abs($y21p_xf[$i]-$y21p_xfR[$i])/abs($y21p_xfR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($y21p_xf[$i]-$y21p_xfR[$i])/abs($y21p_xfR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: f=$f[$i] y21p_xfRef=$y21p_xfR[$i] but y21p_xfTest=$y21p_xf[$i], delta=$err\%";
+				}
+			}
+			if (abs($y21m_zf[$i]-$y21m_zfR[$i])>1.0e-12) {
+				if (abs($y21m_zf[$i]-$y21m_zfR[$i])/abs($y21m_zfR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($y21m_zf[$i]-$y21m_zfR[$i])/abs($y21m_zfR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: f=$f[$i] y21m_zfRef=$y21m_zfR[$i] but y21m_zfTest=$y21m_zf[$i], delta=$err\%";
+				}
+			}
+			if (abs($y21m_xf[$i]-$y21m_xfR[$i])>1.0e-12) {
+				if (abs($y21m_xf[$i]-$y21m_xfR[$i])/abs($y21m_xfR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($y21m_xf[$i]-$y21m_xfR[$i])/abs($y21m_xfR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: f=$f[$i] y21m_xfRef=$y21m_xfR[$i] but y21m_xfTest=$y21m_xf[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		&doplotx(\@f,\@y21m_zf,\@f,\@y21m_xf,\@fR,\@y21m_zfR,\@fR,\@y21m_xfR,"args=-log xy","xax=f","yax=mag(y21)","title=$Test magnitude plot");
+		&doplotx(\@f,\@y21p_zf,\@f,\@y21p_xf,\@fR,\@y21p_zfR,\@fR,\@y21p_xfR,"args=-log x","xax=f","yax=ph(y21)","title=$Test magnitude plot");
+	}
+}
+
+if ($DoFgHbt eq "yes") {
+	$Test="FG_HBT";
+	$Model="vbic_4T_et_cf";
+	$ParameterFile="HbtPars";
+	$Executable="${Model}_solverv";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$ve=0;$vs=0;
+	for ($vb=0.5;$vb<=2.00001;$vb+=0.01) {
+		$vc=$vb;
+		print OF $vc,$vb,$ve,$vs;
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	open(OF,">$Test.simulation");
+	print OF "Vbe Ic Ib dT";
+	open(VBIC,"$Executable $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	@Vbe=();@Ic=();@Ib=();@dT=();
+	while(<VBIC>){
+		chomp;@Field=split;
+		push(@Vbe,$Field[1]);
+		push(@dT,$Field[4]);
+		$_=<VBIC>;chomp;@Field=split;
+		push(@Ic,$Field[0]);
+		push(@Ib,$Field[1]);
+		print OF $Vbe[$#Vbe],$Ic[$#Ic],$Ib[$#Ib],$dT[$#dT];
+	}
+	close(VBIC);
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@VbeR=();@IcR=();@IbR=();@dTR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@VbeR,$Field[0]);
+		push(@IcR,$Field[1]);
+		push(@IbR,$Field[2]);
+		push(@dTR,$Field[3]);
+	}
+	close(IF);
+	if ($#Vbe != $#VbeR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@Vbe,\@Ic,\@Ib,"xax=Vbe","yax=Ic and Ib","args=-log y","title=$Test plot");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#Vbe;++$i) {
+			if ($Vbe[$i] != $VbeR[$i]) {
+				print "	WARNING: bias sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if ($IcR[$i]<1.0e-12) {next;}
+			if (abs($Ic[$i]-$IcR[$i])>1.0e-12) {
+				if (abs($Ic[$i]-$IcR[$i])/abs($IcR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ic[$i]-$IcR[$i])/abs($IcR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i] IcRef=$IcR[$i] but IcTest=$Ic[$i], delta=$err\%";
+				}
+			}
+			if ($IbR[$i]<1.0e-12) {next;}
+			if (abs($Ib[$i]-$IbR[$i])>1.0e-12) {
+				if (abs($Ib[$i]-$IbR[$i])/abs($IbR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ib[$i]-$IbR[$i])/abs($IbR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i] IbRef=$IbR[$i] but IbTest=$Ib[$i], delta=$err\%";
+				}
+			}
+			if ($dTR[$i]<1.0e-12) {next;}
+			if (abs($dT[$i]-$dTR[$i])>1.0e-12) {
+				if (abs($dT[$i]-$dTR[$i])/abs($dTR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($dT[$i]-$dTR[$i])/abs($dTR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vbe=$Vbe[$i] dTRef=$dTR[$i] but dTTest=$dT[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		for ($i=0;$i<=$#Vbe;++$i) {
+			if ($Ic[$i]<$Imin||$Ib[$i]<$Imin) {
+				splice(@Vbe,$i,1);
+				splice(@Ic,$i,1);
+				splice(@Ib,$i,1);
+				--$i;
+			}
+		}
+		for ($i=0;$i<=$#VbeR;++$i) {
+			if ($IcR[$i]<$Imin||$IbR[$i]<$Imin) {
+				splice(@VbeR,$i,1);
+				splice(@IcR,$i,1);
+				splice(@IbR,$i,1);
+				--$i;
+			}
+		}
+		&doplotx(\@Vbe,\@Ic,\@VbeR,\@IcR,\@Vbe,\@Ib,\@VbeR,\@IbR,"xax=Vbe","yax=Ic and Ib","args=-log y","title=$Test plot");
+	}
+}
+
+if ($DoFoHbt eq "yes") {
+	$Test="FO_HBT";
+	$Model="vbic_4T_et_cf";
+	$ParameterFile="HbtPars";
+	$Executable="${Model}_solveri";
+	if (! -x "$Executable") {
+		die("ERROR: cannot find $Model solver $Executable, stopped");
+	}
+	open(OF,">biases");
+	$ve=0;$vs=0;
+	for ($ib=20;$ib<=100.0001;$ib+=20) {
+	for ($vc=0.0;$vc<=10.001;$vc+=0.05) {
+		print OF $vc,1.0e-6*$ib,$ve,$vs;
+	}
+	}
+	close(OF);
+	print "\nRunning $Test test";
+	open(OF,">$Test.simulation");
+	print OF "Vce Ic Ib Is";
+	open(VBIC,"$Executable $ParameterFile < biases|") ||
+		die("ERROR: cannot run executable $Executable, stopped");
+	@Vce=();@Ic=();@Ib=();@dT=();
+	while(<VBIC>){
+		chomp;@Field=split;
+		push(@Vce,$Field[0]);
+		push(@dT,$Field[4]);
+		$_=<VBIC>;chomp;@Field=split;
+		push(@Ic,$Field[0]);
+		push(@Ib,$Field[1]);
+		print OF $Vce[$#Vce],$Ic[$#Ic],$Ib[$#Ib],$dT[$#dT];
+	}
+	close(VBIC);
+	close(OF);
+	open(IF,"$ReferenceResults/$Test.reference") ||
+		die("ERROR: cannot find reference results for test $Test, stopped");
+	@VceR=();@IcR=();@IbR=();@dTR=();
+	while(<IF>) {
+		chomp;@Field=split;
+		if (&isAlpha($Field[0])) {next;}
+		push(@VceR,$Field[0]);
+		push(@IcR,$Field[1]);
+		push(@IbR,$Field[2]);
+		push(@dTR,$Field[3]);
+	}
+	close(IF);
+	if ($#Vce != $#VceR) {
+		print "	WARNING: sizes of test and reference results differ";
+		&doplot(\@Vce,\@Ic,"xax=Vce","yax=Ic","title=$Test plot Ic");
+		&doplot(\@Vce,\@dT,"xax=Vce","yax=dT","title=$Test plot dT");
+	} else {
+		$Match="yes";
+		for ($i=0;$i<=$#Vce;++$i) {
+			if ($Vce[$i] != $Vce[$i]) {
+				print "	WARNING: bias sweeps of test and reference results differ";
+				$Match="null";
+				last;
+			}
+			if (abs($IcR[$i])<1.0e-12) {next;}
+			if (abs($Ic[$i]-$IcR[$i])>1.0e-12) {
+				if (abs($Ic[$i]-$IcR[$i])/abs($IcR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ic[$i]-$IcR[$i])/abs($IcR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vce=$Vce[$i] IcRef=$IcR[$i] but IcTest=$Ic[$i], delta=$err\%";
+				}
+			}
+			if ($IbR[$i]<1.0e-12) {next;}
+			if (abs($Ib[$i]-$IbR[$i])>1.0e-12) {
+				if (abs($Ib[$i]-$IbR[$i])/abs($IbR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($Ib[$i]-$IbR[$i])/abs($IbR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vce=$Vce[$i]] IbRef=$IbR[$i] but IbTest=$Ib[$i], delta=$err\%";
+				}
+			}
+			if ($dTR[$i]<1.0e-12) {next;}
+			if (abs($dT[$i]-$dTR[$i])>1.0e-12) {
+				if (abs($dT[$i]-$dTR[$i])/abs($dTR[$i])>1.0e-3) {
+					$Match="no";
+					$err=100*abs($dT[$i]-$dTR[$i])/abs($dTR[$i]);
+					$err=&SignificantDigits($err,3);
+					print "	difference: Vce=$Vce[$i]] dTRef=$dTR[$i] but dTTest=$dT[$i], delta=$err\%";
+				}
+			}
+		}
+		if ($Match eq "yes") {
+			print "	PASS: test and simulation results match";
+		} else {
+			print "	FAIL: test and simulation results do not match";
+		}
+		&doplotx(\@Vce,\@Ic,\@VceR,\@IcR,"xax=Vce","yax=Ic","title=$Test plot Ic");
+		&doplotx(\@Vce,\@dT,\@VceR,\@dTR,"xax=Vce","yax=Ib","title=$Test plot Ib");
+	}
+}
+
+unlink("biases");
+opendir(DIR,".") ||
+	die("ERROR: cannot open current directory, stopped");
+@Files=grep(!/^\./,readdir(DIR));
+closedir(DIR);
+foreach $File (@Files) {
+	if ($File =~ /^plot[0-9]+/) {
+		unlink("$File");
+	}
+}
