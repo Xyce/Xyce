@@ -1178,7 +1178,16 @@ bool EmbeddedSampling::doLoopProcess()
   // to be the "child" analysis, but to then replace the linear objects with block 
   // versions and replace the loader with a block loader.  Otherwise, all the control 
   // is handled in the child process.
-  Xyce::lout() << " ***** Beginning full Embedded Sampling simulation....\n" << std::endl;
+  Xyce::lout() << "***** Beginning Embedded Sampling (simultaneous propagation) simulation....\n" << std::endl;
+
+  if (projectionPCEenable_)
+  {
+    Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
+  }
+  else
+  {
+    Xyce::lout() << "***** Number of sample points = " << numSamples_ << "\n" << std::endl;
+  }
 
   // test:
   analysisManager_.setAnalysisMode(Xyce::Analysis::ANP_MODE_TRANSIENT);
