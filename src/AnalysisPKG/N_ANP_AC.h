@@ -96,6 +96,7 @@ public:
     AnalysisManager &                   analysis_manager,
     Linear::System &                    linear_system,
     Nonlinear::Manager &                nonlinear_manager,
+    Device::DeviceMgr &                   device_manager,
     Loader::Loader &                    loader,
     Topo::Topology &                    topology,
     IO::InitialConditionsManager &      initial_conditions_manager);
@@ -190,11 +191,18 @@ private:
   Linear::System &      linearSystem_;
   Nonlinear::Manager &  nonlinearManager_;
   Topo::Topology &      topology_;
+
+
+
+
+
+  Device::DeviceMgr &                   deviceManager_;
+
   IO::InitialConditionsManager &        initialConditionsManager_;
   IO::OutputMOR                         outputMOR_;
   OutputMgrAdapter &    outputManagerAdapter_;
   TimeIntg::TIAParams   tiaParams_;
-
+              
   Linear::Vector *      bVecRealPtr;
   Linear::Vector *      bVecImagPtr;
 

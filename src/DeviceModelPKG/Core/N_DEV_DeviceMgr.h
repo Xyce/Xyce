@@ -147,6 +147,8 @@ public:
   void setBlockAnalysisFlag( bool flagVal );
   void setFastTime( double timeVal );
 
+  void setSPAnalysisFlag(bool flagVal);
+
   // Initialization function, to be called after all registrations are
   // finished, and the linear system class is completely set up.
   bool initializeAll(Linear::System &linear_system);

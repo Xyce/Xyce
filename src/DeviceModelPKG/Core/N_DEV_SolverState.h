@@ -119,6 +119,8 @@ public:
 
   bool                  blockAnalysisFlag_;     ///< Source devices, BJTDW, This indicates an MPDE/HB run.  This is true during both IC and MPDE/HB phase.
 
+  bool spAnalysisFlag_;
+
   // output flag:
   bool   doubleDCOPEnabled;   // true if taking 2 DCOP steps for PDE sim.
   int    doubleDCOPStep;      // 0 or 1.  (first or second "double" DCOP).

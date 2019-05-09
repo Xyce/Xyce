@@ -78,7 +78,7 @@
 #include <N_PDS_ParMap.h>
 
 #include <Epetra_CrsGraph.h>
-
+#include <N_DEV_DeviceMgr.h>
 #include<N_UTL_ExtendedString.h>
 #include<N_NLS_ReturnCodes.h>
 #include <N_NLS_SensitivityResiduals.h>
@@ -302,6 +302,7 @@ AC::AC(
   AnalysisManager &                     analysis_manager,
   Linear::System &                      linear_system,
   Nonlinear::Manager &                  nonlinear_manager,
+  Device::DeviceMgr &                   device_manager,
   Loader::Loader &                      loader,
   Topo::Topology &                      topology,
   IO::InitialConditionsManager &        initial_conditions_manager)
@@ -312,6 +313,7 @@ AC::AC(
     linearSystem_(linear_system),
     nonlinearManager_(nonlinear_manager),
     topology_(topology),
+    deviceManager_(device_manager),
     initialConditionsManager_(initial_conditions_manager),
     outputMOR_(analysisManager_.getNetlistFilename()),
     outputManagerAdapter_(analysis_manager.getOutputManagerAdapter()),
@@ -694,6 +696,9 @@ bool AC::doInit()
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::AC_IC));
 
   // Create B matrix stamp
+
+  deviceManager_.setSPAnalysisFlag( sparcalc_ );
+
   if  (sparcalc_ )
   {
     std::vector<int> tempVec;
@@ -2186,6 +2191,7 @@ public:
     Nonlinear::Manager &        nonlinear_manager,
     Loader::Loader &            loader,
     Topo::Topology &            topology,
+    Device::DeviceMgr &                 device_manager,
     IO::InitialConditionsManager &      initial_conditions_manager)
     : ACFactoryBase(),
       analysisManager_(analysis_manager),
@@ -2193,6 +2199,7 @@ public:
       nonlinearManager_(nonlinear_manager),
       loader_(loader),
       topology_(topology),
+      deviceManager_(device_manager),
       initialConditionsManager_(initial_conditions_manager)
   {}
 
@@ -2215,7 +2222,7 @@ public:
   AC *create() const
   {
     analysisManager_.setAnalysisMode(ANP_MODE_AC);
-    AC *ac = new AC(analysisManager_, linearSystem_, nonlinearManager_, loader_, topology_, initialConditionsManager_);
+    AC *ac = new AC(analysisManager_, linearSystem_, nonlinearManager_, deviceManager_, loader_, topology_, initialConditionsManager_);
     ac->setAnalysisParams(acAnalysisOptionBlock_);
     ac->setTimeIntegratorOptions(timeIntegratorOptionBlock_);
     ac->setACLinSolOptions(acLinSolOptionBlock_);
@@ -2327,6 +2334,7 @@ public:
   Nonlinear::Manager &                  nonlinearManager_;
   Loader::Loader &                      loader_;
   Topo::Topology &                      topology_;
+  Device::DeviceMgr &                   deviceManager_; 
   IO::InitialConditionsManager &        initialConditionsManager_;
 
 private:
@@ -2563,7 +2571,7 @@ bool
 registerACFactory(
   FactoryBlock &        factory_block)
 {
-  ACFactory *factory = new ACFactory(factory_block.analysisManager_, factory_block.linearSystem_, factory_block.nonlinearManager_, factory_block.loader_, factory_block.topology_, factory_block.initialConditionsManager_);
+  ACFactory *factory = new ACFactory(factory_block.analysisManager_, factory_block.linearSystem_, factory_block.nonlinearManager_, factory_block.loader_, factory_block.topology_, factory_block.deviceManager_, factory_block.initialConditionsManager_);
 
   addAnalysisFactory(factory_block, factory);
 
