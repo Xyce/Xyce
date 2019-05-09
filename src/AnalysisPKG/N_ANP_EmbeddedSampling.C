@@ -1180,11 +1180,13 @@ bool EmbeddedSampling::doLoopProcess()
   // is handled in the child process.
   Xyce::lout() << "***** Beginning Embedded Sampling (simultaneous propagation) simulation....\n" << std::endl;
 
+#if Xyce_STOKHOS_ENABLE
   if (projectionPCEenable_)
   {
     Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
   }
   else
+#endif
   {
     Xyce::lout() << "***** Number of sample points = " << numSamples_ << "\n" << std::endl;
   }
