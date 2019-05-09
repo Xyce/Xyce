@@ -268,8 +268,8 @@ public:
 
 private:
 
-  bool          ACSpecified_;
   bool          HBSpecified_;
+  bool          ACSpecified_;
 };
 
 void registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet);
