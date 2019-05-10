@@ -610,7 +610,15 @@ bool AC::doInit()
       std::string name = (*it).name; Util::toUpper(name);
       if (name == "FREQ")
       {
-        // do nothing
+        // frequency values for .AC must be > 0
+        for (int i=0; i<(*it).valList.size(); ++i)
+	{
+          if ( (*it).valList[i] <= 0 )
+	  {
+            Report::UserFatal() << "Frequency values in .DATA for .AC analysis must be > 0";
+            return false;
+          }
+        }
       }
       else
       {
