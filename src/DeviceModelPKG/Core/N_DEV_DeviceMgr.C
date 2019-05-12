@@ -662,6 +662,20 @@ void DeviceMgr::activateSlowSources()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setSPAnalysisFlag
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : 
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void DeviceMgr::setSPAnalysisFlag(bool flagVal)
+{
+  solState_.spAnalysisFlag_ = flagVal;
+
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceMgr::setMPDEFlag
 // Purpose       :
 // Special Notes :

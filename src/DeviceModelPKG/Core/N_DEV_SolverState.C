@@ -77,6 +77,7 @@ SolverState::SolverState ()
     mpdeOnFlag_(false),
     currFastTime_(0.0),
     blockAnalysisFlag_(false),
+    spAnalysisFlag_(false),
     doubleDCOPEnabled(false),
     doubleDCOPStep   (0),
     timeStepNumber_(0),

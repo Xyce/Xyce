@@ -419,8 +419,8 @@ public:
   virtual bool loadDAEMatrices(Linear::Matrix & dFdx, Linear::Matrix & dQdx, int loadType);
 
 private:
-  bool          ACSpecified_;
   bool          HBSpecified_;
+  bool          ACSpecified_;
   bool separateInstances_;
   InstanceVector      linearInstances_;            ///< List of owned linear voltage source instances
   InstanceVector      nonlinearInstances_;         ///< List of owned nonlinear voltage source instances

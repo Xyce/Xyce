@@ -445,6 +445,15 @@ Instance::Instance(
 
   // calculate dependent (ie computed) params and check for errors:
 
+  if( PORTgiven )
+  {                  
+
+    jacStamp[2].resize(3);
+    jacStamp[2][0] = 0;
+    jacStamp[2][1] = 1;
+    jacStamp[2][2] = 2;
+  }
+          
 }
 
 //-----------------------------------------------------------------------------
@@ -671,6 +680,9 @@ void Instance::registerJacLIDs( const std::vector< std::vector<int> > & jacLIDVe
     ANegEquBraVarOffset  = jacLIDVec[1][0];
     ABraEquPosNodeOffset = jacLIDVec[2][0];
     ABraEquNegNodeOffset = jacLIDVec[2][1];
+
+    if( PORTgiven )
+      ABraEquBraVarOffset = jacLIDVec[2][2];
   }
 }
 
@@ -691,6 +703,10 @@ void Instance::setupPointers ()
   fNegEquBraVarPtr = &(dFdx[li_Neg][ANegEquBraVarOffset]);
   fBraEquPosNodePtr = &(dFdx[li_Bra][ABraEquPosNodeOffset]);
   fBraEquNegNodePtr = &(dFdx[li_Bra][ABraEquNegNodeOffset]);
+
+  if( PORTgiven )
+    fBraEquBraVarPtr = &(dFdx[li_Bra][ABraEquBraVarOffset]);
+
 #endif
 }
 
@@ -709,6 +725,9 @@ bool Instance::loadDAEFVector ()
 
   srcCurrent        = solVec[li_Bra];
   srcDrop           = (solVec[li_Pos]-solVec[li_Neg]);
+
+  if( PORTgiven && !getSolverState().spAnalysisFlag_ ) 
+    srcDrop  -= srcCurrent * Z0;
 
   fVec[li_Pos] += srcCurrent;
   fVec[li_Neg] += -srcCurrent;
@@ -817,6 +836,10 @@ bool Instance::loadDAEdFdx ()
   dFdx[li_Neg][ANegEquBraVarOffset] -= 1.0;
   dFdx[li_Bra][ABraEquPosNodeOffset] += 1.0;
   dFdx[li_Bra][ABraEquNegNodeOffset] -= 1.0;
+
+
+  if( PORTgiven && !getSolverState().spAnalysisFlag_ ) 
+    dFdx[li_Bra][ABraEquBraVarOffset] -= Z0;
 
   return true;
 }
@@ -1021,6 +1044,9 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
     vi.srcCurrent        = solVec[vi.li_Bra];
     vi.srcDrop           = (solVec[vi.li_Pos]-solVec[vi.li_Neg]);
 
+    if( vi.PORTgiven && !getSolverState().spAnalysisFlag_ ) 
+      vi.srcDrop  -= vi.srcCurrent * vi.Z0;
+
     fVec[vi.li_Pos] += vi.srcCurrent;
     fVec[vi.li_Neg] += -vi.srcCurrent;
     fVec[vi.li_Bra] += vi.srcDrop;
@@ -1083,11 +1109,19 @@ bool Master::loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx, int 
     *(vi.fNegEquBraVarPtr) -= 1.0;
     *(vi.fBraEquPosNodePtr) += 1.0;
     *(vi.fBraEquNegNodePtr) -= 1.0;
+
+    if( vi.PORTgiven && !getSolverState().spAnalysisFlag_ )
+      *(vi.fBraEquBraVarPtr) -= vi.Z0;
+
 #else
     dFdx[vi.li_Pos][vi.APosEquBraVarOffset] += 1.0;
     dFdx[vi.li_Neg][vi.ANegEquBraVarOffset] -= 1.0;
     dFdx[vi.li_Bra][vi.ABraEquPosNodeOffset] += 1.0;
     dFdx[vi.li_Bra][vi.ABraEquNegNodeOffset] -= 1.0;
+
+    if( vi.PORTgiven && !getSolverState().spAnalysisFlag_ ) 
+      dFdx[vi.li_Bra][vi.ABraEquBraVarOffset] -= vi.Z0;
+
 #endif
   }
   return true;

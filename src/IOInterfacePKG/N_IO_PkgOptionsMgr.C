@@ -433,6 +433,14 @@ bool extractDotDataStatement(
   // length of the original .DATA line
   int numFields = parsed_line.size();
 
+  // .DATA line must have a NAME field and at least one param and value
+  if (numFields < 4)
+  {
+    Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
+        << ".DATA line lacks enough fields";
+    return false;
+  }
+
   // start of parameters (skip over the ".DATA")
   int linePosition = 1;
 

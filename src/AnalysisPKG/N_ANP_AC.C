@@ -78,7 +78,7 @@
 #include <N_PDS_ParMap.h>
 
 #include <Epetra_CrsGraph.h>
-
+#include <N_DEV_DeviceMgr.h>
 #include<N_UTL_ExtendedString.h>
 #include<N_NLS_ReturnCodes.h>
 #include <N_NLS_SensitivityResiduals.h>
@@ -116,7 +116,10 @@ bool AC::setTimeIntegratorOptions(
     else if (setDCOPOption(param))
       ;
     else
+    {
       Report::UserError() << param.uTag() << " is not a recognized time integration option";
+      return false;
+    }
   }
 
   return true;
@@ -302,6 +305,7 @@ AC::AC(
   AnalysisManager &                     analysis_manager,
   Linear::System &                      linear_system,
   Nonlinear::Manager &                  nonlinear_manager,
+  Device::DeviceMgr &                   device_manager,
   Loader::Loader &                      loader,
   Topo::Topology &                      topology,
   IO::InitialConditionsManager &        initial_conditions_manager)
@@ -312,6 +316,7 @@ AC::AC(
     linearSystem_(linear_system),
     nonlinearManager_(nonlinear_manager),
     topology_(topology),
+    deviceManager_(device_manager),
     initialConditionsManager_(initial_conditions_manager),
     outputMOR_(analysisManager_.getNetlistFilename()),
     outputManagerAdapter_(analysis_manager.getOutputManagerAdapter()),
@@ -545,6 +550,7 @@ bool AC::setACOptions(const Util::OptionBlock & OB)
     else
     {
       Report::UserError() << "Unrecognized ACLIN option " << tag;
+      return false;
     }
   }
 
@@ -604,7 +610,15 @@ bool AC::doInit()
       std::string name = (*it).name; Util::toUpper(name);
       if (name == "FREQ")
       {
-        // do nothing
+        // frequency values for .AC must be > 0
+        for (int i=0; i<(*it).valList.size(); ++i)
+	{
+          if ( (*it).valList[i] <= 0 )
+	  {
+            Report::UserFatal() << "Frequency values in .DATA for .AC analysis must be > 0";
+            return false;
+          }
+        }
       }
       else
       {
@@ -694,6 +708,9 @@ bool AC::doInit()
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish(AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::AC_IC));
 
   // Create B matrix stamp
+
+  deviceManager_.setSPAnalysisFlag( sparcalc_ );
+
   if  (sparcalc_ )
   {
     std::vector<int> tempVec;
@@ -716,28 +733,31 @@ bool AC::doInit()
 
     Z0sVec_.assign(numPorts_, 0);
 
-
     for (int i=0; i<len; ++i)
     {
       portPID_[ portNumVec_[i] - 1] = myPID;
       Z0sVec_[ portNumVec_[i] - 1] = tempZ0s[i];
-
     }
 
     Xyce::Parallel::AllReduce(comm, MPI_MAX, &portPID_[0], numPorts_);
 
     Xyce::Parallel::AllReduce(comm, MPI_SUM, &Z0sVec_[0], numPorts_);       
 
+    // error checking
     if (myPID == 0)
     {
       for (int i=0; i< numPorts_;  ++i)
       {
-        if (portPID_[i] == -1)  
-          Report::UserError() << "Did not find port " << i + 1;
-
+        if ( portPID_[i] == -1 )
+	{
+          Report::UserFatal() << "Did not find port " << i + 1 << " for .LIN analysis";
+        }
 
         if ( Z0sVec_[i] < 0.0 )
-          Report::UserError() << " The negative impedance " << Z0sVec_[i] << " for port " << i + 1 <<  " is not supported ";
+	{
+          Report::UserFatal() << " The negative impedance " << Z0sVec_[i] << " for port " << i + 1
+                              <<  " is not supported for .LIN analysis";
+        }
       }
     }
 
@@ -1597,6 +1617,7 @@ bool AC::loadSensitivityRHS_(const std::string & name)
     else
     {
       Report::UserError0() << "AC::loadSensitivityRHS_: ERROR, can't compute RHS\n";
+      return false;
     }
 
     dGdp_->put(0.0);
@@ -1722,6 +1743,7 @@ bool AC::setupObjectiveFuncGIDs_()
     if (!found && !found2)
     {
       Report::UserError() << "Objective function variable " << objFuncVars_[iout] << " not found";
+      return false;
     }
 
     if (found || found2)
@@ -2186,6 +2208,7 @@ public:
     Nonlinear::Manager &        nonlinear_manager,
     Loader::Loader &            loader,
     Topo::Topology &            topology,
+    Device::DeviceMgr &                 device_manager,
     IO::InitialConditionsManager &      initial_conditions_manager)
     : ACFactoryBase(),
       analysisManager_(analysis_manager),
@@ -2193,6 +2216,7 @@ public:
       nonlinearManager_(nonlinear_manager),
       loader_(loader),
       topology_(topology),
+      deviceManager_(device_manager),
       initialConditionsManager_(initial_conditions_manager)
   {}
 
@@ -2215,7 +2239,7 @@ public:
   AC *create() const
   {
     analysisManager_.setAnalysisMode(ANP_MODE_AC);
-    AC *ac = new AC(analysisManager_, linearSystem_, nonlinearManager_, loader_, topology_, initialConditionsManager_);
+    AC *ac = new AC(analysisManager_, linearSystem_, nonlinearManager_, deviceManager_, loader_, topology_, initialConditionsManager_);
     ac->setAnalysisParams(acAnalysisOptionBlock_);
     ac->setTimeIntegratorOptions(timeIntegratorOptionBlock_);
     ac->setACLinSolOptions(acLinSolOptionBlock_);
@@ -2327,6 +2351,7 @@ public:
   Nonlinear::Manager &                  nonlinearManager_;
   Loader::Loader &                      loader_;
   Topo::Topology &                      topology_;
+  Device::DeviceMgr &                   deviceManager_; 
   IO::InitialConditionsManager &        initialConditionsManager_;
 
 private:
@@ -2563,7 +2588,7 @@ bool
 registerACFactory(
   FactoryBlock &        factory_block)
 {
-  ACFactory *factory = new ACFactory(factory_block.analysisManager_, factory_block.linearSystem_, factory_block.nonlinearManager_, factory_block.loader_, factory_block.topology_, factory_block.initialConditionsManager_);
+  ACFactory *factory = new ACFactory(factory_block.analysisManager_, factory_block.linearSystem_, factory_block.nonlinearManager_, factory_block.loader_, factory_block.topology_, factory_block.deviceManager_, factory_block.initialConditionsManager_);
 
   addAnalysisFactory(factory_block, factory);
 
