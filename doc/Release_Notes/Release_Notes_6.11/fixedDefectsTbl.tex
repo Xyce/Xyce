@@ -57,6 +57,17 @@ The \texttt{.DATA} netlist command, which was introduced in release
 6.10, did not work with the \texttt{-remeasure} command line
 option. This is fixed now. \\ \hline
 
+\textbf{1146-SON} Fix and test ill-defined behavior from ill-formed .AC lines &
+Some ill-formed \texttt{.AC} lines would produce the ``sub-optimal'' behavior
+of running the simulation to completion without any errors or warnings.
+However, no output files would be made because the .AC line had invalid
+parameters.  \Xyce{} now correctly emits a parsing error if the
+\texttt{<start frequency value>}, \texttt{<end frequency value>} or
+\texttt{<points value>} parameters specifed on the \texttt{.AC} line are
+not allowed. This also applies to the error handling for \texttt{.DATA}
+commands that are used to specify the frequency steps for a \texttt{.AC}
+analysis.  \\ \hline
+
 \textbf{1112-SON}: Support for HSpice/LTSpice charge-based capacitor needed &
  Xyce now supports a ``Q'' parameter for its capacitor.  This
  parameter should be set to a solution-dependent expression that will
