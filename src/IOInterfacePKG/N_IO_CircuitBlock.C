@@ -2185,6 +2185,7 @@ bool CircuitBlock::handleAnalysis()
          (analysisName_ == "OP" && usVal == "HOMOTOPY") ||
          (analysisName_ == "DC" && usVal == "HOMOTOPY") ||
          (analysisName_ == "DC" && usVal == "DC") ||
+         (analysisName_ == "OP" && usVal == "SENS") ||
          (analysisName_ == "DC" && usVal == "SENS") ||
          (analysisName_ == "TRAN" && usVal == "SENS") ||
          (analysisName_ == "MPDE" && usVal == "TRAN") ||
