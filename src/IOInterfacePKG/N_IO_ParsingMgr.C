@@ -62,7 +62,7 @@ ParsingMgr::ParsingMgr(
   : hspiceExtFlag_(command_line.argExists("-hspice-ext")),
     useHspiceUnits_(false),
     useHspiceMath_(false),
-    enableRandomExpression_(false),
+    enableRandomExpression_(true),
     modelBinningFlag_(false)
 {
   if (hspiceExtFlag_)
@@ -95,13 +95,14 @@ ParsingMgr::ParsingMgr(
       {
         useHspiceUnits_ = true;
         useHspiceMath_ = true;
+        enableRandomExpression_ = false;
       }
       else if (*it == "units")
         useHspiceUnits_ = true;
       else if (*it == "math")
         useHspiceMath_ = true;
       else if (*it == "random")
-        enableRandomExpression_ = true;
+        enableRandomExpression_ = false;
       else
         Report::UserFatal0() << "Invalid value " << *it << " for -hspice-ext command line option";
     }
