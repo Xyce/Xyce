@@ -330,6 +330,11 @@ bool TIAParams::setTimeIntegratorOption(
     minTimeStepsBPGiven = true;
   }
 
+  if (minTimeStepRecoveryCounter > 0)
+  {
+    Xyce::lout() << "The time step recovery algorithm, set by .OPTIONS TIMEINT MINTIMESTEPRECOVERY>0, is considered deprecated.  It will be removed from a future version of Xyce." <<std::endl;
+  }
+
   return true;
 }
 
