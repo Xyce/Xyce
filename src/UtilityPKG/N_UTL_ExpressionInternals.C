@@ -58,6 +58,11 @@ namespace Util {
 
 // This value is derived from the -hspice-ext command line option.  It is
 // set, based on that command line option, in the constructor for the
+// IO::ParsingMgr class.  
+bool enableRandomExpression = false;
+
+// This value is derived from the -hspice-ext command line option.  It is
+// set, based on that command line option, in the constructor for the
 // IO::ParsingMgr class.
 bool useHspiceMath = false;
 
@@ -6475,21 +6480,29 @@ void ExpressionInternals::EXPReval_ (ExpressionNode & node, double & res, std::v
       {
         if (node.eval_value == 0)
         {
-          if (theRandomNumberGenerator == 0)
-          {
-            theRandomNumberGenerator = new Xyce::Util::RandomNumbers(0);
-          }
+
           double mu, abs_var, sigma,sigma_unit;
           EXPReval_( *(node.operands[0]), mu, vals);
           EXPReval_( *(node.operands[1]), abs_var, vals);
           EXPReval_( *(node.operands[2]), sigma_unit, vals);
 
           sigma = abs_var/sigma_unit;
-          do
-          {
-            res = theRandomNumberGenerator->gaussianRandom(mu,sigma);
-          } while (abs(res-mu)>abs_var);
 
+          if (enableRandomExpression)
+          {
+            if (theRandomNumberGenerator == 0)
+            {
+              theRandomNumberGenerator = new Xyce::Util::RandomNumbers(0);
+            }
+            do
+            {
+              res = theRandomNumberGenerator->gaussianRandom(mu,sigma);
+            } while (abs(res-mu)>abs_var);
+          }
+          else
+          {
+            res = mu;
+          }
         }
         else
           res = static_cast<double>(node.eval_value);
@@ -6499,20 +6512,29 @@ void ExpressionInternals::EXPReval_ (ExpressionNode & node, double & res, std::v
       {
         if (node.eval_value == 0)
         {
-          if (theRandomNumberGenerator == 0)
-          {
-            theRandomNumberGenerator = new Xyce::Util::RandomNumbers(0);
-          }
+
           double mu, abs_var,rel_var, sigma,sigma_unit;
           EXPReval_( *(node.operands[0]), mu, vals);
           EXPReval_( *(node.operands[1]), rel_var, vals);
           EXPReval_( *(node.operands[2]), sigma_unit, vals);
           abs_var=rel_var*mu;
           sigma = abs_var/sigma_unit;
-          do
+          if (enableRandomExpression)
           {
-            res = theRandomNumberGenerator->gaussianRandom(mu,sigma);
-          } while (abs(res-mu)>abs_var);
+            if (theRandomNumberGenerator == 0)
+            {
+              theRandomNumberGenerator = new Xyce::Util::RandomNumbers(0);
+            }
+
+            do
+            {
+              res = theRandomNumberGenerator->gaussianRandom(mu,sigma);
+            } while (abs(res-mu)>abs_var);
+          }
+          else
+          {
+            res = mu;
+          }
         }
         else
           res = static_cast<double>(node.eval_value);
@@ -6522,11 +6544,18 @@ void ExpressionInternals::EXPReval_ (ExpressionNode & node, double & res, std::v
       {
         if (node.eval_value == 0)
         {
-          if (theRandomNumberGenerator == 0)
+          if (enableRandomExpression)
           {
-            theRandomNumberGenerator = new Xyce::Util::RandomNumbers(0);
+            if (theRandomNumberGenerator == 0)
+            {
+              theRandomNumberGenerator = new Xyce::Util::RandomNumbers(0);
+            }
+            res = theRandomNumberGenerator->uniformRandom();
           }
-          res = theRandomNumberGenerator->uniformRandom();
+          else
+          {
+            res = 0.5; // ERK:  Check this!
+          }
         }
         else
           res = static_cast<double>(node.eval_value);
@@ -7824,13 +7853,16 @@ void ExpressionInternals::braceToParen_(std::list<ExpressionElement *> &tokenLis
 ///
 void ExpressionInternals::seedRandom(long seed)
 {
-  if (theRandomNumberGenerator == 0)
+  if (enableRandomExpression)
   {
-    theRandomNumberGenerator = new Xyce::Util::RandomNumbers(seed);
-  }
-  else
-  {
-    theRandomNumberGenerator->seedRandom(seed);
+    if (theRandomNumberGenerator == 0)
+    {
+      theRandomNumberGenerator = new Xyce::Util::RandomNumbers(seed);
+    }
+    else
+    {
+      theRandomNumberGenerator->seedRandom(seed);
+    }
   }
 }
   

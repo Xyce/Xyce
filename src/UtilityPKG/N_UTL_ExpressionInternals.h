@@ -61,6 +61,12 @@
 namespace Xyce {
 namespace Util {
 
+
+// This value is derived from the -hspice-ext command line option.  It is
+// set, based on that command line option, in the constructor for the
+// IO::ParsingMgr class.
+extern bool enableRandomExpression;
+
 // This value is derived from the -hspice-ext command line option.  It is
 // set, based on that command line option, in the constructor for the
 // IO::ParsingMgr class.

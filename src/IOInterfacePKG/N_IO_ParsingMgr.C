@@ -62,6 +62,7 @@ ParsingMgr::ParsingMgr(
   : hspiceExtFlag_(command_line.argExists("-hspice-ext")),
     useHspiceUnits_(false),
     useHspiceMath_(false),
+    enableRandomExpression_(false),
     modelBinningFlag_(false)
 {
   if (hspiceExtFlag_)
@@ -99,6 +100,8 @@ ParsingMgr::ParsingMgr(
         useHspiceUnits_ = true;
       else if (*it == "math")
         useHspiceMath_ = true;
+      else if (*it == "random")
+        enableRandomExpression_ = true;
       else
         Report::UserFatal0() << "Invalid value " << *it << " for -hspice-ext command line option";
     }
@@ -109,6 +112,7 @@ ParsingMgr::ParsingMgr(
   // and ExpressionInternals::tokenize_.
   Xyce::Util::useHspiceUnits = useHspiceUnits_;
   Xyce::Util::useHspiceMath = useHspiceMath_;
+  Xyce::Util::enableRandomExpression = enableRandomExpression_;
 
   // Substitute the HSPICE logarithm functions for the Xyce ones in
   // ExpressionInternals.
