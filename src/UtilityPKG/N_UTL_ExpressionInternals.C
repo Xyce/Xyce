@@ -6544,18 +6544,11 @@ void ExpressionInternals::EXPReval_ (ExpressionNode & node, double & res, std::v
       {
         if (node.eval_value == 0)
         {
-          if (enableRandomExpression)
+          if (theRandomNumberGenerator == 0)
           {
-            if (theRandomNumberGenerator == 0)
-            {
-              theRandomNumberGenerator = new Xyce::Util::RandomNumbers(0);
-            }
-            res = theRandomNumberGenerator->uniformRandom();
+            theRandomNumberGenerator = new Xyce::Util::RandomNumbers(0);
           }
-          else
-          {
-            res = 0.5; // ERK:  Check this!
-          }
+          res = theRandomNumberGenerator->uniformRandom();
         }
         else
           res = static_cast<double>(node.eval_value);
