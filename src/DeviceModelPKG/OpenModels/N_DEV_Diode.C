@@ -2424,9 +2424,9 @@ bool updateTemperature
   double reltol = 1.0e-3;
   if( BVGiven )
   {
-    double IRfactor = tIRF;
-    double cbv = IBV;
-    double xbv, xcbv;
+    ScalarT IRfactor = tIRF;
+    ScalarT cbv = IBV;
+    ScalarT xbv, xcbv;
     if( cbv < IRfactor*tSatCur*tempBV/vt )
     {
       cbv = IRfactor*tSatCur*tempBV/vt;
@@ -2434,7 +2434,7 @@ bool updateTemperature
     }
     else
     {
-      double tol = reltol*cbv;
+      ScalarT tol = reltol*cbv;
       xbv = tempBV-vt*log(1.0+cbv/(IRfactor*tSatCur));
       for( int i = 0; i < 25; ++i )
       {
