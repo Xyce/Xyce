@@ -2147,44 +2147,6 @@ int TwoLevelNewton::locaLoop_ ()
 
   int suggestedSteps = nonlinearEquationLoader_->enablePDEContinuation ();
 
-  // this ifdef'd block of code was an attempt to adjust loca parameters
-  // in-situ.  If the voltage change is really, really small, then there
-  // isn't much point in doing a continuation, so I wanted to have to
-  // option to on-the-fly switch to straight Newton.
-  //
-  // Unfortunately, it doesn't work at the moment - the second time it gets
-  // called, everything goes haywire.  ERK 2/25/04.
-#if 0
-  Xyce::dout() << "suggested steps are: " << suggestedSteps << std::endl;
-
-  Util::ParamList::const_iterator it_tpL;
-  for (it_tpL = innerSolverOptions_.params.begin();
-      it_tpL != innerSolverOptions_.params.end();
-      ++it_tpL)
-  {
-    ExtendedString tmpTag = it_tpL->tag ();
-    tmpTag.toUpper ();
-
-    Xyce::dout() << "tmpTag = " << tmpTag << std::endl;
-
-    if (tmpTag == "CONTINUATION")
-    {
-      if (suggestedSteps <= 1) // then just do one newton step.
-      {
-        Xyce::dout() << "Setting the solver type to 0" << std::endl;
-        suggestedSteps = 1;
-        it_tpL->setVal(0);
-      }
-      else
-      {
-        it_tpL->setVal(1);
-      }
-    }
-  }
-
-  nlsInnerPtr_->setOptions(innerSolverOptions_);
-  nlsInnerPtr_->setLocaOptions(innerLocaOptions_);
-#endif
   statInner = nlsInnerPtr_->solve (nlsPassingPtr_);
 
   nlsPassingPtr_ = 0;
