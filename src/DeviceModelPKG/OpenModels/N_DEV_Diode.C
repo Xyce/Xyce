@@ -251,6 +251,7 @@ void Traits::loadModelParameters(ParametricData<Diode::Model> &p)
     .setSensitivityFunctor(&diodeSens);
 
   p.addPar ("IRF", 1.0, &Diode::Model::IRF)
+    .setGivenMember(&Diode::Model::IRFGiven)
     .setCategory(CAT_CURRENT)
     .setDescription("Reverse current fitting factor")
     .setAnalyticSensitivityAvailable(true)
@@ -446,6 +447,11 @@ Instance::Instance(
     numIntVars = 0;
   if ( model_.CJO == 0.0 )
     numStateVars = 1;
+
+  if ( (model_.IRFGiven) )
+  {
+    UserWarning(*this) << " IRF has been specified in the model card.  This usage is deprecated.  Please see the Reference Guide for details";
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1450,7 +1456,14 @@ bool Instance::updateTemperature( const double & temp )
   tVcrit = vte*log(vte/(CONSTroot2*tSatCur));
   tRS   = model_.RS;
   tCOND = model_.COND;
-  tIRF  = model_.IRF*pow(fact2,1.6);
+  if (model_.IRFGiven)
+  {
+    tIRF  = model_.IRF*pow(fact2,1.6);
+  }
+  else
+  {
+    tIRF = model_.IRF;
+  }
 
   int level = model_.getLevel();
   if(level == 2)   // this section is PSPICE compatible
@@ -1919,7 +1932,8 @@ Model::Model(
     TNOM(27),
     KF(0.0),
     AF(1.0),
-    BVGiven(false)
+    BVGiven(false),
+    IRFGiven(false)
 {
 
   // Set params to constant default values:
@@ -2305,6 +2319,7 @@ bool updateTemperature
    const ScalarT & BV,
 
    const bool & BVGiven,
+   const bool & IRFGiven,
 
    const ScalarT & TBV1,
    const ScalarT & TBV2,
@@ -2373,7 +2388,14 @@ bool updateTemperature
   tVcrit = vte*log(vte/(root2*tSatCur));
   tRS   = RS;
   tCOND = COND;
-  tIRF  = IRF*pow(fact2,1.6);
+  if (IRFGiven)
+  {
+    tIRF  = IRF*pow(fact2,1.6);
+  }
+  else
+  {
+    tIRF = IRF;
+  }
 
   //int level = getLevel();
   if(level == 2)   // this section is PSPICE compatible
@@ -3005,6 +3027,7 @@ void diodeSensitivity::operator()(
        TNOM, VJ, CJO, M, N, IS, EG, XTI, RS, COND, IRF, 
        NR, IKF, TIKF, ISR, IBV, BV,
        mod.BVGiven,
+       mod.IRFGiven,
        TBV1, TBV2, TRS1, TRS2, FC,
        mod.getLevel()
      );
