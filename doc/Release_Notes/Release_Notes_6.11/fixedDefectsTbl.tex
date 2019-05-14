@@ -111,6 +111,16 @@ I2 2 0 DC
 \end{verbatim}
 This is fixed now.  \\ \hline
 
+\textbf{1033-SON}: Issues with use of reserved words TEMP and VT in expressions
+in device instance parameters and .GLOBAL PARAM statements & Prior to Release 6.10
+of \Xyce{}, if the reserved words \texttt{TEMP} or \texttt{VT} were used in
+expressions for device instance parameters or in \texttt{.GLOBAL\_PARAM}
+statements then their values would always be 0.  For Release 6.10, it was fixed
+for netlists that had a \texttt{.STEP} command.  It is now also fixed for the
+``non-step case'' and for the case where \texttt{.OPTION DEVICE TEMP=<val>}
+is used to set the circuit temperature.
+\\ \hline
+
 \textbf{1034-SON}: Issues with processing expressions that contain arithmetic
 operators (e.g., + - or *) within an otherwise legal node or device name &
 Something like this G-source instance line would produce a parsing error:
