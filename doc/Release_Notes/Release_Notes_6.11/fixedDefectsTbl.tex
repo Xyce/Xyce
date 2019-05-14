@@ -49,19 +49,46 @@ upward sweep starting at the start value.
 and \texttt{.STEP}, and will now always compute only the first DC or
 STEP value, even if the stepping algorithm cannot advance from
 ``start'' to ``stop''.  This brings \Xyce{}'s behavior in line with
-those of other SPICE-like simulators.  Unlike other
-simulators, \\ \hline
+those of other SPICE-like simulators.  \\ \hline
 
 \textbf{1160-SON} .DATA did not work with -remeasure for .TRAN and .DC analyses &
 The \texttt{.DATA} netlist command, which was introduced in release
 6.10, did not work with the \texttt{-remeasure} command line
 option. This is fixed now. \\ \hline
 
+\textbf{1144-SON} Fix discontinuity in diode model at high temperature & Since
+2005, the \Xyce{} diode model has supported a parameter
+called \textbf{IRF}, which allowed users to apply a scaling factor to
+the reverse current of the diode in order to match experimental data.
+Not only was this feature never properly validated, it was also not
+correctly falling back to SPICE3F5 compatibility as the documentation
+claimed it should have done, nor was its temperature dependence
+correctly documented.  This has been corrected in \Xyce{} 6.11, and
+the feature is now disabled correctly if \textbf{IRF} is not specified
+in the diode's model card, and the diode does in fact match SPICE3F5
+as originally intended.  The reference guide discussion of the reverse
+current equations in the level 1 and 2 diode models now correctly
+documents how \textbf{IRF} is actually used and what temperature
+dependence is applied to it.
+
+Furthermore, since it has been observed that use of \textbf{IRF} can
+introduce a discontinuity that could have significant impact on
+simulation results, even resulting in simulation failure, the \Xyce{}
+team intends to remove this feature in a future release.  Any use of
+the \textbf{IRF} parameter in a diode model card will now result
+in \Xyce{} emitting a deprecation warning even if the parameter is
+being set to its default value of 1.0.  That is because
+when \textbf{IRF} is specified at all, a temperature-dependent factor
+is applied to it that could also cause a discontinuity.  For maximum
+compatibility with other SPICE-like products, users should never
+specify \textbf{IRF} in any diode model.\\ \hline
+
 \textbf{1146-SON} Fix and test ill-defined behavior from ill-formed .AC lines &
-Some ill-formed \texttt{.AC} lines would produce the ``sub-optimal'' behavior
-of running the simulation to completion without any errors or warnings.
-However, no output files would be made because the .AC line had invalid
-parameters.  \Xyce{} now correctly emits a parsing error if the
+Some ill-formed \texttt{.AC} lines would produce the ``sub-optimal''
+behavior of running the simulation to completion without any errors or
+warnings.  However, no output files would be made because the .AC line
+had invalid parameters.  \Xyce{} now correctly emits a parsing error
+if the
 \texttt{<start frequency value>}, \texttt{<end frequency value>} or
 \texttt{<points value>} parameters specifed on the \texttt{.AC} line are
 not allowed. This also applies to the error handling for \texttt{.DATA}
