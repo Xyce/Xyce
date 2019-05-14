@@ -229,22 +229,6 @@ XyceTests::checkStatus(
   F.infNormIndex( &index[0] );
   maxNormFindex_ = index[0];
 
-#if 0
-  // ERK.  This has been removed as part of bug #414 (SON).  If its removal
-  // causes problems then it could (maybe) be restored).  But it would need
-  // to be restored to a point prior to the linear solver failure test, above.
-  //
-  //Test 1 - Make sure the residual isn't too small, hardwired tolerances
-  if ((maxNormF_ < requestedMaxNormF_) && 
-      (maxNormF_ < requestedMachPrecTol_)) 
-  {
-    status_ = NOX::StatusTest::Converged;
-    returnTest_ = 1;
-    xyceReturnCode_ = retCodes_.normTooSmall; // default: 1
-    return status_;
-  }
-#endif
-
   // Test 2 - Normal convergence based on rhs residual (2a) and 
   // update norm (2b).
 
