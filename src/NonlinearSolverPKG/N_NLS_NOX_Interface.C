@@ -83,7 +83,6 @@ namespace N_NLS_NOX {
 Interface::Interface(const IO::CmdParse & cp)
   : Nonlinear::NonLinearSolver(cp),
     dcParams_(Nonlinear::DC_OP),
-    DCOPused_(false),
     ICspecified_(false),
     NODESETspecified_(false),
     transientParams_(Nonlinear::TRANSIENT),
@@ -203,20 +202,6 @@ bool Interface::setLocaOptions(const Util::OptionBlock& OB)
 {
   hbParams_.setLocaOptions(OB);
   return dcParams_.setLocaOptions(OB);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Interface::setDCOPRestartOptions
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       :
-// Creation Date :
-//-----------------------------------------------------------------------------
-bool Interface::setDCOPRestartOptions(const Util::OptionBlock& OB)
-{
-  DCOPspecified_ = true;
-  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -404,46 +389,6 @@ int Interface::spiceStrategy ( ParameterSet* paramsPtr )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Interface::opStartCont0
-// Purpose       :
-// Special Notes : returns true if DCOP restart is being used.
-//
-//                 The "found" variable indicates if any of the nodes specified
-//                 in the dcop start file were found in this circuit.  If not,
-//                 then don't bother with this.
-//
-// Scope         : public
-// Creator       : Eric R. Keiter, SNL, Electrical and Microsystem Modeling
-// Creation Date : 09/15/07
-//-----------------------------------------------------------------------------
-bool Interface::opStartCont0 (ParameterSet* paramsPtr, int found, int icType, IO::InitialConditionsData::NodeNamePairMap & op, const NodeNameMap & allNodes, N_PDS_Comm * pdsCommPtr)
-{
-  bool usedOP = false;
-
-  if (found > 0 && icType == IO::InitialConditionsData::IC_TYPE_DCOP_RESTART)
-  {
-    usedOP = true;
-    Teuchos::RCP<AugmentLinSys> als =
-      paramsPtr->createAugmentLinearSystem(lasSysPtr_, op, allNodes, pdsCommPtr);
-    groupPtr_->setAugmentLinearSystem(true, als);
-    NOX::StatusTest::StatusType status = solverPtr_->solve();
-    // Create a new solver after performing the initial op_start solve.
-    solverPtr_ = NOX::Solver::buildSolver(groupPtr_,
-                                          paramsPtr->getStatusTests(),
-                                          paramsPtr->getNoxParams());
-    firstSolveComplete_ = true;
-    groupPtr_->setAugmentLinearSystem(false, Teuchos::null);
-
-#ifdef Xyce_DEBUG_OP_START
-    groupPtr_->setOutputLinear (&op, &allNodes, pdsCommPtr);
-#endif // debug op start
-
-  }
-  return usedOP;
-}
-
-
-//-----------------------------------------------------------------------------
 // Function      : Interface::stdNewtonSolve
 // Purpose       : 
 // Special Notes : This corresponds to 
@@ -501,16 +446,6 @@ int Interface::stdNewtonSolve ( ParameterSet* paramsPtr )
     {
       usedNODESET=nodesetCont0 (paramsPtr);
     }
-    else
-    {
-      if (!DCOPused_) {
-        int found = 0;
-        int icType;
-        IO::InitialConditionsData::NodeNamePairMap & op = initialConditionsManager_->getICData(found, icType);
-        DCOPused_ = opStartCont0(paramsPtr, found, icType, op, outMgrPtr_->getSolutionNodeMap(), pdsMgrPtr_->getPDSComm());
-        getAnalysisManager().completeOPStartStep();
-      }
-    }
   }
 
   NOX::StatusTest::StatusType status = solverPtr_->solve();
@@ -559,10 +494,6 @@ int Interface::naturalParameterContinuationSolve ( ParameterSet* paramsPtr )
     else if (NODESETspecified_)
     {
       usedNODESET=nodesetCont1 (paramsPtr);
-    }
-    else
-    { 
-      usedOP = opStartCont1 (paramsPtr);
     }
   }
 
@@ -711,12 +642,6 @@ int Interface::naturalParameterContinuationSolve ( ParameterSet* paramsPtr )
     }
     else
     {
-      if (iParam_ == 0 && DCOPused_)
-      {
-        Report::UserFatal0() << "'.dcop input=' and gstepping are incompatible";
-      }
-
-
       if ((usemode_) && (mode_ != Nonlinear::TRANSIENT))
       {
         if (ICspecified_)
@@ -781,10 +706,6 @@ int Interface::mosfetContinuationSolve ( ParameterSet* paramsPtr )
     else if (NODESETspecified_)
     {
       usedNODESET=nodesetCont1 (paramsPtr);
-    }
-    else
-    {
-      usedOP = opStartCont1 (paramsPtr);
     }
   }
 
@@ -1466,10 +1387,6 @@ int Interface::gminSteppingSolve ( ParameterSet* paramsPtr )
     {
       usedNODESET=nodesetCont1 (paramsPtr);
     }
-    else
-    {
-      usedOP = opStartCont1 (paramsPtr);
-    }
   }
 
   // Initialize parameters in xyce
@@ -1480,10 +1397,7 @@ int Interface::gminSteppingSolve ( ParameterSet* paramsPtr )
 
   // Do the continuation run
   iParam_ = 0;
-  if (iParam_ == 0 && DCOPused_)
-  {
-    Report::UserFatal0() << "'.dcop input=' and gstepping are incompatible";
-  }
+
   if (!usedIC)
   {
     Teuchos::RCP<AugmentLinSys> als =
@@ -1698,10 +1612,6 @@ int Interface::sourceSteppingSolve ( ParameterSet* paramsPtr )
     else if (NODESETspecified_)
     {
       usedNODESET=nodesetCont1 (paramsPtr);
-    }
-    else
-    {
-      usedOP = opStartCont1 (paramsPtr);
     }
   }
 
@@ -1972,71 +1882,6 @@ int Interface::solve (Nonlinear::NonLinearSolver * nlsTmpPtr)
 
   // Should never get this far
   return -1;
-}
-
-
-//-----------------------------------------------------------------------------
-// Function      : Interface::opStartCont1
-// Purpose       :
-// Special Notes : returns true if DCOP restart is being used.
-//
-//                 The "found" variable indicates if any of the nodes specified
-//                 in the dcop start file were found in this circuit.  If not,
-//                 then don't bother with this.
-//
-// Scope         : public
-// Creator       : Eric R. Keiter, SNL, Electrical and Microsystem Modeling
-// Creation Date : 09/15/07
-//-----------------------------------------------------------------------------
-bool Interface::opStartCont1 (ParameterSet* paramsPtr)
-{
-  bool usedOP(false);
-
-#ifdef Xyce_DEBUG_OP_START
-  dout() << "NOX_Interface:  Inside continuation=1 OP_START code (case 2)" << std::endl;
-#endif
-  if (!DCOPused_)
-  {
-    int found = 0;
-    int icType;
-    IO::InitialConditionsData::NodeNamePairMap & op = initialConditionsManager_->getICData(found, icType);
-    const NodeNameMap & allNodes = outMgrPtr_->getSolutionNodeMap();
-    N_PDS_Comm * pdsCommPtr = pdsMgrPtr_->getPDSComm();
-
-    if (found > 0 && icType == IO::InitialConditionsData::IC_TYPE_DCOP_RESTART)
-    {
-      DCOPused_ = true;
-      usedOP = true;
-      // Set up nox nonlinear solver
-      if (Teuchos::is_null(solverPtr_))
-      {
-        solverPtr_ = NOX::Solver::buildSolver(groupPtr_,
-            paramsPtr->getStatusTests(),
-            paramsPtr->getNoxParams());
-      }
-
-      Teuchos::RCP<AugmentLinSys> als =
-        paramsPtr->createAugmentLinearSystem(lasSysPtr_, op, allNodes, pdsCommPtr);
-
-      groupPtr_->setAugmentLinearSystem(true, als);
-      NOX::StatusTest::StatusType status = solverPtr_->solve();
-
-      firstSolveComplete_ = true;
-      groupPtr_->setAugmentLinearSystem(false, Teuchos::null);
-      getAnalysisManager().completeOPStartStep();
-
-#ifdef Xyce_DEBUG_OP_START
-      // DNS: Uncommenting this will set debug output of linear system for every step
-#ifdef Xyce_PARALLEL_MPI
-      groupPtr_->setOutputLinear (&op, &allNodes, pdsCommPtr);
-#else
-      groupPtr_->setOutputLinear (&op, &allNodes);
-#endif
-#endif // debug op start
-
-    }
-  }
-  return usedOP;
 }
 
 //-----------------------------------------------------------------------------
@@ -2958,15 +2803,10 @@ bool Interface::getLocaFlag ()
       paramsPtr = &dcParams_;
     }
 
-    if (DCOPused_)
     {
-      retCode = firstSolveComplete_;
-    }
-    else
-    {
-      int solverType = paramsPtr->getNoxSolverType();
-      retCode=false;
-      if (solverType != 0) retCode = true;
+    int solverType = paramsPtr->getNoxSolverType();
+    retCode=false;
+    if (solverType != 0) retCode = true;
     }
   }
 

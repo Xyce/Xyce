@@ -160,12 +160,6 @@ public:
   Teuchos::RCP<AugmentLinSys>
     createAugmentLinearSystem(Xyce::Linear::System* ls) const;
 
-  // Create augmented linear system, DCOP restart version
-  Teuchos::RCP<AugmentLinSys>
-    createAugmentLinearSystem(Xyce::Linear::System* ls,
-                              Xyce::IO::InitialConditionsData::NodeNamePairMap & op,
-                              const Xyce::NodeNameMap & allNodes, N_PDS_Comm * pdsCommPtr) const;
-
   // Create augmented linear system, IC version
     Teuchos::RCP<AugmentLinSys>
     createAugmentLinearSystem(Xyce::Linear::System* ls,

@@ -14,7 +14,6 @@ set ( NonlinearSolver_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_AugmentLinSys_GStepping.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_AugmentLinSys_IC.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_AugmentLinSys_IC_Gmin.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_AugmentLinSys_OPStart.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_AugmentLinSys_PseudoTransient.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_Group.C 

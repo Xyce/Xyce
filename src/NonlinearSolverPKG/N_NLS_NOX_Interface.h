@@ -83,7 +83,6 @@ namespace N_NLS_NOX {
       bool setNLPOptions(const Xyce::Util::OptionBlock& OB);
 
       bool setLocaOptions(const Xyce::Util::OptionBlock& OB);
-      bool setDCOPRestartOptions(const Xyce::Util::OptionBlock& OB);
       bool setICOptions(const Xyce::Util::OptionBlock& OB);
       bool setNodeSetOptions(const Xyce::Util::OptionBlock& OB);
       bool initializeAll();
@@ -161,10 +160,6 @@ namespace N_NLS_NOX {
           const Teuchos::RCP<NOX::StatusTest::Generic>& test,
           const Teuchos::RCP<Teuchos::ParameterList>& p);
 
-      // Functions for DC_OP restart and other initial condition options.
-      bool opStartCont0 (ParameterSet* paramsPtr, int found, int icType, Xyce::IO::InitialConditionsData::NodeNamePairMap & op, const Xyce::NodeNameMap & allNodes, N_PDS_Comm * pdsCommPtr);
-      bool opStartCont1 (ParameterSet* paramsPtr);
-
       bool icCont (ParameterSet* paramsPtr);
       bool icCont3 (ParameterSet* paramsPtr);
 
@@ -175,8 +170,6 @@ namespace N_NLS_NOX {
       // Parameters for DC_OP
       ParameterSet dcParams_;
 
-      bool DCOPused_;
-      bool DCOPspecified_;
       bool ICspecified_;
       bool NODESETspecified_;
 

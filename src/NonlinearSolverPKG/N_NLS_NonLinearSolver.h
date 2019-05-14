@@ -116,7 +116,6 @@ public:
   virtual bool setTwoLevelOptions    (const Util::OptionBlock& OB);
   virtual bool setTwoLevelTranOptions(const Util::OptionBlock& OB);
   virtual bool setLinsolOptions(const Util::OptionBlock& OB);
-  virtual bool setDCOPRestartOptions(const Util::OptionBlock& OB);
   virtual bool setICOptions(const Util::OptionBlock& OB);
   virtual bool setNodeSetOptions(const Util::OptionBlock& OB);
 

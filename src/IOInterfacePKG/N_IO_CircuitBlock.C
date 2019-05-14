@@ -435,7 +435,7 @@ bool CircuitBlock::parseNetlistFilePass1(
 
     // resolve any functions and parameters in expression on the print line
     // at this point (or for that matter any functions/parameters in
-    // the optionsTable data (so ".OP" ".OPTIONS" ".DCOP"  ".OUTPUT"
+    // the optionsTable data (so ".OP" ".OPTIONS" ".OUTPUT"
     // ".PRINT"".TRAN"  ".STEP"  ".RESULT" ".IC" ".DCVOLT"
     //  ".NODESET" ".SAVE" ".LOAD" ".MPDE" ".HB"  ".AC" ".MEASURE" ".MEAS")
     // This could happen later, as in the actual classes that handle the above

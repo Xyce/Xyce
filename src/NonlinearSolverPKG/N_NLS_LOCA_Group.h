@@ -153,25 +153,7 @@ public:
   void setNonContinuationFlag (bool value);
   bool getNonContinuationFlag ();
 
-  // dcop restart functions
-    void setOutputLinear (Xyce::NodeNameMap * op,
-                          Xyce::NodeNameMap * allNodes,
-                          N_PDS_Comm * pdsCommPtr);
-
 private:
-
-  // dcop restart data.
-  bool outputLinear_;
-  int serialNumber_;
-  std::map<int, double> oldSol_;
-  Xyce::NodeNameMap *op_;
-  Xyce::NodeNameMap *allNodes_;
-  N_PDS_Comm * pdsCommPtr_;
-
-  // dcop restart function
-  void outputLinearSystem_ (Xyce::Linear::Matrix* jacobian,
-                           Xyce::Linear::Vector* solution,
-                           Xyce::Linear::Vector* residual_vector);
 
   //! Keep a reference to the loader to set parameters.
   Xyce::Loader::NonlinearEquationLoader& loader;
