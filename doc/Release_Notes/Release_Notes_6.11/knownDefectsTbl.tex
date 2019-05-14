@@ -131,6 +131,16 @@ part of a Y device.
 currents on the \texttt{.PRINT} line.
 \\ \hline
 
+\textbf{800-SON}: Use of global parameters in expressions on .MEASURE lines
+will yield incorrect results & The use of global parameters in expressions
+on .MEASURE lines is not allowed, as documented in the \Xyce{} Reference Guide.
+However, instead of producing a parsing error the measure statement will be
+evaluated with the specified qualifier value (e.g., \texttt{FROM}) being left
+at its default value.
+
+\textbf{\textit{Workaround}}: None, other than not doing this.
+\\ \hline
+
 \textbf{971-SON}: Use of default device parameter syntax on a .PRINT line causes
 \Xyce{} to print 0 for that parameter & This line (\texttt{.PRINT TRAN R1}) will
 cause \Xyce{} to print 0 for the resistance value of R1.

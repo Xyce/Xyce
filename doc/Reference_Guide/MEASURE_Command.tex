@@ -585,9 +585,44 @@ The intent in \Xyce{} is for the measurement window to be the intersection of th
 the use of both {\tt FROM-TO} and {\tt TD} windows can lead to an empty 
 measurement window.  So, that usage is not recommended.  
 
+\subsubsection{Expression Support}
+\index{measure!expression support}
+These measure ``qualifiers'' (\texttt{TO}, \texttt{FROM}, \texttt{TD},
+\texttt{RISE}, \texttt{FALL}, \texttt{CROSS}, \texttt{AT}, \texttt{OFF},
+\texttt{ON}, \texttt{DEFAULT\_VAL} and \texttt{VAL}) support expressions.
+The caveat is that the expression must evaluate to a constant at the time
+that each measure object is made.  So, that expression can not depend
+on solution variables or lead currents.  This limitation matches HSPICE.
+It also can not depend on a global parameter.  Finally, it can not depend
+on another measure's value, which is an allowed syntax in HSPICE.
+
+Simple examples of allowed syntaxes for qualifiers are as follows, where
+all three measures will get the same answer:
+\begin{alltt}
+.PARAM t1=0.2
+.PARAM t2=0.3
+.MEASURE TRAN M1 PP V(1) FROM=`0.1+0.2'
+.MEASURE TRAN M2 PP V(1) FROM=\{0.1+t1\}
+.MEASURE TRAN M3 PP V(1) TO=\{t2\}
+\end{alltt}
+Expressions should also work in FIND-WHEN, WHEN and TRIG-TARG measures. The
+preferred Xyce syntax with curly braces and the three legal HSPICE syntaxes
+for expressions should all work.  However, note that the two HSPICE
+expression syntaxes shown below are only legal in \Xyce{} \texttt{.MEASURE}
+statements.
+\begin{alltt}
+.PARAM a1=0.1
+.PARAM a2=0.7
+.MEASURE TRAN M4 FIND V(2) WHEN V(1)=\{a1\}
+.MEASURE TRAN M4PAR FIND V(2) WHEN V(1)=PAR(`a1') ; HSPICE exp. syntax
+.MEASURE TRAN M4PAREN FIND V(2) WHEN V(1)=(`a1')  ; HSPICE exp. syntax
+.MEASURE TRAN M5 WHEN V(1)=\{a1\}
+.MEASURE TRAN M6 TRIG \{v(1)-0.1\} VAL=\{a1\} TARG \{v(1)-0.5\} VAL=\{a2\}
+\end{alltt}
+
 \subsubsection{Re-Measure}
 \label{Measure_ReMeasure}
-\index{measure!Re-measure}
+\index{measure!re-measure}
 \Xyce{} can re-calculate (or re-measure) the values for {\tt .MEASURE}
 statements using existing \Xyce{} output files.  This is useful for 
 tuning {\tt .MEASURE} statements to better capture response metrics of a circuit when 
@@ -889,7 +924,7 @@ requested measure type is not supported for a given measure mode (e.g., \texttt{
 
 \subsubsection{HSPICE Compatibility}
 \label{Measure_HSpice_Compatibility}
-\index{measure!HSpice compatibility}
+\index{measure!HSPICE compatibility}
 There are known incompatibilities between the \Xyce{} and HSPICE implementation
 of {\tt .MEASURE}.  They include the following:
 
@@ -922,6 +957,8 @@ of {\tt .MEASURE}.  They include the following:
         ``steps'' in the measured data (e.g., the generation of  new \texttt{.mt\#}
         or \texttt{.ms\#} or \texttt{.ma\#} files) are triggered by the variable(s) on 
         the {\tt .STEP} line, but not by the variable(s) on the {\tt .DC} line.
+  \item Expressions on \texttt{.MEASURE} lines are supported in fewer contexts then in
+        HSPICE.  See the ``Expression Support'' subsection for more details.
   \item The settings for the \texttt{MEASFAIL} and \texttt{MEASOUT} options are only used
         if those options are explicitly given in the netlist.  Otherwise, the \Xyce{}
         defaults will be used.
