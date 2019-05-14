@@ -2569,6 +2569,8 @@ bool DeviceMgr::updateDependentParameters_()
       changed = true;
     if (g_i->set_sim_freq(solState_.currFreq_))
       changed = true;
+    if (g_i->set_temp(getDeviceOptions().temp.getImmutableValue<double>()))
+      changed = true;
 
     std::vector<std::string> variables;
     g_i->get_names(XEXP_VARIABLE, variables);
