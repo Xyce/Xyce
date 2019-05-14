@@ -99,9 +99,6 @@ Group::Group(Teuchos::RCP<LOCA::GlobalData> gd,
 Group::Group(const Group& source, NOX::CopyType type) :
   N_NLS_NOX::Group(source, type),
   LOCA::Abstract::Group(source, type),
-#ifdef Xyce_PARALLEL_MPI
-  pdsCommPtr_(source.pdsCommPtr_),
-#endif
   loader(source.loader),
   outputMgr(source.outputMgr),
   anaInt(source.anaInt),
