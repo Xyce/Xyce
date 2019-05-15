@@ -867,6 +867,20 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       }
       else
       {
+        // After resolveParameter returns true, a parameter from a .PARAM line
+        // might still have a "special" in it.  That is not allowed, since .PARAM
+        // parameters are supposed to be constant and the user can (for example)
+        // .STEP over specials like TEMP.
+        if (parameter.getType() ==  Xyce::Util::EXPR)
+	{
+          std::vector<std::string> specials;
+          Util::Expression expression(parameter.stringValue());
+          expression.get_names(XEXP_SPECIAL, specials);
+          if (!specials.empty())
+	  {
+	    Report::UserError0() << "TIME, FREQ, TEMP and VT are not allowed in .PARAM statements: " << parameter.uTag();
+	  }
+        }
         currentContextPtr_->resolvedParams_.push_back(parameter);
         resolvedSomethingThisLoop=true;
       }
