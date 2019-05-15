@@ -33,6 +33,7 @@ available in \Xyce{}.  It includes the following sections:
 \item Section~\ref{AC_Analysis},        {\em AC Analysis}
 \item Section~\ref{NOISE_Analysis},     {\em Noise Analysis}
 \item Section~\ref{SENS_Analysis},      {\em Sensitivity Analysis}
+\item Section~\ref{SP_Analysis},        {\em S-parameter Analysis}
 \end{XyceItemize}
 }
 
@@ -1624,6 +1625,98 @@ that are used for the original circuit analysis.  It does not impose any additio
 control that is specific to the accuracy of $dx/dp$.
 
 
+\section{S-parameter Analysis}
+\label{SP_Analysis}
+\label{SP_Sweep_Overview}
+\index{analysis!S-parameter} \index{S-parameter analysis} \index{\texttt{.LIN}}
+\index{AC sweep} \index{analysis!AC sweep}
+
+The S-paramter small-signal analysis of \Xyce{} computes linear transfer parameters as a
+function of frequency for a general multi-port network. The program first computes the DC operating point of 
+the circuit and linearizes the circuit. The resultant linear circuit is then 
+analyzed over a user-specified range of frequencies. The output of a S-parameter
+analysis is multi-port scattering (S) parameters. The S-parameters represent
+the ratio of incident and scattered normailized voltage waves.
+
+\subsection{.LIN Statement}
+
+One may specify S-parameter analyses by using \verb|.LIN| command with \verb|.AC| command in the netlist.  
+Here is an example of typical \verb|.AC| and \verb|.LIN| lines:
+
+\Example{\\ 
+\texttt{.AC DEC 10 1K 100MEG}  \\ 
+\texttt{.LIN sparcalc=1 format=touchstone}  \\ 
+}
+
+The \verb|.LIN| analysis is similar to basic small signal \verb|.AC| analysis. But it also calculates small signal 
+transfer parameters between terminals identified using port (P) devices. The \Xyce{} Reference Guide\ReferenceGuide{} 
+provides a complete description of \verb|.LIN| analysis.
+
+\subsection{Port Devices}
+\label{SP_Port}
+\index{S-parameter analysis!port}
+
+The \verb|.LIN| analysis computes the S-parameters based on the location of the port 
+devices and values of their reference impedance. The port devices identify
+the ports used in \verb|.LIN| analysis. The \Xyce{} Reference Guide\ReferenceGuide{} 
+provides a complete description of the port devices. Some examples are as follows:
+
+\Example{\\   
+%\texttt{*name nodelist type value  phase(deg)}  \\
+\texttt{P1 1 0 port = 1} \\
+\texttt{P2 12 0  port= 2  z0=100 }
+}
+
+NOTE:  Each port requires a unique port number. If a circuit has N ports, the netlist must
+contain the sequential set of port numbers, 1 to N.  	
+
+\subsection{Example}
+An example S-parameter analysis netlist is given in figure~\ref{spExample}.  This example uses 2 ports.
+The S parameters are outputted to a file in Touchstone format.
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+\color{blue}* S-parameter Analysis example\color{black}
+P1 1 0 port= 1
+
+C1 2 0 1e-2
+Rgs 1 2 0.02
+
+.subckt RCBlock IN OUT GND
+R1 IN OUT 20
+C1 IN OUT 1p
+Cg1 OUT GND 1p
+.ends
+
+X1 2 3 0 RCBlock
+X2 3 4 0 RCBlock
+X3 4 5 0 RCBlock
+X4 5 6 0 RCBlock
+X5 6 7 0 RCBlock
+X6 7 8 0 RCBlock
+X7 8 9 0 RCBlock
+X8 9 10 0 RCBlock
+X9 10 11 0 RCBlock
+X10 11 12 0 RCBlock
+
+.AC DEC 10 10  1e5 
+
+.LIN FORMAT=TOUCHSTONE  sparcalc=1
+
+P2 12 0  port=2 z0=100
+
+.END
+
+\end{vquote}
+\end{minipage}
+}
+\caption[S-parameter Example Netlist]
+{S-parameter Example Netlist.  \label{spExample} }
+\end{centering}
+\end{figure}
 
 %%% Local Variables:
 %%% mode: latex
