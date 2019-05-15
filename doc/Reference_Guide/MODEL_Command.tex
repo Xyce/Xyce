@@ -139,11 +139,13 @@ Vb b 0 0.0
 \index{model!model interpolation}
 \index{model!tempmodel}
 
-Traditionally, SPICE simulators handle thermal effects by coding temperature
-dependence of model parameters into each device.  These expressions modify the
-nominal device parameters given in the \texttt{.MODEL} card when the ambient
-temperature is not equal to \textrmb{TNOM}, the temperature at which parameters
-were extracted.
+\textbf{NOTE:  The temperature interpolation model described in this section has been deprecated and may be removed in a future version of \Xyce{}}.
+
+Traditionally, SPICE simulators handle thermal effects by coding
+temperature dependence of model parameters into each device.  These
+expressions modify the nominal device parameters given in
+the \texttt{.MODEL} card when the ambient temperature is not equal
+to \textrmb{TNOM}, the temperature at which parameters were extracted.
 
 These temperature correction equations may be reasonable at temperatures close
 to \textrmb{TNOM}, but Sandia users of \Xyce{} have found them inadequate when
