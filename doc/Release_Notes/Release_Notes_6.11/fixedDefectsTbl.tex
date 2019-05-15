@@ -172,5 +172,8 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
 \textbf{1092-SON}: Analytic and finite difference sensivities for the bsim6 and bsim3 (and possibly others) don't match well in transient &   The formula used for finite difference device parameter derivatives was not accurate.  It has been fixed and now it produces much more accurate results.  
 \\ \hline
 
+\textbf{1086-SON}: OP and .PRINT SENS, without a .PRINT DC present, causes Xyce to exit with error  &  This was due to a small logic mistake in the parser and has been fixed.
+\\ \hline
+
 \end{longtable}
 }
