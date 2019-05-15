@@ -874,8 +874,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         if (parameter.getType() ==  Xyce::Util::EXPR)
 	{
           std::vector<std::string> specials;
-          Util::Expression expression(parameter.stringValue());
-          expression.get_names(XEXP_SPECIAL, specials);
+          parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, specials);
           if (!specials.empty())
 	  {
 	    Report::UserError0() << "TIME, FREQ, TEMP and VT are not allowed in .PARAM statements: " << parameter.uTag();
