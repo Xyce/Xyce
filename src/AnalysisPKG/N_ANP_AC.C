@@ -1879,9 +1879,6 @@ bool AC::doProcessSuccessfulStep()
   {
     ytos(Yparams_, Sparams_, Z0sVec_ );
     
-    // the outputMor_.output call was a temporary outputter.  It will be removed
-    // before SON Bug 1105 is closed.          
-    outputMOR_.output(outputManagerAdapter_.getComm(), 1, currentFreq_, Sparams_ );
 
     // acLoopSize_ is the total number of frequency points in the analyses
     outputManagerAdapter_.outputSParams(currentFreq_, acLoopSize_, Z0sVec_, Sparams_);
