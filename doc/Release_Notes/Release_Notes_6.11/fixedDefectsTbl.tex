@@ -167,7 +167,10 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
   as equivalent to parentheses.  \\ \hline
 
 
-\textbf{1173-SON}: breakpoint handling is really inefficient when there is a large number of breakpoints &  It was observed that when an independent source is specified from a PWL file, and that file contains a really large number of points (thousands), that the circuit runs much more slowly than it should.  This happened because breakpoints were stored and sorted using inefficient methods.  This has been fixed for this release.
+\textbf{1173-SON}: breakpoint handling is really inefficient when there is a large number of breakpoints &  It was observed that when an independent source is specified from a PWL file, and that file contains a really large number of points (thousands), that the circuit runs much more slowly than it should.  This happened because breakpoints were stored and sorted using inefficient methods.  This has been fixed for this release.  \\ \hline
+
+\textbf{1092-SON}: Analytic and finite difference sensivities for the bsim6 and bsim3 (and possibly others) don't match well in transient &   The formula used for finite difference device parameter derivatives was not accurate.  It has been fixed and now it produces much more accurate results.  
+\\ \hline
 
 \end{longtable}
 }
