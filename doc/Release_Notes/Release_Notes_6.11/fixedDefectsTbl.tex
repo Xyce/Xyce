@@ -111,6 +111,16 @@ I2 2 0 DC
 \end{verbatim}
 This is fixed now.  \\ \hline
 
+\textbf{1037-SON}: Issues with the use of TIME, TEMP and VT in .PARAM statements &
+The use of the reserved words \texttt{TIME}, \texttt{TEMP} and \texttt{VT} on
+\texttt{.PARAM} lines would result in the simulation running, but the resultant
+parameters would evaluate to 0 without generating any warning or error message.
+Parameters defined on \texttt{.PARAM} lines are supposed to evaluate to
+constants in \Xyce{}, so the use of \texttt{TIME}, \texttt{TEMP} and \texttt{VT}
+should not be allowed on \texttt{.PARAM} lines.  That usage will now cause a
+parsing error.
+\\ \hline
+
 \textbf{1033-SON}: Issues with use of reserved words TEMP and VT in expressions
 in device instance parameters and .GLOBAL PARAM statements & Prior to Release 6.10
 of \Xyce{}, if the reserved words \texttt{TEMP} or \texttt{VT} were used in

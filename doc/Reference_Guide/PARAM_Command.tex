@@ -36,7 +36,7 @@ The name of a parameter and its value.
 \end{Arguments}
 
 \comments
-Parameters defined using \verb+.PARAM+ are evaluated when the netlist is read in, and therefore must evaluate to constants at the time the netlist is parsed.  It is therefore illegal to use any time- or solution-dependent terms in parameter definitions, including the TIME variable or any nodal voltages.   Since they must be constants, these parameters may also not be used in \texttt{.STEP} loops.
+Parameters defined using \verb+.PARAM+ are evaluated when the netlist is read in, and therefore must evaluate to constants at the time the netlist is parsed.  It is therefore illegal to use any time- or solution-dependent terms in parameter definitions, including the TIME, TEMP and VT variables or any nodal voltages.   Since they must be constants, these parameters may also not be used in \texttt{.STEP} loops.
 
 There are several reserved words that may not be used as names for parameters.  These parameters are:
 \begin{XyceItemize}
