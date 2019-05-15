@@ -172,7 +172,10 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
 \textbf{1092-SON}: Analytic and finite difference sensivities for the bsim6 and bsim3 (and possibly others) don't match well in transient &   The formula used for finite difference device parameter derivatives was not accurate.  It has been fixed and now it produces much more accurate results.  
 \\ \hline
 
-\textbf{1086-SON}: OP and .PRINT SENS, without a .PRINT DC present, causes Xyce to exit with error  &  This was due to a small logic mistake in the parser and has been fixed.
+\textbf{1086-SON}: .OP and .PRINT SENS, without a .PRINT DC present, causes Xyce to exit with error  &  This was due to a small logic mistake in the parser and has been fixed.
+\\ \hline
+
+\textbf{1080-SON}: Adjoint transient sensitivities fail if using finite difference derivatives  &  This was due to the finite difference derivatives being computed and stored in an inefficient manner.  For transient adjoints, a time history of device parameter derivatives has to be stored, and this storage must be sparse in order to work well.  The code has been rewritten to use sparse storage and works correctly with transient adjoints now.
 \\ \hline
 
 \end{longtable}
