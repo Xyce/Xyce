@@ -251,7 +251,8 @@ The supported measure types and their definitions are:
     first {\tt NUMFREQ-1} harmonics are determined using an interpolation of {\tt GRIDSIZE} points.
     The default values for {\tt NUMFREQ} and {\tt GRIDSIZE} are 10 and 200, respectively.  
     The measurement window can be limited with the qualifiers {\tt FROM}, {\tt TO} 
-    and {\tt TD} for {\tt TRAN} measures.
+    and {\tt TD} for {\tt TRAN} measures.  For this measure, the phase data is output in
+    degrees not radians.
   \item[\tt FREQ] An estimate of the frequency of {\tt <variable>}, found by cycle counting
     during the simulation.  Cycles are defined through the values of {\tt ON}
     and {\tt OFF} with {\tt MINVAL} being used as a tolerance so that the thresholds
