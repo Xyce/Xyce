@@ -83,8 +83,8 @@ than that of the parameter list.
 
 To specify the number of samples, use the netlist command \texttt{.options 
 SAMPLES numsamples=<value>}.   For sampling analysis to work correctly, this parameter is required.
-Other sampling details, including the sampling type, the covariance matrix, and 
-the statistical outputs can be specified using the 
+Other sampling details, including the sampling type, the covariance matrix, 
+the statistical outputs and the random seed can be specified using the 
 same \verb|.options SAMPLES| netlist command.  Some examples of this command are:
 
 \Example{\\
@@ -97,8 +97,12 @@ same \verb|.options SAMPLES| netlist command.  Some examples of this command are
 + OUTPUTS={R1:R},{C1:C} \\
 + MEASURES=maxSine \\
 + SAMPLE\_TYPE=LHS \\
++ SEED=743190581 \\
 }
 }
+The random seed can be set either in the \texttt{.options SAMPLES} statement, or 
+it can be set from the command line using the \texttt{-randseed} option.  If it 
+is not set either way, then the random seed is generated internally.
 
 \subsection{Sampling a Device Instance Parameter}
 \label{sampling_InstanceParam}

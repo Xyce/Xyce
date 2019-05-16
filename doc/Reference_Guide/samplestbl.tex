@@ -18,6 +18,8 @@ SAMPLE\_TYPE & Sampling type (MC or LHS) & MC \\ \hline
 OUTPUTS      & Comma separated list of outputs (anything that would be a valid \texttt{.RESULT} output command) & -- \\ \hline
 MEASURES     & Comma separated list of measure names (must refer to \texttt{.MEASURE} commands in the netlist) & -- \\ \hline
 COVMATRIX    & Covariance matrix specified in row major form as comma-separated double precision numbers. & -- \\ \hline
-SEED         & Random seed & -- \\ \hline
+SEED         & Random seed & See footnote.\footnotemark[1] \\ \hline
 \end{OptionTable}
+
+\footnotetext[1]{The seed can also be set using command line option, -randseed.   The command line seed will override the netlist seed value.  If the seed is not set in either the netlist or on the command line, then Xyce generates a seed internally.  In all cases, \Xyce{} will output text to the console indicating what seed is being used.}  
 
