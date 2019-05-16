@@ -20,6 +20,8 @@ Performs Fourier analysis of transient analysis output.
 \begin{alltt}
 .FOUR 100K v(5)
 .FOUR 1MEG v(5,3) v(3)
+.FOUR 20MEG  SENS
+.FOUR 40MEG  \{v(3)-v(2)\}
 \end{alltt}
 
 \arguments
@@ -32,10 +34,9 @@ Fourier analysis is performed over the last period (\texttt{1/freq}) of the tran
 The DC component and the first nine harmonics are calculated.  
 
 \argument{ov}
-The desired solution variable, or variables, to be analyzed. Fourier analysis can be performed
-on several solution variables for each fundamental frequency, \texttt{freq}. At least one
-solution variable must be specified in the {\tt .FOUR} line.
-The available solution variables are:
+The desired solution output, or outputs, to be analyzed. Fourier analysis can be performed
+on several outputs for each fundamental frequency, \texttt{freq}. At least one
+output must be specified in the {\tt .FOUR} line.  The available outputs are:
 
 \begin{itemize}
 \item \texttt{V(<circuit node>)} the voltage at \texttt{<circuit node>}
@@ -43,6 +44,7 @@ The available solution variables are:
 \item \texttt{I(<device>)} the current through a two terminal device
 \item \texttt{I<lead abbreviation>(<device>)} the current into a particular lead of a three or more terminal device (see the Comments, below, for details)
 \item \texttt{N(<device parameter>)} a specific device parameter (see the individual devices in Section~\ref{Analog_Devices} for syntax)
+\item \texttt{SENS} transient direct sensitivities (see Section~\ref{SensitivityAnalysis} for more details about setting up the \texttt{.SENS} command
 \end{itemize}
 
 \end{Arguments}
