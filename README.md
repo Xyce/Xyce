@@ -39,14 +39,15 @@ instructions and binary executables&mdash;see the [Xyce
 Homepage](https://xyce.sandia.gov) at [Sandia National
 Laboratories](https://www.sandia.gov).
 
-## Contributing
+## Support
 
-We welcome bug reports and enhancement requests. Those can be done through the
-GitHub "Issues" area, or [other
-methods](https://xyce.sandia.gov/contact_us.html). Due to internal
-restrictions, however, it is difficult for us to accept external contributions
-at this time, which includes pull requests. Nevertheless, if you would like to
-discuss the possibility of a contribution, please contact us.
+Do not file an issue to ask a use question. Support for Open Source Community
+users is available at our [Google
+Groups](https://groups.google.com/forum/#!forum/xyce-users) web forum, which is
+actively monitored by the Xyce developers. Other ways to contact the Xyce
+project can be found on the [Xyce
+Homepage](https://xyce.sandia.gov/contact_us.html). See the
+"[CONTRIBUTING](./CONTRIBUTING.md)" document for more information.
 
 ## Copyright and license
 
