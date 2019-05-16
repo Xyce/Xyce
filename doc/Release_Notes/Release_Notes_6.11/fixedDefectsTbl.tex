@@ -174,7 +174,8 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
   Until release 6.11, \Xyce{} would not accept expressions that
   contained curly braces (other than those delimiting the expression
   itself).  As of this release, these internal braces are now treated
-  as equivalent to parentheses.  \\ \hline
+  as equivalent to parentheses.  The only remaining exception is expressions
+  used in table definitions for E and G sources.\\ \hline
 
 
 \textbf{1173-SON}: breakpoint handling is really inefficient when there is a large number of breakpoints &  It was observed that when an independent source is specified from a PWL file, and that file contains a really large number of points (thousands), that the circuit runs much more slowly than it should.  This happened because breakpoints were stored and sorted using inefficient methods.  This has been fixed for this release.  \\ \hline
