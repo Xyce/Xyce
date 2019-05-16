@@ -110,7 +110,9 @@ ParsingMgr::ParsingMgr(
 
   // These variables are used, in lieu of passing const references to the
   // ParsingMgr into various Util functions like isValue() and Value()
-  // and ExpressionInternals::tokenize_.
+  // and ExpressionInternals::tokenize_.  If enableRandomExpression_ is
+  // set to false, via -hspice-ext random, then AGAUSS() and GAUSS() will
+  // just return the mean rather than a random number.
   Xyce::Util::useHspiceUnits = useHspiceUnits_;
   Xyce::Util::useHspiceMath = useHspiceMath_;
   Xyce::Util::enableRandomExpression = enableRandomExpression_;
