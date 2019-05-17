@@ -190,12 +190,12 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
 \\ \hline
 
 \textbf{895-SON}: The user reported discrepany between Xyce and spice-like simulators on AC test case &  This was due to the 
-different DC op calculated by Xyce and other SPICE simulators. For this test case, the DC data is not specified in the voltage source. Xyce used default DC value 0 for DC op calulcation. The other SPICE simulators used the transient data at time 0 as the DC value'
+different DC op calculated by Xyce and other SPICE simulators. For this test case, the DC data is not specified in the voltage source. Xyce used default DC value 0 for DC op calulcation. The other SPICE simulators used the transient data at time 0 as the DC value
 which is not zero. This leads to different DC bias calculated and different AC results. This has been fixed
 \\ \hline
 
 \textbf{1183-SON}: The AC analysis did not run correctly in parallel for some AC test cases & The AC analysis works in parallel
-when the AC source is a voltage source. If the AC source is a current source, the results can be incorrect.
+when the AC source is a voltage source. If the AC source is a current source, the results can be incorrect
 depending on how the devices and the solution variables are distributed in processors. This has been fixed
 \\ \hline
 
