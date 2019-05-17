@@ -189,5 +189,15 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
 \textbf{1080-SON}: Adjoint transient sensitivities fail if using finite difference derivatives  &  This was due to the finite difference derivatives being computed and stored in an inefficient manner.  For transient adjoints, a time history of device parameter derivatives has to be stored, and this storage must be sparse in order to work well.  The code has been rewritten to use sparse storage and works correctly with transient adjoints now.
 \\ \hline
 
+\textbf{895-SON}: The user reported discrepany between Xyce and spice-like simulators on AC test case &  This was due to the 
+different DC op calculated by Xyce and other SPICE simulators. For this test case, the DC data is not specified in the voltage source. Xyce used default DC value 0 for DC op calulcation. The other SPICE simulators used the transient data at time 0 as the DC value'
+which is not zero. This leads to different DC bias calculated and different AC results. This has been fixed
+\\ \hline
+
+\textbf{1183-SON}: The AC analysis did not run correctly in parallel for some AC test cases & The AC analysis works in parallel
+when the AC source is a voltage source. If the AC source is a current source, the results can be incorrect.
+depending on how the devices and the solution variables are distributed in processors. This has been fixed
+\\ \hline
+
 \end{longtable}
 }
