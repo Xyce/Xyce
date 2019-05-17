@@ -34,6 +34,7 @@
 #include <iosfwd>
 #include <iomanip>
 #include <fstream>
+#include <complex>
 
 #include <N_ANP_AC.h>
 
@@ -1529,7 +1530,9 @@ bool AC::solveAdjointSensitivity_()
 //-----------------------------------------------------------------------------
 // Function      : AC::loadSensitivityRHS_()
 // Purpose       : puts values into the rhs block vector.  The is the RHS for 
-//                 the direct method
+//                 the linear system in the direct method.  It is also used in 
+//                 the adjoint method for the dot product that must be computed
+//                 after the transpose linear solve.
 //
 //            RHS = B' - J' * X
 //
@@ -1664,6 +1667,7 @@ bool AC::loadSensitivityRHS_(const std::string & name)
     // compute the matvec and then sum into the rhs vector.
     bool Transpose = false;
     dJdp_->matvec( Transpose , *X_, *sensRhs_ );
+    sensRhs_->scale(-1.0);
   }
 
   sensRhs_->daxpy( *sensRhs_, 1.0, *dBdp_ );
@@ -1794,9 +1798,8 @@ void evaluateObjFuncs (
     comm.bcast( &xr, 1, root );
     comm.bcast( &xi, 1, root );
 
-    double sumOfSquares = (xr*xr + xi*xi);
-    double xm = std::sqrt(sumOfSquares);
-    double xp = (xr==0.0)?0.0:(std::atan(xi/xr));
+    double xm = std::abs(std::complex<double>(xr,xi));
+    double xp = std::arg(std::complex<double>(xr,xi));
 
     objectiveVec.push_back(xr);
     objectiveVec.push_back(xi);
