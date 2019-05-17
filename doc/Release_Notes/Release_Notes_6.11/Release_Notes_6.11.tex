@@ -126,6 +126,12 @@ please visit the \XyceTM{} web page at
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
 \item The time step recovery algorithm is now considered deprecated.  It will be removed in a future version of \Xyce{}.
+
+\item The S-parameter analysis is now supported in Xyce. It can be enabled by using a \verb|.LIN| command with a \verb|.AC| command in the netlist. The port device is developed to support S-parameter analysis and it can be used for DC, AC and transient analyses.The results of S-parameter analysis are outputted to a file in touchstone format. See the \Xyce{} users' and Reference Guides
+for more details.
+
+\item The initial guess method based on DC op solutions for HB is now supported and it can be enabled by using the TAHB option
+
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
