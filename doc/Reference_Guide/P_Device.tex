@@ -25,6 +25,7 @@ V<name> <(+) node> <(-) node> port=port number  [Z0 = value]
 P1 1 0 port = 1
 P2 12 0  port=1  z0=100
 P1 1 0 port=2   sin 0  1 1e5
+P2 2 0 port=2 z0=100 AC 1
 \end{alltt}
 
 
@@ -38,11 +39,11 @@ The port number. Numbered sequentially beginning with 1
 
 \param{Z0} 
 
-System impedance. Currently, it only supports real impedance.
+System impedance. Currently, it only supports a real-valued impedance.
 
 \param{transient specification}
 
-There are five predefined time-varying functions for sources:
+There are six predefined time-varying functions for sources:
 
 \begin{description}
 \item[\tt PULSE <parameters>] Pulse waveform
@@ -68,7 +69,7 @@ for all other analyses, such as DC, AC and transient.
 
 None, any, or all of the DC, AC, and transient values
 can be specified. The AC phase value is in degrees. The port device
-accepts the same transient specifications as the voltage sources.
+accepts the same transient specifications as the voltage (V) sources.
 
 \end{Device}
 
