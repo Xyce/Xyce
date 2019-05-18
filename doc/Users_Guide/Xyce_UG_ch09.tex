@@ -1464,6 +1464,71 @@ sensitivity is given by the solid line.  The results match very well in this cas
 with the two lines right on top of each other.
 
 \clearpage
+\subsection{AC Sensitivities}
+Sensitivities can also be computed for small-signal AC analysis.  As with steady-state (DC) 
+and transient analysis, both direct and adjoint sensitivities are supported.     An example
+netlist which exercises the capability is shown in figure~\ref{AC_Sensitivity_Netlist}.
+
+The netlist commands for AC sensitivities are very similar to those for DC, but with 
+some small exceptions.   The expression library in \Xyce{} currently does not support
+complex numbers, so the specification for objective functions is more limited.  As such, 
+the \texttt{objfunc} parameter will not work with AC sensitivities, and the user should
+instead specify outputs using \texttt{objvars} followed by a list of node names.  The
+sensitivities that are computed will be for the voltages at the listed nodes, with respect
+to the list of sensitivity parameters.
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.99\textwidth}
+        \begin{vquote}
+\color{blue}*Lowpass filter test for AC sensitivities\color{black}
+v1 1 0 ac 10.0
+r1 1 2 4.7k
+c1 2 0 47n
+
+.ac dec 10 1 10k
+.print ac  vm(1) vp(1) vm(2) vp(2)   
+.print sens 
+
+\color{red}* Sensitivity commands
+.sens objvars=2 param=r1:r,c1:c
+.options sensitivity direct=1 adjoint=0  stdoutput=1\color{black}
+.end 
+\end{vquote}
+\end{minipage}
+}
+\caption[AC Sensitivity Example Netlist]
+{AC Sensitivity Example Netlist \label{AC_Sensitivity_Netlist} }
+\end{centering}
+\end{figure}
+For each specified output, there are four separate objective functions for
+which sensitivities will be computed; magnitude and phase for the polar 
+representation, as well as real and imaginary for the cartesian 
+representation of the solution.   The console output for the example netlist,
+for the first frequency, is shown in figure ~\ref{AC_Sensitivity_Result}.
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.99\textwidth}
+        \begin{vquote}
+
+Direct Sensitivities for node V(2):
+VR(2) = 1.0000e+01  VI(2) = -1.3880e-02
+VM(2) = 1.0000e+01  VP(2) = -1.3880e-03
+
+Name  Value Sensitivity\_Re  Sensitivity\_Im  Sensitivity\_Mag Sensitivity\_Phase
+R1:R  4.7e+03  -8.1975e-09     -2.9531e-06     -4.0988e-09     -2.9531e-07
+C1:C  4.7e-08  -8.1975e+02     -2.9531e+05     -4.0988e+02     -2.9531e+04
+
+\end{vquote}
+\end{minipage}
+}
+\caption[AC Sensitivity Example Result]
+{AC Sensitivity Example Result\label{AC_Sensitivity_Result} }
+\end{centering}
+\end{figure}
+
+\clearpage
 \subsection{Output}
 \label{SENS_Output}\index{\texttt{.PRINT}!\texttt{.SENS}}
 For a full list and explanation of options related to \texttt{.SENS} output see 
