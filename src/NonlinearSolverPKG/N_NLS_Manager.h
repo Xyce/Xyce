@@ -88,7 +88,6 @@ public:
   bool setLinSolOptions(const Util::OptionBlock& option_block );
   bool setLocaOptions(const Util::OptionBlock& option_block );
   bool setTwoLevelLocaOptions(const Util::OptionBlock& option_block );
-  bool setDCOPRestartOptions (const Util::OptionBlock& option_block );
   bool setICOptions (const Util::OptionBlock& option_block );
   bool setNodeSetOptions (const Util::OptionBlock& option_block );
   bool setReturnCodeOption(const Util::Param &param);

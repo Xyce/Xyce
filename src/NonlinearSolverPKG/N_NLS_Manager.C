@@ -70,7 +70,6 @@ enum {
   OPTION_BLOCK_TWO_LEVEL_TRAN,
   OPTION_BLOCK_IC,
   OPTION_BLOCK_NODESET,
-  OPTION_BLOCK_DCOP_RESTART,
   OPTION_BLOCK_SENS,
   OPTION_BLOCK_SENSITIVITY
 };
@@ -511,14 +510,6 @@ bool Manager::allocateSolver(
   {
     const Util::OptionBlock &option_block = (*it).second;
     bs1 = nonlinearSolver_->setLinsolOptions(option_block);
-    bsuccess = bsuccess && bs1;
-  }
-
-  it = optionBlockMap_.find(OPTION_BLOCK_DCOP_RESTART) ;
-  if ( it != optionBlockMap_.end() )
-  {
-    const Util::OptionBlock &option_block = (*it).second;
-    bs1 = nonlinearSolver_->setDCOPRestartOptions(option_block);
     bsuccess = bsuccess && bs1;
   }
 
@@ -974,20 +965,6 @@ const ReturnCodes &Manager::getReturnCodes() const
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Manager::setDCOPRestartOptions
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 09/17/07
-//-----------------------------------------------------------------------------
-bool Manager::setDCOPRestartOptions (const Util::OptionBlock& option_block )
-{
-  optionBlockMap_[OPTION_BLOCK_DCOP_RESTART] = option_block;
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Manager::setICOptions
 // Purpose       :
 // Special Notes :
@@ -1375,7 +1352,6 @@ bool registerPkgOptionsMgr(Manager &manager, IO::PkgOptionsMgr &options_manager)
   options_manager.addOptionsProcessor("SENSITIVITY", IO::createRegistrationOptions(manager, &Manager::setSensitivityOptions));
   options_manager.addOptionsProcessor("NONLIN-TWOLEVEL", IO::createRegistrationOptions(manager, &Manager::setTwoLevelOptions));
   options_manager.addOptionsProcessor("NONLIN-TWOLEVEL-TRAN", IO::createRegistrationOptions(manager, &Manager::setTwoLevelTranOptions));
-  options_manager.addOptionsProcessor("DCOP", IO::createRegistrationOptions(manager, &Manager::setDCOPRestartOptions));
 
   return true;
 }

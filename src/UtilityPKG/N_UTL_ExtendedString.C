@@ -44,7 +44,7 @@ namespace Util {
 
 // This value is derived from the -hspice-ext command line option.  It is
 // set, based on that command line option, in the constructor for the
-// IO::ParsingMgr class.
+// IO::ParsingMgr class. If set to true then 1A=1e-18 rather than 1.
 bool useHspiceUnits = false;
 
 //-----------------------------------------------------------------------------

@@ -127,7 +127,7 @@ void usage(std::ostream &os)
      << "  -rsf <response file name>   specify a file to save simulation responses functions.\n"
      << "  -r <file>                   generate a rawfile named <file> in binary format\n"
      << "  -a                          use with -r <file> to output in ascii format\n"
-     << "  -randseed <number>          seed random number generator used by expressions with given value\n"
+     << "  -randseed <number>          seed random number generator used by expressions and sampling methods\n"
 
 #ifdef HAVE_DLFCN_H
      << "  -plugin                     load device plugin\n"

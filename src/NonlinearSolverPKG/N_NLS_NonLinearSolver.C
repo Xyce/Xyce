@@ -187,20 +187,6 @@ bool NonLinearSolver::setLinsolOptions(const Util::OptionBlock & OB)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : NonLinearSolver::setDCOPRestartOptions
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter
-// Creation Date : 09/17/2007
-//-----------------------------------------------------------------------------
-bool NonLinearSolver::setDCOPRestartOptions(const Util::OptionBlock& OB)
-{
-  Report::DevelFatal0() <<  "DCOP restart options not supported for this solver.  Use nox instead. ";
-  return true;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : NonLinearSolver::setICOptions
 // Purpose       :
 // Special Notes :

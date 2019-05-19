@@ -141,6 +141,8 @@ public:
     return true;
   }
 
+  // ERK.  these 4 functions are used for interpolating model parameters w.r.t. 
+  // temperature and/or dose.
   void saveParams ();
   bool interpolateTNOM (double);
   bool interpolateDOSE (double);
@@ -173,6 +175,9 @@ public:
     std::vector<int> &        BindicesVec) {return true;}
 
 private:
+
+  // these two functions are used for interpolating model parameters w.r.t. 
+  // temperature and/or dose
   bool interpolated ();
   bool interpolate (double);
 

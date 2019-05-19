@@ -57,7 +57,6 @@
 #include <N_NLS_NOX_AugmentLinSys.h>
 #include <N_NLS_NOX_AugmentLinSys_PseudoTransient.h>
 #include <N_NLS_NOX_AugmentLinSys_GStepping.h>
-#include <N_NLS_NOX_AugmentLinSys_OPStart.h>
 #include <N_NLS_NOX_AugmentLinSys_IC.h>
 #include <N_NLS_NOX_AugmentLinSys_IC_Gmin.h>
 #include <N_LAS_Builder.h>
@@ -1413,26 +1412,6 @@ ParameterSet::createAugmentLinearSystem(Linear::System* ls) const
       << "parameter in the .options nox list must be set to PSEUDO or NATURAL for "
       <<  "this function to be called!";
   }
-
-  return als;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : ParameterSet::createAugmentLinearSystem
-// Purpose       : creates an AugmentLinSys strategy object.
-// Special Notes :
-// Scope         : public
-// Creator       : Dave Shirley, PSSI
-// Creation Date : 05/08/06
-//-----------------------------------------------------------------------------
-Teuchos::RCP<AugmentLinSys>
-ParameterSet::createAugmentLinearSystem(Linear::System* ls, IO::InitialConditionsData::NodeNamePairMap & op,
-                                        const NodeNameMap & allNodes, N_PDS_Comm * pdsCommPtr
-   ) const
-{
-  Teuchos::RCP<AugmentLinSys> als;
-
-  als = Teuchos::rcp( new AugmentLinSysOPStart(op, allNodes, pdsCommPtr) );
 
   return als;
 }

@@ -166,6 +166,8 @@ void DeviceModel::setModParams(const std::vector<Param> &params)
   }
   else
   {
+    Xyce::lout() << "\nThe temperature interpolation capability, invoked by TEMPMODEL=QUADRATIC in a .MODEL statement, is considered deprecated.  It will be removed from a future version of Xyce\n" << std::endl;;
+
     m_start.push_back(param_index + 1);
 
     // An interpolation method is present, first figure out what it

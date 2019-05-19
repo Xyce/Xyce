@@ -27,7 +27,6 @@ libNonlinearSolver_la_SOURCES = \
   N_NLS_LOCA_Group.C \
   N_NLS_NOX_AugmentLinSys_PseudoTransient.C \
   N_NLS_NOX_AugmentLinSys_GStepping.C \
-  N_NLS_NOX_AugmentLinSys_OPStart.C \
   N_NLS_NOX_AugmentLinSys_IC.C \
   N_NLS_NOX_AugmentLinSys_IC_Gmin.C \
   N_NLS_ReturnCodes.C \
@@ -59,6 +58,5 @@ libNonlinearSolver_la_SOURCES = \
   N_NLS_NOX_AugmentLinSys.h \
   N_NLS_NOX_AugmentLinSys_PseudoTransient.h \
   N_NLS_NOX_AugmentLinSys_GStepping.h \
-  N_NLS_NOX_AugmentLinSys_OPStart.h \
   N_NLS_NOX_AugmentLinSys_IC.h \
   N_NLS_NOX_AugmentLinSys_IC_Gmin.h 

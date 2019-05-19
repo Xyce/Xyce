@@ -632,7 +632,7 @@ getParamAndReduce(
   const DeviceMgr &     device_manager,
   const std::string &   name);
 
-void addGlobalParameter(SolverState &solver_state, Globals &global, const Util::Param &param);
+void addGlobalParameter(SolverState &solver_state, double temp, Globals &global, const Util::Param &param);
 const double *findGlobalParameter(const GlobalParameterMap &global_map, const std::string &name);
 
 } // namespace Device

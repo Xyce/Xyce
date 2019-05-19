@@ -2403,10 +2403,17 @@ void capMatrixSensitivity::operator()(
   d_dqdx_dp.resize(2);
   d_dqdx_dp[0].resize(2);
   d_dqdx_dp[1].resize(2);
+#if 0
   d_dqdx_dp[0][0] = +1.0;
   d_dqdx_dp[0][1] = -1.0;
   d_dqdx_dp[1][0] = -1.0;
   d_dqdx_dp[1][1] = +1.0;
+#else
+  d_dqdx_dp[0][0] = +(in->multiplicityFactor);
+  d_dqdx_dp[0][1] = -(in->multiplicityFactor);
+  d_dqdx_dp[1][0] = -(in->multiplicityFactor);
+  d_dqdx_dp[1][1] = +(in->multiplicityFactor);
+#endif
 
   Q_lids.resize(2);
   Q_lids[0] = in->li_Pos;

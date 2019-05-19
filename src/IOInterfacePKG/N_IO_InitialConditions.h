@@ -54,7 +54,7 @@ struct InitialConditionsData
 {
   typedef std::map<std::string, std::pair<int, double>, LessNoCase > NodeNamePairMap;
 
-  enum {IC_TYPE_UNDEFINED, IC_TYPE_DCOP_RESTART, IC_TYPE_IC, IC_TYPE_NODESET};
+  enum {IC_TYPE_UNDEFINED, IC_TYPE_IC, IC_TYPE_NODESET};
 
   InitialConditionsData()
     : icType_(IC_TYPE_UNDEFINED),

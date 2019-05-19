@@ -151,6 +151,7 @@ bool updateTemperature
    const ScalarT & IBV,
    const ScalarT & BV,
    const bool & BVGiven,
+   const bool & IRFGiven,
    const ScalarT & TBV1,
    const ScalarT & TBV2,
    const ScalarT & TRS1,
@@ -529,6 +530,7 @@ private:
   double AF;   // flicker noise exponent
 
   bool BVGiven;
+  bool IRFGiven;
 };
 
 //-----------------------------------------------------------------------------

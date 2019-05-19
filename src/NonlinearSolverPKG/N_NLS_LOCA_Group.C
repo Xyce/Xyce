@@ -76,11 +76,6 @@ Group::Group(Teuchos::RCP<LOCA::GlobalData> gd,
              IO::OutputMgr& o, Analysis::AnalysisManager & t) :
   N_NLS_NOX::Group(s),
   LOCA::Abstract::Group(gd),
-  outputLinear_(false),
-  serialNumber_(0),
-  op_(0),
-  allNodes_(0),
-  pdsCommPtr_(0),
   loader(l),
   outputMgr(o),
   anaInt(t),
@@ -104,14 +99,6 @@ Group::Group(Teuchos::RCP<LOCA::GlobalData> gd,
 Group::Group(const Group& source, NOX::CopyType type) :
   N_NLS_NOX::Group(source, type),
   LOCA::Abstract::Group(source, type),
-  outputLinear_(source.outputLinear_),
-  serialNumber_(source.serialNumber_),
-  oldSol_(source.oldSol_),
-  op_(source.op_),
-  allNodes_(source.allNodes_),
-#ifdef Xyce_PARALLEL_MPI
-  pdsCommPtr_(source.pdsCommPtr_),
-#endif
   loader(source.loader),
   outputMgr(source.outputMgr),
   anaInt(source.anaInt),
@@ -303,15 +290,6 @@ NOX::Abstract::Group::ReturnType Group::computeJacobian()
     augmentLSStrategy_->augmentJacobian(&jacobian);
   }
 
-  if (outputLinear_)
-  {
-    Linear::Matrix& jacobian =
-      const_cast<Linear::Matrix&>(sharedSystemPtr_->getJacobian());
-    dout() << "After computeJacobian, linear system is:" << std::endl;
-    outputLinearSystem_ (&jacobian, xVec_.getNativeVectorPtr(),
-                                   fVec_.getNativeVectorPtr());
-  }
-
   if (DEBUG_NONLINEAR)
   {
     Linear::Matrix& jacobian = const_cast<Linear::Matrix&>(sharedSystemPtr_->getJacobian());
@@ -355,169 +333,7 @@ NOX::Abstract::Group::ReturnType Group::computeDfDpMulti
     bool tmp = sharedSystemPtr_->computeDfDpMulti (paramIDs, dfdp, isValidF);
   }
 
-#if 0
-  // temporary debug:
-  std::cout << "dfdp vector[0]:" <<std::endl;
-  NOX::Abstract::Vector *DFDP = &dfdp[0];
-  DFDP->print(std::cout);
-
-  std::cout << "dfdp vector[1]:" <<std::endl;
-  DFDP = &dfdp[1];
-  DFDP->print(std::cout);
-#endif
-
   return NOX::Abstract::Group::Ok;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Group::setOutputLinear
-// Purpose       :
-// Special Notes : for DCOP restart (debugging)
-// Scope         : public
-// Creator       : Dave Shirley
-// Creation Date : 2006
-//-----------------------------------------------------------------------------
-void Group::setOutputLinear (NodeNameMap * op,
-                             NodeNameMap * allNodes,
-                             N_PDS_Comm * pdsCommPtr)
-{
-  op_ = op;
-  allNodes_ = allNodes;
-  pdsCommPtr_ = pdsCommPtr;
-  outputLinear_ = true;
-  serialNumber_ = 0;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Group::outputLinearSystem_
-// Purpose       :
-// Special Notes : for DCOP restart (debugging)
-// Scope         : private
-// Creator       : Dave Shirly
-// Creation Date : 2006
-//-----------------------------------------------------------------------------
-void Group::outputLinearSystem_ (Linear::Matrix* jacobian,
-                         Linear::Vector* solPtr_,
-                         Linear::Vector* resPtr_)
-{
-  NodeNameMap::iterator op_i;
-  NodeNameMap::iterator op_end;
-  int i, row, global_row;
-  int num;
-  std::vector<int> col;
-  std::vector<double> val;
-  std::map<int,std::string> rowOut;
-  int rowLen, GID;
-
-  if (!outputLinear_)
-    return;
-
-#ifdef Xyce_PARALLEL_MPI
-  N_PDS_ParMap * pmap_;
-  pmap_ = resPtr_->pmap();
-  int procID = pdsCommPtr_->procID();
-#endif
-  op_i = allNodes_->begin();
-  op_end = allNodes_->end();
-  for ( ; op_i != op_end ; ++op_i)
-  {
-   std::ostringstream s;
-    row = (*op_i).second;
-#ifdef Xyce_PARALLEL_MPI
-    global_row = pmap_->localToGlobalIndex(row);
-#else
-    global_row = row;
-#endif
-    s << "Global: " << global_row << " : " << (*op_i).first << "  Row: " << global_row;
-    s << " Value: " << (*solPtr_)[row];
-    if (serialNumber_ > 0)
-    {
-      s << std::endl;
-      s << "  Delta Value: " << (*solPtr_)[row] - oldSol_[row];
-      s << std::endl;
-    }
-    oldSol_[row] = (*solPtr_)[row];
-    s << " Residual: " << (*resPtr_)[row];
-#ifdef Xyce_PARALLEL_MPI
-    s << "  proc: " << procID;
-#endif
-    s << std::endl;
-    rowLen = jacobian->getLocalRowLength(row);
-    col.resize(rowLen);
-    val.resize(rowLen);
-    jacobian->getRowCopy(global_row, rowLen, rowLen, &val[0], &col[0]);
-    for (i=0 ; i<rowLen ; i++)
-    {
-      if (i>1 && i%10 == 0)
-      s << std::endl;
-      GID = col[i];
-      s << "  " << GID << "(" << val[i] << ")";
-    }
-    rowOut[global_row] = s.str();
-  }
-  serialNumber_++;
-  std::map<int,std::string>::iterator row_i;
-  std::map<int,std::string>::iterator row_end = rowOut.end();
-  row_i = rowOut.begin();
-  std::string str;
-#ifdef Xyce_PARALLEL_MPI
-  int numG;
-  int pos, posG;
-  int len;
-  std::string buf;
-#endif
-  int big=2000000000;
-  for ( ; ; ++row_i )
-  {
-    if (row_i == row_end)
-    {
-      str = "";
-      num = big;
-    }
-    else
-    {
-      str = (*row_i).second;
-      num = (*row_i).first;
-    }
-#ifdef Xyce_PARALLEL_MPI
-    numG = -1;
-    while (numG != num)
-    {
-      pdsCommPtr_->minAll (&num, &numG, 1);
-      if (numG == big)
-        break;
-      if (num == numG)
-        pos = procID;
-      else
-        pos = 0;
-      pdsCommPtr_->sumAll (&pos, &posG, 1);
-      if (procID == 0)
-      {
-        if (posG != 0)
-        {
-          pdsCommPtr_->recv(&len, 1, posG);
-          buf.resize(len);
-          pdsCommPtr_->recv(&buf[0], len, posG);
-          dout() << buf << std::endl;
-        }
-        else
-          dout() << str << std::endl;
-      }
-      else if (procID == posG)
-      {
-        len = str.size();
-        pdsCommPtr_->send(&len, 1, 0);
-        pdsCommPtr_->send(str.c_str(), len, 0);
-      }
-    }
-    if (numG == big)
-      break;
-#else
-    dout() << str << std::endl;
-    if (num == big)
-      break;
-#endif
-  }
 }
 
 //-----------------------------------------------------------------------------

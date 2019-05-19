@@ -116,12 +116,24 @@ please visit the \XyceTM{} web page at
   MOSFET) as it was obtained from its authors.  The bug has been fixed
   in this release, but does change the results of simulation slightly.
 \item A new pattern (PAT) source function was added for the V
-and I devices.
+  and I devices.
+\item An error in the SPICE-compatible level 1 and level 2 diode model
+  that could result in convergence problems or incorrect results at
+  high temperatures was corrected.  See the ``fixed defects'' table
+  under the heading for bug 1144-SON for details.
+\item The BSIM3 device now supports analytic parameter sensitivities.
+\item Device-level parameter finite-difference sensitivities are now much more efficient for transient adjoints.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-\item placeholder
+\item The time step recovery algorithm is now considered deprecated.  It will be removed in a future version of \Xyce{}.
+
+\item The S-parameter analysis is now supported in Xyce. It can be enabled by using a \verb|.LIN| command with a \verb|.AC| command in the netlist. The port device is developed to support S-parameter analysis and it can be used for DC, AC and transient analyses.The results of S-parameter analysis are outputted to a file in touchstone format. See the \Xyce{} users' and Reference Guides
+for more details.
+
+\item The initial guess method based on DC op solutions for HB is now supported and it can be enabled by using the TAHB option
+
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
@@ -137,13 +149,23 @@ and I devices.
 \item The \texttt{-remeasure} command line option now supports the use 
 of the I() operator in the re-measured output files.
 \item .MEASURE is now supported for .AC analyses.
+\item Improved support for expressions on .MEASURE lines.  See the ``Expression
+Support'' subsection of the .MEASURE section of the \Xyce{} Reference Guide 
+for more details.
+\item For improved HSPICE compatibility, the MEASFAIL, MEASDGT and MEASOUT
+options are now supported for .OPTIONS MEASURE.
 \item Improved support for ``arithmetic operators'' (e.g., + - or *) in node names
 and device names that are used in expressions. See the ``Legal Characters in Node
 and Device Names'' subsection of the \Xyce{} Reference Guide for more details.
+\item Transient direct sensitivities can now be processed using \texttt{.FOUR}.
+\item Parameter sensitivities are now supported for \texttt{.AC} analysis.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}
 \begin{XyceItemize}
+\item The model interpolation technique described in the \Xyce{}
+  Reference Guide in section 2.1.17 has been marked as deprecated, and
+  will be removed in a future release of Xyce.
 \item It has been determined that some distributions of Linux have
   broken builds of OpenMPI in their package repositories.  Building
   \Xyce{} from source code in parallel with these OpenMPI installs

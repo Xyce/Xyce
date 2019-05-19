@@ -8,4 +8,4 @@ SUBDIRS = \
   RandomTest \
   GenExtTestHarnesses \
   XygraTestHarnesses \
-	TwoLevelNewton
+  TwoLevelNewton $(MAYBE_VPITESTS)

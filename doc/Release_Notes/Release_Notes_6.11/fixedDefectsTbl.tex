@@ -49,13 +49,51 @@ upward sweep starting at the start value.
 and \texttt{.STEP}, and will now always compute only the first DC or
 STEP value, even if the stepping algorithm cannot advance from
 ``start'' to ``stop''.  This brings \Xyce{}'s behavior in line with
-those of other SPICE-like simulators.  Unlike other
-simulators, \\ \hline
+those of other SPICE-like simulators.  \\ \hline
 
 \textbf{1160-SON} .DATA did not work with -remeasure for .TRAN and .DC analyses &
 The \texttt{.DATA} netlist command, which was introduced in release
 6.10, did not work with the \texttt{-remeasure} command line
 option. This is fixed now. \\ \hline
+
+\textbf{1144-SON} Fix discontinuity in diode model at high temperature & Since
+2005, the \Xyce{} diode model has supported a parameter
+called \textbf{IRF}, which allowed users to apply a scaling factor to
+the reverse current of the diode in order to match experimental data.
+Not only was this feature never properly validated, it was also not
+correctly falling back to SPICE3F5 compatibility as the documentation
+claimed it should have done, nor was its temperature dependence
+correctly documented.  This has been corrected in \Xyce{} 6.11, and
+the feature is now disabled correctly if \textbf{IRF} is not specified
+in the diode's model card, and the diode does in fact match SPICE3F5
+as originally intended.  The reference guide discussion of the reverse
+current equations in the level 1 and 2 diode models now correctly
+documents how \textbf{IRF} is actually used and what temperature
+dependence is applied to it.
+
+Furthermore, since it has been observed that use of \textbf{IRF} can
+introduce a discontinuity that could have significant impact on
+simulation results, even resulting in simulation failure, the \Xyce{}
+team intends to remove this feature in a future release.  Any use of
+the \textbf{IRF} parameter in a diode model card will now result
+in \Xyce{} emitting a deprecation warning even if the parameter is
+being set to its default value of 1.0.  That is because
+when \textbf{IRF} is specified at all, a temperature-dependent factor
+is applied to it that could also cause a discontinuity.  For maximum
+compatibility with other SPICE-like products, users should never
+specify \textbf{IRF} in any diode model.\\ \hline
+
+\textbf{1146-SON} Fix and test ill-defined behavior from ill-formed .AC lines &
+Some ill-formed \texttt{.AC} lines would produce the ``sub-optimal''
+behavior of running the simulation to completion without any errors or
+warnings.  However, no output files would be made because the .AC line
+had invalid parameters.  \Xyce{} now correctly emits a parsing error
+if the
+\texttt{<start frequency value>}, \texttt{<end frequency value>} or
+\texttt{<points value>} parameters specifed on the \texttt{.AC} line are
+not allowed. This also applies to the error handling for \texttt{.DATA}
+commands that are used to specify the frequency steps for a \texttt{.AC}
+analysis.  \\ \hline
 
 \textbf{1112-SON}: Support for HSpice/LTSpice charge-based capacitor needed &
  Xyce now supports a ``Q'' parameter for its capacitor.  This
@@ -72,6 +110,26 @@ V1 1 0 DC
 I2 2 0 DC
 \end{verbatim}
 This is fixed now.  \\ \hline
+
+\textbf{1037-SON}: Issues with the use of TIME, TEMP and VT in .PARAM statements &
+The use of the reserved words \texttt{TIME}, \texttt{TEMP} and \texttt{VT} on
+\texttt{.PARAM} lines would result in the simulation running, but the resultant
+parameters would evaluate to 0 without generating any warning or error message.
+Parameters defined on \texttt{.PARAM} lines are supposed to evaluate to
+constants in \Xyce{}, so the use of \texttt{TIME}, \texttt{TEMP} and \texttt{VT}
+should not be allowed on \texttt{.PARAM} lines.  That usage will now cause a
+parsing error.
+\\ \hline
+
+\textbf{1033-SON}: Issues with use of reserved words TEMP and VT in expressions
+in device instance parameters and .GLOBAL PARAM statements & Prior to Release 6.10
+of \Xyce{}, if the reserved words \texttt{TEMP} or \texttt{VT} were used in
+expressions for device instance parameters or in \texttt{.GLOBAL\_PARAM}
+statements then their values would always be 0.  For Release 6.10, it was fixed
+for netlists that had a \texttt{.STEP} command.  It is now also fixed for the
+``non-step case'' and for the case where \texttt{.OPTION DEVICE TEMP=<val>}
+is used to set the circuit temperature.
+\\ \hline
 
 \textbf{1034-SON}: Issues with processing expressions that contain arithmetic
 operators (e.g., + - or *) within an otherwise legal node or device name &
@@ -116,7 +174,30 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
   Until release 6.11, \Xyce{} would not accept expressions that
   contained curly braces (other than those delimiting the expression
   itself).  As of this release, these internal braces are now treated
-  as equivalent to parentheses.  \\ \hline
+  as equivalent to parentheses.  The only remaining exception is expressions
+  used in table definitions for E and G sources.\\ \hline
+
+
+\textbf{1173-SON}: breakpoint handling is really inefficient when there is a large number of breakpoints &  It was observed that when an independent source is specified from a PWL file, and that file contains a really large number of points (thousands), that the circuit runs much more slowly than it should.  This happened because breakpoints were stored and sorted using inefficient methods.  This has been fixed for this release.  \\ \hline
+
+\textbf{1092-SON}: Analytic and finite difference sensivities for the bsim6 and bsim3 (and possibly others) don't match well in transient &   The formula used for finite difference device parameter derivatives was not accurate.  It has been fixed and now it produces much more accurate results.  
+\\ \hline
+
+\textbf{1086-SON}: .OP and .PRINT SENS, without a .PRINT DC present, causes Xyce to exit with error  &  This was due to a small logic mistake in the parser and has been fixed.
+\\ \hline
+
+\textbf{1080-SON}: Adjoint transient sensitivities fail if using finite difference derivatives  &  This was due to the finite difference derivatives being computed and stored in an inefficient manner.  For transient adjoints, a time history of device parameter derivatives has to be stored, and this storage must be sparse in order to work well.  The code has been rewritten to use sparse storage and works correctly with transient adjoints now.
+\\ \hline
+
+\textbf{895-SON}: The user reported discrepany between Xyce and spice-like simulators on AC test case &  This was due to the 
+different DC op calculated by Xyce and other SPICE simulators. For this test case, the DC data is not specified in the voltage source. Xyce used default DC value 0 for DC op calulcation. The other SPICE simulators used the transient data at time 0 as the DC value
+which is not zero. This leads to different DC bias calculated and different AC results. This has been fixed
+\\ \hline
+
+\textbf{1183-SON}: The AC analysis did not run correctly in parallel for some AC test cases & The AC analysis works in parallel
+when the AC source is a voltage source. If the AC source is a current source, the results can be incorrect
+depending on how the devices and the solution variables are distributed in processors. This has been fixed
+\\ \hline
 
 \end{longtable}
 }

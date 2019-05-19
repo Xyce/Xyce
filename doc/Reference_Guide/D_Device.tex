@@ -67,13 +67,25 @@ using \verb|LEVEL=1| in the model parameters, but is also selected if no
 The \Xyce{} \verb|LEVEL=200| diode is the JUNCAP200 model.
 
 The \Xyce{} \verb|LEVEL=1| and \verb|LEVEL=2| diodes have a parameter,
-\textrmb{IRF}, that allows the user to adjust the reverse current from the basic
-SPICE implementation.  The usual SPICE treatment defines the linear
-portion of the reverse current in terms of IS which is defined by the
-forward current characteristics.  Data shows that often the reverse
-current is quite far off when determined in this manner.  The
-parameter \textrmb{IRF} is a multiplier that can be applied to adjust the linear
-portion of the reverse current.
+\textrmb{IRF}, that allows the user to adjust the reverse current from
+the basic SPICE implementation.  The usual SPICE treatment defines the
+linear portion of the reverse current in terms of IS which is defined
+by the forward current characteristics.  Data shows that often the
+reverse current is quite far off when determined in this manner.  The
+parameter \textrmb{IRF} is a multiplier that can be applied to adjust
+the linear portion of the reverse current.  \textbf{NOTE: The
+  adjustment applied when IRF is specified is not well validated and
+  is known in some circumstances to cause non-physical solution
+  discontinuities and/or simulation failure.  It is a deprecated
+  feature as of \Xyce{} 6.11, and may be removed in a future release.
+  If IRF is left unspecified, the diode reverts to being compatible
+  with the SPICE3F5 diode model.  If IRF is specified in the model
+  card, even if the default value of 1.0 is used in the specification,
+  a temperature correction factor is applied that makes the device
+  incompatible with SPICE3F5's model.  For this reason, any
+  specification of IRF in the model card will result in a warning from
+  versions of \Xyce{} after 6.11.}
+
 
 
 \pagebreak
@@ -115,19 +127,34 @@ The level 1 diode is based on the Spice3f5 level 1 model.
 \subparagraph{DC Current (Level=1)}
 
 The intrinsic diode current consists of forward and reverse bias regions where
-\[
+$$
 I_D = \left\{ \begin{array}{ll}
 \mathbf{IS}\cdot\left[\exp \left(\frac{V_{di}}{\mathbf{N}V_{th}}\right) - 1
 \right], & V_{di} > -3.0\cdot\mathbf{N}V_{th} \\
--\mathbf{IS}\cdot\mathbf{IRF}\cdot\left[1.0 + \left(\frac{3.0\cdot\mathbf{N}V_{th}}{V_{di}\cdot
+-\mathbf{IS}\cdot\mathbf{tIRF}\cdot\left[1.0 + \left(\frac{3.0\cdot\mathbf{N}V_{th}}{V_{di}\cdot
 e}\right)^3\right], & V_{di} < -3.0\cdot\mathbf{N}V_{th}
 \end{array}
 \right.
-\]
+$$
+$$
+tIRF = \left\{ \begin{array}{ll}
+\mathbf{IRF}\cdot(TEMP/TNOM)^{1.6}, & \mbox{if \textbf{IRF} specified} \\
+\mathbf{1.0} & \mbox{if \textbf{IRF} not specified}
+\end{array}
+\right.
+$$
 
 \textrmb{IRF} is a \Xyce{}-specific parameter that can be used to
 scale the reverse-biased current to match measured data.  It defaults
 to $1.0$, which reduces the model to strict SPICE3F5 compatibility.
+\textbf{NOTE: The expressions involving \textrmb{IRF} have not been validated,
+  and use of IRF is deprecated.  Setting \textrmb{IRF} to any value may
+  introduce non-physical solution discontinuities or simulation
+  failures at higher temperatures.  This feature may be removed in a
+  future release, and should not be used.  Any setting of IRF in the
+  model card (even setting it to the default of 1.0) will result in a
+  warning from the diode device.  Strict SPICE3F5 compatibility is only
+  maintained by leaving this parameter out of any model cards for diodes.}
 
 When $\bBV$ and an optional parameter $\bIBV$ are explicitly given in the model
 statement, an exponential model is used to model reverse breakdown (with a

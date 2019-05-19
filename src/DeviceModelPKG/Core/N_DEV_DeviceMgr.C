@@ -2447,7 +2447,10 @@ bool DeviceMgr::loadErrorWeightMask(Linear::Vector * deviceMask)
 //-----------------------------------------------------------------------------
 void DeviceMgr::addGlobalPar(const Util::Param & param)
 {
-  addGlobalParameter(solState_, globals_, param);
+  // get the device manager's current temp
+  double temp = getDeviceOptions().temp.getImmutableValue<double>();
+
+  addGlobalParameter(solState_, temp, globals_, param);
 }
 
 //-----------------------------------------------------------------------------
@@ -2565,6 +2568,8 @@ bool DeviceMgr::updateDependentParameters_()
     if (g_i->set_sim_time(solState_.currTime_))
       changed = true;
     if (g_i->set_sim_freq(solState_.currFreq_))
+      changed = true;
+    if (g_i->set_temp(getDeviceOptions().temp.getImmutableValue<double>()))
       changed = true;
 
     std::vector<std::string> variables;
@@ -4763,6 +4768,7 @@ bool setParameter(
 //-----------------------------------------------------------------------------
 void addGlobalParameter(
   SolverState &         solver_state,
+  double                temp,
   Globals &             globals,
   const Util::Param &   param)
 {
@@ -4782,6 +4788,7 @@ void addGlobalParameter(
       expression.set_sim_time(solver_state.currTime_);
       expression.set_sim_dt(solver_state.currTimeStep_);
       expression.set_sim_freq(solver_state.currFreq_);
+      expression.set_temp(temp);
     }
 
     std::vector<std::string>::const_iterator it = variables.begin();

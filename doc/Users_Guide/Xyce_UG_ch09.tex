@@ -33,6 +33,7 @@ available in \Xyce{}.  It includes the following sections:
 \item Section~\ref{AC_Analysis},        {\em AC Analysis}
 \item Section~\ref{NOISE_Analysis},     {\em Noise Analysis}
 \item Section~\ref{SENS_Analysis},      {\em Sensitivity Analysis}
+\item Section~\ref{SP_Analysis},        {\em S-parameter Analysis}
 \end{XyceItemize}
 }
 
@@ -1084,7 +1085,7 @@ node 1. Additional output variable formats are also available:
 \item \texttt{VI(<circuit node>)} output the imaginary component of voltage response
 \item \texttt{VM(<circuit node>)} output the magnitude of voltage response
 \item \texttt{VDB(<circuit node>)} output the magnitude of voltage response in decibels
-\item \texttt{VP(<circuit node>)} output the phase of voltage response
+\item \texttt{VP(<circuit node>)} output the phase of voltage response, in radians
 \end{XyceItemize}
 
 Some examples are as follows: 
@@ -1463,6 +1464,71 @@ sensitivity is given by the solid line.  The results match very well in this cas
 with the two lines right on top of each other.
 
 \clearpage
+\subsection{AC Sensitivities}
+Sensitivities can also be computed for small-signal AC analysis.  As with steady-state (DC) 
+and transient analysis, both direct and adjoint sensitivities are supported.     An example
+netlist which exercises the capability is shown in figure~\ref{AC_Sensitivity_Netlist}.
+
+The netlist commands for AC sensitivities are very similar to those for DC, but with 
+some small exceptions.   The expression library in \Xyce{} currently does not support
+complex numbers, so the specification for objective functions is more limited.  As such, 
+the \texttt{objfunc} parameter will not work with AC sensitivities, and the user should
+instead specify outputs using \texttt{objvars} followed by a list of node names.  The
+sensitivities that are computed will be for the voltages at the listed nodes, with respect
+to the list of sensitivity parameters.
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.99\textwidth}
+        \begin{vquote}
+\color{blue}*Lowpass filter test for AC sensitivities\color{black}
+v1 1 0 ac 10.0
+r1 1 2 4.7k
+c1 2 0 47n
+
+.ac dec 10 1 10k
+.print ac  vm(1) vp(1) vm(2) vp(2)   
+.print sens 
+
+\color{red}* Sensitivity commands
+.sens objvars=2 param=r1:r,c1:c
+.options sensitivity direct=1 adjoint=0  stdoutput=1\color{black}
+.end 
+\end{vquote}
+\end{minipage}
+}
+\caption[AC Sensitivity Example Netlist]
+{AC Sensitivity Example Netlist \label{AC_Sensitivity_Netlist} }
+\end{centering}
+\end{figure}
+For each specified output, there are four separate objective functions for
+which sensitivities will be computed; magnitude and phase for the polar 
+representation, as well as real and imaginary for the cartesian 
+representation of the solution.   The console output for the example netlist,
+for the first frequency, is shown in figure ~\ref{AC_Sensitivity_Result}.
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.99\textwidth}
+        \begin{vquote}
+
+Direct Sensitivities for node V(2):
+VR(2) = 1.0000e+01  VI(2) = -1.3880e-02
+VM(2) = 1.0000e+01  VP(2) = -1.3880e-03
+
+Name  Value Sensitivity\_Re  Sensitivity\_Im  Sensitivity\_Mag Sensitivity\_Phase
+R1:R  4.7e+03  -8.1975e-09     -2.9531e-06     -4.0988e-09     -2.9531e-07
+C1:C  4.7e-08  -8.1975e+02     -2.9531e+05     -4.0988e+02     -2.9531e+04
+
+\end{vquote}
+\end{minipage}
+}
+\caption[AC Sensitivity Example Result]
+{AC Sensitivity Example Result\label{AC_Sensitivity_Result} }
+\end{centering}
+\end{figure}
+
+\clearpage
 \subsection{Output}
 \label{SENS_Output}\index{\texttt{.PRINT}!\texttt{.SENS}}
 For a full list and explanation of options related to \texttt{.SENS} output see 
@@ -1623,7 +1689,144 @@ For transient, note that the transient direct calculation uses the same time ste
 that are used for the original circuit analysis.  It does not impose any additional error
 control that is specific to the accuracy of $dx/dp$.
 
+%%%%%%
+% -------------------------------------------------------------------------
+% S-parameter (.LIN) Analysis Section -------------------------------------
+% -------------------------------------------------------------------------
 
+\section{S-parameter Analysis}
+\label{SP_Analysis}
+\label{SP_Sweep_Overview}
+\index{analysis!S-parameter} \index{S-parameter analysis} \index{\texttt{.LIN}}
+\index{AC sweep} \index{analysis!AC sweep}
+
+The S-parameter small-signal analysis of \Xyce{} computes linear transfer parameters as a
+function of frequency for a general multi-port network. The program first computes the DC operating point of 
+the circuit and then linearizes the circuit. The resultant linear circuit is then
+analyzed over a user-specified range of frequencies. The output of a S-parameter
+analysis is multi-port scattering (S) parameters. The S-parameters represent
+the ratio of incident and scattered normailized voltage waves.
+
+\subsection{.LIN Statement}
+
+One may specify S-parameter analyses by using a \verb|.LIN| command with a \verb|.AC| command in the netlist.
+Here is an example of typical \verb|.AC| and \verb|.LIN| lines:
+
+\Example{\\ 
+\texttt{.AC DEC 10 1K 100MEG}  \\ 
+\texttt{.LIN sparcalc=1 format=touchstone}  \\ 
+}
+
+The \verb|.LIN| analysis is similar to a basic small signal \verb|.AC| analysis, but it also calculates small signal 
+transfer parameters between terminals identified using port (P) devices. The \Xyce{} Reference Guide\ReferenceGuide{} 
+provides a complete description of \verb|.LIN| analysis and the P device.
+
+\subsection{Port Devices}
+\label{SP_Port}
+\index{S-parameter analysis!port}
+
+The \verb|.LIN| analysis computes the S-parameters based on the location of the port (P)
+devices and the values of their reference impedances. The port devices identify
+the ports used in \verb|.LIN| analysis. The \Xyce{} Reference Guide\ReferenceGuide{} 
+provides a complete description of the port devices. Some examples are as follows:
+
+\Example{\\   
+%\texttt{*name nodelist type value  phase(deg)}  \\
+\texttt{P1 1 0 port = 1} \\
+\texttt{P2 12 0  port= 2  z0=100 }
+}
+
+NOTE:  Each port requires a unique port number. If a circuit has N ports, the netlist must
+contain the sequential set of port numbers, 1 to N.  	
+
+\subsection{Example}
+An example S-parameter analysis netlist is given in figure~\ref{spExample}.  This example uses 2 ports.
+The S parameters are outputted to a file in Touchstone 1 format \cite{touchstone2_std_2009}.
+Touchstone 2 format is also supported.  Note that \texttt{SPARCALC=1} is specified on
+the \texttt{.LIN} line.  If \texttt{SPARCALC=0} is specified instead then a \texttt{.AC}
+analysis will be done.
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+\color{blue}* S-parameter Analysis example\color{black}
+P1 1 0 port= 1
+
+C1 2 0 1e-2
+Rgs 1 2 0.02
+
+.subckt RCBlock IN OUT GND
+R1 IN OUT 20
+C1 IN OUT 1p
+Cg1 OUT GND 1p
+.ends
+
+X1 2 3 0 RCBlock
+X2 3 4 0 RCBlock
+X3 4 5 0 RCBlock
+X4 5 6 0 RCBlock
+X5 6 7 0 RCBlock
+X6 7 8 0 RCBlock
+X7 8 9 0 RCBlock
+X8 9 10 0 RCBlock
+X9 10 11 0 RCBlock
+X10 11 12 0 RCBlock
+
+.AC DEC 10 10  1e5 
+
+.LIN FORMAT=TOUCHSTONE  sparcalc=1
+
+P2 12 0  port=2 z0=100
+
+.END
+
+\end{vquote}
+\end{minipage}
+}
+\caption[S-parameter Example Netlist]
+{S-parameter Example Netlist.  \label{spExample} }
+\end{centering}
+\end{figure}
+
+\subsection{Output}
+\label{LIN_Output}
+For S-parameter analysis, the output is controlled by the \texttt{.LIN}
+command when \texttt{SPARCALC=1} on that line.  Any information on
+\texttt{.PRINT AC} lines will be ignored in that case.
+Table~\ref{LIN_Output_table} lists the format options and files created.
+If \texttt{SPARCALC=0} then a \texttt{.AC} analysis is done instead.
+
+All three data formats defined in the Touchstone standard, which are real-imaginary (RI),
+magnitude-angle(MA) and magnitude(db)-angle (DB), are supported.  The default is RI.
+Other options can be selected via the inclusion of the \texttt{DATAFORMAT=<val>}
+argument on the \texttt{.LIN} line. Per the Touchstone standard, all angle values
+are output in degrees.  In contrast, the \Xyce{} output of angle data (e.g.,
+from the \texttt{VP()} operator) from \texttt{.PRINT AC} lines is in radians.
+
+The default filename for both Touchstone formats is \texttt{<netlistName>.sNp}
+where N is the number of ``ports'' (\texttt{P} devices) specified in the netlist.
+The output can be redirected to another file with the \texttt{-o} command line
+option or by using a \texttt{FILE=<filename>} argument on the \texttt{.LIN} line.
+The \Xyce{} Reference Guide\ReferenceGuide{} has a complete listing of which
+arguments, typically used on a \texttt{.PRINT} line also work on a \texttt{.LIN} line.
+
+\begin{table}[htbp]
+  \caption{Output generated for .LIN analysis \label{LIN_Output_table}}
+  \begin{tabularx}{\linewidth}{|p{2.75in}|Y|Y|}
+    \rowcolor{XyceDarkBlue} \color{white}\textbf{Command} & \color{white}\textbf{Files} & \color{white}\textbf{Format} \\ \hline
+\texttt{.LIN} & \emph{circuit-file}.sNp & Touchstone 2 format.  Data format is RI \\ \hline
+\texttt{.LIN FORMAT=TOUCHSTONE} & \emph{circuit-file}.sNp & Touchstone 1 format. Data format is RI \\ \hline
+\texttt{.LIN FORMAT=TOUCHSTONE2} & \emph{circuit-file}.sNp & Touchstone 2 format. Data format is RI \\ \hline
+\texttt{.LIN DATAFORMAT=MA} & \emph{circuit-file}.sNp & Touchstone 2 format.  Data format is MA \\ \hline
+\texttt{.LIN DATAFORMAT=DB} & \emph{circuit-file}.sNp & Touchstone 2 format.  Data format is DB \\ \hline
+
+\texttt{\emph{Xyce} -r} & NA & This will produce a parsing error \\ \hline
+\texttt{\emph{Xyce} -r -a} & NA & This will produce a parsing error \\ \hline
+
+\end{tabularx}
+\end{table}
 
 %%% Local Variables:
 %%% mode: latex

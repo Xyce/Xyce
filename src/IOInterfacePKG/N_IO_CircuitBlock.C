@@ -435,7 +435,7 @@ bool CircuitBlock::parseNetlistFilePass1(
 
     // resolve any functions and parameters in expression on the print line
     // at this point (or for that matter any functions/parameters in
-    // the optionsTable data (so ".OP" ".OPTIONS" ".DCOP"  ".OUTPUT"
+    // the optionsTable data (so ".OP" ".OPTIONS" ".OUTPUT"
     // ".PRINT"".TRAN"  ".STEP"  ".RESULT" ".IC" ".DCVOLT"
     //  ".NODESET" ".SAVE" ".LOAD" ".MPDE" ".HB"  ".AC" ".MEASURE" ".MEAS")
     // This could happen later, as in the actual classes that handle the above
@@ -2185,6 +2185,7 @@ bool CircuitBlock::handleAnalysis()
          (analysisName_ == "OP" && usVal == "HOMOTOPY") ||
          (analysisName_ == "DC" && usVal == "HOMOTOPY") ||
          (analysisName_ == "DC" && usVal == "DC") ||
+         (analysisName_ == "OP" && usVal == "SENS") ||
          (analysisName_ == "DC" && usVal == "SENS") ||
          (analysisName_ == "TRAN" && usVal == "SENS") ||
          (analysisName_ == "MPDE" && usVal == "TRAN") ||

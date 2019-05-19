@@ -134,9 +134,22 @@ void FourierMgr::fixupSensFourierParameters(Parallel::Machine comm, const Util::
 {
   if (sensitivityRequested)
   {
+
+
     // For each *unique* .FOUR SENS frequency, all the sensitivity outputs will be processed,
     for (std::map<double,int>::iterator it=sensFreqNumOutputVarsMap_.begin(); it!=sensFreqNumOutputVarsMap_.end(); ++it)
     {
+
+      // find where each frequency begins and ends in the output Vars vector
+      std::vector<int> tmpOutputVarsPtr(1,0);
+      std::vector<double> tmpFreqVector;
+      int ovPtrPos=0;
+      for (std::map<double,int>::iterator it=freqNumOutputVarsMap_.begin(); it!=freqNumOutputVarsMap_.end(); ++it, ++ovPtrPos)
+      {
+        tmpFreqVector.push_back(it->first);
+        tmpOutputVarsPtr.push_back( tmpOutputVarsPtr[ovPtrPos] + it->second );
+      }
+
       // temporary.  re-allocated each time thru the loop so each frequency gets unique sensitivity Ops
       Util::Op::OpList sensOutputVars_; 
 
@@ -147,10 +160,21 @@ void FourierMgr::fixupSensFourierParameters(Parallel::Machine comm, const Util::
 
       // copy the sensitivity information into the original .FOUR data structures
       double freq = it->first;
-      it->second = sensOutputVars_.size();
+      it->second = sensOutputVars_.size();// don't know if I'll ever use this
       freqNumOutputVarsMap_[freq] += it->second;
 
-      outputVars_.insert(outputVars_.end(), sensOutputVars_.begin(), sensOutputVars_.end());
+      std::vector<double>::iterator foundFreq = std::find(tmpFreqVector.begin(), tmpFreqVector.end(), freq);
+
+      if (foundFreq != tmpFreqVector.end()) 
+      {
+        int index = std::distance(tmpFreqVector.begin(), foundFreq); 
+        int insertIndex = tmpOutputVarsPtr[index];
+        outputVars_.insert( (outputVars_.begin() + insertIndex), sensOutputVars_.begin(), sensOutputVars_.end());
+      }
+      else
+      {
+        outputVars_.insert(outputVars_.end(), sensOutputVars_.begin(), sensOutputVars_.end());
+      }
 
       for (Util::Op::OpList::iterator sensNamesIt = sensOutputVars_.begin(); sensNamesIt != sensOutputVars_.end(); ++sensNamesIt)
       {

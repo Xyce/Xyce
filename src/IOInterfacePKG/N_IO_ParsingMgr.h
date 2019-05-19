@@ -77,6 +77,7 @@ private:
   bool     hspiceExtFlag_;  // was the -hspice-ext command line option specified?
   bool     useHspiceUnits_; // was units or all specified for -hspice-ext ?
   bool     useHspiceMath_;  // was math or all specified for -hspice-ext ?
+  bool     enableRandomExpression_;  // were random numbers (for GAUSS, AGAUSS, etc) requested for -hspice-ext ?
   bool     modelBinningFlag_;
 };
 

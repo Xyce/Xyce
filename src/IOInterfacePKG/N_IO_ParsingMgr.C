@@ -62,6 +62,7 @@ ParsingMgr::ParsingMgr(
   : hspiceExtFlag_(command_line.argExists("-hspice-ext")),
     useHspiceUnits_(false),
     useHspiceMath_(false),
+    enableRandomExpression_(true),
     modelBinningFlag_(false)
 {
   if (hspiceExtFlag_)
@@ -94,11 +95,14 @@ ParsingMgr::ParsingMgr(
       {
         useHspiceUnits_ = true;
         useHspiceMath_ = true;
+        enableRandomExpression_ = false;
       }
       else if (*it == "units")
         useHspiceUnits_ = true;
       else if (*it == "math")
         useHspiceMath_ = true;
+      else if (*it == "random")
+        enableRandomExpression_ = false;
       else
         Report::UserFatal0() << "Invalid value " << *it << " for -hspice-ext command line option";
     }
@@ -106,9 +110,12 @@ ParsingMgr::ParsingMgr(
 
   // These variables are used, in lieu of passing const references to the
   // ParsingMgr into various Util functions like isValue() and Value()
-  // and ExpressionInternals::tokenize_.
+  // and ExpressionInternals::tokenize_.  If enableRandomExpression_ is
+  // set to false, via -hspice-ext random, then AGAUSS() and GAUSS() will
+  // just return the mean rather than a random number.
   Xyce::Util::useHspiceUnits = useHspiceUnits_;
   Xyce::Util::useHspiceMath = useHspiceMath_;
+  Xyce::Util::enableRandomExpression = enableRandomExpression_;
 
   // Substitute the HSPICE logarithm functions for the Xyce ones in
   // ExpressionInternals.

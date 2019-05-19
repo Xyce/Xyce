@@ -417,7 +417,7 @@ analyses, the supported measure types are:
     analysis type using the fundamental frequency \texttt{AT}.  By default, the DC component 
     and first nine harmonics are computed; more can be reported by setting \texttt{NUMFREQ} to the
     desired value.  More interpolation points can be used in the Fourier analysis by setting \texttt{GRIDSIZE},
-    which is $200$ by default.
+    which is $200$ by default.  For this measure, the phase data is output in degrees not radians.
   \item \texttt{FREQ}: An estimate of the frequency of a solution variable found by cycle counting
     during the simulation.  Thresholds are defined through the values of \texttt{ON} 
     and \texttt{OFF}.
@@ -588,13 +588,14 @@ the \texttt{.FOUR} command.
 
 
 \texttt{freq} is the fundamental frequency used for Fourier analysis.
-The \texttt{ov1} parameter is the desired solution variable to be analyzed, specifically:
+The \texttt{ov1} parameter is the desired solution output to be analyzed, specifically:
 \begin{XyceItemize}
 \item \texttt{V(<node name>)}
 \item \texttt{V(<node name>,<node name>)} (the voltage difference between the first and second nodes)
 \item \texttt{I(<two-terminal device>)}
 \item \texttt{Ik(<three-or-more-terminal device>)} (see the \texttt{.PRINT} section, \ref{PRINT_section}, for more detail)
 \item \texttt{N(device variable)} (see the \texttt{.PRINT} section, \ref{PRINT_section}, for more detail)
+\item \texttt{SENS} Transient direct sensitivities specified by the \texttt{.SENS} command  (see the sensitivity analysis section, \ref{SENS_Analysis} for more detail)
 \item The pseudo-variables given in Table~\ref{Print_Complex} for complex output handling
 \end{XyceItemize}
 At least one solution variable must be specified, but
@@ -603,6 +604,15 @@ fundamental frequency, \texttt{freq}.
 Multiple \texttt{.FOUR} lines may be used in a netlist.  
 All results from Fourier analysis will be returned to the user in a file 
 with the same name as the netlist file suffixed with \texttt{.four}.
+For this analysis, the phase data is output in degrees not radians.
+
+If \texttt{SENS} is specified as the output, then all the direct sensitivities 
+specified by the \texttt{.SENS} command will be processed, as it is difficult to 
+manually specify the full name of a sensitivity variable.  So, if one wants 
+to use sensitivities as the output, do the following:
+\begin{verbatim}
+.FOUR 20MEG SENS
+\end{verbatim}
 
 Fourier analysis is performed over the last period (\texttt{1/freq}) of 
 the transient simulation.  The dc component and the first nine harmonics are calculated.
@@ -640,6 +650,7 @@ the time integration option \texttt{DELMAX}
 should be set to \texttt{period/100}.  This is the preferred approach to
 improving the accuracy of the Fourier analysis versus increasing the number of
 interpolation points.
+
 \section{Graphical Display of Solution Results}
 \label{Results}
 \index{results!graphing}
