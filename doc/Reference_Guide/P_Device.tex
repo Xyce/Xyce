@@ -15,7 +15,7 @@
 
 \device
 \begin{alltt}
-V<name> <(+) node> <(-) node> port=port number  [Z0 = value]
+P<name> <(+) node> <(-) node> port=port number  [Z0 = value]
 + [[DC] <value> ] [AC [magnitude value [phase value] ] ]  
 + [transient specification]
 \end{alltt}
@@ -70,6 +70,14 @@ for all other analyses, such as DC, AC and transient.
 None, any, or all of the DC, AC, and transient values
 can be specified. The AC phase value is in degrees. The port device
 accepts the same transient specifications as the voltage (V) sources.
+
+Positive current flows from the positive node through the port
+device to the negative node. 
+
+The power supplied or dissipated by the port device is calculated 
+with $I \cdot \Delta V$ where the voltage drop is calculated as $(V_+ - V_-)$ 
+and positive current flows from $V_+$ to $V_-$.  Dissipated power has a
+positive sign, while supplied power has a negative sign.
 
 \end{Device}
 
