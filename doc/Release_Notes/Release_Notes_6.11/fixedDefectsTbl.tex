@@ -111,12 +111,12 @@ I2 2 0 DC
 \end{verbatim}
 This is fixed now.  \\ \hline
 
-\textbf{1037-SON}: Issues with the use of TIME, TEMP and VT in .PARAM statements &
+\textbf{1037-SON}: Issues with the use of TIME, TEMP or VT in .PARAM statements &
 The use of the reserved words \texttt{TIME}, \texttt{TEMP} and \texttt{VT} on
 \texttt{.PARAM} lines would result in the simulation running, but the resultant
 parameters would evaluate to 0 without generating any warning or error message.
 Parameters defined on \texttt{.PARAM} lines are supposed to evaluate to
-constants in \Xyce{}, so the use of \texttt{TIME}, \texttt{TEMP} and \texttt{VT}
+constants in \Xyce{}, so the use of \texttt{TIME}, \texttt{TEMP} or \texttt{VT}
 should not be allowed on \texttt{.PARAM} lines.  That usage will now cause a
 parsing error.
 \\ \hline
@@ -178,7 +178,7 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
   used in table definitions for E and G sources.\\ \hline
 
 
-\textbf{1173-SON}: breakpoint handling is really inefficient when there is a large number of breakpoints &  It was observed that when an independent source is specified from a PWL file, and that file contains a really large number of points (thousands), that the circuit runs much more slowly than it should.  This happened because breakpoints were stored and sorted using inefficient methods.  This has been fixed for this release.  \\ \hline
+\textbf{1173-SON}: Breakpoint handling is really inefficient when there is a large number of breakpoints &  It was observed that when an independent source is specified from a PWL file, and that file contains a really large number of points (thousands), that the circuit runs much more slowly than it should.  This happened because breakpoints were stored and sorted using inefficient methods.  This has been fixed for this release.  \\ \hline
 
 \textbf{1092-SON}: Analytic and finite difference sensivities for the bsim6 and bsim3 (and possibly others) don't match well in transient &   The formula used for finite difference device parameter derivatives was not accurate.  It has been fixed and now it produces much more accurate results.  
 \\ \hline
@@ -189,14 +189,14 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
 \textbf{1080-SON}: Adjoint transient sensitivities fail if using finite difference derivatives  &  This was due to the finite difference derivatives being computed and stored in an inefficient manner.  For transient adjoints, a time history of device parameter derivatives has to be stored, and this storage must be sparse in order to work well.  The code has been rewritten to use sparse storage and works correctly with transient adjoints now.
 \\ \hline
 
-\textbf{895-SON}: The user reported discrepany between Xyce and spice-like simulators on AC test case &  This was due to the 
-different DC op calculated by Xyce and other SPICE simulators. For this test case, the DC data is not specified in the voltage source. Xyce used default DC value 0 for DC op calulcation. The other SPICE simulators used the transient data at time 0 as the DC value
-which is not zero. This leads to different DC bias calculated and different AC results. This has been fixed
+\textbf{895-SON}: A user reported a discrepancy between Xyce and other spice-like simulators on an AC test case &  This was due to the 
+different DC op calculated by Xyce and the other SPICE simulators. For this test case, the DC data was not specified in the voltage source. So, Xyce used its default DC value of 0 for its DC op calulcation. The other SPICE simulators used the value of the transient data at time 0 as their DC values,
+which was not zero in this case. This led to different DC biases calculated and different AC results. This has been fixed
 \\ \hline
 
 \textbf{1183-SON}: The AC analysis did not run correctly in parallel for some AC test cases & The AC analysis works in parallel
-when the AC source is a voltage source. If the AC source is a current source, the results can be incorrect
-depending on how the devices and the solution variables are distributed in processors. This has been fixed
+when the AC source is a voltage source. If the AC source is a current source, the results could be incorrect
+depending on how the devices and the solution variables are distributed in processors. This has been fixed.
 \\ \hline
 
 \end{longtable}
