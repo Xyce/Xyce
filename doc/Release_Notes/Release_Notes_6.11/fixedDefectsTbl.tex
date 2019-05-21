@@ -111,8 +111,8 @@ I2 2 0 DC
 \end{verbatim}
 This is fixed now.  \\ \hline
 
-\textbf{1037-SON}: Issues with the use of TIME, TEMP or VT in .PARAM statements &
-The use of the reserved words \texttt{TIME}, \texttt{TEMP} and \texttt{VT} on
+\textbf{1037-SON}: Issues with the use of TIME, TEMP, or VT in .PARAM statements &
+The use of the reserved words \texttt{TIME}, \texttt{TEMP}, or \texttt{VT} on
 \texttt{.PARAM} lines would result in the simulation running, but the resultant
 parameters would evaluate to 0 without generating any warning or error message.
 Parameters defined on \texttt{.PARAM} lines are supposed to evaluate to
@@ -137,18 +137,20 @@ Something like this G-source instance line would produce a parsing error:
 \begin{verbatim}
 G1 IOUT+ IOUT- VALUE={V(VIN+)}
 \end{verbatim}
-The issue was that ``arithmetic operators'', like +, were not valid in device and
-node names in as many expression contexts as in other Spice-like simulators.  They are now
-allowed in device and node names in expressions, when they are enclosed within \Xyce{} 
-operators such as V() and I().  See the ``Legal Characters in Node
-and Device Names'' subsection of the \Xyce{} Reference Guide for more details.
+The issue was that ``arithmetic operators'', like +, were not valid in
+device and node names in as many expression contexts as in other
+Spice-like simulators.  They are now allowed in device and node names
+in expressions, when they are enclosed within \Xyce{} operators such
+as V() and I().  See the ``Legal Characters in Node and Device Names''
+subsection of the \Xyce{} Reference Guide for more details.
 \\ \hline
 
-\textbf{944-SON}: Xyce-generated .csd Files for .AC with .STEP do not 
-open correctly in the PSpice A/D waveform viewer &  Some of the header 
-fields (e.g., \texttt{XBEGIN} and \texttt{XEND}) were incorrect.  Also, an 
-attempt to view the signals in the \texttt{<netlistName>.TD.csd} file would 
-cause the PSpice A/D waveform viewer to crash.  These issues are fixed now.  
+\textbf{944-SON}: Xyce-generated .csd Files for .AC with .STEP do not
+open correctly in the PSpice A/D waveform viewer & Some of the header
+fields (e.g., \texttt{XBEGIN} and \texttt{XEND}) were incorrect.
+Also, an attempt to view the signals in
+the \texttt{<netlistName>.TD.csd} file would cause the PSpice A/D
+waveform viewer to crash.  These issues are fixed now.
 \\ \hline
 
 \textbf{855-SON}: Missing error message when a netlist uses an operator (e.g.,
@@ -161,9 +163,10 @@ operator.  It also emits a parsing error for the \texttt{I} operator for all dev
 except the V, E, H and L devices and the voltage-form of the B-device.  Those five
 devices do support branch currents for .AC and .NOISE analyses. \\ \hline
 
-\textbf{697-SON} Re-measure did not support the  I() operator & In previous \Xyce{} 
-releases, the \texttt{-remeasure} command line option only worked with the V() 
-and N() operators.  It is now also supported for the I() operator. \\ \hline 
+\textbf{697-SON} Re-measure did not support the  I() operator & In previous \Xyce{}
+releases, the \texttt{-remeasure} command line option only worked with
+the V() and N() operators.  It is now also supported for the I()
+operator. \\ \hline
 
 \textbf{649-SON}: \Xyce{} does not support traditional ternary operators in expressions &
  Most other simulators accept C-style ternary operators (``?:'') in
@@ -178,25 +181,48 @@ and N() operators.  It is now also supported for the I() operator. \\ \hline
   used in table definitions for E and G sources.\\ \hline
 
 
-\textbf{1173-SON}: Breakpoint handling is really inefficient when there is a large number of breakpoints &  It was observed that when an independent source is specified from a PWL file, and that file contains a really large number of points (thousands), that the circuit runs much more slowly than it should.  This happened because breakpoints were stored and sorted using inefficient methods.  This has been fixed for this release.  \\ \hline
+\textbf{1173-SON}: Breakpoint handling is really inefficient when there is a large number of breakpoints &
+It was observed that when an independent source is specified from a
+PWL file, and that file contains a really large number of points
+(thousands), that the circuit runs much more slowly than it should.
+This happened because breakpoints were stored and sorted using
+inefficient methods.  This has been fixed for this release.  \\ \hline
 
-\textbf{1092-SON}: Analytic and finite difference sensivities for the bsim6 and bsim3 (and possibly others) don't match well in transient &   The formula used for finite difference device parameter derivatives was not accurate.  It has been fixed and now it produces much more accurate results.  
+\textbf{1092-SON}: Analytic and finite difference sensivities for the BSIM6 and BSIM3 (and possibly others) don't match well in transient &
+The formula used for finite difference device parameter derivatives
+was not accurate.  It has been fixed and now it produces much more
+accurate results.
 \\ \hline
 
-\textbf{1086-SON}: .OP and .PRINT SENS, without a .PRINT DC present, causes Xyce to exit with error  &  This was due to a small logic mistake in the parser and has been fixed.
+\textbf{1086-SON}: .OP and .PRINT SENS, without a .PRINT DC present, causes Xyce to exit with error  &
+This was due to a small logic mistake in the parser and has been
+fixed.
 \\ \hline
 
-\textbf{1080-SON}: Adjoint transient sensitivities fail if using finite difference derivatives  &  This was due to the finite difference derivatives being computed and stored in an inefficient manner.  For transient adjoints, a time history of device parameter derivatives has to be stored, and this storage must be sparse in order to work well.  The code has been rewritten to use sparse storage and works correctly with transient adjoints now.
+\textbf{1080-SON}: Adjoint transient sensitivities fail if using finite difference derivatives  &
+This was due to the finite difference derivatives being computed and
+stored in an inefficient manner.  For transient adjoints, a time
+history of device parameter derivatives has to be stored, and this
+storage must be sparse in order to work well.  The code has been
+rewritten to use sparse storage and works correctly with transient
+adjoints now.
 \\ \hline
 
-\textbf{895-SON}: A user reported a discrepancy between Xyce and other spice-like simulators on an AC test case &  This was due to the 
-different DC op calculated by Xyce and the other SPICE simulators. For this test case, the DC data was not specified in the voltage source. So, Xyce used its default DC value of 0 for its DC op calulcation. The other SPICE simulators used the value of the transient data at time 0 as their DC values,
-which was not zero in this case. This led to different DC biases calculated and different AC results. This has been fixed
+\textbf{895-SON}: A user reported a discrepancy between Xyce and other spice-like simulators on an AC test case &
+This was due to the different DC op calculated by Xyce and the other
+SPICE simulators. For this test case, the DC data was not specified in
+the voltage source. So, Xyce used its default DC value of 0 for its DC
+op calulcation. The other SPICE simulators used the value of the
+transient data at time 0 as their DC values, which was not zero in
+this case. This led to different DC biases calculated and different AC
+results. This has been fixed
 \\ \hline
 
-\textbf{1183-SON}: The AC analysis did not run correctly in parallel for some AC test cases & The AC analysis works in parallel
-when the AC source is a voltage source. If the AC source is a current source, the results could be incorrect
-depending on how the devices and the solution variables are distributed in processors. This has been fixed.
+\textbf{1183-SON}: The AC analysis did not run correctly in parallel for some AC test cases &
+The AC analysis works in parallel when the AC source is a voltage
+source. If the AC source is a current source, the results could be
+incorrect depending on how the devices and the solution variables are
+distributed in processors. This has been fixed.
 \\ \hline
 
 \end{longtable}
