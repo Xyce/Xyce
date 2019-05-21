@@ -1,5 +1,6 @@
 #include <vpi_user.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <N_CIR_XyceCInterface.h>
 
 static int runXyce_compiletf(char*user_data)
@@ -14,7 +15,7 @@ static int runXyce_calltf(char*user_data)
       // Used as a pointer to a pointer to an N_CIR_Xyce object.
       // This somewhat convoluted syntax is needed to stop p from
       // pointing at the same address as the VPI system task.
-      void** p = new void* [1];  
+      void** p = (void **) malloc( sizeof(void* [1]) );
 
       // Turn the desired Xyce command line invocation into an int and
       // char** pointer that can used to initialize an N_CIR_ Xyce object.  
@@ -34,7 +35,7 @@ static int runXyce_calltf(char*user_data)
       xyce_close(p);
 
       // pointer clean-up
-      delete[] p;
+      free(p);
 
       vpi_printf("Exiting calltf for runXyce\n"); 
       return 0;

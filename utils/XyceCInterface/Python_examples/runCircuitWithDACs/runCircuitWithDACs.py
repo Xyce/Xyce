@@ -2,12 +2,15 @@
 # getDACDeviceNames(), updateTimeVoltagePairs() and 
 # obtainResponse() methods
 
+import sys
+
 from xyce_interface import xyce_interface
 
 # this calls the xyce_interface.open() method to
 # make a xyce object
 
-xyceObj = xyce_interface()
+libDirectory = sys.argv[1]
+xyceObj = xyce_interface(libdir=libDirectory)
 print( xyceObj )
 
 argv= ['runCircuitWithDACs.cir']
