@@ -118,8 +118,15 @@ ParsingMgr::ParsingMgr(
   Xyce::Util::enableRandomExpression = enableRandomExpression_;
 
   // Substitute the HSPICE logarithm functions for the Xyce ones in
-  // ExpressionInternals.
-  if (useHspiceMath_) { Util::updateExpFuncArray(); }
+  // ExpressionInternals.  The op structure in ExpressionInternals
+  // contains the "reverse mapping" of expression tokens (e.g., EXPR_OR
+  // and EXPR_AND) to their strings (e.g., | and & for "Xyce math" and ||
+  // and && for "HSPICE math"
+  if (useHspiceMath_)
+  {
+    Util::updateExpFuncArray();
+    Util::updateExpOpsArray();
+  }
 }
 
 //-----------------------------------------------------------------------------
