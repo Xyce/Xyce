@@ -155,7 +155,7 @@ struct op
 {
     int number;
     bool commutative;
-    const char * name;
+    std::string name;
     double (*funcptr)(double, double);
 };
 
