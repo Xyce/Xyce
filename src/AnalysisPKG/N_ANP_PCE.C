@@ -23,7 +23,7 @@
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : Embedded Sampling class analysis functions.
+// Purpose       : PCE class analysis functions.
 // Special Notes :
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
@@ -39,7 +39,7 @@
 #include <N_ANP_AnalysisManager.h>
 #include <N_ANP_OutputMgrAdapter.h>
 #include <N_ANP_SweepParam.h>
-#include <N_ANP_EmbeddedSampling.h>
+#include <N_ANP_PCE.h>
 #include <N_ANP_StepEvent.h>
 #include <N_ANP_UQSupport.h>
 #include <N_ANP_DCSweep.h>
@@ -95,8 +95,10 @@
 
 
 #if Xyce_STOKHOS_ENABLE
-#include <Sacado_No_Kokkos.hpp>
+#include <Stokhos.hpp>
 #include <Stokhos_Sacado.hpp>
+#include <Stokhos_Sacado_Kokkos.hpp>
+#include <Kokkos_ArithTraits_MP_Vector.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_CrsMatrix.hpp>
@@ -118,14 +120,14 @@ namespace Xyce {
 namespace Analysis {
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::EmbeddedSampling
+// Function      : PCE::PCE
 // Purpose       : constructor
 // Special Notes :
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-EmbeddedSampling::EmbeddedSampling(
+PCE::PCE(
     AnalysisManager &analysis_manager, 
     Linear::System & linear_system,
     Nonlinear::Manager & nonlinear_manager,
@@ -135,7 +137,7 @@ EmbeddedSampling::EmbeddedSampling(
     Topo::Topology & topology, 
     IO::InitialConditionsManager & initial_conditions_manager,
     AnalysisBase &child_analysis)
-    : AnalysisBase(analysis_manager, "EmbeddedSampling"),
+    : AnalysisBase(analysis_manager, "PCE"),
       analysisManager_(analysis_manager),
       loader_(loader),
       linearSystem_(linear_system),
@@ -166,16 +168,12 @@ EmbeddedSampling::EmbeddedSampling(
       hackOutputFormat_("TECPLOT"),
       hackOutputCalledBefore_(false),
       hackOutputAllSamples_(false),
-      outputtersCalledBefore_(false),
-      outputSampleStats_(true),
 #if Xyce_STOKHOS_ENABLE
       regressionPCEenable_(false),
       projectionPCEenable_(false),
       PCEorder_(4),
       resamplePCE_(false),
       outputPCECoeffs_(false),
-      regressionPCEcoeffs_(),
-      projectionPCEcoeffs_(),
       numResamples_(1000),
       numResamplesGiven_(false),
       useSparseGrid_(false),
@@ -198,14 +196,14 @@ EmbeddedSampling::EmbeddedSampling(
 
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::~EmbeddedSampling
+// Function      : PCE::~PCE
 // Purpose       : destructor
 // Special Notes :
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-EmbeddedSampling::~EmbeddedSampling()
+PCE::~PCE()
 {
   if (nextSolutionPtr_)
   {
@@ -218,6 +216,30 @@ EmbeddedSampling::~EmbeddedSampling()
   if (nextStorePtr_)
   {
     delete nextStorePtr_;
+  }
+
+  int size = samplingVector_.size();
+  for (int i=0;i<size;++i)
+  {
+    SweepParam & sweep_param = samplingVector_[i];
+#if __cplusplus>=201103L
+    if (sweep_param.type == "UNIFORM")
+    {
+      delete sweep_param.uniformDistributionPtr;
+    }
+    else if (sweep_param.type == "NORMAL")
+    {
+      delete sweep_param.normalDistributionPtr;
+    }
+    else if (sweep_param.type == "GAMMA")
+    {
+      delete sweep_param.gammaDistributionPtr;
+    }
+    else
+    {
+       // do nothing
+    }
+#endif
   }
 
   if (esLoaderPtr_)
@@ -251,14 +273,14 @@ EmbeddedSampling::~EmbeddedSampling()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::notify
+// Function      : PCE::notify
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
-void EmbeddedSampling::notify(const StepEvent &event) 
+void PCE::notify(const StepEvent &event) 
 {
   if (event.state_ == StepEvent::STEP_STARTED)
   {
@@ -299,14 +321,14 @@ void EmbeddedSampling::notify(const StepEvent &event)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::setAnalysisParams
+// Function      : PCE::setAnalysisParams
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
+bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 {
   bool bsuccess = true;
 
@@ -361,7 +383,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       stdDevGiven=true;
       double stdDev = iter->getImmutableValue<double>();
-      if (stdDev < 0) { Report::DevelFatal() << "STD_DEVIATIONS values for .EMBEDDEDSAMPLING must be >= 0";}
       stdDevVec_.push_back(stdDev);
     }
     else if (std::string( iter->uTag() ,0,12) == "LOWER_BOUNDS")
@@ -380,14 +401,12 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       alphaGiven=true;
       double alpha = iter->getImmutableValue<double>();
-      if (alpha <= 0) { Report::DevelFatal() << "ALPHA values for .EMBEDDEDSAMPLING must be > 0";}
       alphaVec_.push_back(alpha);
     }
     else if (std::string( iter->uTag() ,0,4) == "BETA")
     {
       betaGiven=true;
       double beta = iter->getImmutableValue<double>();
-      if (beta <= 0) { Report::DevelFatal() << "BETA values for .EMBEDDEDSAMPLING must be > 0";}
       betaVec_.push_back(beta);
     }
     else
@@ -447,6 +466,9 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       sampling_param.startVal = lower_bounds_Vec_[ip];
       sampling_param.stopVal  = upper_bounds_Vec_[ip];
+#if __cplusplus>=201103L
+      sampling_param.uniformDistributionPtr = new std::uniform_real_distribution<double> (sampling_param.startVal,sampling_param.stopVal);
+#endif
     }
     else if (sampling_param.type == "NORMAL") 
     {
@@ -465,6 +487,10 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
         sampling_param.upper_bound = upper_bounds_Vec_[ip];
         sampling_param.upper_boundGiven = true;
       }
+
+#if __cplusplus>=201103L
+      sampling_param.normalDistributionPtr = new std::normal_distribution<double> (sampling_param.mean, sampling_param.stdDev);
+#endif
     }
 #if __cplusplus>=201103L
     else if (sampling_param.type == "GAMMA") 
@@ -484,11 +510,13 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
         sampling_param.upper_bound = upper_bounds_Vec_[ip];
         sampling_param.upper_boundGiven = true;
       }
+
+      sampling_param.gammaDistributionPtr = new std::gamma_distribution<double> (sampling_param.alpha, sampling_param.beta);
     }
 #endif    
     else
     {
-      Report::DevelFatal().in("parseEmbeddedSamplingParam") << "Unsupported SAMPLING type";
+      Report::DevelFatal().in("parsePCEParam") << "Unsupported SAMPLING type";
     }
     samplingVector_.push_back(sampling_param);
 
@@ -500,14 +528,14 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::setEmbeddedSamplingOptions
+// Function      : PCE::setPCEOptions
 // Purpose       :
-// Special Notes : These are from '.options EMBEDDEDSAMPLES'
+// Special Notes : These are from '.options PCES'
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & option_block)
+bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
 {
   bool bsuccess = true;
   numSamplesGiven_ = false;
@@ -519,8 +547,6 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     {
       numSamples_ = (*it).getImmutableValue<int>();
       numSamplesGiven_ = true;
-      if (numSamples_ <= 0)
-        Report::UserError() << "NUMSAMPLES parameter on .EMBEDDEDSAMPLES line must > 0";
     }
     else if (std::string((*it).uTag() ,0,9) == "COVMATRIX" ) // this is a vector
     {
@@ -536,10 +562,6 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     {
       hackOutputAllSamples_=static_cast<bool>((*it).getImmutableValue<bool>());
     }
-    else if ((*it).uTag() == "OUTPUTSAMPLESTATS")
-    {
-      outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
-    }
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "REGRESSION_PCE")
     {
@@ -552,8 +574,6 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     else if ((*it).uTag() == "ORDER")
     {
       PCEorder_ = (*it).getImmutableValue<int>();
-      if (PCEorder_ < 0)
-       Report::UserError() << "ORDER parameter on .EMBEDDEDSAMPLES line must >= 0";
     }
 #endif
     else if ((*it).uTag() == "SAMPLE_TYPE")
@@ -604,15 +624,15 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "RESAMPLE")
     {
-      resamplePCE_ = static_cast<bool>((*it).getImmutableValue<bool>());
+      resamplePCE_ = true;
     }
     else if ((*it).uTag() == "OUTPUT_PCE_COEFFS")
     {
-      outputPCECoeffs_ = static_cast<bool>((*it).getImmutableValue<bool>());
+      outputPCECoeffs_ = true;
     }
     else if ((*it).uTag() == "SPARSE_GRID")
     {
-      useSparseGrid_ = static_cast<bool>((*it).getImmutableValue<bool>());
+      useSparseGrid_ = true;
     }
 #endif
     else if ((*it).uTag() == "STDOUTPUT")
@@ -637,9 +657,10 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     else
     {
       Xyce::Report::UserWarning() << (*it).uTag() 
-        << " is not a recognized sampling option, or may only be supported for PCE\n" << std::endl;
+        << " is not a recognized sampling option.\n" << std::endl;
     }
   }
+
 
   // parse the expression now, so if there are any errors, they will come
   // up early in the simulation.
@@ -666,40 +687,37 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     Report::UserWarning0() << "Output function was not specified";
   }
 
-  // signal the OutputMgr that Embedded Sampling is enabled
-  outputManagerAdapter_.setEnableEmbeddedSamplingFlag(true);
-
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::getTIAParams() const
+// Function      : PCE::getTIAParams() const
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-const TimeIntg::TIAParams & EmbeddedSampling::getTIAParams() const
+const TimeIntg::TIAParams & PCE::getTIAParams() const
 {
   return childAnalysis_.getTIAParams();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::getTIAParams()
+// Function      : PCE::getTIAParams()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-TimeIntg::TIAParams & EmbeddedSampling::getTIAParams()
+TimeIntg::TIAParams & PCE::getTIAParams()
 {
   return childAnalysis_.getTIAParams();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::getDCOPFlag()
+// Function      : PCE::getDCOPFlag()
 // Purpose       :
 //
 // Special Notes :
@@ -707,13 +725,13 @@ TimeIntg::TIAParams & EmbeddedSampling::getTIAParams()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::getDCOPFlag() const
+bool PCE::getDCOPFlag() const
 {
   return childAnalysis_.getDCOPFlag();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::stepCallBack
+// Function      : PCE::stepCallBack
 // Purpose       : 
 //
 // Special Notes :
@@ -721,7 +739,7 @@ bool EmbeddedSampling::getDCOPFlag() const
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
-void EmbeddedSampling::stepCallBack ()
+void PCE::stepCallBack ()
 {
   computeEnsembleOutputs();
 
@@ -744,14 +762,14 @@ void EmbeddedSampling::stepCallBack ()
       std::vector<double> & f = outFunc.sampleOutputs;
       UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
 
+      if (outputPCECoeffs_)
+      {
+        Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << regressionPCE << std::endl;
+        regressionPCE.print(Xyce::lout());
+      }
+
       if (stdOutputFlag_)
       {
-        if (outputPCECoeffs_)
-        {
-          Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << regressionPCE << std::endl;
-          regressionPCE.print(Xyce::lout());
-        }
-
         Xyce::lout() << std::endl;
         Xyce::lout() << "(embedded sampling) regression PCE mean of " << outFunc.outFuncString << " = " << regressionPCE.mean() << std::endl;
         Xyce::lout() << "(embedded sampling) regression PCE stddev of " << outFunc.outFuncString << " = " << regressionPCE.standard_deviation() << std::endl;
@@ -799,14 +817,14 @@ void EmbeddedSampling::stepCallBack ()
 
       UQ::solveProjectionPCE(quadBasis, quadMethod, f, projectionPCE);
 
+      if (outputPCECoeffs_)
+      {
+        Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << projectionPCE << std::endl;
+        projectionPCE.print(Xyce::lout());
+      }
+
       if (stdOutputFlag_)
       {
-        if (outputPCECoeffs_)
-        {
-          Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << projectionPCE << std::endl;
-          projectionPCE.print(Xyce::lout());
-        }
-
         Xyce::lout() << std::endl;
         Xyce::lout() << "(embedded sampling) projection PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
         Xyce::lout() << "(embedded sampling) projection PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
@@ -837,70 +855,14 @@ void EmbeddedSampling::stepCallBack ()
       }
     }
   }
-#endif
 //
-  // only call outputter functions if OUTPUTS= was used on the
-  // .OPTIONS EMBEDDEDSAMPLES line.
-  if (outputsGiven_)
-  {
-#if Xyce_STOKHOS_ENABLE
-    if (!outputtersCalledBefore_)
-    {
-      UQ::outputFunctionData & outFunc = *(outFuncDataVec_[0]);
-      if (regressionPCEenable_)
-      {
-        Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
-        int NN=regressionPCE.size();
-        for (int ii=0;ii<NN;ii++)
-        {
-          const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
-          std::string coefString = "_coef(";
-          for (int jj=0; jj< trm.size()-1; jj++)
-            coefString += std::to_string(trm[jj]) + ",";
-          coefString += std::to_string(trm[trm.size()-1]) + ")";
-
-          regressionPCEcoeffs_.push_back(coefString);
-        }
-      }
-
-      if (projectionPCEenable_)
-      {
-        Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
-        int NN=projectionPCE.size();
-        std::vector<std::string> coeffs;
-        for (int ii=0;ii<NN;ii++)
-        {
-          const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
-          std::string coefString = "_coef(";
-          for (int jj=0; jj< trm.size()-1; jj++)
-            coefString += std::to_string(trm[jj]) + ",";
-          coefString += std::to_string(trm[trm.size()-1]) + ")";
-
-          projectionPCEcoeffs_.push_back(coefString);
-        }
-      }
-    }
 #endif
 
-#if Xyce_STOKHOS_ENABLE
-    outputManagerAdapter_.outputEmbeddedSampling(regressionPCEenable_, projectionPCEenable_,
-                 numSamples_, regressionPCEcoeffs_, projectionPCEcoeffs_, outFuncDataVec_);
-#else
-    // regressionPCEcoeffs_ and projectionPCEcoeffs_ vectors aren't defined for
-    // non-Stokhos builds.  So, make two empty vectors.
-    std::vector<std::string> emptyVec1, emptyVec2;
-    outputManagerAdapter_.outputEmbeddedSampling(0, 0, numSamples_, emptyVec1,
-                 emptyVec2, outFuncDataVec_);
-#endif
-
-    hackEnsembleOutput ();
-
-    outputtersCalledBefore_ = true;
-  }
+  hackEnsembleOutput ();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::doRun()
+// Function      : PCE::doRun()
 // Purpose       : This is the main controlling loop for sampling analysis.
 //
 // Special Notes :
@@ -908,26 +870,26 @@ void EmbeddedSampling::stepCallBack ()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::doRun()
+bool PCE::doRun()
 {
   return doInit() && doLoopProcess() && doFinish();
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::doInit()
+// Function      : PCE::doInit()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::doInit()
+bool PCE::doInit()
 {
   if (DEBUG_ANALYSIS)
   {
     Xyce::dout() << std::endl << std::endl;
     Xyce::dout() << section_divider << std::endl;
-    Xyce::dout() << "EmbeddedSampling::init" << std::endl;
+    Xyce::dout() << "PCE::init" << std::endl;
   }
 
   UQ::checkParameterList(
@@ -1057,7 +1019,7 @@ bool EmbeddedSampling::doInit()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::setupBlockSystemObjects 
+// Function      : PCE::setupBlockSystemObjects 
 // Purpose       :
 // 
 // set things up related to the linear system and solver.  The goal here
@@ -1070,7 +1032,7 @@ bool EmbeddedSampling::doInit()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-void  EmbeddedSampling::setupBlockSystemObjects ()
+void  PCE::setupBlockSystemObjects ()
 {
   analysisManager_.resetSolverSystem();
 
@@ -1078,7 +1040,7 @@ void  EmbeddedSampling::setupBlockSystemObjects ()
 
   if (DEBUG_ANALYSIS)
   {
-    Xyce::dout() << "EmbeddedSampling::setupBlockSystemObjects():  Generate Maps,etc\n";
+    Xyce::dout() << "PCE::setupBlockSystemObjects():  Generate Maps,etc\n";
   }
   {
     Stats::StatTop _setupStepStat("Setup Maps/Graphs");
@@ -1184,7 +1146,7 @@ void  EmbeddedSampling::setupBlockSystemObjects ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::setupEnsembles
+// Function      : PCE::setupEnsembles
 // Purpose       : This function sets up the stokhos ensemble objects, using
 //                 the computed sample values.
 // Special Notes :
@@ -1192,20 +1154,20 @@ void  EmbeddedSampling::setupBlockSystemObjects ()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
-void EmbeddedSampling::setupEnsembles ()
+void PCE::setupEnsembles ()
 {
 
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::doLoopProcess()
+// Function      : PCE::doLoopProcess()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::doLoopProcess()
+bool PCE::doLoopProcess()
 {
 
   // The idea of this type of analysis is to perform "simultaneous propagation", 
@@ -1239,53 +1201,53 @@ bool EmbeddedSampling::doLoopProcess()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::doProcessSuccessfulStep()
+// Function      : PCE::doProcessSuccessfulStep()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::doProcessSuccessfulStep()
+bool PCE::doProcessSuccessfulStep()
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::doProcessFailedStep()
+// Function      : PCE::doProcessFailedStep()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::doProcessFailedStep()
+bool PCE::doProcessFailedStep()
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::doFinish()
+// Function      : PCE::doFinish()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::doFinish()
+bool PCE::doFinish()
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::computeEnsembleOutputs
+// Function      : PCE::computeEnsembleOutputs
 // Purpose       : 
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-void EmbeddedSampling::computeEnsembleOutputs()
+void PCE::computeEnsembleOutputs()
 {
   Parallel::Machine comm = analysisManager_.getComm();
 
@@ -1354,7 +1316,7 @@ void EmbeddedSampling::computeEnsembleOutputs()
       //outFunc.completeStatistics(BlockCount);
       outFunc.completeStatistics();
 
-      if (stdOutputFlag_ && outputSampleStats_)
+      if (stdOutputFlag_)
       {
         // histrogram is a hack that doesn't work yet
         //UQ::histrogram(std::cout, outFunc.outFuncString, outFunc.sampleOutputs);
@@ -1375,16 +1337,18 @@ void EmbeddedSampling::computeEnsembleOutputs()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::hackEnsembleOutput ()
+// Function      : PCE::hackEnsembleOutput ()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-void EmbeddedSampling::hackEnsembleOutput ()
+void PCE::hackEnsembleOutput ()
 {
-    std::string fileName;
+  if (outputsGiven_)
+  {
+    std::string fileName; 
 
     if (hackOutputFormat_=="TECPLOT")
     {
@@ -1407,7 +1371,7 @@ void EmbeddedSampling::hackEnsembleOutput ()
     if (!hackOutputCalledBefore_)
     {
       // header output
-      output_stream << "TITLE = \"embedded sampling output\"\tVARIABLES= "<<std::endl;
+      output_stream << "TITLE=\"embedded sampling output\"\tVARIABLES= "<<std::endl;
 
       //if ( analysisManager_.getTransientFlag() || analysisManager_.getTranOPFlag() ) // this doesn't work!
       //if ( childAnalysis_.isAnalysis(ANP_MODE_TRANSIENT) )
@@ -1424,22 +1388,19 @@ void EmbeddedSampling::hackEnsembleOutput ()
       {
         UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
 
-        if (outputSampleStats_)
-        {
-          std::string meanString = outFunc.outFuncString + "_mean";
-          std::string meanStringPlus = outFunc.outFuncString + "_meanPlus";
-          std::string meanStringMinus = outFunc.outFuncString + "_meanMinus";
+        std::string meanString = outFunc.outFuncString + "_mean";
+        std::string meanStringPlus = outFunc.outFuncString + "_meanPlus";
+        std::string meanStringMinus = outFunc.outFuncString + "_meanMinus";
 
-          std::string stddevString = outFunc.outFuncString + "_stddev";
-          std::string varianceString = outFunc.outFuncString + "_variance";
+        std::string stddevString = outFunc.outFuncString + "_stddev";
+        std::string varianceString = outFunc.outFuncString + "_variance";
 
-          output_stream << "\t\" " << meanString << "\""<<std::endl;
-          output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
-          output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+        output_stream << "\t\" " << meanString << "\""<<std::endl;
+        output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
+        output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
 
-          output_stream << "\t\" " << stddevString << "\""<<std::endl;
-          output_stream << "\t\" " << varianceString << "\""<<std::endl;
-        }
+        output_stream << "\t\" " << stddevString << "\""<<std::endl;
+        output_stream << "\t\" " << varianceString << "\""<<std::endl;
 
 #if Xyce_STOKHOS_ENABLE
         if (regressionPCEenable_)
@@ -1457,15 +1418,6 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
           output_stream << "\t\" " << stddevString << "\""<<std::endl;
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
-
-          if (outputPCECoeffs_)
-          {
-            std::vector<std::string>::const_iterator it;
-            for (it=regressionPCEcoeffs_.begin();it!=regressionPCEcoeffs_.end();++it)
-            {
-              output_stream << "\t\" " << outFunc.outFuncString + *it << "\""<<std::endl;
-            }
-          }
         }
 
         if (projectionPCEenable_)
@@ -1483,15 +1435,6 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
           output_stream << "\t\" " << stddevString << "\""<<std::endl;
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
-
-          if (outputPCECoeffs_)
-          {
-            std::vector<std::string>::const_iterator it;
-            for (it=projectionPCEcoeffs_.begin();it!=projectionPCEcoeffs_.end();++it)
-            {
-              output_stream << "\t\" " << outFunc.outFuncString + *it << "\""<<std::endl;
-            }
-          }
         }
 #endif
         if (hackOutputAllSamples_)
@@ -1533,20 +1476,18 @@ void EmbeddedSampling::hackEnsembleOutput ()
     {
       UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
 
-      if (outputSampleStats_)
-      {
-        output_stream << "\t" << outFunc.sm.mean;
+      output_stream << "\t" << outFunc.sm.mean;
 
-        output_stream << "\t" << (outFunc.sm.mean+outFunc.sm.stddev);
-        output_stream << "\t" << (outFunc.sm.mean-outFunc.sm.stddev);
+      output_stream << "\t" << (outFunc.sm.mean+outFunc.sm.stddev);
+      output_stream << "\t" << (outFunc.sm.mean-outFunc.sm.stddev);
 
-        output_stream << "\t" << outFunc.sm.stddev;
-        output_stream << "\t" << outFunc.sm.variance;
-      }
+      output_stream << "\t" << outFunc.sm.stddev;
+      output_stream << "\t" << outFunc.sm.variance;
 
 #if Xyce_STOKHOS_ENABLE
       if (regressionPCEenable_)
       {
+        //Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & regressionPCE = outFunc.regressionPCE;
         Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
 
         double pce_mean = regressionPCE.mean();
@@ -1575,15 +1516,6 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
         output_stream << "\t" << pce_stddev;
         output_stream << "\t" << pce_variance;
-
-        if (outputPCECoeffs_)
-        {
-          int NN=regressionPCE.size();
-          for (int ii=0;ii<NN;ii++)
-          {
-            output_stream << "\t" << regressionPCE[ii];
-          }
-        }
       }
 
       if (projectionPCEenable_)
@@ -1616,16 +1548,6 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
         output_stream << "\t" << pce_stddev;
         output_stream << "\t" << pce_variance;
-
-        if (outputPCECoeffs_)
-        {
-          int NN=projectionPCE.size();
-          for (int ii=0;ii<NN;ii++)
-          {
-            //output_stream << "\t" << projectionPCE[ii];
-            output_stream << "\t" << projectionPCE.fastAccessCoeff(ii);
-          }
-        }
       }
 #endif
 
@@ -1641,18 +1563,21 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
     output_stream << std::endl;
 
+  //
+  }
+
   return;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::setAnalysisParams
+// Function      : PCE::setAnalysisParams
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool EmbeddedSampling::setDCOptions(const Util::OptionBlock & paramsBlock)
+bool PCE::setDCOptions(const Util::OptionBlock & paramsBlock)
 {
   dcSweepVector_.push_back(parseSweepParams(paramsBlock.begin(), paramsBlock.end()));
 
@@ -1665,7 +1590,7 @@ bool EmbeddedSampling::setDCOptions(const Util::OptionBlock & paramsBlock)
       for ( ; iter != paramsBlock.end(); ++iter,++i)
       {
         const Xyce::Util::Param & par = *(iter);
-        Xyce::lout() << "EmbeddedSampling::setDCOptions.  paramsBlock["<<i<<"] = " << par;
+        Xyce::lout() << "PCE::setDCOptions.  paramsBlock["<<i<<"] = " << par;
       }
     }
   }
@@ -1676,7 +1601,7 @@ bool EmbeddedSampling::setDCOptions(const Util::OptionBlock & paramsBlock)
 namespace {
 
 //-----------------------------------------------------------------------------
-// Class         : EmbeddedSamplingFactory
+// Class         : PCEFactory
 // Purpose       :
 // Special Notes :
 // Scope         : public
@@ -1686,11 +1611,11 @@ namespace {
 ///
 /// Factory for parsing Step parameters from the netlist and creating Step analysis.
 ///
-class EmbeddedSamplingFactory : public Util::Factory<AnalysisBase, EmbeddedSampling>
+class PCEFactory : public Util::Factory<AnalysisBase, PCE>
 {
 public:
   //-----------------------------------------------------------------------------
-  // Function      : EmbeddedSamplingFactory
+  // Function      : PCEFactory
   // Purpose       :
   // Special Notes :
   // Scope         : public
@@ -1698,9 +1623,9 @@ public:
   // Creation Date : 5/26/2018
   //-----------------------------------------------------------------------------
   ///
-  /// Constructs the EmbeddedSampling analysis factory
+  /// Constructs the PCE analysis factory
   ///
-  /// @invariant Stores the results of parsing.  Multiple EmbeddedSampling analysis options may be
+  /// @invariant Stores the results of parsing.  Multiple PCE analysis options may be
   /// applied and each generates and additional step.
   ///
   /// @invariant The existence of the parameters specified in the constructor cannot
@@ -1710,7 +1635,7 @@ public:
   /// @param linear_system 
   /// @param nonlinear_manager 
   ///
-  EmbeddedSamplingFactory(
+  PCEFactory(
     Analysis::AnalysisManager & analysis_manager,
     Linear::System &            linear_system,
     Nonlinear::Manager &        nonlinear_manager,
@@ -1719,7 +1644,7 @@ public:
     Loader::Loader &            loader,
     Topo::Topology &            topology,
     IO::InitialConditionsManager & initial_conditions_manager)
-    : Util::Factory<AnalysisBase, EmbeddedSampling>(),
+    : Util::Factory<AnalysisBase, PCE>(),
       analysisManager_(analysis_manager),
       linearSystem_(linear_system),
       nonlinearManager_(nonlinear_manager),
@@ -1730,7 +1655,7 @@ public:
       initialConditionsManager_(initial_conditions_manager)
   {}
 
-  virtual ~EmbeddedSamplingFactory()
+  virtual ~PCEFactory()
   {}
 
   //-----------------------------------------------------------------------------
@@ -1742,16 +1667,16 @@ public:
   // Creation Date : 5/26/2018
   //-----------------------------------------------------------------------------
   ///
-  /// Create a new EmbeddedSampling analysis and applies the analysis and time integrator option blocks.
+  /// Create a new PCE analysis and applies the analysis and time integrator option blocks.
   ///
-  /// @return new EmbeddedSampling analysis object
+  /// @return new PCE analysis object
   ///
-  EmbeddedSampling *create() const
+  PCE *create() const
   {
     // don't have a mode yet
     //analysisManager_.setAnalysisMode(ANP_MODE_ES);
 
-    EmbeddedSampling *es = new EmbeddedSampling(
+    PCE *es = new PCE(
         analysisManager_, 
     linearSystem_, nonlinearManager_, deviceManager_, builder_, 
         loader_, 
@@ -1763,7 +1688,7 @@ public:
     {
       es->setAnalysisParams(*it);
     }
-    es->setEmbeddedSamplingOptions(samplingOptionBlock_);
+    es->setPCEOptions(samplingOptionBlock_);
     es->setDCOptions(dcOptionBlock_);
     es->setESLinSol(esLinSolOptionBlock_);
     es->setLinSol(linSolOptionBlock_);
@@ -1772,7 +1697,7 @@ public:
   }
 
   //-----------------------------------------------------------------------------
-  // Function      : setEmbeddedSamplingAnalysisOptionBlock
+  // Function      : setPCEAnalysisOptionBlock
   // Purpose       :
   // Special Notes :
   // Scope         : public
@@ -1786,7 +1711,7 @@ public:
   ///
   /// @param option_block parsed option block
   ///
-  void setEmbeddedSamplingAnalysisOptionBlock(const Util::OptionBlock &option_block)
+  void setPCEAnalysisOptionBlock(const Util::OptionBlock &option_block)
   {
     for (std::vector<Util::OptionBlock>::iterator it = samplingSweepAnalysisOptionBlock_.begin(), end = samplingSweepAnalysisOptionBlock_.end(); it != end; ++it)
     {
@@ -1802,7 +1727,7 @@ public:
   }
 
   //-----------------------------------------------------------------------------
-  // Function      : setEmbeddedSamplingOptionBlock
+  // Function      : setPCEOptionBlock
   // Purpose       : 
   // Special Notes :
   // Scope         : public
@@ -1816,7 +1741,7 @@ public:
   ///
   /// @param option_block parsed option block
   ///
-  bool setEmbeddedSamplingOptionBlock(const Util::OptionBlock &option_block)
+  bool setPCEOptionBlock(const Util::OptionBlock &option_block)
   {
     samplingOptionBlock_ = option_block;
     return true;
@@ -1860,27 +1785,27 @@ private:
 
 //-----------------------------------------------------------------------------
 // .SAMPLING
-struct EmbeddedSamplingAnalysisReg : public IO::PkgOptionsReg
+struct PCEAnalysisReg : public IO::PkgOptionsReg
 {
-  EmbeddedSamplingAnalysisReg(
-    EmbeddedSamplingFactory &             factory)
+  PCEAnalysisReg(
+    PCEFactory &             factory)
     : factory_(factory)
   {}
 
   bool operator()(const Util::OptionBlock &option_block)
   {
-    factory_.setEmbeddedSamplingAnalysisOptionBlock(option_block);
+    factory_.setPCEAnalysisOptionBlock(option_block);
 
     factory_.analysisManager_.addAnalysis(&factory_);
 
     return true;
   }
 
-  EmbeddedSamplingFactory &               factory_;
+  PCEFactory &               factory_;
 };
 
 //-----------------------------------------------------------------------------
-// Function      : extractEmbeddedSamplingData
+// Function      : extractPCEData
 // Purpose       : Extract the parameters from a netlist .SAMPLING line held in
 //                 parsed_line.
 //
@@ -1890,13 +1815,13 @@ struct EmbeddedSamplingAnalysisReg : public IO::PkgOptionsReg
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-bool extractEmbeddedSamplingData(
+bool extractPCEData(
   IO::PkgOptionsMgr &           options_manager,
   IO::CircuitBlock &            circuit_block,
   const std::string &           netlist_filename,
   const IO::TokenVector &       parsed_line)
 {
-  Util::OptionBlock option_block("EMBEDDEDSAMPLING", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
+  Util::OptionBlock option_block("PCE", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
 
   int numFields = parsed_line.size();
 
@@ -1906,7 +1831,7 @@ bool extractEmbeddedSamplingData(
   Util::OptionBlock defaultOptions;
 
   // Get the default options from metadata.
-  addDefaultOptionsParameters(options_manager, defaultOptions, "EMBEDDEDSAMPLING" );
+  addDefaultOptionsParameters(options_manager, defaultOptions, "PCE" );
 
   // Extract the parameters from parsed_line.
   int parameterEndPos = numFields - 1;
@@ -2018,7 +1943,7 @@ bool extractEmbeddedSamplingData(
 void populateMetadata(IO::PkgOptionsMgr & options_manager)
 {
   {
-    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("EMBEDDEDSAMPLING");
+    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("PCE");
 
     parameters.insert(Util::ParamMap::value_type("PARAM", Util::Param("PARAM", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("TYPE", Util::Param("TYPE", "VECTOR")));
@@ -2035,19 +1960,18 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
   }
 
   {
-    // Must use "EMBEDDEDSAMPLES" instead of "EMBEDDEDSAMPLING!"
-    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("EMBEDDEDSAMPLES");
+    // Must use "PCES" instead of "PCE!"
+    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("PCES");
 
     parameters.insert(Util::ParamMap::value_type("NUMSAMPLES", Util::Param("NUMSAMPLES", 1)));
     parameters.insert(Util::ParamMap::value_type("COVMATRIX", Util::Param("COVMATRIX", "VECTOR")));
 
     parameters.insert(Util::ParamMap::value_type("OUTPUTFORMAT", Util::Param("OUTPUTFORMAT", "STD")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
-    parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", false)));
-    parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", 0)));
 #if Xyce_STOKHOS_ENABLE
-    parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", false)));
-    parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", false)));
+    parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", 1)));
+    parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", 1)));
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));
 #endif
     parameters.insert(Util::ParamMap::value_type("SAMPLE_TYPE", Util::Param("SAMPLE_TYPE", 0)));
@@ -2064,9 +1988,9 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
 } // namespace <unnamed>
 
 //-----------------------------------------------------------------------------
-bool registerEmbeddedSamplingFactory(FactoryBlock & factory_block)
+bool registerPCEFactory(FactoryBlock & factory_block)
 {
-  EmbeddedSamplingFactory *factory = new EmbeddedSamplingFactory(
+  PCEFactory *factory = new PCEFactory(
       factory_block.analysisManager_, 
       factory_block.linearSystem_, 
       factory_block.nonlinearManager_, 
@@ -2081,20 +2005,18 @@ bool registerEmbeddedSamplingFactory(FactoryBlock & factory_block)
 
   populateMetadata(factory_block.optionsManager_);
 
-  factory_block.optionsManager_.addCommandParser(".EMBEDDEDSAMPLING", extractEmbeddedSamplingData);
-  factory_block.optionsManager_.addCommandProcessor("EMBEDDEDSAMPLING", new EmbeddedSamplingAnalysisReg(*factory));
+  factory_block.optionsManager_.addCommandParser(".PCE", extractPCEData);
+  factory_block.optionsManager_.addCommandProcessor("PCE", new PCEAnalysisReg(*factory));
 
-  // WARNING:  If you use "EMBEDDEDSAMPLING" here for .options, it will 
-  // confuse the "processor" code, 
-  // mixing and matching .SAMPLING with .options SAMPLING
-  // So, using "EMBEDDEDSAMPLES" instead as identifier.
-  factory_block.optionsManager_.addOptionsProcessor("EMBEDDEDSAMPLES", IO::createRegistrationOptions<EmbeddedSamplingFactory>(*factory, &EmbeddedSamplingFactory::setEmbeddedSamplingOptionBlock)); 
+  // WARNING:  If you use "PCE" here for .options, it will 
+  // confuse the "processor" code so using "PCES" instead as identifier.
+  factory_block.optionsManager_.addOptionsProcessor("PCES", IO::createRegistrationOptions<PCEFactory>(*factory, &PCEFactory::setPCEOptionBlock)); 
 
   // DC options might not be needed
-  factory_block.optionsManager_.addOptionsProcessor("DC", IO::createRegistrationOptions <EmbeddedSamplingFactory> (*factory, &EmbeddedSamplingFactory::setDCOptionBlock)); 
+  factory_block.optionsManager_.addOptionsProcessor("DC", IO::createRegistrationOptions <PCEFactory> (*factory, &PCEFactory::setDCOptionBlock)); 
 
-  factory_block.optionsManager_.addOptionsProcessor("LINSOL-ES", IO::createRegistrationOptions <EmbeddedSamplingFactory> (*factory, &EmbeddedSamplingFactory::setESLinSolOptionBlock));
-  factory_block.optionsManager_.addOptionsProcessor("LINSOL", IO::createRegistrationOptions <EmbeddedSamplingFactory> (*factory, &EmbeddedSamplingFactory::setLinSolOptionBlock));
+  factory_block.optionsManager_.addOptionsProcessor("LINSOL-ES", IO::createRegistrationOptions <PCEFactory> (*factory, &PCEFactory::setESLinSolOptionBlock));
+  factory_block.optionsManager_.addOptionsProcessor("LINSOL", IO::createRegistrationOptions <PCEFactory> (*factory, &PCEFactory::setLinSolOptionBlock));
 
   return true;
 }

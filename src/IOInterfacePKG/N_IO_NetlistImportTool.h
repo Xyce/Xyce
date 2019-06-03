@@ -161,6 +161,8 @@ public:
   bool registerSTEPOptions(Util::ParamList::const_iterator it, Util::ParamList::const_iterator end);
   bool setDISTOptions( const Util::OptionBlock& distOptions );
   bool registerSAMPLINGOptions(Util::ParamList::const_iterator it, Util::ParamList::const_iterator end);
+  bool registerEMBEDDEDSAMPLINGOptions(Util::ParamList::const_iterator it, Util::ParamList::const_iterator end);
+  bool registerPCEOptions(Util::ParamList::const_iterator it, Util::ParamList::const_iterator end);
 
   bool setParserOptions (const Util::OptionBlock & OB);
 
@@ -206,6 +208,8 @@ private:
   unordered_set<std::string>            nodeNames_;
   std::vector<std::string>              stepParams_;
   std::vector<std::string>              samplingParams_;
+  std::vector<std::string>              embeddedSamplingParams_;
+  std::vector<std::string>              pceParams_;
   std::vector<std::string>              dcParams_;
   Util::OptionBlock                     distOptions_;
   Util::OptionBlock                     parserOptions_;
@@ -246,6 +250,8 @@ void printLineDiagnostics(
   const unordered_set<std::string> &            node_names,
   const std::vector<std::string> &              step_params,
   const std::vector<std::string> &              sampling_params,
+  const std::vector<std::string> &              embeddedSampling_params,
+  const std::vector<std::string> &              pce_params,
   const std::vector<std::string> &              dc_params,
   const unordered_set<std::string> &            device_names,
   const IO::AliasNodeMap &                      alias_node_map,
