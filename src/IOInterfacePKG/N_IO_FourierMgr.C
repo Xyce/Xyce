@@ -144,10 +144,10 @@ void FourierMgr::fixupSensFourierParameters(Parallel::Machine comm, const Util::
       std::vector<int> tmpOutputVarsPtr(1,0);
       std::vector<double> tmpFreqVector;
       int ovPtrPos=0;
-      for (std::map<double,int>::iterator it=freqNumOutputVarsMap_.begin(); it!=freqNumOutputVarsMap_.end(); ++it, ++ovPtrPos)
+      for (std::map<double,int>::iterator it2=freqNumOutputVarsMap_.begin(); it2!=freqNumOutputVarsMap_.end(); ++it2, ++ovPtrPos)
       {
-        tmpFreqVector.push_back(it->first);
-        tmpOutputVarsPtr.push_back( tmpOutputVarsPtr[ovPtrPos] + it->second );
+        tmpFreqVector.push_back(it2->first);
+        tmpOutputVarsPtr.push_back( tmpOutputVarsPtr[ovPtrPos] + it2->second );
       }
 
       // temporary.  re-allocated each time thru the loop so each frequency gets unique sensitivity Ops
