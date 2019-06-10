@@ -78,6 +78,10 @@ extern bool useHspiceMath;
 // for the Xyce ones.
 void updateExpFuncArray();
 
+// This function is used to substitute the "HSPICE math" strings for the
+// EXPR_OR and EXPR_AND tokens for the Xyce ones.
+void updateExpOpsArray();
+
 //-----------------------------------------------------------------------------
 // Class         : ExpressionNode
 // Purpose       : Represent a node in an expression tree

@@ -574,20 +574,24 @@ bool processDataStatements(
      }
      else
      {
-      Report::UserError0() << ".DATA line not formatted correctly.";  
+       Report::UserError0() << ".DATA line not formatted correctly.";
+       return false;
      }
    }
 
    // check sizes:
    int paramSize = params.size();
    int CRdataSize = compressedRowData.size();
-   int samples = CRdataSize / paramSize;
 
-   if (samples*paramSize != CRdataSize)
+   // Must have both parameters and data rows.  The total number of data entries
+   // must be an integer multiple of the number of parameters.
+   if ( (paramSize == 0) || (CRdataSize == 0) || (CRdataSize%paramSize != 0) )
    {
-      Report::UserError0() << ".DATA line not formatted correctly.";  
+     Report::UserError0() << ".DATA line " << dataSetName << " not formatted correctly.";
+     return false;
    }
 
+   int samples = CRdataSize / paramSize;
    int crIndex=0;
    std::vector< std::vector<double> > twoDimData(samples);
    for (int is=0;is<samples;++is)
@@ -667,6 +671,10 @@ void convertData(
 
         stepSweepVector.push_back(tmpSweepParam);
       }
+    }
+    else
+    {
+      Report::UserError0() << "Invalid table name " << dataSetName << " from .DATA line used as sweep variable";
     }
   }
 }

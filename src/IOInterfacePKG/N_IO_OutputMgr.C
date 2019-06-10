@@ -83,6 +83,7 @@
 #include <N_UTL_Math.h>
 #include <N_UTL_NetlistLocation.h>
 #include <N_UTL_ExtendedString.h>
+#include <N_UTL_NoCase.h>
 #include <N_UTL_Version.h>
 
 namespace Xyce {
@@ -2458,10 +2459,12 @@ void removeStarVariables(
     {
       ExtendedString tmpStr((*iter_a).first);
       tmpStr.toUpper();
+      char devType=tmpStr[0];
 
       size_t pos = tmpStr.rfind("BRANCH");
-      if (pos != std::string::npos && tmpStr[0] != 'Y')
+      if (pos != std::string::npos)
       {
+        bool addIt=true;
         tmpStr = tmpStr.substr(0, pos - 1);
         // BUG 982:  The names of devices in the "all_nodes" map
         // are all in SPICE style because of a poor design decision.
@@ -2469,7 +2472,26 @@ void removeStarVariables(
         // in print params lists are all in Xyce style.  So we must
         // fake things out here by converting back to Xyce style.
         tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
-        i_list.push_back(tmpStr);
+        // BUG 989 SON:  we are allowing Y device branches to be output by
+        // I(*) now, but YMIL and YMIN (mutual inductors) have two names
+        // for each branch current, and one of them is already included without
+        // the unintuitive "y" device syntax.  So don't print the second
+        // one.  Only add tmpStr if it is neither a YMIL or YMIN.
+        if (devType == 'Y')
+        {
+          std::string::size_type i=tmpStr.find_last_of(':');
+          i=((i == std::string::npos)?0:i+1);
+          std::string basename=tmpStr.substr(i);
+          if (startswith_nocase(basename,"YMIL")
+              || startswith_nocase(basename,"YMIN"))
+          {
+            addIt=false;
+          }
+        }
+        if (addIt)
+        {
+          i_list.push_back(tmpStr);
+        }
       }
     }
     ++iStarPosition;
