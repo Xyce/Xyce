@@ -36,8 +36,8 @@ Version \XyceVersionVar{} Release Notes}
 
 \date{\today}
 
-% Submitted to R&A TBD April 2019 Tracking number TBD, approved TBD April 2019
-% SAND Number SAND2018-TBD
+% Submitted to R&A 21 May 2019 Tracking number 972154, approved 23 May 2019
+% SAND Number SAND2019-5857 O
 
 % ---------------------------------------------------------------------------- %
 % Start the document
@@ -119,7 +119,7 @@ please visit the \XyceTM{} web page at
   and I devices.
 \item An error in the SPICE-compatible level 1 and level 2 diode model
   that could result in convergence problems or incorrect results at
-  high temperatures was corrected.  See the ``fixed defects'' table
+  high temperatures was corrected.  See the ``Fixed Defects'' table
   under the heading for bug 1144-SON for details.
 \item The BSIM3 device now supports analytic parameter sensitivities.
 \item Device-level parameter finite-difference sensitivities are now much more efficient for transient adjoints.
@@ -129,17 +129,17 @@ please visit the \XyceTM{} web page at
 \begin{XyceItemize}
 \item The time step recovery algorithm is now considered deprecated.  It will be removed in a future version of \Xyce{}.
 
-\item The S-parameter analysis is now supported in Xyce. It can be enabled by using a \verb|.LIN| command with a \verb|.AC| command in the netlist. The port device is developed to support S-parameter analysis and it can be used for DC, AC and transient analyses.The results of S-parameter analysis are outputted to a file in touchstone format. See the \Xyce{} users' and Reference Guides
+\item The S-parameter analysis is now supported in Xyce. It can be enabled by using a \verb|.LIN| command with a \verb|.AC| command in the netlist. The port device was developed to support S-parameter analysis and it can be used for DC, AC and transient analyses.The results of S-parameter analysis can be output to a file in either Touchstone 1 or Touchstone 2 format. See the \Xyce{} Users' and Reference Guides
 for more details.
 
-\item The initial guess method based on DC op solutions for HB is now supported and it can be enabled by using the TAHB option
+\item The initial guess method based on DC op solutions for HB is now supported and it can be enabled by using the TAHB option.
 
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
 \item The \Xyce{} expression library now accepts C-style ternary
-  conditional operators.  Please see the reference guide section 2.2
+  conditional operators.  Please see section 2.2 of the \Xyce{} Reference Guide
   for important information about restrictions on this operator and
   details about its behavior.
 \item Expressions may now contain curly braces in most contexts.  They
@@ -183,7 +183,7 @@ and Device Names'' subsection of the \Xyce{} Reference Guide for more details.
   \texttt{PARAMETER=tablefile("file.dat")}.  While this release of
   \Xyce{} will accept both the old and new syntax, future releases
   will only accept the syntax of
-  \texttt{PARAMETER=tablefile("file.dat")}.  Additionally, a new
+  \texttt{PARAMETER=tablefile("file.dat")}.  Also, a new
   syntax of \texttt{PARAMETER=string("string value")} has been
   introduced to specify parameters that are pure strings.  This will
   be deprecated a future release and the simpler syntax of
@@ -250,6 +250,8 @@ form.
   \item Power Grid Modeling with \Xyce{}
   \item Application Note: Coupled Simulation with the \Xyce{} General
     External Interface
+  \item Application Note: Syntax, Parsing and Feature Differences Between
+    HSPICE and Xyce \XyceVersionVar{}
 \end{XyceItemize}
 Also included at the \Xyce{} website as web pages are the following.
 \begin{XyceItemize}
