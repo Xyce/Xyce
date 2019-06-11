@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 02 Apr 2019 10:14:13
+// Creation Date  : Tue, 11 Jun 2019 11:48:55
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1456,6 +1456,38 @@ void Traits::loadModelParameters(ParametricData<ADMSmvsg_cmc::Model> &p)
   p.addPar("MINC", static_cast<double>(0.0), &ADMSmvsg_cmc::Model::minc)
     .setUnit(U_FARAD)
     .setDescription("Minimum capacitance")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("LMIN", static_cast<double>(0.0), &ADMSmvsg_cmc::Model::LMIN)
+    .setUnit(U_METER)
+    .setDescription("Minimum length for use of this model")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("WMIN", static_cast<double>(0.0), &ADMSmvsg_cmc::Model::WMIN)
+    .setUnit(U_METER)
+    .setDescription("Minimum width for use of this model")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("LMAX", static_cast<double>(100.0), &ADMSmvsg_cmc::Model::LMAX)
+    .setUnit(U_METER)
+    .setDescription("Maximum length for use of this model")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("WMAX", static_cast<double>(100.0), &ADMSmvsg_cmc::Model::WMAX)
+    .setUnit(U_METER)
+    .setDescription("Maximum width for use of this model")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -8395,7 +8427,11 @@ Model::Model(
     ffe(1.2),
     minr(1.0e-3),
     minl(1.0e-9),
-    minc(0.0)
+    minc(0.0),
+    LMIN(0.0),
+    WMIN(0.0),
+    LMAX(100.0),
+    WMAX(100.0)
 {
   // Set params to constant default values (from parTable):
   setDefaultParams();
@@ -8908,6 +8944,14 @@ void evaluateInitialInstance(
    bool modelPar_given_minl,
    AdmsSensFadType & modelPar_minc,
    bool modelPar_given_minc,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    // non-reals (including hidden)
    int modelPar_type,
    bool modelPar_given_type,
@@ -9285,6 +9329,14 @@ void evaluateInitialModel(
    bool modelPar_given_minl,
    AdmsSensFadType & modelPar_minc,
    bool modelPar_given_minc,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    // non-reals (including hidden)
    int modelPar_type,
    bool modelPar_given_type,
@@ -9787,6 +9839,14 @@ void evaluateModelEquations(
    bool modelPar_given_minl,
    AdmsSensFadType & modelPar_minc,
    bool modelPar_given_minc,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    // non-reals (including hidden)
    int modelPar_type,
    bool modelPar_given_type,
@@ -10856,6 +10916,14 @@ void InstanceSensitivity::operator()
   bool modelPar_given_minl=mod.given("minl");
   AdmsSensFadType modelPar_minc=mod.minc;
   bool modelPar_given_minc=mod.given("minc");
+  AdmsSensFadType modelPar_LMIN=mod.LMIN;
+  bool modelPar_given_LMIN=mod.given("LMIN");
+  AdmsSensFadType modelPar_WMIN=mod.WMIN;
+  bool modelPar_given_WMIN=mod.given("WMIN");
+  AdmsSensFadType modelPar_LMAX=mod.LMAX;
+  bool modelPar_given_LMAX=mod.given("LMAX");
+  AdmsSensFadType modelPar_WMAX=mod.WMAX;
+  bool modelPar_given_WMAX=mod.given("WMAX");
 
 
   // hidden reals
@@ -11437,6 +11505,14 @@ void InstanceSensitivity::operator()
      modelPar_given_minl,
      modelPar_minc,
      modelPar_given_minc,
+     modelPar_LMIN,
+     modelPar_given_LMIN,
+     modelPar_WMIN,
+     modelPar_given_WMIN,
+     modelPar_LMAX,
+     modelPar_given_LMAX,
+     modelPar_WMAX,
+     modelPar_given_WMAX,
      // non-reals (including hidden)
      modelPar_type,
      modelPar_given_type,
@@ -11927,6 +12003,14 @@ void InstanceSensitivity::operator()
      modelPar_given_minl,
      modelPar_minc,
      modelPar_given_minc,
+     modelPar_LMIN,
+     modelPar_given_LMIN,
+     modelPar_WMIN,
+     modelPar_given_WMIN,
+     modelPar_LMAX,
+     modelPar_given_LMAX,
+     modelPar_WMAX,
+     modelPar_given_WMAX,
      // non-reals (including hidden)
      modelPar_type,
      modelPar_given_type,
@@ -12571,6 +12655,18 @@ void ModelSensitivity::operator()
   AdmsSensFadType modelPar_minc=mod.minc;
   bool modelPar_given_minc=mod.given("minc");
   modParamMap["minc"] = &modelPar_minc;
+  AdmsSensFadType modelPar_LMIN=mod.LMIN;
+  bool modelPar_given_LMIN=mod.given("LMIN");
+  modParamMap["LMIN"] = &modelPar_LMIN;
+  AdmsSensFadType modelPar_WMIN=mod.WMIN;
+  bool modelPar_given_WMIN=mod.given("WMIN");
+  modParamMap["WMIN"] = &modelPar_WMIN;
+  AdmsSensFadType modelPar_LMAX=mod.LMAX;
+  bool modelPar_given_LMAX=mod.given("LMAX");
+  modParamMap["LMAX"] = &modelPar_LMAX;
+  AdmsSensFadType modelPar_WMAX=mod.WMAX;
+  bool modelPar_given_WMAX=mod.given("WMAX");
+  modParamMap["WMAX"] = &modelPar_WMAX;
 
 
   // hidden reals
@@ -13167,6 +13263,14 @@ void ModelSensitivity::operator()
        modelPar_given_minl,
        modelPar_minc,
        modelPar_given_minc,
+       modelPar_LMIN,
+       modelPar_given_LMIN,
+       modelPar_WMIN,
+       modelPar_given_WMIN,
+       modelPar_LMAX,
+       modelPar_given_LMAX,
+       modelPar_WMAX,
+       modelPar_given_WMAX,
        // non-reals (including hidden)
        modelPar_type,
        modelPar_given_type,
@@ -13658,6 +13762,14 @@ void ModelSensitivity::operator()
        modelPar_given_minl,
        modelPar_minc,
        modelPar_given_minc,
+       modelPar_LMIN,
+       modelPar_given_LMIN,
+       modelPar_WMIN,
+       modelPar_given_WMIN,
+       modelPar_LMAX,
+       modelPar_given_LMAX,
+       modelPar_WMAX,
+       modelPar_given_WMAX,
        // non-reals (including hidden)
        modelPar_type,
        modelPar_given_type,
