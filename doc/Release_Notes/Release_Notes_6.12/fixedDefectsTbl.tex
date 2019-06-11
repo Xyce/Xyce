@@ -35,7 +35,19 @@
 
 \textbf{xxx-SON}: place holder title &
 place holder description  \\ \hline
-
+\textbf{1198-SON}: Binning doesn't work for BSIM6 and other models in the ADMS directory &
+Binning (the kind enabled by \texttt{.options parser
+model\_binning=true} did not work properly for several MOSFET models
+derived from Verilog-A, because the authors of those models had not
+included the dummy
+parameters \textbf{LMIN}, \textbf{LMAX}, \textbf{WMIN},
+and \textbf{WMAX}.  These dummy parameters are not used directly by
+any model, but must be present in order for the binning code to select
+the correct model card from a collection of cards based on
+the \textbf{L} and \textbf{W} parameter on the instance line.  These
+models were BSIM6, PSP102, MVSG-HV, and the non-free EKV models.
+Dummy parameters have been added for all these models and they should
+now work with binning. \\ \hline
 \textbf{989-SON}: I(*) will not print branch currents that are part of a Y
 device & Until this release of \Xyce{}, the I(*) feature of
 the \texttt{.PRINT} would not output any branch currents (extra
