@@ -38,7 +38,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 08 Apr 2019 13:58:39
+// Creation Date  : Tue, 11 Jun 2019 12:24:07
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1508,6 +1508,34 @@ void Traits::loadModelParameters(ParametricData<ADMSPSP102VA::Model> &p)
     ;
   p.addPar("KUOWELW", static_cast<double>(0), &ADMSPSP102VA::Model::KUOWELW)
     .setDescription("Area dependent mobility degradation factor")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("LMIN", static_cast<double>(0), &ADMSPSP102VA::Model::LMIN)
+    .setDescription("Dummy parameter to label binning set")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("LMAX", static_cast<double>(1.0), &ADMSPSP102VA::Model::LMAX)
+    .setDescription("Dummy parameter to label binning set")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("WMIN", static_cast<double>(0), &ADMSPSP102VA::Model::WMIN)
+    .setDescription("Dummy parameter to label binning set")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("WMAX", static_cast<double>(1.0), &ADMSPSP102VA::Model::WMAX)
+    .setDescription("Dummy parameter to label binning set")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -23671,6 +23699,10 @@ Model::Model(
     KUOWEL(0),
     KUOWEW(0),
     KUOWELW(0),
+    LMIN(0),
+    LMAX(1.0),
+    WMIN(0),
+    WMAX(1.0),
     RGO(0.0),
     RBULKO(0.0),
     RWELLO(0.0),
@@ -24693,6 +24725,14 @@ void evaluateInitialInstance(
    bool modelPar_given_KUOWEW,
    AdmsSensFadType & modelPar_KUOWELW,
    bool modelPar_given_KUOWELW,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    AdmsSensFadType & modelPar_RGO,
    bool modelPar_given_RGO,
    AdmsSensFadType & modelPar_RBULKO,
@@ -34515,6 +34555,14 @@ void evaluateInitialModel(
    bool modelPar_given_KUOWEW,
    AdmsSensFadType & modelPar_KUOWELW,
    bool modelPar_given_KUOWELW,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    AdmsSensFadType & modelPar_RGO,
    bool modelPar_given_RGO,
    AdmsSensFadType & modelPar_RBULKO,
@@ -36148,6 +36196,14 @@ void evaluateModelEquations(
    bool modelPar_given_KUOWEW,
    AdmsSensFadType & modelPar_KUOWELW,
    bool modelPar_given_KUOWELW,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    AdmsSensFadType & modelPar_RGO,
    bool modelPar_given_RGO,
    AdmsSensFadType & modelPar_RBULKO,
@@ -40729,6 +40785,14 @@ void InstanceSensitivity::operator()
   bool modelPar_given_KUOWEW=mod.given("KUOWEW");
   AdmsSensFadType modelPar_KUOWELW=mod.KUOWELW;
   bool modelPar_given_KUOWELW=mod.given("KUOWELW");
+  AdmsSensFadType modelPar_LMIN=mod.LMIN;
+  bool modelPar_given_LMIN=mod.given("LMIN");
+  AdmsSensFadType modelPar_LMAX=mod.LMAX;
+  bool modelPar_given_LMAX=mod.given("LMAX");
+  AdmsSensFadType modelPar_WMIN=mod.WMIN;
+  bool modelPar_given_WMIN=mod.given("WMIN");
+  AdmsSensFadType modelPar_WMAX=mod.WMAX;
+  bool modelPar_given_WMAX=mod.given("WMAX");
   AdmsSensFadType modelPar_RGO=mod.RGO;
   bool modelPar_given_RGO=mod.given("RGO");
   AdmsSensFadType modelPar_RBULKO=mod.RBULKO;
@@ -41815,6 +41879,14 @@ void InstanceSensitivity::operator()
      modelPar_given_KUOWEW,
      modelPar_KUOWELW,
      modelPar_given_KUOWELW,
+     modelPar_LMIN,
+     modelPar_given_LMIN,
+     modelPar_LMAX,
+     modelPar_given_LMAX,
+     modelPar_WMIN,
+     modelPar_given_WMIN,
+     modelPar_WMAX,
+     modelPar_given_WMAX,
      modelPar_RGO,
      modelPar_given_RGO,
      modelPar_RBULKO,
@@ -42816,6 +42888,14 @@ void InstanceSensitivity::operator()
      modelPar_given_KUOWEW,
      modelPar_KUOWELW,
      modelPar_given_KUOWELW,
+     modelPar_LMIN,
+     modelPar_given_LMIN,
+     modelPar_LMAX,
+     modelPar_given_LMAX,
+     modelPar_WMIN,
+     modelPar_given_WMIN,
+     modelPar_WMAX,
+     modelPar_given_WMAX,
      modelPar_RGO,
      modelPar_given_RGO,
      modelPar_RBULKO,
@@ -43847,6 +43927,14 @@ void InstanceSensitivity::operator()
      modelPar_given_KUOWEW,
      modelPar_KUOWELW,
      modelPar_given_KUOWELW,
+     modelPar_LMIN,
+     modelPar_given_LMIN,
+     modelPar_LMAX,
+     modelPar_given_LMAX,
+     modelPar_WMIN,
+     modelPar_given_WMIN,
+     modelPar_WMAX,
+     modelPar_given_WMAX,
      modelPar_RGO,
      modelPar_given_RGO,
      modelPar_RBULKO,
@@ -44922,6 +45010,18 @@ void ModelSensitivity::operator()
   AdmsSensFadType modelPar_KUOWELW=mod.KUOWELW;
   bool modelPar_given_KUOWELW=mod.given("KUOWELW");
   modParamMap["KUOWELW"] = &modelPar_KUOWELW;
+  AdmsSensFadType modelPar_LMIN=mod.LMIN;
+  bool modelPar_given_LMIN=mod.given("LMIN");
+  modParamMap["LMIN"] = &modelPar_LMIN;
+  AdmsSensFadType modelPar_LMAX=mod.LMAX;
+  bool modelPar_given_LMAX=mod.given("LMAX");
+  modParamMap["LMAX"] = &modelPar_LMAX;
+  AdmsSensFadType modelPar_WMIN=mod.WMIN;
+  bool modelPar_given_WMIN=mod.given("WMIN");
+  modParamMap["WMIN"] = &modelPar_WMIN;
+  AdmsSensFadType modelPar_WMAX=mod.WMAX;
+  bool modelPar_given_WMAX=mod.given("WMAX");
+  modParamMap["WMAX"] = &modelPar_WMAX;
   AdmsSensFadType modelPar_RGO=mod.RGO;
   bool modelPar_given_RGO=mod.given("RGO");
   modParamMap["RGO"] = &modelPar_RGO;
@@ -46121,6 +46221,14 @@ void ModelSensitivity::operator()
        modelPar_given_KUOWEW,
        modelPar_KUOWELW,
        modelPar_given_KUOWELW,
+       modelPar_LMIN,
+       modelPar_given_LMIN,
+       modelPar_LMAX,
+       modelPar_given_LMAX,
+       modelPar_WMIN,
+       modelPar_given_WMIN,
+       modelPar_WMAX,
+       modelPar_given_WMAX,
        modelPar_RGO,
        modelPar_given_RGO,
        modelPar_RBULKO,
@@ -47122,6 +47230,14 @@ void ModelSensitivity::operator()
        modelPar_given_KUOWEW,
        modelPar_KUOWELW,
        modelPar_given_KUOWELW,
+       modelPar_LMIN,
+       modelPar_given_LMIN,
+       modelPar_LMAX,
+       modelPar_given_LMAX,
+       modelPar_WMIN,
+       modelPar_given_WMIN,
+       modelPar_WMAX,
+       modelPar_given_WMAX,
        modelPar_RGO,
        modelPar_given_RGO,
        modelPar_RBULKO,
@@ -48154,6 +48270,14 @@ void ModelSensitivity::operator()
        modelPar_given_KUOWEW,
        modelPar_KUOWELW,
        modelPar_given_KUOWELW,
+       modelPar_LMIN,
+       modelPar_given_LMIN,
+       modelPar_LMAX,
+       modelPar_given_LMAX,
+       modelPar_WMIN,
+       modelPar_given_WMIN,
+       modelPar_WMAX,
+       modelPar_given_WMAX,
        modelPar_RGO,
        modelPar_given_RGO,
        modelPar_RBULKO,
