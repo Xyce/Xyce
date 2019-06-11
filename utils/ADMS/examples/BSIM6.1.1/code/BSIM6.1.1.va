@@ -1744,7 +1744,14 @@ endfunction
 `MPRnb( TETA0EDGE      ,TETA0          ,""            							,"" ) 
 `MPRnb( DVT0EDGE       ,2.2            ,""            							,"" ) 
 `MPRnb( DVT1EDGE       ,0.53           ,""            							,"" ) 
-`MPRnb( DVT2EDGE       ,0.0            ,""            							,"Body-bias coefficient for SCE effect for Edge FET" ) 
+`MPRnb( DVT2EDGE       ,0.0            ,""            							,"Body-bias coefficient for SCE effect for Edge FET" )
+
+`ifdef __XYCE__
+`MPRnb( LMIN           ,0.0            ,"m"                                                             ,"Minimum length for which this model should be used")
+`MPRnb( WMIN           ,0.0            ,"m"                                                             ,"Minimum width for which this model should be used")
+`MPRnb( LMAX           ,100.0            ,"m"                                                           ,"Maximum length for which this model should be used")
+`MPRnb( WMAX           ,0.0            ,"m"                                                             ,"Maximum width for which this model should be used")
+`endif
 // ***********************************
 //   Variables
 // ***********************************

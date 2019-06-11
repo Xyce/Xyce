@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 02 Apr 2019 10:14:13
+// Creation Date  : Tue, 11 Jun 2019 09:13:17
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -7241,6 +7241,38 @@ void Traits::loadModelParameters(ParametricData<ADMSbsim6::Model> &p)
   p.addPar("DVT2EDGE", static_cast<double>(0.0), &ADMSbsim6::Model::DVT2EDGE)
     .setUnit(U_UNKNOWN)
     .setDescription("Body-bias coefficient for SCE effect for Edge FET")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("LMIN", static_cast<double>(0.0), &ADMSbsim6::Model::LMIN)
+    .setUnit(U_METER)
+    .setDescription("Minimum length for which this model should be used")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("WMIN", static_cast<double>(0.0), &ADMSbsim6::Model::WMIN)
+    .setUnit(U_METER)
+    .setDescription("Minimum width for which this model should be used")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("LMAX", static_cast<double>(100.0), &ADMSbsim6::Model::LMAX)
+    .setUnit(U_METER)
+    .setDescription("Maximum length for which this model should be used")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+    ;
+  p.addPar("WMAX", static_cast<double>(0.0), &ADMSbsim6::Model::WMAX)
+    .setUnit(U_METER)
+    .setDescription("Maximum width for which this model should be used")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -20998,7 +21030,11 @@ Model::Model(
     TETA0EDGE(0.0),
     DVT0EDGE(2.2),
     DVT1EDGE(0.53),
-    DVT2EDGE(0.0)
+    DVT2EDGE(0.0),
+    LMIN(0.0),
+    WMIN(0.0),
+    LMAX(100.0),
+    WMAX(0.0)
 {
   // Set params to constant default values (from parTable):
   setDefaultParams();
@@ -23102,6 +23138,14 @@ void evaluateInitialInstance(
    bool modelPar_given_DVT1EDGE,
    AdmsSensFadType & modelPar_DVT2EDGE,
    bool modelPar_given_DVT2EDGE,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    // non-reals (including hidden)
    int modelPar_NGCON,
    bool modelPar_given_NGCON,
@@ -29819,6 +29863,14 @@ void evaluateInitialModel(
    bool modelPar_given_DVT1EDGE,
    AdmsSensFadType & modelPar_DVT2EDGE,
    bool modelPar_given_DVT2EDGE,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    // non-reals (including hidden)
    int modelPar_NGCON,
    bool modelPar_given_NGCON,
@@ -31877,6 +31929,14 @@ void evaluateModelEquations(
    bool modelPar_given_DVT1EDGE,
    AdmsSensFadType & modelPar_DVT2EDGE,
    bool modelPar_given_DVT2EDGE,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    // non-reals (including hidden)
    int modelPar_NGCON,
    bool modelPar_given_NGCON,
@@ -36347,6 +36407,14 @@ void InstanceSensitivity::operator()
   bool modelPar_given_DVT1EDGE=mod.given("DVT1EDGE");
   AdmsSensFadType modelPar_DVT2EDGE=mod.DVT2EDGE;
   bool modelPar_given_DVT2EDGE=mod.given("DVT2EDGE");
+  AdmsSensFadType modelPar_LMIN=mod.LMIN;
+  bool modelPar_given_LMIN=mod.given("LMIN");
+  AdmsSensFadType modelPar_WMIN=mod.WMIN;
+  bool modelPar_given_WMIN=mod.given("WMIN");
+  AdmsSensFadType modelPar_LMAX=mod.LMAX;
+  bool modelPar_given_LMAX=mod.given("LMAX");
+  AdmsSensFadType modelPar_WMAX=mod.WMAX;
+  bool modelPar_given_WMAX=mod.given("WMAX");
 
 
   // hidden reals
@@ -38666,6 +38734,14 @@ void InstanceSensitivity::operator()
      modelPar_given_DVT1EDGE,
      modelPar_DVT2EDGE,
      modelPar_given_DVT2EDGE,
+     modelPar_LMIN,
+     modelPar_given_LMIN,
+     modelPar_WMIN,
+     modelPar_given_WMIN,
+     modelPar_LMAX,
+     modelPar_given_LMAX,
+     modelPar_WMAX,
+     modelPar_given_WMAX,
      // non-reals (including hidden)
      modelPar_NGCON,
      modelPar_given_NGCON,
@@ -40712,6 +40788,14 @@ void InstanceSensitivity::operator()
      modelPar_given_DVT1EDGE,
      modelPar_DVT2EDGE,
      modelPar_given_DVT2EDGE,
+     modelPar_LMIN,
+     modelPar_given_LMIN,
+     modelPar_WMIN,
+     modelPar_given_WMIN,
+     modelPar_LMAX,
+     modelPar_given_LMAX,
+     modelPar_WMAX,
+     modelPar_given_WMAX,
      // non-reals (including hidden)
      modelPar_NGCON,
      modelPar_given_NGCON,
@@ -43463,6 +43547,18 @@ void ModelSensitivity::operator()
   AdmsSensFadType modelPar_DVT2EDGE=mod.DVT2EDGE;
   bool modelPar_given_DVT2EDGE=mod.given("DVT2EDGE");
   modParamMap["DVT2EDGE"] = &modelPar_DVT2EDGE;
+  AdmsSensFadType modelPar_LMIN=mod.LMIN;
+  bool modelPar_given_LMIN=mod.given("LMIN");
+  modParamMap["LMIN"] = &modelPar_LMIN;
+  AdmsSensFadType modelPar_WMIN=mod.WMIN;
+  bool modelPar_given_WMIN=mod.given("WMIN");
+  modParamMap["WMIN"] = &modelPar_WMIN;
+  AdmsSensFadType modelPar_LMAX=mod.LMAX;
+  bool modelPar_given_LMAX=mod.given("LMAX");
+  modParamMap["LMAX"] = &modelPar_LMAX;
+  AdmsSensFadType modelPar_WMAX=mod.WMAX;
+  bool modelPar_given_WMAX=mod.given("WMAX");
+  modParamMap["WMAX"] = &modelPar_WMAX;
 
 
   // hidden reals
@@ -45862,6 +45958,14 @@ void ModelSensitivity::operator()
        modelPar_given_DVT1EDGE,
        modelPar_DVT2EDGE,
        modelPar_given_DVT2EDGE,
+       modelPar_LMIN,
+       modelPar_given_LMIN,
+       modelPar_WMIN,
+       modelPar_given_WMIN,
+       modelPar_LMAX,
+       modelPar_given_LMAX,
+       modelPar_WMAX,
+       modelPar_given_WMAX,
        // non-reals (including hidden)
        modelPar_NGCON,
        modelPar_given_NGCON,
@@ -47909,6 +48013,14 @@ void ModelSensitivity::operator()
        modelPar_given_DVT1EDGE,
        modelPar_DVT2EDGE,
        modelPar_given_DVT2EDGE,
+       modelPar_LMIN,
+       modelPar_given_LMIN,
+       modelPar_WMIN,
+       modelPar_given_WMIN,
+       modelPar_LMAX,
+       modelPar_given_LMAX,
+       modelPar_WMAX,
+       modelPar_given_WMAX,
        // non-reals (including hidden)
        modelPar_NGCON,
        modelPar_given_NGCON,
