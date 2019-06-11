@@ -479,6 +479,7 @@ private:
   double sa;
   double sb;
   double sd;
+  bool SDgiven;
   double sca;
   double scb;
   double scc;
@@ -490,9 +491,18 @@ private:
   double rbps;
   double rbpd;
 
+  bool RBDBgiven;
+  bool RBSBgiven;
+  bool RBPBgiven;
+  bool RBPSgiven;
+  bool RBPDgiven;
+
   double delvto;
   double xgw;
   double ngcon;
+
+  bool XGWgiven;
+  bool NGCONgiven;
 
   // added here to account stress effect instance dependence
   double u0temp;
@@ -521,6 +531,12 @@ private:
   int rgeoMod;
   int min;
 
+  bool RBODYMODgiven;
+  bool RGATEMODgiven;
+  bool GEOMODgiven;
+  bool RGEOMODgiven;
+  bool TRNQSMODgiven;
+  bool ACNQSMODgiven;
 
   // OP point
   double Vgsteff;
@@ -675,6 +691,7 @@ private:
   bool ChargeComputationNeeded;
 
   double temp;
+  bool TEMPgiven;
 
   // solution variables, and intermediate quantities.
   double Vd;           // drain node voltage
