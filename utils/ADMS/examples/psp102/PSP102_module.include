@@ -454,6 +454,16 @@
     parameter real    KUOWEL   =  0                               `P(info="Length dependent mobility degradation factor" unit="");
     parameter real    KUOWEW   =  0                               `P(info="Width dependent mobility degradation factor" unit="");
     parameter real    KUOWELW  =  0                               `P(info="Area dependent mobility degradation factor" unit="");
+
+    // XYCE HACK:  Even though PSP 102 doesn't define these unless the Binning
+    // macro is defined, our HSPICE-style binning requires them.  So define
+    // them here anyway.
+    // `Dummy' parameters for binning-set labeling
+    parameter real    LMIN         = 0                                    `P(info="Dummy parameter to label binning set" unit="m");
+    parameter real    LMAX         = 1.0                                  `P(info="Dummy parameter to label binning set" unit="m");
+    parameter real    WMIN         = 0                                    `P(info="Dummy parameter to label binning set" unit="m");
+    parameter real    WMAX         = 1.0                                  `P(info="Dummy parameter to label binning set" unit="m");
+
 `endif // Binning
 `ifdef NQSmodel
     parameter real    SWNQS    =  0.0      `from(    0.0,9.0    ) `P(info="Flag for NQS, 0=off, 1, 2, 3, 5, or 9=number of collocation points" unit="");
