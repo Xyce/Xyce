@@ -553,6 +553,8 @@ private:
   DeviceVector                  pdeDevicePtrVec_;
 
   InstanceVector                instancePtrVec_;
+  InstanceVector                devicesWithMaxTimeStepFuncsPtrVec_;
+
   //InstanceVector                bpInstancePtrVec_;    ///< instances with breakpoints functions
   InstanceVector                pauseBpInstancePtrVec_;    ///< instances with pause breakpoints functions
   InstanceVector                simpleBpInstancePtrVec_;    ///< instances with simple breakpoints functions
