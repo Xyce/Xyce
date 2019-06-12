@@ -564,7 +564,7 @@ bool DeviceEntity::getNumericalBSensVectorsforACDefaultParam (
           std::vector< std::complex<double> > & dbdp,
           std::vector<int> &        BindicesVec)
 {
-
+  return true;
 }
 
 //
