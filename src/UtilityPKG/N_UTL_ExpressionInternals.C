@@ -316,9 +316,10 @@ ExpressionInternals::ExpressionInternals( const std::string & exp )
     num_special_      ( 0 ),
     num_var_          ( 0 ),
     num_func_         ( 0 ),
+    varValsTimeIndex_ ( -1 ),
+    varValsFreqIndex_ ( -1 ),
     sim_time_         ( 0.0 ),
     sim_dt_           ( 1.0e-10 ),
-    time_index        ( -1 ),
     timeDependent_    ( false ),
     randomDependent_  ( false ),
     breakpointed_     ( false ),
@@ -327,6 +328,9 @@ ExpressionInternals::ExpressionInternals( const std::string & exp )
   Input_ = "";
   if (!exp.empty())
     parsed_ = set(exp);
+
+  varValsTimeIndex_ = find_num_(std::string("TIME"));
+  varValsFreqIndex_ = find_num_(std::string("FREQ"));
 }
 
 //-----------------------------------------------------------------------------
@@ -357,9 +361,10 @@ ExpressionInternals::ExpressionInternals(
     num_special_       (right.num_special_),
     num_var_           (right.num_var_),
     num_func_          (right.num_func_),
+    varValsTimeIndex_  (right.varValsTimeIndex_),
+    varValsFreqIndex_  (right.varValsFreqIndex_),
     sim_time_          (right.sim_time_),
     sim_dt_            (right.sim_dt_),
-    time_index         (right.time_index),
     timeDependent_     (right.timeDependent_),
     randomDependent_   (right.randomDependent_),
     breakpointed_      (right.breakpointed_),
@@ -435,9 +440,10 @@ ExpressionInternals::ExpressionInternals( const ExpressionNode &node )
     num_special_      ( 0 ),
     num_var_          ( 0 ),
     num_func_         ( 0 ),
+    varValsTimeIndex_ ( -1 ),
+    varValsFreqIndex_ ( -1 ),
     sim_time_         ( 0.0 ),
     sim_dt_           ( 1.0e-10 ),
-    time_index        ( -1 ),
     timeDependent_    ( false ),
     randomDependent_  ( false ),
     breakpointed_     ( false ),
@@ -537,7 +543,8 @@ bool ExpressionInternals::set ( const std::string & exp )
     differentiated_ = false;
     ddxProcessed_ = false;
     breakpointed_ = false;
-    time_index = -1;
+    varValsTimeIndex_ = -1;
+    varValsFreqIndex_ = -1;
     sim_time_ = 0;
   }
 
@@ -1605,14 +1612,13 @@ int ExpressionInternals::differentiate ()
 /// @author Dave Shirley, PSSI
 /// @date 06/07/01
 ///
-bool ExpressionInternals::set_var ( const std::string & var,
-                                 const double & val)
+bool ExpressionInternals::set_var ( const std::string & var, const double & val)
 {
   int ind;
 
   if (DEBUG_EXPRESSION)
   {
-    Xyce::dout() << "ExpressionInternals::set_var(" << var << " , " << val << ")" << std::endl;
+    Xyce::dout() << "ExpressionInternals::set_var(" << var << " , " << val << ") for " << Input_ << std::endl;
   }
 
   if ( ( ind = find_num_( var ) ) >= 0 )
@@ -1786,10 +1792,7 @@ std::string ExpressionInternals::get_derivative ( std::string const & var )
 /// @author Dave Shirley, PSSI
 /// @date 07/12/01
 ///
-
-int
-ExpressionInternals::get_num(
-  int           type)
+int ExpressionInternals::get_num(int type)
 {
   switch (type)
   {
@@ -2039,10 +2042,35 @@ bool ExpressionInternals::set_sim_time(double time)
     values_changed_ = true;
   }
 
-  if (set_var(std::string("TIME"), time))
+  if (varValsTimeIndex_ == -1) // has not been set yet, probably
   {
-    values_changed_ = true;
+    varValsTimeIndex_ = find_num_("TIME");
+    if (varValsTimeIndex_ == -1) // if still negative, then set to -2, which will mean "give up forever"
+    {
+      varValsTimeIndex_ = -2;
+    }
   }
+
+  if (varValsTimeIndex_ >= 0 && varValsTimeIndex_ < varValues_.size())
+  {
+    if (varValues_[varValsTimeIndex_] != "TIME") // then it is wrong, fix it.
+    {
+      varValsTimeIndex_ = find_num_("TIME");
+    }
+
+    if (varTypes_[varValsTimeIndex_] == EXPR_T_INSTANCE ||
+        varTypes_[varValsTimeIndex_] == EXPR_T_NODE ||
+        varTypes_[varValsTimeIndex_] == EXPR_T_SPECIAL ||
+        varTypes_[varValsTimeIndex_] == EXPR_T_VARIABLE)
+    {
+      if (var_vals_[varValsTimeIndex_] != time)
+      {
+        values_changed_ = true;
+        var_vals_[varValsTimeIndex_] = time;
+      }
+    }
+  }
+
   sim_time_ = time;
   tentative_accepted_time = time;
 
@@ -2126,16 +2154,41 @@ bool ExpressionInternals::set_temp(double const & tempIn)
 ///
 /// @param[in] freq The frequency value 
 ///
-/// The internal variable "FREQ" is special, and should not be set directly
-/// using the "set_var" function alone.  This function also sets some internal
-/// state variables needed for proper handling of time-dependent expressions.
-///
 /// @author Eric Keiter, SNL
 /// @date 09/7/18
 ///
 bool ExpressionInternals::set_sim_freq(double freqIn)
 {
-  return (set_var(std::string("FREQ"), freqIn));
+  if (varValsFreqIndex_ == -1) // has not been set yet, probably
+  {
+    varValsFreqIndex_ = find_num_("FREQ");
+    if (varValsFreqIndex_ == -1) // if still negative, then set to -2, which will mean "give up forever"
+    {
+      varValsFreqIndex_ = -2;
+    }
+  }
+
+  if (varValsFreqIndex_ >= 0 && varValsFreqIndex_ < varValues_.size())
+  {
+    if (varValues_[varValsFreqIndex_] != "FREQ") // then it is wrong, fix it.
+    {
+      varValsFreqIndex_ = find_num_("FREQ");
+    }
+
+    if (varTypes_[varValsFreqIndex_] == EXPR_T_INSTANCE ||
+        varTypes_[varValsFreqIndex_] == EXPR_T_NODE ||
+        varTypes_[varValsFreqIndex_] == EXPR_T_SPECIAL ||
+        varTypes_[varValsFreqIndex_] == EXPR_T_VARIABLE)
+    {
+      if (var_vals_[varValsFreqIndex_] != freqIn)
+      {
+        values_changed_ = true;
+        var_vals_[varValsFreqIndex_] = freqIn;
+      }
+    }
+  }
+
+  return values_changed_;
 }
 
 //-----------------------------------------------------------------------------
@@ -2168,12 +2221,7 @@ void ExpressionInternals::set_accepted_time(double const time)
 //-----------------------------------------------------------------------------
 // Function      : ExpressionInternals::get_break_time
 // Purpose       : Returns next breakpoint time
-//
-// Special Notes : ERK.  The usage of "set_sim_time" is very odd in
-//                 this function.  In most cases, sim_time_ is set directly,
-//                 and then "set_sim_time_" is called immediately afterwards.
-//                 This should probably be refactored.
-//
+// Special Notes : 
 // Scope         :
 // Creator       : Dave Shirley, PSSI
 // Creation Date : 07/12/01
@@ -2207,15 +2255,16 @@ double ExpressionInternals::get_break_time_i()
                             << "Expression is not fully resolved";
       return 0;
     }
-    if (time_index == -1)
+
+    if (varValsTimeIndex_ == -1) // has not been set yet, probably
     {
-      time_index = find_num_("TIME");
-      if (time_index == -1)
+      varValsTimeIndex_ = find_num_("TIME");
+      if (varValsTimeIndex_ == -1) // if still negative, then set to -2, which will mean "give up forever"
       {
-        time_index = -2;
-        return 0;
+        varValsTimeIndex_ = -2;
       }
     }
+
     if (!differentiated_)
       simplify_ (*tree_);
     breaks_.clear();
@@ -2920,15 +2969,13 @@ void ExpressionInternals::setDdtDerivs ( std::vector<double> & vals )
 ///
 int ExpressionInternals::find_num_( const std::string & var )
 {
-  for (int i = 0; i < numVars_; ++i )
+  int index=-1;
+  std::vector<std::string>::iterator it = std::find(varValues_.begin(), varValues_.end(), var);
+  if (it != varValues_.end())
   {
-    if (varValues_[i] == var)
-    {
-      return i;
-    }
+    index = std::distance (varValues_.begin(), it );
   }
-
-  return -1;
+  return index;
 }
 
 //-----------------------------------------------------------------------------
@@ -5453,13 +5500,13 @@ void ExpressionInternals::get_breaks_ (ExpressionNode & node)
     case EXPR_LESSEQ:
       get_breaks_ ( *(node.operands[0]));
       get_breaks_ ( *(node.operands[1]));
-      if ((dependent_( *(node.operands[0]), time_index) ||
-            dependent_( *(node.operands[1]), time_index)) &&
-          (!dependent_other_( *(node.operands[0]), time_index) &&
-            !dependent_other_( *(node.operands[1]), time_index)))
+      if ((dependent_( *(node.operands[0]), varValsTimeIndex_) ||
+            dependent_( *(node.operands[1]), varValsTimeIndex_)) &&
+          (!dependent_other_( *(node.operands[0]), varValsTimeIndex_) &&
+            !dependent_other_( *(node.operands[1]), varValsTimeIndex_)))
       {
         t = mkb_(EXPR_MINUS, node.operands[0], node.operands[1]);
-        p = Differentiate_ (t, time_index);
+        p = Differentiate_ (t, varValsTimeIndex_);
         b = mkf_(EXPR_F_UMINUS, mkb_(EXPR_DIVIDE, t, p));
         breaks_.push_back(b);
       }
@@ -5468,11 +5515,11 @@ void ExpressionInternals::get_breaks_ (ExpressionNode & node)
     case EXPR_REMAINDER:
       get_breaks_ ( *(node.operands[0]));
       get_breaks_ ( *(node.operands[1]));
-      if (dependent_( *(node.operands[0]), time_index) &&
-          !dependent_other_( *(node.operands[0]), time_index))
+      if (dependent_( *(node.operands[0]), varValsTimeIndex_) &&
+          !dependent_other_( *(node.operands[0]), varValsTimeIndex_))
       {
 // in a%b, p is da/dt
-        p = Differentiate_ (node.operands[0], time_index);
+        p = Differentiate_ (node.operands[0], varValsTimeIndex_);
 // t is the target value of a%b in the future.  This can be -abs(b), 0, or abs(b)
         t = mkf_(EXPR_F_IF, mkb_(EXPR_GREAT, node.operands[0], mkcon_(0)));
         t->operands[1] = mkf_(EXPR_F_IF, mkb_(EXPR_GREAT, p, mkcon_(0)));
@@ -5495,10 +5542,10 @@ void ExpressionInternals::get_breaks_ (ExpressionNode & node)
         return;
       if (node.funcnum == EXPR_F_TABLE)
       {
-        if (dependent_( *(node.operands[0]), time_index) &&
-            !dependent_other_( *(node.operands[0]), time_index))
+        if (dependent_( *(node.operands[0]), varValsTimeIndex_) &&
+            !dependent_other_( *(node.operands[0]), varValsTimeIndex_))
         {
-          p = Differentiate_ (node.operands[0], time_index);
+          p = Differentiate_ (node.operands[0], varValsTimeIndex_);
           b = mkf_(EXPR_F_IF, mkb_(EXPR_GREAT, p, mkcon_(0)));
           t1 = mkf_(EXPR_F_F_TABLE, node.operands[0]);
           t2 = mkf_(EXPR_F_R_TABLE, node.operands[0]);
