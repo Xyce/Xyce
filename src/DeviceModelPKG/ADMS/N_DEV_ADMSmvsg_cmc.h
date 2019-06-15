@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 02 Apr 2019 10:14:13
+// Creation Date  : Tue, 11 Jun 2019 11:48:55
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSmvsg_cmc_h
@@ -625,6 +625,14 @@ void evaluateModelEquations(
    bool modelPar_given_minl,
    AdmsSensFadType & modelPar_minc,
    bool modelPar_given_minc,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    // non-reals (including hidden)
    int modelPar_type,
    bool modelPar_given_type,
@@ -1045,6 +1053,14 @@ void evaluateInitialInstance(
    bool modelPar_given_minl,
    AdmsSensFadType & modelPar_minc,
    bool modelPar_given_minc,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    // non-reals (including hidden)
    int modelPar_type,
    bool modelPar_given_type,
@@ -1395,6 +1411,14 @@ void evaluateInitialModel(
    bool modelPar_given_minl,
    AdmsSensFadType & modelPar_minc,
    bool modelPar_given_minc,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    // non-reals (including hidden)
    int modelPar_type,
    bool modelPar_given_type,
@@ -2925,6 +2949,10 @@ private:
   double minr;
   double minl;
   double minc;
+  double LMIN;
+  double WMIN;
+  double LMAX;
+  double WMAX;
   //  Variables of global_model scope
   // end verilog model variables=====
 };

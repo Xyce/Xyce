@@ -439,20 +439,6 @@ bool Instance::loadDAEdFdx ()
 // end of new-DAE functions
 
 //-----------------------------------------------------------------------------
-// Function      : Instance::getMaxTimeStepSize
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Richard Schiek, Electrical and Microsystems Modeling
-// Creation Date : 2/1/10
-//-----------------------------------------------------------------------------
-double Instance::getMaxTimeStepSize  ()
-{
-  double maxStep = 1.0e99;
-  return maxStep;
-}
-
-//-----------------------------------------------------------------------------
 // Function      : Instance::varTypes
 // Purpose       :
 // Special Notes :

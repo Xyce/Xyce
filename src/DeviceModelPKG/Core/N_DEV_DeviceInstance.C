@@ -1037,7 +1037,7 @@ bool DeviceInstance::getNumericalBSensVectorsforAC ( const std::string & paramNa
           std::vector< std::complex<double> > & dbdp,
           std::vector<int> &        BindicesVec)
 {
-
+  return true;
 }
 
 //-----------------------------------------------------------------------------

@@ -264,6 +264,8 @@ public:
 
   virtual bool setInitialGuess ();
   virtual double getMaxTimeStepSize  ();
+  virtual bool maxTimeStepSupported () {return false;};
+  virtual bool getFastSourceFlag() const {return false;};
 
   virtual void varTypes( std::vector<char> & varTypeVec ) {}
 

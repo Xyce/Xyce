@@ -272,6 +272,12 @@ thermal dt;
    `MPRcz(minl,     1.0e-9,  "m",        "Minimum length of access or FP regions for modeling them as transistors")
    `MPRcz(minc,     0.0,     "F",        "Minimum capacitance")
 
+// Xyce-specific hack:  Add dummy LMIN/LMAX, WMIN/WMAX params
+   `MPRnb(LMIN, 0.0, "m", "Minimum length for use of this model")
+   `MPRnb(WMIN, 0.0, "m", "Minimum width for use of this model")
+   `MPRnb(LMAX, 100.0, "m", "Maximum length for use of this model")
+   `MPRnb(WMAX, 100.0, "m", "Maximum width for use of this model")
+
    analog function real absfunc;
       input x;
       real x;

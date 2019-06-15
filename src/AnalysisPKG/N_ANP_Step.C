@@ -427,6 +427,13 @@ bool extractSTEPData(
 
   int numFields = parsed_line.size();
 
+  if (numFields < 4)
+  {
+    Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
+      << ".STEP line has an unexpected number of fields";
+    return false;
+  }
+
   // First check if the type has been explicitly set.
   // If not, set it to the default, LIN.
   int pos1=1;
@@ -494,6 +501,7 @@ bool extractSTEPData(
     {
       Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
         << ".STEP line not formatted correctly.  numFields = " << numFields;
+      return false;
     }
   }
   else
@@ -641,6 +649,7 @@ bool extractSTEPData(
   {
     Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
       << ".STEP line contains an unrecognized type";
+    return false;
   }
 
   circuit_block.addOptions(option_block);

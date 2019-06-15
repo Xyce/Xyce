@@ -465,7 +465,7 @@ public:
   bool set_temp (double const & temp);
   bool set_sim_freq (double freq);
   void set_accepted_time (double const time);
-  double get_break_time (void) {if(time_index == -2) return 0; else return(get_break_time_i());};
+  double get_break_time (void) {if(varValsTimeIndex_ == -2) return 0; else return(get_break_time_i());};
   double get_break_time_i (void);
   const std::string & get_input (void);
   int order_names (std::vector< std::string > const & new_names);
@@ -511,9 +511,10 @@ private:
   int num_node_computation_;     ///< number of "nodal computation" terms
                                  ///< such as "IM(a,b)" or "IP(a,b)"
                                  ///<
+  int varValsTimeIndex_;
+  int varValsFreqIndex_;
   double sim_time_;              ///< Current simpulation time
   double sim_dt_;                ///< Current simpulation time step
-  int time_index;                ///< index of TIME variable in symbol table
   bool timeDependent_;           ///< true if expression contains DDT or SDT
   bool randomDependent_;         ///< true if expression contains GAUSS, AGAUSS or RAND
   bool breakpointed_;            ///< true if breakpoints have been computed

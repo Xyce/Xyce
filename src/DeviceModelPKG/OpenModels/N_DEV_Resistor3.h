@@ -125,8 +125,6 @@ public:
 
   void setupPointers ();
 
-  double getMaxTimeStepSize ();
-
   void varTypes( std::vector<char> & varTypeVec );
 
   void getLIDs(int & lpos, int & lneg,int & lbra)

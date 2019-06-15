@@ -86,6 +86,7 @@
 #include <N_DEV_Resistor3.h>
 #include <N_DEV_Vsrc.h>
 #include <N_DEV_LTRA.h>
+#include <N_DEV_TRA.h>
 #include <N_DEV_ADC.h>
 
 namespace Xyce {
@@ -1220,6 +1221,11 @@ DeviceInstance * DeviceMgr::addDeviceInstance(
   if (model_type == LTRA::Traits::modelType())
   {
     solState_.ltraDevices_ = true;
+  }
+
+  if (instance->maxTimeStepSupported())
+  {
+    devicesWithMaxTimeStepFuncsPtrVec_.push_back(instance);
   }
 
   if (instance->plotfileFlag ())
@@ -3323,14 +3329,15 @@ double DeviceMgr::getMaxTimeStepSize()
 {
   double maxStep = devOptions_.defaultMaxTimeStep;
 
-  InstanceVector::iterator it = instancePtrVec_.begin();
-  InstanceVector::iterator end = instancePtrVec_.end();
+  InstanceVector::iterator it = devicesWithMaxTimeStepFuncsPtrVec_.begin();
+  InstanceVector::iterator end = devicesWithMaxTimeStepFuncsPtrVec_.end();
   for ( ; it != end; ++it)
   {
     double step = (*it)->getMaxTimeStepSize ();
-    SourceInstance * srcInst = dynamic_cast<SourceInstance*>(*it);
-    if (!srcInst || !srcInst->getFastSourceFlag())
+    if (!((*it)->getFastSourceFlag()))
+    {
       maxStep = std::min(step, maxStep);
+    }
   }
 
   return maxStep;

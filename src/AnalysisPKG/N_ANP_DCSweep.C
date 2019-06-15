@@ -927,6 +927,13 @@ bool extractDCData(
   // length of the original .DC line
   int numFields = parsed_line.size();
 
+  if (numFields < 4)
+  {
+    Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
+      << ".DC line has an unexpected number of fields";
+    return false;
+  }
+
   // number of sweep sources on this line, and index to current source
   int sourcesFound = 0;
 
@@ -957,6 +964,7 @@ bool extractDCData(
     {
       Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
         << ".DC line not formatted correctly.  numFields = " << numFields;
+      return false;
     }
 
     Util::OptionBlock option_block("DC", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[linePosition].lineNumber_);

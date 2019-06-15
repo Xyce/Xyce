@@ -122,6 +122,7 @@ namespace MOSFET_B4 {
 void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
 {
     p.addPar ("TEMP",0.0,&MOSFET_B4::Instance::temp)
+     .setGivenMember(&MOSFET_B4::Instance::TEMPgiven)
      .setExpressionAccess(ParameterType::TIME_DEP)
      .setUnit(STANDARD)
      .setCategory(CAT_NONE)
@@ -153,6 +154,7 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
      .setDescription("distance between  OD edge to poly of the other side");
 
     p.addPar ("SD",0.0,&MOSFET_B4::Instance::sd)
+     .setGivenMember(&MOSFET_B4::Instance::SDgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("distance between neighbour fingers");
@@ -221,26 +223,31 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
 
 
     p.addPar ("RBDB",0.0,&MOSFET_B4::Instance::rbdb)
+     .setGivenMember(&MOSFET_B4::Instance::RBDBgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Body resistance");
 
     p.addPar ("RBSB",0.0,&MOSFET_B4::Instance::rbsb)
+     .setGivenMember(&MOSFET_B4::Instance::RBSBgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Body resistance");
 
     p.addPar ("RBPB",0.0,&MOSFET_B4::Instance::rbpb)
+     .setGivenMember(&MOSFET_B4::Instance::RBPBgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Body resistance");
 
     p.addPar ("RBPS",0.0,&MOSFET_B4::Instance::rbps)
+     .setGivenMember(&MOSFET_B4::Instance::RBPSgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Body resistance");
 
     p.addPar ("RBPD",0.0,&MOSFET_B4::Instance::rbpd)
+     .setGivenMember(&MOSFET_B4::Instance::RBPDgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Body resistance");
@@ -251,11 +258,13 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
      .setDescription("Zero bias threshold voltage variation");
 
     p.addPar ("XGW",0.0,&MOSFET_B4::Instance::xgw)
+     .setGivenMember(&MOSFET_B4::Instance::XGWgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Distance from gate contact center to device edge");
 
     p.addPar ("NGCON",0.0,&MOSFET_B4::Instance::ngcon)
+     .setGivenMember(&MOSFET_B4::Instance::NGCONgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_NONE)
      .setDescription("Number of gate contacts");
@@ -295,21 +304,25 @@ void Traits::loadInstanceParameters(ParametricData<MOSFET_B4::Instance> &p)
      .setDescription("AC NQS model selector");
 
     p.addPar ("RBODYMOD",0,&MOSFET_B4::Instance::rbodyMod)
+     .setGivenMember(&MOSFET_B4::Instance::RBODYMODgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("Distributed body R model selector");
 
     p.addPar ("RGATEMOD",0,&MOSFET_B4::Instance::rgateMod)
+     .setGivenMember(&MOSFET_B4::Instance::RGATEMODgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("Gate resistance model selector");
 
     p.addPar ("GEOMOD",0,&MOSFET_B4::Instance::geoMod)
+     .setGivenMember(&MOSFET_B4::Instance::GEOMODgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("Geometry dependent parasitics model selector");
 
     p.addPar ("RGEOMOD",0,&MOSFET_B4::Instance::rgeoMod)
+     .setGivenMember(&MOSFET_B4::Instance::RGEOMODgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("S/D resistance and contact model selector");
@@ -4318,11 +4331,13 @@ void Traits::loadModelParameters(ParametricData<MOSFET_B4::Model> &p)
      .setDescription("Bias-dependent S/D resistance model selector");
 
     p.addPar ("TRNQSMOD",0,&MOSFET_B4::Model::trnqsMod)
+     .setGivenMember(&MOSFET_B4::Instance::TRNQSMODgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("Transient NQS model selector");
 
     p.addPar ("ACNQSMOD",0,&MOSFET_B4::Model::acnqsMod)
+     .setGivenMember(&MOSFET_B4::Instance::ACNQSMODgiven)
      .setUnit(U_NONE)
      .setCategory(CAT_CONTROL)
      .setDescription("AC NQS model selector");
@@ -4411,33 +4426,33 @@ bool Instance::processParams ()
   double Rtot;
 
   // Set any non-constant parameter defaults:
-  if (!given("RBDB"))
+  if (!RBDBgiven)
     rbdb = model_.rbdb;
-  if (!given("RBSB"))
+  if (!RBSBgiven)
     rbsb = model_.rbsb;
-  if (!given("RBPB"))
+  if (!RBPBgiven)
     rbpb = model_.rbpb;
-  if (!given("RBPS"))
+  if (!RBPSgiven)
     rbps = model_.rbps;
-  if (!given("RBPD"))
+  if (!RBPDgiven)
     rbpd = model_.rbpd;
-  if (!given("XGW"))
+  if (!XGWgiven)
     xgw = model_.xgw;
-  if (!given("NGCON"))
+  if (!NGCONgiven)
     ngcon = model_.ngcon;
-  if (!given("SD"))
+  if (!SDgiven)
     sd = 2.0 * model_.dmcg;
-  if (!given("TEMP"))
+  if (!TEMPgiven)
     temp = getDeviceOptions().temp.getImmutableValue<double>();
-  if (!given("AD"))
+  if (!drainAreaGiven)
     drainArea = getDeviceOptions().defad;
-  if (!given("AS"))
+  if (!sourceAreaGiven)
     sourceArea = getDeviceOptions().defas;
 
   // Process instance (*M_iter) selectors, some
   // may override their global counterparts
   //
-  if (!given("RBODYMOD"))
+  if (!RBODYMODgiven)
   {
     rbodyMod = model_.rbodyMod;
   }
@@ -4447,7 +4462,7 @@ bool Instance::processParams ()
     UserWarning(*this) << "rbodyMod has been set to its global value: ";
   }
 
-  if (!given("RGATEMOD"))
+  if (!RGATEMODgiven)
   {
     rgateMod = model_.rgateMod;
   }
@@ -4457,15 +4472,15 @@ bool Instance::processParams ()
     UserWarning(*this) << "rgateMod has been set to its global value: ";
   }
 
-  if (!given("GEOMOD"))
+  if (!GEOMODgiven)
   {
     geoMod = model_.geoMod;
   }
-  if (!given("RGEOMOD"))
+  if (!RGEOMODgiven)
   {
     rgeoMod = 0;
   }
-  if (!given("TRNQSMOD"))
+  if (!TRNQSMODgiven)
   {
     trnqsMod = model_.trnqsMod;
   }
@@ -4475,7 +4490,7 @@ bool Instance::processParams ()
     UserWarning(*this) << "trnqsMod has been set to its global value: ";
   }
 
-  if (!given("ACNQSMOD"))
+  if (!ACNQSMODgiven)
   {
     acnqsMod = model_.acnqsMod;
   }
@@ -4709,6 +4724,7 @@ Instance::Instance(
     sa(0.0),
     sb(0.0),
     sd(0.0),
+    SDgiven(false),
     sca(0.0),
     scb(0.0),
     scc(0.0),
@@ -4718,9 +4734,20 @@ Instance::Instance(
     rbpb(0.0),
     rbps(0.0),
     rbpd(0.0),
+
+    RBDBgiven(false),
+    RBSBgiven(false),
+    RBPBgiven(false),
+    RBPSgiven(false),
+    RBPDgiven(false),
+
     delvto(0.0),
     xgw(0.0),
     ngcon(0.0),
+
+    XGWgiven(false),
+    NGCONgiven(false),
+
     u0temp(0.0),
     vsattemp(0.0),
     vth0(0.0),
@@ -4745,6 +4772,14 @@ Instance::Instance(
     geoMod(0),
     rgeoMod(0),
     min(0),
+
+    RBODYMODgiven(false),
+    RGATEMODgiven(false),
+    GEOMODgiven(false),
+    RGEOMODgiven(false),
+    TRNQSMODgiven(false),
+    ACNQSMODgiven(false),
+
     Vgsteff(0.0),
     Vgsteff_forNoise(0.0),
     vgs_eff(0.0),
@@ -4876,7 +4911,8 @@ Instance::Instance(
     drainMOSFET_B4Exists(false),
     sourceMOSFET_B4Exists(false),
     ChargeComputationNeeded           (true),
-          temp                              (getDeviceOptions().temp.getImmutableValue<double>()),
+    temp                              (getDeviceOptions().temp.getImmutableValue<double>()),
+    TEMPgiven(false),
     // missing stuff...
     Vd (0.0),
     Vs (0.0),

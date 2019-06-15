@@ -191,6 +191,7 @@ public:
   void setupPointers();
 
   double getMaxTimeStepSize ();
+  virtual bool maxTimeStepSupported () {return true;};
 
   void varTypes( std::vector<char> & varTypeVec );
 

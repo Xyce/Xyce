@@ -544,13 +544,13 @@ Instance::Instance(
 
     for (d=begin; d!=end; ++d)
     {
-      if (d->name != "C" && d->name != "Q")
+      expNumVars = d->n_vars;
+      if ((expNumVars > 0) && (d->name != "C" && d->name != "Q"))
       {
-        UserError(*this) << "Solution-variable-dependent parameter other than C  or Q detected";
+        UserError(*this) << "Solution-variable-dependent parameter other than C or Q detected";
       }
       else
       {
-        expNumVars = d->n_vars;
         expPtr = d->expr;
 
         if (expNumVars > 0 || expPtr->isTimeDependent())
