@@ -118,6 +118,9 @@ public:
       lastStaVectorRawPtr(0),
       nextStoVectorRawPtr(0),
       currStoVectorRawPtr(0),
+      nextLeadCurrFCompRawPtr(0),
+      nextLeadCurrQCompRawPtr(0),
+      nextJunctionVCompRawPtr(0),
       nextStaDerivVectorRawPtr(0),
       initializeAllFlag(false)
   {}
