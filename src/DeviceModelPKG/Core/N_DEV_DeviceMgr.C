@@ -2866,16 +2866,21 @@ bool DeviceMgr::getBMatrixEntries(
        int lpos, lneg, lbra;
 
        vsrc->getLIDs(lpos, lneg, lbra);
-       bMatEntriesVec.push_back(lbra);
 
-       if (vsrc->isPortSpecified())
+       if (solState_.spAnalysisFlag_ )
        {
-         portVec.push_back(vsrc->getPort());        
-
-         (*Z0sVec).push_back(vsrc->getZ0());       
+         if (vsrc->isPortSpecified())
+         {
+           portVec.push_back(vsrc->getPort());        
+           (*Z0sVec).push_back(vsrc->getZ0());
+           bMatEntriesVec.push_back(lbra);
+         }
        }
        else
+       {
          portVec.push_back(lpos);
+         bMatEntriesVec.push_back(lbra);
+       }
      }
   }
 
