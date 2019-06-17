@@ -547,7 +547,7 @@ Instance::Instance(
       expNumVars = d->n_vars;
       if ((expNumVars > 0) && (d->name != "C" && d->name != "Q"))
       {
-        UserError(*this) << "Solution-variable-dependent parameter other than C or Q detected";
+        UserError(*this) << "Solution-variable-dependent parameter other than C  or Q detected";
       }
       else
       {

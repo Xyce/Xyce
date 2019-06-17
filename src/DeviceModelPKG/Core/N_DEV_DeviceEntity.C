@@ -948,17 +948,14 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   {
     if (names.size() > 0 || instances.size() > 0)
     {
-      UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on voltage/current values";
-      // Set the n_vars variable to enable additional downstream error-checking in the C device.
-      // This value may less than the actual number of variables, but suffices for that error checking.
-      dependentParam.n_vars = names.size() + instances.size();
+      UserError0(*this) << "Parameter " << par.tag() << " is not allowed to depend on voltage/current values";
       return;
     }
     if (depend & ParameterType::NO_DEP)
     {
       if (dependentParam.expr->get_num(XEXP_SPECIAL) > 0)
       {
-        UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on time";
+        UserError0(*this) << "Parameter " << par.tag() << " is not allowed to depend on time";
         return;
       }
     }
