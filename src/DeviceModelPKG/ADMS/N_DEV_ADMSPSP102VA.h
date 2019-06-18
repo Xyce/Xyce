@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 08 Apr 2019 13:58:39
+// Creation Date  : Tue, 11 Jun 2019 12:24:07
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSPSP102VA_h
@@ -749,6 +749,14 @@ void evaluateModelEquations(
    bool modelPar_given_KUOWEW,
    AdmsSensFadType & modelPar_KUOWELW,
    bool modelPar_given_KUOWELW,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    AdmsSensFadType & modelPar_RGO,
    bool modelPar_given_RGO,
    AdmsSensFadType & modelPar_RBULKO,
@@ -1752,6 +1760,14 @@ void evaluateInitialInstance(
    bool modelPar_given_KUOWEW,
    AdmsSensFadType & modelPar_KUOWELW,
    bool modelPar_given_KUOWELW,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    AdmsSensFadType & modelPar_RGO,
    bool modelPar_given_RGO,
    AdmsSensFadType & modelPar_RBULKO,
@@ -2547,6 +2563,14 @@ void evaluateInitialModel(
    bool modelPar_given_KUOWEW,
    AdmsSensFadType & modelPar_KUOWELW,
    bool modelPar_given_KUOWELW,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    AdmsSensFadType & modelPar_RGO,
    bool modelPar_given_RGO,
    AdmsSensFadType & modelPar_RBULKO,
@@ -3828,6 +3852,10 @@ private:
   double KUOWEL;
   double KUOWEW;
   double KUOWELW;
+  double LMIN;
+  double LMAX;
+  double WMIN;
+  double WMAX;
   double RGO;
   double RBULKO;
   double RWELLO;
