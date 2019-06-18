@@ -1,0 +1,8 @@
+Release 6.11.1 is a patch release that fixes a small number of bugs in
+Xyce Release 6.11.0.  This file describes the changes made between
+Xyce 6.11.0 and 6.11.1.
+
+  - A bug in the handling of binning (Reference Guide section 2.1.17.2)
+    when applied to the BSIM6, PSP102, or MVSG-HV FET models was fixed,
+    and this technique now works correctly for those models.
+
