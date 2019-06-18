@@ -78,7 +78,7 @@ namespace Analysis {
 class SweepParam
 {
 public:
-  // Default constructor.
+  // Default constructor
   SweepParam () : 
    name(""),
    type("LIN"),
@@ -102,6 +102,8 @@ public:
    maxStep(0),
    interval(1),
    outerStepNumber(0),
+   valList(0),
+   dataSetName(""),
    sweepResetFlag_(false),
    lastLocalStepNumber_(-1)
    {}
@@ -147,13 +149,6 @@ public:
   std::vector<double> valList;
 
   std::string dataSetName;
-
-#if __cplusplus>=201103L
-  // sampling related objects:
-  std::uniform_real_distribution<double> * uniformDistributionPtr;
-  std::normal_distribution<double> * normalDistributionPtr;
-  std::gamma_distribution<double> * gammaDistributionPtr;
-#endif
 
  private:
   bool sweepResetFlag_;

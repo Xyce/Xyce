@@ -702,6 +702,10 @@ void setupMonteCarloSampleValues(
   // allocate the Mersenne Twister algorithm class
   std::mt19937 * mtPtr = new std::mt19937(theSeed);
   std::mt19937 & mt = *mtPtr;
+
+  // sampling related objects:
+  std::uniform_real_distribution<double> uniformDistribution(0.0,1.0);
+  //std::normal_distribution<double> normalDistribution(1.0,0.0);
 #else
   Xyce::Util::RandomNumbers *theRandomNumberGenerator = new Xyce::Util::RandomNumbers(theSeed);
 #endif
@@ -715,6 +719,7 @@ void setupMonteCarloSampleValues(
   {
     for (int ip=0;ip<numParams;++ip )
     {
+      // calling distribution violates const, but I want most of the sp class to be const in this function
       const SweepParam & sp = samplingVector[ip];
 
       val=0.0;
@@ -723,30 +728,31 @@ void setupMonteCarloSampleValues(
       if (sp.type == "UNIFORM")
       {
         //allDistributionsNormal=false;
-        std::uniform_real_distribution<double> & distribution = *(sp.uniformDistributionPtr);
-        val = distribution(mt);
+        double prob = uniformDistribution(mt);
+        val = setupUniform(prob, sp.startVal, sp.stopVal);
       }
       else if (sp.type == "NORMAL")
       {
-        std::normal_distribution<double> & distribution =  *(sp.normalDistributionPtr);
-        val = distribution(mt);
+        double prob = uniformDistribution(mt);
+        val = setupNormal(prob,sp.mean,sp.stdDev);
 
         while (  (sp.upper_boundGiven && sp.upper_bound < val) ||
                  (sp.lower_boundGiven && sp.lower_bound > val) )
         {
-          val = distribution(mt);
+          double prob = uniformDistribution(mt);
+          val = setupNormal(prob,sp.mean,sp.stdDev);
         }
       }
       else if (sp.type == "GAMMA")
       {
         //allDistributionsNormal=false;
-        std::gamma_distribution<double> & distribution =  *(sp.gammaDistributionPtr);
-        val = distribution(mt);
+        std::gamma_distribution<double> gammaDistribution(sp.alpha,sp.beta);
+        val = gammaDistribution(mt);
 
         while (  (sp.upper_boundGiven && sp.upper_bound < val) ||
                  (sp.lower_boundGiven && sp.lower_bound > val) )
         {
-          val = distribution(mt);
+          val = gammaDistribution(mt);
         }
       }
 #else

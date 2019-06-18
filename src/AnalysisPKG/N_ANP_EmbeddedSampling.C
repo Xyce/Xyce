@@ -218,30 +218,6 @@ EmbeddedSampling::~EmbeddedSampling()
     delete nextStorePtr_;
   }
 
-  int size = samplingVector_.size();
-  for (int i=0;i<size;++i)
-  {
-    SweepParam & sweep_param = samplingVector_[i];
-#if __cplusplus>=201103L
-    if (sweep_param.type == "UNIFORM")
-    {
-      delete sweep_param.uniformDistributionPtr;
-    }
-    else if (sweep_param.type == "NORMAL")
-    {
-      delete sweep_param.normalDistributionPtr;
-    }
-    else if (sweep_param.type == "GAMMA")
-    {
-      delete sweep_param.gammaDistributionPtr;
-    }
-    else
-    {
-       // do nothing
-    }
-#endif
-  }
-
   if (esLoaderPtr_)
   {
     delete esLoaderPtr_;
@@ -466,9 +442,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       sampling_param.startVal = lower_bounds_Vec_[ip];
       sampling_param.stopVal  = upper_bounds_Vec_[ip];
-#if __cplusplus>=201103L
-      sampling_param.uniformDistributionPtr = new std::uniform_real_distribution<double> (sampling_param.startVal,sampling_param.stopVal);
-#endif
     }
     else if (sampling_param.type == "NORMAL") 
     {
@@ -487,10 +460,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
         sampling_param.upper_bound = upper_bounds_Vec_[ip];
         sampling_param.upper_boundGiven = true;
       }
-
-#if __cplusplus>=201103L
-      sampling_param.normalDistributionPtr = new std::normal_distribution<double> (sampling_param.mean, sampling_param.stdDev);
-#endif
     }
 #if __cplusplus>=201103L
     else if (sampling_param.type == "GAMMA") 
@@ -510,8 +479,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
         sampling_param.upper_bound = upper_bounds_Vec_[ip];
         sampling_param.upper_boundGiven = true;
       }
-
-      sampling_param.gammaDistributionPtr = new std::gamma_distribution<double> (sampling_param.alpha, sampling_param.beta);
     }
 #endif    
     else
