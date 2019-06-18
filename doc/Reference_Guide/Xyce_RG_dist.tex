@@ -7,7 +7,6 @@
 % Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
-
 %%-------------------------------------------------------------------------
 %% Purpose        : LaTeX Xyce Reference Guide Distribution file.
 %% Special Notes  :
@@ -16,25 +15,20 @@
 %%
 %%-------------------------------------------------------------------------
 
-\begin{SANDdistribution}
+\begin{SANDdistribution}[NM]
 
-%  \SANDdistExternal{1}{An Address\\ 99 $99^{th}$ street NW\\City, State}
-%  \SANDdistExternal{3}{Some Address\\ and street\\City, State}
-%  \bigskip
-%  \SANDdistExternal{12}{Another Address\\ On a street\\City, State\\U.S.A.}
+     % External Address Format: {num copies}{Address}
+     %\SANDdistExternal{}{}
+     %\bigskip
 
-  %%
-  %% External Distribution
-  %%
-  %%
-  %% Internal Distribution
-  %%
-  % Housekeeping copies necessary for every unclassified report:
-  \bigskip
-  \SANDdistInternal{1}{0899}{Technical Library}{9536}
+     % Internal Address Format: {num copies}{Mail stop}{Name}{Org}
+     %\SANDdistInternal{}{}{}{}
 
+     % Mail Channel Address Format: {num copies}{Mail Channel}{Name}{Org}
+     %\SANDdistInternalM{}{}{}{}
 
-
+     % Email Channel Format: {Name}{Org}{Email address}
+     %\SANDdistInternalEmail{}{}{}
 
 \end{SANDdistribution}
 
