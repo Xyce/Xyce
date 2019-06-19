@@ -12,3 +12,13 @@ Xyce 6.11.0 and 6.11.1.
     voltages) in the definition of other parameters, such as TEMP, for
     the C device would cause a parsing error.  This is fixed now.
 
+  - The -hspice-ext command line option would fail on .FUNC statements
+    that contained logical OR or logical AND operators.  Examples were
+    as follows, where P1 and P2 were previously defined on .PARAM lines:
+
+      .FUNC ANDFUNC(p1,p2) {(P1&&P2) ? 1.0 : 2.0}
+      .FUNC ORFUNC(p1,p2)  {(P1||P2) ? 1.0 : 2.0}
+
+    This is fixed now.
+
+
