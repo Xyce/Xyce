@@ -6,3 +6,9 @@ Xyce 6.11.0 and 6.11.1.
     when applied to the BSIM6, PSP102, or MVSG-HV FET models was fixed,
     and this technique now works correctly for those models.
 
+  - The C and Q instance parameters are allowed to be solution-dependent
+    for the C-device.  In Xyce 6.11, or earlier, an attempt to use an
+    expression (that did not depend on solution variables such as nodal
+    voltages) in the definition of other parameters, such as TEMP, for
+    the C device would cause a parsing error.  This is fixed now.
+
