@@ -207,11 +207,13 @@ bool processDataStatements(
     std::map< std::string, std::vector<std::string> > & dataNamesMap,
     std::map< std::string, std::vector< std::vector<double> > > & dataTablesMap);
 
-void convertData(
+bool convertData(
     SweepVector & stepSweepVector,
     const std::map< std::string, std::vector<std::string> > & dataNamesMap,
     const std::map< std::string, std::vector< std::vector<double> > > & dataTablesMap
     );
+
+bool isDataSpecified(const Util::OptionBlock & paramsBlock);
 
 } // namespace Analysis
 } // namespace Xyce

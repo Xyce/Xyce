@@ -63,6 +63,12 @@ namespace Analysis {
 //-----------------------------------------------------------------------------
 bool Step::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 {
+  if (isDataSpecified(paramsBlock))
+  {
+    // This handle the case of having multiple .STEP lines in the netlist, of
+    // which only some might use DATA=<tableName>
+    dataSpecification_ = true;
+  }
   stepSweepVector_.push_back(parseSweepParams(paramsBlock.begin(), paramsBlock.end()));
   outputManagerAdapter_.setStepSweepVector(stepSweepVector_);
   return true;
@@ -89,7 +95,7 @@ bool Step::setDataStatements(const Util::OptionBlock & paramsBlock)
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 9/5/18
 //-----------------------------------------------------------------------------
-void  Step::convertDataToSweepParams()
+bool  Step::convertDataToSweepParams()
 {
   return convertData( stepSweepVector_, dataNamesMap_, dataTablesMap_);
 }
@@ -155,7 +161,11 @@ bool Step::doInit()
 
   // check if the "DATA" specification was used.  If so, create a new vector of 
   // SweepParams, in the "TABLE" style.
-  convertDataToSweepParams();
+  if (dataSpecification_ && !convertDataToSweepParams())
+  {
+    Report::UserFatal() << "Invalid data=<name> parameter on .STEP line.";
+    return false;
+  }
 
   stepLoopSize_ = setupSweepLoop(
       analysisManager_.getComm(), 

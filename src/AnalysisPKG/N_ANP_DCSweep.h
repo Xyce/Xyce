@@ -91,7 +91,7 @@ public:
   bool setDataStatements(const Util::OptionBlock & paramsBlock);
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
 
-  void convertDataToSweepParams();
+  bool convertDataToSweepParams();
 
   bool outputFailureStats(std::ostream &os);
 

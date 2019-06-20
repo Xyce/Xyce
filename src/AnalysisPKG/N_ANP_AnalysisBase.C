@@ -125,6 +125,7 @@ AnalysisBase::AnalysisBase(AnalysisManager &analysis_manager, const char *name )
     baseIntegrationMethod_(TimeIntg::NoTimeIntegration::type),
     stepNumber(0),
     tranStepNumber(0),
+    dataSpecification_(false),
     saveStatCountsVector_(),
     stats_()
 {}

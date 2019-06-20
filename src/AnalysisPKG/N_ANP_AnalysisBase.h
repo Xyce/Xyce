@@ -275,6 +275,11 @@ public:
     return inputOPFlag_;
   }
 
+  bool getDataSpecification() const
+  {
+    return dataSpecification_;
+  }
+
   bool resetForStepAnalysis();
   void resetAll();
   int saveLoopInfo ();
@@ -318,7 +323,7 @@ protected:
 
 protected:
   unsigned int          tranStepNumber;
-
+  bool                  dataSpecification_;
 
   std::vector<StatCounts>     saveStatCountsVector_;
 

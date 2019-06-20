@@ -203,7 +203,7 @@ bool NOISE::setDataStatements(const Util::OptionBlock & paramsBlock)
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 9/5/18
 //-----------------------------------------------------------------------------
-void  NOISE::convertDataToSweepParams()
+bool NOISE::convertDataToSweepParams()
 {
   return convertData(noiseSweepVector_, dataNamesMap_, dataTablesMap_);
 }
@@ -268,8 +268,7 @@ NOISE::NOISE(
     X_(0),
     saved_AC_X_(0),
     blockSolver_(0),
-    blockProblem_(0),
-    dataSpecification_(false)
+    blockProblem_(0)
 {
   bVecRealPtr->putScalar(0.0);
   bVecImagPtr->putScalar(0.0);
@@ -415,30 +414,19 @@ void NOISE::notify(const StepEvent &event)
 //-----------------------------------------------------------------------------
 bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 {
-  // ERK. check for DATA first.  If DATA is present, then use the sweep functions,
-  // rather than the AC specific built-in ones.  Refactor this later to
-  // make it cleaner.
-  dataSpecification_=false;
-  for (Util::ParamList::const_iterator it = paramsBlock.begin(), end = paramsBlock.end(); it != end; ++it)
+  // Check for DATA first.  If DATA is present, then use the sweep functions,
+  // rather than the NOISE specific built-in ones.  This also handles the case
+  // of having multiple .NOISE lines in the netlist, of which only some might
+  // use DATA=<tableName>
+  if (isDataSpecified(paramsBlock))
   {
-    std::string tag = (*it).uTag();
-    std::string val = (*it).stringValue();
-    Util::toUpper(tag);
-    Util::toUpper(val);
-    if (tag == "TYPE" && val == "DATA")
-    {
-      type_ = tag;
-      dataSpecification_=true;
-    }
-  }
-
-  if(dataSpecification_)
-  {
+    dataSpecification_ = true;
+    type_="TYPE";
     noiseSweepVector_.push_back(parseSweepParams(paramsBlock.begin(), paramsBlock.end()));
     return true;
   }
 
-
+  // -- original code ---
   for (Util::ParamList::const_iterator it = paramsBlock.begin(),
       end = paramsBlock.end(); it != end; ++it)
   {
@@ -553,10 +541,14 @@ bool NOISE::doInit()
 
   // check if the "DATA" specification was used.  If so, create a new vector of
   // SweepParams, in the "TABLE" style.
-  convertDataToSweepParams();
-
-  if(dataSpecification_)
+  if (dataSpecification_)
   {
+    if (!convertDataToSweepParams())
+    {
+      Report::UserFatal() << "Invalid data=<name> parameter on .NOISE line.";
+      return false;
+    }
+
     std::vector<SweepParam>::iterator begin = noiseSweepVector_.begin();
     std::vector<SweepParam>::iterator end = noiseSweepVector_.end();
     std::vector<SweepParam>::iterator it = begin;

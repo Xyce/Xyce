@@ -617,13 +617,17 @@ bool processDataStatements(
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 9/5/18
 //-----------------------------------------------------------------------------
-void convertData(
+bool convertData(
     SweepVector & stepSweepVector,
     const std::map< std::string, std::vector<std::string> > & dataNamesMap,
     const std::map< std::string, std::vector< std::vector<double> > > & dataTablesMap
     )
 {
-  if (dataTablesMap.empty()) return;
+  if (dataTablesMap.empty() || dataNamesMap.empty())
+  {
+    Report::UserError0() << "Invalid sweep parameter name.  Netlist may lack any valid .DATA statements";
+    return false;
+  }
 
   std::vector<std::string> usedDataList;
 
@@ -675,10 +679,38 @@ void convertData(
     else
     {
       Report::UserError0() << "Invalid table name " << dataSetName << " from .DATA line used as sweep variable";
+      return false;
     }
   }
+
+  return true;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : isDataSpecified
+// Purpose       : determine if a DATA=<val> was used on analysis line,
+//                 like .AC, .DC, .NOISE or .STEP
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 6/6/19
+//-----------------------------------------------------------------------------
+bool isDataSpecified(const Util::OptionBlock & paramsBlock)
+{
+  for (Util::ParamList::const_iterator it = paramsBlock.begin(), end = paramsBlock.end(); it != end; ++it)
+  {
+    std::string tag = (*it).uTag();
+    std::string val = (*it).stringValue();
+    Util::toUpper(tag);
+    Util::toUpper(val);
+    if (tag == "TYPE" && val == "DATA")
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 } // namespace Analysis
 } // namespace Xyce

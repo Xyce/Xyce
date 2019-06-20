@@ -97,7 +97,7 @@ class NOISE: public AnalysisBase, public Util::ListenerAutoSubscribe<StepEvent>
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
   bool setACLinSolOptions(const Util::OptionBlock &option_block);
   bool setDataStatements(const Util::OptionBlock & paramsBlock);
-  void convertDataToSweepParams();
+  bool convertDataToSweepParams();
 
   bool getDCOPFlag() const;
 
@@ -209,7 +209,6 @@ private:
   Linear::Problem *             blockProblem_;
   Util::OptionBlock             acLinSolOptionBlock_;
 
-  bool dataSpecification_;
   SweepVector                   noiseSweepVector_;
   std::map< std::string, std::vector<std::string> > dataNamesMap_;
   std::map< std::string, std::vector< std::vector<double> > > dataTablesMap_;
