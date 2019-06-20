@@ -281,10 +281,6 @@ dnl optionally compile in support for SuperLU and UmfPack.
 XYCE_DEBUG_OPTION(superlu,no,[SuperLU direct solver],Xyce_SUPERLU,SUPERLU)
 XYCE_DEBUG_OPTION(pardiso_mkl,no,[Pardiso direct solver (through MKL)],Xyce_PARDISO_MKL,PARDISO_MKL)
 
-dnl optionally compile in ksparse solver
-XYCE_DEBUG_OPTION(ksparse,yes,[Kundert's Sparse direct solver],Xyce_KSPARSE,USE_KSPARSE)
-AM_CONDITIONAL(BUILD_KSPARSE, test "x$USE_KSPARSE" = "xyes")
-
 dnl optionally compile in support for Belos (as of Xyce 6.0, this is "yes" by default)
 XYCE_DEBUG_OPTION(belos,yes,[Belos iterative solver support],Xyce_BELOS, USE_BELOS)
 AM_CONDITIONAL(BUILD_BELOS_SUPPORT, test "x$USE_BELOS" = "xyes")
@@ -949,16 +945,12 @@ dnl This makes @Xyce_INCS@ be replaced with the full string of -I's needed
 dnl for all packages to compile without problem.
 dnl It is used by setting "INCLUDES = @Xyce_INCS@" in the Makefile.am for
 dnl a package.
-default_INCS="$default_INCS -I\$(top_srcdir)/src/AnalysisPKG -I\$(top_srcdir)/src/CircuitPKG -I\$(top_srcdir)/src/IOInterfacePKG -I\$(top_srcdir)/src/IOInterfacePKG/Output -I\$(top_srcdir)/src/DeviceModelPKG/Core -I\$(top_srcdir)/src/DeviceModelPKG/OpenModels -I\$(top_srcdir)/src/DeviceModelPKG/TCADModels -I\$(top_srcdir)/src/DeviceModelPKG/IBISModels -I\$(top_srcdir)/src/DeviceModelPKG/EXTSC -I\$(top_srcdir)/src/DeviceModelPKG/NeuronModels -I\$(top_srcdir)/src/DeviceModelPKG/ADMS -I\$(top_srcdir)/src/ErrorHandlingPKG -I\$(top_srcdir)/src/LinearAlgebraServicesPKG -I\$(top_srcdir)/src/LoaderServicesPKG -I\$(top_srcdir)/src/NonlinearSolverPKG -I\$(top_srcdir)/src/ParallelDistPKG -I\$(top_srcdir)/src/TimeIntegrationPKG -I\$(top_srcdir)/src/TopoManagerPKG -I\$(top_srcdir)/src/UtilityPKG -I\$(top_srcdir)/src/MultiTimePDEPKG -I\$(top_srcdir)/src/DakotaLinkPKG -I\$(top_srcdir)/utils/XyceCInterface -I\$(top_builddir)/src"
+default_INCS="$default_INCS -I\$(top_srcdir)/src/AnalysisPKG -I\$(top_srcdir)/src/CircuitPKG -I\$(top_srcdir)/src/IOInterfacePKG -I\$(top_srcdir)/src/IOInterfacePKG/Output -I\$(top_srcdir)/src/DeviceModelPKG/Core -I\$(top_srcdir)/src/DeviceModelPKG/OpenModels -I\$(top_srcdir)/src/DeviceModelPKG/TCADModels -I\$(top_srcdir)/src/DeviceModelPKG/IBISModels -I\$(top_srcdir)/src/DeviceModelPKG/EXTSC -I\$(top_srcdir)/src/DeviceModelPKG/NeuronModels -I\$(top_srcdir)/src/DeviceModelPKG/ADMS -I\$(top_srcdir)/src/ErrorHandlingPKG -I\$(top_srcdir)/src/LinearAlgebraServicesPKG -I\$(top_srcdir)/src/LoaderServicesPKG -I\$(top_srcdir)/src/NonlinearSolverPKG -I\$(top_srcdir)/src/ParallelDistPKG -I\$(top_srcdir)/src/TimeIntegrationPKG -I\$(top_srcdir)/src/TopoManagerPKG -I\$(top_srcdir)/src/UtilityPKG -I\$(top_srcdir)/src/MultiTimePDEPKG -I\$(top_srcdir)/src/DakotaLinkPKG -I\$(top_srcdir)/utils/XyceCInterface -I\$(top_builddir)/src -I\$(top_srcdir)/src/LinearAlgebraServicesPKG/ksparse"
 if test "x$RAD_MODELS" = "xyes"; then
   default_INCS="$default_INCS -I\$(top_srcdir)/src/DeviceModelPKG/SandiaModels"
 fi
 if test "x$NONFREE_MODELS" = "xyes"; then
   default_INCS="$default_INCS -I\$(top_srcdir)/src/DeviceModelPKG/Xyce_NonFree"
-fi
-
-if test "x$USE_KSPARSE" = "xyes"; then
-  default_INCS="$default_INCS -I\$(top_srcdir)/src/LinearAlgebraServicesPKG/ksparse"
 fi
 if test "x$MODSPEC_MODELS" = "xyes"; then
    default_INCS="$default_INCS -I\$(top_srcdir)/src/DeviceModelPKG/BERKELEY/include -I\$(top_srcdir)/src/DeviceModelPKG/BERKELEY/Xyce_ModSpec_Interface/include"

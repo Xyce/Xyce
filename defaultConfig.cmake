@@ -38,7 +38,6 @@ option ( Xyce_CHARON               "Charon device support"                      
 option ( Xyce_Dakota               "Dakota direct linkage support"                 OFF )
 option ( Xyce_DEPENDENCY_TRACKING  "do not reject slow dependency extractors"      OFF )
 option ( Xyce_EXTDEV               "Ext device extensions"                         ON  )
-option ( Xyce_KSPARSE              "Kundert's Sparse direct solver"                ON )
 option ( Xyce_ML                   "enable ML preconditioner support"              OFF )
 option ( Xyce_NEW_DAE_FORMULATION  "new DAE formulation"                           OFF )
 option ( Xyce_NOX_USE_VECTOR_COPY  "Use vector copies in NOX"                      ON  )

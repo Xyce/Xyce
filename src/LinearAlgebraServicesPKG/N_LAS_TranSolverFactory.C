@@ -61,11 +61,9 @@
 #include <N_LAS_SimpleSolver.h>
 #include <N_LAS_AmesosSolver.h>
 #include <N_LAS_AztecOOSolver.h>
+#include <N_LAS_KSparseSolver.h>
 #ifdef Xyce_BELOS
 #include <N_LAS_BelosSolver.h>
-#endif
-#ifdef Xyce_KSPARSE
-#include <N_LAS_KSparseSolver.h>
 #endif
 #ifdef Xyce_SHYLU
 #include <N_LAS_ShyLUSolver.h>
