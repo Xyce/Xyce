@@ -399,7 +399,7 @@ if test "$REACTION_PARSER" = "yes"; then
  # to time.  We therefore enumerate actual versions of Bison our interface
  # is *known* to work with and against which Xyce has been tested. 
  AC_PROG_LEX
- XYCE_CHECK_BISON([3.3, 3.2, 3.1, 3.0, 2.7, 2.6, 2.5, 2.4], , [BISON=no])
+ XYCE_CHECK_BISON([3.4, 3.3, 3.2, 3.1, 3.0, 2.7, 2.6, 2.5, 2.4], , [BISON=no])
  if test `basename $LEX` = "flex";
  then
     AC_DEFINE(HAVE_FLEX,1,[define if you have the flex lexical scanner generator])
@@ -707,13 +707,6 @@ if test "x$USE_NOX_MAKEFILE" = "xno"; then
   XYCE_LIBRARY_OPTION(loca)
 fi
 CPPFLAGS="-DXyce_NOX_LOCA_SUPPORT $CPPFLAGS"
-
-dnl Check if NOX is using NOX::size_type or int as the return value for Vector::length()
-USING_NOX_SIZETYPE=no
-XYCE_TEST_USING_NOXSIZETYPE
-if test "$USING_NOX_SIZETYPE" != "no"; then
-  CPPFLAGS="-DXyce_NOX_SIZETYPE $CPPFLAGS"
-fi
 
 dnl Check if NOX generic solver interface has getSolverStatistics() method
 USING_NOX_SOLVERSTATS=no
