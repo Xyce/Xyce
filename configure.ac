@@ -164,7 +164,6 @@ XYCE_DEBUG_OPTION(verbose_nox,no,[verbosity in NOX nonlinear solver library])
 XYCE_DEBUG_OPTION(verbose_linear,no,[verbosity in linear solver])
 XYCE_DEBUG_OPTION(spice_norms,yes,[using SPICE type norms])
 XYCE_DEBUG_OPTION(bsim3_const,no,[using constants from BSIM3 instead of more precise constants consistent with other devices],Xyce_USE_BSIM3_CONST)
-XYCE_DEBUG_OPTION(nox_use_vector_copy,yes,[using vector copies in NOX])
 
 dnl optionally compile in support for rad models if the directory is there and
 dnl the user hasn't specified disable-radmodels

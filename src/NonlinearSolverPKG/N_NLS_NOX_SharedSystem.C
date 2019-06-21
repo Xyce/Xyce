@@ -165,21 +165,15 @@ bool SharedSystem::computeF(const Vector& solution, Vector& F,
 {
   ownerOfStateVectors_ = grp;
 
-#ifdef Xyce_NOX_USE_VECTOR_COPY
   *xyceSolnPtr_ = solution;
   bool status = xyceInterfacePtr_->computeF();
-#else
-  bool status = xyceInterfacePtr_->computeF(F, solution);
-#endif
 
   if (status == false) {
     Report::DevelFatal0().in("SharedSystem::computeF")
       << "compute F failed!";
   }
 
-#ifdef Xyce_NOX_USE_VECTOR_COPY
   F = *xyceFPtr_;
-#endif
   return status;
 }
 
@@ -202,9 +196,7 @@ bool SharedSystem::computeJacobian(Group* grp)
     return true;
   }
 
-#ifdef Xyce_NOX_USE_VECTOR_COPY
   *xyceSolnPtr_ = grp->getX();
-#endif
 
   if (!areStateVectors(grp)) {
 #ifdef Xyce_VERBOSE_NOX
@@ -226,12 +218,7 @@ bool SharedSystem::computeJacobian(Group* grp)
 
   }
 
-#ifdef Xyce_NOX_USE_VECTOR_COPY
   bool status = xyceInterfacePtr_->computeJacobian();
-#else
-  bool status = xyceInterfacePtr_->computeJacobian
-    (dynamic_cast<const Vector &> (grp->getX()));
-#endif
 
   if (status == false) {
       Report::DevelFatal0().in("SharedSystem::computeJacobian")
@@ -294,11 +281,6 @@ bool SharedSystem::applyJacobian(const Vector& input, Vector& result) const
     bool NoTranspose = false;
     xyceJacobianPtr_->matvec(NoTranspose, input.getNativeVectorRef(), result.getNativeVectorRef());
   } else {
-    // tscoffe/tmei HB 07/29/08
-#ifndef Xyce_NOX_USE_VECTOR_COPY
-    Report::DevelFatal0().in("SharedSystem::applyJacobian")
-      << "ERROR, Xyce_NOX_USE_VECTOR_COPY required";
-#endif
     bool status = xyceInterfacePtr_->applyJacobian(input.getNativeVectorRef(), result.getNativeVectorRef());
     if (status == false) {
       Report::DevelFatal0().in("SharedSystem::applyJacobian")
