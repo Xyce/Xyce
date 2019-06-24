@@ -544,12 +544,6 @@ Instance::Instance(
 
     for (d=begin; d!=end; ++d)
     {
-      if (d->name != "C" && d->name != "Q")
-      {
-        UserError(*this) << "Solution-variable-dependent parameter other than C  or Q detected";
-      }
-      else
-      {
         expNumVars = d->n_vars;
         expPtr = d->expr;
 
@@ -612,9 +606,7 @@ Instance::Instance(
             li_dQdXState.resize(expNumVars);
             li_dCdXState.resize(expNumVars);
           }
-
         }
-      }
     }
   }
 

@@ -155,12 +155,13 @@ struct op
 {
     int number;
     bool commutative;
-    const char * name;
+    std::string name;
     double (*funcptr)(double, double);
 };
 
 // There binary operations MUST be in the same order as EXPR_OPS in the
-// include file
+// include file.  This struct is used in RpTree_ to help map a parsed
+// expression back into an "expression string".
 static op ops[] =
 {
   { EXPR_PLACEHOLDER, false, "",   NULL } ,
@@ -181,9 +182,20 @@ static op ops[] =
   { EXPR_POWER,       false, "**", EXPRpower }
 };
 
-#define BINARY(A) ((A)>=EXPR_OR && (A)<=EXPR_POWER)
 #define NUM_OPS (sizeof (ops) / sizeof (struct op))
+// This function is used to substitute the "HSPICE math" strings for the
+// EXPR_OR and EXPR_AND tokens for the Xyce ones.
+void updateExpOpsArray()
+{
+  for (int i = 0; i < NUM_OPS; ++i)
+  {
+    if (ops[i].name == "|") { ops[i].name = "||";}
+    if (ops[i].name == "&") { ops[i].name = "&&";}
+  }
+  return;
+}
 
+#define BINARY(A) ((A)>=EXPR_OR && (A)<=EXPR_POWER)
 #define MODULUS(NUM,LIMIT) ((NUM) - (static_cast<long> ((NUM) / (LIMIT))) * (LIMIT))
 #define EXPR_ERROR(A) EXPRerrno = ((A>EXPRerrno) ? A : EXPRerrno)
 #define LOGIC(Input,Error) if(Input != 0. && Input != 1.) EXPR_ERROR(Error)
