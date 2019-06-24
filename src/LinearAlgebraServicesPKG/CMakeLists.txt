@@ -15,22 +15,19 @@ if ( Xyce_AMESOS2 )
 endif ( Xyce_AMESOS2 )
 
 
-## DEBUG:  ksparse is in subdir, but is not a lib
-if ( Xyce_KSPARSE )
-  set ( KSPARSE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_KSparseSolver.C 
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/Epetra_CrsKundertSparse.C
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/alloc.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/driver.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/smplinkrows.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spalloc.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spbuild.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spfactor.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spoutput.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spsmp.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spsolve.c
-                    ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/sputils.c )
-  set ( KSPARSE_INC ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/ )
-endif ( Xyce_KSPARSE )
+set ( KSPARSE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_KSparseSolver.C
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/Epetra_CrsKundertSparse.C
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/alloc.c
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/driver.c
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/smplinkrows.c
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spalloc.c
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spbuild.c
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spfactor.c
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spoutput.c
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spsmp.c
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spsolve.c
+                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/sputils.c )
+set ( KSPARSE_INC ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/ )
 
 
 # class source list

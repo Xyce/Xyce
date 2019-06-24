@@ -93,11 +93,7 @@ public:
   // Purpose       : Return the length (i.e., number of entries) of the vector
   //---------------------------------------------------------------------------
 
-#ifdef Xyce_NOX_SIZETYPE
   NOX::size_type length() const;
-#else
-  int length() const;
-#endif
 
   //---------------------------------------------------------------------------
   // Purpose       : Initialize every entry in the vector to the given value

@@ -86,11 +86,7 @@ Vector::~Vector()
     delete vectorPtr_;
 }
 
-#ifdef Xyce_NOX_SIZETYPE
 NOX::size_type Vector::length() const
-#else
-int Vector::length() const
-#endif
 {
   return vectorPtr_->globalLength();
 }
