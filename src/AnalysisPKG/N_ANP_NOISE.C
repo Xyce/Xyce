@@ -415,18 +415,16 @@ void NOISE::notify(const StepEvent &event)
 bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 {
   // Check for DATA first.  If DATA is present, then use the sweep functions,
-  // rather than the NOISE specific built-in ones.  This also handles the case
-  // of having multiple .NOISE lines in the netlist, of which only some might
-  // use DATA=<tableName>
+  // rather than the NOISE specific built-in ones.  This also supports the case
+  // of having multiple .NOISE lines in the netlist, wherein only the last .NOISE
+  // line is used.
   if (isDataSpecified(paramsBlock))
   {
     dataSpecification_ = true;
     type_="TYPE";
     noiseSweepVector_.push_back(parseSweepParams(paramsBlock.begin(), paramsBlock.end()));
-    return true;
   }
 
-  // -- original code ---
   for (Util::ParamList::const_iterator it = paramsBlock.begin(),
       end = paramsBlock.end(); it != end; ++it)
   {
@@ -453,7 +451,7 @@ bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       specifiedSource_ = (*it).stringValue();
     }
-    else if ((*it).uTag() == "TYPE")
+    else if ((*it).uTag() == "TYPE" && !dataSpecification_)
     {
       type_ = (*it).stringValue();
     }
@@ -475,6 +473,10 @@ bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     }
   }
 
+  // exit from here if DATA=<name> is used on the .NOISE line
+  if (dataSpecification_) return true;
+
+  // debug output, when DATA=<name> is not used
   if (DEBUG_ANALYSIS && isActive(Diag::TIME_PARAMETERS))
   {
     dout() << section_divider << std::endl
@@ -496,6 +498,24 @@ bool NOISE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
            << "stop frequency = " << fStop_ << std::endl
            << "pts_per_summary = " << pts_per_summary_
              << std::endl;
+  }
+
+  // error checking of parameters, when DATA=<name> is not used
+  if ( np_ < 0 )
+  {
+    Report::UserError0() << "Points Value parameter on .NOISE line must be non-negative";
+    return false;
+  }
+  if ( (fStart_ <=0) || (fStop_ <= 0) )
+  {
+    Report::UserError0() << "Illegal values for start or end frequencies on .NOISE line. " <<
+       "Both values must be > 0";
+    return false;
+  }
+  if ( fStop_ < fStart_ )
+  {
+    Report::UserError0() << "End frequency must not be less than start frequency on .NOISE line";
+    return false;
   }
 
   return true;
@@ -528,7 +548,7 @@ bool NOISE::doRun()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : NOISE::init()
+// Function      : NOISE::doInit()
 // Purpose       :
 // Special Notes :
 // Scope         : public
@@ -558,7 +578,15 @@ bool NOISE::doInit()
       std::string name = (*it).name; Util::toUpper(name);
       if (name == "FREQ")
       {
-        // do nothing
+        // frequency values for .NOISE must be > 0
+        for (int i=0; i<(*it).valList.size(); ++i)
+	{
+          if ( (*it).valList[i] <= 0 )
+	  {
+            Report::UserFatal() << "Frequency values in .DATA for .NOISE analysis must be > 0";
+            return false;
+          }
+        }
       }
       else
       {
@@ -828,8 +856,8 @@ bool NOISE::doLoopProcess()
   Xyce::Parallel::AllReduce(comm.comm(), MPI_SUM, &totalOutputNoise_, 1);
   Xyce::Parallel::AllReduce(comm.comm(), MPI_SUM, &totalInputNoise_, 1);
 
-  // Outputs to the screen:
-  noiseOutputToScreen_( Xyce::lout() );
+  // Outputs to the screen, unless DATA=<name> was used on .NOISE line:
+  if (!dataSpecification_) noiseOutputToScreen_( Xyce::lout() );
 
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish
     (AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::NOISE));
@@ -1757,7 +1785,7 @@ int NOISE::setupSweepParam_()
     }
     else
     {
-      Report::DevelFatal().in("NOISE::setupSweepParam") << "Unsupported type";
+      Report::UserFatal0() << "Unsupported NOISE sweep type: " << type_;
     }
 
   // At this point, pinterval equals the total number of steps
@@ -1970,8 +1998,25 @@ extractNOISEData(
 
   int numFields = parsed_line.size();
 
+  // check for "DATA" first.
+  bool dataFound=false;
+  int pos1=1;
+  while ( pos1 < numFields )
+  {
+    ExtendedString stringVal ( parsed_line[pos1].string_ );
+    stringVal.toUpper ();
+
+    if (stringVal == "DATA")
+    {
+      dataFound=true;
+      break;
+    }
+    ++pos1;
+  }
+
+
   // Check that the minimum required number of fields are on the line.
-  if (numFields < 10)
+  if ((!dataFound && numFields < 10) || (dataFound && numFields < 9))
   {
     Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
       << ".NOISE line has an unexpected number of fields.  NumFields = " << numFields;
@@ -2054,26 +2099,38 @@ extractNOISEData(
   option_block.addParam( parameter );
   ++linePosition;     // Advance to next parameter.
 
-  // np is required
-  parameter.setTag( "NP" );
-  parameter.setVal( parsed_line[linePosition].string_ );
-  option_block.addParam( parameter );
-  ++linePosition;     // Advance to next parameter.
+  if (dataFound)
+  {
+    // handle DATA=<name> format
+    ++linePosition;  // skip over the = sign
+    parameter.setTag( "DATASET" );
+    parameter.setVal( parsed_line[ linePosition ].string_ );
+    option_block.addParam( parameter );
+  }
+  else
+  {
+    // handle format of <points value> <start frequency value> <end frequency value>
+    // np is required
+    parameter.setTag( "NP" );
+    parameter.setVal( parsed_line[linePosition].string_ );
+    option_block.addParam( parameter );
+    ++linePosition;     // Advance to next parameter.
 
-  // fstart is required
-  parameter.setTag( "FSTART" );
-  parameter.setVal( parsed_line[linePosition].string_ );
-  option_block.addParam( parameter );
-  ++linePosition;     // Advance to next parameter.
+    // fstart is required
+    parameter.setTag( "FSTART" );
+    parameter.setVal( parsed_line[linePosition].string_ );
+    option_block.addParam( parameter );
+    ++linePosition;     // Advance to next parameter.
 
-  // fstop is required
-  parameter.setTag( "FSTOP" );
-  parameter.setVal( parsed_line[linePosition].string_ );
-  option_block.addParam( parameter );
+    // fstop is required
+    parameter.setTag( "FSTOP" );
+    parameter.setVal( parsed_line[linePosition].string_ );
+    option_block.addParam( parameter );
+  }
 
   // pts_per_summary is optional.  If value is negative, assume it wasn't set.
   parameter.setTag( "PTS_PER_SUMMARY" );
-  if (numFields >= 11)
+  if ( (!dataFound && numFields >= 11) || (dataFound && numFields >= 10) )
   {
     ++linePosition;     // Advance to next parameter.
     parameter.setVal( parsed_line[linePosition].string_ );
