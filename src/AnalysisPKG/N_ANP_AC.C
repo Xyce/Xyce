@@ -168,7 +168,7 @@ bool AC::setDataStatements(const Util::OptionBlock & paramsBlock)
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 9/5/18
 //-----------------------------------------------------------------------------
-void  AC::convertDataToSweepParams()
+bool  AC::convertDataToSweepParams()
 {
   return convertData(acSweepVector_, dataNamesMap_, dataTablesMap_);
 }
@@ -355,7 +355,6 @@ AC::AC(
 
     blockSolver_(0),
     blockProblem_(0),
-    dataSpecification_(false),
 
     sensFlag_(analysis_manager.getSensFlag()),
     solveAdjointSensitivityFlag_(true),
@@ -449,25 +448,12 @@ void AC::notify(const StepEvent &event)
 bool AC::setAnalysisParams(
   const Util::OptionBlock & paramsBlock)
 {
-  // ERK. check for DATA first.  If DATA is present, then use the sweep functions,
-  // rather than the AC specific built-in ones.  Refactor this later to
-  // make it cleaner.
-  dataSpecification_=false;
-  for (Util::ParamList::const_iterator it = paramsBlock.begin(), end = paramsBlock.end(); it != end; ++it)
+  // Check for DATA first.  If DATA is present, then use the sweep functions,
+  // rather than the AC specific built-in ones.
+  if (isDataSpecified(paramsBlock))
   {
-    std::string tag = (*it).uTag();
-    std::string val = (*it).stringValue();
-    Util::toUpper(tag);
-    Util::toUpper(val);
-    if (tag == "TYPE" && val == "DATA")
-    {
-      type_ = tag;
-      dataSpecification_=true;
-    }
-  }
-
-  if(dataSpecification_)
-  {
+    dataSpecification_ = true;
+    type_="TYPE";
     acSweepVector_.push_back(parseSweepParams(paramsBlock.begin(), paramsBlock.end()));
     return true;
   }
@@ -598,10 +584,14 @@ bool AC::doInit()
 
   // check if the "DATA" specification was used.  If so, create a new vector of
   // SweepParams, in the "TABLE" style.
-  convertDataToSweepParams();
-
-  if(dataSpecification_)
+  if (dataSpecification_)
   {
+    if (!convertDataToSweepParams())
+    {
+      Report::UserFatal() << "Invalid data=<name> parameter on .AC line.";
+      return false;
+    }
+
     std::vector<SweepParam>::iterator begin = acSweepVector_.begin();
     std::vector<SweepParam>::iterator end = acSweepVector_.end();
     std::vector<SweepParam>::iterator it = begin;

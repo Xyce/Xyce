@@ -73,7 +73,7 @@ public:
   bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
   bool setDataStatements(const Util::OptionBlock & paramsBlock);
 
-  void convertDataToSweepParams();
+  bool convertDataToSweepParams();
 
   const TimeIntg::TIAParams &getTIAParams() const; // override
   TimeIntg::TIAParams &getTIAParams(); // override

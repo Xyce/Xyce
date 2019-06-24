@@ -60,8 +60,18 @@ protected:
 public:
   NoiseData ():
     deviceName(""),
+    noiseNames(0),
     omega(0.0),
     freq(0.0),
+    inputNoiseTotal(0),
+    outputNoiseTotal(0),
+    inputNoiseDens(0),
+    outputNoiseDens(0),
+    noiseDens(0),
+    lnNoiseDens(0),
+    lastLnNoiseDens(0),
+    li_Pos(0),
+    li_Neg(0),
     totalNoise(0.0),
     totalOutputNoise(0.0),
     totalInputNoise(0.0),

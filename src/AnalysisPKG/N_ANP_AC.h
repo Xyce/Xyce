@@ -130,7 +130,7 @@ public:
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
   bool setACLinSolOptions(const Util::OptionBlock &option_block);
   bool setDataStatements(const Util::OptionBlock & paramsBlock);
-  void convertDataToSweepParams();
+  bool convertDataToSweepParams();
   bool setSensitivityOptions(const Util::OptionBlock &option_block);
   bool setSensAnalysisParams(const Util::OptionBlock &option_block);
 
@@ -263,7 +263,6 @@ private:
   Linear::Problem *             blockProblem_;
   Util::OptionBlock             acLinSolOptionBlock_;
 
-  bool dataSpecification_;
   SweepVector                   acSweepVector_;
   std::map< std::string, std::vector<std::string> > dataNamesMap_;
   std::map< std::string, std::vector< std::vector<double> > > dataTablesMap_;

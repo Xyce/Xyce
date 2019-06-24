@@ -48,6 +48,28 @@ the \textbf{L} and \textbf{W} parameter on the instance line.  These
 models were BSIM6, PSP102, MVSG-HV, and the non-free EKV models.
 Dummy parameters have been added for all these models and they should
 now work with binning. \\ \hline
+
+\textbf{1197-SON}: Allow dependent parameters, other than C and Q, for
+the C-device that use expressions without solution variables in them &
+The C and Q instance parameters are allowed to be solution-dependent
+for the C-device.  In \Xyce{} 6.11, or earlier, an attempt to use an
+expression (that did not depend on solution variables such as nodal voltages)
+in the definition of other parameters, such as TEMP, for the C device
+would cause a parsing error.  This is fixed now.
+\\ \hline
+
+\textbf{1196-SON}: -hspice-ext math command line option fails on .FUNC
+statements the use Logical OR and Logical AND & The \texttt{-hspice-ext}
+command line option would fail on \texttt{.FUNC} statements that contained
+logical OR or logical AND operators.  Examples were as follows, where
+\texttt{P1} and \texttt{P2} were previously defined on \texttt{.PARAM}
+lines:
+\begin{verbatim}
+.FUNC ANDFUNC(p1,p2) {(P1&&P2) ? 1.0 : 2.0}
+.FUNC ORFUNC(p1,p2)  {(P1||P2) ? 1.0 : 2.0}
+\end{verbatim}
+\\ \hline
+
 \textbf{989-SON}: I(*) will not print branch currents that are part of a Y
 device & Until this release of \Xyce{}, the I(*) feature of
 the \texttt{.PRINT} would not output any branch currents (extra

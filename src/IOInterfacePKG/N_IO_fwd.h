@@ -134,7 +134,8 @@ struct IncludeFileInfo
   numModels(0),
   numSUBCKTdefs(0),
   inSUBCKT(false),
-  parentSUBCKT("")
+  parentSUBCKT(""),
+  location(NetlistLocation())
   {}
 
   virtual ~IncludeFileInfo()

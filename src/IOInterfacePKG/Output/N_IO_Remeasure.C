@@ -170,7 +170,14 @@ RemeasureDC::RemeasureDC(
   }
   else
   {
-    SweepVecPtr->convertDataToSweepParams();
+    // check if the "DATA" specification was used.  If so, then a new vector of
+    // SweepParams, in the "TABLE" style.  Otherwise, error out.
+    if (analysis_manager.getAnalysisObject().getDataSpecification() && !SweepVecPtr->convertDataToSweepParams())
+    {
+      Report::DevelFatal0() << "Error making DC Sweep Vector for Remeasure" << std::endl;
+    }
+
+    // populate the values in the DC Sweep Vector
     analysis_manager.getOutputManagerAdapter().setDCSweepVector(SweepVecPtr->getDCSweepVec());
   }
 
