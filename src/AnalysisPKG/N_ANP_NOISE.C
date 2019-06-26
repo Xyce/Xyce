@@ -251,6 +251,7 @@ NOISE::NOISE(
     fstep_(0.0),
     pts_per_summary_(0),
     pts_per_summary_Given(false),
+    calcNoiseIntegrals_(true),
     delFreq_(0.0),
     lastFreq_(0.0),
     currentFreq_(0.0),
@@ -578,6 +579,11 @@ bool NOISE::doInit()
       std::string name = (*it).name; Util::toUpper(name);
       if (name == "FREQ")
       {
+        // used to check that the specified frequencies are monotonically
+        // increasing, to determine whether the noise integrals can be
+        // calculated when DATA=<name> is used on the .NOISE line
+        double prevFreq=-1.0;
+
         // frequency values for .NOISE must be > 0
         for (int i=0; i<(*it).valList.size(); ++i)
 	{
@@ -586,6 +592,13 @@ bool NOISE::doInit()
             Report::UserFatal() << "Frequency values in .DATA for .NOISE analysis must be > 0";
             return false;
           }
+          if ( calcNoiseIntegrals_ && ((*it).valList[i] <= prevFreq) )
+	  {
+            calcNoiseIntegrals_ = false;
+	    Report::UserWarning0() << "Total Noise Integrals will not be calculated, "
+		<< "since frequencies in .DATA table are not monotonically increasing";
+          }
+          prevFreq = (*it).valList[i];
         }
       }
       else
@@ -807,8 +820,10 @@ bool NOISE::doLoopProcess()
     resetAdjointNOISELinearSystem_();
     solveAdjointNOISE_();
 
-    // perform total noise integrals
-    if (currentStep != 0)
+    // Perform total noise integrals, if the specified frequency values are
+    // monotonically increasing.  This is always true if DATA=<name> is NOT
+    // used on the .NOISE line.
+    if (currentStep != 0 && calcNoiseIntegrals_)
     {
       for (int i=0;i<noiseDataVec_.size();++i)
       {
@@ -856,8 +871,11 @@ bool NOISE::doLoopProcess()
   Xyce::Parallel::AllReduce(comm.comm(), MPI_SUM, &totalOutputNoise_, 1);
   Xyce::Parallel::AllReduce(comm.comm(), MPI_SUM, &totalInputNoise_, 1);
 
-  // Outputs to the screen, unless DATA=<name> was used on .NOISE line:
-  if (!dataSpecification_) noiseOutputToScreen_( Xyce::lout() );
+  if (calcNoiseIntegrals_)
+  {
+    // Outputs to the screen
+    noiseOutputToScreen_( Xyce::lout() );
+  }
 
   static_cast<Xyce::Util::Notifier<AnalysisEvent> &>(analysisManager_).publish
     (AnalysisEvent(AnalysisEvent::FINISH, AnalysisEvent::NOISE));
@@ -1668,6 +1686,7 @@ bool NOISE::updateDataParams_ (int stepNumber)
   bool reset = updateSweepParams(stepNumber, noiseSweepVector_.begin(), noiseSweepVector_.end());
 
   bool nonFreqPresent=false;
+  lastFreq_ = currentFreq_;
   for (int iac=0;iac<noiseSweepVector_.size();++iac)
   {
     std::string name = noiseSweepVector_[iac].name; Util::toUpper(name);
@@ -1675,6 +1694,11 @@ bool NOISE::updateDataParams_ (int stepNumber)
     if (name=="FREQ")
     {
       currentFreq_ = val;
+
+      delFreq_ = currentFreq_ - lastFreq_;
+      lnFreq_     = std::log(std::max(currentFreq_,N_MINLOG));
+      lnLastFreq_ = std::log(std::max(lastFreq_,N_MINLOG));
+      delLnFreq_  = lnFreq_ - lnLastFreq_;
     }
     else
     {

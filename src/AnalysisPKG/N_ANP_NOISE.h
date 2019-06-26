@@ -182,6 +182,10 @@ private:
   int                           pts_per_summary_;
   bool                          pts_per_summary_Given;
 
+  // noise integrals are not calculated for DATA=<name> case if the
+  // specified frequencies are not monotonically increasing
+  bool                          calcNoiseIntegrals_;
+
   double                        delFreq_;
   double                        lastFreq_;
   double                        currentFreq_;
