@@ -1569,6 +1569,7 @@ formats are listed in table~\ref{SENS_Output_table},~\ref{SENS_AC_Output_table}a
     \rowcolor{XyceDarkBlue} \color{white}\textbf{Command} & \color{white}\textbf{Files} & \color{white}\textbf{Additional Columns} \\ \hline
 \texttt{.PRINT SENS} & \emph{circuit-file}.SENS.prn & INDEX TIME \\ \hline
 \texttt{.PRINT SENS FORMAT=GNUPLOT} & \emph{circuit-file}.SENS.prn & INDEX TIME \\ \hline
+\texttt{.PRINT SENS FORMAT=SPLOT} & \emph{circuit-file}.SENS.prn & INDEX TIME \\ \hline
 \texttt{.PRINT SENS FORMAT=NOINDEX} & \emph{circuit-file}.SENS.prn & INDEX TIME \\ \hline
 \texttt{.PRINT SENS FORMAT=CSV} & \emph{circuit-file}.SENS.csv & TIME \\ \hline
 \texttt{.PRINT SENS FORMAT=TECPLOT} & \emph{circuit-file}.SENS.dat & TIME \\ \hline
@@ -1580,6 +1581,7 @@ formats are listed in table~\ref{SENS_Output_table},~\ref{SENS_AC_Output_table}a
     \rowcolor{XyceDarkBlue} \color{white}\textbf{Command} & \color{white}\textbf{Files} & \color{white}\textbf{Additional Columns} \\ \hline
 \texttt{.PRINT SENS} & \emph{circuit-file}.FD.SENS.prn & INDEX FREQ \\ \hline
 \texttt{.PRINT SENS FORMAT=GNUPLOT} & \emph{circuit-file}.FD.SENS.prn & INDEX FREQ \\ \hline
+\texttt{.PRINT SENS FORMAT=SPLOT} & \emph{circuit-file}.FD.SENS.prn & INDEX FREQ \\ \hline
 \texttt{.PRINT SENS FORMAT=NOINDEX} & \emph{circuit-file}.FD.SENS.prn & INDEX FREQ \\ \hline
 \texttt{.PRINT SENS FORMAT=CSV} & \emph{circuit-file}.FD.SENS.csv & FREQ \\ \hline
 \texttt{.PRINT SENS FORMAT=TECPLOT} & \emph{circuit-file}.FD.SENS.dat & FREQ \\ \hline
@@ -1598,7 +1600,6 @@ column format, there wasn't an easy way to have them use the same outputter.
   \begin{tabularx}{\linewidth}{|p{2.75in}|Y|Y|}
     \rowcolor{XyceDarkBlue} \color{white}\textbf{Command} & \color{white}\textbf{Files} & \color{white}\textbf{Additional Columns} \\ \hline
 \texttt{.PRINT TRANADJOINT} & \emph{circuit-file}.TRADJ.prn & INDEX TIME \\ \hline
-\texttt{.PRINT TRANADJOINT FORMAT=GNUPLOT} & \emph{circuit-file}.TRADJ.prn & INDEX TIME \\ \hline
 \texttt{.PRINT TRANADJOINT FORMAT=NOINDEX} & \emph{circuit-file}.TRADJ.prn & INDEX TIME \\ \hline
 \texttt{.PRINT TRANADJOINT FORMAT=CSV} & \emph{circuit-file}.TRADJ.csv & TIME \\ \hline
 \texttt{.PRINT TRANADJOINT FORMAT=TECPLOT} & \emph{circuit-file}.TRADJ.dat & TIME \\ \hline

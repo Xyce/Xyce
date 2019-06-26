@@ -35,8 +35,9 @@ supports several options for each.
 
 \format
 \begin{alltt}
-.PRINT <print type> [FORMAT=<STD|NOINDEX|PROBE|TECPLOT|RAW|CSV|GNUPLOT>]
-+ [FILE=<output filename>] [WIDTH=<print field width>]
+.PRINT <print type> [FILE=<output filename>]
++ [FORMAT=<STD|NOINDEX|PROBE|TECPLOT|RAW|CSV|GNUPLOT|SPLOT>]
++ [WIDTH=<print field width>]
 + [PRECISION=<floating point output precision>]
 + [FILTER=<absolute value below which a number outputs as 0.0>]
 + [DELIMITER=<TAB|COMMA>] [TIMESCALEFACTOR=<real scale factor>]
@@ -89,7 +90,7 @@ of those output files.  If there is no \texttt{.PRINT <subtype>} provided in the
 net list, the variables and parameters from the analysis type will be
 used.
 
-\argument{FORMAT=<STD|NOINDEX|PROBE|TECPLOT|RAW|CSV|GNUPLOT>}
+\argument{FORMAT=<STD|NOINDEX|PROBE|TECPLOT|RAW|CSV|GNUPLOT|SPLOT>}
 
 The output format may be specified using the \texttt{FORMAT} option.
 The \texttt{STD} format outputs the data divided up into data columns.
@@ -105,10 +106,12 @@ ASCII rawfile.  The \texttt{CSV} format specifies that the output file
 should be a comma-separated value file with a header indicating the
 variables printed in the file.  It is similar to, but not identical to
 using \texttt{DELIMITER=COMMA}; the latter will also print a footer that
-is not compatible with most software that requires CSV format.  The
-\texttt{GNUPLOT} format is the same as the  \texttt{STD} format except 
-that if \texttt{.STEP} is used then two blank lines are inserted
-before the data for steps 1,2,3,... where the first step is step 0. 
+is not compatible with most software that requires CSV format.  The \texttt{GNUPLOT}
+(or \texttt{SPLOT}) format is the same as the \texttt{STD} format except
+that if \texttt{.STEP} is used then two (or one) blank lines are inserted
+before the data for steps 1,2,3,... where the first step is step 0. The
+\texttt{SPLOT} format is useful for when the ``splot'' command in gnuplot
+is used to produce 3D perspective plots.
 
 \argument{FILE=<output filename>}
 
