@@ -1040,8 +1040,8 @@ void Sampling::completeEnsembleOutputs()
           }
 
           Xyce::lout() << std::endl;
-          Xyce::lout() << "(traditional samping) regression PCE mean of " << outFunc.outFuncString << " = " << regressionPCE.mean() << std::endl;
-          Xyce::lout() << "(traditional samping) regression PCE stddev of " << outFunc.outFuncString << " = " << regressionPCE.standard_deviation() << std::endl;
+          Xyce::lout() << "(traditional sampling) regression PCE mean of " << outFunc.outFuncString << " = " << regressionPCE.mean() << std::endl;
+          Xyce::lout() << "(traditional sampling) regression PCE stddev of " << outFunc.outFuncString << " = " << regressionPCE.standard_deviation() << std::endl;
 
           if (resamplePCE_)
           {
@@ -1091,8 +1091,8 @@ void Sampling::completeEnsembleOutputs()
           }
 
           Xyce::lout() << std::endl;
-          Xyce::lout() << "(traditional samping) projection PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
-          Xyce::lout() << "(traditional samping) projection PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
+          Xyce::lout() << "(traditional sampling) projection PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
+          Xyce::lout() << "(traditional sampling) projection PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
 
           if (resamplePCE_)
           {
