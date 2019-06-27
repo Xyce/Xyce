@@ -1135,10 +1135,13 @@ Some examples of typical \verb|.NOISE| lines include:
 \Example{\\ 
 \texttt{.NOISE V(5) VIN LIN 101 100Hz 200Hz} \\
 \texttt{.NOISE V(5,3) V1 OCT 10 1kHz 16kHz} \\
-\texttt{.NOISE V(4) V2 DEC 20 1MEG 100MEG}
+\texttt{.NOISE V(4) V2 DEC 20 1MEG 100MEG} \\
+\texttt{.NOISE V(4) V2 DATA=table}
 }
 
-The sweep type can be set to \texttt{LIN}, \texttt{OCT} or \texttt{DEC}.  See the \Xyce{} Reference Guide\ReferenceGuide{} for details.
+The .NOISE command can specify a linear sweep, decade logarithmic sweep, octave logarithmic
+sweep, or a data table of multivariate values. See the \Xyce{} Reference Guide\ReferenceGuide{}
+for details.
 
 \subsection{NOISE Voltage and Current Sources}
 \label{NOISE_Sources}
@@ -1161,11 +1164,13 @@ numbers, the magnitude of the source, and its phase angle. Some examples are as 
 NOTE:	The type, AC, must be specified because the default is DC. If not specified, \Xyce{} assumes the
 phase angle to be zero degrees.  The units of the phase angle are in degrees.
 
-\subsection{Example}
+\subsection{Examples}
 
-An example noise analysis netlist is given in figure~\ref{noiseExample}.  In this example, 
-the only noise source is the resistor, \texttt{rlp1}.  The input source is \texttt{v1} and
-the output node is \texttt{v(4)}.
+Example noise analysis netlists are given in figures~\ref{noiseExample} and
+\ref{noiseExampleWData}.  In those two examples, the only noise source is the
+resistor, \texttt{rlp1}.  The input source is \texttt{v1} and the output node is
+\texttt{v(4)}.  A decade sweep is used in the first example, while a \texttt{.DATA}
+statement is used in the second example.
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
@@ -1190,8 +1195,47 @@ clp1  4 0 1.59nf
 \end{vquote}
 \end{minipage}
 }
-\caption[Noise Example Netlist]
-{Noise Example Netlist \label{noiseExample} }
+\caption[Noise Example Netlist With Decade Sweep]
+{Noise Example Netlist With Decade Sweep\label{noiseExample} }
+\end{centering}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{centering}
+    \shadowbox{
+      \begin{minipage}{0.9\textwidth}
+        \begin{vquote}
+\color{blue}* Noise Analysis example\color{black}
+.global\_param mag=1
+.global\_param phase=0.1
+
+v1  1 0 DC 5.0 AC \{mag\} \{phase\}
+r1  1 2 100K
+r2  2 0 100K
+
+eamp  3 0 2 0 1
+rlp1  3 4 100
+clp1  4 0 1.59nf
+
+.data table
++  mag  phase  freq  rlp1
++  1.0   0.1  1.0e6  1e2
++  2.0   0.2  1.0e7  2e2
++  3.0   0.3  1.0e8  3e2
+
+\color{blue}* Noise commands\color{black}
+.noise v(4) v1 data=table
+
+\color{blue}* Noise file output\color{black}
+.print noise inoise onoise
+
+.end
+\end{vquote}
+\end{minipage}
+}
+\caption[Noise Example Netlist With .Data Statement]
+{Noise Example Netlist.  This example uses a .data statement to simultaneously set
+frequency, magnitude, phase and the resistance of rlp1.\label{noiseExampleWData} }
 \end{centering}
 \end{figure}
 
