@@ -233,7 +233,8 @@ extractOptionsData(
       optionName,
     (  equal_nocase(optionName, "SENSITIVITY") || 
        equal_nocase(optionName, "SAMPLES") ||
-       equal_nocase(optionName, "EMBEDDEDSAMPLES") 
+       equal_nocase(optionName, "EMBEDDEDSAMPLES") ||
+       equal_nocase(optionName, "PCES" )
        ) ? Util::OptionBlock::ALLOW_EXPRESSIONS : Util::OptionBlock::NO_EXPRESSIONS,
       netlist_filename, parsed_line[0].lineNumber_);
 
