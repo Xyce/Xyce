@@ -457,7 +457,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
       {
         sampling_param.lower_bound = lower_bounds_Vec_[ip];
         sampling_param.lower_boundGiven = true;
-
       }
 
       if ( !(upper_bounds_Vec_.empty()) )
@@ -491,7 +490,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
       Report::DevelFatal().in("parseEmbeddedSamplingParam") << "Unsupported SAMPLING type";
     }
     samplingVector_.push_back(sampling_param);
-
   }
 
   outputManagerAdapter_.setStepSweepVector(samplingVector_);
