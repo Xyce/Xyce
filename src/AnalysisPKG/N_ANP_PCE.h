@@ -105,7 +105,7 @@ public:
   virtual bool getDCOPFlag() const;
 
   bool setLinSol(const Util::OptionBlock & OB) { saved_lsOB_ = OB; return true; }
-  bool setESLinSol(const Util::OptionBlock & OB) { saved_lsESOB_ = OB; return true; }
+  bool setPCELinSol(const Util::OptionBlock & OB) { saved_lsPCEOB_ = OB; return true; }
 
   void stepCallBack();
 
@@ -187,7 +187,7 @@ private:
   Linear::SolverFactory *            solverFactory_;
 
   // Linear solver and nonlinear solver options
-  Util::OptionBlock                     saved_lsESOB_;
+  Util::OptionBlock                     saved_lsPCEOB_;
   Util::OptionBlock                     saved_lsOB_;
 
   SweepVector           samplingVector_;

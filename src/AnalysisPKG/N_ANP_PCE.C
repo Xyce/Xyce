@@ -218,30 +218,6 @@ PCE::~PCE()
     delete nextStorePtr_;
   }
 
-  int size = samplingVector_.size();
-  for (int i=0;i<size;++i)
-  {
-    SweepParam & sweep_param = samplingVector_[i];
-#if __cplusplus>=201103L
-    if (sweep_param.type == "UNIFORM")
-    {
-      delete sweep_param.uniformDistributionPtr;
-    }
-    else if (sweep_param.type == "NORMAL")
-    {
-      delete sweep_param.normalDistributionPtr;
-    }
-    else if (sweep_param.type == "GAMMA")
-    {
-      delete sweep_param.gammaDistributionPtr;
-    }
-    else
-    {
-       // do nothing
-    }
-#endif
-  }
-
   if (esLoaderPtr_)
   {
     delete esLoaderPtr_;
@@ -466,9 +442,6 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       sampling_param.startVal = lower_bounds_Vec_[ip];
       sampling_param.stopVal  = upper_bounds_Vec_[ip];
-#if __cplusplus>=201103L
-      sampling_param.uniformDistributionPtr = new std::uniform_real_distribution<double> (sampling_param.startVal,sampling_param.stopVal);
-#endif
     }
     else if (sampling_param.type == "NORMAL") 
     {
@@ -479,7 +452,6 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
       {
         sampling_param.lower_bound = lower_bounds_Vec_[ip];
         sampling_param.lower_boundGiven = true;
-
       }
 
       if ( !(upper_bounds_Vec_.empty()) )
@@ -487,10 +459,6 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
         sampling_param.upper_bound = upper_bounds_Vec_[ip];
         sampling_param.upper_boundGiven = true;
       }
-
-#if __cplusplus>=201103L
-      sampling_param.normalDistributionPtr = new std::normal_distribution<double> (sampling_param.mean, sampling_param.stdDev);
-#endif
     }
 #if __cplusplus>=201103L
     else if (sampling_param.type == "GAMMA") 
@@ -510,8 +478,6 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
         sampling_param.upper_bound = upper_bounds_Vec_[ip];
         sampling_param.upper_boundGiven = true;
       }
-
-      sampling_param.gammaDistributionPtr = new std::gamma_distribution<double> (sampling_param.alpha, sampling_param.beta);
     }
 #endif    
     else
@@ -519,7 +485,6 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
       Report::DevelFatal().in("parsePCEParam") << "Unsupported SAMPLING type";
     }
     samplingVector_.push_back(sampling_param);
-
   }
 
   outputManagerAdapter_.setStepSweepVector(samplingVector_);
@@ -642,7 +607,7 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     }
     else if ((*it).uTag() == "DEBUGLEVEL")
     {
-      if (DEBUG_ES)
+      if (DEBUG_PCE)
       {
         debugLevel_ = (*it).getImmutableValue<int>();
       }
@@ -1080,7 +1045,7 @@ void  PCE::setupBlockSystemObjects ()
     // builder object (in this case ES builder) will create a non-NULL matrix pointer.
     esLinearSystem_->initializeSystem();
 
-    nonlinearManager_.setLinSolOptions( saved_lsESOB_ );
+    nonlinearManager_.setLinSolOptions( saved_lsPCEOB_ );
     nonlinearManager_.setMatrixFreeFlag( false ); // NOT TRUE for ES!
 
     if (!solverFactory_)
@@ -1101,7 +1066,7 @@ void  PCE::setupBlockSystemObjects ()
     if (!precFactory_)
     {
       // Generate the ES preconditioner factory.
-      precFactory_ = new Linear::ESPrecondFactory(saved_lsESOB_, builder_);
+      precFactory_ = new Linear::ESPrecondFactory(saved_lsPCEOB_, builder_);
     }
 
     // Register application loader with preconditioner factory
@@ -1581,7 +1546,7 @@ bool PCE::setDCOptions(const Util::OptionBlock & paramsBlock)
 {
   dcSweepVector_.push_back(parseSweepParams(paramsBlock.begin(), paramsBlock.end()));
 
-  if (DEBUG_ES)
+  if (DEBUG_PCE)
   {
     if ( (paramsBlock.size() > 0) )
     {
@@ -1674,9 +1639,9 @@ public:
   PCE *create() const
   {
     // don't have a mode yet
-    //analysisManager_.setAnalysisMode(ANP_MODE_ES);
+    //analysisManager_.setAnalysisMode(ANP_MODE_PCE);
 
-    PCE *es = new PCE(
+    PCE *pce = new PCE(
         analysisManager_, 
     linearSystem_, nonlinearManager_, deviceManager_, builder_, 
         loader_, 
@@ -1686,14 +1651,14 @@ public:
 
     for (std::vector<Util::OptionBlock>::const_iterator it = samplingSweepAnalysisOptionBlock_.begin(), end = samplingSweepAnalysisOptionBlock_.end(); it != end; ++it)
     {
-      es->setAnalysisParams(*it);
+      pce->setAnalysisParams(*it);
     }
-    es->setPCEOptions(samplingOptionBlock_);
-    es->setDCOptions(dcOptionBlock_);
-    es->setESLinSol(esLinSolOptionBlock_);
-    es->setLinSol(linSolOptionBlock_);
+    pce->setPCEOptions(samplingOptionBlock_);
+    pce->setDCOptions(dcOptionBlock_);
+    pce->setPCELinSol(pceLinSolOptionBlock_);
+    pce->setLinSol(linSolOptionBlock_);
 
-    return es;
+    return pce;
   }
 
   //-----------------------------------------------------------------------------
@@ -1753,9 +1718,9 @@ public:
     return true;
   }
 
-  bool setESLinSolOptionBlock(const Util::OptionBlock &option_block)
+  bool setPCELinSolOptionBlock(const Util::OptionBlock &option_block)
   {
-    esLinSolOptionBlock_ = option_block;
+    pceLinSolOptionBlock_ = option_block;
     return true;
   }
 
@@ -1779,7 +1744,7 @@ private:
   std::vector<Util::OptionBlock>    samplingSweepAnalysisOptionBlock_;
   Util::OptionBlock                 samplingOptionBlock_;
   Util::OptionBlock                 dcOptionBlock_;
-  Util::OptionBlock                 esLinSolOptionBlock_;
+  Util::OptionBlock                 pceLinSolOptionBlock_;
   Util::OptionBlock                 linSolOptionBlock_;
 };
 
@@ -2015,7 +1980,7 @@ bool registerPCEFactory(FactoryBlock & factory_block)
   // DC options might not be needed
   factory_block.optionsManager_.addOptionsProcessor("DC", IO::createRegistrationOptions <PCEFactory> (*factory, &PCEFactory::setDCOptionBlock)); 
 
-  factory_block.optionsManager_.addOptionsProcessor("LINSOL-ES", IO::createRegistrationOptions <PCEFactory> (*factory, &PCEFactory::setESLinSolOptionBlock));
+  factory_block.optionsManager_.addOptionsProcessor("LINSOL-PCE", IO::createRegistrationOptions <PCEFactory> (*factory, &PCEFactory::setPCELinSolOptionBlock));
   factory_block.optionsManager_.addOptionsProcessor("LINSOL", IO::createRegistrationOptions <PCEFactory> (*factory, &PCEFactory::setLinSolOptionBlock));
 
   return true;
