@@ -22,10 +22,10 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        : ES direct solver wrapper
+// Purpose        : PCE direct solver wrapper
 // Special Notes  :
 // Creator        : Eric Keiter, SNL
-// Creation Date  : 6/1/2018
+// Creation Date  : 6/27/2019
 //
 //-------------------------------------------------------------------------
 
@@ -36,9 +36,9 @@
 #include <N_UTL_fwd.h>
 
 #include <N_ERH_ErrorMgr.h>
-#include <N_LAS_ESDirectSolver.h>
-#include <N_LAS_ESBuilder.h>
-#include <N_LOA_ESLoader.h>
+#include <N_LAS_PCEDirectSolver.h>
+#include <N_LAS_PCEBuilder.h>
+#include <N_LOA_PCELoader.h>
 #include <N_LAS_Builder.h>
 #include <N_LAS_Solver.h>
 #include <N_LAS_Problem.h>
@@ -69,14 +69,14 @@ namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Function      : ESDirectSolver::ESDirectSolver
+// Function      : PCEDirectSolver::PCEDirectSolver
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //-----------------------------------------------------------------------------
-ESDirectSolver::ESDirectSolver(
+PCEDirectSolver::PCEDirectSolver(
   Builder &       builder,
   Problem &       problem,
   Util::OptionBlock &   options)
@@ -100,28 +100,28 @@ ESDirectSolver::ESDirectSolver(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESDirectSolver::~ESDirectSolver
+// Function      : PCEDirectSolver::~PCEDirectSolver
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //-----------------------------------------------------------------------------
-ESDirectSolver::~ESDirectSolver()
+PCEDirectSolver::~PCEDirectSolver()
 {
   delete timer_;
   delete options_;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESDirectSolver::setOptions
+// Function      : PCEDirectSolver::setOptions
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //-----------------------------------------------------------------------------
-bool ESDirectSolver::setOptions( const Util::OptionBlock & OB )
+bool PCEDirectSolver::setOptions( const Util::OptionBlock & OB )
 {
   Util::ParamList::const_iterator it_tpL = OB.begin();
   Util::ParamList::const_iterator end_tpL = OB.end();
@@ -142,7 +142,7 @@ bool ESDirectSolver::setOptions( const Util::OptionBlock & OB )
 #endif
   {
     Report::UserWarning0()
-        << "ESDirectSolver does not recognize solver type " << solver_ << " setting to LAPACK";
+        << "PCEDirectSolver does not recognize solver type " << solver_ << " setting to LAPACK";
     solver_ = "LAPACK";
   }
 
@@ -153,14 +153,14 @@ bool ESDirectSolver::setOptions( const Util::OptionBlock & OB )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESDirectSolver::setDefaultOptions
+// Function      : PCEDirectSolver::setDefaultOptions
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //-----------------------------------------------------------------------------
-bool ESDirectSolver::setDefaultOptions()
+bool PCEDirectSolver::setDefaultOptions()
 {
   solver_ = solverDefault_;
 
@@ -168,14 +168,14 @@ bool ESDirectSolver::setDefaultOptions()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESDirectSolver::setParam
+// Function      : PCEDirectSolver::setParam
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //-----------------------------------------------------------------------------
-bool ESDirectSolver::setParam( const Util::Param & param )
+bool PCEDirectSolver::setParam( const Util::Param & param )
 {
   std::string tag = param.tag();
   std::string uTag = param.uTag();
@@ -190,27 +190,27 @@ bool ESDirectSolver::setParam( const Util::Param & param )
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESDirectSolver::getInfo
+// Function      : PCEDirectSolver::getInfo
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //-----------------------------------------------------------------------------
-bool ESDirectSolver::getInfo( Util::Param & info )
+bool PCEDirectSolver::getInfo( Util::Param & info )
 {
   return true;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESDirectSolver::doSolve
+// Function      : PCEDirectSolver::doSolve
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //-----------------------------------------------------------------------------
-int ESDirectSolver::doSolve( bool reuse_factors, bool transpose )
+int PCEDirectSolver::doSolve( bool reuse_factors, bool transpose )
 {
   // Start the timer...
   timer_->resetStartTime();
@@ -220,14 +220,14 @@ int ESDirectSolver::doSolve( bool reuse_factors, bool transpose )
 }
 
 //---------------------------------------------------------------------------
-// Function      : ESDirectSolver::createBlockStructures
+// Function      : PCEDirectSolver::createBlockStructures
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //---------------------------------------------------------------------------
-void ESDirectSolver::createBlockStructures()
+void PCEDirectSolver::createBlockStructures()
 {
   int numProcs = (builder_.getPDSComm())->numProc();
   int myProc = (builder_.getPDSComm())->procID();
@@ -235,14 +235,14 @@ void ESDirectSolver::createBlockStructures()
 }
 
 //---------------------------------------------------------------------------
-// Function      : ESDirectSolver::initializeBlockCRS
+// Function      : PCEDirectSolver::initializeBlockCRS
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //---------------------------------------------------------------------------
-void ESDirectSolver::initializeBlockCRS( double val )
+void PCEDirectSolver::initializeBlockCRS( double val )
 {
   // Initialize the dense or diagonal blocks to the input value.
   for (unsigned int i=0; i < Aval_.size(); i++)
@@ -252,78 +252,78 @@ void ESDirectSolver::initializeBlockCRS( double val )
 }
 
 //---------------------------------------------------------------------------
-// Function      : ESDirectSolver::formESJacobian
+// Function      : PCEDirectSolver::formPCEJacobian
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //---------------------------------------------------------------------------
-void ESDirectSolver::formESJacobian()
+void PCEDirectSolver::formPCEJacobian()
 {
 }
 
 //---------------------------------------------------------------------------
-// Function      : ESDirectSolver::numericFactorization
+// Function      : PCEDirectSolver::numericFactorization
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //---------------------------------------------------------------------------
-int ESDirectSolver::numericFactorization()
-{
-  int linearStatus = 0;
-  return linearStatus;
-}
-
-//---------------------------------------------------------------------------
-// Function      : ESDirectSolver::solve
-// Purpose       :
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 06/01/2018
-//---------------------------------------------------------------------------
-int ESDirectSolver::solve()
+int PCEDirectSolver::numericFactorization()
 {
   int linearStatus = 0;
   return linearStatus;
 }
 
 //---------------------------------------------------------------------------
-// Function      : ESDirectSolver::printESJacobian
+// Function      : PCEDirectSolver::solve
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //---------------------------------------------------------------------------
-void ESDirectSolver::printESJacobian( const std::string& fileName )
+int PCEDirectSolver::solve()
+{
+  int linearStatus = 0;
+  return linearStatus;
+}
+
+//---------------------------------------------------------------------------
+// Function      : PCEDirectSolver::printPCEJacobian
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 06/01/2018
+//---------------------------------------------------------------------------
+void PCEDirectSolver::printPCEJacobian( const std::string& fileName )
 {
 }
 
 //---------------------------------------------------------------------------
-// Function      : ESDirectSolver::printESResidual
+// Function      : PCEDirectSolver::printPCEResidual
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //---------------------------------------------------------------------------
-void ESDirectSolver::printESResidual( const std::string& fileName )
+void PCEDirectSolver::printPCEResidual( const std::string& fileName )
 {
 }
 
 //---------------------------------------------------------------------------
-// Function      : ESDirectSolver::printESSolution
+// Function      : PCEDirectSolver::printPCESolution
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 06/01/2018
 //---------------------------------------------------------------------------
-void ESDirectSolver::printESSolution( const std::string& fileName )
+void PCEDirectSolver::printPCESolution( const std::string& fileName )
 {
 }
 

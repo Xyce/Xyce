@@ -22,21 +22,21 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Solver Factory for ES
+// Purpose        : Solver Factory for PCE 
 //
 // Special Notes  :
 //
-// Creator        : Heidi Thornquist, SNL
+// Creator        : Eric Keiter, SNL
 //
-// Creation Date  : 10/01/07
+// Creation Date  : 6/27/2019
 //
 //
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_ESSolverFactory_h
-#define Xyce_N_LAS_ESSolverFactory_h
+#ifndef Xyce_N_LAS_PCESolverFactory_h
+#define Xyce_N_LAS_PCESolverFactory_h
 
 // ---------- Standard Includes ----------
 
@@ -57,41 +57,63 @@ namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Class         : ESSolverFactory
+// Class         : PCESolverFactory
 // Purpose       : 
 // Special Notes :
 // Creator       : Heidi Thornquist, SNL, Electrical & Microsystem Modeling
 // Creation Date : 11/11/08
 //-----------------------------------------------------------------------------
-class ESSolverFactory : public SolverFactory
+class PCESolverFactory : public SolverFactory
 {
 public:
   // Basic Constructor, sets solver factory options.
-  ESSolverFactory( Linear::Builder &builder );
+  PCESolverFactory( Linear::Builder &builder );
 
   // Destructor
-  virtual ~ESSolverFactory() {} 
+  virtual ~PCESolverFactory() {} 
 
   // Creates a new solver.
   Solver * create( Util::OptionBlock & options, Problem & problem, const IO::CmdParse & command_line) const;
 
+#if 0
+  // Set the time step(s) being used in the PCE analysis.
+  // NOTE:  This is only useful for FD solution techniques.
+  void setTimeSteps( const std::vector<double> & timeSteps )
+    { timeSteps_ = timeSteps; }
+
+  void setESFreqs( const std::vector<double> & freqs )
+    { freqs_ = freqs; }
+
+  // Set the fast times being used in the ES analysis.
+  void setFastTimes( const std::vector<double> & times )
+    { times_ = times; }
+
+  void setESOsc( const bool osc )
+    { hbOsc_ = osc; }
+#endif
 
   // Register the application system loader
-  void registerESLoader( const Teuchos::RCP<Loader::ESLoader>& esLoaderPtr ) 
-    { esLoaderPtr_ = esLoaderPtr; }
+  void registerPCELoader( const Teuchos::RCP<Loader::PCELoader>& pceLoaderPtr ) 
+    { pceLoaderPtr_ = pceLoaderPtr; }
 
-  // Register the ES builder 
-  void registerESBuilder( const Teuchos::RCP<ESBuilder>& esBuilder ) 
-    { esBuilderPtr_ = esBuilder; }
+  // Register the PCE builder 
+  void registerPCEBuilder( const Teuchos::RCP<PCEBuilder>& pceBuilder ) 
+    { pceBuilderPtr_ = pceBuilder; }
 
 private:
+#if 0
+  bool                          hbOsc_;
+#endif
   Builder &                     builder_;
-  Teuchos::RCP<Loader::ESLoader> esLoaderPtr_;
-  Teuchos::RCP<ESBuilder> esBuilderPtr_;
+#if 0
+  std::vector<double>    times_, timeSteps_, freqs_;
+#endif
+  Teuchos::RCP<Loader::PCELoader> pceLoaderPtr_;
+  Teuchos::RCP<PCEBuilder> pceBuilderPtr_;
   Teuchos::RCP<Util::OptionBlock> optionBlock_;
 
   // Copy constructor.
-  ESSolverFactory( const ESSolverFactory& pf );
+  PCESolverFactory( const PCESolverFactory& pf );
 };
 
 } // namespace Linear

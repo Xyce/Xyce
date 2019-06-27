@@ -180,10 +180,10 @@ private:
   AnalysisBase &        childAnalysis_;
 
 
-  Loader::ESLoader *                    esLoaderPtr_; /// ES loader, builder, system, and DFT
-  Teuchos::RCP<Linear::ESBuilder>       esBuilderPtr_;
-  Linear::System *                      esLinearSystem_;
-  //Linear::ESSolverFactory *            solverFactory_;
+  Loader::PCELoader *                    pceLoaderPtr_; /// PCE loader, builder, system, and DFT
+  Teuchos::RCP<Linear::PCEBuilder>       pceBuilderPtr_;
+  Linear::System *                      pceLinearSystem_;
+  //Linear::PCESolverFactory *            solverFactory_;
   Linear::SolverFactory *            solverFactory_;
 
   // Linear solver and nonlinear solver options

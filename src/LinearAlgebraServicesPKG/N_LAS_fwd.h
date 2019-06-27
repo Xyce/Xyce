@@ -48,6 +48,8 @@ class BlockVector;
 class Builder;
 class ESBuilder;
 class ESSolverFactory;
+class PCEBuilder;
+class PCESolverFactory;
 class HBBuilder;
 class HBSolverFactory;
 class HBPrecondFactory;

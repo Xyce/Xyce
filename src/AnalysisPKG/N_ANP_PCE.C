@@ -77,14 +77,14 @@
 #include <N_NLS_Manager.h>
 
 // new Embedded Sampler loader class
-#include <N_LOA_ESLoader.h>
+#include <N_LOA_PCELoader.h>
 
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_System.h>
-// new Embedded sampling headers: (patterned, kind of, off the HB headers)  ES = Embedded Sampling
-#include <N_LAS_ESBuilder.h>
-#include <N_LAS_ESSolverFactory.h>
+// new PCE headers: (patterned, kind of, off the HB headers)  PCE = Polynomial Chaos Expansion
+#include <N_LAS_PCEBuilder.h>
+#include <N_LAS_PCESolverFactory.h>
 #include <N_LAS_TranSolverFactory.h>
 
 #include <N_PDS_fwd.h>
@@ -150,9 +150,9 @@ PCE::PCE(
       measureManager_(outputManagerAdapter_.getMeasureManager()),
       childAnalysis_(child_analysis),
 
-      esLoaderPtr_(0),
-      esBuilderPtr_(0),
-      esLinearSystem_(0),
+      pceLoaderPtr_(0),
+      pceBuilderPtr_(0),
+      pceLinearSystem_(0),
       solverFactory_(0),
 
       samplingVector_(),
@@ -218,14 +218,14 @@ PCE::~PCE()
     delete nextStorePtr_;
   }
 
-  if (esLoaderPtr_)
+  if (pceLoaderPtr_)
   {
-    delete esLoaderPtr_;
+    delete pceLoaderPtr_;
   }
 
-  if (esLinearSystem_)
+  if (pceLinearSystem_)
   {
-    delete esLinearSystem_;
+    delete pceLinearSystem_;
   }
 
   if (solverFactory_)
@@ -287,7 +287,7 @@ void PCE::notify(const StepEvent &event)
         topology_);
 
       TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-      esLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);
+      pceLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);
 
       analysisManager_.getXyceTranTimer().resetStartTime();
     }
@@ -1001,7 +1001,7 @@ void  PCE::setupBlockSystemObjects ()
 {
   analysisManager_.resetSolverSystem();
 
-  esBuilderPtr_ = rcp(new Linear::ESBuilder(numSamples_));
+  pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numSamples_));
 
   if (DEBUG_ANALYSIS)
   {
@@ -1011,67 +1011,67 @@ void  PCE::setupBlockSystemObjects ()
     Stats::StatTop _setupStepStat("Setup Maps/Graphs");
     Stats::TimeBlock _setupStepTimer(_setupStepStat);
 
-    esBuilderPtr_->generateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION ), false),
+    pceBuilderPtr_->generateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION ), false),
                              rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND ), false) );
-    esBuilderPtr_->generateStateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STATE ),false) );
-    esBuilderPtr_->generateStoreMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STORE ),false) );
-    esBuilderPtr_->generateLeadCurrentMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::LEADCURRENT ),false) );
-    esBuilderPtr_->generateGraphs( *pdsMgrPtr_->getMatrixGraph( Parallel::JACOBIAN ));
+    pceBuilderPtr_->generateStateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STATE ),false) );
+    pceBuilderPtr_->generateStoreMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STORE ),false) );
+    pceBuilderPtr_->generateLeadCurrentMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::LEADCURRENT ),false) );
+    pceBuilderPtr_->generateGraphs( *pdsMgrPtr_->getMatrixGraph( Parallel::JACOBIAN ));
   }
 
-  // Create ES Loader.
-  delete esLoaderPtr_;
-  esLoaderPtr_ = new Loader::ESLoader(deviceManager_, builder_, numSamples_, samplingVector_, Y_);
-  esLoaderPtr_->registerESBuilder(esBuilderPtr_);
-  esLoaderPtr_->registerAppLoader( rcp(&loader_, false) );
+  // Create PCE Loader.
+  delete pceLoaderPtr_;
+  pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numSamples_, samplingVector_, Y_);
+  pceLoaderPtr_->registerPCEBuilder(pceBuilderPtr_);
+  pceLoaderPtr_->registerAppLoader( rcp(&loader_, false) );
   //-----------------------------------------
 
-  //Finish setup of ES Loader
+  //Finish setup of PCE Loader
   //-----------------------------------------
   {
     //-----------------------------------------
     //Construct Solvers, etc.
     //-----------------------------------------
-    delete esLinearSystem_;
-    esLinearSystem_ = new Linear::System();
+    delete pceLinearSystem_;
+    pceLinearSystem_ = new Linear::System();
     //-----------------------------------------
 
     //hack needed by TIA initialization currently
-    esBuilderPtr_->registerPDSManager( pdsMgrPtr_ );
-    esLinearSystem_->registerPDSManager( pdsMgrPtr_ );
-    esLinearSystem_->registerBuilder( &*esBuilderPtr_ );
+    pceBuilderPtr_->registerPDSManager( pdsMgrPtr_ );
+    pceLinearSystem_->registerPDSManager( pdsMgrPtr_ );
+    pceLinearSystem_->registerBuilder( &*pceBuilderPtr_ );
 
     // the linear system class will only create a "linear problem" object if the 
-    // builder object (in this case ES builder) will create a non-NULL matrix pointer.
-    esLinearSystem_->initializeSystem();
+    // builder object (in this case PCE builder) will create a non-NULL matrix pointer.
+    pceLinearSystem_->initializeSystem();
 
     nonlinearManager_.setLinSolOptions( saved_lsPCEOB_ );
     nonlinearManager_.setMatrixFreeFlag( false ); // NOT TRUE for ES!
 
     if (!solverFactory_)
     {
-      // Generate the ES solver factory.
+      // Generate the PCE solver factory.
       //solverFactory_ = new Linear::ESSolverFactory( builder_ );
       solverFactory_ = new Linear::TranSolverFactory();
     }
 
 #if 0
     // Register application loader with solver factory
-    solverFactory_->registerESLoader( rcp(esLoaderPtr_, false) );
-    solverFactory_->registerESBuilder( esBuilderPtr_ );
+    solverFactory_->registerPCELoader( rcp(pceLoaderPtr_, false) );
+    solverFactory_->registerPCEBuilder( pceBuilderPtr_ );
 #endif
 
 #if 0
     // ERK:  I have not created a preconditioner factory
     if (!precFactory_)
     {
-      // Generate the ES preconditioner factory.
+      // Generate the PCE preconditioner factory.
       precFactory_ = new Linear::ESPrecondFactory(saved_lsPCEOB_, builder_);
     }
 
     // Register application loader with preconditioner factory
-    precFactory_->registerESLoader( rcp(esLoaderPtr_, false) );
-    precFactory_->registerESBuilder( esBuilderPtr_ );
+    precFactory_->registerPCELoader( rcp(pceLoaderPtr_, false) );
+    precFactory_->registerPCEBuilder( pceBuilderPtr_ );
     precFactory_->setFastTimes( goodTimePoints_ );
     precFactory_->setTimeSteps( timeSteps_ );
     precFactory_->setESFreqs( freqPoints_ );
@@ -1083,29 +1083,29 @@ void  PCE::setupBlockSystemObjects ()
   //Initialization of Solvers, etc. 
     analysisManager_.initializeSolverSystem(
         getTIAParams(),
-        *esLoaderPtr_,
-        *esLinearSystem_,
+        *pceLoaderPtr_,
+        *pceLinearSystem_,
         nonlinearManager_,
         deviceManager_);
 
     nonlinearManager_.initializeAll(
         analysisManager_, 
         analysisManager_.getNonlinearEquationLoader(), 
-        *esLinearSystem_,
+        *pceLinearSystem_,
         *analysisManager_.getDataStore(),
         *analysisManager_.getPDSManager(),
         initialConditionsManager_,
         analysisManager_.getOutputManagerAdapter().getOutputManager(),
         topology_);
 
-    childAnalysis_.registerLinearSystem(esLinearSystem_);
+    childAnalysis_.registerLinearSystem(pceLinearSystem_);
  
     // don't have a mode yet.  Do I need one??  The real mode should be 
     // the underlying analysis (tran, dc, etc), so probably not
     //nonlinearManager_.setAnalysisMode(nonlinearAnalysisMode(ANP_MODE_ES)); 
   }
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  esLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);
+  pceLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);
   
   childAnalysis_.registerParentAnalysis(this);
 }

@@ -21,15 +21,15 @@
 //-------------------------------------------------------------------------
 
 //-------------------------------------------------------------------------
-// Filename       : $RCSfile: N_LAS_ESSolverFactory.C,v $
+// Filename       : $RCSfile: N_LAS_PCESolverFactory.C,v $
 //
 // Purpose        :
 //
 // Special Notes  :
 //
-// Creator        : Heidi Thornquist, SNL
+// Creator        : Eric Keiter, SNL
 //
-// Creation Date  : 08/12/03
+// Creation Date  : 6/27/2019
 //
 // Revision Information:
 // ---------------------
@@ -53,7 +53,7 @@
 
 // ----------   Xyce Includes   ----------
 
-#include <N_LAS_ESSolverFactory.h>
+#include <N_LAS_PCESolverFactory.h>
 #include <N_LAS_Problem.h>
 
 #include <N_ERH_ErrorMgr.h>
@@ -62,7 +62,7 @@
 #ifdef Xyce_BELOS
 #include <N_LAS_BelosSolver.h>
 #endif
-#include <N_LAS_ESDirectSolver.h>
+#include <N_LAS_PCEDirectSolver.h>
 
 #include <N_IO_CmdParse.h>
 #include <N_UTL_OptionBlock.h>
@@ -72,21 +72,25 @@ namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Function      : ESSolverFactory::ESSolverFactory
+// Function      : PCESolverFactory::PCESolverFactory
 // Purpose       :
 // Special Notes :
 // Scope         : Public
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 10/01/07
 //-----------------------------------------------------------------------------
-ESSolverFactory::ESSolverFactory(
+PCESolverFactory::PCESolverFactory(
   Linear::Builder &             builder)
-  : builder_(builder)
+  : 
+#if 0
+    hbOsc_(false),
+#endif
+    builder_(builder)
 {
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESSolverFactory::create
+// Function      : PCESolverFactory::create
 // Purpose       :
 // Special Notes : Static
 // Scope         : Public
@@ -94,7 +98,7 @@ ESSolverFactory::ESSolverFactory(
 // Creation Date : 
 //-----------------------------------------------------------------------------
 Solver *
-ESSolverFactory::create(
+PCESolverFactory::create(
   Util::OptionBlock &   options,
   Problem &             problem,
   const IO::CmdParse &  command_line) const
@@ -134,10 +138,13 @@ ESSolverFactory::create(
 #endif
   else if( type == "DIRECT" )
   {
-    ESDirectSolver* newSolver = new ESDirectSolver(builder_, problem, options);
+    PCEDirectSolver* newSolver = new PCEDirectSolver(builder_, problem, options);
 
-    newSolver->registerESLoader( esLoaderPtr_ );
-    newSolver->registerESBuilder( esBuilderPtr_ );
+    newSolver->registerPCELoader( pceLoaderPtr_ );
+    newSolver->registerPCEBuilder( pceBuilderPtr_ );
+#if 0
+    newSolver->setFastTimes( times_ );
+#endif
 
     return newSolver;
   }

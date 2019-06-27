@@ -22,21 +22,21 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : ES Direct Linear Solver Interface
+// Purpose        : PCE Direct Linear Solver Interface
 //
 // Special Notes  :
 //
 // Creator        : Eric Keiter, SNL 
 //
-// Creation Date  : 05/24/04
+// Creation Date  : 06/27/2019
 //
 //
 //
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_LAS_ESDirectSolver_h
-#define Xyce_N_LAS_ESDirectSolver_h
+#ifndef Xyce_N_LAS_PCEDirectSolver_h
+#define Xyce_N_LAS_PCEDirectSolver_h
 
 #include <string>
 
@@ -61,24 +61,24 @@ namespace Xyce {
 namespace Linear {
 
 //-----------------------------------------------------------------------------
-// Class         : ESDirectSolver
+// Class         : PCEDirectSolver
 // Purpose       :
 // Special Notes :
-// Creator       : Heidi Thornquist, SNL 
-// Creation Date : 05/20/04
+// Creator       : Eric Keiter, SNL 
+// Creation Date : 06/27/2019
 //-----------------------------------------------------------------------------
-class ESDirectSolver : public Solver
+class PCEDirectSolver : public Solver
 {
 
 public:
   // Constructor
-  ESDirectSolver(
+  PCEDirectSolver(
     Builder &                   builder,
     Problem &                   problem,
     Util::OptionBlock &         options);
 
   // Destructor
-  virtual ~ESDirectSolver();
+  virtual ~PCEDirectSolver();
 
   // Set the solver options
   bool setOptions(const Util::OptionBlock & OB);
@@ -90,20 +90,20 @@ public:
   // Get info such as Num Iterations, Residual, etc.
   bool getInfo( Util::Param & info );
 
-  // Register the ES builder
-  void registerESBuilder( const Teuchos::RCP<ESBuilder> & esBuilderPtr )
-    { esBuilderPtr_ = esBuilderPtr; }
+  // Register the PCE builder
+  void registerPCEBuilder( const Teuchos::RCP<PCEBuilder> & pceBuilderPtr )
+    { pceBuilderPtr_ = pceBuilderPtr; }
 
-  // Register the ES loader
-  void registerESLoader( const Teuchos::RCP<Loader::ESLoader> & esLoaderPtr )
-    { esLoaderPtr_ = esLoaderPtr; }
+  // Register the PCE loader
+  void registerPCELoader( const Teuchos::RCP<Loader::PCELoader> & pceLoaderPtr )
+    { pceLoaderPtr_ = pceLoaderPtr; }
 
 #if 0
-  // Set the fast times being used in the ES analysis.
+  // Set the fast times being used in the PCE analysis.
   void setFastTimes( const std::vector<double> & times )
     { times_ = times; }
 
-  void setESFreqs( const std::vector<double> & freqs )
+  void setPCEFreqs( const std::vector<double> & freqs )
     { freqs_ = freqs; }
 #endif
 
@@ -118,25 +118,25 @@ private:
   // Initialize the nonzero entries of the block CRS structure with a value.
   void initializeBlockCRS( double val );
 
-  // This function will allocate the space needed to store the ES Jacobian.
-  // For "LAPACK", this function will create a dense matrix of the entire ES Jacobian size (very large).
+  // This function will allocate the space needed to store the PCE Jacobian.
+  // For "LAPACK", this function will create a dense matrix of the entire PCE Jacobian size (very large).
   // For "BASKER", this function will use the time domain graph to create a structure for the block
   // Jacobian, filling out Ap_, Ai_, and Av_.
   void createBlockStructures();
 
-  // This function will use the matrices from the ES loader to form the ES Jacobian.
-  void formESJacobian();
+  // This function will use the matrices from the PCE loader to form the PCE Jacobian.
+  void formPCEJacobian();
 
-  // Compute numeric factorization with updated ES Jacobian.
+  // Compute numeric factorization with updated PCE Jacobian.
   int numericFactorization();
 
   // Solve linear systems with direct factors.
   int solve();
 
   // Print methods.
-  void printESJacobian( const std::string& fileName );
-  void printESResidual( const std::string& fileName );
-  void printESSolution( const std::string& fileName );
+  void printPCEJacobian( const std::string& fileName );
+  void printPCEResidual( const std::string& fileName );
+  void printPCESolution( const std::string& fileName );
 
   // Time-domain builder
   Builder & builder_;
@@ -165,22 +165,22 @@ private:
   std::string solver_, solverDefault_;
 
   // Embedded Sampling loader.
-  Teuchos::RCP<Loader::ESLoader> esLoaderPtr_;
+  Teuchos::RCP<Loader::PCELoader> pceLoaderPtr_;
 
   // Embedded Sampling builder.
-  Teuchos::RCP<ESBuilder> esBuilderPtr_;
+  Teuchos::RCP<PCEBuilder> pceBuilderPtr_;
 
   // Solution and RHS vectors in frequency domain.
   Teuchos::SerialDenseMatrix<int,double> X_, B_, R_, A_;
-  std::vector<Xyce::ESBlockMatrixEntry> bX_, bB_;
+  std::vector<Xyce::PCEBlockMatrixEntry> bX_, bB_;
 
   // Dense matrix for LAPACK implementation of direct solver.
-  Xyce::ESBlockMatrixEntry denseESJacobian_;
+  Xyce::PCEBlockMatrixEntry densePCEJacobian_;
   Teuchos::RCP< Teuchos::SerialDenseSolver<int,double> > lapackSolver_;
 
   // Block CCS matrix for Basker.
   std::vector<int> Acol_ptr_, Arow_idx_;
-  std::vector<Xyce::ESBlockMatrixEntry> Aval_;
+  std::vector<Xyce::PCEBlockMatrixEntry> Aval_;
 
   // <double> matrix for single-value Basker.
   std::vector<int> Anewcol_ptr_, Anewrow_idx_;
@@ -191,7 +191,7 @@ private:
 
 #if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
   Basker::Basker<int, double> basker_;
-  Basker::Basker<int, Xyce::ESBlockMatrixEntry> blockBasker_;
+  Basker::Basker<int, Xyce::PCEBlockMatrixEntry> blockBasker_;
 #endif
 
   // Serialized objects for parallel loading.
@@ -209,5 +209,5 @@ private:
 } // namespace Linear
 } // namespace Xyce
 
-#endif // Xyce_N_LAS_ESDirectSolver_h
+#endif // Xyce_N_LAS_PCEDirectSolver_h
 

@@ -914,6 +914,7 @@ inline double genericBlockMatrixEntry<T>::normFrobenius() const
 
 typedef genericBlockMatrixEntry< std::complex<double> > HBBlockMatrixEntry;
 typedef genericBlockMatrixEntry< double > ESBlockMatrixEntry;
+typedef ESBlockMatrixEntry PCEBlockMatrixEntry;
 
 template<class T>
 inline int packGenericBlockMatrix(const genericBlockMatrixEntry<T>& Source, std::vector<double>& vec)
@@ -1058,7 +1059,6 @@ namespace Amesos2 {
     typedef Xyce::ESBlockMatrixEntry type;
     typedef Xyce::ESBlockMatrixEntry magnitude_type;
   };
-
 }
 
 #endif

@@ -42,6 +42,7 @@ namespace Loader {
 
 class CktLoader;
 class ESLoader;
+class PCELoader;
 class HBLoader;
 class Loader;
 class NonlinearEquationLoader;

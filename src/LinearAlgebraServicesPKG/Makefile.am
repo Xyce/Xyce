@@ -47,6 +47,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_SystemHelpers.C \
   N_LAS_Builder.C \
   N_LAS_ESBuilder.C \
+  N_LAS_PCEBuilder.C \
   N_LAS_HBBuilder.C \
   N_LAS_Vector.C \
   N_LAS_TransformTool.C \
@@ -59,6 +60,8 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_IfpackPrecond.C \
   N_LAS_ESDirectSolver.C \
   N_LAS_ESSolverFactory.C \
+  N_LAS_PCEDirectSolver.C \
+  N_LAS_PCESolverFactory.C \
   N_LAS_HBDirectSolver.C \
   N_LAS_HBBlockJacobiPrecond.C \
   N_LAS_HBBlockJacobiEpetraOperator.C \
@@ -72,6 +75,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_Builder.h \
   N_LAS_HBBuilder.h \
   N_LAS_ESBuilder.h \
+  N_LAS_PCEBuilder.h \
   N_LAS_Solver.h \
   N_LAS_Problem.h \
   N_LAS_Matrix.h \
@@ -96,6 +100,8 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_IfpackPrecond.h \
   N_LAS_ESDirectSolver.h \
   N_LAS_ESSolverFactory.h \
+  N_LAS_PCEDirectSolver.h \
+  N_LAS_PCESolverFactory.h \
   N_LAS_HBDirectSolver.h \
   N_LAS_HBBlockMatrixEntry.h \
   N_LAS_HBBlockJacobiPrecond.h \
