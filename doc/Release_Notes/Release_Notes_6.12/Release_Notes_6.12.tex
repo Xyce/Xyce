@@ -82,7 +82,14 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
-\item place holder
+\item Sweep loops for \texttt{.NOISE} analyses can now be specified using the
+  HSpice-style \texttt{.DATA} command.  This allows the user to specify parameter
+  loops in which multiple parameters are changed simultaneously.  Previously,
+  this capability only applied to  \texttt{.STEP}, \texttt{.DC} and \texttt{.AC}
+  analysis.
+\item A new SPLOT print format that outputs data in standard columns,
+  like a .prn file, but with improved compatibility for .STEP data with
+  the splot command in gnuplot.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}

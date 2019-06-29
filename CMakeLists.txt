@@ -731,21 +731,6 @@ if ( HAVE_UNISTD_H )
 endif ( HAVE_UNISTD_H )
 
 
-
-# -- Check return type of NOX vector (see config/xyce_test_using_noxsizetype.m4 for Autoconf equivalent)
-
-CHECK_CXX_SOURCE_COMPILES ( "#include <NOX_Common.H>
-      int main(void)
-      {
-      NOX::size_type nox_integer;
-      return 0;
-      }"
-      USING_NOX_SIZETYPE )
-
-if ( USING_NOX_SIZETYPE )
-      add_definitions ( -DXyce_NOX_SIZETYPE )
-endif ( USING_NOX_SIZETYPE )
-
 # -- Check if the NOX abstract solver is collecting statistics
 
 CHECK_CXX_SOURCE_COMPILES ( "#include <NOX_SolverStats.hpp>

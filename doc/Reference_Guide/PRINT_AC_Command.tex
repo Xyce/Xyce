@@ -22,6 +22,7 @@ Homotopy output can also be generated.
 \begin{PrintCommandTable}{Print AC Analysis Type}
 .PRINT AC & \emph{circuit-file}.FD.prn & INDEX FREQ \\ \hline
 .PRINT AC FORMAT=GNUPLOT & \emph{circuit-file}.FD.prn & INDEX FREQ \\ \hline
+.PRINT AC FORMAT=SPLOT & \emph{circuit-file}.FD.prn & INDEX FREQ \\ \hline
 .PRINT AC FORMAT=NOINDEX & \emph{circuit-file}.FD.prn & FREQ \\ \hline
 .PRINT AC FORMAT=CSV & \emph{circuit-file}.FD.csv & FREQ \\ \hline
 .PRINT AC FORMAT=RAW & \emph{circuit-file}.raw & FREQ \\ \hline
@@ -33,6 +34,8 @@ Xyce -a \newline .PRINT AC FORMAT=RAW & \emph{circuit-file}.raw & FREQ \\ \hline
 \multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Add \texttt{.OP} To Netlist To Enable AC\_IC Output} \\ \hline
 .PRINT AC\_IC & \emph{circuit-file}.TD.prn & INDEX TIME \\ \hline
 .PRINT AC\_IC FORMAT=GNUPLOT & \emph{circuit-file}.TD.prn & INDEX TIME \\ \hline
+.PRINT AC\_IC FORMAT=SPLOT & \emph{circuit-file}.TD.prn & INDEX TIME \\ \hline
+.PRINT AC\_IC FORMAT=NOINDEX & \emph{circuit-file}.TD.prn & TIME \\ \hline
 .PRINT AC\_IC FORMAT=CSV & \emph{circuit-file}.TD.csv & TIME \\ \hline
 .PRINT AC\_IC FORMAT=RAW & \emph{circuit-file}.raw & TIME \\ \hline
 Xyce -a \newline .PRINT AC\_IC FORMAT=RAW & \emph{circuit-file}.raw & TIME \\ \hline

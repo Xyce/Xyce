@@ -8,7 +8,7 @@
 % LLC (NTESS).
 
 
-User-defined data table, which can be used to specify sweep points for \texttt{.AC}, \texttt{.DC} or \texttt{.STEP}
+User-defined data table, which can be used to specify sweep points for \texttt{.AC}, \texttt{.DC}, \texttt{.NOISE} or \texttt{.STEP}
 
 \begin{Command}
 
@@ -45,6 +45,11 @@ Each column of a data table corresponds to a different parameter, and each row c
 
 If using \texttt{.DATA} with \texttt{.DC} or \texttt{.STEP}, then any instance parameter, model parameter, or global parameter is allowed.
 
-  However, if using \texttt{.DATA} with \texttt{.AC}, then one can sweep the magnitude and phase of an AC source, and linear model parameters (such as resistance and capacitance) in addition to the traditional AC sweep variable, frequency.  Parameters associated with nonlinear models (like transistors) are not allowed.  This is because AC analysis is a linear analysis, performed after the DCOP calculation.  Changing nonlinear device model parameters would result in a different DCOP solution, so changing them during the AC analysis phase is not valid.
+However, if using \texttt{.DATA} with \texttt{.AC} or \texttt{.NOISE}, then one can sweep the magnitude and phase of an AC source, and linear model parameters (such as resistance and capacitance) in addition to the traditional AC sweep variable, frequency.  Parameters associated with nonlinear models (like transistors) are not allowed.  This is because AC analysis is a linear analysis, performed after the DCOP calculation.  Changing nonlinear device model parameters would result in a different DCOP solution, so changing them during the AC (or NOISE) analysis phase is not valid.
+
+Another caveat, for both \texttt{.AC} and \texttt{.NOISE}, is that all of the frequency
+values in the data table must be positive.  If \texttt{.DATA} is used with \texttt{.NOISE}
+then the integrals for the total input noise and total output noise will only be calculated,
+and sent to stdout, if the frequencies in the data table are monotonically increasing.
 
 \end{Command}

@@ -21,14 +21,11 @@ amesos2_SOURCES = \
   N_LAS_Amesos2Solver.h
 endif
 
-if BUILD_KSPARSE
-MAYBE_KSPARSE=ksparse
 ksparse_SOURCES = \
   N_LAS_KSparseSolver.C \
   N_LAS_KSparseSolver.h 
-endif
 
-SUBDIRS=$(MAYBE_KSPARSE)
+SUBDIRS=ksparse
 
 libLinearAlgebraServices_la_SOURCES = \
   $(belos_SOURCES) \
@@ -109,6 +106,4 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_TrilinosPrecondFactory.h \
   N_LAS_Util.h
 
-if BUILD_KSPARSE
 libLinearAlgebraServices_la_LIBADD=ksparse/libksparse.la
-endif

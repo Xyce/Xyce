@@ -164,7 +164,6 @@ XYCE_DEBUG_OPTION(verbose_nox,no,[verbosity in NOX nonlinear solver library])
 XYCE_DEBUG_OPTION(verbose_linear,no,[verbosity in linear solver])
 XYCE_DEBUG_OPTION(spice_norms,yes,[using SPICE type norms])
 XYCE_DEBUG_OPTION(bsim3_const,no,[using constants from BSIM3 instead of more precise constants consistent with other devices],Xyce_USE_BSIM3_CONST)
-XYCE_DEBUG_OPTION(nox_use_vector_copy,yes,[using vector copies in NOX])
 
 dnl optionally compile in support for rad models if the directory is there and
 dnl the user hasn't specified disable-radmodels
@@ -281,10 +280,6 @@ dnl optionally compile in support for SuperLU and UmfPack.
 XYCE_DEBUG_OPTION(superlu,no,[SuperLU direct solver],Xyce_SUPERLU,SUPERLU)
 XYCE_DEBUG_OPTION(pardiso_mkl,no,[Pardiso direct solver (through MKL)],Xyce_PARDISO_MKL,PARDISO_MKL)
 
-dnl optionally compile in ksparse solver
-XYCE_DEBUG_OPTION(ksparse,yes,[Kundert's Sparse direct solver],Xyce_KSPARSE,USE_KSPARSE)
-AM_CONDITIONAL(BUILD_KSPARSE, test "x$USE_KSPARSE" = "xyes")
-
 dnl optionally compile in support for Belos (as of Xyce 6.0, this is "yes" by default)
 XYCE_DEBUG_OPTION(belos,yes,[Belos iterative solver support],Xyce_BELOS, USE_BELOS)
 AM_CONDITIONAL(BUILD_BELOS_SUPPORT, test "x$USE_BELOS" = "xyes")
@@ -399,7 +394,7 @@ if test "$REACTION_PARSER" = "yes"; then
  # to time.  We therefore enumerate actual versions of Bison our interface
  # is *known* to work with and against which Xyce has been tested. 
  AC_PROG_LEX
- XYCE_CHECK_BISON([3.3, 3.2, 3.1, 3.0, 2.7, 2.6, 2.5, 2.4], , [BISON=no])
+ XYCE_CHECK_BISON([3.4, 3.3, 3.2, 3.1, 3.0, 2.7, 2.6, 2.5, 2.4], , [BISON=no])
  if test `basename $LEX` = "flex";
  then
     AC_DEFINE(HAVE_FLEX,1,[define if you have the flex lexical scanner generator])
@@ -708,13 +703,6 @@ if test "x$USE_NOX_MAKEFILE" = "xno"; then
 fi
 CPPFLAGS="-DXyce_NOX_LOCA_SUPPORT $CPPFLAGS"
 
-dnl Check if NOX is using NOX::size_type or int as the return value for Vector::length()
-USING_NOX_SIZETYPE=no
-XYCE_TEST_USING_NOXSIZETYPE
-if test "$USING_NOX_SIZETYPE" != "no"; then
-  CPPFLAGS="-DXyce_NOX_SIZETYPE $CPPFLAGS"
-fi
-
 dnl Check if NOX generic solver interface has getSolverStatistics() method
 USING_NOX_SOLVERSTATS=no
 XYCE_TEST_USING_NOXSOLVERSTATS
@@ -956,16 +944,12 @@ dnl This makes @Xyce_INCS@ be replaced with the full string of -I's needed
 dnl for all packages to compile without problem.
 dnl It is used by setting "INCLUDES = @Xyce_INCS@" in the Makefile.am for
 dnl a package.
-default_INCS="$default_INCS -I\$(top_srcdir)/src/AnalysisPKG -I\$(top_srcdir)/src/CircuitPKG -I\$(top_srcdir)/src/IOInterfacePKG -I\$(top_srcdir)/src/IOInterfacePKG/Output -I\$(top_srcdir)/src/DeviceModelPKG/Core -I\$(top_srcdir)/src/DeviceModelPKG/OpenModels -I\$(top_srcdir)/src/DeviceModelPKG/TCADModels -I\$(top_srcdir)/src/DeviceModelPKG/IBISModels -I\$(top_srcdir)/src/DeviceModelPKG/EXTSC -I\$(top_srcdir)/src/DeviceModelPKG/NeuronModels -I\$(top_srcdir)/src/DeviceModelPKG/ADMS -I\$(top_srcdir)/src/ErrorHandlingPKG -I\$(top_srcdir)/src/LinearAlgebraServicesPKG -I\$(top_srcdir)/src/LoaderServicesPKG -I\$(top_srcdir)/src/NonlinearSolverPKG -I\$(top_srcdir)/src/ParallelDistPKG -I\$(top_srcdir)/src/TimeIntegrationPKG -I\$(top_srcdir)/src/TopoManagerPKG -I\$(top_srcdir)/src/UtilityPKG -I\$(top_srcdir)/src/MultiTimePDEPKG -I\$(top_srcdir)/src/DakotaLinkPKG -I\$(top_srcdir)/utils/XyceCInterface -I\$(top_builddir)/src"
+default_INCS="$default_INCS -I\$(top_srcdir)/src/AnalysisPKG -I\$(top_srcdir)/src/CircuitPKG -I\$(top_srcdir)/src/IOInterfacePKG -I\$(top_srcdir)/src/IOInterfacePKG/Output -I\$(top_srcdir)/src/DeviceModelPKG/Core -I\$(top_srcdir)/src/DeviceModelPKG/OpenModels -I\$(top_srcdir)/src/DeviceModelPKG/TCADModels -I\$(top_srcdir)/src/DeviceModelPKG/IBISModels -I\$(top_srcdir)/src/DeviceModelPKG/EXTSC -I\$(top_srcdir)/src/DeviceModelPKG/NeuronModels -I\$(top_srcdir)/src/DeviceModelPKG/ADMS -I\$(top_srcdir)/src/ErrorHandlingPKG -I\$(top_srcdir)/src/LinearAlgebraServicesPKG -I\$(top_srcdir)/src/LoaderServicesPKG -I\$(top_srcdir)/src/NonlinearSolverPKG -I\$(top_srcdir)/src/ParallelDistPKG -I\$(top_srcdir)/src/TimeIntegrationPKG -I\$(top_srcdir)/src/TopoManagerPKG -I\$(top_srcdir)/src/UtilityPKG -I\$(top_srcdir)/src/MultiTimePDEPKG -I\$(top_srcdir)/src/DakotaLinkPKG -I\$(top_srcdir)/utils/XyceCInterface -I\$(top_builddir)/src -I\$(top_srcdir)/src/LinearAlgebraServicesPKG/ksparse"
 if test "x$RAD_MODELS" = "xyes"; then
   default_INCS="$default_INCS -I\$(top_srcdir)/src/DeviceModelPKG/SandiaModels"
 fi
 if test "x$NONFREE_MODELS" = "xyes"; then
   default_INCS="$default_INCS -I\$(top_srcdir)/src/DeviceModelPKG/Xyce_NonFree"
-fi
-
-if test "x$USE_KSPARSE" = "xyes"; then
-  default_INCS="$default_INCS -I\$(top_srcdir)/src/LinearAlgebraServicesPKG/ksparse"
 fi
 if test "x$MODSPEC_MODELS" = "xyes"; then
    default_INCS="$default_INCS -I\$(top_srcdir)/src/DeviceModelPKG/BERKELEY/include -I\$(top_srcdir)/src/DeviceModelPKG/BERKELEY/Xyce_ModSpec_Interface/include"

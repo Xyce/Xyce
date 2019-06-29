@@ -13,7 +13,8 @@
 %%%
 
 Calculates the the small signal noise response of a circuit over a range of frequencies.
-The .NOISE command can specify a linear sweep, decade logarithmic sweep, or octave logarithmic sweep.
+The .NOISE command can specify a linear sweep, decade logarithmic sweep, octave
+logarithmic sweep, or a data table of multivariate values.
 
 \begin{Command}
 
@@ -28,6 +29,7 @@ The .NOISE command can specify a linear sweep, decade logarithmic sweep, or octa
   .NOISE V(5) VIN LIN 101 100Hz 200Hz
   .NOISE V(5,3) V1 OCT 10 1kHz 16kHz
   .NOISE V(4) V2 DEC 20 1MEG 100MEG
+  .NOISE V(4) V2 DATA=<table name>
 \end{alltt}
 
 \arguments
@@ -56,6 +58,12 @@ The sweep variable is swept logarithmically by octaves.
 \item[\tt DEC] Sweep by decades\\
 The sweep variable is swept logarithmically by decades.
 
+\item[\tt DATA] Sweep values from a table\\
+Sweep variables are applied based on the rows of a data table.  This format
+allows magnitude and phase to be swept in addition to frequency.  If using
+this format, then the \texttt{V(OUTPUT <,REF>)} and \texttt{SRC} arguments
+are still needed on the \texttt{.NOISE} line.
+
 \end{description}
 
 \argument{points value}
@@ -73,6 +81,20 @@ least one point.
 
 Noise analysis is a linear analysis. The simulator calculates the noise
 response by linearizing the circuit around the bias point.
+
+If specifying the sweep points using the \texttt{DATA} type, one can also
+sweep the magnitude and phase of an AC source, as well as the values of
+linear model parameters.  However, unlike the use of \texttt{DATA} for
+\texttt{.STEP} and \texttt{.DC}, it is not possible to sweep nonlinear device
+parameters.  This is because changing other nonlinear device parameters would
+alter the correct DCOP solution, and the NOISE sweep happens after the DCOP
+calculation in the analysis flow.  To sweep a nonlinear device parameter on
+a NOISE problem, add a \texttt{.STEP} command to the netlist to provide an
+outer parametric sweep around the analysis.
+
+If \texttt{.DATA} is used with \texttt{.NOISE} then the integrals for the total
+input noise and total output noise will only be calculated, and sent to stdout,
+if the frequencies in the data table are monotonically increasing.
 
 \index{\texttt{.PRINT}}\index{results!print}\index{\texttt{.PRINT}!\texttt{NOISE}}
 A \texttt{.PRINT NOISE} must be used to get the results of the NOISE sweep

@@ -720,6 +720,12 @@ bool AC::doInit()
 
     Parallel::AllReduce(comm, MPI_SUM, &len, &numPorts_, 1); 
   
+    if (myPID == 0)
+    {
+      if ( numPorts_ ==  0 )
+        Report::UserFatal() << "No port device is found for S parameter analysis";
+    }
+
     portPID_.assign(numPorts_, -1);
 
     Z0sVec_.assign(numPorts_, 0);

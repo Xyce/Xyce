@@ -28,6 +28,7 @@ and format.
   \color{white}\bf Description \endhead
 AC & STD & 1, 3, 4, 11, 12, 13 \\ \hline
 AC & GNUPLOT & 1, 3, 4, 11, 12, 13, 20 \\ \hline
+AC & SPLOT & 1, 3, 4, 11, 12, 13, 21 \\ \hline
 AC & CSV & 4, 11 \\ \hline
 AC & PROBE & 16 \\ \hline
 AC & TECPLOT & 4, 12, 13, 18 \\ \hline
@@ -35,6 +36,7 @@ AC & RAW & 19 \\ \hline
 AC & RAW (Xyce -a) & 19 \\ \hline
 AC\_IC & STD & 1, 4, 11, 12, 13 \\ \hline
 AC\_IC & GNUPLOT & 1, 4, 11, 12, 13, 20 \\ \hline
+AC\_IC & SPLOT & 1, 4, 11, 12, 13, 21 \\ \hline
 AC\_IC & CSV & 4, 11 \\ \hline
 AC\_IC & PROBE & 16 \\ \hline
 AC\_IC & TECPLOT & 12, 13, 18 \\ \hline
@@ -42,6 +44,7 @@ AC\_IC & RAW & 19 \\ \hline
 AC\_IC & RAW (Xyce -a) & 19 \\ \hline
 DC & STD & 1, 11, 12 \\ \hline
 DC & GNUPLOT & 1, 11, 12, 20 \\ \hline
+DC & SPLOT & 1, 11, 12, 21 \\ \hline
 DC & CSV & 11 \\ \hline
 DC & PROBE & 17 \\ \hline
 DC & TECPLOT & 4, 12, 13, 18 \\ \hline
@@ -49,22 +52,27 @@ DC & RAW & 19 \\ \hline
 DC & RAW (Xyce -a) & 19 \\ \hline
 HB\_TD & STD & 1, 2, 4, 11, 12, 13 \\ \hline
 HB\_TD & GNUPLOT & 1, 2, 4, 11, 12, 13, 20 \\ \hline
+HB\_TD & SPLOT & 1, 2, 4, 11, 12, 13, 21 \\ \hline
 HB\_TD & CSV & 11 \\ \hline
 HB\_TD & TECPLOT & 12, 13, 18 \\ \hline
 HB\_FD & STD & 1, 3, 4, 11, 12, 13 \\ \hline
 HB\_FD & GNUPLOT & 1, 3, 4, 11, 12, 13, 20 \\ \hline
+HB\_FD & SPLOT & 1, 3, 4, 11, 12, 13, 21 \\ \hline
 HB\_FD & CSV & 4, 11 \\ \hline
 HB\_FD & TECPLOT & 4, 12, 13, 18 \\ \hline
 HB\_IC & STD & 1, 2, 4, 11, 12, 13 \\ \hline
 HB\_IC & GNUPLOT & 1, 2, 4, 11, 12, 13, 20 \\ \hline
+HB\_IC & SPLOT & 1, 2, 4, 11, 12, 13, 21 \\ \hline
 HB\_IC & CSV & 11 \\ \hline
 HB\_IC & TECPLOT & 12, 13, 18 \\ \hline
 HB\_STARTUP & STD & 1, 2, 4, 11, 12, 13 \\ \hline
 HB\_STARTUP & GNUPLOT & 1, 2, 4, 11, 12, 13, 20 \\ \hline
+HB\_STARTUP & SPLOT & 1, 2, 4, 11, 12, 13, 21 \\ \hline
 HB\_STARTUP & CSV & 11 \\ \hline
 HB\_STARTUP & TECPLOT & 12, 13, 18 \\ \hline
 TRAN & STD & 1, 2, 11, 12 \\ \hline
 TRAN & GNUPLOT & 1, 2, 11, 12, 20 \\ \hline
+TRAN & SPLOT & 1, 2, 11, 12, 21 \\ \hline
 TRAN & CSV & 2, 11 \\ \hline
 TRAN & PROBE & 17 \\ \hline
 TRAN & TECPLOT & 2, 4, 12, 13, 18 \\ \hline
@@ -73,11 +81,13 @@ TRAN & RAW (Xyce -a) & 2, 19 \\ \hline
 \multicolumn{3}{c}{\smallskip\color{XyceDarkBlue}\em\bfseries Specialized Output Commands} \\
 HOMOTOPY & STD & 1, 2, 4, 11, 15 \\ \hline
 HOMOTOPY & GNUPLOT & 1, 2, 4, 11, 15, 20 \\ \hline
+HOMOTOPY & SPLOT & 1, 2, 4, 11, 15, 21 \\ \hline
 HOMOTOPY & CSV & 2, 11 \\ \hline
 HOMOTOPY & PROBE & 17 \\ \hline
 HOMOTOPY & TECPLOT & 2, 4, 15, 18 \\ \hline
 SENSITIVITY & STD & 1, 2, 11, 14 \\ \hline
 SENSITIVITY & GNUPLOT & 1, 2, 11, 14, 20 \\ \hline
+SENSITIVITY & SPLOT & 1, 2, 11, 14, 21 \\ \hline
 SENSITIVITY & CSV & 2, 11 \\ \hline
 SENSITIVITY & TECPLOT & 2, 14, 18 \\ \hline
 \end{longtable}
@@ -106,6 +116,8 @@ SENSITIVITY & TECPLOT & 2, 14, 18 \\ \hline
 18 & New ZONE for each .STEP, and AUXDATA for each .STEP parameter \\
 19 & Prints 'Plotname: Step Analysis: Step $s$ of $n$ params' at the start of each .STEP \\
 20 & Inserts two blank lines before the data for steps 1,2,3,... where 
+     the first step is step 0 \\
+21 & Inserts one blank line before the data for steps 1,2,3,... where
      the first step is step 0 \\
 \end{longtable}
 }

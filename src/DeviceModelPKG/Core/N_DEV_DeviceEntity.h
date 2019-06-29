@@ -87,6 +87,12 @@ struct Depend
   int                         n_vars, lo_var; 
   bool                     storeOriginal;    ///< true if original value stored
   int                      serialNumber;     ///< used if original value stored
+
+  // Constructor
+  Depend()
+    : vectorIndex(-1), n_vars(0), lo_var(0)
+  {};
+
 };
 
 //-----------------------------------------------------------------------------
