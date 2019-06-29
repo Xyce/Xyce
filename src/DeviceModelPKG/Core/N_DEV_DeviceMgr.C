@@ -2559,31 +2559,33 @@ bool DeviceMgr::updateDependentParameters_()
   bool bsuccess = true;
   Linear::Vector * solVectorPtr = externData_.nextSolVectorPtr;
 
-  GlobalParameterMap & gp = globals_.global_params;
-  std::vector<Util::Expression> & ge = globals_.global_expressions;
+  GlobalParameterMap & globalParamMap = globals_.global_params;
+  std::vector<Util::Expression> & globalExpressionsVec = globals_.global_expressions;
 
   if (timeParamsProcessed_ != solState_.currTime_)
     parameterChanged_ = true;
 
   // Update global params for new time and other global params
   int pos = 0;
-  for (std::vector<Util::Expression>::iterator g_i = ge.begin(), g_end = ge.end();
-      g_i != g_end; ++g_i)
+  std::vector<Util::Expression>::iterator globalExprIter = globalExpressionsVec.begin(); 
+  std::vector<Util::Expression>::iterator globalExprEnd  = globalExpressionsVec.end();
+  for ( ; globalExprIter != globalExprEnd; ++globalExprIter)
   {
     bool changed = false;
-    if (g_i->set_sim_time(solState_.currTime_))
+    if (globalExprIter->set_sim_time(solState_.currTime_))
       changed = true;
-    if (g_i->set_sim_freq(solState_.currFreq_))
+    if (globalExprIter->set_sim_freq(solState_.currFreq_))
       changed = true;
-    if (g_i->set_temp(getDeviceOptions().temp.getImmutableValue<double>()))
+    if (globalExprIter->set_temp(getDeviceOptions().temp.getImmutableValue<double>()))
       changed = true;
 
-    std::vector<std::string> variables;
-    g_i->get_names(XEXP_VARIABLE, variables);
-    for (std::vector<std::string>::iterator vs_i = variables.begin(), vs_end = variables.end();
-        vs_i != vs_end; ++vs_i)
+    std::vector<std::string> geVariables;
+    globalExprIter->get_names(XEXP_VARIABLE, geVariables);
+    std::vector<std::string>::iterator vsIter = geVariables.begin(); 
+    std::vector<std::string>::iterator vs_end = geVariables.end();
+    for ( ; vsIter != vs_end; ++vsIter)
     {
-      if (g_i->set_var(*vs_i, gp[*vs_i]))
+      if (globalExprIter->set_var(*vsIter, globalParamMap[*vsIter]))
         changed = true;
     }
 
@@ -2592,8 +2594,8 @@ bool DeviceMgr::updateDependentParameters_()
       double val;
 
       parameterChanged_ = true;
-      g_i->evaluateFunction(val);
-      gp[globals_.global_exp_names[pos]] = val;
+      globalExprIter->evaluateFunction(val);
+      globalParamMap[globals_.global_exp_names[pos]] = val;
     }
     ++pos;
   }
@@ -2613,7 +2615,7 @@ bool DeviceMgr::updateDependentParameters_()
       if (!(*iterM)->getDependentParams().empty())
       {
         dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iterM));
-        bool tmpBool = (*iterM)->updateGlobalParameters(gp);
+        bool tmpBool = (*iterM)->updateGlobalParameters(globalParamMap);
         bsuccess = bsuccess && tmpBool;
         tmpBool = (*iterM)->updateDependentParameters (*solVectorPtr,tmpBool);
         bsuccess = bsuccess && tmpBool;
@@ -2631,7 +2633,7 @@ bool DeviceMgr::updateDependentParameters_()
       if (!(*iter)->getDependentParams().empty())
       {
         dependentPtrVec_.push_back(static_cast<DeviceEntity *>(*iter));
-        bool tmpBool = (*iter)->updateGlobalParameters(gp);
+        bool tmpBool = (*iter)->updateGlobalParameters(globalParamMap);
         bsuccess = bsuccess && tmpBool;
         tmpBool = (*iter)->updateDependentParameters (*solVectorPtr,tmpBool);
         bsuccess = bsuccess && tmpBool;
@@ -2649,7 +2651,7 @@ bool DeviceMgr::updateDependentParameters_()
       bool changed = false;
       if (parameterChanged_)
       {
-        bool tmpBool = (*iter)->updateGlobalParameters(gp);
+        bool tmpBool = (*iter)->updateGlobalParameters(globalParamMap);
         changed = changed || tmpBool;
         bsuccess = bsuccess && tmpBool;
       }
