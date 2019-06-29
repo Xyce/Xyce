@@ -682,7 +682,7 @@ int Expression::num_vars() const
 //-----------------------------------------------------------------------------
 bool Expression::isTimeDependent() const
 {
-  bool implicitTimeDep = expPtr_->isTimeDepedent();
+  bool implicitTimeDep = expPtr_->isImplicitTimeDepedent();
   bool explicitTimeDep = false;
   std::vector<std::string> specials;
   expPtr_->get_names(XEXP_SPECIAL, specials);
