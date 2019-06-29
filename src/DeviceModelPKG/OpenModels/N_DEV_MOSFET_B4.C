@@ -5084,34 +5084,9 @@ Instance::Instance(
     ggts(0.0),
     gcgbb(0.0),
     ggtb(0.0),
-    gcgmgmb(0.0),
-    gcgmdb(0.0),
-    gcgmsb(0.0),
-    gcgmbb(0.0),
-    gcdgmb(0.0),
-    gcsgmb(0.0),
-    gcbgmb(0.0),
-    gcddb(0.0),
     dxpart(0.0),
-    gcdgb(0.0),
-    gcdsb(0.0),
-    gcdbb(0.0),
-    gcsdb(0.0),
     sxpart(0.0),
-    gcsgb(0.0),
-    gcssb(0.0),
-    gcsbb(0.0),
-    gcbdb(0.0),
-    gcbgb(0.0),
-    gcbsb(0.0),
-    gcbbb(0.0),
-    gcdbdb(0.0),
-    gcsbsb(0.0),
     gqdef(0.0),
-    gcqgb(0.0),
-    gcqdb(0.0),
-    gcqsb(0.0),
-    gcqbb(0.0),
     ddxpart_dVd(0.0),
     ddxpart_dVg(0.0),
     ddxpart_dVb(0.0),
@@ -14059,24 +14034,6 @@ bool Instance::setupCapacitors_oldDAE ()
       qdrn -= qgdo;
       if (rgateMod == 3)
       {
-        gcgmgmb = (cgdo + cgso + paramPtr->cgbo) * ag0;
-        gcgmdb = -cgdo * ag0;
-        gcgmsb = -cgso * ag0;
-        gcgmbb = -paramPtr->cgbo * ag0;
-
-        gcdgmb = gcgmdb;
-        gcsgmb = gcgmsb;
-        gcbgmb = gcgmbb;
-
-        gcggb = cggb * ag0;
-        gcgdb = cgdb * ag0;
-        gcgsb = cgsb * ag0;
-        gcgbb = -(gcggb + gcgdb + gcgsb);
-
-        gcdgb = cdgb * ag0;
-        gcsgb = -(cggb + cbgb + cdgb) * ag0;
-        gcbgb = cbgb * ag0;
-
         qgmb = paramPtr->cgbo * vgmb;
         qgmid = qgdo + qgso + qgmb;
         qbulk -= qgmb;
@@ -14084,47 +14041,11 @@ bool Instance::setupCapacitors_oldDAE ()
       }
       else
       {
-        gcggb = (cggb + cgdo + cgso + paramPtr->cgbo ) * ag0;
-        gcgdb = (cgdb - cgdo) * ag0;
-        gcgsb = (cgsb - cgso) * ag0;
-        gcgbb = -(gcggb + gcgdb + gcgsb);
-
-        gcdgb = (cdgb - cgdo) * ag0;
-        gcsgb = -(cggb + cbgb + cdgb + cgso) * ag0;
-        gcbgb = (cbgb - paramPtr->cgbo) * ag0;
-
-        gcdgmb = gcsgmb = gcbgmb = 0.0;
-
         qgb = paramPtr->cgbo * vgb;
         qgate += qgdo + qgso + qgb;
         qbulk -= qgb;
         qsrc = -(qgate + qbulk + qdrn);
       }
-      gcddb = (cddb + capbd + cgdo) * ag0;
-      gcdsb = cdsb * ag0;
-
-      gcsdb = -(cgdb + cbdb + cddb) * ag0;
-      gcssb = (capbs + cgso - (cgsb + cbsb + cdsb)) * ag0;
-
-      if (!rbodyMod)
-      {
-        gcdbb = -(gcdgb + gcddb + gcdsb + gcdgmb);
-        gcsbb = -(gcsgb + gcsdb + gcssb + gcsgmb);
-        gcbdb = (cbdb - capbd) * ag0;
-        gcbsb = (cbsb - capbs) * ag0;
-        gcdbdb = 0.0; gcsbsb = 0.0;
-      }
-      else
-      {
-        gcdbb  = -(cddb + cdgb + cdsb) * ag0;
-        gcsbb = -(gcsgb + gcsdb + gcssb + gcsgmb) + capbs * ag0;
-        gcbdb = cbdb * ag0;
-        gcbsb = cbsb * ag0;
-
-        gcdbdb = -capbd * ag0;
-        gcsbsb = -capbs * ag0;
-      }
-      gcbbb = -(gcbdb + gcbgb + gcbsb + gcbgmb);
 
       ggtg = ggtd = ggtb = ggts = 0.0;
       sxpart = 0.6;
@@ -14144,11 +14065,6 @@ bool Instance::setupCapacitors_oldDAE ()
       ggts = gts = T0 * gcrgs;
       ggtb = gtb = T0 * gcrgb;
       gqdef = ScalingFactor * ag0;
-
-      gcqgb = cqgb * ag0;
-      gcqdb = cqdb * ag0;
-      gcqsb = cqsb * ag0;
-      gcqbb = cqbb * ag0;
 
       if (fabs(qcheq) <= 1.0e-5 * CoxWL)
       {
@@ -14194,18 +14110,6 @@ bool Instance::setupCapacitors_oldDAE ()
 
       if (rgateMod == 3)
       {
-        gcgmgmb = (cgdo + cgso + paramPtr->cgbo) * ag0;
-        gcgmdb = -cgdo * ag0;
-        gcgmsb = -cgso * ag0;
-        gcgmbb = -paramPtr->cgbo * ag0;
-
-        gcdgmb = gcgmdb;
-        gcsgmb = gcgmsb;
-        gcbgmb = gcgmbb;
-
-        gcdgb = gcsgb = gcbgb = 0.0;
-        gcggb = gcgdb = gcgsb = gcgbb = 0.0;
-
         qgmb = paramPtr->cgbo * vgmb;
         qgmid = qgdo + qgso + qgmb;
         qgate = 0.0;
@@ -14215,42 +14119,12 @@ bool Instance::setupCapacitors_oldDAE ()
       }
       else
       {
-        gcggb = (cgdo + cgso + paramPtr->cgbo ) * ag0;
-        gcgdb = -cgdo * ag0;
-        gcgsb = -cgso * ag0;
-        gcgbb = -paramPtr->cgbo * ag0;
-
-        gcdgb = gcgdb;
-        gcsgb = gcgsb;
-        gcbgb = gcgbb;
-        gcdgmb = gcsgmb = gcbgmb = 0.0;
-
         qgb = paramPtr->cgbo * vgb;
         qgate = qgdo + qgso + qgb;
         qbulk = -qgb;
         qdrn = -qgdo;
         qsrc = -(qgate + qbulk + qdrn);
       }
-
-      gcddb = (capbd + cgdo) * ag0;
-      gcdsb = gcsdb = 0.0;
-      gcssb = (capbs + cgso) * ag0;
-
-      if (!rbodyMod)
-      {
-        gcdbb = -(gcdgb + gcddb + gcdgmb);
-        gcsbb = -(gcsgb + gcssb + gcsgmb);
-        gcbdb = -capbd * ag0;
-        gcbsb = -capbs * ag0;
-        gcdbdb = 0.0; gcsbsb = 0.0;
-      }
-      else
-      {
-        gcdbb = gcsbb = gcbdb = gcbsb = 0.0;
-        gcdbdb = -capbd * ag0;
-        gcsbsb = -capbs * ag0;
-      }
-      gcbbb = -(gcbdb + gcbgb + gcbsb + gcbgmb);
     }
   }
   else
@@ -14260,24 +14134,6 @@ bool Instance::setupCapacitors_oldDAE ()
       qsrc = qdrn - qgso;
       if (rgateMod == 3)
       {
-        gcgmgmb = (cgdo + cgso + paramPtr->cgbo) * ag0;
-        gcgmdb = -cgdo * ag0;
-        gcgmsb = -cgso * ag0;
-        gcgmbb = -paramPtr->cgbo * ag0;
-
-        gcdgmb = gcgmdb;
-        gcsgmb = gcgmsb;
-        gcbgmb = gcgmbb;
-
-        gcggb = cggb * ag0;
-        gcgdb = cgsb * ag0;
-        gcgsb = cgdb * ag0;
-        gcgbb = -(gcggb + gcgdb + gcgsb);
-
-        gcdgb = -(cggb + cbgb + cdgb) * ag0;
-        gcsgb = cdgb * ag0;
-        gcbgb = cbgb * ag0;
-
         qgmb = paramPtr->cgbo * vgmb;
         qgmid = qgdo + qgso + qgmb;
         qbulk -= qgmb;
@@ -14285,46 +14141,11 @@ bool Instance::setupCapacitors_oldDAE ()
       }
       else
       {
-        gcggb = (cggb + cgdo + cgso + paramPtr->cgbo ) * ag0;
-        gcgdb = (cgsb - cgdo) * ag0;
-        gcgsb = (cgdb - cgso) * ag0;
-        gcgbb = -(gcggb + gcgdb + gcgsb);
-
-        gcdgb = -(cggb + cbgb + cdgb + cgdo) * ag0;
-        gcsgb = (cdgb - cgso) * ag0;
-        gcbgb = (cbgb - paramPtr->cgbo) * ag0;
-
-        gcdgmb = gcsgmb = gcbgmb = 0.0;
-
         qgb = paramPtr->cgbo * vgb;
         qgate += qgdo + qgso + qgb;
         qbulk -= qgb;
         qdrn = -(qgate + qbulk + qsrc);
       }
-      gcddb = (capbd + cgdo - (cgsb + cbsb + cdsb)) * ag0;
-      gcdsb = -(cgdb + cbdb + cddb) * ag0;
-
-      gcsdb = cdsb * ag0;
-      gcssb = (cddb + capbs + cgso) * ag0;
-
-      if (!rbodyMod)
-      {
-        gcdbb = -(gcdgb + gcddb + gcdsb + gcdgmb);
-        gcsbb = -(gcsgb + gcsdb + gcssb + gcsgmb);
-        gcbdb = (cbsb - capbd) * ag0;
-        gcbsb = (cbdb - capbs) * ag0;
-        gcdbdb = 0.0; gcsbsb = 0.0;
-      }
-      else
-      {
-        gcdbb = -(gcdgb + gcddb + gcdsb + gcdgmb) + capbd * ag0;
-        gcsbb = -(cddb + cdgb + cdsb) * ag0;
-        gcbdb = cbsb * ag0;
-        gcbsb = cbdb * ag0;
-        gcdbdb = -capbd * ag0;
-        gcsbsb = -capbs * ag0;
-      }
-      gcbbb = -(gcbgb + gcbdb + gcbsb + gcbgmb);
 
       ggtg = ggtd = ggtb = ggts = 0.0;
       sxpart = 0.4;
@@ -14342,12 +14163,6 @@ bool Instance::setupCapacitors_oldDAE ()
       ggts = gts = T0 * gcrgd;
       ggtd = gtd = T0 * gcrgs;
       ggtb = gtb = T0 * gcrgb;
-      gqdef = ScalingFactor * ag0;
-
-      gcqgb = cqgb * ag0;
-      gcqdb = cqsb * ag0;
-      gcqsb = cqdb * ag0;
-      gcqbb = cqbb * ag0;
 
       if (fabs(qcheq) <= 1.0e-5 * CoxWL)
       {
@@ -14392,18 +14207,6 @@ bool Instance::setupCapacitors_oldDAE ()
 
       if (rgateMod == 3)
       {
-        gcgmgmb = (cgdo + cgso + paramPtr->cgbo) * ag0;
-        gcgmdb = -cgdo * ag0;
-        gcgmsb = -cgso * ag0;
-        gcgmbb = -paramPtr->cgbo * ag0;
-
-        gcdgmb = gcgmdb;
-        gcsgmb = gcgmsb;
-        gcbgmb = gcgmbb;
-
-        gcdgb = gcsgb = gcbgb = 0.0;
-        gcggb = gcgdb = gcgsb = gcgbb = 0.0;
-
         qgmb = paramPtr->cgbo * vgmb;
         qgmid = qgdo + qgso + qgmb;
         qgate = 0.0;
@@ -14413,41 +14216,12 @@ bool Instance::setupCapacitors_oldDAE ()
       }
       else
       {
-        gcggb = (cgdo + cgso + paramPtr->cgbo ) * ag0;
-        gcgdb = -cgdo * ag0;
-        gcgsb = -cgso * ag0;
-        gcgbb = -paramPtr->cgbo * ag0;
-
-        gcdgb = gcgdb;
-        gcsgb = gcgsb;
-        gcbgb = gcgbb;
-        gcdgmb = gcsgmb = gcbgmb = 0.0;
-
         qgb = paramPtr->cgbo * vgb;
         qgate = qgdo + qgso + qgb;
         qbulk = -qgb;
         qdrn = -qgdo;
         qsrc = -qgso;
       }
-
-      gcddb = (capbd + cgdo) * ag0;
-      gcdsb = gcsdb = 0.0;
-      gcssb = (capbs + cgso) * ag0;
-      if (!rbodyMod)
-      {
-        gcdbb = -(gcdgb + gcddb + gcdgmb);
-        gcsbb = -(gcsgb + gcssb + gcsgmb);
-        gcbdb = -capbd * ag0;
-        gcbsb = -capbs * ag0;
-        gcdbdb = 0.0; gcsbsb = 0.0;
-      }
-      else
-      {
-        gcdbb = gcsbb = gcbdb = gcbsb = 0.0;
-        gcdbdb = -capbd * ag0;
-        gcsbsb = -capbs * ag0;
-      }
-      gcbbb = -(gcbdb + gcbgb + gcbsb + gcbgmb);
     }
   }
 
