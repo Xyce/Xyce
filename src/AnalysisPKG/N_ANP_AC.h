@@ -152,9 +152,6 @@ protected:
   {}
 
 private:
-
-  void ytos(Teuchos::SerialDenseMatrix<int, std::complex<double> > &y, Teuchos::SerialDenseMatrix<int, std::complex<double> > &s, std::vector<double> & Z0sVec);
-
   int setupSweepParam_();
 
   bool updateDataParams_(int stepNumber);
