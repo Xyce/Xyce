@@ -35,6 +35,13 @@
 
 \textbf{xxx-SON}: place holder title &
 place holder description  \\ \hline
+
+\textbf{1202-SON}: Fix segfaults caused by using .LIN SPARCALC=1 in a netlist
+without any port (P) devices & The use of a \texttt{.LIN} line with the
+parameter \texttt{SPARCALC} set to 1 in a netlist that requested a \texttt{.AC}
+analysis without any valid port (P) devices in the netlist would cause
+\Xyce{} to segfault. \\ \hline
+
 \textbf{1198-SON}: Binning doesn't work for BSIM6 and other models in the ADMS directory &
 Binning (the kind enabled by \texttt{.options parser
 model\_binning=true} did not work properly for several MOSFET models
