@@ -767,9 +767,9 @@ bool AC::doInit()
     }
 
     Yparams_.shape(numPorts_, numPorts_);
-
-    Sparams_.shape(numPorts_, numPorts_ );
-
+    Sparams_.shape(numPorts_, numPorts_);
+    Zparams_.shape(numPorts_, numPorts_);
+    Hparams_.shape(numPorts_, numPorts_);
   }
 
 
@@ -1878,7 +1878,7 @@ bool AC::doProcessSuccessfulStep()
   else
   {
     Util::ytos(Yparams_, Sparams_, Z0sVec_ );
-    
+    Util::ytoz(Yparams_, Zparams_);
 
     // acLoopSize_ is the total number of frequency points in the analyses
     outputManagerAdapter_.outputSParams(currentFreq_, acLoopSize_, Z0sVec_, Sparams_);

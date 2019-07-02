@@ -227,7 +227,9 @@ private:
 
   // Y and S parameters 
   Teuchos::SerialDenseMatrix<int, std::complex<double> > Yparams_;     
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > Sparams_; 
+  Teuchos::SerialDenseMatrix<int, std::complex<double> > Sparams_;
+  Teuchos::SerialDenseMatrix<int, std::complex<double> > Zparams_;
+  Teuchos::SerialDenseMatrix<int, std::complex<double> > Hparams_;
 
   std::vector<int> bMatEntriesVec_, portNumVec_;
 

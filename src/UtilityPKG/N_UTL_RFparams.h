@@ -43,6 +43,12 @@ void ytos(const Teuchos::SerialDenseMatrix<int, std::complex<double> > &y,
           Teuchos::SerialDenseMatrix<int, std::complex<double> > &s,
           const std::vector<double> & Z0sVec);
 
+void ytoz(const Teuchos::SerialDenseMatrix<int, std::complex<double> > &y,
+          Teuchos::SerialDenseMatrix<int, std::complex<double> > &z);
+
+void ztoy(const Teuchos::SerialDenseMatrix<int, std::complex<double> > &z,
+          Teuchos::SerialDenseMatrix<int, std::complex<double> > &y);
+
 } // namespace Util
 } // namespace Xyce
 

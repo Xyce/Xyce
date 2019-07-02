@@ -28,11 +28,11 @@ namespace Util {
 
 //-----------------------------------------------------------------------------
 // Function      : Util::ytos
-// Purpose       : convert a Y Matrix into a S matrix with same Z0
+// Purpose       : convert a Y Matrix into an S matrix with same Z0
 // Special Notes :
 // Scope         : public
-// Creator       : Cacciatori Alessio, Cover Sistemi srl
-// Creation Date : 11/02/2015
+// Creator       : Pete Sholander
+// Creation Date : 7/01/2019
 //-----------------------------------------------------------------------------
 void ytos(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& y,
           Teuchos::SerialDenseMatrix<int, std::complex<double> >& s,
@@ -79,6 +79,46 @@ void ytos(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& y,
   // t3 = Gref * (1 - Zref * Ymat)*(1 + Zref * Ymat)^-1
   s.putScalar(0.0);
   s.multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, t3, GrefInv, 1.0);
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Util::ytoz
+// Purpose       : convert a Y Matrix into a Z matrix
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/02/2019
+//-----------------------------------------------------------------------------
+void ytoz(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& y,
+          Teuchos::SerialDenseMatrix<int, std::complex<double> >& z)
+{
+  z = y;
+  Teuchos::SerialDenseSolver<int, std::complex<double> > ftSolver;
+  ftSolver.setMatrix(Teuchos::rcp(&z, false));
+  ftSolver.invert();
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Util::ztoy
+// Purpose       : convert a Z Matrix into a Y matrix
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/02/2019
+//-----------------------------------------------------------------------------
+void ztoy(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& z,
+          Teuchos::SerialDenseMatrix<int, std::complex<double> >& y)
+{
+  y = z;
+  Teuchos::SerialDenseSolver<int, std::complex<double> > ftSolver;
+  ftSolver.setMatrix(Teuchos::rcp(&y, false));
+  ftSolver.invert();
+
+  return;
 }
 
 } // namespace Util
