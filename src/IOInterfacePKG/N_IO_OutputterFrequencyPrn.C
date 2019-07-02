@@ -108,7 +108,7 @@ FrequencyPrn::doOutputFrequency(
   double                fStop,
   const Linear::Vector &  real_solution_vector,
   const Linear::Vector &  imaginary_solution_vector,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   if (Parallel::rank(comm) == 0 && !os_)
   {
@@ -129,7 +129,8 @@ FrequencyPrn::doOutputFrequency(
   }
 
   std::vector<complex> result_list;
-  getValues(comm, opList_, Util::Op::OpData(index_, &real_solution_vector, &imaginary_solution_vector, 0, 0, 0), result_list);
+  getValues(comm, opList_, Util::Op::OpData(index_, &real_solution_vector, &imaginary_solution_vector,
+                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, &RFparams), result_list);
 
   for (int i = 0; i < result_list.size(); ++i)
     if (os_)

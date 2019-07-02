@@ -692,6 +692,179 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+// Class         : RFparamsOp
+// Purpose       : Operator for getting S-parameter, Y-parameter and
+//                 Z-parameter data.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+class RFparamsOp : public Util::Op::Op<RFparamsOp, Util::Op::ReduceSum, Util::Op::EvalNoop>
+{
+public:
+  RFparamsOp(const std::string &name, const std::string &type, int index1, int index2)
+    : Base(name),
+      type_(type),
+      index1_(index1),
+      index2_(index2)
+  {}
+
+  virtual ~RFparamsOp()
+  {}
+
+  static complex get(const RFparamsOp &op, const Util::Op::OpData &op_data);
+
+  const std::string   type_;
+  const int           index1_;
+  const int           index2_;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : RFparamsRealOp
+// Purpose       : Operator for getting the real part of S-parameter,
+//                 Y-parameter and Z-parameter data.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+class RFparamsRealOp : public Util::Op::Op<RFparamsRealOp, Util::Op::ReduceNone>
+{
+public:
+  RFparamsRealOp(const std::string &name, const std::string &type, int index1, int index2)
+    : Base(name),
+      type_(type),
+      index1_(index1),
+      index2_(index2)
+  {}
+
+  virtual ~RFparamsRealOp()
+  {}
+
+  static complex get(const RFparamsRealOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const std::string   type_;
+  const int           index1_;
+  const int           index2_;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : RFparamsImaginaryOp
+// Purpose       : Operator for getting the imaginary part of S-parameter,
+//                 Y-parameter and Z-parameter data.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+class RFparamsImaginaryOp : public Util::Op::Op<RFparamsImaginaryOp, Util::Op::ReduceNone>
+{
+public:
+  RFparamsImaginaryOp(const std::string &name, const std::string &type, int index1, int index2)
+    : Base(name),
+      type_(type),
+      index1_(index1),
+      index2_(index2)
+  {}
+
+  virtual ~RFparamsImaginaryOp()
+  {}
+
+  static complex get(const RFparamsImaginaryOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const std::string   type_;
+  const int           index1_;
+  const int           index2_;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : RFparamsMagnitudeOp
+// Purpose       : Operator for getting the magnitude of S-parameter,
+//                 Y-parameter and Z-parameter data.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+class RFparamsMagnitudeOp : public Util::Op::Op<RFparamsMagnitudeOp, Util::Op::ReduceNone>
+{
+public:
+  RFparamsMagnitudeOp(const std::string &name, const std::string &type, int index1, int index2)
+    : Base(name),
+      type_(type),
+      index1_(index1),
+      index2_(index2)
+  {}
+
+  virtual ~RFparamsMagnitudeOp()
+  {}
+
+  static complex get(const RFparamsMagnitudeOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const std::string   type_;
+  const int           index1_;
+  const int           index2_;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : RFparamsPhaseOp
+// Purpose       : Operator for getting the magnitude of S-parameter,
+//                 Y-parameter and Z-parameter data.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+class RFparamsPhaseOp : public Util::Op::Op<RFparamsPhaseOp, Util::Op::ReduceNone>
+{
+public:
+  RFparamsPhaseOp(const std::string &name, const std::string &type, int index1, int index2)
+    : Base(name),
+      type_(type),
+      index1_(index1),
+      index2_(index2)
+  {}
+
+  virtual ~RFparamsPhaseOp()
+  {}
+
+  static complex get(const RFparamsPhaseOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const std::string   type_;
+  const int           index1_;
+  const int           index2_;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : RFparamsDecibelsOp
+// Purpose       : Operator for getting the magnitude (in dB) of S-parameter,
+//                 Y-parameter and Z-parameter data.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+class RFparamsDecibelsOp : public Util::Op::Op<RFparamsDecibelsOp, Util::Op::ReduceNone>
+{
+public:
+  RFparamsDecibelsOp(const std::string &name, const std::string &type, int index1, int index2)
+    : Base(name),
+      type_(type),
+      index1_(index1),
+      index2_(index2)
+  {}
+
+  virtual ~RFparamsDecibelsOp()
+  {}
+
+  static complex get(const RFparamsDecibelsOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const std::string   type_;
+  const int           index1_;
+  const int           index2_;
+};
+
+//-----------------------------------------------------------------------------
 // Class         : StateOp
 // Purpose       : Operator for getting a value out of the state vector.
 // Special Notes :

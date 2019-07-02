@@ -142,6 +142,8 @@ inline Identifier identifier() {
   return T::id_() - identifier_base();
 }
 
+typedef std::map<std::string, Teuchos::SerialDenseMatrix<int, std::complex<double> > * > RFparamsData;
+
 struct OpData 
 {
   OpData()
@@ -163,7 +165,7 @@ struct OpData
     onoise_(0.0),
     inoise_(0.0),
     noiseDataVec_(0),
-    Sparams_(0)
+    RFparams_(0)
   {}
 
   OpData(const OpData &op_data)
@@ -185,7 +187,7 @@ struct OpData
     onoise_(op_data.onoise_),
     inoise_(op_data.inoise_),
     noiseDataVec_(op_data.noiseDataVec_),
-    Sparams_(op_data.Sparams_)
+    RFparams_(op_data.RFparams_)
   {}
 
   OpData(
@@ -207,7 +209,7 @@ struct OpData
     double                              onoise = 0.0,
     double                              inoise = 0.0,
     const std::vector<Xyce::Analysis::NoiseData*> * noiseDataVec = 0,
-    const Teuchos::SerialDenseMatrix<int, std::complex<double> > * Sparams = 0
+    const RFparamsData * RFparams = 0
     )
   : currentIndex_(current_index),
     realSolutionVector_(real_solution_vector),
@@ -227,7 +229,7 @@ struct OpData
     onoise_(onoise),
     inoise_(inoise),
     noiseDataVec_(noiseDataVec),
-    Sparams_(Sparams)
+    RFparams_(RFparams)
   {}
 
   int                           currentIndex_;
@@ -251,7 +253,7 @@ struct OpData
   const double                  inoise_;
   const std::vector<Xyce::Analysis::NoiseData*> * noiseDataVec_;
 
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > * Sparams_;
+  const RFparamsData * RFparams_;
 };
 
 //-----------------------------------------------------------------------------

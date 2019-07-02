@@ -339,6 +339,25 @@ createOps(
       *inserter++ = new VoltageDifferenceRealOp("Re(" + solutionName + ")", index1, index2);
       *inserter++ = new VoltageDifferenceImaginaryOp("Im(" + solutionName + ")", index1, index2);
     }
+    else if (expandComplexTypes && (*it)->id() == Util::Op::identifier<RFparamsOp>())
+    {
+      std::string RFparamsName = (*it)->getName();
+      std::string type;
+      int index1 = -1;
+      int index2 = -1;
+      const RFparamsOp *op =
+        dynamic_cast<const RFparamsOp *>(*it);
+      if (op)
+      {
+        type = op->type_;
+        index1 = op->index1_;
+        index2 = op->index2_;
+      }
+
+      delete *it;
+      *inserter++ = new RFparamsRealOp("Re(" + RFparamsName + ")", type, index1, index2);
+      *inserter++ = new RFparamsImaginaryOp("Im(" + RFparamsName + ")", type, index1, index2);
+    }
     else
       *inserter++ = *it;
   }

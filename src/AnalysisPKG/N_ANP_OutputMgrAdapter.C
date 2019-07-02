@@ -411,11 +411,11 @@ void OutputMgrAdapter::outputAC (
   double                fStop,
   const Linear::Vector &  solnVecRealPtr,
   const Linear::Vector &  solnVecImaginaryPtr,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   measureManager_.updateACMeasures(comm_, frequency, &solnVecRealPtr, &solnVecImaginaryPtr);
   
-  outputManager_.outputAC(comm_, frequency, fStart, fStop, solnVecRealPtr, solnVecImaginaryPtr, Sparams);
+  outputManager_.outputAC(comm_, frequency, fStart, fStop, solnVecRealPtr, solnVecImaginaryPtr, RFparams);
 
 }
 

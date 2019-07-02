@@ -213,7 +213,7 @@ OutputterExternal::doOutputFrequency(
   double                fStop,
   const Linear::Vector & realSolutionVector,
   const Linear::Vector & imaginarySolutionVector,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   if (Parallel::rank(comm) == 0 && !initialized_)
   {

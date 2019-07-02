@@ -48,6 +48,7 @@
 #include <N_ANP_fwd.h>
 
 #include <N_UTL_NetlistLocation.h>
+#include <N_UTL_Op.h>
 #include <N_UTL_Param.h>
 
 #include <Teuchos_SerialDenseMatrix.hpp>
@@ -324,7 +325,7 @@ public:
     double                      fStop,
     const Linear::Vector &        real_solution_vector,
     const Linear::Vector &        imaginary_solution_vector,
-    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams);
+    const Util::Op::RFparamsData & RFparams);
 
   void outputSensitivityAC(
     Parallel::Machine                 comm,
@@ -421,7 +422,7 @@ private:
     double                      fStop,
     const Linear::Vector &        real_solution_vector,
     const Linear::Vector &        imaginary_solution_vector,
-    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams) {}
+    const std::map<std::string, Teuchos::SerialDenseMatrix<int, std::complex<double> > * > & RFparams) {}
 
   virtual void doOutputSensitivityAC(
     Parallel::Machine                   comm,

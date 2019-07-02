@@ -75,6 +75,7 @@ using std::tr1::unordered_map;
 
 #include <N_UTL_NoCase.h>
 #include <N_UTL_OpBuilder.h>
+#include <N_UTL_Op.h>
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_Listener.h>
 #include <N_ANP_StepEvent.h>
@@ -241,7 +242,7 @@ public:
     double                              fStop,
     const Linear::Vector &                freqDomainSolnVecReal,
     const Linear::Vector &                freqDomainSolnVecImaginary,
-    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams);
+    const Util::Op::RFparamsData &      RFparams);
 
   void outputSensitivityAC(
      Parallel::Machine                   comm,

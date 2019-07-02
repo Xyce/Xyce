@@ -377,6 +377,10 @@ AC::AC(
 {
   bVecRealPtr->putScalar(0.0);
   bVecImagPtr->putScalar(0.0);
+
+  RFparams_.insert(std::make_pair("Y",&Yparams_));
+  RFparams_.insert(std::make_pair("S",&Sparams_));
+  RFparams_.insert(std::make_pair("Z",&Zparams_));
 }
 
 //-----------------------------------------------------------------------------
@@ -1864,7 +1868,7 @@ bool AC::doProcessSuccessfulStep()
   {
     // Output x.
     outputManagerAdapter_.outputAC (currentFreq_, fStart_,fStop_,
-	    X_->block(0), X_-> block(1), Sparams_);
+	    X_->block(0), X_-> block(1), RFparams_);
 
     if (sensFlag_)
     {
@@ -1882,6 +1886,9 @@ bool AC::doProcessSuccessfulStep()
 
     // acLoopSize_ is the total number of frequency points in the analyses
     outputManagerAdapter_.outputSParams(currentFreq_, acLoopSize_, Z0sVec_, Sparams_);
+
+    outputManagerAdapter_.outputAC (currentFreq_, fStart_,fStop_,
+            X_->block(0), X_-> block(1), RFparams_);
 
 //    outputMOR_.output(outputManagerAdapter_.getComm(), 1, currentFreq_,  Yparams_ );
   }

@@ -1578,7 +1578,7 @@ bool NOISE::doProcessSuccessfulStep()
   // The raw output (via -r and -a) still uses .outputAC.  So, this possibly still needs
   // to be fixed or changed.
   outputManagerAdapter_.outputAC (currentFreq_, fStart_,fStop_,
-	    saved_AC_X_->block(0), saved_AC_X_-> block(1), Sparams_);
+	    saved_AC_X_->block(0), saved_AC_X_-> block(1), RFparams_);
 
   outputManagerAdapter_.outputNoise (currentFreq_, saved_AC_X_->block(0), saved_AC_X_-> block(1),
      totalOutputNoiseDens_, totalInputNoiseDens_, noiseDataVec_);

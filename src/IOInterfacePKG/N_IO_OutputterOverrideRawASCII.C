@@ -584,7 +584,7 @@ OverrideRawAscii::doOutputFrequency(
   double                fStop,
   const Linear::Vector &  real_solution_vector,
   const Linear::Vector &  imaginary_solution_vector,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const std::map<std::string, Teuchos::SerialDenseMatrix<int, std::complex<double> > * > & RFparams)
 {
   if (Parallel::rank(comm) == 0 && os_ == 0)
   {
