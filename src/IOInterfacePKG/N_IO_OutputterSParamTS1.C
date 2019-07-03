@@ -182,7 +182,9 @@ void SParamTS1::doOutputSParams(
 {
   if (Parallel::rank(comm) == 0 && !os_)
   {
-    numColumns_ = Sparams.numRows() + 1; // extra column is the Freq column
+    // extra column is the Freq column, and each entry in the Sparams matrix
+    // is a complex number
+    numColumns_ = 2*Sparams.numRows()*Sparams.numRows() + 1;
     numPorts_ = Z0sVec.size();
     // add number of ports to default extension
     std::ostringstream de;
