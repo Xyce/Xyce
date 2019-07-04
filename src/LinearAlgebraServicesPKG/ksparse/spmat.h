@@ -88,9 +88,6 @@ struct  MatrixElement
     RealNumber   RealCopy;
     RealNumber  *RealDense;
 #endif
-#ifdef SHARED_MEM
-    int          pe;
-#endif
     int          Fillin;
     int          Row;
     int          Col;
@@ -370,26 +367,6 @@ struct FillinListNodeStruct
  *  Row_indices          See spice3f5/src/lib/sparse/lltocsc.c
  *  Values
  */
-#ifdef SHARED_MEM
-struct pivcol {
-    double pivot;
-    int col;
-    int col0;
-};
-
-struct strip_out {
-    ElementPtr *FirstInCol;
-    int *update;
-    int jcop;
-    struct pivcol *pc;
-    struct pivcol **pc_out;
-    struct pivcol **pc_gen;
-    int len;
-    int done;
-    struct strip_out *my_next;
-    struct strip_out *prev;
-};
-#endif
 
 struct context_m {
     int                          Dsize;
@@ -500,17 +477,8 @@ struct  MatrixFrame
     int                         *Row_indices;
     double                      *Values;
     int                          Cscflag;
-#ifdef SHARED_MEM
-    int                          RUpdate;
-    struct strip_out           **strips;
-    int                         *rowStrips;
-    int                          Strips;
-    ElementPtr                   *NextAvailElement;
-    int                          *ElementsRemaining;
-#else
     ElementPtr                   NextAvailElement;
     int                          ElementsRemaining;
-#endif
 };
 typedef  struct MatrixFrame  *MatrixPtr;
 

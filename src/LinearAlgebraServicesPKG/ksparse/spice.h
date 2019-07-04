@@ -99,12 +99,6 @@ extern int  Patch_Level;
     extern void **exp_list, **exp_values;
 #endif
 
-#ifdef SHARED_MEM
-/*
-void update_SM (double *, double);
-*/
-#endif /* SHARED_MEM */
-
 #define LOAD_NORMAL 1
 #define LOAD_ENERGY 2
 

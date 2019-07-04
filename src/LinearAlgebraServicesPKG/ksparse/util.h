@@ -34,17 +34,10 @@ Author: 1985 Thomas L. Quarles
 #ifndef KSPARSE_UTIL
 #define KSPARSE_UTIL
 
-#ifdef SHARED_MEM
-#include "shared_mem.h"
-#define MALLOC_SM(x) acalloc_SM(1,(unsigned)(x))
-#define REALLOC_SM(x,y) arealloc_SM((void *)(x),(unsigned)(y))
-#define FREE(x) afree_SM((void *)(x))
-#else
 #ifdef CHILE
 /* #define FREE(x) {if (x) {free((char *)(x));(x) = 0;}} */
 #define FREE(x) {if (x) {free((char *)(x));}}
 #endif
-#endif /* SHARED_MEM */
 
 #ifdef CHILE
 #define MALLOC(x) tmalloc((unsigned)(x))

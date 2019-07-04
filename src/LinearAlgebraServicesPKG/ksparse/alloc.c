@@ -51,7 +51,6 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 /* Malloc num bytes and initialize to zero. Fatal error if the space can't
  * be malloc'd.   Return NULL for a request for 0 bytes.
  */
-#undef SHARED_MEM
 
 void bye_bye(i)
 {
@@ -93,23 +92,15 @@ trealloc(str, num)
 
     if (!num) {
 	if (str)
-#ifdef SHARED_MEM
-		FREE(str);
-#else
+
 #ifdef DEBUG_MALLOC
 		sm_free(str);
 #else
 		free(str);
 #endif
-#endif
+
 	return NULL;
     }
-#ifdef SHARED_MEM
-    if (!str)
-	s = (char *) MALLOC_SM(num);
-    else
-        s = (char *) REALLOC_SM(str, (unsigned) num);
-#else
     if (!str)
 	s = tmalloc(num);
     else
@@ -118,7 +109,7 @@ trealloc(str, num)
 #else
         s = realloc(str, (unsigned) num);
 #endif
-#endif
+
     if (!s) {
         fprintf(stderr, 
 		"realloc: Internal Error: can't allocate %d bytes.\n", num);
@@ -137,13 +128,9 @@ txfree(ptr)
 	char	*ptr;
 {
 	if (ptr)
-#ifdef SHARED_MEM
-		FREE(ptr);
-#else
 #ifdef DEBUG_MALLOC
 		sm_free(ptr);
 #else
 		free(ptr);
-#endif
 #endif
 }

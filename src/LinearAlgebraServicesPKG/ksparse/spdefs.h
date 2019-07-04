@@ -398,18 +398,6 @@ static long padsize, padshift;
 #define IMAG_RHS
 #endif
 
-#ifdef SHARED_MEM
-#include "shared_mem.h"
-#define ALLOC(type,number)  ((type *)amalloc_SM((unsigned)(sizeof(type)*(number))))
-#define PALLOC(type,number)  ((type *)amalloc_SM((unsigned)(padsize*(number+1))))
-#ifndef REALLOC
-#define REALLOC(ptr,type,number)  \
-        ptr = (type *)arealloc_SM((void *)ptr,(unsigned)(sizeof(type)*(number)))
-#endif
-#ifndef FREE
-#define FREE(ptr) { if ((ptr) != NULL) afree_SM((void *)(ptr)); (ptr) = NULL; }
-#endif
-#else
 #define ALLOC(type,number)  ((type *)tmalloc((unsigned)(sizeof(type)*(number))))
 #define PALLOC(type,number)  ((type *)tmalloc((unsigned)(padsize*(number+1))))
 #ifndef REALLOC
@@ -419,7 +407,6 @@ static long padsize, padshift;
 #ifndef FREE
 #define FREE(ptr) { if ((ptr) != NULL) txfree((char *)(ptr)); (ptr) = NULL; }
 #endif
-#endif /* SHARED_MEM */
 
 
 /* Calloc that properly handles allocating a cleared vector. */

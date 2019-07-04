@@ -27,9 +27,6 @@ All additions and changes are under the following:
 */
 
 #include "spice.h"
-#ifdef SHARED_MEM
-#include "shared_mem.h"
-#endif
 
 /*
 #define CHECK_IND
@@ -189,90 +186,6 @@ register  int  I;
     return;
 }
 
-#ifdef SHARED_MEM
-int
-spClear_p( eMatrix, rhs, size, ind_d)
-
-char *eMatrix;
-double *rhs;
-int size, ind_d;
-{
-MatrixPtr  Matrix = (MatrixPtr)eMatrix;
-register  ElementPtr  pElement;
-register  int  i, I, n_inc;
-
-/* Begin `spClear'. */
-    ASSERT( IS_SPARSE( Matrix ) );
-
-    if (ind_d == 0) return -1;
-    for (i=0 ; i<Bins ; i++) {
-      num_ind[i] = 0;
-    }
-    
-/* Clear matrix. */
-#if spCOMPLEX
-    if (Matrix->PreviousMatrixWasComplex OR Matrix->Complex)
-    {   for (I = size; I >= 1; I--)
-        {   pElement = Matrix->FirstInCol[I];
-            while (pElement != NULL)
-            { n_inc = (((long) &pElement->Real) & Binmask) >> BIN_MASK_SHIFT;
-              if (num_ind[n_inc] >= ind_d) return -1;
-              ind[n_inc][num_ind[n_inc]++] = &pElement->Real;
-              n_inc = (((long) &pElement->Imag) & Binmask) >> BIN_MASK_SHIFT;
-              if (num_ind[n_inc] >= ind_d) return -1;
-              ind[n_inc][num_ind[n_inc]++] = &pElement->Imag;
-              pElement = pElement->NextInCol;
-            }
-        }
-    }
-    else
-#endif
-    {
-    for (I = size; I >= 1; I--)
-        {   pElement = Matrix->FirstInCol[I];
-            while (pElement != NULL) { 
-              n_inc = pElement->pe;
-              if (n_inc < 0 || n_inc >= num_pes_in_smp)
-                n_inc = (((long) &pElement->Real) & Binmask) >> BIN_MASK_SHIFT; 
-              if (num_ind[n_inc] >= ind_d) return -1;
-              ind[n_inc][num_ind[n_inc]++] = &pElement->Real;
-              pElement = pElement->NextInCol;
-            }
-        }
-    }
-    return 0;
-}
-
-void clean_p (eMatrix)
-char *eMatrix;
-{
-MatrixPtr  Matrix = (MatrixPtr)eMatrix;
-/* Empty the trash. */
-    Matrix->TrashCan.Real = 0.0;
-#if spCOMPLEX
-    Matrix->TrashCan.Imag = 0.0;
-#endif
-
-    Matrix->Error = spOKAY;
-    Matrix->Factored = NO;
-    Matrix->SingularCol = 0;
-    Matrix->SingularRow = 0;
-    Matrix->PreviousMatrixWasComplex = Matrix->Complex;
-    return;
-}
-#endif /* SHARED_MEM */
-
-
-
-
-
-
-
-
-
-
-
-
 /*
  *  SINGLE ELEMENT ADDITION TO MATRIX BY INDEX
  *
@@ -876,9 +789,7 @@ char msg[40];
     sprintf (msg,"Top createdElement (%d,%d)",Row,Col);
     spCheckInd(Matrix, msg);
 #endif
-#ifdef SHARED_MEM
-    new_element = 1;
-#endif
+
     if (Matrix->RowsLinked)
     {
 /* Row pointers cannot be ignored. */
