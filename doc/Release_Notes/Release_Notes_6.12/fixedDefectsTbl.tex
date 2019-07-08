@@ -36,6 +36,13 @@
 \textbf{xxx-SON}: place holder title &
 place holder description  \\ \hline
 
+\textbf{1204-SON}: Fix issue with extra blank lines in Touchstone 1 formatted output
+for .LIN analysis & There could be extra blank lines inserted in the Touchstone 1
+formatted output, between the S-parameter values output for each frequency, if a
+\texttt{.LIN} analysis used any number of ports other than 2.  The Touchstone 2
+formatted output, which is the default output format for \texttt{.LIN} analyses,
+was not affected by this bug. \\ \hline
+
 \textbf{1202-SON}: Fix segfaults caused by using .LIN SPARCALC=1 in a netlist
 without any port (P) devices & The use of a \texttt{.LIN} line with the
 parameter \texttt{SPARCALC} set to 1 in a netlist that requested a \texttt{.AC}
