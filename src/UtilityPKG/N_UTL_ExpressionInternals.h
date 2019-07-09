@@ -481,7 +481,7 @@ public:
   ExpressionNode *get_tree() {return tree_;}
   void set_tree(ExpressionNode *new_root) {tree_ = new_root;}
   int num_vars () {return num_N_+num_I_+num_lead_+num_string_+num_special_+num_var_+num_func_+num_node_computation_;}
-  bool isTimeDepedent() const {return timeDependent_;}
+  bool isImplicitTimeDepedent() const {return implicitTimeDependent_;}
   bool isRandomDepedent() const {return randomDependent_;}
   void dumpParseTree();
 
@@ -515,7 +515,7 @@ private:
   int varValsFreqIndex_;
   double sim_time_;              ///< Current simpulation time
   double sim_dt_;                ///< Current simpulation time step
-  bool timeDependent_;           ///< true if expression contains DDT or SDT
+  bool implicitTimeDependent_;   ///< true if expression contains DDT or SDT
   bool randomDependent_;         ///< true if expression contains GAUSS, AGAUSS or RAND
   bool breakpointed_;            ///< true if breakpoints have been computed
 

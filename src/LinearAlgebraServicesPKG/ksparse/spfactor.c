@@ -26,13 +26,9 @@ All additions and changes are under the following:
 //-------------------------------------------------------------------------
 */
 
-#ifdef SHARED_MEM
-#include "shared_mem.h"
-#include <stdlib.h>
-#else
 void timer_clear(), timer_start(), timer_stop();
 double timer_get();
-#endif
+
 /* #define FINGERPRINT */
 /* #define CHECK_ANS */
 /*
@@ -119,20 +115,6 @@ static char RCSid[] =
 #include "spconfig.h"
 #include "spmatrix.h"
 #include "spdefs.h"
-
-#ifdef SHARED_MEM
-typedef struct sSwapTask {
-    ElementPtr Elem1;
-    ElementPtr Elem2;
-    int Line1;
-    int Line2;
-    int Perp;
-} SwapTask;
-#endif
-
-
-
-
 
 /*
  * Function declarations
@@ -415,10 +397,6 @@ FILE *fmat;
       printf ("Matrix size = %d\n",Matrix->Size);
 */
 
-#ifdef SHARED_MEM
-    if (num_pes_in_smp >= MIN_PES_SOLVE)
-      Matrix->RUpdate = 1;
-#endif
     if (Matrix->Format != FORMAT_SPARSE)
       spExpandFormat (Matrix);
     Matrix->Error = spOKAY;
@@ -444,18 +422,10 @@ FILE *fmat;
 
     if (Matrix->Pivots_d < Size) {
       if (Matrix->Pivots_d == 0) {
-#ifdef SHARED_MEM
-        Matrix->Pivots = (double *) sm_malloc((Size+1)*sizeof(double));
-#else
         Matrix->Pivots = (double *) tmalloc((Size+1)*sizeof(double));
-#endif
       }
       else {
-#ifdef SHARED_MEM
-        Matrix->Pivots = (double *) sm_realloc(Matrix->Pivots, (Size+1)*sizeof(double));
-#else
         Matrix->Pivots = (double *) trealloc(Matrix->Pivots, (Size+1)*sizeof(double));
-#endif
       }
       Matrix->Pivots_d = Size;
     }
@@ -477,17 +447,10 @@ FILE *fmat;
       Matrix->NeedsScale = NO;
       if (Matrix->scale_factors_d < Size) {
         Matrix->scale_factors_d = Size;
-#ifdef SHARED_MEM
-        Matrix->row_scale_factors = (double *) sm_realloc(Matrix->row_scale_factors,
-                                (Matrix->scale_factors_d+1)*sizeof(double));
-        Matrix->col_scale_factors = (double *) sm_realloc(Matrix->col_scale_factors,
-                                (Matrix->scale_factors_d+1)*sizeof(double));
-#else
         Matrix->row_scale_factors = (double *) trealloc(Matrix->row_scale_factors,
                                 (Matrix->scale_factors_d+1)*sizeof(double));
         Matrix->col_scale_factors = (double *) trealloc(Matrix->col_scale_factors,
                                 (Matrix->scale_factors_d+1)*sizeof(double));
-#endif
       }
       for (i= 1 ;i<= Size ; i++) {
         pElement = Matrix->FirstInCol[i];
@@ -716,39 +679,6 @@ Done:
 
 void spExpand (MatrixPtr Matrix)
 {
-#ifdef SHARED_MEM
-    int ii, j, k, me, Size;
-    ElementPtr *f_col;
-    struct context_m *my_context;
-    ElementPtr pElement;
-
-    me = 0;
-    Size = Matrix->Size;
-    my_context = &Matrix->MyStuff[pe_in_smp];
-    for (ii=pe_in_smp ; ii<Matrix->Strips ; ii+=num_pes_in_smp) {
-      if (ii == 0) {
-        f_col = Matrix->FirstInCol;
-      }
-      else {
-        f_col = Matrix->strips[ii-1]->FirstInCol;
-      }
-      for (j=1 ; j<=Size ; j++) {
-        pElement = f_col[j];
-        for (k=my_context->ColStart[me][j]; k<my_context->ColStart[me][j+1] ; k++) {
-          if (my_context->MyI[k] != pElement->Row) {
-            printf ("Error in row in spExpand copy: %d %d :: %d %d\n",my_context->MyI[k],
-              pElement->Row, j, pElement->Col);
-          }
-          pElement->Real = my_context->MyD[k];
-          pElement = pElement->NextInCol;
-        }
-      }
-      me++;
-    }
-    if (pe_in_smp == 0)
-      Matrix->Format = FORMAT_SPARSE;
-    sm_barrier();
-#endif
     return;
 }
 
@@ -774,15 +704,6 @@ void spExpandFormat (MatrixPtr Matrix)
       Matrix->Format = FORMAT_SPARSE;
       return;
     }
-#ifdef SHARED_MEM
-    if (Matrix->Format == FORMAT_DENSE_DISTRIBUTED) {
-      sm_msg[0] = SP_EXPAND;
-      sm_msg[1] = (long) Matrix;
-      sm_sync_area();
-      spExpand(Matrix);
-      return;
-    }
-#endif
     fprintf (stderr, "Internal error: Unknown factored format\n");
     return;
 }
@@ -792,41 +713,6 @@ void check_mat(MatrixPtr Matrix, int *num, int tag)
 {
     ElementPtr pElement;
     int i, Size;
-#ifdef SHARED_MEM
-/*  printf ("Checking mat at tag = %d, num = %d\n",tag, *num); */
-/* if a problem is found, a debug line like this one will help locate the
-   problem within spFactor
-    printf ("PE: %d :: Row = %d at tag = 5\n",pe_in_smp, ((ElementPtr) BAD_ADD)->Row);
-*/
-    (*num)++;
-
-    Size = Matrix->Size;
-    for (i=1 ; i<=Size ; i++) {
-      pElement = Matrix->FirstInRow[i];
-      while (pElement) {
-/*
-        if (i == 5990 && pElement->Col == 5988)
-          BAD_ADD = (void *) pElement;
-*/
-        if (pElement->Row != i) {
-          printf ("Error in Row: %d, At element: %d,%d\n",i,
-                    pElement->Row,pElement->Col);
-          printf ("pElement = %lx\n",pElement);
-        }
-        pElement = pElement->NextInRow;
-      }
-    }
-    for (i=1 ; i<=Size ; i++) {
-      pElement = Matrix->FirstInCol[i];
-      while (pElement) {
-        if (pElement->Col != i) {
-          printf ("Error in Col: %d, At element: %d,%d\n",i,
-                    pElement->Row,pElement->Col);
-        }
-        pElement = pElement->NextInCol;
-      } 
-    }
-#endif
     return;
 }
 
@@ -861,10 +747,6 @@ void check_mat(MatrixPtr Matrix, int *num, int tag)
  *  spSMALL_PIVOT
  *  Error is cleared in this function.
  */
-
-#ifdef SHARED_MEM
-/* #define TIMERS */
-#endif
 
 int
 spFactor( char *eMatrix )
@@ -910,15 +792,7 @@ long goal, tot, tot1, tot2, num_s, curr;
 static double *Dest;
 static int Dest_d;
 #endif
-#ifdef SHARED_MEM
-  double start;
-  RealNumber wait_pct, my_time, all_time;
-  int pdone, up_curr, up_ready, last_pe, row_hi, num_out, num_out_d, num_out_g, num_in, col, iwait;
-  int ncurr, ndim, del;
-  int  max_els;
-  long wait1, wait2, wait3, wait4;
-  double timer_wait1, timer_wait2, timer_wait3, timer_wait4, total_time;
-#endif
+
 ElementPtr *f_col;
 static double *my_rhs;
 int use_scr = 0;
@@ -973,21 +847,7 @@ struct strip_out *strip, *old_strip, *my_strip, *prev_strip;
 /*
     printf ("PE: %d, update = %d :: %d %d\n",pe_in_smp,update,Matrix->NewFlags,Matrix->Updated);
 */
-
-#ifdef SHARED_MEM
-    wait1 = wait2 = wait3 = wait4 = 0;
-
-#ifdef TIMERS
-    for (i=10;i<=11;i++) {
-      timer_clear(i);
-    }
-    timer_start(10);
-#endif
-
-    my_context = &Matrix->MyStuff[pe_in_smp];
-#else
     my_context = &Matrix->MyStuff[0];
-#endif /* SHARED_MEM */
 
     minpiv = Matrix->AbsThreshold + 1;
     minpiv_ratio = 1.;
@@ -1008,18 +868,7 @@ struct strip_out *strip, *old_strip, *my_strip, *prev_strip;
                                (my_context->Dsize+2)*sizeof(int));
       my_context->Dest = (double *) trealloc(my_context->Dest,
                                (my_context->Dsize+1)*sizeof(double));
-#ifdef SHARED_MEM
-      if (num_pes_in_smp >= MIN_PES_SOLVE && Size > WIDTH*num_pes_in_smp) {
-        for (i=0 ; i<MAX_STRIPS ; i++) {
-          my_context->ColStart[i] = (int *) trealloc(my_context->ColStart[i],
-                                    (my_context->Dsize+2)*sizeof(int));
-        }
-      }
-#endif
     }
-#ifdef SHARED_MEM
-    if (pe_in_smp == 0) {
-#endif
       Matrix->Error = spOKAY;
       if (Matrix->NeedsOrdering || Matrix->OverflowDanger>=OF_THRESHOLD || Matrix->SmallTimeStep) {
 
@@ -1038,17 +887,6 @@ struct strip_out *strip, *old_strip, *my_strip, *prev_strip;
         printf ("\n");
 #endif
 
-#ifdef SHARED_MEM
-/* Theoretically, this never gets executed, but just in case . . . */
-        if (Matrix->Format == FORMAT_DENSE_DISTRIBUTED) {
-          printf ("Expanding matrix format\n");
-          sm_msg[0] = SP_EXPAND;
-          sm_msg[1] = (long) Matrix;
-          sm_sync_area();
-          spExpand(Matrix);
-          sm_barrier();
-        }
-#endif
 /*    check_mat(Matrix, &num_call, 4); */
         stat = spOrderAndFactor( eMatrix, (RealVector)NULL,
              Matrix->RelThreshold, Matrix->AbsThreshold,
@@ -1064,22 +902,7 @@ struct strip_out *strip, *old_strip, *my_strip, *prev_strip;
         }
         return stat;
       }
-#ifdef SHARED_MEM
-      Matrix->RUpdate = 0;
-      repartitioned = 0;
-      if (valid_f == NULL) {
-        valid_f = sm_malloc(2*sizeof(int));
-        valid_b = valid_f+1;
-      }
-      *valid_f = 0;
-      *valid_b = Size+1;
 
-      if (NOT Matrix->Partitioned) {
-        spPartition( eMatrix, spDEFAULT_PARTITION );
-        repartitioned = 1;
-      }
-      if (repartitioned) {
-#endif
 /*
         num_els = 0;
         num_fills = 0;
@@ -1105,9 +928,6 @@ struct strip_out *strip, *old_strip, *my_strip, *prev_strip;
                                     my_context->BufDim*sizeof(double));
           my_context->MyI = (int *) (my_context->MyD + my_context->BufDim);
         }
-#ifdef SHARED_MEM
-      }
-#endif
 
       if (Matrix->Format != FORMAT_SPARSE)
         Matrix->Diag[1]->Real = my_context->MyD[0];
@@ -1132,174 +952,7 @@ struct strip_out *strip, *old_strip, *my_strip, *prev_strip;
       if (Matrix->Format != FORMAT_SPARSE)
         Matrix->MyStuff->MyD[0] = Matrix->Diag[1]->Real;
 
-#ifdef SHARED_MEM
-      if ((Size > WIDTH*num_pes_in_smp && num_pes_in_smp >= MIN_PES_SOLVE)) {
-        my_strip = Matrix->strips[0];
-        if (my_strip == NULL) {
-          strip = (struct strip_out *) sm_malloc(sizeof(struct strip_out));
-          my_strip = strip;
-          for (i=0 ; i<num_pes_in_smp*MAX_STRIPS ; i++) {
-            old_strip = strip;
-            Matrix->strips[i] = old_strip;
-            strip->FirstInCol = (ElementPtr *) sm_malloc((Size+1)*sizeof(ElementPtr));
-            strip->update = (int *) sm_calloc((Size+1),sizeof(int));
-            strip->len = 1;
-            strip->pc = (struct pivcol *) sm_malloc((strip->len+1)*sizeof(struct pivcol));
-            strip->pc_out = (struct pivcol **) sm_malloc((strip->len+1)*sizeof(struct pivcol *));
-            strip->pc_gen = (struct pivcol **) sm_malloc((strip->len+1)*sizeof(struct pivcol *));
-            strip->done = 0;
-            if (i<num_pes_in_smp*MAX_STRIPS-1) {
-              strip = (struct strip_out *) sm_malloc(sizeof(struct strip_out));
-              strip->prev = old_strip;
-            }
-            else {
-              my_strip->prev = old_strip;
-            }
-          }
-          for (i=0 ; i<num_pes_in_smp*MAX_STRIPS ; i++) {
-            if (i >= num_pes_in_smp*(MAX_STRIPS-1))
-              Matrix->strips[i]->my_next = Matrix->strips[pe_in_smp];
-            else
-              Matrix->strips[i]->my_next = Matrix->strips[i+num_pes_in_smp];
-          }
-        }
-        else {
-          for (i=0 ; i<num_pes_in_smp*MAX_STRIPS ; i++) {
-            Matrix->strips[i]->done = 0;
-          }
-        }
-        sm_msg[0] = SP_FACTOR_AND_SOLVE;
-        sm_msg[1] = (long) RHS;
-        sm_msg[2] = (long) eMatrix;
-        sm_msg[3] = (long) valid_f;
-        sm_sync_area2();
-      }
-    }
-    else {
-      if (valid_f == NULL) {
-        valid_f = (int *) sm_msg[3];
-        valid_b = valid_f+1;
-      }
-    }
-
-    num_strips = Size/(WIDTH*num_pes_in_smp);
-    if (num_strips < 2)
-      num_strips = 2;
-    if (num_strips > MAX_STRIPS)
-      num_strips = MAX_STRIPS;
-
-    num_strips *= num_pes_in_smp;
-    if (Size > WIDTH*num_pes_in_smp && num_pes_in_smp >= MIN_PES_SOLVE) {
-      if (pe_in_smp == 0 && repartitioned) {
-        tot = 0;
-        for (i=1 ; i<Size ; i++) {
-          tot += Matrix->Nc[i];
-        }
-        Matrix->rowStrips[0] = 1;
-        j = 1;
-        curr = 0;
-        for (i=1 ; i<num_strips ; i++) {
-          goal = i*tot/num_strips;
-          while (curr < goal) {
-              curr += Matrix->Nc[j++];
-            }
-            Matrix->rowStrips[i] = j;
-        }
-        Matrix->rowStrips[num_strips] = Size+1;
-        Matrix->Strips = num_strips;
-
-        for (i=num_strips ; i>0 ; i--) {
-          if (Matrix->rowStrips[i] <= Matrix->rowStrips[i-1]) {
-            Matrix->rowStrips[i-1] = Matrix->rowStrips[i]-1;
-          }
-        }
-        if (Matrix->rowStrips[0] != 1) {
-          fprintf (stderr, "Internal error in spFactor: bad strip decomposition with Size = %d, PEs = %d\n",
-                    Size, num_pes_in_smp);
-        }
-        ndim = 1;
-        ncurr = 1;
-/*
-   The pc arrays are used to store pivot and column data for passing down to the next strip.  The
-   array of structures is 'pc'.  Pointers to these structures are pc_out and pc_gen.  The pc_out
-   array contains pointers to all the pc's that pass through the current strip.  The pc_gen array
-   contains pointers to all of the pc's that the current strip generates data for.  On the update
-   pass, each PE passes through all the pc's that are either generated or passed through the
-   strip.  In subsequent passes, each PE only looks at pc's that it actually contributes to.
-*/
-        for (i=0 ; i<num_strips ; i++) {
-          for ( ; ncurr<Matrix->rowStrips[i+1] ; ncurr++) {
-            ndim += Matrix->No[ncurr];
-          }
-          if (Matrix->strips[i]->len <= ndim) {
-            Matrix->strips[i]->len = ndim+1;
-            Matrix->strips[i]->pc = (struct pivcol *) sm_realloc(Matrix->strips[i]->pc,
-              Matrix->strips[i]->len*sizeof(struct pivcol));
-            Matrix->strips[i]->pc_out = (struct pivcol **) sm_realloc(Matrix->strips[i]->pc_out,
-              Matrix->strips[i]->len*sizeof(struct pivcol *));
-            Matrix->strips[i]->pc_gen = (struct pivcol **) sm_realloc(Matrix->strips[i]->pc_gen,
-              Matrix->strips[i]->len*sizeof(struct pivcol *));
-          }
-        }
-
-/*
-        printf ("New repartition for Size = %d\n",Size);
-        for (i=0 ; i<num_strips ; i++) {
-          printf ("%6d :: row end = %6d, len = %d\n",i,Matrix->rowStrips[i],
-                       Matrix->strips[i]->len);
-        }
-        printf ("Final row end = %d\n",Matrix->rowStrips[num_strips]);
-*/
-      }
-      sm_sync_area();
-    }
-    my_strip = Matrix->strips[pe_in_smp];
-    if (update) {
-      max_els = 0;
-      for (ii=pe_in_smp ; ii<num_strips ; ii+=num_pes_in_smp) {
-        row_hi = Matrix->rowStrips[ii+1]-1;
-        for (i = Matrix->rowStrips[ii] ; i <= row_hi ; i++) {
-          pElement = Matrix->FirstInRow[i];
-          while (pElement) {
-            pElement->pe = pe_in_smp;
-            pElement = pElement->NextInRow;
-            max_els++;
-          }
-        }
-      }
-      my_context->BufUsed = max_els;
-      if (my_context->BufUsed > my_context->BufDim) {
-        my_context->BufDim = my_context->BufUsed;
-        my_context->MyD = (double *) trealloc(my_context->MyD, my_context->BufDim*sizeof(int)+
-                                  my_context->BufDim*sizeof(double));
-        my_context->MyI = (int *) (my_context->MyD + my_context->BufDim);
-      }
-    }
-/* Start factorization. */
-    time_start = RTC;
-    need_solve = 0;
-    last_pe = 0;
-
 #ifdef CHECK_ANS
-    if (pe_in_smp == 0) {
-      if (update) {
-        printf ("In spFactorAndSolve, Updating\n");
-      }
-      else {
-        printf ("In spFactorAndSolve, Loading with format = %d\n",Matrix->Format);
-      }
-    }
-#endif
-#endif /* SHARED_MEM */
-
-#ifdef CHECK_ANS
-#ifdef SHARED_MEM
-    sm_barrier();
-    if (Matrix->Format != FORMAT_SPARSE)
-      spExpand (Matrix);
-    sm_barrier();
-    if (pe_in_smp == 0) {
-#endif
       make_copy(Matrix);
       Matrix->Factored = YES;
       Matrix->Format = FORMAT_SPARSE;
@@ -1355,481 +1008,8 @@ struct strip_out *strip, *old_strip, *my_strip, *prev_strip;
         stat = spSolve (eMatrix, Matrix->Intermediate4, Matrix->Intermediate4, NULL, NULL );
       }
       swap_copy(Matrix);
-#ifdef SHARED_MEM
-    }
-#endif
 #endif /* CHECK_ANS */
 
-#ifdef SHARED_MEM
-    jj = 0;
-    me = 0;
-    my_p = 0;
-    if (Size > WIDTH*num_pes_in_smp && num_pes_in_smp >= MIN_PES_SOLVE) {
-      if (update)
-        sm_barrier();
-      if (pe_in_smp == num_pes_in_smp-1 && update) {
-        Matrix->Format = FORMAT_DENSE_DISTRIBUTED;
-        Matrix->DensePointers = 1;
-        Matrix->Updated = 1;
-      }
-      for (ii=pe_in_smp ; ii<num_strips ; ii+=num_pes_in_smp) {
-        row_lo = Matrix->rowStrips[ii];
-        i = row_lo;
-        row_hi = Matrix->rowStrips[ii+1]-1;
-        prev_strip = my_strip->prev;
-        my_strip->jcop = -1;
-        if (row_hi >= Size) {
-          row_hi = Size;
-          last_pe = 1;
-        }
-        else {
-          last_pe = 0;
-        }
-
-        if (row_lo == 1) {
-          f_col = Matrix->FirstInCol;
-          pdone = Size;
-          up_curr = 0;
-          up_ready = 0;
-        }
-        else {
-          f_col = prev_strip->FirstInCol;
-          pdone = 0;
-          up_curr = 0;
-          up_ready = prev_strip->update[pdone];
-        }
-        if (Matrix->Format == FORMAT_DENSE_DISTRIBUTED)
-          my_strip->jcop = -1;
-
-        if (update) {
-          my_context->ColStart[me][1] = my_p;
-          if (row_lo>1 && prev_strip->done <= 1) {
-            wait1 += sm_wait_count (&prev_strip->done, 0, 1);
-          }
-          pElement = f_col[1];
-          while (pElement != NULL && pElement->Row <= row_hi) {
-            if (pElement->Row == 1)
-              my_context->ColDiag[1] = my_p;
-            pElement->RealDense = &my_context->MyD[my_p];
-            my_context->MyD[my_p] = pElement->Real;
-            my_context->MyI[my_p++] = pElement->Row;
-            pElement = pElement->NextInCol;
-          }
-          my_strip->FirstInCol[1] = pElement;
-          my_context->ColStart[me][2] = my_p;
-        }
-        else {
-          pElement = f_col[1];
-          if (Matrix->Format == FORMAT_SPARSE) {
-            while (pElement != NULL && pElement->Row <= row_hi) {
-              my_context->MyD[my_p++] = pElement->Real;
-              pElement = pElement->NextInCol;
-            }
-          }
-          else {
-            my_p += my_context->ColStart[me][2] - my_context->ColStart[me][1];
-          }
-        }
-        num_out = 0;
-        num_out_d = 0;
-        num_out_g = 0;
-        num_in = 0;
-        for (Step = 2; Step <= Size; Step++) {
-          if (!update) {
-            if (Matrix->Format == FORMAT_SPARSE) {
-              pElement = f_col[Step];
-              while (pElement != NULL && pElement->Row <= row_hi) {
-                my_context->Dest[pElement->Row] = pElement->Real;
-                pElement = pElement->NextInCol;
-              }
-            }
-            else {
-              for (j=my_context->ColStart[me][Step] ; j<my_context->ColStart[me][Step+1] ; j++) {
-                my_context->Dest[my_context->MyI[j]] = my_context->MyD[j];
-              }
-            }
-          }
-          if (Step > pdone) {
-            iwait = Step-1;
-            if (RHS) {
-              while (prev_strip->done <= iwait) {
-                if (my_strip->jcop == -1) {
-                  for (j=row_lo ; j<=row_hi ; j++ )
-                    my_rhs[j] = RHS[Matrix->IntToExtRowMap[j]];
-                  my_strip->jcop = 0;
-                }
-                if (my_strip->jcop < Step && my_strip->jcop < row_hi) {
-                  j = my_strip->jcop+1;
-                  while (j < Step && j<row_hi && (row_lo <= j || *valid_f >= j)) {
-                    if (j >= row_lo) {
-                      Matrix->Intermediate3[j] = my_context->MyD[my_context->ColDiag[j]] *
-                                                 my_rhs[j];
-#if defined (DEC) || defined (solaris)
-                      __mb();
-#endif
-                      my_rhs[j] = Matrix->Intermediate3[j];
-                      *valid_f = j;
-                      k_start = my_context->ColDiag[j]+1;
-                    }
-                    else {
-                      k_start = my_context->ColStart[me][j];
-                    }
-                    if (j < row_hi && Matrix->Intermediate3[j] != 0) {
-                      for (k=k_start ; k<my_context->ColStart[me][j+1] ; k++) {
-                        my_rhs[my_context->MyI[k]] -= Matrix->Intermediate3[j] *
-                                      my_context->MyD[k];
-                      }
-                    }
-                    my_strip->jcop = j++;
-/* The following statement does nothing except cause prev_strip->done to be refetched
- from memory.  With compiler optimization turned on, this while loop can otherwise
- execute forever because the compiler never refetches this value */
-                    if (j<0) prev_strip->done = iwait+1;
-                  }
-                  wait2 += sm_wait_count (&prev_strip->done, 0, iwait);
-                }
-                else {
-                  wait2 += sm_wait_count (&prev_strip->done, 0, iwait);
-                }
-
-
-              }
-            }
-            else {
-              wait2 += sm_wait_count (&prev_strip->done, 0, iwait);
-            }
-            pdone = prev_strip->done;
-            up_ready = prev_strip->update[pdone];
-          }
-/* Scatter. */
-          if (update) {
-            pElement = f_col[Step];
-            while (pElement != NULL && pElement->Row <= row_hi) {
-              if (pElement->Row == Step)
-                my_context->ColDiag[Step] = my_p;
-              pElement->RealDense = &my_context->MyD[my_p];
-              my_context->MyI[my_p++] = pElement->Row;
-              my_context->Dest[pElement->Row] = pElement->Real;
-              pElement = pElement->NextInCol;
-            }
-            my_context->ColStart[me][Step+1] = my_p;
-            my_strip->FirstInCol[Step] = pElement;
-          }
-
-/* Update column. */
-          if (up_ready > up_curr) {
-            if (update) {
-              for (j=up_curr ; j<prev_strip->update[Step] ; j++) {
-                col = prev_strip->pc_out[j]->col;
-
-                if (f_col[col]->Row <= row_hi) {
-                  piv = prev_strip->pc_out[j]->pivot;
-                  pElement = f_col[col];
-                  while (pElement && pElement->Row <= row_hi) {
-                    my_context->Dest[pElement->Row] -= piv * pElement->Real;
-                    pElement = pElement->NextInCol;
-                  }
-                  my_strip->pc_gen[num_out_g] = &my_strip->pc[num_out_d];
-                  if (pElement) {
-                    my_strip->pc_out[num_out] = &my_strip->pc[num_out_d];
-                    my_strip->pc_out[num_out]->col = col;
-                    my_strip->pc_out[num_out]->pivot = piv;
-                    num_out++;
-                  }
-                  num_out_d++;
-                  num_out_g++;
-                  prev_strip->pc_out[num_in++] = prev_strip->pc_out[j];
-                }
-                else {
-                  my_strip->pc_out[num_out++] = prev_strip->pc_out[j];
-                }
-
-              }
-              up_curr = prev_strip->update[Step];
-              prev_strip->update[Step] = num_in;
-            }
-            else {
-              for (j=up_curr ; j<prev_strip->update[Step] ; j++) {
-                col = prev_strip->pc_out[j]->col;
-                piv = prev_strip->pc_out[j]->pivot;
-                for (k=my_context->ColStart[me][col] ; k<my_context->ColStart[me][col+1] ; k++) {
-                  my_context->Dest[my_context->MyI[k]] -= piv*my_context->MyD[k];
-                }
-                my_strip->pc_gen[num_out_g++]->pivot = piv;
-              }
-              up_curr = prev_strip->update[Step];
-            }
-          }
-          else {
-            if (update)
-              prev_strip->update[Step] = num_in;
-          }
-          if (update) {
-            pColumn = f_col[Step];
-            n_d = my_context->ColStart[me][Step];
-            if (pColumn) {
-              while (pColumn->Row < Step && pColumn->Row <= row_hi) {
-                pElement = Matrix->Diag[pColumn->Row];
-                piv = my_context->Dest[pColumn->Row] * pElement->Real;
-                pColumn->Real = piv; /* needed for consistent answers */
-                my_context->MyD[n_d++] = piv;
-                pElement = pElement->NextInCol;
-                while (pElement != NULL && pElement->Row <= row_hi) {
-                  my_context->Dest[pElement->Row] -= piv * pElement->Real;
-                  pElement = pElement->NextInCol;
-                }
-                if (pElement) {
-                  my_strip->pc_out[num_out] = &my_strip->pc[num_out_d];
-                  my_strip->pc_gen[num_out_g++] = &my_strip->pc[num_out_d];
-                  my_strip->pc_out[num_out]->col = pColumn->Row;
-                  my_strip->pc_out[num_out]->pivot = piv;
-                  num_out_d++;
-                  num_out++;
-                }
-                else {
-                  my_strip->pc_gen[num_out_g++] = &my_strip->pc[num_out_d++];
-                }
-                pColumn = pColumn->NextInCol;
-              }
-            }
-          }
-          else {
-            if (Step > my_context->MyI[my_context->ColStart[me][Step]]) {
-              for (k=my_context->ColStart[me][Step] ; k<my_context->ColStart[me][Step+1]; k++) {
-                if (my_context->MyI[k] >= Step) break;
-                piv = my_context->MyD[my_context->ColDiag[my_context->MyI[k]]] * my_context->Dest[my_context->MyI[k]];
-                my_context->Dest[my_context->MyI[k]] = piv;
-                my_context->MyD[k] = piv;
-                for (m=my_context->ColDiag[my_context->MyI[k]]+1 ; m<my_context->ColStart[me][my_context->MyI[k]+1] ; m++) {
-                  my_context->Dest[my_context->MyI[m]] -= piv * my_context->MyD[m];
-                }
-                my_strip->pc_gen[num_out_g++]->pivot = piv;
-              }
-            }
-          }
-
-/* Gather. */
-          if (update) {
-            if (row_hi >= Step) {
-              if (row_lo < Step) {
-                pElement = Matrix->Diag[Step]->NextInCol;
-                n_d = my_context->ColDiag[Step] + 1;
-              }
-              else {
-                pElement = f_col[Step];
-                n_d = my_context->ColStart[me][Step];
-              }
-              while (pElement != NULL && pElement->Row <= row_hi) {
-                  pElement->Real = my_context->Dest[pElement->Row]; /* needed for consistent answers */
-                  my_context->MyD[n_d++] = my_context->Dest[pElement->Row];
-                  pElement = pElement->NextInCol;
-              }
-            }
-          }
-          else {
-            if (Matrix->Format == FORMAT_DENSE_DISTRIBUTED) {
-              while (my_p < my_context->ColStart[me][Step+1]) {
-                if (my_context->MyI[my_p] == Step) {
-                  if (my_context->Dest[Step] == 0) {
-                    my_context->MyD[my_p] = 1.;
-                  }
-                  else {
-                    my_context->MyD[my_p] = 1/my_context->Dest[Step];
-                  }
-                }
-                else {
-                  my_context->MyD[my_p] = my_context->Dest[my_context->MyI[my_p]];
-                }
-                my_p++;
-              }
-            }
-            else {
-              pElement = f_col[Step];
-              while (pElement != NULL && pElement->Row <= row_hi) {
-                if (Step == pElement->Row) {
-                  if (my_context->Dest[Step] == 0) {
-                    my_context->MyD[my_p] = 1.;
-                  }
-                  else {
-                    my_context->MyD[my_p] = 1/my_context->Dest[Step];
-                  }
-                  pElement->Real = my_context->MyD[my_p]; /* needed for consistent answers */
-                }
-                else {
-                  my_context->MyD[my_p] = my_context->Dest[pElement->Row];
-                }
-                my_p++;
-                pElement = pElement->NextInCol;
-              }
-            }
-          }
-          if (update) {
-            my_strip->update[Step] = num_out;
-          }
-
-/* Check for singular matrix. */
-          if (Step >= row_lo && Step <= row_hi) {
-            if (my_context->Dest[Step] == 0.0) {
-              printf ("PE: %d returned zero pivot at Step = %d\n",pe_in_smp, Step);
-              Matrix->Error == spZERO_DIAG;
-              Matrix->OverflowDanger = 2*OF_THRESHOLD;
-              my_context->Dest[Step] = 1.;
-            }
-            if (minpiv > fabs(my_context->Dest[Step]))
-                minpiv = fabs(my_context->Dest[Step]);
-            if (minpiv_ratio*fabs(Matrix->Pivots[Step]) > fabs(my_context->Dest[Step]))
-                minpiv_ratio = fabs(my_context->Dest[Step]/Matrix->Pivots[Step]);
-            if (fabs(Matrix->Pivots[Step]) < fabs(my_context->Dest[Step])) {
-              avgpiv_ratio += fabs(my_context->Dest[Step]/Matrix->Pivots[Step]);
-            }
-            else {
-              avgpiv_ratio += 1;
-            }
-            if (update) {
-              my_context->MyD[my_context->ColDiag[Step]] = 1.0 / my_context->Dest[Step];
-              Matrix->Diag[Step]->Real = 1.0 / my_context->Dest[Step];
-            }
-          }
-#if defined (DEC) || defined (solaris)
-        __mb();
-#endif
-          my_strip->done = Step;
-          if (num_out >= my_strip->len || num_out_d > my_strip->len || num_out_g > my_strip->len) {
-            printf ("ERROR: ");
-            printf ("used: %d/%d of output strip (%d stored)\n",num_out, my_strip->len, num_out_d);
-          }
-        }
-        if (RHS) {
-/*        printf ("PE: %d finishing: %d : %d : %d\n",pe_in_smp, row_lo, my_strip->jcop, row_hi); */
-          if (my_strip->jcop == -1) {
-            for (j=row_lo ; j<=row_hi ; j++ )
-              my_rhs[j] = RHS[Matrix->IntToExtRowMap[j]];
-            my_strip->jcop = 0;
-          }
-          while (my_strip->jcop < row_hi) {
-            j = my_strip->jcop+1;
-            if (row_lo <= j || *valid_f >= j) {
-              if (j >= row_lo) {
-                Matrix->Intermediate3[j] = my_context->MyD[my_context->ColDiag[j]] *
-                                           my_rhs[j];
-#if defined (DEC) || defined (solaris)
-                __mb();
-#endif
-                my_rhs[j] = Matrix->Intermediate3[j];
-                *valid_f = j;
-                k_start = my_context->ColDiag[j]+1;
-              }
-              else {
-                k_start = my_context->ColStart[me][j];
-              }
-              if (j < row_hi && Matrix->Intermediate3[j] != 0) {
-                for (k=k_start ; k<my_context->ColStart[me][j+1] ; k++) {
-                  my_rhs[my_context->MyI[k]] -= Matrix->Intermediate3[j] *
-                                my_context->MyD[k];
-                }
-              }
-              my_strip->jcop = j;
-            }
-            else {
-              wait3 += sm_wait_count (valid_f, 0, j-1);
-            }
-          }
-        }
-        if (update) {
-/*
-          printf ("PE: %d [%d-%d] used %d/%d(of %d allocated)\n",pe_in_smp,row_lo,row_hi,
-                   num_out,num_out_d,my_strip->len);
-*/
-          my_strip->pc_out[num_out] = &my_strip->pc[num_out_d];
-          my_strip->pc_out[num_out]->col = -1;
-          my_context->ColStart[me][Size+1] = my_p;
-        }
-        if (num_out > my_strip->len) {
-          fprintf (stderr,"Internal error in spFactor, num_out too large (%d>=%d)\n",num_out,my_strip->len);
-          bye_bye(0);
-          exit (-1);
-        }
-        my_strip = my_strip->my_next;
-        my_strip->done = 0;
-        me++;
-      }
-      if (RHS) {
-        if (pe_in_smp == 0)
-          Matrix->Format = FORMAT_DENSE_DISTRIBUTED;
-      }
-      else {
-        spExpand(Matrix);
-      }
-      if (pe_in_smp == 0) {
-        Matrix->Factored = YES;
-      }
-
-      if (pe_in_smp < num_pes_in_smp-1)
-        wait4 += sm_wait_count (valid_b, Size+2, Size+1);
-
-      if (RHS) {
-        if (pe_in_smp == num_pes_in_smp-1) {
-          Matrix->Intermediate3[Size] = my_rhs[Size];
-          RHS[Matrix->IntToExtColMap[Size]] = my_rhs[Size];
-          *valid_b = Size;
-        }
-        for (ii=num_strips-num_pes_in_smp+pe_in_smp ; ii>=0 ; ii-=num_pes_in_smp) {
-          me--;
-          row_lo = Matrix->rowStrips[ii];
-          row_hi = Matrix->rowStrips[ii+1]-1;
-          j = 0;
-          for (i=Size ; i>row_lo ; i--) {
-            if (i > row_hi && i < *valid_b) {
-              wait4 += sm_wait_count (valid_b, Size+2, i+1);
-            }
-            if (row_hi >= i)
-              k_end = my_context->ColDiag[i];
-            else {
-              k_end = my_context->ColStart[me][i+1];
-            }
-            for (k=my_context->ColStart[me][i] ; k<k_end ; k++) {
-              my_rhs[my_context->MyI[k]] -= my_context->MyD[k]*
-                           Matrix->Intermediate3[i];
-            }
-            if (row_hi >= i-1) {
-              Matrix->Intermediate3[i-1] = my_rhs[i-1];
-              RHS[Matrix->IntToExtColMap[i-1]] = my_rhs[i-1];
-              if (j++ == 10 && i != row_lo+1) {
-                *valid_b = i-1;
-                j = 0;
-              }
-            }
-          }
-          *valid_b = row_lo;
-        }
-      }
-
-      time_end = RTC;
-      if (Size > WIDTH*num_pes_in_smp && num_pes_in_smp >= MIN_PES_SOLVE) {
-        Matrix->Avgpiv_ratios[pe_in_smp] = avgpiv_ratio;
-        Matrix->Minpivs[pe_in_smp] = minpiv;
-        Matrix->Minpiv_ratios[pe_in_smp] = minpiv_ratio;
-      }
-      sm_barrier();
-      if (pe_in_smp == 0) {
-        avgpiv_ratio = 0;
-        for (i=0 ; i<num_pes_in_smp ; i++) {
-          avgpiv_ratio += Matrix->Avgpiv_ratios[i];
-          if (minpiv > Matrix->Minpivs[i])
-            minpiv = Matrix->Minpivs[i];
-          if (minpiv_ratio > Matrix->Minpiv_ratios[i])
-            minpiv_ratio = Matrix->Minpiv_ratios[i];
-          Matrix->Avgpiv_ratios[i] = 0;
-          Matrix->Minpivs[i] = 0;
-          Matrix->Minpiv_ratios[i] = 0;
-        }
-      }
-      sm_barrier();
-    }
-    else {
-      num_strips = 1;
-      if (pe_in_smp == 0) {
-#endif /* SHARED_MEM */
 /* Start serial factorization. */
         scr = my_context->Dest;
         value =  my_context->MyD;
@@ -2062,11 +1242,6 @@ int ndimi, ndimd, ndimc;
         printf ("Min,Max RealDense: %lx, %lx\n",min_rd,max_rd);
 */
           
-#ifdef SHARED_MEM
-      }
-    }
-    if (pe_in_smp == 0) {
-#endif
       avgpiv_ratio /= Size;
       Matrix->OverflowDanger = Matrix->OverflowDanger*19/20;
 #ifdef DEBUG_OVER
@@ -2116,9 +1291,6 @@ int ndimi, ndimd, ndimc;
 #endif
         }
       }
-#ifdef SHARED_MEM
-    }
-#endif
 
 #ifdef CHECK_IND
     spCheckInd(Matrix, "spFactor bottom");
@@ -2138,18 +1310,11 @@ int ndimi, ndimd, ndimc;
             pe_in_smp, total_time, timer_wait2, timer_wait3, timer_wait4);
 #endif
 
-#ifdef SHARED_MEM
-    if (pe_in_smp == 0)
-#endif
     { if (need_solve)
         stat = spSolve (eMatrix, RHS, RHS, NULL, NULL );
     }
 
 #ifdef CHECK_ANS
-#ifdef SHARED_MEM
-    sm_barrier();
-    if (pe_in_smp == 0) {
-#endif
       if (RHS) {
         printf ("Check of RHS answers:");
         num_report = 0;
@@ -2167,38 +1332,12 @@ int ndimi, ndimd, ndimc;
       }
       num_report = 0;
       printf ("Check of factorized matrix:");
-#ifdef SHARED_MEM
-    }
-    num_report = 0;
-    for (i=0 ; i<num_pes_in_smp ; i++) {
-      sm_barrier();
-      if (pe_in_smp == i) {
-        me = 0;
-        for (ii=pe_in_smp ; ii<num_strips ; ii+=num_pes_in_smp) {
-          if (num_strips > 1) {
-            my_strip = Matrix->strips[ii];
-            prev_strip = my_strip->prev;
-            row_lo = Matrix->rowStrips[ii];
-            row_hi = Matrix->rowStrips[ii+1]-1;
-            if (row_lo == 1) {
-              f_col = Matrix->FirstInCol;
-            }
-            else {
-              f_col = prev_strip->FirstInCol;
-            }
-          }
-          else {
-            row_lo = 1;
-            row_hi = Size;
-            f_col = Matrix->FirstInCol;
-            my_context->ColStart[me] = my_context->ColStart_s;
-          }
-#else
+
           me = 0;
           num_report = 0;
           my_context->ColStart[me] = my_context->ColStart_s;
           f_col = Matrix->FirstInCol;
-#endif /* SHARED_MEM */
+
           for (j=1 ; j<=Size ; j++) {
             pElement = f_col[j];
             if (pElement) {
@@ -2224,27 +1363,14 @@ int ndimi, ndimd, ndimc;
               }
             }
           }
-#ifdef SHARED_MEM
-          me++;
-        }
-      }
-    }
-    num_report = sm_int_sum(num_report);
-    if (pe_in_smp == 0) {
-#endif /* SHARED_MEM */
       if (num_report == 0)
         printf (" Identical\n");
       else
         printf ("\nTotal of %d differences found\n",num_report);
-#ifdef SHARED_MEM
-    }
-#endif /* SHARED_MEM */
+
 #endif /* CHECK_ANS */
 
 #ifdef FINGERPRINT
-#ifdef SHARED_MEM
-    if (pe_in_smp == 0)
-#endif
       FingerPrint (RHS, Matrix->IntToExtRowMap, Matrix->IntToExtColMap, Size);
 #endif
 /*
@@ -2441,90 +1567,15 @@ long flops;
    No is number of carryover columns from above row
 */
 /* Begin `spPartition'. */
-#ifdef SHARED_MEM
-    if (pe_in_smp == 0) {
-#endif
       ASSERT( IS_SPARSE( Matrix ) );
       if (Matrix->Partitioned) return;
       Size = Matrix->Size;
       DoRealDirect = Matrix->DoRealDirect;
       DoCmplxDirect = Matrix->DoCmplxDirect;
       Matrix->Partitioned = YES;
-#ifdef SHARED_MEM
-      sm_msg[0] = CKT_PARTITION;
-      sm_msg[1] = (long) Matrix;
-      sm_msg[2] = (long) Mode;
-      sm_sync_area();
-    }
-    stride = num_pes_in_smp*C_SIZE;
-    start = pe_in_smp*C_SIZE+1;
-
-    Size = Matrix->Size;
-    if (scr_d == 0) {
-      scr_d = Size+1;
-      scr = (int *) tmalloc(scr_d*sizeof(int));
-    }
-    if (scr_d < Size+1) {
-      scr_d = Size+1;
-      scr = (int *) trealloc(scr, scr_d*sizeof(int));
-    }
-    for (i=0 ; i<=Size ; i++) {
-      scr[i] = 0;
-    }
-
-/* The estimate for flops is:
-   (a) 1 during factorization for above diagonal elements:
-   (b) 2 for each below diagonal element in column i, for each (i,j) above diagonal
-   (c) 1 for each diagonal element during factorization (divide)
-   (d) 1 for each diagonal element during forward solve
-   (e) 2 for each below diagonal element during forward solve
-   (f) 2 for each above diagonal element during back solve
-*/
-   
-    flops = 0;
-    for (i=start ; i<= Size ; i+=stride) {
-      j = i+C_SIZE-1;
-      if (j > Size) j = Size;
-      for (Step = i; Step <= j; Step++) {
-        flops += 2; /* for diagonal flops, (c) and (d) */
-        scr[Step] += 6;  /* counting divide operation as 5x */
-        n_diag = 0;
-        pElement = Matrix->Diag[Step]->NextInRow;
-        while (pElement != NULL) {
-          n_diag++;
-          flops += 2;  /* for (a) and (f) */
-          scr[Step] += 2;
-          pElement = pElement->NextInRow;
-        }
-        Matrix->No[Step] = n_diag;
-        scr[Step] += 10*n_diag;
-        pElement = Matrix->Diag[Step];
-        while ((pElement = pElement->NextInCol) != NULL) {
-          flops += 2*n_diag+2; /* for (b) and (e) */
-          scr[pElement->Row] += 2*n_diag+2;
-        }
-      }
-    }
-    flops = sm_long_sum(flops);
-    if (pe_in_smp == 0) {
-      sm_int_sumv (scr, Matrix->Nc, Size+1);
-/*
-      printf ("Flops for factor+solve = %ld\n",flops);
-*/
-    }
-    else {
-      sm_int_sumv (scr, scr, Size+1);
-    }
-#endif
     return;
 }
 
-
-
-
-
-
-
 /*
  *  CREATE INTERNAL VECTORS
  *
@@ -2563,13 +1614,8 @@ int  Size;
     }
     if (Matrix->MarkowitzProd == NULL)
     {
-#ifdef SHARED_MEM
-        if (( Matrix->MarkowitzProd = ALLOC(long, Size+1+num_pes_in_smp)) == NULL)
-            Matrix->Error = spNO_MEMORY;
-#else
         if (( Matrix->MarkowitzProd = ALLOC(long, Size+2)) == NULL)
             Matrix->Error = spNO_MEMORY;
-#endif
     }
     if (Matrix->Nc == NULL)
     {   if (( Matrix->Nc = ALLOC(int, Size+2)) == NULL)
@@ -3563,43 +2609,13 @@ int  NumberOfTies, Size = Matrix->Size;
 ElementPtr  ChosenPivot;
 RealNumber  Magnitude, Ratio, RatioOfAccepted, LargestInCol;
 RealNumber  FindBiggestInColExclude();
-#ifdef SHARED_MEM
-static ElementPtr *Chosen_P;
-static long *Min_MP;
-static double *Rat_Acc;
-static int bcast;
-#endif
+
 int start,step,iteration;
 static long MinMarkowitzProduct, SecondMinMarkowitzProduct;
 
 /* Begin `SearchDiagonal'. */
-
-#ifdef SHARED_MEM
-    start = Size+1+pe_in_smp;
-    step = num_pes_in_smp;
-    if (num_pes_in_smp > 1) {
-      if (pe_in_smp == 0) {
-        if (!bcast) {
-          Chosen_P = (ElementPtr *) sm_malloc(num_pes_in_smp*sizeof(ElementPtr));
-          Min_MP = (long *) sm_malloc(num_pes_in_smp*sizeof(long));
-          Rat_Acc = (double *) sm_malloc(num_pes_in_smp*sizeof(double));
-        }
-        sm_msg[0] = SEARCH_DIAGONAL;
-        sm_msg[1] = (long) Matrix;
-        sm_msg[2] = (long) Step;
-        sm_sync_area();
-      }
-      if (!bcast) {
-        Chosen_P = (ElementPtr *) sm_long_broadcast ((long) Chosen_P);
-        Min_MP = (long *) sm_long_broadcast ((long) Min_MP);
-        Rat_Acc = (double *) sm_long_broadcast ((long) Rat_Acc);
-        bcast = 1;
-      }
-    }
-#else
     start = Size+1;
     step = 1;
-#endif
 
     ChosenPivot = NULL;
     iteration = 0;
@@ -3669,45 +2685,11 @@ static long MinMarkowitzProduct, SecondMinMarkowitzProduct;
               MarkOfAccepted = *pMarkowitzProduct;
           }
       } /* End of for(Step) */
-#ifdef SHARED_MEM
-      if (num_pes_in_smp > 1) {
 
 /*
-        if (ChosenPivot)
-          printf ("PE: %d, mark = %ld, ratio = %g\n",pe_in_smp, MinMarkowitzProduct, RatioOfAccepted);
-*/
-
-        Chosen_P[pe_in_smp] = ChosenPivot;
-        Min_MP[pe_in_smp] = MinMarkowitzProduct;
-        Rat_Acc[pe_in_smp] = RatioOfAccepted;
-        sm_barrier();
-        MinMarkowitzProduct = sm_long_min (MinMarkowitzProduct);
-        if (pe_in_smp == 0) {
-          ChosenPivot = NULL;
-          for (J=num_pes_in_smp-1 ; J>=0 ; J--) {
-            if (MinMarkowitzProduct == Min_MP[J] && (ChosenPivot == NULL ||
-                (Rat_Acc[J] < RatioOfAccepted || (Rat_Acc[J] == RatioOfAccepted &&
-                Chosen_P[J] != NULL && Chosen_P[J]->Col > ChosenPivot->Col)))) {
-              MinMarkowitzProduct = Min_MP[J];
-              ChosenPivot = Chosen_P[J];
-              RatioOfAccepted = Rat_Acc[J];
-            }
-          }
-        }
-        ChosenPivot = (ElementPtr) sm_long_broadcast ((long) ChosenPivot);
-      }
-#endif
-
-/*
-#ifdef SHARED_MEM
-      if (pe_in_smp == 0) {
-#endif
         if (ChosenPivot)
           printf ("Final pivot at Step: %d = %d, mark = %ld, ratio = %g\n",Step, ChosenPivot->Col,
                    MinMarkowitzProduct, RatioOfAccepted);
-#ifdef SHARED_MEM
-      }
-#endif
 */
 
       if (ChosenPivot == NULL) {
@@ -4188,14 +3170,8 @@ ElementPtr spcFindElementInCol();
  */
 
 /* The following would disable parallelization of row/col swapping
-#undef SHARED_MEM
-*/
 
-#ifdef SHARED_MEM
-#define SWAP_TASK_CUTOFF 2   /* Minimum number of PEs in SMP to initiate Row & Col swap tasking */
-static int num_swap_tasks_d;
-static SwapTask *tasks;
-#endif
+*/
 
 void
 spcRowExchange( Matrix, Row1, Row2 )
@@ -4207,17 +3183,6 @@ register  ElementPtr  Row1Ptr, Row2Ptr;
 int  Column;
 ElementPtr  Element1, Element2;
 
-#ifdef SHARED_MEM
-int num_swap_tasks;
-
-    if (num_pes_in_smp > SWAP_TASK_CUTOFF) {
-      if (num_swap_tasks_d == 0) {
-        num_swap_tasks_d = 2*num_pes_in_smp;
-        tasks = (SwapTask *) sm_malloc(num_swap_tasks_d*sizeof(SwapTask));
-      }
-      num_swap_tasks = 0;
-    }
-#endif
 
 /* Begin `spcRowExchange'. */
     if (Row1 > Row2)  SWAP(int, Row1, Row2);
@@ -4259,37 +3224,9 @@ int num_swap_tasks;
             Row2Ptr = Row2Ptr->NextInRow;
         }
 
-#ifdef SHARED_MEM
-        if (num_pes_in_smp > SWAP_TASK_CUTOFF) {
-          if (num_swap_tasks >= num_swap_tasks_d) {
-            num_swap_tasks_d *= 2;
-            tasks = (SwapTask *) sm_realloc(tasks, num_swap_tasks_d*sizeof(SwapTask));
-          }
-          (tasks+num_swap_tasks)->Elem1 = Element1;
-          (tasks+num_swap_tasks)->Elem2 = Element2;
-          (tasks+num_swap_tasks)->Line1 = Row1;
-          (tasks+num_swap_tasks)->Line2 = Row2;
-          (tasks+num_swap_tasks)->Perp = Column;
-          num_swap_tasks++;
-        }
-        else {
-#endif
           ExchangeColElements( Matrix, Row1, Element1, Row2, Element2, Column);
-#ifdef SHARED_MEM
-        }
-#endif
+
     }  /* end of while(Row1Ptr != NULL OR Row2Ptr != NULL) */
-#ifdef SHARED_MEM
-    if (num_pes_in_smp > SWAP_TASK_CUTOFF) {
-      sm_msg[0] = EXCHANGE_ELEMENTS;
-      sm_msg[1] = (long) &ExchangeColElements;
-      sm_msg[2] = (long) Matrix;
-      sm_msg[3] = (long) tasks;
-      sm_msg[4] = (long) num_swap_tasks;
-      sm_sync_area10();
-      sm_barrier();
-    }
-#endif
 
     if (Matrix->InternalVectorsAllocated)
         SWAP( int, Matrix->MarkowitzRow[Row1], Matrix->MarkowitzRow[Row2]);
@@ -4350,17 +3287,6 @@ register  ElementPtr  Col1Ptr, Col2Ptr;
 int  Row;
 ElementPtr  Element1, Element2;
 
-#ifdef SHARED_MEM
-int num_swap_tasks;
-
-    if (num_pes_in_smp > SWAP_TASK_CUTOFF) {
-      if (num_swap_tasks_d == 0) {
-        num_swap_tasks_d = 2*num_pes_in_smp;
-        tasks = (SwapTask *) sm_malloc(num_swap_tasks_d*sizeof(SwapTask));
-      }
-      num_swap_tasks = 0;
-    }
-#endif
 /* Begin `spcColExchange'. */
     if (Col1 > Col2)  SWAP(int, Col1, Col2);
 
@@ -4401,37 +3327,8 @@ int num_swap_tasks;
             Col2Ptr = Col2Ptr->NextInCol;
         }
 
-#ifdef SHARED_MEM
-        if (num_pes_in_smp > SWAP_TASK_CUTOFF) {
-          if (num_swap_tasks >= num_swap_tasks_d) {
-            num_swap_tasks_d *= 2;
-            tasks = (SwapTask *) sm_realloc(tasks, num_swap_tasks_d*sizeof(SwapTask));
-          }
-          (tasks+num_swap_tasks)->Elem1 = Element1;
-          (tasks+num_swap_tasks)->Elem2 = Element2;
-          (tasks+num_swap_tasks)->Line1 = Col1;
-          (tasks+num_swap_tasks)->Line2 = Col2;
-          (tasks+num_swap_tasks)->Perp = Row;
-          num_swap_tasks++;
-        }
-        else {
-#endif
           ExchangeRowElements( Matrix, Col1, Element1, Col2, Element2, Row);
-#ifdef SHARED_MEM
-        }
-#endif
     }  /* end of while(Col1Ptr != NULL OR Col2Ptr != NULL) */
-#ifdef SHARED_MEM
-    if (num_pes_in_smp > SWAP_TASK_CUTOFF) {
-      sm_msg[0] = EXCHANGE_ELEMENTS;
-      sm_msg[1] = (long) &ExchangeRowElements;
-      sm_msg[2] = (long) Matrix;
-      sm_msg[3] = (long) tasks;
-      sm_msg[4] = (long) num_swap_tasks;
-      sm_sync_area11();
-      sm_barrier();
-    }
-#endif
 
     if (Matrix->InternalVectorsAllocated)
         SWAP( int, Matrix->MarkowitzCol[Col1], Matrix->MarkowitzCol[Col2]);
@@ -4838,96 +3735,17 @@ register  ElementPtr  pSub, pFast;
 register  int  Row;
 register  ElementPtr  pLower, pUpper;
 extern ElementPtr  CreateFillin();
-#ifdef SHARED_MEM
-#define N_BUF_PER_PE 20
-struct eb {
-    double val;
-    int p_row;
-    int p_col;
-    ElementPtr *above;
-};
-static int bcast;
-static struct eb *ebuf;
-static int ebuf_d, *p_done;
-static int *curr_pos, *curr_avail;
-int i, n_done, del, num_created, eb;
-#endif
 
 /* Begin `RealRowColElimination'. */
 
-#ifdef SHARED_MEM
-    if (pe_in_smp == 0) {
-#endif
 /* Test for zero pivot. */
       if (ABS(pPivot->Real) == 0.0)
       {   (void)MatrixIsSingular( Matrix, pPivot->Row );
           return;
       }
       pPivot->Real = 1.0 / pPivot->Real;
-#ifdef SHARED_MEM
-      if (!bcast) {
-        ebuf_d = N_BUF_PER_PE * num_pes_in_smp;
-        p_done = (int *) sm_malloc(num_pes_in_smp*sizeof(int));
-        ebuf = (struct eb *) sm_malloc(ebuf_d*sizeof(struct eb));
-        curr_pos = (int *) sm_malloc(sizeof(int));   /* these addresses are always cache aligned, */
-        curr_avail = (int *) sm_malloc(sizeof(int)); /* so on separate cache lines */
-      }
-      *curr_pos = 0;
-      *curr_avail = 0;
-      sm_msg[0] = REAL_ROW_COL_ELIM;
-      sm_msg[1] = (long) Matrix;
-      sm_msg[2] = (long) pPivot;
-      sm_msg[3] = (long) Step;
-      for (i=0 ; i<num_pes_in_smp ; i++) {
-        p_done[i] = 0;
-      }
-      sm_sync_area();
-    }
-    if (num_pes_in_smp > 1) {
-      if (!bcast) {
-        ebuf_d = N_BUF_PER_PE * num_pes_in_smp;
-        p_done = (int *) sm_long_broadcast((long) p_done);
-        ebuf = (struct eb *) sm_long_broadcast((long) ebuf);
-        curr_pos = (int *) sm_long_broadcast((long) curr_pos);
-        curr_avail = (int *) sm_long_broadcast((long) curr_avail);
-        bcast =1;
-      }
-    }
-#endif
 
     pUpper = pPivot->NextInRow;
-#ifdef SHARED_MEM
-/* PE 0 acts as the distributor of work, and also does all the required creation of
-   fill ins (which is a single threaded operation). */
-    if (num_pes_in_smp > 1) {
-      if (pe_in_smp == 0) {
-        num_created = 0;
-        while (1) {
-          n_done = 0;
-          dummy_call_x (curr_avail, p_done);
-          for (i=1 ; i<num_pes_in_smp ; i++) {
-            n_done += p_done[i];
-          }
-          while (*curr_avail < *curr_pos) {
-            eb = *curr_avail%ebuf_d;
-            pSub = CreateFillin( Matrix, ebuf[eb].p_row, ebuf[eb].p_col,
-                                 Step, ebuf[eb].above);
-            pSub->Real = ebuf[eb].val;
-            num_created++;
-            (void) __fetch_and_add (curr_avail, 1);
-          }
-          if (n_done == num_pes_in_smp-1)
-            break;
-        }
-        pUpper = NULL;
-      }
-      else {
-        while (pUpper != NULL && pUpper->Col%(num_pes_in_smp-1) != pe_in_smp-1) {
-          pUpper = pUpper->NextInRow;
-        }
-      }
-    }
-#endif
 
     while (pUpper != NULL)
     {
@@ -4956,38 +3774,11 @@ int i, n_done, del, num_created, eb;
 /* Test to see if desired element was not found, if not, create fill-in. */
             if (pSub == NULL OR pSub->Row != Row)
             {   
-#ifdef SHARED_MEM
-              if (num_pes_in_smp > 1) {
-                del = ebuf_d-*curr_pos+*curr_avail;
-                while (del < num_pes_in_smp) {
-                  sm_check_area();
-                  del = ebuf_d-*curr_pos+*curr_avail;
-                }
-                sm_lockon_exclusive(1);
-                eb = *curr_pos%ebuf_d;
-                if (pSub == NULL)
-                  ebuf[eb].above = NULL;
-                else
-                  ebuf[eb].above = &pSub->NextInCol;
-                ebuf[eb].p_row = Row;
-                ebuf[eb].p_col = pUpper->Col;
-                ebuf[eb].val = -(pUpper->Real * pLower->Real);
-#if defined (DEC) || defined (solaris)
-                __mb();
-#endif
-                (void) __fetch_and_add (curr_pos, 1);
-                sm_lockoff_exclusive(1);
-              }
-              else {
-#endif
                 if (pSub == NULL)
                   pSub = CreateFillin( Matrix, Row, pUpper->Col, Step, NULL);
                 else
                   pSub = CreateFillin( Matrix, Row, pUpper->Col, Step, &pSub->NextInCol);
                 pSub->Real -= pUpper->Real * pLower->Real;
-#ifdef SHARED_MEM
-              }
-#endif
             }
             else {
               pSub->Real -= pUpper->Real * pLower->Real;
@@ -4995,21 +3786,7 @@ int i, n_done, del, num_created, eb;
             pLower = pLower->NextInCol;
         }
         pUpper = pUpper->NextInRow;
-#ifdef SHARED_MEM
-        if (num_pes_in_smp > 1) {
-          while (pUpper != NULL && pUpper->Col%(num_pes_in_smp-1) != pe_in_smp-1) {
-            pUpper = pUpper->NextInRow;
-          }
-        }
-#endif
     }
-#ifdef SHARED_MEM
-#if defined (DEC) || defined (solaris)
-    __mb();
-#endif
-    p_done[pe_in_smp] = 1;
-    sm_sync_area();
-#endif
     return;
 #endif /* REAL */
 }

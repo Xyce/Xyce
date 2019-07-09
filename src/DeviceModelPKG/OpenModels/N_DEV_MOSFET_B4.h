@@ -839,11 +839,9 @@ private:
   double gjbd, gjbs, gdpr, gspr, geltd, gcggb;
   double ggtg, gcgdb, ggtd, gcgsb;
   double ggts, gcgbb, ggtb;
-  double gcgmgmb, gcgmdb, gcgmsb, gcgmbb, gcdgmb, gcsgmb, gcbgmb, gcddb;
-  double dxpart, gcdgb, gcdsb, gcdbb, gcsdb;
-  double sxpart, gcsgb, gcssb, gcsbb, gcbdb;
-  double gcbgb, gcbsb, gcbbb, gcdbdb, gcsbsb;
-  double gqdef, gcqgb, gcqdb, gcqsb, gcqbb;
+  double dxpart;
+  double sxpart;
+  double gqdef;
 
   double ddxpart_dVd, ddxpart_dVg, ddxpart_dVb, ddxpart_dVs;
   double dsxpart_dVd, dsxpart_dVg, dsxpart_dVb, dsxpart_dVs;

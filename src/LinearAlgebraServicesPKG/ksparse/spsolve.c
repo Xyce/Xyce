@@ -71,11 +71,6 @@ static char RCSid[] =
 
 #include "spice.h"
 
-#ifdef SHARED_MEM
-#include "shared_mem.h"
-#include <stdlib.h>
-#endif
-
 /*
  *  IMPORTS
  *
@@ -249,8 +244,6 @@ double *orig_rhs;
     }
     spExpandFormat(Matrix);
     ASSERT( IS_FACTORED(Matrix) );
-#ifndef SHARED_MEM
-#endif
 
 #if spCOMPLEX
     if (Matrix->Complex)
@@ -349,9 +342,6 @@ double *orig_rhs;
     FingerPrint(RHS, Matrix->IntToExtRowMap, Matrix->IntToExtColMap, Size);
 #endif
 
-#ifdef SHARED_MEM
-    numCall++;
-#endif
     return 0;
 #endif /* REAL */
 }
@@ -419,9 +409,6 @@ void SolveComplexMatrix();
     }
     if (Matrix->Error == spZERO_DIAG  || Matrix->Error == spSINGULAR)
       return (Matrix->Error);
-#ifdef SHARED_MEM
-    timer_start(20);
-#endif
 
 /* Backward Substitution. Solves Ux = c.*/
     pExtOrder = &Matrix->IntToExtColMap[Size];
@@ -443,10 +430,6 @@ void SolveComplexMatrix();
         Solution[*(pExtOrder--)] = Intermediate[I];
 */
 
-#ifdef SHARED_MEM
-    timer_stop(20);
-    total_solve_time = timer_get(20);
-#endif
     return 0;
 #endif /* REAL */
 }

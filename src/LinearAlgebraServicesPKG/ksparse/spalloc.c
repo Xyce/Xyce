@@ -254,30 +254,14 @@ int  AllocatedSize;
 
     Matrix->TopOfAllocationList = NULL;
     Matrix->RecordsRemaining = 0;
-#ifdef SHARED_MEM
-    Matrix->Avgpiv_ratios = (double *) sm_calloc(num_pes_in_smp, sizeof(double));
-    Matrix->Minpivs = (double *) sm_calloc(num_pes_in_smp, sizeof(double));
-    Matrix->Minpiv_ratios = (double *) sm_calloc(num_pes_in_smp, sizeof(double));
-    Matrix->RUpdate = 1;
-    Matrix->NextAvailElement = (int *) sm_malloc(num_pes_in_smp*sizeof(int));
-    Matrix->ElementsRemaining = (ElementPtr *) sm_malloc(num_pes_in_smp*sizeof(ElementPtr));
-#else
+
     Matrix->ElementsRemaining = 0;
-#endif
     Matrix->FillinsRemaining = 0;
 
     RecordAllocation( Matrix, (char *)Matrix );
     if (Matrix->Error == spNO_MEMORY) goto MemoryError;
 
-#ifdef SHARED_MEM
-    Matrix->strips = (struct strip_out **) sm_malloc((num_pes_in_smp*MAX_STRIPS)*sizeof(struct strip_out *));
-    Matrix->strips[0] = (struct strip_out *) NULL;
-    Matrix->rowStrips = (int *) sm_malloc((num_pes_in_smp*MAX_STRIPS+1)*sizeof(int));
-    Matrix->Strips = 0;
-    Matrix->MyStuff = (struct context_m *) sm_calloc(num_pes_in_smp, sizeof(struct context_m));
-#else
     Matrix->MyStuff = (struct context_m *) tmalloc(sizeof(struct context_m));
-#endif
     Matrix->Dense = 0;
 
 /* Take out the trash. */
@@ -430,38 +414,6 @@ int i, SelectAlloc, Select, pe_memory;
     if (num_returned_elements[Select] > 0)
       return (spcGetFillin(Matrix, Row, Col));
 
-#ifdef SHARED_MEM
-/* Allocate block of MatrixElements if necessary. */
-    pe_memory = 0;
-/* If it were possible to allocate memory on a particular PE, then we would use this, and
-   pe sensitve calls like sm_malloc_pe()
-    pe_memory = get_pe_number(Row, Col);
-*/
-    if (Matrix->ElementsRemaining[pe_memory] == 0) {
-      pElement = (ElementPtr) ALLOC(char, padsize*(ELEMENTS_PER_ALLOCATION+ELEMENTS_PER_CACHE));
-      RecordAllocation( Matrix, (char *) pElement );
-      if (Matrix->Error == spNO_MEMORY) return NULL;
-      Matrix->NextAvailElement[pe_memory] = (ElementPtr) (((((long) pElement) >>
-           padshift+LOG_ELEMENTS_PER_CACHE) + 1) << padshift+LOG_ELEMENTS_PER_CACHE);
-      Matrix->ElementsRemaining[pe_memory] = ELEMENTS_PER_ALLOCATION;
-    }
-
-/* Update Element counter and return pointer to Element. */
-    rElement = Matrix->NextAvailElement[pe_memory];
-    returned_elements[Select] = NULL;
-    ppElement = &returned_elements[Select];
-    for (i=0 ; i<ELEMENTS_PER_CACHE ; i++) {
-      if (--Matrix->ElementsRemaining[pe_memory] == 0) break;
-      pElement = Matrix->NextAvailElement[pe_memory];
-      if (i>0) {
-        pElement->NextInCol = *ppElement;
-        *ppElement = pElement;
-        ppElement = &pElement->NextInCol;
-        num_returned_elements[Select]++;
-      }
-
-      Matrix->NextAvailElement[pe_memory] = (ElementPtr) (((long) Matrix->NextAvailElement[pe_memory]) + padsize);
-#else
 /* Allocate block of MatrixElements if necessary. */
     if (Matrix->ElementsRemaining == 0) {
       pElement = (ElementPtr) ALLOC(char, padsize*(ELEMENTS_PER_ALLOCATION+ELEMENTS_PER_CACHE));
@@ -487,7 +439,7 @@ int i, SelectAlloc, Select, pe_memory;
       }
 
       Matrix->NextAvailElement = (ElementPtr) (((long) Matrix->NextAvailElement) + padsize);
-#endif
+
 
 /* This alternate method puts as many elements as possible from the chunk into the available
    column.  This saves a small amount of memory, but may make the code slower, especially
@@ -501,9 +453,6 @@ int i, SelectAlloc, Select, pe_memory;
 
     }
     memset (rElement, 0, sizeof(struct MatrixElement));
-#ifdef SHARED_MEM
-    rElement->pe = -1;
-#endif
     rElement->Row = Row;
     rElement->Col = Col;
 #ifdef CHILE
@@ -583,28 +532,12 @@ int i, ColAlloc;
     }
     num_return_cols = ColAlloc;
 
-#ifdef SHARED_MEM
-    for (i=0 ; i<num_pes_in_smp ; i++) {
-      Matrix->ElementsRemaining[i] = 0;
-      Matrix->NextAvailElement[i] = NULL;
-    }
-#else
     Matrix->ElementsRemaining = 0;
     Matrix->NextAvailElement = NULL;
-#endif
 
     return;
 }
 
-
-
-
-
-
-
-
-
-
 /*
  *  FILL-IN ALLOCATION
  *
@@ -644,9 +577,6 @@ spcGetFillin(MatrixPtr Matrix, int Row, int Col )
         }
       }
       memset (rval, 0, sizeof(struct MatrixElement));
-#ifdef SHARED_MEM
-      rval->pe = -1;
-#endif
       rval->Row = Row;
       rval->Col = Col;
       return rval;

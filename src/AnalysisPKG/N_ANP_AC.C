@@ -69,6 +69,7 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_LogStream.h>
 #include <N_UTL_Math.h>
+#include <N_UTL_RFparams.h>
 #include <N_UTL_SaveIOSState.h>
 #include <N_UTL_Timer.h>
 
@@ -766,9 +767,9 @@ bool AC::doInit()
     }
 
     Yparams_.shape(numPorts_, numPorts_);
-
-    Sparams_.shape(numPorts_, numPorts_ );
-
+    Sparams_.shape(numPorts_, numPorts_);
+    Zparams_.shape(numPorts_, numPorts_);
+    Hparams_.shape(numPorts_, numPorts_);
   }
 
 
@@ -1876,8 +1877,8 @@ bool AC::doProcessSuccessfulStep()
   }
   else
   {
-    ytos(Yparams_, Sparams_, Z0sVec_ );
-    
+    Util::ytos(Yparams_, Sparams_, Z0sVec_ );
+    Util::ytoz(Yparams_, Zparams_);
 
     // acLoopSize_ is the total number of frequency points in the analyses
     outputManagerAdapter_.outputSParams(currentFreq_, acLoopSize_, Z0sVec_, Sparams_);
@@ -1945,60 +1946,6 @@ bool AC::doFinish()
   }
 
   return bsuccess;
-}
-//-----------------------------------------------------------------------------
-// Function      : SnPparser::ytos
-// Purpose       : convert a Y Matrix into a S matrix with same Z0
-// Special Notes :
-// Scope         : public
-// Creator       : Cacciatori Alessio, Cover Sistemi srl
-// Creation Date : 11/02/2015
-//-----------------------------------------------------------------------------
-void AC::ytos(Teuchos::SerialDenseMatrix<int, std::complex<double> >& y, Teuchos::SerialDenseMatrix<int, std::complex<double> >& s, std::vector<double> & Z0sVec )
-{
-
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > eye(y.numRows(), y.numCols());
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > GrefInv(y.numRows(), y.numCols());
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > Zref(y.numRows(), y.numCols());
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > Gref(y.numRows(), y.numCols());
-
-  double z0;
-
-  for (int r = 0; r < y.numRows(); r++)
-  {
-    z0 = Z0sVec[r] ;
-    for (int c = 0; c < y.numCols(); c++)
-    {
-      eye(r, c) = r == c ? 1.0 : 0.0;
-      Zref(r, c) = r == c ? z0 : 0.0;
-      Gref(r, c) = r == c ? 1.0 / sqrt(z0) : 0.0;
-      GrefInv(r, c) = r == c ? sqrt(z0) : 0.0;
-    }
-  }
-
-  s.putScalar(0.0);
-
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > t1(y.numRows(), y.numCols());
-
-  t1.multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, Zref, y, 1.0);
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > t2(eye);
-  t2 += t1; // t2 = 1 + Zref * Ymat
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > t3(eye);
-  t3 -= t1; // t3 = 1 - Zref * Ymat
-
-  s.multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, Gref, t3, 1.0);
-  // Sout = Gref * (1 - Zref * Ymat)
-  // Invert t2
-  Teuchos::SerialDenseSolver<int, std::complex<double> > ftSolver;
-  ftSolver.setMatrix(Teuchos::rcp(&t2, false));
-  ftSolver.invert();
-  // t2 = (1 + Zref * Ymat)^-1
-  t3.putScalar(0.0);
-  t3.multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, s, t2, 1.0);
-  // t3 = Gref * (1 - Zref * Ymat)*(1 + Zref * Ymat)^-1
-  s.putScalar(0.0);
-  s.multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, t3, GrefInv, 1.0);
-
 }
 
 //-----------------------------------------------------------------------------

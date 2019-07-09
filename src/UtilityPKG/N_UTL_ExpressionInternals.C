@@ -320,7 +320,7 @@ ExpressionInternals::ExpressionInternals( const std::string & exp )
     varValsFreqIndex_ ( -1 ),
     sim_time_         ( 0.0 ),
     sim_dt_           ( 1.0e-10 ),
-    timeDependent_    ( false ),
+    implicitTimeDependent_    ( false ),
     randomDependent_  ( false ),
     breakpointed_     ( false ),
     numVars_          ( 0 )
@@ -365,7 +365,7 @@ ExpressionInternals::ExpressionInternals(
     varValsFreqIndex_  (right.varValsFreqIndex_),
     sim_time_          (right.sim_time_),
     sim_dt_            (right.sim_dt_),
-    timeDependent_     (right.timeDependent_),
+    implicitTimeDependent_     (right.implicitTimeDependent_),
     randomDependent_   (right.randomDependent_),
     breakpointed_      (right.breakpointed_),
     numVars_           (right.numVars_),
@@ -444,7 +444,7 @@ ExpressionInternals::ExpressionInternals( const ExpressionNode &node )
     varValsFreqIndex_ ( -1 ),
     sim_time_         ( 0.0 ),
     sim_dt_           ( 1.0e-10 ),
-    timeDependent_    ( false ),
+    implicitTimeDependent_    ( false ),
     randomDependent_  ( false ),
     breakpointed_     ( false ),
     numVars_          ( 0 ),
@@ -2032,14 +2032,30 @@ int ExpressionInternals::evaluateFunction ( double & exp_r )
 /// using the "set_var" function alone.  This function also sets some internal
 /// state variables needed for proper handling of time-dependent expressions.
 ///
+/// Note, if this function returns "true" that indicates that the time variable 
+/// in this expression has changed, and that this change matters.  If true, it 
+/// will trigger the device package to re-evaluate a lot of expression, and 
+/// potentially call processParams on lots of devices.  So, do not carelessly 
+/// set this the return value to true; be conservative.
+///
 /// @author Dave Shirley, PSSI
 /// @date 07/12/01
 ///
 bool ExpressionInternals::set_sim_time(double time)
 {
-  if ( time != sim_time_ )
+  // implicitTimeDependent_ == true if this expression contains SDT or DDT.   
+  // It is NOT true if one of the variables happens to be TIME, which would
+  // be EXPLICIT time dependent, but that use case is handled by the code 
+  // below.
+  //
+  // ERK.  I am trying to make it so that this function can only return 
+  // a true if the expression actually relies on time.  Most expressions do not.
+  if ( implicitTimeDependent_ ) 
   {
-    values_changed_ = true;
+    if ( time != sim_time_ )
+    {
+      values_changed_ = true;
+    }
   }
 
   if (varValsTimeIndex_ == -1) // has not been set yet, probably
@@ -2097,12 +2113,33 @@ bool ExpressionInternals::set_sim_time(double time)
 /// @author Eric Keiter
 /// @date 
 ///
+/// Note, if this function returns "true" that indicates that the dt variable 
+/// in this expression has changed, and that this change matters.  If true, it 
+/// will trigger the device package to re-evaluate a lot of expression, and 
+/// potentially call processParams on lots of devices.  So, do not carelessly 
+/// set this the return value to true; be conservative.
+///
 bool ExpressionInternals::set_sim_dt(double dt)
 {
   bool retVal=false;
-  if ( dt != sim_dt_ )
+
+  // implicitTimeDependent_ == true if this expression contains SDT or DDT.   
+  // It is NOT true if one of the variables happens to be TIME, which would
+  // be EXPLICIT time dependent, but that use case is handled by the code 
+  // below.
+  //
+  // ERK.  I am trying to make it so that this function can only return 
+  // a true if the expression actually relies on dt.
+  //
+  // The reality is that this boolean doesn't match this use case perfectly because 
+  // as of this writing only SDT depends on sim_dt_.  DDT, in its current 
+  // implementation does not.
+  if ( implicitTimeDependent_ ) 
   {
-    retVal = true;
+    if ( dt != sim_dt_ )
+    {
+      retVal = true;
+    }
   }
 
   sim_dt_ = dt;
@@ -2134,6 +2171,13 @@ bool ExpressionInternals::set_sim_dt(double dt)
 /// @author Dave Shirley, PSSI
 /// @date 09/11/06
 ///
+/// Note, if this function returns "true" that indicates that the temp variable 
+/// in this expression has changed, and that this change matters.  If true, it 
+/// will trigger the device package to re-evaluate a lot of expression, and 
+/// potentially call processParams on lots of devices.  So, do not carelessly 
+/// set this the return value to true; be conservative.
+///
+///
 bool ExpressionInternals::set_temp(double const & tempIn)
 {
   set_var(std::string("VT"), tempIn*CONSTKoverQ);
@@ -2156,6 +2200,13 @@ bool ExpressionInternals::set_temp(double const & tempIn)
 ///
 /// @author Eric Keiter, SNL
 /// @date 09/7/18
+///
+/// Note, if this function returns "true" that indicates that the freq variable 
+/// in this expression has changed, and that this change matters.  If true, it 
+/// will trigger the device package to re-evaluate a lot of expression, and 
+/// potentially call processParams on lots of devices.  So, do not carelessly 
+/// set this the return value to true; be conservative.
+///
 ///
 bool ExpressionInternals::set_sim_freq(double freqIn)
 {
@@ -3706,7 +3757,7 @@ ExpressionInternals::mkfnode_(
       }
       if (p->funcnum == EXPR_F_SDT || p->funcnum == EXPR_F_DDT)
       {
-        timeDependent_ = true;
+        implicitTimeDependent_ = true;
         p->state.resize(N_INT_STATE,0.0);
       }
       if (p->funcnum == EXPR_F_RAND || p->funcnum == EXPR_F_GAUSS || p->funcnum == EXPR_F_AGAUSS)

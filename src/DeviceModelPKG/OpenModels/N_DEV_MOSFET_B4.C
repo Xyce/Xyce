@@ -5084,34 +5084,9 @@ Instance::Instance(
     ggts(0.0),
     gcgbb(0.0),
     ggtb(0.0),
-    gcgmgmb(0.0),
-    gcgmdb(0.0),
-    gcgmsb(0.0),
-    gcgmbb(0.0),
-    gcdgmb(0.0),
-    gcsgmb(0.0),
-    gcbgmb(0.0),
-    gcddb(0.0),
     dxpart(0.0),
-    gcdgb(0.0),
-    gcdsb(0.0),
-    gcdbb(0.0),
-    gcsdb(0.0),
     sxpart(0.0),
-    gcsgb(0.0),
-    gcssb(0.0),
-    gcsbb(0.0),
-    gcbdb(0.0),
-    gcbgb(0.0),
-    gcbsb(0.0),
-    gcbbb(0.0),
-    gcdbdb(0.0),
-    gcsbsb(0.0),
     gqdef(0.0),
-    gcqgb(0.0),
-    gcqdb(0.0),
-    gcqsb(0.0),
-    gcqbb(0.0),
     ddxpart_dVd(0.0),
     ddxpart_dVg(0.0),
     ddxpart_dVb(0.0),
@@ -14059,24 +14034,6 @@ bool Instance::setupCapacitors_oldDAE ()
       qdrn -= qgdo;
       if (rgateMod == 3)
       {
-        gcgmgmb = (cgdo + cgso + paramPtr->cgbo) * ag0;
-        gcgmdb = -cgdo * ag0;
-        gcgmsb = -cgso * ag0;
-        gcgmbb = -paramPtr->cgbo * ag0;
-
-        gcdgmb = gcgmdb;
-        gcsgmb = gcgmsb;
-        gcbgmb = gcgmbb;
-
-        gcggb = cggb * ag0;
-        gcgdb = cgdb * ag0;
-        gcgsb = cgsb * ag0;
-        gcgbb = -(gcggb + gcgdb + gcgsb);
-
-        gcdgb = cdgb * ag0;
-        gcsgb = -(cggb + cbgb + cdgb) * ag0;
-        gcbgb = cbgb * ag0;
-
         qgmb = paramPtr->cgbo * vgmb;
         qgmid = qgdo + qgso + qgmb;
         qbulk -= qgmb;
@@ -14084,47 +14041,11 @@ bool Instance::setupCapacitors_oldDAE ()
       }
       else
       {
-        gcggb = (cggb + cgdo + cgso + paramPtr->cgbo ) * ag0;
-        gcgdb = (cgdb - cgdo) * ag0;
-        gcgsb = (cgsb - cgso) * ag0;
-        gcgbb = -(gcggb + gcgdb + gcgsb);
-
-        gcdgb = (cdgb - cgdo) * ag0;
-        gcsgb = -(cggb + cbgb + cdgb + cgso) * ag0;
-        gcbgb = (cbgb - paramPtr->cgbo) * ag0;
-
-        gcdgmb = gcsgmb = gcbgmb = 0.0;
-
         qgb = paramPtr->cgbo * vgb;
         qgate += qgdo + qgso + qgb;
         qbulk -= qgb;
         qsrc = -(qgate + qbulk + qdrn);
       }
-      gcddb = (cddb + capbd + cgdo) * ag0;
-      gcdsb = cdsb * ag0;
-
-      gcsdb = -(cgdb + cbdb + cddb) * ag0;
-      gcssb = (capbs + cgso - (cgsb + cbsb + cdsb)) * ag0;
-
-      if (!rbodyMod)
-      {
-        gcdbb = -(gcdgb + gcddb + gcdsb + gcdgmb);
-        gcsbb = -(gcsgb + gcsdb + gcssb + gcsgmb);
-        gcbdb = (cbdb - capbd) * ag0;
-        gcbsb = (cbsb - capbs) * ag0;
-        gcdbdb = 0.0; gcsbsb = 0.0;
-      }
-      else
-      {
-        gcdbb  = -(cddb + cdgb + cdsb) * ag0;
-        gcsbb = -(gcsgb + gcsdb + gcssb + gcsgmb) + capbs * ag0;
-        gcbdb = cbdb * ag0;
-        gcbsb = cbsb * ag0;
-
-        gcdbdb = -capbd * ag0;
-        gcsbsb = -capbs * ag0;
-      }
-      gcbbb = -(gcbdb + gcbgb + gcbsb + gcbgmb);
 
       ggtg = ggtd = ggtb = ggts = 0.0;
       sxpart = 0.6;
@@ -14144,11 +14065,6 @@ bool Instance::setupCapacitors_oldDAE ()
       ggts = gts = T0 * gcrgs;
       ggtb = gtb = T0 * gcrgb;
       gqdef = ScalingFactor * ag0;
-
-      gcqgb = cqgb * ag0;
-      gcqdb = cqdb * ag0;
-      gcqsb = cqsb * ag0;
-      gcqbb = cqbb * ag0;
 
       if (fabs(qcheq) <= 1.0e-5 * CoxWL)
       {
@@ -14194,18 +14110,6 @@ bool Instance::setupCapacitors_oldDAE ()
 
       if (rgateMod == 3)
       {
-        gcgmgmb = (cgdo + cgso + paramPtr->cgbo) * ag0;
-        gcgmdb = -cgdo * ag0;
-        gcgmsb = -cgso * ag0;
-        gcgmbb = -paramPtr->cgbo * ag0;
-
-        gcdgmb = gcgmdb;
-        gcsgmb = gcgmsb;
-        gcbgmb = gcgmbb;
-
-        gcdgb = gcsgb = gcbgb = 0.0;
-        gcggb = gcgdb = gcgsb = gcgbb = 0.0;
-
         qgmb = paramPtr->cgbo * vgmb;
         qgmid = qgdo + qgso + qgmb;
         qgate = 0.0;
@@ -14215,42 +14119,12 @@ bool Instance::setupCapacitors_oldDAE ()
       }
       else
       {
-        gcggb = (cgdo + cgso + paramPtr->cgbo ) * ag0;
-        gcgdb = -cgdo * ag0;
-        gcgsb = -cgso * ag0;
-        gcgbb = -paramPtr->cgbo * ag0;
-
-        gcdgb = gcgdb;
-        gcsgb = gcgsb;
-        gcbgb = gcgbb;
-        gcdgmb = gcsgmb = gcbgmb = 0.0;
-
         qgb = paramPtr->cgbo * vgb;
         qgate = qgdo + qgso + qgb;
         qbulk = -qgb;
         qdrn = -qgdo;
         qsrc = -(qgate + qbulk + qdrn);
       }
-
-      gcddb = (capbd + cgdo) * ag0;
-      gcdsb = gcsdb = 0.0;
-      gcssb = (capbs + cgso) * ag0;
-
-      if (!rbodyMod)
-      {
-        gcdbb = -(gcdgb + gcddb + gcdgmb);
-        gcsbb = -(gcsgb + gcssb + gcsgmb);
-        gcbdb = -capbd * ag0;
-        gcbsb = -capbs * ag0;
-        gcdbdb = 0.0; gcsbsb = 0.0;
-      }
-      else
-      {
-        gcdbb = gcsbb = gcbdb = gcbsb = 0.0;
-        gcdbdb = -capbd * ag0;
-        gcsbsb = -capbs * ag0;
-      }
-      gcbbb = -(gcbdb + gcbgb + gcbsb + gcbgmb);
     }
   }
   else
@@ -14260,24 +14134,6 @@ bool Instance::setupCapacitors_oldDAE ()
       qsrc = qdrn - qgso;
       if (rgateMod == 3)
       {
-        gcgmgmb = (cgdo + cgso + paramPtr->cgbo) * ag0;
-        gcgmdb = -cgdo * ag0;
-        gcgmsb = -cgso * ag0;
-        gcgmbb = -paramPtr->cgbo * ag0;
-
-        gcdgmb = gcgmdb;
-        gcsgmb = gcgmsb;
-        gcbgmb = gcgmbb;
-
-        gcggb = cggb * ag0;
-        gcgdb = cgsb * ag0;
-        gcgsb = cgdb * ag0;
-        gcgbb = -(gcggb + gcgdb + gcgsb);
-
-        gcdgb = -(cggb + cbgb + cdgb) * ag0;
-        gcsgb = cdgb * ag0;
-        gcbgb = cbgb * ag0;
-
         qgmb = paramPtr->cgbo * vgmb;
         qgmid = qgdo + qgso + qgmb;
         qbulk -= qgmb;
@@ -14285,46 +14141,11 @@ bool Instance::setupCapacitors_oldDAE ()
       }
       else
       {
-        gcggb = (cggb + cgdo + cgso + paramPtr->cgbo ) * ag0;
-        gcgdb = (cgsb - cgdo) * ag0;
-        gcgsb = (cgdb - cgso) * ag0;
-        gcgbb = -(gcggb + gcgdb + gcgsb);
-
-        gcdgb = -(cggb + cbgb + cdgb + cgdo) * ag0;
-        gcsgb = (cdgb - cgso) * ag0;
-        gcbgb = (cbgb - paramPtr->cgbo) * ag0;
-
-        gcdgmb = gcsgmb = gcbgmb = 0.0;
-
         qgb = paramPtr->cgbo * vgb;
         qgate += qgdo + qgso + qgb;
         qbulk -= qgb;
         qdrn = -(qgate + qbulk + qsrc);
       }
-      gcddb = (capbd + cgdo - (cgsb + cbsb + cdsb)) * ag0;
-      gcdsb = -(cgdb + cbdb + cddb) * ag0;
-
-      gcsdb = cdsb * ag0;
-      gcssb = (cddb + capbs + cgso) * ag0;
-
-      if (!rbodyMod)
-      {
-        gcdbb = -(gcdgb + gcddb + gcdsb + gcdgmb);
-        gcsbb = -(gcsgb + gcsdb + gcssb + gcsgmb);
-        gcbdb = (cbsb - capbd) * ag0;
-        gcbsb = (cbdb - capbs) * ag0;
-        gcdbdb = 0.0; gcsbsb = 0.0;
-      }
-      else
-      {
-        gcdbb = -(gcdgb + gcddb + gcdsb + gcdgmb) + capbd * ag0;
-        gcsbb = -(cddb + cdgb + cdsb) * ag0;
-        gcbdb = cbsb * ag0;
-        gcbsb = cbdb * ag0;
-        gcdbdb = -capbd * ag0;
-        gcsbsb = -capbs * ag0;
-      }
-      gcbbb = -(gcbgb + gcbdb + gcbsb + gcbgmb);
 
       ggtg = ggtd = ggtb = ggts = 0.0;
       sxpart = 0.4;
@@ -14342,12 +14163,6 @@ bool Instance::setupCapacitors_oldDAE ()
       ggts = gts = T0 * gcrgd;
       ggtd = gtd = T0 * gcrgs;
       ggtb = gtb = T0 * gcrgb;
-      gqdef = ScalingFactor * ag0;
-
-      gcqgb = cqgb * ag0;
-      gcqdb = cqsb * ag0;
-      gcqsb = cqdb * ag0;
-      gcqbb = cqbb * ag0;
 
       if (fabs(qcheq) <= 1.0e-5 * CoxWL)
       {
@@ -14392,18 +14207,6 @@ bool Instance::setupCapacitors_oldDAE ()
 
       if (rgateMod == 3)
       {
-        gcgmgmb = (cgdo + cgso + paramPtr->cgbo) * ag0;
-        gcgmdb = -cgdo * ag0;
-        gcgmsb = -cgso * ag0;
-        gcgmbb = -paramPtr->cgbo * ag0;
-
-        gcdgmb = gcgmdb;
-        gcsgmb = gcgmsb;
-        gcbgmb = gcgmbb;
-
-        gcdgb = gcsgb = gcbgb = 0.0;
-        gcggb = gcgdb = gcgsb = gcgbb = 0.0;
-
         qgmb = paramPtr->cgbo * vgmb;
         qgmid = qgdo + qgso + qgmb;
         qgate = 0.0;
@@ -14413,41 +14216,12 @@ bool Instance::setupCapacitors_oldDAE ()
       }
       else
       {
-        gcggb = (cgdo + cgso + paramPtr->cgbo ) * ag0;
-        gcgdb = -cgdo * ag0;
-        gcgsb = -cgso * ag0;
-        gcgbb = -paramPtr->cgbo * ag0;
-
-        gcdgb = gcgdb;
-        gcsgb = gcgsb;
-        gcbgb = gcgbb;
-        gcdgmb = gcsgmb = gcbgmb = 0.0;
-
         qgb = paramPtr->cgbo * vgb;
         qgate = qgdo + qgso + qgb;
         qbulk = -qgb;
         qdrn = -qgdo;
         qsrc = -qgso;
       }
-
-      gcddb = (capbd + cgdo) * ag0;
-      gcdsb = gcsdb = 0.0;
-      gcssb = (capbs + cgso) * ag0;
-      if (!rbodyMod)
-      {
-        gcdbb = -(gcdgb + gcddb + gcdgmb);
-        gcsbb = -(gcsgb + gcssb + gcsgmb);
-        gcbdb = -capbd * ag0;
-        gcbsb = -capbs * ag0;
-        gcdbdb = 0.0; gcsbsb = 0.0;
-      }
-      else
-      {
-        gcdbb = gcsbb = gcbdb = gcbsb = 0.0;
-        gcdbdb = -capbd * ag0;
-        gcsbsb = -capbs * ag0;
-      }
-      gcbbb = -(gcbdb + gcbgb + gcbsb + gcbgmb);
     }
   }
 
@@ -14484,322 +14258,7 @@ bool Instance::loadDAEFVector ()
     Xyce::dout() << "  " << std::endl;
   }
 
-#if 1
   setupFVectorVars ();
-#else
-  double ceqdrn_Jdxp(0.0), ceqbd_Jdxp(0.0), ceqbs_Jdxp(0.0);
-  double Istoteq_Jdxp(0.0), Idtoteq_Jdxp(0.0);
-  double Ibtoteq_Jdxp(0.0), Igtoteq_Jdxp(0.0);
-  double ceqgcrg_Jdxp(0.0), ceqgstot_Jdxp(0.0), ceqgdtot_Jdxp(0.0);
-  double ceqjs_Jdxp(0.0), ceqjd_Jdxp(0.0);
-  double T0;
-
-  if (mode >= 0)
-  {
-    Gm = gm;
-    Gmbs = gmbs;
-    FwdSum = Gm + Gmbs;
-    RevSum = 0.0;
-
-    ceqdrn = model_.dtype * cdrain;
-    ceqdrn_Jdxp = model_.dtype *
-             (-gds  * (vds-vds_orig)
-              -Gm   * (vgs-vgs_orig)
-              -Gmbs * (vbs-vbs_orig));
-
-    ceqbd = model_.dtype * (csub + Igidl);
-    ceqbd_Jdxp = model_.dtype * (
-               - (gbds + ggidld) * (vds-vds_orig)
-               - (gbgs + ggidlg) * (vgs-vgs_orig)
-               - (gbbs + ggidlb) * (vbs-vbs_orig));
-
-    ceqbs = model_.dtype * Igisl;
-    ceqbs_Jdxp = model_.dtype * (
-               + ggisls * (vds-vds_orig)
-               - ggislg * (vgd-vgd_orig)
-               - ggislb * (vbd-vbd_orig));
-
-    gbbdp = -(gbds);
-    gbbsp = gbds + gbgs + gbbs;
-
-    gbdpg = gbgs;
-    gbdpdp = gbds;
-    gbdpb = gbbs;
-    gbdpsp = -(gbdpg + gbdpdp + gbdpb);
-
-    gbspg = 0.0;
-    gbspdp = 0.0;
-    gbspb = 0.0;
-    gbspsp = 0.0;
-
-    if (model_.igcMod)
-    {
-      gIstotg = gIgsg + gIgcsg;
-      gIstotd = gIgcsd;
-      gIstots = gIgss + gIgcss;
-      gIstotb = gIgcsb;
-      Istoteq = model_.dtype * (Igs + Igcs);
-      Istoteq_Jdxp = model_.dtype * (
-          - gIstotg * (vgs-vgs_orig)
-          - gIgcsd  * (vds-vds_orig)
-          - gIgcsb  * (vbs-vbs_orig));
-
-      gIdtotg = gIgdg + gIgcdg;
-      gIdtotd = gIgdd + gIgcdd;
-      gIdtots = gIgcds;
-      gIdtotb = gIgcdb;
-      Idtoteq = model_.dtype * (Igd + Igcd);
-      Idtoteq_Jdxp = model_.dtype * (
-          - gIgdg  * (vgd-vgd_orig)
-          - gIgcdg * (vgs-vgs_orig)
-          - gIgcdd * (vds-vds_orig)
-          - gIgcdb * (vbs-vbs_orig));
-    }
-    else
-    {
-      gIstotg = gIstotd = gIstots = gIstotb = Istoteq = 0.0;
-      gIdtotg = gIdtotd = gIdtots = gIdtotb = Idtoteq = 0.0;
-      Istoteq_Jdxp = 0.0;
-      Idtoteq_Jdxp = 0.0;
-    }
-
-    if (model_.igbMod)
-    {
-      gIbtotg = gIgbg;
-      gIbtotd = gIgbd;
-      gIbtots = gIgbs;
-      gIbtotb = gIgbb;
-      Ibtoteq = model_.dtype * Igb;
-      Ibtoteq_Jdxp = model_.dtype * (
-          - gIgbg * (vgs-vgs_orig)
-          - gIgbd * (vds-vds_orig)
-          - gIgbb * (vbs-vbs_orig));
-    }
-    else
-    {
-      gIbtotg = gIbtotd = gIbtots = gIbtotb = Ibtoteq = 0.0;
-      Ibtoteq_Jdxp = 0.0;
-    }
-
-    if ((model_.igcMod != 0) || (model_.igbMod != 0))
-    {
-      gIgtotg = gIstotg + gIdtotg + gIbtotg;
-      gIgtotd = gIstotd + gIdtotd + gIbtotd ;
-      gIgtots = gIstots + gIdtots + gIbtots;
-      gIgtotb = gIstotb + gIdtotb + gIbtotb;
-      Igtoteq = Istoteq + Idtoteq + Ibtoteq;
-      Igtoteq_Jdxp = Istoteq_Jdxp + Idtoteq_Jdxp + Ibtoteq_Jdxp;
-    }
-    else
-    {
-      gIgtotg = gIgtotd = gIgtots = gIgtotb = Igtoteq = 0.0;
-      Igtoteq_Jdxp = 0.0;
-    }
-
-
-    if (rgateMod == 2)
-    {
-      T0 = vges - vgs;
-    }
-    else if (rgateMod == 3)
-    {
-      T0 = vgms - vgs;
-    }
-
-    if (rgateMod > 1)
-    {
-      gcrgd = gcrgd * T0;
-      gcrgg = gcrgg * T0;
-      gcrgs = gcrgs * T0;
-      gcrgb = gcrgb * T0;
-      ceqgcrg = 0.0;
-      ceqgcrg_Jdxp = -(
-                        gcrgd * (vds-vds_orig)
-                      + gcrgg * (vgs-vgs_orig)
-                      + gcrgb * (vbs-vbs_orig));
-      gcrgg -= gcrg;
-      //gcrg = gcrg;
-    }
-    else
-    {
-      ceqgcrg = gcrg = gcrgd = gcrgg = gcrgs = gcrgb = 0.0;
-      ceqgcrg_Jdxp = 0.0;
-    }
-  }
-  else
-  {
-    Gm = -gm;
-    Gmbs = -gmbs;
-    FwdSum = 0.0;
-    RevSum = -(Gm + Gmbs);
-
-    ceqdrn = -model_.dtype * cdrain;
-    ceqdrn_Jdxp = -model_.dtype * (
-        + gds  * (vds-vds_orig)
-        + Gm   * (vgd-vgd_orig)
-        + Gmbs * (vbd-vbd_orig));
-
-    ceqbs = model_.dtype * (csub + Igisl);
-    ceqbs_Jdxp = model_.dtype * (
-          + (gbds + ggisls) * (vds-vds_orig)
-          - (gbgs + ggislg) * (vgd-vgd_orig)
-          - (gbbs + ggislb) * (vbd-vbd_orig));
-    ceqbd = model_.dtype * Igidl;
-    ceqbd_Jdxp = model_.dtype * (
-          - ggidld * (vds-vds_orig)
-          - ggidlg * (vgs-vgs_orig)
-          - ggidlb * (vbs-vbs_orig));
-
-    gbbsp = -(gbds);
-    gbbdp = gbds + gbgs + gbbs;
-
-    gbdpg = 0.0;
-    gbdpsp = 0.0;
-    gbdpb = 0.0;
-    gbdpdp = 0.0;
-
-    gbspg = gbgs;
-    gbspsp = gbds;
-    gbspb = gbbs;
-    gbspdp = -(gbspg + gbspsp + gbspb);
-
-    if (model_.igcMod)
-    {
-      gIstotg = gIgsg + gIgcdg;
-      gIstotd = gIgcds;
-      gIstots = gIgss + gIgcdd;
-      gIstotb = gIgcdb;
-      Istoteq = model_.dtype * (Igs + Igcd);
-      Istoteq_Jdxp = model_.dtype * (
-          - gIgsg  * (vgs-vgs_orig)
-          - gIgcdg * (vgd-vgd_orig)
-          + gIgcdd * (vds-vds_orig)
-          - gIgcdb * (vbd-vbd_orig));
-
-      gIdtotg = gIgdg + gIgcsg;
-      gIdtotd = gIgdd + gIgcss;
-      gIdtots = gIgcsd;
-      gIdtotb = gIgcsb;
-      Idtoteq = model_.dtype * (Igd + Igcs);
-      Idtoteq_Jdxp = model_.dtype * (
-            - (gIgdg + gIgcsg) * (vgd-vgd_orig)
-            + gIgcsd * (vds-vds_orig)
-            - gIgcsb * (vbd-vbd_orig));
-    }
-    else
-    {
-      gIstotg = gIstotd = gIstots = gIstotb = Istoteq = 0.0;
-      gIdtotg = gIdtotd = gIdtots = gIdtotb = Idtoteq = 0.0;
-      Istoteq_Jdxp = 0.0;
-      Idtoteq_Jdxp = 0.0;
-    }
-
-    if (model_.igbMod)
-    {
-      gIbtotg = gIgbg;
-      gIbtotd = gIgbs;
-      gIbtots = gIgbd;
-      gIbtotb = gIgbb;
-      Ibtoteq = model_.dtype * Igb;
-      Ibtoteq_Jdxp = model_.dtype * (
-          - gIgbg * (vgd-vgd_orig)
-          + gIgbd * (vds-vds_orig)
-          - gIgbb * (vbd-vbd_orig));
-    }
-    else
-    {
-      gIbtotg = gIbtotd = gIbtots = gIbtotb = Ibtoteq = 0.0;
-      Ibtoteq_Jdxp = 0.0;
-    }
-
-    if ((model_.igcMod != 0) || (model_.igbMod != 0))
-    {
-      gIgtotg = gIstotg + gIdtotg + gIbtotg;
-      gIgtotd = gIstotd + gIdtotd + gIbtotd ;
-      gIgtots = gIstots + gIdtots + gIbtots;
-      gIgtotb = gIstotb + gIdtotb + gIbtotb;
-      Igtoteq = Istoteq + Idtoteq + Ibtoteq;
-      Igtoteq_Jdxp = Istoteq_Jdxp + Idtoteq_Jdxp + Ibtoteq_Jdxp;
-    }
-    else
-    {
-      gIgtotg = gIgtotd = gIgtots = gIgtotb = Igtoteq = 0.0;
-      Igtoteq_Jdxp = 0.0;
-    }
-
-    if (rgateMod == 2)
-    {
-      T0 = vges - vgs;
-    }
-    else if (rgateMod == 3)
-    {
-      T0 = vgms - vgs;
-    }
-
-    if (rgateMod > 1)
-    {
-    double tmp_gcrgd = gcrgd;
-      gcrgd = gcrgs * T0;
-      gcrgg = gcrgg * T0;
-      gcrgs = tmp_gcrgd * T0;
-      gcrgb = gcrgb * T0;
-      ceqgcrg = 0.0;
-      ceqgcrg_Jdxp = -(
-            gcrgg * (vgd-vgd_orig)
-          - gcrgs * (vds-vds_orig)
-          + gcrgb * (vbd-vbd_orig));
-      gcrgg -= gcrg;
-      //gcrg = gcrg;
-    }
-    else
-    {
-      ceqgcrg = gcrg = gcrgd = gcrgg = gcrgs = gcrgb = 0.0;
-    }
-  }
-
-  if (model_.rdsMod == 1)
-  {
-    ceqgstot = 0.0;
-    ceqgstot_Jdxp = model_.dtype * (
-          gstotd * (vds-vds_orig)
-        + gstotg * (vgs-vgs_orig)
-        + gstotb * (vbs-vbs_orig));
-    gstots = gstots - gstot;
-
-    ceqgdtot = 0.0;
-    ceqgdtot_Jdxp = -model_.dtype * (
-          gdtotd * (vds-vds_orig)
-        + gdtotg * (vgs-vgs_orig)
-        + gdtotb * (vbs-vbs_orig));
-    gdtotd = gdtotd - gdtot;
-  }
-  else
-  {
-    gstot = gstotd = gstotg = gstots = gstotb = ceqgstot = 0.0;
-    gdtot = gdtotd = gdtotg = gdtots = gdtotb = ceqgdtot = 0.0;
-    ceqgstot_Jdxp = 0.0;
-    ceqgdtot_Jdxp = 0.0;
-  }
-
-  if (model_.dtype > 0)
-  {
-    ceqjs = (cbs);
-    ceqjs_Jdxp = (- gbs * (vbs_jct-vbs_jct_orig));
-    ceqjd = (cbd);
-    ceqjd_Jdxp = (- gbd * (vbd_jct-vbd_jct_orig));
-  }
-  else
-  {
-    ceqjs = -(cbs);
-    ceqjs_Jdxp = (gbs * (vbs_jct-vbs_jct_orig));
-    ceqjd = -(cbd);
-    ceqjd_Jdxp = (gbd * (vbd_jct-vbd_jct_orig));
-    ceqgcrg = -ceqgcrg;
-
-    ceqgcrg_Jdxp = -ceqgcrg_Jdxp;
-  }
-
-#endif
 
   // Loading F-vector
   fVec[li_DrainPrime] += -(ceqjd - ceqbd - ceqdrn + Idtoteq)*numberParallel;
@@ -14976,7 +14435,7 @@ bool Instance::loadDAEFVector ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Instance::
+// Function      : Instance::setupFVectorVars
 // Purpose       :
 // Special Notes :
 // Scope         : public

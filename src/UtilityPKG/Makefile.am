@@ -56,6 +56,7 @@ libUtility_la_SOURCES = \
   N_UTL_OutputAPIHelpers.C \
   N_UTL_Param.C \
   N_UTL_RandomNumbers.C \
+  N_UTL_RFparams.C \
   N_UTL_Timer.C \
   N_UTL_CPUTime.C \
   N_UTL_MallocUsed.C \
@@ -84,6 +85,7 @@ libUtility_la_SOURCES = \
   N_UTL_ExpressionData.h \
   N_UTL_FFTInterface.hpp \
   N_UTL_RandomNumbers.h \
+  N_UTL_RFparams.h \
   N_UTL_Demangle.h \
   N_UTL_DeviceNameConverters.h \
   N_UTL_Diagnostic.h \
