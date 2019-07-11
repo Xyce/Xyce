@@ -169,8 +169,6 @@ PCE::PCE(
       hackOutputCalledBefore_(false),
       hackOutputAllSamples_(false),
 #if Xyce_STOKHOS_ENABLE
-      regressionPCEenable_(false),
-      projectionPCEenable_(false),
       PCEorder_(4),
       resamplePCE_(false),
       outputPCECoeffs_(false),
@@ -528,14 +526,6 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
       hackOutputAllSamples_=static_cast<bool>((*it).getImmutableValue<bool>());
     }
 #if Xyce_STOKHOS_ENABLE
-    else if ((*it).uTag() == "REGRESSION_PCE")
-    {
-      regressionPCEenable_ = static_cast<bool>((*it).getImmutableValue<bool>());
-    }
-    else if ((*it).uTag() == "PROJECTION_PCE")
-    {
-      projectionPCEenable_ = static_cast<bool>((*it).getImmutableValue<bool>());
-    }
     else if ((*it).uTag() == "ORDER")
     {
       PCEorder_ = (*it).getImmutableValue<int>();
@@ -709,64 +699,9 @@ void PCE::stepCallBack ()
   computeEnsembleOutputs();
 
 #if Xyce_STOKHOS_ENABLE
-  if (regressionPCEenable_) 
-  {
-    const int numParams = paramNameVec_.size();
-    std::vector< std::vector<double> > x;
-    UQ::unScaleSampleValues(numSamples_, samplingVector_, covMatrix_, meanVec_, Y_, x);
-
-    std::vector< Stokhos::OrthogPolyApprox<int,double> > pceVec;
-
-    for (int iout=0;iout<outFuncDataVec_.size();++iout)
-    {
-      UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
-
-      Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
-      regressionPCE.reset(regrBasis);
-
-      std::vector<double> & f = outFunc.sampleOutputs;
-      UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
-
-      if (outputPCECoeffs_)
-      {
-        Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << regressionPCE << std::endl;
-        regressionPCE.print(Xyce::lout());
-      }
-
-      if (stdOutputFlag_)
-      {
-        Xyce::lout() << std::endl;
-        Xyce::lout() << "(embedded sampling) regression PCE mean of " << outFunc.outFuncString << " = " << regressionPCE.mean() << std::endl;
-        Xyce::lout() << "(embedded sampling) regression PCE stddev of " << outFunc.outFuncString << " = " << regressionPCE.standard_deviation() << std::endl;
-      }
-
-      if (resamplePCE_)
-      {
-        pceVec.push_back(regressionPCE);
-      }
-    }
-
-    if (resamplePCE_)
-    {
-      std::vector < std::vector<double> > fvec (outFuncDataVec_.size());
-      std::vector <UQ::statisticalMoments> statVec (outFuncDataVec_.size());
-
-      long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
-      UQ::sampleApproximationPCE(theSeed, sampleType_, samplingVector_, covMatrix_, meanVec_, numResamples_, numParams, pceVec, fvec, statVec);
-
-      for (int iout=0;iout<outFuncDataVec_.size();++iout)
-      {
-        UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
-        Xyce::lout() << std::endl;
-        Xyce::lout() << "Statistics from re-sampling regression PCE approximation of " << outFunc.outFuncString << ":" << std::endl;;
-        Xyce::lout() << statVec[iout];
-        Xyce::lout() << std::endl;
-      }
-    }
-  }
-
 //
-  if (projectionPCEenable_)
+  // in this class, this is always enabled
+  //if (projectionPCEenable_)
   {
     std::vector< Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > > pceVec;
 
@@ -863,122 +798,8 @@ bool PCE::doInit()
       samplingVector_.begin(), 
       samplingVector_.end());
 
-#if Xyce_STOKHOS_ENABLE
-  if( !numSamplesGiven_  && !projectionPCEenable_)
-  {
-    Report::UserFatal0() << "Number of samples not specified, and quadrature PCE isn't being used (quadrature PCE is only method that doesn't need it)";
-  }
-#else
-  if( !numSamplesGiven_ )
-  {
-    Report::UserFatal0() << "Number of samples not specified";
-  }
-#endif
-  else
-  {
-    // Deal with the random number seed, and set up random samples.
-    // Don't bother with this is projection PCE has been specified.
-    long theSeed = UQ::getTheSeed(
-        analysisManager_.getComm(), 
-        analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
-
-    UQ::setupSampleValues(theSeed, sampleType_,
-        numSamples_, samplingVector_, covMatrix_, meanVec_, X_, Y_);
-  }
-
-#if Xyce_STOKHOS_ENABLE
-  // determine the samples. 
-  //
-  // non-intrusive spectral projection(NISP) samples are determined 
-  // by the quadrature points
-  if (projectionPCEenable_) 
-  {
-    const int d = paramNameVec_.size();
-    const int p = PCEorder_;
-    quadBases.resize(d); 
-    for (int i=0; i<d; i++)
-    {
-      SweepParam & sp = samplingVector_[i];
-
-      if (sp.type == "UNIFORM")
-      {
-        quadBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
-      }
-      else if (sp.type == "NORMAL") 
-      {
-        quadBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
-      }
-      else
-      {
-        Report::UserFatal0() << "Polynomial Chaos only works for normal and uniform distributions.";
-      }
-    }
-
-    if (useSparseGrid_)
-    {
-      // ERK.  Understand these better
-      double drop = 1.0e-12;
-      const Stokhos::TotalOrderIndexSet<int> index_set(d, p);
-      typedef Stokhos::TotalOrderLess< Stokhos::MultiIndex<int> > total_less;
-      typedef Stokhos::LexographicLess< Stokhos::MultiIndex<int> > lexo_less;
-
-      quadBasis = rcp(new Stokhos::SmolyakBasis<int,double,total_less>( quadBases, index_set, drop));
-      quadMethod = rcp(new Stokhos::SmolyakSparseGridQuadrature<int,double>(quadBasis, index_set));
-    }
-    else
-    {
-      quadBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(quadBases));
-      quadMethod = rcp(new Stokhos::TensorProductQuadrature<int,double>(quadBasis));
-    }
-
-    quadCijk = quadBasis->computeTripleProductTensor();
-    quadExpn = rcp(new Stokhos::QuadOrthogPolyExpansion<int,double>(quadBasis, quadCijk, quadMethod));
-
-    UQ::setupPCEQuadPoints ( quadBasis, quadMethod, quadExpn, samplingVector_, covMatrix_, meanVec_, X_, Y_);
-    numSamples_ = quadMethod->size();
-  }
-
-  // if regression PCE specified, then create the basis, 
-  // determine the basis size, and then force # of samples to be larger
-  // than the basis size so that the least squares solve will be
-  // successful.
-  if (regressionPCEenable_) 
-  {
-    const int d = paramNameVec_.size();
-    const int p = PCEorder_;
-    regrBases.resize(d); 
-    for (int i=0; i<d; i++)
-    {
-      SweepParam & sp = samplingVector_[i];
-
-      if (sp.type == "UNIFORM")
-      {
-        regrBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
-      }
-      else if (sp.type == "NORMAL") 
-      {
-        regrBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
-      }
-      else
-      {
-        Report::UserFatal0() << "Polynomial Chaos only works for normal and uniform distributions.";
-      }
-    }
-
-    regrBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(regrBases));
-    int basisSize = regrBasis->size();
-
-    if (numSamples_ < basisSize)
-    {
-      Report::UserFatal0()
-            << "Number of samples = " << numSamples_ << ", which is smaller than the basis size = " 
-            << basisSize << ".  Increase the number of samples to use this basis";
-    }
-  }
-#endif
-
+  setupStokhosObjects ();
   setupBlockSystemObjects ();
-  setupEnsembles ();
 
   return true;
 }
@@ -1111,7 +932,7 @@ void  PCE::setupBlockSystemObjects ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : PCE::setupEnsembles
+// Function      : PCE::setupStokhosObjects 
 // Purpose       : This function sets up the stokhos ensemble objects, using
 //                 the computed sample values.
 // Special Notes :
@@ -1119,9 +940,62 @@ void  PCE::setupBlockSystemObjects ()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
-void PCE::setupEnsembles ()
+void PCE::setupStokhosObjects ()
 {
+#if Xyce_STOKHOS_ENABLE
+  // determine the samples. 
+  //
+  // non-intrusive spectral projection(NISP) samples are determined 
+  // by the quadrature points
+  //
+  // In this class projection PCE is always assumed enabled.
+  //if (projectionPCEenable_)  
+  {
+    const int d = paramNameVec_.size();
+    const int p = PCEorder_;
+    quadBases.resize(d); 
+    for (int i=0; i<d; i++)
+    {
+      SweepParam & sp = samplingVector_[i];
 
+      if (sp.type == "UNIFORM")
+      {
+        quadBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
+      }
+      else if (sp.type == "NORMAL") 
+      {
+        quadBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
+      }
+      else
+      {
+        Report::UserFatal0() << "Polynomial Chaos only works for normal and uniform distributions.";
+      }
+    }
+
+    if (useSparseGrid_)
+    {
+      // ERK.  Understand these better
+      double drop = 1.0e-12;
+      const Stokhos::TotalOrderIndexSet<int> index_set(d, p);
+      typedef Stokhos::TotalOrderLess< Stokhos::MultiIndex<int> > total_less;
+      typedef Stokhos::LexographicLess< Stokhos::MultiIndex<int> > lexo_less;
+
+      quadBasis = rcp(new Stokhos::SmolyakBasis<int,double,total_less>( quadBases, index_set, drop));
+      quadMethod = rcp(new Stokhos::SmolyakSparseGridQuadrature<int,double>(quadBasis, index_set));
+    }
+    else
+    {
+      quadBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(quadBases));
+      quadMethod = rcp(new Stokhos::TensorProductQuadrature<int,double>(quadBasis));
+    }
+
+    quadCijk = quadBasis->computeTripleProductTensor();
+    quadExpn = rcp(new Stokhos::QuadOrthogPolyExpansion<int,double>(quadBasis, quadCijk, quadMethod));
+
+    UQ::setupPCEQuadPoints ( quadBasis, quadMethod, quadExpn, samplingVector_, covMatrix_, meanVec_, X_, Y_);
+    numSamples_ = quadMethod->size();
+  }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1143,18 +1017,8 @@ bool PCE::doLoopProcess()
   // to be the "child" analysis, but to then replace the linear objects with block 
   // versions and replace the loader with a block loader.  Otherwise, all the control 
   // is handled in the child process.
-  Xyce::lout() << "***** Beginning Embedded Sampling (simultaneous propagation) simulation....\n" << std::endl;
-
-#if Xyce_STOKHOS_ENABLE
-  if (projectionPCEenable_)
-  {
-    Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
-  }
-  else
-#endif
-  {
-    Xyce::lout() << "***** Number of sample points = " << numSamples_ << "\n" << std::endl;
-  }
+  Xyce::lout() << "***** Beginning Intrusive PCE simulation....\n" << std::endl;
+  Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
 
   // test:
   analysisManager_.setAnalysisMode(Xyce::Analysis::ANP_MODE_TRANSIENT);
@@ -1317,11 +1181,11 @@ void PCE::hackEnsembleOutput ()
 
     if (hackOutputFormat_=="TECPLOT")
     {
-      fileName = analysisManager_.getNetlistFilename() + "_ensemble.dat";
+      fileName = analysisManager_.getNetlistFilename() + "_pce.dat";
     }
     else if (hackOutputFormat_=="STD")
     {
-      fileName = analysisManager_.getNetlistFilename() + "_ensemble.prn";
+      fileName = analysisManager_.getNetlistFilename() + "_pce.prn";
     }
     else
     {
@@ -1368,24 +1232,8 @@ void PCE::hackEnsembleOutput ()
         output_stream << "\t\" " << varianceString << "\""<<std::endl;
 
 #if Xyce_STOKHOS_ENABLE
-        if (regressionPCEenable_)
-        {
-          std::string meanString = outFunc.outFuncString + "_regr_pce_mean";
-          std::string meanStringPlus = outFunc.outFuncString + "_regr_pce_meanPlus";
-          std::string meanStringMinus = outFunc.outFuncString + "_regr_pce_meanMinus";
-
-          std::string stddevString = outFunc.outFuncString + "_regr_pce_stddev";
-          std::string varianceString = outFunc.outFuncString + "_regr_pce_variance";
-
-          output_stream << "\t\" " << meanString << "\""<<std::endl;
-          output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
-          output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
-
-          output_stream << "\t\" " << stddevString << "\""<<std::endl;
-          output_stream << "\t\" " << varianceString << "\""<<std::endl;
-        }
-
-        if (projectionPCEenable_)
+        // in this class, this is always enabled
+        //if (projectionPCEenable_)
         {
           std::string meanString = outFunc.outFuncString + "_quad_pce_mean";
           std::string meanStringPlus = outFunc.outFuncString + "_quad_pce_meanPlus";
@@ -1450,40 +1298,8 @@ void PCE::hackEnsembleOutput ()
       output_stream << "\t" << outFunc.sm.variance;
 
 #if Xyce_STOKHOS_ENABLE
-      if (regressionPCEenable_)
-      {
-        //Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & regressionPCE = outFunc.regressionPCE;
-        Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
-
-        double pce_mean = regressionPCE.mean();
-        double pce_stddev = regressionPCE.standard_deviation();
-        double pce_variance = pce_stddev*pce_stddev;
-
-        if ( isinf(pce_mean) || isnan(pce_mean) )
-        {
-          pce_mean = 0.0;
-        }
-
-        if ( isinf(pce_stddev) || isnan(pce_stddev) )
-        {
-          pce_stddev = 0.0;
-        }
-
-        if ( isinf(pce_variance) || isnan(pce_variance) )
-        {
-          pce_variance = 0.0;
-        }
-
-        output_stream << "\t" << pce_mean;
-
-        output_stream << "\t" << (pce_mean+pce_stddev);
-        output_stream << "\t" << (pce_mean-pce_stddev);
-
-        output_stream << "\t" << pce_stddev;
-        output_stream << "\t" << pce_variance;
-      }
-
-      if (projectionPCEenable_)
+      // in this class, this is always enabled
+      //if (projectionPCEenable_)
       {
         Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
 
@@ -1935,8 +1751,6 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", 0)));
 #if Xyce_STOKHOS_ENABLE
-    parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", 1)));
-    parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", 1)));
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));
 #endif
     parameters.insert(Util::ParamMap::value_type("SAMPLE_TYPE", Util::Param("SAMPLE_TYPE", 0)));
