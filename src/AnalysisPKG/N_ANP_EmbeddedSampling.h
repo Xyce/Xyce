@@ -145,7 +145,7 @@ protected:
 
   virtual bool doInit();
   void setupBlockSystemObjects (); // called from doInit
-  void setupEnsembles ();
+  void setupStokhosObjects ();
 
   virtual bool doLoopProcess();
   virtual bool doProcessSuccessfulStep();

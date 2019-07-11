@@ -957,99 +957,8 @@ bool EmbeddedSampling::doInit()
         numSamples_, samplingVector_, covMatrix_, meanVec_, X_, Y_);
   }
 
-#if Xyce_STOKHOS_ENABLE
-  // determine the samples. 
-  //
-  // non-intrusive spectral projection(NISP) samples are determined 
-  // by the quadrature points
-  if (projectionPCEenable_) 
-  {
-    const int d = paramNameVec_.size();
-    const int p = PCEorder_;
-    quadBases.resize(d); 
-    for (int i=0; i<d; i++)
-    {
-      SweepParam & sp = samplingVector_[i];
-
-      if (sp.type == "UNIFORM")
-      {
-        quadBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
-      }
-      else if (sp.type == "NORMAL") 
-      {
-        quadBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
-      }
-      else
-      {
-        Report::UserFatal0() << "Polynomial Chaos only works for normal and uniform distributions.";
-      }
-    }
-
-    if (useSparseGrid_)
-    {
-      // ERK.  Understand these better
-      double drop = 1.0e-12;
-      const Stokhos::TotalOrderIndexSet<int> index_set(d, p);
-      typedef Stokhos::TotalOrderLess< Stokhos::MultiIndex<int> > total_less;
-      typedef Stokhos::LexographicLess< Stokhos::MultiIndex<int> > lexo_less;
-
-      quadBasis = rcp(new Stokhos::SmolyakBasis<int,double,total_less>( quadBases, index_set, drop));
-      quadMethod = rcp(new Stokhos::SmolyakSparseGridQuadrature<int,double>(quadBasis, index_set));
-    }
-    else
-    {
-      quadBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(quadBases));
-      quadMethod = rcp(new Stokhos::TensorProductQuadrature<int,double>(quadBasis));
-    }
-
-    quadCijk = quadBasis->computeTripleProductTensor();
-    quadExpn = rcp(new Stokhos::QuadOrthogPolyExpansion<int,double>(quadBasis, quadCijk, quadMethod));
-
-    UQ::setupPCEQuadPoints ( quadBasis, quadMethod, quadExpn, samplingVector_, covMatrix_, meanVec_, X_, Y_);
-    numSamples_ = quadMethod->size();
-  }
-
-  // if regression PCE specified, then create the basis, 
-  // determine the basis size, and then force # of samples to be larger
-  // than the basis size so that the least squares solve will be
-  // successful.
-  if (regressionPCEenable_) 
-  {
-    const int d = paramNameVec_.size();
-    const int p = PCEorder_;
-    regrBases.resize(d); 
-    for (int i=0; i<d; i++)
-    {
-      SweepParam & sp = samplingVector_[i];
-
-      if (sp.type == "UNIFORM")
-      {
-        regrBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
-      }
-      else if (sp.type == "NORMAL") 
-      {
-        regrBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
-      }
-      else
-      {
-        Report::UserFatal0() << "Polynomial Chaos only works for normal and uniform distributions.";
-      }
-    }
-
-    regrBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(regrBases));
-    int basisSize = regrBasis->size();
-
-    if (numSamples_ < basisSize)
-    {
-      Report::UserFatal0()
-            << "Number of samples = " << numSamples_ << ", which is smaller than the basis size = " 
-            << basisSize << ".  Increase the number of samples to use this basis";
-    }
-  }
-#endif
-
+  setupStokhosObjects ();
   setupBlockSystemObjects ();
-  setupEnsembles ();
 
   return true;
 }
@@ -1182,7 +1091,7 @@ void  EmbeddedSampling::setupBlockSystemObjects ()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::setupEnsembles
+// Function      : EmbeddedSampling::setupStokhosObjects
 // Purpose       : This function sets up the stokhos ensemble objects, using
 //                 the computed sample values.
 // Special Notes :
@@ -1190,9 +1099,98 @@ void  EmbeddedSampling::setupBlockSystemObjects ()
 // Creator       : Eric Keiter, SNL
 // Creation Date : 
 //-----------------------------------------------------------------------------
-void EmbeddedSampling::setupEnsembles ()
+void EmbeddedSampling::setupStokhosObjects ()
 {
+#if Xyce_STOKHOS_ENABLE
+  // determine the samples. 
+  //
+  // non-intrusive spectral projection(NISP) samples are determined 
+  // by the quadrature points
+  if (projectionPCEenable_) 
+  {
+    const int d = paramNameVec_.size();
+    const int p = PCEorder_;
+    quadBases.resize(d); 
+    for (int i=0; i<d; i++)
+    {
+      SweepParam & sp = samplingVector_[i];
 
+      if (sp.type == "UNIFORM")
+      {
+        quadBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
+      }
+      else if (sp.type == "NORMAL") 
+      {
+        quadBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
+      }
+      else
+      {
+        Report::UserFatal0() << "Polynomial Chaos only works for normal and uniform distributions.";
+      }
+    }
+
+    if (useSparseGrid_)
+    {
+      // ERK.  Understand these better
+      double drop = 1.0e-12;
+      const Stokhos::TotalOrderIndexSet<int> index_set(d, p);
+      typedef Stokhos::TotalOrderLess< Stokhos::MultiIndex<int> > total_less;
+      typedef Stokhos::LexographicLess< Stokhos::MultiIndex<int> > lexo_less;
+
+      quadBasis = rcp(new Stokhos::SmolyakBasis<int,double,total_less>( quadBases, index_set, drop));
+      quadMethod = rcp(new Stokhos::SmolyakSparseGridQuadrature<int,double>(quadBasis, index_set));
+    }
+    else
+    {
+      quadBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(quadBases));
+      quadMethod = rcp(new Stokhos::TensorProductQuadrature<int,double>(quadBasis));
+    }
+
+    quadCijk = quadBasis->computeTripleProductTensor();
+    quadExpn = rcp(new Stokhos::QuadOrthogPolyExpansion<int,double>(quadBasis, quadCijk, quadMethod));
+
+    UQ::setupPCEQuadPoints ( quadBasis, quadMethod, quadExpn, samplingVector_, covMatrix_, meanVec_, X_, Y_);
+    numSamples_ = quadMethod->size();
+  }
+
+  // if regression PCE specified, then create the basis, 
+  // determine the basis size, and then force # of samples to be larger
+  // than the basis size so that the least squares solve will be
+  // successful.
+  if (regressionPCEenable_) 
+  {
+    const int d = paramNameVec_.size();
+    const int p = PCEorder_;
+    regrBases.resize(d); 
+    for (int i=0; i<d; i++)
+    {
+      SweepParam & sp = samplingVector_[i];
+
+      if (sp.type == "UNIFORM")
+      {
+        regrBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
+      }
+      else if (sp.type == "NORMAL") 
+      {
+        regrBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
+      }
+      else
+      {
+        Report::UserFatal0() << "Polynomial Chaos only works for normal and uniform distributions.";
+      }
+    }
+
+    regrBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(regrBases));
+    int basisSize = regrBasis->size();
+
+    if (numSamples_ < basisSize)
+    {
+      Report::UserFatal0()
+            << "Number of samples = " << numSamples_ << ", which is smaller than the basis size = " 
+            << basisSize << ".  Increase the number of samples to use this basis";
+    }
+  }
+#endif
 }
 
 //-----------------------------------------------------------------------------
