@@ -802,6 +802,7 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
   dependentParam.expr->set_sim_time(getSolverState().currTime_);
   dependentParam.expr->set_sim_dt(getSolverState().currTimeStep_);
   dependentParam.expr->set_sim_freq(getSolverState().currFreq_);
+  dependentParam.expr->set_temp(devOptions_.temp.getImmutableValue<double>());
 
   return rval;
 }
@@ -869,6 +870,7 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
   dependentParam.expr->set_sim_time(getSolverState().currTime_);
   dependentParam.expr->set_sim_dt(getSolverState().currTimeStep_);
   dependentParam.expr->set_sim_freq(getSolverState().currFreq_);
+  dependentParam.expr->set_temp(devOptions_.temp.getImmutableValue<double>());
 
   return rval;
 }
@@ -913,7 +915,20 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   const Descriptor &param = *(*p_i).second;
   if (isTempParam(par.tag()) && param.getAutoConvertTemperature())
   {
+    //User input for temperature is in degrees C.  Devices use degrees K internally.
     dependentParam.expr = new Util::Expression ("(" + par.stringValue() + ")+CONSTCtoK");
+
+    // Need to get the string names of the variables that are in par's expression,
+    // and then use that vector of string names to make them variables in the
+    // dependentParam's expression also.  This is needed to support global parameters
+    // in expressions for the TEMP instance paramter.
+    std::vector<std::string> parVars;
+    par.getValue<Util::Expression>().get_names(XEXP_VARIABLE, parVars);
+    for (std::vector<std::string>::const_iterator pv_i=parVars.begin(); pv_i != parVars.end(); ++pv_i)
+    {
+      dependentParam.expr->make_var(*pv_i);
+    }
+
     dependentParam.expr->make_constant (std::string("CONSTCTOK"), CONSTCtoK);
   }
   else
@@ -948,14 +963,14 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   {
     if (names.size() > 0 || instances.size() > 0)
     {
-      UserError0(*this) << "Parameter " << par.tag() << " is not allowed to depend on voltage/current values";
+      UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on voltage/current values";
       return;
     }
     if (depend & ParameterType::NO_DEP)
     {
       if (dependentParam.expr->get_num(XEXP_SPECIAL) > 0)
       {
-        UserError0(*this) << "Parameter " << par.tag() << " is not allowed to depend on time";
+        UserError(*this) << "Parameter " << par.tag() << " is not allowed to depend on time";
         return;
       }
     }
