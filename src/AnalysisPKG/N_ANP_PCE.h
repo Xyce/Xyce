@@ -234,9 +234,6 @@ private:
 #if Xyce_STOKHOS_ENABLE
   int PCEorder_;
 
-  Teuchos::Array< Teuchos::RCP<const Stokhos::OneDOrthogPolyBasis<int,double> > > regrBases; 
-  Teuchos::RCP<const Stokhos::ProductBasis<int,double> > regrBasis;
-
   Teuchos::Array< Teuchos::RCP<const Stokhos::OneDOrthogPolyBasis<int,double> > > quadBases; 
   Teuchos::RCP<const Stokhos::ProductBasis<int,double> > quadBasis;
 
@@ -244,11 +241,9 @@ private:
   Teuchos::RCP<const Stokhos::Quadrature<int,double> > quadMethod;
 
   // Triple product tensor
-  Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > regrCijk;
   Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > quadCijk;
 
   // Expansion method
-  Teuchos::RCP<Stokhos::QuadOrthogPolyExpansion<int,double> > regrExpn;
   Teuchos::RCP<Stokhos::QuadOrthogPolyExpansion<int,double> > quadExpn;
 
   bool resamplePCE_;
