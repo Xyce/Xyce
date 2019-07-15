@@ -696,7 +696,7 @@ bool PCE::getDCOPFlag() const
 //-----------------------------------------------------------------------------
 void PCE::stepCallBack ()
 {
-  computeEnsembleOutputs();
+  computePCEOutputs();
 
 #if Xyce_STOKHOS_ENABLE
 //
@@ -758,7 +758,7 @@ void PCE::stepCallBack ()
 //
 #endif
 
-  hackEnsembleOutput ();
+  hackPCEOutput ();
 }
 
 //-----------------------------------------------------------------------------
@@ -1069,14 +1069,14 @@ bool PCE::doFinish()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : PCE::computeEnsembleOutputs
+// Function      : PCE::computePCEOutputs
 // Purpose       : 
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-void PCE::computeEnsembleOutputs()
+void PCE::computePCEOutputs()
 {
   Parallel::Machine comm = analysisManager_.getComm();
 
@@ -1166,14 +1166,14 @@ void PCE::computeEnsembleOutputs()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : PCE::hackEnsembleOutput ()
+// Function      : PCE::hackPCEOutput ()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/26/2018
 //-----------------------------------------------------------------------------
-void PCE::hackEnsembleOutput ()
+void PCE::hackPCEOutput ()
 {
   if (outputsGiven_)
   {
@@ -1200,7 +1200,7 @@ void PCE::hackEnsembleOutput ()
     if (!hackOutputCalledBefore_)
     {
       // header output
-      output_stream << "TITLE=\"embedded sampling output\"\tVARIABLES= "<<std::endl;
+      output_stream << "TITLE = \"embedded sampling output\"\tVARIABLES= "<<std::endl;
 
       //if ( analysisManager_.getTransientFlag() || analysisManager_.getTranOPFlag() ) // this doesn't work!
       //if ( childAnalysis_.isAnalysis(ANP_MODE_TRANSIENT) )

@@ -163,8 +163,8 @@ protected:
   virtual bool doHandlePredictor() { return true; }
 
 
-  void computeEnsembleOutputs();
-  void hackEnsembleOutput();
+  void computePCEOutputs();
+  void hackPCEOutput();
 
 private:
   AnalysisManager &     analysisManager_;
