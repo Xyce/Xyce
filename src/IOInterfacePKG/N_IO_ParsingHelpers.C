@@ -503,7 +503,7 @@ void readExternalParamsFromFile( N_PDS_Comm& comm,
   // These parameters are read in on one processor and communicated to the others.
   if (comm.procID() == 0 && validFile)
   {
-    const std::string allowedChars("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_.$");
+    const std::string allowedChars("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890+-_.$");
     const std::string whiteSpace(" \t=\n\r");    // note we will treat "=" as whitespace
     const std::string commentChars("*#;");  // if we find any of these then the rest of the line is a comment
 
