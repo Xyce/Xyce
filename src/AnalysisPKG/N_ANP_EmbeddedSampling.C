@@ -1338,7 +1338,7 @@ void EmbeddedSampling::hackEnsembleOutput ()
     if (!hackOutputCalledBefore_)
     {
       // header output
-      output_stream << "TITLE=\"embedded sampling output\"\tVARIABLES= "<<std::endl;
+      output_stream << "TITLE = \"embedded sampling output\"\tVARIABLES= "<<std::endl;
 
       //if ( analysisManager_.getTransientFlag() || analysisManager_.getTranOPFlag() ) // this doesn't work!
       //if ( childAnalysis_.isAnalysis(ANP_MODE_TRANSIENT) )
