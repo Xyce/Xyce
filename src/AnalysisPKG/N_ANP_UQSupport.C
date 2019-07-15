@@ -678,7 +678,7 @@ double setupNormal(const double val, const double mean, const double stddev)
 double setupUniform(const double val, const double min, const double max)
 {
   // stretch/compress this uniform distribution to fit the given min and max.
-  double dv = abs(max-min);
+  double dv = fabs(max-min);
   return (dv*val + min);
 }
 
