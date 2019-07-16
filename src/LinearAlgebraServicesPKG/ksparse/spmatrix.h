@@ -373,7 +373,7 @@ extern  int      spFileVector( char*, char* , spREAL*, spREAL*);
 extern  void     spMultiply( char*, spREAL*, spREAL*, spREAL*, spREAL* );
 extern  void     spMultTransposed(char*,spREAL*,spREAL*,spREAL*,spREAL*);
 extern  int      spSolve( char*, spREAL*, spREAL*, spREAL*, spREAL* );
-extern  void     spSolveTransposed(char*,spREAL*,spREAL*,spREAL*,spREAL*);
+extern  int      spSolveTransposed(char*,spREAL*,spREAL*,spREAL*,spREAL*);
 #else /* NOT (spCOMPLEX && spSEPARATED_COMPLEX_VECTORS) */
 extern  int      spFileVector( char*, char* , spREAL* );
 extern  void     spMultiply( char*, spREAL*, spREAL* );

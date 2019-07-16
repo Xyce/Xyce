@@ -113,10 +113,10 @@ void Epetra_CrsKundertSparse::deleteArrays() {
 
 }
 
-int Epetra_CrsKundertSparse::Solve(const bool ComputeFactor) {
+int Epetra_CrsKundertSparse::Solve(const bool ComputeFactor, const bool Transpose) {
 
   // Do some sanity checks and make some local pointers
-  int orderStatus=0, solveStatus=0;
+  int orderStatus=0, factorStatus=0, solveStatus=0;
   EPETRA_CHK_ERR(Problem_->CheckInput());  // Check to make sure all problem parameters are well-defined.
 
   Epetra_CrsMatrix * A = dynamic_cast<Epetra_CrsMatrix *> (Problem_->GetOperator());
@@ -157,10 +157,19 @@ int Epetra_CrsKundertSparse::Solve(const bool ComputeFactor) {
     if (FirstSolve_) {
       orderStatus = spOrderAndFactor (Matrix_, rhs, RelThreshold_, AbsThreshold_, DiagPivoting_);
       solveStatus = spSolve (Matrix_, rhs, solution, NULL, NULL);
+      FirstSolve_ = false;
     }
-    else if (ComputeFactor) {
+    else if (ComputeFactor && !Transpose) {
       *X = *B; // Copy B to X
       solveStatus = spFactorAndSolve (Matrix_, solution);
+    }
+    else if (ComputeFactor && Transpose) {
+      factorStatus = spFactor (Matrix_);
+      solveStatus = spSolveTransposed (Matrix_, rhs, solution, NULL, NULL);
+    }
+    else if (Transpose)
+    {
+      solveStatus = spSolveTransposed (Matrix_, rhs, solution, NULL, NULL);
     }
     else {
       solveStatus = spSolve (Matrix_, rhs, solution, NULL, NULL);
@@ -179,14 +188,12 @@ int Epetra_CrsKundertSparse::Solve(const bool ComputeFactor) {
 
   // Communicate failures to all processors.
   int tmpOrderStatus = orderStatus;
+  int tmpFactorStatus = factorStatus;
   int tmpSolveStatus = solveStatus;
   A->Comm().MaxAll(&tmpOrderStatus, &orderStatus, 1);
+  A->Comm().MaxAll(&tmpFactorStatus, &factorStatus, 1);
   A->Comm().MaxAll(&tmpSolveStatus, &solveStatus, 1);
-
-  if (!solveStatus)
-  {
-    FirstSolve_ = false;
-  }
+  solveStatus += (orderStatus + factorStatus);
 
   return solveStatus;
 }

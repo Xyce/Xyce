@@ -197,12 +197,6 @@ bool KSparseSolver::getInfo( Util::Param & info )
 //-----------------------------------------------------------------------------
 int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
 {
-  if ( transpose ) {
-    // Inform user that a nontrivial matrix was found and linear solve has failed.
-    Report::UserError0()
-      <<"KSparse linear solver does not support transpose solves at this time.";
-  }
-
   // Start the timer...
   timer_->resetStartTime();
 
@@ -273,7 +267,7 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
   // Perform linear solve using factorization
   double begSolveTime = timer_->elapsedTime();
 
-  linearStatus = solver_->Solve( !reuse_factors );
+  linearStatus = solver_->Solve( !reuse_factors, transpose );
 
   int ksparseStatus = linearStatus;
 
@@ -281,6 +275,7 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
   if (linearStatus != 0)
   {
     // Create a KLU solver if we don't have one.
+    std::cout << "Creating a KLU solver to perform bad solve!" << std::endl;
     if (kluSolver_ == Teuchos::null)
     {
       Amesos amesosFactory;
@@ -292,6 +287,12 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
 
     // Perform numeric factorization with KLU
     linearStatus = kluSolver_->NumericFactorization();
+
+    // Set the transpose flag only if that has changed since the last solve.
+    if ( kluSolver_->UseTranspose() != transpose )
+    {
+      kluSolver_->SetUseTranspose( transpose );
+    }
 
     // Perform solve with KLU
     if (linearStatus == 0)
@@ -333,15 +334,19 @@ int KSparseSolver::doSolve( bool reuse_factors, bool transpose )
     }
   }
 
-  if (DEBUG_LINEAR && (linearStatus==0))
+  if (DEBUG_LINEAR)
   {
     double resNorm = 0.0, bNorm = 0.0;
     Epetra_MultiVector res( prob->GetLHS()->Map(), prob->GetLHS()->NumVectors() );
+    bool oldTrans = prob->GetOperator()->UseTranspose();
+    prob->GetOperator()->SetUseTranspose( transpose );
     prob->GetOperator()->Apply( *(prob->GetLHS()), res );
+    prob->GetOperator()->SetUseTranspose( oldTrans );
     res.Update( 1.0, *(prob->GetRHS()), -1.0 );
     res.Norm2( &resNorm );
     prob->GetRHS()->Norm2( &bNorm );
-    Xyce::lout() << "Linear System Residual (KSparse) : " << (resNorm/bNorm) << std::endl;
+    if (bNorm > 0.0)
+      Xyce::lout() << "Linear System Residual (KSparse) : " << (resNorm/bNorm) << std::endl;
   }
 
   if( transform_.get() ) transform_->rvs();
