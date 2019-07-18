@@ -705,7 +705,7 @@ void printLineDiagnostics(
           const std::string &name = *it4;
 
           bool done = false;
-          if (name == "TEMP" || name == "TIME" || name == "FREQUENCY" || name == "INDEX" ||
+          if (name == "TEMP" || name == "TIME" || name == "FREQ" || name == "INDEX" ||
               name == "OBJFUNC" || name == "OBJVARS" || name == "SENS" || name == "NOISE" || name == "sweep" ||
               name == "ONOISE" || name == "INOISE")
           {

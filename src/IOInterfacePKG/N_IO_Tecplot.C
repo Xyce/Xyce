@@ -203,14 +203,7 @@ void tecplotFreqHeader(std::ostream &os, bool print_title, const std::string tit
     for (Util::Op::OpList::const_iterator it = op_list.begin() ; it != op_list.end(); ++it)
     {
       os << "\" ";
-      if ( (*it)->getName() == "FREQUENCY" )
-      {
-        os << "FREQ";
-      }
-      else
-      {
-        os << (*it)->getName() ;
-      }
+      os << (*it)->getName() ;
       os << "\" " << std::endl;
     }
     os << "DATASETAUXDATA ";
