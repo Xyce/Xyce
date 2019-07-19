@@ -87,8 +87,8 @@ void handleIncludeLine(
     std::string includeFileTmp = parsedLine[1].string_;
   
     // Strip off the enclosing double quotes if they are present.
-    if ( (includeFileTmp[0] == '"') &&
-         (includeFileTmp[includeFileTmp.length()-1] == '"') )
+    if ( (includeFileTmp[0] == '"' || includeFileTmp[0] == '{') &&
+         (includeFileTmp[includeFileTmp.length()-1] == '"' || includeFileTmp[includeFileTmp.length()-1] == '}') )
     {
       includeFile = includeFileTmp.substr( 1, includeFileTmp.length()-2 );
     }
