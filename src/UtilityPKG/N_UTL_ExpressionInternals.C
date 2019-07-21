@@ -4635,11 +4635,11 @@ ExpressionNode * ExpressionInternals::com_expr_ (ExpressionNode *c, ExpressionNo
 
     case EXPR_PLACEHOLDER:
       Report::DevelFatal()
-        << "ExpressionInternals::PTcheck_: placeholder found";
+        << "ExpressionInternals::com_expr_: placeholder found";
 
     default:
       Report::DevelFatal()
-        << "ExpressionInternals::PTcheck_: Internal: bad node type";
+        << "ExpressionInternals::com_expr_: Internal: bad node type";
   }
 
   return NULL;

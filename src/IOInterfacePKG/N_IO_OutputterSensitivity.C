@@ -141,7 +141,7 @@ void enableSensitivityACOutput(Parallel::Machine comm, OutputMgr &output_manager
       PrintParameters sensitivity_print_parameters = (*it);
       sensitivity_print_parameters.expandComplexTypes_ = true;
 
-      sensitivity_print_parameters.variableList_.push_front(Util::Param("FREQUENCY", 0.0));
+      sensitivity_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
       if (sensitivity_print_parameters.printIndexColumn_)
         sensitivity_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
 

@@ -367,11 +367,6 @@ void fixupColumns(Parallel::Machine comm, const Util::Op::BuilderManager &op_bui
     {
       print_parameters.table_.addColumn("INDEX", std::ios_base::fixed, 5, 0, Table::JUSTIFICATION_LEFT);
     }
-    else if ((*it)->id() == Util::Op::identifier<OutputMgrFrequencyOp>())
-    {
-      // We can't use getName here, because generally that returns FREQUENCY not FREQ
-      print_parameters.table_.addColumn("FREQ", print_parameters.streamWidth_, print_parameters.streamPrecision_, justification);
-    }
     else
     {
       print_parameters.table_.addColumn((*it)->getName(), print_parameters.streamWidth_, print_parameters.streamPrecision_, justification);

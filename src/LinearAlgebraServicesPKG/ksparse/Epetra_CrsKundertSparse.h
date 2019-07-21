@@ -147,7 +147,7 @@ class Epetra_CrsKundertSparse {
 	   been performed, the factorization will be computed regardless of the value of this parameter.
 	   The default value for this parameter is true.
   */
-  int Solve(const bool ComputeFactor = true);
+  int Solve(const bool ComputeFactor = true, const bool Transpose = false);
   //@}
 
  private:

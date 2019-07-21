@@ -233,10 +233,11 @@ double *orig_rhs;
 #endif
 
 /* Begin `spSolve'. */
-    if (!IS_VALID(Matrix))
+    if (!IS_VALID(Matrix) || (RHS==0))
     {
       if ((Matrix)->Error != spOKAY)
         return (Matrix)->Error;
+      return 0;
     }
     else
     {
@@ -677,7 +678,7 @@ ComplexNumber  Temp;
 
 /*VARARGS3*/
 
-void
+int
 spSolveTransposed( eMatrix, RHS, Solution IMAG_VECTORS )
 
 char *eMatrix;
@@ -692,13 +693,22 @@ RealNumber  Temp;
 void SolveComplexTransposedMatrix();
 
 /* Begin `spSolveTransposed'. */
+    if (!IS_VALID(Matrix))
+    {
+      if ((Matrix)->Error != spOKAY)
+        return (Matrix)->Error;
+    }
+    else
+    {
+      ASSERT( IS_VALID(Matrix));
+    }
     spExpandFormat(Matrix);
     ASSERT( IS_VALID(Matrix) AND IS_FACTORED(Matrix) );
 
 #if spCOMPLEX
     if (Matrix->Complex)
     {   SolveComplexTransposedMatrix( Matrix, RHS, Solution IMAG_VECTORS );
-        return;
+        return 0;
     }
 #endif
 
@@ -713,9 +723,18 @@ void SolveComplexTransposedMatrix();
 #endif
 
 /* Initialize Intermediate vector. */
-    pExtOrder = &Matrix->IntToExtColMap[Size];
-    for (I = Size; I > 0; I--)
-        Intermediate[I] = RHS[*(pExtOrder--)];
+    pExtOrder = &Matrix->IntToExtRowMap[Size];
+    for (I = Size; I > 0; I--) {
+#if REORDER_SCALING
+      if (Matrix->has_scale_factors)
+        Intermediate[I] = RHS[*pExtOrder]*Matrix->col_scale_factors[*pExtOrder];
+      else
+        Intermediate[I] = RHS[*pExtOrder];
+#else
+      Intermediate[I] = RHS[*pExtOrder];
+#endif
+      pExtOrder--;
+    }
 
 /* Forward elimination. */
     for (I = 1; I <= Size; I++)
@@ -748,7 +767,14 @@ void SolveComplexTransposedMatrix();
     for (I = Size; I > 0; I--)
         Solution[*(pExtOrder--)] = Intermediate[I];
 
-    return;
+#if REORDER_SCALING
+    if (Matrix->has_scale_factors) {
+      for (I=1 ; I<=Size ; I++) 
+        Solution[I] *= Matrix->row_scale_factors[I];
+    }
+#endif
+
+    return 0;
 #endif /* REAL */
 }
 #endif /* TRANSPOSE */

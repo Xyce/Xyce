@@ -451,7 +451,7 @@ struct CircuitFrequencyOpBuilder : public Util::Op::Builder
     Util::Op::Operator *new_op = 0;
     const std::string &param_tag = (*it).tag();
 
-    if (param_tag == "FREQUENCY") {
+    if ( param_tag == "FREQ" ){
       new_op  = new OutputMgrFrequencyOp(param_tag, outputManager_);
     }
 

@@ -227,18 +227,20 @@ void FrequencyRaw::frequencyHeader(Parallel::Machine comm)
     for (Util::Op::OpList::const_iterator it = opList_.begin() ; it != opList_.end(); ++it, ++i)
     {
       std::string tmpNodeName, tmpType;
-      // set the type
+      std::string varName = (*it)->getName();
+      // Set the type.  Also change FREQ to FREQUENCY in the raw file header's
+      // variable list.
       if (Util::hasExpressionTag((*it)->getName())) { tmpType = "expression"; }
-      else if ((*it)->getName() == "INDEX")  { }
-      else if ((*it)->getName() == "TIME")  { tmpType = "time"; }
-      else if ((*it)->getName() == "FREQUENCY")  { tmpType = "frequency"; }
-      else if ((*it)->getName()[0] == 'I')  { tmpType = "current";    }
-      else if ((*it)->getName()[0] == 'V')  { tmpType = "voltage";    }
+      else if (varName == "INDEX")  { }
+      else if (varName == "TIME")  { tmpType = "time"; }
+      else if (varName == "FREQ")  { tmpType = "frequency"; varName = "FREQUENCY";}
+      else if (varName[0] == 'I')  { tmpType = "current";    }
+      else if (varName[0] == 'V')  { tmpType = "voltage";    }
       else                              { tmpType = "unknown";    }
 
       // write the header line
       os << "\t" << i
-         << "\t" << (*it)->getName()
+         << "\t" << varName
          << "\t" << tmpType
          << "\n";
 

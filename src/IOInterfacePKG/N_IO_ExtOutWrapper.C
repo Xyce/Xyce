@@ -128,7 +128,7 @@ void ExternalOutputWrapper::normalizeVarList_()
       break;
     case OutputType::AC:
     case OutputType::HB_FD:
-      expectedIndVar="FREQUENCY";
+      expectedIndVar="FREQ";
       break;
     default:
       expectedIndVar="";

@@ -1082,7 +1082,7 @@ void OutputMgr::addOutputPrintParameters(
       {
         // Some variable lists for any print type (TRAN, DC, NOISE,
         // HOMOTOPY, SENS, AC or HB_*) may have had "INDEX", "TIME" or
-        // "FREQUENCY" pushed into the front of the
+        // "FREQ" pushed into the front of the
         // print_parameters.variableList_.  We do *NOT* want to add
         // them to (*it).variableList_.  (Note: the check for
         // print_parameters.variableList_.end() stops the while() loop
@@ -1092,7 +1092,7 @@ void OutputMgr::addOutputPrintParameters(
         while ( (it2 != print_parameters.variableList_.end()) &&
                 ( (*it2).tag() == "INDEX" ||
                   (*it2).tag() == "TIME" ||
-                  (*it2).tag() == "FREQUENCY" ) )
+                  (*it2).tag() == "FREQ" ) )
         {
           ++it2;
         }
@@ -1399,7 +1399,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     if (print_type == PrintType::AC)
     {
       PrintParameters freq_print_parameters = print_parameters;
-      freq_print_parameters.variableList_.push_front(Util::Param("FREQUENCY", 0.0));
+      freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
       freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
       freq_print_parameters.expandComplexTypes_ = true;
       addOutputPrintParameters(OutputType::AC, freq_print_parameters); 
@@ -1407,7 +1407,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     else if ( (print_type == PrintType::HB) || (print_type == PrintType::HB_FD) )
     {
       PrintParameters freq_print_parameters = print_parameters;
-      freq_print_parameters.variableList_.push_front(Util::Param("FREQUENCY", 0.0));
+      freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
       freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
       freq_print_parameters.expandComplexTypes_ = true;
       addOutputPrintParameters(OutputType::HB_FD, freq_print_parameters);
@@ -1415,7 +1415,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     else if (print_type == PrintType::NOISE)
     {  
       PrintParameters noise_print_parameters = print_parameters;
-      noise_print_parameters.variableList_.push_front(Util::Param("FREQUENCY", 0.0));
+      noise_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
       noise_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
       noise_print_parameters.expandComplexTypes_ = true;
       std::copy(noiseVariableList_.begin(), noiseVariableList_.end(), std::back_inserter(noise_print_parameters.variableList_));    
@@ -1446,7 +1446,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     PrintParameters freq_print_parameters = print_parameters;
     if (freq_print_parameters.format_ != Format::PROBE)
     {
-      freq_print_parameters.variableList_.push_front(Util::Param("FREQUENCY", 0.0));
+      freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
     }
 
     if ( (freq_print_parameters.format_ == Format::TS1) ||
@@ -1568,7 +1568,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     }
 
     // adjust which columns appear in the output file, depending on the print format
-    noise_print_parameters.variableList_.push_front(Util::Param("FREQUENCY", 0.0));
+    noise_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
     if (noise_print_parameters.printIndexColumn_)
     {
       noise_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
@@ -1695,7 +1695,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
 
     // uncomment this if statement when FORMAT=PROBE is supported
     //if (freq_print_parameters.format_ != Format::PROBE)
-      freq_print_parameters.variableList_.push_front(Util::Param("FREQUENCY", 0.0));
+      freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
     if (freq_print_parameters.printIndexColumn_)
       freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
     addOutputPrintParameters(OutputType::HB_FD, freq_print_parameters);
@@ -1764,7 +1764,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
         
     // uncomment this if statement when FORMAT=PROBE is supported  
     // if (freq_print_parameters.format_ != Format::PROBE)
-      freq_print_parameters.variableList_.push_front(Util::Param("FREQUENCY", 0.0));
+      freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
     if (freq_print_parameters.printIndexColumn_)
       freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
     addOutputPrintParameters(OutputType::HB_FD, freq_print_parameters);

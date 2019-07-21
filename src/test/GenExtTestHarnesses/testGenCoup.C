@@ -682,7 +682,7 @@ public:
         hideImag_[i]=true;
         intField_[i]=true;
       }
-      else if (outputNames[i] == "FREQUENCY")
+      else if ( outputNames[i] == "FREQ")
       {
         *os_ << "FREQ" << "    ";
         hideImag_[i]=true;
@@ -876,7 +876,7 @@ int main(int argc, char **argv)
       theIOTestInterface = new ioTestInterface("ioTest3.out",
                                                Xyce::IO::OutputType::AC);
       theIOTestInterface->addOutputString("Index");
-      theIOTestInterface->addOutputString("FREQUENCY");
+      theIOTestInterface->addOutputString("FREQ");
       theIOTestInterface->addOutputString("v(1)");
       theIOTestInterface->addOutputString("v(1a)");
       theIOTestInterface->addOutputString("I(v1)");
@@ -897,7 +897,7 @@ int main(int argc, char **argv)
       theIOTestInterface = new ioTestInterface("ioTest5.FD.out",
                                                Xyce::IO::OutputType::HB_FD);
       theIOTestInterface->addOutputString("Index");
-      theIOTestInterface->addOutputString("FREQUENCY");
+      theIOTestInterface->addOutputString("FREQ");
       theIOTestInterface->addOutputString("v(1)");
       theIOTestInterface->addOutputString("v(2)");
       theIOTestInterface->addOutputString("I(v1)");
