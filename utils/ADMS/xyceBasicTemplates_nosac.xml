@@ -4362,11 +4362,11 @@ other variables does not get propagated into a variable's
       <admst:when test="[name='ceil']">
         <admst:assert test="arguments[count(.)=1]" format="%(name): should have one argument exactly\n"/>
         <admst:apply-templates select="arguments[1]" match="processTerm">
-          <admst:variable name="expression" select="%(returned('returnedExpression')/value))"/>
+          <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
           <admst:choose>
             <admst:when test="[$globalCurrentScope='sensitivity']">
               <admst:apply-templates select="." match="recursiveDetectParameterDependence">
-                <admst:variable name="isDependent" select="%(returned('isDependent')/value))"/>
+                <admst:variable name="isDependent" select="%(returned('isDependent')/value)"/>
                 <admst:choose>
                   <admst:when test="[$isDependent='yes']">
                     <admst:variable name="expression" select="ADMSceil($expression)"/>
