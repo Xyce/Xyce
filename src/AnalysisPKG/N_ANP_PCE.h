@@ -60,16 +60,6 @@
 namespace Xyce {
 namespace Analysis {
 
-const int pce_ensemble_size = 8;
-
-#if Xyce_STOKHOS_ENABLE
-typedef Stokhos::StaticFixedStorage
-  <int, double, pce_ensemble_size, Kokkos::DefaultExecutionSpace> double_ensemble_storage_type;
-
-typedef Sacado::MP::Vector<double_ensemble_storage_type> double_ensemble_type;
-#endif
-
-
 //-------------------------------------------------------------------------
 // Class         : PCE
 // Purpose       : PCE analysis class
