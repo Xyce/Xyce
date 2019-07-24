@@ -244,7 +244,7 @@ public:
      double freq,
      double numFreq,
      std::vector<double> & Z0sVec,
-     const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams);
+     const Util::Op::RFparamsData & RFparams);
 
   void outputNoise(
       double freq,

@@ -458,9 +458,9 @@ void OutputMgrAdapter::outputSParams (
   double                frequency,
   double                numFreq,
   std::vector<double> & Z0sVec,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
-  outputManager_.outputSParams(comm_, frequency, numFreq, Z0sVec, Sparams);
+  outputManager_.outputSParams(comm_, frequency, numFreq, Z0sVec, RFparams);
 }
 
 //-----------------------------------------------------------------------------

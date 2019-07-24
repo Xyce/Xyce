@@ -1316,6 +1316,19 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       }
       print_parameters.dataFormat_ = dataFormat;
     }
+    else if (iterParam->tag() == "LINTYPE")
+    {
+      // Parameter type in Touchstone output
+      std::string s = iterParam->stringValue();
+      if ( (s == "S") || (s == "Y") || (s == "Z") )
+      {
+        print_parameters.RFparamType_ = s;
+      }
+      else
+      {
+        Report::DevelFatal0() << "Unrecognized RF parameter type " << s << " requested for Touchstone output";
+      }
+    }
     else if (iterParam->tag() == "TIMEWIDTH")
     {
       print_parameters.timeWidth_ = iterParam->getImmutableValue<int>();
@@ -2948,7 +2961,7 @@ void OutputMgr::outputSParams(
   double                frequency,
   double                numFreq,
   std::vector<double> & Z0sVec,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   outputState_.circuitFrequency_ = frequency;
 
@@ -2959,7 +2972,7 @@ void OutputMgr::outputSParams(
 
     for ( ; it != activeOutputterStack_.back().end(); ++it)
     {
-      (*it)->outputSParams(comm, frequency, numFreq, Z0sVec, Sparams);
+      (*it)->outputSParams(comm, frequency, numFreq, Z0sVec, RFparams);
     }
   }
 }
@@ -3277,6 +3290,7 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("FILE", Util::Param("FILE", "")));
     parameters.insert(Util::ParamMap::value_type("FORMAT", Util::Param("FORMAT", "STD")));
     parameters.insert(Util::ParamMap::value_type("DATAFORMAT", Util::Param("DATAFORMAT", "RI")));
+    parameters.insert(Util::ParamMap::value_type("LINTYPE", Util::Param("LINTYPE", "S")));
     parameters.insert(Util::ParamMap::value_type("DELIMITER", Util::Param("DELIMITER", "")));
     parameters.insert(Util::ParamMap::value_type("WIDTH", Util::Param("WIDTH", 17)));
     parameters.insert(Util::ParamMap::value_type("PRECISION", Util::Param("PRECISION", 8)));

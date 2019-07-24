@@ -1884,8 +1884,9 @@ bool AC::doProcessSuccessfulStep()
     Util::ytos(Yparams_, Sparams_, Z0sVec_ );
     Util::ytoz(Yparams_, Zparams_);
 
-    // acLoopSize_ is the total number of frequency points in the analyses
-    outputManagerAdapter_.outputSParams(currentFreq_, acLoopSize_, Z0sVec_, Sparams_);
+    // Outputter for Touchstone1 and/or Touchstone2 formatted files.
+    // acLoopSize_ is the total number of frequency points in the analyses.
+    outputManagerAdapter_.outputSParams(currentFreq_, acLoopSize_, Z0sVec_, RFparams_);
 
     outputManagerAdapter_.outputAC (currentFreq_, fStart_,fStop_,
             X_->block(0), X_-> block(1), RFparams_);

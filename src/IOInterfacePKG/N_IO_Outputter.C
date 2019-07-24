@@ -157,11 +157,11 @@ void Interface::outputSParams(
   double                        frequency,
   double                        numFreq,
   std::vector<double> &         Z0sVec,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   if (debug) Xyce::dout() << demangle(typeid(*this).name()) << " doOutputSParams" << std::endl;
 
-  doOutputSParams(comm, frequency, numFreq, Z0sVec, Sparams);
+  doOutputSParams(comm, frequency, numFreq, Z0sVec, RFparams);
 }
 
 //-----------------------------------------------------------------------------
