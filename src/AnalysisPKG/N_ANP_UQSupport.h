@@ -33,10 +33,8 @@
 #include <N_UTL_MachDepParams.h>
 
 #if Xyce_STOKHOS_ENABLE
-#include <Stokhos.hpp>
 #include <Stokhos_Sacado.hpp>
-#include <Stokhos_Sacado_Kokkos.hpp>
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 #endif
 
 #include <vector>

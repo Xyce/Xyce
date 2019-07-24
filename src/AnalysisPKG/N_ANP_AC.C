@@ -85,8 +85,6 @@
 #include<N_NLS_ReturnCodes.h>
 #include <N_NLS_SensitivityResiduals.h>
 
-#include <Sacado.hpp>
-
 #include <Teuchos_RCP.hpp>
 using Teuchos::RCP;
 using Teuchos::rcp;
