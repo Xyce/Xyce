@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE admst SYSTEM "/users/tvrusso/src/QucsADMS/ADMS/admst.dtd">
+<admst version="2.3.0" xmlns:admst="http://mot-adms.sourceforge.net/xml-files/admst">
+
+  <!-- Top level template to dump out the analog function implementations -->
+  <admst:template match="xyceAnalogFunctions:Implementations">
+    <admst:for-each select="/module/analogfunction">
+      <admst:variable name="function" select="%(name)"/>
+      <admst:text format="// Analog Function %(name)\n"/>
+      <admst:text format="%(verilog2CXXtype(.)) %(name)("/>
+      <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
+        <admst:text format="%(verilog2CXXtype(.)) "/>
+        <!-- If this is an output variable, must be passed by reference -->
+        <admst:if test="[output='yes']">
+          <admst:text format="&amp; "/>
+        </admst:if>
+        <admst:text format="%(name) /* "/>
+        <admst:if test="[input='yes']">
+          <admst:text format="in"/>
+        </admst:if>
+        <admst:if test="[output='yes']">
+          <admst:text format="out"/>
+        </admst:if>
+        <admst:text format=" */"/>
+      </admst:join>
+      <admst:text format=")\n"/>
+      <admst:text format="{\n"/>
+      <admst:text format="// Insert body here! \n"/>
+      <admst:text format="}\n\n"/>
+    </admst:for-each>
+  </admst:template>
+
+  <admst:open file="foobar.C">
+    <admst:apply-templates select="/module" match="xyceAnalogFunctions:Implementations"/>
+    </admst:open>
+</admst>
