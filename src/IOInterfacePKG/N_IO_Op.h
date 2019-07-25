@@ -699,7 +699,7 @@ public:
 // Creator       : Pete Sholander, SNL
 // Creation Date : 7/01/2019
 //-----------------------------------------------------------------------------
-class RFparamsOp : public Util::Op::Op<RFparamsOp, Util::Op::ReduceSum, Util::Op::EvalNoop>
+class RFparamsOp : public Util::Op::Op<RFparamsOp, Util::Op::ReduceNone, Util::Op::EvalNoop>
 {
 public:
   RFparamsOp(const std::string &name, const std::string &type, int index1, int index2)
