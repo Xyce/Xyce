@@ -4655,7 +4655,15 @@ It calls generateInstanceArgs and generateModelArgs.
      <admst:text format="// reals\n"/>
      <admst:join select="variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden'])) and type='real']" separator=",\n">
        <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="AdmsSensFadType &amp; "/>
+         <admst:apply-templates select="." match="collectParamDependence"/>
+         <admst:choose>
+           <admst:when test="[exists(#Pdependent)]">
+             <admst:text format="AdmsSensFadType &amp; "/>
+           </admst:when>
+           <admst:otherwise>
+             <admst:text format="double &amp; "/>
+           </admst:otherwise>
+         </admst:choose>
        </admst:if>
        <admst:text format="instanceVar_%(name)"/>
      </admst:join>
@@ -4759,7 +4767,15 @@ It calls generateInstanceArgs and generateModelArgs.
      <admst:text format="// reals\n"/>
      <admst:join select="variable[(scope='global_model') and input='no' and not (exists(attribute[name='hidden'])) and type='real']" separator=",\n">
        <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="AdmsSensFadType &amp; "/>
+         <admst:apply-templates select="." match="collectParamDependence"/>
+         <admst:choose>
+           <admst:when test="[exists(#Pdependent)]">
+             <admst:text format="AdmsSensFadType &amp; "/>
+           </admst:when>
+           <admst:otherwise>
+             <admst:text format="double &amp; "/>
+           </admst:otherwise>
+         </admst:choose>
        </admst:if>
        <admst:text format="modelVar_%(name)"/>
      </admst:join>
