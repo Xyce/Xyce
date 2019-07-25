@@ -1312,7 +1312,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
         dataFormat = DataFormat::DB;
        else
       {
-        Report::DevelFatal0() << "Unrecognized data format for Touchstone output" << s;
+        Report::DevelFatal0() << "Unrecognized data format " << s <<  " for Touchstone output requested on .LIN ";
       }
       print_parameters.dataFormat_ = dataFormat;
     }
@@ -1326,7 +1326,7 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       }
       else
       {
-        Report::DevelFatal0() << "Unrecognized RF parameter type " << s << " requested for Touchstone output";
+        Report::DevelFatal0() << "Unrecognized or unsupported parameter type " << s << " for Touchstone output requested on .LIN";
       }
     }
     else if (iterParam->tag() == "TIMEWIDTH")
