@@ -2604,7 +2604,16 @@ inParamMap[name]-&gt;diff(0,1);
 //reals
 
 <admst:for-each select="variable[scope='global_instance' and input='no' and type='real']">
-  <admst:text format="AdmsSensFadType instanceVar_%(name)=in.%(name);\n"/>
+  <admst:apply-templates select="." match="collectParamDependence"/>
+  <admst:choose>
+    <admst:when test="[exists(#Pdependent)]">
+      <admst:text format="AdmsSensFadType"/>
+    </admst:when>
+    <admst:otherwise>
+      <admst:text format="double"/>
+    </admst:otherwise>
+  </admst:choose>
+  <admst:text format=" instanceVar_%(name)=in.%(name);\n"/>
 </admst:for-each>
 
 //non-reals
@@ -2618,7 +2627,16 @@ inParamMap[name]-&gt;diff(0,1);
 //reals
 
 <admst:for-each select="variable[scope='global_model' and input='no' and type='real']">
-  <admst:text format="AdmsSensFadType modelVar_%(name)=mod.%(name);\n"/>
+  <admst:apply-templates select="." match="collectParamDependence"/>
+  <admst:choose>
+    <admst:when test="[exists(#Pdependent)]">
+      <admst:text format="AdmsSensFadType"/>
+    </admst:when>
+    <admst:otherwise>
+      <admst:text format="double"/>
+    </admst:otherwise>
+  </admst:choose>
+  <admst:text format=" modelVar_%(name)=mod.%(name);\n"/>
 </admst:for-each>
 
 // non-reals
@@ -2873,7 +2891,16 @@ modParamMap[name]-&gt;diff(0,1);
 //reals
 
 <admst:for-each select="variable[scope='global_model' and input='no' and type='real']">
-  <admst:text format="AdmsSensFadType modelVar_%(name)=mod.%(name);\n"/>
+  <admst:apply-templates select="." match="collectParamDependence"/>
+  <admst:choose>
+    <admst:when test="[exists(#Pdependent)]">
+      <admst:text format="AdmsSensFadType"/>
+    </admst:when>
+    <admst:otherwise>
+      <admst:text format="double"/>
+    </admst:otherwise>
+  </admst:choose>
+  <admst:text format=" modelVar_%(name)=mod.%(name);\n"/>
 </admst:for-each>
 
 // non-reals
@@ -2942,7 +2969,16 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
   //reals
 
   <admst:for-each select="variable[scope='global_instance' and input='no' and type='real']">
-    <admst:text format="AdmsSensFadType instanceVar_%(name)=in.%(name);\n"/>
+    <admst:apply-templates select="." match="collectParamDependence"/>
+    <admst:choose>
+      <admst:when test="[exists(#Pdependent)]">
+        <admst:text format="AdmsSensFadType"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:text format="double"/>
+      </admst:otherwise>
+    </admst:choose>
+    <admst:text format=" instanceVar_%(name)=in.%(name);\n"/>
   </admst:for-each>
 
   //non-reals
