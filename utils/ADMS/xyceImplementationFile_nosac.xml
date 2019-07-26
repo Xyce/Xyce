@@ -2368,7 +2368,7 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 
 <admst:variable name="globalCurrentScope" select="sensitivity"/>
 <admst:variable name="globalSensitivityScope" select="instance"/>
-
+<admst:variable name="skipFunctionPrecomp" select="y"/>
 #ifdef Xyce_ADMS_SENSITIVITIES
 //-----------------------------------------------------------------------------
 // Function      : evaluateInitialInstance
