@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 08 Apr 2019 13:58:39
+// Creation Date  : Thu, 25 Jul 2019 18:47:20
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMShicumL2va_h
@@ -271,7 +271,7 @@ void evaluateModelEquations(
    AdmsSensFadType & instanceVar_vdsp_t,
    AdmsSensFadType & instanceVar_vt0,
    AdmsSensFadType & instanceVar_Tnom,
-   AdmsSensFadType & instanceVar_Tamb,
+   double & instanceVar_Tamb,
    AdmsSensFadType & instanceVar_a,
    AdmsSensFadType & instanceVar_avs,
    AdmsSensFadType & instanceVar_zetabci,
@@ -655,7 +655,7 @@ void evaluateInitialInstance(
    AdmsSensFadType & instanceVar_vdsp_t,
    AdmsSensFadType & instanceVar_vt0,
    AdmsSensFadType & instanceVar_Tnom,
-   AdmsSensFadType & instanceVar_Tamb,
+   double & instanceVar_Tamb,
    AdmsSensFadType & instanceVar_a,
    AdmsSensFadType & instanceVar_avs,
    AdmsSensFadType & instanceVar_zetabci,

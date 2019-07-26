@@ -38,7 +38,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 11 Jun 2019 12:24:07
+// Creation Date  : Thu, 25 Jul 2019 18:47:20
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -24161,7 +24161,6 @@ registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet)
 }
 
 
-
 #ifdef Xyce_ADMS_SENSITIVITIES
 //-----------------------------------------------------------------------------
 // Function      : evaluateInitialInstance
@@ -24284,7 +24283,7 @@ void evaluateInitialInstance(
    AdmsSensFadType & instanceVar_GCQ,
    AdmsSensFadType & instanceVar_Dch,
    AdmsSensFadType & instanceVar_Dov,
-   AdmsSensFadType & instanceVar_x1,
+   double & instanceVar_x1,
    AdmsSensFadType & instanceVar_Vdsat_lim,
    AdmsSensFadType & instanceVar_nt,
    AdmsSensFadType & instanceVar_Cox_over_q,
@@ -24332,9 +24331,9 @@ void evaluateInitialInstance(
    AdmsSensFadType & instanceVar_ABSOURCE_i,
    AdmsSensFadType & instanceVar_LSSOURCE_i,
    AdmsSensFadType & instanceVar_LGSOURCE_i,
-   AdmsSensFadType & instanceVar_zflagbot_s,
-   AdmsSensFadType & instanceVar_zflagsti_s,
-   AdmsSensFadType & instanceVar_zflaggat_s,
+   double & instanceVar_zflagbot_s,
+   double & instanceVar_zflagsti_s,
+   double & instanceVar_zflaggat_s,
    AdmsSensFadType & instanceVar_VMAX_s,
    AdmsSensFadType & instanceVar_exp_VMAX_over_phitd_s,
    AdmsSensFadType & instanceVar_vbimin_s,
@@ -24347,9 +24346,9 @@ void evaluateInitialInstance(
    AdmsSensFadType & instanceVar_expxhf2_s,
    AdmsSensFadType & instanceVar_xhighr_s,
    AdmsSensFadType & instanceVar_expxhr_s,
-   AdmsSensFadType & instanceVar_m0flag_s,
+   double & instanceVar_m0flag_s,
    AdmsSensFadType & instanceVar_ISATFOR1_s,
-   AdmsSensFadType & instanceVar_MFOR1_s,
+   double & instanceVar_MFOR1_s,
    AdmsSensFadType & instanceVar_ISATFOR2_s,
    AdmsSensFadType & instanceVar_MFOR2_s,
    AdmsSensFadType & instanceVar_ISATREV_s,
@@ -24357,9 +24356,9 @@ void evaluateInitialInstance(
    AdmsSensFadType & instanceVar_ABDRAIN_i,
    AdmsSensFadType & instanceVar_LSDRAIN_i,
    AdmsSensFadType & instanceVar_LGDRAIN_i,
-   AdmsSensFadType & instanceVar_zflagbot_d,
-   AdmsSensFadType & instanceVar_zflagsti_d,
-   AdmsSensFadType & instanceVar_zflaggat_d,
+   double & instanceVar_zflagbot_d,
+   double & instanceVar_zflagsti_d,
+   double & instanceVar_zflaggat_d,
    AdmsSensFadType & instanceVar_VMAX_d,
    AdmsSensFadType & instanceVar_exp_VMAX_over_phitd_d,
    AdmsSensFadType & instanceVar_vbimin_d,
@@ -24372,9 +24371,9 @@ void evaluateInitialInstance(
    AdmsSensFadType & instanceVar_expxhf2_d,
    AdmsSensFadType & instanceVar_xhighr_d,
    AdmsSensFadType & instanceVar_expxhr_d,
-   AdmsSensFadType & instanceVar_m0flag_d,
+   double & instanceVar_m0flag_d,
    AdmsSensFadType & instanceVar_ISATFOR1_d,
-   AdmsSensFadType & instanceVar_MFOR1_d,
+   double & instanceVar_MFOR1_d,
    AdmsSensFadType & instanceVar_ISATFOR2_d,
    AdmsSensFadType & instanceVar_MFOR2_d,
    AdmsSensFadType & instanceVar_ISATREV_d,
@@ -25009,7 +25008,7 @@ void evaluateInitialInstance(
    AdmsSensFadType & modelVar_dT,
    AdmsSensFadType & modelVar_rT,
    AdmsSensFadType & modelVar_rTn,
-   AdmsSensFadType & modelVar_EPSSI,
+   double & modelVar_EPSSI,
    AdmsSensFadType & modelVar_phit,
    AdmsSensFadType & modelVar_inv_phit,
    AdmsSensFadType & modelVar_Eg,
@@ -25037,15 +25036,15 @@ void evaluateInitialInstance(
    AdmsSensFadType & modelVar_PBRBOT_i,
    AdmsSensFadType & modelVar_PBRSTI_i,
    AdmsSensFadType & modelVar_PBRGAT_i,
-   AdmsSensFadType & modelVar_SWJUNEXP_i,
+   double & modelVar_SWJUNEXP_i,
    AdmsSensFadType & modelVar_VJUNREF_i,
    AdmsSensFadType & modelVar_FJUNQ_i,
    AdmsSensFadType & modelVar_phitr,
    AdmsSensFadType & modelVar_phitd,
    AdmsSensFadType & modelVar_phitdinv,
-   AdmsSensFadType & modelVar_perfc,
-   AdmsSensFadType & modelVar_berfc,
-   AdmsSensFadType & modelVar_cerfc,
+   double & modelVar_perfc,
+   double & modelVar_berfc,
+   double & modelVar_cerfc,
    AdmsSensFadType & modelVar_ftdbot,
    AdmsSensFadType & modelVar_ftdsti,
    AdmsSensFadType & modelVar_ftdgat,
@@ -25493,10 +25492,7 @@ void evaluateInitialInstance(
     SC_i = instancePar_SC;
     XGW_i = instancePar_XGW;
     NF_i = adms_ternary_op<AdmsSensFadType>((instancePar_NF>1.0),instancePar_NF,1.0);
-    {
-      AdmsSensFadType value_floor_0 = ADMSfloor((NF_i+0.5));
-      NF_i = ADMSfloor((NF_i+0.5));
-    }
+    NF_i = ADMSfloor((NF_i+0.5));
     invNF = (1.0/NF_i);
     L_i = adms_ternary_op<AdmsSensFadType>((L_i>1e-9),L_i,1e-9);
     W_i = adms_ternary_op<AdmsSensFadType>(((W_i*invNF)>1e-9),(W_i*invNF),1e-9);
@@ -25556,35 +25552,14 @@ void evaluateInitialInstance(
     STVFB = (((modelPar_STVFBO*(1.0+(modelPar_STVFBL*iLE)))*(1.0+(modelPar_STVFBW*iWE)))*(1.0+((modelPar_STVFBLW*iLE)*iWE)));
     TOX = modelPar_TOXO;
     EPSROX = modelPar_EPSROXO;
-    {
-      AdmsSensFadType value_log_0 = log((1.0+(WE/modelVar_WSEG_i)));
-      AdmsSensFadType value_log_1 = log((1.0+(WE/modelVar_WSEG_i)));
-      NSUB0e = (modelVar_NSUBO_i*adms_ternary_op<AdmsSensFadType>(((1.0+((modelPar_NSUBW*iWE)*value_log_0))>1.0E-03),(1.0+((modelPar_NSUBW*iWE)*value_log_1)),1.0E-03));
-    }
-    {
-      AdmsSensFadType value_log_0 = log((1.0+(WE/modelVar_WSEGP_i)));
-      AdmsSensFadType value_log_1 = log((1.0+(WE/modelVar_WSEGP_i)));
-      NPCKe = (modelVar_NPCK_i*adms_ternary_op<AdmsSensFadType>(((1.0+((modelPar_NPCKW*iWE)*value_log_0))>1.0E-03),(1.0+((modelPar_NPCKW*iWE)*value_log_1)),1.0E-03));
-    }
-    {
-      AdmsSensFadType value_log_0 = log((1.0+(WE/modelVar_WSEGP_i)));
-      AdmsSensFadType value_log_1 = log((1.0+(WE/modelVar_WSEGP_i)));
-      LPCKe = (modelVar_LPCK_i*adms_ternary_op<AdmsSensFadType>(((1.0+((modelPar_LPCKW*iWE)*value_log_0))>1.0E-03),(1.0+((modelPar_LPCKW*iWE)*value_log_1)),1.0E-03));
-    }
+    NSUB0e = (modelVar_NSUBO_i*adms_ternary_op<AdmsSensFadType>(((1.0+((modelPar_NSUBW*iWE)*log((1.0+(WE/modelVar_WSEG_i)))))>1.0E-03),(1.0+((modelPar_NSUBW*iWE)*log((1.0+(WE/modelVar_WSEG_i))))),1.0E-03));
+    NPCKe = (modelVar_NPCK_i*adms_ternary_op<AdmsSensFadType>(((1.0+((modelPar_NPCKW*iWE)*log((1.0+(WE/modelVar_WSEGP_i)))))>1.0E-03),(1.0+((modelPar_NPCKW*iWE)*log((1.0+(WE/modelVar_WSEGP_i))))),1.0E-03));
+    LPCKe = (modelVar_LPCK_i*adms_ternary_op<AdmsSensFadType>(((1.0+((modelPar_LPCKW*iWE)*log((1.0+(WE/modelVar_WSEGP_i)))))>1.0E-03),(1.0+((modelPar_LPCKW*iWE)*log((1.0+(WE/modelVar_WSEGP_i))))),1.0E-03));
     if ((LE>(2*LPCKe)))
     {
       AA = 7.5e10;
-      {
-        AdmsSensFadType value_sqrt_0 = sqrt((NSUB0e+(0.5*NPCKe)));
-        AdmsSensFadType value_sqrt_1 = sqrt(NSUB0e);
-        BB = (value_sqrt_0-value_sqrt_1);
-      }
-      {
-        AdmsSensFadType value_sqrt_0 = sqrt(NSUB0e);
-        AdmsSensFadType value_exp_1 = exp((BB/AA));
-        AdmsSensFadType value_log_2 = log((1+(((2*LPCKe)/LE)*(value_exp_1-1))));
-        NSUB = (value_sqrt_0+(AA*value_log_2));
-      }
+      BB = (sqrt((NSUB0e+(0.5*NPCKe)))-sqrt(NSUB0e));
+      NSUB = (sqrt(NSUB0e)+(AA*log((1+(((2*LPCKe)/LE)*(exp((BB/AA))-1))))));
       NSUB = (NSUB*NSUB);
     }
     else
@@ -25602,46 +25577,27 @@ void evaluateInitialInstance(
     VNSUB = modelPar_VNSUBO;
     NSLP = modelPar_NSLPO;
     DNSUB = modelPar_DNSUBO;
-    {
-      AdmsSensFadType value_pow_0 = pow(iLE,modelPar_DPHIBLEXP);
-      DPHIB = (((modelPar_DPHIBO+(modelPar_DPHIBL*value_pow_0))*(1.0+(modelPar_DPHIBW*iWE)))*(1.0+((modelPar_DPHIBLW*iLE)*iWE)));
-    }
+    DPHIB = (((modelPar_DPHIBO+(modelPar_DPHIBL*pow(iLE,modelPar_DPHIBLEXP)))*(1.0+(modelPar_DPHIBW*iWE)))*(1.0+((modelPar_DPHIBLW*iLE)*iWE)));
     NP = (modelPar_NPO*adms_ternary_op<AdmsSensFadType>((1e-6>(1.0+(modelPar_NPL*iLE))),1e-6,(1.0+(modelPar_NPL*iLE))));
-    {
-      AdmsSensFadType value_pow_0 = pow(iLE,modelPar_CTLEXP);
-      CT = (((modelPar_CTO+(modelPar_CTL*value_pow_0))*(1.0+(modelPar_CTW*iWE)))*(1.0+((modelPar_CTLW*iLE)*iWE)));
-    }
+    CT = (((modelPar_CTO+(modelPar_CTL*pow(iLE,modelPar_CTLEXP)))*(1.0+(modelPar_CTW*iWE)))*(1.0+((modelPar_CTLW*iLE)*iWE)));
     TOXOV = modelPar_TOXOVO;
     TOXOVD = modelPar_TOXOVDO;
     NOV = modelPar_NOVO;
     NOVD = modelPar_NOVDO;
-    {
-      AdmsSensFadType value_pow_0 = pow(iLE,modelPar_CFLEXP);
-      CF = ((modelPar_CFL*value_pow_0)*(1.0+(modelPar_CFW*iWE)));
-    }
+    CF = ((modelPar_CFL*pow(iLE,modelPar_CFLEXP))*(1.0+(modelPar_CFW*iWE)));
     CFB = modelPar_CFBO;
     FBET1e = (modelPar_FBET1*(1.0+(modelPar_FBET1W*iWE)));
     LP1e = (modelVar_LP1_i*adms_ternary_op<AdmsSensFadType>(((1.0+(modelPar_LP1W*iWE))>1.0E-03),(1.0+(modelPar_LP1W*iWE)),1.0E-03));
-    {
-      AdmsSensFadType value_exp_0 = exp(((-LE)/LP1e));
-      AdmsSensFadType value_exp_1 = exp(((-LE)/modelVar_LP2_i));
-      GPE = ((1.0+(((FBET1e*LP1e)/LE)*(1.0-value_exp_0)))+(((modelPar_FBET2*modelVar_LP2_i)/LE)*(1.0-value_exp_1)));
-    }
+    GPE = ((1.0+(((FBET1e*LP1e)/LE)*(1.0-exp(((-LE)/LP1e)))))+(((modelPar_FBET2*modelVar_LP2_i)/LE)*(1.0-exp(((-LE)/modelVar_LP2_i)))));
     GPE = adms_ternary_op<AdmsSensFadType>((GPE>1e-15),GPE,1e-15);
-    {
-      AdmsSensFadType value_log_0 = log((1.0+(WE/modelVar_WBET_i)));
-      GWE = ((1.0+(modelPar_BETW1*iWE))+((modelPar_BETW2*iWE)*value_log_0));
-    }
+    GWE = ((1.0+(modelPar_BETW1*iWE))+((modelPar_BETW2*iWE)*log((1.0+(WE/modelVar_WBET_i)))));
     BETN = (((modelPar_UO*WE)/(GPE*LE))*GWE);
     STBET = (((modelPar_STBETO*(1.0+(modelPar_STBETL*iLE)))*(1.0+(modelPar_STBETW*iWE)))*(1.0+((modelPar_STBETLW*iLE)*iWE)));
     MUE = (modelPar_MUEO*(1.0+(modelPar_MUEW*iWE)));
     STMUE = modelPar_STMUEO;
     THEMU = modelPar_THEMUO;
     STTHEMU = modelPar_STTHEMUO;
-    {
-      AdmsSensFadType value_pow_0 = pow(iLE,modelPar_CSLEXP);
-      CS = (((modelPar_CSO+(modelPar_CSL*value_pow_0))*(1.0+(modelPar_CSW*iWE)))*(1.0+((modelPar_CSLW*iLE)*iWE)));
-    }
+    CS = (((modelPar_CSO+(modelPar_CSL*pow(iLE,modelPar_CSLEXP)))*(1.0+(modelPar_CSW*iWE)))*(1.0+((modelPar_CSLW*iLE)*iWE)));
     STCS = modelPar_STCSO;
     XCOR = (((modelPar_XCORO*(1.0+(modelPar_XCORL*iLE)))*(1.0+(modelPar_XCORW*iWE)))*(1.0+((modelPar_XCORLW*iLE)*iWE)));
     STXCOR = modelPar_STXCORO;
@@ -25650,27 +25606,15 @@ void evaluateInitialInstance(
     STRS = modelPar_STRSO;
     RSB = modelPar_RSBO;
     RSG = modelPar_RSGO;
-    {
-      AdmsSensFadType value_pow_0 = pow(iLE,modelPar_THESATLEXP);
-      THESAT = (((modelPar_THESATO+(((modelPar_THESATL*GWE)/GPE)*value_pow_0))*(1.0+(modelPar_THESATW*iWE)))*(1.0+((modelPar_THESATLW*iLE)*iWE)));
-    }
+    THESAT = (((modelPar_THESATO+(((modelPar_THESATL*GWE)/GPE)*pow(iLE,modelPar_THESATLEXP)))*(1.0+(modelPar_THESATW*iWE)))*(1.0+((modelPar_THESATLW*iLE)*iWE)));
     STTHESAT = (((modelPar_STTHESATO*(1.0+(modelPar_STTHESATL*iLE)))*(1.0+(modelPar_STTHESATW*iWE)))*(1.0+((modelPar_STTHESATLW*iLE)*iWE)));
     THESATB = modelPar_THESATBO;
     THESATG = modelPar_THESATGO;
     AX = (modelPar_AXO/(1.0+(modelVar_AXL_i*iLE)));
-    {
-      AdmsSensFadType value_pow_0 = pow(iLE,modelPar_ALPLEXP);
-      ALP = ((modelPar_ALPL*value_pow_0)*(1.0+(modelPar_ALPW*iWE)));
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(iLE,modelPar_ALP1LEXP);
-      tmpx = value_pow_0;
-    }
+    ALP = ((modelPar_ALPL*pow(iLE,modelPar_ALPLEXP))*(1.0+(modelPar_ALPW*iWE)));
+    tmpx = pow(iLE,modelPar_ALP1LEXP);
     ALP1 = (((modelPar_ALP1L1*tmpx)*(1.0+(modelPar_ALP1W*iWE)))/(1.0+((modelVar_ALP1L2_i*iLE)*tmpx)));
-    {
-      AdmsSensFadType value_pow_0 = pow(iLE,modelPar_ALP2LEXP);
-      tmpx = value_pow_0;
-    }
+    tmpx = pow(iLE,modelPar_ALP2LEXP);
     ALP2 = (((modelPar_ALP2L1*tmpx)*(1.0+(modelPar_ALP2W*iWE)))/(1.0+((modelVar_ALP2L2_i*iLE)*tmpx)));
     VP = modelPar_VPO;
     A1 = ((modelPar_A1O*(1.0+(modelPar_A1L*iLE)))*(1.0+(modelPar_A1W*iWE)));
@@ -25702,10 +25646,7 @@ void evaluateInitialInstance(
     CFRD = ((modelPar_CFRDW*Wcv)/WEN);
     temp0 = (1.0-(((2.0*modelPar_LINTNOI)*iLE)/LEN));
     Lnoi = adms_ternary_op<AdmsSensFadType>((temp0>1.0e-3),temp0,1.0e-3);
-    {
-      AdmsSensFadType value_pow_0 = pow(Lnoi,modelPar_ALPNOI);
-      Lred = (1.0/value_pow_0);
-    }
+    Lred = (1.0/pow(Lnoi,modelPar_ALPNOI));
     FNT = modelPar_FNTO;
     FNTEXC = ((((modelPar_FNTEXCL*BETN)*BETN)*iWE)*iWE);
     NFA = (((Lred*iWE)*iLE)*modelPar_NFALW);
@@ -25736,34 +25677,19 @@ void evaluateInitialInstance(
       Invsbref = (1.0/(modelVar_SBREF_i+(0.5*L_i)));
       Lx = adms_ternary_op<AdmsSensFadType>(((L_i+delLPS)>1e-9),(L_i+delLPS),1e-9);
       Wx = adms_ternary_op<AdmsSensFadType>((((W_i+delWOD)+modelPar_WLOD)>1e-9),((W_i+delWOD)+modelPar_WLOD),1e-9);
-      {
-        AdmsSensFadType value_pow_0 = pow(Lx,modelVar_LLODKUO_i);
-        templ = (1.0/value_pow_0);
-      }
-      {
-        AdmsSensFadType value_pow_0 = pow(Wx,modelVar_WLODKUO_i);
-        tempw = (1.0/value_pow_0);
-      }
+      templ = (1.0/pow(Lx,modelVar_LLODKUO_i));
+      tempw = (1.0/pow(Wx,modelVar_WLODKUO_i));
       Kstressu0 = ((((1.0+(modelPar_LKUO*templ))+(modelPar_WKUO*tempw))+((modelPar_PKUO*templ)*tempw))*(1.0+(modelPar_TKUO*(modelVar_rT-1.0))));
       rhobeta = ((modelPar_KUO*(Invsa+Invsb))/Kstressu0);
       rhobetaref = ((modelPar_KUO*(Invsaref+Invsbref))/Kstressu0);
-      {
-        AdmsSensFadType value_pow_0 = pow(Lx,modelVar_LLODVTH_i);
-        templ = (1.0/value_pow_0);
-      }
-      {
-        AdmsSensFadType value_pow_0 = pow(Wx,modelVar_WLODVTH_i);
-        tempw = (1.0/value_pow_0);
-      }
+      templ = (1.0/pow(Lx,modelVar_LLODVTH_i));
+      tempw = (1.0/pow(Wx,modelVar_WLODVTH_i));
       Kstressvth0 = (((1.0+(modelPar_LKVTHO*templ))+(modelPar_WKVTHO*tempw))+((modelPar_PKVTHO*templ)*tempw));
       temp0 = (((Invsa+Invsb)-Invsaref)-Invsbref);
       BETN = ((BETN*(1.0+rhobeta))/(1.0+rhobetaref));
       THESAT = (((THESAT*(1.0+rhobeta))*(1.0+(modelVar_KVSAT_i*rhobetaref)))/((1.0+rhobetaref)*(1.0+(modelVar_KVSAT_i*rhobeta))));
       VFB = (VFB+((modelPar_KVTHO*temp0)/Kstressvth0));
-      {
-        AdmsSensFadType value_pow_0 = pow(Kstressvth0,modelVar_LODETAO_i);
-        CF = (CF+((modelPar_STETAO*temp0)/value_pow_0));
-      }
+      CF = (CF+((modelPar_STETAO*temp0)/pow(Kstressvth0,modelVar_LODETAO_i)));
     }
     if (((((SCA_i>0.0)||(SCB_i>0.0))||(SCC_i>0.0))||(SC_i>0.0)))
     {
@@ -25772,16 +25698,8 @@ void evaluateInitialInstance(
         temp0 = (SC_i+W_i);
         temp00 = (1.0/modelVar_SCREF_i);
         SCA_i = ((modelVar_SCREF_i*modelVar_SCREF_i)/(SC_i*temp0));
-        {
-          AdmsSensFadType value_exp_0 = exp((((-10.0)*SC_i)*temp00));
-          AdmsSensFadType value_exp_1 = exp((((-10.0)*temp0)*temp00));
-          SCB_i = (((((0.1*SC_i)+(0.01*modelVar_SCREF_i))*value_exp_0)-(((0.1*temp0)+(0.01*modelVar_SCREF_i))*value_exp_1))/W_i);
-        }
-        {
-          AdmsSensFadType value_exp_0 = exp((((-20.0)*SC_i)*temp00));
-          AdmsSensFadType value_exp_1 = exp((((-20.0)*temp0)*temp00));
-          SCC_i = (((((0.05*SC_i)+(0.0025*modelVar_SCREF_i))*value_exp_0)-(((0.05*temp0)+(0.0025*modelVar_SCREF_i))*value_exp_1))/W_i);
-        }
+        SCB_i = (((((0.1*SC_i)+(0.01*modelVar_SCREF_i))*exp((((-10.0)*SC_i)*temp00)))-(((0.1*temp0)+(0.01*modelVar_SCREF_i))*exp((((-10.0)*temp0)*temp00))))/W_i);
+        SCC_i = (((((0.05*SC_i)+(0.0025*modelVar_SCREF_i))*exp((((-20.0)*SC_i)*temp00)))-(((0.05*temp0)+(0.0025*modelVar_SCREF_i))*exp((((-20.0)*temp0)*temp00))))/W_i);
       }
       temp0 = ((SCA_i+(modelVar_WEB_i*SCB_i))+(modelVar_WEC_i*SCC_i));
       VFB = (VFB+(KVTHOWE*temp0));
@@ -25904,18 +25822,11 @@ void evaluateInitialInstance(
     instanceVar_phit1 = (modelVar_phit*(1.0+(CT_i*modelVar_rTn)));
     instanceVar_inv_phit1 = (1.0/instanceVar_phit1);
     instanceVar_VFB_i = ((instanceVar_VFB_i+(STVFB_i*modelVar_dT))+DELVTO_i);
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_phibFac,(-0.75));
-      AdmsSensFadType value_log_1 = log(((NEFF_i*value_pow_0)*4.0e-26));
-      instanceVar_phib = ((modelVar_Eg+DPHIB_i)+((2.0*modelVar_phit)*value_log_1));
-    }
+    instanceVar_phib = ((modelVar_Eg+DPHIB_i)+((2.0*modelVar_phit)*log(((NEFF_i*pow(modelVar_phibFac,(-0.75)))*4.0e-26))));
     instanceVar_phib = adms_ternary_op<AdmsSensFadType>((instanceVar_phib>5.0E-2),instanceVar_phib,5.0E-2);
     CoxPrime = (EPSOX/modelVar_TOX_i);
     tox_sq = (modelVar_TOX_i*modelVar_TOX_i);
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((2.0*1.6021918E-19)*NEFF_i)*modelVar_EPSSI)*modelVar_inv_phit));
-      instanceVar_G_0 = (value_sqrt_0/CoxPrime);
-    }
+    instanceVar_G_0 = (sqrt(((((2.0*1.6021918E-19)*NEFF_i)*modelVar_EPSSI)*modelVar_inv_phit))/CoxPrime);
     instanceVar_kp = 0.0;
     if ((NP_i>0.0))
     {
@@ -25928,50 +25839,26 @@ void evaluateInitialInstance(
     instanceVar_qq = 0.0;
     if ((QMC_i>0.0))
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(CoxPrime,6.6666666666666667e-01);
-        instanceVar_qq = (((0.4*5.951993)*QMC_i)*value_pow_0);
-      }
+      instanceVar_qq = (((0.4*5.951993)*QMC_i)*pow(CoxPrime,6.6666666666666667e-01));
       if ((modelVar_CHNL_TYPE==(-1)))
       {
         instanceVar_qq = ((7.448711/5.951993)*instanceVar_qq);
       }
-      {
-        AdmsSensFadType value_sqrt_0 = sqrt((((modelVar_phit*instanceVar_G_0)*instanceVar_G_0)*instanceVar_phib));
-        qb0 = value_sqrt_0;
-      }
-      {
-        AdmsSensFadType value_pow_0 = pow(qb0,6.6666666666666667e-01);
-        dphibq = ((0.75*instanceVar_qq)*value_pow_0);
-      }
+      qb0 = sqrt((((modelVar_phit*instanceVar_G_0)*instanceVar_G_0)*instanceVar_phib));
+      dphibq = ((0.75*instanceVar_qq)*pow(qb0,6.6666666666666667e-01));
       instanceVar_phib = (instanceVar_phib+dphibq);
       instanceVar_G_0 = (instanceVar_G_0*(1.0+(((2.0*6.6666666666666667e-01)*dphibq)/qb0)));
     }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(instanceVar_phib);
-      instanceVar_sqrt_phib = value_sqrt_0;
-    }
+    instanceVar_sqrt_phib = sqrt(instanceVar_phib);
     instanceVar_phix = (0.95*instanceVar_phib);
     instanceVar_aphi = ((0.0025*instanceVar_phib)*instanceVar_phib);
     instanceVar_bphi = instanceVar_aphi;
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(instanceVar_bphi);
-      phix2 = (0.5*value_sqrt_0);
-    }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((instanceVar_phix-phix2))*((instanceVar_phix-phix2)))+instanceVar_aphi));
-      instanceVar_phix1 = (0.5*(((instanceVar_phix-phix2))-value_sqrt_0));
-    }
+    phix2 = (0.5*sqrt(instanceVar_bphi));
+    instanceVar_phix1 = (0.5*(((instanceVar_phix-phix2))-sqrt(((((instanceVar_phix-phix2))*((instanceVar_phix-phix2)))+instanceVar_aphi))));
     CoxovPrime = (EPSOX/modelVar_TOXOV_i);
     CoxovPrime_d = (EPSOX/modelVar_TOXOVD_i);
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((2.0*1.6021918E-19)*NOV_i)*modelVar_EPSSI)*modelVar_inv_phit));
-      instanceVar_GOV_s = (value_sqrt_0/CoxovPrime);
-    }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((2.0*1.6021918E-19)*NOVD_i)*modelVar_EPSSI)*modelVar_inv_phit));
-      instanceVar_GOV_d = (value_sqrt_0/CoxovPrime_d);
-    }
+    instanceVar_GOV_s = (sqrt(((((2.0*1.6021918E-19)*NOV_i)*modelVar_EPSSI)*modelVar_inv_phit))/CoxovPrime);
+    instanceVar_GOV_d = (sqrt(((((2.0*1.6021918E-19)*NOVD_i)*modelVar_EPSSI)*modelVar_inv_phit))/CoxovPrime_d);
     instanceVar_GOV2_s = (instanceVar_GOV_s*instanceVar_GOV_s);
     instanceVar_GOV2_d = (instanceVar_GOV_d*instanceVar_GOV_d);
     instanceVar_xi_ov_s = (1.0+(instanceVar_GOV_s*7.0710678118654746e-01));
@@ -25980,30 +25867,15 @@ void evaluateInitialInstance(
     instanceVar_inv_xi_ov_d = (1.0/instanceVar_xi_ov_d);
     instanceVar_x_mrg_ov_s = (1.0e-5*instanceVar_xi_ov_s);
     instanceVar_x_mrg_ov_d = (1.0e-5*instanceVar_xi_ov_d);
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_rTn,STBET_i);
-      tf_bet = value_pow_0;
-    }
+    tf_bet = pow(modelVar_rTn,STBET_i);
     instanceVar_BET_i = (((FACTUO_i*BETN_i)*CoxPrime)*tf_bet);
     BETN_i = (BETN_i*tf_bet);
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_rTn,STTHEMU_i);
-      instanceVar_THEMU_i = (instanceVar_THEMU_i*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_rTn,STMUE_i);
-      tf_mue = value_pow_0;
-    }
+    instanceVar_THEMU_i = (instanceVar_THEMU_i*pow(modelVar_rTn,STTHEMU_i));
+    tf_mue = pow(modelVar_rTn,STMUE_i);
     instanceVar_MUE_i = (instanceVar_MUE_i*tf_mue);
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_rTn,STCS_i);
-      tf_cs = value_pow_0;
-    }
+    tf_cs = pow(modelVar_rTn,STCS_i);
     instanceVar_CS_i = (instanceVar_CS_i*tf_cs);
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_rTn,STXCOR_i);
-      tf_xcor = value_pow_0;
-    }
+    tf_xcor = pow(modelVar_rTn,STXCOR_i);
     instanceVar_XCOR_i = (instanceVar_XCOR_i*tf_xcor);
     instanceVar_E_eff0 = ((1.0e-8*CoxPrime)/modelVar_EPSSI);
     instanceVar_eta_mu = (0.5*FETA_i);
@@ -26011,36 +25883,21 @@ void evaluateInitialInstance(
     {
       instanceVar_eta_mu = (3.3333333333333333e-01*FETA_i);
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_rTn,STRS_i);
-      tf_ther = value_pow_0;
-    }
+    tf_ther = pow(modelVar_rTn,STRS_i);
     RS_i = (RS_i*tf_ther);
     instanceVar_THER_i = ((2*instanceVar_BET_i)*RS_i);
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_rTn,STTHESAT_i);
-      tf_thesat = value_pow_0;
-    }
+    tf_thesat = pow(modelVar_rTn,STTHESAT_i);
     instanceVar_THESAT_i = (instanceVar_THESAT_i*tf_thesat);
     instanceVar_Vdsat_lim = (3.912023005*instanceVar_phit1);
     instanceVar_inv_AX = (1.0/instanceVar_AX_i);
     instanceVar_inv_VP = (1.0/VP_i);
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_rT,STA2_i);
-      instanceVar_A2_i = (instanceVar_A2_i*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_rT,STIG_i);
-      tf_ig = value_pow_0;
-    }
+    instanceVar_A2_i = (instanceVar_A2_i*pow(modelVar_rT,STA2_i));
+    tf_ig = pow(modelVar_rT,STIG_i);
     instanceVar_IGINV_i = (instanceVar_IGINV_i*tf_ig);
     instanceVar_IGOV_i = (instanceVar_IGOV_i*tf_ig);
     instanceVar_IGOVD_i = (instanceVar_IGOVD_i*tf_ig);
     instanceVar_inv_CHIB = (1.0/instanceVar_CHIB_i);
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt((((2*1.6021918E-19)*9.1093826E-31)*instanceVar_CHIB_i));
-      tempM = (((4.0*3.3333333333333333e-01)*value_sqrt_0)/1.05457168E-34);
-    }
+    tempM = (((4.0*3.3333333333333333e-01)*sqrt((((2*1.6021918E-19)*9.1093826E-31)*instanceVar_CHIB_i)))/1.05457168E-34);
     instanceVar_BCH = (tempM*modelVar_TOX_i);
     instanceVar_BOV = (tempM*modelVar_TOXOV_i);
     instanceVar_BOV_d = (tempM*modelVar_TOXOVD_i);
@@ -26167,10 +26024,7 @@ void evaluateInitialInstance(
     {
       if (((modelVar_idsatbot*instanceVar_ABSOURCE_i)>0))
       {
-        {
-          AdmsSensFadType value_log_0 = log(((modelVar_IMAX_i/(modelVar_idsatbot*instanceVar_ABSOURCE_i))+1));
-          vmaxbot = (modelVar_phitd*value_log_0);
-        }
+        vmaxbot = (modelVar_phitd*log(((modelVar_IMAX_i/(modelVar_idsatbot*instanceVar_ABSOURCE_i))+1)));
       }
       else
       {
@@ -26178,10 +26032,7 @@ void evaluateInitialInstance(
       }
       if (((modelVar_idsatsti*instanceVar_LSSOURCE_i)>0))
       {
-        {
-          AdmsSensFadType value_log_0 = log(((modelVar_IMAX_i/(modelVar_idsatsti*instanceVar_LSSOURCE_i))+1));
-          vmaxsti = (modelVar_phitd*value_log_0);
-        }
+        vmaxsti = (modelVar_phitd*log(((modelVar_IMAX_i/(modelVar_idsatsti*instanceVar_LSSOURCE_i))+1)));
       }
       else
       {
@@ -26189,26 +26040,16 @@ void evaluateInitialInstance(
       }
       if (((modelVar_idsatgat*instanceVar_LGSOURCE_i)>0))
       {
-        {
-          AdmsSensFadType value_log_0 = log(((modelVar_IMAX_i/(modelVar_idsatgat*instanceVar_LGSOURCE_i))+1));
-          vmaxgat = (modelVar_phitd*value_log_0);
-        }
+        vmaxgat = (modelVar_phitd*log(((modelVar_IMAX_i/(modelVar_idsatgat*instanceVar_LGSOURCE_i))+1)));
       }
       else
       {
         vmaxgat = 1E8;
       }
-      {
-        AdmsSensFadType value_min_0 = min(vmaxbot,vmaxsti);
-        AdmsSensFadType value_min_1 = min(value_min_0,vmaxgat);
-        instanceVar_VMAX_s = value_min_1;
-      }
+      instanceVar_VMAX_s = min(min(vmaxbot,vmaxsti),vmaxgat);
       if ((fabs((instanceVar_VMAX_s*modelVar_phitdinv))<2.3025850929940458e+02))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_VMAX_s*modelVar_phitdinv));
-          instanceVar_exp_VMAX_over_phitd_s = value_exp_0;
-        }
+        instanceVar_exp_VMAX_over_phitd_s = exp((instanceVar_VMAX_s*modelVar_phitdinv));
       }
       else
       {
@@ -26233,56 +26074,29 @@ void evaluateInitialInstance(
       if ((instanceVar_ABSOURCE_i==0))
       {
         vbibot2 = (modelVar_vbisti+modelVar_vbigat);
-        {
-          AdmsSensFadType value_min_0 = min(modelVar_PSTI_i,modelVar_PGAT_i);
-          pbot2 = (0.9*value_min_0);
-        }
+        pbot2 = (0.9*min(modelVar_PSTI_i,modelVar_PGAT_i));
         vbibot2r = (modelVar_VBIRSTI_i+modelVar_VBIRGAT_i);
       }
       if ((instanceVar_LSSOURCE_i==0))
       {
         vbisti2 = (modelVar_vbibot+modelVar_vbigat);
-        {
-          AdmsSensFadType value_min_0 = min(modelVar_PBOT_i,modelVar_PGAT_i);
-          psti2 = (0.9*value_min_0);
-        }
+        psti2 = (0.9*min(modelVar_PBOT_i,modelVar_PGAT_i));
         vbisti2r = (modelVar_VBIRBOT_i+modelVar_VBIRGAT_i);
       }
       if ((instanceVar_LGSOURCE_i==0))
       {
         vbigat2 = (modelVar_vbibot+modelVar_vbisti);
-        {
-          AdmsSensFadType value_min_0 = min(modelVar_PBOT_i,modelVar_PSTI_i);
-          pgat2 = (0.9*value_min_0);
-        }
+        pgat2 = (0.9*min(modelVar_PBOT_i,modelVar_PSTI_i));
         vbigat2r = (modelVar_VBIRBOT_i+modelVar_VBIRSTI_i);
       }
-      {
-        AdmsSensFadType value_min_0 = min(vbibot2,vbisti2);
-        AdmsSensFadType value_min_1 = min(value_min_0,vbigat2);
-        instanceVar_vbimin_s = value_min_1;
-      }
+      instanceVar_vbimin_s = min(min(vbibot2,vbisti2),vbigat2);
       instanceVar_vch_s = (instanceVar_vbimin_s*0.1);
-      {
-        AdmsSensFadType value_max_0 = max(pbot2,psti2);
-        AdmsSensFadType value_max_1 = max(value_max_0,pgat2);
-        pmax = value_max_1;
-      }
-      {
-        AdmsSensFadType value_pow_0 = pow(2,((-1.0)/pmax));
-        instanceVar_vfmin_s = (instanceVar_vbimin_s*(1-value_pow_0));
-      }
-      {
-        AdmsSensFadType value_min_0 = min(vbibot2r,vbisti2r);
-        AdmsSensFadType value_min_1 = min(value_min_0,vbigat2r);
-        instanceVar_vbbtlim_s = (value_min_1-0.050);
-      }
+      pmax = max(max(pbot2,psti2),pgat2);
+      instanceVar_vfmin_s = (instanceVar_vbimin_s*(1-pow(2,((-1.0)/pmax))));
+      instanceVar_vbbtlim_s = (min(min(vbibot2r,vbisti2r),vbigat2r)-0.050);
       if (((modelVar_idsatbot_d*instanceVar_ABDRAIN_i)>0))
       {
-        {
-          AdmsSensFadType value_log_0 = log(((modelVar_IMAX_i/(modelVar_idsatbot_d*instanceVar_ABDRAIN_i))+1));
-          vmaxbot = (modelVar_phitd*value_log_0);
-        }
+        vmaxbot = (modelVar_phitd*log(((modelVar_IMAX_i/(modelVar_idsatbot_d*instanceVar_ABDRAIN_i))+1)));
       }
       else
       {
@@ -26290,10 +26104,7 @@ void evaluateInitialInstance(
       }
       if (((modelVar_idsatsti_d*instanceVar_LSDRAIN_i)>0))
       {
-        {
-          AdmsSensFadType value_log_0 = log(((modelVar_IMAX_i/(modelVar_idsatsti_d*instanceVar_LSDRAIN_i))+1));
-          vmaxsti = (modelVar_phitd*value_log_0);
-        }
+        vmaxsti = (modelVar_phitd*log(((modelVar_IMAX_i/(modelVar_idsatsti_d*instanceVar_LSDRAIN_i))+1)));
       }
       else
       {
@@ -26301,26 +26112,16 @@ void evaluateInitialInstance(
       }
       if (((modelVar_idsatgat_d*instanceVar_LGDRAIN_i)>0))
       {
-        {
-          AdmsSensFadType value_log_0 = log(((modelVar_IMAX_i/(modelVar_idsatgat_d*instanceVar_LGDRAIN_i))+1));
-          vmaxgat = (modelVar_phitd*value_log_0);
-        }
+        vmaxgat = (modelVar_phitd*log(((modelVar_IMAX_i/(modelVar_idsatgat_d*instanceVar_LGDRAIN_i))+1)));
       }
       else
       {
         vmaxgat = 1E8;
       }
-      {
-        AdmsSensFadType value_min_0 = min(vmaxbot,vmaxsti);
-        AdmsSensFadType value_min_1 = min(value_min_0,vmaxgat);
-        instanceVar_VMAX_d = value_min_1;
-      }
+      instanceVar_VMAX_d = min(min(vmaxbot,vmaxsti),vmaxgat);
       if ((fabs((instanceVar_VMAX_d*modelVar_phitdinv))<2.3025850929940458e+02))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_VMAX_d*modelVar_phitdinv));
-          instanceVar_exp_VMAX_over_phitd_d = value_exp_0;
-        }
+        instanceVar_exp_VMAX_over_phitd_d = exp((instanceVar_VMAX_d*modelVar_phitdinv));
       }
       else
       {
@@ -26345,50 +26146,26 @@ void evaluateInitialInstance(
       if ((instanceVar_ABDRAIN_i==0))
       {
         vbibot2 = (modelVar_vbisti_d+modelVar_vbigat_d);
-        {
-          AdmsSensFadType value_min_0 = min(modelVar_PSTID_i,modelVar_PGATD_i);
-          pbot2 = (0.9*value_min_0);
-        }
+        pbot2 = (0.9*min(modelVar_PSTID_i,modelVar_PGATD_i));
         vbibot2r = (modelVar_VBIRSTID_i+modelVar_VBIRGATD_i);
       }
       if ((instanceVar_LSDRAIN_i==0))
       {
         vbisti2 = (modelVar_vbibot_d+modelVar_vbigat_d);
-        {
-          AdmsSensFadType value_min_0 = min(modelVar_PBOTD_i,modelVar_PGATD_i);
-          psti2 = (0.9*value_min_0);
-        }
+        psti2 = (0.9*min(modelVar_PBOTD_i,modelVar_PGATD_i));
         vbisti2r = (modelVar_VBIRBOTD_i+modelVar_VBIRGATD_i);
       }
       if ((instanceVar_LGDRAIN_i==0))
       {
         vbigat2 = (modelVar_vbibot_d+modelVar_vbisti_d);
-        {
-          AdmsSensFadType value_min_0 = min(modelVar_PBOTD_i,modelVar_PSTID_i);
-          pgat2 = (0.9*value_min_0);
-        }
+        pgat2 = (0.9*min(modelVar_PBOTD_i,modelVar_PSTID_i));
         vbigat2r = (modelVar_VBIRBOTD_i+modelVar_VBIRSTID_i);
       }
-      {
-        AdmsSensFadType value_min_0 = min(vbibot2,vbisti2);
-        AdmsSensFadType value_min_1 = min(value_min_0,vbigat2);
-        instanceVar_vbimin_d = value_min_1;
-      }
+      instanceVar_vbimin_d = min(min(vbibot2,vbisti2),vbigat2);
       instanceVar_vch_d = (instanceVar_vbimin_d*0.1);
-      {
-        AdmsSensFadType value_max_0 = std::max(pbot2,psti2);
-        AdmsSensFadType value_max_1 = std::max(value_max_0,pgat2);
-        pmax = value_max_1;
-      }
-      {
-        AdmsSensFadType value_pow_0 = pow(2,((-1.0)/pmax));
-        instanceVar_vfmin_d = (instanceVar_vbimin_d*(1-value_pow_0));
-      }
-      {
-        AdmsSensFadType value_min_0 = min(vbibot2r,vbisti2r);
-        AdmsSensFadType value_min_1 = min(value_min_0,vbigat2r);
-        instanceVar_vbbtlim_d = (value_min_1-0.050);
-      }
+      pmax = max(max(pbot2,psti2),pgat2);
+      instanceVar_vfmin_d = (instanceVar_vbimin_d*(1-pow(2,((-1.0)/pmax))));
+      instanceVar_vbbtlim_d = (min(min(vbibot2r,vbisti2r),vbigat2r)-0.050);
       if ((modelVar_SWJUNEXP_i==1.0))
         //Begin block JUNCAPexpressInit
       {
@@ -26528,19 +26305,13 @@ void evaluateInitialInstance(
           h2d = (V1+(instanceVar_vch_s*h2));
           h3 = (instanceVar_vfmin_s+h2d);
           h4 = (instanceVar_vfmin_s-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V1*instanceVar_vfmin_s)/(h3+h5)));
           if ((V1<instanceVar_VMAX_s))
           {
             if ((fabs((0.5*(V1*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V1*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V1*modelVar_phitdinv)));
             }
             else
             {
@@ -26558,42 +26329,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V1-instanceVar_VMAX_s)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_s);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V1>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V1)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V1)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_s-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V1-vjlim)*(V1-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V1+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V1-instanceVar_vbbtlim_s)*(V1-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V1+instanceVar_vbbtlim_s)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V1)*(V1))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V1)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V1+vjlim)-sqrt((((V1-vjlim)*(V1-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V1+instanceVar_vbbtlim_s)-sqrt((((V1-instanceVar_vbbtlim_s)*(V1-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V1)-sqrt((((V1)*(V1))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABSOURCE_i==0))
         {
@@ -26604,17 +26355,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
           }
           qjunbot = ((modelVar_qprefbot*(1-tmp))+(modelVar_qpref2bot*(V1-vj)));
           id = (modelVar_idsatbot*idmult);
@@ -26625,35 +26370,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             wdep = (modelVar_wdepnulrbot*tmp);
             asrh = (modelVar_ftdbot*((zinv-1)*wdep));
@@ -26668,15 +26401,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1)))
             {
@@ -26684,16 +26410,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -26708,10 +26428,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -26726,10 +26443,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -26748,25 +26462,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
             if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
             }
             else
             {
@@ -26791,21 +26496,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -26825,17 +26520,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
           }
           qjunsti = ((modelVar_qprefsti*(1-tmp))+(modelVar_qpref2sti*(V1-vj)));
           id = (modelVar_idsatsti*idmult);
@@ -26846,35 +26535,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTI_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             wdep = (modelVar_wdepnulrsti*tmp);
             asrh = (modelVar_ftdsti*((zinv-1)*wdep));
@@ -26889,15 +26566,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1)))
             {
@@ -26905,16 +26575,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -26929,10 +26593,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -26947,10 +26608,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -26969,25 +26627,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
             if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
             }
             else
             {
@@ -27012,21 +26661,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTI_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTI_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -27046,17 +26685,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
           }
           qjungat = ((modelVar_qprefgat*(1-tmp))+(modelVar_qpref2gat*(V1-vj)));
           id = (modelVar_idsatgat*idmult);
@@ -27067,35 +26700,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGAT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             wdep = (modelVar_wdepnulrgat*tmp);
             asrh = (modelVar_ftdgat*((zinv-1)*wdep));
@@ -27110,15 +26731,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1)))
             {
@@ -27126,16 +26740,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -27150,10 +26758,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -27168,10 +26773,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -27190,25 +26792,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
             if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
             }
             else
             {
@@ -27233,21 +26826,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGAT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGAT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -27268,19 +26851,13 @@ void evaluateInitialInstance(
           h2d = (V2+(instanceVar_vch_s*h2));
           h3 = (instanceVar_vfmin_s+h2d);
           h4 = (instanceVar_vfmin_s-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V2*instanceVar_vfmin_s)/(h3+h5)));
           if ((V2<instanceVar_VMAX_s))
           {
             if ((fabs((0.5*(V2*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V2*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V2*modelVar_phitdinv)));
             }
             else
             {
@@ -27298,42 +26875,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V2-instanceVar_VMAX_s)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_s);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V2>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V2)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V2)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_s-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V2-vjlim)*(V2-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V2+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V2-instanceVar_vbbtlim_s)*(V2-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V2+instanceVar_vbbtlim_s)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V2)*(V2))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V2)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V2+vjlim)-sqrt((((V2-vjlim)*(V2-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V2+instanceVar_vbbtlim_s)-sqrt((((V2-instanceVar_vbbtlim_s)*(V2-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V2)-sqrt((((V2)*(V2))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABSOURCE_i==0))
         {
@@ -27344,17 +26901,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
           }
           qjunbot = ((modelVar_qprefbot*(1-tmp))+(modelVar_qpref2bot*(V2-vj)));
           id = (modelVar_idsatbot*idmult);
@@ -27365,35 +26916,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             wdep = (modelVar_wdepnulrbot*tmp);
             asrh = (modelVar_ftdbot*((zinv-1)*wdep));
@@ -27408,15 +26947,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1)))
             {
@@ -27424,16 +26956,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -27448,10 +26974,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -27466,10 +26989,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -27488,25 +27008,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
             if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
             }
             else
             {
@@ -27531,21 +27042,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -27565,17 +27066,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
           }
           qjunsti = ((modelVar_qprefsti*(1-tmp))+(modelVar_qpref2sti*(V2-vj)));
           id = (modelVar_idsatsti*idmult);
@@ -27586,35 +27081,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTI_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             wdep = (modelVar_wdepnulrsti*tmp);
             asrh = (modelVar_ftdsti*((zinv-1)*wdep));
@@ -27629,15 +27112,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1)))
             {
@@ -27645,16 +27121,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -27669,10 +27139,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -27687,10 +27154,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -27709,25 +27173,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
             if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
             }
             else
             {
@@ -27752,21 +27207,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTI_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTI_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -27786,17 +27231,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
           }
           qjungat = ((modelVar_qprefgat*(1-tmp))+(modelVar_qpref2gat*(V2-vj)));
           id = (modelVar_idsatgat*idmult);
@@ -27807,35 +27246,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGAT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             wdep = (modelVar_wdepnulrgat*tmp);
             asrh = (modelVar_ftdgat*((zinv-1)*wdep));
@@ -27850,15 +27277,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1)))
             {
@@ -27866,16 +27286,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -27890,10 +27304,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -27908,10 +27319,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -27930,25 +27338,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
             if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
             }
             else
             {
@@ -27973,21 +27372,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGAT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGAT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -28008,19 +27397,13 @@ void evaluateInitialInstance(
           h2d = (V3+(instanceVar_vch_s*h2));
           h3 = (instanceVar_vfmin_s+h2d);
           h4 = (instanceVar_vfmin_s-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V3*instanceVar_vfmin_s)/(h3+h5)));
           if ((V3<instanceVar_VMAX_s))
           {
             if ((fabs((0.5*(V3*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V3*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V3*modelVar_phitdinv)));
             }
             else
             {
@@ -28038,42 +27421,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V3-instanceVar_VMAX_s)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_s);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V3>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V3)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V3)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_s-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V3-vjlim)*(V3-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V3+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V3-instanceVar_vbbtlim_s)*(V3-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V3+instanceVar_vbbtlim_s)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V3)*(V3))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V3)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V3+vjlim)-sqrt((((V3-vjlim)*(V3-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V3+instanceVar_vbbtlim_s)-sqrt((((V3-instanceVar_vbbtlim_s)*(V3-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V3)-sqrt((((V3)*(V3))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABSOURCE_i==0))
         {
@@ -28084,17 +27447,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
           }
           qjunbot = ((modelVar_qprefbot*(1-tmp))+(modelVar_qpref2bot*(V3-vj)));
           id = (modelVar_idsatbot*idmult);
@@ -28105,35 +27462,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             wdep = (modelVar_wdepnulrbot*tmp);
             asrh = (modelVar_ftdbot*((zinv-1)*wdep));
@@ -28148,15 +27493,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1)))
             {
@@ -28164,16 +27502,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -28188,10 +27520,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -28206,10 +27535,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -28228,25 +27554,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
             if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
             }
             else
             {
@@ -28271,21 +27588,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -28305,17 +27612,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
           }
           qjunsti = ((modelVar_qprefsti*(1-tmp))+(modelVar_qpref2sti*(V3-vj)));
           id = (modelVar_idsatsti*idmult);
@@ -28326,35 +27627,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTI_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             wdep = (modelVar_wdepnulrsti*tmp);
             asrh = (modelVar_ftdsti*((zinv-1)*wdep));
@@ -28369,15 +27658,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1)))
             {
@@ -28385,16 +27667,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -28409,10 +27685,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -28427,10 +27700,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -28449,25 +27719,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
             if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
             }
             else
             {
@@ -28492,21 +27753,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTI_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTI_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -28526,17 +27777,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
           }
           qjungat = ((modelVar_qprefgat*(1-tmp))+(modelVar_qpref2gat*(V3-vj)));
           id = (modelVar_idsatgat*idmult);
@@ -28547,35 +27792,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGAT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             wdep = (modelVar_wdepnulrgat*tmp);
             asrh = (modelVar_ftdgat*((zinv-1)*wdep));
@@ -28590,15 +27823,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1)))
             {
@@ -28606,16 +27832,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -28630,10 +27850,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -28648,10 +27865,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -28670,25 +27884,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
             if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
             }
             else
             {
@@ -28713,21 +27918,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGAT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGAT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -28748,19 +27943,13 @@ void evaluateInitialInstance(
           h2d = (V4+(instanceVar_vch_s*h2));
           h3 = (instanceVar_vfmin_s+h2d);
           h4 = (instanceVar_vfmin_s-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V4*instanceVar_vfmin_s)/(h3+h5)));
           if ((V4<instanceVar_VMAX_s))
           {
             if ((fabs((0.5*(V4*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V4*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V4*modelVar_phitdinv)));
             }
             else
             {
@@ -28778,42 +27967,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V4-instanceVar_VMAX_s)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_s);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V4>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V4)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V4)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_s-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V4-vjlim)*(V4-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V4+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V4-instanceVar_vbbtlim_s)*(V4-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V4+instanceVar_vbbtlim_s)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V4)*(V4))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V4)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V4+vjlim)-sqrt((((V4-vjlim)*(V4-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V4+instanceVar_vbbtlim_s)-sqrt((((V4-instanceVar_vbbtlim_s)*(V4-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V4)-sqrt((((V4)*(V4))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABSOURCE_i==0))
         {
@@ -28824,17 +27993,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
           }
           qjunbot = ((modelVar_qprefbot*(1-tmp))+(modelVar_qpref2bot*(V4-vj)));
           id = (modelVar_idsatbot*idmult);
@@ -28845,35 +28008,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             wdep = (modelVar_wdepnulrbot*tmp);
             asrh = (modelVar_ftdbot*((zinv-1)*wdep));
@@ -28888,15 +28039,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1)))
             {
@@ -28904,16 +28048,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -28928,10 +28066,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -28946,10 +28081,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -28968,25 +28100,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
             if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
             }
             else
             {
@@ -29011,21 +28134,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -29045,17 +28158,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
           }
           qjunsti = ((modelVar_qprefsti*(1-tmp))+(modelVar_qpref2sti*(V4-vj)));
           id = (modelVar_idsatsti*idmult);
@@ -29066,35 +28173,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTI_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             wdep = (modelVar_wdepnulrsti*tmp);
             asrh = (modelVar_ftdsti*((zinv-1)*wdep));
@@ -29109,15 +28204,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1)))
             {
@@ -29125,16 +28213,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -29149,10 +28231,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -29167,10 +28246,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -29189,25 +28265,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
             if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
             }
             else
             {
@@ -29232,21 +28299,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTI_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTI_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -29266,17 +28323,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
           }
           qjungat = ((modelVar_qprefgat*(1-tmp))+(modelVar_qpref2gat*(V4-vj)));
           id = (modelVar_idsatgat*idmult);
@@ -29287,35 +28338,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGAT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             wdep = (modelVar_wdepnulrgat*tmp);
             asrh = (modelVar_ftdgat*((zinv-1)*wdep));
@@ -29330,15 +28369,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1)))
             {
@@ -29346,16 +28378,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -29370,10 +28396,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -29388,10 +28411,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -29410,25 +28430,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
             if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
             }
             else
             {
@@ -29453,21 +28464,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGAT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGAT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -29488,19 +28489,13 @@ void evaluateInitialInstance(
           h2d = (V5+(instanceVar_vch_s*h2));
           h3 = (instanceVar_vfmin_s+h2d);
           h4 = (instanceVar_vfmin_s-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V5*instanceVar_vfmin_s)/(h3+h5)));
           if ((V5<instanceVar_VMAX_s))
           {
             if ((fabs((0.5*(V5*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V5*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V5*modelVar_phitdinv)));
             }
             else
             {
@@ -29518,42 +28513,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V5-instanceVar_VMAX_s)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_s);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V5>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V5)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V5)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_s-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V5-vjlim)*(V5-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V5+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V5-instanceVar_vbbtlim_s)*(V5-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V5+instanceVar_vbbtlim_s)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V5)*(V5))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V5)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V5+vjlim)-sqrt((((V5-vjlim)*(V5-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V5+instanceVar_vbbtlim_s)-sqrt((((V5-instanceVar_vbbtlim_s)*(V5-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V5)-sqrt((((V5)*(V5))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABSOURCE_i==0))
         {
@@ -29564,17 +28539,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
           }
           qjunbot = ((modelVar_qprefbot*(1-tmp))+(modelVar_qpref2bot*(V5-vj)));
           id = (modelVar_idsatbot*idmult);
@@ -29585,35 +28554,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             wdep = (modelVar_wdepnulrbot*tmp);
             asrh = (modelVar_ftdbot*((zinv-1)*wdep));
@@ -29628,15 +28585,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1)))
             {
@@ -29644,16 +28594,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -29668,10 +28612,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -29686,10 +28627,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -29708,25 +28646,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
             if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
             }
             else
             {
@@ -29751,21 +28680,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -29785,17 +28704,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
           }
           qjunsti = ((modelVar_qprefsti*(1-tmp))+(modelVar_qpref2sti*(V5-vj)));
           id = (modelVar_idsatsti*idmult);
@@ -29806,35 +28719,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTI_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             wdep = (modelVar_wdepnulrsti*tmp);
             asrh = (modelVar_ftdsti*((zinv-1)*wdep));
@@ -29849,15 +28750,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1)))
             {
@@ -29865,16 +28759,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -29889,10 +28777,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -29907,10 +28792,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -29929,25 +28811,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTI_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
             if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
             }
             else
             {
@@ -29972,21 +28845,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTI_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTI_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -30006,17 +28869,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
           }
           qjungat = ((modelVar_qprefgat*(1-tmp))+(modelVar_qpref2gat*(V5-vj)));
           id = (modelVar_idsatgat*idmult);
@@ -30027,35 +28884,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGAT_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             wdep = (modelVar_wdepnulrgat*tmp);
             asrh = (modelVar_ftdgat*((zinv-1)*wdep));
@@ -30070,15 +28915,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1)))
             {
@@ -30086,16 +28924,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -30110,10 +28942,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -30128,10 +28957,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -30150,25 +28976,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGAT_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
             if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
             }
             else
             {
@@ -30193,21 +29010,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGAT_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGAT_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -30220,14 +29027,8 @@ void evaluateInitialInstance(
         }
         I5 = (((instanceVar_ABSOURCE_i*ijunbot)+(instanceVar_LSSOURCE_i*ijunsti))+(instanceVar_LGSOURCE_i*ijungat));
         instanceVar_ISATFOR1_s = (((instanceVar_ABSOURCE_i*modelVar_idsatbot)+(instanceVar_LSSOURCE_i*modelVar_idsatsti))+(instanceVar_LGSOURCE_i*modelVar_idsatgat));
-        {
-          AdmsSensFadType value_exp_0 = exp(((V4*modelVar_phitdinv)*instanceVar_MFOR1_s));
-          I4_cor = (I4-(instanceVar_ISATFOR1_s*(value_exp_0-1.0)));
-        }
-        {
-          AdmsSensFadType value_exp_0 = exp(((V5*modelVar_phitdinv)*instanceVar_MFOR1_s));
-          I5_cor = (I5-(instanceVar_ISATFOR1_s*(value_exp_0-1.0)));
-        }
+        I4_cor = (I4-(instanceVar_ISATFOR1_s*(exp(((V4*modelVar_phitdinv)*instanceVar_MFOR1_s))-1.0)));
+        I5_cor = (I5-(instanceVar_ISATFOR1_s*(exp(((V5*modelVar_phitdinv)*instanceVar_MFOR1_s))-1.0)));
         if ((!(((instanceVar_ABSOURCE_i==0)&&(instanceVar_LSSOURCE_i==0))&&(instanceVar_LGSOURCE_i==0))))
         {
           if (((I4>0)&&(I5>0)))
@@ -30235,50 +29036,23 @@ void evaluateInitialInstance(
             if ((((((I4_cor/I4)>0.001)||((I5_cor/I5)>0.001))&&(I4_cor>0))&&(I5_cor>0)))
             {
               alphaje = (I4_cor/I5_cor);
-              {
-                AdmsSensFadType value_log_0 = log(alphaje);
-                instanceVar_MFOR2_s = ((modelVar_phitd*value_log_0)/(V4-V5));
-              }
-              {
-                AdmsSensFadType value_exp_0 = exp(((V4*modelVar_phitdinv)*instanceVar_MFOR2_s));
-                instanceVar_ISATFOR2_s = (I4_cor/(value_exp_0-1));
-              }
+              instanceVar_MFOR2_s = ((modelVar_phitd*log(alphaje))/(V4-V5));
+              instanceVar_ISATFOR2_s = (I4_cor/(exp(((V4*modelVar_phitdinv)*instanceVar_MFOR2_s))-1));
             }
           }
-          {
-            AdmsSensFadType value_exp_0 = exp(((V1*modelVar_phitdinv)*instanceVar_MFOR1_s));
-            AdmsSensFadType value_exp_1 = exp(((V1*modelVar_phitdinv)*instanceVar_MFOR2_s));
-            I1_cor = ((I1-(instanceVar_ISATFOR1_s*(value_exp_0-1.0)))-(instanceVar_ISATFOR2_s*(value_exp_1-1.0)));
-          }
-          {
-            AdmsSensFadType value_exp_0 = exp(((V2*modelVar_phitdinv)*instanceVar_MFOR1_s));
-            AdmsSensFadType value_exp_1 = exp(((V2*modelVar_phitdinv)*instanceVar_MFOR2_s));
-            I2_cor = ((I2-(instanceVar_ISATFOR1_s*(value_exp_0-1.0)))-(instanceVar_ISATFOR2_s*(value_exp_1-1.0)));
-          }
-          {
-            AdmsSensFadType value_exp_0 = exp(((V3*modelVar_phitdinv)*instanceVar_MFOR1_s));
-            AdmsSensFadType value_exp_1 = exp(((V3*modelVar_phitdinv)*instanceVar_MFOR2_s));
-            I3_cor = ((I3-(instanceVar_ISATFOR1_s*(value_exp_0-1.0)))-(instanceVar_ISATFOR2_s*(value_exp_1-1.0)));
-          }
+          I1_cor = ((I1-(instanceVar_ISATFOR1_s*(exp(((V1*modelVar_phitdinv)*instanceVar_MFOR1_s))-1.0)))-(instanceVar_ISATFOR2_s*(exp(((V1*modelVar_phitdinv)*instanceVar_MFOR2_s))-1.0)));
+          I2_cor = ((I2-(instanceVar_ISATFOR1_s*(exp(((V2*modelVar_phitdinv)*instanceVar_MFOR1_s))-1.0)))-(instanceVar_ISATFOR2_s*(exp(((V2*modelVar_phitdinv)*instanceVar_MFOR2_s))-1.0)));
+          I3_cor = ((I3-(instanceVar_ISATFOR1_s*(exp(((V3*modelVar_phitdinv)*instanceVar_MFOR1_s))-1.0)))-(instanceVar_ISATFOR2_s*(exp(((V3*modelVar_phitdinv)*instanceVar_MFOR2_s))-1.0)));
           if ((((I1<0)&&(I2<0))&&(I3<0)))
           {
             if ((((((((I1_cor/I1)>0.001)||((I2_cor/I2)>0.001))||((I3_cor/I3)>0.001))&&(I1_cor<0))&&(I2_cor<0))&&(I3_cor<0)))
             {
               alphaje = (I1_cor/I2_cor);
-              {
-                AdmsSensFadType value_log_0 = log(alphaje);
-                m0_rev = (((-modelVar_phitd)*value_log_0)/(V1-V2));
-              }
+              m0_rev = (((-modelVar_phitd)*log(alphaje))/(V1-V2));
               tt0 = (V2/(V2-V1));
-              {
-                AdmsSensFadType value_pow_0 = pow(alphaje,tt0);
-                tt1 = ((modelVar_phitd*(alphaje-1))*(value_pow_0-1));
-              }
+              tt1 = ((modelVar_phitd*(alphaje-1))*(pow(alphaje,tt0)-1));
               tt0 = (V1/(V1-V2));
-              {
-                AdmsSensFadType value_pow_0 = pow(alphaje,tt0);
-                tt2 = (((value_pow_0*(V2-V1))+(alphaje*V1))-V2);
-              }
+              tt2 = (((pow(alphaje,tt0)*(V2-V1))+(alphaje*V1))-V2);
               mcor_rev = (tt1/tt2);
               instanceVar_MREV_s = (m0_rev+mcor_rev);
               if ((fabs(((V3*modelVar_phitdinv)*instanceVar_MREV_s))<1e-6))
@@ -30290,10 +29064,7 @@ void evaluateInitialInstance(
               else
               {
                 instanceVar_m0flag_s = 0.0;
-                {
-                  AdmsSensFadType value_exp_0 = exp((((-V3)*modelVar_phitdinv)*instanceVar_MREV_s));
-                  instanceVar_ISATREV_s = ((-I3_cor)/(value_exp_0-1));
-                }
+                instanceVar_ISATREV_s = ((-I3_cor)/(exp((((-V3)*modelVar_phitdinv)*instanceVar_MREV_s))-1));
               }
             }
           }
@@ -30313,44 +29084,16 @@ void evaluateInitialInstance(
         }
         if ((!(((instanceVar_ABSOURCE_i==0)&&(instanceVar_LSSOURCE_i==0))&&(instanceVar_LGSOURCE_i==0))))
         {
-          {
-            AdmsSensFadType value_log_0 = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR1_s+1e-21)));
-            instanceVar_xhighf1_s = value_log_0;
-          }
-          {
-            AdmsSensFadType value_log_0 = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR2_s+1e-21)));
-            instanceVar_xhighf2_s = value_log_0;
-          }
-          {
-            AdmsSensFadType value_fabs_0 = fabs(instanceVar_ISATREV_s);
-            AdmsSensFadType value_log_1 = log(((0.5*modelVar_IMAX_i)/(value_fabs_0+1e-21)));
-            instanceVar_xhighr_s = value_log_1;
-          }
+          instanceVar_xhighf1_s = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR1_s+1e-21)));
+          instanceVar_xhighf2_s = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR2_s+1e-21)));
+          instanceVar_xhighr_s = log(((0.5*modelVar_IMAX_i)/(fabs(instanceVar_ISATREV_s)+1e-21)));
         }
-        {
-          AdmsSensFadType value_min_0 = std::min(instanceVar_xhighf1_s,static_cast<double>(2.3025850929940458e+02));
-          instanceVar_xhighf1_s = value_min_0;
-        }
-        {
-          AdmsSensFadType value_exp_0 = exp(instanceVar_xhighf1_s);
-          instanceVar_expxhf1_s = value_exp_0;
-        }
-        {
-          AdmsSensFadType value_min_0 = std::min(instanceVar_xhighf2_s,static_cast<double>(2.3025850929940458e+02));
-          instanceVar_xhighf2_s = value_min_0;
-        }
-        {
-          AdmsSensFadType value_exp_0 = exp(instanceVar_xhighf2_s);
-          instanceVar_expxhf2_s = value_exp_0;
-        }
-        {
-          AdmsSensFadType value_min_0 = std::min(instanceVar_xhighr_s,static_cast<double>(2.3025850929940458e+02));
-          instanceVar_xhighr_s = value_min_0;
-        }
-        {
-          AdmsSensFadType value_exp_0 = exp(instanceVar_xhighr_s);
-          instanceVar_expxhr_s = value_exp_0;
-        }
+        instanceVar_xhighf1_s = min(instanceVar_xhighf1_s,static_cast<double>(2.3025850929940458e+02));
+        instanceVar_expxhf1_s = exp(instanceVar_xhighf1_s);
+        instanceVar_xhighf2_s = min(instanceVar_xhighf2_s,static_cast<double>(2.3025850929940458e+02));
+        instanceVar_expxhf2_s = exp(instanceVar_xhighf2_s);
+        instanceVar_xhighr_s = min(instanceVar_xhighr_s,static_cast<double>(2.3025850929940458e+02));
+        instanceVar_expxhr_s = exp(instanceVar_xhighr_s);
         FRACNA = 0.4;
         FRACNB = 0.65;
         FRACI = 0.8;
@@ -30368,19 +29111,13 @@ void evaluateInitialInstance(
           h2d = (V1+(instanceVar_vch_d*h2));
           h3 = (instanceVar_vfmin_d+h2d);
           h4 = (instanceVar_vfmin_d-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V1*instanceVar_vfmin_d)/(h3+h5)));
           if ((V1<instanceVar_VMAX_d))
           {
             if ((fabs((0.5*(V1*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V1*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V1*modelVar_phitdinv)));
             }
             else
             {
@@ -30398,42 +29135,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V1-instanceVar_VMAX_d)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_d);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V1>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V1)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V1)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_d-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V1-vjlim)*(V1-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V1+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V1-instanceVar_vbbtlim_d)*(V1-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V1+instanceVar_vbbtlim_d)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V1)*(V1))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V1)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V1+vjlim)-sqrt((((V1-vjlim)*(V1-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V1+instanceVar_vbbtlim_d)-sqrt((((V1-instanceVar_vbbtlim_d)*(V1-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V1)-sqrt((((V1)*(V1))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABDRAIN_i==0))
         {
@@ -30444,17 +29161,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
           }
           qjunbot = ((modelVar_qprefbot_d*(1-tmp))+(modelVar_qpref2bot_d*(V1-vj)));
           id = (modelVar_idsatbot_d*idmult);
@@ -30465,35 +29176,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOTD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             wdep = (modelVar_wdepnulrbot_d*tmp);
             asrh = (modelVar_ftdbot_d*((zinv-1)*wdep));
@@ -30508,15 +29207,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot_d*((wdep*modelVar_one_minus_PBOT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d)==(-1)))
             {
@@ -30524,16 +29216,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -30548,10 +29234,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -30566,10 +29249,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -30588,25 +29268,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT_d*(((modelVar_VBIRBOTD_i-vbbt)*modelVar_wdepnulrinvbot_d)/tmp));
             if ((fabs(((-modelVar_fbbtbot_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot_d)/Fmaxr));
             }
             else
             {
@@ -30631,21 +29302,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOTD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot_d))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOTD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot_d)),modelVar_PBRBOTD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -30665,17 +29326,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
           }
           qjunsti = ((modelVar_qprefsti_d*(1-tmp))+(modelVar_qpref2sti_d*(V1-vj)));
           id = (modelVar_idsatsti_d*idmult);
@@ -30686,35 +29341,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTID_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             wdep = (modelVar_wdepnulrsti_d*tmp);
             asrh = (modelVar_ftdsti_d*((zinv-1)*wdep));
@@ -30729,15 +29372,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti_d*((wdep*modelVar_one_minus_PSTI_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d)==(-1)))
             {
@@ -30745,16 +29381,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -30769,10 +29399,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -30787,10 +29414,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -30809,25 +29433,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI_d*(((modelVar_VBIRSTID_i-vbbt)*modelVar_wdepnulrinvsti_d)/tmp));
             if ((fabs(((-modelVar_fbbtsti_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti_d)/Fmaxr));
             }
             else
             {
@@ -30852,21 +29467,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTID_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti_d))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTID_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti_d)),modelVar_PBRSTID_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -30886,17 +29491,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
           }
           qjungat = ((modelVar_qprefgat_d*(1-tmp))+(modelVar_qpref2gat_d*(V1-vj)));
           id = (modelVar_idsatgat_d*idmult);
@@ -30907,35 +29506,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGATD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             wdep = (modelVar_wdepnulrgat_d*tmp);
             asrh = (modelVar_ftdgat_d*((zinv-1)*wdep));
@@ -30950,15 +29537,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat_d*((wdep*modelVar_one_minus_PGAT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d)==(-1)))
             {
@@ -30966,16 +29546,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -30990,10 +29564,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -31008,10 +29579,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -31030,25 +29598,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT_d*(((modelVar_VBIRGATD_i-vbbt)*modelVar_wdepnulrinvgat_d)/tmp));
             if ((fabs(((-modelVar_fbbtgat_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat_d)/Fmaxr));
             }
             else
             {
@@ -31073,21 +29632,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGATD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat_d))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGATD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat_d)),modelVar_PBRGATD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -31108,19 +29657,13 @@ void evaluateInitialInstance(
           h2d = (V2+(instanceVar_vch_d*h2));
           h3 = (instanceVar_vfmin_d+h2d);
           h4 = (instanceVar_vfmin_d-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V2*instanceVar_vfmin_d)/(h3+h5)));
           if ((V2<instanceVar_VMAX_d))
           {
             if ((fabs((0.5*(V2*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V2*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V2*modelVar_phitdinv)));
             }
             else
             {
@@ -31138,42 +29681,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V2-instanceVar_VMAX_d)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_d);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V2>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V2)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V2)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_d-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V2-vjlim)*(V2-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V2+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V2-instanceVar_vbbtlim_d)*(V2-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V2+instanceVar_vbbtlim_d)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V2)*(V2))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V2)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V2+vjlim)-sqrt((((V2-vjlim)*(V2-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V2+instanceVar_vbbtlim_d)-sqrt((((V2-instanceVar_vbbtlim_d)*(V2-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V2)-sqrt((((V2)*(V2))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABDRAIN_i==0))
         {
@@ -31184,17 +29707,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
           }
           qjunbot = ((modelVar_qprefbot_d*(1-tmp))+(modelVar_qpref2bot_d*(V2-vj)));
           id = (modelVar_idsatbot_d*idmult);
@@ -31205,35 +29722,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOTD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             wdep = (modelVar_wdepnulrbot_d*tmp);
             asrh = (modelVar_ftdbot_d*((zinv-1)*wdep));
@@ -31248,15 +29753,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot_d*((wdep*modelVar_one_minus_PBOT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d)==(-1)))
             {
@@ -31264,16 +29762,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -31288,10 +29780,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -31306,10 +29795,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -31328,25 +29814,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT_d*(((modelVar_VBIRBOTD_i-vbbt)*modelVar_wdepnulrinvbot_d)/tmp));
             if ((fabs(((-modelVar_fbbtbot_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot_d)/Fmaxr));
             }
             else
             {
@@ -31371,21 +29848,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOTD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot_d))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOTD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot_d)),modelVar_PBRBOTD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -31405,17 +29872,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
           }
           qjunsti = ((modelVar_qprefsti_d*(1-tmp))+(modelVar_qpref2sti_d*(V2-vj)));
           id = (modelVar_idsatsti_d*idmult);
@@ -31426,35 +29887,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTID_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             wdep = (modelVar_wdepnulrsti_d*tmp);
             asrh = (modelVar_ftdsti_d*((zinv-1)*wdep));
@@ -31469,15 +29918,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti_d*((wdep*modelVar_one_minus_PSTI_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d)==(-1)))
             {
@@ -31485,16 +29927,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -31509,10 +29945,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -31527,10 +29960,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -31549,25 +29979,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI_d*(((modelVar_VBIRSTID_i-vbbt)*modelVar_wdepnulrinvsti_d)/tmp));
             if ((fabs(((-modelVar_fbbtsti_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti_d)/Fmaxr));
             }
             else
             {
@@ -31592,21 +30013,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTID_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti_d))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTID_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti_d)),modelVar_PBRSTID_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -31626,17 +30037,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
           }
           qjungat = ((modelVar_qprefgat_d*(1-tmp))+(modelVar_qpref2gat_d*(V2-vj)));
           id = (modelVar_idsatgat_d*idmult);
@@ -31647,35 +30052,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGATD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             wdep = (modelVar_wdepnulrgat_d*tmp);
             asrh = (modelVar_ftdgat_d*((zinv-1)*wdep));
@@ -31690,15 +30083,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat_d*((wdep*modelVar_one_minus_PGAT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d)==(-1)))
             {
@@ -31706,16 +30092,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -31730,10 +30110,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -31748,10 +30125,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -31770,25 +30144,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT_d*(((modelVar_VBIRGATD_i-vbbt)*modelVar_wdepnulrinvgat_d)/tmp));
             if ((fabs(((-modelVar_fbbtgat_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat_d)/Fmaxr));
             }
             else
             {
@@ -31813,21 +30178,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGATD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat_d))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGATD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat_d)),modelVar_PBRGATD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -31848,19 +30203,13 @@ void evaluateInitialInstance(
           h2d = (V3+(instanceVar_vch_d*h2));
           h3 = (instanceVar_vfmin_d+h2d);
           h4 = (instanceVar_vfmin_d-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V3*instanceVar_vfmin_d)/(h3+h5)));
           if ((V3<instanceVar_VMAX_d))
           {
             if ((fabs((0.5*(V3*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V3*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V3*modelVar_phitdinv)));
             }
             else
             {
@@ -31878,42 +30227,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V3-instanceVar_VMAX_d)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_d);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V3>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V3)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V3)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_d-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V3-vjlim)*(V3-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V3+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V3-instanceVar_vbbtlim_d)*(V3-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V3+instanceVar_vbbtlim_d)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V3)*(V3))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V3)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V3+vjlim)-sqrt((((V3-vjlim)*(V3-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V3+instanceVar_vbbtlim_d)-sqrt((((V3-instanceVar_vbbtlim_d)*(V3-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V3)-sqrt((((V3)*(V3))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABDRAIN_i==0))
         {
@@ -31924,17 +30253,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
           }
           qjunbot = ((modelVar_qprefbot_d*(1-tmp))+(modelVar_qpref2bot_d*(V3-vj)));
           id = (modelVar_idsatbot_d*idmult);
@@ -31945,35 +30268,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOTD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             wdep = (modelVar_wdepnulrbot_d*tmp);
             asrh = (modelVar_ftdbot_d*((zinv-1)*wdep));
@@ -31988,15 +30299,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot_d*((wdep*modelVar_one_minus_PBOT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d)==(-1)))
             {
@@ -32004,16 +30308,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -32028,10 +30326,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -32046,10 +30341,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -32068,25 +30360,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT_d*(((modelVar_VBIRBOTD_i-vbbt)*modelVar_wdepnulrinvbot_d)/tmp));
             if ((fabs(((-modelVar_fbbtbot_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot_d)/Fmaxr));
             }
             else
             {
@@ -32111,21 +30394,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOTD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot_d))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOTD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot_d)),modelVar_PBRBOTD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -32145,17 +30418,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
           }
           qjunsti = ((modelVar_qprefsti_d*(1-tmp))+(modelVar_qpref2sti_d*(V3-vj)));
           id = (modelVar_idsatsti_d*idmult);
@@ -32166,35 +30433,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTID_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             wdep = (modelVar_wdepnulrsti_d*tmp);
             asrh = (modelVar_ftdsti_d*((zinv-1)*wdep));
@@ -32209,15 +30464,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti_d*((wdep*modelVar_one_minus_PSTI_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d)==(-1)))
             {
@@ -32225,16 +30473,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -32249,10 +30491,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -32267,10 +30506,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -32289,25 +30525,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI_d*(((modelVar_VBIRSTID_i-vbbt)*modelVar_wdepnulrinvsti_d)/tmp));
             if ((fabs(((-modelVar_fbbtsti_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti_d)/Fmaxr));
             }
             else
             {
@@ -32332,21 +30559,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTID_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti_d))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTID_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti_d)),modelVar_PBRSTID_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -32366,17 +30583,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
           }
           qjungat = ((modelVar_qprefgat_d*(1-tmp))+(modelVar_qpref2gat_d*(V3-vj)));
           id = (modelVar_idsatgat_d*idmult);
@@ -32387,35 +30598,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGATD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             wdep = (modelVar_wdepnulrgat_d*tmp);
             asrh = (modelVar_ftdgat_d*((zinv-1)*wdep));
@@ -32430,15 +30629,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat_d*((wdep*modelVar_one_minus_PGAT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d)==(-1)))
             {
@@ -32446,16 +30638,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -32470,10 +30656,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -32488,10 +30671,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -32510,25 +30690,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT_d*(((modelVar_VBIRGATD_i-vbbt)*modelVar_wdepnulrinvgat_d)/tmp));
             if ((fabs(((-modelVar_fbbtgat_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat_d)/Fmaxr));
             }
             else
             {
@@ -32553,21 +30724,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGATD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat_d))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGATD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat_d)),modelVar_PBRGATD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -32588,19 +30749,13 @@ void evaluateInitialInstance(
           h2d = (V4+(instanceVar_vch_d*h2));
           h3 = (instanceVar_vfmin_d+h2d);
           h4 = (instanceVar_vfmin_d-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V4*instanceVar_vfmin_d)/(h3+h5)));
           if ((V4<instanceVar_VMAX_d))
           {
             if ((fabs((0.5*(V4*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V4*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V4*modelVar_phitdinv)));
             }
             else
             {
@@ -32618,42 +30773,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V4-instanceVar_VMAX_d)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_d);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V4>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V4)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V4)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_d-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V4-vjlim)*(V4-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V4+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V4-instanceVar_vbbtlim_d)*(V4-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V4+instanceVar_vbbtlim_d)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V4)*(V4))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V4)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V4+vjlim)-sqrt((((V4-vjlim)*(V4-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V4+instanceVar_vbbtlim_d)-sqrt((((V4-instanceVar_vbbtlim_d)*(V4-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V4)-sqrt((((V4)*(V4))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABDRAIN_i==0))
         {
@@ -32664,17 +30799,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
           }
           qjunbot = ((modelVar_qprefbot_d*(1-tmp))+(modelVar_qpref2bot_d*(V4-vj)));
           id = (modelVar_idsatbot_d*idmult);
@@ -32685,35 +30814,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOTD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             wdep = (modelVar_wdepnulrbot_d*tmp);
             asrh = (modelVar_ftdbot_d*((zinv-1)*wdep));
@@ -32728,15 +30845,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot_d*((wdep*modelVar_one_minus_PBOT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d)==(-1)))
             {
@@ -32744,16 +30854,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -32768,10 +30872,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -32786,10 +30887,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -32808,25 +30906,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT_d*(((modelVar_VBIRBOTD_i-vbbt)*modelVar_wdepnulrinvbot_d)/tmp));
             if ((fabs(((-modelVar_fbbtbot_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot_d)/Fmaxr));
             }
             else
             {
@@ -32851,21 +30940,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOTD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot_d))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOTD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot_d)),modelVar_PBRBOTD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -32885,17 +30964,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
           }
           qjunsti = ((modelVar_qprefsti_d*(1-tmp))+(modelVar_qpref2sti_d*(V4-vj)));
           id = (modelVar_idsatsti_d*idmult);
@@ -32906,35 +30979,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTID_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             wdep = (modelVar_wdepnulrsti_d*tmp);
             asrh = (modelVar_ftdsti_d*((zinv-1)*wdep));
@@ -32949,15 +31010,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti_d*((wdep*modelVar_one_minus_PSTI_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d)==(-1)))
             {
@@ -32965,16 +31019,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -32989,10 +31037,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -33007,10 +31052,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -33029,25 +31071,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI_d*(((modelVar_VBIRSTID_i-vbbt)*modelVar_wdepnulrinvsti_d)/tmp));
             if ((fabs(((-modelVar_fbbtsti_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti_d)/Fmaxr));
             }
             else
             {
@@ -33072,21 +31105,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTID_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti_d))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTID_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti_d)),modelVar_PBRSTID_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -33106,17 +31129,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
           }
           qjungat = ((modelVar_qprefgat_d*(1-tmp))+(modelVar_qpref2gat_d*(V4-vj)));
           id = (modelVar_idsatgat_d*idmult);
@@ -33127,35 +31144,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGATD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             wdep = (modelVar_wdepnulrgat_d*tmp);
             asrh = (modelVar_ftdgat_d*((zinv-1)*wdep));
@@ -33170,15 +31175,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat_d*((wdep*modelVar_one_minus_PGAT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d)==(-1)))
             {
@@ -33186,16 +31184,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -33210,10 +31202,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -33228,10 +31217,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -33250,25 +31236,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT_d*(((modelVar_VBIRGATD_i-vbbt)*modelVar_wdepnulrinvgat_d)/tmp));
             if ((fabs(((-modelVar_fbbtgat_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat_d)/Fmaxr));
             }
             else
             {
@@ -33293,21 +31270,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGATD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat_d))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGATD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat_d)),modelVar_PBRGATD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -33328,19 +31295,13 @@ void evaluateInitialInstance(
           h2d = (V5+(instanceVar_vch_d*h2));
           h3 = (instanceVar_vfmin_d+h2d);
           h4 = (instanceVar_vfmin_d-h2d);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-            h5 = value_sqrt_0;
-          }
+          h5 = sqrt(((h4*h4)+h1));
           vj = (2.0*((V5*instanceVar_vfmin_d)/(h3+h5)));
           if ((V5<instanceVar_VMAX_d))
           {
             if ((fabs((0.5*(V5*modelVar_phitdinv)))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((0.5*(V5*modelVar_phitdinv)));
-                zinv = value_exp_0;
-              }
+              zinv = exp((0.5*(V5*modelVar_phitdinv)));
             }
             else
             {
@@ -33358,42 +31319,22 @@ void evaluateInitialInstance(
           else
           {
             idmult = ((1+((V5-instanceVar_VMAX_d)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_d);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-              zinv = value_sqrt_0;
-            }
+            zinv = sqrt(idmult);
           }
           idmult = (idmult-1.0);
           z = (1/zinv);
           if ((V5>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-              AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-              two_psistar = (2.0*(modelVar_phitd*value_log_1));
-            }
+            two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
           }
           else
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-              AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-              two_psistar = ((-V5)+(2.0*(modelVar_phitd*value_log_1)));
-            }
+            two_psistar = ((-V5)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
           }
           vjlim = (instanceVar_vbimin_d-two_psistar);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V5-vjlim)*(V5-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-            vjsrh = (0.5*((V5+vjlim)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V5-instanceVar_vbbtlim_d)*(V5-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)));
-            vbbt = (0.5*((V5+instanceVar_vbbtlim_d)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((V5)*(V5))+((4*1E-6)*1E-6)));
-            vav = (0.5*((V5)-value_sqrt_0));
-          }
+          vjsrh = (0.5*((V5+vjlim)-sqrt((((V5-vjlim)*(V5-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+          vbbt = (0.5*((V5+instanceVar_vbbtlim_d)-sqrt((((V5-instanceVar_vbbtlim_d)*(V5-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)))));
+          vav = (0.5*((V5)-sqrt((((V5)*(V5))+((4*1E-6)*1E-6)))));
         }
         if ((instanceVar_ABDRAIN_i==0))
         {
@@ -33404,17 +31345,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PBOT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvbot_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
           }
           qjunbot = ((modelVar_qprefbot_d*(1-tmp))+(modelVar_qpref2bot_d*(V5-vj)));
           id = (modelVar_idsatbot_d*idmult);
@@ -33425,35 +31360,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbibot_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PBOTD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             wdep = (modelVar_wdepnulrbot_d*tmp);
             asrh = (modelVar_ftdbot_d*((zinv-1)*wdep));
@@ -33468,15 +31391,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartbot_d*((wdep*modelVar_one_minus_PBOT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d)==(-1)))
             {
@@ -33484,16 +31400,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatbot_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -33508,10 +31418,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -33526,10 +31433,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -33548,25 +31452,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PBOTD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PBOT_d*(((modelVar_VBIRBOTD_i-vbbt)*modelVar_wdepnulrinvbot_d)/tmp));
             if ((fabs(((-modelVar_fbbtbot_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtbot_d)/Fmaxr));
             }
             else
             {
@@ -33591,21 +31486,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRBOTD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvbot_d))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOTD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvbot_d)),modelVar_PBRBOTD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -33625,17 +31510,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PSTI_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvsti_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
           }
           qjunsti = ((modelVar_qprefsti_d*(1-tmp))+(modelVar_qpref2sti_d*(V5-vj)));
           id = (modelVar_idsatsti_d*idmult);
@@ -33646,35 +31525,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbisti_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PSTID_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             wdep = (modelVar_wdepnulrsti_d*tmp);
             asrh = (modelVar_ftdsti_d*((zinv-1)*wdep));
@@ -33689,15 +31556,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartsti_d*((wdep*modelVar_one_minus_PSTI_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d)==(-1)))
             {
@@ -33705,16 +31565,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatsti_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -33729,10 +31583,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -33747,10 +31598,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -33769,25 +31617,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PSTID_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PSTI_d*(((modelVar_VBIRSTID_i-vbbt)*modelVar_wdepnulrinvsti_d)/tmp));
             if ((fabs(((-modelVar_fbbtsti_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtsti_d)/Fmaxr));
             }
             else
             {
@@ -33812,21 +31651,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRSTID_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvsti_d))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTID_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvsti_d)),modelVar_PBRSTID_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -33846,17 +31675,11 @@ void evaluateInitialInstance(
         {
           if ((modelVar_one_minus_PGAT_d==0.5))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat_d)));
-              tmp = value_sqrt_0;
-            }
+            tmp = sqrt((1-(vj*modelVar_vbiinvgat_d)));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
-              tmp = value_pow_0;
-            }
+            tmp = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
           }
           qjungat = ((modelVar_qprefgat_d*(1-tmp))+(modelVar_qpref2gat_d*(V5-vj)));
           id = (modelVar_idsatgat_d*idmult);
@@ -33867,35 +31690,23 @@ void evaluateInitialInstance(
           else
           {
             vbi_minus_vjsrh = (modelVar_vbigat_d-vjsrh);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-              wsrhstep = (1-value_sqrt_0);
-            }
+            wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
             if ((modelVar_PGATD_i==0.5))
             {
               dwsrh = 0;
             }
             else
             {
-              {
-                AdmsSensFadType value_log_0 = log(wsrhstep);
-                dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
-              }
+              dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
             }
             wsrh = (wsrhstep+dwsrh);
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             wdep = (modelVar_wdepnulrgat_d*tmp);
             asrh = (modelVar_ftdgat_d*((zinv-1)*wdep));
@@ -33910,15 +31721,8 @@ void evaluateInitialInstance(
             btat = (modelVar_btatpartgat_d*((wdep*modelVar_one_minus_PGAT_d)/vbi_minus_vjsrh));
             twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat_d)/btat);
             umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-              umax = value_sqrt_0;
-            }
-            {
-              AdmsSensFadType value_fabs_0 = fabs(umax);
-              AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-              sqrtumax = value_sqrt_1;
-            }
+            umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+            sqrtumax = sqrt(fabs(umax));
             umaxpoweronepointfive = (umax*sqrtumax);
             if ((((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d)==(-1)))
             {
@@ -33926,16 +31730,10 @@ void evaluateInitialInstance(
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
-                wgamma = value_pow_0;
-              }
+              wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
             }
             wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-              ktat = value_sqrt_0;
-            }
+            ktat = sqrt((0.375*(btat/sqrtumax)));
             ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
             mtat = ((((modelVar_atatgat_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
             xerfc = ((ltat-1)*ktat);
@@ -33950,10 +31748,7 @@ void evaluateInitialInstance(
             }
             if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-ysq)+mtat));
             }
             else
             {
@@ -33968,10 +31763,7 @@ void evaluateInitialInstance(
             {
               if ((mtat>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(mtat);
-                  tmp = value_exp_0;
-                }
+                tmp = exp(mtat);
               }
               else
               {
@@ -33990,25 +31782,16 @@ void evaluateInitialInstance(
           {
             if ((modelVar_PGATD_i==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                tmp = value_pow_0;
-              }
+              tmp = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
             }
             Fmaxr = (modelVar_one_over_one_minus_PGAT_d*(((modelVar_VBIRGATD_i-vbbt)*modelVar_wdepnulrinvgat_d)/tmp));
             if ((fabs(((-modelVar_fbbtgat_d)/Fmaxr))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat_d)/Fmaxr));
-                tmp = value_exp_0;
-              }
+              tmp = exp(((-modelVar_fbbtgat_d)/Fmaxr));
             }
             else
             {
@@ -34033,21 +31816,11 @@ void evaluateInitialInstance(
             {
               if ((modelVar_PBRGATD_i==4))
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat_d));
-                  tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                }
+                tmp = (((fabs((vav*modelVar_VBRinvgat_d))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                  AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGATD_i);
-                  tmp = value_pow_1;
-                }
+                tmp = pow(fabs((vav*modelVar_VBRinvgat_d)),modelVar_PBRGATD_i);
               }
               fbreakdown = (1/(1-tmp));
             }
@@ -34060,14 +31833,8 @@ void evaluateInitialInstance(
         }
         I5 = (((instanceVar_ABDRAIN_i*ijunbot)+(instanceVar_LSDRAIN_i*ijunsti))+(instanceVar_LGDRAIN_i*ijungat));
         instanceVar_ISATFOR1_d = (((instanceVar_ABDRAIN_i*modelVar_idsatbot_d)+(instanceVar_LSDRAIN_i*modelVar_idsatsti_d))+(instanceVar_LGDRAIN_i*modelVar_idsatgat_d));
-        {
-          AdmsSensFadType value_exp_0 = exp(((V4*modelVar_phitdinv)*instanceVar_MFOR1_d));
-          I4_cor = (I4-(instanceVar_ISATFOR1_d*(value_exp_0-1.0)));
-        }
-        {
-          AdmsSensFadType value_exp_0 = exp(((V5*modelVar_phitdinv)*instanceVar_MFOR1_d));
-          I5_cor = (I5-(instanceVar_ISATFOR1_d*(value_exp_0-1.0)));
-        }
+        I4_cor = (I4-(instanceVar_ISATFOR1_d*(exp(((V4*modelVar_phitdinv)*instanceVar_MFOR1_d))-1.0)));
+        I5_cor = (I5-(instanceVar_ISATFOR1_d*(exp(((V5*modelVar_phitdinv)*instanceVar_MFOR1_d))-1.0)));
         if ((!(((instanceVar_ABDRAIN_i==0)&&(instanceVar_LSDRAIN_i==0))&&(instanceVar_LGDRAIN_i==0))))
         {
           if (((I4>0)&&(I5>0)))
@@ -34075,50 +31842,23 @@ void evaluateInitialInstance(
             if ((((((I4_cor/I4)>0.001)||((I5_cor/I5)>0.001))&&(I4_cor>0))&&(I5_cor>0)))
             {
               alphaje = (I4_cor/I5_cor);
-              {
-                AdmsSensFadType value_log_0 = log(alphaje);
-                instanceVar_MFOR2_d = ((modelVar_phitd*value_log_0)/(V4-V5));
-              }
-              {
-                AdmsSensFadType value_exp_0 = exp(((V4*modelVar_phitdinv)*instanceVar_MFOR2_d));
-                instanceVar_ISATFOR2_d = (I4_cor/(value_exp_0-1));
-              }
+              instanceVar_MFOR2_d = ((modelVar_phitd*log(alphaje))/(V4-V5));
+              instanceVar_ISATFOR2_d = (I4_cor/(exp(((V4*modelVar_phitdinv)*instanceVar_MFOR2_d))-1));
             }
           }
-          {
-            AdmsSensFadType value_exp_0 = exp(((V1*modelVar_phitdinv)*instanceVar_MFOR1_d));
-            AdmsSensFadType value_exp_1 = exp(((V1*modelVar_phitdinv)*instanceVar_MFOR2_d));
-            I1_cor = ((I1-(instanceVar_ISATFOR1_d*(value_exp_0-1.0)))-(instanceVar_ISATFOR2_d*(value_exp_1-1.0)));
-          }
-          {
-            AdmsSensFadType value_exp_0 = exp(((V2*modelVar_phitdinv)*instanceVar_MFOR1_d));
-            AdmsSensFadType value_exp_1 = exp(((V2*modelVar_phitdinv)*instanceVar_MFOR2_d));
-            I2_cor = ((I2-(instanceVar_ISATFOR1_d*(value_exp_0-1.0)))-(instanceVar_ISATFOR2_d*(value_exp_1-1.0)));
-          }
-          {
-            AdmsSensFadType value_exp_0 = exp(((V3*modelVar_phitdinv)*instanceVar_MFOR1_d));
-            AdmsSensFadType value_exp_1 = exp(((V3*modelVar_phitdinv)*instanceVar_MFOR2_d));
-            I3_cor = ((I3-(instanceVar_ISATFOR1_d*(value_exp_0-1.0)))-(instanceVar_ISATFOR2_d*(value_exp_1-1.0)));
-          }
+          I1_cor = ((I1-(instanceVar_ISATFOR1_d*(exp(((V1*modelVar_phitdinv)*instanceVar_MFOR1_d))-1.0)))-(instanceVar_ISATFOR2_d*(exp(((V1*modelVar_phitdinv)*instanceVar_MFOR2_d))-1.0)));
+          I2_cor = ((I2-(instanceVar_ISATFOR1_d*(exp(((V2*modelVar_phitdinv)*instanceVar_MFOR1_d))-1.0)))-(instanceVar_ISATFOR2_d*(exp(((V2*modelVar_phitdinv)*instanceVar_MFOR2_d))-1.0)));
+          I3_cor = ((I3-(instanceVar_ISATFOR1_d*(exp(((V3*modelVar_phitdinv)*instanceVar_MFOR1_d))-1.0)))-(instanceVar_ISATFOR2_d*(exp(((V3*modelVar_phitdinv)*instanceVar_MFOR2_d))-1.0)));
           if ((((I1<0)&&(I2<0))&&(I3<0)))
           {
             if ((((((((I1_cor/I1)>0.001)||((I2_cor/I2)>0.001))||((I3_cor/I3)>0.001))&&(I1_cor<0))&&(I2_cor<0))&&(I3_cor<0)))
             {
               alphaje = (I1_cor/I2_cor);
-              {
-                AdmsSensFadType value_log_0 = log(alphaje);
-                m0_rev = (((-modelVar_phitd)*value_log_0)/(V1-V2));
-              }
+              m0_rev = (((-modelVar_phitd)*log(alphaje))/(V1-V2));
               tt0 = (V2/(V2-V1));
-              {
-                AdmsSensFadType value_pow_0 = pow(alphaje,tt0);
-                tt1 = ((modelVar_phitd*(alphaje-1))*(value_pow_0-1));
-              }
+              tt1 = ((modelVar_phitd*(alphaje-1))*(pow(alphaje,tt0)-1));
               tt0 = (V1/(V1-V2));
-              {
-                AdmsSensFadType value_pow_0 = pow(alphaje,tt0);
-                tt2 = (((value_pow_0*(V2-V1))+(alphaje*V1))-V2);
-              }
+              tt2 = (((pow(alphaje,tt0)*(V2-V1))+(alphaje*V1))-V2);
               mcor_rev = (tt1/tt2);
               instanceVar_MREV_d = (m0_rev+mcor_rev);
               if ((fabs(((V3*modelVar_phitdinv)*instanceVar_MREV_d))<1e-6))
@@ -34130,10 +31870,7 @@ void evaluateInitialInstance(
               else
               {
                 instanceVar_m0flag_d = 0.0;
-                {
-                  AdmsSensFadType value_exp_0 = exp((((-V3)*modelVar_phitdinv)*instanceVar_MREV_d));
-                  instanceVar_ISATREV_d = ((-I3_cor)/(value_exp_0-1));
-                }
+                instanceVar_ISATREV_d = ((-I3_cor)/(exp((((-V3)*modelVar_phitdinv)*instanceVar_MREV_d))-1));
               }
             }
           }
@@ -34153,44 +31890,16 @@ void evaluateInitialInstance(
         }
         if ((!(((instanceVar_ABDRAIN_i==0)&&(instanceVar_LSDRAIN_i==0))&&(instanceVar_LGDRAIN_i==0))))
         {
-          {
-            AdmsSensFadType value_log_0 = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR1_d+1e-21)));
-            instanceVar_xhighf1_d = value_log_0;
-          }
-          {
-            AdmsSensFadType value_log_0 = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR2_d+1e-21)));
-            instanceVar_xhighf2_d = value_log_0;
-          }
-          {
-            AdmsSensFadType value_fabs_0 = fabs(instanceVar_ISATREV_d);
-            AdmsSensFadType value_log_1 = log(((0.5*modelVar_IMAX_i)/(value_fabs_0+1e-21)));
-            instanceVar_xhighr_d = value_log_1;
-          }
+          instanceVar_xhighf1_d = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR1_d+1e-21)));
+          instanceVar_xhighf2_d = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR2_d+1e-21)));
+          instanceVar_xhighr_d = log(((0.5*modelVar_IMAX_i)/(fabs(instanceVar_ISATREV_d)+1e-21)));
         }
-        {
-          AdmsSensFadType value_min_0 = std::min(instanceVar_xhighf1_d,static_cast<double>(2.3025850929940458e+02));
-          instanceVar_xhighf1_d = value_min_0;
-        }
-        {
-          AdmsSensFadType value_exp_0 = exp(instanceVar_xhighf1_d);
-          instanceVar_expxhf1_d = value_exp_0;
-        }
-        {
-          AdmsSensFadType value_min_0 = std::min(instanceVar_xhighf2_d,static_cast<double>(2.3025850929940458e+02));
-          instanceVar_xhighf2_d = value_min_0;
-        }
-        {
-          AdmsSensFadType value_exp_0 = exp(instanceVar_xhighf2_d);
-          instanceVar_expxhf2_d = value_exp_0;
-        }
-        {
-          AdmsSensFadType value_min_0 = std::min(instanceVar_xhighr_d,static_cast<double>(2.3025850929940458e+02));
-          instanceVar_xhighr_d = value_min_0;
-        }
-        {
-          AdmsSensFadType value_exp_0 = exp(instanceVar_xhighr_d);
-          instanceVar_expxhr_d = value_exp_0;
-        }
+        instanceVar_xhighf1_d = min(instanceVar_xhighf1_d,static_cast<double>(2.3025850929940458e+02));
+        instanceVar_expxhf1_d = exp(instanceVar_xhighf1_d);
+        instanceVar_xhighf2_d = min(instanceVar_xhighf2_d,static_cast<double>(2.3025850929940458e+02));
+        instanceVar_expxhf2_d = exp(instanceVar_xhighf2_d);
+        instanceVar_xhighr_d = min(instanceVar_xhighr_d,static_cast<double>(2.3025850929940458e+02));
+        instanceVar_expxhr_d = exp(instanceVar_xhighr_d);
       }
       // End block JUNCAPexpressInit
     }
@@ -34839,7 +32548,7 @@ void evaluateInitialModel(
    AdmsSensFadType & modelVar_dT,
    AdmsSensFadType & modelVar_rT,
    AdmsSensFadType & modelVar_rTn,
-   AdmsSensFadType & modelVar_EPSSI,
+   double & modelVar_EPSSI,
    AdmsSensFadType & modelVar_phit,
    AdmsSensFadType & modelVar_inv_phit,
    AdmsSensFadType & modelVar_Eg,
@@ -34867,15 +32576,15 @@ void evaluateInitialModel(
    AdmsSensFadType & modelVar_PBRBOT_i,
    AdmsSensFadType & modelVar_PBRSTI_i,
    AdmsSensFadType & modelVar_PBRGAT_i,
-   AdmsSensFadType & modelVar_SWJUNEXP_i,
+   double & modelVar_SWJUNEXP_i,
    AdmsSensFadType & modelVar_VJUNREF_i,
    AdmsSensFadType & modelVar_FJUNQ_i,
    AdmsSensFadType & modelVar_phitr,
    AdmsSensFadType & modelVar_phitd,
    AdmsSensFadType & modelVar_phitdinv,
-   AdmsSensFadType & modelVar_perfc,
-   AdmsSensFadType & modelVar_berfc,
-   AdmsSensFadType & modelVar_cerfc,
+   double & modelVar_perfc,
+   double & modelVar_berfc,
+   double & modelVar_cerfc,
    AdmsSensFadType & modelVar_ftdbot,
    AdmsSensFadType & modelVar_ftdsti,
    AdmsSensFadType & modelVar_ftdgat,
@@ -35287,10 +32996,7 @@ void evaluateInitialModel(
       modelVar_FJUNQD_i = adms_ternary_op<AdmsSensFadType>((modelPar_FJUNQD>0.0),modelPar_FJUNQD,0.0);
     }
     tkr = (273.15+TRJ_i);
-    {
-      AdmsSensFadType value_max_0 = std::max((admsTemperature+modelPar_DTA),(273.15+(-250)));
-      tkd = value_max_0;
-    }
+    tkd = max((admsTemperature+modelPar_DTA),(273.15+(-250)));
     auxt = (tkd/tkr);
     KBOL_over_QELE = (1.3806505E-23/1.6021918E-19);
     modelVar_phitr = (KBOL_over_QELE*tkr);
@@ -35305,51 +33011,18 @@ void evaluateInitialModel(
     phigdbot = (PHIGBOT_i+deltaphigd);
     phigdsti = (PHIGSTI_i+deltaphigd);
     phigdgat = (PHIGGAT_i+deltaphigd);
-    {
-      AdmsSensFadType value_pow_0 = pow(auxt,1.5);
-      AdmsSensFadType value_exp_1 = exp((0.5*((phigrbot*phitrinv)-(phigdbot*modelVar_phitdinv))));
-      modelVar_ftdbot = (value_pow_0*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(auxt,1.5);
-      AdmsSensFadType value_exp_1 = exp((0.5*((phigrsti*phitrinv)-(phigdsti*modelVar_phitdinv))));
-      modelVar_ftdsti = (value_pow_0*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(auxt,1.5);
-      AdmsSensFadType value_exp_1 = exp((0.5*((phigrgat*phitrinv)-(phigdgat*modelVar_phitdinv))));
-      modelVar_ftdgat = (value_pow_0*value_exp_1);
-    }
+    modelVar_ftdbot = (pow(auxt,1.5)*exp((0.5*((phigrbot*phitrinv)-(phigdbot*modelVar_phitdinv)))));
+    modelVar_ftdsti = (pow(auxt,1.5)*exp((0.5*((phigrsti*phitrinv)-(phigdsti*modelVar_phitdinv)))));
+    modelVar_ftdgat = (pow(auxt,1.5)*exp((0.5*((phigrgat*phitrinv)-(phigdgat*modelVar_phitdinv)))));
     modelVar_idsatbot = ((IDSATRBOT_i*modelVar_ftdbot)*modelVar_ftdbot);
     modelVar_idsatsti = ((IDSATRSTI_i*modelVar_ftdsti)*modelVar_ftdsti);
     modelVar_idsatgat = ((IDSATRGAT_i*modelVar_ftdgat)*modelVar_ftdgat);
-    {
-      AdmsSensFadType value_log_0 = log(modelVar_ftdbot);
-      ubibot = ((modelVar_VBIRBOT_i*auxt)-((2*modelVar_phitd)*value_log_0));
-    }
-    {
-      AdmsSensFadType value_log_0 = log(modelVar_ftdsti);
-      ubisti = ((modelVar_VBIRSTI_i*auxt)-((2*modelVar_phitd)*value_log_0));
-    }
-    {
-      AdmsSensFadType value_log_0 = log(modelVar_ftdgat);
-      ubigat = ((modelVar_VBIRGAT_i*auxt)-((2*modelVar_phitd)*value_log_0));
-    }
-    {
-      AdmsSensFadType value_exp_0 = exp(((0.050-ubibot)*modelVar_phitdinv));
-      AdmsSensFadType value_log_1 = log((1+value_exp_0));
-      modelVar_vbibot = (ubibot+(modelVar_phitd*value_log_1));
-    }
-    {
-      AdmsSensFadType value_exp_0 = exp(((0.050-ubisti)*modelVar_phitdinv));
-      AdmsSensFadType value_log_1 = log((1+value_exp_0));
-      modelVar_vbisti = (ubisti+(modelVar_phitd*value_log_1));
-    }
-    {
-      AdmsSensFadType value_exp_0 = exp(((0.050-ubigat)*modelVar_phitdinv));
-      AdmsSensFadType value_log_1 = log((1+value_exp_0));
-      modelVar_vbigat = (ubigat+(modelVar_phitd*value_log_1));
-    }
+    ubibot = ((modelVar_VBIRBOT_i*auxt)-((2*modelVar_phitd)*log(modelVar_ftdbot)));
+    ubisti = ((modelVar_VBIRSTI_i*auxt)-((2*modelVar_phitd)*log(modelVar_ftdsti)));
+    ubigat = ((modelVar_VBIRGAT_i*auxt)-((2*modelVar_phitd)*log(modelVar_ftdgat)));
+    modelVar_vbibot = (ubibot+(modelVar_phitd*log((1+exp(((0.050-ubibot)*modelVar_phitdinv))))));
+    modelVar_vbisti = (ubisti+(modelVar_phitd*log((1+exp(((0.050-ubisti)*modelVar_phitdinv))))));
+    modelVar_vbigat = (ubigat+(modelVar_phitd*log((1+exp(((0.050-ubigat)*modelVar_phitdinv))))));
     modelVar_vbiinvbot = (1.0/modelVar_vbibot);
     modelVar_vbiinvsti = (1.0/modelVar_vbisti);
     modelVar_vbiinvgat = (1.0/modelVar_vbigat);
@@ -35359,18 +33032,9 @@ void evaluateInitialModel(
     modelVar_one_over_one_minus_PBOT = (1/modelVar_one_minus_PBOT);
     modelVar_one_over_one_minus_PSTI = (1/modelVar_one_minus_PSTI);
     modelVar_one_over_one_minus_PGAT = (1/modelVar_one_minus_PGAT);
-    {
-      AdmsSensFadType value_pow_0 = pow((modelVar_VBIRBOT_i*modelVar_vbiinvbot),modelVar_PBOT_i);
-      modelVar_cjobot = (CJORBOT_i*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow((modelVar_VBIRSTI_i*modelVar_vbiinvsti),modelVar_PSTI_i);
-      modelVar_cjosti = (CJORSTI_i*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow((modelVar_VBIRGAT_i*modelVar_vbiinvgat),modelVar_PGAT_i);
-      modelVar_cjogat = (CJORGAT_i*value_pow_0);
-    }
+    modelVar_cjobot = (CJORBOT_i*pow((modelVar_VBIRBOT_i*modelVar_vbiinvbot),modelVar_PBOT_i));
+    modelVar_cjosti = (CJORSTI_i*pow((modelVar_VBIRSTI_i*modelVar_vbiinvsti),modelVar_PSTI_i));
+    modelVar_cjogat = (CJORGAT_i*pow((modelVar_VBIRGAT_i*modelVar_vbiinvgat),modelVar_PGAT_i));
     modelVar_qprefbot = ((modelVar_cjobot*modelVar_vbibot)*modelVar_one_over_one_minus_PBOT);
     modelVar_qprefsti = ((modelVar_cjosti*modelVar_vbisti)*modelVar_one_over_one_minus_PSTI);
     modelVar_qprefgat = ((modelVar_cjogat*modelVar_vbigat)*modelVar_one_over_one_minus_PGAT);
@@ -35387,122 +33051,50 @@ void evaluateInitialModel(
     modelVar_VBIRSTIinv = (1/modelVar_VBIRSTI_i);
     modelVar_VBIRGATinv = (1/modelVar_VBIRGAT_i);
     modelVar_perfc = (1.77245385090551603*0.29214664);
-    {
-      AdmsSensFadType value_pow_0 = pow(modelVar_perfc,(-2));
-      modelVar_berfc = (((((-5)*0.29214664)+6)-value_pow_0)/3.0);
-    }
+    modelVar_berfc = (((((-5)*0.29214664)+6)-pow(modelVar_perfc,(-2)))/3.0);
     modelVar_cerfc = ((1.0-0.29214664)-modelVar_berfc);
-    {
-      AdmsSensFadType value_max_0 = max((0.5*phigdbot),modelVar_phitd);
-      deltaEbot = value_max_0;
-    }
-    {
-      AdmsSensFadType value_max_0 = max((0.5*phigdsti),modelVar_phitd);
-      deltaEsti = value_max_0;
-    }
-    {
-      AdmsSensFadType value_max_0 = max((0.5*phigdgat),modelVar_phitd);
-      deltaEgat = value_max_0;
-    }
+    deltaEbot = max((0.5*phigdbot),modelVar_phitd);
+    deltaEsti = max((0.5*phigdsti),modelVar_phitd);
+    deltaEgat = max((0.5*phigdgat),modelVar_phitd);
     modelVar_atatbot = (deltaEbot*modelVar_phitdinv);
     modelVar_atatsti = (deltaEsti*modelVar_phitdinv);
     modelVar_atatgat = (deltaEgat*modelVar_phitdinv);
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((32*MEFFTATBOT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEbot*deltaEbot)*deltaEbot)));
-      modelVar_btatpartbot = (value_sqrt_0/(3*1.05457168E-34));
-    }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((32*MEFFTATSTI_i)*9.1093826E-31)*1.6021918E-19)*((deltaEsti*deltaEsti)*deltaEsti)));
-      modelVar_btatpartsti = (value_sqrt_0/(3*1.05457168E-34));
-    }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((32*MEFFTATGAT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEgat*deltaEgat)*deltaEgat)));
-      modelVar_btatpartgat = (value_sqrt_0/(3*1.05457168E-34));
-    }
+    modelVar_btatpartbot = (sqrt(((((32*MEFFTATBOT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEbot*deltaEbot)*deltaEbot)))/(3*1.05457168E-34));
+    modelVar_btatpartsti = (sqrt(((((32*MEFFTATSTI_i)*9.1093826E-31)*1.6021918E-19)*((deltaEsti*deltaEsti)*deltaEsti)))/(3*1.05457168E-34));
+    modelVar_btatpartgat = (sqrt(((((32*MEFFTATGAT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEgat*deltaEgat)*deltaEgat)))/(3*1.05457168E-34));
     modelVar_fbbtbot = (FBBTRBOT_i*(1+(STFBBTBOT_i*(tkd-tkr))));
     modelVar_fbbtsti = (FBBTRSTI_i*(1+(STFBBTSTI_i*(tkd-tkr))));
     modelVar_fbbtgat = (FBBTRGAT_i*(1+(STFBBTGAT_i*(tkd-tkr))));
     modelVar_fbbtbot = adms_ternary_op<AdmsSensFadType>((modelVar_fbbtbot>0),modelVar_fbbtbot,0);
     modelVar_fbbtsti = adms_ternary_op<AdmsSensFadType>((modelVar_fbbtsti>0),modelVar_fbbtsti,0);
     modelVar_fbbtgat = adms_ternary_op<AdmsSensFadType>((modelVar_fbbtgat>0),modelVar_fbbtgat,0);
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,modelVar_PBRBOT_i);
-      modelVar_fstopbot = (1/(1-value_pow_0));
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,modelVar_PBRSTI_i);
-      modelVar_fstopsti = (1/(1-value_pow_0));
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,modelVar_PBRGAT_i);
-      modelVar_fstopgat = (1/(1-value_pow_0));
-    }
+    modelVar_fstopbot = (1/(1-pow(0.999,modelVar_PBRBOT_i)));
+    modelVar_fstopsti = (1/(1-pow(0.999,modelVar_PBRSTI_i)));
+    modelVar_fstopgat = (1/(1-pow(0.999,modelVar_PBRGAT_i)));
     modelVar_VBRinvbot = (1/modelVar_VBRBOT_i);
     modelVar_VBRinvsti = (1/modelVar_VBRSTI_i);
     modelVar_VBRinvgat = (1/modelVar_VBRGAT_i);
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,(modelVar_PBRBOT_i-1));
-      modelVar_slopebot = (((-((modelVar_fstopbot*modelVar_fstopbot)*value_pow_0))*modelVar_PBRBOT_i)*modelVar_VBRinvbot);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,(modelVar_PBRSTI_i-1));
-      modelVar_slopesti = (((-((modelVar_fstopsti*modelVar_fstopsti)*value_pow_0))*modelVar_PBRSTI_i)*modelVar_VBRinvsti);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,(modelVar_PBRGAT_i-1));
-      modelVar_slopegat = (((-((modelVar_fstopgat*modelVar_fstopgat)*value_pow_0))*modelVar_PBRGAT_i)*modelVar_VBRinvgat);
-    }
+    modelVar_slopebot = (((-((modelVar_fstopbot*modelVar_fstopbot)*pow(0.999,(modelVar_PBRBOT_i-1))))*modelVar_PBRBOT_i)*modelVar_VBRinvbot);
+    modelVar_slopesti = (((-((modelVar_fstopsti*modelVar_fstopsti)*pow(0.999,(modelVar_PBRSTI_i-1))))*modelVar_PBRSTI_i)*modelVar_VBRinvsti);
+    modelVar_slopegat = (((-((modelVar_fstopgat*modelVar_fstopgat)*pow(0.999,(modelVar_PBRGAT_i-1))))*modelVar_PBRGAT_i)*modelVar_VBRinvgat);
     phigrbot_d = (PHIGBOTD_i+deltaphigr);
     phigrsti_d = (PHIGSTID_i+deltaphigr);
     phigrgat_d = (PHIGGATD_i+deltaphigr);
     phigdbot_d = (PHIGBOTD_i+deltaphigd);
     phigdsti_d = (PHIGSTID_i+deltaphigd);
     phigdgat_d = (PHIGGATD_i+deltaphigd);
-    {
-      AdmsSensFadType value_pow_0 = pow(auxt,1.5);
-      AdmsSensFadType value_exp_1 = exp((0.5*((phigrbot_d*phitrinv)-(phigdbot_d*modelVar_phitdinv))));
-      modelVar_ftdbot_d = (value_pow_0*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(auxt,1.5);
-      AdmsSensFadType value_exp_1 = exp((0.5*((phigrsti_d*phitrinv)-(phigdsti_d*modelVar_phitdinv))));
-      modelVar_ftdsti_d = (value_pow_0*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(auxt,1.5);
-      AdmsSensFadType value_exp_1 = exp((0.5*((phigrgat_d*phitrinv)-(phigdgat_d*modelVar_phitdinv))));
-      modelVar_ftdgat_d = (value_pow_0*value_exp_1);
-    }
+    modelVar_ftdbot_d = (pow(auxt,1.5)*exp((0.5*((phigrbot_d*phitrinv)-(phigdbot_d*modelVar_phitdinv)))));
+    modelVar_ftdsti_d = (pow(auxt,1.5)*exp((0.5*((phigrsti_d*phitrinv)-(phigdsti_d*modelVar_phitdinv)))));
+    modelVar_ftdgat_d = (pow(auxt,1.5)*exp((0.5*((phigrgat_d*phitrinv)-(phigdgat_d*modelVar_phitdinv)))));
     modelVar_idsatbot_d = ((IDSATRBOTD_i*modelVar_ftdbot_d)*modelVar_ftdbot_d);
     modelVar_idsatsti_d = ((IDSATRSTID_i*modelVar_ftdsti_d)*modelVar_ftdsti_d);
     modelVar_idsatgat_d = ((IDSATRGATD_i*modelVar_ftdgat_d)*modelVar_ftdgat_d);
-    {
-      AdmsSensFadType value_log_0 = log(modelVar_ftdbot_d);
-      ubibot_d = ((modelVar_VBIRBOTD_i*auxt)-((2*modelVar_phitd)*value_log_0));
-    }
-    {
-      AdmsSensFadType value_log_0 = log(modelVar_ftdsti_d);
-      ubisti_d = ((modelVar_VBIRSTID_i*auxt)-((2*modelVar_phitd)*value_log_0));
-    }
-    {
-      AdmsSensFadType value_log_0 = log(modelVar_ftdgat_d);
-      ubigat_d = ((modelVar_VBIRGATD_i*auxt)-((2*modelVar_phitd)*value_log_0));
-    }
-    {
-      AdmsSensFadType value_exp_0 = exp(((0.050-ubibot_d)*modelVar_phitdinv));
-      AdmsSensFadType value_log_1 = log((1+value_exp_0));
-      modelVar_vbibot_d = (ubibot_d+(modelVar_phitd*value_log_1));
-    }
-    {
-      AdmsSensFadType value_exp_0 = exp(((0.050-ubisti_d)*modelVar_phitdinv));
-      AdmsSensFadType value_log_1 = log((1+value_exp_0));
-      modelVar_vbisti_d = (ubisti_d+(modelVar_phitd*value_log_1));
-    }
-    {
-      AdmsSensFadType value_exp_0 = exp(((0.050-ubigat_d)*modelVar_phitdinv));
-      AdmsSensFadType value_log_1 = log((1+value_exp_0));
-      modelVar_vbigat_d = (ubigat_d+(modelVar_phitd*value_log_1));
-    }
+    ubibot_d = ((modelVar_VBIRBOTD_i*auxt)-((2*modelVar_phitd)*log(modelVar_ftdbot_d)));
+    ubisti_d = ((modelVar_VBIRSTID_i*auxt)-((2*modelVar_phitd)*log(modelVar_ftdsti_d)));
+    ubigat_d = ((modelVar_VBIRGATD_i*auxt)-((2*modelVar_phitd)*log(modelVar_ftdgat_d)));
+    modelVar_vbibot_d = (ubibot_d+(modelVar_phitd*log((1+exp(((0.050-ubibot_d)*modelVar_phitdinv))))));
+    modelVar_vbisti_d = (ubisti_d+(modelVar_phitd*log((1+exp(((0.050-ubisti_d)*modelVar_phitdinv))))));
+    modelVar_vbigat_d = (ubigat_d+(modelVar_phitd*log((1+exp(((0.050-ubigat_d)*modelVar_phitdinv))))));
     modelVar_vbiinvbot_d = (1.0/modelVar_vbibot_d);
     modelVar_vbiinvsti_d = (1.0/modelVar_vbisti_d);
     modelVar_vbiinvgat_d = (1.0/modelVar_vbigat_d);
@@ -35512,18 +33104,9 @@ void evaluateInitialModel(
     modelVar_one_over_one_minus_PBOT_d = (1/modelVar_one_minus_PBOT_d);
     modelVar_one_over_one_minus_PSTI_d = (1/modelVar_one_minus_PSTI_d);
     modelVar_one_over_one_minus_PGAT_d = (1/modelVar_one_minus_PGAT_d);
-    {
-      AdmsSensFadType value_pow_0 = pow((modelVar_VBIRBOTD_i*modelVar_vbiinvbot_d),modelVar_PBOTD_i);
-      modelVar_cjobot_d = (CJORBOTD_i*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow((modelVar_VBIRSTID_i*modelVar_vbiinvsti_d),modelVar_PSTID_i);
-      modelVar_cjosti_d = (CJORSTID_i*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow((modelVar_VBIRGATD_i*modelVar_vbiinvgat_d),modelVar_PGATD_i);
-      modelVar_cjogat_d = (CJORGATD_i*value_pow_0);
-    }
+    modelVar_cjobot_d = (CJORBOTD_i*pow((modelVar_VBIRBOTD_i*modelVar_vbiinvbot_d),modelVar_PBOTD_i));
+    modelVar_cjosti_d = (CJORSTID_i*pow((modelVar_VBIRSTID_i*modelVar_vbiinvsti_d),modelVar_PSTID_i));
+    modelVar_cjogat_d = (CJORGATD_i*pow((modelVar_VBIRGATD_i*modelVar_vbiinvgat_d),modelVar_PGATD_i));
     modelVar_qprefbot_d = ((modelVar_cjobot_d*modelVar_vbibot_d)*modelVar_one_over_one_minus_PBOT_d);
     modelVar_qprefsti_d = ((modelVar_cjosti_d*modelVar_vbisti_d)*modelVar_one_over_one_minus_PSTI_d);
     modelVar_qprefgat_d = ((modelVar_cjogat_d*modelVar_vbigat_d)*modelVar_one_over_one_minus_PGAT_d);
@@ -35539,66 +33122,30 @@ void evaluateInitialModel(
     modelVar_VBIRBOTinv_d = (1/modelVar_VBIRBOTD_i);
     modelVar_VBIRSTIinv_d = (1/modelVar_VBIRSTID_i);
     modelVar_VBIRGATinv_d = (1/modelVar_VBIRGATD_i);
-    {
-      AdmsSensFadType value_max_0 = max((0.5*phigdbot_d),modelVar_phitd);
-      deltaEbot_d = value_max_0;
-    }
-    {
-      AdmsSensFadType value_max_0 = max((0.5*phigdsti_d),modelVar_phitd);
-      deltaEsti_d = value_max_0;
-    }
-    {
-      AdmsSensFadType value_max_0 = max((0.5*phigdgat_d),modelVar_phitd);
-      deltaEgat_d = value_max_0;
-    }
+    deltaEbot_d = max((0.5*phigdbot_d),modelVar_phitd);
+    deltaEsti_d = max((0.5*phigdsti_d),modelVar_phitd);
+    deltaEgat_d = max((0.5*phigdgat_d),modelVar_phitd);
     modelVar_atatbot_d = (deltaEbot_d*modelVar_phitdinv);
     modelVar_atatsti_d = (deltaEsti_d*modelVar_phitdinv);
     modelVar_atatgat_d = (deltaEgat_d*modelVar_phitdinv);
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((32*MEFFTATBOTD_i)*9.1093826E-31)*1.6021918E-19)*((deltaEbot_d*deltaEbot_d)*deltaEbot_d)));
-      modelVar_btatpartbot_d = (value_sqrt_0/(3*1.05457168E-34));
-    }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((32*MEFFTATSTID_i)*9.1093826E-31)*1.6021918E-19)*((deltaEsti_d*deltaEsti_d)*deltaEsti_d)));
-      modelVar_btatpartsti_d = (value_sqrt_0/(3*1.05457168E-34));
-    }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((((32*MEFFTATGATD_i)*9.1093826E-31)*1.6021918E-19)*((deltaEgat_d*deltaEgat_d)*deltaEgat_d)));
-      modelVar_btatpartgat_d = (value_sqrt_0/(3*1.05457168E-34));
-    }
+    modelVar_btatpartbot_d = (sqrt(((((32*MEFFTATBOTD_i)*9.1093826E-31)*1.6021918E-19)*((deltaEbot_d*deltaEbot_d)*deltaEbot_d)))/(3*1.05457168E-34));
+    modelVar_btatpartsti_d = (sqrt(((((32*MEFFTATSTID_i)*9.1093826E-31)*1.6021918E-19)*((deltaEsti_d*deltaEsti_d)*deltaEsti_d)))/(3*1.05457168E-34));
+    modelVar_btatpartgat_d = (sqrt(((((32*MEFFTATGATD_i)*9.1093826E-31)*1.6021918E-19)*((deltaEgat_d*deltaEgat_d)*deltaEgat_d)))/(3*1.05457168E-34));
     modelVar_fbbtbot_d = (FBBTRBOTD_i*(1+(STFBBTBOTD_i*(tkd-tkr))));
     modelVar_fbbtsti_d = (FBBTRSTID_i*(1+(STFBBTSTID_i*(tkd-tkr))));
     modelVar_fbbtgat_d = (FBBTRGATD_i*(1+(STFBBTGATD_i*(tkd-tkr))));
     modelVar_fbbtbot_d = adms_ternary_op<AdmsSensFadType>((modelVar_fbbtbot_d>0),modelVar_fbbtbot_d,0);
     modelVar_fbbtsti_d = adms_ternary_op<AdmsSensFadType>((modelVar_fbbtsti_d>0),modelVar_fbbtsti_d,0);
     modelVar_fbbtgat_d = adms_ternary_op<AdmsSensFadType>((modelVar_fbbtgat_d>0),modelVar_fbbtgat_d,0);
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,modelVar_PBRBOTD_i);
-      modelVar_fstopbot_d = (1/(1-value_pow_0));
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,modelVar_PBRSTID_i);
-      modelVar_fstopsti_d = (1/(1-value_pow_0));
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,modelVar_PBRGATD_i);
-      modelVar_fstopgat_d = (1/(1-value_pow_0));
-    }
+    modelVar_fstopbot_d = (1/(1-pow(0.999,modelVar_PBRBOTD_i)));
+    modelVar_fstopsti_d = (1/(1-pow(0.999,modelVar_PBRSTID_i)));
+    modelVar_fstopgat_d = (1/(1-pow(0.999,modelVar_PBRGATD_i)));
     modelVar_VBRinvbot_d = (1/modelVar_VBRBOTD_i);
     modelVar_VBRinvsti_d = (1/modelVar_VBRSTID_i);
     modelVar_VBRinvgat_d = (1/modelVar_VBRGATD_i);
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,(modelVar_PBRBOTD_i-1));
-      modelVar_slopebot_d = (((-((modelVar_fstopbot_d*modelVar_fstopbot_d)*value_pow_0))*modelVar_PBRBOTD_i)*modelVar_VBRinvbot_d);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,(modelVar_PBRSTID_i-1));
-      modelVar_slopesti_d = (((-((modelVar_fstopsti_d*modelVar_fstopsti_d)*value_pow_0))*modelVar_PBRSTID_i)*modelVar_VBRinvsti_d);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(0.999,(modelVar_PBRGATD_i-1));
-      modelVar_slopegat_d = (((-((modelVar_fstopgat_d*modelVar_fstopgat_d)*value_pow_0))*modelVar_PBRGATD_i)*modelVar_VBRinvgat_d);
-    }
+    modelVar_slopebot_d = (((-((modelVar_fstopbot_d*modelVar_fstopbot_d)*pow(0.999,(modelVar_PBRBOTD_i-1))))*modelVar_PBRBOTD_i)*modelVar_VBRinvbot_d);
+    modelVar_slopesti_d = (((-((modelVar_fstopsti_d*modelVar_fstopsti_d)*pow(0.999,(modelVar_PBRSTID_i-1))))*modelVar_PBRSTID_i)*modelVar_VBRinvsti_d);
+    modelVar_slopegat_d = (((-((modelVar_fstopgat_d*modelVar_fstopgat_d)*pow(0.999,(modelVar_PBRGATD_i-1))))*modelVar_PBRGATD_i)*modelVar_VBRinvgat_d);
   }
   // End block initial_model
 }
@@ -35755,7 +33302,7 @@ void evaluateModelEquations(
    AdmsSensFadType & instanceVar_GCQ,
    AdmsSensFadType & instanceVar_Dch,
    AdmsSensFadType & instanceVar_Dov,
-   AdmsSensFadType & instanceVar_x1,
+   double & instanceVar_x1,
    AdmsSensFadType & instanceVar_Vdsat_lim,
    AdmsSensFadType & instanceVar_nt,
    AdmsSensFadType & instanceVar_Cox_over_q,
@@ -35803,9 +33350,9 @@ void evaluateModelEquations(
    AdmsSensFadType & instanceVar_ABSOURCE_i,
    AdmsSensFadType & instanceVar_LSSOURCE_i,
    AdmsSensFadType & instanceVar_LGSOURCE_i,
-   AdmsSensFadType & instanceVar_zflagbot_s,
-   AdmsSensFadType & instanceVar_zflagsti_s,
-   AdmsSensFadType & instanceVar_zflaggat_s,
+   double & instanceVar_zflagbot_s,
+   double & instanceVar_zflagsti_s,
+   double & instanceVar_zflaggat_s,
    AdmsSensFadType & instanceVar_VMAX_s,
    AdmsSensFadType & instanceVar_exp_VMAX_over_phitd_s,
    AdmsSensFadType & instanceVar_vbimin_s,
@@ -35818,9 +33365,9 @@ void evaluateModelEquations(
    AdmsSensFadType & instanceVar_expxhf2_s,
    AdmsSensFadType & instanceVar_xhighr_s,
    AdmsSensFadType & instanceVar_expxhr_s,
-   AdmsSensFadType & instanceVar_m0flag_s,
+   double & instanceVar_m0flag_s,
    AdmsSensFadType & instanceVar_ISATFOR1_s,
-   AdmsSensFadType & instanceVar_MFOR1_s,
+   double & instanceVar_MFOR1_s,
    AdmsSensFadType & instanceVar_ISATFOR2_s,
    AdmsSensFadType & instanceVar_MFOR2_s,
    AdmsSensFadType & instanceVar_ISATREV_s,
@@ -35828,9 +33375,9 @@ void evaluateModelEquations(
    AdmsSensFadType & instanceVar_ABDRAIN_i,
    AdmsSensFadType & instanceVar_LSDRAIN_i,
    AdmsSensFadType & instanceVar_LGDRAIN_i,
-   AdmsSensFadType & instanceVar_zflagbot_d,
-   AdmsSensFadType & instanceVar_zflagsti_d,
-   AdmsSensFadType & instanceVar_zflaggat_d,
+   double & instanceVar_zflagbot_d,
+   double & instanceVar_zflagsti_d,
+   double & instanceVar_zflaggat_d,
    AdmsSensFadType & instanceVar_VMAX_d,
    AdmsSensFadType & instanceVar_exp_VMAX_over_phitd_d,
    AdmsSensFadType & instanceVar_vbimin_d,
@@ -35843,9 +33390,9 @@ void evaluateModelEquations(
    AdmsSensFadType & instanceVar_expxhf2_d,
    AdmsSensFadType & instanceVar_xhighr_d,
    AdmsSensFadType & instanceVar_expxhr_d,
-   AdmsSensFadType & instanceVar_m0flag_d,
+   double & instanceVar_m0flag_d,
    AdmsSensFadType & instanceVar_ISATFOR1_d,
-   AdmsSensFadType & instanceVar_MFOR1_d,
+   double & instanceVar_MFOR1_d,
    AdmsSensFadType & instanceVar_ISATFOR2_d,
    AdmsSensFadType & instanceVar_MFOR2_d,
    AdmsSensFadType & instanceVar_ISATREV_d,
@@ -36480,7 +34027,7 @@ void evaluateModelEquations(
    AdmsSensFadType & modelVar_dT,
    AdmsSensFadType & modelVar_rT,
    AdmsSensFadType & modelVar_rTn,
-   AdmsSensFadType & modelVar_EPSSI,
+   double & modelVar_EPSSI,
    AdmsSensFadType & modelVar_phit,
    AdmsSensFadType & modelVar_inv_phit,
    AdmsSensFadType & modelVar_Eg,
@@ -36508,15 +34055,15 @@ void evaluateModelEquations(
    AdmsSensFadType & modelVar_PBRBOT_i,
    AdmsSensFadType & modelVar_PBRSTI_i,
    AdmsSensFadType & modelVar_PBRGAT_i,
-   AdmsSensFadType & modelVar_SWJUNEXP_i,
+   double & modelVar_SWJUNEXP_i,
    AdmsSensFadType & modelVar_VJUNREF_i,
    AdmsSensFadType & modelVar_FJUNQ_i,
    AdmsSensFadType & modelVar_phitr,
    AdmsSensFadType & modelVar_phitd,
    AdmsSensFadType & modelVar_phitdinv,
-   AdmsSensFadType & modelVar_perfc,
-   AdmsSensFadType & modelVar_berfc,
-   AdmsSensFadType & modelVar_cerfc,
+   double & modelVar_perfc,
+   double & modelVar_berfc,
+   double & modelVar_cerfc,
    AdmsSensFadType & modelVar_ftdbot,
    AdmsSensFadType & modelVar_ftdsti,
    AdmsSensFadType & modelVar_ftdgat,
@@ -37081,35 +34628,20 @@ void evaluateModelEquations(
       }
       Vgd = (Vgs-Vds);
       Vdb = (Vds+Vsb);
-      {
-        AdmsSensFadType value_sqrt_0 = sqrt((((Vdb-Vsb)*(Vdb-Vsb))+instanceVar_bphi));
-        temp = ((0.5*((Vdb+Vsb)-value_sqrt_0))+instanceVar_phix);
-      }
-      {
-        AdmsSensFadType value_sqrt_0 = sqrt((((temp)*(temp))+instanceVar_aphi));
-        Vsbstar = ((Vsb-(0.5*((temp)-value_sqrt_0)))+instanceVar_phix1);
-      }
+      temp = ((0.5*((Vdb+Vsb)-sqrt((((Vdb-Vsb)*(Vdb-Vsb))+instanceVar_bphi))))+instanceVar_phix);
+      Vsbstar = ((Vsb-(0.5*((temp)-sqrt((((temp)*(temp))+instanceVar_aphi)))))+instanceVar_phix1);
       Vdbstar = (Vds+Vsbstar);
       Vgbstar = (Vgs+Vsbstar);
       Vgb1 = (Vgbstar-instanceVar_VFB_i);
-      {
-        double value_sqrt_0 = sqrt(((Vds*Vds)+0.01));
-        Vdsx = (value_sqrt_0-0.1);
-      }
+      Vdsx = (sqrt(((Vds*Vds)+0.01))-0.1);
       Vsbx = (Vsbstar+(0.5*(Vds-Vdsx)));
       delVg = (instanceVar_CF_i*(Vdsx*(1+(instanceVar_CFB_i*Vsbx))));
       Vgb1 = (Vgb1+delVg);
       xg = (Vgb1*instanceVar_inv_phit1);
       if ((instanceVar_DNSUB_i>0.0))
       {
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt((((-((Vgs+Vsb)-instanceVar_VNSUB_i))*(-((Vgs+Vsb)-instanceVar_VNSUB_i)))+instanceVar_NSLP_i));
-          Dnsub = ((instanceVar_DNSUB_i*0.5)*((+((Vgs+Vsb)-instanceVar_VNSUB_i))+value_sqrt_0));
-        }
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt((1.0+Dnsub));
-          Gf = (instanceVar_G_0*value_sqrt_0);
-        }
+        Dnsub = ((instanceVar_DNSUB_i*0.5)*((+((Vgs+Vsb)-instanceVar_VNSUB_i))+sqrt((((-((Vgs+Vsb)-instanceVar_VNSUB_i))*(-((Vgs+Vsb)-instanceVar_VNSUB_i)))+instanceVar_NSLP_i))));
+        Gf = (instanceVar_G_0*sqrt((1.0+Dnsub)));
       }
       else
       {
@@ -37123,10 +34655,7 @@ void evaluateModelEquations(
       xn_s = ((instanceVar_phib*instanceVar_inv_phit1)+Ux);
       if ((xn_s<4.6051701859880916e+02))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((-xn_s));
-          delta_ns = value_exp_0;
-        }
+        delta_ns = exp((-xn_s));
       }
       else
       {
@@ -37144,26 +34673,17 @@ void evaluateModelEquations(
         {
           SP_S_yg = (-xg);
           SP_S_ysub = (1.25*(SP_S_yg*inv_xi));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((SP_S_ysub-6.0)*(SP_S_ysub-6.0))+64.0));
-            SP_S_eta = (0.5*((SP_S_ysub+10)-value_sqrt_0));
-          }
+          SP_S_eta = (0.5*((SP_S_ysub+10)-sqrt((((SP_S_ysub-6.0)*(SP_S_ysub-6.0))+64.0))));
           SP_S_temp = (SP_S_yg-SP_S_eta);
           SP_S_a = ((SP_S_temp*SP_S_temp)+(Gf2*(SP_S_eta+1.0)));
           SP_S_c = ((2.0*SP_S_temp)-Gf2);
-          {
-            AdmsSensFadType value_log_0 = log((SP_S_a*inv_Gf2));
-            SP_S_tau = ((-SP_S_eta)+value_log_0);
-          }
+          SP_S_tau = ((-SP_S_eta)+log((SP_S_a*inv_Gf2)));
           nu = (SP_S_a+SP_S_c);
           mutau = ((nu*nu)+(SP_S_tau*((0.5*(SP_S_c*SP_S_c))-SP_S_a)));
           SP_S_y0 = (SP_S_eta+(((SP_S_a*nu)*SP_S_tau)/(mutau+(((((nu/mutau)*SP_S_tau)*SP_S_tau)*SP_S_c)*(((SP_S_c*SP_S_c)*3.3333333333333333e-01)-SP_S_a)))));
           if ((SP_S_y0<2.3025850929940458e+02))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(SP_S_y0);
-              SP_S_delta0 = value_exp_0;
-            }
+            SP_S_delta0 = exp(SP_S_y0);
           }
           else
           {
@@ -37180,10 +34700,7 @@ void evaluateModelEquations(
           SP_S_qC = ((SP_S_temp*SP_S_temp)-(Gf2*((((SP_S_delta0-SP_S_y0)-1.0)+SP_S_temp1)+(delta_ns*((SP_S_y0-1.0)-SP_S_xi0)))));
           SP_S_temp = (2.0-(Gf2*((SP_S_delta0+SP_S_temp1)-(delta_ns*SP_S_xi2))));
           SP_S_temp = ((SP_S_pC*SP_S_pC)-(2.0*(SP_S_qC*SP_S_temp)));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(SP_S_temp);
-            x_s = ((-SP_S_y0)-(2.0*(SP_S_qC/(SP_S_pC+value_sqrt_0))));
-          }
+          x_s = ((-SP_S_y0)-(2.0*(SP_S_qC/(SP_S_pC+sqrt(SP_S_temp)))));
         }
         else
         {
@@ -37192,54 +34709,32 @@ void evaluateModelEquations(
           SP_S_xbar = ((xg*inv_xi)*(1.0+(SP_S_A_fac*xg)));
           if (((-SP_S_xbar)>(-2.3025850929940458e+02)))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((-SP_S_xbar));
-              SP_S_temp = value_exp_0;
-            }
+            SP_S_temp = exp((-SP_S_xbar));
           }
           else
           {
             SP_S_temp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(-SP_S_xbar))*(1.0+(0.5*(((-2.3025850929940458e+02)-(-SP_S_xbar))*(1.0+(((-2.3025850929940458e+02)-(-SP_S_xbar))*3.3333333333333333e-01))))))));
           }
           SP_S_w = (1.0-SP_S_temp);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((xg+(Gf2*0.25))-SP_S_w));
-            SP_S_x1 = ((xg+(Gf2*0.5))-(Gf*value_sqrt_0));
-          }
+          SP_S_x1 = ((xg+(Gf2*0.5))-(Gf*sqrt(((xg+(Gf2*0.25))-SP_S_w))));
           SP_S_bx = (xn_s+3.0);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((SP_S_x1-SP_S_bx)*(SP_S_x1-SP_S_bx))+5.0));
-            AdmsSensFadType value_sqrt_1 = sqrt(((SP_S_bx*SP_S_bx)+5.0));
-            SP_S_eta = ((0.5*((SP_S_x1+SP_S_bx)-value_sqrt_0))-(0.5*(SP_S_bx-value_sqrt_1)));
-          }
+          SP_S_eta = ((0.5*((SP_S_x1+SP_S_bx)-sqrt((((SP_S_x1-SP_S_bx)*(SP_S_x1-SP_S_bx))+5.0))))-(0.5*(SP_S_bx-sqrt(((SP_S_bx*SP_S_bx)+5.0)))));
           SP_S_temp = (xg-SP_S_eta);
-          {
-            AdmsSensFadType value_exp_0 = exp((-SP_S_eta));
-            SP_S_temp1 = value_exp_0;
-          }
+          SP_S_temp1 = exp((-SP_S_eta));
           SP_S_temp2 = (1.0/(2.0+(SP_S_eta*SP_S_eta)));
           SP_S_xi0 = ((SP_S_eta*SP_S_eta)*SP_S_temp2);
           SP_S_xi1 = (4.0*((SP_S_eta*SP_S_temp2)*SP_S_temp2));
           SP_S_xi2 = ((((8.0*SP_S_temp2)-(12.0*SP_S_xi0))*SP_S_temp2)*SP_S_temp2);
-          {
-            AdmsSensFadType value_max_0 = std::max(static_cast<double>(1.0e-40),((SP_S_temp*SP_S_temp)-(Gf2*(((SP_S_temp1+SP_S_eta)-1.0)-(delta_ns*((SP_S_eta+1.0)+SP_S_xi0))))));
-            SP_S_a = value_max_0;
-          }
+          SP_S_a = max(static_cast<double>(1.0e-40),((SP_S_temp*SP_S_temp)-(Gf2*(((SP_S_temp1+SP_S_eta)-1.0)-(delta_ns*((SP_S_eta+1.0)+SP_S_xi0))))));
           SP_S_b = (1.0-(0.5*(Gf2*(SP_S_temp1-(delta_ns*SP_S_xi2)))));
           SP_S_c = ((2.0*SP_S_temp)+(Gf2*((1.0-SP_S_temp1)-(delta_ns*(1.0+SP_S_xi1)))));
-          {
-            AdmsSensFadType value_log_0 = log((SP_S_a/Gf2));
-            SP_S_tau = ((xn_s-SP_S_eta)+value_log_0);
-          }
+          SP_S_tau = ((xn_s-SP_S_eta)+log((SP_S_a/Gf2)));
           nu = (SP_S_a+SP_S_c);
           mutau = ((nu*nu)+(SP_S_tau*((0.5*(SP_S_c*SP_S_c))-(SP_S_a*SP_S_b))));
           SP_S_x0 = (SP_S_eta+(((SP_S_a*nu)*SP_S_tau)/(mutau+(((((nu/mutau)*SP_S_tau)*SP_S_tau)*SP_S_c)*(((SP_S_c*SP_S_c)*3.3333333333333333e-01)-(SP_S_a*SP_S_b))))));
           if ((SP_S_x0<2.3025850929940458e+02))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(SP_S_x0);
-              SP_S_delta0 = value_exp_0;
-            }
+            SP_S_delta0 = exp(SP_S_x0);
             SP_S_delta1 = (1.0/SP_S_delta0);
             SP_S_delta0 = (delta_ns*SP_S_delta0);
           }
@@ -37247,10 +34742,7 @@ void evaluateModelEquations(
           {
             if ((SP_S_x0>(xn_s-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((SP_S_x0-xn_s));
-                SP_S_delta0 = value_exp_0;
-              }
+              SP_S_delta0 = exp((SP_S_x0-xn_s));
               SP_S_delta1 = (delta_ns/SP_S_delta0);
             }
             else
@@ -37268,10 +34760,7 @@ void evaluateModelEquations(
           SP_S_qC = ((SP_S_temp*SP_S_temp)-(Gf2*((((SP_S_delta1+SP_S_x0)-1.0)+SP_S_delta0)-(delta_ns*((SP_S_x0+1.0)+SP_S_xi0)))));
           SP_S_temp = (2.0-(Gf2*((SP_S_delta1+SP_S_delta0)-(delta_ns*SP_S_xi2))));
           SP_S_temp = ((SP_S_pC*SP_S_pC)-(2.0*(SP_S_qC*SP_S_temp)));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(SP_S_temp);
-            x_s = (SP_S_x0+(2.0*(SP_S_qC/(SP_S_pC+value_sqrt_0))));
-          }
+          x_s = (SP_S_x0+(2.0*(SP_S_qC/(SP_S_pC+sqrt(SP_S_temp)))));
         }
       }
       x_d = x_s;
@@ -37296,10 +34785,7 @@ void evaluateModelEquations(
         xi2s = ((((8.0*temp)-(12.0*xi0s))*temp)*temp);
         if ((x_s<2.3025850929940458e+02))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp(x_s);
-            delta_1s = value_exp_0;
-          }
+          delta_1s = exp(x_s);
           Es = (1.0/delta_1s);
           delta_1s = (delta_ns*delta_1s);
         }
@@ -37307,10 +34793,7 @@ void evaluateModelEquations(
         {
           if ((x_s>(xn_s-2.3025850929940458e+02)))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((x_s-xn_s));
-              delta_1s = value_exp_0;
-            }
+            delta_1s = exp((x_s-xn_s));
             Es = (delta_ns/delta_1s);
           }
           else
@@ -37324,20 +34807,14 @@ void evaluateModelEquations(
         {
           Ps = (0.5*((x_s*x_s)*(1.0-(3.3333333333333333e-01*(x_s*(1.0-(0.25*x_s)))))));
           Ds = (1.6666666666666667e-01*((((delta_ns*x_s)*x_s)*x_s)*(1.0+(1.75*x_s))));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((1.0-(3.3333333333333333e-01*(x_s*(1.0-(0.25*x_s))))));
-            temp = value_sqrt_0;
-          }
+          temp = sqrt((1.0-(3.3333333333333333e-01*(x_s*(1.0-(0.25*x_s))))));
           sqm = (7.0710678118654746e-01*(x_s*temp));
           alpha = (1.0+(((Gf*7.0710678118654746e-01)*((1.0-(0.5*x_s))+(1.6666666666666667e-01*(x_s*x_s))))/temp));
         }
         else
         {
           Ps = ((x_s-1.0)+Es);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(Ps);
-            sqm = value_sqrt_0;
-          }
+          sqm = sqrt(Ps);
           alpha = (1.0+(0.5*((Gf*(1.0-Es))/sqm)));
         }
         Em = Es;
@@ -37347,10 +34824,7 @@ void evaluateModelEquations(
         Rxcor = ((1.0+((0.2*instanceVar_XCOR_i)*Vsbx))/(1.0+(instanceVar_XCOR_i*Vsbx)));
         if ((Ds>1.0e-100))
         {
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((Ps+Ds));
-            xgs = (Gf*value_sqrt_0);
-          }
+          xgs = (Gf*sqrt((Ps+Ds)));
           qis = (((Gf2*Ds)*instanceVar_phit1)/(xgs+(Gf*sqm)));
           qbs = ((sqm*Gf)*instanceVar_phit1);
           if ((instanceVar_RSB_i<0))
@@ -37371,10 +34845,7 @@ void evaluateModelEquations(
           }
           GR = (instanceVar_THER_i*((rhob*temp)*qis));
           Eeffm = (instanceVar_E_eff0*(qbs+(instanceVar_eta_mu*qis)));
-          {
-            AdmsSensFadType value_pow_0 = pow((Eeffm*instanceVar_MUE_i),instanceVar_THEMU_i);
-            Mutmp = (value_pow_0+(instanceVar_CS_i*(Ps/((Ps+Ds)+1.0e-14))));
-          }
+          Mutmp = (pow((Eeffm*instanceVar_MUE_i),instanceVar_THEMU_i)+(instanceVar_CS_i*(Ps/((Ps+Ds)+1.0e-14))));
           Gmob = (((1.0+Mutmp)+GR)*Rxcor);
           if ((instanceVar_THESATB_i<0))
           {
@@ -37399,53 +34870,29 @@ void evaluateModelEquations(
           ysat = ((thesat1*phi_inf)*7.0710678118654746e-01);
           if ((modelVar_CHNL_TYPE==(-1)))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1.0+ysat));
-              ysat = (ysat/value_sqrt_0);
-            }
+            ysat = (ysat/sqrt((1.0+ysat)));
           }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((1.0+(4.0*ysat)));
-            za = (2.0/(1.0+value_sqrt_0));
-          }
+          za = (2.0/(1.0+sqrt((1.0+(4.0*ysat)))));
           temp1 = (za*ysat);
           Phi_0 = ((phi_inf*za)*(1.0+(0.86*((temp1*(1.0-(temp1*za)))/(1.0+(4.0*((temp1*temp1)*za)))))));
           asat = (xgs+(0.5*Gf2));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((asat*asat)-((Gf2*Ds)*0.98)));
-            Phi_2 = (0.98*(((Gf2*Ds)*instanceVar_phit1)/(asat+value_sqrt_0)));
-          }
+          Phi_2 = (0.98*(((Gf2*Ds)*instanceVar_phit1)/(asat+sqrt(((asat*asat)-((Gf2*Ds)*0.98))))));
           Phi_0_2 = (Phi_0+Phi_2);
           Phi0_Phi2 = (2.0*(Phi_0*Phi_2));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((Phi_0_2*Phi_0_2)-(1.98*Phi0_Phi2)));
-            Phi_sat = (Phi0_Phi2/(Phi_0_2+value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_log_0 = log((1.0+(((Phi_sat*(Phi_sat-((2.0*asat)*instanceVar_phit1)))*inv_Gf2)/((instanceVar_phit1*instanceVar_phit1)*Ds))));
-            Vdsat = (Phi_sat-(instanceVar_phit1*value_log_0));
-          }
+          Phi_sat = (Phi0_Phi2/(Phi_0_2+sqrt(((Phi_0_2*Phi_0_2)-(1.98*Phi0_Phi2)))));
+          Vdsat = (Phi_sat-(instanceVar_phit1*log((1.0+(((Phi_sat*(Phi_sat-((2.0*asat)*instanceVar_phit1)))*inv_Gf2)/((instanceVar_phit1*instanceVar_phit1)*Ds))))));
         }
         else
         {
           Vdsat = instanceVar_Vdsat_lim;
         }
-        {
-          AdmsSensFadType value_pow_0 = pow((Vds/Vdsat),instanceVar_AX_i);
-          temp = value_pow_0;
-        }
-        {
-          AdmsSensFadType value_pow_0 = pow((1.0+temp),(-instanceVar_inv_AX));
-          Vdse = (Vds*value_pow_0);
-        }
+        temp = pow((Vds/Vdsat),instanceVar_AX_i);
+        Vdse = (Vds*pow((1.0+temp),(-instanceVar_inv_AX)));
         Udse = (Vdse*instanceVar_inv_phit1);
         xn_d = (xn_s+Udse);
         if ((Udse<4.6051701859880916e+02))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((-Udse));
-            k_ds = value_exp_0;
-          }
+          k_ds = exp((-Udse));
         }
         else
         {
@@ -37460,39 +34907,23 @@ void evaluateModelEquations(
         else
         {
           SP_S_bx = (xn_d+3);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((SP_S_x1-SP_S_bx)*(SP_S_x1-SP_S_bx))+5.0));
-            AdmsSensFadType value_sqrt_1 = sqrt(((SP_S_bx*SP_S_bx)+5.0));
-            SP_S_eta = ((0.5*((SP_S_x1+SP_S_bx)-value_sqrt_0))-(0.5*(SP_S_bx-value_sqrt_1)));
-          }
+          SP_S_eta = ((0.5*((SP_S_x1+SP_S_bx)-sqrt((((SP_S_x1-SP_S_bx)*(SP_S_x1-SP_S_bx))+5.0))))-(0.5*(SP_S_bx-sqrt(((SP_S_bx*SP_S_bx)+5.0)))));
           SP_S_temp = (xg-SP_S_eta);
-          {
-            AdmsSensFadType value_exp_0 = exp((-SP_S_eta));
-            SP_S_temp1 = value_exp_0;
-          }
+          SP_S_temp1 = exp((-SP_S_eta));
           SP_S_temp2 = (1.0/(2.0+(SP_S_eta*SP_S_eta)));
           SP_S_xi0 = ((SP_S_eta*SP_S_eta)*SP_S_temp2);
           SP_S_xi1 = (4.0*((SP_S_eta*SP_S_temp2)*SP_S_temp2));
           SP_S_xi2 = ((((8.0*SP_S_temp2)-(12.0*SP_S_xi0))*SP_S_temp2)*SP_S_temp2);
-          {
-            AdmsSensFadType value_max_0 = std::max(static_cast<double>(1.0e-40),((SP_S_temp*SP_S_temp)-(Gf2*(((SP_S_temp1+SP_S_eta)-1.0)-(delta_nd*((SP_S_eta+1.0)+SP_S_xi0))))));
-            SP_S_a = value_max_0;
-          }
+          SP_S_a = max(static_cast<double>(1.0e-40),((SP_S_temp*SP_S_temp)-(Gf2*(((SP_S_temp1+SP_S_eta)-1.0)-(delta_nd*((SP_S_eta+1.0)+SP_S_xi0))))));
           SP_S_b = (1.0-(0.5*(Gf2*(SP_S_temp1-(delta_nd*SP_S_xi2)))));
           SP_S_c = ((2.0*SP_S_temp)+(Gf2*((1.0-SP_S_temp1)-(delta_nd*(1.0+SP_S_xi1)))));
-          {
-            AdmsSensFadType value_log_0 = log((SP_S_a/Gf2));
-            SP_S_tau = ((xn_d-SP_S_eta)+value_log_0);
-          }
+          SP_S_tau = ((xn_d-SP_S_eta)+log((SP_S_a/Gf2)));
           nu = (SP_S_a+SP_S_c);
           mutau = ((nu*nu)+(SP_S_tau*((0.5*(SP_S_c*SP_S_c))-(SP_S_a*SP_S_b))));
           SP_S_x0 = (SP_S_eta+(((SP_S_a*nu)*SP_S_tau)/(mutau+(((((nu/mutau)*SP_S_tau)*SP_S_tau)*SP_S_c)*(((SP_S_c*SP_S_c)*3.3333333333333333e-01)-(SP_S_a*SP_S_b))))));
           if ((SP_S_x0<2.3025850929940458e+02))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(SP_S_x0);
-              SP_S_delta0 = value_exp_0;
-            }
+            SP_S_delta0 = exp(SP_S_x0);
             SP_S_delta1 = (1.0/SP_S_delta0);
             SP_S_delta0 = (delta_nd*SP_S_delta0);
           }
@@ -37500,10 +34931,7 @@ void evaluateModelEquations(
           {
             if ((SP_S_x0>(xn_d-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((SP_S_x0-xn_d));
-                SP_S_delta0 = value_exp_0;
-              }
+              SP_S_delta0 = exp((SP_S_x0-xn_d));
               SP_S_delta1 = (delta_nd/SP_S_delta0);
             }
             else
@@ -37521,10 +34949,7 @@ void evaluateModelEquations(
           SP_S_qC = ((SP_S_temp*SP_S_temp)-(Gf2*((((SP_S_delta1+SP_S_x0)-1.0)+SP_S_delta0)-(delta_nd*((SP_S_x0+1.0)+SP_S_xi0)))));
           SP_S_temp = (2.0-(Gf2*((SP_S_delta1+SP_S_delta0)-(delta_nd*SP_S_xi2))));
           SP_S_temp = ((SP_S_pC*SP_S_pC)-(2.0*(SP_S_qC*SP_S_temp)));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(SP_S_temp);
-            x_d = (SP_S_x0+(2.0*(SP_S_qC/(SP_S_pC+value_sqrt_0))));
-          }
+          x_d = (SP_S_x0+(2.0*(SP_S_qC/(SP_S_pC+sqrt(SP_S_temp)))));
         }
         x_ds = (x_d-x_s);
         if ((x_ds<1.0E-10))
@@ -37533,20 +34958,14 @@ void evaluateModelEquations(
           qC = ((Gf2*(1.0-k_ds))*Ds);
           temp = (2.0-(Gf2*((Es+(delta_1s*k_ds))-(delta_nd*xi2s))));
           temp = ((pC*pC)-(2.0*(temp*qC)));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(temp);
-            x_ds = (2.0*(qC/(pC+value_sqrt_0)));
-          }
+          x_ds = (2.0*(qC/(pC+sqrt(temp))));
           x_d = (x_s+x_ds);
         }
         dps = (x_ds*instanceVar_phit1);
         xi0d = ((x_d*x_d)/(2.0+(x_d*x_d)));
         if ((x_d<2.3025850929940458e+02))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((-x_d));
-            Ed = value_exp_0;
-          }
+          Ed = exp((-x_d));
           if ((x_d<1.0e-5))
           {
             Dd = (((((1.6666666666666667e-01*delta_nd)*x_d)*x_d)*x_d)*(1.0+(1.75*x_d)));
@@ -37560,10 +34979,7 @@ void evaluateModelEquations(
         {
           if ((x_d>(xn_d-2.3025850929940458e+02)))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((x_d-xn_d));
-              temp = value_exp_0;
-            }
+            temp = exp((x_d-xn_d));
             Ed = (delta_nd/temp);
             Dd = (temp-(delta_nd*((x_d+1.0)+xi0d)));
           }
@@ -37579,48 +34995,30 @@ void evaluateModelEquations(
         temp = (Ed*Es);
         if ((temp>0.0))
         {
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(temp);
-            Em = value_sqrt_0;
-          }
+          Em = sqrt(temp);
         }
         D_bar = (0.5*(Ds+Dd));
         Dm = (D_bar+(0.125*((x_ds*x_ds)*(Em-(2.0*inv_Gf2)))));
         if ((x_m<1.0e-5))
         {
           Pm = (0.5*((x_m*x_m)*(1.0-(3.3333333333333333e-01*(x_m*(1.0-(0.25*x_m)))))));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((Dm+Pm));
-            xgm = (Gf*value_sqrt_0);
-          }
+          xgm = (Gf*sqrt((Dm+Pm)));
           if ((instanceVar_kp>0.0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1.0+(instanceVar_kp*xgm)));
-              eta_p = (1.0/value_sqrt_0);
-            }
+            eta_p = (1.0/sqrt((1.0+(instanceVar_kp*xgm))));
           }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((1.0-(3.3333333333333333e-01*(x_m*(1.0-(0.25*x_m))))));
-            temp = value_sqrt_0;
-          }
+          temp = sqrt((1.0-(3.3333333333333333e-01*(x_m*(1.0-(0.25*x_m))))));
           sqm = (7.0710678118654746e-01*(x_m*temp));
           alpha = (eta_p+(7.0710678118654746e-01*((Gf*((1.0-(0.5*x_m))+(1.6666666666666667e-01*(x_m*x_m))))/temp)));
         }
         else
         {
           Pm = ((x_m-1.0)+Em);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((Dm+Pm));
-            xgm = (Gf*value_sqrt_0);
-          }
+          xgm = (Gf*sqrt((Dm+Pm)));
           if ((instanceVar_kp>0.0))
           {
             d0 = ((1.0-Em)+(2.0*(xgm*inv_Gf2)));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((1.0+(instanceVar_kp*xgm)));
-              eta_p = (1.0/value_sqrt_0);
-            }
+            eta_p = (1.0/sqrt((1.0+(instanceVar_kp*xgm))));
             temp = (eta_p/(eta_p+1.0));
             x_pm = (instanceVar_kp*(((temp*temp)*Gf2)*Dm));
             p_pd = ((2.0*(xgm-x_pm))+(Gf2*((1.0-Em)+Dm)));
@@ -37628,25 +35026,16 @@ void evaluateModelEquations(
             xi_pd = (1.0-(0.5*(Gf2*(Em+Dm))));
             u_pd = ((q_pd*p_pd)/((p_pd*p_pd)-(xi_pd*q_pd)));
             x_m = (x_m+u_pd);
-            {
-              AdmsSensFadType value_exp_0 = exp(u_pd);
-              km = value_exp_0;
-            }
+            km = exp(u_pd);
             Em = (Em/km);
             Dm = (Dm*km);
             Pm = ((x_m-1.0)+Em);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((Dm+Pm));
-              xgm = (Gf*value_sqrt_0);
-            }
+            xgm = (Gf*sqrt((Dm+Pm)));
             help = ((1.0-Em)+(2.0*((xgm*eta_p)*inv_Gf2)));
             x_ds = (((x_ds*km)*(d0+D_bar))/(help+(km*D_bar)));
             dps = (x_ds*instanceVar_phit1);
           }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(Pm);
-            sqm = value_sqrt_0;
-          }
+          sqm = sqrt(Pm);
           alpha = (eta_p+(0.5*((Gf*(1.0-Em))/sqm)));
         }
         qim = (instanceVar_phit1*((Gf2*Dm)/(xgm+(Gf*sqm))));
@@ -37664,21 +35053,12 @@ void evaluateModelEquations(
         GR = (instanceVar_THER_i*((rhob*temp)*qim));
         qeff = (qbm+(instanceVar_eta_mu*qim));
         Eeffm = (instanceVar_E_eff0*qeff);
-        {
-          AdmsSensFadType value_pow_0 = pow((Eeffm*instanceVar_MUE_i),instanceVar_THEMU_i);
-          Mutmp = (value_pow_0+(instanceVar_CS_i*(Pm/((Pm+Dm)+1.0e-14))));
-        }
+        Mutmp = (pow((Eeffm*instanceVar_MUE_i),instanceVar_THEMU_i)+(instanceVar_CS_i*(Pm/((Pm+Dm)+1.0e-14))));
         Gmob = (((1.0+Mutmp)+GR)*Rxcor);
         r1 = (qim*qim1_1);
         r2 = (instanceVar_phit1*(alpha*qim1_1));
-        {
-          AdmsSensFadType value_log_0 = log(((1.0+((Vds-dps)*instanceVar_inv_VP))/(1.0+((Vdse-dps)*instanceVar_inv_VP))));
-          temp = value_log_0;
-        }
-        {
-          AdmsSensFadType value_log_0 = log((1.0+(Vdsx*instanceVar_inv_VP)));
-          temp1 = value_log_0;
-        }
+        temp = log(((1.0+((Vds-dps)*instanceVar_inv_VP))/(1.0+((Vdse-dps)*instanceVar_inv_VP))));
+        temp1 = log((1.0+(Vdsx*instanceVar_inv_VP)));
         dL = (instanceVar_ALP_i*temp);
         GdL = (1.0/((1.0+dL)+(dL*dL)));
         dL1 = ((dL+(instanceVar_ALP1_i*((qim1_1*r1)*temp)))+(instanceVar_ALP2_i*(((qbm*r2)*r2)*temp1)));
@@ -37700,10 +35080,7 @@ void evaluateModelEquations(
         {
           zsat = (zsat/(1.0+(thesat1*dps)));
         }
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt((1.0+(2.0*zsat)));
-          Gvsat = (0.5*(Gmob_dL*(1.0+value_sqrt_0)));
-        }
+        Gvsat = (0.5*(Gmob_dL*(1.0+sqrt((1.0+(2.0*zsat))))));
         Gvsatinv = (1.0/Gvsat);
         Ids = (instanceVar_BET_i*(((FdL*qim1)*dps)*Gvsatinv));
         Voxm = (xgm*instanceVar_phit1);
@@ -37715,16 +35092,10 @@ void evaluateModelEquations(
           delVsat = (Vds-(instanceVar_A3_i*dps));
           if ((delVsat>0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((instanceVar_phib+Vsbstar));
-              temp2 = (instanceVar_A2_i*((1.0+(instanceVar_A4_i*(value_sqrt_0-instanceVar_sqrt_phib)))/(delVsat+1e-30)));
-            }
+            temp2 = (instanceVar_A2_i*((1.0+(instanceVar_A4_i*(sqrt((instanceVar_phib+Vsbstar))-instanceVar_sqrt_phib)))/(delVsat+1e-30)));
             if ((fabs((-temp2))<2.3025850929940458e+02))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((-temp2));
-                temp = value_exp_0;
-              }
+              temp = exp((-temp2));
             }
             else
             {
@@ -37760,32 +35131,20 @@ void evaluateModelEquations(
           {
             SP_OV_yg = (-xgs_ov);
             SP_OV_z = ((instanceVar_x1*SP_OV_yg)*inv_xi_ov);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((((SP_OV_z-6.0)*(SP_OV_z-6.0))+64.0));
-              SP_OV_eta = (0.5*((SP_OV_z+10.0)-value_sqrt_0));
-            }
+            SP_OV_eta = (0.5*((SP_OV_z+10.0)-sqrt((((SP_OV_z-6.0)*(SP_OV_z-6.0))+64.0))));
             SP_OV_a = (((SP_OV_yg-SP_OV_eta)*(SP_OV_yg-SP_OV_eta))+(GOV2*(SP_OV_eta+1.0)));
             SP_OV_c = ((2.0*(SP_OV_yg-SP_OV_eta))-GOV2);
-            {
-              AdmsSensFadType value_log_0 = log((SP_OV_a/GOV2));
-              SP_OV_tau = (value_log_0-SP_OV_eta);
-            }
+            SP_OV_tau = (log((SP_OV_a/GOV2))-SP_OV_eta);
             nu = (SP_OV_a+SP_OV_c);
             mutau = ((nu*nu)+(SP_OV_tau*((0.5*(SP_OV_c*SP_OV_c))-SP_OV_a)));
             SP_OV_y0 = (SP_OV_eta+(((SP_OV_a*nu)*SP_OV_tau)/(mutau+(((((nu/mutau)*SP_OV_tau)*SP_OV_tau)*SP_OV_c)*(((SP_OV_c*SP_OV_c)*3.3333333333333333e-01)-SP_OV_a)))));
-            {
-              AdmsSensFadType value_exp_0 = exp(SP_OV_y0);
-              SP_OV_D0 = value_exp_0;
-            }
+            SP_OV_D0 = exp(SP_OV_y0);
             SP_OV_temp = (SP_OV_yg-SP_OV_y0);
             SP_OV_p = ((2.0*SP_OV_temp)+(GOV2*(SP_OV_D0-1.0)));
             SP_OV_q = ((SP_OV_temp*SP_OV_temp)+(GOV2*((SP_OV_y0+1.0)-SP_OV_D0)));
             SP_OV_xi = (1.0-((GOV2*0.5)*SP_OV_D0));
             SP_OV_temp = ((SP_OV_p*SP_OV_p)-(4.0*(SP_OV_xi*SP_OV_q)));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(SP_OV_temp);
-              SP_OV_w = (2.0*(SP_OV_q/(SP_OV_p+value_sqrt_0)));
-            }
+            SP_OV_w = (2.0*(SP_OV_q/(SP_OV_p+sqrt(SP_OV_temp))));
             xs_ov = (-(SP_OV_y0+SP_OV_w));
           }
           else
@@ -37794,26 +35153,17 @@ void evaluateModelEquations(
             SP_OV_xbar = ((xgs_ov*inv_xi_ov)*(1.0+(SP_OV_Afac*xgs_ov)));
             if (((-SP_OV_xbar)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((-SP_OV_xbar));
-                SP_OV_temp = value_exp_0;
-              }
+              SP_OV_temp = exp((-SP_OV_xbar));
             }
             else
             {
               SP_OV_temp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(-SP_OV_xbar))*(1.0+(0.5*(((-2.3025850929940458e+02)-(-SP_OV_xbar))*(1.0+(((-2.3025850929940458e+02)-(-SP_OV_xbar))*3.3333333333333333e-01))))))));
             }
             SP_OV_w = (1.0-SP_OV_temp);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((xgs_ov+(GOV2*0.25))-SP_OV_w));
-              SP_OV_x0 = ((xgs_ov+(GOV2*0.5))-(GOV*value_sqrt_0));
-            }
+            SP_OV_x0 = ((xgs_ov+(GOV2*0.5))-(GOV*sqrt(((xgs_ov+(GOV2*0.25))-SP_OV_w))));
             if (((-SP_OV_x0)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((-SP_OV_x0));
-                SP_OV_D0 = value_exp_0;
-              }
+              SP_OV_D0 = exp((-SP_OV_x0));
             }
             else
             {
@@ -37823,10 +35173,7 @@ void evaluateModelEquations(
             SP_OV_q = (((xgs_ov-SP_OV_x0)*(xgs_ov-SP_OV_x0))-(GOV2*((SP_OV_x0-1.0)+SP_OV_D0)));
             SP_OV_xi = (1.0-((GOV2*0.5)*SP_OV_D0));
             SP_OV_temp = ((SP_OV_p*SP_OV_p)-(4.0*(SP_OV_xi*SP_OV_q)));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(SP_OV_temp);
-              SP_OV_u = (2.0*(SP_OV_q/(SP_OV_p+value_sqrt_0)));
-            }
+            SP_OV_u = (2.0*(SP_OV_q/(SP_OV_p+sqrt(SP_OV_temp))));
             xs_ov = (SP_OV_x0+SP_OV_u);
           }
           xs_ov = (-xs_ov);
@@ -37847,32 +35194,20 @@ void evaluateModelEquations(
           {
             SP_OV_yg = (-xgd_ov);
             SP_OV_z = ((instanceVar_x1*SP_OV_yg)*inv_xi_ov);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((((SP_OV_z-6.0)*(SP_OV_z-6.0))+64.0));
-              SP_OV_eta = (0.5*((SP_OV_z+10.0)-value_sqrt_0));
-            }
+            SP_OV_eta = (0.5*((SP_OV_z+10.0)-sqrt((((SP_OV_z-6.0)*(SP_OV_z-6.0))+64.0))));
             SP_OV_a = (((SP_OV_yg-SP_OV_eta)*(SP_OV_yg-SP_OV_eta))+(GOV2*(SP_OV_eta+1.0)));
             SP_OV_c = ((2.0*(SP_OV_yg-SP_OV_eta))-GOV2);
-            {
-              AdmsSensFadType value_log_0 = log((SP_OV_a/GOV2));
-              SP_OV_tau = (value_log_0-SP_OV_eta);
-            }
+            SP_OV_tau = (log((SP_OV_a/GOV2))-SP_OV_eta);
             nu = (SP_OV_a+SP_OV_c);
             mutau = ((nu*nu)+(SP_OV_tau*((0.5*(SP_OV_c*SP_OV_c))-SP_OV_a)));
             SP_OV_y0 = (SP_OV_eta+(((SP_OV_a*nu)*SP_OV_tau)/(mutau+(((((nu/mutau)*SP_OV_tau)*SP_OV_tau)*SP_OV_c)*(((SP_OV_c*SP_OV_c)*3.3333333333333333e-01)-SP_OV_a)))));
-            {
-              AdmsSensFadType value_exp_0 = exp(SP_OV_y0);
-              SP_OV_D0 = value_exp_0;
-            }
+            SP_OV_D0 = exp(SP_OV_y0);
             SP_OV_temp = (SP_OV_yg-SP_OV_y0);
             SP_OV_p = ((2.0*SP_OV_temp)+(GOV2*(SP_OV_D0-1.0)));
             SP_OV_q = ((SP_OV_temp*SP_OV_temp)+(GOV2*((SP_OV_y0+1.0)-SP_OV_D0)));
             SP_OV_xi = (1.0-((GOV2*0.5)*SP_OV_D0));
             SP_OV_temp = ((SP_OV_p*SP_OV_p)-(4.0*(SP_OV_xi*SP_OV_q)));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(SP_OV_temp);
-              SP_OV_w = (2.0*(SP_OV_q/(SP_OV_p+value_sqrt_0)));
-            }
+            SP_OV_w = (2.0*(SP_OV_q/(SP_OV_p+sqrt(SP_OV_temp))));
             xd_ov = (-(SP_OV_y0+SP_OV_w));
           }
           else
@@ -37881,26 +35216,17 @@ void evaluateModelEquations(
             SP_OV_xbar = ((xgd_ov*inv_xi_ov)*(1.0+(SP_OV_Afac*xgd_ov)));
             if (((-SP_OV_xbar)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((-SP_OV_xbar));
-                SP_OV_temp = value_exp_0;
-              }
+              SP_OV_temp = exp((-SP_OV_xbar));
             }
             else
             {
               SP_OV_temp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(-SP_OV_xbar))*(1.0+(0.5*(((-2.3025850929940458e+02)-(-SP_OV_xbar))*(1.0+(((-2.3025850929940458e+02)-(-SP_OV_xbar))*3.3333333333333333e-01))))))));
             }
             SP_OV_w = (1.0-SP_OV_temp);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((xgd_ov+(GOV2*0.25))-SP_OV_w));
-              SP_OV_x0 = ((xgd_ov+(GOV2*0.5))-(GOV*value_sqrt_0));
-            }
+            SP_OV_x0 = ((xgd_ov+(GOV2*0.5))-(GOV*sqrt(((xgd_ov+(GOV2*0.25))-SP_OV_w))));
             if (((-SP_OV_x0)>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp((-SP_OV_x0));
-                SP_OV_D0 = value_exp_0;
-              }
+              SP_OV_D0 = exp((-SP_OV_x0));
             }
             else
             {
@@ -37910,10 +35236,7 @@ void evaluateModelEquations(
             SP_OV_q = (((xgd_ov-SP_OV_x0)*(xgd_ov-SP_OV_x0))-(GOV2*((SP_OV_x0-1.0)+SP_OV_D0)));
             SP_OV_xi = (1.0-((GOV2*0.5)*SP_OV_D0));
             SP_OV_temp = ((SP_OV_p*SP_OV_p)-(4.0*(SP_OV_xi*SP_OV_q)));
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(SP_OV_temp);
-              SP_OV_u = (2.0*(SP_OV_q/(SP_OV_p+value_sqrt_0)));
-            }
+            SP_OV_u = (2.0*(SP_OV_q/(SP_OV_p+sqrt(SP_OV_temp))));
             xd_ov = (SP_OV_x0+SP_OV_u);
           }
           xd_ov = (-xd_ov);
@@ -37932,28 +35255,16 @@ void evaluateModelEquations(
         if ((instanceVar_IGOV_i>0))
         {
           arg2mina = (Vovs+instanceVar_Dov);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((-arg2mina)*(-arg2mina))+0.01));
-            psi_t = (0.5*((+arg2mina)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((Vovs*Vovs)+1.0e-6));
-            zg = (value_sqrt_0*instanceVar_inv_CHIB);
-          }
+          psi_t = (0.5*((+arg2mina)-sqrt((((-arg2mina)*(-arg2mina))+0.01))));
+          zg = (sqrt(((Vovs*Vovs)+1.0e-6))*instanceVar_inv_CHIB);
           if ((instanceVar_GC3_i<0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((((zg-instanceVar_GCQ)*(zg-instanceVar_GCQ))+1.0e-6));
-              zg = (0.5*((zg+instanceVar_GCQ)-value_sqrt_0));
-            }
+            zg = (0.5*((zg+instanceVar_GCQ)-sqrt((((zg-instanceVar_GCQ)*(zg-instanceVar_GCQ))+1.0e-6))));
           }
           arg1 = ((3.0+xs_ov)+(psi_t*modelVar_inv_phit));
           if ((fabs(arg1)<2.3025850929940458e+02))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(arg1);
-              Dsi = value_exp_0;
-            }
+            Dsi = exp(arg1);
           }
           else
           {
@@ -37969,10 +35280,7 @@ void evaluateModelEquations(
           arg1 = ((-VgsPrime)*modelVar_inv_phit);
           if ((fabs(arg1)<2.3025850929940458e+02))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(arg1);
-              temp = value_exp_0;
-            }
+            temp = exp(arg1);
           }
           else
           {
@@ -37995,46 +35303,28 @@ void evaluateModelEquations(
           {
             if ((temp>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(temp);
-                TP = value_exp_0;
-              }
+              TP = exp(temp);
             }
             else
             {
               TP = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-temp)*(1.0+(0.5*(((-2.3025850929940458e+02)-temp)*(1.0+(((-2.3025850929940458e+02)-temp)*3.3333333333333333e-01))))))));
             }
           }
-          {
-            AdmsSensFadType value_log_0 = log(((1.0+Dsi)/(1.0+Dgate)));
-            Igsov = (instanceVar_IGOV_i*(TP*value_log_0));
-          }
+          Igsov = (instanceVar_IGOV_i*(TP*log(((1.0+Dsi)/(1.0+Dgate)))));
         }
         if ((instanceVar_IGOVD_i>0))
         {
           arg2mina = (Vovd+instanceVar_Dov);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((-arg2mina)*(-arg2mina))+0.01));
-            psi_t = (0.5*((+arg2mina)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((Vovd*Vovd)+1.0e-6));
-            zg = (value_sqrt_0*instanceVar_inv_CHIB);
-          }
+          psi_t = (0.5*((+arg2mina)-sqrt((((-arg2mina)*(-arg2mina))+0.01))));
+          zg = (sqrt(((Vovd*Vovd)+1.0e-6))*instanceVar_inv_CHIB);
           if ((instanceVar_GC3_i<0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((((zg-instanceVar_GCQ)*(zg-instanceVar_GCQ))+1.0e-6));
-              zg = (0.5*((zg+instanceVar_GCQ)-value_sqrt_0));
-            }
+            zg = (0.5*((zg+instanceVar_GCQ)-sqrt((((zg-instanceVar_GCQ)*(zg-instanceVar_GCQ))+1.0e-6))));
           }
           arg1 = ((3.0+xd_ov)+(psi_t*modelVar_inv_phit));
           if ((fabs(arg1)<2.3025850929940458e+02))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(arg1);
-              Dsi = value_exp_0;
-            }
+            Dsi = exp(arg1);
           }
           else
           {
@@ -38050,10 +35340,7 @@ void evaluateModelEquations(
           arg1 = ((-VgdPrime)*modelVar_inv_phit);
           if ((fabs(arg1)<2.3025850929940458e+02))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(arg1);
-              temp = value_exp_0;
-            }
+            temp = exp(arg1);
           }
           else
           {
@@ -38076,72 +35363,42 @@ void evaluateModelEquations(
           {
             if ((temp>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(temp);
-                TP = value_exp_0;
-              }
+              TP = exp(temp);
             }
             else
             {
               TP = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-temp)*(1.0+(0.5*(((-2.3025850929940458e+02)-temp)*(1.0+(((-2.3025850929940458e+02)-temp)*3.3333333333333333e-01))))))));
             }
           }
-          {
-            AdmsSensFadType value_log_0 = log(((1.0+Dsi)/(1.0+Dgate)));
-            Igdov = (instanceVar_IGOVD_i*(TP*value_log_0));
-          }
+          Igdov = (instanceVar_IGOVD_i*(TP*log(((1.0+Dsi)/(1.0+Dgate)))));
         }
         if ((instanceVar_IGINV_i>0))
         {
           if ((xg<=0.0))
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((Vds/instanceVar_Vdsat_lim),instanceVar_AX_i);
-              temp = value_pow_0;
-            }
-            {
-              AdmsSensFadType value_pow_0 = pow((1.0+temp),(-instanceVar_inv_AX));
-              Udse = ((Vds*value_pow_0)*instanceVar_inv_phit1);
-            }
+            temp = pow((Vds/instanceVar_Vdsat_lim),instanceVar_AX_i);
+            Udse = ((Vds*pow((1.0+temp),(-instanceVar_inv_AX)))*instanceVar_inv_phit1);
           }
           if (((x_ds-Udse)>(-2.3025850929940458e+02)))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((x_ds-Udse));
-              temp = value_exp_0;
-            }
+            temp = exp((x_ds-Udse));
           }
           else
           {
             temp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(x_ds-Udse))*(1.0+(0.5*(((-2.3025850929940458e+02)-(x_ds-Udse))*(1.0+(((-2.3025850929940458e+02)-(x_ds-Udse))*3.3333333333333333e-01))))))));
           }
-          {
-            AdmsSensFadType value_log_0 = log((0.5*(1.0+temp)));
-            Vm = (Vsbstar+(instanceVar_phit1*((0.5*x_ds)-value_log_0)));
-          }
+          Vm = (Vsbstar+(instanceVar_phit1*((0.5*x_ds)-log((0.5*(1.0+temp))))));
           arg2mina = (Voxm+instanceVar_Dch);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((-arg2mina)*(-arg2mina))+0.01));
-            psi_t = (0.5*((+arg2mina)-value_sqrt_0));
-          }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((Voxm*Voxm)+1.0e-6));
-            zg = (value_sqrt_0*instanceVar_inv_CHIB);
-          }
+          psi_t = (0.5*((+arg2mina)-sqrt((((-arg2mina)*(-arg2mina))+0.01))));
+          zg = (sqrt(((Voxm*Voxm)+1.0e-6))*instanceVar_inv_CHIB);
           if ((instanceVar_GC3_i<0))
           {
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((((zg-instanceVar_GCQ)*(zg-instanceVar_GCQ))+1.0e-06));
-              zg = (0.5*((zg+instanceVar_GCQ)-value_sqrt_0));
-            }
+            zg = (0.5*((zg+instanceVar_GCQ)-sqrt((((zg-instanceVar_GCQ)*(zg-instanceVar_GCQ))+1.0e-06))));
           }
           arg1 = (x_m+(((psi_t-instanceVar_alpha_b)-Vm)*instanceVar_inv_phit1));
           if ((fabs(arg1)<2.3025850929940458e+02))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(arg1);
-              Dsi = value_exp_0;
-            }
+            Dsi = exp(arg1);
           }
           else
           {
@@ -38157,10 +35414,7 @@ void evaluateModelEquations(
           arg1 = ((-((Vgs+Vsbstar)-Vm))*instanceVar_inv_phit1);
           if ((fabs(arg1)<2.3025850929940458e+02))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(arg1);
-              temp = value_exp_0;
-            }
+            temp = exp(arg1);
           }
           else
           {
@@ -38183,20 +35437,14 @@ void evaluateModelEquations(
           {
             if ((temp>(-2.3025850929940458e+02)))
             {
-              {
-                AdmsSensFadType value_exp_0 = exp(temp);
-                TP = value_exp_0;
-              }
+              TP = exp(temp);
             }
             else
             {
               TP = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-temp)*(1.0+(0.5*(((-2.3025850929940458e+02)-temp)*(1.0+(((-2.3025850929940458e+02)-temp)*3.3333333333333333e-01))))))));
             }
           }
-          {
-            AdmsSensFadType value_log_0 = log(((1.0+Dsi)/(1.0+Dgate)));
-            Igc0 = (instanceVar_IGINV_i*(TP*value_log_0));
-          }
+          Igc0 = (instanceVar_IGINV_i*(TP*log(((1.0+Dsi)/(1.0+Dgate)))));
           if (((xg<=0)||((instanceVar_GC2_i==0)&&(instanceVar_GC3_i==0))))
           {
             igc = 1.0;
@@ -38221,10 +35469,7 @@ void evaluateModelEquations(
               inv_x = (1.0/x);
               if ((fabs(x)<2.3025850929940458e+02))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(x);
-                  ex = value_exp_0;
-                }
+                ex = exp(x);
               }
               else
               {
@@ -38244,10 +35489,7 @@ void evaluateModelEquations(
               igcd_h = (0.5*((igc-(temp*(Bg-((Ag*inv_x)*inv_x))))-((Ag*temp2)*inv_x)));
             }
           }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((xg*xg)+1.0e-6));
-            Sg = (0.5*(1.0+(xg/value_sqrt_0)));
-          }
+          Sg = (0.5*(1.0+(xg/sqrt(((xg*xg)+1.0e-6)))));
           Igc = ((Igc0*igc)*Sg);
           Igcd = ((Igc0*igcd_h)*Sg);
           Igcs = (Igc-Igcd);
@@ -38260,17 +35502,11 @@ void evaluateModelEquations(
       {
         if (((instanceVar_AGIDLD_i>0)&&(Vovd<0)))
         {
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((Vovd*Vovd)+((instanceVar_CGIDLD_i*instanceVar_CGIDLD_i)*(VdbPrime*VdbPrime)))+1.0e-6));
-            Vtovd = value_sqrt_0;
-          }
+          Vtovd = sqrt((((Vovd*Vovd)+((instanceVar_CGIDLD_i*instanceVar_CGIDLD_i)*(VdbPrime*VdbPrime)))+1.0e-6));
           temp = ((-instanceVar_BGIDLDs)/Vtovd);
           if ((temp>(-2.3025850929940458e+02)))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(temp);
-              temp2 = value_exp_0;
-            }
+            temp2 = exp(temp);
           }
           else
           {
@@ -38280,17 +35516,11 @@ void evaluateModelEquations(
         }
         if (((instanceVar_AGIDL_i>0)&&(Vovs<0)))
         {
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((Vovs*Vovs)+((instanceVar_CGIDL_i*instanceVar_CGIDL_i)*(VsbPrime*VsbPrime)))+1.0e-6));
-            Vtovs = value_sqrt_0;
-          }
+          Vtovs = sqrt((((Vovs*Vovs)+((instanceVar_CGIDL_i*instanceVar_CGIDL_i)*(VsbPrime*VsbPrime)))+1.0e-6));
           temp = ((-instanceVar_BGIDLs)/Vtovs);
           if ((temp>(-2.3025850929940458e+02)))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp(temp);
-              temp2 = value_exp_0;
-            }
+            temp2 = exp(temp);
           }
           else
           {
@@ -38302,10 +35532,7 @@ void evaluateModelEquations(
       P_D = (1+(0.25*(Gf*instanceVar_kp)));
       facvsb0 = (instanceVar_phib+(2*instanceVar_phit1));
       facvsb = (Vsbstar+facvsb0);
-      {
-        AdmsSensFadType value_sqrt_0 = sqrt((instanceVar_phit1*facvsb));
-        vts_i = (((instanceVar_VFB_i+(P_D*facvsb))-Vsbstar)+(Gf*value_sqrt_0));
-      }
+      vts_i = (((instanceVar_VFB_i+(P_D*facvsb))-Vsbstar)+(Gf*sqrt((instanceVar_phit1*facvsb))));
       vth_i = (vts_i-delVg);
     }
     // End block evaluateStatic
@@ -38315,10 +35542,7 @@ void evaluateModelEquations(
       COX_qm = instanceVar_COX_i;
       if ((instanceVar_qq>0.0))
       {
-        {
-          AdmsSensFadType value_pow_0 = pow(((qeff*qeff)+instanceVar_qlim2),((-1.0)*1.6666666666666667e-01));
-          COX_qm = (instanceVar_COX_i/(1.0+(instanceVar_qq*value_pow_0)));
-        }
+        COX_qm = (instanceVar_COX_i/(1.0+(instanceVar_qq*pow(((qeff*qeff)+instanceVar_qlim2),((-1.0)*1.6666666666666667e-01)))));
       }
       if ((xg<=0.0))
       {
@@ -38371,16 +35595,10 @@ void evaluateModelEquations(
         if ((modelVar_SWJUNEXP_i==1.0))
         {
           tm0 = ((Vjun_s*modelVar_phitdinv)*instanceVar_MFOR1_s);
-          {
-            AdmsSensFadType value_exp_0 = exp(tm0);
-            tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf1_s),(instanceVar_expxhf1_s*((tm0-instanceVar_xhighf1_s)+1)),value_exp_0));
-          }
+          tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf1_s),(instanceVar_expxhf1_s*((tm0-instanceVar_xhighf1_s)+1)),exp(tm0)));
           ijunfor1 = (instanceVar_ISATFOR1_s*(tm1-1.0));
           tm0 = ((Vjun_s*modelVar_phitdinv)*instanceVar_MFOR2_s);
-          {
-            AdmsSensFadType value_exp_0 = exp(tm0);
-            tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf2_s),(instanceVar_expxhf2_s*((tm0-instanceVar_xhighf2_s)+1)),value_exp_0));
-          }
+          tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf2_s),(instanceVar_expxhf2_s*((tm0-instanceVar_xhighf2_s)+1)),exp(tm0)));
           ijunfor2 = (instanceVar_ISATFOR2_s*(tm1-1.0));
           ijunrev = 0.0;
           if ((instanceVar_m0flag_s>0))
@@ -38390,24 +35608,15 @@ void evaluateModelEquations(
           else
           {
             tm0 = (((-Vjun_s)*modelVar_phitdinv)*instanceVar_MREV_s);
-            {
-              AdmsSensFadType value_exp_0 = exp(tm0);
-              tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighr_s),(instanceVar_expxhr_s*((tm0-instanceVar_xhighr_s)+1)),value_exp_0));
-            }
+            tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighr_s),(instanceVar_expxhr_s*((tm0-instanceVar_xhighr_s)+1)),exp(tm0)));
             ijunrev = ((-instanceVar_ISATREV_s)*(tm1-1.0));
           }
           ijun_s = ((ijunfor1+ijunfor2)+ijunrev);
           tm0 = ((Vjun_d*modelVar_phitdinv)*instanceVar_MFOR1_d);
-          {
-            AdmsSensFadType value_exp_0 = exp(tm0);
-            tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf1_d),(instanceVar_expxhf1_d*((tm0-instanceVar_xhighf1_d)+1)),value_exp_0));
-          }
+          tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf1_d),(instanceVar_expxhf1_d*((tm0-instanceVar_xhighf1_d)+1)),exp(tm0)));
           ijunfor1 = (instanceVar_ISATFOR1_d*(tm1-1.0));
           tm0 = ((Vjun_d*modelVar_phitdinv)*instanceVar_MFOR2_d);
-          {
-            AdmsSensFadType value_exp_0 = exp(tm0);
-            tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf2_d),(instanceVar_expxhf2_d*((tm0-instanceVar_xhighf2_d)+1)),value_exp_0));
-          }
+          tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf2_d),(instanceVar_expxhf2_d*((tm0-instanceVar_xhighf2_d)+1)),exp(tm0)));
           ijunfor2 = (instanceVar_ISATFOR2_d*(tm1-1.0));
           ijunrev = 0.0;
           if ((instanceVar_m0flag_d>0))
@@ -38417,10 +35626,7 @@ void evaluateModelEquations(
           else
           {
             tm0 = (((-Vjun_d)*modelVar_phitdinv)*instanceVar_MREV_d);
-            {
-              AdmsSensFadType value_exp_0 = exp(tm0);
-              tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighr_d),(instanceVar_expxhr_d*((tm0-instanceVar_xhighr_d)+1)),value_exp_0));
-            }
+            tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighr_d),(instanceVar_expxhr_d*((tm0-instanceVar_xhighr_d)+1)),exp(tm0)));
             ijunrev = ((-instanceVar_ISATREV_d)*(tm1-1.0));
           }
           ijun_d = ((ijunfor1+ijunfor2)+ijunrev);
@@ -38437,26 +35643,17 @@ void evaluateModelEquations(
             h2d = (Vjun_s+(instanceVar_vch_s*h2));
             h3 = (instanceVar_vfmin_s+h2d);
             h4 = (instanceVar_vfmin_s-h2d);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-              h5 = value_sqrt_0;
-            }
+            h5 = sqrt(((h4*h4)+h1));
             vjv = (2.0*((Vjun_s*instanceVar_vfmin_s)/(h3+h5)));
             if ((instanceVar_zflagbot_s>0.5))
             {
               if ((modelVar_one_minus_PBOT==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((1-(vjv*modelVar_vbiinvbot)));
-                  tmpv = value_sqrt_0;
-                }
+                tmpv = sqrt((1-(vjv*modelVar_vbiinvbot)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1-(vjv*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-                  tmpv = value_pow_0;
-                }
+                tmpv = pow((1-(vjv*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
               }
               qjunbot_s = ((modelVar_qprefbot*(1-tmpv))+(modelVar_qpref2bot*(Vjun_s-vjv)));
             }
@@ -38464,17 +35661,11 @@ void evaluateModelEquations(
             {
               if ((modelVar_one_minus_PSTI==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((1-(vjv*modelVar_vbiinvsti)));
-                  tmpv = value_sqrt_0;
-                }
+                tmpv = sqrt((1-(vjv*modelVar_vbiinvsti)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1-(vjv*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-                  tmpv = value_pow_0;
-                }
+                tmpv = pow((1-(vjv*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
               }
               qjunsti_s = ((modelVar_qprefsti*(1-tmpv))+(modelVar_qpref2sti*(Vjun_s-vjv)));
             }
@@ -38482,17 +35673,11 @@ void evaluateModelEquations(
             {
               if ((modelVar_one_minus_PGAT==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((1-(vjv*modelVar_vbiinvgat)));
-                  tmpv = value_sqrt_0;
-                }
+                tmpv = sqrt((1-(vjv*modelVar_vbiinvgat)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1-(vjv*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-                  tmpv = value_pow_0;
-                }
+                tmpv = pow((1-(vjv*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
               }
               qjungat_s = ((modelVar_qprefgat*(1-tmpv))+(modelVar_qpref2gat*(Vjun_s-vjv)));
             }
@@ -38503,26 +35688,17 @@ void evaluateModelEquations(
             h2d = (Vjun_d+(instanceVar_vch_d*h2));
             h3 = (instanceVar_vfmin_d+h2d);
             h4 = (instanceVar_vfmin_d-h2d);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-              h5 = value_sqrt_0;
-            }
+            h5 = sqrt(((h4*h4)+h1));
             vjv = (2.0*((Vjun_d*instanceVar_vfmin_d)/(h3+h5)));
             if ((instanceVar_zflagbot_d>0.5))
             {
               if ((modelVar_one_minus_PBOT_d==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((1-(vjv*modelVar_vbiinvbot_d)));
-                  tmpv = value_sqrt_0;
-                }
+                tmpv = sqrt((1-(vjv*modelVar_vbiinvbot_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1-(vjv*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
-                  tmpv = value_pow_0;
-                }
+                tmpv = pow((1-(vjv*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
               }
               qjunbot_d = ((modelVar_qprefbot_d*(1-tmpv))+(modelVar_qpref2bot_d*(Vjun_d-vjv)));
             }
@@ -38530,17 +35706,11 @@ void evaluateModelEquations(
             {
               if ((modelVar_one_minus_PSTI_d==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((1-(vjv*modelVar_vbiinvsti_d)));
-                  tmpv = value_sqrt_0;
-                }
+                tmpv = sqrt((1-(vjv*modelVar_vbiinvsti_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1-(vjv*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
-                  tmpv = value_pow_0;
-                }
+                tmpv = pow((1-(vjv*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
               }
               qjunsti_d = ((modelVar_qprefsti_d*(1-tmpv))+(modelVar_qpref2sti_d*(Vjun_d-vjv)));
             }
@@ -38548,17 +35718,11 @@ void evaluateModelEquations(
             {
               if ((modelVar_one_minus_PGAT_d==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((1-(vjv*modelVar_vbiinvgat_d)));
-                  tmpv = value_sqrt_0;
-                }
+                tmpv = sqrt((1-(vjv*modelVar_vbiinvgat_d)));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1-(vjv*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
-                  tmpv = value_pow_0;
-                }
+                tmpv = pow((1-(vjv*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
               }
               qjungat_d = ((modelVar_qprefgat_d*(1-tmpv))+(modelVar_qpref2gat_d*(Vjun_d-vjv)));
             }
@@ -38576,19 +35740,13 @@ void evaluateModelEquations(
             h2d = (Vjun_s+(instanceVar_vch_s*h2));
             h3 = (instanceVar_vfmin_s+h2d);
             h4 = (instanceVar_vfmin_s-h2d);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-              h5 = value_sqrt_0;
-            }
+            h5 = sqrt(((h4*h4)+h1));
             vj = (2.0*((Vjun_s*instanceVar_vfmin_s)/(h3+h5)));
             if ((Vjun_s<instanceVar_VMAX_s))
             {
               if ((fabs((0.5*(Vjun_s*modelVar_phitdinv)))<2.3025850929940458e+02))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp((0.5*(Vjun_s*modelVar_phitdinv)));
-                  zinv = value_exp_0;
-                }
+                zinv = exp((0.5*(Vjun_s*modelVar_phitdinv)));
               }
               else
               {
@@ -38606,42 +35764,22 @@ void evaluateModelEquations(
             else
             {
               idmult = ((1+((Vjun_s-instanceVar_VMAX_s)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_s);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-                zinv = value_sqrt_0;
-              }
+              zinv = sqrt(idmult);
             }
             idmult = (idmult-1.0);
             z = (1/zinv);
             if ((Vjun_s>0))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-                AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-                two_psistar = (2.0*(modelVar_phitd*value_log_1));
-              }
+              two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
             }
             else
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-                AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-                two_psistar = ((-Vjun_s)+(2.0*(modelVar_phitd*value_log_1)));
-              }
+              two_psistar = ((-Vjun_s)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
             }
             vjlim = (instanceVar_vbimin_s-two_psistar);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((((Vjun_s-vjlim)*(Vjun_s-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-              vjsrh = (0.5*((Vjun_s+vjlim)-value_sqrt_0));
-            }
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((((Vjun_s-instanceVar_vbbtlim_s)*(Vjun_s-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)));
-              vbbt = (0.5*((Vjun_s+instanceVar_vbbtlim_s)-value_sqrt_0));
-            }
-            {
-              double value_sqrt_0 = sqrt((((Vjun_s)*(Vjun_s))+((4*1E-6)*1E-6)));
-              vav = (0.5*((Vjun_s)-value_sqrt_0));
-            }
+            vjsrh = (0.5*((Vjun_s+vjlim)-sqrt((((Vjun_s-vjlim)*(Vjun_s-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+            vbbt = (0.5*((Vjun_s+instanceVar_vbbtlim_s)-sqrt((((Vjun_s-instanceVar_vbbtlim_s)*(Vjun_s-instanceVar_vbbtlim_s))+((4*modelVar_phitr)*modelVar_phitr)))));
+            vav = (0.5*((Vjun_s)-sqrt((((Vjun_s)*(Vjun_s))+((4*1E-6)*1E-6)))));
           }
           if ((instanceVar_ABSOURCE_i==0))
           {
@@ -38652,17 +35790,11 @@ void evaluateModelEquations(
           {
             if ((modelVar_one_minus_PBOT==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot)));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((1-(vj*modelVar_vbiinvbot)));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-                tmp = value_pow_0;
-              }
+              tmp = pow((1-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
             }
             qjunbot_s = ((modelVar_qprefbot*(1-tmp))+(modelVar_qpref2bot*(Vjun_s-vj)));
             id = (modelVar_idsatbot*idmult);
@@ -38673,35 +35805,23 @@ void evaluateModelEquations(
             else
             {
               vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-                wsrhstep = (1-value_sqrt_0);
-              }
+              wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
               if ((modelVar_PBOT_i==0.5))
               {
                 dwsrh = 0;
               }
               else
               {
-                {
-                  AdmsSensFadType value_log_0 = log(wsrhstep);
-                  dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
-                }
+                dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOT_i)));
               }
               wsrh = (wsrhstep+dwsrh);
               if ((modelVar_PBOT_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
               }
               wdep = (modelVar_wdepnulrbot*tmp);
               asrh = (modelVar_ftdbot*((zinv-1)*wdep));
@@ -38716,15 +35836,8 @@ void evaluateModelEquations(
               btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
               twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
               umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-                umax = value_sqrt_0;
-              }
-              {
-                AdmsSensFadType value_fabs_0 = fabs(umax);
-                AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-                sqrtumax = value_sqrt_1;
-              }
+              umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+              sqrtumax = sqrt(fabs(umax));
               umaxpoweronepointfive = (umax*sqrtumax);
               if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1)))
               {
@@ -38732,16 +35845,10 @@ void evaluateModelEquations(
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
-                  wgamma = value_pow_0;
-                }
+                wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
               }
               wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-                ktat = value_sqrt_0;
-              }
+              ktat = sqrt((0.375*(btat/sqrtumax)));
               ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
               mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
               xerfc = ((ltat-1)*ktat);
@@ -38756,10 +35863,7 @@ void evaluateModelEquations(
               }
               if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-ysq)+mtat));
               }
               else
               {
@@ -38774,10 +35878,7 @@ void evaluateModelEquations(
               {
                 if ((mtat>(-2.3025850929940458e+02)))
                 {
-                  {
-                    AdmsSensFadType value_exp_0 = exp(mtat);
-                    tmp = value_exp_0;
-                  }
+                  tmp = exp(mtat);
                 }
                 else
                 {
@@ -38796,25 +35897,16 @@ void evaluateModelEquations(
             {
               if ((modelVar_PBOT_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
               }
               Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
               if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot)/Fmaxr));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
               }
               else
               {
@@ -38839,21 +35931,11 @@ void evaluateModelEquations(
               {
                 if ((modelVar_PBRBOT_i==4))
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                    AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot));
-                    AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot));
-                    AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot));
-                    tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                  }
+                  tmp = (((fabs((vav*modelVar_VBRinvbot))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)))*fabs((vav*modelVar_VBRinvbot)));
                 }
                 else
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot));
-                    AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOT_i);
-                    tmp = value_pow_1;
-                  }
+                  tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
                 }
                 fbreakdown = (1/(1-tmp));
               }
@@ -38873,17 +35955,11 @@ void evaluateModelEquations(
           {
             if ((modelVar_one_minus_PSTI==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti)));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((1-(vj*modelVar_vbiinvsti)));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-                tmp = value_pow_0;
-              }
+              tmp = pow((1-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
             }
             qjunsti_s = ((modelVar_qprefsti*(1-tmp))+(modelVar_qpref2sti*(Vjun_s-vj)));
             id = (modelVar_idsatsti*idmult);
@@ -38894,35 +35970,23 @@ void evaluateModelEquations(
             else
             {
               vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-                wsrhstep = (1-value_sqrt_0);
-              }
+              wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
               if ((modelVar_PSTI_i==0.5))
               {
                 dwsrh = 0;
               }
               else
               {
-                {
-                  AdmsSensFadType value_log_0 = log(wsrhstep);
-                  dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
-                }
+                dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTI_i)));
               }
               wsrh = (wsrhstep+dwsrh);
               if ((modelVar_PSTI_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
               }
               wdep = (modelVar_wdepnulrsti*tmp);
               asrh = (modelVar_ftdsti*((zinv-1)*wdep));
@@ -38937,15 +36001,8 @@ void evaluateModelEquations(
               btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
               twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
               umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-                umax = value_sqrt_0;
-              }
-              {
-                AdmsSensFadType value_fabs_0 = fabs(umax);
-                AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-                sqrtumax = value_sqrt_1;
-              }
+              umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+              sqrtumax = sqrt(fabs(umax));
               umaxpoweronepointfive = (umax*sqrtumax);
               if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1)))
               {
@@ -38953,16 +36010,10 @@ void evaluateModelEquations(
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
-                  wgamma = value_pow_0;
-                }
+                wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
               }
               wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-                ktat = value_sqrt_0;
-              }
+              ktat = sqrt((0.375*(btat/sqrtumax)));
               ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
               mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
               xerfc = ((ltat-1)*ktat);
@@ -38977,10 +36028,7 @@ void evaluateModelEquations(
               }
               if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-ysq)+mtat));
               }
               else
               {
@@ -38995,10 +36043,7 @@ void evaluateModelEquations(
               {
                 if ((mtat>(-2.3025850929940458e+02)))
                 {
-                  {
-                    AdmsSensFadType value_exp_0 = exp(mtat);
-                    tmp = value_exp_0;
-                  }
+                  tmp = exp(mtat);
                 }
                 else
                 {
@@ -39017,25 +36062,16 @@ void evaluateModelEquations(
             {
               if ((modelVar_PSTI_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
               }
               Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
               if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti)/Fmaxr));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
               }
               else
               {
@@ -39060,21 +36096,11 @@ void evaluateModelEquations(
               {
                 if ((modelVar_PBRSTI_i==4))
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                    AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti));
-                    AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti));
-                    AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti));
-                    tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                  }
+                  tmp = (((fabs((vav*modelVar_VBRinvsti))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)))*fabs((vav*modelVar_VBRinvsti)));
                 }
                 else
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti));
-                    AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTI_i);
-                    tmp = value_pow_1;
-                  }
+                  tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
                 }
                 fbreakdown = (1/(1-tmp));
               }
@@ -39094,17 +36120,11 @@ void evaluateModelEquations(
           {
             if ((modelVar_one_minus_PGAT==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat)));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((1-(vj*modelVar_vbiinvgat)));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-                tmp = value_pow_0;
-              }
+              tmp = pow((1-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
             }
             qjungat_s = ((modelVar_qprefgat*(1-tmp))+(modelVar_qpref2gat*(Vjun_s-vj)));
             id = (modelVar_idsatgat*idmult);
@@ -39115,35 +36135,23 @@ void evaluateModelEquations(
             else
             {
               vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-                wsrhstep = (1-value_sqrt_0);
-              }
+              wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
               if ((modelVar_PGAT_i==0.5))
               {
                 dwsrh = 0;
               }
               else
               {
-                {
-                  AdmsSensFadType value_log_0 = log(wsrhstep);
-                  dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
-                }
+                dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGAT_i)));
               }
               wsrh = (wsrhstep+dwsrh);
               if ((modelVar_PGAT_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
               }
               wdep = (modelVar_wdepnulrgat*tmp);
               asrh = (modelVar_ftdgat*((zinv-1)*wdep));
@@ -39158,15 +36166,8 @@ void evaluateModelEquations(
               btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
               twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
               umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-                umax = value_sqrt_0;
-              }
-              {
-                AdmsSensFadType value_fabs_0 = fabs(umax);
-                AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-                sqrtumax = value_sqrt_1;
-              }
+              umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+              sqrtumax = sqrt(fabs(umax));
               umaxpoweronepointfive = (umax*sqrtumax);
               if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1)))
               {
@@ -39174,16 +36175,10 @@ void evaluateModelEquations(
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
-                  wgamma = value_pow_0;
-                }
+                wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
               }
               wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-                ktat = value_sqrt_0;
-              }
+              ktat = sqrt((0.375*(btat/sqrtumax)));
               ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
               mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
               xerfc = ((ltat-1)*ktat);
@@ -39198,10 +36193,7 @@ void evaluateModelEquations(
               }
               if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-ysq)+mtat));
               }
               else
               {
@@ -39216,10 +36208,7 @@ void evaluateModelEquations(
               {
                 if ((mtat>(-2.3025850929940458e+02)))
                 {
-                  {
-                    AdmsSensFadType value_exp_0 = exp(mtat);
-                    tmp = value_exp_0;
-                  }
+                  tmp = exp(mtat);
                 }
                 else
                 {
@@ -39238,25 +36227,16 @@ void evaluateModelEquations(
             {
               if ((modelVar_PGAT_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
               }
               Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
               if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat)/Fmaxr));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
               }
               else
               {
@@ -39281,21 +36261,11 @@ void evaluateModelEquations(
               {
                 if ((modelVar_PBRGAT_i==4))
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                    AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat));
-                    AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat));
-                    AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat));
-                    tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                  }
+                  tmp = (((fabs((vav*modelVar_VBRinvgat))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)))*fabs((vav*modelVar_VBRinvgat)));
                 }
                 else
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat));
-                    AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGAT_i);
-                    tmp = value_pow_1;
-                  }
+                  tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
                 }
                 fbreakdown = (1/(1-tmp));
               }
@@ -39316,19 +36286,13 @@ void evaluateModelEquations(
             h2d = (Vjun_d+(instanceVar_vch_d*h2));
             h3 = (instanceVar_vfmin_d+h2d);
             h4 = (instanceVar_vfmin_d-h2d);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt(((h4*h4)+h1));
-              h5 = value_sqrt_0;
-            }
+            h5 = sqrt(((h4*h4)+h1));
             vj = (2.0*((Vjun_d*instanceVar_vfmin_d)/(h3+h5)));
             if ((Vjun_d<instanceVar_VMAX_d))
             {
               if ((fabs((0.5*(Vjun_d*modelVar_phitdinv)))<2.3025850929940458e+02))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp((0.5*(Vjun_d*modelVar_phitdinv)));
-                  zinv = value_exp_0;
-                }
+                zinv = exp((0.5*(Vjun_d*modelVar_phitdinv)));
               }
               else
               {
@@ -39346,42 +36310,22 @@ void evaluateModelEquations(
             else
             {
               idmult = ((1+((Vjun_d-instanceVar_VMAX_d)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd_d);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(idmult);
-                zinv = value_sqrt_0;
-              }
+              zinv = sqrt(idmult);
             }
             idmult = (idmult-1.0);
             z = (1/zinv);
             if ((Vjun_d>0))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
-                AdmsSensFadType value_log_1 = log(((2.0+z)+value_sqrt_0));
-                two_psistar = (2.0*(modelVar_phitd*value_log_1));
-              }
+              two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
             }
             else
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((1+zinv)*(1+(3*zinv))));
-                AdmsSensFadType value_log_1 = log((((2*zinv)+1)+value_sqrt_0));
-                two_psistar = ((-Vjun_d)+(2.0*(modelVar_phitd*value_log_1)));
-              }
+              two_psistar = ((-Vjun_d)+(2.0*(modelVar_phitd*log((((2*zinv)+1)+sqrt(((1+zinv)*(1+(3*zinv)))))))));
             }
             vjlim = (instanceVar_vbimin_d-two_psistar);
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((((Vjun_d-vjlim)*(Vjun_d-vjlim))+((4*modelVar_phitd)*modelVar_phitd)));
-              vjsrh = (0.5*((Vjun_d+vjlim)-value_sqrt_0));
-            }
-            {
-              AdmsSensFadType value_sqrt_0 = sqrt((((Vjun_d-instanceVar_vbbtlim_d)*(Vjun_d-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)));
-              vbbt = (0.5*((Vjun_d+instanceVar_vbbtlim_d)-value_sqrt_0));
-            }
-            {
-              double value_sqrt_0 = sqrt((((Vjun_d)*(Vjun_d))+((4*1E-6)*1E-6)));
-              vav = (0.5*((Vjun_d)-value_sqrt_0));
-            }
+            vjsrh = (0.5*((Vjun_d+vjlim)-sqrt((((Vjun_d-vjlim)*(Vjun_d-vjlim))+((4*modelVar_phitd)*modelVar_phitd)))));
+            vbbt = (0.5*((Vjun_d+instanceVar_vbbtlim_d)-sqrt((((Vjun_d-instanceVar_vbbtlim_d)*(Vjun_d-instanceVar_vbbtlim_d))+((4*modelVar_phitr)*modelVar_phitr)))));
+            vav = (0.5*((Vjun_d)-sqrt((((Vjun_d)*(Vjun_d))+((4*1E-6)*1E-6)))));
           }
           if ((instanceVar_ABDRAIN_i==0))
           {
@@ -39392,17 +36336,11 @@ void evaluateModelEquations(
           {
             if ((modelVar_one_minus_PBOT_d==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvbot_d)));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((1-(vj*modelVar_vbiinvbot_d)));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
-                tmp = value_pow_0;
-              }
+              tmp = pow((1-(vj*modelVar_vbiinvbot_d)),modelVar_one_minus_PBOT_d);
             }
             qjunbot_d = ((modelVar_qprefbot_d*(1-tmp))+(modelVar_qpref2bot_d*(Vjun_d-vj)));
             id = (modelVar_idsatbot_d*idmult);
@@ -39413,35 +36351,23 @@ void evaluateModelEquations(
             else
             {
               vbi_minus_vjsrh = (modelVar_vbibot_d-vjsrh);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-                wsrhstep = (1-value_sqrt_0);
-              }
+              wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
               if ((modelVar_PBOTD_i==0.5))
               {
                 dwsrh = 0;
               }
               else
               {
-                {
-                  AdmsSensFadType value_log_0 = log(wsrhstep);
-                  dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
-                }
+                dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PBOTD_i)));
               }
               wsrh = (wsrhstep+dwsrh);
               if ((modelVar_PBOTD_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
               }
               wdep = (modelVar_wdepnulrbot_d*tmp);
               asrh = (modelVar_ftdbot_d*((zinv-1)*wdep));
@@ -39456,15 +36382,8 @@ void evaluateModelEquations(
               btat = (modelVar_btatpartbot_d*((wdep*modelVar_one_minus_PBOT_d)/vbi_minus_vjsrh));
               twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot_d)/btat);
               umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-                umax = value_sqrt_0;
-              }
-              {
-                AdmsSensFadType value_fabs_0 = fabs(umax);
-                AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-                sqrtumax = value_sqrt_1;
-              }
+              umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+              sqrtumax = sqrt(fabs(umax));
               umaxpoweronepointfive = (umax*sqrtumax);
               if ((((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d)==(-1)))
               {
@@ -39472,16 +36391,10 @@ void evaluateModelEquations(
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
-                  wgamma = value_pow_0;
-                }
+                wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PBOTD_i)*modelVar_one_over_one_minus_PBOT_d));
               }
               wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-                ktat = value_sqrt_0;
-              }
+              ktat = sqrt((0.375*(btat/sqrtumax)));
               ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
               mtat = ((((modelVar_atatbot_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
               xerfc = ((ltat-1)*ktat);
@@ -39496,10 +36409,7 @@ void evaluateModelEquations(
               }
               if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-ysq)+mtat));
               }
               else
               {
@@ -39514,10 +36424,7 @@ void evaluateModelEquations(
               {
                 if ((mtat>(-2.3025850929940458e+02)))
                 {
-                  {
-                    AdmsSensFadType value_exp_0 = exp(mtat);
-                    tmp = value_exp_0;
-                  }
+                  tmp = exp(mtat);
                 }
                 else
                 {
@@ -39536,25 +36443,16 @@ void evaluateModelEquations(
             {
               if ((modelVar_PBOTD_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow(((modelVar_VBIRBOTD_i-vbbt)*modelVar_VBIRBOTinv_d),modelVar_PBOTD_i);
               }
               Fmaxr = (modelVar_one_over_one_minus_PBOT_d*(((modelVar_VBIRBOTD_i-vbbt)*modelVar_wdepnulrinvbot_d)/tmp));
               if ((fabs(((-modelVar_fbbtbot_d)/Fmaxr))<2.3025850929940458e+02))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtbot_d)/Fmaxr));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-modelVar_fbbtbot_d)/Fmaxr));
               }
               else
               {
@@ -39579,21 +36477,11 @@ void evaluateModelEquations(
               {
                 if ((modelVar_PBRBOTD_i==4))
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                    AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvbot_d));
-                    AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvbot_d));
-                    AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvbot_d));
-                    tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                  }
+                  tmp = (((fabs((vav*modelVar_VBRinvbot_d))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)))*fabs((vav*modelVar_VBRinvbot_d)));
                 }
                 else
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvbot_d));
-                    AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRBOTD_i);
-                    tmp = value_pow_1;
-                  }
+                  tmp = pow(fabs((vav*modelVar_VBRinvbot_d)),modelVar_PBRBOTD_i);
                 }
                 fbreakdown = (1/(1-tmp));
               }
@@ -39613,17 +36501,11 @@ void evaluateModelEquations(
           {
             if ((modelVar_one_minus_PSTI_d==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvsti_d)));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((1-(vj*modelVar_vbiinvsti_d)));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
-                tmp = value_pow_0;
-              }
+              tmp = pow((1-(vj*modelVar_vbiinvsti_d)),modelVar_one_minus_PSTI_d);
             }
             qjunsti_d = ((modelVar_qprefsti_d*(1-tmp))+(modelVar_qpref2sti_d*(Vjun_d-vj)));
             id = (modelVar_idsatsti_d*idmult);
@@ -39634,35 +36516,23 @@ void evaluateModelEquations(
             else
             {
               vbi_minus_vjsrh = (modelVar_vbisti_d-vjsrh);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-                wsrhstep = (1-value_sqrt_0);
-              }
+              wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
               if ((modelVar_PSTID_i==0.5))
               {
                 dwsrh = 0;
               }
               else
               {
-                {
-                  AdmsSensFadType value_log_0 = log(wsrhstep);
-                  dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
-                }
+                dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PSTID_i)));
               }
               wsrh = (wsrhstep+dwsrh);
               if ((modelVar_PSTID_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
               }
               wdep = (modelVar_wdepnulrsti_d*tmp);
               asrh = (modelVar_ftdsti_d*((zinv-1)*wdep));
@@ -39677,15 +36547,8 @@ void evaluateModelEquations(
               btat = (modelVar_btatpartsti_d*((wdep*modelVar_one_minus_PSTI_d)/vbi_minus_vjsrh));
               twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti_d)/btat);
               umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-                umax = value_sqrt_0;
-              }
-              {
-                AdmsSensFadType value_fabs_0 = fabs(umax);
-                AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-                sqrtumax = value_sqrt_1;
-              }
+              umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+              sqrtumax = sqrt(fabs(umax));
               umaxpoweronepointfive = (umax*sqrtumax);
               if ((((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d)==(-1)))
               {
@@ -39693,16 +36556,10 @@ void evaluateModelEquations(
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
-                  wgamma = value_pow_0;
-                }
+                wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PSTID_i)*modelVar_one_over_one_minus_PSTI_d));
               }
               wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-                ktat = value_sqrt_0;
-              }
+              ktat = sqrt((0.375*(btat/sqrtumax)));
               ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
               mtat = ((((modelVar_atatsti_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
               xerfc = ((ltat-1)*ktat);
@@ -39717,10 +36574,7 @@ void evaluateModelEquations(
               }
               if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-ysq)+mtat));
               }
               else
               {
@@ -39735,10 +36589,7 @@ void evaluateModelEquations(
               {
                 if ((mtat>(-2.3025850929940458e+02)))
                 {
-                  {
-                    AdmsSensFadType value_exp_0 = exp(mtat);
-                    tmp = value_exp_0;
-                  }
+                  tmp = exp(mtat);
                 }
                 else
                 {
@@ -39757,25 +36608,16 @@ void evaluateModelEquations(
             {
               if ((modelVar_PSTID_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow(((modelVar_VBIRSTID_i-vbbt)*modelVar_VBIRSTIinv_d),modelVar_PSTID_i);
               }
               Fmaxr = (modelVar_one_over_one_minus_PSTI_d*(((modelVar_VBIRSTID_i-vbbt)*modelVar_wdepnulrinvsti_d)/tmp));
               if ((fabs(((-modelVar_fbbtsti_d)/Fmaxr))<2.3025850929940458e+02))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtsti_d)/Fmaxr));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-modelVar_fbbtsti_d)/Fmaxr));
               }
               else
               {
@@ -39800,21 +36642,11 @@ void evaluateModelEquations(
               {
                 if ((modelVar_PBRSTID_i==4))
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                    AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvsti_d));
-                    AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvsti_d));
-                    AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvsti_d));
-                    tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                  }
+                  tmp = (((fabs((vav*modelVar_VBRinvsti_d))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)))*fabs((vav*modelVar_VBRinvsti_d)));
                 }
                 else
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvsti_d));
-                    AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRSTID_i);
-                    tmp = value_pow_1;
-                  }
+                  tmp = pow(fabs((vav*modelVar_VBRinvsti_d)),modelVar_PBRSTID_i);
                 }
                 fbreakdown = (1/(1-tmp));
               }
@@ -39834,17 +36666,11 @@ void evaluateModelEquations(
           {
             if ((modelVar_one_minus_PGAT_d==0.5))
             {
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(vj*modelVar_vbiinvgat_d)));
-                tmp = value_sqrt_0;
-              }
+              tmp = sqrt((1-(vj*modelVar_vbiinvgat_d)));
             }
             else
             {
-              {
-                AdmsSensFadType value_pow_0 = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
-                tmp = value_pow_0;
-              }
+              tmp = pow((1-(vj*modelVar_vbiinvgat_d)),modelVar_one_minus_PGAT_d);
             }
             qjungat_d = ((modelVar_qprefgat_d*(1-tmp))+(modelVar_qpref2gat_d*(Vjun_d-vj)));
             id = (modelVar_idsatgat_d*idmult);
@@ -39855,35 +36681,23 @@ void evaluateModelEquations(
             else
             {
               vbi_minus_vjsrh = (modelVar_vbigat_d-vjsrh);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((1-(two_psistar/vbi_minus_vjsrh)));
-                wsrhstep = (1-value_sqrt_0);
-              }
+              wsrhstep = (1-sqrt((1-(two_psistar/vbi_minus_vjsrh))));
               if ((modelVar_PGATD_i==0.5))
               {
                 dwsrh = 0;
               }
               else
               {
-                {
-                  AdmsSensFadType value_log_0 = log(wsrhstep);
-                  dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
-                }
+                dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1-wsrhstep))+wsrhstep)*(1-(2*modelVar_PGATD_i)));
               }
               wsrh = (wsrhstep+dwsrh);
               if ((modelVar_PGATD_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv_d));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
               }
               wdep = (modelVar_wdepnulrgat_d*tmp);
               asrh = (modelVar_ftdgat_d*((zinv-1)*wdep));
@@ -39898,15 +36712,8 @@ void evaluateModelEquations(
               btat = (modelVar_btatpartgat_d*((wdep*modelVar_one_minus_PGAT_d)/vbi_minus_vjsrh));
               twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat_d)/btat);
               umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
-                umax = value_sqrt_0;
-              }
-              {
-                AdmsSensFadType value_fabs_0 = fabs(umax);
-                AdmsSensFadType value_sqrt_1 = sqrt(value_fabs_0);
-                sqrtumax = value_sqrt_1;
-              }
+              umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1)));
+              sqrtumax = sqrt(fabs(umax));
               umaxpoweronepointfive = (umax*sqrtumax);
               if ((((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d)==(-1)))
               {
@@ -39914,16 +36721,10 @@ void evaluateModelEquations(
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
-                  wgamma = value_pow_0;
-                }
+                wgamma = pow((1+(btat*umaxpoweronepointfive)),((-modelVar_PGATD_i)*modelVar_one_over_one_minus_PGAT_d));
               }
               wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-              {
-                AdmsSensFadType value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
-                ktat = value_sqrt_0;
-              }
+              ktat = sqrt((0.375*(btat/sqrtumax)));
               ltat = ((2*(twoatatoverthreebtat*sqrtumax))-umax);
               mtat = ((((modelVar_atatgat_d*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat_d*umax))+(0.5*(btat*umaxpoweronepointfive)));
               xerfc = ((ltat-1)*ktat);
@@ -39938,10 +36739,7 @@ void evaluateModelEquations(
               }
               if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-ysq)+mtat));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-ysq)+mtat));
               }
               else
               {
@@ -39956,10 +36754,7 @@ void evaluateModelEquations(
               {
                 if ((mtat>(-2.3025850929940458e+02)))
                 {
-                  {
-                    AdmsSensFadType value_exp_0 = exp(mtat);
-                    tmp = value_exp_0;
-                  }
+                  tmp = exp(mtat);
                 }
                 else
                 {
@@ -39978,25 +36773,16 @@ void evaluateModelEquations(
             {
               if ((modelVar_PGATD_i==0.5))
               {
-                {
-                  AdmsSensFadType value_sqrt_0 = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
-                  tmp = value_sqrt_0;
-                }
+                tmp = sqrt(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d));
               }
               else
               {
-                {
-                  AdmsSensFadType value_pow_0 = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
-                  tmp = value_pow_0;
-                }
+                tmp = pow(((modelVar_VBIRGATD_i-vbbt)*modelVar_VBIRGATinv_d),modelVar_PGATD_i);
               }
               Fmaxr = (modelVar_one_over_one_minus_PGAT_d*(((modelVar_VBIRGATD_i-vbbt)*modelVar_wdepnulrinvgat_d)/tmp));
               if ((fabs(((-modelVar_fbbtgat_d)/Fmaxr))<2.3025850929940458e+02))
               {
-                {
-                  AdmsSensFadType value_exp_0 = exp(((-modelVar_fbbtgat_d)/Fmaxr));
-                  tmp = value_exp_0;
-                }
+                tmp = exp(((-modelVar_fbbtgat_d)/Fmaxr));
               }
               else
               {
@@ -40021,21 +36807,11 @@ void evaluateModelEquations(
               {
                 if ((modelVar_PBRGATD_i==4))
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                    AdmsSensFadType value_fabs_1 = fabs((vav*modelVar_VBRinvgat_d));
-                    AdmsSensFadType value_fabs_2 = fabs((vav*modelVar_VBRinvgat_d));
-                    AdmsSensFadType value_fabs_3 = fabs((vav*modelVar_VBRinvgat_d));
-                    tmp = (((value_fabs_0*value_fabs_1)*value_fabs_2)*value_fabs_3);
-                  }
+                  tmp = (((fabs((vav*modelVar_VBRinvgat_d))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)))*fabs((vav*modelVar_VBRinvgat_d)));
                 }
                 else
                 {
-                  {
-                    AdmsSensFadType value_fabs_0 = fabs((vav*modelVar_VBRinvgat_d));
-                    AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelVar_PBRGATD_i);
-                    tmp = value_pow_1;
-                  }
+                  tmp = pow(fabs((vav*modelVar_VBRinvgat_d)),modelVar_PBRGATD_i);
                 }
                 fbreakdown = (1/(1-tmp));
               }
@@ -40231,10 +37007,7 @@ void evaluateModelEquations(
         N1 = ((instanceVar_Cox_over_q*alpha)*modelVar_phit);
         Nm1 = (instanceVar_Cox_over_q*qim1);
         Delta_N1 = (instanceVar_Cox_over_q*(alpha*dps));
-        {
-          AdmsSensFadType value_log_0 = log(((Nm1+(0.5*Delta_N1))/(Nm1-(0.5*Delta_N1))));
-          Sfl = (((instanceVar_NFA_i-(instanceVar_NFB_i*N1))+(instanceVar_NFC_i*(N1*N1)))*value_log_0);
-        }
+        Sfl = (((instanceVar_NFA_i-(instanceVar_NFB_i*N1))+(instanceVar_NFC_i*(N1*N1)))*log(((Nm1+(0.5*Delta_N1))/(Nm1-(0.5*Delta_N1)))));
         Sfl = (Sfl+((instanceVar_NFB_i+(instanceVar_NFC_i*(Nm1-(2.0*N1))))*Delta_N1));
         Sfl = ((((instanceVar_Sfl_prefac*Ids)*Gvsatinv)*Sfl)/N1);
         Sfl = adms_ternary_op<AdmsSensFadType>((Sfl>0.0),Sfl,0.0);
@@ -40272,24 +37045,15 @@ void evaluateModelEquations(
           {
             zsat_exc = (zsat_exc/(1.0+(thesat1_exc*dps)));
           }
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((1.0+(2.0*zsat_exc)));
-            Gvsat_exc = (0.5*(Gmob*(1.0+value_sqrt_0)));
-          }
+          Gvsat_exc = (0.5*(Gmob*(1.0+sqrt((1.0+(2.0*zsat_exc))))));
           gfac = (Gmob/(Gvsat_exc*lc));
           Sidexc = ((((instanceVar_fac_exc*Ids)*Vdse)*gfac)*gfac);
           mid = (mid+(Sidexc/modelVar_nt0));
           mig = (mig+((Sidexc*(1+(12*t2)))/(((12*g_ideal)*g_ideal)*modelVar_nt0)));
           migid = (migid-(((Sidexc*sqt2)*(1+r))/(g_ideal*modelVar_nt0)));
         }
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt((instanceVar_nt*mid));
-          sqid = value_sqrt_0;
-        }
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt((instanceVar_nt/mig));
-          sqig = value_sqrt_0;
-        }
+        sqid = sqrt((instanceVar_nt*mid));
+        sqig = sqrt((instanceVar_nt/mig));
         if ((sqid==0))
         {
           c_igid = 0.0;
@@ -40300,34 +37064,13 @@ void evaluateModelEquations(
         }
         c_igid = adms_ternary_op<AdmsSensFadType>((c_igid>0.0),adms_ternary_op<AdmsSensFadType>((c_igid<1.0),c_igid,1.0),0.0);
       }
-      {
-        AdmsSensFadType value_fabs_0 = fabs(Igcs);
-        shot_igcsx = ((2.0*1.6021918E-19)*value_fabs_0);
-      }
-      {
-        AdmsSensFadType value_fabs_0 = fabs(Igcd);
-        shot_igcdx = ((2.0*1.6021918E-19)*value_fabs_0);
-      }
-      {
-        AdmsSensFadType value_fabs_0 = fabs(Igsov);
-        shot_igsov = ((2.0*1.6021918E-19)*value_fabs_0);
-      }
-      {
-        AdmsSensFadType value_fabs_0 = fabs(Igdov);
-        shot_igdov = ((2.0*1.6021918E-19)*value_fabs_0);
-      }
-      {
-        AdmsSensFadType value_fabs_0 = fabs(Iimpact);
-        shot_iavl = ((2.0*1.6021918E-19)*((mavl+1)*value_fabs_0));
-      }
-      {
-        AdmsSensFadType value_fabs_0 = fabs(ijun_s);
-        jnoisex_s = ((2.0*1.6021918E-19)*value_fabs_0);
-      }
-      {
-        AdmsSensFadType value_fabs_0 = fabs(ijun_d);
-        jnoisex_d = ((2.0*1.6021918E-19)*value_fabs_0);
-      }
+      shot_igcsx = ((2.0*1.6021918E-19)*fabs(Igcs));
+      shot_igcdx = ((2.0*1.6021918E-19)*fabs(Igcd));
+      shot_igsov = ((2.0*1.6021918E-19)*fabs(Igsov));
+      shot_igdov = ((2.0*1.6021918E-19)*fabs(Igdov));
+      shot_iavl = ((2.0*1.6021918E-19)*((mavl+1)*fabs(Iimpact)));
+      jnoisex_s = ((2.0*1.6021918E-19)*fabs(ijun_s));
+      jnoisex_d = ((2.0*1.6021918E-19)*fabs(ijun_d));
       if ((sigVds>0))
       {
         shot_igs = (shot_igcsx+shot_igsov);
@@ -40357,20 +37100,20 @@ void evaluateModelEquations(
       // I(D,S) <+ (((((sigVds*sqrt(MULT_i))*migid)*V(NOI2,GND))/sf))
       {
         AdmsSensFadType value_sqrt_0 = sqrt(instanceVar_MULT_i);
-        staticContributions[admsNodeID_D] += ((((sigVds*value_sqrt_0)*migid)*(probeVars[admsProbeID_V_NOI2_GND]))/sf);
-        staticContributions[admsNodeID_S] -= ((((sigVds*value_sqrt_0)*migid)*(probeVars[admsProbeID_V_NOI2_GND]))/sf);
+        staticContributions[admsNodeID_D] += ((((sigVds*sqrt(instanceVar_MULT_i))*migid)*(probeVars[admsProbeID_V_NOI2_GND]))/sf);
+        staticContributions[admsNodeID_S] -= ((((sigVds*sqrt(instanceVar_MULT_i))*migid)*(probeVars[admsProbeID_V_NOI2_GND]))/sf);
       }
       // I(GP,S) <+ (ddt((((sqrt(MULT_i)*0.5)*CGeff)*V(NOI,GND))))
       {
         AdmsSensFadType value_sqrt_0 = sqrt(instanceVar_MULT_i);
-        dynamicContributions[admsNodeID_GP] += ((((value_sqrt_0*0.5)*CGeff)*(probeVars[admsProbeID_V_NOI_GND])));
-        dynamicContributions[admsNodeID_S] -= ((((value_sqrt_0*0.5)*CGeff)*(probeVars[admsProbeID_V_NOI_GND])));
+        dynamicContributions[admsNodeID_GP] += ((((sqrt(instanceVar_MULT_i)*0.5)*CGeff)*(probeVars[admsProbeID_V_NOI_GND])));
+        dynamicContributions[admsNodeID_S] -= ((((sqrt(instanceVar_MULT_i)*0.5)*CGeff)*(probeVars[admsProbeID_V_NOI_GND])));
       }
       // I(GP,D) <+ (ddt((((sqrt(MULT_i)*0.5)*CGeff)*V(NOI,GND))))
       {
         AdmsSensFadType value_sqrt_0 = sqrt(instanceVar_MULT_i);
-        dynamicContributions[admsNodeID_GP] += ((((value_sqrt_0*0.5)*CGeff)*(probeVars[admsProbeID_V_NOI_GND])));
-        dynamicContributions[admsNodeID_D] -= ((((value_sqrt_0*0.5)*CGeff)*(probeVars[admsProbeID_V_NOI_GND])));
+        dynamicContributions[admsNodeID_GP] += ((((sqrt(instanceVar_MULT_i)*0.5)*CGeff)*(probeVars[admsProbeID_V_NOI_GND])));
+        dynamicContributions[admsNodeID_D] -= ((((sqrt(instanceVar_MULT_i)*0.5)*CGeff)*(probeVars[admsProbeID_V_NOI_GND])));
       }
       // I(GP,S) <+ (white_noise((MULT_i*shot_igs),"igs"))
       // I(GP,D) <+ (white_noise((MULT_i*shot_igd),"igd"))
@@ -41199,7 +37942,7 @@ void InstanceSensitivity::operator()
   AdmsSensFadType instanceVar_GCQ=in.GCQ;
   AdmsSensFadType instanceVar_Dch=in.Dch;
   AdmsSensFadType instanceVar_Dov=in.Dov;
-  AdmsSensFadType instanceVar_x1=in.x1;
+  double instanceVar_x1=in.x1;
   AdmsSensFadType instanceVar_Vdsat_lim=in.Vdsat_lim;
   AdmsSensFadType instanceVar_nt=in.nt;
   AdmsSensFadType instanceVar_Cox_over_q=in.Cox_over_q;
@@ -41247,9 +37990,9 @@ void InstanceSensitivity::operator()
   AdmsSensFadType instanceVar_ABSOURCE_i=in.ABSOURCE_i;
   AdmsSensFadType instanceVar_LSSOURCE_i=in.LSSOURCE_i;
   AdmsSensFadType instanceVar_LGSOURCE_i=in.LGSOURCE_i;
-  AdmsSensFadType instanceVar_zflagbot_s=in.zflagbot_s;
-  AdmsSensFadType instanceVar_zflagsti_s=in.zflagsti_s;
-  AdmsSensFadType instanceVar_zflaggat_s=in.zflaggat_s;
+  double instanceVar_zflagbot_s=in.zflagbot_s;
+  double instanceVar_zflagsti_s=in.zflagsti_s;
+  double instanceVar_zflaggat_s=in.zflaggat_s;
   AdmsSensFadType instanceVar_VMAX_s=in.VMAX_s;
   AdmsSensFadType instanceVar_exp_VMAX_over_phitd_s=in.exp_VMAX_over_phitd_s;
   AdmsSensFadType instanceVar_vbimin_s=in.vbimin_s;
@@ -41262,9 +38005,9 @@ void InstanceSensitivity::operator()
   AdmsSensFadType instanceVar_expxhf2_s=in.expxhf2_s;
   AdmsSensFadType instanceVar_xhighr_s=in.xhighr_s;
   AdmsSensFadType instanceVar_expxhr_s=in.expxhr_s;
-  AdmsSensFadType instanceVar_m0flag_s=in.m0flag_s;
+  double instanceVar_m0flag_s=in.m0flag_s;
   AdmsSensFadType instanceVar_ISATFOR1_s=in.ISATFOR1_s;
-  AdmsSensFadType instanceVar_MFOR1_s=in.MFOR1_s;
+  double instanceVar_MFOR1_s=in.MFOR1_s;
   AdmsSensFadType instanceVar_ISATFOR2_s=in.ISATFOR2_s;
   AdmsSensFadType instanceVar_MFOR2_s=in.MFOR2_s;
   AdmsSensFadType instanceVar_ISATREV_s=in.ISATREV_s;
@@ -41272,9 +38015,9 @@ void InstanceSensitivity::operator()
   AdmsSensFadType instanceVar_ABDRAIN_i=in.ABDRAIN_i;
   AdmsSensFadType instanceVar_LSDRAIN_i=in.LSDRAIN_i;
   AdmsSensFadType instanceVar_LGDRAIN_i=in.LGDRAIN_i;
-  AdmsSensFadType instanceVar_zflagbot_d=in.zflagbot_d;
-  AdmsSensFadType instanceVar_zflagsti_d=in.zflagsti_d;
-  AdmsSensFadType instanceVar_zflaggat_d=in.zflaggat_d;
+  double instanceVar_zflagbot_d=in.zflagbot_d;
+  double instanceVar_zflagsti_d=in.zflagsti_d;
+  double instanceVar_zflaggat_d=in.zflaggat_d;
   AdmsSensFadType instanceVar_VMAX_d=in.VMAX_d;
   AdmsSensFadType instanceVar_exp_VMAX_over_phitd_d=in.exp_VMAX_over_phitd_d;
   AdmsSensFadType instanceVar_vbimin_d=in.vbimin_d;
@@ -41287,9 +38030,9 @@ void InstanceSensitivity::operator()
   AdmsSensFadType instanceVar_expxhf2_d=in.expxhf2_d;
   AdmsSensFadType instanceVar_xhighr_d=in.xhighr_d;
   AdmsSensFadType instanceVar_expxhr_d=in.expxhr_d;
-  AdmsSensFadType instanceVar_m0flag_d=in.m0flag_d;
+  double instanceVar_m0flag_d=in.m0flag_d;
   AdmsSensFadType instanceVar_ISATFOR1_d=in.ISATFOR1_d;
-  AdmsSensFadType instanceVar_MFOR1_d=in.MFOR1_d;
+  double instanceVar_MFOR1_d=in.MFOR1_d;
   AdmsSensFadType instanceVar_ISATFOR2_d=in.ISATFOR2_d;
   AdmsSensFadType instanceVar_MFOR2_d=in.MFOR2_d;
   AdmsSensFadType instanceVar_ISATREV_d=in.ISATREV_d;
@@ -41335,7 +38078,7 @@ void InstanceSensitivity::operator()
   AdmsSensFadType modelVar_dT=mod.dT;
   AdmsSensFadType modelVar_rT=mod.rT;
   AdmsSensFadType modelVar_rTn=mod.rTn;
-  AdmsSensFadType modelVar_EPSSI=mod.EPSSI;
+  double modelVar_EPSSI=mod.EPSSI;
   AdmsSensFadType modelVar_phit=mod.phit;
   AdmsSensFadType modelVar_inv_phit=mod.inv_phit;
   AdmsSensFadType modelVar_Eg=mod.Eg;
@@ -41363,15 +38106,15 @@ void InstanceSensitivity::operator()
   AdmsSensFadType modelVar_PBRBOT_i=mod.PBRBOT_i;
   AdmsSensFadType modelVar_PBRSTI_i=mod.PBRSTI_i;
   AdmsSensFadType modelVar_PBRGAT_i=mod.PBRGAT_i;
-  AdmsSensFadType modelVar_SWJUNEXP_i=mod.SWJUNEXP_i;
+  double modelVar_SWJUNEXP_i=mod.SWJUNEXP_i;
   AdmsSensFadType modelVar_VJUNREF_i=mod.VJUNREF_i;
   AdmsSensFadType modelVar_FJUNQ_i=mod.FJUNQ_i;
   AdmsSensFadType modelVar_phitr=mod.phitr;
   AdmsSensFadType modelVar_phitd=mod.phitd;
   AdmsSensFadType modelVar_phitdinv=mod.phitdinv;
-  AdmsSensFadType modelVar_perfc=mod.perfc;
-  AdmsSensFadType modelVar_berfc=mod.berfc;
-  AdmsSensFadType modelVar_cerfc=mod.cerfc;
+  double modelVar_perfc=mod.perfc;
+  double modelVar_berfc=mod.berfc;
+  double modelVar_cerfc=mod.cerfc;
   AdmsSensFadType modelVar_ftdbot=mod.ftdbot;
   AdmsSensFadType modelVar_ftdsti=mod.ftdsti;
   AdmsSensFadType modelVar_ftdgat=mod.ftdgat;
@@ -45432,7 +42175,7 @@ void ModelSensitivity::operator()
   AdmsSensFadType modelVar_dT=mod.dT;
   AdmsSensFadType modelVar_rT=mod.rT;
   AdmsSensFadType modelVar_rTn=mod.rTn;
-  AdmsSensFadType modelVar_EPSSI=mod.EPSSI;
+  double modelVar_EPSSI=mod.EPSSI;
   AdmsSensFadType modelVar_phit=mod.phit;
   AdmsSensFadType modelVar_inv_phit=mod.inv_phit;
   AdmsSensFadType modelVar_Eg=mod.Eg;
@@ -45460,15 +42203,15 @@ void ModelSensitivity::operator()
   AdmsSensFadType modelVar_PBRBOT_i=mod.PBRBOT_i;
   AdmsSensFadType modelVar_PBRSTI_i=mod.PBRSTI_i;
   AdmsSensFadType modelVar_PBRGAT_i=mod.PBRGAT_i;
-  AdmsSensFadType modelVar_SWJUNEXP_i=mod.SWJUNEXP_i;
+  double modelVar_SWJUNEXP_i=mod.SWJUNEXP_i;
   AdmsSensFadType modelVar_VJUNREF_i=mod.VJUNREF_i;
   AdmsSensFadType modelVar_FJUNQ_i=mod.FJUNQ_i;
   AdmsSensFadType modelVar_phitr=mod.phitr;
   AdmsSensFadType modelVar_phitd=mod.phitd;
   AdmsSensFadType modelVar_phitdinv=mod.phitdinv;
-  AdmsSensFadType modelVar_perfc=mod.perfc;
-  AdmsSensFadType modelVar_berfc=mod.berfc;
-  AdmsSensFadType modelVar_cerfc=mod.cerfc;
+  double modelVar_perfc=mod.perfc;
+  double modelVar_berfc=mod.berfc;
+  double modelVar_cerfc=mod.cerfc;
   AdmsSensFadType modelVar_ftdbot=mod.ftdbot;
   AdmsSensFadType modelVar_ftdsti=mod.ftdsti;
   AdmsSensFadType modelVar_ftdgat=mod.ftdgat;
@@ -45751,7 +42494,7 @@ void ModelSensitivity::operator()
     AdmsSensFadType instanceVar_GCQ=in.GCQ;
     AdmsSensFadType instanceVar_Dch=in.Dch;
     AdmsSensFadType instanceVar_Dov=in.Dov;
-    AdmsSensFadType instanceVar_x1=in.x1;
+    double instanceVar_x1=in.x1;
     AdmsSensFadType instanceVar_Vdsat_lim=in.Vdsat_lim;
     AdmsSensFadType instanceVar_nt=in.nt;
     AdmsSensFadType instanceVar_Cox_over_q=in.Cox_over_q;
@@ -45799,9 +42542,9 @@ void ModelSensitivity::operator()
     AdmsSensFadType instanceVar_ABSOURCE_i=in.ABSOURCE_i;
     AdmsSensFadType instanceVar_LSSOURCE_i=in.LSSOURCE_i;
     AdmsSensFadType instanceVar_LGSOURCE_i=in.LGSOURCE_i;
-    AdmsSensFadType instanceVar_zflagbot_s=in.zflagbot_s;
-    AdmsSensFadType instanceVar_zflagsti_s=in.zflagsti_s;
-    AdmsSensFadType instanceVar_zflaggat_s=in.zflaggat_s;
+    double instanceVar_zflagbot_s=in.zflagbot_s;
+    double instanceVar_zflagsti_s=in.zflagsti_s;
+    double instanceVar_zflaggat_s=in.zflaggat_s;
     AdmsSensFadType instanceVar_VMAX_s=in.VMAX_s;
     AdmsSensFadType instanceVar_exp_VMAX_over_phitd_s=in.exp_VMAX_over_phitd_s;
     AdmsSensFadType instanceVar_vbimin_s=in.vbimin_s;
@@ -45814,9 +42557,9 @@ void ModelSensitivity::operator()
     AdmsSensFadType instanceVar_expxhf2_s=in.expxhf2_s;
     AdmsSensFadType instanceVar_xhighr_s=in.xhighr_s;
     AdmsSensFadType instanceVar_expxhr_s=in.expxhr_s;
-    AdmsSensFadType instanceVar_m0flag_s=in.m0flag_s;
+    double instanceVar_m0flag_s=in.m0flag_s;
     AdmsSensFadType instanceVar_ISATFOR1_s=in.ISATFOR1_s;
-    AdmsSensFadType instanceVar_MFOR1_s=in.MFOR1_s;
+    double instanceVar_MFOR1_s=in.MFOR1_s;
     AdmsSensFadType instanceVar_ISATFOR2_s=in.ISATFOR2_s;
     AdmsSensFadType instanceVar_MFOR2_s=in.MFOR2_s;
     AdmsSensFadType instanceVar_ISATREV_s=in.ISATREV_s;
@@ -45824,9 +42567,9 @@ void ModelSensitivity::operator()
     AdmsSensFadType instanceVar_ABDRAIN_i=in.ABDRAIN_i;
     AdmsSensFadType instanceVar_LSDRAIN_i=in.LSDRAIN_i;
     AdmsSensFadType instanceVar_LGDRAIN_i=in.LGDRAIN_i;
-    AdmsSensFadType instanceVar_zflagbot_d=in.zflagbot_d;
-    AdmsSensFadType instanceVar_zflagsti_d=in.zflagsti_d;
-    AdmsSensFadType instanceVar_zflaggat_d=in.zflaggat_d;
+    double instanceVar_zflagbot_d=in.zflagbot_d;
+    double instanceVar_zflagsti_d=in.zflagsti_d;
+    double instanceVar_zflaggat_d=in.zflaggat_d;
     AdmsSensFadType instanceVar_VMAX_d=in.VMAX_d;
     AdmsSensFadType instanceVar_exp_VMAX_over_phitd_d=in.exp_VMAX_over_phitd_d;
     AdmsSensFadType instanceVar_vbimin_d=in.vbimin_d;
@@ -45839,9 +42582,9 @@ void ModelSensitivity::operator()
     AdmsSensFadType instanceVar_expxhf2_d=in.expxhf2_d;
     AdmsSensFadType instanceVar_xhighr_d=in.xhighr_d;
     AdmsSensFadType instanceVar_expxhr_d=in.expxhr_d;
-    AdmsSensFadType instanceVar_m0flag_d=in.m0flag_d;
+    double instanceVar_m0flag_d=in.m0flag_d;
     AdmsSensFadType instanceVar_ISATFOR1_d=in.ISATFOR1_d;
-    AdmsSensFadType instanceVar_MFOR1_d=in.MFOR1_d;
+    double instanceVar_MFOR1_d=in.MFOR1_d;
     AdmsSensFadType instanceVar_ISATFOR2_d=in.ISATFOR2_d;
     AdmsSensFadType instanceVar_MFOR2_d=in.MFOR2_d;
     AdmsSensFadType instanceVar_ISATREV_d=in.ISATREV_d;

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 11 Jun 2019 09:13:17
+// Creation Date  : Thu, 25 Jul 2019 18:47:20
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsim6_h
@@ -434,9 +434,9 @@ void evaluateModelEquations(
    AdmsSensFadType & instanceVar_DLCIGD_i,
    AdmsSensFadType & instanceVar_IGT_i,
    AdmsSensFadType & instanceVar_nuIntD,
-   AdmsSensFadType & instanceVar_nuEndD,
+   double & instanceVar_nuEndD,
    AdmsSensFadType & instanceVar_nuIntS,
-   AdmsSensFadType & instanceVar_nuEndS,
+   double & instanceVar_nuEndS,
    AdmsSensFadType & instanceVar_gth,
    AdmsSensFadType & instanceVar_cth,
    // non-reals
@@ -2448,9 +2448,9 @@ void evaluateInitialInstance(
    AdmsSensFadType & instanceVar_DLCIGD_i,
    AdmsSensFadType & instanceVar_IGT_i,
    AdmsSensFadType & instanceVar_nuIntD,
-   AdmsSensFadType & instanceVar_nuEndD,
+   double & instanceVar_nuEndD,
    AdmsSensFadType & instanceVar_nuIntS,
-   AdmsSensFadType & instanceVar_nuEndS,
+   double & instanceVar_nuEndS,
    AdmsSensFadType & instanceVar_gth,
    AdmsSensFadType & instanceVar_cth,
    // non-reals

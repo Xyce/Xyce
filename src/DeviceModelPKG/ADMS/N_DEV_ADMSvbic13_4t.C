@@ -38,7 +38,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 17 Apr 2019 14:53:44
+// Creation Date  : Thu, 25 Jul 2019 18:47:20
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -9971,7 +9971,6 @@ registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet)
 }
 
 
-
 #ifdef Xyce_ADMS_SENSITIVITIES
 //-----------------------------------------------------------------------------
 // Function      : evaluateInitialInstance
@@ -10332,19 +10331,13 @@ void evaluateInitialInstance(
     }
     if ((instanceVar_tdevC<(modelPar_tminclip+1.0)))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp(((instanceVar_tdevC-modelPar_tminclip)-1.0));
-        instanceVar_tdevC = (modelPar_tminclip+value_exp_0);
-      }
+      instanceVar_tdevC = (modelPar_tminclip+exp(((instanceVar_tdevC-modelPar_tminclip)-1.0)));
     }
     else
     {
       if ((instanceVar_tdevC>(modelPar_tmaxclip-1.0)))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp(((modelPar_tmaxclip-instanceVar_tdevC)-1.0));
-          instanceVar_tdevC = (modelPar_tmaxclip-value_exp_0);
-        }
+        instanceVar_tdevC = (modelPar_tmaxclip-exp(((modelPar_tmaxclip-instanceVar_tdevC)-1.0)));
       }
       else
       {
@@ -10354,227 +10347,130 @@ void evaluateInitialInstance(
     instanceVar_tdevK = (instanceVar_tdevC+273.15);
     instanceVar_vtv = ((1.380662e-23*instanceVar_tdevK)/1.602189e-19);
     instanceVar_rT = (instanceVar_tdevK/modelVar_tiniK);
-    {
-      AdmsSensFadType value_log_0 = log((adms_vt(admsTemperature)/(1.41421356237309504880*modelPar_is)));
-      instanceVar_tVCrit = (adms_vt(admsTemperature)*value_log_0);
-    }
+    instanceVar_tVCrit = (adms_vt(admsTemperature)*log((adms_vt(admsTemperature)/(1.41421356237309504880*modelPar_is))));
     if ((modelPar_ibbe>0.0))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp(((-modelPar_vbbe)/(modelPar_nbbe*instanceVar_vtv)));
-        AdmsSensFadType value_log_1 = log((value_exp_0+(modelVar_imaxMod/modelPar_ibbe)));
-        instanceVar_maxvIbbe = ((modelPar_nbbe*instanceVar_vtv)*value_log_1);
-      }
+      instanceVar_maxvIbbe = ((modelPar_nbbe*instanceVar_vtv)*log((exp(((-modelPar_vbbe)/(modelPar_nbbe*instanceVar_vtv)))+(modelVar_imaxMod/modelPar_ibbe))));
     }
     else
     {
       instanceVar_maxvIbbe = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xis/modelPar_nf));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_ea)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nf)));
-      instanceVar_is_t = ((modelPar_is*value_pow_0)*value_exp_1);
-    }
+    instanceVar_is_t = ((modelPar_is*pow(instanceVar_rT,(modelPar_xis/modelPar_nf)))*exp((((-modelPar_ea)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nf))));
     if ((instanceVar_is_t>0.0))
     {
       if (((modelPar_ikf>0.0)&&(modelVar_imaxMod>modelPar_ikf)))
       {
-        {
-          AdmsSensFadType value_pow_0 = pow((4.0/modelPar_ikf),modelPar_nkf);
-          AdmsSensFadType value_pow_1 = pow(((0.5*modelVar_imaxMod)*value_pow_0),(1.0/(1.0-modelPar_nkf)));
-          AdmsSensFadType value_log_2 = log((1.0+(value_pow_1/instanceVar_is_t)));
-          instanceVar_maxvIfi = ((modelPar_nf*instanceVar_vtv)*value_log_2);
-        }
+        instanceVar_maxvIfi = ((modelPar_nf*instanceVar_vtv)*log((1.0+(pow(((0.5*modelVar_imaxMod)*pow((4.0/modelPar_ikf),modelPar_nkf)),(1.0/(1.0-modelPar_nkf)))/instanceVar_is_t))));
       }
       else
       {
-        {
-          AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_is_t)));
-          instanceVar_maxvIfi = ((modelPar_nf*instanceVar_vtv)*value_log_0);
-        }
+        instanceVar_maxvIfi = ((modelPar_nf*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_is_t))));
       }
     }
     else
     {
       instanceVar_maxvIfi = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xisr/modelPar_nr));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_dear)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nr)));
-      instanceVar_isrr_t = ((modelPar_isrr*value_pow_0)*value_exp_1);
-    }
+    instanceVar_isrr_t = ((modelPar_isrr*pow(instanceVar_rT,(modelPar_xisr/modelPar_nr)))*exp((((-modelPar_dear)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nr))));
     if (((instanceVar_is_t>0.0)&&(instanceVar_isrr_t>0.0)))
     {
       if (((modelPar_ikr>0.0)&&(modelVar_imaxMod>modelPar_ikr)))
       {
-        {
-          AdmsSensFadType value_pow_0 = pow((4.0/modelPar_ikr),modelPar_nkf);
-          AdmsSensFadType value_pow_1 = pow(((0.5*modelVar_imaxMod)*value_pow_0),(1.0/(1.0-modelPar_nkf)));
-          AdmsSensFadType value_log_2 = log((1.0+(value_pow_1/(instanceVar_is_t*instanceVar_isrr_t))));
-          instanceVar_maxvIri = ((modelPar_nr*instanceVar_vtv)*value_log_2);
-        }
+        instanceVar_maxvIri = ((modelPar_nr*instanceVar_vtv)*log((1.0+(pow(((0.5*modelVar_imaxMod)*pow((4.0/modelPar_ikr),modelPar_nkf)),(1.0/(1.0-modelPar_nkf)))/(instanceVar_is_t*instanceVar_isrr_t)))));
       }
       else
       {
-        {
-          AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/(instanceVar_is_t*instanceVar_isrr_t))));
-          instanceVar_maxvIri = ((modelPar_nr*instanceVar_vtv)*value_log_0);
-        }
+        instanceVar_maxvIri = ((modelPar_nr*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/(instanceVar_is_t*instanceVar_isrr_t)))));
       }
     }
     else
     {
       instanceVar_maxvIri = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xis/modelPar_nfp));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eap)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nfp)));
-      instanceVar_isp_t = ((modelPar_isp*value_pow_0)*value_exp_1);
-    }
+    instanceVar_isp_t = ((modelPar_isp*pow(instanceVar_rT,(modelPar_xis/modelPar_nfp)))*exp((((-modelPar_eap)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nfp))));
     if ((instanceVar_isp_t>0.0))
     {
       if (((modelPar_ikp>0.0)&&(modelVar_imaxMod>modelPar_ikp)))
       {
-        {
-          AdmsSensFadType value_log_0 = log((1.0+(((modelVar_imaxMod*modelVar_imaxMod)*modelVar_Iikp)/instanceVar_isp_t)));
-          instanceVar_maxvIp = ((modelPar_nfp*instanceVar_vtv)*value_log_0);
-        }
+        instanceVar_maxvIp = ((modelPar_nfp*instanceVar_vtv)*log((1.0+(((modelVar_imaxMod*modelVar_imaxMod)*modelVar_Iikp)/instanceVar_isp_t))));
       }
       else
       {
-        {
-          AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_isp_t)));
-          instanceVar_maxvIp = ((modelPar_nfp*instanceVar_vtv)*value_log_0);
-        }
+        instanceVar_maxvIp = ((modelPar_nfp*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_isp_t))));
       }
     }
     else
     {
       instanceVar_maxvIp = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nei));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eaie)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nei)));
-      instanceVar_ibei_t = ((modelPar_ibei*value_pow_0)*value_exp_1);
-    }
+    instanceVar_ibei_t = ((modelPar_ibei*pow(instanceVar_rT,(modelPar_xii/modelPar_nei)))*exp((((-modelPar_eaie)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nei))));
     if ((instanceVar_ibei_t>0.0))
     {
-      {
-        AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibei_t)));
-        instanceVar_maxvIbei = ((modelPar_nei*instanceVar_vtv)*value_log_0);
-      }
+      instanceVar_maxvIbei = ((modelPar_nei*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibei_t))));
     }
     else
     {
       instanceVar_maxvIbei = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_nen));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eane)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nen)));
-      instanceVar_iben_t = ((modelPar_iben*value_pow_0)*value_exp_1);
-    }
+    instanceVar_iben_t = ((modelPar_iben*pow(instanceVar_rT,(modelPar_xin/modelPar_nen)))*exp((((-modelPar_eane)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nen))));
     if ((instanceVar_iben_t>0.0))
     {
-      {
-        AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_iben_t)));
-        instanceVar_maxvIben = ((modelPar_nen*instanceVar_vtv)*value_log_0);
-      }
+      instanceVar_maxvIben = ((modelPar_nen*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_iben_t))));
     }
     else
     {
       instanceVar_maxvIben = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nci));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci)));
-      instanceVar_ibci_t = ((modelPar_ibci*value_pow_0)*value_exp_1);
-    }
+    instanceVar_ibci_t = ((modelPar_ibci*pow(instanceVar_rT,(modelPar_xii/modelPar_nci)))*exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci))));
     if ((instanceVar_ibci_t>0.0))
     {
-      {
-        AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibci_t)));
-        instanceVar_maxvIbci = ((modelPar_nci*instanceVar_vtv)*value_log_0);
-      }
+      instanceVar_maxvIbci = ((modelPar_nci*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibci_t))));
     }
     else
     {
       instanceVar_maxvIbci = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncn));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn)));
-      instanceVar_ibcn_t = ((modelPar_ibcn*value_pow_0)*value_exp_1);
-    }
+    instanceVar_ibcn_t = ((modelPar_ibcn*pow(instanceVar_rT,(modelPar_xin/modelPar_ncn)))*exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn))));
     if ((instanceVar_ibcn_t>0.0))
     {
-      {
-        AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibcn_t)));
-        instanceVar_maxvIbcn = ((modelPar_ncn*instanceVar_vtv)*value_log_0);
-      }
+      instanceVar_maxvIbcn = ((modelPar_ncn*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibcn_t))));
     }
     else
     {
       instanceVar_maxvIbcn = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nci));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci)));
-      instanceVar_ibeip_t = ((modelPar_ibeip*value_pow_0)*value_exp_1);
-    }
+    instanceVar_ibeip_t = ((modelPar_ibeip*pow(instanceVar_rT,(modelPar_xii/modelPar_nci)))*exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci))));
     if ((instanceVar_ibeip_t>0.0))
     {
-      {
-        AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibeip_t)));
-        instanceVar_maxvIbeip = ((modelPar_nci*instanceVar_vtv)*value_log_0);
-      }
+      instanceVar_maxvIbeip = ((modelPar_nci*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibeip_t))));
     }
     else
     {
       instanceVar_maxvIbeip = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncn));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn)));
-      instanceVar_ibenp_t = ((modelPar_ibenp*value_pow_0)*value_exp_1);
-    }
+    instanceVar_ibenp_t = ((modelPar_ibenp*pow(instanceVar_rT,(modelPar_xin/modelPar_ncn)))*exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn))));
     if ((instanceVar_ibenp_t>0.0))
     {
-      {
-        AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibenp_t)));
-        instanceVar_maxvIbenp = ((modelPar_ncn*instanceVar_vtv)*value_log_0);
-      }
+      instanceVar_maxvIbenp = ((modelPar_ncn*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibenp_t))));
     }
     else
     {
       instanceVar_maxvIbenp = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_ncip));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eais)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncip)));
-      instanceVar_ibcip_t = ((modelPar_ibcip*value_pow_0)*value_exp_1);
-    }
+    instanceVar_ibcip_t = ((modelPar_ibcip*pow(instanceVar_rT,(modelPar_xii/modelPar_ncip)))*exp((((-modelPar_eais)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncip))));
     if ((instanceVar_ibcip_t>0.0))
     {
-      {
-        AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibcip_t)));
-        instanceVar_maxvIbcip = ((modelPar_ncip*instanceVar_vtv)*value_log_0);
-      }
+      instanceVar_maxvIbcip = ((modelPar_ncip*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibcip_t))));
     }
     else
     {
       instanceVar_maxvIbcip = 0.0;
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncnp));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eans)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncnp)));
-      instanceVar_ibcnp_t = ((modelPar_ibcnp*value_pow_0)*value_exp_1);
-    }
+    instanceVar_ibcnp_t = ((modelPar_ibcnp*pow(instanceVar_rT,(modelPar_xin/modelPar_ncnp)))*exp((((-modelPar_eans)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncnp))));
     if ((instanceVar_ibcnp_t>0.0))
     {
-      {
-        AdmsSensFadType value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibcnp_t)));
-        instanceVar_maxvIbcnp = ((modelPar_ncnp*instanceVar_vtv)*value_log_0);
-      }
+      instanceVar_maxvIbcnp = ((modelPar_ncnp*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibcnp_t))));
     }
     else
     {
@@ -10913,10 +10809,7 @@ void evaluateInitialModel(
         }
       }
     }
-    {
-      AdmsSensFadType value_log_0 = log(modelPar_maxexp);
-      modelVar_VmaxExp = value_log_0;
-    }
+    modelVar_VmaxExp = log(modelPar_maxexp);
     modelVar_Iikr = adms_ternary_op<AdmsSensFadType>((modelPar_ikr>0.0),(1.0/modelPar_ikr),0.0);
     modelVar_Iikp = adms_ternary_op<AdmsSensFadType>((modelPar_ikp>0.0),(1.0/modelPar_ikp),0.0);
     modelVar_Ihrcf = adms_ternary_op<AdmsSensFadType>((modelPar_hrcf>0.0),(1.0/modelPar_hrcf),0.0);
@@ -11443,19 +11336,13 @@ void evaluateModelEquations(
     instanceVar_tdevC = (((admsTemperature+instancePar_trise)+dt_et)-273.15);
     if ((instanceVar_tdevC<(modelPar_tminclip+1.0)))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp(((instanceVar_tdevC-modelPar_tminclip)-1.0));
-        instanceVar_tdevC = (modelPar_tminclip+value_exp_0);
-      }
+      instanceVar_tdevC = (modelPar_tminclip+exp(((instanceVar_tdevC-modelPar_tminclip)-1.0)));
     }
     else
     {
       if ((instanceVar_tdevC>(modelPar_tmaxclip-1.0)))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp(((modelPar_tmaxclip-instanceVar_tdevC)-1.0));
-          instanceVar_tdevC = (modelPar_tmaxclip-value_exp_0);
-        }
+        instanceVar_tdevC = (modelPar_tmaxclip-exp(((modelPar_tmaxclip-instanceVar_tdevC)-1.0)));
       }
       else
       {
@@ -11466,144 +11353,61 @@ void evaluateModelEquations(
     instanceVar_vtv = ((1.380662e-23*instanceVar_tdevK)/1.602189e-19);
     instanceVar_rT = (instanceVar_tdevK/modelVar_tiniK);
     dT = (instanceVar_tdevK-modelVar_tiniK);
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xikf);
-      ikf_t = (modelPar_ikf*value_pow_0);
-    }
+    ikf_t = (modelPar_ikf*pow(instanceVar_rT,modelPar_xikf));
     if (modelPar_given_xrcx)
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrcx);
-        rcx_t = (modelPar_rcx*value_pow_0);
-      }
+      rcx_t = (modelPar_rcx*pow(instanceVar_rT,modelPar_xrcx));
     }
     else
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrc);
-        rcx_t = (modelPar_rcx*value_pow_0);
-      }
+      rcx_t = (modelPar_rcx*pow(instanceVar_rT,modelPar_xrc));
     }
     if (modelPar_given_xrci)
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrci);
-        rci_t = (modelPar_rci*value_pow_0);
-      }
+      rci_t = (modelPar_rci*pow(instanceVar_rT,modelPar_xrci));
     }
     else
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrc);
-        rci_t = (modelPar_rci*value_pow_0);
-      }
+      rci_t = (modelPar_rci*pow(instanceVar_rT,modelPar_xrc));
     }
     if (modelPar_given_xrbx)
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrbx);
-        rbx_t = (modelPar_rbx*value_pow_0);
-      }
+      rbx_t = (modelPar_rbx*pow(instanceVar_rT,modelPar_xrbx));
     }
     else
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrb);
-        rbx_t = (modelPar_rbx*value_pow_0);
-      }
+      rbx_t = (modelPar_rbx*pow(instanceVar_rT,modelPar_xrb));
     }
     if (modelPar_given_xrbi)
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrbi);
-        rbi_t = (modelPar_rbi*value_pow_0);
-      }
+      rbi_t = (modelPar_rbi*pow(instanceVar_rT,modelPar_xrbi));
     }
     else
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrb);
-        rbi_t = (modelPar_rbi*value_pow_0);
-      }
+      rbi_t = (modelPar_rbi*pow(instanceVar_rT,modelPar_xrb));
     }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xre);
-      re_t = (modelPar_re*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrs);
-      rs_t = (modelPar_rs*value_pow_0);
-    }
+    re_t = (modelPar_re*pow(instanceVar_rT,modelPar_xre));
+    rs_t = (modelPar_rs*pow(instanceVar_rT,modelPar_xrs));
     if (modelPar_given_xrbp)
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrbp);
-        rbp_t = (modelPar_rbp*value_pow_0);
-      }
+      rbp_t = (modelPar_rbp*pow(instanceVar_rT,modelPar_xrbp));
     }
     else
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xrc);
-        rbp_t = (modelPar_rbp*value_pow_0);
-      }
+      rbp_t = (modelPar_rbp*pow(instanceVar_rT,modelPar_xrc));
     }
     rth_t = (modelPar_rth*(1.0+(dT*modelPar_tcrth)));
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xis/modelPar_nf));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_ea)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nf)));
-      instanceVar_is_t = ((modelPar_is*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xisr/modelPar_nr));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_dear)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nr)));
-      instanceVar_isrr_t = ((modelPar_isrr*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xis/modelPar_nfp));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eap)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nfp)));
-      instanceVar_isp_t = ((modelPar_isp*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nei));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eaie)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nei)));
-      instanceVar_ibei_t = ((modelPar_ibei*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_nen));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eane)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nen)));
-      instanceVar_iben_t = ((modelPar_iben*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nci));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci)));
-      instanceVar_ibci_t = ((modelPar_ibci*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncn));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn)));
-      instanceVar_ibcn_t = ((modelPar_ibcn*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nci));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci)));
-      instanceVar_ibeip_t = ((modelPar_ibeip*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncn));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn)));
-      instanceVar_ibenp_t = ((modelPar_ibenp*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_ncip));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eais)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncip)));
-      instanceVar_ibcip_t = ((modelPar_ibcip*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncnp));
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_eans)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncnp)));
-      instanceVar_ibcnp_t = ((modelPar_ibcnp*value_pow_0)*value_exp_1);
-    }
+    instanceVar_is_t = ((modelPar_is*pow(instanceVar_rT,(modelPar_xis/modelPar_nf)))*exp((((-modelPar_ea)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nf))));
+    instanceVar_isrr_t = ((modelPar_isrr*pow(instanceVar_rT,(modelPar_xisr/modelPar_nr)))*exp((((-modelPar_dear)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nr))));
+    instanceVar_isp_t = ((modelPar_isp*pow(instanceVar_rT,(modelPar_xis/modelPar_nfp)))*exp((((-modelPar_eap)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nfp))));
+    instanceVar_ibei_t = ((modelPar_ibei*pow(instanceVar_rT,(modelPar_xii/modelPar_nei)))*exp((((-modelPar_eaie)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nei))));
+    instanceVar_iben_t = ((modelPar_iben*pow(instanceVar_rT,(modelPar_xin/modelPar_nen)))*exp((((-modelPar_eane)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nen))));
+    instanceVar_ibci_t = ((modelPar_ibci*pow(instanceVar_rT,(modelPar_xii/modelPar_nci)))*exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci))));
+    instanceVar_ibcn_t = ((modelPar_ibcn*pow(instanceVar_rT,(modelPar_xin/modelPar_ncn)))*exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn))));
+    instanceVar_ibeip_t = ((modelPar_ibeip*pow(instanceVar_rT,(modelPar_xii/modelPar_nci)))*exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci))));
+    instanceVar_ibenp_t = ((modelPar_ibenp*pow(instanceVar_rT,(modelPar_xin/modelPar_ncn)))*exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn))));
+    instanceVar_ibcip_t = ((modelPar_ibcip*pow(instanceVar_rT,(modelPar_xii/modelPar_ncip)))*exp((((-modelPar_eais)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncip))));
+    instanceVar_ibcnp_t = ((modelPar_ibcnp*pow(instanceVar_rT,(modelPar_xin/modelPar_ncnp)))*exp((((-modelPar_eans)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncnp))));
     nf_t = (modelPar_nf*(1.0+(dT*modelPar_tnf)));
     nr_t = (modelPar_nr*(1.0+(dT*modelPar_tnf)));
     avc2_t = (modelPar_avc2*(1.0+(dT*modelPar_tavc)));
@@ -11616,22 +11420,9 @@ void evaluateModelEquations(
       AdmsSensFadType psiio;
       AdmsSensFadType psiin;
       //End of Block-local variables
-      {
-        AdmsSensFadType value_exp_0 = exp((((0.5*modelPar_pe)*instanceVar_rT)/instanceVar_vtv));
-        AdmsSensFadType value_exp_1 = exp(((((-0.5)*modelPar_pe)*instanceVar_rT)/instanceVar_vtv));
-        AdmsSensFadType value_log_2 = log((value_exp_0-value_exp_1));
-        psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*value_log_2);
-      }
-      {
-        AdmsSensFadType value_log_0 = log(instanceVar_rT);
-        psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*value_log_0))-(modelPar_eaie*(instanceVar_rT-1.0)));
-      }
-      {
-        AdmsSensFadType value_exp_0 = exp(((-psiin)/instanceVar_vtv));
-        AdmsSensFadType value_sqrt_1 = sqrt((1.0+(4.0*value_exp_0)));
-        AdmsSensFadType value_log_2 = log((0.5*(1.0+value_sqrt_1)));
-        pe_t = (psiin+((2.0*instanceVar_vtv)*value_log_2));
-      }
+      psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*log((exp((((0.5*modelPar_pe)*instanceVar_rT)/instanceVar_vtv))-exp(((((-0.5)*modelPar_pe)*instanceVar_rT)/instanceVar_vtv)))));
+      psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*log(instanceVar_rT)))-(modelPar_eaie*(instanceVar_rT-1.0)));
+      pe_t = (psiin+((2.0*instanceVar_vtv)*log((0.5*(1.0+sqrt((1.0+(4.0*exp(((-psiin)/instanceVar_vtv))))))))));
     }
     // End block pePsibiBlock
     //Begin block pcPsibiBlock
@@ -11640,22 +11431,9 @@ void evaluateModelEquations(
       AdmsSensFadType psiio;
       AdmsSensFadType psiin;
       //End of Block-local variables
-      {
-        AdmsSensFadType value_exp_0 = exp((((0.5*modelPar_pc)*instanceVar_rT)/instanceVar_vtv));
-        AdmsSensFadType value_exp_1 = exp(((((-0.5)*modelPar_pc)*instanceVar_rT)/instanceVar_vtv));
-        AdmsSensFadType value_log_2 = log((value_exp_0-value_exp_1));
-        psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*value_log_2);
-      }
-      {
-        AdmsSensFadType value_log_0 = log(instanceVar_rT);
-        psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*value_log_0))-(modelPar_eaic*(instanceVar_rT-1.0)));
-      }
-      {
-        AdmsSensFadType value_exp_0 = exp(((-psiin)/instanceVar_vtv));
-        AdmsSensFadType value_sqrt_1 = sqrt((1.0+(4.0*value_exp_0)));
-        AdmsSensFadType value_log_2 = log((0.5*(1.0+value_sqrt_1)));
-        pc_t = (psiin+((2.0*instanceVar_vtv)*value_log_2));
-      }
+      psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*log((exp((((0.5*modelPar_pc)*instanceVar_rT)/instanceVar_vtv))-exp(((((-0.5)*modelPar_pc)*instanceVar_rT)/instanceVar_vtv)))));
+      psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*log(instanceVar_rT)))-(modelPar_eaic*(instanceVar_rT-1.0)));
+      pc_t = (psiin+((2.0*instanceVar_vtv)*log((0.5*(1.0+sqrt((1.0+(4.0*exp(((-psiin)/instanceVar_vtv))))))))));
     }
     // End block pcPsibiBlock
     //Begin block psPsibiBlock
@@ -11664,53 +11442,18 @@ void evaluateModelEquations(
       AdmsSensFadType psiio;
       AdmsSensFadType psiin;
       //End of Block-local variables
-      {
-        AdmsSensFadType value_exp_0 = exp((((0.5*modelPar_ps)*instanceVar_rT)/instanceVar_vtv));
-        AdmsSensFadType value_exp_1 = exp(((((-0.5)*modelPar_ps)*instanceVar_rT)/instanceVar_vtv));
-        AdmsSensFadType value_log_2 = log((value_exp_0-value_exp_1));
-        psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*value_log_2);
-      }
-      {
-        AdmsSensFadType value_log_0 = log(instanceVar_rT);
-        psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*value_log_0))-(modelPar_eais*(instanceVar_rT-1.0)));
-      }
-      {
-        AdmsSensFadType value_exp_0 = exp(((-psiin)/instanceVar_vtv));
-        AdmsSensFadType value_sqrt_1 = sqrt((1.0+(4.0*value_exp_0)));
-        AdmsSensFadType value_log_2 = log((0.5*(1.0+value_sqrt_1)));
-        ps_t = (psiin+((2.0*instanceVar_vtv)*value_log_2));
-      }
+      psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*log((exp((((0.5*modelPar_ps)*instanceVar_rT)/instanceVar_vtv))-exp(((((-0.5)*modelPar_ps)*instanceVar_rT)/instanceVar_vtv)))));
+      psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*log(instanceVar_rT)))-(modelPar_eais*(instanceVar_rT-1.0)));
+      ps_t = (psiin+((2.0*instanceVar_vtv)*log((0.5*(1.0+sqrt((1.0+(4.0*exp(((-psiin)/instanceVar_vtv))))))))));
     }
     // End block psPsibiBlock
-    {
-      AdmsSensFadType value_pow_0 = pow((modelPar_pe/pe_t),modelPar_me);
-      cje_t = (modelPar_cje*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow((modelPar_pc/pc_t),modelPar_mc);
-      cjc_t = (modelPar_cjc*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow((modelPar_pc/pc_t),modelPar_mc);
-      cjep_t = (modelPar_cjep*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow((modelPar_ps/ps_t),modelPar_ms);
-      cjcp_t = (modelPar_cjcp*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xis);
-      AdmsSensFadType value_exp_1 = exp((((-modelPar_ea)*(1.0-instanceVar_rT))/instanceVar_vtv));
-      gamm_t = ((modelPar_gamm*value_pow_0)*value_exp_1);
-    }
-    {
-      AdmsSensFadType value_pow_0 = pow(instanceVar_rT,modelPar_xvo);
-      vo_t = (modelPar_vo*value_pow_0);
-    }
-    {
-      AdmsSensFadType value_exp_0 = exp(((-vbbe_t)/(nbbe_t*instanceVar_vtv)));
-      ebbe_t = value_exp_0;
-    }
+    cje_t = (modelPar_cje*pow((modelPar_pe/pe_t),modelPar_me));
+    cjc_t = (modelPar_cjc*pow((modelPar_pc/pc_t),modelPar_mc));
+    cjep_t = (modelPar_cjep*pow((modelPar_pc/pc_t),modelPar_mc));
+    cjcp_t = (modelPar_cjcp*pow((modelPar_ps/ps_t),modelPar_ms));
+    gamm_t = ((modelPar_gamm*pow(instanceVar_rT,modelPar_xis))*exp((((-modelPar_ea)*(1.0-instanceVar_rT))/instanceVar_vtv)));
+    vo_t = (modelPar_vo*pow(instanceVar_rT,modelPar_xvo));
+    ebbe_t = exp(((-vbbe_t)/(nbbe_t*instanceVar_vtv)));
     vef_t = (modelPar_vef*(1.0+(dT*modelPar_tcvef)));
     ver_t = (modelPar_ver*(1.0+(dT*modelPar_tcver)));
     instanceVar_Gcx = adms_ternary_op<AdmsSensFadType>((rcx_t>1.0e-3),(1.0/rcx_t),1.0e3);
@@ -11773,48 +11516,27 @@ void evaluateModelEquations(
         dvh = (Vbei+dv0);
         if ((dvh>0.0))
         {
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_me));
-            pwq = value_pow_0;
-          }
+          pwq = pow((1.0-modelPar_fc),(-modelPar_me));
           qlo = ((pe_t*(1.0-(pwq*(1.0-modelPar_fc))))/(1.0-modelPar_me));
           qhi = ((dvh*(1.0+(((0.5*modelPar_me)*dvh)/(pe_t*(1.0-modelPar_fc)))))*pwq);
         }
         else
         {
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(Vbei/pe_t)),(1.0-modelPar_me));
-            qlo = ((pe_t*(1.0-value_pow_0))/(1.0-modelPar_me));
-          }
+          qlo = ((pe_t*(1.0-pow((1.0-(Vbei/pe_t)),(1.0-modelPar_me))))/(1.0-modelPar_me));
           qhi = 0.0;
         }
         qdbe = (qlo+qhi);
       }
       else
       {
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt(((dv0*dv0)+((4.0*modelPar_aje)*modelPar_aje)));
-          mv0 = value_sqrt_0;
-        }
+        mv0 = sqrt(((dv0*dv0)+((4.0*modelPar_aje)*modelPar_aje)));
         vl0 = ((-0.5)*(dv0+mv0));
-        {
-          AdmsSensFadType value_pow_0 = pow((1.0-(vl0/pe_t)),(1.0-modelPar_me));
-          q0 = (((-pe_t)*value_pow_0)/(1.0-modelPar_me));
-        }
+        q0 = (((-pe_t)*pow((1.0-(vl0/pe_t)),(1.0-modelPar_me)))/(1.0-modelPar_me));
         dv = (Vbei+dv0);
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt(((dv*dv)+((4.0*modelPar_aje)*modelPar_aje)));
-          mv = value_sqrt_0;
-        }
+        mv = sqrt(((dv*dv)+((4.0*modelPar_aje)*modelPar_aje)));
         vl = ((0.5*(dv-mv))-dv0);
-        {
-          AdmsSensFadType value_pow_0 = pow((1.0-(vl/pe_t)),(1.0-modelPar_me));
-          qlo = (((-pe_t)*value_pow_0)/(1.0-modelPar_me));
-        }
-        {
-          AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_me));
-          qdbe = ((qlo+((value_pow_0*((Vbei-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbei-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-q0);
-        }
+        qlo = (((-pe_t)*pow((1.0-(vl/pe_t)),(1.0-modelPar_me)))/(1.0-modelPar_me));
+        qdbe = ((qlo+((pow((1.0-modelPar_fc),(-modelPar_me))*((Vbei-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbei-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-q0);
       }
     }
     // End block qdbeBlock
@@ -11849,10 +11571,7 @@ void evaluateModelEquations(
         dvh = (Vbci+dv0);
         if ((dvh>0.0))
         {
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),((-1.0)-modelPar_mc));
-            pwq = value_pow_0;
-          }
+          pwq = pow((1.0-modelPar_fc),((-1.0)-modelPar_mc));
           qlo = ((pc_t*(1.0-((pwq*(1.0-modelPar_fc))*(1.0-modelPar_fc))))/(1.0-modelPar_mc));
           qhi = ((dvh*((1.0-modelPar_fc)+(((0.5*modelPar_mc)*dvh)/pc_t)))*pwq);
         }
@@ -11860,17 +11579,11 @@ void evaluateModelEquations(
         {
           if (((modelPar_vrt>0.0)&&(Vbci<(-modelPar_vrt))))
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1.0+(modelPar_vrt/pc_t)),(1.0-modelPar_mc));
-              qlo = ((pc_t*(1.0-(value_pow_0*(1.0-(((1.0-modelPar_mc)*(Vbci+modelPar_vrt))/(pc_t+modelPar_vrt))))))/(1.0-modelPar_mc));
-            }
+            qlo = ((pc_t*(1.0-(pow((1.0+(modelPar_vrt/pc_t)),(1.0-modelPar_mc))*(1.0-(((1.0-modelPar_mc)*(Vbci+modelPar_vrt))/(pc_t+modelPar_vrt))))))/(1.0-modelPar_mc));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1.0-(Vbci/pc_t)),(1.0-modelPar_mc));
-              qlo = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
-            }
+            qlo = ((pc_t*(1.0-pow((1.0-(Vbci/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
           }
           qhi = 0.0;
         }
@@ -11881,65 +11594,30 @@ void evaluateModelEquations(
         if (((modelPar_vrt>0.0)&&(modelPar_art>0.0)))
         {
           vn0 = ((modelPar_vrt+dv0)/(modelPar_vrt-dv0));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((vn0-1.0)*(vn0-1))+((4*modelPar_ajc)*modelPar_ajc)));
-            AdmsSensFadType value_sqrt_1 = sqrt((((vn0+1.0)*(vn0+1))+((4*modelPar_art)*modelPar_art)));
-            vnl0 = ((2.0*vn0)/(value_sqrt_0+value_sqrt_1));
-          }
+          vnl0 = ((2.0*vn0)/(sqrt((((vn0-1.0)*(vn0-1))+((4*modelPar_ajc)*modelPar_ajc)))+sqrt((((vn0+1.0)*(vn0+1))+((4*modelPar_art)*modelPar_art)))));
           vl0 = (0.5*(((vnl0*(modelPar_vrt-dv0))-modelPar_vrt)-dv0));
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc));
-            qlo0 = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
-          }
+          qlo0 = ((pc_t*(1.0-pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
           vn = ((((2*Vbci)+modelPar_vrt)+dv0)/(modelPar_vrt-dv0));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((vn-1.0)*(vn-1))+((4*modelPar_ajc)*modelPar_ajc)));
-            AdmsSensFadType value_sqrt_1 = sqrt((((vn+1.0)*(vn+1))+((4*modelPar_art)*modelPar_art)));
-            vnl = ((2.0*vn)/(value_sqrt_0+value_sqrt_1));
-          }
+          vnl = ((2.0*vn)/(sqrt((((vn-1.0)*(vn-1))+((4*modelPar_ajc)*modelPar_ajc)))+sqrt((((vn+1.0)*(vn+1))+((4*modelPar_art)*modelPar_art)))));
           vl = (0.5*(((vnl*(modelPar_vrt-dv0))-modelPar_vrt)-dv0));
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl/pc_t)),(1.0-modelPar_mc));
-            qlo = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
-          }
+          qlo = ((pc_t*(1.0-pow((1.0-(vl/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
           sel = (0.5*(vnl+1.0));
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0+(modelPar_vrt/pc_t)),(-modelPar_mc));
-            crt = value_pow_0;
-          }
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0+(dv0/pc_t)),(-modelPar_mc));
-            cmx = value_pow_0;
-          }
+          crt = pow((1.0+(modelPar_vrt/pc_t)),(-modelPar_mc));
+          cmx = pow((1.0+(dv0/pc_t)),(-modelPar_mc));
           cl = (((1.0-sel)*crt)+(sel*cmx));
           ql = (((Vbci-vl)+vl0)*cl);
           qdbc = ((ql+qlo)-qlo0);
         }
         else
         {
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((dv0*dv0)+((4*modelPar_ajc)*modelPar_ajc)));
-            mv0 = value_sqrt_0;
-          }
+          mv0 = sqrt(((dv0*dv0)+((4*modelPar_ajc)*modelPar_ajc)));
           vl0 = ((-0.5)*(dv0+mv0));
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc));
-            q0 = (((-pc_t)*value_pow_0)/(1.0-modelPar_mc));
-          }
+          q0 = (((-pc_t)*pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc)))/(1.0-modelPar_mc));
           dv = (Vbci+dv0);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((dv*dv)+((4*modelPar_ajc)*modelPar_ajc)));
-            mv = value_sqrt_0;
-          }
+          mv = sqrt(((dv*dv)+((4*modelPar_ajc)*modelPar_ajc)));
           vl = ((0.5*(dv-mv))-dv0);
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl/pc_t)),(1.0-modelPar_mc));
-            qlo = (((-pc_t)*value_pow_0)/(1.0-modelPar_mc));
-          }
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_mc));
-            qdbc = ((qlo+(value_pow_0*((Vbci-vl)+vl0)))-q0);
-          }
+          qlo = (((-pc_t)*pow((1.0-(vl/pc_t)),(1.0-modelPar_mc)))/(1.0-modelPar_mc));
+          qdbc = ((qlo+(pow((1.0-modelPar_fc),(-modelPar_mc))*((Vbci-vl)+vl0)))-q0);
         }
       }
     }
@@ -11947,60 +11625,36 @@ void evaluateModelEquations(
     afac = (1.0/(nf_t*instanceVar_vtv));
     if ((Vbei<instanceVar_maxvIfi))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp((Vbei*afac));
-        expi = value_exp_0;
-      }
+      expi = exp((Vbei*afac));
     }
     else
     {
-      {
-        AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIfi*afac));
-        expi = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIfi)*afac)));
-      }
+      expi = (exp((instanceVar_maxvIfi*afac))*(1.0+((Vbei-instanceVar_maxvIfi)*afac)));
     }
     Ifi = (instanceVar_is_t*(expi-1.0));
     afac = (1.0/(nr_t*instanceVar_vtv));
     if ((Vbci<instanceVar_maxvIri))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp((Vbci*afac));
-        expi = value_exp_0;
-      }
+      expi = exp((Vbci*afac));
     }
     else
     {
-      {
-        AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIri*afac));
-        expi = (value_exp_0*(1.0+((Vbci-instanceVar_maxvIri)*afac)));
-      }
+      expi = (exp((instanceVar_maxvIri*afac))*(1.0+((Vbci-instanceVar_maxvIri)*afac)));
     }
     Iri = ((instanceVar_is_t*instanceVar_isrr_t)*(expi-1.0));
     q1z = (((1.0+(qdbe*Iver))+(qdbc*Ivef))-1.0e-4);
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((q1z*q1z)+1.0e-8));
-      q1 = ((0.5*(value_sqrt_0+q1z))+1.0e-4);
-    }
+    q1 = ((0.5*(sqrt(((q1z*q1z)+1.0e-8))+q1z))+1.0e-4);
     q2 = ((Ifi*Iikf)+(Iri*modelVar_Iikr));
     if ((modelPar_qbm<0.5))
     {
-      {
-        AdmsSensFadType value_pow_0 = pow(q1,(1.0/modelPar_nkf));
-        arg = (value_pow_0+(4.0*q2));
-      }
+      arg = (pow(q1,(1.0/modelPar_nkf))+(4.0*q2));
       if ((arg>1.0e-8))
       {
-        {
-          AdmsSensFadType value_pow_0 = pow(arg,modelPar_nkf);
-          instanceVar_qb = (0.5*(q1+value_pow_0));
-        }
+        instanceVar_qb = (0.5*(q1+pow(arg,modelPar_nkf)));
       }
       else
       {
-        {
-          AdmsSensFadType value_pow_0 = pow(1.0e-8,modelPar_nkf);
-          instanceVar_qb = (0.5*(q1+value_pow_0));
-        }
+        instanceVar_qb = (0.5*(q1+pow(1.0e-8,modelPar_nkf)));
       }
     }
     else
@@ -12008,17 +11662,11 @@ void evaluateModelEquations(
       arg = (1.0+(4.0*q2));
       if ((arg>1.0e-8))
       {
-        {
-          AdmsSensFadType value_pow_0 = pow(arg,modelPar_nkf);
-          instanceVar_qb = ((0.5*q1)*(1.0+value_pow_0));
-        }
+        instanceVar_qb = ((0.5*q1)*(1.0+pow(arg,modelPar_nkf)));
       }
       else
       {
-        {
-          AdmsSensFadType value_pow_0 = pow(1.0e-8,modelPar_nkf);
-          instanceVar_qb = ((0.5*q1)*(1.0+value_pow_0));
-        }
+        instanceVar_qb = ((0.5*q1)*(1.0+pow(1.0e-8,modelPar_nkf)));
       }
     }
     Itzr = (Iri/instanceVar_qb);
@@ -12029,62 +11677,38 @@ void evaluateModelEquations(
       afac = (1.0/(modelPar_nfp*instanceVar_vtv));
       if ((Vbep<instanceVar_maxvIp))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((Vbep*afac));
-          expi = value_exp_0;
-        }
+        expi = exp((Vbep*afac));
       }
       else
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIp*afac));
-          expi = (value_exp_0*(1.0+((Vbep-instanceVar_maxvIp)*afac)));
-        }
+        expi = (exp((instanceVar_maxvIp*afac))*(1.0+((Vbep-instanceVar_maxvIp)*afac)));
       }
       if ((Vbci<instanceVar_maxvIp))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((Vbci*afac));
-          expx = value_exp_0;
-        }
+        expx = exp((Vbci*afac));
       }
       else
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIp*afac));
-          expx = (value_exp_0*(1.0+((Vbci-instanceVar_maxvIp)*afac)));
-        }
+        expx = (exp((instanceVar_maxvIp*afac))*(1.0+((Vbci-instanceVar_maxvIp)*afac)));
       }
       Ifp = (instanceVar_isp_t*(((modelPar_wsp*expi)+((1.0-modelPar_wsp)*expx))-1.0));
       q2p = (Ifp*modelVar_Iikp);
       arg = (1.0+(4.0*q2p));
       if ((arg>1.0e-8))
       {
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt(arg);
-          instanceVar_qbp = (0.5*(1.0+value_sqrt_0));
-        }
+        instanceVar_qbp = (0.5*(1.0+sqrt(arg)));
       }
       else
       {
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt(static_cast<double>(1.0e-8));
-          instanceVar_qbp = (0.5*(1.0+value_sqrt_0));
-        }
+        instanceVar_qbp = (0.5*(1.0+sqrt(static_cast<double>(1.0e-8))));
       }
       if ((Vbcp<instanceVar_maxvIp))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((Vbcp*afac));
-          expi = value_exp_0;
-        }
+        expi = exp((Vbcp*afac));
       }
       else
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIp*afac));
-          expi = (value_exp_0*(1.0+((Vbcp-instanceVar_maxvIp)*afac)));
-        }
+        expi = (exp((instanceVar_maxvIp*afac))*(1.0+((Vbcp-instanceVar_maxvIp)*afac)));
       }
       Irp = (instanceVar_isp_t*(expi-1.0));
       instanceVar_Iccp = ((Ifp-Irp)/instanceVar_qbp);
@@ -12100,32 +11724,20 @@ void evaluateModelEquations(
       afac = (1.0/(modelPar_nei*instanceVar_vtv));
       if ((Vbei<instanceVar_maxvIbei))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((Vbei*afac));
-          expi = value_exp_0;
-        }
+        expi = exp((Vbei*afac));
       }
       else
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbei*afac));
-          expi = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
-        }
+        expi = (exp((instanceVar_maxvIbei*afac))*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
       }
       afac = (1.0/(modelPar_nen*instanceVar_vtv));
       if ((Vbei<instanceVar_maxvIben))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((Vbei*afac));
-          expn = value_exp_0;
-        }
+        expn = exp((Vbei*afac));
       }
       else
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIben*afac));
-          expn = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
-        }
+        expn = (exp((instanceVar_maxvIben*afac))*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
       }
       if ((modelPar_qnibeir>0.0))
       {
@@ -12141,17 +11753,11 @@ void evaluateModelEquations(
         afac = (1.0/(nbbe_t*instanceVar_vtv));
         if ((Bvbe<instanceVar_maxvIbbe))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((Bvbe*afac));
-            expx = value_exp_0;
-          }
+          expx = exp((Bvbe*afac));
         }
         else
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbbe*afac));
-            expx = (value_exp_0*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
-          }
+          expx = (exp((instanceVar_maxvIbbe*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
         }
         instanceVar_Ibe = (instanceVar_Ibe-(modelPar_ibbe*(expx-ebbe_t)));
       }
@@ -12165,32 +11771,20 @@ void evaluateModelEquations(
         afac = (1.0/(modelPar_nei*instanceVar_vtv));
         if ((Vbex<instanceVar_maxvIbei))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((Vbex*afac));
-            expi = value_exp_0;
-          }
+          expi = exp((Vbex*afac));
         }
         else
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbei*afac));
-            expi = (value_exp_0*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
-          }
+          expi = (exp((instanceVar_maxvIbei*afac))*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
         }
         afac = (1.0/(modelPar_nen*instanceVar_vtv));
         if ((Vbex<instanceVar_maxvIben))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((Vbex*afac));
-            expn = value_exp_0;
-          }
+          expn = exp((Vbex*afac));
         }
         else
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIben*afac));
-            expn = (value_exp_0*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
-          }
+          expn = (exp((instanceVar_maxvIben*afac))*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
         }
         instanceVar_Ibex = ((instanceVar_ibei_t*(expi-1.0))+(instanceVar_iben_t*(expn-1.0)));
         if ((modelPar_vbbe>0.0))
@@ -12199,17 +11793,11 @@ void evaluateModelEquations(
           afac = (1.0/(nbbe_t*instanceVar_vtv));
           if ((Bvbe<instanceVar_maxvIbbe))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((Bvbe*afac));
-              expx = value_exp_0;
-            }
+            expx = exp((Bvbe*afac));
           }
           else
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbbe*afac));
-              expx = (value_exp_0*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
-            }
+            expx = (exp((instanceVar_maxvIbbe*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
           }
           instanceVar_Ibex = (instanceVar_Ibex-(modelPar_ibbe*(expx-ebbe_t)));
         }
@@ -12219,32 +11807,20 @@ void evaluateModelEquations(
         afac = (1.0/(modelPar_nei*instanceVar_vtv));
         if ((Vbei<instanceVar_maxvIbei))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((Vbei*afac));
-            expi = value_exp_0;
-          }
+          expi = exp((Vbei*afac));
         }
         else
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbei*afac));
-            expi = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
-          }
+          expi = (exp((instanceVar_maxvIbei*afac))*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
         }
         afac = (1.0/(modelPar_nen*instanceVar_vtv));
         if ((Vbei<instanceVar_maxvIben))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((Vbei*afac));
-            expn = value_exp_0;
-          }
+          expn = exp((Vbei*afac));
         }
         else
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIben*afac));
-            expn = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
-          }
+          expn = (exp((instanceVar_maxvIben*afac))*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
         }
         if ((modelPar_qnibeir>0.0))
         {
@@ -12260,49 +11836,31 @@ void evaluateModelEquations(
           afac = (1.0/(nbbe_t*instanceVar_vtv));
           if ((Bvbe<instanceVar_maxvIbbe))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((Bvbe*afac));
-              expx = value_exp_0;
-            }
+            expx = exp((Bvbe*afac));
           }
           else
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbbe*afac));
-              expx = (value_exp_0*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
-            }
+            expx = (exp((instanceVar_maxvIbbe*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
           }
           instanceVar_Ibe = (instanceVar_Ibe-((modelPar_wbe*modelPar_ibbe)*(expx-ebbe_t)));
         }
         afac = (1.0/(modelPar_nei*instanceVar_vtv));
         if ((Vbex<instanceVar_maxvIbei))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((Vbex*afac));
-            expi = value_exp_0;
-          }
+          expi = exp((Vbex*afac));
         }
         else
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbei*afac));
-            expi = (value_exp_0*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
-          }
+          expi = (exp((instanceVar_maxvIbei*afac))*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
         }
         afac = (1.0/(modelPar_nen*instanceVar_vtv));
         if ((Vbex<instanceVar_maxvIben))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((Vbex*afac));
-            expn = value_exp_0;
-          }
+          expn = exp((Vbex*afac));
         }
         else
         {
-          {
-            AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIben*afac));
-            expn = (value_exp_0*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
-          }
+          expn = (exp((instanceVar_maxvIben*afac))*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
         }
         instanceVar_Ibex = ((1.0-modelPar_wbe)*((instanceVar_ibei_t*(expi-1.0))+(instanceVar_iben_t*(expn-1.0))));
         if ((modelPar_vbbe>0.0))
@@ -12311,17 +11869,11 @@ void evaluateModelEquations(
           afac = (1.0/(nbbe_t*instanceVar_vtv));
           if ((Bvbe<instanceVar_maxvIbbe))
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((Bvbe*afac));
-              expx = value_exp_0;
-            }
+            expx = exp((Bvbe*afac));
           }
           else
           {
-            {
-              AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbbe*afac));
-              expx = (value_exp_0*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
-            }
+            expx = (exp((instanceVar_maxvIbbe*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
           }
           instanceVar_Ibex = (instanceVar_Ibex-(((1.0-modelPar_wbe)*modelPar_ibbe)*(expx-ebbe_t)));
         }
@@ -12330,32 +11882,20 @@ void evaluateModelEquations(
     afac = (1.0/(modelPar_nci*instanceVar_vtv));
     if ((Vbci<instanceVar_maxvIbci))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp((Vbci*afac));
-        expi = value_exp_0;
-      }
+      expi = exp((Vbci*afac));
     }
     else
     {
-      {
-        AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbci*afac));
-        expi = (value_exp_0*(1.0+((Vbci-instanceVar_maxvIbci)*afac)));
-      }
+      expi = (exp((instanceVar_maxvIbci*afac))*(1.0+((Vbci-instanceVar_maxvIbci)*afac)));
     }
     afac = (1.0/(modelPar_ncn*instanceVar_vtv));
     if ((Vbci<instanceVar_maxvIbcn))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp((Vbci*afac));
-        expn = value_exp_0;
-      }
+      expn = exp((Vbci*afac));
     }
     else
     {
-      {
-        AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbcn*afac));
-        expn = (value_exp_0*(1.0+((Vbci-instanceVar_maxvIbcn)*afac)));
-      }
+      expn = (exp((instanceVar_maxvIbcn*afac))*(1.0+((Vbci-instanceVar_maxvIbcn)*afac)));
     }
     Ibcj = ((instanceVar_ibci_t*(expi-1.0))+(instanceVar_ibcn_t*(expn-1.0)));
     if (((modelPar_ibeip>0.0)||(modelPar_ibenp>0.0)))
@@ -12363,32 +11903,20 @@ void evaluateModelEquations(
       afac = (1.0/(modelPar_nci*instanceVar_vtv));
       if ((Vbep<instanceVar_maxvIbeip))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((Vbep*afac));
-          expi = value_exp_0;
-        }
+        expi = exp((Vbep*afac));
       }
       else
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbeip*afac));
-          expi = (value_exp_0*(1.0+((Vbep-instanceVar_maxvIbeip)*afac)));
-        }
+        expi = (exp((instanceVar_maxvIbeip*afac))*(1.0+((Vbep-instanceVar_maxvIbeip)*afac)));
       }
       afac = (1.0/(modelPar_ncn*instanceVar_vtv));
       if ((Vbep<instanceVar_maxvIbenp))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((Vbep*afac));
-          expn = value_exp_0;
-        }
+        expn = exp((Vbep*afac));
       }
       else
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbenp*afac));
-          expn = (value_exp_0*(1.0+((Vbep-instanceVar_maxvIbenp)*afac)));
-        }
+        expn = (exp((instanceVar_maxvIbenp*afac))*(1.0+((Vbep-instanceVar_maxvIbenp)*afac)));
       }
       instanceVar_Ibep = ((instanceVar_ibeip_t*(expi-1.0))+(instanceVar_ibenp_t*(expn-1.0)));
     }
@@ -12399,55 +11927,28 @@ void evaluateModelEquations(
     arg = (Vbci/instanceVar_vtv);
     if ((arg<modelVar_VmaxExp))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp(arg);
-        expi = value_exp_0;
-      }
+      expi = exp(arg);
     }
     else
     {
-      {
-        AdmsSensFadType value_exp_0 = exp(modelVar_VmaxExp);
-        expi = (value_exp_0*(1.0+(arg-modelVar_VmaxExp)));
-      }
+      expi = (exp(modelVar_VmaxExp)*(1.0+(arg-modelVar_VmaxExp)));
     }
     arg = (Vbcx/instanceVar_vtv);
     if ((arg<modelVar_VmaxExp))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp(arg);
-        expx = value_exp_0;
-      }
+      expx = exp(arg);
     }
     else
     {
-      {
-        AdmsSensFadType value_exp_0 = exp(modelVar_VmaxExp);
-        expx = (value_exp_0*(1.0+(arg-modelVar_VmaxExp)));
-      }
+      expx = (exp(modelVar_VmaxExp)*(1.0+(arg-modelVar_VmaxExp)));
     }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt((1.0+(gamm_t*expi)));
-      Kbci = value_sqrt_0;
-    }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt((1.0+(gamm_t*expx)));
-      Kbcx = value_sqrt_0;
-    }
+    Kbci = sqrt((1.0+(gamm_t*expi)));
+    Kbcx = sqrt((1.0+(gamm_t*expx)));
     Ircx = (Vrcx*instanceVar_Gcx);
     rKp1 = ((Kbci+1.0)/(Kbcx+1.0));
-    {
-      AdmsSensFadType value_log_0 = log(rKp1);
-      Iohm = ((instanceVar_Vrci+(instanceVar_vtv*((Kbci-Kbcx)-value_log_0)))*instanceVar_Gci);
-    }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt(((instanceVar_Vrci*instanceVar_Vrci)+0.01));
-      derf = ((Ivo*Iohm)/(instanceVar_Gci*(1.0+(((0.5*Ivo)*modelVar_Ihrcf)*value_sqrt_0))));
-    }
-    {
-      AdmsSensFadType value_sqrt_0 = sqrt((1+(derf*derf)));
-      instanceVar_Irci = (Iohm/value_sqrt_0);
-    }
+    Iohm = ((instanceVar_Vrci+(instanceVar_vtv*((Kbci-Kbcx)-log(rKp1))))*instanceVar_Gci);
+    derf = ((Ivo*Iohm)/(instanceVar_Gci*(1.0+(((0.5*Ivo)*modelVar_Ihrcf)*sqrt(((instanceVar_Vrci*instanceVar_Vrci)+0.01))))));
+    instanceVar_Irci = (Iohm/sqrt((1+(derf*derf))));
     Irbx = (Vrbx*instanceVar_Gbx);
     Irbi = ((Vrbi*instanceVar_qb)*instanceVar_Gbi);
     Ire = (Vre*instanceVar_Ge);
@@ -12464,31 +11965,16 @@ void evaluateModelEquations(
         AdmsSensFadType expi;
         AdmsSensFadType expl;
         //End of Block-local variables
-        {
-          AdmsSensFadType value_pow_0 = pow((0.02*(avc2_t+1.0)),(1.0/(1.01-modelPar_mc)));
-          vminm = value_pow_0;
-        }
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt(((((pc_t-Vbci)-vminm)*((pc_t-Vbci)-vminm))+0.01));
-          vl = ((0.5*(value_sqrt_0+((pc_t-Vbci)-vminm)))+vminm);
-        }
-        {
-          AdmsSensFadType value_pow_0 = pow(vl,(modelPar_mc-1.0));
-          mac1 = ((-avc2_t)*value_pow_0);
-        }
+        vminm = pow((0.02*(avc2_t+1.0)),(1.0/(1.01-modelPar_mc)));
+        vl = ((0.5*(sqrt(((((pc_t-Vbci)-vminm)*((pc_t-Vbci)-vminm))+0.01))+((pc_t-Vbci)-vminm)))+vminm);
+        mac1 = ((-avc2_t)*pow(vl,(modelPar_mc-1.0)));
         if ((mac1<modelVar_VmaxExp))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp(mac1);
-            expi = value_exp_0;
-          }
+          expi = exp(mac1);
         }
         else
         {
-          {
-            AdmsSensFadType value_exp_0 = exp(modelVar_VmaxExp);
-            expl = value_exp_0;
-          }
+          expl = exp(modelVar_VmaxExp);
           expi = (expl*(1.0+(mac1-modelVar_VmaxExp)));
         }
         avalf = ((modelPar_avc1*vl)*expi);
@@ -12511,31 +11997,16 @@ void evaluateModelEquations(
         AdmsSensFadType expi;
         AdmsSensFadType expl;
         //End of Block-local variables
-        {
-          AdmsSensFadType value_pow_0 = pow((0.02*(avcx2_t+1.0)),(1.0/(1.01-modelPar_mcx)));
-          vminm = value_pow_0;
-        }
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt(((((-Vbxcx)-vminm)*((-Vbxcx)-vminm))+0.01));
-          vl = ((0.5*(value_sqrt_0+((-Vbxcx)-vminm)))+vminm);
-        }
-        {
-          AdmsSensFadType value_pow_0 = pow(vl,(modelPar_mcx-1.0));
-          mac1 = ((-avcx2_t)*value_pow_0);
-        }
+        vminm = pow((0.02*(avcx2_t+1.0)),(1.0/(1.01-modelPar_mcx)));
+        vl = ((0.5*(sqrt(((((-Vbxcx)-vminm)*((-Vbxcx)-vminm))+0.01))+((-Vbxcx)-vminm)))+vminm);
+        mac1 = ((-avcx2_t)*pow(vl,(modelPar_mcx-1.0)));
         if ((mac1<modelVar_VmaxExp))
         {
-          {
-            AdmsSensFadType value_exp_0 = exp(mac1);
-            expi = value_exp_0;
-          }
+          expi = exp(mac1);
         }
         else
         {
-          {
-            AdmsSensFadType value_exp_0 = exp(modelVar_VmaxExp);
-            expl = value_exp_0;
-          }
+          expl = exp(modelVar_VmaxExp);
           expi = (expl*(1.0+(mac1-modelVar_VmaxExp)));
         }
         avalf = ((modelPar_avcx1*vl)*expi);
@@ -12552,20 +12023,14 @@ void evaluateModelEquations(
       if ((modelPar_vpte>0.0))
       {
         VcbFac = ((1.0-(Vbci/modelPar_vpte))-0.1);
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt(((VcbFac*VcbFac)+1.0e-4));
-          VcbFac = (0.1+(0.5*(VcbFac+value_sqrt_0)));
-        }
+        VcbFac = (0.1+(0.5*(VcbFac+sqrt(((VcbFac*VcbFac)+1.0e-4)))));
         Iibk = (modelPar_ibk0*VcbFac);
       }
       else
       {
         Iibk = modelPar_ibk0;
       }
-      {
-        AdmsSensFadType value_pow_0 = pow(((instanceVar_Itzf/Iibk)-1.0),modelPar_abk);
-        Ibk = (modelPar_bbk*value_pow_0);
-      }
+      Ibk = (modelPar_bbk*pow(((instanceVar_Itzf/Iibk)-1.0),modelPar_abk));
     }
     else
     {
@@ -12577,32 +12042,20 @@ void evaluateModelEquations(
       afac = (1.0/(modelPar_ncip*instanceVar_vtv));
       if ((Vbcp<instanceVar_maxvIbcip))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((Vbcp*afac));
-          expi = value_exp_0;
-        }
+        expi = exp((Vbcp*afac));
       }
       else
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbcip*afac));
-          expi = (value_exp_0*(1.0+((Vbcp-instanceVar_maxvIbcip)*afac)));
-        }
+        expi = (exp((instanceVar_maxvIbcip*afac))*(1.0+((Vbcp-instanceVar_maxvIbcip)*afac)));
       }
       afac = (1.0/(modelPar_ncnp*instanceVar_vtv));
       if ((Vbcp<instanceVar_maxvIbcnp))
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((Vbcp*afac));
-          expn = value_exp_0;
-        }
+        expn = exp((Vbcp*afac));
       }
       else
       {
-        {
-          AdmsSensFadType value_exp_0 = exp((instanceVar_maxvIbcnp*afac));
-          expn = (value_exp_0*(1.0+((Vbcp-instanceVar_maxvIbcnp)*afac)));
-        }
+        expn = (exp((instanceVar_maxvIbcnp*afac))*(1.0+((Vbcp-instanceVar_maxvIbcnp)*afac)));
       }
       Ibcp = ((instanceVar_ibcip_t*(expi-1.0))+(instanceVar_ibcnp_t*(expn-1.0)));
     }
@@ -12667,48 +12120,27 @@ void evaluateModelEquations(
           dvh = (Vbcp+dv0);
           if ((dvh>0.0))
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_ms));
-              pwq = value_pow_0;
-            }
+            pwq = pow((1.0-modelPar_fc),(-modelPar_ms));
             qlo = ((ps_t*(1.0-(pwq*(1.0-modelPar_fc))))/(1.0-modelPar_ms));
             qhi = ((dvh*(1.0+(((0.5*modelPar_ms)*dvh)/(ps_t*(1.0-modelPar_fc)))))*pwq);
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1.0-(Vbcp/ps_t)),(1.0-modelPar_ms));
-              qlo = ((ps_t*(1.0-value_pow_0))/(1.0-modelPar_ms));
-            }
+            qlo = ((ps_t*(1.0-pow((1.0-(Vbcp/ps_t)),(1.0-modelPar_ms))))/(1.0-modelPar_ms));
             qhi = 0.0;
           }
           qdbcp = (qlo+qhi);
         }
         else
         {
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((dv0*dv0)+((4.0*modelPar_ajs)*modelPar_ajs)));
-            mv0 = value_sqrt_0;
-          }
+          mv0 = sqrt(((dv0*dv0)+((4.0*modelPar_ajs)*modelPar_ajs)));
           vl0 = ((-0.5)*(dv0+mv0));
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl0/ps_t)),(1.0-modelPar_ms));
-            q0 = (((-ps_t)*value_pow_0)/(1.0-modelPar_ms));
-          }
+          q0 = (((-ps_t)*pow((1.0-(vl0/ps_t)),(1.0-modelPar_ms)))/(1.0-modelPar_ms));
           dv = (Vbcp+dv0);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((dv*dv)+((4.0*modelPar_ajs)*modelPar_ajs)));
-            mv = value_sqrt_0;
-          }
+          mv = sqrt(((dv*dv)+((4.0*modelPar_ajs)*modelPar_ajs)));
           vl = ((0.5*(dv-mv))-dv0);
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl/ps_t)),(1.0-modelPar_ms));
-            qlo = (((-ps_t)*value_pow_0)/(1.0-modelPar_ms));
-          }
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_ms));
-            qdbcp = ((qlo+((value_pow_0*((Vbcp-vl)+vl0))*(1.0+(((0.5*modelPar_ms)*((Vbcp-vl)+vl0))/(ps_t*(1.0-modelPar_fc))))))-q0);
-          }
+          qlo = (((-ps_t)*pow((1.0-(vl/ps_t)),(1.0-modelPar_ms)))/(1.0-modelPar_ms));
+          qdbcp = ((qlo+((pow((1.0-modelPar_fc),(-modelPar_ms))*((Vbcp-vl)+vl0))*(1.0+(((0.5*modelPar_ms)*((Vbcp-vl)+vl0))/(ps_t*(1.0-modelPar_fc))))))-q0);
         }
       }
       // End block qdbcpBlock
@@ -12738,48 +12170,27 @@ void evaluateModelEquations(
         dvh = (Vbex+dv0);
         if ((dvh>0.0))
         {
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_me));
-            pwq = value_pow_0;
-          }
+          pwq = pow((1.0-modelPar_fc),(-modelPar_me));
           qlo = ((pe_t*(1.0-(pwq*(1.0-modelPar_fc))))/(1.0-modelPar_me));
           qhi = ((dvh*(1.0+(((0.5*modelPar_me)*dvh)/(pe_t*(1.0-modelPar_fc)))))*pwq);
         }
         else
         {
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(Vbex/pe_t)),(1.0-modelPar_me));
-            qlo = ((pe_t*(1.0-value_pow_0))/(1.0-modelPar_me));
-          }
+          qlo = ((pe_t*(1.0-pow((1.0-(Vbex/pe_t)),(1.0-modelPar_me))))/(1.0-modelPar_me));
           qhi = 0.0;
         }
         qdbex = (qlo+qhi);
       }
       else
       {
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt(((dv0*dv0)+((4.0*modelPar_aje)*modelPar_aje)));
-          mv0 = value_sqrt_0;
-        }
+        mv0 = sqrt(((dv0*dv0)+((4.0*modelPar_aje)*modelPar_aje)));
         vl0 = ((-0.5)*(dv0+mv0));
-        {
-          AdmsSensFadType value_pow_0 = pow((1.0-(vl0/pe_t)),(1.0-modelPar_me));
-          q0 = (((-pe_t)*value_pow_0)/(1.0-modelPar_me));
-        }
+        q0 = (((-pe_t)*pow((1.0-(vl0/pe_t)),(1.0-modelPar_me)))/(1.0-modelPar_me));
         dv = (Vbex+dv0);
-        {
-          AdmsSensFadType value_sqrt_0 = sqrt(((dv*dv)+((4.0*modelPar_aje)*modelPar_aje)));
-          mv = value_sqrt_0;
-        }
+        mv = sqrt(((dv*dv)+((4.0*modelPar_aje)*modelPar_aje)));
         vl = ((0.5*(dv-mv))-dv0);
-        {
-          AdmsSensFadType value_pow_0 = pow((1.0-(vl/pe_t)),(1.0-modelPar_me));
-          qlo = (((-pe_t)*value_pow_0)/(1.0-modelPar_me));
-        }
-        {
-          AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_me));
-          qdbex = ((qlo+((value_pow_0*((Vbex-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbex-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-q0);
-        }
+        qlo = (((-pe_t)*pow((1.0-(vl/pe_t)),(1.0-modelPar_me)))/(1.0-modelPar_me));
+        qdbex = ((qlo+((pow((1.0-modelPar_fc),(-modelPar_me))*((Vbex-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbex-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-q0);
       }
     }
     // End block qdbexBlock
@@ -12814,10 +12225,7 @@ void evaluateModelEquations(
         dvh = (Vbep+dv0);
         if ((dvh>0.0))
         {
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),((-1.0)-modelPar_mc));
-            pwq = value_pow_0;
-          }
+          pwq = pow((1.0-modelPar_fc),((-1.0)-modelPar_mc));
           qlo = ((pc_t*(1.0-((pwq*(1.0-modelPar_fc))*(1.0-modelPar_fc))))/(1.0-modelPar_mc));
           qhi = ((dvh*((1.0-modelPar_fc)+(((0.5*modelPar_mc)*dvh)/pc_t)))*pwq);
         }
@@ -12825,17 +12233,11 @@ void evaluateModelEquations(
         {
           if (((modelPar_vrt>0.0)&&(Vbep<(-modelPar_vrt))))
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1.0+(modelPar_vrt/pc_t)),(1.0-modelPar_mc));
-              qlo = ((pc_t*(1.0-(value_pow_0*(1.0-(((1.0-modelPar_mc)*(Vbep+modelPar_vrt))/(pc_t+modelPar_vrt))))))/(1.0-modelPar_mc));
-            }
+            qlo = ((pc_t*(1.0-(pow((1.0+(modelPar_vrt/pc_t)),(1.0-modelPar_mc))*(1.0-(((1.0-modelPar_mc)*(Vbep+modelPar_vrt))/(pc_t+modelPar_vrt))))))/(1.0-modelPar_mc));
           }
           else
           {
-            {
-              AdmsSensFadType value_pow_0 = pow((1.0-(Vbep/pc_t)),(1.0-modelPar_mc));
-              qlo = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
-            }
+            qlo = ((pc_t*(1.0-pow((1.0-(Vbep/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
           }
           qhi = 0.0;
         }
@@ -12846,65 +12248,30 @@ void evaluateModelEquations(
         if (((modelPar_vrt>0.0)&&(modelPar_art>0.0)))
         {
           vn0 = ((modelPar_vrt+dv0)/(modelPar_vrt-dv0));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((vn0-1.0)*(vn0-1))+((4*modelPar_ajc)*modelPar_ajc)));
-            AdmsSensFadType value_sqrt_1 = sqrt((((vn0+1.0)*(vn0+1))+((4*modelPar_art)*modelPar_art)));
-            vnl0 = ((2.0*vn0)/(value_sqrt_0+value_sqrt_1));
-          }
+          vnl0 = ((2.0*vn0)/(sqrt((((vn0-1.0)*(vn0-1))+((4*modelPar_ajc)*modelPar_ajc)))+sqrt((((vn0+1.0)*(vn0+1))+((4*modelPar_art)*modelPar_art)))));
           vl0 = (0.5*(((vnl0*(modelPar_vrt-dv0))-modelPar_vrt)-dv0));
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc));
-            qlo0 = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
-          }
+          qlo0 = ((pc_t*(1.0-pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
           vn = ((((2*Vbep)+modelPar_vrt)+dv0)/(modelPar_vrt-dv0));
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt((((vn-1.0)*(vn-1))+((4*modelPar_ajc)*modelPar_ajc)));
-            AdmsSensFadType value_sqrt_1 = sqrt((((vn+1.0)*(vn+1))+((4*modelPar_art)*modelPar_art)));
-            vnl = ((2.0*vn)/(value_sqrt_0+value_sqrt_1));
-          }
+          vnl = ((2.0*vn)/(sqrt((((vn-1.0)*(vn-1))+((4*modelPar_ajc)*modelPar_ajc)))+sqrt((((vn+1.0)*(vn+1))+((4*modelPar_art)*modelPar_art)))));
           vl = (0.5*(((vnl*(modelPar_vrt-dv0))-modelPar_vrt)-dv0));
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl/pc_t)),(1.0-modelPar_mc));
-            qlo = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
-          }
+          qlo = ((pc_t*(1.0-pow((1.0-(vl/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
           sel = (0.5*(vnl+1.0));
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0+(modelPar_vrt/pc_t)),(-modelPar_mc));
-            crt = value_pow_0;
-          }
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0+(dv0/pc_t)),(-modelPar_mc));
-            cmx = value_pow_0;
-          }
+          crt = pow((1.0+(modelPar_vrt/pc_t)),(-modelPar_mc));
+          cmx = pow((1.0+(dv0/pc_t)),(-modelPar_mc));
           cl = (((1.0-sel)*crt)+(sel*cmx));
           ql = (((Vbep-vl)+vl0)*cl);
           qdbep = ((ql+qlo)-qlo0);
         }
         else
         {
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((dv0*dv0)+((4*modelPar_ajc)*modelPar_ajc)));
-            mv0 = value_sqrt_0;
-          }
+          mv0 = sqrt(((dv0*dv0)+((4*modelPar_ajc)*modelPar_ajc)));
           vl0 = ((-0.5)*(dv0+mv0));
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc));
-            q0 = (((-pc_t)*value_pow_0)/(1.0-modelPar_mc));
-          }
+          q0 = (((-pc_t)*pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc)))/(1.0-modelPar_mc));
           dv = (Vbep+dv0);
-          {
-            AdmsSensFadType value_sqrt_0 = sqrt(((dv*dv)+((4*modelPar_ajc)*modelPar_ajc)));
-            mv = value_sqrt_0;
-          }
+          mv = sqrt(((dv*dv)+((4*modelPar_ajc)*modelPar_ajc)));
           vl = ((0.5*(dv-mv))-dv0);
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-(vl/pc_t)),(1.0-modelPar_mc));
-            qlo = (((-pc_t)*value_pow_0)/(1.0-modelPar_mc));
-          }
-          {
-            AdmsSensFadType value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_mc));
-            qdbep = ((qlo+(value_pow_0*((Vbep-vl)+vl0)))-q0);
-          }
+          qlo = (((-pc_t)*pow((1.0-(vl/pc_t)),(1.0-modelPar_mc)))/(1.0-modelPar_mc));
+          qdbep = ((qlo+(pow((1.0-modelPar_fc),(-modelPar_mc))*((Vbep-vl)+vl0)))-q0);
         }
       }
     }
@@ -12915,17 +12282,11 @@ void evaluateModelEquations(
     arg = ((Vbci*modelVar_Ivtf)/1.44);
     if ((arg<modelVar_VmaxExp))
     {
-      {
-        AdmsSensFadType value_exp_0 = exp(arg);
-        expi = value_exp_0;
-      }
+      expi = exp(arg);
     }
     else
     {
-      {
-        AdmsSensFadType value_exp_0 = exp(modelVar_VmaxExp);
-        expi = (value_exp_0*(1.0+(arg-modelVar_VmaxExp)));
-      }
+      expi = (exp(modelVar_VmaxExp)*(1.0+(arg-modelVar_VmaxExp)));
     }
     tff = ((modelPar_tf*(1.0+(modelPar_qtf*q1)))*(1.0+(((modelPar_xtf*expi)*(modelVar_sltf+(mIf*mIf)))*sgIf)));
     Qbe = (((cje_t*qdbe)*modelPar_wbe)+((tff*Ifi)/instanceVar_qb));

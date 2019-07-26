@@ -38,7 +38,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 08 Apr 2019 13:48:01
+// Creation Date  : Thu, 25 Jul 2019 18:48:10
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1917,7 +1917,6 @@ registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet)
 }
 
 
-
 #ifdef Xyce_ADMS_SENSITIVITIES
 //-----------------------------------------------------------------------------
 // Function      : evaluateInitialInstance
@@ -2201,25 +2200,10 @@ void evaluateModelEquations(
   hbar = (6.62607004081e-34/(2.0*3.14159265358979323846));
   mD_delta2 = ((2.0*modelPar_mt)*9.10938215e-31);
   mC_delta2 = ((4.0*modelPar_mt)*9.10938215e-31);
-  {
-    AdmsSensFadType value_sqrt_0 = sqrt(((((2.0*kT)/3.14159265358979323846)*mC_delta2)/(mD_delta2*mD_delta2)));
-    vT_delta2_int = value_sqrt_0;
-  }
-  {
-    AdmsSensFadType value_sqrt_0 = sqrt((modelPar_mt*modelPar_ml));
-    mD_delta4 = ((4.0*value_sqrt_0)*9.10938215e-31);
-  }
-  {
-    AdmsSensFadType value_sqrt_0 = sqrt(modelPar_mt);
-    AdmsSensFadType value_sqrt_1 = sqrt(modelPar_ml);
-    AdmsSensFadType value_sqrt_2 = sqrt(modelPar_mt);
-    AdmsSensFadType value_sqrt_3 = sqrt(modelPar_ml);
-    mC_delta4 = (((4.0*(value_sqrt_0+value_sqrt_1))*(value_sqrt_2+value_sqrt_3))*9.10938215e-31);
-  }
-  {
-    AdmsSensFadType value_sqrt_0 = sqrt(((((2.0*kT)/3.14159265358979323846)*mC_delta4)/(mD_delta4*mD_delta4)));
-    vT_delta4_int = value_sqrt_0;
-  }
+  vT_delta2_int = sqrt(((((2.0*kT)/3.14159265358979323846)*mC_delta2)/(mD_delta2*mD_delta2)));
+  mD_delta4 = ((4.0*sqrt((modelPar_mt*modelPar_ml)))*9.10938215e-31);
+  mC_delta4 = (((4.0*(sqrt(modelPar_mt)+sqrt(modelPar_ml)))*(sqrt(modelPar_mt)+sqrt(modelPar_ml)))*9.10938215e-31);
+  vT_delta4_int = sqrt(((((2.0*kT)/3.14159265358979323846)*mC_delta4)/(mD_delta4*mD_delta4)));
   vT = ((modelPar_nu*vT_delta2_int)+((1.0-modelPar_nu)*vT_delta4_int));
   lambda = (((2.0*phit)*modelPar_mu_eff)/vT);
   N2D = ((mD_delta2/((3.14159265358979323846*hbar)*hbar))*kT);
@@ -2230,11 +2214,7 @@ void evaluateModelEquations(
   Ed_delta2 = (((modelPar_energy_diff_volt+(probeVars[admsProbeID_V_sf_GND]))-Vdsi)/phit);
   if ((Es_delta2<=40))
   {
-    {
-      AdmsSensFadType value_exp_0 = exp(Es_delta2);
-      AdmsSensFadType value_log_1 = log((1.0+value_exp_0));
-      lnoneplusEs = value_log_1;
-    }
+    lnoneplusEs = log((1.0+exp(Es_delta2)));
   }
   else
   {
@@ -2242,11 +2222,7 @@ void evaluateModelEquations(
   }
   if ((Ed_delta2<=40))
   {
-    {
-      AdmsSensFadType value_exp_0 = exp(Ed_delta2);
-      AdmsSensFadType value_log_1 = log((1.0+value_exp_0));
-      lnoneplusEd = value_log_1;
-    }
+    lnoneplusEd = log((1.0+exp(Ed_delta2)));
   }
   else
   {
@@ -2259,56 +2235,26 @@ void evaluateModelEquations(
   Fs = (Fs_delta2+Fs_delta4);
   Fd = (Fd_delta2+Fd_delta4);
   Vdsat2 = (modelPar_theta*phit);
-  {
-    AdmsSensFadType value_fabs_0 = fabs((Vdsi/Vdsat2));
-    AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelPar_beta);
-    Vdsatbeta2 = value_pow_1;
-  }
-  {
-    AdmsSensFadType value_fabs_0 = fabs((Vdsi/Vdsat2));
-    AdmsSensFadType value_pow_1 = pow((1.0+Vdsatbeta2),(1.0/modelPar_beta));
-    f2 = (value_fabs_0/value_pow_1);
-  }
+  Vdsatbeta2 = pow(fabs((Vdsi/Vdsat2)),modelPar_beta);
+  f2 = (fabs((Vdsi/Vdsat2))/pow((1.0+Vdsatbeta2),(1.0/modelPar_beta)));
   Lcrit_lin = Leff;
   Lcrit_sat = (modelPar_ksee*Leff);
   Lcrit = (((1.0-f2)*Lcrit_lin)+(f2*Lcrit_sat));
   Tx = (lambda/(lambda+Lcrit));
   Qx0 = ((((-1.6021766208e-19)*N2D)/2.0)*((Fs*(2.0-Tx))+(Fd*Tx)));
-  {
-    AdmsSensFadType value_fabs_0 = fabs((modelPar_B/modelPar_dqm0));
-    AdmsSensFadType value_pow_1 = pow(value_fabs_0,3.0);
-    QB = value_pow_1;
-  }
-  {
-    AdmsSensFadType value_fabs_0 = fabs(Qx0);
-    AdmsSensFadType value_pow_1 = pow((QB+((11.0/32.0)*value_fabs_0)),(1/3.0));
-    xav = (modelPar_B/value_pow_1);
-  }
+  QB = pow(fabs((modelPar_B/modelPar_dqm0)),3.0);
+  xav = (modelPar_B/pow((QB+((11.0/32.0)*fabs(Qx0))),(1/3.0)));
   Cstern = ((modelPar_eps*8.854187817e-12)/xav);
   Cgc = ((modelPar_Cins*Cstern)/(modelPar_Cins+Cstern));
-  {
-    AdmsSensFadType value_fabs_0 = fabs((modelPar_nd*Vdsi));
-    n = (modelPar_n0+value_fabs_0);
-  }
+  n = (modelPar_n0+fabs((modelPar_nd*Vdsi)));
   // V(sf,GND) <+ ((((Vgsi+(delta*Vdsi))+(Qx0/Cgc))/n))
   staticContributions[admsBRA_ID_sf_GND] += (((Vgsi+(modelPar_delta*Vdsi))+(Qx0/Cgc))/n);
   f1 = ((((2.0-Tx)*Fs)+(Tx*Fd))/(2.0*Fs));
   Vdsat = ((((2.0*phit)*(lambda+Leff))/(lambda+((2.0*modelPar_ksee)*Leff)))*f1);
-  {
-    AdmsSensFadType value_fabs_0 = fabs((Vdsi/Vdsat));
-    AdmsSensFadType value_pow_1 = pow(value_fabs_0,modelPar_beta);
-    Vdsatbeta = value_pow_1;
-  }
-  {
-    AdmsSensFadType value_fabs_0 = fabs((Vdsi/Vdsat));
-    AdmsSensFadType value_pow_1 = pow((1.0+Vdsatbeta),(1.0/modelPar_beta));
-    Fsat = (value_fabs_0/value_pow_1);
-  }
+  Vdsatbeta = pow(fabs((Vdsi/Vdsat)),modelPar_beta);
+  Fsat = (fabs((Vdsi/Vdsat))/pow((1.0+Vdsatbeta),(1.0/modelPar_beta)));
   vx0 = ((vT*lambda)/(lambda+((2.0*modelPar_ksee)*Leff)));
-  {
-    AdmsSensFadType value_fabs_0 = fabs(Qx0);
-    Id = (((value_fabs_0*Fsat)*vx0)*modelPar_W);
-  }
+  Id = (((fabs(Qx0)*Fsat)*vx0)*modelPar_W);
   // I(di,si) <+ (((type*dir)*Id))
   staticContributions[admsNodeID_di] += ((modelPar_type*dir)*Id);
   staticContributions[admsNodeID_si] -= ((modelPar_type*dir)*Id);
