@@ -20,9 +20,9 @@ XyceADMSFILES = $(ADMSDIR)/xyceVersion.xml \
 	$(ADMSDIR)/xyceHeaderFile.xml \
 	$(ADMSDIR)/xyceImplementationFile.xml
 
-CLEANFILES = N_DEV_ADMSJUNCAP200.C N_DEV_ADMSPSP103VA.C N_DEV_ADMSJUNCAP200.h N_DEV_ADMSPSP103VA.h discipline.h
+CLEANFILES = N_DEV_ADMSJUNCAP200.C N_DEV_ADMSPSP103VA.C N_DEV_ADMSPSP103TVA.C N_DEV_ADMSJUNCAP200.h N_DEV_ADMSPSP103VA.h N_DEV_ADMSPSP103TVA.h discipline.h
 
-all-source: N_DEV_ADMSJUNCAP200.C N_DEV_ADMSPSP103VA.C
+all-source: N_DEV_ADMSJUNCAP200.C N_DEV_ADMSPSP103VA.C N_DEV_ADMSPSP103TVA.C
 
 clean:
 	rm -f $(CLEANFILES)
@@ -36,3 +36,8 @@ N_DEV_ADMSJUNCAP200.h N_DEV_ADMSJUNCAP200.C: juncap200.va $(PSPDEPS)  $(XyceADMS
 	admsXml -e $(ADMSDIR)/xyceVersion.xml -e $(ADMSDIR)/xyceBasicTemplates.xml -e $(ADMSDIR)/xyceImplementationFile.xml -e $(ADMSDIR)/xyceHeaderFile.xml juncap200.va
 	emacs N_DEV_ADMSJUNCAP200.C --batch --eval="(require 'cc-mode)" --eval="(c-set-offset 'substatement-open 0)" --eval="(c-set-offset 'arglist-intro 3)" --eval="(c-set-offset 'innamespace -2)" --eval="(setq-default indent-tabs-mode nil)" --eval='(indent-region (point-min) (point-max) nil)' -f save-buffer
 	emacs N_DEV_ADMSJUNCAP200.h --batch --eval="(require 'cc-mode)" --eval="(c-set-offset 'substatement-open 0)" --eval="(c-set-offset 'arglist-intro 3)" --eval="(c-set-offset 'innamespace -2)" --eval="(setq-default indent-tabs-mode nil)" --eval='(indent-region (point-min) (point-max) nil)' -f save-buffer
+
+N_DEV_ADMSPSP103TVA.h N_DEV_ADMSPSP103TVA.C: psp103t.va $(PSPDEPS) $(XyceADMSFILES)
+	admsXml -D_XYCE_HACK=1 -e $(ADMSDIR)/xyceVersion.xml -e $(ADMSDIR)/xyceBasicTemplates.xml -e $(ADMSDIR)/xyceImplementationFile.xml -e $(ADMSDIR)/xyceHeaderFile.xml psp103t.va
+	emacs N_DEV_ADMSPSP103TVA.C --batch --eval="(require 'cc-mode)" --eval="(c-set-offset 'substatement-open 0)" --eval="(c-set-offset 'arglist-intro 3)" --eval="(c-set-offset 'innamespace -2)" --eval="(setq-default indent-tabs-mode nil)" --eval='(indent-region (point-min) (point-max) nil)' -f save-buffer
+	emacs N_DEV_ADMSPSP103TVA.h --batch --eval="(require 'cc-mode)" --eval="(c-set-offset 'substatement-open 0)" --eval="(c-set-offset 'arglist-intro 3)" --eval="(c-set-offset 'innamespace -2)" --eval="(setq-default indent-tabs-mode nil)" --eval='(indent-region (point-min) (point-max) nil)' -f save-buffer
