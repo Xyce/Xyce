@@ -220,6 +220,7 @@ private:
   std::string hackOutputFormat_;
   bool hackOutputCalledBefore_;
   bool hackOutputAllSamples_;
+  bool outputSampleStats_;
 
 #if Xyce_STOKHOS_ENABLE
   int PCEorder_;
