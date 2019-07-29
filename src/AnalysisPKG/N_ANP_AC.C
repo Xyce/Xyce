@@ -85,8 +85,6 @@
 #include<N_NLS_ReturnCodes.h>
 #include <N_NLS_SensitivityResiduals.h>
 
-#include <Sacado.hpp>
-
 #include <Teuchos_RCP.hpp>
 using Teuchos::RCP;
 using Teuchos::rcp;
@@ -377,6 +375,10 @@ AC::AC(
 {
   bVecRealPtr->putScalar(0.0);
   bVecImagPtr->putScalar(0.0);
+
+  RFparams_.insert(std::make_pair("Y",&Yparams_));
+  RFparams_.insert(std::make_pair("S",&Sparams_));
+  RFparams_.insert(std::make_pair("Z",&Zparams_));
 }
 
 //-----------------------------------------------------------------------------
@@ -1864,7 +1866,7 @@ bool AC::doProcessSuccessfulStep()
   {
     // Output x.
     outputManagerAdapter_.outputAC (currentFreq_, fStart_,fStop_,
-	    X_->block(0), X_-> block(1), Sparams_);
+	    X_->block(0), X_-> block(1), RFparams_);
 
     if (sensFlag_)
     {
@@ -1880,8 +1882,12 @@ bool AC::doProcessSuccessfulStep()
     Util::ytos(Yparams_, Sparams_, Z0sVec_ );
     Util::ytoz(Yparams_, Zparams_);
 
-    // acLoopSize_ is the total number of frequency points in the analyses
-    outputManagerAdapter_.outputSParams(currentFreq_, acLoopSize_, Z0sVec_, Sparams_);
+    // Outputter for Touchstone1 and/or Touchstone2 formatted files.
+    // acLoopSize_ is the total number of frequency points in the analyses.
+    outputManagerAdapter_.outputSParams(currentFreq_, acLoopSize_, Z0sVec_, RFparams_);
+
+    outputManagerAdapter_.outputAC (currentFreq_, fStart_,fStop_,
+            X_->block(0), X_-> block(1), RFparams_);
 
 //    outputMOR_.output(outputManagerAdapter_.getComm(), 1, currentFreq_,  Yparams_ );
   }

@@ -680,6 +680,21 @@ void printLineDiagnostics(
             }
 
           }
+          else if ( ((varType[0] == 'S') || (varType[0] == 'Y') || (varType[0] == 'Z')) &&
+                    varType.size() <= 3 && parameter.getImmutableValue<int>() > 0)
+          {
+            // Don't trigger this clause if varType == "SENS". Only for S(), SR(), SI(),
+            // SP(), SM() and SDB(), and the corresponding Y and Z operators.
+            int numIndices = parameter.getImmutableValue<int>();
+            if (numIndices != 2)
+            {
+              Report::UserError() << "S(), Y() and Z() must have two arguments in .PRINT command";
+            }
+            else
+            {
+	      ++it3; ++it3;
+            }
+          }
           else if (((varType == "P") || (varType == "W")) && parameter.getImmutableValue<int>() > 0)
           {
             // any devices found in this P(xxx) or W(xxx) structure need to be communicated to the device manager

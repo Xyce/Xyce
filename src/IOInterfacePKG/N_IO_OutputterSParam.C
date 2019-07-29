@@ -77,7 +77,7 @@ void enableSParamOutput(Parallel::Machine comm, OutputMgr &output_manager, Analy
       }
       else
       {
-        Report::UserWarning0() << "SParam output can only be written Touchstone format, using Touchstone2 format";
+        Report::UserWarning0() << "SParam output can only be written in Touchstone format, using Touchstone2 format";
         sparam_print_parameters.format_ = Format::TS2;
         outputter = new Outputter::SParamTS2(comm, output_manager, sparam_print_parameters);
       }

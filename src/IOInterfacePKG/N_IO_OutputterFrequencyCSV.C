@@ -108,7 +108,7 @@ FrequencyCSV::doOutputFrequency(
   double                fStop,
   const Linear::Vector &  real_solution_vector,
   const Linear::Vector &  imaginary_solution_vector,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   if (Parallel::rank(comm) == 0 && !os_)
   {

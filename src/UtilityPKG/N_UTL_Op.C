@@ -120,8 +120,9 @@ void parameterNameAndArgs(std::string &name, std::vector<std::string> &args, Par
 {
   const std::string &param_tag = (*it).tag();
 
-  if ((*it).getType() == Util::INT && (param_tag[0] == 'V' || param_tag[0] == 'I' || param_tag[0] == 'N' || 
-                                       param_tag[0] == 'P' || param_tag[0] == 'W' || param_tag[0] == 'D'))
+  if ((*it).getType() == Util::INT && (param_tag[0] == 'V' || param_tag[0] == 'I' || param_tag[0] == 'N' ||
+                                       param_tag[0] == 'P' || param_tag[0] == 'W' || param_tag[0] == 'D' ||
+                                       param_tag[0] == 'S' || param_tag[0] == 'Y' || param_tag[0] == 'Z'))
   {
     std::ostringstream oss;
     oss << param_tag << "(";

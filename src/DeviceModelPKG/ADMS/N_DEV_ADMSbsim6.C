@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 11 Jun 2019 09:13:17
+// Creation Date  : Thu, 25 Jul 2019 18:47:20
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -21411,9 +21411,9 @@ void evaluateInitialInstance(
    AdmsSensFadType & instanceVar_DLCIGD_i,
    AdmsSensFadType & instanceVar_IGT_i,
    AdmsSensFadType & instanceVar_nuIntD,
-   AdmsSensFadType & instanceVar_nuEndD,
+   double & instanceVar_nuEndD,
    AdmsSensFadType & instanceVar_nuIntS,
-   AdmsSensFadType & instanceVar_nuEndS,
+   double & instanceVar_nuEndS,
    AdmsSensFadType & instanceVar_gth,
    AdmsSensFadType & instanceVar_cth,
    // non-reals
@@ -30202,9 +30202,9 @@ void evaluateModelEquations(
    AdmsSensFadType & instanceVar_DLCIGD_i,
    AdmsSensFadType & instanceVar_IGT_i,
    AdmsSensFadType & instanceVar_nuIntD,
-   AdmsSensFadType & instanceVar_nuEndD,
+   double & instanceVar_nuEndD,
    AdmsSensFadType & instanceVar_nuIntS,
-   AdmsSensFadType & instanceVar_nuEndS,
+   double & instanceVar_nuEndS,
    AdmsSensFadType & instanceVar_gth,
    AdmsSensFadType & instanceVar_cth,
    // non-reals
@@ -36572,9 +36572,9 @@ void InstanceSensitivity::operator()
 
   //make local copies of all instance vars
   //reals
-  AdmsSensFadType instanceVar_T0=in.T0;
-  AdmsSensFadType instanceVar_T1=in.T1;
-  AdmsSensFadType instanceVar_T2=in.T2;
+  AdmsSensFadType instanceVar_T0=in.T0.val();
+  AdmsSensFadType instanceVar_T1=in.T1.val();
+  AdmsSensFadType instanceVar_T2=in.T2.val();
   AdmsSensFadType instanceVar_epssi=in.epssi;
   AdmsSensFadType instanceVar_epsox=in.epsox;
   AdmsSensFadType instanceVar_Weff=in.Weff;
@@ -36616,14 +36616,14 @@ void InstanceSensitivity::operator()
   AdmsSensFadType instanceVar_AechvbEdge=in.AechvbEdge;
   AdmsSensFadType instanceVar_BechvbEdge=in.BechvbEdge;
   AdmsSensFadType instanceVar_ToxRatio=in.ToxRatio;
-  AdmsSensFadType instanceVar_U0R_t=in.U0R_t;
-  AdmsSensFadType instanceVar_UAR_t=in.UAR_t;
-  AdmsSensFadType instanceVar_UCR_t=in.UCR_t;
-  AdmsSensFadType instanceVar_UDR_t=in.UDR_t;
-  AdmsSensFadType instanceVar_UCSR_t=in.UCSR_t;
-  AdmsSensFadType instanceVar_VSATR_t=in.VSATR_t;
-  AdmsSensFadType instanceVar_PTWGR_t=in.PTWGR_t;
-  AdmsSensFadType instanceVar_ETA0R_t=in.ETA0R_t;
+  AdmsSensFadType instanceVar_U0R_t=in.U0R_t.val();
+  AdmsSensFadType instanceVar_UAR_t=in.UAR_t.val();
+  AdmsSensFadType instanceVar_UCR_t=in.UCR_t.val();
+  AdmsSensFadType instanceVar_UDR_t=in.UDR_t.val();
+  AdmsSensFadType instanceVar_UCSR_t=in.UCSR_t.val();
+  AdmsSensFadType instanceVar_VSATR_t=in.VSATR_t.val();
+  AdmsSensFadType instanceVar_PTWGR_t=in.PTWGR_t.val();
+  AdmsSensFadType instanceVar_ETA0R_t=in.ETA0R_t.val();
   AdmsSensFadType instanceVar_PSATB_i=in.PSATB_i;
   AdmsSensFadType instanceVar_KT1_i=in.KT1_i;
   AdmsSensFadType instanceVar_KT2_i=in.KT2_i;
@@ -36640,7 +36640,7 @@ void InstanceSensitivity::operator()
   AdmsSensFadType instanceVar_ETA0_i=in.ETA0_i;
   AdmsSensFadType instanceVar_ETA0R_i=in.ETA0R_i;
   AdmsSensFadType instanceVar_ETAB_i=in.ETAB_i;
-  AdmsSensFadType instanceVar_K2_i=in.K2_i;
+  AdmsSensFadType instanceVar_K2_i=in.K2_i.val();
   AdmsSensFadType instanceVar_K1_i=in.K1_i;
   AdmsSensFadType instanceVar_DELTA_i=in.DELTA_i;
   AdmsSensFadType instanceVar_U0_i=in.U0_i;
@@ -36653,7 +36653,7 @@ void InstanceSensitivity::operator()
   AdmsSensFadType instanceVar_EU_i=in.EU_i;
   AdmsSensFadType instanceVar_UD_i=in.UD_i;
   AdmsSensFadType instanceVar_UDR_i=in.UDR_i;
-  AdmsSensFadType instanceVar_UD_a=in.UD_a;
+  AdmsSensFadType instanceVar_UD_a=in.UD_a.val();
   AdmsSensFadType instanceVar_UCS_i=in.UCS_i;
   AdmsSensFadType instanceVar_UCSR_i=in.UCSR_i;
   AdmsSensFadType instanceVar_UC_i=in.UC_i;
@@ -36735,9 +36735,9 @@ void InstanceSensitivity::operator()
   AdmsSensFadType instanceVar_DLCIGD_i=in.DLCIGD_i;
   AdmsSensFadType instanceVar_IGT_i=in.IGT_i;
   AdmsSensFadType instanceVar_nuIntD=in.nuIntD;
-  AdmsSensFadType instanceVar_nuEndD=in.nuEndD;
+  double instanceVar_nuEndD=in.nuEndD;
   AdmsSensFadType instanceVar_nuIntS=in.nuIntS;
-  AdmsSensFadType instanceVar_nuEndS=in.nuEndS;
+  double instanceVar_nuEndS=in.nuEndS;
   AdmsSensFadType instanceVar_gth=in.gth;
   AdmsSensFadType instanceVar_cth=in.cth;
 
@@ -43803,9 +43803,9 @@ void ModelSensitivity::operator()
 
     //make local copies of all instance vars
     //reals
-    AdmsSensFadType instanceVar_T0=in.T0;
-    AdmsSensFadType instanceVar_T1=in.T1;
-    AdmsSensFadType instanceVar_T2=in.T2;
+    AdmsSensFadType instanceVar_T0=in.T0.val();
+    AdmsSensFadType instanceVar_T1=in.T1.val();
+    AdmsSensFadType instanceVar_T2=in.T2.val();
     AdmsSensFadType instanceVar_epssi=in.epssi;
     AdmsSensFadType instanceVar_epsox=in.epsox;
     AdmsSensFadType instanceVar_Weff=in.Weff;
@@ -43847,14 +43847,14 @@ void ModelSensitivity::operator()
     AdmsSensFadType instanceVar_AechvbEdge=in.AechvbEdge;
     AdmsSensFadType instanceVar_BechvbEdge=in.BechvbEdge;
     AdmsSensFadType instanceVar_ToxRatio=in.ToxRatio;
-    AdmsSensFadType instanceVar_U0R_t=in.U0R_t;
-    AdmsSensFadType instanceVar_UAR_t=in.UAR_t;
-    AdmsSensFadType instanceVar_UCR_t=in.UCR_t;
-    AdmsSensFadType instanceVar_UDR_t=in.UDR_t;
-    AdmsSensFadType instanceVar_UCSR_t=in.UCSR_t;
-    AdmsSensFadType instanceVar_VSATR_t=in.VSATR_t;
-    AdmsSensFadType instanceVar_PTWGR_t=in.PTWGR_t;
-    AdmsSensFadType instanceVar_ETA0R_t=in.ETA0R_t;
+    AdmsSensFadType instanceVar_U0R_t=in.U0R_t.val();
+    AdmsSensFadType instanceVar_UAR_t=in.UAR_t.val();
+    AdmsSensFadType instanceVar_UCR_t=in.UCR_t.val();
+    AdmsSensFadType instanceVar_UDR_t=in.UDR_t.val();
+    AdmsSensFadType instanceVar_UCSR_t=in.UCSR_t.val();
+    AdmsSensFadType instanceVar_VSATR_t=in.VSATR_t.val();
+    AdmsSensFadType instanceVar_PTWGR_t=in.PTWGR_t.val();
+    AdmsSensFadType instanceVar_ETA0R_t=in.ETA0R_t.val();
     AdmsSensFadType instanceVar_PSATB_i=in.PSATB_i;
     AdmsSensFadType instanceVar_KT1_i=in.KT1_i;
     AdmsSensFadType instanceVar_KT2_i=in.KT2_i;
@@ -43871,7 +43871,7 @@ void ModelSensitivity::operator()
     AdmsSensFadType instanceVar_ETA0_i=in.ETA0_i;
     AdmsSensFadType instanceVar_ETA0R_i=in.ETA0R_i;
     AdmsSensFadType instanceVar_ETAB_i=in.ETAB_i;
-    AdmsSensFadType instanceVar_K2_i=in.K2_i;
+    AdmsSensFadType instanceVar_K2_i=in.K2_i.val();
     AdmsSensFadType instanceVar_K1_i=in.K1_i;
     AdmsSensFadType instanceVar_DELTA_i=in.DELTA_i;
     AdmsSensFadType instanceVar_U0_i=in.U0_i;
@@ -43884,7 +43884,7 @@ void ModelSensitivity::operator()
     AdmsSensFadType instanceVar_EU_i=in.EU_i;
     AdmsSensFadType instanceVar_UD_i=in.UD_i;
     AdmsSensFadType instanceVar_UDR_i=in.UDR_i;
-    AdmsSensFadType instanceVar_UD_a=in.UD_a;
+    AdmsSensFadType instanceVar_UD_a=in.UD_a.val();
     AdmsSensFadType instanceVar_UCS_i=in.UCS_i;
     AdmsSensFadType instanceVar_UCSR_i=in.UCSR_i;
     AdmsSensFadType instanceVar_UC_i=in.UC_i;
@@ -43966,9 +43966,9 @@ void ModelSensitivity::operator()
     AdmsSensFadType instanceVar_DLCIGD_i=in.DLCIGD_i;
     AdmsSensFadType instanceVar_IGT_i=in.IGT_i;
     AdmsSensFadType instanceVar_nuIntD=in.nuIntD;
-    AdmsSensFadType instanceVar_nuEndD=in.nuEndD;
+    double instanceVar_nuEndD=in.nuEndD;
     AdmsSensFadType instanceVar_nuIntS=in.nuIntS;
-    AdmsSensFadType instanceVar_nuEndS=in.nuEndS;
+    double instanceVar_nuEndS=in.nuEndS;
     AdmsSensFadType instanceVar_gth=in.gth;
     AdmsSensFadType instanceVar_cth=in.cth;
 

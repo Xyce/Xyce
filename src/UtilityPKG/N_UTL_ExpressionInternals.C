@@ -3536,6 +3536,9 @@ ExpressionInternals::mkfnode_(
 
   if (fname == "VR" || fname == "VI" || fname == "VM" || fname == "VP" || fname == "VDB"
       || fname == "IR" || fname == "II" || fname == "IM" || fname == "IP" || fname == "IDB"
+      || fname == "SR" || fname == "SI" || fname == "SM" || fname == "SP" || fname == "SDB" || fname == "S"
+      || fname == "YR" || fname == "YI" || fname == "YM" || fname == "YP" || fname == "YDB" || fname == "Y"
+      || fname == "ZR" || fname == "ZI" || fname == "ZM" || fname == "ZP" || fname == "ZDB" || fname == "Z"
       || fname == "N" || fname == "DNI" || fname == "DNO" || fname == "P" || fname == "W")
   {
     // Handle the special frequency-domain output types.
@@ -7541,6 +7544,9 @@ void ExpressionInternals::tokenize_(std::string &inputLine,
       // operator, like VR(a)
       if (el->name == "VR" || el->name == "VI" || el->name == "VM" || el->name == "VP" || el->name == "VDB" ||
 	  el->name == "IR" || el->name == "II" || el->name == "IM" || el->name == "IP" || el->name == "IDB" ||
+          el->name == "SR" || el->name == "SI" || el->name == "SM" || el->name == "SP" || el->name == "SDB" ||
+          el->name == "YR" || el->name == "YI" || el->name == "YM" || el->name == "YP" || el->name == "YDB" ||
+          el->name == "ZR" || el->name == "ZI" || el->name == "ZM" || el->name == "ZP" || el->name == "ZDB" ||
           el->name == "DNI" || el->name == "DNO")
       {
         if ( (inputLine.length() > i+name_len) && (inputLine[i+name_len] == '(') ) inOperator = true;
@@ -7549,7 +7555,7 @@ void ExpressionInternals::tokenize_(std::string &inputLine,
       {
         // operators like V(a) and I(a)
         if (inputLine[i] == 'V' || inputLine[i] == 'I' || inputLine[i] == 'P' || inputLine[i] == 'W' ||
-            inputLine[i] == 'N' )
+            inputLine[i] == 'N' || inputLine[i] == 'S' || inputLine[i] == 'Y' || inputLine[i] == 'Z')
         {
 	  if ( (inputLine.length() > i+1) && (inputLine[i+1] == '(') ) inOperator = true;
         }

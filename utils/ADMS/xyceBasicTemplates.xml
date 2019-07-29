@@ -3873,11 +3873,11 @@ other variables does not get propagated into a variable's
       <admst:when test="[name='ceil']">
         <admst:assert test="arguments[count(.)=1]" format="%(name): should have one argument exactly\n"/>
         <admst:apply-templates select="arguments[1]" match="processTerm">
-          <admst:variable name="expression" select="%(returned('returnedExpression')/value))"/>
+          <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
           <admst:choose>
             <admst:when test="[$globalCurrentScope='sensitivity']">
               <admst:apply-templates select="." match="recursiveDetectParameterDependence">
-                <admst:variable name="isDependent" select="%(returned('isDependent')/value))"/>
+                <admst:variable name="isDependent" select="%(returned('isDependent')/value)"/>
                 <admst:choose>
                   <admst:when test="[$isDependent='yes']">
                     <admst:variable name="expression" select="ADMSceil($expression)"/>
@@ -4655,7 +4655,15 @@ It calls generateInstanceArgs and generateModelArgs.
      <admst:text format="// reals\n"/>
      <admst:join select="variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden'])) and type='real']" separator=",\n">
        <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="AdmsSensFadType &amp; "/>
+         <admst:apply-templates select="." match="collectParamDependence"/>
+         <admst:choose>
+           <admst:when test="[exists(#Pdependent)]">
+             <admst:text format="AdmsSensFadType &amp; "/>
+           </admst:when>
+           <admst:otherwise>
+             <admst:text format="double &amp; "/>
+           </admst:otherwise>
+         </admst:choose>
        </admst:if>
        <admst:text format="instanceVar_%(name)"/>
      </admst:join>
@@ -4759,7 +4767,15 @@ It calls generateInstanceArgs and generateModelArgs.
      <admst:text format="// reals\n"/>
      <admst:join select="variable[(scope='global_model') and input='no' and not (exists(attribute[name='hidden'])) and type='real']" separator=",\n">
        <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="AdmsSensFadType &amp; "/>
+         <admst:apply-templates select="." match="collectParamDependence"/>
+         <admst:choose>
+           <admst:when test="[exists(#Pdependent)]">
+             <admst:text format="AdmsSensFadType &amp; "/>
+           </admst:when>
+           <admst:otherwise>
+             <admst:text format="double &amp; "/>
+           </admst:otherwise>
+         </admst:choose>
        </admst:if>
        <admst:text format="modelVar_%(name)"/>
      </admst:join>

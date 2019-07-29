@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 08 Apr 2019 13:58:39
+// Creation Date  : Thu, 25 Jul 2019 18:47:20
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbjt504tva_h
@@ -208,8 +208,8 @@ void evaluateModelEquations(
    bool instancePar_given_MULT,
    // instance variables
    // reals
-   AdmsSensFadType & instanceVar_An,
-   AdmsSensFadType & instanceVar_Bn,
+   double & instanceVar_An,
+   double & instanceVar_Bn,
    AdmsSensFadType & instanceVar_Trk,
    AdmsSensFadType & instanceVar_Tamb,
    AdmsSensFadType & instanceVar_pow2_2mPE,
@@ -425,8 +425,8 @@ void evaluateInitialInstance(
    bool instancePar_given_MULT,
    // instance variables
    // reals
-   AdmsSensFadType & instanceVar_An,
-   AdmsSensFadType & instanceVar_Bn,
+   double & instanceVar_An,
+   double & instanceVar_Bn,
    AdmsSensFadType & instanceVar_Trk,
    AdmsSensFadType & instanceVar_Tamb,
    AdmsSensFadType & instanceVar_pow2_2mPE,

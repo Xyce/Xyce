@@ -54,6 +54,7 @@
 #include <N_TIA_TIAParams.h>
 #include <N_UTL_FixedQueue.h>
 #include <N_UTL_Listener.h>
+#include <N_UTL_Op.h>
 #include <N_UTL_OptionBlock.h>
 
 // ---------- Forward Declarations ----------
@@ -230,6 +231,8 @@ private:
   Teuchos::SerialDenseMatrix<int, std::complex<double> > Sparams_;
   Teuchos::SerialDenseMatrix<int, std::complex<double> > Zparams_;
   Teuchos::SerialDenseMatrix<int, std::complex<double> > Hparams_;
+
+  Util::Op::RFparamsData RFparams_;
 
   std::vector<int> bMatEntriesVec_, portNumVec_;
 

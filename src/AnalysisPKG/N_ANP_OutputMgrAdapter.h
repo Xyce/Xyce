@@ -51,6 +51,7 @@
 #include <N_ANP_StepEvent.h>
 #include <N_LAS_BlockVector.h>
 #include <N_IO_OutputMgr.h>
+#include <N_UTL_Op.h>
 
 namespace Xyce {
 namespace Analysis {
@@ -224,7 +225,7 @@ public:
      double fStop,
      const Linear::Vector & solnVecRealPtr, 
      const Linear::Vector & solnVecImaginaryPtr,
-     const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams);
+     const Util::Op::RFparamsData & RFparams);
 
   void outputSensitivityAC(
      double freq,
@@ -243,7 +244,7 @@ public:
      double freq,
      double numFreq,
      std::vector<double> & Z0sVec,
-     const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams);
+     const Util::Op::RFparamsData & RFparams);
 
   void outputNoise(
       double freq,

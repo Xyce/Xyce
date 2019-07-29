@@ -22,8 +22,8 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        :
-//
+// Purpose        : Outputter for .LIN analysis.  This handles the output of
+//                  S-, Y- and Z-parameters in Touchstone1 format.
 // Special Notes  :
 //
 // Creator        : Pete Sholander
@@ -91,7 +91,8 @@ SParamTS1::~SParamTS1()
 //-----------------------------------------------------------------------------
 // Function      : SParamTS1::sparamHeader
 // Purpose       :
-// Special Notes :
+// Special Notes : The Sparams matrix contains the data for the parameter type
+//                 (S, Y or Z) requested on the associcated .LIN line.
 // Scope         :
 // Creator       : Pete Sholander
 // Creation Date : 3/25/2019
@@ -132,7 +133,7 @@ void SParamTS1::sparamHeader(
       }
     }
 
-    os << "# Hz S " << dataFormatStr << " R"  << " "  << Z0sVec[0];
+    os << "# Hz " << printParameters_.RFparamType_ << " " << dataFormatStr << " R"  << " "  << Z0sVec[0];
     if (printAllImpedances && numPorts_ > 1)
       for (int i=1; i < numPorts_; ++i)
         os << " "  << Z0sVec[i];
@@ -168,7 +169,11 @@ void SParamTS1::sparamHeader(
 //-----------------------------------------------------------------------------
 // Function      : SParamTS1::doOutputSParams
 // Purpose       :
-// Special Notes :
+// Special Notes : The RFparams map contains pointers to the matrices that contain
+//                 the S-, Y- and Z-parameters.  The Sparams matrix is then selected
+//                 from that map based on parameter type (S, Y or Z) requested on
+//                 the associated .LIN line.  So, that matrix may end up containing
+//                 S-, Y- or Z-parameter data.
 // Scope         :
 // Creator       : Pete Sholander, SNL
 // Creation Date : 3/25/2019
@@ -178,8 +183,14 @@ void SParamTS1::doOutputSParams(
   double              frequency,
   double              numFreq,
   std::vector<double> & Z0sVec,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
+  // Get a reference to the correct matrix (e.g., Sparams, Yparams or Zparams) in
+  // the RFparams map based on the RFTYPE parameter on the .LIN line.
+  Util::Op::RFparamsData::const_iterator it;
+  it = RFparams.find(printParameters_.RFparamType_);
+  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams = *it->second;
+
   if (Parallel::rank(comm) == 0 && !os_)
   {
     // extra column is the Freq column, and each entry in the Sparams matrix
@@ -205,42 +216,45 @@ void SParamTS1::doOutputSParams(
     std::vector<std::string> colNames;
     colNames.push_back("Freq");
 
+    // The RF parameter type requested on the .LIN line.  "S" is the default.
+    std::string paramType(printParameters_.RFparamType_);
+
     if (numPorts_ == 2)
     {
       // Touchstone1 format has a special ordering for 2 ports.  It it column-row order
       if (printParameters_.dataFormat_ == DataFormat::MA)
       {
-        colNames.push_back("magS11");
-        colNames.push_back("angS11");
-        colNames.push_back("magS21");
-        colNames.push_back("angS21");
-        colNames.push_back("magS12");
-        colNames.push_back("angS12");
-        colNames.push_back("magS22");
-        colNames.push_back("angS22");
+        colNames.push_back("mag" + paramType + "11");
+        colNames.push_back("ang" + paramType + "11");
+        colNames.push_back("mag" + paramType + "21");
+        colNames.push_back("ang" + paramType + "21");
+        colNames.push_back("mag" + paramType + "12");
+        colNames.push_back("ang" + paramType + "12");
+        colNames.push_back("mag" + paramType + "22");
+        colNames.push_back("ang" + paramType + "22");
       }
       else if (printParameters_.dataFormat_ == DataFormat::DB)
       {
-        colNames.push_back("magdbS11");
-        colNames.push_back("angS11");
-        colNames.push_back("magdbS21");
-        colNames.push_back("angS21");
-        colNames.push_back("magdbS12");
-        colNames.push_back("angS12");
-        colNames.push_back("magdbS22");
-        colNames.push_back("angS22");
+        colNames.push_back("magdb" + paramType + "11");
+        colNames.push_back("ang" + paramType + "11");
+        colNames.push_back("magdb" + paramType + "21");
+        colNames.push_back("ang" + paramType + "21");
+        colNames.push_back("magdb" + paramType + "12");
+        colNames.push_back("ang" + paramType + "12");
+        colNames.push_back("magdb" + paramType + "22");
+        colNames.push_back("ang" + paramType + "22");
       }
       else
       {
         // default to DataFormat::RI
-        colNames.push_back("ReS11");
-        colNames.push_back("ImS11");
-        colNames.push_back("ReS21");
-        colNames.push_back("ImS21");
-        colNames.push_back("ReS12");
-        colNames.push_back("ImS12");
-        colNames.push_back("ReS22");
-        colNames.push_back("ImS22");
+        colNames.push_back("Re" + paramType + "11");
+        colNames.push_back("Im" + paramType + "11");
+        colNames.push_back("Re" + paramType + "21");
+        colNames.push_back("Im" + paramType + "21");
+        colNames.push_back("Re" + paramType + "12");
+        colNames.push_back("Im" + paramType + "12");
+        colNames.push_back("Re" + paramType + "22");
+        colNames.push_back("Im" + paramType + "22");
       }
     }
     else
@@ -256,11 +270,11 @@ void SParamTS1::doOutputSParams(
             // Port numbering in Touchstone output starts at 1.
             // The Sparam matrix's indexing starts at 0.
             ss.str("");
-            ss << "magS" << i+1 << j+1;
+            ss << "mag" << paramType << i+1 << j+1;
             colNames.push_back(ss.str());
 
             ss.str("");
-            ss << "angS" << i+1 << j+1;
+            ss << "ang" << paramType << i+1 << j+1;
             colNames.push_back(ss.str());
           }
           else if (printParameters_.dataFormat_ == DataFormat::DB)
@@ -268,22 +282,22 @@ void SParamTS1::doOutputSParams(
             // Port numbering in Touchstone output starts at 1.
             // The Sparam matrix's indexing starts at 0.
             ss.str("");
-            ss << "magdbS" << i+1 << j+1;
+            ss << "magdb" << paramType << i+1 << j+1;
             colNames.push_back(ss.str());
 
             ss.str("");
-            ss << "angS" << i+1 << j+1;
+            ss << "ang" << paramType << i+1 << j+1;
            colNames.push_back(ss.str());
           }
           else
           {
             // default to DataFormat::RI
             ss.str("");
-            ss << "ReS" << i+1 << j+1;
+            ss << "Re" << paramType << i+1 << j+1;
             colNames.push_back(ss.str());
 
             ss.str("");
-            ss << "ImS" << i+1 << j+1;
+            ss << "Im" << paramType << i+1 << j+1;
             colNames.push_back(ss.str());
           }
         }

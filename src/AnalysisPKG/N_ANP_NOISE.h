@@ -50,6 +50,7 @@
 #include <N_TIA_TIAParams.h>
 #include <N_UTL_FixedQueue.h>
 #include <N_UTL_Listener.h>
+#include <N_UTL_Op.h>
 #include <N_UTL_OptionBlock.h>
 
 // ---------- Forward Declarations ----------
@@ -222,6 +223,7 @@ private:
 
   std::vector<Xyce::Analysis::NoiseData*> noiseDataVec_;
   Teuchos::SerialDenseMatrix<int, std::complex<double> > Sparams_;
+  Util::Op::RFparamsData RFparams_;
 
   std::vector<double> objectiveVec_; 
   std::vector<double> dOdpVec_; 

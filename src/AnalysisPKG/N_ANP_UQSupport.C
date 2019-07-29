@@ -38,13 +38,6 @@
 #include <Teuchos_Utils.hpp>
 #include <Teuchos_LAPACK.hpp>
 
-#if Xyce_STOKHOS_ENABLE
-#include <Stokhos.hpp>
-#include "Stokhos_Sacado.hpp"
-#include "Stokhos_Sacado_Kokkos.hpp"
-#include <Sacado.hpp>
-#endif
-
 #if __cplusplus>=201103L
 // note, this only works with C++11!
 #include <random>

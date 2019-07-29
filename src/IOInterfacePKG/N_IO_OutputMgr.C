@@ -617,11 +617,19 @@ void OutputMgr::prepareOutput(
       case Analysis::ANP_MODE_AC:
         if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_AC))
 	{
-          Outputter::enableACOutput(comm, *this, analysis_mode);
+          // if -o was requested then either SPARAM or AC output is made
+          // depending on whether a .LIN analysis is being done, or not
+          if (!(defaultPrintParameters_.dashoRequested_ && enableSparCalcFlag_))
+	  {
+            Outputter::enableACOutput(comm, *this, analysis_mode);
+          }
           Outputter::enableSParamOutput(comm, *this, analysis_mode);
         }
-        addActiveOutputter(PrintType::AC, analysis_mode);
-        addActiveOutputter(PrintType::AC_IC, analysis_mode);
+        if (!(defaultPrintParameters_.dashoRequested_ && enableSparCalcFlag_))
+	{
+          addActiveOutputter(PrintType::AC, analysis_mode);
+          addActiveOutputter(PrintType::AC_IC, analysis_mode);
+        }
         addActiveOutputter(PrintType::SPARAM, analysis_mode);
         break;
 
@@ -1304,9 +1312,22 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
         dataFormat = DataFormat::DB;
        else
       {
-        Report::DevelFatal0() << "Unrecognized data format for Touchstone output" << s;
+        Report::DevelFatal0() << "Unrecognized data format " << s <<  " for Touchstone output requested on .LIN ";
       }
       print_parameters.dataFormat_ = dataFormat;
+    }
+    else if (iterParam->tag() == "LINTYPE")
+    {
+      // Parameter type in Touchstone output
+      std::string s = iterParam->stringValue();
+      if ( (s == "S") || (s == "Y") || (s == "Z") )
+      {
+        print_parameters.RFparamType_ = s;
+      }
+      else
+      {
+        Report::DevelFatal0() << "Unrecognized or unsupported parameter type " << s << " for Touchstone output requested on .LIN";
+      }
     }
     else if (iterParam->tag() == "TIMEWIDTH")
     {
@@ -1382,7 +1403,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
   // generation of "fallback print parameters) occurs based on the PrintType.
   if (print_parameters.dashoRequested_)
   {
-    // -o only produces output for .PRINT AC, .PRINT DC, .PRINT NOISE and .PRINT TRAN lines.
+    // -o only produces output for .PRINT AC, .PRINT DC, .PRINT HB_FD, .PRINT NOISE and
+    // .PRINT TRAN lines.  It generates a Touchstone 2 file if a .LIN analysis is done.
     // -o output defaults to Format::STD, with an INDEX column and space as the delimiter_.
     print_parameters.printIndexColumn_ = true;
     print_parameters.format_ = Format::STD;
@@ -1423,6 +1445,9 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     }
     else if (print_type == PrintType::SPARAM)
     {
+      // Note: Both SPARAM and AC output print parameters are made.  The function
+      // OutputMgr::prepareOutput() will then control which outputter is actually used,
+      // for the -o case, based on whether a .LIN analysis is being done, or not.
       PrintParameters sparam_print_parameters = print_parameters;
       sparam_print_parameters.format_=Format::TS2;
       addOutputPrintParameters(OutputType::SPARAM, sparam_print_parameters);
@@ -2870,7 +2895,7 @@ void OutputMgr::outputAC(
   double                fStop,
   const Linear::Vector &  real_solution_vector,
   const Linear::Vector &  imaginary_solution_vector,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   outputState_.circuitFrequency_ = frequency;
 
@@ -2882,7 +2907,7 @@ void OutputMgr::outputAC(
     for ( ; it != activeOutputterStack_.back().end(); ++it)
     {
       (*it)->outputAC(comm, frequency, fStart, fStop, 
-                      real_solution_vector, imaginary_solution_vector, Sparams);
+                      real_solution_vector, imaginary_solution_vector, RFparams);
     }
   }
 }
@@ -2936,7 +2961,7 @@ void OutputMgr::outputSParams(
   double                frequency,
   double                numFreq,
   std::vector<double> & Z0sVec,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   outputState_.circuitFrequency_ = frequency;
 
@@ -2947,7 +2972,7 @@ void OutputMgr::outputSParams(
 
     for ( ; it != activeOutputterStack_.back().end(); ++it)
     {
-      (*it)->outputSParams(comm, frequency, numFreq, Z0sVec, Sparams);
+      (*it)->outputSParams(comm, frequency, numFreq, Z0sVec, RFparams);
     }
   }
 }
@@ -3265,6 +3290,7 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("FILE", Util::Param("FILE", "")));
     parameters.insert(Util::ParamMap::value_type("FORMAT", Util::Param("FORMAT", "STD")));
     parameters.insert(Util::ParamMap::value_type("DATAFORMAT", Util::Param("DATAFORMAT", "RI")));
+    parameters.insert(Util::ParamMap::value_type("LINTYPE", Util::Param("LINTYPE", "S")));
     parameters.insert(Util::ParamMap::value_type("DELIMITER", Util::Param("DELIMITER", "")));
     parameters.insert(Util::ParamMap::value_type("WIDTH", Util::Param("WIDTH", 17)));
     parameters.insert(Util::ParamMap::value_type("PRECISION", Util::Param("PRECISION", 8)));
@@ -3561,6 +3587,33 @@ bool extractPrintData(
           option_block.addParam( Util::Param(field,0.0) );
 
           position += 4;
+        }
+        else
+        {
+          msg << "Unrecognized parenthetical specification";
+          p_err = position;
+        }
+      }
+      else if ( ((toupper(parsed_line[position].string_[0]) == 'S') ||
+                 (toupper(parsed_line[position].string_[0]) == 'Y') ||
+                 (toupper(parsed_line[position].string_[0]) == 'Z'))
+                && parsed_line[position].string_.size() <= 3 )
+      {
+        if (position+5 < numFields && parsed_line[position+5].string_ == ")")
+        {
+          field = parsed_line[position].string_;
+          field.toUpper();
+          option_block.addParam( Util::Param(field,2.0) );
+
+          field = parsed_line[position+2].string_;
+          field.toUpper();
+          option_block.addParam( Util::Param(field,0.0) );
+
+          field = parsed_line[position+4].string_;
+          field.toUpper();
+          option_block.addParam( Util::Param(field,0.0) );
+
+          position += 6;
         }
         else
         {

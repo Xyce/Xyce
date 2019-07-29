@@ -61,16 +61,6 @@
 namespace Xyce {
 namespace Analysis {
 
-const int ensemble_size = 8;
-
-#if Xyce_STOKHOS_ENABLE
-typedef Stokhos::StaticFixedStorage
-  <int, double, ensemble_size, Kokkos::DefaultExecutionSpace> double_ensemble_storage_type;
-
-typedef Sacado::MP::Vector<double_ensemble_storage_type> double_ensemble_type;
-#endif
-
-
 //-------------------------------------------------------------------------
 // Class         : EmbeddedSampling
 // Purpose       : EmbeddedSampling analysis class

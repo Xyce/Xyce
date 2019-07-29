@@ -106,12 +106,12 @@ void Interface::outputAC(
   double                        fStop,
   const Linear::Vector &          real_solution_vector,
   const Linear::Vector &          imaginary_solution_vector,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   if (debug) Xyce::dout() << demangle(typeid(*this).name()) << " doOutputAC" << std::endl;
 
   doOutputFrequency(comm, frequency, fStart, fStop, 
-                    real_solution_vector, imaginary_solution_vector, Sparams);
+                    real_solution_vector, imaginary_solution_vector, RFparams);
 }
 
 //-----------------------------------------------------------------------------
@@ -157,11 +157,11 @@ void Interface::outputSParams(
   double                        frequency,
   double                        numFreq,
   std::vector<double> &         Z0sVec,
-  const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams)
+  const Util::Op::RFparamsData & RFparams)
 {
   if (debug) Xyce::dout() << demangle(typeid(*this).name()) << " doOutputSParams" << std::endl;
 
-  doOutputSParams(comm, frequency, numFreq, Z0sVec, Sparams);
+  doOutputSParams(comm, frequency, numFreq, Z0sVec, RFparams);
 }
 
 //-----------------------------------------------------------------------------

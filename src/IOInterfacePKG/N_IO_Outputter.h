@@ -48,6 +48,7 @@
 #include <N_ANP_fwd.h>
 
 #include <N_UTL_NetlistLocation.h>
+#include <N_UTL_Op.h>
 #include <N_UTL_Param.h>
 
 #include <Teuchos_SerialDenseMatrix.hpp>
@@ -182,6 +183,7 @@ struct PrintParameters
       dashoRequested_(false),
       format_(Format::STD),
       dataFormat_(DataFormat::RI),
+      RFparamType_("S"),
       printIndexColumn_(true),
       variableList_(),
       table_(),
@@ -211,6 +213,7 @@ struct PrintParameters
       dashoRequested_(print_parameters.dashoRequested_),
       format_(print_parameters.format_),
       dataFormat_(print_parameters.dataFormat_),
+      RFparamType_(print_parameters.RFparamType_),
       printIndexColumn_(print_parameters.printIndexColumn_),
       variableList_(print_parameters.variableList_.begin(), print_parameters.variableList_.end()),
       table_(print_parameters.table_),
@@ -241,6 +244,7 @@ struct PrintParameters
     dashoRequested_ = print_parameters.dashoRequested_;
     format_ = print_parameters.format_;
     dataFormat_ = print_parameters.dataFormat_;
+    RFparamType_ = print_parameters.RFparamType_;
     printIndexColumn_ = print_parameters.printIndexColumn_;
     variableList_.assign(print_parameters.variableList_.begin(), print_parameters.variableList_.end());
     table_ = print_parameters.table_;
@@ -276,6 +280,7 @@ public:
   bool                          dashoRequested_;                ///< true if -o specified on command line, but not -r
   Format::Format                format_;                        ///< Print file format specified
   DataFormat::DataFormat        dataFormat_;                    ///< Data format specified for Touchstone output
+  std::string                   RFparamType_;                   ///< Parameter type (e.g., S, Y or Z) output in Touchstone file
   bool                          printIndexColumn_;              ///< True if INDEX column is to be printed
   Util::ParamList               variableList_;                  ///< Description of variables to be printed
   Table                         table_;                         ///< Formatting of table for print
@@ -324,7 +329,7 @@ public:
     double                      fStop,
     const Linear::Vector &        real_solution_vector,
     const Linear::Vector &        imaginary_solution_vector,
-    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams);
+    const Util::Op::RFparamsData & RFparams);
 
   void outputSensitivityAC(
     Parallel::Machine                 comm,
@@ -345,7 +350,7 @@ public:
     double                      frequency,
     double                      numFreq,
     std::vector<double> &       Z0sVec,
-    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams);
+    const Util::Op::RFparamsData & RFparams);
 
   virtual void outputNoise(
     Parallel::Machine   comm,
@@ -421,7 +426,7 @@ private:
     double                      fStop,
     const Linear::Vector &        real_solution_vector,
     const Linear::Vector &        imaginary_solution_vector,
-    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams) {}
+    const std::map<std::string, Teuchos::SerialDenseMatrix<int, std::complex<double> > * > & RFparams) {}
 
   virtual void doOutputSensitivityAC(
     Parallel::Machine                   comm,
@@ -442,7 +447,7 @@ private:
     double                      frequency,
     double                      numFreq,
     std::vector<double> & Z0sVec,
-    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams) {}
+    const Util::Op::RFparamsData & RFparams) {}
 
   virtual void doOutputNoise(
     Parallel::Machine   comm,

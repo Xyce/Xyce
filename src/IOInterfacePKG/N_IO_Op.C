@@ -778,6 +778,258 @@ complex VoltageDifferenceDecibelsOp::eval(complex result)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : RFparamsOp::get
+// Purpose       : get RF parameter values, such as S(1,2), Y(1,2) or Z(1,2)
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsOp::get(const RFparamsOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+   if (op_data.RFparams_ != 0)
+  {
+    Util::Op::RFparamsData::const_iterator it;
+    it = (*op_data.RFparams_).find(op.type_);
+    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & param = *it->second;
+    if ( op.index1_ > 0  && op.index2_ > 0 && op.index1_ <= param.numRows() && op.index2_ <= param.numRows() )
+    {
+      // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
+      result = param(op.index1_-1,op.index2_-1);
+    }
+  }
+
+  return result;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsRealOp::get
+// Purpose       : get a variable out of the RFparams map, in preparation for
+//                 computing its real part with the eval function.  This is
+//                 used by operators such as SR(1,2), YR(1,2) or Z(1,2).
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsRealOp::get(const RFparamsRealOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+  if (op_data.RFparams_ != 0)
+  {
+    Util::Op::RFparamsData::const_iterator it;
+    it = (*op_data.RFparams_).find(op.type_);
+    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & param = *it->second;
+    if ( op.index1_ > 0  && op.index2_ > 0 && op.index1_ <= param.numRows() && op.index2_ <= param.numRows() )
+    {
+      // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
+      result = param(op.index1_-1,op.index2_-1);
+    }
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsRealOp::eval
+// Purpose       : Take the real part of an RF parameter. This is used
+//                 by constructs like SR(1,2), YR(1,2) and ZR(1,2).
+// Special Notes : Actually just takes the real part of a complex number.
+//                 It does NOT access the RFparams map itself.  The get
+//                 function does that.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsRealOp::eval(complex result)
+{
+  return result.real();
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsImaginaryOp::get
+// Purpose       : get a variable out of the RFparams map, in preparation for
+//                 computing its imaginary part with the eval function.  This
+//                 is used by operators such as SI(1,2), YI(1,2) or ZI(1,2).
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsImaginaryOp::get(const RFparamsImaginaryOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+  if (op_data.RFparams_ != 0)
+  {
+    Util::Op::RFparamsData::const_iterator it;
+    it = (*op_data.RFparams_).find(op.type_);
+    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & param = *it->second;
+    if ( op.index1_ > 0  && op.index2_ > 0 && op.index1_ <= param.numRows() && op.index2_ <= param.numRows() )
+    {
+      // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
+      result = param(op.index1_-1,op.index2_-1);
+    }
+  }
+
+    return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsImaginaryOp::eval
+// Purpose       : Take the imaginary part of an RF parameter. This is used
+//                 by constructs like SI(1,2), YI(1,2) and ZI(1,2).
+// Special Notes : Actually just takes the imaginary part of a complex number.
+//                 It does NOT access the RFparams map itself.  The get
+//                 function does that.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsImaginaryOp::eval(complex result)
+{
+  return result.imag();
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsMagnitudeOp::get
+// Purpose       : get a variable out of the RFparams map, in preparation for
+//                 computing its magnitude with the eval function.  This
+//                 is used by operators such as SI(1,2), YI(1,2) or ZI(1,2).
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsMagnitudeOp::get(const RFparamsMagnitudeOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+   if (op_data.RFparams_ != 0)
+  {
+    Util::Op::RFparamsData::const_iterator it;
+    it = (*op_data.RFparams_).find(op.type_);
+    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & param = *it->second;
+    if ( op.index1_ > 0  && op.index2_ > 0 && op.index1_ <= param.numRows() && op.index2_ <= param.numRows() )
+    {
+      // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
+      result = param(op.index1_-1,op.index2_-1);
+    }
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsMagnitudeOp::eval
+// Purpose       : Take the magnitude of an RF parameter. This is used
+//                 by constructs like SM(1,2), YM(1,2) and ZM(1,2).
+// Special Notes : Actually just takes the magnitude of a complex number.
+//                 It does NOT access the RFparams map itself.  The get
+//                 function does that.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsMagnitudeOp::eval(complex result)
+{
+  return std::abs(result);
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsPhaseOp::get
+// Purpose       : get a variable out of the RFparams map, in preparation for
+//                 computing its phase with the eval function.  This
+//                 is used by operators such as SP(1,2), YP(1,2) or ZP(1,2).
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsPhaseOp::get(const RFparamsPhaseOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+  if (op_data.RFparams_ != 0)
+  {
+    Util::Op::RFparamsData::const_iterator it;
+    it = (*op_data.RFparams_).find(op.type_);
+    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & param = *it->second;
+    if ( op.index1_ > 0  && op.index2_ > 0 && op.index1_ <= param.numRows() && op.index2_ <= param.numRows() )
+    {
+      // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
+      result = param(op.index1_-1,op.index2_-1);
+    }
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsPhaseOp::eval
+// Purpose       : Take the phase of an RF parameter. This is used
+//                 by constructs like SP(1,2), YP(1,2) and ZP(1,2).
+// Special Notes : Actually just takes the phase of a complex number.
+//                 It does NOT access the RFparams map itself.  The get
+//                 function does that.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsPhaseOp::eval(complex result)
+{
+  return std::arg(result);
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsDecibelsOp::get
+// Purpose       : get a variable out of the RFparams map, in preparation for
+//                 computing its magnitude (in dB) with the eval function.  This
+//                 is used by operators such as SDB(1,2), YDB(1,2) or ZDB(1,2).
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsDecibelsOp::get(const RFparamsDecibelsOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+  if (op_data.RFparams_ != 0)
+  {
+    Util::Op::RFparamsData::const_iterator it;
+    it = (*op_data.RFparams_).find(op.type_);
+    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & param = *it->second;
+    if ( op.index1_ > 0  && op.index2_ > 0 && op.index1_ <= param.numRows() && op.index2_ <= param.numRows() )
+    {
+      // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
+      result = param(op.index1_-1,op.index2_-1);
+    }
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsDecibelsOp::eval
+// Purpose       : Take the magnitude (in dB) of an RF parameter. This is used
+//                 by constructs like SDB(1,2), YDB(1,2) and ZDB(1,2).
+// Special Notes : Actually just takes the magnitude (in dB) of a complex number.
+//                 It does NOT access the RFparams map itself.  The get
+//                 function does that.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsDecibelsOp::eval(complex result)
+{
+  return 20.0*std::log10(std::abs(result));
+}
+
+
+//-----------------------------------------------------------------------------
 // Function      : StateOp::get
 // Purpose       : Get a value out of the state vector.
 // Special Notes :

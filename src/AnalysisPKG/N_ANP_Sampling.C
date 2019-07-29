@@ -73,10 +73,8 @@
 #include <Teuchos_LAPACK.hpp>
 
 #if Xyce_STOKHOS_ENABLE
-#include <Stokhos.hpp>
+#include <Sacado_No_Kokkos.hpp>
 #include <Stokhos_Sacado.hpp>
-#include <Stokhos_Sacado_Kokkos.hpp>
-#include <Kokkos_ArithTraits_MP_Vector.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_CrsMatrix.hpp>

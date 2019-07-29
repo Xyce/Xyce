@@ -22,8 +22,8 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        :
-//
+// Purpose        : Outputter for .LIN analysis.  This handles the output of
+//                  S-, Y- and Z-parameters in Touchstone1 format.
 // Special Notes  :
 //
 // Creator        : Pete Sholander
@@ -78,7 +78,7 @@ public:
     double              frequency,
     double              numFreq,
     std::vector<double> & Z0sVec,
-    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams);
+    const Util::Op::RFparamsData & RFparams);
 
 private:
   void sparamHeader(

@@ -73,8 +73,10 @@ void parameterNameAndArgs(
 {
   const std::string &param_tag = (*it).tag();
 
-  if ((*it).getType() == Util::INT && (param_tag[0] == 'V' || param_tag[0] == 'I' || param_tag[0] == 'N' || 
-                                       param_tag[0] == 'P' || param_tag[0] == 'W' || param_tag[0] == 'D'))
+  // don't enter this if statement if param_tag == "SENS", or is a Y-device
+  if ( (*it).getType() == Util::INT && (param_tag[0] == 'V' || param_tag[0] == 'I' || param_tag[0] == 'N' ||
+                                        param_tag[0] == 'P' || param_tag[0] == 'W' || param_tag[0] == 'D' ||
+			                param_tag[0] == 'S' || param_tag[0] == 'Y' || param_tag[0] == 'Z') )
   {
     std::ostringstream oss;
     oss << param_tag << "(";
@@ -1310,6 +1312,101 @@ private:
   const Analysis::AnalysisManager &   analysisManager_;
 };
 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::RFparamsVariableOpBuilder
+// Purpose       : Builds various operators for RF parameter output.
+//                 See the list below in registerCreateFunctions().  This
+//                 includes the operators for S(), SR(), SI(), SM(), SP()
+//                 and SDB(). It also includes the corresponding Y and Z
+//                 parameter output.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 07/01/19
+//--------------------------------------------------------------------------
+struct RFparamsVariableOpBuilder : public Util::Op::Builder
+{
+  RFparamsVariableOpBuilder(const OutputMgr & output_manager,
+                   const Analysis::AnalysisManager & analysis_manager)
+    : outputManager_(output_manager),
+      analysisManager_(analysis_manager)
+  {}
+
+  virtual ~RFparamsVariableOpBuilder()
+  {}
+
+  virtual void registerCreateFunctions(Util::Op::BuilderManager &builder_manager) const
+  {
+    builder_manager.addCreateFunction<RFparamsOp>();
+    builder_manager.addCreateFunction<RFparamsRealOp>();
+    builder_manager.addCreateFunction<RFparamsImaginaryOp>();
+    builder_manager.addCreateFunction<RFparamsMagnitudeOp>();
+    builder_manager.addCreateFunction<RFparamsPhaseOp>();
+    builder_manager.addCreateFunction<RFparamsDecibelsOp>();
+  }
+
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
+  {
+    Util::Op::Operator *new_op = 0;
+    const std::string &param_tag = (*it).tag();
+
+    std::vector<std::string> args;
+    std::string name;
+    parameterNameAndArgs(name, args, it);
+
+    if ( ((param_tag[0] == 'S') || (param_tag[0] == 'Y') || (param_tag[0] == 'Z')) && args.size() == 2)
+    {
+      if (!analysisManager_.getACFlag())
+      {
+        Report::UserError0() << "S(), Y() and Z() operators only supported for .LIN analyses";
+        return new_op;
+      }
+
+      int rowIdx= atoi(args[0].c_str());
+      int colIdx= atoi(args[1].c_str());
+      if ( rowIdx < 1  || colIdx < 1 )
+      {
+        Report::UserError0() << "Indices for S(), Y() and Z() operators must be > 0";
+        return new_op;
+      }
+
+      std::string type = name.substr(0,1);
+      if ( (param_tag == "S") || (param_tag == "Y") || (param_tag == "Z"))
+      {
+        new_op = new RFparamsOp(name, type, rowIdx, colIdx);
+      }
+      else if ( (param_tag == "SR") || (param_tag == "YR") || (param_tag == "ZR") )
+      {
+        new_op = new RFparamsRealOp(name, type, rowIdx, colIdx);
+      }
+      else if ( (param_tag == "SI") || (param_tag == "YI") || (param_tag == "ZI") )
+      {
+        new_op = new RFparamsImaginaryOp(name, type, rowIdx, colIdx);
+      }
+      else if ( (param_tag == "SM") || (param_tag == "YM") || (param_tag == "ZM") )
+      {
+        new_op = new RFparamsMagnitudeOp(name, type, rowIdx, colIdx);
+      }
+      else if ( (param_tag == "SP" ) || (param_tag == "YP") || (param_tag == "ZP") )
+      {
+        new_op = new RFparamsPhaseOp(name, type, rowIdx, colIdx);
+      }
+      else if ( (param_tag == "SDB" ) || (param_tag == "YDB" ) || (param_tag == "ZDB") )
+      {
+        new_op = new RFparamsDecibelsOp(name, type, rowIdx, colIdx);
+      }
+
+      if (new_op)
+        new_op->addArgs(args.begin(), args.end());
+    }
+
+    return new_op;
+  }
+
+private:
+  const OutputMgr &     outputManager_;
+  const Analysis::AnalysisManager &    analysisManager_;
+};
+
 //-------------------------------------------------------------------------- 
 // Structure     : Util::Op::Builder::ExpressionOpBuilder 
 // Purpose       : Makes an ExpressionOp or ConstantOp.
@@ -1601,6 +1698,7 @@ void registerOpBuilders(Util::Op::BuilderManager &op_builder_manager, Parallel::
   op_builder_manager.addBuilder(new VoltageVariableOpBuilder(output_manager,comm));
   op_builder_manager.addBuilder(new CurrentVariableOpBuilder(output_manager,analysis_manager));
   op_builder_manager.addBuilder(new PowerVariableOpBuilder(output_manager,analysis_manager));
+  op_builder_manager.addBuilder(new RFparamsVariableOpBuilder(output_manager,analysis_manager));
 }
 
 //-------------------------------------------------------------------------- 

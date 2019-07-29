@@ -75,7 +75,7 @@ public:
       double fStop, 
       const Linear::Vector &realSolutionVector, 
       const Linear::Vector &imaginarySolutionVector,
-      const Teuchos::SerialDenseMatrix<int, std::complex<double> > & Sparams);
+      const Util::Op::RFparamsData &RFparams);
 
   virtual void doOutputHB_FD(
      Parallel::Machine             comm,
