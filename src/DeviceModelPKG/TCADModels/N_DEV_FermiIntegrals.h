@@ -43,7 +43,7 @@
 #include <cmath>
 #include <time.h>
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 #include <map>
 
 // ----------   Xyce Includes   ----------

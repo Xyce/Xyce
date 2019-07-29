@@ -778,7 +778,7 @@ fi
 
 AC_CHECK_HEADER(NOX_Abstract_Vector.H,,[AC_MSG_ERROR([Sorry, NOX headers not found])])
 AC_CHECK_HEADER(LOCA_Parameter_Vector.H,,[AC_MSG_ERROR([Sorry, LOCA headers not found])])
-AC_CHECK_HEADER([Sacado.hpp], [], [AC_MSG_ERROR([Sorry, Sacado headers not found])])
+AC_CHECK_HEADER([Sacado_No_Kokkos.hpp], [], [AC_MSG_ERROR([Sorry, Sacado_No_Kokkos headers not found])])
 AC_LANG_POP(C++)
 
 dnl Checks for typedefs, structures, and compiler characteristics.

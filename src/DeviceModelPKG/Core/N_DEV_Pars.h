@@ -38,7 +38,7 @@
 #ifndef Xyce_N_DEV_Pars_h
 #define Xyce_N_DEV_Pars_h
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 #include <algorithm>
 #include <map>
 #include <set>

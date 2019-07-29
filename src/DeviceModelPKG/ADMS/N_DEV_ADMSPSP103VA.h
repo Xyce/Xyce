@@ -39,7 +39,7 @@
 #define Xyce_N_DEV_ADMSPSP103VA_h
 
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 #include <N_DEV_Configuration.h>
 #include <N_DEV_Const.h>

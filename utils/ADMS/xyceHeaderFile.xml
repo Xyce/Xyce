@@ -105,7 +105,7 @@
   </admst:apply-templates>
   <admst:text format="#ifndef $guardSymbol\n#define $guardSymbol\n"/>
 
-#include &lt;Sacado.hpp&gt;
+#include &lt;Sacado_No_Kokkos.hpp&gt;
 
 #include &lt;N_DEV_Configuration.h&gt;
 #include &lt;N_DEV_Const.h&gt;

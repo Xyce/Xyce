@@ -38,7 +38,7 @@
 #ifndef Xyce_N_DEV_Diode_h
 #define Xyce_N_DEV_Diode_h
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 // ----------   Xyce Includes   ----------
 #include <N_DEV_Configuration.h>

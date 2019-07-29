@@ -42,7 +42,7 @@
 #include <N_UTL_Math.h>
 #include <time.h>
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 // ----------   Xyce Includes   ----------
 #include <N_DEV_fwd.h>

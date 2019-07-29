@@ -39,7 +39,7 @@
 #define Xyce_N_DEV_Neuron9_h
 
 #include <N_DEV_Configuration.h>
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 // ----------   Xyce Includes   ----------
 #include <N_DEV_DeviceMaster.h>

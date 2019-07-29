@@ -48,7 +48,7 @@
 #include <N_DEV_Message.h>
 #include <N_LAS_Matrix.h>
 #include <N_UTL_FeatureTest.h>
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 namespace Xyce {
 namespace Device {
