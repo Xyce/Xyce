@@ -129,7 +129,8 @@ Sampling::Sampling(AnalysisManager &analysis_manager, Loader::Loader &loader,
       outputsGiven_(false),
       outputsSetup_(false),
       measuresGiven_(false),
-      outFuncGIDsetup_(false)
+      outFuncGIDsetup_(false),
+      outputSampleStats_(true)
 {
   pdsMgrPtr_ = analysisManager_.getPDSManager();
 }
@@ -414,6 +415,10 @@ bool Sampling::setSamplingOptions(const Util::OptionBlock & option_block)
       UQ::outputFunctionData * ofDataPtr = new UQ::outputFunctionData();
       ofDataPtr->outFuncString = (*it).stringValue();
       measFuncDataVec_.push_back(ofDataPtr);
+    }
+    else if ((*it).uTag() == "OUTPUTSAMPLESTATS")
+    {
+      outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "REGRESSION_PCE")
@@ -985,7 +990,7 @@ void Sampling::completeEnsembleOutputs()
         UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
         outFunc.completeStatistics();
 
-        if (stdOutputFlag_)
+        if (stdOutputFlag_ && outputSampleStats_)
         {
           std::string sampleTypeStr = "MC";
 
@@ -1037,9 +1042,12 @@ void Sampling::completeEnsembleOutputs()
             regressionPCE.print(Xyce::lout());
           }
 
-          Xyce::lout() << std::endl;
-          Xyce::lout() << "(traditional sampling) regression PCE mean of " << outFunc.outFuncString << " = " << regressionPCE.mean() << std::endl;
-          Xyce::lout() << "(traditional sampling) regression PCE stddev of " << outFunc.outFuncString << " = " << regressionPCE.standard_deviation() << std::endl;
+          if (stdOutputFlag_)
+          {
+            Xyce::lout() << std::endl;
+            Xyce::lout() << "(traditional sampling) regression PCE mean of " << outFunc.outFuncString << " = " << regressionPCE.mean() << std::endl;
+            Xyce::lout() << "(traditional sampling) regression PCE stddev of " << outFunc.outFuncString << " = " << regressionPCE.standard_deviation() << std::endl;
+          }
 
           if (resamplePCE_)
           {
@@ -1088,9 +1096,12 @@ void Sampling::completeEnsembleOutputs()
             projectionPCE.print(Xyce::lout());
           }
 
-          Xyce::lout() << std::endl;
-          Xyce::lout() << "(traditional sampling) projection PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
-          Xyce::lout() << "(traditional sampling) projection PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
+          if (stdOutputFlag_)
+          {
+            Xyce::lout() << std::endl;
+            Xyce::lout() << "(traditional sampling) projection PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
+            Xyce::lout() << "(traditional sampling) projection PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
+          }
 
           if (resamplePCE_)
           {
@@ -1133,7 +1144,7 @@ void Sampling::completeEnsembleOutputs()
         UQ::outputFunctionData & measFunc = *(measFuncDataVec_[iout]);
         measFunc.completeStatistics();
 
-        if (stdOutputFlag_)
+        if (stdOutputFlag_ && outputSampleStats_)
         {
           std::string sampleTypeStr = "MC";
 
@@ -1516,9 +1527,10 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUTFORMAT", Util::Param("OUTPUTFORMAT", "STD")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("MEASURES", Util::Param("MEASURES", "VECTOR")));
+    parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
 #if Xyce_STOKHOS_ENABLE
-    parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", 1)));
-    parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", 1)));
+    parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", true)));
+    parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", true)));
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));
 #endif
     parameters.insert(Util::ParamMap::value_type("SAMPLE_TYPE", Util::Param("SAMPLE_TYPE", 0)));
