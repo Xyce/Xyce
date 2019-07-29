@@ -1148,7 +1148,7 @@ void PCE::computePCEOutputs()
       //outFunc.completeStatistics(BlockCount);
       outFunc.completeStatistics();
 
-      if (stdOutputFlag_)
+      if (stdOutputFlag_ && outputSampleStats_)
       {
         // histrogram is a hack that doesn't work yet
         //UQ::histrogram(std::cout, outFunc.outFuncString, outFunc.sampleOutputs);
