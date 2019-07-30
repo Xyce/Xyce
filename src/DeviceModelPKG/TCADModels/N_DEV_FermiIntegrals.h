@@ -53,7 +53,6 @@
 #include <N_DEV_BernouliSupport.h>
 #include <N_DEV_Const.h>
 #include <N_DEV_CompositeParam.h>
-#include <N_DEV_DopeInfo.h>
 #include <N_DEV_ScalingVars.h>
 
 // ---------- Forward Declarations ----------

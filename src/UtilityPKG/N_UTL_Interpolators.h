@@ -34,6 +34,8 @@
 #ifndef Xyce_N_UTL_Interpolators_h
 #define Xyce_N_UTL_Interpolators_h
 
+#include <Sacado_No_Kokkos.hpp>
+
 namespace Xyce {
 namespace Util {
 
