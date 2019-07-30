@@ -39,6 +39,7 @@
 
 #include <iostream>
 #include <numeric>
+#include <iterator>
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_PDS_Comm.h>
