@@ -192,6 +192,8 @@ public:
 
   bool getACFlag() const;
 
+  bool getACLinFlag() const;
+
   bool getNoiseFlag() const;
 
   bool getDCSweepFlag() const;
@@ -522,7 +524,9 @@ public:
   }
 
   double getCurrentFreq() const;
- 
+
+  bool getSparcalc() const;
+
 
 private:
   const IO::CmdParse &                  commandLine_;                   ///< Command line object

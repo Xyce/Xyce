@@ -126,6 +126,11 @@ public:
     return currentFreq_;
   }
 
+  bool getSparcalc()
+  {
+    return sparcalc_;
+  }
+
   bool setACOptions(const Util::OptionBlock & OB);
   bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);

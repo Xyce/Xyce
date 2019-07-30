@@ -131,6 +131,11 @@ public:
     return 0.0;
   }
 
+  virtual bool getSparcalc()
+  {
+    return 0;
+  }
+
   virtual const TimeIntg::TIAParams &getTIAParams() const = 0;
   virtual TimeIntg::TIAParams &getTIAParams() = 0;
 
