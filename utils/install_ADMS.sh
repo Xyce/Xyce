@@ -14,6 +14,8 @@ cp utils/ADMS/examples/psp102/N_DEV_ADMSPSP102VA.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/psp102/N_DEV_ADMSPSP102VA.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/psp103/N_DEV_ADMSPSP103VA.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/psp103/N_DEV_ADMSPSP103VA.C src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/psp103/N_DEV_ADMSPSP103TVA.h src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/psp103/N_DEV_ADMSPSP103TVA.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/psp103/N_DEV_ADMSJUNCAP200.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/psp103/N_DEV_ADMSJUNCAP200.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/mextram_504.12.1/N_DEV_ADMSbjt504va.h src/DeviceModelPKG/ADMS/
