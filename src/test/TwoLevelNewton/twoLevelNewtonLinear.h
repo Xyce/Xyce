@@ -50,6 +50,9 @@
 #include <N_ANP_fwd.h>
 #include <N_DEV_ExternalSimulationData.h>
 
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Array.hpp>
+
 #include <vector>
 #include <algorithm>
 
