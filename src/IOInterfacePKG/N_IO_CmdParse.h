@@ -41,6 +41,7 @@
 #include <iosfwd>
 #include <string>
 #include <map>
+#include <cstring>
 
 #include <N_IO_fwd.h>
 #include <N_DEV_fwd.h>
