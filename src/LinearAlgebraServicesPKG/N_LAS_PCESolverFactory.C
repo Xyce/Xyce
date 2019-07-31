@@ -81,11 +81,7 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 PCESolverFactory::PCESolverFactory(
   Linear::Builder &             builder)
-  : 
-#if 0
-    hbOsc_(false),
-#endif
-    builder_(builder)
+  : builder_(builder)
 {
 }
 
@@ -142,9 +138,6 @@ PCESolverFactory::create(
 
     newSolver->registerPCELoader( pceLoaderPtr_ );
     newSolver->registerPCEBuilder( pceBuilderPtr_ );
-#if 0
-    newSolver->setFastTimes( times_ );
-#endif
 
     return newSolver;
   }

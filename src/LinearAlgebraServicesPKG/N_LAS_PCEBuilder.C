@@ -248,7 +248,7 @@ Vector * PCEBuilder::createLeadCurrentVector( double initialValue ) const
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
 bool PCEBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap, 
-                                    const RCP<N_PDS_ParMap>& oBaseMap )
+                               const RCP<N_PDS_ParMap>& oBaseMap )
 {
   //Save copy of base map
   BaseMap_ = BaseMap;

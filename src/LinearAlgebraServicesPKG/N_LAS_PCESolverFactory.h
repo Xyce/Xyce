@@ -75,23 +75,6 @@ public:
   // Creates a new solver.
   Solver * create( Util::OptionBlock & options, Problem & problem, const IO::CmdParse & command_line) const;
 
-#if 0
-  // Set the time step(s) being used in the PCE analysis.
-  // NOTE:  This is only useful for FD solution techniques.
-  void setTimeSteps( const std::vector<double> & timeSteps )
-    { timeSteps_ = timeSteps; }
-
-  void setESFreqs( const std::vector<double> & freqs )
-    { freqs_ = freqs; }
-
-  // Set the fast times being used in the ES analysis.
-  void setFastTimes( const std::vector<double> & times )
-    { times_ = times; }
-
-  void setESOsc( const bool osc )
-    { hbOsc_ = osc; }
-#endif
-
   // Register the application system loader
   void registerPCELoader( const Teuchos::RCP<Loader::PCELoader>& pceLoaderPtr ) 
     { pceLoaderPtr_ = pceLoaderPtr; }
@@ -101,13 +84,9 @@ public:
     { pceBuilderPtr_ = pceBuilder; }
 
 private:
-#if 0
-  bool                          hbOsc_;
-#endif
+
   Builder &                     builder_;
-#if 0
-  std::vector<double>    times_, timeSteps_, freqs_;
-#endif
+
   Teuchos::RCP<Loader::PCELoader> pceLoaderPtr_;
   Teuchos::RCP<PCEBuilder> pceBuilderPtr_;
   Teuchos::RCP<Util::OptionBlock> optionBlock_;

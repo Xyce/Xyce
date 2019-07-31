@@ -836,10 +836,12 @@ void  PCE::setupBlockSystemObjects ()
     Stats::TimeBlock _setupStepTimer(_setupStepStat);
 
     pceBuilderPtr_->generateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION ), false),
-                             rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND ), false) );
+                                  rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND ), false) );
+
     pceBuilderPtr_->generateStateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STATE ),false) );
     pceBuilderPtr_->generateStoreMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STORE ),false) );
     pceBuilderPtr_->generateLeadCurrentMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::LEADCURRENT ),false) );
+
     pceBuilderPtr_->generateGraphs( *pdsMgrPtr_->getMatrixGraph( Parallel::JACOBIAN ));
   }
 
