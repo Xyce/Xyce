@@ -26,7 +26,7 @@
 //
 // Special Notes  :
 //
-// Creator        : Heidi Thornquist, SNL 
+// Creator        : Eric Keiter, SNL 
 //
 // Creation Date  : 05/24/04
 //
@@ -98,12 +98,6 @@ public:
   void registerESLoader( const Teuchos::RCP<Loader::ESLoader> & esLoaderPtr )
     { esLoaderPtr_ = esLoaderPtr; }
 
-  // Set the fast times being used in the ES analysis.
-  void setFastTimes( const std::vector<double> & times )
-    { times_ = times; }
-
-  void setESFreqs( const std::vector<double> & freqs )
-    { freqs_ = freqs; }
 
   // Solve function: x = A^(-1) b.
   // input parameter 'ReuseFactors': If 'true', do not factor A, rather reuse
@@ -153,9 +147,6 @@ private:
   // How often the linear system should be written to file, if at all.
   int outputLS_;
 
-  // Fast times.
-  std::vector<double> times_;
-  std::vector<double> freqs_;
 
   // Solver type.
   std::string solver_, solverDefault_;
