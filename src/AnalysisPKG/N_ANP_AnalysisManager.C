@@ -1456,6 +1456,19 @@ bool AnalysisManager::getSparcalc() const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : AnalysisManager::setRFParamsRequested
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/31/2019
+//-----------------------------------------------------------------------------
+void AnalysisManager::setRFParamsRequested(const std::string & type)
+{
+  analysisObject_->setRFParamsRequested(type);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : AnalysisManager::registerPkgOptionsMgr
 // Purpose       :
 // Special Notes :

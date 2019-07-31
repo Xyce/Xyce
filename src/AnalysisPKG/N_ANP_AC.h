@@ -131,6 +131,8 @@ public:
     return sparcalc_;
   }
 
+  void setRFParamsRequested(const std::string & type);
+
   bool setACOptions(const Util::OptionBlock & OB);
   bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
@@ -230,6 +232,9 @@ private:
   std::vector<int>  portPID_;
   bool sparcalc_;
   int  numPorts_;
+  bool hParamsRequested_;
+  bool sParamsRequested_;
+  bool zParamsRequested_;
 
   // Y and S parameters 
   Teuchos::SerialDenseMatrix<int, std::complex<double> > Yparams_;     

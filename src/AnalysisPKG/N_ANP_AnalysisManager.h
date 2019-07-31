@@ -527,6 +527,8 @@ public:
 
   bool getSparcalc() const;
 
+  void setRFParamsRequested(const std::string & type);
+
 
 private:
   const IO::CmdParse &                  commandLine_;                   ///< Command line object

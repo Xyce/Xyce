@@ -333,6 +333,9 @@ AC::AC(
     currentFreq_(0.0),
     sparcalc_(false),
     numPorts_(0),
+    hParamsRequested_(false),
+    sParamsRequested_(false),
+    zParamsRequested_(false),
     ACMatrix_(0),
     B_(0),
     X_(0),
@@ -537,6 +540,11 @@ bool AC::setACOptions(const Util::OptionBlock & OB)
       // .LIN analysis is being done.
       outputManagerAdapter_.setEnableSparCalcFlag(sparcalc_);
     }
+    else if ( tag == "LINTYPE")
+    {
+      const std::string linType = iterPL->getImmutableValue<std::string>();
+      setRFParamsRequested(linType);
+    }
     else
     {
       Report::UserError() << "Unrecognized ACLIN option " << tag;
@@ -545,6 +553,27 @@ bool AC::setACOptions(const Util::OptionBlock & OB)
   }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : AC::setRFParamsRequested()
+// Purpose       : Determine which RF parameter types (S, Y or Z) have
+//                 been requested by a .LIN or .PRINT AC line.  This
+//                 helps with memory management and performance since the
+//                 Sparams_ and Zparams_ matrices don't have to be resized,
+//                 or converted from YParams_, if the netlist doesn't need
+//                 S or Z parameters.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/31/2019
+//-----------------------------------------------------------------------------
+void AC::setRFParamsRequested(const std::string & type)
+{
+  if (type == "S")
+    sParamsRequested_ = true;
+  else if (type == "Z")
+    zParamsRequested_ = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -769,9 +798,11 @@ bool AC::doInit()
     }
 
     Yparams_.shape(numPorts_, numPorts_);
-    Sparams_.shape(numPorts_, numPorts_);
-    Zparams_.shape(numPorts_, numPorts_);
-    Hparams_.shape(numPorts_, numPorts_);
+    // only reshape these matrices if S-, Z- or H-parameter output was requested
+    // on the .LIN or .PRINT AC lines
+    if (sParamsRequested_) { Sparams_.shape(numPorts_, numPorts_); }
+    if (zParamsRequested_) { Zparams_.shape(numPorts_, numPorts_); }
+    if (hParamsRequested_) { Hparams_.shape(numPorts_, numPorts_); }
   }
 
 
@@ -1879,8 +1910,10 @@ bool AC::doProcessSuccessfulStep()
   }
   else
   {
-    Util::ytos(Yparams_, Sparams_, Z0sVec_ );
-    Util::ytoz(Yparams_, Zparams_);
+    // only do these conversions if S- or Z-parameter output was requested on the
+    // .LIN or .AC line
+    if (sParamsRequested_) { Util::ytos(Yparams_, Sparams_, Z0sVec_ );}
+    if (zParamsRequested_) { Util::ytoz(Yparams_, Zparams_); }
 
     // Outputter for Touchstone1 and/or Touchstone2 formatted files.
     // acLoopSize_ is the total number of frequency points in the analyses.
@@ -2453,8 +2486,9 @@ populateMetadata(
     Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("ACLIN");
 
 //    parameters.insert(Util::ParamMap::value_type("AZ_max_iter", Util::Param("AZ_max_iter", 200)));
-                            
+
     parameters.insert(Util::ParamMap::value_type("sparcalc", Util::Param("sparcalc", 1)));
+    parameters.insert(Util::ParamMap::value_type("lintype", Util::Param("lintype", "S")));
   }
 
   {

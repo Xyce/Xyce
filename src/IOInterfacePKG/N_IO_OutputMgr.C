@@ -3731,27 +3731,42 @@ bool extractLINData(
        if (paramName == "FORMAT") { foundFormatParam = true;}
 
        if (paramName  == "SPARCALC" )
-         parameterPtr = Util::findParameter(option_block_ac.begin(), option_block_ac.end(), paramName);
-       else
-         parameterPtr = Util::findParameter(print_option_block.begin(), print_option_block.end(), paramName);
-
-       if ( parameterPtr != NULL )
        {
-         if (parameterPtr->tag() == "DELIMITER")
-	 {
-           // DELIMITER parameter is not supported for the Touchstone formats.
-           Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
-             << "DELIMITER parameter not supported on .LIN line";
-         }
-         else if (parameterPtr->tag() != "FILE")
-           parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
-         else
-           parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_)));
+         // this parameter only goes into the ac option blocks
+         parameterPtr = Util::findParameter(option_block_ac.begin(), option_block_ac.end(), paramName);
+         parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
+       }
+       else if (paramName == "LINTYPE")
+       {
+         // this parameter goes into both the ac and print option blocks
+         parameterPtr = Util::findParameter(option_block_ac.begin(), option_block_ac.end(), paramName);
+         parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
+         parameterPtr = Util::findParameter(print_option_block.begin(), print_option_block.end(), paramName);
+         parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
        }
        else
        {
-         Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
-           << "No PRINT parameter " << parsed_line[position].string_ << " found, parameter will be ignored.";
+         // all of the other parameters only go into the print option block
+         parameterPtr = Util::findParameter(print_option_block.begin(), print_option_block.end(), paramName);
+
+         if ( parameterPtr != NULL )
+         {
+           if (parameterPtr->tag() == "DELIMITER")
+	   {
+             // DELIMITER parameter is not supported for the Touchstone formats.
+             Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
+               << "DELIMITER parameter not supported on .LIN line";
+           }
+           else if (parameterPtr->tag() != "FILE")
+             parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
+           else
+             parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_)));
+         }
+         else
+         {
+           Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
+             << "No PRINT parameter " << parsed_line[position].string_ << " found, parameter will be ignored.";
+         }
        }
 
        position += 3;
