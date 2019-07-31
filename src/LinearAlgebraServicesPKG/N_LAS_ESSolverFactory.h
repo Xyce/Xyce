@@ -75,20 +75,6 @@ public:
   // Creates a new solver.
   Solver * create( Util::OptionBlock & options, Problem & problem, const IO::CmdParse & command_line) const;
 
-  // Set the time step(s) being used in the ES analysis.
-  // NOTE:  This is only useful for FD solution techniques.
-  void setTimeSteps( const std::vector<double> & timeSteps )
-    { timeSteps_ = timeSteps; }
-
-  void setESFreqs( const std::vector<double> & freqs )
-    { freqs_ = freqs; }
-
-  // Set the fast times being used in the ES analysis.
-  void setFastTimes( const std::vector<double> & times )
-    { times_ = times; }
-
-  void setESOsc( const bool osc )
-    { hbOsc_ = osc; }
 
   // Register the application system loader
   void registerESLoader( const Teuchos::RCP<Loader::ESLoader>& hbLoaderPtr ) 
@@ -99,9 +85,7 @@ public:
     { hbBuilderPtr_ = hbBuilder; }
 
 private:
-  bool                          hbOsc_;
   Builder &                     builder_;
-  std::vector<double>    times_, timeSteps_, freqs_;
   Teuchos::RCP<Loader::ESLoader> hbLoaderPtr_;
   Teuchos::RCP<ESBuilder> hbBuilderPtr_;
   Teuchos::RCP<Util::OptionBlock> optionBlock_;
