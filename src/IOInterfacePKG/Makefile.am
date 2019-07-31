@@ -28,6 +28,9 @@ libIOInterface_la_SOURCES = \
   N_IO_InitialConditions.C \
   N_IO_OutputterExternal.C \
   N_IO_OutputterLocal.C \
+  N_IO_OutputterEmbeddedSamplingCSV.C \
+  N_IO_OutputterEmbeddedSamplingPrn.C \
+  N_IO_OutputterEmbeddedSamplingTecplot.C \
   N_IO_OutputterFrequencyCSV.C \
   N_IO_OutputterFrequencyPrn.C \
   N_IO_OutputterFrequencyProbe.C \
@@ -72,6 +75,7 @@ libIOInterface_la_SOURCES = \
   N_IO_Probe.C \
   N_IO_Tecplot.C \
   N_IO_OutputterAC.C \
+  N_IO_OutputterEmbeddedSampling.C \
   N_IO_OutputterSParam.C \
   N_IO_OutputterNoise.C \
   N_IO_OutputterDC.C \
@@ -141,6 +145,9 @@ libIOInterface_la_SOURCES = \
   N_IO_Outputter.h \
   N_IO_OutputterExternal.h \
   N_IO_OutputterLocal.h \
+  N_IO_OutputterEmbeddedSamplingCSV.h \
+  N_IO_OutputterEmbeddedSamplingPrn.h \
+  N_IO_OutputterEmbeddedSamplingTecplot.h \
   N_IO_OutputterFrequencyCSV.h \
   N_IO_OutputterFrequencyPrn.h \
   N_IO_OutputterFrequencyProbe.h \
@@ -183,6 +190,7 @@ libIOInterface_la_SOURCES = \
   N_IO_Probe.h \
   N_IO_Tecplot.h \
   N_IO_OutputterAC.h \
+  N_IO_OutputterEmbeddedSampling.h \
   N_IO_OutputterSParam.h \
   N_IO_OutputterNoise.h \
   N_IO_OutputterDC.h \

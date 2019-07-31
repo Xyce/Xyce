@@ -47,6 +47,7 @@
 #include <N_LAS_fwd.h>
 #include <N_ANP_fwd.h>
 
+#include <N_ANP_UQSupport.h>
 #include <N_UTL_NetlistLocation.h>
 #include <N_UTL_Op.h>
 #include <N_UTL_Param.h>
@@ -195,7 +196,9 @@ struct PrintParameters
       filter_(0.0),
       expandComplexTypes_(false),
       addGnuplotSpacing_(false),
-      addSplotSpacing_(false)
+      addSplotSpacing_(false),
+      outputPCEsampleStats_(true),
+      outputAllPCEsamples_(false)
   {}
 
   PrintParameters(const PrintParameters &print_parameters)
@@ -225,7 +228,9 @@ struct PrintParameters
       filter_(print_parameters.filter_),
       expandComplexTypes_(print_parameters.expandComplexTypes_),
       addGnuplotSpacing_(print_parameters.addGnuplotSpacing_),
-      addSplotSpacing_(print_parameters.addSplotSpacing_)
+      addSplotSpacing_(print_parameters.addSplotSpacing_),
+      outputPCEsampleStats_(print_parameters.outputPCEsampleStats_),
+      outputAllPCEsamples_(print_parameters.outputAllPCEsamples_)
   {}
 
   PrintParameters &operator=(const PrintParameters &print_parameters)
@@ -257,6 +262,8 @@ struct PrintParameters
     expandComplexTypes_ = print_parameters.expandComplexTypes_;
     addGnuplotSpacing_ = print_parameters.addGnuplotSpacing_;
     addSplotSpacing_ = print_parameters.addSplotSpacing_;
+    outputPCEsampleStats_ = print_parameters.outputPCEsampleStats_;
+    outputAllPCEsamples_ = print_parameters.outputAllPCEsamples_;
 
     return *this;
   }
@@ -295,6 +302,8 @@ public:
                                                                 ///< there are more than one step.  For Gnuplot compatibility.
   bool                          addSplotSpacing_;               ///< True means add one blank line after steps 1,2,...,N-1 if
                                                                 ///< there are more than one step.  For Gnuplot compatibility.
+  bool                          outputPCEsampleStats_;          ///< Used by EmbeddedSampling outputters
+  bool                          outputAllPCEsamples_;           ///< Used by EmbeddedSampling outputters
 };
 
 namespace Outputter {
@@ -360,6 +369,13 @@ public:
     double              totalOutputNoiseDens_, 
     double              totalInputNoiseDens_, 
     const std::vector<Xyce::Analysis::NoiseData*> & noiseDataVec_);
+
+  virtual void outputEmbeddedSampling(
+    Parallel::Machine comm,
+    bool regressionPCEenable,
+    bool projectionPCEenable,
+    int  numSamples,
+    const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
 
   // Used for HB time-domain output such as .PRINT HB_TD lines.  This is
   // not used for .PRINT HB_STARTUP or .PRINT HB_IC lines though.
@@ -457,6 +473,13 @@ private:
     double              totalOutputNoiseDens_, 
     double              totalInputNoiseDens_, 
     const std::vector<Xyce::Analysis::NoiseData*> & noiseDataVec_) {}
+
+  virtual void doOutputEmbeddedSampling(
+    Parallel::Machine   comm,
+    bool                regressionPCEenable,
+    bool                projectionPCEenable,
+    int                 numSamples,
+    const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec) {}
 
   virtual void doOutputHB(
     Parallel::Machine           comm,

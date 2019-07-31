@@ -188,6 +188,26 @@ void Interface::outputNoise(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Interface::outputEmbeddedSampling
+// Purpose       :
+// Special Notes :
+// Scope         :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/29/2019
+//-----------------------------------------------------------------------------
+void Interface::outputEmbeddedSampling(
+  Parallel::Machine             comm,
+  bool                          regressionPCEenable,
+  bool                          projectionPCEenable,
+  int                           numSamples,
+  const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_)
+{
+  if (debug) Xyce::dout() << demangle(typeid(*this).name()) << " doOutputEmbeddedSampling" << std::endl;
+
+  doOutputEmbeddedSampling(comm, regressionPCEenable, projectionPCEenable, numSamples, outFuncDataVec_);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Interface::outputHB_TD
 // Purpose       : Used for HB time-domain output such as .PRINT HB_TD lines.  
 //                 This is not used for .PRINT HB_STARTUP or .PRINT HB_IC lines 

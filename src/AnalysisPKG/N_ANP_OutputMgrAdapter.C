@@ -485,6 +485,24 @@ void OutputMgrAdapter::outputNoise (
 }
 
 //-----------------------------------------------------------------------------
+// Function      : OutputMgrAdapter::outputEmbeddedSampling
+// Purpose       : constructor for Embedded Sampling output
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/26/2019
+//-----------------------------------------------------------------------------
+void  OutputMgrAdapter::outputEmbeddedSampling(
+  bool regressionPCEenable,
+  bool projectionPCEenable,
+  int  numSamples,
+  const std::vector<UQ::outputFunctionData*> & outFuncDataVec_)
+{
+  outputManager_.outputEmbeddedSampling(comm_, regressionPCEenable, projectionPCEenable,
+      numSamples, outFuncDataVec_);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : OutputMgrAdapter::getInitialOutputInterval
 // Purpose       : constructor
 // Special Notes :

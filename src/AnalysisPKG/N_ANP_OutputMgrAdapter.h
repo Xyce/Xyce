@@ -49,6 +49,7 @@
 
 #include <N_UTL_Listener.h>
 #include <N_ANP_StepEvent.h>
+#include <N_ANP_UQSupport.h>
 #include <N_LAS_BlockVector.h>
 #include <N_IO_OutputMgr.h>
 #include <N_UTL_Op.h>
@@ -127,6 +128,11 @@ public:
   void setDCAnalysisMaxSteps( int num )
   {
     dcAnalysisMaxSteps_ = num;
+  }
+
+  void setEnableEmbeddedSamplingFlag( bool value)
+  {
+    outputManager_.setEnableEmbeddedSamplingFlag(value);
   }
 
   // used to determine, for -r output, whether a
@@ -253,6 +259,12 @@ public:
       double totalOutputNoiseDens_, 
       double totalInputNoiseDens_, 
       const std::vector<Xyce::Analysis::NoiseData*> & noiseDataVec_);
+
+  void outputEmbeddedSampling(
+      bool regressionPCEenable,
+      bool projectionPCEenable,
+      int  numSamples,
+      const std::vector<UQ::outputFunctionData*> & outFuncDataVec_ );
 
   void outputHomotopy( const std::vector<std::string> & paramNames, const std::vector<double> & paramVals, Linear::Vector & solnVecPtr );
 

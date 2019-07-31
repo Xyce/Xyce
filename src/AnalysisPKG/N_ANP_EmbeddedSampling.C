@@ -657,6 +657,9 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     Report::UserWarning0() << "Output function was not specified";
   }
 
+  // signal the OutputMgr that Embedded Sampling is enabled
+  outputManagerAdapter_.setEnableEmbeddedSamplingFlag(true);
+
   return true;
 }
 
@@ -828,6 +831,8 @@ void EmbeddedSampling::stepCallBack ()
 //
 #endif
 
+  outputManagerAdapter_.outputEmbeddedSampling(regressionPCEenable_, projectionPCEenable_,
+					       numSamples_, outFuncDataVec_);
   hackEnsembleOutput ();
 }
 

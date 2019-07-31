@@ -70,6 +70,7 @@ using std::tr1::unordered_map;
 #include <N_IO_OutputTypes.h>
 
 #include <N_ANP_SweepParam.h>
+#include <N_ANP_UQSupport.h>
 #include <N_IO_InitialConditions.h>
 #include <N_IO_Outputter.h>
 
@@ -274,6 +275,13 @@ public:
     double                              totalInputNoiseDens_, 
     const std::vector<Xyce::Analysis::NoiseData*> & noiseDataVec_);
 
+  void outputEmbeddedSampling(
+    Parallel::Machine comm,
+    bool regressionPCEenable,
+    bool projectionPCEenable,
+    int  numSamples,
+    const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
+
   void outputMPDE(
     Parallel::Machine                   comm,
     double                              time,
@@ -464,6 +472,11 @@ public:
     return outputVersionInRawFile_;
   }
 
+  void setEnableEmbeddedSamplingFlag(bool value)
+  {
+    enableEmbeddedSamplingFlag_ = value;
+  }
+
   void setEnableHomotopyFlag(bool value)
   {
     enableHomotopyFlag_ = value;
@@ -635,6 +648,7 @@ private:
 
   // print statement vars
   bool                  dotOpSpecified_; // flag to indicate if the netlist has a .OP statement
+  bool                  enableEmbeddedSamplingFlag_;
   bool                  enableHomotopyFlag_;
   bool                  enableSparCalcFlag_;
   bool                  enableSensitivityFlag_;
