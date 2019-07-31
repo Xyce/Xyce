@@ -394,12 +394,27 @@ ExpressionInternals::ExpressionInternals(
   done_list_.clear();
 
   if (DEBUG_EXPRESSION)
+  {
     Xyce::dout() << "Calling PTcheck_ from copy constructor" << std::endl;
+  }
 
+  // Note:  This call seems wasteful, but it actually does something.
+  // The rhs parse tree has already been checked and put through common
+  // subexpression elimination, but when we copied that tree using
+  // copy_exprNode_, we reintroduced them all (because that method is
+  // not smart, and blindly makes copies of every object pointed to, even
+  // if it's a pointer we've already processed.  That sounds like
+  // copy_exprNode_ is ripe for a refactor.
   if (tree_ != PTcheck_ (PThead_))
   {
     Report::DevelFatal().in("ExpressionInternals::ExpressionInternals") << "ExpressionInternals::ExpressionInternals: Internal error in copy constructor";
   }
+
+  if (DEBUG_EXPRESSION)
+  {
+    Xyce::dout() << "PTcheck_ tells us we should be eliminating " << done_list_.size() << " nodes after common subexpression elimination" << std::endl;
+  }
+
   for (free_i = done_list_.begin() ; free_i != done_list_.end() ; ++free_i)
     deleteExpressionNode_(*free_i);
 
@@ -4390,7 +4405,9 @@ ExpressionNode * ExpressionInternals::PTcheck_(ExpressionNode *p)
 
     case EXPR_FUNCTION:
       for (i=0 ; i<p->operands.size() ; ++i)
-        p->operands[i] = PTcheck_(p->operands[i]);
+      {
+          p->operands[i] = PTcheck_(p->operands[i]);
+      }
       break;
 
     case EXPR_PLUS:
@@ -4414,30 +4431,48 @@ ExpressionNode * ExpressionInternals::PTcheck_(ExpressionNode *p)
 
     default:
       Report::DevelFatal()
+
+
+
         << "ExpressionInternals::PTcheck_: Internal: bad node type";
   }
   if (DEBUG_EXPRESSION)
     Xyce::dout() << "Calling com_expr_ from PTcheck_" << std::endl;
 
-  rval = com_expr_ (PThead_, p);
-  if (rval != p)
+  // try to identify and merge all common subexpressions.  This walks
+  // the entire tree starting at PThead, looking for any nodes that appear
+  // in it that are the same as "p" (the node we're currently looking at).
+  // This is an extraordinarily expensive recursive operation that kills
+  // large tables, and gains us only a slightly simplified tree with reduced
+  // memory usage.  Let's not bother going through this operation when we're
+  // just a constant.  This may lead to some bloat, but shouldn't lead to
+  // horrific slowdowns on large tables of constants.
+  if (p->type != EXPR_CONSTANT)
   {
-    if (DEBUG_EXPRESSION) {
-      std::ostringstream s("");
-      s << std::setprecision(PRECISION);
-      if (tree_ != NULL)
-        RpTree_ (p, s);
-      Xyce::dout() << "Replacing:\n" << s.str() << std::endl;
-      std::ostringstream t("");
-      t << std::setprecision(PRECISION);
-      if (tree_ != NULL)
-        RpTree_ (rval, t);
-      Xyce::dout() << "With:\n" << t.str() << std::endl;
-    }
+    rval = com_expr_ (PThead_, p);
+    if (rval != p)
+    {
+      if (DEBUG_EXPRESSION) {
+        std::ostringstream s("");
+        s << std::setprecision(PRECISION);
+        if (tree_ != NULL)
+          RpTree_ (p, s);
+        Xyce::dout() << "Replacing:\n" << s.str() << std::endl;
+        std::ostringstream t("");
+        t << std::setprecision(PRECISION);
+        if (tree_ != NULL)
+          RpTree_ (rval, t);
+        Xyce::dout() << "With:\n" << t.str() << std::endl;
+      }
 
-    done_list_.push_back(p);
+      done_list_.push_back(p);
+    }
+    return rval;
   }
-  return rval;
+  else
+  {
+    return p;
+  }
 }
 
 //-----------------------------------------------------------------------------
