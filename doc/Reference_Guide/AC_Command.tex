@@ -67,19 +67,32 @@ least one point.
 AC analysis is a linear analysis. The simulator calculates the frequency
 response by linearizing the circuit around the DCOP bias point.
 
-If specifying the sweep points using the \texttt{DATA} type, one can also sweep the magnitude and phase of an AC source, as well as the values of linear model parameters.  However, unlike the use of \texttt{DATA} for \texttt{.STEP} and \texttt{.DC}, it is not possible to sweep nonlinear device parameters.  This is because changing other nonlinear device parameters would alter the correct DCOP solution, and the AC sweep happens after the DCOP calculation in the analysis flow.  To sweep a nonlinear device parameter on an AC problem, add a \texttt{.STEP} command to the netlist to provide an outer parametric sweep around the analysis.
+If specifying the sweep points using the \texttt{DATA} type, one can
+also sweep the magnitude and phase of an AC source, as well as the
+values of linear model parameters.  However, unlike the use of
+\texttt{DATA} for \texttt{.STEP} and \texttt{.DC}, it is not possible
+to sweep nonlinear device parameters.  This is because changing other
+nonlinear device parameters would alter the correct DCOP solution, and
+the AC sweep happens after the DCOP calculation in the analysis flow.
+To sweep a nonlinear device parameter on an AC problem, add a
+\texttt{.STEP} command to the netlist to provide an outer parametric
+sweep around the analysis.
 
 \index{\texttt{.PRINT}}\index{results!print}\index{\texttt{.PRINT}!\texttt{AC}}
 A \texttt{.PRINT AC} must be used to get the results of the AC sweep
 analysis.  See Section \ref{.PRINT}.
 
-Some devices that may be expected to work in AC analysis do not at this time.  This includes,
-but is not limited to, the lossy transmission line (LTRA) and lossless transmission line (TRA).
-The LTRA and TRA models will need to be replaced with lumped transmission line models (YTRANSLINE).
+Some devices that may be expected to work in AC analysis do not at
+this time.  This includes, but is not limited to, the lossy
+transmission line (LTRA) and lossless transmission line (TRA).  The
+LTRA and TRA models will need to be replaced with lumped transmission
+line models (YTRANSLINE).
 
-Power calculations (\texttt{P(<device>} and \texttt{W(<device>}) are not supported for any
-devices for AC analysis.  Current variables (e.g., \texttt{I(<device>)} are only supported for
-devices that have ``branch currents'' that are part of the solution vector. This includes
-the V, E, H and L devices.  It also includes the voltage-form of the B device.
+Power calculations (\texttt{P(<device>)} and \texttt{W(<device>}) are
+not supported for any devices for AC analysis.  Current variables
+(e.g., \texttt{I(<device>)}) are only supported for devices that have
+``branch currents'' that are part of the solution vector. This
+includes the V, E, H and L devices.  It also includes the voltage-form
+of the B device.
 
 \end{Command}
