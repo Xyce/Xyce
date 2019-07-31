@@ -75,7 +75,6 @@ public:
   // Creates a new solver.
   Solver * create( Util::OptionBlock & options, Problem & problem, const IO::CmdParse & command_line) const;
 
-
   // Register the application system loader
   void registerESLoader( const Teuchos::RCP<Loader::ESLoader>& esLoaderPtr ) 
     { esLoaderPtr_ = esLoaderPtr; }
