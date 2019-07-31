@@ -10,10 +10,10 @@
 
 Include specified file in netlist.
 
-The file name can be surrounded by double quotes, "filename", but this
-is not necessary.  The directory for the include file is assumed to be
-the execution directory unless a full or relative path is given as a
-part of the file name.
+The file name can be surrounded by single or double quotes, 'filename'
+or "filename", but this is not necessary.  The directory for the
+include file is assumed to be the execution directory unless a full or
+relative path is given as a part of the file name.
 
 \begin{Command}
 \format
@@ -25,8 +25,10 @@ part of the file name.
 \examples
 \begin{alltt}
 .INC models.lib
+.INC 'models.lib'
 .INC "models.lib"
 .INCLUDE models.lib
+.INCLUDE 'models.lib'
 .INCLUDE "path\_to\_library/models.lib"
 \end{alltt}
 
