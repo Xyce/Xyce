@@ -3689,7 +3689,7 @@ bool extractLINData(
       netlist_filename, 
       parsed_line[0].lineNumber_);
 
-  Util::OptionBlock option_block_ac("ACLIN", Util::OptionBlock::NO_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
+  Util::OptionBlock option_block_aclin("ACLIN", Util::OptionBlock::NO_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
 
  // add SPARAMS as the print type from for a .LIN line
   Util::Param typeParameter("TYPE", "SPARAM");
@@ -3698,7 +3698,7 @@ bool extractLINData(
   addDefaultOptionsParameters(options_manager, print_option_block, "PRINT");
 
   // Reset the default TYPE with the value found.
-  addDefaultOptionsParameters(options_manager, option_block_ac, "ACLIN");
+  addDefaultOptionsParameters(options_manager, option_block_aclin, "ACLIN");
 
   Util::Param *parameterPtr = Util::findParameter(print_option_block.begin(), print_option_block.end(), typeParameter.tag());
   if( parameterPtr == NULL )
@@ -3732,14 +3732,14 @@ bool extractLINData(
 
        if (paramName  == "SPARCALC" )
        {
-         // this parameter only goes into the ac option blocks
-         parameterPtr = Util::findParameter(option_block_ac.begin(), option_block_ac.end(), paramName);
+         // this parameter only goes into the aclin option blocks
+         parameterPtr = Util::findParameter(option_block_aclin.begin(), option_block_aclin.end(), paramName);
          parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
        }
        else if (paramName == "LINTYPE")
        {
-         // this parameter goes into both the ac and print option blocks
-         parameterPtr = Util::findParameter(option_block_ac.begin(), option_block_ac.end(), paramName);
+         // this parameter goes into both the aclin and print option blocks
+         parameterPtr = Util::findParameter(option_block_aclin.begin(), option_block_aclin.end(), paramName);
          parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
          parameterPtr = Util::findParameter(print_option_block.begin(), print_option_block.end(), paramName);
          parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
@@ -3787,7 +3787,7 @@ bool extractLINData(
     parameterPtr->setVal(std::string("TOUCHSTONE2"));
   }
 
-  circuit_block.addOptions(option_block_ac);
+  circuit_block.addOptions(option_block_aclin);
 
   circuit_block.addOptions(print_option_block);
 

@@ -133,7 +133,7 @@ public:
 
   void setRFParamsRequested(const std::string & type);
 
-  bool setACOptions(const Util::OptionBlock & OB);
+  bool setACLinOptions(const Util::OptionBlock & OB);
   bool setAnalysisParams(const Util::OptionBlock & paramsBlock);
   bool setTimeIntegratorOptions(const Util::OptionBlock &option_block);
   bool setACLinSolOptions(const Util::OptionBlock &option_block);

@@ -519,14 +519,14 @@ bool AC::setAnalysisParams(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : AC::setACOptions
+// Function      : AC::setACLinOptions
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Ting Mei
 // Creation Date : 02/28/19
 //-----------------------------------------------------------------------------
-bool AC::setACOptions(const Util::OptionBlock & OB)
+bool AC::setACLinOptions(const Util::OptionBlock & OB)
 {
   for(Util::ParamList::const_iterator iterPL = OB.begin(), endPL = OB.end(); iterPL != endPL; ++iterPL )
   {
@@ -535,7 +535,9 @@ bool AC::setACOptions(const Util::OptionBlock & OB)
 
     if ( tag == "SPARCALC"   ) 
     {
-      sparcalc_ = static_cast<bool> (iterPL->getImmutableValue<int>());
+      // a .LIN analysis will happen if any of the .LIN lines have SPARCALC=1
+      sparcalc_ = sparcalc_ | static_cast<bool> (iterPL->getImmutableValue<int>());
+
       // The output manager needs to know, for -r output, whether a
       // .LIN analysis is being done.
       outputManagerAdapter_.setEnableSparCalcFlag(sparcalc_);
@@ -547,7 +549,7 @@ bool AC::setACOptions(const Util::OptionBlock & OB)
     }
     else
     {
-      Report::UserError() << "Unrecognized ACLIN option " << tag;
+      Report::UserError() << "Unrecognized option for .LIN line" << tag;
       return false;
     }
   }
@@ -2226,7 +2228,10 @@ public:
     ac->setTimeIntegratorOptions(timeIntegratorOptionBlock_);
     ac->setACLinSolOptions(acLinSolOptionBlock_);
 
-    ac->setACOptions(acOptionBlock_);
+    for (std::vector<Util::OptionBlock>::const_iterator it = ACLinOptionBlockVec_.begin(), end = ACLinOptionBlockVec_.end(); it != end; ++it)
+    {
+      ac->setACLinOptions(*it);
+    }
 
     for (std::vector<Util::OptionBlock>::const_iterator it = dataOptionBlockVec_.begin(), end = dataOptionBlockVec_.end(); it != end; ++it)
     {
@@ -2295,22 +2300,19 @@ public:
   }
 
 //-----------------------------------------------------------------------------
-// Function      : setACOptionBlock
-// Purpose       :
+// Function      : setACLinOptionBlock
+// Purpose       : Saves the parsed options blocks, from .LIN lines, that are
+//                 relevant to the AC object in the factory.  There may be
+//                 multiple .LIN lines in the netlist, since those lines
+//                 also function as print lines for Touchstone output.
 // Special Notes :
 // Scope         : public
 // Creator       : Ting Mei  
 // Creation Date : 2/27/2019
 //-----------------------------------------------------------------------------
-///
-/// Saves the AC parsed options block in the factory.
-///
-/// @invariant Overwrites any previously specified AC option block.
-///
-/// @param option_block parsed option block
-  bool setACOptionBlock(const Util::OptionBlock &option_block)
+  bool setACLinOptionBlock(const Util::OptionBlock &option_block)
   {
-    acOptionBlock_ = option_block;
+    ACLinOptionBlockVec_.push_back(option_block);
 
     return true;
   }
@@ -2342,7 +2344,7 @@ private:
   Util::OptionBlock     acLinSolOptionBlock_;
   std::vector<Util::OptionBlock>        dataOptionBlockVec_;
 
-  Util::OptionBlock     acOptionBlock_;
+  std::vector<Util::OptionBlock>        ACLinOptionBlockVec_;
   Util::OptionBlock     sensitivityOptionBlock_;
   Util::OptionBlock     sensAnalysisOptionBlock_;
 
@@ -2588,7 +2590,7 @@ registerACFactory(
   factory_block.optionsManager_.addCommandProcessor("DATA",
     IO::createRegistrationOptions(*factory, &ACFactory::setDotDataBlock) );
 
-  factory_block.optionsManager_.addOptionsProcessor("ACLIN", IO::createRegistrationOptions(*factory, &ACFactory::setACOptionBlock));
+  factory_block.optionsManager_.addOptionsProcessor("ACLIN", IO::createRegistrationOptions(*factory, &ACFactory::setACLinOptionBlock));
 
   factory_block.optionsManager_.addOptionsProcessor("SENS",
       IO::createRegistrationOptions(*factory, &ACFactory::setSensAnalysisOptionBlock));
