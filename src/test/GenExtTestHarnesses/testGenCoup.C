@@ -41,7 +41,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 /// Implement a simple resistor
 ///

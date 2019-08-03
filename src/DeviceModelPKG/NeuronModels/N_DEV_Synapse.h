@@ -45,7 +45,7 @@
 #include <N_DEV_DeviceInstance.h>
 #include <N_DEV_DeviceModel.h>
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 namespace Xyce {
 namespace Device {

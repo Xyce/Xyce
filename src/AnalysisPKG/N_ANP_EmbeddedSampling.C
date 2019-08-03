@@ -166,6 +166,7 @@ EmbeddedSampling::EmbeddedSampling(
       hackOutputFormat_("TECPLOT"),
       hackOutputCalledBefore_(false),
       hackOutputAllSamples_(false),
+      outputSampleStats_(true),
 #if Xyce_STOKHOS_ENABLE
       regressionPCEenable_(false),
       projectionPCEenable_(false),
@@ -526,6 +527,10 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     else if ((*it).uTag() == "OUTPUTALLSAMPLES")
     {
       hackOutputAllSamples_=static_cast<bool>((*it).getImmutableValue<bool>());
+    }
+    else if ((*it).uTag() == "OUTPUTSAMPLESTATS")
+    {
+      outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "REGRESSION_PCE")
@@ -1281,7 +1286,7 @@ void EmbeddedSampling::computeEnsembleOutputs()
       //outFunc.completeStatistics(BlockCount);
       outFunc.completeStatistics();
 
-      if (stdOutputFlag_)
+      if (stdOutputFlag_ && outputSampleStats_)
       {
         // histrogram is a hack that doesn't work yet
         //UQ::histrogram(std::cout, outFunc.outFuncString, outFunc.sampleOutputs);
@@ -1353,19 +1358,22 @@ void EmbeddedSampling::hackEnsembleOutput ()
       {
         UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
 
-        std::string meanString = outFunc.outFuncString + "_mean";
-        std::string meanStringPlus = outFunc.outFuncString + "_meanPlus";
-        std::string meanStringMinus = outFunc.outFuncString + "_meanMinus";
+        if (outputSampleStats_)
+        {
+          std::string meanString = outFunc.outFuncString + "_mean";
+          std::string meanStringPlus = outFunc.outFuncString + "_meanPlus";
+          std::string meanStringMinus = outFunc.outFuncString + "_meanMinus";
 
-        std::string stddevString = outFunc.outFuncString + "_stddev";
-        std::string varianceString = outFunc.outFuncString + "_variance";
+          std::string stddevString = outFunc.outFuncString + "_stddev";
+          std::string varianceString = outFunc.outFuncString + "_variance";
 
-        output_stream << "\t\" " << meanString << "\""<<std::endl;
-        output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
-        output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+          output_stream << "\t\" " << meanString << "\""<<std::endl;
+          output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
+          output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
 
-        output_stream << "\t\" " << stddevString << "\""<<std::endl;
-        output_stream << "\t\" " << varianceString << "\""<<std::endl;
+          output_stream << "\t\" " << stddevString << "\""<<std::endl;
+          output_stream << "\t\" " << varianceString << "\""<<std::endl;
+        }
 
 #if Xyce_STOKHOS_ENABLE
         if (regressionPCEenable_)
@@ -1441,13 +1449,16 @@ void EmbeddedSampling::hackEnsembleOutput ()
     {
       UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
 
-      output_stream << "\t" << outFunc.sm.mean;
+      if (outputSampleStats_)
+      {
+        output_stream << "\t" << outFunc.sm.mean;
 
-      output_stream << "\t" << (outFunc.sm.mean+outFunc.sm.stddev);
-      output_stream << "\t" << (outFunc.sm.mean-outFunc.sm.stddev);
+        output_stream << "\t" << (outFunc.sm.mean+outFunc.sm.stddev);
+        output_stream << "\t" << (outFunc.sm.mean-outFunc.sm.stddev);
 
-      output_stream << "\t" << outFunc.sm.stddev;
-      output_stream << "\t" << outFunc.sm.variance;
+        output_stream << "\t" << outFunc.sm.stddev;
+        output_stream << "\t" << outFunc.sm.variance;
+      }
 
 #if Xyce_STOKHOS_ENABLE
       if (regressionPCEenable_)
@@ -1933,10 +1944,11 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
 
     parameters.insert(Util::ParamMap::value_type("OUTPUTFORMAT", Util::Param("OUTPUTFORMAT", "STD")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
-    parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", 0)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", false)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
 #if Xyce_STOKHOS_ENABLE
-    parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", 1)));
-    parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", 1)));
+    parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", false)));
+    parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", false)));
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));
 #endif
     parameters.insert(Util::ParamMap::value_type("SAMPLE_TYPE", Util::Param("SAMPLE_TYPE", 0)));

@@ -192,12 +192,14 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 \begin{Arguments}
 \argument{result name}
 
-Measured results are reported to the output and log file.  Additionally, for \texttt{TRAN}
-measures, the results are stored in files called \texttt{circuitFileName.mt\#}, where
-the suffixed number (\texttt{\#}) starts at \texttt{0} and increases for multiple
-iterations (\texttt{.STEP} iterations) of a given simulation. Each line of this file
-will contain the measurement name, \texttt{<result name>}, followed by its value for
-that run.  The \texttt{<result name>} must be a legal \Xyce{} character string.  For
+Measured results are reported to the output and log file.
+Additionally, for \texttt{TRAN} measures, the results are stored in
+files called \texttt{circuitFileName.mt\#}, where the suffixed number
+(\texttt{\#}) starts at \texttt{0} and increases for multiple
+iterations (\texttt{.STEP} iterations) of a given simulation. Each
+line of this file will contain the measurement name, \texttt{<result
+name>}, followed by its value for that run.  The \texttt{<result
+name>} must be a legal \Xyce{} character string.  For
 \texttt{DC} and \texttt{AC} measures, the results are stored in the files 
 \texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#} respectively
 
@@ -209,139 +211,185 @@ The third argument specifies the type of measurement or calculation to
 be done. The only exception is the {\tt TARG} clause which comes later
 in the argument list, after the {\tt TRIG} clause has been specified.
 
-By default, the measurement is perfomed over the entire
-simulation.  The calculations can be limited to a specific measurement window by
-using the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, 
-{\tt FALL}, {\tt CROSS} and {\tt MINVAL}, which are explained below. 
+By default, the measurement is perfomed over the entire simulation.
+The calculations can be limited to a specific measurement window by
+using the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt
+FALL}, {\tt CROSS} and {\tt MINVAL}, which are explained below.
 
 The supported measure types and their definitions are:
 
 \begin{description}
-  \item[\tt AVG] Computes the arithmetic mean of {\tt <variable>} for the
-    simulation, or within the extent of the measurement window.
-    The qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL}
-    and {\tt CROSS} can be used to limit the measurement window for {\tt TRAN} measures.
-  \item[\tt DERIV] Computes the derivative of {\tt <variable>} at a user-specified
-    time (by using the {\tt AT} qualifier) or when a user-specified condition occurs 
-    (by using the {\tt WHEN} qualifier). If the {\tt WHEN} qualifier is used then the 
-    measurement window can be limited with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, 
-    {\tt RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures. The {\tt MINVAL} qualifier is 
-    used as a comparison tolerance for both {\tt AT} and {\tt WHEN}.  For HSPICE compatibility, 
-    {\tt DERIVATIVE} is an allowed synonym for {\tt DERIV}.
-  \item[\tt DUTY] Fraction of time that {\tt <variable>} is greater than {\tt ON} and
-    does not fall below {\tt OFF} either for the entire simulation, or the measurement 
-    window. The qualifier {\tt MINVAL} is used as a tolerance on the {\tt ON } and {\tt OFF} 
-    values, so that the thresholds become ({\tt ON} $-$ {\tt MINVAL}) and ({\tt OFF} $-$ {\tt MINVAL}).  
-    The measurement window can be limited with the qualifiers {\tt FROM}, {\tt TO}, 
-    {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures. 
-  \item[\tt EQN] Calculates the value of {\tt <expression>} during the simulation. The 
-    measurement window can be limited with the qualifiers {\tt FROM}, {\tt TO} and {\tt TD}
-    for {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt DC} and {\tt AC} measures.  
-    As noted in the ``Additional Examples'' subsection, the expression can 
-    use the results of other measure statements.
-  \item[\tt ERROR] Calculates the norm between the measured waveform and a ``comparison
-    waveform'' specified in a file.  The supported norms are L1, L2 and INFNORM.  The
-    default norm is the L2 norm.  
-  \item[\tt FIND-WHEN] Returns the value of {\tt <variable>} at the time when the {\tt WHEN} clause
-    is satisfied.  The {\tt WHEN} clause is described in more detail later in this list.  
-  \item[\tt FOUR] Calculates the fourier transform of the transient waveform for
-    {\tt <variable>}, given the fundamental frequency {\tt AT}.  All frequencies output 
-    by the measure will be multiples of that fundamental frequency, and will always start 
-    at that fundamental frequency. The values of the DC component and the
-    first {\tt NUMFREQ-1} harmonics are determined using an interpolation of {\tt GRIDSIZE} points.
-    The default values for {\tt NUMFREQ} and {\tt GRIDSIZE} are 10 and 200, respectively.  
-    The measurement window can be limited with the qualifiers {\tt FROM}, {\tt TO} 
-    and {\tt TD} for {\tt TRAN} measures.  For this measure, the phase data is output in
-    degrees not radians.
-  \item[\tt FREQ] An estimate of the frequency of {\tt <variable>}, found by cycle counting
-    during the simulation.  Cycles are defined through the values of {\tt ON}
-    and {\tt OFF} with {\tt MINVAL} being used as a tolerance so that the thresholds
-    becomes ({\tt ON} $-$ {\tt MINVAL}) and ({\tt OFF} $+$ {\tt MINVAL}).     
-  \item[\tt INTEG] Calculates the integral of {\tt outVal} through second order numerical
-    integration.  The integration window can be limited with the qualifiers {\tt FROM},
-    {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures.
-    For HSPICE compatibility, {\tt INTEGRAL} is an allowed synonym for {\tt INTEG}.
-  \item[\tt MAX]  Returns the maximum value of {\tt <variable>} during the simulation.
-    The measurement window can be limited with the qualifiers {\tt FROM}, {\tt TO}, 
-    {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures, and
-    with {\tt FROM} and {\tt TO} for {\tt DC} and {\tt AC} measures. 
-  \item[\tt MIN] Returns the minimum value of {\tt <variable>} during the simulation.
-    The measurement window can be limited with the qualifiers {\tt FROM}, {\tt TO}, 
-    {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures, and
-    with {\tt FROM} and {\tt TO} for {\tt DC} and {\tt AC} measures. 
-  \item[\tt OFF\_TIME] Returns the time that {\tt <variable>} is below {\tt OFF} during the 
-    simulation or measurement window, normalized by the number of cycles of the waveform 
-    during the simulation or measurement window.
-    {\tt OFF} uses {\tt MINVAL} as a tolerance, and the threshold becomes ({\tt OFF} $+$ {\tt MINVAL}). 
-    The measurement window can be limited with the qualifiers {\tt FROM}, {\tt TO} and {\tt TD}
+  \item[\tt AVG] Computes the arithmetic mean of {\tt <variable>} for
+    the simulation, or within the extent of the measurement window.
+    The qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt
+    FALL} and {\tt CROSS} can be used to limit the measurement window
     for {\tt TRAN} measures.
-  \item[\tt ON\_TIME] Returns the time that {\tt <variable>} is above {\tt ON} during the
-    simulation or measurement window, normalized by the number of cycles of the waveform 
-    during the simulation or measurement window.  {\tt ON} uses {\tt MINVAL} as a tolerance, 
-    and the threshold becomes ({\tt ON} $-$ {\tt MINVAL}).  The measurement window can be limited
-    with the qualifiers {\tt FROM}, {\tt TO} and {\tt TD} for {\tt TRAN} measures.
-  \item[\tt PP] Returns the difference between the maximum value and the minimum value
-    {\tt <variable>} during the simulation. The measurement window can be limited with 
-    the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS}
-    for {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt DC} and {\tt AC} measures. 
-  \item[\tt RMS] Computes the root-mean-squared value of {\tt <variable>} during the
-    simulation.  The measurement window can be limited with the qualifiers {\tt FROM}, 
-    {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures. 
+
+  \item[\tt DERIV] Computes the derivative of {\tt <variable>} at a
+    user-specified time (by using the {\tt AT} qualifier) or when a
+    user-specified condition occurs (by using the {\tt WHEN}
+    qualifier). If the {\tt WHEN} qualifier is used then the
+    measurement window can be limited with the qualifiers {\tt FROM},
+    {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for
+    {\tt TRAN} measures. The {\tt MINVAL} qualifier is used as a
+    comparison tolerance for both {\tt AT} and {\tt WHEN}.  For HSPICE
+    compatibility, {\tt DERIVATIVE} is an allowed synonym for {\tt
+    DERIV}.
+
+  \item[\tt DUTY] Fraction of time that {\tt <variable>} is greater than
+   {\tt ON} and does not fall below {\tt OFF} either for the entire
+    simulation, or the measurement window. The qualifier {\tt MINVAL}
+    is used as a tolerance on the {\tt ON } and {\tt OFF} values, so
+    that the thresholds become ({\tt ON} $-$ {\tt MINVAL}) and ({\tt
+    OFF} $-$ {\tt MINVAL}).  The measurement window can be limited
+    with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE},
+    {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures.
+
+\item[\tt EQN] Calculates the value of {\tt <expression>} during the simulation.
+    The measurement window can be limited with the qualifiers {\tt FROM},
+    {\tt TO} and {\tt TD} for {\tt TRAN} measures, and with {\tt FROM}
+    and {\tt TO} for {\tt DC} and {\tt AC} measures.  As noted in the
+    ``Additional Examples'' subsection, the expression can use the
+    results of other measure statements.
+
+  \item[\tt ERROR] Calculates the norm between the measured waveform and a
+   ``comparison waveform'' specified in a file.  The supported norms are
+    L1, L2 and INFNORM.  The default norm is the L2 norm.
+
+  \item[\tt FIND-WHEN] Returns the value of {\tt <variable>} at the
+    time when the {\tt WHEN} clause is satisfied.  The {\tt WHEN}
+    clause is described in more detail later in this list.
+
+  \item[\tt FOUR] Calculates the fourier transform of the transient
+    waveform for {\tt <variable>}, given the fundamental frequency
+    {\tt AT}.  All frequencies output by the measure will be multiples
+    of that fundamental frequency, and will always start at that
+    fundamental frequency. The values of the DC component and the
+    first {\tt NUMFREQ-1} harmonics are determined using an
+    interpolation of {\tt GRIDSIZE} points.  The default values for
+    {\tt NUMFREQ} and {\tt GRIDSIZE} are 10 and 200, respectively.
+    The measurement window can be limited with the qualifiers {\tt
+    FROM}, {\tt TO} and {\tt TD} for {\tt TRAN} measures.  For this
+    measure, the phase data is output in degrees not radians.
+
+  \item[\tt FREQ] An estimate of the frequency of {\tt <variable>},
+    found by cycle counting during the simulation.  Cycles are defined
+    through the values of {\tt ON} and {\tt OFF} with {\tt MINVAL}
+    being used as a tolerance so that the thresholds becomes ({\tt ON}
+    $-$ {\tt MINVAL}) and ({\tt OFF} $+$ {\tt MINVAL}).
+
+  \item[\tt INTEG] Calculates the integral of {\tt outVal} through
+    second order numerical integration.  The integration window can be
+    limited with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt
+    RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures.  For
+    HSPICE compatibility, {\tt INTEGRAL} is an allowed synonym for
+    {\tt INTEG}.
+
+  \item[\tt MAX] Returns the maximum value of {\tt <variable>} during
+    the simulation.  The measurement window can be limited with the
+    qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL}
+    and {\tt CROSS} for {\tt TRAN} measures, and with {\tt FROM} and
+    {\tt TO} for {\tt DC} and {\tt AC} measures.
+
+  \item[\tt MIN] Returns the minimum value of {\tt <variable>} during
+    the simulation.  The measurement window can be limited with the
+    qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL}
+    and {\tt CROSS} for {\tt TRAN} measures, and with {\tt FROM} and
+    {\tt TO} for {\tt DC} and {\tt AC} measures.
+
+  \item[\tt OFF\_TIME] Returns the time that {\tt <variable>} is below
+    {\tt OFF} during the simulation or measurement window, normalized
+    by the number of cycles of the waveform during the simulation or
+    measurement window.  {\tt OFF} uses {\tt MINVAL} as a tolerance,
+    and the threshold becomes ({\tt OFF} $+$ {\tt MINVAL}).  The
+    measurement window can be limited with the qualifiers {\tt FROM},
+    {\tt TO} and {\tt TD} for {\tt TRAN} measures.
+
+  \item[\tt ON\_TIME] Returns the time that {\tt <variable>} is above
+    {\tt ON} during the simulation or measurement window, normalized
+    by the number of cycles of the waveform during the simulation or
+    measurement window.  {\tt ON} uses {\tt MINVAL} as a tolerance,
+    and the threshold becomes ({\tt ON} $-$ {\tt MINVAL}).  The
+    measurement window can be limited with the qualifiers {\tt FROM},
+    {\tt TO} and {\tt TD} for {\tt TRAN} measures.
+
+  \item[\tt PP] Returns the difference between the maximum value and
+    the minimum value {\tt <variable>} during the simulation. The
+    measurement window can be limited with the qualifiers {\tt FROM},
+    {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for
+    {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt DC}
+    and {\tt AC} measures.
+
+  \item[\tt RMS] Computes the root-mean-squared value of {\tt
+    <variable>} during the simulation.  The measurement window can be
+    limited with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt
+    RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures.
+
   \item[\vbox{\hbox{\tt TRIG\hfil}\hbox{\tt TARG\hfil}}] Measures the
     time between a trigger event and a target event.  The trigger is
-    specified with {\tt TRIG <variable>=<variable\(\sb{2}\)>} or 
-    {\tt TRIG <variable>=<value>} or {\tt TRIG AT=<value>}.  Likewise, the the 
-    target is specified as {\tt TARG <variable\(\sb{3}\)>=<variable\(\sb{4}\)>} or 
-    {\tt TRIG <variable\(\sb{3}\)>=<value>}.  It is also possible to use
-    this measure to find a rise time for variable when the rise time is
-    defined as the time to go from some small fraction of the maxima to
-    some other fraction of the maxima.  For example, the syntax for finding
-    a rise time from 10\% to 90\% of the maxima is:\\
-    \texttt{TRIG V(node) FRAC\_MAX=0.1 TARG V(node) FRAC\_MAX=0.9}
-  \item[\tt WHEN] Returns the time when {\tt <variable>} reaches {\tt <variable\(\sb{2}\)>} or
-    the constant value, {\tt value}.  The time over which the value is searched
-    can be limited by the qualifiers {\tt TO}, {\tt FROM}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS}.
-    The qualifier {\tt MINVAL} acts as a tolerance for the comparison.  
-    For example when {\tt <variable\(\sb{2}\)>} is
-    specified, the comparison used is when {\tt <variable>} $=$ {\tt <variable\(\sb{2}\)>} $\pm$ {\tt MINVAL}
-    or when a constant, {\tt value} is given: {\tt <variable>} $=$ {\tt value} $\pm$ {\tt MINVAL}.
-    If the conditions specified for finding a given value were not found during the simulation then
-    the measure will return the default value of {\tt -1}.  The user may change this default value with
-    the {\tt DEFAULT\_VAL} qualifier described below.  Note: The use of {\tt FIND} and {\tt WHEN} 
-    in one measure statement is also supported.
+    specified with {\tt TRIG <variable>=<variable\(\sb{2}\)>} or {\tt
+    TRIG <variable>=<value>} or {\tt TRIG AT=<value>}.  Likewise, the
+    the target is specified as {\tt TARG
+    <variable\(\sb{3}\)>=<variable\(\sb{4}\)>} or {\tt TRIG
+    <variable\(\sb{3}\)>=<value>}.  It is also possible to use this
+    measure to find a rise time for variable when the rise time is
+    defined as the time to go from some small fraction of the maxima
+    to some other fraction of the maxima.  For example, the syntax for
+    finding a rise time from 10\% to 90\% of the maxima
+    is:\\ \texttt{TRIG V(node) FRAC\_MAX=0.1 TARG V(node)
+    FRAC\_MAX=0.9}
+
+  \item[\tt WHEN] Returns the time when {\tt <variable>} reaches {\tt
+    <variable\(\sb{2}\)>} or the constant value, {\tt value}.  The
+    time over which the value is searched can be limited by the
+    qualifiers {\tt TO}, {\tt FROM}, {\tt TD}, {\tt RISE}, {\tt FALL}
+    and {\tt CROSS}.  The qualifier {\tt MINVAL} acts as a tolerance
+    for the comparison.  For example when {\tt <variable\(\sb{2}\)>}
+    is specified, the comparison used is when {\tt <variable>} $=$
+    {\tt <variable\(\sb{2}\)>} $\pm$ {\tt MINVAL} or when a constant,
+    {\tt value} is given: {\tt <variable>} $=$ {\tt value} $\pm$ {\tt
+    MINVAL}.  If the conditions specified for finding a given value
+    were not found during the simulation then the measure will return
+    the default value of {\tt -1}.  The user may change this default
+    value with the {\tt DEFAULT\_VAL} qualifier described below.
+    Note: The use of {\tt FIND} and {\tt WHEN} in one measure
+    statement is also supported.
 \end{description}
 
 \argument{\vbox{\hbox{variable\hfil}\hbox{variable\(\sb{n}\)\hfil}\hbox{value}}}
 
-These quantities represents the test for the stated measurement.  \texttt{<variable>} is
-a simulation quantity, such as a voltage or current.  One can compare it
-to another simulation variable or a fixed quantity.  Additionally,
-the \texttt{<variable>} may be a \Xyce{} expression delimited by \{ \} brackets.  As noted
-above, an example is {\tt V(1)=0.75}
+These quantities represents the test for the stated
+measurement.  \texttt{<variable>} is a simulation quantity, such as a
+voltage or current.  One can compare it to another simulation variable
+or a fixed quantity.  Additionally, the \texttt{<variable>} may be
+a \Xyce{} expression delimited by \{ \} brackets.  As noted above, an
+example is {\tt V(1)=0.75}
 
 \argument{AT=value}
-A time {\em at which} the measurement calculation will occur.  This is used by
-the {\tt DERIV} measure and the {\tt TRIG} clause.  Note that ill-considered use of 
-the {\tt FROM}, {\tt TO}, {\tt TD} and {\tt AT} qualifiers in the same 
-{\tt TRIG-TARG} measure statement can cause an empty measurement window, 
-and thus a failed measure.
+A time {\em at which} the measurement calculation will occur.  This is
+used by the {\tt DERIV} measure and the {\tt TRIG} clause.  Note that
+ill-considered use of the {\tt FROM}, {\tt TO}, {\tt TD} and {\tt AT}
+qualifiers in the same {\tt TRIG-TARG} measure statement can cause an
+empty measurement window, and thus a failed measure.
 
 \argument{FROM=value}
 
-A time (or frequency or DC sweep value) {\em after which} the measurement calculation will start.
-For {\tt DC} measures, this qualifier uses the first variable on the {\tt .DC} line.  
+A time (or frequency or DC sweep value) {\em after which} the
+measurement calculation will start.  For {\tt DC} measures, this
+qualifier uses the first variable on the {\tt .DC} line.
 
 \argument{TO=value}
 
-A time (or frequency or DC sweep value) {\em at which} the measurement calculation will stop.
-For {\tt DC} measures, this qualifier uses the first variable on the {\tt .DC} line. 
+A time (or frequency or DC sweep value) {\em at which} the measurement
+calculation will stop.  For {\tt DC} measures, this qualifier uses the
+first variable on the {\tt .DC} line.
 
 \argument{TD=value}
 
-A time delay before which this measurement should be taken or checked.  Note that 
-ill-considered use of both {\tt FROM} and {\tt TO} qualifiers and a {\tt TD} qualifier 
-in the same measure statement can cause an empty measurement window, and thus a failed
-measure.
+A time delay before which this measurement should be taken or checked.
+Note that ill-considered use of both {\tt FROM} and {\tt TO}
+qualifiers and a {\tt TD} qualifier in the same measure statement can
+cause an empty measurement window, and thus a failed measure.
 
 \argument{MIN\_THRESH=value}
 
@@ -379,87 +427,105 @@ found in the simulation will be used.
 \argument{RFC\_LEVEL=value}
 
 The level used to calculate rises, falls and crosses when the
-``level-crossing'' mode is used.  Its usage is discussed further 
-in the subsection on ``Rise, Fall and Cross Qualifiers''.  
-{\tt RFC\_LEVEL} is used by the {\tt AVG}, {\tt DERIV}, {\tt DUTY}, 
-{\tt FIND-WHEN}, {\tt INTEG}, {\tt MAX}, {\tt MIN}, {\tt PP},
-{\tt RMS} and {\tt WHEN} measures. 
+``level-crossing'' mode is used.  Its usage is discussed further in
+the subsection on ``Rise, Fall and Cross Qualifiers''.  {\tt
+RFC\_LEVEL} is used by the {\tt AVG}, {\tt DERIV}, {\tt DUTY}, {\tt
+FIND-WHEN}, {\tt INTEG}, {\tt MAX}, {\tt MIN}, {\tt PP}, {\tt RMS} and
+{\tt WHEN} measures.
 
 \argument{MINVAL=value}
 
-An allowed difference between \texttt{outVal} and the variable
-to which it is being compared.  This has a default value of 1.0e-12.
-One may need to specify a larger value to avoid missing the test
-condition in a transient run.  {\tt MINVAL} is used by the {\tt DERIV}, {\tt DUTY}, 
-{\tt FREQ}, {\tt OFF\_TIME} and {\tt ON\_TIME} and {\tt WHEN} measures.  The
-descriptions of those measures detail how {\tt MINVAL} is used by each measure.
+An allowed difference between \texttt{outVal} and the variable to
+which it is being compared.  This has a default value of 1.0e-12.  One
+may need to specify a larger value to avoid missing the test condition
+in a transient run.  {\tt MINVAL} is used by the {\tt DERIV}, {\tt
+DUTY}, {\tt FREQ}, {\tt OFF\_TIME} and {\tt ON\_TIME} and {\tt WHEN}
+measures.  The descriptions of those measures detail how {\tt MINVAL}
+is used by each measure.
 
 \argument{FRAC\_MAX=value}
 
-A fractional value of the maximum value of \texttt{<variable>}.  This is useful for
-ensemble runs where the maximum value of a waveform is not known in advance.  
-{\tt FRAC\_MAX} is used by the {\tt TRIG} and {\tt TARG} measures.
+A fractional value of the maximum value of \texttt{<variable>}.  This
+is useful for ensemble runs where the maximum value of a waveform is
+not known in advance.  {\tt FRAC\_MAX} is used by the {\tt TRIG} and
+{\tt TARG} measures.
 
 \argument{ON=value}
 
-The value at which a signal is considered to be ``on'' for {\tt FREQ}, {\tt DUTY}
-and {\tt ON\_TIME} measure calculations.  This has a default value of 0.
+The value at which a signal is considered to be ``on'' for {\tt FREQ},
+{\tt DUTY} and {\tt ON\_TIME} measure calculations.  This has a
+default value of 0.
 
 \argument{OFF=value}
 
-The value at which a signal is considered to be ``off'' for {\tt FREQ}, {\tt DUTY}
-and {\tt ON\_TIME} measure calculations.  This has a default value of 0.
+The value at which a signal is considered to be ``off'' for {\tt
+FREQ}, {\tt DUTY} and {\tt ON\_TIME} measure calculations.  This has a
+default value of 0.
 
 \argument{DEFAULT\_VAL=value}
 
-If the conditions specified for finding a given value are not found during the simulation then
-the measure will return the default value of {\tt -1} in the \texttt{circuitFileName.mt\#}
-(or \texttt{circuitFileName.ms\#} or \texttt{circuitFileName.ma\#}) files.
-The  measure value in the standard output or log file will be FAILED.  The default return value
-for the  \texttt{circuitFileName.mt\#} (or \texttt{circuitFileName.ms\#} 
-or \texttt{circuitFileName.ma\#}) files is settable by the
-user for each measure by adding the qualifier {\tt DEFAULT\_VAL=<retval>} on that measure line.  As
-examples, a measure will fail if the condition specified by a {\tt WHEN} or {\tt AT} qualifier is
-not found.  It will also fail if the user specifies a set of {\tt FROM}, {\tt TO} and {\tt TD} 
-values for a given measure that yields an empty measurement interval.  If either \texttt{.OPTIONS
-MEASURE MEASFAIL=<val>} or \texttt{.OPTIONS MEASURE DEFAULT\_VAL=<val>} are given in the netlist 
-then those values override the \texttt{DEFAULT\_VAL} parameters given on individual 
+If the conditions specified for finding a given value are not found
+during the simulation then the measure will return the default value
+of {\tt -1} in the \texttt{circuitFileName.mt\#}
+(or \texttt{circuitFileName.ms\#} or \texttt{circuitFileName.ma\#})
+files.  The measure value in the standard output or log file will be
+FAILED.  The default return value for
+the \texttt{circuitFileName.mt\#} (or \texttt{circuitFileName.ms\#}
+or \texttt{circuitFileName.ma\#}) files is settable by the user for
+each measure by adding the qualifier {\tt DEFAULT\_VAL=<retval>} on
+that measure line.  As examples, a measure will fail if the condition
+specified by a {\tt WHEN} or {\tt AT} qualifier is not found.  It will
+also fail if the user specifies a set of {\tt FROM}, {\tt TO} and {\tt
+TD} values for a given measure that yields an empty measurement
+interval.  If either \texttt{.OPTIONS MEASURE MEASFAIL=<val>}
+or \texttt{.OPTIONS MEASURE DEFAULT\_VAL=<val>} are given in the
+netlist then those values override the \texttt{DEFAULT\_VAL}
+parameters given on individual
 \texttt{.MEASURE} lines.  See Section \ref{Options_Reference} for more details.
 
 \argument{PRECISION=value}
 
-The default precision for {\tt .MEASURE} output is 6 digits after the decimal point.  This 
-argument provides a user configurable precision for a given {\tt .MEASURE} statement that 
-applies to both the \texttt{.mt\#} ( or \texttt{.ms\#} or \texttt{.ma\#}) files and standard output.
-If \texttt{.OPTIONS MEASURE MEASDGT=<val>} is given in the netlist then that value overrides 
-the \texttt{PRECISION} parameters given on individual \texttt{.MEASURE} lines. 
+The default precision for {\tt .MEASURE} output is 6 digits after the
+decimal point.  This argument provides a user configurable precision
+for a given {\tt .MEASURE} statement that applies to both
+the \texttt{.mt\#} ( or \texttt{.ms\#} or \texttt{.ma\#}) files and
+standard output.  If \texttt{.OPTIONS MEASURE MEASDGT=<val>} is given
+in the netlist then that value overrides the \texttt{PRECISION}
+parameters given on individual \texttt{.MEASURE} lines.
 
 \argument{PRINT=value}
 
-This parameter controls where the {\tt .MEASURE} output appears.  The default is {\tt ALL}, 
-which produces measure output in both the \texttt{.mt\#} (or \texttt{.ms\#} or 
-\texttt{.ma\#}) file and to the standard output.  A value of {\tt STDOUT} only produces measure 
-output to standard output, while a value of {\tt NONE} suppresses the measure output to both 
-the \texttt{.mt\#} (or \texttt{.ms\#} or \texttt{.ma\#}) file and standard output. 
-The subsection on ``Suppresing Measure Output'' gives examples and also discuss the interactions
-of this parameter with \texttt{.OPTIONS MEASURE MEASPRINT=<val>}.
+This parameter controls where the {\tt .MEASURE} output appears.  The
+default is {\tt ALL}, which produces measure output in both
+the \texttt{.mt\#} (or \texttt{.ms\#} or
+\texttt{.ma\#}) file and to the standard output.  A value of
+{\tt STDOUT} only produces measure output to standard output, while a
+value of {\tt NONE} suppresses the measure output to both
+the \texttt{.mt\#} (or \texttt{.ms\#} or \texttt{.ma\#}) file and
+standard output.  The subsection on ``Suppresing Measure Output''
+gives examples and also discuss the interactions of this parameter
+with \texttt{.OPTIONS MEASURE MEASPRINT=<val>}.
 
 \argument{OUTPUT=value}
 
-This parameter is only supported for the {\tt MAX} and {\tt MIN} measures.  The default
-is {\tt VALUE}.  For {\tt TRAN} measures, a value of {\tt VALUE} will print the maximum 
-(or minimum) value to the \texttt {.mt\#} file.  A value of {\tt TIME} will print the 
-time of the maximum (or minimum) value to the \texttt{.mt\#} file. For {\tt DC} measures, 
-a value of {\tt SV} will output the value of the first variable on the {\tt .DC} line to 
-the \texttt{.ms\#} file.  For {\tt AC} measures, a value of {\tt FREQ} will print the 
-frequency at which the maximum (or minimum) value occurs to the \texttt{.ma\#} file.  
-This parameter does not affect the descriptive output that is printed to the standard 
-output.  The ``Additional Examples'' subsection gives an example for the {\tt MAX} measure. 
+This parameter is only supported for the {\tt MAX} and {\tt MIN}
+measures.  The default is {\tt VALUE}.  For {\tt TRAN} measures, a
+value of {\tt VALUE} will print the maximum (or minimum) value to
+the \texttt {.mt\#} file.  A value of {\tt TIME} will print the time
+of the maximum (or minimum) value to the \texttt{.mt\#} file. For {\tt
+DC} measures, a value of {\tt SV} will output the value of the first
+variable on the {\tt .DC} line to the \texttt{.ms\#} file.  For {\tt
+AC} measures, a value of {\tt FREQ} will print the frequency at which
+the maximum (or minimum) value occurs to the \texttt{.ma\#} file.
+This parameter does not affect the descriptive output that is printed
+to the standard output.  The ``Additional Examples'' subsection gives
+an example for the {\tt MAX} measure.
 
 \argument{VAL=value}
-This parameter is only implemented for the {\tt TRIG} and {\tt TARG} measures.  It is
-not the preferred \Xyce{} syntax. It is only supported for HSPICE compatibility
-(see that subsection, below, for details).
+This parameter is only implemented for the {\tt TRIG} and {\tt TARG}
+measures.  It is not the preferred \Xyce{} syntax. It is only
+supported for HSPICE compatibility (see that subsection, below, for
+details).
 
 \argument{GOAL=value}
 
@@ -471,36 +537,38 @@ with HSPICE netlists.
 This parameter is not implemented in \Xyce{}, but is included for compatability
 with HSPICE netlists.
 
-\argument{FILE=value} 
-The filename for the ``comparison file'' used for the {\tt ERROR} measure.  This
-qualifier is required for the {\tt ERROR} measure.
+\argument{FILE=value}
+The filename for the ``comparison file'' used for the {\tt ERROR}
+measure.  This qualifier is required for the {\tt ERROR} measure.
 
-\argument{INDEPVARCOL=value} 
-The column index, in the ``comparison file'', of the independent variable (e.g, 
-the simulation time or frequency) used in an {\tt ERROR} measure.  This qualifier 
-is required for the {\tt TRAN} measure mode.  For that mode, the {\tt INDEPVARCOL} 
-and {\tt DEPVARCOL} qualifiers must have different values.  The {\tt INDEPVARCOL} 
-qualifier is not used for {\tt DC} mode {\tt ERROR} measures, and will be 
-``silently ignored'' in that case.  Finally, note that the column indices 
-in Xyce output files start with 0.     
+\argument{INDEPVARCOL=value}
+The column index, in the ``comparison file'', of the independent
+variable (e.g, the simulation time or frequency) used in an {\tt
+ERROR} measure.  This qualifier is required for the {\tt TRAN} measure
+mode.  For that mode, the {\tt INDEPVARCOL} and {\tt DEPVARCOL}
+qualifiers must have different values.  The {\tt INDEPVARCOL}
+qualifier is not used for {\tt DC} mode {\tt ERROR} measures, and will
+be ``silently ignored'' in that case.  Finally, note that the column
+indices in Xyce output files start with 0.
 
-\argument{DEPVARCOL=value} 
-The column index, in the ``comparison file'', of the dependent variable
-used in an {\tt ERROR} measure.  This qualifier is required for the {\tt ERROR} 
-measure for both measure modes ({\tt DC} and {\tt TRAN}).  For the {\tt TRAN} 
-measure mode, the  {\tt DEPVARCOL} and {\tt INDEPVARCOL} qualifiers must have 
-different values.  Finally, note that the column indices in Xyce output files 
-start with 0.
+\argument{DEPVARCOL=value}
+The column index, in the ``comparison file'', of the dependent
+variable used in an {\tt ERROR} measure.  This qualifier is required
+for the {\tt ERROR} measure for both measure modes ({\tt DC} and {\tt
+TRAN}).  For the {\tt TRAN} measure mode, the {\tt DEPVARCOL} and {\tt
+INDEPVARCOL} qualifiers must have different values.  Finally, note
+that the column indices in Xyce output files start with 0.
 
 \argument{COMP\_FUNCTION=value} 
-This is the norm used by the {\tt ERROR} measure to compare the simulation
-values for the measured variable with the corresponding values in the ``comparison file'' 
-specified with the {\tt FILE} qualifier.  The allowed values are {\tt L1NORM},
-{\tt L2NORM} and {\tt INFNORM}.  Any other values will default to {\tt L2NORM}.
-This qualifier is optional for the {\tt ERROR} measure, and has a default value of
-{\tt L2NORM}.  The descriptive output for each {\tt ERROR} measure, that is printed 
-to standard output, will explicitly state which norm was used for each {\tt ERROR} 
-measure. 
+This is the norm used by the {\tt ERROR} measure to compare the
+simulation values for the measured variable with the corresponding
+values in the ``comparison file'' specified with the {\tt FILE}
+qualifier.  The allowed values are {\tt L1NORM}, {\tt L2NORM} and {\tt
+INFNORM}.  Any other values will default to {\tt L2NORM}.  This
+qualifier is optional for the {\tt ERROR} measure, and has a default
+value of {\tt L2NORM}.  The descriptive output for each {\tt ERROR}
+measure, that is printed to standard output, will explicitly state
+which norm was used for each {\tt ERROR} measure.
 
 \end{Arguments}
 
@@ -509,25 +577,31 @@ measure.
 \subsubsection{Measure Output}
 \label{Measure_Measurement_Output}
 \index{measure!measurement output}
-As previously mentioned, measured results are reported to the output and log file.  
-Additionally, for \texttt{TRAN} measures, the results are stored in files called 
-\texttt{circuitFileName.mt\#}, where the suffixed number (\texttt{\#}) starts at 
-\texttt{0} and increases for multiple iterations (\texttt{.STEP} iterations) of 
-a given simulation. For \texttt{DC} and \texttt{AC} measures, the results are stored in the 
-files \texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#} respectively.
+As previously mentioned, measured results are reported to the output
+and log file.  Additionally, for \texttt{TRAN} measures, the results
+are stored in files called
+\texttt{circuitFileName.mt\#}, where the suffixed number (\texttt{\#}) starts
+at \texttt{0} and increases for multiple iterations (\texttt{.STEP}
+iterations) of a given simulation. For \texttt{DC} and \texttt{AC}
+measures, the results are stored in the
+files \texttt{circuitFileName.ms\#} and \texttt{circuitFileName.ma\#}
+respectively.
 
-A user-defined measure can also be output at each time-step via inclusion in a .PRINT command.  
-For example, this netlist excerpt outputs the integral of {\tt V(1)} at each time step.  The
-measure value {\tt TINTV1} is then also output at the end of the simulation to both the
-standard output and the \texttt{.mt\#} (or \texttt{.ms\#} or \texttt{.ma\#}) files.
+A user-defined measure can also be output at each time-step via
+inclusion in a .PRINT command.  For example, this netlist excerpt
+outputs the integral of {\tt V(1)} at each time step.  The measure
+value {\tt TINTV1} is then also output at the end of the simulation to
+both the standard output and the \texttt{.mt\#} (or \texttt{.ms\#}
+or \texttt{.ma\#}) files.
 \begin{alltt}
-.MEASURE TRAN TINTV1 INTEG V(1) 
-.PRINT TRAN FORMAT=NOINDEX V(1) TINTV1 
+.MEASURE TRAN TINTV1 INTEG V(1)
+.PRINT TRAN FORMAT=NOINDEX V(1) TINTV1
 \end{alltt}
 
-The output for successful and failed measures to the standard output (and log files) provides
-more information than just the measure's calculated values.  As an example, for a 
-successful and failed {\tt MAX} measure the standard output would be:
+The output for successful and failed measures to the standard output
+(and log files) provides more information than just the measure's
+calculated values.  As an example, for a successful and failed {\tt
+MAX} measure the standard output would be:
 
 \begin{alltt}
 MAXVAL = 0.999758 at time = 0.000249037
@@ -538,11 +612,13 @@ MAXFAIL = FAILED at time = 0
 Measure Start Time= 1	Measure End Time= 0.001
 \end{alltt}
 
-In general, information on the measurement window, the time(s) that the measure's value(s) were
-calculated and a possible cause for a failed measure are output to standard output for all measures except 
-for {\tt FOUR}. This information is similar, but not identical, to HSPICE's verbose output.  For
-a failed {\tt FOUR} measure, the standard output will have ``FAILED'', but there may be less information
-provided as to why the {\tt FOUR} measure failed.
+In general, information on the measurement window, the time(s) that
+the measure's value(s) were calculated and a possible cause for a
+failed measure are output to standard output for all measures except
+for {\tt FOUR}. This information is similar, but not identical, to
+HSPICE's verbose output.  For a failed {\tt FOUR} measure, the
+standard output will have ``FAILED'', but there may be less
+information provided as to why the {\tt FOUR} measure failed.
 
 In this example, the \texttt{circuitFileName.mt\#} file would have the following output:
 \begin{alltt}
@@ -553,38 +629,43 @@ MAXFAIL = -1
 \subsubsection{Measurement Windows}
 \label{Measure_Measurement_Windows}
 \index{measure!measurement windows}
-There is an implicit precedence when multiple qualifiers are specified to limit the
-measurement window for a given {\tt .MEASURE} statement for {\tt TRAN} measures.  In general, 
-\Xyce{} first considers the time-window criteria of the {\tt FROM}, {\tt TO} and {\tt TD} qualifiers.
-If the simulation time is within that user-specified time-window then the {\tt RISE}, 
-{\tt FALL}, {\tt CROSS} are qualifiers are counted and/or the {\tt TRIG}, {\tt TARG} 
-and {\tt WHEN} qualifiers are evaluated.
+There is an implicit precedence when multiple qualifiers are specified
+to limit the measurement window for a given {\tt .MEASURE} statement
+for {\tt TRAN} measures.  In general, \Xyce{} first considers the
+time-window criteria of the {\tt FROM}, {\tt TO} and {\tt TD}
+qualifiers.  If the simulation time is within that user-specified
+time-window then the {\tt RISE}, {\tt FALL}, {\tt CROSS} are
+qualifiers are counted and/or the {\tt TRIG}, {\tt TARG} and {\tt
+WHEN} qualifiers are evaluated.
 
-The following netlist excerpt shows simple examples where the {\tt .MEASURE} statement may return
-the default value because the measure ``failed''.  For {\tt riseSine}, this may occur 
-because {\tt V(1)} never has an output value of
-1.0 because of the time steps chosen by \Xyce{}. So, careful selection of the threshold values in
-WHEN, TRIG and TARG clauses may be needed in some cases. 
-For {\tt fallPulseFracMax}, the simulation interval is too short
-and the {\tt TARG} value of 0.3 for {\tt V(2)} is not reached within the specified one-second 
-simulation time.  For {\tt maxSine}, the {\tt FROM}, {\tt TO} and {\tt TD} values yield an 
-empty time interval, which is typically an error in netlist entry.
+The following netlist excerpt shows simple examples where the {\tt
+.MEASURE} statement may return the default value because the measure
+``failed''.  For {\tt riseSine}, this may occur because {\tt V(1)}
+never has an output value of 1.0 because of the time steps chosen
+by \Xyce{}. So, careful selection of the threshold values in WHEN,
+TRIG and TARG clauses may be needed in some cases.  For {\tt
+fallPulseFracMax}, the simulation interval is too short and the {\tt
+TARG} value of 0.3 for {\tt V(2)} is not reached within the specified
+one-second simulation time.  For {\tt maxSine}, the {\tt FROM}, {\tt
+TO} and {\tt TD} values yield an empty time interval, which is
+typically an error in netlist entry.
 \begin{alltt}
 VS  1  0  SIN(0 1.0 0.5 0 0)
 VP  2  0  PULSE( 0 10 0.2 0.2 0.2 0.5 2)
 R1  1  0  100K
 R2  2  0  100K
 .TRAN 0  1
-.PRINT TRAN FORMAT=NOINDEX V(1) V(2) 
+.PRINT TRAN FORMAT=NOINDEX V(1) V(2)
 .MEASURE TRAN riseSine TRIG V(1)=0 TARG V(1)=1.0
-.MEASURE TRAN fallPulseFracMax TRIG V(2) FRAC_MAX=0.97 
+.MEASURE TRAN fallPulseFracMax TRIG V(2) FRAC_MAX=0.97
 + TARG V(2) FRAC_MAX=0.03
 .MEASURE TRAN maxSine MAX V(1) FROM=0.2 TO=0.25 TD=0.5
 \end{alltt}
-The intent in \Xyce{} is for the measurement window to be the intersection of the 
-{\tt FROM-TO} and {\tt TD} windows, if both are specified.  As noted above, 
-the use of both {\tt FROM-TO} and {\tt TD} windows can lead to an empty 
-measurement window.  So, that usage is not recommended.  
+The intent in \Xyce{} is for the measurement window to be the
+intersection of the {\tt FROM-TO} and {\tt TD} windows, if both are
+specified.  As noted above, the use of both {\tt FROM-TO} and {\tt TD}
+windows can lead to an empty measurement window.  So, that usage is
+not recommended.
 
 \subsubsection{Expression Support}
 \index{measure!expression support}
@@ -625,52 +706,65 @@ statements.
 \label{Measure_ReMeasure}
 \index{measure!re-measure}
 \Xyce{} can re-calculate (or re-measure) the values for {\tt .MEASURE}
-statements using existing \Xyce{} output files.  This is useful for 
-tuning {\tt .MEASURE} statements to better capture response metrics of a circuit when 
-the underlying simulation runtime is long.  To use this functionality, add the command 
-line argument {\tt -remeasure <file>}, where {\tt <file>} is a \Xyce{}-generated 
-{\tt .prn}, {\tt .csv} or {\tt .csd} output file.  
+statements using existing \Xyce{} output files.  This is useful for
+tuning {\tt .MEASURE} statements to better capture response metrics of
+a circuit when the underlying simulation runtime is long.  To use this
+functionality, add the command line argument {\tt -remeasure <file>},
+where {\tt <file>} is a \Xyce{}-generated {\tt .prn}, {\tt .csv} or
+{\tt .csd} output file.
 
 There are several important limitations with {\tt -remeasure}:
 \begin{XyceItemize}
-  \item The data required by the {\tt .MEASURE} statements must have been output 
-  in the simulation output file.  When using {\tt -remeasure}, \Xyce{} does not 
-  recalculate the full solution, but uses the data supplied in the output
-  file instead.  Thus, everything a {\tt .MEASURE} statement needs to calculate its 
-  results must be in the output file.  So, the nodal voltages (e.g., node A), lead
-  currents (e.g, for device R1) and branch currrents requested by the {\tt .MEASURE} 
-  statements must have been used, at least once, on the {\tt .PRINT} statement in the 
-  form of {\tt V(A)}, {\tt N(a)} or {\tt I(R1)}.  They can not only appear on the 
-  {\tt .PRINT} line within an expression or a voltage-difference operator.  
-  \item Only voltage node values, lead currents and branch currents can be used in 
-  {\tt .MEASURE} statements while using {\tt -remeasure}.  Power values will not be 
-  interpreted correctly during a re-measure operation.  A work-around for that 
-  limitation is illustrated below.
-  \item {\tt -remeasure} only works with {\tt .tran} or {\tt .dc} analyses.  However, 
-  it can be used with {\tt .STEP} in both cases. It is not currently supported for 
-  {\tt .ac} analyses.
-  \item For {\tt .tran} analyses, {\tt -remeasure} works with {\tt .prn}, {\tt .csv} and 
-  {\tt .csd} formatted output data.  However, it might only work with {\tt .csv} and {\tt .csd} 
-  files generated by \Xyce{}.
-  \item For {\tt .dc} analyses, {\tt -remeasure} works with {\tt .prn} and {\tt .csd} 
-  formatted output data.   However, it might only work with {\tt .csd}  files 
-  generated by \Xyce{}.
-  \item {\tt -remeasure} will fail if the netlist has a {\tt .op} statement that precedes
-  the {\tt .tran} or {\tt .dc} statement.  This can be fixed by either moving the {\tt .op}
-  statement or by temporarily commenting the {\tt .op} statement out during {\tt -remeasure}.
+
+  \item The data required by the {\tt .MEASURE} statements must have
+  been output in the simulation output file.  When using {\tt
+  -remeasure}, \Xyce{} does not recalculate the full solution, but
+  uses the data supplied in the output file instead.  Thus, everything
+  a {\tt .MEASURE} statement needs to calculate its results must be in
+  the output file.  So, the nodal voltages (e.g., node A), lead
+  currents (e.g, for device R1) and branch currrents requested by the
+  {\tt .MEASURE} statements must have been used, at least once, on the
+  {\tt .PRINT} statement in the form of {\tt V(A)}, {\tt N(a)} or {\tt
+  I(R1)}.  They can not only appear on the {\tt .PRINT} line within an
+  expression or a voltage-difference operator.
+
+  \item Only voltage node values, lead currents and branch currents
+  can be used in {\tt .MEASURE} statements while using {\tt
+  -remeasure}.  Power values will not be interpreted correctly during
+  a re-measure operation.  A work-around for that limitation is
+  illustrated below.
+
+  \item {\tt -remeasure} only works with {\tt .tran} or {\tt .dc}
+  analyses.  However, it can be used with {\tt .STEP} in both
+  cases. It is not currently supported for {\tt .ac} analyses.
+
+  \item For {\tt .tran} analyses, {\tt -remeasure} works with {\tt
+  .prn}, {\tt .csv} and {\tt .csd} formatted output data.  However, it
+  might only work with {\tt .csv} and {\tt .csd} files generated
+  by \Xyce{}.  \item For {\tt .dc} analyses, {\tt -remeasure} works
+  with {\tt .prn} and {\tt .csd} formatted output data.  However, it
+  might only work with {\tt .csd} files generated by \Xyce{}.
+
+  \item {\tt -remeasure} will fail if the netlist has a {\tt .op}
+  statement that precedes the {\tt .tran} or {\tt .dc} statement.
+  This can be fixed by either moving the {\tt .op} statement or by
+  temporarily commenting the {\tt .op} statement out during {\tt
+  -remeasure}.
 \end{XyceItemize}
 
-As an example in using {\tt -remeasure}, consider a netlist called {\tt myCircuit.cir} which 
-had previously been run in \Xyce{} and produced the output file {\tt myCircuit.cir.prn}.  One 
-could run {\tt -remeasure} with the following command:
+As an example in using {\tt -remeasure}, consider a netlist called
+{\tt myCircuit.cir} which had previously been run in \Xyce{} and
+produced the output file {\tt myCircuit.cir.prn}.  One could run {\tt
+-remeasure} with the following command:
 \begin{alltt}
 Xyce -remeasure myCircuit.cir.prn myCircuit.cir
 \end{alltt}
 
-A work-around for re-measuring power values (e.g., for device R1) is to use this combination 
-of {\tt .PRINT} and {\tt .MEASURE} lines in the netlist.  As noted above, expressions will 
-work with re-measure if all of the quantities used in the expression also appear outside of 
-an expression on the {\tt .PRINT} line.
+A work-around for re-measuring power values (e.g., for device R1) is
+to use this combination of {\tt .PRINT} and {\tt .MEASURE} lines in
+the netlist.  As noted above, expressions will work with re-measure if
+all of the quantities used in the expression also appear outside of an
+expression on the {\tt .PRINT} line.
 \begin{alltt}
 R1 a b 1
 .PRINT TRAN V(a) V(b) I(R1)
@@ -678,41 +772,48 @@ R1 a b 1
 \end{alltt}
 
 \subsubsection{RISE, FALL and CROSS Qualifiers}
-The \texttt{RISE}, \texttt{FALL} and \texttt{CROSS} qualifiers are supported for more 
-measures types, and in more ways, in \Xyce{} than in HSPICE for \texttt{TRAN} meaures.  This 
-sections explains those differences and supplies some examples.  One key difference is that 
-\Xyce{} supports two different ``modes'' for these qualifiers for  \texttt{TRAN} meaures.  
+The \texttt{RISE}, \texttt{FALL} and \texttt{CROSS} qualifiers are
+supported for more measures types, and in more ways, in \Xyce{} than
+in HSPICE for \texttt{TRAN} meaures.  This sections explains those
+differences and supplies some examples.  One key difference is that
+\Xyce{} supports two different ``modes'' for these qualifiers for
+\texttt{TRAN} meaures.
 
-The first mode is ``level-crossing'', where the \texttt{RISE}, \texttt{FALL} 
-and \texttt{CROSS} counts are incremented each time the measured signal (e.g, 
-\texttt{ V(a)}) crosses the user-specified level (termed \texttt{crossVal} here).  
-If we define \texttt{currentVal} and \texttt{lastVal} as the current and previous 
-values of \texttt{V(a)}, and \texttt{riseCount}, \texttt{fallCount} and 
-\texttt{crossCount} as the number of rises, falls and crosses that have occurred,
-then the pseudo-code for this mode is:
+The first mode is ``level-crossing'', where
+the \texttt{RISE}, \texttt{FALL} and \texttt{CROSS} counts are
+incremented each time the measured signal (e.g,
+\texttt{ V(a)}) crosses the user-specified level (termed
+\texttt{crossVal} here).  If we define \texttt{currentVal} and \texttt{lastVal}
+as the current and previous values of \texttt{V(a)}, and \texttt{riseCount},
+\texttt{fallCount} and \texttt{crossCount} as the number of rises, falls and
+crosses that have occurred, then the pseudo-code for this mode is:
 \begin{alltt}
 if ( (currentVal-crossVal >= 0.0) AND (lastVal-crossVal < 0.0) )
 \{
   riseCount++;
 \}
 else if( (currentVal-crossVal) <= 0.0) AND (lastVal-crossVal > 0.0) )
-\{   
+\{
   fallCount++;
 \}
 \end{alltt}
-For this mode, the \texttt{crossCount} is then incremented if either the 
+
+For this mode, the \texttt{crossCount} is then incremented if either
+the
 \texttt{riseCount}  or the \texttt{fallCount} was incremented.  This mode
-should work identically to HSPICE for the \texttt{DERIV}, \texttt{FIND}, 
-\texttt{FIND-WHEN} and \texttt{TRIG-TARG} measures if the \texttt{RFC\_LEVEL} 
+should work identically to HSPICE for
+the \texttt{DERIV}, \texttt{FIND},
+\texttt{FIND-WHEN} and \texttt{TRIG-TARG} measures if the \texttt{RFC\_LEVEL}
 qualifier is not specified for the \texttt{DERIV}, \texttt{FIND}
 or \texttt{FIND-WHEN} measures.
 
-The second mode is termed ``absolute''. In this mode, \Xyce{} attempts to 
-auto-detect whether the measured waveform has started a new rise or fall. However,
-the \texttt{crossCount} is still evaluated against a fixed \texttt{crossVal} of 0.
-This mode may be useful for pulse waveforms with sharp rises and falls, where 
-the waveform's maximum (or minimum) level is not exactly known in advance.  It 
-may not work well with noisy waveforms.  If we define two Boolean variables 
+The second mode is termed ``absolute''. In this mode, \Xyce{} attempts
+to auto-detect whether the measured waveform has started a new rise or
+fall. However, the \texttt{crossCount} is still evaluated against a
+fixed \texttt{crossVal} of 0.  This mode may be useful for pulse
+waveforms with sharp rises and falls, where the waveform's maximum (or
+minimum) level is not exactly known in advance.  It may not work well
+with noisy waveforms.  If we define two Boolean variables
 \texttt{isRising} and \texttt{isFalling} then the pseudo-code for this mode is:
 \begin{alltt}
 if( (currentVal > lastVal) AND !isRising )
@@ -733,10 +834,10 @@ if ( ( (currentVal >= 0.0) AND (lastVal < 0.0) ) OR
   crossCount++;
 \}
 \end{alltt}
-The following table shows which of these two modes are supported for which 
+The following table shows which of these two modes are supported for which
 \Xyce{} measures.
 \input{MEASURE_RiseFallCrossTbl}
-As simple examples of these two modes for the \texttt{MAX} measure, consider 
+As simple examples of these two modes for the \texttt{MAX} measure, consider
 the following netlist:
 \begin{alltt}
 *examples of RFC modes
@@ -763,27 +864,31 @@ MAX3 = 7.500000e-01 at time = 1.000000e+00
 Measure Start Time= 0.000000e+00        Measure End Time= 1.200000e+00
 Fall 1: Start Time= 6.700000e-01        End Time= 1.060000e+00
 \end{alltt}
-The \texttt{MAX1} measure uses the ``absolute'' mode, so the first rise begins with
-the very first time-step.  The maximum value in that first rise interval for 
-measure \texttt{MAX1} then occurs at time=0.2s.  The \texttt{MAX2} measure uses 
-the ``level-crossing'' mode with a user-specified \texttt{RFC\_LEVEL} of 0.6V.  So, 
-the first rise interval for the \texttt{MAX2} measure begins at time=0.56s, and 
-the maximum value in that first rise interval occurs at time=0.6s.  The
-\texttt{MAX3} measure illustrates an important point.  A ``fall'' is not recorded
-for the \texttt{MAX3} measure at t=0.2 seconds, but a ``rise'' (and ``cross'') 
-would be recorded, since the value of \texttt{V(1)} is exactly equal to the
-user-specified \texttt{RFC\_LEVEL}. So, the first fall interval for measure 
-\texttt{MAX3} begins at time=0.67s, when V(1) first passes through the 
+The \texttt{MAX1} measure uses the ``absolute'' mode, so the first
+rise begins with the very first time-step.  The maximum value in that
+first rise interval for measure \texttt{MAX1} then occurs at
+time=0.2s.  The \texttt{MAX2} measure uses the ``level-crossing'' mode
+with a user-specified \texttt{RFC\_LEVEL} of 0.6V.  So, the first rise
+interval for the \texttt{MAX2} measure begins at time=0.56s, and the
+maximum value in that first rise interval occurs at time=0.6s.  The
+\texttt{MAX3} measure illustrates an important point.  A ``fall'' is not
+recorded for the \texttt{MAX3} measure at t=0.2 seconds, but a
+``rise'' (and ``cross'') would be recorded, since the value
+of \texttt{V(1)} is exactly equal to the
+user-specified \texttt{RFC\_LEVEL}. So, the first fall interval for
+measure
+\texttt{MAX3} begins at time=0.67s, when V(1) first passes through the
 user-specified \texttt{RFC\_LEVEL} of 0.5V.
 
 \subsubsection{Additional Examples}
 \label{Measure_Additional_Examples}
 \index{measure!additional examples}
-Pulse width measurements in \Xyce{} can be done as follows, based on this netlist 
-excerpt.  This may be useful for ensemble runs, where the maximum value of a one-shot 
-pulse is not known in advance.  The first syntax uses three measure statements to measure
-the 50\% pulse width, and works with noisy waveforms.  The second syntax uses only 
-one measure statement, but may not always work with noisy waveforms.
+Pulse width measurements in \Xyce{} can be done as follows, based on
+this netlist excerpt.  This may be useful for ensemble runs, where the
+maximum value of a one-shot pulse is not known in advance.  The first
+syntax uses three measure statements to measure the 50\% pulse width,
+and works with noisy waveforms.  The second syntax uses only one
+measure statement, but may not always work with noisy waveforms.
 
 \begin{alltt}
 * pulse-width measurement example 1
@@ -795,26 +900,29 @@ one measure statement, but may not always work with noisy waveforms.
 .measure tran 50widthFracMax trig v(1) frac_max=0.50 targ v(1) frac_max=0.50 FALL=1
 \end{alltt}
 
-In some cases, the user may wish to print out both the measure value and measure time
-(or the value of the first variable on the {\tt .DC} line) of a 
+In some cases, the user may wish to print out both the measure value
+and measure time (or the value of the first variable on the {\tt .DC}
+line) of a
 \texttt{MAX} or \texttt{MIN} measure to the \texttt{.mt0} file.  For a TRAN measure,
-this can be done for these two measures with the \texttt{OUTPUT} keyword as follows:
+this can be done for these two measures with the \texttt{OUTPUT}
+keyword as follows:
 \begin{alltt}
 * printing maximum value and time of maximum value to .mt0 file
 .TRAN 0 1
 V1 1 0 PWL 0 0 0.5 1 1 0
 R1 1 0 1
-.MEASURE TRAN MAXVAL MAX V(1) 
-.MEASURE TRAN TIMEOFMAXVAL V(1) OUTPUT=TIME 
+.MEASURE TRAN MAXVAL MAX V(1)
+.MEASURE TRAN TIMEOFMAXVAL V(1) OUTPUT=TIME
 \end{alltt}
 The output to the \texttt{.mt0} file would be:
 \begin{alltt}
 MAXVAL = 1.000000e+00
 TIMEOFMAXVAL = 5.000000e-01
 \end{alltt}
-The descriptive output to standard output would be the same for both measures
-though.  The measure value and measure time are not re-ordered in the 
-descriptive output when \texttt{OUTPUT=VALUE} is used for the \texttt{MAX} or 
+The descriptive output to standard output would be the same for both
+measures though.  The measure value and measure time are not
+re-ordered in the descriptive output when \texttt{OUTPUT=VALUE} is
+used for the \texttt{MAX} or
 \texttt{MIN} measures.
 \begin{alltt}
 MAXVAL = 1.000000e+00 at time = 5.000000e-01
@@ -824,23 +932,25 @@ TIMEOFMAXVAL = 1.000000e+00 at time = 5.000000e-01
 Measure Start Time= 0.000000e+00        Measure End Time= 1.000000e+00
 \end{alltt}
 
-For a DC measure, one would use \texttt{OUTPUT=SV} instead of \texttt{OUTPUT=TIME}.
-In that case, the ``sweep value'' (SV) is the value of the first variable on the 
+For a DC measure, one would use \texttt{OUTPUT=SV} instead
+of \texttt{OUTPUT=TIME}.  In that case, the ``sweep value'' (SV) is
+the value of the first variable on the
 \texttt{.DC} line. For an AC measure, one would use \texttt{OUTPUT=FREQ}.
 
 \subsubsection{Suppresssing Measure Output}
 \label{Measure_Suppressing_Measure_Output}
 \index{measure!suppressing measure output}
-If the \Xyce{} output is post-processed with other programs, such as Dakota, it
-may be desirable to only print a subset of the measure values to the \texttt{.mt\#} (or \texttt{.ms\#}
-or \texttt{.ma\#}) files, but to print all of the measure output to standard output.  As an example, 
-these {\tt .MEASURE} statements:
+If the \Xyce{} output is post-processed with other programs, such as
+Dakota, it may be desirable to only print a subset of the measure
+values to the \texttt{.mt\#} (or \texttt{.ms\#} or \texttt{.ma\#})
+files, but to print all of the measure output to standard output.  As
+an example, these {\tt .MEASURE} statements:
 \begin{alltt}
 .TRAN 0  2ms
 .measure tran minSineOne  min V(1) print=none
 .measure tran minSinTwo   min V(2) print=stdout
 .measure tran minSinThree min V(3) print=all
-.measure tran sinSinFive  min V(4) 
+.measure tran sinSinFive  min V(4)
 \end{alltt}
 would produce the following measure output in the {\tt .mt0} file:
 \begin{alltt}
@@ -860,19 +970,23 @@ Measure Start Time= 0.000000e+00	Measure End Time= 2.000000e-03
 \end{alltt}
 
 \texttt{.OPTIONS MEASURE MEASPRINT=<val>} also provides the option to accomplish
-these same effects, but for all of the measure statements in the netlist.  The
-interactions between these two features are as follows.  If \texttt{MEASPRINT=ALL} 
-is used, which is the default setting, then the \texttt{PRINT} qualifier on a given
-\texttt{.MEASURE} line will override that setting.  However, \texttt{MEASPRINT=NONE}
-and \texttt{MEASPRINT=STDOUT} will take precedence over the \texttt{PRINT} qualifiers 
-on individual \texttt{.MEASURE} lines.  Finally, the \texttt{MEASPRINT} option will
-be ignored during remeasure, but the \texttt{PRINT} qualifiers on individual 
-measure lines will be used.
+these same effects, but for all of the measure statements in the
+netlist.  The interactions between these two features are as follows.
+If \texttt{MEASPRINT=ALL} is used, which is the default setting, then
+the \texttt{PRINT} qualifier on a given
+\texttt{.MEASURE} line will override that setting.  However,
+\texttt{MEASPRINT=NONE}
+and \texttt{MEASPRINT=STDOUT} will take precedence over
+the \texttt{PRINT} qualifiers on individual \texttt{.MEASURE} lines.
+Finally, the \texttt{MEASPRINT} option will be ignored during
+remeasure, but the \texttt{PRINT} qualifiers on individual measure
+lines will be used.
 
 \texttt{.OPTIONS MEASURE MEASOUT=<val>} provides another way to suppress the output
-of the \texttt{.mt\#} (or \texttt{.ms\#} or \texttt{.ma\#}) files.  See Section \ref{Options_Reference} 
-for more details.  If given, this option takes precedence over the \texttt{MEASPRINT} 
-option setting.  However, it is also ignored during remeasure.
+of the \texttt{.mt\#} (or \texttt{.ms\#} or \texttt{.ma\#}) files.
+See Section \ref{Options_Reference} for more details.  If given, this
+option takes precedence over the \texttt{MEASPRINT} option setting.
+However, it is also ignored during remeasure.
 
 \subsubsection{ERROR Measure}
 \label{Measure_Error_Measure}
@@ -880,48 +994,63 @@ option setting.  However, it is also ignored during remeasure.
 This subsection lists some important caveats with the use of the \texttt{ERROR}
 measure.
 \begin{XyceItemize}
-  \item The comparison file, specified with the {\tt FILE} qualifier, can be {\tt .prn}, 
-    {\tt .csv} and {\tt .csd} formatted output data.   However, the {\tt ERROR} measure
-    might only work with {\tt .csv} and {\tt .csd} files generated by \Xyce{}.
-  \item The data in the comparison file is assumed to be ``non-step data'', from one
-    simulation iteration.  The simulated data can use {\tt .STEP} though and the {\tt ERROR}
-    measure values will be re-evaluated for each step.
-  \item For {\tt TRAN} measures, the values of the measured waveform are interpolated to the 
-    simulation times in the comparison waveform.  So, the norm calculation is inherently 
-    windowed to the time interval of the comparison waveform.
-  \item For {\tt DC} measures, interpolation is not used.  So, the values of the simulated
-    and comparion waveforms are compared at the values specified by the {\tt DEPVARCOL}
-    qualifier.  Any value for the {\tt INDEPVARCOL} qualifier specified on a 
-    {\tt DC} measure line will be ``silently ignored''. 
-  \item The time window constraints ({\tt TO}, {\tt FROM} and {\tt TD} qualifiers) are not 
-    supported for the {\tt ERROR} measure.  So, as noted above, the effective window for the 
-    norm calculation is set by the extent of the comparison waveform.
-  \item The values in the column in the comparison file specified with the {\tt INDEPVARCOL}
-    qualifier must be monotonically increasing for a {\tt TRAN} measure.  Otherwise, 
-    \Xyce{} will not run the simulation.
-  \item The {\tt ERROR} measure currently supports the L1, L2 and INFNORM, with the default 
-    being the L2 norm.  If anything other than L1, L2 or INFNORM is specified, \Xyce{} will
-    default to the L2 norm.  The descriptive output for each {\tt ERROR} measure, that 
-    is printed to standard output, will explicitly state which norm was used for each
-    {\tt ERROR} measure.  (Note: The norm value is selected with the {\tt COMP\_FUNCTION} 
-    qualifier, and the allowed values are {\tt L1NORM}, {\tt L2NORM} and {\tt INFNORM}.)
+
+  \item The comparison file, specified with the {\tt FILE} qualifier,
+    can be {\tt .prn}, {\tt .csv} and {\tt .csd} formatted output
+    data.  However, the {\tt ERROR} measure might only work with {\tt
+    .csv} and {\tt .csd} files generated by \Xyce{}.  \item The data
+    in the comparison file is assumed to be ``non-step data'', from
+    one simulation iteration.  The simulated data can use {\tt .STEP}
+    though and the {\tt ERROR} measure values will be re-evaluated for
+    each step.  \item For {\tt TRAN} measures, the values of the
+    measured waveform are interpolated to the simulation times in the
+    comparison waveform.  So, the norm calculation is inherently
+    windowed to the time interval of the comparison waveform.  \item
+    For {\tt DC} measures, interpolation is not used.  So, the values
+    of the simulated and comparion waveforms are compared at the
+    values specified by the {\tt DEPVARCOL} qualifier.  Any value for
+    the {\tt INDEPVARCOL} qualifier specified on a {\tt DC} measure
+    line will be ``silently ignored''.
+
+  \item The time window constraints ({\tt TO}, {\tt FROM} and {\tt TD}
+    qualifiers) are not supported for the {\tt ERROR} measure.  So, as
+    noted above, the effective window for the norm calculation is set
+    by the extent of the comparison waveform.
+
+  \item The values in the column in the comparison file specified with
+    the {\tt INDEPVARCOL} qualifier must be monotonically increasing
+    for a {\tt TRAN} measure.  Otherwise, \Xyce{} will not run the
+    simulation.
+
+  \item The {\tt ERROR} measure currently supports the L1, L2 and
+    INFNORM, with the default being the L2 norm.  If anything other
+    than L1, L2 or INFNORM is specified, \Xyce{} will default to the
+    L2 norm.  The descriptive output for each {\tt ERROR} measure,
+    that is printed to standard output, will explicitly state which
+    norm was used for each {\tt ERROR} measure.  (Note: The norm value
+    is selected with the {\tt COMP\_FUNCTION} qualifier, and the
+    allowed values are {\tt L1NORM}, {\tt L2NORM} and {\tt INFNORM}.)
 
 \end{XyceItemize}
 
-As a final note, the \texttt{ERROR} measure can enable the use of \Xyce{} simulation 
-output in optimization problems, like device calibration.  However, for internal
-Sandia users, there may be better approaches that leverage the combined
-capabilities of Sandia's Dakota and \Xyce{} software packages.
+As a final note, the \texttt{ERROR} measure can enable the use
+of \Xyce{} simulation output in optimization problems, like device
+calibration.  However, for internal Sandia users, there may be better
+approaches that leverage the combined capabilities of Sandia's Dakota
+and \Xyce{} software packages.
 
 \subsubsection{Behavior for Unsupported Modes and Types}
 \label{Measure_Unsupported_Types}
 \index{measure!unsupported types}
-The \texttt{.MEASURE} statement is supported for \texttt{.TRAN}, \texttt{.DC} and 
-\texttt{.AC} analyses. It can be used with {\tt .STEP} in all three cases.  So, \Xyce{} does not 
-support \texttt{NOISE} or \texttt{HB} measure modes.  If those two modes are included in the netlist
-then \Xyce{} parsing will fail and emit error messages.  Similarly, \Xyce{} parsing will fail if the 
-requested measure type is not supported for a given measure mode (e.g., \texttt{RMS} for a 
-\texttt{DC} or \texttt{AC} measure). 
+The \texttt{.MEASURE} statement is supported
+for \texttt{.TRAN}, \texttt{.DC} and
+\texttt{.AC} analyses. It can be used with {\tt .STEP} in all three cases.
+So, \Xyce{} does not support \texttt{NOISE} or \texttt{HB} measure
+modes.  If those two modes are included in the netlist then \Xyce{}
+parsing will fail and emit error messages.  Similarly, \Xyce{} parsing
+will fail if the requested measure type is not supported for a given
+measure mode (e.g., \texttt{RMS} for a
+\texttt{DC} or \texttt{AC} measure).
 
 \subsubsection{HSPICE Compatibility}
 \label{Measure_HSpice_Compatibility}
@@ -930,71 +1059,97 @@ There are known incompatibilities between the \Xyce{} and HSPICE implementation
 of {\tt .MEASURE}.  They include the following:
 
 \begin{XyceItemize}
-  \item  Several of the \Xyce{} measure types ({\tt DUTY}, {\tt EQN}, {\tt FREQ},
-         {\tt FOUR}, {\tt ON\_TIME}, and {\tt OFF\_TIME}) and qualifers 
-         (e.g., {\tt FRAC\_MAX}) are not found in HSPICE.  Several HSPICE measures 
-         are not supported in \Xyce{}.
-  \item The HSPICE qualifers of {\tt REVERSE} and {\tt PREVIOUS} are not supported in \Xyce{}.
-  \item The HSPICE {\tt .POWER} statement, which  prints out a table with the
-        AVG, RMS, MIN and MAX measures for each specified signal, is not supported in \Xyce{}.
-  \item \Xyce{} generally supports more qualifiers ({\tt FROM},  {\tt TO}, {\tt TD},
-        {\tt RISE}, {\tt FALL} and {\tt CROSS}) for the measurement windows for
-        a given measure-type.  So, some legal \Xyce{} syntaxes may not be legal in 
-        HSPICE. 
-  \item For {\tt TRIG} and {\tt TARG} clauses in \Xyce{}, the {\tt TD} qualifier applies 
-        to both the {\tt TRIG} and {\tt TARG} qualifiers.  HSPICE allows the
-        specification of separate time-delays for the {\tt TRIG} and {\tt TARG} 
-        clauses.
-  \item \Xyce{} will not return a negative value from a {\tt TRIG} and {\tt TARG}
-        measure.  The {\tt TARG} clause is only evaluated if the {\tt TRIG} clause
-        is satisfied.  This behavior is different from HSPICE.
-  \item The Xyce {\tt EQN} measure can calculate an expression based on other measure 
-        values.  So, one of its usages is similar to the HSPICE {\tt PARAM} measure.  
-        However, their syntaxes are different.
-  \item A mismatch between the measure mode and the analysis mode (e.g., a {\tt DC} measure 
-        in a netlist that uses a {\tt .TRAN} analysis statement) will cause a \Xyce{} netlist 
-        parsing error.  That same mismatch might be silently ignored by HSPICE.
-  \item How \Xyce{} and HSPICE handle ``steps'' may be different.  In \Xyce{}, the
-        ``steps'' in the measured data (e.g., the generation of  new \texttt{.mt\#}
-        or \texttt{.ms\#} or \texttt{.ma\#} files) are triggered by the variable(s) on 
-        the {\tt .STEP} line, but not by the variable(s) on the {\tt .DC} line.
-  \item Expressions on \texttt{.MEASURE} lines are supported in fewer contexts then in
-        HSPICE.  See the ``Expression Support'' subsection for more details.
-  \item The settings for the \texttt{MEASFAIL} and \texttt{MEASOUT} options are only used
-        if those options are explicitly given in the netlist.  Otherwise, the \Xyce{}
-        defaults will be used.
+
+  \item Several of the \Xyce{} measure types ({\tt DUTY}, {\tt EQN},
+         {\tt FREQ}, {\tt FOUR}, {\tt ON\_TIME}, and {\tt OFF\_TIME})
+         and qualifers (e.g., {\tt FRAC\_MAX}) are not found in
+         HSPICE.  Several HSPICE measures are not supported
+         in \Xyce{}.
+
+  \item The HSPICE qualifers of {\tt REVERSE} and {\tt PREVIOUS} are
+  not supported in \Xyce{}.
+
+  \item The HSPICE {\tt .POWER} statement, which prints out a table
+        with the AVG, RMS, MIN and MAX measures for each specified
+        signal, is not supported in \Xyce{}.
+
+  \item \Xyce{} generally supports more qualifiers ({\tt FROM}, {\tt
+        TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS}) for the
+        measurement windows for a given measure-type.  So, some
+        legal \Xyce{} syntaxes may not be legal in HSPICE.
+
+  \item For {\tt TRIG} and {\tt TARG} clauses in \Xyce{}, the {\tt TD}
+        qualifier applies to both the {\tt TRIG} and {\tt TARG}
+        qualifiers.  HSPICE allows the specification of separate
+        time-delays for the {\tt TRIG} and {\tt TARG} clauses.
+
+  \item \Xyce{} will not return a negative value from a {\tt TRIG} and
+        {\tt TARG} measure.  The {\tt TARG} clause is only evaluated
+        if the {\tt TRIG} clause is satisfied.  This behavior is
+        different from HSPICE.
+
+  \item The Xyce {\tt EQN} measure can calculate an expression based
+        on other measure values.  So, one of its usages is similar to
+        the HSPICE {\tt PARAM} measure.  However, their syntaxes are
+        different.
+
+  \item A mismatch between the measure mode and the analysis mode
+        (e.g., a {\tt DC} measure in a netlist that uses a {\tt .TRAN}
+        analysis statement) will cause a \Xyce{} netlist parsing
+        error.  That same mismatch might be silently ignored by
+        HSPICE.
+
+  \item How \Xyce{} and HSPICE handle ``steps'' may be different.
+        In \Xyce{}, the ``steps'' in the measured data (e.g., the
+        generation of new \texttt{.mt\#} or \texttt{.ms\#}
+        or \texttt{.ma\#} files) are triggered by the variable(s) on
+        the {\tt .STEP} line, but not by the variable(s) on the {\tt
+        .DC} line.
+
+  \item Expressions on \texttt{.MEASURE} lines are supported in fewer
+        contexts then in HSPICE.  See the ``Expression Support''
+        subsection for more details.
+
+  \item The settings for the \texttt{MEASFAIL} and \texttt{MEASOUT}
+        options are only used if those options are explicitly given in
+        the netlist.  Otherwise, the \Xyce{} defaults will be used.
 \end{XyceItemize}
 
-Additional syntax differences between {\tt TRIG} and {\tt TARG} clauses in \Xyce{}
-and HSPICE are as follows.  In HSPICE, a {\tt RISE}, {\tt FALL} or {\tt CROSS} keyword 
-must be specified in the  following measure statement.  Those {\tt RISE} keywords are optional 
-with this particular syntax example in \Xyce{}.  If they are omitted, then \Xyce{} uses
-a default value of 1.
+Additional syntax differences between {\tt TRIG} and {\tt TARG}
+clauses in \Xyce{} and HSPICE are as follows.  In HSPICE, a {\tt
+RISE}, {\tt FALL} or {\tt CROSS} keyword must be specified in the
+following measure statement.  Those {\tt RISE} keywords are optional
+with this particular syntax example in \Xyce{}.  If they are omitted,
+then \Xyce{} uses a default value of 1.
 \begin{alltt}
 .measure tran riseSine trig v(1)=0.01 RISE=1 targ v(1)=0.99 RISE=1
 \end{alltt}
-The following HSPICE syntax ({\tt VAL=0.9}) is supported in \Xyce{} for {\tt TRIG} and {\tt TARG}
-measures. However, the preferred \Xyce{} syntax would use {\tt targ v(1)=0.9} instead.  
+The following HSPICE syntax ({\tt VAL=0.9}) is supported in \Xyce{}
+for {\tt TRIG} and {\tt TARG} measures. However, the preferred \Xyce{}
+syntax would use {\tt targ v(1)=0.9} instead.
 \begin{alltt}
 .measure tran riseSine trig v(1) AT=0.0001 targ v(1) VAL=0.9 RISE=1
 \end{alltt}
 
-The remainder of this subsection discusses alternate syntaxes for \Xyce{} measure lines
-that are supported for improved HSPICE compatibility.  The definitions of the measure 
-syntaxes given at the beginning of this \texttt{.MEASURE} section give the preferred 
-\Xyce{} syntaxes.  However, \texttt{PARAM} (and the equivalent \texttt{EQN}) measure lines 
-are allowed with, or without, the  equal sign after the \texttt{PARAM} keyword.  So, 
-these two \Xyce{} measure statements are equivalent:
+The remainder of this subsection discusses alternate syntaxes
+for \Xyce{} measure lines that are supported for improved HSPICE
+compatibility.  The definitions of the measure syntaxes given at the
+beginning of this \texttt{.MEASURE} section give the preferred
+\Xyce{} syntaxes.  However, \texttt{PARAM} (and the equivalent \texttt{EQN})
+measure lines are allowed with, or without, the equal sign after
+the \texttt{PARAM} keyword.  So, these two \Xyce{} measure statements
+are equivalent:
 \begin{alltt}
 .measure tran noEqualSgn PARAM \{v(1)+1.0\}
 .measure tran equalSgn PARAM=\{v(1)+1.0\}
 \end{alltt}
 
-There are multiple expression syntaxes that are allowed in various contexts on
-HSPICE measure lines.  So, all of these example syntaxes are allowed in expression
-contexts on \Xyce{} measure lines.  (Note: Only the first single-quote-delimited 
-expression format is supported in all \Xyce{} expression contexts, in addition to
-the \Xyce{} curly-braces format.)
+There are multiple expression syntaxes that are allowed in various
+contexts on HSPICE measure lines.  So, all of these example syntaxes
+are allowed in expression contexts on \Xyce{} measure lines.  (Note:
+Only the first single-quote-delimited expression format is supported
+in all \Xyce{} expression contexts, in addition to the \Xyce{}
+curly-braces format.)
 \begin{alltt}
 .measure tran curlyBraces MAX \{V(1)+1\}
 .measure tran singleQuote MAX `V(1)+1'

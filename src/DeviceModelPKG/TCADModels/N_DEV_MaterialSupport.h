@@ -39,7 +39,7 @@
 #ifndef Xyce_N_DEV_MaterialSupport_h
 #define Xyce_N_DEV_MaterialSupport_h
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 // ---------- Standard Includes ----------
 #include <N_UTL_Math.h>

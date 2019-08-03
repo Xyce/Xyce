@@ -37,7 +37,7 @@
 // Note: some verilog-A compilers have problems handling the ddx-operator,
 // which occurs in definition of OP-output variables. If the line below is
 // commented out, all OP-output variables using the ddx-operator are skipped.
-`define OPderiv
+//`define OPderiv
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -45,7 +45,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-module PSP103TVA(D, G, S, B, DT);
+module PSP103TVA(D, G, S, B, DT)
+(*
+  info = "PSP MOSFET Model"
+  xyceModelGroup="MOSFET"
+  xyceLevelNumber="1031"
+  xyceDeviceName="PSP103VA MOSFET with self-heating"
+  xyceTypeVariable="TYPE"
+*);
 
 `include "PSP103_module.include"
 

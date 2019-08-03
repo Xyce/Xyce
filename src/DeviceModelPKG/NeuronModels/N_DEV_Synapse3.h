@@ -49,7 +49,7 @@
 #include <N_DEV_Synapse.h>
 
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 namespace Xyce {
 namespace Device {

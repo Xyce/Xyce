@@ -3689,7 +3689,7 @@ bool extractLINData(
       netlist_filename, 
       parsed_line[0].lineNumber_);
 
-  Util::OptionBlock option_block_ac("ACLIN", Util::OptionBlock::NO_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
+  Util::OptionBlock option_block_aclin("ACLIN", Util::OptionBlock::NO_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
 
  // add SPARAMS as the print type from for a .LIN line
   Util::Param typeParameter("TYPE", "SPARAM");
@@ -3698,7 +3698,7 @@ bool extractLINData(
   addDefaultOptionsParameters(options_manager, print_option_block, "PRINT");
 
   // Reset the default TYPE with the value found.
-  addDefaultOptionsParameters(options_manager, option_block_ac, "ACLIN");
+  addDefaultOptionsParameters(options_manager, option_block_aclin, "ACLIN");
 
   Util::Param *parameterPtr = Util::findParameter(print_option_block.begin(), print_option_block.end(), typeParameter.tag());
   if( parameterPtr == NULL )
@@ -3731,27 +3731,42 @@ bool extractLINData(
        if (paramName == "FORMAT") { foundFormatParam = true;}
 
        if (paramName  == "SPARCALC" )
-         parameterPtr = Util::findParameter(option_block_ac.begin(), option_block_ac.end(), paramName);
-       else
-         parameterPtr = Util::findParameter(print_option_block.begin(), print_option_block.end(), paramName);
-
-       if ( parameterPtr != NULL )
        {
-         if (parameterPtr->tag() == "DELIMITER")
-	 {
-           // DELIMITER parameter is not supported for the Touchstone formats.
-           Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
-             << "DELIMITER parameter not supported on .LIN line";
-         }
-         else if (parameterPtr->tag() != "FILE")
-           parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
-         else
-           parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_)));
+         // this parameter only goes into the aclin option blocks
+         parameterPtr = Util::findParameter(option_block_aclin.begin(), option_block_aclin.end(), paramName);
+         parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
+       }
+       else if (paramName == "LINTYPE")
+       {
+         // this parameter goes into both the aclin and print option blocks
+         parameterPtr = Util::findParameter(option_block_aclin.begin(), option_block_aclin.end(), paramName);
+         parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
+         parameterPtr = Util::findParameter(print_option_block.begin(), print_option_block.end(), paramName);
+         parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
        }
        else
        {
-         Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
-           << "No PRINT parameter " << parsed_line[position].string_ << " found, parameter will be ignored.";
+         // all of the other parameters only go into the print option block
+         parameterPtr = Util::findParameter(print_option_block.begin(), print_option_block.end(), paramName);
+
+         if ( parameterPtr != NULL )
+         {
+           if (parameterPtr->tag() == "DELIMITER")
+	   {
+             // DELIMITER parameter is not supported for the Touchstone formats.
+             Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
+               << "DELIMITER parameter not supported on .LIN line";
+           }
+           else if (parameterPtr->tag() != "FILE")
+             parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_ ).toUpper()));
+           else
+             parameterPtr->setVal(std::string(ExtendedString(parsed_line[position+2].string_)));
+         }
+         else
+         {
+           Report::UserWarning0().at(netlist_filename, parsed_line[0].lineNumber_)
+             << "No PRINT parameter " << parsed_line[position].string_ << " found, parameter will be ignored.";
+         }
        }
 
        position += 3;
@@ -3772,7 +3787,7 @@ bool extractLINData(
     parameterPtr->setVal(std::string("TOUCHSTONE2"));
   }
 
-  circuit_block.addOptions(option_block_ac);
+  circuit_block.addOptions(option_block_aclin);
 
   circuit_block.addOptions(print_option_block);
 

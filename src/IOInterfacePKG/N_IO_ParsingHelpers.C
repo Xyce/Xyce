@@ -42,6 +42,7 @@
 #include <fstream>
 #include <functional>
 #include <ctime>
+#include <cstring>
 
 #include <N_DEV_Configuration.h>
 #include <N_ERH_ErrorMgr.h>

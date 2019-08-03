@@ -27,6 +27,7 @@ library file, and the definition statement defines the subsets.
 \examples
 \begin{alltt}
 .LIB models.lib nom
+.LIB 'models.lib'  low
 .LIB "models.lib"  low
 .LIB "path/models.lib"  high
 \end{alltt}
@@ -36,7 +37,8 @@ library file, and the definition statement defines the subsets.
 \begin{Arguments}
 
 \argument{file name}
-Name of file containing netlist data.  Double quotes (\texttt{"}) may be used around the file name.
+Name of file containing netlist data.  Single or double quotes
+(\texttt{"} or \texttt{'}) may be used around the file name.
 
 \argument{entry name}
 Entry name, which determines the section of the file to be included.
@@ -46,11 +48,12 @@ form of the \texttt{.LIB} statement.
 \end{Arguments}
 \end{Command}
 
-The library file name can be surrounded by double quotes, as in "path/filename" but
-this is not necessary.  The directory for the library file is assumed to be
-the execution directory unless a full or relative path is given as a
-part of the file name.  The section name denotes the section or sections of the
-library file to include.
+The library file name can be surrounded by quotes (single or double),
+as in "path/filename" but this is not necessary.  The directory for
+the library file is assumed to be the execution directory unless a
+full or relative path is given as a part of the file name.  The
+section name denotes the section or sections of the library file to
+include.
 
 \subsubsection{.LIB definition statement}
 The format given above is when the \texttt{.LIB} command is used to reference

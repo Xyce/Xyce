@@ -1326,7 +1326,7 @@ private:
 struct RFparamsVariableOpBuilder : public Util::Op::Builder
 {
   RFparamsVariableOpBuilder(const OutputMgr & output_manager,
-                   const Analysis::AnalysisManager & analysis_manager)
+                            Analysis::AnalysisManager & analysis_manager)
     : outputManager_(output_manager),
       analysisManager_(analysis_manager)
   {}
@@ -1355,7 +1355,7 @@ struct RFparamsVariableOpBuilder : public Util::Op::Builder
 
     if ( ((param_tag[0] == 'S') || (param_tag[0] == 'Y') || (param_tag[0] == 'Z')) && args.size() == 2)
     {
-      if (!analysisManager_.getACFlag())
+      if (!analysisManager_.getACLinFlag())
       {
         Report::UserError0() << "S(), Y() and Z() operators only supported for .LIN analyses";
         return new_op;
@@ -1369,7 +1369,7 @@ struct RFparamsVariableOpBuilder : public Util::Op::Builder
         return new_op;
       }
 
-      std::string type = name.substr(0,1);
+      const std::string type = name.substr(0,1);
       if ( (param_tag == "S") || (param_tag == "Y") || (param_tag == "Z"))
       {
         new_op = new RFparamsOp(name, type, rowIdx, colIdx);
@@ -1396,7 +1396,10 @@ struct RFparamsVariableOpBuilder : public Util::Op::Builder
       }
 
       if (new_op)
+      {
         new_op->addArgs(args.begin(), args.end());
+        analysisManager_.setRFParamsRequested(type);
+      }
     }
 
     return new_op;
@@ -1404,7 +1407,7 @@ struct RFparamsVariableOpBuilder : public Util::Op::Builder
 
 private:
   const OutputMgr &     outputManager_;
-  const Analysis::AnalysisManager &    analysisManager_;
+  Analysis::AnalysisManager &    analysisManager_;
 };
 
 //-------------------------------------------------------------------------- 

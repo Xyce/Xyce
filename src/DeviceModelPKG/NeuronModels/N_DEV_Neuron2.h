@@ -38,7 +38,7 @@
 #ifndef Xyce_N_DEV_Neuron2_h
 #define Xyce_N_DEV_Neuron2_h
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 #include <N_DEV_Configuration.h>
 #include <N_DEV_DeviceBlock.h>

@@ -52,6 +52,11 @@ M<name> <drain node> <gate node> <source node>
 M<name> <drain node> <gate node> <source node> <model name>
 \end{alltt}
 
+\item[Special Form (PSP103 with self-heating)]
+\begin{alltt}
+M<name> <drain node> <gate node> <source node> <bulk node> <dt node> <model name> [instance parameters]
+\end{alltt}
+
 \model
 \begin{alltt}
 .MODEL <model name> NMOS [model parameters]
@@ -634,15 +639,25 @@ versions of PSP.
 \input{M_102_Device_Instance_Params}
 \input{M_102_Device_Model_Params}
 
-\subsubsection{Level 103 MOSFET Tables (PSP version 103.4)}
-\Xyce{} includes the PSP MOSFET model, version 103.4~\cite{PSP:2006}.  Full
-documentation for the PSP model is available on its web site,
+\subsubsection{Level 103 and 1031 MOSFET Tables (PSP version 103.4)}
+
+\Xyce{} includes the PSP MOSFET model, version 103.4~\cite{PSP:2006}.
+The version without self-heating is the level 103 MOSFET, and the
+version with self-heating is the level 1031.  Note that the level 1031
+MOSFET requires five nodes on its instance line: drain, gate, source,
+bulk, and dt.  The fifth node will be the temperature rise of the
+device due to self-heating.
+
+Full documentation for the PSP model is available on its web site,
 \url{http://www.cea.fr/cea-tech/leti/pspsupport}.  Instance and model
 parameters for the PSP model are given in
-tables~\ref{M_103_Device_Instance_Params} and \ref{M_103_Device_Model_Params}.
+tables~\ref{M_103_Device_Instance_Params}, \ref{M_103_Device_Model_Params},
+\ref{M_1031_Device_Instance_Params}, and \ref{M_1031_Device_Model_Params}.
 
 \input{M_103_Device_Instance_Params}
 \input{M_103_Device_Model_Params}
+\input{M_1031_Device_Instance_Params}
+\input{M_1031_Device_Model_Params}
 
 \clearpage
 \subsubsection{Level 110 MOSFET Tables (BSIM CMG version 110.0.0)}

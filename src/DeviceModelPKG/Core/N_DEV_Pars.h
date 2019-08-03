@@ -38,7 +38,7 @@
 #ifndef Xyce_N_DEV_Pars_h
 #define Xyce_N_DEV_Pars_h
 
-#include <Sacado.hpp>
+#include <complex>
 #include <algorithm>
 #include <map>
 #include <set>

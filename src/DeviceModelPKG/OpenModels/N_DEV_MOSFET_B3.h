@@ -38,6 +38,8 @@
 #ifndef Xyce_N_DEV_MOSFET_B3_h
 #define Xyce_N_DEV_MOSFET_B3_h
 
+#include <Sacado_No_Kokkos.hpp>
+
 // ----------   Standard Includes   ----------
 #include <N_DEV_Configuration.h>
 #include <map>

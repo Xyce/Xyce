@@ -81,8 +81,7 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 ESSolverFactory::ESSolverFactory(
   Linear::Builder &             builder)
-  : hbOsc_(false),
-    builder_(builder)
+  : builder_(builder)
 {
 }
 
@@ -139,7 +138,6 @@ ESSolverFactory::create(
 
     newSolver->registerESLoader( hbLoaderPtr_ );
     newSolver->registerESBuilder( hbBuilderPtr_ );
-    newSolver->setFastTimes( times_ );
 
     return newSolver;
   }

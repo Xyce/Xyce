@@ -39,6 +39,8 @@
 #ifndef Xyce_N_DEV_BJT_H
 #define Xyce_N_DEV_BJT_H
 
+#include <Sacado_No_Kokkos.hpp>
+
 // ---------- Standard Includes ----------
 
 // ----------   Xyce Includes   ----------

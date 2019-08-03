@@ -40,7 +40,7 @@
 #ifndef Xyce_N_DEV_Neuron_CommonEquations_h
 #define Xyce_N_DEV_Neuron_CommonEquations_h
 
-#include <Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
 
 namespace Xyce {
 namespace Device {

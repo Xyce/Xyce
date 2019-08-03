@@ -1080,6 +1080,19 @@ bool AnalysisManager::getACFlag() const
 }
 
 //-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getACLinFlag
+// Purpose       : Gets a flag indicating we are in a .LIN calculation
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 07/30/2019
+//-----------------------------------------------------------------------------
+bool AnalysisManager::getACLinFlag() const
+{
+  return(getACFlag() && getSparcalc());
+}
+
+//-----------------------------------------------------------------------------
 // Function      : AnalysisManager::getNoiseFlag
 // Purpose       : Gets a flag indicating we are in a noise calculation
 // Special Notes : This function needs to check whether the primary analysis
@@ -1427,6 +1440,32 @@ DCOPType AnalysisManager::getDCOPSolve() const
 double AnalysisManager::getCurrentFreq() const
 {
   return analysisObject_->getCurrentFreq();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::getSparcalc
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/30/2019
+//-----------------------------------------------------------------------------
+bool AnalysisManager::getSparcalc() const
+{
+  return analysisObject_->getSparcalc();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::setRFParamsRequested
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/31/2019
+//-----------------------------------------------------------------------------
+void AnalysisManager::setRFParamsRequested(const std::string & type)
+{
+  analysisObject_->setRFParamsRequested(type);
 }
 
 //-----------------------------------------------------------------------------

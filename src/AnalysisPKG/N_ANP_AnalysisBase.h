@@ -131,6 +131,16 @@ public:
     return 0.0;
   }
 
+  virtual bool getSparcalc()
+  {
+    return 0;
+  }
+
+  virtual void setRFParamsRequested(const std::string & type)
+  {
+    // This is a no op for every analysis mode, except for AC
+  }
+
   virtual const TimeIntg::TIAParams &getTIAParams() const = 0;
   virtual TimeIntg::TIAParams &getTIAParams() = 0;
 

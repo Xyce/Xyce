@@ -38,6 +38,7 @@
 #include <iostream>
 #include <sstream>
 #include <cctype>
+#include <cstring>
 
 #include <N_IO_CmdParse.h>
 

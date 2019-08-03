@@ -174,6 +174,8 @@ private:
   std::vector<UQ::outputFunctionData*> measFuncDataVec_;
 
   bool outFuncGIDsetup_;
+
+  bool outputSampleStats_;
 };
 
 bool registerSamplingFactory(FactoryBlock &factory_block);
