@@ -829,10 +829,10 @@ void EmbeddedSampling::stepCallBack ()
     }
   }
 //
-#endif
-
   outputManagerAdapter_.outputEmbeddedSampling(regressionPCEenable_, projectionPCEenable_,
 					       numSamples_, outFuncDataVec_);
+#endif
+
   hackEnsembleOutput ();
 }
 
