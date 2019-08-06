@@ -1000,7 +1000,6 @@ inline void unpackHBBlockMatrixUpdate(const std::vector<double>& vec, bool isDen
   unpackGenericBlockMatrixUpdate(vec, isDense, Source);
   return;
 }
-}
 
 // Overload print operator.
 template<class T>
@@ -1008,6 +1007,7 @@ inline std::ostream& operator<< (std::ostream& os, const Xyce::genericBlockMatri
 {
   obj.print( os );
   return os;
+}
 }
 
 #if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
