@@ -36,6 +36,9 @@
    =================================================================-
   -->
 
+<!-- declare a global var? -->
+<admst:variable name="theGlobalArgPtr"/>
+
   <!--
    =================================================================-
    xyceNumberNodes
@@ -1811,6 +1814,143 @@ other variables does not get propagated into a variable's
      </admst:if>
    </admst:apply-templates>
  </admst:template>
+
+<!--
+ =================================================================-
+ fixAFOutputVarDependencies
+
+ ADMS's implicit templates (in adms.implicit.xml) go through the ADMS
+ data tree and try to propagate dependencies (notably probe and
+ variable dependencies) upward into expressions, so one can look, say
+ at the LHS of an assignment and know all the probes and variables
+ it depends on.
+
+ As of August 2019, this same analysis is NOT applied to output variables
+ of analog functions that appear in expressions on the RHS of an assignment,
+ and so these output variables don't get any data, making it difficult
+ to generate good code for models that use analog functions this way.
+
+ This template, given a node (expression, subexpression, etc),
+ will recursively traverse the tree looking for function calls to analog
+ functions with output variables, and copy the probe and variable dependence
+ of all input variables into the output variables.
+
+ There are some bug reports and partial code fixes in the Qucs/ADMS
+ git repo branches that try to address this, but as yet it is not in the
+ released code, and those partial fixes don't actually work fully.
+-->
+
+<admst:template match="fixAFOutputVarDependencies">
+
+  <admst:choose>
+    <admst:when test="[datatypename='block']">
+      <admst:apply-templates select="item" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='conditional']">
+      <admst:apply-templates select="else|then|if" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='whileloop']">
+      <admst:apply-templates select="whileblock" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='forloop']">
+      <admst:apply-templates select="forblock" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='case']">
+      <admst:apply-templates select="caseitem/code" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='expression']">
+      <admst:apply-templates select="tree" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='assignment']">
+      <admst:apply-templates select="rhs" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='mapply_unary']">
+      <admst:apply-templates select="arg1" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='mapply_binary']">
+      <admst:apply-templates select="arg1|arg2" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='mapply_ternary']">
+      <admst:apply-templates select="arg1|arg2|arg3" match="fixAFOutputVarDependencies"/>
+    </admst:when>
+    <admst:when test="[datatypename='function']">
+      <admst:apply-templates select="arguments" match="fixAFOutputVarDependencies">
+      </admst:apply-templates>
+      <!-- Now, if we're an analog function, do some real work on the
+           output variables, if there are any -->
+      <admst:if test="[definition/datatypename='analogfunction']">
+        <admst:variable name="theFunction" select="%(.)"/>
+        <admst:for-each select="definition/variable[(output='yes') and (name!=$theFunction/name)]">
+          <admst:variable name="thePosition" select="%(position(.))"/>
+          <admst:value-of select="$theFunction/arguments[position(.)=$thePosition]"/>
+          <admst:variable name="theGlobalArgPtr" select="%p"/>
+          <admst:fatal test="[$theFunction/arguments[position(.)=$thePosition]/datatypename != 'variable']"
+                       format="%($theFunction/name) output arg $p, %(.) must ve a variable\n"/>
+          <admst:for-each select="$theFunction/arguments">
+            <admst:variable name="theDummyArgNo" select="%(position(.)+1)"/>
+            <admst:if test="[datatypename != 'number']">
+              <admst:if test="[(name!=$theGlobalArgPtr/name) and ($theFunction/definition/variable[$theDummyArgNo]/input='yes')]">
+                <admst:choose>
+                  <admst:when test="[datatypename='variable']">
+                    <admst:push into="$theGlobalArgPtr/probe" select="probe" onduplicate="ignore"/>
+                    <admst:push into="$theGlobalArgPtr/variable" select="." onduplicate="ignore"/>
+                    <admst:push into="$theGlobalArgPtr/variable" select="variable" onduplicate="ignore"/>
+                  </admst:when>
+
+                  <admst:when test="[datatypename='number']"/>  <!-- nothing -->
+
+                  <admst:otherwise>
+                    <admst:apply-templates select="." match="recursiveGetDep"/>
+                  </admst:otherwise>
+                </admst:choose>
+                <admst:variable name="thePosition"/>
+              </admst:if>
+            </admst:if>
+          </admst:for-each>
+          <admst:variable name="theGlobalArgPtr"/>
+        </admst:for-each>
+        <admst:variable name="theFunction"/>
+      </admst:if>
+    </admst:when>
+  </admst:choose>
+</admst:template>
+
+<!--
+ =================================================================-
+ recursiveGetDep
+
+ called only by fixAFOutputVarDependencies
+
+ Given a node, recursively find any probe and variable dependencies,
+ and push them into $theGlobalArgPtr's probe and variable lists.
+
+ This is not right if there are nested analog function calls (i.e.
+ analog function calls in the argument list of analog function calls).
+
+ Have a lot more to do to fix THAT.  Let's pray nobody does it.
+-->
+<admst:template match="recursiveGetDep">
+
+  <admst:choose>
+    <admst:when test="[datatypename='mapply_unary']">
+      <admst:apply-templates select="arg1" match="recursiveGetDep"/>
+    </admst:when>
+    <admst:when test="[datatypename='mapply_binary']">
+      <admst:apply-templates select="arg1|arg2" match="recursiveGetDep"/>
+    </admst:when>
+    <admst:when test="[datatypename='mapply_ternary']">
+      <admst:apply-templates select="arg1|arg2|arg3" match="recursiveGetDep"/>
+    </admst:when>
+    <admst:when test="[datatypename='function']">
+      <admst:apply-templates select="arguments" match="recursiveGetDep"/>
+    </admst:when>
+    <admst:when test="[datatypename='variable']">
+      <admst:push into="$theGlobalArgPtr/probe" select="probe" onduplicate="ignore"/>
+      <admst:push into="$theGlobalArgPtr/variable" select="." onduplicate="ignore"/>
+      <admst:push into="$theGlobalArgPtr/variable" select="variable" onduplicate="ignore"/>
+    </admst:when>
+  </admst:choose>
+</admst:template>
 
 <!--
  =================================================================-
