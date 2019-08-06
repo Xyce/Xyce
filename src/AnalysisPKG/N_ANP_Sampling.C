@@ -982,6 +982,11 @@ void Sampling::completeEnsembleOutputs()
 {
   if (outputsGiven_)
   {
+#if Xyce_STOKHOS_ENABLE
+    // the seed is needed for resampling a PCE approximation
+    long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+#endif
+
     Parallel::Machine comm = analysisManager_.getComm();
     if (Parallel::rank(comm) == 0)
     {
@@ -1054,13 +1059,12 @@ void Sampling::completeEnsembleOutputs()
             pceVec.push_back(regressionPCE);
           }
         } // for loop over outFuncDataVec_
-      
+     
         if (resamplePCE_)
         {
           std::vector < std::vector<double> > fvec (outFuncDataVec_.size());
           std::vector <UQ::statisticalMoments> statVec (outFuncDataVec_.size());
 
-          long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
           UQ::sampleApproximationPCE(theSeed, sampleType_, samplingVector_, covMatrix_, meanVec_, numResamples_, numParams, pceVec, fvec, statVec);
 
           for (int iout=0;iout<outFuncDataVec_.size();++iout)
@@ -1114,7 +1118,6 @@ void Sampling::completeEnsembleOutputs()
           std::vector < std::vector<double> > fvec (outFuncDataVec_.size());
           std::vector <UQ::statisticalMoments> statVec (outFuncDataVec_.size());
 
-          long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
           const int numParams = paramNameVec_.size();
           UQ::sampleApproximationPCE(theSeed, sampleType_, samplingVector_, covMatrix_, meanVec_, numResamples_, numParams, pceVec, fvec, statVec);
 
@@ -1127,9 +1130,7 @@ void Sampling::completeEnsembleOutputs()
             Xyce::lout() << std::endl;
           }
         }
-
       }
-
 #endif
     }
   }
