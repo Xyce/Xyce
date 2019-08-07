@@ -1880,34 +1880,41 @@ other variables does not get propagated into a variable's
            output variables, if there are any -->
       <admst:if test="[definition/datatypename='analogfunction']">
         <admst:variable name="theFunction" select="%(.)"/>
-        <admst:for-each select="definition/variable[(output='yes') and (name!=$theFunction/name)]">
-          <admst:variable name="thePosition" select="%(position(.))"/>
-          <admst:value-of select="$theFunction/arguments[position(.)=$thePosition]"/>
-          <admst:variable name="theGlobalArgPtr" select="%p"/>
-          <admst:fatal test="[$theFunction/arguments[position(.)=$thePosition]/datatypename != 'variable']"
-                       format="%($theFunction/name) output arg $p, %(.) must ve a variable\n"/>
-          <admst:for-each select="$theFunction/arguments">
-            <admst:variable name="theDummyArgNo" select="%(position(.)+1)"/>
-            <admst:if test="[datatypename != 'number']">
-              <admst:if test="[(name!=$theGlobalArgPtr/name) and ($theFunction/definition/variable[$theDummyArgNo]/input='yes')]">
-                <admst:choose>
-                  <admst:when test="[datatypename='variable']">
-                    <admst:push into="$theGlobalArgPtr/probe" select="probe" onduplicate="ignore"/>
-                    <admst:push into="$theGlobalArgPtr/variable" select="." onduplicate="ignore"/>
-                    <admst:push into="$theGlobalArgPtr/variable" select="variable" onduplicate="ignore"/>
-                  </admst:when>
+        <admst:for-each select="definition/variable">
+          <admst:if test="[(output='yes') and (name!=$theFunction/name)]">
+            <admst:variable name="thePosition" select="%(position(.)-1)"/>
+            <admst:value-of select="$theFunction/arguments[position(.)=$thePosition]"/>
+            <admst:variable name="theGlobalArgPtr" select="%p"/>
+            <admst:fatal test="[$theGlobalArgPtr/datatypename != 'variable']" format="%($theFunction/name) output arg %($thePosition), %(.) must be a variable, and it is of type %($theGlobalArgPtr/datatypename)\n"/>
 
-                  <admst:when test="[datatypename='number']"/>  <!-- nothing -->
+            <!-- <admst:message format="propagating dependencies into real arg %($thePosition) of function %($theFunction/name), dummy arg is %($theFunction/definition/variable[$thePosition+1]/name)\n"/> -->
 
-                  <admst:otherwise>
-                    <admst:apply-templates select="." match="recursiveGetDep"/>
-                  </admst:otherwise>
-                </admst:choose>
-                <admst:variable name="thePosition"/>
+            <admst:for-each select="$theFunction/arguments">
+              <admst:variable name="theDummyArgNo" select="%(position(.)+1)"/>
+              <admst:if test="[datatypename != 'number']">
+                <admst:if test="[(name!=$theGlobalArgPtr/name) and ($theFunction/definition/variable[$theDummyArgNo]/input='yes')]">
+
+                  <!-- <admst:message format="  found an input var, actual argument %(position(.)) is %(.), dummy arg name is %($theFunction/definition/variable[$theDummyArgNo]/name)\n"/> -->
+
+                  <admst:choose>
+                    <admst:when test="[datatypename='variable']">
+                      <admst:push into="$theGlobalArgPtr/probe" select="probe" onduplicate="ignore"/>
+                      <admst:push into="$theGlobalArgPtr/variable" select="." onduplicate="ignore"/>
+                      <admst:push into="$theGlobalArgPtr/variable" select="variable" onduplicate="ignore"/>
+                    </admst:when>
+
+                    <admst:when test="[datatypename='number']"/>  <!-- nothing -->
+
+                    <admst:otherwise>
+                      <admst:apply-templates select="." match="recursiveGetDep"/>
+                    </admst:otherwise>
+                  </admst:choose>
+                  <admst:variable name="thePosition"/>
+                </admst:if>
               </admst:if>
-            </admst:if>
-          </admst:for-each>
-          <admst:variable name="theGlobalArgPtr"/>
+            </admst:for-each>
+            <admst:variable name="theGlobalArgPtr"/>
+          </admst:if>
         </admst:for-each>
         <admst:variable name="theFunction"/>
       </admst:if>
