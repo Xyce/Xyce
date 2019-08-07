@@ -71,16 +71,50 @@ class Base
 
     virtual void prepareOutputVariables() = 0;
     virtual void reset() {initialized_ = false;}
-    virtual void updateTran(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec, const Linear::Vector * stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector) {}
-    virtual void updateDC(Parallel::Machine comm, const std::vector<Analysis::SweepParam> & dcParamsVec, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector ) {}
-    virtual void updateAC(Parallel::Machine comm, const double frequency, const Linear::Vector *solnVec, const Linear::Vector *imaginaryVec) {}
+
+    virtual void updateTran(
+              Parallel::Machine comm,
+              const double circuitTime,
+              const Linear::Vector *solnVec,
+              const Linear::Vector *stateVec,
+              const Linear::Vector *storeVec,
+              const Linear::Vector *lead_current_vector,
+              const Linear::Vector *junction_voltage_vector,
+              const Linear::Vector *lead_current_dqdt_vector) {}
+
+    virtual void updateDC(
+              Parallel::Machine comm,
+              const std::vector<Analysis::SweepParam> & dcParamsVec,
+              const Linear::Vector *solnVec,
+              const Linear::Vector *stateVec,
+              const Linear::Vector *storeVec,
+              const Linear::Vector *lead_current_vector,
+              const Linear::Vector *junction_voltage_vector,
+              const Linear::Vector *lead_current_dqdt_vector) {}
+
+    virtual void updateAC(
+              Parallel::Machine comm,
+              const double frequency,
+              const Linear::Vector *solnVec,
+              const Linear::Vector *imaginaryVec,
+              const Util::Op::RFparamsData *RFparams) {}
 
 protected:
   // used by individual measure classes to update the output variables 
   // on which they depend 
-    void updateOutputVars(Parallel::Machine comm, std::vector<double> & outputVarVec, const double circuitTime,
-                          const Linear::Vector *solnVec, const Linear::Vector * stateVec, const Linear::Vector *storeVec, const Linear::Vector *imaginaryVec,
-                          const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector );
+    void updateOutputVars(
+      Parallel::Machine comm,
+      std::vector<double> & outputVarVec,
+      const double circuitTime,
+      const Linear::Vector *solnVec,
+      const Linear::Vector *stateVec,
+      const Linear::Vector *storeVec,
+      const Linear::Vector *imaginaryVec,
+      const Linear::Vector *lead_current_vector,
+      const Linear::Vector *junction_voltage_vector,
+      const Linear::Vector *lead_current_dqdt_vector,
+      const Util::Op::RFparamsData *RFparams);
+
     void resetBase();
 
 public:
@@ -103,7 +137,17 @@ public:
     bool withinMinMaxThresh( double value);
 
     // used to call the output manager's getPrgetImmutableValue<int>()
-    double getOutputValue(Parallel::Machine comm, Util::Op::Operator *op, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *imaginaryVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector );
+    double getOutputValue(
+      Parallel::Machine comm,
+      Util::Op::Operator *op,
+      const Linear::Vector *solnVec,
+      const Linear::Vector *stateVec,
+      const Linear::Vector *storeVec,
+      const Linear::Vector *imaginaryVec,
+      const Linear::Vector *lead_current_vector,
+      const Linear::Vector *junction_voltage_vector,
+      const Linear::Vector *lead_current_dqdt_vector,
+      const Util::Op::RFparamsData *RFparams);
 
     // used to get the measurement result
     virtual double getMeasureResult() {

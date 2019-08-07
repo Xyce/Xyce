@@ -141,7 +141,7 @@ public:
   // be updated when/if lead currents are supported for AC analyses.
   void updateMeasures(Linear::Vector& varValuesVec)
   {
-    measure_manager.updateACMeasures(pds_comm.comm(), frequency, &varValuesVec, 0);
+    measure_manager.updateACMeasures(pds_comm.comm(), frequency, &varValuesVec, 0, 0);
   }
 
 private:

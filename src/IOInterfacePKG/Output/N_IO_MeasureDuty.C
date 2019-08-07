@@ -105,7 +105,15 @@ void Duty::reset()
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void Duty::updateTran(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void Duty::updateTran(
+  Parallel::Machine comm,
+  const double circuitTime,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {
   if( !calculationDone_ && withinTimeWindow( circuitTime ) )
   {
@@ -113,7 +121,9 @@ void Duty::updateTran(Parallel::Machine comm, const double circuitTime, const Li
     // the value of this measure
 
     // update our outVarValues_ vector
-    updateOutputVars(comm, outVarValues_, circuitTime, solnVec, stateVec, storeVec, 0, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector );
+    updateOutputVars(comm, outVarValues_, circuitTime,
+      solnVec, stateVec, storeVec, 0, lead_current_vector,
+      junction_voltage_vector, lead_current_dqdt_vector, 0);
 
     // Need to set lastOutputValue_ variable to the current signal value
     // at the first time-step within the measurement window. (That
@@ -180,11 +190,36 @@ void Duty::updateTran(Parallel::Machine comm, const double circuitTime, const Li
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void Duty::updateDC(Parallel::Machine comm, const std::vector<Analysis::SweepParam> & dcParamsVec, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void Duty::updateDC(
+  Parallel::Machine comm,
+  const std::vector<Analysis::SweepParam> & dcParamsVec,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {
 
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Duty::updateAC()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical Models & Simulation
+// Creation Date : 8/7/2019
+//-----------------------------------------------------------------------------
+void Duty::updateAC(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const Util::Op::RFparamsData *RFparams)
+{
+
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Duty::getMeasureResult()

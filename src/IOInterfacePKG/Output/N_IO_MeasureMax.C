@@ -103,7 +103,15 @@ void Max::reset()
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void Max::updateTran(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void Max::updateTran(
+  Parallel::Machine comm,
+  const double circuitTime,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {
   if( !calculationDone_ && withinTimeWindow( circuitTime ) )
   {
@@ -112,7 +120,9 @@ void Max::updateTran(Parallel::Machine comm, const double circuitTime, const Lin
     double tempResult = 0.0;
 
     // update our outVarValues_ vector
-    updateOutputVars(comm, outVarValues_, circuitTime, solnVec, stateVec, storeVec, 0, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector );
+    updateOutputVars(comm, outVarValues_, circuitTime,
+      solnVec, stateVec, storeVec, 0, lead_current_vector,
+      junction_voltage_vector, lead_current_dqdt_vector, 0);
 
     // Need to set lastOutputValue_ variable to the current signal value
     // at the first time-step within the measurement window  (That
@@ -166,7 +176,15 @@ void Max::updateTran(Parallel::Machine comm, const double circuitTime, const Lin
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 4/9/2017
 //-----------------------------------------------------------------------------
-void Max::updateDC(Parallel::Machine comm, const std::vector<Analysis::SweepParam> & dcParamsVec, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void Max::updateDC(
+  Parallel::Machine comm,
+  const std::vector<Analysis::SweepParam> & dcParamsVec,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {
  // The dcParamsVec will be empty if the netlist has a .OP statement without a .DC statement.
  // In that case, a DC MEASURE will be reported as FAILED.
@@ -186,8 +204,11 @@ void Max::updateDC(Parallel::Machine comm, const std::vector<Analysis::SweepPara
    
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
-      outVarValues_[0] = getOutputValue(comm, outputVars_[0], solnVec, stateVec, storeVec, 0, lead_current_vector, 
-                                      junction_voltage_vector, lead_current_dqdt_vector );
+      outVarValues_[0] = getOutputValue(comm, outputVars_[0],
+                                        solnVec, stateVec, storeVec, 0,
+                                        lead_current_vector,
+                                        junction_voltage_vector,
+                                        lead_current_dqdt_vector, 0);
 
       // Used in descriptive output to stdout. These are the first/last values 
       // within the measurement window.
@@ -221,7 +242,12 @@ void Max::updateDC(Parallel::Machine comm, const std::vector<Analysis::SweepPara
 // Creator       : Pete Sholander, Electrical Models & Simulation
 // Creation Date : 1/29/2019
 //-----------------------------------------------------------------------------
-void Max::updateAC(Parallel::Machine comm, const double frequency, const Linear::Vector * solnVec, const Linear::Vector *imaginaryVec)
+void Max::updateAC(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const Util::Op::RFparamsData *RFparams)
 {
   // Used in descriptive output to stdout. Store first/last frequency values
   if (!firstSweepValueFound_)     
@@ -234,7 +260,8 @@ void Max::updateAC(Parallel::Machine comm, const double frequency, const Linear:
   if( !calculationDone_ && withinFreqWindow( frequency ) )
   {
     // update our outVarValues_ vector 
-    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0, imaginaryVec, 0, 0, 0 );
+    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                     imaginaryVec, 0, 0, 0, RFparams);
 
     // Used in descriptive output to stdout. These are the first/last values 
     // within the measurement window.

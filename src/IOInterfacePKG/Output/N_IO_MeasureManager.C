@@ -382,7 +382,15 @@ void Manager::setMeasureOutputFileSuffix(const Analysis::Mode analysisMode)
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-----------------------------------------------------------------------------
-void Manager::updateTranMeasures(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void Manager::updateTranMeasures(
+  Parallel::Machine comm,
+  const double circuitTime,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {
   // loop over active masure objects and get them to update themselves.
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it) 
@@ -403,7 +411,15 @@ void Manager::updateTranMeasures(Parallel::Machine comm, const double circuitTim
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-----------------------------------------------------------------------------
-void Manager::updateDCMeasures(Parallel::Machine comm, const std::vector<Analysis::SweepParam> & dcParamsVec, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void Manager::updateDCMeasures(
+  Parallel::Machine comm,
+  const std::vector<Analysis::SweepParam> & dcParamsVec,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it) 
   {
@@ -422,11 +438,16 @@ void Manager::updateDCMeasures(Parallel::Machine comm, const std::vector<Analysi
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 01/21/2014
 //-----------------------------------------------------------------------------
-void Manager::updateACMeasures(Parallel::Machine comm, const double frequency, const Linear::Vector *real_solution_vector, const Linear::Vector *imaginary_solution_vector)
+void Manager::updateACMeasures(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *real_solution_vector,
+  const Linear::Vector *imaginary_solution_vector,
+  const Util::Op::RFparamsData *RFparams)
 {
   for (MeasurementVector::iterator it = activeMeasuresList_.begin(); it != activeMeasuresList_.end(); ++it) 
   {
-    (*it)->updateAC(comm, frequency, real_solution_vector, imaginary_solution_vector);
+    (*it)->updateAC(comm, frequency, real_solution_vector, imaginary_solution_vector, RFparams);
   }
   activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fun(&Measure::Base::finishedCalculation)),
                             activeMeasuresList_.end()); }
@@ -574,10 +595,16 @@ const Base *Manager::find(const std::string &name) const
 // Creator       : Rich Schiek
 // Creation Date : 4/8/13
 //-----------------------------------------------------------------------------
-void Manager::remeasure(N_PDS_Comm &pds_comm, const std::string &netlist_filename, const std::string &remeasure_path, 
-                        const char& analysisName, Util::Op::BuilderManager &op_builder_manager, OutputMgr &output_manager, 
-			Analysis::AnalysisManager &analysis_manager, Analysis::AnalysisCreatorRegistry &analysis_registry,
-                        Util::SymbolTable &symbol_table)
+void Manager::remeasure(
+  N_PDS_Comm &pds_comm,
+  const std::string &netlist_filename,
+  const std::string &remeasure_path,
+  const char& analysisName,
+  Util::Op::BuilderManager &op_builder_manager,
+  OutputMgr &output_manager,
+  Analysis::AnalysisManager &analysis_manager,
+  Analysis::AnalysisCreatorRegistry &analysis_registry,
+  Util::SymbolTable &symbol_table)
 {
   // check that remeasure is supported for the specified analysis mode.  Note that
   // the analysis mode might be 'O' if .OP was specified and it comes before the
@@ -1593,8 +1620,9 @@ extractMEASUREData(
         // The second part of this if clause is to ensure we don't catch keywords that start
         // with I, V, N, P or W, and mistake them for Ixxx( ) or Vxxx().  Also need to not
         // mistake PAR for P().
-        if( (nextWord[0] == 'I' || nextWord[0] == 'V' || nextWord[0] == 'N' 
-             || nextWord[0] == 'P' ||  nextWord[0] == 'W') && nextWord != "PAR" &&
+        if( (nextWord[0] == 'I' || nextWord[0] == 'V' || nextWord[0] == 'N'
+             || nextWord[0] == 'P' ||  nextWord[0] == 'W' || nextWord[0] == 'S' ||
+             nextWord[0] == 'Y' || nextWord[0] == 'Z') && nextWord != "PAR" &&
             (simpleKeywords.find( nextWord ) == simpleKeywords.end() ) )
         {
           // need to do a bit of look ahead here to see if this is a V(a) or V(a,b)

@@ -413,7 +413,7 @@ void OutputMgrAdapter::outputAC (
   const Linear::Vector &  solnVecImaginaryPtr,
   const Util::Op::RFparamsData & RFparams)
 {
-  measureManager_.updateACMeasures(comm_, frequency, &solnVecRealPtr, &solnVecImaginaryPtr);
+  measureManager_.updateACMeasures(comm_, frequency, &solnVecRealPtr, &solnVecImaginaryPtr, &RFparams);
   
   outputManager_.outputAC(comm_, frequency, fStart, fStop, solnVecRealPtr, solnVecImaginaryPtr, RFparams);
 

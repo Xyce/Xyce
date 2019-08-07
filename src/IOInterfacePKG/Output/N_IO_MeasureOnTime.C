@@ -108,7 +108,15 @@ void OnTime::reset()
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void OnTime::updateTran(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void OnTime::updateTran(
+  Parallel::Machine comm,
+  const double circuitTime,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {
   if( !calculationDone_ && withinTimeWindow( circuitTime ) )
   {
@@ -116,7 +124,9 @@ void OnTime::updateTran(Parallel::Machine comm, const double circuitTime, const 
     // measure and see if it triggers any specified rise, fall, cross windowing.
 
     // update our outVarValues_ vector
-     updateOutputVars(comm, outVarValues_, circuitTime, solnVec, stateVec, storeVec, 0, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector );
+     updateOutputVars(comm, outVarValues_, circuitTime,
+       solnVec, stateVec, storeVec, 0, lead_current_vector,
+       junction_voltage_vector, lead_current_dqdt_vector, 0);
     
       if( initialized_  )
       {
@@ -148,7 +158,33 @@ void OnTime::updateTran(Parallel::Machine comm, const double circuitTime, const 
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void OnTime::updateDC(Parallel::Machine comm, const std::vector<Analysis::SweepParam> & dcParamsVec, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void OnTime::updateDC(
+  Parallel::Machine comm,
+  const std::vector<Analysis::SweepParam> & dcParamsVec,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
+{
+
+}
+
+//-----------------------------------------------------------------------------
+// Function      : OnTime::updateAC()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical Models & Simulation
+// Creation Date : 8/7/2019
+//-----------------------------------------------------------------------------
+void OnTime::updateAC(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const Util::Op::RFparamsData *RFparams)
 {
 
 }
