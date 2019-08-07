@@ -828,7 +828,7 @@
         <table border="1">
           <tbody>
             <tr><th colspan="5">Contributions(%(count(/module/contribution)))</th></tr>
-            <tr><th>Contribution</th><th>rhs static.dynamic</th><th>white/flicker</th><th>probe dependence</th><th>nature</th><th>lhs/branch</th></tr>
+            <tr><th>Contribution</th><th>rhs static.dynamic</th><th>white/flicker</th><th>probe dependence</th><th>nature</th><th>lhs/branch</th><th>variable dependence</th></tr>
             <admst:for-each select="/module/contribution">
               <tr>
                 <td>
@@ -853,6 +853,14 @@
                 </td>
                 <td>
                   %(lhs/branch) (pnode=%(lhs/branch/pnode), nnode=%(lhs/branch/nnode)
+                </td>
+                <td>
+                  <admst:if test="[count(rhs/variable)=0]">
+                    <admst:text format=" NONE "/>
+                  </admst:if>
+                  <admst:join select="rhs/variable/name" separator=", ">
+                    <admst:text format="%(.)"/>
+                  </admst:join>
                 </td>
               </tr>
             </admst:for-each>
