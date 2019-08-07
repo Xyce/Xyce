@@ -671,90 +671,94 @@ analog begin
 
         // This appears on the LHS of the analog function line, so it is already noted as probe dependent.
         // The others below should have the same probe dependence.
-        // idsfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(s,fp4)+V(gi,fp4)+V(fp4,fp3)+Temp(dt)+type;
-        qgsfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(s,fp4)+V(gi,fp4)+V(fp4,fp3)+Temp(dt)+type;
-        qgdfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(s,fp4)+V(gi,fp4)+V(fp4,fp3)+Temp(dt)+type;
-        qcfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(s,fp4)+V(gi,fp4)+V(fp4,fp3)+Temp(dt)+type;
-        qbfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(s,fp4)+V(gi,fp4)+V(fp4,fp3)+Temp(dt)+type;
-        qsfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(s,fp4)+V(gi,fp4)+V(fp4,fp3)+Temp(dt)+type;
-        vtdiblfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(s,fp4)+V(gi,fp4)+V(fp4,fp3)+Temp(dt)+type;
-        vdsatfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(s,fp4)+V(gi,fp4)+V(fp4,fp3)+Temp(dt)+type;
+        // idsfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(fp4,fp3)+Temp(dt)+type;
+        qgsfp4   =V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(fp4,fp3)+Temp(dt)+type;
+        qgdfp4   =V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(fp4,fp3)+Temp(dt)+type;
+        qcfp4    =V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(fp4,fp3)+Temp(dt)+type;
+        qbfp4    =V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(fp4,fp3)+Temp(dt)+type;
+        qsfp4    =V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(fp4,fp3)+Temp(dt)+type;
+        vtdiblfp4=V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(fp4,fp3)+Temp(dt)+type;
+        vdsatfp4 =V(gi,fp3)+V(s,fp3)+V(b,fp3)+V(fp4,fp3)+Temp(dt)+type;
 
         // This appears on the LHS of the analog function line, so it is already noted as probe dependent.
         // The others below should have the same probe dependence.
-        // idsfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(s,fp3)+V(gi,fp3)+V(fp3,fp2)+Temp(dt)+type;
-        qgsfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(s,fp3)+V(gi,fp3)+V(fp3,fp2)+Temp(dt)+type;
-        qgdfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(s,fp3)+V(gi,fp3)+V(fp3,fp2)+Temp(dt)+type;
-        qcfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(s,fp3)+V(gi,fp3)+V(fp3,fp2)+Temp(dt)+type;
-        qbfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(s,fp3)+V(gi,fp3)+V(fp3,fp2)+Temp(dt)+type;
-        qsfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(s,fp3)+V(gi,fp3)+V(fp3,fp2)+Temp(dt)+type;
-        vtdiblfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(s,fp3)+V(gi,fp3)+V(fp3,fp2)+Temp(dt)+type;
-        vdsatfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(s,fp3)+V(gi,fp3)+V(fp3,fp2)+Temp(dt)+type;
+        // idsfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(fp3,fp2)+Temp(dt)+type;
+        qgsfp3    = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(fp3,fp2)+Temp(dt)+type;
+        qgdfp3    = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(fp3,fp2)+Temp(dt)+type;
+        qcfp3     = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(fp3,fp2)+Temp(dt)+type;
+        qbfp3     = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(fp3,fp2)+Temp(dt)+type;
+        qsfp3     = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(fp3,fp2)+Temp(dt)+type;
+        vtdiblfp3 = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(fp3,fp2)+Temp(dt)+type;
+        vdsatfp3  = V(gi,fp2)+V(s,fp2)+V(b,fp2)+V(fp3,fp2)+Temp(dt)+type;
 
         // This appears on the LHS of the analog function line, so it is already noted as probe dependent.
         // The others below should have the same probe dependence.
-        // idsfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(s,fp2)+V(gi,fp2)+V(fp2,fp1)+Temp(dt)+type;
-        qgsfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(s,fp2)+V(gi,fp2)+V(fp2,fp1)+Temp(dt)+type;
-        qgdfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(s,fp2)+V(gi,fp2)+V(fp2,fp1)+Temp(dt)+type;
-        qcfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(s,fp2)+V(gi,fp2)+V(fp2,fp1)+Temp(dt)+type;
-        qbfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(s,fp2)+V(gi,fp2)+V(fp2,fp1)+Temp(dt)+type;
-        qsfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(s,fp2)+V(gi,fp2)+V(fp2,fp1)+Temp(dt)+type;
-        vtdiblfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(s,fp2)+V(gi,fp2)+V(fp2,fp1)+Temp(dt)+type;
-        vdsatfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(s,fp2)+V(gi,fp2)+V(fp2,fp1)+Temp(dt)+type;
+        // idsfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(fp2,fp1)+Temp(dt)+type;
+        qgsfp2    = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(fp2,fp1)+Temp(dt)+type;
+        qgdfp2    = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(fp2,fp1)+Temp(dt)+type;
+        qcfp2     = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(fp2,fp1)+Temp(dt)+type;
+        qbfp2     = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(fp2,fp1)+Temp(dt)+type;
+        qsfp2     = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(fp2,fp1)+Temp(dt)+type;
+        vtdiblfp2 = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(fp2,fp1)+Temp(dt)+type;
+        vdsatfp2  = V(gi,fp1)+V(s,fp1)+V(b,fp1)+V(fp2,fp1)+Temp(dt)+type;
 
         // This appears on the LHS of the analog function line, so it is already noted as probe dependent.
         // The others below should have the same probe dependence.
-        // idsfp1=V(gi,di)+V(s,di)+V(b,di)+V(s,fp1)+V(gi,fp1)+V(fp1,di)+Temp(dt)+type;
-        qgsfp1=V(gi,di)+V(s,di)+V(b,di)+V(s,fp1)+V(gi,fp1)+V(fp1,di)+Temp(dt)+type;
-        qgdfp1=V(gi,di)+V(s,di)+V(b,di)+V(s,fp1)+V(gi,fp1)+V(fp1,di)+Temp(dt)+type;
-        qcfp1=V(gi,di)+V(s,di)+V(b,di)+V(s,fp1)+V(gi,fp1)+V(fp1,di)+Temp(dt)+type;
-        qbfp1=V(gi,di)+V(s,di)+V(b,di)+V(s,fp1)+V(gi,fp1)+V(fp1,di)+Temp(dt)+type;
-        qsfp1=V(gi,di)+V(s,di)+V(b,di)+V(s,fp1)+V(gi,fp1)+V(fp1,di)+Temp(dt)+type;
-        vtdiblfp1=V(gi,di)+V(s,di)+V(b,di)+V(s,fp1)+V(gi,fp1)+V(fp1,di)+Temp(dt)+type;
-        vdsatfp1=V(gi,di)+V(s,di)+V(b,di)+V(s,fp1)+V(gi,fp1)+V(fp1,di)+Temp(dt)+type;
+        // idsfp1=V(gi,di)+V(s,di)+V(b,di)+V(fp1,di)+Temp(dt)+type;
+        qgsfp1   =V(gi,di)+V(s,di)+V(b,di)+V(fp1,di)+Temp(dt)+type;
+        qgdfp1   =V(gi,di)+V(s,di)+V(b,di)+V(fp1,di)+Temp(dt)+type;
+        qcfp1    =V(gi,di)+V(s,di)+V(b,di)+V(fp1,di)+Temp(dt)+type;
+        qbfp1    =V(gi,di)+V(s,di)+V(b,di)+V(fp1,di)+Temp(dt)+type;
+        qsfp1    =V(gi,di)+V(s,di)+V(b,di)+V(fp1,di)+Temp(dt)+type;
+        vtdiblfp1=V(gi,di)+V(s,di)+V(b,di)+V(fp1,di)+Temp(dt)+type;
+        vdsatfp1 =V(gi,di)+V(s,di)+V(b,di)+V(fp1,di)+Temp(dt)+type;
 
         // This appears on the LHS of the analog function line, so it is already noted as probe dependent.
         // The others below should have the same probe dependence.
-        // idsrs=V(d,GND)+V(s,GND)+V(src,GND)+V(si,GND)+V(si,src)+Temp(dt)+type;
-        qgsrs=V(d,GND)+V(s,GND)+V(src,GND)+V(si,GND)+V(si,src)+Temp(dt)+type;
-        qgdrs=V(d,GND)+V(s,GND)+V(src,GND)+V(si,GND)+V(si,src)+Temp(dt)+type;
-        qcrs=V(d,GND)+V(s,GND)+V(src,GND)+V(si,GND)+V(si,src)+Temp(dt)+type;
-        qbrs=V(d,GND)+V(s,GND)+V(src,GND)+V(si,GND)+V(si,src)+Temp(dt)+type;
-        qsrs=V(d,GND)+V(s,GND)+V(src,GND)+V(si,GND)+V(si,src)+Temp(dt)+type;
-        vtdiblrs=V(d,GND)+V(s,GND)+V(src,GND)+V(si,GND)+V(si,src)+Temp(dt)+type;
-        vdsatrs=V(d,GND)+V(s,GND)+V(src,GND)+V(si,GND)+V(si,src)+Temp(dt)+type;
+        // idsrs  =V(src,d)+V(src,s)+V(si,src)+Temp(dt)+type;
+        qgsrs     =V(src,d)+V(src,s)+V(si,src)+Temp(dt)+type;
+        qgdrs     =V(src,d)+V(src,s)+V(si,src)+Temp(dt)+type;
+        qcrs      =V(src,d)+V(src,s)+V(si,src)+Temp(dt)+type;
+        qbrs      =V(src,d)+V(src,s)+V(si,src)+Temp(dt)+type;
+        qsrs      =V(src,d)+V(src,s)+V(si,src)+Temp(dt)+type;
+        vtdiblrs  =V(src,d)+V(src,s)+V(si,src)+Temp(dt)+type;
+        vdsatrs   =V(src,d)+V(src,s)+V(si,src)+Temp(dt)+type;
 
         // This appears on the LHS of the analog function line, so it is already noted as probe dependent.
         // The others below should have the same probe dependence.
-        //idsrd=V(d,GND)+V(s,GND)+V(fp4,GND)+V(drc,GND)+V(drc,fp4)+Temp(dt)+type;
-        qgsrd=V(d,GND)+V(s,GND)+V(fp4,GND)+V(drc,GND)+V(drc,fp4)+Temp(dt)+type;
-        qgdrd=V(d,GND)+V(s,GND)+V(fp4,GND)+V(drc,GND)+V(drc,fp4)+Temp(dt)+type;
-        qcrd=V(d,GND)+V(s,GND)+V(fp4,GND)+V(drc,GND)+V(drc,fp4)+Temp(dt)+type;
-        qbrd=V(d,GND)+V(s,GND)+V(fp4,GND)+V(drc,GND)+V(drc,fp4)+Temp(dt)+type;
-        qsrd=V(d,GND)+V(s,GND)+V(fp4,GND)+V(drc,GND)+V(drc,fp4)+Temp(dt)+type;
-        vtdiblrd=V(d,GND)+V(s,GND)+V(fp4,GND)+V(drc,GND)+V(drc,fp4)+Temp(dt)+type;
-        vdsatrd=V(d,GND)+V(s,GND)+V(fp4,GND)+V(drc,GND)+V(drc,fp4)+Temp(dt)+type;
+        //idsrd =V(tr,GND)+V(fp4,d)+V(fp4,s)+V(drc,fp4)+Temp(dt)+type;
+        qgsrd   =V(tr,GND)+V(fp4,d)+V(fp4,s)+V(drc,fp4)+Temp(dt)+type;
+        qgdrd   =V(tr,GND)+V(fp4,d)+V(fp4,s)+V(drc,fp4)+Temp(dt)+type;
+        qcrd    =V(tr,GND)+V(fp4,d)+V(fp4,s)+V(drc,fp4)+Temp(dt)+type;
+        qbrd    =V(tr,GND)+V(fp4,d)+V(fp4,s)+V(drc,fp4)+Temp(dt)+type;
+        qsrd    =V(tr,GND)+V(fp4,d)+V(fp4,s)+V(drc,fp4)+Temp(dt)+type;
+        vtdiblrd=V(tr,GND)+V(fp4,d)+V(fp4,s)+V(drc,fp4)+Temp(dt)+type;
+        vdsatrd =V(tr,GND)+V(fp4,d)+V(fp4,s)+V(drc,fp4)+Temp(dt)+type;
 
         // This appears on the LHS of the analog function line, so it is already noted as probe dependent.
         // The others below should have the same probe dependence.
-        // ids=V(gi,si)+V(gi,di)+V(di,si)+Temp(dt)+type;
-        qgs=V(gi,si)+V(gi,di)+V(di,si)+Temp(dt)+type;
-        qgd=V(gi,si)+V(gi,di)+V(di,si)+Temp(dt)+type;
-        qc=V(gi,si)+V(gi,di)+V(di,si)+Temp(dt)+type;
-        qb=V(gi,si)+V(gi,di)+V(di,si)+Temp(dt)+type;
-        qs=V(gi,si)+V(gi,di)+V(di,si)+Temp(dt)+type;
-        vtdibli=V(gi,si)+V(gi,di)+V(di,si)+Temp(dt)+type;
-        vdsat1i=V(gi,si)+V(gi,di)+V(di,si)+Temp(dt)+type;
+        // ids =V(gi,si)+V(di,si)+Temp(dt)+type;
+        qgs    =V(gi,si)+V(di,si)+Temp(dt)+type;
+        qgd    =V(gi,si)+V(di,si)+Temp(dt)+type;
+        qc     =V(gi,si)+V(di,si)+Temp(dt)+type;
+        qb     =V(gi,si)+V(di,si)+Temp(dt)+type;
+        qs     =V(gi,si)+V(di,si)+Temp(dt)+type;
+        vtdibli=V(gi,si)+V(di,si)+Temp(dt)+type;
+        vdsat1i=V(gi,si)+V(di,si)+Temp(dt)+type;
 
         // the following are all due to the use of multiple output variables
         // in the calc_ig.  In MVSG-HV 1.0.0, the only output variable was
         // just used as a duplicate of the LHS variable.  Now they have two
         // output variables, neither of which is used as a duplicate of the
         // LHS:
-        igssdio = V(gi,si)+V(di,si)+Temp(dt)+type;
-        igsrec = V(gi,si)+V(di,si)+Temp(dt)+type;
+        // Return args are:
+        // igsi = V(gi,si)+Temp(dt)+type
+        igssdio = V(gi,si)+Temp(dt)+type;
+        igsrec  = V(gi,si)+Temp(dt)+type;
+        // and
+        // igdi = V(gi,si)+V(di,si)+Temp(dt)+type;
         igdsdio = V(gi,si)+V(di,si)+Temp(dt)+type;
-        igdrec = V(gi,si)+V(di,si)+Temp(dt)+type;
+        igdrec  = V(gi,si)+V(di,si)+Temp(dt)+type;
      end
    end
 `endif //  `ifndef __MVSG_HV_ORIG__
