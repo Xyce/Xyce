@@ -594,15 +594,15 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "RESAMPLE")
     {
-      resamplePCE_ = true;
+      resamplePCE_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
     else if ((*it).uTag() == "OUTPUT_PCE_COEFFS")
     {
-      outputPCECoeffs_ = true;
+      outputPCECoeffs_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
     else if ((*it).uTag() == "SPARSE_GRID")
     {
-      useSparseGrid_ = true;
+      useSparseGrid_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
 #endif
     else if ((*it).uTag() == "STDOUTPUT")
@@ -1403,7 +1403,12 @@ void EmbeddedSampling::hackEnsembleOutput ()
             int NN=regressionPCE.size();
             for (int ii=0;ii<NN;ii++)
             {
-              std::string coefString = outFunc.outFuncString + "_coef_" + std::to_string(ii); 
+              const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
+              std::string coefString = outFunc.outFuncString + "_coef(";
+              for (int jj=0; jj< trm.size()-1; jj++)
+                coefString += std::to_string(trm[jj]) + ", ";
+              coefString += std::to_string(trm[trm.size()-1]) + ")";
+
               output_stream << "\t\" " << coefString << "\""<<std::endl;
             }
           }
@@ -1431,13 +1436,16 @@ void EmbeddedSampling::hackEnsembleOutput ()
             int NN=projectionPCE.size();
             for (int ii=0;ii<NN;ii++)
             {
-              std::string coefString = outFunc.outFuncString + "_coef_" + std::to_string(ii); 
+              const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
+              std::string coefString = outFunc.outFuncString + "_coef(";
+              for (int jj=0; jj< trm.size()-1; jj++)
+                coefString += std::to_string(trm[jj]) + ", ";
+              coefString += std::to_string(trm[trm.size()-1]) + ")";              
+              
               output_stream << "\t\" " << coefString << "\""<<std::endl;
             }
           }
         }
-
-
 #endif
         if (hackOutputAllSamples_)
         {
