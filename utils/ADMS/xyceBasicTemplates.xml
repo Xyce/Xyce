@@ -36,8 +36,7 @@
    =================================================================-
   -->
 
-<!-- declare a global var? -->
-<admst:variable name="theGlobalArgPtr"/>
+<!-- declare a global var used for collectAssignedVariables-->
 <admst:variable name="theGlobalAssignedVarsTarget"/>
   <!--
    =================================================================-
