@@ -250,17 +250,17 @@ void EmbeddedSamplingCSV::doOutputEmbeddedSampling(
         double pce_stddev = regressionPCE.standard_deviation();
         double pce_variance = pce_stddev*pce_stddev;
 
-        if ( isinf(pce_mean) || isnan(pce_mean) )
+        if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
         {
           pce_mean = 0.0;
         }
 
-        if ( isinf(pce_stddev) || isnan(pce_stddev) )
+        if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
         {
           pce_stddev = 0.0;
         }
 
-        if ( isinf(pce_variance) || isnan(pce_variance) )
+        if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
         {
           pce_variance = 0.0;
         }
@@ -285,17 +285,17 @@ void EmbeddedSamplingCSV::doOutputEmbeddedSampling(
         double pce_stddev = projectionPCE.standard_deviation();
         double pce_variance = pce_stddev*pce_stddev;
 
-        if ( isinf(pce_mean) || isnan(pce_mean) )
+        if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
         {
           pce_mean = 0.0;
         }
 
-        if ( isinf(pce_stddev) || isnan(pce_stddev) )
+        if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
         {
           pce_stddev = 0.0;
         }
 
-        if ( isinf(pce_variance) || isnan(pce_variance) )
+        if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
         {
           pce_variance = 0.0;
         }
