@@ -76,10 +76,6 @@
 
   <admst:variable name="numNodes" select="%(count(node[grounded='no']))"/>
 
-  <!-- account for hole in implicit dependency rules for analog function
-       output variables  -->
-  <admst:apply-templates select="/module/analog/code/item" match="fixAFOutputVarDependencies"/>
-
   <!-- check for correctness of collapse constructions -->
   <admst:variable name="collapseFailure" select="no"/>
   <admst:apply-templates   select="analog/code/item" match="recursiveFindContrib"/>

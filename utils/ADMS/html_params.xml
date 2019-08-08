@@ -53,8 +53,6 @@
   <admst:apply-templates select="/module" match="collectExtraUnknowns"/>
   <admst:apply-templates select="/module" match="markOutputVariables"/>
 
-  <admst:apply-templates select="/module/analog/code/item" match="fixAFOutputVarDependencies"/>
-
   <admst:open file="$classname.html">
     <html>
       <head><title>$classname</title></head>
