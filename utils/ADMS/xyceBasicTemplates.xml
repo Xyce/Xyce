@@ -36,6 +36,9 @@
    =================================================================-
   -->
 
+<!-- declare a global var? -->
+<admst:variable name="theGlobalArgPtr"/>
+<admst:variable name="theGlobalAssignedVarsTarget"/>
   <!--
    =================================================================-
    xyceNumberNodes
@@ -1697,6 +1700,14 @@ struct Traits: public DeviceTraits&lt;Model, Instance
     <!-- ASSIGNMENT -->
     <admst:when test="adms[datatypename='assignment']">
       <admst:push into="../@assignedVars" select="lhs" onduplicate="ignore"/>
+
+      <!-- now try to collect "assignments" that are just output vars
+           of analog function calls -->
+      <admst:value-of select=".."/>
+      <admst:variable name="theGlobalAssignedVarsTarget" select="%p"/>
+      <admst:apply-templates select="rhs" match="collectAssignedVariables"/>
+      <admst:variable name="theGlobalAssignedVarsTarget"/>
+
     </admst:when>
     <!-- BLOCK -->
     <admst:when test="adms[datatypename='block']">
@@ -1741,6 +1752,47 @@ struct Traits: public DeviceTraits&lt;Model, Instance
     <admst:when test="adms[datatypename='callfunction']"/>
     <admst:when test="adms[datatypename='nilled']"/>
     <admst:when test="adms[datatypename='blockvariable']"/>
+
+    <!-- All of these things can happen only if we are being called on the
+         RHS of an assignment, and we're probing only for analog function
+         calls that have output vars (and therefore "assign" to those vars)
+    -->
+    <admst:when test="adms[datatypename='expression']">
+      <admst:apply-templates select="tree" match="collectAssignedVariables"/>
+    </admst:when>
+    <admst:when test="adms[datatypename='expression']">
+      <admst:apply-templates select="tree" match="collectAssignedVariables"/>
+    </admst:when>
+    <admst:when test="adms[datatypename='mapply_unary']">
+      <admst:apply-templates select="arg1" match="collectAssignedVariables"/>
+    </admst:when>
+    <admst:when test="adms[datatypename='mapply_binary']">
+      <admst:apply-templates select="arg1|arg2" match="collectAssignedVariables"/>
+    </admst:when>
+    <admst:when test="adms[datatypename='mapply_ternary']">
+      <admst:apply-templates select="arg1|arg2|arg3" match="collectAssignedVariables"/>
+    </admst:when>
+
+    <!-- Now, the real place where new assigned vars might exist -->
+    <admst:when test="adms[datatypename='function']">
+      <admst:apply-templates select="arguments" match="collectAssignedVariables"/>
+      <!-- Now, if we're an analog function, do some real work on the
+           output variables, if there are any -->
+      <admst:if test="[definition/datatypename='analogfunction']">
+        <admst:variable name="theFunction" select="%(.)"/>
+        <admst:for-each select="definition/variable">
+          <admst:if test="[(output='yes') and (name!=$theFunction/name)]">
+            <admst:variable name="thePosition" select="%(position(.)-1)"/>
+            <!-- <admst:message format="Found an output var %($theFunction/arguments[position(.)=$thePosition]/name) to mark as assigned\n"/> -->
+            <admst:push into="$theGlobalAssignedVarsTarget/@assignedVars" select="$theFunction/arguments[position(.)=$thePosition]" onduplicate="ignore"/>
+          </admst:if>
+        </admst:for-each>
+      </admst:if>
+    </admst:when>
+
+    <!-- these do nothing -->
+    <admst:when test="adms[datatypename='variable' or datatypename='number' or datatypename='string' or datatypename='probe']"/>
+
     <admst:otherwise>
       <admst:fatal format="'datatypename=%(adms/datatypename)':collectAssignedVariables cannot process this type, should not be reached.\n"/>
     </admst:otherwise>

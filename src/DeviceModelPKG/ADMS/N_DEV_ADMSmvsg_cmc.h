@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 25 Jul 2019 18:47:20
+// Creation Date  : Thu, 08 Aug 2019 13:02:48
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSmvsg_cmc_h
@@ -54,7 +54,7 @@ namespace Device {
 namespace ADMSmvsg_cmc {
 
 // This typedef is for our automatic differentiation:
-typedef Sacado::Fad::SFad<double,47> AdmsFadType;
+typedef Sacado::Fad::SFad<double,41> AdmsFadType;
 typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
@@ -183,42 +183,36 @@ void evaluateModelEquations(
    const int admsProbeID_V_d_drc,
    const int admsProbeID_V_xt1_GND,
    const int admsProbeID_V_xt2_GND,
+   const int admsProbeID_V_s_fp4,
+   const int admsProbeID_V_gi_fp4,
+   const int admsProbeID_V_b_fp3,
+   const int admsProbeID_V_fp4_fp3,
+   const int admsProbeID_V_s_fp3,
+   const int admsProbeID_V_gi_fp3,
+   const int admsProbeID_V_b_fp2,
+   const int admsProbeID_V_fp3_fp2,
+   const int admsProbeID_V_s_fp2,
+   const int admsProbeID_V_gi_fp2,
+   const int admsProbeID_V_b_fp1,
+   const int admsProbeID_V_fp2_fp1,
+   const int admsProbeID_V_s_fp1,
+   const int admsProbeID_V_gi_fp1,
+   const int admsProbeID_V_b_di,
+   const int admsProbeID_V_fp1_di,
+   const int admsProbeID_V_s_di,
+   const int admsProbeID_V_gi_di,
+   const int admsProbeID_V_drc_fp4,
    const int admsProbeID_V_fp4_s,
    const int admsProbeID_V_fp4_d,
    const int admsProbeID_V_tr_GND,
    const int admsProbeID_V_tr1_tr,
    const int admsProbeID_V_d_g,
+   const int admsProbeID_V_si_src,
    const int admsProbeID_V_src_s,
    const int admsProbeID_V_src_d,
-   const int admsProbeID_V_di_si,
    const int admsProbeID_V_gi_si,
-   const int admsProbeID_V_drc_fp4,
-   const int admsProbeID_V_drc_GND,
-   const int admsProbeID_V_fp4_GND,
-   const int admsProbeID_V_si_src,
-   const int admsProbeID_V_si_GND,
-   const int admsProbeID_V_src_GND,
-   const int admsProbeID_V_s_GND,
-   const int admsProbeID_V_d_GND,
-   const int admsProbeID_V_fp1_di,
-   const int admsProbeID_V_b_di,
-   const int admsProbeID_V_s_di,
-   const int admsProbeID_V_gi_di,
-   const int admsProbeID_V_fp2_fp1,
-   const int admsProbeID_V_b_fp1,
-   const int admsProbeID_V_s_fp1,
-   const int admsProbeID_V_gi_fp1,
-   const int admsProbeID_V_fp3_fp2,
-   const int admsProbeID_V_b_fp2,
-   const int admsProbeID_V_s_fp2,
-   const int admsProbeID_V_gi_fp2,
+   const int admsProbeID_V_di_si,
    const int admsProbeID_Temp_dt_GND,
-   const int admsProbeID_V_fp4_fp3,
-   const int admsProbeID_V_gi_fp4,
-   const int admsProbeID_V_s_fp4,
-   const int admsProbeID_V_b_fp3,
-   const int admsProbeID_V_s_fp3,
-   const int admsProbeID_V_gi_fp3,
    // node constants
    const int admsNodeID_d,
    const int admsNodeID_g,
@@ -254,59 +248,6 @@ void evaluateModelEquations(
    AdmsSensFadType & instanceVar_rcs_w,
    AdmsSensFadType & instanceVar_rcd_w,
    AdmsSensFadType & instanceVar_rg,
-   AdmsSensFadType & instanceVar_vtdibli,
-   AdmsSensFadType & instanceVar_vdsat1i,
-   AdmsSensFadType & instanceVar_vtdiblrs,
-   AdmsSensFadType & instanceVar_vdsatrs,
-   AdmsSensFadType & instanceVar_vtdiblrd,
-   AdmsSensFadType & instanceVar_vdsatrd,
-   AdmsSensFadType & instanceVar_vtdiblfp1,
-   AdmsSensFadType & instanceVar_vdsatfp1,
-   AdmsSensFadType & instanceVar_vtdiblfp2,
-   AdmsSensFadType & instanceVar_vdsatfp2,
-   AdmsSensFadType & instanceVar_vtdiblfp3,
-   AdmsSensFadType & instanceVar_vdsatfp3,
-   AdmsSensFadType & instanceVar_vtdiblfp4,
-   AdmsSensFadType & instanceVar_vdsatfp4,
-   AdmsSensFadType & instanceVar_qgs,
-   AdmsSensFadType & instanceVar_qgd,
-   AdmsSensFadType & instanceVar_qc,
-   AdmsSensFadType & instanceVar_qb,
-   AdmsSensFadType & instanceVar_qs,
-   AdmsSensFadType & instanceVar_igssdio,
-   AdmsSensFadType & instanceVar_igdsdio,
-   AdmsSensFadType & instanceVar_igsrec,
-   AdmsSensFadType & instanceVar_igdrec,
-   AdmsSensFadType & instanceVar_qgsrs,
-   AdmsSensFadType & instanceVar_qgdrs,
-   AdmsSensFadType & instanceVar_qcrs,
-   AdmsSensFadType & instanceVar_qbrs,
-   AdmsSensFadType & instanceVar_qsrs,
-   AdmsSensFadType & instanceVar_qgsrd,
-   AdmsSensFadType & instanceVar_qgdrd,
-   AdmsSensFadType & instanceVar_qcrd,
-   AdmsSensFadType & instanceVar_qbrd,
-   AdmsSensFadType & instanceVar_qsrd,
-   AdmsSensFadType & instanceVar_qgsfp1,
-   AdmsSensFadType & instanceVar_qgdfp1,
-   AdmsSensFadType & instanceVar_qcfp1,
-   AdmsSensFadType & instanceVar_qbfp1,
-   AdmsSensFadType & instanceVar_qsfp1,
-   AdmsSensFadType & instanceVar_qgsfp2,
-   AdmsSensFadType & instanceVar_qgdfp2,
-   AdmsSensFadType & instanceVar_qcfp2,
-   AdmsSensFadType & instanceVar_qbfp2,
-   AdmsSensFadType & instanceVar_qsfp2,
-   AdmsSensFadType & instanceVar_qgsfp3,
-   AdmsSensFadType & instanceVar_qgdfp3,
-   AdmsSensFadType & instanceVar_qcfp3,
-   AdmsSensFadType & instanceVar_qbfp3,
-   AdmsSensFadType & instanceVar_qsfp3,
-   AdmsSensFadType & instanceVar_qgsfp4,
-   AdmsSensFadType & instanceVar_qgdfp4,
-   AdmsSensFadType & instanceVar_qcfp4,
-   AdmsSensFadType & instanceVar_qbfp4,
-   AdmsSensFadType & instanceVar_qsfp4,
    // model parameters
    // reals
    AdmsSensFadType & modelPar_version,
@@ -682,59 +623,6 @@ void evaluateInitialInstance(
    AdmsSensFadType & instanceVar_rcs_w,
    AdmsSensFadType & instanceVar_rcd_w,
    AdmsSensFadType & instanceVar_rg,
-   AdmsSensFadType & instanceVar_vtdibli,
-   AdmsSensFadType & instanceVar_vdsat1i,
-   AdmsSensFadType & instanceVar_vtdiblrs,
-   AdmsSensFadType & instanceVar_vdsatrs,
-   AdmsSensFadType & instanceVar_vtdiblrd,
-   AdmsSensFadType & instanceVar_vdsatrd,
-   AdmsSensFadType & instanceVar_vtdiblfp1,
-   AdmsSensFadType & instanceVar_vdsatfp1,
-   AdmsSensFadType & instanceVar_vtdiblfp2,
-   AdmsSensFadType & instanceVar_vdsatfp2,
-   AdmsSensFadType & instanceVar_vtdiblfp3,
-   AdmsSensFadType & instanceVar_vdsatfp3,
-   AdmsSensFadType & instanceVar_vtdiblfp4,
-   AdmsSensFadType & instanceVar_vdsatfp4,
-   AdmsSensFadType & instanceVar_qgs,
-   AdmsSensFadType & instanceVar_qgd,
-   AdmsSensFadType & instanceVar_qc,
-   AdmsSensFadType & instanceVar_qb,
-   AdmsSensFadType & instanceVar_qs,
-   AdmsSensFadType & instanceVar_igssdio,
-   AdmsSensFadType & instanceVar_igdsdio,
-   AdmsSensFadType & instanceVar_igsrec,
-   AdmsSensFadType & instanceVar_igdrec,
-   AdmsSensFadType & instanceVar_qgsrs,
-   AdmsSensFadType & instanceVar_qgdrs,
-   AdmsSensFadType & instanceVar_qcrs,
-   AdmsSensFadType & instanceVar_qbrs,
-   AdmsSensFadType & instanceVar_qsrs,
-   AdmsSensFadType & instanceVar_qgsrd,
-   AdmsSensFadType & instanceVar_qgdrd,
-   AdmsSensFadType & instanceVar_qcrd,
-   AdmsSensFadType & instanceVar_qbrd,
-   AdmsSensFadType & instanceVar_qsrd,
-   AdmsSensFadType & instanceVar_qgsfp1,
-   AdmsSensFadType & instanceVar_qgdfp1,
-   AdmsSensFadType & instanceVar_qcfp1,
-   AdmsSensFadType & instanceVar_qbfp1,
-   AdmsSensFadType & instanceVar_qsfp1,
-   AdmsSensFadType & instanceVar_qgsfp2,
-   AdmsSensFadType & instanceVar_qgdfp2,
-   AdmsSensFadType & instanceVar_qcfp2,
-   AdmsSensFadType & instanceVar_qbfp2,
-   AdmsSensFadType & instanceVar_qsfp2,
-   AdmsSensFadType & instanceVar_qgsfp3,
-   AdmsSensFadType & instanceVar_qgdfp3,
-   AdmsSensFadType & instanceVar_qcfp3,
-   AdmsSensFadType & instanceVar_qbfp3,
-   AdmsSensFadType & instanceVar_qsfp3,
-   AdmsSensFadType & instanceVar_qgsfp4,
-   AdmsSensFadType & instanceVar_qgdfp4,
-   AdmsSensFadType & instanceVar_qcfp4,
-   AdmsSensFadType & instanceVar_qbfp4,
-   AdmsSensFadType & instanceVar_qsfp4,
    // model parameters
    // reals
    AdmsSensFadType & modelPar_version,
@@ -1585,59 +1473,6 @@ private:
   double rcs_w;
   double rcd_w;
   double rg;
-  AdmsFadType vtdibli;
-  AdmsFadType vdsat1i;
-  AdmsFadType vtdiblrs;
-  AdmsFadType vdsatrs;
-  AdmsFadType vtdiblrd;
-  AdmsFadType vdsatrd;
-  AdmsFadType vtdiblfp1;
-  AdmsFadType vdsatfp1;
-  AdmsFadType vtdiblfp2;
-  AdmsFadType vdsatfp2;
-  AdmsFadType vtdiblfp3;
-  AdmsFadType vdsatfp3;
-  AdmsFadType vtdiblfp4;
-  AdmsFadType vdsatfp4;
-  AdmsFadType qgs;
-  AdmsFadType qgd;
-  AdmsFadType qc;
-  AdmsFadType qb;
-  AdmsFadType qs;
-  AdmsFadType igssdio;
-  AdmsFadType igdsdio;
-  AdmsFadType igsrec;
-  AdmsFadType igdrec;
-  AdmsFadType qgsrs;
-  AdmsFadType qgdrs;
-  AdmsFadType qcrs;
-  AdmsFadType qbrs;
-  AdmsFadType qsrs;
-  AdmsFadType qgsrd;
-  AdmsFadType qgdrd;
-  AdmsFadType qcrd;
-  AdmsFadType qbrd;
-  AdmsFadType qsrd;
-  AdmsFadType qgsfp1;
-  AdmsFadType qgdfp1;
-  AdmsFadType qcfp1;
-  AdmsFadType qbfp1;
-  AdmsFadType qsfp1;
-  AdmsFadType qgsfp2;
-  AdmsFadType qgdfp2;
-  AdmsFadType qcfp2;
-  AdmsFadType qbfp2;
-  AdmsFadType qsfp2;
-  AdmsFadType qgsfp3;
-  AdmsFadType qgdfp3;
-  AdmsFadType qcfp3;
-  AdmsFadType qbfp3;
-  AdmsFadType qsfp3;
-  AdmsFadType qgsfp4;
-  AdmsFadType qgdfp4;
-  AdmsFadType qcfp4;
-  AdmsFadType qbfp4;
-  AdmsFadType qsfp4;
   // end verilog Instance Variables=====
   // Nodal LID Variables
   int li_d;
@@ -1676,91 +1511,91 @@ private:
   double * f_tr_Equ_tr_Node_Ptr;
   double * f_fp4_Equ_dt_Node_Ptr;
   double * f_fp3_Equ_dt_Node_Ptr;
-  double * f_fp4_Equ_fp4_Node_Ptr;
+  double * f_fp4_Equ_b_Node_Ptr;
   double * f_fp4_Equ_fp3_Node_Ptr;
-  double * f_fp3_Equ_fp4_Node_Ptr;
+  double * f_fp3_Equ_b_Node_Ptr;
   double * f_fp3_Equ_fp3_Node_Ptr;
+  double * f_fp4_Equ_fp4_Node_Ptr;
+  double * f_fp3_Equ_fp4_Node_Ptr;
   double * f_fp4_Equ_gi_Node_Ptr;
   double * f_fp3_Equ_gi_Node_Ptr;
   double * f_fp4_Equ_s_Node_Ptr;
   double * f_fp3_Equ_s_Node_Ptr;
-  double * f_fp4_Equ_b_Node_Ptr;
-  double * f_fp3_Equ_b_Node_Ptr;
   double * f_gi_Equ_dt_Node_Ptr;
-  double * f_gi_Equ_fp4_Node_Ptr;
+  double * f_gi_Equ_b_Node_Ptr;
   double * f_gi_Equ_fp3_Node_Ptr;
+  double * f_gi_Equ_fp4_Node_Ptr;
   double * f_gi_Equ_gi_Node_Ptr;
   double * f_gi_Equ_s_Node_Ptr;
-  double * f_gi_Equ_b_Node_Ptr;
   double * f_s_Equ_dt_Node_Ptr;
-  double * f_s_Equ_fp4_Node_Ptr;
+  double * f_s_Equ_b_Node_Ptr;
   double * f_s_Equ_fp3_Node_Ptr;
+  double * f_s_Equ_fp4_Node_Ptr;
   double * f_s_Equ_gi_Node_Ptr;
   double * f_s_Equ_s_Node_Ptr;
-  double * f_s_Equ_b_Node_Ptr;
   double * f_gi_Equ_si_Node_Ptr;
   double * f_si_Equ_gi_Node_Ptr;
   double * f_si_Equ_si_Node_Ptr;
   double * f_si_Equ_dt_Node_Ptr;
-  double * f_si_Equ_fp4_Node_Ptr;
-  double * f_si_Equ_fp3_Node_Ptr;
-  double * f_si_Equ_s_Node_Ptr;
   double * f_si_Equ_b_Node_Ptr;
+  double * f_si_Equ_fp3_Node_Ptr;
+  double * f_si_Equ_fp4_Node_Ptr;
+  double * f_si_Equ_s_Node_Ptr;
   double * f_b_Equ_dt_Node_Ptr;
-  double * f_b_Equ_fp4_Node_Ptr;
+  double * f_b_Equ_b_Node_Ptr;
   double * f_b_Equ_fp3_Node_Ptr;
+  double * f_b_Equ_fp4_Node_Ptr;
   double * f_b_Equ_gi_Node_Ptr;
   double * f_b_Equ_s_Node_Ptr;
-  double * f_b_Equ_b_Node_Ptr;
   double * f_fp2_Equ_dt_Node_Ptr;
   double * f_fp3_Equ_fp2_Node_Ptr;
-  double * f_fp2_Equ_fp3_Node_Ptr;
+  double * f_fp2_Equ_b_Node_Ptr;
   double * f_fp2_Equ_fp2_Node_Ptr;
+  double * f_fp2_Equ_fp3_Node_Ptr;
   double * f_fp2_Equ_gi_Node_Ptr;
   double * f_fp2_Equ_s_Node_Ptr;
-  double * f_fp2_Equ_b_Node_Ptr;
   double * f_gi_Equ_fp2_Node_Ptr;
   double * f_s_Equ_fp2_Node_Ptr;
   double * f_si_Equ_fp2_Node_Ptr;
   double * f_b_Equ_fp2_Node_Ptr;
   double * f_fp1_Equ_dt_Node_Ptr;
   double * f_fp2_Equ_fp1_Node_Ptr;
-  double * f_fp1_Equ_fp2_Node_Ptr;
+  double * f_fp1_Equ_b_Node_Ptr;
   double * f_fp1_Equ_fp1_Node_Ptr;
+  double * f_fp1_Equ_fp2_Node_Ptr;
   double * f_fp1_Equ_gi_Node_Ptr;
   double * f_fp1_Equ_s_Node_Ptr;
-  double * f_fp1_Equ_b_Node_Ptr;
   double * f_gi_Equ_fp1_Node_Ptr;
   double * f_s_Equ_fp1_Node_Ptr;
   double * f_si_Equ_fp1_Node_Ptr;
   double * f_b_Equ_fp1_Node_Ptr;
   double * f_di_Equ_dt_Node_Ptr;
   double * f_fp1_Equ_di_Node_Ptr;
-  double * f_di_Equ_fp1_Node_Ptr;
+  double * f_di_Equ_b_Node_Ptr;
   double * f_di_Equ_di_Node_Ptr;
+  double * f_di_Equ_fp1_Node_Ptr;
   double * f_di_Equ_gi_Node_Ptr;
   double * f_di_Equ_s_Node_Ptr;
-  double * f_di_Equ_b_Node_Ptr;
   double * f_gi_Equ_di_Node_Ptr;
   double * f_s_Equ_di_Node_Ptr;
   double * f_si_Equ_di_Node_Ptr;
   double * f_b_Equ_di_Node_Ptr;
+  double * f_src_Equ_dt_Node_Ptr;
   double * f_si_Equ_src_Node_Ptr;
+  double * f_src_Equ_si_Node_Ptr;
   double * f_src_Equ_src_Node_Ptr;
   double * f_src_Equ_s_Node_Ptr;
   double * f_si_Equ_d_Node_Ptr;
   double * f_src_Equ_d_Node_Ptr;
-  double * f_src_Equ_dt_Node_Ptr;
-  double * f_src_Equ_si_Node_Ptr;
+  double * f_drc_Equ_drc_Node_Ptr;
   double * f_drc_Equ_fp4_Node_Ptr;
+  double * f_fp4_Equ_drc_Node_Ptr;
   double * f_drc_Equ_s_Node_Ptr;
   double * f_drc_Equ_d_Node_Ptr;
   double * f_fp4_Equ_d_Node_Ptr;
+  double * f_drc_Equ_dt_Node_Ptr;
   double * f_drc_Equ_tr_Node_Ptr;
   double * f_fp4_Equ_tr_Node_Ptr;
-  double * f_drc_Equ_dt_Node_Ptr;
-  double * f_drc_Equ_drc_Node_Ptr;
-  double * f_fp4_Equ_drc_Node_Ptr;
   double * f_di_Equ_si_Node_Ptr;
   double * f_xt1_Equ_xt2_Node_Ptr;
   double * f_xt1_Equ_dt_Node_Ptr;
@@ -1786,19 +1621,19 @@ private:
   double * f_d_Equ_b_Node_Ptr;
   double * f_b_Equ_d_Node_Ptr;
   double * f_dt_Equ_dt_Node_Ptr;
-  double * f_dt_Equ_fp4_Node_Ptr;
+  double * f_dt_Equ_b_Node_Ptr;
   double * f_dt_Equ_fp3_Node_Ptr;
+  double * f_dt_Equ_fp4_Node_Ptr;
   double * f_dt_Equ_gi_Node_Ptr;
   double * f_dt_Equ_s_Node_Ptr;
-  double * f_dt_Equ_b_Node_Ptr;
   double * f_dt_Equ_fp2_Node_Ptr;
   double * f_dt_Equ_fp1_Node_Ptr;
   double * f_dt_Equ_di_Node_Ptr;
+  double * f_dt_Equ_si_Node_Ptr;
   double * f_dt_Equ_src_Node_Ptr;
   double * f_dt_Equ_d_Node_Ptr;
-  double * f_dt_Equ_si_Node_Ptr;
-  double * f_dt_Equ_tr_Node_Ptr;
   double * f_dt_Equ_drc_Node_Ptr;
+  double * f_dt_Equ_tr_Node_Ptr;
   double * q_tr1_Equ_d_Node_Ptr;
   double * q_tr1_Equ_g_Node_Ptr;
   double * q_tr1_Equ_tr1_Node_Ptr;
@@ -1807,91 +1642,91 @@ private:
   double * q_tr_Equ_tr_Node_Ptr;
   double * q_fp4_Equ_dt_Node_Ptr;
   double * q_fp3_Equ_dt_Node_Ptr;
-  double * q_fp4_Equ_fp4_Node_Ptr;
+  double * q_fp4_Equ_b_Node_Ptr;
   double * q_fp4_Equ_fp3_Node_Ptr;
-  double * q_fp3_Equ_fp4_Node_Ptr;
+  double * q_fp3_Equ_b_Node_Ptr;
   double * q_fp3_Equ_fp3_Node_Ptr;
+  double * q_fp4_Equ_fp4_Node_Ptr;
+  double * q_fp3_Equ_fp4_Node_Ptr;
   double * q_fp4_Equ_gi_Node_Ptr;
   double * q_fp3_Equ_gi_Node_Ptr;
   double * q_fp4_Equ_s_Node_Ptr;
   double * q_fp3_Equ_s_Node_Ptr;
-  double * q_fp4_Equ_b_Node_Ptr;
-  double * q_fp3_Equ_b_Node_Ptr;
   double * q_gi_Equ_dt_Node_Ptr;
-  double * q_gi_Equ_fp4_Node_Ptr;
+  double * q_gi_Equ_b_Node_Ptr;
   double * q_gi_Equ_fp3_Node_Ptr;
+  double * q_gi_Equ_fp4_Node_Ptr;
   double * q_gi_Equ_gi_Node_Ptr;
   double * q_gi_Equ_s_Node_Ptr;
-  double * q_gi_Equ_b_Node_Ptr;
   double * q_s_Equ_dt_Node_Ptr;
-  double * q_s_Equ_fp4_Node_Ptr;
+  double * q_s_Equ_b_Node_Ptr;
   double * q_s_Equ_fp3_Node_Ptr;
+  double * q_s_Equ_fp4_Node_Ptr;
   double * q_s_Equ_gi_Node_Ptr;
   double * q_s_Equ_s_Node_Ptr;
-  double * q_s_Equ_b_Node_Ptr;
   double * q_gi_Equ_si_Node_Ptr;
   double * q_si_Equ_gi_Node_Ptr;
   double * q_si_Equ_si_Node_Ptr;
   double * q_si_Equ_dt_Node_Ptr;
-  double * q_si_Equ_fp4_Node_Ptr;
-  double * q_si_Equ_fp3_Node_Ptr;
-  double * q_si_Equ_s_Node_Ptr;
   double * q_si_Equ_b_Node_Ptr;
+  double * q_si_Equ_fp3_Node_Ptr;
+  double * q_si_Equ_fp4_Node_Ptr;
+  double * q_si_Equ_s_Node_Ptr;
   double * q_b_Equ_dt_Node_Ptr;
-  double * q_b_Equ_fp4_Node_Ptr;
+  double * q_b_Equ_b_Node_Ptr;
   double * q_b_Equ_fp3_Node_Ptr;
+  double * q_b_Equ_fp4_Node_Ptr;
   double * q_b_Equ_gi_Node_Ptr;
   double * q_b_Equ_s_Node_Ptr;
-  double * q_b_Equ_b_Node_Ptr;
   double * q_fp2_Equ_dt_Node_Ptr;
   double * q_fp3_Equ_fp2_Node_Ptr;
-  double * q_fp2_Equ_fp3_Node_Ptr;
+  double * q_fp2_Equ_b_Node_Ptr;
   double * q_fp2_Equ_fp2_Node_Ptr;
+  double * q_fp2_Equ_fp3_Node_Ptr;
   double * q_fp2_Equ_gi_Node_Ptr;
   double * q_fp2_Equ_s_Node_Ptr;
-  double * q_fp2_Equ_b_Node_Ptr;
   double * q_gi_Equ_fp2_Node_Ptr;
   double * q_s_Equ_fp2_Node_Ptr;
   double * q_si_Equ_fp2_Node_Ptr;
   double * q_b_Equ_fp2_Node_Ptr;
   double * q_fp1_Equ_dt_Node_Ptr;
   double * q_fp2_Equ_fp1_Node_Ptr;
-  double * q_fp1_Equ_fp2_Node_Ptr;
+  double * q_fp1_Equ_b_Node_Ptr;
   double * q_fp1_Equ_fp1_Node_Ptr;
+  double * q_fp1_Equ_fp2_Node_Ptr;
   double * q_fp1_Equ_gi_Node_Ptr;
   double * q_fp1_Equ_s_Node_Ptr;
-  double * q_fp1_Equ_b_Node_Ptr;
   double * q_gi_Equ_fp1_Node_Ptr;
   double * q_s_Equ_fp1_Node_Ptr;
   double * q_si_Equ_fp1_Node_Ptr;
   double * q_b_Equ_fp1_Node_Ptr;
   double * q_di_Equ_dt_Node_Ptr;
   double * q_fp1_Equ_di_Node_Ptr;
-  double * q_di_Equ_fp1_Node_Ptr;
+  double * q_di_Equ_b_Node_Ptr;
   double * q_di_Equ_di_Node_Ptr;
+  double * q_di_Equ_fp1_Node_Ptr;
   double * q_di_Equ_gi_Node_Ptr;
   double * q_di_Equ_s_Node_Ptr;
-  double * q_di_Equ_b_Node_Ptr;
   double * q_gi_Equ_di_Node_Ptr;
   double * q_s_Equ_di_Node_Ptr;
   double * q_si_Equ_di_Node_Ptr;
   double * q_b_Equ_di_Node_Ptr;
+  double * q_src_Equ_dt_Node_Ptr;
   double * q_si_Equ_src_Node_Ptr;
+  double * q_src_Equ_si_Node_Ptr;
   double * q_src_Equ_src_Node_Ptr;
   double * q_src_Equ_s_Node_Ptr;
   double * q_si_Equ_d_Node_Ptr;
   double * q_src_Equ_d_Node_Ptr;
-  double * q_src_Equ_dt_Node_Ptr;
-  double * q_src_Equ_si_Node_Ptr;
+  double * q_drc_Equ_drc_Node_Ptr;
   double * q_drc_Equ_fp4_Node_Ptr;
+  double * q_fp4_Equ_drc_Node_Ptr;
   double * q_drc_Equ_s_Node_Ptr;
   double * q_drc_Equ_d_Node_Ptr;
   double * q_fp4_Equ_d_Node_Ptr;
+  double * q_drc_Equ_dt_Node_Ptr;
   double * q_drc_Equ_tr_Node_Ptr;
   double * q_fp4_Equ_tr_Node_Ptr;
-  double * q_drc_Equ_dt_Node_Ptr;
-  double * q_drc_Equ_drc_Node_Ptr;
-  double * q_fp4_Equ_drc_Node_Ptr;
   double * q_di_Equ_si_Node_Ptr;
   double * q_xt1_Equ_xt2_Node_Ptr;
   double * q_xt1_Equ_dt_Node_Ptr;
@@ -1917,19 +1752,19 @@ private:
   double * q_d_Equ_b_Node_Ptr;
   double * q_b_Equ_d_Node_Ptr;
   double * q_dt_Equ_dt_Node_Ptr;
-  double * q_dt_Equ_fp4_Node_Ptr;
+  double * q_dt_Equ_b_Node_Ptr;
   double * q_dt_Equ_fp3_Node_Ptr;
+  double * q_dt_Equ_fp4_Node_Ptr;
   double * q_dt_Equ_gi_Node_Ptr;
   double * q_dt_Equ_s_Node_Ptr;
-  double * q_dt_Equ_b_Node_Ptr;
   double * q_dt_Equ_fp2_Node_Ptr;
   double * q_dt_Equ_fp1_Node_Ptr;
   double * q_dt_Equ_di_Node_Ptr;
+  double * q_dt_Equ_si_Node_Ptr;
   double * q_dt_Equ_src_Node_Ptr;
   double * q_dt_Equ_d_Node_Ptr;
-  double * q_dt_Equ_si_Node_Ptr;
-  double * q_dt_Equ_tr_Node_Ptr;
   double * q_dt_Equ_drc_Node_Ptr;
+  double * q_dt_Equ_tr_Node_Ptr;
   // Jacobian offsets
   int A_tr1_Equ_d_NodeOffset;
   int A_tr1_Equ_g_NodeOffset;
@@ -1939,91 +1774,91 @@ private:
   int A_tr_Equ_tr_NodeOffset;
   int A_fp4_Equ_dt_NodeOffset;
   int A_fp3_Equ_dt_NodeOffset;
-  int A_fp4_Equ_fp4_NodeOffset;
+  int A_fp4_Equ_b_NodeOffset;
   int A_fp4_Equ_fp3_NodeOffset;
-  int A_fp3_Equ_fp4_NodeOffset;
+  int A_fp3_Equ_b_NodeOffset;
   int A_fp3_Equ_fp3_NodeOffset;
+  int A_fp4_Equ_fp4_NodeOffset;
+  int A_fp3_Equ_fp4_NodeOffset;
   int A_fp4_Equ_gi_NodeOffset;
   int A_fp3_Equ_gi_NodeOffset;
   int A_fp4_Equ_s_NodeOffset;
   int A_fp3_Equ_s_NodeOffset;
-  int A_fp4_Equ_b_NodeOffset;
-  int A_fp3_Equ_b_NodeOffset;
   int A_gi_Equ_dt_NodeOffset;
-  int A_gi_Equ_fp4_NodeOffset;
+  int A_gi_Equ_b_NodeOffset;
   int A_gi_Equ_fp3_NodeOffset;
+  int A_gi_Equ_fp4_NodeOffset;
   int A_gi_Equ_gi_NodeOffset;
   int A_gi_Equ_s_NodeOffset;
-  int A_gi_Equ_b_NodeOffset;
   int A_s_Equ_dt_NodeOffset;
-  int A_s_Equ_fp4_NodeOffset;
+  int A_s_Equ_b_NodeOffset;
   int A_s_Equ_fp3_NodeOffset;
+  int A_s_Equ_fp4_NodeOffset;
   int A_s_Equ_gi_NodeOffset;
   int A_s_Equ_s_NodeOffset;
-  int A_s_Equ_b_NodeOffset;
   int A_gi_Equ_si_NodeOffset;
   int A_si_Equ_gi_NodeOffset;
   int A_si_Equ_si_NodeOffset;
   int A_si_Equ_dt_NodeOffset;
-  int A_si_Equ_fp4_NodeOffset;
-  int A_si_Equ_fp3_NodeOffset;
-  int A_si_Equ_s_NodeOffset;
   int A_si_Equ_b_NodeOffset;
+  int A_si_Equ_fp3_NodeOffset;
+  int A_si_Equ_fp4_NodeOffset;
+  int A_si_Equ_s_NodeOffset;
   int A_b_Equ_dt_NodeOffset;
-  int A_b_Equ_fp4_NodeOffset;
+  int A_b_Equ_b_NodeOffset;
   int A_b_Equ_fp3_NodeOffset;
+  int A_b_Equ_fp4_NodeOffset;
   int A_b_Equ_gi_NodeOffset;
   int A_b_Equ_s_NodeOffset;
-  int A_b_Equ_b_NodeOffset;
   int A_fp2_Equ_dt_NodeOffset;
   int A_fp3_Equ_fp2_NodeOffset;
-  int A_fp2_Equ_fp3_NodeOffset;
+  int A_fp2_Equ_b_NodeOffset;
   int A_fp2_Equ_fp2_NodeOffset;
+  int A_fp2_Equ_fp3_NodeOffset;
   int A_fp2_Equ_gi_NodeOffset;
   int A_fp2_Equ_s_NodeOffset;
-  int A_fp2_Equ_b_NodeOffset;
   int A_gi_Equ_fp2_NodeOffset;
   int A_s_Equ_fp2_NodeOffset;
   int A_si_Equ_fp2_NodeOffset;
   int A_b_Equ_fp2_NodeOffset;
   int A_fp1_Equ_dt_NodeOffset;
   int A_fp2_Equ_fp1_NodeOffset;
-  int A_fp1_Equ_fp2_NodeOffset;
+  int A_fp1_Equ_b_NodeOffset;
   int A_fp1_Equ_fp1_NodeOffset;
+  int A_fp1_Equ_fp2_NodeOffset;
   int A_fp1_Equ_gi_NodeOffset;
   int A_fp1_Equ_s_NodeOffset;
-  int A_fp1_Equ_b_NodeOffset;
   int A_gi_Equ_fp1_NodeOffset;
   int A_s_Equ_fp1_NodeOffset;
   int A_si_Equ_fp1_NodeOffset;
   int A_b_Equ_fp1_NodeOffset;
   int A_di_Equ_dt_NodeOffset;
   int A_fp1_Equ_di_NodeOffset;
-  int A_di_Equ_fp1_NodeOffset;
+  int A_di_Equ_b_NodeOffset;
   int A_di_Equ_di_NodeOffset;
+  int A_di_Equ_fp1_NodeOffset;
   int A_di_Equ_gi_NodeOffset;
   int A_di_Equ_s_NodeOffset;
-  int A_di_Equ_b_NodeOffset;
   int A_gi_Equ_di_NodeOffset;
   int A_s_Equ_di_NodeOffset;
   int A_si_Equ_di_NodeOffset;
   int A_b_Equ_di_NodeOffset;
+  int A_src_Equ_dt_NodeOffset;
   int A_si_Equ_src_NodeOffset;
+  int A_src_Equ_si_NodeOffset;
   int A_src_Equ_src_NodeOffset;
   int A_src_Equ_s_NodeOffset;
   int A_si_Equ_d_NodeOffset;
   int A_src_Equ_d_NodeOffset;
-  int A_src_Equ_dt_NodeOffset;
-  int A_src_Equ_si_NodeOffset;
+  int A_drc_Equ_drc_NodeOffset;
   int A_drc_Equ_fp4_NodeOffset;
+  int A_fp4_Equ_drc_NodeOffset;
   int A_drc_Equ_s_NodeOffset;
   int A_drc_Equ_d_NodeOffset;
   int A_fp4_Equ_d_NodeOffset;
+  int A_drc_Equ_dt_NodeOffset;
   int A_drc_Equ_tr_NodeOffset;
   int A_fp4_Equ_tr_NodeOffset;
-  int A_drc_Equ_dt_NodeOffset;
-  int A_drc_Equ_drc_NodeOffset;
-  int A_fp4_Equ_drc_NodeOffset;
   int A_di_Equ_si_NodeOffset;
   int A_xt1_Equ_xt2_NodeOffset;
   int A_xt1_Equ_dt_NodeOffset;
@@ -2049,19 +1884,19 @@ private:
   int A_d_Equ_b_NodeOffset;
   int A_b_Equ_d_NodeOffset;
   int A_dt_Equ_dt_NodeOffset;
-  int A_dt_Equ_fp4_NodeOffset;
+  int A_dt_Equ_b_NodeOffset;
   int A_dt_Equ_fp3_NodeOffset;
+  int A_dt_Equ_fp4_NodeOffset;
   int A_dt_Equ_gi_NodeOffset;
   int A_dt_Equ_s_NodeOffset;
-  int A_dt_Equ_b_NodeOffset;
   int A_dt_Equ_fp2_NodeOffset;
   int A_dt_Equ_fp1_NodeOffset;
   int A_dt_Equ_di_NodeOffset;
+  int A_dt_Equ_si_NodeOffset;
   int A_dt_Equ_src_NodeOffset;
   int A_dt_Equ_d_NodeOffset;
-  int A_dt_Equ_si_NodeOffset;
-  int A_dt_Equ_tr_NodeOffset;
   int A_dt_Equ_drc_NodeOffset;
+  int A_dt_Equ_tr_NodeOffset;
   // end of Jacobian and pointers
   // node numbers
   static const int admsNodeID_d = 0;
@@ -2098,42 +1933,36 @@ private:
   static const int admsProbeID_V_d_drc = 8;
   static const int admsProbeID_V_xt1_GND = 9;
   static const int admsProbeID_V_xt2_GND = 10;
-  static const int admsProbeID_V_fp4_s = 11;
-  static const int admsProbeID_V_fp4_d = 12;
-  static const int admsProbeID_V_tr_GND = 13;
-  static const int admsProbeID_V_tr1_tr = 14;
-  static const int admsProbeID_V_d_g = 15;
-  static const int admsProbeID_V_src_s = 16;
-  static const int admsProbeID_V_src_d = 17;
-  static const int admsProbeID_V_di_si = 18;
-  static const int admsProbeID_V_gi_si = 19;
-  static const int admsProbeID_V_drc_fp4 = 20;
-  static const int admsProbeID_V_drc_GND = 21;
-  static const int admsProbeID_V_fp4_GND = 22;
-  static const int admsProbeID_V_si_src = 23;
-  static const int admsProbeID_V_si_GND = 24;
-  static const int admsProbeID_V_src_GND = 25;
-  static const int admsProbeID_V_s_GND = 26;
-  static const int admsProbeID_V_d_GND = 27;
-  static const int admsProbeID_V_fp1_di = 28;
-  static const int admsProbeID_V_b_di = 29;
-  static const int admsProbeID_V_s_di = 30;
-  static const int admsProbeID_V_gi_di = 31;
-  static const int admsProbeID_V_fp2_fp1 = 32;
-  static const int admsProbeID_V_b_fp1 = 33;
-  static const int admsProbeID_V_s_fp1 = 34;
-  static const int admsProbeID_V_gi_fp1 = 35;
-  static const int admsProbeID_V_fp3_fp2 = 36;
-  static const int admsProbeID_V_b_fp2 = 37;
-  static const int admsProbeID_V_s_fp2 = 38;
-  static const int admsProbeID_V_gi_fp2 = 39;
+  static const int admsProbeID_V_s_fp4 = 11;
+  static const int admsProbeID_V_gi_fp4 = 12;
+  static const int admsProbeID_V_b_fp3 = 13;
+  static const int admsProbeID_V_fp4_fp3 = 14;
+  static const int admsProbeID_V_s_fp3 = 15;
+  static const int admsProbeID_V_gi_fp3 = 16;
+  static const int admsProbeID_V_b_fp2 = 17;
+  static const int admsProbeID_V_fp3_fp2 = 18;
+  static const int admsProbeID_V_s_fp2 = 19;
+  static const int admsProbeID_V_gi_fp2 = 20;
+  static const int admsProbeID_V_b_fp1 = 21;
+  static const int admsProbeID_V_fp2_fp1 = 22;
+  static const int admsProbeID_V_s_fp1 = 23;
+  static const int admsProbeID_V_gi_fp1 = 24;
+  static const int admsProbeID_V_b_di = 25;
+  static const int admsProbeID_V_fp1_di = 26;
+  static const int admsProbeID_V_s_di = 27;
+  static const int admsProbeID_V_gi_di = 28;
+  static const int admsProbeID_V_drc_fp4 = 29;
+  static const int admsProbeID_V_fp4_s = 30;
+  static const int admsProbeID_V_fp4_d = 31;
+  static const int admsProbeID_V_tr_GND = 32;
+  static const int admsProbeID_V_tr1_tr = 33;
+  static const int admsProbeID_V_d_g = 34;
+  static const int admsProbeID_V_si_src = 35;
+  static const int admsProbeID_V_src_s = 36;
+  static const int admsProbeID_V_src_d = 37;
+  static const int admsProbeID_V_gi_si = 38;
+  static const int admsProbeID_V_di_si = 39;
   static const int admsProbeID_Temp_dt_GND = 40;
-  static const int admsProbeID_V_fp4_fp3 = 41;
-  static const int admsProbeID_V_gi_fp4 = 42;
-  static const int admsProbeID_V_s_fp4 = 43;
-  static const int admsProbeID_V_b_fp3 = 44;
-  static const int admsProbeID_V_s_fp3 = 45;
-  static const int admsProbeID_V_gi_fp3 = 46;
   // end probe numbers
   // Store LIDs
   // end store LIDs

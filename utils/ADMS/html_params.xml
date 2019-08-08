@@ -52,6 +52,7 @@
   <admst:apply-templates select="/module" match="collectCollapsibles"/>
   <admst:apply-templates select="/module" match="collectExtraUnknowns"/>
   <admst:apply-templates select="/module" match="markOutputVariables"/>
+
   <admst:open file="$classname.html">
     <html>
       <head><title>$classname</title></head>
@@ -318,20 +319,22 @@
                     <!-- "variable/variable" is supposedly the list of
                          variables this one depends on -->
                     <admst:join select="variable" separator=", ">
-                      <admst:choose>
-                        <admst:when test="[input='yes' and parametertype='model']">
-                          <admst:text format="%(name)[param:model]"/>
-                        </admst:when>
-                        <admst:when test="[input='yes' and parametertype='instance' and exists(attribute[name='xyceAlsoModel'])]">
-                          <admst:text format="%(name)[param:instance &amp; model]"/>
-                        </admst:when>
-                        <admst:when test="[input='yes' and parametertype='instance' and not exists(attribute[name='xyceAlsoModel'])]">
-                          <admst:text format="%(name)[param:instance ]"/>
-                        </admst:when>
-                        <admst:otherwise>
-                          <admst:text format="%(name)"/>
-                        </admst:otherwise>
-                      </admst:choose>
+                      <admst:if test="[exists(input)]">
+                        <admst:choose>
+                          <admst:when test="[input='yes' and parametertype='model']">
+                            <admst:text format="%(name)[param:model]"/>
+                          </admst:when>
+                          <admst:when test="[input='yes' and parametertype='instance' and exists(attribute[name='xyceAlsoModel'])]">
+                            <admst:text format="%(name)[param:instance &amp; model]"/>
+                          </admst:when>
+                          <admst:when test="[input='yes' and parametertype='instance' and not exists(attribute[name='xyceAlsoModel'])]">
+                            <admst:text format="%(name)[param:instance ]"/>
+                          </admst:when>
+                          <admst:otherwise>
+                            <admst:text format="%(name)"/>
+                          </admst:otherwise>
+                        </admst:choose>
+                      </admst:if>
                     </admst:join>
                     <admst:apply-templates select="." match="collectParamDependence"/>
                     <admst:if test="[exists(#Pdependent)]">
@@ -823,7 +826,7 @@
         <table border="1">
           <tbody>
             <tr><th colspan="5">Contributions(%(count(/module/contribution)))</th></tr>
-            <tr><th>Contribution</th><th>rhs static.dynamic</th><th>white/flicker</th><th>probe dependence</th><th>nature</th><th>lhs/branch</th></tr>
+            <tr><th>Contribution</th><th>rhs static.dynamic</th><th>white/flicker</th><th>probe dependence</th><th>nature</th><th>lhs/branch</th><th>variable dependence</th></tr>
             <admst:for-each select="/module/contribution">
               <tr>
                 <td>
@@ -848,6 +851,14 @@
                 </td>
                 <td>
                   %(lhs/branch) (pnode=%(lhs/branch/pnode), nnode=%(lhs/branch/nnode)
+                </td>
+                <td>
+                  <admst:if test="[count(rhs/variable)=0]">
+                    <admst:text format=" NONE "/>
+                  </admst:if>
+                  <admst:join select="rhs/variable/name" separator=", ">
+                    <admst:text format="%(.)"/>
+                  </admst:join>
                 </td>
               </tr>
             </admst:for-each>
