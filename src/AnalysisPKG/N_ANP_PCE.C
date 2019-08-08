@@ -582,15 +582,15 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "RESAMPLE")
     {
-      resamplePCE_ = true;
+      resamplePCE_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
     else if ((*it).uTag() == "OUTPUT_PCE_COEFFS")
     {
-      outputPCECoeffs_ = true;
+      outputPCECoeffs_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
     else if ((*it).uTag() == "SPARSE_GRID")
     {
-      useSparseGrid_ = true;
+      useSparseGrid_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
 #endif
     else if ((*it).uTag() == "STDOUTPUT")
@@ -618,7 +618,6 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
         << " is not a recognized sampling option.\n" << std::endl;
     }
   }
-
 
   // parse the expression now, so if there are any errors, they will come
   // up early in the simulation.
