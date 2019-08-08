@@ -280,6 +280,8 @@ public:
     bool regressionPCEenable,
     bool projectionPCEenable,
     int  numSamples,
+    const std::vector<std::string> & regressionPCEcoeffs,
+    const std::vector<std::string> & projectionPCEcoeffs,
     const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
 
   void outputMPDE(

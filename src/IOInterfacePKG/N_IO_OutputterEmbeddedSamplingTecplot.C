@@ -213,6 +213,8 @@ void EmbeddedSamplingTecplot::doOutputEmbeddedSampling(
   bool              regressionPCEenable,
   bool              projectionPCEenable,
   int               numSamples,
+  const std::vector<std::string> & regressionPCEcoeffs,
+  const std::vector<std::string> & projectionPCEcoeffs,
   const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec)
 {
   if (Parallel::rank(comm) == 0 && !os_)
@@ -256,6 +258,15 @@ void EmbeddedSamplingTecplot::doOutputEmbeddedSampling(
 
           colNames.push_back(outFunc.outFuncString + "_regr_pce_stddev");
           colNames.push_back(outFunc.outFuncString + "_regr_pce_variance");
+
+          if (printParameters_.outputPCECoeffs_)
+          {
+            std::vector<std::string>::const_iterator it;
+            for (it=regressionPCEcoeffs.begin();it!=regressionPCEcoeffs.end();++it)
+            {
+              colNames.push_back(outFunc.outFuncString + *it);
+            }
+          }
         }
 
         if (projectionPCEenable)
@@ -266,6 +277,15 @@ void EmbeddedSamplingTecplot::doOutputEmbeddedSampling(
 
           colNames.push_back(outFunc.outFuncString + "_quad_pce_stddev");
           colNames.push_back(outFunc.outFuncString + "_quad_pce_variance");
+
+          if (printParameters_.outputPCECoeffs_)
+          {
+            std::vector<std::string>::const_iterator it;
+            for (it=projectionPCEcoeffs.begin();it!=projectionPCEcoeffs.end();++it)
+            {
+              colNames.push_back(outFunc.outFuncString + *it);
+            }
+          }
         }
 #endif
         if (printParameters_.outputAllPCEsamples_)
@@ -358,6 +378,15 @@ void EmbeddedSamplingTecplot::doOutputEmbeddedSampling(
         colIdx++;
         printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_variance);
         colIdx++;
+
+        if (printParameters_.outputPCECoeffs_)
+        {
+          int NN=regressionPCE.size();
+          for (int ii=0;ii<NN;ii++, colIdx++)
+          {
+            printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, regressionPCE[ii]);
+          }
+        }
       }
 
       if (projectionPCEenable)
@@ -393,6 +422,15 @@ void EmbeddedSamplingTecplot::doOutputEmbeddedSampling(
         colIdx++;
         printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_variance);
         colIdx++;
+
+        if (printParameters_.outputPCECoeffs_)
+        {
+          int NN=projectionPCE.size();
+          for (int ii=0;ii<NN;ii++, colIdx++)
+          {
+            printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, projectionPCE.fastAccessCoeff(ii));
+          }
+        }
       }
 #endif
 

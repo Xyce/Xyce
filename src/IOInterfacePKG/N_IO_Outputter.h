@@ -198,7 +198,8 @@ struct PrintParameters
       addGnuplotSpacing_(false),
       addSplotSpacing_(false),
       outputPCEsampleStats_(true),
-      outputAllPCEsamples_(false)
+      outputAllPCEsamples_(false),
+      outputPCECoeffs_(false)
   {}
 
   PrintParameters(const PrintParameters &print_parameters)
@@ -230,7 +231,8 @@ struct PrintParameters
       addGnuplotSpacing_(print_parameters.addGnuplotSpacing_),
       addSplotSpacing_(print_parameters.addSplotSpacing_),
       outputPCEsampleStats_(print_parameters.outputPCEsampleStats_),
-      outputAllPCEsamples_(print_parameters.outputAllPCEsamples_)
+      outputAllPCEsamples_(print_parameters.outputAllPCEsamples_),
+      outputPCECoeffs_(print_parameters.outputPCECoeffs_)
   {}
 
   PrintParameters &operator=(const PrintParameters &print_parameters)
@@ -264,6 +266,7 @@ struct PrintParameters
     addSplotSpacing_ = print_parameters.addSplotSpacing_;
     outputPCEsampleStats_ = print_parameters.outputPCEsampleStats_;
     outputAllPCEsamples_ = print_parameters.outputAllPCEsamples_;
+    outputPCECoeffs_ = print_parameters.outputPCECoeffs_;
 
     return *this;
   }
@@ -304,6 +307,7 @@ public:
                                                                 ///< there are more than one step.  For Gnuplot compatibility.
   bool                          outputPCEsampleStats_;          ///< Used by EmbeddedSampling outputters
   bool                          outputAllPCEsamples_;           ///< Used by EmbeddedSampling outputters
+  bool                          outputPCECoeffs_;               ///< Used by EmbeddedSampling outputters
 };
 
 namespace Outputter {
@@ -375,6 +379,8 @@ public:
     bool regressionPCEenable,
     bool projectionPCEenable,
     int  numSamples,
+    const std::vector<std::string> & regressionPCEcoeffs,
+    const std::vector<std::string> & projectionPCEcoeffs,
     const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
 
   // Used for HB time-domain output such as .PRINT HB_TD lines.  This is
@@ -479,6 +485,8 @@ private:
     bool                regressionPCEenable,
     bool                projectionPCEenable,
     int                 numSamples,
+    const std::vector<std::string> & regressionPCEcoeffs,
+    const std::vector<std::string> & projectionPCEcoeffs,
     const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec) {}
 
   virtual void doOutputHB(

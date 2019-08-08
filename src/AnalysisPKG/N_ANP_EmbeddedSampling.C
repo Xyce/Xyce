@@ -829,8 +829,45 @@ void EmbeddedSampling::stepCallBack ()
     }
   }
 //
+  if (outputPCECoeffs_)
+  {
+    UQ::outputFunctionData & outFunc = *(outFuncDataVec_[0]);
+    if (regressionPCEenable_)
+    {
+      Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
+      int NN=regressionPCE.size();
+      for (int ii=0;ii<NN;ii++)
+      {
+        const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
+        std::string coefString = "_coef(";
+        for (int jj=0; jj< trm.size()-1; jj++)
+          coefString += std::to_string(trm[jj]) + ",";
+        coefString += std::to_string(trm[trm.size()-1]) + ")";
+
+        regressionPCEcoeffs_.push_back(coefString);
+      }
+    }
+
+    if (projectionPCEenable_)
+    {
+      Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
+      int NN=projectionPCE.size();
+      std::vector<std::string> coeffs;
+      for (int ii=0;ii<NN;ii++)
+      {
+        const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
+        std::string coefString = "_coef(";
+        for (int jj=0; jj< trm.size()-1; jj++)
+          coefString += std::to_string(trm[jj]) + ",";
+        coefString += std::to_string(trm[trm.size()-1]) + ")";
+
+        projectionPCEcoeffs_.push_back(coefString);
+      }
+    }
+  }
+
   outputManagerAdapter_.outputEmbeddedSampling(regressionPCEenable_, projectionPCEenable_,
-					       numSamples_, outFuncDataVec_);
+               numSamples_, regressionPCEcoeffs_, projectionPCEcoeffs_, outFuncDataVec_);
 #endif
 
   hackEnsembleOutput ();

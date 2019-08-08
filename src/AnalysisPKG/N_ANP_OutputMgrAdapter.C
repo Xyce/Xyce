@@ -496,10 +496,12 @@ void  OutputMgrAdapter::outputEmbeddedSampling(
   bool regressionPCEenable,
   bool projectionPCEenable,
   int  numSamples,
+  const std::vector<std::string> & regressionPCEcoeffs_,
+  const std::vector<std::string> & projectionPCEcoeffs_,
   const std::vector<UQ::outputFunctionData*> & outFuncDataVec_)
 {
   outputManager_.outputEmbeddedSampling(comm_, regressionPCEenable, projectionPCEenable,
-      numSamples, outFuncDataVec_);
+      numSamples, regressionPCEcoeffs_, projectionPCEcoeffs_, outFuncDataVec_);
 }
 
 //-----------------------------------------------------------------------------

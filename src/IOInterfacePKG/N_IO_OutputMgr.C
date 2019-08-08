@@ -1393,6 +1393,10 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     {
       print_parameters.outputAllPCEsamples_ = static_cast<bool>(iterParam->getImmutableValue<bool>());
     }
+    else if (iterParam->tag() == "OUTPUT_PCE_COEFFS")
+    {
+      print_parameters.outputPCECoeffs_ = static_cast<bool>(iterParam->getImmutableValue<bool>());
+    }
     else
     {
       // This must be the first print variable.
@@ -3095,6 +3099,8 @@ void OutputMgr::outputEmbeddedSampling(
     bool regressionPCEenable,
     bool projectionPCEenable,
     int  numSamples,
+    const std::vector<std::string> & regressionPCEcoeffs,
+    const std::vector<std::string> & projectionPCEcoeffs,
     const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_)
 {
   if (!activeOutputterStack_.empty())
@@ -3104,7 +3110,8 @@ void OutputMgr::outputEmbeddedSampling(
 
     for ( ; it != activeOutputterStack_.back().end(); ++it)
     {
-      (*it)->outputEmbeddedSampling(comm, regressionPCEenable, projectionPCEenable, numSamples, outFuncDataVec_);
+      (*it)->outputEmbeddedSampling(comm, regressionPCEenable, projectionPCEenable,
+	       numSamples, regressionPCEcoeffs, projectionPCEcoeffs, outFuncDataVec_);
     }
   }
 }
@@ -3398,6 +3405,7 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("FILTER", Util::Param("FILTER", 0.0)));
     parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
     parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", false)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_PCE_COEFFS", Util::Param("OUTPUT_PCE_COEFFS", false)));
   }
 }
 

@@ -264,6 +264,8 @@ public:
       bool regressionPCEenable,
       bool projectionPCEenable,
       int  numSamples,
+      const std::vector<std::string> & regressionPCEcoeffs_,
+      const std::vector<std::string> & projectionPCEcoeffs_,
       const std::vector<UQ::outputFunctionData*> & outFuncDataVec_ );
 
   void outputHomotopy( const std::vector<std::string> & paramNames, const std::vector<double> & paramVals, Linear::Vector & solnVecPtr );

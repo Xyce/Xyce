@@ -200,11 +200,14 @@ void Interface::outputEmbeddedSampling(
   bool                          regressionPCEenable,
   bool                          projectionPCEenable,
   int                           numSamples,
+  const std::vector<std::string> & regressionPCEcoeffs,
+  const std::vector<std::string> & projectionPCEcoeffs,
   const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_)
 {
   if (debug) Xyce::dout() << demangle(typeid(*this).name()) << " doOutputEmbeddedSampling" << std::endl;
 
-  doOutputEmbeddedSampling(comm, regressionPCEenable, projectionPCEenable, numSamples, outFuncDataVec_);
+  doOutputEmbeddedSampling(comm, regressionPCEenable, projectionPCEenable,
+      numSamples, regressionPCEcoeffs, projectionPCEcoeffs, outFuncDataVec_);
 }
 
 //-----------------------------------------------------------------------------
