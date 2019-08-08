@@ -1521,10 +1521,13 @@ void EmbeddedSampling::hackEnsembleOutput ()
         output_stream << "\t" << pce_stddev;
         output_stream << "\t" << pce_variance;
 
-        int NN=regressionPCE.size();
-        for (int ii=0;ii<NN;ii++)
+        if (outputPCECoeffs_)
         {
-          output_stream << "\t" << regressionPCE[ii];
+          int NN=regressionPCE.size();
+          for (int ii=0;ii<NN;ii++)
+          {
+            output_stream << "\t" << regressionPCE[ii];
+          }
         }
       }
 
@@ -1559,11 +1562,14 @@ void EmbeddedSampling::hackEnsembleOutput ()
         output_stream << "\t" << pce_stddev;
         output_stream << "\t" << pce_variance;
 
-        int NN=projectionPCE.size();
-        for (int ii=0;ii<NN;ii++)
+        if (outputPCECoeffs_)
         {
-          //output_stream << "\t" << projectionPCE[ii];
-          output_stream << "\t" << projectionPCE.fastAccessCoeff(ii);
+          int NN=projectionPCE.size();
+          for (int ii=0;ii<NN;ii++)
+          {
+            //output_stream << "\t" << projectionPCE[ii];
+            output_stream << "\t" << projectionPCE.fastAccessCoeff(ii);
+          }
         }
       }
 #endif
