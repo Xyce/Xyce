@@ -36,17 +36,31 @@
 \textbf{xxx-SON}: place holder title &
 place holder description  \\ \hline
 
+\textbf{1223-SON}: ADMS and Xyce/ADMS do not correctly handle analog functions with output arguments  &
+A long-standing bug in ADMS fails to propagate probe and variable
+dependence from analog function call input arguments into the output
+arguments.  This leads to incorrect code generation by Xyce/ADMS when
+such functions are used.  Xyce/ADMS now uses a modified version of
+ADMS's ``implicit'' templates that it invokes explicitly instead.
+Analog function output variables should now be processed just as
+correctly as if they had appeared on the left hand side of an
+assignment.  The relevant fixes to ADMS's implicit templates have also been
+provided upstream to the ADMS maintainers.  \\ \hline
+
 \textbf{1219-SON}: Add PSP 103 model with self-heating &
 This model has been added as the level 1031 MOSFET.  \\ \hline
 
 \textbf{1210-SON}: Sign of negative values in parameter files ignored &
-When the \texttt{-prf} command line argument was used to pass Xyce a parameter file
-the leading negative signs of parameter values was ignored.  This has been
-fixed.  \\ \hline
+When the \texttt{-prf} command line argument was used to pass Xyce a
+parameter file the leading negative signs of parameter values was
+ignored.  This has been fixed.  \\ \hline
 
 \textbf{1204-SON}: Fix issue with extra blank lines in Touchstone 1 formatted output
-for .LIN analysis & There could be extra blank lines inserted in the Touchstone 1
-formatted output, between the S-parameter values output for each frequency, if a
+for .LIN analysis &
+
+There could be extra blank lines inserted in the Touchstone 1
+formatted output, between the S-parameter values output for each
+frequency, if a
 \texttt{.LIN} analysis used any number of ports other than 2.  The Touchstone 2
 formatted output, which is the default output format for \texttt{.LIN} analyses,
 was not affected by this bug. \\ \hline
