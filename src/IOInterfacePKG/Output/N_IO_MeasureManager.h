@@ -54,6 +54,7 @@
 #include <N_LAS_Vector.h>
 #include <N_UTL_Listener.h>
 #include <N_UTL_NodeSymbols.h>
+#include <N_UTL_Op.h>
 
 namespace Xyce {
 namespace IO {
@@ -105,10 +106,33 @@ public:
   bool checkMeasureModes(const Analysis::Mode analysisMode);
 
   // Called during the simulation to update the measure objects held by this class
-  // To keep things obvious, use one call for tran and another for DC
-  void updateTranMeasures(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector);
-  void updateDCMeasures(Parallel::Machine comm, const std::vector<Analysis::SweepParam> & dcParamsVec, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector);
-  void updateACMeasures(Parallel::Machine comm, const double frequency, const Linear::Vector *solnVec, const Linear::Vector *imaginaryVec);
+  // To keep things obvious, use separate calls for TRAN, DC and AC
+  void updateTranMeasures(
+    Parallel::Machine comm,
+    const double circuitTime,
+    const Linear::Vector *solnVec,
+    const Linear::Vector *stateVec,
+    const Linear::Vector *storeVec,
+    const Linear::Vector *lead_current_vector,
+    const Linear::Vector *junction_voltage_vector,
+    const Linear::Vector *lead_current_dqdt_vector);
+
+  void updateDCMeasures(
+    Parallel::Machine comm,
+    const std::vector<Analysis::SweepParam> & dcParamsVec,
+    const Linear::Vector *solnVec,
+    const Linear::Vector *stateVec,
+    const Linear::Vector *storeVec,
+    const Linear::Vector *lead_current_vector,
+    const Linear::Vector *junction_voltage_vector,
+    const Linear::Vector *lead_current_dqdt_vector);
+
+  void updateACMeasures(
+    Parallel::Machine comm,
+    const double frequency,
+    const Linear::Vector *solnVec,
+    const Linear::Vector *imaginaryVec,
+    const Util::Op::RFparamsData *RFparams);
 
   void outputResultsToMTFile(int stepNumber) const;
   std::ostream & outputResults(std::ostream& outputStream) const;
@@ -116,10 +140,16 @@ public:
 
   const Base *find(const std::string &name) const;
 
-  void remeasure(N_PDS_Comm &pds_comm, const std::string &netlist_filename, const std::string &remeasure_path, 
-                 const char& analysisName, Util::Op::BuilderManager &op_builder_manager, OutputMgr &output_manager, 
-                 Analysis::AnalysisManager &analysis_manager, Analysis::AnalysisCreatorRegistry &analysis_registry,
-                 Util::SymbolTable &symbol_table);
+  void remeasure(
+    N_PDS_Comm &pds_comm,
+    const std::string &netlist_filename,
+    const std::string &remeasure_path,
+    const char& analysisName,
+    Util::Op::BuilderManager &op_builder_manager,
+    OutputMgr &output_manager,
+    Analysis::AnalysisManager &analysis_manager,
+    Analysis::AnalysisCreatorRegistry &analysis_registry,
+    Util::SymbolTable &symbol_table);
 
   bool getMeasureValue(const std::string &name, double &value) const;
 

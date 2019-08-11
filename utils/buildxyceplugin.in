@@ -66,7 +66,7 @@ cleanup ()
 
 runadms()
 {
-    admsXml -e ${xmldir}/xyceVersion.xml  -e ${xmldir}/xyceBasicTemplates.xml \
+    admsXml -x -e ${xmldir}/adms.implicit.xml -e ${xmldir}/xyceVersion.xml  -e ${xmldir}/xyceBasicTemplates.xml \
             -e ${xmldir}/xyceHeaderFile.xml \
             -e ${xmldir}/xyceImplementationFile.xml $1 \
             >> buildxyceplugin.log 2>&1

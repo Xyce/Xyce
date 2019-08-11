@@ -482,15 +482,15 @@ bool Sampling::setSamplingOptions(const Util::OptionBlock & option_block)
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "RESAMPLE")
     {
-      resamplePCE_ = true;
+      resamplePCE_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
     else if ((*it).uTag() == "OUTPUT_PCE_COEFFS")
     {
-      outputPCECoeffs_ = true;
+      outputPCECoeffs_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
     else if ((*it).uTag() == "SPARSE_GRID")
     {
-      useSparseGrid_ = true;
+      useSparseGrid_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
 #endif
     else if ((*it).uTag() == "STDOUTPUT")
@@ -982,6 +982,11 @@ void Sampling::completeEnsembleOutputs()
 {
   if (outputsGiven_)
   {
+#if Xyce_STOKHOS_ENABLE
+    // the seed is needed for resampling a PCE approximation
+    long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+#endif
+
     Parallel::Machine comm = analysisManager_.getComm();
     if (Parallel::rank(comm) == 0)
     {
@@ -1054,13 +1059,12 @@ void Sampling::completeEnsembleOutputs()
             pceVec.push_back(regressionPCE);
           }
         } // for loop over outFuncDataVec_
-      
+     
         if (resamplePCE_)
         {
           std::vector < std::vector<double> > fvec (outFuncDataVec_.size());
           std::vector <UQ::statisticalMoments> statVec (outFuncDataVec_.size());
 
-          long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
           UQ::sampleApproximationPCE(theSeed, sampleType_, samplingVector_, covMatrix_, meanVec_, numResamples_, numParams, pceVec, fvec, statVec);
 
           for (int iout=0;iout<outFuncDataVec_.size();++iout)
@@ -1114,7 +1118,6 @@ void Sampling::completeEnsembleOutputs()
           std::vector < std::vector<double> > fvec (outFuncDataVec_.size());
           std::vector <UQ::statisticalMoments> statVec (outFuncDataVec_.size());
 
-          long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
           const int numParams = paramNameVec_.size();
           UQ::sampleApproximationPCE(theSeed, sampleType_, samplingVector_, covMatrix_, meanVec_, numResamples_, numParams, pceVec, fvec, statVec);
 
@@ -1127,15 +1130,18 @@ void Sampling::completeEnsembleOutputs()
             Xyce::lout() << std::endl;
           }
         }
-
       }
-
 #endif
     }
   }
 
   if (measuresGiven_)
   {
+#if Xyce_STOKHOS_ENABLE
+    // the seed is needed for resampling a PCE approximation
+    long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+#endif
+
     Parallel::Machine comm = analysisManager_.getComm();
     if (Parallel::rank(comm) == 0)
     {
@@ -1163,6 +1169,125 @@ void Sampling::completeEnsembleOutputs()
           //UQ::histrogram(Xyce::lout(), measFunc.measFuncString, measFunc.measFuncEvalVec);
         }
       }
+
+#if Xyce_STOKHOS_ENABLE
+      if (regressionPCEenable_)
+      {
+        // set up the lower-case "x" vector.  Capital "X" (or "Y") contains the 
+        // actual parameter values used by the device models.
+        //
+        // Lower case "x" contains the unscaled values used by PCE.
+        // So, for Hermite polynomials (normal dist), they must be converted to standard normals.
+        // and for Legendre polynomials (uniform dist), they must be converted to domain and range over (-1,+1)
+        //
+        const int numParams = paramNameVec_.size();
+        std::vector< std::vector<double> > x;
+        UQ::unScaleSampleValues(numSamples_, samplingVector_, covMatrix_, meanVec_, Y_, x);
+
+        std::vector< Stokhos::OrthogPolyApprox<int,double> > pceVec;
+
+        for (int iout=0;iout<measFuncDataVec_.size();++iout)
+        {
+          UQ::outputFunctionData & measFunc = *(measFuncDataVec_[iout]);
+
+          Stokhos::OrthogPolyApprox<int,double> & regressionPCE = measFunc.regressionPCE;
+          regressionPCE.reset(regrBasis);
+
+          std::vector<double> & f = measFunc.sampleOutputs;
+          UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
+
+          if (outputPCECoeffs_)
+          {
+            Xyce::lout() << "PCE coefs for " << measFunc.outFuncString << " = " << regressionPCE << std::endl;
+            regressionPCE.print(Xyce::lout());
+          }
+
+          if (stdOutputFlag_)
+          {
+            Xyce::lout() << std::endl;
+            Xyce::lout() << "(traditional sampling) regression PCE mean of " << measFunc.outFuncString << " = " << regressionPCE.mean() << std::endl;
+            Xyce::lout() << "(traditional sampling) regression PCE stddev of " << measFunc.outFuncString << " = " << regressionPCE.standard_deviation() << std::endl;
+          }
+
+          if (resamplePCE_)
+          {
+            pceVec.push_back(regressionPCE);
+          }
+        } // for loop over measFuncDataVec_
+     
+        if (resamplePCE_)
+        {
+          std::vector < std::vector<double> > fvec (measFuncDataVec_.size());
+          std::vector <UQ::statisticalMoments> statVec (measFuncDataVec_.size());
+
+          UQ::sampleApproximationPCE(theSeed, sampleType_, samplingVector_, covMatrix_, meanVec_, numResamples_, numParams, pceVec, fvec, statVec);
+
+          for (int iout=0;iout<measFuncDataVec_.size();++iout)
+          {
+            UQ::outputFunctionData & measFunc = *(measFuncDataVec_[iout]);
+            Xyce::lout() << std::endl;
+            Xyce::lout() << "Statistics from re-sampling regression PCE approximation of " << measFunc.outFuncString << ":" << std::endl;;
+            Xyce::lout() << statVec[iout];
+            Xyce::lout() << std::endl;
+          }
+        }
+      } // regressionPCEenable_
+
+      if (projectionPCEenable_)
+      {
+        std::vector< Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > > pceVec;
+
+        for (int iout=0;iout<measFuncDataVec_.size();++iout)
+        {
+          UQ::outputFunctionData & measFunc = *(measFuncDataVec_[iout]);
+
+          Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = measFunc.projectionPCE;
+          projectionPCE.init(0.0);
+          projectionPCE.reset(quadExpn);
+
+          std::vector<double> & f = measFunc.sampleOutputs;
+
+          UQ::solveProjectionPCE(quadBasis, quadMethod, f, projectionPCE);
+
+          if (outputPCECoeffs_)
+          {
+            Xyce::lout() << "PCE coefs for " << measFunc.outFuncString << " = " << projectionPCE << std::endl;
+            projectionPCE.print(Xyce::lout());
+          }
+
+          if (stdOutputFlag_)
+          {
+            Xyce::lout() << std::endl;
+            Xyce::lout() << "(traditional sampling) projection PCE mean of " << measFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
+            Xyce::lout() << "(traditional sampling) projection PCE stddev of " << measFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
+          }
+
+          if (resamplePCE_)
+          {
+            pceVec.push_back(projectionPCE);
+          }
+        }
+
+        if (resamplePCE_)
+        {
+          std::vector < std::vector<double> > fvec (measFuncDataVec_.size());
+          std::vector <UQ::statisticalMoments> statVec (measFuncDataVec_.size());
+
+          const int numParams = paramNameVec_.size();
+          UQ::sampleApproximationPCE(theSeed, sampleType_, samplingVector_, covMatrix_, meanVec_, numResamples_, numParams, pceVec, fvec, statVec);
+
+          for (int iout=0;iout<measFuncDataVec_.size();++iout)
+          {
+            UQ::outputFunctionData & measFunc = *(measFuncDataVec_[iout]);
+            Xyce::lout() << std::endl;
+            Xyce::lout() << "Statistics from re-sampling projection PCE approximation of " << measFunc.outFuncString << ":" << std::endl;;
+            Xyce::lout() << statVec[iout];
+            Xyce::lout() << std::endl;
+          }
+        }
+      }
+#endif
+
     }
   }
 }

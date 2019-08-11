@@ -192,7 +192,8 @@ include_HEADERS = \
   $(top_builddir)/src/Xyce_config.h
 
 xmldir = $(datadir)/xml
-xml_DATA=$(top_srcdir)/utils/ADMS/xyceVersion.xml \
+xml_DATA= $(top_srcdir)/utils/ADMS/adms.implicit.xml \
+	$(top_srcdir)/utils/ADMS/xyceVersion.xml \
 	$(top_srcdir)/utils/ADMS/xyceBasicTemplates.xml \
 	$(top_srcdir)/utils/ADMS/xyceImplementationFile.xml \
 	$(top_srcdir)/utils/ADMS/xyceHeaderFile.xml \

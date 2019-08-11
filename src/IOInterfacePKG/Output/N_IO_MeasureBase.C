@@ -533,6 +533,30 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
         depSolVarIterVector_.push_back( aParam );
       }
     }
+    else if( tag[0]=='S' || tag[0]=='Y' || tag[0]=='Z')
+    {
+      // Turn the S, Y or Z operators into an expression-valued parameter.
+      // We need to do this because for SR(1,1) the values 1 and 1 are
+      // indices rather than (for example) nodes as in V(1,2).  So, the
+      // dependent solution variable becomes the expression {SR(1,1)}
+      // in this case.
+      std::string expString('{'+tag+'(');
+      int nodes = (*it).getImmutableValue<int>();
+
+      for( int i=0; i< nodes; i++)
+      {
+        it++;
+        expString += (*it).tag();
+        if (i == 0) expString += ',';
+      }
+      expString += ")}";
+
+      Util::Param aParam;
+      aParam.set(expString,expString);
+
+      numDepSolVars_++;
+      depSolVarIterVector_.push_back(aParam);
+    }
     else
     {
       Xyce::Report::UserWarning() << "Unknown tag in measure statement: " << tag << ", ignoring";
@@ -786,15 +810,23 @@ bool Base::withinMinMaxThresh( double value)
 // Creator       : Richard Schiek, Electrical and Microsystem Modeling
 // Creation Date : 11/01/2013
 //-----------------------------------------------------------------------------
-void Base::updateOutputVars(Parallel::Machine comm, std::vector<double> & outputVarVec, const double circuitTime, const Linear::Vector *solnVec, 
-  const Linear::Vector *stateVec, const Linear::Vector * storeVec, const Linear::Vector *imaginaryVec,
-  const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector  )
-
+void Base::updateOutputVars(
+  Parallel::Machine comm,
+  std::vector<double> & outputVarVec,
+  const double circuitTime,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector * storeVec,
+  const Linear::Vector *imaginaryVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector,
+  const Util::Op::RFparamsData *RFparams)
 {
   int vecIndex = 0;
   for (std::vector<Util::Op::Operator *>::const_iterator it = outputVars_.begin(); it != outputVars_.end(); ++it)
   {
-    outputVarVec[vecIndex] = getValue(comm, *(*it), Util::Op::OpData(vecIndex, solnVec, imaginaryVec, stateVec, storeVec, 0, lead_current_vector, 0, junction_voltage_vector)).real();
+    outputVarVec[vecIndex] = getValue(comm, *(*it), Util::Op::OpData(vecIndex, solnVec, imaginaryVec, stateVec, storeVec, 0, lead_current_vector, 0, junction_voltage_vector, 0, 0, 0, 0, 0, 0, 0, 0 , 0, RFparams)).real();
     vecIndex++;
   }
 }
@@ -853,11 +885,19 @@ void Base::resetBase()
 // Creator       : Richard Schiek, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-----------------------------------------------------------------------------
-double Base::getOutputValue(Parallel::Machine comm, Util::Op::Operator *op, const Linear::Vector *solnVec, const Linear::Vector *stateVec, 
-  const Linear::Vector * storeVec, const Linear::Vector *imaginaryVec,
-  const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector  )
+double Base::getOutputValue(
+  Parallel::Machine comm,
+  Util::Op::Operator *op,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector * storeVec,
+  const Linear::Vector *imaginaryVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector,
+  const Util::Op::RFparamsData *RFparams)
 {
-  double retVal = getValue(comm, *op, Util::Op::OpData(0, solnVec, imaginaryVec, stateVec, storeVec, 0, lead_current_vector, 0, junction_voltage_vector)).real();
+  double retVal = getValue(comm, *op, Util::Op::OpData(0, solnVec, imaginaryVec, stateVec, storeVec, 0, lead_current_vector, 0, junction_voltage_vector,0, 0, 0, 0, 0, 0, 0, 0 , 0, RFparams)).real();
   return retVal;
 }
 

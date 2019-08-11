@@ -61,6 +61,7 @@
 #include <N_IO_OutputterAC.h>
 #include <N_IO_OutputterSParam.h>
 #include <N_IO_OutputterNoise.h>
+#include <N_IO_OutputterEmbeddedSampling.h>
 #include <N_IO_OutputterHB.h>
 #include <N_IO_OutputterMPDE.h>
 #include <N_IO_OutputterTransient.h>
@@ -118,6 +119,7 @@ OutputMgr::OutputMgr(
     opBuilderManager_(op_builder_manager),
     topology_(topology),
     dotOpSpecified_(false),
+    enableEmbeddedSamplingFlag_(false),
     enableHomotopyFlag_(false),
     enableSparCalcFlag_(false),
     enableSensitivityFlag_(false),
@@ -531,9 +533,10 @@ void OutputMgr::prepareOutput(
     // are defined for LIN and HB analyses.  Note that the enableSparCalcFlag_
     // is set via the AC object, during that object's parsing of the ACLIN
     // option block.
-    if (analysis_mode == Analysis::ANP_MODE_HB || enableSparCalcFlag_)
+    if (analysis_mode == Analysis::ANP_MODE_HB || enableSparCalcFlag_ ||
+        enableEmbeddedSamplingFlag_ )
     {
-      Report::UserFatal0() << "-r and -a outputs are not supported for .HB or .LIN analyses";
+      Report::UserFatal0() << "-r and -a outputs are not supported for Embedded Sampling, .HB or .LIN analyses";
     }
 
     Outputter::enableRawOverrideOutput(comm, *this, analysis_mode);
@@ -574,6 +577,25 @@ void OutputMgr::prepareOutput(
         // Accessing them (for now) directly from the outputterMap.  I am punting 
         // on making the active outputter structure work for transient adjoints.
       }
+    }
+  }
+  else if (enableEmbeddedSamplingFlag_)
+  {
+    if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 103)))
+      Outputter::enableEmbeddedSamplingOutput(comm, *this, analysis_mode);
+    addActiveOutputter(PrintType::ES, analysis_mode);
+
+    if (!defaultPrintParameters_.dashoRequested_)
+    {
+      // Only .PRINT ES output is made for the -o case.  .PRINT TRAN or .PRINT DC
+      // output is not made.
+      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
+        Outputter::enableTransientOutput(comm, *this, analysis_mode);
+      addActiveOutputter(PrintType::TRAN, analysis_mode);
+
+      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
+        Outputter::enableDCOutput(comm, *this, analysis_mode);
+      addActiveOutputter(PrintType::TRAN, analysis_mode);
     }
   }
   else
@@ -1210,6 +1232,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
         print_type = PrintType::SPARAM;
       else if (s == "DC")
         print_type = PrintType::DC;
+      else if (s == "ES")
+        print_type = PrintType::ES;
       else if (s == "HB")
         print_type = PrintType::HB;
       else if (s == "HB_TD")
@@ -1361,6 +1385,18 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
         Report::UserWarning0() << "Invalid value of DELIMITER in .PRINT statment, ignoring";
       }
     }
+    else if (iterParam->tag() == "OUTPUTSAMPLESTATS")
+    {
+      print_parameters.outputPCEsampleStats_ = static_cast<bool>(iterParam->getImmutableValue<bool>());
+    }
+    else if (iterParam->tag() == "OUTPUTALLSAMPLES")
+    {
+      print_parameters.outputAllPCEsamples_ = static_cast<bool>(iterParam->getImmutableValue<bool>());
+    }
+    else if (iterParam->tag() == "OUTPUT_PCE_COEFFS")
+    {
+      print_parameters.outputPCECoeffs_ = static_cast<bool>(iterParam->getImmutableValue<bool>());
+    }
     else
     {
       // This must be the first print variable.
@@ -1382,7 +1418,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
   // -r output is not made for these formats
   if ( (print_type == PrintType::SENS) || 
        (print_type == PrintType::HOMOTOPY) || 
-       (print_type == PrintType::SPARAM) )
+       (print_type == PrintType::SPARAM) ||
+       (print_type == PrintType::ES) )
   {
     print_parameters.formatSupportsOverrideRaw_= false; 
   }
@@ -1426,6 +1463,11 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       freq_print_parameters.expandComplexTypes_ = true;
       addOutputPrintParameters(OutputType::AC, freq_print_parameters); 
     }
+    else if (print_type == PrintType::ES)
+    {
+      PrintParameters es_print_parameters = print_parameters;
+      addOutputPrintParameters(OutputType::ES, es_print_parameters);
+    }
     else if ( (print_type == PrintType::HB) || (print_type == PrintType::HB_FD) )
     {
       PrintParameters freq_print_parameters = print_parameters;
@@ -1454,16 +1496,20 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     }
     else if (print_type == PrintType::TRAN)
     {
+      // OutputType::ES takes precedence over OutputType::TRAN.  This will be
+      // enforced in OutputMgr:prepareOutput()
       addOutputPrintParameters(OutputType::TRAN, print_parameters);
     }
     else if (print_type == PrintType::DC)
     {
+      // OutputType::ES takes precedence over OutputType::DC.  This will be
+      // enforced in OutputMgr:prepareOutput()
       addOutputPrintParameters(OutputType::DC, print_parameters);
     }
     else
     {
-      Report::UserWarning0() << "-o only produces output for .PRINT AC, .PRINT DC, .PRINT NOISE, "
-                             << ".PRINT TRAN, .PRINT HB, .PRINT HB_FD and .LIN lines";
+      Report::UserWarning0() << "-o only produces output for .PRINT AC, .PRINT DC, .PRINT ES, "
+                             << ".PRINT NOISE, .PRINT TRAN, .PRINT HB, .PRINT HB_FD and .LIN lines";
     }
   }
   else if (print_type == PrintType::AC)
@@ -1930,6 +1976,37 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       dc_print_parameters.printIndexColumn_ = true;
     }
     addOutputPrintParameters(OutputType::DC, dc_print_parameters);
+  }
+  else if (print_type == PrintType::ES)
+  {
+    PrintParameters es_print_parameters = print_parameters;
+    if (es_print_parameters.format_ == Format::STD)
+    {
+      es_print_parameters.defaultExtension_ = "ES.prn";
+    }
+    else if (es_print_parameters.format_ == Format::CSV)
+    {
+      es_print_parameters.defaultExtension_ = ".ES.csv";
+    }
+    else if (es_print_parameters.format_ == Format::TECPLOT)
+    {
+      es_print_parameters.defaultExtension_ = ".ES.dat";
+    }
+    else if ((es_print_parameters.format_ == Format::RAW) ||
+             (es_print_parameters.format_ == Format::RAW_ASCII) ||
+             (es_print_parameters.format_ == Format::PROBE) ||
+             (es_print_parameters.format_ == Format::TS1) ||
+             (es_print_parameters.format_ == Format::TS2) )
+    {
+      es_print_parameters.defaultExtension_ = "ES.prn";
+      // print out the Index column, since this will be in STD format
+      es_print_parameters.printIndexColumn_ = true;
+    }
+    else
+    {
+      es_print_parameters.defaultExtension_ = ".ES.unknown";
+    }
+    addOutputPrintParameters(OutputType::ES, es_print_parameters);
   }
   else
   {
@@ -3010,6 +3087,36 @@ void OutputMgr::outputNoise(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : OutputMgr::outputEmbeddedSampling
+// Purpose       : .PRINT ES for embedded sampling runs
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/26/2019
+//-----------------------------------------------------------------------------
+void OutputMgr::outputEmbeddedSampling(
+    Parallel::Machine comm,
+    bool regressionPCEenable,
+    bool projectionPCEenable,
+    int  numSamples,
+    const std::vector<std::string> & regressionPCEcoeffs,
+    const std::vector<std::string> & projectionPCEcoeffs,
+    const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_)
+{
+  if (!activeOutputterStack_.empty())
+  {
+    std::vector<Outputter::Interface *>::const_iterator it =
+      activeOutputterStack_.back().begin();
+
+    for ( ; it != activeOutputterStack_.back().end(); ++it)
+    {
+      (*it)->outputEmbeddedSampling(comm, regressionPCEenable, projectionPCEenable,
+	       numSamples, regressionPCEcoeffs, projectionPCEcoeffs, outFuncDataVec_);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : OutputMgr::outputHomotopy
 // Purpose       :
 // Special Notes :
@@ -3296,6 +3403,9 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("PRECISION", Util::Param("PRECISION", 8)));
     parameters.insert(Util::ParamMap::value_type("TIMESCALEFACTOR", Util::Param("TIMESCALEFACTOR", 1.0)));
     parameters.insert(Util::ParamMap::value_type("FILTER", Util::Param("FILTER", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", false)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_PCE_COEFFS", Util::Param("OUTPUT_PCE_COEFFS", false)));
   }
 }
 

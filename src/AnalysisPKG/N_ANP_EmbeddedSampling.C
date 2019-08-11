@@ -594,15 +594,15 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "RESAMPLE")
     {
-      resamplePCE_ = true;
+      resamplePCE_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
     else if ((*it).uTag() == "OUTPUT_PCE_COEFFS")
     {
-      outputPCECoeffs_ = true;
+      outputPCECoeffs_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
     else if ((*it).uTag() == "SPARSE_GRID")
     {
-      useSparseGrid_ = true;
+      useSparseGrid_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
 #endif
     else if ((*it).uTag() == "STDOUTPUT")
@@ -656,6 +656,9 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
   {
     Report::UserWarning0() << "Output function was not specified";
   }
+
+  // signal the OutputMgr that Embedded Sampling is enabled
+  outputManagerAdapter_.setEnableEmbeddedSamplingFlag(true);
 
   return true;
 }
@@ -732,14 +735,14 @@ void EmbeddedSampling::stepCallBack ()
       std::vector<double> & f = outFunc.sampleOutputs;
       UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
 
-      if (outputPCECoeffs_)
-      {
-        Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << regressionPCE << std::endl;
-        regressionPCE.print(Xyce::lout());
-      }
-
       if (stdOutputFlag_)
       {
+        if (outputPCECoeffs_)
+        {
+          Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << regressionPCE << std::endl;
+          regressionPCE.print(Xyce::lout());
+        }
+
         Xyce::lout() << std::endl;
         Xyce::lout() << "(embedded sampling) regression PCE mean of " << outFunc.outFuncString << " = " << regressionPCE.mean() << std::endl;
         Xyce::lout() << "(embedded sampling) regression PCE stddev of " << outFunc.outFuncString << " = " << regressionPCE.standard_deviation() << std::endl;
@@ -787,14 +790,14 @@ void EmbeddedSampling::stepCallBack ()
 
       UQ::solveProjectionPCE(quadBasis, quadMethod, f, projectionPCE);
 
-      if (outputPCECoeffs_)
-      {
-        Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << projectionPCE << std::endl;
-        projectionPCE.print(Xyce::lout());
-      }
-
       if (stdOutputFlag_)
       {
+        if (outputPCECoeffs_)
+        {
+          Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << projectionPCE << std::endl;
+          projectionPCE.print(Xyce::lout());
+        }
+
         Xyce::lout() << std::endl;
         Xyce::lout() << "(embedded sampling) projection PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
         Xyce::lout() << "(embedded sampling) projection PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
@@ -826,6 +829,45 @@ void EmbeddedSampling::stepCallBack ()
     }
   }
 //
+  if (outputPCECoeffs_)
+  {
+    UQ::outputFunctionData & outFunc = *(outFuncDataVec_[0]);
+    if (regressionPCEenable_)
+    {
+      Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
+      int NN=regressionPCE.size();
+      for (int ii=0;ii<NN;ii++)
+      {
+        const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
+        std::string coefString = "_coef(";
+        for (int jj=0; jj< trm.size()-1; jj++)
+          coefString += std::to_string(trm[jj]) + ",";
+        coefString += std::to_string(trm[trm.size()-1]) + ")";
+
+        regressionPCEcoeffs_.push_back(coefString);
+      }
+    }
+
+    if (projectionPCEenable_)
+    {
+      Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
+      int NN=projectionPCE.size();
+      std::vector<std::string> coeffs;
+      for (int ii=0;ii<NN;ii++)
+      {
+        const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
+        std::string coefString = "_coef(";
+        for (int jj=0; jj< trm.size()-1; jj++)
+          coefString += std::to_string(trm[jj]) + ",";
+        coefString += std::to_string(trm[trm.size()-1]) + ")";
+
+        projectionPCEcoeffs_.push_back(coefString);
+      }
+    }
+  }
+
+  outputManagerAdapter_.outputEmbeddedSampling(regressionPCEenable_, projectionPCEenable_,
+               numSamples_, regressionPCEcoeffs_, projectionPCEcoeffs_, outFuncDataVec_);
 #endif
 
   hackEnsembleOutput ();
@@ -1391,6 +1433,22 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
           output_stream << "\t\" " << stddevString << "\""<<std::endl;
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
+
+          if (outputPCECoeffs_)
+          {
+            Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
+            int NN=regressionPCE.size();
+            for (int ii=0;ii<NN;ii++)
+            {
+              const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
+              std::string coefString = outFunc.outFuncString + "_coef(";
+              for (int jj=0; jj< trm.size()-1; jj++)
+                coefString += std::to_string(trm[jj]) + ", ";
+              coefString += std::to_string(trm[trm.size()-1]) + ")";
+
+              output_stream << "\t\" " << coefString << "\""<<std::endl;
+            }
+          }
         }
 
         if (projectionPCEenable_)
@@ -1408,6 +1466,22 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
           output_stream << "\t\" " << stddevString << "\""<<std::endl;
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
+
+          if (outputPCECoeffs_)
+          {
+            Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
+            int NN=projectionPCE.size();
+            for (int ii=0;ii<NN;ii++)
+            {
+              const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
+              std::string coefString = outFunc.outFuncString + "_coef(";
+              for (int jj=0; jj< trm.size()-1; jj++)
+                coefString += std::to_string(trm[jj]) + ", ";
+              coefString += std::to_string(trm[trm.size()-1]) + ")";              
+              
+              output_stream << "\t\" " << coefString << "\""<<std::endl;
+            }
+          }
         }
 #endif
         if (hackOutputAllSamples_)
@@ -1463,7 +1537,6 @@ void EmbeddedSampling::hackEnsembleOutput ()
 #if Xyce_STOKHOS_ENABLE
       if (regressionPCEenable_)
       {
-        //Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & regressionPCE = outFunc.regressionPCE;
         Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
 
         double pce_mean = regressionPCE.mean();
@@ -1492,6 +1565,15 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
         output_stream << "\t" << pce_stddev;
         output_stream << "\t" << pce_variance;
+
+        if (outputPCECoeffs_)
+        {
+          int NN=regressionPCE.size();
+          for (int ii=0;ii<NN;ii++)
+          {
+            output_stream << "\t" << regressionPCE[ii];
+          }
+        }
       }
 
       if (projectionPCEenable_)
@@ -1524,6 +1606,16 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
         output_stream << "\t" << pce_stddev;
         output_stream << "\t" << pce_variance;
+
+        if (outputPCECoeffs_)
+        {
+          int NN=projectionPCE.size();
+          for (int ii=0;ii<NN;ii++)
+          {
+            //output_stream << "\t" << projectionPCE[ii];
+            output_stream << "\t" << projectionPCE.fastAccessCoeff(ii);
+          }
+        }
       }
 #endif
 

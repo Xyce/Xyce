@@ -270,7 +270,7 @@ void sampleApproximationPCE(
     const int numSamples,
     const int numParams,
     const std::vector< ScalarT > & samplePCEvec,
- std::vector <std::vector<double> > & fvec,
+    std::vector <std::vector<double> > & fvec,
     std::vector <UQ::statisticalMoments> & statVec)
 {
   // 0. check size of samplePCEvec and fvec (should both = number of outputs)

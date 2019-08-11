@@ -413,7 +413,7 @@ void OutputMgrAdapter::outputAC (
   const Linear::Vector &  solnVecImaginaryPtr,
   const Util::Op::RFparamsData & RFparams)
 {
-  measureManager_.updateACMeasures(comm_, frequency, &solnVecRealPtr, &solnVecImaginaryPtr);
+  measureManager_.updateACMeasures(comm_, frequency, &solnVecRealPtr, &solnVecImaginaryPtr, &RFparams);
   
   outputManager_.outputAC(comm_, frequency, fStart, fStop, solnVecRealPtr, solnVecImaginaryPtr, RFparams);
 
@@ -482,6 +482,26 @@ void OutputMgrAdapter::outputNoise (
   
   outputManager_.outputNoise(comm_, frequency, solnVecRealPtr, solnVecImaginaryPtr, 
       totalOutputNoiseDens_, totalInputNoiseDens_,noiseDataVec_);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : OutputMgrAdapter::outputEmbeddedSampling
+// Purpose       : constructor for Embedded Sampling output
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/26/2019
+//-----------------------------------------------------------------------------
+void  OutputMgrAdapter::outputEmbeddedSampling(
+  bool regressionPCEenable,
+  bool projectionPCEenable,
+  int  numSamples,
+  const std::vector<std::string> & regressionPCEcoeffs_,
+  const std::vector<std::string> & projectionPCEcoeffs_,
+  const std::vector<UQ::outputFunctionData*> & outFuncDataVec_)
+{
+  outputManager_.outputEmbeddedSampling(comm_, regressionPCEenable, projectionPCEenable,
+      numSamples, regressionPCEcoeffs_, projectionPCEcoeffs_, outFuncDataVec_);
 }
 
 //-----------------------------------------------------------------------------

@@ -20,34 +20,35 @@
 //   If not, see <http://www.gnu.org/licenses/>.
 //-------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //
-// Purpose        : 
+// Purpose        : Outputter class for Embedded Sampling
 //
-// Special Notes  : 
-//                  templatization)
+// Special Notes  :
 //
-// Creator        : Eric Keiter, SNL
+// Creator        : Pete Sholander, SNL
 //
-// Creation Date  : 2016/04/8
+// Creation Date  : 7/26/2019
 //
-//-------------------------------------------------------------------------
+//
+//
+//
+//-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_IO_OutputTypes_h
-#define Xyce_N_IO_OutputTypes_h
+#ifndef Xyce_N_IO_OutputterEmbeddedSampling_h
+#define Xyce_N_IO_OutputterEmbeddedSampling_h
+
+#include <N_IO_OutputterLocal.h>
 
 namespace Xyce {
 namespace IO {
+namespace Outputter {
 
-namespace OutputType {
-enum OutputType {DC, TRAN, AC, AC_IC, HB_FD, HB_TD, HB_IC, HB_STARTUP, DCOP, HOMOTOPY, MPDE, MPDE_IC, MPDE_STARTUP, SENS, TRANADJOINT, NOISE, SPARAM, ES};
-}
+void enableEmbeddedSamplingOutput(Parallel::Machine comm, OutputMgr &output_manager, Analysis::Mode analysis_mode);
 
-typedef std::map<OutputType::OutputType, std::vector<PrintParameters> > OutputParameterMap;
- typedef std::map<OutputType::OutputType, std::vector<ExternalOutputWrapper *> > ExternalOutputWrapperMap;
 
+} // namespace Outputter
 } // namespace IO
 } // namespace Xyce
 
-#endif // Xyce_N_IO_OutputTypes_h
-
+#endif // Xyce_N_IO_OutputterEmbeddedSampling_h

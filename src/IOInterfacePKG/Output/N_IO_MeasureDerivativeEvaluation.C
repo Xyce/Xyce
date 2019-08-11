@@ -123,10 +123,20 @@ void DerivativeEvaluation::reset()
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void DerivativeEvaluation::updateTran(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void DerivativeEvaluation::updateTran(
+  Parallel::Machine comm,
+  const double circuitTime,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {
     // update our outVarValues_ vector
-    updateOutputVars(comm, outVarValues_, circuitTime, solnVec, stateVec, storeVec, 0, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector );
+    updateOutputVars(comm, outVarValues_, circuitTime,
+      solnVec, stateVec, storeVec, 0, lead_current_vector,
+      junction_voltage_vector, lead_current_dqdt_vector, 0);
 
     if( !initialized_ )
     {
@@ -284,7 +294,33 @@ void DerivativeEvaluation::updateTran(Parallel::Machine comm, const double circu
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void DerivativeEvaluation::updateDC(Parallel::Machine comm, const std::vector<Analysis::SweepParam> & dcParamsVec, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void DerivativeEvaluation::updateDC(
+  Parallel::Machine comm,
+  const std::vector<Analysis::SweepParam> & dcParamsVec,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
+{
+
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DerivativeEvaluation::updateAC()
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, Electrical Models & Simulation
+// Creation Date : 8/7/2019
+//-----------------------------------------------------------------------------
+void DerivativeEvaluation::updateAC(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const Util::Op::RFparamsData *RFparams)
 {
 
 }

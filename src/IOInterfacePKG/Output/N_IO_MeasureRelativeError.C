@@ -295,7 +295,15 @@ void RelativeError::reset()
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void RelativeError::updateTran(Parallel::Machine comm, const double circuitTime, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void RelativeError::updateTran(
+  Parallel::Machine comm,
+  const double circuitTime,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {  
   if( !calculationDone_ )
   {
@@ -303,7 +311,11 @@ void RelativeError::updateTran(Parallel::Machine comm, const double circuitTime,
 
     for( int i=0; i< numOutVars_; i++ )
     {
-      outVarValues_[i] = getOutputValue(comm, outputVars_[i], solnVec, stateVec, storeVec, 0, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector );
+      outVarValues_[i] = getOutputValue(comm, outputVars_[i],
+                                        solnVec, stateVec, storeVec, 0,
+                                        lead_current_vector,
+                                        junction_voltage_vector,
+                                        lead_current_dqdt_vector, 0);
       simulationDataVals_.push_back( outVarValues_[i] );
     }
     initialized_ = true;
@@ -319,7 +331,15 @@ void RelativeError::updateTran(Parallel::Machine comm, const double circuitTime,
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void RelativeError::updateDC(Parallel::Machine comm, const std::vector<Analysis::SweepParam> & dcParamsVec, const Linear::Vector *solnVec, const Linear::Vector *stateVec, const Linear::Vector *storeVec, const Linear::Vector *lead_current_vector, const Linear::Vector *junction_voltage_vector, const Linear::Vector *lead_current_dqdt_vector)
+void RelativeError::updateDC(
+  Parallel::Machine comm,
+  const std::vector<Analysis::SweepParam> & dcParamsVec,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *stateVec,
+  const Linear::Vector *storeVec,
+  const Linear::Vector *lead_current_vector,
+  const Linear::Vector *junction_voltage_vector,
+  const Linear::Vector *lead_current_dqdt_vector)
 {
   // The dcParamsVec will be empty if the netlist has a .OP statement without a .DC statement.
   // In that case, a DC MEASURE will be reported as FAILED.
@@ -327,7 +347,11 @@ void RelativeError::updateDC(Parallel::Machine comm, const std::vector<Analysis:
   {   
     for( int i=0; i< numOutVars_; i++ )
     {
-      outVarValues_[i] = getOutputValue(comm, outputVars_[i], solnVec, stateVec, storeVec, 0, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector );
+      outVarValues_[i] = getOutputValue(comm, outputVars_[i],
+                                        solnVec, stateVec, storeVec, 0,
+                                        lead_current_vector,
+                                        junction_voltage_vector,
+                                        lead_current_dqdt_vector, 0);
       simulationDataVals_.push_back( outVarValues_[i] );
     }
     initialized_ = true;
@@ -344,7 +368,12 @@ void RelativeError::updateDC(Parallel::Machine comm, const std::vector<Analysis:
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2014
 //-----------------------------------------------------------------------------
-void RelativeError::updateAC(Parallel::Machine comm, const double frequency, const Linear::Vector * solnVec, const Linear::Vector *imaginaryVec)
+void RelativeError::updateAC(
+  Parallel::Machine comm,
+  const double frequency,
+  const Linear::Vector *solnVec,
+  const Linear::Vector *imaginaryVec,
+  const Util::Op::RFparamsData *RFparams)
 {
   if( !calculationDone_ )
   {
@@ -353,7 +382,8 @@ void RelativeError::updateAC(Parallel::Machine comm, const double frequency, con
     // update our outVarValues_ vector
     for( int i=0; i< numOutVars_; i++ )
     {
-      outVarValues_[i] = getOutputValue(comm, outputVars_[i], solnVec, 0, 0, imaginaryVec, 0, 0, 0 );
+      outVarValues_[i] = getOutputValue(comm, outputVars_[i], solnVec, 0, 0,
+                                        imaginaryVec, 0, 0, 0, RFparams );
       simulationDataVals_.push_back( outVarValues_[i] );
     }
     initialized_ = true;

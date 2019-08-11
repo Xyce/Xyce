@@ -247,6 +247,8 @@ private:
 
   bool resamplePCE_;
   bool outputPCECoeffs_;
+  std::vector<std::string> regressionPCEcoeffs_;
+  std::vector<std::string> projectionPCEcoeffs_;
 
   int numResamples_;
   bool numResamplesGiven_;

@@ -24,6 +24,9 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_InitialConditions.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterExternal.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterLocal.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingCSV.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingPrn.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSamplingTecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterFrequencyCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterFrequencyPrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterFrequencyProbe.C
@@ -70,6 +73,7 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_Outputter.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterAC.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterDC.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterEmbeddedSampling.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHB.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterMPDE.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterRawOverride.C
