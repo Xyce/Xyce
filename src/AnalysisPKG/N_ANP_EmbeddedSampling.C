@@ -166,6 +166,7 @@ EmbeddedSampling::EmbeddedSampling(
       hackOutputFormat_("TECPLOT"),
       hackOutputCalledBefore_(false),
       hackOutputAllSamples_(false),
+      outputtersCalledBefore_(false),
       outputSampleStats_(true),
 #if Xyce_STOKHOS_ENABLE
       regressionPCEenable_(false),
@@ -173,6 +174,8 @@ EmbeddedSampling::EmbeddedSampling(
       PCEorder_(4),
       resamplePCE_(false),
       outputPCECoeffs_(false),
+      regressionPCEcoeffs_(),
+      projectionPCEcoeffs_(),
       numResamples_(1000),
       numResamplesGiven_(false),
       useSparseGrid_(false),
@@ -828,49 +831,66 @@ void EmbeddedSampling::stepCallBack ()
       }
     }
   }
+#endif
 //
-  if (outputPCECoeffs_)
+  // only call outputter functions if OUTPUTS= was used on the
+  // .OPTIONS EMBEDDEDSAMPLES line.
+  if (outputsGiven_)
   {
-    UQ::outputFunctionData & outFunc = *(outFuncDataVec_[0]);
-    if (regressionPCEenable_)
+#if Xyce_STOKHOS_ENABLE
+    if (!outputtersCalledBefore_)
     {
-      Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
-      int NN=regressionPCE.size();
-      for (int ii=0;ii<NN;ii++)
+      UQ::outputFunctionData & outFunc = *(outFuncDataVec_[0]);
+      if (regressionPCEenable_)
       {
-        const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
-        std::string coefString = "_coef(";
-        for (int jj=0; jj< trm.size()-1; jj++)
-          coefString += std::to_string(trm[jj]) + ",";
-        coefString += std::to_string(trm[trm.size()-1]) + ")";
+        Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
+        int NN=regressionPCE.size();
+        for (int ii=0;ii<NN;ii++)
+        {
+          const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
+          std::string coefString = "_coef(";
+          for (int jj=0; jj< trm.size()-1; jj++)
+            coefString += std::to_string(trm[jj]) + ",";
+          coefString += std::to_string(trm[trm.size()-1]) + ")";
 
-        regressionPCEcoeffs_.push_back(coefString);
+          regressionPCEcoeffs_.push_back(coefString);
+        }
+      }
+
+      if (projectionPCEenable_)
+      {
+        Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
+        int NN=projectionPCE.size();
+        std::vector<std::string> coeffs;
+        for (int ii=0;ii<NN;ii++)
+        {
+          const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
+          std::string coefString = "_coef(";
+          for (int jj=0; jj< trm.size()-1; jj++)
+            coefString += std::to_string(trm[jj]) + ",";
+          coefString += std::to_string(trm[trm.size()-1]) + ")";
+
+          projectionPCEcoeffs_.push_back(coefString);
+        }
       }
     }
-
-    if (projectionPCEenable_)
-    {
-      Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
-      int NN=projectionPCE.size();
-      std::vector<std::string> coeffs;
-      for (int ii=0;ii<NN;ii++)
-      {
-        const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
-        std::string coefString = "_coef(";
-        for (int jj=0; jj< trm.size()-1; jj++)
-          coefString += std::to_string(trm[jj]) + ",";
-        coefString += std::to_string(trm[trm.size()-1]) + ")";
-
-        projectionPCEcoeffs_.push_back(coefString);
-      }
-    }
-  }
-
-  outputManagerAdapter_.outputEmbeddedSampling(regressionPCEenable_, projectionPCEenable_,
-               numSamples_, regressionPCEcoeffs_, projectionPCEcoeffs_, outFuncDataVec_);
 #endif
 
-  hackEnsembleOutput ();
+#if Xyce_STOKHOS_ENABLE
+    outputManagerAdapter_.outputEmbeddedSampling(regressionPCEenable_, projectionPCEenable_,
+                 numSamples_, regressionPCEcoeffs_, projectionPCEcoeffs_, outFuncDataVec_);
+#else
+    // regressionPCEcoeffs_ and projectionPCEcoeffs_ vectors aren't defined for
+    // non-Stokhos builds.  So, make two empty vectors.
+    std::vector<std::string> emptyVec1, emptyVec2;
+    outputManagerAdapter_.outputEmbeddedSampling(0, 0, numSamples_, emptyVec1,
+                 emptyVec2, outFuncDataVec_);
+#endif
+
+    hackEnsembleOutput ();
+
+    outputtersCalledBefore_ = true;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1358,9 +1378,7 @@ void EmbeddedSampling::computeEnsembleOutputs()
 //-----------------------------------------------------------------------------
 void EmbeddedSampling::hackEnsembleOutput ()
 {
-  if (outputsGiven_)
-  {
-    std::string fileName; 
+    std::string fileName;
 
     if (hackOutputFormat_=="TECPLOT")
     {
@@ -1436,17 +1454,10 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
           if (outputPCECoeffs_)
           {
-            Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
-            int NN=regressionPCE.size();
-            for (int ii=0;ii<NN;ii++)
+            std::vector<std::string>::const_iterator it;
+            for (it=regressionPCEcoeffs_.begin();it!=regressionPCEcoeffs_.end();++it)
             {
-              const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
-              std::string coefString = outFunc.outFuncString + "_coef(";
-              for (int jj=0; jj< trm.size()-1; jj++)
-                coefString += std::to_string(trm[jj]) + ", ";
-              coefString += std::to_string(trm[trm.size()-1]) + ")";
-
-              output_stream << "\t\" " << coefString << "\""<<std::endl;
+              output_stream << "\t\" " << outFunc.outFuncString + *it << "\""<<std::endl;
             }
           }
         }
@@ -1469,17 +1480,10 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
           if (outputPCECoeffs_)
           {
-            Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
-            int NN=projectionPCE.size();
-            for (int ii=0;ii<NN;ii++)
+            std::vector<std::string>::const_iterator it;
+            for (it=projectionPCEcoeffs_.begin();it!=projectionPCEcoeffs_.end();++it)
             {
-              const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
-              std::string coefString = outFunc.outFuncString + "_coef(";
-              for (int jj=0; jj< trm.size()-1; jj++)
-                coefString += std::to_string(trm[jj]) + ", ";
-              coefString += std::to_string(trm[trm.size()-1]) + ")";              
-              
-              output_stream << "\t\" " << coefString << "\""<<std::endl;
+              output_stream << "\t\" " << outFunc.outFuncString + *it << "\""<<std::endl;
             }
           }
         }
@@ -1630,9 +1634,6 @@ void EmbeddedSampling::hackEnsembleOutput ()
     }
 
     output_stream << std::endl;
-
-  //
-  }
 
   return;
 }
