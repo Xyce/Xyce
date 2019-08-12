@@ -516,6 +516,8 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     {
       numSamples_ = (*it).getImmutableValue<int>();
       numSamplesGiven_ = true;
+      if (numSamples_ <= 0)
+        Report::UserError() << "NUMSAMPLES parameter on .EMBEDDEDSAMPLES line must > 0";
     }
     else if (std::string((*it).uTag() ,0,9) == "COVMATRIX" ) // this is a vector
     {
@@ -547,6 +549,8 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     else if ((*it).uTag() == "ORDER")
     {
       PCEorder_ = (*it).getImmutableValue<int>();
+      if (PCEorder_ < 0)
+       Report::UserError() << "ORDER parameter on .EMBEDDEDSAMPLES line must >= 0";
     }
 #endif
     else if ((*it).uTag() == "SAMPLE_TYPE")
@@ -630,10 +634,9 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     else
     {
       Xyce::Report::UserWarning() << (*it).uTag() 
-        << " is not a recognized sampling option.\n" << std::endl;
+        << " is not a recognized sampling option, or may only be supported for PCE\n" << std::endl;
     }
   }
-
 
   // parse the expression now, so if there are any errors, they will come
   // up early in the simulation.
