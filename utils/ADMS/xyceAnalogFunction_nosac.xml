@@ -663,12 +663,29 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
        individual argument in $arg#, and each argument's derivatives
        in the $d_arg#_d_name variables.  Form the actual function call
        and its derivatives.  Note:  "index" returns zero-based indices -->
-  <admst:variable name="expression" select="$funcname($args)"/>
+  <admst:choose>
+    <admst:when test="[$funcname='\$vt']">
+      <admst:choose>
+        <admst:when test="[$args='']">
+          <admst:fatal format="Illegal to use \$vt with no argument in analog function\n"/>
+        </admst:when>
+        <admst:otherwise>
+          <admst:variable name="expression" value="adms_vt($args)"/>
+        </admst:otherwise>
+      </admst:choose>
+    </admst:when>
+    <admst:otherwise>
+      <admst:variable name="expression" select="$funcname($args)"/>
+    </admst:otherwise>
+  </admst:choose>
 
   <!-- Now let us construct expressions for the derivative of the function
        with respect to its arguments. These will be stored in d_f_d#, where
        # is the index (zero-based) of the argument -->
   <admst:choose>
+    <admst:when test="[name='\$vt']">
+      <admst:variable name="d_f_d0" value="CONSTKoverQ"/>
+    </admst:when>
     <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh']">
       <!-- functions of one argument, set "d_f_d0" to the expression for
            the derivative of f(x)/dx where x is the argument -->
