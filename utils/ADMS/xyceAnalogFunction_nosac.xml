@@ -77,7 +77,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 -->
 
 <admst:template match="xyceAnalogFunctions:processTerm">
-  <admst:apply-templates select="." match="xyceAnalogFunctions:$(adms/datatypename)">
+  <admst:apply-templates select="." match="xyceAnalogFunctions:%(adms/datatypename)">
     <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
     <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
       <admst:value-of select="name"/>
@@ -102,7 +102,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 
 <!-- top level expression -->
 <admst:template match="xyceAnalogFunctions:expression">
-  <admst:apply-templates select="tree" match="xyceAnalogFunctions:$(adms/datatypename)" required="yes">
+  <admst:apply-templates select="tree" match="xyceAnalogFunctions:%(adms/datatypename)" required="yes">
     <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
     <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
       <admst:value-of select="name"/>
@@ -163,7 +163,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 
 <!-- variable -->
 <admst:template match="xyceAnalogFunctions:variable">
-  <admst:variable name="returnedExpression" select="%(name)"/>
+  <admst:variable name="variable" select="%(name)"/>
   <admst:return name="returnedExpression" value="$variable"/>
   <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
     <admst:value-of select="name"/>
@@ -216,8 +216,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
           <admst:value-of select="name"/>
           <admst:value-of select="returned('d_exp_d_%s')/value"/>
-          <admst:value-of select="name"/>
-          <admst:variable name="$a1Deriv" select="%s"/>
+          <admst:variable name="a1Deriv" select="%s"/>
           <admst:choose>
             <admst:when test="[$a1Deriv='0.0']">
               <admst:value-of select="name"/>
@@ -277,15 +276,15 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:when test="[arg1/math/value=0.0]">
           <admst:variable name="expression" select="(+%($a2))"/>
           <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a2Deriv" select="$(d_a2_d_%s)"/>
             <admst:choose>
               <admst:when test="[$a2Deriv = '0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="0.0"/>
               </admst:when>
               <admst:otherwise>
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="(+%($a2Deriv))"/>
               </admst:otherwise>
             </admst:choose>
@@ -294,15 +293,15 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:when test="[arg2/math/value=0.0]">
           <admst:variable name="expression" select="(%($a1))"/>
           <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a1Deriv" select="$(d_a1_d_%s)"/>
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="0.0"/>
               </admst:when>
               <admst:otherwise>
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="(%($a1Deriv))"/>
               </admst:otherwise>
             </admst:choose>
@@ -311,25 +310,25 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:otherwise>
           <admst:variable name="expression" select="($a1+$a2)"/>
           <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a1Deriv" select="$(d_a1_d_%s)"/>
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a2Deriv" select="$(d_a2_d_%s)"/>
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0' and $a2Deriv ='0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="0.0"/>
               </admst:when>
               <admst:when test="[$a1Deriv = '0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="$a2Deriv"/>
               </admst:when>
               <admst:when test="[$a2Deriv = '0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="$a1Deriv"/>
               </admst:when>
               <admst:otherwise>
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="($a1Deriv+$a2Deriv)"/>
               </admst:otherwise>
             </admst:choose>
@@ -351,15 +350,15 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:when test="[arg1/math/value=0.0]">
           <admst:variable name="expression" select="(-%($a2))"/>
           <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a2Deriv" select="$(d_a2_d_%s)"/>
             <admst:choose>
               <admst:when test="[$a2Deriv = '0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="0.0"/>
               </admst:when>
               <admst:otherwise>
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="(-%($a2Deriv))"/>
               </admst:otherwise>
             </admst:choose>
@@ -368,15 +367,15 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:when test="[arg2/math/value=0.0]">
           <admst:variable name="expression" select="(%($a1))"/>
           <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a1Deriv" select="$(d_a1_d_%s)"/>
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="0.0"/>
               </admst:when>
               <admst:otherwise>
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="(%($a1Deriv))"/>
               </admst:otherwise>
             </admst:choose>
@@ -385,25 +384,25 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:otherwise>
           <admst:variable name="expression" select="($a1-$a2)"/>
           <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a1Deriv" select="$(d_a1_d_%s)"/>
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a2Deriv" select="$(d_a2_d_%s)"/>
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0' and $a2Deriv ='0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="0.0"/>
               </admst:when>
               <admst:when test="[$a1Deriv = '0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="(-$a2Deriv)"/>
               </admst:when>
               <admst:when test="[$a2Deriv = '0.0']">
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="$a1Deriv"/>
               </admst:when>
               <admst:otherwise>
-                <admst:value-to select="name"/>
+                <admst:value-of select="name"/>
                 <admst:variable name="d_exp_d_%s" select="($a1Deriv-$a2Deriv)"/>
               </admst:otherwise>
             </admst:choose>
@@ -432,10 +431,10 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:otherwise>
           <admst:variable name="expression" select="($a1*$a2)"/>
           <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a1Deriv" select="$(d_a1_d_%s)"/>
-            <admst:value-to select="name"/>
-            <admst:variable name="a2Deriv" select="$(d_a2_d_%s)"/>
+            <admst:value-of select="name"/>
+            <admst:variable name="a2Deriv" select="$(d_a2_d_%s))"/>
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0' and $a2Deriv = '0.0']">
                 <admst:variable name="expressionDeriv" select="0.0"/>
@@ -471,7 +470,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
                 <admst:variable name="expressionDeriv" select="(($a1*$a2Deriv)+($a1Deriv*$a2))"/>
               </admst:otherwise>
             </admst:choose>
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="d_exp_d_%s" select="$expressionDeriv"/>
           </admst:for-each>
         </admst:otherwise>
@@ -496,9 +495,9 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:otherwise>
           <admst:variable name="expression" select="($a1/$a2)"/>
           <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a1Deriv" select="$(d_a1_d_%s)"/>
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="a2Deriv" select="$(d_a2_d_%s)"/>
             <admst:choose>
               <admst:when test="[$a1Deriv='0.0' and $a2Deriv='0.0']">
@@ -554,14 +553,18 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
                 </admst:choose>
               </admst:otherwise>
             </admst:choose>
-            <admst:value-to select="name"/>
+            <admst:value-of select="name"/>
             <admst:variable name="d_exp_d_%s" select="$expressionDeriv"/>
           </admst:for-each>
         </admst:otherwise>
       </admst:choose>
     </admst:when>
     <admst:otherwise>
-      <admst:fatal format="mapply_binary not yet set up to handle operator %(name) in analog functions\n"/>
+      <admst:variable name="expression" select="($a1%(bname(.)/[name='bname']/value)$a2)"/>
+      <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+        <admst:value-of select="name"/>
+        <admst:variable name="d_exp_d_%s" value="0.0"/>
+      </admst:for-each>
     </admst:otherwise>
   </admst:choose>
 
@@ -604,11 +607,11 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
   </admst:apply-templates>
   <admst:variable name="expression" select="($a1?$a2:$a3)"/>
   <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-    <admst:value-to select="name"/>
+    <admst:value-of select="name"/>
     <admst:variable name="a2Deriv" select="$(d_a2_d_%s)"/>
-    <admst:value-to select="name"/>
+    <admst:value-of select="name"/>
     <admst:variable name="a3Deriv" select="$(d_a3_d_%s)"/>
-    <admst:value-to select="name"/>
+    <admst:value-of select="name"/>
     <admst:variable name="d_exp_d_%s" select="($a1?$a2Deriv:$a3Deriv)"/>
   </admst:for-each>
   <admst:return name="returnedExpression" value="$expression"/>
@@ -624,7 +627,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
      calls inside analog function definitions.  We'll fix that when we write
      all the code to handle analog function calls properly everywhere else -->
 <admst:template match="xyceAnalogFunctions:function">
-  <admst:variable name="funcname" select="%(funcname(.)/[name='fname']/value)"/>
+  <admst:variable name="funcname" select="%(xyceAnalogFunctions:funcname(.)/[name='fname']/value)"/>
   <admst:variable name="args" select=""/>
   <admst:variable name="thisFunctionCall" path="."/>
   <admst:for-each select="arguments">
@@ -666,7 +669,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
        with respect to its arguments. These will be stored in d_f_d#, where
        # is the index (zero-based) of the argument -->
   <admst:choose>
-    <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh']">
+    <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh']">
       <!-- functions of one argument, set "d_f_d0" to the expression for
            the derivative of f(x)/dx where x is the argument -->
       <admst:choose>
@@ -675,6 +678,9 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         </admst:when>
         <admst:when test="[name='ln']">
           <admst:variable name="d_f_d0" select="(1.0/%($arg0))"/>
+        </admst:when>
+        <admst:when test="[name='log']">
+          <admst:variable name="d_f_d0" select="(1.0/(log(10.0)*%($arg0)))"/>
         </admst:when>
         <admst:when test="[name='sqrt']">
           <admst:variable name="d_f_d0" select="(0.5/sqrt(%($arg0)));\n"/>
@@ -722,7 +728,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
           <admst:variable name="d_f_d0" select="(((%($arg0))&lt;80)?(limexp(%($arg0))):exp(80.0))"/>
         </admst:when>
         <admst:otherwise>
-          admst:variable name="d_f_d0" select="0.0"/>
+          <admst:variable name="d_f_d0" select="0.0"/>
           <admst:warning format="function derivative for %(name) not implemented yet!\n"/>
         </admst:otherwise>
       </admst:choose>
@@ -731,20 +737,20 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
       <!-- two-argument functions -->
       <admst:choose>
         <admst:when test="[name='pow']">
-          admst:variable name="d_f_d0" select="((%($arg0)==0.0)?0.0:(pow(%($arg0),%($arg1))*%($arg1)/%($arg0)))"/>
-          admst:variable name="d_f_d1" select="((%($arg0)==0.0)?0.0:(log(%($arg0)*pow(%($arg0),%($arg1)))))"/>
+          <admst:variable name="d_f_d0" select="((%($arg0)==0.0)?0.0:(pow(%($arg0),%($arg1))*%($arg1)/%($arg0)))"/>
+          <admst:variable name="d_f_d1" select="((%($arg0)==0.0)?0.0:(log(%($arg0)*pow(%($arg0),%($arg1)))))"/>
         </admst:when>
         <admst:when test="[name='min']">
-          admst:variable name="d_f_d0" select="((%($arg0)&lt;=%($arg1))?1.0:0.0)"/>
-          admst:variable name="d_f_d1" select="((%($arg0)&lt;=%($arg1))?0.0:1.0)"/>
+          <admst:variable name="d_f_d0" select="((%($arg0)&lt;=%($arg1))?1.0:0.0)"/>
+          <admst:variable name="d_f_d1" select="((%($arg0)&lt;=%($arg1))?0.0:1.0)"/>
         </admst:when>
         <admst:when test="[name='max']">
-          admst:variable name="d_f_d0" select="((%($arg0)&gt;=%($arg1))?1.0:0.0)"/>
-          admst:variable name="d_f_d1" select="((%($arg0)&gt;=%($arg1))?0.0:1.0)"/>
+          <admst:variable name="d_f_d0" select="((%($arg0)&gt;=%($arg1))?1.0:0.0)"/>
+          <admst:variable name="d_f_d1" select="((%($arg0)&gt;=%($arg1))?0.0:1.0)"/>
         </admst:when>
         <admst:otherwise>
-          admst:variable name="d_f_d0" select="0.0"/>
-          admst:variable name="d_f_d1" select="0.0"/>
+          <admst:variable name="d_f_d0" select="0.0"/>
+          <admst:variable name="d_f_d1" select="0.0"/>
           <admst:warning format="function derivative for %(name) not implemented yet!\n"/>
         </admst:otherwise>
       </admst:choose>
@@ -762,7 +768,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 
   <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
     <admst:variable name="expressionDeriv" select=""/>
-    <admst:variable name="wrt" select="name"/>
+    <admst:variable name="wrt" value="%(name)"/>
     <admst:for-each select="$thisFunctionCall/arguments">
       <admst:value-of select="index($thisFunctionCall/arguments,.)"/>
       <admst:variable name="index" select="%s"/>
@@ -770,7 +776,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:if test="[not($expressionDeriv='')]">
           <admst:variable name="expressionDeriv" select="$(expressionDeriv)+"/>
         </admst:if>
-        <admst:variable name="expressionDeriv" select="$(expressionDeriv)d_f_d$(index)*d_arg$(index)_d_$(wrt)"/>
+        <admst:variable name="expressionDeriv" select="$(expressionDeriv)$(d_f_d$(index))*$(d_arg$(index)_d_$(wrt))"/>
       </admst:if>
     </admst:for-each>
     <!-- handle the case where it turned out that all the derivs were zero -->
@@ -826,7 +832,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     <admst:when test="[name='limexp']">
       <admst:variable name="expression" select="limexp"/>
     </admst:when>
-    <admst:when test="[name='$limexp']">
+    <admst:when test="[name='\$limexp']">
       <admst:variable name="expression" select="limexp"/>
     </admst:when>
     <admst:otherwise>
@@ -836,9 +842,97 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
   <admst:return name="fname" value="$expression"/>
 </admst:template>
 
+<!-- These templates are used in actual code generation -->
+<!-- each one returns a string that should simply be emitted in the
+     "returnedString" return slot. -->
+<!-- At the moment, we're ONLY emitting derivative functions, so we are
+     only providing templates that do differentiation.  That's because
+     we're already emitting a templated analog function, and it works just
+     fine when everything's "double", and does Sacado differentiation when
+     everything's a Sacado type.  Therefore we are not bothering to produce
+     a second set of templates that do no differentiation for analog functions,
+     as some other ADMS back-ends do.
+     If at some point in the future we need to do that, we can create a
+     second set of templates with a suffix in their names and use those
+     for that purpose. -->
+
+<!-- assignment -->
+<admst:template match="xyceAnalogFunctions:assignment">
+  <admst:variable name="lhsname" value="%(lhs/name)"/>
+  <admst:apply-templates select="rhs" match="xyceAnalogFunctions:processTerm">
+    <admst:variable name="returnedString" select="" />
+
+    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+      <admst:value-of select="name"/>
+      <admst:value-of select="returned('d_exp_d_%s')/value"/>
+      <admst:value-of select="name"/>
+      <admst:variable name="returnedString" select="$(returnedString)d_$(lhsname)_d_%s=%s;\n"/>
+    </admst:for-each>
+    <admst:value-of select="returned('returnedExpression')/value"/>
+    <admst:variable name="returnedString" select="$(returnedString)$(lhsname)=%s;\n"/>
+  </admst:apply-templates>
+  <admst:return name="returnedString" value="$returnedString"/>
+</admst:template>
+
+<!-- if/then/else -->
+<admst:template match="xyceAnalogFunctions:conditional">
+  <admst:variable name="condition"/>
+  <admst:variable name="thenblock"/>
+  <admst:variable name="elseblock"/>
+  <admst:variable name="condition" select="%(xyceAnalogFunctions:processTerm(if)/[name='returnedExpression']/value)"/>
+  <admst:variable name="thenblock" value=""/>
+  <admst:apply-templates select="then" match="xyceAnalogFunctions:%(adms/datatypename)">
+    <admst:if test="[adms/datatypename != 'block']">
+      <admst:variable name="thenblock" value="{\n"/>
+    </admst:if>
+    <admst:value-of select="returned('returnedString')/value"/>
+    <admst:variable name="thenblock" select="$(thenblock)%s"/>
+    <admst:if test="[adms/datatypename != 'block']">
+      <admst:variable name="thenblock" value="$(thenblock)}\n"/>
+    </admst:if>
+  </admst:apply-templates>
+  <admst:variable name="returnedString" value="if($condition)\n$thenblock\n"/>
+  <admst:if test="else">
+    <admst:variable name="elseblock" value=""/>
+    <admst:apply-templates select="else" match="xyceAnalogFunctions:%(adms/datatypename)">
+      <admst:if test="[adms/datatypename != 'block']">
+        <admst:variable name="elseblock" value="{\n"/>
+      </admst:if>
+      <admst:value-of select="returned('returnedString')/value"/>
+      <admst:variable name="elseblock" select="$(elseblock)%s"/>
+      <admst:if test="[adms/datatypename != 'block']">
+        <admst:variable name="elseblock" value="$(elseblock)}\n"/>
+      </admst:if>
+    </admst:apply-templates>
+    <admst:variable name="returnedString" value="$(returnedString)else\n$elseblock\n"/>
+  </admst:if>
+  <admst:return name="returnedString" value="$returnedString"/>
+</admst:template>
+
+<!-- block -->
+<admst:template match="xyceAnalogFunctions:block">
+  <admst:variable name="returnedString" value=""/>
+  <admst:if test="[name!='']">
+    <admst:variable name="returnedString" value="//Begin block %(name)\n"/>
+  </admst:if>
+  <admst:variable name="returnedString" value="$(returnedString){\n"/>
+  <admst:apply-templates select="item" match="xyceAnalogFunctions:%(adms/datatypename)">
+    <admst:value-of select="returned('returnedString')/value"/>
+    <admst:variable name="returnedString" select="$(returnedString)%s"/>
+  </admst:apply-templates>
+  <admst:variable name="returnedString" value="$(returnedString)\n}\n"/>
+  <admst:if test="[name!='']">
+    <admst:variable name="returnedString" value="//End block %(name)\n"/>
+  </admst:if>
+  <admst:return name="returnedString" value="$returnedString"/>
+</admst:template>
+
 <!-- these should never get called, and if they do, it's an error -->
 <admst:template match="xyceAnalogFunctions:probe">
   <admst:fatal format="Probes cannot be accessed inside analog functions\n"/>
+</admst:template>
+<admst:template match="xyceAnalogFunctions:contribution">
+  <admst:fatal format="contributions cannot be used inside analog functions\n"/>
 </admst:template>
 <!-- end error types -->
 
@@ -868,6 +962,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
       </admst:if>
       <admst:text format=" */"/>
     </admst:join>
+    <admst:text format=" , "/>
     <!-- now the derivatives of the args w.r.t. the desired variable -->
     <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
       <admst:text format="%(verilog2CXXtype(.)) "/>
@@ -887,18 +982,39 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     <admst:text format="{\n"/>
     <admst:variable name="fntype" value="%(verilog2CXXtype(.))"/>
     <admst:text format="$fntype %(name);\n"/>
+    <admst:variable name="fntype" value="%(verilog2CXXtype(.))"/>
+    <admst:text format="$fntype d_%(name);\n"/>
     <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
       <admst:text format="%(verilog2CXXtype($globalAnalogFunction)) d_%($function)_d_%(name);\n"/>
     </admst:for-each>
     <admst:for-each select="variable[input='no' and output='no']">
       <admst:variable name="theVar" path="."/>
       <admst:variable name="varname" select="%(name)"/>
-      <admst:text format="%(verilog2CXXtype($theVar)) $varname"/>
+      <admst:text format="%(verilog2CXXtype($theVar)) $varname;\n"/>
       <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
         <admst:text format="%(verilog2CXXtype($theVar)) d_$(varname)_d_%(name);\n"/>
       </admst:for-each>
     </admst:for-each>
-    <admst:text format="// Insert body here! \n"/>
+
+    <admst:apply-templates select="tree" match="xyceAnalogFunctions:%(adms/datatypename)">
+      <admst:value-of select="returned('returnedString')/value"/>
+      <admst:variable name="returnedString" select="%s"/>
+      <admst:text format="$returnedString"/>
+    </admst:apply-templates>
+
+    <admst:for-each select="$globalAnalogFunction/variable[output='yes']">
+      <admst:variable name="outvar" value="%(name)"/>
+      <admst:variable name="expression" value=""/>
+      <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+        <admst:variable name="wrt" value="%(name)"/>
+        <admst:if test="[$expression != '']">
+          <admst:variable name="expression" value="$expression+"/>
+        </admst:if>
+        <admst:variable name="expression" value="$(expression)d_$(outvar)_d_$(wrt)*d_$(wrt)"/>
+      </admst:for-each>
+      <admst:text format="d_$(outvar) = $expression;\n"/>
+    </admst:for-each>
+    <admst:text format="return(d_%(name));\n"/>
     <admst:text format="}\n\n"/>
     <admst:variable name="globalAnalogFunction"/>
   </admst:for-each>

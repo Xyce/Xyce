@@ -3040,7 +3040,7 @@ other variables does not get propagated into a variable's
         </admst:choose>
 
         <admst:choose>
-          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh']">
+          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh']">
             <admst:if test="arguments/math[dependency!='constant']">
               <admst:choose>
                 <admst:when test="[name='exp']">
@@ -3054,6 +3054,9 @@ other variables does not get propagated into a variable's
                   <admst:choose>
                     <admst:when test="[name='ln']">
                       <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/$a1);\n"/>
+                    </admst:when>
+                    <admst:when test="[name='log']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/(log(10.0)*$a1));\n"/>
                     </admst:when>
                     <admst:when test="[name='sqrt']">
                       <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (0.5/value_sqrt_%($functionIndex));\n"/>
