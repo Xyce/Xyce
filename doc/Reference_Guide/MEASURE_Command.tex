@@ -1039,6 +1039,18 @@ calibration.  However, for internal Sandia users, there may be better
 approaches that leverage the combined capabilities of Sandia's Dakota
 and \Xyce{} software packages.
 
+\subsubsection{Operator Support for AC Mode Measures}
+\label{Measure_AC_Op_Support}
+\index{measure!supported operators for AC measures}
+All of the operators supported on \texttt{.PRINT AC} lines are supported
+for AC measure mode.  The linear parameter operators (e.g., \texttt{SR(1,1)})
+are only supported when a \texttt{.LIN} analysis is done, but their values
+can be used in \texttt{.MEASURE AC} statements in that case.
+
+One caveat is that AC mode measures that use \texttt{V(a)} will actually
+measure \texttt{VR(a)}. The same caveat applies to the use of \texttt{S(1,1)}.
+An AC mode measure would measure \texttt{SR(1,1)} instead.
+
 \subsubsection{Behavior for Unsupported Modes and Types}
 \label{Measure_Unsupported_Types}
 \index{measure!unsupported types}
