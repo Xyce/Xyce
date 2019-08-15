@@ -188,20 +188,20 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 <admst:template match="xyceAnalogFunctions:mapply_unary">
   <!-- First decide what type of operator we are -->
   <admst:if test="[name='plus']">
-    <admst:variable name="op" select="+"/>
+    <admst:variable name="op" value="+"/>
   </admst:if>
   <admst:if test="[name='minus']">
-    <admst:variable name="op" select="-"/>
+    <admst:variable name="op" value="-"/>
   </admst:if>
   <admst:if test="[name='not']">
-    <admst:variable name="op" select="!"/>
+    <admst:variable name="op" value="!"/>
   </admst:if>
   <admst:if test="[name='bw_not']">
-    <admst:variable name="op" select="~"/>
+    <admst:variable name="op" value="~"/>
   </admst:if>
   <admst:choose>
     <admst:when test="[arg1/math/value=0.0]">
-      <admst:variable name="expression" select="0.0"/>
+      <admst:variable name="expression" value="0.0"/>
       <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
         <admst:value-of select="name"/>
         <admst:variable name="d_exp_d_%s" value="0.0"/>
@@ -372,7 +372,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0']">
                 <admst:value-of select="name"/>
-                <admst:variable name="d_exp_d_%s" select="0.0"/>
+                <admst:variable name="d_exp_d_%s" value="0.0"/>
               </admst:when>
               <admst:otherwise>
                 <admst:value-of select="name"/>
@@ -391,7 +391,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0' and $a2Deriv ='0.0']">
                 <admst:value-of select="name"/>
-                <admst:variable name="d_exp_d_%s" select="0.0"/>
+                <admst:variable name="d_exp_d_%s" value="0.0"/>
               </admst:when>
               <admst:when test="[$a1Deriv = '0.0']">
                 <admst:value-of select="name"/>
@@ -434,7 +434,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
             <admst:value-of select="name"/>
             <admst:variable name="a1Deriv" select="$(d_a1_d_%s)"/>
             <admst:value-of select="name"/>
-            <admst:variable name="a2Deriv" select="$(d_a2_d_%s))"/>
+            <admst:variable name="a2Deriv" select="$(d_a2_d_%s)"/>
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0' and $a2Deriv = '0.0']">
                 <admst:variable name="expressionDeriv" select="0.0"/>
@@ -700,7 +700,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
           <admst:variable name="d_f_d0" select="(1.0/(log(10.0)*%($arg0)))"/>
         </admst:when>
         <admst:when test="[name='sqrt']">
-          <admst:variable name="d_f_d0" select="(0.5/sqrt(%($arg0)));\n"/>
+          <admst:variable name="d_f_d0" select="(0.5/sqrt(%($arg0)))\n"/>
         </admst:when>
         <admst:when test="[name='abs']">
           <admst:variable name="d_f_d0" select="(((%($arg0)&gt;=0)?(+1.0):(-1.0)))"/>
@@ -793,7 +793,14 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:if test="[not($expressionDeriv='')]">
           <admst:variable name="expressionDeriv" select="$(expressionDeriv)+"/>
         </admst:if>
-        <admst:variable name="expressionDeriv" select="$(expressionDeriv)$(d_f_d$(index))*$(d_arg$(index)_d_$(wrt))"/>
+        <admst:choose>
+          <admst:when test="[$(d_arg$(index)_d_$(wrt)) = '1.0']">
+            <admst:variable name="expressionDeriv" select="$(expressionDeriv)$(d_f_d$(index))"/>
+          </admst:when>
+          <admst:otherwise>
+            <admst:variable name="expressionDeriv" select="$(expressionDeriv)$(d_f_d$(index))*$(d_arg$(index)_d_$(wrt))"/>
+          </admst:otherwise>
+        </admst:choose>
       </admst:if>
     </admst:for-each>
     <!-- handle the case where it turned out that all the derivs were zero -->
@@ -908,7 +915,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
       <admst:variable name="thenblock" value="$(thenblock)}\n"/>
     </admst:if>
   </admst:apply-templates>
-  <admst:variable name="returnedString" value="if($condition)\n$thenblock\n"/>
+  <admst:variable name="returnedString" value="if($condition)\n$thenblock"/>
   <admst:if test="else">
     <admst:variable name="elseblock" value=""/>
     <admst:apply-templates select="else" match="xyceAnalogFunctions:%(adms/datatypename)">
@@ -921,7 +928,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:variable name="elseblock" value="$(elseblock)}\n"/>
       </admst:if>
     </admst:apply-templates>
-    <admst:variable name="returnedString" value="$(returnedString)else\n$elseblock\n"/>
+    <admst:variable name="returnedString" value="$(returnedString)else\n$elseblock"/>
   </admst:if>
   <admst:return name="returnedString" value="$returnedString"/>
 </admst:template>
@@ -937,7 +944,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     <admst:value-of select="returned('returnedString')/value"/>
     <admst:variable name="returnedString" select="$(returnedString)%s"/>
   </admst:apply-templates>
-  <admst:variable name="returnedString" value="$(returnedString)\n}\n"/>
+  <admst:variable name="returnedString" value="$(returnedString)}\n"/>
   <admst:if test="[name!='']">
     <admst:variable name="returnedString" value="//End block %(name)\n"/>
   </admst:if>
