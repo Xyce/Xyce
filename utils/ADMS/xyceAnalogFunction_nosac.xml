@@ -1011,7 +1011,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 
     <admst:variable name="function" select="%(name)"/>
     <admst:variable name="globalAnalogFunction" path="."/>
-    <admst:text format="// Derivative of analog Function %(name)\n"/>
+    <admst:text format="// Derivative of Analog Function %(name)\n"/>
     <admst:text format="%(verilog2CXXtype(.)) d_%(name)("/>
     <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
       <admst:text format="%(verilog2CXXtype(.)) "/>
@@ -1041,7 +1041,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 
     <admst:variable name="function" select="%(name)"/>
     <admst:variable name="globalAnalogFunction" path="."/>
-    <admst:text format="// Derivative of analog Function %(name)\n"/>
+    <admst:text format="// Derivative of Analog Function %(name)\n"/>
     <admst:text format="%(verilog2CXXtype(.)) d_%(name)("/>
     <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
       <admst:text format="%(verilog2CXXtype(.)) "/>
@@ -1100,14 +1100,4 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     <admst:variable name="globalAnalogFunction"/>
 </admst:template>
 
-  <admst:open file="foobar.C">
-    <admst:for-each select="/module/analogfunction">
-      <admst:apply-templates select="." match="xyceAnalogFunctions:Implementation"/>
-    </admst:for-each>
-  </admst:open>
-  <admst:open file="foobar.hxx">
-    <admst:for-each select="/module/analogfunction">
-      <admst:apply-templates select="." match="xyceAnalogFunctions:Declaration"/>
-    </admst:for-each>
-  </admst:open>
 </admst>

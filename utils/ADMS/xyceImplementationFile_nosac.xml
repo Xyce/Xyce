@@ -216,6 +216,14 @@ namespace Xyce {
 namespace Device {
 namespace %($nameSpace) {
 
+<admst:if test="[exists(analogfunction)]">
+<admst:text format="namespace AnalogFunctions {\n"/>
+    <admst:for-each select="analogfunction">
+      <admst:apply-templates select="." match="xyceAnalogFunctions:Implementation"/>
+    </admst:for-each>
+<admst:text format="} // namepace AnalogFunctions\n"/>
+</admst:if>
+
 <admst:if test="[count(node[#collapsible='yes'])=0]">
 <admst:text format="JacobianStamp Instance::jacStamp;\n"/>
 

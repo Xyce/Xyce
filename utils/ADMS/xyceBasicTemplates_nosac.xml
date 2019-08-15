@@ -4503,7 +4503,7 @@ other variables does not get propagated into a variable's
             <admst:variable name="expression" select="value_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))"/>
           </admst:when>
           <admst:otherwise>
-            <admst:message format="Falling back on direct function call instead of precomputation for function %(name) of class %(class).  May be a sign of incomplete back end.\n"/>
+            <!-- <admst:message format="Falling back on direct function call instead of precomputation for function %(name) of class %(class).  May be a sign of incomplete back end.\n"/> -->
             <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
           </admst:otherwise>
         </admst:choose>
@@ -4547,14 +4547,33 @@ other variables does not get propagated into a variable's
             </admst:choose>
           </admst:when>
           <admst:otherwise>
-            <admst:warning format="Do not know how to differentiate function %(name).  Code will be wrong!\n"/>
+            <admst:variable name="thisFunctionCall" path="."/>
+            <admst:if test="[class!='analog']">
+              <admst:warning format="Do not know how to differentiate function %(name).  Code will be wrong!\n"/>
+            </admst:if>
             <admst:variable name="argsDep" select="no"/>
+            <admst:if test="[definition/datatypename='analogfunction']">
+              <admst:if test="[exists(definition/variable[(output='yes') and (name!=$thisFunctionCall/name)])]">
+                <!-- <admst:message format="Called analog function has output variables other than return value, pretending args have dependencies.\n"/> -->
+                <admst:variable name="argsDep" value="yes"/>
+              </admst:if>
+            </admst:if>
+            <admst:variable name="args" value=""/>
+            <admst:variable name="dargs" value=""/>
             <admst:for-each select="arguments">
+              <admst:if test="[not($args='')]">
+                <admst:variable name="args" value="$(args),"/>
+              </admst:if>
+              <admst:if test="[not($dargs='')]">
+                <admst:variable name="dargs" value="$(dargs),"/>
+              </admst:if>
               <admst:apply-templates select="." match="processTerm">
+                <admst:variable name="args" select="$(args)%(returned('returnedExpression')/value)"/>
                 <admst:variable name="aDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
                 <admst:if test="[$aDeriv != '0.0']">
                   <admst:variable name="argsDep" select="yes"/>
                 </admst:if>
+                <admst:variable name="dargs" select="$(dargs)$(aDeriv)"/>
               </admst:apply-templates>
             </admst:for-each>
             <admst:choose>
@@ -4562,7 +4581,7 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv" select="0.0"/>
               </admst:when>
               <admst:otherwise>
-                <admst:variable name="expressionDeriv" select="(0.0 /* should have deriv_%(funcnameSimple(.)/[name='fname']/value) here */)"/>
+                <admst:variable name="expressionDeriv" select="AnalogFunctions::d_%($thisFunctionCall/name)($args,$dargs)"/>
               </admst:otherwise>
             </admst:choose>
           </admst:otherwise>
