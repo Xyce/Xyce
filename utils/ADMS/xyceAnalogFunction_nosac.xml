@@ -784,7 +784,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
       <admst:variable name="expression" value="%(name)(%($args))"/>
       <admst:return name="returnedExpression" value="$expression"/>
       <admst:if test="[definition/datatypename='analogfunction']">
-        <admst:message format="Processing analog function call within analog function definition\n"/>
+        <!-- <admst:message format="Processing analog function call within analog function definition\n"/> -->
         <admst:if test="[exists(definition/variable[(output='yes') and (name!=$thisFunctionCall/name)])]">
           <admst:message format="Called analog function has output variables other than return value.\n"/>
           <admst:variable name="defaultdontbother" value="no"/>
