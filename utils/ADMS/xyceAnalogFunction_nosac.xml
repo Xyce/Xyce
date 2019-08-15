@@ -176,7 +176,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:return name="d_exp_d_$wrt" value="0.0"/>
       </admst:when>
       <admst:otherwise>
-        <admst:return name="d_exp_d_$wrt" value="$(variable)_$wrt"/>
+        <admst:return name="d_exp_d_$wrt" value="d_$(variable)_d_$wrt"/>
       </admst:otherwise>
     </admst:choose>
   </admst:for-each>
@@ -627,6 +627,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
      calls inside analog function definitions.  We'll fix that when we write
      all the code to handle analog function calls properly everywhere else -->
 <admst:template match="xyceAnalogFunctions:function">
+  <admst:variable name="doingAnalogFunctionCall" value="no"/>
   <admst:variable name="funcname" select="%(xyceAnalogFunctions:funcname(.)/[name='fname']/value)"/>
   <admst:variable name="args" select=""/>
   <admst:variable name="thisFunctionCall" path="."/>
@@ -773,43 +774,86 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
       </admst:choose>
     </admst:when>
     <admst:otherwise>
-      <admst:fatal format="Unable to handle function %(name) at this time.  This should only be tripped if trying to use an analog function inside another.  Please come back later, when we've actually finished this code.  Bye."/>
+      <admst:if test="[class!='analog']">
+        <admst:fatal format="Unable to handle function %(name) of class %(class) at this time.  Bye."/>
+      </admst:if>
+      <!-- we are an analog function, and this is very different than everything
+           else -->
+      <admst:variable name="doingAnalogFunctionCall" value="yes"/>
+      <admst:variable name="defaultdontbother" value="yes"/>
+      <admst:variable name="expression" value="%(name)(%($args))"/>
+      <admst:return name="returnedExpression" value="$expression"/>
+      <admst:if test="[definition/datatypename='analogfunction']">
+        <admst:message format="Processing analog function call within analog function definition\n"/>
+        <admst:if test="[exists(definition/variable[(output='yes') and (name!=$thisFunctionCall/name)])]">
+          <admst:message format="Called analog function has output variables other than return value.\n"/>
+          <admst:variable name="defaultdontbother" value="no"/>
+        </admst:if>
+      </admst:if>
+      <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+        <admst:variable name="dontbother" value="$(defaultdontbother)"/>
+        <admst:variable name="dargs" value=""/>
+        <admst:variable name="wrt" value="%(name)"/>
+        <admst:for-each select="$thisFunctionCall/arguments">
+          <admst:value-of select="index($thisFunctionCall/arguments,.)"/>
+          <admst:variable name="index" select="%s"/>
+          <admst:if test="[($(d_arg$(index)_d_$(wrt)) != '0.0')]">
+            <admst:variable name="dontbother" value="no"/>
+          </admst:if>
+          <admst:if test="[not($dargs='')]">
+            <admst:variable name="dargs" select="$dargs,"/>
+          </admst:if>
+          <admst:variable name="dargs" select="$(dargs)$(d_arg$(index)_d_$(wrt))"/>
+        </admst:for-each>
+        <admst:choose>
+          <admst:when test="[$dontbother='yes']">
+            <!-- NOTE:  This is wrong if the function has output variables! -->
+            <admst:variable name="expressionDeriv" value="0.0"/>
+          </admst:when>
+          <admst:otherwise>
+            <admst:variable name="expressionDeriv" value="d_%($thisFunctionCall/name)($args,$dargs)"/>
+          </admst:otherwise>
+        </admst:choose>
+        <admst:return name="d_exp_d_$(wrt)" value="$expressionDeriv"/>
+      </admst:for-each>
     </admst:otherwise>
   </admst:choose>
 
-  <!-- we now have the function value and its derivatives with respect to
-       its arguments, and the derivatives of the arguments with respect to
-       all analog function dummy arguments.  Emit the total derivatives. -->
+  <admst:if test="[$doingAnalogFunctionCall = 'no']">
+    <!-- we now have the function value and its derivatives with respect to
+         its arguments, and the derivatives of the arguments with respect to
+         all analog function dummy arguments.  Emit the total derivatives. -->
 
-  <admst:return name="returnedExpression" value="$expression"/>
+    <admst:return name="returnedExpression" value="$expression"/>
 
-  <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-    <admst:variable name="expressionDeriv" select=""/>
-    <admst:variable name="wrt" value="%(name)"/>
-    <admst:for-each select="$thisFunctionCall/arguments">
-      <admst:value-of select="index($thisFunctionCall/arguments,.)"/>
-      <admst:variable name="index" select="%s"/>
-      <admst:if test="[($(d_arg$(index)_d_$(wrt)) != '0.0') and ($(d_f_d$(index)) != '0.0')]">
-        <admst:if test="[not($expressionDeriv='')]">
-          <admst:variable name="expressionDeriv" select="$(expressionDeriv)+"/>
+    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+      <admst:variable name="expressionDeriv" select=""/>
+      <admst:variable name="wrt" value="%(name)"/>
+      <admst:for-each select="$thisFunctionCall/arguments">
+        <admst:value-of select="index($thisFunctionCall/arguments,.)"/>
+        <admst:variable name="index" select="%s"/>
+        <admst:if test="[($(d_arg$(index)_d_$(wrt)) != '0.0') and ($(d_f_d$(index)) != '0.0')]">
+          <admst:if test="[not($expressionDeriv='')]">
+            <admst:variable name="expressionDeriv" select="$(expressionDeriv)+"/>
+          </admst:if>
+          <admst:choose>
+            <admst:when test="[$(d_arg$(index)_d_$(wrt)) = '1.0']">
+              <admst:variable name="expressionDeriv" select="$(expressionDeriv)$(d_f_d$(index))"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:variable name="expressionDeriv" select="$(expressionDeriv)$(d_f_d$(index))*$(d_arg$(index)_d_$(wrt))"/>
+            </admst:otherwise>
+          </admst:choose>
         </admst:if>
-        <admst:choose>
-          <admst:when test="[$(d_arg$(index)_d_$(wrt)) = '1.0']">
-            <admst:variable name="expressionDeriv" select="$(expressionDeriv)$(d_f_d$(index))"/>
-          </admst:when>
-          <admst:otherwise>
-            <admst:variable name="expressionDeriv" select="$(expressionDeriv)$(d_f_d$(index))*$(d_arg$(index)_d_$(wrt))"/>
-          </admst:otherwise>
-        </admst:choose>
+      </admst:for-each>
+      <!-- handle the case where it turned out that all the derivs were zero -->
+      <admst:if test="[$expressionDeriv='']">
+        <admst:variable name="expressionDeriv" value="0.0"/>
       </admst:if>
+      <admst:value-of select="name"/>
+      <admst:return name="d_exp_d_%s" value="$expressionDeriv"/>
     </admst:for-each>
-    <!-- handle the case where it turned out that all the derivs were zero -->
-    <admst:if test="[$expressionDeriv='']">
-      <admst:variable name="expressionDeriv" value="0.0"/>
-    </admst:if>
-    <admst:value-of select="name"/>
-    <admst:return name="d_exp_d_%s" value="$expressionDeriv"/>
-  </admst:for-each>
+  </admst:if>
 </admst:template>
 
 
@@ -960,31 +1004,21 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 </admst:template>
 <!-- end error types -->
 
+<!-- template to dump out the declaration/prototype of analog function
+     derivative function -->
 
-<!-- Top level template to dump out the analog function implementations
-     These functions only return the TOTAL DERIVATIVE of the function
-     with respect to some (general) variable,
-     computed via the chain rule given the partial derivatives of its
-     arguments with respect to that variable (passed in to it) -->
-<admst:template match="xyceAnalogFunctions:Implementations">
-  <admst:for-each select="/module/analogfunction">
+<admst:template match="xyceAnalogFunctions:Declaration">
+
     <admst:variable name="function" select="%(name)"/>
     <admst:variable name="globalAnalogFunction" path="."/>
-    <admst:text format="// Analog Function %(name)\n"/>
+    <admst:text format="// Derivative of analog Function %(name)\n"/>
     <admst:text format="%(verilog2CXXtype(.)) d_%(name)("/>
     <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
       <admst:text format="%(verilog2CXXtype(.)) "/>
       <!-- irrespective of whether the argument is an output variable,
            we always pass by value.  We are NOT returning the function
            value and its output variable values, only the derivatives! -->
-      <admst:text format="%(name) /* "/>
-      <admst:if test="[input='yes']">
-        <admst:text format="in"/>
-      </admst:if>
-      <admst:if test="[output='yes']">
-        <admst:text format="out"/>
-      </admst:if>
-      <admst:text format=" */"/>
+      <admst:text format="%(name) "/>
     </admst:join>
     <admst:text format=" , "/>
     <!-- now the derivatives of the args w.r.t. the desired variable -->
@@ -993,14 +1027,37 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
       <admst:if test="[output='yes']">
         <admst:text format="&amp; "/>
       </admst:if>
-      <admst:text format="d_%(name) /* "/>
-      <admst:if test="[input='yes']">
-        <admst:text format="in"/>
-      </admst:if>
+      <admst:text format="d_%(name)  "/>
+    </admst:join>
+    <admst:text format=");\n"/>
+</admst:template>
+
+<!-- Top level template to dump out an analog function implementation
+     These functions only return the TOTAL DERIVATIVE of the function
+     with respect to some (general) variable,
+     computed via the chain rule given the partial derivatives of its
+     arguments with respect to that variable (passed in to it) -->
+<admst:template match="xyceAnalogFunctions:Implementation">
+
+    <admst:variable name="function" select="%(name)"/>
+    <admst:variable name="globalAnalogFunction" path="."/>
+    <admst:text format="// Derivative of analog Function %(name)\n"/>
+    <admst:text format="%(verilog2CXXtype(.)) d_%(name)("/>
+    <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
+      <admst:text format="%(verilog2CXXtype(.)) "/>
+      <!-- irrespective of whether the argument is an output variable,
+           we always pass by value.  We are NOT returning the function
+           value and its output variable values, only the derivatives! -->
+      <admst:text format="%(name) "/>
+    </admst:join>
+    <admst:text format=" , "/>
+    <!-- now the derivatives of the args w.r.t. the desired variable -->
+    <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
+      <admst:text format="%(verilog2CXXtype(.)) "/>
       <admst:if test="[output='yes']">
-        <admst:text format="out"/>
+        <admst:text format="&amp; "/>
       </admst:if>
-      <admst:text format=" */"/>
+      <admst:text format="d_%(name) "/>
     </admst:join>
     <admst:text format=")\n"/>
     <admst:text format="{\n"/>
@@ -1041,10 +1098,16 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     <admst:text format="return(d_%(name));\n"/>
     <admst:text format="}\n\n"/>
     <admst:variable name="globalAnalogFunction"/>
-  </admst:for-each>
 </admst:template>
 
   <admst:open file="foobar.C">
-    <admst:apply-templates select="/module" match="xyceAnalogFunctions:Implementations"/>
-    </admst:open>
+    <admst:for-each select="/module/analogfunction">
+      <admst:apply-templates select="." match="xyceAnalogFunctions:Implementation"/>
+    </admst:for-each>
+  </admst:open>
+  <admst:open file="foobar.hxx">
+    <admst:for-each select="/module/analogfunction">
+      <admst:apply-templates select="." match="xyceAnalogFunctions:Declaration"/>
+    </admst:for-each>
+  </admst:open>
 </admst>
