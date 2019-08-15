@@ -8,7 +8,7 @@
 % LLC (NTESS).
 
 
-Extracts linear transfer parameters (S-parameters) for a general
+Extracts linear transfer parameters (S-, Y- and Z-parameters) for a general
 multiport network.  Those parameters can be output in either
 Touchstone format \cite{touchstone2_std_2009}.
 
@@ -17,7 +17,7 @@ Touchstone format \cite{touchstone2_std_2009}.
 \format
 \begin{alltt}
 .LIN [SPARCALC=<1|0>] [FORMAT=<TOUCHSTONE2|TOUCHSTONE>]
-+ [DATAFORMAT=<RI|MA|DB>]
++ [LINTYPE=<S|Y|Z>] [DATAFORMAT=<RI|MA|DB>]
 + [FILE=<output filename>] [WIDTH=<print field width>]
 + [PRECISION=<floating point output precision>]
 \end{alltt}
@@ -45,22 +45,25 @@ The default value is 1.
 is \texttt{TOUCHSTONE2}.
 \end{description}
 
-\argument{DATAFORMAT=<RI|MA|DB>} Format for the S-parameter data
+\argument{LINTYPE=<S|Y|Z>} The type of parameter data (S, Y or Z) in the
+output file.  The default is S.
+
+\argument{DATAFORMAT=<RI|MA|DB>} Format for the S-, Y- or Z-parameter data
 
 \begin{description}
 \item[\tt RI] Real-imaginary format \\
 The data is output as the real and imaginary parts for each
-extracted S-parameter.  This is the default.
+extracted S-, Y- or Z-parameter.  This is the default.
 
 \item[\tt MA] Magnitude-angle format \\
 The data is output as the magnitude and the phase angle of each
-extracted S-parameter.  For compatibility with Touchstone formats,
+extracted S-, Y- or Z-parameter.  For compatibility with Touchstone formats,
 the angle values are in degrees.  (Note: The phase angles output
 by the \texttt{VP()} operator for \texttt{.PRINT AC} are in radians.)
 
 \item[\tt DB] Magnitude(dB)-angle format \\
 The data is output as the magnitude (in dB) and the phase angle of
-each extracted S-parameter.  For compatibility with Touchstone
+each extracted S-, Y- or Z-parameter.  For compatibility with Touchstone
 formats, the angle values are in degrees.
 \end{description}
 
@@ -83,11 +86,11 @@ Number of floating point digits past the decimal for output data.
 \comments
 
 The \texttt{.LIN} command line functions like a \texttt{.PRINT} line for
-the extracted S-parameter data.  So, a netlist can have multiple
-\texttt{.LIN} lines with different values for the \texttt{DATAFORMAT}
-and \texttt{FILE} arguments on each line.  However, in that case, the
-\texttt{SPARCALC} values must be the same on all of the \texttt{.LIN}
-lines.
+the extracted S-, Y- or Z-parameter data.  So, a netlist can have multiple
+\texttt{.LIN} lines with different values for the \texttt{LINTYPE},
+\texttt{DATAFORMAT} and \texttt{FILE} arguments on each line.  If there are
+multiple \texttt{.LIN} lines in the netlist, then a linear analysis will
+be performed if \texttt{SPARCALC=1} on any of those \texttt{.LIN} lines.
 
 The default filename for both Touchstone formats is \texttt{<netlistName>.sNp}
 where N is the number of ``ports'' (\texttt{P} devices) specified in the netlist.
@@ -95,15 +98,14 @@ where N is the number of ``ports'' (\texttt{P} devices) specified in the netlist
 The \Xyce{} Touchstone output is based on the Touchstone standard
 \cite{touchstone2_std_2009}. So, it differs slightly from the
 corresponding HSPICE output.  In particular, the full matrix of
-S-parameters is always output.
+S-, Y- or Z-parameters is always output.
 
 The HSPICE \texttt{SPARDIGIT} and \texttt{FREQDIGIT} arguments are
 not supported.  Instead, the \texttt{PRECISION} argument is used for
 all of the output values.
 
 The output of individual S-parameters via the \texttt{.PRINT AC} line is
-not supported.  In addition, Xyce only only S-parameter data via the
-\texttt{.LIN} line.  It does not output H-parameter or Y-parameter data.
+not supported.
 
 If the \texttt{-r <raw-file-name>} and \texttt{-a} command line options
 are used with \texttt{.LIN} with \texttt{SPARCALC=1} then \Xyce{} will
