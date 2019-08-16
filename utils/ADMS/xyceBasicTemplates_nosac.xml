@@ -4360,7 +4360,14 @@ other variables does not get propagated into a variable's
           </admst:when>
           <admst:when test="arguments[count(.)=1]">
             <admst:apply-templates select="arguments[1]" match="processTerm">
-              <admst:variable name="expression" select="adms_vt(%(returned('returnedExpression')/value))"/>
+              <admst:choose>
+                <admst:when test="[$globalCurrentScope='AF']">
+                  <admst:variable name="expression" select="adms_vt&lt;ScalarT&gt;(%(returned('returnedExpression')/value))"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expression" select="adms_vt(%(returned('returnedExpression')/value))"/>
+                </admst:otherwise>
+              </admst:choose>
             </admst:apply-templates>
           </admst:when>
         </admst:choose>
