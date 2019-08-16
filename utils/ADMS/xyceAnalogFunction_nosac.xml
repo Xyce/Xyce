@@ -421,7 +421,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
             <admst:variable name="d_exp_d_%s" value="0.0"/>
           </admst:for-each>
         </admst:when>
-        <admst:when test="[(arg1/math/value=1.0)or(arg2/math/value=1.0)]">
+        <admst:when test="[(arg1/math/value=1.0)and(arg2/math/value=1.0)]">
           <admst:variable name="expression" select="1.0"/>
           <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
             <admst:value-of select="name"/>
@@ -721,7 +721,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
           <admst:variable name="d_f_d0" select="(1.0/(log(10.0)*%($arg0)))"/>
         </admst:when>
         <admst:when test="[name='sqrt']">
-          <admst:variable name="d_f_d0" select="(0.5/sqrt(%($arg0)))\n"/>
+          <admst:variable name="d_f_d0" select="(0.5/sqrt(%($arg0)))"/>
         </admst:when>
         <admst:when test="[name='abs']">
           <admst:variable name="d_f_d0" select="(((%($arg0)&gt;=0)?(+1.0):(-1.0)))"/>
