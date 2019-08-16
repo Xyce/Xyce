@@ -653,6 +653,26 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
                I'm just going with the over-conservative -->
           <admst:variable name="args" select="$args static_cast&lt;double&gt;($(arg$index))"/>
         </admst:when>
+        <admst:when test="[(../definition/datatypename='analogfunction') and ((datatypename='number') or (datatypename='variable' and type='integer'))]">
+          <admst:variable name="argtype" select="huh?" />
+          <admst:for-each select="../definition/variable[input='yes' or (output='yes' and name !=$thisFunctionCall/name)]">
+            <admst:message format="Checking arg %(position(.)) of analog functiond definition, named %(name), supposedly of type %(type)...\n"/>
+            <admst:if test="[position(.)-1=$index]">
+              <admst:variable name="argtype" select="%(type)"/>
+              <admst:message format="... it's our boy!\n"/>
+            </admst:if>
+          </admst:for-each>
+          <admst:message format="Found analog function call and we're trying to pass in a number or integer variable $(arg$index) in argument index $index.  I think the analog function is expecting a  $argtype here.\n"/>
+          <admst:choose>
+            <admst:when test="[$argtype='real']">
+              <admst:message format="Forcing a static cast\n"/>
+              <admst:variable name="args" select="$args static_cast&lt;double&gt;($(arg$index))"/>
+            </admst:when>
+            <admst:otherwise>
+                <admst:variable name="args" select="$args$(arg$index)"/>
+            </admst:otherwise>
+          </admst:choose>
+        </admst:when>
         <admst:otherwise>
           <admst:variable name="args" select="$args$(arg$index)"/>
         </admst:otherwise>
@@ -1061,12 +1081,25 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     </admst:join>
     <admst:text format=")\n"/>
     <admst:text format="{\n"/>
+    <admst:text format="// Function return variable and total deriv\n"/>
     <admst:variable name="fntype" value="%(verilog2CXXtype(.))"/>
     <admst:text format="$fntype %(name);\n"/>
     <admst:variable name="fntype" value="%(verilog2CXXtype(.))"/>
     <admst:text format="$fntype d_%(name);\n"/>
+    <admst:text format="// Derivatives of return value w.r.t input vars\n"/>
+    <!-- derivatives of the return value w.r.t. all input vars -->
     <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
       <admst:text format="%(verilog2CXXtype($globalAnalogFunction)) d_%($function)_d_%(name);\n"/>
+    </admst:for-each>
+    <admst:if test="[exists($globalAnalogFunction/variable[output='yes' and name!='$function'])]">
+      <admst:text format="// Derivatives of additional output vars w.r.t input vars\n"/>
+    </admst:if>
+    <!-- derivatives of all output variables w.r.t. all input vars -->
+    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+      <admst:variable name="wrt" select="%(name)"/>
+      <admst:for-each select="$globalAnalogFunction/variable[output='yes' and name!='$function']">
+        <admst:text format="%(verilog2CXXtype(.)) d_%(name)_d_$(wrt);\n"/>
+      </admst:for-each>
     </admst:for-each>
     <admst:for-each select="variable[input='no' and output='no']">
       <admst:variable name="theVar" path="."/>
