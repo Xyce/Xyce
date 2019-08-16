@@ -1,9 +1,25 @@
---- N_DEV_ADMSbsimcmg_110.C	2016-10-03 14:30:54.784694000 -0600
-+++ N_DEV_ADMSbsimcmg_110.C	2016-10-03 14:36:01.565885000 -0600
-@@ -11148,6 +11148,23 @@
-   // Right now, we only have store for limited probes...
-   setNumStoreVars(0);
+--- N_DEV_ADMSbsimcmg_110.C.orig	2019-08-15 21:04:53.983096492 -0600
++++ N_DEV_ADMSbsimcmg_110.C	2019-08-15 21:07:20.017751338 -0600
+@@ -9055,7 +9055,10 @@
+   double DSUB_i;
+   double DVT1SS_i;
+   double DVT1_i;
+-  double NGATE_i;
++  // Commented out --- this has been manually added as an instance-class variable so we
++  // can get access to it in updateIntermediateVars directly, and not have to duplicate
++  // computation wastefully.
++  //   double NGATE_i;
+   double NBODY_i;
+   double Inv_LNFIN;
+   double Inv_NFIN;
+@@ -12934,7 +12937,25 @@
  
+ 
+   // Right now, we only have store for limited probes...
+-  setNumStoreVars(0);
++  // HAND HACK: And output variables
++  setNumStoreVars(0+7);
++
 +  // Manually inserted code:  detect extra nodes given on instance line,
 +  // set external node mode for those normally-internal nodes.
 +  devConMap.resize(numExtVars);
@@ -20,17 +36,139 @@
 +    }
 +  }
 +  // END manually inserted code
-+  
+ 
    // Do not allocate "branch" (lead current) vectors by default
    setNumBranchDataVars(0);
-   numBranchDataVarsIfAllocated = 4;
---- N_DEV_ADMSbsimcmg_110.h	2016-10-03 14:31:56.735338000 -0600
-+++ N_DEV_ADMSbsimcmg_110.h	2016-10-03 14:34:27.082162000 -0600
-@@ -7396,6 +7396,7 @@
+@@ -13240,6 +13261,16 @@
+     addBranchDataNode( symbol_table, li_branch_is, getName(), "BRANCH_DS");
+     addBranchDataNode( symbol_table, li_branch_ie, getName(), "BRANCH_D4");
+   }
++
++  // MANUALLY ADDED OUTPUT VARS:
++  addStoreNode(symbol_table, li_store_vth, getName().getEncodedName() + ":Vth");
++  addStoreNode(symbol_table, li_store_ids, getName().getEncodedName() + ":ids");
++  addStoreNode(symbol_table, li_store_gm, getName().getEncodedName() + ":gm");
++  addStoreNode(symbol_table, li_store_vds, getName().getEncodedName() + ":Vds");
++  addStoreNode(symbol_table, li_store_vbs, getName().getEncodedName() + ":Vbs");
++  addStoreNode(symbol_table, li_store_vgs, getName().getEncodedName() + ":Vgs");
++  addStoreNode(symbol_table, li_store_vdsat, getName().getEncodedName() + ":Vdsat");
++
+ }
+ 
+ //-----------------------------------------------------------------------------
+@@ -13253,6 +13284,15 @@
+ void Instance::registerStoreLIDs( const LocalIdVector & stoLIDVecRef)
+ {
+   AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
++  // MANUALLY ADDED entire contents of this function below
++  int lid=0;
++  li_store_vth   = stoLIDVecRef[lid++];
++  li_store_ids    = stoLIDVecRef[lid++];
++  li_store_gm    = stoLIDVecRef[lid++];
++  li_store_vds   = stoLIDVecRef[lid++];
++  li_store_vbs   = stoLIDVecRef[lid++];
++  li_store_vgs   = stoLIDVecRef[lid++];
++  li_store_vdsat = stoLIDVecRef[lid++];
+ }
+ 
+ //-----------------------------------------------------------------------------
+@@ -13748,6 +13788,15 @@
+   // if old DAE were implemented, we'd save dynamic contributions as state
+   // here.
+ 
++  // MANUALLY ADDED SETTING OF STORE VECTOR HERE:
++  double * stoVec = extData.nextStoVectorRawPtr;
++  stoVec[li_store_vth] = VTH_output;
++  stoVec[li_store_ids]  = IDS_output;
++  stoVec[li_store_gm]  = GM_output;
++  stoVec[li_store_vds] = VDS_output;
++  stoVec[li_store_vbs] = VBS_output;
++  stoVec[li_store_vgs] = VGS_output;
++  stoVec[li_store_vdsat] = VDSAT_output;
+ 
+   return bsuccess;
+ }
+@@ -23858,6 +23907,38 @@
+       }
+     }
+   }
++
++  //Block of code added by hand to compute output variables
++  // Actual output variable computation copied from Verilog-A for this device.
++  {
++    double q0_output;
++    double T1_output;
++    double T2_output;
++    double T3_output;
++    double VFB_output;
++
++    if (NGATE_i > 0)
++      VFB_output = -devsign * (phib + Vtm * AnalogFunctions::lln(NGATE_i/ni));
++    else
++      VFB_output = PHIG_i -(model_.EASUB + 0.5 * Eg + devsign * phib);
++
++    q0_output = 10.0*Vtm/rc + 2.0*qbs;
++    T1_output = Vtm*(Vtm + q0_output);
++    T2_output = cox*cox*T1_output;
++    T3_output = 2.0*1.60219e-19*ni*epssub*Vtm;
++    VTH_output = VFB_output + devsign*(Vtm*AnalogFunctions::lln(T2_output/T3_output) + dvch_qm + phib + qbs + Vtm + dvth_all - model_.DELVTRAND);
++
++
++    // GM = ddx(IDS,V(IntrinsicGate)
++    IDS_output = devsign *ids;
++    GM_output = devsign*(d_ids_dV_ge_di + d_ids_dV_ge_si + d_ids_dV_ge_e);
++
++    VBS_output = probeVars[admsProbeID_V_e_s];
++    VDS_output = vds;
++    VGS_output = vgs;
++    VDSAT_output = Vdsat;
++  }
++
+   return true;
+ }
+ 
+--- N_DEV_ADMSbsimcmg_110.h.orig	2019-08-15 21:07:19.259727178 -0600
++++ N_DEV_ADMSbsimcmg_110.h	2019-08-15 21:30:23.064821405 -0600
+@@ -7530,6 +7530,7 @@
    static const char *deviceTypeName() {return "m level 110";}
  
    static int numNodes() {return 4;}
 +  static int numOptionalNodes() {return 1;}
    static bool modelRequired() {return true;}
    static bool isLinearDevice() {return false;}
+ 
+@@ -8985,6 +8986,34 @@
+   // These instance-owned vectors are for storage of lead current data
+   std::vector<double> leadCurrentF;
+   std::vector<double> leadCurrentQ;
++
++  // These variables would normally get scoped as instance class if we actually used them
++  // as the original verilog, but they're only used in computation of commented-out output
++  // variables, and so get mis-identified as local to initial_instance by ADMS right now.
++  // We are manually adding them in as instance class variables here and commenting out the
++  // local declaration in the processParams function.
++  double NGATE_i;
++
++  // THESE VARIABLES ADDED BY HAND
++  // They are used solely to store output variables like Vth from
++  // updateIntermediateVars prior to copying to the store vector
++  double VTH_output;
++  double IDS_output;
++  double GM_output;
++  double VDS_output;
++  double VBS_output;
++  double VGS_output;
++  double VDSAT_output;
++
++  // store vector lids for output variables, added by hand:
++  int li_store_vth;
++  int li_store_ids;
++  int li_store_gm;
++  int li_store_vds;
++  int li_store_vbs;
++  int li_store_vgs;
++  int li_store_vdsat;
++
+ };
+ 
  

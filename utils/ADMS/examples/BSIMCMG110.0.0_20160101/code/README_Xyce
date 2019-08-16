@@ -1,20 +1,10 @@
-NOTE:
-
-At the moment, the sources in this directory are no longer being used
-to generate the BSIMCMG 110 in Xyce.  The output of ADMS for this
-device has been manually modified to replace Sacado-generated
-derivatives with explicitly calculated derivatives.  Do NOT regenerate
-the device from these sources and install them in the
-DeviceModelPKG/ADMS directory, or you will lose all of the
-optimizations that resulted from this manual recoding.
-
 The following changes to the BSIMCMG 110.0.0 code were needed to make
 it work with Xyce/ADMS.
 
  - In bsimcmg.va, defining __OPINFO__ was commented out.  Xyce/ADMS
    does not yet support the ddx operator needed, nor does Xyce/ADMS
    yet permit operating point information to be output.
-   
+
  - An ifdef conditional was added to define the module as having only
    4 required nodes.  Neither Xyce/ADMS nor ADMS itself handle the
    "$port_connected" verilog-A construct needed to support optional
@@ -80,9 +70,16 @@ it work with Xyce/ADMS.
   instead of marking them local to the main analog block.  The variables are
   all initialized to zero in that block, and a "LastTemp" variable set to
   "-999" in order to assure that all temperature dependent variables are
-  correctly re-calculated upon the first call of updateIntermediateVars. 
+  correctly re-calculated upon the first call of updateIntermediateVars.
 
   By doing it this way, we are also assured that the model will work correctly
   in .STEP loops, because the @(initial_instance) code will wind up in Xyce's
   "processParams" function, which will always be called whenever a .STEP loop
-  updates model or instance parameters.  
+  updates model or instance parameters.
+
+- Finally, though there is not yet an automatic way to generate output
+  (or rather OP) variables from Xyce, or to have Xyce/ADMS properly
+  generate the code to populate the store vector so that they may be
+  accessed via the N() output operator, we have had so many requests
+  for gm, vth, and other specific outputs for BSIM-CMG that we have
+  hacked in the necessary code via a post-ADMS patch file.
