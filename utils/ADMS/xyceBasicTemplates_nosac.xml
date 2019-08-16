@@ -5257,7 +5257,7 @@ other variables does not get propagated into a variable's
             <admst:when test="[class='analog']">
               <admst:choose>
                 <admst:when test="[$globalCurrentScope!='AF']">
-                  <admst:variable name="expression" select="AnalogFunctions::%(name)"/>
+                  <admst:variable name="expression" select="AnalogFunctions::%(name)&lt;double&gt;"/>
                 </admst:when>
                 <admst:when test="[$globalCurrentScope='AF']">
                   <!-- If we call an analog function from within another,
@@ -5284,7 +5284,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expression" select="%(name)&lt;WRONG&gt;"/>
                 </admst:when>
                 <admst:when test="[$globalCurrentScope='model' or $globalCurrentScope='instance']">
-                  <admst:variable name="expression" select="AnalogFunctions::%(name)"/>
+                  <admst:variable name="expression" select="AnalogFunctions::%(name)&lt;double&gt;"/>
                 </admst:when>
                 <!-- when we're in instance class, have to reference through the
                      model -->
