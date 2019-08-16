@@ -1972,6 +1972,9 @@ other variables does not get propagated into a variable's
     <admst:when test="[datatypename='number']">
       <!-- no changie da value.  -->
     </admst:when>
+    <admst:when test="[datatypename='string']">
+      <!-- no changie da value.  -->
+    </admst:when>
     <admst:when test="[(datatypename='variable' or datatypename='variableprototype') and type='real']">
       <admst:choose>
         <!-- This variable is a real parameter or explicitly depends on one or more real parameters -->
@@ -4498,7 +4501,7 @@ other variables does not get propagated into a variable's
       </admst:when>
       <admst:otherwise>
         <admst:choose>
-          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' or name='pow' or name='min' or name='max']">
+          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' or name='pow' or name='min' or name='max']">
             <!-- we must use precomputed function vars -->
             <admst:variable name="expression" select="value_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))"/>
           </admst:when>
@@ -4510,7 +4513,7 @@ other variables does not get propagated into a variable's
         <!-- now try to deal with derivatives -->
         <admst:choose>
           <!-- Single-argument functions -->
-          <admst:when test="[name='exp' or name='ln' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' ]">
+          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' ]">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
             </admst:apply-templates>
@@ -5319,7 +5322,7 @@ other variables does not get propagated into a variable's
       <admst:variable name="expression" select="shrinka"/>
     </admst:when>
     <admst:when test="[name='log']">
-      <admst:variable name="expression" select="(1.0/log(10.0))*log"/>
+      <admst:variable name="expression" select="log"/>
     </admst:when>
     <admst:when test="[name='ln']">
       <admst:variable name="expression" select="log"/>
@@ -5341,11 +5344,14 @@ other variables does not get propagated into a variable's
 <admst:template match="callfunction">
   <admst:choose>
     <admst:when test="function[name='\$strobe']">
+      <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+      <admst:variable name="skipFunctionPrecomp" select="y"/>
       <admst:text format="std::cerr "/>
       <admst:for-each select="function/arguments">
       <admst:text format=" &lt;&lt; %(printTerm(.))"/>
       </admst:for-each>
       <admst:text format=" &lt;&lt;  std::endl; \n"/>
+      <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
     </admst:when>
     <admst:when test="function[name='\$finish']">
       <admst:choose>
