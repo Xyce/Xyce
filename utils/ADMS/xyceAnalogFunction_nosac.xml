@@ -656,16 +656,12 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:when test="[(../definition/datatypename='analogfunction') and ((datatypename='number') or (datatypename='variable' and type='integer'))]">
           <admst:variable name="argtype" select="huh?" />
           <admst:for-each select="../definition/variable[input='yes' or (output='yes' and name !=$thisFunctionCall/name)]">
-            <admst:message format="Checking arg %(position(.)) of analog functiond definition, named %(name), supposedly of type %(type)...\n"/>
             <admst:if test="[position(.)-1=$index]">
               <admst:variable name="argtype" select="%(type)"/>
-              <admst:message format="... it's our boy!\n"/>
             </admst:if>
           </admst:for-each>
-          <admst:message format="Found analog function call and we're trying to pass in a number or integer variable $(arg$index) in argument index $index.  I think the analog function is expecting a  $argtype here.\n"/>
           <admst:choose>
             <admst:when test="[$argtype='real']">
-              <admst:message format="Forcing a static cast\n"/>
               <admst:variable name="args" select="$args static_cast&lt;double&gt;($(arg$index))"/>
             </admst:when>
             <admst:otherwise>
@@ -806,7 +802,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
       <admst:if test="[definition/datatypename='analogfunction']">
         <!-- <admst:message format="Processing analog function call within analog function definition\n"/> -->
         <admst:if test="[exists(definition/variable[(output='yes') and (name!=$thisFunctionCall/name)])]">
-          <admst:message format="Called analog function has output variables other than return value.\n"/>
+          <!-- <admst:message format="Called analog function has output variables other than return value.\n"/>-->
           <admst:variable name="defaultdontbother" value="no"/>
         </admst:if>
       </admst:if>
