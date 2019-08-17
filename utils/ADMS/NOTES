@@ -1,0 +1,58 @@
+Q: How can we tell whether and argument in an analog function call
+corresponds to an output variable in the dummy list?  Need to do this so
+we can decide how to differentiate and such.
+
+A:  The following code demonstrates how to go back to the function definition
+    at time of use and extract this
+
+---------------------------------
+diff --git a/utils/ADMS/xyceBasicTemplates.xml b/utils/ADMS/xyceBasicTemplates.xml
+index 9548d2c71..e3e928829 100644
+--- a/utils/ADMS/xyceBasicTemplates.xml
++++ b/utils/ADMS/xyceBasicTemplates.xml
+@@ -3935,6 +3935,22 @@ other variables does not get propagated into a variable's
+         <admst:variable name="expression" select="$expression($args)"/>
+       </admst:when>
+       <admst:otherwise>
++        <admst:variable name="theAF"/>
++        <admst:variable name="theFoundFunc"/>
++        <admst:variable name="isAF"/>
++        <admst:if test="[class = 'analog']">
++          <admst:message format="Bing!  Hit fall-through on function %(name) of class %(class) \n"/>
++          <admst:variable name="theFoundFunc" select="%(name)"/>
++          <admst:variable name="theAF" select="%(/module/analogfunction[name=$theFoundFunc])"/>
++          <admst:message format="I think I found it as %($theAF), name=%($theAF/name) with %(count($theAF/variable[input='yes' or (input='no' and output='yes' and name!=$theAF/name)])) args\n"/>
++          <admst:reset select="@AFdummyArgs"/>
++          <admst:push into="@AFdummyArgs" select="$theAF/variable[input='yes' or (input='no' and output='yes' and name!=$theAF/name)]"/>
++          <admst:reverse select="@AFdummyArgs"/>
++          <admst:for-each select="@AFdummyArgs">
++            <admst:message format="    Dummy arg %(position(.)) = %(name) input=%(input) output=%(output) \n"/>
++          </admst:for-each>
++          <admst:variable name="isAF" select="yes"/>
++        </admst:if>
+         <admst:variable name="expression" select="%(funcname(.)/[name='fname']/value)"/>
+         <admst:variable name="args" select=""/>
+         <admst:for-each select="arguments">
+@@ -3943,6 +3959,10 @@ other variables does not get propagated into a variable's
+           </admst:if>
+           <admst:apply-templates select="." match="processTerm">
+             <admst:variable name="args" select="$args%(returned('returnedExpression')/value)"/>
++            <admst:if test="[$isAF='yes']">
++              <admst:variable name="theArgIndex" select="%(position(.))"/>
++              <admst:variable name="args" select="$args /* index=%($theArgIndex) input=%(../@AFdummyArgs[$theArgIndex]/input) output=%(../@AFdummyArgs[$theArgIndex]/output)*/"/>
++            </admst:if>
+           </admst:apply-templates>
+         </admst:for-each>
+         <admst:variable name="expression" select="$expression($args)"/>
+
+
+
+---------------------------------
+This patch, which monkeys with the final "otherwise" block of the
+"function" template of xyceBasicTemplates (where all analog functions
+drop through), will annotate each actual argument with its
+input/output status.
+
+Knowing how to access this information will be key to generating good
+function calls for all combinations of in/out variables when we try to
+differentiate.

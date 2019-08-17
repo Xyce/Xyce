@@ -5,8 +5,7 @@
 (cd utils/ADMS/examples/fbh_hbt-2.1 &&  make all-source) &
 (cd utils/ADMS/examples/vbic_r1.3_prerelease &&  make all-source) &
 (cd utils/ADMS/examples/bsimcmg_107.0.0/code &&  make all-source) &
-# Do not regenerate --- we use a hand-optimized version now
-# (cd utils/ADMS/examples/BSIMCMG110.0.0_20160101/code &&  make all-source)&
+(cd utils/ADMS/examples/BSIMCMG110.0.0_20160101/code &&  make all-source)&
 (cd utils/ADMS/examples/BSIM6.1.1/code &&  make all-source)&
 (cd utils/ADMS/examples/psp102 &&  make all-source)&
 (cd utils/ADMS/examples/psp103 &&  make all-source)&
@@ -22,14 +21,14 @@ wait
 
 diff -u -Bb utils/ADMS/examples/fbh_hbt-2.1/N_DEV_ADMSHBT_X.h src/DeviceModelPKG/ADMS/N_DEV_ADMSHBT_X.h
 diff -u -Bb utils/ADMS/examples/fbh_hbt-2.1/N_DEV_ADMSHBT_X.C src/DeviceModelPKG/ADMS/N_DEV_ADMSHBT_X.C
-#diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13.C src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13.C
-#diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13.h src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13.h
+diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13.C src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13.C
+diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13.h src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13.h
 diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13_4t.C src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13_4t.C
 diff -u -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13_4t.h src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13_4t.h
 diff -u -Bb utils/ADMS/examples/bsimcmg_107.0.0/code/N_DEV_ADMSbsimcmg.h src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg.h
 diff -u -Bb utils/ADMS/examples/bsimcmg_107.0.0/code/N_DEV_ADMSbsimcmg.C src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg.C
-#diff -u -Bb utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.h src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.h
-#diff -u -Bb utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.C src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.C
+diff -u -Bb utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.h src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.h
+diff -u -Bb utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.C src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.C
 diff -u -Bb utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.h src/DeviceModelPKG/ADMS/N_DEV_ADMSbsim6.h
 diff -u -Bb utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.C src/DeviceModelPKG/ADMS/N_DEV_ADMSbsim6.C
 diff -u -Bb utils/ADMS/examples/psp102/N_DEV_ADMSPSP102VA.h src/DeviceModelPKG/ADMS/N_DEV_ADMSPSP102VA.h

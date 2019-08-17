@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 25 Jul 2019 18:58:50
+// Creation Date  : Fri, 16 Aug 2019 16:57:10
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbjt504va_h

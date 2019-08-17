@@ -86,7 +86,7 @@
 `ifdef __XYCE__
 // Xyce cannot do optional nodes via the $port_connected trick, as ADMS does not
 // recognize $port_connected
-module bsimcmg_110(d, g, s, e) (* xyceModelGroup="MOSFET" xyceLevelNumber="1110" xyceDeviceName="BSIM-CMG FINFET v110.0.0" xyceTypeVariable="TYPE" xycePTypeValue="0" *);
+module bsimcmg_110(d, g, s, e) (* xyceModelGroup="MOSFET" xyceLevelNumber="110" xyceDeviceName="BSIM-CMG FINFET v110.0.0" xyceTypeVariable="TYPE" xycePTypeValue="0" *);
    inout      g, d, s, e;
    electrical g, d, s, e;
 `else

@@ -48,6 +48,7 @@ usage ()
     echo "                If not given, the name will be Xyce_Plugin_<module>"
     echo "                where <module> is taken from the last verilog input file"
     echo "    -d:         Do not clean up temporary C++ files (for debugging)"
+    echo "    -S:   Use the old Sacado-based templates instead of the new method"
     return
 }
 
@@ -66,10 +67,19 @@ cleanup ()
 
 runadms()
 {
-    admsXml -x -e ${xmldir}/adms.implicit.xml -e ${xmldir}/xyceVersion.xml  -e ${xmldir}/xyceBasicTemplates.xml \
-            -e ${xmldir}/xyceHeaderFile.xml \
-            -e ${xmldir}/xyceImplementationFile.xml $1 \
-            >> buildxyceplugin.log 2>&1
+    if [ $legacy = "yes" ]
+    then
+        admsXml -x -e ${xmldir}/adms.implicit.xml -e ${xmldir}/xyceVersion.xml  -e ${xmldir}/xyceBasicTemplates.xml \
+                -e ${xmldir}/xyceHeaderFile.xml \
+                -e ${xmldir}/xyceImplementationFile.xml $1 \
+                >> buildxyceplugin.log 2>&1
+    else
+        admsXml -x -e ${xmldir}/adms.implicit.xml -e ${xmldir}/xyceVersion_nosac.xml  -e ${xmldir}/xyceBasicTemplates_nosac.xml \
+                -e ${xmldir}/xyceAnalogFunction_nosac.xml \
+                -e ${xmldir}/xyceHeaderFile_nosac.xml \
+                -e ${xmldir}/xyceImplementationFile_nosac.xml $1 \
+                >> buildxyceplugin.log 2>&1
+    fi
     return $?
 }
 
@@ -151,11 +161,13 @@ echo " ----------------" >> buildxyceplugin.log
 # Process options
 pluginname=""
 cleanupfiles="yes"
-while getopts o:d option
+legacy="no"
+while getopts o:dS option
 do
     case "$option" in
         o)  pluginname="$OPTARG";;
         d)  cleanupfiles="no";;
+        S)  legacy="yes";;
         [?]) usage
              exit 1
              ;;
