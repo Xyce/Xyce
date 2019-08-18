@@ -3077,6 +3077,13 @@ DevTemp = $temperature + DTEMP;
 	///End of Stress Effect
 
 	//Well Proximity Effect
+   // XYCE MOD:  If we do not initialize these, then there are serious
+   // problems with some compilers when WPEMOD is zero, because all of these
+   // variables get USED unconditionally.
+   local_sca = 0.0;
+   local_scb = 0.0;
+   local_scc = 0.0;
+
     if (WPEMOD)   begin
 		Wdrn = W / NF;
 		local_sca = SCA;
