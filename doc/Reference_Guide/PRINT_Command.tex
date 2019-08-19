@@ -201,9 +201,28 @@ written to the output file.  This is easily solved by defining the time
 domain equivalent command to specify the correct output for time domain
 data.
 
+Further explanation of the current specifications is given in comments section below.
 
-Further explanation of current specification is in comments section below.
-
+When a \texttt{.LIN} analysis is done then additional output variable formats are available
+via the \texttt{.PRINT AC} line, where \texttt{<index1>} and \texttt{<index2>} must both
+be greater than 0 and also both less than or equal to the number of ports in the netlist:
+\begin{XyceItemize}
+\item \texttt{SR(<index1>,<index2>)} to output the real component of an S-parameter
+\item \texttt{SI(<index1>,<index2>)} to output the imaginary component of an S-parameter
+\item \texttt{SM(<index1>,<index2>)} to output the magnitude of an S-parameter
+\item \texttt{SP(<index1>,<index2>)} to output the phase of an S-parameter in radians
+\item \texttt{SDB(<index1>,<index2>)} to output the magnitude of an S-parameter in decibels.
+\item \texttt{YR(<index1>,<index2>)} to output the real component of a Y-parameter
+\item \texttt{YI(<index1>,<index2>)} to output the imaginary component of a Y-parameter
+\item \texttt{YM(<index1>,<index2>)} to output the magnitude of a Y-parameter
+\item \texttt{YP(<index1>,<index2>)} to output the phase of a Y-parameter in radians
+\item \texttt{YDB(<index1>,<index2>)} to output the magnitude of a Y-parameter in decibels.
+\item \texttt{ZR(<index1>,<index2>)} to output the real component of a Z-parameter
+\item \texttt{ZI(<index1>,<index2>)} to output the imaginary component of a Z-parameter
+\item \texttt{ZM(<index1>,<index2>)} to output the magnitude of a Z-parameter
+\item \texttt{ZP(<index1>,<index2>)} to output the phase of a Z-parameter in radians
+\item \texttt{ZDB(<index1>,<index2>)} to output the magnitude of a Z-parameter in decibels.
+\end{XyceItemize}
 \end{Arguments}
 
 \comments
