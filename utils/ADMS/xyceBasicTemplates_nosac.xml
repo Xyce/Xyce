@@ -246,7 +246,7 @@
     <admst:assert test="adms[datatypename='variable' or datatypename='variableprototype']" format="xyceDeclareVariable expecting datatypename=variable or variableprototype, got %(adms/datatypename)"/>
     <admst:choose>
       <admst:when test="[type='real' and exists(probe) and not($globalCurrentScope='sensitivity')]">
-        <admst:text format="AdmsFadType"/>
+        <admst:text format="double"/>
       </admst:when>
       <!-- Bah.  Looks like "variable" dependency doesn't get propagated past
            one level.
@@ -263,6 +263,12 @@
       </admst:otherwise>
     </admst:choose>
     <admst:text format=" %(name);\n"/>
+    <admst:if test="[type='real' and exists(probe) and not($globalCurrentScope='sensitivity')]">
+      <admst:for-each select="probe">
+        <admst:text format="    "/>
+        <admst:text format=" double d_%(../name)_d%(nature)_%(branch/pnode)_%(branch/nnode);\n"/>
+      </admst:for-each>
+    </admst:if>
   </admst:template>
 
   <!--
@@ -685,6 +691,12 @@ struct Traits: public DeviceTraits&lt;Model, Instance
         </admst:otherwise>
       </admst:choose>
       <admst:text format=")"/>
+      <admst:if test="[type='real' and exists(probe) and not($globalCurrentScope='sensitivity')]">
+        <admst:text format=",\n"/>
+        <admst:join select="probe" separator=",\n">
+          <admst:text format="d_%(../name)_d%(nature)_%(branch/pnode)_%(branch/nnode)(0.0)"/>
+        </admst:join>
+    </admst:if>
     </admst:join>
     <!-- now initialize the LIDs: -->
     <admst:if test="[exists(node[grounded='no'])]">
@@ -1122,11 +1134,14 @@ struct Traits: public DeviceTraits&lt;Model, Instance
   -->
   <admst:template match="xyceDeclareFadArrays">
     <admst:text format=" // Arrays to hold probes\n"/>
-    <admst:text format=" std::vector &lt; AdmsFadType &gt; probeVars;\n"/>
+    <admst:text format=" std::vector &lt; double &gt; probeVars;\n"/>
+    <admst:text format=" std::vector &lt; std::vector &lt; double &gt; &gt; d_probeVars;\n"/>
     <admst:text format=" // Arrays to hold contributions\n"/>
     <admst:text format=" // dynamic contributions are differentiated w.r.t time\n"/>
-    <admst:text format=" std::vector &lt; AdmsFadType &gt; staticContributions;\n"/>
-    <admst:text format=" std::vector &lt; AdmsFadType &gt; dynamicContributions;\n"/>
+    <admst:text format=" std::vector &lt; double &gt; staticContributions;\n"/>
+    <admst:text format=" std::vector &lt; std::vector &lt; double &gt; &gt; d_staticContributions;\n"/>
+    <admst:text format=" std::vector &lt; double &gt; dynamicContributions;\n"/>
+    <admst:text format=" std::vector &lt; std::vector &lt; double &gt; &gt; d_dynamicContributions;\n"/>
   </admst:template>
 
   <!--
@@ -1955,6 +1970,9 @@ other variables does not get propagated into a variable's
   <admst:variable name="isDependent" value="no"/>
   <admst:choose>
     <admst:when test="[datatypename='number']">
+      <!-- no changie da value.  -->
+    </admst:when>
+    <admst:when test="[datatypename='string']">
       <!-- no changie da value.  -->
     </admst:when>
     <admst:when test="[(datatypename='variable' or datatypename='variableprototype') and type='real']">
@@ -2895,9 +2913,11 @@ other variables does not get propagated into a variable's
           // Additional term resulting from contributions into %(lhs)
 
           <admst:text format="staticContributions[$pnodeConstant] += probeVars[%(xyceFlowProbeConstantName(lhs/branch)/[name='probeConstant']/value)];\n"/>
+          <admst:text format="d_staticContributions[$pnodeConstant][%(xyceFlowProbeConstantName(lhs/branch)/[name='probeConstant']/value)] += d_probeVars[%(xyceFlowProbeConstantName(lhs/branch)/[name='probeConstant']/value)][%(xyceFlowProbeConstantName(lhs/branch)/[name='probeConstant']/value)];\n"/>
           <admst:if test="$nnode[grounded='no']">
             <admst:variable name="nnodeConstant" select="%(xyceNodeConstantName($nnode)/[name='nodeConstant']/value)"/>
             <admst:text format="staticContributions[$nnodeConstant] -= probeVars[%(xyceFlowProbeConstantName(lhs/branch)/[name='probeConstant']/value)];\n"/>
+            <admst:text format="d_staticContributions[$nnodeConstant][%(xyceFlowProbeConstantName(lhs/branch)/[name='probeConstant']/value)] -= d_probeVars[%(xyceFlowProbeConstantName(lhs/branch)/[name='probeConstant']/value)][%(xyceFlowProbeConstantName(lhs/branch)/[name='probeConstant']/value)];\n"/>
           </admst:if>
         </admst:if>
       </admst:if>
@@ -2918,13 +2938,17 @@ other variables does not get propagated into a variable's
        <admst:choose>
          <admst:when test="[exists(/module/contribution[lhs/branch/pnode/name='$thePnodeName' and lhs/branch/nnode/name='$theNnodeName' and lhs/nature=lhs/discipline/flow])]">
            <admst:text format="  staticContributions[%(xyceBranchConstantName(.)/[name='branchConstant']/value)] -= probeVars[%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
+           <admst:text format="  d_staticContributions[%(xyceBranchConstantName(.)/[name='branchConstant']/value)][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)] -= d_probeVars[%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)][%(xyceFlowProbeConstantName(.)/[name='probeConstant']/value)];\n"/>
          </admst:when>
          <admst:otherwise>
            <!-- ICK.  In this case, we don't usually HAVE a probe variable,
                 and so we must calculate the drop V(branch) directly.
-                We can't rely on Sacado to do derivatives w.r.t. this,
-                and will have to have a manual +/- dependence in the
+                We don't rely on automatic differentiation to do derivatives
+                w.r.t. this, and will have to have a manual +/- dependence in
+                the
                 branch's static jacobian. -->
+           <admst:text format="// Derivative of this term with respect to node is +/-1\n"/>
+           <admst:text format="// Handling of that derivative is done explicitly in the loadDAEdFdX method\n"/>
            <admst:text format="  staticContributions[%(xyceBranchConstantName(.)/[name='branchConstant']/value)] -= (*solVectorPtr)[%(xyceNodeLIDVariable(./pnode))]"/>
            <admst:if test="[nnode/grounded='no']">
              <admst:text format="-(*solVectorPtr)[%(xyceNodeLIDVariable(./nnode))]"/>
@@ -2936,6 +2960,202 @@ other variables does not get propagated into a variable's
     </admst:for-each>
   </admst:template>
 
+  <!--
+   =================================================================-
+   functionPrecomputation
+     When evaluating assignments, we also need to evaluate (sometimes)
+     the derivatives of the variables.  If the RHS of an assignment
+     contains function calls, generating the assignment and its
+     derivative assignments becomes problematic.  To address this,
+     Xyce/ADMS will emit precomputation lines that evaluate the
+     function and store its result in a variable, and the variable
+     will be used in the actual expression instead.  This will also
+     enable us to deal with derivatives of functions in a similar manner
+     through functionDerivativePrecomputation.
+   =================================================================-
+  -->
+  <admst:template match="functionPrecomputation">
+    <!-- the index of this function call in the expression in which
+         it appears -->
+    <admst:variable name="functionIndex" select="%(index(../function,.))"/>
+    <!-- The name of the function being called, one simple for the
+         variable name, the other more complex for the call -->
+    <admst:variable name="functionNameS" select="%(funcnameSimple(.)/[name='fname']/value)"/>
+    <admst:variable name="functionName" select="%(funcname(.)/[name='fname']/value)"/>
+
+    <!-- declare the variable type -->
+    <admst:choose>
+      <admst:when test="[$globalCurrentScope='sensitivity' and exists(../../lhs/#Pdependent)]">
+        <admst:text format="AdmsSensFadType "/>
+      </admst:when>
+      <admst:when test="[$globalCurrentScope='sensitivity' and ../../datatypename='contribution']">
+        <admst:text format="AdmsSensFadType "/>
+      </admst:when>
+      <admst:when test="[$globalCurrentScope='sensitivity' and ../../lhs/scope='global_model']">
+        <admst:text format="AdmsSensFadType "/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:text format="double "/>
+      </admst:otherwise>
+    </admst:choose>
+    <admst:text format="value_%($functionNameS)_%($functionIndex) = %(functionCall(.)/[name='returnedExpression']/value);\n"/>
+  </admst:template>
+  <!--
+   =================================================================-
+   functionDerivativePrecomputation
+     When evaluating assignments, we also need to evaluate (sometimes)
+     the derivatives of the variables.  If the RHS of an assignment
+     contains function calls, generating the assignment and its
+     derivative assignments becomes problematic.  As with
+     functionPrecomputation, we go over the function in advance of
+     emitting the assignment, and compute as needed the derivatives of
+     function calls with respect to their arguments.  Note that to get
+     the actual derivative of the function call with respect to solution,
+     you still have to use the chain rule.
+
+     We will name these derivative variables:
+       deriv_<function name>_<index>_d<argnum>
+     where index is the unique index of this function call within
+     the expression, and the argnum is the number of the argument
+     starting at zero.
+
+     Note that while initially I have no intention of doing all this
+     in sensitivity context, I have kept the possibility open of
+     doing this in the future, so we can do derivatives w.r.t parameters
+     using Sacado, but also do derivatives with respect to solution
+     without.  That could make AC sensitivities possible.  But
+     NOT YET.
+   =================================================================-
+  -->
+  <admst:template match="functionDerivativePrecomputation">
+    <admst:if test="[hasVoltageDependentFunction='yes']">
+      <admst:for-each select="function">
+        <admst:variable name="functionIndex" select="%(index(../function,.))"/>
+        <admst:variable name="functionNameS" select="%(funcnameSimple(.)/[name='fname']/value)"/>
+        <admst:variable name="functionName" select="%(funcname(.)/[name='fname']/value)"/>
+        <admst:choose>
+          <admst:when test="[$globalCurrentScope='sensitivity' and exists(../../lhs/#Pdependent)]">
+            <admst:variable name="varType" select="AdmsSensFadType "/>
+          </admst:when>
+          <admst:otherwise>
+            <admst:variable name="varType" select="double "/>
+          </admst:otherwise>
+        </admst:choose>
+
+        <admst:choose>
+          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh']">
+            <admst:if test="arguments/math[dependency!='constant']">
+              <admst:choose>
+                <admst:when test="[name='exp']">
+                  <admst:text format="%($varType) deriv_exp_%($functionIndex)_d0 = value_exp_%($functionIndex);\n"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:apply-templates select="arguments[1]" match="processTerm">
+                    <admst:value-of select="returned('returnedExpression')/value"/>
+                    <admst:variable name="a1" select="%s"/>
+                  </admst:apply-templates>
+                  <admst:choose>
+                    <admst:when test="[name='ln']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/$a1);\n"/>
+                    </admst:when>
+                    <admst:when test="[name='log']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/(log(10.0)*$a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='sqrt']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (0.5/value_sqrt_%($functionIndex));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='abs']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = ((($a1)&gt;=0)?(+1.0):(-1.0));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='cos']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (-sin($a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='sin']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (cos($a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='tan']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/cos($a1)/cos($a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='acos']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (-1.0/sqrt(1.0-$a1*$a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='asin']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (+1.0/sqrt(1.0-$a1*$a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='atan']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (+1.0/(1+$a1*$a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='cosh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (sinh($a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='sinh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (cosh($a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='tanh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/cosh($a1)/cosh($a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='acosh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/(sqrt($a1-1.0)*sqrt($a1+1.0)));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='asinh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/(sqrt($a1*$a1+1.0)));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='atanh']">
+                      <admst:text format="%($varType) deriv_%($functionNameS)_%($functionIndex)_d0 = (1.0/(1-$a1*$a1));\n"/>
+                    </admst:when>
+                    <admst:when test="[name='limexp']">
+                      <admst:text format="%($varType) deriv_limexp_%($functionIndex)_d0 = ((($a1)&lt;80)?(value_limexp_%($functionIndex)):exp(80.0));\n"/>
+                </admst:when>
+                  </admst:choose>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
+          </admst:when>
+          <admst:when test="[name='pow' or name='min' or name='max']">
+            <admst:apply-templates select="arguments[1]" match="processTerm">
+              <admst:value-of select="returned('returnedExpression')/value"/>
+              <admst:variable name="a1" select="%s"/>
+            </admst:apply-templates>
+
+            <admst:apply-templates select="arguments[2]" match="processTerm">
+              <admst:value-of select="returned('returnedExpression')/value"/>
+              <admst:variable name="a2" select="%s"/>
+            </admst:apply-templates>
+            <admst:if test="arguments[1]/math[dependency!='constant']">
+              <admst:choose>
+                <admst:when test="[name='pow']">
+                  <admst:text format="%($varType) deriv_pow_%($functionIndex)_d0 = ((%($a1) == 0.0)?0.0:(value_pow_%($functionIndex)*%($a2)/%($a1)));\n"/>
+                </admst:when>
+                <admst:when test="[name='min']">
+                  <admst:text format="%($varType) deriv_min_%($functionIndex)_d0 = ((%($a1)&lt;=%($a2))?1.0:0.0);\n"/>
+                </admst:when>
+                <admst:when test="[name='max']">
+                  <admst:text format="%($varType) deriv_max_%($functionIndex)_d0 = ((%($a1)&gt;=%($a2))?1.0:0.0);\n"/>
+                </admst:when>
+              </admst:choose>
+            </admst:if>
+            <admst:if test="arguments[2]/math[dependency!='constant']">
+              <admst:choose>
+                <admst:when test="[name='pow']">
+                  <admst:text format="%($varType) deriv_pow_%($functionIndex)_d1 = (%($a1) == 0.0)?0.0:(log($a1)*value_pow_%($functionIndex));\n"/>
+                </admst:when>
+                <admst:when test="[name='min']">
+                  <admst:text format="%($varType) deriv_min_%($functionIndex)_d1 = ((%($a1)&lt;=%($a2))?0.0:1.0);\n"/>
+                </admst:when>
+                <admst:when test="[name='max']">
+                  <admst:text format="%($varType) deriv_max_%($functionIndex)_d1 = ((%($a1)&gt;=%($a2))?0.0:1.0);\n"/>
+                </admst:when>
+              </admst:choose>
+            </admst:if>
+          </admst:when>
+          <admst:otherwise>
+            <admst:text format="//function deriv %(name) not implemented yet.\n"/>
+            <admst:warning format="function derivative for %(name) not implemented yet.\n"/>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:for-each>
+    </admst:if>
+  </admst:template>
   <!--
    =================================================================-
    verilog2CXXtype
@@ -3078,8 +3298,10 @@ other variables does not get propagated into a variable's
   <admst:template match="processTerm" >
     <admst:apply-templates select="." match="%(adms/datatypename)">
       <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
+      <admst:variable name="expressionDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
     </admst:apply-templates>
     <admst:return name="returnedExpression" value="$expression"/>
+    <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
   </admst:template>
 
   <!--
@@ -3117,8 +3339,10 @@ other variables does not get propagated into a variable's
   <admst:template match="expression">
     <admst:apply-templates select="tree" match="%(adms/datatypename)" required="yes">
       <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
+      <admst:variable name="expressionDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
     </admst:apply-templates>
     <admst:return name="returnedExpression" value="$expression"/>
+    <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
   </admst:template>
 
   <!--
@@ -3153,6 +3377,7 @@ other variables does not get propagated into a variable's
         <admst:fatal format="%s%s: scaling unit not supported\n"/>
       </admst:otherwise>
     </admst:choose>
+    <admst:return name="returnedExpressionDeriv" value="0.0"/>
   </admst:template>
 
   <!--
@@ -3167,13 +3392,31 @@ other variables does not get propagated into a variable's
     <admst:if test="[name='minus']"> <admst:variable name="op" select="-"/> </admst:if>
     <admst:if test="[name='not']"> <admst:variable name="op" select="!"/> </admst:if>
     <admst:if test="[name='bw_not']"> <admst:variable name="op" select="~"/> </admst:if>
-    <admst:value-of select="arg1/adms/datatypename"/>
-    <admst:apply-templates select="arg1" match="%s" required="yes">
-      <admst:value-of select="returned('returnedExpression')/value"/>
-      <admst:variable name="expression" select="($op%s)"/>
-    </admst:apply-templates>
-
+    <admst:choose>
+      <admst:when test="[arg1/math/value=0.0]">
+        <admst:variable name="expression" select="0.0"/>
+        <admst:variable name="expressionDeriv" select="0.0"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:value-of select="arg1/adms/datatypename"/>
+        <admst:apply-templates select="arg1" match="%s" required="yes">
+          <admst:value-of select="returned('returnedExpression')/value"/>
+          <admst:variable name="expression" select="($op%s)"/>
+          <admst:value-of select="returned('returnedExpressionDeriv')/value"/>
+          <admst:variable name="a1Deriv" select="%s"/>
+          <admst:choose>
+            <admst:when test="[$a1Deriv='0.0']">
+              <admst:variable name="expressionDeriv" select="0.0"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:variable name="expressionDeriv" select="($op$a1Deriv)"/>
+            </admst:otherwise>
+          </admst:choose>
+        </admst:apply-templates>
+      </admst:otherwise>
+    </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
+    <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
 
   </admst:template>
 
@@ -3188,10 +3431,14 @@ other variables does not get propagated into a variable's
     <admst:apply-templates select="arg1" match="processTerm">
       <admst:value-of select="returned('returnedExpression')/value"/>
       <admst:variable name="a1" select="%s"/>
+      <admst:value-of select="returned('returnedExpressionDeriv')/value"/>
+      <admst:variable name="a1Deriv" select="%s"/>
     </admst:apply-templates>
     <admst:apply-templates select="arg2" match="processTerm">
       <admst:value-of select="returned('returnedExpression')/value"/>
       <admst:variable name="a2" select="%s"/>
+      <admst:value-of select="returned('returnedExpressionDeriv')/value"/>
+      <admst:variable name="a2Deriv" select="%s"/>
     </admst:apply-templates>
 
     <admst:choose>
@@ -3200,15 +3447,46 @@ other variables does not get propagated into a variable's
         <admst:choose>
           <admst:when test="[(arg1/math/value=0.0)and(arg2/math/value=0.0)]">
             <admst:variable name="expression" select="0.0"/>
+            <admst:variable name="expressionDeriv" select="0.0"/>
           </admst:when>
           <admst:when test="[arg1/math/value=0.0]">
             <admst:variable name="expression" select="(+%($a2))"/>
+            <admst:choose>
+              <admst:when test="[$a2Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="(+%($a2Deriv))"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:when>
           <admst:when test="[arg2/math/value=0.0]">
             <admst:variable name="expression" select="(%($a1))"/>
+            <admst:choose>
+              <admst:when test="[$a1Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="(%($a1Deriv))"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:when>
           <admst:otherwise>
             <admst:variable name="expression" select="($a1+$a2)"/>
+            <admst:choose>
+              <admst:when test="[$a1Deriv = '0.0' and $a2Deriv ='0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="$a2Deriv"/>
+              </admst:when>
+              <admst:when test="[$a2Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="$a1Deriv"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="($a1Deriv+$a2Deriv)"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:otherwise>
         </admst:choose>
       </admst:when>
@@ -3217,15 +3495,46 @@ other variables does not get propagated into a variable's
         <admst:choose>
           <admst:when test="[(arg1/math/value=0.0)and(arg2/math/value=0.0)]">
             <admst:variable name="expression" select="0.0"/>
+            <admst:variable name="expressionDeriv" select="0.0"/>
           </admst:when>
           <admst:when test="[arg1/math/value=0.0]">
             <admst:variable name="expression" select="(-%($a2))"/>
+            <admst:choose>
+              <admst:when test="[$a2Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="(-%($a2Deriv))"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:when>
           <admst:when test="[arg2/math/value=0.0]">
             <admst:variable name="expression" select="(%($a1))"/>
+            <admst:choose>
+              <admst:when test="[$a1Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="(%($a1Deriv))"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:when>
           <admst:otherwise>
             <admst:variable name="expression" select="($a1-$a2)"/>
+            <admst:choose>
+              <admst:when test="[$a1Deriv = '0.0' and $a2Deriv ='0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="(-$a2Deriv)"/>
+              </admst:when>
+              <admst:when test="[$a2Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="$a1Deriv"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="($a1Deriv-$a2Deriv)"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:otherwise>
         </admst:choose>
       </admst:when>
@@ -3233,12 +3542,49 @@ other variables does not get propagated into a variable's
         <admst:choose>
           <admst:when test="[(arg1/math/value=0.0)or(arg2/math/value=0.0)]">
             <admst:variable name="expression" select="0.0"/>
+            <admst:variable name="expressionDeriv" select="0.0"/>
           </admst:when>
           <admst:when test="[(arg1/math/value=1.0)and(arg2/math/value=1.0)]">
-          <admst:variable name="expression" select="1.0"/>
+            <admst:variable name="expression" select="1.0"/>
+            <admst:variable name="expressionDeriv" select="0.0"/>
           </admst:when>
           <admst:otherwise>
             <admst:variable name="expression" select="($a1*$a2)"/>
+            <admst:choose>
+              <admst:when test="[$a1Deriv = '0.0' and $a2Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '0.0' and $a2Deriv = '1.0']">
+                <admst:variable name="expressionDeriv" select="($a1)"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '1.0' and $a2Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="($a2)"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '1.0' and $a2Deriv = '1.0']">
+                <admst:variable name="expressionDeriv" select="($a1+$a2)"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="($a1*$a2Deriv)"/>
+              </admst:when>
+              <admst:when test="[$a2Deriv = '0.0']">
+                <admst:variable name="expressionDeriv" select="($a1Deriv*$a2)"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '1.0']">
+                <admst:variable name="expressionDeriv" select="($a1*$a2Deriv+$a2)"/>
+              </admst:when>
+              <admst:when test="[$a2Deriv = '1.0']">
+                <admst:variable name="expressionDeriv" select="($a1+$a2*$a1Deriv)"/>
+              </admst:when>
+              <admst:when test="[$a1 = '1.0']">
+                <admst:variable name="expressionDeriv" select="($a2Deriv)"/>
+              </admst:when>
+              <admst:when test="[$a2 = '1.0']">
+                <admst:variable name="expressionDeriv" select="($a1Deriv)"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="(($a1*$a2Deriv)+($a1Deriv*$a2))"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:otherwise>
         </admst:choose>
       </admst:when>
@@ -3246,20 +3592,78 @@ other variables does not get propagated into a variable's
         <admst:choose>
           <admst:when test="[arg1/math/value=0.0]">
             <admst:variable name="expression" select="0.0"/>
+            <admst:variable name="expressionDeriv" select="0.0"/>
           </admst:when>
           <admst:when test="[(arg1/math/value=1.0)and(arg2/math/value=1.0)]">
             <admst:variable name="expression" select="1.0"/>
+            <admst:variable name="expressionDeriv" select="0.0"/>
           </admst:when>
           <admst:otherwise>
             <admst:variable name="expression" select="($a1/$a2)"/>
+            <admst:choose>
+              <admst:when test="[$a1Deriv='0.0' and $a2Deriv='0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:when test="[$a1 = '1.0']">
+                <admst:choose>
+                  <admst:when test="[$a2Deriv = '1.0']">
+                    <admst:variable name="expressionDeriv" select="(-1.0/$a2/$a2)"/>
+                  </admst:when>
+                  <admst:otherwise>
+                    <admst:variable name="expressionDeriv" select="(-$a2Deriv/$a2/$a2)"/>
+                  </admst:otherwise>
+                </admst:choose>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '0.0']">
+                <admst:choose>
+                  <admst:when test="[$a2Deriv = '1.0']">
+                    <admst:variable name="expressionDeriv" select="(-$a1/$a2/$a2)"/>
+                  </admst:when>
+                  <admst:otherwise>
+                    <admst:variable name="expressionDeriv" select="(-$a1*$a2Deriv/$a2/$a2)"/>
+                  </admst:otherwise>
+                </admst:choose>
+              </admst:when>
+              <admst:when test="[$a1Deriv = '1.0']">
+                <admst:choose>
+                  <admst:when test="[$a2Deriv = '0.0']">
+                    <admst:variable name="expressionDeriv" select="(1.0/$a2)"/>
+                  </admst:when>
+                  <admst:when test="[$a2Deriv = '1.0']">
+                    <admst:variable name="expressionDeriv" select="(($a2-$a1)/$a2/$a2)"/>
+                  </admst:when>
+                  <admst:otherwise>
+                    <admst:variable name="expressionDeriv" select="(($a2-($a1*$a2Deriv))/$a2/$a2)"/>
+                  </admst:otherwise>
+                </admst:choose>
+              </admst:when>
+              <admst:otherwise>
+                <admst:choose>
+                  <admst:when test="[$a2 = '1.0']">
+                    <admst:variable name="expressionDeriv" select="$a1Deriv"/>
+                  </admst:when>
+                  <admst:when test="[$a2Deriv = '0.0']">
+                    <admst:variable name="expressionDeriv" select="($a1Deriv/$a2)"/>
+                  </admst:when>
+                  <admst:when test="[$a2Deriv = '1.0']">
+                    <admst:variable name="expressionDeriv" select="(($a2*$a1Deriv-$a1)/$a2/$a2)"/>
+                  </admst:when>
+                  <admst:otherwise>
+                    <admst:variable name="expressionDeriv" select="(($a2*$a1Deriv-$a1*$a2Deriv)/$a2/$a2)"/>
+                  </admst:otherwise>
+                </admst:choose>
+              </admst:otherwise>
+            </admst:choose>
           </admst:otherwise>
         </admst:choose>
       </admst:when>
       <admst:otherwise>
         <admst:variable name="expression" select="($a1%(bname(.)/[name='bname']/value)$a2)"/>
+        <admst:variable name="expressionDeriv" select="0.0"/>
       </admst:otherwise>
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
+    <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
   </admst:template>
 
   <!--
@@ -3277,10 +3681,14 @@ other variables does not get propagated into a variable's
     <admst:apply-templates select="arg2" match="processTerm">
       <admst:value-of select="returned('returnedExpression')/value"/>
       <admst:variable name="a2" select="%s"/>
+      <admst:value-of select="returned('returnedExpressionDeriv')/value"/>
+      <admst:variable name="a2Deriv" select="%s"/>
     </admst:apply-templates>
     <admst:apply-templates select="arg3" match="processTerm">
       <admst:value-of select="returned('returnedExpression')/value"/>
       <admst:variable name="a3" select="%s"/>
+      <admst:value-of select="returned('returnedExpressionDeriv')/value"/>
+      <admst:variable name="a3Deriv" select="%s"/>
     </admst:apply-templates>
     <admst:choose>
       <admst:when test="[$globalCurrentScope='sensitivity']">
@@ -3298,6 +3706,7 @@ other variables does not get propagated into a variable's
             <admst:variable name="expression" select="($a1?$a2:$a3)"/>
           </admst:otherwise>
         </admst:choose>
+        <admst:variable name="expressionDeriv" select=""/>
       </admst:when>
       <admst:otherwise>
         <admst:apply-templates select="arg2" match="recursiveDetectProbeDependence">
@@ -3306,17 +3715,12 @@ other variables does not get propagated into a variable's
         <admst:apply-templates select="arg3" match="recursiveDetectProbeDependence">
           <admst:variable name="arg3Pdep" value="%(returned('isDependent')/value)"/>
         </admst:apply-templates>
-        <admst:choose>
-          <admst:when test="[$arg2Pdep = 'yes' or $arg3Pdep='yes']">
-            <admst:variable name="expression" select="adms_ternary_op&lt;AdmsFadType&gt;($a1,$a2,$a3)"/>
-          </admst:when>
-          <admst:otherwise>
-            <admst:variable name="expression" select="($a1?$a2:$a3)"/>
-          </admst:otherwise>
-        </admst:choose>
+        <admst:variable name="expression" select="($a1?$a2:$a3)"/>
+        <admst:variable name="expressionDeriv" select="($a1?$a2Deriv:$a3Deriv)"/>
       </admst:otherwise>
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
+    <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
   </admst:template>
 
   <!--
@@ -3345,6 +3749,43 @@ other variables does not get propagated into a variable's
           <admst:variable name="globalMustUseTemplate" select="yes"/>
         </admst:if>
       </admst:if>
+      <!-- If RHS contains any function calls other than
+           $simparam, ddt, and ddx, precompute them -->
+      <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" format="{\n"/>
+      <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" match="functionPrecomputation"/>
+      <!-- If not in sensitivity context, let's emit the derivatives
+           of the assignment first -->
+      <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(lhs/probe)) and $skipFunctionPrecomp='n']">
+        <admst:apply-templates select="rhs/[not(nilled(function))]" match="functionDerivativePrecomputation"/>
+        <admst:text format="\n"/>
+        <admst:variable name="needinitialize" select="no"/>
+        <admst:for-each select="lhs/probe">
+          <admst:variable name="mypnode" select="%(branch/pnode)"/>
+          <admst:variable name="mynnode" select="%(branch/nnode)"/>
+          <admst:if test="[not(exists(../../rhs/probe[branch/pnode=$mypnode and branch/nnode=$mynnode]))]">
+            <admst:text format="d_%(printTerm(..))_d%(nature)_%($mypnode)_%($mynnode) = "/>
+            <admst:variable name="needinitialize" select="yes"/>
+          </admst:if>
+        </admst:for-each>
+        <admst:if test="[$needinitialize = 'yes']">
+          <admst:text format=" 0.0;\n"/>
+        </admst:if>
+      </admst:if>
+      <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(rhs/probe))]">
+        <admst:for-each select="rhs/probe">
+          <admst:variable name="derivProbe" select="%(.)"/>
+          <admst:apply-templates select="../../rhs/tree" match="%(adms/datatypename)">
+            <admst:variable name="rhsDeriv" value="%(returned('returnedExpressionDeriv')/value)"/>
+          </admst:apply-templates>
+          <admst:apply-templates select="../../lhs" match="processTerm">
+            <admst:variable name="lhsvar" select="%(returned('returnedExpression')/value)"/>
+          </admst:apply-templates>
+            <admst:variable name="lhsname" select="d_%($lhsvar)_d%(nature)_%(branch/pnode)_%(branch/nnode)"/>
+          <admst:if test="[$lhsname != $rhsDeriv]">
+            <admst:text format="$lhsname = $rhsDeriv;\n"/>
+          </admst:if>
+        </admst:for-each>
+      </admst:if>
       <!-- Bleh.  Sometimes, even if the lhs is not probe dependent, the
            rhs could depend on a variable that is *sometimes*
            probe-dependent but isn't at the moment (as, for example,
@@ -3369,7 +3810,8 @@ other variables does not get propagated into a variable's
       <admst:text format="= %(printTerm(rhs));\n"/>
 
       <admst:variable name="globalMustUseTemplate" select="$saveTemplateUse"/>
-      <admst:variable select="$saveScalarForce" name="globalMustForceScalar"/>
+      <admst:variable name="globalMustForceScalar" select="$saveScalarForce"/>
+      <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" format="}\n"/>
     </admst:when>
     <admst:otherwise>
       <admst:apply-templates select="." match="limiterAssignment"/>
@@ -3472,6 +3914,8 @@ other variables does not get propagated into a variable's
         <admst:text format="  }\n"/>
         <admst:text format="}\n"/>
         <admst:text format="%(printTerm(lhs)) = probeVars[%(xyceProbeConstantName(rhs/function[name='\$limit']/arguments[1])/[name='probeConstant']/value)];\n\n"/>
+        <admst:variable name="rhsprobe" select="%(rhs/function[name='\$limit']/arguments[1])"/>
+        <admst:text format="d_%(printTerm(lhs))_d%($rhsprobe/nature)_%($rhsprobe/branch/pnode)_%($rhsprobe/branch/nnode) = d_probeVars[%(xyceProbeConstantName(rhs/function[name='\$limit']/arguments[1])/[name='probeConstant']/value)][%(xyceProbeConstantName(rhs/function[name='\$limit']/arguments[1])/[name='probeConstant']/value)];\n\n"/>
       </admst:otherwise>
     </admst:choose>
   </admst:template>
@@ -3488,13 +3932,6 @@ other variables does not get propagated into a variable's
     <!-- Do sanity check to make sure we're actually processing a contribution
     -->
     <admst:assert test="adms[datatypename='contribution']" format="contribution template called with something that is not a contribution\n"/>
-
-    <!-- Error out if this module uses contribution types we don't grok -->
-    <!--
-    <admst:if test="[lhs/discipline/potential=lhs/nature and rhs/datatypename='expression' and not(rhs/tree/datatypename='number' and (rhs/tree/value='0' or rhs/tree/value='0.0'))]">
-      <admst:error format="this version of the Xyce ADMS interface does not support contributions into voltages unless one is setting them to 0 or 0.0.  Attempt to do %(lhs) &lt; %(rhs) failed\n"/>
-    </admst:if>
-    -->
 
     <!-- force template functions used on rhs to be explicitly instantiated -->
     <admst:variable name="saveTemplateUse" select="$globalMustUseTemplate"/>
@@ -3540,12 +3977,22 @@ other variables does not get propagated into a variable's
             <admst:when test="[count(module/@limitedProbes)>0 and not(nilled(rhs/probe/[#limited='yes'])) and not ($globalCurrenScope='sensitivity')]">
               <!-- Special processing when RHS involves limited probes -->
               <admst:text format="{\n"/>
-              <admst:text format="AdmsFadType contribTemp;\n"/>
+              <admst:text format="double contribTemp;\n"/>
+              <admst:for-each select="rhs/probe">
+                <admst:text format="double d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode);\n"/>
+              </admst:for-each>
               <admst:text format="contribTemp = %(printTerm(rhs));\n"/>
+              <admst:for-each select="rhs/probe">
+                <admst:text format="d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode) = /*diff(%(printTerm(..)),%(nature)_%(branch/pnode)_%(branch/nnode))*/;\n"/>
+                <admst:warning format="Model uses nonzero contributions into voltage branch and RHS is probe-dependent.  This is not correctly handled yet.\n"/>
+              </admst:for-each>
               <admst:text format="%($mode)Contributions[%($branchConstant)] += contribTemp;\n"/>
+              <admst:for-each select="rhs/probe">
+                <admst:text format="d_%($mode)Contributions[%($branchConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)] += d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode);\n"/>
+              </admst:for-each>
               <admst:text format="Jdxp_%($mode)[$branchConstant] += "/>
               <admst:join select="rhs/probe[#limited='yes']" separator="+">
-                <admst:text format="contribTemp.dx(%(xyceProbeConstantName(.)/[name='probeConstant']/value))*probeDiffs[%(xyceProbeConstantName(.)/[name='probeConstant']/value)]*probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)].dx(%(xyceProbeConstantName(.)/[name='probeConstant']/value))"/>
+                <admst:text format="d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode)*probeDiffs[%(xyceProbeConstantName(.)/[name='probeConstant']/value)]*d_probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
               </admst:join>
               <admst:text format=";\n"/>
 
@@ -3554,7 +4001,24 @@ other variables does not get propagated into a variable's
             <admst:otherwise>
               <!-- this is the simple case, no limiting needed -->
               <!-- Branch equation gets + the RHS -->
+              <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="{\n"/>
+              <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" match="functionPrecomputation"/>
+              <admst:if test="[$globalCurrentScope != 'sensitivity']">
+                <admst:apply-templates select="rhs/[not(nilled(function))]" match="functionDerivativePrecomputation"/>
+              </admst:if>
               <admst:text format="%($mode)Contributions[%($branchConstant)] += %(printTerm(rhs));\n"/>
+              <admst:if test="[not($globalCurrentScope='sensitivity')]">
+                <admst:apply-templates select="rhs/[not(nilled(function))]" match="functionDerivativePrecomputation"/>
+                <admst:for-each select="rhs/probe">
+                  <admst:variable name="derivProbe" select="%(.)"/>
+                  <admst:apply-templates select="../tree" match="%(adms/datatypename)">
+                    <admst:variable name="rhsDeriv" value="%(returned('returnedExpressionDeriv')/value)"/>
+                  </admst:apply-templates>
+
+                  <admst:text format="d_%($mode)Contributions[%($branchConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)] += %($rhsDeriv);\n"/>
+                </admst:for-each>
+              </admst:if>
+              <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="}\n"/>
             </admst:otherwise>
           </admst:choose>
 
@@ -3574,18 +4038,39 @@ other variables does not get propagated into a variable's
           <admst:variable name="pnode" select="%(lhs/branch/pnode)"/>
           <admst:variable name="pnodeConstant" select="%(xyceNodeConstantName($pnode)/[name='nodeConstant']/value)"/>
           <admst:variable name="nnode" select="%(lhs/branch/nnode)"/>
+          <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="{\n"/>
+          <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" match="functionPrecomputation"/>
+          <admst:if test="[$globalCurrentScope != 'sensitivity']">
+            <admst:apply-templates select="rhs/[not(nilled(function))]" match="functionDerivativePrecomputation"/>
+          </admst:if>
           <!-- special processing when contribution RHS involves limited
                probes.  We must compute the rhs of the contribution,
                but also generate the Jdxp terms-->
           <admst:choose>
             <admst:when test="[count(module/@limitedProbes)>0 and not(nilled(rhs/probe/[#limited='yes'])) and not($globalCurrentScope='sensitivity')]">
               <admst:text format="{\n"/>
-              <admst:text format="AdmsFadType contribTemp;\n"/>
+              <admst:text format="double contribTemp;\n"/>
+              <admst:for-each select="rhs/probe">
+                <admst:text format="double d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode);\n"/>
+              </admst:for-each>
               <admst:text format="contribTemp= %(printTerm(rhs));\n"/>
+              <admst:for-each select="rhs/probe">
+                <admst:variable name="derivProbe" select="%(.)"/>
+                <admst:apply-templates select="../tree" match="%(adms/datatypename)">
+                  <admst:variable name="rhsDeriv" value="%(returned('returnedExpressionDeriv')/value)"/>
+                </admst:apply-templates>
+                <admst:text format="d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode) = %($rhsDeriv);\n"/>
+              </admst:for-each>
               <admst:text format="%($mode)Contributions[$pnodeConstant] += contribTemp;\n"/>
+              <admst:for-each select="rhs/probe">
+                <admst:text format="d_%($mode)Contributions[%($pnodeConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)] += d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode);\n"/>
+              </admst:for-each>
               <admst:if test="$nnode[grounded='no']">
                 <admst:variable name="nnodeConstant" select="%(xyceNodeConstantName($nnode)/[name='nodeConstant']/value)"/>
                 <admst:text format="%($mode)Contributions[$nnodeConstant] -= contribTemp;\n"/>
+                <admst:for-each select="rhs/probe">
+                  <admst:text format="d_%($mode)Contributions[%($nnodeConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)] -= d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode);\n"/>
+                </admst:for-each>
               </admst:if>
 
               <admst:text format="\n"/>
@@ -3601,14 +4086,14 @@ other variables does not get propagated into a variable's
                    -->
               <admst:text format="Jdxp_%($mode)[$pnodeConstant] += "/>
               <admst:join select="rhs/probe[#limited='yes']" separator="+">
-                <admst:text format="contribTemp.dx(%(xyceProbeConstantName(.)/[name='probeConstant']/value))*probeDiffs[%(xyceProbeConstantName(.)/[name='probeConstant']/value)]*probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)].dx(%(xyceProbeConstantName(.)/[name='probeConstant']/value))"/>
+                <admst:text format="d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode)*probeDiffs[%(xyceProbeConstantName(.)/[name='probeConstant']/value)]*d_probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
               </admst:join>
               <admst:text format=";\n"/>
               <admst:if test="$nnode[grounded='no']">
                 <admst:variable name="nnodeConstant" select="%(xyceNodeConstantName($nnode)/[name='nodeConstant']/value)"/>
                 <admst:text format="Jdxp_%($mode)[$nnodeConstant] -= "/>
                 <admst:join select="rhs/probe[#limited='yes']" separator="+">
-                  <admst:text format="contribTemp.dx(%(xyceProbeConstantName(.)/[name='probeConstant']/value))*probeDiffs[%(xyceProbeConstantName(.)/[name='probeConstant']/value)]*probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)].dx(%(xyceProbeConstantName(.)/[name='probeConstant']/value))"/>
+                <admst:text format="d_contribTemp_d%(nature)_%(branch/pnode)_%(branch/nnode)*probeDiffs[%(xyceProbeConstantName(.)/[name='probeConstant']/value)]*d_probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
                 </admst:join>
                 <admst:text format=";\n"/>
               </admst:if>
@@ -3618,12 +4103,31 @@ other variables does not get propagated into a variable's
             <!-- When no limiting, this is much simpler: Just output RHS -->
             <admst:otherwise>
               <admst:text format="%($mode)Contributions[$pnodeConstant] += %(printTerm(rhs));\n"/>
+              <admst:if test="[not($globalCurrentScope='sensitivity')]">
+                <admst:for-each select="rhs/probe">
+                <admst:variable name="derivProbe" select="%(.)"/>
+                <admst:apply-templates select="../tree" match="%(adms/datatypename)">
+                  <admst:variable name="rhsDeriv" value="%(returned('returnedExpressionDeriv')/value)"/>
+                </admst:apply-templates>
+                  <admst:text format="d_%($mode)Contributions[%($pnodeConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)] += %($rhsDeriv);\n"/>
+                </admst:for-each>
+              </admst:if>
               <admst:if test="$nnode[grounded='no']">
                 <admst:variable name="nnodeConstant" select="%(xyceNodeConstantName($nnode)/[name='nodeConstant']/value)"/>
                 <admst:text format="%($mode)Contributions[$nnodeConstant] -= %(printTerm(rhs));\n"/>
+                <admst:if test="[not($globalCurrentScope='sensitivity')]">
+                  <admst:for-each select="rhs/probe">
+                    <admst:variable name="derivProbe" select="%(.)"/>
+                    <admst:apply-templates select="../tree" match="%(adms/datatypename)">
+                      <admst:variable name="rhsDeriv" value="%(returned('returnedExpressionDeriv')/value)"/>
+                    </admst:apply-templates>
+                    <admst:text format="d_%($mode)Contributions[%($nnodeConstant)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)] -= %($rhsDeriv);\n"/>
+                  </admst:for-each>
+                </admst:if>
               </admst:if>
             </admst:otherwise>
           </admst:choose>
+          <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="}\n"/>
         </admst:if>
           <!-- we will handle only very specific types of  noise contributions,
                those whose RHS is strictly a single noise function.  This is
@@ -3635,6 +4139,8 @@ other variables does not get propagated into a variable's
           <!-- now force scalar, because we're assigning to a double value -->
           <admst:variable name="saveForceScalar" select="$globalMustForceScalar"/>
           <admst:variable name="globalMustForceScalar" select="yes"/>
+          <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+          <admst:variable name="skipFunctionPrecomp" select="y"/>
           <admst:text format="  noiseContribsPower[%(#noiseContIndex)]="/>
           <!-- extract the power argument, the first one-->
           <admst:text format=" %(printTerm(rhs/tree/arguments[1]));\n"/>
@@ -3645,6 +4151,7 @@ other variables does not get propagated into a variable's
           </admst:if>
           <admst:text format="}\n"/>
           <admst:variable name="globalMustForceScalar" select="$saveForceScalar"/>
+          <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
         </admst:if>
 
       </admst:otherwise>
@@ -3659,11 +4166,17 @@ other variables does not get propagated into a variable's
    =================================================================-
   -->
   <admst:template match="probe">
-<!--
-    <admst:assert test="[nature!=discipline/flow]" format="Xyce ADMS interface does not yet support current probes.  %(.) not supported./n"/>
--->
     <admst:variable name="expression" select="(probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)])"/>
+    <admst:choose>
+      <admst:when test="[.=$derivProbe]">
+        <admst:variable name="expressionDeriv" select="d_probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:variable name="expressionDeriv" select="0.0"/>
+      </admst:otherwise>
+    </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
+    <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
   </admst:template>
 
   <!--
@@ -3732,30 +4245,380 @@ other variables does not get propagated into a variable's
         <admst:fatal format="Unknown variable scope for %(name): %(scope)\n"/>
       </admst:otherwise>
     </admst:choose>
-    <admst:if test="[$globalMustForceScalar='yes' and (($globalCurrentScope!='sensitivity' and not(nilled(probe))) or ($globalCurrentScope='sensitivity' and exists(#Pdependent)) and type='real')]">
+    <admst:if test="[$globalMustForceScalar='yes' and($globalCurrentScope='sensitivity' and exists(#Pdependent)) and type='real']">
       <admst:variable name="expression" select="$expression.val()"/>
     </admst:if>
+
+    <admst:variable name="expressionDeriv" select="0.0"/>
+    <admst:if test="[insource='yes']">
+      <admst:if-inside select="$derivProbe" list="%(probe)">
+        <admst:variable name="expressionDeriv" select="d_%(name)_d%($derivProbe/nature/access)_%($derivProbe/branch/pnode/name)_%($derivProbe/branch/nnode/name)"/>
+      </admst:if-inside>
+    </admst:if>
+
     <admst:return name="returnedExpression" value="$expression"/>
+    <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
   </admst:template>
 
   <!--
    =================================================================-
    function
+     This template depends on there having been function precomputation
+     performed, with functions calls already having been evaluated
+     and stored into appropriately named variables.  We simply
+     emit the name of the variable instead of the call here.
+     The exception will be for ddt, which may only appear on the RHS of
+     a contribution, and which simply returns the argument of ddt
+     for stuffing into the Q vector.
    =================================================================-
   -->
   <admst:template match="function">
+    <admst:variable name="expressionDeriv" select="0.0"/>
+    <admst:choose>
+      <admst:when test="[name='min' or name='max']">
+        <admst:choose>
+          <admst:when test="[$skipFunctionPrecomp='y']">
+            <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
+          </admst:when>
+          <admst:otherwise>
+            <admst:variable name="expression" select="value_%(name)_%(index(subexpression/expression/function,.))"/>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:when>
+      <admst:when test="[name='absdelay']">
+        <admst:apply-templates select="arguments[1]" match="processTerm">
+          <admst:variable name="expression" select="FIXMEabsdelay(%(returned('returnedExpression')/value))"/>
+        </admst:apply-templates>
+      </admst:when>
+      <!-- DDT is a null function in Xyce we'll load such things into
+           dynamic contributions, and those will be differentiated elsewhere -->
+      <admst:when test="[name='ddt']">
+        <admst:apply-templates select="arguments[1]" match="processTerm">
+          <admst:variable name="expression" select="(%(returned('returnedExpression')/value))"/>
+          <admst:variable name="expressionDeriv" select="(%(returned('returnedExpressionDeriv')/value))"/>
+        </admst:apply-templates>
+      </admst:when>
+      <admst:when test="[name='\$given' or name='\$param_given']">
+        <admst:variable name="arg1" select="%(arguments[1])"/>
+        <admst:assert test="$arg1[datatypename='variable' and input='yes']" format="%(name): argument is not a parameter\n"/>
+        <admst:choose>
+          <admst:when test="$arg1/[parametertype='model']">
+            <admst:choose>
+              <admst:when test="[$globalCurrentScope = 'model']">
+                <admst:variable name="expression" select="given(&quot;$arg1&quot;)"/>
+              </admst:when>
+              <admst:when test="[$globalCurrentScope = 'instance']">
+                <admst:variable name="expression" select="(model_.given(&quot;$arg1&quot;))"/>
+              </admst:when>
+              <admst:when test="[$globalCurrentScope = 'sensitivity']">
+                <admst:variable name="expression" select="modelPar_given_$arg1"/>
+              </admst:when>
+            </admst:choose>
+          </admst:when>
+          <admst:when test="$arg1/[parametertype='instance']">
+            <admst:choose>
+              <admst:when test="[$globalCurrentScope = 'instance']">
+                <admst:variable name="expression" select="given(&quot;$arg1&quot;)"/>
+              </admst:when>
+              <admst:when test="[$globalCurrentScope = 'sensitivity']">
+                <admst:variable name="expression" select="instancePar_given_$arg1"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:fatal format="Attempt to use \$given() on an instance variable outside of instance scope\n"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:when>
+          <admst:otherwise>
+            <admst:fatal format="%(name): should not be reached\n"/>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:when>
+      <admst:when test="[name='\$temperature']">
+        <admst:assert test="[nilled(arguments)]" format="%(name): should not have arguments\n"/>
+        <admst:choose>
+          <admst:when test="[$globalCurrentScope='instance' or $globalCurrentScope='sensitivity']">
+            <admst:variable name="expression" select="admsTemperature"/>
+          </admst:when>
+          <!-- KLUDGE!!!!!! -->
+          <!-- Assumes that when at model scope, $temperature is taken as
+               the default temperature of the simulator. -->
+          <!-- At instance scope, we use whatever Xyce passed in to
+               updateTemperature for that instance. -->
+          <admst:when test="[$globalCurrentScope='model']">
+            <admst:variable name="expression" select="admsModTemp"/>
+          </admst:when>
+        </admst:choose>
+      </admst:when>
+      <admst:when test="[name='\$mfactor']">
+        <admst:assert test="[nilled(arguments)]" format="%(name): should not have arguments\n"/>
+        <admst:variable name="expression" select="FIXME_MFACTOR"/>
+      </admst:when>
+      <admst:when test="[name='\$vt']">
+        <admst:choose>
+          <admst:when test="[nilled(arguments)]">
+            <admst:variable name="expression" select="adms_vt_nom"/>
+          </admst:when>
+          <admst:when test="arguments[count(.)=1]">
+            <admst:apply-templates select="arguments[1]" match="processTerm">
+              <admst:choose>
+                <admst:when test="[$globalCurrentScope='AF']">
+                  <admst:variable name="expression" select="adms_vt&lt;ScalarT&gt;(%(returned('returnedExpression')/value))"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expression" select="adms_vt(%(returned('returnedExpression')/value))"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:apply-templates>
+          </admst:when>
+        </admst:choose>
+      </admst:when>
+      <admst:when test="[name='\$scale']">
+        <admst:assert test="[nilled(arguments)]" format="%(name): should not have arguments\n"/>
+        <admst:variable name="expression" select="FIXME_scale"/>
+      </admst:when>
+      <admst:when test="[name='\$abstime' or name='\$realtime']">
+        <admst:assert test="[nilled(arguments)]" format="%(name): should not have arguments\n"/>
+          <admst:choose>
+            <admst:when test="[$globalCurrentScope='sensitivity']">
+              <admst:variable name="expression" select="theInstance.getSolverState().currTime_"/>
+            </admst:when>
+            <admst:otherwise>
+              <admst:variable name="expression" select="getSolverState().currTime_"/>
+            </admst:otherwise>
+          </admst:choose>
+      </admst:when>
+      <admst:when test="[name='ddx']">
+        <admst:assert test="arguments[count(.)=2]" format="%(name): should have two arguments exactly\n"/>
+        <admst:assert test="arguments[2]/adms[datatypename='probe']" format="%(name): second argument is not a probe\n"/>
+        <admst:variable name="expression" select="FIXME: ddx(%(arguments[1]),%(arguments[2]))"/>
+      </admst:when>
+      <admst:when test="[name='floor']">
+        <admst:assert test="arguments[count(.)=1]" format="%(name): should have one argument exactly\n"/>
+        <admst:apply-templates select="arguments[1]" match="processTerm">
+          <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
+          <admst:choose>
+            <admst:when test="[$globalCurrentScope='sensitivity']">
+              <admst:apply-templates select="." match="recursiveDetectParameterDependence">
+                <admst:variable name="isDependent" select="%(returned('isDependent')/value)"/>
+                <admst:choose>
+                  <admst:when test="[$isDependent='yes']">
+                    <admst:variable name="expression" select="ADMSfloor($expression)"/>
+                  </admst:when>
+                  <admst:otherwise>
+                    <admst:variable name="expression" select="floor($expression)"/>
+                  </admst:otherwise>
+                </admst:choose>
+              </admst:apply-templates>
+            </admst:when>
+            <admst:otherwise>
+              <admst:choose>
+                <admst:when test="[exists(math/dependency) and (math/dependency='linear' or math/dependency='nonlinear')]">
+                  <admst:variable name="expression" select="ADMSfloor($expression)"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expression" select="floor($expression)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:otherwise>
+          </admst:choose>
+        </admst:apply-templates>
+      </admst:when>
+      <admst:when test="[name='ceil']">
+        <admst:assert test="arguments[count(.)=1]" format="%(name): should have one argument exactly\n"/>
+        <admst:apply-templates select="arguments[1]" match="processTerm">
+          <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
+          <admst:choose>
+            <admst:when test="[$globalCurrentScope='sensitivity']">
+              <admst:apply-templates select="." match="recursiveDetectParameterDependence">
+                <admst:variable name="isDependent" select="%(returned('isDependent')/value)"/>
+                <admst:choose>
+                  <admst:when test="[$isDependent='yes']">
+                    <admst:variable name="expression" select="ADMSceil($expression)"/>
+                  </admst:when>
+                  <admst:otherwise>
+                    <admst:variable name="expression" select="ceil($expression)"/>
+                  </admst:otherwise>
+                </admst:choose>
+              </admst:apply-templates>
+            </admst:when>
+            <admst:otherwise>
+              <admst:choose>
+                <admst:when test="[exists(math/dependency) and (math/dependency='linear' or math/dependency='nonlinear')]">
+                  <admst:variable name="expression" select="ADMSceil($expression)"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expression" select="ceil($expression)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:otherwise>
+          </admst:choose>
+        </admst:apply-templates>
+      </admst:when>
+      <admst:when test="[name='\$simparam']">
+        <admst:choose>
+          <admst:when test="[arguments[1]/datatypename='string' and arguments[1]/value='gmin']">
+            <admst:choose>
+              <admst:when test="[$globalCurrentScope='sensitivity']">
+                <admst:variable name="expression" select="ADMSgmin_arg"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expression" select="getDeviceOptions().gmin"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:when>
+          <admst:otherwise>
+            <admst:assert test="arguments[count(.)=2]" format="Unrecognized simparam %(arguments[1]) and no expression provided.\n"/>
+            <admst:apply-templates select="arguments[2]" match="processTerm">
+              <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
+            </admst:apply-templates>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:when>
+      <admst:when test="[$skipFunctionPrecomp='y']">
+        <!-- if we aren't caught by anything above, and this is set,
+             proceed as normal -->
+        <admst:choose>
+          <admst:when test="[name='ln' or name='log' or name='sqrt']">
+            <admst:variable name="expression" select="%(funcname(.)/[name='fname']/value)"/>
+            <admst:variable name="args" select=""/>
+            <admst:for-each select="arguments">
+              <admst:if test="[$args!='']">
+                <admst:variable name="args" select="$args,"/>
+              </admst:if>
+              <admst:apply-templates select="." match="realArgument">
+                <admst:variable name="args" select="$args%(returned('argval')/value)"/>
+              </admst:apply-templates>
+            </admst:for-each>
+            <admst:variable name="expression" select="$expression($args)"/>
+          </admst:when>
+          <admst:otherwise>
+            <admst:variable name="expression" select="%(funcname(.)/[name='fname']/value)"/>
+            <admst:variable name="args" select=""/>
+            <admst:for-each select="arguments">
+              <admst:if test="[$args!='']">
+                <admst:variable name="args" select="$args,"/>
+              </admst:if>
+              <admst:apply-templates select="." match="processTerm">
+                <admst:variable name="args" select="$args%(returned('returnedExpression')/value)"/>
+              </admst:apply-templates>
+            </admst:for-each>
+            <admst:variable name="expression" select="$expression($args)"/>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:when>
+      <admst:otherwise>
+        <admst:choose>
+          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' or name='pow' or name='min' or name='max']">
+            <!-- we must use precomputed function vars -->
+            <admst:variable name="expression" select="value_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))"/>
+          </admst:when>
+          <admst:otherwise>
+            <!-- <admst:message format="Falling back on direct function call instead of precomputation for function %(name) of class %(class).  May be a sign of incomplete back end.\n"/> -->
+            <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
+          </admst:otherwise>
+        </admst:choose>
+        <!-- now try to deal with derivatives -->
+        <admst:choose>
+          <!-- Single-argument functions -->
+          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' ]">
+            <admst:apply-templates select="arguments[1]" match="processTerm">
+              <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+            </admst:apply-templates>
+            <admst:choose>
+              <admst:when test="[$a1Deriv='0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv))"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:when>
+          <!-- two-argument functions -->
+          <admst:when test="[name='pow' or name='min' or name='max']">
+            <admst:apply-templates select="arguments[1]" match="processTerm">
+              <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+            </admst:apply-templates>
+            <admst:apply-templates select="arguments[2]" match="processTerm">
+              <admst:variable name="a2Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+            </admst:apply-templates>
+            <admst:choose>
+              <admst:when test="[$a1Deriv='0.0' and $a2Deriv='0.0']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:when test="[$a2Deriv='0.0']">
+                <admst:variable name="expressionDeriv" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv))"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv='0.0']">
+                <admst:variable name="expressionDeriv" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2Deriv))"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="((deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv))+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2Deriv)))"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:when>
+          <admst:otherwise>
+            <admst:variable name="thisFunctionCall" path="."/>
+            <admst:if test="[class!='analog']">
+              <admst:warning format="Do not know how to differentiate function %(name).  Code will be wrong!\n"/>
+            </admst:if>
+            <admst:variable name="argsDep" select="no"/>
+            <admst:if test="[definition/datatypename='analogfunction']">
+              <admst:if test="[exists(definition/variable[(output='yes') and (name!=$thisFunctionCall/name)])]">
+                <!-- <admst:message format="Called analog function has output variables other than return value, pretending args have dependencies.\n"/> -->
+                <admst:variable name="argsDep" value="yes"/>
+              </admst:if>
+            </admst:if>
+            <admst:variable name="args" value=""/>
+            <admst:variable name="dargs" value=""/>
+            <admst:for-each select="arguments">
+              <admst:if test="[not($args='')]">
+                <admst:variable name="args" value="$(args),"/>
+              </admst:if>
+              <admst:if test="[not($dargs='')]">
+                <admst:variable name="dargs" value="$(dargs),"/>
+              </admst:if>
+              <admst:apply-templates select="." match="processTerm">
+                <admst:variable name="args" select="$(args)%(returned('returnedExpression')/value)"/>
+                <admst:variable name="aDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+                <admst:if test="[$aDeriv != '0.0']">
+                  <admst:variable name="argsDep" select="yes"/>
+                </admst:if>
+                <admst:variable name="dargs" select="$(dargs)$(aDeriv)"/>
+              </admst:apply-templates>
+            </admst:for-each>
+            <admst:choose>
+              <admst:when test="[$argsDep = 'no']">
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="AnalogFunctions::d_%($thisFunctionCall/name)($args,$dargs)"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:otherwise>
+        </admst:choose>
+      </admst:otherwise>
+    </admst:choose>
+    <admst:return name="returnedExpression" value="$expression"/>
+    <!-- NOT CORRECT YET: Lots of missing function!-->
+    <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
+  </admst:template>
+
+  <!--
+   =================================================================-
+   functionCall
+     This template was what our old back-end called when a function
+     call was found, via the %(adms/datatype) template match.  Now
+     that we're doing precomputation of function evaluation, we have
+     do do something simpler in the "function" template, and
+     have this one for the real work
+   =================================================================-
+  -->
+  <admst:template match="functionCall">
     <admst:choose>
       <admst:when test="[name='min']">
         <admst:variable name="expression" select="std::min"/>
         <admst:variable name="args" select=""/>
         <admst:for-each select="arguments">
-          <!-- if *ANY* argument depends on probes, can't use std::min, must
-               use Sacado's overloaded min -->
-          <admst:if test="[exists(math/dependency)]">
-            <admst:if test="[((math/dependency='linear' or math/dependency='nonlinear') and $globalCurrentScope != 'sensitivity')]">
-              <admst:variable name="expression" select="min"/>
-            </admst:if>
-          </admst:if>
           <admst:if test="[($globalCurrentScope='sensitivity' and exists(#Pdependent))]">
             <admst:variable name="expression" select="min"/>
           </admst:if>
@@ -3772,13 +4635,6 @@ other variables does not get propagated into a variable's
         <admst:variable name="expression" select="std::max"/>
         <admst:variable name="args" select=""/>
         <admst:for-each select="arguments">
-          <!-- if *ANY* argument depends on probes, can't use std::max, must
-               use Sacado's overloaded max -->
-          <admst:if test="[exists(math/dependency)]">
-            <admst:if test="[((math/dependency='linear' or math/dependency='nonlinear') and $globalCurrentScope != 'sensitivity')]">
-              <admst:variable name="expression" select="max"/>
-            </admst:if>
-          </admst:if>
           <admst:if test="[($globalCurrentScope='sensitivity' and exists(#Pdependent))]">
             <admst:variable name="expression" select="max"/>
           </admst:if>
@@ -3924,11 +4780,11 @@ other variables does not get propagated into a variable's
       <admst:when test="[name='ceil']">
         <admst:assert test="arguments[count(.)=1]" format="%(name): should have one argument exactly\n"/>
         <admst:apply-templates select="arguments[1]" match="processTerm">
-          <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
+          <admst:variable name="expression" select="%(returned('returnedExpression')/value))"/>
           <admst:choose>
             <admst:when test="[$globalCurrentScope='sensitivity']">
               <admst:apply-templates select="." match="recursiveDetectParameterDependence">
-                <admst:variable name="isDependent" select="%(returned('isDependent')/value)"/>
+                <admst:variable name="isDependent" select="%(returned('isDependent')/value))"/>
                 <admst:choose>
                   <admst:when test="[$isDependent='yes']">
                     <admst:variable name="expression" select="ADMSceil($expression)"/>
@@ -3986,28 +4842,6 @@ other variables does not get propagated into a variable's
         <admst:variable name="expression" select="$expression($args)"/>
       </admst:when>
       <admst:otherwise>
-        <!--
-             Commented out code is for investigating issues around
-             creating non-sacado, explicitly differentiated analog functions
-         -->
-        <!--
-        <admst:variable name="theAF"/>
-        <admst:variable name="theFoundFunc"/>
-        <admst:variable name="isAF"/>
-        <admst:if test="[class = 'analog']">
-          <admst:message format="Bing!  Hit fall-through on function %(name) of class %(class) \n"/>
-          <admst:variable name="theFoundFunc" select="%(name)"/>
-          <admst:variable name="theAF" select="%(/module/analogfunction[name=$theFoundFunc])"/>
-          <admst:message format="I think I found it as %($theAF), name=%($theAF/name) with %(count($theAF/variable[input='yes' or (input='no' and output='yes' and name!=$theAF/name)])) args\n"/>
-          <admst:reset select="@AFdummyArgs"/>
-          <admst:push into="@AFdummyArgs" select="$theAF/variable[input='yes' or (input='no' and output='yes' and name!=$theAF/name)]"/>
-          <admst:reverse select="@AFdummyArgs"/>
-          <admst:for-each select="@AFdummyArgs">
-            <admst:message format="    Dummy arg %(position(.)) = %(name) input=%(input) output=%(output) \n"/>
-          </admst:for-each>
-          <admst:variable name="isAF" select="yes"/>
-        </admst:if>
-        -->
         <admst:variable name="expression" select="%(funcname(.)/[name='fname']/value)"/>
         <admst:variable name="args" select=""/>
         <admst:for-each select="arguments">
@@ -4016,12 +4850,6 @@ other variables does not get propagated into a variable's
           </admst:if>
           <admst:apply-templates select="." match="processTerm">
             <admst:variable name="args" select="$args%(returned('returnedExpression')/value)"/>
-            <!--
-            <admst:if test="[$isAF='yes']">
-              <admst:variable name="theArgIndex" select="%(position(.))"/>
-              <admst:variable name="args" select="$args /* index=%($theArgIndex) input=%(../@AFdummyArgs[$theArgIndex]/input) output=%(../@AFdummyArgs[$theArgIndex]/output)*/"/>
-            </admst:if>
-            -->
           </admst:apply-templates>
         </admst:for-each>
         <admst:variable name="expression" select="$expression($args)"/>
@@ -4029,7 +4857,7 @@ other variables does not get propagated into a variable's
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
   </admst:template>
-
+ 
   <!--
    =================================================================-
    string
@@ -4038,6 +4866,7 @@ other variables does not get propagated into a variable's
   -->
   <admst:template match="string">
     <admst:return name="returnedExpression" value="&quot;%(value)&quot;"/>
+    <admst:return name="returnedExpressionDeriv" value="0.0"/>
   </admst:template>
 
   <!--
@@ -4049,7 +4878,10 @@ other variables does not get propagated into a variable's
   <admst:template match="conditional">
     <admst:assert test="adms[datatypename='conditional']" format="conditional template called on something other than conditional\n"/>
 
+    <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+    <admst:variable name="skipFunctionPrecomp" select="y"/>
     <admst:text format="if (%(printTerm(if)))\n"/>
+    <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
     <!-- blocks will print their own braces, but we always want them -->
     <admst:text select="then/adms[datatypename!='block']" format="{\n"/>
     <admst:apply-templates select="then" match="%(adms/datatypename)"/>
@@ -4112,7 +4944,10 @@ other variables does not get propagated into a variable's
    =================================================================-
   -->
   <admst:template match="whileloop">
+    <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+    <admst:variable name="skipFunctionPrecomp" select="y"/>
     <admst:text format="while (%(printTerm(while)))\n"/>
+    <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
     <admst:text select="whileblock/adms[datatypename!='block']" format="{\n"/>
     <admst:apply-templates select="whileblock" match="%(adms/datatypename)"/>
     <admst:text select="whileblock/adms[datatypename!='block']" format="}\n"/>
@@ -4306,7 +5141,7 @@ other variables does not get propagated into a variable's
           <admst:text format="%(returned('returnCondition')/value)"/>
         </admst:apply-templates>
       </admst:join>
-      <admst:text format=") )\n  {\n    UserError(*this) &lt;&lt; &quot;$nameSpace: Parameter %(name) value &quot; &lt;&lt; %(name) &lt;&lt; &quot; "/>
+      <admst:text format=") )\n  {\n    UserWarning(*this) &lt;&lt; &quot;$nameSpace: Parameter %(name) value &quot; &lt;&lt; %(name) &lt;&lt; &quot; "/>
       <admst:join select="range" separator=" or ">
         <admst:text select="[type='include']" format="out of range"/>
         <admst:text select="[type='exclude']" format="in excluded range"/>
@@ -4402,7 +5237,7 @@ other variables does not get propagated into a variable's
               <admst:variable name="expression" select="limexp&lt;AdmsSensFadType&gt;"/>
             </admst:when>
             <admst:otherwise>
-              <admst:variable name="expression" select="limexp&lt;AdmsFadType&gt;"/>
+              <admst:variable name="expression" select="limexp"/>
             </admst:otherwise>
           </admst:choose>
         </admst:otherwise>
@@ -4419,7 +5254,7 @@ other variables does not get propagated into a variable's
               <admst:variable name="expression" select="limexp&lt;AdmsSensFadType&gt;"/>
             </admst:when>
             <admst:otherwise>
-              <admst:variable name="expression" select="limexp&lt;AdmsFadType&gt;"/>
+              <admst:variable name="expression" select="limexp"/>
             </admst:otherwise>
           </admst:choose>
         </admst:otherwise>
@@ -4432,7 +5267,7 @@ other variables does not get propagated into a variable's
             <admst:when test="[class='analog']">
               <admst:choose>
                 <admst:when test="[$globalCurrentScope!='AF']">
-                  <admst:variable name="expression" select="AnalogFunctions::%(name)"/>
+                  <admst:variable name="expression" select="AnalogFunctions::%(name)&lt;double&gt;"/>
                 </admst:when>
                 <admst:when test="[$globalCurrentScope='AF']">
                   <!-- If we call an analog function from within another,
@@ -4459,7 +5294,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expression" select="%(name)&lt;WRONG&gt;"/>
                 </admst:when>
                 <admst:when test="[$globalCurrentScope='model' or $globalCurrentScope='instance']">
-                  <admst:variable name="expression" select="AnalogFunctions::%(name)&lt;AdmsFadType&gt;"/>
+                  <admst:variable name="expression" select="AnalogFunctions::%(name)&lt;double&gt;"/>
                 </admst:when>
                 <!-- when we're in instance class, have to reference through the
                      model -->
@@ -4469,7 +5304,7 @@ other variables does not get propagated into a variable's
               </admst:choose>
             </admst:when>
             <admst:otherwise>
-              <admst:variable name="expression" select="%(name)&lt;AdmsFadType&gt;"/>
+              <admst:variable name="expression" select="%(name)"/>
             </admst:otherwise>
           </admst:choose>
         </admst:otherwise>
@@ -4479,15 +5314,51 @@ other variables does not get propagated into a variable's
   <admst:return name="fname" value="$expression"/>
 </admst:template>
 
+<!-- This variant doesn't try to return fancy names for functions in all
+     contexts, just makes certain Verilog-A to C++ mappings.  Used for
+     creation of variable names, not function calls -->
+<admst:template match="funcnameSimple">
+  <admst:choose>
+    <admst:when test="[name='abs']">
+      <admst:variable name="expression" select="fabs"/>
+    </admst:when>
+    <admst:when test="[name='\$shrinkl']">
+      <admst:variable name="expression" select="shrinkl"/>
+    </admst:when>
+    <admst:when test="[name='\$shrinka']">
+      <admst:variable name="expression" select="shrinka"/>
+    </admst:when>
+    <admst:when test="[name='log']">
+      <admst:variable name="expression" select="log"/>
+    </admst:when>
+    <admst:when test="[name='ln']">
+      <admst:variable name="expression" select="log"/>
+    </admst:when>
+    <admst:when test="[name='limexp']">
+      <admst:variable name="expression" select="limexp"/>
+    </admst:when>
+    <admst:when test="[name='\$limexp']">
+      <admst:variable name="expression" select="limexp"/>
+    </admst:when>
+    <admst:otherwise>
+      <admst:variable name="expression" select="%(name)"/>
+    </admst:otherwise>
+  </admst:choose>
+  <admst:return name="fname" value="$expression"/>
+</admst:template>
+
 <!-- callfunction: handle $strobe -->
 <admst:template match="callfunction">
   <admst:choose>
     <admst:when test="function[name='\$strobe']">
+      <admst:variable name="saveSkipFunctionPrecomp" select="$skipFunctionPrecomp"/>
+      <admst:variable name="skipFunctionPrecomp" select="y"/>
       <admst:text format="std::cerr "/>
       <admst:for-each select="function/arguments">
       <admst:text format=" &lt;&lt; %(printTerm(.))"/>
       </admst:for-each>
       <admst:text format=" &lt;&lt;  std::endl; \n"/>
+      <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
     </admst:when>
     <admst:when test="function[name='\$finish']">
       <admst:choose>

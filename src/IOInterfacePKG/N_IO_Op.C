@@ -43,6 +43,7 @@
 #include <N_DEV_DeviceEntity.h>
 #include <N_DEV_DeviceSensitivities.h>
 #include <N_DEV_Op.h>
+#include <N_ERH_ErrorMgr.h>
 #include <N_IO_MeasureBase.h>
 #include <N_IO_Op.h>
 #include <N_PDS_MPI.h>
@@ -798,6 +799,10 @@ complex RFparamsOp::get(const RFparamsOp &op, const Util::Op::OpData &op_data)
       // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
       result = param(op.index1_-1,op.index2_-1);
     }
+    else
+    {
+      Report::UserError0() << "Indices for " << op.name_ << " operator must be <= number of ports";
+    }
   }
 
   return result;
@@ -826,6 +831,10 @@ complex RFparamsRealOp::get(const RFparamsRealOp &op, const Util::Op::OpData &op
     {
       // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
       result = param(op.index1_-1,op.index2_-1);
+    }
+    else
+    {
+      Report::UserError0() << "Indices for " << op.name_ << " operator must be <= number of ports";
     }
   }
 
@@ -872,6 +881,10 @@ complex RFparamsImaginaryOp::get(const RFparamsImaginaryOp &op, const Util::Op::
       // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
       result = param(op.index1_-1,op.index2_-1);
     }
+    else
+    {
+      Report::UserError0() << "Indices for " << op.name_ << " operator must be <= number of ports";
+    }
   }
 
     return result;
@@ -916,6 +929,10 @@ complex RFparamsMagnitudeOp::get(const RFparamsMagnitudeOp &op, const Util::Op::
     {
       // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
       result = param(op.index1_-1,op.index2_-1);
+    }
+    else
+    {
+      Report::UserError0() << "Indices for " << op.name_ << " operator must be <= number of ports";
     }
   }
 
@@ -962,6 +979,10 @@ complex RFparamsPhaseOp::get(const RFparamsPhaseOp &op, const Util::Op::OpData &
       // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
       result = param(op.index1_-1,op.index2_-1);
     }
+    else
+    {
+      Report::UserError0() << "Indices for " << op.name_ << " operator must be <= number of ports";
+    }
   }
 
   return result;
@@ -1006,6 +1027,10 @@ complex RFparamsDecibelsOp::get(const RFparamsDecibelsOp &op, const Util::Op::Op
     {
       // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
       result = param(op.index1_-1,op.index2_-1);
+    }
+    else
+    {
+      Report::UserError0() << "Indices for " << op.name_ << " operator must be <= number of ports";
     }
   }
 

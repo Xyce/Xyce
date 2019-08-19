@@ -221,6 +221,7 @@ private:
   std::string hackOutputFormat_;
   bool hackOutputCalledBefore_;
   bool hackOutputAllSamples_;
+  bool outputtersCalledBefore_;
   bool outputSampleStats_;
 
 #if Xyce_STOKHOS_ENABLE

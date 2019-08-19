@@ -1750,7 +1750,8 @@ function of frequency for a general multi-port network. The program first comput
 the circuit and then linearizes the circuit. The resultant linear circuit is then
 analyzed over a user-specified range of frequencies. The output of a S-parameter
 analysis is multi-port scattering (S) parameters. The S-parameters represent
-the ratio of incident and scattered normailized voltage waves.
+the ratio of incident and scattered normalized voltage waves.  The analysis
+results can also be output as Y-parameter or Z-parameter values.
 
 \subsection{.LIN Statement}
 
@@ -1764,7 +1765,9 @@ Here is an example of typical \verb|.AC| and \verb|.LIN| lines:
 
 The \verb|.LIN| analysis is similar to a basic small signal \verb|.AC| analysis, but it also calculates small signal 
 transfer parameters between terminals identified using port (P) devices. The \Xyce{} Reference Guide\ReferenceGuide{} 
-provides a complete description of \verb|.LIN| analysis and the P device.
+provides a complete description of \verb|.LIN| analysis and the P device.  To output Y-parameter
+or Z-parameter values instead the \texttt{LINTYPE=Y} or \texttt{LINTYPE=Z} argument can be
+used on the \texttt{.LIN} line.
 
 \subsection{Port Devices}
 \label{SP_Port}
@@ -1854,6 +1857,11 @@ The default filename for both Touchstone formats is \texttt{<netlistName>.sNp}
 where N is the number of ``ports'' (\texttt{P} devices) specified in the netlist.
 The output can be redirected to another file with the \texttt{-o} command line
 option or by using a \texttt{FILE=<filename>} argument on the \texttt{.LIN} line.
+
+The default output is S-parameters.  The \texttt{LINTYPE=<S|Y|Z>} argument can be
+used on the \texttt{.LIN} line to select Y-parameter or Z-parameter output instead.
+(Note:  The default filename is still \texttt{<netlistName>.sNp} even if the
+output file contains Y-parameter or Z-parameter output rather than S-parameter output.)
 The \Xyce{} Reference Guide\ReferenceGuide{} has a complete listing of which
 arguments, typically used on a \texttt{.PRINT} line also work on a \texttt{.LIN} line.
 
@@ -1861,14 +1869,16 @@ arguments, typically used on a \texttt{.PRINT} line also work on a \texttt{.LIN}
   \caption{Output generated for .LIN analysis \label{LIN_Output_table}}
   \begin{tabularx}{\linewidth}{|p{2.75in}|Y|Y|}
     \rowcolor{XyceDarkBlue} \color{white}\textbf{Command} & \color{white}\textbf{Files} & \color{white}\textbf{Format} \\ \hline
-\texttt{.LIN} & \emph{circuit-file}.sNp & Touchstone 2 format.  Data format is RI \\ \hline
-\texttt{.LIN FORMAT=TOUCHSTONE} & \emph{circuit-file}.sNp & Touchstone 1 format. Data format is RI \\ \hline
-\texttt{.LIN FORMAT=TOUCHSTONE2} & \emph{circuit-file}.sNp & Touchstone 2 format. Data format is RI \\ \hline
-\texttt{.LIN DATAFORMAT=MA} & \emph{circuit-file}.sNp & Touchstone 2 format.  Data format is MA \\ \hline
-\texttt{.LIN DATAFORMAT=DB} & \emph{circuit-file}.sNp & Touchstone 2 format.  Data format is DB \\ \hline
+\texttt{.LIN} & \emph{circuit-file}.sNp & S-parameter data in Touchstone 2 format. Data format is RI. \\ \hline
+\texttt{.LIN FORMAT=TOUCHSTONE} & \emph{circuit-file}.sNp & S-parameter data in Touchstone 1 format. Data format is RI. \\ \hline
+\texttt{.LIN FORMAT=TOUCHSTONE2} & \emph{circuit-file}.sNp & S-parameter data in Touchstone 2 format. Data format is RI. \\ \hline
+\texttt{.LIN DATAFORMAT=MA} & \emph{circuit-file}.sNp & S-parameter data in Touchstone 2 format. Data format is MA. \\ \hline
+\texttt{.LIN DATAFORMAT=DB} & \emph{circuit-file}.sNp & S-parameter data in Touchstone 2 format. Data format is DB. \\ \hline
+\texttt{.LIN LINTYPE=Y} & \emph{circuit-file}.sNp & Y-parameter data in Touchstone 2 format. Data format is RI. \\ \hline
+\texttt{.LIN LINTYPE=Z} & \emph{circuit-file}.sNp & Z-parameter data in Touchstone 2 format. Data format is RI. \\ \hline
 
-\texttt{\emph{Xyce} -r} & NA & This will produce a parsing error \\ \hline
-\texttt{\emph{Xyce} -r -a} & NA & This will produce a parsing error \\ \hline
+\texttt{\emph{Xyce} -r} & NA & This will produce a parsing error. \\ \hline
+\texttt{\emph{Xyce} -r -a} & NA & This will produce a parsing error. \\ \hline
 
 \end{tabularx}
 \end{table}

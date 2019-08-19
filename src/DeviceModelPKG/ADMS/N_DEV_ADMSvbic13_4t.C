@@ -38,7 +38,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 25 Jul 2019 18:47:20
+// Creation Date  : Fri, 16 Aug 2019 18:55:44
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -78,6 +78,59 @@ using std::tr1::unordered_map;
 namespace Xyce {
 namespace Device {
 namespace ADMSvbic13_4t {
+namespace AnalogFunctions {
+// Derivative of Analog Function limRTH
+double d_limRTH(double orig , double old  , double d_orig , double d_old )
+{
+  // Function return variable and total deriv
+  double limRTH;
+  double d_limRTH;
+  // Derivatives of return value w.r.t input vars
+  double d_limRTH_d_orig;
+  double d_limRTH_d_old;
+  double t0;
+  double d_t0_d_orig;
+  double d_t0_d_old;
+  double t1;
+  double d_t1_d_orig;
+  double d_t1_d_old;
+  double retval;
+  double d_retval_d_orig;
+  double d_retval_d_old;
+  {
+    d_t0_d_orig=1.0;
+    d_t0_d_old=(-1.0);
+    t0=(orig-old);
+    d_t1_d_orig=(((t0>=0)?(+1.0):(-1.0)))*d_t0_d_orig;
+    d_t1_d_old=(((t0>=0)?(+1.0):(-1.0)))*d_t0_d_old;
+    t1=fabs(t0);
+    d_retval_d_orig=1.0;
+    d_retval_d_old=0.0;
+    retval=orig;
+    if((t1>5.0))
+    {
+      if((t0>0))
+      {
+        d_retval_d_orig=0.0;
+        d_retval_d_old=1.0;
+        retval=(old+5.0);
+      }
+      else
+      {
+        d_retval_d_orig=0.0;
+        d_retval_d_old=1.0;
+        retval=(old-5.0);
+      }
+    }
+    d_limRTH_d_orig=d_retval_d_orig;
+    d_limRTH_d_old=d_retval_d_old;
+    limRTH=retval;
+  }
+  d_limRTH = d_limRTH_d_orig*d_orig+d_limRTH_d_old*d_old;
+  return(d_limRTH);
+}
+
+} // namepace AnalogFunctions
 JacobianStamp Instance::jacStamp;
 IdVector Instance::nodeMap;
 PairMap Instance::pairToJacStampMap;

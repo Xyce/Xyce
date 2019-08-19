@@ -92,6 +92,12 @@ please visit the \XyceTM{} web page at
 \item A new SPLOT print format that outputs data in standard columns,
   like a .prn file, but with improved compatibility for .STEP data with
   the splot command in gnuplot.
+\item RF parameter operators (e.g., S(1,1), SR(1,1), SI(1,1), SM(1,1),
+SP(1,1), SDB(1,1) and their corresponding Y- and Z-parameter versions)
+were added. Those operators work on both .PRINT AC and .MEASURE lines.
+\item  The \verb|.LIN| command, for S-parameter analysis, can now also
+output Y- or Z-parameter data into its Touchstone 1 or Touchstone 2
+output files via a newly added \texttt{LINTYPE} argument.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}

@@ -38,7 +38,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 25 Jul 2019 18:47:20
+// Creation Date  : Fri, 16 Aug 2019 18:31:51
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -78,6 +78,87 @@ using std::tr1::unordered_map;
 namespace Xyce {
 namespace Device {
 namespace ADMSbjt504tva {
+namespace AnalogFunctions {
+// Derivative of Analog Function trunc_ev
+double d_trunc_ev(double Val , double Vprev , double Vmin , double Vmax  , double d_Val , double d_Vprev , double d_Vmin , double d_Vmax )
+{
+  // Function return variable and total deriv
+  double trunc_ev;
+  double d_trunc_ev;
+  // Derivatives of return value w.r.t input vars
+  double d_trunc_ev_d_Val;
+  double d_trunc_ev_d_Vprev;
+  double d_trunc_ev_d_Vmin;
+  double d_trunc_ev_d_Vmax;
+  double result;
+  double d_result_d_Val;
+  double d_result_d_Vprev;
+  double d_result_d_Vmin;
+  double d_result_d_Vmax;
+  {
+    d_result_d_Val=1.0;
+    d_result_d_Vprev=0.0;
+    d_result_d_Vmin=0.0;
+    d_result_d_Vmax=0.0;
+    result=Val;
+    if((Val>Vmax))
+    {
+      if((Vprev>(Vmax-0.05)))
+      {
+        if(((Val-Vprev)>0.05))
+        {
+          d_result_d_Val=0.0;
+          d_result_d_Vprev=1.0;
+          d_result_d_Vmin=0.0;
+          d_result_d_Vmax=0.0;
+          result=(Vprev+0.05);
+        }
+      }
+      else
+      {
+        d_result_d_Val=0.0;
+        d_result_d_Vprev=0.0;
+        d_result_d_Vmin=0.0;
+        d_result_d_Vmax=1.0;
+        result=Vmax;
+      }
+    }
+    else
+    {
+      if((Val<Vmin))
+      {
+        if((Vprev<(0.9*Vmin)))
+        {
+          if((Val<((1.5*Vprev)+(0.10*Vmin))))
+          {
+            d_result_d_Val=0.0;
+            d_result_d_Vprev=(1.5);
+            d_result_d_Vmin=(0.10);
+            d_result_d_Vmax=0.0;
+            result=((1.5*Vprev)+(0.10*Vmin));
+          }
+        }
+        else
+        {
+          d_result_d_Val=0.0;
+          d_result_d_Vprev=0.0;
+          d_result_d_Vmin=1.0;
+          d_result_d_Vmax=0.0;
+          result=Vmin;
+        }
+      }
+    }
+    d_trunc_ev_d_Val=d_result_d_Val;
+    d_trunc_ev_d_Vprev=d_result_d_Vprev;
+    d_trunc_ev_d_Vmin=d_result_d_Vmin;
+    d_trunc_ev_d_Vmax=d_result_d_Vmax;
+    trunc_ev=result;
+  }
+  d_trunc_ev = d_trunc_ev_d_Val*d_Val+d_trunc_ev_d_Vprev*d_Vprev+d_trunc_ev_d_Vmin*d_Vmin+d_trunc_ev_d_Vmax*d_Vmax;
+  return(d_trunc_ev);
+}
+
+} // namepace AnalogFunctions
 
 
 //This is necessary because the IntPair usage can trip undefined references

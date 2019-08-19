@@ -1,11 +1,14 @@
---- N_DEV_ADMSHBT_X.C	2013-04-24 14:19:54.266373926 -0600
-+++ N_DEV_ADMSHBT_X.C	2013-04-24 14:32:31.122368762 -0600
-@@ -1310,9 +1315,48 @@
+--- N_DEV_ADMSHBT_X.C	2019-08-16 11:47:19.472992632 -0600
++++ N_DEV_ADMSHBT_X.C	2019-08-16 11:51:30.857903048 -0600
+@@ -2458,9 +2458,51 @@
  
    origFlag = true;
  
-+  //Manually moved from below
-+  tVCrit = (adms_vt_nom*log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12)))));
++  // Manually moved from below
++  {
++    double value_log_0 = log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12))));
++    tVCrit = (adms_vt_nom*value_log_0);
++  }
    if (getSolverState().newtonIter == 0)
    {
  
@@ -48,23 +51,20 @@
 +
      if (!(getSolverState().dcopFlag)||(getSolverState().locaEnabledFlag && getSolverState().dcopFlag))
      {
-       vbei_old = ((*extData.currStaVectorPtr))[li_state_admsProbeID_V_bii_ei];
-@@ -1334,7 +1380,8 @@
+       vbei_old = ((*extData.currStoVectorPtr))[li_store_admsProbeID_V_bii_ei];
+@@ -2481,10 +2523,11 @@
+     vbcx_old = ((*extData.nextStoVectorPtr))[li_store_admsProbeID_V_bi_ci];
    }
- 
    // -- code converted from analog/code block
--  tVCrit = (adms_vt_nom*log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12)))));
+-  {
+-    double value_log_0 = log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12))));
+-    tVCrit = (adms_vt_nom*value_log_0);
+-  }
 +  // Manually moved to above
-+  //tVCrit = (adms_vt_nom*log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12)))));
++  //{
++  //  double value_log_0 = log((adms_vt_nom/(1.41421356237309504880*(((((model_.Jsf)*L)*W)*N)*1e12))));
++  //  tVCrit = (adms_vt_nom*value_log_0);
++  //}
  
  
    //vbcx = ($limit(V(bi,ci),"typedpnjlim",$vt(),tVCrit,dtype));
-@@ -1401,7 +1448,7 @@
-   Ic1ra = AnalogFunctions::diode<AdmsFadType>(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom));
-   if ((((model_.VAF)>0.0)&&((model_.VAR)>0.0)))
-   {
--    q1 = ((1.0+((AnalogFunctions::charge<AdmsFadType>(vbei,1.0,(model_.Vje),(model_.mje),1.0)-AnalogFunctions::charge<AdmsFadType>(0.0,1.0,(model_.Vje),(model_.mje),1.0))/(model_.VAR)))+((AnalogFunctions::charge<AdmsFadType>(vbci,1.0,(model_.Vjc),(model_.mjc),1.0)-AnalogFunctions::charge<AdmsFadType>(0.0,1.0,(model_.Vjc),(model_.mjc),1.0))/(model_.VAF)));
-+    q1 = ((1.0+((AnalogFunctions::charge<AdmsFadType>(vbei,1.0,(model_.Vje),(model_.mje),1.0)-AnalogFunctions::charge<double>(0.0,1.0,(model_.Vje),(model_.mje),1.0))/(model_.VAR)))+((AnalogFunctions::charge<AdmsFadType>(vbci,1.0,(model_.Vjc),(model_.mjc),1.0)-AnalogFunctions::charge<double>(0.0,1.0,(model_.Vjc),(model_.mjc),1.0))/(model_.VAF)));
-   }
-   else
-   {
