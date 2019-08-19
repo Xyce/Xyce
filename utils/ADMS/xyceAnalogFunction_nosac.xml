@@ -943,15 +943,18 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 <!-- assignment -->
 <admst:template match="xyceAnalogFunctions:assignment">
   <admst:variable name="lhsname" value="%(lhs/name)"/>
+  <admst:variable name="lhstype" value="%(lhs/type)"/>
   <admst:apply-templates select="rhs" match="xyceAnalogFunctions:processTerm">
     <admst:variable name="returnedString" select="" />
 
-    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-      <admst:value-of select="name"/>
-      <admst:value-of select="returned('d_exp_d_%s')/value"/>
-      <admst:value-of select="name"/>
-      <admst:variable name="returnedString" select="$(returnedString)d_$(lhsname)_d_%s=%s;\n"/>
-    </admst:for-each>
+    <admst:if test="[$lhstype = 'real']">
+      <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+        <admst:value-of select="name"/>
+        <admst:value-of select="returned('d_exp_d_%s')/value"/>
+        <admst:value-of select="name"/>
+        <admst:variable name="returnedString" select="$(returnedString)d_$(lhsname)_d_%s=%s;\n"/>
+      </admst:for-each>
+    </admst:if>
     <admst:value-of select="returned('returnedExpression')/value"/>
     <admst:variable name="returnedString" select="$(returnedString)$(lhsname)=%s;\n"/>
   </admst:apply-templates>
@@ -993,6 +996,81 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
   <admst:return name="returnedString" value="$returnedString"/>
 </admst:template>
 
+<!-- for loop -->
+<admst:template match="xyceAnalogFunctions:forloop">
+  <admst:variable name="returnedString" value="for ("/>
+  <admst:variable name="returnedString" select="$(returnedString)%(xyceAnalogFunctions:processTerm(initial/lhs)/[name='returnedExpression']/value)=%(xyceAnalogFunctions:processTerm(initial/rhs)/[name='returnedExpression']/value);"/>
+  <admst:variable name="returnedString" select="$(returnedString)%(xyceAnalogFunctions:processTerm(condition)/[name='returnedExpression']/value);"/>
+  <admst:variable name="returnedString" select="$(returnedString)%(xyceAnalogFunctions:processTerm(update/lhs)/[name='returnedExpression']/value)=%(xyceAnalogFunctions:processTerm(update/rhs)/[name='returnedExpression']/value) )\n"/>
+
+  <admst:if test="[forblock/adms[datatypename!='block']]">
+    <admst:variable name="returnedString" select="$(returnedString){\n"/>
+  </admst:if>
+  <admst:apply-templates select="forblock" match="xyceAnalogFunctions:%(adms/datatypename)">
+    <admst:value-of select="returned('returnedString')/value"/>
+    <admst:variable name="returnedString" select="$(returnedString)%s"/>
+  </admst:apply-templates>
+  <admst:if test="[forblock/adms[datatypename!='block']]">
+    <admst:variable name="returnedString" select="$(returnedString)}\n"/>
+  </admst:if>
+
+  <admst:return name="returnedString" value="$returnedString"/>
+</admst:template>
+
+<!-- while loop -->
+<admst:template match="xyceAnalogFunctions:whileloop">
+  <admst:variable name="returnedString" value="while (%(processTerm(while)[name='returnedExpression']/value))\n"/>
+  <admst:if test="[whileblock/adms[datatypename!='block']]">
+    <admst:variable name="returnedString" select="$(returnedString){\n"/>
+  </admst:if>
+  <admst:apply-templates select="whileblock" match="xyceAnalogFunctions:%(adms/datatypename)">
+    <admst:value-of select="returned('returnedString')/value"/>
+    <admst:variable name="returnedString" select="$(returnedString)%s"/>
+  </admst:apply-templates>
+  <admst:if test="[whileblock/adms[datatypename!='block']]">
+    <admst:variable name="returnedString" select="$(returnedString)}\n"/>
+  </admst:if>
+
+  <admst:return name="returnedString" value="$returnedString"/>
+</admst:template>
+
+<!-- case statement -->
+<admst:template match="xyceAnalogFunctions:case">
+  <admst:variable name="casecondition" path="case/tree"/>
+  <admst:variable name="havedefault" select="no"/>
+  <admst:if test="[count(caseitem[defaultcase='yes']) > 0]">
+    <admst:variable name="havedefault" select="yes"/>
+  </admst:if>
+  <admst:variable name="returnedString" value=""/>
+  <admst:variable name="conditionString" value=""/>
+  <admst:for-each select="caseitem[defaultcase='no']">
+    <admst:variable name="returnedString" select="$(returnedString)if( "/>
+    <admst:for-each select="condition">
+      <admst:if test="[$conditionString!='']">
+        <admst:variable name="conditionString" value="$(conditionString) || "/>
+      </admst:if>
+      <admst:apply-templates select="." match="xyceAnalogFunctions:%(datatypename)">
+        <admst:variable name="conditionString" select="%(xyceAnalogFunctions:processTerm($casecondition)[name='returnedExpression']/value) == %(returned('returnedExpression')/value)"/>
+      </admst:apply-templates>
+    </admst:for-each>
+
+    <admst:variable name="returnedString" select="$(returnedString)$(conditionString))\n"/>
+    <admst:apply-templates select="code" match="xyceAnalogFunctions:%(datatypename)" required="yes">
+      <admst:variable name="returnedString" select="$(returnedString)%(returned('returnedString')/value)"/>
+      <admst:variable name="returnedString" select="$(returnedString)else\n"/>
+    </admst:apply-templates>
+    <admst:if test="[$havedefault='no']">
+      <admst:variable name="returnedString" select="$(returnedString){\n // no default\n}\n"/>
+    </admst:if>
+  </admst:for-each>
+  <admst:for-each select="caseitem[defaultcase='yes']">
+    <admst:apply-templates select="code" match="xyceAnalogFunctions:%(datatypename)" required="yes">
+      <admst:variable name="returnedString" select="$(returnedString)%(returned('returnedString')/value)"/>
+    </admst:apply-templates>
+  </admst:for-each>
+  <admst:return name="returnedString" value="$returnedString"/>
+</admst:template>
+
 <!-- block -->
 <admst:template match="xyceAnalogFunctions:block">
   <admst:variable name="returnedString" value=""/>
@@ -1008,6 +1086,30 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
   <admst:if test="[name!='']">
     <admst:variable name="returnedString" value="//End block %(name)\n"/>
   </admst:if>
+  <admst:return name="returnedString" value="$returnedString"/>
+</admst:template>
+
+<!-- Declare block-local variables -->
+<admst:template match="xyceAnalogFunctions:blockvariable">
+  <admst:variable name="returnedString" value="//block-local variables for block %(block/name)\n"/>
+  <admst:for-each select="variable">
+    <admst:choose>
+      <admst:when test="[type='real']">
+        <admst:variable name="returnedString" select="$(returnedString) double %(name);\n"/>
+        <admst:variable name="theName" select="%(name)"/>
+        <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+          <admst:variable name="wrt" select="%(name)"/>
+          <admst:variable name="returnedString" select="$(returnedString) double d_$(theName)_d_$(wrt);\n"/>
+        </admst:for-each>
+      </admst:when>
+      <admst:when test="[type='integer']">
+        <admst:variable name="returnedString" select="$(returnedString) int %(name);\n"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:fatal format="At the moment, Xyce/ADMS only supports real and integer block-local variables in analog functions\n"/>
+      </admst:otherwise>
+    </admst:choose>
+  </admst:for-each>
   <admst:return name="returnedString" value="$returnedString"/>
 </admst:template>
 
@@ -1101,9 +1203,11 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
       <admst:variable name="theVar" path="."/>
       <admst:variable name="varname" select="%(name)"/>
       <admst:text format="%(verilog2CXXtype($theVar)) $varname;\n"/>
-      <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-        <admst:text format="%(verilog2CXXtype($theVar)) d_$(varname)_d_%(name);\n"/>
-      </admst:for-each>
+      <admst:if test="[$theVar/type='real']">
+        <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+          <admst:text format="%(verilog2CXXtype($theVar)) d_$(varname)_d_%(name);\n"/>
+        </admst:for-each>
+      </admst:if>
     </admst:for-each>
 
     <admst:apply-templates select="tree" match="xyceAnalogFunctions:%(adms/datatypename)">
