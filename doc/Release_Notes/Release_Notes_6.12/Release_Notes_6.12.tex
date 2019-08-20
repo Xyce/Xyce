@@ -72,8 +72,12 @@ please visit the \XyceTM{} web page at
 \subsubsection*{New Devices and Device Model Improvements}
 \begin{XyceItemize}
 \item The PSP103.4 model with self heating has been added as the level 1031 MOSFET.
-\item The Xyce/ADMS code generation back-end has been improved for better
-  handling of special analog function use cases.
+\item The Xyce/ADMS code generation back-end has been improved to
+  allow handling of analog functions with output variables other than
+  their return value, and has been refactored to generate analytic
+  derivatives without the use of Sacado.  This refactor allows
+  Xyce/ADMS to produce C++ code that evaluates model residuals and
+  jacobians much more efficiently than before.
 \end{XyceItemize}
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
