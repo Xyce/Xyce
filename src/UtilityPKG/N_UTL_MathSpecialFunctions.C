@@ -202,34 +202,6 @@ double erfc(double x)
   return value;
 }
 
-
-//-----------------------------------------------------------------------------
-// Function      : hypot
-// Purpose       : compute sqrt(x*x+y*y)
-// Special Notes : The system-provided hypot, which is generally written
-//                 carefully to avoid under- or overflow, is called if it
-//                 is available.  Otherwise a very naive implementation is
-//                 used.  hypot is technically only in the C++11 standard,
-//                 but is present in all C99-compliant math libraries and so
-//                 it is likely present on all systems we care about.  This
-//                 function is provided solely to take care of the edge
-//                 cases where Xyce is being compiled on outmoded systems.
-// Scope         : public
-// Creator       : Tom Russo, Electrical Models and Simulation
-// Creation Date : 
-//-----------------------------------------------------------------------------
-double hypot(double x, double y)
-{
-  double value = 0.0;
-#if( HAVE_HYPOT )
-  value = std::hypot( x,y );
-#else
-  value = sqrt( x*x+y*y );
-#endif
-
-  return value;
-}
-
 //
 // following functions for erf_faddeeva() erfc_faddeeva() and erfcx_faddeeva()
 // are versions we fall back to if the native math libraries do not support

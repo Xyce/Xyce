@@ -40,8 +40,6 @@ namespace Util {
   // compute erfc(z) = 1 - erf(z), the complementary error function
   double erfc(double x); // special case for real x
 
-  // compute hypot(x,y) = sqrt(x*x+y*y)
-  double hypot(double x, doubley);
 
 } // Util namespace
 } // Xyce namespace
