@@ -174,7 +174,7 @@ double erf(double x)
 {
   double value = 0.0;
 #if( HAVE_ERF )
-  value = std::erf( x );
+  value = erf( x );
 #else
   value = erf_faddeeva( x );
 #endif
@@ -194,7 +194,7 @@ double erfc(double x)
 {
   double value = 0.0;
 #if( HAVE_ERFC )
-  value = std::erfc( x );
+  value = erfc( x );
 #else
   value = erfc_faddeeva( x );
 #endif
