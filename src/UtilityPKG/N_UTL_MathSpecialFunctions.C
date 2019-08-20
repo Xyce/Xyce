@@ -34,6 +34,8 @@
 //
 //
 
+#include <Xyce_config.h>
+
 #include<cmath>
 
 namespace Xyce {
