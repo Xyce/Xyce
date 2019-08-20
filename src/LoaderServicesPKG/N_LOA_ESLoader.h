@@ -177,6 +177,9 @@ public:
   virtual bool getVoltageLimiterStatus();
   virtual void setVoltageLimiterStatus(bool voltageLimterStatus);
 
+  bool getNumSamples() { return numSamples_; }
+  bool setNumSamples(int numS) { numSamples_ = numS; }
+
 private:
  
   // Base Application loader

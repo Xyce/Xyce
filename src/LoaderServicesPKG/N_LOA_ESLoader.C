@@ -252,9 +252,6 @@ bool ESLoader::loadDAEMatrices( Linear::Vector * X,
   }
 
   return true;
- 
-  //
-  return(true);
 }
 
 //-----------------------------------------------------------------------------

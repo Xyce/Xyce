@@ -42,6 +42,7 @@ namespace Loader {
 
 class CktLoader;
 class ESLoader;
+class ESLoader2;
 class PCELoader;
 class HBLoader;
 class Loader;

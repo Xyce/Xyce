@@ -83,6 +83,12 @@ public:
   void registerESBuilder( const Teuchos::RCP<ESBuilder>& esBuilder ) 
     { esBuilderPtr_ = esBuilder; }
 
+  void setNumSamples(int numS)
+  { numSamples_ = numS; }
+
+  void setParameterOuterLoop (bool paramsOL)
+    { paramsOuterLoop_ = paramsOL; }
+
 private:
   Builder &                     builder_;
   Teuchos::RCP<Loader::ESLoader> esLoaderPtr_;
@@ -91,6 +97,9 @@ private:
 
   // Copy constructor.
   ESSolverFactory( const ESSolverFactory& pf );
+
+  int numSamples_;
+  bool paramsOuterLoop_;
 };
 
 } // namespace Linear

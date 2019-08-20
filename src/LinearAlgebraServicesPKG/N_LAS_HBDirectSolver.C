@@ -327,6 +327,8 @@ int HBDirectSolver::doSolve( bool reuse_factors, bool transpose )
   return 0;
 }
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void HBDirectSolver::createBlockStructures()
 {
   int numProcs = (builder_.getPDSComm())->numProc();
@@ -698,6 +700,8 @@ void HBDirectSolver::createBlockStructures()
 
 }
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void HBDirectSolver::initializeBlockCRS( std::complex<double> val )
 {
   // Initialize the dense or diagonal blocks to the input value.
@@ -707,6 +711,8 @@ void HBDirectSolver::initializeBlockCRS( std::complex<double> val )
   }
 }
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void HBDirectSolver::formHBJacobian()
 {
   int myProc = (builder_.getPDSComm())->procID();
@@ -1633,6 +1639,8 @@ void HBDirectSolver::formHBJacobian()
 
 }
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 int HBDirectSolver::numericFactorization()
 {
   int linearStatus = 0;
@@ -1671,6 +1679,8 @@ int HBDirectSolver::numericFactorization()
   return linearStatus;
 }
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 int HBDirectSolver::solve()
 {
   int linearStatus = 0;
@@ -1829,6 +1839,8 @@ int HBDirectSolver::solve()
   return linearStatus;
 }
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void HBDirectSolver::printHBJacobian( const std::string& fileName )
 {
   int myProc = (builder_.getPDSComm())->procID();
@@ -1893,6 +1905,8 @@ void HBDirectSolver::printHBJacobian( const std::string& fileName )
   out.close(); 
 }
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void HBDirectSolver::printHBResidual( const std::string& fileName )
 {
   int numProcs = (builder_.getPDSComm())->numProc();
@@ -1948,6 +1962,8 @@ void HBDirectSolver::printHBResidual( const std::string& fileName )
   out.close();
 }
 
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 void HBDirectSolver::printHBSolution( const std::string& fileName )
 {
   int numProcs = (builder_.getPDSComm())->numProc();

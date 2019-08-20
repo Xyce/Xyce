@@ -47,6 +47,7 @@ class BlockMatrix;
 class BlockVector;
 class Builder;
 class ESBuilder;
+class ESBuilder2;
 class ESSolverFactory;
 class PCEBuilder;
 class PCESolverFactory;

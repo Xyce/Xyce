@@ -46,9 +46,7 @@
 
 #include <N_ANP_UQSupport.h>
 #include <N_ANP_AnalysisBase.h>
-//#include <N_ANP_Sampling.h>
 #include <N_ANP_RegisterAnalysis.h>
-
 
 #if Xyce_STOKHOS_ENABLE
 // make sure linking against the correct trilinos!
@@ -171,15 +169,14 @@ private:
   AnalysisBase &        childAnalysis_;
 
 
-  Loader::ESLoader *                    esLoaderPtr_; /// ES loader, builder, system, and DFT
+  Loader::ESLoader *                    esLoaderPtr_; 
   Teuchos::RCP<Linear::ESBuilder>       esBuilderPtr_;
   Linear::System *                      esLinearSystem_;
-  //Linear::ESSolverFactory *            solverFactory_;
-  Linear::SolverFactory *            solverFactory_;
+  Linear::ESSolverFactory *             solverFactory_;
 
-  // Linear solver and nonlinear solver options
-  Util::OptionBlock                     saved_lsESOB_;
+  // Linear solver options
   Util::OptionBlock                     saved_lsOB_;
+  Util::OptionBlock                     saved_lsESOB_;
 
   SweepVector           samplingVector_;
   SweepVector           dcSweepVector_;
@@ -223,6 +220,8 @@ private:
   bool hackOutputAllSamples_;
   bool outputtersCalledBefore_;
   bool outputSampleStats_;
+
+  bool paramsOuterLoop_;
 
 #if Xyce_STOKHOS_ENABLE
   bool regressionPCEenable_;

@@ -21,8 +21,13 @@
 //-------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : 
-// Special Notes :
+// Purpose        : Builder for ES specific linear objects
+//
+// Special Notes  : 
+//                  This version produces a block structure in which the 
+//                  outer loop is parameters, and the inner loop is the original 
+//                  (non-block) circuit matrix structure.
+//
 // Creator       : Eric Keiter, SNL
 // Creation Date : 5/31/2018
 //-----------------------------------------------------------------------------
