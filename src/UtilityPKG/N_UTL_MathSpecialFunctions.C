@@ -173,7 +173,7 @@ double erfcx(double x)
 double erf(double x) 
 {
   double value = 0.0;
-#if( HAVE_ERF )
+#ifdef HAVE_ERF
   value = erf( x );
 #else
   value = erf_faddeeva( x );
@@ -193,7 +193,7 @@ double erf(double x)
 double erfc(double x)
 {
   double value = 0.0;
-#if( HAVE_ERFC )
+#ifdef HAVE_ERFC
   value = erfc( x );
 #else
   value = erfc_faddeeva( x );
