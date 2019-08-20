@@ -3111,7 +3111,7 @@ other variables does not get propagated into a variable's
               </admst:choose>
             </admst:if>
           </admst:when>
-          <admst:when test="[name='pow' or name='min' or name='max']">
+          <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:value-of select="returned('returnedExpression')/value"/>
               <admst:variable name="a1" select="%s"/>
@@ -3132,6 +3132,9 @@ other variables does not get propagated into a variable's
                 <admst:when test="[name='max']">
                   <admst:text format="%($varType) deriv_max_%($functionIndex)_d0 = ((%($a1)&gt;=%($a2))?1.0:0.0);\n"/>
                 </admst:when>
+                <admst:when test="[name='hypot']">
+                  <admst:text format="%($varType) deriv_hypot_%($functionIndex)_d0 = %($a1)/value_hypot_%($functionIndex);\n"/>
+                </admst:when>
               </admst:choose>
             </admst:if>
             <admst:if test="arguments[2]/math[dependency!='constant']">
@@ -3144,6 +3147,9 @@ other variables does not get propagated into a variable's
                 </admst:when>
                 <admst:when test="[name='max']">
                   <admst:text format="%($varType) deriv_max_%($functionIndex)_d1 = ((%($a1)&gt;=%($a2))?0.0:1.0);\n"/>
+                </admst:when>
+                <admst:when test="[name='hypot']">
+                  <admst:text format="%($varType) deriv_hypot_%($functionIndex)_d1 = %($a2)/value_hypot_%($functionIndex);\n"/>
                 </admst:when>
               </admst:choose>
             </admst:if>
@@ -4468,7 +4474,7 @@ other variables does not get propagated into a variable's
           </admst:when>
           <admst:otherwise>
             <admst:assert test="arguments[count(.)=2]" format="Unrecognized simparam %(arguments[1]) and no expression provided.\n"/>
-            <admst:apply-templates select="arguments[2]" match="processTerm">
+           <admst:apply-templates select="arguments[2]" match="processTerm">
               <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
             </admst:apply-templates>
           </admst:otherwise>
@@ -4491,6 +4497,20 @@ other variables does not get propagated into a variable's
             </admst:for-each>
             <admst:variable name="expression" select="$expression($args)"/>
           </admst:when>
+          <admst:when test="[name='hypot']">
+            <admst:assert test="arguments[count(.)=2]" format="hypot function must take exactly two arguments.\n"/>
+            <admst:variable name="expression" value="sqrt"/>
+            <admst:variable name="args" select=""/>
+            <admst:for-each select="arguments">
+              <admst:if test="[$args!='']">
+                <admst:variable name="args" select="$args+"/>
+              </admst:if>
+              <admst:apply-templates select="." match="processTerm">
+                <admst:variable name="args" select="$args%(returned('returnedExpression')/value)*%(returned('returnedExpression')/value)"/>
+              </admst:apply-templates>
+            </admst:for-each>
+            <admst:variable name="expression" select="$expression($args)"/>
+          </admst:when>
           <admst:otherwise>
             <admst:variable name="expression" select="%(funcname(.)/[name='fname']/value)"/>
             <admst:variable name="args" select=""/>
@@ -4508,7 +4528,7 @@ other variables does not get propagated into a variable's
       </admst:when>
       <admst:otherwise>
         <admst:choose>
-          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' or name='pow' or name='min' or name='max']">
+          <admst:when test="[name='exp' or name='ln' or name='log' or name='sqrt' or name='abs' or name='limexp' or name='cos' or name='sin' or name='tan' or name='acos' or name='asin' or name='atan' or name='cosh' or name='sinh' or name='tanh' or name='acosh' or name='asinh' or name='atanh' or name='pow' or name='min' or name='max' or name='hypot']">
             <!-- we must use precomputed function vars -->
             <admst:variable name="expression" select="value_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))"/>
           </admst:when>
@@ -4534,7 +4554,7 @@ other variables does not get propagated into a variable's
             </admst:choose>
           </admst:when>
           <!-- two-argument functions -->
-          <admst:when test="[name='pow' or name='min' or name='max']">
+          <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
             </admst:apply-templates>
@@ -4827,6 +4847,20 @@ other variables does not get propagated into a variable's
             </admst:apply-templates>
           </admst:otherwise>
         </admst:choose>
+      </admst:when>
+      <admst:when test="[name='hypot']">
+        <admst:assert test="arguments[count(.)=2]" format="hypot function must take exactly two arguments.\n"/>
+        <admst:variable name="expression" value="sqrt"/>
+        <admst:variable name="args" select=""/>
+        <admst:for-each select="arguments">
+          <admst:if test="[$args!='']">
+            <admst:variable name="args" select="$args+"/>
+          </admst:if>
+          <admst:apply-templates select="." match="processTerm">
+            <admst:variable name="args" select="$args%(returned('returnedExpression')/value)*%(returned('returnedExpression')/value)"/>
+          </admst:apply-templates>
+        </admst:for-each>
+        <admst:variable name="expression" select="$expression($args)"/>
       </admst:when>
       <admst:when test="[name='ln' or name='log' or name='sqrt']">
         <admst:variable name="expression" select="%(funcname(.)/[name='fname']/value)"/>

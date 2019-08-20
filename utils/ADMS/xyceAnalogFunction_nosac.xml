@@ -631,6 +631,9 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
   <admst:variable name="funcname" select="%(xyceAnalogFunctions:funcname(.)/[name='fname']/value)"/>
   <admst:variable name="args" select=""/>
   <admst:variable name="thisFunctionCall" path="."/>
+  <admst:if test="[$funcname='hypot']">
+    <admst:assert test="arguments[count(.)=2]" format="hypot function must take exactly two arguments.\n"/>
+  </admst:if>
   <admst:for-each select="arguments">
     <admst:if test="[not($args='')]">
       <admst:variable name="args" select="$args,"/>
@@ -690,6 +693,12 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
           <admst:variable name="expression" value="adms_vt($args)"/>
         </admst:otherwise>
       </admst:choose>
+    </admst:when>
+    <!-- this special case doesn't follow the same pattern as other
+         simple function calls.  We have also already handled misuse
+         of the call above, so just assume we have two args here -->
+    <admst:when test="[$funcname='hypot']">
+      <admst:variable name="expression" select="sqrt(%($arg0)*%($arg0)+%($arg1)*%($arg1))"/>
     </admst:when>
     <admst:otherwise>
       <admst:variable name="expression" select="$funcname($args)"/>
@@ -767,7 +776,7 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         </admst:otherwise>
       </admst:choose>
     </admst:when>
-    <admst:when test="[name='pow' or name='min' or name='max']">
+    <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
       <!-- two-argument functions -->
       <admst:choose>
         <admst:when test="[name='pow']">
@@ -781,6 +790,10 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         <admst:when test="[name='max']">
           <admst:variable name="d_f_d0" select="((%($arg0)&gt;=%($arg1))?1.0:0.0)"/>
           <admst:variable name="d_f_d1" select="((%($arg0)&gt;=%($arg1))?0.0:1.0)"/>
+        </admst:when>
+        <admst:when test="[name='hypot']">
+          <admst:variable name="d_f_d0" select="(%($arg0)/sqrt(%($arg0)*%($arg0)+%($arg1)*%($arg1)))"/>
+          <admst:variable name="d_f_d1" select="(%($arg1)/sqrt(%($arg0)*%($arg0)+%($arg1)*%($arg1)))"/>
         </admst:when>
         <admst:otherwise>
           <admst:variable name="d_f_d0" select="0.0"/>
