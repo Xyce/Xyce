@@ -799,6 +799,8 @@ AC_CHECK_FUNCS(erf)
 
 dnl Checks for library function erfc
 AC_CHECK_FUNCS(erfc)
+dnl Checks for library function hypot
+AC_CHECK_FUNCS(hypot)
 
 # check if FFT library support is enabled. If so, check for Intel FFT or FFTW.
 if test "X$USE_FFT" = "Xyes"; then
