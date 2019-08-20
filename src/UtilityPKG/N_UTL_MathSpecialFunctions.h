@@ -41,7 +41,7 @@ namespace Util {
   double erfc(double x); // special case for real x
 
   // compute hypot(x,y) = sqrt(x*x+y*y)
-  double hypot(double x, double y);
+  double hypot(double x, doubley);
 
 } // Util namespace
 } // Xyce namespace
