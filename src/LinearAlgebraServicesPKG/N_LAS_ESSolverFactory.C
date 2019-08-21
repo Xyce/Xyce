@@ -141,9 +141,11 @@ ESSolverFactory::create(
   {
     if( itPI->uTag() == "TYPE" && itPI->usVal() != "DEFAULT" )
     {
+#if 0
       std::cout << "tag = " << itPI->uTag() ;
       std::cout << "val = " << itPI->usVal() ;
       std::cout <<std::endl;
+#endif
 
       type = itPI->usVal();
     }
@@ -166,22 +168,34 @@ ESSolverFactory::create(
   }
 
   if( type == "AZTECOO" )
+  {
     return new AztecOOSolver( problem, options);
+  }
 #ifdef Xyce_BELOS
   else if( type == "BELOS" )
+  {
     return new BelosSolver( problem, options);
+  }
 #endif
   else if( type == "KSPARSE" )
+  {
     return new KSparseSolver( problem, options);
+  }
 #ifdef Xyce_SHYLU
   else if( type == "SHYLU" )
+  {
     return new ShyLUSolver( problem, options);
+  }
 #endif
 #ifdef Xyce_AMESOS2
   else if( type == "BASKER" )
+  {
     return new Amesos2Solver( "BASKER", problem, options );
+  }
   else if( type == "KLU2" )
+  {
     return new Amesos2Solver( "KLU2", problem, options );
+  }
 #endif
   else if( type == "DIRECT" )
   {
@@ -195,7 +209,9 @@ ESSolverFactory::create(
     return newSolver;
   } 
   else
+  {
     return new AmesosSolver( type, problem, options);
+  }
 
   return 0;
 }

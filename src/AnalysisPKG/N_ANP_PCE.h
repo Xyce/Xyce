@@ -170,15 +170,14 @@ private:
   AnalysisBase &        childAnalysis_;
 
 
-  Loader::PCELoader *                    pceLoaderPtr_; /// PCE loader, builder, system, and DFT
+  Loader::PCELoader *                    pceLoaderPtr_; 
   Teuchos::RCP<Linear::PCEBuilder>       pceBuilderPtr_;
   Linear::System *                      pceLinearSystem_;
-  //Linear::PCESolverFactory *            solverFactory_;
-  Linear::SolverFactory *            solverFactory_;
+  Linear::PCESolverFactory *            solverFactory_;
 
   // Linear solver and nonlinear solver options
-  Util::OptionBlock                     saved_lsPCEOB_;
   Util::OptionBlock                     saved_lsOB_;
+  Util::OptionBlock                     saved_lsPCEOB_;
 
   SweepVector           samplingVector_;
   SweepVector           dcSweepVector_;
@@ -220,7 +219,10 @@ private:
   std::string hackOutputFormat_;
   bool hackOutputCalledBefore_;
   bool hackOutputAllSamples_;
+  bool outputtersCalledBefore_;
   bool outputSampleStats_;
+
+  bool paramsOuterLoop_;
 
 #if Xyce_STOKHOS_ENABLE
   int PCEorder_;

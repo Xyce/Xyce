@@ -58,10 +58,20 @@
 
 #include <N_ERH_ErrorMgr.h>
 
+#include <N_LAS_SimpleSolver.h>
+#include <N_LAS_AmesosSolver.h>
 #include <N_LAS_AztecOOSolver.h>
+#include <N_LAS_KSparseSolver.h>
 #ifdef Xyce_BELOS
 #include <N_LAS_BelosSolver.h>
 #endif
+#ifdef Xyce_SHYLU
+#include <N_LAS_ShyLUSolver.h>
+#endif
+#ifdef Xyce_AMESOS2
+#include <N_LAS_Amesos2Solver.h>
+#endif
+
 #include <N_LAS_PCEDirectSolver.h>
 
 #include <N_IO_CmdParse.h>
@@ -81,7 +91,9 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 PCESolverFactory::PCESolverFactory(
   Linear::Builder &             builder)
-  : builder_(builder)
+  : builder_(builder),
+  numSamples_(1),
+  paramsOuterLoop_(true)
 {
 }
 
@@ -99,7 +111,29 @@ PCESolverFactory::create(
   Problem &             problem,
   const IO::CmdParse &  command_line) const
 {
+  int lsDim = (problem.epetraObj().GetRHS())->GlobalLength();
+
+  //If the linear system is trivial, i.e. the matrix is 1x1, then just create a simple solver
+  if (lsDim == 1)
+  {
+    return new SimpleSolver(problem, options);
+  }
+
+#ifdef Xyce_PARALLEL_MPI
   std::string type = "AZTECOO";
+  if (!problem.matrixFree() && lsDim < Xyce::Linear::iterativeMin)
+  {
+    type = "KLU";
+  }
+#else
+  std::string type = "KLU";
+  if (problem.matrixFree())
+  {
+    type = "AZTECOO";
+  }
+#endif  
+  
+  std::cout << "ESSolverFactory::create about to output the linsol options, if they exist" << std::endl;
 
   Util::ParamList::const_iterator itPI = options.begin();
   Util::ParamList::const_iterator endPI = options.end();
@@ -107,9 +141,20 @@ PCESolverFactory::create(
   {
     if( itPI->uTag() == "TYPE" && itPI->usVal() != "DEFAULT" )
     {
+#if 0
+      std::cout << "tag = " << itPI->uTag() ;
+      std::cout << "val = " << itPI->usVal() ;
+      std::cout <<std::endl;
+#endif
+
       type = itPI->usVal();
     }
   }
+
+ //Support for resetting linear solver from command line
+  Xyce::ExtendedString CLType = command_line.getArgumentValue( "-linsolv" );
+  CLType.toUpper();
+  if( CLType != "" ) type = CLType;
 
   // If the linear problem is matrix free, make sure an iterative method is being used.
   if (problem.matrixFree())
@@ -132,12 +177,34 @@ PCESolverFactory::create(
     return new BelosSolver( problem, options);
   }
 #endif
+  else if( type == "KSPARSE" )
+  {
+    return new KSparseSolver( problem, options);
+  }
+#ifdef Xyce_SHYLU
+  else if( type == "SHYLU" )
+  {
+    return new ShyLUSolver( problem, options);
+  }
+#endif
+#ifdef Xyce_AMESOS2
+  else if( type == "BASKER" )
+  {
+    return new Amesos2Solver( "BASKER", problem, options );
+  }
+  else if( type == "KLU2" )
+  {
+    return new Amesos2Solver( "KLU2", problem, options );
+  }
+#endif
   else if( type == "DIRECT" )
   {
     PCEDirectSolver* newSolver = new PCEDirectSolver(builder_, problem, options);
 
     newSolver->registerPCELoader( pceLoaderPtr_ );
     newSolver->registerPCEBuilder( pceBuilderPtr_ );
+    newSolver->setNumSamples( numSamples_ );
+    newSolver->setParameterOuterLoop (paramsOuterLoop_);
 
     return newSolver;
   }

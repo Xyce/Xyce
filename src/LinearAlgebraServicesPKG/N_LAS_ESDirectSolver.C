@@ -89,7 +89,6 @@ ESDirectSolver::ESDirectSolver(
     isInit_(false),
     N_(0),
     n_(0),
-    numAugRows_(0),
     outputLS_(0),
     solver_(""),
     solverDefault_("LAPACK"),
@@ -221,7 +220,7 @@ int ESDirectSolver::doSolve( bool reuse_factors, bool transpose )
   int linearStatus = 0;
   if (!isInit_)
   {
-    // Get the number of samples and the number of time-domain unknowns.
+    // Get the number of samples and the number of unknowns.
     N_ = numSamples_;
     n_ = (lasProblem_.getRHS())->globalLength() / (N_);
 
@@ -340,7 +339,6 @@ int ESDirectSolver::doSolve( bool reuse_factors, bool transpose )
       char file_name[40];
       sprintf( file_name, "Base_ES_Soln%d.mm", file_number );
       printESSolution( std::string( file_name ) );
-
     }
     file_number++;
   }

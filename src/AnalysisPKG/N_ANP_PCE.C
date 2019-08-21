@@ -875,35 +875,14 @@ void  PCE::setupBlockSystemObjects ()
 
     if (!solverFactory_)
     {
-      // Generate the PCE solver factory.
-      //solverFactory_ = new Linear::ESSolverFactory( builder_ );
-      solverFactory_ = new Linear::TranSolverFactory();
+      solverFactory_ = new Linear::PCESolverFactory( *pceBuilderPtr_ );
+      solverFactory_->registerPCELoader( rcp(pceLoaderPtr_, false) );
+      solverFactory_->registerPCEBuilder( pceBuilderPtr_ );
+      solverFactory_->setNumSamples(numSamples_);
+      solverFactory_->setParameterOuterLoop (paramsOuterLoop_);
     }
-
-#if 0
-    // Register application loader with solver factory
-    solverFactory_->registerPCELoader( rcp(pceLoaderPtr_, false) );
-    solverFactory_->registerPCEBuilder( pceBuilderPtr_ );
-#endif
-
-#if 0
-    // ERK:  I have not created a preconditioner factory
-    if (!precFactory_)
-    {
-      // Generate the PCE preconditioner factory.
-      precFactory_ = new Linear::ESPrecondFactory(saved_lsPCEOB_, builder_);
-    }
-
-    // Register application loader with preconditioner factory
-    precFactory_->registerPCELoader( rcp(pceLoaderPtr_, false) );
-    precFactory_->registerPCEBuilder( pceBuilderPtr_ );
-    precFactory_->setFastTimes( goodTimePoints_ );
-    precFactory_->setTimeSteps( timeSteps_ );
-    precFactory_->setESFreqs( freqPoints_ );
-#endif
 
     nonlinearManager_.registerSolverFactory( solverFactory_ );
-    //nonlinearManager_.registerPrecondFactory( precFactory_ );
 
   //Initialization of Solvers, etc. 
     analysisManager_.initializeSolverSystem(
@@ -927,7 +906,7 @@ void  PCE::setupBlockSystemObjects ()
  
     // don't have a mode yet.  Do I need one??  The real mode should be 
     // the underlying analysis (tran, dc, etc), so probably not
-    //nonlinearManager_.setAnalysisMode(nonlinearAnalysisMode(ANP_MODE_ES)); 
+    //nonlinearManager_.setAnalysisMode(nonlinearAnalysisMode(ANP_MODE_PCE)); 
   }
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
   pceLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);

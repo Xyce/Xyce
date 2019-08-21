@@ -145,11 +145,9 @@ private:
 
   bool isInit_;
 
-  // Fourier information.
   // N_ is the number of samples
   // n_ is the original problem size
   int N_, n_;
-  int numAugRows_;
 
   // How often the linear system should be written to file, if at all.
   int outputLS_;

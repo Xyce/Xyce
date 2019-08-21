@@ -98,14 +98,11 @@ public:
   void registerPCELoader( const Teuchos::RCP<Loader::PCELoader> & pceLoaderPtr )
     { pceLoaderPtr_ = pceLoaderPtr; }
 
-#if 0
-  // Set the fast times being used in the PCE analysis.
-  void setFastTimes( const std::vector<double> & times )
-    { times_ = times; }
+  void setNumSamples(int numS)
+    { numSamples_ = numS; }
 
-  void setPCEFreqs( const std::vector<double> & freqs )
-    { freqs_ = freqs; }
-#endif
+  void setParameterOuterLoop (bool paramsOL)
+    { paramsOuterLoop_ = paramsOL; }
 
   // Solve function: x = A^(-1) b.
   // input parameter 'ReuseFactors': If 'true', do not factor A, rather reuse
@@ -146,20 +143,12 @@ private:
 
   bool isInit_;
 
-  // Fourier information.
-  // N_ is the number of Fourier coefficients.
-  // M_ is the number of positive Fourier coefficients, [0,1,...,M_,-M_,...,-1]
-  int N_, n_, M_;
-  int numAugRows_;
+  // N_ is the number of samples
+  // n_ is the original problem size
+  int N_, n_;
 
   // How often the linear system should be written to file, if at all.
   int outputLS_;
-
-#if 0
-  // Fast times.
-  std::vector<double> times_;
-  std::vector<double> freqs_;
-#endif
 
   // Solver type.
   std::string solver_, solverDefault_;
@@ -170,7 +159,7 @@ private:
   // Embedded Sampling builder.
   Teuchos::RCP<PCEBuilder> pceBuilderPtr_;
 
-  // Solution and RHS vectors in frequency domain.
+  // Solution and RHS vectors
   Teuchos::SerialDenseMatrix<int,double> X_, B_, R_, A_;
   std::vector<Xyce::PCEBlockMatrixEntry> bX_, bB_;
 
@@ -185,9 +174,6 @@ private:
   // <double> matrix for single-value Basker.
   std::vector<int> Anewcol_ptr_, Anewrow_idx_;
   std::vector<double> Anewval_;
-
-  // Storage for nonlinear entries that may be linear
-  std::set<std::pair<int,int> > lin_nldFdx_, lin_nldQdx_;
 
 #if defined(Xyce_AMESOS2) && !defined(SHYLUBASKER)
   Basker::Basker<int, double> basker_;
@@ -204,6 +190,9 @@ private:
 
   //Timer
   Util::Timer * timer_;
+
+  int numSamples_;
+  bool paramsOuterLoop_;
 };
 
 } // namespace Linear
