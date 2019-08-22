@@ -585,6 +585,45 @@ private:
   const OutputMgr &     outputManager_;
 };
 
+//--------------------------------------------------------------------------
+// Structure     : Util::Op::Builder::StepNumOpBuilder
+// Purpose       : This creates a StepNumOp
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/19/14
+//--------------------------------------------------------------------------
+struct StepNumOpBuilder : public Util::Op::Builder
+{
+  StepNumOpBuilder(const OutputMgr &output_manager)
+    :outputManager_(output_manager)
+  {}
+
+  virtual ~StepNumOpBuilder()
+  {}
+
+  virtual void registerCreateFunctions(Util::Op::BuilderManager &builder_manager) const
+  {
+    builder_manager.addCreateFunction<StepNumOp>();
+  }
+
+  virtual Util::Op::Operator *makeOp(Util::ParamList::const_iterator &it) const
+  {
+    Util::Op::Operator *new_op = 0;
+    const std::string &param_tag = (*it).tag();
+    const std::string &param_string = (*it).stringValue();
+
+    if (param_tag == "STEPNUM") {
+      new_op  = new StepNumOp(param_tag, outputManager_);
+      new_op->addArg(param_string);
+    }
+
+    return new_op;
+  }
+
+private:
+  const OutputMgr &       outputManager_;
+};
+
 //-------------------------------------------------------------------------- 
 // Structure     : Util::Op::Builder::InternalVariableOpBuilder 
 // Purpose       : Builds various "solution operators".  See the list
@@ -1697,6 +1736,7 @@ void registerOpBuilders(Util::Op::BuilderManager &op_builder_manager, Parallel::
 //  op_builder_manager.addBuilder(new StepSweepOpBuilder(output_manager));
   op_builder_manager.addBuilder(new DCSweepOpBuilder(output_manager));
   op_builder_manager.addBuilder(new DCSweepCurrentValueOpBuilder(output_manager));
+  op_builder_manager.addBuilder(new StepNumOpBuilder(output_manager));
   op_builder_manager.addBuilder(new InternalVariableOpBuilder(output_manager,comm));
   op_builder_manager.addBuilder(new VoltageVariableOpBuilder(output_manager,comm));
   op_builder_manager.addBuilder(new CurrentVariableOpBuilder(output_manager,analysis_manager));

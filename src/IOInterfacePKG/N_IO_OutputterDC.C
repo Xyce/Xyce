@@ -71,6 +71,8 @@ void enableDCOutput(Parallel::Machine comm, OutputMgr &output_manager, Analysis:
 
       if (dc_print_parameters.printIndexColumn_)
         dc_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+      if (dc_print_parameters.printStepNumColumn_)
+        dc_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
 
       output_manager.fixupPrintParameters(comm, dc_print_parameters);
 

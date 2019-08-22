@@ -382,7 +382,11 @@ void fixupColumns(Parallel::Machine comm, const Util::Op::BuilderManager &op_bui
 
   for (Util::Op::OpList::const_iterator it = op_list.begin() ; it != op_list.end(); ++it)
   {
-    if ((*it)->id() == Util::Op::identifier<CurrentIndexOp>())
+    if ((*it)->id() == Util::Op::identifier<StepNumOp>())
+    {
+      print_parameters.table_.addColumn("STEPNUM", std::ios_base::fixed, 8, 0, Table::JUSTIFICATION_LEFT);
+    }
+    else if ((*it)->id() == Util::Op::identifier<CurrentIndexOp>())
     {
       print_parameters.table_.addColumn("INDEX", std::ios_base::fixed, 5, 0, Table::JUSTIFICATION_LEFT);
     }

@@ -134,6 +134,7 @@ OutputMgr::OutputMgr(
     initialOutputInterval_(0.0),
     printHeader_(true),
     printFooter_(true),
+    printStepNumCol_(false),
     outputVersionInRawFile_(false),
     outputCalledBefore_(false),
     dcLoopNumber_(0),
@@ -812,6 +813,12 @@ bool OutputMgr::registerOutputOptions(const Util::OptionBlock & option_block)
       printFooter_= (*it).getImmutableValue<bool>();
       ++it;
     }
+    else if ((*it).tag()=="ADD_STEPNUM_COL")
+    {
+      // look for flag to turn on STEPNUM column for FORMAT=GNUPLOT output
+      printStepNumCol_= (*it).getImmutableValue<bool>();
+      ++it;
+    }
     else if ((*it).tag()=="OUTPUTVERSIONINRAWFILE")
     {
       // look for flag to toggle output of version in header of RAW file
@@ -1111,8 +1118,8 @@ void OutputMgr::addOutputPrintParameters(
       else
       {
         // Some variable lists for any print type (TRAN, DC, NOISE,
-        // HOMOTOPY, SENS, AC or HB_*) may have had "INDEX", "TIME" or
-        // "FREQ" pushed into the front of the
+        // HOMOTOPY, SENS, AC or HB_*) may have had "STEPNUM", "INDEX",
+	// "TIME" or "FREQ" pushed into the front of the
         // print_parameters.variableList_.  We do *NOT* want to add
         // them to (*it).variableList_.  (Note: the check for
         // print_parameters.variableList_.end() stops the while() loop
@@ -1122,7 +1129,8 @@ void OutputMgr::addOutputPrintParameters(
         while ( (it2 != print_parameters.variableList_.end()) &&
                 ( (*it2).tag() == "INDEX" ||
                   (*it2).tag() == "TIME" ||
-                  (*it2).tag() == "FREQ" ) )
+                  (*it2).tag() == "FREQ"  ||
+                  (*it2).tag() == "STEPNUM" ))
         {
           ++it2;
         }
@@ -1413,7 +1421,10 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     print_parameters.streamWidth_ = print_parameters.streamPrecision_ + 9;
 
   // Indicate if an index column should be added
-  print_parameters.printIndexColumn_ = !no_index && print_parameters.format_ == Format::STD;      
+  print_parameters.printIndexColumn_ = !no_index && print_parameters.format_ == Format::STD;
+
+  // Indicates if a stepnum column should be added
+  print_parameters.printStepNumColumn_ = printStepNumCol_ && print_parameters.format_ == Format::STD;
 
   // -r output is not made for these formats
   if ( (print_type == PrintType::SENS) || 
@@ -1445,6 +1456,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     // -o output defaults to Format::STD, with an INDEX column and space as the delimiter_.
     print_parameters.printIndexColumn_ = true;
     print_parameters.format_ = Format::STD;
+    if (printStepNumCol_)
+      print_parameters.printStepNumColumn_ = true;
     print_parameters.delimiter_ = "";
 
     // Xyce behavior changes request for output file <netlistName>.cir to 
@@ -1460,6 +1473,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       PrintParameters freq_print_parameters = print_parameters;
       freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
       freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+      if (freq_print_parameters.printStepNumColumn_)
+        freq_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
       freq_print_parameters.expandComplexTypes_ = true;
       addOutputPrintParameters(OutputType::AC, freq_print_parameters); 
     }
@@ -1473,6 +1488,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       PrintParameters freq_print_parameters = print_parameters;
       freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
       freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+      if (freq_print_parameters.printStepNumColumn_)
+        freq_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
       freq_print_parameters.expandComplexTypes_ = true;
       addOutputPrintParameters(OutputType::HB_FD, freq_print_parameters);
     }
@@ -1481,6 +1498,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       PrintParameters noise_print_parameters = print_parameters;
       noise_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
       noise_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+      if (noise_print_parameters.printStepNumColumn_)
+        noise_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
       noise_print_parameters.expandComplexTypes_ = true;
       std::copy(noiseVariableList_.begin(), noiseVariableList_.end(), std::back_inserter(noise_print_parameters.variableList_));    
       addOutputPrintParameters(OutputType::NOISE, noise_print_parameters);
@@ -1525,12 +1544,16 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     {
       freq_print_parameters.defaultExtension_ = ".FD.prn";
       // print out the Index column, since this will be in STD format
-      freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+      freq_print_parameters.printIndexColumn_ = true;
+      if (printStepNumCol_)
+        freq_print_parameters.printStepNumColumn_ = true;
     }
-    else if (freq_print_parameters.printIndexColumn_)
-    {
+
+    if (freq_print_parameters.printIndexColumn_)
       freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
-    }
+    if (freq_print_parameters.printStepNumColumn_)
+      freq_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
+
     freq_print_parameters.expandComplexTypes_ = freq_print_parameters.format_ != Format::PROBE
                                                 && freq_print_parameters.format_ != Format::RAW
                                                 && freq_print_parameters.format_ != Format::RAW_ASCII;
@@ -1553,12 +1576,15 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       {
         ac_ic_print_parameters.defaultExtension_ = ".TD.prn";
         // print out the Index column, since this will be in STD format
-        ac_ic_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+        ac_ic_print_parameters.printIndexColumn_ = true;
+        if (printStepNumCol_)
+          ac_ic_print_parameters.printStepNumColumn_ = true;
       }
-      else if (ac_ic_print_parameters.printIndexColumn_)
-      {
+
+      if (ac_ic_print_parameters.printIndexColumn_)
         ac_ic_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
-      }
+      if (ac_ic_print_parameters.printStepNumColumn_)
+        ac_ic_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
 
       addOutputPrintParameters(OutputType::AC_IC, ac_ic_print_parameters);
     }
@@ -1580,12 +1606,15 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       {
         ac_ic_print_parameters.defaultExtension_ = ".TD.prn";
         // print out the Index column, since this will be in STD format
-        ac_ic_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+        ac_ic_print_parameters.printIndexColumn_ = true;
+        if (printStepNumCol_)
+          ac_ic_print_parameters.printStepNumColumn_ = true;
       }
-      else if (ac_ic_print_parameters.printIndexColumn_)
-      {
+
+      if (ac_ic_print_parameters.printIndexColumn_)
         ac_ic_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
-      }
+      if (ac_ic_print_parameters.printStepNumColumn_)
+        ac_ic_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
 
       addOutputPrintParameters(OutputType::AC_IC, ac_ic_print_parameters);
     }
@@ -1632,6 +1661,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       noise_print_parameters.defaultExtension_ = ".NOISE.prn";
       // print out the Index column, since this will be in STD format
       noise_print_parameters.printIndexColumn_ = true;
+      if (printStepNumCol_)
+        noise_print_parameters.printStepNumColumn_ = true;
     }
     else
     {
@@ -1641,9 +1672,9 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     // adjust which columns appear in the output file, depending on the print format
     noise_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
     if (noise_print_parameters.printIndexColumn_)
-    {
       noise_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
-    }
+    if (noise_print_parameters.printStepNumColumn_)
+      noise_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
 
     std::copy(noiseVariableList_.begin(), noiseVariableList_.end(), std::back_inserter(noise_print_parameters.variableList_));
 
@@ -1677,6 +1708,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       homotopy_print_parameters.defaultExtension_ = ".HOMOTOPY.prn";
       // print out the Index column
       homotopy_print_parameters.printIndexColumn_ = true;
+      if (printStepNumCol_)
+        homotopy_print_parameters.printStepNumColumn_ = true;
     }
     else
     {
@@ -1713,6 +1746,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       sensitivity_print_parameters.defaultExtension_ = ".SENS.prn";
       // print out the Index column, since this will be in STD format
       sensitivity_print_parameters.printIndexColumn_ = true;
+      if (printStepNumCol_)
+        sensitivity_print_parameters.printStepNumColumn_ = true;
     }
     else
     {
@@ -1743,6 +1778,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       transientAdjoint_print_parameters.defaultExtension_ = ".TRADJ.prn";
       // print out the Index column, since this will be in STD format
       transientAdjoint_print_parameters.printIndexColumn_ = true;
+      if (printStepNumCol_)
+        transientAdjoint_print_parameters.printStepNumColumn_ = true;
     }
     else
     {
@@ -1769,6 +1806,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
     if (freq_print_parameters.printIndexColumn_)
       freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (freq_print_parameters.printStepNumColumn_)
+      freq_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::HB_FD, freq_print_parameters);
 
     // create fallback print parameters for HB_TD files
@@ -1782,6 +1821,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       time_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (time_print_parameters.printIndexColumn_)
       time_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (time_print_parameters.printStepNumColumn_)
+      time_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::HB_TD, time_print_parameters);
 
     // create fallback print parameters for hb_ic files
@@ -1796,6 +1837,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       hb_ic_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (hb_ic_print_parameters.printIndexColumn_)
       hb_ic_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (hb_ic_print_parameters.printStepNumColumn_)
+      hb_ic_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::HB_IC, hb_ic_print_parameters);
 
     // create fallback print parameters for startup files
@@ -1810,6 +1853,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       hb_startup_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (hb_startup_print_parameters.printIndexColumn_)
       hb_startup_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (hb_startup_print_parameters.printStepNumColumn_)
+      hb_startup_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::HB_STARTUP, hb_startup_print_parameters);
   }
   else if (print_type == PrintType::HB_TD)
@@ -1824,6 +1869,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       time_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (time_print_parameters.printIndexColumn_)
       time_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (time_print_parameters.printStepNumColumn_)
+      time_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::HB_TD, time_print_parameters);
   }
   else if (print_type == PrintType::HB_FD)
@@ -1838,6 +1885,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       freq_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
     if (freq_print_parameters.printIndexColumn_)
       freq_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (freq_print_parameters.printStepNumColumn_)
+      freq_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::HB_FD, freq_print_parameters);
   }
   else if (print_type == PrintType::HB_IC)
@@ -1852,6 +1901,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       hb_ic_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (hb_ic_print_parameters.printIndexColumn_)
       hb_ic_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (hb_ic_print_parameters.printStepNumColumn_)
+      hb_ic_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::HB_IC, hb_ic_print_parameters);
   }
   else if (print_type == PrintType::HB_STARTUP)
@@ -1866,6 +1917,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       hb_startup_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (hb_startup_print_parameters.printIndexColumn_)
       hb_startup_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (hb_startup_print_parameters.printStepNumColumn_)
+      hb_startup_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::HB_STARTUP, hb_startup_print_parameters);
   }
   else if (print_type == PrintType::MPDE)
@@ -1909,6 +1962,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       mpde_ic_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (mpde_ic_print_parameters.printIndexColumn_)
       mpde_ic_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (mpde_ic_print_parameters.printStepNumColumn_)
+      mpde_ic_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::MPDE_IC, mpde_ic_print_parameters);
 
     // add fallback for MPDE_STARTUP output
@@ -1923,6 +1978,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       mpde_startup_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (mpde_startup_print_parameters.printIndexColumn_)
       mpde_startup_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (mpde_startup_print_parameters.printStepNumColumn_)
+      mpde_startup_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::MPDE_STARTUP, mpde_startup_print_parameters);
   }
   else if (print_type == PrintType::MPDE_IC)
@@ -1936,6 +1993,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       mpde_ic_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (mpde_ic_print_parameters.printIndexColumn_)
       mpde_ic_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (mpde_ic_print_parameters.printStepNumColumn_)
+      mpde_ic_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::MPDE_IC, mpde_ic_print_parameters);
   }
   else if (print_type == PrintType::MPDE_STARTUP)
@@ -1949,6 +2008,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       mpde_startup_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
     if (mpde_startup_print_parameters.printIndexColumn_)
       mpde_startup_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+    if (mpde_startup_print_parameters.printStepNumColumn_)
+      mpde_startup_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
     addOutputPrintParameters(OutputType::MPDE_STARTUP, mpde_startup_print_parameters);
   }
   else if (print_type == PrintType::TRAN)
@@ -1958,6 +2019,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     {
       // print out the Index column, since this will be in STD format
       print_parameters.printIndexColumn_ = true;
+      if (printStepNumCol_)
+        print_parameters.printStepNumColumn_ = true;
     }
     addOutputPrintParameters(OutputType::TRAN, print_parameters);
   }
@@ -1974,6 +2037,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       dc_print_parameters.defaultExtension_ = ".prn";
       // print out the Index column, since this will be in STD format
       dc_print_parameters.printIndexColumn_ = true;
+      if (printStepNumCol_)
+        dc_print_parameters.printStepNumColumn_ = true;
     }
     addOutputPrintParameters(OutputType::DC, dc_print_parameters);
   }
@@ -2001,6 +2066,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       es_print_parameters.defaultExtension_ = "ES.prn";
       // print out the Index column, since this will be in STD format
       es_print_parameters.printIndexColumn_ = true;
+      if (printStepNumCol_)
+        es_print_parameters.printStepNumColumn_ = true;
     }
     else
     {
@@ -3378,6 +3445,7 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("HDF5FILENAME", Util::Param("HDF5FILENAME", "")));
     parameters.insert(Util::ParamMap::value_type("PRINTHEADER", Util::Param("PRINTHEADER", true)));
     parameters.insert(Util::ParamMap::value_type("PRINTFOOTER", Util::Param("PRINTFOOTER", true)));
+    parameters.insert(Util::ParamMap::value_type("ADD_STEPNUM_COL", Util::Param("ADD_STEPNUM_COL", true)));
     parameters.insert(Util::ParamMap::value_type("OUTPUTVERSIONINRAWFILE", Util::Param("OUTPUTVERSIONINRAWFILE", false)));
 
     parameters.insert(Util::ParamMap::value_type("OUTPUTTIMEPOINTS", Util::Param("OUTPUTTIMEPOINTS", "VECTOR")));

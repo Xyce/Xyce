@@ -124,7 +124,7 @@ RemeasureAC::~RemeasureAC()
 //-----------------------------------------------------------------------------
 void RemeasureAC::setIndepVarCol(int rank, int i, std::string colName)
 {
-  if ( (i<2) && (colName=="FREQ") )
+  if ( (i<3) && (colName=="FREQ") )
   {
     (rank == 0) ? index = i : index = -1;
   }
@@ -339,7 +339,7 @@ RemeasureTRAN::~RemeasureTRAN()
 //-----------------------------------------------------------------------------
 void RemeasureTRAN::setIndepVarCol(int rank, int i, std::string colName)
 {
-  if ( (i<2) && (colName=="TIME") )
+  if ( (i<3) && (colName=="TIME") )
   {
     (rank == 0) ? index = i : index = -1;
   }
