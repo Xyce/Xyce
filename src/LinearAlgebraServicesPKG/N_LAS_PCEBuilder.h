@@ -65,17 +65,32 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 // Class         : PCEBuilder
 // Purpose       :
-// Special Notes :
+//
+// Special Notes : Unlike some other block-analysis builders, this builder 
+//                 supports two different block structures.  
+//
+//                 (1) The PCE expansion.  This is the main one, which 
+//                 creates the block system objects used by the nonlinear 
+//                 solver.  This structure is used by all the default 
+//                 functions such as "createMatrix", "createVector" etc.
+//
+//                 (2) The quadrature points, which are needed in order 
+//                 to evaluate the integrals that are computed to set up 
+//                 the matrix and vector entries into the PCE block system 
+//                 described by (1).  This structure is used by functions 
+//                 and data with the word "quad" in the name, such as 
+//                 "createQuadVector".  The only part of the code that 
+//                 will use these objects is the PCELoader.
+//
 // Creator       : Eric Keiter, SNL
-// Creation Date : 05/31/2018
+// Creation Date : 06/27/2019
 //-----------------------------------------------------------------------------
 class PCEBuilder : public Builder
 {
  public:
 
   // Default Constructor
-  
-  PCEBuilder( const int Size );
+  PCEBuilder( const int Size, const int quadPointsSize);
 
   // Destructor
   ~PCEBuilder() {}
@@ -100,6 +115,24 @@ class PCEBuilder : public Builder
   Teuchos::RCP<BlockVector> createTransposeStoreBlockVector() const;
   Teuchos::RCP<BlockVector> createTransposeLeadCurrentBlockVector() const;
 
+  // QuadVector factory with initial value
+  Vector * createQuadVector( double initialValue = 0.0 ) const;
+
+  // State QuadVector factory with initial value
+  Vector * createStateQuadVector( double initialValue = 0.0 ) const;
+
+  // Store QuadVector factory with initial value
+  Vector * createStoreQuadVector( double initialValue = 0.0 ) const;
+
+  // Lead Current QuadVector factory with initial value
+  Vector * createLeadCurrentQuadVector( double initialValue = 0.0 ) const;
+
+  Teuchos::RCP<BlockVector> createQuadBlockVector() const;
+  Teuchos::RCP<BlockVector> createTransposeQuadBlockVector() const;
+  Teuchos::RCP<BlockVector> createTransposeStateQuadBlockVector() const;
+  Teuchos::RCP<BlockVector> createTransposeStoreQuadBlockVector() const;
+  Teuchos::RCP<BlockVector> createTransposeLeadCurrentQuadBlockVector() const;
+
   // Matrix factory
   Matrix * createMatrix( double initialValue = 0.0 ) const;
   Teuchos::RCP<BlockMatrix> createBlockMatrix( double initialValue = 0.0 ) const;
@@ -109,6 +142,16 @@ class PCEBuilder : public Builder
   Matrix * createDAEdFdxMatrix( double initialValue = 0.0 ) const { return 0; }
   Matrix * createDAEFullMatrix( double initialValue = 0.0 ) const { return 0; }
 
+
+  // Matrix factory
+  Matrix * createQuadMatrix( double initialValue = 0.0 ) const;
+  Teuchos::RCP<BlockMatrix> createQuadBlockMatrix( double initialValue = 0.0 ) const;
+
+  // DAE Jacobians
+  Matrix * createDAEdQdxQuadMatrix( double initialValue = 0.0 ) const { return 0; }
+  Matrix * createDAEdFdxQuadMatrix( double initialValue = 0.0 ) const { return 0; }
+  Matrix * createDAEFullQuadMatrix( double initialValue = 0.0 ) const { return 0; }
+
   bool generateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseMap, 
                      const Teuchos::RCP<N_PDS_ParMap>& oBaseMap );
 
@@ -116,7 +159,9 @@ class PCEBuilder : public Builder
   bool generateStoreMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseStoreMap );
   bool generateLeadCurrentMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseLeadCurrentMap );
 
-  bool generateGraphs( const Epetra_CrsGraph & BaseFullGraph );
+  bool generateGraphs( 
+    const Epetra_CrsGraph & pceGraph,
+      const Epetra_CrsGraph & BaseFullGraph );
 
   // Return maps for sampling linear system.
   Teuchos::RCP<const N_PDS_ParMap> getSolutionMap() const
@@ -154,11 +199,12 @@ class PCEBuilder : public Builder
   int getPCELeadCurrentOffset()
   { return leadCurrentOffset_; }
 
-  int getNumSamples()
-  { return numSamples_; }
+  int getNumBlockRows ()
+  { return numBlockRows_; }
 
 private:
-  const int numSamples_;
+  const int numBlockRows_;
+  const int numQuadPoints_;
   int numSolVariables_, numStateVariables_;
   int numStoreVariables_;
   int numLeadCurrentVariables_;
@@ -168,24 +214,31 @@ private:
   int leadCurrentOffset_;
 
   // PCE maps for block vectors (BV):
- // numBlocks = number of samples, numElem = number of solution variables
-  
-  // numBlocks = number of solution variables, numElem = number of samples
   Teuchos::RCP<N_PDS_ParMap> BaseMap_, oBaseMap_;
 
   Teuchos::RCP<N_PDS_ParMap> BaseStateMap_;
   Teuchos::RCP<N_PDS_ParMap> BaseStoreMap_;
   Teuchos::RCP<N_PDS_ParMap> BaseLeadCurrentMap_;
 
+  Teuchos::RCP<Epetra_CrsGraph> pceGraph_;
   Teuchos::RCP<Epetra_CrsGraph> BaseFullGraph_;
   Teuchos::RCP<Epetra_CrsGraph> blockGraph_;
+  Teuchos::RCP<Epetra_CrsGraph> quadBlockGraph_;
 
   std::vector<std::vector<int> > blockPattern_;
+  std::vector<std::vector<int> > quadBlockPattern_;
 
   Teuchos::RCP<N_PDS_ParMap> PCEMap_, oPCEMap_;
+  Teuchos::RCP<N_PDS_ParMap> quadMap_, oquadMap_;
+
   Teuchos::RCP<N_PDS_ParMap> PCEStateMap_;
+  Teuchos::RCP<N_PDS_ParMap> quadStateMap_;
+
   Teuchos::RCP<N_PDS_ParMap> PCEStoreMap_;
+  Teuchos::RCP<N_PDS_ParMap> quadStoreMap_;
+
   Teuchos::RCP<N_PDS_ParMap> PCELeadCurrentMap_;
+  Teuchos::RCP<N_PDS_ParMap> quadLeadCurrentMap_;
 };
 
 } // namespace Linear

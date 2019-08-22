@@ -98,11 +98,15 @@
 #include <Sacado_No_Kokkos.hpp>
 #include <Stokhos_Sacado.hpp>
 
+//#include <Stokhos_Sparse3TensorUtilities.hpp>
+
 #include <Tpetra_Map.hpp>
 #include <Tpetra_CrsMatrix.hpp>
 #include <Tpetra_MultiVector.hpp>
 #include <Tpetra_DefaultPlatform.hpp>
 #endif
+
+
 
 // ---------- Standard Includes ----------
 #if( defined HAVE__ISNAN_AND__FINITE_SUPPORT )
@@ -158,8 +162,8 @@ PCE::PCE(
       lower_bounds_Given_(false),
       upper_bounds_Given_(false),
       covMatrixGiven_(false),
+      numBlockRows_(1),
       numSamples_(1),
-      numSamplesGiven_(false),
       sampleType_(UQ::MC),
       userSeed_(0),
       userSeedGiven_(false),
@@ -177,6 +181,7 @@ PCE::PCE(
 #endif
       stdOutputFlag_(false),
       debugLevel_(0),
+      outputStochasticMatrix_(false),
       outputsGiven_(false),
       outputsSetup_(false),
       measuresGiven_(false),
@@ -500,17 +505,12 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
 bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
 {
   bool bsuccess = true;
-  numSamplesGiven_ = false;
+
   Util::ParamList::const_iterator it  = option_block.begin();
   Util::ParamList::const_iterator end = option_block.end();
   for ( ; it != end; ++ it)
   {
-    if ((*it).uTag() == "NUMSAMPLES")
-    {
-      numSamples_ = (*it).getImmutableValue<int>();
-      numSamplesGiven_ = true;
-    }
-    else if (std::string((*it).uTag() ,0,9) == "COVMATRIX" ) // this is a vector
+    if (std::string((*it).uTag() ,0,9) == "COVMATRIX" ) // this is a vector
     {
       covMatrixGiven_ = true;
       covMatrix_.push_back( (*it).getImmutableValue<double>() );
@@ -604,6 +604,10 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
       {
         debugLevel_ = (*it).getImmutableValue<int>();
       }
+    }
+    else if ((*it).uTag() == "OUTPUT_STOCHASTIC_MATRIX")
+    {
+      outputStochasticMatrix_ = (*it).getImmutableValue<int>();
     }
     else if (std::string((*it).uTag() ,0,7) == "OUTPUTS" )// this is a vector of expressions/solution variables
     {
@@ -701,63 +705,57 @@ void PCE::stepCallBack ()
   computePCEOutputs();
 
 #if Xyce_STOKHOS_ENABLE
-//
-  // in this class, this is always enabled
-  //if (projectionPCEenable_)
+  std::vector< Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > > pceVec;
+
+  for (int iout=0;iout<outFuncDataVec_.size();++iout)
   {
-    std::vector< Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > > pceVec;
+    UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
 
-    for (int iout=0;iout<outFuncDataVec_.size();++iout)
+    Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
+    projectionPCE.init(0.0);
+    projectionPCE.reset(expnMethod);
+
+    std::vector<double> & f = outFunc.sampleOutputs;
+
+    UQ::solveProjectionPCE(basis, quadMethod, f, projectionPCE);
+
+    if (outputPCECoeffs_)
     {
-      UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
+      Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << projectionPCE << std::endl;
+      projectionPCE.print(Xyce::lout());
+    }
 
-      Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
-      projectionPCE.init(0.0);
-      projectionPCE.reset(quadExpn);
-
-      std::vector<double> & f = outFunc.sampleOutputs;
-
-      UQ::solveProjectionPCE(quadBasis, quadMethod, f, projectionPCE);
-
-      if (outputPCECoeffs_)
-      {
-        Xyce::lout() << "PCE coefs for " << outFunc.outFuncString << " = " << projectionPCE << std::endl;
-        projectionPCE.print(Xyce::lout());
-      }
-
-      if (stdOutputFlag_)
-      {
-        Xyce::lout() << std::endl;
-        Xyce::lout() << "(embedded sampling) projection PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
-        Xyce::lout() << "(embedded sampling) projection PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
-      }
-
-      if (resamplePCE_)
-      {
-        pceVec.push_back(projectionPCE);
-      }
+    if (stdOutputFlag_)
+    {
+      Xyce::lout() << std::endl;
+      Xyce::lout() << "(embedded sampling) projection PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
+      Xyce::lout() << "(embedded sampling) projection PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
     }
 
     if (resamplePCE_)
     {
-      std::vector < std::vector<double> > fvec (outFuncDataVec_.size());
-      std::vector <UQ::statisticalMoments> statVec (outFuncDataVec_.size());
-
-      long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
-      const int numParams = paramNameVec_.size();
-      UQ::sampleApproximationPCE(theSeed, sampleType_, samplingVector_, covMatrix_, meanVec_, numResamples_, numParams, pceVec, fvec, statVec);
-
-      for (int iout=0;iout<outFuncDataVec_.size();++iout)
-      {
-        UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
-        Xyce::lout() << std::endl;
-        Xyce::lout() << "Statistics from re-sampling projection PCE approximation of " << outFunc.outFuncString << ":" << std::endl;;
-        Xyce::lout() << statVec[iout];
-        Xyce::lout() << std::endl;
-      }
+      pceVec.push_back(projectionPCE);
     }
   }
-//
+
+  if (resamplePCE_)
+  {
+    std::vector < std::vector<double> > fvec (outFuncDataVec_.size());
+    std::vector <UQ::statisticalMoments> statVec (outFuncDataVec_.size());
+
+    long theSeed = UQ::getTheSeed( analysisManager_.getComm(), analysisManager_.getCommandLine(), userSeed_, userSeedGiven_);
+    const int numParams = paramNameVec_.size();
+    UQ::sampleApproximationPCE(theSeed, sampleType_, samplingVector_, covMatrix_, meanVec_, numResamples_, numParams, pceVec, fvec, statVec);
+
+    for (int iout=0;iout<outFuncDataVec_.size();++iout)
+    {
+      UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
+      Xyce::lout() << std::endl;
+      Xyce::lout() << "Statistics from re-sampling projection PCE approximation of " << outFunc.outFuncString << ":" << std::endl;;
+      Xyce::lout() << statVec[iout];
+      Xyce::lout() << std::endl;
+    }
+  }
 #endif
 
   hackPCEOutput ();
@@ -824,7 +822,9 @@ void  PCE::setupBlockSystemObjects ()
 {
   analysisManager_.resetSolverSystem();
 
-  pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numSamples_));
+  //pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numSamples_));
+  //pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_));
+  pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_,numSamples_));
 
   if (DEBUG_ANALYSIS)
   {
@@ -841,12 +841,12 @@ void  PCE::setupBlockSystemObjects ()
     pceBuilderPtr_->generateStoreMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STORE ),false) );
     pceBuilderPtr_->generateLeadCurrentMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::LEADCURRENT ),false) );
 
-    pceBuilderPtr_->generateGraphs( *pdsMgrPtr_->getMatrixGraph( Parallel::JACOBIAN ));
+    pceBuilderPtr_->generateGraphs( *pceGraph, *pdsMgrPtr_->getMatrixGraph( Parallel::JACOBIAN ));
   }
 
   // Create PCE Loader.
   delete pceLoaderPtr_;
-  pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numSamples_, samplingVector_, Y_);
+  pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numSamples_, numBlockRows_, samplingVector_, Y_);
   pceLoaderPtr_->registerPCEBuilder(pceBuilderPtr_);
   pceLoaderPtr_->registerAppLoader( rcp(&loader_, false) );
   //-----------------------------------------
@@ -928,56 +928,74 @@ void PCE::setupStokhosObjects ()
 #if Xyce_STOKHOS_ENABLE
   // determine the samples. 
   //
-  // non-intrusive spectral projection(NISP) samples are determined 
+  // spectral projection samples are determined 
   // by the quadrature points
   //
-  // In this class projection PCE is always assumed enabled.
-  //if (projectionPCEenable_)  
+  const int d = paramNameVec_.size();
+  const int p = PCEorder_;
+  bases.resize(d); 
+  for (int i=0; i<d; i++)
   {
-    const int d = paramNameVec_.size();
-    const int p = PCEorder_;
-    quadBases.resize(d); 
-    for (int i=0; i<d; i++)
-    {
-      SweepParam & sp = samplingVector_[i];
+    SweepParam & sp = samplingVector_[i];
 
-      if (sp.type == "UNIFORM")
-      {
-        quadBases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
-      }
-      else if (sp.type == "NORMAL") 
-      {
-        quadBases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
-      }
-      else
-      {
-        Report::UserFatal0() << "Polynomial Chaos only works for normal and uniform distributions.";
-      }
+    if (sp.type == "UNIFORM")
+    {
+      bases[i] = rcp(new Stokhos::LegendreBasis<int,double>(p));
     }
-
-    if (useSparseGrid_)
+    else if (sp.type == "NORMAL") 
     {
-      // ERK.  Understand these better
-      double drop = 1.0e-12;
-      const Stokhos::TotalOrderIndexSet<int> index_set(d, p);
-      typedef Stokhos::TotalOrderLess< Stokhos::MultiIndex<int> > total_less;
-      typedef Stokhos::LexographicLess< Stokhos::MultiIndex<int> > lexo_less;
-
-      quadBasis = rcp(new Stokhos::SmolyakBasis<int,double,total_less>( quadBases, index_set, drop));
-      quadMethod = rcp(new Stokhos::SmolyakSparseGridQuadrature<int,double>(quadBasis, index_set));
+      bases[i] = rcp(new Stokhos::HermiteBasis<int,double>(p,true));
     }
     else
     {
-      quadBasis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(quadBases));
-      quadMethod = rcp(new Stokhos::TensorProductQuadrature<int,double>(quadBasis));
+      Report::UserFatal0() << "Polynomial Chaos only works for normal and uniform distributions.";
     }
-
-    quadCijk = quadBasis->computeTripleProductTensor();
-    quadExpn = rcp(new Stokhos::QuadOrthogPolyExpansion<int,double>(quadBasis, quadCijk, quadMethod));
-
-    UQ::setupPCEQuadPoints ( quadBasis, quadMethod, quadExpn, samplingVector_, covMatrix_, meanVec_, X_, Y_);
-    numSamples_ = quadMethod->size();
   }
+
+  if (useSparseGrid_)
+  {
+    // ERK.  Understand these better
+    double drop = 1.0e-12;
+    const Stokhos::TotalOrderIndexSet<int> index_set(d, p);
+    typedef Stokhos::TotalOrderLess< Stokhos::MultiIndex<int> > total_less;
+    typedef Stokhos::LexographicLess< Stokhos::MultiIndex<int> > lexo_less;
+
+    basis = rcp(new Stokhos::SmolyakBasis<int,double,total_less>( bases, index_set, drop));
+    quadMethod = rcp(new Stokhos::SmolyakSparseGridQuadrature<int,double>(basis, index_set));
+  }
+  else
+  {
+    basis = rcp(new Stokhos::CompletePolynomialBasis<int,double>(bases));
+    quadMethod = rcp(new Stokhos::TensorProductQuadrature<int,double>(basis));
+  }
+
+  Cijk = basis->computeTripleProductTensor();
+  expnMethod = rcp(new Stokhos::QuadOrthogPolyExpansion<int,double>(basis, Cijk, quadMethod));
+
+  UQ::setupPCEQuadPoints ( basis, quadMethod, expnMethod, samplingVector_, covMatrix_, meanVec_, X_, Y_);
+  numSamples_ = quadMethod->size();
+
+  if (outputStochasticMatrix_)
+  {
+    // this is to give a nice SPY plot of the stochastic block matrix structure
+    std::string file="A.mm";
+    Stokhos::sparse3Tensor2MatrixMarket(
+        *basis, 
+        *Cijk, 
+       *(analysisManager_.getPDSManager()->getPDSComm()->petraComm()),file);
+  }
+
+  pceGraph = Stokhos::sparse3Tensor2CrsGraph(*basis, *Cijk,
+     *(analysisManager_.getPDSManager()->getPDSComm()->petraComm()) );
+
+  numBlockRows_ = pceGraph->NumMyRows();
+
+#if 0
+  // this is the matrix that gets output to A.mm
+  Epetra_CrsMatrix mat(Copy, *pceGraph);
+  pceGraph->PrintGraphData(std::cout);
+  mat.Print(std::cout);
+#endif
 #endif
 }
 
@@ -991,17 +1009,17 @@ void PCE::setupStokhosObjects ()
 //-----------------------------------------------------------------------------
 bool PCE::doLoopProcess()
 {
+  // This type of analysis solves a fully intrusive PCE system.  It builds upon
+  // the child analysis type, but instead of solving directly for circuit unknowns, 
+  // it solves for coefficients of the PCE expansion
 
-  // The idea of this type of analysis is to perform "simultaneous propagation", 
-  // in which the sampling is performed, but is essentially the inner loop rather 
-  // than the outer loop of the simulation.
-  //
   // This is being set up by considering the original analysis (DC or TRAN or whatever) 
   // to be the "child" analysis, but to then replace the linear objects with block 
   // versions and replace the loader with a block loader.  Otherwise, all the control 
   // is handled in the child process.
   Xyce::lout() << "***** Beginning Intrusive PCE simulation....\n" << std::endl;
-  Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
+  Xyce::lout() << "***** Number of quadrature points = " << numSamples_ << "\n" << std::endl;
+  Xyce::lout() << "***** Number of linear system block rows = " << numBlockRows_ << "\n" << std::endl;
 
   // test:
   analysisManager_.setAnalysisMode(Xyce::Analysis::ANP_MODE_TRANSIENT);
@@ -1218,23 +1236,19 @@ void PCE::hackPCEOutput ()
         }
 
 #if Xyce_STOKHOS_ENABLE
-        // in this class, this is always enabled
-        //if (projectionPCEenable_)
-        {
-          std::string meanString = outFunc.outFuncString + "_quad_pce_mean";
-          std::string meanStringPlus = outFunc.outFuncString + "_quad_pce_meanPlus";
-          std::string meanStringMinus = outFunc.outFuncString + "_quad_pce_meanMinus";
+        std::string meanString = outFunc.outFuncString + "_quad_pce_mean";
+        std::string meanStringPlus = outFunc.outFuncString + "_quad_pce_meanPlus";
+        std::string meanStringMinus = outFunc.outFuncString + "_quad_pce_meanMinus";
 
-          std::string stddevString = outFunc.outFuncString + "_quad_pce_stddev";
-          std::string varianceString = outFunc.outFuncString + "_quad_pce_variance";
+        std::string stddevString = outFunc.outFuncString + "_quad_pce_stddev";
+        std::string varianceString = outFunc.outFuncString + "_quad_pce_variance";
 
-          output_stream << "\t\" " << meanString << "\""<<std::endl;
-          output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
-          output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+        output_stream << "\t\" " << meanString << "\""<<std::endl;
+        output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
+        output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
 
-          output_stream << "\t\" " << stddevString << "\""<<std::endl;
-          output_stream << "\t\" " << varianceString << "\""<<std::endl;
-        }
+        output_stream << "\t\" " << stddevString << "\""<<std::endl;
+        output_stream << "\t\" " << varianceString << "\""<<std::endl;
 #endif
         if (hackOutputAllSamples_)
         {
@@ -1287,38 +1301,34 @@ void PCE::hackPCEOutput ()
       }
 
 #if Xyce_STOKHOS_ENABLE
-      // in this class, this is always enabled
-      //if (projectionPCEenable_)
+      Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
+
+      double pce_mean = projectionPCE.mean();
+      double pce_stddev = projectionPCE.standard_deviation();
+      double pce_variance = pce_stddev*pce_stddev;
+
+      if ( isinf(pce_mean) || isnan(pce_mean) )
       {
-        Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
-
-        double pce_mean = projectionPCE.mean();
-        double pce_stddev = projectionPCE.standard_deviation();
-        double pce_variance = pce_stddev*pce_stddev;
-
-        if ( isinf(pce_mean) || isnan(pce_mean) )
-        {
-          pce_mean = 0.0;
-        }
-
-        if ( isinf(pce_stddev) || isnan(pce_stddev) )
-        {
-          pce_stddev = 0.0;
-        }
-
-        if ( isinf(pce_variance) || isnan(pce_variance) )
-        {
-          pce_variance = 0.0;
-        }
-
-        output_stream << "\t" << pce_mean;
-
-        output_stream << "\t" << (pce_mean+pce_stddev);
-        output_stream << "\t" << (pce_mean-pce_stddev);
-
-        output_stream << "\t" << pce_stddev;
-        output_stream << "\t" << pce_variance;
+        pce_mean = 0.0;
       }
+
+      if ( isinf(pce_stddev) || isnan(pce_stddev) )
+      {
+        pce_stddev = 0.0;
+      }
+
+      if ( isinf(pce_variance) || isnan(pce_variance) )
+      {
+        pce_variance = 0.0;
+      }
+
+      output_stream << "\t" << pce_mean;
+
+      output_stream << "\t" << (pce_mean+pce_stddev);
+      output_stream << "\t" << (pce_mean-pce_stddev);
+
+      output_stream << "\t" << pce_stddev;
+      output_stream << "\t" << pce_variance;
 #endif
 
       // output individual samples
@@ -1751,6 +1761,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("SPARSE_GRID", Util::Param("SPARSE_GRID", false)));
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 0)));
     parameters.insert(Util::ParamMap::value_type("STDOUTPUT", Util::Param("STDOUTPUT", false)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_STOCHASTIC_MATRIX", Util::Param("OUTPUT_STOCHASTIC_MATRIX", false)));
   }
 }
 

@@ -53,6 +53,7 @@
 // make sure linking against the correct trilinos!
 #include "Stokhos_Sacado.hpp"
 #include "Stokhos_Sacado_Kokkos.hpp"
+#include <Stokhos_Sparse3TensorUtilities.hpp>
 #endif
 
 #include <N_IO_OptionBlock.h>
@@ -209,8 +210,8 @@ private:
 
   bool covMatrixGiven_;
 
+  int numBlockRows_; // size of the expansion
   int numSamples_;
-  bool numSamplesGiven_;
   UQ::SampleType  sampleType_;
 
   int userSeed_;
@@ -227,17 +228,17 @@ private:
 #if Xyce_STOKHOS_ENABLE
   int PCEorder_;
 
-  Teuchos::Array< Teuchos::RCP<const Stokhos::OneDOrthogPolyBasis<int,double> > > quadBases; 
-  Teuchos::RCP<const Stokhos::ProductBasis<int,double> > quadBasis;
+  Teuchos::Array< Teuchos::RCP<const Stokhos::OneDOrthogPolyBasis<int,double> > > bases; 
+  Teuchos::RCP<const Stokhos::ProductBasis<int,double> > basis;
 
   // Quadrature method
   Teuchos::RCP<const Stokhos::Quadrature<int,double> > quadMethod;
 
   // Triple product tensor
-  Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > quadCijk;
+  Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > Cijk;
 
   // Expansion method
-  Teuchos::RCP<Stokhos::QuadOrthogPolyExpansion<int,double> > quadExpn;
+  Teuchos::RCP<Stokhos::QuadOrthogPolyExpansion<int,double> > expnMethod;
 
   bool resamplePCE_;
   bool outputPCECoeffs_;
@@ -246,10 +247,13 @@ private:
   bool numResamplesGiven_;
 
   bool useSparseGrid_;
+
+  Teuchos::RCP<Epetra_CrsGraph> pceGraph;
 #endif
 
   bool stdOutputFlag_;
   int debugLevel_;
+  bool outputStochasticMatrix_;
 
   bool outputsGiven_;
   bool outputsSetup_;

@@ -48,6 +48,8 @@
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_Utils.hpp>
 
+#include <N_ANP_UQSupport.h>
+
 using Teuchos::rcp;
 using Teuchos::RCP;
 
@@ -62,8 +64,9 @@ namespace Linear {
 // Creator       : Eric Keiter, SNL
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-PCEBuilder::PCEBuilder( const int Size )
-: numSamples_(Size),
+PCEBuilder::PCEBuilder( const int Size, const int quadPointsSize )
+: numBlockRows_(Size),
+  numQuadPoints_(quadPointsSize), // ERK. FIX THIS
   numSolVariables_(0),
   numStateVariables_(0),
   numStoreVariables_(0),
@@ -100,7 +103,7 @@ Vector * PCEBuilder::createVector( double initialValue ) const
 RCP<BlockVector> PCEBuilder::createBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( numSamples_, PCEMap_, BaseMap_ )
+        new BlockVector( numBlockRows_, PCEMap_, BaseMap_ )
         );
   return(vec);
 }
@@ -116,7 +119,7 @@ RCP<BlockVector> PCEBuilder::createBlockVector() const
 RCP<BlockVector> PCEBuilder::createTransposeBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-      new BlockVector( numSamples_, PCEMap_ )
+      new BlockVector( numBlockRows_, PCEMap_ )
       );
   return(vec);
 }
@@ -132,7 +135,7 @@ RCP<BlockVector> PCEBuilder::createTransposeBlockVector() const
 RCP<BlockVector> PCEBuilder::createTransposeStateBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( numSamples_, PCEStateMap_ )
+        new BlockVector( numBlockRows_, PCEStateMap_ )
         );
   return(vec);
 }
@@ -148,7 +151,7 @@ RCP<BlockVector> PCEBuilder::createTransposeStateBlockVector() const
 RCP<BlockVector> PCEBuilder::createTransposeStoreBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( numSamples_, PCEStoreMap_ )
+        new BlockVector( numBlockRows_, PCEStoreMap_ )
         );
   return(vec);
 }
@@ -164,7 +167,102 @@ RCP<BlockVector> PCEBuilder::createTransposeStoreBlockVector() const
 RCP<BlockVector> PCEBuilder::createTransposeLeadCurrentBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( numSamples_, PCELeadCurrentMap_ )
+        new BlockVector( numBlockRows_, PCELeadCurrentMap_ )
+        );
+  return(vec);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createQuadVector
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+Vector * PCEBuilder::createQuadVector( double initialValue ) const
+{
+  RCP<Vector> vector = createQuadBlockVector(); 
+  vector.release(); // Release ownership of the object.
+  return(&*vector);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createQuadBlockVector
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+RCP<BlockVector> PCEBuilder::createQuadBlockVector() const
+{
+  RCP<BlockVector> vec = rcp(
+        new BlockVector( numQuadPoints_, quadMap_, BaseMap_ )
+        );
+  return(vec);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createTransposeQuadBlockVector
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+RCP<BlockVector> PCEBuilder::createTransposeQuadBlockVector() const
+{
+  RCP<BlockVector> vec = rcp(
+      new BlockVector( numQuadPoints_, quadMap_ )
+      );
+  return(vec);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createTransposeStateQuadBlockVector
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+RCP<BlockVector> PCEBuilder::createTransposeStateQuadBlockVector() const
+{
+  RCP<BlockVector> vec = rcp(
+        new BlockVector( numQuadPoints_, quadStateMap_ )
+        );
+  return(vec);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createTransposeStoreQuadBlockVector
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+RCP<BlockVector> PCEBuilder::createTransposeStoreQuadBlockVector() const
+{
+  RCP<BlockVector> vec = rcp(
+        new BlockVector( numQuadPoints_, quadStoreMap_ )
+        );
+  return(vec);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createTransposeLeadCurrentQuadBlockVector
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+RCP<BlockVector> PCEBuilder::createTransposeLeadCurrentQuadBlockVector() const
+{
+  RCP<BlockVector> vec = rcp(
+        new BlockVector( numQuadPoints_, quadLeadCurrentMap_ )
         );
   return(vec);
 }
@@ -194,7 +292,35 @@ Matrix * PCEBuilder::createMatrix( double initialValue ) const
 //-----------------------------------------------------------------------------
 Teuchos::RCP<BlockMatrix> PCEBuilder::createBlockMatrix( double initialValue ) const
 {
-  return rcp (new Linear::BlockMatrix( numSamples_, offset_, blockPattern_, *blockGraph_, *BaseFullGraph_) );
+  return rcp (new Linear::BlockMatrix( numBlockRows_, offset_, blockPattern_, *blockGraph_, *BaseFullGraph_) );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createQuadMatrix
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+Matrix * PCEBuilder::createQuadMatrix( double initialValue ) const
+{
+  RCP<Matrix> matrix = createQuadBlockMatrix( initialValue );
+  matrix.release(); // Release ownership of the object.
+  return(&*matrix);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createQuadBlockMatrix
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+Teuchos::RCP<BlockMatrix> PCEBuilder::createQuadBlockMatrix( double initialValue ) const
+{
+  return rcp (new Linear::BlockMatrix( numQuadPoints_, offset_, quadBlockPattern_, *quadBlockGraph_, *BaseFullGraph_) );
 }
 
 //-----------------------------------------------------------------------------
@@ -208,7 +334,7 @@ Teuchos::RCP<BlockMatrix> PCEBuilder::createBlockMatrix( double initialValue ) c
 Vector * PCEBuilder::createStateVector( double initialValue ) const
 {
   return dynamic_cast<Vector*>(
-        new BlockVector( numSamples_, PCEStateMap_, BaseStateMap_ ) );
+        new BlockVector( numBlockRows_, PCEStateMap_, BaseStateMap_ ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -222,7 +348,7 @@ Vector * PCEBuilder::createStateVector( double initialValue ) const
 Vector * PCEBuilder::createStoreVector( double initialValue ) const
 {
   return dynamic_cast<Vector*>(
-        new BlockVector( numSamples_, PCEStoreMap_, BaseStoreMap_ ) );
+        new BlockVector( numBlockRows_, PCEStoreMap_, BaseStoreMap_ ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -236,7 +362,49 @@ Vector * PCEBuilder::createStoreVector( double initialValue ) const
 Vector * PCEBuilder::createLeadCurrentVector( double initialValue ) const
 {
   return dynamic_cast<Vector*>(
-        new BlockVector( numSamples_, PCELeadCurrentMap_, BaseLeadCurrentMap_ ) );
+        new BlockVector( numBlockRows_, PCELeadCurrentMap_, BaseLeadCurrentMap_ ) );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createStateQuadVector
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+Vector * PCEBuilder::createStateQuadVector( double initialValue ) const
+{
+  return dynamic_cast<Vector*>(
+        new BlockVector( numQuadPoints_, quadStateMap_, BaseStateMap_ ) );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createStoreQuadVector
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+Vector * PCEBuilder::createStoreQuadVector( double initialValue ) const
+{
+  return dynamic_cast<Vector*>(
+        new BlockVector( numQuadPoints_, quadStoreMap_, BaseStoreMap_ ) );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCEBuilder::createLeadCurrentQuadVector
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 8/25/2019
+//-----------------------------------------------------------------------------
+Vector * PCEBuilder::createLeadCurrentQuadVector( double initialValue ) const
+{
+  return dynamic_cast<Vector*>(
+        new BlockVector( numQuadPoints_, quadLeadCurrentMap_, BaseLeadCurrentMap_ ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -258,7 +426,10 @@ bool PCEBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
   offset_ = BaseMap_->maxGlobalEntity() + 1;  // Use this offset to create a contiguous gid map for direct solvers.
 
   // Use the block linear system helper to create the block parallel maps
-  PCEMap_ = Linear::createBlockParMap(numSamples_, *BaseMap, 0, 0, offset_);
+  PCEMap_ = Linear::createBlockParMap(numBlockRows_, *BaseMap, 0, 0, offset_);
+
+  // Use the block linear system helper to create the block parallel maps
+  quadMap_ = Linear::createBlockParMap(numQuadPoints_, *BaseMap, 0, 0, offset_);
 
   // Helpful names for various sizes (subtract 1 for ground node):
   numSolVariables_ = oBaseMap_->numLocalEntities()-1;
@@ -284,7 +455,9 @@ bool PCEBuilder::generateStateMaps( const RCP<N_PDS_ParMap>& BaseStateMap )
 
   // Use the block linear system helper to create the block parallel maps
   // NOTE:  At this time augmented parallel maps are not supported.
-  PCEStateMap_ = createBlockParMap(numSamples_, *BaseStateMap);
+  PCEStateMap_ = createBlockParMap(numBlockRows_, *BaseStateMap);
+
+  quadStateMap_ = createBlockParMap(numQuadPoints_, *BaseStateMap);
 
   // Helpful names for various sizes:
   numStateVariables_ = BaseStateMap_->numGlobalEntities();
@@ -310,7 +483,9 @@ bool PCEBuilder::generateStoreMaps( const RCP<N_PDS_ParMap>& BaseStoreMap )
 
   // Use the block linear system helper to create the block parallel maps
   // NOTE:  At this time augmented parallel maps are not supported.
-  PCEStoreMap_ = createBlockParMap(numSamples_, *BaseStoreMap);
+  PCEStoreMap_ = createBlockParMap(numBlockRows_, *BaseStoreMap);
+
+  quadStoreMap_ = createBlockParMap(numQuadPoints_, *BaseStoreMap);
 
   // Helpful names for various sizes:
   numStoreVariables_ = BaseStoreMap_->numGlobalEntities();
@@ -336,7 +511,9 @@ bool PCEBuilder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurre
 
   // Use the block linear system helper to create the block parallel maps
   // NOTE:  At this time augmented parallel maps are not supported.
-  PCELeadCurrentMap_ = createBlockParMap(numSamples_, *BaseLeadCurrentMap);
+  PCELeadCurrentMap_ = createBlockParMap(numBlockRows_, *BaseLeadCurrentMap);
+
+  quadLeadCurrentMap_ = createBlockParMap(numQuadPoints_, *BaseLeadCurrentMap);
 
   // Helpful names for various sizes:
   numLeadCurrentVariables_ = BaseLeadCurrentMap_->numGlobalEntities();
@@ -351,25 +528,51 @@ bool PCEBuilder::generateLeadCurrentMaps( const RCP<N_PDS_ParMap>& BaseLeadCurre
 // Creator       : Eric Keiter, SNL
 // Creation Date : 6/27/2019
 //-----------------------------------------------------------------------------
-bool PCEBuilder::generateGraphs( const Epetra_CrsGraph & BaseFullGraph )
+bool PCEBuilder::generateGraphs( 
+    const Epetra_CrsGraph & pceGraph,
+    const Epetra_CrsGraph & BaseFullGraph 
+    )
 {
   if( Teuchos::is_null(BaseMap_) )
     Xyce::Report::DevelFatal0().in("PCEBuilder::generateGraphs")
       << "Need to setup Maps first";
 
-  //Copies of base graphs
+  //Copies of graphs
+  pceGraph_ = rcp(new Epetra_CrsGraph( pceGraph ));
   BaseFullGraph_ = rcp(new Epetra_CrsGraph( BaseFullGraph ));
 
-  int numBlocks = numSamples_;
+  int numBlockRows = numBlockRows_;
   blockPattern_.clear();
-  blockPattern_.resize(numBlocks);
-  for (int i=0;i<numBlocks;++i)
+  blockPattern_.resize(numBlockRows);
+
+  for (int i=0;i<numBlockRows;++i)
   {
-    blockPattern_[i].resize(1);
-    blockPattern_[i][0] = i; 
+    blockPattern_[i].resize(numBlockRows);
+
+    int maxIndices = pceGraph.MaxNumIndices();
+    std::vector<int> indices(maxIndices);
+    int numIndices=0;
+    int pceRow = pceGraph.GRID(i);
+    pceGraph.ExtractGlobalRowCopy( pceRow, maxIndices, numIndices, &indices[0] );
+    blockPattern_[i].resize(numIndices,0);
+    for (int j=0;j<numIndices;++j)
+    {
+      int col = indices[j];
+      blockPattern_[i][col] = j; 
+    }
+  }
+
+  quadBlockPattern_.clear();
+  quadBlockPattern_.resize(numQuadPoints_);
+  for (int i=0;i<numQuadPoints_;++i)
+  {
+    quadBlockPattern_[i].resize(1);
+    quadBlockPattern_[i][0] = i; 
   }
 
   blockGraph_ = Linear::createBlockGraph(offset_, blockPattern_, *PCEMap_, *BaseFullGraph_ );
+
+  quadBlockGraph_ = Linear::createBlockGraph(offset_, quadBlockPattern_, *quadMap_, *BaseFullGraph_ );
 
   return true;
 }

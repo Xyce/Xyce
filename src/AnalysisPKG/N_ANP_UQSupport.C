@@ -138,7 +138,7 @@ void computeStats (const std::vector<double> & values, statisticalMoments & sm)
 //-------------------------------------------------------------------------------
 void solveRegressionPCE(
     const int d, // dimension (number of params)
-    const int p, // polynomial order
+    const int pOrd, // polynomial order
     const std::vector< std::vector<double> > & x,
     const std::vector<double> & f,
     Stokhos::OrthogPolyApprox<int,double> & samplePCE

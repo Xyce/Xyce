@@ -85,6 +85,7 @@ PCELoader::PCELoader(
   Device::DeviceMgr &                 device_manager,
   Linear::Builder &                   builder,
   int numSamples,
+  int numBlockRows,
   Analysis::SweepVector & samplingVector,
   const std::vector<double> & Y
   )
@@ -92,6 +93,7 @@ PCELoader::PCELoader(
     deviceManager_(device_manager),
     builder_(builder),
     numSamples_(numSamples),
+    numBlockRows_(numBlockRows),
     samplingVector_(samplingVector),
     Y_(Y) 
 {
@@ -131,11 +133,11 @@ PCELoader::PCELoader(
 // Creator       : Eric Keiter
 // Creation Date : 
 //-----------------------------------------------------------------------------
-void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> esBuilderPtr )
+void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderPtr )
 {
-  esBuilderPtr_ = esBuilderPtr;
-  bmdQdxPtr_ = esBuilderPtr_->createBlockMatrix();
-  bmdFdxPtr_ = esBuilderPtr_->createBlockMatrix();
+  pceBuilderPtr_ = pceBuilderPtr;
+  bmdQdxPtr_ = pceBuilderPtr_->createBlockMatrix();
+  bmdFdxPtr_ = pceBuilderPtr_->createBlockMatrix();
 }
 
 //-----------------------------------------------------------------------------

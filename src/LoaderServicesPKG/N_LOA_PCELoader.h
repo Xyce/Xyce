@@ -70,6 +70,7 @@ public:
     Device::DeviceMgr &                 device_manager,
     Linear::Builder &                   builder,
     int numSamples, 
+    int numBlockRows, 
     Analysis::SweepVector & samplingVector,
     const std::vector<double> & Y); 
 
@@ -157,7 +158,7 @@ public:
   void registerAppLoader( Teuchos::RCP<Loader> appLoaderPtr )
   { appLoaderPtr_ = appLoaderPtr; }
 
-  void registerPCEBuilder(Teuchos::RCP<Linear::PCEBuilder> esBuilderPtr);
+  void registerPCEBuilder(Teuchos::RCP<Linear::PCEBuilder> pceBuilderPtr);
 
   virtual bool analyticSensitivitiesAvailable (std::string & name) { return false; }
   virtual void getAnalyticSensitivities(
@@ -222,7 +223,7 @@ private:
 
   // PCE Builder:  (needed to convert AztecOO created Linear::Vectors into Linear::BlockVectors
   Teuchos::RCP<Linear::BlockVector> bQPtr_;
-  Teuchos::RCP<Linear::PCEBuilder> esBuilderPtr_;
+  Teuchos::RCP<Linear::PCEBuilder> pceBuilderPtr_;
 
   // App Builder:  (needed to load time domain vectors and matrices)
   Linear::Builder &             builder_;
@@ -241,6 +242,7 @@ private:
 
 // sampling stuff:
   int numSamples_;
+  int numBlockRows_;
   Analysis::SweepVector & samplingVector_;
   const std::vector<double> & Y_; 
 };
