@@ -86,6 +86,7 @@
 #include <N_DEV_Vsrc.h>
 #include <N_DEV_Xygra.h>
 #include <N_DEV_TransLine.h>
+#include <N_DEV_YLin.h>
 #include <N_DEV_PowerGrid.h>
 #include <N_DEV_PowerGridBranch.h>
 #include <N_DEV_PowerGridTransformer.h>
@@ -136,6 +137,7 @@ registerOpenDevices(const DeviceCountMap& deviceMap,
   ACC::registerDevice(deviceMap, levelSet);
   RxnSet::registerDevice(deviceMap, levelSet);
   TransLine::registerDevice(deviceMap, levelSet);
+  YLin::registerDevice(deviceMap, levelSet);
   PowerGrid::registerDevice(deviceMap, levelSet);
   PowerGridBranch::registerDevice(deviceMap, levelSet);
   PowerGridTransformer::registerDevice(deviceMap, levelSet);

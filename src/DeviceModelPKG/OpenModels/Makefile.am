@@ -52,6 +52,7 @@ libOpenModels_la_SOURCES = \
   N_DEV_PowerGridGenBus.C \
   N_DEV_AntiWindupLimiter.C \
   N_DEV_TransLine.C \
+  N_DEV_YLin.C \
   N_DEV_ACC.h \
   N_DEV_BJT.h \
   N_DEV_Bsrc.h \
@@ -92,6 +93,7 @@ libOpenModels_la_SOURCES = \
   N_DEV_Vcvs.h \
   N_DEV_Vsrc.h \
   N_DEV_ROM.h \
+  N_DEV_YLin.h \
   N_DEV_ArtificialParameters.h \
   N_DEV_RegisterOpenDevices.h \
   N_DEV_PowerGrid.h \
