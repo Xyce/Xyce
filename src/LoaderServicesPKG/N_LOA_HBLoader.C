@@ -1301,7 +1301,6 @@ void HBLoader::consolidateMatrixEntries( const std::vector<int>& nzRows,
   int * indices = 0;
   N_PDS_ParMap * colmap = appdFdxPtr_->getColMap( *builder_.getPDSComm() );
   N_PDS_ParMap * ocolmap = appdFdxPtr_->getOverlapColMap( *builder_.getPDSComm() );
-  int global_col_gnd = -1;
 
   std::vector<int>::const_iterator lid_it = nzRows.begin();
 
@@ -1317,34 +1316,31 @@ void HBLoader::consolidateMatrixEntries( const std::vector<int>& nzRows,
     std::vector< Util::FreqMatEntry >::const_iterator it = matrixEntries.begin();
     for ( ; it != matrixEntries.end(); it++)
     {
-      if ( it->row_lid == curr_lid )
+      if ( (it->row_lid == curr_lid) && (it->col_lid != -1) )
       {
         int col_id = indices[ it->col_lid ];
-        if (col_id != global_col_gnd)
+        if (!overlapIDs)
         {
-          if (!overlapIDs)
+          int gid = ocolmap->localToGlobalIndex( col_id );
+          col_id = colmap->globalToLocalIndex( gid );
+        }
+        std::pair<std::set<int>::iterator, bool> ret = col_id_set.insert( col_id );
+        if (ret.second == false)
+        {
+          std::vector< Util::FreqMatEntry >::iterator it2 = tmpFreqDFDXMatrix.begin();
+          std::vector< Util::FreqMatEntry >::iterator it2_end = tmpFreqDFDXMatrix.end();
+          for ( ; it2 != it2_end; it2++ )
           {
-            int gid = ocolmap->localToGlobalIndex( col_id );
-            col_id = colmap->globalToLocalIndex( gid );
-          }
-          std::pair<std::set<int>::iterator, bool> ret = col_id_set.insert( col_id );
-          if (ret.second == false)
-          {
-            std::vector< Util::FreqMatEntry >::iterator it2 = tmpFreqDFDXMatrix.begin();
-            std::vector< Util::FreqMatEntry >::iterator it2_end = tmpFreqDFDXMatrix.end();
-            for ( ; it2 != it2_end; it2++ )
+            if ( it2->col_lid == col_id )
             {
-              if ( it2->col_lid == col_id )
-              {
-                it2->val += it->val;
-              }
+              it2->val += it->val;
             }
           }
-          else
-          {
-            tmpFreqDFDXMatrix.push_back( *it );
-            tmpFreqDFDXMatrix.back().col_lid = col_id;
-          }
+        }
+        else
+        {
+          tmpFreqDFDXMatrix.push_back( *it );
+          tmpFreqDFDXMatrix.back().col_lid = col_id;
         }
       }
     }
