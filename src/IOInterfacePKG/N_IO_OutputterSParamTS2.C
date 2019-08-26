@@ -309,6 +309,7 @@ void SParamTS2::doFinishOutput()
   {
     if (numberOfSteps_ == 0)
     {
+      *os_ << "[End]" << std::endl;
       outputManager_.closeFile(os_);
       os_ = 0;
     }
@@ -358,6 +359,7 @@ void SParamTS2::doSteppingComplete()
   // close the file.
   if (os_)
   {
+    *os_ << "[End]" << std::endl;
     outputManager_.closeFile(os_);
     os_ = 0;
   }

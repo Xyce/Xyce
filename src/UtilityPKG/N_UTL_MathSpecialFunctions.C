@@ -34,6 +34,8 @@
 //
 //
 
+#include <Xyce_config.h>
+
 #include<cmath>
 
 namespace Xyce {
@@ -171,11 +173,13 @@ double erfcx(double x)
 double erf(double x) 
 {
   double value = 0.0;
-#if( HAVE_ERF )
-  value = std::erf( x );
-#else
+  // Use of system-provided erf commented out due to LTRA hanging on
+  // one test case (see bug 1228 SON for details)
+  //#ifdef HAVE_ERF
+  //  value = erf( x );
+  //#else
   value = erf_faddeeva( x );
-#endif
+  //#endif
 
   return value;
 }; 
@@ -191,11 +195,13 @@ double erf(double x)
 double erfc(double x)
 {
   double value = 0.0;
-#if( HAVE_ERFC )
-  value = std::erfc( x );
-#else
+  // Use of system-provided erfc commented out due to LTRA hanging on
+  // one test case (see bug 1228 SON for details)
+  //#ifdef HAVE_ERFC
+  //  value = erfc( x );
+  //#else
   value = erfc_faddeeva( x );
-#endif
+  //#endif
 
   return value;
 }
