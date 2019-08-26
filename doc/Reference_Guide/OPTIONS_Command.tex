@@ -30,7 +30,7 @@ and output parameters.  In general, they use the following format:
 
 \begin{basedescript}{
     \desclabelstyle{\multilinelabel}
-    \desclabelwidth{1in}
+    \desclabelwidth{1.5in}
     \renewcommand{\makelabel}[1]{\tt #1\hfill}}
   \item[\tt DEVICE]       Device Model
   \item[\tt TIMEINT]      Time Integration
@@ -43,6 +43,7 @@ and output parameters.  In general, they use the following format:
   \item[\tt OUTPUT]       Output
   \item[\tt RESTART]      Restart
   \item[\tt SAMPLES]      Sampling analysis
+  \item[\tt EMBEDDEDSAMPLES]  EmbeddedSampling
   \item[\tt SENSITIVITY]  Direct and Adjoint sensitivities
   \item[\tt HBINT]        Harmonic Balance (HB)
   \item[\tt DIST]         Distribution
@@ -319,6 +320,17 @@ They are only used if the netlist also includes a \texttt{.SAMPLING} statement.
 
 \input{samplestbl}
 
+\subsubsection{\texttt{.OPTIONS EMBEDDEDSAMPLES} (Embedded Sampling options)}
+\index{solvers!embeddedsampling!options}
+
+The sampling selections listed in Table~\ref{EmbeddedSamplesPKG}
+provide methods for controlling Embedded Sampling methods.
+
+EMBEDDEDSAMPLES options are set using the \texttt{.OPTIONS EMBEDDEDSAMPLES}
+command.\index{\texttt{.OPTIONS}!\texttt{EMBEDDEDSAMPLES}}  They are only used if the
+netlist also includes a \texttt{.EMBEDDEDSAMPLING} statement.
+
+\input{embeddedsamplestbl}
 
 \subsubsection{\texttt{.OPTIONS SENSITIVITY} (Direct and Adjoint Sensitivity Options)}
 \index{solvers!sensitivty!options}
