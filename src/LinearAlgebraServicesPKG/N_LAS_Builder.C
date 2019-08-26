@@ -424,15 +424,11 @@ bool Builder::generateGraphs()
   Epetra_BlockMap & overlapMap = *(pdsMgr_->getParallelMap( Parallel::SOLUTION_OVERLAP )->petraBlockMap());
   Epetra_BlockMap & localMap = *(pdsMgr_->getParallelMap( Parallel::SOLUTION )->petraBlockMap());
 
-  Epetra_CrsGraph * overlapGndGraph = new Epetra_CrsGraph( Copy, overlapGndMap, &arrayNZs[0] );
   Epetra_CrsGraph * overlapGraph = new Epetra_CrsGraph( Copy, overlapMap, &arrayNZs[0] );
 
   for( int i = 0; i < numLocalRows_Overlap; ++i )
   {
     std::vector<int>& rcData_i = const_cast<std::vector<int> &>(rcData[i]);
-    if( arrayNZs[i] )
-      overlapGndGraph->InsertGlobalIndices( overlapGndMap.GID(i), arrayNZs[i], &rcData_i[0] );
-
     if( overlapGndMap.GID(i) != -1 && arrayNZs[i] )
     {
       if( rcData_i[0] == -1 )
@@ -441,11 +437,8 @@ bool Builder::generateGraphs()
         overlapGraph->InsertGlobalIndices( overlapMap.GID(i), arrayNZs[i], &rcData_i[0] );
     }
   }
-  overlapGndGraph->FillComplete();
-  overlapGndGraph->OptimizeStorage();
   overlapGraph->FillComplete();
   overlapGraph->OptimizeStorage();
-  pdsMgr_->addMatrixGraph( Parallel::JACOBIAN_OVERLAP_GND, overlapGndGraph );
   pdsMgr_->addMatrixGraph( Parallel::JACOBIAN_OVERLAP, overlapGraph );
 
   if( pdsMgr_->getPDSComm()->isSerial() )

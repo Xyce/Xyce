@@ -54,12 +54,6 @@ class Epetra_CrsGraph;
 class Epetra_Export;
 class Epetra_OffsetIndex;
 
-namespace EpetraExt {
-
-class CrsMatrix_View;
-
-}
-
 namespace Xyce {
 namespace Linear {
 
@@ -250,9 +244,6 @@ protected:
 
   // Overlapped version of matrix
   Epetra_CrsMatrix * oDCRSMatrix_;
-
-  // Subset View Transform
-  EpetraExt::CrsMatrix_View * viewTransform_;
 
   // Importing Tools
   Epetra_Export * exporter_;

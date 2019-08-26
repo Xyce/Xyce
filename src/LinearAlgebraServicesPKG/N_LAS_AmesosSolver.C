@@ -90,10 +90,6 @@ AmesosSolver::AmesosSolver(
     outputBaseLS_(0),
     outputFailedLS_(0),
     tProblem_(0),
-    optProb_(0),
-    optMat_(0),
-    origMat_(0),
-    optExporter_(0),
     options_( new Util::OptionBlock( options ) ),
     timer_( new Util::Timer() )
 {
@@ -113,9 +109,6 @@ AmesosSolver::~AmesosSolver()
   delete solver_;
   delete timer_;
   delete options_;
-  delete optProb_;
-  delete optMat_;
-  delete optExporter_;
 }
 
 //-----------------------------------------------------------------------------
@@ -331,26 +324,6 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
       Report::DevelFatal0() 
         << "Unknown or Unavailable Linear Solver: " << type_;
 
-
-#ifndef Xyce_PARALLEL_MPI
-    //setup optimized storage version of problem for serial when a transformed is applied
-    //only do this if the linear system is nontrivial (not a single equation)
-    //CAUTION: this results in a matrix copy, which is a non-trivial amount of overhead.
-    origMat_ = dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix());
-    if (origMat_->NumGlobalRows() > 1 || transform_.get()) {
-      Epetra_Map const& rowMap = origMat_->RowMap();
-      Epetra_BlockMap const& blockRowMap = dynamic_cast<Epetra_BlockMap const&>(rowMap);
-      optMat_ = new Epetra_CrsMatrix( Copy, rowMap, 0 );
-      optExporter_ = new Epetra_Export( blockRowMap, blockRowMap );
-      optMat_->Export( *origMat_, *optExporter_, Insert );
-      optMat_->FillComplete();
-      optMat_->OptimizeStorage();
-
-      optProb_ = new Epetra_LinearProblem( optMat_, prob->GetLHS(), prob->GetRHS() );
-      prob = optProb_;
-    }
-#endif
-
     solver_ = localAmesosObject.Create( solverType, *prob );
 
     Teuchos::ParameterList params;
@@ -394,8 +367,6 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
                    << (endSymTime - begSymTime) << std::endl;
     }
   }
-
-  if( optMat_ ) optMat_->Export( *origMat_, *optExporter_, Insert );
 
   // Set the transpose flag only if that has changed since the last solve.
   if ( solver_->UseTranspose() != transpose )

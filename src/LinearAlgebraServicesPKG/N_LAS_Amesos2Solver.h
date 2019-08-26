@@ -113,12 +113,6 @@ private:
   Teuchos::RCP<Transform> transform_;
   Epetra_LinearProblem * tProblem_;
 
-  // Optimized Matrix
-  Epetra_LinearProblem * optProb_;
-  Epetra_CrsMatrix * optMat_;
-  Epetra_CrsMatrix * origMat_;
-  Epetra_Export * optExporter_;
-
   //Options
   Util::OptionBlock * options_;
 

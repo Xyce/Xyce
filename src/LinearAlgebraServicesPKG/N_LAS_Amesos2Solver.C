@@ -92,10 +92,6 @@ Amesos2Solver::Amesos2Solver(
     outputBaseLS_(0),
     outputFailedLS_(0),
     tProblem_(0),
-    optProb_(0),
-    optMat_(0),
-    origMat_(0),
-    optExporter_(0),
     options_( new Util::OptionBlock( options ) ),
     timer_( new Util::Timer() )
 {
@@ -114,9 +110,6 @@ Amesos2Solver::~Amesos2Solver()
 {
   delete timer_;
   delete options_;
-  delete optProb_;
-  delete optMat_;
-  delete optExporter_;
 }
 
 //-----------------------------------------------------------------------------
@@ -285,26 +278,6 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
 
   if( Teuchos::is_null( solver_ ) )
   {
-
-#ifndef Xyce_PARALLEL_MPI
-    //setup optimized storage version of problem for serial
-    //only do this if the linear system is nontrivial (not a single equation)
-    origMat_ = dynamic_cast<Epetra_CrsMatrix*>(prob->GetMatrix());
-    if (origMat_->NumGlobalRows() > 1) 
-    {
-      Epetra_Map const& rowMap = origMat_->RowMap();
-      Epetra_BlockMap const& blockRowMap = dynamic_cast<Epetra_BlockMap const&>(rowMap);
-      optMat_ = new Epetra_CrsMatrix( Copy, rowMap, 0 );
-      optExporter_ = new Epetra_Export( blockRowMap, blockRowMap );
-      optMat_->Export( *origMat_, *optExporter_, Insert );
-      optMat_->FillComplete();
-      optMat_->OptimizeStorage();
-
-      optProb_ = new Epetra_LinearProblem( optMat_, prob->GetLHS(), prob->GetRHS() );
-      prob = optProb_;
-    }
-#endif
-
     Teuchos::ParameterList amesos2_params("Amesos2");
 
     if (type_ == "BASKER") {
@@ -345,8 +318,6 @@ int Amesos2Solver::doSolve( bool reuse_factors, bool transpose )
                    << (endSymTime - begSymTime) << std::endl;
     }
   }
-
-  if( optMat_ ) optMat_->Export( *origMat_, *optExporter_, Insert );
 
   if( !reuse_factors ) {
 

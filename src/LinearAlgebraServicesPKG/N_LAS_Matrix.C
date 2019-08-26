@@ -61,7 +61,6 @@
 #include <Epetra_Import.h>
 #include <Epetra_Map.h>
 #include <Epetra_Comm.h>
-#include <EpetraExt_View_CrsMatrix.h>
 #include <EpetraExt_RowMatrixOut.h>
 #include <Epetra_OffsetIndex.h>
 
@@ -82,14 +81,7 @@ Matrix::~Matrix()
   {
     if( oDCRSMatrix_ != aDCRSMatrix_ )
     {
-      if( viewTransform_ )
-      {
-        delete viewTransform_; //destroys aDCRSMatrix_ as well
-      }
-      else
-      {
-        delete aDCRSMatrix_;
-      }
+      delete aDCRSMatrix_;
     }
 
     if( oDCRSMatrix_ ) 
@@ -114,7 +106,6 @@ Matrix::~Matrix()
 Matrix::Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray )
 : aDCRSMatrix_(0),
   oDCRSMatrix_(0),
-  viewTransform_(0),
   exporter_(0),
   offsetIndex_(0),
   aColMap_(0),
@@ -126,9 +117,6 @@ Matrix::Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray )
 {
   aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *map.petraMap() , &(diagArray[0]) );
   oDCRSMatrix_ = aDCRSMatrix_;
-
-  aColMap_ = new N_PDS_ParMap( const_cast<Epetra_Map *>(&aDCRSMatrix_->ColMap()), map.pdsComm() );
-  oColMap_ = new N_PDS_ParMap( const_cast<Epetra_Map *>(&oDCRSMatrix_->ColMap()), map.pdsComm() );
 }
 
 //-----------------------------------------------------------------------------
@@ -141,7 +129,6 @@ Matrix::Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray )
 //-----------------------------------------------------------------------------
 Matrix::Matrix( Epetra_CrsMatrix * origMatrix, bool isOwned )
 : aDCRSMatrix_( origMatrix ),
-  viewTransform_(0),
   exporter_(0),
   offsetIndex_(0),
   aColMap_(0),
@@ -166,7 +153,6 @@ Matrix::Matrix( Epetra_CrsGraph * overlapGraph,
                 Epetra_CrsGraph * baseGraph )
 : aDCRSMatrix_(0),
   oDCRSMatrix_(0),
-  viewTransform_(0),
   exporter_(0),
   offsetIndex_(0),
   aColMap_(0),
@@ -183,17 +169,9 @@ Matrix::Matrix( Epetra_CrsGraph * overlapGraph,
     // Get ground node, if there is one.
     groundLID_ = overlapGraph->LRID( -1 );
 
-    if ( (oDCRSMatrix_->Comm()).NumProc() > 1 )
-    {
-      aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *baseGraph );
-      exporter_ = new Epetra_Export( overlapGraph->RowMap(), baseGraph->RowMap() );
-      offsetIndex_ = new Epetra_OffsetIndex( *overlapGraph, *baseGraph, *exporter_ );
-    }
-    else
-    {
-      viewTransform_ = new EpetraExt::CrsMatrix_View( *overlapGraph, *baseGraph );
-      aDCRSMatrix_ = &((*viewTransform_)( *oDCRSMatrix_ ));
-    }
+    aDCRSMatrix_ = new Epetra_CrsMatrix( Copy, *baseGraph );
+    exporter_ = new Epetra_Export( overlapGraph->RowMap(), baseGraph->RowMap() );
+    offsetIndex_ = new Epetra_OffsetIndex( *overlapGraph, *baseGraph, *exporter_ );
   }
   else
   {
