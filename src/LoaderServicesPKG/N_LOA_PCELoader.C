@@ -24,12 +24,10 @@
 // Purpose       :
 // Special Notes :
 // Creator       : Eric Keiter
-// Creation Date :
-//
+// Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
 
 #include <Xyce_config.h>
-
 
 // ---------- Standard Includes ----------
 #include <iostream>
@@ -79,12 +77,12 @@ namespace Loader {
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
 PCELoader::PCELoader(
   Device::DeviceMgr &                 device_manager,
   Linear::Builder &                   builder,
-  int numSamples,
+  int numQuadPoints,
   int numBlockRows,
   Analysis::SweepVector & samplingVector,
   const std::vector<double> & Y
@@ -92,7 +90,7 @@ PCELoader::PCELoader(
   : CktLoader(device_manager, builder),
     deviceManager_(device_manager),
     builder_(builder),
-    numSamples_(numSamples),
+    numQuadPoints_(numQuadPoints),
     numBlockRows_(numBlockRows),
     samplingVector_(samplingVector),
     Y_(Y) 
@@ -131,13 +129,17 @@ PCELoader::PCELoader(
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter
-// Creation Date : 
+// Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
 void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderPtr )
 {
   pceBuilderPtr_ = pceBuilderPtr;
+
   bmdQdxPtr_ = pceBuilderPtr_->createBlockMatrix();
   bmdFdxPtr_ = pceBuilderPtr_->createBlockMatrix();
+
+  bmQuaddQdxPtr_ = pceBuilderPtr_->createQuadBlockMatrix();
+  bmQuaddFdxPtr_ = pceBuilderPtr_->createQuadBlockMatrix();
 }
 
 //-----------------------------------------------------------------------------
@@ -146,7 +148,7 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter
-// Creation Date :
+// Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
 bool PCELoader::loadDAEMatrices( Linear::Vector * X,
                                 Linear::Vector * S,
@@ -177,52 +179,22 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
   Xyce::Linear::BlockMatrix & bdFdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dFdx);
   Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);
 
-#ifdef Xyce_FLEXIBLE_DAE_LOADS
-  Xyce::Linear::BlockVector & bS = *dynamic_cast<Xyce::Linear::BlockVector*>(S);
-  Xyce::Linear::BlockVector & bdSdt = *dynamic_cast<Xyce::Linear::BlockVector*>(dSdt);
-  Xyce::Linear::BlockVector & bStore = *dynamic_cast<Xyce::Linear::BlockVector*>(Store);
-#endif // Xyce_FLEXIBLE_DAE_LOADS
-  
-  int BlockCount = bX.blockCount();
-  for( int i = 0; i < BlockCount; ++i )
+  for( int i = 0; i < numQuadPoints_; ++i )
   {
 
     Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
     bool reset = 
-      Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+      Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numQuadPoints_, false);
 
     if (DEBUG_PCE)
     {
-      Xyce::dout() << "Processing diagonal matrix block " << i << " of " << BlockCount-1 << std::endl;
+      Xyce::dout() << "Processing diagonal matrix block " << i << " of " << numQuadPoints_-1 << std::endl;
     }
 
-#ifdef Xyce_FLEXIBLE_DAE_LOADS
-    // set params!
-    //Set Time for fast time scale somewhere
-    //state_.fastTime = times_[i];
-    //deviceManager_.setFastTime( times_[i] );
-
-    //Update the sources
-    //loader_.updateSources();
-
-    *appNextVecPtr_ = bX.block(i);
-    *appNextStaVecPtr_ = bS.block(i);
-    appdSdt = bdSdt.block(i);
-    *appNextStoVecPtr_ = bStore.block(i);
-
-    //loader_.loadDAEMatrices( appNextVecPtr_, appNextStaVecPtr_, &appdSdt, 
-    appLoaderPtr_->loadDAEMatrices( appNextVecPtr_, appNextStaVecPtr_, &appdSdt, 
-        appNextStoVecPtr_, appdQdxPtr_, appdFdxPtr_);
-
-    bdQdx.block(i,i).add( *appdQdxPtr_ );
-    bdFdx.block(i,i).add( *appdFdxPtr_ );
-#else
     //For now, the matrices are loaded during the loadDAEVectors method
     //Just copied here
     bdQdx.block(i,i).add( bmdQdxPtr_->block(i,i) );
     bdFdx.block(i,i).add( bmdFdxPtr_->block(i,i) );
-
-#endif // Xyce_FLEXIBLE_DAE_LOADS
   }
 
   // Now that the matrix loading is finished, call fillComplete().
@@ -241,63 +213,12 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
     bdQdx.printPetraObject(std::cout);
     Xyce::dout() << "PCE bdFdx:" << std::endl;
     bdFdx.printPetraObject(std::cout);
-#ifdef Xyce_FLEXIBLE_DAE_LOADS
-    Xyce::dout() << "PCE bS:" << std::endl;
-    bS.printPetraObject(std::cout);
-    Xyce::dout() << "PCE dSdt:" << std::endl;
-    bdSdt.printPetraObject(std::cout);
-    Xyce::dout() << "PCE bStore:" << std::endl;
-    bStore.printPetraObject(std::cout);
-#endif // Xyce_FLEXIBLE_DAE_LOADS
   
     Xyce::dout() << Xyce::section_divider << std::endl;
   }
 
   return true;
- 
-  //
-  return(true);
 }
-
-//-----------------------------------------------------------------------------
-// Function      : PCELoader::updateState
-// Purpose       :
-// Special Notes : 
-// Scope         : public
-// Creator       : Eric Keiter
-// Creation Date : 
-//-----------------------------------------------------------------------------
-bool PCELoader::updateState
- (Linear::Vector * nextSolVectorPtr,
-  Linear::Vector * currSolVectorPtr,
-  Linear::Vector * lastSolVectorPtr,
-  Linear::Vector * nextStaVectorPtr,
-  Linear::Vector * currStaVectorPtr,
-  Linear::Vector * lastStaVectorPtr,
-  Linear::Vector * nextStoVectorPtr,
-  Linear::Vector * currStoVectorPtr,
-  int loadType
-  )
-{
-  bool bsuccess = true;
-  return bsuccess;
-}
-//-----------------------------------------------------------------------------
-// Function      : PCELoader::applyLinearMatrices
-// Purpose       : apply matrices related to linear nodes
-// Special Notes : This is done in frequency domain
-// Scope         : public
-//
-// Creator       : Eric Keiter
-// Creation Date : 
-//-----------------------------------------------------------------------------
-bool PCELoader::applyLinearMatrices( const Linear::Vector & Vf,
-                                    Linear::BlockVector & permlindQdxV,
-                                    Linear::BlockVector & permlindFdxV )
-{
- return true;
-}
-
 
 //-----------------------------------------------------------------------------
 // Function      : PCELoader::loadDAEVectors
@@ -305,7 +226,7 @@ bool PCELoader::applyLinearMatrices( const Linear::Vector & Vf,
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter
-// Creation Date :
+// Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
 bool PCELoader::loadDAEVectors( Linear::Vector * X,
                                Linear::Vector * currX,
@@ -381,21 +302,28 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   Xyce::Linear::BlockVector & bdFdxdVp = *dynamic_cast<Xyce::Linear::BlockVector*>(dFdxdVp);
   Xyce::Linear::BlockVector & bdQdxdVp = *dynamic_cast<Xyce::Linear::BlockVector*>(dQdxdVp);
 
-#ifndef Xyce_FLEXIBLE_DAE_LOADS
   bmdQdxPtr_->put(0.0);
   bmdFdxPtr_->put(0.0);
-#endif
-    
-  int BlockCount = bQ.blockCount();
-  for( int i = 0; i < BlockCount; ++i )
+
+  bmQuaddQdxPtr_->put(0.0);
+  bmQuaddFdxPtr_->put(0.0);
+
+  // ERK.  In this location, need to convert the solution vector X from coefficients to sample values.
+  // Use the UQ helper function for evaluating the PCE expansion to do this.  Evaluate the PCE approximation 
+  // at the sample points, then use this as input to the model
+
+
+
+  // This loop is over the number of samples, or quadrature points
+  for( int i = 0; i < numQuadPoints_; ++i )
   {
     Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
     bool reset = 
-      Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numSamples_, false);
+      Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numQuadPoints_, false);
 
     if (DEBUG_PCE)
     {
-      Xyce::dout() << "Processing vectors for block " << i << " of " << BlockCount-1 << std::endl;
+      Xyce::dout() << "Processing vectors for block " << i << " of " << numQuadPoints_-1 << std::endl;
     }
     
     if (DEBUG_PCE)
@@ -421,7 +349,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     
     if (DEBUG_PCE)
     {
-      Xyce::dout() << "Updating State for block " << i << " of " << BlockCount-1 << std::endl;
+      Xyce::dout() << "Updating State for block " << i << " of " << numQuadPoints_-1 << std::endl;
     }
 
     // Note: This updateState call is here (instead of in the 
@@ -467,10 +395,9 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     bdFdxdVp.block(i) = appdFdxdVp;
     bdQdxdVp.block(i) = appdQdxdVp;
 
-#ifndef Xyce_FLEXIBLE_DAE_LOADS
     if (DEBUG_PCE)
     {
-      Xyce::dout() << "Processing matrices for block " << i << " of " << BlockCount-1 << std::endl;
+      Xyce::dout() << "Processing matrices for block " << i << " of " << numQuadPoints_-1 << std::endl;
     }
 
     // This has to be done because the app loader does NOT zero these out.
@@ -492,7 +419,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       Xyce::dout() << "Copying diagonal block into bmdFdx" << std::endl;
     }
     bmdFdxPtr_->block(i,i).add( *appdFdxPtr_ );
-#endif
   }
   
   // Now that the vector loading is finished, synchronize the global copy of the block vector
@@ -523,7 +449,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     Xyce::dout() << "PCE F Vector" << std::endl;
     bF.printPetraObject(std::cout);
 
-#ifndef Xyce_FLEXIBLE_DAE_LOADS
     bmdQdxPtr_->assembleGlobalMatrix();
     Xyce::dout() << "PCE bmdQdx_" << std::endl;
     bmdQdxPtr_->printPetraObject(std::cout);
@@ -531,7 +456,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     bmdFdxPtr_->assembleGlobalMatrix();
     Xyce::dout() << "PCE bmdFdx_" << std::endl;
     bmdFdxPtr_->printPetraObject(std::cout);
-#endif // Xyce_FLEXIBLE_DAE_LOADS
 
     Xyce::dout() << Xyce::section_divider << std::endl;
   }
@@ -545,7 +469,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter
-// Creation Date : 11/1/2014
+// Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
 bool PCELoader::loadDeviceErrorWeightMask(Linear::Vector * deviceMask) const
 {
@@ -558,7 +482,7 @@ bool PCELoader::loadDeviceErrorWeightMask(Linear::Vector * deviceMask) const
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter
-// Creation Date : 6/22/2015
+// Creation Date : 07/27/2019
 //---------------------------------------------------------------------------
 bool PCELoader::getVoltageLimiterStatus()
 {
@@ -571,7 +495,7 @@ bool PCELoader::getVoltageLimiterStatus()
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter
-// Creation Date : 6/22/2015 
+// Creation Date : 07/27/2019
 //---------------------------------------------------------------------------
 void PCELoader::setVoltageLimiterStatus(bool voltageLimterStatus)
 {

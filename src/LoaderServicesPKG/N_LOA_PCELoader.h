@@ -28,7 +28,7 @@
 //
 // Creator        : Eric Keiter
 //
-// Creation Date  : 06/01/2018
+// Creation Date  : 07/27/2019
 //
 //
 //
@@ -61,7 +61,7 @@ namespace Loader {
 // Purpose       : PCE specific CktLoader interface
 // Special Notes :
 // Creator       : Eric Keiter
-// Creation Date : 06/01/2018
+// Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
 class PCELoader : public CktLoader
 {
@@ -69,7 +69,7 @@ public:
   PCELoader(
     Device::DeviceMgr &                 device_manager,
     Linear::Builder &                   builder,
-    int numSamples, 
+    int numQuadPoints, 
     int numBlockRows, 
     Analysis::SweepVector & samplingVector,
     const std::vector<double> & Y); 
@@ -118,7 +118,8 @@ public:
                        Linear::Vector * nextStoVectorPtr,
                        Linear::Vector * currStoVectorPtr,
                        int loadType = Xyce::Device::ALL
-                       );
+                       )
+  { return true; }
 
     // Virtual method which initializes the nonlinear problem.
   virtual bool initializeProblem( Linear::Vector * nextSolVectorPtr,
@@ -150,7 +151,7 @@ public:
 
   bool applyLinearMatrices( const Linear::Vector & Vf,
                             Linear::BlockVector & permlindQdxV,
-                            Linear::BlockVector & permlindFdxV );
+                            Linear::BlockVector & permlindFdxV ) { return true; }
 
   Teuchos::RCP<Linear::BlockVector> & getLeadCurrentVecFreqPtr()  { return bLeadCurrentVecFreqPtr_;} 
 
@@ -235,14 +236,16 @@ private:
   Teuchos::RCP<Linear::BlockVector> bLeadCurrentVecFreqPtr_; 
   Teuchos::RCP<Linear::BlockVector> bLeadCurrentQVecFreqPtr_; 
 
-  // stuff copied from MPDE loader:
   // Tmp storage block matrices 
   Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdQdxPtr_;
   Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdFdxPtr_;
 
+  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmQuaddQdxPtr_;
+  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmQuaddFdxPtr_;
+
 // sampling stuff:
-  int numSamples_;
-  int numBlockRows_;
+  int numQuadPoints_;
+  int numBlockRows_; // this is the size of the PCE expansion, not number of quad points
   Analysis::SweepVector & samplingVector_;
   const std::vector<double> & Y_; 
 };
