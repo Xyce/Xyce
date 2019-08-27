@@ -137,12 +137,10 @@ void computeStats (const std::vector<double> & values, statisticalMoments & sm)
 // Creation Date : 8/1/2018
 //-------------------------------------------------------------------------------
 void solveRegressionPCE(
-    const int d, // dimension (number of params)
-    const int pOrd, // polynomial order
+    const int numParams, // dimension (number of params)
     const std::vector< std::vector<double> > & x,
     const std::vector<double> & f,
     Stokhos::OrthogPolyApprox<int,double> & samplePCE
-    //Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & samplePCE
     )
 {
   const int N = f.size(); // total number of samples
@@ -170,9 +168,9 @@ void solveRegressionPCE(
   for( std::vector<double>::size_type ii=0; ii<N; ii++) 
   {
     // set up the point
-    Array<double> point(d);
+    Array<double> point(numParams);
 
-    for (int id=0;id<d;id++)
+    for (int id=0;id<numParams;id++)
     {
       point[id] = x[id][ii];
     }

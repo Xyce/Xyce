@@ -196,7 +196,6 @@ PCE::PCE(
   nextStorePtr_ = builder_.createStoreVector();
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : PCE::~PCE
 // Purpose       : destructor
@@ -849,6 +848,10 @@ void  PCE::setupBlockSystemObjects ()
   pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numSamples_, numBlockRows_, samplingVector_, Y_);
   pceLoaderPtr_->registerPCEBuilder(pceBuilderPtr_);
   pceLoaderPtr_->registerAppLoader( rcp(&loader_, false) );
+  pceLoaderPtr_->registerPCEbasis (basis) ;
+  pceLoaderPtr_->registerPCEquadMethod (quadMethod) ;
+  pceLoaderPtr_->registerPCEtripleProductTensor (Cijk) ;
+
   //-----------------------------------------
 
   //Finish setup of PCE Loader

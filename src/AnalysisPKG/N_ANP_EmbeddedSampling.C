@@ -747,7 +747,7 @@ void EmbeddedSampling::stepCallBack ()
       regressionPCE.reset(regrBasis);
 
       std::vector<double> & f = outFunc.sampleOutputs;
-      UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
+      UQ::solveRegressionPCE( paramNameVec_.size(), x, f, regressionPCE);
 
       if (stdOutputFlag_)
       {

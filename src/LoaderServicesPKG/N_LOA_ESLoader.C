@@ -255,46 +255,6 @@ bool ESLoader::loadDAEMatrices( Linear::Vector * X,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ESLoader::updateState
-// Purpose       :
-// Special Notes : 
-// Scope         : public
-// Creator       : Eric Keiter
-// Creation Date : 
-//-----------------------------------------------------------------------------
-bool ESLoader::updateState
- (Linear::Vector * nextSolVectorPtr,
-  Linear::Vector * currSolVectorPtr,
-  Linear::Vector * lastSolVectorPtr,
-  Linear::Vector * nextStaVectorPtr,
-  Linear::Vector * currStaVectorPtr,
-  Linear::Vector * lastStaVectorPtr,
-  Linear::Vector * nextStoVectorPtr,
-  Linear::Vector * currStoVectorPtr,
-  int loadType
-  )
-{
-  bool bsuccess = true;
-  return bsuccess;
-}
-//-----------------------------------------------------------------------------
-// Function      : ESLoader::applyLinearMatrices
-// Purpose       : apply matrices related to linear nodes
-// Special Notes : This is done in frequency domain
-// Scope         : public
-//
-// Creator       : Eric Keiter
-// Creation Date : 
-//-----------------------------------------------------------------------------
-bool ESLoader::applyLinearMatrices( const Linear::Vector & Vf,
-                                    Linear::BlockVector & permlindQdxV,
-                                    Linear::BlockVector & permlindFdxV )
-{
- return true;
-}
-
-
-//-----------------------------------------------------------------------------
 // Function      : ESLoader::loadDAEVectors
 // Purpose       :
 // Special Notes :
@@ -502,6 +462,9 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
   bcurrS.assembleGlobalVector();
   blastS.assembleGlobalVector();
   bcurrStore.assembleGlobalVector();
+  bNextLeadF.assembleGlobalVector();
+  bLeadQ.assembleGlobalVector();
+  bNextJunctionV.assembleGlobalVector();
 
   if (DEBUG_ES)
   {

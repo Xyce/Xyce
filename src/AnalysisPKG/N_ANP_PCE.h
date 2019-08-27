@@ -45,9 +45,7 @@
 
 #include <N_ANP_UQSupport.h>
 #include <N_ANP_AnalysisBase.h>
-//#include <N_ANP_Sampling.h>
 #include <N_ANP_RegisterAnalysis.h>
-
 
 #if Xyce_STOKHOS_ENABLE
 // make sure linking against the correct trilinos!

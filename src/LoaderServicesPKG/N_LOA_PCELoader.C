@@ -34,7 +34,6 @@
 #include <numeric>
 
 // ----------   Xyce Includes   ----------
-
 #include <N_LOA_PCELoader.h>
 #include <N_ERH_ErrorMgr.h>
 
@@ -138,8 +137,18 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
   bmdQdxPtr_ = pceBuilderPtr_->createBlockMatrix();
   bmdFdxPtr_ = pceBuilderPtr_->createBlockMatrix();
 
-  bmQuaddQdxPtr_ = pceBuilderPtr_->createQuadBlockMatrix();
-  bmQuaddFdxPtr_ = pceBuilderPtr_->createQuadBlockMatrix();
+  bmdQdx_quad_Ptr_ = pceBuilderPtr_->createQuadBlockMatrix();
+  bmdFdx_quad_Ptr_ = pceBuilderPtr_->createQuadBlockMatrix();
+
+  bQ_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector();
+  bF_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+  bB_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+  bdFdxdVp_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+  bdQdxdVp_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+
+  bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+  bXCurr_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+  bXLast_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
 }
 
 //-----------------------------------------------------------------------------
@@ -151,12 +160,12 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
 // Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
 bool PCELoader::loadDAEMatrices( Linear::Vector * X,
-                                Linear::Vector * S,
-                                Linear::Vector * dSdt,
-                                Linear::Vector * Store,
-                                Linear::Matrix * dQdx,
-                                Linear::Matrix * dFdx,
-                                int loadType)
+                                 Linear::Vector * S,
+                                 Linear::Vector * dSdt,
+                                 Linear::Vector * Store,
+                                 Linear::Matrix * dQdx,
+                                 Linear::Matrix * dFdx,
+                                 int loadType)
 {
 
   if (DEBUG_PCE)
@@ -177,7 +186,7 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
 
   Xyce::Linear::BlockMatrix & bdQdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dQdx);
   Xyce::Linear::BlockMatrix & bdFdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dFdx);
-  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);
+  Xyce::Linear::BlockVector & bnextX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);
 
   for( int i = 0; i < numQuadPoints_; ++i )
   {
@@ -207,8 +216,8 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
  
   if (DEBUG_PCE)
   {
-    Xyce::dout() << "PCE bX:" << std::endl;
-    bX.printPetraObject(std::cout);
+    Xyce::dout() << "PCE bnextX:" << std::endl;
+    bnextX.printPetraObject(std::cout);
     Xyce::dout() << "PCE bdQdx:" << std::endl;
     bdQdx.printPetraObject(std::cout);
     Xyce::dout() << "PCE bdFdx:" << std::endl;
@@ -229,23 +238,23 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
 // Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
 bool PCELoader::loadDAEVectors( Linear::Vector * X,
-                               Linear::Vector * currX,
-                               Linear::Vector * lastX,
-                               Linear::Vector * S,
-                               Linear::Vector * currS,
-                               Linear::Vector * lastS,
-                               Linear::Vector * dSdt,
-                               Linear::Vector * Store,
-                               Linear::Vector * currStore,
-                               Linear::Vector * nextLeadFVectorPtr,
-                               Linear::Vector * nextLeadQVectorPtr,
-                               Linear::Vector * nextJunctionVVectorPtr,
-                               Linear::Vector * Q,
-                               Linear::Vector * F,
-                               Linear::Vector * B,
-                               Linear::Vector * dFdxdVp,
-                               Linear::Vector * dQdxdVp,
-                               int loadType )
+                                Linear::Vector * currX,
+                                Linear::Vector * lastX,
+                                Linear::Vector * S,
+                                Linear::Vector * currS,
+                                Linear::Vector * lastS,
+                                Linear::Vector * dSdt,
+                                Linear::Vector * Store,
+                                Linear::Vector * currStore,
+                                Linear::Vector * nextLeadFVectorPtr,
+                                Linear::Vector * nextLeadQVectorPtr,
+                                Linear::Vector * nextJunctionVVectorPtr,
+                                Linear::Vector * Q,
+                                Linear::Vector * F,
+                                Linear::Vector * B,
+                                Linear::Vector * dFdxdVp,
+                                Linear::Vector * dQdxdVp,
+                                int loadType )
 {
   if (DEBUG_PCE)
   {
@@ -280,15 +289,15 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   Xyce::Linear::Vector & appdFdxdVp = *appdFdxdVpPtr_;
   Xyce::Linear::Vector & appdQdxdVp = *appdQdxdVpPtr_;
 
-  // 12/8/06 tscoffe:   Note:  "b" at beginning of variable name means Xyce::Linear::BlockVector
-  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);
+  // Note:  "b" at beginning of variable name means Xyce::Linear::BlockVector
+  Xyce::Linear::BlockVector & bnextX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);
   Xyce::Linear::BlockVector & bcurrX = *dynamic_cast<Xyce::Linear::BlockVector*>(currX);
   Xyce::Linear::BlockVector & blastX = *dynamic_cast<Xyce::Linear::BlockVector*>(lastX);
-  Xyce::Linear::BlockVector & bS = *dynamic_cast<Xyce::Linear::BlockVector*>(S);
+  Xyce::Linear::BlockVector & bnextS = *dynamic_cast<Xyce::Linear::BlockVector*>(S);
   Xyce::Linear::BlockVector & bcurrS = *dynamic_cast<Xyce::Linear::BlockVector*>(currS);
   Xyce::Linear::BlockVector & blastS = *dynamic_cast<Xyce::Linear::BlockVector*>(lastS);
   Xyce::Linear::BlockVector & bdSdt = *dynamic_cast<Xyce::Linear::BlockVector*>(dSdt);
-  Xyce::Linear::BlockVector & bStore = *dynamic_cast<Xyce::Linear::BlockVector*>(Store);
+  Xyce::Linear::BlockVector & bnextStore = *dynamic_cast<Xyce::Linear::BlockVector*>(Store);
   Xyce::Linear::BlockVector & bcurrStore = *dynamic_cast<Xyce::Linear::BlockVector*>(currStore);
  
   Xyce::Linear::BlockVector & bNextLeadF = *dynamic_cast<Xyce::Linear::BlockVector*>(nextLeadFVectorPtr);
@@ -305,16 +314,50 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bmdQdxPtr_->put(0.0);
   bmdFdxPtr_->put(0.0);
 
-  bmQuaddQdxPtr_->put(0.0);
-  bmQuaddFdxPtr_->put(0.0);
+  bmdQdx_quad_Ptr_->put(0.0);
+  bmdFdx_quad_Ptr_->put(0.0);
 
-  // ERK.  In this location, need to convert the solution vector X from coefficients to sample values.
-  // Use the UQ helper function for evaluating the PCE expansion to do this.  Evaluate the PCE approximation 
-  // at the sample points, then use this as input to the model
+  // ERK.  Convert the solution vector bnextX from coefficients to variable values.
+  //
+  // Use the UQ helper function for evaluating the PCE expansion.  
+  // Evaluate the PCE approximation at the sample points, then use this as input 
+  // to the device models load function calls
+  {
+  std::vector< Stokhos::OrthogPolyApprox<int,double> > pceVec(3);
+  int solutionSize = bnextX.block(0).localLength();  // get local length.  SERIAL ONLY HERE!!!  sigh, fix later.
 
+  for (int isol=0;isol<solutionSize;++isol)
+  {
+    pceVec[0].reset(basis);
+    pceVec[1].reset(basis);
+    pceVec[2].reset(basis);
+    int basisSize = basis->size();
+    for (int icoef=0;icoef<basisSize;++icoef)
+    {
+      *appNextVecPtr_ = bnextX.block(icoef);
+      *appCurrVecPtr_ = bcurrX.block(icoef);
+      *appLastVecPtr_ = blastX.block(icoef);
 
+      pceVec[0][icoef] = (*appNextVecPtr_)[isol];
+      pceVec[1][icoef] = (*appCurrVecPtr_)[isol];
+      pceVec[2][icoef] = (*appLastVecPtr_)[isol];
+    }
 
-  // This loop is over the number of samples, or quadrature points
+    std::vector < std::vector<double> > xSamples(pceVec.size(), std::vector<double>(numQuadPoints_,0.0) );
+    Xyce::Analysis::UQ::evaluateApproximationPCE(samplingVector_, Y_, numQuadPoints_, pceVec, xSamples);
+    for (int iquad=0;iquad<numQuadPoints_;++iquad)
+    {
+      (bXNext_quad_ptr_->block(iquad))[isol] = xSamples[0][iquad];
+      (bXCurr_quad_ptr_->block(iquad))[isol] = xSamples[1][iquad];
+      (bXLast_quad_ptr_->block(iquad))[isol] = xSamples[2][iquad];
+    }
+  }
+  bXNext_quad_ptr_->assembleGlobalVector();
+  bXCurr_quad_ptr_->assembleGlobalVector();
+  bXLast_quad_ptr_->assembleGlobalVector();
+  }
+
+  // This loop is over the number of quadrature points
   for( int i = 0; i < numQuadPoints_; ++i )
   {
     Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
@@ -324,23 +367,26 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     if (DEBUG_PCE)
     {
       Xyce::dout() << "Processing vectors for block " << i << " of " << numQuadPoints_-1 << std::endl;
-    }
-    
-    if (DEBUG_PCE)
-    {
       Xyce::dout() << "Calling updateSources on the appLoader" << std::endl;
     }
 
-    // note: should these be views rather than copies?
-    *appNextVecPtr_ = bX.block(i);
-    *appCurrVecPtr_ = bcurrX.block(i);
-    *appLastVecPtr_ = blastX.block(i);
+    // pull the various vectors out of the block objects
+    //
+    // these 3 solution vectors were transformed from PCE coefs to sample (quad) values
+    *appNextVecPtr_ = bXNext_quad_ptr_->block(i);
+    *appCurrVecPtr_ = bXCurr_quad_ptr_->block(i);
+    *appLastVecPtr_ = bXLast_quad_ptr_->block(i);
 
-    *appNextStaVecPtr_ = bS.block(i);
+    // all the other vectors (state, store, lead current, etc) don't need to go thru a transformation between
+    // the PCE representation and sample values.  The reason is that they aren't part of the PCE linear system
+    // solve.  So they can always have the values produced by the device models, and not go back and forth.
+    //
+    // These vectors, below all need to have their number of blocks = # quad points
+    *appNextStaVecPtr_ = bnextS.block(i);
     *appCurrStaVecPtr_ = bcurrS.block(i);
     *appLastStaVecPtr_ = blastS.block(i);
     appdSdt = bdSdt.block(i);
-    *appNextStoVecPtr_ = bStore.block(i);
+    *appNextStoVecPtr_ = bnextStore.block(i);
     *appCurrStoVecPtr_ = bcurrStore.block(i);
     
     *appNextLeadFVecPtr_  = bNextLeadF.block(i);
@@ -352,18 +398,17 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       Xyce::dout() << "Updating State for block " << i << " of " << numQuadPoints_-1 << std::endl;
     }
 
-    // Note: This updateState call is here (instead of in the 
-    // N_LOA_PCELoader::updateState function) because it has to be called
-    // for the same fast time point.
+    // Note: updateState call is here (instead of N_LOA_PCELoader::updateState function) 
+    // because it has to be called for the same fast time point. Same for the matrix load, below
     appLoaderPtr_->updateState 
       ( &*appNextVecPtr_, &*appCurrVecPtr_, &*appLastVecPtr_,
         &*appNextStaVecPtr_, &*appCurrStaVecPtr_ , &*appLastStaVecPtr_ ,
         &*appNextStoVecPtr_, &*appCurrStoVecPtr_ );
 
-    bS.block(i) = *appNextStaVecPtr_;
+    bnextS.block(i) = *appNextStaVecPtr_;
     bcurrS.block(i) = *appCurrStaVecPtr_;
     blastS.block(i) = *appLastStaVecPtr_;
-    bStore.block(i) = *appNextStoVecPtr_;
+    bnextStore.block(i) = *appNextStoVecPtr_;
     bcurrStore.block(i) = *appCurrStoVecPtr_;
 
     if (DEBUG_PCE)
@@ -388,12 +433,12 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
         &appQ, &appF, &appB,
         &appdFdxdVp, &appdQdxdVp );
 
-    bQ.block(i) = appQ;
-    bF.block(i) = appF;
-
-    bB.block(i) = appB;
-    bdFdxdVp.block(i) = appdFdxdVp;
-    bdQdxdVp.block(i) = appdQdxdVp;
+    // all of these bQ, bF, bB, bdFdxdVp, bdQdxdVp need to be in temporary structures that have num blocks = # quad points
+    bQ_quad_ptr_->block(i) = appQ;
+    bF_quad_ptr_->block(i) = appF;
+    bB_quad_ptr_->block(i) = appB;
+    bdFdxdVp_quad_ptr_->block(i) = appdFdxdVp;
+    bdQdxdVp_quad_ptr_->block(i) = appdQdxdVp;
 
     if (DEBUG_PCE)
     {
@@ -407,43 +452,129 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     appLoaderPtr_->loadDAEMatrices( &*appNextVecPtr_, &*appNextStaVecPtr_, &appdSdt, &*appNextStoVecPtr_, 
                                     &*appdQdxPtr_, &*appdFdxPtr_);
 
-    if (DEBUG_PCE)
-    {
-      Xyce::dout() << "Copying diagonal block into bmdQdx" << std::endl;
-    }
-
-    bmdQdxPtr_->block(i,i).add( *appdQdxPtr_ );
-
-    if (DEBUG_PCE)
-    {
-      Xyce::dout() << "Copying diagonal block into bmdFdx" << std::endl;
-    }
-    bmdFdxPtr_->block(i,i).add( *appdFdxPtr_ );
+    bmdQdx_quad_Ptr_->block(i,i).add( *appdQdxPtr_ );
+    bmdFdx_quad_Ptr_->block(i,i).add( *appdFdxPtr_ );
   }
   
-  // Now that the vector loading is finished, synchronize the global copy of the block vector
-  bX.assembleGlobalVector();
-  bS.assembleGlobalVector();
+  // Now that the vector loading is finished, synchronize the global copy of the relevant block vectors
+  // For the solution-sized vectors (x,f,q,b), use the PCE block vectors
+  // For the state, store and lead current-sized vectors, use the quad versions
+  
+  // solution-sized:
+  bQ_quad_ptr_->assembleGlobalVector();
+  bF_quad_ptr_->assembleGlobalVector();
+  bB_quad_ptr_->assembleGlobalVector();
+  bdFdxdVp_quad_ptr_->assembleGlobalVector();
+  bdQdxdVp_quad_ptr_->assembleGlobalVector();
+
+  // state-sized:
+  bnextS.assembleGlobalVector();
   bdSdt.assembleGlobalVector();
-  bStore.assembleGlobalVector();
-  bQ.assembleGlobalVector();
-  bF.assembleGlobalVector();
-  bdFdxdVp.assembleGlobalVector();
-  bdQdxdVp.assembleGlobalVector();
   bcurrS.assembleGlobalVector();
   blastS.assembleGlobalVector();
+
+  // store-sized:
+  bnextStore.assembleGlobalVector();
   bcurrStore.assembleGlobalVector();
+
+  // lead-current-sized:
+  bNextLeadF.assembleGlobalVector();
+  bLeadQ.assembleGlobalVector();
+  bNextJunctionV.assembleGlobalVector();
+
+  {
+  // obtain the PCE coefficients of both f and q
+  // ERK.  Fix this
+  // the std::vectors f and q need to contain all the quadrature points for a given variable
+  
+  int solutionSize = bnextX.block(0).localLength();  // get local length.  SERIAL ONLY HERE!!!  sigh, fix later.
+  for (int isol=0;isol<solutionSize;++isol)
+  {
+    std::vector<double> f(numQuadPoints_,0.0);
+    std::vector<double> q(numQuadPoints_,0.0);
+    std::vector<double> b(numQuadPoints_,0.0);
+    for (int iquad=0;iquad<numQuadPoints_;++iquad)
+    {
+      f[iquad] = (bF_quad_ptr_->block(iquad))[isol];
+      q[iquad] = (bQ_quad_ptr_->block(iquad))[isol];
+      b[iquad] = (bB_quad_ptr_->block(iquad))[isol];
+    }
+    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, f, pceF);
+    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, q, pceQ);
+    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, b, pceB);
+    int basisSize = basis->size();
+    for (int icoef=0;icoef<basisSize;++icoef)
+    {
+      (bF.block(icoef))[isol] = pceF.coeff(icoef);
+      (bQ.block(icoef))[isol] = pceQ.coeff(icoef);
+      (bB.block(icoef))[isol] = pceB.coeff(icoef);
+    }
+  }
+
+  bF.assembleGlobalVector();
+  bQ.assembleGlobalVector();
+  bB.assembleGlobalVector();
+
+  // put the evaluated pceF and pceQ into the block F and Q vectors used by the solvers
+  }
+
+#if 0
+  {
+  // solve for the PCE coefficients of both dFdx and dQdx
+  // ERK.  Fix this
+  // the std::vectors dFdx and dQdx need to contain all the quadrature points
+
+  int solutionSize = bnextX.block(0).localLength();  // get local length.  SERIAL ONLY HERE!!!  sigh, fix later.
+  for (int isol=0;isol<solutionSize;++isol)
+  {
+    std::vector<double> dfdx(numQuadPoints_,0.0);
+    std::vector<double> dqdx(numQuadPoints_,0.0);
+    for (int iquad=0;iquad<numQuadPoints_;++iquad)
+    {
+      dfdx[iquad] = (bmdFdx_quad_Ptr_->block(iquad,iquad))[isol];
+      dqdx[iquad] = (bmdQdx_quad_Ptr_->block(iquad,iquad))[isol];
+    }
+    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, dfdx, pceF);
+    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, dqdx, pceQ);
+    int basisSize = basis->size();
+    for (int icoef=0;icoef<basisSize;++icoef)
+    {
+      (bF.block(icoef))[isol] = pceF.coeff(icoef);
+      (bQ.block(icoef))[isol] = pceQ.coeff(icoef);
+    }
+  }
+
+  bF.assembleGlobalVector();
+  bQ.assembleGlobalVector();
+
+  std::vector<double> dFdx;
+  Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, dFdx, pceF);
+  std::vector<double> dQdx;
+  Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, dQdx, pceQ);
+  }
+#endif
+
+  // Apply the triple product tensor (Cijk) to 
+  // transform the pce approximations of dFdx and dQdx into the PCE Jacobian entries
+  // The matrix has a Kronecker product structure
+  {
+
+  // put the evaluated and transformed pceF and pceQ into the block F and Q matrices 
+  // used by the solvers
+  }
+
+  // do another round of assembleGlobal, on the new objects
 
   if (DEBUG_PCE)
   {
     Xyce::dout() << "PCE X Vector" << std::endl;
-    bX.printPetraObject(std::cout);
+    bnextX.printPetraObject(std::cout);
     Xyce::dout() << "PCE S Vector" << std::endl;
-    bS.printPetraObject(std::cout);
+    bnextS.printPetraObject(std::cout);
     Xyce::dout() << "PCE dSdt Vector" << std::endl;
     bdSdt.printPetraObject(std::cout);
     Xyce::dout() << "PCE Store Vector" << std::endl;
-    bStore.printPetraObject(std::cout);
+    bnextStore.printPetraObject(std::cout);
     Xyce::dout() << "PCE Q Vector" << std::endl;
     bQ.printPetraObject(std::cout);
     Xyce::dout() << "PCE F Vector" << std::endl;

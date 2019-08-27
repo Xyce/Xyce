@@ -1042,7 +1042,7 @@ void Sampling::completeEnsembleOutputs()
           regressionPCE.reset(regrBasis);
 
           std::vector<double> & f = outFunc.sampleOutputs;
-          UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
+          UQ::solveRegressionPCE( paramNameVec_.size(), x, f, regressionPCE);
 
           if (outputPCECoeffs_)
           {
@@ -1197,7 +1197,7 @@ void Sampling::completeEnsembleOutputs()
           regressionPCE.reset(regrBasis);
 
           std::vector<double> & f = measFunc.sampleOutputs;
-          UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
+          UQ::solveRegressionPCE( paramNameVec_.size(), x, f, regressionPCE);
 
           if (outputPCECoeffs_)
           {

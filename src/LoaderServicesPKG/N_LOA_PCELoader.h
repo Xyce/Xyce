@@ -51,6 +51,11 @@
 #include <N_LOA_CktLoader.h>
 #include <N_UTL_AssemblyTypes.h>
 
+#if Xyce_STOKHOS_ENABLE
+#include <Stokhos_Sacado.hpp>
+#include <Sacado_No_Kokkos.hpp>
+#endif
+
 // ---------- Forward declarations --------
 
 namespace Xyce {
@@ -143,23 +148,15 @@ public:
   // Get the voltage limiter flag:
   bool getLimiterFlag () { return PCELoader::appLoaderPtr_->getLimiterFlag (); }
 
-  // Get the stored time-domain Jacobians from the PCE loader.
-  Teuchos::RCP<Linear::FilteredMatrix>& getStoreLindQdx() { return linAppdQdxPtr_; }
-  Teuchos::RCP<Linear::FilteredMatrix>& getStoreLindFdx() { return linAppdFdxPtr_; }
-  std::vector<Teuchos::RCP<Linear::FilteredMatrix> >& getStoreNLdQdx() { return vecNLAppdQdxPtr_; }
-  std::vector<Teuchos::RCP<Linear::FilteredMatrix> >& getStoreNLdFdx() { return vecNLAppdFdxPtr_; }
-
-  bool applyLinearMatrices( const Linear::Vector & Vf,
-                            Linear::BlockVector & permlindQdxV,
-                            Linear::BlockVector & permlindFdxV ) { return true; }
-
-  Teuchos::RCP<Linear::BlockVector> & getLeadCurrentVecFreqPtr()  { return bLeadCurrentVecFreqPtr_;} 
-
   // Registration method for the device packaage
   void registerAppLoader( Teuchos::RCP<Loader> appLoaderPtr )
   { appLoaderPtr_ = appLoaderPtr; }
 
   void registerPCEBuilder(Teuchos::RCP<Linear::PCEBuilder> pceBuilderPtr);
+
+  void registerPCEbasis (Teuchos::RCP<const Stokhos::ProductBasis<int,double> > & tmpBasis) { basis = tmpBasis; }
+  void registerPCEquadMethod ( Teuchos::RCP<const Stokhos::Quadrature<int,double> > & tmpQuadMethod) { quadMethod = tmpQuadMethod; }
+  void registerPCEtripleProductTensor ( Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > & tmpCijk) { Cijk = tmpCijk; }
 
   virtual bool analyticSensitivitiesAvailable (std::string & name) { return false; }
   virtual void getAnalyticSensitivities(
@@ -222,32 +219,50 @@ private:
   Teuchos::RCP<Linear::Vector> appdFdxdVpPtr_;
   Teuchos::RCP<Linear::Vector> appdQdxdVpPtr_;
 
-  // PCE Builder:  (needed to convert AztecOO created Linear::Vectors into Linear::BlockVectors
-  Teuchos::RCP<Linear::BlockVector> bQPtr_;
+  // PCE Builder 
   Teuchos::RCP<Linear::PCEBuilder> pceBuilderPtr_;
 
-  // App Builder:  (needed to load time domain vectors and matrices)
+  // App Builder
   Linear::Builder &             builder_;
-
-  Teuchos::RCP<Linear::BlockVector> bXtPtr_;
-  Teuchos::RCP<Linear::BlockVector> bVtPtr_;
-
-//  Teuchos::RCP<Linear::BlockVector> bStoreVecFreqPtr_;
-  Teuchos::RCP<Linear::BlockVector> bLeadCurrentVecFreqPtr_; 
-  Teuchos::RCP<Linear::BlockVector> bLeadCurrentQVecFreqPtr_; 
 
   // Tmp storage block matrices 
   Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdQdxPtr_;
   Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdFdxPtr_;
 
-  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmQuaddQdxPtr_;
-  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmQuaddFdxPtr_;
+  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdQdx_quad_Ptr_;
+  Teuchos::RCP<Xyce::Linear::BlockMatrix> bmdFdx_quad_Ptr_;
 
-// sampling stuff:
+  // Tmp storage block vectors 
+  Teuchos::RCP<Xyce::Linear::BlockVector> bQ_quad_ptr_;
+  Teuchos::RCP<Xyce::Linear::BlockVector> bF_quad_ptr_;
+  Teuchos::RCP<Xyce::Linear::BlockVector> bB_quad_ptr_;
+  Teuchos::RCP<Xyce::Linear::BlockVector> bdFdxdVp_quad_ptr_;
+  Teuchos::RCP<Xyce::Linear::BlockVector> bdQdxdVp_quad_ptr_;
+
+  Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_;
+  Teuchos::RCP<Xyce::Linear::BlockVector> bXCurr_quad_ptr_;
+  Teuchos::RCP<Xyce::Linear::BlockVector> bXLast_quad_ptr_;
+
+  // PCE stuff:
   int numQuadPoints_;
   int numBlockRows_; // this is the size of the PCE expansion, not number of quad points
   Analysis::SweepVector & samplingVector_;
   const std::vector<double> & Y_; 
+
+#if Xyce_STOKHOS_ENABLE
+  // many of these objects are copied from the N_ANP_PCE.h header; 
+  Teuchos::RCP<const Stokhos::ProductBasis<int,double> > basis;
+
+  // Quadrature method
+  Teuchos::RCP<const Stokhos::Quadrature<int,double> > quadMethod;
+
+  // Triple product tensor
+  Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > Cijk;
+
+  Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceF;
+  Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceQ;
+  Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceB;
+#endif
 };
 
 } // namespace Loader
