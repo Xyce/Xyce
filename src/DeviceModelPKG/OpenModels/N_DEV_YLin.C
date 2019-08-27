@@ -820,7 +820,7 @@ bool Model::readTouchStoneFile()
         }
 
         // this line type needs to look ahead at the next line
-        skipReadNextLine;
+        skipReadNextLine = true;
 
         // This line is required and may only appear once.  It must have an
         // integer value > 0.  It must appear after the [Number of Ports] line, and
