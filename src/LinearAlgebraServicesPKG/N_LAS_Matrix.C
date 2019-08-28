@@ -526,22 +526,24 @@ double * Matrix::returnRawEntryPointer (int lidRow, int lidCol)
 
   if (lidRow >= 0 && lidCol >= 0)
   {
-    int num_entries;
-    int * indices;
-    double * values;
+    int num_entries = 0;
+    int * indices = 0;
+    double * values = 0;
 
     // Convert the lidCol, which is based on the row map, to be based on the column map.
     int newColLID = oDCRSMatrix_->ColMap().LID( oDCRSMatrix_->Graph().RowMap().GID(lidCol) );
-
-    oDCRSMatrix_->ExtractMyRowView( lidRow, num_entries, values, indices );
-
-    for( int j = 0; j < num_entries; ++j )
+    if (newColLID >= 0)
     {
-       if (indices[j] == newColLID)
-       {
-         retPtr = &(values[j]);
-         break;
-       }
+      oDCRSMatrix_->ExtractMyRowView( lidRow, num_entries, values, indices );
+
+      for( int j = 0; j < num_entries; ++j )
+      {
+         if (indices[j] == newColLID)
+         {
+           retPtr = &(values[j]);
+           break;
+         }
+      }
     }
   }
   return retPtr;
