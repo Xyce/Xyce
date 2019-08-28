@@ -900,12 +900,42 @@ XYCE_CHECK_IOTA
 
 dnl Set the ATHENA requirements.
 AS_IF([test x$enable_athena = xyes],
-      [AS_IF([test x$RAD_MODELS = xyes],
-             [AS_IF([test -d "${srcdir}/src/DeviceModelPKG/SandiaModels/ATHENA"],
-                    [AC_DEFINE([Xyce_ATHENA], [1], [Build the ATHENA device.])],
-                    [AC_MSG_ERROR([Your SandiaModels directory is too old.  ATHENA is not present.])])],
-             [enable_athena=no])
-      ],[enable_athena=no])
+      [ #Yes, user asked for athena
+       AS_IF([test x$RAD_MODELS = xyes],
+             [ #yes, user asked for rad models
+              AS_IF([test -d "${srcdir}/src/DeviceModelPKG/SandiaModels/ATHENA"],
+                    [#yes, directory exists.  Now check boost.
+                     AC_LANG_PUSH([C++])
+                     AC_CHECK_HEADERS([boost/algorithm/string.hpp boost/property_tree/ini_parser.hpp boost/exception/all.hpp boost/spirit/include/phoenix_core.hpp boost/math/special_functions/sinc.hpp boost/math/constants/constants.hpp],
+                       [ #Yes, boost found
+                        AC_DEFINE([Xyce_ATHENA], [1], [Build the ATHENA device.])
+                        ],
+                       [ #no, boost not found 
+                        AC_MSG_WARN([********************************************************************************])
+                        AC_MSG_WARN([Cannot locate boost headers required by ATHENA.  Disabling ATHENA.  ])
+                        AC_MSG_WARN([If you need the ATHENA model, install boost headers.  ])
+                        AC_MSG_WARN([If problem persists, add a -I flag to CPPFLAGS to provide path to location])
+                        AC_MSG_WARN([of boost headers.])
+                        AC_MSG_WARN([If you do not need ATHENA and do not want to see this warning, add "--disable-athena" to your configure invocation.])
+                        AC_MSG_WARN([********************************************************************************])
+
+                        enable_athena=no
+                        break
+                        ])
+                      AC_LANG_POP([C++])
+                     ],
+                    [ # No, directory doesn't exist
+                      AC_MSG_ERROR([Your SandiaModels directory is too old.  ATHENA is not present.])
+                      enable_athena=no
+                     ])
+              ],
+              [ # No, user DIDN'T ask for rad models
+                enable_athena=no
+              ])
+        ],
+        [#user didn't ask for athena, enable_athena already no
+         enable_athena=no
+         ])
 
 
 
