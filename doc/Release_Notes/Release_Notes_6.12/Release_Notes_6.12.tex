@@ -106,6 +106,9 @@ were added. Those operators work on both .PRINT AC and .MEASURE lines.
 \item  The \verb|.LIN| command, for S-parameter analysis, can now also
 output Y- or Z-parameter data into its Touchstone 1 or Touchstone 2
 output files via a newly added \texttt{LINTYPE} argument.
+\item It is now possible to add a \texttt{STEPNUM} column as the first column
+in an output file, via \texttt{.OPTIONS OUTPUT ADD\_STEPNUM\_COL}.
+This new option improves the compatibility of \Xyce{} output with gnuplot.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}

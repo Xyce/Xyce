@@ -207,6 +207,15 @@ where setting the \texttt{PRINTHEADER} variable to ``false'' will suppress the h
 \texttt{PRINTFOOTER} variable to ``false'' will suppress the footer.  These options are
 only applicable to \texttt{.PRINT <analysis> FORMAT=STD} files, the default format.
 
+It is possible to add a \texttt{STEPNUM} column as the first column in the output file.
+\begin{vquote}
+.OPTIONS OUTPUT ADD\_STEPNUM\_COL=<boolean>
+\end{vquote}
+where setting the \texttt{ADD\_STEPNUM\_COL} variable to ``true'' will add the
+\texttt{STEPNUM} column.  The default is ``false''. This option is applicable to
+\texttt{FORMAT=<STD|NOINDEX|GNUPLOT|SPLOT>} for any \texttt{.PRINT} line that
+supports \texttt{FORMAT=STD} output.
+
 \subsubsection{\texttt{.OPTIONS RESTART} (Checkpointing Options)}
 
 The \index{restart} \index{\texttt{.OPTIONS}!\texttt{RESTART}} \verb+.OPTIONS RESTART+ command is
