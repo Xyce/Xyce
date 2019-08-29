@@ -29,6 +29,9 @@
 
 #include <Xyce_config.h>
 
+
+#if Xyce_STOKHOS_ENABLE
+
 // ---------- Standard Includes ----------
 #include <iostream>
 #include <numeric>
@@ -851,3 +854,5 @@ void PCELoader::setVoltageLimiterStatus(bool voltageLimterStatus)
 
 } // namespace Loader
 } // namespace Xyce
+
+#endif // stokhos

@@ -37,6 +37,7 @@
 #ifndef Xyce_N_ANP_PCE_h
 #define Xyce_N_ANP_PCE_h
 
+#if Xyce_STOKHOS_ENABLE
 #include <N_ANP_fwd.h>
 #include <N_LOA_fwd.h>
 #include <N_PDS_fwd.h>
@@ -276,5 +277,7 @@ bool registerPCEFactory(FactoryBlock &factory_block);
 
 } // namespace Analysis
 } // namespace Xyce
+
+#endif // stokhos
 
 #endif // Xyce_N_ANP_PCE_h

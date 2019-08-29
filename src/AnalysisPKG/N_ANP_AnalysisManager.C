@@ -44,7 +44,9 @@
 #include <N_ANP_Step.h>
 #include <N_ANP_Sampling.h>
 #include <N_ANP_EmbeddedSampling.h>
+#if Xyce_STOKHOS_ENABLE
 #include <N_ANP_PCE.h>
+#endif
 #include <N_ANP_ROL.h>
 
 #include <N_ANP_OutputMgrAdapter.h>
@@ -528,8 +530,11 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
        (analysisCreatorVector_.empty() || (analysisCreatorVector_.size() == 1 && 
              (analysisCreatorVector_.front()->isType<Step>() || 
               analysisCreatorVector_.front()->isType<Sampling>() || 
-              analysisCreatorVector_.front()->isType<EmbeddedSampling>() ||
+              analysisCreatorVector_.front()->isType<EmbeddedSampling>()
+#if Xyce_STOKHOS_ENABLE
+              ||
               analysisCreatorVector_.front()->isType<PCE>()
+#endif
               ))))
   {
     CreatorVector::const_iterator it = analysis_registry.begin(); 
@@ -553,7 +558,9 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
     if (!(*it)->isType<Step>() 
         && !(*it)->isType<Sampling>()
         && !(*it)->isType<EmbeddedSampling>()
+#if Xyce_STOKHOS_ENABLE
         && !(*it)->isType<PCE>()
+#endif
         ) 
     {
       primaryAnalysisObject_ = (*it)->create();
@@ -586,12 +593,14 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
       pushActiveAnalysis(analysisObject_);
     }
 
+#if Xyce_STOKHOS_ENABLE
     if ((*it)->isType<PCE>()) 
     {
       analysisObject_ = (*it)->create();
       analysisVector_.push_back(analysisObject_);
       pushActiveAnalysis(analysisObject_);
     }
+#endif
   }
 
 #ifdef Xyce_ROL

@@ -31,6 +31,8 @@
 //-----------------------------------------------------------------------------
 #include <Xyce_config.h>
 
+#if Xyce_STOKHOS_ENABLE
+
 #if __cplusplus>=201103L
 #else
 #include <sstream>
@@ -1892,3 +1894,5 @@ bool registerPCEFactory(FactoryBlock & factory_block)
 
 } // namespace Analysis
 } // namespace Xyce
+
+#endif // stokhos

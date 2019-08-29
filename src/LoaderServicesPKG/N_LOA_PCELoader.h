@@ -38,6 +38,7 @@
 #ifndef Xyce_LOA_PCELoader_H
 #define Xyce_LOA_PCELoader_H
 
+#if Xyce_STOKHOS_ENABLE
 #include <vector>
 
 #include <Teuchos_RCP.hpp>
@@ -289,5 +290,7 @@ private:
 
 } // namespace Loader
 } // namespace Xyce
+
+#endif // Stokhos
 
 #endif // Xyce_LOA_PCELoader_H
