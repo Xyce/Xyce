@@ -139,6 +139,21 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
 
   bmdQdx_quad_Ptr_ = pceBuilderPtr_->createQuadBlockMatrix();
   bmdFdx_quad_Ptr_ = pceBuilderPtr_->createQuadBlockMatrix();
+  bmdQdx_quad_Ptr_->put(0.0);
+  bmdFdx_quad_Ptr_->put(0.0);
+#if 0
+  std::cout << "initial Q block matrix:" <<std::endl;
+  bmdQdxPtr_->printPetraObject(std::cout);
+  std::cout << "initial F block matrix:" <<std::endl;
+  bmdFdxPtr_->printPetraObject(std::cout);
+
+  std::cout << "initial Q quad block matrix:" <<std::endl;
+  bmdQdx_quad_Ptr_->printPetraObject(std::cout);
+  std::cout << "initial F quad block matrix:" <<std::endl;
+  bmdFdx_quad_Ptr_->printPetraObject(std::cout);
+  std::cout << std::endl;
+  //exit(0);
+#endif
 
   bQ_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector();
   bF_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
@@ -198,6 +213,7 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
   Xyce::Linear::BlockMatrix & bdFdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dFdx);
   Xyce::Linear::BlockVector & bnextX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);
 
+#if 0
   std::cout << "stored dQdx number of block rows = " << bmdQdxPtr_->numBlockRows() <<std::endl;
   std::cout << "stored dQdx block size           = " << bmdQdxPtr_->blockSize() <<std::endl;
 
@@ -218,8 +234,8 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
   bdFdx.printPetraObject(std::cout);
 
   std::cout << std::endl;
-
   //exit(0);
+#endif
 
   int basisSize = basis_->size();
   for( int i = 0; i < basisSize; ++i )
@@ -604,6 +620,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   // matrices
   bmdQdx_quad_Ptr_->assembleGlobalMatrix();
   bmdFdx_quad_Ptr_->assembleGlobalMatrix();
+  bmdQdx_quad_Ptr_->fillComplete();
+  bmdFdx_quad_Ptr_->fillComplete();
 
   {
   // obtain the PCE coefficients of both f and q
@@ -659,19 +677,43 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   Teuchos::RCP<Teuchos::SerialDenseMatrix<int,double> > denseEntryQ = 
     Teuchos::rcp(new Teuchos::SerialDenseMatrix<int,double>( basisSize, basisSize));
 
+
+#if 0
+  std::cout << "PCELoader::loadDAEVectors: numLocalRowsRef = " << numLocalRowsRef << std::endl;
+  std::cout << "PCELoader::loadDAEVectors: numQuadPoints_ = " << numQuadPoints_ << std::endl;
+
+  std::cout << "PCELoader::loadDAEVectors: initial Q quad block matrix:" <<std::endl;
+  bmdQdx_quad_Ptr_->printPetraObject(std::cout);
+  std::cout << "PCELoader::loadDAEVectors: initial F quad block matrix:" <<std::endl;
+  bmdFdx_quad_Ptr_->printPetraObject(std::cout);
+  std::cout << std::endl;
+
+
+  std::cout << "PCELoader::loadDAEVectors: coef Q block matrix:" <<std::endl;
+  bmdQdxPtr_->printPetraObject(std::cout);
+  std::cout << "PCELoader::loadDAEVectors: coef F block matrix:" <<std::endl;
+  bmdFdxPtr_->printPetraObject(std::cout);
+
+//  exit(0);
+#endif
+
   for (int irow=0;irow<numLocalRowsRef;++irow)
   {
     std::vector<double> dfdx(numQuadPoints_,0.0);
     std::vector<double> dqdx(numQuadPoints_,0.0);
 
-    for (int icol=0;icol<numLocalRowsRef;++icol)
+    int length; double * coeffs; int * colIndices;
+    subMatRef.getLocalRowView(irow, length, coeffs, colIndices);
+    for (int icol=0;icol<length;++icol)
     {
       for (int iquad=0;iquad<numQuadPoints_;++iquad)
       {
         Xyce::Linear::Matrix & subMatF = bmdFdx_quad_Ptr_->block(iquad,iquad); 
         Xyce::Linear::Matrix & subMatQ = bmdQdx_quad_Ptr_->block(iquad,iquad); 
-        dfdx[iquad] = subMatF[irow][icol];
-        dqdx[iquad] = subMatQ[irow][icol];
+        double fval = subMatF[irow][icol];
+        double qval = subMatQ[irow][icol];
+        dfdx[iquad] = fval;
+        dqdx[iquad] = qval;
       }
 
       pceF.init(0.0); pceF.reset(expnMethod_);
@@ -686,11 +728,12 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       {
         for (int icoefCol=0;icoefCol<basisSize;++icoefCol)
         {
-          std::cout << "icoefRow = " << icoefRow << "  icoefCol = " << icoefCol <<std::endl;
           Xyce::Linear::Matrix & subMatF = bmdFdxPtr_->block(icoefRow,icoefCol);
           Xyce::Linear::Matrix & subMatQ = bmdQdxPtr_->block(icoefRow,icoefCol);
-          subMatF[irow][icol] = (*denseEntryF)(icoefRow,icoefCol);
-          subMatQ[irow][icol] = (*denseEntryQ)(icoefRow,icoefCol);
+          double fval = (*denseEntryF)(icoefRow,icoefCol);
+          double qval = (*denseEntryQ)(icoefRow,icoefCol);
+          subMatF[irow][icol] = fval;
+          subMatQ[irow][icol] = qval;
         }
       }
 
@@ -719,10 +762,11 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     }
   }
 
-  bmdFdxPtr_->fillComplete();
-  bmdQdxPtr_->fillComplete();
   bmdFdxPtr_->assembleGlobalMatrix();
   bmdQdxPtr_->assembleGlobalMatrix();
+  bmdFdxPtr_->fillComplete();
+  bmdQdxPtr_->fillComplete();
+
   }
 
   // Apply the triple product tensor (Cijk) to 
