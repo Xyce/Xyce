@@ -93,6 +93,10 @@ private:
 
   Table::ColumnList     columnList_;
   Util::Op::OpList      opList_;
+
+  // used to help calculate where the homotopy parameters start in the
+  // output column list
+  int homotopyParamStartIndex_;
 };
 
 } // namespace Outputter
