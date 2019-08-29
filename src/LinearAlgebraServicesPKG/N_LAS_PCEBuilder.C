@@ -549,6 +549,7 @@ bool PCEBuilder::generateGraphs(
   {
     blockPattern_[i].resize(numBlockRows);
 
+#if 0
     int maxIndices = pceGraph.MaxNumIndices();
     std::vector<int> indices(maxIndices);
     int numIndices=0;
@@ -560,6 +561,13 @@ bool PCEBuilder::generateGraphs(
       int col = indices[j];
       blockPattern_[i][col] = j; 
     }
+#else
+    // making this dense for now
+    for (int j=0;j<numBlockRows;++j)
+    {
+      blockPattern_[i][j] = j; 
+    }
+#endif
   }
 
   quadBlockPattern_.clear();

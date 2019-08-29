@@ -444,7 +444,9 @@ void DataStore::deleteSensitivityArrays()
 //-----------------------------------------------------------------------------
 void DataStore::allocatePCEVectors()
 {
-  const Xyce::Linear::PCEBuilder & pceBuilder = dynamic_cast<const Xyce::Linear::PCEBuilder&>(builder_);
+  // ERK.  HACK!!! FIX THIS
+  //const Xyce::Linear::PCEBuilder & pceBuilder = dynamic_cast<const Xyce::Linear::PCEBuilder&>(builder_);
+  const Xyce::Linear::Builder & pceBuilder = builder_;
 
 // state sized
   delete tmpStaVectorPtr;

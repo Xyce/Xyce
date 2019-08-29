@@ -98,11 +98,14 @@ public:
   void registerPCELoader( const Teuchos::RCP<Loader::PCELoader> & pceLoaderPtr )
     { pceLoaderPtr_ = pceLoaderPtr; }
 
-  void setNumSamples(int numS)
-    { numSamples_ = numS; }
+  void setNumCoefs (int numC)
+    { numPCEcoefs_ = numC; }
 
-  void setParameterOuterLoop (bool paramsOL)
-    { paramsOuterLoop_ = paramsOL; }
+  void setNumQuadPoints (int numQP)
+    { numQuadPoints_ = numQP; }
+
+  void setCoefsOuterLoop (bool coefsOL)
+    { coefsOuterLoop_ = coefsOL; }
 
   // Solve function: x = A^(-1) b.
   // input parameter 'ReuseFactors': If 'true', do not factor A, rather reuse
@@ -191,8 +194,9 @@ private:
   //Timer
   Util::Timer * timer_;
 
-  int numSamples_;
-  bool paramsOuterLoop_;
+  int numPCEcoefs_;
+  int numQuadPoints_;
+  bool coefsOuterLoop_;
 };
 
 } // namespace Linear

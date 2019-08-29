@@ -83,11 +83,14 @@ public:
   void registerPCEBuilder( const Teuchos::RCP<PCEBuilder>& pceBuilder ) 
     { pceBuilderPtr_ = pceBuilder; }
 
-  void setNumSamples(int numS)
-  { numSamples_ = numS; }
+  void setNumCoefs (int numC)
+    { numPCEcoefs_ = numC; }
 
-  void setParameterOuterLoop (bool paramsOL)
-    { paramsOuterLoop_ = paramsOL; }
+  void setNumQuadPoints (int numQP)
+    { numQuadPoints_ = numQP; }
+
+  void setCoefsOuterLoop (bool coefsOL)
+    { coefsOuterLoop_ = coefsOL; }
 
 private:
   Builder &                     builder_;
@@ -98,8 +101,9 @@ private:
   // Copy constructor.
   PCESolverFactory( const PCESolverFactory& pf );
 
-  int numSamples_;
-  bool paramsOuterLoop_;
+  int numPCEcoefs_;
+  int numQuadPoints_;
+  bool coefsOuterLoop_;
 };
 
 } // namespace Linear

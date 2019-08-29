@@ -163,7 +163,7 @@ PCE::PCE(
       upper_bounds_Given_(false),
       covMatrixGiven_(false),
       numBlockRows_(1),
-      numSamples_(1),
+      numQuadPoints_(1),
       sampleType_(UQ::MC),
       userSeed_(0),
       userSeedGiven_(false),
@@ -821,9 +821,9 @@ void  PCE::setupBlockSystemObjects ()
 {
   analysisManager_.resetSolverSystem();
 
-  //pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numSamples_));
+  //pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numQuadPoints_));
   //pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_));
-  pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_,numSamples_));
+  pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_,numQuadPoints_));
 
   if (DEBUG_ANALYSIS)
   {
@@ -845,12 +845,14 @@ void  PCE::setupBlockSystemObjects ()
 
   // Create PCE Loader.
   delete pceLoaderPtr_;
-  pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numSamples_, numBlockRows_, samplingVector_, Y_);
+  pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numQuadPoints_, numBlockRows_, samplingVector_, Y_);
   pceLoaderPtr_->registerPCEBuilder(pceBuilderPtr_);
   pceLoaderPtr_->registerAppLoader( rcp(&loader_, false) );
   pceLoaderPtr_->registerPCEbasis (basis) ;
   pceLoaderPtr_->registerPCEquadMethod (quadMethod) ;
+  pceLoaderPtr_->registerPCEexpnMethod (expnMethod) ;
   pceLoaderPtr_->registerPCEtripleProductTensor (Cijk) ;
+  pceLoaderPtr_->registerPCEgraph (pceGraph);
 
   //-----------------------------------------
 
@@ -881,8 +883,9 @@ void  PCE::setupBlockSystemObjects ()
       solverFactory_ = new Linear::PCESolverFactory( *pceBuilderPtr_ );
       solverFactory_->registerPCELoader( rcp(pceLoaderPtr_, false) );
       solverFactory_->registerPCEBuilder( pceBuilderPtr_ );
-      solverFactory_->setNumSamples(numSamples_);
-      solverFactory_->setParameterOuterLoop (paramsOuterLoop_);
+      solverFactory_->setNumCoefs( numBlockRows_ );
+      solverFactory_->setNumQuadPoints( numQuadPoints_ );
+      solverFactory_->setCoefsOuterLoop (coefsOuterLoop_);
     }
 
     nonlinearManager_.registerSolverFactory( solverFactory_ );
@@ -976,7 +979,7 @@ void PCE::setupStokhosObjects ()
   expnMethod = rcp(new Stokhos::QuadOrthogPolyExpansion<int,double>(basis, Cijk, quadMethod));
 
   UQ::setupPCEQuadPoints ( basis, quadMethod, expnMethod, samplingVector_, covMatrix_, meanVec_, X_, Y_);
-  numSamples_ = quadMethod->size();
+  numQuadPoints_ = quadMethod->size();
 
   if (outputStochasticMatrix_)
   {
@@ -993,7 +996,10 @@ void PCE::setupStokhosObjects ()
 
   numBlockRows_ = pceGraph->NumMyRows();
 
-#if 0
+#if 1
+  std::cout << "Cijk:" <<std::endl;
+  Cijk->print(std::cout);
+
   // this is the matrix that gets output to A.mm
   Epetra_CrsMatrix mat(Copy, *pceGraph);
   pceGraph->PrintGraphData(std::cout);
@@ -1021,7 +1027,7 @@ bool PCE::doLoopProcess()
   // versions and replace the loader with a block loader.  Otherwise, all the control 
   // is handled in the child process.
   Xyce::lout() << "***** Beginning Intrusive PCE simulation....\n" << std::endl;
-  Xyce::lout() << "***** Number of quadrature points = " << numSamples_ << "\n" << std::endl;
+  Xyce::lout() << "***** Number of quadrature points = " << numQuadPoints_ << "\n" << std::endl;
   Xyce::lout() << "***** Number of linear system block rows = " << numBlockRows_ << "\n" << std::endl;
 
   // test:
@@ -1255,7 +1261,7 @@ void PCE::hackPCEOutput ()
 #endif
         if (hackOutputAllSamples_)
         {
-          for(int i=0;i<numSamples_; ++i)
+          for(int i=0;i<numQuadPoints_; ++i)
           {
 #if __cplusplus>=201103L
             std::string sampleString = outFunc.outFuncString + "_"+std::to_string(i);
@@ -1337,7 +1343,7 @@ void PCE::hackPCEOutput ()
       // output individual samples
       if (hackOutputAllSamples_)
       {
-        for(int i=0;i<numSamples_; ++i)
+        for(int i=0;i<numQuadPoints_; ++i)
         {
           output_stream << "\t" << outFunc.sampleOutputs[i];
         }
@@ -1765,6 +1771,86 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 0)));
     parameters.insert(Util::ParamMap::value_type("STDOUTPUT", Util::Param("STDOUTPUT", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_STOCHASTIC_MATRIX", Util::Param("OUTPUT_STOCHASTIC_MATRIX", false)));
+  }
+
+
+  // -------------------------------------------------------------------------------------------
+  // copied over from LINSOL, with a few things added
+  {
+    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("LINSOL-PCE");
+
+    parameters.insert(Util::ParamMap::value_type("AZ_max_iter", Util::Param("AZ_max_iter", 200)));
+    parameters.insert(Util::ParamMap::value_type("AZ_precond", Util::Param("AZ_precond", 14)));
+    parameters.insert(Util::ParamMap::value_type("AZ_solver", Util::Param("AZ_solver", 1)));
+    parameters.insert(Util::ParamMap::value_type("AZ_conv", Util::Param("AZ_conv", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_pre_calc", Util::Param("AZ_pre_calc", 1)));
+    parameters.insert(Util::ParamMap::value_type("AZ_keep_info", Util::Param("AZ_keep_info", 1)));
+    parameters.insert(Util::ParamMap::value_type("AZ_orthog", Util::Param("AZ_orthog", 1)));
+    parameters.insert(Util::ParamMap::value_type("AZ_subdomain_solve", Util::Param("AZ_subdomain_solve", 9)));
+    parameters.insert(Util::ParamMap::value_type("AZ_ilut_fill", Util::Param("AZ_ilut_fill", 3.0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_drop", Util::Param("AZ_drop", 1.0E-3)));
+    parameters.insert(Util::ParamMap::value_type("AZ_reorder", Util::Param("AZ_reorder", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_scaling", Util::Param("AZ_scaling", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_kspace", Util::Param("AZ_kspace", 50)));
+    parameters.insert(Util::ParamMap::value_type("AZ_tol", Util::Param("AZ_tol", 1.0E-9)));
+    parameters.insert(Util::ParamMap::value_type("AZ_output", Util::Param("AZ_output", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_diagnostics", Util::Param("AZ_diagnostics", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_overlap", Util::Param("AZ_overlap", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_rthresh", Util::Param("AZ_rthresh", 1.0001)));
+    parameters.insert(Util::ParamMap::value_type("AZ_athresh", Util::Param("AZ_athresh", 1.0E-4)));
+    parameters.insert(Util::ParamMap::value_type("AZ_filter", Util::Param("AZ_filter", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("TR_partition", Util::Param("TR_partition", 1)));
+    parameters.insert(Util::ParamMap::value_type("TR_partition_type", Util::Param("TR_partition_type", "HYPERGRAPH")));
+#ifdef Xyce_SHYLU
+    parameters.insert(Util::ParamMap::value_type("ShyLU_rthresh", Util::Param("ShyLU_rthresh", 1.0E-3)));
+#endif
+    parameters.insert(Util::ParamMap::value_type("TR_reindex", Util::Param("TR_reindex", 1)));
+    parameters.insert(Util::ParamMap::value_type("TR_solvermap", Util::Param("TR_solvermap", 1)));
+    parameters.insert(Util::ParamMap::value_type("TR_amd", Util::Param("TR_amd", 1)));
+    parameters.insert(Util::ParamMap::value_type("TR_btf", Util::Param("TR_btf", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_btf", Util::Param("TR_global_btf", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_btf_droptol", Util::Param("TR_global_btf_droptol", 1.0E-16)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_btf_verbose", Util::Param("TR_global_btf_verbose", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_amd", Util::Param("TR_global_amd", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_amd_verbose", Util::Param("TR_global_amd_verbose", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_singleton_filter", Util::Param("TR_singleton_filter", 0)));
+    parameters.insert(Util::ParamMap::value_type("SLU_EQUILIBRATE", Util::Param("SLU_EQUILIBRATE", 1)));
+    parameters.insert(Util::ParamMap::value_type("SLU_REFACTOR", Util::Param("SLU_REFACTOR", 1)));
+    parameters.insert(Util::ParamMap::value_type("SLU_PERMUTE", Util::Param("SLU_PERMUTE", 2)));
+    parameters.insert(Util::ParamMap::value_type("SLU_PIVOT_THRESH", Util::Param("SLU_PIVOT_THRESH", -1.0)));
+    parameters.insert(Util::ParamMap::value_type("SLU_FILL_FAC", Util::Param("SLU_FILL_FAC", -1)));
+    parameters.insert(Util::ParamMap::value_type("BTF", Util::Param("BTF", 0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_VERBOSE", Util::Param("BTF_VERBOSE", 0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_ATHRESH", Util::Param("BTF_ATHRESH", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_RTHRESH", Util::Param("BTF_RTHRESH", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_RTHRESH_INIT", Util::Param("BTF_RTHRESH_INIT", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_INIT", Util::Param("BTF_INIT", 0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_THRESHOLDING", Util::Param("BTF_THRESHOLDING", 0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_RNTHRESHFAC", Util::Param("BTF_RNTHRESHFAC", 1.0e-3)));
+    parameters.insert(Util::ParamMap::value_type("adaptive_solve", Util::Param("adaptive_solve", 0)));
+    parameters.insert(Util::ParamMap::value_type("use_aztec_precond", Util::Param("use_aztec_precond", 1)));
+    parameters.insert(Util::ParamMap::value_type("use_ifpack_factory", Util::Param("use_ifpack_factory", 0)));
+    parameters.insert(Util::ParamMap::value_type("ifpack_type", Util::Param("ifpack_type", "Amesos")));
+    parameters.insert(Util::ParamMap::value_type("diag_perturb", Util::Param("diag_perturb", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("TR_rcm", Util::Param("TR_rcm", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale", Util::Param("TR_scale", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale_left", Util::Param("TR_scale_left", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale_right", Util::Param("TR_scale_right", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale_exp", Util::Param("TR_scale_exp", 1.0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale_iter", Util::Param("TR_scale_iter", 0)));
+    parameters.insert(Util::ParamMap::value_type("TYPE", Util::Param("TYPE", "DEFAULT")));
+    parameters.insert(Util::ParamMap::value_type("PREC_TYPE", Util::Param("PREC_TYPE", "DEFAULT")));
+#ifdef Xyce_BELOS
+    parameters.insert(Util::ParamMap::value_type("BELOS_SOLVER_TYPE", Util::Param("BELOS_SOLVER_TYPE", "Block GMRES")));
+#endif
+    parameters.insert(Util::ParamMap::value_type("KLU_REPIVOT", Util::Param("KLU_REPIVOT", 1)));
+    parameters.insert(Util::ParamMap::value_type("KLU_REINDEX", Util::Param("KLU_REINDEX", 0)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_BASE_LS", Util::Param("OUTPUT_BASE_LS", 1)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_FAILED_LS", Util::Param("OUTPUT_FAILED_LS", 1)));
+
+    parameters.insert(Util::ParamMap::value_type("DIRECT_SOLVER", Util::Param("DIRECT_SOLVER", "DEFAULT")));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));
   }
 }
 

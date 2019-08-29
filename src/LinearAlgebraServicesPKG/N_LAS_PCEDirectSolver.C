@@ -94,8 +94,8 @@ PCEDirectSolver::PCEDirectSolver(
     solverDefault_("LAPACK"),
     options_( new Util::OptionBlock( options ) ),
     timer_( new Util::Timer() ),
-    numSamples_(1),
-    paramsOuterLoop_(true)
+    numPCEcoefs_(1),
+    coefsOuterLoop_(true)
 {
   setDefaultOptions();
 
@@ -221,7 +221,7 @@ int PCEDirectSolver::doSolve( bool reuse_factors, bool transpose )
   if (!isInit_)
   {
     // Get the number of samples and the number of unknowns.
-    N_ = numSamples_;
+    N_ = numPCEcoefs_;
     n_ = (lasProblem_.getRHS())->globalLength() / (N_);
 
     // Create the block structure of the ES Jacobian.
@@ -368,7 +368,7 @@ void PCEDirectSolver::createBlockStructures()
   else if (solver_ == "BLOCK_BASKER")
   {
     bool isDense=true; // check this
-    if (paramsOuterLoop_) // not implemented yet for block_basker
+    if (coefsOuterLoop_) // not implemented yet for block_basker
     {
       bX_.resize(N_, PCEBlockMatrixEntry( n_, 1, isDense ));
       bB_.resize(N_, PCEBlockMatrixEntry( n_, 1, isDense ));
@@ -394,7 +394,7 @@ void PCEDirectSolver::createBlockStructures()
   }
   else if (solver_ == "BASKER" || solver_ == "BLOCK_BASKER") 
   {
-    if (paramsOuterLoop_) // not implemented yet for block_basker
+    if (coefsOuterLoop_) // not implemented yet for block_basker
     {
       Report::UserFatal0() << "This ordering is not supported for the specialized BASKER and BLOCK_BASKER solvers" <<std::endl;
     }
@@ -630,23 +630,12 @@ void PCEDirectSolver::formPCEJacobian()
     Report::UserFatal0() << "Specialized PCE solver not set up for parallel yet" <<std::endl;
   }
 
-  if (paramsOuterLoop_)
+  if (coefsOuterLoop_)
   {
     // use the same ordering as the PCE loader
     if ( solver_ == "LAPACK" )
     {
-      for(int ii=0;ii<numLocalRows; ++ii)
-      {
-        int length=0;
-        double * coeffs;
-        int * colIndices;
-        Jac->extractLocalRowView(ii, length, coeffs, colIndices);
-        for (int icol=0;icol<length;++icol)
-        {
-          int jj=colIndices[icol];
-          densePCEJacobian_.denseMtx(ii,jj) = coeffs[icol];
-        }
-      }
+      Report::UserFatal0() << "Specialized PCE solver for LAPACK not set up yet" <<std::endl;
     }
     else if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
     {
@@ -660,9 +649,9 @@ void PCEDirectSolver::formPCEJacobian()
     {
       int lengthRef = subMatRef.getLocalRowLength(ii);
 
-      for (int ipar=0;ipar<N_;++ipar) // loop over the paramters.  
+      for (int iBlockRow=0;iBlockRow<N_;++iBlockRow) // loop over the paramters.  
       {
-        Xyce::Linear::Matrix & subMat = bJac->block(ipar,ipar);
+        Xyce::Linear::Matrix & subMat = bJac->block(iBlockRow,iBlockRow);
         int length=0; 
         double * coeffs; 
         int * colIndices;
@@ -677,13 +666,7 @@ void PCEDirectSolver::formPCEJacobian()
         {
           if ( solver_ == "LAPACK" )
           {
-            // The block row and block col indices in the new matrix are the
-            // same as the row,col indices of the original ckt matrix = (ii,jj)
-            // Within the current block, there is a diagonal of length N_.
-            int jj=colIndices[icol];
-            int Row= ii*N_ + ipar;
-            int Col= jj*N_ + ipar;
-            densePCEJacobian_.denseMtx(Row,Col) = coeffs[icol];
+            Report::UserFatal0() << "Specialized PCE solver for LAPACK not set up yet" <<std::endl;
           }
           else if ( solver_ == "BASKER" || solver_ == "BLOCK_BASKER" )
           {
@@ -697,11 +680,11 @@ void PCEDirectSolver::formPCEJacobian()
 
             if (Aval_[AvalIndex].isDense())
             {
-              Aval_[AvalIndex].denseMtx(ipar,ipar) = coeffs[icol]; // experiment
+              Aval_[AvalIndex].denseMtx(iBlockRow,iBlockRow) = coeffs[icol]; 
             }
             else
-            { // this should be used for embedded sampling but both can work
-              Aval_[AvalIndex].diagVector[ipar] = coeffs[icol]; // experiment
+            { 
+              Report::UserFatal0() << "PCE direct solver: incorrect block structure" <<std::endl;
             }
           }
         }
@@ -793,7 +776,7 @@ void PCEDirectSolver::formPCEJacobian()
     {
       int size = B_j->globalLength();
 
-      if (paramsOuterLoop_)
+      if (coefsOuterLoop_)
       {
         for (int ii=0;ii<size;++ii)
         {
@@ -937,7 +920,7 @@ int PCEDirectSolver::solve()
 
       int size = lasProblem_.getRHS()->globalLength();
 
-      if (paramsOuterLoop_)
+      if (coefsOuterLoop_)
       {
         for (int ii=0;ii<size;++ii)
         {

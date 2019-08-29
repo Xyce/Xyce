@@ -397,6 +397,7 @@ bool AnalysisManager::initializeSolverSystem(
   dataStore_ = new TimeIntg::DataStore(tia_params.maxOrder, linear_system.builder());
 
 #if Xyce_STOKHOS_ENABLE
+  // ERK.  HACK!!! FIX THIS
   // if doing intrusive-style PCE, then some of the data store objects need to be re-sized.
   if ( analysisObject_->getName() == "PCE" )
   {

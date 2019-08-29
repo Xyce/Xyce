@@ -92,8 +92,8 @@ namespace Linear {
 PCESolverFactory::PCESolverFactory(
   Linear::Builder &             builder)
   : builder_(builder),
-  numSamples_(1),
-  paramsOuterLoop_(true)
+  numQuadPoints_(1),
+  coefsOuterLoop_(true)
 {
 }
 
@@ -203,8 +203,9 @@ PCESolverFactory::create(
 
     newSolver->registerPCELoader( pceLoaderPtr_ );
     newSolver->registerPCEBuilder( pceBuilderPtr_ );
-    newSolver->setNumSamples( numSamples_ );
-    newSolver->setParameterOuterLoop (paramsOuterLoop_);
+    newSolver->setNumCoefs( numPCEcoefs_ );
+    newSolver->setNumQuadPoints( numQuadPoints_ );
+    newSolver->setCoefsOuterLoop( coefsOuterLoop_ );
 
     return newSolver;
   }

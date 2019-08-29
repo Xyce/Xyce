@@ -152,6 +152,20 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
 }
 
 //-----------------------------------------------------------------------------
+// Function      : PCELoader::registerPCEGraph
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 07/28/2019
+//-----------------------------------------------------------------------------
+void PCELoader::registerPCEgraph ( Teuchos::RCP<Epetra_CrsGraph> & tmpPceGraph)
+{
+  pceGraph_ = tmpPceGraph;
+  pceMat_ = rcp(new Epetra_CrsMatrix(Copy, *pceGraph_));
+}
+
+//-----------------------------------------------------------------------------
 // Function      : PCELoader::loadDAEMatrices
 // Purpose       :
 // Special Notes :
@@ -180,30 +194,42 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
   dQdx->put(0.0);
   dFdx->put(0.0);
 
-  //Xyce::Linear::Vector appdSdt( *appNextStaVecPtr_ );
-  //Xyce::Linear::Vector & appdSdt = &*appdSdtPtr_;
-  Xyce::Linear::Vector & appdSdt = *appdSdtPtr_;
-
   Xyce::Linear::BlockMatrix & bdQdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dQdx);
   Xyce::Linear::BlockMatrix & bdFdx = *dynamic_cast<Xyce::Linear::BlockMatrix*>(dFdx);
   Xyce::Linear::BlockVector & bnextX = *dynamic_cast<Xyce::Linear::BlockVector*>(X);
 
-  for( int i = 0; i < numQuadPoints_; ++i )
+  std::cout << "stored dQdx number of block rows = " << bmdQdxPtr_->numBlockRows() <<std::endl;
+  std::cout << "stored dQdx block size           = " << bmdQdxPtr_->blockSize() <<std::endl;
+
+  std::cout << "stored dFdx number of block rows = " << bmdFdxPtr_->numBlockRows() <<std::endl;
+  std::cout << "stored dFdx block size           = " << bmdFdxPtr_->blockSize() <<std::endl;
+
+  // this crashes here
+  bmdQdxPtr_->printPetraObject(std::cout);
+  bmdFdxPtr_->printPetraObject(std::cout);
+
+  std::cout << "passed dQdx number of block rows = " << bdQdx.numBlockRows() <<std::endl;
+  std::cout << "passed dQdx block size           = " << bdQdx.blockSize() <<std::endl;
+
+  std::cout << "passed dFdx number of block rows = " << bdFdx.numBlockRows() <<std::endl;
+  std::cout << "passed dFdx block size           = " << bdFdx.blockSize() <<std::endl;
+
+  bdQdx.printPetraObject(std::cout);
+  bdFdx.printPetraObject(std::cout);
+
+  std::cout << std::endl;
+
+  //exit(0);
+
+  int basisSize = basis_->size();
+  for( int i = 0; i < basisSize; ++i )
   {
-
-    Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
-    bool reset = 
-      Xyce::Analysis::UQ::updateSamplingParams(loader_, i, samplingVector_.begin(), samplingVector_.end(), Y_, numQuadPoints_, false);
-
-    if (DEBUG_PCE)
+    for( int j = 0; j < basisSize; ++j )
     {
-      Xyce::dout() << "Processing diagonal matrix block " << i << " of " << numQuadPoints_-1 << std::endl;
+      //The matrices are loaded during the loadDAEVectors method, and are copied here
+      bdQdx.block(i,j).add( bmdQdxPtr_->block(i,j) );
+      bdFdx.block(i,j).add( bmdFdxPtr_->block(i,j) );
     }
-
-    //For now, the matrices are loaded during the loadDAEVectors method
-    //Just copied here
-    bdQdx.block(i,i).add( bmdQdxPtr_->block(i,i) );
-    bdFdx.block(i,i).add( bmdFdxPtr_->block(i,i) );
   }
 
   // Now that the matrix loading is finished, call fillComplete().
@@ -228,6 +254,99 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
 
   return true;
 }
+
+#if 1
+
+// ERK.  These two functions were copied from one of Eric Phipps examples.  
+//
+// They were originally templated and I un-templated them.
+//
+// They are now inconsistent b/c I switched to an Epetra CrsMatrix, and the entries in it have to be doubles, but the second function below can only call the first function below if the entries are of type    
+//
+//  Sacado::PCE::OrthogPoly<double,Stokhos::StandardStorage<int,double> > 
+//
+// However, I think function 1 is useful to me.  I have all of those pieces.
+//
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void returnScalarAsDenseMatrix(
+    Sacado::PCE::OrthogPoly<double,Stokhos::StandardStorage<int,double> > const &inval,
+    Teuchos::RCP<Teuchos::SerialDenseMatrix<int,double> > & denseEntry,
+    Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > const &Cijk)
+{
+    Stokhos::OrthogPolyApprox<int, double> val= inval.getOrthogPolyApprox();
+    typedef Stokhos::Sparse3Tensor<int, double> Cijk_type;
+    int pb = val.size();
+    const double* cv = val.coeff();
+
+    denseEntry->putScalar(0.0);
+    typename Cijk_type::k_iterator k_begin = Cijk->k_begin();
+    typename Cijk_type::k_iterator k_end = Cijk->k_end();
+    if (pb < Cijk->num_k())
+      k_end = Cijk->find_k(pb);
+    double cijk;
+    int i,j,k;
+    for (typename Cijk_type::k_iterator k_it=k_begin; k_it!=k_end; ++k_it) 
+    {
+      k = index(k_it);
+      for (typename Cijk_type::kj_iterator j_it = Cijk->j_begin(k_it); j_it != Cijk->j_end(k_it); ++j_it) 
+      {
+         j = index(j_it);
+         for (typename Cijk_type::kji_iterator i_it = Cijk->i_begin(j_it); i_it != Cijk->i_end(j_it); ++i_it) 
+         {
+           i = index(i_it);
+           cijk = value(i_it);
+           (*denseEntry)(i,j) += cijk*cv[k];
+         }
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void PrintMatrix(
+    Teuchos::FancyOStream &fos, 
+    Teuchos::RCP<Epetra_CrsMatrix> const &A,
+    Teuchos::RCP<Stokhos::Sparse3Tensor<int, double> > const & Cijk,
+    Teuchos::RCP<const Stokhos::OrthogPolyBasis<int, double> > const & basis)
+{
+  int sz = basis->size();
+  Teuchos::RCP<Teuchos::SerialDenseMatrix<int,double> > denseEntry = 
+     Teuchos::rcp(new Teuchos::SerialDenseMatrix<int,double>( sz, sz));
+
+    int maxLength = A->MaxNumEntries();
+    int NumEntries;
+    double val;
+    int * Indices;
+    double * Values;
+    
+    Teuchos::RCP<const Epetra_Map> colMap = rcp(&(A->ColMap ()));
+
+    for (int i = 0 ; i < Teuchos::as<int>(A-> NumMyRows() ); ++i) 
+    {
+      A->ExtractMyRowView(i, NumEntries, Values, Indices);
+      fos << "++++++++++++++" << std::endl << "row " << A->RowMap().GID(i) << ": ";
+      fos << "  col ids: ";
+      for (int ii=0; ii<NumEntries; ++ii) 
+      {
+        fos << colMap->GID(Indices[ii]) << " ";
+      }
+      fos << std::endl << "++++++++++++++" << std::endl;
+
+      for (int k=0; k< NumEntries; ++k) 
+      {
+        val = Values[k];
+        Teuchos::OSTab tab1(fos);
+        fos << std::endl << "col " << colMap->GID(Indices[k]) << std::endl;
+        returnScalarAsDenseMatrix(val,denseEntry,Cijk);
+        //TODO tab thing
+        Teuchos::OSTab tab2(fos);
+        denseEntry->print(fos);
+      }
+    }
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : PCELoader::loadDAEVectors
@@ -328,10 +447,10 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
   for (int isol=0;isol<solutionSize;++isol)
   {
-    pceVec[0].reset(basis);
-    pceVec[1].reset(basis);
-    pceVec[2].reset(basis);
-    int basisSize = basis->size();
+    pceVec[0].reset(basis_);
+    pceVec[1].reset(basis_);
+    pceVec[2].reset(basis_);
+    int basisSize = basis_->size();
     for (int icoef=0;icoef<basisSize;++icoef)
     {
       *appNextVecPtr_ = bnextX.block(icoef);
@@ -482,6 +601,10 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bLeadQ.assembleGlobalVector();
   bNextJunctionV.assembleGlobalVector();
 
+  // matrices
+  bmdQdx_quad_Ptr_->assembleGlobalMatrix();
+  bmdFdx_quad_Ptr_->assembleGlobalMatrix();
+
   {
   // obtain the PCE coefficients of both f and q
   // ERK.  Fix this
@@ -499,10 +622,14 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       q[iquad] = (bQ_quad_ptr_->block(iquad))[isol];
       b[iquad] = (bB_quad_ptr_->block(iquad))[isol];
     }
-    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, f, pceF);
-    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, q, pceQ);
-    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, b, pceB);
-    int basisSize = basis->size();
+
+    pceF.init(0.0); pceF.reset(expnMethod_);
+    pceQ.init(0.0); pceQ.reset(expnMethod_);
+    pceB.init(0.0); pceB.reset(expnMethod_);
+    Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, f, pceF);
+    Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, q, pceQ);
+    Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, b, pceB);
+    int basisSize = basis_->size();
     for (int icoef=0;icoef<basisSize;++icoef)
     {
       (bF.block(icoef))[isol] = pceF.coeff(icoef);
@@ -518,41 +645,85 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   // put the evaluated pceF and pceQ into the block F and Q vectors used by the solvers
   }
 
-#if 0
+#if 1
   {
-  // solve for the PCE coefficients of both dFdx and dQdx
-  // ERK.  Fix this
-  // the std::vectors dFdx and dQdx need to contain all the quadrature points
-
+  // solve for the PCE coefficients of both dfdx and dqdx
   int solutionSize = bnextX.block(0).localLength();  // get local length.  SERIAL ONLY HERE!!!  sigh, fix later.
-  for (int isol=0;isol<solutionSize;++isol)
+
+  Xyce::Linear::Matrix & subMatRef = bmdFdx_quad_Ptr_->block(0,0); // use this to get the structure
+  int numLocalRowsRef = subMatRef.getLocalNumRows(); // num ckt vars = n_
+
+  int basisSize = basis_->size();
+  Teuchos::RCP<Teuchos::SerialDenseMatrix<int,double> > denseEntryF = 
+    Teuchos::rcp(new Teuchos::SerialDenseMatrix<int,double>( basisSize, basisSize));
+  Teuchos::RCP<Teuchos::SerialDenseMatrix<int,double> > denseEntryQ = 
+    Teuchos::rcp(new Teuchos::SerialDenseMatrix<int,double>( basisSize, basisSize));
+
+  for (int irow=0;irow<numLocalRowsRef;++irow)
   {
     std::vector<double> dfdx(numQuadPoints_,0.0);
     std::vector<double> dqdx(numQuadPoints_,0.0);
-    for (int iquad=0;iquad<numQuadPoints_;++iquad)
-    {
-      dfdx[iquad] = (bmdFdx_quad_Ptr_->block(iquad,iquad))[isol];
-      dqdx[iquad] = (bmdQdx_quad_Ptr_->block(iquad,iquad))[isol];
-    }
-    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, dfdx, pceF);
-    Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, dqdx, pceQ);
-    int basisSize = basis->size();
-    for (int icoef=0;icoef<basisSize;++icoef)
-    {
-      (bF.block(icoef))[isol] = pceF.coeff(icoef);
-      (bQ.block(icoef))[isol] = pceQ.coeff(icoef);
-    }
-  }
 
-  bF.assembleGlobalVector();
-  bQ.assembleGlobalVector();
+    for (int icol=0;icol<numLocalRowsRef;++icol)
+    {
+      for (int iquad=0;iquad<numQuadPoints_;++iquad)
+      {
+        Xyce::Linear::Matrix & subMatF = bmdFdx_quad_Ptr_->block(iquad,iquad); 
+        Xyce::Linear::Matrix & subMatQ = bmdQdx_quad_Ptr_->block(iquad,iquad); 
+        dfdx[iquad] = subMatF[irow][icol];
+        dqdx[iquad] = subMatQ[irow][icol];
+      }
 
-  std::vector<double> dFdx;
-  Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, dFdx, pceF);
-  std::vector<double> dQdx;
-  Xyce::Analysis::UQ::solveProjectionPCE(basis, quadMethod, dQdx, pceQ);
-  }
+      pceF.init(0.0); pceF.reset(expnMethod_);
+      pceQ.init(0.0); pceQ.reset(expnMethod_);
+      Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dfdx, pceF);
+      Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dqdx, pceQ);
+
+      returnScalarAsDenseMatrix( pceF, denseEntryF, Cijk_);
+      returnScalarAsDenseMatrix( pceQ, denseEntryQ, Cijk_);
+
+      for (int icoefRow=0;icoefRow<basisSize;++icoefRow)
+      {
+        for (int icoefCol=0;icoefCol<basisSize;++icoefCol)
+        {
+          std::cout << "icoefRow = " << icoefRow << "  icoefCol = " << icoefCol <<std::endl;
+          Xyce::Linear::Matrix & subMatF = bmdFdxPtr_->block(icoefRow,icoefCol);
+          Xyce::Linear::Matrix & subMatQ = bmdQdxPtr_->block(icoefRow,icoefCol);
+          subMatF[irow][icol] = (*denseEntryF)(icoefRow,icoefCol);
+          subMatQ[irow][icol] = (*denseEntryQ)(icoefRow,icoefCol);
+        }
+      }
+
+#if 0
+      std::cout << "PCE expansion of dfdx for row="<<irow<<" col="<<icol<<std::endl;
+      pceF.print(std::cout);
+      std::cout << "dFdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
+      denseEntry->print(std::cout);
+
+      std::cout << "PCE expansion of dqdx for row="<<irow<<" col="<<icol<<std::endl;
+      pceQ.print(std::cout);
+      std::cout << "dQdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
+      denseEntry->print(std::cout);
 #endif
+
+#if 0
+      // might not need this ...
+      for (int icoef=0;icoef<basisSize;++icoef)
+      {
+        Xyce::Linear::Matrix & subMatF = bmdFdxPtr_->block(icoef,icoef);
+        Xyce::Linear::Matrix & subMatQ = bmdQdxPtr_->block(icoef,icoef);
+        subMatF[irow][icol] = pceF.coeff(icoef);
+        subMatQ[irow][icol] = pceQ.coeff(icoef);
+      }
+#endif
+    }
+  }
+
+  bmdFdxPtr_->fillComplete();
+  bmdQdxPtr_->fillComplete();
+  bmdFdxPtr_->assembleGlobalMatrix();
+  bmdQdxPtr_->assembleGlobalMatrix();
+  }
 
   // Apply the triple product tensor (Cijk) to 
   // transform the pce approximations of dFdx and dQdx into the PCE Jacobian entries
@@ -562,6 +733,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   // put the evaluated and transformed pceF and pceQ into the block F and Q matrices 
   // used by the solvers
   }
+#endif
 
   // do another round of assembleGlobal, on the new objects
 

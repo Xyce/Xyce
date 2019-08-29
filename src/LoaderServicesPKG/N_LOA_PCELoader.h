@@ -54,6 +54,7 @@
 #if Xyce_STOKHOS_ENABLE
 #include <Stokhos_Sacado.hpp>
 #include <Sacado_No_Kokkos.hpp>
+#include <Stokhos_Sparse3TensorUtilities.hpp>
 #endif
 
 // ---------- Forward declarations --------
@@ -148,15 +149,25 @@ public:
   // Get the voltage limiter flag:
   bool getLimiterFlag () { return PCELoader::appLoaderPtr_->getLimiterFlag (); }
 
+  // Get the stored quad-based matrices 
+  Teuchos::RCP<Linear::BlockMatrix>& get_Quad_dQdx() { return bmdQdx_quad_Ptr_; }
+  Teuchos::RCP<Linear::BlockMatrix>& get_Quad_dFdx() { return bmdFdx_quad_Ptr_; }
+
   // Registration method for the device packaage
   void registerAppLoader( Teuchos::RCP<Loader> appLoaderPtr )
   { appLoaderPtr_ = appLoaderPtr; }
 
   void registerPCEBuilder(Teuchos::RCP<Linear::PCEBuilder> pceBuilderPtr);
 
-  void registerPCEbasis (Teuchos::RCP<const Stokhos::ProductBasis<int,double> > & tmpBasis) { basis = tmpBasis; }
-  void registerPCEquadMethod ( Teuchos::RCP<const Stokhos::Quadrature<int,double> > & tmpQuadMethod) { quadMethod = tmpQuadMethod; }
-  void registerPCEtripleProductTensor ( Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > & tmpCijk) { Cijk = tmpCijk; }
+  void registerPCEbasis (Teuchos::RCP<const Stokhos::ProductBasis<int,double> > & tmpBasis) { basis_ = tmpBasis; }
+
+  void registerPCEquadMethod ( Teuchos::RCP<const Stokhos::Quadrature<int,double> > & tmpQuadMethod) { quadMethod_ = tmpQuadMethod; }
+
+  void registerPCEexpnMethod ( Teuchos::RCP<Stokhos::QuadOrthogPolyExpansion<int,double> > & tmpExpnMethod) { expnMethod_ = tmpExpnMethod; }
+
+  void registerPCEtripleProductTensor ( Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > & tmpCijk) { Cijk_ = tmpCijk; }
+
+  void registerPCEgraph ( Teuchos::RCP<Epetra_CrsGraph> & tmpPceGraph);
 
   virtual bool analyticSensitivitiesAvailable (std::string & name) { return false; }
   virtual void getAnalyticSensitivities(
@@ -194,12 +205,14 @@ private:
   Teuchos::RCP<Linear::Matrix> appdQdxPtr_;
   Teuchos::RCP<Linear::Matrix> appdFdxPtr_;
 
+#if 0
   Teuchos::RCP<Linear::FilteredMatrix> linAppdQdxPtr_;
   std::vector<Teuchos::RCP<Linear::FilteredMatrix> > vecNLAppdQdxPtr_;
   Teuchos::RCP<Linear::FilteredMatrix> linAppdFdxPtr_;
   std::vector<Teuchos::RCP<Linear::FilteredMatrix> > vecNLAppdFdxPtr_;
 
   std::vector<int> linNZRows_, nonlinQNZRows_, nonlinFNZRows_;
+#endif
 
   // Time domain vectors for loading.  
   Teuchos::RCP<Linear::Vector> appNextStoVecPtr_;
@@ -251,13 +264,22 @@ private:
 
 #if Xyce_STOKHOS_ENABLE
   // many of these objects are copied from the N_ANP_PCE.h header; 
-  Teuchos::RCP<const Stokhos::ProductBasis<int,double> > basis;
+  Teuchos::RCP<const Stokhos::ProductBasis<int,double> > basis_;
 
   // Quadrature method
-  Teuchos::RCP<const Stokhos::Quadrature<int,double> > quadMethod;
+  Teuchos::RCP<const Stokhos::Quadrature<int,double> > quadMethod_;
 
   // Triple product tensor
-  Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > Cijk;
+  Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > Cijk_;
+
+  // Expansion method
+  Teuchos::RCP<Stokhos::QuadOrthogPolyExpansion<int,double> > expnMethod_;
+
+  // PCE block graph
+  Teuchos::RCP<Epetra_CrsGraph> pceGraph_;
+
+  // PCE block matrix 
+  Teuchos::RCP<Epetra_CrsMatrix> pceMat_;
 
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceF;
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceQ;

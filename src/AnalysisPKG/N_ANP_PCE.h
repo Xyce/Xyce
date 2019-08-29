@@ -208,8 +208,8 @@ private:
 
   bool covMatrixGiven_;
 
-  int numBlockRows_; // size of the expansion
-  int numSamples_;
+  int numBlockRows_; // size of the expansion (number of PCE coefs)
+  int numQuadPoints_;
   UQ::SampleType  sampleType_;
 
   int userSeed_;
@@ -221,7 +221,7 @@ private:
   bool outputtersCalledBefore_;
   bool outputSampleStats_;
 
-  bool paramsOuterLoop_;
+  bool coefsOuterLoop_;
 
 #if Xyce_STOKHOS_ENABLE
   int PCEorder_;

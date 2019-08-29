@@ -110,6 +110,16 @@ public:
   // LeadCurrent-vector factory
   virtual Vector * createLeadCurrentVector( const double value = 0.0 ) const;
 
+#if 1
+  // ERK.  HACK!!! FIX THIS
+  // State-vector factory
+  virtual Vector * createStateQuadVector( const double value = 0.0 ) const { return createStateVector(value); }
+  // Store-vector factory
+  virtual Vector * createStoreQuadVector( const double value = 0.0 ) const { return createStoreVector(value); }
+  // LeadCurrent-vector factory
+  virtual Vector * createLeadCurrentQuadVector( const double value = 0.0 ) const { return createLeadCurrentVector(value); }
+#endif
+
   // Matrix factory
   virtual Matrix * createMatrix( const double initialValue = 0.0 ) const;
 
