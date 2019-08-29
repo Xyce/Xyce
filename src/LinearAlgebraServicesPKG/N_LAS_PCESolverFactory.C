@@ -133,7 +133,7 @@ PCESolverFactory::create(
   }
 #endif  
   
-  std::cout << "ESSolverFactory::create about to output the linsol options, if they exist" << std::endl;
+  std::cout << "PCESolverFactory::create about to output the linsol options, if they exist" << std::endl;
 
   Util::ParamList::const_iterator itPI = options.begin();
   Util::ParamList::const_iterator endPI = options.end();
@@ -211,7 +211,7 @@ PCESolverFactory::create(
   }
   else
   {
-    return new AztecOOSolver( problem, options);
+    return new AmesosSolver( type, problem, options);
   }
 
   return 0;
