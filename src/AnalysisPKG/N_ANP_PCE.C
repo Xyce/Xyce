@@ -996,7 +996,7 @@ void PCE::setupStokhosObjects ()
 
   numBlockRows_ = pceGraph->NumMyRows();
 
-#if 1
+#if 0
   std::cout << "Cijk:" <<std::endl;
   Cijk->print(std::cout);
 
