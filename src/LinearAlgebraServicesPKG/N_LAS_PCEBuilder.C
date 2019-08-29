@@ -545,11 +545,15 @@ bool PCEBuilder::generateGraphs(
   blockPattern_.clear();
   blockPattern_.resize(numBlockRows);
 
+  // the coefficient (PCE) pattern is dense.  At first I tried to use a 
+  // sparsity problem but ran into problems.  So for now, it is dense.
   for (int i=0;i<numBlockRows;++i)
   {
+    blockPattern_[i].clear();
     blockPattern_[i].resize(numBlockRows);
 
 #if 0
+    // sparse version
     int maxIndices = pceGraph.MaxNumIndices();
     std::vector<int> indices(maxIndices);
     int numIndices=0;
@@ -562,7 +566,7 @@ bool PCEBuilder::generateGraphs(
       blockPattern_[i][col] = j; 
     }
 #else
-    // making this dense for now
+    // dense version
     for (int j=0;j<numBlockRows;++j)
     {
       blockPattern_[i][j] = j; 
@@ -570,6 +574,7 @@ bool PCEBuilder::generateGraphs(
 #endif
   }
 
+  // the quad pattern is a block diagonal
   quadBlockPattern_.clear();
   quadBlockPattern_.resize(numQuadPoints_);
   for (int i=0;i<numQuadPoints_;++i)
