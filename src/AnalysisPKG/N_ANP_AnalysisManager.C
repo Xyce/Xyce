@@ -449,7 +449,19 @@ bool AnalysisManager::initializeSolverSystem(
 //-----------------------------------------------------------------------------
 bool AnalysisManager::getBlockAnalysisFlag() const
 {
-  return dynamic_cast<Analysis::HB *>(primaryAnalysisObject_) || dynamic_cast<Analysis::MPDE *>(primaryAnalysisObject_);
+#if Xyce_STOKHOS_ENABLE
+  // ERK: check this
+  return 
+    dynamic_cast<Analysis::PCE *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::EmbeddedSampling *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::HB *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::MPDE *>(primaryAnalysisObject_);
+#else
+  return 
+    dynamic_cast<Analysis::EmbeddedSampling *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::HB *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::MPDE *>(primaryAnalysisObject_);
+#endif
 }
 
 //-----------------------------------------------------------------------------
