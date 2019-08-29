@@ -7,6 +7,7 @@
 % Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
+\label{EMBEDDEDSAMPLING_section}
 \index{\texttt{.EMBEDDEDSAMPLING}}
 \index{analysis!sampling} \index{embedded sampling analysis}
 Calculates a full analysis (for \verb|.DC| or \verb|.TRAN| only) over
@@ -33,7 +34,11 @@ generated from random distributions rather than sweeps.
 + param=<parameter name>,[parameter name]*  \\
 + type=<parameter type>,[parameter type]*  \\
 + means=<mean>,[mean]*  \\
-+ std\_deviations=<standard deviation>,[standard deviation]*
++ std\_deviations=<standard deviation>,[standard deviation]* \\
++ lower\_bounds=<lower bound>,[lower bound]*  \\
++ upper\_bounds=<upper bound>,[upper bound]* \\
++ alpha=<alpha>,[alpha]*  \\
++ beta=<beta>,[beta]*
 
 \examples
 \begin{alltt}
@@ -75,7 +80,7 @@ or global parameters.  If more than one parameter, then specify as a
 comma-separated list.
 
 \argument{type}
-Distribution type for each parameter.  This may be uniform or normal.
+Distribution type for each parameter.  This may be uniform, normal or gamma.
 If more than one parameter, then specify as a comma-separated list.
 
 \argument{means}
@@ -100,8 +105,14 @@ distributions, may alter the mean and standard deviation.
 If more than one parameter, then specify as a comma-separated list.
 
 \argument{alpha}
+If using gamma distributions, the alpha value for each parameter
+must be specified.  If more than one parameter, then specify as a
+comma-separated list.
 
 \argument{beta}
+If using gamma distributions, the beta value for each parameter
+must be specified.  If more than one parameter, then specify as a
+comma-separated list.
 
 \end{Arguments}
 
@@ -118,6 +129,17 @@ be used, and the outputs and/or measures for which to compute statistics.
 On the \verb|.EMBEDDEDSAMPLING| command line, parameters and their
 attributes must be specified using comma-separated lists. The
 comma-separated lists must all be the same length.
+
+The \texttt{.PRINT ES} command provides output based on the contents
+of those print-lines, and also the \texttt{NUMSAMPLES} and \texttt{OUTPUT}
+arguments on the \texttt{.OPTIONS EMBEDDEDSAMPLES} line. If the
+\texttt{OUTPUTSAMPLESTATS} argument on a \texttt{.PRINT ES} line is
+set to ``true'' then the statistics for the \texttt{MEAN}, \texttt{MEANPLUS},
+\texttt{MEANMINUS}, \texttt{STDDEV} and \texttt{VARIANCE} will be output for each
+variable in the \texttt{OUTPUT} argument.  If the \texttt{OUTPUTALLSAMPLES}
+argument on a \texttt{.PRINT ES} line is set to ``true'' then the values
+of all \texttt{NUMSAMPLES} samples, for each variable requested
+in the \texttt{OUTPUTS} argument, will be output.
 
 \end{Command}
 
