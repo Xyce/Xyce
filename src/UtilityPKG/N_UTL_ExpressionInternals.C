@@ -3959,7 +3959,8 @@ ExpressionNode * ExpressionInternals::mkb_ (int type, ExpressionNode *left, Expr
     }
   if (num_op == -1)
   {
-    Report::DevelFatal() << "ExpressionInternals::mkb_: Internal: bad type";
+    Report::DevelFatal() << "ExpressionInternals::mkb_: invalid math operator in expression: "
+      << Input_;
   }
 
   if (right->type == EXPR_CONSTANT && left->type == EXPR_CONSTANT)
