@@ -153,8 +153,13 @@ protected:
   virtual bool doHandlePredictor() { return true; }
 
 
+  void convertPointToPCE (int index, Stokhos::OrthogPolyApprox<int,double> & pceApprox);
+  void evaluateVector (Teuchos::RCP<Xyce::Linear::BlockVector> & bX_quad_ptr_);
+  void outputXvectors(); // hack output, X vectors to stdout
+  void hackPCEOutput2(); // new one, outputs *everything* to a plot file
+
   void computePCEOutputs();
-  void hackPCEOutput();
+  void hackPCEOutput(); // derived from the ES hack output
 
 private:
   AnalysisManager &     analysisManager_;
@@ -218,6 +223,7 @@ private:
 
   std::string hackOutputFormat_;
   bool hackOutputCalledBefore_;
+  bool hackOutputCalledBefore2_;
   bool hackOutputAllSamples_;
   bool outputtersCalledBefore_;
   bool outputSampleStats_;
@@ -264,6 +270,7 @@ private:
   bool outFuncGIDsetup_;
 
   int outputIndex_;
+  int outputIndex2_;
 
   // non-block objects:
   Linear::Vector * nextSolutionPtr_;

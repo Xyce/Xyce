@@ -1335,7 +1335,6 @@ void EmbeddedSampling::computeEnsembleOutputs()
     for (int iout=0;iout<outFuncDataVec_.size();++iout)
     {
       UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
-      //outFunc.completeStatistics(BlockCount);
       outFunc.completeStatistics();
 
       if (stdOutputFlag_ && outputSampleStats_)

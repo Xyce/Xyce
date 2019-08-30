@@ -171,6 +171,7 @@ PCE::PCE(
       userSeedGiven_(false),
       hackOutputFormat_("TECPLOT"),
       hackOutputCalledBefore_(false),
+      hackOutputCalledBefore2_(false),
       hackOutputAllSamples_(false),
       outputSampleStats_(true),
 #if Xyce_STOKHOS_ENABLE
@@ -189,6 +190,7 @@ PCE::PCE(
       measuresGiven_(false),
       outFuncGIDsetup_(false),
       outputIndex_(0),
+      outputIndex2_(0),
       resetForStepCalledBefore_(false)
 {
   pdsMgrPtr_ = analysisManager_.getPDSManager();
@@ -521,6 +523,7 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
       ExtendedString tag = (*it).stringValue();
       hackOutputFormat_ = tag.toUpper();
     }
+#if 0
     else if ((*it).uTag() == "OUTPUTALLSAMPLES")
     {
       hackOutputAllSamples_=static_cast<bool>((*it).getImmutableValue<bool>());
@@ -529,6 +532,7 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     {
       outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
+#endif
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "ORDER")
     {
@@ -703,6 +707,7 @@ bool PCE::getDCOPFlag() const
 //-----------------------------------------------------------------------------
 void PCE::stepCallBack ()
 {
+  outputXvectors(); // temporary
   computePCEOutputs();
 
 #if Xyce_STOKHOS_ENABLE
@@ -729,8 +734,8 @@ void PCE::stepCallBack ()
     if (stdOutputFlag_)
     {
       Xyce::lout() << std::endl;
-      Xyce::lout() << "(embedded sampling) projection PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
-      Xyce::lout() << "(embedded sampling) projection PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
+      Xyce::lout() << "Intrusive PCE mean of " << outFunc.outFuncString << " = " << projectionPCE.mean() << std::endl;
+      Xyce::lout() << "Intrusive PCE stddev of " << outFunc.outFuncString << " = " << projectionPCE.standard_deviation() << std::endl;
     }
 
     if (resamplePCE_)
@@ -752,7 +757,7 @@ void PCE::stepCallBack ()
     {
       UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
       Xyce::lout() << std::endl;
-      Xyce::lout() << "Statistics from re-sampling projection PCE approximation of " << outFunc.outFuncString << ":" << std::endl;;
+      Xyce::lout() << "Statistics from re-sampling PCE approximation of " << outFunc.outFuncString << ":" << std::endl;;
       Xyce::lout() << statVec[iout];
       Xyce::lout() << std::endl;
     }
@@ -760,6 +765,7 @@ void PCE::stepCallBack ()
 #endif
 
   hackPCEOutput ();
+  hackPCEOutput2 ();
 }
 
 //-----------------------------------------------------------------------------
@@ -1080,6 +1086,235 @@ bool PCE::doFinish()
   return true;
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : PCE::convertPointToPCE
+// Purpose       : 
+// Special Notes : 
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/28/2019
+//-----------------------------------------------------------------------------
+void PCE::convertPointToPCE (int index, Stokhos::OrthogPolyApprox<int,double> & pceApprox)
+{
+  TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
+  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+
+  pceApprox.reset(basis);
+  int basisSize = basis->size();
+  for (int icoef=0;icoef<basisSize;++icoef)
+  {
+    *nextSolutionPtr_ = bX.block(icoef);
+    pceApprox[icoef] = (*nextSolutionPtr_)[index];
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCE::evaluateVector
+// Purpose       : 
+// Special Notes : maybe rewrite this as stand-alone function
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/28/2019
+//-----------------------------------------------------------------------------
+void PCE::evaluateVector ( Teuchos::RCP<Xyce::Linear::BlockVector> & bX_quad_ptr_ )
+{
+  std::vector< Stokhos::OrthogPolyApprox<int,double> > pceVec(1);
+
+  int solutionSize = bX_quad_ptr_->block(0).localLength(); // serial only
+
+  TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
+  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+
+  for (int isol=0;isol<solutionSize;++isol)
+  {
+    convertPointToPCE(isol, pceVec[0]);
+
+    std::vector < std::vector<double> > xSamples(pceVec.size(), std::vector<double>(numQuadPoints_,0.0) );
+    Xyce::Analysis::UQ::evaluateApproximationPCE(samplingVector_, Y_, numQuadPoints_, pceVec, xSamples);
+
+    for (int iquad=0;iquad<numQuadPoints_;++iquad)
+    {
+      (bX_quad_ptr_->block(iquad))[isol] = xSamples[0][iquad];
+    }
+  }
+  bX_quad_ptr_->assembleGlobalVector();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCE::outputXvectors
+// Purpose       : Outputs both the coefficient vector and also a converted quad vector
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/28/2019
+//-----------------------------------------------------------------------------
+void PCE::outputXvectors()
+{
+  TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
+  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+
+  std::cout << "--------------------------------------------------------------" <<std::endl;
+  std::cout << "X coef vector:" <<std::endl;
+  bX.printPetraObject(std::cout);
+  std::cout << "--------------------------------------------------------------" <<std::endl;
+
+  Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+  evaluateVector(bXNext_quad_ptr_);
+
+  std::cout << "--------------------------------------------------------------" <<std::endl;
+  std::cout << "X quad vector:" <<std::endl;
+  bXNext_quad_ptr_->printPetraObject(std::cout);
+  std::cout << "--------------------------------------------------------------" <<std::endl;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCE::hackPCEOutput2
+// Purpose       : Outputs both the coefficient vector and also a converted quad vector
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/28/2019
+//-----------------------------------------------------------------------------
+void PCE::hackPCEOutput2()
+{
+  TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
+  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+
+  int solutionSize = bX.block(0).localLength();
+
+  std::string fileName; 
+
+  if (hackOutputFormat_=="TECPLOT")
+  {
+    fileName = analysisManager_.getNetlistFilename() + "_pce2.dat";
+  }
+  else if (hackOutputFormat_=="STD")
+  {
+    fileName = analysisManager_.getNetlistFilename() + "_pce2.prn";
+  }
+  else
+  {
+    Xyce::Report::UserWarning() << hackOutputFormat_ 
+      << " is not a recognized ensemble output option.\n" << std::endl;
+  }
+
+  std::ofstream output_stream(fileName.c_str(), 
+          !hackOutputCalledBefore2_ ? std::ios_base::out : std::ios_base::app);
+
+  if (!hackOutputCalledBefore2_)
+  {
+    output_stream << "TITLE = \"embedded sampling output\"\tVARIABLES= "<<std::endl;
+
+    if ( !(childAnalysis_.getDCOPFlag()) )
+    {
+      output_stream << "\t\" TIME \""<<std::endl;
+    }
+    else
+    {
+      output_stream << "\t\" INDEX \""<<std::endl;
+    }
+
+    for (int isol=0;isol<solutionSize;++isol)
+    {
+#if __cplusplus>=201103L
+      std::string varName = "var_" + std::to_string(isol);
+#else
+      std::stringstream ss;
+      ss << isol;
+      std::string varName = "var_" + ss.str();
+#endif
+
+      std::string meanString = varName + "_quad_pce_mean";
+      std::string meanStringPlus = varName + "_quad_pce_meanPlus";
+      std::string meanStringMinus = varName + "_quad_pce_meanMinus";
+
+      std::string stddevString = varName + "_quad_pce_stddev";
+      std::string varianceString = varName + "_quad_pce_variance";
+
+      output_stream << "\t\" " << meanString << "\""<<std::endl;
+      output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
+      output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+
+      output_stream << "\t\" " << stddevString << "\""<<std::endl;
+      output_stream << "\t\" " << varianceString << "\""<<std::endl;
+
+      int basisSize = basis->size();
+      for (int icoef=0;icoef<basisSize;++icoef)
+      {
+#if __cplusplus>=201103L
+          std::string sampleString = varName + "_coef_"+std::to_string(icoef);
+#else
+          std::stringstream ss;
+          ss << icoef;
+          std::string sampleString = varName + "_coef_"+ss.str();
+#endif
+          output_stream << "\t\" " << sampleString << "\""<<std::endl;
+      }
+    }
+ 
+    output_stream << "ZONE F=POINT  T=\"Xyce data\""<<std::endl;
+    hackOutputCalledBefore2_ = true;
+  }
+
+  // data output
+  output_stream.setf(std::ios::scientific);
+
+  if ( !(childAnalysis_.getDCOPFlag()) )
+  {
+    output_stream << analysisManager_.getStepErrorControl().currentTime;
+  }
+  else
+  {
+    output_stream << outputIndex2_;
+    outputIndex2_++;
+  }
+
+  for (int isol=0;isol<solutionSize;++isol)
+  {
+    Stokhos::OrthogPolyApprox<int,double> pceApprox;
+    convertPointToPCE(isol,pceApprox);
+
+    double pce_mean = pceApprox.mean();
+    double pce_stddev = pceApprox.standard_deviation();
+    double pce_variance = pce_stddev*pce_stddev;
+
+    if ( isinf(pce_mean) || isnan(pce_mean) )
+    {
+      pce_mean = 0.0;
+    }
+
+    if ( isinf(pce_stddev) || isnan(pce_stddev) )
+    {
+      pce_stddev = 0.0;
+    }
+
+    if ( isinf(pce_variance) || isnan(pce_variance) )
+    {
+      pce_variance = 0.0;
+    }
+
+    output_stream << "\t" << pce_mean;
+
+    output_stream << "\t" << (pce_mean+pce_stddev);
+    output_stream << "\t" << (pce_mean-pce_stddev);
+
+    output_stream << "\t" << pce_stddev;
+    output_stream << "\t" << pce_variance;
+
+    int basisSize = basis->size();
+    for (int icoef=0;icoef<basisSize;++icoef)
+    {
+      output_stream << "\t" << pceApprox[icoef];
+    }
+  }
+
+  output_stream << std::endl;
+
+  return;
+}
+
+
 //-----------------------------------------------------------------------------
 // Function      : PCE::computePCEOutputs
 // Purpose       : 
@@ -1106,9 +1341,12 @@ void PCE::computePCEOutputs()
 
     // loop over the params
     TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-    Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+    //Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
     Xyce::Linear::BlockVector & bSta = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextStatePtr) );
     Xyce::Linear::BlockVector & bSto = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextStorePtr) );
+
+    Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+    evaluateVector(bXNext_quad_ptr_);
 
     nextSolutionPtr_->putScalar(0.0);
     nextStatePtr_->putScalar(0.0);
@@ -1131,10 +1369,10 @@ void PCE::computePCEOutputs()
       outputsSetup_ = true;
     }
 
-    int BlockCount = bX.blockCount();
+    int BlockCount = bXNext_quad_ptr_->blockCount();
     for( int i = 0; i < BlockCount; ++i )
     {
-      *nextSolutionPtr_ = bX.block(i);
+      *nextSolutionPtr_ = bXNext_quad_ptr_->block(i);
       *nextStatePtr_ = bSta.block(i);
       *nextStorePtr_ = bSto.block(i);
 
@@ -1154,7 +1392,6 @@ void PCE::computePCEOutputs()
     for (int iout=0;iout<outFuncDataVec_.size();++iout)
     {
       UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
-      //outFunc.completeStatistics(BlockCount);
       outFunc.completeStatistics();
 
       if (stdOutputFlag_ && outputSampleStats_)
@@ -1162,15 +1399,7 @@ void PCE::computePCEOutputs()
         // histrogram is a hack that doesn't work yet
         //UQ::histrogram(std::cout, outFunc.outFuncString, outFunc.sampleOutputs);
 
-        std::string sampleTypeStr = "Embedded MC";
-        if ( sampleType_ == UQ::MC)
-        {
-          sampleTypeStr = "Embedded MC";
-        }
-        else
-        {
-          sampleTypeStr = "Embedded LHS";
-        }
+        std::string sampleTypeStr = "PCE Quad Points";
         outFunc.output(Xyce::lout(), sampleTypeStr);
       }
     }
