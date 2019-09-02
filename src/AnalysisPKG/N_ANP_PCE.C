@@ -1513,8 +1513,6 @@ void PCE::hackPCEOutput ()
     // data output
     output_stream.setf(std::ios::scientific);
 
-    //if ( analysisManager_.getTransientFlag() || analysisManager_.getTranOPFlag() ) // this doesn't work!
-    //if ( childAnalysis_.isAnalysis(ANP_MODE_TRANSIENT) )
     if ( !(childAnalysis_.getDCOPFlag()) )
     {
       output_stream << analysisManager_.getStepErrorControl().currentTime;

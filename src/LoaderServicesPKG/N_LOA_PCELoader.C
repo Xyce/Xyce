@@ -249,34 +249,38 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
 void returnDenseMatrixEntry(
     Sacado::PCE::OrthogPoly<double,Stokhos::StandardStorage<int,double> > const &inval,
     Teuchos::RCP<Teuchos::SerialDenseMatrix<int,double> > & denseEntry,
-    Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > const &Cijk)
+    Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > const &Cijk,
+    const Teuchos::RCP<const Stokhos::ProductBasis<int,double> > & basis
+    )
 {
-    Stokhos::OrthogPolyApprox<int, double> val= inval.getOrthogPolyApprox();
-    typedef Stokhos::Sparse3Tensor<int, double> Cijk_type;
-    int pb = val.size();
-    const double* cv = val.coeff();
+  Stokhos::OrthogPolyApprox<int, double> val= inval.getOrthogPolyApprox();
+  typedef Stokhos::Sparse3Tensor<int, double> Cijk_type;
+  int pb = val.size();
+  const double* cv = val.coeff();
 
-    denseEntry->putScalar(0.0);
-    typename Cijk_type::k_iterator k_begin = Cijk->k_begin();
-    typename Cijk_type::k_iterator k_end = Cijk->k_end();
-    if (pb < Cijk->num_k())
-      k_end = Cijk->find_k(pb);
-    double cijk;
-    int i,j,k;
-    for (typename Cijk_type::k_iterator k_it=k_begin; k_it!=k_end; ++k_it) 
+  const Teuchos::Array<double>& norms = basis->norm_squared(); 
+
+  denseEntry->putScalar(0.0);
+  typename Cijk_type::k_iterator k_begin = Cijk->k_begin();
+  typename Cijk_type::k_iterator k_end = Cijk->k_end();
+  if (pb < Cijk->num_k())
+    k_end = Cijk->find_k(pb);
+  double cijk;
+  int i,j,k;
+  for (typename Cijk_type::k_iterator k_it=k_begin; k_it!=k_end; ++k_it) 
+  {
+    k = index(k_it);
+    for (typename Cijk_type::kj_iterator j_it = Cijk->j_begin(k_it); j_it != Cijk->j_end(k_it); ++j_it) 
     {
-      k = index(k_it);
-      for (typename Cijk_type::kj_iterator j_it = Cijk->j_begin(k_it); j_it != Cijk->j_end(k_it); ++j_it) 
-      {
-         j = index(j_it);
-         for (typename Cijk_type::kji_iterator i_it = Cijk->i_begin(j_it); i_it != Cijk->i_end(j_it); ++i_it) 
-         {
-           i = index(i_it);
-           cijk = value(i_it);
-           (*denseEntry)(i,j) += cijk*cv[k];
-         }
-      }
+       j = index(j_it);
+       for (typename Cijk_type::kji_iterator i_it = Cijk->i_begin(j_it); i_it != Cijk->i_end(j_it); ++i_it) 
+       {
+         i = index(i_it);
+         cijk = value(i_it);
+         (*denseEntry)(i,j) += (cijk/norms[i])*cv[k];
+       }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -608,6 +612,9 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
         double qval = subMatQ[irow][icol];
         dfdx[iquad] = fval;
         dqdx[iquad] = qval;
+#if 0
+        std::cout << "dfdx["<<iquad<<"] = " << dfdx[iquad] << std::endl;
+#endif
       }
 
       pceF.init(0.0); pceF.reset(expnMethod_);
@@ -615,8 +622,30 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dfdx, pceF);
       Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dqdx, pceQ);
 
-      returnDenseMatrixEntry( pceF, denseEntryF, Cijk_);
-      returnDenseMatrixEntry( pceQ, denseEntryQ, Cijk_);
+      returnDenseMatrixEntry( pceF, denseEntryF, Cijk_,basis_);
+      returnDenseMatrixEntry( pceQ, denseEntryQ, Cijk_,basis_);
+#if 0
+      {
+      std::cout.setf(std::ios::scientific);
+      std::cout.setf(std::ios::right);
+      std::cout.width(16);
+      std::cout << "--------------------------------------------------------------" <<std::endl;
+      std::cout << "PCE expansion of dfdx for row="<<irow<<" col="<<icol<<std::endl;
+      pceF.print(std::cout);
+      std::cout << "dFdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
+      denseEntryF->print(std::cout);
+      std::cout << "--------------------------------------------------------------" <<std::endl;
+
+#if 0
+      std::cout << "--------------------------------------------------------------" <<std::endl;
+      std::cout << "PCE expansion of dqdx for row="<<irow<<" col="<<icol<<std::endl;
+      pceQ.print(std::cout);
+      std::cout << "dQdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
+      denseEntryQ->print(std::cout);
+      std::cout << "--------------------------------------------------------------" <<std::endl;
+#endif
+      }
+#endif
 
       for (int icoefRow=0;icoefRow<basisSize;++icoefRow)
       {
@@ -626,22 +655,12 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
           Xyce::Linear::Matrix & subMatQ = bmdQdxPtr_->block(icoefRow,icoefCol);
           double fval = (*denseEntryF)(icoefRow,icoefCol);
           double qval = (*denseEntryQ)(icoefRow,icoefCol);
-          subMatF[irow][icol] = fval;
-          subMatQ[irow][icol] = qval;
+          subMatF[irow][icol] += fval;
+          subMatQ[irow][icol] += qval;
         }
       }
 
-#if 0
-      std::cout << "PCE expansion of dfdx for row="<<irow<<" col="<<icol<<std::endl;
-      pceF.print(std::cout);
-      std::cout << "dFdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
-      denseEntry->print(std::cout);
 
-      std::cout << "PCE expansion of dqdx for row="<<irow<<" col="<<icol<<std::endl;
-      pceQ.print(std::cout);
-      std::cout << "dQdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
-      denseEntry->print(std::cout);
-#endif
     }
   }
 
@@ -650,6 +669,12 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bmdFdxPtr_->fillComplete();
   bmdQdxPtr_->fillComplete();
 
+#if 0
+  std::cout << "--------------------------------------------------------------" <<std::endl;
+  std::cout << "Full Epetra Jacobian" << std::endl;
+  bmdFdxPtr_->printPetraObject(std::cout);
+  std::cout << "--------------------------------------------------------------" <<std::endl;
+#endif
   }
 
   // do another round of assembleGlobal, on the new objects
