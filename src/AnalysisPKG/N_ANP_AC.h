@@ -80,7 +80,8 @@ void evaluateObjFuncs (
   N_PDS_Comm & comm,
   const Linear::BlockVector & X,
   const std::vector<int> & outputVarGIDs,
-  std::vector<double> & objectiveVec
+  std::vector<double> & objectiveVec,
+  const OutputMgrAdapter & outputManagerAdapter
     );
 
 //-------------------------------------------------------------------------

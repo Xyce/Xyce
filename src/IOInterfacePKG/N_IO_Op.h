@@ -499,25 +499,50 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Class         : SolutionPhaseOp
+// Class         : SolutionPhaseDegOp
 // Purpose       : Operator for getting a solution vector element, and then
-//                 computing the phase
-// Special Notes : 
-// Creator       : David Baur, Raytheon
-// Creation Date : 11/15/2013
+//                 computing the phase (in degrees)
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/12/2019
 //-----------------------------------------------------------------------------
-class SolutionPhaseOp : public Util::Op::Op<SolutionPhaseOp, Util::Op::ReduceSum>
+class SolutionPhaseDegOp : public Util::Op::Op<SolutionPhaseDegOp, Util::Op::ReduceSum>
 {
 public:
-  SolutionPhaseOp(const std::string &name, int index)
+  SolutionPhaseDegOp(const std::string &name, int index)
     : Base(name),
       index_(index)
   {}
 
-  virtual ~SolutionPhaseOp()
+  virtual ~SolutionPhaseDegOp()
   {}
 
-  static complex get(const SolutionPhaseOp &op, const Util::Op::OpData &op_data);
+  static complex get(const SolutionPhaseDegOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const int           index_;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : SolutionPhaseRadOp
+// Purpose       : Operator for getting a solution vector element, and then
+//                 computing the phase (in radians)
+// Special Notes :
+// Creator       : Dave Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+class SolutionPhaseRadOp : public Util::Op::Op<SolutionPhaseRadOp, Util::Op::ReduceSum>
+{
+public:
+  SolutionPhaseRadOp(const std::string &name, int index)
+    : Base(name),
+      index_(index)
+  {}
+
+  virtual ~SolutionPhaseRadOp()
+  {}
+
+  static complex get(const SolutionPhaseRadOp &op, const Util::Op::OpData &op_data);
   static complex eval(complex result);
 
   const int           index_;
@@ -660,27 +685,55 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Class         : VoltageDifferencePhaseOp
+// Class         : VoltageDifferencePhaseDegOp
 // Purpose       : Operator for getting two solution variables, and then
-//                 computing the phase of their difference. 
+//                 computing the phase of their difference, in degrees.
 //                 This is needed by constructs like VP(A,B).
 // Special Notes :
-// Creator       : David Baur, Raytheon
-// Creation Date : 11/15/2013
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/12/2019
 //-----------------------------------------------------------------------------
-class VoltageDifferencePhaseOp : public Util::Op::Op<VoltageDifferencePhaseOp, Util::Op::ReduceSum>
+class VoltageDifferencePhaseDegOp : public Util::Op::Op<VoltageDifferencePhaseDegOp, Util::Op::ReduceSum>
 {
 public:
-  VoltageDifferencePhaseOp(const std::string &name, int index1, int index2)
+  VoltageDifferencePhaseDegOp(const std::string &name, int index1, int index2)
     : Base(name),
       index1_(index1),
       index2_(index2)
   {}
 
-  virtual ~VoltageDifferencePhaseOp()
+  virtual ~VoltageDifferencePhaseDegOp()
   {}
 
-  static complex get(const VoltageDifferencePhaseOp &op, const Util::Op::OpData &op_data);
+  static complex get(const VoltageDifferencePhaseDegOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const int           index1_;
+  const int           index2_;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : VoltageDifferencePhaseRadOp
+// Purpose       : Operator for getting two solution variables, and then
+//                 computing the phase of their difference, in radians.
+//                 This is needed by constructs like VP(A,B).
+// Special Notes :
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+class VoltageDifferencePhaseRadOp : public Util::Op::Op<VoltageDifferencePhaseRadOp, Util::Op::ReduceSum>
+{
+public:
+  VoltageDifferencePhaseRadOp(const std::string &name, int index1, int index2)
+    : Base(name),
+      index1_(index1),
+      index2_(index2)
+  {}
+
+  virtual ~VoltageDifferencePhaseRadOp()
+  {}
+
+  static complex get(const VoltageDifferencePhaseRadOp &op, const Util::Op::OpData &op_data);
   static complex eval(complex result);
 
   const int           index1_;
@@ -831,27 +884,56 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Class         : RFparamsPhaseOp
-// Purpose       : Operator for getting the magnitude of S-parameter,
-//                 Y-parameter and Z-parameter data.
+// Class         : RFparamsPhaseDegOp
+// Purpose       : Operator for getting the phase of S-parameter,
+//                 Y-parameter and Z-parameter data (in degrees).
 // Special Notes :
 // Creator       : Pete Sholander, SNL
 // Creation Date : 7/01/2019
 //-----------------------------------------------------------------------------
-class RFparamsPhaseOp : public Util::Op::Op<RFparamsPhaseOp, Util::Op::ReduceNone>
+class RFparamsPhaseDegOp : public Util::Op::Op<RFparamsPhaseDegOp, Util::Op::ReduceNone>
 {
 public:
-  RFparamsPhaseOp(const std::string &name, const std::string &type, int index1, int index2)
+  RFparamsPhaseDegOp(const std::string &name, const std::string &type, int index1, int index2)
     : Base(name),
       type_(type),
       index1_(index1),
       index2_(index2)
   {}
 
-  virtual ~RFparamsPhaseOp()
+  virtual ~RFparamsPhaseDegOp()
   {}
 
-  static complex get(const RFparamsPhaseOp &op, const Util::Op::OpData &op_data);
+  static complex get(const RFparamsPhaseDegOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const std::string   type_;
+  const int           index1_;
+  const int           index2_;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : RFparamsPhaseRadOp
+// Purpose       : Operator for getting a solution vector element, and then
+//                 computing the phase (in radians)
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 9/2/2019
+//-----------------------------------------------------------------------------
+class RFparamsPhaseRadOp : public Util::Op::Op<RFparamsPhaseRadOp, Util::Op::ReduceNone>
+{
+public:
+  RFparamsPhaseRadOp(const std::string &name, const std::string &type, int index1, int index2)
+    : Base(name),
+      type_(type),
+      index1_(index1),
+      index2_(index2)
+  {}
+
+  virtual ~RFparamsPhaseRadOp()
+  {}
+
+  static complex get(const RFparamsPhaseRadOp &op, const Util::Op::OpData &op_data);
   static complex eval(complex result);
 
   const std::string   type_;
@@ -1014,26 +1096,51 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Class         : StorePhaseOp
-// Purpose       : Operator for getting a store variable, and then computing 
-//                 the phase of that variable
+// Class         : StorePhaseDegOp
+// Purpose       : Operator for getting a store variable, and then computing
+//                 the phase of that variable in degrees
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/12/2019
+//-----------------------------------------------------------------------------
+class StorePhaseDegOp : public Util::Op::Op<StorePhaseDegOp, Util::Op::ReduceSum>
+{
+public:
+  StorePhaseDegOp(const std::string &name, int index)
+    : Base(name),
+      index_(index)
+  {}
+
+  virtual ~StorePhaseDegOp()
+  {}
+
+  static complex get(const StorePhaseDegOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const int           index_;
+};
+//-----------------------------------------------------------------------------
+// Class         : StorePhaseRadOp
+// Purpose       : Operator for getting a store variable, and then computing
+//                 the phase of that variable in radians
 // Special Notes :
 // Scope         : public
 // Creator       : David Baur, Raytheon
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-class StorePhaseOp : public Util::Op::Op<StorePhaseOp, Util::Op::ReduceSum>
+class StorePhaseRadOp : public Util::Op::Op<StorePhaseRadOp, Util::Op::ReduceSum>
 {
 public:
-  StorePhaseOp(const std::string &name, int index)
+  StorePhaseRadOp(const std::string &name, int index)
     : Base(name),
       index_(index)
   {}
 
-  virtual ~StorePhaseOp()
+  virtual ~StorePhaseRadOp()
   {}
 
-  static complex get(const StorePhaseOp &op, const Util::Op::OpData &op_data);
+  static complex get(const StorePhaseRadOp &op, const Util::Op::OpData &op_data);
   static complex eval(complex result);
 
   const int           index_;
@@ -1166,25 +1273,50 @@ public:
 };
 
 //-----------------------------------------------------------------------------
-// Function      : BranchDataCurrentPhaseOp
+// Function      : BranchDataCurrentPhaseDegOp
 // Purpose       : Operator for getting a value out of the lead current vector
-//                 and then computing its phase
+//                 and then computing its phase, in degrees
 // Special Notes :
-// Creator       : Richard Schiek, SNL 
-// Creation Date : 02/24/2015
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/12/2019
 //-----------------------------------------------------------------------------
-class BranchDataCurrentPhaseOp : public Util::Op::Op<BranchDataCurrentPhaseOp, Util::Op::ReduceSum>
+class BranchDataCurrentPhaseDegOp : public Util::Op::Op<BranchDataCurrentPhaseDegOp, Util::Op::ReduceSum>
 {
 public:
-  BranchDataCurrentPhaseOp(const std::string &name, int index)
+  BranchDataCurrentPhaseDegOp(const std::string &name, int index)
     : Base(name),
       index_(index)
   {}
 
-  virtual ~BranchDataCurrentPhaseOp()
+  virtual ~BranchDataCurrentPhaseDegOp()
   {}
 
-  static complex get(const BranchDataCurrentPhaseOp &op, const Util::Op::OpData &op_data);
+  static complex get(const BranchDataCurrentPhaseDegOp &op, const Util::Op::OpData &op_data);
+  static complex eval(complex result);
+
+  const int           index_;
+};
+
+//-----------------------------------------------------------------------------
+// Function      : BranchDataCurrentPhaseRadOp
+// Purpose       : Operator for getting a value out of the lead current vector
+//                 and then computing its phase in radians
+// Special Notes :
+// Creator       : Richard Schiek, SNL 
+// Creation Date : 02/24/2015
+//-----------------------------------------------------------------------------
+class BranchDataCurrentPhaseRadOp : public Util::Op::Op<BranchDataCurrentPhaseRadOp, Util::Op::ReduceSum>
+{
+public:
+  BranchDataCurrentPhaseRadOp(const std::string &name, int index)
+    : Base(name),
+      index_(index)
+  {}
+
+  virtual ~BranchDataCurrentPhaseRadOp()
+  {}
+
+  static complex get(const BranchDataCurrentPhaseRadOp &op, const Util::Op::OpData &op_data);
   static complex eval(complex result);
 
   const int           index_;

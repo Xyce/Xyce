@@ -142,6 +142,11 @@ public:
     outputManager_.setEnableSparCalcFlag(value);
   }
 
+  bool getPhaseOutputUsesRadians() const
+  {
+    return outputManager_.getPhaseOutputUsesRadians();
+  }
+
   double getInitialOutputInterval() const;
 
   const IO::IntervalVector &getOutputIntervals() const;

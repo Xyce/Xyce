@@ -136,6 +136,7 @@ OutputMgr::OutputMgr(
     printFooter_(true),
     printStepNumCol_(false),
     outputVersionInRawFile_(false),
+    phaseOutputUsesRadians_(true),
     outputCalledBefore_(false),
     dcLoopNumber_(0),
     maxDCSteps_(0),
@@ -825,6 +826,14 @@ bool OutputMgr::registerOutputOptions(const Util::OptionBlock & option_block)
      outputVersionInRawFile_ = (*it).getImmutableValue<bool>();
      ++it;
     }
+    else if ((*it).tag()=="PHASE_OUTPUT_RADIANS")
+    {
+      // look for flag to toggle whether the VP() and IP() operators use radians
+      // vs. degrees.  The default is radians now.
+      phaseOutputUsesRadians_ = (*it).getImmutableValue<bool>();
+      ++it;
+    }
+
     else if ( std::string( (*it).uTag() ,0,16) == "OUTPUTTIMEPOINTS") // this is a vector
     {
       outputPointsSpecified = true;
@@ -3447,6 +3456,7 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("PRINTFOOTER", Util::Param("PRINTFOOTER", true)));
     parameters.insert(Util::ParamMap::value_type("ADD_STEPNUM_COL", Util::Param("ADD_STEPNUM_COL", true)));
     parameters.insert(Util::ParamMap::value_type("OUTPUTVERSIONINRAWFILE", Util::Param("OUTPUTVERSIONINRAWFILE", false)));
+    parameters.insert(Util::ParamMap::value_type("PHASE_OUTPUT_RADIANS", Util::Param("PHASE_OUTPUT_RADIANS", true)));
 
     parameters.insert(Util::ParamMap::value_type("OUTPUTTIMEPOINTS", Util::Param("OUTPUTTIMEPOINTS", "VECTOR")));
   }

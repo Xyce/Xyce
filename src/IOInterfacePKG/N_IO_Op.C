@@ -435,20 +435,19 @@ complex SolutionMagnitudeOp::eval(complex result)
   return std::abs(result);
 }
 
-
 //-----------------------------------------------------------------------------
-// Function      : SolutionPhaseOp::get
-// Purpose       : get the phase of a solution vector element
+// Function      : SolutionPhaseDegOp::get
+// Purpose       : get the phase of a solution vector element in degrees
 // Special Notes : Actually just gets the solution variable.  Does not
 //                 take the phase.  The eval function does that.
 //                 The op.index_ will be:
 //                    a) -1 if it is a Ground node.
 //                    b) the node index (0 ...N), otherwise.
 // Scope         : public
-// Creator       : David Baur, Raytheon
-// Creation Date : 11/15/2013
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/12/2019
 //-----------------------------------------------------------------------------
-complex SolutionPhaseOp::get(const SolutionPhaseOp &op, const Util::Op::OpData &op_data)
+complex SolutionPhaseDegOp::get(const SolutionPhaseDegOp &op, const Util::Op::OpData &op_data)
 {
   complex result(0.0, 0.0);
 
@@ -461,15 +460,54 @@ complex SolutionPhaseOp::get(const SolutionPhaseOp &op, const Util::Op::OpData &
 }
 
 //-----------------------------------------------------------------------------
-// Function      : SolutionPhaseOp::eval
-// Purpose       : compute the phase of a solution vector element
+// Function      : SolutionPhaseDegOp::eval
+// Purpose       : compute the phase of a solution vector element in degrees
 // Special Notes : Actually just computes the phase of a given complex
 //                 value.  It does NOT access the solution vector itself.
 // Scope         : public
 // Creator       : David Baur, Raytheon
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-complex SolutionPhaseOp::eval(complex result)
+complex SolutionPhaseDegOp::eval(complex result)
+{
+  return std::arg(result)*180.0/M_PI;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : SolutionPhaseRadOp::get
+// Purpose       : get the phase of a solution vector element in radians
+// Special Notes : Actually just gets the solution variable.  Does not
+//                 take the phase.  The eval function does that.
+//                 The op.index_ will be:
+//                    a) -1 if it is a Ground node.
+//                    b) the node index (0 ...N), otherwise.
+// Scope         : public
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+complex SolutionPhaseRadOp::get(const SolutionPhaseRadOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+  if (op.index_ > -1 && op_data.realSolutionVector_ != 0)
+  {
+    result = complex((*op_data.realSolutionVector_)[op.index_], op_data.imaginarySolutionVector_ == 0 ? 0.0 : (*op_data.imaginarySolutionVector_)[op.index_]);
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : SolutionPhaseRadOp::eval
+// Purpose       : compute the phase of a solution vector element in radians
+// Special Notes : Actually just computes the phase of a given complex
+//                 value.  It does NOT access the solution vector itself.
+// Scope         : public
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+complex SolutionPhaseRadOp::eval(complex result)
 {
   return std::arg(result);
 }
@@ -695,22 +733,21 @@ complex VoltageDifferenceMagnitudeOp::eval(complex result)
   return std::abs(result);
 }
 
-
 //-----------------------------------------------------------------------------
-// Function      : VoltageDifferencePhaseOp::get
+// Function      : VoltageDifferencePhaseDegOp::get
 // Purpose       : get the difference between two solution variables, as
 //                 needed by constructs like VP(A,B)
 // Special Notes : Computes the difference, but does not take the phase.
-//                 The eval function takes the phase.
+//                 The eval function takes the phase in degrees.
 //                 op.index1_ (or op.index2_) will be:
 //                   a) -2 if its node is not found on this processor.
 //                   b) -1 if its node is a Ground node.
 //                   c) its node index (0 ...N), otherwise.
 // Scope         : public
-// Creator       : David Baur, Raytheon
-// Creation Date : 11/15/2013
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/12/2019
 //-----------------------------------------------------------------------------
-complex VoltageDifferencePhaseOp::get(const VoltageDifferencePhaseOp &op, const Util::Op::OpData &op_data)
+complex VoltageDifferencePhaseDegOp::get(const VoltageDifferencePhaseDegOp &op, const Util::Op::OpData &op_data)
 {
   complex result(0.0, 0.0);
 
@@ -729,17 +766,66 @@ complex VoltageDifferencePhaseOp::get(const VoltageDifferencePhaseOp &op, const 
 }
 
 //-----------------------------------------------------------------------------
-// Function      : VoltageDifferencePhaseOp::eval
+// Function      : VoltageDifferencePhaseDegOp::eval
 // Purpose       : Compute the phase of a voltage difference
-// Special Notes : Actually just takes the phase of a complex number.
-//                 It does NOT access the solution vector itself.  Must 
-//                 "get" the complex voltage-difference first, with the get 
+// Special Notes : Actually just takes the phase of a complex number in degrees.
+//                 It does NOT access the solution vector itself.  Must
+//                 "get" the complex voltage-difference first, with the get
+//                 function.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/12/2019
+//-----------------------------------------------------------------------------
+complex VoltageDifferencePhaseDegOp::eval(complex result)
+{
+  return std::arg(result)*180.0/M_PI;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : VoltageDifferencePhaseRadOp::get
+// Purpose       : get the difference between two solution variables, as
+//                 needed by constructs like VP(A,B)
+// Special Notes : Computes the difference, but does not take the phase.
+//                 The eval function takes the phase in radians.
+//                 op.index1_ (or op.index2_) will be:
+//                   a) -2 if its node is not found on this processor.
+//                   b) -1 if its node is a Ground node.
+//                   c) its node index (0 ...N), otherwise.
+// Scope         : public
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+complex VoltageDifferencePhaseRadOp::get(const VoltageDifferencePhaseRadOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+  if (op_data.realSolutionVector_ != 0)
+  {
+    if (op.index1_ > -1)
+    {
+      result = complex((*op_data.realSolutionVector_)[op.index1_], op_data.imaginarySolutionVector_ == 0 ? 0.0 : (*op_data.imaginarySolutionVector_)[op.index1_]);
+    }
+    if (op.index2_ > -1)
+    {
+      result -= complex((*op_data.realSolutionVector_)[op.index2_], op_data.imaginarySolutionVector_ == 0 ? 0.0 : (*op_data.imaginarySolutionVector_)[op.index2_]);
+    }
+  }
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : VoltageDifferencePhaseRadOp::eval
+// Purpose       : Compute the phase of a voltage difference
+// Special Notes : Actually just takes the phase of a complex number in radians.
+//                 It does NOT access the solution vector itself.  Must
+//                 "get" the complex voltage-difference first, with the get
 //                 function.
 // Scope         : public
 // Creator       : David Baur, Raytheon
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-complex VoltageDifferencePhaseOp::eval(complex result)
+complex VoltageDifferencePhaseRadOp::eval(complex result)
 {
   return std::arg(result);
 }
@@ -971,15 +1057,15 @@ complex RFparamsMagnitudeOp::eval(complex result)
 
 
 //-----------------------------------------------------------------------------
-// Function      : RFparamsPhaseOp::get
+// Function      : RFparamsPhaseDegOp::get
 // Purpose       : get a variable out of the RFparams map, in preparation for
-//                 computing its phase with the eval function.  This
+//                 computing its phase (in degrees) with the eval function.  This
 //                 is used by operators such as SP(1,2), YP(1,2) or ZP(1,2).
 // Scope         : public
 // Creator       : Pete Sholander, SNL
 // Creation Date : 7/01/2019
 //-----------------------------------------------------------------------------
-complex RFparamsPhaseOp::get(const RFparamsPhaseOp &op, const Util::Op::OpData &op_data)
+complex RFparamsPhaseDegOp::get(const RFparamsPhaseDegOp &op, const Util::Op::OpData &op_data)
 {
   complex result(0.0, 0.0);
 
@@ -1003,8 +1089,8 @@ complex RFparamsPhaseOp::get(const RFparamsPhaseOp &op, const Util::Op::OpData &
 }
 
 //-----------------------------------------------------------------------------
-// Function      : RFparamsPhaseOp::eval
-// Purpose       : Take the phase of an RF parameter. This is used
+// Function      : RFparamsPhaseDegOp::eval
+// Purpose       : Take the phase (in degrees) of an RF parameter. This is used
 //                 by constructs like SP(1,2), YP(1,2) and ZP(1,2).
 // Special Notes : Actually just takes the phase of a complex number.
 //                 It does NOT access the RFparams map itself.  The get
@@ -1013,7 +1099,56 @@ complex RFparamsPhaseOp::get(const RFparamsPhaseOp &op, const Util::Op::OpData &
 // Creator       : Pete Sholander, SNL
 // Creation Date : 7/01/2019
 //-----------------------------------------------------------------------------
-complex RFparamsPhaseOp::eval(complex result)
+complex RFparamsPhaseDegOp::eval(complex result)
+{
+  return std::arg(result)*180.0/M_PI;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsPhaseRadOp::get
+// Purpose       : get a variable out of the RFparams map, in preparation for
+//                 computing its phase (in radians) with the eval function.  This
+//                 is used by operators such as SP(1,2), YP(1,2) or ZP(1,2).
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsPhaseRadOp::get(const RFparamsPhaseRadOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+  if (op_data.RFparams_ != 0)
+  {
+    Util::Op::RFparamsData::const_iterator it;
+    it = (*op_data.RFparams_).find(op.type_);
+    const Teuchos::SerialDenseMatrix<int, std::complex<double> > & param = *it->second;
+    if ( op.index1_ > 0  && op.index2_ > 0 && op.index1_ <= param.numRows() && op.index2_ <= param.numRows() )
+    {
+      // Teuchos matrices start at (0,0), so subtract 1 from index1_ and index2_
+      result = param(op.index1_-1,op.index2_-1);
+    }
+    else
+    {
+      Report::UserError0() << "Indices for " << op.name_ << " operator must be <= number of ports";
+    }
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RFparamsPhaseRadOp::eval
+// Purpose       : Take the phase (in radians) of an RF parameter. This is used
+//                 by constructs like SP(1,2), YP(1,2) and ZP(1,2).
+// Special Notes : Actually just takes the phase of a complex number.
+//                 It does NOT access the RFparams map itself.  The get
+//                 function does that.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/01/2019
+//-----------------------------------------------------------------------------
+complex RFparamsPhaseRadOp::eval(complex result)
 {
   return std::arg(result);
 }
@@ -1432,18 +1567,18 @@ complex StoreMagnitudeOp::eval(complex result)
 
 
 //-----------------------------------------------------------------------------
-// Function      : StorePhaseOp::get
-// Purpose       : get the phase of a store vector element
+// Function      : StorePhaseDegOp::get
+// Purpose       : get the phase of a store vector element in degrees
 // Special Notes : Actually just gets the store variable.  Does not
 //                 take the phase.  The eval function does that.
 //                 This method only works if a valid real store vector pointer
 //                 is always passed.  If a null pointer is passed,
-//                 a nonsense value is stored instead.  
+//                 a nonsense value is stored instead.
 // Scope         : public
-// Creator       : David Baur, Raytheon
-// Creation Date : 11/15/2013
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/12/2019
 //-----------------------------------------------------------------------------
-complex StorePhaseOp::get(const StorePhaseOp &op, const Util::Op::OpData &op_data)
+complex StorePhaseDegOp::get(const StorePhaseDegOp &op, const Util::Op::OpData &op_data)
 {
   complex result(0.0, 0.0);
 
@@ -1456,15 +1591,54 @@ complex StorePhaseOp::get(const StorePhaseOp &op, const Util::Op::OpData &op_dat
 }
 
 //-----------------------------------------------------------------------------
-// Function      : StorePhaseOp::eval
-// Purpose       : compute the phase of a store vector element
+// Function      : StorePhaseDegOp::eval
+// Purpose       : compute the phase of a store vector element in degrees
+// Special Notes : Actually just computes the phase of a given complex
+//                 value, does NOT access the store vector itself.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/12/2019
+//-----------------------------------------------------------------------------
+complex StorePhaseDegOp::eval(complex result)
+{
+  return std::arg(result)*180.0/M_PI;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : StorePhaseRadOp::get
+// Purpose       : get the phase of a store vector element in radians
+// Special Notes : Actually just gets the store variable.  Does not
+//                 take the phase.  The eval function does that.
+//                 This method only works if a valid real store vector pointer
+//                 is always passed.  If a null pointer is passed,
+//                 a nonsense value is stored instead.
+// Scope         : public
+// Creator       : David Baur, Raytheon
+// Creation Date : 11/15/2013
+//-----------------------------------------------------------------------------
+complex StorePhaseRadOp::get(const StorePhaseRadOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+  if (op.index_ != -1 && op_data.realStoreVector_ != 0)
+  {
+    result = complex((*op_data.realStoreVector_)[op.index_], op_data.imaginaryStoreVector_ == 0 ? 0.0 : (*op_data.imaginaryStoreVector_)[op.index_]);
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : StorePhaseRadOp::eval
+// Purpose       : compute the phase of a store vector element in radians
 // Special Notes : Actually just computes the phase of a given complex
 //                 value, does NOT access the store vector itself.
 // Scope         : public
 // Creator       : David Baur, Raytheon
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-complex StorePhaseOp::eval(complex result)
+complex StorePhaseRadOp::eval(complex result)
 {
   return std::arg(result);
 }
@@ -1791,17 +1965,18 @@ complex BranchDataCurrentMagnitudeOp::eval(complex result)
   return std::abs(result);
 }
 
+
 //-----------------------------------------------------------------------------
-// Function      : BranchDataCurrentPhaseOp::get
-// Purpose       : get a variable out of the lead current vector, in 
-//                 preparation for computing its phase with the eval
-//                 function. 
+// Function      : BranchDataCurrentPhaseDegOp::get
+// Purpose       : get a variable out of the lead current vector, in
+//                 preparation for computing its phase (in degrees) with the eval
+//                 function.
 // Special Notes : 
 // Scope         : public
 // Creator       : Richard Schiek, SNL 
 // Creation Date : 02/24/2015 
 //-----------------------------------------------------------------------------
-complex BranchDataCurrentPhaseOp::get(const BranchDataCurrentPhaseOp &op, const Util::Op::OpData &op_data)
+complex BranchDataCurrentPhaseDegOp::get(const BranchDataCurrentPhaseDegOp &op, const Util::Op::OpData &op_data)
 {
   complex result(0.0, 0.0);
 
@@ -1814,8 +1989,8 @@ complex BranchDataCurrentPhaseOp::get(const BranchDataCurrentPhaseOp &op, const 
 }
 
 //-----------------------------------------------------------------------------
-// Function      : BranchDataCurrentPhaseOp::eval
-// Purpose       : compute the phase of a lead current vector element
+// Function      : BranchDataCurrentPhaseDegOp::eval
+// Purpose       : compute the phase (in degrees) of a lead current vector element
 // Special Notes : Actually just returns the magnitude of a given complex
 //                 value.  It does NOT access the lead current vector itself.
 //                 The get function does that access.
@@ -1823,7 +1998,45 @@ complex BranchDataCurrentPhaseOp::get(const BranchDataCurrentPhaseOp &op, const 
 // Creator       : Richard Schiek, SNL 
 // Creation Date : 02/24/2015 
 //-----------------------------------------------------------------------------
-complex BranchDataCurrentPhaseOp::eval(complex result)
+complex BranchDataCurrentPhaseDegOp::eval(complex result)
+{
+  return std::arg(result)*180.0/M_PI;
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : BranchDataCurrentPhaseRadOp::get
+// Purpose       : get a variable out of the lead current vector, in
+//                 preparation for computing its phase (in radians) with the eval
+//                 function.
+// Special Notes : 
+// Scope         : public
+// Creator       : Richard Schiek, SNL 
+// Creation Date : 02/24/2015 
+//-----------------------------------------------------------------------------
+complex BranchDataCurrentPhaseRadOp::get(const BranchDataCurrentPhaseRadOp &op, const Util::Op::OpData &op_data)
+{
+  complex result(0.0, 0.0);
+
+  if (op.index_ != -1)
+  {
+    result = complex(op_data.realLeadCurrentVector_ == 0 ? 0.0 : (*op_data.realLeadCurrentVector_)[op.index_], op_data.imaginaryLeadCurrentVector_ == 0 ? 0.0 : (*op_data.imaginaryLeadCurrentVector_)[op.index_]);
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : BranchDataCurrentPhaseRadOp::eval
+// Purpose       : compute the phase (in radians) of a lead current vector element
+// Special Notes : Actually just returns the magnitude of a given complex
+//                 value.  It does NOT access the lead current vector itself.
+//                 The get function does that access.
+// Scope         : public
+// Creator       : Richard Schiek, SNL
+// Creation Date : 02/24/2015
+//-----------------------------------------------------------------------------
+complex BranchDataCurrentPhaseRadOp::eval(complex result)
 {
   return std::arg(result);
 }

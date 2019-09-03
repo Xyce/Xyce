@@ -479,6 +479,11 @@ public:
     return outputVersionInRawFile_;
   }
 
+  bool getPhaseOutputUsesRadians() const
+  {
+    return phaseOutputUsesRadians_;
+  }
+
   void setEnableEmbeddedSamplingFlag(bool value)
   {
     enableEmbeddedSamplingFlag_ = value;
@@ -684,6 +689,8 @@ private:
   bool                  printFooter_;               // flag to indicate if user wants the "End of Xyce(TM)" line in the output.
   bool                  printStepNumCol_;           // flag to indicate if users want to add a STEPNUM column
   bool                  outputVersionInRawFile_;    // flag to indicate that Version should be output in the header of a RAW file.
+
+  bool                  phaseOutputUsesRadians_;         // default for VP() and IP() is radians.  This flag changes that to degrees.
 
   bool outputCalledBefore_;
 
