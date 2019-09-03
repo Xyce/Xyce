@@ -364,6 +364,7 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       stdDevGiven=true;
       double stdDev = iter->getImmutableValue<double>();
+      if (stdDev < 0) { Report::DevelFatal() << "STD_DEVIATIONS values for .PCE must be >= 0";}
       stdDevVec_.push_back(stdDev);
     }
     else if (std::string( iter->uTag() ,0,12) == "LOWER_BOUNDS")
@@ -382,12 +383,14 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       alphaGiven=true;
       double alpha = iter->getImmutableValue<double>();
+      if (alpha <= 0) { Report::DevelFatal() << "ALPHA values for .PCE must be > 0";}
       alphaVec_.push_back(alpha);
     }
     else if (std::string( iter->uTag() ,0,4) == "BETA")
     {
       betaGiven=true;
       double beta = iter->getImmutableValue<double>();
+      if (beta <= 0) { Report::DevelFatal() << "BETA values for .PCE must be > 0";}
       betaVec_.push_back(beta);
     }
     else
@@ -537,6 +540,8 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     else if ((*it).uTag() == "ORDER")
     {
       PCEorder_ = (*it).getImmutableValue<int>();
+      if (PCEorder_ < 0)
+        Report::UserError() << "ORDER parameter on .PCE line must >= 0";
     }
 #endif
     else if ((*it).uTag() == "SAMPLE_TYPE")
