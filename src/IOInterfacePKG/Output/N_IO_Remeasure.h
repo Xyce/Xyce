@@ -86,6 +86,7 @@ public:
   
   // All of these functions must be defined in the derived classes
   virtual void setIndepVarCol(int rank, int i, std::string colName) = 0;
+  virtual void checkIndepVarCol(int rank, int i) = 0;
   virtual void setIndepVar(double value) = 0;
   virtual double getIndepVar() = 0;
   virtual void updateMeasures(Linear::Vector& varValuesVec) = 0;
@@ -134,6 +135,7 @@ public:
   ~RemeasureAC();
   
   void setIndepVarCol(int rank, int i, std::string colName);
+  void checkIndepVarCol(int rank, int i);
   void setIndepVar(double value) {frequency=value;}  
   double getIndepVar() { return frequency;}
 
@@ -168,6 +170,7 @@ public:
   ~RemeasureDC();
   
   void setIndepVarCol(int rank, int i, std::string colName);
+  void checkIndepVarCol(int rank, int i);
   void setIndepVar(double value) {DCIndex = value;}
   double getIndepVar() { return DCIndex;}
 
@@ -208,6 +211,7 @@ public:
   ~RemeasureTRAN();
   
   void setIndepVarCol(int rank, int i, std::string colName);
+  void checkIndepVarCol(int rank, int i);
 
   // for TRAN remeasure, the TIME is the independent variable, and it is kept by the 
   // output_manager, rather than as private variable in the RemeasureTRAN object.  This 

@@ -124,12 +124,28 @@ RemeasureAC::~RemeasureAC()
 //-----------------------------------------------------------------------------
 void RemeasureAC::setIndepVarCol(int rank, int i, std::string colName)
 {
-  if ( (i<2) && (colName=="FREQ") )
+  if ( (i<3) && (colName=="FREQ") )
   {
     (rank == 0) ? index = i : index = -1;
   }
 
   return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RemeasureAC::checkIndepVarCol
+// Purpose       : Checks that a FREQ column was found in the remeasured data file.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/28/19
+//-----------------------------------------------------------------------------
+void RemeasureAC::checkIndepVarCol(int rank, int index)
+{
+  if ( (rank == 0) && index < 0 )
+  {
+    Report::UserFatal() << "FREQ column not found in remeasured output file for AC-mode remeasure";
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -224,22 +240,31 @@ RemeasureDC::~RemeasureDC()
 //-----------------------------------------------------------------------------
 void RemeasureDC::setIndepVarCol(int rank, int i, std::string colName)
 {
-  if (i==0) 
+  if ( (i< 2) && (colName=="Index") )
   {
-    if (colName=="Index")
-    {
-      (rank == 0) ? index = 0 : index = -1;
-    }
-    else
-    {
-      // For DC mode, the comparison file must have INDEX as its first column.  It
-      // will be used later to "sense" when a step, caused by a .STEP line, has occurred
-      // in the data.
-      Report::UserFatal0() << "First column of comparison file must be Index for DC-mode remeasure";
-    }
+    (rank == 0) ? index = i : index = -1;
   }
 
   return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RemeasureDC::checkIndepVarCol
+// Purpose       : Checks that an INDEX column was found in the remeasured data file.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/28/19
+//-----------------------------------------------------------------------------
+void RemeasureDC::checkIndepVarCol(int rank, int index)
+{
+  if ( (rank == 0) && index < 0 )
+  {
+    // For DC mode, the comparison file must have an Index.  It will be used
+    // later to "sense" when a step, caused by a .STEP line, has occurred
+    // in the data.
+    Report::UserFatal() << "Index column not found in remeasured output file for DC-mode remeasure";
+  }
 }
 
 
@@ -339,12 +364,28 @@ RemeasureTRAN::~RemeasureTRAN()
 //-----------------------------------------------------------------------------
 void RemeasureTRAN::setIndepVarCol(int rank, int i, std::string colName)
 {
-  if ( (i<2) && (colName=="TIME") )
+  if ( (i<3) && (colName=="TIME") )
   {
     (rank == 0) ? index = i : index = -1;
   }
 
   return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RemeasureTRAN::checkIndepVarCol
+// Purpose       : Checks that a TIME column was found in the remeasured data file.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/28/19
+//-----------------------------------------------------------------------------
+void RemeasureTRAN::checkIndepVarCol(int rank, int index)
+{
+  if ( (rank == 0) && index < 0 )
+  {
+    Report::UserFatal() << "TIME column not found in remeasured output file for TRAN-mode remeasure";
+  }
 }
 
 } // namespace Measure

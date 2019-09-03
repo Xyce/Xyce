@@ -69,7 +69,6 @@ enum {
   LEADCURRENT,                          ///< Lead current variables
   JACOBIAN,                             ///< Jacobian values
   JACOBIAN_OVERLAP,                     ///< Jacobian values on processor boundary
-  JACOBIAN_OVERLAP_GND,                 ///< Jacobian values on processor boundary with ground
 
   LINEAR_SOLUTION,                      ///< Only solution values for linear devices
   LINEAR_JACOBIAN,                      ///< Only Jacobian rows for linear devices, linear map

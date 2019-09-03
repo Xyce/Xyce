@@ -142,8 +142,8 @@ bool Indexor::deleteAcceleratedMatrixIndexing()
 
 //-----------------------------------------------------------------------------
 // Function      : Indexor::matrixGlobalToLocal
-// Purpose       :
-// Special Notes :
+// Purpose       : This method converts the GIDs in device stamps to LIDs
+// Special Notes : If the GID is ground it will also be -1 as the LID
 // Scope         : public
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 08/23/02
@@ -167,12 +167,23 @@ Indexor::matrixGlobalToLocal(
   {
     for( int i = 0; i < numRows; ++i )
     {
-      int RowLID = graph->LRID(gids[i]);
-      int NumCols = stamp[i].size();
-      for( int j = 0; j < NumCols; ++j )
+      int numCols = stamp[i].size();
+      if (gids[i] != -1)
       {
-        int lid = graph->LCID(stamp[i][j]);
-        stamp[i][j] = matrixIndexMap_[RowLID][lid];
+        int rowLID = graph->LRID(gids[i]);
+        for( int j = 0; j < numCols; ++j )
+        {
+          int lid = graph->LCID(stamp[i][j]);
+          if (stamp[i][j] != -1)
+            stamp[i][j] = matrixIndexMap_[rowLID][lid];
+          else
+            stamp[i][j] = -1;
+        }
+      }
+      else
+      {
+        for( int j = 0; j < numCols; ++j )
+          stamp[i][j] = -1;
       }
     }
   }
@@ -180,17 +191,26 @@ Indexor::matrixGlobalToLocal(
   {
     for( int i = 0; i < numRows; ++i )
     {
-      graph->ExtractMyRowView( graph->LRID(gids[i]), numElements, elements );
-
-      std::map<int,int> indexToOffsetMap;
-      for( int j = 0; j < numElements; ++j ) indexToOffsetMap[ elements[j] ] = j;
-
       int numCols = stamp[i].size();
-      for( int j = 0; j < numCols; ++j )
-      {
-        int lid = graph->LCID(stamp[i][j]);
-        stamp[i][j] = indexToOffsetMap[lid];
+      if (gids[i] != -1)
+      { 
+        graph->ExtractMyRowView( graph->LRID(gids[i]), numElements, elements );
+
+        std::map<int,int> indexToOffsetMap;
+        for( int j = 0; j < numElements; ++j ) 
+          indexToOffsetMap[ elements[j] ] = j;
+
+        for( int j = 0; j < numCols; ++j )
+        {
+          int lid = graph->LCID(stamp[i][j]);
+          stamp[i][j] = indexToOffsetMap[lid];
+        }
       }
+      else
+      {
+        for( int j = 0; j < numCols; ++j )
+          stamp[i][j] = -1;
+      } 
     }
   }
 

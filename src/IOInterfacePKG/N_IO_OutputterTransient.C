@@ -75,6 +75,8 @@ void enableTransientOutput(Parallel::Machine comm, OutputMgr &output_manager, An
           transient_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
         if (transient_print_parameters.printIndexColumn_)
           transient_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+        if (transient_print_parameters.printStepNumColumn_)
+          transient_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
 
         output_manager.fixupPrintParameters(comm, transient_print_parameters);
 

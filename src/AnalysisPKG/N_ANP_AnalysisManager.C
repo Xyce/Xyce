@@ -44,6 +44,9 @@
 #include <N_ANP_Step.h>
 #include <N_ANP_Sampling.h>
 #include <N_ANP_EmbeddedSampling.h>
+#if Xyce_STOKHOS_ENABLE
+#include <N_ANP_PCE.h>
+#endif
 #include <N_ANP_ROL.h>
 
 #include <N_ANP_OutputMgrAdapter.h>
@@ -394,6 +397,16 @@ bool AnalysisManager::initializeSolverSystem(
   delete nonlinearEquationLoader_;
 
   dataStore_ = new TimeIntg::DataStore(tia_params.maxOrder, linear_system.builder());
+
+#if Xyce_STOKHOS_ENABLE
+  // ERK.  HACK!!! FIX THIS
+  // if doing intrusive-style PCE, then some of the data store objects need to be re-sized.
+  if ( analysisObject_->getName() == "PCE" )
+  {
+    dataStore_->allocatePCEVectors();
+  }
+#endif
+
   workingIntgMethod_ = new TimeIntg::WorkingIntegrationMethod(stat);
   stepErrorControl_ = new TimeIntg::StepErrorControl(netlistFilename_, *this, *workingIntgMethod_, tia_params);
   nonlinearEquationLoader_ = new Loader::NonlinearEquationLoader(*dataStore_, loader, device_manager, *workingIntgMethod_, daeStateDerivFlag_);
@@ -436,7 +449,19 @@ bool AnalysisManager::initializeSolverSystem(
 //-----------------------------------------------------------------------------
 bool AnalysisManager::getBlockAnalysisFlag() const
 {
-  return dynamic_cast<Analysis::HB *>(primaryAnalysisObject_) || dynamic_cast<Analysis::MPDE *>(primaryAnalysisObject_);
+#if Xyce_STOKHOS_ENABLE
+  // ERK: check this
+  return 
+    dynamic_cast<Analysis::PCE *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::EmbeddedSampling *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::HB *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::MPDE *>(primaryAnalysisObject_);
+#else
+  return 
+    dynamic_cast<Analysis::EmbeddedSampling *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::HB *>(primaryAnalysisObject_) || 
+    dynamic_cast<Analysis::MPDE *>(primaryAnalysisObject_);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -517,7 +542,12 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
        (analysisCreatorVector_.empty() || (analysisCreatorVector_.size() == 1 && 
              (analysisCreatorVector_.front()->isType<Step>() || 
               analysisCreatorVector_.front()->isType<Sampling>() || 
-              analysisCreatorVector_.front()->isType<EmbeddedSampling>()))))
+              analysisCreatorVector_.front()->isType<EmbeddedSampling>()
+#if Xyce_STOKHOS_ENABLE
+              ||
+              analysisCreatorVector_.front()->isType<PCE>()
+#endif
+              ))))
   {
     CreatorVector::const_iterator it = analysis_registry.begin(); 
     CreatorVector::const_iterator end = analysis_registry.end();
@@ -539,7 +569,11 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
   {
     if (!(*it)->isType<Step>() 
         && !(*it)->isType<Sampling>()
-        && !(*it)->isType<EmbeddedSampling>()) 
+        && !(*it)->isType<EmbeddedSampling>()
+#if Xyce_STOKHOS_ENABLE
+        && !(*it)->isType<PCE>()
+#endif
+        ) 
     {
       primaryAnalysisObject_ = (*it)->create();
       analysisVector_.push_back(primaryAnalysisObject_);
@@ -570,6 +604,15 @@ void AnalysisManager::allocateAnalysisObject(AnalysisCreatorRegistry & analysis_
       analysisVector_.push_back(analysisObject_);
       pushActiveAnalysis(analysisObject_);
     }
+
+#if Xyce_STOKHOS_ENABLE
+    if ((*it)->isType<PCE>()) 
+    {
+      analysisObject_ = (*it)->create();
+      analysisVector_.push_back(analysisObject_);
+      pushActiveAnalysis(analysisObject_);
+    }
+#endif
   }
 
 #ifdef Xyce_ROL

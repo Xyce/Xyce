@@ -1,4 +1,11 @@
-Obscure, apparently undocumented syntax issues.
+ADMS is powerful, but it basically is completely undocumented, and one
+learns how to use it mostly by analysis of existing ADMS templates for
+open source codes that use it.
+
+Most of these notes were written in the very early days (circa 2008)
+of trying to write Xyce/ADMS, when they came in much more handy than
+they do now.  I tried to go through them in late 2019 just to make them
+relevant again, since I'd forgotten this file even existed.
 
 1)  <admst:value-of select="path"/>
     <admst:text format="%s"/>
@@ -7,7 +14,7 @@ Obscure, apparently undocumented syntax issues.
     <admst:text format="%(path)"/>
 
 ----
-2)  Looks like one can apply templates without using "apply-templates":
+2)  One can also apply templates without using "apply-templates":
 
     <admst:text format="$e=%(e(rhs/tree));\n"/>
 
@@ -24,11 +31,25 @@ Obscure, apparently undocumented syntax issues.
     does NOT save the output of e(rhs/tree) into the variable foo.  To get
     that done generally requires using apply-templates to templates that
     don't do output (but rather return values).
-  
+
+   (Note added 2019: This is not strictly correct.  If e() has a "return"
+   statement, one *can* access it and assign it to a variable by accessing
+   more of the data path for the template, for example:
+      <admst:variable name="foo" select="%(e(.)/[name='returnName']/value)"/>
+   where the template "e" has a "<admst:return name="returnName" value="..."/>
+   statement in it.
+
+   Generally speaking, for reasons of readability and maintainability,
+   I think use of template calls like this should probably be limited
+   to templates that just perform a formatting action and return
+   formatted data for output, not those that have side effects by
+   modifying the ADMS data tree.  The explicit apply-templates syntax
+   is better for that kind of work.
+
 ----
 3) Each variable/parameter has a node called "parametertype" that defaults to
    "model".  Apparently, when there is an attribute called "type" in the
-   parameter's definition, e.g. 
+   parameter's definition, e.g.
 
 `ifdef insideADMS
  `define P(p) (*p*)
@@ -39,23 +60,20 @@ Obscure, apparently undocumented syntax issues.
  `define PGIVEN(p)              p
  `define INITIAL_MODEL          @(initial_step)
 `endif
-parameter real dt       = 0.0   `P(spice:name="dt" type="instance" info="Temperature change for particular transistor" unit="K");                   
+parameter real dt       = 0.0   `P(spice:name="dt" type="instance" info="Temperature change for particular transistor" unit="K");
 
 
-then that parameter gets the "type" attribute turned into a "parametertype".
-NOTHING documents this fact except that if you look at adms.xml it shows up 
-there --- as long as you aren't browsing it with a web browser.
-
---- I modify that.  If you open the "math" top-level entity then browse to 
-"subexpression" and open it, then open "variable" you'll find a "parametertype" 
-line.  But nothing gets displayed showing what it means or what the defaults
-are.  You have to look at the raw, unstyled XML to see that.  GRRRR.
-
-Lots of elements are hidden in that "math" element, and aren't displayed by
-the "styled" version unless you have math open.  Grrr^2
+then that parameter gets the "type" attribute turned into a
+"parametertype".  NOTHING documents this fact except that if you look
+at adms.xml it shows up there.  if you open the "math" top-level
+entity then browse to "subexpression" and open it, then open
+"variable" and then the associated "variableprototype" link, you'll
+find a "parametertype" line.  Further expanding that you can find that
+the acceptable values for the parameter type are "model," "instance,"
+and "analogfunction" (for parameters passed to analog functions).
 
 -----
-4) Yet another completely undocumented bit of admst:
+4) Use of "return" from templates
 
    <admst:return name="returnname" value="text"/>
 
@@ -70,10 +88,16 @@ the "styled" version unless you have math open.  Grrr^2
      <admst:variable name="variablename" select="%s"/>
    </admst:apply-templates>
 
+   See also note 2, where it is also possible to use an abbreviated version
+   of this like:
+     <admst:variable name="variablename" select="%(templatename(/path)/[name='returnname']/value)"/>
+   which should be exactly the same as the four-line version above.
 
 -------
-5) apply-templates will work on all members of a container.  For example,
-   a block often (usually) has multiple items.  Doing:
+
+5) apply-templates will work as a loop over all members of a
+   container.  For example, a block often (usually) has multiple
+   items.  Doing:
 
    <admst:apply-templates select="item" match="sometemplate"/>
 
@@ -82,6 +106,13 @@ the "styled" version unless you have math open.  Grrr^2
      <admst:for-each select="item">
        <admst:apply-templates select="." match="sometemplate"/>
      </admst:for-each>
+
+6) "if-inside" and "if-not-inside" are admst commands that check for the presence of a value in a list:
+      <admst:if-inside select="$derivProbe" list="%(probe)">
+        <admst:variable name="expressionDeriv" select="d_%(name)_d%($derivProbe/nature/access)_%($derivProbe/branch/pnode/name)_%($derivProbe/branch/nnode/name)"/>
+      </admst:if-inside>
+   That is, if the probe stored in $derivProbe is in the list "probe" that
+   is part of the path element currently being processed, do something.
 
 -------
   Completely undocumented, learned only through email with Laurent Lamaitre:
@@ -92,19 +123,19 @@ the "styled" version unless you have math open.  Grrr^2
   "croixvariable.xml"
 
   On Laurent's recommendation, I used this feature in the
-  "collectAssignedVariables" template.  This template recursively gathers a 
+  "collectAssignedVariables" template.  This template recursively gathers a
   list of all the variables that are on the left-hand-side of any assignment
   at or below the part of the tree passed to it.  It is roughly patterned on
   a similar template in qucs, ng-spice, and zspice ("block:local:variables")
-  that used a deprecated part of the adms data tree 
-  (/module/evaluation/variable).  
-  
+  that used a deprecated part of the adms data tree
+  (/module/evaluation/variable).
+
   To use this method to push something into an array, you can do:
 
    <admst:push into="/some/data/path/@variable" select="somenode"/>
 
  which will create the @variable sub-node of /some/data/path if it doesn't
- exist and add somenode to that list.  
+ exist and add somenode to that list.
 
    <admst:push into="/some/data/path/#variable" select="somevalue"/>
 
@@ -115,7 +146,7 @@ the "styled" version unless you have math open.  Grrr^2
 
    onduplicate="ignore"  --- do nothing (don't push), the default
    onduplicate="abort"   --- exit with error
-   onduplicate="ignore-abort"  
+   onduplicate="ignore-abort" --- ??
    onduplicate="passthrough"  --- ??
 
 ----------------
@@ -128,6 +159,14 @@ Documented, but not obvious:
    currents on the LHS.  It will also probably help to figure out how to 
    declare the Sacado Fad types.
 
--  DUH!  There is a /module/jacobian item that tells EXACTLY what jacobian
-   terms arise from the various contributions.  This should make jacstamp
-   and offset generation very simple.
+- DUH!  There is a /module/jacobian item that tells EXACTLY what
+   jacobian terms arise from the various contributions.  This should
+   make jacstamp and offset generation very simple.  But this data
+   structure contains ONLY information from conttributions of the form
+   "I(branch) <+ expression", and no information from "V(branch) <+
+   expression."  The latter makes things much more complicated and
+   introduces new variables and equations, and must be handled
+   ourselves.  (Xyce/ADMS has supported this through various
+   templating hacks since 2011, see morannon bug 1779, the template
+   "collectExtraUnknowns" in xyceBasicTemplates, and use of the
+   "@extraUknowns" arobavar throughout our code generation templates.)

@@ -236,6 +236,7 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       stdDevGiven=true;
       double stdDev = iter->getImmutableValue<double>();
+      if (stdDev < 0) { Report::DevelFatal() << "STD_DEVIATIONS values for .SAMPLING must be >= 0";}
       stdDevVec_.push_back(stdDev);
     }
     else if (std::string( iter->uTag() ,0,12) == "LOWER_BOUNDS")
@@ -254,12 +255,14 @@ bool Sampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       alphaGiven=true;
       double alpha = iter->getImmutableValue<double>();
+      if (alpha <= 0) { Report::DevelFatal() << "ALPHA values for .SAMPLING must be > 0";}
       alphaVec_.push_back(alpha);
     }
     else if (std::string( iter->uTag() ,0,4) == "BETA")
     {
       betaGiven=true;
       double beta = iter->getImmutableValue<double>();
+      if (beta <= 0) { Report::DevelFatal() << "BETA values for .SAMPLING must be > 0";}
       betaVec_.push_back(beta);
     }
     else
@@ -1039,7 +1042,7 @@ void Sampling::completeEnsembleOutputs()
           regressionPCE.reset(regrBasis);
 
           std::vector<double> & f = outFunc.sampleOutputs;
-          UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
+          UQ::solveRegressionPCE( paramNameVec_.size(), x, f, regressionPCE);
 
           if (outputPCECoeffs_)
           {
@@ -1194,7 +1197,7 @@ void Sampling::completeEnsembleOutputs()
           regressionPCE.reset(regrBasis);
 
           std::vector<double> & f = measFunc.sampleOutputs;
-          UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
+          UQ::solveRegressionPCE( paramNameVec_.size(), x, f, regressionPCE);
 
           if (outputPCECoeffs_)
           {

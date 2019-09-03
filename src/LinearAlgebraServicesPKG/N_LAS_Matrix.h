@@ -54,12 +54,6 @@ class Epetra_CrsGraph;
 class Epetra_Export;
 class Epetra_OffsetIndex;
 
-namespace EpetraExt {
-
-class CrsMatrix_View;
-
-}
-
 namespace Xyce {
 namespace Linear {
 
@@ -74,6 +68,30 @@ class Matrix
 {
 
 public:
+
+  // Bracket operator proxy.
+  struct bracketProxy {
+
+    bracketProxy( int row, Matrix& thisMatrix )
+    : rowLID_( row ),
+      matrix_( thisMatrix ) 
+    {}
+
+    ~bracketProxy() {}
+
+    int rowLID_;
+    Matrix& matrix_;
+
+    inline double& operator[] (int col_offset)
+    {
+      return *(matrix_( rowLID_, col_offset ));
+    }
+
+    inline const double& operator[] (int col_offset) const
+    {
+      return *(matrix_( rowLID_, col_offset ));
+    } 
+  };
 
   //Constructors
   Matrix( N_PDS_ParMap & map, std::vector<int> & diagArray);
@@ -128,8 +146,14 @@ public:
   double * returnRawEntryPointer (int lidRow, int lidCol);
 
   // Direct access into matrix rows using local indexing.
-  double * operator[]( int row );
-  double * operator[]( int row ) const;
+  //double * operator[]( int row );
+  //double * operator[]( int row ) const;
+  bracketProxy& operator[]( int row );
+  const bracketProxy& operator[]( int row ) const;
+
+  // Direct access into matrix rows and columns using local indexing, with column offset.
+  double * operator()(int row, int col_offset);
+  const double * operator()(int row, int col_offset) const;
 
   Epetra_CrsMatrix & epetraOverlapObj() { return *oDCRSMatrix_; }
 
@@ -221,15 +245,17 @@ protected:
   // Overlapped version of matrix
   Epetra_CrsMatrix * oDCRSMatrix_;
 
-  // Subset View Transform
-  EpetraExt::CrsMatrix_View * viewTransform_;
-
   // Importing Tools
   Epetra_Export * exporter_;
   Epetra_OffsetIndex * offsetIndex_;
 
   // Column maps, assembled and overlapped.
   N_PDS_ParMap *aColMap_, *oColMap_;
+
+  // Dummy variable for loading ground node contributions.
+  mutable bracketProxy proxy_;
+  int groundLID_;
+  double groundNode_;
 
 private:
 

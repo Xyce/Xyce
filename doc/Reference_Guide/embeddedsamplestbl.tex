@@ -1,0 +1,23 @@
+% Sandia National Laboratories is a multimission laboratory managed and
+% operated by National Technology & Engineering Solutions of Sandia, LLC, a
+% wholly owned subsidiary of Honeywell International Inc., for the U.S.
+% Department of Energy’s National Nuclear Security Administration under
+% contract DE-NA0003525.
+
+% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% LLC (NTESS).
+
+%%
+%% Embedded Sampling Table
+%%
+\index{solvers!embeddedsampling!options}
+\begin{OptionTable}{Options for Embedded Sampling Package.} \label{EmbeddedSamplesPKG}
+NUMSAMPLES   & Total number of samples & 0 \\ \hline
+SAMPLE\_TYPE & Sampling type (MC or LHS) & MC \\ \hline
+OUTPUTS      & Comma separated list of outputs (anything that would be a valid \texttt{.RESULT} output command) & -- \\ \hline
+COVMATRIX    & Covariance matrix specified in row major form as comma-separated double precision numbers. & -- \\ \hline
+SEED         & Random seed & See footnote.\footnotemark[1] \\ \hline
+\end{OptionTable}
+
+\footnotetext[1]{The seed can also be set using command line option, -randseed.   The command line seed will override the netlist seed value.  If the seed is not set in either the netlist or on the command line, then Xyce generates a seed internally.  In all cases, \Xyce{} will output text to the console indicating what seed is being used.}
+

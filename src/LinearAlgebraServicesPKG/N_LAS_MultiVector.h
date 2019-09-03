@@ -186,6 +186,24 @@ public:
     return (*oMultiVector_)[index];
   }
 
+  // Index operator
+  double * operator() (int row_lid, int col_lid)
+  {
+    if (row_lid >= 0 && col_lid >= 0)
+      return ((*oMultiVector_)[col_lid]+row_lid);
+    else
+      return &groundNode_;
+  }
+
+  // Index operator
+  const double * operator() (int row_lid, int col_lid) const
+  {
+    if (row_lid >= 0 && col_lid >= 0)
+      return ((*oMultiVector_)[col_lid]+row_lid);
+    else
+      return &groundNode_;
+  }
+
   // Vector access function
   RCP<const Vector> getVectorView(int index) const;
   RCP<Vector> getNonConstVectorView(int index);
@@ -286,6 +304,10 @@ protected:
 
   // Process library error codes.
   void processError(const char *methodMsg, int error) const;
+
+  // Dummy variable for loading ground node contributions.
+  double groundNode_;
+
 };
 
 //-----------------------------------------------------------------------------

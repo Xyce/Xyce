@@ -11,6 +11,7 @@ libAnalysis_la_SOURCES = \
   N_ANP_DCSweep.C \
   N_ANP_Dakota.C \
   N_ANP_EmbeddedSampling.C \
+  N_ANP_PCE.C \
   N_ANP_HB.C \
   N_ANP_InnerLevelSolve.C \
   N_ANP_MOR.C \
@@ -37,6 +38,7 @@ libAnalysis_la_SOURCES = \
   N_ANP_DCSweep.h \
   N_ANP_Dakota.h \
   N_ANP_EmbeddedSampling.h \
+  N_ANP_PCE.h \
   N_ANP_Factory.h \
   N_ANP_HB.h \
   N_ANP_MOR.h \

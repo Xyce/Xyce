@@ -91,13 +91,19 @@ public:
   // Operation: operator []
   double & operator[] (int index)
   {
-    return (*oMultiVector_)[0][index];
+    if (index >= 0)
+      return (*oMultiVector_)[0][index];
+    else
+      return groundNode_;
   }
 
   // Operation: operator []
   const double & operator[] (int index) const
   {
-    return (*oMultiVector_)[0][index];
+    if (index >= 0)
+      return (*oMultiVector_)[0][index];
+    else
+      return groundNode_;
   }
 
   // Dot product with another vector.

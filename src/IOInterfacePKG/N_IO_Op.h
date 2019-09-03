@@ -375,6 +375,30 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+// Class         : StepNumOp
+// Purpose       : Operator for getting the current value of the Step Number
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/19/2019
+//-----------------------------------------------------------------------------
+class StepNumOp : public Util::Op::Op<StepNumOp, Util::Op::ReduceNone, Util::Op::EvalNoop>
+{
+public:
+  StepNumOp(const std::string &name, const OutputMgr &output_manager)
+    : Base(name),
+      outputMgr_(output_manager)
+  {}
+
+  virtual ~StepNumOp()
+  {}
+
+  static complex get(const StepNumOp &op, const Util::Op::OpData &op_data);
+
+  const OutputMgr &  outputMgr_;
+};
+
+
+//-----------------------------------------------------------------------------
 // Class         : SolutionOp
 // Purpose       : Operator for getting the current value of a solution 
 //                 vector element

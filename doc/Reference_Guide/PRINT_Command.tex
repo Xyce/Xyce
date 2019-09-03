@@ -41,6 +41,7 @@ supports several options for each.
 + [PRECISION=<floating point output precision>]
 + [FILTER=<absolute value below which a number outputs as 0.0>]
 + [DELIMITER=<TAB|COMMA>] [TIMESCALEFACTOR=<real scale factor>]
++ [OUTPUTSAMPLESTATS=<boolean>] [OUTPUTALLSAMPLES=<boolean>]
 + <output variable> [output variable]*
 \end{alltt}
 
@@ -144,6 +145,18 @@ output.
 Specify a constant scaling factor for time.  Time is normally printed in
 units of seconds, but if one would like the units to be milliseconds,
 then set TIMESCALEFACTOR=1000.
+
+\argument{OUTPUTSAMPLESTATS=<boolean>}
+Output the sample statistics for an \texttt{EMBEDDEDSAMPLING}
+analysis.This argument is only supported for \texttt{.PRINT ES}.
+Its default value is true.  Section \ref{EMBEDDEDSAMPLING_section}
+has more details.
+
+\argument{OUTPUTALLSAMPLES=<boolean>}
+Output all of the sample values for an \texttt{EMBEDDEDSAMPLING}
+analysis.  This argument is only supported for \texttt{.PRINT ES}.
+Its default value is false.  Section \ref{EMBEDDEDSAMPLING_section}
+has more details.
 
 \argument{<output variable>}
 
@@ -406,6 +419,11 @@ and provides an example.
 \label{Print_Sensitivity}
 \index{\texttt{.PRINT}!Homotopy Analysis}
 \input{PRINT_SENS_Command.tex}
+
+\subsubsection{Print Embedded Sampling Analysis}
+\index{\texttt{.PRINT}!EMBEDDEDSAMPLING Analysis}
+\index{\texttt{.PRINT}!\texttt{ES}}
+\input{PRINT_ES_Command.tex}
 
 \subsubsection{Parameter Stepping}
 \label{Print_Step}

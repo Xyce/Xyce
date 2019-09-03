@@ -76,13 +76,14 @@
 #include <N_LOA_NonlinearEquationLoader.h>
 #include <N_NLS_Manager.h>
 
-// new Embedded Sampler loader class
+// new Embedded Sampler loader classes
 #include <N_LOA_ESLoader.h>
 
 #include <N_LAS_BlockSystemHelpers.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_System.h>
-// new Embedded sampling headers: (patterned, kind of, off the HB headers)  ES = Embedded Sampling
+
+// new Embedded sampling headers: ES = Embedded Sampling
 #include <N_LAS_ESBuilder.h>
 #include <N_LAS_ESSolverFactory.h>
 #include <N_LAS_TranSolverFactory.h>
@@ -168,6 +169,7 @@ EmbeddedSampling::EmbeddedSampling(
       hackOutputAllSamples_(false),
       outputtersCalledBefore_(false),
       outputSampleStats_(true),
+      paramsOuterLoop_(true),
 #if Xyce_STOKHOS_ENABLE
       regressionPCEenable_(false),
       projectionPCEenable_(false),
@@ -270,7 +272,7 @@ void EmbeddedSampling::notify(const StepEvent &event)
 
       nonlinearManager_.resetAll(Nonlinear::DC_OP);
       nonlinearManager_.setMatrixFreeFlag( false );
-      nonlinearManager_.setLinSolOptions( saved_lsOB_ );
+      nonlinearManager_.setLinSolOptions( saved_lsESOB_ );
       nonlinearManager_.registerSolverFactory( NULL );
 
       analysisManager_.initializeSolverSystem(
@@ -289,6 +291,7 @@ void EmbeddedSampling::notify(const StepEvent &event)
         topology_);
 
       TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
+
       esLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);
 
       analysisManager_.getXyceTranTimer().resetStartTime();
@@ -361,6 +364,7 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       stdDevGiven=true;
       double stdDev = iter->getImmutableValue<double>();
+      if (stdDev < 0) { Report::DevelFatal() << "STD_DEVIATIONS values for .EMBEDDEDSAMPLING must be >= 0";}
       stdDevVec_.push_back(stdDev);
     }
     else if (std::string( iter->uTag() ,0,12) == "LOWER_BOUNDS")
@@ -379,12 +383,14 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       alphaGiven=true;
       double alpha = iter->getImmutableValue<double>();
+      if (alpha <= 0) { Report::DevelFatal() << "ALPHA values for .EMBEDDEDSAMPLING must be > 0";}
       alphaVec_.push_back(alpha);
     }
     else if (std::string( iter->uTag() ,0,4) == "BETA")
     {
       betaGiven=true;
       double beta = iter->getImmutableValue<double>();
+      if (beta <= 0) { Report::DevelFatal() << "BETA values for .EMBEDDEDSAMPLING must be > 0";}
       betaVec_.push_back(beta);
     }
     else
@@ -454,7 +460,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
       {
         sampling_param.lower_bound = lower_bounds_Vec_[ip];
         sampling_param.lower_boundGiven = true;
-
       }
 
       if ( !(upper_bounds_Vec_.empty()) )
@@ -488,7 +493,6 @@ bool EmbeddedSampling::setAnalysisParams(const Util::OptionBlock & paramsBlock)
       Report::DevelFatal().in("parseEmbeddedSamplingParam") << "Unsupported SAMPLING type";
     }
     samplingVector_.push_back(sampling_param);
-
   }
 
   outputManagerAdapter_.setStepSweepVector(samplingVector_);
@@ -536,6 +540,10 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     else if ((*it).uTag() == "OUTPUTSAMPLESTATS")
     {
       outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
+    }
+    else if ((*it).uTag() == "PARAMSOUTERLOOP")
+    {
+      paramsOuterLoop_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "REGRESSION_PCE")
@@ -739,7 +747,7 @@ void EmbeddedSampling::stepCallBack ()
       regressionPCE.reset(regrBasis);
 
       std::vector<double> & f = outFunc.sampleOutputs;
-      UQ::solveRegressionPCE( paramNameVec_.size(), PCEorder_, x, f, regressionPCE);
+      UQ::solveRegressionPCE( paramNameVec_.size(), x, f, regressionPCE);
 
       if (stdOutputFlag_)
       {
@@ -956,6 +964,131 @@ bool EmbeddedSampling::doInit()
         numSamples_, samplingVector_, covMatrix_, meanVec_, X_, Y_);
   }
 
+  setupStokhosObjects ();
+
+  setupBlockSystemObjects ();
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EmbeddedSampling::setupBlockSystemObjects 
+// Purpose       :
+// 
+// set things up related to the linear system and solver.  The goal here
+// is to replace the linear solver objects used by the underlying child
+// analysis with block versions, where the # of blocks equals the number
+// of samples.
+//
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 5/26/2018
+//-----------------------------------------------------------------------------
+void  EmbeddedSampling::setupBlockSystemObjects ()
+{
+  analysisManager_.resetSolverSystem();
+  esBuilderPtr_ = rcp(new Linear::ESBuilder(numSamples_));
+
+  if (DEBUG_ANALYSIS)
+  {
+    Xyce::dout() << "EmbeddedSampling::setupBlockSystemObjects():  Generate Maps,etc\n";
+  }
+  {
+    Stats::StatTop _setupStepStat("Setup Maps/Graphs");
+    Stats::TimeBlock _setupStepTimer(_setupStepStat);
+
+    esBuilderPtr_->generateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION ), false),
+                                 rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND ), false) );
+
+    esBuilderPtr_->generateStateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STATE ),false) );
+    esBuilderPtr_->generateStoreMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STORE ),false) );
+    esBuilderPtr_->generateLeadCurrentMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::LEADCURRENT ),false) );
+    esBuilderPtr_->generateGraphs( *pdsMgrPtr_->getMatrixGraph( Parallel::JACOBIAN ));
+  }
+
+  // Create ES Loader.
+  delete esLoaderPtr_;
+  esLoaderPtr_ = new Loader::ESLoader(deviceManager_, builder_, numSamples_, samplingVector_, Y_);
+  esLoaderPtr_->registerESBuilder(esBuilderPtr_);
+  esLoaderPtr_->registerAppLoader( rcp(&loader_, false) );
+  esLoaderPtr_->setNumSamples (numSamples_);
+  //-----------------------------------------
+
+  //Finish setup of ES Loader
+  //-----------------------------------------
+  {
+    //-----------------------------------------
+    //Construct Solvers, etc.
+    //-----------------------------------------
+    delete esLinearSystem_;
+    esLinearSystem_ = new Linear::System();
+    //-----------------------------------------
+
+    //hack needed by TIA initialization currently
+    esBuilderPtr_->registerPDSManager( pdsMgrPtr_ );
+    esLinearSystem_->registerPDSManager( pdsMgrPtr_ );
+    esLinearSystem_->registerBuilder( &*esBuilderPtr_ );
+
+    // the linear system class will only create a "linear problem" object if the 
+    // builder object (in this case ES builder) will create a non-NULL matrix pointer.
+    esLinearSystem_->initializeSystem();
+
+    nonlinearManager_.setLinSolOptions( saved_lsESOB_ );
+    nonlinearManager_.setMatrixFreeFlag( false ); // NOT TRUE for ES!
+
+    if (!solverFactory_)
+    {
+      solverFactory_ = new Linear::ESSolverFactory( *esBuilderPtr_ );
+      solverFactory_->registerESLoader( rcp(esLoaderPtr_, false) );
+      solverFactory_->registerESBuilder( esBuilderPtr_ );
+      solverFactory_->setNumSamples(numSamples_);
+      solverFactory_->setParameterOuterLoop (paramsOuterLoop_);
+    }
+
+    nonlinearManager_.registerSolverFactory( solverFactory_ );
+
+  //Initialization of Solvers, etc. 
+    analysisManager_.initializeSolverSystem(
+        getTIAParams(),
+        *esLoaderPtr_,
+        *esLinearSystem_,
+        nonlinearManager_,
+        deviceManager_);
+
+    nonlinearManager_.initializeAll(
+        analysisManager_, 
+        analysisManager_.getNonlinearEquationLoader(), 
+        *esLinearSystem_,
+        *analysisManager_.getDataStore(),
+        *analysisManager_.getPDSManager(),
+        initialConditionsManager_,
+        analysisManager_.getOutputManagerAdapter().getOutputManager(),
+        topology_);
+
+    childAnalysis_.registerLinearSystem(esLinearSystem_);
+ 
+    // don't have a mode yet.  Do I need one??  The real mode should be 
+    // the underlying analysis (tran, dc, etc), so probably not
+    //nonlinearManager_.setAnalysisMode(nonlinearAnalysisMode(ANP_MODE_ES)); 
+  }
+  TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
+  esLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);
+  
+  childAnalysis_.registerParentAnalysis(this);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : EmbeddedSampling::setupStokhosObjects
+// Purpose       : This function sets up the stokhos ensemble objects, using
+//                 the computed sample values.
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+void EmbeddedSampling::setupStokhosObjects ()
+{
 #if Xyce_STOKHOS_ENABLE
   // determine the samples. 
   //
@@ -1046,152 +1179,6 @@ bool EmbeddedSampling::doInit()
     }
   }
 #endif
-
-  setupBlockSystemObjects ();
-  setupEnsembles ();
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::setupBlockSystemObjects 
-// Purpose       :
-// 
-// set things up related to the linear system and solver.  The goal here
-// is to replace the linear solver objects used by the underlying child
-// analysis with block versions, where the # of blocks equals the number
-// of samples.
-//
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 5/26/2018
-//-----------------------------------------------------------------------------
-void  EmbeddedSampling::setupBlockSystemObjects ()
-{
-  analysisManager_.resetSolverSystem();
-
-  esBuilderPtr_ = rcp(new Linear::ESBuilder(numSamples_));
-
-  if (DEBUG_ANALYSIS)
-  {
-    Xyce::dout() << "EmbeddedSampling::setupBlockSystemObjects():  Generate Maps,etc\n";
-  }
-  {
-    Stats::StatTop _setupStepStat("Setup Maps/Graphs");
-    Stats::TimeBlock _setupStepTimer(_setupStepStat);
-
-    esBuilderPtr_->generateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION ), false),
-                             rcp(pdsMgrPtr_->getParallelMap( Parallel::SOLUTION_OVERLAP_GND ), false) );
-    esBuilderPtr_->generateStateMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STATE ),false) );
-    esBuilderPtr_->generateStoreMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::STORE ),false) );
-    esBuilderPtr_->generateLeadCurrentMaps( rcp(pdsMgrPtr_->getParallelMap( Parallel::LEADCURRENT ),false) );
-    esBuilderPtr_->generateGraphs( *pdsMgrPtr_->getMatrixGraph( Parallel::JACOBIAN ));
-  }
-
-  // Create ES Loader.
-  delete esLoaderPtr_;
-  esLoaderPtr_ = new Loader::ESLoader(deviceManager_, builder_, numSamples_, samplingVector_, Y_);
-  esLoaderPtr_->registerESBuilder(esBuilderPtr_);
-  esLoaderPtr_->registerAppLoader( rcp(&loader_, false) );
-  //-----------------------------------------
-
-  //Finish setup of ES Loader
-  //-----------------------------------------
-  {
-    //-----------------------------------------
-    //Construct Solvers, etc.
-    //-----------------------------------------
-    delete esLinearSystem_;
-    esLinearSystem_ = new Linear::System();
-    //-----------------------------------------
-
-    //hack needed by TIA initialization currently
-    esBuilderPtr_->registerPDSManager( pdsMgrPtr_ );
-    esLinearSystem_->registerPDSManager( pdsMgrPtr_ );
-    esLinearSystem_->registerBuilder( &*esBuilderPtr_ );
-
-    // the linear system class will only create a "linear problem" object if the 
-    // builder object (in this case ES builder) will create a non-NULL matrix pointer.
-    esLinearSystem_->initializeSystem();
-
-    nonlinearManager_.setLinSolOptions( saved_lsESOB_ );
-    nonlinearManager_.setMatrixFreeFlag( false ); // NOT TRUE for ES!
-
-    if (!solverFactory_)
-    {
-      // Generate the ES solver factory.
-      //solverFactory_ = new Linear::ESSolverFactory( builder_ );
-      solverFactory_ = new Linear::TranSolverFactory();
-    }
-
-#if 0
-    // Register application loader with solver factory
-    solverFactory_->registerESLoader( rcp(esLoaderPtr_, false) );
-    solverFactory_->registerESBuilder( esBuilderPtr_ );
-#endif
-
-#if 0
-    // ERK:  I have not created a preconditioner factory
-    if (!precFactory_)
-    {
-      // Generate the ES preconditioner factory.
-      precFactory_ = new Linear::ESPrecondFactory(saved_lsESOB_, builder_);
-    }
-
-    // Register application loader with preconditioner factory
-    precFactory_->registerESLoader( rcp(esLoaderPtr_, false) );
-    precFactory_->registerESBuilder( esBuilderPtr_ );
-    precFactory_->setFastTimes( goodTimePoints_ );
-    precFactory_->setTimeSteps( timeSteps_ );
-    precFactory_->setESFreqs( freqPoints_ );
-#endif
-
-    nonlinearManager_.registerSolverFactory( solverFactory_ );
-    //nonlinearManager_.registerPrecondFactory( precFactory_ );
-
-  //Initialization of Solvers, etc. 
-    analysisManager_.initializeSolverSystem(
-        getTIAParams(),
-        *esLoaderPtr_,
-        *esLinearSystem_,
-        nonlinearManager_,
-        deviceManager_);
-
-    nonlinearManager_.initializeAll(
-        analysisManager_, 
-        analysisManager_.getNonlinearEquationLoader(), 
-        *esLinearSystem_,
-        *analysisManager_.getDataStore(),
-        *analysisManager_.getPDSManager(),
-        initialConditionsManager_,
-        analysisManager_.getOutputManagerAdapter().getOutputManager(),
-        topology_);
-
-    childAnalysis_.registerLinearSystem(esLinearSystem_);
- 
-    // don't have a mode yet.  Do I need one??  The real mode should be 
-    // the underlying analysis (tran, dc, etc), so probably not
-    //nonlinearManager_.setAnalysisMode(nonlinearAnalysisMode(ANP_MODE_ES)); 
-  }
-  TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  esLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);
-  
-  childAnalysis_.registerParentAnalysis(this);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : EmbeddedSampling::setupEnsembles
-// Purpose       : This function sets up the stokhos ensemble objects, using
-//                 the computed sample values.
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 
-//-----------------------------------------------------------------------------
-void EmbeddedSampling::setupEnsembles ()
-{
-
 }
 
 //-----------------------------------------------------------------------------
@@ -1348,7 +1335,6 @@ void EmbeddedSampling::computeEnsembleOutputs()
     for (int iout=0;iout<outFuncDataVec_.size();++iout)
     {
       UQ::outputFunctionData & outFunc = *(outFuncDataVec_[iout]);
-      //outFunc.completeStatistics(BlockCount);
       outFunc.completeStatistics();
 
       if (stdOutputFlag_ && outputSampleStats_)
@@ -1745,9 +1731,6 @@ public:
   ///
   EmbeddedSampling *create() const
   {
-    // don't have a mode yet
-    //analysisManager_.setAnalysisMode(ANP_MODE_ES);
-
     EmbeddedSampling *es = new EmbeddedSampling(
         analysisManager_, 
     linearSystem_, nonlinearManager_, deviceManager_, builder_, 
@@ -1762,8 +1745,8 @@ public:
     }
     es->setEmbeddedSamplingOptions(samplingOptionBlock_);
     es->setDCOptions(dcOptionBlock_);
+    //es->setLinSol(linSolOptionBlock_);
     es->setESLinSol(esLinSolOptionBlock_);
-    es->setLinSol(linSolOptionBlock_);
 
     return es;
   }
@@ -1831,11 +1814,11 @@ public:
     return true;
   }
 
-  bool setLinSolOptionBlock(const Util::OptionBlock &option_block)
-  {
-    linSolOptionBlock_ = option_block;
-    return true;
-  }
+  //bool setLinSolOptionBlock(const Util::OptionBlock &option_block)
+  //{
+    //linSolOptionBlock_ = option_block;
+    //return true;
+  //}
 
 public:
   AnalysisManager &                 analysisManager_;
@@ -2032,7 +2015,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
   }
 
   {
-    // Must use "EMBEDDEDSAMPLES" instead of "SAMPLING!"
+    // Must use "EMBEDDEDSAMPLES" instead of "EMBEDDEDSAMPLING!"
     Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("EMBEDDEDSAMPLES");
 
     parameters.insert(Util::ParamMap::value_type("NUMSAMPLES", Util::Param("NUMSAMPLES", 1)));
@@ -2042,6 +2025,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
+    parameters.insert(Util::ParamMap::value_type("PARAMSOUTERLOOP", Util::Param("PARAMSOUTERLOOP", true)));
 #if Xyce_STOKHOS_ENABLE
     parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", false)));
     parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", false)));
@@ -2055,6 +2039,85 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("SPARSE_GRID", Util::Param("SPARSE_GRID", false)));
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 0)));
     parameters.insert(Util::ParamMap::value_type("STDOUTPUT", Util::Param("STDOUTPUT", false)));
+  }
+
+  // -------------------------------------------------------------------------------------------
+  // copied over from LINSOL, with a few things added
+  {
+    Util::ParamMap &parameters = options_manager.addOptionsMetadataMap("LINSOL-ES");
+
+    parameters.insert(Util::ParamMap::value_type("AZ_max_iter", Util::Param("AZ_max_iter", 200)));
+    parameters.insert(Util::ParamMap::value_type("AZ_precond", Util::Param("AZ_precond", 14)));
+    parameters.insert(Util::ParamMap::value_type("AZ_solver", Util::Param("AZ_solver", 1)));
+    parameters.insert(Util::ParamMap::value_type("AZ_conv", Util::Param("AZ_conv", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_pre_calc", Util::Param("AZ_pre_calc", 1)));
+    parameters.insert(Util::ParamMap::value_type("AZ_keep_info", Util::Param("AZ_keep_info", 1)));
+    parameters.insert(Util::ParamMap::value_type("AZ_orthog", Util::Param("AZ_orthog", 1)));
+    parameters.insert(Util::ParamMap::value_type("AZ_subdomain_solve", Util::Param("AZ_subdomain_solve", 9)));
+    parameters.insert(Util::ParamMap::value_type("AZ_ilut_fill", Util::Param("AZ_ilut_fill", 3.0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_drop", Util::Param("AZ_drop", 1.0E-3)));
+    parameters.insert(Util::ParamMap::value_type("AZ_reorder", Util::Param("AZ_reorder", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_scaling", Util::Param("AZ_scaling", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_kspace", Util::Param("AZ_kspace", 50)));
+    parameters.insert(Util::ParamMap::value_type("AZ_tol", Util::Param("AZ_tol", 1.0E-9)));
+    parameters.insert(Util::ParamMap::value_type("AZ_output", Util::Param("AZ_output", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_diagnostics", Util::Param("AZ_diagnostics", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_overlap", Util::Param("AZ_overlap", 0)));
+    parameters.insert(Util::ParamMap::value_type("AZ_rthresh", Util::Param("AZ_rthresh", 1.0001)));
+    parameters.insert(Util::ParamMap::value_type("AZ_athresh", Util::Param("AZ_athresh", 1.0E-4)));
+    parameters.insert(Util::ParamMap::value_type("AZ_filter", Util::Param("AZ_filter", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("TR_partition", Util::Param("TR_partition", 1)));
+    parameters.insert(Util::ParamMap::value_type("TR_partition_type", Util::Param("TR_partition_type", "HYPERGRAPH")));
+#ifdef Xyce_SHYLU
+    parameters.insert(Util::ParamMap::value_type("ShyLU_rthresh", Util::Param("ShyLU_rthresh", 1.0E-3)));
+#endif
+    parameters.insert(Util::ParamMap::value_type("TR_reindex", Util::Param("TR_reindex", 1)));
+    parameters.insert(Util::ParamMap::value_type("TR_solvermap", Util::Param("TR_solvermap", 1)));
+    parameters.insert(Util::ParamMap::value_type("TR_amd", Util::Param("TR_amd", 1)));
+    parameters.insert(Util::ParamMap::value_type("TR_btf", Util::Param("TR_btf", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_btf", Util::Param("TR_global_btf", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_btf_droptol", Util::Param("TR_global_btf_droptol", 1.0E-16)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_btf_verbose", Util::Param("TR_global_btf_verbose", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_amd", Util::Param("TR_global_amd", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_global_amd_verbose", Util::Param("TR_global_amd_verbose", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_singleton_filter", Util::Param("TR_singleton_filter", 0)));
+    parameters.insert(Util::ParamMap::value_type("SLU_EQUILIBRATE", Util::Param("SLU_EQUILIBRATE", 1)));
+    parameters.insert(Util::ParamMap::value_type("SLU_REFACTOR", Util::Param("SLU_REFACTOR", 1)));
+    parameters.insert(Util::ParamMap::value_type("SLU_PERMUTE", Util::Param("SLU_PERMUTE", 2)));
+    parameters.insert(Util::ParamMap::value_type("SLU_PIVOT_THRESH", Util::Param("SLU_PIVOT_THRESH", -1.0)));
+    parameters.insert(Util::ParamMap::value_type("SLU_FILL_FAC", Util::Param("SLU_FILL_FAC", -1)));
+    parameters.insert(Util::ParamMap::value_type("BTF", Util::Param("BTF", 0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_VERBOSE", Util::Param("BTF_VERBOSE", 0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_ATHRESH", Util::Param("BTF_ATHRESH", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_RTHRESH", Util::Param("BTF_RTHRESH", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_RTHRESH_INIT", Util::Param("BTF_RTHRESH_INIT", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_INIT", Util::Param("BTF_INIT", 0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_THRESHOLDING", Util::Param("BTF_THRESHOLDING", 0)));
+    parameters.insert(Util::ParamMap::value_type("BTF_RNTHRESHFAC", Util::Param("BTF_RNTHRESHFAC", 1.0e-3)));
+    parameters.insert(Util::ParamMap::value_type("adaptive_solve", Util::Param("adaptive_solve", 0)));
+    parameters.insert(Util::ParamMap::value_type("use_aztec_precond", Util::Param("use_aztec_precond", 1)));
+    parameters.insert(Util::ParamMap::value_type("use_ifpack_factory", Util::Param("use_ifpack_factory", 0)));
+    parameters.insert(Util::ParamMap::value_type("ifpack_type", Util::Param("ifpack_type", "Amesos")));
+    parameters.insert(Util::ParamMap::value_type("diag_perturb", Util::Param("diag_perturb", 0.0)));
+    parameters.insert(Util::ParamMap::value_type("TR_rcm", Util::Param("TR_rcm", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale", Util::Param("TR_scale", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale_left", Util::Param("TR_scale_left", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale_right", Util::Param("TR_scale_right", 0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale_exp", Util::Param("TR_scale_exp", 1.0)));
+    parameters.insert(Util::ParamMap::value_type("TR_scale_iter", Util::Param("TR_scale_iter", 0)));
+    parameters.insert(Util::ParamMap::value_type("TYPE", Util::Param("TYPE", "DEFAULT")));
+    parameters.insert(Util::ParamMap::value_type("PREC_TYPE", Util::Param("PREC_TYPE", "DEFAULT")));
+#ifdef Xyce_BELOS
+    parameters.insert(Util::ParamMap::value_type("BELOS_SOLVER_TYPE", Util::Param("BELOS_SOLVER_TYPE", "Block GMRES")));
+#endif
+    parameters.insert(Util::ParamMap::value_type("KLU_REPIVOT", Util::Param("KLU_REPIVOT", 1)));
+    parameters.insert(Util::ParamMap::value_type("KLU_REINDEX", Util::Param("KLU_REINDEX", 0)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_BASE_LS", Util::Param("OUTPUT_BASE_LS", 1)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_FAILED_LS", Util::Param("OUTPUT_FAILED_LS", 1)));
+
+    parameters.insert(Util::ParamMap::value_type("DIRECT_SOLVER", Util::Param("DIRECT_SOLVER", "DEFAULT")));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_LS", Util::Param("OUTPUT_LS", 1)));
   }
 }
 
@@ -2091,7 +2154,7 @@ bool registerEmbeddedSamplingFactory(FactoryBlock & factory_block)
   factory_block.optionsManager_.addOptionsProcessor("DC", IO::createRegistrationOptions <EmbeddedSamplingFactory> (*factory, &EmbeddedSamplingFactory::setDCOptionBlock)); 
 
   factory_block.optionsManager_.addOptionsProcessor("LINSOL-ES", IO::createRegistrationOptions <EmbeddedSamplingFactory> (*factory, &EmbeddedSamplingFactory::setESLinSolOptionBlock));
-  factory_block.optionsManager_.addOptionsProcessor("LINSOL", IO::createRegistrationOptions <EmbeddedSamplingFactory> (*factory, &EmbeddedSamplingFactory::setLinSolOptionBlock));
+  //factory_block.optionsManager_.addOptionsProcessor("LINSOL", IO::createRegistrationOptions <EmbeddedSamplingFactory> (*factory, &EmbeddedSamplingFactory::setLinSolOptionBlock));
 
   return true;
 }

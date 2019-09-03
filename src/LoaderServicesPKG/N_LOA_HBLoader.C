@@ -891,6 +891,7 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
   // Load frequency-domain devices.
   // NOTE:  Use overlapped vector size because some devices may reference ground or ghost nodes.
   int localOverlapGndN = appVecPtr_->omap()->numLocalEntities();
+  int indexBase = appVecPtr_->omap()->indexBase();
   int M = (BlockCount - 1) / 2;
 
   // First convert real-equivalent form of the solution vector Xf to a complex-valued vector for loading.
@@ -905,11 +906,13 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
 
       // Copy values from Xf to Xf_complex vector for solver.
       std::vector< std::complex<double> > Xf_complex( localOverlapGndN );
-      for (int nB = 0; nB < localOverlapGndN-1; nB++)
+      for (int nB = 0; nB < localOverlapGndN+indexBase; nB++)
       {
         std::complex<double> val( Xf_overlap[nB*2*BlockCount + 2*i], Xf_overlap[nB*2*BlockCount + 2*i+1] );
         Xf_complex[nB] = val;
       }
+      if (indexBase == -1)
+      Xf_complex[localOverlapGndN-1] = std::complex<double>(0.0, 0.0);
 
       // Now load freqBVector and freqDFDXMatrix_ for this frequency.
       std::vector< Util::FreqVecEntry > tmpFreqFVector;
@@ -1298,7 +1301,6 @@ void HBLoader::consolidateMatrixEntries( const std::vector<int>& nzRows,
   int * indices = 0;
   N_PDS_ParMap * colmap = appdFdxPtr_->getColMap( *builder_.getPDSComm() );
   N_PDS_ParMap * ocolmap = appdFdxPtr_->getOverlapColMap( *builder_.getPDSComm() );
-  int global_col_gnd = ocolmap->globalToLocalIndex( -1 );
 
   std::vector<int>::const_iterator lid_it = nzRows.begin();
 
@@ -1314,34 +1316,31 @@ void HBLoader::consolidateMatrixEntries( const std::vector<int>& nzRows,
     std::vector< Util::FreqMatEntry >::const_iterator it = matrixEntries.begin();
     for ( ; it != matrixEntries.end(); it++)
     {
-      if ( it->row_lid == curr_lid )
+      if ( (it->row_lid == curr_lid) && (it->col_lid != -1) )
       {
         int col_id = indices[ it->col_lid ];
-        if (col_id != global_col_gnd)
+        if (!overlapIDs)
         {
-          if (!overlapIDs)
+          int gid = ocolmap->localToGlobalIndex( col_id );
+          col_id = colmap->globalToLocalIndex( gid );
+        }
+        std::pair<std::set<int>::iterator, bool> ret = col_id_set.insert( col_id );
+        if (ret.second == false)
+        {
+          std::vector< Util::FreqMatEntry >::iterator it2 = tmpFreqDFDXMatrix.begin();
+          std::vector< Util::FreqMatEntry >::iterator it2_end = tmpFreqDFDXMatrix.end();
+          for ( ; it2 != it2_end; it2++ )
           {
-            int gid = ocolmap->localToGlobalIndex( col_id );
-            col_id = colmap->globalToLocalIndex( gid );
-          }
-          std::pair<std::set<int>::iterator, bool> ret = col_id_set.insert( col_id );
-          if (ret.second == false)
-          {
-            std::vector< Util::FreqMatEntry >::iterator it2 = tmpFreqDFDXMatrix.begin();
-            std::vector< Util::FreqMatEntry >::iterator it2_end = tmpFreqDFDXMatrix.end();
-            for ( ; it2 != it2_end; it2++ )
+            if ( it2->col_lid == col_id )
             {
-              if ( it2->col_lid == col_id )
-              {
-                it2->val += it->val;
-              }
+              it2->val += it->val;
             }
           }
-          else
-          {
-            tmpFreqDFDXMatrix.push_back( *it );
-            tmpFreqDFDXMatrix.back().col_lid = col_id;
-          }
+        }
+        else
+        {
+          tmpFreqDFDXMatrix.push_back( *it );
+          tmpFreqDFDXMatrix.back().col_lid = col_id;
         }
       }
     }
@@ -1407,10 +1406,10 @@ void HBLoader::sendReceiveMatrixEntries( const std::vector< Util::FreqMatEntry >
             if ( mat_it->row_lid == *send_it )
             {
               // Don't send row entries that are associated with the ground node.
-              int globalCol = ocolmap->localToGlobalIndex( mat_it->col_lid );
-              if ( globalCol != -1 )
+              if ( mat_it->col_lid != -1 )
               {
                 // convert lids to gids and store in appropriate vectors.
+                int globalCol = ocolmap->localToGlobalIndex( mat_it->col_lid );
                 row_col_gids.push_back( globalRow );
                 row_col_gids.push_back( globalCol );
                 vals.push_back( mat_it->val.real() );

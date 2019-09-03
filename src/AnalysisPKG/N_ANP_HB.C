@@ -2408,9 +2408,9 @@ public:
   // Creation Date : Thu Jan 29 13:00:14 2015
   //-----------------------------------------------------------------------------
   ///
-  /// Saves the LINSOL parsed options block in the factory.
+  /// Saves the TIMEINT parsed options block in the factory.
   ///
-  /// @invariant Overwrites any previously specified LINSOL option block.
+  /// @invariant Overwrites any previously specified TIMEINT option block.
   ///
   /// @param option_block parsed option block
   ///

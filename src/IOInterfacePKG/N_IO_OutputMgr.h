@@ -138,6 +138,11 @@ public:
     return outputIntervalPairs_;
   }
 
+  int getStepNumber() const
+  {
+    return outputState_.stepLoopNumber_;
+  }
+
   // helps set the dotOpSpecified_ flag if the netlist has a .OP statement
   bool setOPAnalysisParams(const Util::OptionBlock & paramsBlock);
 
@@ -677,6 +682,7 @@ private:
 
   bool                  printHeader_;               // flag to indicate if user wants the header in output file.
   bool                  printFooter_;               // flag to indicate if user wants the "End of Xyce(TM)" line in the output.
+  bool                  printStepNumCol_;           // flag to indicate if users want to add a STEPNUM column
   bool                  outputVersionInRawFile_;    // flag to indicate that Version should be output in the header of a RAW file.
 
   bool outputCalledBefore_;

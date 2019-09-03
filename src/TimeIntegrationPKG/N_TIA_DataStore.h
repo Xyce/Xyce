@@ -72,6 +72,10 @@ class DataStore
 
     void deleteSensitivityArrays();
 
+#if Xyce_STOKHOS_ENABLE
+    void allocatePCEVectors();
+#endif
+
     void allocateHBVectors();
     void allocateWaMPDEVectors();
 

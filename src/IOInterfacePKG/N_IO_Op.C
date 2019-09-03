@@ -283,6 +283,20 @@ complex OutputMgrDCSweepCurrentValueOp::get(const OutputMgrDCSweepCurrentValueOp
 }
 
 //-----------------------------------------------------------------------------
+// Function      : StepNumOp::get
+// Purpose       : get the current step number
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 8/19/2019
+//-----------------------------------------------------------------------------
+complex
+StepNumOp::get(const StepNumOp &op, const Util::Op::OpData &op_data)
+{
+  return op.outputMgr_.getStepNumber();
+}
+
+//-----------------------------------------------------------------------------
 // Function      : SolutionOp::get
 // Purpose       : get the current value of a solution vector element
 // Special Notes : The op.index_ will be:

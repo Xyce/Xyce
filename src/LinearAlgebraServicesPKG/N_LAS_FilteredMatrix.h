@@ -27,9 +27,9 @@
 //
 // Special Notes  :
 //
-// Creator        : Scott A. Hutchinson, SNL, Parallel Computational Sciences
+// Creator        : Heidi Thornquist, Sandia National Labs
 //
-// Creation Date  : 05/20/00
+// Creation Date  : 
 //
 //
 //
@@ -59,8 +59,8 @@ namespace Linear {
 // Class         : FilteredMatrix
 // Purpose       : Abstract interface to sparse matrix type.
 // Special Notes :
-// Creator       : Scott A. Hutchinson, SNL, Parallel Compuational Sciences
-// Creation Date : 05/20/00
+// Creator       : Heidi Thornquist, Sandia National Labs
+// Creation Date : 
 //-----------------------------------------------------------------------------
 class FilteredMatrix
 {

@@ -85,7 +85,8 @@ MultiVector::MultiVector(N_PDS_ParMap & map, int numVectors)
    exporter_(0),
    viewTransform_(0),
    pdsComm_(rcp(&map.pdsComm(),false)), 
-   isOwned_(true)
+   isOwned_(true),
+   groundNode_(0.0)
 {
   if (map.numGlobalEntities() < 0)
   {
@@ -122,7 +123,8 @@ MultiVector::MultiVector(
     exporter_(0),
     viewTransform_(0),
     pdsComm_(rcp(&map.pdsComm(),false)), 
-    isOwned_(true)
+    isOwned_(true),
+    groundNode_(0.0)
 {
   if (map.numGlobalEntities() < 0)
     Report::DevelFatal().in("MultiVector::MultiVector")
@@ -159,7 +161,8 @@ MultiVector::MultiVector( const MultiVector & right )
   exporter_(0),
   viewTransform_(0),
   pdsComm_( right.pdsComm_ ),
-  isOwned_(true)
+  isOwned_(true),
+  groundNode_(0.0)
 {
   if (right.aMultiVector_ == right.oMultiVector_)
     aMultiVector_ = oMultiVector_;
@@ -192,7 +195,8 @@ MultiVector::MultiVector( Epetra_MultiVector * overlapMV, const Epetra_BlockMap&
   importer_(0),
   exporter_(0),
   viewTransform_(0),
-  isOwned_(isOwned)
+  isOwned_(isOwned),
+  groundNode_(0.0) 
 {
   // Make sure there is anything to communicate before creating a transform, importer, or exporter
   if (overlapMV->MyLength() == parMap.NumMyElements())
@@ -242,7 +246,8 @@ MultiVector::MultiVector( Epetra_MultiVector * origMV, bool isOwned )
   importer_(0),
   exporter_(0),
   viewTransform_(0),
-  isOwned_(isOwned)
+  isOwned_(isOwned),
+  groundNode_(0.0)
 {
 #ifdef Xyce_PARALLEL_MPI
   Epetra_Comm& ecomm = const_cast<Epetra_Comm &>( origMV->Comm() );
@@ -734,6 +739,8 @@ void MultiVector::random()
 void MultiVector::putScalar(const double scalar)
 {
   int PetraError = oMultiVector_->PutScalar(scalar);
+
+  groundNode_ = scalar;
 
   if (DEBUG_LINEAR)
     processError( "MultiVector::putScalar - ", PetraError);

@@ -29,7 +29,7 @@
 //
 // Creator        : Heidi Thornquist, Sandia National Labs
 //
-// Creation Date  : 05/20/00
+// Creation Date  : 
 //
 //
 //
@@ -226,15 +226,18 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
   bool bSuccess = true;
 
   int maxEntries, numMyRows;
+  int indexBase = 0;
   if (filterOverlap_)
   {   
     maxEntries = matrix->oDCRSMatrix_->NumMyNonzeros();
     numMyRows = matrix->oDCRSMatrix_->NumMyRows();
+    indexBase = matrix->oDCRSMatrix_->IndexBase();
   }
   else
   { 
     maxEntries = matrix->aDCRSMatrix_->NumMyNonzeros();
     numMyRows = matrix->aDCRSMatrix_->NumMyRows();
+    indexBase = matrix->oDCRSMatrix_->IndexBase();
   }
 
   // Delete/clear all internal objects and recreate them
@@ -247,16 +250,19 @@ bool FilteredMatrix::filterMatrix( const Matrix* matrix, const N_PDS_ParMap* map
   }
 
   // Get the local ID for the ground node, we don't need to keep these values.
-  int row_groundID, col_groundID;
-  if (filterOverlap_)
+  int row_groundID = -1, col_groundID = -1;
+  if (indexBase == -1)
   {
-    row_groundID = matrix->oDCRSMatrix_->LRID( -1  );
-    col_groundID = matrix->oDCRSMatrix_->LCID( -1  );
-  }
-  else
-  {
-    row_groundID = matrix->aDCRSMatrix_->LRID( -1  );
-    col_groundID = matrix->aDCRSMatrix_->LCID( -1  );
+    if (filterOverlap_)
+    {
+      row_groundID = matrix->oDCRSMatrix_->LRID( -1  );
+      col_groundID = matrix->oDCRSMatrix_->LCID( -1  );
+    }
+    else
+    {
+      row_groundID = matrix->aDCRSMatrix_->LRID( -1  );
+      col_groundID = matrix->aDCRSMatrix_->LCID( -1  );
+    }
   }
 
   int numEntries, currEntries=0;

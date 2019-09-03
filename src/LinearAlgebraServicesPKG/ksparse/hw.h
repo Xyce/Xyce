@@ -42,15 +42,8 @@ Copyright 1990 Regents of the University of California.  All rights reserved.
 
 /* ---------- Standard Includes ----------*/
 
-#ifdef HAVE_VALUES_H
-#include <values.h>
-#endif
-#ifdef HAVE_LIMITS_H
 #include <limits.h>
-#endif
-#ifdef HAVE_FLOAT_H
 #include <float.h>
-#endif
 
 #  ifndef	HUGE_VAL
 #    define	HUGE_VAL	1.8e+308

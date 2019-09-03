@@ -43,6 +43,7 @@
 #include <N_ANP_Step.h>
 #include <N_ANP_Sampling.h>
 #include <N_ANP_EmbeddedSampling.h>
+#include <N_ANP_PCE.h>
 #include <N_ANP_Transient.h>
 
 namespace Xyce {
@@ -88,6 +89,9 @@ void registerAnalysisFactory(
   registerStepFactory(factory_block);
   registerSamplingFactory(factory_block);
   registerEmbeddedSamplingFactory(factory_block);
+#if Xyce_STOKHOS_ENABLE
+  registerPCEFactory(factory_block);
+#endif
   registerROLFactory(factory_block);
 }
 

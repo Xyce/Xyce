@@ -57,6 +57,10 @@
 #include <N_UTL_MachDepParams.h>
 #include <N_MPDE_Builder.h>
 
+#if Xyce_STOKHOS_ENABLE
+#include <N_LAS_PCEBuilder.h>
+#endif
+
 namespace Xyce {
 namespace TimeIntg {
 
@@ -153,91 +157,91 @@ DataStore::DataStore(
     includeTransientAdjoint_(false)
 {
   // temporary vectors:
-  tmpSolVectorPtr = linear_system_builder.createVector();
-  tmpStaVectorPtr = linear_system_builder.createStateVector();
-  tmpStaDerivPtr = linear_system_builder.createStateVector();
-  tmpStoVectorPtr = linear_system_builder.createStoreVector();
-  tmpLeadCurrentVectorPtr = linear_system_builder.createLeadCurrentVector();
-  tmpLeadDeltaVPtr = linear_system_builder.createLeadCurrentVector();
-  tmpLeadCurrentQDerivVectorPtr = linear_system_builder.createLeadCurrentVector();
+  tmpSolVectorPtr = builder_.createVector();
+  tmpStaVectorPtr = builder_.createStateVector();
+  tmpStaDerivPtr = builder_.createStateVector();
+  tmpStoVectorPtr = builder_.createStoreVector();
+  tmpLeadCurrentVectorPtr = builder_.createLeadCurrentVector();
+  tmpLeadDeltaVPtr = builder_.createLeadCurrentVector();
+  tmpLeadCurrentQDerivVectorPtr = builder_.createLeadCurrentVector();
   
-  xn0Ptr = linear_system_builder.createVector();
+  xn0Ptr = builder_.createVector();
 
   // solution vectors:
-  currSolutionPtr = linear_system_builder.createVector();
-  lastSolutionPtr = linear_system_builder.createVector();
-  nextSolutionPtr = linear_system_builder.createVector();
+  currSolutionPtr = builder_.createVector();
+  lastSolutionPtr = builder_.createVector();
+  nextSolutionPtr = builder_.createVector();
   solutionSize = nextSolutionPtr->localLength();  // get local length
 
   // state vectors:
-  currStatePtr    = linear_system_builder.createStateVector();
-  lastStatePtr    = linear_system_builder.createStateVector();
-  nextStatePtr    = linear_system_builder.createStateVector();
+  currStatePtr    = builder_.createStateVector();
+  lastStatePtr    = builder_.createStateVector();
+  nextStatePtr    = builder_.createStateVector();
   stateSize = nextStatePtr->globalLength();
 
   // store vectors:
-  currStorePtr    = linear_system_builder.createStoreVector();
-  nextStorePtr    = linear_system_builder.createStoreVector();
+  currStorePtr    = builder_.createStoreVector();
+  nextStorePtr    = builder_.createStoreVector();
   storeSize = nextStorePtr->globalLength();
 
   // lead current and delta V vectors (for power calc).
-  currLeadCurrentPtr= linear_system_builder.createLeadCurrentVector();
-  nextLeadCurrentPtr= linear_system_builder.createLeadCurrentVector();
-  currLeadDeltaVPtr= linear_system_builder.createLeadCurrentVector();
-  nextLeadDeltaVPtr= linear_system_builder.createLeadCurrentVector();
-  currLeadCurrentQPtr= linear_system_builder.createLeadCurrentVector();
-  nextLeadCurrentQPtr= linear_system_builder.createLeadCurrentVector();
-  currLeadCurrentQDerivPtr= linear_system_builder.createLeadCurrentVector();
-  nextLeadCurrentQDerivPtr= linear_system_builder.createLeadCurrentVector();
+  currLeadCurrentPtr= builder_.createLeadCurrentVector();
+  nextLeadCurrentPtr= builder_.createLeadCurrentVector();
+  currLeadDeltaVPtr= builder_.createLeadCurrentVector();
+  nextLeadDeltaVPtr= builder_.createLeadCurrentVector();
+  currLeadCurrentQPtr= builder_.createLeadCurrentVector();
+  nextLeadCurrentQPtr= builder_.createLeadCurrentVector();
+  currLeadCurrentQDerivPtr= builder_.createLeadCurrentVector();
+  nextLeadCurrentQDerivPtr= builder_.createLeadCurrentVector();
   leadCurrentSize = nextLeadCurrentPtr->globalLength();
 
   // state derivative vectors:
-  currStateDerivPtr = linear_system_builder.createStateVector();
-  nextStateDerivPtr = linear_system_builder.createStateVector();
+  currStateDerivPtr = builder_.createStateVector();
+  nextStateDerivPtr = builder_.createStateVector();
 
   // error vectors:
-  errWtVecPtr      = linear_system_builder.createVector();
+  errWtVecPtr      = builder_.createVector();
 
   errWtVecPtr->putScalar(1.0);
 
-  relSolutionPtr = linear_system_builder.createVector();
+  relSolutionPtr = builder_.createVector();
 
   // device mask pointer
-  deviceErrorWeightMask_ = linear_system_builder.createVector();
+  deviceErrorWeightMask_ = builder_.createVector();
   deviceErrorWeightMask_->putScalar(1.0);
 
   // nonlinear solution vectors:
-  newtonCorrectionPtr = linear_system_builder.createVector();
-  qNewtonCorrectionPtr = linear_system_builder.createVector();
+  newtonCorrectionPtr = builder_.createVector();
+  qNewtonCorrectionPtr = builder_.createVector();
 
   // new-DAE stuff:
   // Error Vectors
-  qErrWtVecPtr      = linear_system_builder.createVector();
+  qErrWtVecPtr      = builder_.createVector();
 
   // DAE formulation vectors
-  daeQVectorPtr      = linear_system_builder.createVector();
-  daeFVectorPtr      = linear_system_builder.createVector();
-  daeBVectorPtr      = linear_system_builder.createVector();
+  daeQVectorPtr      = builder_.createVector();
+  daeFVectorPtr      = builder_.createVector();
+  daeBVectorPtr      = builder_.createVector();
 
   // DAE formulation matrices
-  dQdxMatrixPtr = linear_system_builder.createMatrix();
-  dFdxMatrixPtr = linear_system_builder.createMatrix();
+  dQdxMatrixPtr = builder_.createMatrix();
+  dFdxMatrixPtr = builder_.createMatrix();
 
   // History arrays
-  for (int i = 0; i < max_order + 1; ++i)
+  for (int i = 0; i < maxOrder + 1; ++i)
   {
-    xHistory.push_back(linear_system_builder.createVector());
-    qHistory.push_back(linear_system_builder.createVector());
-    sHistory.push_back(linear_system_builder.createStateVector());
-    stoHistory.push_back(linear_system_builder.createStoreVector());
-    leadCurrentHistory.push_back(linear_system_builder.createLeadCurrentVector());
-    leadCurrentQHistory.push_back(linear_system_builder.createLeadCurrentVector());
-    leadDeltaVHistory.push_back(linear_system_builder.createLeadCurrentVector());
-    leadCurrentQDerivHistory.push_back(linear_system_builder.createLeadCurrentVector());
+    xHistory.push_back(builder_.createVector());
+    qHistory.push_back(builder_.createVector());
+    sHistory.push_back(builder_.createStateVector());
+    stoHistory.push_back(builder_.createStoreVector());
+    leadCurrentHistory.push_back(builder_.createLeadCurrentVector());
+    leadCurrentQHistory.push_back(builder_.createLeadCurrentVector());
+    leadDeltaVHistory.push_back(builder_.createLeadCurrentVector());
+    leadCurrentQDerivHistory.push_back(builder_.createLeadCurrentVector());
   }
 
   // Predictors
-  qn0Ptr = linear_system_builder.createVector();
+  qn0Ptr = builder_.createVector();
 }
 
 //-----------------------------------------------------------------------------
@@ -428,6 +432,109 @@ void DataStore::deleteSensitivityArrays()
     dbdpHistory.clear();
   }
 }
+
+#if Xyce_STOKHOS_ENABLE
+//-----------------------------------------------------------------------------
+// Function      : DataStore::allocatePCEVectors
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/27/2019
+//-----------------------------------------------------------------------------
+void DataStore::allocatePCEVectors()
+{
+  // ERK.  HACK!!! FIX THIS
+  //const Xyce::Linear::PCEBuilder & pceBuilder = dynamic_cast<const Xyce::Linear::PCEBuilder&>(builder_);
+  const Xyce::Linear::Builder & pceBuilder = builder_;
+
+// state sized
+  delete tmpStaVectorPtr;
+  delete tmpStaDerivPtr;
+  delete currStatePtr;
+  delete lastStatePtr;
+  delete nextStatePtr;
+  delete currStateDerivPtr;
+  delete nextStateDerivPtr;
+  for (int i = 0; i < maxOrder + 1; ++i) { delete sHistory[i]; }
+  sHistory.clear();
+
+  tmpStaVectorPtr = pceBuilder.createStateQuadVector();
+  tmpStaDerivPtr = pceBuilder.createStateQuadVector();
+  currStatePtr = pceBuilder.createStateQuadVector();
+  lastStatePtr = pceBuilder.createStateQuadVector();
+  nextStatePtr = pceBuilder.createStateQuadVector();
+  currStateDerivPtr = pceBuilder.createStateQuadVector();
+  nextStateDerivPtr = pceBuilder.createStateQuadVector();
+  for (int i = 0; i < maxOrder + 1; ++i) 
+  {sHistory.push_back(pceBuilder.createStateQuadVector());}
+  stateSize = nextStatePtr->globalLength();
+
+  // store sized:
+  delete tmpStoVectorPtr;
+  delete currStorePtr;
+  delete nextStorePtr;
+  for (int i = 0; i < maxOrder + 1; ++i) { delete stoHistory[i]; }
+  stoHistory.clear();
+
+  tmpStoVectorPtr = pceBuilder.createStoreQuadVector();
+  currStorePtr = pceBuilder.createStoreQuadVector();
+  nextStorePtr = pceBuilder.createStoreQuadVector();
+
+  for (int i = 0; i < maxOrder + 1; ++i) 
+  { stoHistory.push_back(pceBuilder.createStoreQuadVector()); }
+
+  storeSize = nextStorePtr->globalLength();
+
+  // lead current sized:
+  delete tmpLeadCurrentVectorPtr;
+  delete tmpLeadDeltaVPtr;
+  delete tmpLeadCurrentQDerivVectorPtr;
+
+  delete currLeadCurrentPtr;
+  delete nextLeadCurrentPtr;
+  delete currLeadDeltaVPtr;
+  delete nextLeadDeltaVPtr;
+  delete currLeadCurrentQPtr;
+  delete nextLeadCurrentQPtr;
+  delete currLeadCurrentQDerivPtr;
+  delete nextLeadCurrentQDerivPtr;
+
+  for (int i = 0; i < maxOrder + 1; ++i) 
+  { 
+    delete leadCurrentHistory[i];
+    delete leadCurrentQHistory[i];
+    delete leadDeltaVHistory[i];
+    delete leadCurrentQDerivHistory[i];
+  }
+  leadCurrentHistory.clear();
+  leadCurrentQHistory.clear();
+  leadDeltaVHistory.clear();
+  leadCurrentQDerivHistory.clear();
+
+  tmpLeadCurrentVectorPtr = pceBuilder.createLeadCurrentQuadVector();
+  tmpLeadDeltaVPtr = pceBuilder.createLeadCurrentQuadVector();
+  tmpLeadCurrentQDerivVectorPtr = pceBuilder.createLeadCurrentQuadVector();
+
+  currLeadCurrentPtr = pceBuilder.createLeadCurrentQuadVector();
+  nextLeadCurrentPtr = pceBuilder.createLeadCurrentQuadVector();
+  currLeadDeltaVPtr = pceBuilder.createLeadCurrentQuadVector();
+  nextLeadDeltaVPtr = pceBuilder.createLeadCurrentQuadVector();
+  currLeadCurrentQPtr = pceBuilder.createLeadCurrentQuadVector();
+  nextLeadCurrentQPtr = pceBuilder.createLeadCurrentQuadVector();
+  currLeadCurrentQDerivPtr = pceBuilder.createLeadCurrentQuadVector();
+  nextLeadCurrentQDerivPtr = pceBuilder.createLeadCurrentQuadVector();
+
+  for (int i = 0; i < maxOrder + 1; ++i) 
+  { 
+    leadCurrentHistory.push_back(pceBuilder.createLeadCurrentQuadVector());
+    leadCurrentQHistory.push_back(pceBuilder.createLeadCurrentQuadVector());
+    leadDeltaVHistory.push_back(pceBuilder.createLeadCurrentQuadVector());
+    leadCurrentQDerivHistory.push_back(pceBuilder.createLeadCurrentQuadVector());
+  }
+  leadCurrentSize = nextLeadCurrentPtr->globalLength();
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : DataStore::allocateHBVectors

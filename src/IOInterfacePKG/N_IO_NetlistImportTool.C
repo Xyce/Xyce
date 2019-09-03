@@ -131,6 +131,48 @@ struct SAMPLINGOptionsReg : public PkgOptionsReg
 };
 
 //-----------------------------------------------------------------------------
+// Class         : EMBEDDEDSAMPLINGOptionsReg
+// Purpose       : functor for registering EMBEDDEDSAMPLING options
+// Special Notes : Used by package manager addOptionsProcessor method
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/3/2019
+//-----------------------------------------------------------------------------
+struct EMBEDDEDSAMPLINGOptionsReg : public PkgOptionsReg
+{
+  EMBEDDEDSAMPLINGOptionsReg( NetlistImportTool &netlist_import_tool )
+    : netlistImportTool_(netlist_import_tool)
+  {}
+
+  bool operator()( const Util::OptionBlock & options )
+  {
+    return netlistImportTool_.registerEMBEDDEDSAMPLINGOptions(options.begin(), options.end());
+  }
+
+  NetlistImportTool &netlistImportTool_;
+};
+
+//-----------------------------------------------------------------------------
+// Class         : PCEOptionsReg
+// Purpose       : functor for registering PCE options
+// Special Notes : Used by package manager addOptionsProcessor method
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/3/2019
+//-----------------------------------------------------------------------------
+struct PCEOptionsReg : public PkgOptionsReg
+{
+  PCEOptionsReg( NetlistImportTool &netlist_import_tool )
+    : netlistImportTool_(netlist_import_tool)
+  {}
+
+  bool operator()( const Util::OptionBlock & options )
+  {
+    return netlistImportTool_.registerPCEOptions(options.begin(), options.end());
+  }
+
+  NetlistImportTool &netlistImportTool_;
+};
+
+//-----------------------------------------------------------------------------
 // Class         : DCOptionsReg
 // Purpose       : functor for registering DC options
 // Special Notes : Used by package manager addOptionsProcessor method
@@ -218,7 +260,8 @@ bool registerPkgOptionsMgr(NetlistImportTool &netlist_import_tool, PkgOptionsMgr
   options_manager.addCommandProcessor("STEP", new STEPOptionsReg(netlist_import_tool));
   options_manager.addCommandProcessor("DIST", new DISTOptionsReg(netlist_import_tool));
   options_manager.addCommandProcessor("SAMPLING", new SAMPLINGOptionsReg(netlist_import_tool));
-  options_manager.addCommandProcessor("EMBEDDEDSAMPLINGDC", new SAMPLINGOptionsReg(netlist_import_tool));
+  options_manager.addCommandProcessor("EMBEDDEDSAMPLING", new EMBEDDEDSAMPLINGOptionsReg(netlist_import_tool));
+  options_manager.addCommandProcessor("PCE", new PCEOptionsReg(netlist_import_tool));
 
   return true;
 }
@@ -431,7 +474,10 @@ int NetlistImportTool::constructCircuitFromNetlist(
   device_manager.setLeadCurrentRequests(measure_manager.getDevicesNeedingLeadCurrents());
 
   printLineDiagnostics(comm, output_manager.getOutputParameterMap(), device_manager, measure_manager, nodeNames_, 
-      stepParams_, samplingParams_, 
+      stepParams_, 
+      samplingParams_, 
+      embeddedSamplingParams_, 
+      pceParams_, 
       dcParams_, device_names, aliasNodeMap_, deferredUndefinedParameters_);
 
   return 1;
@@ -540,6 +586,52 @@ bool NetlistImportTool::registerSAMPLINGOptions(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : OutputMgr::registerEMBEDDEDSAMPLINGOptions
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/3/2019
+//-----------------------------------------------------------------------------
+bool NetlistImportTool::registerEMBEDDEDSAMPLINGOptions(
+  Util::ParamList::const_iterator       it,
+  Util::ParamList::const_iterator       end)
+{
+  for (; it != end; ++it)
+  {
+    if ((*it).tag() == "PARAM")
+    {
+      embeddedSamplingParams_.push_back((*it).stringValue());
+    }
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : OutputMgr::registerPCEOptions
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 6/3/2019
+//-----------------------------------------------------------------------------
+bool NetlistImportTool::registerPCEOptions(
+  Util::ParamList::const_iterator       it,
+  Util::ParamList::const_iterator       end)
+{
+  for (; it != end; ++it)
+  {
+    if ((*it).tag() == "PARAM")
+    {
+      pceParams_.push_back((*it).stringValue());
+    }
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : printLineDiagnostics
 // Purpose       :
 // Special Notes : erkeite:  8/10/2007
@@ -559,6 +651,8 @@ void printLineDiagnostics(
   const unordered_set<std::string> &            node_names,
   const std::vector<std::string> &              step_params,
   const std::vector<std::string> &              sampling_params,
+  const std::vector<std::string> &              embeddedSampling_params,
+  const std::vector<std::string> &              pce_params,
   const std::vector<std::string> &              dc_params,
   const unordered_set<std::string> &    device_map,
   const IO::AliasNodeMap &                      alias_node_map,
@@ -720,7 +814,7 @@ void printLineDiagnostics(
           const std::string &name = *it4;
 
           bool done = false;
-          if (name == "TEMP" || name == "TIME" || name == "FREQ" || name == "INDEX" ||
+          if (name == "TEMP" || name == "TIME" || name == "FREQ" || name == "INDEX" || name == "STEPNUM" ||
               name == "OBJFUNC" || name == "OBJVARS" || name == "SENS" || name == "NOISE" || name == "sweep" ||
               name == "ONOISE" || name == "INOISE")
           {
@@ -764,6 +858,27 @@ void printLineDiagnostics(
                 break;
               }
             }
+
+            // check if this is an embedded sampling value.
+            for (std::vector<std::string>::const_iterator it = embeddedSampling_params.begin(), end = embeddedSampling_params.end(); it != end ; ++it)
+            {
+              if (*it == name)
+              {
+                done = true;
+                break;
+              }
+            }
+
+            // check if this is a PCE value.
+            for (std::vector<std::string>::const_iterator it = pce_params.begin(), end = pce_params.end(); it != end ; ++it)
+            {
+              if (*it == name)
+              {
+                done = true;
+                break;
+              }
+            }
+
           }
 
           double mValue;

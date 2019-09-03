@@ -142,8 +142,7 @@ inline std::ostream & operator<<(std::ostream & os, const outputFunctionData & o
 
 #if Xyce_STOKHOS_ENABLE
 void solveRegressionPCE(
-    const int d, // dimension (number of params)
-    const int p, // polynomial order
+    const int numParams, // dimension (number of params)
     const std::vector< std::vector<double> > & x,
     const std::vector<double> & f,
     Stokhos::OrthogPolyApprox<int,double> & samplePCE
@@ -323,6 +322,68 @@ void sampleApproximationPCE(
 
     computeStats (f1d, sm);
 
+  }//outputs loop
+}
+
+//-----------------------------------------------------------------------------
+// Function      : evaluateApproximationPCE
+//
+// Purpose       : This is a similar function to sampleApproximationPCE, except 
+//                 that instead of evaluating the PCE approximation using 
+//                 randomly sampled inputs, it instead evaluates it with a 
+//                 specific set of parameter values.  
+//
+//                 It should basically do the same steps 3,4,5 in  
+//                 function sampleApproximationPCE.
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 8/26/2019
+//-------------------------------------------------------------------------------
+template <typename ScalarT>
+void evaluateApproximationPCE(
+    const SweepVector & samplingVector,
+    const std::vector<double> & Y,
+    const int numSamples,
+    const std::vector< ScalarT > & samplePCEvec,
+    std::vector <std::vector<double> > & fvec)
+{
+  // 3. unScale it to create x.
+  // 4. loop over x, and create points, which are fed into the samplePCE object.
+  // 5. place the results of those evaluations over x into the f object.
+
+  if (samplePCEvec.size() == 0) return;
+
+  TEUCHOS_TEST_FOR_EXCEPTION(samplePCEvec.size() != fvec.size(), std::logic_error,
+       "sampleApproximationPCE: size of f vector "
+       << "does not match the PCE vector size.  f.size = " << fvec.size() 
+       << ".  PCE.size = " << samplePCEvec.size() << ".");
+
+  int numOutputs=fvec.size();
+  for (int ii=0;ii<numOutputs;++ii) { fvec[ii].resize(numSamples,0.0); }
+
+  int numParams = samplingVector.size();
+  std::vector< std::vector<double> > x(numParams);
+  for (int i=0;i<numParams;i++) { x[i].resize(numSamples ,0.0);}
+
+  const std::vector<double> covMatrix; // empty.  This just here as a placeholder
+  const std::vector<double> meanVec; // empty.  This just here as a placeholder
+  unScaleSampleValues(numSamples, samplingVector, covMatrix, meanVec, Y, x);
+
+  for(int iout=0;iout<numOutputs;++iout)
+  {
+    std::vector<double> & f1d = fvec[iout];
+
+    for(int col=0;col<numSamples;++col)
+    { 
+      Teuchos::Array<double> point( numParams );
+      for (int row=0;row<numParams;++row)
+      { 
+        point[row] = x[row][col];
+      }
+   
+      f1d[col] = samplePCEvec[iout].evaluate(point);
+    } // resample loop
   }//outputs loop
 }
 #endif

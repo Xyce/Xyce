@@ -749,6 +749,10 @@ void Manager::remeasure(
 
   int IndepVarCol = remeasureObj->getIndepVarCol();
 
+  // This function call will throw a FatalError if the required column (FREQ, Index or TIME)
+  // was not found in the remeasured file.
+  remeasureObj->checkIndepVarCol(Parallel::rank(pds_comm.comm()), IndepVarCol);
+
   // call make_ops to get the measure functions ready to get data
   makeMeasureOps(pds_comm.comm(), op_builder_manager);
   if ( !checkMeasureModes(remeasureObj->getAnalysisMode()) )

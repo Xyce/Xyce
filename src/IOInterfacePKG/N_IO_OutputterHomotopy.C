@@ -69,6 +69,8 @@ void enableHomotopyOutput(Parallel::Machine comm, OutputMgr &output_manager, Ana
         homotopy_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
       if (homotopy_print_parameters.printIndexColumn_)
         homotopy_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+      if (homotopy_print_parameters.printStepNumColumn_)
+        homotopy_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
 
       output_manager.fixupPrintParameters(comm, homotopy_print_parameters);
 

@@ -73,6 +73,8 @@ void enableSensitivityOutput(Parallel::Machine comm, OutputMgr &output_manager, 
         sensitivity_print_parameters.variableList_.push_front(Util::Param("TIME", 0.0));
       if (sensitivity_print_parameters.printIndexColumn_)
         sensitivity_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+      if (sensitivity_print_parameters.printStepNumColumn_)
+        sensitivity_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
 
       output_manager.fixupPrintParameters(comm, sensitivity_print_parameters);
 
@@ -144,6 +146,8 @@ void enableSensitivityACOutput(Parallel::Machine comm, OutputMgr &output_manager
       sensitivity_print_parameters.variableList_.push_front(Util::Param("FREQ", 0.0));
       if (sensitivity_print_parameters.printIndexColumn_)
         sensitivity_print_parameters.variableList_.push_front(Util::Param("INDEX", 0.0));
+      if (sensitivity_print_parameters.printStepNumColumn_)
+        sensitivity_print_parameters.variableList_.push_front(Util::Param("STEPNUM", 0.0));
 
       output_manager.fixupPrintParameters(comm, sensitivity_print_parameters);
 

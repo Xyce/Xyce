@@ -560,7 +560,7 @@ void CktGraphBasic::registerJacLIDswithDevs( Indexor & indexor )
 {
   std::vector< std::vector<int> > stampVec;
 
-  indexor.setupAcceleratedMatrixIndexing(Parallel::JACOBIAN_OVERLAP_GND);
+  indexor.setupAcceleratedMatrixIndexing(Parallel::JACOBIAN_OVERLAP);
 
   CktNodeList * tmpNodeList = getBFSNodeList();
 
@@ -599,7 +599,7 @@ void CktGraphBasic::registerJacLIDswithDevs( Indexor & indexor )
       counts[2] = depGIDs.size();
       //cktNodeDevPtr->registerGIDDataWithDev( counts, gids, stampVec );
 
-      indexor.matrixGlobalToLocal(Parallel::JACOBIAN_OVERLAP_GND, gids, stampVec );
+      indexor.matrixGlobalToLocal(Parallel::JACOBIAN_OVERLAP, gids, stampVec );
 
       cktNodeDevPtr->registerJacLIDswithDev( stampVec );
     }

@@ -73,12 +73,20 @@ HomotopyPrn::HomotopyPrn(Parallel::Machine comm, OutputMgr &output_manager, cons
     os_(0),
     index_(0),
     currentStep_(0),
-    numberOfSteps_(0)
+    numberOfSteps_(0),
+    homotopyParamStartIndex_(0)
 {
   if (printParameters_.defaultExtension_.empty())
     printParameters_.defaultExtension_ = ".HOMOTOPY.prn";
 
   fixupColumns(comm, outputManager_.getOpBuilderManager(), printParameters_, opList_);
+
+  // adjust where the homotopy params start, in the output column list, based
+  // on whether the STEPNUM and Index columns are output
+  if (printParameters_.printStepNumColumn_)
+    ++homotopyParamStartIndex_;
+  if (printParameters_.printIndexColumn_)
+    ++homotopyParamStartIndex_;
 }
 
 //-----------------------------------------------------------------------------
@@ -125,12 +133,6 @@ void HomotopyPrn::homotopyHeader(
 
   index_ = 0;
 
-  int homotopyParamStartIndex=1;
-  if (!printParameters_.printIndexColumn_) // if noindex, then use 0 for start of homotopy params, otherwise 1
-  {
-    homotopyParamStartIndex=0;
-  }
-
   if (currentStep_ == 0)
   {
     int column_index = 0;
@@ -142,7 +144,7 @@ void HomotopyPrn::homotopyHeader(
         *os_ << (printParameters_.delimiter_.empty() ? " " : printParameters_.delimiter_);
       }
 
-      if (column_index == homotopyParamStartIndex)
+      if (column_index == homotopyParamStartIndex_)
       {
         for (Table::ColumnList::const_iterator it2 = columnList_.begin(); it2 != columnList_.end(); ++it2)
         {
@@ -196,19 +198,13 @@ HomotopyPrn::doOutputHomotopy(
       }
   }
 
-  int homotopyParamStartIndex=1;
-  if (!printParameters_.printIndexColumn_) // if noindex, then use 0 for start of homotopy params, otherwise 1
-  {
-    homotopyParamStartIndex=0;
-  }
-
   std::vector<complex> result_list;
   getValues(comm, opList_, Util::Op::OpData(index_, &solution_vector, 0, 0, 0, 0), result_list);
 
   if (Parallel::rank(comm) == 0)
   {
     for (int i = 0; i < result_list.size(); ++i) {
-      if (i == homotopyParamStartIndex)
+      if (i == homotopyParamStartIndex_)
         for (int j = 0; j < parameter_values.size(); ++j)
           printValue(*os_, columnList_[j], printParameters_.delimiter_, 1, parameter_values[j]);
        

@@ -75,23 +75,31 @@ public:
   // Creates a new solver.
   Solver * create( Util::OptionBlock & options, Problem & problem, const IO::CmdParse & command_line) const;
 
-
   // Register the application system loader
-  void registerESLoader( const Teuchos::RCP<Loader::ESLoader>& hbLoaderPtr ) 
-    { hbLoaderPtr_ = hbLoaderPtr; }
+  void registerESLoader( const Teuchos::RCP<Loader::ESLoader>& esLoaderPtr ) 
+    { esLoaderPtr_ = esLoaderPtr; }
 
   // Register the ES builder 
-  void registerESBuilder( const Teuchos::RCP<ESBuilder>& hbBuilder ) 
-    { hbBuilderPtr_ = hbBuilder; }
+  void registerESBuilder( const Teuchos::RCP<ESBuilder>& esBuilder ) 
+    { esBuilderPtr_ = esBuilder; }
+
+  void setNumSamples(int numS)
+  { numSamples_ = numS; }
+
+  void setParameterOuterLoop (bool paramsOL)
+    { paramsOuterLoop_ = paramsOL; }
 
 private:
   Builder &                     builder_;
-  Teuchos::RCP<Loader::ESLoader> hbLoaderPtr_;
-  Teuchos::RCP<ESBuilder> hbBuilderPtr_;
+  Teuchos::RCP<Loader::ESLoader> esLoaderPtr_;
+  Teuchos::RCP<ESBuilder> esBuilderPtr_;
   Teuchos::RCP<Util::OptionBlock> optionBlock_;
 
   // Copy constructor.
   ESSolverFactory( const ESSolverFactory& pf );
+
+  int numSamples_;
+  bool paramsOuterLoop_;
 };
 
 } // namespace Linear

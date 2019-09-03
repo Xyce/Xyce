@@ -117,7 +117,7 @@ public:
                        Linear::Vector * nextStoVectorPtr,
                        Linear::Vector * currStoVectorPtr,
                        int loadType = Xyce::Device::ALL
-                       );
+                       ) {return true; }
 
     // Virtual method which initializes the nonlinear problem.
   virtual bool initializeProblem( Linear::Vector * nextSolVectorPtr,
@@ -140,18 +140,6 @@ public:
 
   // Get the voltage limiter flag:
   bool getLimiterFlag () { return ESLoader::appLoaderPtr_->getLimiterFlag (); }
-
-  // Get the stored time-domain Jacobians from the ES loader.
-  Teuchos::RCP<Linear::FilteredMatrix>& getStoreLindQdx() { return linAppdQdxPtr_; }
-  Teuchos::RCP<Linear::FilteredMatrix>& getStoreLindFdx() { return linAppdFdxPtr_; }
-  std::vector<Teuchos::RCP<Linear::FilteredMatrix> >& getStoreNLdQdx() { return vecNLAppdQdxPtr_; }
-  std::vector<Teuchos::RCP<Linear::FilteredMatrix> >& getStoreNLdFdx() { return vecNLAppdFdxPtr_; }
-
-  bool applyLinearMatrices( const Linear::Vector & Vf,
-                            Linear::BlockVector & permlindQdxV,
-                            Linear::BlockVector & permlindFdxV );
-
-  Teuchos::RCP<Linear::BlockVector> & getLeadCurrentVecFreqPtr()  { return bLeadCurrentVecFreqPtr_;} 
 
   // Registration method for the device packaage
   void registerAppLoader( Teuchos::RCP<Loader> appLoaderPtr )
@@ -176,6 +164,9 @@ public:
   // voltage limiter toggle functions
   virtual bool getVoltageLimiterStatus();
   virtual void setVoltageLimiterStatus(bool voltageLimterStatus);
+
+  bool getNumSamples() { return numSamples_; }
+  bool setNumSamples(int numS) { numSamples_ = numS; }
 
 private:
  
@@ -220,19 +211,11 @@ private:
   Teuchos::RCP<Linear::Vector> appdFdxdVpPtr_;
   Teuchos::RCP<Linear::Vector> appdQdxdVpPtr_;
 
-  // ES Builder:  (needed to convert AztecOO created Linear::Vectors into Linear::BlockVectors
-  Teuchos::RCP<Linear::BlockVector> bQPtr_;
+  // ES Builder:
   Teuchos::RCP<Linear::ESBuilder> esBuilderPtr_;
 
-  // App Builder:  (needed to load time domain vectors and matrices)
+  // App Builder:
   Linear::Builder &             builder_;
-
-  Teuchos::RCP<Linear::BlockVector> bXtPtr_;
-  Teuchos::RCP<Linear::BlockVector> bVtPtr_;
-
-//  Teuchos::RCP<Linear::BlockVector> bStoreVecFreqPtr_;
-  Teuchos::RCP<Linear::BlockVector> bLeadCurrentVecFreqPtr_; 
-  Teuchos::RCP<Linear::BlockVector> bLeadCurrentQVecFreqPtr_; 
 
   // stuff copied from MPDE loader:
   // Tmp storage block matrices 

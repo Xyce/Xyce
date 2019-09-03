@@ -26,9 +26,9 @@
 //
 // Special Notes :
 //
-// Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
+// Creator       : Robert Hoekstra
 //
-// Creation Date : 01/24/08
+// Creation Date : 03/01/2002
 //
 //
 //

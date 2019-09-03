@@ -89,6 +89,12 @@ static const int DEBUG_ES = 1;
 static const int DEBUG_ES = 0;
 #endif
 
+#ifdef Xyce_DEBUG_PCE
+static const int DEBUG_PCE = 1;
+#else
+static const int DEBUG_PCE = 0;
+#endif
+
 #ifdef Xyce_DEBUG_SAMPLING
 static const int DEBUG_SAMPLING = 1;
 #else

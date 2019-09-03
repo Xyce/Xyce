@@ -29,7 +29,7 @@
 //
 // Creator        : Heidi Thornquist, Sandia National Labs
 //
-// Creation Date  : 05/20/00
+// Creation Date  : 
 //
 //
 //

@@ -79,6 +79,8 @@ public:
   RCP<MultiVector>& getRHS() { return b_; }
   RCP<MultiVector>& getLHS() { return x_; }
 
+  RCP<Matrix>& getJac () { return A_; }
+
   bool matrixFree() const { return(matrixFreeFlag_); }
 
 private:

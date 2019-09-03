@@ -186,6 +186,7 @@ struct PrintParameters
       dataFormat_(DataFormat::RI),
       RFparamType_("S"),
       printIndexColumn_(true),
+      printStepNumColumn_(false),
       variableList_(),
       table_(),
       streamWidth_(17),
@@ -219,6 +220,7 @@ struct PrintParameters
       dataFormat_(print_parameters.dataFormat_),
       RFparamType_(print_parameters.RFparamType_),
       printIndexColumn_(print_parameters.printIndexColumn_),
+      printStepNumColumn_(print_parameters.printStepNumColumn_),
       variableList_(print_parameters.variableList_.begin(), print_parameters.variableList_.end()),
       table_(print_parameters.table_),
       streamWidth_(print_parameters.streamWidth_),
@@ -253,6 +255,7 @@ struct PrintParameters
     dataFormat_ = print_parameters.dataFormat_;
     RFparamType_ = print_parameters.RFparamType_;
     printIndexColumn_ = print_parameters.printIndexColumn_;
+    printStepNumColumn_ = print_parameters.printStepNumColumn_;
     variableList_.assign(print_parameters.variableList_.begin(), print_parameters.variableList_.end());
     table_ = print_parameters.table_;
     streamWidth_ = print_parameters.streamWidth_;
@@ -292,6 +295,7 @@ public:
   DataFormat::DataFormat        dataFormat_;                    ///< Data format specified for Touchstone output
   std::string                   RFparamType_;                   ///< Parameter type (e.g., S, Y or Z) output in Touchstone file
   bool                          printIndexColumn_;              ///< True if INDEX column is to be printed
+  bool                          printStepNumColumn_;            ///< True if STEPNUM column is to be printed
   Util::ParamList               variableList_;                  ///< Description of variables to be printed
   Table                         table_;                         ///< Formatting of table for print
   int                           streamWidth_;                   ///< Column width
