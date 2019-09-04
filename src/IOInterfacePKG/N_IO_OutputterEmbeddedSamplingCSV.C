@@ -68,7 +68,7 @@ EmbeddedSamplingCSV::EmbeddedSamplingCSV(
 {
   if (printParameters_.defaultExtension_.empty())
   {
-    printParameters_.defaultExtension_ = ".FD.SENS.csv";
+    printParameters_.defaultExtension_ = ".ES.csv";
   }
 
   // Add columns for Index and TIME.  The columns for the PCE info will be added in

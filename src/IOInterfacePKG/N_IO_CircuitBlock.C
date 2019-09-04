@@ -2175,6 +2175,7 @@ bool CircuitBlock::handleAnalysis()
          (analysisName_ == "OP" && usVal == "AC") ||
          (analysisName_ == "OP" && usVal == "AC_IC") ||
          (analysisName_ == "OP" && usVal == "DC") ||
+         (analysisName_ == "OP" && usVal == "ES") ||
          (analysisName_ == "OP" && usVal == "HB") ||
          (analysisName_ == "OP" && usVal == "HB_TD") ||
          (analysisName_ == "OP" && usVal == "HB_FD") ||
