@@ -663,6 +663,9 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     Report::UserWarning0() << "Output function was not specified";
   }
 
+  // signal the OutputMgr that PCE is enabled
+  outputManagerAdapter_.setEnablePCEFlag(true);
+
   return true;
 }
 
@@ -774,7 +777,17 @@ void PCE::stepCallBack ()
   }
 #endif
 
-  hackPCEOutput ();
+  // only call outputter functions if OUTPUTS= was used on the
+  // .OPTIONS PCES line.
+  if (outputsGiven_)
+  {
+    // output for .PRINT PCE
+#if Xyce_STOKHOS_ENABLE
+    outputManagerAdapter_.outputPCE(numQuadPoints_, outFuncDataVec_);
+#endif
+
+    hackPCEOutput ();
+  }
   hackPCEOutput2 ();
 }
 
@@ -1427,8 +1440,6 @@ void PCE::computePCEOutputs()
 //-----------------------------------------------------------------------------
 void PCE::hackPCEOutput ()
 {
-  if (outputsGiven_)
-  {
     std::string fileName; 
 
     if (hackOutputFormat_=="TECPLOT")
@@ -1592,10 +1603,7 @@ void PCE::hackPCEOutput ()
 
     output_stream << std::endl;
 
-  //
-  }
-
-  return;
+    return;
 }
 
 //-----------------------------------------------------------------------------

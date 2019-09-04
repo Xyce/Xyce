@@ -289,6 +289,11 @@ public:
     const std::vector<std::string> & projectionPCEcoeffs,
     const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
 
+  void outputPCE(
+    Parallel::Machine comm,
+    int numQuadPoints,
+    const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
+
   void outputMPDE(
     Parallel::Machine                   comm,
     double                              time,
@@ -489,6 +494,11 @@ public:
     enableEmbeddedSamplingFlag_ = value;
   }
 
+  void setEnablePCEFlag(bool value)
+  {
+    enablePCEFlag_ = value;
+  }
+
   void setEnableHomotopyFlag(bool value)
   {
     enableHomotopyFlag_ = value;
@@ -661,6 +671,7 @@ private:
   // print statement vars
   bool                  dotOpSpecified_; // flag to indicate if the netlist has a .OP statement
   bool                  enableEmbeddedSamplingFlag_;
+  bool                  enablePCEFlag_;
   bool                  enableHomotopyFlag_;
   bool                  enableSparCalcFlag_;
   bool                  enableSensitivityFlag_;

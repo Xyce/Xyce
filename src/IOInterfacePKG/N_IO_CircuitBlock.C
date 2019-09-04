@@ -2182,14 +2182,17 @@ bool CircuitBlock::handleAnalysis()
          (analysisName_ == "OP" && usVal == "HB_IC") ||
          (analysisName_ == "OP" && usVal == "HB_STARTUP") ||
          (analysisName_ == "OP" && usVal == "NOISE") ||
+         (analysisName_ == "OP" && usVal == "PCE") ||
          (analysisName_ == "TRAN" && usVal == "HOMOTOPY") ||
          (analysisName_ == "OP" && usVal == "HOMOTOPY") ||
          (analysisName_ == "DC" && usVal == "HOMOTOPY") ||
          (analysisName_ == "DC" && usVal == "DC") ||
          (analysisName_ == "DC" && usVal == "ES") ||
+         (analysisName_ == "DC" && usVal == "PCE") ||
          (analysisName_ == "OP" && usVal == "SENS") ||
          (analysisName_ == "DC" && usVal == "SENS") ||
          (analysisName_ == "TRAN" && usVal == "ES") ||
+         (analysisName_ == "TRAN" && usVal == "PCE") ||
          (analysisName_ == "TRAN" && usVal == "SENS") ||
          (analysisName_ == "MPDE" && usVal == "TRAN") ||
          (analysisName_ == "MPDE" && usVal == "MPDE") ||

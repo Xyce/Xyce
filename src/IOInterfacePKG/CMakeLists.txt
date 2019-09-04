@@ -53,6 +53,9 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterNoisePrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterNoiseCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterNoiseTecplot.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterPCECSV.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterPCEPrn.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterPCETecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterSensitivityPrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterSensitivityCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterSensitivityTecplot.C
@@ -78,6 +81,7 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterMPDE.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterRawOverride.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterNoise.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterPCE.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterSensitivity.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterSParam.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterTransient.C

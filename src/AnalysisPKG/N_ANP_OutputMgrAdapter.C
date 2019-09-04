@@ -505,6 +505,21 @@ void  OutputMgrAdapter::outputEmbeddedSampling(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : OutputMgrAdapter::outputPCE
+// Purpose       : constructor for PCE output
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 7/26/2019
+//-----------------------------------------------------------------------------
+void  OutputMgrAdapter::outputPCE(
+  int numQuadPoints,
+  const std::vector<UQ::outputFunctionData*> & outFuncDataVec_)
+{
+  outputManager_.outputPCE(comm_, numQuadPoints, outFuncDataVec_);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : OutputMgrAdapter::getInitialOutputInterval
 // Purpose       : constructor
 // Special Notes :

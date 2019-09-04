@@ -135,6 +135,11 @@ public:
     outputManager_.setEnableEmbeddedSamplingFlag(value);
   }
 
+  void setEnablePCEFlag( bool value)
+  {
+    outputManager_.setEnablePCEFlag(value);
+  }
+
   // used to determine, for -r output, whether a
   // .LIN analysis is being done.
   void setEnableSparCalcFlag( bool value)
@@ -271,6 +276,10 @@ public:
       int  numSamples,
       const std::vector<std::string> & regressionPCEcoeffs_,
       const std::vector<std::string> & projectionPCEcoeffs_,
+      const std::vector<UQ::outputFunctionData*> & outFuncDataVec_ );
+
+  void outputPCE(
+      int numQuadPoints,
       const std::vector<UQ::outputFunctionData*> & outFuncDataVec_ );
 
   void outputHomotopy( const std::vector<std::string> & paramNames, const std::vector<double> & paramVals, Linear::Vector & solnVecPtr );

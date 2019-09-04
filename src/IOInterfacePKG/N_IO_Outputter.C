@@ -211,6 +211,24 @@ void Interface::outputEmbeddedSampling(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Interface::outputPCE
+// Purpose       :
+// Special Notes :
+// Scope         :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 9/3/2019
+//-----------------------------------------------------------------------------
+void Interface::outputPCE(
+  Parallel::Machine             comm,
+  int                           numQuadPoints,
+  const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_)
+{
+  if (debug) Xyce::dout() << demangle(typeid(*this).name()) << " doOutputPCE" << std::endl;
+
+  doOutputPCE(comm, numQuadPoints, outFuncDataVec_);
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Interface::outputHB_TD
 // Purpose       : Used for HB time-domain output such as .PRINT HB_TD lines.  
 //                 This is not used for .PRINT HB_STARTUP or .PRINT HB_IC lines 
