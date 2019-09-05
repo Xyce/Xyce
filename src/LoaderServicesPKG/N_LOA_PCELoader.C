@@ -50,6 +50,10 @@
 #include <N_LAS_SystemHelpers.h>
 #include <N_LAS_MultiVector.h>
 
+#include <N_LAS_Solver.h>
+#include <N_LAS_TranSolverFactory.h>
+#include <N_LAS_Problem.h>
+
 #include <N_ANP_UQSupport.h>
 
 #include <N_UTL_FeatureTest.h>
@@ -87,7 +91,9 @@ PCELoader::PCELoader(
   int numQuadPoints,
   int numBlockRows,
   Analysis::SweepVector & samplingVector,
-  const std::vector<double> & Y
+  const std::vector<double> & Y,
+  const Xyce::IO::CmdParse & cp,
+  int voltLimAlg
   )
   : CktLoader(device_manager, builder),
     deviceManager_(device_manager),
@@ -95,7 +101,9 @@ PCELoader::PCELoader(
     numQuadPoints_(numQuadPoints),
     numBlockRows_(numBlockRows),
     samplingVector_(samplingVector),
-    Y_(Y) 
+    Y_(Y),
+    commandLine_(cp),
+    voltLimAlgorithm_(voltLimAlg)
 {
   // Now initialize all the working vectors, size of the original system
   appNextVecPtr_ = rcp(builder_.createVector());
@@ -107,6 +115,8 @@ PCELoader::PCELoader(
   appBPtr_ = rcp(builder_.createVector());
   appdFdxdVpPtr_ = rcp(builder_.createVector());
   appdQdxdVpPtr_ = rcp(builder_.createVector());
+
+  app_dV_voltlim_Ptr_ = rcp(builder_.createVector());
 
   appNextStaVecPtr_ = rcp(builder_.createStateVector());
   appCurrStaVecPtr_ = rcp(builder_.createStateVector());
@@ -123,6 +133,9 @@ PCELoader::PCELoader(
   appNextLeadFVecPtr_ = rcp(builder.createLeadCurrentVector());
   appLeadQVecPtr_     = rcp(builder.createLeadCurrentVector());
   appNextJunctionVVecPtr_ = rcp(builder.createLeadCurrentVector());
+
+  // Create Linear::Problem
+  lasProblemPtr_ = rcp(new Linear::Problem(appdFdxPtr_, app_dV_voltlim_Ptr_, appdFdxdVpPtr_));
 }
 
 //-----------------------------------------------------------------------------
@@ -152,6 +165,9 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
   bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
   bXCurr_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
   bXLast_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+
+  b_dV_voltlim_quad_Ptr_ = pceBuilderPtr_->createQuadBlockVector();
+  b_dV_voltlim_coef_Ptr_ = pceBuilderPtr_->createBlockVector();
 }
 
 //-----------------------------------------------------------------------------
@@ -165,7 +181,20 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
 void PCELoader::registerPCEgraph ( Teuchos::RCP<Epetra_CrsGraph> & tmpPceGraph)
 {
   pceGraph_ = tmpPceGraph;
-  pceMat_ = rcp(new Epetra_CrsMatrix(Copy, *pceGraph_));
+  pceMat_ = rcp(new Epetra_CrsMatrix(Copy, *pceGraph_)); // do I need this?
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCELoader::registerSolverFactory
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 09/04/2019
+//-----------------------------------------------------------------------------
+void PCELoader::registerSolverFactory (Xyce::Linear::SolverFactory *tmpLasSolverPtr) 
+{ 
+  lasSolverFactoryPtr_ = tmpLasSolverPtr; 
 }
 
 //-----------------------------------------------------------------------------
@@ -284,6 +313,30 @@ void returnDenseMatrixEntry(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : PCELoader::allocateVoltageLimitingSolver
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 07/27/2019
+//-----------------------------------------------------------------------------
+bool PCELoader::allocateVoltageLimitingSolver ()
+{
+  if ( Teuchos::is_null(lasSolverRCPtr_) )
+  {
+    if (lasSolverFactoryPtr_)
+    {
+      lasSolverRCPtr_ = Teuchos::rcp( lasSolverFactoryPtr_->create( saved_lsOB_, *lasProblemPtr_ , commandLine_) );
+    }
+    else
+    {
+      Linear::TranSolverFactory lasFactory;
+      lasSolverRCPtr_ = Teuchos::rcp( lasFactory.create( saved_lsOB_, *lasProblemPtr_ , commandLine_) );
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : PCELoader::loadDAEVectors
 // Purpose       :
 // Special Notes :
@@ -362,6 +415,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   Xyce::Linear::BlockVector & bF = *dynamic_cast<Xyce::Linear::BlockVector*>(F);
   Xyce::Linear::BlockVector & bB = *dynamic_cast<Xyce::Linear::BlockVector*>(B);
 
+  Xyce::Linear::BlockVector & bDV = *(b_dV_voltlim_coef_Ptr_);
+
   Xyce::Linear::BlockVector & bdFdxdVp = *dynamic_cast<Xyce::Linear::BlockVector*>(dFdxdVp);
   Xyce::Linear::BlockVector & bdQdxdVp = *dynamic_cast<Xyce::Linear::BlockVector*>(dQdxdVp);
 
@@ -412,6 +467,9 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   }
 
   // This loop is over the number of quadrature points
+  bool applyLimit=false;
+  b_dV_voltlim_quad_Ptr_->putScalar(0.0);
+
   for( int i = 0; i < numQuadPoints_; ++i )
   {
     Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
@@ -508,6 +566,26 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
     bmdQdx_quad_Ptr_->block(i,i).add( *appdQdxPtr_ );
     bmdFdx_quad_Ptr_->block(i,i).add( *appdFdxPtr_ );
+
+    // solve volt lim problem, if necessary.  
+    // check max norm. if tiny don't bother
+    double maxNormFlimiter=0.0; 
+    appdFdxdVp.infNorm(&maxNormFlimiter);
+    double maxNormQlimiter=0.0; 
+    appdQdxdVp.infNorm(&maxNormQlimiter);
+
+    if (appLoaderPtr_->getVoltageLimiterStatus() &&  voltLimAlgorithm_>0
+        && maxNormFlimiter!=0.0 && maxNormQlimiter !=0.0)
+    {
+      // get a solution for dV for this quad point
+      allocateVoltageLimitingSolver (); // only allocates if null
+      bool reuseFactors_ = true;
+      lasSolverRCPtr_->solve(reuseFactors_);
+
+      b_dV_voltlim_quad_Ptr_->block(i) = *app_dV_voltlim_Ptr_;
+
+      applyLimit=true;
+    }
   }
   
   // Now that the vector loading is finished, synchronize the global copy of the relevant block vectors
@@ -518,6 +596,11 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bQ_quad_ptr_->assembleGlobalVector();
   bF_quad_ptr_->assembleGlobalVector();
   bB_quad_ptr_->assembleGlobalVector();
+  if (applyLimit)
+  {
+    b_dV_voltlim_quad_Ptr_->assembleGlobalVector(); 
+  }
+
   bdFdxdVp_quad_ptr_->assembleGlobalVector();
   bdQdxdVp_quad_ptr_->assembleGlobalVector();
 
@@ -543,7 +626,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bmdFdx_quad_Ptr_->fillComplete();
 
   {
-  // obtain the PCE coefficients of both f and q
+  // obtain the PCE coefficients of both f and q, and volt lim if necessary
   // ERK.  Fix this
   // the std::vectors f and q need to contain all the quadrature points for a given variable
   
@@ -553,11 +636,16 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     std::vector<double> f(numQuadPoints_,0.0);
     std::vector<double> q(numQuadPoints_,0.0);
     std::vector<double> b(numQuadPoints_,0.0);
+    std::vector<double> dv(numQuadPoints_,0.0);
     for (int iquad=0;iquad<numQuadPoints_;++iquad)
     {
       f[iquad] = (bF_quad_ptr_->block(iquad))[isol];
       q[iquad] = (bQ_quad_ptr_->block(iquad))[isol];
       b[iquad] = (bB_quad_ptr_->block(iquad))[isol];
+      if (applyLimit)
+      {
+        dv[iquad] = (b_dV_voltlim_quad_Ptr_->block(iquad))[isol];
+      }
     }
 
     pceF.init(0.0); pceF.reset(expnMethod_);
@@ -566,18 +654,36 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, f, pceF);
     Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, q, pceQ);
     Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, b, pceB);
+    if (applyLimit)
+    { 
+      pceDV.init(0.0); pceDV.reset(expnMethod_); 
+      Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dv, pceDV);
+    }
+
     int basisSize = basis_->size();
     for (int icoef=0;icoef<basisSize;++icoef)
     {
       (bF.block(icoef))[isol] = pceF.coeff(icoef);
       (bQ.block(icoef))[isol] = pceQ.coeff(icoef);
       (bB.block(icoef))[isol] = pceB.coeff(icoef);
+      if (applyLimit)
+      {
+        (bDV.block(icoef))[isol] = pceDV.coeff(icoef);
+      }
     }
   }
 
   bF.assembleGlobalVector();
   bQ.assembleGlobalVector();
   bB.assembleGlobalVector();
+  if (applyLimit)
+  {
+    bDV.assembleGlobalVector();
+  }
+
+#if 1
+  bF.printPetraObject(std::cout);
+#endif
 
   // put the evaluated pceF and pceQ into the block F and Q vectors used by the solvers
   }
@@ -612,7 +718,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
         double qval = subMatQ[irow][icol];
         dfdx[iquad] = fval;
         dqdx[iquad] = qval;
-#if 0
+#if 1
         std::cout << "dfdx["<<iquad<<"] = " << dfdx[iquad] << std::endl;
 #endif
       }
@@ -624,7 +730,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
       returnDenseMatrixEntry( pceF, denseEntryF, Cijk_,basis_);
       returnDenseMatrixEntry( pceQ, denseEntryQ, Cijk_,basis_);
-#if 0
+#if 1
       {
       std::cout.setf(std::ios::scientific);
       std::cout.setf(std::ios::right);
@@ -659,8 +765,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
           subMatQ[irow][icol] += qval;
         }
       }
-
-
     }
   }
 
@@ -677,7 +781,16 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 #endif
   }
 
-  // do another round of assembleGlobal, on the new objects
+  if (applyLimit)
+  {
+    // perform matvecs to convert bDV to dFdxdVp and dQdxdVp
+    bool Transpose = false;
+    dFdxdVp->putScalar(0.0);
+    bmdFdxPtr_->matvec( Transpose , bDV, *dFdxdVp );
+
+    dQdxdVp->putScalar(0.0);
+    bmdQdxPtr_->matvec( Transpose , bDV, *dQdxdVp );
+  }
 
   if (DEBUG_PCE)
   {

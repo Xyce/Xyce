@@ -185,6 +185,7 @@ PCE::PCE(
       stdOutputFlag_(false),
       debugLevel_(0),
       outputStochasticMatrix_(false),
+      voltLimAlgorithm_(1),
       outputsGiven_(false),
       outputsSetup_(false),
       measuresGiven_(false),
@@ -617,7 +618,11 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     }
     else if ((*it).uTag() == "OUTPUT_STOCHASTIC_MATRIX")
     {
-      outputStochasticMatrix_ = (*it).getImmutableValue<int>();
+      outputStochasticMatrix_ = (*it).getImmutableValue<bool>();
+    }
+    else if ((*it).uTag() == "VOLTLIM_ALG")
+    {
+      voltLimAlgorithm_ = (*it).getImmutableValue<int>();
     }
     else if (std::string((*it).uTag() ,0,7) == "OUTPUTS" )// this is a vector of expressions/solution variables
     {
@@ -834,8 +839,6 @@ void  PCE::setupBlockSystemObjects ()
 {
   analysisManager_.resetSolverSystem();
 
-  //pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numQuadPoints_));
-  //pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_));
   pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_,numQuadPoints_));
 
   if (DEBUG_ANALYSIS)
@@ -858,7 +861,7 @@ void  PCE::setupBlockSystemObjects ()
 
   // Create PCE Loader.
   delete pceLoaderPtr_;
-  pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numQuadPoints_, numBlockRows_, samplingVector_, Y_);
+  pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numQuadPoints_, numBlockRows_, samplingVector_, Y_, analysisManager_.getCommandLine(), voltLimAlgorithm_);
   pceLoaderPtr_->registerPCEBuilder(pceBuilderPtr_);
   pceLoaderPtr_->registerAppLoader( rcp(&loader_, false) );
   pceLoaderPtr_->registerPCEbasis (basis) ;
@@ -929,7 +932,10 @@ void  PCE::setupBlockSystemObjects ()
   }
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
   pceLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);
-  
+  pceLoaderPtr_->registerSolverFactory ( solverFactory_ );
+  //pceLoaderPtr_->registerLinearSystem( &linearSystem_ );
+  pceLoaderPtr_->setLinSolOptions( saved_lsOB_ );
+
   childAnalysis_.registerParentAnalysis(this);
 }
 
@@ -2005,6 +2011,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 0)));
     parameters.insert(Util::ParamMap::value_type("STDOUTPUT", Util::Param("STDOUTPUT", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_STOCHASTIC_MATRIX", Util::Param("OUTPUT_STOCHASTIC_MATRIX", false)));
+    parameters.insert(Util::ParamMap::value_type("VOLTLIM_ALG", Util::Param("VOLTLIM_ALG", 1)));
   }
 
 
