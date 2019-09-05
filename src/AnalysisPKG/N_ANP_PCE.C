@@ -542,7 +542,7 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     {
       PCEorder_ = (*it).getImmutableValue<int>();
       if (PCEorder_ < 0)
-        Report::UserError() << "ORDER parameter on .PCE line must >= 0";
+        Report::UserError() << "ORDER parameter on .OPTIONS PCES line must >= 0";
     }
 #endif
     else if ((*it).uTag() == "SAMPLE_TYPE")
