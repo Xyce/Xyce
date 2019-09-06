@@ -409,14 +409,16 @@ bool Sampling::setSamplingOptions(const Util::OptionBlock & option_block)
     {
       outputsGiven_ = true;
       UQ::outputFunctionData * ofDataPtr = new UQ::outputFunctionData();
-      ofDataPtr->outFuncString = (*it).stringValue();
+      ExtendedString funcName = (*it).stringValue();
+      ofDataPtr->outFuncString = funcName.toUpper();
       outFuncDataVec_.push_back(ofDataPtr);
     }
     else if (std::string((*it).uTag() ,0,8) == "MEASURES" ) 
     {
       measuresGiven_ = true;
       UQ::outputFunctionData * ofDataPtr = new UQ::outputFunctionData();
-      ofDataPtr->outFuncString = (*it).stringValue();
+      ExtendedString measName = (*it).stringValue();
+      ofDataPtr->outFuncString = measName.toUpper();
       measFuncDataVec_.push_back(ofDataPtr);
     }
     else if ((*it).uTag() == "OUTPUTSAMPLESTATS")

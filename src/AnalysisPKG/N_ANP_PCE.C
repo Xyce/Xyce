@@ -628,7 +628,8 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     {
       outputsGiven_ = true;
       UQ::outputFunctionData * ofDataPtr = new UQ::outputFunctionData();
-      ofDataPtr->outFuncString = (*it).stringValue();
+      ExtendedString funcName = (*it).stringValue();
+      ofDataPtr->outFuncString = funcName.toUpper();
       outFuncDataVec_.push_back(ofDataPtr);
     }
     else

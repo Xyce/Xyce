@@ -636,7 +636,8 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     {
       outputsGiven_ = true;
       UQ::outputFunctionData * ofDataPtr = new UQ::outputFunctionData();
-      ofDataPtr->outFuncString = (*it).stringValue();
+      ExtendedString funcName = (*it).stringValue();
+      ofDataPtr->outFuncString = funcName.toUpper();
       outFuncDataVec_.push_back(ofDataPtr);
     }
     else
@@ -861,7 +862,7 @@ void EmbeddedSampling::stepCallBack ()
           const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
           std::string coefString = "_coef(";
           for (int jj=0; jj< trm.size()-1; jj++)
-            coefString += std::to_string(trm[jj]) + ",";
+            coefString += std::to_string(trm[jj]) + "_";
           coefString += std::to_string(trm[trm.size()-1]) + ")";
 
           regressionPCEcoeffs_.push_back(coefString);
@@ -878,7 +879,7 @@ void EmbeddedSampling::stepCallBack ()
           const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
           std::string coefString = "_coef(";
           for (int jj=0; jj< trm.size()-1; jj++)
-            coefString += std::to_string(trm[jj]) + ",";
+            coefString += std::to_string(trm[jj]) + "_";
           coefString += std::to_string(trm[trm.size()-1]) + ")";
 
           projectionPCEcoeffs_.push_back(coefString);
