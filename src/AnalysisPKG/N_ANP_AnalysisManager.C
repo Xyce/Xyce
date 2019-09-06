@@ -398,15 +398,6 @@ bool AnalysisManager::initializeSolverSystem(
 
   dataStore_ = new TimeIntg::DataStore(tia_params.maxOrder, linear_system.builder());
 
-#if Xyce_STOKHOS_ENABLE
-  // ERK.  HACK!!! FIX THIS
-  // if doing intrusive-style PCE, then some of the data store objects need to be re-sized.
-  if ( analysisObject_->getName() == "PCE" )
-  {
-    dataStore_->allocatePCEVectors();
-  }
-#endif
-
   workingIntgMethod_ = new TimeIntg::WorkingIntegrationMethod(stat);
   stepErrorControl_ = new TimeIntg::StepErrorControl(netlistFilename_, *this, *workingIntgMethod_, tia_params);
   nonlinearEquationLoader_ = new Loader::NonlinearEquationLoader(*dataStore_, loader, device_manager, *workingIntgMethod_, daeStateDerivFlag_);

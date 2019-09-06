@@ -426,11 +426,15 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bmdQdx_quad_Ptr_->put(0.0);
   bmdFdx_quad_Ptr_->put(0.0);
 
-  // ERK.  Convert the solution vector bnextX from coefficients to variable values.
+  // ERK.  Convert the solution vector bnextX from coefficients to quadrature variable values.
   //
-  // Use the UQ helper function for evaluating the PCE expansion.  
+  // Use the UQ helper function for evaluating the PCE expansion.
   // Evaluate the PCE approximation at the sample points, then use this as input 
   // to the device models load function calls
+  //
+  // ERK.  Note:  to be quicker, I am converting all 3 solution vectors: next, curr and last.  
+  // But of course, once a transient is up and running, the curr and last should have been 
+  // converted already.  So I am doing some redundant work.
   {
   std::vector< Stokhos::OrthogPolyApprox<int,double> > pceVec(3);
   int solutionSize = bnextX.block(0).localLength();  // get local length.  SERIAL ONLY HERE!!!  sigh, fix later.
@@ -469,6 +473,17 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   // This loop is over the number of quadrature points
   bool applyLimit=false;
   b_dV_voltlim_quad_Ptr_->putScalar(0.0);
+
+#if 0
+  {
+  std::cout << "Block Count of bnextS = " << bnextS.blockCount() << std::endl;
+  std::cout << "Block Size  of bnextS = " << bnextS.blockSize () << std::endl;
+  std::cout << "numQuadPoints         = " << numQuadPoints_ <<std::endl;
+  int solutionSize = bnextX.block(0).localLength();  // get local length.  SERIAL ONLY HERE!!!  sigh, fix later.
+  std::cout << "solutionSize          = " << solutionSize <<std::endl;
+  std::cout << "Basis size            = " << basis_->size() <<std::endl;
+  }
+#endif
 
   for( int i = 0; i < numQuadPoints_; ++i )
   {
@@ -625,6 +640,14 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bmdQdx_quad_Ptr_->fillComplete();
   bmdFdx_quad_Ptr_->fillComplete();
 
+#if 0
+  std::cout << "Printing bF_quad_ptr_ (quadrature points):" <<std::endl;
+  bF_quad_ptr_->printPetraObject(std::cout);
+  double maxNormFquad=0.0; 
+  bF_quad_ptr_->infNorm(&maxNormFquad);
+  std::cout << "Max norm of bF_quad_ptr_ = " << maxNormFquad <<std::endl;
+#endif
+
   {
   // obtain the PCE coefficients of both f and q, and volt lim if necessary
   // ERK.  Fix this
@@ -681,11 +704,14 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     bDV.assembleGlobalVector();
   }
 
-#if 1
+#if 0
+  std::cout << "Printing bF (PCE coefs):" <<std::endl;
   bF.printPetraObject(std::cout);
+  double maxNormF=0.0; 
+  bF.infNorm(&maxNormF);
+  std::cout << "Max norm of bF = " << maxNormF <<std::endl;
 #endif
 
-  // put the evaluated pceF and pceQ into the block F and Q vectors used by the solvers
   }
 
   {
@@ -718,7 +744,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
         double qval = subMatQ[irow][icol];
         dfdx[iquad] = fval;
         dqdx[iquad] = qval;
-#if 1
+#if 0
         std::cout << "dfdx["<<iquad<<"] = " << dfdx[iquad] << std::endl;
 #endif
       }
@@ -730,7 +756,7 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
       returnDenseMatrixEntry( pceF, denseEntryF, Cijk_,basis_);
       returnDenseMatrixEntry( pceQ, denseEntryQ, Cijk_,basis_);
-#if 1
+#if 0
       {
       std::cout.setf(std::ios::scientific);
       std::cout.setf(std::ios::right);

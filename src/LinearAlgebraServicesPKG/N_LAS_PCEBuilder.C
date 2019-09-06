@@ -135,7 +135,8 @@ RCP<BlockVector> PCEBuilder::createTransposeBlockVector() const
 RCP<BlockVector> PCEBuilder::createTransposeStateBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( numBlockRows_, PCEStateMap_ )
+        //new BlockVector( numBlockRows_, PCEStateMap_ )
+        new BlockVector( numQuadPoints_, quadStateMap_ )
         );
   return(vec);
 }
@@ -151,7 +152,8 @@ RCP<BlockVector> PCEBuilder::createTransposeStateBlockVector() const
 RCP<BlockVector> PCEBuilder::createTransposeStoreBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( numBlockRows_, PCEStoreMap_ )
+        //new BlockVector( numBlockRows_, PCEStoreMap_ )
+        new BlockVector( numQuadPoints_, quadStoreMap_ )
         );
   return(vec);
 }
@@ -167,7 +169,8 @@ RCP<BlockVector> PCEBuilder::createTransposeStoreBlockVector() const
 RCP<BlockVector> PCEBuilder::createTransposeLeadCurrentBlockVector() const
 {
   RCP<BlockVector> vec = rcp(
-        new BlockVector( numBlockRows_, PCELeadCurrentMap_ )
+        //new BlockVector( numBlockRows_, PCELeadCurrentMap_ )
+        new BlockVector( numQuadPoints_, quadLeadCurrentMap_ )
         );
   return(vec);
 }
@@ -216,54 +219,6 @@ RCP<BlockVector> PCEBuilder::createTransposeQuadBlockVector() const
   RCP<BlockVector> vec = rcp(
       new BlockVector( numQuadPoints_, quadMap_ )
       );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createTransposeStateQuadBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createTransposeStateQuadBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        new BlockVector( numQuadPoints_, quadStateMap_ )
-        );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createTransposeStoreQuadBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createTransposeStoreQuadBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        new BlockVector( numQuadPoints_, quadStoreMap_ )
-        );
-  return(vec);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createTransposeLeadCurrentQuadBlockVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2019
-//-----------------------------------------------------------------------------
-RCP<BlockVector> PCEBuilder::createTransposeLeadCurrentQuadBlockVector() const
-{
-  RCP<BlockVector> vec = rcp(
-        new BlockVector( numQuadPoints_, quadLeadCurrentMap_ )
-        );
   return(vec);
 }
 
@@ -334,7 +289,8 @@ Teuchos::RCP<BlockMatrix> PCEBuilder::createQuadBlockMatrix( double initialValue
 Vector * PCEBuilder::createStateVector( double initialValue ) const
 {
   return dynamic_cast<Vector*>(
-        new BlockVector( numBlockRows_, PCEStateMap_, BaseStateMap_ ) );
+        //new BlockVector( numBlockRows_, PCEStateMap_, BaseStateMap_ ) );
+        new BlockVector( numQuadPoints_, quadStateMap_, BaseStateMap_ ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -348,7 +304,8 @@ Vector * PCEBuilder::createStateVector( double initialValue ) const
 Vector * PCEBuilder::createStoreVector( double initialValue ) const
 {
   return dynamic_cast<Vector*>(
-        new BlockVector( numBlockRows_, PCEStoreMap_, BaseStoreMap_ ) );
+        //new BlockVector( numBlockRows_, PCEStoreMap_, BaseStoreMap_ ) );
+        new BlockVector( numQuadPoints_, quadStoreMap_, BaseStoreMap_ ) );
 }
 
 //-----------------------------------------------------------------------------
@@ -362,48 +319,7 @@ Vector * PCEBuilder::createStoreVector( double initialValue ) const
 Vector * PCEBuilder::createLeadCurrentVector( double initialValue ) const
 {
   return dynamic_cast<Vector*>(
-        new BlockVector( numBlockRows_, PCELeadCurrentMap_, BaseLeadCurrentMap_ ) );
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createStateQuadVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2019
-//-----------------------------------------------------------------------------
-Vector * PCEBuilder::createStateQuadVector( double initialValue ) const
-{
-  return dynamic_cast<Vector*>(
-        new BlockVector( numQuadPoints_, quadStateMap_, BaseStateMap_ ) );
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createStoreQuadVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 8/25/2019
-//-----------------------------------------------------------------------------
-Vector * PCEBuilder::createStoreQuadVector( double initialValue ) const
-{
-  return dynamic_cast<Vector*>(
-        new BlockVector( numQuadPoints_, quadStoreMap_, BaseStoreMap_ ) );
-}
-
-//-----------------------------------------------------------------------------
-// Function      : PCEBuilder::createLeadCurrentQuadVector
-// Purpose       : 
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter
-// Creation Date : 8/25/2019
-//-----------------------------------------------------------------------------
-Vector * PCEBuilder::createLeadCurrentQuadVector( double initialValue ) const
-{
-  return dynamic_cast<Vector*>(
+        //new BlockVector( numBlockRows_, PCELeadCurrentMap_, BaseLeadCurrentMap_ ) );
         new BlockVector( numQuadPoints_, quadLeadCurrentMap_, BaseLeadCurrentMap_ ) );
 }
 
