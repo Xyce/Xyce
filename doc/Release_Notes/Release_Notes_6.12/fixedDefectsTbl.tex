@@ -36,6 +36,14 @@
 \textbf{xxx-SON}: place holder title &
 place holder description  \\ \hline
 
+\textbf{1224-SON}: Improved error handling for .SAMPLING &
+In the previous release of Xyce, a \texttt{.SAMPLING} analysis would run
+even if the user-specified \texttt{STD\_DEVIATIONS}, \texttt{ALPHA} and
+\texttt{BETA} values were invalid.  For Gamma distributions, the
+user-specified \texttt{ALPHA} and \texttt{BETA} values must now be
+strictly positive.  The \texttt{STD\_DEVIATIONS} values specified for
+Gaussian distributions must now be non-negative. \\ \hline
+
 \textbf{1223-SON}: ADMS and Xyce/ADMS do not correctly handle analog functions with output arguments  &
 A long-standing bug in ADMS fails to propagate probe and variable
 dependence from analog function call input arguments into the output
