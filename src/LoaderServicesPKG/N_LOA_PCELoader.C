@@ -471,7 +471,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   }
 
   // This loop is over the number of quadrature points
-  bool applyLimit=false;
+ // bool applyLimit=false; // ERK note.  I made a mistake with this, so disabling for now.
+  bool applyLimit=true;
   b_dV_voltlim_quad_Ptr_->putScalar(0.0);
 
 #if 0
@@ -590,16 +591,17 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     appdQdxdVp.infNorm(&maxNormQlimiter);
 
     if (appLoaderPtr_->getVoltageLimiterStatus() &&  voltLimAlgorithm_>0
-        && maxNormFlimiter!=0.0 && maxNormQlimiter !=0.0)
+        //&& maxNormFlimiter!=0.0 && maxNormQlimiter !=0.0
+        )
     {
       // get a solution for dV for this quad point
       allocateVoltageLimitingSolver (); // only allocates if null
-      bool reuseFactors_ = true;
+      bool reuseFactors_ = false;
       lasSolverRCPtr_->solve(reuseFactors_);
 
       b_dV_voltlim_quad_Ptr_->block(i) = *app_dV_voltlim_Ptr_;
 
-      applyLimit=true;
+      applyLimit=true; // this is unconditionally true for now.  I made a mistake with it
     }
   }
   
