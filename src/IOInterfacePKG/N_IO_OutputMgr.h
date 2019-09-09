@@ -289,6 +289,11 @@ public:
     const std::vector<std::string> & projectionPCEcoeffs,
     const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
 
+  void outputPCE(
+    Parallel::Machine comm,
+    int numQuadPoints,
+    const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
+
   void outputMPDE(
     Parallel::Machine                   comm,
     double                              time,
@@ -479,9 +484,19 @@ public:
     return outputVersionInRawFile_;
   }
 
+  bool getPhaseOutputUsesRadians() const
+  {
+    return phaseOutputUsesRadians_;
+  }
+
   void setEnableEmbeddedSamplingFlag(bool value)
   {
     enableEmbeddedSamplingFlag_ = value;
+  }
+
+  void setEnablePCEFlag(bool value)
+  {
+    enablePCEFlag_ = value;
   }
 
   void setEnableHomotopyFlag(bool value)
@@ -656,6 +671,7 @@ private:
   // print statement vars
   bool                  dotOpSpecified_; // flag to indicate if the netlist has a .OP statement
   bool                  enableEmbeddedSamplingFlag_;
+  bool                  enablePCEFlag_;
   bool                  enableHomotopyFlag_;
   bool                  enableSparCalcFlag_;
   bool                  enableSensitivityFlag_;
@@ -684,6 +700,8 @@ private:
   bool                  printFooter_;               // flag to indicate if user wants the "End of Xyce(TM)" line in the output.
   bool                  printStepNumCol_;           // flag to indicate if users want to add a STEPNUM column
   bool                  outputVersionInRawFile_;    // flag to indicate that Version should be output in the header of a RAW file.
+
+  bool                  phaseOutputUsesRadians_;         // default for VP() and IP() is radians.  This flag changes that to degrees.
 
   bool outputCalledBefore_;
 

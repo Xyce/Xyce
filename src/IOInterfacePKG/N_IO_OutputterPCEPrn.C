@@ -22,13 +22,13 @@
 
 //-------------------------------------------------------------------------
 //
-// Purpose        : Outputter class for csv files for Embedded Sampling info.
+// Purpose        : Outputter class for prn files for PCE info.
 //
 // Special Notes  :
 //
-// Creator        : Pete Sholander
+// Creator        : Pete Sholander, SNL
 //
-// Creation Date  : 4/23/2019
+// Creation Date  : 9/3/2019
 //
 //
 //
@@ -37,7 +37,7 @@
 
 #include <Xyce_config.h>
 
-#include <N_IO_OutputterEmbeddedSamplingCSV.h>
+#include <N_IO_OutputterPCEPrn.h>
 #include <N_IO_OutputMgr.h>
 #include <N_IO_Op.h>
 #include <N_UTL_DeleteList.h>
@@ -47,14 +47,14 @@ namespace IO {
 namespace Outputter {
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSamplingCSV::EmbeddedSamplingCSV
+// Function      : PCEPrn::PCEPrn
 // Purpose       : constructor
 // Special Notes :
 // Scope         :
 // Creator       : Pete Sholander, SNL
-// Creation Date : 7/26/2019
+// Creation Date : 9/3/2019
 //-----------------------------------------------------------------------------
-EmbeddedSamplingCSV::EmbeddedSamplingCSV(
+PCEPrn::PCEPrn(
     Parallel::Machine comm,
     OutputMgr &output_manager,
     const PrintParameters &print_parameters)
@@ -68,38 +68,37 @@ EmbeddedSamplingCSV::EmbeddedSamplingCSV(
 {
   if (printParameters_.defaultExtension_.empty())
   {
-    printParameters_.defaultExtension_ = ".ES.csv";
+    printParameters_.defaultExtension_ = ".PCE.prn";
   }
 
-  // Add columns for Index and TIME.  The columns for the PCE info will be added in
-  // doOutputEmbeddedSampling().  Any variables on the .PRINT ES line will be ignored.
+  // Add columns for STPNUM, Index and TIME.  The columns for the PCE info will be
+  //  added in doOutputPCE().  Any variables on the .PRINT PCE line will be ignored.
   fixupColumns(comm, outputManager_.getOpBuilderManager(), printParameters_, opList_);
-
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSamplingCSV::~EmbeddedSamplingCSV
+// Function      :PCEPrn::~PCEPrn
 // Purpose       : destructor
 // Special Notes :
 // Scope         :
 // Creator       : Pete Sholander
-// Creation Date : 7/26/2019
+// Creation Date : 9/3/2019
 //-----------------------------------------------------------------------------
-EmbeddedSamplingCSV::~EmbeddedSamplingCSV()
+PCEPrn::~PCEPrn()
 {
   outputManager_.closeFile(os_);
   deleteList(opList_.begin(), opList_.end());
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSamplingCSV::EmbeddedSamplingHeader
+// Function      : PCEPrn::PCEHeader
 // Purpose       :
 // Special Notes :
 // Scope         :
 // Creator       : Pete Sholander, SNL
-// Creation Date : 7/26/2019
+// Creation Date : 9/3/2019
 //-----------------------------------------------------------------------------
-void EmbeddedSamplingCSV::EmbeddedSamplingHeader()
+void PCEPrn::PCEHeader()
 {
   int column_index = 0;
 
@@ -118,20 +117,16 @@ void EmbeddedSamplingCSV::EmbeddedSamplingHeader()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSamplingCSV::doOutputEmbeddedSampling
+// Function      : PCEPrn::doOutputPCE
 // Purpose       :
 // Special Notes :
 // Scope         :
 // Creator       : Pete Sholander, SNL
-// Creation Date : 7/26/2019
+// Creation Date : 9/3/2019
 //-----------------------------------------------------------------------------
-void EmbeddedSamplingCSV::doOutputEmbeddedSampling(
+void PCEPrn::doOutputPCE(
   Parallel::Machine comm,
-  bool              regressionPCEenable,
-  bool              projectionPCEenable,
-  int               numSamples,
-  const std::vector<std::string> & regressionPCEcoeffs,
-  const std::vector<std::string> & projectionPCEcoeffs,
+  int               numQuadPoints,
   const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec)
 {
   if (Parallel::rank(comm) == 0 && !os_)
@@ -167,47 +162,25 @@ void EmbeddedSamplingCSV::doOutputEmbeddedSampling(
         }
 
 #if Xyce_STOKHOS_ENABLE
-        if (regressionPCEenable)
-        {
-          colNames.push_back(outFunc.outFuncString + "_regr_pce_mean");
-          colNames.push_back(outFunc.outFuncString + "_regr_pce_meanPlus");
-          colNames.push_back(outFunc.outFuncString + "_regr_pce_meanMinus");
+        colNames.push_back(outFunc.outFuncString + "_quad_pce_mean");
+        colNames.push_back(outFunc.outFuncString + "_quad_pce_meanPlus");
+        colNames.push_back(outFunc.outFuncString + "_quad_pce_meanMinus");
 
-          colNames.push_back(outFunc.outFuncString + "_regr_pce_stddev");
-          colNames.push_back(outFunc.outFuncString + "_regr_pce_variance");
+        colNames.push_back(outFunc.outFuncString + "_quad_pce_stddev");
+        colNames.push_back(outFunc.outFuncString + "_quad_pce_variance");
 
-          if (printParameters_.outputPCECoeffs_)
-          {
-            std::vector<std::string>::const_iterator it;
-            for (it=regressionPCEcoeffs.begin();it!=regressionPCEcoeffs.end();++it)
-            {
-              colNames.push_back(outFunc.outFuncString + *it);
-            }
-          }
-        }
-
-        if (projectionPCEenable)
-        {
-          colNames.push_back(outFunc.outFuncString + "_quad_pce_mean");
-          colNames.push_back(outFunc.outFuncString + "_quad_pce_meanPlus");
-          colNames.push_back(outFunc.outFuncString + "_quad_pce_meanMinus");
-
-          colNames.push_back(outFunc.outFuncString + "_quad_pce_stddev");
-          colNames.push_back(outFunc.outFuncString + "_quad_pce_variance");
-
-          if (printParameters_.outputPCECoeffs_)
-          {
-            std::vector<std::string>::const_iterator it;
-            for (it=projectionPCEcoeffs.begin();it!=projectionPCEcoeffs.end();++it)
-            {
-              colNames.push_back(outFunc.outFuncString + *it);
-            }
-          }
-        }
+        //if (printParameters_.outputPCECoeffs_)
+        //{
+        //  std::vector<std::string>::const_iterator it;
+        //  for (it=projectionPCEcoeffs.begin();it!=projectionPCEcoeffs.end();++it)
+        //  {
+        //    colNames.push_back(outFunc.outFuncString + *it);
+        //  }
+	// }
 #endif
         if (printParameters_.outputAllPCEsamples_)
         {
-          for(int i=0;i<numSamples; ++i)
+          for(int i=0;i<numQuadPoints; ++i)
           {
 #if __cplusplus>=201103L
             colNames.push_back(outFunc.outFuncString + "_"+std::to_string(i));
@@ -224,7 +197,7 @@ void EmbeddedSamplingCSV::doOutputEmbeddedSampling(
       fixupColumnsFromStrVec(comm, printParameters_, colNames);
 
       // output the column names to the output file.
-      EmbeddedSamplingHeader();
+      PCEHeader();
     }
   }
 
@@ -233,19 +206,19 @@ void EmbeddedSamplingCSV::doOutputEmbeddedSampling(
 
   if (os_)
   {
-    // Output the Index and TIME values.
+    // Output the STEPNUM, Index and TIME values.
     for (int i = 0; i < result_list.size(); ++i)
     {
       if (os_)
         printValue(*os_, printParameters_.table_.columnList_[i], printParameters_.delimiter_, i, result_list[i].real());
     }
 
-    // Now output the PCE values directly from the the elements of the outFuncDataVec.
+    // Now output the PCE values directly from the elements of the outFuncDataVec.
     // The next output column starts after the columns generated from the opList_
     int colIdx = result_list.size();
-    for (int i=0; i< outFuncDataVec.size(); ++i)
+    for (int iout=0;iout<outFuncDataVec.size();++iout)
     {
-      Xyce::Analysis::UQ::outputFunctionData & outFunc = *(outFuncDataVec[i]);
+      Xyce::Analysis::UQ::outputFunctionData & outFunc = *(outFuncDataVec[iout]);
 
       if (printParameters_.outputPCEsampleStats_)
       {
@@ -262,99 +235,52 @@ void EmbeddedSamplingCSV::doOutputEmbeddedSampling(
       }
 
  #if Xyce_STOKHOS_ENABLE
-      if (regressionPCEenable)
+      Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
+
+      double pce_mean = projectionPCE.mean();
+      double pce_stddev = projectionPCE.standard_deviation();
+      double pce_variance = pce_stddev*pce_stddev;
+
+      if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
       {
-        Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
-
-        double pce_mean = regressionPCE.mean();
-        double pce_stddev = regressionPCE.standard_deviation();
-        double pce_variance = pce_stddev*pce_stddev;
-
-        if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
-        {
-          pce_mean = 0.0;
-        }
-
-        if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
-        {
-          pce_stddev = 0.0;
-        }
-
-        if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
-        {
-          pce_variance = 0.0;
-        }
-
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_mean);
-        colIdx++;
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_mean+pce_stddev);
-        colIdx++;
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_mean-pce_stddev);
-        colIdx++;
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_stddev);
-        colIdx++;
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_variance);
-        colIdx++;
-
-        if (printParameters_.outputPCECoeffs_)
-        {
-          int NN=regressionPCE.size();
-          for (int ii=0;ii<NN;ii++, colIdx++)
-          {
-            printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, regressionPCE[ii]);
-          }
-        }
+        pce_mean = 0.0;
       }
 
-      if (projectionPCEenable)
+      if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
       {
-        Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
-
-        double pce_mean = projectionPCE.mean();
-        double pce_stddev = projectionPCE.standard_deviation();
-        double pce_variance = pce_stddev*pce_stddev;
-
-        if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
-        {
-          pce_mean = 0.0;
-        }
-
-        if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
-        {
-          pce_stddev = 0.0;
-        }
-
-        if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
-        {
-          pce_variance = 0.0;
-        }
-
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_mean);
-        colIdx++;
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_mean+pce_stddev);
-        colIdx++;
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_mean-pce_stddev);
-        colIdx++;
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_stddev);
-        colIdx++;
-        printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_variance);
-        colIdx++;
-
-        if (printParameters_.outputPCECoeffs_)
-        {
-          int NN=projectionPCE.size();
-          for (int ii=0;ii<NN;ii++, colIdx++)
-          {
-            printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, projectionPCE.fastAccessCoeff(ii));
-          }
-        }
+        pce_stddev = 0.0;
       }
+
+      if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
+      {
+        pce_variance = 0.0;
+      }
+
+      printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_mean);
+      colIdx++;
+      printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_mean+pce_stddev);
+      colIdx++;
+      printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_mean-pce_stddev);
+      colIdx++;
+      printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_stddev);
+      colIdx++;
+      printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, pce_variance);
+      colIdx++;
+
+      //if (printParameters_.outputPCECoeffs_)
+      //{
+      //  int NN=projectionPCE.size();
+      //  for (int ii=0;ii<NN;ii++, colIdx++)
+      //  {
+      //    printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, projectionPCE.fastAccessCoeff(ii));
+      //  }
+      //}
 #endif
 
       // output individual samples
       if (printParameters_.outputAllPCEsamples_)
       {
-        for(int i=0;i<numSamples; ++i, colIdx++)
+        for(int i=0;i<numQuadPoints; ++i, colIdx++)
         {
           printValue(*os_, printParameters_.table_.columnList_[colIdx], printParameters_.delimiter_, colIdx, outFunc.sampleOutputs[i]);
         }
@@ -369,21 +295,28 @@ void EmbeddedSamplingCSV::doOutputEmbeddedSampling(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSamplingCSV::doFinishOutput
-// Purpose       : Close the stream if there is no .STEP loop.  This function
-//                 is also called after each step, if there is a .STEP loop,
-//                 but currently does nothing in that case.
+// Function      : PCEPrn::doFinishOutput
+// Purpose       : Output the footer, and close the stream if there is no
+//               : .STEP loop.  This function is also called after each step,
+//               : if there is a .STEP loop, but currently does nothing in
+//               : that case.
 // Special Notes :
 // Scope         :
 // Creator       : Pete Sholander, SNL
-// Creation Date : 7/26/2019
+// Creation Date : 9/3/2019
 //-----------------------------------------------------------------------------
-void EmbeddedSamplingCSV::doFinishOutput()
+void PCEPrn::doFinishOutput()
 {
   if (os_)
   {
     if (numberOfSteps_ == 0)
     {
+      if (outputManager_.getPrintFooter())
+      {
+        // this end-of-simulation footer is used if there is no .STEP loop
+        (*os_) << "End of Xyce(TM) PCE Simulation" << std::endl;
+      }
+
       outputManager_.closeFile(os_);
       os_ = 0;
     }
@@ -391,46 +324,71 @@ void EmbeddedSamplingCSV::doFinishOutput()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSamplingCSV::doStartStep
+// Function      : PCEPrn::doStartStep
 // Purpose       : This function is executed at the start of each step.
 // Special Notes :
 // Scope         :
 // Creator       : Pete Sholander, SNL
-// Creation Date : 7/26/2019
+// Creation Date : 9/3/2019
 //-----------------------------------------------------------------------------
-void EmbeddedSamplingCSV::doStartStep( int current_step, int number_of_steps)
+void PCEPrn::doStartStep( int current_step, int number_of_steps)
 {
   index_ = 0;
   currentStep_ = current_step;
   numberOfSteps_ = number_of_steps;
+
+  // If using Format::GNUPLOT then add two blank lines before the output for
+  // steps 1, 2, ... if there is a .STEP loop.  (Note: currentStep_ goes from
+  // 0 to numberOfSteps_-1 if there is a .STEP loop.)
+  //
+  // If using Format::SPLOT then add a single blank line before the output for
+  // steps 1, 2, ... if there is a .STEP loop.
+  if (os_)
+  {
+    if ( (printParameters_.addGnuplotSpacing_) && (currentStep_ > 0 ) )
+    {
+      *os_ << std::endl << std::endl;
+    }
+    else if ( (printParameters_.addSplotSpacing_) && (currentStep_ > 0 ) )
+    {
+      *os_ << std::endl;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSamplingCSV::doResetIndex
+// Function      : PCEPrn::doResetIndex
 // Purpose       : Reset the value for the Index column to zero
 // Special Notes :
 // Scope         :
 // Creator       : Pete Sholander, SNL
-// Creation Date : 7/26/2019
+// Creation Date : 9/3/2019
 //-----------------------------------------------------------------------------
-void EmbeddedSamplingCSV::doResetIndex()
+void PCEPrn::doResetIndex()
 {
   index_ = 0;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : EmbeddedSamplingCSV::doSteppingComplete
-// Purpose       : Close the stream when a .STEP loop is used.
+// Function      : PCEPrn::doSteppingComplete
+// Purpose       : Output footer and close the stream  when a .STEP loop
+//               : is used.
 // Special Notes :
 // Scope         :
 // Creator       : Pete Sholander
-// Creation Date : 7/26/2019
+// Creation Date : 9/3/2019
 //-----------------------------------------------------------------------------
-void EmbeddedSamplingCSV::doSteppingComplete()
+void PCEPrn::doSteppingComplete()
 {
-  // close the sensitivity file.
+  // close the PCE file.
   if (os_)
   {
+    // this end-of-simulation footer is used if there is a .STEP loop
+    if ( outputManager_.getPrintFooter ())
+    {
+      (*os_) << "End of Xyce(TM) PCE Simulation" << std::endl;
+    }
+
     outputManager_.closeFile(os_);
     os_ = 0;
   }

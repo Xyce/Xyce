@@ -49,8 +49,11 @@
 #include <N_UTL_fwd.h>
 #include <N_ANP_fwd.h>
 
+#include <N_LAS_TranSolverFactory.h>
+
 #include <N_LOA_CktLoader.h>
 #include <N_UTL_AssemblyTypes.h>
+#include <N_UTL_OptionBlock.h>
 
 #if Xyce_STOKHOS_ENABLE
 #include <Stokhos_Sacado.hpp>
@@ -79,7 +82,10 @@ public:
     int numQuadPoints, 
     int numBlockRows, 
     Analysis::SweepVector & samplingVector,
-    const std::vector<double> & Y); 
+    const std::vector<double> & Y,
+    const Xyce::IO::CmdParse & commandLine,
+    int voltLimAlg
+    ); 
 
   ~PCELoader()
   {}
@@ -150,6 +156,9 @@ public:
   // Get the voltage limiter flag:
   bool getLimiterFlag () { return PCELoader::appLoaderPtr_->getLimiterFlag (); }
 
+  // voltage limiter solver
+  bool allocateVoltageLimitingSolver ();
+
   // Get the stored quad-based matrices 
   Teuchos::RCP<Linear::BlockMatrix>& get_Quad_dQdx() { return bmdQdx_quad_Ptr_; }
   Teuchos::RCP<Linear::BlockMatrix>& get_Quad_dFdx() { return bmdFdx_quad_Ptr_; }
@@ -169,6 +178,12 @@ public:
   void registerPCEtripleProductTensor ( Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > & tmpCijk) { Cijk_ = tmpCijk; }
 
   void registerPCEgraph ( Teuchos::RCP<Epetra_CrsGraph> & tmpPceGraph);
+
+  void registerSolverFactory (Xyce::Linear::SolverFactory *tmpLasSolverPtr);
+
+  //void registerLinearSystem (Linear::System * linear_system_ptr) { lasSysPtr_ = linear_system_ptr; }
+
+  void setLinSolOptions(const Util::OptionBlock & OB) { saved_lsOB_ = OB; }
 
   virtual bool analyticSensitivitiesAvailable (std::string & name) { return false; }
   virtual void getAnalyticSensitivities(
@@ -206,15 +221,6 @@ private:
   Teuchos::RCP<Linear::Matrix> appdQdxPtr_;
   Teuchos::RCP<Linear::Matrix> appdFdxPtr_;
 
-#if 0
-  Teuchos::RCP<Linear::FilteredMatrix> linAppdQdxPtr_;
-  std::vector<Teuchos::RCP<Linear::FilteredMatrix> > vecNLAppdQdxPtr_;
-  Teuchos::RCP<Linear::FilteredMatrix> linAppdFdxPtr_;
-  std::vector<Teuchos::RCP<Linear::FilteredMatrix> > vecNLAppdFdxPtr_;
-
-  std::vector<int> linNZRows_, nonlinQNZRows_, nonlinFNZRows_;
-#endif
-
   // Time domain vectors for loading.  
   Teuchos::RCP<Linear::Vector> appNextStoVecPtr_;
   Teuchos::RCP<Linear::Vector> appCurrStoVecPtr_;
@@ -232,6 +238,8 @@ private:
   Teuchos::RCP<Linear::Vector> appBPtr_;
   Teuchos::RCP<Linear::Vector> appdFdxdVpPtr_;
   Teuchos::RCP<Linear::Vector> appdQdxdVpPtr_;
+
+  Teuchos::RCP<Linear::Vector> app_dV_voltlim_Ptr_;
 
   // PCE Builder 
   Teuchos::RCP<Linear::PCEBuilder> pceBuilderPtr_;
@@ -256,6 +264,9 @@ private:
   Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_;
   Teuchos::RCP<Xyce::Linear::BlockVector> bXCurr_quad_ptr_;
   Teuchos::RCP<Xyce::Linear::BlockVector> bXLast_quad_ptr_;
+
+  Teuchos::RCP<Xyce::Linear::BlockVector> b_dV_voltlim_quad_Ptr_;
+  Teuchos::RCP<Xyce::Linear::BlockVector> b_dV_voltlim_coef_Ptr_;
 
   // PCE stuff:
   int numQuadPoints_;
@@ -285,7 +296,20 @@ private:
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceF;
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceQ;
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceB;
+  Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceDV;
 #endif
+
+  // these are for solving voltage limiting.  
+  // They are the size of the original non-block circuit linear problem
+  Xyce::Linear::SolverFactory * lasSolverFactoryPtr_;
+  Teuchos::RCP<Xyce::Linear::Problem> lasProblemPtr_;
+  Xyce::Linear::Matrix* jacobianMatrixPtr_;
+  Xyce::Linear::Vector* rhsVectorPtr_;
+  Xyce::Linear::Vector* NewtonVectorPtr_;
+  Teuchos::RCP<Xyce::Linear::Solver> lasSolverRCPtr_;
+  Util::OptionBlock  saved_lsOB_;
+  const Xyce::IO::CmdParse & commandLine_;
+  int voltLimAlgorithm_;
 };
 
 } // namespace Loader

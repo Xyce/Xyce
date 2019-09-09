@@ -259,6 +259,7 @@ private:
   bool stdOutputFlag_;
   int debugLevel_;
   bool outputStochasticMatrix_;
+  int voltLimAlgorithm_;
 
   bool outputsGiven_;
   bool outputsSetup_;

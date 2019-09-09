@@ -387,6 +387,11 @@ public:
     const std::vector<std::string> & projectionPCEcoeffs,
     const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
 
+  virtual void outputPCE(
+    Parallel::Machine comm,
+    int numQuadPoints,
+    const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_);
+
   // Used for HB time-domain output such as .PRINT HB_TD lines.  This is
   // not used for .PRINT HB_STARTUP or .PRINT HB_IC lines though.
   void outputHB_TD(
@@ -491,6 +496,11 @@ private:
     int                 numSamples,
     const std::vector<std::string> & regressionPCEcoeffs,
     const std::vector<std::string> & projectionPCEcoeffs,
+    const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec) {}
+
+  virtual void doOutputPCE(
+    Parallel::Machine   comm,
+    int numQuadPoints,
     const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec) {}
 
   virtual void doOutputHB(

@@ -57,6 +57,9 @@ libIOInterface_la_SOURCES = \
   N_IO_OutputterNoisePrn.C \
   N_IO_OutputterNoiseCSV.C \
   N_IO_OutputterNoiseTecplot.C \
+  N_IO_OutputterPCECSV.C \
+  N_IO_OutputterPCEPrn.C \
+  N_IO_OutputterPCETecplot.C \
   N_IO_OutputterSensitivityPrn.C \
   N_IO_OutputterSensitivityCSV.C \
   N_IO_OutputterSensitivityTecplot.C \
@@ -76,6 +79,7 @@ libIOInterface_la_SOURCES = \
   N_IO_Tecplot.C \
   N_IO_OutputterAC.C \
   N_IO_OutputterEmbeddedSampling.C \
+  N_IO_OutputterPCE.C \
   N_IO_OutputterSParam.C \
   N_IO_OutputterNoise.C \
   N_IO_OutputterDC.C \
@@ -171,6 +175,9 @@ libIOInterface_la_SOURCES = \
   N_IO_OutputterNoisePrn.h \
   N_IO_OutputterNoiseCSV.h \
   N_IO_OutputterNoiseTecplot.h \
+  N_IO_OutputterPCECSV.h \
+  N_IO_OutputterPCEPrn.h \
+  N_IO_OutputterPCETecplot.h \
   N_IO_OutputterSensitivityPrn.h \
   N_IO_OutputterSensitivityCSV.h \
   N_IO_OutputterSensitivityTecplot.h \
@@ -191,6 +198,7 @@ libIOInterface_la_SOURCES = \
   N_IO_Tecplot.h \
   N_IO_OutputterAC.h \
   N_IO_OutputterEmbeddedSampling.h \
+  N_IO_OutputterPCE.h \
   N_IO_OutputterSParam.h \
   N_IO_OutputterNoise.h \
   N_IO_OutputterDC.h \

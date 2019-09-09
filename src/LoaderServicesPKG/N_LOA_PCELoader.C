@@ -50,6 +50,10 @@
 #include <N_LAS_SystemHelpers.h>
 #include <N_LAS_MultiVector.h>
 
+#include <N_LAS_Solver.h>
+#include <N_LAS_TranSolverFactory.h>
+#include <N_LAS_Problem.h>
+
 #include <N_ANP_UQSupport.h>
 
 #include <N_UTL_FeatureTest.h>
@@ -87,7 +91,9 @@ PCELoader::PCELoader(
   int numQuadPoints,
   int numBlockRows,
   Analysis::SweepVector & samplingVector,
-  const std::vector<double> & Y
+  const std::vector<double> & Y,
+  const Xyce::IO::CmdParse & cp,
+  int voltLimAlg
   )
   : CktLoader(device_manager, builder),
     deviceManager_(device_manager),
@@ -95,7 +101,9 @@ PCELoader::PCELoader(
     numQuadPoints_(numQuadPoints),
     numBlockRows_(numBlockRows),
     samplingVector_(samplingVector),
-    Y_(Y) 
+    Y_(Y),
+    commandLine_(cp),
+    voltLimAlgorithm_(voltLimAlg)
 {
   // Now initialize all the working vectors, size of the original system
   appNextVecPtr_ = rcp(builder_.createVector());
@@ -107,6 +115,8 @@ PCELoader::PCELoader(
   appBPtr_ = rcp(builder_.createVector());
   appdFdxdVpPtr_ = rcp(builder_.createVector());
   appdQdxdVpPtr_ = rcp(builder_.createVector());
+
+  app_dV_voltlim_Ptr_ = rcp(builder_.createVector());
 
   appNextStaVecPtr_ = rcp(builder_.createStateVector());
   appCurrStaVecPtr_ = rcp(builder_.createStateVector());
@@ -123,6 +133,9 @@ PCELoader::PCELoader(
   appNextLeadFVecPtr_ = rcp(builder.createLeadCurrentVector());
   appLeadQVecPtr_     = rcp(builder.createLeadCurrentVector());
   appNextJunctionVVecPtr_ = rcp(builder.createLeadCurrentVector());
+
+  // Create Linear::Problem
+  lasProblemPtr_ = rcp(new Linear::Problem(appdFdxPtr_, app_dV_voltlim_Ptr_, appdFdxdVpPtr_));
 }
 
 //-----------------------------------------------------------------------------
@@ -152,6 +165,9 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
   bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
   bXCurr_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
   bXLast_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+
+  b_dV_voltlim_quad_Ptr_ = pceBuilderPtr_->createQuadBlockVector();
+  b_dV_voltlim_coef_Ptr_ = pceBuilderPtr_->createBlockVector();
 }
 
 //-----------------------------------------------------------------------------
@@ -165,7 +181,20 @@ void PCELoader::registerPCEBuilder( Teuchos::RCP<Linear::PCEBuilder> pceBuilderP
 void PCELoader::registerPCEgraph ( Teuchos::RCP<Epetra_CrsGraph> & tmpPceGraph)
 {
   pceGraph_ = tmpPceGraph;
-  pceMat_ = rcp(new Epetra_CrsMatrix(Copy, *pceGraph_));
+  pceMat_ = rcp(new Epetra_CrsMatrix(Copy, *pceGraph_)); // do I need this?
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCELoader::registerSolverFactory
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 09/04/2019
+//-----------------------------------------------------------------------------
+void PCELoader::registerSolverFactory (Xyce::Linear::SolverFactory *tmpLasSolverPtr) 
+{ 
+  lasSolverFactoryPtr_ = tmpLasSolverPtr; 
 }
 
 //-----------------------------------------------------------------------------
@@ -249,34 +278,62 @@ bool PCELoader::loadDAEMatrices( Linear::Vector * X,
 void returnDenseMatrixEntry(
     Sacado::PCE::OrthogPoly<double,Stokhos::StandardStorage<int,double> > const &inval,
     Teuchos::RCP<Teuchos::SerialDenseMatrix<int,double> > & denseEntry,
-    Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > const &Cijk)
+    Teuchos::RCP<Stokhos::Sparse3Tensor<int,double> > const &Cijk,
+    const Teuchos::RCP<const Stokhos::ProductBasis<int,double> > & basis
+    )
 {
-    Stokhos::OrthogPolyApprox<int, double> val= inval.getOrthogPolyApprox();
-    typedef Stokhos::Sparse3Tensor<int, double> Cijk_type;
-    int pb = val.size();
-    const double* cv = val.coeff();
+  Stokhos::OrthogPolyApprox<int, double> val= inval.getOrthogPolyApprox();
+  typedef Stokhos::Sparse3Tensor<int, double> Cijk_type;
+  int pb = val.size();
+  const double* cv = val.coeff();
 
-    denseEntry->putScalar(0.0);
-    typename Cijk_type::k_iterator k_begin = Cijk->k_begin();
-    typename Cijk_type::k_iterator k_end = Cijk->k_end();
-    if (pb < Cijk->num_k())
-      k_end = Cijk->find_k(pb);
-    double cijk;
-    int i,j,k;
-    for (typename Cijk_type::k_iterator k_it=k_begin; k_it!=k_end; ++k_it) 
+  const Teuchos::Array<double>& norms = basis->norm_squared(); 
+
+  denseEntry->putScalar(0.0);
+  typename Cijk_type::k_iterator k_begin = Cijk->k_begin();
+  typename Cijk_type::k_iterator k_end = Cijk->k_end();
+  if (pb < Cijk->num_k())
+    k_end = Cijk->find_k(pb);
+  double cijk;
+  int i,j,k;
+  for (typename Cijk_type::k_iterator k_it=k_begin; k_it!=k_end; ++k_it) 
+  {
+    k = index(k_it);
+    for (typename Cijk_type::kj_iterator j_it = Cijk->j_begin(k_it); j_it != Cijk->j_end(k_it); ++j_it) 
     {
-      k = index(k_it);
-      for (typename Cijk_type::kj_iterator j_it = Cijk->j_begin(k_it); j_it != Cijk->j_end(k_it); ++j_it) 
-      {
-         j = index(j_it);
-         for (typename Cijk_type::kji_iterator i_it = Cijk->i_begin(j_it); i_it != Cijk->i_end(j_it); ++i_it) 
-         {
-           i = index(i_it);
-           cijk = value(i_it);
-           (*denseEntry)(i,j) += cijk*cv[k];
-         }
-      }
+       j = index(j_it);
+       for (typename Cijk_type::kji_iterator i_it = Cijk->i_begin(j_it); i_it != Cijk->i_end(j_it); ++i_it) 
+       {
+         i = index(i_it);
+         cijk = value(i_it);
+         (*denseEntry)(i,j) += (cijk/norms[i])*cv[k];
+       }
     }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCELoader::allocateVoltageLimitingSolver
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 07/27/2019
+//-----------------------------------------------------------------------------
+bool PCELoader::allocateVoltageLimitingSolver ()
+{
+  if ( Teuchos::is_null(lasSolverRCPtr_) )
+  {
+    if (lasSolverFactoryPtr_)
+    {
+      lasSolverRCPtr_ = Teuchos::rcp( lasSolverFactoryPtr_->create( saved_lsOB_, *lasProblemPtr_ , commandLine_) );
+    }
+    else
+    {
+      Linear::TranSolverFactory lasFactory;
+      lasSolverRCPtr_ = Teuchos::rcp( lasFactory.create( saved_lsOB_, *lasProblemPtr_ , commandLine_) );
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -358,6 +415,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   Xyce::Linear::BlockVector & bF = *dynamic_cast<Xyce::Linear::BlockVector*>(F);
   Xyce::Linear::BlockVector & bB = *dynamic_cast<Xyce::Linear::BlockVector*>(B);
 
+  Xyce::Linear::BlockVector & bDV = *(b_dV_voltlim_coef_Ptr_);
+
   Xyce::Linear::BlockVector & bdFdxdVp = *dynamic_cast<Xyce::Linear::BlockVector*>(dFdxdVp);
   Xyce::Linear::BlockVector & bdQdxdVp = *dynamic_cast<Xyce::Linear::BlockVector*>(dQdxdVp);
 
@@ -367,11 +426,15 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bmdQdx_quad_Ptr_->put(0.0);
   bmdFdx_quad_Ptr_->put(0.0);
 
-  // ERK.  Convert the solution vector bnextX from coefficients to variable values.
+  // ERK.  Convert the solution vector bnextX from coefficients to quadrature variable values.
   //
-  // Use the UQ helper function for evaluating the PCE expansion.  
+  // Use the UQ helper function for evaluating the PCE expansion.
   // Evaluate the PCE approximation at the sample points, then use this as input 
   // to the device models load function calls
+  //
+  // ERK.  Note:  to be quicker, I am converting all 3 solution vectors: next, curr and last.  
+  // But of course, once a transient is up and running, the curr and last should have been 
+  // converted already.  So I am doing some redundant work.
   {
   std::vector< Stokhos::OrthogPolyApprox<int,double> > pceVec(3);
   int solutionSize = bnextX.block(0).localLength();  // get local length.  SERIAL ONLY HERE!!!  sigh, fix later.
@@ -408,6 +471,21 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   }
 
   // This loop is over the number of quadrature points
+ // bool applyLimit=false; // ERK note.  I made a mistake with this, so disabling for now.
+  bool applyLimit=true;
+  b_dV_voltlim_quad_Ptr_->putScalar(0.0);
+
+#if 0
+  {
+  std::cout << "Block Count of bnextS = " << bnextS.blockCount() << std::endl;
+  std::cout << "Block Size  of bnextS = " << bnextS.blockSize () << std::endl;
+  std::cout << "numQuadPoints         = " << numQuadPoints_ <<std::endl;
+  int solutionSize = bnextX.block(0).localLength();  // get local length.  SERIAL ONLY HERE!!!  sigh, fix later.
+  std::cout << "solutionSize          = " << solutionSize <<std::endl;
+  std::cout << "Basis size            = " << basis_->size() <<std::endl;
+  }
+#endif
+
   for( int i = 0; i < numQuadPoints_; ++i )
   {
     Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
@@ -504,6 +582,27 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
     bmdQdx_quad_Ptr_->block(i,i).add( *appdQdxPtr_ );
     bmdFdx_quad_Ptr_->block(i,i).add( *appdFdxPtr_ );
+
+    // solve volt lim problem, if necessary.  
+    // check max norm. if tiny don't bother
+    double maxNormFlimiter=0.0; 
+    appdFdxdVp.infNorm(&maxNormFlimiter);
+    double maxNormQlimiter=0.0; 
+    appdQdxdVp.infNorm(&maxNormQlimiter);
+
+    if (appLoaderPtr_->getVoltageLimiterStatus() &&  voltLimAlgorithm_>0
+        //&& maxNormFlimiter!=0.0 && maxNormQlimiter !=0.0
+        )
+    {
+      // get a solution for dV for this quad point
+      allocateVoltageLimitingSolver (); // only allocates if null
+      bool reuseFactors_ = false;
+      lasSolverRCPtr_->solve(reuseFactors_);
+
+      b_dV_voltlim_quad_Ptr_->block(i) = *app_dV_voltlim_Ptr_;
+
+      applyLimit=true; // this is unconditionally true for now.  I made a mistake with it
+    }
   }
   
   // Now that the vector loading is finished, synchronize the global copy of the relevant block vectors
@@ -514,6 +613,11 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bQ_quad_ptr_->assembleGlobalVector();
   bF_quad_ptr_->assembleGlobalVector();
   bB_quad_ptr_->assembleGlobalVector();
+  if (applyLimit)
+  {
+    b_dV_voltlim_quad_Ptr_->assembleGlobalVector(); 
+  }
+
   bdFdxdVp_quad_ptr_->assembleGlobalVector();
   bdQdxdVp_quad_ptr_->assembleGlobalVector();
 
@@ -538,8 +642,16 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bmdQdx_quad_Ptr_->fillComplete();
   bmdFdx_quad_Ptr_->fillComplete();
 
+#if 0
+  std::cout << "Printing bF_quad_ptr_ (quadrature points):" <<std::endl;
+  bF_quad_ptr_->printPetraObject(std::cout);
+  double maxNormFquad=0.0; 
+  bF_quad_ptr_->infNorm(&maxNormFquad);
+  std::cout << "Max norm of bF_quad_ptr_ = " << maxNormFquad <<std::endl;
+#endif
+
   {
-  // obtain the PCE coefficients of both f and q
+  // obtain the PCE coefficients of both f and q, and volt lim if necessary
   // ERK.  Fix this
   // the std::vectors f and q need to contain all the quadrature points for a given variable
   
@@ -549,11 +661,16 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     std::vector<double> f(numQuadPoints_,0.0);
     std::vector<double> q(numQuadPoints_,0.0);
     std::vector<double> b(numQuadPoints_,0.0);
+    std::vector<double> dv(numQuadPoints_,0.0);
     for (int iquad=0;iquad<numQuadPoints_;++iquad)
     {
       f[iquad] = (bF_quad_ptr_->block(iquad))[isol];
       q[iquad] = (bQ_quad_ptr_->block(iquad))[isol];
       b[iquad] = (bB_quad_ptr_->block(iquad))[isol];
+      if (applyLimit)
+      {
+        dv[iquad] = (b_dV_voltlim_quad_Ptr_->block(iquad))[isol];
+      }
     }
 
     pceF.init(0.0); pceF.reset(expnMethod_);
@@ -562,20 +679,41 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, f, pceF);
     Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, q, pceQ);
     Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, b, pceB);
+    if (applyLimit)
+    { 
+      pceDV.init(0.0); pceDV.reset(expnMethod_); 
+      Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dv, pceDV);
+    }
+
     int basisSize = basis_->size();
     for (int icoef=0;icoef<basisSize;++icoef)
     {
       (bF.block(icoef))[isol] = pceF.coeff(icoef);
       (bQ.block(icoef))[isol] = pceQ.coeff(icoef);
       (bB.block(icoef))[isol] = pceB.coeff(icoef);
+      if (applyLimit)
+      {
+        (bDV.block(icoef))[isol] = pceDV.coeff(icoef);
+      }
     }
   }
 
   bF.assembleGlobalVector();
   bQ.assembleGlobalVector();
   bB.assembleGlobalVector();
+  if (applyLimit)
+  {
+    bDV.assembleGlobalVector();
+  }
 
-  // put the evaluated pceF and pceQ into the block F and Q vectors used by the solvers
+#if 0
+  std::cout << "Printing bF (PCE coefs):" <<std::endl;
+  bF.printPetraObject(std::cout);
+  double maxNormF=0.0; 
+  bF.infNorm(&maxNormF);
+  std::cout << "Max norm of bF = " << maxNormF <<std::endl;
+#endif
+
   }
 
   {
@@ -608,6 +746,9 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
         double qval = subMatQ[irow][icol];
         dfdx[iquad] = fval;
         dqdx[iquad] = qval;
+#if 0
+        std::cout << "dfdx["<<iquad<<"] = " << dfdx[iquad] << std::endl;
+#endif
       }
 
       pceF.init(0.0); pceF.reset(expnMethod_);
@@ -615,8 +756,30 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dfdx, pceF);
       Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dqdx, pceQ);
 
-      returnDenseMatrixEntry( pceF, denseEntryF, Cijk_);
-      returnDenseMatrixEntry( pceQ, denseEntryQ, Cijk_);
+      returnDenseMatrixEntry( pceF, denseEntryF, Cijk_,basis_);
+      returnDenseMatrixEntry( pceQ, denseEntryQ, Cijk_,basis_);
+#if 0
+      {
+      std::cout.setf(std::ios::scientific);
+      std::cout.setf(std::ios::right);
+      std::cout.width(16);
+      std::cout << "--------------------------------------------------------------" <<std::endl;
+      std::cout << "PCE expansion of dfdx for row="<<irow<<" col="<<icol<<std::endl;
+      pceF.print(std::cout);
+      std::cout << "dFdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
+      denseEntryF->print(std::cout);
+      std::cout << "--------------------------------------------------------------" <<std::endl;
+
+#if 0
+      std::cout << "--------------------------------------------------------------" <<std::endl;
+      std::cout << "PCE expansion of dqdx for row="<<irow<<" col="<<icol<<std::endl;
+      pceQ.print(std::cout);
+      std::cout << "dQdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
+      denseEntryQ->print(std::cout);
+      std::cout << "--------------------------------------------------------------" <<std::endl;
+#endif
+      }
+#endif
 
       for (int icoefRow=0;icoefRow<basisSize;++icoefRow)
       {
@@ -626,22 +789,10 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
           Xyce::Linear::Matrix & subMatQ = bmdQdxPtr_->block(icoefRow,icoefCol);
           double fval = (*denseEntryF)(icoefRow,icoefCol);
           double qval = (*denseEntryQ)(icoefRow,icoefCol);
-          subMatF[irow][icol] = fval;
-          subMatQ[irow][icol] = qval;
+          subMatF[irow][icol] += fval;
+          subMatQ[irow][icol] += qval;
         }
       }
-
-#if 0
-      std::cout << "PCE expansion of dfdx for row="<<irow<<" col="<<icol<<std::endl;
-      pceF.print(std::cout);
-      std::cout << "dFdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
-      denseEntry->print(std::cout);
-
-      std::cout << "PCE expansion of dqdx for row="<<irow<<" col="<<icol<<std::endl;
-      pceQ.print(std::cout);
-      std::cout << "dQdx: dense block for row="<<irow<<" col="<<icol<<std::endl;
-      denseEntry->print(std::cout);
-#endif
     }
   }
 
@@ -650,9 +801,24 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bmdFdxPtr_->fillComplete();
   bmdQdxPtr_->fillComplete();
 
+#if 0
+  std::cout << "--------------------------------------------------------------" <<std::endl;
+  std::cout << "Full Epetra Jacobian" << std::endl;
+  bmdFdxPtr_->printPetraObject(std::cout);
+  std::cout << "--------------------------------------------------------------" <<std::endl;
+#endif
   }
 
-  // do another round of assembleGlobal, on the new objects
+  if (applyLimit)
+  {
+    // perform matvecs to convert bDV to dFdxdVp and dQdxdVp
+    bool Transpose = false;
+    dFdxdVp->putScalar(0.0);
+    bmdFdxPtr_->matvec( Transpose , bDV, *dFdxdVp );
+
+    dQdxdVp->putScalar(0.0);
+    bmdQdxPtr_->matvec( Transpose , bDV, *dQdxdVp );
+  }
 
   if (DEBUG_PCE)
   {

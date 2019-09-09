@@ -651,7 +651,8 @@ struct InternalVariableOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<SolutionOp>();
     builder_manager.addCreateFunction<SolutionImaginaryOp>();
     builder_manager.addCreateFunction<SolutionMagnitudeOp>();
-    builder_manager.addCreateFunction<SolutionPhaseOp>();
+    builder_manager.addCreateFunction<SolutionPhaseDegOp>();
+    builder_manager.addCreateFunction<SolutionPhaseRadOp>();
     builder_manager.addCreateFunction<SolutionDecibelsOp>();
     builder_manager.addCreateFunction<StateOp>();
     builder_manager.addCreateFunction<StoreOp>();
@@ -695,7 +696,14 @@ struct InternalVariableOpBuilder : public Util::Op::Builder
         }
         else if (param_tag == "NP" )
         {
-          new_op = new SolutionPhaseOp(name, index);
+          if (outputManager_.getPhaseOutputUsesRadians())
+	  {
+            new_op = new SolutionPhaseRadOp(name, index);
+          }
+          else
+          {
+            new_op = new SolutionPhaseDegOp(name, index);
+          }
         }
         else if (param_tag == "NDB" )
         {
@@ -766,13 +774,15 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<SolutionRealOp>();
     builder_manager.addCreateFunction<SolutionImaginaryOp>();
     builder_manager.addCreateFunction<SolutionMagnitudeOp>();
-    builder_manager.addCreateFunction<SolutionPhaseOp>();
+    builder_manager.addCreateFunction<SolutionPhaseDegOp>();
+    builder_manager.addCreateFunction<SolutionPhaseRadOp>();
     builder_manager.addCreateFunction<SolutionDecibelsOp>();
     builder_manager.addCreateFunction<VoltageDifferenceOp>();
     builder_manager.addCreateFunction<VoltageDifferenceRealOp>();
     builder_manager.addCreateFunction<VoltageDifferenceImaginaryOp>();
     builder_manager.addCreateFunction<VoltageDifferenceMagnitudeOp>();
-    builder_manager.addCreateFunction<VoltageDifferencePhaseOp>();
+    builder_manager.addCreateFunction<VoltageDifferencePhaseDegOp>();
+    builder_manager.addCreateFunction<VoltageDifferencePhaseRadOp>();
     builder_manager.addCreateFunction<VoltageDifferenceDecibelsOp>();
   }
 
@@ -818,7 +828,14 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
           }
           else if (param_tag == "VP" )
           {
-            new_op = new SolutionPhaseOp(name, index);
+	    if (outputManager_.getPhaseOutputUsesRadians())
+	     {
+               new_op = new SolutionPhaseRadOp(name, index);
+             }
+             else
+             {
+               new_op = new SolutionPhaseDegOp(name, index);
+             }
           }
           else if (param_tag == "VDB" )
           {
@@ -864,7 +881,14 @@ struct VoltageVariableOpBuilder : public Util::Op::Builder
           }
           else if (param_tag == "VP" )
           {
-            new_op = new VoltageDifferencePhaseOp(name, index1, index2);
+            if (outputManager_.getPhaseOutputUsesRadians())
+	    {
+              new_op = new VoltageDifferencePhaseRadOp(name, index1, index2);
+            }
+            else
+            {
+              new_op = new VoltageDifferencePhaseDegOp(name, index1, index2);
+            }
           }
           else if (param_tag == "VDB" )
           {
@@ -926,19 +950,22 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<SolutionRealOp>();
     builder_manager.addCreateFunction<SolutionImaginaryOp>();
     builder_manager.addCreateFunction<SolutionMagnitudeOp>();
-    builder_manager.addCreateFunction<SolutionPhaseOp>();
+    builder_manager.addCreateFunction<SolutionPhaseDegOp>();
+    builder_manager.addCreateFunction<SolutionPhaseRadOp>();
     builder_manager.addCreateFunction<SolutionDecibelsOp>();
     builder_manager.addCreateFunction<StoreOp>();
     builder_manager.addCreateFunction<StoreRealOp>();
     builder_manager.addCreateFunction<StoreImaginaryOp>();
     builder_manager.addCreateFunction<StoreMagnitudeOp>();
-    builder_manager.addCreateFunction<StorePhaseOp>();
+    builder_manager.addCreateFunction<StorePhaseDegOp>();
+    builder_manager.addCreateFunction<StorePhaseRadOp>();
     builder_manager.addCreateFunction<StoreDecibelsOp>();
     builder_manager.addCreateFunction<BranchDataCurrentOp>();
     builder_manager.addCreateFunction<BranchDataCurrentRealOp >();
     builder_manager.addCreateFunction<BranchDataCurrentImaginaryOp>();
     builder_manager.addCreateFunction<BranchDataCurrentMagnitudeOp>();
-    builder_manager.addCreateFunction<BranchDataCurrentPhaseOp>();
+    builder_manager.addCreateFunction<BranchDataCurrentPhaseDegOp>();
+    builder_manager.addCreateFunction<BranchDataCurrentPhaseRadOp>();
     builder_manager.addCreateFunction<BranchDataCurrentDecibelsOp>();
   }
 
@@ -1010,7 +1037,14 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           }
           else if (param_tag == "IP" )
           {
-            new_op = new SolutionPhaseOp(name, index);
+            if (outputManager_.getPhaseOutputUsesRadians())
+	    {
+              new_op = new SolutionPhaseRadOp(name, index);
+            }
+            else
+            {
+              new_op = new SolutionPhaseDegOp(name, index);
+            }
           }
           else if (param_tag == "IDB" )
           {
@@ -1045,7 +1079,14 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           }
           else if (param_tag == "IP" )
           {
-            new_op = new SolutionPhaseOp(name, index);
+            if (outputManager_.getPhaseOutputUsesRadians())
+	    {
+              new_op = new SolutionPhaseRadOp(name, index);
+            }
+            else
+            {
+              new_op = new SolutionPhaseDegOp(name, index);
+            }
           }
           else if (param_tag == "IDB" )
           {
@@ -1088,7 +1129,14 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           }
           else if (param_tag == "IP" )
           {
-            new_op = new BranchDataCurrentPhaseOp(name, index);
+            if (outputManager_.getPhaseOutputUsesRadians())
+	    {
+              new_op = new BranchDataCurrentPhaseRadOp(name, index);
+            }
+            else
+            {
+              new_op = new BranchDataCurrentPhaseDegOp(name, index);
+            }
           }
           else if (param_tag == "IDB" )
           {
@@ -1122,7 +1170,14 @@ struct CurrentVariableOpBuilder : public Util::Op::Builder
           }
           else if (param_tag == "IP" )
           {
-            new_op = new StorePhaseOp(name, index);
+            if (outputManager_.getPhaseOutputUsesRadians())
+	    {
+              new_op = new StorePhaseRadOp(name, index);
+            }
+            else
+            {
+              new_op = new StorePhaseDegOp(name, index);
+            }
           }
           else if (param_tag == "IDB" )
           {
@@ -1178,7 +1233,8 @@ struct PowerVariableOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<BranchDataCurrentRealOp >();
     builder_manager.addCreateFunction<BranchDataCurrentImaginaryOp>();
     builder_manager.addCreateFunction<BranchDataCurrentMagnitudeOp>();
-    builder_manager.addCreateFunction<BranchDataCurrentPhaseOp>();
+    builder_manager.addCreateFunction<BranchDataCurrentPhaseDegOp>();
+    builder_manager.addCreateFunction<BranchDataCurrentPhaseRadOp>();
     builder_manager.addCreateFunction<BranchDataCurrentDecibelsOp>();
     builder_manager.addCreateFunction<BranchDataPosNegPowerOp>();
     builder_manager.addCreateFunction<BranchDataBJTPowerOp>();
@@ -1379,7 +1435,8 @@ struct RFparamsVariableOpBuilder : public Util::Op::Builder
     builder_manager.addCreateFunction<RFparamsRealOp>();
     builder_manager.addCreateFunction<RFparamsImaginaryOp>();
     builder_manager.addCreateFunction<RFparamsMagnitudeOp>();
-    builder_manager.addCreateFunction<RFparamsPhaseOp>();
+    builder_manager.addCreateFunction<RFparamsPhaseDegOp>();
+    builder_manager.addCreateFunction<RFparamsPhaseRadOp>();
     builder_manager.addCreateFunction<RFparamsDecibelsOp>();
   }
 
@@ -1427,7 +1484,14 @@ struct RFparamsVariableOpBuilder : public Util::Op::Builder
       }
       else if ( (param_tag == "SP" ) || (param_tag == "YP") || (param_tag == "ZP") )
       {
-        new_op = new RFparamsPhaseOp(name, type, rowIdx, colIdx);
+        if (outputManager_.getPhaseOutputUsesRadians())
+	{
+          new_op = new RFparamsPhaseRadOp(name, type, rowIdx, colIdx);
+        }
+        else
+	{
+          new_op = new RFparamsPhaseDegOp(name, type, rowIdx, colIdx);
+        }
       }
       else if ( (param_tag == "SDB" ) || (param_tag == "YDB" ) || (param_tag == "ZDB") )
       {

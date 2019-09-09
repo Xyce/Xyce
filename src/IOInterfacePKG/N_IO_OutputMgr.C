@@ -62,6 +62,7 @@
 #include <N_IO_OutputterSParam.h>
 #include <N_IO_OutputterNoise.h>
 #include <N_IO_OutputterEmbeddedSampling.h>
+#include <N_IO_OutputterPCE.h>
 #include <N_IO_OutputterHB.h>
 #include <N_IO_OutputterMPDE.h>
 #include <N_IO_OutputterTransient.h>
@@ -120,6 +121,7 @@ OutputMgr::OutputMgr(
     topology_(topology),
     dotOpSpecified_(false),
     enableEmbeddedSamplingFlag_(false),
+    enablePCEFlag_(false),
     enableHomotopyFlag_(false),
     enableSparCalcFlag_(false),
     enableSensitivityFlag_(false),
@@ -136,6 +138,7 @@ OutputMgr::OutputMgr(
     printFooter_(true),
     printStepNumCol_(false),
     outputVersionInRawFile_(false),
+    phaseOutputUsesRadians_(true),
     outputCalledBefore_(false),
     dcLoopNumber_(0),
     maxDCSteps_(0),
@@ -535,9 +538,9 @@ void OutputMgr::prepareOutput(
     // is set via the AC object, during that object's parsing of the ACLIN
     // option block.
     if (analysis_mode == Analysis::ANP_MODE_HB || enableSparCalcFlag_ ||
-        enableEmbeddedSamplingFlag_ )
+        enableEmbeddedSamplingFlag_ || enablePCEFlag_)
     {
-      Report::UserFatal0() << "-r and -a outputs are not supported for Embedded Sampling, .HB or .LIN analyses";
+      Report::UserFatal0() << "-r and -a outputs are not supported for Embedded Sampling, .HB, .LIN or .PCE analyses";
     }
 
     Outputter::enableRawOverrideOutput(comm, *this, analysis_mode);
@@ -589,6 +592,25 @@ void OutputMgr::prepareOutput(
     if (!defaultPrintParameters_.dashoRequested_)
     {
       // Only .PRINT ES output is made for the -o case.  .PRINT TRAN or .PRINT DC
+      // output is not made.
+      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
+        Outputter::enableTransientOutput(comm, *this, analysis_mode);
+      addActiveOutputter(PrintType::TRAN, analysis_mode);
+
+      if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_DC_SWEEP))
+        Outputter::enableDCOutput(comm, *this, analysis_mode);
+      addActiveOutputter(PrintType::TRAN, analysis_mode);
+    }
+  }
+  else if (enablePCEFlag_)
+  {
+    if (!testAndSet(enabledAnalysisSet_, (Analysis::Mode) (Analysis::ANP_MODE_INVALID + 104)))
+      Outputter::enablePCEOutput(comm, *this, analysis_mode);
+    addActiveOutputter(PrintType::PCE, analysis_mode);
+
+    if (!defaultPrintParameters_.dashoRequested_)
+    {
+      // Only .PRINT PCE output is made for the -o case.  .PRINT TRAN or .PRINT DC
       // output is not made.
       if (!testAndSet(enabledAnalysisSet_, Analysis::ANP_MODE_TRANSIENT))
         Outputter::enableTransientOutput(comm, *this, analysis_mode);
@@ -825,6 +847,14 @@ bool OutputMgr::registerOutputOptions(const Util::OptionBlock & option_block)
      outputVersionInRawFile_ = (*it).getImmutableValue<bool>();
      ++it;
     }
+    else if ((*it).tag()=="PHASE_OUTPUT_RADIANS")
+    {
+      // look for flag to toggle whether the VP() and IP() operators use radians
+      // vs. degrees.  The default is radians now.
+      phaseOutputUsesRadians_ = (*it).getImmutableValue<bool>();
+      ++it;
+    }
+
     else if ( std::string( (*it).uTag() ,0,16) == "OUTPUTTIMEPOINTS") // this is a vector
     {
       outputPointsSpecified = true;
@@ -1260,6 +1290,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
         print_type = PrintType::MPDE_IC;
       else if (s == "MPDE_STARTUP")
         print_type = PrintType::MPDE_STARTUP;
+      else if (s == "PCE")
+        print_type = PrintType::PCE;
       else if (s == "SENS")
         print_type = PrintType::SENS;
       else if (s == "TRANADJOINT")
@@ -1430,7 +1462,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
   if ( (print_type == PrintType::SENS) || 
        (print_type == PrintType::HOMOTOPY) || 
        (print_type == PrintType::SPARAM) ||
-       (print_type == PrintType::ES) )
+       (print_type == PrintType::ES) ||
+       (print_type == PrintType::PCE) )
   {
     print_parameters.formatSupportsOverrideRaw_= false; 
   }
@@ -1504,6 +1537,11 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       std::copy(noiseVariableList_.begin(), noiseVariableList_.end(), std::back_inserter(noise_print_parameters.variableList_));    
       addOutputPrintParameters(OutputType::NOISE, noise_print_parameters);
     }
+    else if (print_type == PrintType::PCE)
+    {
+      PrintParameters pce_print_parameters = print_parameters;
+      addOutputPrintParameters(OutputType::PCE, pce_print_parameters);
+    }
     else if (print_type == PrintType::SPARAM)
     {
       // Note: Both SPARAM and AC output print parameters are made.  The function
@@ -1528,7 +1566,8 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     else
     {
       Report::UserWarning0() << "-o only produces output for .PRINT AC, .PRINT DC, .PRINT ES, "
-                             << ".PRINT NOISE, .PRINT TRAN, .PRINT HB, .PRINT HB_FD and .LIN lines";
+                             << ".PRINT NOISE, .PRINT PCE, .PRINT TRAN, .PRINT HB, "
+                             << ".PRINT HB_FD and .LIN lines";
     }
   }
   else if (print_type == PrintType::AC)
@@ -2074,6 +2113,39 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
       es_print_parameters.defaultExtension_ = ".ES.unknown";
     }
     addOutputPrintParameters(OutputType::ES, es_print_parameters);
+  }
+  else if (print_type == PrintType::PCE)
+  {
+    PrintParameters pce_print_parameters = print_parameters;
+    if (pce_print_parameters.format_ == Format::STD)
+    {
+      pce_print_parameters.defaultExtension_ = "PCE.prn";
+    }
+    else if (pce_print_parameters.format_ == Format::CSV)
+    {
+      pce_print_parameters.defaultExtension_ = ".PCE.csv";
+    }
+    else if (pce_print_parameters.format_ == Format::TECPLOT)
+    {
+      pce_print_parameters.defaultExtension_ = ".PCE.dat";
+    }
+    else if ((pce_print_parameters.format_ == Format::RAW) ||
+             (pce_print_parameters.format_ == Format::RAW_ASCII) ||
+             (pce_print_parameters.format_ == Format::PROBE) ||
+             (pce_print_parameters.format_ == Format::TS1) ||
+             (pce_print_parameters.format_ == Format::TS2) )
+    {
+      pce_print_parameters.defaultExtension_ = "PCE.prn";
+      // print out the Index column, since this will be in STD format
+      pce_print_parameters.printIndexColumn_ = true;
+      if (printStepNumCol_)
+        pce_print_parameters.printStepNumColumn_ = true;
+    }
+    else
+    {
+      pce_print_parameters.defaultExtension_ = ".PCE.unknown";
+    }
+    addOutputPrintParameters(OutputType::PCE, pce_print_parameters);
   }
   else
   {
@@ -3184,6 +3256,31 @@ void OutputMgr::outputEmbeddedSampling(
 }
 
 //-----------------------------------------------------------------------------
+// Function      : OutputMgr::outputPCE
+// Purpose       : .PRINT PCE for pce runs
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 9/3/2019
+//-----------------------------------------------------------------------------
+void OutputMgr::outputPCE(
+    Parallel::Machine comm,
+    int numQuadPoints,
+    const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec_)
+{
+  if (!activeOutputterStack_.empty())
+  {
+    std::vector<Outputter::Interface *>::const_iterator it =
+      activeOutputterStack_.back().begin();
+
+    for ( ; it != activeOutputterStack_.back().end(); ++it)
+    {
+      (*it)->outputPCE(comm, numQuadPoints, outFuncDataVec_);
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
 // Function      : OutputMgr::outputHomotopy
 // Purpose       :
 // Special Notes :
@@ -3447,6 +3544,7 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("PRINTFOOTER", Util::Param("PRINTFOOTER", true)));
     parameters.insert(Util::ParamMap::value_type("ADD_STEPNUM_COL", Util::Param("ADD_STEPNUM_COL", true)));
     parameters.insert(Util::ParamMap::value_type("OUTPUTVERSIONINRAWFILE", Util::Param("OUTPUTVERSIONINRAWFILE", false)));
+    parameters.insert(Util::ParamMap::value_type("PHASE_OUTPUT_RADIANS", Util::Param("PHASE_OUTPUT_RADIANS", true)));
 
     parameters.insert(Util::ParamMap::value_type("OUTPUTTIMEPOINTS", Util::Param("OUTPUTTIMEPOINTS", "VECTOR")));
   }

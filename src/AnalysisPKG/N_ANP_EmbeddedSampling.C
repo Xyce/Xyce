@@ -521,7 +521,7 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
       numSamples_ = (*it).getImmutableValue<int>();
       numSamplesGiven_ = true;
       if (numSamples_ <= 0)
-        Report::UserError() << "NUMSAMPLES parameter on .EMBEDDEDSAMPLES line must > 0";
+        Report::UserError() << "NUMSAMPLES parameter on .OPTIONS EMBEDDEDSAMPLES line must > 0";
     }
     else if (std::string((*it).uTag() ,0,9) == "COVMATRIX" ) // this is a vector
     {
@@ -558,7 +558,7 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     {
       PCEorder_ = (*it).getImmutableValue<int>();
       if (PCEorder_ < 0)
-       Report::UserError() << "ORDER parameter on .EMBEDDEDSAMPLES line must >= 0";
+       Report::UserError() << "ORDER parameter on .OPTIONS EMBEDDEDSAMPLES line must >= 0";
     }
 #endif
     else if ((*it).uTag() == "SAMPLE_TYPE")
@@ -636,7 +636,8 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     {
       outputsGiven_ = true;
       UQ::outputFunctionData * ofDataPtr = new UQ::outputFunctionData();
-      ofDataPtr->outFuncString = (*it).stringValue();
+      ExtendedString funcName = (*it).stringValue();
+      ofDataPtr->outFuncString = funcName.toUpper();
       outFuncDataVec_.push_back(ofDataPtr);
     }
     else
@@ -861,7 +862,7 @@ void EmbeddedSampling::stepCallBack ()
           const Stokhos::MultiIndex<int>& trm = regrBasis->term(ii);
           std::string coefString = "_coef(";
           for (int jj=0; jj< trm.size()-1; jj++)
-            coefString += std::to_string(trm[jj]) + ",";
+            coefString += std::to_string(trm[jj]) + "_";
           coefString += std::to_string(trm[trm.size()-1]) + ")";
 
           regressionPCEcoeffs_.push_back(coefString);
@@ -878,7 +879,7 @@ void EmbeddedSampling::stepCallBack ()
           const Stokhos::MultiIndex<int>& trm = quadBasis->term(ii);
           std::string coefString = "_coef(";
           for (int jj=0; jj< trm.size()-1; jj++)
-            coefString += std::to_string(trm[jj]) + ",";
+            coefString += std::to_string(trm[jj]) + "_";
           coefString += std::to_string(trm[trm.size()-1]) + ")";
 
           projectionPCEcoeffs_.push_back(coefString);

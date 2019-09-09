@@ -1193,7 +1193,7 @@ bool AC::solveSensitivity_()
 
   // for AC objective functions are always solution variables
   N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-  evaluateObjFuncs ( *(pds_manager.getPDSComm()), *X_, outputVarGIDs_, objectiveVec_);
+  evaluateObjFuncs ( *(pds_manager.getPDSComm()), *X_, outputVarGIDs_, objectiveVec_, outputManagerAdapter_);
 
   if(solveDirectSensitivityFlag_)
   {
@@ -1257,6 +1257,9 @@ void AC::solve_mag_phase_Sensitivities_(
   }
 
   dxdp_phase = (dxphase_dxr * dxdpReal + dxphase_dxi * dxdpImag);
+  // account for whether the phase output is in radians or degrees
+  if (!outputManagerAdapter_.getPhaseOutputUsesRadians())
+    dxdp_phase *= 180.0/M_PI;
 }
 
 //-----------------------------------------------------------------------------
@@ -1807,7 +1810,8 @@ void evaluateObjFuncs (
   N_PDS_Comm & comm,
   const Linear::BlockVector & X,
   const std::vector<int> & outputVarGIDs,
-  std::vector<double> & objectiveVec)
+  std::vector<double> & objectiveVec,
+  const OutputMgrAdapter & outputManagerAdapter)
 {
   objectiveVec.clear();
 
@@ -1832,6 +1836,9 @@ void evaluateObjFuncs (
 
     double xm = std::abs(std::complex<double>(xr,xi));
     double xp = std::arg(std::complex<double>(xr,xi));
+    // account for whether the phase output is in radians or degrees
+    if (!outputManagerAdapter.getPhaseOutputUsesRadians())
+      xp *= 180.0/M_PI;
 
     objectiveVec.push_back(xr);
     objectiveVec.push_back(xi);

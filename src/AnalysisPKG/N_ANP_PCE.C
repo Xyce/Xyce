@@ -185,6 +185,7 @@ PCE::PCE(
       stdOutputFlag_(false),
       debugLevel_(0),
       outputStochasticMatrix_(false),
+      voltLimAlgorithm_(1),
       outputsGiven_(false),
       outputsSetup_(false),
       measuresGiven_(false),
@@ -364,6 +365,7 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       stdDevGiven=true;
       double stdDev = iter->getImmutableValue<double>();
+      if (stdDev < 0) { Report::DevelFatal() << "STD_DEVIATIONS values for .PCE must be >= 0";}
       stdDevVec_.push_back(stdDev);
     }
     else if (std::string( iter->uTag() ,0,12) == "LOWER_BOUNDS")
@@ -382,12 +384,14 @@ bool PCE::setAnalysisParams(const Util::OptionBlock & paramsBlock)
     {
       alphaGiven=true;
       double alpha = iter->getImmutableValue<double>();
+      if (alpha <= 0) { Report::DevelFatal() << "ALPHA values for .PCE must be > 0";}
       alphaVec_.push_back(alpha);
     }
     else if (std::string( iter->uTag() ,0,4) == "BETA")
     {
       betaGiven=true;
       double beta = iter->getImmutableValue<double>();
+      if (beta <= 0) { Report::DevelFatal() << "BETA values for .PCE must be > 0";}
       betaVec_.push_back(beta);
     }
     else
@@ -537,6 +541,8 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     else if ((*it).uTag() == "ORDER")
     {
       PCEorder_ = (*it).getImmutableValue<int>();
+      if (PCEorder_ < 0)
+        Report::UserError() << "ORDER parameter on .OPTIONS PCES line must >= 0";
     }
 #endif
     else if ((*it).uTag() == "SAMPLE_TYPE")
@@ -612,13 +618,18 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     }
     else if ((*it).uTag() == "OUTPUT_STOCHASTIC_MATRIX")
     {
-      outputStochasticMatrix_ = (*it).getImmutableValue<int>();
+      outputStochasticMatrix_ = (*it).getImmutableValue<bool>();
+    }
+    else if ((*it).uTag() == "VOLTLIM_ALG")
+    {
+      voltLimAlgorithm_ = (*it).getImmutableValue<int>();
     }
     else if (std::string((*it).uTag() ,0,7) == "OUTPUTS" )// this is a vector of expressions/solution variables
     {
       outputsGiven_ = true;
       UQ::outputFunctionData * ofDataPtr = new UQ::outputFunctionData();
-      ofDataPtr->outFuncString = (*it).stringValue();
+      ExtendedString funcName = (*it).stringValue();
+      ofDataPtr->outFuncString = funcName.toUpper();
       outFuncDataVec_.push_back(ofDataPtr);
     }
     else
@@ -652,6 +663,9 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
   {
     Report::UserWarning0() << "Output function was not specified";
   }
+
+  // signal the OutputMgr that PCE is enabled
+  outputManagerAdapter_.setEnablePCEFlag(true);
 
   return true;
 }
@@ -764,7 +778,17 @@ void PCE::stepCallBack ()
   }
 #endif
 
-  hackPCEOutput ();
+  // only call outputter functions if OUTPUTS= was used on the
+  // .OPTIONS PCES line.
+  if (outputsGiven_)
+  {
+    // output for .PRINT PCE
+#if Xyce_STOKHOS_ENABLE
+    outputManagerAdapter_.outputPCE(numQuadPoints_, outFuncDataVec_);
+#endif
+
+    hackPCEOutput ();
+  }
   hackPCEOutput2 ();
 }
 
@@ -829,8 +853,6 @@ void  PCE::setupBlockSystemObjects ()
 {
   analysisManager_.resetSolverSystem();
 
-  //pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numQuadPoints_));
-  //pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_));
   pceBuilderPtr_ = rcp(new Linear::PCEBuilder(numBlockRows_,numQuadPoints_));
 
   if (DEBUG_ANALYSIS)
@@ -853,7 +875,7 @@ void  PCE::setupBlockSystemObjects ()
 
   // Create PCE Loader.
   delete pceLoaderPtr_;
-  pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numQuadPoints_, numBlockRows_, samplingVector_, Y_);
+  pceLoaderPtr_ = new Loader::PCELoader(deviceManager_, builder_, numQuadPoints_, numBlockRows_, samplingVector_, Y_, analysisManager_.getCommandLine(), voltLimAlgorithm_);
   pceLoaderPtr_->registerPCEBuilder(pceBuilderPtr_);
   pceLoaderPtr_->registerAppLoader( rcp(&loader_, false) );
   pceLoaderPtr_->registerPCEbasis (basis) ;
@@ -924,7 +946,10 @@ void  PCE::setupBlockSystemObjects ()
   }
   TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
   pceLoaderPtr_->loadDeviceErrorWeightMask(dsPtr->deviceErrorWeightMask_);
-  
+  pceLoaderPtr_->registerSolverFactory ( solverFactory_ );
+  //pceLoaderPtr_->registerLinearSystem( &linearSystem_ );
+  pceLoaderPtr_->setLinSolOptions( saved_lsOB_ );
+
   childAnalysis_.registerParentAnalysis(this);
 }
 
@@ -1416,8 +1441,6 @@ void PCE::computePCEOutputs()
 //-----------------------------------------------------------------------------
 void PCE::hackPCEOutput ()
 {
-  if (outputsGiven_)
-  {
     std::string fileName; 
 
     if (hackOutputFormat_=="TECPLOT")
@@ -1513,8 +1536,6 @@ void PCE::hackPCEOutput ()
     // data output
     output_stream.setf(std::ios::scientific);
 
-    //if ( analysisManager_.getTransientFlag() || analysisManager_.getTranOPFlag() ) // this doesn't work!
-    //if ( childAnalysis_.isAnalysis(ANP_MODE_TRANSIENT) )
     if ( !(childAnalysis_.getDCOPFlag()) )
     {
       output_stream << analysisManager_.getStepErrorControl().currentTime;
@@ -1583,10 +1604,7 @@ void PCE::hackPCEOutput ()
 
     output_stream << std::endl;
 
-  //
-  }
-
-  return;
+    return;
 }
 
 //-----------------------------------------------------------------------------
@@ -2002,6 +2020,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 0)));
     parameters.insert(Util::ParamMap::value_type("STDOUTPUT", Util::Param("STDOUTPUT", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_STOCHASTIC_MATRIX", Util::Param("OUTPUT_STOCHASTIC_MATRIX", false)));
+    parameters.insert(Util::ParamMap::value_type("VOLTLIM_ALG", Util::Param("VOLTLIM_ALG", 1)));
   }
 
 

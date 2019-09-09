@@ -118,20 +118,8 @@ class PCEBuilder : public Builder
   // QuadVector factory with initial value
   Vector * createQuadVector( double initialValue = 0.0 ) const;
 
-  // State QuadVector factory with initial value
-  Vector * createStateQuadVector( double initialValue = 0.0 ) const;
-
-  // Store QuadVector factory with initial value
-  Vector * createStoreQuadVector( double initialValue = 0.0 ) const;
-
-  // Lead Current QuadVector factory with initial value
-  Vector * createLeadCurrentQuadVector( double initialValue = 0.0 ) const;
-
   Teuchos::RCP<BlockVector> createQuadBlockVector() const;
   Teuchos::RCP<BlockVector> createTransposeQuadBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeStateQuadBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeStoreQuadBlockVector() const;
-  Teuchos::RCP<BlockVector> createTransposeLeadCurrentQuadBlockVector() const;
 
   // Matrix factory
   Matrix * createMatrix( double initialValue = 0.0 ) const;
@@ -146,11 +134,6 @@ class PCEBuilder : public Builder
   // Matrix factory
   Matrix * createQuadMatrix( double initialValue = 0.0 ) const;
   Teuchos::RCP<BlockMatrix> createQuadBlockMatrix( double initialValue = 0.0 ) const;
-
-  // DAE Jacobians
-  Matrix * createDAEdQdxQuadMatrix( double initialValue = 0.0 ) const { return 0; }
-  Matrix * createDAEdFdxQuadMatrix( double initialValue = 0.0 ) const { return 0; }
-  Matrix * createDAEFullQuadMatrix( double initialValue = 0.0 ) const { return 0; }
 
   bool generateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseMap, 
                      const Teuchos::RCP<N_PDS_ParMap>& oBaseMap );
