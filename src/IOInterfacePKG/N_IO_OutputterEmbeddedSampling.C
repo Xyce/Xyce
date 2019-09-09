@@ -115,6 +115,240 @@ void enableEmbeddedSamplingOutput(Parallel::Machine comm, OutputMgr &output_mana
   }
 }
 
+//-----------------------------------------------------------------------------
+// Function      : makeEmbeddedSamplingColumnNames
+// Purpose       : This helps makes the strings used for the column headers
+//                 for the EmbeddedSamplingPrn and EmbeddedSamplingCSV classes.
+//                 It helps make the strings for the VARIABLES list for the
+//                 EmbeddedSamplingTecplot class.
+// Special Notes :
+// Scope         :
+// Creator       : Pete Sholander, SNL
+// Creation Date : September 6, 2019
+//-----------------------------------------------------------------------------
+void makeEmbeddedSamplingColumnNames(
+  const PrintParameters&       printParameters,
+  std::vector<std::string>&    colNames,
+  bool                         regressionPCEenable,
+  bool                         projectionPCEenable,
+  int                          numSamples,
+  const std::vector<std::string> & regressionPCEcoeffs,
+  const std::vector<std::string> & projectionPCEcoeffs,
+  const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec)
+{
+  for (int iout=0;iout<outFuncDataVec.size();++iout)
+  {
+    Xyce::Analysis::UQ::outputFunctionData & outFunc = *(outFuncDataVec[iout]);
+
+    if (printParameters.outputPCEsampleStats_)
+    {
+      colNames.push_back(outFunc.outFuncString + "_mean");
+      colNames.push_back(outFunc.outFuncString + "_meanPlus");
+      colNames.push_back(outFunc.outFuncString + "_meanMinus");
+
+      colNames.push_back(outFunc.outFuncString + "_stddev");
+      colNames.push_back(outFunc.outFuncString + "_variance");
+    }
+
+#if Xyce_STOKHOS_ENABLE
+    if (regressionPCEenable)
+    {
+      colNames.push_back(outFunc.outFuncString + "_regr_pce_mean");
+      colNames.push_back(outFunc.outFuncString + "_regr_pce_meanPlus");
+      colNames.push_back(outFunc.outFuncString + "_regr_pce_meanMinus");
+
+      colNames.push_back(outFunc.outFuncString + "_regr_pce_stddev");
+      colNames.push_back(outFunc.outFuncString + "_regr_pce_variance");
+
+      if (printParameters.outputPCECoeffs_)
+      {
+        std::vector<std::string>::const_iterator it;
+        for (it=regressionPCEcoeffs.begin();it!=regressionPCEcoeffs.end();++it)
+        {
+          colNames.push_back(outFunc.outFuncString + *it);
+        }
+      }
+    }
+
+    if (projectionPCEenable)
+    {
+      colNames.push_back(outFunc.outFuncString + "_quad_pce_mean");
+      colNames.push_back(outFunc.outFuncString + "_quad_pce_meanPlus");
+      colNames.push_back(outFunc.outFuncString + "_quad_pce_meanMinus");
+
+      colNames.push_back(outFunc.outFuncString + "_quad_pce_stddev");
+      colNames.push_back(outFunc.outFuncString + "_quad_pce_variance");
+
+      if (printParameters.outputPCECoeffs_)
+      {
+        std::vector<std::string>::const_iterator it;
+        for (it=projectionPCEcoeffs.begin();it!=projectionPCEcoeffs.end();++it)
+        {
+          colNames.push_back(outFunc.outFuncString + *it);
+        }
+      }
+    }
+#endif
+
+    if (printParameters.outputAllPCEsamples_)
+    {
+      for(int i=0;i<numSamples; ++i)
+      {
+#if __cplusplus>=201103L
+        colNames.push_back(outFunc.outFuncString + "_"+std::to_string(i));
+#else
+        std::stringstream ss;
+        ss << i;
+        colNames.push_back(outFunc.outFuncString + "_"+ss.str());
+#endif
+      }
+    }
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : outputEmbeddedSamplingData
+// Purpose       : This helps output data for everything but the STEPNUM,
+//                 Index and Time columns/variables for the EmbeddedSamplingPrn,
+//                 EmbeddedSamplingCSV and EmbeddedSamplingTecplot classes.
+// Special Notes :
+// Scope         :
+// Creator       : Pete Sholander, SNL
+// Creation Date : September 6, 2019
+//-----------------------------------------------------------------------------
+void outputEmbeddedSamplingData(
+  const PrintParameters&       printParameters,
+  std::ostream *               os,
+  const std::vector<complex>&  result_list,
+  bool                         regressionPCEenable,
+  bool                         projectionPCEenable,
+  int                          numSamples,
+  const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec)
+{
+  int colIdx = result_list.size();
+  for (int iout=0;iout<outFuncDataVec.size();++iout)
+  {
+    Xyce::Analysis::UQ::outputFunctionData & outFunc = *(outFuncDataVec[iout]);
+
+    if (printParameters.outputPCEsampleStats_)
+    {
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sm.mean);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx,outFunc.sm.mean+outFunc.sm.stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sm.mean-outFunc.sm.stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sm.stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sm.variance);
+      colIdx++;
+    }
+
+ #if Xyce_STOKHOS_ENABLE
+    if (regressionPCEenable)
+    {
+      Stokhos::OrthogPolyApprox<int,double> & regressionPCE = outFunc.regressionPCE;
+
+      double pce_mean = regressionPCE.mean();
+      double pce_stddev = regressionPCE.standard_deviation();
+      double pce_variance = pce_stddev*pce_stddev;
+
+      if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
+      {
+        pce_mean = 0.0;
+      }
+
+      if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
+      {
+        pce_stddev = 0.0;
+      }
+
+      if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
+      {
+        pce_variance = 0.0;
+      }
+
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_mean);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_mean+pce_stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_mean-pce_stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_variance);
+      colIdx++;
+
+      if (printParameters.outputPCECoeffs_)
+      {
+        int NN=regressionPCE.size();
+        for (int ii=0;ii<NN;ii++, colIdx++)
+        {
+          printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, regressionPCE[ii]);
+        }
+      }
+    }
+
+    if (projectionPCEenable)
+    {
+      Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
+
+      double pce_mean = projectionPCE.mean();
+      double pce_stddev = projectionPCE.standard_deviation();
+      double pce_variance = pce_stddev*pce_stddev;
+
+      if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
+      {
+        pce_mean = 0.0;
+      }
+
+      if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
+      {
+        pce_stddev = 0.0;
+      }
+
+      if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
+      {
+        pce_variance = 0.0;
+      }
+
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_mean);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_mean+pce_stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_mean-pce_stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_variance);
+      colIdx++;
+
+      if (printParameters.outputPCECoeffs_)
+      {
+        int NN=projectionPCE.size();
+        for (int ii=0;ii<NN;ii++, colIdx++)
+        {
+          printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, projectionPCE.fastAccessCoeff(ii));
+        }
+      }
+    }
+#endif
+
+    // output individual samples
+    if (printParameters.outputAllPCEsamples_)
+    {
+      for(int i=0;i<numSamples; ++i, colIdx++)
+      {
+        printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sampleOutputs[i]);
+      }
+    }
+  }
+
+  return;
+}
+
 } // namespace Outputter
 } // namespace IO
 } // namespace Xyce

@@ -47,6 +47,27 @@ namespace Outputter {
 void enableEmbeddedSamplingOutput(Parallel::Machine comm, OutputMgr &output_manager, Analysis::Mode analysis_mode);
 
 
+// Common functions used by the EmbeddedSamplingPrn, EmbeddedSamplingCSV and
+// EmbeddedSamplingTecplot classes to output header info and data rows.
+void makeEmbeddedSamplingColumnNames(
+   const PrintParameters&       printParameters,
+   std::vector<std::string>&    colNames,
+   bool                         regressionPCEenable,
+   bool                         projectionPCEenable,
+   int                          numSamples,
+   const std::vector<std::string> & regressionPCEcoeffs,
+   const std::vector<std::string> & projectionPCEcoeffs,
+   const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec);
+
+void outputEmbeddedSamplingData(
+   const PrintParameters&       printParameters,
+   std::ostream *               os,
+   const std::vector<complex>&  result_list,
+   bool                         regressionPCEenable,
+   bool                         projectionPCEenable,
+   int                          numSamples,
+   const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec);
+
 } // namespace Outputter
 } // namespace IO
 } // namespace Xyce

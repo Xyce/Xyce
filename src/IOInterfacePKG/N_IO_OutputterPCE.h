@@ -47,6 +47,21 @@ namespace Outputter {
 void enablePCEOutput(Parallel::Machine comm, OutputMgr &output_manager, Analysis::Mode analysis_mode);
 
 
+// Common functions used by the PCEPrn, PCECSV and PCETecplot classes
+// to output header info and data rows.
+void makePCEColumnNames(
+   const PrintParameters&       printParameters,
+   std::vector<std::string>&    colNames,
+   int                          numQuadPoints,
+   const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec);
+
+void outputPCEData(
+   const PrintParameters&       printParameters,
+   std::ostream *               os,
+   const std::vector<complex>&  result_list,
+   int                          numQuadPoints,
+   const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec);
+
 } // namespace Outputter
 } // namespace IO
 } // namespace Xyce

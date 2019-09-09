@@ -115,6 +115,146 @@ void enablePCEOutput(Parallel::Machine comm, OutputMgr &output_manager, Analysis
   }
 }
 
+//-----------------------------------------------------------------------------
+// Function      : makePCEColumnNames
+// Purpose       : This helps makes the strings used for the column headers
+//                 for the PCEPrn and PCECSV classes.  It helps make the
+//                 strings for the VARIABLES list for the PCETecplot class.
+// Special Notes :
+// Scope         :
+// Creator       : Pete Sholander, SNL
+// Creation Date : Septmeber 6, 2019
+//-----------------------------------------------------------------------------
+void makePCEColumnNames(
+  const PrintParameters&       printParameters,
+  std::vector<std::string>&    colNames,
+  int                          numQuadPoints,
+  const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec)
+{
+  for (int iout=0;iout<outFuncDataVec.size();++iout)
+  {
+    Xyce::Analysis::UQ::outputFunctionData & outFunc = *(outFuncDataVec[iout]);
+
+    if (printParameters.outputPCEsampleStats_)
+    {
+      colNames.push_back(outFunc.outFuncString + "_mean");
+      colNames.push_back(outFunc.outFuncString + "_meanPlus");
+      colNames.push_back(outFunc.outFuncString + "_meanMinus");
+
+      colNames.push_back(outFunc.outFuncString + "_stddev");
+      colNames.push_back(outFunc.outFuncString + "_variance");
+    }
+
+#if Xyce_STOKHOS_ENABLE
+    colNames.push_back(outFunc.outFuncString + "_quad_pce_mean");
+    colNames.push_back(outFunc.outFuncString + "_quad_pce_meanPlus");
+    colNames.push_back(outFunc.outFuncString + "_quad_pce_meanMinus");
+
+    colNames.push_back(outFunc.outFuncString + "_quad_pce_stddev");
+    colNames.push_back(outFunc.outFuncString + "_quad_pce_variance");
+#endif
+
+    if (printParameters.outputAllPCEsamples_)
+    {
+      for(int i=0;i<numQuadPoints; ++i)
+      {
+#if __cplusplus>=201103L
+        colNames.push_back(outFunc.outFuncString + "_"+std::to_string(i));
+#else
+        std::stringstream ss;
+        ss << i;
+        colNames.push_back(outFunc.outFuncString + "_"+ss.str());
+#endif
+      }
+    }
+  }
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : outputPCEData
+// Purpose       : This helps output data for everything but the STEPNUM,
+//                 Index and Time columns/variables for the PCEPrn, PCECSV
+//                 PCETecplot classes.
+// Special Notes :
+// Scope         :
+// Creator       : Pete Sholander, SNL
+// Creation Date : September 6, 2019
+//-----------------------------------------------------------------------------
+void outputPCEData(
+  const PrintParameters&       printParameters,
+  std::ostream *               os,
+  const std::vector<complex>&  result_list,
+  int                          numQuadPoints,
+  const std::vector<Xyce::Analysis::UQ::outputFunctionData*> & outFuncDataVec)
+{
+  int colIdx = result_list.size();
+  for (int iout=0;iout<outFuncDataVec.size();++iout)
+  {
+    Xyce::Analysis::UQ::outputFunctionData & outFunc = *(outFuncDataVec[iout]);
+
+    if (printParameters.outputPCEsampleStats_)
+    {
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sm.mean);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx,outFunc.sm.mean+outFunc.sm.stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sm.mean-outFunc.sm.stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sm.stddev);
+      colIdx++;
+      printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sm.variance);
+      colIdx++;
+    }
+
+ #if Xyce_STOKHOS_ENABLE
+    Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > & projectionPCE = outFunc.projectionPCE;
+
+    double pce_mean = projectionPCE.mean();
+    double pce_stddev = projectionPCE.standard_deviation();
+    double pce_variance = pce_stddev*pce_stddev;
+
+    if ( std::isinf(pce_mean) || std::isnan(pce_mean) )
+    {
+      pce_mean = 0.0;
+    }
+
+    if ( std::isinf(pce_stddev) || std::isnan(pce_stddev) )
+    {
+      pce_stddev = 0.0;
+    }
+
+    if ( std::isinf(pce_variance) || std::isnan(pce_variance) )
+    {
+      pce_variance = 0.0;
+    }
+
+    printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_mean);
+    colIdx++;
+    printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_mean+pce_stddev);
+    colIdx++;
+    printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_mean-pce_stddev);
+    colIdx++;
+    printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_stddev);
+    colIdx++;
+    printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, pce_variance);
+    colIdx++;
+#endif
+
+    // output individual samples
+    if (printParameters.outputAllPCEsamples_)
+    {
+      for(int i=0;i<numQuadPoints; ++i, colIdx++)
+      {
+        printValue(*os, printParameters.table_.columnList_[colIdx], printParameters.delimiter_, colIdx, outFunc.sampleOutputs[i]);
+      }
+    }
+  }
+
+  return;
+}
+
 } // namespace Outputter
 } // namespace IO
 } // namespace Xyce
