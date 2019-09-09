@@ -65,8 +65,21 @@ defined within that subcircuit definition.
 \end{XyceItemize}
 
 Additional illustative examples of scoping are given in the
-``Working with Subcircuits and Models'' section of the \Xyce{} Users' 
-Guide\UsersGuide.  
+``Working with Subcircuits and Models'' section of the \Xyce{} Users'
+Guide\UsersGuide.
+
+\index{\texttt{.FUNC}!allowed names}Rules for function names are as follows:
+\begin{XyceItemize}
+\item They should start with a letter or the underscore (\verb|_|) character,
+for maximal compatibilty with other Spice-like simulators.  Although, the
+hashtag (\verb|#|) and at (\verb|@|) characters also work.
+\item These arithmetic operators \verb|%| \verb|^| \verb|&| \verb|~|
+\verb|*| \verb|-| \verb|+| \verb|<| \verb|>| \verb|/| \verb+|+ should not
+be used anywhere in function names, as they cause problems with expression
+parsing.
+\item Parentheses (``('' or ``)''), braces (``\{'' or ``\}''), commas,
+semi-colons, double quotes and single quotes are also not allowed.
+\end{XyceItemize}
 
 \end{Command}
 
