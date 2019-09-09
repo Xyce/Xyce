@@ -84,6 +84,9 @@ class ESBuilder : public Builder
   // Vector factory with initial value
   Vector * createVector( double initialValue = 0.0 ) const;
 
+  // MultiVector factory with initial value
+  MultiVector * createMultiVector( int numVectors = 1, double initialValue = 0.0 ) const;
+
   // State Vector factory with initial value
   Vector * createStateVector( double initialValue = 0.0 ) const;
 

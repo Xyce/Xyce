@@ -54,6 +54,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_LAFactory.C \
   N_LAS_TranSolverFactory.C \
   N_LAS_BlockVector.C \
+  N_LAS_BlockMultiVector.C \
   N_LAS_BlockMatrix.C \
   N_LAS_BlockSystemHelpers.C \
   N_LAS_EpetraHelpers.C \
@@ -92,6 +93,7 @@ libLinearAlgebraServices_la_SOURCES = \
   N_LAS_SolverFactory.h \
   N_LAS_TranSolverFactory.h \
   N_LAS_BlockVector.h \
+  N_LAS_BlockMultiVector.h \
   N_LAS_BlockMatrix.h \
   N_LAS_BlockSystemHelpers.h \
   N_LAS_EpetraHelpers.h \

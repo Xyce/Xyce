@@ -41,6 +41,7 @@ set ( LinearAlgebraServices_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_AztecOOSolver.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockMatrix.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockVector.C 
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockMultiVector.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_BlockSystemHelpers.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_EpetraHelpers.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_Builder.C 

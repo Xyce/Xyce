@@ -38,6 +38,7 @@
 
 #include <N_LAS_Vector.h>
 #include <N_LAS_BlockVector.h>
+#include <N_LAS_BlockMultiVector.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
 
@@ -92,6 +93,21 @@ Vector * ESBuilder::createVector( double initialValue ) const
   RCP<Vector> vector = createBlockVector(); 
   vector.release(); // Release ownership of the object.
   return(&*vector);
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ESBuilder::createMultiVector
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 05/31/2018
+//-----------------------------------------------------------------------------
+MultiVector * ESBuilder::createMultiVector( int numVectors, double initialValue ) const
+{
+  BlockMultiVector* ret = new BlockMultiVector( numSamples_, numVectors, ESMap_, BaseMap_ );
+
+  return ret;
 }
 
 //-----------------------------------------------------------------------------
