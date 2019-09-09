@@ -382,7 +382,7 @@ void ESDirectSolver::createBlockStructures()
 
   if (solver_ == "LAPACK") // structure is same for either ordering
   {
-    // Create a dense matrix that is the right size for the HB jacobian
+    // Create a dense matrix that is the right size for the ES jacobian
     denseESJacobian_.rows = N_*n_;
     denseESJacobian_.cols = N_*n_;
     denseESJacobian_.denseMtx.reshape(N_*n_, N_*n_);
@@ -417,8 +417,6 @@ void ESDirectSolver::createBlockStructures()
       Teuchos::RCP<Xyce::Linear::BlockMatrix> bJac =  Teuchos::rcp_dynamic_cast<Xyce::Linear::BlockMatrix>(Jac); 
       Xyce::Linear::Matrix & subMat = bJac->block(0,0); 
 
-      // filtered matrix doesn't quite match the original, and this is (potentially) a problem
-      // So use the actual UNfiltered matrix instead
       for (int row=0;row<n_;++row) // loop over ckt unknowns
       {
         int parRow = row;
@@ -541,7 +539,7 @@ void ESDirectSolver::createBlockStructures()
   else
   {
     Report::UserWarning0() << "Solver type not recognized.  Using LAPACK" <<std::endl;
-    // Create a dense matrix that is the right size for the HB jacobian
+    // Create a dense matrix that is the right size for the ES jacobian
     denseESJacobian_.rows = N_*n_;
     denseESJacobian_.cols = N_*n_;
     denseESJacobian_.denseMtx.reshape(N_*n_, N_*n_);

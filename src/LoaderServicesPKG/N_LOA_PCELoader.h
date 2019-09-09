@@ -90,6 +90,9 @@ public:
   ~PCELoader()
   {}
 
+  // Get convergence info from devices
+  bool allDevicesConverged(Xyce::Parallel::Machine comm);
+
   // Method which is called to load the new-DAE contributions 
   bool loadDAEMatrices( Linear::Vector * X,
                         Linear::Vector * S,
@@ -310,6 +313,7 @@ private:
   Util::OptionBlock  saved_lsOB_;
   const Xyce::IO::CmdParse & commandLine_;
   int voltLimAlgorithm_;
+  bool allDevicesAllQuadPointsConverged_;
 };
 
 } // namespace Loader

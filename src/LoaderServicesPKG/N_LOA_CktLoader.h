@@ -184,7 +184,7 @@ public:
   bool setParam(std::string & name, double val, bool overrideOriginal=false);
 
   // Function for getting a single parameter value.
-  virtual double getParamAndReduce(Parallel::Machine comm, const std::string & name) const;
+  virtual double getParamAndReduce(Xyce::Parallel::Machine comm, const std::string & name) const;
 
   // Method which is called to update the sources.
   bool updateSources();
@@ -219,10 +219,10 @@ public:
   int getHomotopyBlockSize() const;
 
   // Get convergence info from devices
-  bool allDevicesConverged(Parallel::Machine comm);
+  virtual bool allDevicesConverged(Xyce::Parallel::Machine comm);
 
   // Get convergence info from inner-solves
-  bool innerDevicesConverged(Parallel::Machine comm);
+  bool innerDevicesConverged(Xyce::Parallel::Machine comm);
 
   void stepSuccess(Xyce::Analysis::TwoLevelMode analysis);
   void stepFailure(Xyce::Analysis::TwoLevelMode analysis);

@@ -103,7 +103,8 @@ PCELoader::PCELoader(
     samplingVector_(samplingVector),
     Y_(Y),
     commandLine_(cp),
-    voltLimAlgorithm_(voltLimAlg)
+    voltLimAlgorithm_(voltLimAlg),
+    allDevicesAllQuadPointsConverged_(true)
 {
   // Now initialize all the working vectors, size of the original system
   appNextVecPtr_ = rcp(builder_.createVector());
@@ -195,6 +196,19 @@ void PCELoader::registerPCEgraph ( Teuchos::RCP<Epetra_CrsGraph> & tmpPceGraph)
 void PCELoader::registerSolverFactory (Xyce::Linear::SolverFactory *tmpLasSolverPtr) 
 { 
   lasSolverFactoryPtr_ = tmpLasSolverPtr; 
+}
+
+//-----------------------------------------------------------------------------
+// Function      : PCELoader::allDevicesConverged
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 09/08/2019
+//-----------------------------------------------------------------------------
+bool PCELoader::allDevicesConverged(Xyce::Parallel::Machine comm)
+{
+  return allDevicesAllQuadPointsConverged_ ;
 }
 
 //-----------------------------------------------------------------------------
@@ -486,6 +500,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   }
 #endif
 
+  allDevicesAllQuadPointsConverged_ = true;
+
   for( int i = 0; i < numQuadPoints_; ++i )
   {
     Xyce::Loader::Loader &loader_ = *(appLoaderPtr_);
@@ -544,6 +560,8 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       Xyce::dout() << "Calling loadDAEVectors on the appLoader" << std::endl;
     }
 
+
+
     // This has to be done because the app loader does NOT zero these vectors out.
     appQ.putScalar(0.0);
     appF.putScalar(0.0);
@@ -560,6 +578,11 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
         &*appNextJunctionVVecPtr_, 
         &appQ, &appF, &appB,
         &appdFdxdVp, &appdQdxdVp );
+
+    // get the device convergence status
+    bool allDevsConv = appLoaderPtr_->allDevicesConverged(appQ.pmap()->pdsComm().comm());
+    bool tmpVal = allDevicesAllQuadPointsConverged_;
+    allDevicesAllQuadPointsConverged_ = tmpVal && allDevsConv;
 
     // all of these bQ, bF, bB, bdFdxdVp, bdQdxdVp need to be in temporary structures that have num blocks = # quad points
     bQ_quad_ptr_->block(i) = appQ;

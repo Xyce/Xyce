@@ -76,6 +76,9 @@ public:
   ~ESLoader()
   {}
 
+  // Get convergence info from devices
+  bool allDevicesConverged(Xyce::Parallel::Machine comm);
+
   // Method which is called to load the new-DAE contributions 
   bool loadDAEMatrices( Linear::Vector * X,
                         Linear::Vector * S,
@@ -166,7 +169,7 @@ public:
   virtual void setVoltageLimiterStatus(bool voltageLimterStatus);
 
   bool getNumSamples() { return numSamples_; }
-  bool setNumSamples(int numS) { numSamples_ = numS; }
+  void setNumSamples(int numS) { numSamples_ = numS; }
 
 private:
  
@@ -226,6 +229,8 @@ private:
   int numSamples_;
   Analysis::SweepVector & samplingVector_;
   const std::vector<double> & Y_; 
+
+  bool allDevicesAllBlocksConverged_;
 };
 
 } // namespace Loader

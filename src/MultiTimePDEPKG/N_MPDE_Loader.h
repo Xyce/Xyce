@@ -85,11 +85,14 @@ public:
     period_(0),
     mpdeManager_(mgr),
     bOmegadQdt2Ptr_(0),
-    warpMPDEPhasePtr_(warpMPDEPhasePtr)
+    warpMPDEPhasePtr_(warpMPDEPhasePtr),
+    allDevicesAllTimePointsConverged_(true)
   {}
 
   // Destructor
   ~N_MPDE_Loader();
+
+  bool allDevicesConverged(Xyce::Parallel::Machine comm);
 
   // Method which is called to load the new-DAE contributions 
   bool loadDAEMatrices( Xyce::Linear::Vector * X,
@@ -269,6 +272,7 @@ private :
   
   //bool N_MPDE_Loader::findNonPeriodicSignals_(const Xyce::Linear::BlockVector & solutionBlockVector );
 
+  bool allDevicesAllTimePointsConverged_;
 };
 
 

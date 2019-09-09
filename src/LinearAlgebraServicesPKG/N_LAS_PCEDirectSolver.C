@@ -394,6 +394,13 @@ void PCEDirectSolver::createBlockStructures()
   }
   else if (solver_ == "BASKER" || solver_ == "BLOCK_BASKER") 
   {
+    // ERK. The only difference between embedded sampling and intrusive PCE analysis 
+    // is that PCE analysis is currently formed with the inverted ordering in the 
+    // loader.  So to do inverted ordering here, it is not necessary to rearrange 
+    // anything.  For ES, that isn't the case - it uses the non-inverted ordering 
+    // in the loader, and so it has to be re-ordered in the solver.
+
+
     if (coefsOuterLoop_) // not implemented yet for block_basker
     {
       Report::UserFatal0() << "This ordering is not supported for the specialized BASKER and BLOCK_BASKER solvers" <<std::endl;
@@ -417,8 +424,6 @@ void PCEDirectSolver::createBlockStructures()
       Teuchos::RCP<Xyce::Linear::BlockMatrix> bJac =  Teuchos::rcp_dynamic_cast<Xyce::Linear::BlockMatrix>(Jac); 
       Xyce::Linear::Matrix & subMat = bJac->block(0,0); 
 
-      // filtered matrix doesn't quite match the original, and this is (potentially) a problem
-      // So use the actual UNfiltered matrix instead
       for (int row=0;row<n_;++row) // loop over ckt unknowns
       {
         int parRow = row;
@@ -515,10 +520,8 @@ void PCEDirectSolver::createBlockStructures()
         }
       }
 
-      // Allocate block matrix entries of the PCE Jacobian
-      // Unlike in the HB case, all of these are all diagonals
-      //bool isDense=true;
-      bool isDense=false; // experiment with dense
+      // Allocate block matrix entries of the PCE Jacobian.  These are always dense
+      bool isDense=true;
       Aval_.resize( Acol_ptr_[n_], ESBlockMatrixEntry( N_, N_, isDense ) );
 
 #if 0
@@ -541,7 +544,7 @@ void PCEDirectSolver::createBlockStructures()
   else
   {
     Report::UserWarning0() << "Solver type not recognized.  Using LAPACK" <<std::endl;
-    // Create a dense matrix that is the right size for the HB jacobian
+    // Create a dense matrix that is the right size for the PCE jacobian
     densePCEJacobian_.rows = N_*n_;
     densePCEJacobian_.cols = N_*n_;
     densePCEJacobian_.denseMtx.reshape(N_*n_, N_*n_);
@@ -649,7 +652,7 @@ void PCEDirectSolver::formPCEJacobian()
     {
       int lengthRef = subMatRef.getLocalRowLength(ii);
 
-      for (int iBlockRow=0;iBlockRow<N_;++iBlockRow) // loop over the paramters.  
+      for (int iBlockRow=0;iBlockRow<N_;++iBlockRow) // loop over the coefficients
       {
         Xyce::Linear::Matrix & subMat = bJac->block(iBlockRow,iBlockRow);
         int length=0; 
@@ -677,15 +680,7 @@ void PCEDirectSolver::formPCEJacobian()
             {
               Report::UserFatal0() << "AvalIndex is too big = " << AvalIndex <<std::endl;
             }
-
-            if (Aval_[AvalIndex].isDense())
-            {
-              Aval_[AvalIndex].denseMtx(iBlockRow,iBlockRow) = coeffs[icol]; 
-            }
-            else
-            { 
-              Report::UserFatal0() << "PCE direct solver: incorrect block structure" <<std::endl;
-            }
+            Aval_[AvalIndex].denseMtx(iBlockRow,iBlockRow) = coeffs[icol]; 
           }
         }
       }
@@ -710,21 +705,13 @@ void PCEDirectSolver::formPCEJacobian()
           {
             int blockRow = Arow_idx_[j];
 
-            if ( Aval_[j].isDiag() )
+            for (int row=0; row<N_; row++)
             {
-              Anewval_.push_back( Aval_[j].diagVector[ idx ] );
-              Anewrow_idx_.push_back( blockRow*N_ + idx );
-            }
-            else
-            {
-              for (int row=0; row<N_; row++)
+              double val = Aval_[j].denseMtx(row, idx);
+              if (val != 0.0)
               {
-                double val = Aval_[j].denseMtx(row, idx);
-                if (val != 0.0)
-                {
-                  Anewval_.push_back( val );
-                  Anewrow_idx_.push_back( blockRow*N_ + row );
-                }
+                Anewval_.push_back( val );
+                Anewrow_idx_.push_back( blockRow*N_ + row );
               }
             }
           }

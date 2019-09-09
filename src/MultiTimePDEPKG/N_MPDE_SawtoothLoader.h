@@ -76,6 +76,8 @@ public:
   // Destructor
   ~N_MPDE_SawtoothLoader() {}
 
+  bool allDevicesConverged(Xyce::Parallel::Machine comm) { return loader_.allDevicesConverged(comm); } // ERK CHECK THIS
+
   // Method which is called to load the new-DAE contributions 
   bool loadDAEMatrices( Xyce::Linear::Vector * X,
                         Xyce::Linear::Vector * S,

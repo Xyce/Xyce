@@ -97,6 +97,9 @@ public:
   virtual ~Loader()
   {}
 
+  // Get convergence info from devices
+  virtual bool allDevicesConverged(Xyce::Parallel::Machine comm) = 0;
+
   // return value indicates whether mask is nontrivial
   // Virtual nonlinear new-DAE Matrices  load method.
   virtual bool loadDAEMatrices(
@@ -230,7 +233,7 @@ public:
   virtual bool setParam(std::string & name, double val, bool overrideOriginal = false) = 0; 
 
   // Virtual function for getting a single parameter value.
-  virtual double getParamAndReduce(Parallel::Machine comm, const std::string & name) const = 0; 
+  virtual double getParamAndReduce(Xyce::Parallel::Machine comm, const std::string & name) const = 0; 
 
   // Virtual method which is called to update the sources.
   virtual bool updateSources()

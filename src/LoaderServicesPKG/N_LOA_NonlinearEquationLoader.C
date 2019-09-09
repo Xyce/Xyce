@@ -808,7 +808,8 @@ void NonlinearEquationLoader::homotopyStepFailure ()
 //-----------------------------------------------------------------------------
 bool NonlinearEquationLoader::allDevicesConverged(Parallel::Machine comm)  
 {
-  return deviceManager_.allDevicesConverged(comm);
+  //return deviceManager_.allDevicesConverged(comm);
+  return loader_.allDevicesConverged(comm);
 }
 
 //-----------------------------------------------------------------------------

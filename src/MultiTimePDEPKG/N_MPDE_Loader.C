@@ -310,6 +310,19 @@ bool N_MPDE_Loader::loadDAEMatrices( Xyce::Linear::Vector * X,
 }
 
 //-----------------------------------------------------------------------------
+// Function      : N_MPDE_Loader::allDevicesConverged
+// Purpose       : 
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 09/08/2019
+//-----------------------------------------------------------------------------
+bool N_MPDE_Loader::allDevicesConverged(Xyce::Parallel::Machine comm)
+{
+  return allDevicesAllTimePointsConverged_;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : N_LOA_MPDELoader::updateState
 // Purpose       :
 // Special Notes : ERK.  This function needs to be a no-op.  The reason
@@ -427,6 +440,7 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
   bmdFdxPtr_->put(0.0);
 #endif
     
+  allDevicesAllTimePointsConverged_ = true;
   int BlockCount = bQ.blockCount();
   for( int i = 0; i < BlockCount; ++i )
   {
@@ -502,6 +516,11 @@ bool N_MPDE_Loader::loadDAEVectors( Xyce::Linear::Vector * X,
         &*appNextJunctionVVecPtr_, 
         &appQ, &appF, &appB,
         &appdFdxdVp, &appdQdxdVp );
+
+    // get the device convergence status
+    bool allDevsConv = loader_.allDevicesConverged(appQ.pmap()->pdsComm().comm());
+    bool tmpVal = allDevicesAllTimePointsConverged_;
+    allDevicesAllTimePointsConverged_ = tmpVal && allDevsConv;
 
     bQ.block(i) = appQ;
     bF.block(i) = appF;

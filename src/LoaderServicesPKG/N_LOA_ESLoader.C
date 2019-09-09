@@ -93,7 +93,8 @@ ESLoader::ESLoader(
     builder_(builder),
     numSamples_(numSamples),
     samplingVector_(samplingVector),
-    Y_(Y) 
+    Y_(Y),
+    allDevicesAllBlocksConverged_(true)
 {
   // Now initialize all the working vectors, size of the original system
   appNextVecPtr_ = rcp(builder_.createVector());
@@ -136,6 +137,19 @@ void ESLoader::registerESBuilder( Teuchos::RCP<Linear::ESBuilder> esBuilderPtr )
   esBuilderPtr_ = esBuilderPtr;
   bmdQdxPtr_ = esBuilderPtr_->createBlockMatrix();
   bmdFdxPtr_ = esBuilderPtr_->createBlockMatrix();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ESLoader::allDevicesConverged
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter
+// Creation Date : 09/08/2019
+//-----------------------------------------------------------------------------
+bool ESLoader::allDevicesConverged(Xyce::Parallel::Machine comm)
+{
+  return allDevicesAllBlocksConverged_ ;
 }
 
 //-----------------------------------------------------------------------------
@@ -341,6 +355,7 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
   bmdFdxPtr_->put(0.0);
 #endif
     
+  allDevicesAllBlocksConverged_ = true;
   int BlockCount = bQ.blockCount();
   for( int i = 0; i < BlockCount; ++i )
   {
@@ -414,6 +429,11 @@ bool ESLoader::loadDAEVectors( Linear::Vector * X,
         &*appNextJunctionVVecPtr_, 
         &appQ, &appF, &appB,
         &appdFdxdVp, &appdQdxdVp );
+
+    // get the device convergence status
+    bool allDevsConv = appLoaderPtr_->allDevicesConverged(appQ.pmap()->pdsComm().comm());
+    bool tmpVal = allDevicesAllBlocksConverged_;
+    allDevicesAllBlocksConverged_ = tmpVal && allDevsConv;
 
     bQ.block(i) = appQ;
     bF.block(i) = appF;
