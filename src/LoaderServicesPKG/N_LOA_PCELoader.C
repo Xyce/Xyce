@@ -511,7 +511,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     if (DEBUG_PCE)
     {
       Xyce::dout() << "Processing vectors for block " << i << " of " << numQuadPoints_-1 << std::endl;
-      Xyce::dout() << "Calling updateSources on the appLoader" << std::endl;
     }
 
     // pull the various vectors out of the block objects
@@ -559,8 +558,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     {
       Xyce::dout() << "Calling loadDAEVectors on the appLoader" << std::endl;
     }
-
-
 
     // This has to be done because the app loader does NOT zero these vectors out.
     appQ.putScalar(0.0);
@@ -613,19 +610,33 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     double maxNormQlimiter=0.0; 
     appdQdxdVp.infNorm(&maxNormQlimiter);
 
-    if (appLoaderPtr_->getVoltageLimiterStatus() &&  voltLimAlgorithm_>0
-        //&& maxNormFlimiter!=0.0 && maxNormQlimiter !=0.0
-        )
+    if (appLoaderPtr_->getVoltageLimiterStatus() && !allDevsConv)
     {
-      // get a solution for dV for this quad point
-      allocateVoltageLimitingSolver (); // only allocates if null
-      bool reuseFactors_ = false;
-      lasSolverRCPtr_->solve(reuseFactors_);
-
-      b_dV_voltlim_quad_Ptr_->block(i) = *app_dV_voltlim_Ptr_;
+      if (voltLimAlgorithm_==1)
+      {
+        // get a solution for dV for this quad point
+        allocateVoltageLimitingSolver (); // only allocates if null
+        bool reuseFactors_ = false;
+        lasSolverRCPtr_->solve(reuseFactors_);
+        b_dV_voltlim_quad_Ptr_->block(i) = *app_dV_voltlim_Ptr_;
+      }
+      else if (voltLimAlgorithm_==2)
+      {
+        // do nothing.  No linear solve necessary.  Doing projections of volt lim vectors instead
+      }
+      else
+      { // do nothing
+      }
 
       applyLimit=true; // this is unconditionally true for now.  I made a mistake with it
     }
+#if 0
+    else
+    {
+      // this is probably redundant
+      b_dV_voltlim_quad_Ptr_->block(i).putScalar(0.0);
+    }
+#endif
   }
   
   // Now that the vector loading is finished, synchronize the global copy of the relevant block vectors
@@ -684,7 +695,21 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     std::vector<double> f(numQuadPoints_,0.0);
     std::vector<double> q(numQuadPoints_,0.0);
     std::vector<double> b(numQuadPoints_,0.0);
-    std::vector<double> dv(numQuadPoints_,0.0);
+    std::vector<double> dv, dFdxdVp, dQdxdVp;
+
+    if (voltLimAlgorithm_==1)
+    {
+      dv.resize(numQuadPoints_,0.0);
+    }
+    else if (voltLimAlgorithm_==2)
+    {
+      dFdxdVp.resize(numQuadPoints_,0.0);
+      dQdxdVp.resize(numQuadPoints_,0.0);
+    }
+    else
+    {
+    }
+
     for (int iquad=0;iquad<numQuadPoints_;++iquad)
     {
       f[iquad] = (bF_quad_ptr_->block(iquad))[isol];
@@ -692,7 +717,19 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       b[iquad] = (bB_quad_ptr_->block(iquad))[isol];
       if (applyLimit)
       {
-        dv[iquad] = (b_dV_voltlim_quad_Ptr_->block(iquad))[isol];
+        if (voltLimAlgorithm_==1)
+        {
+          dv[iquad] = (b_dV_voltlim_quad_Ptr_->block(iquad))[isol];
+        }
+        else if (voltLimAlgorithm_==2)
+        {
+          dFdxdVp[iquad] = (bdFdxdVp_quad_ptr_->block(iquad))[isol];
+          dQdxdVp[iquad] = (bdQdxdVp_quad_ptr_->block(iquad))[isol];
+        }
+        else
+        {
+          // do nothing
+        }
       }
     }
 
@@ -703,9 +740,23 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
     Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, q, pceQ);
     Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, b, pceB);
     if (applyLimit)
-    { 
-      pceDV.init(0.0); pceDV.reset(expnMethod_); 
-      Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dv, pceDV);
+    {
+      if (voltLimAlgorithm_==1)
+      {
+        pceDV.init(0.0); pceDV.reset(expnMethod_); 
+        Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dv, pceDV);
+      }
+      else if (voltLimAlgorithm_==2)
+      {
+        pce_dFdxdVp.init(0.0); pce_dFdxdVp.reset(expnMethod_); 
+        Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dFdxdVp, pce_dFdxdVp);
+
+        pce_dQdxdVp.init(0.0); pce_dQdxdVp.reset(expnMethod_); 
+        Xyce::Analysis::UQ::solveProjectionPCE(basis_, quadMethod_, dQdxdVp, pce_dQdxdVp);
+      }
+      else 
+      { // do nothing
+      }
     }
 
     int basisSize = basis_->size();
@@ -716,7 +767,18 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
       (bB.block(icoef))[isol] = pceB.coeff(icoef);
       if (applyLimit)
       {
-        (bDV.block(icoef))[isol] = pceDV.coeff(icoef);
+        if (voltLimAlgorithm_==1)
+        {
+          (bDV.block(icoef))[isol] = pceDV.coeff(icoef);
+        }
+        else if (voltLimAlgorithm_==2)
+        {
+          (bdFdxdVp.block(icoef))[isol] = pce_dFdxdVp.coeff(icoef);
+          (bdQdxdVp.block(icoef))[isol] = pce_dQdxdVp.coeff(icoef); 
+        }
+        else 
+        { // do nothing
+        }
       }
     }
   }
@@ -726,7 +788,18 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bB.assembleGlobalVector();
   if (applyLimit)
   {
-    bDV.assembleGlobalVector();
+    if (voltLimAlgorithm_==1)
+    {
+      bDV.assembleGlobalVector();
+    }
+    else if (voltLimAlgorithm_==2)
+    {
+      bdFdxdVp.assembleGlobalVector();
+      bdQdxdVp.assembleGlobalVector();
+    }
+    else
+    {// do nothing
+    }
   }
 
 #if 0
@@ -736,7 +809,6 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   bF.infNorm(&maxNormF);
   std::cout << "Max norm of bF = " << maxNormF <<std::endl;
 #endif
-
   }
 
   {
@@ -834,13 +906,16 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
 
   if (applyLimit)
   {
-    // perform matvecs to convert bDV to dFdxdVp and dQdxdVp
-    bool Transpose = false;
-    dFdxdVp->putScalar(0.0);
-    bmdFdxPtr_->matvec( Transpose , bDV, *dFdxdVp );
+    if (voltLimAlgorithm_==1)
+    {
+      // perform matvecs to convert bDV to dFdxdVp and dQdxdVp
+      bool Transpose = false;
+      dFdxdVp->putScalar(0.0);
+      bmdFdxPtr_->matvec( Transpose , bDV, *dFdxdVp );
 
-    dQdxdVp->putScalar(0.0);
-    bmdQdxPtr_->matvec( Transpose , bDV, *dQdxdVp );
+      dQdxdVp->putScalar(0.0);
+      bmdQdxPtr_->matvec( Transpose , bDV, *dQdxdVp );
+    }
   }
 
   if (DEBUG_PCE)

@@ -185,7 +185,8 @@ PCE::PCE(
       stdOutputFlag_(false),
       debugLevel_(0),
       outputStochasticMatrix_(false),
-      voltLimAlgorithm_(1),
+      voltLimAlgorithm_(2),
+      stdOutputFlag_xvec_(false),
       outputsGiven_(false),
       outputsSetup_(false),
       measuresGiven_(false),
@@ -624,6 +625,11 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     {
       voltLimAlgorithm_ = (*it).getImmutableValue<int>();
     }
+    else if ((*it).uTag() == "STDOUTPUT_XVEC")
+    {
+      stdOutputFlag_xvec_ = (*it).getImmutableValue<bool>();
+    }
+
     else if (std::string((*it).uTag() ,0,7) == "OUTPUTS" )// this is a vector of expressions/solution variables
     {
       outputsGiven_ = true;
@@ -1168,7 +1174,7 @@ void PCE::evaluateVector ( Teuchos::RCP<Xyce::Linear::BlockVector> & bX_quad_ptr
 
 //-----------------------------------------------------------------------------
 // Function      : PCE::outputXvectors
-// Purpose       : Outputs both the coefficient vector and also a converted quad vector
+// Purpose       : Outputs both the coefficient vector and also a converted quad vector to std output
 // Special Notes :
 // Scope         : public
 // Creator       : Eric Keiter, SNL
@@ -1176,21 +1182,24 @@ void PCE::evaluateVector ( Teuchos::RCP<Xyce::Linear::BlockVector> & bX_quad_ptr
 //-----------------------------------------------------------------------------
 void PCE::outputXvectors()
 {
-  TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
-  Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
+  if (stdOutputFlag_xvec_)
+  {
+    TimeIntg::DataStore * dsPtr = analysisManager_.getDataStore();
+    Xyce::Linear::BlockVector & bX = *dynamic_cast<Xyce::Linear::BlockVector*>( (dsPtr->nextSolutionPtr) );
 
-  std::cout << "--------------------------------------------------------------" <<std::endl;
-  std::cout << "X coef vector:" <<std::endl;
-  bX.printPetraObject(std::cout);
-  std::cout << "--------------------------------------------------------------" <<std::endl;
+    Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
+    Xyce::lout() << "X coef vector:" <<std::endl;
+    bX.printPetraObject(Xyce::lout());
+    Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
 
-  Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
-  evaluateVector(bXNext_quad_ptr_);
+    Teuchos::RCP<Xyce::Linear::BlockVector> bXNext_quad_ptr_ = pceBuilderPtr_->createQuadBlockVector(); 
+    evaluateVector(bXNext_quad_ptr_);
 
-  std::cout << "--------------------------------------------------------------" <<std::endl;
-  std::cout << "X quad vector:" <<std::endl;
-  bXNext_quad_ptr_->printPetraObject(std::cout);
-  std::cout << "--------------------------------------------------------------" <<std::endl;
+    Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
+    Xyce::lout() << "X quad vector:" <<std::endl;
+    bXNext_quad_ptr_->printPetraObject(Xyce::lout());
+    Xyce::lout() << "--------------------------------------------------------------" <<std::endl;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2020,7 +2029,8 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("DEBUGLEVEL", Util::Param("DEBUGLEVEL", 0)));
     parameters.insert(Util::ParamMap::value_type("STDOUTPUT", Util::Param("STDOUTPUT", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_STOCHASTIC_MATRIX", Util::Param("OUTPUT_STOCHASTIC_MATRIX", false)));
-    parameters.insert(Util::ParamMap::value_type("VOLTLIM_ALG", Util::Param("VOLTLIM_ALG", 1)));
+    parameters.insert(Util::ParamMap::value_type("VOLTLIM_ALG", Util::Param("VOLTLIM_ALG", 2)));
+    parameters.insert(Util::ParamMap::value_type("STDOUTPUT_XVEC", Util::Param("STDOUTPUT_XVEC", false)));
   }
 
 

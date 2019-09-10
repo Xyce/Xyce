@@ -300,6 +300,10 @@ private:
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceQ;
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceB;
   Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pceDV;
+
+  Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pce_dFdxdVp;
+  Sacado::PCE::OrthogPoly<double, Stokhos::StandardStorage<int,double> > pce_dQdxdVp;
+
 #endif
 
   // these are for solving voltage limiting.  
