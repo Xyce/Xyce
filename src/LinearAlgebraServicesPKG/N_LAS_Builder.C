@@ -866,5 +866,18 @@ RCP<N_PDS_ParMap> Builder::getSolutionMap()
   return(Teuchos::rcp(pdsMgr_->getParallelMap(Parallel::SOLUTION),false));
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Builder::vnodeGIDVec()
+// Purpose       :
+// Special Notes : This is overridden for blockAnalysis types (like MPDE & HB)
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 09/11/2019
+//-----------------------------------------------------------------------------
+const std::vector<int> & Builder::vnodeGIDVec() const
+{
+  return(lasQueryUtil_->vnodeGIDVec());
+}
+
 } // namespace Linear
 } // namespace Xyce

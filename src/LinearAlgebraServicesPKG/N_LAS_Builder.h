@@ -159,12 +159,14 @@ public:
   
   virtual RCP<N_PDS_ParMap> getSolutionMap();
 
+  virtual const std::vector<int> & vnodeGIDVec() const;
+
   virtual N_PDS_Comm* getPDSComm() const
   {
     return pdsMgr_->getPDSComm();
   }
 
-private:
+protected:
   N_PDS_Manager *       pdsMgr_;
   QueryUtil *           lasQueryUtil_;
 };

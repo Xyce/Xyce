@@ -76,10 +76,6 @@ public:
   bool registerPDSManager(N_PDS_Manager * PDS_Manager)
   { return ( pdsMgr_ = PDS_Manager ); }
 
-  // Registers the Query utility
-  bool registerQueryUtil(QueryUtil * LAS_QUtil)
-  { return ( lasQueryUtil_ = LAS_QUtil ); }
-
   // Registers the LAS Builder object
   bool registerBuilder(Builder * builder)
   { return ( lasBuilder_ = builder ); }
@@ -118,12 +114,6 @@ public:
   // Get method for the device mask vector
   Vector *  getDeviceMaskVector() { return deviceMaskVectorPtr_; }
 
-  // Registers the Query utility
-  QueryUtil * getQueryUtil()
-  {
-    return lasQueryUtil_;
-  }
-
   // Return number of global rows as provided by the builder.
   int numGlobalRows() const;
 
@@ -140,7 +130,6 @@ private:
 
   N_PDS_Manager   *  pdsMgr_;
 
-  QueryUtil *  lasQueryUtil_;
   Builder   *  lasBuilder_;
   Problem   *  lasProblemPtr_;
 

@@ -990,6 +990,7 @@ void  EmbeddedSampling::setupBlockSystemObjects ()
 {
   analysisManager_.resetSolverSystem();
   esBuilderPtr_ = rcp(new Linear::ESBuilder(numSamples_));
+  esBuilderPtr_->registerQueryUtil(topology_.getLinearSolverUtility());
 
   if (DEBUG_ANALYSIS)
   {

@@ -67,7 +67,6 @@ namespace Linear {
 //-----------------------------------------------------------------------------
 System::System()
   : pdsMgr_(0),
-    lasQueryUtil_(0),
     lasBuilder_(0),
     lasProblemPtr_(0),
     jacobianMatrixPtr_(0),

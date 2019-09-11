@@ -466,7 +466,6 @@ bool Simulator::doRegistrations_()
   // Linear Solver registrations:
   bs1 = linearSystem_->registerPDSManager(parallelManager_);    bsuccess = bsuccess && bs1;
   bs1 = linearSystem_->registerBuilder( builder_ ); bsuccess = bsuccess && bs1;
-  bs1 = linearSystem_->registerQueryUtil(topology_->getLinearSolverUtility());  bsuccess = bsuccess && bs1;
 
   bs1 = builder_->registerPDSManager(parallelManager_); bsuccess = bsuccess && bs1;
   bs1 = builder_->registerQueryUtil(topology_->getLinearSolverUtility()); bsuccess = bsuccess && bs1;

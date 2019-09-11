@@ -61,7 +61,6 @@
 #include <N_NLS_NOX_AugmentLinSys_IC_Gmin.h>
 #include <N_LAS_Builder.h>
 #include <N_LAS_System.h>
-#include <N_LAS_QueryUtil.h>
 #include <Epetra_MapColoring.h>
 
 #include <N_UTL_ExtendedString.h>
@@ -1399,7 +1398,7 @@ ParameterSet::createAugmentLinearSystem(Linear::System* ls) const
     else
     {
       als = Teuchos::rcp( new 
-			  GStepping(ls->getQueryUtil()->vnodeGIDVec(),
+			  GStepping(ls->builder().vnodeGIDVec(),
 				    ls->getRHSVector(),
 				    gstepping_min_value_,
             gstepping_minimum_conductance_) );
@@ -1458,10 +1457,9 @@ ParameterSet::createAugmentLinearSystem(Linear::System* ls, IO::InitialCondition
       als = Teuchos::rcp( new AugmentLinSysIC_Gmin(
                 op,
                 ICcolor_map,
-                //AugmentLinSysIC_Gmin(ls->getQueryUtil()->vnodeGIDVec()),
-                ls->getQueryUtil()->vnodeGIDVec(),
+                ls->builder().vnodeGIDVec(),
                 ls->getRHSVector(),
-						    gstepping_min_value_,
+	        gstepping_min_value_,
                 gstepping_minimum_conductance_) );
     }
   }
