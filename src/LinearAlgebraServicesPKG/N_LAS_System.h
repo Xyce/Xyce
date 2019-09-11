@@ -51,8 +51,6 @@
 
 // ---------- Forward Declarations ----------
 
-class Epetra_MapColoring;
-
 namespace Xyce {
 namespace Linear {
 
@@ -90,9 +88,6 @@ public:
   bool registerDeviceMaskVector(Vector * dmPP)
   { return (deviceMaskVectorPtr_ = dmPP); }
 
-  // Generate the solution and IC coloring vectors using the builder.  
-  bool generateSolnICColoring();
-
   // Accessor methods for linear system objects
 
   // Get method for the Jacobian matrix
@@ -129,6 +124,9 @@ public:
     return lasQueryUtil_;
   }
 
+  // Return number of global rows as provided by the builder.
+  int numGlobalRows() const;
+
   // Create residual (RHS) and Jacobian
   bool initializeSystem(); // bool block_analysis_flag);
 
@@ -158,9 +156,6 @@ private:
 
   Vector    *  deviceMaskVectorPtr_;
 
-  Epetra_MapColoring * solnColoringPtr_;
-
-  Epetra_MapColoring * initialConditionColoringPtr_;
 };
 
 } // namespace Linear

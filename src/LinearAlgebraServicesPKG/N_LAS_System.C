@@ -54,8 +54,6 @@
 #include <N_PDS_ParMap.h>
 #include <N_UTL_FeatureTest.h>
 
-#include <Epetra_MapColoring.h>
-
 namespace Xyce {
 namespace Linear {
 
@@ -79,9 +77,7 @@ System::System()
     dFdxdVpVectorPtr_(0),
     dQdxdVpVectorPtr_(0),
     flagSolVectorPtr_(0),
-    deviceMaskVectorPtr_(0) ,
-    solnColoringPtr_(0),
-    initialConditionColoringPtr_(0)
+    deviceMaskVectorPtr_(0)
   {}
 
 //-----------------------------------------------------------------------------
@@ -99,27 +95,23 @@ System::~System()
   delete rhsVectorPtr_;
   delete newtonVectorPtr_;
   delete lasProblemPtr_,
-  delete solnColoringPtr_;
-  delete initialConditionColoringPtr_;
   delete dFdxdVpVectorPtr_;
   delete dQdxdVpVectorPtr_;
   delete flagSolVectorPtr_;
 }
 
 //-----------------------------------------------------------------------------
-// Function      : System::generateSolnICColoring
-// Purpose       : Generate the solution and IC coloring vectors. 
+// Function      : System::numGlobalRows()
+// Purpose       : Return the number of global rows from the builder.
 // Special Notes :
 // Scope         : Public
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 2/14/06
+// Creator       : Heidi K. Thornquist, SNL
+// Creation Date : 9/10/2019
 //-----------------------------------------------------------------------------
-bool System::generateSolnICColoring()
+// Return number of global rows as provided by the builder.
+int System::numGlobalRows() const
 {
-  solnColoringPtr_ = lasBuilder_->createSolnColoring();
-  initialConditionColoringPtr_ = lasBuilder_->createInitialConditionColoring();
-
-  return true;
+  return lasBuilder_->getSolutionMap()->numGlobalEntities();
 }
 
 //-----------------------------------------------------------------------------

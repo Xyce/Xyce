@@ -518,17 +518,13 @@ bool Simulator::setUpMatrixStructure_()
   builder_->generateParMaps();
   builder_->generateGraphs();
 
-  if (!analysisManager_->getBlockAnalysisFlag())
-  {
-    linearSystem_->generateSolnICColoring();
-  }
   linearSystem_->initializeSystem();
  
   topology_->registerLIDswithDevs();
 
   deviceManager_->setupExternalDevices(*parallelManager_->getPDSComm());
 
-  int lasSize = linearSystem_->getQueryUtil()->numGlobalRows();
+  int lasSize = linearSystem_->numGlobalRows();
   Xyce::lout() << "***** Number of Unknowns = " << lasSize << std::endl;
 
   return true;
