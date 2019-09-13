@@ -132,8 +132,10 @@ ESSolverFactory::create(
     type = "AZTECOO";
   }
 #endif  
-  
+ 
+#if 0 
   std::cout << "ESSolverFactory::create about to output the linsol options, if they exist" << std::endl;
+#endif
 
   Util::ParamList::const_iterator itPI = options.begin();
   Util::ParamList::const_iterator endPI = options.end();
