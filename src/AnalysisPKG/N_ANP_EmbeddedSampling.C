@@ -537,7 +537,7 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
     {
       hackOutputAllSamples_=static_cast<bool>((*it).getImmutableValue<bool>());
     }
-    else if ((*it).uTag() == "OUTPUTSAMPLESTATS")
+    else if ((*it).uTag() == "OUTPUT_SAMPLE_STATS")
     {
       outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
@@ -1414,6 +1414,8 @@ void EmbeddedSampling::hackEnsembleOutput ()
           std::string meanString = outFunc.outFuncString + "_mean";
           std::string meanStringPlus = outFunc.outFuncString + "_meanPlus";
           std::string meanStringMinus = outFunc.outFuncString + "_meanMinus";
+          std::string meanStringPlusTwoSigma = outFunc.outFuncString + "_meanPlusTwoSigma";
+          std::string meanStringMinusTwoSigma = outFunc.outFuncString + "_meanMinusTwoSigma";
 
           std::string stddevString = outFunc.outFuncString + "_stddev";
           std::string varianceString = outFunc.outFuncString + "_variance";
@@ -1421,6 +1423,9 @@ void EmbeddedSampling::hackEnsembleOutput ()
           output_stream << "\t\" " << meanString << "\""<<std::endl;
           output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
           output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+
+          output_stream << "\t\" " << meanStringPlusTwoSigma << "\""<<std::endl;
+          output_stream << "\t\" " << meanStringMinusTwoSigma << "\""<<std::endl;
 
           output_stream << "\t\" " << stddevString << "\""<<std::endl;
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
@@ -1432,6 +1437,8 @@ void EmbeddedSampling::hackEnsembleOutput ()
           std::string meanString = outFunc.outFuncString + "_regr_pce_mean";
           std::string meanStringPlus = outFunc.outFuncString + "_regr_pce_meanPlus";
           std::string meanStringMinus = outFunc.outFuncString + "_regr_pce_meanMinus";
+          std::string meanStringPlusTwoSigma = outFunc.outFuncString + "_regr_pce_meanPlusTwoSigma";
+          std::string meanStringMinusTwoSigma = outFunc.outFuncString + "_regr_pce_meanMinusTwoSigma";
 
           std::string stddevString = outFunc.outFuncString + "_regr_pce_stddev";
           std::string varianceString = outFunc.outFuncString + "_regr_pce_variance";
@@ -1439,6 +1446,8 @@ void EmbeddedSampling::hackEnsembleOutput ()
           output_stream << "\t\" " << meanString << "\""<<std::endl;
           output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
           output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+          output_stream << "\t\" " << meanStringPlusTwoSigma << "\""<<std::endl;
+          output_stream << "\t\" " << meanStringMinusTwoSigma << "\""<<std::endl;
 
           output_stream << "\t\" " << stddevString << "\""<<std::endl;
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
@@ -1458,6 +1467,8 @@ void EmbeddedSampling::hackEnsembleOutput ()
           std::string meanString = outFunc.outFuncString + "_quad_pce_mean";
           std::string meanStringPlus = outFunc.outFuncString + "_quad_pce_meanPlus";
           std::string meanStringMinus = outFunc.outFuncString + "_quad_pce_meanMinus";
+          std::string meanStringPlusTwoSigma = outFunc.outFuncString + "_quad_pce_meanPlusTwoSigma";
+          std::string meanStringMinusTwoSigma = outFunc.outFuncString + "_quad_pce_meanMinusTwoSigma";
 
           std::string stddevString = outFunc.outFuncString + "_quad_pce_stddev";
           std::string varianceString = outFunc.outFuncString + "_quad_pce_variance";
@@ -1465,6 +1476,8 @@ void EmbeddedSampling::hackEnsembleOutput ()
           output_stream << "\t\" " << meanString << "\""<<std::endl;
           output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
           output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+          output_stream << "\t\" " << meanStringPlusTwoSigma << "\""<<std::endl;
+          output_stream << "\t\" " << meanStringMinusTwoSigma << "\""<<std::endl;
 
           output_stream << "\t\" " << stddevString << "\""<<std::endl;
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
@@ -1524,6 +1537,8 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
         output_stream << "\t" << (outFunc.sm.mean+outFunc.sm.stddev);
         output_stream << "\t" << (outFunc.sm.mean-outFunc.sm.stddev);
+        output_stream << "\t" << (outFunc.sm.mean+2*outFunc.sm.stddev);
+        output_stream << "\t" << (outFunc.sm.mean-2*outFunc.sm.stddev);
 
         output_stream << "\t" << outFunc.sm.stddev;
         output_stream << "\t" << outFunc.sm.variance;
@@ -1557,6 +1572,8 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
         output_stream << "\t" << (pce_mean+pce_stddev);
         output_stream << "\t" << (pce_mean-pce_stddev);
+        output_stream << "\t" << (pce_mean+2*pce_stddev);
+        output_stream << "\t" << (pce_mean-2*pce_stddev);
 
         output_stream << "\t" << pce_stddev;
         output_stream << "\t" << pce_variance;
@@ -1598,6 +1615,8 @@ void EmbeddedSampling::hackEnsembleOutput ()
 
         output_stream << "\t" << (pce_mean+pce_stddev);
         output_stream << "\t" << (pce_mean-pce_stddev);
+        output_stream << "\t" << (pce_mean+2*pce_stddev);
+        output_stream << "\t" << (pce_mean-2*pce_stddev);
 
         output_stream << "\t" << pce_stddev;
         output_stream << "\t" << pce_variance;
@@ -2026,7 +2045,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUTFORMAT", Util::Param("OUTPUTFORMAT", "STD")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", false)));
-    parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_SAMPLE_STATS", Util::Param("OUTPUT_SAMPLE_STATS", true)));
     parameters.insert(Util::ParamMap::value_type("PARAMSOUTERLOOP", Util::Param("PARAMSOUTERLOOP", true)));
 #if Xyce_STOKHOS_ENABLE
     parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", false)));

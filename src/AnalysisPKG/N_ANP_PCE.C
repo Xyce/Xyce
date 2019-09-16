@@ -1262,6 +1262,8 @@ void PCE::hackPCEOutput2()
       std::string meanString = varName + "_quad_pce_mean";
       std::string meanStringPlus = varName + "_quad_pce_meanPlus";
       std::string meanStringMinus = varName + "_quad_pce_meanMinus";
+      std::string meanStringPlusTwoSigma = varName + "_quad_pce_meanPlusTwoSigma";
+      std::string meanStringMinusTwoSigma = varName + "_quad_pce_meanMinusTwoSigma";
 
       std::string stddevString = varName + "_quad_pce_stddev";
       std::string varianceString = varName + "_quad_pce_variance";
@@ -1269,6 +1271,8 @@ void PCE::hackPCEOutput2()
       output_stream << "\t\" " << meanString << "\""<<std::endl;
       output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
       output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+      output_stream << "\t\" " << meanStringPlusTwoSigma << "\""<<std::endl;
+      output_stream << "\t\" " << meanStringMinusTwoSigma << "\""<<std::endl;
 
       output_stream << "\t\" " << stddevString << "\""<<std::endl;
       output_stream << "\t\" " << varianceString << "\""<<std::endl;
@@ -1332,6 +1336,8 @@ void PCE::hackPCEOutput2()
 
     output_stream << "\t" << (pce_mean+pce_stddev);
     output_stream << "\t" << (pce_mean-pce_stddev);
+    output_stream << "\t" << (pce_mean+2*pce_stddev);
+    output_stream << "\t" << (pce_mean-2*pce_stddev);
 
     output_stream << "\t" << pce_stddev;
     output_stream << "\t" << pce_variance;
@@ -1495,6 +1501,8 @@ void PCE::hackPCEOutput ()
           std::string meanString = outFunc.outFuncString + "_mean";
           std::string meanStringPlus = outFunc.outFuncString + "_meanPlus";
           std::string meanStringMinus = outFunc.outFuncString + "_meanMinus";
+          std::string meanStringPlusTwoSigma = outFunc.outFuncString + "_meanPlusTwoSigma";
+          std::string meanStringMinusTwoSigma = outFunc.outFuncString + "_meanMinusTwoSigma";
 
           std::string stddevString = outFunc.outFuncString + "_stddev";
           std::string varianceString = outFunc.outFuncString + "_variance";
@@ -1502,6 +1510,8 @@ void PCE::hackPCEOutput ()
           output_stream << "\t\" " << meanString << "\""<<std::endl;
           output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
           output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+          output_stream << "\t\" " << meanStringPlusTwoSigma << "\""<<std::endl;
+          output_stream << "\t\" " << meanStringMinusTwoSigma << "\""<<std::endl;
 
           output_stream << "\t\" " << stddevString << "\""<<std::endl;
           output_stream << "\t\" " << varianceString << "\""<<std::endl;
@@ -1511,6 +1521,8 @@ void PCE::hackPCEOutput ()
         std::string meanString = outFunc.outFuncString + "_quad_pce_mean";
         std::string meanStringPlus = outFunc.outFuncString + "_quad_pce_meanPlus";
         std::string meanStringMinus = outFunc.outFuncString + "_quad_pce_meanMinus";
+        std::string meanStringPlusTwoSigma = outFunc.outFuncString + "_quad_pce_meanPlusTwoSigma";
+        std::string meanStringMinusTwoSigma = outFunc.outFuncString + "_quad_pce_meanMinusTwoSigma";
 
         std::string stddevString = outFunc.outFuncString + "_quad_pce_stddev";
         std::string varianceString = outFunc.outFuncString + "_quad_pce_variance";
@@ -1518,6 +1530,8 @@ void PCE::hackPCEOutput ()
         output_stream << "\t\" " << meanString << "\""<<std::endl;
         output_stream << "\t\" " << meanStringPlus << "\""<<std::endl;
         output_stream << "\t\" " << meanStringMinus << "\""<<std::endl;
+        output_stream << "\t\" " << meanStringPlusTwoSigma << "\""<<std::endl;
+        output_stream << "\t\" " << meanStringMinusTwoSigma << "\""<<std::endl;
 
         output_stream << "\t\" " << stddevString << "\""<<std::endl;
         output_stream << "\t\" " << varianceString << "\""<<std::endl;
@@ -1565,6 +1579,8 @@ void PCE::hackPCEOutput ()
 
         output_stream << "\t" << (outFunc.sm.mean+outFunc.sm.stddev);
         output_stream << "\t" << (outFunc.sm.mean-outFunc.sm.stddev);
+        output_stream << "\t" << (outFunc.sm.mean+2*outFunc.sm.stddev);
+        output_stream << "\t" << (outFunc.sm.mean-2*outFunc.sm.stddev);
 
         output_stream << "\t" << outFunc.sm.stddev;
         output_stream << "\t" << outFunc.sm.variance;
@@ -1596,6 +1612,8 @@ void PCE::hackPCEOutput ()
 
       output_stream << "\t" << (pce_mean+pce_stddev);
       output_stream << "\t" << (pce_mean-pce_stddev);
+      output_stream << "\t" << (pce_mean+2*pce_stddev);
+      output_stream << "\t" << (pce_mean-2*pce_stddev);
 
       output_stream << "\t" << pce_stddev;
       output_stream << "\t" << pce_variance;

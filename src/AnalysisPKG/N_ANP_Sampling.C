@@ -421,7 +421,7 @@ bool Sampling::setSamplingOptions(const Util::OptionBlock & option_block)
       ofDataPtr->outFuncString = measName.toUpper();
       measFuncDataVec_.push_back(ofDataPtr);
     }
-    else if ((*it).uTag() == "OUTPUTSAMPLESTATS")
+    else if ((*it).uTag() == "OUTPUT_SAMPLE_STATS")
     {
       outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
@@ -516,7 +516,6 @@ bool Sampling::setSamplingOptions(const Util::OptionBlock & option_block)
         << " is not a recognized sampling option.\n" << std::endl;
     }
   }
-
 
   // parse the expression now, so if there are any errors, they will come
   // up early in the simulation.
@@ -774,41 +773,18 @@ bool Sampling::doLoopProcess()
 {
   bool integration_status = true;
 
-#if 0
-  Parallel::Machine comm = analysisManager_.getComm();
-  N_ERH_ErrorMgr::safeBarrier(comm);
+  Xyce::lout() << "***** Beginning Sampling simulation....\n" << std::endl;
 
-  N_PDS_Manager &pds_manager = *analysisManager_.getPDSManager();
-  N_PDS_Comm & pdsComm = *(pds_manager.getPDSComm());
-  int myPID = pdsComm.procID();
-  int numProc = pdsComm.numProc();
-
-  for (int jj=0;jj<numProc;jj++)
+#if Xyce_STOKHOS_ENABLE
+  if (projectionPCEenable_)
   {
-    if (jj == myPID)
-    {
-      std::cout << std::endl;
-      std::cout << "proc ID = " << myPID << " sample points:" <<std::endl;
-
-      const int numParams = paramNameVec_.size();
-      for (int row=0;row<numParams;++row) 
-      { 
-        std::cout << paramNameVec_[row] << "  ";
-      }
-      std::cout << std::endl;
-
-      for(int col=0;col<numSamples_;++col) 
-       { 
-         for (int row=0;row<numParams;++row) 
-         { 
-           std::cout << Y_[numSamples_ * row + col] << "  ";
-         } 
-         std::cout << std::endl;
-       }
-
-    }
+    Xyce::lout() << "***** Projection PCE enabled.  Number of quadrature points = " << numSamples_ << "\n" << std::endl;
   }
+  else
 #endif
+  {
+    Xyce::lout() << "***** Number of sample points = " << numSamples_ << "\n" << std::endl;
+  }
 
   for (int i = 0; i < numSamples_; ++i)
   {
@@ -820,27 +796,6 @@ bool Sampling::doLoopProcess()
     analysisManager_.setSweepSourceResetFlag(reset);
 
     outputManagerAdapter_.setStepSweepVector(samplingVector_);
-
-#if 0
-    {
-      for (int jj=0;jj<numProc;jj++)
-      {
-        if (jj == myPID)
-        {
-          std::cout << std::endl;
-          std::cout << "proc ID = " << myPID << " ";
-
-          for (SweepVector::const_iterator it = samplingVector_.begin(), end = samplingVector_.end(); it != end; ++it)
-          {
-            std::cout << "Sampling Analysis # " << i<<"\t";
-            std::cout << (*it);
-            //Xyce::dout() << "Sampling Analysis # " << i<<"\t";
-            //Xyce::dout() << (*it);
-          }
-        }
-      }
-    }
-#endif
 
     StepEvent step_event(StepEvent::STEP_STARTED, samplingVector_, i);
     Util::publish<StepEvent>(analysisManager_, step_event);
@@ -1657,7 +1612,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUTFORMAT", Util::Param("OUTPUTFORMAT", "STD")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("MEASURES", Util::Param("MEASURES", "VECTOR")));
-    parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_SAMPLE_STATS", Util::Param("OUTPUT_SAMPLE_STATS", true)));
 #if Xyce_STOKHOS_ENABLE
     parameters.insert(Util::ParamMap::value_type("REGRESSION_PCE", Util::Param("REGRESSION_PCE", true)));
     parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", true)));
