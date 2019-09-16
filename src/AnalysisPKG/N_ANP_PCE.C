@@ -173,7 +173,7 @@ PCE::PCE(
       hackOutputCalledBefore_(false),
       hackOutputCalledBefore2_(false),
       hackOutputAllSamples_(false),
-      outputSampleStats_(true),
+      outputSampleStats_(false),
 #if Xyce_STOKHOS_ENABLE
       PCEorder_(4),
       resamplePCE_(false),
@@ -533,11 +533,11 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
     {
       hackOutputAllSamples_=static_cast<bool>((*it).getImmutableValue<bool>());
     }
-    else if ((*it).uTag() == "OUTPUTSAMPLESTATS")
+#endif
+    else if ((*it).uTag() == "OUTPUT_SAMPLE_STATS")
     {
       outputSampleStats_ = static_cast<bool>((*it).getImmutableValue<bool>());
     }
-#endif
 #if Xyce_STOKHOS_ENABLE
     else if ((*it).uTag() == "ORDER")
     {
@@ -2034,7 +2034,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("OUTPUTFORMAT", Util::Param("OUTPUTFORMAT", "STD")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", false)));
-    parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_SAMPLE_STATS", Util::Param("OUTPUT_SAMPLE_STATS", true)));
 #if Xyce_STOKHOS_ENABLE
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));
 #endif
