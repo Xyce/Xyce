@@ -485,9 +485,11 @@ bool PCELoader::loadDAEVectors( Linear::Vector * X,
   }
 
   // This loop is over the number of quadrature points
- // bool applyLimit=false; // ERK note.  I made a mistake with this, so disabling for now.
-  bool applyLimit=true;
-  b_dV_voltlim_quad_Ptr_->putScalar(0.0);
+  bool applyLimit=true;// ERK note.  This is (for now) unconditionally true. 
+  if (voltLimAlgorithm_==1)
+  {
+    b_dV_voltlim_quad_Ptr_->putScalar(0.0);
+  }
 
 #if 0
   {
