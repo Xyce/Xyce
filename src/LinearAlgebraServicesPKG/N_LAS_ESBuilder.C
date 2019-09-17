@@ -41,6 +41,7 @@
 #include <N_LAS_BlockMultiVector.h>
 #include <N_LAS_BlockMatrix.h>
 #include <N_LAS_BlockSystemHelpers.h>
+#include <N_LAS_QueryUtil.h>
 
 #include <N_PDS_ParMap.h>
 
@@ -50,6 +51,7 @@
 
 #include <Epetra_Comm.h>
 #include <Epetra_Map.h>
+#include <Epetra_MapColoring.h>
 #include <Epetra_CrsGraph.h>
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_Utils.hpp>
@@ -269,7 +271,7 @@ Vector * ESBuilder::createLeadCurrentVector( double initialValue ) const
 // Creation Date : 05/31/2018
 //-----------------------------------------------------------------------------
 bool ESBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap, 
-                                    const RCP<N_PDS_ParMap>& oBaseMap )
+                              const RCP<N_PDS_ParMap>& oBaseMap )
 {
   //Save copy of base map
   BaseMap_ = BaseMap;
@@ -393,6 +395,143 @@ bool ESBuilder::generateGraphs( const Epetra_CrsGraph & BaseFullGraph )
   blockGraph_ = Linear::createBlockGraph(offset_, blockPattern_, *ESMap_, *BaseFullGraph_ );
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ESBuilder::createSolnColoring
+// Purpose       : Color Map representing variable types in solution vector
+// Special Notes : This is the block version
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 03/08/04
+//-----------------------------------------------------------------------------
+Epetra_MapColoring * ESBuilder::createSolnColoring() const
+{
+  const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
+
+  int size = charColors.size();
+  std::vector<int> colors( size * numSamples_ );
+  std::cout << " Creating solution coloring for ES of size " << size*numSamples_ << std::endl;
+  for( int i = 0; i < size; ++i )
+  {
+    switch( charColors[i] )
+    {
+      case 'V': 
+      {
+        for (int j=0; j<numSamples_; ++j)
+          colors[j*size + i] = 0;
+        break;
+      }
+      case 'I': 
+      {
+        for (int j=0; j<numSamples_; ++j)
+          colors[j*size + i] = 1;
+        break;
+      }
+      default : 
+      {
+        for (int j=0; j<numSamples_; ++j)
+          colors[j*size + i] = 2;
+        break;
+      }
+    }
+  }
+
+  return new Epetra_MapColoring( *(ESMap_->petraBlockMap()), &colors[0], 0 );
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : ESBuilder::createInitialConditionColoring
+// Purpose       :
+// Special Notes : The .IC and .NODESET capabilities will use the variables
+//                 which are colored 0.  This will be all voltage nodes not
+//                 connected to independent sources.
+// Scope         : Public
+// Creator       : Eric R. Keiter,  SNL
+// Creation Date : 10/15/07
+//-----------------------------------------------------------------------------
+Epetra_MapColoring * ESBuilder::createInitialConditionColoring() const
+{
+  const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
+  const std::vector<int> & vsrcGIDColors = lasQueryUtil_->vsrcGIDVec();
+
+  int size = charColors.size();
+  std::cout << " Creating initial condition coloring for ES of size " << size*numSamples_ << std::endl;
+  std::vector<int> colors( size * numSamples_ );
+  for( int i = 0; i < size; ++i )
+  {
+    switch( charColors[i] )
+    {
+      case 'V': 
+      {
+        for (int j=0; j<numSamples_; ++j)
+          colors[j*size + i] = 0;
+        break;
+      }
+      case 'I': 
+      {
+        for (int j=0; j<numSamples_; ++j)
+          colors[j*size + i] = 1;
+        break;
+      }
+      default : 
+      {
+        for (int j=0; j<numSamples_; ++j)
+          colors[j*size + i] = 2;
+        break;
+      }
+    }
+  }
+
+  int vsrcSize = vsrcGIDColors.size();
+  for( int i=0; i < vsrcSize; ++i )
+  {
+    int vsrcID = vsrcGIDColors[i];
+    // Convert the ID from local to global if it is valid and the build is parallel.
+    if (vsrcID >= 0)
+    {
+#ifdef Xyce_PARALLEL_MPI
+      vsrcID = BaseMap_->globalToLocalIndex( vsrcGIDColors[i] );
+#endif
+      if (vsrcID < size && vsrcID >= 0)
+      {
+        for (int j=0; j<numSamples_; ++j)
+          colors[j*size + vsrcID] = 1;
+      }
+    }
+  }
+
+  return new Epetra_MapColoring( *(ESMap_->petraBlockMap()), &colors[0], 0 );
+}
+
+//-----------------------------------------------------------------------------
+// Function      : ESBuilder::vnodeGIDVec()
+// Purpose       :
+// Special Notes : This is overridden for blockAnalysis types (like MPDE & HB)
+// Scope         : Public
+// Creator       : Heidi Thornquist, SNL
+// Creation Date : 09/11/2019
+//-----------------------------------------------------------------------------
+const std::vector<int> & ESBuilder::vnodeGIDVec() const
+{
+  if (vnodeVec_.empty())
+  {
+    const std::vector<int>& vnodeTmp = lasQueryUtil_->vnodeGIDVec();
+    int size = vnodeTmp.size();
+    vnodeVec_.resize( size * numSamples_ );
+   
+    for( int i = 0; i < size; ++i )
+    {
+      for (int j = 0; j < numSamples_; ++j)
+      {
+        // The GID should be a multiple of the offset plus the current GID. 
+        vnodeVec_[j*size + i] = j*offset_ + vnodeTmp[i];  
+      }
+    } 
+  }
+  return vnodeVec_;
+
 }
 
 } // namespace Linear

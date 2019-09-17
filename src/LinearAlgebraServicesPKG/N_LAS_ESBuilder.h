@@ -111,6 +111,12 @@ class ESBuilder : public Builder
   Matrix * createDAEdFdxMatrix( double initialValue = 0.0 ) const { return 0; }
   Matrix * createDAEFullMatrix( double initialValue = 0.0 ) const { return 0; }
 
+  //Coloring Assoc with Variable Types in Solution Vector
+  Epetra_MapColoring * createSolnColoring() const;
+
+  //Coloring needed for imposing .IC and .NODESET
+  Epetra_MapColoring * createInitialConditionColoring() const;
+
   bool generateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseMap, 
                      const Teuchos::RCP<N_PDS_ParMap>& oBaseMap );
 
@@ -129,6 +135,8 @@ class ESBuilder : public Builder
 
   Teuchos::RCP<N_PDS_ParMap> getSolutionOverlapMap() const
   { return oESMap_; }
+
+  const std::vector<int> & vnodeGIDVec() const;
 
   // Return the base map for each block in the expanded maps (a.k.a. time-domain maps)
   Teuchos::RCP<const N_PDS_ParMap> getBaseSolutionMap() const
@@ -168,6 +176,8 @@ private:
   int offset_, stateOffset_;
   int storeOffset_;
   int leadCurrentOffset_;
+
+  mutable std::vector<int> vnodeVec_;
 
   // ES maps for block vectors (BV):
  // numBlocks = number of samples, numElem = number of solution variables
