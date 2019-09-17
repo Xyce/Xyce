@@ -660,12 +660,13 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
   {
     for (int iout=0;iout<measFuncDataVec_.size();++iout)
     {
-      measFuncDataVec_[iout]->measureResponseFound 
-        = measureManager_.find(measFuncDataVec_[iout]->outFuncString);
+      measFuncDataVec_[iout]->measureResponseFound = measureManager_.find(measFuncDataVec_[iout]->outFuncString);
 
-      Report::UserWarning0() << "Measure response " << measFuncDataVec_[iout]->outFuncString << " was not found.";
+      if (!(measFuncDataVec_[iout]->measureResponseFound))
+      {
+        Report::UserWarning0() << "Measure response " << measFuncDataVec_[iout]->outFuncString << " was not found.";
+      }
     }
-    Report::UserWarning0() << "Output function was not specified";
   }
   else // give a warning.
   {
