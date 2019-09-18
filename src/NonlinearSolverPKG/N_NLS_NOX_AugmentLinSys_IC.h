@@ -39,16 +39,13 @@
 #ifndef Xyce_N_NLS_NOX_AugmentLinSys_IC_h
 #define Xyce_N_NLS_NOX_AugmentLinSys_IC_h
 
-#include "Teuchos_RCP.hpp"
 #include "N_NLS_NOX_AugmentLinSys.h"
 #include "N_PDS_ParMap.h"
 
 #include <N_UTL_fwd.h>
 #include <N_IO_InitialConditions.h>
 
-#include <set>
-
-class Epetra_MapColoring;
+#include <vector>
 
 //-----------------------------------------------------------------------------
 // Class         : N_NLS::NOX::AugmentLinSysIC
@@ -65,8 +62,8 @@ class AugmentLinSysIC : public AugmentLinSys {
 public:
   //! Ctor.
   AugmentLinSysIC(Xyce::IO::InitialConditionsData::NodeNamePairMap & op_in,
-      const Teuchos::RCP <Epetra_MapColoring>& color_map,
-      Xyce::Linear::Vector* cloneVector);
+                  const std::vector<int>& colors,
+                  Xyce::Linear::Vector* cloneVector);
 
   //! Dtor.
   virtual ~AugmentLinSysIC();
@@ -84,7 +81,7 @@ public:
   Xyce::IO::InitialConditionsData::NodeNamePairMap & op_;
 
   //! Color 0 are the voltage unknowns.
-  Teuchos::RCP<Epetra_MapColoring> color_map_;
+  const std::vector<int> & colors_;
 
   //! Temporary vector used to store diagonal.
   Xyce::Linear::Vector* tmp_vector_ptr_;

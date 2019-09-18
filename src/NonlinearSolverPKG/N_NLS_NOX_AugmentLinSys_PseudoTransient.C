@@ -38,14 +38,12 @@
 
 #include <Xyce_config.h>
 
-
 // ---------- Standard Includes ----------
 
 // ----------   Xyce Includes   ----------
 
 #include "N_LAS_Vector.h"
 #include "N_LAS_Matrix.h"
-#include "Epetra_MapColoring.h"
 #include "N_NLS_NOX_AugmentLinSys_PseudoTransient.h"
 
 namespace Xyce {
@@ -61,15 +59,15 @@ namespace N_NLS_NOX {
 // Creation Date :
 //-----------------------------------------------------------------------------
 AugmentLinSysPseudoTransient::AugmentLinSysPseudoTransient
-    (const Teuchos::RCP<Epetra_MapColoring>&
-			     color_map,
+                            (const std::vector<int>& colors,
 			     Linear::Vector* cloneVector,
 			     bool useVoltageScaleFactor,
 			     double voltageScaleFactor)
+  : use_voltage_scale_factor_(useVoltageScaleFactor),
+    voltage_scale_factor_(voltageScaleFactor),
+    colors_(colors),
+    tmp_vector_ptr_(0)
 {
-  use_voltage_scale_factor_ = useVoltageScaleFactor;
-  voltage_scale_factor_ = voltageScaleFactor;
-  color_map_ = color_map;
   tmp_vector_ptr_ = new Linear::Vector(*cloneVector);
 }
 
@@ -129,8 +127,6 @@ void AugmentLinSysPseudoTransient::augmentJacobian
   //cout << "Augmenting Jacobian for Pseudo Transient" << endl;
   //cout << "Pseudo Trans Step Size = " << pseudoTransientTimeStep_ << endl;
   
-  //color_map_->Print(cout);
-    
   //jacobian->printPetraObject();
 
   //jacobian->scale(conParamValue);
@@ -151,7 +147,7 @@ void AugmentLinSysPseudoTransient::augmentJacobian
   {
     for (std::size_t i = 0; i <  tmp_vector_ptr_->localLength(); ++i) 
     {
-      if ( (*color_map_)[i] == 0)
+      if ( colors_[i] == 0 )
       {
         (*tmp_vector_ptr_)[i] += value * voltage_scale_factor_; 
       }

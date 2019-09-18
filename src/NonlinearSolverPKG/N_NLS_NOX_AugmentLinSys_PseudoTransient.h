@@ -51,10 +51,8 @@
 // Creation Date : 3/6/2006
 //-----------------------------------------------------------------------------
 
-#include "Teuchos_RCP.hpp"
 #include "N_NLS_NOX_AugmentLinSys.h"          
-
-class Epetra_MapColoring;
+#include <vector>
 
 namespace Xyce {
 namespace Nonlinear {
@@ -65,8 +63,7 @@ namespace N_NLS_NOX {
 public:
 
   //! Ctor.
-  AugmentLinSysPseudoTransient(const Teuchos::RCP<Epetra_MapColoring>&
-			       color_map,
+  AugmentLinSysPseudoTransient(const std::vector<int>& colors,
 			       Xyce::Linear::Vector* cloneVector,
 			       bool useVoltageScaleFactor=false,
 			       double voltageScaleFactor=1.0);
@@ -89,7 +86,7 @@ public:
 
   double time_step_size_;
 
-  Teuchos::RCP<Epetra_MapColoring> color_map_;
+  const std::vector<int>& colors_;
 
   Xyce::Linear::Vector* tmp_vector_ptr_;
 

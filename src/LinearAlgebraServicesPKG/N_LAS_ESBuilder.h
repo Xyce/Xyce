@@ -52,7 +52,6 @@
 // ---------- Forward Declarations ----------
 
 
-class Epetra_MapColoring;
 class Epetra_Map;
 class Epetra_CrsGraph;
 
@@ -112,10 +111,10 @@ class ESBuilder : public Builder
   Matrix * createDAEFullMatrix( double initialValue = 0.0 ) const { return 0; }
 
   //Coloring Assoc with Variable Types in Solution Vector
-  Epetra_MapColoring * createSolnColoring() const;
+  const std::vector<int> & createSolnColoring() const;
 
   //Coloring needed for imposing .IC and .NODESET
-  Epetra_MapColoring * createInitialConditionColoring() const;
+  const std::vector<int> & createInitialConditionColoring() const;
 
   bool generateMaps( const Teuchos::RCP<N_PDS_ParMap>& BaseMap, 
                      const Teuchos::RCP<N_PDS_ParMap>& oBaseMap );

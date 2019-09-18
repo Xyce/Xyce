@@ -46,7 +46,6 @@
 
 #include "N_LAS_Vector.h"
 #include "N_LAS_Matrix.h"
-#include "Epetra_MapColoring.h"
 #include "N_ERH_ErrorMgr.h"
 #include "N_NLS_NOX_AugmentLinSys_IC_Gmin.h"
 
@@ -63,49 +62,23 @@ namespace N_NLS_NOX {
 // Creation Date : 4/29/2012
 //-----------------------------------------------------------------------------
 AugmentLinSysIC_Gmin::AugmentLinSysIC_Gmin(
-  IO::InitialConditionsData::NodeNamePairMap & op_in,
-        const Teuchos::RCP <Epetra_MapColoring>& ICcolor_map,
-        const std::vector<int>& vnodeGIDVec,
-        Linear::Vector* cloneVector,
-				double scaledEndValue,
-        double resCond) :
-    node_list_type_(NLT_VoltageNodes),
+      NodeListType node_list_type,
+      Xyce::IO::InitialConditionsData::NodeNamePairMap & op_in,
+      const std::vector<int>& ic_colors,
+      const std::vector<int>& vnodeVec,
+      Xyce::Linear::Vector* cloneVector,
+      double scaledEndValue,
+      double resCond)
+    :
+    node_list_type_(node_list_type),
     scaled_end_value_(scaledEndValue),
     residualConductance_(resCond),
-    vnodeGIDVec_(vnodeGIDVec),
+    ic_colors_(ic_colors),
+    vnodeVec_(vnodeVec),
     op_       (op_in),
     vecptr1_(0),
     vecptr2_(0)
 {
-  ICcolor_map_ = ICcolor_map;
-  vecptr1_ = new Linear::Vector(*cloneVector);
-  vecptr2_ = new Linear::Vector(*cloneVector);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : AugmentLinSysIC_Gmin::AugmentLinSysIC_Gmin
-// Purpose       : constructor
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 4/29/2012
-//-----------------------------------------------------------------------------
-AugmentLinSysIC_Gmin::AugmentLinSysIC_Gmin(
-  IO::InitialConditionsData::NodeNamePairMap & op_in,
-        const Teuchos::RCP <Epetra_MapColoring>& ICcolor_map,
-        const Teuchos::RCP <Epetra_MapColoring>& GMINcolor_map,
-        Linear::Vector* cloneVector,
-				double scaledEndValue,
-        double resCond) :
-    node_list_type_(NLT_VoltageNodes),
-    scaled_end_value_(scaledEndValue),
-    residualConductance_(resCond),
-    op_       (op_in),
-    vecptr1_(0),
-    vecptr2_(0)
-{
-  ICcolor_map_ = ICcolor_map;
-  GMINcolor_map_ = GMINcolor_map;
   vecptr1_ = new Linear::Vector(*cloneVector);
   vecptr2_ = new Linear::Vector(*cloneVector);
 }
@@ -159,8 +132,8 @@ void AugmentLinSysIC_Gmin::augmentResidual
   // GMIN portion
    if (node_list_type_ == NLT_VoltageNodes)
   {
-    std::vector<int>::const_iterator i = vnodeGIDVec_.begin();
-    std::vector<int>::const_iterator stop = vnodeGIDVec_.end();
+    std::vector<int>::const_iterator i = vnodeVec_.begin();
+    std::vector<int>::const_iterator stop = vnodeVec_.end();
     for ( ; i < stop; ++i)
     {
       double value = conductance_ *
@@ -173,7 +146,7 @@ void AugmentLinSysIC_Gmin::augmentResidual
   {
     for (std::size_t i = 0; i <  vecptr1_->localLength(); ++i)
     {
-      if ( (*GMINcolor_map_)[i] == 0)
+      if ( vnodeVec_[i] == 0 )
       {
         (*residual_vector)[i] += conductance_ * (const_cast<Linear::Vector&>(*solution))[i];
       }
@@ -188,7 +161,7 @@ void AugmentLinSysIC_Gmin::augmentResidual
     int row = (*op_i).second.first;
     int global_row(row);
 
-    if ( (*ICcolor_map_)[row] == 0)
+    if ( ic_colors_[row] == 0 )
     {
       (*residual_vector)[row]  = 0.0;
     }
@@ -217,8 +190,8 @@ void AugmentLinSysIC_Gmin::augmentJacobian(Linear::Matrix * jacobian)
   jacobian->getDiagonal(*vecptr1_);
   if (node_list_type_ == NLT_VoltageNodes)
   {
-    std::vector<int>::const_iterator i = vnodeGIDVec_.begin();
-    std::vector<int>::const_iterator stop = vnodeGIDVec_.end();
+    std::vector<int>::const_iterator i = vnodeVec_.begin();
+    std::vector<int>::const_iterator stop = vnodeVec_.end();
     for ( ; i < stop; ++i)
     {
       vecptr1_->sumElementByGlobalIndex(*i, conductance_);
@@ -228,7 +201,7 @@ void AugmentLinSysIC_Gmin::augmentJacobian(Linear::Matrix * jacobian)
   {
     for (std::size_t i = 0; i <  vecptr1_->localLength(); ++i)
     {
-      if ( (*GMINcolor_map_)[i] == 0)
+      if ( vnodeVec_[i] == 0 )
       {
         (*vecptr1_)[i] += conductance_;
       }
@@ -250,7 +223,7 @@ void AugmentLinSysIC_Gmin::augmentJacobian(Linear::Matrix * jacobian)
     int rowLen(0);
     int numEntries(0);
 
-    if ( (*ICcolor_map_)[row] == 0)
+    if ( ic_colors_[row] == 0)
     {
       rowLen = jacobian->getLocalRowLength(row);
 

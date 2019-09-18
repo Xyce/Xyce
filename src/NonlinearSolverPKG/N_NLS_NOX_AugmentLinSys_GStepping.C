@@ -45,7 +45,6 @@
 
 #include "N_LAS_Vector.h"
 #include "N_LAS_Matrix.h"
-#include "Epetra_MapColoring.h"
 #include "N_NLS_NOX_AugmentLinSys_GStepping.h"
 
 namespace Xyce {
@@ -60,38 +59,17 @@ namespace N_NLS_NOX {
 // Creator       : Roger Pawlowski, SNL 9233
 // Creation Date : 
 //-----------------------------------------------------------------------------
-GStepping::GStepping(
-        const std::vector<int>& vnodeGIDVec,
-				Linear::Vector* cloneVector,
-				double scaledEndValue,
-        double resCond) :
-  node_list_type_(NLT_VoltageNodes),
-  vnodeGIDVec_(vnodeGIDVec),
-  tmp_vector_ptr_(0),
-  scaled_end_value_(scaledEndValue),
-  residualConductance_(resCond)
+GStepping::GStepping(NodeListType node_list_type,
+                     const std::vector<int>& vnodeVec,
+                     Xyce::Linear::Vector* cloneVector,
+                     double scaledEndValue,
+                     double residCond)
+  : node_list_type_(node_list_type),
+    vnodeVec_(vnodeVec),
+    tmp_vector_ptr_(0),
+    scaled_end_value_(scaledEndValue),
+    residualConductance_(residCond)
 {
-  tmp_vector_ptr_ = new Linear::Vector(*cloneVector);
-}
-
-//-----------------------------------------------------------------------------
-// Function      : GStepping::GStepping
-// Purpose       : constructor
-// Special Notes :
-// Scope         : public
-// Creator       : Roger Pawlowski, SNL 9233
-// Creation Date : 
-//-----------------------------------------------------------------------------
-GStepping::
-GStepping(const Teuchos::RCP<Epetra_MapColoring>& color_map,
-	  Linear::Vector* cloneVector,
-	  double scaledEndValue,
-    double resCond) :
-  node_list_type_(NLT_AllVoltageUnknowns),
-  scaled_end_value_(scaledEndValue),
-  residualConductance_(resCond)
-{
-  color_map_ = color_map;
   tmp_vector_ptr_ = new Linear::Vector(*cloneVector);
 }
 
@@ -136,8 +114,8 @@ void GStepping::augmentResidual(const Linear::Vector * solution,
 {
   if (node_list_type_ == NLT_VoltageNodes) 
   {
-    std::vector<int>::const_iterator i = vnodeGIDVec_.begin();
-    std::vector<int>::const_iterator stop = vnodeGIDVec_.end();
+    std::vector<int>::const_iterator i = vnodeVec_.begin();
+    std::vector<int>::const_iterator stop = vnodeVec_.end();
     for ( ; i < stop; ++i) 
     {
       double value = conductance_ * 
@@ -150,7 +128,7 @@ void GStepping::augmentResidual(const Linear::Vector * solution,
   {
     for (std::size_t i = 0; i <  tmp_vector_ptr_->localLength(); ++i) 
     {
-      if ( (*color_map_)[i] == 0)
+      if ( vnodeVec_[i] == 0)
       {
         (*residualVector)[i] += conductance_ * (const_cast<Linear::Vector&>(*solution))[i]; 
       }
@@ -173,8 +151,8 @@ void GStepping::augmentJacobian(Linear::Matrix * jacobian)
   
   if (node_list_type_ == NLT_VoltageNodes) 
   {
-    std::vector<int>::const_iterator i = vnodeGIDVec_.begin();
-    std::vector<int>::const_iterator stop = vnodeGIDVec_.end();
+    std::vector<int>::const_iterator i = vnodeVec_.begin();
+    std::vector<int>::const_iterator stop = vnodeVec_.end();
     for ( ; i < stop; ++i) 
     {
       tmp_vector_ptr_->sumElementByGlobalIndex(*i, conductance_);
@@ -184,7 +162,7 @@ void GStepping::augmentJacobian(Linear::Matrix * jacobian)
   {
     for (std::size_t i = 0; i <  tmp_vector_ptr_->localLength(); ++i) 
     {
-      if ( (*color_map_)[i] == 0)
+      if ( vnodeVec_[i] == 0)
       {
         (*tmp_vector_ptr_)[i] += conductance_; 
       }

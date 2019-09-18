@@ -58,7 +58,6 @@ class N_MPDE_Manager;
 
 class N_PDS_ParMap;
 
-class Epetra_MapColoring;
 class Epetra_Map;
 class Epetra_CrsGraph;
 

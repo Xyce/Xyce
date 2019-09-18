@@ -47,7 +47,6 @@
 
 #include "N_LAS_Vector.h"
 #include "N_LAS_Matrix.h"
-#include "Epetra_MapColoring.h"
 #include "N_ERH_ErrorMgr.h"
 #include "N_NLS_NOX_AugmentLinSys_IC.h"
 
@@ -65,13 +64,13 @@ namespace N_NLS_NOX {
 //-----------------------------------------------------------------------------
 AugmentLinSysIC::AugmentLinSysIC
   (IO::InitialConditionsData::NodeNamePairMap & op_in,
-  const Teuchos::RCP <Epetra_MapColoring>& color_map,
+  const std::vector<int>& colors,
   Linear::Vector* cloneVector
   )
   : op_       (op_in),
+    colors_   (colors),
     tmp_vector_ptr_(0)
 {
-  color_map_ = color_map;
   tmp_vector_ptr_ = new Linear::Vector(*cloneVector);
 }
 
@@ -109,7 +108,7 @@ void AugmentLinSysIC::augmentResidual
   {
     int row = (*op_i).second.first;
 
-    if ( (*color_map_)[row] == 0)
+    if ( colors_[row] == 0)
     {
       (*residual_vector)[row]  = 0.0;
     }
@@ -144,7 +143,7 @@ void AugmentLinSysIC::augmentJacobian(Linear::Matrix * jacobian)
     int rowLen(0);
     int numEntries(0);
 
-    if ( (*color_map_)[row] == 0)
+    if ( colors_[row] == 0)
     {
       rowLen = jacobian->getLocalRowLength(row);
 

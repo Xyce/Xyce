@@ -53,7 +53,6 @@
 // ---------- Forward Declarations ----------
 
 
-class Epetra_MapColoring;
 class Epetra_Map;
 class Epetra_CrsGraph;
 

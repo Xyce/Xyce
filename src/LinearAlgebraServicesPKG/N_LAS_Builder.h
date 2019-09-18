@@ -50,7 +50,6 @@
 
 class N_PDS_ParMap;
 
-class Epetra_MapColoring;
 class Epetra_CrsGraph;
 
 using Teuchos::RCP;
@@ -78,7 +77,7 @@ public:
   {}
 
   // Destructor
-  virtual ~Builder();
+  virtual ~Builder() {}
 
   // Registration methods for necessary utilities
   bool registerPDSManager(N_PDS_Manager * PDS_Manager)
@@ -124,10 +123,10 @@ public:
   virtual Matrix * createMatrix( const double initialValue = 0.0 ) const;
 
   //Coloring Assoc with Variable Types in Solution Vector
-  virtual Epetra_MapColoring * createSolnColoring() const;
+  virtual const std::vector<int> & createSolnColoring() const;
 
   //Coloring needed for imposing .IC and .NODESET
-  virtual Epetra_MapColoring * createInitialConditionColoring() const;
+  virtual const std::vector<int> & createInitialConditionColoring() const;
 
   virtual bool generateParMaps();
 
@@ -167,6 +166,9 @@ public:
   }
 
 protected:
+  mutable std::vector<int>      solnColoring_;
+  mutable std::vector<int>      icColoring_;
+
   N_PDS_Manager *       pdsMgr_;
   QueryUtil *           lasQueryUtil_;
 };

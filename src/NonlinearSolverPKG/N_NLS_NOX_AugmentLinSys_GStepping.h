@@ -41,10 +41,7 @@
 
 
 #include <vector>
-#include "Teuchos_RCP.hpp"
 #include "N_NLS_NOX_AugmentLinSys.h"          
-
-class Epetra_MapColoring;
 
 //-----------------------------------------------------------------------------
 // Class         : N_NLS::NOX::GStepping
@@ -68,17 +65,11 @@ namespace N_NLS_NOX {
   public:
     
     //! Ctor for the voltage nodes as a GID list.
-    GStepping(const std::vector<int>& vnodeGIDVec,
+    GStepping(NodeListType node_list_type,
+              const std::vector<int>& vnodeVec,
 	      Xyce::Linear::Vector* cloneVector,
 	      double endValue,
-        double residCond=0);
-    
-    //! Ctor with an EpetraMapColoring for all voltage unknowns.
-    GStepping(const Teuchos::RCP
-	      <Epetra_MapColoring>& color_map,
-	      Xyce::Linear::Vector* cloneVector,
-	      double endValue,
-        double residCond=0);
+              double residCond=0);
     
     //! Dtor.
     virtual ~GStepping();
@@ -100,12 +91,9 @@ namespace N_NLS_NOX {
     //! Conductance.
     double conductance_;
     
-    //! List of voltage node GIDs.
-    const std::vector<int> vnodeGIDVec_;
+    //! List of voltage unknowns or node GIDs.
+    const std::vector<int>& vnodeVec_;
     
-    //! Color 0 are the voltage unknowns.
-    Teuchos::RCP<Epetra_MapColoring> color_map_;
-  
     //! Temporary vector used to store diagonal.
     Xyce::Linear::Vector* tmp_vector_ptr_;
     

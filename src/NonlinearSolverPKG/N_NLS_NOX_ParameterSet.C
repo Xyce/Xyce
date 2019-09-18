@@ -61,7 +61,6 @@
 #include <N_NLS_NOX_AugmentLinSys_IC_Gmin.h>
 #include <N_LAS_Builder.h>
 #include <N_LAS_System.h>
-#include <Epetra_MapColoring.h>
 
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
@@ -1364,19 +1363,16 @@ ParameterSet::createAugmentLinearSystem(Linear::System* ls) const
 
   if (noxSolver == 9)
   {
-    Teuchos::RCP<Epetra_MapColoring> color_map =
-      Teuchos::rcp(ls->builder().createSolnColoring());
-
     if (voltageScaleFactor_ == 1.0)
     {
       als = Teuchos::rcp( new 
-			  AugmentLinSysPseudoTransient(color_map,
+			  AugmentLinSysPseudoTransient(ls->builder().createSolnColoring(),
 						       ls->getRHSVector()) );
     }
     else
     {
       als = Teuchos::rcp( new 
-			  AugmentLinSysPseudoTransient(color_map,
+			  AugmentLinSysPseudoTransient(ls->builder().createSolnColoring(),
 						       ls->getRHSVector(),
 						       true,
 						       voltageScaleFactor_) );
@@ -1387,21 +1383,19 @@ ParameterSet::createAugmentLinearSystem(Linear::System* ls) const
   {
     if (voltageListType_ == VLT_DOFS)
     {
-      Teuchos::RCP<Epetra_MapColoring> color_map =
-        Teuchos::rcp(ls->builder().createSolnColoring());
-
-      als = Teuchos::rcp( new GStepping(color_map,
-						   ls->getRHSVector(),
-						   gstepping_min_value_,
-               gstepping_minimum_conductance_) );
+      als = Teuchos::rcp( new GStepping(GStepping::NLT_AllVoltageUnknowns,
+                                        ls->builder().createSolnColoring(),
+					ls->getRHSVector(),
+					gstepping_min_value_,
+                                        gstepping_minimum_conductance_) );
     }
     else
     {
-      als = Teuchos::rcp( new 
-			  GStepping(ls->builder().vnodeGIDVec(),
-				    ls->getRHSVector(),
-				    gstepping_min_value_,
-            gstepping_minimum_conductance_) );
+      als = Teuchos::rcp( new GStepping(GStepping::NLT_VoltageNodes,
+                                        ls->builder().vnodeGIDVec(),
+				        ls->getRHSVector(),
+				        gstepping_min_value_,
+                                        gstepping_minimum_conductance_) );
     }
   }
   else
@@ -1430,24 +1424,21 @@ ParameterSet::createAugmentLinearSystem(Linear::System* ls, IO::InitialCondition
 {
   Teuchos::RCP<AugmentLinSys> als;
 
-  Teuchos::RCP<Epetra_MapColoring> ICcolor_map =
-        Teuchos::rcp(ls->builder().createInitialConditionColoring());
-
   if (gminStepping==false)
   {
-    als = Teuchos::rcp( new AugmentLinSysIC(op, ICcolor_map, ls->getRHSVector() ) );
+    als = Teuchos::rcp( new AugmentLinSysIC(op, 
+                                            ls->builder().createInitialConditionColoring(),
+                                            ls->getRHSVector() ) );
   }
   else
   {
     if (voltageListType_ == VLT_DOFS)
     {
-      Teuchos::RCP<Epetra_MapColoring> GMINcolor_map =
-        Teuchos::rcp(ls->builder().createSolnColoring());
-
       als = Teuchos::rcp( new AugmentLinSysIC_Gmin(
+                AugmentLinSysIC_Gmin::NLT_AllVoltageUnknowns,
                 op,
-                ICcolor_map,
-                GMINcolor_map,
+                ls->builder().createInitialConditionColoring(),
+                ls->builder().createSolnColoring(),
                 ls->getRHSVector(),
                 gstepping_min_value_,
                 gstepping_minimum_conductance_) );
@@ -1455,8 +1446,9 @@ ParameterSet::createAugmentLinearSystem(Linear::System* ls, IO::InitialCondition
     else
     {
       als = Teuchos::rcp( new AugmentLinSysIC_Gmin(
+                AugmentLinSysIC_Gmin::NLT_VoltageNodes,
                 op,
-                ICcolor_map,
+                ls->builder().createInitialConditionColoring(),
                 ls->builder().vnodeGIDVec(),
                 ls->getRHSVector(),
 	        gstepping_min_value_,

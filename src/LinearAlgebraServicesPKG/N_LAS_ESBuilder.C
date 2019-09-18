@@ -44,6 +44,7 @@
 #include <N_LAS_QueryUtil.h>
 
 #include <N_PDS_ParMap.h>
+#include <N_PDS_Comm.h>
 
 #include <N_ERH_ErrorMgr.h>
 #include <N_UTL_fwd.h>
@@ -51,7 +52,6 @@
 
 #include <Epetra_Comm.h>
 #include <Epetra_Map.h>
-#include <Epetra_MapColoring.h>
 #include <Epetra_CrsGraph.h>
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_Utils.hpp>
@@ -405,39 +405,41 @@ bool ESBuilder::generateGraphs( const Epetra_CrsGraph & BaseFullGraph )
 // Creator       : Heidi Thornquist, SNL
 // Creation Date : 03/08/04
 //-----------------------------------------------------------------------------
-Epetra_MapColoring * ESBuilder::createSolnColoring() const
+const std::vector<int> & ESBuilder::createSolnColoring() const
 {
-  const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
-
-  int size = charColors.size();
-  std::vector<int> colors( size * numSamples_ );
-  std::cout << " Creating solution coloring for ES of size " << size*numSamples_ << std::endl;
-  for( int i = 0; i < size; ++i )
+  if (solnColoring_.empty())
   {
-    switch( charColors[i] )
+    const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
+
+    int size = charColors.size();
+    solnColoring_.resize( size * numSamples_ );
+    for( int i = 0; i < size; ++i )
     {
-      case 'V': 
+      switch( charColors[i] )
       {
-        for (int j=0; j<numSamples_; ++j)
-          colors[j*size + i] = 0;
-        break;
-      }
-      case 'I': 
-      {
-        for (int j=0; j<numSamples_; ++j)
-          colors[j*size + i] = 1;
-        break;
-      }
-      default : 
-      {
-        for (int j=0; j<numSamples_; ++j)
-          colors[j*size + i] = 2;
-        break;
+        case 'V': 
+        {
+          for (int j=0; j<numSamples_; ++j)
+            solnColoring_[j*size + i] = 0;
+          break;
+        }
+        case 'I': 
+        {
+          for (int j=0; j<numSamples_; ++j)
+            solnColoring_[j*size + i] = 1;
+          break;
+        }
+        default : 
+        {
+          for (int j=0; j<numSamples_; ++j)
+            solnColoring_[j*size + i] = 2;
+          break;
+        }
       }
     }
   }
 
-  return new Epetra_MapColoring( *(ESMap_->petraBlockMap()), &colors[0], 0 );
+  return solnColoring_;
 }
 
 
@@ -451,58 +453,60 @@ Epetra_MapColoring * ESBuilder::createSolnColoring() const
 // Creator       : Eric R. Keiter,  SNL
 // Creation Date : 10/15/07
 //-----------------------------------------------------------------------------
-Epetra_MapColoring * ESBuilder::createInitialConditionColoring() const
+const std::vector<int> & ESBuilder::createInitialConditionColoring() const
 {
-  const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
-  const std::vector<int> & vsrcGIDColors = lasQueryUtil_->vsrcGIDVec();
-
-  int size = charColors.size();
-  std::cout << " Creating initial condition coloring for ES of size " << size*numSamples_ << std::endl;
-  std::vector<int> colors( size * numSamples_ );
-  for( int i = 0; i < size; ++i )
+  if (icColoring_.empty())
   {
-    switch( charColors[i] )
+    const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
+    const std::vector<int> & vsrcGIDColors = lasQueryUtil_->vsrcGIDVec();
+
+    int size = charColors.size();
+    icColoring_.resize( size * numSamples_ );
+    for( int i = 0; i < size; ++i )
     {
-      case 'V': 
+      switch( charColors[i] )
       {
-        for (int j=0; j<numSamples_; ++j)
-          colors[j*size + i] = 0;
-        break;
+        case 'V': 
+        {
+          for (int j=0; j<numSamples_; ++j)
+            icColoring_[j*size + i] = 0;
+          break;
+        }
+        case 'I': 
+        {
+          for (int j=0; j<numSamples_; ++j)
+            icColoring_[j*size + i] = 1;
+          break;
+        }
+        default : 
+        {
+          for (int j=0; j<numSamples_; ++j)
+            icColoring_[j*size + i] = 2;
+          break;
+        }
       }
-      case 'I': 
+    }  
+
+    int vsrcSize = vsrcGIDColors.size();
+    for( int i=0; i < vsrcSize; ++i )
+    {  
+      int vsrcID = vsrcGIDColors[i];
+      // Convert the ID from local to global if it is valid and the build is parallel.
+      if (vsrcID >= 0)
       {
-        for (int j=0; j<numSamples_; ++j)
-          colors[j*size + i] = 1;
-        break;
-      }
-      default : 
-      {
-        for (int j=0; j<numSamples_; ++j)
-          colors[j*size + i] = 2;
-        break;
+        if (!pdsMgr_->getPDSComm()->isSerial())
+          vsrcID = BaseMap_->globalToLocalIndex( vsrcGIDColors[i] );
+
+        if (vsrcID < size && vsrcID >= 0)
+        {
+          for (int j=0; j<numSamples_; ++j)
+            icColoring_[j*size + vsrcID] = 1;
+        }
       }
     }
   }
 
-  int vsrcSize = vsrcGIDColors.size();
-  for( int i=0; i < vsrcSize; ++i )
-  {
-    int vsrcID = vsrcGIDColors[i];
-    // Convert the ID from local to global if it is valid and the build is parallel.
-    if (vsrcID >= 0)
-    {
-#ifdef Xyce_PARALLEL_MPI
-      vsrcID = BaseMap_->globalToLocalIndex( vsrcGIDColors[i] );
-#endif
-      if (vsrcID < size && vsrcID >= 0)
-      {
-        for (int j=0; j<numSamples_; ++j)
-          colors[j*size + vsrcID] = 1;
-      }
-    }
-  }
-
-  return new Epetra_MapColoring( *(ESMap_->petraBlockMap()), &colors[0], 0 );
+  return icColoring_;
 }
 
 //-----------------------------------------------------------------------------

@@ -58,7 +58,6 @@
 #include <Epetra_CrsMatrix.h>
 #include <Epetra_Map.h>
 #include <Epetra_Export.h>
-#include <Epetra_MapColoring.h>
 #include <EpetraExt_View_CrsGraph.h>
 #include <EpetraExt_BlockMapOut.h>
 
@@ -67,17 +66,6 @@ using Xyce::VERBOSE_LINEAR;
 
 namespace Xyce {
 namespace Linear {
-
-//-----------------------------------------------------------------------------
-// Function      : Builder::~
-// Purpose       :
-// Special Notes :
-// Scope         :
-// Creator       :
-// Creation Date :
-//-----------------------------------------------------------------------------
-Builder::~Builder()
-{}
 
 //-----------------------------------------------------------------------------
 // Function      : Builder::createMultiVector
@@ -212,27 +200,30 @@ Matrix * Builder::createMatrix(const double initialValue) const
 // Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 03/08/04
 //-----------------------------------------------------------------------------
-Epetra_MapColoring * Builder::createSolnColoring() const
+const std::vector<int> & Builder::createSolnColoring() const
 {
-  const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
-
-  int size = charColors.size();
-  std::vector<int> colors( size );
-  for( int i = 0; i < size; ++i )
+  if (solnColoring_.empty())
   {
-    switch( charColors[i] )
+    const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
+
+    int size = charColors.size();
+    solnColoring_.resize( size );
+
+    for( int i = 0; i < size; ++i )
     {
-      case 'V': colors[i] = 0;
-                break;
-      case 'I': colors[i] = 1;
-                break;
-      default : colors[i] = 2;
-                break;
+      switch( charColors[i] )
+      {
+        case 'V': solnColoring_[i] = 0;
+                  break;
+        case 'I': solnColoring_[i] = 1;
+                  break;
+        default : solnColoring_[i] = 2;
+                  break;
+      }
     }
   }
 
-  return new Epetra_MapColoring( *(pdsMgr_->getParallelMap(Parallel::SOLUTION)->petraBlockMap()),
-                                 &colors[0], 0 );
+  return solnColoring_;
 }
 
 
@@ -246,43 +237,47 @@ Epetra_MapColoring * Builder::createSolnColoring() const
 // Creator       : Eric R. Keiter,  SNL
 // Creation Date : 10/15/07
 //-----------------------------------------------------------------------------
-Epetra_MapColoring * Builder::createInitialConditionColoring() const
+const std::vector<int> & Builder::createInitialConditionColoring() const
 {
-  const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
-  const std::vector<int> & vsrcGIDColors = lasQueryUtil_->vsrcGIDVec();
-
-  int size = charColors.size();
-  int vsrcSize = vsrcGIDColors.size();
-  std::vector<int> colors( size );
-  for( int i = 0; i < size; ++i )
+  if (icColoring_.empty())
   {
-    switch( charColors[i] )
+    const std::vector<char> & charColors = lasQueryUtil_->rowList_VarType();
+    const std::vector<int> & vsrcGIDColors = lasQueryUtil_->vsrcGIDVec();
+
+    int size = charColors.size();
+    int vsrcSize = vsrcGIDColors.size();
+    icColoring_.resize( size );
+
+    for( int i = 0; i < size; ++i )
     {
-      case 'V': colors[i] = 0;
-                break;
-      case 'I': colors[i] = 1;
-                break;
-      default : colors[i] = 2;
-                break;
+      switch( charColors[i] )
+      {
+        case 'V': icColoring_[i] = 0;
+                  break;
+        case 'I': icColoring_[i] = 1;
+                  break;
+        default : icColoring_[i] = 2;
+                  break;
+      }
+    }
+
+    N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap(Parallel::SOLUTION);
+    for( int i=0; i < vsrcSize; ++i )
+    {
+      int vsrcID = vsrcGIDColors[i];
+      // Convert the ID from local to global if it is valid and the build is parallel.
+      if (vsrcID >= 0)
+      {
+        if (!pdsMgr_->getPDSComm()->isSerial()) 
+          vsrcID = solnMap->globalToLocalIndex( vsrcGIDColors[i] );
+
+        if (vsrcID < size && vsrcID >= 0)
+          icColoring_[vsrcID] = 1;
+      }
     }
   }
 
-  N_PDS_ParMap * solnMap = pdsMgr_->getParallelMap(Parallel::SOLUTION);
-  for( int i=0; i < vsrcSize; ++i )
-  {
-    int vsrcID = vsrcGIDColors[i];
-    // Convert the ID from local to global if it is valid and the build is parallel.
-    if (vsrcID >= 0)
-    {
-#ifdef Xyce_PARALLEL_MPI
-      vsrcID = solnMap->globalToLocalIndex( vsrcGIDColors[i] );
-#endif
-      if (vsrcID < size && vsrcID >= 0)
-        colors[vsrcID] = 1;
-    }
-  }
-
-  return new Epetra_MapColoring( *(solnMap->petraBlockMap()), &colors[0], 0 );
+  return icColoring_;
 }
 
 //-----------------------------------------------------------------------------

@@ -40,15 +40,11 @@
 #define Xyce_N_NLS_NOX_AugmentLinSys_IC_Gmin_h
 
 #include <vector>
-#include <set>
 
-#include "Teuchos_RCP.hpp"
 #include "N_NLS_NOX_AugmentLinSys.h"
 #include <N_IO_InitialConditions.h>
 
 #include <N_UTL_fwd.h>
-
-class Epetra_MapColoring;
 
 //-----------------------------------------------------------------------------
 // Class         : N_NLS::NOX::AugmentLinSysIC_Gmin
@@ -72,20 +68,12 @@ class AugmentLinSysIC_Gmin : public AugmentLinSys {
   public:
     //! Ctor.
     AugmentLinSysIC_Gmin
-    ( Xyce::IO::InitialConditionsData::NodeNamePairMap & op_in,
-      const Teuchos::RCP <Epetra_MapColoring>& ICcolor_map,
-      const std::vector<int>& vnodeGIDVec,
+    ( NodeListType node_list_type,
+      Xyce::IO::InitialConditionsData::NodeNamePairMap & op_in,
+      const std::vector<int>& ic_colors,
+      const std::vector<int>& vnodeVec,
       Xyce::Linear::Vector* cloneVector,
-			double scaledEndValue,
-      double resCond);
-
-    //! Ctor.
-    AugmentLinSysIC_Gmin
-    ( Xyce::IO::InitialConditionsData::NodeNamePairMap & op_in,
-      const Teuchos::RCP <Epetra_MapColoring>& ICcolor_map,
-      const Teuchos::RCP <Epetra_MapColoring>& GMINcolor_map,
-      Xyce::Linear::Vector* cloneVector,
-			double scaledEndValue,
+      double scaledEndValue,
       double resCond);
 
     //! Dtor.
@@ -112,17 +100,14 @@ class AugmentLinSysIC_Gmin : public AugmentLinSys {
     //! residual value of the conductance.  Should almost always be zero
     double residualConductance_;
 
-    //! List of voltage node GIDs.
-    const std::vector<int> vnodeGIDVec_;
-
     //! map of specified variables
     Xyce::IO::InitialConditionsData::NodeNamePairMap & op_;
 
     //! Color 0 are the voltage unknowns.
     //! For the IC color map, the voltage nodes attached to
     //! independent voltage sources are not included.
-    Teuchos::RCP<Epetra_MapColoring> ICcolor_map_;
-    Teuchos::RCP<Epetra_MapColoring> GMINcolor_map_;
+    const std::vector<int>& ic_colors_;
+    const std::vector<int>& vnodeVec_;
 
     //! Temporary vectors used to store diagonal.
     Xyce::Linear::Vector* vecptr1_;
