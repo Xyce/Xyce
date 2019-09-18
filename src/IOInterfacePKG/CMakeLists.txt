@@ -103,6 +103,7 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_PkgOptionsMgr.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_FourierMgr.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_ParsingHelpers.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_WildcardSupport.C
       CACHE INTERNAL "X_S" )
 
 

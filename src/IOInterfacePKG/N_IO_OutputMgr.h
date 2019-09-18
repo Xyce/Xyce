@@ -489,6 +489,16 @@ public:
     return phaseOutputUsesRadians_;
   }
 
+  void setDotACSpecified(bool value)
+  {
+    dotACSpecified_ = value;
+  }
+
+  void setDotNoiseSpecified(bool value)
+  {
+    dotNoiseSpecified_ = value;
+  }
+
   void setEnableEmbeddedSamplingFlag(bool value)
   {
     enableEmbeddedSamplingFlag_ = value;
@@ -670,6 +680,8 @@ private:
 
   // print statement vars
   bool                  dotOpSpecified_; // flag to indicate if the netlist has a .OP statement
+  bool                  dotACSpecified_;    // flag to indicate if the netlist has a .AC statement
+  bool                  dotNoiseSpecified_; // flag to indicate if the netlist has a .NOISE statement
   bool                  enableEmbeddedSamplingFlag_;
   bool                  enablePCEFlag_;
   bool                  enableHomotopyFlag_;

@@ -70,6 +70,7 @@
 #include <N_IO_OutputterRawOverride.h>
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
+#include <N_IO_WildcardSupport.h>
 #include <N_IO_mmio.h>
 #include <N_LAS_BlockVector.h>
 #include <N_LAS_Matrix.h>
@@ -120,6 +121,8 @@ OutputMgr::OutputMgr(
     opBuilderManager_(op_builder_manager),
     topology_(topology),
     dotOpSpecified_(false),
+    dotACSpecified_(false),
+    dotNoiseSpecified_(false),
     enableEmbeddedSamplingFlag_(false),
     enablePCEFlag_(false),
     enableHomotopyFlag_(false),
@@ -2626,9 +2629,10 @@ void makeParamList(const std::string name, It first, It last, Out out)
 
 //-----------------------------------------------------------------------------
 // Function      : Xyce::IO::removeStarVariables
-// Purpose       : Process V(*) and I(*) on .print line
-// Special Notes : Replaces v(*) and i(*) that appears on the .print line
-//                 with a list of all v() or i() variables as appropriate.
+// Purpose       : Process V(*), I(*), P(*) and W(*) on .print line
+// Special Notes : Replaces v(*), i(*), p(*) and w(*) that appear on the .print line
+//                 with a list of all v(), i(), p() and w() variables as appropriate.
+//                 This works for operators like vr() and ir() also.
 // Scope         :
 // Creator       : David Baur, Raytheon
 // Creation Date : 6/28/2013
@@ -2636,16 +2640,40 @@ void makeParamList(const std::string name, It first, It last, Out out)
 void removeStarVariables(
   Parallel::Machine     comm,
   Util::ParamList &     variable_list,
-  const NodeNameMap &   all_nodes,
-  const NodeNameMap &   external_nodes)
+  const NodeNameMap &   external_nodes,
+  const NodeNameMap &   branch_vars)
 {
+  // whether a V(*), I(*), P(*) or W(*) request was found on the .PRINT line
   bool vStarFound = false;
   bool iStarFound = false;
+  bool pStarFound = false;
+  bool wStarFound = false;
 
+  // position of the last V(*), I(*), P(*) or W(*) request found on the .PRINT line
   Util::ParamList::iterator vStarPosition = variable_list.end();
   Util::ParamList::iterator iStarPosition = variable_list.end();
+  Util::ParamList::iterator pStarPosition = variable_list.end();
+  Util::ParamList::iterator wStarPosition = variable_list.end();
 
-  // remove the v(*) and i(*) from the .print line
+  // Which types of V or I star-requests (e.g., VR(*)) were
+  // found on the .PRINT line.  Note this doesn't handle mutiple V(*) requests
+  // well yet.
+  std::vector<std::string> vOpsRequested;
+  std::vector<std::string> iOpsRequested;
+
+  // V, I, P or W wildcards like V(X1*)
+  std::vector<std::pair<Util::ParamList::iterator, std::string> > vWildCards;
+  Util::ParamList::iterator vWildCardPosition = variable_list.end();
+  std::vector<std::pair<Util::ParamList::iterator, std::string> > iWildCards;
+  Util::ParamList::iterator iWildCardPosition = variable_list.end();
+  std::vector<std::pair<Util::ParamList::iterator, std::string> > pWildCards;
+  Util::ParamList::iterator pWildCardPosition = variable_list.end();
+  std::vector<std::pair<Util::ParamList::iterator, std::string> > wWildCards;
+  Util::ParamList::iterator wWildCardPosition = variable_list.end();
+
+  // Parse and remove the V(*), I(*), P(*) and W(*) from the .print line.
+  // Must also handle cases like VR(*) and IR(*), as well as wildcards such
+  // V(X1*)
   Util::ParamList::iterator it = variable_list.begin();
   for ( ; it != variable_list.end(); )
   {
@@ -2655,27 +2683,109 @@ void removeStarVariables(
       // move to the type
       --it;
 
-      // remember type of replacement and location of *
-      if ((*it).tag() == "V")
+      // Remember the type(s) of replacement (e.g., VR(*)) for V-star and I-star requests,
+      // and the location of the last V-star, I-star and P-star requests.
+      const std::string &varType = (*it).tag();
+      if (varType == "V" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'V') )
       {
         vStarFound = true;
         vStarPosition = it;
         --vStarPosition;
+
+        // keep a vector of the types of V-star requests (e.g., VR(*) and VI(*))
+        vOpsRequested.push_back((*it).tag());
       }
-      else if ((*it).tag() == "I")
+      else if (varType == "I" || ((varType.size() == 2 || varType.size() == 3) && varType[0] == 'I') )
       {
         iStarFound = true;
         iStarPosition = it;
         --iStarPosition;
+
+        // keep a vector of the types of I-star requests (e.g., IR(*) and II(*))
+        iOpsRequested.push_back((*it).tag());
+      }
+      else if (varType == "P")
+      {
+        pStarFound = true;
+        pStarPosition = it;
+        --pStarPosition;
+      }
+      else if (varType == "W")
+      {
+        wStarFound = true;
+        wStarPosition = it;
+        --wStarPosition;
       }
 
-      // remove the v or i
+      // remove the V, I, P or W
       it = variable_list.erase(it);
 
       // remove the *
       it = variable_list.erase(it);
     }
+    else if ( !Xyce::Util::hasExpressionTag((*it).tag()) && ((*it).tag().find("*") != std::string::npos) )
+    {
+      // Process wildcard syntaxes like V(X1*) I(X1*) P(X1*)
 
+      // First check if something like V(1*) actually refers to a valid node 1*
+      // Note this may differ from HSPICE, which may assume that 1* is a "wildcard"
+      // even if 1* is a valid node name in the netlist.
+      int validNode = external_nodes.count((*it).tag());
+      Parallel::AllReduce(comm, MPI_SUM, &validNode, 1);
+      int validDevice = branch_vars.count((*it).tag());
+      Parallel::AllReduce(comm, MPI_SUM, &validDevice, 1);
+
+      if (validNode || (validDevice > 0))
+      {
+        // move to next item on .print line
+        ++it;
+      }
+      else
+      {
+        // this actually is a wildcard request, so add it to vWildCards,
+        // iWildCards
+        Util::ParamList::iterator prevIt = it;
+        --prevIt;
+        if ((*prevIt).tag() == "V")
+        {
+	  std::string wildCardStr((*it).tag());
+          --it; // rewind to the V tag
+          --prevIt; // rewind to before the V tag
+          vWildCardPosition = prevIt;
+          vWildCards.push_back(make_pair(prevIt,wildCardStr));
+        }
+        else if ((*prevIt).tag() == "I")
+        {
+	  std::string wildCardStr((*it).tag());
+          --it; // rewind to the I tag
+          --prevIt; // rewind to before the I tag
+          iWildCardPosition = prevIt;
+          iWildCards.push_back(make_pair(prevIt,wildCardStr));
+        }
+        else if ((*prevIt).tag() == "P")
+        {
+	  std::string wildCardStr((*it).tag());
+          --it; // rewind to the P tag
+          --prevIt; // rewind to before the P tag
+          pWildCardPosition = prevIt;
+          pWildCards.push_back(make_pair(prevIt,wildCardStr));
+        }
+        else if ((*prevIt).tag() == "W")
+        {
+	  std::string wildCardStr((*it).tag());
+          --it; // rewind to the P tag
+          --prevIt; // rewind to before the P tag
+          wWildCardPosition = prevIt;
+          wWildCards.push_back(make_pair(prevIt,wildCardStr));
+        }
+
+        // remove the V, I, P or W
+        it = variable_list.erase(it);
+
+        // remove the wildcard syntax, that had at least one * in it
+        it = variable_list.erase(it);
+      }
+    }
     // move to next item on .print line
     else
     {
@@ -2683,12 +2793,24 @@ void removeStarVariables(
     }
   }
 
+  // Only need one variable list for both P(*) and W(*).  Also, p_list is a set
+  // so that P(*) and W(*) work with multi-terminal devices.  This should be changed
+  // unordered_set eventually.
   std::vector<std::string> v_list;
   std::vector<std::string> i_list;
+  std::set<std::string> p_list;
 
+  // Need separate lists for P() and W() wildcards, since they may contain
+  // different requests
+  std::vector<std::string> vWildCard_list;
+  std::vector<std::string> iWildCard_list;
+  std::vector<std::string> pWildCard_list;
+  std::vector<std::string> wWildCard_list;
+
+  // V(*) requests
   if (vStarFound)
   {
-    NodeNameMap::const_iterator it = external_nodes.begin(); 
+    NodeNameMap::const_iterator it = external_nodes.begin();
     for ( ; it != external_nodes.end() ; ++it)
     {
       ExtendedString tmpStr((*it).first);
@@ -2700,12 +2822,13 @@ void removeStarVariables(
     ++vStarPosition;
   }
 
+  // I(*) requests
   if (iStarFound)
   {
-    NodeNameMap::const_iterator iter_a = all_nodes.begin();
-    for ( ; iter_a != all_nodes.end() ; ++iter_a)
+    NodeNameMap::const_iterator iter_bv = branch_vars.begin();
+    for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
     {
-      ExtendedString tmpStr((*iter_a).first);
+      ExtendedString tmpStr((*iter_bv).first);
       tmpStr.toUpper();
       char devType=tmpStr[0];
 
@@ -2714,7 +2837,7 @@ void removeStarVariables(
       {
         bool addIt=true;
         tmpStr = tmpStr.substr(0, pos - 1);
-        // BUG 982:  The names of devices in the "all_nodes" map
+        // BUG 982:  The names of devices in the "branch_vars" map
         // are all in SPICE style because of a poor design decision.
         // Other code in the IO package assumes that the params we're passing
         // in print params lists are all in Xyce style.  So we must
@@ -2722,9 +2845,54 @@ void removeStarVariables(
         tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
         // BUG 989 SON:  we are allowing Y device branches to be output by
         // I(*) now, but YMIL and YMIN (mutual inductors) have two names
-        // for each branch current, and one of them is already included without
+        // for each branch/lead current, and one of them is already included without
         // the unintuitive "y" device syntax.  So don't print the second
         // one.  Only add tmpStr if it is neither a YMIL or YMIN.
+        if (devType == 'Y')
+        {
+          std::string::size_type i=tmpStr.find_last_of(':');
+          i=((i == std::string::npos)?0:i+1);
+          std::string basename=tmpStr.substr(i);
+          if (startswith_nocase(basename,"YMIL")
+              || startswith_nocase(basename,"YMIN")
+              || startswith_nocase(basename,"YGENEXT"))
+          {
+            addIt=false;
+          }
+        }
+        else if (devType == 'M' || devType == 'Q' || devType == 'Z')
+	{
+          // only support two-terminal lead currents
+          addIt=false;
+        }
+
+        if (addIt)
+        {
+          i_list.push_back(tmpStr);
+        }
+      }
+    }
+
+    ++iStarPosition;
+  }
+
+  // P(*) and W(*) requests
+  if (pStarFound || wStarFound)
+  {
+    // only need to make one variable list for both P(*) and W(*) requests
+    NodeNameMap::const_iterator iter_bv = branch_vars.begin();
+    for ( ; iter_bv != branch_vars.end() ; ++iter_bv)
+    {
+      ExtendedString tmpStr((*iter_bv).first);
+      tmpStr.toUpper();
+      char devType=tmpStr[0];
+
+      size_t pos = tmpStr.rfind("BRANCH");
+      if (pos != std::string::npos)
+      {
+        bool addIt=true;
+        tmpStr = tmpStr.substr(0, pos - 1);
+        tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
         if (devType == 'Y')
         {
           std::string::size_type i=tmpStr.find_last_of(':');
@@ -2736,38 +2904,283 @@ void removeStarVariables(
             addIt=false;
           }
         }
-        if (addIt)
+
+        // There will be multiple entries in branch_vars for each multi-terminal
+        // device. So, only add an entry to p_list for the first entry for each
+        // such device.
+	if (addIt)
         {
-          i_list.push_back(tmpStr);
+          p_list.insert(tmpStr);
         }
       }
     }
-    ++iStarPosition;
+
+    // do need to track where both the P(*) and W(*) requests where on the .PRINT line
+    if (pStarFound)
+      ++pStarPosition;
+    if (wStarFound)
+      ++wStarPosition;
+  }
+
+  // Wildcard requests such as V(X1*).  This does not handle VR(X1*) yet.
+  if (vWildCards.size() > 0)
+  {
+    std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = vWildCards.begin();
+    for ( ; itWC != vWildCards.end(); ++itWC)
+    {
+      std::string name((*itWC).second);
+      // determine where the first * is.
+      std::size_t firstStarPos = name.find_first_of("*");
+
+      // Pull out the non-* fragments of name into nameSubStrings.
+      std::vector<std::string> nameSubStrings;
+      splitWildCardString(name, nameSubStrings);
+
+      // search through the node names to see if any of them match the
+      // wild card pattern
+      std::vector<std::string>::const_iterator nss_it;
+      NodeNameMap::const_iterator itEN = external_nodes.begin();
+      for ( ; itEN!=external_nodes.end(); ++itEN)
+      {
+        if (isWildCardMatch((*itEN).first, nameSubStrings, firstStarPos))
+        {
+          ExtendedString tmpStr((*itEN).first);
+          tmpStr.toUpper();
+          vWildCard_list.push_back(tmpStr);
+        }
+      }
+    }
+    ++vWildCardPosition;
+  }
+
+  // Wildcard requests such as I(X1*).  This does not handle IR(X1*) yet.
+  if (iWildCards.size() > 0)
+  {
+    std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = iWildCards.begin();
+    for ( ; itWC != iWildCards.end(); ++itWC)
+    {
+      std::string name((*itWC).second);
+      // determine where the first * is.
+      std::size_t firstStarPos = name.find_first_of("*");
+
+      // Pull out the non-* fragments of name into nameSubStrings.
+      std::vector<std::string> nameSubStrings;
+      splitWildCardString(name, nameSubStrings);
+
+      std::vector<std::string>::const_iterator nss_it;
+      NodeNameMap::const_iterator itBV = branch_vars.begin();
+      for ( ; itBV!=branch_vars.end(); ++itBV)
+      {
+        bool branchCurrentNode=false;
+        ExtendedString tmpStr((*itBV).first);
+        tmpStr.toUpper();
+
+        char devType=tmpStr[0];
+        size_t pos = tmpStr.rfind("BRANCH");
+        if (pos != std::string::npos)
+        {
+          branchCurrentNode=true;
+          tmpStr = tmpStr.substr(0, pos - 1);
+          tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
+          if (devType == 'Y')
+          {
+            std::string::size_type i=tmpStr.find_last_of(':');
+            i=((i == std::string::npos)?0:i+1);
+            std::string basename=tmpStr.substr(i);
+            if (startswith_nocase(basename,"YMIL")
+                || startswith_nocase(basename,"YMIN"))
+            {
+              branchCurrentNode=false;
+            }
+          }
+        }
+
+        if (branchCurrentNode)
+	{
+          // Use tmpStr here since it is "Xyce Format".
+          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
+            iWildCard_list.push_back(tmpStr);
+        }
+      }
+    }
+    ++iWildCardPosition;
+  }
+
+  // Wildcard requests such as P(X1*)
+  if (pWildCards.size() > 0)
+  {
+    std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = pWildCards.begin();
+    for ( ; itWC != pWildCards.end(); ++itWC)
+    {
+      std::string name((*itWC).second);
+      // determine where the first * is.
+      std::size_t firstStarPos = name.find_first_of("*");
+
+      // Pull out the non-* fragments of name into nameSubStrings.
+      std::vector<std::string> nameSubStrings;
+      splitWildCardString(name, nameSubStrings);
+
+      std::vector<std::string>::const_iterator nss_it;
+      NodeNameMap::const_iterator itBV = branch_vars.begin();
+      for ( ; itBV!=branch_vars.end(); ++itBV)
+      {
+        bool branchCurrentNode=false;
+        ExtendedString tmpStr((*itBV).first);
+        tmpStr.toUpper();
+
+        char devType=tmpStr[0];
+        size_t pos = tmpStr.rfind("BRANCH");
+        if (pos != std::string::npos)
+        {
+          branchCurrentNode=true;
+          tmpStr = tmpStr.substr(0, pos - 1);
+          tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
+          if (devType == 'Y')
+          {
+            std::string::size_type i=tmpStr.find_last_of(':');
+            i=((i == std::string::npos)?0:i+1);
+            std::string basename=tmpStr.substr(i);
+            if (startswith_nocase(basename,"YMIL")
+                || startswith_nocase(basename,"YMIN"))
+            {
+              branchCurrentNode=false;
+            }
+          }
+        }
+
+        if (branchCurrentNode)
+	{
+          // search through the node names to see if any of them match the
+          // wild card pattern. Use tmpStr since it is "Xyce Format".
+          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
+	    pWildCard_list.push_back(tmpStr);
+        }
+      }
+    }
+    ++pWildCardPosition;
+  }
+
+  // Wildcard requests such as W(X1*)
+  if (wWildCards.size() > 0)
+  {
+    std::vector<std::pair<Util::ParamList::iterator, std::string> >::iterator itWC = wWildCards.begin();
+    for ( ; itWC != wWildCards.end(); ++itWC)
+    {
+      std::string name((*itWC).second);
+      // determine where the first * is.
+      std::size_t firstStarPos = name.find_first_of("*");
+
+      // Pull out the non-* fragments of name into nameSubStrings.
+      std::vector<std::string> nameSubStrings;
+      splitWildCardString(name, nameSubStrings);
+
+      std::vector<std::string>::const_iterator nss_it;
+      NodeNameMap::const_iterator itBV = branch_vars.begin();
+      for ( ; itBV!=branch_vars.end(); ++itBV)
+      {
+        bool branchCurrentNode=false;
+        ExtendedString tmpStr((*itBV).first);
+        tmpStr.toUpper();
+
+        char devType=tmpStr[0];
+        size_t pos = tmpStr.rfind("BRANCH");
+        if (pos != std::string::npos)
+        {
+          branchCurrentNode=true;
+          tmpStr = tmpStr.substr(0, pos - 1);
+          tmpStr = Util::spiceDeviceNameToXyceName(tmpStr);
+          if (devType == 'Y')
+          {
+            std::string::size_type i=tmpStr.find_last_of(':');
+            i=((i == std::string::npos)?0:i+1);
+            std::string basename=tmpStr.substr(i);
+            if (startswith_nocase(basename,"YMIL")
+                || startswith_nocase(basename,"YMIN"))
+            {
+              branchCurrentNode=false;
+            }
+          }
+        }
+
+        if (branchCurrentNode)
+	{
+          // search through the node names to see if any of them match the
+          // wild card pattern. Use tmpStr since it is "Xyce Format".
+          if (isWildCardMatch(tmpStr, nameSubStrings, firstStarPos))
+	    wWildCard_list.push_back(tmpStr);
+        }
+      }
+    }
+    ++wWildCardPosition;
   }
 
   Util::Marshal mout;
-  mout << v_list << i_list;
+  mout << v_list << i_list << p_list
+       << vWildCard_list << iWildCard_list << pWildCard_list << wWildCard_list;
 
   std::vector<std::string> dest;
   Parallel::AllGatherV(comm, mout.str(), dest);
 
+  // Need separate lists here for P(*) and W(*) requests since the
+  // entries in the ParamList contain both the operators and the variables.
   Util::ParamList vStarList;
   Util::ParamList iStarList;
+  Util::ParamList pStarList;
+  Util::ParamList wStarList;
+
+  // Need separate lists here for wildcards like P(X1*) and W(X2*) since the
+  // entries in the ParamList contain both the operators and the variables.
+  Util::ParamList vWildCardList;
+  Util::ParamList iWildCardList;
+  Util::ParamList pWildCardList;
+  Util::ParamList wWildCardList;
 
   for (int p = 0; p < Parallel::size(comm); ++p)
   {
     Util::Marshal min(dest[p]);
 
-    std::vector<std::string> x;
-    std::vector<std::string> y;
-    min >> x >> y;
-    makeParamList("V", x.begin(), x.end(), std::back_inserter(vStarList));
-    makeParamList("I", y.begin(), y.end(), std::back_inserter(iStarList));
+    std::vector<std::string> a;
+    std::vector<std::string> b;
+    std::set<std::string> c;
+    std::vector<std::string> d;
+    std::vector<std::string> e;
+    std::vector<std::string> f;
+    std::vector<std::string> g;
+    min >> a >> b >> c >> d >> e >> f >> g;
+
+    // first handle star requests
+    std::vector<std::string>::const_iterator itV=vOpsRequested.begin();
+    std::vector<std::string>::const_iterator itI=iOpsRequested.begin();
+    // handle, for example, VR(*) VI(*)
+    for ( ; itV!=vOpsRequested.end(); ++itV)
+      makeParamList((*itV), a.begin(), a.end(), std::back_inserter(vStarList));
+    // handle, for example, IR(*) II(*)
+    for ( ; itI!=iOpsRequested.end(); ++itI)
+      makeParamList((*itI), b.begin(), b.end(), std::back_inserter(iStarList));
+
+    // re-use some variable list for both P(*) and W(*)
+    if (pStarFound)
+      makeParamList("P", c.begin(), c.end(), std::back_inserter(pStarList));
+    if (wStarFound)
+      makeParamList("W", c.begin(), c.end(), std::back_inserter(wStarList));
+
+    // now handle wildcard requests like V(X1*)
+    makeParamList("V", d.begin(), d.end(), std::back_inserter(vWildCardList));
+    makeParamList("I", e.begin(), e.end(), std::back_inserter(iWildCardList));
+    makeParamList("P", f.begin(), f.end(), std::back_inserter(pWildCardList));
+    makeParamList("W", g.begin(), g.end(), std::back_inserter(wWildCardList));
   }
 
   // append temporary lists to print block, erasing temporary lists
+  variable_list.splice(vWildCardPosition, vWildCardList);
+  variable_list.splice(iWildCardPosition, iWildCardList);
+  variable_list.splice(pWildCardPosition, pWildCardList);
+  variable_list.splice(pWildCardPosition, wWildCardList);
+
   variable_list.splice(vStarPosition, vStarList);
   variable_list.splice(iStarPosition, iStarList);
+  variable_list.splice(pStarPosition, pStarList);
+  variable_list.splice(wStarPosition, wStarList);
 }
 
 //-----------------------------------------------------------------------------
@@ -2864,8 +3277,12 @@ void OutputMgr::fixupOutputVariables(
     Parallel::Machine comm, 
     Util::ParamList &outputParamList)
 {
-  removeStarVariables(comm, outputParamList, 
-      getSolutionNodeMap(), getExternalNodeMap());
+  // For AC and Noise analysis, only branch currents will be used for I(*) and P(*).
+  // For other analysis types, both branch currents and lead currents will be used.
+  if (dotACSpecified_ || dotNoiseSpecified_)
+    removeStarVariables(comm, outputParamList, getExternalNodeMap(), getSolutionNodeMap());
+  else
+    removeStarVariables(comm, outputParamList, getExternalNodeMap(), getBranchVarsNodeMap());
 }
 
 //-----------------------------------------------------------------------------

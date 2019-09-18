@@ -182,7 +182,8 @@ DeviceMgr::DeviceMgr(
     dotOpOutputRequested_(false),
     dotOpOutputFlag_(false),
     ACSpecified_(false),
-    HBSpecified_(false)
+    HBSpecified_(false),
+    iStarRequested_(false)
 {
   addArtificialParameter("MOSFET:GAINSCALE", new ArtificialParameters::MOSFETGainScaleParam());
   addArtificialParameter("MOSFET:GAIN", new ArtificialParameters::MOSFETGainScaleParam());
@@ -445,6 +446,20 @@ bool DeviceMgr::getVoltageLimiterStatus()
 void DeviceMgr::setVoltageLimiterStatus(bool voltageLimterStatus)
 {
   devOptions_.voltageLimiterFlag = voltageLimterStatus;
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::setIStarRequested
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander
+// Creation Date : 9/23/2018
+//---------------------------------------------------------------------------
+void DeviceMgr::setIStarRequested(bool iStarRequested)
+{
+  iStarRequested_ = iStarRequested;
   return;
 }
 
@@ -1153,7 +1168,8 @@ DeviceInstance * DeviceMgr::addDeviceInstance(
   }
   
   if ( mutualInductorNeedsLeadCurrents || devOptions_.calculateAllLeadCurrents || 
-      devicesNeedingLeadCurrentLoads_.find(outputName) != devicesNeedingLeadCurrentLoads_.end() )
+       (devicesNeedingLeadCurrentLoads_.find(outputName) != devicesNeedingLeadCurrentLoads_.end()) ||
+       iStarRequested_ )
   {
     instance->enableLeadCurrentCalc();
 

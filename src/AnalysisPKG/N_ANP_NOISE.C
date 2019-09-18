@@ -276,6 +276,8 @@ NOISE::NOISE(
   bNoiseVecRealPtr->putScalar(0.0);
   bNoiseVecImagPtr->putScalar(0.0);
 
+  outputManagerAdapter_.setDotNoiseSpecified(true);
+
   // noiseDataVec holds the total noise results and the noise
   // results for each device
   int numNoiseDevices = loader_.getNumNoiseDevices();
