@@ -4432,11 +4432,9 @@ ExpressionNode * ExpressionInternals::PTcheck_(ExpressionNode *p)
 
     default:
       Report::DevelFatal()
-
-
-
         << "ExpressionInternals::PTcheck_: Internal: bad node type";
   }
+
   if (DEBUG_EXPRESSION)
     Xyce::dout() << "Calling com_expr_ from PTcheck_" << std::endl;
 
@@ -4445,29 +4443,26 @@ ExpressionNode * ExpressionInternals::PTcheck_(ExpressionNode *p)
   // in it that are the same as "p" (the node we're currently looking at).
   // This is an extraordinarily expensive recursive operation that kills
   // large tables, and gains us only a slightly simplified tree with reduced
-  // memory usage.  Let's not bother going through this operation when we're
-  // just a constant.  This may lead to some bloat, but shouldn't lead to
-  // horrific slowdowns on large tables of constants.
-  if (p->type != EXPR_CONSTANT)
+  // memory usage.
+  rval = com_expr_ (PThead_, p);
+  if (rval != p)
   {
-    rval = com_expr_ (PThead_, p);
-    if (rval != p)
+    if (DEBUG_EXPRESSION)
     {
-      if (DEBUG_EXPRESSION) {
-        std::ostringstream s("");
-        s << std::setprecision(PRECISION);
-        if (tree_ != NULL)
-          RpTree_ (p, s);
-        Xyce::dout() << "Replacing:\n" << s.str() << std::endl;
-        std::ostringstream t("");
-        t << std::setprecision(PRECISION);
-        if (tree_ != NULL)
-          RpTree_ (rval, t);
-        Xyce::dout() << "With:\n" << t.str() << std::endl;
-      }
-
-      done_list_.push_back(p);
+      std::ostringstream s("");
+      s << std::setprecision(PRECISION);
+      if (tree_ != NULL)
+        RpTree_ (p, s);
+      Xyce::dout() << "Replacing:\n" << s.str() << std::endl;
+      std::ostringstream t("");
+      t << std::setprecision(PRECISION);
+      if (tree_ != NULL)
+        RpTree_ (rval, t);
+      Xyce::dout() << "With:\n" << t.str() << std::endl;
     }
+
+    done_list_.push_back(p);
+
     return rval;
   }
   else
