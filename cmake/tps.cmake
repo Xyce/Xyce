@@ -36,33 +36,92 @@
 ## Find libraries.
 ###################
 
-# JCV NOTE: BLAS, LAPACK, and AMD should be probed via Trilinos!!!!
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
+# A starting reference for the Trilinos CMake package is:
+#    `Trilinos/commonTools/importing/README.Finding_Trilinos`
+# Another starting point is:
+#    `Trilinos/cmake/doc/export_system/Finding_Trilinos.txt`
 
-find_package(SuiteSparse OPTIONAL_COMPONENTS AMD)
-add_library(SuiteSparse::AMD INTERFACE IMPORTED GLOBAL)
-set_target_properties(SuiteSparse::AMD PROPERTIES 
-	INTERFACE_INCLUDE_DIRECTORIES "${SUITESPARSE_INCLUDE_DIR}"
-	INTERFACE_LINK_LIBRARIES "${SuiteSparse_LIBRARIES}")
+# Trilinos recommends it be found BEFORE project() is called.
+# We *may* be able to put the search here, BUT some important (and subtle?)
+# aspects setup by project() may be missing. 
 
-# From Ross Bartlett "You just do find_package(Trilinos REQUIRED) and it reads
-# in all the vars defined in the installed file TrilinosConfig.cmake.  If you
-# look at that file, you should see it has all of the info you need."
-# Serial:
-find_package(Trilinos REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos
-     Sacado Triutils AztecOO Belos TrilinosCouplings OPTIONAL_COMPONENTS
-     ShyLU Basker Amesos2 Stokhos ROL)
-# Parallel:
-#   find_package(Trilinos REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos
-#        Sacado Triutils AztecOO Belos TrilinosCouplings Isorropia Zoltan
-#        OPTIONAL_COMPONENTS ShyLU Basker Amesos2 Stokhos ROL)
+# MPI check
+#    message("-- Checking if MPI is enabled in Trilinos")
+#    list(FIND Trilinos_TPL_LIST MPI MPI_ENABLED)
+#    if (MPI_ENABLED)
+#         message("-- Checking if MPI is enabled in Trilinos - MPI ENABLED")
+#         set(Xyce_PARALLEL_MPI TRUE)
+#
+#         # For MPI builds, Isorropia and Zoltan are REQUIRED.
+#         list(FIND Trilinos_PACKAGE_LIST Isorropia Isorropia_FOUND)
+#         if ( Isorropia_FOUND )
+#              set(Xyce_USE_ISORROPIA TRUE)
+#         else()
+#              message(FATAL_ERROR "-- FATAL ERROR: Isorropia is required for MPI parallel builds.\n"
+#              "-- Fix the Trilinos build, and try again.")
+#         endif()
+#         list(FIND Trilinos_PACKAGE_LIST Zoltan Zoltan_FOUND)
+#         if (NOT Zoltan_FOUND)
+#              message(FATAL_ERROR "-- FATAL ERROR: Zoltan is required for MPI parallel builds.\n"
+#              "-- Fix the Trilinos build, and try again.")
+#         endif()
+#    else()
+#         message("-- Checking if MPI is enabled in Trilinos - MPI NOT ENABLED")
+#         set(Xyce_PARALLEL_MPI FALSE)
+#         set(Xyce_USE_ISORROPIA FALSE)
+#    endif()
 
-message(" Your Trilinos_DIR is " ${Trilinos_DIR})
+LIST(REVERSE Trilinos_LIBRARIES)
+LIST(REMOVE_DUPLICATES Trilinos_LIBRARIES)
+LIST(REVERSE Trilinos_LIBRARIES)
+
+LIST(REVERSE Trilinos_TPL_LIBRARIES)
+LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
+LIST(REVERSE Trilinos_TPL_LIBRARIES)
+
 add_library(trilinos INTERFACE IMPORTED GLOBAL)
-set_target_properties(trilinos PROPERTIES
-   	INTERFACE_INCLUDE_DIRECTORIES "${Trilinos_INCLUDE_DIRS}" 
-)
+
+# ??? IS AMD REQUIRED, OR NOT ???
+# If not, then the "ifdef" needs to be set!!!
+list(FIND Trilinos_TPL_LIST AMD AMD_IN_Trilinos)
+if (AMD_IN_Trilinos)
+     message("AMD found in Trilinos")
+     add_library(AMD INTERFACE IMPORTED GLOBAL)
+else()
+     message(FATAL_ERROR "-- FATAL ERROR: AMD not available via Trilinos.\n"
+                         "--              Fix the Trilinos build, and try again.\n")
+endif()
+
+list(FIND Trilinos_TPL_LIST BLAS BLAS_IN_Trilinos)
+list(FIND Trilinos_TPL_LIST LAPACK LAPACK_IN_Trilinos)
+message("-- Looking for BLAS and LAPACK in Trilinos")
+if (BLAS_IN_Trilinos AND LAPACK_IN_Trilinos)
+     message("-- Looking for BLAS and LAPACK in Trilinos - found")
+else ()
+     message("-- Looking for BLAS and LAPACK in Trilinos - not found\n")
+     message(FATAL_ERROR "-- FATAL ERROR: BLAS and LAPACK not available via Trilinos.\n"
+                         "--              Fix the Trilinos build, and try again.")
+endif ()
+
+# Follow something like this pattern for the optional Trilinos packages
+# Set optional dependency in MyApp on Epetra package:
+#   this toggles code within  #ifdef MYAPP_EPETRA
+#         MESSAGE("-- Looking for Epetra:")
+#         LIST(FIND Trilinos_PACKAGE_LIST Epetra Epetra_List_ID)
+#         IF (Epetra_List_ID GREATER -1)
+#           ADD_DEFINITIONS(-DMYAPP_EPETRA)
+#           MESSAGE("-- Looking for Epetra: -- found, compiling with -DMYAPP_EPETRA")
+#           SET(MYAPP_EPETRA TRUE)
+#         ELSE()
+#           MESSAGE("-- Looking for Epetra: -- not found.")
+#           SET(MYAPP_EPETRA FALSE)
+#         ENDIF()
+
+
+# message("\nTrilinos target = ${Trilinos_LIBRARIES} \n")
+# message("Trilinos TPL target = ${Trilinos_TPL_LIBRARIES} \n")
+
+
 # find the right fftw library.
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
    message("Using Intel provided MKL, the Math Kernel Library")
@@ -79,7 +138,11 @@ endif ()
 
 if (Xyce_REACTION_PARSER)
    find_package(BISON 2.3 REQUIRED)
+   # The 2.3 specifies the minimum version.  That is ok at the moment, as Bison
+   # has been functional for many versions (through 3.4 at the time of this
+   # writing).  Historically, though, new versions have had backward
+   # incompatibility issues.  If that occurs again, the BISON_VERSION variable
+   # will have to be probed for a certain range.
    find_package(FLEX REQUIRED)
-   #[[ "Define YYTEXT_POINTER if yytext defaults to 'char *' instead of 'char
-   []'"]]
+   #[[ "Define YYTEXT_POINTER if yytext defaults to 'char *' instead of 'char'"]]
 endif ()

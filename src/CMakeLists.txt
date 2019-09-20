@@ -24,14 +24,16 @@ add_subdirectory(NonlinearSolverPKG)
 add_subdirectory(TimeIntegrationPKG)
 add_subdirectory(DakotaLinkPKG)
 add_subdirectory(MultiTimePDEPKG)
-message(STATUS "Xyce Source ${XYCE_SOURCES}")
-message(STATUS "Xyce Inc ${XYCE_INCLUDE_DIRECTORIES}")
+# For debugging:
+#    message(STATUS "Xyce Source ${XYCE_SOURCES}")
+#    message(STATUS "Xyce Inc ${XYCE_INCLUDE_DIRECTORIES}")
 
 ####
-# Bison and Flex modules don't work in any directory. They under the covers are cmake2 style where
-# they use include_directories :( 
+# Bison and Flex modules don't work in any directory. Under the covers, they
+# are CMake2 style, where they use include_directories :(
 if( Xyce_REACTION_PARSER )
-    BISON_TARGET( XyceReactionParser ${CMAKE_CURRENT_SOURCE_DIR}/DeviceModelPKG/Core/N_DEV_ReactionParser.yxx ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx )
+    BISON_TARGET( XyceReactionParser ${CMAKE_CURRENT_SOURCE_DIR}/DeviceModelPKG/Core/N_DEV_ReactionParser.yxx
+         ${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionParser.cxx )
     FLEX_TARGET( XyceReactionScanner "${CMAKE_CURRENT_SOURCE_DIR}/DeviceModelPKG/Core/N_DEV_ReactionLexer.l"
         "${CMAKE_CURRENT_BINARY_DIR}/DeviceModelPKG/Core/N_DEV_ReactionLexer.cxx"
 	COMPILE_FLAGS "-+"
@@ -46,8 +48,9 @@ if( Xyce_REACTION_PARSER )
 endif()
 
 add_library(XyceStatic STATIC ${XYCE_SOURCES} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS}) 
-target_include_directories(XyceStatic PUBLIC ${XYCE_INCLUDE_DIRECTORIES})
-target_link_libraries(XyceStatic PUBLIC SuiteSparse::AMD FFTW::FFTW trilinos trilinoscouplings locaepetra localapack loca noxepetra noxlapack nox belosepetra belos ifpack aztecoo isorropia zoltan simpi amesos trilinosss epetraext triutils epetra teuchosremainder teuchosnumerics teuchoscomm teuchosparameterlist  teuchoscore)  
+target_include_directories(XyceStatic PUBLIC ${XYCE_INCLUDE_DIRECTORIES} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS})
+target_link_libraries(XyceStatic PUBLIC FFTW::FFTW ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES})
+
 add_executable(Xyce Xyce.C)
-target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES}) 
+target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
 target_link_libraries(Xyce XyceStatic) 
