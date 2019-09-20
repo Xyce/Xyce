@@ -46,30 +46,36 @@
 # aspects setup by project() may be missing. 
 
 # MPI check
-#    message("-- Checking if MPI is enabled in Trilinos")
-#    list(FIND Trilinos_TPL_LIST MPI MPI_ENABLED)
-#    if (MPI_ENABLED)
-#         message("-- Checking if MPI is enabled in Trilinos - MPI ENABLED")
-#         set(Xyce_PARALLEL_MPI TRUE)
-#
-#         # For MPI builds, Isorropia and Zoltan are REQUIRED.
-#         list(FIND Trilinos_PACKAGE_LIST Isorropia Isorropia_FOUND)
-#         if ( Isorropia_FOUND )
-#              set(Xyce_USE_ISORROPIA TRUE)
-#         else()
-#              message(FATAL_ERROR "-- FATAL ERROR: Isorropia is required for MPI parallel builds.\n"
-#              "-- Fix the Trilinos build, and try again.")
-#         endif()
-#         list(FIND Trilinos_PACKAGE_LIST Zoltan Zoltan_FOUND)
-#         if (NOT Zoltan_FOUND)
-#              message(FATAL_ERROR "-- FATAL ERROR: Zoltan is required for MPI parallel builds.\n"
-#              "-- Fix the Trilinos build, and try again.")
-#         endif()
-#    else()
-#         message("-- Checking if MPI is enabled in Trilinos - MPI NOT ENABLED")
-#         set(Xyce_PARALLEL_MPI FALSE)
-#         set(Xyce_USE_ISORROPIA FALSE)
-#    endif()
+message("-- Checking if MPI is enabled in Trilinos")
+list(FIND Trilinos_TPL_LIST MPI MPI_Enabled)
+if (MPI_Enabled GREATER -1)
+     message("-- Checking if MPI is enabled in Trilinos - MPI enabled")
+     set(Xyce_PARALLEL_MPI TRUE)
+
+     # For MPI builds, Isorropia and Zoltan are REQUIRED.
+     message("-- Looking for Isorropia in Trilinos")
+     list(FIND Trilinos_PACKAGE_LIST Isorropia Isorropia_FOUND)
+     if ( Isorropia_FOUND GREATER -1)
+          set(Xyce_USE_ISORROPIA TRUE)
+          message("-- Looking for Isorropia in Trilinos - found")
+     else ()
+          message("-- Looking for Isorropia in Trilinos - not found\n")
+          message(FATAL_ERROR "-- FATAL ERROR: Isorropia is required for MPI parallel builds.\n"
+                              "                Fix the Trilinos build, and try again.")
+     endif()
+     message("-- Looking for Zoltan in Trilinos")
+     list(FIND Trilinos_PACKAGE_LIST Zoltan Zoltan_FOUND)
+     if (NOT (Zoltan_FOUND GREATER -1))
+          message("-- Looking for Zoltan in Trilinos - not found\n")
+          message(FATAL_ERROR "-- FATAL ERROR: Zoltan is required for MPI parallel builds.\n"
+                              "                Fix the Trilinos build, and try again.")
+     endif()
+     message("-- Looking for Isorropia in Trilinos - found")
+else()
+     message("-- Checking if MPI is enabled in Trilinos - MPI not enabled")
+     set(Xyce_PARALLEL_MPI FALSE)
+     set(Xyce_USE_ISORROPIA FALSE)
+endif()
 
 LIST(REVERSE Trilinos_LIBRARIES)
 LIST(REMOVE_DUPLICATES Trilinos_LIBRARIES)
@@ -82,11 +88,12 @@ LIST(REVERSE Trilinos_TPL_LIBRARIES)
 add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
 # ??? IS AMD REQUIRED, OR NOT ???
-# If not, then the "ifdef" needs to be set!!!
+# If it is, then the "ifdef" needs to be fixed!!!
 list(FIND Trilinos_TPL_LIST AMD AMD_IN_Trilinos)
-if (AMD_IN_Trilinos)
+if (AMD_IN_Trilinos GREATER -1)
      message("AMD found in Trilinos")
      add_library(AMD INTERFACE IMPORTED GLOBAL)
+     set(Xyce_AMD TRUE)
 else()
      message(FATAL_ERROR "-- FATAL ERROR: AMD not available via Trilinos.\n"
                          "--              Fix the Trilinos build, and try again.\n")
@@ -95,7 +102,7 @@ endif()
 list(FIND Trilinos_TPL_LIST BLAS BLAS_IN_Trilinos)
 list(FIND Trilinos_TPL_LIST LAPACK LAPACK_IN_Trilinos)
 message("-- Looking for BLAS and LAPACK in Trilinos")
-if (BLAS_IN_Trilinos AND LAPACK_IN_Trilinos)
+if ((BLAS_IN_Trilinos GREATER -1) AND (LAPACK_IN_Trilinos GREATER -1))
      message("-- Looking for BLAS and LAPACK in Trilinos - found")
 else ()
      message("-- Looking for BLAS and LAPACK in Trilinos - not found\n")
