@@ -78,7 +78,7 @@
 #include <N_LOA_NonlinearEquationLoader.h>
 #include <N_NLS_Manager.h>
 
-// new Embedded Sampler loader class
+// new PCE loader class
 #include <N_LOA_PCELoader.h>
 
 #include <N_LAS_BlockSystemHelpers.h>
@@ -1231,7 +1231,7 @@ void PCE::hackPCEOutput2()
   else
   {
     Xyce::Report::UserWarning() << hackOutputFormat_ 
-      << " is not a recognized ensemble output option.\n" << std::endl;
+      << " is not a recognized intrusive PCE output option.\n" << std::endl;
   }
 
   std::ofstream output_stream(fileName.c_str(), 
@@ -1239,7 +1239,7 @@ void PCE::hackPCEOutput2()
 
   if (!hackOutputCalledBefore2_)
   {
-    output_stream << "TITLE = \"embedded sampling output\"\tVARIABLES= "<<std::endl;
+    output_stream << "TITLE = \"intrusive PCE output, solution vector coefficients \"\tVARIABLES= "<<std::endl;
 
     if ( !(childAnalysis_.getDCOPFlag()) )
     {
@@ -1480,7 +1480,7 @@ void PCE::hackPCEOutput ()
     if (!hackOutputCalledBefore_)
     {
       // header output
-      output_stream << "TITLE = \"embedded sampling output\"\tVARIABLES= "<<std::endl;
+      output_stream << "TITLE = \"intrusive PCE output\"\tVARIABLES= "<<std::endl;
 
       //if ( analysisManager_.getTransientFlag() || analysisManager_.getTranOPFlag() ) // this doesn't work!
       //if ( childAnalysis_.isAnalysis(ANP_MODE_TRANSIENT) )
