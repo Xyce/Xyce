@@ -1425,11 +1425,11 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
         Report::UserWarning0() << "Invalid value of DELIMITER in .PRINT statment, ignoring";
       }
     }
-    else if (iterParam->tag() == "OUTPUTSAMPLESTATS")
+    else if (iterParam->tag() == "OUTPUT_SAMPLE_STATS")
     {
       print_parameters.outputPCEsampleStats_ = static_cast<bool>(iterParam->getImmutableValue<bool>());
     }
-    else if (iterParam->tag() == "OUTPUTALLSAMPLES")
+    else if (iterParam->tag() == "OUTPUT_ALL_SAMPLES")
     {
       print_parameters.outputAllPCEsamples_ = static_cast<bool>(iterParam->getImmutableValue<bool>());
     }
@@ -3569,8 +3569,8 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("PRECISION", Util::Param("PRECISION", 8)));
     parameters.insert(Util::ParamMap::value_type("TIMESCALEFACTOR", Util::Param("TIMESCALEFACTOR", 1.0)));
     parameters.insert(Util::ParamMap::value_type("FILTER", Util::Param("FILTER", 0.0)));
-    parameters.insert(Util::ParamMap::value_type("OUTPUTSAMPLESTATS", Util::Param("OUTPUTSAMPLESTATS", true)));
-    parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", false)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_SAMPLE_STATS", Util::Param("OUTPUT_SAMPLE_STATS", true)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_ALL_SAMPLES", Util::Param("OUTPUT_ALL_SAMPLES", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_PCE_COEFFS", Util::Param("OUTPUT_PCE_COEFFS", false)));
   }
 }

@@ -529,7 +529,7 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
       hackOutputFormat_ = tag.toUpper();
     }
 #if 0
-    else if ((*it).uTag() == "OUTPUTALLSAMPLES")
+    else if ((*it).uTag() == "OUTPUT_ALL_SAMPLES")
     {
       hackOutputAllSamples_=static_cast<bool>((*it).getImmutableValue<bool>());
     }
@@ -2034,7 +2034,7 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
 
     parameters.insert(Util::ParamMap::value_type("OUTPUTFORMAT", Util::Param("OUTPUTFORMAT", "STD")));
     parameters.insert(Util::ParamMap::value_type("OUTPUTS", Util::Param("OUTPUTS", "VECTOR")));
-    parameters.insert(Util::ParamMap::value_type("OUTPUTALLSAMPLES", Util::Param("OUTPUTALLSAMPLES", false)));
+    parameters.insert(Util::ParamMap::value_type("OUTPUT_ALL_SAMPLES", Util::Param("OUTPUT_ALL_SAMPLES", false)));
     parameters.insert(Util::ParamMap::value_type("OUTPUT_SAMPLE_STATS", Util::Param("OUTPUT_SAMPLE_STATS", true)));
 #if Xyce_STOKHOS_ENABLE
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));
