@@ -41,7 +41,7 @@ supports several options for each.
 + [PRECISION=<floating point output precision>]
 + [FILTER=<absolute value below which a number outputs as 0.0>]
 + [DELIMITER=<TAB|COMMA>] [TIMESCALEFACTOR=<real scale factor>]
-+ [OUTPUTSAMPLESTATS=<boolean>] [OUTPUTALLSAMPLES=<boolean>]
++ [OUTPUT\_SAMPLE\_STATS=<boolean>] [OUTPUT\_ALL\_SAMPLES=<boolean>]
 + <output variable> [output variable]*
 \end{alltt}
 
@@ -146,13 +146,13 @@ Specify a constant scaling factor for time.  Time is normally printed in
 units of seconds, but if one would like the units to be milliseconds,
 then set TIMESCALEFACTOR=1000.
 
-\argument{OUTPUTSAMPLESTATS=<boolean>}
+\argument{OUTPUT\_SAMPLE\_STATS=<boolean>}
 Output the sample statistics for an \texttt{EMBEDDEDSAMPLING}
 analysis.This argument is only supported for \texttt{.PRINT ES}.
 Its default value is true.  Section \ref{EMBEDDEDSAMPLING_section}
 has more details.
 
-\argument{OUTPUTALLSAMPLES=<boolean>}
+\argument{OUTPUT\_ALL\_SAMPLES=<boolean>}
 Output all of the sample values for an \texttt{EMBEDDEDSAMPLING}
 analysis.  This argument is only supported for \texttt{.PRINT ES}.
 Its default value is false.  Section \ref{EMBEDDEDSAMPLING_section}
