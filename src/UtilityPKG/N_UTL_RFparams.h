@@ -43,6 +43,10 @@ void ytos(const Teuchos::SerialDenseMatrix<int, std::complex<double> > &y,
           Teuchos::SerialDenseMatrix<int, std::complex<double> > &s,
           const std::vector<double> & Z0sVec);
 
+void stoy(const Teuchos::SerialDenseMatrix<int, std::complex<double> > &s,
+          Teuchos::SerialDenseMatrix<int, std::complex<double> > &y,
+          const std::vector<double> & Z0sVec);
+
 void ytoz(const Teuchos::SerialDenseMatrix<int, std::complex<double> > &y,
           Teuchos::SerialDenseMatrix<int, std::complex<double> > &z);
 
