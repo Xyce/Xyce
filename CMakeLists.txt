@@ -7,7 +7,7 @@ set(CMAKE_PREFIX_PATH ${Trilinos_DIRECTORY} ${CMAKE_PREFIX_PATH})
 message("-- Looking for required Trilinos packages:\n"
         "        Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado\n"
         "        Triutils AztecOO Belos TrilinosCouplings")
-find_package(Trilinos
+find_package(Trilinos 12.12.1
      REQUIRED Amesos Epetra EpetraExt Ifpack NOX Teuchos Sacado Triutils
               AztecOO Belos TrilinosCouplings
      OPTIONAL_COMPONENTS Isorropia Zoltan ShyLU Basker Amesos2 Stokhos ROL)
