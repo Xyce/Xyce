@@ -502,7 +502,7 @@ bool AC::setAnalysisParams(
     Report::UserError0() << "Points Value parameter on .AC line must be non-negative";
     return false;
   }
-  if ( (fStart_ <=0) || (fStop_ <= 0) )
+  if ( (fStart_ <=0 || fStop_ <= 0)  && (type_ == "DEC" || type_ == "OCT") )
   {
     Report::UserError0() << "Illegal values for start or end frequencies on .AC line. " <<
        "Both values must be > 0";
