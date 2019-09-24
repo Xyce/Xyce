@@ -154,13 +154,13 @@ void solveRegressionPCE(
   //
   //  A * c = f
   //
-  //  where c is a vector of coefficients, and f is the result of a function evaluation at a point..
+  //  where c is a vector of coefficients, and f is the result of a function evaluation at a point.
   //
   //  The rectangular matrix A is organized  so that the columns are of size N = sampling_size and
   //  the rows are of size K = # coefficients.
   //
   //  So each row corresponds to a given point (x, or p, or whatever).  Each col corresponds to a
-  //  coefficient, or specific polynomial.
+  //  coefficient, or specific polynomial term.
   int basisSize = samplePCE.basis()->size();
   Teuchos::SerialDenseMatrix< int, double > Vmatrix(N,basisSize);
   Vmatrix.putScalar(0.0);
@@ -848,7 +848,8 @@ void setupLHSSampleValues(
       }
       else
       {
-        Xyce::Report::DevelFatal0().in(" setupLHSSampleValues - ") << "Unsupported distribution for LHS.";
+        Xyce::Report::DevelFatal0().in(" setupLHSSampleValues - ") << 
+         sp.type << "is an unsupported distribution for LHS.";
       }
 
       X[numSamples * ip + is] = finalVal;

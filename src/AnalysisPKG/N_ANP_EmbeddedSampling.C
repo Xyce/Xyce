@@ -161,7 +161,7 @@ EmbeddedSampling::EmbeddedSampling(
       covMatrixGiven_(false),
       numSamples_(1),
       numSamplesGiven_(false),
-      sampleType_(UQ::MC),
+      sampleType_(UQ::LHS),
       userSeed_(0),
       userSeedGiven_(false),
       hackOutputFormat_("TECPLOT"),
@@ -563,42 +563,20 @@ bool EmbeddedSampling::setEmbeddedSamplingOptions(const Util::OptionBlock & opti
 #endif
     else if ((*it).uTag() == "SAMPLE_TYPE")
     {
-      if ((*it).isNumeric())
+      ExtendedString p((*it).stringValue()); p.toUpper();
+      if (p == "MC")
       {
-        int tmp = (*it).getImmutableValue<int>();
-        if (tmp==0)
-        {
-          sampleType_ = UQ::MC;
-        }
-        else if (tmp==1)
-        {
-          sampleType_ = UQ::LHS;
-        }
-        else
-        {
-          Xyce::Report::UserWarning() << (*it).uTag() 
-            << " = " << tmp << " is not a recognized sampling option.  Setting " << (*it).uTag() << " = RANDOM.\n" << std::endl;
-          sampleType_ = UQ::MC;
-        }
+        sampleType_ = UQ::MC;
+      }
+      else if (p == "LHS")
+      {
+        sampleType_ = UQ::LHS;
       }
       else
       {
-        ExtendedString p((*it).stringValue());
-        p.toUpper();
-        if (p.substr(0,2) == "RANDOM")
-        {
-          sampleType_ = UQ::MC;
-        }
-        else if (p.substr(0,3) == "LHS")
-        {
-          sampleType_ = UQ::LHS;
-        }
-        else
-        {
-          Xyce::Report::UserWarning() << (*it).uTag() 
-            << " = " << p << " is not a recognized sampling option.  Setting " << (*it).uTag() << " = RANDOM.\n" << std::endl;
-          sampleType_ = UQ::MC;
-        }
+        Xyce::Report::UserWarning() << (*it).uTag() 
+          << " = " << p << " is not a recognized sampling option.  Setting " << (*it).uTag() << " = MC.\n" << std::endl;
+        sampleType_ = UQ::MC;
       }
     }
     else if ((*it).uTag() == "SEED")
@@ -1203,7 +1181,17 @@ bool EmbeddedSampling::doLoopProcess()
   // to be the "child" analysis, but to then replace the linear objects with block 
   // versions and replace the loader with a block loader.  Otherwise, all the control 
   // is handled in the child process.
-  Xyce::lout() << "***** Beginning Embedded Sampling (simultaneous propagation) simulation....\n" << std::endl;
+  if ( sampleType_ == UQ::MC)
+  {
+  Xyce::lout() 
+    << "***** Beginning Embedded Monte Carlo Sampling (simultaneous propagation) simulation....\n" << std::endl;
+  }
+  else if ( sampleType_ == UQ::LHS)
+  {
+  Xyce::lout() 
+    << "***** Beginning Embedded Latin Hypercube Sampling (simultaneous propagation) simulation....\n" << std::endl;
+  }
+
 
 #if Xyce_STOKHOS_ENABLE
   if (projectionPCEenable_)
@@ -2053,7 +2041,8 @@ void populateMetadata(IO::PkgOptionsMgr & options_manager)
     parameters.insert(Util::ParamMap::value_type("PROJECTION_PCE", Util::Param("PROJECTION_PCE", false)));
     parameters.insert(Util::ParamMap::value_type("ORDER", Util::Param("ORDER", 4)));
 #endif
-    parameters.insert(Util::ParamMap::value_type("SAMPLE_TYPE", Util::Param("SAMPLE_TYPE", 0)));
+    //parameters.insert(Util::ParamMap::value_type("SAMPLE_TYPE", Util::Param("SAMPLE_TYPE", 1))); // default=LHS
+    parameters.insert(Util::ParamMap::value_type("SAMPLE_TYPE", Util::Param("SAMPLE_TYPE", "LHS"))); 
     parameters.insert(Util::ParamMap::value_type("SEED", Util::Param("SEED", 0)));
 
     parameters.insert(Util::ParamMap::value_type("RESAMPLE", Util::Param("RESAMPLE", false)));
