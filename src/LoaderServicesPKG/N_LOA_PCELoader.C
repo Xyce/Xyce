@@ -334,7 +334,7 @@ void returnDenseMatrixEntry(
 // Creator       : Eric Keiter
 // Creation Date : 07/27/2019
 //-----------------------------------------------------------------------------
-bool PCELoader::allocateVoltageLimitingSolver ()
+void PCELoader::allocateVoltageLimitingSolver ()
 {
   if ( Teuchos::is_null(lasSolverRCPtr_) )
   {
@@ -348,7 +348,6 @@ bool PCELoader::allocateVoltageLimitingSolver ()
       lasSolverRCPtr_ = Teuchos::rcp( lasFactory.create( saved_lsOB_, *lasProblemPtr_ , commandLine_) );
     }
   }
-  return true;
 }
 
 //-----------------------------------------------------------------------------

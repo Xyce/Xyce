@@ -160,7 +160,7 @@ public:
   bool getLimiterFlag () { return PCELoader::appLoaderPtr_->getLimiterFlag (); }
 
   // voltage limiter solver
-  bool allocateVoltageLimitingSolver ();
+  void allocateVoltageLimitingSolver ();
 
   // Get the stored quad-based matrices 
   Teuchos::RCP<Linear::BlockMatrix>& get_Quad_dQdx() { return bmdQdx_quad_Ptr_; }
