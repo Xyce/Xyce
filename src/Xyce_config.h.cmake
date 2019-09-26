@@ -59,7 +59,10 @@
 #cmakedefine HAVE_STRING_H
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
+/*#ifndef HAVE_DLFCN_H
 #cmakedefine HAVE_DLFCN_H
+#endif 
+*/
 
 /* define if you have the flex lexical scanner generator */
 #cmakedefine HAVE_FLEX
