@@ -64,6 +64,7 @@ namespace Xyce {
 //-----------------------------------------------------------------------------
 double cpu_time()
 {
+
 #if defined(Xyce_USE_WINDOWS_TIMER)
   /* Windows -------------------------------------------------- */
   FILETIME createTime;

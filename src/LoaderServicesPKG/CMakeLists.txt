@@ -8,6 +8,7 @@ set ( LoaderServices_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_Loader.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_NonlinearEquationLoader.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_ESLoader.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_LOA_PCELoader.C
       CACHE INTERNAL "X_S" )
 
 set ( XYCE_SOURCES ${XYCE_SOURCES} ${LoaderServices_SOURCES} PARENT_SCOPE )

@@ -33,9 +33,9 @@
 //-----------------------------------------------------------------------------
 
 #include <Xyce_config.h>
-#include <Xyce_version.h>
 
 #include <sstream>
+#include <timestamp.h>
 
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Version.h>
