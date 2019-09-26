@@ -138,7 +138,7 @@ OutputMgr::OutputMgr(
     printFooter_(true),
     printStepNumCol_(false),
     outputVersionInRawFile_(false),
-    phaseOutputUsesRadians_(true),
+    phaseOutputUsesRadians_(false),
     outputCalledBefore_(false),
     dcLoopNumber_(0),
     maxDCSteps_(0),
@@ -3544,7 +3544,7 @@ void populateMetadata(
     parameters.insert(Util::ParamMap::value_type("PRINTFOOTER", Util::Param("PRINTFOOTER", true)));
     parameters.insert(Util::ParamMap::value_type("ADD_STEPNUM_COL", Util::Param("ADD_STEPNUM_COL", true)));
     parameters.insert(Util::ParamMap::value_type("OUTPUTVERSIONINRAWFILE", Util::Param("OUTPUTVERSIONINRAWFILE", false)));
-    parameters.insert(Util::ParamMap::value_type("PHASE_OUTPUT_RADIANS", Util::Param("PHASE_OUTPUT_RADIANS", true)));
+    parameters.insert(Util::ParamMap::value_type("PHASE_OUTPUT_RADIANS", Util::Param("PHASE_OUTPUT_RADIANS", false)));
 
     parameters.insert(Util::ParamMap::value_type("OUTPUTTIMEPOINTS", Util::Param("OUTPUTTIMEPOINTS", "VECTOR")));
   }
