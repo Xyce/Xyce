@@ -46,35 +46,35 @@
 # aspects setup by project() may be missing. 
 
 # MPI check
-message("-- Checking if MPI is enabled in Trilinos")
+message(STATUS "Checking if MPI is enabled in Trilinos")
 list(FIND Trilinos_TPL_LIST MPI MPI_Enabled)
 if (MPI_Enabled GREATER -1)
-     message("-- Checking if MPI is enabled in Trilinos - MPI enabled")
+     message(STATUS "Checking if MPI is enabled in Trilinos - MPI enabled")
      set(Xyce_PARALLEL_MPI TRUE) # CACHE BOOL "Build Xyce with MPI enabled")
 
      # For MPI builds, Isorropia and Zoltan are REQUIRED
-     message("-- Looking for Isorropia in Trilinos")
+     message(STATUS "Looking for Isorropia in Trilinos")
      list(FIND Trilinos_PACKAGE_LIST Isorropia Isorropia_FOUND)
      if ( Isorropia_FOUND GREATER -1)
           set(Xyce_USE_ISORROPIA TRUE)
-          message("-- Looking for Isorropia in Trilinos - found")
+          message(STATUS "Looking for Isorropia in Trilinos - found")
      else ()
-          message("-- Looking for Isorropia in Trilinos - not found")
+          message(STATUS "Looking for Isorropia in Trilinos - not found")
           message(FATAL_ERROR "Isorropia is required for MPI parallel builds."
                "Enable the following in the Trilinos build, and try again:"
                "  -D Trilinos_ENABLE_Isorropia=ON")
      endif()
-     message("-- Looking for Zoltan in Trilinos")
+     message(STATUS "Looking for Zoltan in Trilinos")
      list(FIND Trilinos_PACKAGE_LIST Zoltan Zoltan_FOUND)
      if (Zoltan_FOUND LESS 0)
-          message("-- Looking for Zoltan in Trilinos - not found")
+          message(STATUS "Looking for Zoltan in Trilinos - not found")
           message(FATAL_ERROR "Zoltan is required for MPI parallel builds."
                "Enable the following in the Trilinos build, and try again:"
                "  -D Trilinos_ENABLE_Zoltan=ON")
      endif()
-     message("-- Looking for Zoltan in Trilinos - found")
+     message(STATUS "Looking for Zoltan in Trilinos - found")
 else()
-     message("-- Checking if MPI is enabled in Trilinos - MPI not enabled")
+     message(STATUS "Checking if MPI is enabled in Trilinos - MPI not enabled")
      set(Xyce_PARALLEL_MPI FALSE)
      set(Xyce_USE_ISORROPIA FALSE)
 endif()
@@ -91,75 +91,75 @@ add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
 list(FIND Trilinos_TPL_LIST BLAS BLAS_IN_Trilinos)
 list(FIND Trilinos_TPL_LIST LAPACK LAPACK_IN_Trilinos)
-message("-- Looking for BLAS and LAPACK in Trilinos")
+message(STATUS "Looking for BLAS and LAPACK in Trilinos")
 if ((BLAS_IN_Trilinos GREATER -1) AND (LAPACK_IN_Trilinos GREATER -1))
-     message("-- Looking for BLAS and LAPACK in Trilinos - found")
+     message(STATUS "Looking for BLAS and LAPACK in Trilinos - found")
 else ()
-     message("-- Looking for BLAS and LAPACK in Trilinos - not found")
+     message(STATUS "Looking for BLAS and LAPACK in Trilinos - not found")
      message(FATAL_ERROR "BLAS and LAPACK are not available via Trilinos."
           "Enable the following in the Trilinos build, and try again."
           "  -D TPL_ENABLE_BLAS=ON"
           "  -D TPL_ENABLE_LAPACK=ON")
 endif ()
 
-message("-- Looking for ParMETIS in Trilinos")
+message(STATUS "Looking for ParMETIS in Trilinos")
 list(FIND Trilinos_TPL_LIST ParMETIS ParMETIS_IN_Trilinos)
 if (ParMETIS_IN_Trilinos GREATER -1)
-     message("-- Looking for ParMETIS in Trilinos - found")
+     message(STATUS "Looking for ParMETIS in Trilinos - found")
      # add_library(ParMETIS INTERFACE IMPORTED GLOBAL)
      set(Xyce_USE_PARMETIS TRUE) # CACHE BOOL "Enables the ParMETIS linear solver")
 else()
-     message("-- Looking for ParMETIS in Trilinos - not found")
+     message(STATUS "Looking for ParMETIS in Trilinos - not found")
 endif()
 
-message("-- Looking for AMD in Trilinos")
+message(STATUS "Looking for AMD in Trilinos")
 list(FIND Trilinos_TPL_LIST AMD AMD_IN_Trilinos)
 if (AMD_IN_Trilinos GREATER -1)
-     message("-- Looking for AMD in Trilinos - found")
+     message(STATUS "Looking for AMD in Trilinos - found")
      # add_library(AMD INTERFACE IMPORTED GLOBAL)
      set(Xyce_AMD TRUE) # CACHE BOOL "Enables the option of AMD ordering for the linear solver")
 else()
-     message("-- Looking for AMD in Trilinos - not found")
+     message(STATUS "Looking for AMD in Trilinos - not found")
 endif()
 
-message("-- Looking for PARDISO_MKL in Trilinos")
+message(STATUS "Looking for PARDISO_MKL in Trilinos")
 list(FIND Trilinos_TPL_LIST PARDISO_MKL PARDISO_IN_Trilinos)
 if (PARDISO_IN_Trilinos GREATER -1)
-     message("-- Looking for PARDISO_MKL in Trilinos - found")
+     message(STATUS "Looking for PARDISO_MKL in Trilinos - found")
      #     add_library(PARDISO_MKL INTERFACE IMPORTED GLOBAL)
 else()
-     message("-- Looking for PARDISO_MKL in Trilinos - not found")
+     message(STATUS "Looking for PARDISO_MKL in Trilinos - not found")
 endif()
 
-message("-- Looking for SuperLU in Trilinos")
+message(STATUS "Looking for SuperLU in Trilinos")
 list(FIND Trilinos_TPL_LIST SuperLU SuperLU_IN_Trilinos)
 if (SuperLU_IN_Trilinos GREATER -1)
-     message("-- Looking for SuperLU in Trilinos - found")
+     message(STATUS "Looking for SuperLU in Trilinos - found")
      #add_library(SuperLU INTERFACE IMPORTED GLOBAL)
 else()
-     message("-- Looking for SuperLU in Trilinos - not found")
+     message(STATUS "Looking for SuperLU in Trilinos - not found")
 endif()
 
-message("-- Looking for SuperLUDist in Trilinos")
+message(STATUS "Looking for SuperLUDist in Trilinos")
 list(FIND Trilinos_TPL_LIST SuperLUDist SuperLUDist_IN_Trilinos)
 if (SuperLUDist_IN_Trilinos GREATER -1)
-     message("-- Looking for SuperLUDist in Trilinos - found")
+     message(STATUS "Looking for SuperLUDist in Trilinos - found")
      #add_library(SuperLUDist INTERFACE IMPORTED GLOBAL)
 else()
-     message("-- Looking for SuperLUDist in Trilinos - not found")
+     message(STATUS "Looking for SuperLUDist in Trilinos - not found")
 endif()
 
 # Follow something like this pattern for the optional Trilinos packages
 # Set optional dependency in MyApp on Epetra package:
 #   this toggles code within  #ifdef MYAPP_EPETRA
-#         MESSAGE("-- Looking for Epetra:")
+#         MESSAGE(STATUS "Looking for Epetra:")
 #         LIST(FIND Trilinos_PACKAGE_LIST Epetra Epetra_List_ID)
 #         IF (Epetra_List_ID GREATER -1)
 #           ADD_DEFINITIONS(-DMYAPP_EPETRA)
-#           MESSAGE("-- Looking for Epetra: -- found, compiling with -DMYAPP_EPETRA")
+#           MESSAGE(STATUS "Looking for Epetra: - found, compiling with -DMYAPP_EPETRA")
 #           SET(MYAPP_EPETRA TRUE)
 #         ELSE()
-#           MESSAGE("-- Looking for Epetra: -- not found.")
+#           MESSAGE(STATUS "Looking for Epetra: - not found.")
 #           SET(MYAPP_EPETRA FALSE)
 #         ENDIF()
 
@@ -170,15 +170,19 @@ endif()
 
 # find the right fftw library.
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-   message("Using Intel provided MKL, the Math Kernel Library")
-   find_package(MKL)
+     message(STATUS "Using Intel provided MKL, the Math Kernel Library")
+     #find_package(MKL)
+     add_library(IntelMKL INTERFACE IMPORTED GLOBAL)
+     set_target_properties(IntelMKL PROPERTIES
+          INTERFACE_COMPILE_OPTIONS "-Wl,--start-group -L$MKLROOT/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -Wl,--end-group -qopenmp -lpthread"
+          INTERFACE_LINK_LIBRARIES "-qopenmp -mkl=parallel")
 else ()
-   message("Using FFTW3")
-   find_package(FFTW REQUIRED)
-   add_library(FFTW::FFTW INTERFACE IMPORTED GLOBAL)
-   set_target_properties(FFTW::FFTW PROPERTIES
-   	INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}" 
-	INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_LIB}")
+     message(STATUS "Using FFTW3")
+     find_package(FFTW REQUIRED)
+     add_library(FFTW::FFTW INTERFACE IMPORTED GLOBAL)
+     set_target_properties(FFTW::FFTW PROPERTIES
+          INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
+          INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_LIB}")
 
 endif ()
 
@@ -195,11 +199,11 @@ endif ()
 
 if (Xyce_USE_CURL)
      if (Xyce_TRACKING_URL)
-          message("-- Looking for CURL")
+          message(STATUS "Looking for CURL")
           find_package(CURL REQUIRED)
-          message("-- Looking for CURL - found")
+          message(STATUS "Looking for CURL - found")
      else()
-          message("-- WARNING: Xyce_USE_CURL is TRUE, but no URL is supplied in Xyce_TRACKING_URL."
+          message(WARNING "Xyce_USE_CURL is TRUE, but no URL is supplied in Xyce_TRACKING_URL."
                   "            Setting Xyce_USE_CURL to FALSE.")
           set(Xyce_USE_CURL FALSE)
      endif()
