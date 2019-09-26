@@ -348,6 +348,7 @@ bool PCELoader::allocateVoltageLimitingSolver ()
       lasSolverRCPtr_ = Teuchos::rcp( lasFactory.create( saved_lsOB_, *lasProblemPtr_ , commandLine_) );
     }
   }
+  return true;
 }
 
 //-----------------------------------------------------------------------------
