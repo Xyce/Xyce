@@ -28,6 +28,11 @@ then
   automake src/DeviceModelPKG/BERKELEY/Makefile
   automake src/DeviceModelPKG/BERKELEY/Xyce_ModSpec_Interface/Makefile
 fi
+if [ -d Xyce_UnitTests ]
+then
+  automake Xyce_UnitTests/Makefile
+fi
+
 
 echo  "1) autoconf"
 autoconf

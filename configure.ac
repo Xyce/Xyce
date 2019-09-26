@@ -1227,5 +1227,17 @@ if test "x$MODSPEC_MODELS" = "xyes"; then
   AC_CONFIG_FILES([$ms_makefile2])
 fi
 
+# 
+# Add unit tests make files if the unit test directory is present
+#
+MAYBE_UNITTESTS=""
+if test -d $srcdir/Xyce_UnitTests; then
+  ut_makefile=Xyce_UnitTests/Makefile
+  AC_CONFIG_FILES([$ut_makefile])
+  MAYBE_UNITTESTS="Xyce_UnitTests"
+  AC_SUBST([MAYBE_UNITTESTS])
+fi
+
+
 
 AC_OUTPUT

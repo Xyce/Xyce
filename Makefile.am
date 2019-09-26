@@ -7,7 +7,7 @@ ACLOCAL_AMFLAGS=-I config
 LIBTOOL_DEPS = @LIBTOOL_DEPS@
 
 # define which subdirectories to do recursive makes in.
-SUBDIRS=src $(MAYBE_PLUGIN) $(MAYBE_UTILS)
+SUBDIRS=src $(MAYBE_UNITTESTS) $(MAYBE_PLUGIN) $(MAYBE_UTILS)
 libexec_SCRIPTS=$(MAYBE_LIBEXEC_SCRIPTS)
 EXTRA_SCRIPTS=libtool
 
