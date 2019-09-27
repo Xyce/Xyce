@@ -131,12 +131,13 @@ This new option improves the compatibility of \Xyce{} output with gnuplot.
   output.  The correct way to specify a file of data for a paramater
   is to use the new \texttt{tablefile} keyword as in
   \texttt{PARAMETER=tablefile("file.dat")}.  While this release of
-  \Xyce{} will accept both the old and new syntax, future releases
+  \Xyce{} will accept both the old and new syntax, the double quote
+  technique will be removed in a future release, after which Xyce
   will only accept the syntax of
   \texttt{PARAMETER=tablefile("file.dat")}.  Additionally, a new
   syntax of \texttt{PARAMETER=string("string value")} has been
   introduced to specify parameters that are pure strings.  This will
-  be deprecated a future release and the simpler syntax of
+  be deprecated in a future release and the simpler syntax of
   \texttt{PARAMETER="string value"} will be used to specify string
   valued parameters.
 \item The ``Xygra'' device, which was written as a special-purpose
@@ -144,14 +145,15 @@ This new option improves the compatibility of \Xyce{} output with gnuplot.
   for other coupling problems, has been marked as deprecated.  The
   new, more flexible ``General External'' device was created to take
   its place, and has supplanted the use of Xygra in ALEGRA.  The Xygra
-  device and the API that enables it will be removed in \Xyce{} 6.12.
-  If your code has been using the Xygra capability to couple to Xyce,
-  you must replace your usage with the new capability.  The ``General
-  External'' coupling mechanism is documented thoroughly in an
-  application note available on the \Xyce{} web site.
+  device and the API that enables it may be removed without notice in
+  a future release of \Xyce{}. If your code has been using the Xygra
+  capability to couple to Xyce, you must replace your usage with the
+  new capability.  The ``General External'' coupling mechanism is
+  documented thoroughly in an application note available on the
+  \Xyce{} web site.
 \item The minimum required version of Trilinos has changed.  Please
-consult the ``Building Guide'' page on the \Xyce{} website for more
-details.
+  consult the ``Building Guide'' page on the \Xyce{} website for more
+  details.
 \end{XyceItemize}
 
 \newpage
