@@ -915,13 +915,13 @@ bool Model::readTouchStoneFile()
 	    }
 
             // YLin model will use Y-parameter format internally
-            if (paramType_='S')
+            if (paramType_=='S')
 	    {
               Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
 	      Util::stoy(inputNetworkData,YParams,Z0Vec_);
               inputNetworkDataVec_.push_back(YParams);
             }
-            else if (paramType_='Z')
+            else if (paramType_=='Z')
 	    {
               Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
 	      Util::ztoy(inputNetworkData,YParams);
