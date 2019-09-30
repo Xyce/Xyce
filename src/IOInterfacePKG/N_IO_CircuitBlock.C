@@ -1320,8 +1320,9 @@ bool CircuitBlock::handleLinePass1(
       }
     }
 
-    else if (ES1 == ".INCLUDE" || ES1 == ".INC" || ES1 == ".LIB")
+    else if (ES1 == ".INCLUDE" || ES1 == ".INCL" || ES1 == ".INC" || ES1 == ".LIB")
     {
+      // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
       std::string includeFile, libSelect_new = libSelect, libInside_new;
       Xyce::IO::handleIncludeLine( netlistFilename_, line, 
                                    ES1, includeFile, libSelect_new, libInside_new );
@@ -1594,8 +1595,9 @@ bool CircuitBlock::getLinePassMI()
           subcircuitPtr->setLinePosition( subcircuitPtr->getLineEndPosition() );
 
         }
-        else if (ES1 == ".INCLUDE" || ES1 == ".INC")
+        else if (ES1 == ".INCLUDE" || ES1 == ".INCL" || ES1 == ".INC")
         {
+          // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
           std::string includeFile;
           std::string libInside, libSelect;
           Xyce::IO::handleIncludeLine( netlistFilename_, line,
