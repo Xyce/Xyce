@@ -20,6 +20,7 @@
 //   If not, see <http://www.gnu.org/licenses/>.
 //-------------------------------------------------------------------------
 
+#include <N_ERH_Message.h>
 #include <N_UTL_RFparams.h>
 #include <Teuchos_SerialDenseSolver.hpp>
 
@@ -37,6 +38,12 @@ void ytos(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& y,
           Teuchos::SerialDenseMatrix<int, std::complex<double> >& s,
           const std::vector<double> & Z0sVec )
 {
+  // Input y matrix must be square.  Z0sVec must have the correct length.
+  if ( (y.numRows() != y.numCols()) || (y.numRows() != Z0sVec.size()) )
+  {
+    Report::DevelFatal().in("Util::ytos") << "Invalid dimensions or size for input Y matrix or Z0 vector";
+  }
+
   Teuchos::SerialDenseMatrix<int, std::complex<double> > idenMat(y.numRows(), y.numCols());
   Teuchos::SerialDenseMatrix<int, std::complex<double> > ZrsMat(y.numRows(), y.numCols());
 
@@ -76,7 +83,7 @@ void ytos(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& y,
 
 
 //-----------------------------------------------------------------------------
-// Function      : Util::ytos
+// Function      : Util::stoy
 // Purpose       : convert a S Matrix into a Y matrix
 // Special Notes :
 // Scope         : public
@@ -87,6 +94,12 @@ void stoy(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& s,
           Teuchos::SerialDenseMatrix<int, std::complex<double> >& y,
           const std::vector<double> & Z0sVec )
 {
+  // Input s matrix must be square.  Z0sVec must have the correct length.
+  if ( (s.numRows() != s.numCols()) || (s.numRows() != Z0sVec.size()) )
+  {
+    Report::DevelFatal().in("Util::stoy") << "Invalid dimensions or size for input S matrix or Z0 vector";
+  }
+
   Teuchos::SerialDenseMatrix<int, std::complex<double> > idenMat(s.numRows(), s.numCols());
   Teuchos::SerialDenseMatrix<int, std::complex<double> > YrsMat(s.numRows(), s.numCols());
 
@@ -126,64 +139,6 @@ void stoy(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& s,
 
 
 //-----------------------------------------------------------------------------
-// Function      : Util::ytos
-// Purpose       : convert a Y Matrix into an S matrix with same Z0
-// Special Notes :
-// Scope         : public
-// Creator       : Pete Sholander
-// Creation Date : 7/01/2019
-//-----------------------------------------------------------------------------
-/*void ytos(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& y,
-          Teuchos::SerialDenseMatrix<int, std::complex<double> >& s,
-          const std::vector<double> & Z0sVec )
-{
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > eye(y.numRows(), y.numCols());
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > GrefInv(y.numRows(), y.numCols());
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > Zref(y.numRows(), y.numCols());
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > Gref(y.numRows(), y.numCols());
-
-  double z0;
-
-  for (int r = 0; r < y.numRows(); r++)
-  {
-    z0 = Z0sVec[r] ;
-    for (int c = 0; c < y.numCols(); c++)
-    {
-      eye(r, c) = r == c ? 1.0 : 0.0;
-      Zref(r, c) = r == c ? z0 : 0.0;
-      Gref(r, c) = r == c ? 1.0 / sqrt(z0) : 0.0;
-      GrefInv(r, c) = r == c ? sqrt(z0) : 0.0;
-    }
-  }
-
-  s.putScalar(0.0);
-
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > t1(y.numRows(), y.numCols());
-
-  t1.multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, Zref, y, 1.0);
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > t2(eye);
-  t2 += t1; // t2 = 1 + Zref * Ymat
-  Teuchos::SerialDenseMatrix<int, std::complex<double> > t3(eye);
-  t3 -= t1; // t3 = 1 - Zref * Ymat
-
-  s.multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, Gref, t3, 1.0);
-  // Sout = Gref * (1 - Zref * Ymat)
-  // Invert t2
-  Teuchos::SerialDenseSolver<int, std::complex<double> > ftSolver;
-  ftSolver.setMatrix(Teuchos::rcp(&t2, false));
-  ftSolver.invert();
-  // t2 = (1 + Zref * Ymat)^-1
-  t3.putScalar(0.0);
-  t3.multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, s, t2, 1.0);
-  // t3 = Gref * (1 - Zref * Ymat)*(1 + Zref * Ymat)^-1
-  s.putScalar(0.0);
-  s.multiply(Teuchos::NO_TRANS, Teuchos::NO_TRANS, 1.0, t3, GrefInv, 1.0);
-
-  return;
-}
-
-*/
-//-----------------------------------------------------------------------------
 // Function      : Util::ytoz
 // Purpose       : convert a Y Matrix into a Z matrix
 // Special Notes :
@@ -194,6 +149,12 @@ void stoy(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& s,
 void ytoz(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& y,
           Teuchos::SerialDenseMatrix<int, std::complex<double> >& z)
 {
+  // Input y matrix must be square.
+  if ( y.numRows() != y.numCols() )
+  {
+    Report::DevelFatal().in("Util::ytoz") << "Invalid dimensions for input Y matrix";
+  }
+
   z = y;
   Teuchos::SerialDenseSolver<int, std::complex<double> > ftSolver;
   ftSolver.setMatrix(Teuchos::rcp(&z, false));
@@ -213,6 +174,12 @@ void ytoz(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& y,
 void ztoy(const Teuchos::SerialDenseMatrix<int, std::complex<double> >& z,
           Teuchos::SerialDenseMatrix<int, std::complex<double> >& y)
 {
+  // Input z matrix must be square.
+  if ( z.numRows() != z.numCols() )
+  {
+    Report::DevelFatal().in("Util::ztoy") << "Invalid dimensions for input Z matrix";
+  }
+
   y = z;
   Teuchos::SerialDenseSolver<int, std::complex<double> > ftSolver;
   ftSolver.setMatrix(Teuchos::rcp(&y, false));

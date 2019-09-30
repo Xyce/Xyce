@@ -840,6 +840,7 @@ bool Model::readTouchStoneFile()
              << " for model " << getName() << " at line " << lineNum;
           return false;
         }
+
         // skip over any comment lines
         if (!inputFile.eof())
 	{
@@ -874,6 +875,8 @@ bool Model::readTouchStoneFile()
 	    {
               for (int j=0; j<numPorts_; ++j)
 	      {
+                // data will be converted to RI format for internal use in
+                // YLin model
                 ExtendedString Str1(parsedLine[2*(i*numPorts_+j)+1].string_);
 	        ExtendedString Str2(parsedLine[2*(i*numPorts_+j)+2].string_);
                 if (dataFormat_ == "RI")
@@ -911,7 +914,24 @@ bool Model::readTouchStoneFile()
               inputNetworkData[2][1] = tempVal;
 	    }
 
-            inputNetworkDataVec_.push_back(inputNetworkData);
+            // YLin model will use Y-parameter format internally
+            if (paramType_='S')
+	    {
+              Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
+	      Util::stoy(inputNetworkData,YParams,Z0Vec_);
+              inputNetworkDataVec_.push_back(YParams);
+            }
+            else if (paramType_='Z')
+	    {
+              Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
+	      Util::ztoy(inputNetworkData,YParams);
+              inputNetworkDataVec_.push_back(YParams);
+            }
+            else
+	    {
+              // input was in Y-parameter format
+              inputNetworkDataVec_.push_back(inputNetworkData);
+            }
           }
 
           // read in next line
@@ -1123,7 +1143,19 @@ Model::Model(
   processParams();
 
   // read Touchstone 2 formatted input file
-  if (TSFileNameGiven_) readTouchStoneFile();
+  bool TouchstoneFileRead=false;
+  if (TSFileNameGiven_)
+    TouchstoneFileRead = readTouchStoneFile();
+  else
+    UserError(*this) << "No Touchstone input file given for model " << getName();
+
+
+  // it the file was successfully converted it is in Y-parameters and RI format
+  if (TouchstoneFileRead)
+  {
+    paramType_='Y';
+    dataFormat_="RI";
+  }
 }
 
 //-----------------------------------------------------------------------------

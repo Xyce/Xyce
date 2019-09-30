@@ -273,6 +273,9 @@ private:
   int                    numFreq_;          ///< Number of frequency points
   std::vector<double>    Z0Vec_;            ///< vector of impedances (for S-parameters)
   std::vector<double>    freqVec_;          ///< vector of the frequencies in the input Network Data
+
+  // store a separate matrix (that will be Y-parameters in RI-format) for each frequency
+  // in freqVec_
   std::vector<Teuchos::SerialDenseMatrix<int, std::complex<double> > > inputNetworkDataVec_;
 };
 
