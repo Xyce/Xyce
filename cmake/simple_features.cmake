@@ -2,11 +2,6 @@
 #This is being set here, because the check for iota in "check_include_file_cxx.cmake" is not working
 set (HAVE_IOTA true)
 
-#### Open Source ONLY!!!!!!! ########
-#add_definitions( -DXyce_USE_FFTW)
-add_definitions( -DXyce_USE_FFT) 
-set(Xyce_USE_FFTW true)
-
 #### Only on the systems that have bison and flex for now #######
 # Also this is both a C++ and CMAKE variable set. There are both ifs 
 # in the CmakeLists.txt in src/DeviceModelPKG/Core/CMakeLists.txt but 

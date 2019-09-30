@@ -49,8 +49,11 @@ endif()
 
 add_library(XyceStatic STATIC ${XYCE_SOURCES} ${BISON_XyceReactionParser_OUTPUTS} ${FLEX_XyceReactionScanner_OUTPUTS}) 
 target_include_directories(XyceStatic PUBLIC ${XYCE_INCLUDE_DIRECTORIES} ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS})
-target_link_libraries(XyceStatic PUBLIC FFTW::FFTW ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES})
-#target_link_libraries(XyceStatic PUBLIC IntelMKL ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES})
+if(Xyce_USE_FFTW)
+     target_link_libraries(XyceStatic PUBLIC FFTW::FFTW ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES})
+else()
+     target_link_libraries(XyceStatic PUBLIC ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES})
+endif()
 
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})

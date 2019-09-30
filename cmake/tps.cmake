@@ -89,6 +89,9 @@ LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
 add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
+# QUESTION: Is "DLlib" the Intel MKL library? It appears in the TPL list when
+# the Intel compiler is used.
+
 list(FIND Trilinos_TPL_LIST BLAS BLAS_IN_Trilinos)
 list(FIND Trilinos_TPL_LIST LAPACK LAPACK_IN_Trilinos)
 message(STATUS "Looking for BLAS and LAPACK in Trilinos")
@@ -169,21 +172,25 @@ endif()
 
 
 # find the right fftw library.
+message(STATUS "Looking for usable FFT libraries")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
-     message(STATUS "Using Intel provided MKL, the Math Kernel Library")
-     #find_package(MKL)
-     add_library(IntelMKL INTERFACE IMPORTED GLOBAL)
-     set_target_properties(IntelMKL PROPERTIES
-          INTERFACE_COMPILE_OPTIONS "-Wl,--start-group -L$MKLROOT/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -Wl,--end-group -qopenmp -lpthread"
-          INTERFACE_LINK_LIBRARIES "-qopenmp -mkl=parallel")
+     message(STATUS "Looking for usable FFT libraries - found the Intel Math Kernel Library")
+     set(Xyce_USE_FFT TRUE CACHE BOOL "Enable the FFT capability")
+     set(Xyce_USE_INTEL_FFT TRUE CACHE BOOL "Use the Intel Math Kernel Library FFT capability")
 else ()
-     message(STATUS "Using FFTW3")
-     find_package(FFTW REQUIRED)
-     add_library(FFTW::FFTW INTERFACE IMPORTED GLOBAL)
-     set_target_properties(FFTW::FFTW PROPERTIES
-          INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
-          INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_LIB}")
-
+     find_package(FFTW)
+     if(FFTW_FOUND)
+          message(STATUS "Looking for usable FFT libraries - found FFTW")
+          set(Xyce_USE_FFT TRUE CACHE BOOL "Enable the FFT capability")
+          add_library(FFTW::FFTW INTERFACE IMPORTED GLOBAL)
+          set_target_properties(FFTW::FFTW PROPERTIES
+               INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
+               INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_LIB}")
+          set(Xyce_USE_FFTW TRUE CACHE BOOL "Use FFTW library")
+     else()
+          message(WARNING "Neither FFTW or Intel MKL found - disabling the FFT capability")
+          set(Xyce_USE_FFT FALSE CACHE BOOL "Enable the FFT capability")
+     endif ()
 endif ()
 
 if (Xyce_REACTION_PARSER)
