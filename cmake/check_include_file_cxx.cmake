@@ -1,77 +1,64 @@
 ### Checks for POSIX-defined features ###
 
 # Used with device plugins:
-check_include_file_cxx( "dlfcn.h"    HAVE_DLFCN_H )
-# Provides high-quality random numbers:
-check_include_file_cxx( "drand48"    HAVE_DRAND48 )
+check_include_file_cxx( "dlfcn.h" HAVE_DLFCN_H )
+
 # Miscellaneous constants and functions associated with a POSIX OS:
-check_include_file_cxx( "unistd.h"   HAVE_UNISTD_H )
+check_include_file_cxx( "unistd.h" HAVE_UNISTD_H )
+
+# Provides high-quality random numbers:
+check_cxx_symbol_exists( drand48 "cstdlib" HAVE_DRAND48 )
 
 # Check for sys/* headers
 # This is for timing of runs:
 check_include_file_cxx( "sys/resource.h" HAVE_SYS_RESOURCE_H )
 # Gives informations about files:
-check_include_file_cxx( "sys/stat.h"     HAVE_SYS_STAT_H )
+check_include_file_cxx( "sys/stat.h" HAVE_SYS_STAT_H )
 
+# see `src/UtilityPKG/N_UTL_CheckIfValidFile.C` for more stuff about
+# HAVE_SYS_STAT_H that should be here.
 
 ### Check for Windows features ###
-check_include_file_cxx( "Windows.h"  HAVE_WINDOWS_H )
 
-# !!!! This was in the old CMakeLists.txt file; use it? !!!
-#    if ( HAVE_UNISTD_H )
-#         CHECK_FUNCTION_EXISTS ( _chdir HAVE_WIN_CHDIR )
-#         CHECK_FUNCTION_EXISTS ( _getcwd HAVE_WIN_GETCWD )
-#         if ( HAVE_WIN_CHDIR AND HAVE_WIN_GETCWD )
-#              add_definitions ( -DHAVE_WIN_DIRCOMMANDS )
-#         endif ( HAVE_WIN_CHDIR AND HAVE_WIN_GETCWD )
-#    endif ( HAVE_UNISTD_H )
+check_include_file_cxx( "Windows.h" HAVE_WINDOWS_H )
 
-
-### Checks for C++11 features, and their alternatives ###
-
-# These are C++11 standards
-check_include_file_cxx( "unordered_map" HAVE_UNORDERED_MAP )
-check_include_file_cxx( "unordered_set" HAVE_UNORDERED_SET )
-# These were what were available prior to the above
-check_include_file_cxx( "tr1/unordered_map" HAVE_TR1_UNORDERED_MAP )
-check_include_file_cxx( "tr1/unordered_set" HAVE_TR1_UNORDERED_SET )
-# Do the above need to be in some sort of logic?
-# They are temporary, so as long as everything works, probably not.
-
-# iota became part of "numeric" in the C++11 standard
-# This doesn't seem to work  WHY?????????????!!!!!!!!!!!!!!!!  (JCV)
-#CHECK_FUNCTION_EXISTS ( iota HAVE_IOTA )
-# Commenting out for right now, and setting it to be true in "simple_features.cmake"
-# I (JCV) also tried the following, which also does not work:
-# check_cxx_symbol_exists ( iota numeric HAVE_IOTA )
-# May have to use check_cxx_source_compiles, if we can't figure it out.
-
-# erf became part of "cmath" in the C++11 standard
-CHECK_FUNCTION_EXISTS ( erf HAVE_ERF )
-
-# erfc became part of "cmath" in the C++11 standard
-CHECK_FUNCTION_EXISTS ( erfc HAVE_ERFC )
-
-# isnan and isinf functions
-# these became part of "cmath" in the C++11 standard
-# This one is a little messed up from the ideal; but it works, so we can keep
-# doing it until we require C++11
+# The Windows directory commands are supposedly inside the "direct.h" header.
+# See, e.g.,
+# <https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/chdir-wchdir>
 #
-# For all standard Sandia systems, they should be available in the std
-# namespace; i.e., test to see if `std::isnan` and `std::isinf` are available
-# Maybe use these?
-#    CHECK_FUNCTION_EXISTS ( isnan HAVE_ISNAN )
-#    CHECK_FUNCTION_EXISTS ( isinf HAVE_ISINF )
-# If they _are not_ available, then the old CMake system effectively assumes it
-# is a Windows build. In this case, the following CMake snippet is used:
-#    if( HAVE_FLOAT_H )
-#      CHECK_FUNCTION_EXISTS( _isnan FUNCTION__ISNAN )
-#      CHECK_FUNCTION_EXISTS( _finite FUNCTION__FINITE )
-#      if( FUNCTION__ISNAN AND FUNCTION__FINITE )
-#        set( HAVE__ISNAN_AND__FINITE_SUPPORT on )
-#      endif( FUNCTION__ISNAN AND FUNCTION__FINITE )
-#    endif( HAVE_FLOAT_H )
+# Look in the `initializeEarly` function in `src/CircuitPKG/N_CIR_Xyce.C`. The
+# logic indicates that, on a Windows system, the Windows directory commands
+# (_getcwd and _chdir) are available in unistd.h.
 #
-# If both of those fail, then the CMake configuration should fail !!!!
+# It almost has to be the case that direct.h gets included by unistd.h, somehow.
+#
+# As an aside, note that, according to this link,
+# <https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd?view=vs-2019>
+# the normal getcwd that would be accessed via unistd.h is deprecated.
+#
+# At any rate, this follows the proper logic for what is in the code right now,
+# and it works.  The commented out part (for "direct.h") might make more sense
+# in the future, if things go awry.
+#
+#check_include_file_cxx( "direct.h" HAVE_DIRECT_H )
+#if (HAVE_DIRECT_H)
+#     check_cxx_symbol_exists ( _chdir "direct.h" HAVE_WIN_CHDIR )
+#     check_cxx_symbol_exists ( _getcwd "direct.h" HAVE_WIN_GETCWD )
+if (HAVE_UNISTD_H)
+     check_cxx_symbol_exists ( _chdir "unistd.h" HAVE_WIN_CHDIR )
+     check_cxx_symbol_exists ( _getcwd "unistd.h" HAVE_WIN_GETCWD )
+     if ( HAVE_WIN_CHDIR AND HAVE_WIN_GETCWD )
+          set (HAVE_WIN_DIRCOMMANDS TRUE)
+     endif ()
+endif ()
 
+
+# Finally we must have POSIX or Windows
+# This logic is also in `src/UtilityPKG/N_UTL_CPUTime.C`.  It should probably
+# be removed from there.  The error message should probably be made more
+# meaningful, too.
+if (NOT (HAVE_WINDOWS_H OR (HAVE_UNISTD_H AND HAVE_SYS_RESOURCE_H)))
+     message(FATAL_ERROR "Neither Windows nor POSIX features are available."
+          "Unable to define cpu_time() for an unknown OS.")
+endif ()
 
