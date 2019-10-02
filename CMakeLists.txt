@@ -32,3 +32,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(cmake/config.cmake)
 
 add_subdirectory(src) 
+
+# add in unit tests subdirectory if it exists
+if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
+  add_subdirectory (Xyce_UnitTests)
+endif ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
