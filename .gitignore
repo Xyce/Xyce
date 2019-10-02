@@ -3,7 +3,7 @@
 #
 
 # Ignore Mac OS X artifact files.
-
+build
 **/._*
 **/.DS_Store
 *~
