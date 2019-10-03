@@ -106,6 +106,26 @@ public:
   const std::vector<Index> inputIDs_;
 };
 
+template <typename Index>
+class Cmp1
+{
+public:
+  Cmp1( const Index inputID )
+    : id_(inputID)
+  {}
+
+  bool operator()( Index id )
+  {
+    return ( (id == id_) ? true : false );
+  }
+
+  private:
+  
+  Index id_;
+
+};
+
+
 //-----------------------------------------------------------------------------
 // Class         : Graph
 // Purpose       : Simple undirected graph
@@ -397,24 +417,28 @@ Graph<Key1Type, DataType, Index>::addToAdjacent(
   // is there
 
   // add in new values
-  Index id = rvsKeys1_[key];
-  Index oldId = rvsKeys1_[oldkey];
   int extraElementsSize = newAdjVec.size();
-  for(int i=0; i< extraElementsSize; i++)
+  if (extraElementsSize)
   {
-    adjacencyGraph_[id].push_back(rvsKeys1_[newAdjVec[i]]);
-    // and any new edges
-    // need to do this by changing the edge's oldId to the id of the new key
-    Index edgeIndex = rvsKeys1_[newAdjVec[i]];
-    typename std::vector< Index >::iterator endLoc = adjacencyGraph_[ edgeIndex ].end();
-    typename std::vector< Index >::iterator edgeLoc = find(adjacencyGraph_[ edgeIndex ].begin(), endLoc, oldId);
-    if(edgeLoc == endLoc)
+    Index id = rvsKeys1_[key];
+    Index oldId = rvsKeys1_[oldkey];
+    for(int i=0; i< extraElementsSize; i++)
     {
-      adjacencyGraph_[edgeIndex].push_back(id);
-    }
-    else
-    {
-      *edgeLoc = id;
+      Index edgeIndex = rvsKeys1_[newAdjVec[i]];
+      adjacencyGraph_[id].push_back( edgeIndex );
+
+      // and any new edges
+      // need to do this by changing the edge's oldId to the id of the new key
+      typename std::vector< Index >::iterator endLoc = adjacencyGraph_[ edgeIndex ].end();
+      typename std::vector< Index >::iterator edgeLoc = find(adjacencyGraph_[ edgeIndex ].begin(), endLoc, oldId);
+      if(edgeLoc == endLoc)
+      {
+        adjacencyGraph_[edgeIndex].push_back(id);
+      }
+      else
+      {
+        *edgeLoc = id;
+      }
     }
   }
 }
@@ -481,44 +505,43 @@ void
 Graph<Key1Type, DataType, Index>::removeKey(
   const Key1Type &      oldKey1)
 {
-  // get keys and id
-  Index id = rvsKeys1_[ oldKey1 ];
+  Index id = -1;
 
-  // clear the row it uses
-  // this leaves an empty row in place, but that's ok
-  adjacencyGraph_[id].clear();
-
-  // erase row that this key points to in adjacency graph
-  // std::vector< std::vector< Index > >::iterator oldRowItr = adjacencyGraph_.begin() + id;
-  // adjacencyGraph_.erase(oldRowItr);
-  // if I erase the row it throws off the key maps.  So I need to fix up those
-
-  // search through adjacencyGraph_ and remove all references to this key
-  // then remove it from the maps as well
-  int numAdjRows = adjacencyGraph_.size();
-  for(int i=0; i<numAdjRows; ++i)
+  typename Index1Map::const_iterator it = rvsKeys1_.find(oldKey1);
+  if (it != rvsKeys1_.end())
   {
-    if(!adjacencyGraph_[i].empty())
+    // get keys and id
+    id = it->second;
+
+    // clear the row it uses
+    // this leaves an empty row in place, but that's ok
+    adjacencyGraph_[id].clear();
+
+    // erase row that this key points to in adjacency graph
+    // std::vector< std::vector< Index > >::iterator oldRowItr = adjacencyGraph_.begin() + id;
+    // adjacencyGraph_.erase(oldRowItr);
+    // if I erase the row it throws off the key maps.  So I need to fix up those
+
+    // search through adjacencyGraph_ and remove all references to this key
+    // then remove it from the maps as well
+    int numAdjRows = adjacencyGraph_.size();
+    for(int i=0; i<numAdjRows; ++i)
     {
-      typename std::vector< Index >::iterator beginLoc = adjacencyGraph_[i].begin();
-      typename std::vector< Index >::iterator endLoc = adjacencyGraph_[i].end();
-      // look for the old key
-      typename std::vector< Index >::iterator oldKeyLoc = find(beginLoc, endLoc, id);
-      if(oldKeyLoc != endLoc)
+      if(!adjacencyGraph_[i].empty())
       {
-        // found old key, so erase it
-        adjacencyGraph_[i].erase(oldKeyLoc);
-        i--; // ugly.  we need to ensure we find all of the oldKeyLoc values.
+        typename std::vector< Index >::iterator beginLoc = adjacencyGraph_[i].begin();
+        typename std::vector< Index >::iterator endLoc = adjacencyGraph_[i].end();
+        adjacencyGraph_[i].erase( remove_if(beginLoc, endLoc, Cmp1<Index>(id)), endLoc);
       }
     }
+
+    // clean up maps
+    keys1_.erase(id);         // Key1Map keys1_;
+    rvsKeys1_.erase(oldKey1); // Index1Map rvsKeys1_;
+    data1_.erase(oldKey1);    // Data1Map data1_;
+  
+    numRemovedNodes_++;
   }
-
-  // clean up maps
-  keys1_.erase(id);         // Key1Map keys1_;
-  rvsKeys1_.erase(oldKey1); // Index1Map rvsKeys1_;
-  data1_.erase(oldKey1);    // Data1Map data1_;
-
-  numRemovedNodes_++;
 }
 
 //-----------------------------------------------------------------------------
@@ -536,40 +559,47 @@ Graph<Key1Type, DataType, Index>::removeKeys(
   const std::vector<Key1Type> &         oldKeys1)
 {
   int numKeysToRemove = oldKeys1.size();
-  std::vector<Index> ids(numKeysToRemove);
+  std::vector<Index> ids;
 
   // Go through all the keys, retrieve their ids and clean up the maps
   for(int i=0; i<numKeysToRemove; ++i)
   {
-    // get keys and id
-    ids[i] = rvsKeys1_[ oldKeys1[i] ];
-
-    // clean up maps
-    keys1_.erase(ids[i]);         // Key1Map keys1_;
-    rvsKeys1_.erase(oldKeys1[i]); // Index1Map rvsKeys1_;
-    data1_.erase(oldKeys1[i]);    // Data1Map data1_;
-
-    // clear the row it uses
-    // this leaves an empty row in place, but that's ok
-    adjacencyGraph_[ids[i]].clear();
-  }
-
-  // Sort the list of ids to expedite searching
-  std::sort(ids.begin(), ids.end());
-
-  // search through adjacencyGraph_ and remove all references to this key
-  int numAdjRows = adjacencyGraph_.size();
-  for(int i=0; i<numAdjRows; ++i)
-  {
-    if(!adjacencyGraph_[i].empty())
+    typename Index1Map::const_iterator it = rvsKeys1_.find(oldKeys1[i]);
+    if (it != rvsKeys1_.end())
     {
-      typename std::vector< Index >::iterator beginLoc = adjacencyGraph_[i].begin();
-      typename std::vector< Index >::iterator endLoc = adjacencyGraph_[i].end();
-      adjacencyGraph_[i].erase( remove_if(beginLoc, endLoc, Cmp<Index>(ids)), endLoc);
+      // get keys and id
+      ids.push_back( it->second );
+
+      // clean up maps
+      keys1_.erase( it->second );         // Key1Map keys1_;
+      rvsKeys1_.erase( oldKeys1[i] ); // Index1Map rvsKeys1_;
+      data1_.erase( oldKeys1[i] );    // Data1Map data1_;
+
+      // clear the row it uses
+      // this leaves an empty row in place, but that's ok
+      adjacencyGraph_[it->second].clear();
     }
   }
 
-  numRemovedNodes_ += numKeysToRemove;
+  if (ids.size())
+  {
+    // Sort the list of ids to expedite searching
+    std::sort(ids.begin(), ids.end());
+
+    // search through adjacencyGraph_ and remove all references to this key
+    int numAdjRows = adjacencyGraph_.size();
+    for(int i=0; i<numAdjRows; ++i)
+    {
+      if(!adjacencyGraph_[i].empty())
+      {
+        typename std::vector< Index >::iterator beginLoc = adjacencyGraph_[i].begin();
+        typename std::vector< Index >::iterator endLoc = adjacencyGraph_[i].end();
+        adjacencyGraph_[i].erase( remove_if(beginLoc, endLoc, Cmp<Index>(ids)), endLoc);
+      }
+    }
+  }
+
+  numRemovedNodes_ += ids.size();
 }
 
 //-----------------------------------------------------------------------------

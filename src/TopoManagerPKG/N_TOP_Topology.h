@@ -259,8 +259,8 @@ private:
   // this is a list of nodes to be supernoded
   // format is: nodeToBeReplaced, nodeToBeKept in each pair.
   // NOTE: this memory is cleared after the nodes are removed from the ordered node list. 
-  std::vector< std::pair<NodeID, NodeID> >                superNodeList_;
-  std::vector< std::pair<NodeID, NodeID> >                globalSuperNodeList_;
+  std::vector< std::pair<NodeID, NodeID> >              superNodeList_;
+  std::vector< NodeID >                                 badDeviceList_;
 
   mutable Util::SymbolTable                             nodeSymbols_;
   mutable std::vector<char>                             variableTypes_;
