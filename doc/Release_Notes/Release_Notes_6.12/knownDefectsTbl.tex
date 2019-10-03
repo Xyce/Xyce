@@ -40,6 +40,22 @@
 %\\ \hline
 %
 %
+\textbf{1241-SON}: Expression library parsing bottleneck on large expressions &
+It has been determined that the expression library in Xyce can be the
+source of a severe parsing bottleneck when expressions are large and
+complex.  Expressions of this sort show up most often when parsing
+large PDKs with complex use of the \texttt{.FUNC} feature, and when
+using the ``tablefile'' feature to import a large file of time/voltage
+pairs for use in a \texttt{B} source.
+\textbf{\textit{Workaround}}:
+There is currently no workaround for the issue of complex PDK function
+use, and the team is working on fixing this issue by redesigning the
+way Xyce handles expressions with user defined functions.  For the
+``tablefile'' issue, one should avoid using \texttt{B} sources with
+``tablefile'' to read in large tables, and instead use the ``PWL
+FILE'' option of the \texttt{V} source, which does not have this
+parsing issue.
+
 \textbf{1085-SON}: Expression library mishandles \texttt{.FUNC} definitions of functions that begin with ``I'' and are two characters long &
 \Xyce{}'s expression library assumes that all terms of the form
 ``Ix(<arguments>)'' are lead current expressions, where ``x'' is
