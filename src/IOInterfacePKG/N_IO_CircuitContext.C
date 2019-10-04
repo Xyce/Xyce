@@ -1037,7 +1037,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
           // Reset the function body.
           functionBody = functionParameter.stringValue();
 
-          // Add the function to resolvedFunctions_.
           currentContextPtr_->resolvedFunctions_[functionName] =
             Util::Param(functionNameAndArgs, functionBody);
           resolvedSomethingThisLoop=true;
@@ -1767,12 +1766,12 @@ bool CircuitContext::getResolvedFunction(Util::Param & parameter) const
 {
   bool success = false;
 
-  std::string functionToFind(parameter.uTag());
+  std::map<std::string, Util::Param>::const_iterator it = 
+    currentContextPtr_->resolvedFunctions_.find(parameter.uTag());
 
-  if (currentContextPtr_->resolvedFunctions_.find(functionToFind) !=
-      currentContextPtr_->resolvedFunctions_.end())
+  if (it != currentContextPtr_->resolvedFunctions_.end())
   {
-    parameter = currentContextPtr_->resolvedFunctions_[functionToFind];
+    parameter = it->second;
     success = true;
   }
   else if (currentContextPtr_->parentContextPtr_ != NULL)

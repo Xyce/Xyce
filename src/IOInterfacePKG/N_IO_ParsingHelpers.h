@@ -104,6 +104,14 @@ void readExternalParamsFromFile( N_PDS_Comm& comm,
                                  std::string filename, 
                                  std::vector< std::pair< std::string, std::string > > & paramList );
 
+bool extractParamData( CircuitBlock &            circuit_block,
+                       const std::string &       netlist_filename,
+                       const TokenVector &       parsed_line);
+
+bool extractGlobalParamData( CircuitBlock &            circuit_block,
+                             const std::string &       netlist_filename,
+                             const TokenVector &       parsed_line);
+
 } // namespace IO
 } // namespace Xyce
 

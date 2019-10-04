@@ -661,6 +661,259 @@ void readExternalParamsFromFile( N_PDS_Comm& comm,
   }
 }
 
+//-----------------------------------------------------------------------------
+// Function      : extractParamData
+// Purpose       : Extract the parameters from a netlist .PARAM line held in
+//                 parsed_line.
+// Special Notes :
+// Scope         : public
+// Creator       : Lon Waters, SNL
+// Creation Date : 10/05/2001
+//-----------------------------------------------------------------------------
+bool extractParamData(
+  CircuitBlock &            circuit_block,
+  const std::string &       netlist_filename,
+  const TokenVector &       parsed_line)
+{
+  int numFields = parsed_line.size();
+
+  // Check that the minimum required number of fields are on the line.
+  if ( numFields < 4 )
+  {
+    Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
+      << ".param line has an unexpected number of fields";
+    return false;
+  }
+
+  Util::OptionBlock option_block("PARAM", Util::OptionBlock::ALLOW_EXPRESSIONS, netlist_filename, parsed_line[0].lineNumber_);
+ 
+  int linePosition = 1;   // Start of parameters on .param line.
+
+  Util::Param parameter("", "");
+  while ( linePosition < numFields )
+  {
+    parameter.setTag( parsed_line[linePosition].string_ );
+
+    if ( (parameter.uTag() == "TEMP") || (parameter.uTag() == "VT") ||
+         (parameter.uTag() == "GMIN") || (parameter.uTag() == "TIME") || (parameter.uTag() == "FREQ"))
+    {
+      Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
+        << "Parameter name " << parameter.uTag() << " is not permitted";
+    }
+
+    if ( linePosition + 2 >= numFields )
+    {
+      Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
+        << "Unexpectedly reached end of line while looking for parameters in .PARAM statement";
+      return false;
+    }
+
+    if ( parsed_line[ linePosition+1].string_ != "=" )
+    {
+      Report::UserError0().at(netlist_filename, parsed_line[linePosition + 1].lineNumber_)
+        << "Equal sign (=) required between parameter and value in .PARAM statement";
+    }
+
+    linePosition += 2;   // Advance to parameter value field.
+
+    if (parsed_line[linePosition].string_[0] == '{')
+    {
+      Util::Expression expPtr(parsed_line[linePosition].string_);
+
+      std::vector<std::string> junk;
+      std::string msg;
+      expPtr.get_names(XEXP_NODE, junk);
+      if (junk.size() > 0)
+        msg = "Node Voltage";
+      expPtr.get_names(XEXP_INSTANCE, junk);
+      if (junk.size() > 0)
+        msg = "Device Current";
+      expPtr.get_names(XEXP_LEAD, junk);
+      if (junk.size() > 0)
+        msg = "Lead Current";
+      if (msg != "")
+      {
+        Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
+          << msg << " may not be used in parameter expression (" << parameter.tag() << ")";
+      }
+      parameter.setVal(parsed_line[linePosition].string_);
+//DNS: It should be this?      parameter.setVal(expPtr);
+//        parameter.setVal(expPtr);
+    }
+    else
+    {
+      ExtendedString tmp ( parsed_line[linePosition].string_ );
+      if (tmp.possibleParam())
+        parameter.setVal(std::string("{" + parsed_line[linePosition].string_ + "}"));
+//DNS: this expr should be parsed here?
+//        parameter.setVal(Util::Expression(std::string("{" + parsed_line[linePosition].string_ + "}")));
+      else
+        parameter.setVal(parsed_line[linePosition].string_);
+    }
+
+    option_block.addParam( parameter );
+
+    ++linePosition;     // Advance to next parameter.
+
+    if ( linePosition < numFields && parsed_line[linePosition].string_ == "," )
+    {
+      // Skip past comma separator.
+      ++linePosition;
+    }
+  }
+
+  for (Util::ParamList::const_iterator paramIter = option_block.begin(), paramEnd = option_block.end(); paramIter != paramEnd; ++paramIter)
+  {
+    ExtendedString P ( (*paramIter).tag() );
+    P.toUpper();
+    if (!P.possibleParam())
+    {
+      Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
+        << "Illegal parameter name: " << P;
+    }
+    // else if (par[P]++ != 0)
+    // {
+    //   Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
+    //     << "Duplicate parameter definition detected: " << P;
+    // }
+  }
+
+  circuit_block.addParams(option_block);
+
+  return true; // Only get here on success.
+}
+
+//-----------------------------------------------------------------------------
+// Function      : extractGlobalParamData
+// Purpose       : Extract the parameters from a netlist .GLOBAL_PARAM line held in
+//                 parsed_line.
+// Special Notes :
+// Scope         : public
+// Creator       : Lon Waters, SNL
+// Creation Date : 10/05/2001
+//-----------------------------------------------------------------------------
+bool extractGlobalParamData(
+  CircuitBlock &                circuit_block,
+  const std::string &           netlist_filename,
+  const TokenVector &           parsed_line)
+{
+  int numFields = parsed_line.size();
+
+  // Check that the minimum required number of fields are on the line.
+  if ( numFields < 4 )
+  { 
+    Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
+      << ".param line has an unexpected number of fields";
+    return false;
+  }
+
+  if (circuit_block.isSubcircuit())
+  { 
+    Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
+      << "Attempt to assign global_param inside of subcircuit";
+    return false;
+  }
+
+  Util::OptionBlock option_block("GLOBAL_PARAM", Util::OptionBlock::ALLOW_EXPRESSIONS,
+                                  netlist_filename, parsed_line[0].lineNumber_);
+
+  int linePosition = 1;   // Start of parameters on .param line.
+
+  Util::Param parameter("", "");
+  while ( linePosition < numFields )
+  { 
+    parameter.setTag( parsed_line[linePosition].string_ );
+    
+    if ( (parameter.uTag() == "TEMP") || (parameter.uTag() == "VT") ||
+         (parameter.uTag() == "GMIN") || (parameter.uTag() == "TIME") || (parameter.uTag() == "FREQ"))
+    { 
+      Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_)
+        << "Parameter name " << parameter.uTag() << " is not permitted";
+    }
+    
+    if ( linePosition + 2 >= numFields )
+    { 
+      Report::UserError0().at(netlist_filename, parsed_line[linePosition].lineNumber_) 
+        << "Unexpectedly reached end of line while looking for parameters in .PARAM statement";
+      return false;
+    }
+    
+    if ( parsed_line[ linePosition+1].string_ != "=" )
+    { 
+      Report::UserError0().at(netlist_filename, parsed_line[linePosition + 1].lineNumber_)
+        << "Equal sign (=) required between parameter and value in .PARAM statement";
+    }
+    
+    linePosition += 2;   // Advance to parameter value field.
+
+    if (parsed_line[linePosition].string_[0] == '{')
+    { 
+      Util::Expression expPtr(parsed_line[linePosition].string_);
+      
+      std::vector<std::string> junk;
+      std::string msg;
+      expPtr.get_names(XEXP_NODE, junk);
+      if (junk.size() > 0)
+        msg = "Node Voltage";
+      expPtr.get_names(XEXP_INSTANCE, junk);
+      if (junk.size() > 0)
+        msg = "Device Current";
+      expPtr.get_names(XEXP_LEAD, junk);
+      if (junk.size() > 0)
+        msg = "Lead Current";
+      if (msg != "")
+      { 
+        Report::UserError0().at(netlist_filename, parsed_line[0].lineNumber_)
+          << msg << " may not be used in parameter expression (" << parameter.tag() << ")";
+      }
+      parameter.setVal(parsed_line[linePosition].string_);
+//DNS: It should be this?      parameter.setVal(expPtr);
+//        parameter.setVal(expPtr);
+    }
+    else
+    {
+      ExtendedString tmp ( parsed_line[linePosition].string_ );
+      if (tmp.possibleParam())
+        parameter.setVal(std::string("{" + parsed_line[linePosition].string_ + "}"));
+//DNS: this expr should be parsed here?
+//        parameter.setVal(Util::Expression(std::string("{" + parsed_line[linePosition].string_ + "}")));
+      else
+        parameter.setVal(parsed_line[linePosition].string_);
+    }
+
+    option_block.addParam( parameter );
+
+    ++linePosition;     // Advance to next parameter.
+
+    if ( linePosition < numFields && parsed_line[linePosition].string_ == "," )
+    {
+      // Skip past comma separator.
+      ++linePosition;
+    }
+  }
+
+  Util::ParamList::const_iterator paramIter = option_block.begin(), paramEnd = option_block.end();
+  for ( ; paramIter != paramEnd; ++paramIter)
+  {
+    ExtendedString P ( (*paramIter).tag() );
+    P.toUpper();
+    if (!P.possibleParam())
+    {
+      Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
+        << "Illegal parameter name: " << P;
+    }
+    // else if (par[P]++ != 0)
+    // {
+    //   Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
+    //     << "Duplicate parameter definition detected: " << P;
+    // }
+  }
+
+  circuit_block.addGlobalParams(option_block);
+
+  return true; // Only get here on success.
+}
+
 
 } // namespace IO
 } // namespace Xyce

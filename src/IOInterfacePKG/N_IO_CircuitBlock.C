@@ -1296,6 +1296,16 @@ bool CircuitBlock::handleLinePass1(
       }
     }
 
+    else if (ES1 == ".PARAM")
+    {
+      return Xyce::IO::extractParamData( *this, netlistFilename_, line );
+    }
+
+    else if (ES1 == ".GLOBAL_PARAM")
+    {
+      return Xyce::IO::extractGlobalParamData( *this, netlistFilename_, line );
+    }
+
     else if (ES1 == ".END")
     {
       std::string name = circuitContext_.getCurrentContextPtr()->getName();
