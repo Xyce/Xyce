@@ -1,11 +1,17 @@
 
-#generate a timestamp.h
-string(TIMESTAMP ughvar)
-set(XYCEBUILDTIMESTAMP ${ughvar} CACHE STRING "BuildTimeStamp")
-set(VERSION ${PROJECT_VERSION} CACHE STRING "top level version of Xyce")
+# generate a timestamp.h
+string(TIMESTAMP CONFIGURE_TIME %Y%m%d%H%M)
+execute_process(
+     COMMAND git -C ${CMAKE_SOURCE_DIR} log --pretty=format:%h -1
+     OUTPUT_VARIABLE GITSHA  ERROR_QUIET)
+if (NOT ${GITSHA} STREQUAL "")
+     set(GITSTRING "-g-${GITSHA}")
+endif ()
+set(XYCEBUILDTIMESTAMP "${CONFIGURE_TIME}${GITSTRING}")
 configure_file(timestamp.h.cmake timestamp.h)
-# -- process files for this library ------------------------------------------
 
+
+# -- process files for this library ------------------------------------------
 
 # process source file options
 if ( Xyce_USE_INTEL_FFT )

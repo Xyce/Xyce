@@ -111,30 +111,7 @@
 #cmakedefine Xyce_DEBUG_TESTJAC
 #cmakedefine Xyce_TEST_SOLN_VAR_MAP
 
-
-// ALL OF THE FOLLOWING IS OLD, BUT I'M NOT READY TO REMOVE IT, YET
-
-
-/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
-   `char[]'. */
-#cmakedefine YYTEXT_POINTER
-
-/* Define to 1 if SRenvironment.h header is found */
-#cmakedefine HAVE_SRENVIRONMENT_H
-
-
-/* -- Xyce configuration ---------------------------------------------------- */
-
-
-// -- version string ----------------
-// This doesn't work when values are 0...
-#cmakedefine Xyce_VERSION_MAJOR @Xyce_VERSION_MAJOR@
-#cmakedefine Xyce_VERSION_MINOR @Xyce_VERSION_MINOR@
-#cmakedefine Xyce_VERSION_PATCH @Xyce_VERSION_PATCH@
-#cmakedefine Xyce_VERSION_TWEAK @Xyce_VERSION_TWEAK@
-// So maybe use something like this?
-#define X_V_MAJOR @Xyce_VERSION_MAJOR@
-#define X_V_MINOR @Xyce_VERSION_MINOR@
-#define X_V_PATCH @Xyce_VERSION_PATCH@
+// Set the Xyce version for the code
+#define VERSION "@Xyce_XyceVERSION@"
 
 #endif 

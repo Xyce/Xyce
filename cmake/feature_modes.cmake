@@ -15,6 +15,19 @@ set (HAVE_ISINF TRUE)
 # This should always be true, so why is it optional?
 set(Xyce_BELOS TRUE)
 
+# For communicating the exact version of Xyce to the code
+set(Xyce_RELEASE                   FALSE CACHE BOOL "Set to TRUE to designate a release version")
+set(Xyce_QUALIFICATION             FALSE CACHE BOOL "Set to TRUE to designate a qualification release")
+if(Xyce_RELEASE)
+     set(RELEASE_CHARACTER "R")
+     if(Xyce_QUALIFICATION)
+          set(QUALIFICATION_CHARACTER "Q")
+     endif()
+else()
+     set(RELEASE_CHARACTER "D")
+endif()
+set(Xyce_XyceVERSION "${RELEASE_CHARACTER}:${QUALIFICATION_CHARACTER}:${Xyce_VERSION_MAJOR}.${Xyce_VERSION_MINOR}.${Xyce_VERSION_PATCH}")
+
 # Enable parallel
 set(Xyce_PARALLEL_MPI              FALSE CACHE BOOL "Build Xyce with MPI enabled")
 
