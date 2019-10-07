@@ -236,9 +236,6 @@ public:
   // block if it is found, otherwise return NULL.
   CircuitBlock* findSubcircuit( std::string const& subcircuitName );
 
-  // Receive the circuit context (from the distribution tool).
-  bool receiveCircuitContext(const CircuitContext&  ccIn);
-
   // Change netlist file name
   void setFileName ( const std::string & fileNameIn );
 

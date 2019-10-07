@@ -806,23 +806,6 @@ void CircuitBlock::setLinePosition( int const& position )
   ssfPtr_->setLineNumber( position );
 }
 
-//----------------------------------------------------------------------------
-// Function       : CircuitBlock::receiveCircuitContext
-// Purpose        : Receive the circuit context (from the distribution tool).
-// Special Notes  :
-// Scope          :
-// Creator        : Lon Waters
-// Creation Date  : 07/21/2003
-//----------------------------------------------------------------------------
-bool CircuitBlock::receiveCircuitContext(const CircuitContext & ccIn)
-{
-  circuitContext_ = ccIn;
-  circuitContext_.resolve( std::vector<Device::Param>() );
-
-  return true;
-}
-
-
 //--------------------------------------------------------------------------
 // Function      : CircuitBlock::extractSubcircuitData
 // Purpose       : Extract subcircuit data from parsedLine. The bulk of

@@ -192,7 +192,6 @@ DistToolBase::broadcastGlobalData()
       if (!circuitContextReady_)
       {
         Xyce::IO::unpackCircuitContext(circuitContext_, charBuffer_, bsize, pdsCommPtr_);
-        circuitBlock_.receiveCircuitContext( *circuitContext_ );
       }
     }
 
