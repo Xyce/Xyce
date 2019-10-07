@@ -47,6 +47,10 @@
 // Windows features
 #cmakedefine HAVE_WINDOWS_H
 #cmakedefine HAVE_WIN_DIRCOMMANDS
+#cmakedefine YY_NO_UNISTD_H
+#cmakedefine _CRT_SECURE_NO_WARNINGS
+
+
 
 // POSIX features
 #cmakedefine HAVE_DLFCN_H

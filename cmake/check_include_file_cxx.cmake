@@ -51,6 +51,9 @@ if (HAVE_UNISTD_H)
           set (HAVE_WIN_DIRCOMMANDS TRUE)
      endif ()
 endif ()
+if(NOT HAVE_UNISTD_H)
+     set(YY_NO_UNISTD_H TRUE)
+endif()
 
 
 # Finally we must have POSIX or Windows
@@ -61,4 +64,6 @@ if (NOT (HAVE_WINDOWS_H OR (HAVE_UNISTD_H AND HAVE_SYS_RESOURCE_H)))
      message(FATAL_ERROR "Neither Windows nor POSIX features are available."
           "Unable to define cpu_time() for an unknown OS.")
 endif ()
-
+if ( WIN32 )
+   set (_CRT_SECURE_NO_WARNINGS TRUE)
+endif()
