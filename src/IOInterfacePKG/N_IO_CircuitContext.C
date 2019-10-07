@@ -648,7 +648,7 @@ void CircuitContext::resolveStringType(Util::Param & parameter) const
   if (parameter.isStringTypeQuoted())
   {
     Report::UserWarning() << "The string(\" \") syntax is temporary and will be deprecated "
-      << "in a future release, where it will be replace with simple double quotes,"
+      << "in a future release, when it will be replaced with simple double quotes,"
       << "after which the string(\" \") syntax will be removed.";
     // The parameter is time dependent with its time history defined by the set
     // of time-value pairs in the file given by the value of the parameter.
