@@ -169,6 +169,7 @@ if (Xyce_RAD_MODELS)
           else ()
                message("Boost was not found - disabling the ATHENA model")
                set (Xyce_ATHENA FALSE CACHE BOOL "Include the ATHENA model, if it exists" FORCE)
+               set (Boost_INCLUDE_DIRS "")
           endif ()
      elseif (NOT DEFINED Xyce_ATHENA)
           # The flag was not set, and the directory does not exist

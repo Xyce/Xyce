@@ -35,9 +35,6 @@
 #cmakedefine Xyce_USE_INTEL_FFT
 #cmakedefine Xyce_USE_FFTW
 
-// Reaction parser
-#cmakedefine Xyce_REACTION_PARSER
-
 // Enable usage tracking
 #cmakedefine Xyce_USE_CURL
 
@@ -47,10 +44,7 @@
 // Windows features
 #cmakedefine HAVE_WINDOWS_H
 #cmakedefine HAVE_WIN_DIRCOMMANDS
-#cmakedefine YY_NO_UNISTD_H
 #cmakedefine _CRT_SECURE_NO_WARNINGS
-
-
 
 // POSIX features
 #cmakedefine HAVE_DLFCN_H
@@ -58,6 +52,10 @@
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_SYS_RESOURCE_H
 #cmakedefine HAVE_SYS_STAT_H
+
+// Reaction parser
+#cmakedefine Xyce_REACTION_PARSER
+#cmakedefine YY_NO_UNISTD_H
 
 // Build directories
 #cmakedefine Xyce_ADMS_MODELS
