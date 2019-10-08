@@ -543,12 +543,19 @@ void OutputMgr::prepareOutput(
       Report::UserFatal0() << "-r and -a outputs are not supported for Embedded Sampling, .HB, .LIN or .PCE analyses";
     }
 
-    Outputter::enableRawOverrideOutput(comm, *this, analysis_mode);
+    // This conditional is needed because, for .MPDE analysis, this
+    // function is called for both Analysis::ANP_MODE_MPDE and
+    // Analysis::ANP_MODE_TRANSIENT.  Only make the -r output for
+    // ANP_MODE_TRANSIENT in that case.
+    if (analysis_mode != Analysis::ANP_MODE_MPDE)
+    {
+      Outputter::enableRawOverrideOutput(comm, *this, analysis_mode);
 
-    if (activeOutputterStack_.empty())
-      pushActiveOutputters();
+      if (activeOutputterStack_.empty())
+        pushActiveOutputters();
 
-    addActiveOutputter(PrintType::RAW_OVERRIDE, analysis_mode);
+      addActiveOutputter(PrintType::RAW_OVERRIDE, analysis_mode);
+    }
 
     // also make SENS and Homotopy output files, since they don't support
     // RAW output.
