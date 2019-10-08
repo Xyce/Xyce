@@ -151,6 +151,14 @@ else()
      message(STATUS "Looking for SuperLUDist in Trilinos - not found")
 endif()
 
+set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${Trilinos_INCLUDE_DIRS} )
+check_cxx_symbol_exists(HAVE_TEUCHOS_COMPLEX Teuchos_config.h Teuchos_COMPLEX_IN_Trilinos)
+if (NOT Teuchos_COMPLEX_IN_Trilinos)
+     message(FATAL_ERROR "Trilinos was not built with COMPLEX support in Teuchos.\n"
+          "Enable the following in the Trilinos build, and try again.\n"
+          "  -D Teuchos_ENABLE_COMPLEX=ON")
+endif()
+
 ###################
 ## End Trilinos
 ###################
