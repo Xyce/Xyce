@@ -570,14 +570,14 @@ Graph<Key1Type, DataType, Index>::removeKeys(
       // get keys and id
       ids.push_back( it->second );
 
+      // clear the row it uses
+      // this leaves an empty row in place, but that's ok
+      adjacencyGraph_[it->second].clear();
+
       // clean up maps
       keys1_.erase( it->second );         // Key1Map keys1_;
       rvsKeys1_.erase( oldKeys1[i] ); // Index1Map rvsKeys1_;
       data1_.erase( oldKeys1[i] );    // Data1Map data1_;
-
-      // clear the row it uses
-      // this leaves an empty row in place, but that's ok
-      adjacencyGraph_[it->second].clear();
     }
   }
 
