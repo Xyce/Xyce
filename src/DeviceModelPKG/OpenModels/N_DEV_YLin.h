@@ -59,7 +59,7 @@ struct Traits : public DeviceTraits<Model, Instance>
   static int numNodes() {return 2;}
   static int numOptionalNodes() {return 20;}
   static bool modelRequired() {return true;}
-  static bool isLinearDevice() {return true;}
+  static bool isLinearDevice() {return false;}
 
   static Device *factory(const Configuration &configuration, const FactoryBlock &factory_block);
   static void loadModelParameters(ParametricData<Model> &p);
@@ -99,7 +99,6 @@ private:
 
 public:
 
-  bool isLinearDevice() const;
 
   /// Gets the resistor model that owns this instance.
   Model &getModel()   { return model_;  }
@@ -142,7 +141,7 @@ public:
 
 private:
   static std::vector< std::vector<int> >  jacStamp; ///< All Resistor instances have a common Jacobian Stamp
-  static void initializeJacobianStamp();
+  void initializeJacobianStamp();
 
   Model &     model_;                 ///< Owning model
 
