@@ -111,7 +111,7 @@ endif ()
 
 set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${Trilinos_INCLUDE_DIRS} )
 check_cxx_symbol_exists(HAVE_AMESOS_KLU Amesos_config.h KLU_IN_Trilinos)
-if (NOT Sacado_COMPLEX_IN_Trilinos)
+if (NOT KLU_IN_Trilinos)
      message(FATAL_ERROR "Trilinos was not built with KLU support in Amesos.\n"
           "Enable the following in the Trilinos build, and try again.\n"
           "  -D Amesos_ENABLE_KLU=ON")
@@ -124,12 +124,13 @@ if (NOT Teuchos_COMPLEX_IN_Trilinos)
           "  -D Teuchos_ENABLE_COMPLEX=ON")
 endif()
 
-check_cxx_symbol_exists(HAVE_SACADO_COMPLEX Sacado_config.h Sacado_COMPLEX_IN_Trilinos)
-if (NOT Sacado_COMPLEX_IN_Trilinos)
-     message(FATAL_ERROR "Trilinos was not built with COMPLEX support in Sacado.\n"
-          "Enable the following in the Trilinos build, and try again.\n"
-          "  -D Sacado_ENABLE_COMPLEX=ON")
-endif()
+# Should we be checking if Sacado has complex as well?
+#    check_cxx_symbol_exists(HAVE_SACADO_COMPLEX Sacado_config.h Sacado_COMPLEX_IN_Trilinos)
+#    if (NOT Sacado_COMPLEX_IN_Trilinos)
+#         message(FATAL_ERROR "Trilinos was not built with COMPLEX support in Sacado.\n"
+#              "Enable the following in the Trilinos build, and try again.\n"
+#              "  -D Sacado_ENABLE_COMPLEX=ON")
+#    endif()
 
 # ALSO, in EpetraExt_config.h
 #define HAVE_GRAPH_REORDERINGS
