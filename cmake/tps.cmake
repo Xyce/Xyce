@@ -1,5 +1,5 @@
 # This is to define virtual target out of some of the Third Party Softwares
-# that provide clumps of variables but not nice little virtual target 
+# that provide clumps of variables but not nice little virtual target
 # keywords, like 'fftw3'
 
 # The below text is copied directly from Bryan Hughes' tps.cmake file on another project. It's art.
@@ -46,8 +46,19 @@
 #    `Trilinos/cmake/doc/export_system/Finding_Trilinos.txt`
 
 # Trilinos recommends it be found BEFORE project() is called.
-# One *may* be able to put the search here, BUT some important (and subtle?)
-# aspects setup by project() may be missing. 
+# One might put the search here, BUT some important (and subtle?) aspects setup
+# by project() would likely be missing.
+
+# Fix the library lists, as they contain a lot of duplicates
+LIST(REVERSE Trilinos_LIBRARIES)
+LIST(REMOVE_DUPLICATES Trilinos_LIBRARIES)
+LIST(REVERSE Trilinos_LIBRARIES)
+
+LIST(REVERSE Trilinos_TPL_LIBRARIES)
+LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
+LIST(REVERSE Trilinos_TPL_LIBRARIES)
+
+add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
 # MPI check
 message(STATUS "Checking if MPI is enabled in Trilinos")
@@ -64,16 +75,16 @@ if (MPI_Enabled GREATER -1)
           message(STATUS "Looking for Isorropia in Trilinos - found")
      else ()
           message(STATUS "Looking for Isorropia in Trilinos - not found")
-          message(FATAL_ERROR "Isorropia is required for MPI parallel builds."
-               "Enable the following in the Trilinos build, and try again:"
+          message(FATAL_ERROR "Isorropia is required for MPI parallel builds.\n"
+               "Enable the following in the Trilinos build, and try again:\n"
                "  -D Trilinos_ENABLE_Isorropia=ON")
      endif()
      message(STATUS "Looking for Zoltan in Trilinos")
      list(FIND Trilinos_PACKAGE_LIST Zoltan Zoltan_FOUND)
      if (Zoltan_FOUND LESS 0)
           message(STATUS "Looking for Zoltan in Trilinos - not found")
-          message(FATAL_ERROR "Zoltan is required for MPI parallel builds."
-               "Enable the following in the Trilinos build, and try again:"
+          message(FATAL_ERROR "Zoltan is required for MPI parallel builds.\n"
+               "Enable the following in the Trilinos build, and try again:\n"
                "  -D Trilinos_ENABLE_Zoltan=ON")
      endif()
      message(STATUS "Looking for Zoltan in Trilinos - found")
@@ -83,18 +94,7 @@ else()
      set(Xyce_USE_ISORROPIA FALSE)
 endif()
 
-LIST(REVERSE Trilinos_LIBRARIES)
-LIST(REMOVE_DUPLICATES Trilinos_LIBRARIES)
-LIST(REVERSE Trilinos_LIBRARIES)
-
-LIST(REVERSE Trilinos_TPL_LIBRARIES)
-LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
-LIST(REVERSE Trilinos_TPL_LIBRARIES)
-
-add_library(trilinos INTERFACE IMPORTED GLOBAL)
-
-# QUESTION: Is "DLlib" the Intel MKL library? It appears in the TPL list when
-# the Intel compiler is used.
+# Search for required packages/features
 
 list(FIND Trilinos_TPL_LIST BLAS BLAS_IN_Trilinos)
 list(FIND Trilinos_TPL_LIST LAPACK LAPACK_IN_Trilinos)
@@ -108,6 +108,49 @@ else ()
           "  -D TPL_ENABLE_BLAS=ON\n"
           "  -D TPL_ENABLE_LAPACK=ON")
 endif ()
+
+set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${Trilinos_INCLUDE_DIRS} )
+check_cxx_symbol_exists(HAVE_AMESOS_KLU Amesos_config.h KLU_IN_Trilinos)
+if (NOT Sacado_COMPLEX_IN_Trilinos)
+     message(FATAL_ERROR "Trilinos was not built with KLU support in Amesos.\n"
+          "Enable the following in the Trilinos build, and try again.\n"
+          "  -D Amesos_ENABLE_KLU=ON")
+endif()
+
+check_cxx_symbol_exists(HAVE_TEUCHOS_COMPLEX Teuchos_config.h Teuchos_COMPLEX_IN_Trilinos)
+if (NOT Teuchos_COMPLEX_IN_Trilinos)
+     message(FATAL_ERROR "Trilinos was not built with COMPLEX support in Teuchos.\n"
+          "Enable the following in the Trilinos build, and try again.\n"
+          "  -D Teuchos_ENABLE_COMPLEX=ON")
+endif()
+
+check_cxx_symbol_exists(HAVE_SACADO_COMPLEX Sacado_config.h Sacado_COMPLEX_IN_Trilinos)
+if (NOT Sacado_COMPLEX_IN_Trilinos)
+     message(FATAL_ERROR "Trilinos was not built with COMPLEX support in Sacado.\n"
+          "Enable the following in the Trilinos build, and try again.\n"
+          "  -D Sacado_ENABLE_COMPLEX=ON")
+endif()
+
+# ALSO, in EpetraExt_config.h
+#define HAVE_GRAPH_REORDERINGS
+#define HAVE_EXPERIMENTAL
+#define HAVE_BTF
+
+# Search for optional Trilinos packages
+
+#         * ShyLU
+#           - If detected, define `Xyce_SHYLU`
+#         * Basker (which Basker? Both?)
+#           - If detected, define `SHYLUBASKER`
+#         * Amesos2
+#           - If detected, define `Xyce_AMESOS2`
+#         * Stokhos
+#           - If detected, define `Xyce_STOKHOS_ENABLE`
+#         * ROL
+#           - If detected, define `Xyce_ROL`
+
+
+# Search for optional TPL packages (some of these are just informational)
 
 message(STATUS "Looking for ParMETIS in Trilinos")
 list(FIND Trilinos_TPL_LIST ParMETIS ParMETIS_IN_Trilinos)
@@ -151,13 +194,6 @@ else()
      message(STATUS "Looking for SuperLUDist in Trilinos - not found")
 endif()
 
-set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${Trilinos_INCLUDE_DIRS} )
-check_cxx_symbol_exists(HAVE_TEUCHOS_COMPLEX Teuchos_config.h Teuchos_COMPLEX_IN_Trilinos)
-if (NOT Teuchos_COMPLEX_IN_Trilinos)
-     message(FATAL_ERROR "Trilinos was not built with COMPLEX support in Teuchos.\n"
-          "Enable the following in the Trilinos build, and try again.\n"
-          "  -D Teuchos_ENABLE_COMPLEX=ON")
-endif()
 
 ###################
 ## End Trilinos
@@ -189,8 +225,8 @@ message(STATUS "Looking for flex and Bison")
 find_package(FLEX)
 # The autotools probe also does the following:
 #    "Define YYTEXT_POINTER if yytext defaults to 'char *' instead of 'char'"
-# We do not use YYTEXT_POINTER anywhere, so it is safe to not probe for that
-# behavior.
+# We do not appear to use YYTEXT_POINTER anywhere, so is it safe to not probe
+# for that behavior?
 find_package(BISON 2.4)
 # The 2.4 specifies the minimum version.  That is ok at the moment, as Bison
 # has been functional for many versions (through 3.4 at the time of this

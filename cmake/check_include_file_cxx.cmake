@@ -6,8 +6,13 @@ check_include_file_cxx( "dlfcn.h" HAVE_DLFCN_H )
 # Miscellaneous constants and functions associated with a POSIX OS:
 check_include_file_cxx( "unistd.h" HAVE_UNISTD_H )
 
+if(NOT HAVE_UNISTD_H)
+     set(YY_NO_UNISTD_H TRUE)
+endif()
+
 # Provides high-quality random numbers:
 check_cxx_symbol_exists( drand48 "cstdlib" HAVE_DRAND48 )
+# Should this be changed to use the C++11 <random> library?
 
 # Check for sys/* headers
 # This is for timing of runs:
@@ -20,6 +25,7 @@ check_include_file_cxx( "sys/stat.h" HAVE_SYS_STAT_H )
 
 ### Check for Windows features ###
 
+# This should replace dlfcn.h,
 check_include_file_cxx( "Windows.h" HAVE_WINDOWS_H )
 
 # The Windows directory commands are supposedly inside the "direct.h" header.
@@ -51,9 +57,6 @@ if (HAVE_UNISTD_H)
           set (HAVE_WIN_DIRCOMMANDS TRUE)
      endif ()
 endif ()
-if(NOT HAVE_UNISTD_H)
-     set(YY_NO_UNISTD_H TRUE)
-endif()
 
 
 # Finally we must have POSIX or Windows
