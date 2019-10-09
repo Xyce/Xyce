@@ -53,6 +53,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef HAVE_DIRECT_H
+#include <direct.h>
+#endif
+
 // ----------   Xyce Includes   ----------
 
 #include <N_CIR_Xyce.h>
@@ -723,7 +727,6 @@ Simulator::RunStatus Simulator::initializeEarly(
 
   Report::registerComm(comm_);
 
-#ifdef HAVE_UNISTD_H
   if (DEBUG_ALL_PROCS_SAME_WD)
   {
     char path[255];
@@ -744,7 +747,6 @@ Simulator::RunStatus Simulator::initializeEarly(
       chdir(path);
 #endif
   }
-#endif
 
 
   runState_ = PARSE_COMMAND_LINE;

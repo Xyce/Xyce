@@ -48,8 +48,6 @@
 #elif defined(HAVE_UNISTD_H) && defined(HAVE_SYS_RESOURCE_H)
 #include <unistd.h>
 #include <sys/resource.h>
-#else
-#error "Unable to define cpu_time() for an unknown OS."
 #endif
 
 namespace Xyce {

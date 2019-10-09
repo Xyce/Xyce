@@ -6,6 +6,7 @@ check_include_file_cxx( "dlfcn.h" HAVE_DLFCN_H )
 # Miscellaneous constants and functions associated with a POSIX OS:
 check_include_file_cxx( "unistd.h" HAVE_UNISTD_H )
 
+# This is to keep flex from inserting "#include <unistd.h>" in its .h files
 if(NOT HAVE_UNISTD_H)
      set(YY_NO_UNISTD_H TRUE)
 endif()
@@ -25,48 +26,37 @@ check_include_file_cxx( "sys/stat.h" HAVE_SYS_STAT_H )
 
 ### Check for Windows features ###
 
-# This should replace dlfcn.h,
+# This should be able to replace dlfcn.h, but we have not enabled that
+# capability
 check_include_file_cxx( "Windows.h" HAVE_WINDOWS_H )
 
-# The Windows directory commands are supposedly inside the "direct.h" header.
-# See, e.g.,
-# <https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/chdir-wchdir>
+# If compiling with a compiler for the native Windows C library, the following
+# should be set to TRUE.  Otherwise, the compiler will have warnings for every
+# occurence of sprintf.
+# This check could be made more specific, but it's harmless to have it TRUE for
+# Windows, in general.
+if ( WIN32 )
+   set (_CRT_SECURE_NO_WARNINGS TRUE)
+endif()
+
+# Look for the Windows directory commands
+# This is to support the `initializeEarly` function in
+# `src/CircuitPKG/N_CIR_Xyce.C`. The actual code is called only if
+# DEBUG_ALL_PROCS_SAME_WD is declared to be TRUE.
 #
-# Look in the `initializeEarly` function in `src/CircuitPKG/N_CIR_Xyce.C`. The
-# logic indicates that, on a Windows system, the Windows directory commands
-# (_getcwd and _chdir) are available in unistd.h.
-#
-# It almost has to be the case that direct.h gets included by unistd.h, somehow.
-#
-# As an aside, note that, according to this link,
-# <https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/getcwd?view=vs-2019>
-# the normal getcwd that would be accessed via unistd.h is deprecated.
-#
-# At any rate, this follows the proper logic for what is in the code right now,
-# and it works.  The commented out part (for "direct.h") might make more sense
-# in the future, if things go awry.
-#
-#check_include_file_cxx( "direct.h" HAVE_DIRECT_H )
-#if (HAVE_DIRECT_H)
-#     check_cxx_symbol_exists ( _chdir "direct.h" HAVE_WIN_CHDIR )
-#     check_cxx_symbol_exists ( _getcwd "direct.h" HAVE_WIN_GETCWD )
-if (HAVE_UNISTD_H)
-     check_cxx_symbol_exists ( _chdir "unistd.h" HAVE_WIN_CHDIR )
-     check_cxx_symbol_exists ( _getcwd "unistd.h" HAVE_WIN_GETCWD )
+check_include_file_cxx( "direct.h" HAVE_DIRECT_H )
+if (HAVE_DIRECT_H)
+     check_cxx_symbol_exists ( _chdir "direct.h" HAVE_WIN_CHDIR )
+     check_cxx_symbol_exists ( _getcwd "direct.h" HAVE_WIN_GETCWD )
      if ( HAVE_WIN_CHDIR AND HAVE_WIN_GETCWD )
           set (HAVE_WIN_DIRCOMMANDS TRUE)
      endif ()
 endif ()
 
-
-# Finally we must have POSIX or Windows
-# This logic is also in `src/UtilityPKG/N_UTL_CPUTime.C`.  It should probably
-# be removed from there.  The error message should probably be made more
-# meaningful, too.
+# We must have POSIX or Windows for time reporting
+# This logic is for reporting time in `src/UtilityPKG/N_UTL_CPUTime.C`. The
+# error message should probably be made more meaningful.
 if (NOT (HAVE_WINDOWS_H OR (HAVE_UNISTD_H AND HAVE_SYS_RESOURCE_H)))
      message(FATAL_ERROR "Neither Windows nor POSIX features are available."
           "Unable to define cpu_time() for an unknown OS.")
 endif ()
-if ( WIN32 )
-   set (_CRT_SECURE_NO_WARNINGS TRUE)
-endif()
