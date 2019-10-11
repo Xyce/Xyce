@@ -33,10 +33,6 @@
 # ---------------------------------------------------------------------
 
 ###################
-## Find libraries
-###################
-
-###################
 ## Trilinos
 ###################
 
@@ -75,17 +71,20 @@ if (MPI_Enabled GREATER -1)
           message(STATUS "Looking for Isorropia in Trilinos - found")
      else ()
           message(STATUS "Looking for Isorropia in Trilinos - not found")
-          message(FATAL_ERROR "Isorropia is required for MPI parallel builds.\n"
-               "Enable the following in the Trilinos build, and try again:\n"
+          message("Isorropia is required for MPI parallel builds.\n"
+               "Enable the following in the Trilinos build:\n"
                "  -D Trilinos_ENABLE_Isorropia=ON")
+          set(Trilinos_IS_MISSING_FEATURES TRUE)
      endif()
+
      message(STATUS "Looking for Zoltan in Trilinos")
      list(FIND Trilinos_PACKAGE_LIST Zoltan Zoltan_FOUND)
      if (Zoltan_FOUND LESS 0)
           message(STATUS "Looking for Zoltan in Trilinos - not found")
-          message(FATAL_ERROR "Zoltan is required for MPI parallel builds.\n"
-               "Enable the following in the Trilinos build, and try again:\n"
+          message("Zoltan is required for MPI parallel builds.\n"
+               "Enable the following in the Trilinos build:\n"
                "  -D Trilinos_ENABLE_Zoltan=ON")
+          set(Trilinos_IS_MISSING_FEATURES TRUE)
      endif()
      message(STATUS "Looking for Zoltan in Trilinos - found")
 else()
@@ -94,64 +93,138 @@ else()
      set(Xyce_USE_ISORROPIA FALSE)
 endif()
 
-# Search for required packages/features
+# Search for required TPL packages
 
+message(STATUS "Looking for BLAS and LAPACK in Trilinos")
 list(FIND Trilinos_TPL_LIST BLAS BLAS_IN_Trilinos)
 list(FIND Trilinos_TPL_LIST LAPACK LAPACK_IN_Trilinos)
-message(STATUS "Looking for BLAS and LAPACK in Trilinos")
 if ((BLAS_IN_Trilinos GREATER -1) AND (LAPACK_IN_Trilinos GREATER -1))
      message(STATUS "Looking for BLAS and LAPACK in Trilinos - found")
 else ()
      message(STATUS "Looking for BLAS and LAPACK in Trilinos - not found")
-     message(FATAL_ERROR "BLAS and LAPACK are not available via Trilinos.\n"
-          "Enable the following in the Trilinos build, and try again.\n"
+     message("BLAS and LAPACK are not available via Trilinos.\n"
+          "Enable the following in the Trilinos build:\n"
           "  -D TPL_ENABLE_BLAS=ON\n"
           "  -D TPL_ENABLE_LAPACK=ON")
+     set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif ()
+
+# Search for required features
 
 set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${Trilinos_INCLUDE_DIRS} )
 check_cxx_symbol_exists(HAVE_AMESOS_KLU Amesos_config.h KLU_IN_Trilinos)
 if (NOT KLU_IN_Trilinos)
-     message(FATAL_ERROR "Trilinos was not built with KLU support in Amesos.\n"
-          "Enable the following in the Trilinos build, and try again.\n"
+     message("Trilinos was not built with KLU support in Amesos.\n"
+          "Enable the following in the Trilinos build:\n"
           "  -D Amesos_ENABLE_KLU=ON")
+     set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
+
+check_cxx_symbol_exists(HAVE_BTF EpetraExt_config.h Epetra_BTF_IN_Trilinos)
+if (NOT Epetra_BTF_IN_Trilinos)
+     message("Trilinos was not built with BTF support in EpetraExt.\n"
+          "Enable the following in the Trilinos build:\n"
+          "  -D EpetraExt_BUILD_BTF=ON")
+     set(Trilinos_IS_MISSING_FEATURES TRUE)
+endif()
+
+check_cxx_symbol_exists(HAVE_EXPERIMENTAL EpetraExt_config.h Epetra_EXPERIMENTAL_IN_Trilinos)
+if (NOT Epetra_EXPERIMENTAL_IN_Trilinos)
+     message("Trilinos was not built with EXPERIMENTAL support in EpetraExt.\n"
+          "Enable the following in the Trilinos build:\n"
+          "  -D EpetraExt_BUILD_EXPERIMENTAL=ON")
+     set(Trilinos_IS_MISSING_FEATURES TRUE)
+endif()
+
+check_cxx_symbol_exists(HAVE_GRAPH_REORDERINGS EpetraExt_config.h Epetra_GRAPH_REORD_IN_Trilinos)
+if (NOT Epetra_GRAPH_REORD_IN_Trilinos)
+     message("Trilinos was not built with GRAPH REORDERINGS support in EpetraExt.\n"
+          "Enable the following in the Trilinos build:\n"
+          "  -D EpetraExt_BUILD_GRAPH_REORDERINGS=ON")
+     set(Trilinos_IS_MISSING_FEATURES TRUE)
+endif()
+
+# The following flag should also be enabled in the Trilinos build:
+#    -D NOX_ENABLE_LOCA=ON
+# However, I don't see a way to probe Trilinos' CMake for this.
 
 check_cxx_symbol_exists(HAVE_TEUCHOS_COMPLEX Teuchos_config.h Teuchos_COMPLEX_IN_Trilinos)
 if (NOT Teuchos_COMPLEX_IN_Trilinos)
-     message(FATAL_ERROR "Trilinos was not built with COMPLEX support in Teuchos.\n"
-          "Enable the following in the Trilinos build, and try again.\n"
+     message("Trilinos was not built with COMPLEX support in Teuchos.\n"
+          "Enable the following in the Trilinos build:\n"
           "  -D Teuchos_ENABLE_COMPLEX=ON")
+     set(Trilinos_IS_MISSING_FEATURES TRUE)
 endif()
 
 # Should we be checking if Sacado has complex as well?
 #    check_cxx_symbol_exists(HAVE_SACADO_COMPLEX Sacado_config.h Sacado_COMPLEX_IN_Trilinos)
 #    if (NOT Sacado_COMPLEX_IN_Trilinos)
-#         message(FATAL_ERROR "Trilinos was not built with COMPLEX support in Sacado.\n"
-#              "Enable the following in the Trilinos build, and try again.\n"
+#         message("Trilinos was not built with COMPLEX support in Sacado.\n"
+#              "Enable the following in the Trilinos build:\n"
 #              "  -D Sacado_ENABLE_COMPLEX=ON")
+#         set(Trilinos_IS_MISSING_FEATURES TRUE)
 #    endif()
 
-# ALSO, in EpetraExt_config.h
-#define HAVE_GRAPH_REORDERINGS
-#define HAVE_EXPERIMENTAL
-#define HAVE_BTF
+if (Trilinos_IS_MISSING_FEATURES)
+     message(FATAL_ERROR "Halting the Xyce configure due to missing features in Trilinos.\n"
+          "Rebuild Trilinos with the required features, and try again.")
+endif()
 
 # Search for optional Trilinos packages
 
-#         * ShyLU
-#           - If detected, define `Xyce_SHYLU`
-#         * Basker (which Basker? Both?)
-#           - If detected, define `SHYLUBASKER`
-#         * Amesos2
-#           - If detected, define `Xyce_AMESOS2`
-#         * Stokhos
-#           - If detected, define `Xyce_STOKHOS_ENABLE`
-#         * ROL
-#           - If detected, define `Xyce_ROL`
+# THIS IS A GUESS FOR THE PACKAGE NAME FOR ShyLU; IT NEEDS TO BE VERIFIED
+message(STATUS "Looking for ShyLU in Trilinos")
+list(FIND Trilinos_PACKAGE_LIST ShyLU ShyLU_IN_Trilinos)
+if (ShyLU_IN_Trilinos GREATER -1)
+     message(STATUS "Looking for ShyLU in Trilinos - found")
+     set(Xyce_SHYLU TRUE CACHE BOOL "Enables the ShyLU linear solver")
+else ()
+     message(STATUS "Looking for ShyLU in Trilinos - not found")
+     set(Xyce_SHYLU FALSE CACHE BOOL "Enables the ShyLU linear solver" FORCE)
+endif ()
 
+# THIS IS A GUESS FOR THE PACKAGE NAME FOR Basker; IT NEEDS TO BE VERIFIED
+message(STATUS "Looking for Basker in Trilinos")
+list(FIND Trilinos_PACKAGE_LIST Basker Basker_IN_Trilinos)
+if (Basker_IN_Trilinos GREATER -1)
+     message(STATUS "Looking for Basker in Trilinos - found")
+     set(SHYLUBASKER TRUE CACHE BOOL "Enables the Basker linear solver")
+else ()
+     message(STATUS "Looking for Basker in Trilinos - not found")
+     set(SHYLUBASKER FALSE CACHE BOOL "Enables the Basker linear solver" FORCE)
+endif ()
 
-# Search for optional TPL packages (some of these are just informational)
+message(STATUS "Looking for Amesos2 in Trilinos")
+list(FIND Trilinos_PACKAGE_LIST Amesos2 Amesos2_IN_Trilinos)
+if (Amesos2_IN_Trilinos GREATER -1)
+     message(STATUS "Looking for Amesos2 in Trilinos - found")
+     set(Xyce_AMESOS2 TRUE CACHE BOOL "Enables the Amesos2 linear solver")
+else ()
+     message(STATUS "Looking for Amesos2 in Trilinos - not found")
+     set(Xyce_AMESOS2 FALSE CACHE BOOL "Enables the Amesos2 linear solver" FORCE)
+endif ()
+
+message(STATUS "Looking for Stokhos in Trilinos")
+list(FIND Trilinos_PACKAGE_LIST Stokhos Stokhos_IN_Trilinos)
+if (Stokhos_IN_Trilinos GREATER -1)
+     message(STATUS "Looking for Stokhos in Trilinos - found")
+     set(Xyce_STOKHOS_ENABLE TRUE CACHE BOOL "Enables the Stokhos linear solver")
+else ()
+     message(STATUS "Looking for Stokhos in Trilinos - not found")
+     set(Xyce_STOKHOS_ENABLE FALSE CACHE BOOL "Enables the Stokhos linear solver" FORCE)
+endif ()
+
+message(STATUS "Looking for ROL in Trilinos")
+list(FIND Trilinos_PACKAGE_LIST ROL ROL_IN_Trilinos)
+if (ROL_IN_Trilinos GREATER -1)
+     message(STATUS "Looking for ROL in Trilinos - found")
+     set(Xyce_ROL TRUE CACHE BOOL "Enables the ROL linear solver")
+else ()
+     message(STATUS "Looking for ROL in Trilinos - not found")
+     set(Xyce_ROL FALSE CACHE BOOL "Enables the ROL linear solver" FORCE)
+endif ()
+
+# Search for optional TPL packages in Trilinos (some of these are just informational)
 
 message(STATUS "Looking for ParMETIS in Trilinos")
 list(FIND Trilinos_TPL_LIST ParMETIS ParMETIS_IN_Trilinos)
@@ -195,10 +268,10 @@ else()
      message(STATUS "Looking for SuperLUDist in Trilinos - not found")
 endif()
 
-
 ###################
 ## End Trilinos
 ###################
+
 
 # Find a usable FFT library
 message(STATUS "Looking for usable FFT libraries")
@@ -252,6 +325,6 @@ if (Xyce_USE_CURL)
           set(Xyce_USE_CURL FALSE CACHE BOOL "Enable the tracking capability capability using CURL" FORCE)
      endif()
 else()
-     message(STATUS "Run tracking is disabled")
+     message(STATUS "Run tracking is not enabled")
 endif()
 

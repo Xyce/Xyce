@@ -21,8 +21,8 @@
 #cmakedefine Xyce_SHYLU
 #cmakedefine SHYLUBASKER
 #cmakedefine Xyce_AMESOS2
-#cmakedefine Xyce_STOKHOS_ENABLE
-#cmakedefine Xyce_ROL
+#cmakedefine01 Xyce_STOKHOS_ENABLE
+#cmakedefine01 Xyce_ROL
 
 #cmakedefine Xyce_USE_ISORROPIA
 
