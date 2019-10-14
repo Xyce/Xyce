@@ -42,9 +42,9 @@ strictly positive.  The \texttt{STD\_DEVIATIONS} values specified for
 Gaussian distributions must now be non-negative. \\ \hline
 
 \textbf{1223-SON}: ADMS and Xyce/ADMS do not correctly handle analog functions with output arguments  &
-A long-standing bug in ADMS fails to propagate probe and variable
+A long-standing bug in ADMS failed to propagate probe and variable
 dependence from analog function call input arguments into the output
-arguments.  This leads to incorrect code generation by Xyce/ADMS when
+arguments.  This led to incorrect code generation by Xyce/ADMS when
 such functions are used.  Xyce/ADMS now uses a modified version of
 ADMS's ``implicit'' templates that it invokes explicitly instead.
 Analog function output variables should now be processed just as
@@ -78,7 +78,7 @@ analysis without any valid port (P) devices in the netlist would cause
 
 \textbf{1198-SON}: Binning doesn't work for BSIM6 and other models in the ADMS directory &
 Binning (the kind enabled by \texttt{.options parser
-model\_binning=true} did not work properly for several MOSFET models
+model\_binning=true}) did not work properly for several MOSFET models
 derived from Verilog-A, because the authors of those models had not
 included the dummy
 parameters \textbf{LMIN}, \textbf{LMAX}, \textbf{WMIN},
