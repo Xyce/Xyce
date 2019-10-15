@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2019 National Technology & Engineering Solutions of
+//   Copyright 2002-2018 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -90,13 +90,12 @@ CircuitBlock::CircuitBlock(
   CircuitBlock*                                                 parentCircPtr,
   Topo::Topology &                                              topology,
   Device::DeviceMgr &                                           device_manager,
-  unordered_set<std::string>  &                                 dNames,
+  Device::DeviceNameInstanceBlockMap &                          dNames,
   unordered_set<std::string>  &                                 nNames,
   AliasNodeMap &                                                alias_node_map,
   const std::vector< std::pair< std::string, std::string> >  &  externalNetlistParams,
   std::vector<bool> &                                           pFilter,
-  bool                                                          removeRedundant,
-  bool                                                          modelBinning)
+  bool                                                          removeRedundant)
 : netlistFilename_(fileName),
   title_(""),
   name_(""),
@@ -127,7 +126,6 @@ CircuitBlock::CircuitBlock(
   device_(cc,md),
   preprocessFilter_(pFilter),
   remove_any_redundant_(removeRedundant),
-  model_binning_flag_(modelBinning),
   topology_(topology),
   deviceManager_(device_manager)
 {
@@ -156,7 +154,7 @@ CircuitBlock::CircuitBlock(
   CircuitContext &                                              cc,
   Topo::Topology &                                              topology,
   Device::DeviceMgr &                                           device_manager,
-  unordered_set<std::string> &                                  dNames,
+  Device::DeviceNameInstanceBlockMap &                          dNames,
   unordered_set<std::string> &                                  nNames,
   AliasNodeMap &                                                alias_node_map,
   const std::vector< std::pair< std::string, std::string> > &   externalNetlistParams)
@@ -189,7 +187,6 @@ CircuitBlock::CircuitBlock(
   device_(cc,md),
   preprocessFilter_(PreprocessType::NUM_PREPROCESS, false),
   remove_any_redundant_(false),
-  model_binning_flag_(false),
   topology_(topology),
   deviceManager_(device_manager)
 {
@@ -314,11 +311,11 @@ bool CircuitBlock::parseNetlistFilePass1(
     }
   }
 
-  std::map<std::string,int> fun;
+  std::map<std::string,int> par, fun, sub;
   for (;;) {
     bool line_parsed = true;
 
-    if (handleLinePass1( line_parsed, options_manager, fun, modMap_, libSelect, libInside ) )
+    if (handleLinePass1( line_parsed, options_manager, par, fun, modMap_, sub, libSelect, libInside ) )
       result = result && line_parsed;
     else
       break;
@@ -327,7 +324,7 @@ bool CircuitBlock::parseNetlistFilePass1(
   // Check if the parser thinks it is still inside a library, even though it is done.
   // That means that a user has tried to substitute .LIB for .INC, where the rest of the
   // netlist is ignored in the pursuit of finding .ENDL.  See SON bugs 387 and 980.
-  if (( parentCircuitPtr_ == NULL) && libInside.size())
+  if (libInside.size())
   {
     Report::UserError() << "Could not find .ENDL statement for '.LIB " << libInside.front() 
                         << "'.  Maybe '.LIB " << libInside.front() << " <library_name>' or '.INC " 
@@ -358,9 +355,7 @@ bool CircuitBlock::parseNetlistFilePass1(
       // do that later, when the K line has been turned into a Y), and
       // is actually harmful for coil gun applications, where K may be
       // unresolvable at this stage in processing.
-      bool resolveParams=false;
-      bool modelBinning=false;
-      ( ( *mm ).second ).extractData(resolveParams,modelBinning);
+      ( ( *mm ).second ).extractData(false);
 
       // Add mutual inductance to circuit context
       circuitContext_.addMutualInductance( ( *mm ).second );
@@ -435,7 +430,7 @@ bool CircuitBlock::parseNetlistFilePass1(
 
     // resolve any functions and parameters in expression on the print line
     // at this point (or for that matter any functions/parameters in
-    // the optionsTable data (so ".OP" ".OPTIONS" ".OUTPUT"
+    // the optionsTable data (so ".OP" ".OPTIONS" ".DCOP"  ".OUTPUT"
     // ".PRINT"".TRAN"  ".STEP"  ".RESULT" ".IC" ".DCVOLT"
     //  ".NODESET" ".SAVE" ".LOAD" ".MPDE" ".HB"  ".AC" ".MEASURE" ".MEAS")
     // This could happen later, as in the actual classes that handle the above
@@ -806,6 +801,23 @@ void CircuitBlock::setLinePosition( int const& position )
   ssfPtr_->setLineNumber( position );
 }
 
+//----------------------------------------------------------------------------
+// Function       : CircuitBlock::receiveCircuitContext
+// Purpose        : Receive the circuit context (from the distribution tool).
+// Special Notes  :
+// Scope          :
+// Creator        : Lon Waters
+// Creation Date  : 07/21/2003
+//----------------------------------------------------------------------------
+bool CircuitBlock::receiveCircuitContext(const CircuitContext & ccIn)
+{
+  circuitContext_ = ccIn;
+  circuitContext_.resolve( std::vector<Device::Param>() );
+
+  return true;
+}
+
+
 //--------------------------------------------------------------------------
 // Function      : CircuitBlock::extractSubcircuitData
 // Purpose       : Extract subcircuit data from parsedLine. The bulk of
@@ -856,26 +868,39 @@ void CircuitBlock::addTableData( DeviceBlock & device )
 
   const std::string& dName = device.getDeviceData().getDevBlock().getInstanceName().getEncodedName();
 
-  std::pair<unordered_set<std::string>::iterator, bool> result = deviceNames_.insert(dName);
+  std::pair<Device::DeviceNameInstanceBlockMap::iterator, bool> result;
+  {
+    Stats::StatTop _addDeviceStat("Add Device Name");
+    Stats::TimeBlock _addTableTimer(_addDeviceStat);
+  result = deviceNames_.insert(Device::DeviceNameInstanceBlockMap::value_type(dName, device.getDeviceData().getDevBlock()));
   if (!result.second) 
   {
     Report::UserError().at(device.getDeviceData().getDevBlock().getNetlistLocation()) << "Duplicate device "<< dName;
+    (*result.first).second = Device::DeviceNameInstanceBlockMap::mapped_type(device.getDeviceData().getDevBlock());
+  }
   }
 
   if (netlistSave_)
   {
+    Stats::StatTop _addDevice2Stat("Add Device To Topology");
+    Stats::TimeBlock _addDeviceTimer(_addDevice2Stat);
+    (*result.first).second.numExtVars = device.getNumberOfNodes();
+
     if (DEBUG_IO) {
       int lastColon = dName.find_last_of( ':' );
       Xyce::dout() << "Inserting device: " << dName
                    << " locally named " <<  dName.substr( lastColon + 1 )
-                   << " from file: " << device.getDeviceData().getDevBlock().getNetlistLocation().getFilename()
-                   << " line: " << device.getDeviceData().getDevBlock().getNetlistLocation().getLineNumber() << std::endl;
+                   << " from file: " << (*result.first).second.getNetlistLocation().getFilename()
+                   << " line: " << (*result.first).second.getNetlistLocation().getLineNumber() << std::endl;
     }
 
-    topology_.addDevice(deviceManager_, device.getDeviceData());
+    topology_.addDevice(deviceManager_, device.getDeviceData(), &(*result.first).second);
   }
 
   // save node names for syntax diagnostics
+  {
+    Stats::StatTop _addNodeStat("Add Node Name");
+    Stats::TimeBlock _addNodeTimer(_addNodeStat);
   const std::vector<std::string> &nodeList = device.getDeviceData().get_NodeList();
   for (std::vector<std::string>::const_iterator it = nodeList.begin(), end = nodeList.end(); it != end; ++it)
   {
@@ -883,6 +908,7 @@ void CircuitBlock::addTableData( DeviceBlock & device )
       Xyce::dout() << "  Node: " << *it << std::endl;
 
     nodeNames_.insert(*it);
+  }
   }
 }
 
@@ -919,6 +945,9 @@ void CircuitBlock::addModel( const ParameterBlock * modelPtr, std::string const&
 
   if ( ret.second )
   {
+    Stats::StatTop _addDevice2Stat("Add Model to Device Mgr");
+    Stats::TimeBlock _addDeviceTimer(_addDevice2Stat);
+
     // Copy the parameter block for this model.
     tmpModel_ = (*modelPtr);
     tmpModel_.setName(modelName);
@@ -966,10 +995,7 @@ void CircuitBlock::addOptions(const Util::OptionBlock & options)
 {
   const std::string &name = options.getName();
   
-  // This handles .PRINT, .MEASURE, .FOUR, .IC and .NODESET lines.
-  // Note that option blocks that have name="MEASURE" are actually 
-  // from .OPTIONS MEASURE lines and not .MEASURE lines.
-  if ( (name == "PRINT") || (name == "DOT_MEASURE_LINE") || (name == "FOUR") || 
+  if ( (name == "PRINT") || (name == "MEASURE") || (name == "FOUR") || 
        (name == "IC") || (name == "NODESET") )
   {
     // Update the aliasNodeMapHelper_ map with any parameters that start with X 
@@ -1004,10 +1030,6 @@ void CircuitBlock::addOptions(const Util::OptionBlock & options)
     for (Util::ParamList::const_iterator it = options.begin(), end = options.end(); it != end; ++it)
     {
       if  ( (std::string((*it).uTag(),0,7) == "OBJFUNC") && ((*it).hasExpressionValue()) )
-      {
-        aliasNodeMapHelper_.insert((*it).stringValue());
-      }
-      else if  ( (std::string((*it).uTag(),0,7) == "OBJVARS") && ((*it).hasExpressionValue()) )
       {
         aliasNodeMapHelper_.insert((*it).stringValue());
       }
@@ -1064,8 +1086,10 @@ void CircuitBlock::addOptions(const Util::OptionBlock & options)
 bool CircuitBlock::handleLinePass1(
   bool &                        result,
   PkgOptionsMgr &               options_manager,
+  std::map<std::string, int> &  par,
   std::map<std::string, int> &  fun,
   ModelMap &                    modMap,
+  std::map<std::string, int> &  sub,
   const std::string &           libSelect,
   std::vector< std::string > &  libInside)
 {
@@ -1266,25 +1290,18 @@ bool CircuitBlock::handleLinePass1(
       // Create a FunctionBlock for the .FUNC line, extract the
       // data from line, and add the function to the circuit.
       FunctionBlock function( netlistFilename_, line );
-      circuitContext_.addFunction( function );
-      ExtendedString F ( line[1].string_ );
-      F.toUpper();
-      if (fun[F]++ != 0)
-      {
-        Report::UserError().at(netlistFilename_, line[0].lineNumber_)
-          << "Duplicate function definition " <<  F;
-        result = false;
+      result = function.extractData();
+      if (result) {
+        circuitContext_.addFunction( function );
+        ExtendedString F ( line[1].string_ );
+        F.toUpper();
+        if (fun[F]++ != 0)
+        {
+          Report::UserError().at(netlistFilename_, line[0].lineNumber_)
+            << "Duplicate function definition " <<  F;
+          result = false;
+        }
       }
-    }
-
-    else if (ES1 == ".PARAM")
-    {
-      return Xyce::IO::extractParamData( *this, netlistFilename_, line );
-    }
-
-    else if (ES1 == ".GLOBAL_PARAM")
-    {
-      return Xyce::IO::extractGlobalParamData( *this, netlistFilename_, line );
     }
 
     else if (ES1 == ".END")
@@ -1311,9 +1328,8 @@ bool CircuitBlock::handleLinePass1(
       }
     }
 
-    else if (ES1 == ".INCLUDE" || ES1 == ".INCL" || ES1 == ".INC" || ES1 == ".LIB")
+    else if (ES1 == ".INCLUDE" || ES1 == ".INC" || ES1 == ".LIB")
     {
-      // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
       std::string includeFile, libSelect_new = libSelect, libInside_new;
       Xyce::IO::handleIncludeLine( netlistFilename_, line, 
                                    ES1, includeFile, libSelect_new, libInside_new );
@@ -1337,7 +1353,7 @@ bool CircuitBlock::handleLinePass1(
         int beforeMod = modMap.size();
         int beforeSubcktDef = circuitBlockTable_.size();
 
-        result = parseIncludeFile(options_manager, includeFile, libSelect_new, fun, modMap);
+        result = parseIncludeFile(options_manager, includeFile, libSelect_new, par, fun, modMap, sub);
   
         // Load include file information into struct for future use.
         IncludeFileInfo info;
@@ -1373,6 +1389,7 @@ bool CircuitBlock::handleLinePass1(
     {
       ParameterBlock* modelPtr =
         new ParameterBlock (netlistFilename_, line);
+      result = modelPtr->extractModelData( metadata_ );
 
       ExtendedString M ( line[1].string_ );
       M.toUpper();
@@ -1384,8 +1401,6 @@ bool CircuitBlock::handleLinePass1(
         // Add the model to the circuit context. Note, the circuit context
         // will handle deleting the model.
         circuitContext_.addModel(modelPtr);
-        // Store the level number for device configuration
-        (*mainCircuitPtr_).levelSet_.insert( modelPtr->getLevel() );
       }
       else
       {
@@ -1436,8 +1451,7 @@ bool CircuitBlock::handleLinePass1(
           aliasNodeMap_,
           externalNetlistParams_,
           preprocessFilter_,
-          remove_any_redundant_,
-          model_binning_flag_);
+          remove_any_redundant_);
 
       // Start a new subcircuit context in the circuit context.
       result = circuitContext_.beginSubcircuitContext(netlistFilename_, line);
@@ -1472,11 +1486,6 @@ bool CircuitBlock::handleLinePass1(
     {
       result=true; //ignore this line; it's job is done in the preprocess
       //phase
-    }
-    else if (ES1 == ".ENDDATA")
-    {
-      result=true; //ignore this line;  it isn't needed for Xyce to parse .DATA, 
-      // but is part of HSpice syntax, so will often appear in netlists that use it.
     }
     else
     {
@@ -1548,9 +1557,7 @@ bool CircuitBlock::getLinePassMI()
           if( MIs[i].inductors.count( ES1 ) )
           {
             device_.clear();
-            bool resolveParams=false;
-            bool modelBinning=false;
-            device_.extractData(netlistFilename_, line, resolveParams, modelBinning);
+            device_.extractData(netlistFilename_, line, false);
 
             int numParams = device_.getNumberOfInstanceParameters();
             for( int j = 0; j < numParams; ++j )
@@ -1586,9 +1593,8 @@ bool CircuitBlock::getLinePassMI()
           subcircuitPtr->setLinePosition( subcircuitPtr->getLineEndPosition() );
 
         }
-        else if (ES1 == ".INCLUDE" || ES1 == ".INCL" || ES1 == ".INC")
+        else if (ES1 == ".INCLUDE" || ES1 == ".INC")
         {
-          // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
           std::string includeFile;
           std::string libInside, libSelect;
           Xyce::IO::handleIncludeLine( netlistFilename_, line,
@@ -1702,8 +1708,7 @@ bool CircuitBlock::resolveExpressionsInOptionBlocks()
   {
     // ERK.  for now, only enable this for IC and NODESET.  
     // Fix to use a find command.
-    if (iter->getName()=="IC" || iter->getName()=="NODESET" ||
-        iter->getName()=="DOT_MEASURE_LINE")
+    if (iter->getName()=="IC" || iter->getName()=="NODESET")
     {
       Util::ParamList::iterator iterPar = iter->begin();
       Util::ParamList::iterator endPar = iter->end();
@@ -1814,8 +1819,10 @@ bool CircuitBlock::parseIncludeFile(
   PkgOptionsMgr &               options_manager,
   const std::string &           includeFile,
   const std::string &           libSelect,
+  std::map<std::string, int> &  par,
   std::map<std::string, int> &  fun,
-  ModelMap &                    modMap)
+  ModelMap &                    modMap,
+  std::map<std::string, int> &  sub)
 {
   // Save current ssfPtr_ and netlistFilename_.
   SpiceSeparatedFieldTool* oldssfPtr = ssfPtr_;
@@ -1884,7 +1891,7 @@ bool CircuitBlock::parseIncludeFile(
   for (;;) {
     bool line_parsed = true;
 
-    if (handleLinePass1(line_parsed, options_manager, fun, modMap, libSelect, libInside) )
+    if (handleLinePass1(line_parsed, options_manager, par, fun, modMap, sub, libSelect, libInside) )
       result = result && line_parsed;
     else
       break;
@@ -2166,24 +2173,11 @@ bool CircuitBlock::handleAnalysis()
          (analysisName_ == "OP" && usVal == "AC") ||
          (analysisName_ == "OP" && usVal == "AC_IC") ||
          (analysisName_ == "OP" && usVal == "DC") ||
-         (analysisName_ == "OP" && usVal == "ES") ||
-         (analysisName_ == "OP" && usVal == "HB") ||
-         (analysisName_ == "OP" && usVal == "HB_TD") ||
-         (analysisName_ == "OP" && usVal == "HB_FD") ||
-         (analysisName_ == "OP" && usVal == "HB_IC") ||
-         (analysisName_ == "OP" && usVal == "HB_STARTUP") ||
-         (analysisName_ == "OP" && usVal == "NOISE") ||
-         (analysisName_ == "OP" && usVal == "PCE") ||
          (analysisName_ == "TRAN" && usVal == "HOMOTOPY") ||
          (analysisName_ == "OP" && usVal == "HOMOTOPY") ||
          (analysisName_ == "DC" && usVal == "HOMOTOPY") ||
          (analysisName_ == "DC" && usVal == "DC") ||
-         (analysisName_ == "DC" && usVal == "ES") ||
-         (analysisName_ == "DC" && usVal == "PCE") ||
-         (analysisName_ == "OP" && usVal == "SENS") ||
          (analysisName_ == "DC" && usVal == "SENS") ||
-         (analysisName_ == "TRAN" && usVal == "ES") ||
-         (analysisName_ == "TRAN" && usVal == "PCE") ||
          (analysisName_ == "TRAN" && usVal == "SENS") ||
          (analysisName_ == "MPDE" && usVal == "TRAN") ||
          (analysisName_ == "MPDE" && usVal == "MPDE") ||
@@ -2196,8 +2190,6 @@ bool CircuitBlock::handleAnalysis()
          (analysisName_ == "HB" && usVal == "HB_STARTUP") ||
          (analysisName_ == "AC" && usVal == "AC") ||
          (analysisName_ == "AC" && usVal == "AC_IC") ||
-         (analysisName_ == "AC" && usVal == "SENS") ||
-         (analysisName_ == "AC" && usVal == "SPARAM") ||
          (analysisName_ == "NOISE" && usVal == "NOISE") ||
          (analysisName_ == "MOR" && usVal == "MOR")  ||
          (analysisName_ == "ROL" && usVal == "DC"))) // TT

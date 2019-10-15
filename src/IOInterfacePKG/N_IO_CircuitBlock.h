@@ -392,9 +392,8 @@ private:
   // Handle a netlist line, determine the line type and take the
   // appropriate action.
   bool handleLinePass1( bool & result,
-                        PkgOptionsMgr &options_manager, std::map<std::string,int> & par,
+                        PkgOptionsMgr &options_manager, 
                         std::map<std::string,int> & fun, ModelMap & modMap,
-                        std::map<std::string,int> & sub, 
                         const std::string & libSelect, 
                         std::vector< std::string > & libInside );
 
@@ -413,8 +412,7 @@ private:
   bool parseIncludeFile(
     PkgOptionsMgr &options_manager, 
     const std::string & includeFile, const std::string & libSelect, 
-    std::map<std::string,int> & par, std::map<std::string,int> & fun,
-    ModelMap & modMap, std::map<std::string,int> & sub);
+    std::map<std::string,int> & fun, ModelMap & modMap);
 
   // Retrieve separate IC= data from line or external file and temporarily
   // store in CircuitBlock

@@ -771,11 +771,6 @@ bool extractParamData(
       Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
         << "Illegal parameter name: " << P;
     }
-    // else if (par[P]++ != 0)
-    // {
-    //   Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
-    //     << "Duplicate parameter definition detected: " << P;
-    // }
   }
 
   circuit_block.addParams(option_block);
@@ -902,11 +897,6 @@ bool extractGlobalParamData(
       Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
         << "Illegal parameter name: " << P;
     }
-    // else if (par[P]++ != 0)
-    // {
-    //   Report::UserError().at(netlist_filename, parsed_line[0].lineNumber_)
-    //     << "Duplicate parameter definition detected: " << P;
-    // }
   }
 
   circuit_block.addGlobalParams(option_block);
