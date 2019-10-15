@@ -2798,6 +2798,8 @@ void removeStarVariables(
   // unordered_set eventually.
   std::vector<std::string> v_list;
   std::vector<std::string> i_list;
+  std::set<std::string> iBCE_list;  // one list for all BJT lead currents
+  std::set<std::string> iDGS_list;  // one list for all FET lead currents
   std::set<std::string> p_list;
 
   // Need separate lists for P() and W() wildcards, since they may contain
@@ -2835,7 +2837,9 @@ void removeStarVariables(
       size_t pos = tmpStr.rfind("BRANCH");
       if (pos != std::string::npos)
       {
+        // assume valid two-terminal lead current found
         bool addIt=true;
+
         tmpStr = tmpStr.substr(0, pos - 1);
         // BUG 982:  The names of devices in the "branch_vars" map
         // are all in SPICE style because of a poor design decision.
@@ -2860,12 +2864,21 @@ void removeStarVariables(
             addIt=false;
           }
         }
-        else if (devType == 'M' || devType == 'Q' || devType == 'Z')
+        else if (devType == 'Q')
 	{
-          // only support two-terminal lead currents
+          // one list for IB(*) IC(*) IE(*) for BJTs
+          iBCE_list.insert(tmpStr);
+          addIt=false;
+        }
+        else if (devType == 'M' || devType == 'J' || devType == 'Z')
+	{
+          // one list for ID(*) IG(*) IS(*) for FETs
+          iDGS_list.insert(tmpStr);
           addIt=false;
         }
 
+        // i_list contains names of two-terminal devices with branch
+        // or lead currents.
         if (addIt)
         {
           i_list.push_back(tmpStr);
@@ -3115,16 +3128,23 @@ void removeStarVariables(
   }
 
   Util::Marshal mout;
-  mout << v_list << i_list << p_list
+  mout << v_list << i_list << iBCE_list << iDGS_list << p_list
        << vWildCard_list << iWildCard_list << pWildCard_list << wWildCard_list;
 
   std::vector<std::string> dest;
   Parallel::AllGatherV(comm, mout.str(), dest);
 
-  // Need separate lists here for P(*) and W(*) requests since the
-  // entries in the ParamList contain both the operators and the variables.
+  // Need separate lists here for P(*), W(*), IB(*), IC(*), IE(*),
+  // ID(*), IG(*) and IS(*) requests since the entries in the ParamList
+  // contain both the operators and the variables.
   Util::ParamList vStarList;
-  Util::ParamList iStarList;
+  Util::ParamList iStarList;   // I(*) for two terminal devices
+  Util::ParamList iBStarList;  // BJT lead currents
+  Util::ParamList iCStarList;
+  Util::ParamList iEStarList;
+  Util::ParamList iDStarList;  // FET lead currents
+  Util::ParamList iGStarList;
+  Util::ParamList iSStarList;
   Util::ParamList pStarList;
   Util::ParamList wStarList;
 
@@ -3142,11 +3162,13 @@ void removeStarVariables(
     std::vector<std::string> a;
     std::vector<std::string> b;
     std::set<std::string> c;
-    std::vector<std::string> d;
-    std::vector<std::string> e;
+    std::set<std::string> d;
+    std::set<std::string> e;
     std::vector<std::string> f;
     std::vector<std::string> g;
-    min >> a >> b >> c >> d >> e >> f >> g;
+    std::vector<std::string> h;
+    std::vector<std::string> i;
+    min >> a >> b >> c >> d >> e >> f >> g >> h >> i;
 
     // first handle star requests
     std::vector<std::string>::const_iterator itV=vOpsRequested.begin();
@@ -3154,21 +3176,37 @@ void removeStarVariables(
     // handle, for example, VR(*) VI(*)
     for ( ; itV!=vOpsRequested.end(); ++itV)
       makeParamList((*itV), a.begin(), a.end(), std::back_inserter(vStarList));
+
     // handle, for example, IR(*) II(*)
     for ( ; itI!=iOpsRequested.end(); ++itI)
-      makeParamList((*itI), b.begin(), b.end(), std::back_inserter(iStarList));
+    {
+      if ((*itI) == "IB")
+        makeParamList((*itI), c.begin(), c.end(), std::back_inserter(iBStarList));
+      else if ((*itI) == "IC")
+        makeParamList((*itI), c.begin(), c.end(), std::back_inserter(iCStarList));
+      else if ((*itI) == "IE")
+        makeParamList((*itI), c.begin(), c.end(), std::back_inserter(iEStarList));
+      else if ((*itI) == "ID")
+        makeParamList((*itI), d.begin(), d.end(), std::back_inserter(iDStarList));
+      else if ((*itI) == "IG")
+        makeParamList((*itI), d.begin(), d.end(), std::back_inserter(iGStarList));
+      else if ((*itI) == "IS")
+        makeParamList((*itI), d.begin(), d.end(), std::back_inserter(iSStarList));
+      else
+        makeParamList((*itI), b.begin(), b.end(), std::back_inserter(iStarList));
+    }
 
     // re-use some variable list for both P(*) and W(*)
     if (pStarFound)
-      makeParamList("P", c.begin(), c.end(), std::back_inserter(pStarList));
+      makeParamList("P", e.begin(), e.end(), std::back_inserter(pStarList));
     if (wStarFound)
-      makeParamList("W", c.begin(), c.end(), std::back_inserter(wStarList));
+      makeParamList("W", e.begin(), e.end(), std::back_inserter(wStarList));
 
     // now handle wildcard requests like V(X1*)
-    makeParamList("V", d.begin(), d.end(), std::back_inserter(vWildCardList));
-    makeParamList("I", e.begin(), e.end(), std::back_inserter(iWildCardList));
-    makeParamList("P", f.begin(), f.end(), std::back_inserter(pWildCardList));
-    makeParamList("W", g.begin(), g.end(), std::back_inserter(wWildCardList));
+    makeParamList("V", f.begin(), f.end(), std::back_inserter(vWildCardList));
+    makeParamList("I", g.begin(), g.end(), std::back_inserter(iWildCardList));
+    makeParamList("P", h.begin(), h.end(), std::back_inserter(pWildCardList));
+    makeParamList("W", i.begin(), i.end(), std::back_inserter(wWildCardList));
   }
 
   // append temporary lists to print block, erasing temporary lists
@@ -3179,6 +3217,12 @@ void removeStarVariables(
 
   variable_list.splice(vStarPosition, vStarList);
   variable_list.splice(iStarPosition, iStarList);
+  variable_list.splice(iStarPosition, iBStarList);
+  variable_list.splice(iStarPosition, iCStarList);
+  variable_list.splice(iStarPosition, iEStarList);
+  variable_list.splice(iStarPosition, iDStarList);
+  variable_list.splice(iStarPosition, iGStarList);
+  variable_list.splice(iStarPosition, iSStarList);
   variable_list.splice(pStarPosition, pStarList);
   variable_list.splice(wStarPosition, wStarList);
 }
