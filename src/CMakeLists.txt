@@ -51,7 +51,7 @@ add_library(XyceStatic STATIC ${XYCE_SOURCES} ${BISON_XyceReactionParser_OUTPUTS
 target_include_directories(XyceStatic PUBLIC ${XYCE_INCLUDE_DIRECTORIES}
      ${Trilinos_INCLUDE_DIRS} ${Trilinos_TPL_INCLUDE_DIRS} ${FLEX_INCLUDE_DIR}
      ${Boost_INCLUDE_DIRS})
-target_link_libraries(XyceStatic PUBLIC FFTW::FFTW ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(XyceStatic PUBLIC ${FFT} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
 
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})

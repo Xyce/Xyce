@@ -279,6 +279,14 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
      message(STATUS "Looking for usable FFT libraries - found the Intel Math Kernel Library")
      set(Xyce_USE_FFT TRUE CACHE BOOL "Enable the FFT capability")
      set(Xyce_USE_INTEL_FFT TRUE CACHE BOOL "Use the Intel Math Kernel Library FFT capability")
+     
+     set(FFT "")
+     #So far when using Intel compilers we must line up with a Trilinos built with MKL,
+     #and that then must be exposed as a Trilinos TPL, so specifing it in the link line
+     #is unnecessary given that we already include Trilinos in the link line.
+     #Because the IntelMKL is technically free to redistribute, I'm leaving this here, although
+     #how much use the free Intel MKL is without the corresponding notsofree compilers is something
+     #the community could help us with. 
 else ()
      find_package(FFTW)
      if(FFTW_FOUND)
@@ -288,6 +296,7 @@ else ()
                INTERFACE_INCLUDE_DIRECTORIES "${FFTW_INCLUDE_DIRS}"
                INTERFACE_LINK_LIBRARIES "${FFTW_DOUBLE_LIB}")
           set(Xyce_USE_FFTW TRUE CACHE BOOL "Use FFTW library")
+	  set(FFT FFTW::FFTW) 
      else()
           message("Neither FFTW or Intel MKL found - disabling the FFT capability")
           set(Xyce_USE_FFT FALSE CACHE BOOL "Enable the FFT capability")
