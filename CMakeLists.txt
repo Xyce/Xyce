@@ -30,3 +30,10 @@ add_subdirectory(src)
 if ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
   add_subdirectory (Xyce_UnitTests)
 endif ( EXISTS ${Xyce_SOURCE_DIR}/Xyce_UnitTests)
+
+
+set(CPACK_PACKAGE_NAME "Xyce")
+#set(CPACK_PACKAGE_VERSION "${Xyce_XyceVERSION}") #I wanted to use this but RPM can't handle : 
+set(CPACK_PACKAGE_VERSION 7.0.0)
+include(CPack)
+

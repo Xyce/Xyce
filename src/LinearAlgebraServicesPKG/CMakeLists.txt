@@ -18,7 +18,7 @@ endif ( Xyce_AMESOS2 )
 set ( KSPARSE_SRC ${CMAKE_CURRENT_SOURCE_DIR}/N_LAS_KSparseSolver.C
                   ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/Epetra_CrsKundertSparse.C
                   ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/alloc.c
-                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/driver.c
+#                  ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/driver.c  #this has main {} in it. Not suitable for inclusion into Xyce's shared library. 
                   ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/smplinkrows.c
                   ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spalloc.c
                   ${CMAKE_CURRENT_SOURCE_DIR}/ksparse/spbuild.c
