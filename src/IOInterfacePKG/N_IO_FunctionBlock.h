@@ -44,6 +44,7 @@
 
 #include <N_IO_fwd.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
+#include <N_UTL_NetlistLocation.h>
 #include <N_UTL_Pack.h> 
 
 namespace Xyce {
@@ -84,7 +85,7 @@ private:
   bool extractData(const TokenVector & parsedInputLine);
   //- Extract model data from parsedInputLine using model metadata.
 
-  std::string netlistFilename_;
+  NetlistLocation netlistLocation_;
 };
 
 } // namespace IO

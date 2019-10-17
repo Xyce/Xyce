@@ -65,14 +65,14 @@ namespace IO {
 FunctionBlock::FunctionBlock(
     std::string const& fileName,
     TokenVector const& parsedInputLine)
- : netlistFilename_(fileName)
+ : netlistLocation_(fileName, parsedInputLine[0].lineNumber_)
 {
   int len;
 
   len = parsedInputLine[parsedInputLine.size()-1].string_.size();
   if (parsedInputLine[parsedInputLine.size()-1].string_.substr(0,1) != "{" ||
       parsedInputLine[parsedInputLine.size()-1].string_.substr(len-1,1) != "}") {
-    Report::UserFatal0().at(netlistFilename_, parsedInputLine[0].lineNumber_)
+    Report::UserFatal0().at(netlistLocation_)
       << "In .func line for function: " << parsedInputLine[1].string_ << ", expression must be enclosed by curly braces";
   }
 
@@ -93,7 +93,7 @@ FunctionBlock::FunctionBlock( FunctionBlock const& rhsFB )
     functionNameAndArgs(rhsFB.functionNameAndArgs),
     functionArgs(rhsFB.functionArgs),
     functionBody(rhsFB.functionBody),
-    netlistFilename_(rhsFB.netlistFilename_)
+    netlistLocation_(rhsFB.netlistLocation_)
 {
 }
 
@@ -141,7 +141,7 @@ bool FunctionBlock::extractData(TokenVector const& parsedInputLine)
   if ( (parsedInputLine[arg_start].string_ != "(") || 
        (parsedInputLine[arg_end].string_ != ")") )
   {
-    Report::UserFatal0().at(netlistFilename_, parsedInputLine[arg_start].lineNumber_)
+    Report::UserFatal0().at(netlistLocation_.getFilename(), parsedInputLine[arg_start].lineNumber_)
       << ".FUNC argument list must be enclosed by parentheses in function " << functionName;
   }
 
@@ -212,10 +212,9 @@ Pack<IO::FunctionBlock>::packedByteCount(
   byteCount += sizeof( int );
   byteCount += function_block.functionBody.length();  
 
-  // count netlistFilename_
-  byteCount += sizeof( int );
-  byteCount += function_block.netlistFilename_.length();  
-  
+  //----- count netlistLocation_
+  byteCount += 2*sizeof(int);
+
   return byteCount;
 }
 
@@ -266,10 +265,12 @@ Pack<IO::FunctionBlock>::pack(
   comm->pack( &length, 1, buf, bsize, pos );
   comm->pack( function_block.functionBody.c_str(), length, buf, bsize, pos );
 
-  // pack netlistFilename_
-  length = function_block.netlistFilename_.length();
-  comm->pack( &length, 1, buf, bsize, pos );
-  comm->pack( function_block.netlistFilename_.c_str(), length, buf, bsize, pos );  
+  //----- pack netlistLocation_
+  int file_number = function_block.netlistLocation_.getFileNumber();
+  comm->pack(&file_number, 1, buf, bsize, pos );
+  int line_number = function_block.netlistLocation_.getLineNumber();
+  comm->pack(&line_number, 1, buf, bsize, pos );
+
 #ifdef Xyce_COUNT_PACKED_BYTES
   if (pos != predictedPos)
   {
@@ -322,10 +323,13 @@ Pack<IO::FunctionBlock>::unpack(
   function_block.functionBody = std::string( ( pB + pos ), length );
   pos += length;
 
-  // unpack netlistFileName
-  comm->unpack( pB, bsize, pos, &length, 1 );
-  function_block.netlistFilename_ = std::string( ( pB + pos ), length );
-  pos += length;
+  //----- unpack netlistLocation_
+  int file_number = 0;
+  comm->unpack( pB, bsize, pos, &file_number, 1 );
+  function_block.netlistLocation_.setFileNumber(file_number);
+  int line_number = 0;
+  comm->unpack( pB, bsize, pos, &line_number, 1 );
+  function_block.netlistLocation_.setLineNumber(line_number);
 }
 
 } // namespace Xyce
