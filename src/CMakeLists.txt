@@ -56,3 +56,5 @@ target_link_libraries(XyceStatic PUBLIC ${FFT} ${Trilinos_LIBRARIES} ${Trilinos_
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
 target_link_libraries(Xyce XyceStatic) 
+install(TARGETS XyceStatic DESTINATION lib)
+install(TARGETS Xyce DESTINATION bin)
