@@ -49,6 +49,9 @@
 #include <map>
 #include <typeinfo>
 
+#include <Xyce_config.h>
+#include <N_UTL_fwd.h>
+
 namespace Xyce {
 namespace Util {
 
@@ -93,6 +96,7 @@ public:
     TYPE_CHECK_VECTOR   = 0x00000004,
     TYPE_CHECK_SET      = 0x00000008,
     TYPE_CHECK_MAP      = 0x00000010,
+    TYPE_CHECK_UNORDERED_SET = 0x00000020,
     TYPE_CHECK_ALL      = 0xFFFFFFFF
   };
 
@@ -439,6 +443,38 @@ Marshal &operator>>(Marshal &min, std::map<K, T, C, A> &m)
     T t;
     min >> k >> t;
     m.insert(typename std::map<K, T, C, A>::value_type(k, t));
+  }
+
+  return min;
+}
+
+template <class T, class C, class A>
+Marshal &operator<<(Marshal &mout, const unordered_set<T, C, A> &s)
+{
+  if (mout.m_typeCheck & Marshal::TYPE_CHECK_UNORDERED_SET)
+    mout << typeid(s);
+
+  size_t size = s.size();
+  mout << size;
+  for (typename unordered_set<T, C, A>::const_iterator it = s.begin(); it != s.end(); ++it)
+    mout << (*it);
+
+  return mout;
+}
+
+template <class T, class C, class A>
+Marshal &operator>>(Marshal &min, unordered_set<T, C, A> &s)
+{
+  if (min.m_typeCheck & Marshal::TYPE_CHECK_UNORDERED_SET)
+    min >> typeid(s);
+
+  size_t size;
+  min >> size;
+  for (size_t i = 0; i < size; ++i)
+  {
+    T t;
+    min >> t;
+    s.insert(t);
   }
 
   return min;

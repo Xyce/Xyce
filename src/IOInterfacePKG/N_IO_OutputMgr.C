@@ -2798,9 +2798,9 @@ void removeStarVariables(
   // unordered_set eventually.
   std::vector<std::string> v_list;
   std::vector<std::string> i_list;
-  std::set<std::string> iBCE_list;  // one list for all BJT lead currents
-  std::set<std::string> iDGS_list;  // one list for all FET lead currents
-  std::set<std::string> p_list;
+  unordered_set<std::string> iBCE_list;  // one list for all BJT lead currents
+  unordered_set<std::string> iDGS_list;  // one list for all FET lead currents
+  unordered_set<std::string> p_list;
 
   // Need separate lists for P() and W() wildcards, since they may contain
   // different requests
@@ -3138,6 +3138,7 @@ void removeStarVariables(
   // ID(*), IG(*) and IS(*) requests since the entries in the ParamList
   // contain both the operators and the variables.
   Util::ParamList vStarList;
+
   Util::ParamList iStarList;   // I(*) for two terminal devices
   Util::ParamList iBStarList;  // BJT lead currents
   Util::ParamList iCStarList;
@@ -3145,7 +3146,8 @@ void removeStarVariables(
   Util::ParamList iDStarList;  // FET lead currents
   Util::ParamList iGStarList;
   Util::ParamList iSStarList;
-  Util::ParamList pStarList;
+
+  Util::ParamList pStarList;  // power
   Util::ParamList wStarList;
 
   // Need separate lists here for wildcards like P(X1*) and W(X2*) since the
@@ -3161,9 +3163,9 @@ void removeStarVariables(
 
     std::vector<std::string> a;
     std::vector<std::string> b;
-    std::set<std::string> c;
-    std::set<std::string> d;
-    std::set<std::string> e;
+    unordered_set<std::string> c;
+    unordered_set<std::string> d;
+    unordered_set<std::string> e;
     std::vector<std::string> f;
     std::vector<std::string> g;
     std::vector<std::string> h;
