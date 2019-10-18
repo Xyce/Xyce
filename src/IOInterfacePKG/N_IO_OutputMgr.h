@@ -377,10 +377,9 @@ public:
     return aliasNodeMap_;
   }
 
-  template <class It>
-  void setMainContextFunctionMap(It first, It last)
+  void setMainContextFunctionMap(const Util::ParamMap& function_map)
   {
-    mainContextFunctionMap_.insert(first, last);
+    mainContextFunctionMap_ = function_map;
   }
 
   const Util::ParamMap &getMainContextFunctionMap() const

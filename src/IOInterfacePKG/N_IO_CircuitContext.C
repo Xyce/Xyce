@@ -1716,8 +1716,7 @@ bool CircuitContext::getResolvedFunction(Util::Param & parameter) const
 {
   bool success = false;
 
-  std::map<std::string, Util::Param>::const_iterator it = 
-    currentContextPtr_->resolvedFunctions_.find(parameter.uTag());
+  Util::ParamMap::const_iterator it = currentContextPtr_->resolvedFunctions_.find(parameter.uTag());
 
   if (it != currentContextPtr_->resolvedFunctions_.end())
   {

@@ -344,7 +344,7 @@ public:
     return currentContextPtr_->localDeviceCountMap_;
   }
 
-  const std::map<std::string, Util::Param> &getFunctions() const
+  const Util::ParamMap &getFunctions() const
   {
     return resolvedFunctions_;
   }
@@ -430,7 +430,7 @@ private:
   bool resolved_;
   Util::ParamList resolvedParams_;
   Util::ParamList resolvedGlobalParams_;
-  std::map<std::string, Util::Param> resolvedFunctions_;
+  Util::ParamMap  resolvedFunctions_;
 };
 
 //----------------------------------------------------------------------------

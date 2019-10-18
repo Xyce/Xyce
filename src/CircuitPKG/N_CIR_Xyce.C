@@ -947,7 +947,7 @@ Simulator::RunStatus Simulator::initializeEarly(
     }
 
     outputManager_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
-    outputManager_->setMainContextFunctionMap(netlist_import_tool.getMainContextFunctions().begin(), netlist_import_tool.getMainContextFunctions().end());
+    outputManager_->setMainContextFunctionMap(netlist_import_tool.getMainContextFunctions());
     outputManager_->setMainContextParamMap(netlist_import_tool.getMainContextParams().begin(), netlist_import_tool.getMainContextParams().end());
     outputManager_->setMainContextGlobalParamMap(netlist_import_tool.getMainContextGlobalParams().begin(), netlist_import_tool.getMainContextGlobalParams().end());
 

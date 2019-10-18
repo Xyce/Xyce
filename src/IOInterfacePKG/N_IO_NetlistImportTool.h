@@ -176,7 +176,7 @@ public:
     return deferredUndefinedParameters_;
   }
   
-  const std::map<std::string, Util::Param> &getMainContextFunctions() const
+  const Util::ParamMap &getMainContextFunctions() const
   {
     return circuitContext_.getFunctions();
   }
