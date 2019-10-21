@@ -902,6 +902,7 @@ bool Model::readTouchStoneFile()
             else if (paramType_=='Z')
 	    {
               Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
+              YParams.shape(numPorts_, numPorts_);
 	      Util::ztoy(inputNetworkData,YParams);
               inputNetworkDataVec_.push_back(YParams);
             }
