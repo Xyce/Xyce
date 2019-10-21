@@ -140,8 +140,8 @@ public:
   virtual void setupPointers() /* override */;
 
 private:
-  static std::vector< std::vector<int> >  jacStamp; ///< All Resistor instances have a common Jacobian Stamp
-  std::vector< std::vector<int> > LIDVec_; ///< All Resistor instances have a common Jacobian Stamp
+  std::vector< std::vector<int> >  jacStamp;
+  std::vector< std::vector<int> > LIDVec_;
   void initializeJacobianStamp();
 
   Model &     model_;                 ///< Owning model
