@@ -141,6 +141,7 @@ public:
 
 private:
   static std::vector< std::vector<int> >  jacStamp; ///< All Resistor instances have a common Jacobian Stamp
+  std::vector< std::vector<int> > LIDVec_; ///< All Resistor instances have a common Jacobian Stamp
   void initializeJacobianStamp();
 
   Model &     model_;                 ///< Owning model
