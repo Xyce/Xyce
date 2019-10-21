@@ -916,9 +916,10 @@ void printLineDiagnostics(
         {
           const std::string &name= *iter_s;
 
-          // allow * to pass
-          nodeStat[name] = (name == "*") || (findNode(name, node_names, alias_node_map)) ||
-	                   findWildCardMatch(name,node_names);
+          // Allow * to pass.  This also assumes that something like V(1*) is a wildcard request
+          // for all nodal voltages that start with '1', rather than the voltage at node 1*.
+          nodeStat[name] = (name == "*") || findWildCardMatch(name,node_names) ||
+	                   (findNode(name, node_names, alias_node_map));
         }
 
         for (std::vector<std::string>::iterator iter_s= instances.begin(); iter_s != instances.end(); ++iter_s)
@@ -927,17 +928,19 @@ void printLineDiagnostics(
 
           if (name.substr(name.size() - 1, 1) == "}")
           {
-            // allow * to pass
-            instanceStat[name] = (name[0] == '*') || (device_map.find(name.substr(0, name.size() - 3)) != device_map.end()) ||
-	                         findWildCardMatch(name.substr(0, name.size() - 3),device_map);
+            // Allow * to pass.  This also assumes that something like I(R1*) is a wildcard
+            // request for all R devices nodes that start with "R1".
+            instanceStat[name] = (name[0] == '*') || findWildCardMatch(name.substr(0, name.size() - 3),device_map) ||
+                                 (device_map.find(name.substr(0, name.size() - 3)) != device_map.end());
             if (name[0] == '*')
               iStarRequested=true;
           }
           else
           {
-            // allow * to pass
-            instanceStat[name] = (name == "*") || (device_map.find(name) != device_map.end()) ||
-	                         findWildCardMatch(name,device_map);
+            // Allow * to pass.  This also assumes that something like I(R1*) is a wildcard
+            // request for all R devices nodes that start with "R1".
+            instanceStat[name] = (name == "*") || findWildCardMatch(name,device_map) ||
+                                 (device_map.find(name) != device_map.end());
             if (name == "*")
               iStarRequested=true;
           }

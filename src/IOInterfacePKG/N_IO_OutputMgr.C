@@ -2725,66 +2725,50 @@ void removeStarVariables(
     }
     else if ( !Xyce::Util::hasExpressionTag((*it).tag()) && ((*it).tag().find("*") != std::string::npos) )
     {
-      // Process wildcard syntaxes like V(X1*) I(X1*) P(X1*)
-
-      // First check if something like V(1*) actually refers to a valid node 1*
-      // Note this may differ from HSPICE, which may assume that 1* is a "wildcard"
-      // even if 1* is a valid node name in the netlist.
-      int validNode = external_nodes.count((*it).tag());
-      Parallel::AllReduce(comm, MPI_SUM, &validNode, 1);
-      int validDevice = branch_vars.count((*it).tag());
-      Parallel::AllReduce(comm, MPI_SUM, &validDevice, 1);
-
-      if (validNode || (validDevice > 0))
+      // Process wildcard syntaxes like V(X1*) I(X1*) P(X1*) W(X1*).  Assume that,
+      // for example, V(1*) is a request for all nodes that start with '1'.  It is
+      // NOT an explicit request for the voltage at node 1*, if node 1* exists in
+      // the netlist.
+      Util::ParamList::iterator prevIt = it;
+      --prevIt;
+      if ((*prevIt).tag() == "V")
       {
-        // move to next item on .print line
-        ++it;
+        std::string wildCardStr((*it).tag());
+        --it; // rewind to the V tag
+        --prevIt; // rewind to before the V tag
+        vWildCardPosition = prevIt;
+        vWildCards.push_back(make_pair(prevIt,wildCardStr));
       }
-      else
+      else if ((*prevIt).tag() == "I")
       {
-        // this actually is a wildcard request, so add it to vWildCards,
-        // iWildCards
-        Util::ParamList::iterator prevIt = it;
-        --prevIt;
-        if ((*prevIt).tag() == "V")
-        {
-	  std::string wildCardStr((*it).tag());
-          --it; // rewind to the V tag
-          --prevIt; // rewind to before the V tag
-          vWildCardPosition = prevIt;
-          vWildCards.push_back(make_pair(prevIt,wildCardStr));
-        }
-        else if ((*prevIt).tag() == "I")
-        {
-	  std::string wildCardStr((*it).tag());
-          --it; // rewind to the I tag
-          --prevIt; // rewind to before the I tag
-          iWildCardPosition = prevIt;
-          iWildCards.push_back(make_pair(prevIt,wildCardStr));
-        }
-        else if ((*prevIt).tag() == "P")
-        {
-	  std::string wildCardStr((*it).tag());
-          --it; // rewind to the P tag
-          --prevIt; // rewind to before the P tag
-          pWildCardPosition = prevIt;
-          pWildCards.push_back(make_pair(prevIt,wildCardStr));
-        }
-        else if ((*prevIt).tag() == "W")
-        {
-	  std::string wildCardStr((*it).tag());
-          --it; // rewind to the P tag
-          --prevIt; // rewind to before the P tag
-          wWildCardPosition = prevIt;
-          wWildCards.push_back(make_pair(prevIt,wildCardStr));
-        }
-
-        // remove the V, I, P or W
-        it = variable_list.erase(it);
-
-        // remove the wildcard syntax, that had at least one * in it
-        it = variable_list.erase(it);
+        std::string wildCardStr((*it).tag());
+        --it; // rewind to the I tag
+        --prevIt; // rewind to before the I tag
+        iWildCardPosition = prevIt;
+        iWildCards.push_back(make_pair(prevIt,wildCardStr));
       }
+      else if ((*prevIt).tag() == "P")
+      {
+        std::string wildCardStr((*it).tag());
+        --it; // rewind to the P tag
+        --prevIt; // rewind to before the P tag
+        pWildCardPosition = prevIt;
+        pWildCards.push_back(make_pair(prevIt,wildCardStr));
+      }
+      else if ((*prevIt).tag() == "W")
+      {
+        std::string wildCardStr((*it).tag());
+        --it; // rewind to the P tag
+        --prevIt; // rewind to before the P tag
+        wWildCardPosition = prevIt;
+        wWildCards.push_back(make_pair(prevIt,wildCardStr));
+      }
+
+      // remove the V, I, P or W
+      it = variable_list.erase(it);
+
+      // remove the wildcard syntax, that had at least one * in it
+      it = variable_list.erase(it);
     }
     // move to next item on .print line
     else
