@@ -2701,7 +2701,8 @@ void removeStarVariables(
         iStarPosition = it;
         --iStarPosition;
 
-        // keep a vector of the types of I-star requests (e.g., IR(*) and II(*))
+        // Keep a vector of the types of I-star requests.
+        // Examples are I(*),  IR(*), II(*) and IB(*).
         iOpsRequested.push_back((*it).tag());
       }
       else if (varType == "P")
@@ -2777,13 +2778,22 @@ void removeStarVariables(
     }
   }
 
-  // Only need one variable list for both P(*) and W(*).  Also, p_list is a set
-  // so that P(*) and W(*) work with multi-terminal devices.  This should be changed
-  // unordered_set eventually.
+  // Only need one variable list for both P(*) and W(*). Note that p_list is a set
+  // so that P(*) and W(*) work with multi-terminal devices, as are the lists for
+  // the BJT and FET lead currents.
   std::vector<std::string> v_list;
   std::vector<std::string> i_list;
-  unordered_set<std::string> iBCE_list;  // one list for all BJT lead currents
-  unordered_set<std::string> iDGS_list;  // one list for all FET lead currents
+
+  // list for all BJT lead currents, which are IB(*), IC(*) and IE(*)
+  unordered_set<std::string> iBJT_list;
+
+  // list for all MOSFETs, MESFETs and JFETs.  This is used for IS(*),
+  // IG(*) and ID(*) for all FETs.  A future re-factoring might only store
+  // MESFETs and JFETS in this list.
+  unordered_set<std::string> iFET_list;
+  // list for all MOSFETs, which is only used for IB(*).
+  unordered_set<std::string> iMOSFET_list;
+
   unordered_set<std::string> p_list;
 
   // Need separate lists for P() and W() wildcards, since they may contain
@@ -2851,14 +2861,18 @@ void removeStarVariables(
         else if (devType == 'Q')
 	{
           // one list for IB(*) IC(*) IE(*) for BJTs
-          iBCE_list.insert(tmpStr);
+          iBJT_list.insert(tmpStr);
           addIt=false;
         }
         else if (devType == 'M' || devType == 'J' || devType == 'Z')
 	{
-          // one list for ID(*) IG(*) IS(*) for FETs
-          iDGS_list.insert(tmpStr);
+          // one list for ID(*) IG(*) IS(*) for all FETs
+          iFET_list.insert(tmpStr);
           addIt=false;
+
+          // only MOSFETs support IB(*)
+          if (devType == 'M')
+            iMOSFET_list.insert(tmpStr);
         }
 
         // i_list contains names of two-terminal devices with branch
@@ -3112,7 +3126,7 @@ void removeStarVariables(
   }
 
   Util::Marshal mout;
-  mout << v_list << i_list << iBCE_list << iDGS_list << p_list
+  mout << v_list << i_list << iBJT_list << iFET_list << iMOSFET_list << p_list
        << vWildCard_list << iWildCard_list << pWildCard_list << wWildCard_list;
 
   std::vector<std::string> dest;
@@ -3124,10 +3138,11 @@ void removeStarVariables(
   Util::ParamList vStarList;
 
   Util::ParamList iStarList;   // I(*) for two terminal devices
-  Util::ParamList iBStarList;  // BJT lead currents
-  Util::ParamList iCStarList;
+  Util::ParamList iBStarBJTList;  // IB (base) for BJTs
+  Util::ParamList iCStarList;     // other BJT lead currents
   Util::ParamList iEStarList;
-  Util::ParamList iDStarList;  // FET lead currents
+  Util::ParamList iBStarMOSFETList; // IB (bulk) for MOSFETs
+  Util::ParamList iDStarList;       // other lead currents for JFET, MESFET and MOSFETs
   Util::ParamList iGStarList;
   Util::ParamList iSStarList;
 
@@ -3145,54 +3160,62 @@ void removeStarVariables(
   {
     Util::Marshal min(dest[p]);
 
-    std::vector<std::string> a;
-    std::vector<std::string> b;
-    unordered_set<std::string> c;
-    unordered_set<std::string> d;
-    unordered_set<std::string> e;
-    std::vector<std::string> f;
-    std::vector<std::string> g;
-    std::vector<std::string> h;
-    std::vector<std::string> i;
-    min >> a >> b >> c >> d >> e >> f >> g >> h >> i;
+    // variables postpended with _all are local to this loop, and
+    // have been "marshalled" in parallel from all processors.
+    std::vector<std::string> v_all;
+    std::vector<std::string> i2T_all; // two-terminal devices
+    unordered_set<std::string> iBJT_all;
+    unordered_set<std::string> iFET_all;
+    unordered_set<std::string> iMOSFET_all;
+    unordered_set<std::string> p_all;
+    std::vector<std::string> vWildCard_all;
+    std::vector<std::string> iWildCard_all;
+    std::vector<std::string> pWildCard_all;
+    std::vector<std::string> wWildCard_all;
+    min >> v_all >> i2T_all >> iBJT_all >> iFET_all >> iMOSFET_all >> p_all
+        >> vWildCard_all >> iWildCard_all >> pWildCard_all >> wWildCard_all;
 
     // first handle star requests
     std::vector<std::string>::const_iterator itV=vOpsRequested.begin();
     std::vector<std::string>::const_iterator itI=iOpsRequested.begin();
     // handle, for example, VR(*) VI(*)
     for ( ; itV!=vOpsRequested.end(); ++itV)
-      makeParamList((*itV), a.begin(), a.end(), std::back_inserter(vStarList));
+      makeParamList((*itV), v_all.begin(), v_all.end(), std::back_inserter(vStarList));
 
     // handle, for example, IR(*) II(*)
     for ( ; itI!=iOpsRequested.end(); ++itI)
     {
       if ((*itI) == "IB")
-        makeParamList((*itI), c.begin(), c.end(), std::back_inserter(iBStarList));
+      {
+	// IB(*) is valid for both BJT and MOSFETs
+        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iBStarBJTList));
+        makeParamList((*itI), iMOSFET_all.begin(), iMOSFET_all.end(), std::back_inserter(iBStarMOSFETList));
+      }
       else if ((*itI) == "IC")
-        makeParamList((*itI), c.begin(), c.end(), std::back_inserter(iCStarList));
+        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iCStarList));
       else if ((*itI) == "IE")
-        makeParamList((*itI), c.begin(), c.end(), std::back_inserter(iEStarList));
+        makeParamList((*itI), iBJT_all.begin(), iBJT_all.end(), std::back_inserter(iEStarList));
       else if ((*itI) == "ID")
-        makeParamList((*itI), d.begin(), d.end(), std::back_inserter(iDStarList));
+        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iDStarList));
       else if ((*itI) == "IG")
-        makeParamList((*itI), d.begin(), d.end(), std::back_inserter(iGStarList));
+        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iGStarList));
       else if ((*itI) == "IS")
-        makeParamList((*itI), d.begin(), d.end(), std::back_inserter(iSStarList));
+        makeParamList((*itI), iFET_all.begin(), iFET_all.end(), std::back_inserter(iSStarList));
       else
-        makeParamList((*itI), b.begin(), b.end(), std::back_inserter(iStarList));
+        makeParamList((*itI), i2T_all.begin(), i2T_all.end(), std::back_inserter(iStarList));
     }
 
-    // re-use some variable list for both P(*) and W(*)
+    // re-use same variable list for both P(*) and W(*)
     if (pStarFound)
-      makeParamList("P", e.begin(), e.end(), std::back_inserter(pStarList));
+      makeParamList("P", p_all.begin(), p_all.end(), std::back_inserter(pStarList));
     if (wStarFound)
-      makeParamList("W", e.begin(), e.end(), std::back_inserter(wStarList));
+      makeParamList("W", p_all.begin(), p_all.end(), std::back_inserter(wStarList));
 
     // now handle wildcard requests like V(X1*)
-    makeParamList("V", f.begin(), f.end(), std::back_inserter(vWildCardList));
-    makeParamList("I", g.begin(), g.end(), std::back_inserter(iWildCardList));
-    makeParamList("P", h.begin(), h.end(), std::back_inserter(pWildCardList));
-    makeParamList("W", i.begin(), i.end(), std::back_inserter(wWildCardList));
+    makeParamList("V", vWildCard_all.begin(), vWildCard_all.end(), std::back_inserter(vWildCardList));
+    makeParamList("I", iWildCard_all.begin(), iWildCard_all.end(), std::back_inserter(iWildCardList));
+    makeParamList("P", pWildCard_all.begin(), pWildCard_all.end(), std::back_inserter(pWildCardList));
+    makeParamList("W", wWildCard_all.begin(), wWildCard_all.end(), std::back_inserter(wWildCardList));
   }
 
   // append temporary lists to print block, erasing temporary lists
@@ -3203,12 +3226,13 @@ void removeStarVariables(
 
   variable_list.splice(vStarPosition, vStarList);
   variable_list.splice(iStarPosition, iStarList);
-  variable_list.splice(iStarPosition, iBStarList);
+  variable_list.splice(iStarPosition, iBStarBJTList);
   variable_list.splice(iStarPosition, iCStarList);
   variable_list.splice(iStarPosition, iEStarList);
   variable_list.splice(iStarPosition, iDStarList);
   variable_list.splice(iStarPosition, iGStarList);
   variable_list.splice(iStarPosition, iSStarList);
+  variable_list.splice(iStarPosition, iBStarMOSFETList);
   variable_list.splice(pStarPosition, pStarList);
   variable_list.splice(wStarPosition, wStarList);
 }
