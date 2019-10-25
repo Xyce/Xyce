@@ -1,7 +1,5 @@
 set( XYCE_CONFIG_FILEPATH "${CMAKE_CURRENT_BINARY_DIR}/Xyce_config.h" )
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/Xyce_config.h.cmake" "${XYCE_CONFIG_FILEPATH}" )
-install( FILES "${XYCE_CONFIG_FILEPATH}"
-        DESTINATION include )
 
 
 set( XYCE_SOURCES "Xyce.C")
@@ -86,3 +84,5 @@ set_target_properties ( XyceStatic PROPERTIES
 					
 install(TARGETS XyceStatic DESTINATION lib)
 install(TARGETS Xyce DESTINATION bin)
+
+
