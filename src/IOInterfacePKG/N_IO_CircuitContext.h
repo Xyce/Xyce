@@ -109,8 +109,6 @@ public:
   // Destructor.
   virtual ~CircuitContext();
 
-  CircuitContext & operator=( const CircuitContext & rhs );
-
   // Begin a subcircuit to context.
   // Note: the current subcircuit context will remain active until
   // an endSubcircuitContext is issued.
@@ -346,7 +344,7 @@ public:
     return currentContextPtr_->localDeviceCountMap_;
   }
 
-  const std::map<std::string, Util::Param> &getFunctions() const
+  const Util::ParamMap &getFunctions() const
   {
     return resolvedFunctions_;
   }
@@ -371,6 +369,10 @@ public:
 private:
   CircuitContext();
 
+  // Copy Constructor.
+  CircuitContext(CircuitContext const& rhsCC);
+  CircuitContext &operator=(const CircuitContext& rhsCC);
+       
   // Reference to a Pointer to the current context;
   // ERK.  This was once static data, but is now non-static, and ultimately
   // owned by the IO_NetlistImportTool class.  For that reason, it is a
@@ -428,7 +430,7 @@ private:
   bool resolved_;
   Util::ParamList resolvedParams_;
   Util::ParamList resolvedGlobalParams_;
-  std::map<std::string, Util::Param> resolvedFunctions_;
+  Util::ParamMap  resolvedFunctions_;
 };
 
 //----------------------------------------------------------------------------

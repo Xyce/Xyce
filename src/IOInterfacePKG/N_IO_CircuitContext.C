@@ -117,56 +117,6 @@ CircuitContext::~CircuitContext()
   models_.clear();
 }
 
-//-----------------------------------------------------------------------------
-// Function      : CircuitContext::operator=
-// Purpose       : assignment operator
-// Special Notes :
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 01/18/2006
-//-----------------------------------------------------------------------------
-CircuitContext & CircuitContext ::operator=(const CircuitContext & right)
-{
-  if (this != &right)
-  {
-    currentContextPtr_ = right.currentContextPtr_;
-    parentContextPtr_ = right.parentContextPtr_;
-    contextList_ = right.contextList_;
-    name_ = right.name_;
-
-    deviceCountDone_ = right.deviceCountDone_;
-    deviceCount_ = right.deviceCount_;
-    linearDeviceCount_ = right.linearDeviceCount_;
-    subcktList_ = right.subcktList_;
-    instanceList_ = right.instanceList_;
-    usedContextList_ = right.usedContextList_;
-
-    nodeList_ = right.nodeList_;
-    subcircuitParameters_ = right.subcircuitParameters_;
-    circuitContextTable_ = right.circuitContextTable_;
-    models_ = right.models_;
-
-    unresolvedParams_ = right.unresolvedParams_;
-    unresolvedGlobalParams_ = right.unresolvedGlobalParams_;
-    unresolvedFunctions_ = right.unresolvedFunctions_;
-    mutualInductances_ = right.mutualInductances_;
-
-    sharedInductorTable_ = right.sharedInductorTable_;
-    allCoupledInductors_ = right.allCoupledInductors_;
-    allIndexedMIs_ = right.allIndexedMIs_;
-    kLines_ = right.kLines_;
-
-    subcircuitPrefix_ = right.subcircuitPrefix_;
-    nodeMap_ = right.nodeMap_;
-    resolved_ = right.resolved_;
-    resolvedParams_ = right.resolvedParams_;
-    resolvedGlobalParams_ = right.resolvedGlobalParams_;
-    resolvedFunctions_ = right.resolvedFunctions_;
-  }
-
-  return *this;
-}
-
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::addInstance
 // Purpose        :
@@ -1037,7 +987,6 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
           // Reset the function body.
           functionBody = functionParameter.stringValue();
 
-          // Add the function to resolvedFunctions_.
           currentContextPtr_->resolvedFunctions_[functionName] =
             Util::Param(functionNameAndArgs, functionBody);
           resolvedSomethingThisLoop=true;
@@ -1767,12 +1716,11 @@ bool CircuitContext::getResolvedFunction(Util::Param & parameter) const
 {
   bool success = false;
 
-  std::string functionToFind(parameter.uTag());
+  Util::ParamMap::const_iterator it = currentContextPtr_->resolvedFunctions_.find(parameter.uTag());
 
-  if (currentContextPtr_->resolvedFunctions_.find(functionToFind) !=
-      currentContextPtr_->resolvedFunctions_.end())
+  if (it != currentContextPtr_->resolvedFunctions_.end())
   {
-    parameter = currentContextPtr_->resolvedFunctions_[functionToFind];
+    parameter = it->second;
     success = true;
   }
   else if (currentContextPtr_->parentContextPtr_ != NULL)
@@ -3183,6 +3131,8 @@ bool Xyce::IO::unpackCircuitContext(Xyce::IO::CircuitContext* circuit_contexts, 
     circuit_contexts->setParentContextPtr( NULL );
 
     Xyce::unpack(*circuit_contexts, char_buffer, bsize, pos, pds_comm_ptr);
+
+    circuit_contexts->resolve( std::vector<Device::Param>() );
   }
 
   return true;

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 25 Jul 2019 18:47:20
+// Creation Date  : Tue, 15 Oct 2019 12:01:25
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSJUNCAP200_h
@@ -54,8 +54,8 @@ namespace Device {
 namespace ADMSJUNCAP200 {
 
 // This typedef is for our automatic differentiation:
-typedef Sacado::Fad::SFad<double,1> AdmsFadType;
-typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
+  typedef Sacado::Fad::SFad<double,1> AdmsFadType;
+  typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
 class Instance;
@@ -74,21 +74,21 @@ class InstanceSensitivity;
 class InstanceSensitivity : public baseSensitivity
 {
 public:
-  InstanceSensitivity() :
-    baseSensitivity() {};
+InstanceSensitivity() :
+baseSensitivity() {};
 
-  virtual ~InstanceSensitivity() {};
+virtual ~InstanceSensitivity() {};
 
-  virtual void operator()(
-     const ParameterBase &entity,
-     const std::string &param,
-     std::vector<double> & dfdp,
-     std::vector<double> & dqdp,
-     std::vector<double> & dbdp,
-     std::vector<int> & Findices,
-     std::vector<int> & Qindices,
-     std::vector<int> & Bindices
-                          ) const ;
+virtual void operator()(
+const ParameterBase &entity,
+const std::string &param,
+std::vector<double> & dfdp,
+std::vector<double> & dqdp,
+std::vector<double> & dbdp,
+std::vector<int> & Findices,
+std::vector<int> & Qindices,
+std::vector<int> & Bindices
+) const ;
 };
 
 static InstanceSensitivity instSens;
@@ -106,21 +106,21 @@ static InstanceSensitivity instSens;
 class ModelSensitivity : public baseSensitivity
 {
 public:
-  ModelSensitivity() :
-    baseSensitivity() {};
+ModelSensitivity() :
+baseSensitivity() {};
 
-  virtual ~ModelSensitivity() {};
+virtual ~ModelSensitivity() {};
 
-  virtual void operator()(
-     const ParameterBase &entity,
-     const std::string &param,
-     std::vector<double> & dfdp,
-     std::vector<double> & dqdp,
-     std::vector<double> & dbdp,
-     std::vector<int> & Findices,
-     std::vector<int> & Qindices,
-     std::vector<int> & Bindices
-                          ) const ;
+virtual void operator()(
+const ParameterBase &entity,
+const std::string &param,
+std::vector<double> & dfdp,
+std::vector<double> & dqdp,
+std::vector<double> & dbdp,
+std::vector<int> & Findices,
+std::vector<int> & Qindices,
+std::vector<int> & Bindices
+) const ;
 };
 
 static ModelSensitivity modSens;
@@ -137,28 +137,28 @@ template <typename T> static inline T adms_vt(const T temp) {return(CONSTKoverQ*
 template<typename Tin>
 static Tin adms_ternary_op(const bool cond, const Tin &ifTrue, const Tin &ifFalse)
 {
-  if (cond)
-    return ifTrue;
-  else
-    return ifFalse;
+if (cond)
+return ifTrue;
+else
+return ifFalse;
 }
 
 template<typename Tin>
 static Tin adms_ternary_op(const bool cond, const Tin &ifTrue, const double &ifFalse)
 {
-  if (cond)
-    return ifTrue;
-  else
-    return Tin(ifFalse);
+if (cond)
+return ifTrue;
+else
+return Tin(ifFalse);
 }
 
 template<typename Tin>
 static Tin adms_ternary_op(const bool cond, const double &ifTrue, const Tin &ifFalse)
 {
-  if (cond)
-    return Tin(ifTrue);
-  else
-    return ifFalse;
+if (cond)
+return Tin(ifTrue);
+else
+return ifFalse;
 }
 
 
@@ -170,669 +170,669 @@ static Tin adms_ternary_op(const bool cond, const double &ifTrue, const Tin &ifF
 //
 //-----------------------------------------------------------------------------
 void evaluateModelEquations(
-   std::vector <double> & probeVars,
-   // probe constants
-   const int admsProbeID_V_A_K,
-   // node constants
-   const int admsNodeID_A,
-   const int admsNodeID_K,
-   // instance parameters
-   // reals
-   AdmsSensFadType & instancePar_AB,
-   bool instancePar_given_AB,
-   AdmsSensFadType & instancePar_LS,
-   bool instancePar_given_LS,
-   AdmsSensFadType & instancePar_LG,
-   bool instancePar_given_LG,
-   AdmsSensFadType & instancePar_MULT,
-   bool instancePar_given_MULT,
-   // instance variables
-   // reals
-   AdmsSensFadType & instanceVar_MULT_i,
-   AdmsSensFadType & instanceVar_AB_i,
-   AdmsSensFadType & instanceVar_LS_i,
-   AdmsSensFadType & instanceVar_LG_i,
-   double & instanceVar_zflagbot,
-   double & instanceVar_zflagsti,
-   double & instanceVar_zflaggat,
-   AdmsSensFadType & instanceVar_VMAX,
-   AdmsSensFadType & instanceVar_exp_VMAX_over_phitd,
-   AdmsSensFadType & instanceVar_vbimin,
-   AdmsSensFadType & instanceVar_vch,
-   AdmsSensFadType & instanceVar_vfmin,
-   AdmsSensFadType & instanceVar_vbbtlim,
-   AdmsSensFadType & instanceVar_xhighf1,
-   AdmsSensFadType & instanceVar_expxhf1,
-   AdmsSensFadType & instanceVar_xhighf2,
-   AdmsSensFadType & instanceVar_expxhf2,
-   AdmsSensFadType & instanceVar_xhighr,
-   AdmsSensFadType & instanceVar_expxhr,
-   AdmsSensFadType & instanceVar_ISATFOR1,
-   double & instanceVar_MFOR1,
-   AdmsSensFadType & instanceVar_ISATFOR2,
-   AdmsSensFadType & instanceVar_MFOR2,
-   AdmsSensFadType & instanceVar_ISATREV,
-   AdmsSensFadType & instanceVar_MREV,
-   double & instanceVar_m0flag,
-   // model parameters
-   // reals
-   AdmsSensFadType & modelPar_DTA,
-   bool modelPar_given_DTA,
-   AdmsSensFadType & modelPar_IMAX,
-   bool modelPar_given_IMAX,
-   AdmsSensFadType & modelPar_TRJ,
-   bool modelPar_given_TRJ,
-   AdmsSensFadType & modelPar_FREV,
-   bool modelPar_given_FREV,
-   AdmsSensFadType & modelPar_CJORBOT,
-   bool modelPar_given_CJORBOT,
-   AdmsSensFadType & modelPar_CJORSTI,
-   bool modelPar_given_CJORSTI,
-   AdmsSensFadType & modelPar_CJORGAT,
-   bool modelPar_given_CJORGAT,
-   AdmsSensFadType & modelPar_VBIRBOT,
-   bool modelPar_given_VBIRBOT,
-   AdmsSensFadType & modelPar_VBIRSTI,
-   bool modelPar_given_VBIRSTI,
-   AdmsSensFadType & modelPar_VBIRGAT,
-   bool modelPar_given_VBIRGAT,
-   AdmsSensFadType & modelPar_PBOT,
-   bool modelPar_given_PBOT,
-   AdmsSensFadType & modelPar_PSTI,
-   bool modelPar_given_PSTI,
-   AdmsSensFadType & modelPar_PGAT,
-   bool modelPar_given_PGAT,
-   AdmsSensFadType & modelPar_PHIGBOT,
-   bool modelPar_given_PHIGBOT,
-   AdmsSensFadType & modelPar_PHIGSTI,
-   bool modelPar_given_PHIGSTI,
-   AdmsSensFadType & modelPar_PHIGGAT,
-   bool modelPar_given_PHIGGAT,
-   AdmsSensFadType & modelPar_IDSATRBOT,
-   bool modelPar_given_IDSATRBOT,
-   AdmsSensFadType & modelPar_IDSATRSTI,
-   bool modelPar_given_IDSATRSTI,
-   AdmsSensFadType & modelPar_IDSATRGAT,
-   bool modelPar_given_IDSATRGAT,
-   AdmsSensFadType & modelPar_CSRHBOT,
-   bool modelPar_given_CSRHBOT,
-   AdmsSensFadType & modelPar_CSRHSTI,
-   bool modelPar_given_CSRHSTI,
-   AdmsSensFadType & modelPar_CSRHGAT,
-   bool modelPar_given_CSRHGAT,
-   AdmsSensFadType & modelPar_XJUNSTI,
-   bool modelPar_given_XJUNSTI,
-   AdmsSensFadType & modelPar_XJUNGAT,
-   bool modelPar_given_XJUNGAT,
-   AdmsSensFadType & modelPar_CTATBOT,
-   bool modelPar_given_CTATBOT,
-   AdmsSensFadType & modelPar_CTATSTI,
-   bool modelPar_given_CTATSTI,
-   AdmsSensFadType & modelPar_CTATGAT,
-   bool modelPar_given_CTATGAT,
-   AdmsSensFadType & modelPar_MEFFTATBOT,
-   bool modelPar_given_MEFFTATBOT,
-   AdmsSensFadType & modelPar_MEFFTATSTI,
-   bool modelPar_given_MEFFTATSTI,
-   AdmsSensFadType & modelPar_MEFFTATGAT,
-   bool modelPar_given_MEFFTATGAT,
-   AdmsSensFadType & modelPar_CBBTBOT,
-   bool modelPar_given_CBBTBOT,
-   AdmsSensFadType & modelPar_CBBTSTI,
-   bool modelPar_given_CBBTSTI,
-   AdmsSensFadType & modelPar_CBBTGAT,
-   bool modelPar_given_CBBTGAT,
-   AdmsSensFadType & modelPar_FBBTRBOT,
-   bool modelPar_given_FBBTRBOT,
-   AdmsSensFadType & modelPar_FBBTRSTI,
-   bool modelPar_given_FBBTRSTI,
-   AdmsSensFadType & modelPar_FBBTRGAT,
-   bool modelPar_given_FBBTRGAT,
-   AdmsSensFadType & modelPar_STFBBTBOT,
-   bool modelPar_given_STFBBTBOT,
-   AdmsSensFadType & modelPar_STFBBTSTI,
-   bool modelPar_given_STFBBTSTI,
-   AdmsSensFadType & modelPar_STFBBTGAT,
-   bool modelPar_given_STFBBTGAT,
-   AdmsSensFadType & modelPar_VBRBOT,
-   bool modelPar_given_VBRBOT,
-   AdmsSensFadType & modelPar_VBRSTI,
-   bool modelPar_given_VBRSTI,
-   AdmsSensFadType & modelPar_VBRGAT,
-   bool modelPar_given_VBRGAT,
-   AdmsSensFadType & modelPar_PBRBOT,
-   bool modelPar_given_PBRBOT,
-   AdmsSensFadType & modelPar_PBRSTI,
-   bool modelPar_given_PBRSTI,
-   AdmsSensFadType & modelPar_PBRGAT,
-   bool modelPar_given_PBRGAT,
-   AdmsSensFadType & modelPar_SWJUNEXP,
-   bool modelPar_given_SWJUNEXP,
-   AdmsSensFadType & modelPar_VJUNREF,
-   bool modelPar_given_VJUNREF,
-   AdmsSensFadType & modelPar_FJUNQ,
-   bool modelPar_given_FJUNQ,
-   // non-reals (including hidden)
-   int modelPar_LEVEL,
-   bool modelPar_given_LEVEL,
-   int modelPar_TYPE,
-   bool modelPar_given_TYPE// model variables
-   ,
-   // reals
-   AdmsSensFadType & modelVar_IMAX_i,
-   AdmsSensFadType & modelVar_VBIRBOT_i,
-   AdmsSensFadType & modelVar_VBIRSTI_i,
-   AdmsSensFadType & modelVar_VBIRGAT_i,
-   AdmsSensFadType & modelVar_PBOT_i,
-   AdmsSensFadType & modelVar_PSTI_i,
-   AdmsSensFadType & modelVar_PGAT_i,
-   AdmsSensFadType & modelVar_CSRHBOT_i,
-   AdmsSensFadType & modelVar_CSRHSTI_i,
-   AdmsSensFadType & modelVar_CSRHGAT_i,
-   AdmsSensFadType & modelVar_CTATBOT_i,
-   AdmsSensFadType & modelVar_CTATSTI_i,
-   AdmsSensFadType & modelVar_CTATGAT_i,
-   AdmsSensFadType & modelVar_CBBTBOT_i,
-   AdmsSensFadType & modelVar_CBBTSTI_i,
-   AdmsSensFadType & modelVar_CBBTGAT_i,
-   AdmsSensFadType & modelVar_VBRBOT_i,
-   AdmsSensFadType & modelVar_VBRSTI_i,
-   AdmsSensFadType & modelVar_VBRGAT_i,
-   AdmsSensFadType & modelVar_PBRBOT_i,
-   AdmsSensFadType & modelVar_PBRSTI_i,
-   AdmsSensFadType & modelVar_PBRGAT_i,
-   double & modelVar_SWJUNEXP_i,
-   AdmsSensFadType & modelVar_VJUNREF_i,
-   AdmsSensFadType & modelVar_FJUNQ_i,
-   AdmsSensFadType & modelVar_phitr,
-   AdmsSensFadType & modelVar_phitd,
-   AdmsSensFadType & modelVar_phitdinv,
-   double & modelVar_perfc,
-   double & modelVar_berfc,
-   double & modelVar_cerfc,
-   AdmsSensFadType & modelVar_ftdbot,
-   AdmsSensFadType & modelVar_ftdsti,
-   AdmsSensFadType & modelVar_ftdgat,
-   AdmsSensFadType & modelVar_idsatbot,
-   AdmsSensFadType & modelVar_idsatsti,
-   AdmsSensFadType & modelVar_idsatgat,
-   AdmsSensFadType & modelVar_vbibot,
-   AdmsSensFadType & modelVar_vbisti,
-   AdmsSensFadType & modelVar_vbigat,
-   AdmsSensFadType & modelVar_vbiinvbot,
-   AdmsSensFadType & modelVar_vbiinvsti,
-   AdmsSensFadType & modelVar_vbiinvgat,
-   AdmsSensFadType & modelVar_one_minus_PBOT,
-   AdmsSensFadType & modelVar_one_minus_PSTI,
-   AdmsSensFadType & modelVar_one_minus_PGAT,
-   AdmsSensFadType & modelVar_one_over_one_minus_PBOT,
-   AdmsSensFadType & modelVar_one_over_one_minus_PSTI,
-   AdmsSensFadType & modelVar_one_over_one_minus_PGAT,
-   AdmsSensFadType & modelVar_cjobot,
-   AdmsSensFadType & modelVar_cjosti,
-   AdmsSensFadType & modelVar_cjogat,
-   AdmsSensFadType & modelVar_qprefbot,
-   AdmsSensFadType & modelVar_qprefsti,
-   AdmsSensFadType & modelVar_qprefgat,
-   AdmsSensFadType & modelVar_qpref2bot,
-   AdmsSensFadType & modelVar_qpref2sti,
-   AdmsSensFadType & modelVar_qpref2gat,
-   AdmsSensFadType & modelVar_wdepnulrbot,
-   AdmsSensFadType & modelVar_wdepnulrsti,
-   AdmsSensFadType & modelVar_wdepnulrgat,
-   AdmsSensFadType & modelVar_wdepnulrinvbot,
-   AdmsSensFadType & modelVar_wdepnulrinvsti,
-   AdmsSensFadType & modelVar_wdepnulrinvgat,
-   AdmsSensFadType & modelVar_VBIRBOTinv,
-   AdmsSensFadType & modelVar_VBIRSTIinv,
-   AdmsSensFadType & modelVar_VBIRGATinv,
-   AdmsSensFadType & modelVar_atatbot,
-   AdmsSensFadType & modelVar_atatsti,
-   AdmsSensFadType & modelVar_atatgat,
-   AdmsSensFadType & modelVar_btatpartbot,
-   AdmsSensFadType & modelVar_btatpartsti,
-   AdmsSensFadType & modelVar_btatpartgat,
-   AdmsSensFadType & modelVar_fbbtbot,
-   AdmsSensFadType & modelVar_fbbtsti,
-   AdmsSensFadType & modelVar_fbbtgat,
-   AdmsSensFadType & modelVar_alphaav,
-   AdmsSensFadType & modelVar_fstopbot,
-   AdmsSensFadType & modelVar_fstopsti,
-   AdmsSensFadType & modelVar_fstopgat,
-   AdmsSensFadType & modelVar_VBRinvbot,
-   AdmsSensFadType & modelVar_VBRinvsti,
-   AdmsSensFadType & modelVar_VBRinvgat,
-   AdmsSensFadType & modelVar_slopebot,
-   AdmsSensFadType & modelVar_slopesti,
-   AdmsSensFadType & modelVar_slopegat,
-   // basic variables
-   double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance);
+std::vector <double> & probeVars,
+// probe constants
+const int admsProbeID_V_A_K,
+// node constants
+const int admsNodeID_A,
+const int admsNodeID_K,
+// instance parameters
+// reals
+AdmsSensFadType & instancePar_AB,
+bool instancePar_given_AB,
+AdmsSensFadType & instancePar_LS,
+bool instancePar_given_LS,
+AdmsSensFadType & instancePar_LG,
+bool instancePar_given_LG,
+AdmsSensFadType & instancePar_MULT,
+bool instancePar_given_MULT,
+// instance variables
+// reals
+AdmsSensFadType & instanceVar_MULT_i,
+AdmsSensFadType & instanceVar_AB_i,
+AdmsSensFadType & instanceVar_LS_i,
+AdmsSensFadType & instanceVar_LG_i,
+double & instanceVar_zflagbot,
+double & instanceVar_zflagsti,
+double & instanceVar_zflaggat,
+AdmsSensFadType & instanceVar_VMAX,
+AdmsSensFadType & instanceVar_exp_VMAX_over_phitd,
+AdmsSensFadType & instanceVar_vbimin,
+AdmsSensFadType & instanceVar_vch,
+AdmsSensFadType & instanceVar_vfmin,
+AdmsSensFadType & instanceVar_vbbtlim,
+AdmsSensFadType & instanceVar_xhighf1,
+AdmsSensFadType & instanceVar_expxhf1,
+AdmsSensFadType & instanceVar_xhighf2,
+AdmsSensFadType & instanceVar_expxhf2,
+AdmsSensFadType & instanceVar_xhighr,
+AdmsSensFadType & instanceVar_expxhr,
+AdmsSensFadType & instanceVar_ISATFOR1,
+double & instanceVar_MFOR1,
+AdmsSensFadType & instanceVar_ISATFOR2,
+AdmsSensFadType & instanceVar_MFOR2,
+AdmsSensFadType & instanceVar_ISATREV,
+AdmsSensFadType & instanceVar_MREV,
+double & instanceVar_m0flag,
+// model parameters
+// reals
+AdmsSensFadType & modelPar_DTA,
+bool modelPar_given_DTA,
+AdmsSensFadType & modelPar_IMAX,
+bool modelPar_given_IMAX,
+AdmsSensFadType & modelPar_TRJ,
+bool modelPar_given_TRJ,
+AdmsSensFadType & modelPar_FREV,
+bool modelPar_given_FREV,
+AdmsSensFadType & modelPar_CJORBOT,
+bool modelPar_given_CJORBOT,
+AdmsSensFadType & modelPar_CJORSTI,
+bool modelPar_given_CJORSTI,
+AdmsSensFadType & modelPar_CJORGAT,
+bool modelPar_given_CJORGAT,
+AdmsSensFadType & modelPar_VBIRBOT,
+bool modelPar_given_VBIRBOT,
+AdmsSensFadType & modelPar_VBIRSTI,
+bool modelPar_given_VBIRSTI,
+AdmsSensFadType & modelPar_VBIRGAT,
+bool modelPar_given_VBIRGAT,
+AdmsSensFadType & modelPar_PBOT,
+bool modelPar_given_PBOT,
+AdmsSensFadType & modelPar_PSTI,
+bool modelPar_given_PSTI,
+AdmsSensFadType & modelPar_PGAT,
+bool modelPar_given_PGAT,
+AdmsSensFadType & modelPar_PHIGBOT,
+bool modelPar_given_PHIGBOT,
+AdmsSensFadType & modelPar_PHIGSTI,
+bool modelPar_given_PHIGSTI,
+AdmsSensFadType & modelPar_PHIGGAT,
+bool modelPar_given_PHIGGAT,
+AdmsSensFadType & modelPar_IDSATRBOT,
+bool modelPar_given_IDSATRBOT,
+AdmsSensFadType & modelPar_IDSATRSTI,
+bool modelPar_given_IDSATRSTI,
+AdmsSensFadType & modelPar_IDSATRGAT,
+bool modelPar_given_IDSATRGAT,
+AdmsSensFadType & modelPar_CSRHBOT,
+bool modelPar_given_CSRHBOT,
+AdmsSensFadType & modelPar_CSRHSTI,
+bool modelPar_given_CSRHSTI,
+AdmsSensFadType & modelPar_CSRHGAT,
+bool modelPar_given_CSRHGAT,
+AdmsSensFadType & modelPar_XJUNSTI,
+bool modelPar_given_XJUNSTI,
+AdmsSensFadType & modelPar_XJUNGAT,
+bool modelPar_given_XJUNGAT,
+AdmsSensFadType & modelPar_CTATBOT,
+bool modelPar_given_CTATBOT,
+AdmsSensFadType & modelPar_CTATSTI,
+bool modelPar_given_CTATSTI,
+AdmsSensFadType & modelPar_CTATGAT,
+bool modelPar_given_CTATGAT,
+AdmsSensFadType & modelPar_MEFFTATBOT,
+bool modelPar_given_MEFFTATBOT,
+AdmsSensFadType & modelPar_MEFFTATSTI,
+bool modelPar_given_MEFFTATSTI,
+AdmsSensFadType & modelPar_MEFFTATGAT,
+bool modelPar_given_MEFFTATGAT,
+AdmsSensFadType & modelPar_CBBTBOT,
+bool modelPar_given_CBBTBOT,
+AdmsSensFadType & modelPar_CBBTSTI,
+bool modelPar_given_CBBTSTI,
+AdmsSensFadType & modelPar_CBBTGAT,
+bool modelPar_given_CBBTGAT,
+AdmsSensFadType & modelPar_FBBTRBOT,
+bool modelPar_given_FBBTRBOT,
+AdmsSensFadType & modelPar_FBBTRSTI,
+bool modelPar_given_FBBTRSTI,
+AdmsSensFadType & modelPar_FBBTRGAT,
+bool modelPar_given_FBBTRGAT,
+AdmsSensFadType & modelPar_STFBBTBOT,
+bool modelPar_given_STFBBTBOT,
+AdmsSensFadType & modelPar_STFBBTSTI,
+bool modelPar_given_STFBBTSTI,
+AdmsSensFadType & modelPar_STFBBTGAT,
+bool modelPar_given_STFBBTGAT,
+AdmsSensFadType & modelPar_VBRBOT,
+bool modelPar_given_VBRBOT,
+AdmsSensFadType & modelPar_VBRSTI,
+bool modelPar_given_VBRSTI,
+AdmsSensFadType & modelPar_VBRGAT,
+bool modelPar_given_VBRGAT,
+AdmsSensFadType & modelPar_PBRBOT,
+bool modelPar_given_PBRBOT,
+AdmsSensFadType & modelPar_PBRSTI,
+bool modelPar_given_PBRSTI,
+AdmsSensFadType & modelPar_PBRGAT,
+bool modelPar_given_PBRGAT,
+AdmsSensFadType & modelPar_SWJUNEXP,
+bool modelPar_given_SWJUNEXP,
+AdmsSensFadType & modelPar_VJUNREF,
+bool modelPar_given_VJUNREF,
+AdmsSensFadType & modelPar_FJUNQ,
+bool modelPar_given_FJUNQ,
+// non-reals (including hidden)
+int modelPar_LEVEL,
+bool modelPar_given_LEVEL,
+int modelPar_TYPE,
+bool modelPar_given_TYPE// model variables
+,
+// reals
+AdmsSensFadType & modelVar_IMAX_i,
+AdmsSensFadType & modelVar_VBIRBOT_i,
+AdmsSensFadType & modelVar_VBIRSTI_i,
+AdmsSensFadType & modelVar_VBIRGAT_i,
+AdmsSensFadType & modelVar_PBOT_i,
+AdmsSensFadType & modelVar_PSTI_i,
+AdmsSensFadType & modelVar_PGAT_i,
+AdmsSensFadType & modelVar_CSRHBOT_i,
+AdmsSensFadType & modelVar_CSRHSTI_i,
+AdmsSensFadType & modelVar_CSRHGAT_i,
+AdmsSensFadType & modelVar_CTATBOT_i,
+AdmsSensFadType & modelVar_CTATSTI_i,
+AdmsSensFadType & modelVar_CTATGAT_i,
+AdmsSensFadType & modelVar_CBBTBOT_i,
+AdmsSensFadType & modelVar_CBBTSTI_i,
+AdmsSensFadType & modelVar_CBBTGAT_i,
+AdmsSensFadType & modelVar_VBRBOT_i,
+AdmsSensFadType & modelVar_VBRSTI_i,
+AdmsSensFadType & modelVar_VBRGAT_i,
+AdmsSensFadType & modelVar_PBRBOT_i,
+AdmsSensFadType & modelVar_PBRSTI_i,
+AdmsSensFadType & modelVar_PBRGAT_i,
+double & modelVar_SWJUNEXP_i,
+AdmsSensFadType & modelVar_VJUNREF_i,
+AdmsSensFadType & modelVar_FJUNQ_i,
+AdmsSensFadType & modelVar_phitr,
+AdmsSensFadType & modelVar_phitd,
+AdmsSensFadType & modelVar_phitdinv,
+double & modelVar_perfc,
+double & modelVar_berfc,
+double & modelVar_cerfc,
+AdmsSensFadType & modelVar_ftdbot,
+AdmsSensFadType & modelVar_ftdsti,
+AdmsSensFadType & modelVar_ftdgat,
+AdmsSensFadType & modelVar_idsatbot,
+AdmsSensFadType & modelVar_idsatsti,
+AdmsSensFadType & modelVar_idsatgat,
+AdmsSensFadType & modelVar_vbibot,
+AdmsSensFadType & modelVar_vbisti,
+AdmsSensFadType & modelVar_vbigat,
+AdmsSensFadType & modelVar_vbiinvbot,
+AdmsSensFadType & modelVar_vbiinvsti,
+AdmsSensFadType & modelVar_vbiinvgat,
+AdmsSensFadType & modelVar_one_minus_PBOT,
+AdmsSensFadType & modelVar_one_minus_PSTI,
+AdmsSensFadType & modelVar_one_minus_PGAT,
+AdmsSensFadType & modelVar_one_over_one_minus_PBOT,
+AdmsSensFadType & modelVar_one_over_one_minus_PSTI,
+AdmsSensFadType & modelVar_one_over_one_minus_PGAT,
+AdmsSensFadType & modelVar_cjobot,
+AdmsSensFadType & modelVar_cjosti,
+AdmsSensFadType & modelVar_cjogat,
+AdmsSensFadType & modelVar_qprefbot,
+AdmsSensFadType & modelVar_qprefsti,
+AdmsSensFadType & modelVar_qprefgat,
+AdmsSensFadType & modelVar_qpref2bot,
+AdmsSensFadType & modelVar_qpref2sti,
+AdmsSensFadType & modelVar_qpref2gat,
+AdmsSensFadType & modelVar_wdepnulrbot,
+AdmsSensFadType & modelVar_wdepnulrsti,
+AdmsSensFadType & modelVar_wdepnulrgat,
+AdmsSensFadType & modelVar_wdepnulrinvbot,
+AdmsSensFadType & modelVar_wdepnulrinvsti,
+AdmsSensFadType & modelVar_wdepnulrinvgat,
+AdmsSensFadType & modelVar_VBIRBOTinv,
+AdmsSensFadType & modelVar_VBIRSTIinv,
+AdmsSensFadType & modelVar_VBIRGATinv,
+AdmsSensFadType & modelVar_atatbot,
+AdmsSensFadType & modelVar_atatsti,
+AdmsSensFadType & modelVar_atatgat,
+AdmsSensFadType & modelVar_btatpartbot,
+AdmsSensFadType & modelVar_btatpartsti,
+AdmsSensFadType & modelVar_btatpartgat,
+AdmsSensFadType & modelVar_fbbtbot,
+AdmsSensFadType & modelVar_fbbtsti,
+AdmsSensFadType & modelVar_fbbtgat,
+AdmsSensFadType & modelVar_alphaav,
+AdmsSensFadType & modelVar_fstopbot,
+AdmsSensFadType & modelVar_fstopsti,
+AdmsSensFadType & modelVar_fstopgat,
+AdmsSensFadType & modelVar_VBRinvbot,
+AdmsSensFadType & modelVar_VBRinvsti,
+AdmsSensFadType & modelVar_VBRinvgat,
+AdmsSensFadType & modelVar_slopebot,
+AdmsSensFadType & modelVar_slopesti,
+AdmsSensFadType & modelVar_slopegat,
+// basic variables
+ double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance);
 
 void evaluateInitialInstance(
-   // instance parameters
-   // reals
-   AdmsSensFadType & instancePar_AB,
-   bool instancePar_given_AB,
-   AdmsSensFadType & instancePar_LS,
-   bool instancePar_given_LS,
-   AdmsSensFadType & instancePar_LG,
-   bool instancePar_given_LG,
-   AdmsSensFadType & instancePar_MULT,
-   bool instancePar_given_MULT,
-   // instance variables
-   // reals
-   AdmsSensFadType & instanceVar_MULT_i,
-   AdmsSensFadType & instanceVar_AB_i,
-   AdmsSensFadType & instanceVar_LS_i,
-   AdmsSensFadType & instanceVar_LG_i,
-   double & instanceVar_zflagbot,
-   double & instanceVar_zflagsti,
-   double & instanceVar_zflaggat,
-   AdmsSensFadType & instanceVar_VMAX,
-   AdmsSensFadType & instanceVar_exp_VMAX_over_phitd,
-   AdmsSensFadType & instanceVar_vbimin,
-   AdmsSensFadType & instanceVar_vch,
-   AdmsSensFadType & instanceVar_vfmin,
-   AdmsSensFadType & instanceVar_vbbtlim,
-   AdmsSensFadType & instanceVar_xhighf1,
-   AdmsSensFadType & instanceVar_expxhf1,
-   AdmsSensFadType & instanceVar_xhighf2,
-   AdmsSensFadType & instanceVar_expxhf2,
-   AdmsSensFadType & instanceVar_xhighr,
-   AdmsSensFadType & instanceVar_expxhr,
-   AdmsSensFadType & instanceVar_ISATFOR1,
-   double & instanceVar_MFOR1,
-   AdmsSensFadType & instanceVar_ISATFOR2,
-   AdmsSensFadType & instanceVar_MFOR2,
-   AdmsSensFadType & instanceVar_ISATREV,
-   AdmsSensFadType & instanceVar_MREV,
-   double & instanceVar_m0flag,
-   // model parameters
-   // reals
-   AdmsSensFadType & modelPar_DTA,
-   bool modelPar_given_DTA,
-   AdmsSensFadType & modelPar_IMAX,
-   bool modelPar_given_IMAX,
-   AdmsSensFadType & modelPar_TRJ,
-   bool modelPar_given_TRJ,
-   AdmsSensFadType & modelPar_FREV,
-   bool modelPar_given_FREV,
-   AdmsSensFadType & modelPar_CJORBOT,
-   bool modelPar_given_CJORBOT,
-   AdmsSensFadType & modelPar_CJORSTI,
-   bool modelPar_given_CJORSTI,
-   AdmsSensFadType & modelPar_CJORGAT,
-   bool modelPar_given_CJORGAT,
-   AdmsSensFadType & modelPar_VBIRBOT,
-   bool modelPar_given_VBIRBOT,
-   AdmsSensFadType & modelPar_VBIRSTI,
-   bool modelPar_given_VBIRSTI,
-   AdmsSensFadType & modelPar_VBIRGAT,
-   bool modelPar_given_VBIRGAT,
-   AdmsSensFadType & modelPar_PBOT,
-   bool modelPar_given_PBOT,
-   AdmsSensFadType & modelPar_PSTI,
-   bool modelPar_given_PSTI,
-   AdmsSensFadType & modelPar_PGAT,
-   bool modelPar_given_PGAT,
-   AdmsSensFadType & modelPar_PHIGBOT,
-   bool modelPar_given_PHIGBOT,
-   AdmsSensFadType & modelPar_PHIGSTI,
-   bool modelPar_given_PHIGSTI,
-   AdmsSensFadType & modelPar_PHIGGAT,
-   bool modelPar_given_PHIGGAT,
-   AdmsSensFadType & modelPar_IDSATRBOT,
-   bool modelPar_given_IDSATRBOT,
-   AdmsSensFadType & modelPar_IDSATRSTI,
-   bool modelPar_given_IDSATRSTI,
-   AdmsSensFadType & modelPar_IDSATRGAT,
-   bool modelPar_given_IDSATRGAT,
-   AdmsSensFadType & modelPar_CSRHBOT,
-   bool modelPar_given_CSRHBOT,
-   AdmsSensFadType & modelPar_CSRHSTI,
-   bool modelPar_given_CSRHSTI,
-   AdmsSensFadType & modelPar_CSRHGAT,
-   bool modelPar_given_CSRHGAT,
-   AdmsSensFadType & modelPar_XJUNSTI,
-   bool modelPar_given_XJUNSTI,
-   AdmsSensFadType & modelPar_XJUNGAT,
-   bool modelPar_given_XJUNGAT,
-   AdmsSensFadType & modelPar_CTATBOT,
-   bool modelPar_given_CTATBOT,
-   AdmsSensFadType & modelPar_CTATSTI,
-   bool modelPar_given_CTATSTI,
-   AdmsSensFadType & modelPar_CTATGAT,
-   bool modelPar_given_CTATGAT,
-   AdmsSensFadType & modelPar_MEFFTATBOT,
-   bool modelPar_given_MEFFTATBOT,
-   AdmsSensFadType & modelPar_MEFFTATSTI,
-   bool modelPar_given_MEFFTATSTI,
-   AdmsSensFadType & modelPar_MEFFTATGAT,
-   bool modelPar_given_MEFFTATGAT,
-   AdmsSensFadType & modelPar_CBBTBOT,
-   bool modelPar_given_CBBTBOT,
-   AdmsSensFadType & modelPar_CBBTSTI,
-   bool modelPar_given_CBBTSTI,
-   AdmsSensFadType & modelPar_CBBTGAT,
-   bool modelPar_given_CBBTGAT,
-   AdmsSensFadType & modelPar_FBBTRBOT,
-   bool modelPar_given_FBBTRBOT,
-   AdmsSensFadType & modelPar_FBBTRSTI,
-   bool modelPar_given_FBBTRSTI,
-   AdmsSensFadType & modelPar_FBBTRGAT,
-   bool modelPar_given_FBBTRGAT,
-   AdmsSensFadType & modelPar_STFBBTBOT,
-   bool modelPar_given_STFBBTBOT,
-   AdmsSensFadType & modelPar_STFBBTSTI,
-   bool modelPar_given_STFBBTSTI,
-   AdmsSensFadType & modelPar_STFBBTGAT,
-   bool modelPar_given_STFBBTGAT,
-   AdmsSensFadType & modelPar_VBRBOT,
-   bool modelPar_given_VBRBOT,
-   AdmsSensFadType & modelPar_VBRSTI,
-   bool modelPar_given_VBRSTI,
-   AdmsSensFadType & modelPar_VBRGAT,
-   bool modelPar_given_VBRGAT,
-   AdmsSensFadType & modelPar_PBRBOT,
-   bool modelPar_given_PBRBOT,
-   AdmsSensFadType & modelPar_PBRSTI,
-   bool modelPar_given_PBRSTI,
-   AdmsSensFadType & modelPar_PBRGAT,
-   bool modelPar_given_PBRGAT,
-   AdmsSensFadType & modelPar_SWJUNEXP,
-   bool modelPar_given_SWJUNEXP,
-   AdmsSensFadType & modelPar_VJUNREF,
-   bool modelPar_given_VJUNREF,
-   AdmsSensFadType & modelPar_FJUNQ,
-   bool modelPar_given_FJUNQ,
-   // non-reals (including hidden)
-   int modelPar_LEVEL,
-   bool modelPar_given_LEVEL,
-   int modelPar_TYPE,
-   bool modelPar_given_TYPE// model variables
-   ,
-   // reals
-   AdmsSensFadType & modelVar_IMAX_i,
-   AdmsSensFadType & modelVar_VBIRBOT_i,
-   AdmsSensFadType & modelVar_VBIRSTI_i,
-   AdmsSensFadType & modelVar_VBIRGAT_i,
-   AdmsSensFadType & modelVar_PBOT_i,
-   AdmsSensFadType & modelVar_PSTI_i,
-   AdmsSensFadType & modelVar_PGAT_i,
-   AdmsSensFadType & modelVar_CSRHBOT_i,
-   AdmsSensFadType & modelVar_CSRHSTI_i,
-   AdmsSensFadType & modelVar_CSRHGAT_i,
-   AdmsSensFadType & modelVar_CTATBOT_i,
-   AdmsSensFadType & modelVar_CTATSTI_i,
-   AdmsSensFadType & modelVar_CTATGAT_i,
-   AdmsSensFadType & modelVar_CBBTBOT_i,
-   AdmsSensFadType & modelVar_CBBTSTI_i,
-   AdmsSensFadType & modelVar_CBBTGAT_i,
-   AdmsSensFadType & modelVar_VBRBOT_i,
-   AdmsSensFadType & modelVar_VBRSTI_i,
-   AdmsSensFadType & modelVar_VBRGAT_i,
-   AdmsSensFadType & modelVar_PBRBOT_i,
-   AdmsSensFadType & modelVar_PBRSTI_i,
-   AdmsSensFadType & modelVar_PBRGAT_i,
-   double & modelVar_SWJUNEXP_i,
-   AdmsSensFadType & modelVar_VJUNREF_i,
-   AdmsSensFadType & modelVar_FJUNQ_i,
-   AdmsSensFadType & modelVar_phitr,
-   AdmsSensFadType & modelVar_phitd,
-   AdmsSensFadType & modelVar_phitdinv,
-   double & modelVar_perfc,
-   double & modelVar_berfc,
-   double & modelVar_cerfc,
-   AdmsSensFadType & modelVar_ftdbot,
-   AdmsSensFadType & modelVar_ftdsti,
-   AdmsSensFadType & modelVar_ftdgat,
-   AdmsSensFadType & modelVar_idsatbot,
-   AdmsSensFadType & modelVar_idsatsti,
-   AdmsSensFadType & modelVar_idsatgat,
-   AdmsSensFadType & modelVar_vbibot,
-   AdmsSensFadType & modelVar_vbisti,
-   AdmsSensFadType & modelVar_vbigat,
-   AdmsSensFadType & modelVar_vbiinvbot,
-   AdmsSensFadType & modelVar_vbiinvsti,
-   AdmsSensFadType & modelVar_vbiinvgat,
-   AdmsSensFadType & modelVar_one_minus_PBOT,
-   AdmsSensFadType & modelVar_one_minus_PSTI,
-   AdmsSensFadType & modelVar_one_minus_PGAT,
-   AdmsSensFadType & modelVar_one_over_one_minus_PBOT,
-   AdmsSensFadType & modelVar_one_over_one_minus_PSTI,
-   AdmsSensFadType & modelVar_one_over_one_minus_PGAT,
-   AdmsSensFadType & modelVar_cjobot,
-   AdmsSensFadType & modelVar_cjosti,
-   AdmsSensFadType & modelVar_cjogat,
-   AdmsSensFadType & modelVar_qprefbot,
-   AdmsSensFadType & modelVar_qprefsti,
-   AdmsSensFadType & modelVar_qprefgat,
-   AdmsSensFadType & modelVar_qpref2bot,
-   AdmsSensFadType & modelVar_qpref2sti,
-   AdmsSensFadType & modelVar_qpref2gat,
-   AdmsSensFadType & modelVar_wdepnulrbot,
-   AdmsSensFadType & modelVar_wdepnulrsti,
-   AdmsSensFadType & modelVar_wdepnulrgat,
-   AdmsSensFadType & modelVar_wdepnulrinvbot,
-   AdmsSensFadType & modelVar_wdepnulrinvsti,
-   AdmsSensFadType & modelVar_wdepnulrinvgat,
-   AdmsSensFadType & modelVar_VBIRBOTinv,
-   AdmsSensFadType & modelVar_VBIRSTIinv,
-   AdmsSensFadType & modelVar_VBIRGATinv,
-   AdmsSensFadType & modelVar_atatbot,
-   AdmsSensFadType & modelVar_atatsti,
-   AdmsSensFadType & modelVar_atatgat,
-   AdmsSensFadType & modelVar_btatpartbot,
-   AdmsSensFadType & modelVar_btatpartsti,
-   AdmsSensFadType & modelVar_btatpartgat,
-   AdmsSensFadType & modelVar_fbbtbot,
-   AdmsSensFadType & modelVar_fbbtsti,
-   AdmsSensFadType & modelVar_fbbtgat,
-   AdmsSensFadType & modelVar_alphaav,
-   AdmsSensFadType & modelVar_fstopbot,
-   AdmsSensFadType & modelVar_fstopsti,
-   AdmsSensFadType & modelVar_fstopgat,
-   AdmsSensFadType & modelVar_VBRinvbot,
-   AdmsSensFadType & modelVar_VBRinvsti,
-   AdmsSensFadType & modelVar_VBRinvgat,
-   AdmsSensFadType & modelVar_slopebot,
-   AdmsSensFadType & modelVar_slopesti,
-   AdmsSensFadType & modelVar_slopegat,
-   double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance);
+// instance parameters
+// reals
+AdmsSensFadType & instancePar_AB,
+bool instancePar_given_AB,
+AdmsSensFadType & instancePar_LS,
+bool instancePar_given_LS,
+AdmsSensFadType & instancePar_LG,
+bool instancePar_given_LG,
+AdmsSensFadType & instancePar_MULT,
+bool instancePar_given_MULT,
+// instance variables
+// reals
+AdmsSensFadType & instanceVar_MULT_i,
+AdmsSensFadType & instanceVar_AB_i,
+AdmsSensFadType & instanceVar_LS_i,
+AdmsSensFadType & instanceVar_LG_i,
+double & instanceVar_zflagbot,
+double & instanceVar_zflagsti,
+double & instanceVar_zflaggat,
+AdmsSensFadType & instanceVar_VMAX,
+AdmsSensFadType & instanceVar_exp_VMAX_over_phitd,
+AdmsSensFadType & instanceVar_vbimin,
+AdmsSensFadType & instanceVar_vch,
+AdmsSensFadType & instanceVar_vfmin,
+AdmsSensFadType & instanceVar_vbbtlim,
+AdmsSensFadType & instanceVar_xhighf1,
+AdmsSensFadType & instanceVar_expxhf1,
+AdmsSensFadType & instanceVar_xhighf2,
+AdmsSensFadType & instanceVar_expxhf2,
+AdmsSensFadType & instanceVar_xhighr,
+AdmsSensFadType & instanceVar_expxhr,
+AdmsSensFadType & instanceVar_ISATFOR1,
+double & instanceVar_MFOR1,
+AdmsSensFadType & instanceVar_ISATFOR2,
+AdmsSensFadType & instanceVar_MFOR2,
+AdmsSensFadType & instanceVar_ISATREV,
+AdmsSensFadType & instanceVar_MREV,
+double & instanceVar_m0flag,
+// model parameters
+// reals
+AdmsSensFadType & modelPar_DTA,
+bool modelPar_given_DTA,
+AdmsSensFadType & modelPar_IMAX,
+bool modelPar_given_IMAX,
+AdmsSensFadType & modelPar_TRJ,
+bool modelPar_given_TRJ,
+AdmsSensFadType & modelPar_FREV,
+bool modelPar_given_FREV,
+AdmsSensFadType & modelPar_CJORBOT,
+bool modelPar_given_CJORBOT,
+AdmsSensFadType & modelPar_CJORSTI,
+bool modelPar_given_CJORSTI,
+AdmsSensFadType & modelPar_CJORGAT,
+bool modelPar_given_CJORGAT,
+AdmsSensFadType & modelPar_VBIRBOT,
+bool modelPar_given_VBIRBOT,
+AdmsSensFadType & modelPar_VBIRSTI,
+bool modelPar_given_VBIRSTI,
+AdmsSensFadType & modelPar_VBIRGAT,
+bool modelPar_given_VBIRGAT,
+AdmsSensFadType & modelPar_PBOT,
+bool modelPar_given_PBOT,
+AdmsSensFadType & modelPar_PSTI,
+bool modelPar_given_PSTI,
+AdmsSensFadType & modelPar_PGAT,
+bool modelPar_given_PGAT,
+AdmsSensFadType & modelPar_PHIGBOT,
+bool modelPar_given_PHIGBOT,
+AdmsSensFadType & modelPar_PHIGSTI,
+bool modelPar_given_PHIGSTI,
+AdmsSensFadType & modelPar_PHIGGAT,
+bool modelPar_given_PHIGGAT,
+AdmsSensFadType & modelPar_IDSATRBOT,
+bool modelPar_given_IDSATRBOT,
+AdmsSensFadType & modelPar_IDSATRSTI,
+bool modelPar_given_IDSATRSTI,
+AdmsSensFadType & modelPar_IDSATRGAT,
+bool modelPar_given_IDSATRGAT,
+AdmsSensFadType & modelPar_CSRHBOT,
+bool modelPar_given_CSRHBOT,
+AdmsSensFadType & modelPar_CSRHSTI,
+bool modelPar_given_CSRHSTI,
+AdmsSensFadType & modelPar_CSRHGAT,
+bool modelPar_given_CSRHGAT,
+AdmsSensFadType & modelPar_XJUNSTI,
+bool modelPar_given_XJUNSTI,
+AdmsSensFadType & modelPar_XJUNGAT,
+bool modelPar_given_XJUNGAT,
+AdmsSensFadType & modelPar_CTATBOT,
+bool modelPar_given_CTATBOT,
+AdmsSensFadType & modelPar_CTATSTI,
+bool modelPar_given_CTATSTI,
+AdmsSensFadType & modelPar_CTATGAT,
+bool modelPar_given_CTATGAT,
+AdmsSensFadType & modelPar_MEFFTATBOT,
+bool modelPar_given_MEFFTATBOT,
+AdmsSensFadType & modelPar_MEFFTATSTI,
+bool modelPar_given_MEFFTATSTI,
+AdmsSensFadType & modelPar_MEFFTATGAT,
+bool modelPar_given_MEFFTATGAT,
+AdmsSensFadType & modelPar_CBBTBOT,
+bool modelPar_given_CBBTBOT,
+AdmsSensFadType & modelPar_CBBTSTI,
+bool modelPar_given_CBBTSTI,
+AdmsSensFadType & modelPar_CBBTGAT,
+bool modelPar_given_CBBTGAT,
+AdmsSensFadType & modelPar_FBBTRBOT,
+bool modelPar_given_FBBTRBOT,
+AdmsSensFadType & modelPar_FBBTRSTI,
+bool modelPar_given_FBBTRSTI,
+AdmsSensFadType & modelPar_FBBTRGAT,
+bool modelPar_given_FBBTRGAT,
+AdmsSensFadType & modelPar_STFBBTBOT,
+bool modelPar_given_STFBBTBOT,
+AdmsSensFadType & modelPar_STFBBTSTI,
+bool modelPar_given_STFBBTSTI,
+AdmsSensFadType & modelPar_STFBBTGAT,
+bool modelPar_given_STFBBTGAT,
+AdmsSensFadType & modelPar_VBRBOT,
+bool modelPar_given_VBRBOT,
+AdmsSensFadType & modelPar_VBRSTI,
+bool modelPar_given_VBRSTI,
+AdmsSensFadType & modelPar_VBRGAT,
+bool modelPar_given_VBRGAT,
+AdmsSensFadType & modelPar_PBRBOT,
+bool modelPar_given_PBRBOT,
+AdmsSensFadType & modelPar_PBRSTI,
+bool modelPar_given_PBRSTI,
+AdmsSensFadType & modelPar_PBRGAT,
+bool modelPar_given_PBRGAT,
+AdmsSensFadType & modelPar_SWJUNEXP,
+bool modelPar_given_SWJUNEXP,
+AdmsSensFadType & modelPar_VJUNREF,
+bool modelPar_given_VJUNREF,
+AdmsSensFadType & modelPar_FJUNQ,
+bool modelPar_given_FJUNQ,
+// non-reals (including hidden)
+int modelPar_LEVEL,
+bool modelPar_given_LEVEL,
+int modelPar_TYPE,
+bool modelPar_given_TYPE// model variables
+,
+// reals
+AdmsSensFadType & modelVar_IMAX_i,
+AdmsSensFadType & modelVar_VBIRBOT_i,
+AdmsSensFadType & modelVar_VBIRSTI_i,
+AdmsSensFadType & modelVar_VBIRGAT_i,
+AdmsSensFadType & modelVar_PBOT_i,
+AdmsSensFadType & modelVar_PSTI_i,
+AdmsSensFadType & modelVar_PGAT_i,
+AdmsSensFadType & modelVar_CSRHBOT_i,
+AdmsSensFadType & modelVar_CSRHSTI_i,
+AdmsSensFadType & modelVar_CSRHGAT_i,
+AdmsSensFadType & modelVar_CTATBOT_i,
+AdmsSensFadType & modelVar_CTATSTI_i,
+AdmsSensFadType & modelVar_CTATGAT_i,
+AdmsSensFadType & modelVar_CBBTBOT_i,
+AdmsSensFadType & modelVar_CBBTSTI_i,
+AdmsSensFadType & modelVar_CBBTGAT_i,
+AdmsSensFadType & modelVar_VBRBOT_i,
+AdmsSensFadType & modelVar_VBRSTI_i,
+AdmsSensFadType & modelVar_VBRGAT_i,
+AdmsSensFadType & modelVar_PBRBOT_i,
+AdmsSensFadType & modelVar_PBRSTI_i,
+AdmsSensFadType & modelVar_PBRGAT_i,
+double & modelVar_SWJUNEXP_i,
+AdmsSensFadType & modelVar_VJUNREF_i,
+AdmsSensFadType & modelVar_FJUNQ_i,
+AdmsSensFadType & modelVar_phitr,
+AdmsSensFadType & modelVar_phitd,
+AdmsSensFadType & modelVar_phitdinv,
+double & modelVar_perfc,
+double & modelVar_berfc,
+double & modelVar_cerfc,
+AdmsSensFadType & modelVar_ftdbot,
+AdmsSensFadType & modelVar_ftdsti,
+AdmsSensFadType & modelVar_ftdgat,
+AdmsSensFadType & modelVar_idsatbot,
+AdmsSensFadType & modelVar_idsatsti,
+AdmsSensFadType & modelVar_idsatgat,
+AdmsSensFadType & modelVar_vbibot,
+AdmsSensFadType & modelVar_vbisti,
+AdmsSensFadType & modelVar_vbigat,
+AdmsSensFadType & modelVar_vbiinvbot,
+AdmsSensFadType & modelVar_vbiinvsti,
+AdmsSensFadType & modelVar_vbiinvgat,
+AdmsSensFadType & modelVar_one_minus_PBOT,
+AdmsSensFadType & modelVar_one_minus_PSTI,
+AdmsSensFadType & modelVar_one_minus_PGAT,
+AdmsSensFadType & modelVar_one_over_one_minus_PBOT,
+AdmsSensFadType & modelVar_one_over_one_minus_PSTI,
+AdmsSensFadType & modelVar_one_over_one_minus_PGAT,
+AdmsSensFadType & modelVar_cjobot,
+AdmsSensFadType & modelVar_cjosti,
+AdmsSensFadType & modelVar_cjogat,
+AdmsSensFadType & modelVar_qprefbot,
+AdmsSensFadType & modelVar_qprefsti,
+AdmsSensFadType & modelVar_qprefgat,
+AdmsSensFadType & modelVar_qpref2bot,
+AdmsSensFadType & modelVar_qpref2sti,
+AdmsSensFadType & modelVar_qpref2gat,
+AdmsSensFadType & modelVar_wdepnulrbot,
+AdmsSensFadType & modelVar_wdepnulrsti,
+AdmsSensFadType & modelVar_wdepnulrgat,
+AdmsSensFadType & modelVar_wdepnulrinvbot,
+AdmsSensFadType & modelVar_wdepnulrinvsti,
+AdmsSensFadType & modelVar_wdepnulrinvgat,
+AdmsSensFadType & modelVar_VBIRBOTinv,
+AdmsSensFadType & modelVar_VBIRSTIinv,
+AdmsSensFadType & modelVar_VBIRGATinv,
+AdmsSensFadType & modelVar_atatbot,
+AdmsSensFadType & modelVar_atatsti,
+AdmsSensFadType & modelVar_atatgat,
+AdmsSensFadType & modelVar_btatpartbot,
+AdmsSensFadType & modelVar_btatpartsti,
+AdmsSensFadType & modelVar_btatpartgat,
+AdmsSensFadType & modelVar_fbbtbot,
+AdmsSensFadType & modelVar_fbbtsti,
+AdmsSensFadType & modelVar_fbbtgat,
+AdmsSensFadType & modelVar_alphaav,
+AdmsSensFadType & modelVar_fstopbot,
+AdmsSensFadType & modelVar_fstopsti,
+AdmsSensFadType & modelVar_fstopgat,
+AdmsSensFadType & modelVar_VBRinvbot,
+AdmsSensFadType & modelVar_VBRinvsti,
+AdmsSensFadType & modelVar_VBRinvgat,
+AdmsSensFadType & modelVar_slopebot,
+AdmsSensFadType & modelVar_slopesti,
+AdmsSensFadType & modelVar_slopegat,
+ double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance);
 
 void evaluateInitialModel(
-   // model parameters
-   // reals
-   AdmsSensFadType & modelPar_DTA,
-   bool modelPar_given_DTA,
-   AdmsSensFadType & modelPar_IMAX,
-   bool modelPar_given_IMAX,
-   AdmsSensFadType & modelPar_TRJ,
-   bool modelPar_given_TRJ,
-   AdmsSensFadType & modelPar_FREV,
-   bool modelPar_given_FREV,
-   AdmsSensFadType & modelPar_CJORBOT,
-   bool modelPar_given_CJORBOT,
-   AdmsSensFadType & modelPar_CJORSTI,
-   bool modelPar_given_CJORSTI,
-   AdmsSensFadType & modelPar_CJORGAT,
-   bool modelPar_given_CJORGAT,
-   AdmsSensFadType & modelPar_VBIRBOT,
-   bool modelPar_given_VBIRBOT,
-   AdmsSensFadType & modelPar_VBIRSTI,
-   bool modelPar_given_VBIRSTI,
-   AdmsSensFadType & modelPar_VBIRGAT,
-   bool modelPar_given_VBIRGAT,
-   AdmsSensFadType & modelPar_PBOT,
-   bool modelPar_given_PBOT,
-   AdmsSensFadType & modelPar_PSTI,
-   bool modelPar_given_PSTI,
-   AdmsSensFadType & modelPar_PGAT,
-   bool modelPar_given_PGAT,
-   AdmsSensFadType & modelPar_PHIGBOT,
-   bool modelPar_given_PHIGBOT,
-   AdmsSensFadType & modelPar_PHIGSTI,
-   bool modelPar_given_PHIGSTI,
-   AdmsSensFadType & modelPar_PHIGGAT,
-   bool modelPar_given_PHIGGAT,
-   AdmsSensFadType & modelPar_IDSATRBOT,
-   bool modelPar_given_IDSATRBOT,
-   AdmsSensFadType & modelPar_IDSATRSTI,
-   bool modelPar_given_IDSATRSTI,
-   AdmsSensFadType & modelPar_IDSATRGAT,
-   bool modelPar_given_IDSATRGAT,
-   AdmsSensFadType & modelPar_CSRHBOT,
-   bool modelPar_given_CSRHBOT,
-   AdmsSensFadType & modelPar_CSRHSTI,
-   bool modelPar_given_CSRHSTI,
-   AdmsSensFadType & modelPar_CSRHGAT,
-   bool modelPar_given_CSRHGAT,
-   AdmsSensFadType & modelPar_XJUNSTI,
-   bool modelPar_given_XJUNSTI,
-   AdmsSensFadType & modelPar_XJUNGAT,
-   bool modelPar_given_XJUNGAT,
-   AdmsSensFadType & modelPar_CTATBOT,
-   bool modelPar_given_CTATBOT,
-   AdmsSensFadType & modelPar_CTATSTI,
-   bool modelPar_given_CTATSTI,
-   AdmsSensFadType & modelPar_CTATGAT,
-   bool modelPar_given_CTATGAT,
-   AdmsSensFadType & modelPar_MEFFTATBOT,
-   bool modelPar_given_MEFFTATBOT,
-   AdmsSensFadType & modelPar_MEFFTATSTI,
-   bool modelPar_given_MEFFTATSTI,
-   AdmsSensFadType & modelPar_MEFFTATGAT,
-   bool modelPar_given_MEFFTATGAT,
-   AdmsSensFadType & modelPar_CBBTBOT,
-   bool modelPar_given_CBBTBOT,
-   AdmsSensFadType & modelPar_CBBTSTI,
-   bool modelPar_given_CBBTSTI,
-   AdmsSensFadType & modelPar_CBBTGAT,
-   bool modelPar_given_CBBTGAT,
-   AdmsSensFadType & modelPar_FBBTRBOT,
-   bool modelPar_given_FBBTRBOT,
-   AdmsSensFadType & modelPar_FBBTRSTI,
-   bool modelPar_given_FBBTRSTI,
-   AdmsSensFadType & modelPar_FBBTRGAT,
-   bool modelPar_given_FBBTRGAT,
-   AdmsSensFadType & modelPar_STFBBTBOT,
-   bool modelPar_given_STFBBTBOT,
-   AdmsSensFadType & modelPar_STFBBTSTI,
-   bool modelPar_given_STFBBTSTI,
-   AdmsSensFadType & modelPar_STFBBTGAT,
-   bool modelPar_given_STFBBTGAT,
-   AdmsSensFadType & modelPar_VBRBOT,
-   bool modelPar_given_VBRBOT,
-   AdmsSensFadType & modelPar_VBRSTI,
-   bool modelPar_given_VBRSTI,
-   AdmsSensFadType & modelPar_VBRGAT,
-   bool modelPar_given_VBRGAT,
-   AdmsSensFadType & modelPar_PBRBOT,
-   bool modelPar_given_PBRBOT,
-   AdmsSensFadType & modelPar_PBRSTI,
-   bool modelPar_given_PBRSTI,
-   AdmsSensFadType & modelPar_PBRGAT,
-   bool modelPar_given_PBRGAT,
-   AdmsSensFadType & modelPar_SWJUNEXP,
-   bool modelPar_given_SWJUNEXP,
-   AdmsSensFadType & modelPar_VJUNREF,
-   bool modelPar_given_VJUNREF,
-   AdmsSensFadType & modelPar_FJUNQ,
-   bool modelPar_given_FJUNQ,
-   // non-reals (including hidden)
-   int modelPar_LEVEL,
-   bool modelPar_given_LEVEL,
-   int modelPar_TYPE,
-   bool modelPar_given_TYPE// model variables
-   ,
-   // reals
-   AdmsSensFadType & modelVar_IMAX_i,
-   AdmsSensFadType & modelVar_VBIRBOT_i,
-   AdmsSensFadType & modelVar_VBIRSTI_i,
-   AdmsSensFadType & modelVar_VBIRGAT_i,
-   AdmsSensFadType & modelVar_PBOT_i,
-   AdmsSensFadType & modelVar_PSTI_i,
-   AdmsSensFadType & modelVar_PGAT_i,
-   AdmsSensFadType & modelVar_CSRHBOT_i,
-   AdmsSensFadType & modelVar_CSRHSTI_i,
-   AdmsSensFadType & modelVar_CSRHGAT_i,
-   AdmsSensFadType & modelVar_CTATBOT_i,
-   AdmsSensFadType & modelVar_CTATSTI_i,
-   AdmsSensFadType & modelVar_CTATGAT_i,
-   AdmsSensFadType & modelVar_CBBTBOT_i,
-   AdmsSensFadType & modelVar_CBBTSTI_i,
-   AdmsSensFadType & modelVar_CBBTGAT_i,
-   AdmsSensFadType & modelVar_VBRBOT_i,
-   AdmsSensFadType & modelVar_VBRSTI_i,
-   AdmsSensFadType & modelVar_VBRGAT_i,
-   AdmsSensFadType & modelVar_PBRBOT_i,
-   AdmsSensFadType & modelVar_PBRSTI_i,
-   AdmsSensFadType & modelVar_PBRGAT_i,
-   double & modelVar_SWJUNEXP_i,
-   AdmsSensFadType & modelVar_VJUNREF_i,
-   AdmsSensFadType & modelVar_FJUNQ_i,
-   AdmsSensFadType & modelVar_phitr,
-   AdmsSensFadType & modelVar_phitd,
-   AdmsSensFadType & modelVar_phitdinv,
-   double & modelVar_perfc,
-   double & modelVar_berfc,
-   double & modelVar_cerfc,
-   AdmsSensFadType & modelVar_ftdbot,
-   AdmsSensFadType & modelVar_ftdsti,
-   AdmsSensFadType & modelVar_ftdgat,
-   AdmsSensFadType & modelVar_idsatbot,
-   AdmsSensFadType & modelVar_idsatsti,
-   AdmsSensFadType & modelVar_idsatgat,
-   AdmsSensFadType & modelVar_vbibot,
-   AdmsSensFadType & modelVar_vbisti,
-   AdmsSensFadType & modelVar_vbigat,
-   AdmsSensFadType & modelVar_vbiinvbot,
-   AdmsSensFadType & modelVar_vbiinvsti,
-   AdmsSensFadType & modelVar_vbiinvgat,
-   AdmsSensFadType & modelVar_one_minus_PBOT,
-   AdmsSensFadType & modelVar_one_minus_PSTI,
-   AdmsSensFadType & modelVar_one_minus_PGAT,
-   AdmsSensFadType & modelVar_one_over_one_minus_PBOT,
-   AdmsSensFadType & modelVar_one_over_one_minus_PSTI,
-   AdmsSensFadType & modelVar_one_over_one_minus_PGAT,
-   AdmsSensFadType & modelVar_cjobot,
-   AdmsSensFadType & modelVar_cjosti,
-   AdmsSensFadType & modelVar_cjogat,
-   AdmsSensFadType & modelVar_qprefbot,
-   AdmsSensFadType & modelVar_qprefsti,
-   AdmsSensFadType & modelVar_qprefgat,
-   AdmsSensFadType & modelVar_qpref2bot,
-   AdmsSensFadType & modelVar_qpref2sti,
-   AdmsSensFadType & modelVar_qpref2gat,
-   AdmsSensFadType & modelVar_wdepnulrbot,
-   AdmsSensFadType & modelVar_wdepnulrsti,
-   AdmsSensFadType & modelVar_wdepnulrgat,
-   AdmsSensFadType & modelVar_wdepnulrinvbot,
-   AdmsSensFadType & modelVar_wdepnulrinvsti,
-   AdmsSensFadType & modelVar_wdepnulrinvgat,
-   AdmsSensFadType & modelVar_VBIRBOTinv,
-   AdmsSensFadType & modelVar_VBIRSTIinv,
-   AdmsSensFadType & modelVar_VBIRGATinv,
-   AdmsSensFadType & modelVar_atatbot,
-   AdmsSensFadType & modelVar_atatsti,
-   AdmsSensFadType & modelVar_atatgat,
-   AdmsSensFadType & modelVar_btatpartbot,
-   AdmsSensFadType & modelVar_btatpartsti,
-   AdmsSensFadType & modelVar_btatpartgat,
-   AdmsSensFadType & modelVar_fbbtbot,
-   AdmsSensFadType & modelVar_fbbtsti,
-   AdmsSensFadType & modelVar_fbbtgat,
-   AdmsSensFadType & modelVar_alphaav,
-   AdmsSensFadType & modelVar_fstopbot,
-   AdmsSensFadType & modelVar_fstopsti,
-   AdmsSensFadType & modelVar_fstopgat,
-   AdmsSensFadType & modelVar_VBRinvbot,
-   AdmsSensFadType & modelVar_VBRinvsti,
-   AdmsSensFadType & modelVar_VBRinvgat,
-   AdmsSensFadType & modelVar_slopebot,
-   AdmsSensFadType & modelVar_slopesti,
-   AdmsSensFadType & modelVar_slopegat,
-   double admsTemperature, double ADMSgmin_arg, const Instance & theInstance);
+// model parameters
+// reals
+AdmsSensFadType & modelPar_DTA,
+bool modelPar_given_DTA,
+AdmsSensFadType & modelPar_IMAX,
+bool modelPar_given_IMAX,
+AdmsSensFadType & modelPar_TRJ,
+bool modelPar_given_TRJ,
+AdmsSensFadType & modelPar_FREV,
+bool modelPar_given_FREV,
+AdmsSensFadType & modelPar_CJORBOT,
+bool modelPar_given_CJORBOT,
+AdmsSensFadType & modelPar_CJORSTI,
+bool modelPar_given_CJORSTI,
+AdmsSensFadType & modelPar_CJORGAT,
+bool modelPar_given_CJORGAT,
+AdmsSensFadType & modelPar_VBIRBOT,
+bool modelPar_given_VBIRBOT,
+AdmsSensFadType & modelPar_VBIRSTI,
+bool modelPar_given_VBIRSTI,
+AdmsSensFadType & modelPar_VBIRGAT,
+bool modelPar_given_VBIRGAT,
+AdmsSensFadType & modelPar_PBOT,
+bool modelPar_given_PBOT,
+AdmsSensFadType & modelPar_PSTI,
+bool modelPar_given_PSTI,
+AdmsSensFadType & modelPar_PGAT,
+bool modelPar_given_PGAT,
+AdmsSensFadType & modelPar_PHIGBOT,
+bool modelPar_given_PHIGBOT,
+AdmsSensFadType & modelPar_PHIGSTI,
+bool modelPar_given_PHIGSTI,
+AdmsSensFadType & modelPar_PHIGGAT,
+bool modelPar_given_PHIGGAT,
+AdmsSensFadType & modelPar_IDSATRBOT,
+bool modelPar_given_IDSATRBOT,
+AdmsSensFadType & modelPar_IDSATRSTI,
+bool modelPar_given_IDSATRSTI,
+AdmsSensFadType & modelPar_IDSATRGAT,
+bool modelPar_given_IDSATRGAT,
+AdmsSensFadType & modelPar_CSRHBOT,
+bool modelPar_given_CSRHBOT,
+AdmsSensFadType & modelPar_CSRHSTI,
+bool modelPar_given_CSRHSTI,
+AdmsSensFadType & modelPar_CSRHGAT,
+bool modelPar_given_CSRHGAT,
+AdmsSensFadType & modelPar_XJUNSTI,
+bool modelPar_given_XJUNSTI,
+AdmsSensFadType & modelPar_XJUNGAT,
+bool modelPar_given_XJUNGAT,
+AdmsSensFadType & modelPar_CTATBOT,
+bool modelPar_given_CTATBOT,
+AdmsSensFadType & modelPar_CTATSTI,
+bool modelPar_given_CTATSTI,
+AdmsSensFadType & modelPar_CTATGAT,
+bool modelPar_given_CTATGAT,
+AdmsSensFadType & modelPar_MEFFTATBOT,
+bool modelPar_given_MEFFTATBOT,
+AdmsSensFadType & modelPar_MEFFTATSTI,
+bool modelPar_given_MEFFTATSTI,
+AdmsSensFadType & modelPar_MEFFTATGAT,
+bool modelPar_given_MEFFTATGAT,
+AdmsSensFadType & modelPar_CBBTBOT,
+bool modelPar_given_CBBTBOT,
+AdmsSensFadType & modelPar_CBBTSTI,
+bool modelPar_given_CBBTSTI,
+AdmsSensFadType & modelPar_CBBTGAT,
+bool modelPar_given_CBBTGAT,
+AdmsSensFadType & modelPar_FBBTRBOT,
+bool modelPar_given_FBBTRBOT,
+AdmsSensFadType & modelPar_FBBTRSTI,
+bool modelPar_given_FBBTRSTI,
+AdmsSensFadType & modelPar_FBBTRGAT,
+bool modelPar_given_FBBTRGAT,
+AdmsSensFadType & modelPar_STFBBTBOT,
+bool modelPar_given_STFBBTBOT,
+AdmsSensFadType & modelPar_STFBBTSTI,
+bool modelPar_given_STFBBTSTI,
+AdmsSensFadType & modelPar_STFBBTGAT,
+bool modelPar_given_STFBBTGAT,
+AdmsSensFadType & modelPar_VBRBOT,
+bool modelPar_given_VBRBOT,
+AdmsSensFadType & modelPar_VBRSTI,
+bool modelPar_given_VBRSTI,
+AdmsSensFadType & modelPar_VBRGAT,
+bool modelPar_given_VBRGAT,
+AdmsSensFadType & modelPar_PBRBOT,
+bool modelPar_given_PBRBOT,
+AdmsSensFadType & modelPar_PBRSTI,
+bool modelPar_given_PBRSTI,
+AdmsSensFadType & modelPar_PBRGAT,
+bool modelPar_given_PBRGAT,
+AdmsSensFadType & modelPar_SWJUNEXP,
+bool modelPar_given_SWJUNEXP,
+AdmsSensFadType & modelPar_VJUNREF,
+bool modelPar_given_VJUNREF,
+AdmsSensFadType & modelPar_FJUNQ,
+bool modelPar_given_FJUNQ,
+// non-reals (including hidden)
+int modelPar_LEVEL,
+bool modelPar_given_LEVEL,
+int modelPar_TYPE,
+bool modelPar_given_TYPE// model variables
+,
+// reals
+AdmsSensFadType & modelVar_IMAX_i,
+AdmsSensFadType & modelVar_VBIRBOT_i,
+AdmsSensFadType & modelVar_VBIRSTI_i,
+AdmsSensFadType & modelVar_VBIRGAT_i,
+AdmsSensFadType & modelVar_PBOT_i,
+AdmsSensFadType & modelVar_PSTI_i,
+AdmsSensFadType & modelVar_PGAT_i,
+AdmsSensFadType & modelVar_CSRHBOT_i,
+AdmsSensFadType & modelVar_CSRHSTI_i,
+AdmsSensFadType & modelVar_CSRHGAT_i,
+AdmsSensFadType & modelVar_CTATBOT_i,
+AdmsSensFadType & modelVar_CTATSTI_i,
+AdmsSensFadType & modelVar_CTATGAT_i,
+AdmsSensFadType & modelVar_CBBTBOT_i,
+AdmsSensFadType & modelVar_CBBTSTI_i,
+AdmsSensFadType & modelVar_CBBTGAT_i,
+AdmsSensFadType & modelVar_VBRBOT_i,
+AdmsSensFadType & modelVar_VBRSTI_i,
+AdmsSensFadType & modelVar_VBRGAT_i,
+AdmsSensFadType & modelVar_PBRBOT_i,
+AdmsSensFadType & modelVar_PBRSTI_i,
+AdmsSensFadType & modelVar_PBRGAT_i,
+double & modelVar_SWJUNEXP_i,
+AdmsSensFadType & modelVar_VJUNREF_i,
+AdmsSensFadType & modelVar_FJUNQ_i,
+AdmsSensFadType & modelVar_phitr,
+AdmsSensFadType & modelVar_phitd,
+AdmsSensFadType & modelVar_phitdinv,
+double & modelVar_perfc,
+double & modelVar_berfc,
+double & modelVar_cerfc,
+AdmsSensFadType & modelVar_ftdbot,
+AdmsSensFadType & modelVar_ftdsti,
+AdmsSensFadType & modelVar_ftdgat,
+AdmsSensFadType & modelVar_idsatbot,
+AdmsSensFadType & modelVar_idsatsti,
+AdmsSensFadType & modelVar_idsatgat,
+AdmsSensFadType & modelVar_vbibot,
+AdmsSensFadType & modelVar_vbisti,
+AdmsSensFadType & modelVar_vbigat,
+AdmsSensFadType & modelVar_vbiinvbot,
+AdmsSensFadType & modelVar_vbiinvsti,
+AdmsSensFadType & modelVar_vbiinvgat,
+AdmsSensFadType & modelVar_one_minus_PBOT,
+AdmsSensFadType & modelVar_one_minus_PSTI,
+AdmsSensFadType & modelVar_one_minus_PGAT,
+AdmsSensFadType & modelVar_one_over_one_minus_PBOT,
+AdmsSensFadType & modelVar_one_over_one_minus_PSTI,
+AdmsSensFadType & modelVar_one_over_one_minus_PGAT,
+AdmsSensFadType & modelVar_cjobot,
+AdmsSensFadType & modelVar_cjosti,
+AdmsSensFadType & modelVar_cjogat,
+AdmsSensFadType & modelVar_qprefbot,
+AdmsSensFadType & modelVar_qprefsti,
+AdmsSensFadType & modelVar_qprefgat,
+AdmsSensFadType & modelVar_qpref2bot,
+AdmsSensFadType & modelVar_qpref2sti,
+AdmsSensFadType & modelVar_qpref2gat,
+AdmsSensFadType & modelVar_wdepnulrbot,
+AdmsSensFadType & modelVar_wdepnulrsti,
+AdmsSensFadType & modelVar_wdepnulrgat,
+AdmsSensFadType & modelVar_wdepnulrinvbot,
+AdmsSensFadType & modelVar_wdepnulrinvsti,
+AdmsSensFadType & modelVar_wdepnulrinvgat,
+AdmsSensFadType & modelVar_VBIRBOTinv,
+AdmsSensFadType & modelVar_VBIRSTIinv,
+AdmsSensFadType & modelVar_VBIRGATinv,
+AdmsSensFadType & modelVar_atatbot,
+AdmsSensFadType & modelVar_atatsti,
+AdmsSensFadType & modelVar_atatgat,
+AdmsSensFadType & modelVar_btatpartbot,
+AdmsSensFadType & modelVar_btatpartsti,
+AdmsSensFadType & modelVar_btatpartgat,
+AdmsSensFadType & modelVar_fbbtbot,
+AdmsSensFadType & modelVar_fbbtsti,
+AdmsSensFadType & modelVar_fbbtgat,
+AdmsSensFadType & modelVar_alphaav,
+AdmsSensFadType & modelVar_fstopbot,
+AdmsSensFadType & modelVar_fstopsti,
+AdmsSensFadType & modelVar_fstopgat,
+AdmsSensFadType & modelVar_VBRinvbot,
+AdmsSensFadType & modelVar_VBRinvsti,
+AdmsSensFadType & modelVar_VBRinvgat,
+AdmsSensFadType & modelVar_slopebot,
+AdmsSensFadType & modelVar_slopesti,
+AdmsSensFadType & modelVar_slopegat,
+ double admsTemperature, double ADMSgmin_arg, const Instance & theInstance);
 
 #endif // Xyce_ADMS_SENSITIVITIES
 
@@ -844,9 +844,9 @@ template <typename T>
 T limexp(const T &x)
 {
   if ((x) < 80.0)
-    return (exp(x));
+  return (exp(x));
   else
-    return (exp(80.0)*(x-79.0));
+  return (exp(80.0)*(x-79.0));
 }
 
 // Maybe this will do as a substitute for a sacado-provided "floor" and "ceil"?
@@ -857,13 +857,13 @@ T limexp(const T &x)
 template <typename T>
 double ADMSfloor(const T & x)
 {
-  return (floor(x.val()));
+return (floor(x.val()));
 }
 
 template <typename T>
 double ADMSceil(const T & x)
 {
-  return (ceil(x.val()));
+return (ceil(x.val()));
 }
 
 
@@ -904,170 +904,170 @@ class Instance : public DeviceInstance
 #endif // Xyce_ADMS_SENSITIVITIES
   friend struct Traits;
 
-public:
-  Instance(
-     const Configuration &       configuration,
-     const InstanceBlock &       instance_block,
-     Model &                     model,
-     const FactoryBlock &        factory_block);
+  public:
+    Instance(
+      const Configuration &       configuration,
+      const InstanceBlock &       instance_block,
+      Model &                     model,
+      const FactoryBlock &        factory_block);
 
-  ~Instance();
-
-private:
-  Instance(const Instance &);
-  Instance &operator=(const Instance &);
-
-public:
-  void registerLIDs( const LocalIdVector & intLIDVecRef,
-                     const LocalIdVector & extLIDVecRef );
-  void registerStoreLIDs( const LocalIdVector & stoLIDVecRef );
-  void setupPointers();
-
-  void loadNodeSymbols(Util::SymbolTable &symbol_table) const;
-
-  const JacobianStamp & jacobianStamp() const;
-  void registerJacLIDs( const JacobianStamp & jacLIDVec );
-
-  void registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef);
-
-  bool processParams();
-  bool updateTemperature ( const double & temp = -999.0 );
-  bool updateIntermediateVars ();
-  bool updatePrimaryState ();
-  bool updateSecondaryState ();
-
-  // load functions, residual:
-  bool loadDAEQVector ();
-  bool loadDAEFVector ();
-
-  // load functions, Jacobian:
-  bool loadDAEdQdx ();
-  bool loadDAEdFdx ();
-
-  int getNumNoiseSources () const;  // 1
-  void setupNoiseSources (Xyce::Analysis::NoiseData & noiseData);
-  void getNoiseSources (Xyce::Analysis::NoiseData & noiseData);
+    ~Instance();
 
 private:
+    Instance(const Instance &);
+    Instance &operator=(const Instance &);
 
 public:
-  // iterator reference to the JUNCAP200 model which owns this instance.
-  // Getters and setters
-  Model &getModel()
-  {
-    return model_;
-  }
+    void registerLIDs( const LocalIdVector & intLIDVecRef,
+                       const LocalIdVector & extLIDVecRef );
+    void registerStoreLIDs( const LocalIdVector & stoLIDVecRef );
+    void setupPointers();
 
-private:
+    void loadNodeSymbols(Util::SymbolTable &symbol_table) const;
 
-  Model & model_;   //< Owning Model
-  // Begin verilog Instance Variables
-  //   Instance Parameters
-  double AB;
-  double LS;
-  double LG;
-  double MULT;
-  //  Variables of global_instance scope
-  double MULT_i;
-  double AB_i;
-  double LS_i;
-  double LG_i;
-  double zflagbot;
-  double zflagsti;
-  double zflaggat;
-  double VMAX;
-  double exp_VMAX_over_phitd;
-  double vbimin;
-  double vch;
-  double vfmin;
-  double vbbtlim;
-  double xhighf1;
-  double expxhf1;
-  double xhighf2;
-  double expxhf2;
-  double xhighr;
-  double expxhr;
-  double ISATFOR1;
-  double MFOR1;
-  double ISATFOR2;
-  double MFOR2;
-  double ISATREV;
-  double MREV;
-  double m0flag;
-  // end verilog Instance Variables=====
-  // Nodal LID Variables
-  int li_A;
-  int li_K;
-  // end Nodal LID Variables
-  // Branch LID Variables
-  // end Branch LID Variables
-  // Lead (branch) LID Variables
-  int li_branch_iA;
-  // end Lead (branch) LID Variables
-  // Jacobian  pointers
-  double * f_A_Equ_A_Node_Ptr;
-  double * f_A_Equ_K_Node_Ptr;
-  double * f_K_Equ_A_Node_Ptr;
-  double * f_K_Equ_K_Node_Ptr;
-  double * q_A_Equ_A_Node_Ptr;
-  double * q_A_Equ_K_Node_Ptr;
-  double * q_K_Equ_A_Node_Ptr;
-  double * q_K_Equ_K_Node_Ptr;
-  // Jacobian offsets
-  int A_A_Equ_A_NodeOffset;
-  int A_A_Equ_K_NodeOffset;
-  int A_K_Equ_A_NodeOffset;
-  int A_K_Equ_K_NodeOffset;
-  // end of Jacobian and pointers
-  // node numbers
-  static const int admsNodeID_A = 0;
-  static const int admsNodeID_K = 1;
-  static const int admsNodeID_GND = -1;
-  // end node numbers
-  // Additional IDs for branch equations
-  // end branch numbers
-  // Probe numbers
-  static const int admsProbeID_V_A_K = 0;
-  // end probe numbers
-  // Store LIDs
-  // end store LIDs
-  // Arrays to hold probes
-  std::vector < double > probeVars;
-  std::vector < std::vector < double > > d_probeVars;
-  // Arrays to hold contributions
-  // dynamic contributions are differentiated w.r.t time
-  std::vector < double > staticContributions;
-  std::vector < std::vector < double > > d_staticContributions;
-  std::vector < double > dynamicContributions;
-  std::vector < std::vector < double > > d_dynamicContributions;
-  //vectors to hold noise information for communication between methods
-  std::vector<double> noiseContribsPower;
-  std::vector<double> noiseContribsExponent;
+    const JacobianStamp & jacobianStamp() const;
+    void registerJacLIDs( const JacobianStamp & jacLIDVec );
+
+    void registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef);
+
+    bool processParams();
+    bool updateTemperature ( const double & temp = -999.0 );
+    bool updateIntermediateVars ();
+    bool updatePrimaryState ();
+    bool updateSecondaryState ();
+
+    // load functions, residual:
+    bool loadDAEQVector ();
+    bool loadDAEFVector ();
+
+    // load functions, Jacobian:
+    bool loadDAEdQdx ();
+    bool loadDAEdFdx ();
+
+      int getNumNoiseSources () const;  // 1
+      void setupNoiseSources (Xyce::Analysis::NoiseData & noiseData);
+      void getNoiseSources (Xyce::Analysis::NoiseData & noiseData);
+
+  private:
+
+  public:
+    // iterator reference to the JUNCAP200 model which owns this instance.
+    // Getters and setters
+    Model &getModel()
+    {
+      return model_;
+    }
+
+  private:
+
+    Model & model_;   //< Owning Model
+    // Begin verilog Instance Variables
+    //   Instance Parameters
+    double AB;
+    double LS;
+    double LG;
+    double MULT;
+    //  Variables of global_instance scope
+    double MULT_i;
+    double AB_i;
+    double LS_i;
+    double LG_i;
+    double zflagbot;
+    double zflagsti;
+    double zflaggat;
+    double VMAX;
+    double exp_VMAX_over_phitd;
+    double vbimin;
+    double vch;
+    double vfmin;
+    double vbbtlim;
+    double xhighf1;
+    double expxhf1;
+    double xhighf2;
+    double expxhf2;
+    double xhighr;
+    double expxhr;
+    double ISATFOR1;
+    double MFOR1;
+    double ISATFOR2;
+    double MFOR2;
+    double ISATREV;
+    double MREV;
+    double m0flag;
+    // end verilog Instance Variables=====
+    // Nodal LID Variables
+    int li_A;
+    int li_K;
+    // end Nodal LID Variables
+    // Branch LID Variables
+    // end Branch LID Variables
+    // Lead (branch) LID Variables
+    int li_branch_iA;
+    // end Lead (branch) LID Variables
+    // Jacobian  pointers
+    double * f_A_Equ_A_Node_Ptr;
+    double * f_A_Equ_K_Node_Ptr;
+    double * f_K_Equ_A_Node_Ptr;
+    double * f_K_Equ_K_Node_Ptr;
+    double * q_A_Equ_A_Node_Ptr;
+    double * q_A_Equ_K_Node_Ptr;
+    double * q_K_Equ_A_Node_Ptr;
+    double * q_K_Equ_K_Node_Ptr;
+    // Jacobian offsets
+    int A_A_Equ_A_NodeOffset;
+    int A_A_Equ_K_NodeOffset;
+    int A_K_Equ_A_NodeOffset;
+    int A_K_Equ_K_NodeOffset;
+    // end of Jacobian and pointers
+   // node numbers
+    static const int admsNodeID_A = 0;
+    static const int admsNodeID_K = 1;
+    static const int admsNodeID_GND = -1;
+   // end node numbers
+   // Additional IDs for branch equations
+   // end branch numbers
+   // Probe numbers
+    static const int admsProbeID_V_A_K = 0;
+   // end probe numbers
+   // Store LIDs
+   // end store LIDs
+ // Arrays to hold probes
+ std::vector < double > probeVars;
+ std::vector < std::vector < double > > d_probeVars;
+ // Arrays to hold contributions
+ // dynamic contributions are differentiated w.r.t time
+ std::vector < double > staticContributions;
+ std::vector < std::vector < double > > d_staticContributions;
+ std::vector < double > dynamicContributions;
+ std::vector < std::vector < double > > d_dynamicContributions;
+//vectors to hold noise information for communication between methods
+std::vector<double> noiseContribsPower;
+std::vector<double> noiseContribsExponent;
 
 
-  // this is what we'll use when any model uses $temperature.  We'll
-  // set it in updateTemperature, and initialize it to whatever
-  // is in devOptions when the instance is constructed.
-  double admsTemperature;
+    // this is what we'll use when any model uses $temperature.  We'll
+    // set it in updateTemperature, and initialize it to whatever
+    // is in devOptions when the instance is constructed.
+    double admsTemperature;
 
-  // vt at $temperature;
-  double adms_vt_nom;
-
-
-  // This one is for the annoying bogus "XyceADMSInstTemp" parameter
-  // that we need so we can set it from the device manager when there's no
-  // "TEMP" parameter to use
-  double admsInstTemp;
+    // vt at $temperature;
+    double adms_vt_nom;
 
 
-  static JacobianStamp jacStamp;
-  static IdVector nodeMap;
-  static PairMap pairToJacStampMap;
+    // This one is for the annoying bogus "XyceADMSInstTemp" parameter
+    // that we need so we can set it from the device manager when there's no
+    // "TEMP" parameter to use
+    double admsInstTemp;
 
-  // These instance-owned vectors are for storage of lead current data
-  std::vector<double> leadCurrentF;
-  std::vector<double> leadCurrentQ;
-};
+
+    static JacobianStamp jacStamp;
+    static IdVector nodeMap;
+    static PairMap pairToJacStampMap;
+
+    // These instance-owned vectors are for storage of lead current data
+    std::vector<double> leadCurrentF;
+    std::vector<double> leadCurrentQ;
+    };
 
 
 //-----------------------------------------------------------------------------
@@ -1080,201 +1080,201 @@ private:
 //-----------------------------------------------------------------------------
 class Model : public DeviceModel
 {
-  typedef std::vector<Instance *> InstanceVector;
+    typedef std::vector<Instance *> InstanceVector;
 
-  friend class ParametricData<Model>;
-  friend class Instance;
+    friend class ParametricData<Model>;
+    friend class Instance;
 #ifdef Xyce_ADMS_SENSITIVITIES
-  friend class InstanceSensitivity;
-  friend class ModelSensitivity;
+    friend class InstanceSensitivity;
+    friend class ModelSensitivity;
 #endif // Xyce_ADMS_SENSITIVITIES
-  friend struct Traits;
+    friend struct Traits;
 
-public:
-  Model(
-     const Configuration &       configuration,
-     const ModelBlock &          model_block,
-     const FactoryBlock &        factory_block);
+  public:
+    Model(
+      const Configuration &       configuration,
+      const ModelBlock &          model_block,
+      const FactoryBlock &        factory_block);
 
-  ~Model();
-
-private:
-  Model(const Model &);
-  Model &operator=(const Model &);
-
-public:
-  virtual void forEachInstance(DeviceInstanceOp &op) const /* override */;
-  virtual std::ostream &printOutInstances(std::ostream &os) const;
-  bool processParams();
-  bool processInstanceParams();
+    ~Model();
 
 private:
+    Model(const Model &);
+    Model &operator=(const Model &);
 
 public:
-  void addInstance(Instance *instance)
-  {
-    instanceContainer.push_back(instance);
-  }
+    virtual void forEachInstance(DeviceInstanceOp &op) const /* override */;
+    virtual std::ostream &printOutInstances(std::ostream &os) const;
+    bool processParams();
+    bool processInstanceParams();
 
-  void setupBaseInstanceContainer()
-  {
-    std::vector<Instance*>::iterator iter = instanceContainer.begin();
-    std::vector<Instance*>::iterator end   = instanceContainer.end();
-    for ( ; iter!=end; ++iter)
+  private:
+
+  public:
+    void addInstance(Instance *instance)
     {
+      instanceContainer.push_back(instance);
+    }
+
+    void setupBaseInstanceContainer()
+    {
+      std::vector<Instance*>::iterator iter = instanceContainer.begin();
+      std::vector<Instance*>::iterator end   = instanceContainer.end();
+      for ( ; iter!=end; ++iter)
+      {
       Xyce::Device::DeviceModel::baseInstanceContainer.push_back( static_cast<Xyce::Device::DeviceInstance *>(*iter) );
     }
   }
 
-private:
-  std::vector<Instance*> instanceContainer;
+  private:
+    std::vector<Instance*> instanceContainer;
 
-private:
+  private:
 
-  // This one is for the annoying bogus "XyceADMSInstTemp" parameter
-  // that we need so we can set it from the device manager when there's no
-  // "TEMP" model parameter to use
-  double admsModTemp;
-  // Begin verilog Model Variables
-  //   Model Parameters
-  int LEVEL;
-  int TYPE;
-  double DTA;
-  double IMAX;
-  double TRJ;
-  double FREV;
-  double CJORBOT;
-  double CJORSTI;
-  double CJORGAT;
-  double VBIRBOT;
-  double VBIRSTI;
-  double VBIRGAT;
-  double PBOT;
-  double PSTI;
-  double PGAT;
-  double PHIGBOT;
-  double PHIGSTI;
-  double PHIGGAT;
-  double IDSATRBOT;
-  double IDSATRSTI;
-  double IDSATRGAT;
-  double CSRHBOT;
-  double CSRHSTI;
-  double CSRHGAT;
-  double XJUNSTI;
-  double XJUNGAT;
-  double CTATBOT;
-  double CTATSTI;
-  double CTATGAT;
-  double MEFFTATBOT;
-  double MEFFTATSTI;
-  double MEFFTATGAT;
-  double CBBTBOT;
-  double CBBTSTI;
-  double CBBTGAT;
-  double FBBTRBOT;
-  double FBBTRSTI;
-  double FBBTRGAT;
-  double STFBBTBOT;
-  double STFBBTSTI;
-  double STFBBTGAT;
-  double VBRBOT;
-  double VBRSTI;
-  double VBRGAT;
-  double PBRBOT;
-  double PBRSTI;
-  double PBRGAT;
-  double SWJUNEXP;
-  double VJUNREF;
-  double FJUNQ;
-  //  Variables of global_model scope
-  double IMAX_i;
-  double VBIRBOT_i;
-  double VBIRSTI_i;
-  double VBIRGAT_i;
-  double PBOT_i;
-  double PSTI_i;
-  double PGAT_i;
-  double CSRHBOT_i;
-  double CSRHSTI_i;
-  double CSRHGAT_i;
-  double CTATBOT_i;
-  double CTATSTI_i;
-  double CTATGAT_i;
-  double CBBTBOT_i;
-  double CBBTSTI_i;
-  double CBBTGAT_i;
-  double VBRBOT_i;
-  double VBRSTI_i;
-  double VBRGAT_i;
-  double PBRBOT_i;
-  double PBRSTI_i;
-  double PBRGAT_i;
-  double SWJUNEXP_i;
-  double VJUNREF_i;
-  double FJUNQ_i;
-  double phitr;
-  double phitd;
-  double phitdinv;
-  double perfc;
-  double berfc;
-  double cerfc;
-  double ftdbot;
-  double ftdsti;
-  double ftdgat;
-  double idsatbot;
-  double idsatsti;
-  double idsatgat;
-  double vbibot;
-  double vbisti;
-  double vbigat;
-  double vbiinvbot;
-  double vbiinvsti;
-  double vbiinvgat;
-  double one_minus_PBOT;
-  double one_minus_PSTI;
-  double one_minus_PGAT;
-  double one_over_one_minus_PBOT;
-  double one_over_one_minus_PSTI;
-  double one_over_one_minus_PGAT;
-  double cjobot;
-  double cjosti;
-  double cjogat;
-  double qprefbot;
-  double qprefsti;
-  double qprefgat;
-  double qpref2bot;
-  double qpref2sti;
-  double qpref2gat;
-  double wdepnulrbot;
-  double wdepnulrsti;
-  double wdepnulrgat;
-  double wdepnulrinvbot;
-  double wdepnulrinvsti;
-  double wdepnulrinvgat;
-  double VBIRBOTinv;
-  double VBIRSTIinv;
-  double VBIRGATinv;
-  double atatbot;
-  double atatsti;
-  double atatgat;
-  double btatpartbot;
-  double btatpartsti;
-  double btatpartgat;
-  double fbbtbot;
-  double fbbtsti;
-  double fbbtgat;
-  double alphaav;
-  double fstopbot;
-  double fstopsti;
-  double fstopgat;
-  double VBRinvbot;
-  double VBRinvsti;
-  double VBRinvgat;
-  double slopebot;
-  double slopesti;
-  double slopegat;
-  // end verilog model variables=====
+    // This one is for the annoying bogus "XyceADMSInstTemp" parameter
+    // that we need so we can set it from the device manager when there's no
+    // "TEMP" model parameter to use
+    double admsModTemp;
+// Begin verilog Model Variables
+//   Model Parameters
+    int LEVEL;
+    int TYPE;
+    double DTA;
+    double IMAX;
+    double TRJ;
+    double FREV;
+    double CJORBOT;
+    double CJORSTI;
+    double CJORGAT;
+    double VBIRBOT;
+    double VBIRSTI;
+    double VBIRGAT;
+    double PBOT;
+    double PSTI;
+    double PGAT;
+    double PHIGBOT;
+    double PHIGSTI;
+    double PHIGGAT;
+    double IDSATRBOT;
+    double IDSATRSTI;
+    double IDSATRGAT;
+    double CSRHBOT;
+    double CSRHSTI;
+    double CSRHGAT;
+    double XJUNSTI;
+    double XJUNGAT;
+    double CTATBOT;
+    double CTATSTI;
+    double CTATGAT;
+    double MEFFTATBOT;
+    double MEFFTATSTI;
+    double MEFFTATGAT;
+    double CBBTBOT;
+    double CBBTSTI;
+    double CBBTGAT;
+    double FBBTRBOT;
+    double FBBTRSTI;
+    double FBBTRGAT;
+    double STFBBTBOT;
+    double STFBBTSTI;
+    double STFBBTGAT;
+    double VBRBOT;
+    double VBRSTI;
+    double VBRGAT;
+    double PBRBOT;
+    double PBRSTI;
+    double PBRGAT;
+    double SWJUNEXP;
+    double VJUNREF;
+    double FJUNQ;
+    //  Variables of global_model scope
+    double IMAX_i;
+    double VBIRBOT_i;
+    double VBIRSTI_i;
+    double VBIRGAT_i;
+    double PBOT_i;
+    double PSTI_i;
+    double PGAT_i;
+    double CSRHBOT_i;
+    double CSRHSTI_i;
+    double CSRHGAT_i;
+    double CTATBOT_i;
+    double CTATSTI_i;
+    double CTATGAT_i;
+    double CBBTBOT_i;
+    double CBBTSTI_i;
+    double CBBTGAT_i;
+    double VBRBOT_i;
+    double VBRSTI_i;
+    double VBRGAT_i;
+    double PBRBOT_i;
+    double PBRSTI_i;
+    double PBRGAT_i;
+    double SWJUNEXP_i;
+    double VJUNREF_i;
+    double FJUNQ_i;
+    double phitr;
+    double phitd;
+    double phitdinv;
+    double perfc;
+    double berfc;
+    double cerfc;
+    double ftdbot;
+    double ftdsti;
+    double ftdgat;
+    double idsatbot;
+    double idsatsti;
+    double idsatgat;
+    double vbibot;
+    double vbisti;
+    double vbigat;
+    double vbiinvbot;
+    double vbiinvsti;
+    double vbiinvgat;
+    double one_minus_PBOT;
+    double one_minus_PSTI;
+    double one_minus_PGAT;
+    double one_over_one_minus_PBOT;
+    double one_over_one_minus_PSTI;
+    double one_over_one_minus_PGAT;
+    double cjobot;
+    double cjosti;
+    double cjogat;
+    double qprefbot;
+    double qprefsti;
+    double qprefgat;
+    double qpref2bot;
+    double qpref2sti;
+    double qpref2gat;
+    double wdepnulrbot;
+    double wdepnulrsti;
+    double wdepnulrgat;
+    double wdepnulrinvbot;
+    double wdepnulrinvsti;
+    double wdepnulrinvgat;
+    double VBIRBOTinv;
+    double VBIRSTIinv;
+    double VBIRGATinv;
+    double atatbot;
+    double atatsti;
+    double atatgat;
+    double btatpartbot;
+    double btatpartsti;
+    double btatpartgat;
+    double fbbtbot;
+    double fbbtsti;
+    double fbbtgat;
+    double alphaav;
+    double fstopbot;
+    double fstopsti;
+    double fstopgat;
+    double VBRinvbot;
+    double VBRinvsti;
+    double VBRinvgat;
+    double slopebot;
+    double slopesti;
+    double slopegat;
+    // end verilog model variables=====
 };
 
 void registerDevice(const DeviceCountMap& deviceMap = DeviceCountMap(),

@@ -192,7 +192,6 @@ DistToolBase::broadcastGlobalData()
       if (!circuitContextReady_)
       {
         Xyce::IO::unpackCircuitContext(circuitContext_, charBuffer_, bsize, pdsCommPtr_);
-        circuitBlock_.receiveCircuitContext( *circuitContext_ );
       }
     }
 
@@ -577,8 +576,9 @@ bool DistToolBase::getLine( TokenVector &line,
           ssfPtr_->setLineNumber(subcircuitPtr->getLineEndPosition());
 
         }
-        else if (ES1 == ".INCLUDE" || ES1 == ".INC" || ES1 == ".LIB")
+        else if ( ES1 == ".INCLUDE" || ES1 == ".INCL" || ES1 == ".INC" || ES1 == ".LIB")
         {
+          // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
           std::string includeFile;
           std::string libSelect_new = libSelect, libInside_new;
           Xyce::IO::handleIncludeLine( netlistFilename_, line,

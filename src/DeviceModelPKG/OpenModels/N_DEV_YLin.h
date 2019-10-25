@@ -59,7 +59,7 @@ struct Traits : public DeviceTraits<Model, Instance>
   static int numNodes() {return 2;}
   static int numOptionalNodes() {return 20;}
   static bool modelRequired() {return true;}
-  static bool isLinearDevice() {return true;}
+  static bool isLinearDevice() {return false;}
 
   static Device *factory(const Configuration &configuration, const FactoryBlock &factory_block);
   static void loadModelParameters(ParametricData<Model> &p);
@@ -99,7 +99,6 @@ private:
 
 public:
 
-  bool isLinearDevice() const;
 
   /// Gets the resistor model that owns this instance.
   Model &getModel()   { return model_;  }
@@ -141,8 +140,9 @@ public:
   virtual void setupPointers() /* override */;
 
 private:
-  static std::vector< std::vector<int> >  jacStamp; ///< All Resistor instances have a common Jacobian Stamp
-  static void initializeJacobianStamp();
+  std::vector< std::vector<int> >  jacStamp;
+  std::vector< std::vector<int> > LIDVec_;
+  void initializeJacobianStamp();
 
   Model &     model_;                 ///< Owning model
 
@@ -273,6 +273,9 @@ private:
   int                    numFreq_;          ///< Number of frequency points
   std::vector<double>    Z0Vec_;            ///< vector of impedances (for S-parameters)
   std::vector<double>    freqVec_;          ///< vector of the frequencies in the input Network Data
+
+  // store a separate matrix (that will be Y-parameters in RI-format) for each frequency
+  // in freqVec_
   std::vector<Teuchos::SerialDenseMatrix<int, std::complex<double> > > inputNetworkDataVec_;
 };
 

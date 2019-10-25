@@ -395,6 +395,7 @@ void Topology::verifyNodesAndDevices(
             // It's ok to let the device node get created and inserted into the
             // topology.  we can remove it later
             const NodeID& deviceID = (*currentCktNodeItr).second->get_nodeID();
+            badDeviceList_.push_back( deviceID );
 
             std::vector< NodeID > adjacentIDs;
             mainGraphPtr_->returnAdjIDs( deviceID, adjacentIDs );
@@ -402,7 +403,8 @@ void Topology::verifyNodesAndDevices(
             std::vector< NodeID >::iterator currentID = adjacentIDs.begin();
             std::vector< NodeID >::iterator endID = adjacentIDs.end();
             std::vector< NodeID >::iterator nextID = currentID;
-            nextID++;
+            if (currentID != endID)
+              nextID++;
 
             while( nextID != endID )
             {
@@ -426,7 +428,6 @@ void Topology::verifyNodesAndDevices(
               nextID++;
             }
           }
-
         }
         else
         {
@@ -438,7 +439,11 @@ void Topology::verifyNodesAndDevices(
       currentCktNodeItr++;
     }
 
-    Report::UserWarning() << "Device verification found " << badDeviceCount << " device(s) to remove";
+    N_PDS_Comm * commPtr = pdsManager_.getPDSComm();
+    int totalBadDevices = 0;
+    commPtr->sumAll( &badDeviceCount, &totalBadDevices, 1 );
+
+    Report::UserWarning0() << "Device verification found " << totalBadDevices << " device(s) to remove";
   }
 }
 
@@ -460,6 +465,10 @@ void Topology::removeTaggedNodesAndDevices()
       Xyce::dout() << "Topology::removeTaggedNodesAndDevices" << std::endl
                    << *this << std::endl;
 
+    // First remove bad devices for this processor
+    std::vector< CktNode * > removedDevices;
+    mainGraphPtr_->removeNodes( badDeviceList_, removedDevices );
+
     // storage for oldNode that we'll delete when done with this routine
     // use a set because we can get the same oldNode CktNode pointer
     // multiple times
@@ -479,81 +488,87 @@ void Topology::removeTaggedNodesAndDevices()
         unordered_set<NodeID>::iterator nodeReplacedLoc = nodesReplaced.find( nodeToBeReplaced );
         if( nodeReplacedLoc == nodesReplacedEnd )
         {
-          // this node hasn't been done before so replace it
-          Report::UserWarning() << "Replacing node \"" << nodeToBeReplaced << "\" with \"" << replacementNode << "\"";
-
           if (DEBUG_TOPOLOGY && nodeToBeReplaced < replacementNode)
             Xyce::dout() << "Ordering is wrong on nodes!" << std::endl;
 
-          CktNode * oldNode = mainGraphPtr_->replaceNode( nodeToBeReplaced, replacementNode );
-          nodesReplaced.insert( nodeToBeReplaced );
-
-          // If we delete this old node now, we'll make the orderedNodeListPtr_ untraversable.
-          // this would be ok as we can regenerate it, but that takes time and we would only
-          // invalidate it when we do our next delete.  So, store up the oldNode so we can
-          // delete them when were done
-          oldNodeList.push_back( oldNode );
-
-          // now that we've replaced "nodeToBeReplaced" with "replacementNode" we need to
-          // search the superNodeList_ from this point on also doing this same substitution
-          //
-          // for example if our super node list was:
-          //
-          //    B   A
-          //    C   B
-          //
-          // If after the B->A substitution we didn't update our list, then we would next bring
-          // back the B's with C->B.
-          //
-          std::vector< std::pair<NodeID, NodeID> >::iterator nextNodePair = currentNodePair;
-          nextNodePair++;
-          while ( nextNodePair != endNodePair )
+          // the replacement node might be from another processor, so it is not in this processors' graph; add it now
+          CktNode * newNode = mainGraphPtr_->FindCktNode( replacementNode );
+          if ( !newNode )         
           {
-            if( nextNodePair->first == nodeToBeReplaced )
-            {
-              if( replacementNode < nextNodePair->second )
-              {
-                // need to swap on insert
-                *nextNodePair = make_pair( nextNodePair->second, replacementNode );
-              }
-              else
-              {
-                // just insert in order
-                *nextNodePair = make_pair( replacementNode, nextNodePair->second );
-              }
-            }
-            else if( nextNodePair->second == nodeToBeReplaced )
-            {
-              if( replacementNode < nextNodePair->first )
-              {
-                // no swap needed
-                *nextNodePair = make_pair( nextNodePair->first, replacementNode );
-              }
-              else
-              {
-                // need to swap
-                *nextNodePair = make_pair( replacementNode, nextNodePair->first );
-              }
-            }
+            std::vector<NodeID> emptyNLList;
+            newNode = new CktNode_V( Xyce::get_node_id( replacementNode ) );
+            newNode->set_IsOwned( false );
+            mainGraphPtr_->InsertNode( newNode, emptyNLList );
+          }
+
+          CktNode * oldNode = mainGraphPtr_->replaceNode( nodeToBeReplaced, replacementNode );
+
+          // there is a possibility that this node may not be found, so ignore it and move on.
+          if ( oldNode )
+          {
+            nodesReplaced.insert( nodeToBeReplaced );
+
+            // If we delete this old node now, we'll make the orderedNodeListPtr_ untraversable.
+            // this would be ok as we can regenerate it, but that takes time and we would only
+            // invalidate it when we do our next delete.  So, store up the oldNode so we can
+            // delete them when were done
+            oldNodeList.push_back( oldNode );
+
+            // now that we've replaced "nodeToBeReplaced" with "replacementNode" we need to
+            // search the superNodeList_ from this point on also doing this same substitution
+            //
+            // for example if our super node list was:
+            //
+            //    B   A
+            //    C   B
+            //
+            // If after the B->A substitution we didn't update our list, then we would next bring
+            // back the B's with C->B.
+            //
+            std::vector< std::pair<NodeID, NodeID> >::iterator nextNodePair = currentNodePair;
             nextNodePair++;
+            while ( nextNodePair != endNodePair )
+            {
+              if( nextNodePair->first == nodeToBeReplaced )
+              {
+                if( replacementNode < nextNodePair->second )
+                {
+                  // need to swap on insert
+                  *nextNodePair = make_pair( nextNodePair->second, replacementNode );
+                }
+                else
+                {
+                  // just insert in order, new pair is ( replacementNode, nextNodePair->second )
+                  nextNodePair->first = replacementNode;
+                }
+              }
+              else if( nextNodePair->second == nodeToBeReplaced )
+              {
+                if( replacementNode < nextNodePair->first )
+                {
+                  // no swap needed, new pair is ( nextNodePair->first, replacementNode )
+                  nextNodePair->second = replacementNode;
+                }
+                else
+                {
+                  // need to swap
+                  *nextNodePair = make_pair( replacementNode, nextNodePair->first );
+                }
+              }
+              nextNodePair++;
+            }
           }
         }
       }
       currentNodePair++;
     }
 
-    if( nodesReplaced.size() > 0 )
-    {
-      Report::UserWarning() << "After combining equivalent nodes, " << nodesReplaced.size() << " nodes were removed";
-    }
-
-    std::vector< CktNode * > removedDevices;
     {
       //Stats::StatTop _topoStat("Topology Remove Redundant Devices");
       //Stats::TimeBlock _topoTimer(_topoStat);
-
       mainGraphPtr_->removeRedundantDevices(removedDevices);
     }
+
     // now it's safe to delete the old nodes and device nodes
     for (CktNodeList::iterator it = oldNodeList.begin(), end = oldNodeList.end(); it != end; ++it)
     {
@@ -562,8 +577,6 @@ void Topology::removeTaggedNodesAndDevices()
 
     if (!removedDevices.empty())
     {
-      Report::UserWarning() <<  "After removing devices connected to one terminal, " << removedDevices.size() << " devices were removed";
-
       // delete old devices that were removed
       for (std::vector<CktNode *>::iterator it = removedDevices.begin(), end = removedDevices.end(); it != end; ++it)
       {
@@ -571,10 +584,6 @@ void Topology::removeTaggedNodesAndDevices()
 
         if (cktNodeDevPtr && cktNodeDevPtr->deviceInstanceBlock())
         {
-          // have a valid device.
-          if (DEBUG_TOPOLOGY)
-            Xyce::dout() << "Removed device id: \"" << (*it)->get_id() << "\"" << std::endl;
-
           delete cktNodeDevPtr;
         }
       }
@@ -582,7 +591,6 @@ void Topology::removeTaggedNodesAndDevices()
 
     // Clear supernode storage.
     superNodeList_.clear();
-    globalSuperNodeList_.clear();
   }
 }
 
@@ -604,11 +612,8 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
     int numProcs = commPtr->numProc();
     int thisProc = commPtr->procID();
 
-    // Set up a pointer to tell us what processor the supernodes come from.
-    std::vector<int> procPtr(numProcs+1);
-    procPtr[0] = 0;
-
     int localNodes = superNodeList_.size();
+    std::vector< std::pair<NodeID, NodeID> > externalSuperNodeList;
 
     // Count the bytes for packing these strings
     int byteCount = 0;
@@ -617,11 +622,13 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
     byteCount += sizeof(int);
 
     // Now count all the NodeIDs in the list
+    unordered_set<NodeID> nodesReplaced;
     for (std::vector< std::pair<NodeID, NodeID> >::iterator nodePair = superNodeList_.begin(); 
         nodePair != superNodeList_.end(); nodePair++) 
     {
       byteCount += Xyce::packedByteCount(nodePair->first);
       byteCount += Xyce::packedByteCount(nodePair->second);
+      nodesReplaced.insert( nodePair->first );
     }
 
     for( int p = 0; p < numProcs; ++p )
@@ -639,7 +646,7 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
 
       if (p==thisProc) 
       {
-        // Pack number of supernodes on this processor and place in globalSuperNodeList_
+        // Pack number of supernodes on this processor and place in externalSuperNodeList
         commPtr->pack( &localNodes, 1, superNodeBuffer, bsize, pos );
         for (std::vector< std::pair<NodeID, NodeID> >::iterator nodePair = superNodeList_.begin(); 
             nodePair != superNodeList_.end(); nodePair++) 
@@ -650,25 +657,20 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
           // Pack second entry of pair.
           Xyce::pack(nodePair->second, superNodeBuffer, bsize, pos, commPtr);
         }
-        // Update the processor pointer.
-        procPtr[p+1] = procPtr[p] + localNodes;
 
         // Broadcast packed buffer.
         commPtr->bcast( superNodeBuffer, bsize, p );
       }
       else 
       {
-        // Unpack buffer and place in globalSuperNodeList_
+        // Unpack buffer and place in externalSuperNodeList
         commPtr->bcast( superNodeBuffer, bsize, p );
 
         // Get number of supernodes from that processor
         int numSuperNodes = 0;
         commPtr->unpack( superNodeBuffer, bsize, pos, &numSuperNodes, 1 );
 
-        // Update the processor pointer.
-        procPtr[p+1] = procPtr[p] + numSuperNodes;
-
-        // Extract supernode pairs and push to the back of the globalSuperNodeList_
+        // Extract supernode pairs and push to the back of the externalSuperNodeList
         std::pair<NodeID,NodeID> tmpPair;
 
         for (int i=0; i<numSuperNodes; ++i) {
@@ -679,32 +681,87 @@ void Topology::mergeOffProcTaggedNodesAndDevices()
           // Unpack second pair.
           Xyce::unpack(tmpPair.second, superNodeBuffer, bsize, pos, commPtr); 
 
-          // Push to back of globalSuperNodeList_
-          globalSuperNodeList_.push_back( tmpPair );
+          // Push to back of externalSuperNodeList
+          externalSuperNodeList.push_back( tmpPair );
         }
       }
       // Clean up.
       delete [] superNodeBuffer;
     }
 
+
     // Now go through the local superNodeList_ and tack on any boundary cases, where adjacencies may effect device removal.
-    for (std::vector< std::pair<NodeID, NodeID> >::iterator nodePair = superNodeList_.begin(); nodePair != superNodeList_.end(); nodePair++)
+    int i = 0, nodeListSize = superNodeList_.size();
+    while( i < nodeListSize )
     {
-      NodeID nodeToBeRemoved = nodePair->first;
-      NodeID replacementNode = nodePair->second;
-      std::vector< std::pair<NodeID, NodeID> >::iterator currentGlobalSN = globalSuperNodeList_.begin();
-      std::vector< std::pair<NodeID, NodeID> >::iterator endGlobalSN = globalSuperNodeList_.end();
+      NodeID nodeToBeReplaced = superNodeList_[i].first;
+      NodeID replacementNode = superNodeList_[i].second;
+      std::vector< std::pair<NodeID, NodeID> >::iterator currentGlobalSN = externalSuperNodeList.begin();
+      std::vector< std::pair<NodeID, NodeID> >::iterator endGlobalSN = externalSuperNodeList.end();
       while ( currentGlobalSN != endGlobalSN )
       {
         // Add pair if replacement node is node to be removed by another processor.
         if (currentGlobalSN->first == replacementNode)
+        {
           superNodeList_.push_back( *currentGlobalSN );
-        // Add pair if node to be removed is node a replacement node on another processor.
-        if (currentGlobalSN->second == nodeToBeRemoved)
+          nodesReplaced.insert( currentGlobalSN->first );
+          nodeListSize++;
+        }
+        // Add pair if node to be removed is a replacement node on another processor.
+        else if (currentGlobalSN->second == nodeToBeReplaced)
+        {  
           superNodeList_.push_back( *currentGlobalSN );
+          nodesReplaced.insert( currentGlobalSN->first );
+          nodeListSize++;
+        }
         currentGlobalSN++;
       }
+      i++;
     }
+
+    // Condensing external super node list so that any supernodes found in the next step do not need iteration.
+    // Ex.  Processor 2 may have a supernode ( A, 0 ) to ( B, 0 ) that hasn't been accounted for, but Processor 3 has ( B, 0 ) to ( C, 0 ).
+    //      This condensing should mean that ( A, 0 ) to ( C, 0 ) is the supernode that is picked out below.
+    //      Need to consider all global supernodes because they could have been collected in any order, keep iterating over them
+    //      until nothing is modified on this processor.
+    int numModified=1;
+    while (numModified > 0)
+    {
+      std::vector< std::pair<NodeID, NodeID> >::iterator currentGlobalSN = externalSuperNodeList.begin();
+      std::vector< std::pair<NodeID, NodeID> >::iterator endGlobalSN = externalSuperNodeList.end();
+      numModified = 0;
+      for ( ; currentGlobalSN != endGlobalSN; ++currentGlobalSN )
+      {
+        NodeID nodeToBeReplaced = currentGlobalSN->first;
+        NodeID replacementNode = currentGlobalSN->second;
+        std::vector< std::pair<NodeID, NodeID> >::iterator nodePair = externalSuperNodeList.begin();
+        for ( ; nodePair != endGlobalSN; ++nodePair )
+        {
+          if( (nodePair != currentGlobalSN) )
+          {
+            if( nodePair->first == replacementNode )
+            {
+              currentGlobalSN->second = nodePair->second;
+              replacementNode = nodePair->second;
+              numModified++;
+            }
+            else if( nodePair->second == nodeToBeReplaced )
+            {
+              nodePair->second = replacementNode;
+              numModified++;
+            }
+          }
+        }
+      }
+    } 
+
+    // There might be a chance that the node to be removed on another processor is a node on this processor, but not a supernode.
+    std::vector< std::pair<NodeID, NodeID> >::iterator currentGlobalSN = externalSuperNodeList.begin();
+    std::vector< std::pair<NodeID, NodeID> >::iterator endGlobalSN = externalSuperNodeList.end();
+    for ( ; currentGlobalSN != endGlobalSN; ++currentGlobalSN )
+      if ( (nodesReplaced.find( currentGlobalSN->first ) == nodesReplaced.end()) && mainGraphPtr_->FindCktNode( currentGlobalSN->first ) )
+        superNodeList_.push_back( *currentGlobalSN );
+
   }
 }
 

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 25 Jul 2019 18:47:20
+// Creation Date  : Tue, 15 Oct 2019 12:01:25
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMShic0_full_h
@@ -54,8 +54,8 @@ namespace Device {
 namespace ADMShic0_full {
 
 // This typedef is for our automatic differentiation:
-typedef Sacado::Fad::SFad<double,13> AdmsFadType;
-typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
+  typedef Sacado::Fad::SFad<double,13> AdmsFadType;
+  typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
 class Instance;
@@ -74,21 +74,21 @@ class InstanceSensitivity;
 class InstanceSensitivity : public baseSensitivity
 {
 public:
-  InstanceSensitivity() :
-    baseSensitivity() {};
+InstanceSensitivity() :
+baseSensitivity() {};
 
-  virtual ~InstanceSensitivity() {};
+virtual ~InstanceSensitivity() {};
 
-  virtual void operator()(
-     const ParameterBase &entity,
-     const std::string &param,
-     std::vector<double> & dfdp,
-     std::vector<double> & dqdp,
-     std::vector<double> & dbdp,
-     std::vector<int> & Findices,
-     std::vector<int> & Qindices,
-     std::vector<int> & Bindices
-                          ) const ;
+virtual void operator()(
+const ParameterBase &entity,
+const std::string &param,
+std::vector<double> & dfdp,
+std::vector<double> & dqdp,
+std::vector<double> & dbdp,
+std::vector<int> & Findices,
+std::vector<int> & Qindices,
+std::vector<int> & Bindices
+) const ;
 };
 
 static InstanceSensitivity instSens;
@@ -106,21 +106,21 @@ static InstanceSensitivity instSens;
 class ModelSensitivity : public baseSensitivity
 {
 public:
-  ModelSensitivity() :
-    baseSensitivity() {};
+ModelSensitivity() :
+baseSensitivity() {};
 
-  virtual ~ModelSensitivity() {};
+virtual ~ModelSensitivity() {};
 
-  virtual void operator()(
-     const ParameterBase &entity,
-     const std::string &param,
-     std::vector<double> & dfdp,
-     std::vector<double> & dqdp,
-     std::vector<double> & dbdp,
-     std::vector<int> & Findices,
-     std::vector<int> & Qindices,
-     std::vector<int> & Bindices
-                          ) const ;
+virtual void operator()(
+const ParameterBase &entity,
+const std::string &param,
+std::vector<double> & dfdp,
+std::vector<double> & dqdp,
+std::vector<double> & dbdp,
+std::vector<int> & Findices,
+std::vector<int> & Qindices,
+std::vector<int> & Bindices
+) const ;
 };
 
 static ModelSensitivity modSens;
@@ -137,28 +137,28 @@ template <typename T> static inline T adms_vt(const T temp) {return(CONSTKoverQ*
 template<typename Tin>
 static Tin adms_ternary_op(const bool cond, const Tin &ifTrue, const Tin &ifFalse)
 {
-  if (cond)
-    return ifTrue;
-  else
-    return ifFalse;
+if (cond)
+return ifTrue;
+else
+return ifFalse;
 }
 
 template<typename Tin>
 static Tin adms_ternary_op(const bool cond, const Tin &ifTrue, const double &ifFalse)
 {
-  if (cond)
-    return ifTrue;
-  else
-    return Tin(ifFalse);
+if (cond)
+return ifTrue;
+else
+return Tin(ifFalse);
 }
 
 template<typename Tin>
 static Tin adms_ternary_op(const bool cond, const double &ifTrue, const Tin &ifFalse)
 {
-  if (cond)
-    return Tin(ifTrue);
-  else
-    return ifFalse;
+if (cond)
+return Tin(ifTrue);
+else
+return ifFalse;
 }
 
 
@@ -170,696 +170,696 @@ static Tin adms_ternary_op(const bool cond, const double &ifTrue, const Tin &ifF
 //
 //-----------------------------------------------------------------------------
 void evaluateModelEquations(
-   std::vector <double> & probeVars,
-   // probe constants
-   const int admsProbeID_V_xf_GND,
-   const int admsProbeID_V_xf2_GND,
-   const int admsProbeID_V_xf1_GND,
-   const int admsProbeID_V_tnode_GND,
-   const int admsProbeID_V_b_e,
-   const int admsProbeID_V_b_bi,
-   const int admsProbeID_V_ci_c,
-   const int admsProbeID_V_ei_e,
-   const int admsProbeID_V_s_ci,
-   const int admsProbeID_V_ci_ei,
-   const int admsProbeID_V_bi_ei,
-   const int admsProbeID_V_bi_ci,
-   const int admsProbeID_V_b_ci,
-   // node constants
-   const int admsNodeID_c,
-   const int admsNodeID_b,
-   const int admsNodeID_e,
-   const int admsNodeID_s,
-   const int admsNodeID_tnode,
-   const int admsNodeID_ci,
-   const int admsNodeID_bi,
-   const int admsNodeID_ei,
-   const int admsNodeID_xf1,
-   const int admsNodeID_xf2,
-   const int admsNodeID_xf,
-   // instance parameters
-   // reals
-   AdmsSensFadType & instancePar_dt,
-   bool instancePar_given_dt,
-   // instance variables
-   // reals
-   AdmsSensFadType & instanceVar_qjci,
-   AdmsSensFadType & instanceVar_qjei,
-   AdmsSensFadType & instanceVar_it,
-   AdmsSensFadType & instanceVar_ijbc,
-   AdmsSensFadType & instanceVar_iavl,
-   AdmsSensFadType & instanceVar_ijsc,
-   AdmsSensFadType & instanceVar_Ibici,
-   AdmsSensFadType & instanceVar_ijbe,
-   // model parameters
-   // reals
-   AdmsSensFadType & modelPar_is,
-   bool modelPar_given_is,
-   AdmsSensFadType & modelPar_mcf,
-   bool modelPar_given_mcf,
-   AdmsSensFadType & modelPar_mcr,
-   bool modelPar_given_mcr,
-   AdmsSensFadType & modelPar_vef,
-   bool modelPar_given_vef,
-   AdmsSensFadType & modelPar_ver,
-   bool modelPar_given_ver,
-   AdmsSensFadType & modelPar_aver,
-   bool modelPar_given_aver,
-   AdmsSensFadType & modelPar_iqf,
-   bool modelPar_given_iqf,
-   AdmsSensFadType & modelPar_fiqf,
-   bool modelPar_given_fiqf,
-   AdmsSensFadType & modelPar_iqr,
-   bool modelPar_given_iqr,
-   AdmsSensFadType & modelPar_iqfh,
-   bool modelPar_given_iqfh,
-   AdmsSensFadType & modelPar_tfh,
-   bool modelPar_given_tfh,
-   AdmsSensFadType & modelPar_ahq,
-   bool modelPar_given_ahq,
-   AdmsSensFadType & modelPar_ibes,
-   bool modelPar_given_ibes,
-   AdmsSensFadType & modelPar_mbe,
-   bool modelPar_given_mbe,
-   AdmsSensFadType & modelPar_ires,
-   bool modelPar_given_ires,
-   AdmsSensFadType & modelPar_mre,
-   bool modelPar_given_mre,
-   AdmsSensFadType & modelPar_ibcs,
-   bool modelPar_given_ibcs,
-   AdmsSensFadType & modelPar_mbc,
-   bool modelPar_given_mbc,
-   AdmsSensFadType & modelPar_cje0,
-   bool modelPar_given_cje0,
-   AdmsSensFadType & modelPar_vde,
-   bool modelPar_given_vde,
-   AdmsSensFadType & modelPar_ze,
-   bool modelPar_given_ze,
-   AdmsSensFadType & modelPar_aje,
-   bool modelPar_given_aje,
-   AdmsSensFadType & modelPar_vdedc,
-   bool modelPar_given_vdedc,
-   AdmsSensFadType & modelPar_zedc,
-   bool modelPar_given_zedc,
-   AdmsSensFadType & modelPar_ajedc,
-   bool modelPar_given_ajedc,
-   AdmsSensFadType & modelPar_t0,
-   bool modelPar_given_t0,
-   AdmsSensFadType & modelPar_dt0h,
-   bool modelPar_given_dt0h,
-   AdmsSensFadType & modelPar_tbvl,
-   bool modelPar_given_tbvl,
-   AdmsSensFadType & modelPar_tef0,
-   bool modelPar_given_tef0,
-   AdmsSensFadType & modelPar_gte,
-   bool modelPar_given_gte,
-   AdmsSensFadType & modelPar_thcs,
-   bool modelPar_given_thcs,
-   AdmsSensFadType & modelPar_ahc,
-   bool modelPar_given_ahc,
-   AdmsSensFadType & modelPar_tr,
-   bool modelPar_given_tr,
-   AdmsSensFadType & modelPar_rci0,
-   bool modelPar_given_rci0,
-   AdmsSensFadType & modelPar_vlim,
-   bool modelPar_given_vlim,
-   AdmsSensFadType & modelPar_vpt,
-   bool modelPar_given_vpt,
-   AdmsSensFadType & modelPar_vces,
-   bool modelPar_given_vces,
-   AdmsSensFadType & modelPar_cjci0,
-   bool modelPar_given_cjci0,
-   AdmsSensFadType & modelPar_vdci,
-   bool modelPar_given_vdci,
-   AdmsSensFadType & modelPar_zci,
-   bool modelPar_given_zci,
-   AdmsSensFadType & modelPar_vptci,
-   bool modelPar_given_vptci,
-   AdmsSensFadType & modelPar_cjcx0,
-   bool modelPar_given_cjcx0,
-   AdmsSensFadType & modelPar_vdcx,
-   bool modelPar_given_vdcx,
-   AdmsSensFadType & modelPar_zcx,
-   bool modelPar_given_zcx,
-   AdmsSensFadType & modelPar_vptcx,
-   bool modelPar_given_vptcx,
-   AdmsSensFadType & modelPar_fbc,
-   bool modelPar_given_fbc,
-   AdmsSensFadType & modelPar_rbi0,
-   bool modelPar_given_rbi0,
-   AdmsSensFadType & modelPar_vr0e,
-   bool modelPar_given_vr0e,
-   AdmsSensFadType & modelPar_vr0c,
-   bool modelPar_given_vr0c,
-   AdmsSensFadType & modelPar_fgeo,
-   bool modelPar_given_fgeo,
-   AdmsSensFadType & modelPar_rbx,
-   bool modelPar_given_rbx,
-   AdmsSensFadType & modelPar_rcx,
-   bool modelPar_given_rcx,
-   AdmsSensFadType & modelPar_re,
-   bool modelPar_given_re,
-   AdmsSensFadType & modelPar_itss,
-   bool modelPar_given_itss,
-   AdmsSensFadType & modelPar_msf,
-   bool modelPar_given_msf,
-   AdmsSensFadType & modelPar_iscs,
-   bool modelPar_given_iscs,
-   AdmsSensFadType & modelPar_msc,
-   bool modelPar_given_msc,
-   AdmsSensFadType & modelPar_cjs0,
-   bool modelPar_given_cjs0,
-   AdmsSensFadType & modelPar_vds,
-   bool modelPar_given_vds,
-   AdmsSensFadType & modelPar_zs,
-   bool modelPar_given_zs,
-   AdmsSensFadType & modelPar_vpts,
-   bool modelPar_given_vpts,
-   AdmsSensFadType & modelPar_cbcpar,
-   bool modelPar_given_cbcpar,
-   AdmsSensFadType & modelPar_cbepar,
-   bool modelPar_given_cbepar,
-   AdmsSensFadType & modelPar_eavl,
-   bool modelPar_given_eavl,
-   AdmsSensFadType & modelPar_kavl,
-   bool modelPar_given_kavl,
-   AdmsSensFadType & modelPar_kf,
-   bool modelPar_given_kf,
-   AdmsSensFadType & modelPar_af,
-   bool modelPar_given_af,
-   AdmsSensFadType & modelPar_alqf,
-   bool modelPar_given_alqf,
-   AdmsSensFadType & modelPar_alit,
-   bool modelPar_given_alit,
-   AdmsSensFadType & modelPar_vgb,
-   bool modelPar_given_vgb,
-   AdmsSensFadType & modelPar_vge,
-   bool modelPar_given_vge,
-   AdmsSensFadType & modelPar_vgc,
-   bool modelPar_given_vgc,
-   AdmsSensFadType & modelPar_vgs,
-   bool modelPar_given_vgs,
-   AdmsSensFadType & modelPar_f1vg,
-   bool modelPar_given_f1vg,
-   AdmsSensFadType & modelPar_f2vg,
-   bool modelPar_given_f2vg,
-   AdmsSensFadType & modelPar_alt0,
-   bool modelPar_given_alt0,
-   AdmsSensFadType & modelPar_kt0,
-   bool modelPar_given_kt0,
-   AdmsSensFadType & modelPar_zetact,
-   bool modelPar_given_zetact,
-   AdmsSensFadType & modelPar_zetabet,
-   bool modelPar_given_zetabet,
-   AdmsSensFadType & modelPar_zetaci,
-   bool modelPar_given_zetaci,
-   AdmsSensFadType & modelPar_alvs,
-   bool modelPar_given_alvs,
-   AdmsSensFadType & modelPar_alces,
-   bool modelPar_given_alces,
-   AdmsSensFadType & modelPar_zetarbi,
-   bool modelPar_given_zetarbi,
-   AdmsSensFadType & modelPar_zetarbx,
-   bool modelPar_given_zetarbx,
-   AdmsSensFadType & modelPar_zetarcx,
-   bool modelPar_given_zetarcx,
-   AdmsSensFadType & modelPar_zetare,
-   bool modelPar_given_zetare,
-   AdmsSensFadType & modelPar_zetaiqf,
-   bool modelPar_given_zetaiqf,
-   AdmsSensFadType & modelPar_alkav,
-   bool modelPar_given_alkav,
-   AdmsSensFadType & modelPar_aleav,
-   bool modelPar_given_aleav,
-   AdmsSensFadType & modelPar_zetarth,
-   bool modelPar_given_zetarth,
-   AdmsSensFadType & modelPar_zetaver,
-   bool modelPar_given_zetaver,
-   AdmsSensFadType & modelPar_zetavgbe,
-   bool modelPar_given_zetavgbe,
-   AdmsSensFadType & modelPar_dvgbe,
-   bool modelPar_given_dvgbe,
-   AdmsSensFadType & modelPar_aliqfh,
-   bool modelPar_given_aliqfh,
-   AdmsSensFadType & modelPar_kiqfh,
-   bool modelPar_given_kiqfh,
-   AdmsSensFadType & modelPar_rth,
-   bool modelPar_given_rth,
-   AdmsSensFadType & modelPar_cth,
-   bool modelPar_given_cth,
-   AdmsSensFadType & modelPar_tnom,
-   bool modelPar_given_tnom,
-   // non-reals (including hidden)
-   int modelPar_it_mod,
-   bool modelPar_given_it_mod,
-   int modelPar_flnqs,
-   bool modelPar_given_flnqs,
-   int modelPar_tef_temp,
-   bool modelPar_given_tef_temp,
-   int modelPar_flsh,
-   bool modelPar_given_flsh,
-   int modelPar_type,
-   bool modelPar_given_type,
-   // basic variables
-   double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance);
+std::vector <double> & probeVars,
+// probe constants
+const int admsProbeID_V_xf_GND,
+const int admsProbeID_V_xf2_GND,
+const int admsProbeID_V_xf1_GND,
+const int admsProbeID_V_tnode_GND,
+const int admsProbeID_V_b_e,
+const int admsProbeID_V_b_bi,
+const int admsProbeID_V_ci_c,
+const int admsProbeID_V_ei_e,
+const int admsProbeID_V_s_ci,
+const int admsProbeID_V_ci_ei,
+const int admsProbeID_V_bi_ei,
+const int admsProbeID_V_bi_ci,
+const int admsProbeID_V_b_ci,
+// node constants
+const int admsNodeID_c,
+const int admsNodeID_b,
+const int admsNodeID_e,
+const int admsNodeID_s,
+const int admsNodeID_tnode,
+const int admsNodeID_ci,
+const int admsNodeID_bi,
+const int admsNodeID_ei,
+const int admsNodeID_xf1,
+const int admsNodeID_xf2,
+const int admsNodeID_xf,
+// instance parameters
+// reals
+AdmsSensFadType & instancePar_dt,
+bool instancePar_given_dt,
+// instance variables
+// reals
+AdmsSensFadType & instanceVar_qjci,
+AdmsSensFadType & instanceVar_qjei,
+AdmsSensFadType & instanceVar_it,
+AdmsSensFadType & instanceVar_ijbc,
+AdmsSensFadType & instanceVar_iavl,
+AdmsSensFadType & instanceVar_ijsc,
+AdmsSensFadType & instanceVar_Ibici,
+AdmsSensFadType & instanceVar_ijbe,
+// model parameters
+// reals
+AdmsSensFadType & modelPar_is,
+bool modelPar_given_is,
+AdmsSensFadType & modelPar_mcf,
+bool modelPar_given_mcf,
+AdmsSensFadType & modelPar_mcr,
+bool modelPar_given_mcr,
+AdmsSensFadType & modelPar_vef,
+bool modelPar_given_vef,
+AdmsSensFadType & modelPar_ver,
+bool modelPar_given_ver,
+AdmsSensFadType & modelPar_aver,
+bool modelPar_given_aver,
+AdmsSensFadType & modelPar_iqf,
+bool modelPar_given_iqf,
+AdmsSensFadType & modelPar_fiqf,
+bool modelPar_given_fiqf,
+AdmsSensFadType & modelPar_iqr,
+bool modelPar_given_iqr,
+AdmsSensFadType & modelPar_iqfh,
+bool modelPar_given_iqfh,
+AdmsSensFadType & modelPar_tfh,
+bool modelPar_given_tfh,
+AdmsSensFadType & modelPar_ahq,
+bool modelPar_given_ahq,
+AdmsSensFadType & modelPar_ibes,
+bool modelPar_given_ibes,
+AdmsSensFadType & modelPar_mbe,
+bool modelPar_given_mbe,
+AdmsSensFadType & modelPar_ires,
+bool modelPar_given_ires,
+AdmsSensFadType & modelPar_mre,
+bool modelPar_given_mre,
+AdmsSensFadType & modelPar_ibcs,
+bool modelPar_given_ibcs,
+AdmsSensFadType & modelPar_mbc,
+bool modelPar_given_mbc,
+AdmsSensFadType & modelPar_cje0,
+bool modelPar_given_cje0,
+AdmsSensFadType & modelPar_vde,
+bool modelPar_given_vde,
+AdmsSensFadType & modelPar_ze,
+bool modelPar_given_ze,
+AdmsSensFadType & modelPar_aje,
+bool modelPar_given_aje,
+AdmsSensFadType & modelPar_vdedc,
+bool modelPar_given_vdedc,
+AdmsSensFadType & modelPar_zedc,
+bool modelPar_given_zedc,
+AdmsSensFadType & modelPar_ajedc,
+bool modelPar_given_ajedc,
+AdmsSensFadType & modelPar_t0,
+bool modelPar_given_t0,
+AdmsSensFadType & modelPar_dt0h,
+bool modelPar_given_dt0h,
+AdmsSensFadType & modelPar_tbvl,
+bool modelPar_given_tbvl,
+AdmsSensFadType & modelPar_tef0,
+bool modelPar_given_tef0,
+AdmsSensFadType & modelPar_gte,
+bool modelPar_given_gte,
+AdmsSensFadType & modelPar_thcs,
+bool modelPar_given_thcs,
+AdmsSensFadType & modelPar_ahc,
+bool modelPar_given_ahc,
+AdmsSensFadType & modelPar_tr,
+bool modelPar_given_tr,
+AdmsSensFadType & modelPar_rci0,
+bool modelPar_given_rci0,
+AdmsSensFadType & modelPar_vlim,
+bool modelPar_given_vlim,
+AdmsSensFadType & modelPar_vpt,
+bool modelPar_given_vpt,
+AdmsSensFadType & modelPar_vces,
+bool modelPar_given_vces,
+AdmsSensFadType & modelPar_cjci0,
+bool modelPar_given_cjci0,
+AdmsSensFadType & modelPar_vdci,
+bool modelPar_given_vdci,
+AdmsSensFadType & modelPar_zci,
+bool modelPar_given_zci,
+AdmsSensFadType & modelPar_vptci,
+bool modelPar_given_vptci,
+AdmsSensFadType & modelPar_cjcx0,
+bool modelPar_given_cjcx0,
+AdmsSensFadType & modelPar_vdcx,
+bool modelPar_given_vdcx,
+AdmsSensFadType & modelPar_zcx,
+bool modelPar_given_zcx,
+AdmsSensFadType & modelPar_vptcx,
+bool modelPar_given_vptcx,
+AdmsSensFadType & modelPar_fbc,
+bool modelPar_given_fbc,
+AdmsSensFadType & modelPar_rbi0,
+bool modelPar_given_rbi0,
+AdmsSensFadType & modelPar_vr0e,
+bool modelPar_given_vr0e,
+AdmsSensFadType & modelPar_vr0c,
+bool modelPar_given_vr0c,
+AdmsSensFadType & modelPar_fgeo,
+bool modelPar_given_fgeo,
+AdmsSensFadType & modelPar_rbx,
+bool modelPar_given_rbx,
+AdmsSensFadType & modelPar_rcx,
+bool modelPar_given_rcx,
+AdmsSensFadType & modelPar_re,
+bool modelPar_given_re,
+AdmsSensFadType & modelPar_itss,
+bool modelPar_given_itss,
+AdmsSensFadType & modelPar_msf,
+bool modelPar_given_msf,
+AdmsSensFadType & modelPar_iscs,
+bool modelPar_given_iscs,
+AdmsSensFadType & modelPar_msc,
+bool modelPar_given_msc,
+AdmsSensFadType & modelPar_cjs0,
+bool modelPar_given_cjs0,
+AdmsSensFadType & modelPar_vds,
+bool modelPar_given_vds,
+AdmsSensFadType & modelPar_zs,
+bool modelPar_given_zs,
+AdmsSensFadType & modelPar_vpts,
+bool modelPar_given_vpts,
+AdmsSensFadType & modelPar_cbcpar,
+bool modelPar_given_cbcpar,
+AdmsSensFadType & modelPar_cbepar,
+bool modelPar_given_cbepar,
+AdmsSensFadType & modelPar_eavl,
+bool modelPar_given_eavl,
+AdmsSensFadType & modelPar_kavl,
+bool modelPar_given_kavl,
+AdmsSensFadType & modelPar_kf,
+bool modelPar_given_kf,
+AdmsSensFadType & modelPar_af,
+bool modelPar_given_af,
+AdmsSensFadType & modelPar_alqf,
+bool modelPar_given_alqf,
+AdmsSensFadType & modelPar_alit,
+bool modelPar_given_alit,
+AdmsSensFadType & modelPar_vgb,
+bool modelPar_given_vgb,
+AdmsSensFadType & modelPar_vge,
+bool modelPar_given_vge,
+AdmsSensFadType & modelPar_vgc,
+bool modelPar_given_vgc,
+AdmsSensFadType & modelPar_vgs,
+bool modelPar_given_vgs,
+AdmsSensFadType & modelPar_f1vg,
+bool modelPar_given_f1vg,
+AdmsSensFadType & modelPar_f2vg,
+bool modelPar_given_f2vg,
+AdmsSensFadType & modelPar_alt0,
+bool modelPar_given_alt0,
+AdmsSensFadType & modelPar_kt0,
+bool modelPar_given_kt0,
+AdmsSensFadType & modelPar_zetact,
+bool modelPar_given_zetact,
+AdmsSensFadType & modelPar_zetabet,
+bool modelPar_given_zetabet,
+AdmsSensFadType & modelPar_zetaci,
+bool modelPar_given_zetaci,
+AdmsSensFadType & modelPar_alvs,
+bool modelPar_given_alvs,
+AdmsSensFadType & modelPar_alces,
+bool modelPar_given_alces,
+AdmsSensFadType & modelPar_zetarbi,
+bool modelPar_given_zetarbi,
+AdmsSensFadType & modelPar_zetarbx,
+bool modelPar_given_zetarbx,
+AdmsSensFadType & modelPar_zetarcx,
+bool modelPar_given_zetarcx,
+AdmsSensFadType & modelPar_zetare,
+bool modelPar_given_zetare,
+AdmsSensFadType & modelPar_zetaiqf,
+bool modelPar_given_zetaiqf,
+AdmsSensFadType & modelPar_alkav,
+bool modelPar_given_alkav,
+AdmsSensFadType & modelPar_aleav,
+bool modelPar_given_aleav,
+AdmsSensFadType & modelPar_zetarth,
+bool modelPar_given_zetarth,
+AdmsSensFadType & modelPar_zetaver,
+bool modelPar_given_zetaver,
+AdmsSensFadType & modelPar_zetavgbe,
+bool modelPar_given_zetavgbe,
+AdmsSensFadType & modelPar_dvgbe,
+bool modelPar_given_dvgbe,
+AdmsSensFadType & modelPar_aliqfh,
+bool modelPar_given_aliqfh,
+AdmsSensFadType & modelPar_kiqfh,
+bool modelPar_given_kiqfh,
+AdmsSensFadType & modelPar_rth,
+bool modelPar_given_rth,
+AdmsSensFadType & modelPar_cth,
+bool modelPar_given_cth,
+AdmsSensFadType & modelPar_tnom,
+bool modelPar_given_tnom,
+// non-reals (including hidden)
+int modelPar_it_mod,
+bool modelPar_given_it_mod,
+int modelPar_flnqs,
+bool modelPar_given_flnqs,
+int modelPar_tef_temp,
+bool modelPar_given_tef_temp,
+int modelPar_flsh,
+bool modelPar_given_flsh,
+int modelPar_type,
+bool modelPar_given_type,
+// basic variables
+ double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance);
 
 void evaluateInitialInstance(
-   // instance parameters
-   // reals
-   AdmsSensFadType & instancePar_dt,
-   bool instancePar_given_dt,
-   // instance variables
-   // reals
-   AdmsSensFadType & instanceVar_qjci,
-   AdmsSensFadType & instanceVar_qjei,
-   AdmsSensFadType & instanceVar_it,
-   AdmsSensFadType & instanceVar_ijbc,
-   AdmsSensFadType & instanceVar_iavl,
-   AdmsSensFadType & instanceVar_ijsc,
-   AdmsSensFadType & instanceVar_Ibici,
-   AdmsSensFadType & instanceVar_ijbe,
-   // model parameters
-   // reals
-   AdmsSensFadType & modelPar_is,
-   bool modelPar_given_is,
-   AdmsSensFadType & modelPar_mcf,
-   bool modelPar_given_mcf,
-   AdmsSensFadType & modelPar_mcr,
-   bool modelPar_given_mcr,
-   AdmsSensFadType & modelPar_vef,
-   bool modelPar_given_vef,
-   AdmsSensFadType & modelPar_ver,
-   bool modelPar_given_ver,
-   AdmsSensFadType & modelPar_aver,
-   bool modelPar_given_aver,
-   AdmsSensFadType & modelPar_iqf,
-   bool modelPar_given_iqf,
-   AdmsSensFadType & modelPar_fiqf,
-   bool modelPar_given_fiqf,
-   AdmsSensFadType & modelPar_iqr,
-   bool modelPar_given_iqr,
-   AdmsSensFadType & modelPar_iqfh,
-   bool modelPar_given_iqfh,
-   AdmsSensFadType & modelPar_tfh,
-   bool modelPar_given_tfh,
-   AdmsSensFadType & modelPar_ahq,
-   bool modelPar_given_ahq,
-   AdmsSensFadType & modelPar_ibes,
-   bool modelPar_given_ibes,
-   AdmsSensFadType & modelPar_mbe,
-   bool modelPar_given_mbe,
-   AdmsSensFadType & modelPar_ires,
-   bool modelPar_given_ires,
-   AdmsSensFadType & modelPar_mre,
-   bool modelPar_given_mre,
-   AdmsSensFadType & modelPar_ibcs,
-   bool modelPar_given_ibcs,
-   AdmsSensFadType & modelPar_mbc,
-   bool modelPar_given_mbc,
-   AdmsSensFadType & modelPar_cje0,
-   bool modelPar_given_cje0,
-   AdmsSensFadType & modelPar_vde,
-   bool modelPar_given_vde,
-   AdmsSensFadType & modelPar_ze,
-   bool modelPar_given_ze,
-   AdmsSensFadType & modelPar_aje,
-   bool modelPar_given_aje,
-   AdmsSensFadType & modelPar_vdedc,
-   bool modelPar_given_vdedc,
-   AdmsSensFadType & modelPar_zedc,
-   bool modelPar_given_zedc,
-   AdmsSensFadType & modelPar_ajedc,
-   bool modelPar_given_ajedc,
-   AdmsSensFadType & modelPar_t0,
-   bool modelPar_given_t0,
-   AdmsSensFadType & modelPar_dt0h,
-   bool modelPar_given_dt0h,
-   AdmsSensFadType & modelPar_tbvl,
-   bool modelPar_given_tbvl,
-   AdmsSensFadType & modelPar_tef0,
-   bool modelPar_given_tef0,
-   AdmsSensFadType & modelPar_gte,
-   bool modelPar_given_gte,
-   AdmsSensFadType & modelPar_thcs,
-   bool modelPar_given_thcs,
-   AdmsSensFadType & modelPar_ahc,
-   bool modelPar_given_ahc,
-   AdmsSensFadType & modelPar_tr,
-   bool modelPar_given_tr,
-   AdmsSensFadType & modelPar_rci0,
-   bool modelPar_given_rci0,
-   AdmsSensFadType & modelPar_vlim,
-   bool modelPar_given_vlim,
-   AdmsSensFadType & modelPar_vpt,
-   bool modelPar_given_vpt,
-   AdmsSensFadType & modelPar_vces,
-   bool modelPar_given_vces,
-   AdmsSensFadType & modelPar_cjci0,
-   bool modelPar_given_cjci0,
-   AdmsSensFadType & modelPar_vdci,
-   bool modelPar_given_vdci,
-   AdmsSensFadType & modelPar_zci,
-   bool modelPar_given_zci,
-   AdmsSensFadType & modelPar_vptci,
-   bool modelPar_given_vptci,
-   AdmsSensFadType & modelPar_cjcx0,
-   bool modelPar_given_cjcx0,
-   AdmsSensFadType & modelPar_vdcx,
-   bool modelPar_given_vdcx,
-   AdmsSensFadType & modelPar_zcx,
-   bool modelPar_given_zcx,
-   AdmsSensFadType & modelPar_vptcx,
-   bool modelPar_given_vptcx,
-   AdmsSensFadType & modelPar_fbc,
-   bool modelPar_given_fbc,
-   AdmsSensFadType & modelPar_rbi0,
-   bool modelPar_given_rbi0,
-   AdmsSensFadType & modelPar_vr0e,
-   bool modelPar_given_vr0e,
-   AdmsSensFadType & modelPar_vr0c,
-   bool modelPar_given_vr0c,
-   AdmsSensFadType & modelPar_fgeo,
-   bool modelPar_given_fgeo,
-   AdmsSensFadType & modelPar_rbx,
-   bool modelPar_given_rbx,
-   AdmsSensFadType & modelPar_rcx,
-   bool modelPar_given_rcx,
-   AdmsSensFadType & modelPar_re,
-   bool modelPar_given_re,
-   AdmsSensFadType & modelPar_itss,
-   bool modelPar_given_itss,
-   AdmsSensFadType & modelPar_msf,
-   bool modelPar_given_msf,
-   AdmsSensFadType & modelPar_iscs,
-   bool modelPar_given_iscs,
-   AdmsSensFadType & modelPar_msc,
-   bool modelPar_given_msc,
-   AdmsSensFadType & modelPar_cjs0,
-   bool modelPar_given_cjs0,
-   AdmsSensFadType & modelPar_vds,
-   bool modelPar_given_vds,
-   AdmsSensFadType & modelPar_zs,
-   bool modelPar_given_zs,
-   AdmsSensFadType & modelPar_vpts,
-   bool modelPar_given_vpts,
-   AdmsSensFadType & modelPar_cbcpar,
-   bool modelPar_given_cbcpar,
-   AdmsSensFadType & modelPar_cbepar,
-   bool modelPar_given_cbepar,
-   AdmsSensFadType & modelPar_eavl,
-   bool modelPar_given_eavl,
-   AdmsSensFadType & modelPar_kavl,
-   bool modelPar_given_kavl,
-   AdmsSensFadType & modelPar_kf,
-   bool modelPar_given_kf,
-   AdmsSensFadType & modelPar_af,
-   bool modelPar_given_af,
-   AdmsSensFadType & modelPar_alqf,
-   bool modelPar_given_alqf,
-   AdmsSensFadType & modelPar_alit,
-   bool modelPar_given_alit,
-   AdmsSensFadType & modelPar_vgb,
-   bool modelPar_given_vgb,
-   AdmsSensFadType & modelPar_vge,
-   bool modelPar_given_vge,
-   AdmsSensFadType & modelPar_vgc,
-   bool modelPar_given_vgc,
-   AdmsSensFadType & modelPar_vgs,
-   bool modelPar_given_vgs,
-   AdmsSensFadType & modelPar_f1vg,
-   bool modelPar_given_f1vg,
-   AdmsSensFadType & modelPar_f2vg,
-   bool modelPar_given_f2vg,
-   AdmsSensFadType & modelPar_alt0,
-   bool modelPar_given_alt0,
-   AdmsSensFadType & modelPar_kt0,
-   bool modelPar_given_kt0,
-   AdmsSensFadType & modelPar_zetact,
-   bool modelPar_given_zetact,
-   AdmsSensFadType & modelPar_zetabet,
-   bool modelPar_given_zetabet,
-   AdmsSensFadType & modelPar_zetaci,
-   bool modelPar_given_zetaci,
-   AdmsSensFadType & modelPar_alvs,
-   bool modelPar_given_alvs,
-   AdmsSensFadType & modelPar_alces,
-   bool modelPar_given_alces,
-   AdmsSensFadType & modelPar_zetarbi,
-   bool modelPar_given_zetarbi,
-   AdmsSensFadType & modelPar_zetarbx,
-   bool modelPar_given_zetarbx,
-   AdmsSensFadType & modelPar_zetarcx,
-   bool modelPar_given_zetarcx,
-   AdmsSensFadType & modelPar_zetare,
-   bool modelPar_given_zetare,
-   AdmsSensFadType & modelPar_zetaiqf,
-   bool modelPar_given_zetaiqf,
-   AdmsSensFadType & modelPar_alkav,
-   bool modelPar_given_alkav,
-   AdmsSensFadType & modelPar_aleav,
-   bool modelPar_given_aleav,
-   AdmsSensFadType & modelPar_zetarth,
-   bool modelPar_given_zetarth,
-   AdmsSensFadType & modelPar_zetaver,
-   bool modelPar_given_zetaver,
-   AdmsSensFadType & modelPar_zetavgbe,
-   bool modelPar_given_zetavgbe,
-   AdmsSensFadType & modelPar_dvgbe,
-   bool modelPar_given_dvgbe,
-   AdmsSensFadType & modelPar_aliqfh,
-   bool modelPar_given_aliqfh,
-   AdmsSensFadType & modelPar_kiqfh,
-   bool modelPar_given_kiqfh,
-   AdmsSensFadType & modelPar_rth,
-   bool modelPar_given_rth,
-   AdmsSensFadType & modelPar_cth,
-   bool modelPar_given_cth,
-   AdmsSensFadType & modelPar_tnom,
-   bool modelPar_given_tnom,
-   // non-reals (including hidden)
-   int modelPar_it_mod,
-   bool modelPar_given_it_mod,
-   int modelPar_flnqs,
-   bool modelPar_given_flnqs,
-   int modelPar_tef_temp,
-   bool modelPar_given_tef_temp,
-   int modelPar_flsh,
-   bool modelPar_given_flsh,
-   int modelPar_type,
-   bool modelPar_given_type,
-   double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance);
+// instance parameters
+// reals
+AdmsSensFadType & instancePar_dt,
+bool instancePar_given_dt,
+// instance variables
+// reals
+AdmsSensFadType & instanceVar_qjci,
+AdmsSensFadType & instanceVar_qjei,
+AdmsSensFadType & instanceVar_it,
+AdmsSensFadType & instanceVar_ijbc,
+AdmsSensFadType & instanceVar_iavl,
+AdmsSensFadType & instanceVar_ijsc,
+AdmsSensFadType & instanceVar_Ibici,
+AdmsSensFadType & instanceVar_ijbe,
+// model parameters
+// reals
+AdmsSensFadType & modelPar_is,
+bool modelPar_given_is,
+AdmsSensFadType & modelPar_mcf,
+bool modelPar_given_mcf,
+AdmsSensFadType & modelPar_mcr,
+bool modelPar_given_mcr,
+AdmsSensFadType & modelPar_vef,
+bool modelPar_given_vef,
+AdmsSensFadType & modelPar_ver,
+bool modelPar_given_ver,
+AdmsSensFadType & modelPar_aver,
+bool modelPar_given_aver,
+AdmsSensFadType & modelPar_iqf,
+bool modelPar_given_iqf,
+AdmsSensFadType & modelPar_fiqf,
+bool modelPar_given_fiqf,
+AdmsSensFadType & modelPar_iqr,
+bool modelPar_given_iqr,
+AdmsSensFadType & modelPar_iqfh,
+bool modelPar_given_iqfh,
+AdmsSensFadType & modelPar_tfh,
+bool modelPar_given_tfh,
+AdmsSensFadType & modelPar_ahq,
+bool modelPar_given_ahq,
+AdmsSensFadType & modelPar_ibes,
+bool modelPar_given_ibes,
+AdmsSensFadType & modelPar_mbe,
+bool modelPar_given_mbe,
+AdmsSensFadType & modelPar_ires,
+bool modelPar_given_ires,
+AdmsSensFadType & modelPar_mre,
+bool modelPar_given_mre,
+AdmsSensFadType & modelPar_ibcs,
+bool modelPar_given_ibcs,
+AdmsSensFadType & modelPar_mbc,
+bool modelPar_given_mbc,
+AdmsSensFadType & modelPar_cje0,
+bool modelPar_given_cje0,
+AdmsSensFadType & modelPar_vde,
+bool modelPar_given_vde,
+AdmsSensFadType & modelPar_ze,
+bool modelPar_given_ze,
+AdmsSensFadType & modelPar_aje,
+bool modelPar_given_aje,
+AdmsSensFadType & modelPar_vdedc,
+bool modelPar_given_vdedc,
+AdmsSensFadType & modelPar_zedc,
+bool modelPar_given_zedc,
+AdmsSensFadType & modelPar_ajedc,
+bool modelPar_given_ajedc,
+AdmsSensFadType & modelPar_t0,
+bool modelPar_given_t0,
+AdmsSensFadType & modelPar_dt0h,
+bool modelPar_given_dt0h,
+AdmsSensFadType & modelPar_tbvl,
+bool modelPar_given_tbvl,
+AdmsSensFadType & modelPar_tef0,
+bool modelPar_given_tef0,
+AdmsSensFadType & modelPar_gte,
+bool modelPar_given_gte,
+AdmsSensFadType & modelPar_thcs,
+bool modelPar_given_thcs,
+AdmsSensFadType & modelPar_ahc,
+bool modelPar_given_ahc,
+AdmsSensFadType & modelPar_tr,
+bool modelPar_given_tr,
+AdmsSensFadType & modelPar_rci0,
+bool modelPar_given_rci0,
+AdmsSensFadType & modelPar_vlim,
+bool modelPar_given_vlim,
+AdmsSensFadType & modelPar_vpt,
+bool modelPar_given_vpt,
+AdmsSensFadType & modelPar_vces,
+bool modelPar_given_vces,
+AdmsSensFadType & modelPar_cjci0,
+bool modelPar_given_cjci0,
+AdmsSensFadType & modelPar_vdci,
+bool modelPar_given_vdci,
+AdmsSensFadType & modelPar_zci,
+bool modelPar_given_zci,
+AdmsSensFadType & modelPar_vptci,
+bool modelPar_given_vptci,
+AdmsSensFadType & modelPar_cjcx0,
+bool modelPar_given_cjcx0,
+AdmsSensFadType & modelPar_vdcx,
+bool modelPar_given_vdcx,
+AdmsSensFadType & modelPar_zcx,
+bool modelPar_given_zcx,
+AdmsSensFadType & modelPar_vptcx,
+bool modelPar_given_vptcx,
+AdmsSensFadType & modelPar_fbc,
+bool modelPar_given_fbc,
+AdmsSensFadType & modelPar_rbi0,
+bool modelPar_given_rbi0,
+AdmsSensFadType & modelPar_vr0e,
+bool modelPar_given_vr0e,
+AdmsSensFadType & modelPar_vr0c,
+bool modelPar_given_vr0c,
+AdmsSensFadType & modelPar_fgeo,
+bool modelPar_given_fgeo,
+AdmsSensFadType & modelPar_rbx,
+bool modelPar_given_rbx,
+AdmsSensFadType & modelPar_rcx,
+bool modelPar_given_rcx,
+AdmsSensFadType & modelPar_re,
+bool modelPar_given_re,
+AdmsSensFadType & modelPar_itss,
+bool modelPar_given_itss,
+AdmsSensFadType & modelPar_msf,
+bool modelPar_given_msf,
+AdmsSensFadType & modelPar_iscs,
+bool modelPar_given_iscs,
+AdmsSensFadType & modelPar_msc,
+bool modelPar_given_msc,
+AdmsSensFadType & modelPar_cjs0,
+bool modelPar_given_cjs0,
+AdmsSensFadType & modelPar_vds,
+bool modelPar_given_vds,
+AdmsSensFadType & modelPar_zs,
+bool modelPar_given_zs,
+AdmsSensFadType & modelPar_vpts,
+bool modelPar_given_vpts,
+AdmsSensFadType & modelPar_cbcpar,
+bool modelPar_given_cbcpar,
+AdmsSensFadType & modelPar_cbepar,
+bool modelPar_given_cbepar,
+AdmsSensFadType & modelPar_eavl,
+bool modelPar_given_eavl,
+AdmsSensFadType & modelPar_kavl,
+bool modelPar_given_kavl,
+AdmsSensFadType & modelPar_kf,
+bool modelPar_given_kf,
+AdmsSensFadType & modelPar_af,
+bool modelPar_given_af,
+AdmsSensFadType & modelPar_alqf,
+bool modelPar_given_alqf,
+AdmsSensFadType & modelPar_alit,
+bool modelPar_given_alit,
+AdmsSensFadType & modelPar_vgb,
+bool modelPar_given_vgb,
+AdmsSensFadType & modelPar_vge,
+bool modelPar_given_vge,
+AdmsSensFadType & modelPar_vgc,
+bool modelPar_given_vgc,
+AdmsSensFadType & modelPar_vgs,
+bool modelPar_given_vgs,
+AdmsSensFadType & modelPar_f1vg,
+bool modelPar_given_f1vg,
+AdmsSensFadType & modelPar_f2vg,
+bool modelPar_given_f2vg,
+AdmsSensFadType & modelPar_alt0,
+bool modelPar_given_alt0,
+AdmsSensFadType & modelPar_kt0,
+bool modelPar_given_kt0,
+AdmsSensFadType & modelPar_zetact,
+bool modelPar_given_zetact,
+AdmsSensFadType & modelPar_zetabet,
+bool modelPar_given_zetabet,
+AdmsSensFadType & modelPar_zetaci,
+bool modelPar_given_zetaci,
+AdmsSensFadType & modelPar_alvs,
+bool modelPar_given_alvs,
+AdmsSensFadType & modelPar_alces,
+bool modelPar_given_alces,
+AdmsSensFadType & modelPar_zetarbi,
+bool modelPar_given_zetarbi,
+AdmsSensFadType & modelPar_zetarbx,
+bool modelPar_given_zetarbx,
+AdmsSensFadType & modelPar_zetarcx,
+bool modelPar_given_zetarcx,
+AdmsSensFadType & modelPar_zetare,
+bool modelPar_given_zetare,
+AdmsSensFadType & modelPar_zetaiqf,
+bool modelPar_given_zetaiqf,
+AdmsSensFadType & modelPar_alkav,
+bool modelPar_given_alkav,
+AdmsSensFadType & modelPar_aleav,
+bool modelPar_given_aleav,
+AdmsSensFadType & modelPar_zetarth,
+bool modelPar_given_zetarth,
+AdmsSensFadType & modelPar_zetaver,
+bool modelPar_given_zetaver,
+AdmsSensFadType & modelPar_zetavgbe,
+bool modelPar_given_zetavgbe,
+AdmsSensFadType & modelPar_dvgbe,
+bool modelPar_given_dvgbe,
+AdmsSensFadType & modelPar_aliqfh,
+bool modelPar_given_aliqfh,
+AdmsSensFadType & modelPar_kiqfh,
+bool modelPar_given_kiqfh,
+AdmsSensFadType & modelPar_rth,
+bool modelPar_given_rth,
+AdmsSensFadType & modelPar_cth,
+bool modelPar_given_cth,
+AdmsSensFadType & modelPar_tnom,
+bool modelPar_given_tnom,
+// non-reals (including hidden)
+int modelPar_it_mod,
+bool modelPar_given_it_mod,
+int modelPar_flnqs,
+bool modelPar_given_flnqs,
+int modelPar_tef_temp,
+bool modelPar_given_tef_temp,
+int modelPar_flsh,
+bool modelPar_given_flsh,
+int modelPar_type,
+bool modelPar_given_type,
+ double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance);
 
 void evaluateInitialModel(
-   // model parameters
-   // reals
-   AdmsSensFadType & modelPar_is,
-   bool modelPar_given_is,
-   AdmsSensFadType & modelPar_mcf,
-   bool modelPar_given_mcf,
-   AdmsSensFadType & modelPar_mcr,
-   bool modelPar_given_mcr,
-   AdmsSensFadType & modelPar_vef,
-   bool modelPar_given_vef,
-   AdmsSensFadType & modelPar_ver,
-   bool modelPar_given_ver,
-   AdmsSensFadType & modelPar_aver,
-   bool modelPar_given_aver,
-   AdmsSensFadType & modelPar_iqf,
-   bool modelPar_given_iqf,
-   AdmsSensFadType & modelPar_fiqf,
-   bool modelPar_given_fiqf,
-   AdmsSensFadType & modelPar_iqr,
-   bool modelPar_given_iqr,
-   AdmsSensFadType & modelPar_iqfh,
-   bool modelPar_given_iqfh,
-   AdmsSensFadType & modelPar_tfh,
-   bool modelPar_given_tfh,
-   AdmsSensFadType & modelPar_ahq,
-   bool modelPar_given_ahq,
-   AdmsSensFadType & modelPar_ibes,
-   bool modelPar_given_ibes,
-   AdmsSensFadType & modelPar_mbe,
-   bool modelPar_given_mbe,
-   AdmsSensFadType & modelPar_ires,
-   bool modelPar_given_ires,
-   AdmsSensFadType & modelPar_mre,
-   bool modelPar_given_mre,
-   AdmsSensFadType & modelPar_ibcs,
-   bool modelPar_given_ibcs,
-   AdmsSensFadType & modelPar_mbc,
-   bool modelPar_given_mbc,
-   AdmsSensFadType & modelPar_cje0,
-   bool modelPar_given_cje0,
-   AdmsSensFadType & modelPar_vde,
-   bool modelPar_given_vde,
-   AdmsSensFadType & modelPar_ze,
-   bool modelPar_given_ze,
-   AdmsSensFadType & modelPar_aje,
-   bool modelPar_given_aje,
-   AdmsSensFadType & modelPar_vdedc,
-   bool modelPar_given_vdedc,
-   AdmsSensFadType & modelPar_zedc,
-   bool modelPar_given_zedc,
-   AdmsSensFadType & modelPar_ajedc,
-   bool modelPar_given_ajedc,
-   AdmsSensFadType & modelPar_t0,
-   bool modelPar_given_t0,
-   AdmsSensFadType & modelPar_dt0h,
-   bool modelPar_given_dt0h,
-   AdmsSensFadType & modelPar_tbvl,
-   bool modelPar_given_tbvl,
-   AdmsSensFadType & modelPar_tef0,
-   bool modelPar_given_tef0,
-   AdmsSensFadType & modelPar_gte,
-   bool modelPar_given_gte,
-   AdmsSensFadType & modelPar_thcs,
-   bool modelPar_given_thcs,
-   AdmsSensFadType & modelPar_ahc,
-   bool modelPar_given_ahc,
-   AdmsSensFadType & modelPar_tr,
-   bool modelPar_given_tr,
-   AdmsSensFadType & modelPar_rci0,
-   bool modelPar_given_rci0,
-   AdmsSensFadType & modelPar_vlim,
-   bool modelPar_given_vlim,
-   AdmsSensFadType & modelPar_vpt,
-   bool modelPar_given_vpt,
-   AdmsSensFadType & modelPar_vces,
-   bool modelPar_given_vces,
-   AdmsSensFadType & modelPar_cjci0,
-   bool modelPar_given_cjci0,
-   AdmsSensFadType & modelPar_vdci,
-   bool modelPar_given_vdci,
-   AdmsSensFadType & modelPar_zci,
-   bool modelPar_given_zci,
-   AdmsSensFadType & modelPar_vptci,
-   bool modelPar_given_vptci,
-   AdmsSensFadType & modelPar_cjcx0,
-   bool modelPar_given_cjcx0,
-   AdmsSensFadType & modelPar_vdcx,
-   bool modelPar_given_vdcx,
-   AdmsSensFadType & modelPar_zcx,
-   bool modelPar_given_zcx,
-   AdmsSensFadType & modelPar_vptcx,
-   bool modelPar_given_vptcx,
-   AdmsSensFadType & modelPar_fbc,
-   bool modelPar_given_fbc,
-   AdmsSensFadType & modelPar_rbi0,
-   bool modelPar_given_rbi0,
-   AdmsSensFadType & modelPar_vr0e,
-   bool modelPar_given_vr0e,
-   AdmsSensFadType & modelPar_vr0c,
-   bool modelPar_given_vr0c,
-   AdmsSensFadType & modelPar_fgeo,
-   bool modelPar_given_fgeo,
-   AdmsSensFadType & modelPar_rbx,
-   bool modelPar_given_rbx,
-   AdmsSensFadType & modelPar_rcx,
-   bool modelPar_given_rcx,
-   AdmsSensFadType & modelPar_re,
-   bool modelPar_given_re,
-   AdmsSensFadType & modelPar_itss,
-   bool modelPar_given_itss,
-   AdmsSensFadType & modelPar_msf,
-   bool modelPar_given_msf,
-   AdmsSensFadType & modelPar_iscs,
-   bool modelPar_given_iscs,
-   AdmsSensFadType & modelPar_msc,
-   bool modelPar_given_msc,
-   AdmsSensFadType & modelPar_cjs0,
-   bool modelPar_given_cjs0,
-   AdmsSensFadType & modelPar_vds,
-   bool modelPar_given_vds,
-   AdmsSensFadType & modelPar_zs,
-   bool modelPar_given_zs,
-   AdmsSensFadType & modelPar_vpts,
-   bool modelPar_given_vpts,
-   AdmsSensFadType & modelPar_cbcpar,
-   bool modelPar_given_cbcpar,
-   AdmsSensFadType & modelPar_cbepar,
-   bool modelPar_given_cbepar,
-   AdmsSensFadType & modelPar_eavl,
-   bool modelPar_given_eavl,
-   AdmsSensFadType & modelPar_kavl,
-   bool modelPar_given_kavl,
-   AdmsSensFadType & modelPar_kf,
-   bool modelPar_given_kf,
-   AdmsSensFadType & modelPar_af,
-   bool modelPar_given_af,
-   AdmsSensFadType & modelPar_alqf,
-   bool modelPar_given_alqf,
-   AdmsSensFadType & modelPar_alit,
-   bool modelPar_given_alit,
-   AdmsSensFadType & modelPar_vgb,
-   bool modelPar_given_vgb,
-   AdmsSensFadType & modelPar_vge,
-   bool modelPar_given_vge,
-   AdmsSensFadType & modelPar_vgc,
-   bool modelPar_given_vgc,
-   AdmsSensFadType & modelPar_vgs,
-   bool modelPar_given_vgs,
-   AdmsSensFadType & modelPar_f1vg,
-   bool modelPar_given_f1vg,
-   AdmsSensFadType & modelPar_f2vg,
-   bool modelPar_given_f2vg,
-   AdmsSensFadType & modelPar_alt0,
-   bool modelPar_given_alt0,
-   AdmsSensFadType & modelPar_kt0,
-   bool modelPar_given_kt0,
-   AdmsSensFadType & modelPar_zetact,
-   bool modelPar_given_zetact,
-   AdmsSensFadType & modelPar_zetabet,
-   bool modelPar_given_zetabet,
-   AdmsSensFadType & modelPar_zetaci,
-   bool modelPar_given_zetaci,
-   AdmsSensFadType & modelPar_alvs,
-   bool modelPar_given_alvs,
-   AdmsSensFadType & modelPar_alces,
-   bool modelPar_given_alces,
-   AdmsSensFadType & modelPar_zetarbi,
-   bool modelPar_given_zetarbi,
-   AdmsSensFadType & modelPar_zetarbx,
-   bool modelPar_given_zetarbx,
-   AdmsSensFadType & modelPar_zetarcx,
-   bool modelPar_given_zetarcx,
-   AdmsSensFadType & modelPar_zetare,
-   bool modelPar_given_zetare,
-   AdmsSensFadType & modelPar_zetaiqf,
-   bool modelPar_given_zetaiqf,
-   AdmsSensFadType & modelPar_alkav,
-   bool modelPar_given_alkav,
-   AdmsSensFadType & modelPar_aleav,
-   bool modelPar_given_aleav,
-   AdmsSensFadType & modelPar_zetarth,
-   bool modelPar_given_zetarth,
-   AdmsSensFadType & modelPar_zetaver,
-   bool modelPar_given_zetaver,
-   AdmsSensFadType & modelPar_zetavgbe,
-   bool modelPar_given_zetavgbe,
-   AdmsSensFadType & modelPar_dvgbe,
-   bool modelPar_given_dvgbe,
-   AdmsSensFadType & modelPar_aliqfh,
-   bool modelPar_given_aliqfh,
-   AdmsSensFadType & modelPar_kiqfh,
-   bool modelPar_given_kiqfh,
-   AdmsSensFadType & modelPar_rth,
-   bool modelPar_given_rth,
-   AdmsSensFadType & modelPar_cth,
-   bool modelPar_given_cth,
-   AdmsSensFadType & modelPar_tnom,
-   bool modelPar_given_tnom,
-   // non-reals (including hidden)
-   int modelPar_it_mod,
-   bool modelPar_given_it_mod,
-   int modelPar_flnqs,
-   bool modelPar_given_flnqs,
-   int modelPar_tef_temp,
-   bool modelPar_given_tef_temp,
-   int modelPar_flsh,
-   bool modelPar_given_flsh,
-   int modelPar_type,
-   bool modelPar_given_type,
-   double admsTemperature, double ADMSgmin_arg, const Instance & theInstance);
+// model parameters
+// reals
+AdmsSensFadType & modelPar_is,
+bool modelPar_given_is,
+AdmsSensFadType & modelPar_mcf,
+bool modelPar_given_mcf,
+AdmsSensFadType & modelPar_mcr,
+bool modelPar_given_mcr,
+AdmsSensFadType & modelPar_vef,
+bool modelPar_given_vef,
+AdmsSensFadType & modelPar_ver,
+bool modelPar_given_ver,
+AdmsSensFadType & modelPar_aver,
+bool modelPar_given_aver,
+AdmsSensFadType & modelPar_iqf,
+bool modelPar_given_iqf,
+AdmsSensFadType & modelPar_fiqf,
+bool modelPar_given_fiqf,
+AdmsSensFadType & modelPar_iqr,
+bool modelPar_given_iqr,
+AdmsSensFadType & modelPar_iqfh,
+bool modelPar_given_iqfh,
+AdmsSensFadType & modelPar_tfh,
+bool modelPar_given_tfh,
+AdmsSensFadType & modelPar_ahq,
+bool modelPar_given_ahq,
+AdmsSensFadType & modelPar_ibes,
+bool modelPar_given_ibes,
+AdmsSensFadType & modelPar_mbe,
+bool modelPar_given_mbe,
+AdmsSensFadType & modelPar_ires,
+bool modelPar_given_ires,
+AdmsSensFadType & modelPar_mre,
+bool modelPar_given_mre,
+AdmsSensFadType & modelPar_ibcs,
+bool modelPar_given_ibcs,
+AdmsSensFadType & modelPar_mbc,
+bool modelPar_given_mbc,
+AdmsSensFadType & modelPar_cje0,
+bool modelPar_given_cje0,
+AdmsSensFadType & modelPar_vde,
+bool modelPar_given_vde,
+AdmsSensFadType & modelPar_ze,
+bool modelPar_given_ze,
+AdmsSensFadType & modelPar_aje,
+bool modelPar_given_aje,
+AdmsSensFadType & modelPar_vdedc,
+bool modelPar_given_vdedc,
+AdmsSensFadType & modelPar_zedc,
+bool modelPar_given_zedc,
+AdmsSensFadType & modelPar_ajedc,
+bool modelPar_given_ajedc,
+AdmsSensFadType & modelPar_t0,
+bool modelPar_given_t0,
+AdmsSensFadType & modelPar_dt0h,
+bool modelPar_given_dt0h,
+AdmsSensFadType & modelPar_tbvl,
+bool modelPar_given_tbvl,
+AdmsSensFadType & modelPar_tef0,
+bool modelPar_given_tef0,
+AdmsSensFadType & modelPar_gte,
+bool modelPar_given_gte,
+AdmsSensFadType & modelPar_thcs,
+bool modelPar_given_thcs,
+AdmsSensFadType & modelPar_ahc,
+bool modelPar_given_ahc,
+AdmsSensFadType & modelPar_tr,
+bool modelPar_given_tr,
+AdmsSensFadType & modelPar_rci0,
+bool modelPar_given_rci0,
+AdmsSensFadType & modelPar_vlim,
+bool modelPar_given_vlim,
+AdmsSensFadType & modelPar_vpt,
+bool modelPar_given_vpt,
+AdmsSensFadType & modelPar_vces,
+bool modelPar_given_vces,
+AdmsSensFadType & modelPar_cjci0,
+bool modelPar_given_cjci0,
+AdmsSensFadType & modelPar_vdci,
+bool modelPar_given_vdci,
+AdmsSensFadType & modelPar_zci,
+bool modelPar_given_zci,
+AdmsSensFadType & modelPar_vptci,
+bool modelPar_given_vptci,
+AdmsSensFadType & modelPar_cjcx0,
+bool modelPar_given_cjcx0,
+AdmsSensFadType & modelPar_vdcx,
+bool modelPar_given_vdcx,
+AdmsSensFadType & modelPar_zcx,
+bool modelPar_given_zcx,
+AdmsSensFadType & modelPar_vptcx,
+bool modelPar_given_vptcx,
+AdmsSensFadType & modelPar_fbc,
+bool modelPar_given_fbc,
+AdmsSensFadType & modelPar_rbi0,
+bool modelPar_given_rbi0,
+AdmsSensFadType & modelPar_vr0e,
+bool modelPar_given_vr0e,
+AdmsSensFadType & modelPar_vr0c,
+bool modelPar_given_vr0c,
+AdmsSensFadType & modelPar_fgeo,
+bool modelPar_given_fgeo,
+AdmsSensFadType & modelPar_rbx,
+bool modelPar_given_rbx,
+AdmsSensFadType & modelPar_rcx,
+bool modelPar_given_rcx,
+AdmsSensFadType & modelPar_re,
+bool modelPar_given_re,
+AdmsSensFadType & modelPar_itss,
+bool modelPar_given_itss,
+AdmsSensFadType & modelPar_msf,
+bool modelPar_given_msf,
+AdmsSensFadType & modelPar_iscs,
+bool modelPar_given_iscs,
+AdmsSensFadType & modelPar_msc,
+bool modelPar_given_msc,
+AdmsSensFadType & modelPar_cjs0,
+bool modelPar_given_cjs0,
+AdmsSensFadType & modelPar_vds,
+bool modelPar_given_vds,
+AdmsSensFadType & modelPar_zs,
+bool modelPar_given_zs,
+AdmsSensFadType & modelPar_vpts,
+bool modelPar_given_vpts,
+AdmsSensFadType & modelPar_cbcpar,
+bool modelPar_given_cbcpar,
+AdmsSensFadType & modelPar_cbepar,
+bool modelPar_given_cbepar,
+AdmsSensFadType & modelPar_eavl,
+bool modelPar_given_eavl,
+AdmsSensFadType & modelPar_kavl,
+bool modelPar_given_kavl,
+AdmsSensFadType & modelPar_kf,
+bool modelPar_given_kf,
+AdmsSensFadType & modelPar_af,
+bool modelPar_given_af,
+AdmsSensFadType & modelPar_alqf,
+bool modelPar_given_alqf,
+AdmsSensFadType & modelPar_alit,
+bool modelPar_given_alit,
+AdmsSensFadType & modelPar_vgb,
+bool modelPar_given_vgb,
+AdmsSensFadType & modelPar_vge,
+bool modelPar_given_vge,
+AdmsSensFadType & modelPar_vgc,
+bool modelPar_given_vgc,
+AdmsSensFadType & modelPar_vgs,
+bool modelPar_given_vgs,
+AdmsSensFadType & modelPar_f1vg,
+bool modelPar_given_f1vg,
+AdmsSensFadType & modelPar_f2vg,
+bool modelPar_given_f2vg,
+AdmsSensFadType & modelPar_alt0,
+bool modelPar_given_alt0,
+AdmsSensFadType & modelPar_kt0,
+bool modelPar_given_kt0,
+AdmsSensFadType & modelPar_zetact,
+bool modelPar_given_zetact,
+AdmsSensFadType & modelPar_zetabet,
+bool modelPar_given_zetabet,
+AdmsSensFadType & modelPar_zetaci,
+bool modelPar_given_zetaci,
+AdmsSensFadType & modelPar_alvs,
+bool modelPar_given_alvs,
+AdmsSensFadType & modelPar_alces,
+bool modelPar_given_alces,
+AdmsSensFadType & modelPar_zetarbi,
+bool modelPar_given_zetarbi,
+AdmsSensFadType & modelPar_zetarbx,
+bool modelPar_given_zetarbx,
+AdmsSensFadType & modelPar_zetarcx,
+bool modelPar_given_zetarcx,
+AdmsSensFadType & modelPar_zetare,
+bool modelPar_given_zetare,
+AdmsSensFadType & modelPar_zetaiqf,
+bool modelPar_given_zetaiqf,
+AdmsSensFadType & modelPar_alkav,
+bool modelPar_given_alkav,
+AdmsSensFadType & modelPar_aleav,
+bool modelPar_given_aleav,
+AdmsSensFadType & modelPar_zetarth,
+bool modelPar_given_zetarth,
+AdmsSensFadType & modelPar_zetaver,
+bool modelPar_given_zetaver,
+AdmsSensFadType & modelPar_zetavgbe,
+bool modelPar_given_zetavgbe,
+AdmsSensFadType & modelPar_dvgbe,
+bool modelPar_given_dvgbe,
+AdmsSensFadType & modelPar_aliqfh,
+bool modelPar_given_aliqfh,
+AdmsSensFadType & modelPar_kiqfh,
+bool modelPar_given_kiqfh,
+AdmsSensFadType & modelPar_rth,
+bool modelPar_given_rth,
+AdmsSensFadType & modelPar_cth,
+bool modelPar_given_cth,
+AdmsSensFadType & modelPar_tnom,
+bool modelPar_given_tnom,
+// non-reals (including hidden)
+int modelPar_it_mod,
+bool modelPar_given_it_mod,
+int modelPar_flnqs,
+bool modelPar_given_flnqs,
+int modelPar_tef_temp,
+bool modelPar_given_tef_temp,
+int modelPar_flsh,
+bool modelPar_given_flsh,
+int modelPar_type,
+bool modelPar_given_type,
+ double admsTemperature, double ADMSgmin_arg, const Instance & theInstance);
 
 #endif // Xyce_ADMS_SENSITIVITIES
 
@@ -871,9 +871,9 @@ template <typename T>
 T limexp(const T &x)
 {
   if ((x) < 80.0)
-    return (exp(x));
+  return (exp(x));
   else
-    return (exp(80.0)*(x-79.0));
+  return (exp(80.0)*(x-79.0));
 }
 
 // Maybe this will do as a substitute for a sacado-provided "floor" and "ceil"?
@@ -884,13 +884,13 @@ T limexp(const T &x)
 template <typename T>
 double ADMSfloor(const T & x)
 {
-  return (floor(x.val()));
+return (floor(x.val()));
 }
 
 template <typename T>
 double ADMSceil(const T & x)
 {
-  return (ceil(x.val()));
+return (ceil(x.val()));
 }
 
 
@@ -931,419 +931,419 @@ class Instance : public DeviceInstance
 #endif // Xyce_ADMS_SENSITIVITIES
   friend struct Traits;
 
-public:
-  Instance(
-     const Configuration &       configuration,
-     const InstanceBlock &       instance_block,
-     Model &                     model,
-     const FactoryBlock &        factory_block);
+  public:
+    Instance(
+      const Configuration &       configuration,
+      const InstanceBlock &       instance_block,
+      Model &                     model,
+      const FactoryBlock &        factory_block);
 
-  ~Instance();
-
-private:
-  Instance(const Instance &);
-  Instance &operator=(const Instance &);
-
-public:
-  void registerLIDs( const LocalIdVector & intLIDVecRef,
-                     const LocalIdVector & extLIDVecRef );
-  void registerStoreLIDs( const LocalIdVector & stoLIDVecRef );
-  void setupPointers();
-
-  void loadNodeSymbols(Util::SymbolTable &symbol_table) const;
-
-  const JacobianStamp & jacobianStamp() const;
-  void registerJacLIDs( const JacobianStamp & jacLIDVec );
-
-  void registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef);
-
-  bool processParams();
-  bool updateTemperature ( const double & temp = -999.0 );
-  bool updateIntermediateVars ();
-  bool updatePrimaryState ();
-  bool updateSecondaryState ();
-
-  // load functions, residual:
-  bool loadDAEQVector ();
-  bool loadDAEFVector ();
-
-  // load functions, Jacobian:
-  bool loadDAEdQdx ();
-  bool loadDAEdFdx ();
-
-  void collapseNodes();
-  int getNumNoiseSources () const;  // 6
-  void setupNoiseSources (Xyce::Analysis::NoiseData & noiseData);
-  void getNoiseSources (Xyce::Analysis::NoiseData & noiseData);
+    ~Instance();
 
 private:
+    Instance(const Instance &);
+    Instance &operator=(const Instance &);
 
 public:
-  // iterator reference to the hic0_full model which owns this instance.
-  // Getters and setters
-  Model &getModel()
-  {
-    return model_;
-  }
+    void registerLIDs( const LocalIdVector & intLIDVecRef,
+                       const LocalIdVector & extLIDVecRef );
+    void registerStoreLIDs( const LocalIdVector & stoLIDVecRef );
+    void setupPointers();
 
-private:
+    void loadNodeSymbols(Util::SymbolTable &symbol_table) const;
 
-  Model & model_;   //< Owning Model
-  // Begin verilog Instance Variables
-  //   Instance Parameters
-  double dt;
-  //  Variables of global_instance scope
-  double qjci;
-  double d_qjci_dV_bi_ci;
-  double d_qjci_dV_tnode_GND;
-  double d_qjci_dV_b_ci;
-  double qjei;
-  double d_qjei_dV_tnode_GND;
-  double d_qjei_dV_ci_ei;
-  double d_qjei_dV_bi_ei;
-  double d_qjei_dV_bi_ci;
-  double d_qjei_dV_b_ci;
-  double it;
-  double d_it_dV_xf2_GND;
-  double d_it_dV_tnode_GND;
-  double d_it_dV_bi_ei;
-  double d_it_dV_bi_ci;
-  double d_it_dV_b_ci;
-  double d_it_dV_ci_ei;
-  double ijbc;
-  double d_ijbc_dV_tnode_GND;
-  double d_ijbc_dV_bi_ci;
-  double d_ijbc_dV_bi_ei;
-  double iavl;
-  double d_iavl_dV_tnode_GND;
-  double d_iavl_dV_bi_ei;
-  double d_iavl_dV_bi_ci;
-  double d_iavl_dV_b_ci;
-  double d_iavl_dV_ci_ei;
-  double ijsc;
-  double d_ijsc_dV_tnode_GND;
-  double d_ijsc_dV_s_ci;
-  double d_ijsc_dV_bi_ci;
-  double d_ijsc_dV_bi_ei;
-  double Ibici;
-  double d_Ibici_dV_tnode_GND;
-  double d_Ibici_dV_bi_ci;
-  double d_Ibici_dV_bi_ei;
-  double d_Ibici_dV_b_ci;
-  double d_Ibici_dV_ci_ei;
-  double ijbe;
-  double d_ijbe_dV_tnode_GND;
-  double d_ijbe_dV_bi_ei;
-  // end verilog Instance Variables=====
-  // Nodal LID Variables
-  int li_c;
-  int li_b;
-  int li_e;
-  int li_s;
-  int li_tnode;
-  int li_ci;
-  int li_bi;
-  int li_ei;
-  int li_xf1;
-  int li_xf2;
-  int li_xf;
-  // end Nodal LID Variables
-  // Branch LID Variables
-  // end Branch LID Variables
-  // Lead (branch) LID Variables
-  int li_branch_ic;
-  int li_branch_ib;
-  int li_branch_ie;
-  int li_branch_is;
-  int li_branch_itnode;
-  // end Lead (branch) LID Variables
-  // Jacobian  pointers
-  double * f_bi_Equ_bi_Node_Ptr;
-  double * f_bi_Equ_ei_Node_Ptr;
-  double * f_ei_Equ_bi_Node_Ptr;
-  double * f_ei_Equ_ei_Node_Ptr;
-  double * f_bi_Equ_ci_Node_Ptr;
-  double * f_ci_Equ_bi_Node_Ptr;
-  double * f_ci_Equ_ci_Node_Ptr;
-  double * f_ci_Equ_ei_Node_Ptr;
-  double * f_ei_Equ_ci_Node_Ptr;
-  double * f_b_Equ_s_Node_Ptr;
-  double * f_b_Equ_ci_Node_Ptr;
-  double * f_s_Equ_s_Node_Ptr;
-  double * f_s_Equ_ci_Node_Ptr;
-  double * f_b_Equ_b_Node_Ptr;
-  double * f_s_Equ_b_Node_Ptr;
-  double * f_b_Equ_tnode_Node_Ptr;
-  double * f_s_Equ_tnode_Node_Ptr;
-  double * f_s_Equ_bi_Node_Ptr;
-  double * f_s_Equ_ei_Node_Ptr;
-  double * f_ci_Equ_s_Node_Ptr;
-  double * f_ci_Equ_tnode_Node_Ptr;
-  double * f_ci_Equ_b_Node_Ptr;
-  double * f_b_Equ_bi_Node_Ptr;
-  double * f_b_Equ_e_Node_Ptr;
-  double * f_e_Equ_b_Node_Ptr;
-  double * f_e_Equ_e_Node_Ptr;
-  double * f_ei_Equ_tnode_Node_Ptr;
-  double * f_e_Equ_tnode_Node_Ptr;
-  double * f_ei_Equ_e_Node_Ptr;
-  double * f_e_Equ_ei_Node_Ptr;
-  double * f_c_Equ_tnode_Node_Ptr;
-  double * f_ci_Equ_c_Node_Ptr;
-  double * f_c_Equ_ci_Node_Ptr;
-  double * f_c_Equ_c_Node_Ptr;
-  double * f_bi_Equ_b_Node_Ptr;
-  double * f_b_Equ_ei_Node_Ptr;
-  double * f_bi_Equ_tnode_Node_Ptr;
-  double * f_bi_Equ_xf_Node_Ptr;
-  double * f_ei_Equ_xf_Node_Ptr;
-  double * f_ei_Equ_b_Node_Ptr;
-  double * f_ci_Equ_xf2_Node_Ptr;
-  double * f_ei_Equ_xf2_Node_Ptr;
-  double * f_tnode_Equ_tnode_Node_Ptr;
-  double * f_tnode_Equ_ci_Node_Ptr;
-  double * f_tnode_Equ_ei_Node_Ptr;
-  double * f_tnode_Equ_b_Node_Ptr;
-  double * f_tnode_Equ_bi_Node_Ptr;
-  double * f_tnode_Equ_s_Node_Ptr;
-  double * f_tnode_Equ_e_Node_Ptr;
-  double * f_tnode_Equ_c_Node_Ptr;
-  double * f_xf1_Equ_ci_Node_Ptr;
-  double * f_xf1_Equ_ei_Node_Ptr;
-  double * f_xf1_Equ_b_Node_Ptr;
-  double * f_xf1_Equ_bi_Node_Ptr;
-  double * f_xf1_Equ_tnode_Node_Ptr;
-  double * f_xf1_Equ_xf2_Node_Ptr;
-  double * f_xf1_Equ_xf1_Node_Ptr;
-  double * f_xf2_Equ_bi_Node_Ptr;
-  double * f_xf2_Equ_ei_Node_Ptr;
-  double * f_xf2_Equ_ci_Node_Ptr;
-  double * f_xf2_Equ_b_Node_Ptr;
-  double * f_xf2_Equ_tnode_Node_Ptr;
-  double * f_xf2_Equ_xf1_Node_Ptr;
-  double * f_xf2_Equ_xf2_Node_Ptr;
-  double * f_xf_Equ_ci_Node_Ptr;
-  double * f_xf_Equ_ei_Node_Ptr;
-  double * f_xf_Equ_bi_Node_Ptr;
-  double * f_xf_Equ_b_Node_Ptr;
-  double * f_xf_Equ_tnode_Node_Ptr;
-  double * f_xf_Equ_xf_Node_Ptr;
-  double * q_bi_Equ_bi_Node_Ptr;
-  double * q_bi_Equ_ei_Node_Ptr;
-  double * q_ei_Equ_bi_Node_Ptr;
-  double * q_ei_Equ_ei_Node_Ptr;
-  double * q_bi_Equ_ci_Node_Ptr;
-  double * q_ci_Equ_bi_Node_Ptr;
-  double * q_ci_Equ_ci_Node_Ptr;
-  double * q_ci_Equ_ei_Node_Ptr;
-  double * q_ei_Equ_ci_Node_Ptr;
-  double * q_b_Equ_s_Node_Ptr;
-  double * q_b_Equ_ci_Node_Ptr;
-  double * q_s_Equ_s_Node_Ptr;
-  double * q_s_Equ_ci_Node_Ptr;
-  double * q_b_Equ_b_Node_Ptr;
-  double * q_s_Equ_b_Node_Ptr;
-  double * q_b_Equ_tnode_Node_Ptr;
-  double * q_s_Equ_tnode_Node_Ptr;
-  double * q_s_Equ_bi_Node_Ptr;
-  double * q_s_Equ_ei_Node_Ptr;
-  double * q_ci_Equ_s_Node_Ptr;
-  double * q_ci_Equ_tnode_Node_Ptr;
-  double * q_ci_Equ_b_Node_Ptr;
-  double * q_b_Equ_bi_Node_Ptr;
-  double * q_b_Equ_e_Node_Ptr;
-  double * q_e_Equ_b_Node_Ptr;
-  double * q_e_Equ_e_Node_Ptr;
-  double * q_ei_Equ_tnode_Node_Ptr;
-  double * q_e_Equ_tnode_Node_Ptr;
-  double * q_ei_Equ_e_Node_Ptr;
-  double * q_e_Equ_ei_Node_Ptr;
-  double * q_c_Equ_tnode_Node_Ptr;
-  double * q_ci_Equ_c_Node_Ptr;
-  double * q_c_Equ_ci_Node_Ptr;
-  double * q_c_Equ_c_Node_Ptr;
-  double * q_bi_Equ_b_Node_Ptr;
-  double * q_b_Equ_ei_Node_Ptr;
-  double * q_bi_Equ_tnode_Node_Ptr;
-  double * q_bi_Equ_xf_Node_Ptr;
-  double * q_ei_Equ_xf_Node_Ptr;
-  double * q_ei_Equ_b_Node_Ptr;
-  double * q_ci_Equ_xf2_Node_Ptr;
-  double * q_ei_Equ_xf2_Node_Ptr;
-  double * q_tnode_Equ_tnode_Node_Ptr;
-  double * q_tnode_Equ_ci_Node_Ptr;
-  double * q_tnode_Equ_ei_Node_Ptr;
-  double * q_tnode_Equ_b_Node_Ptr;
-  double * q_tnode_Equ_bi_Node_Ptr;
-  double * q_tnode_Equ_s_Node_Ptr;
-  double * q_tnode_Equ_e_Node_Ptr;
-  double * q_tnode_Equ_c_Node_Ptr;
-  double * q_xf1_Equ_ci_Node_Ptr;
-  double * q_xf1_Equ_ei_Node_Ptr;
-  double * q_xf1_Equ_b_Node_Ptr;
-  double * q_xf1_Equ_bi_Node_Ptr;
-  double * q_xf1_Equ_tnode_Node_Ptr;
-  double * q_xf1_Equ_xf2_Node_Ptr;
-  double * q_xf1_Equ_xf1_Node_Ptr;
-  double * q_xf2_Equ_bi_Node_Ptr;
-  double * q_xf2_Equ_ei_Node_Ptr;
-  double * q_xf2_Equ_ci_Node_Ptr;
-  double * q_xf2_Equ_b_Node_Ptr;
-  double * q_xf2_Equ_tnode_Node_Ptr;
-  double * q_xf2_Equ_xf1_Node_Ptr;
-  double * q_xf2_Equ_xf2_Node_Ptr;
-  double * q_xf_Equ_ci_Node_Ptr;
-  double * q_xf_Equ_ei_Node_Ptr;
-  double * q_xf_Equ_bi_Node_Ptr;
-  double * q_xf_Equ_b_Node_Ptr;
-  double * q_xf_Equ_tnode_Node_Ptr;
-  double * q_xf_Equ_xf_Node_Ptr;
-  // Jacobian offsets
-  int A_bi_Equ_bi_NodeOffset;
-  int A_bi_Equ_ei_NodeOffset;
-  int A_ei_Equ_bi_NodeOffset;
-  int A_ei_Equ_ei_NodeOffset;
-  int A_bi_Equ_ci_NodeOffset;
-  int A_ci_Equ_bi_NodeOffset;
-  int A_ci_Equ_ci_NodeOffset;
-  int A_ci_Equ_ei_NodeOffset;
-  int A_ei_Equ_ci_NodeOffset;
-  int A_b_Equ_s_NodeOffset;
-  int A_b_Equ_ci_NodeOffset;
-  int A_s_Equ_s_NodeOffset;
-  int A_s_Equ_ci_NodeOffset;
-  int A_b_Equ_b_NodeOffset;
-  int A_s_Equ_b_NodeOffset;
-  int A_b_Equ_tnode_NodeOffset;
-  int A_s_Equ_tnode_NodeOffset;
-  int A_s_Equ_bi_NodeOffset;
-  int A_s_Equ_ei_NodeOffset;
-  int A_ci_Equ_s_NodeOffset;
-  int A_ci_Equ_tnode_NodeOffset;
-  int A_ci_Equ_b_NodeOffset;
-  int A_b_Equ_bi_NodeOffset;
-  int A_b_Equ_e_NodeOffset;
-  int A_e_Equ_b_NodeOffset;
-  int A_e_Equ_e_NodeOffset;
-  int A_ei_Equ_tnode_NodeOffset;
-  int A_e_Equ_tnode_NodeOffset;
-  int A_ei_Equ_e_NodeOffset;
-  int A_e_Equ_ei_NodeOffset;
-  int A_c_Equ_tnode_NodeOffset;
-  int A_ci_Equ_c_NodeOffset;
-  int A_c_Equ_ci_NodeOffset;
-  int A_c_Equ_c_NodeOffset;
-  int A_bi_Equ_b_NodeOffset;
-  int A_b_Equ_ei_NodeOffset;
-  int A_bi_Equ_tnode_NodeOffset;
-  int A_bi_Equ_xf_NodeOffset;
-  int A_ei_Equ_xf_NodeOffset;
-  int A_ei_Equ_b_NodeOffset;
-  int A_ci_Equ_xf2_NodeOffset;
-  int A_ei_Equ_xf2_NodeOffset;
-  int A_tnode_Equ_tnode_NodeOffset;
-  int A_tnode_Equ_ci_NodeOffset;
-  int A_tnode_Equ_ei_NodeOffset;
-  int A_tnode_Equ_b_NodeOffset;
-  int A_tnode_Equ_bi_NodeOffset;
-  int A_tnode_Equ_s_NodeOffset;
-  int A_tnode_Equ_e_NodeOffset;
-  int A_tnode_Equ_c_NodeOffset;
-  int A_xf1_Equ_ci_NodeOffset;
-  int A_xf1_Equ_ei_NodeOffset;
-  int A_xf1_Equ_b_NodeOffset;
-  int A_xf1_Equ_bi_NodeOffset;
-  int A_xf1_Equ_tnode_NodeOffset;
-  int A_xf1_Equ_xf2_NodeOffset;
-  int A_xf1_Equ_xf1_NodeOffset;
-  int A_xf2_Equ_bi_NodeOffset;
-  int A_xf2_Equ_ei_NodeOffset;
-  int A_xf2_Equ_ci_NodeOffset;
-  int A_xf2_Equ_b_NodeOffset;
-  int A_xf2_Equ_tnode_NodeOffset;
-  int A_xf2_Equ_xf1_NodeOffset;
-  int A_xf2_Equ_xf2_NodeOffset;
-  int A_xf_Equ_ci_NodeOffset;
-  int A_xf_Equ_ei_NodeOffset;
-  int A_xf_Equ_bi_NodeOffset;
-  int A_xf_Equ_b_NodeOffset;
-  int A_xf_Equ_tnode_NodeOffset;
-  int A_xf_Equ_xf_NodeOffset;
-  // end of Jacobian and pointers
-  // node numbers
-  static const int admsNodeID_c = 0;
-  static const int admsNodeID_b = 1;
-  static const int admsNodeID_e = 2;
-  static const int admsNodeID_s = 3;
-  static const int admsNodeID_tnode = 4;
-  static const int admsNodeID_ci = 5;
-  static const int admsNodeID_bi = 6;
-  static const int admsNodeID_ei = 7;
-  static const int admsNodeID_xf1 = 8;
-  static const int admsNodeID_xf2 = 9;
-  static const int admsNodeID_xf = 10;
-  static const int admsNodeID_GND = -1;
-  // end node numbers
-  // Additional IDs for branch equations
-  // end branch numbers
-  // Probe numbers
-  static const int admsProbeID_V_xf_GND = 0;
-  static const int admsProbeID_V_xf2_GND = 1;
-  static const int admsProbeID_V_xf1_GND = 2;
-  static const int admsProbeID_V_tnode_GND = 3;
-  static const int admsProbeID_V_b_e = 4;
-  static const int admsProbeID_V_b_bi = 5;
-  static const int admsProbeID_V_ci_c = 6;
-  static const int admsProbeID_V_ei_e = 7;
-  static const int admsProbeID_V_s_ci = 8;
-  static const int admsProbeID_V_ci_ei = 9;
-  static const int admsProbeID_V_bi_ei = 10;
-  static const int admsProbeID_V_bi_ci = 11;
-  static const int admsProbeID_V_b_ci = 12;
-  // end probe numbers
-  // Store LIDs
-  // end store LIDs
-  // bools for collapsing nodes
-  bool collapseNode_ci;
-  bool collapseNode_bi;
-  bool collapseNode_ei;
-  // Arrays to hold probes
-  std::vector < double > probeVars;
-  std::vector < std::vector < double > > d_probeVars;
-  // Arrays to hold contributions
-  // dynamic contributions are differentiated w.r.t time
-  std::vector < double > staticContributions;
-  std::vector < std::vector < double > > d_staticContributions;
-  std::vector < double > dynamicContributions;
-  std::vector < std::vector < double > > d_dynamicContributions;
-  //vectors to hold noise information for communication between methods
-  std::vector<double> noiseContribsPower;
-  std::vector<double> noiseContribsExponent;
+    const JacobianStamp & jacobianStamp() const;
+    void registerJacLIDs( const JacobianStamp & jacLIDVec );
+
+    void registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef);
+
+    bool processParams();
+    bool updateTemperature ( const double & temp = -999.0 );
+    bool updateIntermediateVars ();
+    bool updatePrimaryState ();
+    bool updateSecondaryState ();
+
+    // load functions, residual:
+    bool loadDAEQVector ();
+    bool loadDAEFVector ();
+
+    // load functions, Jacobian:
+    bool loadDAEdQdx ();
+    bool loadDAEdFdx ();
+
+      void collapseNodes();
+      int getNumNoiseSources () const;  // 6
+      void setupNoiseSources (Xyce::Analysis::NoiseData & noiseData);
+      void getNoiseSources (Xyce::Analysis::NoiseData & noiseData);
+
+  private:
+
+  public:
+    // iterator reference to the hic0_full model which owns this instance.
+    // Getters and setters
+    Model &getModel()
+    {
+      return model_;
+    }
+
+  private:
+
+    Model & model_;   //< Owning Model
+    // Begin verilog Instance Variables
+    //   Instance Parameters
+    double dt;
+    //  Variables of global_instance scope
+    double qjci;
+     double d_qjci_dV_bi_ci;
+     double d_qjci_dV_tnode_GND;
+     double d_qjci_dV_b_ci;
+    double qjei;
+     double d_qjei_dV_tnode_GND;
+     double d_qjei_dV_ci_ei;
+     double d_qjei_dV_bi_ei;
+     double d_qjei_dV_bi_ci;
+     double d_qjei_dV_b_ci;
+    double it;
+     double d_it_dV_xf2_GND;
+     double d_it_dV_tnode_GND;
+     double d_it_dV_bi_ei;
+     double d_it_dV_bi_ci;
+     double d_it_dV_b_ci;
+     double d_it_dV_ci_ei;
+    double ijbc;
+     double d_ijbc_dV_tnode_GND;
+     double d_ijbc_dV_bi_ci;
+     double d_ijbc_dV_bi_ei;
+    double iavl;
+     double d_iavl_dV_tnode_GND;
+     double d_iavl_dV_bi_ei;
+     double d_iavl_dV_bi_ci;
+     double d_iavl_dV_b_ci;
+     double d_iavl_dV_ci_ei;
+    double ijsc;
+     double d_ijsc_dV_tnode_GND;
+     double d_ijsc_dV_s_ci;
+     double d_ijsc_dV_bi_ci;
+     double d_ijsc_dV_bi_ei;
+    double Ibici;
+     double d_Ibici_dV_tnode_GND;
+     double d_Ibici_dV_bi_ci;
+     double d_Ibici_dV_bi_ei;
+     double d_Ibici_dV_b_ci;
+     double d_Ibici_dV_ci_ei;
+    double ijbe;
+     double d_ijbe_dV_tnode_GND;
+     double d_ijbe_dV_bi_ei;
+    // end verilog Instance Variables=====
+    // Nodal LID Variables
+    int li_c;
+    int li_b;
+    int li_e;
+    int li_s;
+    int li_tnode;
+    int li_ci;
+    int li_bi;
+    int li_ei;
+    int li_xf1;
+    int li_xf2;
+    int li_xf;
+    // end Nodal LID Variables
+    // Branch LID Variables
+    // end Branch LID Variables
+    // Lead (branch) LID Variables
+    int li_branch_ic;
+    int li_branch_ib;
+    int li_branch_ie;
+    int li_branch_is;
+    int li_branch_itnode;
+    // end Lead (branch) LID Variables
+    // Jacobian  pointers
+    double * f_bi_Equ_bi_Node_Ptr;
+    double * f_bi_Equ_ei_Node_Ptr;
+    double * f_ei_Equ_bi_Node_Ptr;
+    double * f_ei_Equ_ei_Node_Ptr;
+    double * f_bi_Equ_ci_Node_Ptr;
+    double * f_ci_Equ_bi_Node_Ptr;
+    double * f_ci_Equ_ci_Node_Ptr;
+    double * f_ci_Equ_ei_Node_Ptr;
+    double * f_ei_Equ_ci_Node_Ptr;
+    double * f_b_Equ_s_Node_Ptr;
+    double * f_b_Equ_ci_Node_Ptr;
+    double * f_s_Equ_s_Node_Ptr;
+    double * f_s_Equ_ci_Node_Ptr;
+    double * f_b_Equ_b_Node_Ptr;
+    double * f_s_Equ_b_Node_Ptr;
+    double * f_b_Equ_tnode_Node_Ptr;
+    double * f_s_Equ_tnode_Node_Ptr;
+    double * f_s_Equ_bi_Node_Ptr;
+    double * f_s_Equ_ei_Node_Ptr;
+    double * f_ci_Equ_s_Node_Ptr;
+    double * f_ci_Equ_tnode_Node_Ptr;
+    double * f_ci_Equ_b_Node_Ptr;
+    double * f_b_Equ_bi_Node_Ptr;
+    double * f_b_Equ_e_Node_Ptr;
+    double * f_e_Equ_b_Node_Ptr;
+    double * f_e_Equ_e_Node_Ptr;
+    double * f_ei_Equ_tnode_Node_Ptr;
+    double * f_e_Equ_tnode_Node_Ptr;
+    double * f_ei_Equ_e_Node_Ptr;
+    double * f_e_Equ_ei_Node_Ptr;
+    double * f_c_Equ_tnode_Node_Ptr;
+    double * f_ci_Equ_c_Node_Ptr;
+    double * f_c_Equ_ci_Node_Ptr;
+    double * f_c_Equ_c_Node_Ptr;
+    double * f_bi_Equ_b_Node_Ptr;
+    double * f_b_Equ_ei_Node_Ptr;
+    double * f_bi_Equ_tnode_Node_Ptr;
+    double * f_bi_Equ_xf_Node_Ptr;
+    double * f_ei_Equ_xf_Node_Ptr;
+    double * f_ei_Equ_b_Node_Ptr;
+    double * f_ci_Equ_xf2_Node_Ptr;
+    double * f_ei_Equ_xf2_Node_Ptr;
+    double * f_tnode_Equ_tnode_Node_Ptr;
+    double * f_tnode_Equ_ci_Node_Ptr;
+    double * f_tnode_Equ_ei_Node_Ptr;
+    double * f_tnode_Equ_b_Node_Ptr;
+    double * f_tnode_Equ_bi_Node_Ptr;
+    double * f_tnode_Equ_s_Node_Ptr;
+    double * f_tnode_Equ_e_Node_Ptr;
+    double * f_tnode_Equ_c_Node_Ptr;
+    double * f_xf1_Equ_ci_Node_Ptr;
+    double * f_xf1_Equ_ei_Node_Ptr;
+    double * f_xf1_Equ_b_Node_Ptr;
+    double * f_xf1_Equ_bi_Node_Ptr;
+    double * f_xf1_Equ_tnode_Node_Ptr;
+    double * f_xf1_Equ_xf2_Node_Ptr;
+    double * f_xf1_Equ_xf1_Node_Ptr;
+    double * f_xf2_Equ_bi_Node_Ptr;
+    double * f_xf2_Equ_ei_Node_Ptr;
+    double * f_xf2_Equ_ci_Node_Ptr;
+    double * f_xf2_Equ_b_Node_Ptr;
+    double * f_xf2_Equ_tnode_Node_Ptr;
+    double * f_xf2_Equ_xf1_Node_Ptr;
+    double * f_xf2_Equ_xf2_Node_Ptr;
+    double * f_xf_Equ_ci_Node_Ptr;
+    double * f_xf_Equ_ei_Node_Ptr;
+    double * f_xf_Equ_bi_Node_Ptr;
+    double * f_xf_Equ_b_Node_Ptr;
+    double * f_xf_Equ_tnode_Node_Ptr;
+    double * f_xf_Equ_xf_Node_Ptr;
+    double * q_bi_Equ_bi_Node_Ptr;
+    double * q_bi_Equ_ei_Node_Ptr;
+    double * q_ei_Equ_bi_Node_Ptr;
+    double * q_ei_Equ_ei_Node_Ptr;
+    double * q_bi_Equ_ci_Node_Ptr;
+    double * q_ci_Equ_bi_Node_Ptr;
+    double * q_ci_Equ_ci_Node_Ptr;
+    double * q_ci_Equ_ei_Node_Ptr;
+    double * q_ei_Equ_ci_Node_Ptr;
+    double * q_b_Equ_s_Node_Ptr;
+    double * q_b_Equ_ci_Node_Ptr;
+    double * q_s_Equ_s_Node_Ptr;
+    double * q_s_Equ_ci_Node_Ptr;
+    double * q_b_Equ_b_Node_Ptr;
+    double * q_s_Equ_b_Node_Ptr;
+    double * q_b_Equ_tnode_Node_Ptr;
+    double * q_s_Equ_tnode_Node_Ptr;
+    double * q_s_Equ_bi_Node_Ptr;
+    double * q_s_Equ_ei_Node_Ptr;
+    double * q_ci_Equ_s_Node_Ptr;
+    double * q_ci_Equ_tnode_Node_Ptr;
+    double * q_ci_Equ_b_Node_Ptr;
+    double * q_b_Equ_bi_Node_Ptr;
+    double * q_b_Equ_e_Node_Ptr;
+    double * q_e_Equ_b_Node_Ptr;
+    double * q_e_Equ_e_Node_Ptr;
+    double * q_ei_Equ_tnode_Node_Ptr;
+    double * q_e_Equ_tnode_Node_Ptr;
+    double * q_ei_Equ_e_Node_Ptr;
+    double * q_e_Equ_ei_Node_Ptr;
+    double * q_c_Equ_tnode_Node_Ptr;
+    double * q_ci_Equ_c_Node_Ptr;
+    double * q_c_Equ_ci_Node_Ptr;
+    double * q_c_Equ_c_Node_Ptr;
+    double * q_bi_Equ_b_Node_Ptr;
+    double * q_b_Equ_ei_Node_Ptr;
+    double * q_bi_Equ_tnode_Node_Ptr;
+    double * q_bi_Equ_xf_Node_Ptr;
+    double * q_ei_Equ_xf_Node_Ptr;
+    double * q_ei_Equ_b_Node_Ptr;
+    double * q_ci_Equ_xf2_Node_Ptr;
+    double * q_ei_Equ_xf2_Node_Ptr;
+    double * q_tnode_Equ_tnode_Node_Ptr;
+    double * q_tnode_Equ_ci_Node_Ptr;
+    double * q_tnode_Equ_ei_Node_Ptr;
+    double * q_tnode_Equ_b_Node_Ptr;
+    double * q_tnode_Equ_bi_Node_Ptr;
+    double * q_tnode_Equ_s_Node_Ptr;
+    double * q_tnode_Equ_e_Node_Ptr;
+    double * q_tnode_Equ_c_Node_Ptr;
+    double * q_xf1_Equ_ci_Node_Ptr;
+    double * q_xf1_Equ_ei_Node_Ptr;
+    double * q_xf1_Equ_b_Node_Ptr;
+    double * q_xf1_Equ_bi_Node_Ptr;
+    double * q_xf1_Equ_tnode_Node_Ptr;
+    double * q_xf1_Equ_xf2_Node_Ptr;
+    double * q_xf1_Equ_xf1_Node_Ptr;
+    double * q_xf2_Equ_bi_Node_Ptr;
+    double * q_xf2_Equ_ei_Node_Ptr;
+    double * q_xf2_Equ_ci_Node_Ptr;
+    double * q_xf2_Equ_b_Node_Ptr;
+    double * q_xf2_Equ_tnode_Node_Ptr;
+    double * q_xf2_Equ_xf1_Node_Ptr;
+    double * q_xf2_Equ_xf2_Node_Ptr;
+    double * q_xf_Equ_ci_Node_Ptr;
+    double * q_xf_Equ_ei_Node_Ptr;
+    double * q_xf_Equ_bi_Node_Ptr;
+    double * q_xf_Equ_b_Node_Ptr;
+    double * q_xf_Equ_tnode_Node_Ptr;
+    double * q_xf_Equ_xf_Node_Ptr;
+    // Jacobian offsets
+    int A_bi_Equ_bi_NodeOffset;
+    int A_bi_Equ_ei_NodeOffset;
+    int A_ei_Equ_bi_NodeOffset;
+    int A_ei_Equ_ei_NodeOffset;
+    int A_bi_Equ_ci_NodeOffset;
+    int A_ci_Equ_bi_NodeOffset;
+    int A_ci_Equ_ci_NodeOffset;
+    int A_ci_Equ_ei_NodeOffset;
+    int A_ei_Equ_ci_NodeOffset;
+    int A_b_Equ_s_NodeOffset;
+    int A_b_Equ_ci_NodeOffset;
+    int A_s_Equ_s_NodeOffset;
+    int A_s_Equ_ci_NodeOffset;
+    int A_b_Equ_b_NodeOffset;
+    int A_s_Equ_b_NodeOffset;
+    int A_b_Equ_tnode_NodeOffset;
+    int A_s_Equ_tnode_NodeOffset;
+    int A_s_Equ_bi_NodeOffset;
+    int A_s_Equ_ei_NodeOffset;
+    int A_ci_Equ_s_NodeOffset;
+    int A_ci_Equ_tnode_NodeOffset;
+    int A_ci_Equ_b_NodeOffset;
+    int A_b_Equ_bi_NodeOffset;
+    int A_b_Equ_e_NodeOffset;
+    int A_e_Equ_b_NodeOffset;
+    int A_e_Equ_e_NodeOffset;
+    int A_ei_Equ_tnode_NodeOffset;
+    int A_e_Equ_tnode_NodeOffset;
+    int A_ei_Equ_e_NodeOffset;
+    int A_e_Equ_ei_NodeOffset;
+    int A_c_Equ_tnode_NodeOffset;
+    int A_ci_Equ_c_NodeOffset;
+    int A_c_Equ_ci_NodeOffset;
+    int A_c_Equ_c_NodeOffset;
+    int A_bi_Equ_b_NodeOffset;
+    int A_b_Equ_ei_NodeOffset;
+    int A_bi_Equ_tnode_NodeOffset;
+    int A_bi_Equ_xf_NodeOffset;
+    int A_ei_Equ_xf_NodeOffset;
+    int A_ei_Equ_b_NodeOffset;
+    int A_ci_Equ_xf2_NodeOffset;
+    int A_ei_Equ_xf2_NodeOffset;
+    int A_tnode_Equ_tnode_NodeOffset;
+    int A_tnode_Equ_ci_NodeOffset;
+    int A_tnode_Equ_ei_NodeOffset;
+    int A_tnode_Equ_b_NodeOffset;
+    int A_tnode_Equ_bi_NodeOffset;
+    int A_tnode_Equ_s_NodeOffset;
+    int A_tnode_Equ_e_NodeOffset;
+    int A_tnode_Equ_c_NodeOffset;
+    int A_xf1_Equ_ci_NodeOffset;
+    int A_xf1_Equ_ei_NodeOffset;
+    int A_xf1_Equ_b_NodeOffset;
+    int A_xf1_Equ_bi_NodeOffset;
+    int A_xf1_Equ_tnode_NodeOffset;
+    int A_xf1_Equ_xf2_NodeOffset;
+    int A_xf1_Equ_xf1_NodeOffset;
+    int A_xf2_Equ_bi_NodeOffset;
+    int A_xf2_Equ_ei_NodeOffset;
+    int A_xf2_Equ_ci_NodeOffset;
+    int A_xf2_Equ_b_NodeOffset;
+    int A_xf2_Equ_tnode_NodeOffset;
+    int A_xf2_Equ_xf1_NodeOffset;
+    int A_xf2_Equ_xf2_NodeOffset;
+    int A_xf_Equ_ci_NodeOffset;
+    int A_xf_Equ_ei_NodeOffset;
+    int A_xf_Equ_bi_NodeOffset;
+    int A_xf_Equ_b_NodeOffset;
+    int A_xf_Equ_tnode_NodeOffset;
+    int A_xf_Equ_xf_NodeOffset;
+    // end of Jacobian and pointers
+   // node numbers
+    static const int admsNodeID_c = 0;
+    static const int admsNodeID_b = 1;
+    static const int admsNodeID_e = 2;
+    static const int admsNodeID_s = 3;
+    static const int admsNodeID_tnode = 4;
+    static const int admsNodeID_ci = 5;
+    static const int admsNodeID_bi = 6;
+    static const int admsNodeID_ei = 7;
+    static const int admsNodeID_xf1 = 8;
+    static const int admsNodeID_xf2 = 9;
+    static const int admsNodeID_xf = 10;
+    static const int admsNodeID_GND = -1;
+   // end node numbers
+   // Additional IDs for branch equations
+   // end branch numbers
+   // Probe numbers
+    static const int admsProbeID_V_xf_GND = 0;
+    static const int admsProbeID_V_xf2_GND = 1;
+    static const int admsProbeID_V_xf1_GND = 2;
+    static const int admsProbeID_V_tnode_GND = 3;
+    static const int admsProbeID_V_b_e = 4;
+    static const int admsProbeID_V_b_bi = 5;
+    static const int admsProbeID_V_ci_c = 6;
+    static const int admsProbeID_V_ei_e = 7;
+    static const int admsProbeID_V_s_ci = 8;
+    static const int admsProbeID_V_ci_ei = 9;
+    static const int admsProbeID_V_bi_ei = 10;
+    static const int admsProbeID_V_bi_ci = 11;
+    static const int admsProbeID_V_b_ci = 12;
+   // end probe numbers
+   // Store LIDs
+   // end store LIDs
+     // bools for collapsing nodes
+     bool collapseNode_ci;
+     bool collapseNode_bi;
+     bool collapseNode_ei;
+ // Arrays to hold probes
+ std::vector < double > probeVars;
+ std::vector < std::vector < double > > d_probeVars;
+ // Arrays to hold contributions
+ // dynamic contributions are differentiated w.r.t time
+ std::vector < double > staticContributions;
+ std::vector < std::vector < double > > d_staticContributions;
+ std::vector < double > dynamicContributions;
+ std::vector < std::vector < double > > d_dynamicContributions;
+//vectors to hold noise information for communication between methods
+std::vector<double> noiseContribsPower;
+std::vector<double> noiseContribsExponent;
 
 
-  // this is what we'll use when any model uses $temperature.  We'll
-  // set it in updateTemperature, and initialize it to whatever
-  // is in devOptions when the instance is constructed.
-  double admsTemperature;
+    // this is what we'll use when any model uses $temperature.  We'll
+    // set it in updateTemperature, and initialize it to whatever
+    // is in devOptions when the instance is constructed.
+    double admsTemperature;
 
-  // vt at $temperature;
-  double adms_vt_nom;
-
-
-  // This one is for the annoying bogus "XyceADMSInstTemp" parameter
-  // that we need so we can set it from the device manager when there's no
-  // "TEMP" parameter to use
-  double admsInstTemp;
+    // vt at $temperature;
+    double adms_vt_nom;
 
 
-  JacobianStamp jacStamp;
-  IdVector nodeMap;
-  PairMap pairToJacStampMap;
+    // This one is for the annoying bogus "XyceADMSInstTemp" parameter
+    // that we need so we can set it from the device manager when there's no
+    // "TEMP" parameter to use
+    double admsInstTemp;
 
-  // These instance-owned vectors are for storage of lead current data
-  std::vector<double> leadCurrentF;
-  std::vector<double> leadCurrentQ;
-};
+
+    JacobianStamp jacStamp;
+    IdVector nodeMap;
+    PairMap pairToJacStampMap;
+
+    // These instance-owned vectors are for storage of lead current data
+    std::vector<double> leadCurrentF;
+    std::vector<double> leadCurrentQ;
+    };
 
 
 //-----------------------------------------------------------------------------
@@ -1356,168 +1356,168 @@ private:
 //-----------------------------------------------------------------------------
 class Model : public DeviceModel
 {
-  typedef std::vector<Instance *> InstanceVector;
+    typedef std::vector<Instance *> InstanceVector;
 
-  friend class ParametricData<Model>;
-  friend class Instance;
+    friend class ParametricData<Model>;
+    friend class Instance;
 #ifdef Xyce_ADMS_SENSITIVITIES
-  friend class InstanceSensitivity;
-  friend class ModelSensitivity;
+    friend class InstanceSensitivity;
+    friend class ModelSensitivity;
 #endif // Xyce_ADMS_SENSITIVITIES
-  friend struct Traits;
+    friend struct Traits;
 
-public:
-  Model(
-     const Configuration &       configuration,
-     const ModelBlock &          model_block,
-     const FactoryBlock &        factory_block);
+  public:
+    Model(
+      const Configuration &       configuration,
+      const ModelBlock &          model_block,
+      const FactoryBlock &        factory_block);
 
-  ~Model();
-
-private:
-  Model(const Model &);
-  Model &operator=(const Model &);
-
-public:
-  virtual void forEachInstance(DeviceInstanceOp &op) const /* override */;
-  virtual std::ostream &printOutInstances(std::ostream &os) const;
-  bool processParams();
-  bool processInstanceParams();
+    ~Model();
 
 private:
+    Model(const Model &);
+    Model &operator=(const Model &);
 
 public:
-  void addInstance(Instance *instance)
-  {
-    instanceContainer.push_back(instance);
-  }
+    virtual void forEachInstance(DeviceInstanceOp &op) const /* override */;
+    virtual std::ostream &printOutInstances(std::ostream &os) const;
+    bool processParams();
+    bool processInstanceParams();
 
-  void setupBaseInstanceContainer()
-  {
-    std::vector<Instance*>::iterator iter = instanceContainer.begin();
-    std::vector<Instance*>::iterator end   = instanceContainer.end();
-    for ( ; iter!=end; ++iter)
+  private:
+
+  public:
+    void addInstance(Instance *instance)
     {
+      instanceContainer.push_back(instance);
+    }
+
+    void setupBaseInstanceContainer()
+    {
+      std::vector<Instance*>::iterator iter = instanceContainer.begin();
+      std::vector<Instance*>::iterator end   = instanceContainer.end();
+      for ( ; iter!=end; ++iter)
+      {
       Xyce::Device::DeviceModel::baseInstanceContainer.push_back( static_cast<Xyce::Device::DeviceInstance *>(*iter) );
     }
   }
 
-private:
-  std::vector<Instance*> instanceContainer;
+  private:
+    std::vector<Instance*> instanceContainer;
 
-private:
+  private:
 
-  // This one is for the annoying bogus "XyceADMSInstTemp" parameter
-  // that we need so we can set it from the device manager when there's no
-  // "TEMP" model parameter to use
-  double admsModTemp;
-  // Begin verilog Model Variables
-  //   Model Parameters
-  double is;
-  int it_mod;
-  double mcf;
-  double mcr;
-  double vef;
-  double ver;
-  double aver;
-  double iqf;
-  double fiqf;
-  double iqr;
-  double iqfh;
-  double tfh;
-  double ahq;
-  double ibes;
-  double mbe;
-  double ires;
-  double mre;
-  double ibcs;
-  double mbc;
-  double cje0;
-  double vde;
-  double ze;
-  double aje;
-  double vdedc;
-  double zedc;
-  double ajedc;
-  double t0;
-  double dt0h;
-  double tbvl;
-  double tef0;
-  double gte;
-  double thcs;
-  double ahc;
-  double tr;
-  double rci0;
-  double vlim;
-  double vpt;
-  double vces;
-  double cjci0;
-  double vdci;
-  double zci;
-  double vptci;
-  double cjcx0;
-  double vdcx;
-  double zcx;
-  double vptcx;
-  double fbc;
-  double rbi0;
-  double vr0e;
-  double vr0c;
-  double fgeo;
-  double rbx;
-  double rcx;
-  double re;
-  double itss;
-  double msf;
-  double iscs;
-  double msc;
-  double cjs0;
-  double vds;
-  double zs;
-  double vpts;
-  double cbcpar;
-  double cbepar;
-  double eavl;
-  double kavl;
-  double kf;
-  double af;
-  double alqf;
-  double alit;
-  int flnqs;
-  double vgb;
-  double vge;
-  double vgc;
-  double vgs;
-  double f1vg;
-  double f2vg;
-  double alt0;
-  double kt0;
-  double zetact;
-  double zetabet;
-  double zetaci;
-  double alvs;
-  double alces;
-  double zetarbi;
-  double zetarbx;
-  double zetarcx;
-  double zetare;
-  double zetaiqf;
-  double alkav;
-  double aleav;
-  double zetarth;
-  int tef_temp;
-  double zetaver;
-  double zetavgbe;
-  double dvgbe;
-  double aliqfh;
-  double kiqfh;
-  int flsh;
-  double rth;
-  double cth;
-  int type;
-  double tnom;
-  //  Variables of global_model scope
-  // end verilog model variables=====
+    // This one is for the annoying bogus "XyceADMSInstTemp" parameter
+    // that we need so we can set it from the device manager when there's no
+    // "TEMP" model parameter to use
+    double admsModTemp;
+// Begin verilog Model Variables
+//   Model Parameters
+    double is;
+    int it_mod;
+    double mcf;
+    double mcr;
+    double vef;
+    double ver;
+    double aver;
+    double iqf;
+    double fiqf;
+    double iqr;
+    double iqfh;
+    double tfh;
+    double ahq;
+    double ibes;
+    double mbe;
+    double ires;
+    double mre;
+    double ibcs;
+    double mbc;
+    double cje0;
+    double vde;
+    double ze;
+    double aje;
+    double vdedc;
+    double zedc;
+    double ajedc;
+    double t0;
+    double dt0h;
+    double tbvl;
+    double tef0;
+    double gte;
+    double thcs;
+    double ahc;
+    double tr;
+    double rci0;
+    double vlim;
+    double vpt;
+    double vces;
+    double cjci0;
+    double vdci;
+    double zci;
+    double vptci;
+    double cjcx0;
+    double vdcx;
+    double zcx;
+    double vptcx;
+    double fbc;
+    double rbi0;
+    double vr0e;
+    double vr0c;
+    double fgeo;
+    double rbx;
+    double rcx;
+    double re;
+    double itss;
+    double msf;
+    double iscs;
+    double msc;
+    double cjs0;
+    double vds;
+    double zs;
+    double vpts;
+    double cbcpar;
+    double cbepar;
+    double eavl;
+    double kavl;
+    double kf;
+    double af;
+    double alqf;
+    double alit;
+    int flnqs;
+    double vgb;
+    double vge;
+    double vgc;
+    double vgs;
+    double f1vg;
+    double f2vg;
+    double alt0;
+    double kt0;
+    double zetact;
+    double zetabet;
+    double zetaci;
+    double alvs;
+    double alces;
+    double zetarbi;
+    double zetarbx;
+    double zetarcx;
+    double zetare;
+    double zetaiqf;
+    double alkav;
+    double aleav;
+    double zetarth;
+    int tef_temp;
+    double zetaver;
+    double zetavgbe;
+    double dvgbe;
+    double aliqfh;
+    double kiqfh;
+    int flsh;
+    double rth;
+    double cth;
+    int type;
+    double tnom;
+    //  Variables of global_model scope
+    // end verilog model variables=====
 };
 
 void registerDevice(const DeviceCountMap& deviceMap = DeviceCountMap(),

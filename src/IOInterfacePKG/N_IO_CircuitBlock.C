@@ -314,11 +314,11 @@ bool CircuitBlock::parseNetlistFilePass1(
     }
   }
 
-  std::map<std::string,int> par, fun, sub;
+  std::map<std::string,int> fun;
   for (;;) {
     bool line_parsed = true;
 
-    if (handleLinePass1( line_parsed, options_manager, par, fun, modMap_, sub, libSelect, libInside ) )
+    if (handleLinePass1( line_parsed, options_manager, fun, modMap_, libSelect, libInside ) )
       result = result && line_parsed;
     else
       break;
@@ -806,23 +806,6 @@ void CircuitBlock::setLinePosition( int const& position )
   ssfPtr_->setLineNumber( position );
 }
 
-//----------------------------------------------------------------------------
-// Function       : CircuitBlock::receiveCircuitContext
-// Purpose        : Receive the circuit context (from the distribution tool).
-// Special Notes  :
-// Scope          :
-// Creator        : Lon Waters
-// Creation Date  : 07/21/2003
-//----------------------------------------------------------------------------
-bool CircuitBlock::receiveCircuitContext(const CircuitContext & ccIn)
-{
-  circuitContext_ = ccIn;
-  circuitContext_.resolve( std::vector<Device::Param>() );
-
-  return true;
-}
-
-
 //--------------------------------------------------------------------------
 // Function      : CircuitBlock::extractSubcircuitData
 // Purpose       : Extract subcircuit data from parsedLine. The bulk of
@@ -1081,10 +1064,8 @@ void CircuitBlock::addOptions(const Util::OptionBlock & options)
 bool CircuitBlock::handleLinePass1(
   bool &                        result,
   PkgOptionsMgr &               options_manager,
-  std::map<std::string, int> &  par,
   std::map<std::string, int> &  fun,
   ModelMap &                    modMap,
-  std::map<std::string, int> &  sub,
   const std::string &           libSelect,
   std::vector< std::string > &  libInside)
 {
@@ -1296,6 +1277,16 @@ bool CircuitBlock::handleLinePass1(
       }
     }
 
+    else if (ES1 == ".PARAM")
+    {
+      return Xyce::IO::extractParamData( *this, netlistFilename_, line );
+    }
+
+    else if (ES1 == ".GLOBAL_PARAM")
+    {
+      return Xyce::IO::extractGlobalParamData( *this, netlistFilename_, line );
+    }
+
     else if (ES1 == ".END")
     {
       std::string name = circuitContext_.getCurrentContextPtr()->getName();
@@ -1320,8 +1311,9 @@ bool CircuitBlock::handleLinePass1(
       }
     }
 
-    else if (ES1 == ".INCLUDE" || ES1 == ".INC" || ES1 == ".LIB")
+    else if (ES1 == ".INCLUDE" || ES1 == ".INCL" || ES1 == ".INC" || ES1 == ".LIB")
     {
+      // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
       std::string includeFile, libSelect_new = libSelect, libInside_new;
       Xyce::IO::handleIncludeLine( netlistFilename_, line, 
                                    ES1, includeFile, libSelect_new, libInside_new );
@@ -1345,7 +1337,7 @@ bool CircuitBlock::handleLinePass1(
         int beforeMod = modMap.size();
         int beforeSubcktDef = circuitBlockTable_.size();
 
-        result = parseIncludeFile(options_manager, includeFile, libSelect_new, par, fun, modMap, sub);
+        result = parseIncludeFile(options_manager, includeFile, libSelect_new, fun, modMap);
   
         // Load include file information into struct for future use.
         IncludeFileInfo info;
@@ -1594,8 +1586,9 @@ bool CircuitBlock::getLinePassMI()
           subcircuitPtr->setLinePosition( subcircuitPtr->getLineEndPosition() );
 
         }
-        else if (ES1 == ".INCLUDE" || ES1 == ".INC")
+        else if (ES1 == ".INCLUDE" || ES1 == ".INCL" || ES1 == ".INC")
         {
+          // HSPICE documents .INC, .INCL and .INCLUDE as being a valid .INC line
           std::string includeFile;
           std::string libInside, libSelect;
           Xyce::IO::handleIncludeLine( netlistFilename_, line,
@@ -1821,10 +1814,8 @@ bool CircuitBlock::parseIncludeFile(
   PkgOptionsMgr &               options_manager,
   const std::string &           includeFile,
   const std::string &           libSelect,
-  std::map<std::string, int> &  par,
   std::map<std::string, int> &  fun,
-  ModelMap &                    modMap,
-  std::map<std::string, int> &  sub)
+  ModelMap &                    modMap)
 {
   // Save current ssfPtr_ and netlistFilename_.
   SpiceSeparatedFieldTool* oldssfPtr = ssfPtr_;
@@ -1893,7 +1884,7 @@ bool CircuitBlock::parseIncludeFile(
   for (;;) {
     bool line_parsed = true;
 
-    if (handleLinePass1(line_parsed, options_manager, par, fun, modMap, sub, libSelect, libInside) )
+    if (handleLinePass1(line_parsed, options_manager, fun, modMap, libSelect, libInside) )
       result = result && line_parsed;
     else
       break;

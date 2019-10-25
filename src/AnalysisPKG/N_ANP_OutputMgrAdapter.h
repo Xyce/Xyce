@@ -130,6 +130,16 @@ public:
     dcAnalysisMaxSteps_ = num;
   }
 
+  void setDotACSpecified( bool value)
+  {
+    outputManager_.setDotACSpecified(value);
+  }
+
+  void setDotNoiseSpecified( bool value)
+  {
+    outputManager_.setDotNoiseSpecified(value);
+  }
+
   void setEnableEmbeddedSamplingFlag( bool value)
   {
     outputManager_.setEnableEmbeddedSamplingFlag(value);

@@ -49,6 +49,9 @@
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_RFparams.h>
 
+
+#include <Teuchos_SerialDenseMatrix.hpp>
+#include <Teuchos_SerialDenseVector.hpp>
 namespace Xyce {
 namespace Device {
 namespace YLin {
@@ -57,15 +60,13 @@ namespace YLin {
 /// Common Jacobian Stamp for all YLin devices.
 /// Because all resistors have identical Jacobian stamps, this data is
 /// declared static and is shared by all resistor instances.
-///
-std::vector<std::vector<int> > Instance::jacStamp;
 
 //-----------------------------------------------------------------------------
 // Function      : Xyce::Device::YLin::Instance::initializeJacobianStamp
 // Purpose       :
 // Special Notes :
 // Scope         : private
-// Creator       : Pete Sholander, SNL
+// Creator       : Ting Mei, SNL
 // Creation Date : 08/19/2019
 //-----------------------------------------------------------------------------
 
@@ -73,14 +74,18 @@ void Instance::initializeJacobianStamp()
 {
   if (jacStamp.empty())
   {
-    jacStamp.resize(2);
-    jacStamp[0].resize(2);
-    jacStamp[1].resize(2);
-    jacStamp[0][0] = 0;
-    jacStamp[0][1] = 1;
-    jacStamp[1][0] = 0;
-    jacStamp[1][1] = 1;
+    jacStamp.resize(numExtVars);
+
+    for ( int i=0; i < numExtVars; i++)
+    {    
+      jacStamp[i].resize(numExtVars);
+
+      for ( int j=0; j< numExtVars; j++)
+        jacStamp[i][j] = j;
+
+    }
   }
+
 }
 
 //-----------------------------------------------------------------------------
@@ -169,7 +174,7 @@ Instance::Instance(
   setNumBranchDataVars(0);             // by default don't allocate space in branch vectors
   numBranchDataVarsIfAllocated = 1;    // this is the space to allocate if lead current or power is needed.
 
-  initializeJacobianStamp();
+//  initializeJacobianStamp();
 
   // Set params to constant default values from parameter definition
   setDefaultParams();
@@ -182,47 +187,15 @@ Instance::Instance(
 
   // calculate dependent (ie computed) params and check for errors
   processParams();
-}
 
-
-//-----------------------------------------------------------------------------
-// Function      : Xyce::Device::YLin::isLinearDevice()
-// Purpose       : Indicate whether device is time/solution-dependent or not
-// Special Notes :
-// Scope         : public
-// Creator       : Heidi Thornquist
-// Creation Date : 8/1/2017
-//-----------------------------------------------------------------------------
-bool Instance::isLinearDevice() const
-{
-  if( loadLeadCurrent )
+  if (numExtVars != 2 * model_.numPorts_)
   {
-    return false;
+    UserError(*this) << "The number of nodes, "<< numExtVars << ", must be twice the number of ports, " << model_.numPorts_;
   }
 
-  const std::vector<Depend> & depVec = const_cast<Xyce::Device::YLin::Instance*>(this)->getDependentParams();
-  if ( depVec.size() )
-  {
-    std::vector<Depend>::const_iterator d;
-    std::vector<Depend>::const_iterator begin=depVec.begin();
-    std::vector<Depend>::const_iterator end=depVec.end();
+  initializeJacobianStamp();
 
-    for (d=begin; d!=end; ++d)
-    {
-      int expNumVars = d->n_vars;
-      int expNumGlobal = d->global_params.size();
-      Util::Expression* expPtr = d->expr;
-
-      if (expNumVars > 0 || expPtr->isTimeDependent() || expNumGlobal > 0 )
-      {
-        return false;
-      }
-    }
-  }
-
-  return true;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : Xyce::Device::YLin::Instance::processParams
@@ -234,6 +207,7 @@ bool Instance::isLinearDevice() const
 //-----------------------------------------------------------------------------
 bool Instance::processParams()
 {
+
   // THIS IS A HACK.  Set resistance to first element of Z0Vec_ populated
   // from model's Touchstone file.
   if (model_.Z0Vec_.size() == 0)
@@ -347,6 +321,9 @@ void Instance::registerJacLIDs(const std::vector< std::vector<int> > & jacLIDVec
   APosEquNegNodeOffset = jacLIDVec[0][1];
   ANegEquPosNodeOffset = jacLIDVec[1][0];
   ANegEquNegNodeOffset = jacLIDVec[1][1];
+
+  LIDVec_ = jacLIDVec;
+
 }
 
 //-----------------------------------------------------------------------------
@@ -840,6 +817,7 @@ bool Model::readTouchStoneFile()
              << " for model " << getName() << " at line " << lineNum;
           return false;
         }
+
         // skip over any comment lines
         if (!inputFile.eof())
 	{
@@ -874,6 +852,8 @@ bool Model::readTouchStoneFile()
 	    {
               for (int j=0; j<numPorts_; ++j)
 	      {
+                // data will be converted to RI format for internal use in
+                // YLin model
                 ExtendedString Str1(parsedLine[2*(i*numPorts_+j)+1].string_);
 	        ExtendedString Str2(parsedLine[2*(i*numPorts_+j)+2].string_);
                 if (dataFormat_ == "RI")
@@ -911,7 +891,26 @@ bool Model::readTouchStoneFile()
               inputNetworkData[2][1] = tempVal;
 	    }
 
-            inputNetworkDataVec_.push_back(inputNetworkData);
+            // YLin model will use Y-parameter format internally
+            if (paramType_=='S')
+	    {
+              Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
+              YParams.shape(numPorts_, numPorts_);
+	      Util::stoy(inputNetworkData,YParams,Z0Vec_);
+              inputNetworkDataVec_.push_back(YParams);
+            }
+            else if (paramType_=='Z')
+	    {
+              Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
+              YParams.shape(numPorts_, numPorts_);
+	      Util::ztoy(inputNetworkData,YParams);
+              inputNetworkDataVec_.push_back(YParams);
+            }
+            else
+	    {
+              // input was in Y-parameter format
+              inputNetworkDataVec_.push_back(inputNetworkData);
+            }
           }
 
           // read in next line
@@ -1123,7 +1122,19 @@ Model::Model(
   processParams();
 
   // read Touchstone 2 formatted input file
-  if (TSFileNameGiven_) readTouchStoneFile();
+  bool TouchstoneFileRead=false;
+  if (TSFileNameGiven_)
+    TouchstoneFileRead = readTouchStoneFile();
+  else
+    UserError(*this) << "No Touchstone input file given for model " << getName();
+
+
+  // it the file was successfully converted it is in Y-parameters and RI format
+  if (TouchstoneFileRead)
+  {
+    paramType_='Y';
+    dataFormat_="RI";
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1364,35 +1375,69 @@ bool Master::loadDAEMatrices(Linear::Matrix & dFdx, Linear::Matrix & dQdx, int l
 }
 
 
+//-----------------------------------------------------------------------------
+// Function      : Master::loadFreqDAEMatrices
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Ting Mei
+// Creation Date : 10/1/2019
+//----------------------------------------------------------------------------
 bool Master::loadFreqDAEVectors(double frequency, std::complex<double>* solVec,
                                 std::vector<Util::FreqVecEntry>& fVec,
                                 std::vector<Util::FreqVecEntry>& bVec)
 {
-/*
+
   InstanceVector::const_iterator it, end;
 
-  it = linearInstances_.begin();
-  end = linearInstances_.end();
+  it = getInstanceBegin();
+  end = getInstanceEnd();
 
   Util::FreqVecEntry tmpEntry;
-
+     
   for ( ; it != end; ++it )
-  {
-    Instance & ri = *(*it);
+  { 
+    Instance & inst = *(*it);
 
-    std::complex<double> tmpVal = (solVec[ri.li_Pos]-solVec[ri.li_Neg])*ri.G;
+    std::vector<std::complex<double> > port_vals;
 
-    // Add RHS vector element for the positive circuit node KCL equ.
-    tmpEntry.val = tmpVal;
-    tmpEntry.lid = ri.li_Pos;
-    fVec.push_back(tmpEntry);
+    for (size_t i = 0; i < inst.extLIDVec.size(); i += 2)
+    {
+      port_vals.push_back( solVec[inst.extLIDVec[i]] - solVec[inst.extLIDVec[i + 1]] );
+    }
 
-    // Add RHS vector element for the negative circuit node KCL equ.
-    tmpEntry.val = -tmpVal;
-    tmpEntry.lid = ri.li_Neg;
-    fVec.push_back(tmpEntry);
+    Teuchos::SerialDenseVector<int,std::complex<double> > Fvec( inst.model_.numPorts_ );
+    Teuchos::SerialDenseVector<int,std::complex<double> > Xvec( Teuchos::View, &port_vals[0], inst.model_.numPorts_ );
+
+
+//    interpLin( frequency, freqVec_,  inputNetworkDataVec_);
+                                    
+    int freqIndex;
+    for (int i=0; i<inst.model_.numFreq_ ;  i++ )   
+    { 
+      if (frequency == inst.model_.freqVec_[i] )
+        freqIndex = i;
+
+    }
+
+    Fvec.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, Teuchos::ScalarTraits<std::complex<double> >::one(),
+                                inst.model_.inputNetworkDataVec_[freqIndex], Xvec, Teuchos::ScalarTraits<std::complex<double> >::zero() );
+
+
+    for (size_t i = 0; i < inst.extLIDVec.size(); i += 2)
+    {
+      tmpEntry.val = Fvec[i/2];
+      tmpEntry.lid = inst.extLIDVec[i];   
+      fVec.push_back(tmpEntry);
+
+      // Add RHS vector element for the negative circuit node KCL equ.
+      tmpEntry.val = -Fvec[i/2];
+      tmpEntry.lid = inst.extLIDVec[i+1];
+      fVec.push_back(tmpEntry);
+    }
+
+
   }
-*/
   return true;
 }
 
@@ -1401,18 +1446,56 @@ bool Master::loadFreqDAEMatrices(double frequency, std::complex<double>* solVec,
                                  std::vector<Util::FreqMatEntry>& dFdx)
 {
   InstanceVector::const_iterator it, end;
-/*
-  it = linearInstances_.begin();
-  end = linearInstances_.end();
+
+
+  it =  getInstanceBegin();
+  end = getInstanceEnd();
 
   Util::FreqMatEntry tmpEntry;
 
   for ( ; it != end; ++it )
   {
-    Instance & ri = *(*it);
+    Instance & inst = *(*it);
+
+               
+    int freqIndex;
+    for (int i=0; i<inst.model_.numFreq_ ;  i++ )   
+    { 
+      if (frequency == inst.model_.freqVec_[i] )
+        freqIndex = i;
+
+    }
+
+    for (int i=0; i< inst.model_.numPorts_ ; i++)
+    {
+
+      for (int j=0; j< inst.model_.numPorts_ ; j++)
+      {
+        std::complex<double> tmpVal = std::complex<double>( (inst.model_.inputNetworkDataVec_[freqIndex])(i, j) );
+
+        tmpEntry.val = tmpVal;
+        tmpEntry.row_lid = inst.extLIDVec[2*i + 0];
+        tmpEntry.col_lid = inst.LIDVec_[2*i + 0][ 2*j + 0];
+        dFdx.push_back(tmpEntry);
+
+        tmpEntry.row_lid = inst.extLIDVec[2*i + 1];
+        tmpEntry.col_lid = inst.LIDVec_[2*i + 1][ 2*j + 1];
+        dFdx.push_back(tmpEntry);
+
+        tmpEntry.val = -tmpVal;
+        tmpEntry.row_lid = inst.extLIDVec[2*i + 0];
+        tmpEntry.col_lid = inst.LIDVec_[2*i + 0][2*j + 1];
+        dFdx.push_back(tmpEntry);
+
+        tmpEntry.row_lid = inst.extLIDVec[2*i + 1];
+        tmpEntry.col_lid = inst.LIDVec_[2*i + 1][2*j + 0];
+        dFdx.push_back(tmpEntry);
+      }
+    }
+
 
     // Add RHS vector element for the positive circuit node KCL equ.
-    tmpEntry.val = std::complex<double>(ri.G, 0.0);
+/*    tmpEntry.val = std::complex<double>(ri.G, 0.0);
     tmpEntry.row_lid = ri.li_Pos;
     tmpEntry.col_lid = ri.APosEquPosNodeOffset;
     dFdx.push_back(tmpEntry);
@@ -1429,9 +1512,10 @@ bool Master::loadFreqDAEMatrices(double frequency, std::complex<double>* solVec,
 
     tmpEntry.row_lid = ri.li_Neg;
     tmpEntry.col_lid = ri.ANegEquPosNodeOffset;
-    dFdx.push_back(tmpEntry);
+    dFdx.push_back(tmpEntry);      */
   }
-*/
+
+
   return true;
 }
 

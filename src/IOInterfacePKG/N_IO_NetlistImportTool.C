@@ -56,6 +56,7 @@
 #include <N_IO_ParsingMgr.h>
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_MeasureManager.h>
+#include <N_IO_WildcardSupport.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_Marshal.h>
 
@@ -463,6 +464,7 @@ int NetlistImportTool::constructCircuitFromNetlist(
   // the .PRINT, .FOUR or .MEASURE lines.
   std::set<std::string> devicesNeedingLeadCurrents;
   getLeadCurrentDevices(output_manager.getVariableList(), devicesNeedingLeadCurrents);
+  getWildCardLeadCurrentDevices(output_manager.getVariableList(), device_names, devicesNeedingLeadCurrents);
 
   // This is the last call before devices are constructed
   // So it's the last time I can isolate lead currents. However it won't be sufficient
@@ -473,12 +475,18 @@ int NetlistImportTool::constructCircuitFromNetlist(
   device_manager.setLeadCurrentRequests(fourier_manager.getDevicesNeedingLeadCurrents());
   device_manager.setLeadCurrentRequests(measure_manager.getDevicesNeedingLeadCurrents());
 
+  // printLineDiagnostics() is where parsing looks for I(*), P(*) and W(*) on the .PRINT line,
+  // amongst many other things.  If any of those three operators are found then set the
+  // corresponding flag in the device_manager which enables lead current calculations for all devices.
+  bool iStarRequested=false;
   printLineDiagnostics(comm, output_manager.getOutputParameterMap(), device_manager, measure_manager, nodeNames_, 
       stepParams_, 
       samplingParams_, 
       embeddedSamplingParams_, 
       pceParams_, 
-      dcParams_, device_names, aliasNodeMap_, deferredUndefinedParameters_);
+      dcParams_, device_names, aliasNodeMap_, deferredUndefinedParameters_, iStarRequested);
+
+  device_manager.setIStarRequested(iStarRequested);
 
   return 1;
 }
@@ -499,7 +507,7 @@ bool findNode(const std::string &name, const unordered_set<std::string> &node_se
   return ret;
 }
 
-}
+} // end of unnamed
 
 //-----------------------------------------------------------------------------
 // Function      : OutputMgr::registerDCOptions
@@ -656,7 +664,8 @@ void printLineDiagnostics(
   const std::vector<std::string> &              dc_params,
   const unordered_set<std::string> &    device_map,
   const IO::AliasNodeMap &                      alias_node_map,
-  UndefinedNameSet &                            deferred_undefined_parameters)
+  UndefinedNameSet &                            deferred_undefined_parameters,
+  bool &                                        iStarRequested)
 {
   UndefinedNameSet undefined_parameters;
 
@@ -907,8 +916,10 @@ void printLineDiagnostics(
         {
           const std::string &name= *iter_s;
 
-          // allow * to pass
-          nodeStat[name] = (name == "*") || (findNode(name, node_names, alias_node_map));
+          // Allow * to pass.  This also assumes that something like V(1*) is a wildcard request
+          // for all nodal voltages that start with '1', rather than the voltage at node 1*.
+          nodeStat[name] = (name == "*") || findWildCardMatch(name,node_names) ||
+	                   (findNode(name, node_names, alias_node_map));
         }
 
         for (std::vector<std::string>::iterator iter_s= instances.begin(); iter_s != instances.end(); ++iter_s)
@@ -917,13 +928,21 @@ void printLineDiagnostics(
 
           if (name.substr(name.size() - 1, 1) == "}")
           {
-            // allow * to pass
-            instanceStat[name] = (name == "*") || (device_map.find(name.substr(0, name.size() - 3)) != device_map.end());
+            // Allow * to pass.  This also assumes that something like I(R1*) is a wildcard
+            // request for all R devices nodes that start with "R1".
+            instanceStat[name] = (name[0] == '*') || findWildCardMatch(name.substr(0, name.size() - 3),device_map) ||
+                                 (device_map.find(name.substr(0, name.size() - 3)) != device_map.end());
+            if (name[0] == '*')
+              iStarRequested=true;
           }
           else
           {
-            // allow * to pass
-            instanceStat[name] = (name == "*") || (device_map.find(name) != device_map.end());
+            // Allow * to pass.  This also assumes that something like I(R1*) is a wildcard
+            // request for all R devices nodes that start with "R1".
+            instanceStat[name] = (name == "*") || findWildCardMatch(name,device_map) ||
+                                 (device_map.find(name) != device_map.end());
+            if (name == "*")
+              iStarRequested=true;
           }
         }
       }
@@ -1243,6 +1262,57 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
             devicesNeedingLeadCurrents.insert(iterParam->tag());
           }
         }
+      }
+    }
+  }
+
+  // the list of devices that need lead currents.
+  if (DEBUG_IO && !devicesNeedingLeadCurrents.empty())
+  {
+    std::set<std::string>::iterator currentDeviceNameItr = devicesNeedingLeadCurrents.begin();
+    std::set<std::string>::iterator endDeviceNameItr = devicesNeedingLeadCurrents.end();
+    Xyce::dout() << "Devices for which lead currents were requested: ";
+    while ( currentDeviceNameItr != endDeviceNameItr)
+    {
+      Xyce::dout() << *currentDeviceNameItr << "  ";
+      currentDeviceNameItr++;
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+// Function       : getWildCardLeadCurrentDevices
+// Purpose        : Determine which devices need to have lead currents enable
+//                  because they match a wildcard specification in an I(), P()
+//                  or W() operator.
+// Special Notes  :
+// Creator        : Pete Sholander, SNL
+// Creation Date  : 9/25/2019
+//----------------------------------------------------------------------------
+void getWildCardLeadCurrentDevices(
+  const Util::ParamList &variable_list,
+  const unordered_set<std::string> & device_names,
+  std::set<std::string> &devicesNeedingLeadCurrents)
+{
+  for (Util::ParamList::const_iterator iterParam = variable_list.begin() ; iterParam != variable_list.end(); ++iterParam)
+  {
+    const std::string &varType = iterParam->tag();
+
+    if ( !Util::hasExpressionTag(*iterParam) && ((varType == "I" || (varType.size() == 2 && varType[0] == 'I')) ||
+         (varType == "P") || (varType == "W")) &&  (iterParam->getImmutableValue<int>() > 0))
+    {
+      // any devices that match this I(xx), P(xx) or W(xx) wildcard request need to be
+      // communicated to the device manager so that their lead currents can be calculated
+      if (iterParam->getImmutableValue<int>() != 1)
+      {
+        Report::UserError0() << "Only one device argument allowed in I(), W() or P() in .print";
+      }
+      else
+      {
+        ++iterParam;
+	std::vector<std::string> matches;
+	findAllWildCardMatches(iterParam->tag(), device_names, matches);
+        devicesNeedingLeadCurrents.insert(matches.begin(),matches.end());
       }
     }
   }

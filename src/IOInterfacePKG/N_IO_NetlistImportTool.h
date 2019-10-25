@@ -176,7 +176,7 @@ public:
     return deferredUndefinedParameters_;
   }
   
-  const std::map<std::string, Util::Param> &getMainContextFunctions() const
+  const Util::ParamMap &getMainContextFunctions() const
   {
     return circuitContext_.getFunctions();
   }
@@ -242,6 +242,11 @@ void checkNodeDevConflicts(const unordered_set<std::string> &device_names, N_PDS
 
 void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::string> &devicesNeedingLeadCurrents);
 
+void getWildCardLeadCurrentDevices(
+  const Util::ParamList &variable_list,
+  const unordered_set<std::string> & device_names,
+  std::set<std::string> &devicesNeedingLeadCurrents);
+
 void printLineDiagnostics(
   Parallel::Machine                             comm,
   const OutputParameterMap &                    output_parameter_map,
@@ -255,7 +260,8 @@ void printLineDiagnostics(
   const std::vector<std::string> &              dc_params,
   const unordered_set<std::string> &            device_names,
   const IO::AliasNodeMap &                      alias_node_map,
-  UndefinedNameSet &                            deferred_parameter_check);
+  UndefinedNameSet &                            deferred_parameter_check,
+  bool &                                        iStarRequested);
 
 void deferredParameterDiagnostics(
   Parallel::Machine                             comm,

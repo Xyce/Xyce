@@ -653,45 +653,26 @@ CktNode * CktGraphBasic::replaceNode( const NodeID nodeToBeReplaced,
   
   // look up key for these nodes in graph.
   CktNode * nodeToBeReplacedCktNodePtr = FindCktNode( nodeToBeReplaced );
+ 
+  if (nodeToBeReplacedCktNodePtr)
+  { 
+    // 1. get the adjacency of both nodes
+    std::vector<NodeID> adjNodeToBeReplaced;
+    returnAdjIDs( nodeToBeReplaced, adjNodeToBeReplaced );
   
-  // 1. get the adjacency of both nodes
-  std::vector<NodeID> adjNodeToBeReplaced, adjNodeToKeep;
-  returnAdjIDs( nodeToBeReplaced, adjNodeToBeReplaced );
-  returnAdjIDs( nodeToKeep, adjNodeToKeep );
-  
-  /*
-  // 2. combine to the two adjacencies
-  // loop over ajdNodeToBeReplaced and add any nodes not found in ajdNodeToKeep to ajdNodeToKeep
-  std::vector<std::string>::iterator currNodeToBeReplacedAdjItr = adjNodeToBeReplaced.begin();
-  std::vector<std::string>::iterator endNodeToBeReplacedAdjItr = adjNodeToBeReplaced.end();
-  while( currNodeToBeReplacedAdjItr != endNodeToBeReplacedAdjItr )
-  {
-    std::vector<std::string>::iterator beginNodeToKeepAdjItr = ajdNodeToKeep.begin();
-    std::vector<std::string>::iterator endNodeToKeepAdjItr = ajdNodeToKeep.end();
-    std::vector<std::string>::iterator locationNodeToKeepAdjItr = find( beginNodeToKeepAdjItr, endNodeToKeepAdjItr, *currNodeToBeReplacedAdjItr);
-    if( locationNodeToKeepAdjItr == endNodeToKeepAdjItr )
-    {
-      // this adjacency was not in the new list.  So add it in
-      ajdNodeToKeep.push_back( *currNodeToBeReplacedAdjItr );
-    }
-    currNodeToBeReplacedAdjItr++;
-  }
-  
-  
-  // 3. set nodeToKeep's adjacency to what we found in step 2.
-  cktgph_.setAdjacent( nodeToBeReplaced, nodeToKeep, ajdNodeToKeep );
-  */
-  cktgph_.addToAdjacent( nodeToBeReplaced, nodeToKeep, adjNodeToBeReplaced );
-  
-  // 4. tell the graph to replace any other adjacencies that refer to nodeToBeReplaced with nodeToKeep
-  cktgph_.replaceAdjacent( nodeToBeReplaced, nodeToKeep );
-  
-  // 5. Remove nodeToBeReplaced and return it's associated CktNode object
-  cktgph_.removeKey( nodeToBeReplaced );
+    // 2. set nodeToKeep's adjacency to include nodeToBeReplaced adjacencies.
+    cktgph_.addToAdjacent( nodeToBeReplaced, nodeToKeep, adjNodeToBeReplaced );
+ 
+    // 3. tell the graph to replace any other adjacencies that refer to nodeToBeReplaced with nodeToKeep
+    cktgph_.replaceAdjacent( nodeToBeReplaced, nodeToKeep );
 
-  // changed ordering so set isModified_ flag
-  isModified_ = true;
-  
+    // 4. Remove nodeToBeReplaced and return it's associated CktNode object
+    cktgph_.removeKey( nodeToBeReplaced );
+
+    // changed ordering so set isModified_ flag
+    isModified_ = true;
+  } 
+
   return nodeToBeReplacedCktNodePtr;
 }
 
@@ -773,6 +754,28 @@ void CktGraphBasic::removeRedundantDevices(std::vector< CktNode * > & removedDev
     isModified_=true;
   }
 
+}
+
+//-----------------------------------------------------------------------------
+// Function      : CktGraphBasic::put
+// Purpose       : Allows virtual override of operator<<
+// Special Notes :
+// Scope         : public
+// Creator       : Robert Hoekstra, SNL, Parallel Computational Sciences
+// Creation Date : 8/10/06
+//-----------------------------------------------------------------------------
+void CktGraphBasic::removeNodes( const std::vector< NodeID > nodesToBeRemoved, std::vector< CktNode * > & removedNodes )
+{ 
+  std::vector< NodeID >::const_iterator it = nodesToBeRemoved.begin();
+  for ( ; it != nodesToBeRemoved.end(); ++it )
+  {
+    CktNode * nodeToBeReplacedCktNodePtr = FindCktNode(*it);
+    if (nodeToBeReplacedCktNodePtr)
+      removedNodes.push_back( nodeToBeReplacedCktNodePtr );
+  }  
+ 
+  cktgph_.removeKeys( nodesToBeRemoved ); 
+  isModified_=true; 
 }
 
 //-----------------------------------------------------------------------------

@@ -410,6 +410,13 @@ public:
     return ACSpecified_;
   }
 
+  bool getIStarRequested() const
+  {
+    return iStarRequested_;
+  }
+
+  void setIStarRequested(bool flagVal);
+
   // convergence:  allow devices to signal back to the solvers that
   // they've played some game that invalidates normal convergence tests,
   // and so the solution should be considered unconverged no matter how
@@ -597,6 +604,10 @@ private:
   // analysis options  (for now bools that say what type of "." line was present in netlist)
   bool                          ACSpecified_;
   bool                          HBSpecified_;
+
+  // used to enable lead-current calcuations for all devices.  This is set, during
+  // netlist importation, when I(*), P(*) or W(*) appears on any .PRINT line.
+  bool                          iStarRequested_;
 };
 
 //-----------------------------------------------------------------------------

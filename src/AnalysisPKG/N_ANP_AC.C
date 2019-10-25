@@ -382,6 +382,8 @@ AC::AC(
   RFparams_.insert(std::make_pair("Y",&Yparams_));
   RFparams_.insert(std::make_pair("S",&Sparams_));
   RFparams_.insert(std::make_pair("Z",&Zparams_));
+
+  outputManagerAdapter_.setDotACSpecified(true);
 }
 
 //-----------------------------------------------------------------------------

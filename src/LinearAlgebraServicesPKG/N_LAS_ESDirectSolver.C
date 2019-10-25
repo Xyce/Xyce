@@ -707,7 +707,7 @@ void ESDirectSolver::formESJacobian()
     }
   }
 
-  if ( solver_ == "BASKER" || outputLS_ )
+  if ( solver_ == "BASKER" || ( solver_ == "BLOCK_BASKER"  && outputLS_ ) )
   {
     // Copy over matrix into non-block data structures for Basker.
     if (myProc == 0)
@@ -1033,6 +1033,7 @@ void ESDirectSolver::printESJacobian( const std::string& fileName )
       {
         for (int i=0; i<denseESJacobian_.rows; i++)
         {
+          out << i+1 << " " << j+1 << " " ;
           out << denseESJacobian_.denseMtx( i, j ) << std::endl;
         }
       }

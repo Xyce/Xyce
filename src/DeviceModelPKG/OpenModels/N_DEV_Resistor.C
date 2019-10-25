@@ -1310,7 +1310,8 @@ void Master::storeInstance( const FactoryBlock& factory_block, Instance* instanc
   const std::set<std::string>& leadCurrentSet = factory_block.deviceManager_.getDevicesNeedingLeadCurrentLoads();
   std::string outputName = (instance->getName()).getEncodedName();
   if ( factory_block.deviceOptions_.calculateAllLeadCurrents ||
-      leadCurrentSet.find(outputName) != leadCurrentSet.end() )
+      leadCurrentSet.find(outputName) != leadCurrentSet.end() ||
+       factory_block.deviceManager_.getIStarRequested() )
   {
     loadLeadCurrent = true;
   }
