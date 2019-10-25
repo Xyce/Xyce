@@ -33,9 +33,6 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
-\textbf{xxx-SON}: place holder title &
-place holder description  \\ \hline
-
 \textbf{1224-SON}: Improved error handling for .SAMPLING &
 In the previous release of Xyce, a \texttt{.SAMPLING} analysis would run
 even if the user-specified \texttt{STD\_DEVIATIONS}, \texttt{ALPHA} and
@@ -81,7 +78,7 @@ analysis without any valid port (P) devices in the netlist would cause
 
 \textbf{1198-SON}: Binning doesn't work for BSIM6 and other models in the ADMS directory &
 Binning (the kind enabled by \texttt{.options parser
-model\_binning=true} did not work properly for several MOSFET models
+model\_binning=true}) did not work properly for several MOSFET models
 derived from Verilog-A, because the authors of those models had not
 included the dummy
 parameters \textbf{LMIN}, \textbf{LMAX}, \textbf{WMIN},
