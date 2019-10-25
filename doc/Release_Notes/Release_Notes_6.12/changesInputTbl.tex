@@ -33,14 +33,14 @@
   \color{white}\textbf{Change} &
   \color{white}\textbf{Detail} \\ \hline \endhead
 
-The behavior of the \texttt{PULSE} transient source has changed & The \texttt{V1}
-parameter, which is the initial value, is now a required parameter.  Previously,
-a \texttt{PULSE} source that was specified with no parameters would default to a 0V 
-(or 0A) DC source.  Note that in other simulators, like PSpice and ngspice, both the 
-\texttt{V1} and \texttt{V2} parameters may be required for a \texttt{PULSE} source.
-\\ \hline
-The behavior of \texttt{TIME}, \texttt{TEMP} and \texttt{VT} on
-\texttt{.PARAM} lines has changed & That usage is now a parsing error.
+Single quotes can now be used as delimiters around file names on \texttt{.INC}
+and \texttt{.LIB} lines. & As examples, all three of these lines are now legal
+in \Xyce{}.
+\begin{alltt}
+.INC models.lib
+.INC 'models.lib'
+.INC "models.lib"
+\end{alltt}
 \\ \hline
 
 \end{longtable}

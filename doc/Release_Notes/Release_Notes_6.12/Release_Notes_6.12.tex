@@ -36,8 +36,8 @@ Version \XyceVersionVar{} Release Notes}
 
 \date{\today}
 
-% Submitted to R&A TBD April 2019 Tracking number TBD, approved TBD April 2019
-% SAND Number SAND2018-TBD
+% Submitted to R&A 14 October 2019 Tracking number 1033503, approved 14 October 2019
+% SAND Number SAND2019-12448 O
 
 % ---------------------------------------------------------------------------- %
 % Start the document
@@ -86,11 +86,11 @@ please visit the \XyceTM{} web page at
 
 \subsubsection*{Enhanced Solver Stability, Performance and Features}
 \begin{XyceItemize}
-\item Improved direct solver performance and reductions in general memory 
-usage has been achieved through modifications to the topology layer.
-\item The time step recovery algorithm is now considered deprecated.  
-It will be removed in a future version of \Xyce{}.
-\item place holder
+\item Improved direct solver performance and reductions in general
+  memory usage has been achieved through modifications to the topology
+  layer.
+\item The time step recovery algorithm is now considered deprecated.
+  It will be removed in a future version of \Xyce{}.
 \end{XyceItemize}
 
 \subsubsection*{Interface Improvements}
@@ -99,7 +99,7 @@ It will be removed in a future version of \Xyce{}.
   HSpice-style \texttt{.DATA} command.  This allows the user to specify parameter
   loops in which multiple parameters are changed simultaneously.  Previously,
   this capability only applied to  \texttt{.STEP}, \texttt{.DC} and \texttt{.AC}
-  analysis.
+  analyses.
 \item A new SPLOT print format that outputs data in standard columns,
   like a .prn file, but with improved compatibility for .STEP data with
   the splot command in gnuplot.
@@ -116,8 +116,11 @@ This new option improves the compatibility of \Xyce{} output with gnuplot.
 
 \subsubsection*{Important Announcements}
 \begin{XyceItemize}
+\item The \Xyce{} project is no longer providing binaries for RHEL6.
+  This system is close to its end of life, and Sandia has been
+  decommissioning its RHEL6 systems.
 \item The model interpolation technique described in the \Xyce{}
-  Reference Guide in section 2.1.17 has been marked as deprecated, and
+  Reference Guide in section 2.1.18 has been marked as deprecated, and
   will be removed in a future release of Xyce.
 \item It has been determined that some distributions of Linux have
   broken builds of OpenMPI in their package repositories.  Building
@@ -131,7 +134,7 @@ This new option improves the compatibility of \Xyce{} output with gnuplot.
   names to a table of x,y pairs of data.  The old convention of
   \texttt{PARAMETER="file.dat"} which worked in some model statements
   and in behavioral sources will now generate a warning in the \Xyce{}
-  output.  The correct way to specify a file of data for a paramater
+  output.  The correct way to specify a file of data for a parameter
   is to use the new \texttt{tablefile} keyword as in
   \texttt{PARAMETER=tablefile("file.dat")}.  While this release of
   \Xyce{} will accept both the old and new syntax, the double quote
@@ -181,7 +184,6 @@ The following platforms have been subject to certification testing for the
 \Xyce{} version 6.12 release.
 \begin{XyceItemize}
   \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 7, x86-64 (serial and parallel)
-  \item Red Hat Enterprise Linux${}^{\mbox{\textregistered}}$ 6, x86-64 (serial and parallel)
   \item Microsoft Windows 10${}^{\mbox{\textregistered}}$, x86-64 (serial)
   \item Apple${}^{\mbox{\textregistered}}$ OS X Sierra, x86-64 (serial and parallel)
 \end{XyceItemize}
