@@ -82,9 +82,11 @@ please visit the \XyceTM{} web page at
 \subsubsection*{Interface Improvements}
 \begin{XyceItemize}
 \item \texttt{FREQ} is now supported as a ``special variable'' that denotes
-the current simulation frequency.  It works for global parameters and
-dependent device parameters.  It also works on \texttt{.PRINT} and
-\texttt{.FUNC} lines.
+  the current simulation frequency.  It works for global parameters and
+  dependent device parameters.  It also works on \texttt{.PRINT} and
+  \texttt{.FUNC} lines.
+\item For compatibility with other circuit simulators, \texttt{.INCL}
+  is now a synonym for the include (\texttt{.INC}) netlist command.
 \end{XyceItemize}
 
 \subsubsection*{Important Announcements}
