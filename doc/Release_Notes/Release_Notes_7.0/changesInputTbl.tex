@@ -33,7 +33,14 @@
   \color{white}\textbf{Change} &
   \color{white}\textbf{Detail} \\ \hline \endhead
 
-Place holder  & place holder
+Default phase output is now in degrees.  & The default \Xyce{} output for phase
+operators, such as \texttt{VP()}, \texttt{IP()}, \texttt{SP()}, \texttt{YP()}
+and \texttt{ZP()}, and for AC sensitivities is now in degrees.  For compatibility
+with other simulators like Spice3f5 and ngspice, it is possible to change those
+outputs to still use radians via:
+\begin{vquote}
+.OPTIONS OUTPUT PHASE\_OUTPUT\_RADIANS=TRUE
+\end{vquote}
 \\ \hline
 
 \end{longtable}

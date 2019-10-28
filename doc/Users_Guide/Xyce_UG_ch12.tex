@@ -172,32 +172,32 @@ of the B device.
     \texttt{VR($node$)} & Voltage Real Component \\ \hline
     \texttt{VI($node$)} & Voltage Imaginary Component \\ \hline
     \texttt{VM($node$)} & Voltage Magnitude \\ \hline
-    \texttt{VP($node$)} & Voltage Phase, Radians \\ \hline
+    \texttt{VP($node$)} & Voltage Phase, Degrees \\ \hline
     \texttt{VDB($node$)} & Voltage Magnitude, Decibels \\ \hline
     \texttt{VR($node_1$,$node_2$)} & Difference of Voltage Real Component \\ \hline
     \texttt{VI($node_1$,$node_2$)} & Difference of Voltage Imaginary Component \\ \hline
     \texttt{VM($node_1$,$node_21$)} & Difference of Voltage Magnitude \\ \hline
-    \texttt{VP($node_1$,$node_2$)} & Difference of Voltage Phase, Radians \\ \hline
+    \texttt{VP($node_1$,$node_2$)} & Difference of Voltage Phase, Degrees \\ \hline
     \texttt{VDB($node_1$,$node_2$)} & Difference of Voltage Magnitude, Decibels \\ \hline
     \texttt{IR($device$)} & Current Real Component \\ \hline
     \texttt{II($device$)} & Current Imaginary Component \\ \hline
     \texttt{IM($device$)} & Current Magnitude \\ \hline
-    \texttt{IP($device$)} & Current Phase, Radians \\ \hline
+    \texttt{IP($device$)} & Current Phase, Degrees \\ \hline
     \texttt{IDB($device$)} & Current Magnitude, Decibels \\ \hline
     \texttt{SR($index_1$,$index_2$)} & S-Parameter Real Component \\ \hline
     \texttt{SI($index_1$,$index_2$)} & S-Parameter Imaginary Component \\ \hline
     \texttt{SM($index_1$,$index_2$)} & S-Parameter Magnitude \\ \hline
-    \texttt{SP($index_1$,$index_2$)} & S-Parameter Phase, Radians \\ \hline
+    \texttt{SP($index_1$,$index_2$)} & S-Parameter Phase, Degrees \\ \hline
     \texttt{SDB($index_1$,$index_2$)} & S-Parameter Magnitude, Decibels \\ \hline
     \texttt{YR($index_1$,$index_2$)} & Y-Parameter Real Component \\ \hline
     \texttt{YI($index_1$,$index_2$)} & Y-Parameter Imaginary Component \\ \hline
     \texttt{YM($index_1$,$index_2$)} & Y-Parameter Magnitude \\ \hline
-    \texttt{YP($index_1$,$index_2$)} & Y-Parameter Phase, Radians \\ \hline
+    \texttt{YP($index_1$,$index_2$)} & Y-Parameter Phase, Degrees \\ \hline
     \texttt{YDB($index_1$,$index_2$)} & Y-Parameter Magnitude, Decibels \\ \hline
     \texttt{ZR($index_1$,$index_2$)} & Z-Parameter Real Component \\ \hline
     \texttt{ZI($index_1$,$index_2$)} & Z-Parameter Imaginary Component \\ \hline
     \texttt{ZM($index_1$,$index_2$)} & Z-Parameter Magnitude \\ \hline
-    \texttt{ZP($index_1$,$index_2$)} & Z-Parameter Phase, Radians \\ \hline
+    \texttt{ZP($index_1$,$index_2$)} & Z-Parameter Phase, Degrees \\ \hline
     \texttt{ZDB($index_1$,$index_2$)} & Z-Parameter Magnitude, Decibels
   \end{tabularx}
 \end{table}
@@ -432,7 +432,7 @@ analyses, the supported measure types are:
     analysis type using the fundamental frequency \texttt{AT}.  By default, the DC component 
     and first nine harmonics are computed; more can be reported by setting \texttt{NUMFREQ} to the
     desired value.  More interpolation points can be used in the Fourier analysis by setting \texttt{GRIDSIZE},
-    which is $200$ by default.  For this measure, the phase data is output in degrees not radians.
+    which is $200$ by default.  For this measure, the phase data is output in degrees.
   \item \texttt{FREQ}: An estimate of the frequency of a solution variable found by cycle counting
     during the simulation.  Thresholds are defined through the values of \texttt{ON} 
     and \texttt{OFF}.
@@ -619,7 +619,7 @@ fundamental frequency, \texttt{freq}.
 Multiple \texttt{.FOUR} lines may be used in a netlist.  
 All results from Fourier analysis will be returned to the user in a file 
 with the same name as the netlist file suffixed with \texttt{.four}.
-For this analysis, the phase data is output in degrees not radians.
+For this analysis, the phase data is output in degrees.
 
 If \texttt{SENS} is specified as the output, then all the direct sensitivities 
 specified by the \texttt{.SENS} command will be processed, as it is difficult to 
