@@ -248,15 +248,15 @@ For using a parameter in a circuit, one must:
 \end{XyceItemize}
  \Xyce{} reserves the following keywords that may not be used as parameter names:
 \begin{XyceItemize}
-\item \verb+Time+ 
+\item \verb+Time+
+\item \verb+Freq+ 
 \item \verb+Vt+
 \item \verb+Temp+
 \item \verb+GMIN+
 \end{XyceItemize}
 
 \texttt{Time}, \texttt{TEMP}, \texttt{Vt} and \texttt{GMIN} are
-reserved and defined and may be used in B source expressions.  At this
-time they do not work in global\_param expressions.
+reserved and defined and may be used in B source expressions.
 
 \subsubsection{Example:  Declaring a parameter}
 \index{Example!declaring parameters}
@@ -295,7 +295,7 @@ NOTE:	Ensure the value being replaced remains accessible within the current hier
 
 \subsubsection{Limitations on parameter definitions}
 
-As chapter~\ref{Behavioral_Modeling} describes, there is considerable flexibility in the use of parameters. They can be set to expressions containing other parameters, and can be passed down the hierarchy into subcircuits. Fundamentally, however, parameters are constants evaluated at the beginning of a run; therefore, all terms in the expression defining the parameter must be constants known at the beginning of the run. It is not legal to use time-dependent expressions in parameter declarations (either by including voltage nodes or currents, or by including reference to the variable \texttt{TIME}).
+As chapter~\ref{Behavioral_Modeling} describes, there is considerable flexibility in the use of parameters. They can be set to expressions containing other parameters, and can be passed down the hierarchy into subcircuits. Fundamentally, however, parameters are constants evaluated at the beginning of a run; therefore, all terms in the expression defining the parameter must be constants known at the beginning of the run. It is not legal to use time-dependent or frequency-dependent expressions in parameter declarations (either by including voltage nodes or currents, or by including references to the special variables \texttt{TIME} or \texttt{FREQ}).
 
 Parameters defined within a given scope can be used in any expression within that scope. The only limitation on ordering is for the use of a parameter in an expression that defines the value of another parameter. In that case, all parameters used in the expression must be defined before being used to define another parameter. So, in the following example:
 

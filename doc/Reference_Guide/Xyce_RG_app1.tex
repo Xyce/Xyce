@@ -343,8 +343,8 @@ wherever it is used.
 Global parameters are somewhat less constrained.  These parameters are
 allowed to depend on parameters defined in \texttt{.PARAMS} or
 \texttt{.GLOBAL\_PARAMS} statements, and may contain special variables
-such as \textrm{TIME}, \textrm{TEMP} or \textrm{VT}.  They may not contain any
-references to solution variables or lead currents.
+such as \textrm{TIME}, \textrm{FREQ}, \textrm{TEMP} or \textrm{VT}.  They
+may not contain any references to solution variables or lead currents.
 
 \Example{.PARAM dTdt=.01}
 \Example{.GLOBAL\_PARAM Temperature=\{27+dTdt*TIME\}}
@@ -450,7 +450,7 @@ netlist:
 \end{XyceItemize}
 
 These specific instance parameters may be time-depdendent (i.e. they
-may reference the \texttt{TIME} special variable, but may not depend
+may reference the \texttt{TIME} special variable), but may not depend
 on any solution variables:
 
 \begin{XyceItemize}
