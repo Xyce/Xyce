@@ -122,6 +122,8 @@ name. \Xyce{} recognizes the following constructs in ABM expressions:
 \item Lookup tables
 \end{XyceItemize}
 
+The use of the variable \texttt{FREQ} is not supported in ABM expressions.
+
 In a hierarchical circuit (a circuit with possibly nested levels of
 subcircuits), voltage source names in an ABM expression must be the
 name of a voltage source in the same subcircuit as the ABM device, or in a
@@ -171,6 +173,8 @@ elsewhere beside ABM. Time-dependent expressions are allowed for some device
 parameters, but this feature should be used with caution, as the
 behavior of a non-ABM device cannot be guaranteed to be correct when its 
 device parameters are not constant throughout a simulation run.
+Frequency-dependent expressions are not supported for the current and voltage
+parameters of a B (or E, F, G, or H) source.
 
 In addition to these simple items, lookup tables provide a means of
 specifying a piecewise linear function in an expression.  A table expression is
