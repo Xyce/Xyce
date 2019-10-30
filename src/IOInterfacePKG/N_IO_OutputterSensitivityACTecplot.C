@@ -237,44 +237,44 @@ void SensitivityACTecplot::doOutputSensitivityAC(
 
     os_ = outputManager_.openFile(outFilename_);
 
-    if (outputManager_.getPrintHeader())
+    // Generate names for the  additional header columns needed for the objective
+    // functions and sensitivity values
+    std::vector<std::string> colNames;
+    for (int i=0; i< objFuncVars.size(); ++i)
     {
-      // Generate names for the  additional header columns needed for the objective
-      // functions and sensitivity values
-      std::vector<std::string> colNames;
-      for (int i=0; i< objFuncVars.size(); ++i)
+      colNames.push_back("VR(" + objFuncVars[i] +")");
+      colNames.push_back("VI(" + objFuncVars[i] +")");
+      colNames.push_back("VM(" + objFuncVars[i] +")");
+      colNames.push_back("VP(" + objFuncVars[i] +")");
+
+      if (dOdpVec.size() > 0)
       {
-        colNames.push_back("VR(" + objFuncVars[i] +")");
-        colNames.push_back("VI(" + objFuncVars[i] +")");
-        colNames.push_back("VM(" + objFuncVars[i] +")");
-        colNames.push_back("VP(" + objFuncVars[i] +")");
-
-        if (dOdpVec.size() > 0)
+        for (int j=0; j< paramNameVec.size(); ++j)
         {
-          for (int j=0; j< paramNameVec.size(); ++j)
-          {
-            colNames.push_back("d_VR(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
-            colNames.push_back("d_VI(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
-            colNames.push_back("d_VM(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
-            colNames.push_back("d_VP(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
-          }
-        }
-
-        if (dOdpAdjVec.size() > 0)
-        {
-          for (int j=0; j< paramNameVec.size(); ++j)
-          {
-            colNames.push_back("d_VR(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
-            colNames.push_back("d_VI(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
-            colNames.push_back("d_VM(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
-            colNames.push_back("d_VP(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
-          }
+          colNames.push_back("d_VR(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
+          colNames.push_back("d_VI(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
+          colNames.push_back("d_VM(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
+          colNames.push_back("d_VP(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_dir");
         }
       }
 
-      // add those additional columns to the printParameters_.table_
-      fixupColumnsFromStrVec(comm, printParameters_, colNames);
+      if (dOdpAdjVec.size() > 0)
+      {
+        for (int j=0; j< paramNameVec.size(); ++j)
+        {
+          colNames.push_back("d_VR(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
+          colNames.push_back("d_VI(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
+          colNames.push_back("d_VM(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
+          colNames.push_back("d_VP(" + objFuncVars[i] + ")/d_" + paramNameVec[j] + "_adj");
+        }
+      }
+    }
 
+    // add those additional columns to the printParameters_.table_
+    fixupColumnsFromStrVec(comm, printParameters_, colNames);
+
+    if (outputManager_.getPrintHeader())
+    {
       // output the column names to the output file.
       SensitivityACHeader();
     }
