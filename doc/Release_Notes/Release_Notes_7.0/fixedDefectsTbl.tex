@@ -33,8 +33,11 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
-\textbf{xxx-SON}: Place holder title &
-Place holder description.  \\ \hline
+\textbf{1252-SON}: Xyce segfaults when .OPTIONS OUTPUT PRINTHEADER=FALSE
+is used  &  Xyce would segfault if a \texttt{.OPTIONS OUTPUT PRINTHEADER=FALSE}
+line was used and the netlist contained either a \texttt{.PRINT SENS} line
+for an AC analysis or a \texttt{.PRINT ES} line.  This is fixed now.
+\\ \hline
 
 \textbf{xxx-SRN}: Place holder title &
 Place holder description.  \\ \hline
