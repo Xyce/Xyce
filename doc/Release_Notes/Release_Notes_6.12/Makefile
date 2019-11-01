@@ -12,4 +12,4 @@ clean:
 	latexmk -c -bibtex
 
 realclean:
-	latexmk -C -bibtex
+	latexmk -C -pdf -bibtex
