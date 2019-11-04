@@ -150,6 +150,8 @@ private:
   double      R;                      ///< Resistance (ohms)
   double      multiplicityFactor;     ///< multiplicity factor (M)
 
+  Teuchos::SerialDenseMatrix<int, std::complex<double> >  yvals;
+
   ///<   NOT used, only here for compatibility in parsing
   ///<   netlist from simulators that support it
   double      dtemp;                  ///<Temp difference between instance and circuit, in C.
@@ -277,6 +279,8 @@ private:
   // store a separate matrix (that will be Y-parameters in RI-format) for each frequency
   // in freqVec_
   std::vector<Teuchos::SerialDenseMatrix<int, std::complex<double> > > inputNetworkDataVec_;
+
+  void interpLin( double freq, Teuchos::SerialDenseMatrix<int, std::complex<double> > & result);
 };
 
 

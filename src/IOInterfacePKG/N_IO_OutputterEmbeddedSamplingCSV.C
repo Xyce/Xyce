@@ -148,16 +148,16 @@ void EmbeddedSamplingCSV::doOutputEmbeddedSampling(
 
     os_ = outputManager_.openFile(outFilename_);
 
+    // Generate names for the  additional header columns needed for PCE output
+    std::vector<std::string> colNames;
+    makeEmbeddedSamplingColumnNames(printParameters_, colNames, regressionPCEenable, projectionPCEenable,
+				    numSamples, regressionPCEcoeffs, projectionPCEcoeffs, outFuncDataVec);
+
+    // add those additional columns to the printParameters_.table_
+    fixupColumnsFromStrVec(comm, printParameters_, colNames);
+
     if (outputManager_.getPrintHeader())
     {
-      // Generate names for the  additional header columns needed for PCE output
-      std::vector<std::string> colNames;
-      makeEmbeddedSamplingColumnNames(printParameters_, colNames, regressionPCEenable, projectionPCEenable,
-				      numSamples, regressionPCEcoeffs, projectionPCEcoeffs, outFuncDataVec);
-
-      // add those additional columns to the printParameters_.table_
-      fixupColumnsFromStrVec(comm, printParameters_, colNames);
-
       // output the column names to the output file.
       EmbeddedSamplingHeader();
     }

@@ -216,6 +216,18 @@ where setting the \texttt{ADD\_STEPNUM\_COL} variable to ``true'' will add the
 \texttt{FORMAT=<STD|NOINDEX|GNUPLOT|SPLOT>} for any \texttt{.PRINT} line that
 supports \texttt{FORMAT=STD} output.
 
+The default \Xyce{} output for phase operators, such as \texttt{VP()}, \texttt{IP()},
+\texttt{SP()}, \texttt{YP()} and \texttt{ZP()}, is in degrees.  For compatibility with
+other simulators like Spice3f5 and ngspice, it is possible to change that operator
+output to use radians instead:
+\begin{vquote}
+.OPTIONS OUTPUT PHASE\_OUTPUT\_RADIANS=<boolean>
+\end{vquote}
+The default value for this option is FALSE.  If set to TRUE then the phase output
+will be in radians instead of degrees.  This option also applies to the format
+for AC sensitivity output.  It does not affect the output from a \texttt{.FOUR}
+analysis or a texttt{.FOUR} measure though.  Those two outputs are always in degrees.
+
 \subsubsection{\texttt{.OPTIONS RESTART} (Checkpointing Options)}
 
 The \index{restart} \index{\texttt{.OPTIONS}!\texttt{RESTART}} \verb+.OPTIONS RESTART+ command is

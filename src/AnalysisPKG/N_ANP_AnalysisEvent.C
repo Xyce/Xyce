@@ -116,6 +116,14 @@ std::ostream &operator<<(std::ostream &os, const AnalysisEvent::OutputType &type
       os << "MPDE_IC";
       break;
 
+    case AnalysisEvent::NOISE:
+      os << "NOISE";
+      break;
+
+    case AnalysisEvent::NOISE_IC:
+      os << "NOISE_IC";
+      break;
+
     case AnalysisEvent::SENS:
       os << "SENS";
       break;
