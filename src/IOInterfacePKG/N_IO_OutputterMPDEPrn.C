@@ -141,7 +141,11 @@ void MPDEPrn::doOutputMPDE(
                                   printParameters_.dashoFilename_,
                                   printParameters_.fallback_);                            
     os_ = outputManager_.openFile(outFilename_);
-    printHeader(*os_, printParameters_);
+
+    if (outputManager_.getPrintHeader())
+    {
+      printHeader(*os_, printParameters_);
+    }
   }
 
   // Loop over the fast time points of the Linear::BlockVecor:
