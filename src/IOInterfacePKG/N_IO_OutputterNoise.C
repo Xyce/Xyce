@@ -82,10 +82,12 @@ void enableNoiseOutput(Parallel::Machine comm, OutputMgr &output_manager, Analys
       }
       else if ( (noise_print_parameters.format_ == Format::RAW) ||
                 (noise_print_parameters.format_ == Format::RAW_ASCII) ||
-                (noise_print_parameters.format_ == Format::PROBE) )
+                (noise_print_parameters.format_ == Format::PROBE) ||
+                (noise_print_parameters.format_ == Format::TS1) ||
+                (noise_print_parameters.format_ == Format::TS2))
       {
         Report::UserWarning0()
-          << "Noise output cannot be written in PROBE or RAW format, using standard format instead";
+          << "Noise output cannot be written in PROBE, RAW or Touchstone format, using standard format instead";
         noise_print_parameters.format_ = Format::STD;
         outputter = new Outputter::NoisePrn(comm, output_manager, noise_print_parameters); 
       }
