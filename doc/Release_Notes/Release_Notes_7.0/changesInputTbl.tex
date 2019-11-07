@@ -43,5 +43,11 @@ outputs to still use radians via:
 \end{vquote}
 \\ \hline
 
+Support for FORMAT=PROBE has been removed for .PRINT HOMOTOPY. &
+A request for \texttt{.PRINT HOMOTOPY FORMAT=PROBE} will now
+default to \texttt{FORMAT=STD}.  \Xyce{} typically does not
+support \texttt{FORMAT=PROBE} for analysis and print types that
+are specific to \Xyce{}.
+
 \end{longtable}
 }
