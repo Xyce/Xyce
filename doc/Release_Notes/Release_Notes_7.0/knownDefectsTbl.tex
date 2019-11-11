@@ -232,19 +232,6 @@ resultant \Xyce{} output will not be correct.
 \textbf{\textit{Workaround}}: There is none.
 \\ \hline
 
-\textbf{939-SON}: Invalid fields (XBEGIN, XEND and SUBTITLE) in \Xyce{}-generated
-HOMOTOPY.csd files & The fields in the \#H header block of the
-.HOMOTOPY.csd files are currently hard-coded to 0 and 1, respectively.
-The \texttt{SUBTITLE} field is incorrect for \texttt{.STEP} data.  It
-is missing the values for the stepped parameters.
-
-\textbf{\textit{Workaround}}: There is no workaround for the \texttt{XBEGIN}
-and \texttt{XEND} issue.  However, it should not affect the
-``viewability'' of those files in the PSpice A/D viewer.  The
-workaround for the \texttt{SUBTITLE} issue is to put the stepped
-parameters on the \texttt{.PRINT HOMOTOPY} line.
-\\ \hline
-
 \textbf{932-SON}: Analysis lines do not support expressions for their
 operating parameters & The \Xyce{} parser and analysis handlers do not
 yet support the use of expressions on netlist analysis lines such

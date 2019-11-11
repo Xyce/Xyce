@@ -43,7 +43,6 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopy.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopyCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopyPrn.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopyProbe.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopyTecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterMPDEPrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterMPDECSV.C

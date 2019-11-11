@@ -1745,12 +1745,9 @@ bool OutputMgr::parsePRINTBlock(const Util::OptionBlock & print_block)
     {
       homotopy_print_parameters.defaultExtension_ = ".HOMOTOPY.dat";
     }
-    else if (homotopy_print_parameters.format_ == Format::PROBE)
-    {
-      homotopy_print_parameters.defaultExtension_ = ".HOMOTOPY.csd";
-    }
     else if ( (homotopy_print_parameters.format_ == Format::RAW) ||
               (homotopy_print_parameters.format_ == Format::RAW_ASCII) ||
+              (homotopy_print_parameters.format_ == Format::PROBE) ||
               (homotopy_print_parameters.format_ == Format::TS1) ||
               (homotopy_print_parameters.format_ == Format::TS2) )
     {

@@ -47,7 +47,6 @@ libIOInterface_la_SOURCES = \
   N_IO_OutputterHomotopy.C \
   N_IO_OutputterHomotopyCSV.C \
   N_IO_OutputterHomotopyPrn.C \
-  N_IO_OutputterHomotopyProbe.C \
   N_IO_OutputterHomotopyTecplot.C \
   N_IO_OutputterMPDEPrn.C \
   N_IO_OutputterMPDECSV.C \
@@ -165,7 +164,6 @@ libIOInterface_la_SOURCES = \
   N_IO_OutputterHomotopy.h \
   N_IO_OutputterHomotopyCSV.h \
   N_IO_OutputterHomotopyPrn.h \
-  N_IO_OutputterHomotopyProbe.h \
   N_IO_OutputterHomotopyTecplot.h \
   N_IO_OutputterMPDEPrn.h \
   N_IO_OutputterMPDECSV.h \

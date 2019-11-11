@@ -41,7 +41,6 @@
 #include <N_IO_OutputterHomotopy.h>
 #include <N_IO_OutputterHomotopyCSV.h>
 #include <N_IO_OutputterHomotopyPrn.h>
-#include <N_IO_OutputterHomotopyProbe.h>
 #include <N_IO_OutputterHomotopyTecplot.h>
 #include <N_IO_OutputMgr.h>
 
@@ -81,19 +80,17 @@ void enableHomotopyOutput(Parallel::Machine comm, OutputMgr &output_manager, Ana
       else if (homotopy_print_parameters.format_ == Format::TECPLOT) {
         outputter = new Outputter::HomotopyTecPlot(comm, output_manager, homotopy_print_parameters);
       }
-      else if (homotopy_print_parameters.format_ == Format::PROBE) {
-        outputter = new Outputter::HomotopyProbe(comm, output_manager, homotopy_print_parameters);
-      }
       else if (homotopy_print_parameters.format_ == Format::CSV) {
         outputter = new Outputter::HomotopyCSV(comm, output_manager, homotopy_print_parameters);
       }
       else if ( (homotopy_print_parameters.format_ == Format::RAW) ||
               (homotopy_print_parameters.format_ == Format::RAW_ASCII) ||
+              (homotopy_print_parameters.format_ == Format::PROBE) ||
               (homotopy_print_parameters.format_ == Format::TS1) ||
               (homotopy_print_parameters.format_ == Format::TS2))
       {
         Report::UserWarning0()
-          << "Homotopy output cannot be written in RAW or Touchstone format, using standard format instead";
+          << "Homotopy output cannot be written in PROBE, RAW or Touchstone format, using standard format instead";
         homotopy_print_parameters.format_ = Format::STD;
         outputter = new Outputter::HomotopyPrn(comm, output_manager, homotopy_print_parameters);  
       }
