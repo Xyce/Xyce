@@ -909,12 +909,7 @@ is written, though not specified on the \texttt{.PRINT HB} line.
 \texttt{.PRINT HB} & \emph{circuit-file}.HB.TD.prn \newline \emph{circuit-file}.HB.FD.prn & INDEX TIME \newline INDEX FREQUENCY \\ \hline
 \texttt{.PRINT HB\_TD FORMAT=NOINDEX} \newline \texttt{.PRINT HB\_FD FORMAT=NOINDEX} & \emph{circuit-file}.HB.TD.prn \newline \emph{circuit-file}.HB.FD.prn & TIME \newline FREQUENCY \\ \hline
 \texttt{.PRINT HB\_TD FORMAT=CSV} \newline \texttt{.PRINT HB\_FD FORMAT=CSV} & \emph{circuit-file}.HB.TD.csv \newline \emph{circuit-file}.HB.FD.csv & TIME \newline FREQUENCY \\ \hline
-%\texttt{.PRINT HB\_TD FORMAT=RAW} \newline \texttt{.PRINT HB\_FD FORMAT=RAW} & \emph{circuit-file}.raw & \\ \hline
 \texttt{.PRINT HB\_TD FORMAT=TECPLOT} \newline \texttt{.PRINT HB\_FD FORMAT=TECPLOT} & \emph{circuit-file}.HB.TD.dat \newline \emph{circuit-file}.HB.FD.dat & TIME \newline FREQUENCY \\ \hline
-
-%\texttt{\emph{Xyce} -r} & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
-%\texttt{\emph{Xyce} -r -a} & \emph{circuit-file}.raw & All circuit variables printed \\ \hline
-
 \texttt{.options hbint STARTUPPERIODS=n} & \multicolumn{2}{c|}{Falls back to .PRINT HB variables} \\ \hline
 \texttt{.PRINT HB\_STARTUP \newline .options hbint STARTUPPERIODS=n} & \emph{circuit-file}.startup.prn & INDEX TIME \\ \hline
 \texttt{.PRINT HB\_STARTUP FORMAT=CSV \newline .options hbint STARTUPPERIODS=n} & \emph{circuit-file}.startup.csv & TIME \\ \hline
