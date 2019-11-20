@@ -179,10 +179,7 @@ HomotopyCSV::doOutputHomotopy(
                                     printParameters_.fallback_);
       os_ = outputManager_.openFile(outFilename_);
 
-      if (outputManager_.getPrintHeader())
-      {
-        homotopyHeader(parameter_names, parameter_values, solution_vector);
-      }
+      homotopyHeader(parameter_names, parameter_values, solution_vector);
   }
 
   // Since CSV format does not have the Index column, use 0 for start of homotopy params

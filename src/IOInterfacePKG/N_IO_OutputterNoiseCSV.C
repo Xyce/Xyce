@@ -157,10 +157,8 @@ void NoiseCSV::doOutputNoise(
                                   printParameters_.dashoFilename_,
                                   printParameters_.fallback_);
     os_ = outputManager_.openFile(outFilename_);
-    if (outputManager_.getPrintHeader())
-    {
-      printHeader(*os_, printParameters_);
-    }
+
+    printHeader(*os_, printParameters_);
   }
 
   std::vector<complex> result_list;

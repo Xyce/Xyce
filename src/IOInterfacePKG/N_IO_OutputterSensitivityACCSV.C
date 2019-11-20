@@ -190,11 +190,8 @@ void SensitivityACCSV::doOutputSensitivityAC(
     // add those additional columns to the printParameters_.table_
     fixupColumnsFromStrVec(comm, printParameters_, colNames);
 
-    if (outputManager_.getPrintHeader())
-    {
-      // output the column names to the output file.
-      SensitivityACHeader();
-    }
+    // output the column names to the output file.
+    SensitivityACHeader();
   }
 
   std::vector<complex> result_list;

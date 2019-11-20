@@ -155,10 +155,7 @@ void SensitivityCSV::doOutputSensitivity(
 
     os_ = outputManager_.openFile(outFilename_);
 
-    if (outputManager_.getPrintHeader())
-    {
-      sensitivityHeader();
-    }
+    sensitivityHeader();
   }
 
   std::vector<complex> result_list;

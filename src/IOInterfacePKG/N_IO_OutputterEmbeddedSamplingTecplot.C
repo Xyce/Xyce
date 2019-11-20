@@ -239,11 +239,8 @@ void EmbeddedSamplingTecplot::doOutputEmbeddedSampling(
     // add those additional columns to the printParameters_.table_
     fixupColumnsFromStrVec(comm, printParameters_, colNames);
 
-    if (outputManager_.getPrintHeader())
-    {
-      // output the column names to the output file.
-      EmbeddedSamplingHeader();
-    }
+    // output the tecplot header info to the output file.
+    EmbeddedSamplingHeader();
   }
 
  std::vector<complex> result_list;
