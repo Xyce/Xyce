@@ -215,13 +215,16 @@ of output, the output values are not interpolated.  Instead, the specified outpu
 set as breakpoints in the time integrator, so the output values are computed directly.
 
 In addition to controlling the frequency of output, it is also possible to use
-output options to suppress the header and footer from standard format output files.
+output options to suppress the header from standard format output files, and the footer
+from both standard and tecplot format output files.
 \begin{vquote}
 .OPTIONS OUTPUT PRINTHEADER=<boolean> PRINTFOOTER=<boolean>
 \end{vquote}
 where setting the \texttt{PRINTHEADER} variable to ``false'' will suppress the header and 
-\texttt{PRINTFOOTER} variable to ``false'' will suppress the footer.  These options are
-only applicable to \texttt{.PRINT <analysis> FORMAT=STD} files, the default format.
+\texttt{PRINTFOOTER} variable to ``false'' will suppress the footer.  The \texttt{PRINTHEADER}
+option is only applicable to \texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT>} files.
+The \texttt{PRINTFOOTER} option is only applicable to
+\texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT|TECPLOT>} files.
 
 It is possible to add a \texttt{STEPNUM} column as the first column in the output file.
 \begin{vquote}

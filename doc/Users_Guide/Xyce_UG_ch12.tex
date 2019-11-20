@@ -276,8 +276,8 @@ is given by:
 So, to produce an output file that has no header and no footer, simply set:
 
 \Example{\texttt{.OPTIONS OUTPUT PRINTHEADER=false PRINTFOOTER=false}}
-Note that this is only supported for \texttt{.PRINT FORMAT=STD}, the default
-format.
+Note that \texttt{PRINTHEADER} is only supported for \texttt{.PRINT FORMAT=<STD|GNUPLOT|SPLOT>},
+while \texttt{PRINTFOOTER} is only supported for \texttt{.PRINT FORMAT=<STD|GNUPLOT|SPLOT|TECPLOT>}.
 
 \subsection{Output File Redirection}
 There are three ways to re-direct the output of a \Xyce{} simulation run
