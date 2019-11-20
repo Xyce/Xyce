@@ -241,7 +241,7 @@ Section~\ref{HybridLinearSolver_Options}.
 The user can specify the solver through the \texttt{.OPTIONS LINSOL} control line 
 in the netlist.  The default linear solver used by \Xyce{} is described in Table~\ref{tab:default:solver}.
 By default, a parallel version of \Xyce{} uses AztecOO as the linear solver when the linear
-system is larger than a thousand unknowns.  For any linear system smaller than ten thousand unknowns,
+system is larger than ten thousand unknowns.  For any linear system smaller than ten thousand unknowns,
 \Xyce{} uses KLU as the linear solver.  A serial version of \Xyce{} uses KLU as its default linear 
 solver.  To use a solver other than the default the user needs to add the option 
 ``\texttt{TYPE=<solver>}'' to the \texttt{.OPTIONS LINSOL}
@@ -252,13 +252,13 @@ is `\texttt{KLU},' `\texttt{KSPARSE},' `\texttt{SUPERLU},' `\texttt{SUPERLUDIST}
 \caption[\Xyce{} Default Linear Solver]{Xyce default linear solver.}
 \label{tab:default:solver}
 \begin{center}
-\begin{tabular}{| p{3cm} | p{3cm} | p{3.5cm} |}
+\begin{tabular}{| p{3cm} | p{3cm} | p{4cm} |}
 \hline
 Solver & Version & Linear System Size\\
 \hline
 KLU & Serial & {\it all} \\
-KLU & Parallel & $1-(10^4-1)$ unknowns \\
-AztecOO & Parallel & $10^4+$ unknowns \\
+KLU & Parallel & $1-(10^5-1)$ unknowns \\
+AztecOO & Parallel & $10^5+$ unknowns \\
 \hline
 \end{tabular}
 \end{center}

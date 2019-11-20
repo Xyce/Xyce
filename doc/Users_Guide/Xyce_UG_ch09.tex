@@ -1167,6 +1167,22 @@ C1 1 0 2e-6
 \end{figure}
 
 %%%%%
+\subsubsection{Linear Solver Options}
+
+The AC analysis provided by \Xyce{} can employ both iterative and
+direct solvers. You can set direct, iterative
+solver, and preconditioner options using the \verb|.options linsol-ac|
+statement.
+
+\Example{\\
+\texttt{.options linsol-ac type=ksparse}
+}
+
+In this example, \texttt{type} specifies a non-default direct solver
+to use in the AC analysis.  Any of the direct and iterative solver options in
+section~\ref{LinearSolver_Options} are valid. 
+
+%%%%%
 \subsection{Output}
 \label{AC_Output}\index{\texttt{.PRINT}!\texttt{AC}}
 
