@@ -169,7 +169,7 @@ class Epetra_CrsKundertSparse {
   char *Matrix_;
   double **addr_list_;
 
-  bool FirstSolve_;
+  int FirstSolve_;
 };
 
 #endif // EPETRA_CRSKUNDERTSPARSE_H

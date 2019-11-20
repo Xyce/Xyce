@@ -364,9 +364,10 @@ static int curr_width, *w_goal;
  */
 
 int
-spOrderAndFactor( eMatrix, RHS, RelThreshold, AbsThreshold, DiagPivoting )
+spOrderAndFactor( eMatrix, RHS, RelThreshold, AbsThreshold, DiagPivoting, FirstTime )
 
 char *eMatrix;
+int FirstTime;
 RealNumber  RHS[], RelThreshold, AbsThreshold;
 BOOLEAN DiagPivoting;
 {
@@ -377,7 +378,6 @@ ElementPtr SearchForPivot();
 RealNumber LargestInCol, FindLargestInCol();
 int num_elem, num_fill;
 ElementPtr  pElement;
-static int first_time;
     int i, *dist, num_el, del, p_acct, p_accum, row1;
     double f_goal, emax, emaxinv;
 #ifdef WRITE_MAT
@@ -389,11 +389,8 @@ FILE *fmat;
     ASSERT( IS_VALID(Matrix) AND NOT Matrix->Factored);
 
 /*
-    spPrint(eMatrix,1,1,1);
-*/
-/*
     printf ("In spOrderAndFactor\n");
-    if (first_time == 0)
+    if (FirstTime == YES)
       printf ("Matrix size = %d\n",Matrix->Size);
 */
 
@@ -431,12 +428,11 @@ FILE *fmat;
     }
     if (RelThreshold <= 0.0) RelThreshold = Matrix->RelThreshold;
     if (RelThreshold > 1.0) RelThreshold = Matrix->RelThreshold;
-    if (first_time == 0)
+    if (FirstTime == YES)
       Matrix->RelThreshold = RelThreshold;
     if (AbsThreshold < 0.0) AbsThreshold = Matrix->AbsThreshold;
-    if (first_time == 0)
+    if (FirstTime == YES)
       Matrix->AbsThreshold = AbsThreshold;
-    first_time = 1;
     ReorderingRequired = NO;
     Matrix->has_scale_factors = 0;
 
@@ -890,7 +886,7 @@ struct strip_out *strip, *old_strip, *my_strip, *prev_strip;
 /*    check_mat(Matrix, &num_call, 4); */
         stat = spOrderAndFactor( eMatrix, (RealVector)NULL,
              Matrix->RelThreshold, Matrix->AbsThreshold,
-             DIAG_PIVOTING_AS_DEFAULT );
+             DIAG_PIVOTING_AS_DEFAULT, 0 );
         Matrix->Max_TS = 0;
         Matrix->OverflowDanger = 0;
         Matrix->SmallTimeStep = 0;

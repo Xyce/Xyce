@@ -44,7 +44,7 @@ Epetra_CrsKundertSparse::Epetra_CrsKundertSparse( Epetra_LinearProblem * Problem
     AbsThreshold_(AbsThreshold),
     DiagPivoting_(DiagPivoting),
     Problem_(Problem),
-    FirstSolve_(true)
+    FirstSolve_(1)
 {
 
   Epetra_CrsMatrix * A = dynamic_cast<Epetra_CrsMatrix *> (Problem->GetOperator());
@@ -129,7 +129,7 @@ int Epetra_CrsKundertSparse::Solve(const bool ComputeFactor, const bool Transpos
 
   // We are only solving the linear system on processor 0.
   if (MyPID_ == 0) { 
-    if (!FirstSolve_ && ComputeFactor) {
+    if ((FirstSolve_==0) && ComputeFactor) {
       spClear (Matrix_); // Clear previous factorization and matrix values
       int curValue = 0;
       int NumEntries;
@@ -155,9 +155,9 @@ int Epetra_CrsKundertSparse::Solve(const bool ComputeFactor, const bool Transpos
     rhs--; solution--; // adjust for 1-based indexing
 
     if (FirstSolve_) {
-      orderStatus = spOrderAndFactor (Matrix_, rhs, RelThreshold_, AbsThreshold_, DiagPivoting_);
+      orderStatus = spOrderAndFactor (Matrix_, rhs, RelThreshold_, AbsThreshold_, DiagPivoting_, FirstSolve_);
       solveStatus = spSolve (Matrix_, rhs, solution, NULL, NULL);
-      FirstSolve_ = false;
+      FirstSolve_ = 0;
     }
     else if (ComputeFactor && !Transpose) {
       *X = *B; // Copy B to X

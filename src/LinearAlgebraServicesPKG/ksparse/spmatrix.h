@@ -350,7 +350,7 @@ extern  void     spInstallInitInfo( spREAL*, char* );
 extern  spREAL   spLargestElement( char* );
 extern  void     spMNA_Preorder( char* );
 extern  spREAL   spNorm( char* );
-extern  int      spOrderAndFactor( char*, spREAL*, spREAL, spREAL, int );
+extern  int      spOrderAndFactor( char*, spREAL*, spREAL, spREAL, int, int );
 extern  void     spPartition( char*, int );
 extern  void     spPrint( char*, int, int, int );
 extern  spREAL   spPseudoCondition( char* );
