@@ -40,6 +40,7 @@ and output parameters.  In general, they use the following format:
   \item[\tt LOCA]         Continuation/Bifurcation Tracking
   \item[\tt LINSOL]       Linear Solver
   \item[\tt LINSOL-HB]    HB Linear Solver
+  \item[\tt LINSOL-AC]    AC Linear Solver
   \item[\tt OUTPUT]       Output
   \item[\tt RESTART]      Restart
   \item[\tt SAMPLES]      Sampling analysis
@@ -172,6 +173,21 @@ and are set using the \texttt{.OPTIONS LINSOL-HB} command.\index{\texttt{.OPTION
 
 \input{hblinsoltbl}
 
+\subsubsection{\texttt{.OPTIONS LINSOL-AC} (Linear Solver Options)}
+
+For AC analysis, \Xyce{} provides both iterative and direct methods for the
+solution of the linear equations. For the advanced users, there are a variety 
+of options that can be set to help improve these solvers.  Transformations 
+of the linear system have a ``\verb+TR_+'' prefix on the flag.  Many of the 
+options for the Krylov solvers are simply passed through to the underlying
+Trilinos/AztecOO\index{Trilinos}\index{solvers!linear!Trilinos}\index{Aztec}\index{solvers!linear!Aztec}
+solution settings and thus have an ``\verb+AZ_+'' prefix on the flag.
+
+Linear solver options are set using the \texttt{.OPTIONS LINSOL-AC}
+command.\index{\texttt{.OPTIONS}!\texttt{LINSOL-AC}}  The available options
+are the same as those for \texttt{.OPTIONS LINSOL}.
+
+
 \subsubsection{\texttt{.OPTIONS OUTPUT} (Output Options)}
 
 The \index{results!output options} \index{\texttt{.OPTIONS}!\texttt{OUTPUT}} \verb+.OPTIONS OUTPUT+
@@ -199,13 +215,16 @@ of output, the output values are not interpolated.  Instead, the specified outpu
 set as breakpoints in the time integrator, so the output values are computed directly.
 
 In addition to controlling the frequency of output, it is also possible to use
-output options to suppress the header and footer from standard format output files.
+output options to suppress the header from standard format output files, and the footer
+from both standard and tecplot format output files.
 \begin{vquote}
 .OPTIONS OUTPUT PRINTHEADER=<boolean> PRINTFOOTER=<boolean>
 \end{vquote}
 where setting the \texttt{PRINTHEADER} variable to ``false'' will suppress the header and 
-\texttt{PRINTFOOTER} variable to ``false'' will suppress the footer.  These options are
-only applicable to \texttt{.PRINT <analysis> FORMAT=STD} files, the default format.
+\texttt{PRINTFOOTER} variable to ``false'' will suppress the footer.  The \texttt{PRINTHEADER}
+option is only applicable to \texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT>} files.
+The \texttt{PRINTFOOTER} option is only applicable to
+\texttt{.PRINT <analysis> FORMAT=<STD|GNUPLOT|SPLOT|TECPLOT>} files.
 
 It is possible to add a \texttt{STEPNUM} column as the first column in the output file.
 \begin{vquote}

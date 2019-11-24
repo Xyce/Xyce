@@ -40,16 +40,28 @@ available in \Xyce{}.  It includes the following sections:
 \section{Introduction}
 \label{analysis_intro}
 
-\Xyce{} supports several simulation analysis options, including DC bias point (\texttt{.DC}, section~\ref{DC_Analysis}), transient
-(\texttt{.TRAN}, section~\ref{Transient_Analysis}), AC (\texttt{.AC}, section~\ref{AC_Analysis}), Noise (\texttt{.NOISE}, section~\ref{NOISE_Analysis}),
-harmonic balance (\texttt{.HB}, section ~\ref{HB_Analysis}), and sensitivity (\texttt{.SENS}, section~\ref{SENS_Analysis}) analysis.
+\Xyce{} supports several simulation analysis options, including DC
+bias point (\texttt{.DC}, section~\ref{DC_Analysis}), transient
+(\texttt{.TRAN}, section~\ref{Transient_Analysis}), AC (\texttt{.AC},
+section~\ref{AC_Analysis}), Noise (\texttt{.NOISE},
+section~\ref{NOISE_Analysis}), harmonic balance (\texttt{.HB}, section
+~\ref{HB_Analysis}), and sensitivity (\texttt{.SENS},
+section~\ref{SENS_Analysis}) analysis.
 %, and multitime partial differential equation (PDE) (\texttt{.MPDE}, section~\ref{MPDE_Analysis}) analysis. 
 
-Using \texttt{.STEP}(section~\ref{STEP_Analysis}), \Xyce{} can also apply an outer parametric loop to any type of analysis. This allows one (for example) to sweep a model parameter and perform a transient simulation for each parameter value.
+Using \texttt{.STEP}(section~\ref{STEP_Analysis}), \Xyce{} can also
+apply an outer parametric loop to any type of analysis. This allows
+one (for example) to sweep a model parameter and perform a transient
+simulation for each parameter value.
 
-Using \texttt{.SAMPLING}(section~\ref{SAMPLING_Analysis}), \Xyce{} can apply random sampling loop to any type of analysis.   This will compute statistical moments for various circuit outputs.
+Using \texttt{.SAMPLING}(section~\ref{SAMPLING_Analysis}), \Xyce{} can
+apply random sampling loop to any type of analysis.  This will compute
+statistical moments for various circuit outputs.
 
-There are some analysis types typically found in SPICE-style simulators that are still a work in progress for \Xyce{}. Operating point analysis (\texttt{.OP}, section ~\ref{OP_Analysis}) is partially supported in \Xyce{}.
+There are some analysis types typically found in SPICE-style
+simulators that are still a work in progress for \Xyce{}. Operating
+point analysis (\texttt{.OP}, section ~\ref{OP_Analysis}) is partially
+supported in \Xyce{}.
 
 % -------------------------------------------------------------------------
 % DC Analysis Section ---------------------------------------------------
@@ -67,10 +79,13 @@ specified values.  As the sweep proceeds, \Xyce{} computes the bias
 point\index{bias point} for each value in the specified range of the
 sweep.
 
-If the variable to be swept is a voltage or current source, a DC source must be
-used and its value set in the netlist (see \Xyce{} Reference 
-Guide\ReferenceGuide{}). In simulating the DC response of an analog
-circuit, \Xyce{} eliminates time dependence from the circuit by treating capacitor elements as open circuits and inductor elements as short circuits, while using only the DC values of voltage and current sources.
+If the variable to be swept is a voltage or current source, a DC
+source must be used and its value set in the netlist (see \Xyce{}
+Reference Guide\ReferenceGuide{}). In simulating the DC response of an
+analog circuit, \Xyce{} eliminates time dependence from the circuit by
+treating capacitor elements as open circuits and inductor elements as
+short circuits, while using only the DC values of voltage and current
+sources.
 
 \subsection{.DC Statement}
 
@@ -87,20 +102,29 @@ To specify a \verb|.DC| analysis, include a \verb|.DC| line in the netlist.  Som
 }
 
 The examples include several types of sweep --- linear, octave,
-decade, list and data.  They also demonstrate sweeping over voltage and current
-sources as well as device parameters.  The \Xyce{} Reference
-Guide\ReferenceGuide{} provides a complete description of each.
+decade, list and data.  They also demonstrate sweeping over voltage
+and current sources as well as device parameters.  The \Xyce{}
+Reference Guide\ReferenceGuide{} provides a complete description of
+each.
 
 \subsection{Setting Up and Running a DC Sweep}
 \label{Running_DC_Sweep}
 \index{DC sweep!running}
 
-Following the example given in section~\ref{DC_Sweep}, figure~\ref{Clipper_Netlist3} shows the diode clipper circuit netlist with a DC sweep analysis specified.  Here, the voltage source \texttt{Vin} is swept from -10 to 15 in 1-volt increments, resulting in 26 DC operating point calculations.  
+Following the example given in section~\ref{DC_Sweep},
+figure~\ref{Clipper_Netlist3} shows the diode clipper circuit netlist
+with a DC sweep analysis specified.  Here, the voltage source
+\texttt{Vin} is swept from -10 to 15 in 1-volt increments, resulting
+in 26 DC operating point calculations.
 
-NOTE:	\Xyce{} ignores the default setting for \texttt{Vin} during these calculations.  All other source values use the specified values (in this case, \texttt{VCC =  5V}).
+NOTE: \Xyce{} ignores the default setting for \texttt{Vin} during
+these calculations.  All other source values use the specified values
+(in this case, \texttt{VCC = 5V}).
 
 Running \Xyce{} on this netlist produces an output results file named
-\verb|clipper.cir.prn|.  Obtaining this file requires specifying the \verb|.PRINT DC| line. Plotting this data produces the graph shown in figure~\ref{Clipper_DCSweep2}.
+\verb|clipper.cir.prn|.  Obtaining this file requires specifying the
+\verb|.PRINT DC| line. Plotting this data produces the graph shown in
+figure~\ref{Clipper_DCSweep2}.
 
 \begin{figure}[htbp]
 \begin{centering}
@@ -153,8 +177,12 @@ C1 2 4 0.47u
 \index{DC sweep!OP Analysis}
 \index{OP analysis}
 
-\Xyce{} also supports \texttt{.OP} analysis statements.  In \Xyce{}, consider \texttt{.OP} as a shorthand for a single-step DC sweep, in which all the default operating point values are used.  One may also consider
-\texttt{.OP} analysis to be the operating point calculation that would occur as the initial step to a transient calculation, without the subsequent time steps.
+\Xyce{} also supports \texttt{.OP} analysis statements.  In \Xyce{},
+consider \texttt{.OP} as a shorthand for a single-step DC sweep, in
+which all the default operating point values are used.  One may also
+consider \texttt{.OP} analysis to be the operating point calculation
+that would occur as the initial step to a transient calculation,
+without the subsequent time steps.
 
 This capability was mainly added to enable the code to handle legacy
 netlists using this analysis statement type.  In most versions of
@@ -207,13 +235,17 @@ is written, though not specified on the \texttt{.PRINT} line.
 \index{analysis!transient} \index{transient analysis}
 \index{\texttt{.TRAN}}
 
-The transient response analysis simulates the response of the circuit from
-\texttt{TIME=0} to a specified time.  Throughout a transient analysis, 
-any or all of the independent sources may have time-dependent values.
+The transient response analysis simulates the response of the circuit
+from \texttt{TIME=0} to a specified time.  Throughout a transient
+analysis, any or all of the independent sources may have
+time-dependent values.
 
-In \Xyce{} (and most other circuit simulators), the transient analysis begins by performing its own bias 
-point\index{bias point} calculation at the beginning of the run, using the same method as used for DC sweep. This is required to set the initial conditions for the transient solution as the initial values of the 
-sources may differ from their DC values.
+In \Xyce{} (and most other circuit simulators), the transient analysis
+begins by performing its own bias point\index{bias point} calculation
+at the beginning of the run, using the same method as used for DC
+sweep. This is required to set the initial conditions for the
+transient solution as the initial values of the sources may differ
+from their DC values.
 
 \subsection{.TRAN Statement}
 
@@ -225,7 +257,9 @@ To run a transient simulation, the circuit netlist file must contain a
 \texttt{ .TRAN 100p 12.05u 9.95u }
 }
 
-The \Xyce{} Reference Guide\ReferenceGuide{} provides a detailed explanation of the \verb|.TRAN| statement. The netlist must also contain one of the following:
+The \Xyce{} Reference Guide\ReferenceGuide{} provides a detailed
+explanation of the \verb|.TRAN| statement. The netlist must also
+contain one of the following:
 
 \begin{XyceItemize}
 \item Independent, transient source (see table~\ref{Time_Sources}),
@@ -263,14 +297,21 @@ current sources are preceded by \texttt{I}.
 \index{sources!time-dependent}
 \end{table}
 
-To use time-dependent or transient sources, place the source element line in the netlist and characterize the transient behavior using the appropriate parameters.  Each transient source element has a separate
-set of parameters dependent on its transient behavior.  In this way, the user can create analog sources that produce sine wave, square pulse, exponential pulse, single-frequency FM, and piecewise linear (PWL) waveforms.
+To use time-dependent or transient sources, place the source element
+line in the netlist and characterize the transient behavior using the
+appropriate parameters.  Each transient source element has a separate
+set of parameters dependent on its transient behavior.  In this way,
+the user can create analog sources that produce sine wave, square
+pulse, exponential pulse, single-frequency FM, and piecewise linear
+(PWL) waveforms.
 
 \subsubsection{Defining Transient Sources}
 
-To define a transient source, select one of the supported sources: independent 
-voltage or current, choose a transient source type from table~\ref{Time_Sources}, and provide the transient parameters (refer to the \Xyce{} Reference 
-Guide\ReferenceGuide{} to fully define the source).
+To define a transient source, select one of the supported sources:
+independent voltage or current, choose a transient source type from
+table~\ref{Time_Sources}, and provide the transient parameters (refer
+to the \Xyce{} Reference Guide\ReferenceGuide{} to fully define the
+source).
 
 The following example of an independent sinusoidal voltage source in a
 circuit netlist creates a voltage source between nodes 1 and 5
@@ -285,26 +326,31 @@ a 50KHz frequency, in that order.
 \label{Time_Steps}
 \index{solvers!transient} \index{time step!size}
 
-During the simulation, \Xyce{} uses a calculated time step that is continuously
-adjusted for accuracy and efficiency (see~\cite{WKHH:2000} and
-~\cite{Petzold:1996}).  Calculation time step increases during periods of circuit idleness, and decreases during dynamic portions of the waveform.
-\index{time step!maximum size} Users may control the maximum internal step size by specifying the step's ceiling value in the \verb|.TRAN| command (see the
-\Xyce{} Reference Guide\ReferenceGuide{}).
+During the simulation, \Xyce{} uses a calculated time step that is
+continuously adjusted for accuracy and efficiency
+(see~\cite{WKHH:2000} and ~\cite{Petzold:1996}).  Calculation time
+step increases during periods of circuit idleness, and decreases
+during dynamic portions of the waveform.  \index{time step!maximum
+  size} Users may control the maximum internal step size by specifying
+the step's ceiling value in the \verb|.TRAN| command (see the \Xyce{}
+Reference Guide\ReferenceGuide{}).
 
-The internal calculation time steps used might not be consistent with the user-requested
-\index{output!time values} output time steps.  By default,
-\Xyce{} outputs solution results at every time step it calculates.  If the user
-selects output timesteps via the \verb|.OPTIONS OUTPUT| statement (see
-chapter~\ref{Output}), then \Xyce{} will output results at the interval
-requested, interpolating solution variables to desired output times if
-necessary.
+The internal calculation time steps used might not be consistent with
+the user-requested \index{output!time values} output time steps.  By
+default, \Xyce{} outputs solution results at every time step it
+calculates.  If the user selects output timesteps via the
+\verb|.OPTIONS OUTPUT| statement (see chapter~\ref{Output}), then
+\Xyce{} will output results at the interval requested, interpolating
+solution variables to desired output times if necessary.
 
 
 \subsection{Time Integration Methods}
 \label{TransientControls}
 \index{solvers!transient} \index{time step!size}
-For a transient analysis, several time integration methods can be selected to solve the circuit
-model's differential algebraic equations.  The following algorithms are available:
+
+For a transient analysis, several time integration methods can be
+selected to solve the circuit model's differential algebraic
+equations.  The following algorithms are available:
 
 \begin{XyceItemize}
 \item Variable order Trapezoidal (combines Trapezoidal and Backward Euler) 
@@ -314,10 +360,12 @@ model's differential algebraic equations.  The following algorithms are availabl
 
 
 
-You can set the \verb|method|, \verb|maxord| and \verb|minord| parameters to select the time
-integration methods via a .OPTIONS line. The following table shows the possible settings for those
-three parameters. (Note: Consult the \Xyce{} Reference Guide\ReferenceGuide for the exact syntax of the .OPTIONS
-line for each time integration method.) The default time integration method in \Xyce{} is Trap, which 
+You can set the \verb|method|, \verb|maxord| and \verb|minord|
+parameters to select the time integration methods via a .OPTIONS
+line. The following table shows the possible settings for those three
+parameters. (Note: Consult the \Xyce{} Reference Guide\ReferenceGuide
+for the exact syntax of the .OPTIONS line for each time integration
+method.) The default time integration method in \Xyce{} is Trap, which
 is the same as SPICE, PSpice and HSPICE.
 
 \begin{table}[htbp]
@@ -337,32 +385,36 @@ is the same as SPICE, PSpice and HSPICE.
 
 
 
-The Trapezoidal method is often the preferred method because it is accurate and fast.
-However, this method can exhibit artificial point-to-point ringing, which can be
-controlled by using tighter tolerances. If a circuit fails to converge with the
-Trapezoidal method then you can re-run the transient analysis using the Gear method. 
+The Trapezoidal method is often the preferred method because it is
+accurate and fast.  However, this method can exhibit artificial
+point-to-point ringing, which can be controlled by using tighter
+tolerances. If a circuit fails to converge with the Trapezoidal method
+then you can re-run the transient analysis using the Gear method.
 
-The Gear method may help convergence for some circuits. The 2nd order Gear method is 
-typically more accurate than the Backward-Euler method (1st order Gear). However, 
-both of these methods are overly stable methods, and they 
-can damp the actual circuit behavior when simulating high-Q resonators such as oscillators. 
-The Backward-Euler method has more damping effect than the 2nd order Gear method. 
-This effect can be alleviated by using tighter tolerances in the simulations. However, it is 
-suggested to use the pure Trapezoidal method for oscillators.
+The Gear method may help convergence for some circuits. The 2nd order
+Gear method is typically more accurate than the Backward-Euler method
+(1st order Gear). However, both of these methods are overly stable
+methods, and they can damp the actual circuit behavior when simulating
+high-Q resonators such as oscillators.  The Backward-Euler method has
+more damping effect than the 2nd order Gear method.  This effect can
+be alleviated by using tighter tolerances in the simulations. However,
+it is suggested to use the pure Trapezoidal method for oscillators.
 
 \subsection{Error Controls}
 \label{Time_Step_Selection}
 \index{solvers!transient} \index{time step!size} \index{time step!how to select}
 
-There are two basic  time-step error control methods in \Xyce{} --- Local
-Truncation Error (LTE) based and non-LTE based.  
+There are two basic time-step error control methods in \Xyce{} ---
+Local Truncation Error (LTE) based and non-LTE based.
 
 
 \subsubsection{Local Truncation Error (LTE) Strategy}
 \index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{RELTOL}} \index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{ABSTOL}}
-All time integration methods use the LTE-based strategy by default. The
-accuracy of the simulation can be controlled by specifying appropriate relative
-and absolute error tolerances (RELTOL and ABSTOL).
+
+All time integration methods use the LTE-based strategy by
+default. The accuracy of the simulation can be controlled by
+specifying appropriate relative and absolute error tolerances (RELTOL
+and ABSTOL).
 
 \Example{\\
 \texttt{ .OPTIONS TIMEINT RELTOL=1e-4 ABSTOL=1e-8 } \\
@@ -373,7 +425,10 @@ The total tolerance of LTE is
 \texttt{ $Tol_{LTE}$  = abstol +  reltol*ref}  
 }
 
-The parameter \verb|ref| is the reference value that the relative error is compared to. It can be controlled by setting \verb|newlte| option.
+The parameter \verb|ref| is the reference value that the relative
+error is compared to. It can be controlled by setting \verb|newlte|
+option.
+
 \index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{NEWLTE}}
 \Example{\\
 \texttt{ .OPTIONS TIMEINT NEWLTE=1 } \\
@@ -388,28 +443,43 @@ The  choices for \verb|newlte| option are:
 \item 3. The reference value is the maximum value on each signal over all past time. This should be used if the scale of signals varies widely in a system.
 \end{XyceItemize}
 
-The Trapezoid integrator algorithm introduces no numerical dissipation.  So,
-a strong ringing (artificially introduced by the numerical algorithm) will
-occur when sources or models introduce discontinuities.  This can result in a
-large local truncation error estimate, ultimately leading to a ``time-step too
-small'' error.  In this case, using the Gear method or a non-LTE
-strategy may help.
+The Trapezoid integrator algorithm introduces no numerical
+dissipation.  So, a strong ringing (artificially introduced by the
+numerical algorithm) will occur when sources or models introduce
+discontinuities.  This can result in a large local truncation error
+estimate, ultimately leading to a ``time-step too small'' error.  In
+this case, using the Gear method or a non-LTE strategy may help.
 
 \subsubsection{Non-LTE Strategy}
-The non-LTE strategy used in \Xyce{} is based on success of the nonlinear solve, and is enabled by setting ERROPTION=1.  Since the step-size selection is based only upon nonlinear iteration statistics rather than accuracy, it is highly suggested that DELMAX be specified, in a circuit-specific manner, for all three time integrators.  The purpose of DELMAX is to limit the largest time step taken.
+The non-LTE strategy used in \Xyce{} is based on success of the
+nonlinear solve, and is enabled by setting ERROPTION=1.  Since the
+step-size selection is based only upon nonlinear iteration statistics
+rather than accuracy, it is highly suggested that DELMAX be specified,
+in a circuit-specific manner, for all three time integrators.  The
+purpose of DELMAX is to limit the largest time step taken.
 
 \Example{\\
 \texttt{ .OPTIONS TIMEINT ERROPTION=1 DELMAX=1.0e-4 } \\
 }
 
-For the Trapezoid and Gear integrators, the options are slightly more refined.  If the number of nonlinear iterations is below NLMIN, then the step size is doubled. If the number of nonlinear iterations is above NLMAX then the step size is cut by one eighth.  In between, the step size is not changed.  An example using Trap (METHOD=7) is given below. 
-\index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{NLMIN}} \index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{NLMAX}} \index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{DELMAX}}
+For the Trapezoid and Gear integrators, the options are slightly more
+refined.  If the number of nonlinear iterations is below NLMIN, then
+the step size is doubled. If the number of nonlinear iterations is
+above NLMAX then the step size is cut by one eighth.  In between, the
+step size is not changed.  An example using Trap (METHOD=7) is given
+below.  \index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{NLMIN}}
+\index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{NLMAX}}
+\index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{DELMAX}}
 
 \Example{\\
 \texttt{ .OPTIONS TIMEINT METHOD=7 ERROPTION=1 NLMIN=3 NLMAX=8 DELMAX=1.0e-4 } \\
 }
 
-If the number of Newton iterations is bigger than NLmax and TIMESTEPSREVERSAL is not set, then \Xyce{} will cut the next step.  If the number of Newton iterations is bigger than NLmax and  TIMESTEPSREVERSAL is set, then \Xyce{} will reject the current step and also cut the current step.
+If the number of Newton iterations is bigger than NLmax and
+TIMESTEPSREVERSAL is not set, then \Xyce{} will cut the next step.  If
+the number of Newton iterations is bigger than NLmax and
+TIMESTEPSREVERSAL is set, then \Xyce{} will reject the current step
+and also cut the current step.
 
 \Example{\\
 \texttt{ .OPTIONS TIMEINT METHOD=7 ERROPTION=1 DELMAX=1.0e-4 TIMESTEPSREVERSAL=1 } \\
@@ -419,16 +489,21 @@ If the number of Newton iterations is bigger than NLmax and TIMESTEPSREVERSAL is
 
 \index{\texttt{.OPTIONS}!\texttt{TIMEINT}!\texttt{BREAKPOINTS}} 
 
-It is often necessary or desirable for the time integrator to be forced to land on a specific time point 
-and restart integration from that point.   The most common scenario for which this is necessary is when
-an device (such as a \texttt{PULSE} or a \texttt{PWL} source) produces a discontinuity.  If a discontinuity is
-present, and no breakpoint is set, then the LTE analysis will force the time integrator to take really small
-time steps, and this can possibly impact the robustness of the calculation.
+It is often necessary or desirable for the time integrator to be
+forced to land on a specific time point and restart integration from
+that point.  The most common scenario for which this is necessary is
+when an device (such as a \texttt{PULSE} or a \texttt{PWL} source)
+produces a discontinuity.  If a discontinuity is present, and no
+breakpoint is set, then the LTE analysis will force the time
+integrator to take really small time steps, and this can possibly
+impact the robustness of the calculation.
 
-Fortunately, \Xyce{} handles most device-based discontinuities automatically, so it is not necessary for the 
-user to worry about them.  However, it can be desirable for the user to manually set breakpoints from the netlist.
-In a \Xyce{} netlist, these are specified using the BREAKPOINTS parameter with a comma-separated list in
-the following \texttt{.OPTIONS TIMEINT} statement.
+Fortunately, \Xyce{} handles most device-based discontinuities
+automatically, so it is not necessary for the user to worry about
+them.  However, it can be desirable for the user to manually set
+breakpoints from the netlist.  In a \Xyce{} netlist, these are
+specified using the BREAKPOINTS parameter with a comma-separated list
+in the following \texttt{.OPTIONS TIMEINT} statement.
 
 \Example{\\
 \texttt{ .OPTIONS TIMEINT BREAKPOINTS=1ms,2ms,3ms} \\
@@ -561,14 +636,23 @@ analyses of the circuit.  When the \verb|.STEP| command is invoked,
 typical analyses, such as \verb|.DC|, \verb|.AC|, and \verb|.TRAN| are
 performed for each value of the stepped parameter.
 
-This capability is very similar, but not identical, to the \verb|STEP| capability in 
-PSpice~\cite{PSpiceUG:1998}.  
-\Xyce{}  can use \verb|.STEP| to sweep over any device instance or device
-model parameter, as well as the circuit temperature.  It is not legal to sweep parameters defined in \texttt{.PARAM} statements, but it is legal to sweep global parameters defined in \texttt{.global\_param} statements.  Section~\ref{Parameters_Expressions}) discusses these two distinct parameter definitions.
+This capability is very similar, but not identical, to the \verb|STEP|
+capability in PSpice~\cite{PSpiceUG:1998}.  \Xyce{} can use
+\verb|.STEP| to sweep over any device instance or device model
+parameter, as well as the circuit temperature.  It is not legal to
+sweep parameters defined in \texttt{.PARAM} statements, but it is
+legal to sweep global parameters defined in \texttt{.global\_param}
+statements.  Section~\ref{Parameters_Expressions}) discusses these two
+distinct parameter definitions.
 
 \subsection{.STEP Statement}
 
-A \verb|.STEP| analysis may be specified by simply adding a \verb|.STEP| line to a netlist.  Unlike \verb|.DC|, \verb|.STEP| by itself is not an adequate analysis specification, as it merely specifies an outer loop around the normal analysis.  A standard analysis line, either specifying \verb|.TRAN|, \verb|.AC| and \verb|.DC| analysis, is still required.
+A \verb|.STEP| analysis may be specified by simply adding a
+\verb|.STEP| line to a netlist.  Unlike \verb|.DC|, \verb|.STEP| by
+itself is not an adequate analysis specification, as it merely
+specifies an outer loop around the normal analysis.  A standard
+analysis line, either specifying \verb|.TRAN|, \verb|.AC| and
+\verb|.DC| analysis, is still required.
 
 Some examples of typical \verb|.STEP| lines are:
 
@@ -592,11 +676,30 @@ sweeps by decade, octave, a specified lists of values, or multivariate parameter
 \subsection{Sweeping over a Device Instance Parameter}
 \label{step_InstanceParam}
 
-The first example uses \verb|M1:L| as the parameter, but it could have used any model or instance parameter existing in the circuit. Internally, \Xyce{} handles the parameters for all device models and device instances in the same way.  Users can uniquely identify any parameter by specifying the device instance name, followed by a colon (:), followed by the specific parameter name.  For example, all the MOSFET models have an instance parameter for the channel length, L.  For a MOSFET instance specified in a netlist, named M1, the full name for the M1 channel length parameter is M1:L.  
+The first example uses \verb|M1:L| as the parameter, but it could have
+used any model or instance parameter existing in the
+circuit. Internally, \Xyce{} handles the parameters for all device
+models and device instances in the same way.  Users can uniquely
+identify any parameter by specifying the device instance name,
+followed by a colon (:), followed by the specific parameter name.  For
+example, all the MOSFET models have an instance parameter for the
+channel length, L.  For a MOSFET instance specified in a netlist,
+named M1, the full name for the M1 channel length parameter is M1:L.
 
-Figure~\ref{Step_Netlist_1} provides a simple application of \verb|.STEP| to a device instance.  This is the same diode clipper circuit as was used in the transient analysis chapter, except that a single line (in red) has been added.  This \verb|.STEP| line will cause \Xyce{} to sweep the resistance of the resistor, R4, from 3.0 KOhms to 15.0 KOhms, in 2.0 KOhms increments, meaning seven transient simulations will be performed, each one with a different value for R4.
+Figure~\ref{Step_Netlist_1} provides a simple application of
+\verb|.STEP| to a device instance.  This is the same diode clipper
+circuit as was used in the transient analysis chapter, except that a
+single line (in red) has been added.  This \verb|.STEP| line will
+cause \Xyce{} to sweep the resistance of the resistor, R4, from 3.0
+KOhms to 15.0 KOhms, in 2.0 KOhms increments, meaning seven transient
+simulations will be performed, each one with a different value for R4.
 
-As the circuit is executed multiple times, the resulting output file is a little more sophisticated.  The \verb|.PRINT| statement is still used in much the same way as before.  However, the .prn output file contains the concatenated output of each \verb|.STEP| increment.  The end of this section provides more details of how \texttt{.STEP} changes output files.
+As the circuit is executed multiple times, the resulting output file
+is a little more sophisticated.  The \verb|.PRINT| statement is still
+used in much the same way as before.  However, the .prn output file
+contains the concatenated output of each \verb|.STEP| increment.  The
+end of this section provides more details of how \texttt{.STEP}
+changes output files.
 
 \begin{figure}[htbp]
 \begin{centering}
@@ -641,9 +744,14 @@ analysis\label{Step_Netlist_1}}
 \subsection{Sweeping over a Device Model Parameter}
 \label{step_ModelParam}
 
-Sweeping a model parameter can be done in an identical manner to an instance parameter.  Figure~\ref{Step_Netlist_2} contains the same circuit as in figure~\ref{Step_Netlist_1}, but with additional \verb|.STEP| line referring to a model parameter, \verb|D1N3940:IS|.  
+Sweeping a model parameter can be done in an identical manner to an
+instance parameter.  Figure~\ref{Step_Netlist_2} contains the same
+circuit as in figure~\ref{Step_Netlist_1}, but with additional
+\verb|.STEP| line referring to a model parameter, \verb|D1N3940:IS|.
 
-NOTE:	\verb|.STEP| line syntax differs from \verb|.DC| line syntax in that multiple parameters require separate \verb|.STEP| lines. Each parameter needs a separate line.
+NOTE: \verb|.STEP| line syntax differs from \verb|.DC| line syntax in
+that multiple parameters require separate \verb|.STEP| lines. Each
+parameter needs a separate line.
 
 \begin{figure}[htbp]
 \begin{centering}
@@ -689,10 +797,9 @@ analysis\label{Step_Netlist_2}}
 \subsection{Sweeping over Temperature}
 \label{step_Temperature}
 
-It is also possible to sweep over temperature.  To do so, simply 
-specify \verb|temp| as the parameter name.  It will work in the 
-same manner as \verb|.STEP| when applied to model and instance 
-parameters.
+It is also possible to sweep over temperature.  To do so, simply
+specify \verb|temp| as the parameter name.  It will work in the same
+manner as \verb|.STEP| when applied to model and instance parameters.
 
 \subsection{Special cases: Sweeping Independent Sources, Resistors, Capacitors and Inductors}
 \label{step_SpecialCases}
@@ -700,22 +807,23 @@ parameters.
 For some devices, there is generally only one parameter that one would
 want to sweep.  For example, a linear resistor's only parameter of
 interest is resistance, R.  Similarly, for a DC voltage or current
-source, one is usually only interested in the magnitude of the source, DCV0.
-Finally, linear capacitors generally only have capacitance, C, as a 
-parameter of interest, while inductors generally only have inductance, L,
-as a parameter of interest.  
+source, one is usually only interested in the magnitude of the source,
+DCV0.  Finally, linear capacitors generally only have capacitance, C,
+as a parameter of interest, while inductors generally only have
+inductance, L, as a parameter of interest.
 
 For these simple devices, it is not necessary to specify both the
 parameter and device on the \texttt{.STEP} line: only the device name
-is strictly required, as these devices have default
-parameters that are assumed if no parameter name is given explicitly.
+is strictly required, as these devices have default parameters that
+are assumed if no parameter name is given explicitly.
 
 Examples of usage are given below.  The first two lines are equivalent
 --- in the first line, the resistance parameter of \texttt{R4} is
 named explicitly, and in the second line the resistance parameter is
-implicit. A similar example is then shown for the DC voltage of the 
-voltage source \texttt{VCC}.  In the remaining lines, parameter names are all 
-implicit, and the default parameters of the associated devices are used.
+implicit. A similar example is then shown for the DC voltage of the
+voltage source \texttt{VCC}.  In the remaining lines, parameter names
+are all implicit, and the default parameters of the associated devices
+are used.
 
 \Example{ \\
 \begin{tabular}{lllll}
@@ -738,31 +846,34 @@ or \texttt{PULSE}.
 \label{step_output_files}
 \index{output!\texttt{.STEP}}
 
-Users can think of \texttt{.STEP} simulations as several distinct executions
-of the same circuit netlist.  The output data, as specified by a \texttt{.PRINT}
-line, however, goes to a single (\texttt{*.prn}) file.  
-For convenience, \Xyce{} also creates a second auxilliary file with the \texttt{*.res} 
-suffix.
+Users can think of \texttt{.STEP} simulations as several distinct
+executions of the same circuit netlist.  The output data, as specified
+by a \texttt{.PRINT} line, however, goes to a single (\texttt{*.prn})
+file.  For convenience, \Xyce{} also creates a second auxilliary file
+with the \texttt{*.res} suffix.
 
-Figure~\ref{Step_Netlist_1} shows an example file named \verb+clip.cir+, which when run will produce files
-\verb+clip.cir.res+ and \verb+clip.cir.prn+.  The file \verb+clip.cir.res+
-contains one line for each step, showing what parameter value was used
-on that step.  \verb+clip.cir.prn+ is the familiar output format, but
-the \verb+INDEX+ field recycles to zero each time a new step begins.
-As the default behavior distinguishes each step's output only by recycling 
-the \verb+INDEX+ field to zero, it can be beneficial to add the sweep 
-parameters to the \verb+.PRINT+ line.   For the default file format 
-(\texttt{format=std}), \Xyce{} will not automatically include these sweep parameters,
-so for plotting it is usually best to specify them by hand.
+Figure~\ref{Step_Netlist_1} shows an example file named
+\verb+clip.cir+, which when run will produce files \verb+clip.cir.res+
+and \verb+clip.cir.prn+.  The file \verb+clip.cir.res+ contains one
+line for each step, showing what parameter value was used on that
+step.  \verb+clip.cir.prn+ is the familiar output format, but the
+\verb+INDEX+ field recycles to zero each time a new step begins.  As
+the default behavior distinguishes each step's output only by
+recycling the \verb+INDEX+ field to zero, it can be beneficial to add
+the sweep parameters to the \verb+.PRINT+ line.  For the default file
+format (\texttt{format=std}), \Xyce{} will not automatically include
+these sweep parameters, so for plotting it is usually best to specify
+them by hand.
 
-If using the default \texttt{.prn} file format (\texttt{format=std}), the 
-resulting \texttt{.STEP} simulation output file will be a simple concatenation of
-each step's underlying analysis output.
-If using \texttt{format=probe}, the data for each execution of the circuit
-will be in distinct sections of the file, and it should be easy to 
-plot the results using PROBE.  If using \texttt{format=tecplot}, 
-the results of each \texttt{.STEP} simulation will be in a distinct
-Tecplot zone. Finally, format=raw will place the results for each \texttt{.STEP} simulation in a distinct ``plot'' region. 
+If using the default \texttt{.prn} file format (\texttt{format=std}),
+the resulting \texttt{.STEP} simulation output file will be a simple
+concatenation of each step's underlying analysis output.  If using
+\texttt{format=probe}, the data for each execution of the circuit will
+be in distinct sections of the file, and it should be easy to plot the
+results using PROBE.  If using \texttt{format=tecplot}, the results of
+each \texttt{.STEP} simulation will be in a distinct Tecplot
+zone. Finally, format=raw will place the results for each
+\texttt{.STEP} simulation in a distinct ``plot'' region.
 
 \input{sampling}
 
@@ -773,32 +884,37 @@ Tecplot zone. Finally, format=raw will place the results for each \texttt{.STEP}
 \index{\texttt{.HB}}
 
 Harmonic balance (HB) is a technique that solves for the steady state
-solution of nonlinear circuits in the frequency domain. In harmonic balance
-simulation, voltages and currents in a nonlinear circuit are
+solution of nonlinear circuits in the frequency domain. In harmonic
+balance simulation, voltages and currents in a nonlinear circuit are
 represented by truncated Fourier series. HB directly computes the
-frequency spectrum of voltages and currents at the steady state solution. This
-can be more efficient than transient analysis in applications where a transient 
-analysis may take a long time to reach the steady state solution. 
-In particular, HB is well suited for simulating analog RF and microwave circuits.
+frequency spectrum of voltages and currents at the steady state
+solution. This can be more efficient than transient analysis in
+applications where a transient analysis may take a long time to reach
+the steady state solution.  In particular, HB is well suited for
+simulating analog RF and microwave circuits.
 
-HB supports an unlimited number of independent input tones for driven circuits in
-both serial and parallel builds of \Xyce{}. The output of HB analysis is the real and 
-imaginary components of voltages and currents in the frequency domain. \Xyce{} also 
-provides time domain responses of a circuit. By default, the numbers of samples in 
-both time and frequency domain outputs are the same.  However, the number of time 
-domain samples can be much larger than the number of frequency domain  samples by 
-setting \verb|numtpts| in \verb|.options hbint|. This enables the users to use a 
-small number of harmonics for each tone and produce well-resolved results in time 
+HB supports an unlimited number of independent input tones for driven
+circuits in both serial and parallel builds of \Xyce{}. The output of
+HB analysis is the real and imaginary components of voltages and
+currents in the frequency domain. \Xyce{} also provides time domain
+responses of a circuit. By default, the numbers of samples in both
+time and frequency domain outputs are the same.  However, the number
+of time domain samples can be much larger than the number of frequency
+domain samples by setting \verb|numtpts| in
+\verb|.options hbint|. This enables the users to use a small number of
+harmonics for each tone and produce well-resolved results in time
 domain.
 
-For HB analysis, an initial guess of the solution is required. Often, a
-good initial guess is necessary for HB to converge. By default, \Xyce{} uses
-transient analysis to determine the initial guess, often called ``Transient Assisted HB''.  
-This option is controlled by the parameter, \verb|TAHB|, which is enabled if \verb|TAHB=1|
-and disabled if \verb|TAHB=0| in \verb|.options hbint|. If enabled, the starting time of 
-the transient analysis can be modified by specifying the parameter \verb|STARTUPPERIODS| 
-in \verb|.options hbint|. The \Xyce{} Reference Guide\ReferenceGuide{} provides a
-detailed explanation of the HB options. 
+For HB analysis, an initial guess of the solution is required. Often,
+a good initial guess is necessary for HB to converge. By default,
+\Xyce{} uses transient analysis to determine the initial guess, often
+called ``Transient Assisted HB''.  This option is controlled by the
+parameter, \verb|TAHB|, which is enabled if \verb|TAHB=1| and disabled
+if \verb|TAHB=0| in \verb|.options hbint|. If enabled, the starting
+time of the transient analysis can be modified by specifying the
+parameter \verb|STARTUPPERIODS| in \verb|.options hbint|. The \Xyce{}
+Reference Guide\ReferenceGuide{} provides a detailed explanation of
+the HB options.
 
 \subsection{.HB Statement}
 
@@ -816,7 +932,8 @@ explanation of the \verb|.HB| statement.
 
 \subsection{HB Options}
 
-Key parameters for \verb|.HB| simulation can be specified by \verb|.options hbint|.
+Key parameters for \verb|.HB| simulation can be specified by
+\verb|.options hbint|.
  
 \Example{\\
 
@@ -824,83 +941,97 @@ Key parameters for \verb|.HB| simulation can be specified by \verb|.options hbin
 \texttt{.HB 1e4 2e2} 
 } 
 
-As shown in the example, \texttt{numfreq} specifies the number of harmonics to
-be calculated for each tone. It must have the same number of entries as the fundamental
-frequencies in the \verb|.HB| statement.
-This example shows the options for a two tone HB analysis.  The \verb|.HB| statement is
-\texttt{ .HB $f_1$ $f_2$ }. For the first tone $f_1$, 5 harmonics are used and for the
-second tone $f_2$, 3 harmonics are used.
+As shown in the example, \texttt{numfreq} specifies the number of
+harmonics to be calculated for each tone. It must have the same number
+of entries as the fundamental frequencies in the \verb|.HB| statement.
+This example shows the options for a two tone HB analysis.  The
+\verb|.HB| statement is \texttt{ .HB $f_1$ $f_2$ }. For the first tone
+$f_1$, 5 harmonics are used and for the second tone $f_2$, 3 harmonics
+are used.
 
-The \texttt{intmodmax} option is the maximum intermodulation product order used
-in the spectrum.
+The \texttt{intmodmax} option is the maximum intermodulation product
+order used in the spectrum.
 
-As stated above, \texttt{TAHB} is the Transient Assisted HB option. In the case
-of multi-tone HB analysis, the initial guess is generated by a single tone transient simulation.
-The single tone that is used is the first tone in the \verb|.HB| statement.
-So, when ordering the fundamental frequencies in the \verb|.HB| statement, the first tone 
-should be the frequency that produces the most nonlinear response by the circuit.  
+As stated above, \texttt{TAHB} is the Transient Assisted HB option. In
+the case of multi-tone HB analysis, the initial guess is generated by
+a single tone transient simulation.  The single tone that is used is
+the first tone in the \verb|.HB| statement.  So, when ordering the
+fundamental frequencies in the \verb|.HB| statement, the first tone
+should be the frequency that produces the most nonlinear response by
+the circuit.
 
-As stated above, the \texttt{STARTUPPERIODS} option specifies the number of time periods 
-that \Xyce{} will integrate through using normal transient analysis \textbf{before} 
-generating the initial conditions for HB analysis.  For this example, \Xyce{} will 
-integrate through two periods before computing the initial conditions, which requires 
-an additional period.  Thus, \Xyce{} will integrate through a total of three periods 
-to compute the initial guess for HB analysis.
+As stated above, the \texttt{STARTUPPERIODS} option specifies the
+number of time periods that \Xyce{} will integrate through using
+normal transient analysis \textbf{before} generating the initial
+conditions for HB analysis.  For this example, \Xyce{} will integrate
+through two periods before computing the initial conditions, which
+requires an additional period.  Thus, \Xyce{} will integrate through a
+total of three periods to compute the initial guess for HB analysis.
 
-The \texttt{numtpts} option specifies the number of time points in the output. The number of samples in the time domain output is an odd number. If an even number is specified, the number of time points will be \texttt{numtpts} plus one. For this example, the time domain output has $101$ samples.
+The \texttt{numtpts} option specifies the number of time points in the
+output. The number of samples in the time domain output is an odd
+number. If an even number is specified, the number of time points will
+be \texttt{numtpts} plus one. For this example, the time domain output
+has $101$ samples.
 
 \Example{\\
 \texttt{.options hbint numfreq=20 STARTUPPERIODS=2}
 }
 
-For the single tone example given above, this statement will return $20$ negative and $20$ positive
-harmonics plus the DC component.
+For the single tone example given above, this statement will return
+$20$ negative and $20$ positive harmonics plus the DC component.
 
-The \Xyce{} Reference Guide\ReferenceGuide{} provides a detailed explanation of
-the \verb|.options hbint|.
+The \Xyce{} Reference Guide\ReferenceGuide{} provides a detailed
+explanation of the \verb|.options hbint|.
 
 \subsubsection{Nonlinear Solver Options}
 
-The HB analysis uses a different set of default nonlinear solver parameters than
-that of transient and DC analysis. Nonlinear solver parameters for HB
-analysis can be specified by using \verb|.options nonlin-hb|.
+The HB analysis uses a different set of default nonlinear solver
+parameters than that of transient and DC analysis. Nonlinear solver
+parameters for HB analysis can be specified by using
+\verb|.options nonlin-hb|.
 
 \Example{\\
 \texttt{.options nonlin-hb abstol=1e-6}
 }
 
-The \Xyce{} Reference Guide\ReferenceGuide{} provides a detailed explanation of the \verb|.options nonlin-hb| statement.
+The \Xyce{} Reference Guide\ReferenceGuide{} provides a detailed
+explanation of the \verb|.options nonlin-hb| statement.
 
 \subsubsection{Linear Solver Options}
 
-The HB analysis provided by \Xyce{} can employ both iterative and direct solvers.  If iterative
-solvers are used, then the HB Jacobian matrix is not assembled and only HB-specific preconditioners
-can be used for this matrix-free approach.  If direct solvers are used, then the HB
-Jacobian is assembled and the complex-valued matrix is solved using the selected method.
-Direct solvers are memory intensive and computationally expensive, so it is suggested that they
-are only used when iterative methods fail during HB analysis. 
-You can set iterative solver and preconditioner options using the \verb|.options linsol-hb| statement.
+The HB analysis provided by \Xyce{} can employ both iterative and
+direct solvers.  If iterative solvers are used, then the HB Jacobian
+matrix is not assembled and only HB-specific preconditioners can be
+used for this matrix-free approach.  If direct solvers are used, then
+the HB Jacobian is assembled and the complex-valued matrix is solved
+using the selected method.  Direct solvers are memory intensive and
+computationally expensive, so it is suggested that they are only used
+when iterative methods fail during HB analysis.  You can set iterative
+solver and preconditioner options using the \verb|.options linsol-hb|
+statement.
 
 \Example{\\
 \texttt{.options linsol-hb type=aztecoo prec\_type=block\_jacobi AZ\_tol=1e-9}
 }
 
-In this example, \texttt{type} specifies the iterative solver to use in
-the HB analysis and \texttt{AZ\_tol} is the relative tolerance for the
-iterative solver.  Any of the iterative solver options in
+In this example, \texttt{type} specifies the iterative solver to use
+in the HB analysis and \texttt{AZ\_tol} is the relative tolerance for
+the iterative solver.  Any of the iterative solver options in
 section~\ref{LinearSolver_Options} are valid.  However,
-\texttt{prec\_type} specifies which HB-specific preconditioner to use. The
-choices for this option are \texttt{none} and \texttt{block\_jacobi} (default).
+\texttt{prec\_type} specifies which HB-specific preconditioner to
+use. The choices for this option are \texttt{none} and
+\texttt{block\_jacobi} (default).
 
 \subsection{Output}
 \label{HB_Output}\index{\texttt{.PRINT}!\texttt{HB}}
 
-HB analysis can generate a variety of output files.  The
-selection of which files are generated most often depends on what is specified
-for the \texttt{.PRINT HB} command.
-Table~\ref{HB_Output_table} lists the format options and files created.
-The column labeled ``Additional Columns'' lists the additional data that
-is written, though not specified on the \texttt{.PRINT HB} line.
+HB analysis can generate a variety of output files.  The selection of
+which files are generated most often depends on what is specified for
+the \texttt{.PRINT HB} command.  Table~\ref{HB_Output_table} lists the
+format options and files created.  The column labeled ``Additional
+Columns'' lists the additional data that is written, though not
+specified on the \texttt{.PRINT HB} line.
 
 \begin{table}[htbp]
   \caption{Output generated for HB analysis \label{HB_Output_table}}
@@ -928,13 +1059,14 @@ is written, though not specified on the \texttt{.PRINT HB} line.
 
 \subsection{User Guidance}
 
-One of the most common errors in the HB simulation setup is the use of too few
-harmonic frequencies (i.e., \texttt{numfreq} is too small). One way to determine
-the optimum number of harmonic frequencies is to first simulate the
-circuit with a small \texttt{numfreq}, then increase the
-\texttt{numfreq} until the solution stops changing within a significant bound. 
-Requesting too many harmonic frequencies is wasteful of memory and simulation
-time, so it is not practical to request a very high \texttt{numfreq} either. 
+One of the most common errors in the HB simulation setup is the use of
+too few harmonic frequencies (i.e., \texttt{numfreq} is too
+small). One way to determine the optimum number of harmonic
+frequencies is to first simulate the circuit with a small
+\texttt{numfreq}, then increase the \texttt{numfreq} until the
+solution stops changing within a significant bound.  Requesting too
+many harmonic frequencies is wasteful of memory and simulation time,
+so it is not practical to request a very high \texttt{numfreq} either.
 
 \section{AC Analysis}
 \label{AC_Analysis}
@@ -942,19 +1074,20 @@ time, so it is not practical to request a very high \texttt{numfreq} either.
 \index{analysis!AC} \index{AC analysis} \index{\texttt{.AC}}
 \index{AC sweep} \index{analysis!AC sweep}
 
-The AC small-signal analysis of \Xyce{} computes AC output variables as a
-function of frequency. The program first computes the DC operating point of 
-the circuit and linearizes the circuit. The resultant linear circuit is then 
-analyzed over a user-specified range of frequencies. The desired output of an AC small-signal
-analysis is usually a transfer function (voltage gain, transimpedance, etc). If
-the circuit has one AC input, it is convenient to set that input to unity
-and zero phase so output variables have the same value as the transfer
-function of the output variable with respect to input. 
+The AC small-signal analysis of \Xyce{} computes AC output variables
+as a function of frequency. The program first computes the DC
+operating point of the circuit and linearizes the circuit. The
+resultant linear circuit is then analyzed over a user-specified range
+of frequencies. The desired output of an AC small-signal analysis is
+usually a transfer function (voltage gain, transimpedance, etc). If
+the circuit has one AC input, it is convenient to set that input to
+unity and zero phase so output variables have the same value as the
+transfer function of the output variable with respect to input.
 
 \subsection{.AC Statement}
 
-One may specify \verb|.AC| analyses by adding a \verb|.AC| line in the netlist.  
-Some examples of typical \verb|.AC| lines include:
+One may specify \verb|.AC| analyses by adding a \verb|.AC| line in the
+netlist.  Some examples of typical \verb|.AC| lines include:
 
 \Example{\\ 
 \texttt{.AC DEC 10 1K 100MEG}  \\
@@ -963,17 +1096,22 @@ Some examples of typical \verb|.AC| lines include:
 \texttt{.AC DATA=table }
 }
 
-These examples include some types of sweep (linear, decade and data).  The \Xyce{} Reference Guide\ReferenceGuide{} provides a complete description of all types of sweep.  Note that \texttt{DATA} is a special case, which will allow sweeping of frequency, magnitude, phase and linear model parameters simultaneously.
+These examples include some types of sweep (linear, decade and data).
+The \Xyce{} Reference Guide\ReferenceGuide{} provides a complete
+description of all types of sweep.  Note that \texttt{DATA} is a
+special case, which will allow sweeping of frequency, magnitude, phase
+and linear model parameters simultaneously.
 
 \subsection{AC Voltage and Current Sources}
 \label{AC_Sources}
 \index{AC sweep!sources}
 
-\Xyce{} assumes the AC source to be a cosine waveform at a specified phase
-angle. Its frequency must be defined in a separate ``.AC'' command defining
-the frequency for all the sources in the circuit. The unique information for
-the individual source is the name (which must start with ``V'' or ``I''),  the node
-numbers, the magnitude of the source, and its phase angle. Some examples are as follows:
+\Xyce{} assumes the AC source to be a cosine waveform at a specified
+phase angle. Its frequency must be defined in a separate ``.AC''
+command defining the frequency for all the sources in the circuit. The
+unique information for the individual source is the name (which must
+start with ``V'' or ``I''), the node numbers, the magnitude of the
+source, and its phase angle. Some examples are as follows:
 
 \Example{\\   
 %\texttt{*name nodelist type value  phase(deg)}  \\
@@ -982,12 +1120,17 @@ numbers, the magnitude of the source, and its phase angle. Some examples are as 
 \texttt{Iin 1 0 1.44e-5 ac 0.1e-5 sin(0 1 1e+5 0 0)} 
 }
 
-NOTE:	The type, AC, must be specified because the default is DC. If not specified, \Xyce{} assumes the
-phase angle to be zero degrees.  The units of the phase angle are in degrees.
+NOTE: The type, AC, must be specified because the default is DC. If
+not specified, \Xyce{} assumes the phase angle to be zero degrees.
+The units of the phase angle are in degrees.
 
 %%%%%
 \subsection{Example}
-An example AC analysis netlist is given in figure~\ref{acExample}.  This particular example uses a \texttt{.data} statement to specify a more complicated sweep.  Each line of the data table corresponds to a different sweep point, so there are 3 points evaluated, and there is a different magnitude, phase, frequency and resistance for each point.
+An example AC analysis netlist is given in figure~\ref{acExample}.
+This particular example uses a \texttt{.data} statement to specify a
+more complicated sweep.  Each line of the data table corresponds to a
+different sweep point, so there are 3 points evaluated, and there is a
+different magnitude, phase, frequency and resistance for each point.
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
@@ -1022,6 +1165,22 @@ C1 1 0 2e-6
 {AC Example Netlist.  This example uses a .data statement to simultaneously set frequency, magnitude, phase and the resistance of r1. \label{acExample} }
 \end{centering}
 \end{figure}
+
+%%%%%
+\subsubsection{Linear Solver Options}
+
+The AC analysis provided by \Xyce{} can employ both iterative and
+direct solvers. You can set direct, iterative
+solver, and preconditioner options using the \verb|.options linsol-ac|
+statement.
+
+\Example{\\
+\texttt{.options linsol-ac type=ksparse}
+}
+
+In this example, \texttt{type} specifies a non-default direct solver
+to use in the AC analysis.  Any of the direct and iterative solver options in
+section~\ref{LinearSolver_Options} are valid. 
 
 %%%%%
 \subsection{Output}
@@ -1068,13 +1227,14 @@ is written, though not specified on the \texttt{.PRINT} line.
 \index{AC sweep!print}
 
 Running \Xyce{} on AC analysis produces an output results file named
-\verb|.cir.FD.prn|. Obtaining this file requires that the \verb|.PRINT AC| line
-be specified.
+\verb|.cir.FD.prn|. Obtaining this file requires that the
+\verb|.PRINT AC| line be specified.
 
-\Xyce{}  supports printing the real and imaginary parts of phasor values
-(complex numbers) for AC analysis output as voltages or currents. For instance,
-specify ``V(1)'' to print the real part and imaginary part of a voltage at
-node 1. Additional output variable formats are also available:
+\Xyce{} supports printing the real and imaginary parts of phasor
+values (complex numbers) for AC analysis output as voltages or
+currents. For instance, specify ``V(1)'' to print the real part and
+imaginary part of a voltage at node 1. Additional output variable
+formats are also available:
 \begin{XyceItemize}
 \item \texttt{VR(<circuit node>)} output the real component of the voltage response
 \item \texttt{VI(<circuit node>)} output the imaginary component of voltage response
@@ -1090,10 +1250,10 @@ Some examples are as follows:
 \texttt{.print AC VP(OUTPUT)}
 }
 
-As a note, the \Xyce{} expression library was not written to work with complex 
-quantities. If AC voltages are used in expressions then the expression library 
-uses only the real part.  See the \Xyce{} Reference Guide\ReferenceGuide{}
-for more details.
+As a note, the \Xyce{} expression library was not written to work with
+complex quantities. If AC voltages are used in expressions then the
+expression library uses only the real part.  See the \Xyce{} Reference
+Guide\ReferenceGuide{} for more details.
 
 
 %%%%%%
@@ -1106,21 +1266,23 @@ for more details.
 \index{analysis!NOISE} \index{NOISE analysis}\index{\texttt{.NOISE}}
 \index{NOISE sweep} \index{analysis!NOISE sweep}
 
-\Xyce{} supports small-signal noise analysis, which is closely related to
-AC analysis. For noise analysis, input and output noise is computed for a specified
-output node, relative to an input source, as a function of frequency.  
+\Xyce{} supports small-signal noise analysis, which is closely related
+to AC analysis. For noise analysis, input and output noise is computed
+for a specified output node, relative to an input source, as a
+function of frequency.
 
-The program first computes the DC operating point of the circuit and linearizes the circuit.
-Next, at each frequency, an AC calculation is performed to obtain the AC gain.
-This gain is used later to compute the equivalent input noise from the output noise.
-After the AC gain is computed, the noise calculation is performed at the current 
-frequency using the adjoint method.  This involves solving the transpose of the
-AC matrix.
+The program first computes the DC operating point of the circuit and
+linearizes the circuit.  Next, at each frequency, an AC calculation is
+performed to obtain the AC gain.  This gain is used later to compute
+the equivalent input noise from the output noise.  After the AC gain
+is computed, the noise calculation is performed at the current
+frequency using the adjoint method.  This involves solving the
+transpose of the AC matrix.
 
 
-If the circuit has one NOISE input, it is convenient to set that input to unity
-and zero phase so output variables have the same value as the transfer
-function of the output variable with respect to the input. 
+If the circuit has one NOISE input, it is convenient to set that input
+to unity and zero phase so output variables have the same value as the
+transfer function of the output variable with respect to the input.
 
 \subsection{.NOISE Statement}
 
@@ -1134,20 +1296,21 @@ Some examples of typical \verb|.NOISE| lines include:
 \texttt{.NOISE V(4) V2 DATA=table}
 }
 
-The .NOISE command can specify a linear sweep, decade logarithmic sweep, octave logarithmic
-sweep, or a data table of multivariate values. See the \Xyce{} Reference Guide\ReferenceGuide{}
-for details.
+The .NOISE command can specify a linear sweep, decade logarithmic
+sweep, octave logarithmic sweep, or a data table of multivariate
+values. See the \Xyce{} Reference Guide\ReferenceGuide{} for details.
 
 \subsection{NOISE Voltage and Current Sources}
 \label{NOISE_Sources}
 \index{NOISE sweep!sources}
 
-Noise analysis requires a reference AC source.
-\Xyce{} assumes the AC source to be a cosine waveform at a specified phase
-angle. Its frequency must be defined in a separate ``.NOISE'' command defining
-the frequency for all the sources in the circuit. The unique information for
-the individual source is the name (which must start with ``V'' or ``I''),  the node
-numbers, the magnitude of the source, and its phase angle. Some examples are as follows:
+Noise analysis requires a reference AC source.  \Xyce{} assumes the AC
+source to be a cosine waveform at a specified phase angle. Its
+frequency must be defined in a separate ``.NOISE'' command defining
+the frequency for all the sources in the circuit. The unique
+information for the individual source is the name (which must start
+with ``V'' or ``I''), the node numbers, the magnitude of the source,
+and its phase angle. Some examples are as follows:
 
 \Example{\\   
 %\texttt{*name nodelist type value  phase(deg)}  \\
@@ -1156,15 +1319,17 @@ numbers, the magnitude of the source, and its phase angle. Some examples are as 
 \texttt{Iin 1 0 1.44e-5 ac 0.1e-5 sin(0 1 1e+5 0 0)} 
 }
 
-NOTE:	The type, AC, must be specified because the default is DC. If not specified, \Xyce{} assumes the
-phase angle to be zero degrees.  The units of the phase angle are in degrees.
+NOTE: The type, AC, must be specified because the default is DC. If
+not specified, \Xyce{} assumes the phase angle to be zero degrees.
+The units of the phase angle are in degrees.
 
 \subsection{Examples}
 
-Example noise analysis netlists are given in figures~\ref{noiseExample} and
-\ref{noiseExampleWData}.  In those two examples, the only noise source is the
-resistor, \texttt{rlp1}.  The input source is \texttt{v1} and the output node is
-\texttt{v(4)}.  A decade sweep is used in the first example, while a \texttt{.DATA}
+Example noise analysis netlists are given in
+figures~\ref{noiseExample} and \ref{noiseExampleWData}.  In those two
+examples, the only noise source is the resistor, \texttt{rlp1}.  The
+input source is \texttt{v1} and the output node is \texttt{v(4)}.  A
+decade sweep is used in the first example, while a \texttt{.DATA}
 statement is used in the second example.
 \begin{figure}[htbp]
   \begin{centering}
@@ -1240,9 +1405,10 @@ frequency, magnitude, phase and the resistance of rlp1.\label{noiseExampleWData}
 During analysis a number of output files may be generated.  The
 selection of which files are created depends on a variety of factors,
 most obvious of which is the \texttt{.PRINT} command.
-Table~\ref{NOISE_Output_table} lists the format options and files created.
-The column labeled ``Additional Columns'' lists the additional data that
-is written, though not specified on the \texttt{.PRINT} line.
+Table~\ref{NOISE_Output_table} lists the format options and files
+created.  The column labeled ``Additional Columns'' lists the
+additional data that is written, though not specified on the
+\texttt{.PRINT} line.
 
 \begin{table}[htbp]
   \caption{Output generated for NOISE analysis \label{NOISE_Output_table}}
@@ -1260,42 +1426,47 @@ is written, though not specified on the \texttt{.PRINT} line.
 \index{NOISE sweep!print}
 
 Running \Xyce{} NOISE analysis produces an output results file named
-\verb|.cir.NOISE.prn|. Obtaining this file requires that the \verb|.PRINT NOISE| line
-be specified. Using the \texttt{.PRINT} line, \Xyce{} supports printing the total 
-noise spectral density curves.  The output units for spectral densities 
-are $V^2$/Hz and $A^2$/Hz.  Some examples are as follows: 
+\verb|.cir.NOISE.prn|. Obtaining this file requires that the
+\verb|.PRINT NOISE| line be specified. Using the \texttt{.PRINT} line,
+\Xyce{} supports printing the total noise spectral density curves.
+The output units for spectral densities are $V^2$/Hz and $A^2$/Hz.
+Some examples are as follows:
+
 \Example{\\ 
 \texttt{.print noise inoise onoise} \\
 \texttt{.print noise {log(inoise)} {log(onoise)}} \\
 \texttt{.print noise inoise onoise V(4) VR(1)}  
 }
 
-\Xyce{} will also compute the total integrated output noise, and the total
-integrated input noise for the specified output node.  This information is sent
-to standard output, or to the user-specified log file.  A typical output (which 
-in this case was generated by the netlist given in figure~\ref{noiseExample}) will
-look like this:
+\Xyce{} will also compute the total integrated output noise, and the
+total integrated input noise for the specified output node.  This
+information is sent to standard output, or to the user-specified log
+file.  A typical output (which in this case was generated by the
+netlist given in figure~\ref{noiseExample}) will look like this:
+
 \Example{\\ 
 \texttt{Total Output Noise = 1.28592e-09} \\
 \texttt{Total Input Noise = 5.22876e-07} 
 }
 
-If \texttt{.STEP} is used with a noise analysis then the \Xyce{} standard output
-will contain the values of the stepped parameters, along with the values
-for the total integrated output noise and the total integrated input 
-noise for the specified output node.
+If \texttt{.STEP} is used with a noise analysis then the \Xyce{}
+standard output will contain the values of the stepped parameters,
+along with the values for the total integrated output noise and the
+total integrated input noise for the specified output node.
 
-Nodal voltages may be requested with a \verb|.PRINT NOISE| line, and the values 
-are the AC solution for the circuit.  All of the voltage operators in 
-Table ~\ref{Print_Complex} are supported for this case.
+Nodal voltages may be requested with a \verb|.PRINT NOISE| line, and
+the values are the AC solution for the circuit.  All of the voltage
+operators in Table ~\ref{Print_Complex} are supported for this case.
 
-The DC values of voltage sources (e.g., \texttt{V1}) that are changed with 
-a \verb|.STEP| line during a NOISE analysis can be printed out via the
-following syntax. Alternately, if a \verb|.OP| line is included in the 
-netlist then the output from the \verb+-r+ command line option will 
-contain the DC Operating Point (DCOP) values for all of the nodal 
-voltages.  (Note: Without the \verb|.OP| line, only the AC solution will 
-be included in the \verb+-r+ output for a NOISE analysis.) 
+The DC values of voltage sources (e.g., \texttt{V1}) that are changed
+with a \verb|.STEP| line during a NOISE analysis can be printed out
+via the following syntax. Alternately, if a \verb|.OP| line is
+included in the netlist then the output from the \verb+-r+ command
+line option will contain the DC Operating Point (DCOP) values for all
+of the nodal voltages.  (Note: Without the \verb|.OP| line, only the
+AC solution will be included in the \verb+-r+ output for a NOISE
+analysis.)
+
 \Example{\\ 
 \texttt{.print noise V1:DCV0} \\ 
 }
@@ -1304,8 +1475,8 @@ be included in the \verb+-r+ output for a NOISE analysis.)
 \subsection{Device Model Support}
 
 Note that stationary noise is not supported in every \Xyce{} device.
-A list of \Xyce{} devices, and which of them support stationary noise, is given 
-in the \Xyce{} Reference Guide\ReferenceGuide{}.
+A list of \Xyce{} devices, and which of them support stationary noise,
+is given in the \Xyce{} Reference Guide\ReferenceGuide{}.
 
 
 
@@ -1318,32 +1489,37 @@ in the \Xyce{} Reference Guide\ReferenceGuide{}.
 \label{SENS_Analysis}
 \label{sensitivity_Overview}
 
-The \texttt{.SENS} \index{\texttt{.SENS}} command instructs \Xyce{} to calculate
-the sensitivities of an output expression with respect 
-to a specified list of circuit parameters.   This capability works in either 
-steady-state (\texttt{.DC})  or transient (\texttt{.TRAN}).
+The \texttt{.SENS} \index{\texttt{.SENS}} command instructs \Xyce{} to
+calculate the sensitivities of an output expression with respect to a
+specified list of circuit parameters.  This capability works in either
+steady-state (\texttt{.DC}) or transient (\texttt{.TRAN}).
 
-\Format{\par \texttt{.SENS objfunc=\{<output expression(s)>\} param=<circuit parameter(s)> \newline
-.options SENSITIVITY [direct=<1 or 0>] [adjoint=<1 or 0>]}}
+\Format{\par \texttt{.SENS objfunc=\{<output expression(s)>\}
+    param=<circuit parameter(s)> \newline .options SENSITIVITY
+    [direct=<1 or 0>] [adjoint=<1 or 0>]}}
 
-At least one objective function parameter, \texttt{objfunc}, is required.  It is
-possible to specify a comma-separated list of objective functions.  The list of circuit 
-parameters must have at least one entry as well.  If there is more than one, the parameters
-are specified as a comma-separated list.   \Xyce{} will not assume any particular
-parameter list.  Unlike the Spice version of \texttt{.SENS}, \Xyce{} will not 
-automatically compute the sensitivity of every parameter; only the parameters the
-user requested.
+At least one objective function parameter, \texttt{objfunc}, is
+required.  It is possible to specify a comma-separated list of
+objective functions.  The list of circuit parameters must have at
+least one entry as well.  If there is more than one, the parameters
+are specified as a comma-separated list.  \Xyce{} will not assume any
+particular parameter list.  Unlike the Spice version of
+\texttt{.SENS}, \Xyce{} will not automatically compute the sensitivity
+of every parameter; only the parameters the user requested.
 
 \subsection{Steady-State (DC) sensitivities}
 
-For DC analysis, \Xyce{} can compute a direct sensitivity, an adjoint sensitivity, or both.
-In general, adjoint sensitivities are much more efficient when computing the derivatives
-with respect to really large numbers of parameters, but a small number of objective
-functions.  Direct sensitivities are most efficient for small numbers of parameters,
-but large numbers of objective functions.  \Xyce{} allows the user to specify
-multiple objective functions, as well as multiple parameters, so either scenario could apply.
+For DC analysis, \Xyce{} can compute a direct sensitivity, an adjoint
+sensitivity, or both.  In general, adjoint sensitivities are much more
+efficient when computing the derivatives with respect to really large
+numbers of parameters, but a small number of objective functions.
+Direct sensitivities are most efficient for small numbers of
+parameters, but large numbers of objective functions.  \Xyce{} allows
+the user to specify multiple objective functions, as well as multiple
+parameters, so either scenario could apply.
 
-An example of using \texttt{.SENS} on a DC problem is shown in the following netlist:
+An example of using \texttt{.SENS} on a DC problem is shown in the
+following netlist:
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
@@ -1380,25 +1556,29 @@ Name	        Value	  Sensitivity	   Normalized
 R1:R	   1.0000e+01	   6.2500e-02	   6.2500e-03
 R2:R	   1.0000e+01	  -6.2500e-02	  -6.2500e-03
 \end{verbatim}
-In the above example, both adjoint and direct sensitivities are computed.  This is 
-a linear problem, so it is easy to compare them to the analytic solution.
+In the above example, both adjoint and direct sensitivities are
+computed.  This is a linear problem, so it is easy to compare them to
+the analytic solution.
 %\clearpage
 \subsection{Transient sensitivities}
-Sensitivities can also be computed for transient analysis.  As with steady-state (DC) 
-analysis, both direct and adjoint sensitivities are supported.
+Sensitivities can also be computed for transient analysis.  As with
+steady-state (DC) analysis, both direct and adjoint sensitivities are
+supported.
 
 \subsubsection{Transient Direct Sensitivities}
-Transient direct sensitivities are a good choice if the number of parameters is 
-modest.  Also, if the output of interest is a full waveform sensitivity, they 
-will usually outperform adjoint sensitivities, as from the perspective of 
-adjoint calculations, each time point constitutes a separate objective function, 
-requiring a separate integration.
+Transient direct sensitivities are a good choice if the number of
+parameters is modest.  Also, if the output of interest is a full
+waveform sensitivity, they will usually outperform adjoint
+sensitivities, as from the perspective of adjoint calculations, each
+time point constitutes a separate objective function, requiring a
+separate integration.
 
-Set \texttt{direct=1 adjoint=0} to specify transient direct simulations.  The 
-transient direct forumulation in \Xyce{} is based on the one described by  
-Hocevar~\cite{Hocevar1985}.  An example netlist for a transient sensitivity
-calculation is given in figure~\ref{Tran_Sensitivity_Netlist}.  This is a simple 
-linear problem (RC decay), so it has an analytic solution.  
+Set \texttt{direct=1 adjoint=0} to specify transient direct
+simulations.  The transient direct forumulation in \Xyce{} is based on
+the one described by Hocevar~\cite{Hocevar1985}.  An example netlist
+for a transient sensitivity calculation is given in
+figure~\ref{Tran_Sensitivity_Netlist}.  This is a simple linear
+problem (RC decay), so it has an analytic solution.
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
@@ -1447,18 +1627,20 @@ with the two lines right on top of each other.
 
 \clearpage
 \subsubsection{Transient Adjoint Sensitivities}
-Transient adjoint sensitivities are a good choice for really large numbers of 
-parameters, and when the number of objective functions is modest.  For transient
-calculations, each time point is considered a separate objective function, so it 
-is best to use adjoints when the sensitivity of interest concerns only one or 
-a handful of time points.
+Transient adjoint sensitivities are a good choice for really large
+numbers of parameters, and when the number of objective functions is
+modest.  For transient calculations, each time point is considered a
+separate objective function, so it is best to use adjoints when the
+sensitivity of interest concerns only one or a handful of time points.
 
-Set \texttt{direct=0 adjoint=1} to specify transient adjoint simulations.   The 
-transient adjoint forumulation in \Xyce{} has similarities to the ones described
-by Liu~\cite{Liu2014} and Meir~\cite{BLAST2012}.  An example netlist for a transient 
-adjoint sensitivity
-calculation is given in figure~\ref{Tran_Adjoint_Sensitivity_Netlist}.  This is a simple 
-linear problem (RC driven by a sinewave), so it has an analytic solution.  
+Set \texttt{direct=0 adjoint=1} to specify transient adjoint
+simulations.  The transient adjoint forumulation in \Xyce{} has
+similarities to the ones described by Liu~\cite{Liu2014} and
+Meir~\cite{BLAST2012}.  An example netlist for a transient adjoint
+sensitivity calculation is given in
+figure~\ref{Tran_Adjoint_Sensitivity_Netlist}.  This is a simple
+linear problem (RC driven by a sinewave), so it has an analytic
+solution.
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
@@ -1497,24 +1679,28 @@ C1 2 0 {cap}
   {Transient adjoint sensitivity result.
 \label{transientAdjointSensitivityResult}}
 \end{figure}
-Results for the transient adjoint example are given in figure .
-The analytic sensitivity solution is given by the dashed line and the computed numerical
-sensitivity is given by the solid line.  The results match very well in this case,
-with the two lines right on top of each other.
+Results for the transient adjoint example are given in figure .  The
+analytic sensitivity solution is given by the dashed line and the
+computed numerical sensitivity is given by the solid line.  The
+results match very well in this case, with the two lines right on top
+of each other.
 
 \clearpage
 \subsection{AC Sensitivities}
-Sensitivities can also be computed for small-signal AC analysis.  As with steady-state (DC) 
-and transient analysis, both direct and adjoint sensitivities are supported.     An example
-netlist which exercises the capability is shown in figure~\ref{AC_Sensitivity_Netlist}.
+Sensitivities can also be computed for small-signal AC analysis.  As
+with steady-state (DC) and transient analysis, both direct and adjoint
+sensitivities are supported.  An example netlist which exercises the
+capability is shown in figure~\ref{AC_Sensitivity_Netlist}.
 
-The netlist commands for AC sensitivities are very similar to those for DC, but with 
-some small exceptions.   The expression library in \Xyce{} currently does not support
-complex numbers, so the specification for objective functions is more limited.  As such, 
-the \texttt{objfunc} parameter will not work with AC sensitivities, and the user should
-instead specify outputs using \texttt{objvars} followed by a list of node names.  The
-sensitivities that are computed will be for the voltages at the listed nodes, with respect
-to the list of sensitivity parameters.
+The netlist commands for AC sensitivities are very similar to those
+for DC, but with some small exceptions.  The expression library in
+\Xyce{} currently does not support complex numbers, so the
+specification for objective functions is more limited.  As such, the
+\texttt{objfunc} parameter will not work with AC sensitivities, and
+the user should instead specify outputs using \texttt{objvars}
+followed by a list of node names.  The sensitivities that are computed
+will be for the voltages at the listed nodes, with respect to the list
+of sensitivity parameters.
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
@@ -1540,11 +1726,12 @@ c1 2 0 47n
 {AC Sensitivity Example Netlist \label{AC_Sensitivity_Netlist} }
 \end{centering}
 \end{figure}
-For each specified output, there are four separate objective functions for
-which sensitivities will be computed; magnitude and phase for the polar 
-representation, as well as real and imaginary for the cartesian 
-representation of the solution.   The console output for the example netlist,
-for the first frequency, is shown in figure ~\ref{AC_Sensitivity_Result}.
+For each specified output, there are four separate objective functions
+for which sensitivities will be computed; magnitude and phase for the
+polar representation, as well as real and imaginary for the cartesian
+representation of the solution.  The console output for the example
+netlist, for the first frequency, is shown in figure
+~\ref{AC_Sensitivity_Result}.
 \begin{figure}[htbp]
   \begin{centering}
     \shadowbox{
@@ -1570,38 +1757,44 @@ C1:C  4.7e-08  -8.1975e+02     -2.9531e+05     -4.0988e+02     -2.9531e+04
 \clearpage
 \subsection{Output}
 \label{SENS_Output}\index{\texttt{.PRINT}!\texttt{.SENS}}
-For a full list and explanation of options related to \texttt{.SENS} output see 
-the \Xyce{} Reference Guide\ReferenceGuide{}.
+For a full list and explanation of options related to \texttt{.SENS}
+output see the \Xyce{} Reference Guide\ReferenceGuide{}.
 
-Sensitivity output can be sent to standard output, or to a user-specified
-log file.  The format for this output is similar to that generated by the circuit
-given in figure~\ref{DC_Sensitivity_Netlist}.
-This feature is mainly made available in \Xyce{} so as to be similar to 
-the sensitivity analysis of older circuit simulators.   However, for most uses 
-it isn't the most practical output, so it is disabled by default.   To enable standard
-output, one should set the following: 
+Sensitivity output can be sent to standard output, or to a
+user-specified log file.  The format for this output is similar to
+that generated by the circuit given in
+figure~\ref{DC_Sensitivity_Netlist}.  This feature is mainly made
+available in \Xyce{} so as to be similar to the sensitivity analysis
+of older circuit simulators.  However, for most uses it isn't the most
+practical output, so it is disabled by default.  To enable standard
+output, one should set the following:
 \begin{verbatim}
 .options SENSITIVITY STDOUTPUT=1
 \end{verbatim}
 
-In addition to the screen output, \Xyce{} can also produce a plottable file containing
-all the requested sensitivities.  This file can be requested by adding either a \texttt{.PRINT SENS} 
-or a \texttt{.PRINT TRANADJOINT} command to the input file.  Steady-state 
-sensitivities (adjoint or direct) and transient direct sensitivities will be 
-handled by the \texttt{.PRINT SENS} command.  Transient adjoint, on the other 
+In addition to the screen output, \Xyce{} can also produce a plottable
+file containing all the requested sensitivities.  This file can be
+requested by adding either a \texttt{.PRINT SENS} or a \texttt{.PRINT
+  TRANADJOINT} command to the input file.  Steady-state sensitivities
+(adjoint or direct) and transient direct sensitivities will be handled
+by the \texttt{.PRINT SENS} command.  Transient adjoint, on the other
 hand, is handled by the \texttt{.PRINT TRANADJOINT} command.
 
-Unlike the traditional \texttt{.PRINT} line, both \texttt{.PRINT SENS} and \texttt{.PRINT TRANADJOINT} will
-assume that the user wants all the sensitivities specified on the \texttt{.SENS} line.
-As such it is not necessary (or possible) to specify specific sensitivities on the
-\texttt{.PRINT SENS} line.  If the line exists, that is sufficient to produce
-the file, and it will contain a column for every objective function and every
-derivative.  The file name is the same as the one produced with 
-\texttt{.PRINT}, but with  ``\texttt{.SENS}'' included just before the suffix.  
-Similarly, for transient adjoint, the output file name has the string ``\texttt{.TRADJ}'' included before the suffix.
-Note also, that most of the same output formats (\texttt{std}, \texttt{tecplot}, etc.) 
-are available for \texttt{.PRINT SENS} and\texttt{.PRINT TRANADJOINT} as they are for conventional \texttt{.PRINT}.  The available
-formats are listed in table~\ref{SENS_Output_table},~\ref{SENS_AC_Output_table}and~\ref{TRANADJOINT_Output_table}.
+Unlike the traditional \texttt{.PRINT} line, both \texttt{.PRINT SENS}
+and \texttt{.PRINT TRANADJOINT} will assume that the user wants all
+the sensitivities specified on the \texttt{.SENS} line.  As such it is
+not necessary (or possible) to specify specific sensitivities on the
+\texttt{.PRINT SENS} line.  If the line exists, that is sufficient to
+produce the file, and it will contain a column for every objective
+function and every derivative.  The file name is the same as the one
+produced with \texttt{.PRINT}, but with ``\texttt{.SENS}'' included
+just before the suffix.  Similarly, for transient adjoint, the output
+file name has the string ``\texttt{.TRADJ}'' included before the
+suffix.  Note also, that most of the same output formats
+(\texttt{std}, \texttt{tecplot}, etc.)  are available for
+\texttt{.PRINT SENS} and\texttt{.PRINT TRANADJOINT} as they are for
+conventional \texttt{.PRINT}.  The available formats are listed in
+table~\ref{SENS_Output_table},~\ref{SENS_AC_Output_table}and~\ref{TRANADJOINT_Output_table}.
 \begin{table}[htbp]
   \caption{Output generated for SENS analysis for .TRAN\label{SENS_Output_table}}
   \begin{tabularx}{\linewidth}{|p{2.75in}|Y|Y|}
@@ -1626,14 +1819,15 @@ formats are listed in table~\ref{SENS_Output_table},~\ref{SENS_AC_Output_table}a
 \texttt{.PRINT SENS FORMAT=TECPLOT} & \emph{circuit-file}.FD.SENS.dat & FREQ \\ \hline
   \end{tabularx}
 \end{table}
-As noted, transient adjoints are specified separately from \texttt{.PRINT SENS}.  
-This is because the transient adjoint calculation is performed as a post-process, 
-after the original forward calculation has been completed, and 
-\Xyce{}'s forward outputters are no longer active.  To specify transient 
-adjoint output, one must use \texttt{.PRINT TRANADJOINT} instead.  As it is 
-possible to perform both a transient direct and a transient adjoint calculation 
-as part of the same computation, and most of \Xyce{}'s output files are in 
-column format, there wasn't an easy way to have them use the same outputter.
+As noted, transient adjoints are specified separately from
+\texttt{.PRINT SENS}.  This is because the transient adjoint
+calculation is performed as a post-process, after the original forward
+calculation has been completed, and \Xyce{}'s forward outputters are
+no longer active.  To specify transient adjoint output, one must use
+\texttt{.PRINT TRANADJOINT} instead.  As it is possible to perform
+both a transient direct and a transient adjoint calculation as part of
+the same computation, and most of \Xyce{}'s output files are in column
+format, there wasn't an easy way to have them use the same outputter.
 \begin{table}[htbp]
   \caption{Output generated for transient adjoint SENS analysis \label{TRANADJOINT_Output_table}}
   \begin{tabularx}{\linewidth}{|p{2.75in}|Y|Y|}
@@ -1647,27 +1841,31 @@ column format, there wasn't an easy way to have them use the same outputter.
 
 \clearpage
 \subsection{Notes about .SENS accuracy and formulation}
-The sensitivity calculation in \Xyce{} is based on a chain rule calculation.   Ultimately,
-the calculation will produce $dO/dp$, where $O$ is a user-specified objective function,
-and $p$ is a user-specified parameter.  $dO/dp$ is equal to:
+The sensitivity calculation in \Xyce{} is based on a chain rule
+calculation.  Ultimately, the calculation will produce $dO/dp$, where
+$O$ is a user-specified objective function, and $p$ is a
+user-specified parameter.  $dO/dp$ is equal to:
 \begin{equation}
   \frac{dO}{dp} = \frac{\partial O}{\partial x}\frac{\partial x}{\partial p} + \frac{\partial O}{\partial p}
   \label{objectiveDerivative}
 \end{equation}
-\noindent where $x$ is a solution vector and $\partial x/\partial p$ is the sensitivity of that 
-solution vector with respect to the parameter.  Evaluating~\ref{objectiveDerivative}
-requires that $\partial x/\partial p$ be computed first.  The direct sensivity calculation for $\partial x/\partial p$ 
-can be derived by considering the DAE form of the residual equation:
+\noindent where $x$ is a solution vector and $\partial x/\partial p$
+is the sensitivity of that solution vector with respect to the
+parameter.  Evaluating~\ref{objectiveDerivative} requires that
+$\partial x/\partial p$ be computed first.  The direct sensivity
+calculation for $\partial x/\partial p$ can be derived by considering
+the DAE form of the residual equation:
 \begin{equation}
   F(x,t) = \dot{q}(x,t) + j(x,t) - b(t) = 0
   \label{residual}
 \end{equation}
-\noindent In this equation, $q$ represents quantities that must be differentiated 
-with respect to time (such as capacitor charge), and $j$ represents algebraic 
-terms that depend on the solution $x$ (such as DC currents), and $b$ are independent sources that 
-only depend on time.  Equation~\ref{residual} is solved to obtain the solution, $x$.
-To obtain sensitivities, one must differentiate this equation with respect to a 
-parameter, $p$.
+\noindent In this equation, $q$ represents quantities that must be
+differentiated with respect to time (such as capacitor charge), and
+$j$ represents algebraic terms that depend on the solution $x$ (such
+as DC currents), and $b$ are independent sources that only depend on
+time.  Equation~\ref{residual} is solved to obtain the solution, $x$.
+To obtain sensitivities, one must differentiate this equation with
+respect to a parameter, $p$.
 \begin{equation}
   \frac{dF}{dp} = \frac{d}{dp}\left( \dot{q} + j - b \right) = 0
   \label{dfdp}
@@ -1677,20 +1875,23 @@ In steady-state, equation~\ref{dfdp} simplifies to:
   \frac{dF}{dp} = \frac{dj}{dp} - \frac{db}{dp} = 0
   \label{steady_dfdp}
 \end{equation}
-\noindent As $j$ is dependent upon $x$, the $\frac{dj}{dp}$ term must be expanded via chain rule, and
-the resulting equation must be re-arranged to set up 
-a matrix equation that can be solved to obtain $\frac{dx}{dp}$:
+\noindent As $j$ is dependent upon $x$, the $\frac{dj}{dp}$ term must
+be expanded via chain rule, and the resulting equation must be
+re-arranged to set up a matrix equation that can be solved to obtain
+$\frac{dx}{dp}$:
 \begin{equation}
   \frac{dj}{dx}\frac{dx}{dp} = - \frac{dj}{dp} + \frac{db}{dp} 
   \label{finalSens}
 \end{equation}
-\noindent In equation~\ref{finalSens}, the terms on the right hand side are computed 
-by the individual device models once the Newton loop the circuit analysis has 
-converged.  The Jacobian matrix on the left hand side ($dj/dx$) is the same matrix 
-used by the original analysis.  Once the linear system is solved, then $dx/dp$ is
-available for the given parameter, and it can then be applied to equation~\ref{objectiveDerivative}.
-For transient, a similar linear system is solved, which depends on the specific
-time integration method used.  For Backward-Euler the linear system is:
+\noindent In equation~\ref{finalSens}, the terms on the right hand
+side are computed by the individual device models once the Newton loop
+the circuit analysis has converged.  The Jacobian matrix on the left
+hand side ($dj/dx$) is the same matrix used by the original analysis.
+Once the linear system is solved, then $dx/dp$ is available for the
+given parameter, and it can then be applied to
+equation~\ref{objectiveDerivative}.  For transient, a similar linear
+system is solved, which depends on the specific time integration
+method used.  For Backward-Euler the linear system is:
 \begin{equation}
   \left[ \frac{1}{h} \frac{dq}{dx} 
   + \frac{dj}{dx} \right] \frac{dx}{dp}_{n+1} 
@@ -1701,33 +1902,39 @@ time integration method used.  For Backward-Euler the linear system is:
  + \frac{1}{h} \left[ \frac{dq}{dx} \right] \frac{dx}{dp}_n 
  \label{finalTransientSens}
 \end{equation}
-\noindent Where $h$ is the time step size.  As with ~\ref{finalSens}, the left hand side 
-of the equation contains the original Jacobian matrix.
+\noindent Where $h$ is the time step size.  As with ~\ref{finalSens},
+the left hand side of the equation contains the original Jacobian
+matrix.
 
-In general, the accuracy of the above calculation is dependent on the accuracy of the 
-individual derivatives that comprise equations~\ref{objectiveDerivative} and~\ref{finalSens} 
-or~\ref{finalTransientSens}.
-In \Xyce{}, the Jacobian derivatives ($dj/dx$ and $dq/dx$) are always analytic.  Similarly, the
-objective function derivatives ($dO/dx$) are also always analytic.  However, the derivatives
-on the right hand side of~\ref{finalTransientSens} ($dj/dp$, $db/dp$ and $dq/dp$) depend on particular
-device implementations.  If the device was implemented with analytic parameter sensitivies,
-then those sensitivities are used.  If analytic derivatives were not available, then
-the $dj/dp$, $dq/dp$ and $db/dp$ derivatives are computed using finite differences.  
-A list of \Xyce{} devices, and which of them support analytic sensitivities, is given in the \Xyce{} Reference 
-Guide\ReferenceGuide{}.
+In general, the accuracy of the above calculation is dependent on the
+accuracy of the individual derivatives that comprise
+equations~\ref{objectiveDerivative} and~\ref{finalSens}
+or~\ref{finalTransientSens}.  In \Xyce{}, the Jacobian derivatives
+($dj/dx$ and $dq/dx$) are always analytic.  Similarly, the objective
+function derivatives ($dO/dx$) are also always analytic.  However, the
+derivatives on the right hand side of~\ref{finalTransientSens}
+($dj/dp$, $db/dp$ and $dq/dp$) depend on particular device
+implementations.  If the device was implemented with analytic
+parameter sensitivies, then those sensitivities are used.  If analytic
+derivatives were not available, then the $dj/dp$, $dq/dp$ and $db/dp$
+derivatives are computed using finite differences.  A list of \Xyce{}
+devices, and which of them support analytic sensitivities, is given in
+the \Xyce{} Reference Guide\ReferenceGuide{}.
 
-For some problems, finite difference derivatives will work fine, but some devices and/or circuit
-problems have wide ranges of solution and/or parameter scalings, and this can render inaccurate 
-finite difference derivatives.  As this capability develops, most devices should
-eventually provide analytic derivatives.
+For some problems, finite difference derivatives will work fine, but
+some devices and/or circuit problems have wide ranges of solution
+and/or parameter scalings, and this can render inaccurate finite
+difference derivatives.  As this capability develops, most devices
+should eventually provide analytic derivatives.
 
-The above derivation and arguments were given for direct sensitivities (as that is the only
-form supported for both DC and transient), but the same 
-ideas with regard to accuracy apply for adjoint sensitivites.
+The above derivation and arguments were given for direct sensitivities
+(as that is the only form supported for both DC and transient), but
+the same ideas with regard to accuracy apply for adjoint sensitivites.
 
-For transient, note that the transient direct calculation uses the same time steps 
-that are used for the original circuit analysis.  It does not impose any additional error
-control that is specific to the accuracy of $dx/dp$.
+For transient, note that the transient direct calculation uses the
+same time steps that are used for the original circuit analysis.  It
+does not impose any additional error control that is specific to the
+accuracy of $dx/dp$.
 
 %%%%%%
 % -------------------------------------------------------------------------
@@ -1740,38 +1947,44 @@ control that is specific to the accuracy of $dx/dp$.
 \index{analysis!S-parameter} \index{S-parameter analysis} \index{\texttt{.LIN}}
 \index{AC sweep} \index{analysis!AC sweep}
 
-The S-parameter small-signal analysis of \Xyce{} computes linear transfer parameters as a
-function of frequency for a general multi-port network. The program first computes the DC operating point of 
-the circuit and then linearizes the circuit. The resultant linear circuit is then
-analyzed over a user-specified range of frequencies. The output of a S-parameter
-analysis is multi-port scattering (S) parameters. The S-parameters represent
-the ratio of incident and scattered normalized voltage waves.  The analysis
-results can also be output as Y-parameter or Z-parameter values.
+The S-parameter small-signal analysis of \Xyce{} computes linear
+transfer parameters as a function of frequency for a general
+multi-port network. The program first computes the DC operating point
+of the circuit and then linearizes the circuit. The resultant linear
+circuit is then analyzed over a user-specified range of
+frequencies. The output of a S-parameter analysis is multi-port
+scattering (S) parameters. The S-parameters represent the ratio of
+incident and scattered normalized voltage waves.  The analysis results
+can also be output as Y-parameter or Z-parameter values.
 
 \subsection{.LIN Statement}
 
 One may specify S-parameter analyses by using a \verb|.LIN| command with a \verb|.AC| command in the netlist.
 Here is an example of typical \verb|.AC| and \verb|.LIN| lines:
 
-\Example{\\ 
-\texttt{.AC DEC 10 1K 100MEG}  \\ 
-\texttt{.LIN sparcalc=1 format=touchstone}  \\ 
+\Example{\\
+\texttt{.AC DEC 10 1K 100MEG}  \\
+\texttt{.LIN sparcalc=1 format=touchstone}  \\
 }
 
-The \verb|.LIN| analysis is similar to a basic small signal \verb|.AC| analysis, but it also calculates small signal 
-transfer parameters between terminals identified using port (P) devices. The \Xyce{} Reference Guide\ReferenceGuide{} 
-provides a complete description of \verb|.LIN| analysis and the P device.  To output Y-parameter
-or Z-parameter values instead the \texttt{LINTYPE=Y} or \texttt{LINTYPE=Z} argument can be
-used on the \texttt{.LIN} line.
+The \verb|.LIN| analysis is similar to a basic small signal \verb|.AC|
+analysis, but it also calculates small signal transfer parameters
+between terminals identified using port (P) devices. The \Xyce{}
+Reference Guide\ReferenceGuide{} provides a complete description of
+\verb|.LIN| analysis and the P device.  To output Y-parameter or
+Z-parameter values instead the \texttt{LINTYPE=Y} or
+\texttt{LINTYPE=Z} argument can be used on the \texttt{.LIN} line.
 
 \subsection{Port Devices}
 \label{SP_Port}
 \index{S-parameter analysis!port}
 
-The \verb|.LIN| analysis computes the S-parameters based on the location of the port (P)
-devices and the values of their reference impedances. The port devices identify
-the ports used in \verb|.LIN| analysis. The \Xyce{} Reference Guide\ReferenceGuide{} 
-provides a complete description of the port devices. Some examples are as follows:
+The \verb|.LIN| analysis computes the S-parameters based on the
+location of the port (P) devices and the values of their reference
+impedances. The port devices identify the ports used in \verb|.LIN|
+analysis. The \Xyce{} Reference Guide\ReferenceGuide{} provides a
+complete description of the port devices. Some examples are as
+follows:
 
 \Example{\\   
 %\texttt{*name nodelist type value  phase(deg)}  \\
@@ -1779,14 +1992,17 @@ provides a complete description of the port devices. Some examples are as follow
 \texttt{P2 12 0  port= 2  z0=100 }
 }
 
-NOTE:  Each port requires a unique port number. If a circuit has N ports, the netlist must
-contain the sequential set of port numbers, 1 to N.  	
+NOTE: Each port requires a unique port number. If a circuit has N
+ports, the netlist must contain the sequential set of port numbers, 1
+to N.
 
 \subsection{Example}
-An example S-parameter analysis netlist is given in figure~\ref{spExample}.  This example uses 2 ports.
-The S parameters are outputted to a file in Touchstone 1 format \cite{touchstone2_std_2009}.
-Touchstone 2 format is also supported.  Note that \texttt{SPARCALC=1} is specified on
-the \texttt{.LIN} line.  If \texttt{SPARCALC=0} is specified instead then a \texttt{.AC}
+An example S-parameter analysis netlist is given in
+figure~\ref{spExample}.  This example uses 2 ports.  The S parameters
+are output to a file in Touchstone 1 format
+\cite{touchstone2_std_2009}.  Touchstone 2 format is also supported.
+Note that \texttt{SPARCALC=1} is specified on the \texttt{.LIN} line.
+If \texttt{SPARCALC=0} is specified instead then a \texttt{.AC}
 analysis will be done.
 
 \begin{figure}[htbp]
@@ -1796,7 +2012,7 @@ analysis will be done.
         \begin{vquote}
 \color{blue}* S-parameter Analysis example\color{black}
 P1 1 0 port= 1
-
+~
 C1 2 0 1e-2
 Rgs 1 2 0.02
 
@@ -1841,23 +2057,28 @@ command when \texttt{SPARCALC=1} on that line.  Any information on
 Table~\ref{LIN_Output_table} lists the format options and files created.
 If \texttt{SPARCALC=0} then a \texttt{.AC} analysis is done instead.
 
-All three data formats defined in the Touchstone standard, which are real-imaginary (RI),
-magnitude-angle(MA) and magnitude(db)-angle (DB), are supported.  The default is RI.
-Other options can be selected via the inclusion of the \texttt{DATAFORMAT=<val>}
-argument on the \texttt{.LIN} line. Per the Touchstone standard, all angle values
-are output in degrees.
+All three data formats defined in the Touchstone standard, which are
+real-imaginary (RI), magnitude-angle(MA) and magnitude(db)-angle (DB),
+are supported.  The default is RI.  Other options can be selected via
+the inclusion of the \texttt{DATAFORMAT=<val>} argument on the
+\texttt{.LIN} line. Per the Touchstone standard, all angle values are
+output in degrees.
 
-The default filename for both Touchstone formats is \texttt{<netlistName>.sNp}
-where N is the number of ``ports'' (\texttt{P} devices) specified in the netlist.
-The output can be redirected to another file with the \texttt{-o} command line
-option or by using a \texttt{FILE=<filename>} argument on the \texttt{.LIN} line.
+The default filename for both Touchstone formats is
+\texttt{<netlistName>.sNp} where N is the number of ``ports''
+(\texttt{P} devices) specified in the netlist.  The output can be
+redirected to another file with the \texttt{-o} command line option or
+by using a \texttt{FILE=<filename>} argument on the \texttt{.LIN}
+line.
 
-The default output is S-parameters.  The \texttt{LINTYPE=<S|Y|Z>} argument can be
-used on the \texttt{.LIN} line to select Y-parameter or Z-parameter output instead.
-(Note:  The default filename is still \texttt{<netlistName>.sNp} even if the
-output file contains Y-parameter or Z-parameter output rather than S-parameter output.)
-The \Xyce{} Reference Guide\ReferenceGuide{} has a complete listing of which
-arguments, typically used on a \texttt{.PRINT} line also work on a \texttt{.LIN} line.
+The default output is S-parameters.  The \texttt{LINTYPE=<S|Y|Z>}
+argument can be used on the \texttt{.LIN} line to select Y-parameter
+or Z-parameter output instead.  (Note: The default filename is still
+\texttt{<netlistName>.sNp} even if the output file contains
+Y-parameter or Z-parameter output rather than S-parameter output.)
+The \Xyce{} Reference Guide\ReferenceGuide{} has a complete listing of
+which arguments, typically used on a \texttt{.PRINT} line also work on
+a \texttt{.LIN} line.
 
 \begin{table}[htbp]
   \caption{Output generated for .LIN analysis \label{LIN_Output_table}}
@@ -1877,9 +2098,11 @@ arguments, typically used on a \texttt{.PRINT} line also work on a \texttt{.LIN}
 \end{tabularx}
 \end{table}
 
-When a \texttt{.LIN} analysis is done then additional output variable formats are available
-via the \texttt{.PRINT AC} line, where \texttt{<index1>} and \texttt{<index2>} must both
-be greater than 0 and also both less than or equal to the number of ports in the netlist:
+When a \texttt{.LIN} analysis is done then additional output variable
+formats are available via the \texttt{.PRINT AC} line, where
+\texttt{<index1>} and \texttt{<index2>} must both be greater than 0
+and also both less than or equal to the number of ports in the
+netlist:
 \begin{XyceItemize}
 \item \texttt{SR(<index1>,<index2>)} to output the real component of an S-parameter
 \item \texttt{SI(<index1>,<index2>)} to output the imaginary component of an S-parameter

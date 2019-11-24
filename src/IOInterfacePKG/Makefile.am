@@ -158,9 +158,12 @@ libIOInterface_la_SOURCES = \
   N_IO_OutputterFrequencyRaw.h \
   N_IO_OutputterFrequencyRawASCII.h \
   N_IO_OutputterFrequencyTecplot.h \
-  N_IO_OutputterHBCSV.h \
-  N_IO_OutputterHBPrn.h \
-  N_IO_OutputterHBTecplot.h \
+  N_IO_OutputterHBFreqCSV.h \
+  N_IO_OutputterHBTimeCSV.h \
+  N_IO_OutputterHBFreqPrn.h \
+  N_IO_OutputterHBTimePrn.h \
+  N_IO_OutputterHBFreqTecplot.h \
+  N_IO_OutputterHBTimeTecplot.h \
   N_IO_OutputterHomotopy.h \
   N_IO_OutputterHomotopyCSV.h \
   N_IO_OutputterHomotopyPrn.h \

@@ -150,11 +150,8 @@ void PCECSV::doOutputPCE(
     // add those additional columns to the printParameters_.table_
     fixupColumnsFromStrVec(comm, printParameters_, colNames);
 
-    if (outputManager_.getPrintHeader())
-    {
-      // output the column names to the output file.
-      PCEHeader();
-    }
+    // output the column names to the output file.
+    PCEHeader();
   }
 
   std::vector<complex> result_list;

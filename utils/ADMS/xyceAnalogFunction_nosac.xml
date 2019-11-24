@@ -623,9 +623,6 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
 </admst:template>
 
 <!-- Function call -->
-<!-- At the moment, we're going to refuse to work if there are analog function
-     calls inside analog function definitions.  We'll fix that when we write
-     all the code to handle analog function calls properly everywhere else -->
 <admst:template match="xyceAnalogFunctions:function">
   <admst:variable name="doingAnalogFunctionCall" value="no"/>
   <admst:variable name="funcname" select="%(xyceAnalogFunctions:funcname(.)/[name='fname']/value)"/>
@@ -836,7 +833,6 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
         </admst:for-each>
         <admst:choose>
           <admst:when test="[$dontbother='yes']">
-            <!-- NOTE:  This is wrong if the function has output variables! -->
             <admst:variable name="expressionDeriv" value="0.0"/>
           </admst:when>
           <admst:otherwise>

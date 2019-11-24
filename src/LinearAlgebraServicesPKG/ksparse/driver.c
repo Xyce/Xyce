@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
    fclose(mat);
    fclose(vec);
 
-   spOrderAndFactor (Matrix, rhs, 0.001, 1.e-13, 1);
+   spOrderAndFactor (Matrix, rhs, 0.001, 1.e-13, 1, 1);
    spSolve (Matrix, rhs, solution, NULL, NULL);
    check ("initial solve", solution, answer, size);
 

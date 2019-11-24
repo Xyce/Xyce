@@ -41,21 +41,20 @@ restrictions.
 RESTRICTIONS
 
 1. The users agree not to charge for the Model itself but may
-charge for additions, extensions, or support.
+   charge for additions, extensions, or support.
 
 2. In any product based on the Model, the users agree to acknowledge
-the owners as developers of the Model. This acknowledgment shall
-appear in the product documentation.
+   the owners as developers of the Model. This acknowledgment shall
+   appear in the product documentation.
 
-3.  The users agree to only use the name of CMC standard models to
-identify implementations of the CMC standard models which produce the
-same outputs as Standard code for the same inputs passing all CMC QA
-tests.
+3. The users agree to only use the name of CMC standard models to
+   identify implementations of the CMC standard models which produce
+   the same outputs as Standard code for the same inputs passing all
+   CMC QA tests.
 
 4. The users agree to obey all government restrictions governing
-redistribution or export of the software.
+   redistribution or export of the software.
 
 5. The users agree to reproduce any copyright notice which appears on
-the software and documentation on any copy or modification of such
-made available to others.
-
+   the software and documentation on any copy or modification of such
+   made available to others.
