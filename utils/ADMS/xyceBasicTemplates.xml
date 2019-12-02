@@ -359,6 +359,9 @@ struct Traits: public DeviceTraits&lt;Model, Instance
           <admst:when test="[attribute[name='xyceModelGroup']/value='MOSFET']">
             <admst:variable name="theSpiceDevice" select="m"/>
           </admst:when>
+          <admst:when test="[attribute[name='xyceModelGroup']/value='JFET']">
+            <admst:variable name="theSpiceDevice" select="j"/>
+          </admst:when>
           <admst:when test="[attribute[name='xyceModelGroup']/value='BJT']">
             <admst:variable name="theSpiceDevice" select="q"/>
           </admst:when>
@@ -424,6 +427,9 @@ struct Traits: public DeviceTraits&lt;Model, Instance
         <admst:choose>
           <admst:when test="[attribute[name='xyceModelGroup']/value='MOSFET']">
             <admst:variable name="theSpiceDevice" select="m"/>
+          </admst:when>
+          <admst:when test="[attribute[name='xyceModelGroup']/value='JFET']">
+            <admst:variable name="theSpiceDevice" select="j"/>
           </admst:when>
           <admst:when test="[attribute[name='xyceModelGroup']/value='BJT']">
             <admst:variable name="theSpiceDevice" select="q"/>
@@ -494,6 +500,10 @@ struct Traits: public DeviceTraits&lt;Model, Instance
                 <admst:text format="\n    .registerModelType(&quot;nmos&quot;, %($theLevelNumber))"/>
                 <admst:text format="\n    .registerModelType(&quot;pmos&quot;, %($theLevelNumber))"/>
               </admst:when>
+              <admst:when  test="[attribute[name='xyceModelGroup']/value='JFET']">
+                <admst:text format="\n    .registerModelType(&quot;njf&quot;, %($theLevelNumber))"/>
+                <admst:text format="\n    .registerModelType(&quot;pjf&quot;, %($theLevelNumber))"/>
+              </admst:when>
               <admst:when test="[attribute[name='xyceModelGroup']/value='BJT']">
                 <admst:text format="\n    .registerModelType(&quot;npn&quot;, %($theLevelNumber))"/>
                 <admst:text format="\n    .registerModelType(&quot;pnp&quot;, %($theLevelNumber))"/>
@@ -539,7 +549,7 @@ struct Traits: public DeviceTraits&lt;Model, Instance
    =================================================================-
   -->
   <admst:template match="xyceSetTypeVariable">
-    <admst:if test="[exists(attribute[name='xyceModelGroup']) and (attribute[name='xyceModelGroup']/value='MOSFET' or attribute[name='xyceModelGroup']/value='BJT')]">
+    <admst:if test="[exists(attribute[name='xyceModelGroup']) and (attribute[name='xyceModelGroup']/value='MOSFET' or attribute[name='xyceModelGroup']/value='BJT' or attribute[name='xyceModelGroup']/value='JFET')]">
       <admst:variable name="Ptype" value="-1"/>
       <admst:if test="[exists(attribute[name='xycePTypeValue']) and attribute[name='xyceTypePtypeValue']/value != '']">
         <admst:variable name="Ptype" value="%(attribute[name='xycePTypeValue']/value)"/>
@@ -549,6 +559,9 @@ struct Traits: public DeviceTraits&lt;Model, Instance
         <admst:choose>
           <admst:when  test="[attribute[name='xyceModelGroup']/value='MOSFET']">
             <admst:text format="if (getType() == &quot;pmos&quot; || getType() == &quot;PMOS&quot;)\n"/>
+          </admst:when>
+          <admst:when  test="[attribute[name='xyceModelGroup']/value='JFET']">
+            <admst:text format="if (getType() == &quot;pjf&quot; || getType() == &quot;PJF&quot;)\n"/>
           </admst:when>
           <admst:when test="[attribute[name='xyceModelGroup']/value='BJT']">
             <admst:text format="if (getType() == &quot;pnp&quot; || getType() == &quot;PNP&quot;)\n"/>
