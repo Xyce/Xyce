@@ -1232,7 +1232,7 @@ struct Traits: public DeviceTraits&lt;Model, Instance
          and cannot work with more complex RHS expressions. -->
     <admst:assert test="adms[datatypename='contribution']" format="xyceNoiseContribution called on something other than a contribution!\n"/>
     <admst:assert test="[datatypename='contribution' and (whitenoise='yes' or flickernoise='yes')]" format="xyceNoiseContribution called on contribution %(.), with no noise function!\n"/>
-    <admst:assert test="[rhs/tree/datatypename='function']" format="xyceNoiseContribution called on contribution $(.) whose rhs is not a simple noise function!\n"/>
+    <admst:assert test="[rhs/tree/datatypename='function']" format="xyceNoiseContribution called on contribution %(.) whose rhs is not a simple noise function!\n"/>
     <admst:choose>
       <admst:when test="[rhs/tree/name='white_noise']">
         <admst:variable name="theReturnName" select="white"/>
