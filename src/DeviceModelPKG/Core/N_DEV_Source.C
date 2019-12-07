@@ -129,6 +129,7 @@ double SourceInstance::period() const
   return per;
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : SourceInstance::getResetFlag
 // Purpose       :
@@ -145,6 +146,7 @@ bool SourceInstance::getResetFlag() const
   }
   return true;
 }
+#endif
 
 
 //-----------------------------------------------------------------------------

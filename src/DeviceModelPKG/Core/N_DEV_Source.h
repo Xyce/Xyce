@@ -70,7 +70,9 @@ private:
 public:
   void setFastSourceFlag(bool value);
   bool getFastSourceFlag() const;
+#if 0
   bool getResetFlag() const;
+#endif
 
   double period() const;
 
