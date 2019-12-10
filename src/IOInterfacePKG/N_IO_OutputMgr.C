@@ -123,6 +123,7 @@ OutputMgr::OutputMgr(
     dotOpSpecified_(false),
     dotACSpecified_(false),
     dotNoiseSpecified_(false),
+    taHBSpecified_(false),
     enableEmbeddedSamplingFlag_(false),
     enablePCEFlag_(false),
     enableHomotopyFlag_(false),
@@ -3984,6 +3985,50 @@ void OutputMgr::steppingComplete()
     for (; it != activeOutputterStack_.back().end(); ++it)
     {
       (*it)->steppingComplete();
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : OutputMgr::reopenTmpFile
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/18/19
+//-----------------------------------------------------------------------------
+void OutputMgr::reopenTmpFile()
+{
+  if (!activeOutputterStack_.empty())
+  {
+    std::vector<Outputter::Interface *>::const_iterator it =
+      activeOutputterStack_.back().begin();
+
+    for (; it != activeOutputterStack_.back().end(); ++it)
+    {
+      (*it)->reopenTmpFile();
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : OutputMgr::copyTmpFileToOutputFile
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/18/19
+//-----------------------------------------------------------------------------
+void OutputMgr::copyTmpFileToOutputFile()
+{
+  if (!activeOutputterStack_.empty())
+  {
+    std::vector<Outputter::Interface *>::const_iterator it =
+      activeOutputterStack_.back().begin();
+
+    for (; it != activeOutputterStack_.back().end(); ++it)
+    {
+      (*it)->copyTmpFileToOutputFile();
     }
   }
 }

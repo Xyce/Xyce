@@ -158,6 +158,7 @@ private:
   void accumulateStatistics_(AnalysisBase &analysis);
 
   bool runTol();
+  bool acceptICTranRun(int numPoints);
   bool runStartupPeriods();
   bool runTransientIC();
   bool interpolateIC(double initial_time);

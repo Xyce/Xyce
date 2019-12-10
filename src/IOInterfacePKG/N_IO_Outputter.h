@@ -439,6 +439,10 @@ public:
 
   void steppingComplete();
 
+  // these two functions are not implemented in most outtputter classes
+  virtual void reopenTmpFile() {}
+  virtual void copyTmpFileToOutputFile() {}
+
 private:
   virtual void doSetAnalysisMode(Analysis::Mode analysis_mode) = 0;
 

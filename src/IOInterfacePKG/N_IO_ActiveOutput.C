@@ -221,5 +221,51 @@ ActiveOutput::setDCSweepVector(
   outputManager_.setDCSweepVector(sweep_vector);
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Xyce::IO::ActiveOutput::reopenTmpFile
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/19/2019
+//-----------------------------------------------------------------------------
+///
+/// @brief re-open any tmp files in all active outputters
+///
+/// Causes the output manager to close and re-open any tmp files used
+/// by any of the active outputters.  This is currently used by the
+/// outputters for HB_IC information.
+///
+/// @author Pete Sholander
+/// @date 11/19/2019
+void
+ActiveOutput::reopenTmpFile()
+{
+  outputManager_.reopenTmpFile();
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Xyce::IO::ActiveOutput::copyTmpFileToOutputFile
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/19/2019
+//-----------------------------------------------------------------------------
+///
+/// @brief copy any tmp files to the actual output files in all active outputters
+///
+/// Causes the output manager to copy any tmp files to the actual output files,
+/// and then delete those tmp files.  This is currently used by the outputters
+/// for HB_IC information.
+///
+/// @author Pete Sholander
+/// @date 11/19/2019
+void
+ActiveOutput::copyTmpFileToOutputFile()
+{
+  outputManager_.copyTmpFileToOutputFile();
+}
+
 } // namespace IO
 } // namespace Xyce

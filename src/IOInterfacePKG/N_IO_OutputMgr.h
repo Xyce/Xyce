@@ -367,6 +367,9 @@ public:
 
   void resetIndex();
 
+  void reopenTmpFile();
+  void copyTmpFileToOutputFile();
+
   void setAliasNodeMap(const AliasNodeMap &alias_node_map)
   {
     aliasNodeMap_ = alias_node_map;
@@ -496,6 +499,16 @@ public:
   void setDotNoiseSpecified(bool value)
   {
     dotNoiseSpecified_ = value;
+  }
+
+  void setTaHBSpecified(bool value)
+  {
+    taHBSpecified_ = value;
+  }
+
+  bool getTaHBSpecified()
+  {
+    return taHBSpecified_;
   }
 
   void setEnableEmbeddedSamplingFlag(bool value)
@@ -681,6 +694,7 @@ private:
   bool                  dotOpSpecified_; // flag to indicate if the netlist has a .OP statement
   bool                  dotACSpecified_;    // flag to indicate if the netlist has a .AC statement
   bool                  dotNoiseSpecified_; // flag to indicate if the netlist has a .NOISE statement
+  bool                  taHBSpecified_;  // flag to indicate if Transient-Assisted HB was specified
   bool                  enableEmbeddedSamplingFlag_;
   bool                  enablePCEFlag_;
   bool                  enableHomotopyFlag_;

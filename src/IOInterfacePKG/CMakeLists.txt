@@ -35,10 +35,13 @@ set ( IOInterface_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterFrequencyTecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBTimeCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBFreqCSV.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBICCSV.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBTimePrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBFreqPrn.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBICPrn.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBTimeTecplot.C
-       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBFreqTecplot.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBFreqTecplot.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHBICTecplot.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHDF5.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopy.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputterHomotopyCSV.C
