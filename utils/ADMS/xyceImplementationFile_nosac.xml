@@ -214,6 +214,7 @@ namespace %($nameSpace) {
 <admst:text format="namespace AnalogFunctions {\n"/>
     <admst:for-each select="analogfunction">
       <admst:apply-templates select="." match="xyceAnalogFunctions:Implementation"/>
+      <admst:apply-templates select="." match="xyceAnalogFunctions:ClassImplementations"/>
     </admst:for-each>
 <admst:text format="} // namepace AnalogFunctions\n"/>
 </admst:if>

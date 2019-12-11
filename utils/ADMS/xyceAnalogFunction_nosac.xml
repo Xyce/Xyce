@@ -1159,6 +1159,94 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     <admst:text format=");\n"/>
 </admst:template>
 
+<!-- template to dump out the declaration of the class needed to handle
+    analog functions in precomputation usage, i.e. outside of sensitivity
+    context.  This will ultimately completely replace the simple "d_"
+    derivative-calculating technique.
+    -->
+<admst:template match="xyceAnalogFunctions:ClassDeclaration">
+  <admst:variable name="function" select="%(name)"/>
+  <admst:variable name="globalAnalogFunction" path="."/>
+  <admst:text format="// Evaluator class for Analog Function %(name)\n"/>
+  <admst:text format="class $(function)Evaluator\n"/>
+  <admst:text format="{\n"/>
+  <admst:text format="  struct returnType\n"/>
+  <admst:text format="  {\n"/>
+  <admst:text format="     double value;\n"/>
+  <admst:for-each select="variable[input='yes']">
+    <admst:text format="     double deriv_WRT_%(name);\n"/>
+  </admst:for-each>
+  <admst:text format="  };\n"/>
+  <admst:text format="public:\n"/>
+  <admst:text format="  // constructor takes all same arguments as regular templated function,\n"/>
+  <admst:text format="  // even though it doesn't USE the output args\n"/>
+  <admst:text format="  $(function)Evaluator("/>
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$(function))]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) %(name)"/>
+  </admst:join>
+  <admst:text format=");\n"/>
+  <admst:text format="  // function that returns the precomputed values.  This, too, takes\n"/>
+  <admst:text format="  // all the same arguments as the regular function, though it ONLY\n"/>
+  <admst:text format="  // uses the output arguments\n"/>
+  <admst:text format="  %(verilog2CXXtype(.)) getValues("/>
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$(function))]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) "/>
+    <admst:if test="[output='yes']">
+      <admst:text format="&amp; "/>
+    </admst:if>
+    <admst:text format=" %(name)"/>
+  </admst:join>
+  <admst:text format=");\n"/>
+  <admst:text format="  // function that returns the total derivative of the function and its\n"/>
+  <admst:text format="  // output arguments with respect to some variable.  We pass in the\n"/>
+  <admst:text format="  // normal arguments(none of which are used) and the derivatives of those\n"/>
+  <admst:text format="  // arguments with respect to the desired variable.  We compute the\n"/>
+  <admst:text format="  // derivatives using the chain rule and our precomputed derivatives\n"/>
+  <admst:text format="  // with respect to input variables\n"/>
+  <admst:text format="%(verilog2CXXtype(.)) getDerivs("/>
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) "/>
+    <!-- irrespective of whether the argument is an output variable,
+         we always pass by value.  We are NOT returning the function
+         value and its output variable values, only the derivatives! -->
+    <admst:text format="%(name) "/>
+  </admst:join>
+  <admst:text format=" , "/>
+  <!-- now the derivatives of the args w.r.t. the desired variable -->
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) "/>
+    <admst:if test="[output='yes']">
+      <admst:text format="&amp; "/>
+    </admst:if>
+    <admst:text format="d_%(name)"/>
+  </admst:join>
+  <admst:text format=");\n"/>
+
+  <admst:text format="private:\n"/>
+  <admst:text format="  returnType $(function)Return_;\n"/>
+  <admst:for-each select="variable[output='yes' and name != $(function)]">
+    <admst:text format="  returnType %(name)Return_;\n"/>
+  </admst:for-each>
+  <!-- "evaluator_" is the actual function that evaluates the function,
+       but all outputs are actually of returnType -->
+  <admst:text format="  returnType evaluator_("/>
+  <admst:join
+      select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]"
+      separator=", ">
+    <admst:choose>
+      <admst:when test="[output='yes']">
+        <admst:text format="returnType &amp;"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:text format="%(verilog2CXXtype(.))"/>
+      </admst:otherwise>
+    </admst:choose>
+    <admst:text format=" %(name)"/>
+  </admst:join>
+  <admst:text format=");\n"/>
+  <admst:text format="};\n"/>
+</admst:template>
+
 <!-- Top level template to dump out an analog function implementation
      These functions only return the TOTAL DERIVATIVE of the function
      with respect to some (general) variable,
@@ -1166,80 +1254,181 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
      arguments with respect to that variable (passed in to it) -->
 <admst:template match="xyceAnalogFunctions:Implementation">
 
-    <admst:variable name="function" select="%(name)"/>
-    <admst:variable name="globalAnalogFunction" path="."/>
-    <admst:text format="// Derivative of Analog Function %(name)\n"/>
-    <admst:text format="%(verilog2CXXtype(.)) d_%(name)("/>
-    <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
-      <admst:text format="%(verilog2CXXtype(.)) "/>
-      <!-- irrespective of whether the argument is an output variable,
-           we always pass by value.  We are NOT returning the function
-           value and its output variable values, only the derivatives! -->
-      <admst:text format="%(name) "/>
-    </admst:join>
-    <admst:text format=" , "/>
-    <!-- now the derivatives of the args w.r.t. the desired variable -->
-    <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
-      <admst:text format="%(verilog2CXXtype(.)) "/>
-      <admst:if test="[output='yes']">
-        <admst:text format="&amp; "/>
-      </admst:if>
-      <admst:text format="d_%(name) "/>
-    </admst:join>
-    <admst:text format=")\n"/>
-    <admst:text format="{\n"/>
-    <admst:text format="// Function return variable and total deriv\n"/>
-    <admst:variable name="fntype" value="%(verilog2CXXtype(.))"/>
-    <admst:text format="$fntype %(name);\n"/>
-    <admst:variable name="fntype" value="%(verilog2CXXtype(.))"/>
-    <admst:text format="$fntype d_%(name);\n"/>
-    <admst:text format="// Derivatives of return value w.r.t input vars\n"/>
-    <!-- derivatives of the return value w.r.t. all input vars -->
-    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-      <admst:text format="%(verilog2CXXtype($globalAnalogFunction)) d_%($function)_d_%(name);\n"/>
-    </admst:for-each>
-    <admst:if test="[exists($globalAnalogFunction/variable[output='yes' and name!='$function'])]">
-      <admst:text format="// Derivatives of additional output vars w.r.t input vars\n"/>
+  <admst:variable name="function" select="%(name)"/>
+  <admst:variable name="globalAnalogFunction" path="."/>
+  <admst:text format="// Derivative of Analog Function %(name)\n"/>
+  <admst:text format="%(verilog2CXXtype(.)) d_%(name)("/>
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) "/>
+    <!-- irrespective of whether the argument is an output variable,
+         we always pass by value.  We are NOT returning the function
+         value and its output variable values, only the derivatives! -->
+    <admst:text format="%(name) "/>
+  </admst:join>
+  <admst:text format=" , "/>
+  <!-- now the derivatives of the args w.r.t. the desired variable -->
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) "/>
+    <admst:if test="[output='yes']">
+      <admst:text format="&amp; "/>
     </admst:if>
-    <!-- derivatives of all output variables w.r.t. all input vars -->
-    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-      <admst:variable name="wrt" select="%(name)"/>
-      <admst:for-each select="$globalAnalogFunction/variable[output='yes' and name!='$function']">
-        <admst:text format="%(verilog2CXXtype(.)) d_%(name)_d_$(wrt);\n"/>
-      </admst:for-each>
+    <admst:text format="d_%(name) "/>
+  </admst:join>
+  <admst:text format=")\n"/>
+  <admst:text format="{\n"/>
+  <admst:text format="// Function return variable and total deriv\n"/>
+  <admst:text format="%(verilog2CXXtype(.)) %(name);\n"/>
+  <admst:text format="%(verilog2CXXtype(.)) d_%(name);\n"/>
+  <admst:text format="// Derivatives of return value w.r.t input vars\n"/>
+  <!-- derivatives of the return value w.r.t. all input vars -->
+  <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+    <admst:text format="%(verilog2CXXtype($globalAnalogFunction)) d_%($function)_d_%(name);\n"/>
+  </admst:for-each>
+  <admst:if test="[exists($globalAnalogFunction/variable[output='yes' and name!='$function'])]">
+    <admst:text format="// Derivatives of additional output vars w.r.t input vars\n"/>
+  </admst:if>
+  <!-- derivatives of all output variables w.r.t. all input vars -->
+  <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+    <admst:variable name="wrt" select="%(name)"/>
+    <admst:for-each select="$globalAnalogFunction/variable[output='yes' and name!='$function']">
+      <admst:text format="%(verilog2CXXtype(.)) d_%(name)_d_$(wrt);\n"/>
     </admst:for-each>
-    <admst:for-each select="variable[input='no' and output='no']">
-      <admst:variable name="theVar" path="."/>
-      <admst:variable name="varname" select="%(name)"/>
-      <admst:text format="%(verilog2CXXtype($theVar)) $varname;\n"/>
-      <admst:if test="[$theVar/type='real']">
-        <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-          <admst:text format="%(verilog2CXXtype($theVar)) d_$(varname)_d_%(name);\n"/>
-        </admst:for-each>
-      </admst:if>
-    </admst:for-each>
-
-    <admst:apply-templates select="tree" match="xyceAnalogFunctions:%(adms/datatypename)">
-      <admst:value-of select="returned('returnedString')/value"/>
-      <admst:variable name="returnedString" select="%s"/>
-      <admst:text format="$returnedString"/>
-    </admst:apply-templates>
-
-    <admst:for-each select="$globalAnalogFunction/variable[output='yes']">
-      <admst:variable name="outvar" value="%(name)"/>
-      <admst:variable name="expression" value=""/>
+  </admst:for-each>
+  <admst:for-each select="variable[input='no' and output='no']">
+    <admst:variable name="theVar" path="."/>
+    <admst:variable name="varname" select="%(name)"/>
+    <admst:text format="%(verilog2CXXtype($theVar)) $varname;\n"/>
+    <admst:if test="[$theVar/type='real']">
       <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
-        <admst:variable name="wrt" value="%(name)"/>
-        <admst:if test="[$expression != '']">
-          <admst:variable name="expression" value="$expression+"/>
-        </admst:if>
-        <admst:variable name="expression" value="$(expression)d_$(outvar)_d_$(wrt)*d_$(wrt)"/>
+        <admst:text format="%(verilog2CXXtype($theVar)) d_$(varname)_d_%(name);\n"/>
       </admst:for-each>
-      <admst:text format="d_$(outvar) = $expression;\n"/>
+    </admst:if>
+  </admst:for-each>
+
+  <admst:apply-templates select="tree" match="xyceAnalogFunctions:%(adms/datatypename)">
+    <admst:value-of select="returned('returnedString')/value"/>
+    <admst:variable name="returnedString" select="%s"/>
+    <admst:text format="$returnedString"/>
+  </admst:apply-templates>
+
+  <admst:for-each select="$globalAnalogFunction/variable[output='yes']">
+    <admst:variable name="outvar" value="%(name)"/>
+    <admst:variable name="expression" value=""/>
+    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+      <admst:variable name="wrt" value="%(name)"/>
+      <admst:if test="[$expression != '']">
+        <admst:variable name="expression" value="$expression+"/>
+      </admst:if>
+      <admst:variable name="expression" value="$(expression)d_$(outvar)_d_$(wrt)*d_$(wrt)"/>
     </admst:for-each>
-    <admst:text format="return(d_%(name));\n"/>
-    <admst:text format="}\n\n"/>
-    <admst:variable name="globalAnalogFunction"/>
+    <admst:text format="d_$(outvar) = $expression;\n"/>
+  </admst:for-each>
+  <admst:text format="return(d_%(name));\n"/>
+  <admst:text format="}\n\n"/>
+  <admst:variable name="globalAnalogFunction"/>
 </admst:template>
 
+<!-- Generate implementations of functions declared in the function evaluator
+     classes above
+     TODO:  eliminate unnecessary arguments.  Didn't do that at first
+     because it will simplify the problem of swapping these things into
+     where the functions are used (they all take the same arguments that
+     the old technique required).
+     -->
+<admst:template match="xyceAnalogFunctions:ClassImplementations">
+  <admst:variable name="function" select="%(name)"/>
+  <admst:variable name="globalAnalogFunction" path="."/>
+  <admst:text format="// Evaluator class implementations for Analog Function %(name)\n"/>
+  <admst:text format="  // Constructor\n"/>
+  <admst:text format="  $(function)Evaluator::$(function)Evaluator("/>
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$(function))]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) %(name)"/>
+  </admst:join>
+  <admst:text format=")\n"/>
+  <admst:text format="  {\n"/>
+
+  <admst:text format="    %(name)Return_ = evaluator_("/>
+  <admst:join
+      select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]"
+      separator=", ">
+    <admst:choose>
+      <admst:when test="[output='yes']">
+        <admst:text format="%(name)Return_"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:text format="%(name)"/>
+      </admst:otherwise>
+    </admst:choose>
+
+  </admst:join>
+  <admst:text format=");\n"/>
+  <admst:text format="  }\n"/>
+
+  <admst:text format="  // method to get precomputed values into double vars \n"/>
+  <admst:text format="  %(verilog2CXXtype(.)) %(name)Evaluator::getValues("/>
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$(function))]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) "/>
+    <admst:if test="[output='yes']">
+      <admst:text format="&amp; "/>
+    </admst:if>
+    <admst:text format=" %(name)"/>
+  </admst:join>
+  <admst:text format=")\n"/>
+  <admst:text format="  {\n"/>
+  <admst:text format="    // Silence unused argument warnings\n"/>
+  <admst:for-each select="variable[input='yes' and output='no']">
+    <admst:text format="    (void) %(name);\n"/>
+  </admst:for-each>
+  <admst:text format="    // Copy all precomputed values into corresponding output\n"/>
+  <admst:for-each select="variable[output='yes' and name!=$function]">
+    <admst:text format="    %(name) = %(name)Return_.value;\n"/>
+  </admst:for-each>
+  <admst:text format="    return(%(name)Return_.value);\n"/>
+  <admst:text format="  }\n"/>
+
+  <admst:text format="  // method to get total deriv w.r.t some variable via chain rule \n"/>
+  <admst:text format="  // given precomputed derivs of function w.r.t. args and derivs of args\n"/>
+  <admst:text format="  // w.r.t desired vars\n"/>
+  <admst:text format="  %(verilog2CXXtype(.)) %(name)Evaluator::getDerivs("/>
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) "/>
+    <!-- irrespective of whether the argument is an output variable,
+         we always pass by value.  We are NOT returning the function
+         value and its output variable values, only the derivatives! -->
+    <admst:text format="%(name) "/>
+  </admst:join>
+  <admst:text format=" , "/>
+  <!-- now the derivatives of the args w.r.t. the desired variable -->
+  <admst:join select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]" separator=", ">
+    <admst:text format="%(verilog2CXXtype(.)) "/>
+    <admst:if test="[output='yes']">
+      <admst:text format="&amp; "/>
+    </admst:if>
+    <admst:text format="d_%(name)"/>
+  </admst:join>
+  <admst:text format=")\n"/>
+  <admst:text format="  {\n"/>
+  <admst:text format="    // Function total deriv\n"/>
+  <admst:text format="    %(verilog2CXXtype(.)) d_%(name);\n"/>
+  <admst:text format="    // Silence unused argument warnings\n"/>
+  <admst:for-each select="variable[input='yes']">
+    <admst:text format="    (void) %(name);\n"/>
+  </admst:for-each>
+
+  <admst:for-each select="$globalAnalogFunction/variable[output='yes']">
+    <admst:variable name="outvar" value="%(name)"/>
+    <admst:variable name="expression" value=""/>
+    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+      <admst:variable name="wrt" value="%(name)"/>
+      <admst:if test="[$expression != '']">
+        <admst:variable name="expression" value="$expression+"/>
+      </admst:if>
+      <admst:variable name="expression" value="$(expression)$(outvar)Return_.deriv_WRT_$(wrt)*d_$(wrt)"/>
+    </admst:for-each>
+    <admst:text format="    d_$(outvar) = $expression;\n"/>
+  </admst:for-each>
+  <admst:text format="    return(d_%(name));\n"/>
+  <admst:text format="  }\n\n"/>
+
+</admst:template>
 </admst>
