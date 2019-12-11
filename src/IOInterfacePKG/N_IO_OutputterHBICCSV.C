@@ -37,6 +37,9 @@
 
 #include <Xyce_config.h>
 
+#include <iostream>
+#include <fstream>
+
 #include <N_IO_OutputterHBICCSV.h>
 #include <N_IO_OutputMgr.h>
 #include <N_IO_Op.h>
