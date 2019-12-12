@@ -38,15 +38,29 @@ the \texttt{xyceModelGroup} module attribute to define a model as
 being a MOSFET, BJT, Diode, resistor, or capacitor, and plug into Xyce
 using the same spice format as other models of that type.  As of this
 release, JFET is also supported. \\ \hline
+
 \textbf{1256-SON}: Xyce/ADMS analog function error &
 Xyce/ADMS would emit an error about an undefined variable if one
 used \$vt as the input argument to an analog function that had both
 input and output arguments. \\ \hline
+
 \textbf{1252-SON}: Xyce segfaults when .OPTIONS OUTPUT PRINTHEADER=FALSE
 is used  &  Xyce would segfault if a \texttt{.OPTIONS OUTPUT PRINTHEADER=FALSE}
 line was used and the netlist contained either a \texttt{.PRINT SENS} line
 for an AC analysis or a \texttt{.PRINT ES} line.
 \\ \hline
+
+\textbf{928-SON}: The .hb\_ic.prn file could be incorrect when .STEP is
+used with .HB & \Xyce{} should only output the initial condition (IC)
+data for the accepted tolerance in the \texttt{<netlist-name>.hb\_ic.prn}
+file.  However, in previous releases, it would output all of the
+intermediate IC data while harmonic balance tried to find a good
+tolerance if \texttt{.STEP} was used with \texttt{.HB}. For that
+case, the IC data will now be initially output to a ``tmp file''
+(e.g., \texttt{<netlist-name>.hb\_ic.prn.tmp}). If that IC data meets
+the required tolerance then it will be copied to the end of the
+\texttt{<netlist-name>.hb\_ic.prn} file, and the tmp file 
+will be deleted. \\ \hline
 
 \textbf{xxx-SRN}: Place holder title &
 Place holder description.  \\ \hline

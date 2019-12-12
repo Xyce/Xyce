@@ -242,15 +242,6 @@ for \texttt{.HB}) may only be expressed as literal numbers.
 \textbf{\textit{Workaround}}: There is no workaround internal to \Xyce{}.
 Use of an external netlist preprocessor would be required. \\ \hline
 
-\textbf{928-SON}: The .hb\_ic.prn file can be incorrect when .STEP is used
-with .HB & \Xyce{} should only output the initial condition (IC) data
-for the accepted tolerance in the \texttt{<netlist-name>.hb\_ic.prn}
-file.  However, it currently outputs all of the intermediate IC data
-while harmonic balance tries to find a good tolerance
-if \texttt{.STEP} is used with \texttt{.HB}.
-
-\textbf{\textit{Workaround}}: There is no workaround. \\ \hline
-
 \textbf{883-SON} .PREPROCESS REPLACEGROUND does not work on nodes referenced
 in expressions & The \texttt{.PREPROCESS REPLACEGROUND} feature does
 not replace ground synonyms if they appear in B source expressions.
