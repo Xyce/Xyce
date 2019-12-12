@@ -1428,7 +1428,83 @@ value of the      the stack by using "%s" (string) or "%p" (path/pointer) tokens
     <admst:text format="    d_$(outvar) = $expression;\n"/>
   </admst:for-each>
   <admst:text format="    return(d_%(name));\n"/>
+  <admst:text format="  }\n"/>
+
+  <admst:text format="  // method that actually performs our computations.\n"/>
+  <admst:text format="  %(name)Evaluator::returnType %(name)Evaluator::evaluator_("/>
+  <admst:join
+      select="variable[input='yes' or (input='no' and output='yes' and name!=$function)]"
+      separator=", ">
+    <admst:choose>
+      <admst:when test="[output='yes']">
+        <admst:text format="$(function)Evaluator::returnType &amp; %(name)Return"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:text format="%(verilog2CXXtype(.)) %(name)"/>
+      </admst:otherwise>
+    </admst:choose>
+  </admst:join>
+  <admst:text format=")\n"/>
+  <admst:text format="  {\n"/>
+  <!-- This is almost the same as the contents of the d_(function) function,
+       modulo the chain rule thing at the end, and the storage of derivatives
+       in a returnType variable -->
+  <admst:text format="  // Function value and derivs variables, and a returnType to store everything\n"/>
+  <admst:text format="  %(verilog2CXXtype(.)) %(name);\n"/>
+  <admst:text format="  %(name)Evaluator::returnType %(name)Return;\n"/>
+  <admst:text format="  // Derivatives of return value w.r.t input vars\n"/>
+  <!-- derivatives of the return value w.r.t. all input vars -->
+  <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+    <admst:text format="  %(verilog2CXXtype($globalAnalogFunction)) d_%($function)_d_%(name);\n"/>
+  </admst:for-each>
+  <admst:if test="[exists($globalAnalogFunction/variable[output='yes' and name!='$function'])]">
+    <admst:text format="  // additional output vars  and derivs w.r.t input vars\n"/>
+  </admst:if>
+  <!-- derivatives of all output variables w.r.t. all input vars -->
+  <admst:for-each select="$globalAnalogFunction/variable[output='yes' and name!='$function']">
+    <admst:variable name="ovar" select="%(name)"/>
+    <admst:text format="  %(verilog2CXXtype(.)) $(ovar);\n"/>
+    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+      <admst:text format="  %(verilog2CXXtype(.)) d_$(ovar)_d_%(name);\n"/>
+    </admst:for-each>
+  </admst:for-each>
+  <!-- and now the remaining local variables -->
+  <admst:text format="  // declared local variables\n"/>
+  <admst:for-each select="variable[input='no' and output='no']">
+    <admst:variable name="theVar" path="."/>
+    <admst:variable name="varname" select="%(name)"/>
+    <admst:text format="  %(verilog2CXXtype($theVar)) $varname;\n"/>
+    <admst:if test="[$theVar/type='real']">
+      <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+        <admst:text format="  %(verilog2CXXtype($theVar)) d_$(varname)_d_%(name);\n"/>
+      </admst:for-each>
+    </admst:if>
+  </admst:for-each>
+
+  <!-- Generate the actual code -->
+  <admst:apply-templates select="tree" match="xyceAnalogFunctions:%(adms/datatypename)">
+    <admst:value-of select="returned('returnedString')/value"/>
+    <admst:variable name="returnedString" select="%s"/>
+    <admst:text format="$returnedString"/>
+  </admst:apply-templates>
+
+  <admst:text format="  // now save outputs and derivs into appropriate return vars\n"/>
+  <admst:text format="  %(name)Return.value=%(name);\n"/>
+  <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+    <admst:text format="  $(function)Return.deriv_WRT_%(name) = d_%($function)_d_%(name);\n"/>
+  </admst:for-each>
+
+  <admst:for-each select="$globalAnalogFunction/variable[output='yes' and name!='$function']">
+    <admst:variable name="ovar" select="%(name)"/>
+    <admst:text format="  $(ovar)Return.value = $(ovar);\n"/>
+    <admst:for-each select="$globalAnalogFunction/variable[input='yes']">
+      <admst:text format="  $(ovar)Return.deriv_WRT_%(name) = d_$(ovar)_d_%(name);\n"/>
+    </admst:for-each>
+  </admst:for-each>
+
+  <admst:text format="  return(%(name)Return);\n"/>
   <admst:text format="  }\n\n"/>
+
 
 </admst:template>
 </admst>
