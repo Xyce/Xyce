@@ -245,7 +245,7 @@ struct DeviceEntityOpBuilder : public Util::Op::Builder
 //-----------------------------------------------------------------------------
 // Function      : DeviceEntityOpBuilder::makeOp
 // Purpose       :
-// Special Notes :
+// Special Notes : 
 // Scope         : public
 // Creator       : David G. Baur  Raytheon  Sandia National Laboratories 1355
 // Creation Date : 11/11/14
@@ -267,13 +267,28 @@ struct DeviceEntityOpBuilder : public Util::Op::Builder
     int arg_count = 0;
     if ((*it).getType() == Util::INT)
       arg_count = (*it).getImmutableValue<int>();
-    if (arg_count == 0) {
+    if (arg_count == 0) 
+    {
       const DeviceEntity *device_entity = deviceManager_.getDeviceEntity(param_tag);
       if (device_entity)
       {
         std::string param_name = Util::paramNameFromFullParamName(param_tag);
-        if (param_name.empty() || device_entity->findParam(param_name))
+        if (device_entity->findParam(param_name))
+	{
+          // the typical case of a fully-specified <deviceName:paramName> pair like R1:R
           new_op = new DeviceEntityParameterOp(param_tag, *device_entity, param_name);
+        }
+        else
+	{
+          // The less-common case of a device, such as the R device, that has
+          // a default instance parameter.  If the device has a default parameter
+          // then try to use it to make the op.
+	  std::string default_param_name = device_entity->getDefaultParamName();
+	  if ( !(default_param_name.empty()) && deviceManager_.getDeviceEntity(param_tag + ":" + default_param_name))
+          {
+	    new_op = new DeviceEntityParameterOp(param_tag, *device_entity, default_param_name);
+	  }
+	}
       }
     }
 

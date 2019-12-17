@@ -262,6 +262,8 @@ public:
     defaultParamName_ = default_param_name;
   }
 
+  const std::string& getDefaultParamName() const { return defaultParamName_;}
+
   const std::vector<Depend> &getDependentParams() 
   {
     return dependentParams_;

@@ -4236,7 +4236,7 @@ DeviceEntity * DeviceMgr::getDeviceEntity(
   const std::string &   full_param_name) const
 {
   std::string entity_name = Xyce::Util::entityNameFromFullParamName(full_param_name).getEncodedName();
-
+  
   DeviceEntityMap::iterator it = parameterDeviceCache_.find(full_param_name);
   if (it == parameterDeviceCache_.end())
   {
@@ -4247,8 +4247,20 @@ DeviceEntity * DeviceMgr::getDeviceEntity(
   else if (!(*it).second)
   {
     DeviceEntity *device_entity = findDeviceEntity(deviceMap_.begin(), deviceMap_.end(), entity_name);
-    (*it).second = device_entity;
-    return device_entity;
+    if (device_entity!=0)
+    {
+      (*it).second = device_entity;
+      return device_entity;
+    }
+    else
+    {
+      // The less-common case of a device in a subcircuit, such as the R device, that has
+      // a default instance parameter.  So, this handles X1:R1 (instead of the more verbose X1:R1:R)
+      std::string entity_name2 = Xyce::Util::entityNameFromDefaultParamName(full_param_name).getEncodedName();
+      DeviceEntity *device_entity2 = findDeviceEntity(deviceMap_.begin(), deviceMap_.end(), entity_name2);
+      (*it).second = device_entity2;
+      return device_entity2;
+    }
   }
   else
     return (*it).second;
