@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:26
+// Creation Date  : Tue, 17 Dec 2019 12:11:31
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -105,6 +105,67 @@ d_lexp = d_lexp_d_x*d_x;
 return(d_lexp);
 }
 
+// Evaluator class implementations for Analog Function lexp
+  // Constructor
+  lexpEvaluator::lexpEvaluator(double x)
+  {
+    lexpReturn_ = evaluator_(x);
+  }
+  // method to get precomputed values into double vars 
+  double lexpEvaluator::getValues(double  x)
+  {
+    // Silence unused argument warnings
+    (void) x;
+    // Copy all precomputed values into corresponding output
+    return(lexpReturn_.value);
+  }
+  // method to get total deriv w.r.t some variable via chain rule 
+  // given precomputed derivs of function w.r.t. args and derivs of args
+  // w.r.t desired vars
+  double lexpEvaluator::getDerivs(double x  , double d_x)
+  {
+    // Function total deriv
+    double d_lexp;
+    // Silence unused argument warnings
+    (void) x;
+    d_lexp = lexpReturn_.deriv_WRT_x*d_x;
+    return(d_lexp);
+  }
+  // method that actually performs our computations.
+  lexpEvaluator::returnType lexpEvaluator::evaluator_(double x)
+  {
+  // Function value and derivs variables, and a returnType to store everything
+  double lexp;
+  lexpEvaluator::returnType lexpReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_lexp_d_x;
+  // declared local variables
+{
+if((x>80.0))
+{
+d_lexp_d_x=(5.540622384e34);
+lexp=(5.540622384e34*((1.0+x)-80.0));
+}
+else
+{
+if((x<(-80.0)))
+{
+d_lexp_d_x=0.0;
+lexp=1.804851387e-35;
+}
+else
+{
+d_lexp_d_x=exp(x);
+lexp=exp(x);
+}
+}
+}
+  // now save outputs and derivs into appropriate return vars
+  lexpReturn.value=lexp;
+  lexpReturn.deriv_WRT_x = d_lexp_d_x;
+  return(lexpReturn);
+  }
+
 // Derivative of Analog Function lln
 double d_lln(double x  , double d_x )
 {
@@ -120,6 +181,51 @@ lln=log(std::max( static_cast<double>(x), static_cast<double>(1.0e-38)));
 d_lln = d_lln_d_x*d_x;
 return(d_lln);
 }
+
+// Evaluator class implementations for Analog Function lln
+  // Constructor
+  llnEvaluator::llnEvaluator(double x)
+  {
+    llnReturn_ = evaluator_(x);
+  }
+  // method to get precomputed values into double vars 
+  double llnEvaluator::getValues(double  x)
+  {
+    // Silence unused argument warnings
+    (void) x;
+    // Copy all precomputed values into corresponding output
+    return(llnReturn_.value);
+  }
+  // method to get total deriv w.r.t some variable via chain rule 
+  // given precomputed derivs of function w.r.t. args and derivs of args
+  // w.r.t desired vars
+  double llnEvaluator::getDerivs(double x  , double d_x)
+  {
+    // Function total deriv
+    double d_lln;
+    // Silence unused argument warnings
+    (void) x;
+    d_lln = llnReturn_.deriv_WRT_x*d_x;
+    return(d_lln);
+  }
+  // method that actually performs our computations.
+  llnEvaluator::returnType llnEvaluator::evaluator_(double x)
+  {
+  // Function value and derivs variables, and a returnType to store everything
+  double lln;
+  llnEvaluator::returnType llnReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_lln_d_x;
+  // declared local variables
+{
+d_lln_d_x=(1.0/std::max( static_cast<double>(x), static_cast<double>(1.0e-38)))*((x>=1.0e-38)?1.0:0.0);
+lln=log(std::max( static_cast<double>(x), static_cast<double>(1.0e-38)));
+}
+  // now save outputs and derivs into appropriate return vars
+  llnReturn.value=lln;
+  llnReturn.deriv_WRT_x = d_lln_d_x;
+  return(llnReturn);
+  }
 
 // Derivative of Analog Function hypsmooth
 double d_hypsmooth(double x , double c  , double d_x , double d_c )
@@ -138,6 +244,56 @@ hypsmooth=(0.5*(x+sqrt(((x*x)+((4.0*c)*c)))));
 d_hypsmooth = d_hypsmooth_d_x*d_x+d_hypsmooth_d_c*d_c;
 return(d_hypsmooth);
 }
+
+// Evaluator class implementations for Analog Function hypsmooth
+  // Constructor
+  hypsmoothEvaluator::hypsmoothEvaluator(double x, double c)
+  {
+    hypsmoothReturn_ = evaluator_(x, c);
+  }
+  // method to get precomputed values into double vars 
+  double hypsmoothEvaluator::getValues(double  x, double  c)
+  {
+    // Silence unused argument warnings
+    (void) x;
+    (void) c;
+    // Copy all precomputed values into corresponding output
+    return(hypsmoothReturn_.value);
+  }
+  // method to get total deriv w.r.t some variable via chain rule 
+  // given precomputed derivs of function w.r.t. args and derivs of args
+  // w.r.t desired vars
+  double hypsmoothEvaluator::getDerivs(double x , double c  , double d_x, double d_c)
+  {
+    // Function total deriv
+    double d_hypsmooth;
+    // Silence unused argument warnings
+    (void) x;
+    (void) c;
+    d_hypsmooth = hypsmoothReturn_.deriv_WRT_x*d_x+hypsmoothReturn_.deriv_WRT_c*d_c;
+    return(d_hypsmooth);
+  }
+  // method that actually performs our computations.
+  hypsmoothEvaluator::returnType hypsmoothEvaluator::evaluator_(double x, double c)
+  {
+  // Function value and derivs variables, and a returnType to store everything
+  double hypsmooth;
+  hypsmoothEvaluator::returnType hypsmoothReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_hypsmooth_d_x;
+  double d_hypsmooth_d_c;
+  // declared local variables
+{
+d_hypsmooth_d_x=(0.5*(1.0+(0.5/sqrt(((x*x)+((4.0*c)*c))))*(x+x)));
+d_hypsmooth_d_c=(0.5*(0.5/sqrt(((x*x)+((4.0*c)*c))))*((4.0*c)+c*(4.0)));
+hypsmooth=(0.5*(x+sqrt(((x*x)+((4.0*c)*c)))));
+}
+  // now save outputs and derivs into appropriate return vars
+  hypsmoothReturn.value=hypsmooth;
+  hypsmoothReturn.deriv_WRT_x = d_hypsmooth_d_x;
+  hypsmoothReturn.deriv_WRT_c = d_hypsmooth_d_c;
+  return(hypsmoothReturn);
+  }
 
 // Derivative of Analog Function hypmax
 double d_hypmax(double x , double xmin , double c  , double d_x , double d_xmin , double d_c )
@@ -158,6 +314,61 @@ hypmax=(xmin+(0.5*(((x-xmin)-c)+sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4.0*xmin)*c)
 d_hypmax = d_hypmax_d_x*d_x+d_hypmax_d_xmin*d_xmin+d_hypmax_d_c*d_c;
 return(d_hypmax);
 }
+
+// Evaluator class implementations for Analog Function hypmax
+  // Constructor
+  hypmaxEvaluator::hypmaxEvaluator(double x, double xmin, double c)
+  {
+    hypmaxReturn_ = evaluator_(x, xmin, c);
+  }
+  // method to get precomputed values into double vars 
+  double hypmaxEvaluator::getValues(double  x, double  xmin, double  c)
+  {
+    // Silence unused argument warnings
+    (void) x;
+    (void) xmin;
+    (void) c;
+    // Copy all precomputed values into corresponding output
+    return(hypmaxReturn_.value);
+  }
+  // method to get total deriv w.r.t some variable via chain rule 
+  // given precomputed derivs of function w.r.t. args and derivs of args
+  // w.r.t desired vars
+  double hypmaxEvaluator::getDerivs(double x , double xmin , double c  , double d_x, double d_xmin, double d_c)
+  {
+    // Function total deriv
+    double d_hypmax;
+    // Silence unused argument warnings
+    (void) x;
+    (void) xmin;
+    (void) c;
+    d_hypmax = hypmaxReturn_.deriv_WRT_x*d_x+hypmaxReturn_.deriv_WRT_xmin*d_xmin+hypmaxReturn_.deriv_WRT_c*d_c;
+    return(d_hypmax);
+  }
+  // method that actually performs our computations.
+  hypmaxEvaluator::returnType hypmaxEvaluator::evaluator_(double x, double xmin, double c)
+  {
+  // Function value and derivs variables, and a returnType to store everything
+  double hypmax;
+  hypmaxEvaluator::returnType hypmaxReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_hypmax_d_x;
+  double d_hypmax_d_xmin;
+  double d_hypmax_d_c;
+  // declared local variables
+{
+d_hypmax_d_x=(0.5*(1.0+(0.5/sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4.0*xmin)*c))))*(((x-xmin)-c)+((x-xmin)-c))));
+d_hypmax_d_xmin=(1.0+(0.5*((-1.0)+(0.5/sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4.0*xmin)*c))))*(((((x-xmin)-c)*(-1.0))+((-1.0)*((x-xmin)-c)))-((4.0)*c)))));
+d_hypmax_d_c=(0.5*((-1.0)+(0.5/sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4.0*xmin)*c))))*(((((x-xmin)-c)*(-1.0))+((-1.0)*((x-xmin)-c)))-((4.0*xmin)))));
+hypmax=(xmin+(0.5*(((x-xmin)-c)+sqrt(((((x-xmin)-c)*((x-xmin)-c))-((4.0*xmin)*c))))));
+}
+  // now save outputs and derivs into appropriate return vars
+  hypmaxReturn.value=hypmax;
+  hypmaxReturn.deriv_WRT_x = d_hypmax_d_x;
+  hypmaxReturn.deriv_WRT_xmin = d_hypmax_d_xmin;
+  hypmaxReturn.deriv_WRT_c = d_hypmax_d_c;
+  return(hypmaxReturn);
+  }
 
 // Derivative of Analog Function Tempdep
 double d_Tempdep(double PARAML , double PARAMT , double DELTEMP , double TEMPMOD  , double d_PARAML , double d_PARAMT , double d_DELTEMP , double d_TEMPMOD )
@@ -191,6 +402,77 @@ Tempdep=(PARAML*hypsmooth(((1.0+(PARAMT*DELTEMP))-1.0e-6), static_cast<double>(1
 d_Tempdep = d_Tempdep_d_PARAML*d_PARAML+d_Tempdep_d_PARAMT*d_PARAMT+d_Tempdep_d_DELTEMP*d_DELTEMP+d_Tempdep_d_TEMPMOD*d_TEMPMOD;
 return(d_Tempdep);
 }
+
+// Evaluator class implementations for Analog Function Tempdep
+  // Constructor
+  TempdepEvaluator::TempdepEvaluator(double PARAML, double PARAMT, double DELTEMP, double TEMPMOD)
+  {
+    TempdepReturn_ = evaluator_(PARAML, PARAMT, DELTEMP, TEMPMOD);
+  }
+  // method to get precomputed values into double vars 
+  double TempdepEvaluator::getValues(double  PARAML, double  PARAMT, double  DELTEMP, double  TEMPMOD)
+  {
+    // Silence unused argument warnings
+    (void) PARAML;
+    (void) PARAMT;
+    (void) DELTEMP;
+    (void) TEMPMOD;
+    // Copy all precomputed values into corresponding output
+    return(TempdepReturn_.value);
+  }
+  // method to get total deriv w.r.t some variable via chain rule 
+  // given precomputed derivs of function w.r.t. args and derivs of args
+  // w.r.t desired vars
+  double TempdepEvaluator::getDerivs(double PARAML , double PARAMT , double DELTEMP , double TEMPMOD  , double d_PARAML, double d_PARAMT, double d_DELTEMP, double d_TEMPMOD)
+  {
+    // Function total deriv
+    double d_Tempdep;
+    // Silence unused argument warnings
+    (void) PARAML;
+    (void) PARAMT;
+    (void) DELTEMP;
+    (void) TEMPMOD;
+    d_Tempdep = TempdepReturn_.deriv_WRT_PARAML*d_PARAML+TempdepReturn_.deriv_WRT_PARAMT*d_PARAMT+TempdepReturn_.deriv_WRT_DELTEMP*d_DELTEMP+TempdepReturn_.deriv_WRT_TEMPMOD*d_TEMPMOD;
+    return(d_Tempdep);
+  }
+  // method that actually performs our computations.
+  TempdepEvaluator::returnType TempdepEvaluator::evaluator_(double PARAML, double PARAMT, double DELTEMP, double TEMPMOD)
+  {
+  // Function value and derivs variables, and a returnType to store everything
+  double Tempdep;
+  TempdepEvaluator::returnType TempdepReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_Tempdep_d_PARAML;
+  double d_Tempdep_d_PARAMT;
+  double d_Tempdep_d_DELTEMP;
+  double d_Tempdep_d_TEMPMOD;
+  // declared local variables
+{
+if((TEMPMOD!=0))
+{
+d_Tempdep_d_PARAML=(1.0+d_hypmax((PARAMT*DELTEMP),(-PARAML), static_cast<double>(1.0e-6),0.0,(-1.0),0.0));
+d_Tempdep_d_PARAMT=d_hypmax((PARAMT*DELTEMP),(-PARAML), static_cast<double>(1.0e-6),(DELTEMP),0.0,0.0);
+d_Tempdep_d_DELTEMP=d_hypmax((PARAMT*DELTEMP),(-PARAML), static_cast<double>(1.0e-6),(PARAMT),0.0,0.0);
+d_Tempdep_d_TEMPMOD=0.0;
+Tempdep=(PARAML+hypmax((PARAMT*DELTEMP),(-PARAML), static_cast<double>(1.0e-6)));
+}
+else
+{
+d_Tempdep_d_PARAML=(hypsmooth(((1.0+(PARAMT*DELTEMP))-1.0e-6), static_cast<double>(1.0e-3)));
+d_Tempdep_d_PARAMT=(PARAML*d_hypsmooth(((1.0+(PARAMT*DELTEMP))-1.0e-6), static_cast<double>(1.0e-3),(DELTEMP),0.0));
+d_Tempdep_d_DELTEMP=(PARAML*d_hypsmooth(((1.0+(PARAMT*DELTEMP))-1.0e-6), static_cast<double>(1.0e-3),(PARAMT),0.0));
+d_Tempdep_d_TEMPMOD=0.0;
+Tempdep=(PARAML*hypsmooth(((1.0+(PARAMT*DELTEMP))-1.0e-6), static_cast<double>(1.0e-3)));
+}
+}
+  // now save outputs and derivs into appropriate return vars
+  TempdepReturn.value=Tempdep;
+  TempdepReturn.deriv_WRT_PARAML = d_Tempdep_d_PARAML;
+  TempdepReturn.deriv_WRT_PARAMT = d_Tempdep_d_PARAMT;
+  TempdepReturn.deriv_WRT_DELTEMP = d_Tempdep_d_DELTEMP;
+  TempdepReturn.deriv_WRT_TEMPMOD = d_Tempdep_d_TEMPMOD;
+  return(TempdepReturn);
+  }
 
 } // namepace AnalogFunctions
 
@@ -9595,7 +9877,10 @@ Inv_LNFIN = (1.0e-6/(Leff1*NFIN));
 NBODY_i = ((((model_.NBODY)+(Inv_L*(model_.LNBODY)))+(Inv_NFIN*(model_.NNBODY)))+(Inv_LNFIN*(model_.PNBODY)));
 if (((model_.NBODYN1)!=0.0))
 {
-NBODY_i = (NBODY_i*(1.0+(((model_.NBODYN1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.NBODYN2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.NBODYN2))));
+NBODY_i = (NBODY_i*(1.0+(((model_.NBODYN1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.NBODYN2)))))));
+}
 }
 if ( (model_.GEOMOD) == (0))
 {
@@ -9914,39 +10199,66 @@ UC1R_i = ((((model_.UC1R)+(Inv_L*(model_.LUC1R)))+(Inv_NFIN*(model_.NUC1R)))+(In
 }
 if (((model_.PHIGN1)!=0.0))
 {
-PHIG_i = (PHIG_i*(1.0+(((model_.PHIGN1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.PHIGN2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.PHIGN2))));
+PHIG_i = (PHIG_i*(1.0+(((model_.PHIGN1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.PHIGN2)))))));
+}
 }
 if (((model_.ETA0N1)!=0.0))
 {
-ETA0_i = (ETA0_i*(1.0+(((model_.ETA0N1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.ETA0N2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.ETA0N2))));
+ETA0_i = (ETA0_i*(1.0+(((model_.ETA0N1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.ETA0N2)))))));
+}
 }
 if (((model_.CDSCN1)!=0.0))
 {
-CDSC_i = (CDSC_i*(1.0+(((model_.CDSCN1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.CDSCN2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.CDSCN2))));
+CDSC_i = (CDSC_i*(1.0+(((model_.CDSCN1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.CDSCN2)))))));
+}
 }
 if (((model_.CDSCDN1)!=0.0))
 {
-CDSCD_i = (CDSCD_i*(1.0+(((model_.CDSCDN1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.CDSCDN2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.CDSCDN2))));
+CDSCD_i = (CDSCD_i*(1.0+(((model_.CDSCDN1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.CDSCDN2)))))));
+}
 }
 if (((model_.CDSCDRN1)!=0.0))
 {
-CDSCDR_i = (CDSCDR_i*(1.0+(((model_.CDSCDRN1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.CDSCDRN2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.CDSCDRN2))));
+CDSCDR_i = (CDSCDR_i*(1.0+(((model_.CDSCDRN1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.CDSCDRN2)))))));
+}
 }
 if (((model_.VSATN1)!=0.0))
 {
-VSAT_i = (VSAT_i*(1.0+(((model_.VSATN1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.VSATN2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.VSATN2))));
+VSAT_i = (VSAT_i*(1.0+(((model_.VSATN1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.VSATN2)))))));
+}
 }
 if (((model_.VSAT1N1)!=0.0))
 {
-VSAT1_i = (VSAT1_i*(1.0+(((model_.VSAT1N1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.VSAT1N2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.VSAT1N2))));
+VSAT1_i = (VSAT1_i*(1.0+(((model_.VSAT1N1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.VSAT1N2)))))));
+}
 }
 if (((model_.VSAT1RN1)!=0.0))
 {
-VSAT1R_i = (VSAT1R_i*(1.0+(((model_.VSAT1RN1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.VSAT1RN2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.VSAT1RN2))));
+VSAT1R_i = (VSAT1R_i*(1.0+(((model_.VSAT1RN1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.VSAT1RN2)))))));
+}
 }
 if (((model_.U0N1)!=0.0))
 {
-U0_i = (U0_i*(1.0+(((model_.U0N1)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.U0N2)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.U0N2))));
+U0_i = (U0_i*(1.0+(((model_.U0N1)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.U0N2)))))));
+}
 }
 if (given("NFINNOM"))
 {
@@ -9956,7 +10268,10 @@ U0_i = (U0_i*(1.0+(((NFIN-NFINNOM)*(model_.U0LT))*Leff)));
 }
 if (((model_.U0N1R)!=0.0))
 {
-U0R_i = (U0R_i*(1.0+(((model_.U0N1R)/NFIN)*AnalogFunctions::lln<double>((1.0+(NFIN/(model_.U0N2R)))))));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(NFIN/(model_.U0N2R))));
+U0R_i = (U0R_i*(1.0+(((model_.U0N1R)/NFIN)*evaluator_lln_0.getValues((1.0+(NFIN/(model_.U0N2R)))))));
+}
 }
 PHIG_i = (PHIG_i+((model_.PHIGL)*Leff));
 if (((model_.LPA)>0.0))
@@ -9970,9 +10285,18 @@ else
 {
 U0_i = (U0_i*(1.0-UP_i));
 }
-UA_i = (UA_i+((model_.AUA)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BUA)))));
-UD_i = (UD_i+((model_.AUD)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BUD)))));
-EU_i = (EU_i+((model_.AEU)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BEU)))));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BUA)));
+UA_i = (UA_i+((model_.AUA)*evaluator_lexp_0.getValues(((-Leff)/(model_.BUA)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BUD)));
+UD_i = (UD_i+((model_.AUD)*evaluator_lexp_0.getValues(((-Leff)/(model_.BUD)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BEU)));
+EU_i = (EU_i+((model_.AEU)*evaluator_lexp_0.getValues(((-Leff)/(model_.BEU)))));
+}
 if (((model_.ASYMMOD)!=0))
 {
 if (((model_.LPAR)>0.0))
@@ -9986,20 +10310,41 @@ else
 {
 U0R_i = (U0R_i*(1.0-UPR_i));
 }
-UAR_i = (UAR_i+((model_.AUAR)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BUAR)))));
-UDR_i = (UDR_i+((model_.AUDR)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BUDR)))));
-EUR_i = (EUR_i+((model_.AEUR)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BEUR)))));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BUAR)));
+UAR_i = (UAR_i+((model_.AUAR)*evaluator_lexp_0.getValues(((-Leff)/(model_.BUAR)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BUDR)));
+UDR_i = (UDR_i+((model_.AUDR)*evaluator_lexp_0.getValues(((-Leff)/(model_.BUDR)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BEUR)));
+EUR_i = (EUR_i+((model_.AEUR)*evaluator_lexp_0.getValues(((-Leff)/(model_.BEUR)))));
+}
 }
 if (((model_.RDSMOD)==1))
 {
-RSW_i = (RSW_i+((model_.ARSW)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BRSW)))));
-RDW_i = (RDW_i+((model_.ARDW)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BRDW)))));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BRSW)));
+RSW_i = (RSW_i+((model_.ARSW)*evaluator_lexp_0.getValues(((-Leff)/(model_.BRSW)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BRDW)));
+RDW_i = (RDW_i+((model_.ARDW)*evaluator_lexp_0.getValues(((-Leff)/(model_.BRDW)))));
+}
 }
 else
 {
-RDSW_i = (RDSW_i+((model_.ARDSW)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BRDSW)))));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BRDSW)));
+RDSW_i = (RDSW_i+((model_.ARDSW)*evaluator_lexp_0.getValues(((-Leff)/(model_.BRDSW)))));
 }
-PCLM_i = (PCLM_i+((model_.APCLM)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BPCLM)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BPCLM)));
+PCLM_i = (PCLM_i+((model_.APCLM)*evaluator_lexp_0.getValues(((-Leff)/(model_.BPCLM)))));
+}
 if (((model_.ASYMMOD)!=0))
 {
 {
@@ -10018,25 +10363,58 @@ double value_pow_0 = pow(Leff,(-(model_.BMEXPR)));
 MEXPR_i = (MEXPR_i+((model_.AMEXPR)*value_pow_0));
 }
 }
-PTWG_i = (PTWG_i+((model_.APTWG)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BPTWG)))));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BPTWG)));
+PTWG_i = (PTWG_i+((model_.APTWG)*evaluator_lexp_0.getValues(((-Leff)/(model_.BPTWG)))));
+}
 if (((model_.ASYMMOD)!=0))
 {
-PTWGR_i = (PTWGR_i+((model_.APTWG)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BPTWG)))));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BPTWG)));
+PTWGR_i = (PTWGR_i+((model_.APTWG)*evaluator_lexp_0.getValues(((-Leff)/(model_.BPTWG)))));
 }
-VSAT_i = (VSAT_i+((model_.AVSAT)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BVSAT)))));
-VSAT1_i = (VSAT1_i+((model_.AVSAT1)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BVSAT1)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BVSAT)));
+VSAT_i = (VSAT_i+((model_.AVSAT)*evaluator_lexp_0.getValues(((-Leff)/(model_.BVSAT)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BVSAT1)));
+VSAT1_i = (VSAT1_i+((model_.AVSAT1)*evaluator_lexp_0.getValues(((-Leff)/(model_.BVSAT1)))));
+}
 if (((model_.ASYMMOD)!=0))
 {
-VSAT1R_i = (VSAT1R_i+((model_.AVSAT1)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BVSAT1)))));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BVSAT1)));
+VSAT1R_i = (VSAT1R_i+((model_.AVSAT1)*evaluator_lexp_0.getValues(((-Leff)/(model_.BVSAT1)))));
 }
-PSAT_i = (PSAT_i+((model_.APSAT)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BPSAT)))));
-PSATCV_i = (PSATCV_i+((model_.APSATCV)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BPSATCV)))));
-VSATCV_i = (VSATCV_i+((model_.AVSATCV)*AnalogFunctions::lexp<double>(((-LeffCV)/(model_.BVSATCV)))));
-DVTP0_i = ((model_.DVTP0)+((model_.ADVTP0)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BDVTP0)))));
-DVTP1_i = ((model_.DVTP1)+((model_.ADVTP1)*AnalogFunctions::lexp<double>(((-Leff)/(model_.BDVTP1)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BPSAT)));
+PSAT_i = (PSAT_i+((model_.APSAT)*evaluator_lexp_0.getValues(((-Leff)/(model_.BPSAT)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BPSATCV)));
+PSATCV_i = (PSATCV_i+((model_.APSATCV)*evaluator_lexp_0.getValues(((-Leff)/(model_.BPSATCV)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-LeffCV)/(model_.BVSATCV)));
+VSATCV_i = (VSATCV_i+((model_.AVSATCV)*evaluator_lexp_0.getValues(((-LeffCV)/(model_.BVSATCV)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BDVTP0)));
+DVTP0_i = ((model_.DVTP0)+((model_.ADVTP0)*evaluator_lexp_0.getValues(((-Leff)/(model_.BDVTP0)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-Leff)/(model_.BDVTP1)));
+DVTP1_i = ((model_.DVTP1)+((model_.ADVTP1)*evaluator_lexp_0.getValues(((-Leff)/(model_.BDVTP1)))));
+}
 if (((QMTCENCV_i>0.0)||(QMTCENCVA_i>0.0)))
 {
-MTcen = (1.0+((model_.AQMTCEN)*AnalogFunctions::lexp<double>(((-((2.0*Ach)/Weff_UFCM))/(model_.BQMTCEN)))));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-((2.0*Ach)/Weff_UFCM))/(model_.BQMTCEN)));
+MTcen = (1.0+((model_.AQMTCEN)*evaluator_lexp_0.getValues(((-((2.0*Ach)/Weff_UFCM))/(model_.BQMTCEN)))));
+}
 Tcen0 = (((2.0*Ach)/Weff_UFCM)*MTcen);
 }
 if ((LeffCV<=1.0e-9))
@@ -10578,9 +10956,12 @@ double value_sqrt_0 = sqrt((((model_.RHOC)*arsd_total)/(rhorsd*prsd_total)));
 lt = value_sqrt_0;
 }
 alpha = (LRSD/lt);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((alpha+alpha));
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si = d_T0_dTemp_t_GND =  0.0;
-T0 = AnalogFunctions::lexp<double>((alpha+alpha));
+T0 = evaluator_lexp_0.getValues((alpha+alpha));
+}
 if (((model_.SDTERM)==1.0))
 {
 eta = ((rhorsd*lt)/(model_.RHOC));
@@ -10711,9 +11092,12 @@ Hrsd = value_max_0;
 }
 if (((model_.TMASK)>0.0))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((1.0e-7*(model_.EPSRSP))/(3.9*(model_.LSP))));
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si = d_T0_dTemp_t_GND =  0.0;
-T0 = (3.467e-11*AnalogFunctions::lln<double>(((1.0e-7*(model_.EPSRSP))/(3.9*(model_.LSP)))));
+T0 = (3.467e-11*evaluator_lln_0.getValues(((1.0e-7*(model_.EPSRSP))/(3.9*(model_.LSP)))));
+}
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_ge_si = d_T1_dV_di_si = d_T1_dTemp_t_GND =  0.0;
 T1 = (((0.942*Hrsd)*epssp)/(model_.LSP));
@@ -10777,8 +11161,9 @@ Ccg1 = CcgSat;
 else
 {
 {
-double value_log_0 = log((1.0+AnalogFunctions::lexp<double>(TT1)));
-Ccg1 = ((1.0/Cnon)*value_log_0);
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(TT1);
+double value_log_1 = log((1.0+evaluator_lexp_0.getValues(TT1)));
+Ccg1 = ((1.0/Cnon)*value_log_1);
 }
 }
 {
@@ -10892,8 +11277,9 @@ Ccg1 = CcgSat;
 else
 {
 {
-double value_log_0 = log((1.0+AnalogFunctions::lexp<double>(TT1)));
-Ccg1 = ((1.0/Cnon)*value_log_0);
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(TT1);
+double value_log_1 = log((1.0+evaluator_lexp_0.getValues(TT1)));
+Ccg1 = ((1.0/Cnon)*value_log_1);
 }
 }
 {
@@ -11007,8 +11393,9 @@ Ccg1 = CcgSat;
 else
 {
 {
-double value_log_0 = log((1.0+AnalogFunctions::lexp<double>(TT1)));
-Ccg1 = ((1.0/Cnon)*value_log_0);
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(TT1);
+double value_log_1 = log((1.0+evaluator_lexp_0.getValues(TT1)));
+Ccg1 = ((1.0/Cnon)*value_log_1);
 }
 }
 {
@@ -11086,9 +11473,12 @@ double value_max_0 = std::max(static_cast<double>(0.0),((((model_.CGEOA)+((model
 Cfr_geo = (Cfr_geo*value_max_0);
 }
 }
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+((model_.HFIN)/(model_.EOTBOX))));
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si = d_T0_dTemp_t_GND =  0.0;
-T0 = ((model_.CSDESW)*AnalogFunctions::lln<double>((1.0+((model_.HFIN)/(model_.EOTBOX)))));
+T0 = ((model_.CSDESW)*evaluator_lln_0.getValues((1.0+((model_.HFIN)/(model_.EOTBOX)))));
+}
 {
 double value_max_0 = std::max(static_cast<double>(0.0),(PSEO-(FPITCH*NFINtotal)));
 csbox = ((cbox*ASEO)+(T0*value_max_0));
@@ -11221,8 +11611,16 @@ T1 = ((model_.TOXG)*POXEDGE_i);
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si = d_T2_dTemp_t_GND =  0.0;
 T2 = (T1*T1);
-Toxratio = (AnalogFunctions::lexp<double>((NTOX_i*AnalogFunctions::lln<double>(((model_.TOXREF)/(model_.TOXG)))))/T0);
-Toxratioedge = (AnalogFunctions::lexp<double>((NTOX_i*AnalogFunctions::lln<double>(((model_.TOXREF)/T1))))/T2);
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((model_.TOXREF)/(model_.TOXG)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1((NTOX_i*evaluator_lln_0.getValues(((model_.TOXREF)/(model_.TOXG)))));
+Toxratio = (evaluator_lexp_1.getValues((NTOX_i*evaluator_lln_0.getValues(((model_.TOXREF)/(model_.TOXG)))))/T0);
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((model_.TOXREF)/T1));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1((NTOX_i*evaluator_lln_0.getValues(((model_.TOXREF)/T1))));
+Toxratioedge = (evaluator_lexp_1.getValues((NTOX_i*evaluator_lln_0.getValues(((model_.TOXREF)/T1))))/T2);
+}
 igsd_mult0 = ((Weff0*Aechvb)*Toxratioedge);
 if (((model_.TNOM)<(-273.15)))
 {
@@ -14811,15 +15209,21 @@ d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1
 d_T1_dTemp_t_GND = (((DevTemp/300.15)*(deriv_sqrt_0_d0*((d_DevTemp_dTemp_t_GND/300.15))))+((d_DevTemp_dTemp_t_GND/300.15)*value_sqrt_0));
 T1 = ((DevTemp/300.15)*value_sqrt_0);
 }
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((((model_.BG0SUB)/((2.0*8.617087e-5)*300.15))-(Eg/(2.0*Vtm))));
 
-d_ni_dTemp_t_GND = ((((model_.NI0SUB)*T1)*AnalogFunctions::d_lexp((((model_.BG0SUB)/((2.0*8.617087e-5)*300.15))-(Eg/(2.0*Vtm))),(-(((2.0*Vtm)*d_Eg_dTemp_t_GND-Eg*(2.0*d_Vtm_dTemp_t_GND))/(2.0*Vtm)/(2.0*Vtm)))))+(((model_.NI0SUB)*d_T1_dTemp_t_GND)*AnalogFunctions::lexp<double>((((model_.BG0SUB)/((2.0*8.617087e-5)*300.15))-(Eg/(2.0*Vtm))))));
-ni = (((model_.NI0SUB)*T1)*AnalogFunctions::lexp<double>((((model_.BG0SUB)/((2.0*8.617087e-5)*300.15))-(Eg/(2.0*Vtm)))));
+d_ni_dTemp_t_GND = ((((model_.NI0SUB)*T1)*evaluator_lexp_0.getDerivs((((model_.BG0SUB)/((2.0*8.617087e-5)*300.15))-(Eg/(2.0*Vtm))),(-(((2.0*Vtm)*d_Eg_dTemp_t_GND-Eg*(2.0*d_Vtm_dTemp_t_GND))/(2.0*Vtm)/(2.0*Vtm)))))+(((model_.NI0SUB)*d_T1_dTemp_t_GND)*evaluator_lexp_0.getValues((((model_.BG0SUB)/((2.0*8.617087e-5)*300.15))-(Eg/(2.0*Vtm))))));
+ni = (((model_.NI0SUB)*T1)*evaluator_lexp_0.getValues((((model_.BG0SUB)/((2.0*8.617087e-5)*300.15))-(Eg/(2.0*Vtm)))));
+}
 
 d_Nc_dTemp_t_GND = ((model_.NC0SUB)*d_T1_dTemp_t_GND);
 Nc = ((model_.NC0SUB)*T1);
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(((1.0+(TSS_i*delTemp))-1.0e-6),1.0e-3);
 
-d_ThetaSS_dTemp_t_GND = AnalogFunctions::d_hypsmooth(((1.0+(TSS_i*delTemp))-1.0e-6),1.0e-3,(TSS_i*d_delTemp_dTemp_t_GND),0.0);
-ThetaSS = AnalogFunctions::hypsmooth<double>(((1.0+(TSS_i*delTemp))-1.0e-6),1.0e-3);
+d_ThetaSS_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs(((1.0+(TSS_i*delTemp))-1.0e-6),1.0e-3,(TSS_i*d_delTemp_dTemp_t_GND),0.0);
+ThetaSS = evaluator_hypsmooth_0.getValues(((1.0+(TSS_i*delTemp))-1.0e-6),1.0e-3);
+}
 
 d_kT_dTemp_t_GND = (d_Vtm_dTemp_t_GND*1.60219e-19);
 kT = (Vtm*1.60219e-19);
@@ -14833,25 +15237,41 @@ E1prime = (4.0*E0prime);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_ge_si = d_T1_dV_di_si = d_T1_dTemp_t_GND =  0.0;
 T1 = ((gprime*mdprime)/(gfactor*md));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((E0-E0prime)/kT));
 
-d_gam0_dTemp_t_GND = ((T1*AnalogFunctions::d_lexp(((E0-E0prime)/kT),(-(E0-E0prime)*d_kT_dTemp_t_GND/kT/kT)))+(d_T1_dTemp_t_GND*AnalogFunctions::lexp<double>(((E0-E0prime)/kT))));
-gam0 = (1.0+(T1*AnalogFunctions::lexp<double>(((E0-E0prime)/kT))));
+d_gam0_dTemp_t_GND = ((T1*evaluator_lexp_0.getDerivs(((E0-E0prime)/kT),(-(E0-E0prime)*d_kT_dTemp_t_GND/kT/kT)))+(d_T1_dTemp_t_GND*evaluator_lexp_0.getValues(((E0-E0prime)/kT))));
+gam0 = (1.0+(T1*evaluator_lexp_0.getValues(((E0-E0prime)/kT))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((E0-E1)/kT));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((E0-E1prime)/kT));
 
-d_gam1_dTemp_t_GND = ((d_gam0_dTemp_t_GND+AnalogFunctions::d_lexp(((E0-E1)/kT),(-(E0-E1)*d_kT_dTemp_t_GND/kT/kT)))+((T1*AnalogFunctions::d_lexp(((E0-E1prime)/kT),(-(E0-E1prime)*d_kT_dTemp_t_GND/kT/kT)))+(d_T1_dTemp_t_GND*AnalogFunctions::lexp<double>(((E0-E1prime)/kT)))));
-gam1 = ((gam0+AnalogFunctions::lexp<double>(((E0-E1)/kT)))+(T1*AnalogFunctions::lexp<double>(((E0-E1prime)/kT))));
+d_gam1_dTemp_t_GND = ((d_gam0_dTemp_t_GND+evaluator_lexp_0.getDerivs(((E0-E1)/kT),(-(E0-E1)*d_kT_dTemp_t_GND/kT/kT)))+((T1*evaluator_lexp_1.getDerivs(((E0-E1prime)/kT),(-(E0-E1prime)*d_kT_dTemp_t_GND/kT/kT)))+(d_T1_dTemp_t_GND*evaluator_lexp_1.getValues(((E0-E1prime)/kT)))));
+gam1 = ((gam0+evaluator_lexp_0.getValues(((E0-E1)/kT)))+(T1*evaluator_lexp_1.getValues(((E0-E1prime)/kT))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT)/((2.0*Ach)/Weff_UFCM))*gam1));
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
-d_T2_dTemp_t_GND = (((-Vtm)*AnalogFunctions::d_lln((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT)/((2.0*Ach)/Weff_UFCM))*gam1),((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT)/((2.0*Ach)/Weff_UFCM))*d_gam1_dTemp_t_GND)+((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*d_kT_dTemp_t_GND)+((-(gfactor*md)*(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*d_Nc_dTemp_t_GND)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT))/((2.0*Ach)/Weff_UFCM))*gam1))))+((-d_Vtm_dTemp_t_GND)*AnalogFunctions::lln<double>((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT)/((2.0*Ach)/Weff_UFCM))*gam1))));
-T2 = ((-Vtm)*AnalogFunctions::lln<double>((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT)/((2.0*Ach)/Weff_UFCM))*gam1)));
+d_T2_dTemp_t_GND = (((-Vtm)*evaluator_lln_0.getDerivs((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT)/((2.0*Ach)/Weff_UFCM))*gam1),((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT)/((2.0*Ach)/Weff_UFCM))*d_gam1_dTemp_t_GND)+((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*d_kT_dTemp_t_GND)+((-(gfactor*md)*(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*d_Nc_dTemp_t_GND)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT))/((2.0*Ach)/Weff_UFCM))*gam1))))+((-d_Vtm_dTemp_t_GND)*evaluator_lln_0.getValues((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT)/((2.0*Ach)/Weff_UFCM))*gam1))));
+T2 = ((-Vtm)*evaluator_lln_0.getValues((((((gfactor*md)/(((3.14159265358979323846*1.05457e-34)*1.05457e-34)*Nc))*kT)/((2.0*Ach)/Weff_UFCM))*gam1)));
+}
 
 d_dvch_qm_dTemp_t_GND = (QMFACTOR_i*d_T2_dTemp_t_GND);
 dvch_qm = (QMFACTOR_i*((E0/1.60219e-19)+T2));
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(ETA0_i,(model_.TETA0),delTemp,(model_.TEMPMOD));
 
-d_ETA0_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(ETA0_i,(model_.TETA0),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-ETA0_t = AnalogFunctions::Tempdep<double>(ETA0_i,(model_.TETA0),delTemp,(model_.TEMPMOD));
+d_ETA0_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(ETA0_i,(model_.TETA0),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+ETA0_t = evaluator_Tempdep_0.getValues(ETA0_i,(model_.TETA0),delTemp,(model_.TEMPMOD));
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(ETA0R_i,(model_.TETA0R),delTemp,(model_.TEMPMOD));
 
-d_ETA0R_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(ETA0R_i,(model_.TETA0R),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-ETA0R_t = AnalogFunctions::Tempdep<double>(ETA0R_i,(model_.TETA0R),delTemp,(model_.TEMPMOD));
+d_ETA0R_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(ETA0R_i,(model_.TETA0R),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+ETA0R_t = evaluator_Tempdep_0.getValues(ETA0R_i,(model_.TETA0R),delTemp,(model_.TEMPMOD));
+}
 {
 double value_pow_0 = pow(TRatio,UTE_i);
 double  deriv_pow_0_d0 = ((TRatio == 0.0)?0.0:(value_pow_0*UTE_i/TRatio));
@@ -14860,9 +15280,12 @@ d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1
 d_T1_dTemp_t_GND = (U0_i*(deriv_pow_0_d0*(d_TRatio_dTemp_t_GND)));
 T1 = (U0_i*value_pow_0);
 }
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((UTL_i*delTemp),((-0.9)*T1),1.0e-4);
 
-d_U0_t_dTemp_t_GND = (d_T1_dTemp_t_GND+AnalogFunctions::d_hypmax((UTL_i*delTemp),((-0.9)*T1),1.0e-4,(UTL_i*d_delTemp_dTemp_t_GND),((-0.9)*d_T1_dTemp_t_GND),0.0));
-U0_t = (T1+AnalogFunctions::hypmax<double>((UTL_i*delTemp),((-0.9)*T1),1.0e-4));
+d_U0_t_dTemp_t_GND = (d_T1_dTemp_t_GND+evaluator_hypmax_0.getDerivs((UTL_i*delTemp),((-0.9)*T1),1.0e-4,(UTL_i*d_delTemp_dTemp_t_GND),((-0.9)*d_T1_dTemp_t_GND),0.0));
+U0_t = (T1+evaluator_hypmax_0.getValues((UTL_i*delTemp),((-0.9)*T1),1.0e-4));
+}
 
 d_u0_dTemp_t_GND = d_U0_t_dTemp_t_GND;
 u0 = U0_t;
@@ -14876,37 +15299,55 @@ d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1
 d_T1_dTemp_t_GND = (U0R_i*(deriv_pow_0_d0*(d_TRatio_dTemp_t_GND)));
 T1 = (U0R_i*value_pow_0);
 }
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((UTLR_i*delTemp),((-0.9)*T1),1.0e-4);
 
-d_U0R_t_dTemp_t_GND = (d_T1_dTemp_t_GND+AnalogFunctions::d_hypmax((UTLR_i*delTemp),((-0.9)*T1),1.0e-4,(UTLR_i*d_delTemp_dTemp_t_GND),((-0.9)*d_T1_dTemp_t_GND),0.0));
-U0R_t = (T1+AnalogFunctions::hypmax<double>((UTLR_i*delTemp),((-0.9)*T1),1.0e-4));
+d_U0R_t_dTemp_t_GND = (d_T1_dTemp_t_GND+evaluator_hypmax_0.getDerivs((UTLR_i*delTemp),((-0.9)*T1),1.0e-4,(UTLR_i*d_delTemp_dTemp_t_GND),((-0.9)*d_T1_dTemp_t_GND),0.0));
+U0R_t = (T1+evaluator_hypmax_0.getValues((UTLR_i*delTemp),((-0.9)*T1),1.0e-4));
+}
 
 d_u0r_dTemp_t_GND = d_U0R_t_dTemp_t_GND;
 u0r = U0R_t;
 }
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(ETAMOB_i,EMOBT_i,delTemp,(model_.TEMPMOD));
 
-d_ETAMOB_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(ETAMOB_i,EMOBT_i,delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-ETAMOB_t = AnalogFunctions::Tempdep<double>(ETAMOB_i,EMOBT_i,delTemp,(model_.TEMPMOD));
+d_ETAMOB_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(ETAMOB_i,EMOBT_i,delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+ETAMOB_t = evaluator_Tempdep_0.getValues(ETAMOB_i,EMOBT_i,delTemp,(model_.TEMPMOD));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((UA1_i*delTemp),(-UA_i),1.0e-6);
 
-d_UA_t_dTemp_t_GND = AnalogFunctions::d_hypmax((UA1_i*delTemp),(-UA_i),1.0e-6,(UA1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-UA_t = (UA_i+AnalogFunctions::hypmax<double>((UA1_i*delTemp),(-UA_i),1.0e-6));
+d_UA_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((UA1_i*delTemp),(-UA_i),1.0e-6,(UA1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+UA_t = (UA_i+evaluator_hypmax_0.getValues((UA1_i*delTemp),(-UA_i),1.0e-6));
+}
 if (((model_.ASYMMOD)!=0))
 {
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((UA1R_i*delTemp),(-UAR_i),1.0e-6);
 
-d_UAR_t_dTemp_t_GND = AnalogFunctions::d_hypmax((UA1R_i*delTemp),(-UAR_i),1.0e-6,(UA1R_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-UAR_t = (UAR_i+AnalogFunctions::hypmax<double>((UA1R_i*delTemp),(-UAR_i),1.0e-6));
+d_UAR_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((UA1R_i*delTemp),(-UAR_i),1.0e-6,(UA1R_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+UAR_t = (UAR_i+evaluator_hypmax_0.getValues((UA1R_i*delTemp),(-UAR_i),1.0e-6));
+}
 }
 if (((model_.BULKMOD)!=0))
 {
 if (((model_.TEMPMOD)==0))
 {
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(UC_i,UC1_i,delTemp,0);
 
-d_UC_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(UC_i,UC1_i,delTemp,0,0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-UC_t = AnalogFunctions::Tempdep<double>(UC_i,UC1_i,delTemp,0);
+d_UC_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(UC_i,UC1_i,delTemp,0,0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+UC_t = evaluator_Tempdep_0.getValues(UC_i,UC1_i,delTemp,0);
+}
 if (((model_.ASYMMOD)!=0))
 {
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(UCR_i,UC1R_i,delTemp,0);
 
-d_UCR_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(UCR_i,UC1R_i,delTemp,0,0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-UCR_t = AnalogFunctions::Tempdep<double>(UCR_i,UC1R_i,delTemp,0);
+d_UCR_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(UCR_i,UC1R_i,delTemp,0,0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+UCR_t = evaluator_Tempdep_0.getValues(UCR_i,UC1R_i,delTemp,0);
+}
 }
 }
 else
@@ -14946,30 +15387,48 @@ double  deriv_pow_0_d0 = ((TRatio == 0.0)?0.0:(value_pow_0*UCSTE_i/TRatio));
 d_UCS_t_dTemp_t_GND = (UCS_i*(deriv_pow_0_d0*(d_TRatio_dTemp_t_GND)));
 UCS_t = (UCS_i*value_pow_0);
 }
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(((1.0+(PRT_i*delTemp))-1.0e-6),1.0e-3);
 
-d_rdstemp_dTemp_t_GND = AnalogFunctions::d_hypsmooth(((1.0+(PRT_i*delTemp))-1.0e-6),1.0e-3,(PRT_i*d_delTemp_dTemp_t_GND),0.0);
-rdstemp = AnalogFunctions::hypsmooth<double>(((1.0+(PRT_i*delTemp))-1.0e-6),1.0e-3);
+d_rdstemp_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs(((1.0+(PRT_i*delTemp))-1.0e-6),1.0e-3,(PRT_i*d_delTemp_dTemp_t_GND),0.0);
+rdstemp = evaluator_hypsmooth_0.getValues(((1.0+(PRT_i*delTemp))-1.0e-6),1.0e-3);
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.RSDR),(model_.TRSDR),delTemp,(model_.TEMPMOD));
 
-d_RSDR_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.RSDR),(model_.TRSDR),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-RSDR_t = AnalogFunctions::Tempdep<double>((model_.RSDR),(model_.TRSDR),delTemp,(model_.TEMPMOD));
+d_RSDR_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.RSDR),(model_.TRSDR),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+RSDR_t = evaluator_Tempdep_0.getValues((model_.RSDR),(model_.TRSDR),delTemp,(model_.TEMPMOD));
+}
 if (((model_.ASYMMOD)!=0))
 {
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.RSDRR),(model_.TRSDR),delTemp,(model_.TEMPMOD));
 
-d_RSDRR_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.RSDRR),(model_.TRSDR),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-RSDRR_t = AnalogFunctions::Tempdep<double>((model_.RSDRR),(model_.TRSDR),delTemp,(model_.TEMPMOD));
+d_RSDRR_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.RSDRR),(model_.TRSDR),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+RSDRR_t = evaluator_Tempdep_0.getValues((model_.RSDRR),(model_.TRSDR),delTemp,(model_.TEMPMOD));
 }
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.RDDR),(model_.TRDDR),delTemp,(model_.TEMPMOD));
 
-d_RDDR_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.RDDR),(model_.TRDDR),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-RDDR_t = AnalogFunctions::Tempdep<double>((model_.RDDR),(model_.TRDDR),delTemp,(model_.TEMPMOD));
+d_RDDR_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.RDDR),(model_.TRDDR),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+RDDR_t = evaluator_Tempdep_0.getValues((model_.RDDR),(model_.TRDDR),delTemp,(model_.TEMPMOD));
+}
 if (((model_.ASYMMOD)!=0))
 {
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.RDDRR),(model_.TRDDR),delTemp,(model_.TEMPMOD));
 
-d_RDDRR_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.RDDRR),(model_.TRDDR),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-RDDRR_t = AnalogFunctions::Tempdep<double>((model_.RDDRR),(model_.TRDDR),delTemp,(model_.TEMPMOD));
+d_RDDRR_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.RDDRR),(model_.TRDDR),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+RDDRR_t = evaluator_Tempdep_0.getValues((model_.RDDRR),(model_.TRDDR),delTemp,(model_.TEMPMOD));
 }
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(VSAT_i,(-AT_i),delTemp,(model_.TEMPMOD));
 
-d_VSAT_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(VSAT_i,(-AT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-VSAT_t = AnalogFunctions::Tempdep<double>(VSAT_i,(-AT_i),delTemp,(model_.TEMPMOD));
+d_VSAT_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(VSAT_i,(-AT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+VSAT_t = evaluator_Tempdep_0.getValues(VSAT_i,(-AT_i),delTemp,(model_.TEMPMOD));
+}
 if ((VSAT_t<1000))
 {
 std::cerr  << "Warning: VSAT(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSAT_t <<  std::endl; 
@@ -14979,9 +15438,12 @@ VSAT_t = 1000;
 }
 if (((model_.ASYMMOD)!=0))
 {
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(VSATR_i,(-ATR_i),delTemp,(model_.TEMPMOD));
 
-d_VSATR_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(VSATR_i,(-ATR_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-VSATR_t = AnalogFunctions::Tempdep<double>(VSATR_i,(-ATR_i),delTemp,(model_.TEMPMOD));
+d_VSATR_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(VSATR_i,(-ATR_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+VSATR_t = evaluator_Tempdep_0.getValues(VSATR_i,(-ATR_i),delTemp,(model_.TEMPMOD));
+}
 if ((VSATR_t<1000))
 {
 std::cerr  << "Warning: VSATR(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSATR_t <<  std::endl; 
@@ -14990,9 +15452,12 @@ d_VSATR_t_dTemp_t_GND =  0.0;
 VSATR_t = 1000;
 }
 }
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(VSAT1_i,(-AT_i),delTemp,(model_.TEMPMOD));
 
-d_VSAT1_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(VSAT1_i,(-AT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-VSAT1_t = AnalogFunctions::Tempdep<double>(VSAT1_i,(-AT_i),delTemp,(model_.TEMPMOD));
+d_VSAT1_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(VSAT1_i,(-AT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+VSAT1_t = evaluator_Tempdep_0.getValues(VSAT1_i,(-AT_i),delTemp,(model_.TEMPMOD));
+}
 if ((VSAT1_t<1000))
 {
 std::cerr  << "Warning: VSAT1(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSAT1_t <<  std::endl; 
@@ -15002,9 +15467,12 @@ VSAT1_t = 1000;
 }
 if (((model_.ASYMMOD)!=0))
 {
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(VSAT1R_i,(-AT_i),delTemp,(model_.TEMPMOD));
 
-d_VSAT1R_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(VSAT1R_i,(-AT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-VSAT1R_t = AnalogFunctions::Tempdep<double>(VSAT1R_i,(-AT_i),delTemp,(model_.TEMPMOD));
+d_VSAT1R_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(VSAT1R_i,(-AT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+VSAT1R_t = evaluator_Tempdep_0.getValues(VSAT1R_i,(-AT_i),delTemp,(model_.TEMPMOD));
+}
 if ((VSAT1R_t<1000))
 {
 std::cerr  << "Warning: VSAT1R(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSAT1R_t <<  std::endl; 
@@ -15013,9 +15481,12 @@ d_VSAT1R_t_dTemp_t_GND =  0.0;
 VSAT1R_t = 1000;
 }
 }
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(VSATCV_i,(-ATCV_i),delTemp,(model_.TEMPMOD));
 
-d_VSATCV_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(VSATCV_i,(-ATCV_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-VSATCV_t = AnalogFunctions::Tempdep<double>(VSATCV_i,(-ATCV_i),delTemp,(model_.TEMPMOD));
+d_VSATCV_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(VSATCV_i,(-ATCV_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+VSATCV_t = evaluator_Tempdep_0.getValues(VSATCV_i,(-ATCV_i),delTemp,(model_.TEMPMOD));
+}
 if ((VSATCV_t<1000))
 {
 std::cerr  << "Warning: VSATCV(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSATCV_t <<  std::endl; 
@@ -15023,23 +15494,35 @@ std::cerr  << "Warning: VSATCV(%f) = %e is less than 1K, setting it to 1K." << D
 d_VSATCV_t_dTemp_t_GND =  0.0;
 VSATCV_t = 1000;
 }
-
-d_MEXP_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth(((MEXP_i*(1.0+((model_.TMEXP)*delTemp)))-2.0),1.0e-3,(MEXP_i*((model_.TMEXP)*d_delTemp_dTemp_t_GND)),0.0);
-MEXP_t = (AnalogFunctions::hypsmooth<double>(((MEXP_i*(1.0+((model_.TMEXP)*delTemp)))-2.0),1.0e-3)+2.0);
-if (((model_.ASYMMOD)!=0))
 {
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(((MEXP_i*(1.0+((model_.TMEXP)*delTemp)))-2.0),1.0e-3);
 
-d_MEXPR_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth(((MEXPR_i*(1.0+((model_.TMEXPR)*delTemp)))-2.0),1.0e-3,(MEXPR_i*((model_.TMEXPR)*d_delTemp_dTemp_t_GND)),0.0);
-MEXPR_t = (AnalogFunctions::hypsmooth<double>(((MEXPR_i*(1.0+((model_.TMEXPR)*delTemp)))-2.0),1.0e-3)+2.0);
+d_MEXP_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs(((MEXP_i*(1.0+((model_.TMEXP)*delTemp)))-2.0),1.0e-3,(MEXP_i*((model_.TMEXP)*d_delTemp_dTemp_t_GND)),0.0);
+MEXP_t = (evaluator_hypsmooth_0.getValues(((MEXP_i*(1.0+((model_.TMEXP)*delTemp)))-2.0),1.0e-3)+2.0);
 }
-
-d_PTWG_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(PTWG_i,(-PTWGT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-PTWG_t = AnalogFunctions::Tempdep<double>(PTWG_i,(-PTWGT_i),delTemp,(model_.TEMPMOD));
 if (((model_.ASYMMOD)!=0))
 {
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(((MEXPR_i*(1.0+((model_.TMEXPR)*delTemp)))-2.0),1.0e-3);
 
-d_PTWGR_t_dTemp_t_GND = AnalogFunctions::d_Tempdep(PTWGR_i,(-PTWGT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-PTWGR_t = AnalogFunctions::Tempdep<double>(PTWGR_i,(-PTWGT_i),delTemp,(model_.TEMPMOD));
+d_MEXPR_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs(((MEXPR_i*(1.0+((model_.TMEXPR)*delTemp)))-2.0),1.0e-3,(MEXPR_i*((model_.TMEXPR)*d_delTemp_dTemp_t_GND)),0.0);
+MEXPR_t = (evaluator_hypsmooth_0.getValues(((MEXPR_i*(1.0+((model_.TMEXPR)*delTemp)))-2.0),1.0e-3)+2.0);
+}
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(PTWG_i,(-PTWGT_i),delTemp,(model_.TEMPMOD));
+
+d_PTWG_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(PTWG_i,(-PTWGT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+PTWG_t = evaluator_Tempdep_0.getValues(PTWG_i,(-PTWGT_i),delTemp,(model_.TEMPMOD));
+}
+if (((model_.ASYMMOD)!=0))
+{
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0(PTWGR_i,(-PTWGT_i),delTemp,(model_.TEMPMOD));
+
+d_PTWGR_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs(PTWGR_i,(-PTWGT_i),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+PTWGR_t = evaluator_Tempdep_0.getValues(PTWGR_i,(-PTWGT_i),delTemp,(model_.TEMPMOD));
+}
 }
 
 d_dvth_temp_dTemp_t_GND = ((KT1_i+((model_.KT1L)/Leff))*d_TRatio_dTemp_t_GND);
@@ -15051,21 +15534,33 @@ double  deriv_pow_0_d0 = ((TRatio == 0.0)?0.0:(value_pow_0*IIT_i/TRatio));
 d_BETA0_t_dTemp_t_GND = (BETA0_i*(deriv_pow_0_d0*(d_TRatio_dTemp_t_GND)));
 BETA0_t = (BETA0_i*value_pow_0);
 }
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(((1.0+(TII_i*(TRatio-1.0)))-0.01),1.0e-3);
 
-d_SII0_t_dTemp_t_GND = (SII0_i*AnalogFunctions::d_hypsmooth(((1.0+(TII_i*(TRatio-1.0)))-0.01),1.0e-3,(TII_i*d_TRatio_dTemp_t_GND),0.0));
-SII0_t = (SII0_i*(AnalogFunctions::hypsmooth<double>(((1.0+(TII_i*(TRatio-1.0)))-0.01),1.0e-3)+0.01));
+d_SII0_t_dTemp_t_GND = (SII0_i*evaluator_hypsmooth_0.getDerivs(((1.0+(TII_i*(TRatio-1.0)))-0.01),1.0e-3,(TII_i*d_TRatio_dTemp_t_GND),0.0));
+SII0_t = (SII0_i*(evaluator_hypsmooth_0.getValues(((1.0+(TII_i*(TRatio-1.0)))-0.01),1.0e-3)+0.01));
+}
 
 d_K0_t_dTemp_t_GND = (K01_i*d_delTemp_dTemp_t_GND);
 K0_t = (K0_i+(K01_i*delTemp));
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((K0SI1_i*delTemp),(-K0SI_i),1.0e-6);
 
-d_K0SI_t_dTemp_t_GND = AnalogFunctions::d_hypmax((K0SI1_i*delTemp),(-K0SI_i),1.0e-6,(K0SI1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-K0SI_t = (K0SI_i+AnalogFunctions::hypmax<double>((K0SI1_i*delTemp),(-K0SI_i),1.0e-6));
+d_K0SI_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((K0SI1_i*delTemp),(-K0SI_i),1.0e-6,(K0SI1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+K0SI_t = (K0SI_i+evaluator_hypmax_0.getValues((K0SI1_i*delTemp),(-K0SI_i),1.0e-6));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((K2SI1_i*delTemp),(-K2SI_i),1.0e-6);
 
-d_K2SI_t_dTemp_t_GND = AnalogFunctions::d_hypmax((K2SI1_i*delTemp),(-K2SI_i),1.0e-6,(K2SI1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-K2SI_t = (K2SI_i+AnalogFunctions::hypmax<double>((K2SI1_i*delTemp),(-K2SI_i),1.0e-6));
+d_K2SI_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((K2SI1_i*delTemp),(-K2SI_i),1.0e-6,(K2SI1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+K2SI_t = (K2SI_i+evaluator_hypmax_0.getValues((K2SI1_i*delTemp),(-K2SI_i),1.0e-6));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((K11_i*delTemp),(-K1_i),1.0e-6);
 
-d_K1_t_dTemp_t_GND = AnalogFunctions::d_hypmax((K11_i*delTemp),(-K1_i),1.0e-6,(K11_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-K1_t = (K1_i+AnalogFunctions::hypmax<double>((K11_i*delTemp),(-K1_i),1.0e-6));
+d_K1_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((K11_i*delTemp),(-K1_i),1.0e-6,(K11_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+K1_t = (K1_i+evaluator_hypmax_0.getValues((K11_i*delTemp),(-K1_i),1.0e-6));
+}
 
 d_K2SAT_t_dTemp_t_GND = (K2SAT1_i*d_delTemp_dTemp_t_GND);
 K2SAT_t = (K2SAT_i+(K2SAT1_i*delTemp));
@@ -15075,104 +15570,186 @@ A1_t = (A1_i+(A11_i*delTemp));
 
 d_A2_t_dTemp_t_GND = (A21_i*d_delTemp_dTemp_t_GND);
 A2_t = (A2_i+(A21_i*delTemp));
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((K21_i*delTemp),(-K2_i),1.0e-6);
 
-d_K2_t_dTemp_t_GND = AnalogFunctions::d_hypmax((K21_i*delTemp),(-K2_i),1.0e-6,(K21_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-K2_t = (K2_i+AnalogFunctions::hypmax<double>((K21_i*delTemp),(-K2_i),1.0e-6));
+d_K2_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((K21_i*delTemp),(-K2_i),1.0e-6,(K21_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+K2_t = (K2_i+evaluator_hypmax_0.getValues((K21_i*delTemp),(-K2_i),1.0e-6));
+}
 
 d_K0SISAT_t_dTemp_t_GND = (K0SISAT1_i*d_delTemp_dTemp_t_GND);
 K0SISAT_t = (K0SISAT_i+(K0SISAT1_i*delTemp));
 
 d_K2SISAT_t_dTemp_t_GND = (K2SISAT1_i*d_delTemp_dTemp_t_GND);
 K2SISAT_t = (K2SISAT_i+(K2SISAT1_i*delTemp));
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((AIGBINV1_i*delTemp),(-AIGBINV_i),1.0e-6);
 
-d_AIGBINV_t_dTemp_t_GND = AnalogFunctions::d_hypmax((AIGBINV1_i*delTemp),(-AIGBINV_i),1.0e-6,(AIGBINV1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-AIGBINV_t = (AIGBINV_i+AnalogFunctions::hypmax<double>((AIGBINV1_i*delTemp),(-AIGBINV_i),1.0e-6));
+d_AIGBINV_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((AIGBINV1_i*delTemp),(-AIGBINV_i),1.0e-6,(AIGBINV1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+AIGBINV_t = (AIGBINV_i+evaluator_hypmax_0.getValues((AIGBINV1_i*delTemp),(-AIGBINV_i),1.0e-6));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((AIGBACC1_i*delTemp),(-AIGBACC_i),1.0e-6);
 
-d_AIGBACC_t_dTemp_t_GND = AnalogFunctions::d_hypmax((AIGBACC1_i*delTemp),(-AIGBACC_i),1.0e-6,(AIGBACC1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-AIGBACC_t = (AIGBACC_i+AnalogFunctions::hypmax<double>((AIGBACC1_i*delTemp),(-AIGBACC_i),1.0e-6));
+d_AIGBACC_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((AIGBACC1_i*delTemp),(-AIGBACC_i),1.0e-6,(AIGBACC1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+AIGBACC_t = (AIGBACC_i+evaluator_hypmax_0.getValues((AIGBACC1_i*delTemp),(-AIGBACC_i),1.0e-6));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((AIGC1_i*delTemp),(-AIGC_i),1.0e-6);
 
-d_AIGC_t_dTemp_t_GND = AnalogFunctions::d_hypmax((AIGC1_i*delTemp),(-AIGC_i),1.0e-6,(AIGC1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-AIGC_t = (AIGC_i+AnalogFunctions::hypmax<double>((AIGC1_i*delTemp),(-AIGC_i),1.0e-6));
+d_AIGC_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((AIGC1_i*delTemp),(-AIGC_i),1.0e-6,(AIGC1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+AIGC_t = (AIGC_i+evaluator_hypmax_0.getValues((AIGC1_i*delTemp),(-AIGC_i),1.0e-6));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((AIGS1_i*delTemp),(-AIGS_i),1.0e-6);
 
-d_AIGS_t_dTemp_t_GND = AnalogFunctions::d_hypmax((AIGS1_i*delTemp),(-AIGS_i),1.0e-6,(AIGS1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-AIGS_t = (AIGS_i+AnalogFunctions::hypmax<double>((AIGS1_i*delTemp),(-AIGS_i),1.0e-6));
+d_AIGS_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((AIGS1_i*delTemp),(-AIGS_i),1.0e-6,(AIGS1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+AIGS_t = (AIGS_i+evaluator_hypmax_0.getValues((AIGS1_i*delTemp),(-AIGS_i),1.0e-6));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0((AIGD1_i*delTemp),(-AIGD_i),1.0e-6);
 
-d_AIGD_t_dTemp_t_GND = AnalogFunctions::d_hypmax((AIGD1_i*delTemp),(-AIGD_i),1.0e-6,(AIGD1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
-AIGD_t = (AIGD_i+AnalogFunctions::hypmax<double>((AIGD1_i*delTemp),(-AIGD_i),1.0e-6));
+d_AIGD_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs((AIGD1_i*delTemp),(-AIGD_i),1.0e-6,(AIGD1_i*d_delTemp_dTemp_t_GND),0.0,0.0);
+AIGD_t = (AIGD_i+evaluator_hypmax_0.getValues((AIGD1_i*delTemp),(-AIGD_i),1.0e-6));
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3);
 
-d_BGIDL_t_dTemp_t_GND = (BGIDL_i*AnalogFunctions::d_hypsmooth(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3,(TGIDL_i*d_delTemp_dTemp_t_GND),0.0));
-BGIDL_t = (BGIDL_i*AnalogFunctions::hypsmooth<double>(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3));
+d_BGIDL_t_dTemp_t_GND = (BGIDL_i*evaluator_hypsmooth_0.getDerivs(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3,(TGIDL_i*d_delTemp_dTemp_t_GND),0.0));
+BGIDL_t = (BGIDL_i*evaluator_hypsmooth_0.getValues(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3));
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3);
 
-d_BGISL_t_dTemp_t_GND = (BGISL_i*AnalogFunctions::d_hypsmooth(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3,(TGIDL_i*d_delTemp_dTemp_t_GND),0.0));
-BGISL_t = (BGISL_i*AnalogFunctions::hypsmooth<double>(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3));
+d_BGISL_t_dTemp_t_GND = (BGISL_i*evaluator_hypsmooth_0.getDerivs(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3,(TGIDL_i*d_delTemp_dTemp_t_GND),0.0));
+BGISL_t = (BGISL_i*evaluator_hypsmooth_0.getValues(((1.0+(TGIDL_i*delTemp))-1.0e-6),1.0e-3));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0(((model_.ALPHA01)*delTemp),(-ALPHA0_i),1.0e-6);
 
-d_ALPHA0_t_dTemp_t_GND = AnalogFunctions::d_hypmax(((model_.ALPHA01)*delTemp),(-ALPHA0_i),1.0e-6,((model_.ALPHA01)*d_delTemp_dTemp_t_GND),0.0,0.0);
-ALPHA0_t = (ALPHA0_i+AnalogFunctions::hypmax<double>(((model_.ALPHA01)*delTemp),(-ALPHA0_i),1.0e-6));
+d_ALPHA0_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs(((model_.ALPHA01)*delTemp),(-ALPHA0_i),1.0e-6,((model_.ALPHA01)*d_delTemp_dTemp_t_GND),0.0,0.0);
+ALPHA0_t = (ALPHA0_i+evaluator_hypmax_0.getValues(((model_.ALPHA01)*delTemp),(-ALPHA0_i),1.0e-6));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0(((model_.ALPHA11)*delTemp),(-ALPHA1_i),1.0e-6);
 
-d_ALPHA1_t_dTemp_t_GND = AnalogFunctions::d_hypmax(((model_.ALPHA11)*delTemp),(-ALPHA1_i),1.0e-6,((model_.ALPHA11)*d_delTemp_dTemp_t_GND),0.0,0.0);
-ALPHA1_t = (ALPHA1_i+AnalogFunctions::hypmax<double>(((model_.ALPHA11)*delTemp),(-ALPHA1_i),1.0e-6));
+d_ALPHA1_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs(((model_.ALPHA11)*delTemp),(-ALPHA1_i),1.0e-6,((model_.ALPHA11)*d_delTemp_dTemp_t_GND),0.0,0.0);
+ALPHA1_t = (ALPHA1_i+evaluator_hypmax_0.getValues(((model_.ALPHA11)*delTemp),(-ALPHA1_i),1.0e-6));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0(((model_.ALPHAII01)*delTemp),(-ALPHAII0_i),1.0e-25);
 
-d_ALPHAII0_t_dTemp_t_GND = AnalogFunctions::d_hypmax(((model_.ALPHAII01)*delTemp),(-ALPHAII0_i),1.0e-25,((model_.ALPHAII01)*d_delTemp_dTemp_t_GND),0.0,0.0);
-ALPHAII0_t = (ALPHAII0_i+AnalogFunctions::hypmax<double>(((model_.ALPHAII01)*delTemp),(-ALPHAII0_i),1.0e-25));
+d_ALPHAII0_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs(((model_.ALPHAII01)*delTemp),(-ALPHAII0_i),1.0e-25,((model_.ALPHAII01)*d_delTemp_dTemp_t_GND),0.0,0.0);
+ALPHAII0_t = (ALPHAII0_i+evaluator_hypmax_0.getValues(((model_.ALPHAII01)*delTemp),(-ALPHAII0_i),1.0e-25));
+}
+{
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_0(((model_.ALPHAII11)*delTemp),(-ALPHAII1_i),1.0e-20);
 
-d_ALPHAII1_t_dTemp_t_GND = AnalogFunctions::d_hypmax(((model_.ALPHAII11)*delTemp),(-ALPHAII1_i),1.0e-20,((model_.ALPHAII11)*d_delTemp_dTemp_t_GND),0.0,0.0);
-ALPHAII1_t = (ALPHAII1_i+AnalogFunctions::hypmax<double>(((model_.ALPHAII11)*delTemp),(-ALPHAII1_i),1.0e-20));
+d_ALPHAII1_t_dTemp_t_GND = evaluator_hypmax_0.getDerivs(((model_.ALPHAII11)*delTemp),(-ALPHAII1_i),1.0e-20,((model_.ALPHAII11)*d_delTemp_dTemp_t_GND),0.0,0.0);
+ALPHAII1_t = (ALPHAII1_i+evaluator_hypmax_0.getValues(((model_.ALPHAII11)*delTemp),(-ALPHAII1_i),1.0e-20));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(TRatio);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1((IGT_i*evaluator_lln_0.getValues(TRatio)));
 
-d_igtemp_dTemp_t_GND = AnalogFunctions::d_lexp((IGT_i*AnalogFunctions::lln<double>(TRatio)),(IGT_i*AnalogFunctions::d_lln(TRatio,d_TRatio_dTemp_t_GND)));
-igtemp = AnalogFunctions::lexp<double>((IGT_i*AnalogFunctions::lln<double>(TRatio)));
+d_igtemp_dTemp_t_GND = evaluator_lexp_1.getDerivs((IGT_i*evaluator_lln_0.getValues(TRatio)),(IGT_i*evaluator_lln_0.getDerivs(TRatio,d_TRatio_dTemp_t_GND)));
+igtemp = evaluator_lexp_1.getValues((IGT_i*evaluator_lln_0.getValues(TRatio)));
+}
 
 d_igsd_mult_dTemp_t_GND = (igsd_mult0*d_igtemp_dTemp_t_GND);
 igsd_mult = (igsd_mult0*igtemp);
 if (((model_.BULKMOD)!=0))
 {
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.CJS),(model_.TCJ),delTemp,(model_.TEMPMOD));
 
-d_CJS_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.CJS),(model_.TCJ),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-CJS_t = AnalogFunctions::Tempdep<double>((model_.CJS),(model_.TCJ),delTemp,(model_.TEMPMOD));
+d_CJS_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.CJS),(model_.TCJ),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+CJS_t = evaluator_Tempdep_0.getValues((model_.CJS),(model_.TCJ),delTemp,(model_.TEMPMOD));
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.CJD),(model_.TCJ),delTemp,(model_.TEMPMOD));
 
-d_CJD_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.CJD),(model_.TCJ),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-CJD_t = AnalogFunctions::Tempdep<double>((model_.CJD),(model_.TCJ),delTemp,(model_.TEMPMOD));
+d_CJD_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.CJD),(model_.TCJ),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+CJD_t = evaluator_Tempdep_0.getValues((model_.CJD),(model_.TCJ),delTemp,(model_.TEMPMOD));
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.CJSWS),(model_.TCJSW),delTemp,(model_.TEMPMOD));
 
-d_CJSWS_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.CJSWS),(model_.TCJSW),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-CJSWS_t = AnalogFunctions::Tempdep<double>((model_.CJSWS),(model_.TCJSW),delTemp,(model_.TEMPMOD));
+d_CJSWS_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.CJSWS),(model_.TCJSW),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+CJSWS_t = evaluator_Tempdep_0.getValues((model_.CJSWS),(model_.TCJSW),delTemp,(model_.TEMPMOD));
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.CJSWD),(model_.TCJSW),delTemp,(model_.TEMPMOD));
 
-d_CJSWD_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.CJSWD),(model_.TCJSW),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-CJSWD_t = AnalogFunctions::Tempdep<double>((model_.CJSWD),(model_.TCJSW),delTemp,(model_.TEMPMOD));
+d_CJSWD_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.CJSWD),(model_.TCJSW),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+CJSWD_t = evaluator_Tempdep_0.getValues((model_.CJSWD),(model_.TCJSW),delTemp,(model_.TEMPMOD));
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.CJSWGS),(model_.TCJSWG),delTemp,(model_.TEMPMOD));
 
-d_CJSWGS_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.CJSWGS),(model_.TCJSWG),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-CJSWGS_t = AnalogFunctions::Tempdep<double>((model_.CJSWGS),(model_.TCJSWG),delTemp,(model_.TEMPMOD));
+d_CJSWGS_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.CJSWGS),(model_.TCJSWG),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+CJSWGS_t = evaluator_Tempdep_0.getValues((model_.CJSWGS),(model_.TCJSWG),delTemp,(model_.TEMPMOD));
+}
+{
+AnalogFunctions::TempdepEvaluator evaluator_Tempdep_0((model_.CJSWGD),(model_.TCJSWG),delTemp,(model_.TEMPMOD));
 
-d_CJSWGD_t_dTemp_t_GND = AnalogFunctions::d_Tempdep((model_.CJSWGD),(model_.TCJSWG),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
-CJSWGD_t = AnalogFunctions::Tempdep<double>((model_.CJSWGD),(model_.TCJSWG),delTemp,(model_.TEMPMOD));
+d_CJSWGD_t_dTemp_t_GND = evaluator_Tempdep_0.getDerivs((model_.CJSWGD),(model_.TCJSWG),delTemp,(model_.TEMPMOD),0.0,0.0,d_delTemp_dTemp_t_GND,0.0);
+CJSWGD_t = evaluator_Tempdep_0.getValues((model_.CJSWGD),(model_.TCJSWG),delTemp,(model_.TEMPMOD));
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.PBS)-((model_.TPB)*delTemp))-0.01),1.0e-3);
 
-d_PBS_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.PBS)-((model_.TPB)*delTemp))-0.01),1.0e-3,(-((model_.TPB)*d_delTemp_dTemp_t_GND)),0.0);
-PBS_t = (AnalogFunctions::hypsmooth<double>((((model_.PBS)-((model_.TPB)*delTemp))-0.01),1.0e-3)+0.01);
+d_PBS_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.PBS)-((model_.TPB)*delTemp))-0.01),1.0e-3,(-((model_.TPB)*d_delTemp_dTemp_t_GND)),0.0);
+PBS_t = (evaluator_hypsmooth_0.getValues((((model_.PBS)-((model_.TPB)*delTemp))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.PBD)-((model_.TPB)*delTemp))-0.01),1.0e-3);
 
-d_PBD_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.PBD)-((model_.TPB)*delTemp))-0.01),1.0e-3,(-((model_.TPB)*d_delTemp_dTemp_t_GND)),0.0);
-PBD_t = (AnalogFunctions::hypsmooth<double>((((model_.PBD)-((model_.TPB)*delTemp))-0.01),1.0e-3)+0.01);
+d_PBD_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.PBD)-((model_.TPB)*delTemp))-0.01),1.0e-3,(-((model_.TPB)*d_delTemp_dTemp_t_GND)),0.0);
+PBD_t = (evaluator_hypsmooth_0.getValues((((model_.PBD)-((model_.TPB)*delTemp))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.PBSWS)-((model_.TPBSW)*delTemp))-0.01),1.0e-3);
 
-d_PBSWS_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.PBSWS)-((model_.TPBSW)*delTemp))-0.01),1.0e-3,(-((model_.TPBSW)*d_delTemp_dTemp_t_GND)),0.0);
-PBSWS_t = (AnalogFunctions::hypsmooth<double>((((model_.PBSWS)-((model_.TPBSW)*delTemp))-0.01),1.0e-3)+0.01);
+d_PBSWS_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.PBSWS)-((model_.TPBSW)*delTemp))-0.01),1.0e-3,(-((model_.TPBSW)*d_delTemp_dTemp_t_GND)),0.0);
+PBSWS_t = (evaluator_hypsmooth_0.getValues((((model_.PBSWS)-((model_.TPBSW)*delTemp))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.PBSWD)-((model_.TPBSW)*delTemp))-0.01),1.0e-3);
 
-d_PBSWD_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.PBSWD)-((model_.TPBSW)*delTemp))-0.01),1.0e-3,(-((model_.TPBSW)*d_delTemp_dTemp_t_GND)),0.0);
-PBSWD_t = (AnalogFunctions::hypsmooth<double>((((model_.PBSWD)-((model_.TPBSW)*delTemp))-0.01),1.0e-3)+0.01);
+d_PBSWD_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.PBSWD)-((model_.TPBSW)*delTemp))-0.01),1.0e-3,(-((model_.TPBSW)*d_delTemp_dTemp_t_GND)),0.0);
+PBSWD_t = (evaluator_hypsmooth_0.getValues((((model_.PBSWD)-((model_.TPBSW)*delTemp))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.PBSWGS)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3);
 
-d_PBSWGS_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.PBSWGS)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3,(-((model_.TPBSWG)*d_delTemp_dTemp_t_GND)),0.0);
-PBSWGS_t = (AnalogFunctions::hypsmooth<double>((((model_.PBSWGS)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3)+0.01);
+d_PBSWGS_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.PBSWGS)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3,(-((model_.TPBSWG)*d_delTemp_dTemp_t_GND)),0.0);
+PBSWGS_t = (evaluator_hypsmooth_0.getValues((((model_.PBSWGS)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.PBSWGD)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3);
 
-d_PBSWGD_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.PBSWGD)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3,(-((model_.TPBSWG)*d_delTemp_dTemp_t_GND)),0.0);
-PBSWGD_t = (AnalogFunctions::hypsmooth<double>((((model_.PBSWGD)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3)+0.01);
+d_PBSWGD_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.PBSWGD)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3,(-((model_.TPBSWG)*d_delTemp_dTemp_t_GND)),0.0);
+PBSWGD_t = (evaluator_hypsmooth_0.getValues((((model_.PBSWGD)-((model_.TPBSWG)*delTemp))-0.01),1.0e-3)+0.01);
+}
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0.0;
 d_T0_dTemp_t_GND = (-((Vtm*d_Eg_dTemp_t_GND-Eg*d_Vtm_dTemp_t_GND)/Vtm/Vtm));
 T0 = ((Eg0/Vtm0)-(Eg/Vtm));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(TRatio);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_ge_si = d_T1_dV_di_si =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lln(TRatio,d_TRatio_dTemp_t_GND);
-T1 = AnalogFunctions::lln<double>(TRatio);
+d_T1_dTemp_t_GND = evaluator_lln_0.getDerivs(TRatio,d_TRatio_dTemp_t_GND);
+T1 = evaluator_lln_0.getValues(TRatio);
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0+((model_.XTIS)*T1))/(model_.NJS)));
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di = d_T3_dV_ge_e = d_T3_dV_di_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_ge_si =  0.0;
-d_T3_dTemp_t_GND = AnalogFunctions::d_lexp(((T0+((model_.XTIS)*T1))/(model_.NJS)),((d_T0_dTemp_t_GND+((model_.XTIS)*d_T1_dTemp_t_GND))/(model_.NJS)));
-T3 = AnalogFunctions::lexp<double>(((T0+((model_.XTIS)*T1))/(model_.NJS)));
+d_T3_dTemp_t_GND = evaluator_lexp_0.getDerivs(((T0+((model_.XTIS)*T1))/(model_.NJS)),((d_T0_dTemp_t_GND+((model_.XTIS)*d_T1_dTemp_t_GND))/(model_.NJS)));
+T3 = evaluator_lexp_0.getValues(((T0+((model_.XTIS)*T1))/(model_.NJS)));
+}
 
 d_JSS_t_dTemp_t_GND = ((model_.JSS)*d_T3_dTemp_t_GND);
 JSS_t = ((model_.JSS)*T3);
@@ -15182,10 +15759,13 @@ JSWS_t = ((model_.JSWS)*T3);
 
 d_JSWGS_t_dTemp_t_GND = ((model_.JSWGS)*d_T3_dTemp_t_GND);
 JSWGS_t = ((model_.JSWGS)*T3);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0+((model_.XTID)*T1))/(model_.NJD)));
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di = d_T3_dV_ge_e = d_T3_dV_di_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_ge_si =  0.0;
-d_T3_dTemp_t_GND = AnalogFunctions::d_lexp(((T0+((model_.XTID)*T1))/(model_.NJD)),((d_T0_dTemp_t_GND+((model_.XTID)*d_T1_dTemp_t_GND))/(model_.NJD)));
-T3 = AnalogFunctions::lexp<double>(((T0+((model_.XTID)*T1))/(model_.NJD)));
+d_T3_dTemp_t_GND = evaluator_lexp_0.getDerivs(((T0+((model_.XTID)*T1))/(model_.NJD)),((d_T0_dTemp_t_GND+((model_.XTID)*d_T1_dTemp_t_GND))/(model_.NJD)));
+T3 = evaluator_lexp_0.getValues(((T0+((model_.XTID)*T1))/(model_.NJD)));
+}
 
 d_JSD_t_dTemp_t_GND = ((model_.JSD)*d_T3_dTemp_t_GND);
 JSD_t = ((model_.JSD)*T3);
@@ -15195,62 +15775,104 @@ JSWD_t = ((model_.JSWD)*T3);
 
 d_JSWGD_t_dTemp_t_GND = ((model_.JSWGD)*d_T3_dTemp_t_GND);
 JSWGD_t = ((model_.JSWGD)*T3);
-
-d_JTSS_t_dTemp_t_GND = ((model_.JTSS)*AnalogFunctions::d_lexp((((Eg0*(model_.XTSS))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSS))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSS))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
-JTSS_t = ((model_.JTSS)*AnalogFunctions::lexp<double>((((Eg0*(model_.XTSS))*(TRatio-1.0))/Vtm)));
-
-d_JTSD_t_dTemp_t_GND = ((model_.JTSD)*AnalogFunctions::d_lexp((((Eg0*(model_.XTSD))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSD))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSD))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
-JTSD_t = ((model_.JTSD)*AnalogFunctions::lexp<double>((((Eg0*(model_.XTSD))*(TRatio-1.0))/Vtm)));
-
-d_JTSSWS_t_dTemp_t_GND = ((model_.JTSSWS)*AnalogFunctions::d_lexp((((Eg0*(model_.XTSSWS))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSSWS))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSSWS))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
-JTSSWS_t = ((model_.JTSSWS)*AnalogFunctions::lexp<double>((((Eg0*(model_.XTSSWS))*(TRatio-1.0))/Vtm)));
-
-d_JTSSWD_t_dTemp_t_GND = ((model_.JTSSWD)*AnalogFunctions::d_lexp((((Eg0*(model_.XTSSWD))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSSWD))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSSWD))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
-JTSSWD_t = ((model_.JTSSWD)*AnalogFunctions::lexp<double>((((Eg0*(model_.XTSSWD))*(TRatio-1.0))/Vtm)));
 {
-double value_sqrt_0 = sqrt(((model_.JTWEFF)/Weff0));
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((((Eg0*(model_.XTSS))*(TRatio-1.0))/Vtm));
 
-d_JTSSWGS_t_dTemp_t_GND = (((model_.JTSSWGS)*(value_sqrt_0+1.0))*AnalogFunctions::d_lexp((((Eg0*(model_.XTSSWGS))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSSWGS))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSSWGS))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
-JTSSWGS_t = (((model_.JTSSWGS)*(value_sqrt_0+1.0))*AnalogFunctions::lexp<double>((((Eg0*(model_.XTSSWGS))*(TRatio-1.0))/Vtm)));
+d_JTSS_t_dTemp_t_GND = ((model_.JTSS)*evaluator_lexp_0.getDerivs((((Eg0*(model_.XTSS))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSS))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSS))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
+JTSS_t = ((model_.JTSS)*evaluator_lexp_0.getValues((((Eg0*(model_.XTSS))*(TRatio-1.0))/Vtm)));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((((Eg0*(model_.XTSD))*(TRatio-1.0))/Vtm));
+
+d_JTSD_t_dTemp_t_GND = ((model_.JTSD)*evaluator_lexp_0.getDerivs((((Eg0*(model_.XTSD))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSD))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSD))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
+JTSD_t = ((model_.JTSD)*evaluator_lexp_0.getValues((((Eg0*(model_.XTSD))*(TRatio-1.0))/Vtm)));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((((Eg0*(model_.XTSSWS))*(TRatio-1.0))/Vtm));
+
+d_JTSSWS_t_dTemp_t_GND = ((model_.JTSSWS)*evaluator_lexp_0.getDerivs((((Eg0*(model_.XTSSWS))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSSWS))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSSWS))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
+JTSSWS_t = ((model_.JTSSWS)*evaluator_lexp_0.getValues((((Eg0*(model_.XTSSWS))*(TRatio-1.0))/Vtm)));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((((Eg0*(model_.XTSSWD))*(TRatio-1.0))/Vtm));
+
+d_JTSSWD_t_dTemp_t_GND = ((model_.JTSSWD)*evaluator_lexp_0.getDerivs((((Eg0*(model_.XTSSWD))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSSWD))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSSWD))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
+JTSSWD_t = ((model_.JTSSWD)*evaluator_lexp_0.getValues((((Eg0*(model_.XTSSWD))*(TRatio-1.0))/Vtm)));
 }
 {
 double value_sqrt_0 = sqrt(((model_.JTWEFF)/Weff0));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1((((Eg0*(model_.XTSSWGS))*(TRatio-1.0))/Vtm));
 
-d_JTSSWGD_t_dTemp_t_GND = (((model_.JTSSWGD)*(value_sqrt_0+1.0))*AnalogFunctions::d_lexp((((Eg0*(model_.XTSSWGD))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSSWGD))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSSWGD))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
-JTSSWGD_t = (((model_.JTSSWGD)*(value_sqrt_0+1.0))*AnalogFunctions::lexp<double>((((Eg0*(model_.XTSSWGD))*(TRatio-1.0))/Vtm)));
+d_JTSSWGS_t_dTemp_t_GND = (((model_.JTSSWGS)*(value_sqrt_0+1.0))*evaluator_lexp_1.getDerivs((((Eg0*(model_.XTSSWGS))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSSWGS))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSSWGS))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
+JTSSWGS_t = (((model_.JTSSWGS)*(value_sqrt_0+1.0))*evaluator_lexp_1.getValues((((Eg0*(model_.XTSSWGS))*(TRatio-1.0))/Vtm)));
 }
+{
+double value_sqrt_0 = sqrt(((model_.JTWEFF)/Weff0));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1((((Eg0*(model_.XTSSWGD))*(TRatio-1.0))/Vtm));
 
-d_NJTS_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.NJTS)*(1.0+((model_.TNJTS)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTS)*((model_.TNJTS)*d_TRatio_dTemp_t_GND)),0.0);
-NJTS_t = (AnalogFunctions::hypsmooth<double>((((model_.NJTS)*(1.0+((model_.TNJTS)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+d_JTSSWGD_t_dTemp_t_GND = (((model_.JTSSWGD)*(value_sqrt_0+1.0))*evaluator_lexp_1.getDerivs((((Eg0*(model_.XTSSWGD))*(TRatio-1.0))/Vtm),((Vtm*((Eg0*(model_.XTSSWGD))*d_TRatio_dTemp_t_GND)-((Eg0*(model_.XTSSWGD))*(TRatio-1.0))*d_Vtm_dTemp_t_GND)/Vtm/Vtm)));
+JTSSWGD_t = (((model_.JTSSWGD)*(value_sqrt_0+1.0))*evaluator_lexp_1.getValues((((Eg0*(model_.XTSSWGD))*(TRatio-1.0))/Vtm)));
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.NJTS)*(1.0+((model_.TNJTS)*(TRatio-1.0))))-0.01),1.0e-3);
 
-d_NJTSD_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.NJTSD)*(1.0+((model_.TNJTSD)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSD)*((model_.TNJTSD)*d_TRatio_dTemp_t_GND)),0.0);
-NJTSD_t = (AnalogFunctions::hypsmooth<double>((((model_.NJTSD)*(1.0+((model_.TNJTSD)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+d_NJTS_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.NJTS)*(1.0+((model_.TNJTS)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTS)*((model_.TNJTS)*d_TRatio_dTemp_t_GND)),0.0);
+NJTS_t = (evaluator_hypsmooth_0.getValues((((model_.NJTS)*(1.0+((model_.TNJTS)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.NJTSD)*(1.0+((model_.TNJTSD)*(TRatio-1.0))))-0.01),1.0e-3);
 
-d_NJTSSW_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.NJTSSW)*(1.0+((model_.TNJTSSW)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSSW)*((model_.TNJTSSW)*d_TRatio_dTemp_t_GND)),0.0);
-NJTSSW_t = (AnalogFunctions::hypsmooth<double>((((model_.NJTSSW)*(1.0+((model_.TNJTSSW)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+d_NJTSD_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.NJTSD)*(1.0+((model_.TNJTSD)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSD)*((model_.TNJTSD)*d_TRatio_dTemp_t_GND)),0.0);
+NJTSD_t = (evaluator_hypsmooth_0.getValues((((model_.NJTSD)*(1.0+((model_.TNJTSD)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.NJTSSW)*(1.0+((model_.TNJTSSW)*(TRatio-1.0))))-0.01),1.0e-3);
 
-d_NJTSSWD_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.NJTSSWD)*(1.0+((model_.TNJTSSWD)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSSWD)*((model_.TNJTSSWD)*d_TRatio_dTemp_t_GND)),0.0);
-NJTSSWD_t = (AnalogFunctions::hypsmooth<double>((((model_.NJTSSWD)*(1.0+((model_.TNJTSSWD)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+d_NJTSSW_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.NJTSSW)*(1.0+((model_.TNJTSSW)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSSW)*((model_.TNJTSSW)*d_TRatio_dTemp_t_GND)),0.0);
+NJTSSW_t = (evaluator_hypsmooth_0.getValues((((model_.NJTSSW)*(1.0+((model_.TNJTSSW)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.NJTSSWD)*(1.0+((model_.TNJTSSWD)*(TRatio-1.0))))-0.01),1.0e-3);
 
-d_NJTSSWG_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.NJTSSWG)*(1.0+((model_.TNJTSSWG)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSSWG)*((model_.TNJTSSWG)*d_TRatio_dTemp_t_GND)),0.0);
-NJTSSWG_t = (AnalogFunctions::hypsmooth<double>((((model_.NJTSSWG)*(1.0+((model_.TNJTSSWG)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+d_NJTSSWD_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.NJTSSWD)*(1.0+((model_.TNJTSSWD)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSSWD)*((model_.TNJTSSWD)*d_TRatio_dTemp_t_GND)),0.0);
+NJTSSWD_t = (evaluator_hypsmooth_0.getValues((((model_.NJTSSWD)*(1.0+((model_.TNJTSSWD)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.NJTSSWG)*(1.0+((model_.TNJTSSWG)*(TRatio-1.0))))-0.01),1.0e-3);
 
-d_NJTSSWGD_t_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.NJTSSWGD)*(1.0+((model_.TNJTSSWGD)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSSWGD)*((model_.TNJTSSWGD)*d_TRatio_dTemp_t_GND)),0.0);
-NJTSSWGD_t = (AnalogFunctions::hypsmooth<double>((((model_.NJTSSWGD)*(1.0+((model_.TNJTSSWGD)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+d_NJTSSWG_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.NJTSSWG)*(1.0+((model_.TNJTSSWG)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSSWG)*((model_.TNJTSSWG)*d_TRatio_dTemp_t_GND)),0.0);
+NJTSSWG_t = (evaluator_hypsmooth_0.getValues((((model_.NJTSSWG)*(1.0+((model_.TNJTSSWG)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+}
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.NJTSSWGD)*(1.0+((model_.TNJTSSWGD)*(TRatio-1.0))))-0.01),1.0e-3);
+
+d_NJTSSWGD_t_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.NJTSSWGD)*(1.0+((model_.TNJTSSWGD)*(TRatio-1.0))))-0.01),1.0e-3,((model_.NJTSSWGD)*((model_.TNJTSSWGD)*d_TRatio_dTemp_t_GND)),0.0);
+NJTSSWGD_t = (evaluator_hypsmooth_0.getValues((((model_.NJTSSWGD)*(1.0+((model_.TNJTSSWGD)*(TRatio-1.0))))-0.01),1.0e-3)+0.01);
+}
 }
 if ((!(model_.given("VFBSD"))))
 {
 if (((model_.NGATE)>0.0))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((model_.NGATE)/ni));
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_1(((0.5*Eg)-(Vtm*evaluator_lln_0.getValues(((model_.NGATE)/ni)))),1.0e-4);
+AnalogFunctions::llnEvaluator evaluator_lln_2(((model_.NSD)/ni));
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_3(((0.5*Eg)-(Vtm*evaluator_lln_2.getValues(((model_.NSD)/ni)))),1.0e-4);
 
-d_vfbsd_dTemp_t_GND = (devsign*(AnalogFunctions::d_hypsmooth(((0.5*Eg)-(Vtm*AnalogFunctions::lln<double>(((model_.NGATE)/ni)))),1.0e-4,((0.5*d_Eg_dTemp_t_GND)-((Vtm*AnalogFunctions::d_lln(((model_.NGATE)/ni),(-(model_.NGATE)*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*AnalogFunctions::lln<double>(((model_.NGATE)/ni))))),0.0)-((0.5*d_Eg_dTemp_t_GND)-(devsign*((0.5*d_Eg_dTemp_t_GND)-AnalogFunctions::d_hypsmooth(((0.5*Eg)-(Vtm*AnalogFunctions::lln<double>(((model_.NSD)/ni)))),1.0e-4,((0.5*d_Eg_dTemp_t_GND)-((Vtm*AnalogFunctions::d_lln(((model_.NSD)/ni),(-(model_.NSD)*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*AnalogFunctions::lln<double>(((model_.NSD)/ni))))),0.0))))));
-vfbsd = (devsign*(AnalogFunctions::hypsmooth<double>(((0.5*Eg)-(Vtm*AnalogFunctions::lln<double>(((model_.NGATE)/ni)))),1.0e-4)-((0.5*Eg)-(devsign*((0.5*Eg)-AnalogFunctions::hypsmooth<double>(((0.5*Eg)-(Vtm*AnalogFunctions::lln<double>(((model_.NSD)/ni)))),1.0e-4))))));
+d_vfbsd_dTemp_t_GND = (devsign*(evaluator_hypsmooth_1.getDerivs(((0.5*Eg)-(Vtm*evaluator_lln_0.getValues(((model_.NGATE)/ni)))),1.0e-4,((0.5*d_Eg_dTemp_t_GND)-((Vtm*evaluator_lln_0.getDerivs(((model_.NGATE)/ni),(-(model_.NGATE)*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*evaluator_lln_0.getValues(((model_.NGATE)/ni))))),0.0)-((0.5*d_Eg_dTemp_t_GND)-(devsign*((0.5*d_Eg_dTemp_t_GND)-evaluator_hypsmooth_3.getDerivs(((0.5*Eg)-(Vtm*evaluator_lln_2.getValues(((model_.NSD)/ni)))),1.0e-4,((0.5*d_Eg_dTemp_t_GND)-((Vtm*evaluator_lln_2.getDerivs(((model_.NSD)/ni),(-(model_.NSD)*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*evaluator_lln_2.getValues(((model_.NSD)/ni))))),0.0))))));
+vfbsd = (devsign*(evaluator_hypsmooth_1.getValues(((0.5*Eg)-(Vtm*evaluator_lln_0.getValues(((model_.NGATE)/ni)))),1.0e-4)-((0.5*Eg)-(devsign*((0.5*Eg)-evaluator_hypsmooth_3.getValues(((0.5*Eg)-(Vtm*evaluator_lln_2.getValues(((model_.NSD)/ni)))),1.0e-4))))));
+}
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((model_.NSD)/ni));
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_1(((0.5*Eg)-(Vtm*evaluator_lln_0.getValues(((model_.NSD)/ni)))),1.0e-4);
 
-d_vfbsd_dTemp_t_GND = (devsign*(-((0.5*d_Eg_dTemp_t_GND)-(devsign*((0.5*d_Eg_dTemp_t_GND)-AnalogFunctions::d_hypsmooth(((0.5*Eg)-(Vtm*AnalogFunctions::lln<double>(((model_.NSD)/ni)))),1.0e-4,((0.5*d_Eg_dTemp_t_GND)-((Vtm*AnalogFunctions::d_lln(((model_.NSD)/ni),(-(model_.NSD)*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*AnalogFunctions::lln<double>(((model_.NSD)/ni))))),0.0))))));
-vfbsd = (devsign*(PHIG_i-(((model_.EASUB)+(0.5*Eg))-(devsign*((0.5*Eg)-AnalogFunctions::hypsmooth<double>(((0.5*Eg)-(Vtm*AnalogFunctions::lln<double>(((model_.NSD)/ni)))),1.0e-4))))));
+d_vfbsd_dTemp_t_GND = (devsign*(-((0.5*d_Eg_dTemp_t_GND)-(devsign*((0.5*d_Eg_dTemp_t_GND)-evaluator_hypsmooth_1.getDerivs(((0.5*Eg)-(Vtm*evaluator_lln_0.getValues(((model_.NSD)/ni)))),1.0e-4,((0.5*d_Eg_dTemp_t_GND)-((Vtm*evaluator_lln_0.getDerivs(((model_.NSD)/ni),(-(model_.NSD)*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*evaluator_lln_0.getValues(((model_.NSD)/ni))))),0.0))))));
+vfbsd = (devsign*(PHIG_i-(((model_.EASUB)+(0.5*Eg))-(devsign*((0.5*Eg)-evaluator_hypsmooth_1.getValues(((0.5*Eg)-(Vtm*evaluator_lln_0.getValues(((model_.NSD)/ni)))),1.0e-4))))));
+}
 }
 }
 else
@@ -15273,10 +15895,13 @@ vfbsdcv = (model_.VFBSDCV);
 }
 if ((((model_.SHMOD)!=0)&&((model_.RTH0)>0.0)))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((nbody/ni));
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0.0;
-d_T0_dTemp_t_GND = ((Vtm*AnalogFunctions::d_lln((nbody/ni),(-nbody*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*AnalogFunctions::lln<double>((nbody/ni))));
-T0 = (Vtm*AnalogFunctions::lln<double>((nbody/ni)));
+d_T0_dTemp_t_GND = ((Vtm*evaluator_lln_0.getDerivs((nbody/ni),(-nbody*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*evaluator_lln_0.getValues((nbody/ni))));
+T0 = (Vtm*evaluator_lln_0.getValues((nbody/ni)));
+}
 {
 double value_sqrt_0 = sqrt(((T0*T0)+1.0e-6));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
@@ -15287,16 +15912,22 @@ phib = value_sqrt_0;
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((nbody/ni));
 
-d_phib_dTemp_t_GND = ((Vtm*AnalogFunctions::d_lln((nbody/ni),(-nbody*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*AnalogFunctions::lln<double>((nbody/ni))));
-phib = (Vtm*AnalogFunctions::lln<double>((nbody/ni)));
+d_phib_dTemp_t_GND = ((Vtm*evaluator_lln_0.getDerivs((nbody/ni),(-nbody*d_ni_dTemp_t_GND/ni/ni)))+(d_Vtm_dTemp_t_GND*evaluator_lln_0.getValues((nbody/ni))));
+phib = (Vtm*evaluator_lln_0.getValues((nbody/ni)));
+}
 }
 if ((((model_.SHMOD)!=0)&&((model_.RTH0)>0.0)))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((nbody*(model_.NSD))/(ni*ni)));
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0.0;
-d_T0_dTemp_t_GND = ((Vtm*AnalogFunctions::d_lln(((nbody*(model_.NSD))/(ni*ni)),(-(nbody*(model_.NSD))*((ni*d_ni_dTemp_t_GND)+(d_ni_dTemp_t_GND*ni))/(ni*ni)/(ni*ni))))+(d_Vtm_dTemp_t_GND*AnalogFunctions::lln<double>(((nbody*(model_.NSD))/(ni*ni)))));
-T0 = (Vtm*AnalogFunctions::lln<double>(((nbody*(model_.NSD))/(ni*ni))));
+d_T0_dTemp_t_GND = ((Vtm*evaluator_lln_0.getDerivs(((nbody*(model_.NSD))/(ni*ni)),(-(nbody*(model_.NSD))*((ni*d_ni_dTemp_t_GND)+(d_ni_dTemp_t_GND*ni))/(ni*ni)/(ni*ni))))+(d_Vtm_dTemp_t_GND*evaluator_lln_0.getValues(((nbody*(model_.NSD))/(ni*ni)))));
+T0 = (Vtm*evaluator_lln_0.getValues(((nbody*(model_.NSD))/(ni*ni))));
+}
 {
 double value_sqrt_0 = sqrt(((T0*T0)+1.0e-6));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
@@ -15307,9 +15938,12 @@ vbi = value_sqrt_0;
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((nbody*(model_.NSD))/(ni*ni)));
 
-d_vbi_dTemp_t_GND = ((Vtm*AnalogFunctions::d_lln(((nbody*(model_.NSD))/(ni*ni)),(-(nbody*(model_.NSD))*((ni*d_ni_dTemp_t_GND)+(d_ni_dTemp_t_GND*ni))/(ni*ni)/(ni*ni))))+(d_Vtm_dTemp_t_GND*AnalogFunctions::lln<double>(((nbody*(model_.NSD))/(ni*ni)))));
-vbi = (Vtm*AnalogFunctions::lln<double>(((nbody*(model_.NSD))/(ni*ni))));
+d_vbi_dTemp_t_GND = ((Vtm*evaluator_lln_0.getDerivs(((nbody*(model_.NSD))/(ni*ni)),(-(nbody*(model_.NSD))*((ni*d_ni_dTemp_t_GND)+(d_ni_dTemp_t_GND*ni))/(ni*ni)/(ni*ni))))+(d_Vtm_dTemp_t_GND*evaluator_lln_0.getValues(((nbody*(model_.NSD))/(ni*ni)))));
+vbi = (Vtm*evaluator_lln_0.getValues(((nbody*(model_.NSD))/(ni*ni))));
+}
 }
 
 d_deltaPhi_dTemp_t_GND = (devsign*(-(((model_.TYPE)==1)?0.0:d_Eg_dTemp_t_GND)));
@@ -15335,9 +15969,12 @@ if ((Isbs>0.0))
 
 d_Nvtms_dTemp_t_GND = (d_Vtm_dTemp_t_GND*(model_.NJS));
 Nvtms = (Vtm*(model_.NJS));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-(model_.BVS))/Nvtms));
 
-d_XExpBVS_dTemp_t_GND = (AnalogFunctions::d_lexp(((-(model_.BVS))/Nvtms),(-(-(model_.BVS))*d_Nvtms_dTemp_t_GND/Nvtms/Nvtms))*(model_.XJBVS));
-XExpBVS = (AnalogFunctions::lexp<double>(((-(model_.BVS))/Nvtms))*(model_.XJBVS));
+d_XExpBVS_dTemp_t_GND = (evaluator_lexp_0.getDerivs(((-(model_.BVS))/Nvtms),(-(-(model_.BVS))*d_Nvtms_dTemp_t_GND/Nvtms/Nvtms))*(model_.XJBVS));
+XExpBVS = (evaluator_lexp_0.getValues(((-(model_.BVS))/Nvtms))*(model_.XJBVS));
+}
 {
 double value_max_0 = std::max(((model_.IJTHSFWD)/Isbs),static_cast<double>(10.0));
 double  deriv_max_0_d0 = ((((model_.IJTHSFWD)/Isbs)>=10.0)?1.0:0.0);
@@ -15352,32 +15989,45 @@ d_Tb_dTemp_t_GND = (d_T2_dTemp_t_GND-d_XExpBVS_dTemp_t_GND);
 Tb = ((1.0+T2)-XExpBVS);
 {
 double value_sqrt_0 = sqrt(((Tb*Tb)+(4.0*XExpBVS)));
+AnalogFunctions::llnEvaluator evaluator_lln_1((0.5*(Tb+value_sqrt_0)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_VjsmFwd_dTemp_t_GND = ((Nvtms*AnalogFunctions::d_lln((0.5*(Tb+value_sqrt_0)),(0.5*(d_Tb_dTemp_t_GND+(deriv_sqrt_0_d0*((((Tb*d_Tb_dTemp_t_GND)+(d_Tb_dTemp_t_GND*Tb))+(4.0*d_XExpBVS_dTemp_t_GND))))))))+(d_Nvtms_dTemp_t_GND*AnalogFunctions::lln<double>((0.5*(Tb+value_sqrt_0)))));
-VjsmFwd = (Nvtms*AnalogFunctions::lln<double>((0.5*(Tb+value_sqrt_0))));
+d_VjsmFwd_dTemp_t_GND = ((Nvtms*evaluator_lln_1.getDerivs((0.5*(Tb+value_sqrt_0)),(0.5*(d_Tb_dTemp_t_GND+(deriv_sqrt_0_d0*((((Tb*d_Tb_dTemp_t_GND)+(d_Tb_dTemp_t_GND*Tb))+(4.0*d_XExpBVS_dTemp_t_GND))))))))+(d_Nvtms_dTemp_t_GND*evaluator_lln_1.getValues((0.5*(Tb+value_sqrt_0)))));
+VjsmFwd = (Nvtms*evaluator_lln_1.getValues((0.5*(Tb+value_sqrt_0))));
 }
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((VjsmFwd/Nvtms));
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0.0;
-d_T0_dTemp_t_GND = AnalogFunctions::d_lexp((VjsmFwd/Nvtms),((Nvtms*d_VjsmFwd_dTemp_t_GND-VjsmFwd*d_Nvtms_dTemp_t_GND)/Nvtms/Nvtms));
-T0 = AnalogFunctions::lexp<double>((VjsmFwd/Nvtms));
+d_T0_dTemp_t_GND = evaluator_lexp_0.getDerivs((VjsmFwd/Nvtms),((Nvtms*d_VjsmFwd_dTemp_t_GND-VjsmFwd*d_Nvtms_dTemp_t_GND)/Nvtms/Nvtms));
+T0 = evaluator_lexp_0.getValues((VjsmFwd/Nvtms));
+}
 
 d_IVjsmFwd_dTemp_t_GND = ((Isbs*((d_T0_dTemp_t_GND-((T0*d_XExpBVS_dTemp_t_GND-XExpBVS*d_T0_dTemp_t_GND)/T0/T0))+d_XExpBVS_dTemp_t_GND))+(d_Isbs_dTemp_t_GND*(((T0-(XExpBVS/T0))+XExpBVS)-1.0)));
 IVjsmFwd = (Isbs*(((T0-(XExpBVS/T0))+XExpBVS)-1.0));
 
 d_SslpFwd_dTemp_t_GND = ((Nvtms*((Isbs*(d_T0_dTemp_t_GND+((T0*d_XExpBVS_dTemp_t_GND-XExpBVS*d_T0_dTemp_t_GND)/T0/T0)))+(d_Isbs_dTemp_t_GND*(T0+(XExpBVS/T0))))-(Isbs*(T0+(XExpBVS/T0)))*d_Nvtms_dTemp_t_GND)/Nvtms/Nvtms);
 SslpFwd = ((Isbs*(T0+(XExpBVS/T0)))/Nvtms);
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.IJTHSREV)/Isbs)-10.0),1.0e-3);
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
-d_T2_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.IJTHSREV)/Isbs)-10.0),1.0e-3,(-(model_.IJTHSREV)*d_Isbs_dTemp_t_GND/Isbs/Isbs),0.0);
-T2 = (AnalogFunctions::hypsmooth<double>((((model_.IJTHSREV)/Isbs)-10.0),1.0e-3)+10.0);
+d_T2_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.IJTHSREV)/Isbs)-10.0),1.0e-3,(-(model_.IJTHSREV)*d_Isbs_dTemp_t_GND/Isbs/Isbs),0.0);
+T2 = (evaluator_hypsmooth_0.getValues((((model_.IJTHSREV)/Isbs)-10.0),1.0e-3)+10.0);
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((T2-1.0)/(model_.XJBVS)));
 
-d_VjsmRev_dTemp_t_GND = (-((Nvtms*AnalogFunctions::d_lln(((T2-1.0)/(model_.XJBVS)),(d_T2_dTemp_t_GND/(model_.XJBVS))))+(d_Nvtms_dTemp_t_GND*AnalogFunctions::lln<double>(((T2-1.0)/(model_.XJBVS))))));
-VjsmRev = ((-(model_.BVS))-(Nvtms*AnalogFunctions::lln<double>(((T2-1.0)/(model_.XJBVS)))));
+d_VjsmRev_dTemp_t_GND = (-((Nvtms*evaluator_lln_0.getDerivs(((T2-1.0)/(model_.XJBVS)),(d_T2_dTemp_t_GND/(model_.XJBVS))))+(d_Nvtms_dTemp_t_GND*evaluator_lln_0.getValues(((T2-1.0)/(model_.XJBVS))))));
+VjsmRev = ((-(model_.BVS))-(Nvtms*evaluator_lln_0.getValues(((T2-1.0)/(model_.XJBVS)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-((model_.BVS)+VjsmRev))/Nvtms));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_ge_si = d_T1_dV_di_si =  0.0;
-d_T1_dTemp_t_GND = ((model_.XJBVS)*AnalogFunctions::d_lexp(((-((model_.BVS)+VjsmRev))/Nvtms),((Nvtms*(-d_VjsmRev_dTemp_t_GND)-(-((model_.BVS)+VjsmRev))*d_Nvtms_dTemp_t_GND)/Nvtms/Nvtms)));
-T1 = ((model_.XJBVS)*AnalogFunctions::lexp<double>(((-((model_.BVS)+VjsmRev))/Nvtms)));
+d_T1_dTemp_t_GND = ((model_.XJBVS)*evaluator_lexp_0.getDerivs(((-((model_.BVS)+VjsmRev))/Nvtms),((Nvtms*(-d_VjsmRev_dTemp_t_GND)-(-((model_.BVS)+VjsmRev))*d_Nvtms_dTemp_t_GND)/Nvtms/Nvtms)));
+T1 = ((model_.XJBVS)*evaluator_lexp_0.getValues(((-((model_.BVS)+VjsmRev))/Nvtms)));
+}
 
 d_IVjsmRev_dTemp_t_GND = ((Isbs*d_T1_dTemp_t_GND)+(d_Isbs_dTemp_t_GND*(1.0+T1)));
 IVjsmRev = (Isbs*(1.0+T1));
@@ -15393,9 +16043,12 @@ if ((Isbd>0.0))
 
 d_Nvtmd_dTemp_t_GND = (d_Vtm_dTemp_t_GND*(model_.NJD));
 Nvtmd = (Vtm*(model_.NJD));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-(model_.BVD))/Nvtmd));
 
-d_XExpBVD_dTemp_t_GND = (AnalogFunctions::d_lexp(((-(model_.BVD))/Nvtmd),(-(-(model_.BVD))*d_Nvtmd_dTemp_t_GND/Nvtmd/Nvtmd))*(model_.XJBVD));
-XExpBVD = (AnalogFunctions::lexp<double>(((-(model_.BVD))/Nvtmd))*(model_.XJBVD));
+d_XExpBVD_dTemp_t_GND = (evaluator_lexp_0.getDerivs(((-(model_.BVD))/Nvtmd),(-(-(model_.BVD))*d_Nvtmd_dTemp_t_GND/Nvtmd/Nvtmd))*(model_.XJBVD));
+XExpBVD = (evaluator_lexp_0.getValues(((-(model_.BVD))/Nvtmd))*(model_.XJBVD));
+}
 {
 double value_max_0 = std::max(((model_.IJTHDFWD)/Isbd),static_cast<double>(10.0));
 double  deriv_max_0_d0 = ((((model_.IJTHDFWD)/Isbd)>=10.0)?1.0:0.0);
@@ -15410,32 +16063,45 @@ d_Tb_dTemp_t_GND = (d_T2_dTemp_t_GND-d_XExpBVD_dTemp_t_GND);
 Tb = ((1.0+T2)-XExpBVD);
 {
 double value_sqrt_0 = sqrt(((Tb*Tb)+(4.0*XExpBVD)));
+AnalogFunctions::llnEvaluator evaluator_lln_1((0.5*(Tb+value_sqrt_0)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_VjdmFwd_dTemp_t_GND = ((Nvtmd*AnalogFunctions::d_lln((0.5*(Tb+value_sqrt_0)),(0.5*(d_Tb_dTemp_t_GND+(deriv_sqrt_0_d0*((((Tb*d_Tb_dTemp_t_GND)+(d_Tb_dTemp_t_GND*Tb))+(4.0*d_XExpBVD_dTemp_t_GND))))))))+(d_Nvtmd_dTemp_t_GND*AnalogFunctions::lln<double>((0.5*(Tb+value_sqrt_0)))));
-VjdmFwd = (Nvtmd*AnalogFunctions::lln<double>((0.5*(Tb+value_sqrt_0))));
+d_VjdmFwd_dTemp_t_GND = ((Nvtmd*evaluator_lln_1.getDerivs((0.5*(Tb+value_sqrt_0)),(0.5*(d_Tb_dTemp_t_GND+(deriv_sqrt_0_d0*((((Tb*d_Tb_dTemp_t_GND)+(d_Tb_dTemp_t_GND*Tb))+(4.0*d_XExpBVD_dTemp_t_GND))))))))+(d_Nvtmd_dTemp_t_GND*evaluator_lln_1.getValues((0.5*(Tb+value_sqrt_0)))));
+VjdmFwd = (Nvtmd*evaluator_lln_1.getValues((0.5*(Tb+value_sqrt_0))));
 }
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((VjdmFwd/Nvtmd));
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0.0;
-d_T0_dTemp_t_GND = AnalogFunctions::d_lexp((VjdmFwd/Nvtmd),((Nvtmd*d_VjdmFwd_dTemp_t_GND-VjdmFwd*d_Nvtmd_dTemp_t_GND)/Nvtmd/Nvtmd));
-T0 = AnalogFunctions::lexp<double>((VjdmFwd/Nvtmd));
+d_T0_dTemp_t_GND = evaluator_lexp_0.getDerivs((VjdmFwd/Nvtmd),((Nvtmd*d_VjdmFwd_dTemp_t_GND-VjdmFwd*d_Nvtmd_dTemp_t_GND)/Nvtmd/Nvtmd));
+T0 = evaluator_lexp_0.getValues((VjdmFwd/Nvtmd));
+}
 
 d_IVjdmFwd_dTemp_t_GND = ((Isbd*((d_T0_dTemp_t_GND-((T0*d_XExpBVD_dTemp_t_GND-XExpBVD*d_T0_dTemp_t_GND)/T0/T0))+d_XExpBVD_dTemp_t_GND))+(d_Isbd_dTemp_t_GND*(((T0-(XExpBVD/T0))+XExpBVD)-1.0)));
 IVjdmFwd = (Isbd*(((T0-(XExpBVD/T0))+XExpBVD)-1.0));
 
 d_DslpFwd_dTemp_t_GND = ((Nvtmd*((Isbd*(d_T0_dTemp_t_GND+((T0*d_XExpBVD_dTemp_t_GND-XExpBVD*d_T0_dTemp_t_GND)/T0/T0)))+(d_Isbd_dTemp_t_GND*(T0+(XExpBVD/T0))))-(Isbd*(T0+(XExpBVD/T0)))*d_Nvtmd_dTemp_t_GND)/Nvtmd/Nvtmd);
 DslpFwd = ((Isbd*(T0+(XExpBVD/T0)))/Nvtmd);
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((model_.IJTHDREV)/Isbd)-10.0),1.0e-3);
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
-d_T2_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((model_.IJTHDREV)/Isbd)-10.0),1.0e-3,(-(model_.IJTHDREV)*d_Isbd_dTemp_t_GND/Isbd/Isbd),0.0);
-T2 = (AnalogFunctions::hypsmooth<double>((((model_.IJTHDREV)/Isbd)-10.0),1.0e-3)+10.0);
+d_T2_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((model_.IJTHDREV)/Isbd)-10.0),1.0e-3,(-(model_.IJTHDREV)*d_Isbd_dTemp_t_GND/Isbd/Isbd),0.0);
+T2 = (evaluator_hypsmooth_0.getValues((((model_.IJTHDREV)/Isbd)-10.0),1.0e-3)+10.0);
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((T2-1.0)/(model_.XJBVD)));
 
-d_VjdmRev_dTemp_t_GND = (-((Nvtmd*AnalogFunctions::d_lln(((T2-1.0)/(model_.XJBVD)),(d_T2_dTemp_t_GND/(model_.XJBVD))))+(d_Nvtmd_dTemp_t_GND*AnalogFunctions::lln<double>(((T2-1.0)/(model_.XJBVD))))));
-VjdmRev = ((-(model_.BVD))-(Nvtmd*AnalogFunctions::lln<double>(((T2-1.0)/(model_.XJBVD)))));
+d_VjdmRev_dTemp_t_GND = (-((Nvtmd*evaluator_lln_0.getDerivs(((T2-1.0)/(model_.XJBVD)),(d_T2_dTemp_t_GND/(model_.XJBVD))))+(d_Nvtmd_dTemp_t_GND*evaluator_lln_0.getValues(((T2-1.0)/(model_.XJBVD))))));
+VjdmRev = ((-(model_.BVD))-(Nvtmd*evaluator_lln_0.getValues(((T2-1.0)/(model_.XJBVD)))));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-((model_.BVD)+VjdmRev))/Nvtmd));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_ge_si = d_T1_dV_di_si =  0.0;
-d_T1_dTemp_t_GND = ((model_.XJBVD)*AnalogFunctions::d_lexp(((-((model_.BVD)+VjdmRev))/Nvtmd),((Nvtmd*(-d_VjdmRev_dTemp_t_GND)-(-((model_.BVD)+VjdmRev))*d_Nvtmd_dTemp_t_GND)/Nvtmd/Nvtmd)));
-T1 = ((model_.XJBVD)*AnalogFunctions::lexp<double>(((-((model_.BVD)+VjdmRev))/Nvtmd)));
+d_T1_dTemp_t_GND = ((model_.XJBVD)*evaluator_lexp_0.getDerivs(((-((model_.BVD)+VjdmRev))/Nvtmd),((Nvtmd*(-d_VjdmRev_dTemp_t_GND)-(-((model_.BVD)+VjdmRev))*d_Nvtmd_dTemp_t_GND)/Nvtmd/Nvtmd)));
+T1 = ((model_.XJBVD)*evaluator_lexp_0.getValues(((-((model_.BVD)+VjdmRev))/Nvtmd)));
+}
 
 d_IVjdmRev_dTemp_t_GND = ((Isbd*d_T1_dTemp_t_GND)+(d_Isbd_dTemp_t_GND*(1.0+T1)));
 IVjdmRev = (Isbd*(1.0+T1));
@@ -15470,9 +16136,12 @@ T0 = ((Eg/Vtm)*(TRatio-1.0));
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_ge_si = d_T1_dV_di_si =  0.0;
 d_T1_dTemp_t_GND = (d_T0_dTemp_t_GND/NTGEN_i);
 T1 = (T0/NTGEN_i);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T1);
 
-d_igentemp_dTemp_t_GND = AnalogFunctions::d_lexp(T1,d_T1_dTemp_t_GND);
-igentemp = AnalogFunctions::lexp<double>(T1);
+d_igentemp_dTemp_t_GND = evaluator_lexp_0.getDerivs(T1,d_T1_dTemp_t_GND);
+igentemp = evaluator_lexp_0.getValues(T1);
+}
 }
 // End block CMGTempDepCalc
 
@@ -15843,34 +16512,43 @@ vgsfb = (vgsfb-dvth_all);
 d_beta0_dV_di_si = (((d_u0_a_dV_di_si*cox)*Weff0)/Leff);
 d_beta0_dTemp_t_GND = (((d_u0_a_dTemp_t_GND*cox)*Weff0)/Leff);
 beta0 = (((u0_a*cox)*Weff0)/Leff);
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)));
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si =  0.0;
-d_T0_dV_di_si = (-((nVtm*AnalogFunctions::d_lln((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)),(-((2.0*cox)*(model_.Imin))*(((((beta0*d_nVtm_dV_di_si)+(d_beta0_dV_di_si*nVtm))*1.60219e-19)*Nc)*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))+(d_nVtm_dV_di_si*AnalogFunctions::lln<double>((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))));
-d_T0_dTemp_t_GND = (-(d_dvch_qm_dTemp_t_GND+((nVtm*AnalogFunctions::d_lln((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)),(-((2.0*cox)*(model_.Imin))*(((((beta0*nVtm)*1.60219e-19)*d_Nc_dTemp_t_GND)+((((beta0*d_nVtm_dTemp_t_GND)+(d_beta0_dTemp_t_GND*nVtm))*1.60219e-19)*Nc))*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))+(d_nVtm_dTemp_t_GND*AnalogFunctions::lln<double>((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)))))));
-T0 = (-(dvch_qm+(nVtm*AnalogFunctions::lln<double>((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))));
+d_T0_dV_di_si = (-((nVtm*evaluator_lln_0.getDerivs((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)),(-((2.0*cox)*(model_.Imin))*(((((beta0*d_nVtm_dV_di_si)+(d_beta0_dV_di_si*nVtm))*1.60219e-19)*Nc)*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))+(d_nVtm_dV_di_si*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))));
+d_T0_dTemp_t_GND = (-(d_dvch_qm_dTemp_t_GND+((nVtm*evaluator_lln_0.getDerivs((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)),(-((2.0*cox)*(model_.Imin))*(((((beta0*nVtm)*1.60219e-19)*d_Nc_dTemp_t_GND)+((((beta0*d_nVtm_dTemp_t_GND)+(d_beta0_dTemp_t_GND*nVtm))*1.60219e-19)*Nc))*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))+(d_nVtm_dTemp_t_GND*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)))))));
+T0 = (-(dvch_qm+(nVtm*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))));
+}
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1_dV_e_di =  0.0;
 d_T1_dTemp_t_GND = (d_vgsfb_dTemp_t_GND+d_T0_dTemp_t_GND);
 d_T1_dV_di_si = (d_vgsfb_dV_di_si+d_T0_dV_di_si);
 d_T1_dV_ge_si = (d_vgsfb_dV_ge_si+d_T0_dV_ge_si);
 T1 = ((vgsfb+T0)+(model_.DELVTRAND));
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(T1,1.0e-4);
 
-d_vgsfbeff_dTemp_t_GND = (AnalogFunctions::d_hypsmooth(T1,1.0e-4,d_T1_dTemp_t_GND,0.0)-d_T0_dTemp_t_GND);
-d_vgsfbeff_dV_di_si = (AnalogFunctions::d_hypsmooth(T1,1.0e-4,d_T1_dV_di_si,0.0)-d_T0_dV_di_si);
-d_vgsfbeff_dV_ge_si = (AnalogFunctions::d_hypsmooth(T1,1.0e-4,d_T1_dV_ge_si,0.0)-d_T0_dV_ge_si);
-vgsfbeff = (AnalogFunctions::hypsmooth<double>(T1,1.0e-4)-T0);
+d_vgsfbeff_dTemp_t_GND = (evaluator_hypsmooth_0.getDerivs(T1,1.0e-4,d_T1_dTemp_t_GND,0.0)-d_T0_dTemp_t_GND);
+d_vgsfbeff_dV_di_si = (evaluator_hypsmooth_0.getDerivs(T1,1.0e-4,d_T1_dV_di_si,0.0)-d_T0_dV_di_si);
+d_vgsfbeff_dV_ge_si = (evaluator_hypsmooth_0.getDerivs(T1,1.0e-4,d_T1_dV_ge_si,0.0)-d_T0_dV_ge_si);
+vgsfbeff = (evaluator_hypsmooth_0.getValues(T1,1.0e-4)-T0);
+}
 
 d_vch_dV_di_si = d_vch_dV_e_si = d_vch_dV_e_di = d_vch_dV_ge_si =  0.0;
 d_vch_dTemp_t_GND = (+d_dvch_qm_dTemp_t_GND);
 vch = (+dvch_qm);
 if (((model_.BULKMOD)!=0))
 {
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((2.0*phib)+vch)-ves),0.1);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_ge_si = d_T1_dV_di_si =  0.0;
-d_T1_dV_e_di = AnalogFunctions::d_hypsmooth((((2.0*phib)+vch)-ves),0.1,(d_vch_dV_e_di-d_ves_dV_e_di),0.0);
-d_T1_dV_e_si = AnalogFunctions::d_hypsmooth((((2.0*phib)+vch)-ves),0.1,(d_vch_dV_e_si-d_ves_dV_e_si),0.0);
-d_T1_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((2.0*phib)+vch)-ves),0.1,((2.0*d_phib_dTemp_t_GND)+d_vch_dTemp_t_GND),0.0);
-T1 = AnalogFunctions::hypsmooth<double>((((2.0*phib)+vch)-ves),0.1);
+d_T1_dV_e_di = evaluator_hypsmooth_0.getDerivs((((2.0*phib)+vch)-ves),0.1,(d_vch_dV_e_di-d_ves_dV_e_di),0.0);
+d_T1_dV_e_si = evaluator_hypsmooth_0.getDerivs((((2.0*phib)+vch)-ves),0.1,(d_vch_dV_e_si-d_ves_dV_e_si),0.0);
+d_T1_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((2.0*phib)+vch)-ves),0.1,((2.0*d_phib_dTemp_t_GND)+d_vch_dTemp_t_GND),0.0);
+T1 = evaluator_hypsmooth_0.getValues((((2.0*phib)+vch)-ves),0.1);
+}
 {
 double value_sqrt_0 = sqrt(T1);
 double value_sqrt_1 = sqrt((2.0*phib));
@@ -16383,13 +17061,16 @@ d_Vdsat_dV_di_si = ((Ta*(d_Tb_dV_di_si-(deriv_sqrt_0_d0*((((Tb*d_Tb_dV_di_si)+(d
 Vdsat = ((Tb-value_sqrt_0)/Ta);
 }
 }
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((Vdsat-1.0e-3),1.0e-5);
 
-d_Vdsat_dV_ge_si = AnalogFunctions::d_hypsmooth((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dV_ge_si,0.0);
-d_Vdsat_dV_e_di = AnalogFunctions::d_hypsmooth((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dV_e_di,0.0);
-d_Vdsat_dV_e_si = AnalogFunctions::d_hypsmooth((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dV_e_si,0.0);
-d_Vdsat_dV_di_si = AnalogFunctions::d_hypsmooth((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dV_di_si,0.0);
-d_Vdsat_dTemp_t_GND = AnalogFunctions::d_hypsmooth((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dTemp_t_GND,0.0);
-Vdsat = (AnalogFunctions::hypsmooth<double>((Vdsat-1.0e-3),1.0e-5)+1.0e-3);
+d_Vdsat_dV_ge_si = evaluator_hypsmooth_0.getDerivs((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dV_ge_si,0.0);
+d_Vdsat_dV_e_di = evaluator_hypsmooth_0.getDerivs((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dV_e_di,0.0);
+d_Vdsat_dV_e_si = evaluator_hypsmooth_0.getDerivs((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dV_e_si,0.0);
+d_Vdsat_dV_di_si = evaluator_hypsmooth_0.getDerivs((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dV_di_si,0.0);
+d_Vdsat_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((Vdsat-1.0e-3),1.0e-5,d_Vdsat_dTemp_t_GND,0.0);
+Vdsat = (evaluator_hypsmooth_0.getValues((Vdsat-1.0e-3),1.0e-5)+1.0e-3);
+}
 {
 double value_pow_0 = pow((vds/Vdsat),MEXP_a);
 double  deriv_pow_0_d0 = (((vds/Vdsat) == 0.0)?0.0:(value_pow_0*MEXP_a/(vds/Vdsat)));
@@ -16439,14 +17120,17 @@ d_vch_dV_di_si = d_Vdseff_dV_di_si;
 vch = (Vdseff+dvch_qm);
 if (((model_.BULKMOD)!=0))
 {
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((((2.0*phib)+vch)-ves),0.1);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e =  0.0;
-d_T1_dV_ge_si = AnalogFunctions::d_hypsmooth((((2.0*phib)+vch)-ves),0.1,d_vch_dV_ge_si,0.0);
-d_T1_dV_e_di = AnalogFunctions::d_hypsmooth((((2.0*phib)+vch)-ves),0.1,(d_vch_dV_e_di-d_ves_dV_e_di),0.0);
-d_T1_dV_e_si = AnalogFunctions::d_hypsmooth((((2.0*phib)+vch)-ves),0.1,(d_vch_dV_e_si-d_ves_dV_e_si),0.0);
-d_T1_dV_di_si = AnalogFunctions::d_hypsmooth((((2.0*phib)+vch)-ves),0.1,d_vch_dV_di_si,0.0);
-d_T1_dTemp_t_GND = AnalogFunctions::d_hypsmooth((((2.0*phib)+vch)-ves),0.1,((2.0*d_phib_dTemp_t_GND)+d_vch_dTemp_t_GND),0.0);
-T1 = AnalogFunctions::hypsmooth<double>((((2.0*phib)+vch)-ves),0.1);
+d_T1_dV_ge_si = evaluator_hypsmooth_0.getDerivs((((2.0*phib)+vch)-ves),0.1,d_vch_dV_ge_si,0.0);
+d_T1_dV_e_di = evaluator_hypsmooth_0.getDerivs((((2.0*phib)+vch)-ves),0.1,(d_vch_dV_e_di-d_ves_dV_e_di),0.0);
+d_T1_dV_e_si = evaluator_hypsmooth_0.getDerivs((((2.0*phib)+vch)-ves),0.1,(d_vch_dV_e_si-d_ves_dV_e_si),0.0);
+d_T1_dV_di_si = evaluator_hypsmooth_0.getDerivs((((2.0*phib)+vch)-ves),0.1,d_vch_dV_di_si,0.0);
+d_T1_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((((2.0*phib)+vch)-ves),0.1,((2.0*d_phib_dTemp_t_GND)+d_vch_dTemp_t_GND),0.0);
+T1 = evaluator_hypsmooth_0.getValues((((2.0*phib)+vch)-ves),0.1);
+}
 {
 double value_sqrt_0 = sqrt(T1);
 double value_sqrt_1 = sqrt((2.0*phib));
@@ -17083,13 +17767,16 @@ T0 = (value_pow_0/6.25e-4);
 }
 if (((model_.CHARGEWF)!=0.0))
 {
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T0));
 
-d_qia2_dTemp_t_GND = ((0.5*(d_qis_dTemp_t_GND+d_qid_dTemp_t_GND))+(((((model_.CHARGEWF)*(1.0-AnalogFunctions::lexp<double>((-T0))))*0.5)*d_dqi_dTemp_t_GND)+((((model_.CHARGEWF)*(-AnalogFunctions::d_lexp((-T0),(-d_T0_dTemp_t_GND))))*0.5)*dqi)));
-d_qia2_dV_ge_si = ((0.5*(d_qis_dV_ge_si+d_qid_dV_ge_si))+(((((model_.CHARGEWF)*(1.0-AnalogFunctions::lexp<double>((-T0))))*0.5)*d_dqi_dV_ge_si)+((((model_.CHARGEWF)*(-AnalogFunctions::d_lexp((-T0),(-d_T0_dV_ge_si))))*0.5)*dqi)));
-d_qia2_dV_e_di = ((0.5*(d_qis_dV_e_di+d_qid_dV_e_di))+(((((model_.CHARGEWF)*(1.0-AnalogFunctions::lexp<double>((-T0))))*0.5)*d_dqi_dV_e_di)+((((model_.CHARGEWF)*(-AnalogFunctions::d_lexp((-T0),(-d_T0_dV_e_di))))*0.5)*dqi)));
-d_qia2_dV_e_si = ((0.5*(d_qis_dV_e_si+d_qid_dV_e_si))+(((((model_.CHARGEWF)*(1.0-AnalogFunctions::lexp<double>((-T0))))*0.5)*d_dqi_dV_e_si)+((((model_.CHARGEWF)*(-AnalogFunctions::d_lexp((-T0),(-d_T0_dV_e_si))))*0.5)*dqi)));
-d_qia2_dV_di_si = ((0.5*(d_qis_dV_di_si+d_qid_dV_di_si))+(((((model_.CHARGEWF)*(1.0-AnalogFunctions::lexp<double>((-T0))))*0.5)*d_dqi_dV_di_si)+((((model_.CHARGEWF)*(-AnalogFunctions::d_lexp((-T0),(-d_T0_dV_di_si))))*0.5)*dqi)));
-qia2 = ((0.5*(qis+qid))+((((model_.CHARGEWF)*(1.0-AnalogFunctions::lexp<double>((-T0))))*0.5)*dqi));
+d_qia2_dTemp_t_GND = ((0.5*(d_qis_dTemp_t_GND+d_qid_dTemp_t_GND))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dTemp_t_GND)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dTemp_t_GND))))*0.5)*dqi)));
+d_qia2_dV_ge_si = ((0.5*(d_qis_dV_ge_si+d_qid_dV_ge_si))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_ge_si)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_ge_si))))*0.5)*dqi)));
+d_qia2_dV_e_di = ((0.5*(d_qis_dV_e_di+d_qid_dV_e_di))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_e_di)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_e_di))))*0.5)*dqi)));
+d_qia2_dV_e_si = ((0.5*(d_qis_dV_e_si+d_qid_dV_e_si))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_e_si)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_e_si))))*0.5)*dqi)));
+d_qia2_dV_di_si = ((0.5*(d_qis_dV_di_si+d_qid_dV_di_si))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_di_si)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_di_si))))*0.5)*dqi)));
+qia2 = ((0.5*(qis+qid))+((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*dqi));
+}
 }
 else
 {
@@ -17444,14 +18131,17 @@ d_T1_dTemp_t_GND = (d_PCLM_a_dTemp_t_GND+(PCLMG_i*d_qia_dTemp_t_GND));
 d_T1_dV_di_si = (d_PCLM_a_dV_di_si+(PCLMG_i*d_qia_dV_di_si));
 T1 = (PCLM_a+(PCLMG_i*qia));
 }
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))));
 
-d_Mclm_dTemp_t_GND = ((T1*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dTemp_t_GND)-(vds-Vdseff)*d_T1_dTemp_t_GND)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dTemp_t_GND+d_EsatL_dTemp_t_GND))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dTemp_t_GND*AnalogFunctions::lln<double>((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-d_Mclm_dV_di_si = ((T1*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(d_vds_dV_di_si-d_Vdseff_dV_di_si)-(vds-Vdseff)*d_T1_dV_di_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_di_si+d_EsatL_dV_di_si))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_di_si*AnalogFunctions::lln<double>((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-d_Mclm_dV_ge_si = ((T1*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_ge_si)-(vds-Vdseff)*d_T1_dV_ge_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_ge_si+d_EsatL_dV_ge_si))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_ge_si*AnalogFunctions::lln<double>((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-d_Mclm_dV_e_di = ((T1*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_e_di)-(vds-Vdseff)*d_T1_dV_e_di)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_e_di+d_EsatL_dV_e_di))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_e_di*AnalogFunctions::lln<double>((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-d_Mclm_dV_e_si = ((T1*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_e_si)-(vds-Vdseff)*d_T1_dV_e_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_e_si+d_EsatL_dV_e_si))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_e_si*AnalogFunctions::lln<double>((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-d_Mclm_dV_ge_e = ((T1*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),((-(vds-Vdseff)*d_T1_dV_ge_e/T1/T1)/(Vdsat+EsatL))))+(d_T1_dV_ge_e*AnalogFunctions::lln<double>((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-Mclm = (1.0+(T1*AnalogFunctions::lln<double>((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
+d_Mclm_dTemp_t_GND = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dTemp_t_GND)-(vds-Vdseff)*d_T1_dTemp_t_GND)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dTemp_t_GND+d_EsatL_dTemp_t_GND))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dTemp_t_GND*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
+d_Mclm_dV_di_si = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(d_vds_dV_di_si-d_Vdseff_dV_di_si)-(vds-Vdseff)*d_T1_dV_di_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_di_si+d_EsatL_dV_di_si))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_di_si*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
+d_Mclm_dV_ge_si = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_ge_si)-(vds-Vdseff)*d_T1_dV_ge_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_ge_si+d_EsatL_dV_ge_si))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_ge_si*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
+d_Mclm_dV_e_di = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_e_di)-(vds-Vdseff)*d_T1_dV_e_di)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_e_di+d_EsatL_dV_e_di))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_e_di*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
+d_Mclm_dV_e_si = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_e_si)-(vds-Vdseff)*d_T1_dV_e_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_e_si+d_EsatL_dV_e_si))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_e_si*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
+d_Mclm_dV_ge_e = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),((-(vds-Vdseff)*d_T1_dV_ge_e/T1/T1)/(Vdsat+EsatL))))+(d_T1_dV_ge_e*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
+Mclm = (1.0+(T1*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
+}
 }
 else
 {
@@ -17483,26 +18173,38 @@ d_Esat1L_dV_ge_e = (d_Esat1_dV_ge_e*Leff);
 d_Esat1L_dV_di_si = (d_Esat1_dV_di_si*Leff);
 d_Esat1L_dTemp_t_GND = (d_Esat1_dTemp_t_GND*Leff);
 Esat1L = (Esat1*Leff);
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((dqi/Esat1L));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))));
 
 d_T0_dV_ge_di =  0.0;
-d_T0_dV_ge_e = AnalogFunctions::d_lexp((PSAT_i*AnalogFunctions::lln<double>((dqi/Esat1L))),(PSAT_i*AnalogFunctions::d_lln((dqi/Esat1L),(-dqi*d_Esat1L_dV_ge_e/Esat1L/Esat1L))));
-d_T0_dTemp_t_GND = AnalogFunctions::d_lexp((PSAT_i*AnalogFunctions::lln<double>((dqi/Esat1L))),(PSAT_i*AnalogFunctions::d_lln((dqi/Esat1L),((Esat1L*d_dqi_dTemp_t_GND-dqi*d_Esat1L_dTemp_t_GND)/Esat1L/Esat1L))));
-d_T0_dV_ge_si = AnalogFunctions::d_lexp((PSAT_i*AnalogFunctions::lln<double>((dqi/Esat1L))),(PSAT_i*AnalogFunctions::d_lln((dqi/Esat1L),((Esat1L*d_dqi_dV_ge_si-dqi*d_Esat1L_dV_ge_si)/Esat1L/Esat1L))));
-d_T0_dV_e_di = AnalogFunctions::d_lexp((PSAT_i*AnalogFunctions::lln<double>((dqi/Esat1L))),(PSAT_i*AnalogFunctions::d_lln((dqi/Esat1L),((Esat1L*d_dqi_dV_e_di-dqi*d_Esat1L_dV_e_di)/Esat1L/Esat1L))));
-d_T0_dV_e_si = AnalogFunctions::d_lexp((PSAT_i*AnalogFunctions::lln<double>((dqi/Esat1L))),(PSAT_i*AnalogFunctions::d_lln((dqi/Esat1L),((Esat1L*d_dqi_dV_e_si-dqi*d_Esat1L_dV_e_si)/Esat1L/Esat1L))));
-d_T0_dV_di_si = AnalogFunctions::d_lexp((PSAT_i*AnalogFunctions::lln<double>((dqi/Esat1L))),(PSAT_i*AnalogFunctions::d_lln((dqi/Esat1L),((Esat1L*d_dqi_dV_di_si-dqi*d_Esat1L_dV_di_si)/Esat1L/Esat1L))));
-T0 = AnalogFunctions::lexp<double>((PSAT_i*AnalogFunctions::lln<double>((dqi/Esat1L))));
+d_T0_dV_ge_e = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),(-dqi*d_Esat1L_dV_ge_e/Esat1L/Esat1L))));
+d_T0_dTemp_t_GND = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dTemp_t_GND-dqi*d_Esat1L_dTemp_t_GND)/Esat1L/Esat1L))));
+d_T0_dV_ge_si = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_ge_si-dqi*d_Esat1L_dV_ge_si)/Esat1L/Esat1L))));
+d_T0_dV_e_di = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_e_di-dqi*d_Esat1L_dV_e_di)/Esat1L/Esat1L))));
+d_T0_dV_e_si = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_e_si-dqi*d_Esat1L_dV_e_si)/Esat1L/Esat1L))));
+d_T0_dV_di_si = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_di_si-dqi*d_Esat1L_dV_di_si)/Esat1L/Esat1L))));
+T0 = evaluator_lexp_1.getValues((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(DELTAVSAT_i);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/PSAT_i)*evaluator_lln_0.getValues(DELTAVSAT_i)));
 
 d_Ta_dV_e_si = d_Ta_dV_e_di = d_Ta_dV_ge_si = d_Ta_dV_di_si = d_Ta_dTemp_t_GND =  0.0;
-Ta = (1.0+AnalogFunctions::lexp<double>(((1.0/PSAT_i)*AnalogFunctions::lln<double>(DELTAVSAT_i))));
+Ta = (1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues(DELTAVSAT_i))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((DELTAVSAT_i+T0));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))));
 
-d_Dvsat_dTemp_t_GND = ((Ta*AnalogFunctions::d_lexp(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0))),((1.0/PSAT_i)*AnalogFunctions::d_lln((DELTAVSAT_i+T0),d_T0_dTemp_t_GND)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0)))))*d_Ta_dTemp_t_GND)/Ta/Ta);
-d_Dvsat_dV_di_si = ((Ta*AnalogFunctions::d_lexp(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0))),((1.0/PSAT_i)*AnalogFunctions::d_lln((DELTAVSAT_i+T0),d_T0_dV_di_si)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0)))))*d_Ta_dV_di_si)/Ta/Ta);
-d_Dvsat_dV_ge_si = ((Ta*AnalogFunctions::d_lexp(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0))),((1.0/PSAT_i)*AnalogFunctions::d_lln((DELTAVSAT_i+T0),d_T0_dV_ge_si)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0)))))*d_Ta_dV_ge_si)/Ta/Ta);
-d_Dvsat_dV_e_di = ((Ta*AnalogFunctions::d_lexp(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0))),((1.0/PSAT_i)*AnalogFunctions::d_lln((DELTAVSAT_i+T0),d_T0_dV_e_di)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0)))))*d_Ta_dV_e_di)/Ta/Ta);
-d_Dvsat_dV_e_si = ((Ta*AnalogFunctions::d_lexp(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0))),((1.0/PSAT_i)*AnalogFunctions::d_lln((DELTAVSAT_i+T0),d_T0_dV_e_si)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0)))))*d_Ta_dV_e_si)/Ta/Ta);
-d_Dvsat_dV_ge_e = (AnalogFunctions::d_lexp(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0))),((1.0/PSAT_i)*AnalogFunctions::d_lln((DELTAVSAT_i+T0),d_T0_dV_ge_e)))/Ta);
-Dvsat = ((1.0+AnalogFunctions::lexp<double>(((1.0/PSAT_i)*AnalogFunctions::lln<double>((DELTAVSAT_i+T0)))))/Ta);
+d_Dvsat_dTemp_t_GND = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dTemp_t_GND)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dTemp_t_GND)/Ta/Ta);
+d_Dvsat_dV_di_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_di_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_di_si)/Ta/Ta);
+d_Dvsat_dV_ge_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_ge_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_ge_si)/Ta/Ta);
+d_Dvsat_dV_e_di = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_e_di)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_e_di)/Ta/Ta);
+d_Dvsat_dV_e_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_e_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_e_si)/Ta/Ta);
+d_Dvsat_dV_ge_e = (evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_ge_e)))/Ta);
+Dvsat = ((1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))/Ta);
+}
 
 d_Dvsat_dTemp_t_GND = (d_Dvsat_dTemp_t_GND+(((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dTemp_t_GND)+(((((0.5*PTWG_a)*qia)*d_dqi_dTemp_t_GND)+((((0.5*PTWG_a)*d_qia_dTemp_t_GND)+((0.5*d_PTWG_a_dTemp_t_GND)*qia))*dqi))*dqi)));
 d_Dvsat_dV_di_si = (d_Dvsat_dV_di_si+(((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_di_si)+(((((0.5*PTWG_a)*qia)*d_dqi_dV_di_si)+((((0.5*PTWG_a)*d_qia_dV_di_si)+((0.5*d_PTWG_a_dV_di_si)*qia))*dqi))*dqi)));
@@ -17583,14 +18285,17 @@ d_T1_dV_di_si = (-K0_t*((value_max_0*d_qia_dV_di_si)+(2.0*d_nVtm_dV_di_si))/((va
 d_T1_dTemp_t_GND = ((((value_max_0*qia)+(2.0*nVtm))*d_K0_t_dTemp_t_GND-K0_t*((value_max_0*d_qia_dTemp_t_GND)+(2.0*d_nVtm_dTemp_t_GND)))/((value_max_0*qia)+(2.0*nVtm))/((value_max_0*qia)+(2.0*nVtm)));
 T1 = (K0_t/((value_max_0*qia)+(2.0*nVtm)));
 }
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T1));
 
-d_Mnud_dTemp_t_GND = AnalogFunctions::d_lexp((-T1),(-d_T1_dTemp_t_GND));
-d_Mnud_dV_di_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_di_si));
-d_Mnud_dV_ge_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_si));
-d_Mnud_dV_e_di = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_e_di));
-d_Mnud_dV_e_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_e_si));
-d_Mnud_dV_ge_e = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_e));
-Mnud = AnalogFunctions::lexp<double>((-T1));
+d_Mnud_dTemp_t_GND = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dTemp_t_GND));
+d_Mnud_dV_di_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_di_si));
+d_Mnud_dV_ge_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_si));
+d_Mnud_dV_e_di = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_e_di));
+d_Mnud_dV_e_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_e_si));
+d_Mnud_dV_ge_e = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_e));
+Mnud = evaluator_lexp_0.getValues((-T1));
+}
 }
 else
 {
@@ -17600,11 +18305,14 @@ Mnud = 1.0;
 }
 if (((model_.BULKMOD)==2))
 {
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((K2_t+(K2SAT_t*vdsx)),1.0e-6);
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_ge_si =  0.0;
-d_T0_dV_di_si = AnalogFunctions::d_hypsmooth((K2_t+(K2SAT_t*vdsx)),1.0e-6,(K2SAT_t*d_vdsx_dV_di_si),0.0);
-d_T0_dTemp_t_GND = AnalogFunctions::d_hypsmooth((K2_t+(K2SAT_t*vdsx)),1.0e-6,(d_K2_t_dTemp_t_GND+(d_K2SAT_t_dTemp_t_GND*vdsx)),0.0);
-T0 = AnalogFunctions::hypsmooth<double>((K2_t+(K2SAT_t*vdsx)),1.0e-6);
+d_T0_dV_di_si = evaluator_hypsmooth_0.getDerivs((K2_t+(K2SAT_t*vdsx)),1.0e-6,(K2SAT_t*d_vdsx_dV_di_si),0.0);
+d_T0_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((K2_t+(K2SAT_t*vdsx)),1.0e-6,(d_K2_t_dTemp_t_GND+(d_K2SAT_t_dTemp_t_GND*vdsx)),0.0);
+T0 = evaluator_hypsmooth_0.getValues((K2_t+(K2SAT_t*vdsx)),1.0e-6);
+}
 {
 double value_max_0 = std::max(static_cast<double>(0),(K2SI_t+((K2SISAT_t*dqi)*dqi)));
 double  deriv_max_0_d1 = ((0>=(K2SI_t+((K2SISAT_t*dqi)*dqi)))?0.0:1.0);
@@ -17630,14 +18338,17 @@ d_T3_dV_e_di = (deriv_sqrt_0_d0*((-d_veseff_dV_e_di)));
 d_T3_dV_e_si = (deriv_sqrt_0_d0*((-d_veseff_dV_e_si)));
 T3 = (value_sqrt_0-value_sqrt_1);
 }
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-T1)*T3));
 
-d_Mob_dTemp_t_GND = AnalogFunctions::d_lexp(((-T1)*T3),(((-T1)*d_T3_dTemp_t_GND)+((-d_T1_dTemp_t_GND)*T3)));
-d_Mob_dV_di_si = AnalogFunctions::d_lexp(((-T1)*T3),(((-T1)*d_T3_dV_di_si)+((-d_T1_dV_di_si)*T3)));
-d_Mob_dV_ge_si = AnalogFunctions::d_lexp(((-T1)*T3),(((-T1)*d_T3_dV_ge_si)+((-d_T1_dV_ge_si)*T3)));
-d_Mob_dV_e_di = AnalogFunctions::d_lexp(((-T1)*T3),(((-T1)*d_T3_dV_e_di)+((-d_T1_dV_e_di)*T3)));
-d_Mob_dV_e_si = AnalogFunctions::d_lexp(((-T1)*T3),(((-T1)*d_T3_dV_e_si)+((-d_T1_dV_e_si)*T3)));
-d_Mob_dV_ge_e = AnalogFunctions::d_lexp(((-T1)*T3),(((-T1)*d_T3_dV_ge_e)+((-d_T1_dV_ge_e)*T3)));
-Mob = AnalogFunctions::lexp<double>(((-T1)*T3));
+d_Mob_dTemp_t_GND = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dTemp_t_GND)+((-d_T1_dTemp_t_GND)*T3)));
+d_Mob_dV_di_si = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_di_si)+((-d_T1_dV_di_si)*T3)));
+d_Mob_dV_ge_si = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_ge_si)+((-d_T1_dV_ge_si)*T3)));
+d_Mob_dV_e_di = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_e_di)+((-d_T1_dV_e_di)*T3)));
+d_Mob_dV_e_si = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_e_si)+((-d_T1_dV_e_si)*T3)));
+d_Mob_dV_ge_e = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_ge_e)+((-d_T1_dV_ge_e)*T3)));
+Mob = evaluator_lexp_0.getValues(((-T1)*T3));
+}
 }
 else
 {
@@ -17661,36 +18372,51 @@ d_EsatCVL_dV_di_si = (d_EsatCV_dV_di_si*LeffCV);
 d_EsatCVL_dV_ge_e = (d_EsatCV_dV_ge_e*LeffCV);
 d_EsatCVL_dTemp_t_GND = (d_EsatCV_dTemp_t_GND*LeffCV);
 EsatCVL = (EsatCV*LeffCV);
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((dqi/EsatCVL));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))));
 
 d_T0_dV_ge_di =  0.0;
-d_T0_dV_ge_e = AnalogFunctions::d_lexp((PSATCV_i*AnalogFunctions::lln<double>((dqi/EsatCVL))),(PSATCV_i*AnalogFunctions::d_lln((dqi/EsatCVL),(-dqi*d_EsatCVL_dV_ge_e/EsatCVL/EsatCVL))));
-d_T0_dTemp_t_GND = AnalogFunctions::d_lexp((PSATCV_i*AnalogFunctions::lln<double>((dqi/EsatCVL))),(PSATCV_i*AnalogFunctions::d_lln((dqi/EsatCVL),((EsatCVL*d_dqi_dTemp_t_GND-dqi*d_EsatCVL_dTemp_t_GND)/EsatCVL/EsatCVL))));
-d_T0_dV_ge_si = AnalogFunctions::d_lexp((PSATCV_i*AnalogFunctions::lln<double>((dqi/EsatCVL))),(PSATCV_i*AnalogFunctions::d_lln((dqi/EsatCVL),((EsatCVL*d_dqi_dV_ge_si-dqi*d_EsatCVL_dV_ge_si)/EsatCVL/EsatCVL))));
-d_T0_dV_e_di = AnalogFunctions::d_lexp((PSATCV_i*AnalogFunctions::lln<double>((dqi/EsatCVL))),(PSATCV_i*AnalogFunctions::d_lln((dqi/EsatCVL),((EsatCVL*d_dqi_dV_e_di-dqi*d_EsatCVL_dV_e_di)/EsatCVL/EsatCVL))));
-d_T0_dV_e_si = AnalogFunctions::d_lexp((PSATCV_i*AnalogFunctions::lln<double>((dqi/EsatCVL))),(PSATCV_i*AnalogFunctions::d_lln((dqi/EsatCVL),((EsatCVL*d_dqi_dV_e_si-dqi*d_EsatCVL_dV_e_si)/EsatCVL/EsatCVL))));
-d_T0_dV_di_si = AnalogFunctions::d_lexp((PSATCV_i*AnalogFunctions::lln<double>((dqi/EsatCVL))),(PSATCV_i*AnalogFunctions::d_lln((dqi/EsatCVL),((EsatCVL*d_dqi_dV_di_si-dqi*d_EsatCVL_dV_di_si)/EsatCVL/EsatCVL))));
-T0 = AnalogFunctions::lexp<double>((PSATCV_i*AnalogFunctions::lln<double>((dqi/EsatCVL))));
+d_T0_dV_ge_e = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),(-dqi*d_EsatCVL_dV_ge_e/EsatCVL/EsatCVL))));
+d_T0_dTemp_t_GND = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dTemp_t_GND-dqi*d_EsatCVL_dTemp_t_GND)/EsatCVL/EsatCVL))));
+d_T0_dV_ge_si = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_ge_si-dqi*d_EsatCVL_dV_ge_si)/EsatCVL/EsatCVL))));
+d_T0_dV_e_di = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_e_di-dqi*d_EsatCVL_dV_e_di)/EsatCVL/EsatCVL))));
+d_T0_dV_e_si = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_e_si-dqi*d_EsatCVL_dV_e_si)/EsatCVL/EsatCVL))));
+d_T0_dV_di_si = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_di_si-dqi*d_EsatCVL_dV_di_si)/EsatCVL/EsatCVL))));
+T0 = evaluator_lexp_1.getValues((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(DELTAVSATCV_i);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/PSATCV_i)*evaluator_lln_0.getValues(DELTAVSATCV_i)));
 
 d_Ta_dV_e_si = d_Ta_dV_e_di = d_Ta_dV_ge_si = d_Ta_dV_di_si = d_Ta_dTemp_t_GND =  0.0;
-Ta = (1.0+AnalogFunctions::lexp<double>(((1.0/PSATCV_i)*AnalogFunctions::lln<double>(DELTAVSATCV_i))));
+Ta = (1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues(DELTAVSATCV_i))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((DELTAVSATCV_i+T0));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))));
 
-d_DvsatCV_dTemp_t_GND = ((Ta*AnalogFunctions::d_lexp(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*AnalogFunctions::d_lln((DELTAVSATCV_i+T0),d_T0_dTemp_t_GND)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0)))))*d_Ta_dTemp_t_GND)/Ta/Ta);
-d_DvsatCV_dV_di_si = ((Ta*AnalogFunctions::d_lexp(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*AnalogFunctions::d_lln((DELTAVSATCV_i+T0),d_T0_dV_di_si)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0)))))*d_Ta_dV_di_si)/Ta/Ta);
-d_DvsatCV_dV_ge_si = ((Ta*AnalogFunctions::d_lexp(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*AnalogFunctions::d_lln((DELTAVSATCV_i+T0),d_T0_dV_ge_si)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0)))))*d_Ta_dV_ge_si)/Ta/Ta);
-d_DvsatCV_dV_e_di = ((Ta*AnalogFunctions::d_lexp(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*AnalogFunctions::d_lln((DELTAVSATCV_i+T0),d_T0_dV_e_di)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0)))))*d_Ta_dV_e_di)/Ta/Ta);
-d_DvsatCV_dV_e_si = ((Ta*AnalogFunctions::d_lexp(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*AnalogFunctions::d_lln((DELTAVSATCV_i+T0),d_T0_dV_e_si)))-(1.0+AnalogFunctions::lexp<double>(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0)))))*d_Ta_dV_e_si)/Ta/Ta);
-d_DvsatCV_dV_ge_e = (AnalogFunctions::d_lexp(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*AnalogFunctions::d_lln((DELTAVSATCV_i+T0),d_T0_dV_ge_e)))/Ta);
-DvsatCV = ((1.0+AnalogFunctions::lexp<double>(((1.0/PSATCV_i)*AnalogFunctions::lln<double>((DELTAVSATCV_i+T0)))))/Ta);
+d_DvsatCV_dTemp_t_GND = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dTemp_t_GND)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dTemp_t_GND)/Ta/Ta);
+d_DvsatCV_dV_di_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_di_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_di_si)/Ta/Ta);
+d_DvsatCV_dV_ge_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_ge_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_ge_si)/Ta/Ta);
+d_DvsatCV_dV_e_di = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_e_di)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_e_di)/Ta/Ta);
+d_DvsatCV_dV_e_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_e_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_e_si)/Ta/Ta);
+d_DvsatCV_dV_ge_e = (evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_ge_e)))/Ta);
+DvsatCV = ((1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))/Ta);
+}
 if ((PCLMCV_i!=0))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))));
 
-d_MclmCV_dV_ge_e = (PCLMCV_i*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(-((vds-Vdseff)/PCLMCV_i)*d_EsatCVL_dV_ge_e/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-d_MclmCV_dTemp_t_GND = (PCLMCV_i*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dTemp_t_GND)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dTemp_t_GND+d_EsatCVL_dTemp_t_GND))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-d_MclmCV_dV_ge_si = (PCLMCV_i*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_ge_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_ge_si+d_EsatCVL_dV_ge_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-d_MclmCV_dV_e_di = (PCLMCV_i*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_e_di)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_e_di+d_EsatCVL_dV_e_di))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-d_MclmCV_dV_e_si = (PCLMCV_i*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_e_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_e_si+d_EsatCVL_dV_e_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-d_MclmCV_dV_di_si = (PCLMCV_i*AnalogFunctions::d_lln((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((d_vds_dV_di_si-d_Vdseff_dV_di_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_di_si+d_EsatCVL_dV_di_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-MclmCV = (1.0+(PCLMCV_i*AnalogFunctions::lln<double>((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))))));
+d_MclmCV_dV_ge_e = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(-((vds-Vdseff)/PCLMCV_i)*d_EsatCVL_dV_ge_e/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
+d_MclmCV_dTemp_t_GND = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dTemp_t_GND)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dTemp_t_GND+d_EsatCVL_dTemp_t_GND))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
+d_MclmCV_dV_ge_si = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_ge_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_ge_si+d_EsatCVL_dV_ge_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
+d_MclmCV_dV_e_di = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_e_di)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_e_di+d_EsatCVL_dV_e_di))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
+d_MclmCV_dV_e_si = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_e_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_e_si+d_EsatCVL_dV_e_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
+d_MclmCV_dV_di_si = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((d_vds_dV_di_si-d_Vdseff_dV_di_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_di_si+d_EsatCVL_dV_di_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
+MclmCV = (1.0+(PCLMCV_i*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))))));
+}
 }
 else
 {
@@ -17804,12 +18530,16 @@ d_T0_dV_e_si = (0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_si)+(d_T1_dV_
 d_T0_dV_ge_e = (0.5*(d_T1_dV_ge_e+(deriv_sqrt_0_d0*(((T1*d_T1_dV_ge_e)+(d_T1_dV_ge_e*T1))))));
 T0 = (0.5*(T1+value_sqrt_0));
 }
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))));
 
 d_T5_dV_ge_di = d_T5_dV_di_d = d_T5_dV_ge_e = d_T5_dV_e_si = d_T5_dV_e_di = d_T5_dV_ge_si =  0.0;
-d_T5_dV_si_s = (RSW_i*(RSDR_a*AnalogFunctions::d_lexp(((0.5*(model_.PRSDR))*AnalogFunctions::lln<double>((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))),((0.5*(model_.PRSDR))*AnalogFunctions::d_lln((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6),(((probeVars[admsProbeID_V_si_s])*d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s])+(d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s]*(probeVars[admsProbeID_V_si_s]))))))));
-d_T5_dV_di_si = (RSW_i*(d_RSDR_a_dV_di_si*AnalogFunctions::lexp<double>(((0.5*(model_.PRSDR))*AnalogFunctions::lln<double>((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))))));
-d_T5_dTemp_t_GND = (RSW_i*(d_RSDR_a_dTemp_t_GND*AnalogFunctions::lexp<double>(((0.5*(model_.PRSDR))*AnalogFunctions::lln<double>((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))))));
-T5 = (RSW_i*(1.0+(RSDR_a*AnalogFunctions::lexp<double>(((0.5*(model_.PRSDR))*AnalogFunctions::lln<double>((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6)))))));
+d_T5_dV_si_s = (RSW_i*(RSDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))),((0.5*(model_.PRSDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6),(((probeVars[admsProbeID_V_si_s])*d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s])+(d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s]*(probeVars[admsProbeID_V_si_s]))))))));
+d_T5_dV_di_si = (RSW_i*(d_RSDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))))));
+d_T5_dTemp_t_GND = (RSW_i*(d_RSDR_a_dTemp_t_GND*evaluator_lexp_1.getValues(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))))));
+T5 = (RSW_i*(1.0+(RSDR_a*evaluator_lexp_1.getValues(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6)))))));
+}
 
 d_Rsource_dV_ge_si = (rdstemp*(((T5*d_T0_dV_ge_si)+(d_T5_dV_ge_si*T0))*WeffWRFactor));
 d_Rsource_dV_e_di = (rdstemp*(((T5*d_T0_dV_e_di)+(d_T5_dV_e_di*T0))*WeffWRFactor));
@@ -17879,12 +18609,16 @@ d_T0_dV_ge_e = (0.5*(d_T1_dV_ge_e+(deriv_sqrt_0_d0*(((T1*d_T1_dV_ge_e)+(d_T1_dV_
 d_T0_dV_ge_di = (0.5*(d_T1_dV_ge_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_ge_di)+(d_T1_dV_ge_di*T1))))));
 T0 = (0.5*(T1+value_sqrt_0));
 }
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))));
 
 d_T5_dV_ge_di = d_T5_dV_si_s = d_T5_dV_ge_e = d_T5_dV_e_si = d_T5_dV_e_di = d_T5_dV_ge_si =  0.0;
-d_T5_dV_di_d = (RDW_i*(RDDR_a*AnalogFunctions::d_lexp(((0.5*(model_.PRDDR))*AnalogFunctions::lln<double>((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))),((0.5*(model_.PRDDR))*AnalogFunctions::d_lln((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6),(((probeVars[admsProbeID_V_di_d])*d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d])+(d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d]*(probeVars[admsProbeID_V_di_d]))))))));
-d_T5_dV_di_si = (RDW_i*(d_RDDR_a_dV_di_si*AnalogFunctions::lexp<double>(((0.5*(model_.PRDDR))*AnalogFunctions::lln<double>((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))))));
-d_T5_dTemp_t_GND = (RDW_i*(d_RDDR_a_dTemp_t_GND*AnalogFunctions::lexp<double>(((0.5*(model_.PRDDR))*AnalogFunctions::lln<double>((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))))));
-T5 = (RDW_i*(1.0+(RDDR_a*AnalogFunctions::lexp<double>(((0.5*(model_.PRDDR))*AnalogFunctions::lln<double>((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6)))))));
+d_T5_dV_di_d = (RDW_i*(RDDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))),((0.5*(model_.PRDDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6),(((probeVars[admsProbeID_V_di_d])*d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d])+(d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d]*(probeVars[admsProbeID_V_di_d]))))))));
+d_T5_dV_di_si = (RDW_i*(d_RDDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))))));
+d_T5_dTemp_t_GND = (RDW_i*(d_RDDR_a_dTemp_t_GND*evaluator_lexp_1.getValues(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))))));
+T5 = (RDW_i*(1.0+(RDDR_a*evaluator_lexp_1.getValues(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6)))))));
+}
 
 d_Rdrain_dV_ge_di = (rdstemp*(((T5*d_T0_dV_ge_di)+(d_T5_dV_ge_di*T0))*WeffWRFactor));
 d_Rdrain_dV_ge_si = (rdstemp*(((T5*d_T0_dV_ge_si)+(d_T5_dV_ge_si*T0))*WeffWRFactor));
@@ -18601,15 +19335,18 @@ d_T1_dV_e_si = (-(-BETA0_t)*d_diffVds_dV_e_si/(diffVds+1.0e-30)/(diffVds+1.0e-30
 d_T1_dV_di_si = (-(-BETA0_t)*d_diffVds_dV_di_si/(diffVds+1.0e-30)/(diffVds+1.0e-30));
 d_T1_dTemp_t_GND = (((diffVds+1.0e-30)*(-d_BETA0_t_dTemp_t_GND)-(-BETA0_t)*d_diffVds_dTemp_t_GND)/(diffVds+1.0e-30)/(diffVds+1.0e-30));
 T1 = ((-BETA0_t)/(diffVds+1.0e-30));
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T1);
 
-d_Iii_dTemp_t_GND = ((((T0*diffVds)*ids)*AnalogFunctions::d_lexp(T1,d_T1_dTemp_t_GND))+((((T0*diffVds)*d_ids_dTemp_t_GND)+(((T0*d_diffVds_dTemp_t_GND)+(d_T0_dTemp_t_GND*diffVds))*ids))*AnalogFunctions::lexp<double>(T1)));
-d_Iii_dV_di_si = ((((T0*diffVds)*ids)*AnalogFunctions::d_lexp(T1,d_T1_dV_di_si))+((((T0*diffVds)*d_ids_dV_di_si)+(((T0*d_diffVds_dV_di_si)+(d_T0_dV_di_si*diffVds))*ids))*AnalogFunctions::lexp<double>(T1)));
-d_Iii_dV_ge_si = ((((T0*diffVds)*ids)*AnalogFunctions::d_lexp(T1,d_T1_dV_ge_si))+((((T0*diffVds)*d_ids_dV_ge_si)+(((T0*d_diffVds_dV_ge_si)+(d_T0_dV_ge_si*diffVds))*ids))*AnalogFunctions::lexp<double>(T1)));
-d_Iii_dV_e_di = ((((T0*diffVds)*ids)*AnalogFunctions::d_lexp(T1,d_T1_dV_e_di))+((((T0*diffVds)*d_ids_dV_e_di)+(((T0*d_diffVds_dV_e_di)+(d_T0_dV_e_di*diffVds))*ids))*AnalogFunctions::lexp<double>(T1)));
-d_Iii_dV_e_si = ((((T0*diffVds)*ids)*AnalogFunctions::d_lexp(T1,d_T1_dV_e_si))+((((T0*diffVds)*d_ids_dV_e_si)+(((T0*d_diffVds_dV_e_si)+(d_T0_dV_e_si*diffVds))*ids))*AnalogFunctions::lexp<double>(T1)));
-d_Iii_dV_ge_e = ((((T0*diffVds)*ids)*AnalogFunctions::d_lexp(T1,d_T1_dV_ge_e))+((((T0*diffVds)*d_ids_dV_ge_e)+((d_T0_dV_ge_e*diffVds)*ids))*AnalogFunctions::lexp<double>(T1)));
-d_Iii_dV_ge_di = ((((T0*diffVds)*ids)*AnalogFunctions::d_lexp(T1,d_T1_dV_ge_di))+((((T0*diffVds)*d_ids_dV_ge_di)+((d_T0_dV_ge_di*diffVds)*ids))*AnalogFunctions::lexp<double>(T1)));
-Iii = (((T0*diffVds)*ids)*AnalogFunctions::lexp<double>(T1));
+d_Iii_dTemp_t_GND = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dTemp_t_GND))+((((T0*diffVds)*d_ids_dTemp_t_GND)+(((T0*d_diffVds_dTemp_t_GND)+(d_T0_dTemp_t_GND*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
+d_Iii_dV_di_si = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_di_si))+((((T0*diffVds)*d_ids_dV_di_si)+(((T0*d_diffVds_dV_di_si)+(d_T0_dV_di_si*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
+d_Iii_dV_ge_si = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_ge_si))+((((T0*diffVds)*d_ids_dV_ge_si)+(((T0*d_diffVds_dV_ge_si)+(d_T0_dV_ge_si*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
+d_Iii_dV_e_di = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_di))+((((T0*diffVds)*d_ids_dV_e_di)+(((T0*d_diffVds_dV_e_di)+(d_T0_dV_e_di*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
+d_Iii_dV_e_si = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_si))+((((T0*diffVds)*d_ids_dV_e_si)+(((T0*d_diffVds_dV_e_si)+(d_T0_dV_e_si*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
+d_Iii_dV_ge_e = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_ge_e))+((((T0*diffVds)*d_ids_dV_ge_e)+((d_T0_dV_ge_e*diffVds)*ids))*evaluator_lexp_0.getValues(T1)));
+d_Iii_dV_ge_di = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_ge_di))+((((T0*diffVds)*d_ids_dV_ge_di)+((d_T0_dV_ge_di*diffVds)*ids))*evaluator_lexp_0.getValues(T1)));
+Iii = (((T0*diffVds)*ids)*evaluator_lexp_0.getValues(T1));
+}
 }
 }
 else
@@ -18640,12 +19377,15 @@ d_T1_dV_ge_e = (((1.0+T0)*(SII0_t*d_T0_dV_ge_e)-(SII0_t*T0)*d_T0_dV_ge_e)/(1.0+T
 d_T1_dV_ge_di = (((1.0+T0)*(SII0_t*d_T0_dV_ge_di)-(SII0_t*T0)*d_T0_dV_ge_di)/(1.0+T0)/(1.0+T0));
 d_T1_dTemp_t_GND = (((1.0+T0)*((SII0_t*d_T0_dTemp_t_GND)+(d_SII0_t_dTemp_t_GND*T0))-(SII0_t*T0)*d_T0_dTemp_t_GND)/(1.0+T0)/(1.0+T0));
 T1 = ((SII0_t*T0)/(1.0+T0));
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1));
 
 d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_e_di =  0.0;
-d_T0_dTemp_t_GND = (-AnalogFunctions::d_hypsmooth((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1),(SII1_i*d_vgsfbeff_dTemp_t_GND),0.0)/(1.0+AnalogFunctions::hypsmooth<double>((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1)))/(1.0+AnalogFunctions::hypsmooth<double>((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1))));
-d_T0_dV_di_si = (-AnalogFunctions::d_hypsmooth((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1),(SII1_i*d_vgsfbeff_dV_di_si),0.0)/(1.0+AnalogFunctions::hypsmooth<double>((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1)))/(1.0+AnalogFunctions::hypsmooth<double>((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1))));
-d_T0_dV_ge_si = (-AnalogFunctions::d_hypsmooth((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1),(SII1_i*d_vgsfbeff_dV_ge_si),0.0)/(1.0+AnalogFunctions::hypsmooth<double>((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1)))/(1.0+AnalogFunctions::hypsmooth<double>((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1))));
-T0 = (1.0/(1.0+AnalogFunctions::hypsmooth<double>((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1))));
+d_T0_dTemp_t_GND = (-evaluator_hypsmooth_0.getDerivs((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1),(SII1_i*d_vgsfbeff_dTemp_t_GND),0.0)/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1)))/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1))));
+d_T0_dV_di_si = (-evaluator_hypsmooth_0.getDerivs((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1),(SII1_i*d_vgsfbeff_dV_di_si),0.0)/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1)))/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1))));
+d_T0_dV_ge_si = (-evaluator_hypsmooth_0.getDerivs((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1),(SII1_i*d_vgsfbeff_dV_ge_si),0.0)/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1)))/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1))));
+T0 = (1.0/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),(model_.IIMOD2CLAMP1))));
+}
 
 d_T3_dV_di_d = d_T3_dV_si_s =  0.0;
 d_T3_dTemp_t_GND = d_T0_dTemp_t_GND;
@@ -18656,16 +19396,19 @@ d_T3_dV_e_si = d_T0_dV_e_si;
 d_T3_dV_ge_e = d_T0_dV_ge_e;
 d_T3_dV_ge_di = d_T0_dV_ge_di;
 T3 = (T0+SII2_i);
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((vgsfbeff*T3),(model_.IIMOD2CLAMP2));
 
 d_T2_dV_di_d = d_T2_dV_si_s =  0.0;
-d_T2_dV_e_di = AnalogFunctions::d_hypsmooth((vgsfbeff*T3),(model_.IIMOD2CLAMP2),(vgsfbeff*d_T3_dV_e_di),0.0);
-d_T2_dV_e_si = AnalogFunctions::d_hypsmooth((vgsfbeff*T3),(model_.IIMOD2CLAMP2),(vgsfbeff*d_T3_dV_e_si),0.0);
-d_T2_dV_ge_e = AnalogFunctions::d_hypsmooth((vgsfbeff*T3),(model_.IIMOD2CLAMP2),(vgsfbeff*d_T3_dV_ge_e),0.0);
-d_T2_dV_ge_di = AnalogFunctions::d_hypsmooth((vgsfbeff*T3),(model_.IIMOD2CLAMP2),(vgsfbeff*d_T3_dV_ge_di),0.0);
-d_T2_dTemp_t_GND = AnalogFunctions::d_hypsmooth((vgsfbeff*T3),(model_.IIMOD2CLAMP2),((vgsfbeff*d_T3_dTemp_t_GND)+(d_vgsfbeff_dTemp_t_GND*T3)),0.0);
-d_T2_dV_di_si = AnalogFunctions::d_hypsmooth((vgsfbeff*T3),(model_.IIMOD2CLAMP2),((vgsfbeff*d_T3_dV_di_si)+(d_vgsfbeff_dV_di_si*T3)),0.0);
-d_T2_dV_ge_si = AnalogFunctions::d_hypsmooth((vgsfbeff*T3),(model_.IIMOD2CLAMP2),((vgsfbeff*d_T3_dV_ge_si)+(d_vgsfbeff_dV_ge_si*T3)),0.0);
-T2 = AnalogFunctions::hypsmooth<double>((vgsfbeff*T3),(model_.IIMOD2CLAMP2));
+d_T2_dV_e_di = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),(model_.IIMOD2CLAMP2),(vgsfbeff*d_T3_dV_e_di),0.0);
+d_T2_dV_e_si = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),(model_.IIMOD2CLAMP2),(vgsfbeff*d_T3_dV_e_si),0.0);
+d_T2_dV_ge_e = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),(model_.IIMOD2CLAMP2),(vgsfbeff*d_T3_dV_ge_e),0.0);
+d_T2_dV_ge_di = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),(model_.IIMOD2CLAMP2),(vgsfbeff*d_T3_dV_ge_di),0.0);
+d_T2_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),(model_.IIMOD2CLAMP2),((vgsfbeff*d_T3_dTemp_t_GND)+(d_vgsfbeff_dTemp_t_GND*T3)),0.0);
+d_T2_dV_di_si = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),(model_.IIMOD2CLAMP2),((vgsfbeff*d_T3_dV_di_si)+(d_vgsfbeff_dV_di_si*T3)),0.0);
+d_T2_dV_ge_si = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),(model_.IIMOD2CLAMP2),((vgsfbeff*d_T3_dV_ge_si)+(d_vgsfbeff_dV_ge_si*T3)),0.0);
+T2 = evaluator_hypsmooth_0.getValues((vgsfbeff*T3),(model_.IIMOD2CLAMP2));
+}
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di = d_T3_dV_ge_e = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_ge_si = d_T3_dTemp_t_GND =  0.0;
 d_T3_dV_di_si = (-(SIID_i*d_vds_dV_di_si)/(1.0+(SIID_i*vds))/(1.0+(SIID_i*vds)));
@@ -18720,15 +19463,19 @@ d_T1_dV_ge_e = (deriv_sqrt_0_d0*(((T0*d_T0_dV_ge_e)+(d_T0_dV_ge_e*T0))));
 d_T1_dV_ge_di = (deriv_sqrt_0_d0*(((T0*d_T0_dV_ge_di)+(d_T0_dV_ge_di*T0))));
 T1 = value_sqrt_0;
 }
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((Vdiff/T1));
+AnalogFunctions::hypmaxEvaluator evaluator_hypmax_1(((-ALPHAII)*evaluator_lexp_0.getValues((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3));
 
-d_Ratio_dV_ge_si = (-AnalogFunctions::d_hypmax(((-ALPHAII)*AnalogFunctions::lexp<double>((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*AnalogFunctions::d_lexp((Vdiff/T1),((T1*d_Vdiff_dV_ge_si-Vdiff*d_T1_dV_ge_si)/T1/T1))),0.0,0.0));
-d_Ratio_dV_e_di = (-AnalogFunctions::d_hypmax(((-ALPHAII)*AnalogFunctions::lexp<double>((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*AnalogFunctions::d_lexp((Vdiff/T1),((T1*d_Vdiff_dV_e_di-Vdiff*d_T1_dV_e_di)/T1/T1))),0.0,0.0));
-d_Ratio_dV_e_si = (-AnalogFunctions::d_hypmax(((-ALPHAII)*AnalogFunctions::lexp<double>((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*AnalogFunctions::d_lexp((Vdiff/T1),((T1*d_Vdiff_dV_e_si-Vdiff*d_T1_dV_e_si)/T1/T1))),0.0,0.0));
-d_Ratio_dV_ge_e = (-AnalogFunctions::d_hypmax(((-ALPHAII)*AnalogFunctions::lexp<double>((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*AnalogFunctions::d_lexp((Vdiff/T1),((T1*d_Vdiff_dV_ge_e-Vdiff*d_T1_dV_ge_e)/T1/T1))),0.0,0.0));
-d_Ratio_dV_ge_di = (-AnalogFunctions::d_hypmax(((-ALPHAII)*AnalogFunctions::lexp<double>((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*AnalogFunctions::d_lexp((Vdiff/T1),((T1*d_Vdiff_dV_ge_di-Vdiff*d_T1_dV_ge_di)/T1/T1))),0.0,0.0));
-d_Ratio_dV_di_si = (-AnalogFunctions::d_hypmax(((-ALPHAII)*AnalogFunctions::lexp<double>((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*AnalogFunctions::d_lexp((Vdiff/T1),((T1*d_Vdiff_dV_di_si-Vdiff*d_T1_dV_di_si)/T1/T1))),0.0,0.0));
-d_Ratio_dTemp_t_GND = (-AnalogFunctions::d_hypmax(((-ALPHAII)*AnalogFunctions::lexp<double>((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),(((-ALPHAII)*AnalogFunctions::d_lexp((Vdiff/T1),((T1*d_Vdiff_dTemp_t_GND-Vdiff*d_T1_dTemp_t_GND)/T1/T1)))+((-d_ALPHAII_dTemp_t_GND)*AnalogFunctions::lexp<double>((Vdiff/T1)))),0.0,0.0));
-Ratio = (-AnalogFunctions::hypmax<double>(((-ALPHAII)*AnalogFunctions::lexp<double>((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3)));
+d_Ratio_dV_ge_si = (-evaluator_hypmax_1.getDerivs(((-ALPHAII)*evaluator_lexp_0.getValues((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_ge_si-Vdiff*d_T1_dV_ge_si)/T1/T1))),0.0,0.0));
+d_Ratio_dV_e_di = (-evaluator_hypmax_1.getDerivs(((-ALPHAII)*evaluator_lexp_0.getValues((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_e_di-Vdiff*d_T1_dV_e_di)/T1/T1))),0.0,0.0));
+d_Ratio_dV_e_si = (-evaluator_hypmax_1.getDerivs(((-ALPHAII)*evaluator_lexp_0.getValues((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_e_si-Vdiff*d_T1_dV_e_si)/T1/T1))),0.0,0.0));
+d_Ratio_dV_ge_e = (-evaluator_hypmax_1.getDerivs(((-ALPHAII)*evaluator_lexp_0.getValues((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_ge_e-Vdiff*d_T1_dV_ge_e)/T1/T1))),0.0,0.0));
+d_Ratio_dV_ge_di = (-evaluator_hypmax_1.getDerivs(((-ALPHAII)*evaluator_lexp_0.getValues((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_ge_di-Vdiff*d_T1_dV_ge_di)/T1/T1))),0.0,0.0));
+d_Ratio_dV_di_si = (-evaluator_hypmax_1.getDerivs(((-ALPHAII)*evaluator_lexp_0.getValues((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),((-ALPHAII)*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_di_si-Vdiff*d_T1_dV_di_si)/T1/T1))),0.0,0.0));
+d_Ratio_dTemp_t_GND = (-evaluator_hypmax_1.getDerivs(((-ALPHAII)*evaluator_lexp_0.getValues((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3),(((-ALPHAII)*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dTemp_t_GND-Vdiff*d_T1_dTemp_t_GND)/T1/T1)))+((-d_ALPHAII_dTemp_t_GND)*evaluator_lexp_0.getValues((Vdiff/T1)))),0.0,0.0));
+Ratio = (-evaluator_hypmax_1.getValues(((-ALPHAII)*evaluator_lexp_0.getValues((Vdiff/T1))),(-10.0),(model_.IIMOD2CLAMP3)));
+}
 
 d_Iii_dV_ge_si = ((Ratio*d_ids_dV_ge_si)+(d_Ratio_dV_ge_si*ids));
 d_Iii_dV_e_di = ((Ratio*d_ids_dV_e_di)+(d_Ratio_dV_e_di*ids));
@@ -18769,15 +19516,19 @@ d_T1_dV_e_di = ((d_qia_dV_e_di/NIGBINV_i)/Vtm);
 d_T1_dV_e_si = ((d_qia_dV_e_si/NIGBINV_i)/Vtm);
 d_T1_dV_di_si = ((d_qia_dV_di_si/NIGBINV_i)/Vtm);
 T1 = (((qia-EIGBINV_i)/NIGBINV_i)/Vtm);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T1);
+AnalogFunctions::llnEvaluator evaluator_lln_1((1.0+evaluator_lexp_0.getValues(T1)));
 
-d_Vaux_Igbinv_dV_di_si = ((NIGBINV_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_di_si)));
-d_Vaux_Igbinv_dV_ge_si = ((NIGBINV_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_ge_si)));
-d_Vaux_Igbinv_dV_e_di = ((NIGBINV_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_e_di)));
-d_Vaux_Igbinv_dV_e_si = ((NIGBINV_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_e_si)));
-d_Vaux_Igbinv_dV_ge_e = ((NIGBINV_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_ge_e)));
-d_Vaux_Igbinv_dV_ge_di = ((NIGBINV_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_ge_di)));
-d_Vaux_Igbinv_dTemp_t_GND = (((NIGBINV_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dTemp_t_GND)))+((NIGBINV_i*d_Vtm_dTemp_t_GND)*AnalogFunctions::lln<double>((1.0+AnalogFunctions::lexp<double>(T1)))));
-Vaux_Igbinv = ((NIGBINV_i*Vtm)*AnalogFunctions::lln<double>((1.0+AnalogFunctions::lexp<double>(T1))));
+d_Vaux_Igbinv_dV_di_si = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_di_si)));
+d_Vaux_Igbinv_dV_ge_si = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_ge_si)));
+d_Vaux_Igbinv_dV_e_di = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_di)));
+d_Vaux_Igbinv_dV_e_si = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_si)));
+d_Vaux_Igbinv_dV_ge_e = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_ge_e)));
+d_Vaux_Igbinv_dV_ge_di = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_ge_di)));
+d_Vaux_Igbinv_dTemp_t_GND = (((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dTemp_t_GND)))+((NIGBINV_i*d_Vtm_dTemp_t_GND)*evaluator_lln_1.getValues((1.0+evaluator_lexp_0.getValues(T1)))));
+Vaux_Igbinv = ((NIGBINV_i*Vtm)*evaluator_lln_1.getValues((1.0+evaluator_lexp_0.getValues(T1))));
+}
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e =  0.0;
 d_T2_dV_ge_si = (-(BIGBINV_i*d_qia_dV_ge_si));
@@ -18803,16 +19554,19 @@ d_T4_dV_ge_si = (((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_ge_si)+((((-9.82222
 d_T4_dV_ge_e = (((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_ge_e)+((((-9.82222e11)*(model_.TOXG))*d_T2_dV_ge_e)*T3));
 d_T4_dV_ge_di = (((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_ge_di)+((((-9.82222e11)*(model_.TOXG))*d_T2_dV_ge_di)*T3));
 T4 = ((((-9.82222e11)*(model_.TOXG))*T2)*T3);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T4);
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dTemp_t_GND = AnalogFunctions::d_lexp(T4,d_T4_dTemp_t_GND);
-d_T5_dV_ge_si = AnalogFunctions::d_lexp(T4,d_T4_dV_ge_si);
-d_T5_dV_e_di = AnalogFunctions::d_lexp(T4,d_T4_dV_e_di);
-d_T5_dV_e_si = AnalogFunctions::d_lexp(T4,d_T4_dV_e_si);
-d_T5_dV_di_si = AnalogFunctions::d_lexp(T4,d_T4_dV_di_si);
-d_T5_dV_ge_e = AnalogFunctions::d_lexp(T4,d_T4_dV_ge_e);
-d_T5_dV_ge_di = AnalogFunctions::d_lexp(T4,d_T4_dV_ge_di);
-T5 = AnalogFunctions::lexp<double>(T4);
+d_T5_dTemp_t_GND = evaluator_lexp_0.getDerivs(T4,d_T4_dTemp_t_GND);
+d_T5_dV_ge_si = evaluator_lexp_0.getDerivs(T4,d_T4_dV_ge_si);
+d_T5_dV_e_di = evaluator_lexp_0.getDerivs(T4,d_T4_dV_e_di);
+d_T5_dV_e_si = evaluator_lexp_0.getDerivs(T4,d_T4_dV_e_si);
+d_T5_dV_di_si = evaluator_lexp_0.getDerivs(T4,d_T4_dV_di_si);
+d_T5_dV_ge_e = evaluator_lexp_0.getDerivs(T4,d_T4_dV_ge_e);
+d_T5_dV_ge_di = evaluator_lexp_0.getDerivs(T4,d_T4_dV_ge_di);
+T5 = evaluator_lexp_0.getValues(T4);
+}
 
 d_T6_dV_ge_di = d_T6_dV_di_d = d_T6_dV_si_s = d_T6_dV_ge_e = d_T6_dV_di_si = d_T6_dTemp_t_GND = d_T6_dV_e_si = d_T6_dV_e_di = d_T6_dV_ge_si =  0.0;
 T6 = 3.75956e-7;
@@ -18856,15 +19610,19 @@ d_T1_dV_e_si = ((d_T0_dV_e_si/NIGBACC_i)/Vtm);
 d_T1_dV_ge_e = ((d_T0_dV_ge_e/NIGBACC_i)/Vtm);
 d_T1_dV_ge_di = ((d_T0_dV_ge_di/NIGBACC_i)/Vtm);
 T1 = ((T0/NIGBACC_i)/Vtm);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T1);
+AnalogFunctions::llnEvaluator evaluator_lln_1((1.0+evaluator_lexp_0.getValues(T1)));
 
-d_Vaux_Igbacc_dV_di_si = ((NIGBACC_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_di_si)));
-d_Vaux_Igbacc_dV_ge_si = ((NIGBACC_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_ge_si)));
-d_Vaux_Igbacc_dV_e_di = ((NIGBACC_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_e_di)));
-d_Vaux_Igbacc_dV_e_si = ((NIGBACC_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_e_si)));
-d_Vaux_Igbacc_dV_ge_e = ((NIGBACC_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_ge_e)));
-d_Vaux_Igbacc_dV_ge_di = ((NIGBACC_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dV_ge_di)));
-d_Vaux_Igbacc_dTemp_t_GND = (((NIGBACC_i*Vtm)*AnalogFunctions::d_lln((1.0+AnalogFunctions::lexp<double>(T1)),AnalogFunctions::d_lexp(T1,d_T1_dTemp_t_GND)))+((NIGBACC_i*d_Vtm_dTemp_t_GND)*AnalogFunctions::lln<double>((1.0+AnalogFunctions::lexp<double>(T1)))));
-Vaux_Igbacc = ((NIGBACC_i*Vtm)*AnalogFunctions::lln<double>((1.0+AnalogFunctions::lexp<double>(T1))));
+d_Vaux_Igbacc_dV_di_si = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_di_si)));
+d_Vaux_Igbacc_dV_ge_si = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_ge_si)));
+d_Vaux_Igbacc_dV_e_di = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_di)));
+d_Vaux_Igbacc_dV_e_si = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_si)));
+d_Vaux_Igbacc_dV_ge_e = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_ge_e)));
+d_Vaux_Igbacc_dV_ge_di = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_ge_di)));
+d_Vaux_Igbacc_dTemp_t_GND = (((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1.0+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dTemp_t_GND)))+((NIGBACC_i*d_Vtm_dTemp_t_GND)*evaluator_lln_1.getValues((1.0+evaluator_lexp_0.getValues(T1)))));
+Vaux_Igbacc = ((NIGBACC_i*Vtm)*evaluator_lln_1.getValues((1.0+evaluator_lexp_0.getValues(T1))));
+}
 if (((model_.BULKMOD)!=0))
 {
 
@@ -18941,16 +19699,19 @@ d_T4_dV_ge_si = (((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_ge_si)+((((-7.45669
 d_T4_dV_ge_e = (((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_ge_e)+((((-7.45669e11)*(model_.TOXG))*d_T2_dV_ge_e)*T3));
 d_T4_dV_ge_di = (((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_ge_di)+((((-7.45669e11)*(model_.TOXG))*d_T2_dV_ge_di)*T3));
 T4 = ((((-7.45669e11)*(model_.TOXG))*T2)*T3);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T4);
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dTemp_t_GND = AnalogFunctions::d_lexp(T4,d_T4_dTemp_t_GND);
-d_T5_dV_ge_si = AnalogFunctions::d_lexp(T4,d_T4_dV_ge_si);
-d_T5_dV_e_di = AnalogFunctions::d_lexp(T4,d_T4_dV_e_di);
-d_T5_dV_e_si = AnalogFunctions::d_lexp(T4,d_T4_dV_e_si);
-d_T5_dV_di_si = AnalogFunctions::d_lexp(T4,d_T4_dV_di_si);
-d_T5_dV_ge_e = AnalogFunctions::d_lexp(T4,d_T4_dV_ge_e);
-d_T5_dV_ge_di = AnalogFunctions::d_lexp(T4,d_T4_dV_ge_di);
-T5 = AnalogFunctions::lexp<double>(T4);
+d_T5_dTemp_t_GND = evaluator_lexp_0.getDerivs(T4,d_T4_dTemp_t_GND);
+d_T5_dV_ge_si = evaluator_lexp_0.getDerivs(T4,d_T4_dV_ge_si);
+d_T5_dV_e_di = evaluator_lexp_0.getDerivs(T4,d_T4_dV_e_di);
+d_T5_dV_e_si = evaluator_lexp_0.getDerivs(T4,d_T4_dV_e_si);
+d_T5_dV_di_si = evaluator_lexp_0.getDerivs(T4,d_T4_dV_di_si);
+d_T5_dV_ge_e = evaluator_lexp_0.getDerivs(T4,d_T4_dV_ge_e);
+d_T5_dV_ge_di = evaluator_lexp_0.getDerivs(T4,d_T4_dV_ge_di);
+T5 = evaluator_lexp_0.getValues(T4);
+}
 
 d_T6_dV_ge_di = d_T6_dV_di_d = d_T6_dV_si_s = d_T6_dV_ge_e = d_T6_dV_di_si = d_T6_dTemp_t_GND = d_T6_dV_e_si = d_T6_dV_e_di = d_T6_dV_ge_si =  0.0;
 T6 = 4.97232e-7;
@@ -19005,15 +19766,18 @@ d_T3_dV_e_si = (((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_e_si)+((((-Bechvb)*(mode
 d_T3_dV_ge_e = (((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_ge_e)+((((-Bechvb)*(model_.TOXG))*d_T1_dV_ge_e)*T2));
 d_T3_dV_ge_di = (((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_ge_di)+((((-Bechvb)*(model_.TOXG))*d_T1_dV_ge_di)*T2));
 T3 = ((((-Bechvb)*(model_.TOXG))*T1)*T2);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T3);
 
-d_T4_dV_ge_e = (qia*AnalogFunctions::d_lexp(T3,d_T3_dV_ge_e));
-d_T4_dV_ge_di = (qia*AnalogFunctions::d_lexp(T3,d_T3_dV_ge_di));
-d_T4_dTemp_t_GND = ((qia*AnalogFunctions::d_lexp(T3,d_T3_dTemp_t_GND))+(d_qia_dTemp_t_GND*AnalogFunctions::lexp<double>(T3)));
-d_T4_dV_ge_si = ((qia*AnalogFunctions::d_lexp(T3,d_T3_dV_ge_si))+(d_qia_dV_ge_si*AnalogFunctions::lexp<double>(T3)));
-d_T4_dV_e_di = ((qia*AnalogFunctions::d_lexp(T3,d_T3_dV_e_di))+(d_qia_dV_e_di*AnalogFunctions::lexp<double>(T3)));
-d_T4_dV_e_si = ((qia*AnalogFunctions::d_lexp(T3,d_T3_dV_e_si))+(d_qia_dV_e_si*AnalogFunctions::lexp<double>(T3)));
-d_T4_dV_di_si = ((qia*AnalogFunctions::d_lexp(T3,d_T3_dV_di_si))+(d_qia_dV_di_si*AnalogFunctions::lexp<double>(T3)));
-T4 = (qia*AnalogFunctions::lexp<double>(T3));
+d_T4_dV_ge_e = (qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_ge_e));
+d_T4_dV_ge_di = (qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_ge_di));
+d_T4_dTemp_t_GND = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dTemp_t_GND))+(d_qia_dTemp_t_GND*evaluator_lexp_0.getValues(T3)));
+d_T4_dV_ge_si = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_ge_si))+(d_qia_dV_ge_si*evaluator_lexp_0.getValues(T3)));
+d_T4_dV_e_di = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_di))+(d_qia_dV_e_di*evaluator_lexp_0.getValues(T3)));
+d_T4_dV_e_si = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_si))+(d_qia_dV_e_si*evaluator_lexp_0.getValues(T3)));
+d_T4_dV_di_si = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_di_si))+(d_qia_dV_di_si*evaluator_lexp_0.getValues(T3)));
+T4 = (qia*evaluator_lexp_0.getValues(T3));
+}
 
 d_T5_dV_ge_di = d_T5_dV_di_d = d_T5_dV_si_s = d_T5_dV_ge_si = d_T5_dTemp_t_GND =  0.0;
 d_T5_dV_e_di = (0.5*d_ved_jct_dV_e_di);
@@ -19051,15 +19815,18 @@ d_T1_dV_e_di = (PIGCD_i*d_Vdseffx_dV_e_di);
 d_T1_dV_e_si = (PIGCD_i*d_Vdseffx_dV_e_si);
 d_T1_dV_di_si = (PIGCD_i*d_Vdseffx_dV_di_si);
 T1 = (PIGCD_i*Vdseffx);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T1));
 
-d_T1_exp_dTemp_t_GND = AnalogFunctions::d_lexp((-T1),(-d_T1_dTemp_t_GND));
-d_T1_exp_dV_di_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_di_si));
-d_T1_exp_dV_ge_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_si));
-d_T1_exp_dV_e_di = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_e_di));
-d_T1_exp_dV_e_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_e_si));
-d_T1_exp_dV_ge_e = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_e));
-d_T1_exp_dV_ge_di = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_di));
-T1_exp = AnalogFunctions::lexp<double>((-T1));
+d_T1_exp_dTemp_t_GND = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dTemp_t_GND));
+d_T1_exp_dV_di_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_di_si));
+d_T1_exp_dV_ge_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_si));
+d_T1_exp_dV_e_di = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_e_di));
+d_T1_exp_dV_e_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_e_si));
+d_T1_exp_dV_ge_e = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_e));
+d_T1_exp_dV_ge_di = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_di));
+T1_exp = evaluator_lexp_0.getValues((-T1));
+}
 
 d_T3_dV_di_d = d_T3_dV_si_s =  0.0;
 d_T3_dTemp_t_GND = (d_T1_dTemp_t_GND+d_T1_exp_dTemp_t_GND);
@@ -19131,16 +19898,19 @@ vgs_eff = value_sqrt_0;
 }
 if (((model_.IGCLAMP)==1))
 {
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6);
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = AnalogFunctions::d_hypsmooth((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_di_si)),0.0);
-d_T1_dV_e_di = AnalogFunctions::d_hypsmooth((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_e_di)),0.0);
-d_T1_dV_e_si = AnalogFunctions::d_hypsmooth((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_e_si)),0.0);
-d_T1_dV_ge_si = AnalogFunctions::d_hypsmooth((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_ge_si)),0.0);
-d_T1_dV_ge_e = AnalogFunctions::d_hypsmooth((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_ge_e)),0.0);
-d_T1_dV_ge_di = AnalogFunctions::d_hypsmooth((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_ge_di)),0.0);
-d_T1_dTemp_t_GND = AnalogFunctions::d_hypsmooth((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(d_AIGS_t_dTemp_t_GND-(BIGS_i*d_vgs_eff_dTemp_t_GND)),0.0);
-T1 = AnalogFunctions::hypsmooth<double>((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6);
+d_T1_dV_di_si = evaluator_hypsmooth_0.getDerivs((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_di_si)),0.0);
+d_T1_dV_e_di = evaluator_hypsmooth_0.getDerivs((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_e_di)),0.0);
+d_T1_dV_e_si = evaluator_hypsmooth_0.getDerivs((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_e_si)),0.0);
+d_T1_dV_ge_si = evaluator_hypsmooth_0.getDerivs((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_ge_si)),0.0);
+d_T1_dV_ge_e = evaluator_hypsmooth_0.getDerivs((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_ge_e)),0.0);
+d_T1_dV_ge_di = evaluator_hypsmooth_0.getDerivs((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(-(BIGS_i*d_vgs_eff_dV_ge_di)),0.0);
+d_T1_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6,(d_AIGS_t_dTemp_t_GND-(BIGS_i*d_vgs_eff_dTemp_t_GND)),0.0);
+T1 = evaluator_hypsmooth_0.getValues((AIGS_t-(BIGS_i*vgs_eff)),1.0e-6);
+}
 if ((CIGS_i<0.01))
 {
 CIGS_i = 0.01;
@@ -19179,15 +19949,18 @@ d_T3_dV_e_si = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_si)+(((((-
 d_T3_dV_ge_e = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_ge_e)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_ge_e)*T2));
 d_T3_dV_ge_di = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_ge_di)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_ge_di)*T2));
 T3 = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*T2);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T3);
 
-d_T4_dTemp_t_GND = AnalogFunctions::d_lexp(T3,d_T3_dTemp_t_GND);
-d_T4_dV_ge_si = AnalogFunctions::d_lexp(T3,d_T3_dV_ge_si);
-d_T4_dV_e_di = AnalogFunctions::d_lexp(T3,d_T3_dV_e_di);
-d_T4_dV_e_si = AnalogFunctions::d_lexp(T3,d_T3_dV_e_si);
-d_T4_dV_di_si = AnalogFunctions::d_lexp(T3,d_T3_dV_di_si);
-d_T4_dV_ge_e = AnalogFunctions::d_lexp(T3,d_T3_dV_ge_e);
-d_T4_dV_ge_di = AnalogFunctions::d_lexp(T3,d_T3_dV_ge_di);
-T4 = AnalogFunctions::lexp<double>(T3);
+d_T4_dTemp_t_GND = evaluator_lexp_0.getDerivs(T3,d_T3_dTemp_t_GND);
+d_T4_dV_ge_si = evaluator_lexp_0.getDerivs(T3,d_T3_dV_ge_si);
+d_T4_dV_e_di = evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_di);
+d_T4_dV_e_si = evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_si);
+d_T4_dV_di_si = evaluator_lexp_0.getDerivs(T3,d_T3_dV_di_si);
+d_T4_dV_ge_e = evaluator_lexp_0.getDerivs(T3,d_T3_dV_ge_e);
+d_T4_dV_ge_di = evaluator_lexp_0.getDerivs(T3,d_T3_dV_ge_di);
+T4 = evaluator_lexp_0.getValues(T3);
+}
 if ((sigvds>0.0))
 {
 
@@ -19232,16 +20005,19 @@ vgd_eff = value_sqrt_0;
 }
 if (((model_.IGCLAMP)==1))
 {
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6);
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = AnalogFunctions::d_hypsmooth((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_di_si)),0.0);
-d_T1_dV_e_di = AnalogFunctions::d_hypsmooth((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_e_di)),0.0);
-d_T1_dV_e_si = AnalogFunctions::d_hypsmooth((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_e_si)),0.0);
-d_T1_dV_ge_si = AnalogFunctions::d_hypsmooth((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_ge_si)),0.0);
-d_T1_dV_ge_e = AnalogFunctions::d_hypsmooth((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_ge_e)),0.0);
-d_T1_dV_ge_di = AnalogFunctions::d_hypsmooth((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_ge_di)),0.0);
-d_T1_dTemp_t_GND = AnalogFunctions::d_hypsmooth((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(d_AIGD_t_dTemp_t_GND-(BIGD_i*d_vgd_eff_dTemp_t_GND)),0.0);
-T1 = AnalogFunctions::hypsmooth<double>((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6);
+d_T1_dV_di_si = evaluator_hypsmooth_0.getDerivs((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_di_si)),0.0);
+d_T1_dV_e_di = evaluator_hypsmooth_0.getDerivs((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_e_di)),0.0);
+d_T1_dV_e_si = evaluator_hypsmooth_0.getDerivs((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_e_si)),0.0);
+d_T1_dV_ge_si = evaluator_hypsmooth_0.getDerivs((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_ge_si)),0.0);
+d_T1_dV_ge_e = evaluator_hypsmooth_0.getDerivs((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_ge_e)),0.0);
+d_T1_dV_ge_di = evaluator_hypsmooth_0.getDerivs((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(-(BIGD_i*d_vgd_eff_dV_ge_di)),0.0);
+d_T1_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6,(d_AIGD_t_dTemp_t_GND-(BIGD_i*d_vgd_eff_dTemp_t_GND)),0.0);
+T1 = evaluator_hypsmooth_0.getValues((AIGD_t-(BIGD_i*vgd_eff)),1.0e-6);
+}
 if ((CIGD_i<0.01))
 {
 CIGD_i = 0.01;
@@ -19280,15 +20056,18 @@ d_T3_dV_e_si = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_si)+(((((-
 d_T3_dV_ge_e = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_ge_e)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_ge_e)*T2));
 d_T3_dV_ge_di = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_ge_di)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_ge_di)*T2));
 T3 = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*T2);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T3);
 
-d_T4_dTemp_t_GND = AnalogFunctions::d_lexp(T3,d_T3_dTemp_t_GND);
-d_T4_dV_ge_si = AnalogFunctions::d_lexp(T3,d_T3_dV_ge_si);
-d_T4_dV_e_di = AnalogFunctions::d_lexp(T3,d_T3_dV_e_di);
-d_T4_dV_e_si = AnalogFunctions::d_lexp(T3,d_T3_dV_e_si);
-d_T4_dV_di_si = AnalogFunctions::d_lexp(T3,d_T3_dV_di_si);
-d_T4_dV_ge_e = AnalogFunctions::d_lexp(T3,d_T3_dV_ge_e);
-d_T4_dV_ge_di = AnalogFunctions::d_lexp(T3,d_T3_dV_ge_di);
-T4 = AnalogFunctions::lexp<double>(T3);
+d_T4_dTemp_t_GND = evaluator_lexp_0.getDerivs(T3,d_T3_dTemp_t_GND);
+d_T4_dV_ge_si = evaluator_lexp_0.getDerivs(T3,d_T3_dV_ge_si);
+d_T4_dV_e_di = evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_di);
+d_T4_dV_e_si = evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_si);
+d_T4_dV_di_si = evaluator_lexp_0.getDerivs(T3,d_T3_dV_di_si);
+d_T4_dV_ge_e = evaluator_lexp_0.getDerivs(T3,d_T3_dV_ge_e);
+d_T4_dV_ge_di = evaluator_lexp_0.getDerivs(T3,d_T3_dV_ge_di);
+T4 = evaluator_lexp_0.getValues(T3);
+}
 if ((sigvds>0.0))
 {
 
@@ -19343,16 +20122,19 @@ d_T1_dV_ge_e = (-(((-vgd_noswap)-EGIDL_i)+vfbsd)*d_T0_dV_ge_e/T0/T0);
 d_T1_dTemp_t_GND = ((T0*d_vfbsd_dTemp_t_GND-(((-vgd_noswap)-EGIDL_i)+vfbsd)*d_T0_dTemp_t_GND)/T0/T0);
 d_T1_dV_ge_di = ((T0*(-d_vgd_noswap_dV_ge_di)-(((-vgd_noswap)-EGIDL_i)+vfbsd)*d_T0_dV_ge_di)/T0/T0);
 T1 = ((((-vgd_noswap)-EGIDL_i)+vfbsd)/T0);
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(T1,1.0e-2);
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dTemp_t_GND,0.0);
-d_T1_dV_di_si = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_di_si,0.0);
-d_T1_dV_ge_si = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_ge_si,0.0);
-d_T1_dV_e_di = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_e_di,0.0);
-d_T1_dV_e_si = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_e_si,0.0);
-d_T1_dV_ge_e = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_ge_e,0.0);
-d_T1_dV_ge_di = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_ge_di,0.0);
-T1 = AnalogFunctions::hypsmooth<double>(T1,1.0e-2);
+d_T1_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dTemp_t_GND,0.0);
+d_T1_dV_di_si = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_di_si,0.0);
+d_T1_dV_ge_si = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_ge_si,0.0);
+d_T1_dV_e_di = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_e_di,0.0);
+d_T1_dV_e_si = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_e_si,0.0);
+d_T1_dV_ge_e = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_ge_e,0.0);
+d_T1_dV_ge_di = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_ge_di,0.0);
+T1 = evaluator_hypsmooth_0.getValues(T1,1.0e-2);
+}
 
 d_T2_dV_di_d = d_T2_dV_si_s =  0.0;
 d_T2_dV_di_si = (-BGIDL_t*d_T1_dV_di_si/(T1+1.0e-3)/(T1+1.0e-3));
@@ -19363,16 +20145,20 @@ d_T2_dV_ge_e = (-BGIDL_t*d_T1_dV_ge_e/(T1+1.0e-3)/(T1+1.0e-3));
 d_T2_dV_ge_di = (-BGIDL_t*d_T1_dV_ge_di/(T1+1.0e-3)/(T1+1.0e-3));
 d_T2_dTemp_t_GND = (((T1+1.0e-3)*d_BGIDL_t_dTemp_t_GND-BGIDL_t*d_T1_dTemp_t_GND)/(T1+1.0e-3)/(T1+1.0e-3));
 T2 = (BGIDL_t/(T1+1.0e-3));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(T1);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1((PGIDL_i*evaluator_lln_0.getValues(T1)));
 
 d_T3_dV_di_d = d_T3_dV_si_s =  0.0;
-d_T3_dTemp_t_GND = AnalogFunctions::d_lexp((PGIDL_i*AnalogFunctions::lln<double>(T1)),(PGIDL_i*AnalogFunctions::d_lln(T1,d_T1_dTemp_t_GND)));
-d_T3_dV_di_si = AnalogFunctions::d_lexp((PGIDL_i*AnalogFunctions::lln<double>(T1)),(PGIDL_i*AnalogFunctions::d_lln(T1,d_T1_dV_di_si)));
-d_T3_dV_ge_si = AnalogFunctions::d_lexp((PGIDL_i*AnalogFunctions::lln<double>(T1)),(PGIDL_i*AnalogFunctions::d_lln(T1,d_T1_dV_ge_si)));
-d_T3_dV_e_di = AnalogFunctions::d_lexp((PGIDL_i*AnalogFunctions::lln<double>(T1)),(PGIDL_i*AnalogFunctions::d_lln(T1,d_T1_dV_e_di)));
-d_T3_dV_e_si = AnalogFunctions::d_lexp((PGIDL_i*AnalogFunctions::lln<double>(T1)),(PGIDL_i*AnalogFunctions::d_lln(T1,d_T1_dV_e_si)));
-d_T3_dV_ge_e = AnalogFunctions::d_lexp((PGIDL_i*AnalogFunctions::lln<double>(T1)),(PGIDL_i*AnalogFunctions::d_lln(T1,d_T1_dV_ge_e)));
-d_T3_dV_ge_di = AnalogFunctions::d_lexp((PGIDL_i*AnalogFunctions::lln<double>(T1)),(PGIDL_i*AnalogFunctions::d_lln(T1,d_T1_dV_ge_di)));
-T3 = AnalogFunctions::lexp<double>((PGIDL_i*AnalogFunctions::lln<double>(T1)));
+d_T3_dTemp_t_GND = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dTemp_t_GND)));
+d_T3_dV_di_si = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_di_si)));
+d_T3_dV_ge_si = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_ge_si)));
+d_T3_dV_e_di = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_di)));
+d_T3_dV_e_si = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_si)));
+d_T3_dV_ge_e = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_ge_e)));
+d_T3_dV_ge_di = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_ge_di)));
+T3 = evaluator_lexp_1.getValues((PGIDL_i*evaluator_lln_0.getValues(T1)));
+}
 if (((model_.BULKMOD)!=0))
 {
 
@@ -19392,40 +20178,49 @@ d_T4a_dV_ge_e = (deriv_fabs_0_d0*(d_T4_dV_ge_e));
 d_T4a_dV_ge_di = (deriv_fabs_0_d0*(d_T4_dV_ge_di));
 T4a = ((CGIDL_i+value_fabs_0)+1.0e-5);
 }
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((T4/T4a),1.0e-6);
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dTemp_t_GND = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dTemp_t_GND-T4*d_T4a_dTemp_t_GND)/T4a/T4a),0.0);
-d_T5_dV_ge_si = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_si-T4*d_T4a_dV_ge_si)/T4a/T4a),0.0);
-d_T5_dV_e_di = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_e_di-T4*d_T4a_dV_e_di)/T4a/T4a),0.0);
-d_T5_dV_e_si = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_e_si-T4*d_T4a_dV_e_si)/T4a/T4a),0.0);
-d_T5_dV_di_si = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_di_si-T4*d_T4a_dV_di_si)/T4a/T4a),0.0);
-d_T5_dV_ge_e = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_e-T4*d_T4a_dV_ge_e)/T4a/T4a),0.0);
-d_T5_dV_ge_di = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_di-T4*d_T4a_dV_ge_di)/T4a/T4a),0.0);
-T5 = (AnalogFunctions::hypsmooth<double>((T4/T4a),1.0e-6)-1.0e-6);
+d_T5_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dTemp_t_GND-T4*d_T4a_dTemp_t_GND)/T4a/T4a),0.0);
+d_T5_dV_ge_si = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_si-T4*d_T4a_dV_ge_si)/T4a/T4a),0.0);
+d_T5_dV_e_di = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_e_di-T4*d_T4a_dV_e_di)/T4a/T4a),0.0);
+d_T5_dV_e_si = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_e_si-T4*d_T4a_dV_e_si)/T4a/T4a),0.0);
+d_T5_dV_di_si = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_di_si-T4*d_T4a_dV_di_si)/T4a/T4a),0.0);
+d_T5_dV_ge_e = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_e-T4*d_T4a_dV_ge_e)/T4a/T4a),0.0);
+d_T5_dV_ge_di = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_di-T4*d_T4a_dV_ge_di)/T4a/T4a),0.0);
+T5 = (evaluator_hypsmooth_0.getValues((T4/T4a),1.0e-6)-1.0e-6);
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T2));
 
-d_T6_dV_si_s = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_si_s)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_si_s)))+(((AGIDL_i*Weff0)*d_T3_dV_si_s)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_di_d = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_di_d)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_di_d)))+(((AGIDL_i*Weff0)*d_T3_dV_di_d)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dTemp_t_GND = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dTemp_t_GND)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dTemp_t_GND)))+(((AGIDL_i*Weff0)*d_T3_dTemp_t_GND)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_ge_si = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_ge_si)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_si)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_si)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_e_di = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_e_di)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_e_di)))+(((AGIDL_i*Weff0)*d_T3_dV_e_di)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_e_si = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_e_si)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_e_si)))+(((AGIDL_i*Weff0)*d_T3_dV_e_si)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_di_si = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_di_si)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_di_si)))+(((AGIDL_i*Weff0)*d_T3_dV_di_si)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_ge_e = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_ge_e)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_e)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_e)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_ge_di = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_ge_di)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_di)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_di)*AnalogFunctions::lexp<double>((-T2))))*T5));
-T6 = ((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*T5);
+d_T6_dV_si_s = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_si_s)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_si_s)))+(((AGIDL_i*Weff0)*d_T3_dV_si_s)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_di_d = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_d)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_d)))+(((AGIDL_i*Weff0)*d_T3_dV_di_d)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dTemp_t_GND = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dTemp_t_GND)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dTemp_t_GND)))+(((AGIDL_i*Weff0)*d_T3_dTemp_t_GND)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_ge_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_ge_si)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_si)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_si)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_e_di = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_di)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di)))+(((AGIDL_i*Weff0)*d_T3_dV_e_di)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_e_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_si)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si)))+(((AGIDL_i*Weff0)*d_T3_dV_e_si)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_di_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_si)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si)))+(((AGIDL_i*Weff0)*d_T3_dV_di_si)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_ge_e = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_ge_e)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_e)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_e)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_ge_di = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_ge_di)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_di)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_di)*evaluator_lexp_0.getValues((-T2))))*T5));
+T6 = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*T5);
+}
 }
 else
 {
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T2));
 
 d_T6_dV_di_d = d_T6_dV_si_s =  0.0;
-d_T6_dTemp_t_GND = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dTemp_t_GND)))+(((AGIDL_i*Weff0)*d_T3_dTemp_t_GND)*AnalogFunctions::lexp<double>((-T2))))*vds_noswap);
-d_T6_dV_ge_si = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_si)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_si)*AnalogFunctions::lexp<double>((-T2))))*vds_noswap);
-d_T6_dV_e_di = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_e_di)))+(((AGIDL_i*Weff0)*d_T3_dV_e_di)*AnalogFunctions::lexp<double>((-T2))))*vds_noswap);
-d_T6_dV_e_si = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_e_si)))+(((AGIDL_i*Weff0)*d_T3_dV_e_si)*AnalogFunctions::lexp<double>((-T2))))*vds_noswap);
-d_T6_dV_di_si = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_vds_noswap_dV_di_si)+(((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_di_si)))+(((AGIDL_i*Weff0)*d_T3_dV_di_si)*AnalogFunctions::lexp<double>((-T2))))*vds_noswap));
-d_T6_dV_ge_e = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_e)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_e)*AnalogFunctions::lexp<double>((-T2))))*vds_noswap);
-d_T6_dV_ge_di = (((((AGIDL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_di)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_di)*AnalogFunctions::lexp<double>((-T2))))*vds_noswap);
-T6 = ((((AGIDL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*vds_noswap);
+d_T6_dTemp_t_GND = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dTemp_t_GND)))+(((AGIDL_i*Weff0)*d_T3_dTemp_t_GND)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
+d_T6_dV_ge_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_si)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_si)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
+d_T6_dV_e_di = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di)))+(((AGIDL_i*Weff0)*d_T3_dV_e_di)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
+d_T6_dV_e_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si)))+(((AGIDL_i*Weff0)*d_T3_dV_e_si)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
+d_T6_dV_di_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_vds_noswap_dV_di_si)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si)))+(((AGIDL_i*Weff0)*d_T3_dV_di_si)*evaluator_lexp_0.getValues((-T2))))*vds_noswap));
+d_T6_dV_ge_e = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_e)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_e)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
+d_T6_dV_ge_di = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_di)))+(((AGIDL_i*Weff0)*d_T3_dV_ge_di)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
+T6 = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*vds_noswap);
+}
 }
 }
 if ((sigvds>0.0))
@@ -19474,16 +20269,19 @@ d_T1_dV_ge_di = (-(((-vgs_noswap)-EGISL_i)+vfbsd)*d_T0_dV_ge_di/T0/T0);
 d_T1_dTemp_t_GND = ((T0*d_vfbsd_dTemp_t_GND-(((-vgs_noswap)-EGISL_i)+vfbsd)*d_T0_dTemp_t_GND)/T0/T0);
 d_T1_dV_ge_si = ((T0*(-d_vgs_noswap_dV_ge_si)-(((-vgs_noswap)-EGISL_i)+vfbsd)*d_T0_dV_ge_si)/T0/T0);
 T1 = ((((-vgs_noswap)-EGISL_i)+vfbsd)/T0);
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(T1,1.0e-2);
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dTemp_t_GND,0.0);
-d_T1_dV_di_si = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_di_si,0.0);
-d_T1_dV_ge_si = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_ge_si,0.0);
-d_T1_dV_e_di = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_e_di,0.0);
-d_T1_dV_e_si = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_e_si,0.0);
-d_T1_dV_ge_e = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_ge_e,0.0);
-d_T1_dV_ge_di = AnalogFunctions::d_hypsmooth(T1,1.0e-2,d_T1_dV_ge_di,0.0);
-T1 = AnalogFunctions::hypsmooth<double>(T1,1.0e-2);
+d_T1_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dTemp_t_GND,0.0);
+d_T1_dV_di_si = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_di_si,0.0);
+d_T1_dV_ge_si = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_ge_si,0.0);
+d_T1_dV_e_di = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_e_di,0.0);
+d_T1_dV_e_si = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_e_si,0.0);
+d_T1_dV_ge_e = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_ge_e,0.0);
+d_T1_dV_ge_di = evaluator_hypsmooth_0.getDerivs(T1,1.0e-2,d_T1_dV_ge_di,0.0);
+T1 = evaluator_hypsmooth_0.getValues(T1,1.0e-2);
+}
 
 d_T2_dV_di_d = d_T2_dV_si_s =  0.0;
 d_T2_dV_di_si = (-BGISL_t*d_T1_dV_di_si/(T1+1.0e-3)/(T1+1.0e-3));
@@ -19494,16 +20292,20 @@ d_T2_dV_ge_e = (-BGISL_t*d_T1_dV_ge_e/(T1+1.0e-3)/(T1+1.0e-3));
 d_T2_dV_ge_di = (-BGISL_t*d_T1_dV_ge_di/(T1+1.0e-3)/(T1+1.0e-3));
 d_T2_dTemp_t_GND = (((T1+1.0e-3)*d_BGISL_t_dTemp_t_GND-BGISL_t*d_T1_dTemp_t_GND)/(T1+1.0e-3)/(T1+1.0e-3));
 T2 = (BGISL_t/(T1+1.0e-3));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(T1);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1((PGISL_i*evaluator_lln_0.getValues(T1)));
 
 d_T3_dV_di_d = d_T3_dV_si_s =  0.0;
-d_T3_dTemp_t_GND = AnalogFunctions::d_lexp((PGISL_i*AnalogFunctions::lln<double>(T1)),(PGISL_i*AnalogFunctions::d_lln(T1,d_T1_dTemp_t_GND)));
-d_T3_dV_di_si = AnalogFunctions::d_lexp((PGISL_i*AnalogFunctions::lln<double>(T1)),(PGISL_i*AnalogFunctions::d_lln(T1,d_T1_dV_di_si)));
-d_T3_dV_ge_si = AnalogFunctions::d_lexp((PGISL_i*AnalogFunctions::lln<double>(T1)),(PGISL_i*AnalogFunctions::d_lln(T1,d_T1_dV_ge_si)));
-d_T3_dV_e_di = AnalogFunctions::d_lexp((PGISL_i*AnalogFunctions::lln<double>(T1)),(PGISL_i*AnalogFunctions::d_lln(T1,d_T1_dV_e_di)));
-d_T3_dV_e_si = AnalogFunctions::d_lexp((PGISL_i*AnalogFunctions::lln<double>(T1)),(PGISL_i*AnalogFunctions::d_lln(T1,d_T1_dV_e_si)));
-d_T3_dV_ge_e = AnalogFunctions::d_lexp((PGISL_i*AnalogFunctions::lln<double>(T1)),(PGISL_i*AnalogFunctions::d_lln(T1,d_T1_dV_ge_e)));
-d_T3_dV_ge_di = AnalogFunctions::d_lexp((PGISL_i*AnalogFunctions::lln<double>(T1)),(PGISL_i*AnalogFunctions::d_lln(T1,d_T1_dV_ge_di)));
-T3 = AnalogFunctions::lexp<double>((PGISL_i*AnalogFunctions::lln<double>(T1)));
+d_T3_dTemp_t_GND = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dTemp_t_GND)));
+d_T3_dV_di_si = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_di_si)));
+d_T3_dV_ge_si = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_ge_si)));
+d_T3_dV_e_di = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_di)));
+d_T3_dV_e_si = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_si)));
+d_T3_dV_ge_e = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_ge_e)));
+d_T3_dV_ge_di = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_ge_di)));
+T3 = evaluator_lexp_1.getValues((PGISL_i*evaluator_lln_0.getValues(T1)));
+}
 if (((model_.BULKMOD)!=0))
 {
 
@@ -19523,40 +20325,49 @@ d_T4a_dV_ge_e = (deriv_fabs_0_d0*(d_T4_dV_ge_e));
 d_T4a_dV_ge_di = (deriv_fabs_0_d0*(d_T4_dV_ge_di));
 T4a = ((CGISL_i+value_fabs_0)+1.0e-5);
 }
+{
+AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((T4/T4a),1.0e-6);
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dTemp_t_GND = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dTemp_t_GND-T4*d_T4a_dTemp_t_GND)/T4a/T4a),0.0);
-d_T5_dV_ge_si = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_si-T4*d_T4a_dV_ge_si)/T4a/T4a),0.0);
-d_T5_dV_e_di = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_e_di-T4*d_T4a_dV_e_di)/T4a/T4a),0.0);
-d_T5_dV_e_si = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_e_si-T4*d_T4a_dV_e_si)/T4a/T4a),0.0);
-d_T5_dV_di_si = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_di_si-T4*d_T4a_dV_di_si)/T4a/T4a),0.0);
-d_T5_dV_ge_e = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_e-T4*d_T4a_dV_ge_e)/T4a/T4a),0.0);
-d_T5_dV_ge_di = AnalogFunctions::d_hypsmooth((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_di-T4*d_T4a_dV_ge_di)/T4a/T4a),0.0);
-T5 = (AnalogFunctions::hypsmooth<double>((T4/T4a),1.0e-6)-1.0e-6);
+d_T5_dTemp_t_GND = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dTemp_t_GND-T4*d_T4a_dTemp_t_GND)/T4a/T4a),0.0);
+d_T5_dV_ge_si = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_si-T4*d_T4a_dV_ge_si)/T4a/T4a),0.0);
+d_T5_dV_e_di = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_e_di-T4*d_T4a_dV_e_di)/T4a/T4a),0.0);
+d_T5_dV_e_si = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_e_si-T4*d_T4a_dV_e_si)/T4a/T4a),0.0);
+d_T5_dV_di_si = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_di_si-T4*d_T4a_dV_di_si)/T4a/T4a),0.0);
+d_T5_dV_ge_e = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_e-T4*d_T4a_dV_ge_e)/T4a/T4a),0.0);
+d_T5_dV_ge_di = evaluator_hypsmooth_0.getDerivs((T4/T4a),1.0e-6,((T4a*d_T4_dV_ge_di-T4*d_T4a_dV_ge_di)/T4a/T4a),0.0);
+T5 = (evaluator_hypsmooth_0.getValues((T4/T4a),1.0e-6)-1.0e-6);
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T2));
 
-d_T6_dV_si_s = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_si_s)+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_si_s)))+(((AGISL_i*Weff0)*d_T3_dV_si_s)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_di_d = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_di_d)+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_di_d)))+(((AGISL_i*Weff0)*d_T3_dV_di_d)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dTemp_t_GND = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dTemp_t_GND)+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dTemp_t_GND)))+(((AGISL_i*Weff0)*d_T3_dTemp_t_GND)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_ge_si = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_ge_si)+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_si)))+(((AGISL_i*Weff0)*d_T3_dV_ge_si)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_e_di = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_e_di)+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_e_di)))+(((AGISL_i*Weff0)*d_T3_dV_e_di)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_e_si = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_e_si)+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_e_si)))+(((AGISL_i*Weff0)*d_T3_dV_e_si)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_di_si = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_di_si)+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_di_si)))+(((AGISL_i*Weff0)*d_T3_dV_di_si)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_ge_e = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_ge_e)+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_e)))+(((AGISL_i*Weff0)*d_T3_dV_ge_e)*AnalogFunctions::lexp<double>((-T2))))*T5));
-d_T6_dV_ge_di = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*d_T5_dV_ge_di)+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_di)))+(((AGISL_i*Weff0)*d_T3_dV_ge_di)*AnalogFunctions::lexp<double>((-T2))))*T5));
-T6 = ((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*T5);
+d_T6_dV_si_s = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_si_s)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_si_s)))+(((AGISL_i*Weff0)*d_T3_dV_si_s)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_di_d = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_d)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_d)))+(((AGISL_i*Weff0)*d_T3_dV_di_d)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dTemp_t_GND = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dTemp_t_GND)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dTemp_t_GND)))+(((AGISL_i*Weff0)*d_T3_dTemp_t_GND)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_ge_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_ge_si)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_si)))+(((AGISL_i*Weff0)*d_T3_dV_ge_si)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_e_di = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_di)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di)))+(((AGISL_i*Weff0)*d_T3_dV_e_di)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_e_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_si)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si)))+(((AGISL_i*Weff0)*d_T3_dV_e_si)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_di_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_si)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si)))+(((AGISL_i*Weff0)*d_T3_dV_di_si)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_ge_e = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_ge_e)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_e)))+(((AGISL_i*Weff0)*d_T3_dV_ge_e)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_ge_di = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_ge_di)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_di)))+(((AGISL_i*Weff0)*d_T3_dV_ge_di)*evaluator_lexp_0.getValues((-T2))))*T5));
+T6 = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*T5);
+}
 }
 else
 {
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T2));
 
 d_T6_dV_di_d = d_T6_dV_si_s =  0.0;
-d_T6_dTemp_t_GND = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dTemp_t_GND)))+(((AGISL_i*Weff0)*d_T3_dTemp_t_GND)*AnalogFunctions::lexp<double>((-T2))))*(-vds_noswap));
-d_T6_dV_ge_si = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_si)))+(((AGISL_i*Weff0)*d_T3_dV_ge_si)*AnalogFunctions::lexp<double>((-T2))))*(-vds_noswap));
-d_T6_dV_e_di = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_e_di)))+(((AGISL_i*Weff0)*d_T3_dV_e_di)*AnalogFunctions::lexp<double>((-T2))))*(-vds_noswap));
-d_T6_dV_e_si = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_e_si)))+(((AGISL_i*Weff0)*d_T3_dV_e_si)*AnalogFunctions::lexp<double>((-T2))))*(-vds_noswap));
-d_T6_dV_di_si = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*(-d_vds_noswap_dV_di_si))+(((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_di_si)))+(((AGISL_i*Weff0)*d_T3_dV_di_si)*AnalogFunctions::lexp<double>((-T2))))*(-vds_noswap)));
-d_T6_dV_ge_e = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_e)))+(((AGISL_i*Weff0)*d_T3_dV_ge_e)*AnalogFunctions::lexp<double>((-T2))))*(-vds_noswap));
-d_T6_dV_ge_di = (((((AGISL_i*Weff0)*T3)*AnalogFunctions::d_lexp((-T2),(-d_T2_dV_ge_di)))+(((AGISL_i*Weff0)*d_T3_dV_ge_di)*AnalogFunctions::lexp<double>((-T2))))*(-vds_noswap));
-T6 = ((((AGISL_i*Weff0)*T3)*AnalogFunctions::lexp<double>((-T2)))*(-vds_noswap));
+d_T6_dTemp_t_GND = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dTemp_t_GND)))+(((AGISL_i*Weff0)*d_T3_dTemp_t_GND)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
+d_T6_dV_ge_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_si)))+(((AGISL_i*Weff0)*d_T3_dV_ge_si)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
+d_T6_dV_e_di = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di)))+(((AGISL_i*Weff0)*d_T3_dV_e_di)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
+d_T6_dV_e_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si)))+(((AGISL_i*Weff0)*d_T3_dV_e_si)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
+d_T6_dV_di_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*(-d_vds_noswap_dV_di_si))+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si)))+(((AGISL_i*Weff0)*d_T3_dV_di_si)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap)));
+d_T6_dV_ge_e = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_e)))+(((AGISL_i*Weff0)*d_T3_dV_ge_e)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
+d_T6_dV_ge_di = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_ge_di)))+(((AGISL_i*Weff0)*d_T3_dV_ge_di)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
+T6 = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*(-vds_noswap));
+}
 }
 }
 if ((sigvds>0.0))
@@ -19599,16 +20410,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-ves_jct*d_Nvtms_dTemp_t_GND/Nvtms/Nvtms);
 d_T0_dV_e_si = (d_ves_jct_dV_e_si/Nvtms);
 T0 = (ves_jct/Nvtms);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T0);
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp(T0,d_T0_dTemp_t_GND);
-d_T1_dV_di_si = AnalogFunctions::d_lexp(T0,d_T0_dV_di_si);
-d_T1_dV_ge_si = AnalogFunctions::d_lexp(T0,d_T0_dV_ge_si);
-d_T1_dV_e_di = AnalogFunctions::d_lexp(T0,d_T0_dV_e_di);
-d_T1_dV_e_si = AnalogFunctions::d_lexp(T0,d_T0_dV_e_si);
-d_T1_dV_ge_e = AnalogFunctions::d_lexp(T0,d_T0_dV_ge_e);
-d_T1_dV_ge_di = AnalogFunctions::d_lexp(T0,d_T0_dV_ge_di);
-T1 = (AnalogFunctions::lexp<double>(T0)-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs(T0,d_T0_dTemp_t_GND);
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(T0,d_T0_dV_di_si);
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_si);
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_di);
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_si);
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_e);
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_di);
+T1 = (evaluator_lexp_0.getValues(T0)-1.0);
+}
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
 d_T2_dV_e_si = (SslpRev*d_ves_jct_dV_e_si);
@@ -19638,25 +20452,31 @@ d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_di = d_T1
 d_T1_dTemp_t_GND = (-((model_.BVS)+ves_jct)*d_Nvtms_dTemp_t_GND/Nvtms/Nvtms);
 d_T1_dV_e_si = (d_ves_jct_dV_e_si/Nvtms);
 T1 = (((model_.BVS)+ves_jct)/Nvtms);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T1));
 
 d_T2_dV_di_d = d_T2_dV_si_s =  0.0;
-d_T2_dTemp_t_GND = AnalogFunctions::d_lexp((-T1),(-d_T1_dTemp_t_GND));
-d_T2_dV_di_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_di_si));
-d_T2_dV_ge_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_si));
-d_T2_dV_e_di = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_e_di));
-d_T2_dV_e_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_e_si));
-d_T2_dV_ge_e = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_e));
-d_T2_dV_ge_di = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_di));
-T2 = AnalogFunctions::lexp<double>((-T1));
+d_T2_dTemp_t_GND = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dTemp_t_GND));
+d_T2_dV_di_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_di_si));
+d_T2_dV_ge_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_si));
+d_T2_dV_e_di = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_e_di));
+d_T2_dV_e_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_e_si));
+d_T2_dV_ge_e = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_e));
+d_T2_dV_ge_di = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_di));
+T2 = evaluator_lexp_0.getValues((-T1));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T0);
 
-d_Ies_dV_di_si = (Isbs*(AnalogFunctions::d_lexp(T0,d_T0_dV_di_si)-((model_.XJBVS)*d_T2_dV_di_si)));
-d_Ies_dV_ge_si = (Isbs*(AnalogFunctions::d_lexp(T0,d_T0_dV_ge_si)-((model_.XJBVS)*d_T2_dV_ge_si)));
-d_Ies_dV_e_di = (Isbs*(AnalogFunctions::d_lexp(T0,d_T0_dV_e_di)-((model_.XJBVS)*d_T2_dV_e_di)));
-d_Ies_dV_e_si = (Isbs*(AnalogFunctions::d_lexp(T0,d_T0_dV_e_si)-((model_.XJBVS)*d_T2_dV_e_si)));
-d_Ies_dV_ge_e = (Isbs*(AnalogFunctions::d_lexp(T0,d_T0_dV_ge_e)-((model_.XJBVS)*d_T2_dV_ge_e)));
-d_Ies_dV_ge_di = (Isbs*(AnalogFunctions::d_lexp(T0,d_T0_dV_ge_di)-((model_.XJBVS)*d_T2_dV_ge_di)));
-d_Ies_dTemp_t_GND = ((Isbs*((AnalogFunctions::d_lexp(T0,d_T0_dTemp_t_GND)+d_XExpBVS_dTemp_t_GND)-((model_.XJBVS)*d_T2_dTemp_t_GND)))+(d_Isbs_dTemp_t_GND*(((AnalogFunctions::lexp<double>(T0)+XExpBVS)-1.0)-((model_.XJBVS)*T2))));
-Ies = (Isbs*(((AnalogFunctions::lexp<double>(T0)+XExpBVS)-1.0)-((model_.XJBVS)*T2)));
+d_Ies_dV_di_si = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_di_si)-((model_.XJBVS)*d_T2_dV_di_si)));
+d_Ies_dV_ge_si = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_si)-((model_.XJBVS)*d_T2_dV_ge_si)));
+d_Ies_dV_e_di = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_di)-((model_.XJBVS)*d_T2_dV_e_di)));
+d_Ies_dV_e_si = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_si)-((model_.XJBVS)*d_T2_dV_e_si)));
+d_Ies_dV_ge_e = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_e)-((model_.XJBVS)*d_T2_dV_ge_e)));
+d_Ies_dV_ge_di = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_di)-((model_.XJBVS)*d_T2_dV_ge_di)));
+d_Ies_dTemp_t_GND = ((Isbs*((evaluator_lexp_0.getDerivs(T0,d_T0_dTemp_t_GND)+d_XExpBVS_dTemp_t_GND)-((model_.XJBVS)*d_T2_dTemp_t_GND)))+(d_Isbs_dTemp_t_GND*(((evaluator_lexp_0.getValues(T0)+XExpBVS)-1.0)-((model_.XJBVS)*T2))));
+Ies = (Isbs*(((evaluator_lexp_0.getValues(T0)+XExpBVS)-1.0)-((model_.XJBVS)*T2)));
+}
 }
 else
 {
@@ -19683,16 +20503,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ves_jct)/Vtm0)*d_NJTS_t_dTemp_t_GND/NJTS_t/NJTS_t);
 d_T0_dV_e_si = (((-d_ves_jct_dV_e_si)/Vtm0)/NJTS_t);
 T0 = (((-ves_jct)/Vtm0)/NJTS_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
-d_T1_dV_di_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
-d_T1_dV_e_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
-d_T1_dV_e_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
-T1 = (AnalogFunctions::lexp<double>((T0*1.0e3))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
+T1 = (evaluator_lexp_0.getValues((T0*1.0e3))-1.0);
+}
 
 d_Ies_dTemp_t_GND = (d_Ies_dTemp_t_GND-(((ASEJ*JTSS_t)*d_T1_dTemp_t_GND)+((ASEJ*d_JTSS_t_dTemp_t_GND)*T1)));
 d_Ies_dV_di_si = (d_Ies_dV_di_si-((ASEJ*JTSS_t)*d_T1_dV_di_si));
@@ -19710,16 +20533,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ves_jct)/Vtm0)*d_NJTS_t_dTemp_t_GND/NJTS_t/NJTS_t);
 d_T0_dV_e_si = (((-d_ves_jct_dV_e_si)/Vtm0)/NJTS_t);
 T0 = (((-ves_jct)/Vtm0)/NJTS_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dTemp_t_GND*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-d_T1_dV_di_si = AnalogFunctions::d_lexp(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_di_si*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_ge_si*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-d_T1_dV_e_di = AnalogFunctions::d_lexp(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_e_di*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-d_T1_dV_e_si = AnalogFunctions::d_lexp(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((((model_.VTSS)-ves_jct)*(d_T0_dV_e_si*(model_.VTSS))-(T0*(model_.VTSS))*(-d_ves_jct_dV_e_si))/((model_.VTSS)-ves_jct)/((model_.VTSS)-ves_jct)));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_ge_e*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_ge_di*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-T1 = (AnalogFunctions::lexp<double>(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dTemp_t_GND*(model_.VTSS))/((model_.VTSS)-ves_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_di_si*(model_.VTSS))/((model_.VTSS)-ves_jct)));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_ge_si*(model_.VTSS))/((model_.VTSS)-ves_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_e_di*(model_.VTSS))/((model_.VTSS)-ves_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((((model_.VTSS)-ves_jct)*(d_T0_dV_e_si*(model_.VTSS))-(T0*(model_.VTSS))*(-d_ves_jct_dV_e_si))/((model_.VTSS)-ves_jct)/((model_.VTSS)-ves_jct)));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_ge_e*(model_.VTSS))/((model_.VTSS)-ves_jct)));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_ge_di*(model_.VTSS))/((model_.VTSS)-ves_jct)));
+T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)))-1.0);
+}
 
 d_Ies_dTemp_t_GND = (d_Ies_dTemp_t_GND-(((ASEJ*JTSS_t)*d_T1_dTemp_t_GND)+((ASEJ*d_JTSS_t_dTemp_t_GND)*T1)));
 d_Ies_dV_di_si = (d_Ies_dV_di_si-((ASEJ*JTSS_t)*d_T1_dV_di_si));
@@ -19740,16 +20566,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ves_jct)/Vtm0)*d_NJTSSW_t_dTemp_t_GND/NJTSSW_t/NJTSSW_t);
 d_T0_dV_e_si = (((-d_ves_jct_dV_e_si)/Vtm0)/NJTSSW_t);
 T0 = (((-ves_jct)/Vtm0)/NJTSSW_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
-d_T1_dV_di_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
-d_T1_dV_e_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
-d_T1_dV_e_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
-T1 = (AnalogFunctions::lexp<double>((T0*1.0e3))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
+T1 = (evaluator_lexp_0.getValues((T0*1.0e3))-1.0);
+}
 
 d_Ies_dTemp_t_GND = (d_Ies_dTemp_t_GND-(((PSEJ*JTSSWS_t)*d_T1_dTemp_t_GND)+((PSEJ*d_JTSSWS_t_dTemp_t_GND)*T1)));
 d_Ies_dV_di_si = (d_Ies_dV_di_si-((PSEJ*JTSSWS_t)*d_T1_dV_di_si));
@@ -19767,16 +20596,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ves_jct)/Vtm0)*d_NJTSSW_t_dTemp_t_GND/NJTSSW_t/NJTSSW_t);
 d_T0_dV_e_si = (((-d_ves_jct_dV_e_si)/Vtm0)/NJTSSW_t);
 T0 = (((-ves_jct)/Vtm0)/NJTSSW_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dTemp_t_GND*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_di_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_di_si*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_ge_si*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_e_di = AnalogFunctions::d_lexp(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_e_di*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_e_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((((model_.VTSSWS)-ves_jct)*(d_T0_dV_e_si*(model_.VTSSWS))-(T0*(model_.VTSSWS))*(-d_ves_jct_dV_e_si))/((model_.VTSSWS)-ves_jct)/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_ge_e*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_ge_di*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-T1 = (AnalogFunctions::lexp<double>(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dTemp_t_GND*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_di_si*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_ge_si*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_e_di*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((((model_.VTSSWS)-ves_jct)*(d_T0_dV_e_si*(model_.VTSSWS))-(T0*(model_.VTSSWS))*(-d_ves_jct_dV_e_si))/((model_.VTSSWS)-ves_jct)/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_ge_e*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_ge_di*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
+T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)))-1.0);
+}
 
 d_Ies_dTemp_t_GND = (d_Ies_dTemp_t_GND-(((PSEJ*JTSSWS_t)*d_T1_dTemp_t_GND)+((PSEJ*d_JTSSWS_t_dTemp_t_GND)*T1)));
 d_Ies_dV_di_si = (d_Ies_dV_di_si-((PSEJ*JTSSWS_t)*d_T1_dV_di_si));
@@ -19797,16 +20629,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ves_jct)/Vtm0)*d_NJTSSWG_t_dTemp_t_GND/NJTSSWG_t/NJTSSWG_t);
 d_T0_dV_e_si = (((-d_ves_jct_dV_e_si)/Vtm0)/NJTSSWG_t);
 T0 = (((-ves_jct)/Vtm0)/NJTSSWG_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
-d_T1_dV_di_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
-d_T1_dV_e_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
-d_T1_dV_e_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
-T1 = (AnalogFunctions::lexp<double>((T0*1.0e3))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
+T1 = (evaluator_lexp_0.getValues((T0*1.0e3))-1.0);
+}
 
 d_Ies_dTemp_t_GND = (d_Ies_dTemp_t_GND-((((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dTemp_t_GND)+(((Weff0*NFINtotal)*d_JTSSWGS_t_dTemp_t_GND)*T1)));
 d_Ies_dV_di_si = (d_Ies_dV_di_si-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_di_si));
@@ -19824,16 +20659,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_di = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ves_jct)/Vtm0)*d_NJTSSWG_t_dTemp_t_GND/NJTSSWG_t/NJTSSWG_t);
 d_T0_dV_e_si = (((-d_ves_jct_dV_e_si)/Vtm0)/NJTSSWG_t);
 T0 = (((-ves_jct)/Vtm0)/NJTSSWG_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dTemp_t_GND*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_di_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_di_si*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_ge_si*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_e_di = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_e_di*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_e_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((((model_.VTSSWGS)-ves_jct)*(d_T0_dV_e_si*(model_.VTSSWGS))-(T0*(model_.VTSSWGS))*(-d_ves_jct_dV_e_si))/((model_.VTSSWGS)-ves_jct)/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_ge_e*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_ge_di*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-T1 = (AnalogFunctions::lexp<double>(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dTemp_t_GND*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_di_si*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_ge_si*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_e_di*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((((model_.VTSSWGS)-ves_jct)*(d_T0_dV_e_si*(model_.VTSSWGS))-(T0*(model_.VTSSWGS))*(-d_ves_jct_dV_e_si))/((model_.VTSSWGS)-ves_jct)/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_ge_e*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_ge_di*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
+T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)))-1.0);
+}
 
 d_Ies_dTemp_t_GND = (d_Ies_dTemp_t_GND-((((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dTemp_t_GND)+(((Weff0*NFINtotal)*d_JTSSWGS_t_dTemp_t_GND)*T1)));
 d_Ies_dV_di_si = (d_Ies_dV_di_si-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_di_si));
@@ -19854,16 +20692,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-ved_jct*d_Nvtmd_dTemp_t_GND/Nvtmd/Nvtmd);
 d_T0_dV_e_di = (d_ved_jct_dV_e_di/Nvtmd);
 T0 = (ved_jct/Nvtmd);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T0);
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp(T0,d_T0_dTemp_t_GND);
-d_T1_dV_di_si = AnalogFunctions::d_lexp(T0,d_T0_dV_di_si);
-d_T1_dV_ge_si = AnalogFunctions::d_lexp(T0,d_T0_dV_ge_si);
-d_T1_dV_e_di = AnalogFunctions::d_lexp(T0,d_T0_dV_e_di);
-d_T1_dV_e_si = AnalogFunctions::d_lexp(T0,d_T0_dV_e_si);
-d_T1_dV_ge_e = AnalogFunctions::d_lexp(T0,d_T0_dV_ge_e);
-d_T1_dV_ge_di = AnalogFunctions::d_lexp(T0,d_T0_dV_ge_di);
-T1 = (AnalogFunctions::lexp<double>(T0)-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs(T0,d_T0_dTemp_t_GND);
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(T0,d_T0_dV_di_si);
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_si);
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_di);
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_si);
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_e);
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_di);
+T1 = (evaluator_lexp_0.getValues(T0)-1.0);
+}
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_di_si =  0.0;
 d_T2_dV_e_di = (DslpRev*d_ved_jct_dV_e_di);
@@ -19893,25 +20734,31 @@ d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_ge_di = d_T1_dV_ge_e = d_T1_dV_e_si = d_T1
 d_T1_dTemp_t_GND = (-((model_.BVD)+ved_jct)*d_Nvtmd_dTemp_t_GND/Nvtmd/Nvtmd);
 d_T1_dV_e_di = (d_ved_jct_dV_e_di/Nvtmd);
 T1 = (((model_.BVD)+ved_jct)/Nvtmd);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T1));
 
 d_T2_dV_di_d = d_T2_dV_si_s =  0.0;
-d_T2_dTemp_t_GND = AnalogFunctions::d_lexp((-T1),(-d_T1_dTemp_t_GND));
-d_T2_dV_di_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_di_si));
-d_T2_dV_ge_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_si));
-d_T2_dV_e_di = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_e_di));
-d_T2_dV_e_si = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_e_si));
-d_T2_dV_ge_e = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_e));
-d_T2_dV_ge_di = AnalogFunctions::d_lexp((-T1),(-d_T1_dV_ge_di));
-T2 = AnalogFunctions::lexp<double>((-T1));
+d_T2_dTemp_t_GND = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dTemp_t_GND));
+d_T2_dV_di_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_di_si));
+d_T2_dV_ge_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_si));
+d_T2_dV_e_di = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_e_di));
+d_T2_dV_e_si = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_e_si));
+d_T2_dV_ge_e = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_e));
+d_T2_dV_ge_di = evaluator_lexp_0.getDerivs((-T1),(-d_T1_dV_ge_di));
+T2 = evaluator_lexp_0.getValues((-T1));
+}
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(T0);
 
-d_Ied_dV_di_si = (Isbd*(AnalogFunctions::d_lexp(T0,d_T0_dV_di_si)-((model_.XJBVD)*d_T2_dV_di_si)));
-d_Ied_dV_ge_si = (Isbd*(AnalogFunctions::d_lexp(T0,d_T0_dV_ge_si)-((model_.XJBVD)*d_T2_dV_ge_si)));
-d_Ied_dV_e_di = (Isbd*(AnalogFunctions::d_lexp(T0,d_T0_dV_e_di)-((model_.XJBVD)*d_T2_dV_e_di)));
-d_Ied_dV_e_si = (Isbd*(AnalogFunctions::d_lexp(T0,d_T0_dV_e_si)-((model_.XJBVD)*d_T2_dV_e_si)));
-d_Ied_dV_ge_e = (Isbd*(AnalogFunctions::d_lexp(T0,d_T0_dV_ge_e)-((model_.XJBVD)*d_T2_dV_ge_e)));
-d_Ied_dV_ge_di = (Isbd*(AnalogFunctions::d_lexp(T0,d_T0_dV_ge_di)-((model_.XJBVD)*d_T2_dV_ge_di)));
-d_Ied_dTemp_t_GND = ((Isbd*((AnalogFunctions::d_lexp(T0,d_T0_dTemp_t_GND)+d_XExpBVD_dTemp_t_GND)-((model_.XJBVD)*d_T2_dTemp_t_GND)))+(d_Isbd_dTemp_t_GND*(((AnalogFunctions::lexp<double>(T0)+XExpBVD)-1.0)-((model_.XJBVD)*T2))));
-Ied = (Isbd*(((AnalogFunctions::lexp<double>(T0)+XExpBVD)-1.0)-((model_.XJBVD)*T2)));
+d_Ied_dV_di_si = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_di_si)-((model_.XJBVD)*d_T2_dV_di_si)));
+d_Ied_dV_ge_si = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_si)-((model_.XJBVD)*d_T2_dV_ge_si)));
+d_Ied_dV_e_di = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_di)-((model_.XJBVD)*d_T2_dV_e_di)));
+d_Ied_dV_e_si = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_si)-((model_.XJBVD)*d_T2_dV_e_si)));
+d_Ied_dV_ge_e = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_e)-((model_.XJBVD)*d_T2_dV_ge_e)));
+d_Ied_dV_ge_di = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_ge_di)-((model_.XJBVD)*d_T2_dV_ge_di)));
+d_Ied_dTemp_t_GND = ((Isbd*((evaluator_lexp_0.getDerivs(T0,d_T0_dTemp_t_GND)+d_XExpBVD_dTemp_t_GND)-((model_.XJBVD)*d_T2_dTemp_t_GND)))+(d_Isbd_dTemp_t_GND*(((evaluator_lexp_0.getValues(T0)+XExpBVD)-1.0)-((model_.XJBVD)*T2))));
+Ied = (Isbd*(((evaluator_lexp_0.getValues(T0)+XExpBVD)-1.0)-((model_.XJBVD)*T2)));
+}
 }
 else
 {
@@ -19938,16 +20785,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ved_jct)/Vtm0)*d_NJTSD_t_dTemp_t_GND/NJTSD_t/NJTSD_t);
 d_T0_dV_e_di = (((-d_ved_jct_dV_e_di)/Vtm0)/NJTSD_t);
 T0 = (((-ved_jct)/Vtm0)/NJTSD_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
-d_T1_dV_di_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
-d_T1_dV_e_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
-d_T1_dV_e_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
-T1 = (AnalogFunctions::lexp<double>((T0*1.0e3))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
+T1 = (evaluator_lexp_0.getValues((T0*1.0e3))-1.0);
+}
 
 d_Ied_dTemp_t_GND = (d_Ied_dTemp_t_GND-(((ADEJ*JTSD_t)*d_T1_dTemp_t_GND)+((ADEJ*d_JTSD_t_dTemp_t_GND)*T1)));
 d_Ied_dV_di_si = (d_Ied_dV_di_si-((ADEJ*JTSD_t)*d_T1_dV_di_si));
@@ -19965,16 +20815,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ved_jct)/Vtm0)*d_NJTSD_t_dTemp_t_GND/NJTSD_t/NJTSD_t);
 d_T0_dV_e_di = (((-d_ved_jct_dV_e_di)/Vtm0)/NJTSD_t);
 T0 = (((-ved_jct)/Vtm0)/NJTSD_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dTemp_t_GND*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-d_T1_dV_di_si = AnalogFunctions::d_lexp(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_di_si*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_ge_si*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-d_T1_dV_e_di = AnalogFunctions::d_lexp(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((((model_.VTSD)-ved_jct)*(d_T0_dV_e_di*(model_.VTSD))-(T0*(model_.VTSD))*(-d_ved_jct_dV_e_di))/((model_.VTSD)-ved_jct)/((model_.VTSD)-ved_jct)));
-d_T1_dV_e_si = AnalogFunctions::d_lexp(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_e_si*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_ge_e*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_ge_di*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-T1 = (AnalogFunctions::lexp<double>(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dTemp_t_GND*(model_.VTSD))/((model_.VTSD)-ved_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_di_si*(model_.VTSD))/((model_.VTSD)-ved_jct)));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_ge_si*(model_.VTSD))/((model_.VTSD)-ved_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((((model_.VTSD)-ved_jct)*(d_T0_dV_e_di*(model_.VTSD))-(T0*(model_.VTSD))*(-d_ved_jct_dV_e_di))/((model_.VTSD)-ved_jct)/((model_.VTSD)-ved_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_e_si*(model_.VTSD))/((model_.VTSD)-ved_jct)));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_ge_e*(model_.VTSD))/((model_.VTSD)-ved_jct)));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_ge_di*(model_.VTSD))/((model_.VTSD)-ved_jct)));
+T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)))-1.0);
+}
 
 d_Ied_dTemp_t_GND = (d_Ied_dTemp_t_GND-(((ADEJ*JTSD_t)*d_T1_dTemp_t_GND)+((ADEJ*d_JTSD_t_dTemp_t_GND)*T1)));
 d_Ied_dV_di_si = (d_Ied_dV_di_si-((ADEJ*JTSD_t)*d_T1_dV_di_si));
@@ -19995,16 +20848,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ved_jct)/Vtm0)*d_NJTSSWD_t_dTemp_t_GND/NJTSSWD_t/NJTSSWD_t);
 d_T0_dV_e_di = (((-d_ved_jct_dV_e_di)/Vtm0)/NJTSSWD_t);
 T0 = (((-ved_jct)/Vtm0)/NJTSSWD_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
-d_T1_dV_di_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
-d_T1_dV_e_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
-d_T1_dV_e_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
-T1 = (AnalogFunctions::lexp<double>((T0*1.0e3))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
+T1 = (evaluator_lexp_0.getValues((T0*1.0e3))-1.0);
+}
 
 d_Ied_dTemp_t_GND = (d_Ied_dTemp_t_GND-(((PDEJ*JTSSWD_t)*d_T1_dTemp_t_GND)+((PDEJ*d_JTSSWD_t_dTemp_t_GND)*T1)));
 d_Ied_dV_di_si = (d_Ied_dV_di_si-((PDEJ*JTSSWD_t)*d_T1_dV_di_si));
@@ -20022,16 +20878,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ved_jct)/Vtm0)*d_NJTSSWD_t_dTemp_t_GND/NJTSSWD_t/NJTSSWD_t);
 d_T0_dV_e_di = (((-d_ved_jct_dV_e_di)/Vtm0)/NJTSSWD_t);
 T0 = (((-ved_jct)/Vtm0)/NJTSSWD_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dTemp_t_GND*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_di_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_di_si*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_ge_si*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_e_di = AnalogFunctions::d_lexp(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((((model_.VTSSWD)-ved_jct)*(d_T0_dV_e_di*(model_.VTSSWD))-(T0*(model_.VTSSWD))*(-d_ved_jct_dV_e_di))/((model_.VTSSWD)-ved_jct)/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_e_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_e_si*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_ge_e*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_ge_di*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-T1 = (AnalogFunctions::lexp<double>(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dTemp_t_GND*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_di_si*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_ge_si*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((((model_.VTSSWD)-ved_jct)*(d_T0_dV_e_di*(model_.VTSSWD))-(T0*(model_.VTSSWD))*(-d_ved_jct_dV_e_di))/((model_.VTSSWD)-ved_jct)/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_e_si*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_ge_e*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_ge_di*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
+T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)))-1.0);
+}
 
 d_Ied_dTemp_t_GND = (d_Ied_dTemp_t_GND-(((PDEJ*JTSSWD_t)*d_T1_dTemp_t_GND)+((PDEJ*d_JTSSWD_t_dTemp_t_GND)*T1)));
 d_Ied_dV_di_si = (d_Ied_dV_di_si-((PDEJ*JTSSWD_t)*d_T1_dV_di_si));
@@ -20052,16 +20911,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ved_jct)/Vtm0)*d_NJTSSWGD_t_dTemp_t_GND/NJTSSWGD_t/NJTSSWGD_t);
 d_T0_dV_e_di = (((-d_ved_jct_dV_e_di)/Vtm0)/NJTSSWGD_t);
 T0 = (((-ved_jct)/Vtm0)/NJTSSWGD_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
-d_T1_dV_di_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
-d_T1_dV_e_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
-d_T1_dV_e_si = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
-T1 = (AnalogFunctions::lexp<double>((T0*1.0e3))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dTemp_t_GND*1.0e3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_di_si*1.0e3));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_si*1.0e3));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_di*1.0e3));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_e_si*1.0e3));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_e*1.0e3));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs((T0*1.0e3),(d_T0_dV_ge_di*1.0e3));
+T1 = (evaluator_lexp_0.getValues((T0*1.0e3))-1.0);
+}
 
 d_Ied_dTemp_t_GND = (d_Ied_dTemp_t_GND-((((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dTemp_t_GND)+(((Weff0*NFINtotal)*d_JTSSWGD_t_dTemp_t_GND)*T1)));
 d_Ied_dV_di_si = (d_Ied_dV_di_si-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_di_si));
@@ -20079,16 +20941,19 @@ d_T0_dV_ge_di = d_T0_dV_ge_e = d_T0_dV_e_si = d_T0_dV_ge_si = d_T0_dV_di_si =  0
 d_T0_dTemp_t_GND = (-((-ved_jct)/Vtm0)*d_NJTSSWGD_t_dTemp_t_GND/NJTSSWGD_t/NJTSSWGD_t);
 d_T0_dV_e_di = (((-d_ved_jct_dV_e_di)/Vtm0)/NJTSSWGD_t);
 T0 = (((-ved_jct)/Vtm0)/NJTSSWGD_t);
+{
+AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dTemp_t_GND = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dTemp_t_GND*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_di_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_di_si*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_ge_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_ge_si*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_e_di = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((((model_.VTSSWGD)-ved_jct)*(d_T0_dV_e_di*(model_.VTSSWGD))-(T0*(model_.VTSSWGD))*(-d_ved_jct_dV_e_di))/((model_.VTSSWGD)-ved_jct)/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_e_si = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_e_si*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_ge_e = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_ge_e*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_ge_di = AnalogFunctions::d_lexp(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_ge_di*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-T1 = (AnalogFunctions::lexp<double>(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)))-1.0);
+d_T1_dTemp_t_GND = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dTemp_t_GND*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_di_si*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_ge_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_ge_si*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((((model_.VTSSWGD)-ved_jct)*(d_T0_dV_e_di*(model_.VTSSWGD))-(T0*(model_.VTSSWGD))*(-d_ved_jct_dV_e_di))/((model_.VTSSWGD)-ved_jct)/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_e_si*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_ge_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_ge_e*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_ge_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_ge_di*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
+T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)))-1.0);
+}
 
 d_Ied_dTemp_t_GND = (d_Ied_dTemp_t_GND-((((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dTemp_t_GND)+(((Weff0*NFINtotal)*d_JTSSWGD_t_dTemp_t_GND)*T1)));
 d_Ied_dV_di_si = (d_Ied_dV_di_si-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_di_si));
@@ -20112,12 +20977,20 @@ if ((T1<0.9))
 {
 if (((model_.SJS)>0.0))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0/(model_.SJS)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/(model_.MJS))*evaluator_lln_0.getValues((1.0/(model_.SJS)))));
 
-d_vec_dTemp_t_GND = (d_PBS_t_dTemp_t_GND*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJS))*AnalogFunctions::lln<double>((1.0/(model_.SJS)))))));
-vec = (PBS_t*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJS))*AnalogFunctions::lln<double>((1.0/(model_.SJS)))))));
+d_vec_dTemp_t_GND = (d_PBS_t_dTemp_t_GND*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJS))*evaluator_lln_0.getValues((1.0/(model_.SJS)))))));
+vec = (PBS_t*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJS))*evaluator_lln_0.getValues((1.0/(model_.SJS)))))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0-(vec/PBS_t)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(1.0+(model_.MJS)))*evaluator_lln_0.getValues((1.0-(vec/PBS_t)))));
 
-d_pb2_dTemp_t_GND = ((AnalogFunctions::lexp<double>(((-(1.0+(model_.MJS)))*AnalogFunctions::lln<double>((1.0-(vec/PBS_t)))))*(((d_PBS_t_dTemp_t_GND*(model_.SJS))*(model_.MJS2))/(model_.MJS))-(((PBS_t*(model_.SJS))*(model_.MJS2))/(model_.MJS))*AnalogFunctions::d_lexp(((-(1.0+(model_.MJS)))*AnalogFunctions::lln<double>((1.0-(vec/PBS_t)))),((-(1.0+(model_.MJS)))*AnalogFunctions::d_lln((1.0-(vec/PBS_t)),(-((PBS_t*d_vec_dTemp_t_GND-vec*d_PBS_t_dTemp_t_GND)/PBS_t/PBS_t))))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJS)))*AnalogFunctions::lln<double>((1.0-(vec/PBS_t)))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJS)))*AnalogFunctions::lln<double>((1.0-(vec/PBS_t))))));
-pb2 = ((((PBS_t*(model_.SJS))*(model_.MJS2))/(model_.MJS))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJS)))*AnalogFunctions::lln<double>((1.0-(vec/PBS_t))))));
+d_pb2_dTemp_t_GND = ((evaluator_lexp_1.getValues(((-(1.0+(model_.MJS)))*evaluator_lln_0.getValues((1.0-(vec/PBS_t)))))*(((d_PBS_t_dTemp_t_GND*(model_.SJS))*(model_.MJS2))/(model_.MJS))-(((PBS_t*(model_.SJS))*(model_.MJS2))/(model_.MJS))*evaluator_lexp_1.getDerivs(((-(1.0+(model_.MJS)))*evaluator_lln_0.getValues((1.0-(vec/PBS_t)))),((-(1.0+(model_.MJS)))*evaluator_lln_0.getDerivs((1.0-(vec/PBS_t)),(-((PBS_t*d_vec_dTemp_t_GND-vec*d_PBS_t_dTemp_t_GND)/PBS_t/PBS_t))))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJS)))*evaluator_lln_0.getValues((1.0-(vec/PBS_t)))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJS)))*evaluator_lln_0.getValues((1.0-(vec/PBS_t))))));
+pb2 = ((((PBS_t*(model_.SJS))*(model_.MJS2))/(model_.MJS))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJS)))*evaluator_lln_0.getValues((1.0-(vec/PBS_t))))));
+}
 if ((ves_jct>vec))
 {
 
@@ -20147,15 +21020,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qesj1_dV_di_d = d_Qesj1_dV_si_s =  0.0;
@@ -20192,15 +21069,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qec_dV_di_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJS)));
@@ -20234,15 +21115,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS2))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS2))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJS2))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qesj1_dV_di_d = d_Qesj1_dV_si_s =  0.0;
@@ -20285,15 +21170,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJS))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qesj1_dV_di_d = d_Qesj1_dV_si_s =  0.0;
@@ -20309,9 +21198,13 @@ Qesj1 = (((PBS_t*Czbs)*(1.0-(arg*sarg)))/(1.0-(model_.MJS)));
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(0.1);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJS))*evaluator_lln_0.getValues(0.1)));
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si = d_T2_dTemp_t_GND =  0.0;
-T2 = AnalogFunctions::lexp<double>(((-(model_.MJS))*AnalogFunctions::lln<double>(0.1)));
+T2 = evaluator_lexp_1.getValues(((-(model_.MJS))*evaluator_lln_0.getValues(0.1)));
+}
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di = d_T3_dV_ge_e = d_T3_dV_di_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_ge_si = d_T3_dTemp_t_GND =  0.0;
 T3 = (1.0/(1.0-(model_.MJS)));
@@ -20366,12 +21259,20 @@ if ((T1<0.9))
 {
 if (((model_.SJSWS)>0.0))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0/(model_.SJSWS)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/(model_.MJSWS))*evaluator_lln_0.getValues((1.0/(model_.SJSWS)))));
 
-d_vec_dTemp_t_GND = (d_PBSWS_t_dTemp_t_GND*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJSWS))*AnalogFunctions::lln<double>((1.0/(model_.SJSWS)))))));
-vec = (PBSWS_t*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJSWS))*AnalogFunctions::lln<double>((1.0/(model_.SJSWS)))))));
+d_vec_dTemp_t_GND = (d_PBSWS_t_dTemp_t_GND*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJSWS))*evaluator_lln_0.getValues((1.0/(model_.SJSWS)))))));
+vec = (PBSWS_t*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJSWS))*evaluator_lln_0.getValues((1.0/(model_.SJSWS)))))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0-(vec/PBSWS_t)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(1.0+(model_.MJSWS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWS_t)))));
 
-d_pb2_dTemp_t_GND = ((AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWS_t)))))*(((d_PBSWS_t_dTemp_t_GND*(model_.SJSWS))*(model_.MJSWS2))/(model_.MJSWS))-(((PBSWS_t*(model_.SJSWS))*(model_.MJSWS2))/(model_.MJSWS))*AnalogFunctions::d_lexp(((-(1.0+(model_.MJSWS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWS_t)))),((-(1.0+(model_.MJSWS)))*AnalogFunctions::d_lln((1.0-(vec/PBSWS_t)),(-((PBSWS_t*d_vec_dTemp_t_GND-vec*d_PBSWS_t_dTemp_t_GND)/PBSWS_t/PBSWS_t))))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWS_t)))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWS_t))))));
-pb2 = ((((PBSWS_t*(model_.SJSWS))*(model_.MJSWS2))/(model_.MJSWS))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWS_t))))));
+d_pb2_dTemp_t_GND = ((evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWS_t)))))*(((d_PBSWS_t_dTemp_t_GND*(model_.SJSWS))*(model_.MJSWS2))/(model_.MJSWS))-(((PBSWS_t*(model_.SJSWS))*(model_.MJSWS2))/(model_.MJSWS))*evaluator_lexp_1.getDerivs(((-(1.0+(model_.MJSWS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWS_t)))),((-(1.0+(model_.MJSWS)))*evaluator_lln_0.getDerivs((1.0-(vec/PBSWS_t)),(-((PBSWS_t*d_vec_dTemp_t_GND-vec*d_PBSWS_t_dTemp_t_GND)/PBSWS_t/PBSWS_t))))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWS_t)))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWS_t))))));
+pb2 = ((((PBSWS_t*(model_.SJSWS))*(model_.MJSWS2))/(model_.MJSWS))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWS_t))))));
+}
 if ((ves_jct>vec))
 {
 
@@ -20401,15 +21302,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qesj2_dV_di_d = d_Qesj2_dV_si_s =  0.0;
@@ -20446,15 +21351,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qec_dV_di_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWS)));
@@ -20488,15 +21397,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS2))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS2))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWS2))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qesj2_dV_di_d = d_Qesj2_dV_si_s =  0.0;
@@ -20539,15 +21452,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWS))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qesj2_dV_di_d = d_Qesj2_dV_si_s =  0.0;
@@ -20563,9 +21480,13 @@ Qesj2 = (((PBSWS_t*Czbssw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWS)));
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(0.1);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWS))*evaluator_lln_0.getValues(0.1)));
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si = d_T2_dTemp_t_GND =  0.0;
-T2 = AnalogFunctions::lexp<double>(((-(model_.MJSWS))*AnalogFunctions::lln<double>(0.1)));
+T2 = evaluator_lexp_1.getValues(((-(model_.MJSWS))*evaluator_lln_0.getValues(0.1)));
+}
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di = d_T3_dV_ge_e = d_T3_dV_di_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_ge_si = d_T3_dTemp_t_GND =  0.0;
 T3 = (1.0/(1.0-(model_.MJSWS)));
@@ -20620,12 +21541,20 @@ if ((T1<0.9))
 {
 if (((model_.SJSWGS)>0.0))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0/(model_.SJSWGS)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/(model_.MJSWGS))*evaluator_lln_0.getValues((1.0/(model_.SJSWGS)))));
 
-d_vec_dTemp_t_GND = (d_PBSWGS_t_dTemp_t_GND*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJSWGS))*AnalogFunctions::lln<double>((1.0/(model_.SJSWGS)))))));
-vec = (PBSWGS_t*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJSWGS))*AnalogFunctions::lln<double>((1.0/(model_.SJSWGS)))))));
+d_vec_dTemp_t_GND = (d_PBSWGS_t_dTemp_t_GND*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJSWGS))*evaluator_lln_0.getValues((1.0/(model_.SJSWGS)))))));
+vec = (PBSWGS_t*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJSWGS))*evaluator_lln_0.getValues((1.0/(model_.SJSWGS)))))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0-(vec/PBSWGS_t)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(1.0+(model_.MJSWGS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGS_t)))));
 
-d_pb2_dTemp_t_GND = ((AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWGS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGS_t)))))*(((d_PBSWGS_t_dTemp_t_GND*(model_.SJSWGS))*(model_.MJSWGS2))/(model_.MJSWGS))-(((PBSWGS_t*(model_.SJSWGS))*(model_.MJSWGS2))/(model_.MJSWGS))*AnalogFunctions::d_lexp(((-(1.0+(model_.MJSWGS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGS_t)))),((-(1.0+(model_.MJSWGS)))*AnalogFunctions::d_lln((1.0-(vec/PBSWGS_t)),(-((PBSWGS_t*d_vec_dTemp_t_GND-vec*d_PBSWGS_t_dTemp_t_GND)/PBSWGS_t/PBSWGS_t))))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWGS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGS_t)))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWGS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGS_t))))));
-pb2 = ((((PBSWGS_t*(model_.SJSWGS))*(model_.MJSWGS2))/(model_.MJSWGS))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWGS)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGS_t))))));
+d_pb2_dTemp_t_GND = ((evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWGS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGS_t)))))*(((d_PBSWGS_t_dTemp_t_GND*(model_.SJSWGS))*(model_.MJSWGS2))/(model_.MJSWGS))-(((PBSWGS_t*(model_.SJSWGS))*(model_.MJSWGS2))/(model_.MJSWGS))*evaluator_lexp_1.getDerivs(((-(1.0+(model_.MJSWGS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGS_t)))),((-(1.0+(model_.MJSWGS)))*evaluator_lln_0.getDerivs((1.0-(vec/PBSWGS_t)),(-((PBSWGS_t*d_vec_dTemp_t_GND-vec*d_PBSWGS_t_dTemp_t_GND)/PBSWGS_t/PBSWGS_t))))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWGS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGS_t)))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWGS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGS_t))))));
+pb2 = ((((PBSWGS_t*(model_.SJSWGS))*(model_.MJSWGS2))/(model_.MJSWGS))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWGS)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGS_t))))));
+}
 if ((ves_jct>vec))
 {
 
@@ -20655,15 +21584,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qesj3_dV_di_d = d_Qesj3_dV_si_s =  0.0;
@@ -20700,15 +21633,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qec_dV_di_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGS)));
@@ -20742,15 +21679,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWGS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS2))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS2))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWGS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWGS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWGS2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWGS2))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qesj3_dV_di_d = d_Qesj3_dV_si_s =  0.0;
@@ -20793,15 +21734,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGS))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qesj3_dV_di_d = d_Qesj3_dV_si_s =  0.0;
@@ -20817,9 +21762,13 @@ Qesj3 = (((PBSWGS_t*Czbsswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGS)));
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(0.1);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGS))*evaluator_lln_0.getValues(0.1)));
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si = d_T2_dTemp_t_GND =  0.0;
-T2 = AnalogFunctions::lexp<double>(((-(model_.MJSWGS))*AnalogFunctions::lln<double>(0.1)));
+T2 = evaluator_lexp_1.getValues(((-(model_.MJSWGS))*evaluator_lln_0.getValues(0.1)));
+}
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di = d_T3_dV_ge_e = d_T3_dV_di_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_ge_si = d_T3_dTemp_t_GND =  0.0;
 T3 = (1.0/(1.0-(model_.MJSWGS)));
@@ -20885,12 +21834,20 @@ if ((T1<0.9))
 {
 if (((model_.SJD)>0.0))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0/(model_.SJD)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/(model_.MJD))*evaluator_lln_0.getValues((1.0/(model_.SJD)))));
 
-d_vec_dTemp_t_GND = (d_PBD_t_dTemp_t_GND*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJD))*AnalogFunctions::lln<double>((1.0/(model_.SJD)))))));
-vec = (PBD_t*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJD))*AnalogFunctions::lln<double>((1.0/(model_.SJD)))))));
+d_vec_dTemp_t_GND = (d_PBD_t_dTemp_t_GND*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJD))*evaluator_lln_0.getValues((1.0/(model_.SJD)))))));
+vec = (PBD_t*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJD))*evaluator_lln_0.getValues((1.0/(model_.SJD)))))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0-(vec/PBD_t)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(1.0+(model_.MJD)))*evaluator_lln_0.getValues((1.0-(vec/PBD_t)))));
 
-d_pb2_dTemp_t_GND = ((AnalogFunctions::lexp<double>(((-(1.0+(model_.MJD)))*AnalogFunctions::lln<double>((1.0-(vec/PBD_t)))))*(((d_PBD_t_dTemp_t_GND*(model_.SJD))*(model_.MJD2))/(model_.MJD))-(((PBD_t*(model_.SJD))*(model_.MJD2))/(model_.MJD))*AnalogFunctions::d_lexp(((-(1.0+(model_.MJD)))*AnalogFunctions::lln<double>((1.0-(vec/PBD_t)))),((-(1.0+(model_.MJD)))*AnalogFunctions::d_lln((1.0-(vec/PBD_t)),(-((PBD_t*d_vec_dTemp_t_GND-vec*d_PBD_t_dTemp_t_GND)/PBD_t/PBD_t))))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJD)))*AnalogFunctions::lln<double>((1.0-(vec/PBD_t)))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJD)))*AnalogFunctions::lln<double>((1.0-(vec/PBD_t))))));
-pb2 = ((((PBD_t*(model_.SJD))*(model_.MJD2))/(model_.MJD))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJD)))*AnalogFunctions::lln<double>((1.0-(vec/PBD_t))))));
+d_pb2_dTemp_t_GND = ((evaluator_lexp_1.getValues(((-(1.0+(model_.MJD)))*evaluator_lln_0.getValues((1.0-(vec/PBD_t)))))*(((d_PBD_t_dTemp_t_GND*(model_.SJD))*(model_.MJD2))/(model_.MJD))-(((PBD_t*(model_.SJD))*(model_.MJD2))/(model_.MJD))*evaluator_lexp_1.getDerivs(((-(1.0+(model_.MJD)))*evaluator_lln_0.getValues((1.0-(vec/PBD_t)))),((-(1.0+(model_.MJD)))*evaluator_lln_0.getDerivs((1.0-(vec/PBD_t)),(-((PBD_t*d_vec_dTemp_t_GND-vec*d_PBD_t_dTemp_t_GND)/PBD_t/PBD_t))))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJD)))*evaluator_lln_0.getValues((1.0-(vec/PBD_t)))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJD)))*evaluator_lln_0.getValues((1.0-(vec/PBD_t))))));
+pb2 = ((((PBD_t*(model_.SJD))*(model_.MJD2))/(model_.MJD))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJD)))*evaluator_lln_0.getValues((1.0-(vec/PBD_t))))));
+}
 if ((ved_jct>vec))
 {
 
@@ -20920,15 +21877,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qedj1_dV_di_d = d_Qedj1_dV_si_s =  0.0;
@@ -20965,15 +21926,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qec_dV_di_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJD)));
@@ -21007,15 +21972,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD2))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD2))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJD2))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qedj1_dV_di_d = d_Qedj1_dV_si_s =  0.0;
@@ -21058,15 +22027,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJD))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qedj1_dV_di_d = d_Qedj1_dV_si_s =  0.0;
@@ -21082,9 +22055,13 @@ Qedj1 = (((PBD_t*Czbd)*(1.0-(arg*sarg)))/(1.0-(model_.MJD)));
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(0.1);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJD))*evaluator_lln_0.getValues(0.1)));
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si = d_T2_dTemp_t_GND =  0.0;
-T2 = AnalogFunctions::lexp<double>(((-(model_.MJD))*AnalogFunctions::lln<double>(0.1)));
+T2 = evaluator_lexp_1.getValues(((-(model_.MJD))*evaluator_lln_0.getValues(0.1)));
+}
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di = d_T3_dV_ge_e = d_T3_dV_di_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_ge_si = d_T3_dTemp_t_GND =  0.0;
 T3 = (1.0/(1.0-(model_.MJD)));
@@ -21139,12 +22116,20 @@ if ((T1<0.9))
 {
 if (((model_.SJSWD)>0.0))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0/(model_.SJSWD)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/(model_.MJSWD))*evaluator_lln_0.getValues((1.0/(model_.SJSWD)))));
 
-d_vec_dTemp_t_GND = (d_PBSWD_t_dTemp_t_GND*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJSWD))*AnalogFunctions::lln<double>((1.0/(model_.SJSWD)))))));
-vec = (PBSWD_t*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJSWD))*AnalogFunctions::lln<double>((1.0/(model_.SJSWD)))))));
+d_vec_dTemp_t_GND = (d_PBSWD_t_dTemp_t_GND*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJSWD))*evaluator_lln_0.getValues((1.0/(model_.SJSWD)))))));
+vec = (PBSWD_t*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJSWD))*evaluator_lln_0.getValues((1.0/(model_.SJSWD)))))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0-(vec/PBSWD_t)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(1.0+(model_.MJSWD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWD_t)))));
 
-d_pb2_dTemp_t_GND = ((AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWD_t)))))*(((d_PBSWD_t_dTemp_t_GND*(model_.SJSWD))*(model_.MJSWD2))/(model_.MJSWD))-(((PBSWD_t*(model_.SJSWD))*(model_.MJSWD2))/(model_.MJSWD))*AnalogFunctions::d_lexp(((-(1.0+(model_.MJSWD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWD_t)))),((-(1.0+(model_.MJSWD)))*AnalogFunctions::d_lln((1.0-(vec/PBSWD_t)),(-((PBSWD_t*d_vec_dTemp_t_GND-vec*d_PBSWD_t_dTemp_t_GND)/PBSWD_t/PBSWD_t))))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWD_t)))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWD_t))))));
-pb2 = ((((PBSWD_t*(model_.SJSWD))*(model_.MJSWD2))/(model_.MJSWD))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWD_t))))));
+d_pb2_dTemp_t_GND = ((evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWD_t)))))*(((d_PBSWD_t_dTemp_t_GND*(model_.SJSWD))*(model_.MJSWD2))/(model_.MJSWD))-(((PBSWD_t*(model_.SJSWD))*(model_.MJSWD2))/(model_.MJSWD))*evaluator_lexp_1.getDerivs(((-(1.0+(model_.MJSWD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWD_t)))),((-(1.0+(model_.MJSWD)))*evaluator_lln_0.getDerivs((1.0-(vec/PBSWD_t)),(-((PBSWD_t*d_vec_dTemp_t_GND-vec*d_PBSWD_t_dTemp_t_GND)/PBSWD_t/PBSWD_t))))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWD_t)))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWD_t))))));
+pb2 = ((((PBSWD_t*(model_.SJSWD))*(model_.MJSWD2))/(model_.MJSWD))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWD_t))))));
+}
 if ((ved_jct>vec))
 {
 
@@ -21174,15 +22159,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qedj2_dV_di_d = d_Qedj2_dV_si_s =  0.0;
@@ -21219,15 +22208,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qec_dV_di_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWD)));
@@ -21261,15 +22254,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD2))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD2))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWD2))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qedj2_dV_di_d = d_Qedj2_dV_si_s =  0.0;
@@ -21312,15 +22309,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWD))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qedj2_dV_di_d = d_Qedj2_dV_si_s =  0.0;
@@ -21336,9 +22337,13 @@ Qedj2 = (((PBSWD_t*Czbdsw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWD)));
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(0.1);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWD))*evaluator_lln_0.getValues(0.1)));
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si = d_T2_dTemp_t_GND =  0.0;
-T2 = AnalogFunctions::lexp<double>(((-(model_.MJSWD))*AnalogFunctions::lln<double>(0.1)));
+T2 = evaluator_lexp_1.getValues(((-(model_.MJSWD))*evaluator_lln_0.getValues(0.1)));
+}
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di = d_T3_dV_ge_e = d_T3_dV_di_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_ge_si = d_T3_dTemp_t_GND =  0.0;
 T3 = (1.0/(1.0-(model_.MJSWD)));
@@ -21393,12 +22398,20 @@ if ((T1<0.9))
 {
 if (((model_.SJSWGD)>0.0))
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0/(model_.SJSWGD)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/(model_.MJSWGD))*evaluator_lln_0.getValues((1.0/(model_.SJSWGD)))));
 
-d_vec_dTemp_t_GND = (d_PBSWGD_t_dTemp_t_GND*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJSWGD))*AnalogFunctions::lln<double>((1.0/(model_.SJSWGD)))))));
-vec = (PBSWGD_t*(1.0-AnalogFunctions::lexp<double>(((1.0/(model_.MJSWGD))*AnalogFunctions::lln<double>((1.0/(model_.SJSWGD)))))));
+d_vec_dTemp_t_GND = (d_PBSWGD_t_dTemp_t_GND*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJSWGD))*evaluator_lln_0.getValues((1.0/(model_.SJSWGD)))))));
+vec = (PBSWGD_t*(1.0-evaluator_lexp_1.getValues(((1.0/(model_.MJSWGD))*evaluator_lln_0.getValues((1.0/(model_.SJSWGD)))))));
+}
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0((1.0-(vec/PBSWGD_t)));
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(1.0+(model_.MJSWGD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGD_t)))));
 
-d_pb2_dTemp_t_GND = ((AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWGD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGD_t)))))*(((d_PBSWGD_t_dTemp_t_GND*(model_.SJSWGD))*(model_.MJSWGD2))/(model_.MJSWGD))-(((PBSWGD_t*(model_.SJSWGD))*(model_.MJSWGD2))/(model_.MJSWGD))*AnalogFunctions::d_lexp(((-(1.0+(model_.MJSWGD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGD_t)))),((-(1.0+(model_.MJSWGD)))*AnalogFunctions::d_lln((1.0-(vec/PBSWGD_t)),(-((PBSWGD_t*d_vec_dTemp_t_GND-vec*d_PBSWGD_t_dTemp_t_GND)/PBSWGD_t/PBSWGD_t))))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWGD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGD_t)))))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWGD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGD_t))))));
-pb2 = ((((PBSWGD_t*(model_.SJSWGD))*(model_.MJSWGD2))/(model_.MJSWGD))/AnalogFunctions::lexp<double>(((-(1.0+(model_.MJSWGD)))*AnalogFunctions::lln<double>((1.0-(vec/PBSWGD_t))))));
+d_pb2_dTemp_t_GND = ((evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWGD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGD_t)))))*(((d_PBSWGD_t_dTemp_t_GND*(model_.SJSWGD))*(model_.MJSWGD2))/(model_.MJSWGD))-(((PBSWGD_t*(model_.SJSWGD))*(model_.MJSWGD2))/(model_.MJSWGD))*evaluator_lexp_1.getDerivs(((-(1.0+(model_.MJSWGD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGD_t)))),((-(1.0+(model_.MJSWGD)))*evaluator_lln_0.getDerivs((1.0-(vec/PBSWGD_t)),(-((PBSWGD_t*d_vec_dTemp_t_GND-vec*d_PBSWGD_t_dTemp_t_GND)/PBSWGD_t/PBSWGD_t))))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWGD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGD_t)))))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWGD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGD_t))))));
+pb2 = ((((PBSWGD_t*(model_.SJSWGD))*(model_.MJSWGD2))/(model_.MJSWGD))/evaluator_lexp_1.getValues(((-(1.0+(model_.MJSWGD)))*evaluator_lln_0.getValues((1.0-(vec/PBSWGD_t))))));
+}
 if ((ved_jct>vec))
 {
 
@@ -21428,15 +22441,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qedj3_dV_di_d = d_Qedj3_dV_si_s =  0.0;
@@ -21473,15 +22490,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qec_dV_di_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGD)));
@@ -21515,15 +22536,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWGD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD2))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD2))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWGD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD2))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWGD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWGD2))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD2))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWGD2))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qedj3_dV_di_d = d_Qedj3_dV_si_s =  0.0;
@@ -21566,15 +22591,19 @@ sarg = (1.0/value_sqrt_0);
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dTemp_t_GND = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dTemp_t_GND)));
-d_sarg_dV_di_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_di_si)));
-d_sarg_dV_ge_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_si)));
-d_sarg_dV_e_di = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_e_si)));
-d_sarg_dV_ge_e = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_e)));
-d_sarg_dV_ge_di = AnalogFunctions::d_lexp(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)),((-(model_.MJSWGD))*AnalogFunctions::d_lln(arg,d_arg_dV_ge_di)));
-sarg = AnalogFunctions::lexp<double>(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(arg)));
+d_sarg_dTemp_t_GND = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dTemp_t_GND)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
+d_sarg_dV_ge_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_si)));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
+d_sarg_dV_ge_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_e)));
+d_sarg_dV_ge_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_ge_di)));
+sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
+}
 }
 
 d_Qedj3_dV_di_d = d_Qedj3_dV_si_s =  0.0;
@@ -21590,9 +22619,13 @@ Qedj3 = (((PBSWGD_t*Czbdswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGD)));
 }
 else
 {
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(0.1);
+AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGD))*evaluator_lln_0.getValues(0.1)));
 
 d_T2_dV_di_d = d_T2_dV_si_s = d_T2_dV_ge_di = d_T2_dV_ge_e = d_T2_dV_ge_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si = d_T2_dTemp_t_GND =  0.0;
-T2 = AnalogFunctions::lexp<double>(((-(model_.MJSWGD))*AnalogFunctions::lln<double>(0.1)));
+T2 = evaluator_lexp_1.getValues(((-(model_.MJSWGD))*evaluator_lln_0.getValues(0.1)));
+}
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di = d_T3_dV_ge_e = d_T3_dV_di_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_ge_si = d_T3_dTemp_t_GND =  0.0;
 T3 = (1.0/(1.0-(model_.MJSWGD)));
@@ -21910,15 +22943,18 @@ d_T0_dV_e_di = ((Esatnoi*(d_diffVds_dV_e_di/litl)-((diffVds/litl)+(model_.EM))*d
 d_T0_dV_e_si = ((Esatnoi*(d_diffVds_dV_e_si/litl)-((diffVds/litl)+(model_.EM))*d_Esatnoi_dV_e_si)/Esatnoi/Esatnoi);
 d_T0_dV_di_si = ((Esatnoi*(d_diffVds_dV_di_si/litl)-((diffVds/litl)+(model_.EM))*d_Esatnoi_dV_di_si)/Esatnoi/Esatnoi);
 T0 = (((diffVds/litl)+(model_.EM))/Esatnoi);
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(T0);
 
-d_DelClm_dTemp_t_GND = (litl*AnalogFunctions::d_lln(T0,d_T0_dTemp_t_GND));
-d_DelClm_dV_di_si = (litl*AnalogFunctions::d_lln(T0,d_T0_dV_di_si));
-d_DelClm_dV_ge_si = (litl*AnalogFunctions::d_lln(T0,d_T0_dV_ge_si));
-d_DelClm_dV_e_di = (litl*AnalogFunctions::d_lln(T0,d_T0_dV_e_di));
-d_DelClm_dV_e_si = (litl*AnalogFunctions::d_lln(T0,d_T0_dV_e_si));
-d_DelClm_dV_ge_e = (litl*AnalogFunctions::d_lln(T0,d_T0_dV_ge_e));
-d_DelClm_dV_ge_di = (litl*AnalogFunctions::d_lln(T0,d_T0_dV_ge_di));
-DelClm = (litl*AnalogFunctions::lln<double>(T0));
+d_DelClm_dTemp_t_GND = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dTemp_t_GND));
+d_DelClm_dV_di_si = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_di_si));
+d_DelClm_dV_ge_si = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_ge_si));
+d_DelClm_dV_e_di = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_e_di));
+d_DelClm_dV_e_si = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_e_si));
+d_DelClm_dV_ge_e = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_ge_e));
+d_DelClm_dV_ge_di = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_ge_di));
+DelClm = (litl*evaluator_lln_0.getValues(T0));
+}
 if ((DelClm<0.0))
 {
 
@@ -21973,15 +23009,18 @@ d_Nstar_dV_di_si = ((Vtm/1.60219e-19)*(d_coxeff_dV_di_si+d_CIT_a_dV_di_si));
 d_Nstar_dV_ge_e = ((Vtm/1.60219e-19)*d_coxeff_dV_ge_e);
 d_Nstar_dTemp_t_GND = (((Vtm/1.60219e-19)*(d_coxeff_dTemp_t_GND+d_CIT_a_dTemp_t_GND))+((d_Vtm_dTemp_t_GND/1.60219e-19)*(coxeff+CIT_a)));
 Nstar = ((Vtm/1.60219e-19)*(coxeff+CIT_a));
+{
+AnalogFunctions::llnEvaluator evaluator_lln_0(((N0+Nstar)/(Nl+Nstar)));
 
 d_T3_dV_di_d = d_T3_dV_si_s = d_T3_dV_ge_di =  0.0;
-d_T3_dTemp_t_GND = ((model_.NOIA)*AnalogFunctions::d_lln(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dTemp_t_GND+d_Nstar_dTemp_t_GND)-(N0+Nstar)*(d_Nl_dTemp_t_GND+d_Nstar_dTemp_t_GND))/(Nl+Nstar)/(Nl+Nstar))));
-d_T3_dV_ge_si = ((model_.NOIA)*AnalogFunctions::d_lln(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_ge_si+d_Nstar_dV_ge_si)-(N0+Nstar)*(d_Nl_dV_ge_si+d_Nstar_dV_ge_si))/(Nl+Nstar)/(Nl+Nstar))));
-d_T3_dV_e_di = ((model_.NOIA)*AnalogFunctions::d_lln(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_e_di+d_Nstar_dV_e_di)-(N0+Nstar)*(d_Nl_dV_e_di+d_Nstar_dV_e_di))/(Nl+Nstar)/(Nl+Nstar))));
-d_T3_dV_e_si = ((model_.NOIA)*AnalogFunctions::d_lln(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_e_si+d_Nstar_dV_e_si)-(N0+Nstar)*(d_Nl_dV_e_si+d_Nstar_dV_e_si))/(Nl+Nstar)/(Nl+Nstar))));
-d_T3_dV_di_si = ((model_.NOIA)*AnalogFunctions::d_lln(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_di_si+d_Nstar_dV_di_si)-(N0+Nstar)*(d_Nl_dV_di_si+d_Nstar_dV_di_si))/(Nl+Nstar)/(Nl+Nstar))));
-d_T3_dV_ge_e = ((model_.NOIA)*AnalogFunctions::d_lln(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_ge_e+d_Nstar_dV_ge_e)-(N0+Nstar)*(d_Nl_dV_ge_e+d_Nstar_dV_ge_e))/(Nl+Nstar)/(Nl+Nstar))));
-T3 = ((model_.NOIA)*AnalogFunctions::lln<double>(((N0+Nstar)/(Nl+Nstar))));
+d_T3_dTemp_t_GND = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dTemp_t_GND+d_Nstar_dTemp_t_GND)-(N0+Nstar)*(d_Nl_dTemp_t_GND+d_Nstar_dTemp_t_GND))/(Nl+Nstar)/(Nl+Nstar))));
+d_T3_dV_ge_si = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_ge_si+d_Nstar_dV_ge_si)-(N0+Nstar)*(d_Nl_dV_ge_si+d_Nstar_dV_ge_si))/(Nl+Nstar)/(Nl+Nstar))));
+d_T3_dV_e_di = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_e_di+d_Nstar_dV_e_di)-(N0+Nstar)*(d_Nl_dV_e_di+d_Nstar_dV_e_di))/(Nl+Nstar)/(Nl+Nstar))));
+d_T3_dV_e_si = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_e_si+d_Nstar_dV_e_si)-(N0+Nstar)*(d_Nl_dV_e_si+d_Nstar_dV_e_si))/(Nl+Nstar)/(Nl+Nstar))));
+d_T3_dV_di_si = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_di_si+d_Nstar_dV_di_si)-(N0+Nstar)*(d_Nl_dV_di_si+d_Nstar_dV_di_si))/(Nl+Nstar)/(Nl+Nstar))));
+d_T3_dV_ge_e = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_ge_e+d_Nstar_dV_ge_e)-(N0+Nstar)*(d_Nl_dV_ge_e+d_Nstar_dV_ge_e))/(Nl+Nstar)/(Nl+Nstar))));
+T3 = ((model_.NOIA)*evaluator_lln_0.getValues(((N0+Nstar)/(Nl+Nstar))));
+}
 
 d_T4_dV_ge_di =  0.0;
 d_T4_dTemp_t_GND = ((model_.NOIB)*(d_N0_dTemp_t_GND-d_Nl_dTemp_t_GND));

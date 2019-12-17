@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:26
+// Creation Date  : Tue, 17 Dec 2019 13:36:54
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSvbic13_4t_h
@@ -1870,6 +1870,36 @@ template<typename ScalarT> ScalarT limRTH(ScalarT orig, ScalarT old)
   }
   return(limRTH);
 }
+// Derivative of Analog Function limRTH
+double d_limRTH(double orig , double old  , double d_orig  , double d_old  );
+// Evaluator class for Analog Function limRTH
+class limRTHEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_orig;
+    double deriv_WRT_old;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  limRTHEvaluator(double orig, double old);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  orig, double  old);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double orig , double old  , double d_orig, double d_old);
+private:
+  returnType limRTHReturn_;
+  returnType evaluator_(double orig, double old);
+};
 
 }
 

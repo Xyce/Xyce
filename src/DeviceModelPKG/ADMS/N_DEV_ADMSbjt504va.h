@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:30
+// Creation Date  : Tue, 17 Dec 2019 14:55:04
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbjt504va_h
@@ -1555,6 +1555,38 @@ trunc_ev = result;
 }
 return(trunc_ev);
 }
+// Derivative of Analog Function trunc_ev
+double d_trunc_ev(double Val , double Vprev , double Vmin , double Vmax  , double d_Val  , double d_Vprev  , double d_Vmin  , double d_Vmax  );
+// Evaluator class for Analog Function trunc_ev
+class trunc_evEvaluator
+{
+  struct returnType
+  {
+     double value;
+     double deriv_WRT_Val;
+     double deriv_WRT_Vprev;
+     double deriv_WRT_Vmin;
+     double deriv_WRT_Vmax;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  trunc_evEvaluator(double Val, double Vprev, double Vmin, double Vmax);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  Val, double  Vprev, double  Vmin, double  Vmax);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+double getDerivs(double Val , double Vprev , double Vmin , double Vmax  , double d_Val, double d_Vprev, double d_Vmin, double d_Vmax);
+private:
+  returnType trunc_evReturn_;
+  returnType evaluator_(double Val, double Vprev, double Vmin, double Vmax);
+};
 
 }
 
