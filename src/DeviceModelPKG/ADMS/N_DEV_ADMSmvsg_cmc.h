@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:25
+// Creation Date  : Tue, 17 Dec 2019 14:57:36
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSmvsg_cmc_h
@@ -2034,6 +2034,33 @@ return(absfunc);
 }
 // Derivative of Analog Function absfunc
 double d_absfunc(double x  , double d_x  );
+// Evaluator class for Analog Function absfunc
+class absfuncEvaluator
+{
+  struct returnType
+  {
+     double value;
+     double deriv_WRT_x;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  absfuncEvaluator(double x);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+double getDerivs(double x  , double d_x);
+private:
+  returnType absfuncReturn_;
+  returnType evaluator_(double x);
+};
 
 
       // Analog Function mmax
@@ -2049,6 +2076,34 @@ return(mmax);
 }
 // Derivative of Analog Function mmax
 double d_mmax(double x , double y  , double d_x  , double d_y  );
+// Evaluator class for Analog Function mmax
+class mmaxEvaluator
+{
+  struct returnType
+  {
+     double value;
+     double deriv_WRT_x;
+     double deriv_WRT_y;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  mmaxEvaluator(double x, double y);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x, double  y);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+double getDerivs(double x , double y  , double d_x, double d_y);
+private:
+  returnType mmaxReturn_;
+  returnType evaluator_(double x, double y);
+};
 
 
       // Analog Function explim
@@ -2078,6 +2133,33 @@ return(explim);
 }
 // Derivative of Analog Function explim
 double d_explim(double x  , double d_x  );
+// Evaluator class for Analog Function explim
+class explimEvaluator
+{
+  struct returnType
+  {
+     double value;
+     double deriv_WRT_x;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  explimEvaluator(double x);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+double getDerivs(double x  , double d_x);
+private:
+  returnType explimReturn_;
+  returnType evaluator_(double x);
+};
 
 
       // Analog Function calc_iq
@@ -2477,6 +2559,73 @@ return(calc_iq);
 }
 // Derivative of Analog Function calc_iq
 double d_calc_iq(double idsout , double qgsout , double qgdout , double qcout , double qbout , double qsout , double vtdibl , double vdsat1 , double vgsin , double vdsin , double qcbflag , double vcin , double vbin , double qgsflag , double tambin , double tnomin , double phitin , double w , double lin , double cgin , double cs , double cc , double cb , double vto , double ss , double delta1 , double delta2 , double nd , double alpha , double vel0 , double mu0 , double beta , double mtheta , double vtheta , double vtzeta , double dibsat , double epsilon , double vzeta , double lambda , double ngf , double type  , double & d_idsout  , double & d_qgsout  , double & d_qgdout  , double & d_qcout  , double & d_qbout  , double & d_qsout  , double & d_vtdibl  , double & d_vdsat1  , double d_vgsin  , double d_vdsin  , double d_qcbflag  , double d_vcin  , double d_vbin  , double d_qgsflag  , double d_tambin  , double d_tnomin  , double d_phitin  , double d_w  , double d_lin  , double d_cgin  , double d_cs  , double d_cc  , double d_cb  , double d_vto  , double d_ss  , double d_delta1  , double d_delta2  , double d_nd  , double d_alpha  , double d_vel0  , double d_mu0  , double d_beta  , double d_mtheta  , double d_vtheta  , double d_vtzeta  , double d_dibsat  , double d_epsilon  , double d_vzeta  , double d_lambda  , double d_ngf  , double d_type  );
+// Evaluator class for Analog Function calc_iq
+class calc_iqEvaluator
+{
+  struct returnType
+  {
+     double value;
+     double deriv_WRT_vgsin;
+     double deriv_WRT_vdsin;
+     double deriv_WRT_qcbflag;
+     double deriv_WRT_vcin;
+     double deriv_WRT_vbin;
+     double deriv_WRT_qgsflag;
+     double deriv_WRT_tambin;
+     double deriv_WRT_tnomin;
+     double deriv_WRT_phitin;
+     double deriv_WRT_w;
+     double deriv_WRT_lin;
+     double deriv_WRT_cgin;
+     double deriv_WRT_cs;
+     double deriv_WRT_cc;
+     double deriv_WRT_cb;
+     double deriv_WRT_vto;
+     double deriv_WRT_ss;
+     double deriv_WRT_delta1;
+     double deriv_WRT_delta2;
+     double deriv_WRT_nd;
+     double deriv_WRT_alpha;
+     double deriv_WRT_vel0;
+     double deriv_WRT_mu0;
+     double deriv_WRT_beta;
+     double deriv_WRT_mtheta;
+     double deriv_WRT_vtheta;
+     double deriv_WRT_vtzeta;
+     double deriv_WRT_dibsat;
+     double deriv_WRT_epsilon;
+     double deriv_WRT_vzeta;
+     double deriv_WRT_lambda;
+     double deriv_WRT_ngf;
+     double deriv_WRT_type;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  calc_iqEvaluator(double idsout, double qgsout, double qgdout, double qcout, double qbout, double qsout, double vtdibl, double vdsat1, double vgsin, double vdsin, double qcbflag, double vcin, double vbin, double qgsflag, double tambin, double tnomin, double phitin, double w, double lin, double cgin, double cs, double cc, double cb, double vto, double ss, double delta1, double delta2, double nd, double alpha, double vel0, double mu0, double beta, double mtheta, double vtheta, double vtzeta, double dibsat, double epsilon, double vzeta, double lambda, double ngf, double type);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double &  idsout, double &  qgsout, double &  qgdout, double &  qcout, double &  qbout, double &  qsout, double &  vtdibl, double &  vdsat1, double  vgsin, double  vdsin, double  qcbflag, double  vcin, double  vbin, double  qgsflag, double  tambin, double  tnomin, double  phitin, double  w, double  lin, double  cgin, double  cs, double  cc, double  cb, double  vto, double  ss, double  delta1, double  delta2, double  nd, double  alpha, double  vel0, double  mu0, double  beta, double  mtheta, double  vtheta, double  vtzeta, double  dibsat, double  epsilon, double  vzeta, double  lambda, double  ngf, double  type);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+double getDerivs(double idsout , double qgsout , double qgdout , double qcout , double qbout , double qsout , double vtdibl , double vdsat1 , double vgsin , double vdsin , double qcbflag , double vcin , double vbin , double qgsflag , double tambin , double tnomin , double phitin , double w , double lin , double cgin , double cs , double cc , double cb , double vto , double ss , double delta1 , double delta2 , double nd , double alpha , double vel0 , double mu0 , double beta , double mtheta , double vtheta , double vtzeta , double dibsat , double epsilon , double vzeta , double lambda , double ngf , double type  , double & d_idsout, double & d_qgsout, double & d_qgdout, double & d_qcout, double & d_qbout, double & d_qsout, double & d_vtdibl, double & d_vdsat1, double d_vgsin, double d_vdsin, double d_qcbflag, double d_vcin, double d_vbin, double d_qgsflag, double d_tambin, double d_tnomin, double d_phitin, double d_w, double d_lin, double d_cgin, double d_cs, double d_cc, double d_cb, double d_vto, double d_ss, double d_delta1, double d_delta2, double d_nd, double d_alpha, double d_vel0, double d_mu0, double d_beta, double d_mtheta, double d_vtheta, double d_vtzeta, double d_dibsat, double d_epsilon, double d_vzeta, double d_lambda, double d_ngf, double d_type);
+private:
+  returnType calc_iqReturn_;
+  returnType idsoutReturn_;
+  returnType qgsoutReturn_;
+  returnType qgdoutReturn_;
+  returnType qcoutReturn_;
+  returnType qboutReturn_;
+  returnType qsoutReturn_;
+  returnType vtdiblReturn_;
+  returnType vdsat1Return_;
+  returnType evaluator_(returnType & idsout, returnType & qgsout, returnType & qgdout, returnType & qcout, returnType & qbout, returnType & qsout, returnType & vtdibl, returnType & vdsat1, double vgsin, double vdsin, double qcbflag, double vcin, double vbin, double qgsflag, double tambin, double tnomin, double phitin, double w, double lin, double cgin, double cs, double cc, double cb, double vto, double ss, double delta1, double delta2, double nd, double alpha, double vel0, double mu0, double beta, double mtheta, double vtheta, double vtzeta, double dibsat, double epsilon, double vzeta, double lambda, double ngf, double type);
+};
 
 
       // Analog Function calc_ig
@@ -2548,6 +2697,55 @@ return(calc_ig);
 }
 // Derivative of Analog Function calc_ig
 double d_calc_ig(double isdiodeout , double isrecout , double vgin , double phitin , double vgsatin , double alphagin , double fracin , double pg_paramin , double pbdgin , double vbdgin , double tambin , double tnomin , double w , double ngf , double ijin , double kbdgatein , double vgsatqin , double betarecin , double irecin , double pgsrecin , double pg_param1 , double vjg , double type  , double & d_isdiodeout  , double & d_isrecout  , double d_vgin  , double d_phitin  , double d_vgsatin  , double d_alphagin  , double d_fracin  , double d_pg_paramin  , double d_pbdgin  , double d_vbdgin  , double d_tambin  , double d_tnomin  , double d_w  , double d_ngf  , double d_ijin  , double d_kbdgatein  , double d_vgsatqin  , double d_betarecin  , double d_irecin  , double d_pgsrecin  , double d_pg_param1  , double d_vjg  , double d_type  );
+// Evaluator class for Analog Function calc_ig
+class calc_igEvaluator
+{
+  struct returnType
+  {
+     double value;
+     double deriv_WRT_vgin;
+     double deriv_WRT_phitin;
+     double deriv_WRT_vgsatin;
+     double deriv_WRT_alphagin;
+     double deriv_WRT_fracin;
+     double deriv_WRT_pg_paramin;
+     double deriv_WRT_pbdgin;
+     double deriv_WRT_vbdgin;
+     double deriv_WRT_tambin;
+     double deriv_WRT_tnomin;
+     double deriv_WRT_w;
+     double deriv_WRT_ngf;
+     double deriv_WRT_ijin;
+     double deriv_WRT_kbdgatein;
+     double deriv_WRT_vgsatqin;
+     double deriv_WRT_betarecin;
+     double deriv_WRT_irecin;
+     double deriv_WRT_pgsrecin;
+     double deriv_WRT_pg_param1;
+     double deriv_WRT_vjg;
+     double deriv_WRT_type;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  calc_igEvaluator(double isdiodeout, double isrecout, double vgin, double phitin, double vgsatin, double alphagin, double fracin, double pg_paramin, double pbdgin, double vbdgin, double tambin, double tnomin, double w, double ngf, double ijin, double kbdgatein, double vgsatqin, double betarecin, double irecin, double pgsrecin, double pg_param1, double vjg, double type);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double &  isdiodeout, double &  isrecout, double  vgin, double  phitin, double  vgsatin, double  alphagin, double  fracin, double  pg_paramin, double  pbdgin, double  vbdgin, double  tambin, double  tnomin, double  w, double  ngf, double  ijin, double  kbdgatein, double  vgsatqin, double  betarecin, double  irecin, double  pgsrecin, double  pg_param1, double  vjg, double  type);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+double getDerivs(double isdiodeout , double isrecout , double vgin , double phitin , double vgsatin , double alphagin , double fracin , double pg_paramin , double pbdgin , double vbdgin , double tambin , double tnomin , double w , double ngf , double ijin , double kbdgatein , double vgsatqin , double betarecin , double irecin , double pgsrecin , double pg_param1 , double vjg , double type  , double & d_isdiodeout, double & d_isrecout, double d_vgin, double d_phitin, double d_vgsatin, double d_alphagin, double d_fracin, double d_pg_paramin, double d_pbdgin, double d_vbdgin, double d_tambin, double d_tnomin, double d_w, double d_ngf, double d_ijin, double d_kbdgatein, double d_vgsatqin, double d_betarecin, double d_irecin, double d_pgsrecin, double d_pg_param1, double d_vjg, double d_type);
+private:
+  returnType calc_igReturn_;
+  returnType isdiodeoutReturn_;
+  returnType isrecoutReturn_;
+  returnType evaluator_(returnType & isdiodeout, returnType & isrecout, double vgin, double phitin, double vgsatin, double alphagin, double fracin, double pg_paramin, double pbdgin, double vbdgin, double tambin, double tnomin, double w, double ngf, double ijin, double kbdgatein, double vgsatqin, double betarecin, double irecin, double pgsrecin, double pg_param1, double vjg, double type);
+};
 
 }
 

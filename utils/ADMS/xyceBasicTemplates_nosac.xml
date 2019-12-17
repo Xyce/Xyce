@@ -2996,22 +2996,29 @@ other variables does not get propagated into a variable's
     <admst:variable name="functionNameS" select="%(funcnameSimple(.)/[name='fname']/value)"/>
     <admst:variable name="functionName" select="%(funcname(.)/[name='fname']/value)"/>
 
-    <!-- declare the variable type -->
     <admst:choose>
-      <admst:when test="[$globalCurrentScope='sensitivity' and exists(../../lhs/#Pdependent)]">
-        <admst:text format="AdmsSensFadType "/>
-      </admst:when>
-      <admst:when test="[$globalCurrentScope='sensitivity' and ../../datatypename='contribution']">
-        <admst:text format="AdmsSensFadType "/>
-      </admst:when>
-      <admst:when test="[$globalCurrentScope='sensitivity' and ../../lhs/scope='global_model']">
-        <admst:text format="AdmsSensFadType "/>
+      <admst:when test="[class='analog' and $globalCurrentScope!='sensitivity']">
+        <admst:text format="%(analogFunctionEvaluatorConstruction(.)/[name='returnedExpression']/value);\n"/>
       </admst:when>
       <admst:otherwise>
-        <admst:text format="double "/>
+        <!-- declare the variable type -->
+        <admst:choose>
+          <admst:when test="[$globalCurrentScope='sensitivity' and exists(../../lhs/#Pdependent)]">
+            <admst:text format="AdmsSensFadType "/>
+          </admst:when>
+          <admst:when test="[$globalCurrentScope='sensitivity' and ../../datatypename='contribution']">
+            <admst:text format="AdmsSensFadType "/>
+          </admst:when>
+          <admst:when test="[$globalCurrentScope='sensitivity' and ../../lhs/scope='global_model']">
+            <admst:text format="AdmsSensFadType "/>
+          </admst:when>
+          <admst:otherwise>
+            <admst:text format="double "/>
+          </admst:otherwise>
+        </admst:choose>
+        <admst:text format="value_%($functionNameS)_%($functionIndex) = %(functionCall(.)/[name='returnedExpression']/value);\n"/>
       </admst:otherwise>
     </admst:choose>
-    <admst:text format="value_%($functionNameS)_%($functionIndex) = %(functionCall(.)/[name='returnedExpression']/value);\n"/>
   </admst:template>
   <!--
    =================================================================-
@@ -3168,8 +3175,10 @@ other variables does not get propagated into a variable's
             </admst:if>
           </admst:when>
           <admst:otherwise>
-            <admst:text format="//function deriv %(name) not implemented yet.\n"/>
-            <admst:warning format="function derivative for %(name) not implemented yet.\n"/>
+            <admst:if test="[class !='analog']">
+              <admst:text format="//function deriv %(name) not implemented yet.\n"/>
+              <admst:warning format="function derivative for %(name) not implemented yet.\n"/>
+            </admst:if>
           </admst:otherwise>
         </admst:choose>
       </admst:for-each>
@@ -4624,7 +4633,7 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv" select="0.0"/>
               </admst:when>
               <admst:otherwise>
-                <admst:variable name="expressionDeriv" select="AnalogFunctions::d_%($thisFunctionCall/name)($args,$dargs)"/>
+                <admst:variable name="expressionDeriv" select="evaluator_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.)).getDerivs($args,$dargs)"/>
               </admst:otherwise>
             </admst:choose>
           </admst:otherwise>
@@ -4904,7 +4913,28 @@ other variables does not get propagated into a variable's
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
   </admst:template>
- 
+
+  <!--
+   =================================================================-
+   analogFunctionEvaluatorConstruction
+     This is very much like functionCall, but is only used when
+     generating precomptation for analog functions, so it is simpler.
+   =================================================================-
+  -->
+  <admst:template match="analogFunctionEvaluatorConstruction">
+    <admst:variable name="expression" select="AnalogFunctions::%(funcnameSimple(.)/[name='fname']/value)Evaluator evaluator_%(funcnameSimple(.)/[name='fname']/value)_%(index(../function,.))"/>
+    <admst:variable name="args" select=""/>
+    <admst:for-each select="arguments">
+      <admst:if test="[$args!='']">
+        <admst:variable name="args" select="$args,"/>
+      </admst:if>
+      <admst:apply-templates select="." match="processTerm">
+        <admst:variable name="args" select="$args%(returned('returnedExpression')/value)"/>
+      </admst:apply-templates>
+    </admst:for-each>
+    <admst:variable name="expression" select="$expression($args)"/>
+    <admst:return name="returnedExpression" value="$expression"/>
+  </admst:template>
   <!--
    =================================================================-
    string
@@ -5314,7 +5344,14 @@ other variables does not get propagated into a variable's
             <admst:when test="[class='analog']">
               <admst:choose>
                 <admst:when test="[$globalCurrentScope!='AF']">
-                  <admst:variable name="expression" select="AnalogFunctions::%(name)&lt;double&gt;"/>
+                  <admst:choose>
+                    <admst:when test="[$skipFunctionPrecomp != 'y']">
+                      <admst:variable name="expression" select="evaluator_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.)).getValues"/>
+                    </admst:when>
+                    <admst:otherwise>
+                      <admst:variable name="expression" select="AnalogFunctions::%(name)&lt;double&gt;"/>
+                    </admst:otherwise>
+                  </admst:choose>
                 </admst:when>
                 <admst:when test="[$globalCurrentScope='AF']">
                   <!-- If we call an analog function from within another,
@@ -5341,7 +5378,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expression" select="%(name)&lt;WRONG&gt;"/>
                 </admst:when>
                 <admst:when test="[$globalCurrentScope='model' or $globalCurrentScope='instance']">
-                  <admst:variable name="expression" select="AnalogFunctions::%(name)&lt;double&gt;"/>
+                  <admst:variable name="expression" select="evaluator_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.)).getValues"/>
                 </admst:when>
                 <!-- when we're in instance class, have to reference through the
                      model -->

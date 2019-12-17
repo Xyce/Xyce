@@ -469,6 +469,7 @@ namespace AnalogFunctions
       <admst:variable name="skipFunctionPrecomp" select="y"/>
       <admst:apply-templates select="." match="xyceTemplatedAnalogFunctionDeclaration"/>
       <admst:apply-templates select="." match="xyceAnalogFunctions:Declaration"/>
+      <admst:apply-templates select="." match="xyceAnalogFunctions:ClassDeclaration"/>
     </admst:for-each>
 }
 
