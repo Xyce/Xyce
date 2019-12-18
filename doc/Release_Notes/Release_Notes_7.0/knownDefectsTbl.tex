@@ -156,13 +156,6 @@ at its default value.
 \textbf{\textit{Workaround}}: None, other than not doing this.
 \\ \hline
 
-\textbf{971-SON}: Use of default device parameter syntax on a .PRINT line causes
-\Xyce{} to print 0 for that parameter & This line (\texttt{.PRINT TRAN R1}) will
-cause \Xyce{} to print 0 for the resistance value of R1.
-
-\textbf{\textit{Workaround}}: Use \texttt{.PRINT TRAN R1:R} instead.
-\\ \hline
-
 \textbf{970-SON}: Some devices do not work in frequency-domain analysis &
 Devices that may be expected to work in AC or HB analysis do not at
 this time.  For AC this includes, but is not limited to, the lossy

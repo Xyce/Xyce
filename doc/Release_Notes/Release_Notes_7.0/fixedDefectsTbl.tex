@@ -50,6 +50,13 @@ line was used and the netlist contained either a \texttt{.PRINT SENS} line
 for an AC analysis or a \texttt{.PRINT ES} line.
 \\ \hline
 
+\textbf{971-SON}: Use of default device parameter syntax on a .PRINT line causes
+\Xyce{} to print 0 for that parameter & This line (\texttt{.PRINT TRAN R1})
+would cause \Xyce{} to print 0 for the resistance value of R1.  This line
+(\texttt{.PRINT TRAN X1:R1}) would be a netlist parsing error.  This bug
+also affected the C, L, I and V devices.
+\\ \hline
+
 \textbf{928-SON}: The .hb\_ic.prn file could be incorrect when .STEP is
 used with .HB & \Xyce{} should only output the initial condition (IC)
 data for the accepted tolerance in the \texttt{<netlist-name>.hb\_ic.prn}
