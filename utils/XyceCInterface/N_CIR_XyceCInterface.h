@@ -50,6 +50,8 @@ int xyce_simulateUntil(  void ** ptr, double requestedUntilTime, double* complet
 
 int xyce_getNumDevices(void **ptr, char * modelGroupName, int* numDevNames, int* maxDevNameLength);
 int xyce_getDeviceNames(void ** ptr, char * modelGroupName, int* numDevNames, char ** deviceNames);
+int xyce_getTotalNumDevices(void **ptr, int* numDevNames, int* maxDevNameLength);
+int xyce_getAllDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames);
 int xyce_getDACDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames); 
 
 int xyce_updateTimeVoltagePairs(void ** ptr, char * DACname, int numPoints, double * timeArray, double * voltageArray);

@@ -185,6 +185,41 @@ int xyce_getNumDevices(void **ptr, char * modelGroupName, int* numDevNames, int*
 }
 
 //-----------------------------------------------------------------------------
+// Function      : xyce_getTotalNumDevices
+// Purpose       : Call the Xyce::Circuit::Simulator::getDeviceNames function
+//                 via a pointer to an N_CIR_Xyce object. A typical use case is
+//                 to create that pointer with the xyce_open() function, and to
+//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 function before using this function.  This function is then
+//                 typically used to get the total number for devices in the
+//                 netlist before a subsequent call to xyce_getAllDeviceNames().
+//                 This allows the calling C (or Python) program to allocate
+//                 the correct-sized arrays for their returned parameter(s).
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL, Electrical Models and Simulation
+// Creation Date : 12/11/2019
+//-----------------------------------------------------------------------------
+int xyce_getTotalNumDevices(void **ptr, int* numDevNames, int* maxDevNameLength)
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  std::vector<std::string> deviceNamesVec;
+  int retVal = xycePtr->getAllDeviceNames(deviceNamesVec);
+
+  *numDevNames = deviceNamesVec.size();
+  *maxDevNameLength = 0;
+
+  for( int i=0;i < deviceNamesVec.size(); i++ )
+  {
+    if (strlen(deviceNamesVec.at(i).c_str()) > *maxDevNameLength )
+    {
+      *maxDevNameLength = strlen(deviceNamesVec.at(i).c_str());
+    }
+  }
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : xyce_getDeviceNames
 // Purpose       : Call the Xyce::Circuit::Simulator::getDeviceNames function
 //                 via a pointer to an N_CIR_Xyce object. A typical use case is 
@@ -210,6 +245,34 @@ int xyce_getDeviceNames(void ** ptr, char * modelGroupName, int* numDevNames, ch
   std::vector<std::string> deviceNamesVec;
   bool retVal = xycePtr->getDeviceNames(modelGroupNameString , deviceNamesVec);
   
+  *numDevNames = deviceNamesVec.size();
+  for( int i=0;i < deviceNamesVec.size(); i++ )
+  {
+    std::strcpy( (deviceNames)[i], deviceNamesVec.at(i).c_str() );
+  }
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_getAllDeviceNames
+// Purpose       : Call the Xyce::Circuit::Simulator::getDeviceNames function
+//                 via a pointer to an N_CIR_Xyce object. A typical use case is
+//                 to create that pointer with the xyce_open() function, and to
+//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 function before using this function.  The deviceNames parameter
+//                 will then contain the fully-qualifed names of all the devices
+//                 in the netlist.  Return 0 if there are no devices in the netlist.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 12/11/2019
+//-----------------------------------------------------------------------------
+int xyce_getAllDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames)
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  std::vector<std::string> deviceNamesVec;
+  bool retVal = xycePtr->getAllDeviceNames(deviceNamesVec);
+
   *numDevNames = deviceNamesVec.size();
   for( int i=0;i < deviceNamesVec.size(); i++ )
   {

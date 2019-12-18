@@ -481,6 +481,11 @@ public:
 
   EntityTypeId getModelGroup(const std::string &model_or_device_type_name);
 
+  const InstanceVector &getInstancePtrVec() const
+  {
+    return instancePtrVec_;
+  }
+
   void addArtificialParameter(const std::string &name, ArtificialParameters::ArtificialParameter *artificial_parameter) 
   {
     artificialParameterMap_[name] = artificial_parameter;

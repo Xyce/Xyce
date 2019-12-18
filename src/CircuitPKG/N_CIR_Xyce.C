@@ -1225,6 +1225,36 @@ bool Simulator::getDACDeviceNames(std::vector< std::string >& dacNames)
   return true;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Simulator::getAllDeviceNames
+// Purpose       : get the names of all devices in the netlist.
+// Special Notes : The returned device name(s) will be the fully qualified
+//                 name(s), including any subcircuit hierarchy.  This function
+//                 will return false if the netlist does not have any devices.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 12/11/2019
+//-----------------------------------------------------------------------------
+bool Simulator::getAllDeviceNames(std::vector<std::string> &deviceNames)
+{
+  // This map will only be populated with device types that exist in the netlist
+  Device::InstanceVector instance_ptr_vec = deviceManager_->getInstancePtrVec();
+
+  if (instance_ptr_vec.size() == 0)
+  {
+    Report::UserWarning0() << "No devices found in netlist";
+    return false;
+  }
+
+  Device::InstanceVector::const_iterator it = instance_ptr_vec.begin();
+  Device::InstanceVector::const_iterator end = instance_ptr_vec.end();
+  for ( ; it != end; ++it)
+  {
+    deviceNames.push_back((*it)->getName().getEncodedName());
+  }
+  return true;
+}
+
 //----------------------------------------------------------------------------
 // Function       : getADCMap
 // Purpose        : Gets the names of the ADC devices in the circuit (as the key 
