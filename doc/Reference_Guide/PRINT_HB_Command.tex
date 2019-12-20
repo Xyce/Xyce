@@ -19,6 +19,11 @@ solved by defining a \texttt{.PRINT HB\_TD}, \texttt{.PRINT HB\_IC} and
 \texttt{.PRINT HB\_STARTUP} commands to specify the correct output for
 the time domain data.
 
+If \texttt{.STEP} is used with HB then the Initial Condition (IC) data will initially
+be output to a ``tmp file'' (e.g., \texttt{<netlist-name>.hb\_ic.prn.tmp}).
+If that IC data meets the required tolerance then it will be copied to the end
+of the \texttt{<netlist-name>.hb\_ic.prn} file, and the tmp file will be deleted.
+
 Homotopy output can also be generated.
 
 {

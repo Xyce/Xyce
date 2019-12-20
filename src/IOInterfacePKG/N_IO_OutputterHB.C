@@ -45,10 +45,13 @@
 #include <N_IO_OutputterFrequencyCSV.h>
 #include <N_IO_OutputterHBTimePrn.h>
 #include <N_IO_OutputterHBFreqPrn.h>
+#include <N_IO_OutputterHBICPrn.h>
 #include <N_IO_OutputterHBTimeCSV.h>
 #include <N_IO_OutputterHBFreqCSV.h>
+#include <N_IO_OutputterHBICCSV.h>
 #include <N_IO_OutputterHBTimeTecplot.h>
 #include <N_IO_OutputterHBFreqTecplot.h>
+#include <N_IO_OutputterHBICTecplot.h>
 #include <N_IO_OutputterTimeTecplot.h>
 #include <N_IO_OutputterExternal.h>
 #include <N_IO_OutputMgr.h>
@@ -164,13 +167,13 @@ void enableHBOutput(Parallel::Machine comm, OutputMgr &output_manager, Analysis:
 
       Outputter::Interface *outputter_init;
       if (hb_ic_print_parameters.format_ == Format::STD) {
-        outputter_init = new Outputter::TimePrn(comm, output_manager, hb_ic_print_parameters);
+        outputter_init = new Outputter::HBICPrn(comm, output_manager, hb_ic_print_parameters);
       }
       else if (hb_ic_print_parameters.format_ == Format::CSV) {
-        outputter_init = new Outputter::TimeCSV(comm, output_manager, hb_ic_print_parameters);
+        outputter_init = new Outputter::HBICCSV(comm, output_manager, hb_ic_print_parameters);
       }
       else if (hb_ic_print_parameters.format_ == Format::TECPLOT) {
-        outputter_init = new Outputter::TimeTecplot(comm, output_manager, hb_ic_print_parameters);
+        outputter_init = new Outputter::HBICTecplot(comm, output_manager, hb_ic_print_parameters);
       }
       else if ( (hb_ic_print_parameters.format_ == Format::RAW) ||
                 (hb_ic_print_parameters.format_ == Format::RAW_ASCII) ||
@@ -187,7 +190,7 @@ void enableHBOutput(Parallel::Machine comm, OutputMgr &output_manager, Analysis:
       {
         Report::UserWarning0() << "HB_IC output cannot be written in requested format, using standard format";
         hb_ic_print_parameters.format_ = Format::STD;
-        outputter_init = new Outputter::TimePrn(comm, output_manager, hb_ic_print_parameters);
+        outputter_init = new Outputter::HBICPrn(comm, output_manager, hb_ic_print_parameters);
       }
 
       output_manager.addOutputter(PrintType::HB_IC, outputter_init);

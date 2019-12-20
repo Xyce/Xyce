@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:26
+// Creation Date  : Tue, 17 Dec 2019 14:30:04
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsim6_h
@@ -6878,6 +6878,33 @@ return(lexp);
 }
 // Derivative of Analog Function lexp
 double d_lexp(double x  , double d_x  );
+// Evaluator class for Analog Function lexp
+class lexpEvaluator
+{
+  struct returnType
+  {
+     double value;
+     double deriv_WRT_x;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  lexpEvaluator(double x);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+double getDerivs(double x  , double d_x);
+private:
+  returnType lexpReturn_;
+  returnType evaluator_(double x);
+};
 
 
       // Analog Function lln
@@ -6893,6 +6920,33 @@ return(lln);
 }
 // Derivative of Analog Function lln
 double d_lln(double x  , double d_x  );
+// Evaluator class for Analog Function lln
+class llnEvaluator
+{
+  struct returnType
+  {
+     double value;
+     double deriv_WRT_x;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  llnEvaluator(double x);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+double getDerivs(double x  , double d_x);
+private:
+  returnType llnReturn_;
+  returnType evaluator_(double x);
+};
 
 
       // Analog Function hypsmooth
@@ -6908,6 +6962,34 @@ return(hypsmooth);
 }
 // Derivative of Analog Function hypsmooth
 double d_hypsmooth(double x , double c  , double d_x  , double d_c  );
+// Evaluator class for Analog Function hypsmooth
+class hypsmoothEvaluator
+{
+  struct returnType
+  {
+     double value;
+     double deriv_WRT_x;
+     double deriv_WRT_c;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  hypsmoothEvaluator(double x, double c);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x, double  c);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+double getDerivs(double x , double c  , double d_x, double d_c);
+private:
+  returnType hypsmoothReturn_;
+  returnType evaluator_(double x, double c);
+};
 
 }
 

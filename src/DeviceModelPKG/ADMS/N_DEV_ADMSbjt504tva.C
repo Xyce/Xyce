@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:25
+// Creation Date  : Tue, 17 Dec 2019 14:54:59
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -151,6 +151,123 @@ trunc_ev=result;
 d_trunc_ev = d_trunc_ev_d_Val*d_Val+d_trunc_ev_d_Vprev*d_Vprev+d_trunc_ev_d_Vmin*d_Vmin+d_trunc_ev_d_Vmax*d_Vmax;
 return(d_trunc_ev);
 }
+
+// Evaluator class implementations for Analog Function trunc_ev
+  // Constructor
+  trunc_evEvaluator::trunc_evEvaluator(double Val, double Vprev, double Vmin, double Vmax)
+  {
+    trunc_evReturn_ = evaluator_(Val, Vprev, Vmin, Vmax);
+  }
+  // method to get precomputed values into double vars 
+  double trunc_evEvaluator::getValues(double  Val, double  Vprev, double  Vmin, double  Vmax)
+  {
+    // Silence unused argument warnings
+    (void) Val;
+    (void) Vprev;
+    (void) Vmin;
+    (void) Vmax;
+    // Copy all precomputed values into corresponding output
+    return(trunc_evReturn_.value);
+  }
+  // method to get total deriv w.r.t some variable via chain rule 
+  // given precomputed derivs of function w.r.t. args and derivs of args
+  // w.r.t desired vars
+  double trunc_evEvaluator::getDerivs(double Val , double Vprev , double Vmin , double Vmax  , double d_Val, double d_Vprev, double d_Vmin, double d_Vmax)
+  {
+    // Function total deriv
+    double d_trunc_ev;
+    // Silence unused argument warnings
+    (void) Val;
+    (void) Vprev;
+    (void) Vmin;
+    (void) Vmax;
+    d_trunc_ev = trunc_evReturn_.deriv_WRT_Val*d_Val+trunc_evReturn_.deriv_WRT_Vprev*d_Vprev+trunc_evReturn_.deriv_WRT_Vmin*d_Vmin+trunc_evReturn_.deriv_WRT_Vmax*d_Vmax;
+    return(d_trunc_ev);
+  }
+  // method that actually performs our computations.
+  trunc_evEvaluator::returnType trunc_evEvaluator::evaluator_(double Val, double Vprev, double Vmin, double Vmax)
+  {
+  // Function value and derivs variables, and a returnType to store everything
+  double trunc_ev;
+  trunc_evEvaluator::returnType trunc_evReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_trunc_ev_d_Val;
+  double d_trunc_ev_d_Vprev;
+  double d_trunc_ev_d_Vmin;
+  double d_trunc_ev_d_Vmax;
+  // declared local variables
+  double result;
+  double d_result_d_Val;
+  double d_result_d_Vprev;
+  double d_result_d_Vmin;
+  double d_result_d_Vmax;
+{
+d_result_d_Val=1.0;
+d_result_d_Vprev=0.0;
+d_result_d_Vmin=0.0;
+d_result_d_Vmax=0.0;
+result=Val;
+if((Val>Vmax))
+{
+if((Vprev>(Vmax-0.05)))
+{
+if(((Val-Vprev)>0.05))
+{
+d_result_d_Val=0.0;
+d_result_d_Vprev=1.0;
+d_result_d_Vmin=0.0;
+d_result_d_Vmax=0.0;
+result=(Vprev+0.05);
+}
+}
+else
+{
+d_result_d_Val=0.0;
+d_result_d_Vprev=0.0;
+d_result_d_Vmin=0.0;
+d_result_d_Vmax=1.0;
+result=Vmax;
+}
+}
+else
+{
+if((Val<Vmin))
+{
+if((Vprev<(0.9*Vmin)))
+{
+if((Val<((1.5*Vprev)+(0.10*Vmin))))
+{
+d_result_d_Val=0.0;
+d_result_d_Vprev=(1.5);
+d_result_d_Vmin=(0.10);
+d_result_d_Vmax=0.0;
+result=((1.5*Vprev)+(0.10*Vmin));
+}
+}
+else
+{
+d_result_d_Val=0.0;
+d_result_d_Vprev=0.0;
+d_result_d_Vmin=1.0;
+d_result_d_Vmax=0.0;
+result=Vmin;
+}
+}
+}
+d_trunc_ev_d_Val=d_result_d_Val;
+d_trunc_ev_d_Vprev=d_result_d_Vprev;
+d_trunc_ev_d_Vmin=d_result_d_Vmin;
+d_trunc_ev_d_Vmax=d_result_d_Vmax;
+trunc_ev=result;
+}
+  // now save outputs and derivs into appropriate return vars
+  trunc_evReturn.value=trunc_ev;
+  trunc_evReturn.deriv_WRT_Val = d_trunc_ev_d_Val;
+  trunc_evReturn.deriv_WRT_Vprev = d_trunc_ev_d_Vprev;
+  trunc_evReturn.deriv_WRT_Vmin = d_trunc_ev_d_Vmin;
+  trunc_evReturn.deriv_WRT_Vmax = d_trunc_ev_d_Vmax;
+  return(trunc_evReturn);
+  }
 
 } // namepace AnalogFunctions
 

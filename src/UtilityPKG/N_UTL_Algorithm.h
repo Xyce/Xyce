@@ -61,6 +61,12 @@ Device::InstanceName entityNameFromFullParamName(const std::string &full_param_n
 }
 
 inline
+Device::InstanceName entityNameFromDefaultParamName(const std::string &def_param_name)
+{
+  return Device::InstanceName(def_param_name);
+}
+
+inline
 std::string paramNameFromFullParamName(const std::string &full_param_name)
 {
   std::string::size_type pos = full_param_name.find_last_of(':');

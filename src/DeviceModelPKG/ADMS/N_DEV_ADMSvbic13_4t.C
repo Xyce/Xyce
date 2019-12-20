@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:26
+// Creation Date  : Tue, 17 Dec 2019 13:36:54
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -122,6 +122,89 @@ double d_limRTH(double orig , double old  , double d_orig , double d_old )
   }
   d_limRTH = d_limRTH_d_orig*d_orig+d_limRTH_d_old*d_old;
   return(d_limRTH);
+}
+
+// Evaluator class implementations for Analog Function limRTH
+// Constructor
+limRTHEvaluator::limRTHEvaluator(double orig, double old)
+{
+  limRTHReturn_ = evaluator_(orig, old);
+}
+// method to get precomputed values into double vars 
+double limRTHEvaluator::getValues(double  orig, double  old)
+{
+  // Silence unused argument warnings
+  (void) orig;
+  (void) old;
+  // Copy all precomputed values into corresponding output
+  return(limRTHReturn_.value);
+}
+// method to get total deriv w.r.t some variable via chain rule 
+// given precomputed derivs of function w.r.t. args and derivs of args
+// w.r.t desired vars
+double limRTHEvaluator::getDerivs(double orig , double old  , double d_orig, double d_old)
+{
+  // Function total deriv
+  double d_limRTH;
+  // Silence unused argument warnings
+  (void) orig;
+  (void) old;
+  d_limRTH = limRTHReturn_.deriv_WRT_orig*d_orig+limRTHReturn_.deriv_WRT_old*d_old;
+  return(d_limRTH);
+}
+// method that actually performs our computations.
+limRTHEvaluator::returnType limRTHEvaluator::evaluator_(double orig, double old)
+{
+  // Function value and derivs variables, and a returnType to store everything
+  double limRTH;
+  limRTHEvaluator::returnType limRTHReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_limRTH_d_orig;
+  double d_limRTH_d_old;
+  // declared local variables
+  double t0;
+  double d_t0_d_orig;
+  double d_t0_d_old;
+  double t1;
+  double d_t1_d_orig;
+  double d_t1_d_old;
+  double retval;
+  double d_retval_d_orig;
+  double d_retval_d_old;
+  {
+    d_t0_d_orig=1.0;
+    d_t0_d_old=(-1.0);
+    t0=(orig-old);
+    d_t1_d_orig=(((t0>=0)?(+1.0):(-1.0)))*d_t0_d_orig;
+    d_t1_d_old=(((t0>=0)?(+1.0):(-1.0)))*d_t0_d_old;
+    t1=fabs(t0);
+    d_retval_d_orig=1.0;
+    d_retval_d_old=0.0;
+    retval=orig;
+    if((t1>5.0))
+    {
+      if((t0>0))
+      {
+        d_retval_d_orig=0.0;
+        d_retval_d_old=1.0;
+        retval=(old+5.0);
+      }
+      else
+      {
+        d_retval_d_orig=0.0;
+        d_retval_d_old=1.0;
+        retval=(old-5.0);
+      }
+    }
+    d_limRTH_d_orig=d_retval_d_orig;
+    d_limRTH_d_old=d_retval_d_old;
+    limRTH=retval;
+  }
+  // now save outputs and derivs into appropriate return vars
+  limRTHReturn.value=limRTH;
+  limRTHReturn.deriv_WRT_orig = d_limRTH_d_orig;
+  limRTHReturn.deriv_WRT_old = d_limRTH_d_old;
+  return(limRTHReturn);
 }
 
 } // namepace AnalogFunctions

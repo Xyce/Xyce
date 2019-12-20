@@ -78,6 +78,14 @@ class xyce_interface:
     maxDeviceNameLength = cMaxDeviceNameLength.value
     return (status, numDevices, maxDeviceNameLength)
 
+  def getTotalNumDevices( self):
+    cNumDevices = c_int( 0 )
+    cMaxDeviceNameLength = c_int( 0 )
+    status = self.lib.xyce_getTotalNumDevices( byref(self.xycePtr), byref(cNumDevices), byref(cMaxDeviceNameLength) )
+    numDevices = cNumDevices.value
+    maxDeviceNameLength = cMaxDeviceNameLength.value
+    return (status, numDevices, maxDeviceNameLength)
+
   def getDeviceNames( self, basename):
     # calling xyce_getDeviceNames(void ** ptr, char * modelGroupName, int & numDevNames, char ** deviceNames)
     cBaseName = c_char_p(basename.encode('utf-8'))
@@ -95,6 +103,23 @@ class xyce_interface:
     #print( cDeviceNameArray )
     status = self.lib.xyce_getDeviceNames( byref(self.xycePtr), cBaseName, byref(cNumDeviceNames), cDeviceNameArray)
     #print( cNumDeviceNames.value, cDeviceNameArray[0],  cDeviceNameArray[1])
+    for i in range(0, cNumDeviceNames.value):
+      names.insert(i, cDeviceNameArray[i] )
+    return (status, names)
+
+  def getAllDeviceNames( self):
+    cNumDeviceNames = c_int( 0 )
+    cMaxDeviceNameLength = c_int( 0 )
+    names = []
+
+    status = self.lib.xyce_getTotalNumDevices( byref(self.xycePtr),  byref(cNumDeviceNames), byref(cMaxDeviceNameLength) )
+    # if the call to xyce_getTotalNumDevices() fails then return an empty array
+    if status != 1:
+      return (status, names)
+
+    deviceNameBuff = [create_string_buffer(cMaxDeviceNameLength.value) for i in range(cNumDeviceNames.value)]
+    cDeviceNameArray = (c_char_p*cNumDeviceNames.value)(*map(addressof, deviceNameBuff))
+    status = self.lib.xyce_getAllDeviceNames( byref(self.xycePtr), byref(cNumDeviceNames), cDeviceNameArray)
     for i in range(0, cNumDeviceNames.value):
       names.insert(i, cDeviceNameArray[i] )
     return (status, names)

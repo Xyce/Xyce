@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:25
+// Creation Date  : Tue, 17 Dec 2019 14:13:17
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -104,6 +104,67 @@ double d_exp_soft(double x  , double d_x )
   return(d_exp_soft);
 }
 
+// Evaluator class implementations for Analog Function exp_soft
+// Constructor
+exp_softEvaluator::exp_softEvaluator(double x)
+{
+  exp_softReturn_ = evaluator_(x);
+}
+// method to get precomputed values into double vars 
+double exp_softEvaluator::getValues(double  x)
+{
+  // Silence unused argument warnings
+  (void) x;
+  // Copy all precomputed values into corresponding output
+  return(exp_softReturn_.value);
+}
+// method to get total deriv w.r.t some variable via chain rule 
+// given precomputed derivs of function w.r.t. args and derivs of args
+// w.r.t desired vars
+double exp_softEvaluator::getDerivs(double x  , double d_x)
+{
+  // Function total deriv
+  double d_exp_soft;
+  // Silence unused argument warnings
+  (void) x;
+  d_exp_soft = exp_softReturn_.deriv_WRT_x*d_x;
+  return(d_exp_soft);
+}
+// method that actually performs our computations.
+exp_softEvaluator::returnType exp_softEvaluator::evaluator_(double x)
+{
+  // Function value and derivs variables, and a returnType to store everything
+  double exp_soft;
+  exp_softEvaluator::returnType exp_softReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_exp_soft_d_x;
+  // declared local variables
+  double maxexp;
+  double d_maxexp_d_x;
+  double maxarg;
+  double d_maxarg_d_x;
+  {
+    d_maxexp_d_x=0.0;
+    maxexp=1.0e25;
+    d_maxarg_d_x=(1.0/maxexp)*d_maxexp_d_x;
+    maxarg=log(maxexp);
+    if((x<maxarg))
+    {
+      d_exp_soft_d_x=exp(x);
+      exp_soft=exp(x);
+    }
+    else
+    {
+      d_exp_soft_d_x=((((x+1.0)-maxarg)*d_maxexp_d_x)+((1.0-d_maxarg_d_x)*maxexp));
+      exp_soft=(((x+1.0)-maxarg)*maxexp);
+    }
+  }
+  // now save outputs and derivs into appropriate return vars
+  exp_softReturn.value=exp_soft;
+  exp_softReturn.deriv_WRT_x = d_exp_soft_d_x;
+  return(exp_softReturn);
+}
+
 // Derivative of Analog Function Vt
 double d_Vt(double U , double Ud  , double d_U , double d_Ud )
 {
@@ -141,6 +202,77 @@ double d_Vt(double U , double Ud  , double d_U , double d_Ud )
   }
   d_Vt = d_Vt_d_U*d_U+d_Vt_d_Ud*d_Ud;
   return(d_Vt);
+}
+
+// Evaluator class implementations for Analog Function Vt
+// Constructor
+VtEvaluator::VtEvaluator(double U, double Ud)
+{
+  VtReturn_ = evaluator_(U, Ud);
+}
+// method to get precomputed values into double vars 
+double VtEvaluator::getValues(double  U, double  Ud)
+{
+  // Silence unused argument warnings
+  (void) U;
+  (void) Ud;
+  // Copy all precomputed values into corresponding output
+  return(VtReturn_.value);
+}
+// method to get total deriv w.r.t some variable via chain rule 
+// given precomputed derivs of function w.r.t. args and derivs of args
+// w.r.t desired vars
+double VtEvaluator::getDerivs(double U , double Ud  , double d_U, double d_Ud)
+{
+  // Function total deriv
+  double d_Vt;
+  // Silence unused argument warnings
+  (void) U;
+  (void) Ud;
+  d_Vt = VtReturn_.deriv_WRT_U*d_U+VtReturn_.deriv_WRT_Ud*d_Ud;
+  return(d_Vt);
+}
+// method that actually performs our computations.
+VtEvaluator::returnType VtEvaluator::evaluator_(double U, double Ud)
+{
+  // Function value and derivs variables, and a returnType to store everything
+  double Vt;
+  VtEvaluator::returnType VtReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_Vt_d_U;
+  double d_Vt_d_Ud;
+  // declared local variables
+  double Vch;
+  double d_Vch_d_U;
+  double d_Vch_d_Ud;
+  double VF;
+  double d_VF_d_U;
+  double d_VF_d_Ud;
+  {
+    d_Vch_d_U=0.0;
+    d_Vch_d_Ud=(0.1);
+    Vch=(0.1*Ud);
+    d_VF_d_U=0.0;
+    d_VF_d_Ud=(0.9);
+    VF=(0.9*Ud);
+    if((U<VF))
+    {
+      d_Vt_d_U=(1.0-((Vch*(1.0/(1.0+exp(((U-VF)/Vch))))*exp(((U-VF)/Vch))*((Vch*(1.0-d_VF_d_U)-(U-VF)*d_Vch_d_U)/Vch/Vch))+(d_Vch_d_U*log((1.0+exp(((U-VF)/Vch)))))));
+      d_Vt_d_Ud=(-((Vch*(1.0/(1.0+exp(((U-VF)/Vch))))*exp(((U-VF)/Vch))*((Vch*(-d_VF_d_Ud)-(U-VF)*d_Vch_d_Ud)/Vch/Vch))+(d_Vch_d_Ud*log((1.0+exp(((U-VF)/Vch)))))));
+      Vt=(U-(Vch*log((1.0+exp(((U-VF)/Vch))))));
+    }
+    else
+    {
+      d_Vt_d_U=(d_VF_d_U-((Vch*(1.0/(1.0+exp(((VF-U)/Vch))))*exp(((VF-U)/Vch))*((Vch*(d_VF_d_U-1.0)-(VF-U)*d_Vch_d_U)/Vch/Vch))+(d_Vch_d_U*log((1.0+exp(((VF-U)/Vch)))))));
+      d_Vt_d_Ud=(d_VF_d_Ud-((Vch*(1.0/(1.0+exp(((VF-U)/Vch))))*exp(((VF-U)/Vch))*((Vch*d_VF_d_Ud-(VF-U)*d_Vch_d_Ud)/Vch/Vch))+(d_Vch_d_Ud*log((1.0+exp(((VF-U)/Vch)))))));
+      Vt=(VF-(Vch*log((1.0+exp(((VF-U)/Vch))))));
+    }
+  }
+  // now save outputs and derivs into appropriate return vars
+  VtReturn.value=Vt;
+  VtReturn.deriv_WRT_U = d_Vt_d_U;
+  VtReturn.deriv_WRT_Ud = d_Vt_d_Ud;
+  return(VtReturn);
 }
 
 // Derivative of Analog Function diode
@@ -327,6 +459,237 @@ double d_diode(double U , double Is , double Ug , double N , double AREA , doubl
   return(d_diode);
 }
 
+// Evaluator class implementations for Analog Function diode
+// Constructor
+diodeEvaluator::diodeEvaluator(double U, double Is, double Ug, double N, double AREA, double TJ, double TNOM)
+{
+  diodeReturn_ = evaluator_(U, Is, Ug, N, AREA, TJ, TNOM);
+}
+// method to get precomputed values into double vars 
+double diodeEvaluator::getValues(double  U, double  Is, double  Ug, double  N, double  AREA, double  TJ, double  TNOM)
+{
+  // Silence unused argument warnings
+  (void) U;
+  (void) Is;
+  (void) Ug;
+  (void) N;
+  (void) AREA;
+  (void) TJ;
+  (void) TNOM;
+  // Copy all precomputed values into corresponding output
+  return(diodeReturn_.value);
+}
+// method to get total deriv w.r.t some variable via chain rule 
+// given precomputed derivs of function w.r.t. args and derivs of args
+// w.r.t desired vars
+double diodeEvaluator::getDerivs(double U , double Is , double Ug , double N , double AREA , double TJ , double TNOM  , double d_U, double d_Is, double d_Ug, double d_N, double d_AREA, double d_TJ, double d_TNOM)
+{
+  // Function total deriv
+  double d_diode;
+  // Silence unused argument warnings
+  (void) U;
+  (void) Is;
+  (void) Ug;
+  (void) N;
+  (void) AREA;
+  (void) TJ;
+  (void) TNOM;
+  d_diode = diodeReturn_.deriv_WRT_U*d_U+diodeReturn_.deriv_WRT_Is*d_Is+diodeReturn_.deriv_WRT_Ug*d_Ug+diodeReturn_.deriv_WRT_N*d_N+diodeReturn_.deriv_WRT_AREA*d_AREA+diodeReturn_.deriv_WRT_TJ*d_TJ+diodeReturn_.deriv_WRT_TNOM*d_TNOM;
+  return(d_diode);
+}
+// method that actually performs our computations.
+diodeEvaluator::returnType diodeEvaluator::evaluator_(double U, double Is, double Ug, double N, double AREA, double TJ, double TNOM)
+{
+  // Function value and derivs variables, and a returnType to store everything
+  double diode;
+  diodeEvaluator::returnType diodeReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_diode_d_U;
+  double d_diode_d_Is;
+  double d_diode_d_Ug;
+  double d_diode_d_N;
+  double d_diode_d_AREA;
+  double d_diode_d_TJ;
+  double d_diode_d_TNOM;
+  // declared local variables
+  double VTH0;
+  double d_VTH0_d_U;
+  double d_VTH0_d_Is;
+  double d_VTH0_d_Ug;
+  double d_VTH0_d_N;
+  double d_VTH0_d_AREA;
+  double d_VTH0_d_TJ;
+  double d_VTH0_d_TNOM;
+  double VTHJ;
+  double d_VTHJ_d_U;
+  double d_VTHJ_d_Is;
+  double d_VTHJ_d_Ug;
+  double d_VTHJ_d_N;
+  double d_VTHJ_d_AREA;
+  double d_VTHJ_d_TJ;
+  double d_VTHJ_d_TNOM;
+  double VTHNOM;
+  double d_VTHNOM_d_U;
+  double d_VTHNOM_d_Is;
+  double d_VTHNOM_d_Ug;
+  double d_VTHNOM_d_N;
+  double d_VTHNOM_d_AREA;
+  double d_VTHNOM_d_TJ;
+  double d_VTHNOM_d_TNOM;
+  double maxi;
+  double d_maxi_d_U;
+  double d_maxi_d_Is;
+  double d_maxi_d_Ug;
+  double d_maxi_d_N;
+  double d_maxi_d_AREA;
+  double d_maxi_d_TJ;
+  double d_maxi_d_TNOM;
+  double Tmax;
+  double d_Tmax_d_U;
+  double d_Tmax_d_Is;
+  double d_Tmax_d_Ug;
+  double d_Tmax_d_N;
+  double d_Tmax_d_AREA;
+  double d_Tmax_d_TJ;
+  double d_Tmax_d_TNOM;
+  double TJM;
+  double d_TJM_d_U;
+  double d_TJM_d_Is;
+  double d_TJM_d_Ug;
+  double d_TJM_d_N;
+  double d_TJM_d_AREA;
+  double d_TJM_d_TJ;
+  double d_TJM_d_TNOM;
+  double KDURCHQ;
+  double d_KDURCHQ_d_U;
+  double d_KDURCHQ_d_Is;
+  double d_KDURCHQ_d_Ug;
+  double d_KDURCHQ_d_N;
+  double d_KDURCHQ_d_AREA;
+  double d_KDURCHQ_d_TJ;
+  double d_KDURCHQ_d_TNOM;
+  double lnIs;
+  double d_lnIs_d_U;
+  double d_lnIs_d_Is;
+  double d_lnIs_d_Ug;
+  double d_lnIs_d_N;
+  double d_lnIs_d_AREA;
+  double d_lnIs_d_TJ;
+  double d_lnIs_d_TNOM;
+  {
+    d_VTH0_d_U=0.0;
+    d_VTH0_d_Is=0.0;
+    d_VTH0_d_Ug=0.0;
+    d_VTH0_d_N=0.0;
+    d_VTH0_d_AREA=0.0;
+    d_VTH0_d_TJ=0.0;
+    d_VTH0_d_TNOM=0.0;
+    VTH0=adms_vt((20.0+273.15));
+    d_VTHNOM_d_U=0.0;
+    d_VTHNOM_d_Is=0.0;
+    d_VTHNOM_d_Ug=0.0;
+    d_VTHNOM_d_N=0.0;
+    d_VTHNOM_d_AREA=0.0;
+    d_VTHNOM_d_TJ=0.0;
+    d_VTHNOM_d_TNOM=CONSTKoverQ;
+    VTHNOM=adms_vt((TNOM+273.15));
+    d_KDURCHQ_d_U=0.0;
+    d_KDURCHQ_d_Is=0.0;
+    d_KDURCHQ_d_Ug=0.0;
+    d_KDURCHQ_d_N=0.0;
+    d_KDURCHQ_d_AREA=0.0;
+    d_KDURCHQ_d_TJ=0.0;
+    d_KDURCHQ_d_TNOM=0.0;
+    KDURCHQ=0.861708692e-4;
+    d_lnIs_d_U=0.0;
+    d_lnIs_d_Is=(1.0/(Is*AREA))*(AREA);
+    d_lnIs_d_Ug=0.0;
+    d_lnIs_d_N=0.0;
+    d_lnIs_d_AREA=(1.0/(Is*AREA))*(Is);
+    d_lnIs_d_TJ=0.0;
+    d_lnIs_d_TNOM=0.0;
+    lnIs=log((Is*AREA));
+    d_maxi_d_U=0.0;
+    d_maxi_d_Is=0.0;
+    d_maxi_d_Ug=0.0;
+    d_maxi_d_N=0.0;
+    d_maxi_d_AREA=0.0;
+    d_maxi_d_TJ=0.0;
+    d_maxi_d_TNOM=0.0;
+    maxi=log(1e6);
+    if(((maxi<(Ug/VTHNOM))&&(U<0.0)))
+    {
+      d_Tmax_d_U=((((Ug-(maxi*VTHNOM))*KDURCHQ)*(Ug*d_VTHNOM_d_U)-(Ug*VTHNOM)*(((Ug-(maxi*VTHNOM))*d_KDURCHQ_d_U)+((-((maxi*d_VTHNOM_d_U)+(d_maxi_d_U*VTHNOM)))*KDURCHQ)))/((Ug-(maxi*VTHNOM))*KDURCHQ)/((Ug-(maxi*VTHNOM))*KDURCHQ));
+      d_Tmax_d_Is=((((Ug-(maxi*VTHNOM))*KDURCHQ)*(Ug*d_VTHNOM_d_Is)-(Ug*VTHNOM)*(((Ug-(maxi*VTHNOM))*d_KDURCHQ_d_Is)+((-((maxi*d_VTHNOM_d_Is)+(d_maxi_d_Is*VTHNOM)))*KDURCHQ)))/((Ug-(maxi*VTHNOM))*KDURCHQ)/((Ug-(maxi*VTHNOM))*KDURCHQ));
+      d_Tmax_d_Ug=((((Ug-(maxi*VTHNOM))*KDURCHQ)*(Ug*d_VTHNOM_d_Ug+VTHNOM)-(Ug*VTHNOM)*(((Ug-(maxi*VTHNOM))*d_KDURCHQ_d_Ug)+((1.0-((maxi*d_VTHNOM_d_Ug)+(d_maxi_d_Ug*VTHNOM)))*KDURCHQ)))/((Ug-(maxi*VTHNOM))*KDURCHQ)/((Ug-(maxi*VTHNOM))*KDURCHQ));
+      d_Tmax_d_N=((((Ug-(maxi*VTHNOM))*KDURCHQ)*(Ug*d_VTHNOM_d_N)-(Ug*VTHNOM)*(((Ug-(maxi*VTHNOM))*d_KDURCHQ_d_N)+((-((maxi*d_VTHNOM_d_N)+(d_maxi_d_N*VTHNOM)))*KDURCHQ)))/((Ug-(maxi*VTHNOM))*KDURCHQ)/((Ug-(maxi*VTHNOM))*KDURCHQ));
+      d_Tmax_d_AREA=((((Ug-(maxi*VTHNOM))*KDURCHQ)*(Ug*d_VTHNOM_d_AREA)-(Ug*VTHNOM)*(((Ug-(maxi*VTHNOM))*d_KDURCHQ_d_AREA)+((-((maxi*d_VTHNOM_d_AREA)+(d_maxi_d_AREA*VTHNOM)))*KDURCHQ)))/((Ug-(maxi*VTHNOM))*KDURCHQ)/((Ug-(maxi*VTHNOM))*KDURCHQ));
+      d_Tmax_d_TJ=((((Ug-(maxi*VTHNOM))*KDURCHQ)*(Ug*d_VTHNOM_d_TJ)-(Ug*VTHNOM)*(((Ug-(maxi*VTHNOM))*d_KDURCHQ_d_TJ)+((-((maxi*d_VTHNOM_d_TJ)+(d_maxi_d_TJ*VTHNOM)))*KDURCHQ)))/((Ug-(maxi*VTHNOM))*KDURCHQ)/((Ug-(maxi*VTHNOM))*KDURCHQ));
+      d_Tmax_d_TNOM=((((Ug-(maxi*VTHNOM))*KDURCHQ)*(Ug*d_VTHNOM_d_TNOM)-(Ug*VTHNOM)*(((Ug-(maxi*VTHNOM))*d_KDURCHQ_d_TNOM)+((-((maxi*d_VTHNOM_d_TNOM)+(d_maxi_d_TNOM*VTHNOM)))*KDURCHQ)))/((Ug-(maxi*VTHNOM))*KDURCHQ)/((Ug-(maxi*VTHNOM))*KDURCHQ));
+      Tmax=(((Ug*VTHNOM)/((Ug-(maxi*VTHNOM))*KDURCHQ))-273.15);
+      d_TJM_d_U=d_Vt(TJ,Tmax,0.0,d_Tmax_d_U);
+      d_TJM_d_Is=d_Vt(TJ,Tmax,0.0,d_Tmax_d_Is);
+      d_TJM_d_Ug=d_Vt(TJ,Tmax,0.0,d_Tmax_d_Ug);
+      d_TJM_d_N=d_Vt(TJ,Tmax,0.0,d_Tmax_d_N);
+      d_TJM_d_AREA=d_Vt(TJ,Tmax,0.0,d_Tmax_d_AREA);
+      d_TJM_d_TJ=d_Vt(TJ,Tmax,1.0,d_Tmax_d_TJ);
+      d_TJM_d_TNOM=d_Vt(TJ,Tmax,0.0,d_Tmax_d_TNOM);
+      TJM=Vt(TJ,Tmax);
+    }
+    else
+    {
+      d_TJM_d_U=0.0;
+      d_TJM_d_Is=0.0;
+      d_TJM_d_Ug=0.0;
+      d_TJM_d_N=0.0;
+      d_TJM_d_AREA=0.0;
+      d_TJM_d_TJ=1.0;
+      d_TJM_d_TNOM=0.0;
+      TJM=TJ;
+    }
+    d_VTHJ_d_U=CONSTKoverQ*d_TJM_d_U;
+    d_VTHJ_d_Is=CONSTKoverQ*d_TJM_d_Is;
+    d_VTHJ_d_Ug=CONSTKoverQ*d_TJM_d_Ug;
+    d_VTHJ_d_N=CONSTKoverQ*d_TJM_d_N;
+    d_VTHJ_d_AREA=CONSTKoverQ*d_TJM_d_AREA;
+    d_VTHJ_d_TJ=CONSTKoverQ*d_TJM_d_TJ;
+    d_VTHJ_d_TNOM=CONSTKoverQ*d_TJM_d_TNOM;
+    VTHJ=adms_vt((TJM+273.15));
+    if((Ug>0.0))
+    {
+      d_diode_d_U=(d_exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs),((((((N*VTHJ)-(U*(N*d_VTHJ_d_U)))/(N*VTHJ)/(N*VTHJ))+(-Ug*d_VTHNOM_d_U/VTHNOM/VTHNOM))-(-Ug*d_VTHJ_d_U/VTHJ/VTHJ))+d_lnIs_d_U))-d_exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs),(((-Ug*d_VTHNOM_d_U/VTHNOM/VTHNOM)-(-Ug*d_VTHJ_d_U/VTHJ/VTHJ))+d_lnIs_d_U)));
+      d_diode_d_Is=(d_exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs),((((-U*(N*d_VTHJ_d_Is)/(N*VTHJ)/(N*VTHJ))+(-Ug*d_VTHNOM_d_Is/VTHNOM/VTHNOM))-(-Ug*d_VTHJ_d_Is/VTHJ/VTHJ))+d_lnIs_d_Is))-d_exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs),(((-Ug*d_VTHNOM_d_Is/VTHNOM/VTHNOM)-(-Ug*d_VTHJ_d_Is/VTHJ/VTHJ))+d_lnIs_d_Is)));
+      d_diode_d_Ug=(d_exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs),((((-U*(N*d_VTHJ_d_Ug)/(N*VTHJ)/(N*VTHJ))+((VTHNOM-(Ug*d_VTHNOM_d_Ug))/VTHNOM/VTHNOM))-((VTHJ-(Ug*d_VTHJ_d_Ug))/VTHJ/VTHJ))+d_lnIs_d_Ug))-d_exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs),((((VTHNOM-(Ug*d_VTHNOM_d_Ug))/VTHNOM/VTHNOM)-((VTHJ-(Ug*d_VTHJ_d_Ug))/VTHJ/VTHJ))+d_lnIs_d_Ug)));
+      d_diode_d_N=(d_exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs),((((-U*(N*d_VTHJ_d_N+VTHJ)/(N*VTHJ)/(N*VTHJ))+(-Ug*d_VTHNOM_d_N/VTHNOM/VTHNOM))-(-Ug*d_VTHJ_d_N/VTHJ/VTHJ))+d_lnIs_d_N))-d_exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs),(((-Ug*d_VTHNOM_d_N/VTHNOM/VTHNOM)-(-Ug*d_VTHJ_d_N/VTHJ/VTHJ))+d_lnIs_d_N)));
+      d_diode_d_AREA=(d_exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs),((((-U*(N*d_VTHJ_d_AREA)/(N*VTHJ)/(N*VTHJ))+(-Ug*d_VTHNOM_d_AREA/VTHNOM/VTHNOM))-(-Ug*d_VTHJ_d_AREA/VTHJ/VTHJ))+d_lnIs_d_AREA))-d_exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs),(((-Ug*d_VTHNOM_d_AREA/VTHNOM/VTHNOM)-(-Ug*d_VTHJ_d_AREA/VTHJ/VTHJ))+d_lnIs_d_AREA)));
+      d_diode_d_TJ=(d_exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs),((((-U*(N*d_VTHJ_d_TJ)/(N*VTHJ)/(N*VTHJ))+(-Ug*d_VTHNOM_d_TJ/VTHNOM/VTHNOM))-(-Ug*d_VTHJ_d_TJ/VTHJ/VTHJ))+d_lnIs_d_TJ))-d_exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs),(((-Ug*d_VTHNOM_d_TJ/VTHNOM/VTHNOM)-(-Ug*d_VTHJ_d_TJ/VTHJ/VTHJ))+d_lnIs_d_TJ)));
+      d_diode_d_TNOM=(d_exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs),((((-U*(N*d_VTHJ_d_TNOM)/(N*VTHJ)/(N*VTHJ))+(-Ug*d_VTHNOM_d_TNOM/VTHNOM/VTHNOM))-(-Ug*d_VTHJ_d_TNOM/VTHJ/VTHJ))+d_lnIs_d_TNOM))-d_exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs),(((-Ug*d_VTHNOM_d_TNOM/VTHNOM/VTHNOM)-(-Ug*d_VTHJ_d_TNOM/VTHJ/VTHJ))+d_lnIs_d_TNOM)));
+      diode=(exp_soft(((((U/(N*VTHJ))+(Ug/VTHNOM))-(Ug/VTHJ))+lnIs))-exp_soft((((Ug/VTHNOM)-(Ug/VTHJ))+lnIs)));
+    }
+    else
+    {
+      d_diode_d_U=d_exp_soft(((U/(N*VTH0))+lnIs),((((N*VTH0)-(U*(N*d_VTH0_d_U)))/(N*VTH0)/(N*VTH0))+d_lnIs_d_U));
+      d_diode_d_Is=(d_exp_soft(((U/(N*VTH0))+lnIs),((-U*(N*d_VTH0_d_Is)/(N*VTH0)/(N*VTH0))+d_lnIs_d_Is))-(AREA));
+      d_diode_d_Ug=d_exp_soft(((U/(N*VTH0))+lnIs),((-U*(N*d_VTH0_d_Ug)/(N*VTH0)/(N*VTH0))+d_lnIs_d_Ug));
+      d_diode_d_N=d_exp_soft(((U/(N*VTH0))+lnIs),((-U*(N*d_VTH0_d_N+VTH0)/(N*VTH0)/(N*VTH0))+d_lnIs_d_N));
+      d_diode_d_AREA=(d_exp_soft(((U/(N*VTH0))+lnIs),((-U*(N*d_VTH0_d_AREA)/(N*VTH0)/(N*VTH0))+d_lnIs_d_AREA))-(Is));
+      d_diode_d_TJ=d_exp_soft(((U/(N*VTH0))+lnIs),((-U*(N*d_VTH0_d_TJ)/(N*VTH0)/(N*VTH0))+d_lnIs_d_TJ));
+      d_diode_d_TNOM=d_exp_soft(((U/(N*VTH0))+lnIs),((-U*(N*d_VTH0_d_TNOM)/(N*VTH0)/(N*VTH0))+d_lnIs_d_TNOM));
+      diode=(exp_soft(((U/(N*VTH0))+lnIs))-(Is*AREA));
+    }
+  }
+  // now save outputs and derivs into appropriate return vars
+  diodeReturn.value=diode;
+  diodeReturn.deriv_WRT_U = d_diode_d_U;
+  diodeReturn.deriv_WRT_Is = d_diode_d_Is;
+  diodeReturn.deriv_WRT_Ug = d_diode_d_Ug;
+  diodeReturn.deriv_WRT_N = d_diode_d_N;
+  diodeReturn.deriv_WRT_AREA = d_diode_d_AREA;
+  diodeReturn.deriv_WRT_TJ = d_diode_d_TJ;
+  diodeReturn.deriv_WRT_TNOM = d_diode_d_TNOM;
+  return(diodeReturn);
+}
+
 // Derivative of Analog Function MM
 double d_MM(double VBCI , double VCBO , double MC , double VCBLIN , double BF , double KC  , double d_VBCI , double d_VCBO , double d_MC , double d_VCBLIN , double d_BF , double d_KC )
 {
@@ -449,6 +812,172 @@ double d_MM(double VBCI , double VCBO , double MC , double VCBLIN , double BF , 
   return(d_MM);
 }
 
+// Evaluator class implementations for Analog Function MM
+// Constructor
+MMEvaluator::MMEvaluator(double VBCI, double VCBO, double MC, double VCBLIN, double BF, double KC)
+{
+  MMReturn_ = evaluator_(VBCI, VCBO, MC, VCBLIN, BF, KC);
+}
+// method to get precomputed values into double vars 
+double MMEvaluator::getValues(double  VBCI, double  VCBO, double  MC, double  VCBLIN, double  BF, double  KC)
+{
+  // Silence unused argument warnings
+  (void) VBCI;
+  (void) VCBO;
+  (void) MC;
+  (void) VCBLIN;
+  (void) BF;
+  (void) KC;
+  // Copy all precomputed values into corresponding output
+  return(MMReturn_.value);
+}
+// method to get total deriv w.r.t some variable via chain rule 
+// given precomputed derivs of function w.r.t. args and derivs of args
+// w.r.t desired vars
+double MMEvaluator::getDerivs(double VBCI , double VCBO , double MC , double VCBLIN , double BF , double KC  , double d_VBCI, double d_VCBO, double d_MC, double d_VCBLIN, double d_BF, double d_KC)
+{
+  // Function total deriv
+  double d_MM;
+  // Silence unused argument warnings
+  (void) VBCI;
+  (void) VCBO;
+  (void) MC;
+  (void) VCBLIN;
+  (void) BF;
+  (void) KC;
+  d_MM = MMReturn_.deriv_WRT_VBCI*d_VBCI+MMReturn_.deriv_WRT_VCBO*d_VCBO+MMReturn_.deriv_WRT_MC*d_MC+MMReturn_.deriv_WRT_VCBLIN*d_VCBLIN+MMReturn_.deriv_WRT_BF*d_BF+MMReturn_.deriv_WRT_KC*d_KC;
+  return(d_MM);
+}
+// method that actually performs our computations.
+MMEvaluator::returnType MMEvaluator::evaluator_(double VBCI, double VCBO, double MC, double VCBLIN, double BF, double KC)
+{
+  // Function value and derivs variables, and a returnType to store everything
+  double MM;
+  MMEvaluator::returnType MMReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_MM_d_VBCI;
+  double d_MM_d_VCBO;
+  double d_MM_d_MC;
+  double d_MM_d_VCBLIN;
+  double d_MM_d_BF;
+  double d_MM_d_KC;
+  // declared local variables
+  double FBD;
+  double d_FBD_d_VBCI;
+  double d_FBD_d_VCBO;
+  double d_FBD_d_MC;
+  double d_FBD_d_VCBLIN;
+  double d_FBD_d_BF;
+  double d_FBD_d_KC;
+  double vcbi;
+  double d_vcbi_d_VBCI;
+  double d_vcbi_d_VCBO;
+  double d_vcbi_d_MC;
+  double d_vcbi_d_VCBLIN;
+  double d_vcbi_d_BF;
+  double d_vcbi_d_KC;
+  {
+    if((((KC>0.0)&&(MC>0.0))&&(VCBO>0.0)))
+    {
+      d_vcbi_d_VBCI=1.0;
+      d_vcbi_d_VCBO=0.0;
+      d_vcbi_d_MC=0.0;
+      d_vcbi_d_VCBLIN=0.0;
+      d_vcbi_d_BF=0.0;
+      d_vcbi_d_KC=0.0;
+      vcbi=VBCI;
+      d_FBD_d_VBCI=0.0;
+      d_FBD_d_VCBO=(-VCBLIN/VCBO/VCBO);
+      d_FBD_d_MC=0.0;
+      d_FBD_d_VCBLIN=(1.0/VCBO);
+      d_FBD_d_BF=0.0;
+      d_FBD_d_KC=0.0;
+      FBD=(VCBLIN/VCBO);
+      if((VBCI>0.0))
+      {
+        d_MM_d_VBCI=0.0;
+        d_MM_d_VCBO=0.0;
+        d_MM_d_MC=0.0;
+        d_MM_d_VCBLIN=0.0;
+        d_MM_d_BF=0.0;
+        d_MM_d_KC=0.0;
+        MM=1.0;
+      }
+      else
+      {
+        if((VBCI>(-VCBLIN)))
+        {
+          if((MC==1))
+          {
+            d_MM_d_VBCI=(-(-(d_vcbi_d_VBCI/(-VCBO)))/(1.0-(vcbi/(-VCBO)))/(1.0-(vcbi/(-VCBO))));
+            d_MM_d_VCBO=(-(-(((-VCBO)*d_vcbi_d_VCBO-vcbi*(-1.0))/(-VCBO)/(-VCBO)))/(1.0-(vcbi/(-VCBO)))/(1.0-(vcbi/(-VCBO))));
+            d_MM_d_MC=(-(-(d_vcbi_d_MC/(-VCBO)))/(1.0-(vcbi/(-VCBO)))/(1.0-(vcbi/(-VCBO))));
+            d_MM_d_VCBLIN=(-(-(d_vcbi_d_VCBLIN/(-VCBO)))/(1.0-(vcbi/(-VCBO)))/(1.0-(vcbi/(-VCBO))));
+            d_MM_d_BF=(-(-(d_vcbi_d_BF/(-VCBO)))/(1.0-(vcbi/(-VCBO)))/(1.0-(vcbi/(-VCBO))));
+            d_MM_d_KC=(-(-(d_vcbi_d_KC/(-VCBO)))/(1.0-(vcbi/(-VCBO)))/(1.0-(vcbi/(-VCBO))));
+            MM=(1.0/(1.0-(vcbi/(-VCBO))));
+          }
+          else
+          {
+            d_MM_d_VBCI=(-(-(((vcbi/(-VCBO))==0.0)?0.0:(pow((vcbi/(-VCBO)),MC)*MC/(vcbi/(-VCBO))))*(d_vcbi_d_VBCI/(-VCBO)))/(1.0-pow((vcbi/(-VCBO)),MC))/(1.0-pow((vcbi/(-VCBO)),MC)));
+            d_MM_d_VCBO=(-(-(((vcbi/(-VCBO))==0.0)?0.0:(pow((vcbi/(-VCBO)),MC)*MC/(vcbi/(-VCBO))))*(((-VCBO)*d_vcbi_d_VCBO-vcbi*(-1.0))/(-VCBO)/(-VCBO)))/(1.0-pow((vcbi/(-VCBO)),MC))/(1.0-pow((vcbi/(-VCBO)),MC)));
+            d_MM_d_MC=(-(-(((vcbi/(-VCBO))==0.0)?0.0:(pow((vcbi/(-VCBO)),MC)*MC/(vcbi/(-VCBO))))*(d_vcbi_d_MC/(-VCBO))+(((vcbi/(-VCBO))==0.0)?0.0:(log((vcbi/(-VCBO))*pow((vcbi/(-VCBO)),MC)))))/(1.0-pow((vcbi/(-VCBO)),MC))/(1.0-pow((vcbi/(-VCBO)),MC)));
+            d_MM_d_VCBLIN=(-(-(((vcbi/(-VCBO))==0.0)?0.0:(pow((vcbi/(-VCBO)),MC)*MC/(vcbi/(-VCBO))))*(d_vcbi_d_VCBLIN/(-VCBO)))/(1.0-pow((vcbi/(-VCBO)),MC))/(1.0-pow((vcbi/(-VCBO)),MC)));
+            d_MM_d_BF=(-(-(((vcbi/(-VCBO))==0.0)?0.0:(pow((vcbi/(-VCBO)),MC)*MC/(vcbi/(-VCBO))))*(d_vcbi_d_BF/(-VCBO)))/(1.0-pow((vcbi/(-VCBO)),MC))/(1.0-pow((vcbi/(-VCBO)),MC)));
+            d_MM_d_KC=(-(-(((vcbi/(-VCBO))==0.0)?0.0:(pow((vcbi/(-VCBO)),MC)*MC/(vcbi/(-VCBO))))*(d_vcbi_d_KC/(-VCBO)))/(1.0-pow((vcbi/(-VCBO)),MC))/(1.0-pow((vcbi/(-VCBO)),MC)));
+            MM=(1.0/(1.0-pow((vcbi/(-VCBO)),MC)));
+          }
+        }
+        else
+        {
+          if((VBCI<=(-VCBLIN)))
+          {
+            if((MC==1))
+            {
+              d_MM_d_VBCI=((-(-d_FBD_d_VBCI)/(1.0-FBD)/(1.0-FBD))-(((((1.0/VCBO)*1.0)/pow((1.0-FBD),2.0))*(d_vcbi_d_VBCI+(d_FBD_d_VBCI*VCBO)))+((-((1.0/VCBO)*1.0)*(((1.0-FBD)==0.0)?0.0:(pow((1.0-FBD),2.0)*2.0/(1.0-FBD)))*(-d_FBD_d_VBCI)/pow((1.0-FBD),2.0)/pow((1.0-FBD),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_VCBO=((-(-d_FBD_d_VCBO)/(1.0-FBD)/(1.0-FBD))-(((((1.0/VCBO)*1.0)/pow((1.0-FBD),2.0))*(d_vcbi_d_VCBO+(FBD+VCBO*d_FBD_d_VCBO)))+(((pow((1.0-FBD),2.0)*((-1.0/VCBO/VCBO)*1.0)-((1.0/VCBO)*1.0)*(((1.0-FBD)==0.0)?0.0:(pow((1.0-FBD),2.0)*2.0/(1.0-FBD)))*(-d_FBD_d_VCBO))/pow((1.0-FBD),2.0)/pow((1.0-FBD),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_MC=((-(-d_FBD_d_MC)/(1.0-FBD)/(1.0-FBD))-(((((1.0/VCBO)*1.0)/pow((1.0-FBD),2.0))*(d_vcbi_d_MC+(d_FBD_d_MC*VCBO)))+((-((1.0/VCBO)*1.0)*(((1.0-FBD)==0.0)?0.0:(pow((1.0-FBD),2.0)*2.0/(1.0-FBD)))*(-d_FBD_d_MC)/pow((1.0-FBD),2.0)/pow((1.0-FBD),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_VCBLIN=((-(-d_FBD_d_VCBLIN)/(1.0-FBD)/(1.0-FBD))-(((((1.0/VCBO)*1.0)/pow((1.0-FBD),2.0))*(d_vcbi_d_VCBLIN+(d_FBD_d_VCBLIN*VCBO)))+((-((1.0/VCBO)*1.0)*(((1.0-FBD)==0.0)?0.0:(pow((1.0-FBD),2.0)*2.0/(1.0-FBD)))*(-d_FBD_d_VCBLIN)/pow((1.0-FBD),2.0)/pow((1.0-FBD),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_BF=((-(-d_FBD_d_BF)/(1.0-FBD)/(1.0-FBD))-(((((1.0/VCBO)*1.0)/pow((1.0-FBD),2.0))*(d_vcbi_d_BF+(d_FBD_d_BF*VCBO)))+((-((1.0/VCBO)*1.0)*(((1.0-FBD)==0.0)?0.0:(pow((1.0-FBD),2.0)*2.0/(1.0-FBD)))*(-d_FBD_d_BF)/pow((1.0-FBD),2.0)/pow((1.0-FBD),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_KC=((-(-d_FBD_d_KC)/(1.0-FBD)/(1.0-FBD))-(((((1.0/VCBO)*1.0)/pow((1.0-FBD),2.0))*(d_vcbi_d_KC+(d_FBD_d_KC*VCBO)))+((-((1.0/VCBO)*1.0)*(((1.0-FBD)==0.0)?0.0:(pow((1.0-FBD),2.0)*2.0/(1.0-FBD)))*(-d_FBD_d_KC)/pow((1.0-FBD),2.0)/pow((1.0-FBD),2.0))*(vcbi+(FBD*VCBO)))));
+              MM=((1.0/(1.0-FBD))-((((1.0/VCBO)*1.0)/pow((1.0-FBD),2.0))*(vcbi+(FBD*VCBO))));
+            }
+            else
+            {
+              d_MM_d_VBCI=((-(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_VBCI)/(1.0-pow(FBD,MC))/(1.0-pow(FBD,MC)))-(((((MC/VCBO)*pow(FBD,(MC-1.0)))/pow((1.0-pow(FBD,MC)),2.0))*(d_vcbi_d_VBCI+(d_FBD_d_VBCI*VCBO)))+(((pow((1.0-pow(FBD,MC)),2.0)*((MC/VCBO)*((FBD==0.0)?0.0:(pow(FBD,(MC-1.0))*(MC-1.0)/FBD))*d_FBD_d_VBCI)-((MC/VCBO)*pow(FBD,(MC-1.0)))*(((1.0-pow(FBD,MC))==0.0)?0.0:(pow((1.0-pow(FBD,MC)),2.0)*2.0/(1.0-pow(FBD,MC))))*(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_VBCI))/pow((1.0-pow(FBD,MC)),2.0)/pow((1.0-pow(FBD,MC)),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_VCBO=((-(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_VCBO)/(1.0-pow(FBD,MC))/(1.0-pow(FBD,MC)))-(((((MC/VCBO)*pow(FBD,(MC-1.0)))/pow((1.0-pow(FBD,MC)),2.0))*(d_vcbi_d_VCBO+(FBD+VCBO*d_FBD_d_VCBO)))+(((pow((1.0-pow(FBD,MC)),2.0)*(((MC/VCBO)*((FBD==0.0)?0.0:(pow(FBD,(MC-1.0))*(MC-1.0)/FBD))*d_FBD_d_VCBO)+((-MC/VCBO/VCBO)*pow(FBD,(MC-1.0))))-((MC/VCBO)*pow(FBD,(MC-1.0)))*(((1.0-pow(FBD,MC))==0.0)?0.0:(pow((1.0-pow(FBD,MC)),2.0)*2.0/(1.0-pow(FBD,MC))))*(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_VCBO))/pow((1.0-pow(FBD,MC)),2.0)/pow((1.0-pow(FBD,MC)),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_MC=((-(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_MC+((FBD==0.0)?0.0:(log(FBD*pow(FBD,MC)))))/(1.0-pow(FBD,MC))/(1.0-pow(FBD,MC)))-(((((MC/VCBO)*pow(FBD,(MC-1.0)))/pow((1.0-pow(FBD,MC)),2.0))*(d_vcbi_d_MC+(d_FBD_d_MC*VCBO)))+(((pow((1.0-pow(FBD,MC)),2.0)*(((MC/VCBO)*((FBD==0.0)?0.0:(pow(FBD,(MC-1.0))*(MC-1.0)/FBD))*d_FBD_d_MC+((FBD==0.0)?0.0:(log(FBD*pow(FBD,(MC-1.0))))))+((1.0/VCBO)*pow(FBD,(MC-1.0))))-((MC/VCBO)*pow(FBD,(MC-1.0)))*(((1.0-pow(FBD,MC))==0.0)?0.0:(pow((1.0-pow(FBD,MC)),2.0)*2.0/(1.0-pow(FBD,MC))))*(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_MC+((FBD==0.0)?0.0:(log(FBD*pow(FBD,MC))))))/pow((1.0-pow(FBD,MC)),2.0)/pow((1.0-pow(FBD,MC)),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_VCBLIN=((-(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_VCBLIN)/(1.0-pow(FBD,MC))/(1.0-pow(FBD,MC)))-(((((MC/VCBO)*pow(FBD,(MC-1.0)))/pow((1.0-pow(FBD,MC)),2.0))*(d_vcbi_d_VCBLIN+(d_FBD_d_VCBLIN*VCBO)))+(((pow((1.0-pow(FBD,MC)),2.0)*((MC/VCBO)*((FBD==0.0)?0.0:(pow(FBD,(MC-1.0))*(MC-1.0)/FBD))*d_FBD_d_VCBLIN)-((MC/VCBO)*pow(FBD,(MC-1.0)))*(((1.0-pow(FBD,MC))==0.0)?0.0:(pow((1.0-pow(FBD,MC)),2.0)*2.0/(1.0-pow(FBD,MC))))*(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_VCBLIN))/pow((1.0-pow(FBD,MC)),2.0)/pow((1.0-pow(FBD,MC)),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_BF=((-(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_BF)/(1.0-pow(FBD,MC))/(1.0-pow(FBD,MC)))-(((((MC/VCBO)*pow(FBD,(MC-1.0)))/pow((1.0-pow(FBD,MC)),2.0))*(d_vcbi_d_BF+(d_FBD_d_BF*VCBO)))+(((pow((1.0-pow(FBD,MC)),2.0)*((MC/VCBO)*((FBD==0.0)?0.0:(pow(FBD,(MC-1.0))*(MC-1.0)/FBD))*d_FBD_d_BF)-((MC/VCBO)*pow(FBD,(MC-1.0)))*(((1.0-pow(FBD,MC))==0.0)?0.0:(pow((1.0-pow(FBD,MC)),2.0)*2.0/(1.0-pow(FBD,MC))))*(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_BF))/pow((1.0-pow(FBD,MC)),2.0)/pow((1.0-pow(FBD,MC)),2.0))*(vcbi+(FBD*VCBO)))));
+              d_MM_d_KC=((-(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_KC)/(1.0-pow(FBD,MC))/(1.0-pow(FBD,MC)))-(((((MC/VCBO)*pow(FBD,(MC-1.0)))/pow((1.0-pow(FBD,MC)),2.0))*(d_vcbi_d_KC+(d_FBD_d_KC*VCBO)))+(((pow((1.0-pow(FBD,MC)),2.0)*((MC/VCBO)*((FBD==0.0)?0.0:(pow(FBD,(MC-1.0))*(MC-1.0)/FBD))*d_FBD_d_KC)-((MC/VCBO)*pow(FBD,(MC-1.0)))*(((1.0-pow(FBD,MC))==0.0)?0.0:(pow((1.0-pow(FBD,MC)),2.0)*2.0/(1.0-pow(FBD,MC))))*(-((FBD==0.0)?0.0:(pow(FBD,MC)*MC/FBD))*d_FBD_d_KC))/pow((1.0-pow(FBD,MC)),2.0)/pow((1.0-pow(FBD,MC)),2.0))*(vcbi+(FBD*VCBO)))));
+              MM=((1.0/(1.0-pow(FBD,MC)))-((((MC/VCBO)*pow(FBD,(MC-1.0)))/pow((1.0-pow(FBD,MC)),2.0))*(vcbi+(FBD*VCBO))));
+            }
+          }
+        }
+      }
+    }
+    else
+    {
+      d_MM_d_VBCI=0.0;
+      d_MM_d_VCBO=0.0;
+      d_MM_d_MC=0.0;
+      d_MM_d_VCBLIN=0.0;
+      d_MM_d_BF=0.0;
+      d_MM_d_KC=0.0;
+      MM=1.0;
+    }
+  }
+  // now save outputs and derivs into appropriate return vars
+  MMReturn.value=MM;
+  MMReturn.deriv_WRT_VBCI = d_MM_d_VBCI;
+  MMReturn.deriv_WRT_VCBO = d_MM_d_VCBO;
+  MMReturn.deriv_WRT_MC = d_MM_d_MC;
+  MMReturn.deriv_WRT_VCBLIN = d_MM_d_VCBLIN;
+  MMReturn.deriv_WRT_BF = d_MM_d_BF;
+  MMReturn.deriv_WRT_KC = d_MM_d_KC;
+  return(MMReturn);
+}
+
 // Derivative of Analog Function charge
 double d_charge(double U , double C0 , double Ud , double m , double Area  , double d_U , double d_C0 , double d_Ud , double d_m , double d_Area )
 {
@@ -521,6 +1050,119 @@ double d_charge(double U , double C0 , double Ud , double m , double Area  , dou
   return(d_charge);
 }
 
+// Evaluator class implementations for Analog Function charge
+// Constructor
+chargeEvaluator::chargeEvaluator(double U, double C0, double Ud, double m, double Area)
+{
+  chargeReturn_ = evaluator_(U, C0, Ud, m, Area);
+}
+// method to get precomputed values into double vars 
+double chargeEvaluator::getValues(double  U, double  C0, double  Ud, double  m, double  Area)
+{
+  // Silence unused argument warnings
+  (void) U;
+  (void) C0;
+  (void) Ud;
+  (void) m;
+  (void) Area;
+  // Copy all precomputed values into corresponding output
+  return(chargeReturn_.value);
+}
+// method to get total deriv w.r.t some variable via chain rule 
+// given precomputed derivs of function w.r.t. args and derivs of args
+// w.r.t desired vars
+double chargeEvaluator::getDerivs(double U , double C0 , double Ud , double m , double Area  , double d_U, double d_C0, double d_Ud, double d_m, double d_Area)
+{
+  // Function total deriv
+  double d_charge;
+  // Silence unused argument warnings
+  (void) U;
+  (void) C0;
+  (void) Ud;
+  (void) m;
+  (void) Area;
+  d_charge = chargeReturn_.deriv_WRT_U*d_U+chargeReturn_.deriv_WRT_C0*d_C0+chargeReturn_.deriv_WRT_Ud*d_Ud+chargeReturn_.deriv_WRT_m*d_m+chargeReturn_.deriv_WRT_Area*d_Area;
+  return(d_charge);
+}
+// method that actually performs our computations.
+chargeEvaluator::returnType chargeEvaluator::evaluator_(double U, double C0, double Ud, double m, double Area)
+{
+  // Function value and derivs variables, and a returnType to store everything
+  double charge;
+  chargeEvaluator::returnType chargeReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_charge_d_U;
+  double d_charge_d_C0;
+  double d_charge_d_Ud;
+  double d_charge_d_m;
+  double d_charge_d_Area;
+  // declared local variables
+  double Vj;
+  double d_Vj_d_U;
+  double d_Vj_d_C0;
+  double d_Vj_d_Ud;
+  double d_Vj_d_m;
+  double d_Vj_d_Area;
+  double Vjo;
+  double d_Vjo_d_U;
+  double d_Vjo_d_C0;
+  double d_Vjo_d_Ud;
+  double d_Vjo_d_m;
+  double d_Vjo_d_Area;
+  double VF;
+  double d_VF_d_U;
+  double d_VF_d_C0;
+  double d_VF_d_Ud;
+  double d_VF_d_m;
+  double d_VF_d_Area;
+  {
+    d_Vj_d_U=d_Vt(U,Ud,1.0,0.0);
+    d_Vj_d_C0=0.0;
+    d_Vj_d_Ud=d_Vt(U,Ud,0.0,1.0);
+    d_Vj_d_m=0.0;
+    d_Vj_d_Area=0.0;
+    Vj=Vt(U,Ud);
+    d_Vjo_d_U=0.0;
+    d_Vjo_d_C0=0.0;
+    d_Vjo_d_Ud=d_Vt( static_cast<double>(0.0),Ud,0.0,1.0);
+    d_Vjo_d_m=0.0;
+    d_Vjo_d_Area=0.0;
+    Vjo=Vt( static_cast<double>(0.0),Ud);
+    d_VF_d_U=0.0;
+    d_VF_d_C0=0.0;
+    d_VF_d_Ud=(0.9);
+    d_VF_d_m=0.0;
+    d_VF_d_Area=0.0;
+    VF=(0.9*Ud);
+    if((m==1.0))
+    {
+      d_charge_d_U=((Area*C0)*((Ud*((1.0/(1.0-(Vjo/Ud)))*(-(d_Vjo_d_U/Ud))-(1.0/(1.0-(Vj/Ud)))*(-(d_Vj_d_U/Ud))))+(((1.0/(1.0-(VF/Ud)))*((1.0-d_Vj_d_U)+d_Vjo_d_U))+((-(-(d_VF_d_U/Ud))/(1.0-(VF/Ud))/(1.0-(VF/Ud)))*((U-Vj)+Vjo)))));
+      d_charge_d_C0=(((Area*C0)*((Ud*((1.0/(1.0-(Vjo/Ud)))*(-(d_Vjo_d_C0/Ud))-(1.0/(1.0-(Vj/Ud)))*(-(d_Vj_d_C0/Ud))))+(((1.0/(1.0-(VF/Ud)))*((-d_Vj_d_C0)+d_Vjo_d_C0))+((-(-(d_VF_d_C0/Ud))/(1.0-(VF/Ud))/(1.0-(VF/Ud)))*((U-Vj)+Vjo)))))+((Area)*((Ud*(log((1.0-(Vjo/Ud)))-log((1.0-(Vj/Ud)))))+((1.0/(1.0-(VF/Ud)))*((U-Vj)+Vjo)))));
+      d_charge_d_Ud=((Area*C0)*((Ud*((1.0/(1.0-(Vjo/Ud)))*(-((Ud*d_Vjo_d_Ud-Vjo)/Ud/Ud))-(1.0/(1.0-(Vj/Ud)))*(-((Ud*d_Vj_d_Ud-Vj)/Ud/Ud)))+(log((1.0-(Vjo/Ud)))-log((1.0-(Vj/Ud)))))+(((1.0/(1.0-(VF/Ud)))*((-d_Vj_d_Ud)+d_Vjo_d_Ud))+((-(-((Ud*d_VF_d_Ud-VF)/Ud/Ud))/(1.0-(VF/Ud))/(1.0-(VF/Ud)))*((U-Vj)+Vjo)))));
+      d_charge_d_m=((Area*C0)*((Ud*((1.0/(1.0-(Vjo/Ud)))*(-(d_Vjo_d_m/Ud))-(1.0/(1.0-(Vj/Ud)))*(-(d_Vj_d_m/Ud))))+(((1.0/(1.0-(VF/Ud)))*((-d_Vj_d_m)+d_Vjo_d_m))+((-(-(d_VF_d_m/Ud))/(1.0-(VF/Ud))/(1.0-(VF/Ud)))*((U-Vj)+Vjo)))));
+      d_charge_d_Area=(((Area*C0)*((Ud*((1.0/(1.0-(Vjo/Ud)))*(-(d_Vjo_d_Area/Ud))-(1.0/(1.0-(Vj/Ud)))*(-(d_Vj_d_Area/Ud))))+(((1.0/(1.0-(VF/Ud)))*((-d_Vj_d_Area)+d_Vjo_d_Area))+((-(-(d_VF_d_Area/Ud))/(1.0-(VF/Ud))/(1.0-(VF/Ud)))*((U-Vj)+Vjo)))))+((C0)*((Ud*(log((1.0-(Vjo/Ud)))-log((1.0-(Vj/Ud)))))+((1.0/(1.0-(VF/Ud)))*((U-Vj)+Vjo)))));
+      charge=((Area*C0)*((Ud*(log((1.0-(Vjo/Ud)))-log((1.0-(Vj/Ud)))))+((1.0/(1.0-(VF/Ud)))*((U-Vj)+Vjo))));
+    }
+    else
+    {
+      d_charge_d_U=((Area*C0)*(((Ud/(1.0-m))*((((1.0-(Vjo/Ud))==0.0)?0.0:(pow((1.0-(Vjo/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vjo/Ud))))*(-(d_Vjo_d_U/Ud))-(((1.0-(Vj/Ud))==0.0)?0.0:(pow((1.0-(Vj/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vj/Ud))))*(-(d_Vj_d_U/Ud))))+((pow((1.0-(VF/Ud)),(-m))*((1.0-d_Vj_d_U)+d_Vjo_d_U))+((((1.0-(VF/Ud))==0.0)?0.0:(pow((1.0-(VF/Ud)),(-m))*(-m)/(1.0-(VF/Ud))))*(-(d_VF_d_U/Ud))*((U-Vj)+Vjo)))));
+      d_charge_d_C0=(((Area*C0)*(((Ud/(1.0-m))*((((1.0-(Vjo/Ud))==0.0)?0.0:(pow((1.0-(Vjo/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vjo/Ud))))*(-(d_Vjo_d_C0/Ud))-(((1.0-(Vj/Ud))==0.0)?0.0:(pow((1.0-(Vj/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vj/Ud))))*(-(d_Vj_d_C0/Ud))))+((pow((1.0-(VF/Ud)),(-m))*((-d_Vj_d_C0)+d_Vjo_d_C0))+((((1.0-(VF/Ud))==0.0)?0.0:(pow((1.0-(VF/Ud)),(-m))*(-m)/(1.0-(VF/Ud))))*(-(d_VF_d_C0/Ud))*((U-Vj)+Vjo)))))+((Area)*((((Ud/(1.0-m))*(pow((1.0-(Vjo/Ud)),(1.0-m))-pow((1.0-(Vj/Ud)),(1.0-m))))+(pow((1.0-(VF/Ud)),(-m))*((U-Vj)+Vjo)))-(Ud*(1.0/(1.0-m))))));
+      d_charge_d_Ud=((Area*C0)*(((((Ud/(1.0-m))*((((1.0-(Vjo/Ud))==0.0)?0.0:(pow((1.0-(Vjo/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vjo/Ud))))*(-((Ud*d_Vjo_d_Ud-Vjo)/Ud/Ud))-(((1.0-(Vj/Ud))==0.0)?0.0:(pow((1.0-(Vj/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vj/Ud))))*(-((Ud*d_Vj_d_Ud-Vj)/Ud/Ud))))+((1.0/(1.0-m))*(pow((1.0-(Vjo/Ud)),(1.0-m))-pow((1.0-(Vj/Ud)),(1.0-m)))))+((pow((1.0-(VF/Ud)),(-m))*((-d_Vj_d_Ud)+d_Vjo_d_Ud))+((((1.0-(VF/Ud))==0.0)?0.0:(pow((1.0-(VF/Ud)),(-m))*(-m)/(1.0-(VF/Ud))))*(-((Ud*d_VF_d_Ud-VF)/Ud/Ud))*((U-Vj)+Vjo))))-((1.0/(1.0-m)))));
+      d_charge_d_m=((Area*C0)*(((((Ud/(1.0-m))*((((1.0-(Vjo/Ud))==0.0)?0.0:(pow((1.0-(Vjo/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vjo/Ud))))*(-(d_Vjo_d_m/Ud))+(((1.0-(Vjo/Ud))==0.0)?0.0:(log((1.0-(Vjo/Ud))*pow((1.0-(Vjo/Ud)),(1.0-m)))))*(-1.0)-(((1.0-(Vj/Ud))==0.0)?0.0:(pow((1.0-(Vj/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vj/Ud))))*(-(d_Vj_d_m/Ud))+(((1.0-(Vj/Ud))==0.0)?0.0:(log((1.0-(Vj/Ud))*pow((1.0-(Vj/Ud)),(1.0-m)))))*(-1.0)))+((-Ud*(-1.0)/(1.0-m)/(1.0-m))*(pow((1.0-(Vjo/Ud)),(1.0-m))-pow((1.0-(Vj/Ud)),(1.0-m)))))+((pow((1.0-(VF/Ud)),(-m))*((-d_Vj_d_m)+d_Vjo_d_m))+((((1.0-(VF/Ud))==0.0)?0.0:(pow((1.0-(VF/Ud)),(-m))*(-m)/(1.0-(VF/Ud))))*(-(d_VF_d_m/Ud))+(((1.0-(VF/Ud))==0.0)?0.0:(log((1.0-(VF/Ud))*pow((1.0-(VF/Ud)),(-m)))))*(-1.0)*((U-Vj)+Vjo))))-(Ud*(-(-1.0)/(1.0-m)/(1.0-m)))));
+      d_charge_d_Area=(((Area*C0)*(((Ud/(1.0-m))*((((1.0-(Vjo/Ud))==0.0)?0.0:(pow((1.0-(Vjo/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vjo/Ud))))*(-(d_Vjo_d_Area/Ud))-(((1.0-(Vj/Ud))==0.0)?0.0:(pow((1.0-(Vj/Ud)),(1.0-m))*(1.0-m)/(1.0-(Vj/Ud))))*(-(d_Vj_d_Area/Ud))))+((pow((1.0-(VF/Ud)),(-m))*((-d_Vj_d_Area)+d_Vjo_d_Area))+((((1.0-(VF/Ud))==0.0)?0.0:(pow((1.0-(VF/Ud)),(-m))*(-m)/(1.0-(VF/Ud))))*(-(d_VF_d_Area/Ud))*((U-Vj)+Vjo)))))+((C0)*((((Ud/(1.0-m))*(pow((1.0-(Vjo/Ud)),(1.0-m))-pow((1.0-(Vj/Ud)),(1.0-m))))+(pow((1.0-(VF/Ud)),(-m))*((U-Vj)+Vjo)))-(Ud*(1.0/(1.0-m))))));
+      charge=((Area*C0)*((((Ud/(1.0-m))*(pow((1.0-(Vjo/Ud)),(1.0-m))-pow((1.0-(Vj/Ud)),(1.0-m))))+(pow((1.0-(VF/Ud)),(-m))*((U-Vj)+Vjo)))-(Ud*(1.0/(1.0-m)))));
+    }
+  }
+  // now save outputs and derivs into appropriate return vars
+  chargeReturn.value=charge;
+  chargeReturn.deriv_WRT_U = d_charge_d_U;
+  chargeReturn.deriv_WRT_C0 = d_charge_d_C0;
+  chargeReturn.deriv_WRT_Ud = d_charge_d_Ud;
+  chargeReturn.deriv_WRT_m = d_charge_d_m;
+  chargeReturn.deriv_WRT_Area = d_charge_d_Area;
+  return(chargeReturn);
+}
+
 // Derivative of Analog Function Vceff
 double d_Vceff(double U , double VCES  , double d_U , double d_VCES )
 {
@@ -552,6 +1194,71 @@ double d_Vceff(double U , double VCES  , double d_U , double d_VCES )
   }
   d_Vceff = d_Vceff_d_U*d_U+d_Vceff_d_VCES*d_VCES;
   return(d_Vceff);
+}
+
+// Evaluator class implementations for Analog Function Vceff
+// Constructor
+VceffEvaluator::VceffEvaluator(double U, double VCES)
+{
+  VceffReturn_ = evaluator_(U, VCES);
+}
+// method to get precomputed values into double vars 
+double VceffEvaluator::getValues(double  U, double  VCES)
+{
+  // Silence unused argument warnings
+  (void) U;
+  (void) VCES;
+  // Copy all precomputed values into corresponding output
+  return(VceffReturn_.value);
+}
+// method to get total deriv w.r.t some variable via chain rule 
+// given precomputed derivs of function w.r.t. args and derivs of args
+// w.r.t desired vars
+double VceffEvaluator::getDerivs(double U , double VCES  , double d_U, double d_VCES)
+{
+  // Function total deriv
+  double d_Vceff;
+  // Silence unused argument warnings
+  (void) U;
+  (void) VCES;
+  d_Vceff = VceffReturn_.deriv_WRT_U*d_U+VceffReturn_.deriv_WRT_VCES*d_VCES;
+  return(d_Vceff);
+}
+// method that actually performs our computations.
+VceffEvaluator::returnType VceffEvaluator::evaluator_(double U, double VCES)
+{
+  // Function value and derivs variables, and a returnType to store everything
+  double Vceff;
+  VceffEvaluator::returnType VceffReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_Vceff_d_U;
+  double d_Vceff_d_VCES;
+  // declared local variables
+  double Vth0;
+  double d_Vth0_d_U;
+  double d_Vth0_d_VCES;
+  {
+    d_Vth0_d_U=0.0;
+    d_Vth0_d_VCES=0.0;
+    Vth0=0.025;
+    if((U<VCES))
+    {
+      d_Vceff_d_U=(d_Vth0_d_U+((Vth0*(1.0/(1.0+exp((((U-VCES)/Vth0)-1.0))))*exp((((U-VCES)/Vth0)-1.0))*((Vth0-((U-VCES)*d_Vth0_d_U))/Vth0/Vth0))+(d_Vth0_d_U*log((1.0+exp((((U-VCES)/Vth0)-1.0)))))));
+      d_Vceff_d_VCES=(d_Vth0_d_VCES+((Vth0*(1.0/(1.0+exp((((U-VCES)/Vth0)-1.0))))*exp((((U-VCES)/Vth0)-1.0))*((Vth0*(-1.0)-(U-VCES)*d_Vth0_d_VCES)/Vth0/Vth0))+(d_Vth0_d_VCES*log((1.0+exp((((U-VCES)/Vth0)-1.0)))))));
+      Vceff=(Vth0+(Vth0*log((1.0+exp((((U-VCES)/Vth0)-1.0))))));
+    }
+    else
+    {
+      d_Vceff_d_U=(1.0+((Vth0*(1.0/(1.0+exp((1.0-((U-VCES)/Vth0)))))*exp((1.0-((U-VCES)/Vth0)))*(-((Vth0-((U-VCES)*d_Vth0_d_U))/Vth0/Vth0)))+(d_Vth0_d_U*log((1.0+exp((1.0-((U-VCES)/Vth0))))))));
+      d_Vceff_d_VCES=((-1.0)+((Vth0*(1.0/(1.0+exp((1.0-((U-VCES)/Vth0)))))*exp((1.0-((U-VCES)/Vth0)))*(-((Vth0*(-1.0)-(U-VCES)*d_Vth0_d_VCES)/Vth0/Vth0)))+(d_Vth0_d_VCES*log((1.0+exp((1.0-((U-VCES)/Vth0))))))));
+      Vceff=((U-VCES)+(Vth0*log((1.0+exp((1.0-((U-VCES)/Vth0)))))));
+    }
+  }
+  // now save outputs and derivs into appropriate return vars
+  VceffReturn.value=Vceff;
+  VceffReturn.deriv_WRT_U = d_Vceff_d_U;
+  VceffReturn.deriv_WRT_VCES = d_Vceff_d_VCES;
+  return(VceffReturn);
 }
 
 // Derivative of Analog Function ICK
@@ -600,6 +1307,95 @@ double d_ICK(double U , double RCI0 , double VLIM , double InvVPT , double VCES 
   }
   d_ICK = d_ICK_d_U*d_U+d_ICK_d_RCI0*d_RCI0+d_ICK_d_VLIM*d_VLIM+d_ICK_d_InvVPT*d_InvVPT+d_ICK_d_VCES*d_VCES;
   return(d_ICK);
+}
+
+// Evaluator class implementations for Analog Function ICK
+// Constructor
+ICKEvaluator::ICKEvaluator(double U, double RCI0, double VLIM, double InvVPT, double VCES)
+{
+  ICKReturn_ = evaluator_(U, RCI0, VLIM, InvVPT, VCES);
+}
+// method to get precomputed values into double vars 
+double ICKEvaluator::getValues(double  U, double  RCI0, double  VLIM, double  InvVPT, double  VCES)
+{
+  // Silence unused argument warnings
+  (void) U;
+  (void) RCI0;
+  (void) VLIM;
+  (void) InvVPT;
+  (void) VCES;
+  // Copy all precomputed values into corresponding output
+  return(ICKReturn_.value);
+}
+// method to get total deriv w.r.t some variable via chain rule 
+// given precomputed derivs of function w.r.t. args and derivs of args
+// w.r.t desired vars
+double ICKEvaluator::getDerivs(double U , double RCI0 , double VLIM , double InvVPT , double VCES  , double d_U, double d_RCI0, double d_VLIM, double d_InvVPT, double d_VCES)
+{
+  // Function total deriv
+  double d_ICK;
+  // Silence unused argument warnings
+  (void) U;
+  (void) RCI0;
+  (void) VLIM;
+  (void) InvVPT;
+  (void) VCES;
+  d_ICK = ICKReturn_.deriv_WRT_U*d_U+ICKReturn_.deriv_WRT_RCI0*d_RCI0+ICKReturn_.deriv_WRT_VLIM*d_VLIM+ICKReturn_.deriv_WRT_InvVPT*d_InvVPT+ICKReturn_.deriv_WRT_VCES*d_VCES;
+  return(d_ICK);
+}
+// method that actually performs our computations.
+ICKEvaluator::returnType ICKEvaluator::evaluator_(double U, double RCI0, double VLIM, double InvVPT, double VCES)
+{
+  // Function value and derivs variables, and a returnType to store everything
+  double ICK;
+  ICKEvaluator::returnType ICKReturn;
+  // Derivatives of return value w.r.t input vars
+  double d_ICK_d_U;
+  double d_ICK_d_RCI0;
+  double d_ICK_d_VLIM;
+  double d_ICK_d_InvVPT;
+  double d_ICK_d_VCES;
+  // declared local variables
+  double VC;
+  double d_VC_d_U;
+  double d_VC_d_RCI0;
+  double d_VC_d_VLIM;
+  double d_VC_d_InvVPT;
+  double d_VC_d_VCES;
+  double x;
+  double d_x_d_U;
+  double d_x_d_RCI0;
+  double d_x_d_VLIM;
+  double d_x_d_InvVPT;
+  double d_x_d_VCES;
+  {
+    d_VC_d_U=d_Vceff(U,VCES,1.0,0.0);
+    d_VC_d_RCI0=0.0;
+    d_VC_d_VLIM=0.0;
+    d_VC_d_InvVPT=0.0;
+    d_VC_d_VCES=d_Vceff(U,VCES,0.0,1.0);
+    VC=Vceff(U,VCES);
+    d_x_d_U=(d_VC_d_U*InvVPT);
+    d_x_d_RCI0=(d_VC_d_RCI0*InvVPT);
+    d_x_d_VLIM=((d_VC_d_VLIM-1.0)*InvVPT);
+    d_x_d_InvVPT=((VC-VLIM)+InvVPT*d_VC_d_InvVPT);
+    d_x_d_VCES=(d_VC_d_VCES*InvVPT);
+    x=((VC-VLIM)*InvVPT);
+    d_ICK_d_U=((((VC/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))*((d_x_d_U+(0.5/sqrt(((x*x)+0.001)))*((x*d_x_d_U)+(d_x_d_U*x)))/2.0))+((((VC/RCI0)*(-(0.5/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))*(((VC/VLIM)*(d_VC_d_U/VLIM))+((d_VC_d_U/VLIM)*(VC/VLIM)))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))+((d_VC_d_U/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))))*(1.0+((x+sqrt(((x*x)+0.001)))/2.0))));
+    d_ICK_d_RCI0=((((VC/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))*((d_x_d_RCI0+(0.5/sqrt(((x*x)+0.001)))*((x*d_x_d_RCI0)+(d_x_d_RCI0*x)))/2.0))+((((VC/RCI0)*(-(0.5/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))*(((VC/VLIM)*(d_VC_d_RCI0/VLIM))+((d_VC_d_RCI0/VLIM)*(VC/VLIM)))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))+(((RCI0*d_VC_d_RCI0-VC)/RCI0/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))))*(1.0+((x+sqrt(((x*x)+0.001)))/2.0))));
+    d_ICK_d_VLIM=((((VC/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))*((d_x_d_VLIM+(0.5/sqrt(((x*x)+0.001)))*((x*d_x_d_VLIM)+(d_x_d_VLIM*x)))/2.0))+((((VC/RCI0)*(-(0.5/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))*(((VC/VLIM)*((VLIM*d_VC_d_VLIM-VC)/VLIM/VLIM))+(((VLIM*d_VC_d_VLIM-VC)/VLIM/VLIM)*(VC/VLIM)))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))+((d_VC_d_VLIM/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))))*(1.0+((x+sqrt(((x*x)+0.001)))/2.0))));
+    d_ICK_d_InvVPT=((((VC/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))*((d_x_d_InvVPT+(0.5/sqrt(((x*x)+0.001)))*((x*d_x_d_InvVPT)+(d_x_d_InvVPT*x)))/2.0))+((((VC/RCI0)*(-(0.5/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))*(((VC/VLIM)*(d_VC_d_InvVPT/VLIM))+((d_VC_d_InvVPT/VLIM)*(VC/VLIM)))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))+((d_VC_d_InvVPT/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))))*(1.0+((x+sqrt(((x*x)+0.001)))/2.0))));
+    d_ICK_d_VCES=((((VC/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))*((d_x_d_VCES+(0.5/sqrt(((x*x)+0.001)))*((x*d_x_d_VCES)+(d_x_d_VCES*x)))/2.0))+((((VC/RCI0)*(-(0.5/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))*(((VC/VLIM)*(d_VC_d_VCES/VLIM))+((d_VC_d_VCES/VLIM)*(VC/VLIM)))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))+((d_VC_d_VCES/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM)))))))*(1.0+((x+sqrt(((x*x)+0.001)))/2.0))));
+    ICK=(((VC/RCI0)*(1.0/sqrt((1.0+((VC/VLIM)*(VC/VLIM))))))*(1.0+((x+sqrt(((x*x)+0.001)))/2.0)));
+  }
+  // now save outputs and derivs into appropriate return vars
+  ICKReturn.value=ICK;
+  ICKReturn.deriv_WRT_U = d_ICK_d_U;
+  ICKReturn.deriv_WRT_RCI0 = d_ICK_d_RCI0;
+  ICKReturn.deriv_WRT_VLIM = d_ICK_d_VLIM;
+  ICKReturn.deriv_WRT_InvVPT = d_ICK_d_InvVPT;
+  ICKReturn.deriv_WRT_VCES = d_ICK_d_VCES;
+  return(ICKReturn);
 }
 
 } // namepace AnalogFunctions
@@ -2610,38 +3406,58 @@ bool Instance::updateIntermediateVars()
   Area = (((L*W)*1.0e12)*N);
   FOUR_K = (4*1.3806226e-23);
   TWO_Q = (2*1.6021918e-19);
+  {
+    AnalogFunctions::diodeEvaluator evaluator_diode_0(vbei,(model_.Jsf),(model_.Vg),(model_.nf),Area,Tj,(model_.Tnom));
 
-  d_Ic0a_dV_ti_GND = AnalogFunctions::d_diode(vbei,(model_.Jsf),(model_.Vg),(model_.nf),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
-  d_Ic0a_dV_bii_ei = AnalogFunctions::d_diode(vbei,(model_.Jsf),(model_.Vg),(model_.nf),Area,Tj,(model_.Tnom),d_vbei_dV_bii_ei,0.0,0.0,0.0,0.0,0.0,0.0);
-  Ic0a = AnalogFunctions::diode<double>(vbei,(model_.Jsf),(model_.Vg),(model_.nf),Area,Tj,(model_.Tnom));
+    d_Ic0a_dV_ti_GND = evaluator_diode_0.getDerivs(vbei,(model_.Jsf),(model_.Vg),(model_.nf),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
+    d_Ic0a_dV_bii_ei = evaluator_diode_0.getDerivs(vbei,(model_.Jsf),(model_.Vg),(model_.nf),Area,Tj,(model_.Tnom),d_vbei_dV_bii_ei,0.0,0.0,0.0,0.0,0.0,0.0);
+    Ic0a = evaluator_diode_0.getValues(vbei,(model_.Jsf),(model_.Vg),(model_.nf),Area,Tj,(model_.Tnom));
+  }
+  {
+    AnalogFunctions::diodeEvaluator evaluator_diode_0(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom));
 
-  d_Ic1ra_dV_ti_GND = AnalogFunctions::d_diode(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
-  d_Ic1ra_dV_bii_ci = AnalogFunctions::d_diode(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0,0.0,0.0);
-  Ic1ra = AnalogFunctions::diode<double>(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom));
+    d_Ic1ra_dV_ti_GND = evaluator_diode_0.getDerivs(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
+    d_Ic1ra_dV_bii_ci = evaluator_diode_0.getDerivs(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0,0.0,0.0);
+    Ic1ra = evaluator_diode_0.getValues(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom));
+  }
   if ((((model_.VAF)>0.0)&&((model_.VAR)>0.0)))
   {
+    {
+      AnalogFunctions::chargeEvaluator evaluator_charge_0(vbei,1.0,(model_.Vje),(model_.mje),1.0);
+      AnalogFunctions::chargeEvaluator evaluator_charge_1(0.0,1.0,(model_.Vje),(model_.mje),1.0);
+      AnalogFunctions::chargeEvaluator evaluator_charge_2(vbci,1.0,(model_.Vjc),(model_.mjc),1.0);
+      AnalogFunctions::chargeEvaluator evaluator_charge_3(0.0,1.0,(model_.Vjc),(model_.mjc),1.0);
 
-    d_q1_dV_bii_ci = (AnalogFunctions::d_charge(vbci,1.0,(model_.Vjc),(model_.mjc),1.0,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)/(model_.VAF));
-    d_q1_dV_bii_ei = (AnalogFunctions::d_charge(vbei,1.0,(model_.Vje),(model_.mje),1.0,d_vbei_dV_bii_ei,0.0,0.0,0.0,0.0)/(model_.VAR));
-    q1 = ((1.0+((AnalogFunctions::charge<double>(vbei,1.0,(model_.Vje),(model_.mje),1.0)-AnalogFunctions::charge<double>(0.0,1.0,(model_.Vje),(model_.mje),1.0))/(model_.VAR)))+((AnalogFunctions::charge<double>(vbci,1.0,(model_.Vjc),(model_.mjc),1.0)-AnalogFunctions::charge<double>(0.0,1.0,(model_.Vjc),(model_.mjc),1.0))/(model_.VAF)));
+      d_q1_dV_bii_ci = (evaluator_charge_2.getDerivs(vbci,1.0,(model_.Vjc),(model_.mjc),1.0,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)/(model_.VAF));
+      d_q1_dV_bii_ei = (evaluator_charge_0.getDerivs(vbei,1.0,(model_.Vje),(model_.mje),1.0,d_vbei_dV_bii_ei,0.0,0.0,0.0,0.0)/(model_.VAR));
+      q1 = ((1.0+((evaluator_charge_0.getValues(vbei,1.0,(model_.Vje),(model_.mje),1.0)-evaluator_charge_1.getValues(0.0,1.0,(model_.Vje),(model_.mje),1.0))/(model_.VAR)))+((evaluator_charge_2.getValues(vbci,1.0,(model_.Vjc),(model_.mjc),1.0)-evaluator_charge_3.getValues(0.0,1.0,(model_.Vjc),(model_.mjc),1.0))/(model_.VAF)));
+    }
   }
   else
   {
     if ((((model_.VAF)>0.0)&&((model_.VAR)==0.0)))
     {
+      {
+        AnalogFunctions::chargeEvaluator evaluator_charge_0(vbci,1.0,(model_.Vjc),(model_.mjc),1.0);
+        AnalogFunctions::chargeEvaluator evaluator_charge_1(0.0,1.0,(model_.Vjc),(model_.mjc),1.0);
 
-      d_q1_dV_bii_ei =  0.0;
-      d_q1_dV_bii_ci = (AnalogFunctions::d_charge(vbci,1.0,(model_.Vjc),(model_.mjc),1.0,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)/(model_.VAF));
-      q1 = (1.0+((AnalogFunctions::charge<double>(vbci,1.0,(model_.Vjc),(model_.mjc),1.0)-AnalogFunctions::charge<double>(0.0,1.0,(model_.Vjc),(model_.mjc),1.0))/(model_.VAF)));
+        d_q1_dV_bii_ei =  0.0;
+        d_q1_dV_bii_ci = (evaluator_charge_0.getDerivs(vbci,1.0,(model_.Vjc),(model_.mjc),1.0,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)/(model_.VAF));
+        q1 = (1.0+((evaluator_charge_0.getValues(vbci,1.0,(model_.Vjc),(model_.mjc),1.0)-evaluator_charge_1.getValues(0.0,1.0,(model_.Vjc),(model_.mjc),1.0))/(model_.VAF)));
+      }
     }
     else
     {
       if ((((model_.VAF)==0.0)&&((model_.VAR)>0.0)))
       {
+        {
+          AnalogFunctions::chargeEvaluator evaluator_charge_0(vbei,1.0,(model_.Vje),(model_.mje),1.0);
+          AnalogFunctions::chargeEvaluator evaluator_charge_1(0.0,1.0,(model_.Vje),(model_.mje),1.0);
 
-        d_q1_dV_bii_ci =  0.0;
-        d_q1_dV_bii_ei = (AnalogFunctions::d_charge(vbei,1.0,(model_.Vje),(model_.mje),1.0,d_vbei_dV_bii_ei,0.0,0.0,0.0,0.0)/(model_.VAR));
-        q1 = (1.0+((AnalogFunctions::charge<double>(vbei,1.0,(model_.Vje),(model_.mje),1.0)-AnalogFunctions::charge<double>(0.0,1.0,(model_.Vje),(model_.mje),1.0))/(model_.VAR)));
+          d_q1_dV_bii_ci =  0.0;
+          d_q1_dV_bii_ei = (evaluator_charge_0.getDerivs(vbei,1.0,(model_.Vje),(model_.mje),1.0,d_vbei_dV_bii_ei,0.0,0.0,0.0,0.0)/(model_.VAR));
+          q1 = (1.0+((evaluator_charge_0.getValues(vbei,1.0,(model_.Vje),(model_.mje),1.0)-evaluator_charge_1.getValues(0.0,1.0,(model_.Vje),(model_.mje),1.0))/(model_.VAR)));
+        }
       }
       else
       {
@@ -2711,22 +3527,31 @@ bool Instance::updateIntermediateVars()
   d_Ic1_dV_ti_GND = (d_Ic0_dV_ti_GND-d_Ic1r_dV_ti_GND);
   d_Ic1_dV_bii_ei = (d_Ic0_dV_bii_ei-d_Ic1r_dV_bii_ei);
   Ic1 = (Ic0-Ic1r);
+  {
+    AnalogFunctions::diodeEvaluator evaluator_diode_0(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom));
 
-  d_Ib2_dV_ti_GND = (AnalogFunctions::d_diode(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0)/(model_.Br));
-  d_Ib2_dV_bii_ci = (AnalogFunctions::d_diode(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0,0.0,0.0)/(model_.Br));
-  Ib2 = (AnalogFunctions::diode<double>(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom))/(model_.Br));
+    d_Ib2_dV_ti_GND = (evaluator_diode_0.getDerivs(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0)/(model_.Br));
+    d_Ib2_dV_bii_ci = (evaluator_diode_0.getDerivs(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0,0.0,0.0)/(model_.Br));
+    Ib2 = (evaluator_diode_0.getValues(vbci,((model_.XCjc)*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom))/(model_.Br));
+  }
+  {
+    AnalogFunctions::diodeEvaluator evaluator_diode_0(vbcx,((1.0-(model_.XCjc))*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom));
 
-  d_Ibx_dV_ti_GND = (AnalogFunctions::d_diode(vbcx,((1.0-(model_.XCjc))*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0)/(model_.Br));
-  d_Ibx_dV_bi_ci = (AnalogFunctions::d_diode(vbcx,((1.0-(model_.XCjc))*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),d_vbcx_dV_bi_ci,0.0,0.0,0.0,0.0,0.0,0.0)/(model_.Br));
-  Ibx = (AnalogFunctions::diode<double>(vbcx,((1.0-(model_.XCjc))*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom))/(model_.Br));
+    d_Ibx_dV_ti_GND = (evaluator_diode_0.getDerivs(vbcx,((1.0-(model_.XCjc))*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0)/(model_.Br));
+    d_Ibx_dV_bi_ci = (evaluator_diode_0.getDerivs(vbcx,((1.0-(model_.XCjc))*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom),d_vbcx_dV_bi_ci,0.0,0.0,0.0,0.0,0.0,0.0)/(model_.Br));
+    Ibx = (evaluator_diode_0.getValues(vbcx,((1.0-(model_.XCjc))*(model_.Jsr)),(model_.Vgr),(model_.nr),Area,Tj,(model_.Tnom))/(model_.Br));
+  }
   epsi = 1.0e-6;
   {
     double value_pow_0 = pow((1.0-epsi),(1/(model_.Mc)));
     Vbclin = ((model_.BVceo)*value_pow_0);
   }
+  {
+    AnalogFunctions::MMEvaluator evaluator_MM_0(vbci,(model_.BVceo),(model_.Mc),Vbclin,(model_.Bf),(model_.kc));
 
-  d_mm_dV_bii_ci = AnalogFunctions::d_MM(vbci,(model_.BVceo),(model_.Mc),Vbclin,(model_.Bf),(model_.kc),d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0,0.0);
-  mm = AnalogFunctions::MM<double>(vbci,(model_.BVceo),(model_.Mc),Vbclin,(model_.Bf),(model_.kc));
+    d_mm_dV_bii_ci = evaluator_MM_0.getDerivs(vbci,(model_.BVceo),(model_.Mc),Vbclin,(model_.Bf),(model_.kc),d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0,0.0);
+    mm = evaluator_MM_0.getValues(vbci,(model_.BVceo),(model_.Mc),Vbclin,(model_.Bf),(model_.kc));
+  }
   if ((mm>1.0))
   {
     if (((model_.kBeta)>0.0))
@@ -2786,11 +3611,14 @@ bool Instance::updateIntermediateVars()
   Ib0 = (Ic0a*EdBeta);
   if (((model_.BVebo)>0))
   {
+    {
+      AnalogFunctions::diodeEvaluator evaluator_diode_0(((-(model_.BVebo))-vbei),(model_.Jsf),0.0,1.0,Area,0.0,0.0);
 
-    d_Ib1_dV_bii_ci = d_Ib0_dV_bii_ci;
-    d_Ib1_dV_ti_GND = d_Ib0_dV_ti_GND;
-    d_Ib1_dV_bii_ei = (d_Ib0_dV_bii_ei-AnalogFunctions::d_diode(((-(model_.BVebo))-vbei),(model_.Jsf),0.0,1.0,Area,0.0,0.0,(-d_vbei_dV_bii_ei),0.0,0.0,0.0,0.0,0.0,0.0));
-    Ib1 = (Ib0-AnalogFunctions::diode<double>(((-(model_.BVebo))-vbei),(model_.Jsf),0.0,1.0,Area,0.0,0.0));
+      d_Ib1_dV_bii_ci = d_Ib0_dV_bii_ci;
+      d_Ib1_dV_ti_GND = d_Ib0_dV_ti_GND;
+      d_Ib1_dV_bii_ei = (d_Ib0_dV_bii_ei-evaluator_diode_0.getDerivs(((-(model_.BVebo))-vbei),(model_.Jsf),0.0,1.0,Area,0.0,0.0,(-d_vbei_dV_bii_ei),0.0,0.0,0.0,0.0,0.0,0.0));
+      Ib1 = (Ib0-evaluator_diode_0.getValues(((-(model_.BVebo))-vbei),(model_.Jsf),0.0,1.0,Area,0.0,0.0));
+    }
   }
   else
   {
@@ -2802,10 +3630,13 @@ bool Instance::updateIntermediateVars()
   }
   if ((((model_.Jse)>0.0)&&((model_.ne)>0)))
   {
+    {
+      AnalogFunctions::diodeEvaluator evaluator_diode_0(vxe,(model_.Jse),(model_.Vgb),(model_.ne),Area,Tj,(model_.Tnom));
 
-    d_Ibdx_dV_ti_GND = AnalogFunctions::d_diode(vxe,(model_.Jse),(model_.Vgb),(model_.ne),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
-    d_Ibdx_dV_ex_ei = AnalogFunctions::d_diode(vxe,(model_.Jse),(model_.Vgb),(model_.ne),Area,Tj,(model_.Tnom),d_vxe_dV_ex_ei,0.0,0.0,0.0,0.0,0.0,0.0);
-    Ibdx = AnalogFunctions::diode<double>(vxe,(model_.Jse),(model_.Vgb),(model_.ne),Area,Tj,(model_.Tnom));
+      d_Ibdx_dV_ti_GND = evaluator_diode_0.getDerivs(vxe,(model_.Jse),(model_.Vgb),(model_.ne),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
+      d_Ibdx_dV_ex_ei = evaluator_diode_0.getDerivs(vxe,(model_.Jse),(model_.Vgb),(model_.ne),Area,Tj,(model_.Tnom),d_vxe_dV_ex_ei,0.0,0.0,0.0,0.0,0.0,0.0);
+      Ibdx = evaluator_diode_0.getValues(vxe,(model_.Jse),(model_.Vgb),(model_.ne),Area,Tj,(model_.Tnom));
+    }
   }
   else
   {
@@ -2816,10 +3647,13 @@ bool Instance::updateIntermediateVars()
   }
   if ((((model_.Jsee)>0.0)&&((model_.nee)>0)))
   {
+    {
+      AnalogFunctions::diodeEvaluator evaluator_diode_0(vxxe,(model_.Jsee),(model_.Vgbb),(model_.nee),Area,Tj,(model_.Tnom));
 
-    d_Ibdxx_dV_ti_GND = AnalogFunctions::d_diode(vxxe,(model_.Jsee),(model_.Vgbb),(model_.nee),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
-    d_Ibdxx_dV_exx_ei = AnalogFunctions::d_diode(vxxe,(model_.Jsee),(model_.Vgbb),(model_.nee),Area,Tj,(model_.Tnom),d_vxxe_dV_exx_ei,0.0,0.0,0.0,0.0,0.0,0.0);
-    Ibdxx = AnalogFunctions::diode<double>(vxxe,(model_.Jsee),(model_.Vgbb),(model_.nee),Area,Tj,(model_.Tnom));
+      d_Ibdxx_dV_ti_GND = evaluator_diode_0.getDerivs(vxxe,(model_.Jsee),(model_.Vgbb),(model_.nee),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
+      d_Ibdxx_dV_exx_ei = evaluator_diode_0.getDerivs(vxxe,(model_.Jsee),(model_.Vgbb),(model_.nee),Area,Tj,(model_.Tnom),d_vxxe_dV_exx_ei,0.0,0.0,0.0,0.0,0.0,0.0);
+      Ibdxx = evaluator_diode_0.getValues(vxxe,(model_.Jsee),(model_.Vgbb),(model_.nee),Area,Tj,(model_.Tnom));
+    }
   }
   else
   {
@@ -2830,10 +3664,13 @@ bool Instance::updateIntermediateVars()
   }
   if ((((model_.Jsc)>0.0)&&((model_.nc)>0)))
   {
+    {
+      AnalogFunctions::diodeEvaluator evaluator_diode_0(vxc,(model_.Jsc),(model_.Vgc),(model_.nc),Area,Tj,(model_.Tnom));
 
-    d_Icdx_dV_ti_GND = AnalogFunctions::d_diode(vxc,(model_.Jsc),(model_.Vgc),(model_.nc),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
-    d_Icdx_dV_cx_ci = AnalogFunctions::d_diode(vxc,(model_.Jsc),(model_.Vgc),(model_.nc),Area,Tj,(model_.Tnom),d_vxc_dV_cx_ci,0.0,0.0,0.0,0.0,0.0,0.0);
-    Icdx = AnalogFunctions::diode<double>(vxc,(model_.Jsc),(model_.Vgc),(model_.nc),Area,Tj,(model_.Tnom));
+      d_Icdx_dV_ti_GND = evaluator_diode_0.getDerivs(vxc,(model_.Jsc),(model_.Vgc),(model_.nc),Area,Tj,(model_.Tnom),0.0,0.0,0.0,0.0,0.0,d_Tj_dV_ti_GND,0.0);
+      d_Icdx_dV_cx_ci = evaluator_diode_0.getDerivs(vxc,(model_.Jsc),(model_.Vgc),(model_.nc),Area,Tj,(model_.Tnom),d_vxc_dV_cx_ci,0.0,0.0,0.0,0.0,0.0,0.0);
+      Icdx = evaluator_diode_0.getValues(vxc,(model_.Jsc),(model_.Vgc),(model_.nc),Area,Tj,(model_.Tnom));
+    }
   }
   else
   {
@@ -2860,10 +3697,13 @@ bool Instance::updateIntermediateVars()
   {
     if ((((model_.J0)<=0.0)||(Ic0<0.0)))
     {
+      {
+        AnalogFunctions::chargeEvaluator evaluator_charge_0(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
 
-      d_qb2med_dV_bii_ei = d_qb2med_dV_ti_GND =  0.0;
-      d_qb2med_dV_bii_ci = (((model_.XCjc)*AnalogFunctions::d_charge(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0))+((((model_.XCjc)*Area)*(model_.Cmin))*d_vbci_dV_bii_ci));
-      qb2med = (((model_.XCjc)*AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area))+((((model_.XCjc)*Area)*(model_.Cmin))*vbci));
+        d_qb2med_dV_bii_ei = d_qb2med_dV_ti_GND =  0.0;
+        d_qb2med_dV_bii_ci = (((model_.XCjc)*evaluator_charge_0.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0))+((((model_.XCjc)*Area)*(model_.Cmin))*d_vbci_dV_bii_ci));
+        qb2med = (((model_.XCjc)*evaluator_charge_0.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area))+((((model_.XCjc)*Area)*(model_.Cmin))*vbci));
+      }
     }
     else
     {
@@ -2874,12 +3714,13 @@ bool Instance::updateIntermediateVars()
       xix = (Ic0/I00);
       {
         double value_tanh_0 = tanh(xix);
+        AnalogFunctions::chargeEvaluator evaluator_charge_1(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
         double  deriv_tanh_0_d0 = (1.0/cosh(xix)/cosh(xix));
 
-        d_qb2med_dV_bii_ci = (((((model_.XCjc)*(1.0-value_tanh_0))*(AnalogFunctions::d_charge(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci)))+(((model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_bii_ci))))*(AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci))))+(((((model_.XJ0)*(model_.XCjc))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci));
-        d_qb2med_dV_ti_GND = (((model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_ti_GND))))*(AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
-        d_qb2med_dV_bii_ei = (((model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_bii_ei))))*(AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
-        qb2med = ((((model_.XCjc)*(1.0-value_tanh_0))*(AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)))+(((((model_.XJ0)*(model_.XCjc))*Area)*(model_.Cmin))*vbci));
+        d_qb2med_dV_bii_ci = (((((model_.XCjc)*(1.0-value_tanh_0))*(evaluator_charge_1.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci)))+(((model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_bii_ci))))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci))))+(((((model_.XJ0)*(model_.XCjc))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci));
+        d_qb2med_dV_ti_GND = (((model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_ti_GND))))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
+        d_qb2med_dV_bii_ei = (((model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_bii_ei))))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
+        qb2med = ((((model_.XCjc)*(1.0-value_tanh_0))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)))+(((((model_.XJ0)*(model_.XCjc))*Area)*(model_.Cmin))*vbci));
       }
     }
   }
@@ -2887,10 +3728,13 @@ bool Instance::updateIntermediateVars()
   {
     if ((((model_.J0)<0.0)||(Ic0<0.0)))
     {
+      {
+        AnalogFunctions::chargeEvaluator evaluator_charge_0(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
 
-      d_qb2med_dV_bii_ei = d_qb2med_dV_ti_GND =  0.0;
-      d_qb2med_dV_bii_ci = (AnalogFunctions::d_charge(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+((Area*(model_.Cmin))*d_vbci_dV_bii_ci));
-      qb2med = (AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((Area*(model_.Cmin))*vbci));
+        d_qb2med_dV_bii_ei = d_qb2med_dV_ti_GND =  0.0;
+        d_qb2med_dV_bii_ci = (evaluator_charge_0.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+((Area*(model_.Cmin))*d_vbci_dV_bii_ci));
+        qb2med = (evaluator_charge_0.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((Area*(model_.Cmin))*vbci));
+      }
     }
     else
     {
@@ -2901,20 +3745,24 @@ bool Instance::updateIntermediateVars()
       xix = (Ic0/I00);
       {
         double value_tanh_0 = tanh(xix);
+        AnalogFunctions::chargeEvaluator evaluator_charge_1(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
         double  deriv_tanh_0_d0 = (1.0/cosh(xix)/cosh(xix));
 
-        d_qb2med_dV_bii_ci = ((((1.0-value_tanh_0)*(AnalogFunctions::d_charge(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci)))+((-(deriv_tanh_0_d0*(d_xix_dV_bii_ci)))*(AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci))))+((((model_.XJ0)*Area)*(model_.Cmin))*d_vbci_dV_bii_ci));
-        d_qb2med_dV_ti_GND = ((-(deriv_tanh_0_d0*(d_xix_dV_ti_GND)))*(AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
-        d_qb2med_dV_bii_ei = ((-(deriv_tanh_0_d0*(d_xix_dV_bii_ei)))*(AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
-        qb2med = (((1.0-value_tanh_0)*(AnalogFunctions::charge<double>(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)))+((((model_.XJ0)*Area)*(model_.Cmin))*vbci));
+        d_qb2med_dV_bii_ci = ((((1.0-value_tanh_0)*(evaluator_charge_1.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci)))+((-(deriv_tanh_0_d0*(d_xix_dV_bii_ci)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci))))+((((model_.XJ0)*Area)*(model_.Cmin))*d_vbci_dV_bii_ci));
+        d_qb2med_dV_ti_GND = ((-(deriv_tanh_0_d0*(d_xix_dV_ti_GND)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
+        d_qb2med_dV_bii_ei = ((-(deriv_tanh_0_d0*(d_xix_dV_bii_ei)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
+        qb2med = (((1.0-value_tanh_0)*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)))+((((model_.XJ0)*Area)*(model_.Cmin))*vbci));
       }
     }
   }
   if ((((model_.XCjc)<1.0)&&((model_.XCjc)>0.0)))
   {
+    {
+      AnalogFunctions::chargeEvaluator evaluator_charge_0(vbcx,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
 
-    d_qb1_dV_bi_ci = (((1.0-(model_.XCjc))*AnalogFunctions::d_charge(vbcx,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbcx_dV_bi_ci,0.0,0.0,0.0,0.0))+((((1.0-(model_.XCjc))*Area)*(model_.Cmin))*d_vbcx_dV_bi_ci));
-    qb1 = (((1.0-(model_.XCjc))*AnalogFunctions::charge<double>(vbcx,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area))+((((1.0-(model_.XCjc))*Area)*(model_.Cmin))*vbcx));
+      d_qb1_dV_bi_ci = (((1.0-(model_.XCjc))*evaluator_charge_0.getDerivs(vbcx,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbcx_dV_bi_ci,0.0,0.0,0.0,0.0))+((((1.0-(model_.XCjc))*Area)*(model_.Cmin))*d_vbcx_dV_bi_ci));
+      qb1 = (((1.0-(model_.XCjc))*evaluator_charge_0.getValues(vbcx,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area))+((((1.0-(model_.XCjc))*Area)*(model_.Cmin))*vbcx));
+    }
   }
   else
   {
@@ -2955,21 +3803,27 @@ bool Instance::updateIntermediateVars()
     AHC = (Area*(model_.Ahc));
     if ((((model_.Rci0)<(model_.RJk))||((model_.RJk)<=0.0)))
     {
+      {
+        AnalogFunctions::ICKEvaluator evaluator_ICK_0(vcei,RCIO,Vlim,InvVpt,(model_.Vces));
 
-      d_Ih_dV_bii_ci = (-(-AnalogFunctions::ICK<double>(vcei,RCIO,Vlim,InvVpt,(model_.Vces))*d_Ic0_dV_bii_ci/Ic0/Ic0));
-      d_Ih_dV_ti_GND = (-(-AnalogFunctions::ICK<double>(vcei,RCIO,Vlim,InvVpt,(model_.Vces))*d_Ic0_dV_ti_GND/Ic0/Ic0));
-      d_Ih_dV_bii_ei = (-(-AnalogFunctions::ICK<double>(vcei,RCIO,Vlim,InvVpt,(model_.Vces))*d_Ic0_dV_bii_ei/Ic0/Ic0));
-      d_Ih_dV_ci_ei = (-(AnalogFunctions::d_ICK(vcei,RCIO,Vlim,InvVpt,(model_.Vces),d_vcei_dV_ci_ei,0.0,0.0,0.0,0.0)/Ic0));
-      Ih = (1.0-(AnalogFunctions::ICK<double>(vcei,RCIO,Vlim,InvVpt,(model_.Vces))/Ic0));
+        d_Ih_dV_bii_ci = (-(-evaluator_ICK_0.getValues(vcei,RCIO,Vlim,InvVpt,(model_.Vces))*d_Ic0_dV_bii_ci/Ic0/Ic0));
+        d_Ih_dV_ti_GND = (-(-evaluator_ICK_0.getValues(vcei,RCIO,Vlim,InvVpt,(model_.Vces))*d_Ic0_dV_ti_GND/Ic0/Ic0));
+        d_Ih_dV_bii_ei = (-(-evaluator_ICK_0.getValues(vcei,RCIO,Vlim,InvVpt,(model_.Vces))*d_Ic0_dV_bii_ei/Ic0/Ic0));
+        d_Ih_dV_ci_ei = (-(evaluator_ICK_0.getDerivs(vcei,RCIO,Vlim,InvVpt,(model_.Vces),d_vcei_dV_ci_ei,0.0,0.0,0.0,0.0)/Ic0));
+        Ih = (1.0-(evaluator_ICK_0.getValues(vcei,RCIO,Vlim,InvVpt,(model_.Vces))/Ic0));
+      }
     }
     else
     {
+      {
+        AnalogFunctions::VceffEvaluator evaluator_Vceff_0(vcei,(model_.Vces));
 
-      d_Ih_dV_bii_ci = (-(-AnalogFunctions::Vceff<double>(vcei,(model_.Vces))*(RCIO*d_Ic0_dV_bii_ci)/(RCIO*Ic0)/(RCIO*Ic0)));
-      d_Ih_dV_ti_GND = (-(-AnalogFunctions::Vceff<double>(vcei,(model_.Vces))*(RCIO*d_Ic0_dV_ti_GND)/(RCIO*Ic0)/(RCIO*Ic0)));
-      d_Ih_dV_bii_ei = (-(-AnalogFunctions::Vceff<double>(vcei,(model_.Vces))*(RCIO*d_Ic0_dV_bii_ei)/(RCIO*Ic0)/(RCIO*Ic0)));
-      d_Ih_dV_ci_ei = (-(AnalogFunctions::d_Vceff(vcei,(model_.Vces),d_vcei_dV_ci_ei,0.0)/(RCIO*Ic0)));
-      Ih = (1.0-(AnalogFunctions::Vceff<double>(vcei,(model_.Vces))/(RCIO*Ic0)));
+        d_Ih_dV_bii_ci = (-(-evaluator_Vceff_0.getValues(vcei,(model_.Vces))*(RCIO*d_Ic0_dV_bii_ci)/(RCIO*Ic0)/(RCIO*Ic0)));
+        d_Ih_dV_ti_GND = (-(-evaluator_Vceff_0.getValues(vcei,(model_.Vces))*(RCIO*d_Ic0_dV_ti_GND)/(RCIO*Ic0)/(RCIO*Ic0)));
+        d_Ih_dV_bii_ei = (-(-evaluator_Vceff_0.getValues(vcei,(model_.Vces))*(RCIO*d_Ic0_dV_bii_ei)/(RCIO*Ic0)/(RCIO*Ic0)));
+        d_Ih_dV_ci_ei = (-(evaluator_Vceff_0.getDerivs(vcei,(model_.Vces),d_vcei_dV_ci_ei,0.0)/(RCIO*Ic0)));
+        Ih = (1.0-(evaluator_Vceff_0.getValues(vcei,(model_.Vces))/(RCIO*Ic0)));
+      }
     }
     {
       double value_sqrt_0 = sqrt(((Ih*Ih)+AHC));
@@ -3001,12 +3855,15 @@ bool Instance::updateIntermediateVars()
   d_qbtf_dV_bii_ei = (((model_.Tf)+((model_.Tft)*Tex))*d_Ic0_dV_bii_ei);
   d_qbtf_dV_ti_GND = ((((model_.Tf)+((model_.Tft)*Tex))*d_Ic0_dV_ti_GND)+(((model_.Tft)*d_Tex_dV_ti_GND)*Ic0));
   qbtf = (((model_.Tf)+((model_.Tft)*Tex))*Ic0);
+  {
+    AnalogFunctions::chargeEvaluator evaluator_charge_0(vbei,(model_.Cje),(model_.Vje),(model_.mje),Area);
 
-  d_qbe_dV_ci_ei = d_xtff_dV_ci_ei;
-  d_qbe_dV_bii_ci = (d_xtff_dV_bii_ci+d_qbtf_dV_bii_ci);
-  d_qbe_dV_ti_GND = (d_xtff_dV_ti_GND+d_qbtf_dV_ti_GND);
-  d_qbe_dV_bii_ei = ((d_xtff_dV_bii_ei+d_qbtf_dV_bii_ei)+AnalogFunctions::d_charge(vbei,(model_.Cje),(model_.Vje),(model_.mje),Area,d_vbei_dV_bii_ei,0.0,0.0,0.0,0.0));
-  qbe = ((xtff+qbtf)+AnalogFunctions::charge<double>(vbei,(model_.Cje),(model_.Vje),(model_.mje),Area));
+    d_qbe_dV_ci_ei = d_xtff_dV_ci_ei;
+    d_qbe_dV_bii_ci = (d_xtff_dV_bii_ci+d_qbtf_dV_bii_ci);
+    d_qbe_dV_ti_GND = (d_xtff_dV_ti_GND+d_qbtf_dV_ti_GND);
+    d_qbe_dV_bii_ei = ((d_xtff_dV_bii_ei+d_qbtf_dV_bii_ei)+evaluator_charge_0.getDerivs(vbei,(model_.Cje),(model_.Vje),(model_.mje),Area,d_vbei_dV_bii_ei,0.0,0.0,0.0,0.0));
+    qbe = ((xtff+qbtf)+evaluator_charge_0.getValues(vbei,(model_.Cje),(model_.Vje),(model_.mje),Area));
+  }
   // I(bi,ci) <+ ((dtype*Ibx))
   {
     double contribTemp;

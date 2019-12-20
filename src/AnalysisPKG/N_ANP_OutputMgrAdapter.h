@@ -140,6 +140,12 @@ public:
     outputManager_.setDotNoiseSpecified(value);
   }
 
+  // transient-assisted HB analysis was requested
+  void setTaHBSpecified( bool value)
+  {
+    outputManager_.setTaHBSpecified(value);
+  }
+
   void setEnableEmbeddedSamplingFlag( bool value)
   {
     outputManager_.setEnableEmbeddedSamplingFlag(value);

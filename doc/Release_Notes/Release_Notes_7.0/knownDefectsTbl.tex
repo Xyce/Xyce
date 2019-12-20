@@ -156,13 +156,6 @@ at its default value.
 \textbf{\textit{Workaround}}: None, other than not doing this.
 \\ \hline
 
-\textbf{971-SON}: Use of default device parameter syntax on a .PRINT line causes
-\Xyce{} to print 0 for that parameter & This line (\texttt{.PRINT TRAN R1}) will
-cause \Xyce{} to print 0 for the resistance value of R1.
-
-\textbf{\textit{Workaround}}: Use \texttt{.PRINT TRAN R1:R} instead.
-\\ \hline
-
 \textbf{970-SON}: Some devices do not work in frequency-domain analysis &
 Devices that may be expected to work in AC or HB analysis do not at
 this time.  For AC this includes, but is not limited to, the lossy
@@ -242,15 +235,6 @@ for \texttt{.HB}) may only be expressed as literal numbers.
 \textbf{\textit{Workaround}}: There is no workaround internal to \Xyce{}.
 Use of an external netlist preprocessor would be required. \\ \hline
 
-\textbf{928-SON}: The .hb\_ic.prn file can be incorrect when .STEP is used
-with .HB & \Xyce{} should only output the initial condition (IC) data
-for the accepted tolerance in the \texttt{<netlist-name>.hb\_ic.prn}
-file.  However, it currently outputs all of the intermediate IC data
-while harmonic balance tries to find a good tolerance
-if \texttt{.STEP} is used with \texttt{.HB}.
-
-\textbf{\textit{Workaround}}: There is no workaround. \\ \hline
-
 \textbf{883-SON} .PREPROCESS REPLACEGROUND does not work on nodes referenced
 in expressions & The \texttt{.PREPROCESS REPLACEGROUND} feature does
 not replace ground synonyms if they appear in B source expressions.
@@ -311,12 +295,6 @@ either \texttt{I(R1)},
 \texttt{P(R1)} or \texttt{W(R1)} to be on the \texttt{.PRINT TRAN} line.
 Second, the output value, in the \texttt{.res} file, for the lead
 current or power calculation will always be zero.
-\\ \hline
-
-\textbf{652-SON}: HB output is buggy & While a straightforward use of
-\texttt{.print HB} works as described in the \Xyce{} Users' Guide and Reference 
-Guide, several of the documented features do not work as intended.  More details
-are provided by other entries in this table.
 \\ \hline
 
 \textbf{583-SON}: Switch with RON=0 leads to convergence failure. &

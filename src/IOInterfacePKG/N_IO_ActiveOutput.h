@@ -101,7 +101,11 @@ public:
   void add(Parallel::Machine comm, Analysis::Mode analysis_mode);
 
   void resetIndex();
-  
+
+  void reopenTmpFile();
+
+  void copyTmpFileToOutputFile();
+
   void setStepSweepVector(const Analysis::SweepVector & step_sweep_parameters);
 
   void setDCSweepVector(const Analysis::SweepVector & dc_sweep_parameters);

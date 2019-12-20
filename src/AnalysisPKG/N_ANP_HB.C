@@ -145,6 +145,9 @@ HB::HB(
     resetForStepCalledBefore_(false)
 {
   pdsMgrPtr_ = analysisManager_.getPDSManager();
+
+  if (taHB_ == 1)
+    analysisManager_.getOutputManagerAdapter().setTaHBSpecified(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -795,6 +798,8 @@ bool HB::setHBIntParams(const Util::OptionBlock & OB)
     else if ( tag == "TAHB" )
     {
       taHB_ = iterPL->getImmutableValue<int>();
+       if (taHB_ != 1)
+         analysisManager_.getOutputManagerAdapter().setTaHBSpecified(false);
     }
     else if ( tag == "VOLTLIM" )
     {
@@ -1795,9 +1800,16 @@ HB::runTol()
     analysisManager_.popActiveAnalysis();
     currentAnalysisObject_ = 0;
     isTransient_ = false;
+
+    // If transient-assisted HB is used with .STEP then the data from each transient
+    // run is copied to a tmp file.  This block copies that tmp data to the actual
+    // HB_IC output file, if the transient run was acceptable.  See SON Bug 928
+    // for more details.
+    if (!startUpPeriodsGiven_ && acceptICTranRun(numPoints))
+      x.copyTmpFileToOutputFile();
   }
 
-  while ((numPoints < (1.2*size_)) && (relErrorTol_ >= 1e-6))
+  while ( !acceptICTranRun(numPoints) )
   {
     {
       Report::UserWarning() << "Tolerance parameters refined, re-running with relErrorTol = " << relErrorTol_/10;
@@ -1817,6 +1829,7 @@ HB::runTol()
       if (!startUpPeriodsGiven_) {
         x.add(Xyce::IO::PrintType::HB_IC, ANP_MODE_HB);
         x.resetIndex();
+        x.reopenTmpFile();  // tmp file used to handle HB_IC data from each transient run
       }
 
       isTransient_ = true;
@@ -1864,10 +1877,29 @@ HB::runTol()
       currentAnalysisObject_ = 0;
       isTransient_ = false;
   
+      // copies tmp data for this transient run to the actual HB_IC output file,
+      // if the run was acceptable.
+      if ( !startUpPeriodsGiven_ && acceptICTranRun(numPoints) )
+        x.copyTmpFileToOutputFile();
     }
   }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : HB::acceptICTranRun()
+// Purpose       : Determine if a transient run, done for the HB_IC calculation,
+//                 was acceptable.
+// Special Notes : This function is also used to trigger the copying of the tmp
+//                 file to the actual HB_IC output file.
+// Scope         : private
+// Creator       : Pete Sholander, SNL
+// Creation Date : 11/19/2019
+//-----------------------------------------------------------------------------
+bool HB::acceptICTranRun(int numPoints)
+{
+  return !(numPoints < (1.2*size_)) || !(relErrorTol_ >= 1e-6);
 }
 
 //-----------------------------------------------------------------------------

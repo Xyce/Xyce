@@ -39,10 +39,13 @@ libIOInterface_la_SOURCES = \
   N_IO_OutputterFrequencyTecplot.C \
   N_IO_OutputterHBFreqCSV.C \
   N_IO_OutputterHBTimeCSV.C \
+  N_IO_OutputterHBICCSV.C \
   N_IO_OutputterHBFreqPrn.C \
   N_IO_OutputterHBTimePrn.C \
+  N_IO_OutputterHBICPrn.C \
   N_IO_OutputterHBFreqTecplot.C \
   N_IO_OutputterHBTimeTecplot.C \
+  N_IO_OutputterHBICTecplot.C \
   N_IO_OutputterHDF5.C \
   N_IO_OutputterHomotopy.C \
   N_IO_OutputterHomotopyCSV.C \
@@ -160,10 +163,13 @@ libIOInterface_la_SOURCES = \
   N_IO_OutputterFrequencyTecplot.h \
   N_IO_OutputterHBFreqCSV.h \
   N_IO_OutputterHBTimeCSV.h \
+  N_IO_OutputterHBICCSV.h \
   N_IO_OutputterHBFreqPrn.h \
   N_IO_OutputterHBTimePrn.h \
+  N_IO_OutputterHBICPrn.h \
   N_IO_OutputterHBFreqTecplot.h \
   N_IO_OutputterHBTimeTecplot.h \
+  N_IO_OutputterHBICTecplot.h \
   N_IO_OutputterHomotopy.h \
   N_IO_OutputterHomotopyCSV.h \
   N_IO_OutputterHomotopyPrn.h \

@@ -197,6 +197,7 @@ class Simulator
   RunStatus runSimulation();
 
   bool getDeviceNames(const std::string & modelGroupName, std::vector<std::string> & deviceNames);
+  bool getAllDeviceNames(std::vector<std::string> & deviceNames);
 
   //---------------------------------------------------------------------------
   // Function      : getDACDeviceNames

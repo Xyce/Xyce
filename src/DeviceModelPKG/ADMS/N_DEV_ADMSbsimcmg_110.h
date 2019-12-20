@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:26
+// Creation Date  : Tue, 17 Dec 2019 12:11:31
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_110_h
@@ -9048,6 +9048,33 @@ template<typename ScalarT> ScalarT lexp(ScalarT x)
 }
 // Derivative of Analog Function lexp
 double d_lexp(double x  , double d_x  );
+// Evaluator class for Analog Function lexp
+class lexpEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_x;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  lexpEvaluator(double x);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double x  , double d_x);
+private:
+  returnType lexpReturn_;
+  returnType evaluator_(double x);
+};
 
 
 // Analog Function lln
@@ -9063,6 +9090,33 @@ template<typename ScalarT> ScalarT lln(ScalarT x)
 }
 // Derivative of Analog Function lln
 double d_lln(double x  , double d_x  );
+// Evaluator class for Analog Function lln
+class llnEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_x;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  llnEvaluator(double x);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double x  , double d_x);
+private:
+  returnType llnReturn_;
+  returnType evaluator_(double x);
+};
 
 
 // Analog Function hypsmooth
@@ -9078,6 +9132,34 @@ template<typename ScalarT> ScalarT hypsmooth(ScalarT x, ScalarT c)
 }
 // Derivative of Analog Function hypsmooth
 double d_hypsmooth(double x , double c  , double d_x  , double d_c  );
+// Evaluator class for Analog Function hypsmooth
+class hypsmoothEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_x;
+    double deriv_WRT_c;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  hypsmoothEvaluator(double x, double c);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x, double  c);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double x , double c  , double d_x, double d_c);
+private:
+  returnType hypsmoothReturn_;
+  returnType evaluator_(double x, double c);
+};
 
 
 // Analog Function hypmax
@@ -9093,6 +9175,35 @@ template<typename ScalarT> ScalarT hypmax(ScalarT x, ScalarT xmin, ScalarT c)
 }
 // Derivative of Analog Function hypmax
 double d_hypmax(double x , double xmin , double c  , double d_x  , double d_xmin  , double d_c  );
+// Evaluator class for Analog Function hypmax
+class hypmaxEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_x;
+    double deriv_WRT_xmin;
+    double deriv_WRT_c;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  hypmaxEvaluator(double x, double xmin, double c);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x, double  xmin, double  c);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double x , double xmin , double c  , double d_x, double d_xmin, double d_c);
+private:
+  returnType hypmaxReturn_;
+  returnType evaluator_(double x, double xmin, double c);
+};
 
 
 // Analog Function Tempdep
@@ -9115,6 +9226,36 @@ template<typename ScalarT> ScalarT Tempdep(ScalarT PARAML, ScalarT PARAMT, Scala
 }
 // Derivative of Analog Function Tempdep
 double d_Tempdep(double PARAML , double PARAMT , double DELTEMP , double TEMPMOD  , double d_PARAML  , double d_PARAMT  , double d_DELTEMP  , double d_TEMPMOD  );
+// Evaluator class for Analog Function Tempdep
+class TempdepEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_PARAML;
+    double deriv_WRT_PARAMT;
+    double deriv_WRT_DELTEMP;
+    double deriv_WRT_TEMPMOD;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  TempdepEvaluator(double PARAML, double PARAMT, double DELTEMP, double TEMPMOD);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  PARAML, double  PARAMT, double  DELTEMP, double  TEMPMOD);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double PARAML , double PARAMT , double DELTEMP , double TEMPMOD  , double d_PARAML, double d_PARAMT, double d_DELTEMP, double d_TEMPMOD);
+private:
+  returnType TempdepReturn_;
+  returnType evaluator_(double PARAML, double PARAMT, double DELTEMP, double TEMPMOD);
+};
 
 }
 

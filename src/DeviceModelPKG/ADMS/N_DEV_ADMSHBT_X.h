@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 15 Oct 2019 12:01:25
+// Creation Date  : Tue, 17 Dec 2019 14:13:17
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSHBT_X_h
@@ -1140,6 +1140,33 @@ template<typename ScalarT> ScalarT exp_soft(ScalarT x)
 }
 // Derivative of Analog Function exp_soft
 double d_exp_soft(double x  , double d_x  );
+// Evaluator class for Analog Function exp_soft
+class exp_softEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_x;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  exp_softEvaluator(double x);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  x);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double x  , double d_x);
+private:
+  returnType exp_softReturn_;
+  returnType evaluator_(double x);
+};
 
 
 // Analog Function Vt
@@ -1166,6 +1193,34 @@ template<typename ScalarT> ScalarT Vt(ScalarT U, ScalarT Ud)
 }
 // Derivative of Analog Function Vt
 double d_Vt(double U , double Ud  , double d_U  , double d_Ud  );
+// Evaluator class for Analog Function Vt
+class VtEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_U;
+    double deriv_WRT_Ud;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  VtEvaluator(double U, double Ud);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  U, double  Ud);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double U , double Ud  , double d_U, double d_Ud);
+private:
+  returnType VtReturn_;
+  returnType evaluator_(double U, double Ud);
+};
 
 
 // Analog Function diode
@@ -1211,6 +1266,39 @@ template<typename ScalarT> ScalarT diode(ScalarT U, ScalarT Is, ScalarT Ug, Scal
 }
 // Derivative of Analog Function diode
 double d_diode(double U , double Is , double Ug , double N , double AREA , double TJ , double TNOM  , double d_U  , double d_Is  , double d_Ug  , double d_N  , double d_AREA  , double d_TJ  , double d_TNOM  );
+// Evaluator class for Analog Function diode
+class diodeEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_U;
+    double deriv_WRT_Is;
+    double deriv_WRT_Ug;
+    double deriv_WRT_N;
+    double deriv_WRT_AREA;
+    double deriv_WRT_TJ;
+    double deriv_WRT_TNOM;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  diodeEvaluator(double U, double Is, double Ug, double N, double AREA, double TJ, double TNOM);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  U, double  Is, double  Ug, double  N, double  AREA, double  TJ, double  TNOM);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double U , double Is , double Ug , double N , double AREA , double TJ , double TNOM  , double d_U, double d_Is, double d_Ug, double d_N, double d_AREA, double d_TJ, double d_TNOM);
+private:
+  returnType diodeReturn_;
+  returnType evaluator_(double U, double Is, double Ug, double N, double AREA, double TJ, double TNOM);
+};
 
 
 // Analog Function MM
@@ -1268,6 +1356,38 @@ template<typename ScalarT> ScalarT MM(ScalarT VBCI, ScalarT VCBO, ScalarT MC, Sc
 }
 // Derivative of Analog Function MM
 double d_MM(double VBCI , double VCBO , double MC , double VCBLIN , double BF , double KC  , double d_VBCI  , double d_VCBO  , double d_MC  , double d_VCBLIN  , double d_BF  , double d_KC  );
+// Evaluator class for Analog Function MM
+class MMEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_VBCI;
+    double deriv_WRT_VCBO;
+    double deriv_WRT_MC;
+    double deriv_WRT_VCBLIN;
+    double deriv_WRT_BF;
+    double deriv_WRT_KC;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  MMEvaluator(double VBCI, double VCBO, double MC, double VCBLIN, double BF, double KC);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  VBCI, double  VCBO, double  MC, double  VCBLIN, double  BF, double  KC);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double VBCI , double VCBO , double MC , double VCBLIN , double BF , double KC  , double d_VBCI, double d_VCBO, double d_MC, double d_VCBLIN, double d_BF, double d_KC);
+private:
+  returnType MMReturn_;
+  returnType evaluator_(double VBCI, double VCBO, double MC, double VCBLIN, double BF, double KC);
+};
 
 
 // Analog Function charge
@@ -1296,6 +1416,37 @@ template<typename ScalarT> ScalarT charge(ScalarT U, ScalarT C0, ScalarT Ud, Sca
 }
 // Derivative of Analog Function charge
 double d_charge(double U , double C0 , double Ud , double m , double Area  , double d_U  , double d_C0  , double d_Ud  , double d_m  , double d_Area  );
+// Evaluator class for Analog Function charge
+class chargeEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_U;
+    double deriv_WRT_C0;
+    double deriv_WRT_Ud;
+    double deriv_WRT_m;
+    double deriv_WRT_Area;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  chargeEvaluator(double U, double C0, double Ud, double m, double Area);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  U, double  C0, double  Ud, double  m, double  Area);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double U , double C0 , double Ud , double m , double Area  , double d_U, double d_C0, double d_Ud, double d_m, double d_Area);
+private:
+  returnType chargeReturn_;
+  returnType evaluator_(double U, double C0, double Ud, double m, double Area);
+};
 
 
 // Analog Function Vceff
@@ -1320,6 +1471,34 @@ template<typename ScalarT> ScalarT Vceff(ScalarT U, ScalarT VCES)
 }
 // Derivative of Analog Function Vceff
 double d_Vceff(double U , double VCES  , double d_U  , double d_VCES  );
+// Evaluator class for Analog Function Vceff
+class VceffEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_U;
+    double deriv_WRT_VCES;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  VceffEvaluator(double U, double VCES);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  U, double  VCES);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double U , double VCES  , double d_U, double d_VCES);
+private:
+  returnType VceffReturn_;
+  returnType evaluator_(double U, double VCES);
+};
 
 
 // Analog Function ICK
@@ -1339,6 +1518,37 @@ template<typename ScalarT> ScalarT ICK(ScalarT U, ScalarT RCI0, ScalarT VLIM, Sc
 }
 // Derivative of Analog Function ICK
 double d_ICK(double U , double RCI0 , double VLIM , double InvVPT , double VCES  , double d_U  , double d_RCI0  , double d_VLIM  , double d_InvVPT  , double d_VCES  );
+// Evaluator class for Analog Function ICK
+class ICKEvaluator
+{
+  struct returnType
+  {
+    double value;
+    double deriv_WRT_U;
+    double deriv_WRT_RCI0;
+    double deriv_WRT_VLIM;
+    double deriv_WRT_InvVPT;
+    double deriv_WRT_VCES;
+  };
+public:
+  // constructor takes all same arguments as regular templated function,
+  // even though it doesn't USE the output args
+  ICKEvaluator(double U, double RCI0, double VLIM, double InvVPT, double VCES);
+  // function that returns the precomputed values.  This, too, takes
+  // all the same arguments as the regular function, though it ONLY
+  // uses the output arguments
+  double getValues(double  U, double  RCI0, double  VLIM, double  InvVPT, double  VCES);
+  // function that returns the total derivative of the function and its
+  // output arguments with respect to some variable.  We pass in the
+  // normal arguments(none of which are used) and the derivatives of those
+  // arguments with respect to the desired variable.  We compute the
+  // derivatives using the chain rule and our precomputed derivatives
+  // with respect to input variables
+  double getDerivs(double U , double RCI0 , double VLIM , double InvVPT , double VCES  , double d_U, double d_RCI0, double d_VLIM, double d_InvVPT, double d_VCES);
+private:
+  returnType ICKReturn_;
+  returnType evaluator_(double U, double RCI0, double VLIM, double InvVPT, double VCES);
+};
 
 }
 
