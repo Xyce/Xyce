@@ -548,10 +548,7 @@ Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_Par
      int maxGID = pmap.maxGlobalEntity();
      if ( pmap.globalToLocalIndex( maxGID ) >= 0 ) 
        maxProc = pmap.pdsComm().procID();
- 
-     // Increment the global count.
-     numGlobalElements += augmentRows;
- 
+    
      // Increment the local count for the processor with the maximum global ID
      if (maxProc >= 0)
      {
@@ -565,24 +562,24 @@ Teuchos::RCP<N_PDS_ParMap> createBlockFreqERFParMap( int numHarmonics, N_PDS_Par
      }
    }
 
+   // Increment the global count.
+   numGlobalElements += augmentRows;
+
    // Create new maps for the block system 
    Teuchos::RCP<N_PDS_ParMap> blockMap = 
      Teuchos::rcp(new N_PDS_ParMap(numGlobalElements, numLocalElements, newGIDs, BaseIndex, pmap.pdsComm()));
 
-   // Now capture the GIDs of the augmented rows.
-   if (augmentRows)
+   // Now capture the LIDs of the augmented rows.
+   if ( maxProc >= 0 )
    {
-     if ( maxProc >= 0 )
-     {
-       augmentedLIDs->resize( augmentRows );
+     augmentedLIDs->resize( augmentRows );
 
-       for ( int i=0; i<augmentRows; i++ )
-       {
-         int localID = blockMap->globalToLocalIndex( augmentedGIDs[i] );
+     for ( int i=0; i<augmentRows; i++ )
+     {
+       int localID = blockMap->globalToLocalIndex( augmentedGIDs[i] );
         
-         // Add the augmented LIDs to the processor that has the maximum GID.
-         (*augmentedLIDs)[i] = localID;
-       }
+       // Add the augmented LIDs to the processor that has the maximum GID.
+       (*augmentedLIDs)[i] = localID;
      }
    }
 
