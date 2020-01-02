@@ -834,9 +834,9 @@ void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
     <admst:otherwise>
       <!-- and here we have to do special things for MOSFETS and BJTs. -->
       <admst:choose>
-        <admst:when test="[exists($theModule/attribute[name='xyceModelGroup']) and ($theModule/attribute[name='xyceModelGroup']/value='MOSFET' or $theModule/attribute[name='xyceModelGroup']/value='BJT')]">
+        <admst:when test="[exists($theModule/attribute[name='xyceModelGroup']) and ($theModule/attribute[name='xyceModelGroup']/value='MOSFET' or $theModule/attribute[name='xyceModelGroup']/value='JFET' or $theModule/attribute[name='xyceModelGroup']/value='BJT')]">
           <admst:choose>
-            <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET']">
+            <admst:when test="[$theModule/attribute[name='xyceModelGroup']/value='MOSFET' or $theModule/attribute[name='xyceModelGroup']/value='JFET']">
               addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[2])), getName(), "BRANCH_DD");
               addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[3])), getName(), "BRANCH_DG");
               addBranchDataNode( symbol_table, %(xyceLeadBranchLIDVariable($theModule/node[4])), getName(), "BRANCH_DS");
@@ -1037,7 +1037,7 @@ bool Instance::loadDAEFVector()
     // devices for power computation.
 
     <admst:choose>
-      <admst:when test="[exists($theModule/attribute[name='xyceModelGroup']) and($theModule/attribute[name='xyceModelGroup']/value='BJT' or $theModule/attribute[name='xyceModelGroup']/value='MOSFET')]">
+      <admst:when test="[exists($theModule/attribute[name='xyceModelGroup']) and($theModule/attribute[name='xyceModelGroup']/value='BJT' or $theModule/attribute[name='xyceModelGroup']/value='MOSFET' or $theModule/attribute[name='xyceModelGroup']/value='JFET')]">
         double * solVec = extData.nextSolVectorRawPtr;
         double * junctionV = extData.nextJunctionVCompRawPtr;
         junctionV[%(xyceLeadBranchLIDVariable($theModule/node[2]))] = solVec[%(xyceNodeLIDVariable($theModule/node[2]))] - solVec[%(xyceNodeLIDVariable($theModule/node[4]))];
@@ -2205,7 +2205,7 @@ bool Model::processParams()
       <admst:text format="  if (!given(&quot;%(name)&quot;))\n  {\n"/>
       <admst:text format="  %(name) = %(printTerm(default));\n  }\n"/>
     </admst:if>
-    <admst:if test="[exists(../attribute[name='xyceModelGroup']) and (../attribute[name='xyceModelGroup']/value='MOSFET' or ../attribute[name='xyceModelGroup']/value='BJT') and (exists(../attribute[name='xyceTypeVariable']) and ../attribute[name='xyceTypeVariable']/value=name)]">
+    <admst:if test="[exists(../attribute[name='xyceModelGroup']) and (../attribute[name='xyceModelGroup']/value='MOSFET' or ../attribute[name='xyceModelGroup']/value='BJT' or ../attribute[name='xyceModelGroup']/value='JFET') and (exists(../attribute[name='xyceTypeVariable']) and ../attribute[name='xyceTypeVariable']/value=name)]">
       <admst:apply-templates match="xyceSetTypeVariable" select=".."/>
 
     </admst:if>

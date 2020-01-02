@@ -139,6 +139,7 @@ include_HEADERS = \
   $(srcdir)/DeviceModelPKG/OpenModels/N_DEV_Capacitor.h \
   $(srcdir)/DeviceModelPKG/OpenModels/N_DEV_BJT.h \
   $(srcdir)/DeviceModelPKG/OpenModels/N_DEV_Diode.h \
+  $(srcdir)/DeviceModelPKG/OpenModels/N_DEV_JFET.h \
   $(srcdir)/DeviceModelPKG/OpenModels/N_DEV_MOSFET1.h \
   $(srcdir)/ErrorHandlingPKG/N_ERH_fwd.h \
   $(srcdir)/ErrorHandlingPKG/N_ERH_Message.h \

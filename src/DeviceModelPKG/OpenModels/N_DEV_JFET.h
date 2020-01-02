@@ -510,7 +510,8 @@ public:
   virtual bool loadDAEMatrices (Linear::Matrix & dFdx, Linear::Matrix & dQdx);
 };
 
-void registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet);
+void registerDevice(const DeviceCountMap& deviceMap = DeviceCountMap(),
+                    const std::set<int>& levelSet = std::set<int>());
 
 } // namespace JFET
 } // namespace Device
