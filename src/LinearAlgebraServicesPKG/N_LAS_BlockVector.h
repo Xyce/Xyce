@@ -111,9 +111,6 @@ class BlockVector : public Vector
   int endBlock() const
   { return endBlock_; }
 
-  double * augmentStart()
-  { return augmentLoc_; }
-
   // Return whether the local vector is a view of the global vector.
   bool isBlockView()
   { return blocksViewGlobalVec_; }
@@ -135,18 +132,16 @@ class BlockVector : public Vector
  private:
 
   bool blocksViewGlobalVec_;
-  const int globalBlockSize_;
-  const int localBlockSize_;
-  const int overlapBlockSize_;
-  const int numBlocks_;
-  const int augmentCount_;
+  int globalBlockSize_;
+  int localBlockSize_;
+  int overlapBlockSize_;
+  int numBlocks_;
+  int augmentCount_;
 
   // In frequency domain, whole blocks may be owned by one processor.
   // NOTE:  This assumes they are contiguous.  By default these routines
   //        will return 0 and numBlocks_ (which is sane for the time domain specs).
   int startBlock_, endBlock_;
-
-  double * augmentLoc_;
 
   Teuchos::RCP<N_PDS_ParMap> newBlockMap_, newoBlockMap_;
 
