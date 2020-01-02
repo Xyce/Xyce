@@ -174,6 +174,7 @@ private:
 
   bool hbOsc_;
   std::vector<int> augmentedLIDs_;
+  std::vector<int> augmentedOverlapLIDs_;
 //  std::vector<int>* augmentedLIDs_;
   int leadCurrentOffset_;
 
