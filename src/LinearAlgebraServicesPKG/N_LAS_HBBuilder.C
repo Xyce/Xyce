@@ -345,7 +345,7 @@ bool HBBuilder::generateMaps( const RCP<N_PDS_ParMap>& BaseMap,
   if (hbOsc_)
   {
     HBExpandedRealFormBVMap_ = createBlockFreqERFParMap( numHarmonics_, *BaseMap, 1, &augmentedLIDs_);
-    HBExpandedRealFormBVOverlapMap_ = createBlockFreqERFParMap( numHarmonics_, *BaseMap, *oBaseMap, 1, &augmentedLIDs_);
+    HBExpandedRealFormBVOverlapMap_ = createBlockFreqERFParMap( numHarmonics_, *BaseMap, *oBaseMap, 1, &augmentedOverlapLIDs_);
   }
   else
   {

@@ -3998,6 +3998,20 @@ other variables does not get propagated into a variable's
         </admst:for-each>
         <admst:variable name="expression" select="$expression($args)"/>
       </admst:when>
+      <admst:when test="[name='hypot']">
+        <admst:assert test="arguments[count(.)=2]" format="hypot function must take exactly two arguments.\n"/>
+        <admst:variable name="expression" value="sqrt"/>
+        <admst:variable name="args" select=""/>
+        <admst:for-each select="arguments">
+          <admst:if test="[$args!='']">
+            <admst:variable name="args" select="$args+"/>
+          </admst:if>
+          <admst:apply-templates select="." match="processTerm">
+            <admst:variable name="args" select="$args%(returned('returnedExpression')/value)*%(returned('returnedExpression')/value)"/>
+          </admst:apply-templates>
+        </admst:for-each>
+        <admst:variable name="expression" select="$expression($args)"/>
+      </admst:when>
       <admst:otherwise>
         <!--
              Commented out code is for investigating issues around

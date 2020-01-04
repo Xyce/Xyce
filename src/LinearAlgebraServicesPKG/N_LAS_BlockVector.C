@@ -128,8 +128,6 @@ BlockVector::BlockVector(
     endBlock_ = (int) std::floor( (double)(globalMap->petraMap()->MaxMyGID()-augmentRows + 1) / (double)blockSize );
   }
 
-  //std::cout << "startBlock_ = " << startBlock_ << ", endBlock_ = " << endBlock_ << std::endl;
-
   //Setup Views of blocks using Block Map
   double ** Ptrs;
   aMultiVector_->ExtractView( &Ptrs );
@@ -316,11 +314,20 @@ BlockVector::BlockVector( const MultiVector & rhs, int blockSize, int col )
   localBlockSize_( blockSize ),
   overlapBlockSize_( blockSize ),
   numBlocks_( rhs.globalLength() / blockSize ),
-  augmentCount_( 0 ),
+  augmentCount_( rhs.globalLength() % blockSize ),
   startBlock_( 0 ),
   endBlock_( rhs.globalLength() / blockSize ),
   blocks_( rhs.globalLength() / blockSize )
 {
+  // If the oscillating HB algorithm is being used then augmentCount_ is probably not zero.
+  int localAugmentCount = rhs.localLength() % blockSize;
+  if (augmentCount_)
+  {
+    endBlock_ = (rhs.globalLength() - augmentCount_) / blockSize;
+    blocks_.resize( endBlock_ );
+    numBlocks_ = endBlock_; 
+  }
+
   // Create the new maps for each block that places all the entries of the block on one processor.
   MultiVector& rhs_nonconst = const_cast<MultiVector&>( rhs );
   newBlockMap_ = Teuchos::rcp( new N_PDS_ParMap( blockSize, blockSize, 
@@ -333,6 +340,9 @@ BlockVector::BlockVector( const MultiVector & rhs, int blockSize, int col )
   // Determine where these blocks start and end in the grand scheme of things.
   int minMyGID = (aMultiVector_->Map()).MinMyGID();
   int maxMyGID = (aMultiVector_->Map()).MaxMyGID();
+  if ( localAugmentCount )
+    maxMyGID -= localAugmentCount;
+
   startBlock_ = (int) std::floor( (double)(minMyGID + 1) / (double)blockSize );
   endBlock_ = (int) std::floor( (double)(maxMyGID + 1) / (double)blockSize );
 
