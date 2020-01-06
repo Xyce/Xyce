@@ -146,6 +146,17 @@ class xyce_interface:
     return (status, DACnames)
     return status
 
+  def checkDeviceParamName(self , paramName):
+    cvarName = c_char_p(paramName)
+    status = self.lib.xyce_checkDeviceParamName( byref(self.xycePtr), cvarName )
+    return status
+
+  def getDeviceParamVal(self, paramName):
+    cparamName = c_char_p(paramName.encode('utf-8'))
+    cValue = c_double(0.0)
+    status = self.lib.xyce_getDeviceParamVal( byref(self.xycePtr), cparamName, byref(cValue) )
+    return (status, (cValue.value))
+
   def getADCMap( self ):
     basename = "YADC"
     cBaseName = c_char_p(basename.encode('utf-8'))

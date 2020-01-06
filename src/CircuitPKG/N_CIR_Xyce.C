@@ -116,6 +116,7 @@
 
 #include <N_TOP_Topology.h>
 
+#include <N_UTL_Algorithm.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_Misc.h>
 #include <N_UTL_Timer.h>
@@ -1252,6 +1253,61 @@ bool Simulator::getAllDeviceNames(std::vector<std::string> &deviceNames)
   {
     deviceNames.push_back((*it)->getName().getEncodedName());
   }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::checkDeviceParamName
+// Purpose       : check if the specified parameter name (e.g., X1:R1:R) is
+//                 a valid parameter for a device that exists in the netlist.
+// Special Notes : This function will return false if the device or parameter
+//                 does not exist.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 12/18/2019
+//-----------------------------------------------------------------------------
+bool Simulator::checkDeviceParamName(const std::string full_param_name) const
+{
+  Device::DeviceEntity *device_entity = deviceManager_->getDeviceEntity(full_param_name);
+  if (!device_entity)
+  {
+    Report::UserWarning0() << "Device entity not found for " << full_param_name << std::endl;
+    return false;
+  }
+
+  if ( !device_entity->findParam(Util::paramNameFromFullParamName(full_param_name)) )
+  {
+    Report::UserWarning0() << "Device parameter not found for " << full_param_name << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::getDeviceParamVal
+// Purpose       : get the value of a specified device parameter.
+// Special Notes : This function will return false if the device or parameter
+//                 does not exist.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 12/11/2019
+//-----------------------------------------------------------------------------
+bool Simulator::getDeviceParamVal(const std::string full_param_name, double& val) const
+{
+  Device::DeviceEntity *device_entity = deviceManager_->getDeviceEntity(full_param_name);
+  if (!device_entity)
+  {
+    Report::UserWarning0() << "Device entity not found for " << full_param_name << std::endl;
+    return false;
+  }
+
+  if ( !device_entity->getParam(Util::paramNameFromFullParamName(full_param_name), val) )
+  {
+    Report::UserWarning0() << "Device parameter not found for " << full_param_name << std::endl;
+    return false;
+  }
+
   return true;
 }
 

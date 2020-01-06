@@ -198,6 +198,8 @@ class Simulator
 
   bool getDeviceNames(const std::string & modelGroupName, std::vector<std::string> & deviceNames);
   bool getAllDeviceNames(std::vector<std::string> & deviceNames);
+  bool getDeviceParamVal(const std::string full_param_name, double& val) const;
+  bool checkDeviceParamName(const std::string full_param_name) const;
 
   //---------------------------------------------------------------------------
   // Function      : getDACDeviceNames
