@@ -14,6 +14,7 @@ libADMS_la_SOURCES = \
   N_DEV_ADMSPSP102VA.C \
   N_DEV_ADMSJUNCAP200.C \
   N_DEV_ADMSbsimcmg.C \
+  N_DEV_ADMSbsimcmg_108.C \
   N_DEV_ADMSbsimcmg_110.C \
   N_DEV_ADMSbsim6.C \
   N_DEV_ADMSvbic13.C \
@@ -32,6 +33,7 @@ libADMS_la_SOURCES = \
   N_DEV_ADMSPSP102VA.h \
   N_DEV_ADMSJUNCAP200.h \
   N_DEV_ADMSbsimcmg.h \
+  N_DEV_ADMSbsimcmg_108.h \
   N_DEV_ADMSbsimcmg_110.h \
   N_DEV_ADMSbsim6.h \
   N_DEV_ADMSvbic13.h \

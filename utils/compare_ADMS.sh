@@ -10,6 +10,7 @@ diff -u -w -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13_4t.C sr
 diff -u -w -Bb utils/ADMS/examples/vbic_r1.3_prerelease/N_DEV_ADMSvbic13_4t.h src/DeviceModelPKG/ADMS/N_DEV_ADMSvbic13_4t.h
 diff -u -w -Bb utils/ADMS/examples/bsimcmg_107.0.0/code/N_DEV_ADMSbsimcmg.h src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg.h
 diff -u -w -Bb utils/ADMS/examples/bsimcmg_107.0.0/code/N_DEV_ADMSbsimcmg.C src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg.C
+diff -u -w -Bb utils/ADMS/examples/BSIMCMG108.0.0_20140822/code/N_DEV_ADMSbsimcmg_108.h src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_108.h
 diff -u -w -Bb utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.h src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.h
 diff -u -w -Bb utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.C src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.C
 diff -u -w -Bb utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.h src/DeviceModelPKG/ADMS/N_DEV_ADMSbsim6.h
