@@ -4065,7 +4065,8 @@ analog begin
 `else // !`ifndef __XYCE__
                // Technically this should be $fatal, but Xyce implements $finish as if it were fatal,
                // and does not implement $fatal.
-               $finish("BSIM-CMG 108 TNOIMOD=1 is unsupported.");
+               $strobe("BSIM-CMG 108 TNOIMOD=1 is unsupported.");
+               $finish(0);
 `endif
                end 
             2: begin  //Correlated Thermal Noise by Navid, November 2013, Reference BSIMSOI4.5.0
