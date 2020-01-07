@@ -40,5 +40,8 @@
 //     ___Professor in Graduate School _______
 // ********************************************************
 
+// TVR: Xyce/ADMS specific definitions:
+`define attr(txt) (*txt*)
+`define __XYCE__ 1
 
 `include "bsimcmg_main.va"

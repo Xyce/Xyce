@@ -119,36 +119,36 @@ endfunction
 
 /* Note: Some instance parameters are also model parameters.  */
 /*       Please refer to the technical note for details.      */
-parameter real L         =  30n from [1n:inf);        // Designed Gate Length
-parameter real D         =  40n from [1n:inf);        // Diameter of the cylinder (GEOMOD=3)
-parameter real TFIN      =  15n from [1n:inf);        // Body (Fin) thickness
-parameter real FPITCH    =  80n from [TFIN:inf);      // Fin pitch
-parameter integer NF     =  1 from [1:inf);           // Number of fingers
-parameter real NFIN      =  1.0 from (0:inf);         // Number of fins per finger (real number enables optimization)
-parameter integer NGCON  =  1 from [1:2];             // number of gate contact (1 or 2 sided)
-parameter real ASEO  =  0 from [0:inf);               // Source to substrate overlap area through oxide
-parameter real ADEO  =  0 from [0:inf);               // Drain to substrate overlap area through oxide
-parameter real PSEO  =  0 from [0:inf);               // Perimeter of source to substrate overlap region through oxide
-parameter real PDEO  =  0 from [0:inf);               // Perimeter of drain to substrate overlap region through oxide
-parameter real ASEJ  =  0 from [0:inf);               // Source junction area (BULKMOD=1)
-parameter real ADEJ  =  0 from [0:inf);               // Drain junction area (BULKMOD=1)
-parameter real PSEJ  =  0 from [0:inf);               // Source to substrate PN junction perimeter (BULKMOD=1)
-parameter real PDEJ  =  0 from [0:inf);               // Drain to substrate PN junction perimeter (BULKMOD=1)
-parameter real COVS  =  0 from [0:inf);               // Constant g/s overlap capacitance (CGEOMOD=1)
-parameter real COVD  =  COVS from [0:inf);            // Constant g/d overlap capacitance (CGEOMOD=1)
-parameter real CGSP  =  0.0 from [0:inf);             // Constant gate-to-source fringe capacitance (CGEOMOD=1)
-parameter real CGDP  =  0.0 from [0:inf);             // Constant gate-to-drain fringe capacitance (CGEOMOD=1)
-parameter real CDSP  =  0.0 from [0:inf);             // Constant drain-to-source fringe capacitance (All CGEOMOD)
-parameter real NRS   =  0.0 from [0:inf);             // Number of source diffusion squares
-parameter real NRD   =  0.0 from [0:inf);             // Number of source diffusion squares
-parameter real LRSD  =  L from (0:inf);               // Length of the source/drain
+parameter real L         =  30n from [1n:inf) `attr(type="instance" xyceAlsoModel="YES" info="Designed Gate Length");        // Designed Gate Length
+parameter real D         =  40n from [1n:inf) `attr(type="instance" xyceAlsoModel="YES" info="Diameter of the cylinder (GEOMOD=3)");        // Diameter of the cylinder (GEOMOD=3)
+parameter real TFIN      =  15n from [1n:inf) `attr(type="instance" xyceAlsoModel="YES" info="Body (Fin) thickness");        // Body (Fin) thickness
+parameter real FPITCH    =  80n from [TFIN:inf) `attr(type="instance" xyceAlsoModel="YES" info="Fin pitch");      // Fin pitch
+parameter integer NF     =  1 from [1:inf) `attr(type="instance" xyceAlsoModel="YES" info="Number of fingers");           // Number of fingers
+parameter real NFIN      =  1.0 from (0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Number of fins per finger (real number enables optimization)");         // Number of fins per finger (real number enables optimization)
+parameter integer NGCON  =  1 from [1:2] `attr(type="instance" xyceAlsoModel="YES" info="number of gate contact (1 or 2 sided)");             // number of gate contact (1 or 2 sided)
+parameter real ASEO  =  0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Source to substrate overlap area through oxide");               // Source to substrate overlap area through oxide
+parameter real ADEO  =  0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Drain to substrate overlap area through oxide");               // Drain to substrate overlap area through oxide
+parameter real PSEO  =  0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Perimeter of source to substrate overlap region through oxide");               // Perimeter of source to substrate overlap region through oxide
+parameter real PDEO  =  0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Perimeter of drain to substrate overlap region through oxide");               // Perimeter of drain to substrate overlap region through oxide
+parameter real ASEJ  =  0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Source junction area (BULKMOD=1)");               // Source junction area (BULKMOD=1)
+parameter real ADEJ  =  0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Drain junction area (BULKMOD=1)");               // Drain junction area (BULKMOD=1)
+parameter real PSEJ  =  0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Source to substrate PN junction perimeter (BULKMOD=1)");               // Source to substrate PN junction perimeter (BULKMOD=1)
+parameter real PDEJ  =  0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Drain to substrate PN junction perimeter (BULKMOD=1)");               // Drain to substrate PN junction perimeter (BULKMOD=1)
+parameter real COVS  =  0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Constant g/s overlap capacitance (CGEOMOD=1)");               // Constant g/s overlap capacitance (CGEOMOD=1)
+parameter real COVD  =  COVS from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Constant g/d overlap capacitance (CGEOMOD=1)");            // Constant g/d overlap capacitance (CGEOMOD=1)
+parameter real CGSP  =  0.0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Constant gate-to-source fringe capacitance (CGEOMOD=1)");             // Constant gate-to-source fringe capacitance (CGEOMOD=1)
+parameter real CGDP  =  0.0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Constant gate-to-drain fringe capacitance (CGEOMOD=1)");             // Constant gate-to-drain fringe capacitance (CGEOMOD=1)
+parameter real CDSP  =  0.0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Constant drain-to-source fringe capacitance (All CGEOMOD)");             // Constant drain-to-source fringe capacitance (All CGEOMOD)
+parameter real NRS   =  0.0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Number of source diffusion squares");             // Number of source diffusion squares
+parameter real NRD   =  0.0 from [0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Number of source diffusion squares");             // Number of source diffusion squares
+parameter real LRSD  =  L from (0:inf) `attr(type="instance" xyceAlsoModel="YES" info="Length of the source/drain");               // Length of the source/drain
 
 //Variability Handles
-parameter real XL         =  0;                       // L offset for channel length due to mask/etch effect
-parameter real DTEMP      =  0;                       // Variability in Device Temperature    
-parameter real DELVTRAND =  0;                        // Variability in Vth
-parameter real U0MULT    =  1 from [0:inf);           // Variability in carrier mobility
-parameter real IDS0MULT  =  1 from [0:inf);           // Variability in Drain current for misc. reasons    
+parameter real XL         =  0 `attr(info="L offset for channel length due to mask/etch effect");                       // L offset for channel length due to mask/etch effect
+parameter real DTEMP      =  0 `attr(info="Variability in Device Temperature    ");                       // Variability in Device Temperature    
+parameter real DELVTRAND =  0 `attr(info="Variability in Vth");                        // Variability in Vth
+parameter real U0MULT    =  1 from [0:inf) `attr(info="Variability in carrier mobility");           // Variability in carrier mobility
+parameter real IDS0MULT  =  1 from [0:inf) `attr(info="Variability in Drain current for misc. reasons    ");           // Variability in Drain current for misc. reasons    
 
 
 /************************/
@@ -156,168 +156,179 @@ parameter real IDS0MULT  =  1 from [0:inf);           // Variability in Drain cu
 /************************/
 parameter integer DEVTYPE  =  `ntype from [`ptype:`ntype];
 parameter integer TYPE     = DEVTYPE from [`ptype:`ntype]; 
-parameter integer BULKMOD  =  0 from [0:1];           // 0: SOI multi-gate
+parameter integer BULKMOD  =  0 from [0:1] `attr(info="Bulk model");
+                                                      // 0: SOI multi-gate
                                                       // 1: Bulk multi-gate
-parameter integer COREMOD  =  0 from [0:1];           // 0: Default surface potential algorithm
+parameter integer COREMOD  =  0 from [0:1] `attr(info="Surface potential algorithm");
+                                                      // 0: Default surface potential algorithm
                                                       // 1: Simplified (efficient) surface potential algorithm
-parameter integer GEOMOD   =  1 from [0:3];           // 0: Double gate
+parameter integer GEOMOD   =  1 from [0:3] `attr(info="Geometry mode selector");
+                                                      // 0: Double gate
                                                       // 1: Triple gate
                                                       // 2: Quadruple gate
                                                       // 3: Cylindrical gate
 parameter integer CGEO1SW = 0 from [0:1];             // For CGEOMOD=1 only, this switch enables the parameters COVS, COVD, CGSP,  
                                                       // and CGDP to be in F per fin, per gate-finger, per unit channel width
-parameter integer RDSMOD   =  0 from [0:2];           // 0: Internal s/d resistance model
+parameter integer RDSMOD   =  0 from [0:2] `attr(info="Resistance model selector");
+                                                      // 0: Internal s/d resistance model
                                                       // 1: External s/d resistance model
                                                       // 2: Both bias dependent and independent part of source/drain resistance internal 
-parameter integer ASYMMOD  =  0 from [0:1];           // 0: Asymmetry Model turned off - forward mode parameters used
+parameter integer ASYMMOD  =  0 from [0:1] `attr(info="Asymmetric model selector");
+                                                      // 0: Asymmetry Model turned off - forward mode parameters used
                                                       // 1: Asymmetry Model turned on
-parameter integer IGCMOD   =  0 from [0:1];           // 0: Turn off Igc, Igs and Igd
+parameter integer IGCMOD   =  0 from [0:1] `attr(info="Model selector for Igc, Igs, and Igd");
+                                                      // 0: Turn off Igc, Igs and Igd
                                                       // 1: Turn on Igc, Igs and Igd
-parameter integer IGBMOD   =  0 from [0:1];           // 0: Turn off Igb
+parameter integer IGBMOD   =  0 from [0:1] `attr(info="Model selector for Igb");
+                                                      // 0: Turn off Igb
                                                       // 1: Turn on Igb
-parameter integer GIDLMOD  =  0 from [0:1];           // 0: Turn off GIDL/GISL current
+parameter integer GIDLMOD  =  0 from [0:1] `attr(info="GIDL/GISL current switcher");
+                                                      // 0: Turn off GIDL/GISL current
                                                       // 1: Turn on GIDL/GISL current
-parameter integer IIMOD    =  0 from [0:2];           // 0: No impact ionization current
+parameter integer IIMOD    =  0 from [0:2] `attr(info="Impact ionization model switch");
+                                                      // 0: No impact ionization current
                                                       // 1: BSIM4-based model
                                                       // 2: BSIMSOI-based model
 parameter integer NQSMOD   =  0 from [0:2];           // 0: NQS models turned off  **NQSMOD=3 is disabled for now.**
                                                       // 1: NQS gate resistance / gi node turned on
                                                       // 2: NQS charge deficit model (BSIM4) / q node turned on
                                                       // 3: NQS charge segmentation model / Nseg nodes turned on
-parameter integer SHMOD    =  0 from [0:1];           // 0: No self-heating
+parameter integer SHMOD    =  0 from [0:1] `attr(info="Self heating and T node switcher --- NOT USED IN XYCE");
+                                                      // 0: No self-heating
                                                       // 1: Self-heating turned on
 parameter integer TEMPMOD  =  0 from [0:1];           // 1: Changes the temperature dependency's type of specific parameters
-parameter integer RGATEMOD =  0 from [0:1];           // 0: Gate electrode resistance / ge node turned off
+parameter integer RGATEMOD =  0 from [0:1]  `attr(info="Gate electrode resistance on/off seector");
+                                                      // 0: Gate electrode resistance / ge node turned off
                                                       // 1: Gate electrode resistance / ge node turned on
-parameter integer RGEOMOD  =  0 from [0:1];           // Geometry-dependent source/drain resistance
+parameter integer RGEOMOD  =  0 from [0:1] `attr(info="Geometry-dependent source/drain resistance");           // Geometry-dependent source/drain resistance
                                                       // 0: RSH-based; 1: Holistic
-parameter integer CGEOMOD  =  0 from [0:2];           // Geometry dependent parasitic capacitance model selector
-parameter integer CAPMOD   =  0 from[0:1];            // For BULKMOD =1;
+parameter integer CGEOMOD  =  0 from [0:2] `attr(info="Geometry dependent parasitic capacitance model selector");           // Geometry dependent parasitic capacitance model selector
+parameter integer CAPMOD   =  0 from[0:1] `attr(info="Accumulation capacitance selector");            // For BULKMOD =1;
                                                       // 0: No accumulation capacitance; 1: Accumulation capacitance included
-parameter real LINT    =  0;                          // Length reduction parameter (dopant diffusion effect)
-parameter real LL      =  0;                          // Length reduction parameter (dopant diffusion effect)
-parameter real LLN     =  1;                          // Length reduction parameter (dopant diffusion effect)
-parameter real DLC     =  0;                          // Delta L for C-V model
-parameter real DLCACC  =  0;                          // Delta L for C-V model in accumulation region (CAPMOD=1, BULKMOD=1)
-parameter real DLBIN   =  0;                          // Delta L for Binning
-parameter real LLC     =  0;                          // Length reduction parameter (dopant diffusion effect)
-parameter real EOT     =  1.0n from [0.1n:inf);       // equivalent oxide thickness in meters
-parameter real TOXP    =  1.2n from [0.1n:inf);       // physical oxide thickness in meters
-parameter real EOTBOX  =  140n from [1n:inf);         // equivalent oxide thickness of the buried oxide (SOI FinFET)
+parameter real LINT    =  0 `attr(info="Length reduction parameter (dopant diffusion effect)");                          // Length reduction parameter (dopant diffusion effect)
+parameter real LL      =  0 `attr(info="Length reduction parameter (dopant diffusion effect)");                          // Length reduction parameter (dopant diffusion effect)
+parameter real LLN     =  1 `attr(info="Length reduction parameter (dopant diffusion effect)");                          // Length reduction parameter (dopant diffusion effect)
+parameter real DLC     =  0 `attr(info="Delta L for C-V model");                          // Delta L for C-V model
+parameter real DLCACC  =  0 `attr(info="Delta L for C-V model in accumulation region (CAPMOD=1, BULKMOD=1)");                          // Delta L for C-V model in accumulation region (CAPMOD=1, BULKMOD=1)
+parameter real DLBIN   =  0 `attr(info="Delta L for Binning");                          // Delta L for Binning
+parameter real LLC     =  0 `attr(info="Length reduction parameter (dopant diffusion effect)");                          // Length reduction parameter (dopant diffusion effect)
+parameter real EOT     =  1.0n from [0.1n:inf) `attr(info="equivalent oxide thickness in meters");       // equivalent oxide thickness in meters
+parameter real TOXP    =  1.2n from [0.1n:inf) `attr(info="physical oxide thickness in meters");       // physical oxide thickness in meters
+parameter real EOTBOX  =  140n from [1n:inf) `attr(info="equivalent oxide thickness of the buried oxide (SOI FinFET) or STI (bulk FinFET) in meters");         // equivalent oxide thickness of the buried oxide (SOI FinFET)
                                                       //   or STI (bulk FinFET) in meters
-parameter real HFIN    =  30n from [1n:inf);          // Fin height in meters
-parameter real FECH    =  1 from [0:inf);             // End-channel factor, for different orientation/shape
-parameter real DELTAW  =  0;                          // change of effective width due to shape of fin/cylinder
-parameter real FECHCV  =  1 from [0:inf);             // CV end-channel factor, for different orientation/shape
-parameter real DELTAWCV=  0;                          // CV change of effective width due to shape of fin/cylinder
+parameter real HFIN    =  30n from [1n:inf) `attr(info="Fin height in meters");          // Fin height in meters
+parameter real FECH    =  1 from [0:inf) `attr(info="End-channel factor, for different orientation/shape");             // End-channel factor, for different orientation/shape
+parameter real DELTAW  =  0 `attr(info="change of effective width due to shape of fin/cylinder");                          // change of effective width due to shape of fin/cylinder
+parameter real FECHCV  =  1 from [0:inf) `attr(info="CV end-channel factor, for different orientation/shape");             // CV end-channel factor, for different orientation/shape
+parameter real DELTAWCV=  0 `attr(info="CV change of effective width due to shape of fin/cylinder");                          // CV change of effective width due to shape of fin/cylinder
 
-parameter real NBODY    =  1e22;                      // channel (body) doping
-parameter real NBODYN1  =  0 ;                        // NFIN dependence of channel (body) doping
-parameter real NBODYN2  =  1.0e5 exclude 0;           // NFIN dependence of channel (body) doping
-parameter real NSD     =  2e26 from [2e25:1e27];      // Source/drain active doping concentration in m-3
+parameter real NBODY    =  1e22 `attr(info="channel (body) doping");                      // channel (body) doping
+parameter real NBODYN1  =  0  `attr(info="NFIN dependence of channel (body) doping");                        // NFIN dependence of channel (body) doping
+parameter real NBODYN2  =  1.0e5 exclude 0 `attr(info="NFIN dependence of channel (body) doping");           // NFIN dependence of channel (body) doping
+parameter real NSD     =  2e26 from [2e25:1e27] `attr(info="Source/drain active doping concentration in m-3");      // Source/drain active doping concentration in m-3
 
-parameter real PHIG    =  4.61 from [0:inf);          // Gate workfunction, eV
-parameter real PHIGL   =  0;                          // Length dependence of Gate workfunction, eV/m
-parameter real PHIGN1  =  0 ;                         // NFIN dependence of Gate workfunction
-parameter real PHIGN2  =  1.0e5 exclude 0;            // NFIN dependence of Gate workfunction
+parameter real PHIG    =  4.61 from [0:inf) `attr(info="Gate workfunction, eV");          // Gate workfunction, eV
+parameter real PHIGL   =  0 `attr(info="Length dependence of Gate workfunction, eV/m");                          // Length dependence of Gate workfunction, eV/m
+parameter real PHIGN1  =  0  `attr(info="NFIN dependence of Gate workfunction");                         // NFIN dependence of Gate workfunction
+parameter real PHIGN2  =  1.0e5 exclude 0 `attr(info="NFIN dependence of Gate workfunction");            // NFIN dependence of Gate workfunction
 
-parameter real EPSROX  =  3.9 from [1:inf);           // Relative dielectric constant of the gate dielectric
-parameter real EPSRSUB =  11.9 from [1:inf);          // Relative dielectric constant of the channel material
-parameter real EASUB   =  4.05 from [0:inf);          // Electron affinity of substrate, eV
-parameter real NI0SUB  =  1.1e16;                     // Intrinsic carrier constant at 300.15K, m-3
-parameter real BG0SUB  =  1.12;                       // Band gap of substrate at 300.15K, eV
-parameter real NC0SUB  =  2.86e25;                    // Conduction band density of states, m-3
-parameter real NGATE   =  0.0;                        // Parameter for Poly Gate Doping, for metal gate please set NGATE = 0
-parameter real Imin    =  1.0E-15;                    // Parameter for Vgs Clamping for inversion region calc. in accumulation
+parameter real EPSROX  =  3.9 from [1:inf) `attr(info="Relative dielectric constant of the gate dielectric");           // Relative dielectric constant of the gate dielectric
+parameter real EPSRSUB =  11.9 from [1:inf) `attr(info="Relative dielectric constant of the channel material");          // Relative dielectric constant of the channel material
+parameter real EASUB   =  4.05 from [0:inf) `attr(info="Electron affinity of substrate, eV");          // Electron affinity of substrate, eV
+parameter real NI0SUB  =  1.1e16 `attr(info="Intrinsic carrier constant at 300.15K, m-3");                     // Intrinsic carrier constant at 300.15K, m-3
+parameter real BG0SUB  =  1.12 `attr(info="Band gap of substrate at 300.15K, eV");                       // Band gap of substrate at 300.15K, eV
+parameter real NC0SUB  =  2.86e25 `attr(info="Conduction band density of states, m-3");                    // Conduction band density of states, m-3
+parameter real NGATE   =  0.0 `attr(info="Parameter for Poly Gate Doping, for metal gate please set NGATE = 0");                        // Parameter for Poly Gate Doping, for metal gate please set NGATE = 0
+parameter real Imin    =  1.0E-15 `attr(info="Parameter for Vgs Clamping for inversion region calc. in accumulation");                    // Parameter for Vgs Clamping for inversion region calc. in accumulation
 // Short Channel Effects
-parameter real CIT      =  0.0;                       // parameter for interface trap
-parameter real CITR      =  CIT;                      // parameter for interface trap in reverse mode for asymmetric model
-parameter real CDSC     =  7e-3;                      // coupling capacitance between S/D and channel
-parameter real CDSCN1   =  0 ;                        // NFIN dependence of CDSC
-parameter real CDSCN2   =  1.0e5 ;                    // NFIN dependence of CDSC
-parameter real CDSCD    =  7e-3;                      // drain-bias sensitivity of CDSC
-parameter real CDSCDN1  =  0 ;                        // NFIN dependence of CDSCD
-parameter real CDSCDN2  =  1.0e5 exclude 0;           // NFIN dependence of CDSCD
-parameter real CDSCDR   =  CDSCD;                     // Reverse-mode drain-bias sensitivity of CDSC (Experimental)
-parameter real CDSCDRN1 =  CDSCDN1 ;                  // NFIN dependence of CDSCD
-parameter real CDSCDRN2 =  CDSCDN2 exclude 0 ;        // NFIN dependence of CDSCD
-parameter real DVT0     =  0.0;                       // SCE coefficient
-parameter real DVT1     =  0.60;                      // SCE exponent coefficient, after binning should be in (0:inf)
-parameter real DVT1SS   =  DVT1;                      // Subthreshold Swing exponent coefficient, after binning should be in (0:inf)
-parameter real PHIN     =  0.05;                      // Nonuniform vertical doping effect on surface potential, V
-parameter real ETA0     =  0.60;                      // DIBL coefficient
-parameter real ETA0N1   =  0 ;                        // NFIN dependence of ETA0
-parameter real ETA0N2   =  1.0e5 from[1.0e-5:inf);    // NFIN dependence of ETA0
-parameter real TETA0    =  0.0;                       // Temperature dependence of DIBL coefficient, 1/K
-parameter real ETA0R    =  ETA0;                      // Reverse-mode DIBL coefficient (Experimental)
-parameter real TETA0R   =  TETA0;                     // Temperature dependence of Reverse-mode DIBL coefficient, 1/K
-parameter real DSUB     =  1.06;                      // DIBL exponent coefficient
-parameter real DVTP0    =  0;                         // Coefficient for Drain-Induced Vth Shift (DITS)
-parameter real DVTP1    =  0;                         // DITS exponent coefficient
-parameter real K1RSCE   =  0.0;                       // K1 for reverse short channel effect calculation 
-parameter real LPE0     =  5.0n;                      // Equivalent length of pocket region at zero bias
-parameter real DVTSHIFT =  0;                         // Vth shift handle
-parameter real DVTSHIFTR = DVTSHIFT ;                 // Vth shift handle for asymmetric mode
+parameter real CIT      =  0.0 `attr(info="parameter for interface trap");                       // parameter for interface trap
+parameter real CITR      =  CIT `attr(info="parameter for interface trap in reverse mode for asymmetric model");                      // parameter for interface trap in reverse mode for asymmetric model
+parameter real CDSC     =  7e-3 `attr(info="coupling capacitance between S/D and channel");                      // coupling capacitance between S/D and channel
+parameter real CDSCN1   =  0  `attr(info="NFIN dependence of CDSC");                        // NFIN dependence of CDSC
+parameter real CDSCN2   =  1.0e5  `attr(info="NFIN dependence of CDSC");                    // NFIN dependence of CDSC
+parameter real CDSCD    =  7e-3 `attr(info="drain-bias sensitivity of CDSC");                      // drain-bias sensitivity of CDSC
+parameter real CDSCDN1  =  0  `attr(info="NFIN dependence of CDSCD");                        // NFIN dependence of CDSCD
+parameter real CDSCDN2  =  1.0e5 exclude 0 `attr(info="NFIN dependence of CDSCD");           // NFIN dependence of CDSCD
+parameter real CDSCDR   =  CDSCD `attr(info="Reverse-mode drain-bias sensitivity of CDSC (Experimental)");                     // Reverse-mode drain-bias sensitivity of CDSC (Experimental)
+parameter real CDSCDRN1 =  CDSCDN1  `attr(info="NFIN dependence of CDSCD");                  // NFIN dependence of CDSCD
+parameter real CDSCDRN2 =  CDSCDN2 exclude 0  `attr(info="NFIN dependence of CDSCD");        // NFIN dependence of CDSCD
+parameter real DVT0     =  0.0 `attr(info="SCE coefficient");                       // SCE coefficient
+parameter real DVT1     =  0.60 `attr(info="SCE exponent coefficient, after binning should be in (0:inf)");                      // SCE exponent coefficient, after binning should be in (0:inf)
+parameter real DVT1SS   =  DVT1 `attr(info="Subthreshold Swing exponent coefficient, after binning should be in (0:inf)");                      // Subthreshold Swing exponent coefficient, after binning should be in (0:inf)
+parameter real PHIN     =  0.05 `attr(info="Nonuniform vertical doping effect on surface potential, V");                      // Nonuniform vertical doping effect on surface potential, V
+parameter real ETA0     =  0.60 `attr(info="DIBL coefficient");                      // DIBL coefficient
+parameter real ETA0N1   =  0  `attr(info="NFIN dependence of ETA0");                        // NFIN dependence of ETA0
+parameter real ETA0N2   =  1.0e5 from[1.0e-5:inf) `attr(info="NFIN dependence of ETA0");    // NFIN dependence of ETA0
+parameter real TETA0    =  0.0 `attr(info="Temperature dependence of DIBL coefficient, 1/K");                       // Temperature dependence of DIBL coefficient, 1/K
+parameter real ETA0R    =  ETA0 `attr(info="Reverse-mode DIBL coefficient (Experimental)");                      // Reverse-mode DIBL coefficient (Experimental)
+parameter real TETA0R   =  TETA0 `attr(info="Temperature dependence of Reverse-mode DIBL coefficient, 1/K");                     // Temperature dependence of Reverse-mode DIBL coefficient, 1/K
+parameter real DSUB     =  1.06 `attr(info="DIBL exponent coefficient");                      // DIBL exponent coefficient
+parameter real DVTP0    =  0 `attr(info="Coefficient for Drain-Induced Vth Shift (DITS)");                         // Coefficient for Drain-Induced Vth Shift (DITS)
+parameter real DVTP1    =  0 `attr(info="DITS exponent coefficient");                         // DITS exponent coefficient
+parameter real K1RSCE   =  0.0 `attr(info="K1 for reverse short channel effect calculation ");                       // K1 for reverse short channel effect calculation 
+parameter real LPE0     =  5.0n `attr(info="Equivalent length of pocket region at zero bias");                      // Equivalent length of pocket region at zero bias
+parameter real DVTSHIFT =  0 `attr(info="Vth shift handle");                         // Vth shift handle
+parameter real DVTSHIFTR = DVTSHIFT  `attr(info="Vth shift handle for asymmetric mode");                 // Vth shift handle for asymmetric mode
 
-parameter real THETASCE  =  0;                        // Vth roll-off length dependence. If defined by user, will overwrite Theta_SCE in the code
-parameter real THETADIBL =  0;                        // DIBL length dependence. If defined by user, will overwrite Theta_DIBL in the code
-parameter real THETASW   =  0;                        // Subthreshold Swing length dependence. If defined by user, will overwrite Theta_SW in the code
-parameter real NVTM      =  0;                        // Subthreshold Swing factor multiplied by Vtm. If defined by user, will overwrite nVtm in the code
-parameter real K0      =  0.0;                        // Lateral NUD voltage parameter, V
-parameter real K01     =  0.0;                        // Temperature dependence of lateral NUD voltage parameter, V/K
-parameter real K0SI    =  1.0;                        // Correction factor for strong inversion, used in Mnud, after binnig should be from (0:inf)
-parameter real K0SI1   =  0.0;                        // Temperature dependence of K0SI, 1/K
-parameter real K1SI    =  K0SI;                       // Correction factor for strong inversion, used in Mob
-parameter real K1SI1   =  K0SI1;                      // Temperature dependence of K1SI, 1/K
+parameter real THETASCE  =  0 `attr(info="Vth roll-off length dependence. If defined by user, will overwrite Theta_SCE in the code");                        // Vth roll-off length dependence. If defined by user, will overwrite Theta_SCE in the code
+parameter real THETADIBL =  0 `attr(info="DIBL length dependence. If defined by user, will overwrite Theta_DIBL in the code");                        // DIBL length dependence. If defined by user, will overwrite Theta_DIBL in the code
+parameter real THETASW   =  0 `attr(info="Subthreshold Swing length dependence. If defined by user, will overwrite Theta_SW in the code");                        // Subthreshold Swing length dependence. If defined by user, will overwrite Theta_SW in the code
+parameter real NVTM      =  0 `attr(info="Subthreshold Swing factor multiplied by Vtm. If defined by user, will overwrite nVtm in the code");                        // Subthreshold Swing factor multiplied by Vtm. If defined by user, will overwrite nVtm in the code
+parameter real K0      =  0.0 `attr(info="Lateral NUD voltage parameter, V");                        // Lateral NUD voltage parameter, V
+parameter real K01     =  0.0 `attr(info="Temperature dependence of lateral NUD voltage parameter, V/K");                        // Temperature dependence of lateral NUD voltage parameter, V/K
+parameter real K0SI    =  1.0 `attr(info="Correction factor for strong inversion, used in Mnud, after binnig should be from (0:inf)");                        // Correction factor for strong inversion, used in Mnud, after binnig should be from (0:inf)
+parameter real K0SI1   =  0.0 `attr(info="Temperature dependence of K0SI, 1/K");                        // Temperature dependence of K0SI, 1/K
+parameter real K1SI    =  K0SI `attr(info="Correction factor for strong inversion, used in Mob");                       // Correction factor for strong inversion, used in Mob
+parameter real K1SI1   =  K0SI1 `attr(info="Temperature dependence of K1SI, 1/K");                      // Temperature dependence of K1SI, 1/K
 
 // Body Effect for MG Devices on Bulk Substrate (ex: FinFETs on BULK)
-parameter real PHIBE   =  0.7;                        // Body effect voltage parameter, V, after binnig should be from [0.2:1.2]
-parameter real K1      =  0.0;                        // Body effect coefficient for sub-threshold region
-parameter real K11     =  0.0;                        // Temperature dependence of K1
-parameter real K1SAT   =  0.0;                        // Correction factor for K1 in saturation (high Vds)        
-parameter real K1SAT1  =  0.0;                        // Temperature dependence of K1SAT1    
+parameter real PHIBE   =  0.7 `attr(info="Body effect voltage parameter, V, after binnig should be from [0.2:1.2]");                        // Body effect voltage parameter, V, after binnig should be from [0.2:1.2]
+parameter real K1      =  0.0 `attr(info="Body effect coefficient for sub-threshold region");                        // Body effect coefficient for sub-threshold region
+parameter real K11     =  0.0 `attr(info="Temperature dependence of K1");                        // Temperature dependence of K1
+parameter real K1SAT   =  0.0 `attr(info="Correction factor for K1 in saturation (high Vds)        ");                        // Correction factor for K1 in saturation (high Vds)        
+parameter real K1SAT1  =  0.0 `attr(info="Temperature dependence of K1SAT1    ");                        // Temperature dependence of K1SAT1    
 
 // Quantum Mechanical Effect
-parameter real QMFACTOR  =  0.0;                      // Prefactor + switch for QM Vth correction
-parameter real QMTCENIV  =  0.0;                      // Prefactor + switch for QM Width correction for IV
-parameter real QMTCENCV  =  0.0;                      // Prefactor + switch for QM Width and Toxeff correction for CV
-parameter real QMTCENCVA =  0.0;                      // Prefactor + switch for QM Width and Toxeff correction for CV (accumulation region)
-parameter real AQMTCEN   =  0.0;                      // Parameter for Geometric dependence of Tcen on R/TFIN/HFIN
-parameter real BQMTCEN   =  12.0e-9 exclude 0;        // Parameter for Geometric dependence of Tcen on R/TFIN/HFIN
-parameter real ETAQM     =  0.54;                     // Bulk charge coefficient for Tcen
-parameter real QM0       =  1.00e-3;                  // Knee-Point for Tcen in inversion (Charge normalized to Cox)
-parameter real PQM       =  0.66;                     // Slope of normalized Tcen in inversion
-parameter real QM0ACC    =  1.00e-3;                  // Knee-Point for Tcen in accumulation (Charge normalized to Cox)
-parameter real PQMACC    =  0.66;                     // Slope of normalized Tcen in accumulation
+parameter real QMFACTOR  =  0.0 `attr(info="Prefactor + switch for QM Vth correction");                      // Prefactor + switch for QM Vth correction
+parameter real QMTCENIV  =  0.0 `attr(info="Prefactor + switch for QM Width correction for IV");                      // Prefactor + switch for QM Width correction for IV
+parameter real QMTCENCV  =  0.0 `attr(info="Prefactor + switch for QM Width and Toxeff correction for CV");                      // Prefactor + switch for QM Width and Toxeff correction for CV
+parameter real QMTCENCVA =  0.0 `attr(info="Prefactor + switch for QM Width and Toxeff correction for CV (accumulation region)");                      // Prefactor + switch for QM Width and Toxeff correction for CV (accumulation region)
+parameter real AQMTCEN   =  0.0 `attr(info="Parameter for Geometric dependence of Tcen on R/TFIN/HFIN");                      // Parameter for Geometric dependence of Tcen on R/TFIN/HFIN
+parameter real BQMTCEN   =  12.0e-9 exclude 0 `attr(info="Parameter for Geometric dependence of Tcen on R/TFIN/HFIN");        // Parameter for Geometric dependence of Tcen on R/TFIN/HFIN
+parameter real ETAQM     =  0.54 `attr(info="Bulk charge coefficient for Tcen");                     // Bulk charge coefficient for Tcen
+parameter real QM0       =  1.00e-3 `attr(info="Knee-Point for Tcen in inversion (Charge normalized to Cox)");                  // Knee-Point for Tcen in inversion (Charge normalized to Cox)
+parameter real PQM       =  0.66 `attr(info="Slope of normalized Tcen in inversion");                     // Slope of normalized Tcen in inversion
+parameter real QM0ACC    =  1.00e-3 `attr(info="Knee-Point for Tcen in accumulation (Charge normalized to Cox)");                  // Knee-Point for Tcen in accumulation (Charge normalized to Cox)
+parameter real PQMACC    =  0.66 `attr(info="Slope of normalized Tcen in accumulation");                     // Slope of normalized Tcen in accumulation
 
 // Velocity Saturation Model
 parameter real VSAT        =  85000; 
 parameter real VSATR       = VSAT ;
-parameter real VSATN1      =  0 ;                     // NFIN dependence of VSAT 
-parameter real VSATN2      =  1.0e5 exclude 0 ;       // NFIN dependence of VSAT 
-parameter real VSATRN1    =  VSATN1 ;                 // NFIN dependence of VSATR 
-parameter real VSATRN2    =  VSATN2 exclude 0 ;       // NFIN dependence of VSATR 
+parameter real VSATN1      =  0  `attr(info="NFIN dependence of VSAT ");                     // NFIN dependence of VSAT 
+parameter real VSATN2      =  1.0e5 exclude 0  `attr(info="NFIN dependence of VSAT ");       // NFIN dependence of VSAT 
+parameter real VSATRN1    =  VSATN1  `attr(info="NFIN dependence of VSATR ");                 // NFIN dependence of VSATR 
+parameter real VSATRN2    =  VSATN2 exclude 0  `attr(info="NFIN dependence of VSATR ");       // NFIN dependence of VSATR 
 parameter real AVSAT       =  0.0; 
 parameter real BVSAT       =  100.0e-9 exclude 0; 
-parameter real VSAT1       =  VSAT;                   // Velocity Saturation parameter for I_on degradation - forward mode
-parameter real VSAT1N1     =  VSATN1 ;                // NFIN dependence of VSAT1 
-parameter real VSAT1N2     =  VSATN2 exclude 0;       // NFIN dependence of VSAT1 
-parameter real VSAT1R      =  VSAT1;                  // Velocity Saturation parameter for I_on degradation - reverse mode
-parameter real VSAT1RN1    =  VSAT1N1 ;               // NFIN dependence of VSAT1R 
-parameter real VSAT1RN2    =  VSAT1N2 exclude 0 ;     // NFIN dependence of VSAT1R 
+parameter real VSAT1       =  VSAT `attr(info="Velocity Saturation parameter for I_on degradation - forward mode");                   // Velocity Saturation parameter for I_on degradation - forward mode
+parameter real VSAT1N1     =  VSATN1  `attr(info="NFIN dependence of VSAT1 ");                // NFIN dependence of VSAT1 
+parameter real VSAT1N2     =  VSATN2 exclude 0 `attr(info="NFIN dependence of VSAT1 ");       // NFIN dependence of VSAT1 
+parameter real VSAT1R      =  VSAT1 `attr(info="Velocity Saturation parameter for I_on degradation - reverse mode");                  // Velocity Saturation parameter for I_on degradation - reverse mode
+parameter real VSAT1RN1    =  VSAT1N1  `attr(info="NFIN dependence of VSAT1R ");               // NFIN dependence of VSAT1R 
+parameter real VSAT1RN2    =  VSAT1N2 exclude 0  `attr(info="NFIN dependence of VSAT1R ");     // NFIN dependence of VSAT1R 
 parameter real AVSAT1      =  AVSAT;     
 parameter real BVSAT1      =  BVSAT exclude 0; 
 parameter real DELTAVSAT   =  1.0;
-parameter real PSAT        =  2.0;                    // Velocity saturation exponent, after binnig should be from [2.0:inf)
+parameter real PSAT        =  2.0 `attr(info="Velocity saturation exponent, after binnig should be from [2.0:inf)");                    // Velocity saturation exponent, after binnig should be from [2.0:inf)
 parameter real APSAT       =  0.0;
 parameter real BPSAT       =  1.0 exclude 0; 
 parameter real KSATIV      =  1.0; 
-parameter real KSATIVR      =  KSATIV;                // KSATIV in asymmetric mode 
-parameter real VSATCV      =  VSAT;                   // Velocity Saturation parameter for CV
+parameter real KSATIVR      =  KSATIV `attr(info="KSATIV in asymmetric mode ");                // KSATIV in asymmetric mode 
+parameter real VSATCV      =  VSAT `attr(info="Velocity Saturation parameter for CV");                   // Velocity Saturation parameter for CV
 parameter real AVSATCV     =  AVSAT;     
 parameter real BVSATCV     =  BVSAT exclude 0; 
 parameter real DELTAVSATCV =  DELTAVSAT;
-parameter real PSATCV      =  PSAT;                   // Velocity saturation exponent for C-V
+parameter real PSATCV      =  PSAT `attr(info="Velocity saturation exponent for C-V");                   // Velocity saturation exponent for C-V
 parameter real APSATCV     =  APSAT;
 parameter real BPSATCV     =  BPSAT exclude 0; 
 parameter real MEXP        =  4.0; 
@@ -326,8 +337,8 @@ parameter real BMEXP       =  1.0;
 parameter real MEXPR       =  MEXP; 
 parameter real AMEXPR      =  AMEXP; 
 parameter real BMEXPR      =  BMEXP; 
-parameter real PTWG        =  0.0;                    // Gmsat degradation parameter - forward mode 
-parameter real PTWGR       =  PTWG;                   // Gmsat degradation parameter - reverse mode
+parameter real PTWG        =  0.0 `attr(info="Gmsat degradation parameter - forward mode ");                    // Gmsat degradation parameter - forward mode 
+parameter real PTWGR       =  PTWG `attr(info="Gmsat degradation parameter - reverse mode");                   // Gmsat degradation parameter - reverse mode
 parameter real APTWG       =  0.0; 
 parameter real BPTWG       =  100.0e-9 exclude 0; 
 parameter real AT          =  -1.56e-3; 
@@ -340,9 +351,9 @@ parameter real PTWGT       =  0.004;
 // Mobility Model
 parameter real U0       =  0.03; 
 parameter real U0R       =  U0;
-parameter real U0N1     =  0 ;                       // NFIN dependence of U0 
+parameter real U0N1     =  0  `attr(info="NFIN dependence of U0 ");                       // NFIN dependence of U0 
 parameter real U0N1R     =  U0N1 ;
-parameter real U0N2     =  1.0e5 exclude 0;          // NFIN dependence of U0 
+parameter real U0N2     =  1.0e5 exclude 0 `attr(info="NFIN dependence of U0 ");          // NFIN dependence of U0 
 parameter real U0N2R     =  U0N2 exclude 0;
 parameter real ETAMOB   =  2.0; 
 parameter real UP       =  0; 
@@ -355,7 +366,7 @@ parameter real AUA      =  0.0;
 parameter real AUAR      =  AUA; 
 parameter real BUA      =  100.0e-9 exclude 0; 
 parameter real BUAR      =  BUA exclude 0; 
-parameter real UC       =  0.0;                     // Body effect for mobility degradation parameter - BULKMOD=1
+parameter real UC       =  0.0 `attr(info="Body effect for mobility degradation parameter - BULKMOD=1");                     // Body effect for mobility degradation parameter - BULKMOD=1
 parameter real UCR       =  0.0;  
 parameter real EU       =  2.5; 
 parameter real EUR       =  EU; 
@@ -382,7 +393,7 @@ parameter real UC1R      =  UC1;
 parameter real UD1      =  0.0; 
 parameter real UD1R      =  UD1;
 parameter real UCSTE    =  -4.775e-3;
-parameter real CHARGEWF =  0 from [-1:1];           // Average Channel Charge Weighting Factor, +1:source-side, 0:middle, -1:drain-side  
+parameter real CHARGEWF =  0 from [-1:1] `attr(info="Average Channel Charge Weighting Factor, +1:source-side, 0:middle, -1:drain-side  ");           // Average Channel Charge Weighting Factor, +1:source-side, 0:middle, -1:drain-side  
 
 // Access Resistance Model
 parameter real RDSWMIN =  0.0; 
@@ -397,55 +408,55 @@ parameter real RDWMIN  =  0.0;
 parameter real RDW     =  50.0; 
 parameter real ARDW    =  0.0; 
 parameter real BRDW    =  100.0e-9 exclude 0;
-parameter real RSDR    =  0.0    from[0:inf);       // Source side drift resistance parameter - forward mode
-parameter real RSDRR   =  RSDR   from[0:inf);       // Source side drift resistance parameter - reverse mode
-parameter real RDDR    =  RSDR   from[0:inf);       // Drain side drift resistance parameter - forward mode
-parameter real RDDRR   =  RDDR   from[0:inf);       // Drain side drift resistance parameter - reverse mode
-parameter real PRSDR   =  1.0;                      // Source side quasi-saturation parameter
-parameter real PRDDR   =  PRSDR;                    // Drain side quasi-saturation parameter
-parameter real PRWGS   =  0.0;                      // Gate bias dependence of source extension resistance, Units:V^-1
-parameter real PRWGD   =  PRWGS;                    // Gate bias dependence of drain extension resistance, Units:V^-1
+parameter real RSDR    =  0.0    from[0:inf) `attr(info="Source side drift resistance parameter - forward mode");       // Source side drift resistance parameter - forward mode
+parameter real RSDRR   =  RSDR   from[0:inf) `attr(info="Source side drift resistance parameter - reverse mode");       // Source side drift resistance parameter - reverse mode
+parameter real RDDR    =  RSDR   from[0:inf) `attr(info="Drain side drift resistance parameter - forward mode");       // Drain side drift resistance parameter - forward mode
+parameter real RDDRR   =  RDDR   from[0:inf) `attr(info="Drain side drift resistance parameter - reverse mode");       // Drain side drift resistance parameter - reverse mode
+parameter real PRSDR   =  1.0 `attr(info="Source side quasi-saturation parameter");                      // Source side quasi-saturation parameter
+parameter real PRDDR   =  PRSDR `attr(info="Drain side quasi-saturation parameter");                    // Drain side quasi-saturation parameter
+parameter real PRWGS   =  0.0 `attr(info="Gate bias dependence of source extension resistance, Units:V^-1");                      // Gate bias dependence of source extension resistance, Units:V^-1
+parameter real PRWGD   =  PRWGS `attr(info="Gate bias dependence of drain extension resistance, Units:V^-1");                    // Gate bias dependence of drain extension resistance, Units:V^-1
 parameter real WR      =  1.0; 
 parameter real PRT     =  0.001;
 parameter real TRSDR   =  0.0;
 parameter real TRDDR   =  TRSDR;
 //parameter real RCVFAC  = 1.0;                     // Series resistance correction factor for CV  Navid_added
 // DIBL Model
-parameter real PDIBL1  =  1.30;                     // DIBL Output Conductance parameter - forward mode
-parameter real PDIBL1R =  PDIBL1;                   // DIBL Output Conductance parameter - reverse mode 
-parameter real PDIBL2  =  2.0e-4;                   // DIBL Output Conductance parameter 
-parameter real PDIBL2R  = PDIBL2;                   // DIBL Output Conductance parameter - reverse mode
+parameter real PDIBL1  =  1.30 `attr(info="DIBL Output Conductance parameter - forward mode");                     // DIBL Output Conductance parameter - forward mode
+parameter real PDIBL1R =  PDIBL1 `attr(info="DIBL Output Conductance parameter - reverse mode ");                   // DIBL Output Conductance parameter - reverse mode 
+parameter real PDIBL2  =  2.0e-4 `attr(info="DIBL Output Conductance parameter ");                   // DIBL Output Conductance parameter 
+parameter real PDIBL2R  = PDIBL2 `attr(info="DIBL Output Conductance parameter - reverse mode");                   // DIBL Output Conductance parameter - reverse mode
 parameter real DROUT   =  1.06; 
 parameter real PVAG    =  1.0; 
 
 // Channel Length Modulation Effect
 parameter real PCLM    =  0.013;
-parameter real PCLMR   = PCLM ;                     // Reverse Model PCLM parameter 
+parameter real PCLMR   = PCLM  `attr(info="Reverse Model PCLM parameter ");                     // Reverse Model PCLM parameter 
 parameter real APCLM   =  0.0; 
 parameter real APCLMR   =  APCLM; 
 parameter real BPCLM   =  100.0e-9 exclude 0;
 parameter real BPCLMR   =  BPCLM exclude 0; 
 parameter real PCLMG   =  0.0; 
-parameter real PCLMCV  =  PCLM;                     // CLM parameter for Short Channel CV 
+parameter real PCLMCV  =  PCLM `attr(info="CLM parameter for Short Channel CV ");                     // CLM parameter for Short Channel CV 
 
 // Non-saturation Effect
-parameter real A1      =  0.0;                      // Non-saturation effect parameter for strong inversion region
-parameter real A11     =  0.0;                      // Temperature dependence of A1
-parameter real A2      =  0.0;                      // Non-saturation effect parameter for moderate inversion region
-parameter real A21     =  0.0;                      // Temperature dependence of A2
+parameter real A1      =  0.0 `attr(info="Non-saturation effect parameter for strong inversion region");                      // Non-saturation effect parameter for strong inversion region
+parameter real A11     =  0.0 `attr(info="Temperature dependence of A1");                      // Temperature dependence of A1
+parameter real A2      =  0.0 `attr(info="Non-saturation effect parameter for moderate inversion region");                      // Non-saturation effect parameter for moderate inversion region
+parameter real A21     =  0.0 `attr(info="Temperature dependence of A2");                      // Temperature dependence of A2
 
 // Gate Electrode Resistance
-parameter real RGEXT   =  0.0 from [0:inf);         // Effective gate electrode external resistance
-parameter real RGFIN   =  1.0e-3 from [1.0e-3:inf); // Effective gate electrode per finger per fin resistance
+parameter real RGEXT   =  0.0 from [0:inf) `attr(info="Effective gate electrode external resistance");         // Effective gate electrode external resistance
+parameter real RGFIN   =  1.0e-3 from [1.0e-3:inf) `attr(info="Effective gate electrode per finger per fin resistance"); // Effective gate electrode per finger per fin resistance
 
 // Geometry dependent Source/Drain Resistance RGEOMOD=0
-parameter real RSHS    =  0.0;                      // Source-side sheet resistance
-parameter real RSHD    =  RSHS;                     // Drain-side sheet resistance
+parameter real RSHS    =  0.0 `attr(info="Source-side sheet resistance");                      // Source-side sheet resistance
+parameter real RSHD    =  RSHS `attr(info="Drain-side sheet resistance");                     // Drain-side sheet resistance
 
 // Geometry dependent Source/Drain Resistance RGEOMOD=1 for variability modeling
 // These parameters are shared with CGEOMOD = 2
-parameter real HEPI      =  10.0n;                  // Height of the raised source/drain on top of the fin
-parameter real TSILI     =  10.0n;                  // Thickness of the silicide on top of the raised source/drain
+parameter real HEPI      =  10.0n `attr(info="Height of the raised source/drain on top of the fin");                  // Height of the raised source/drain on top of the fin
+parameter real TSILI     =  10.0n `attr(info="Thickness of the silicide on top of the raised source/drain");                  // Thickness of the silicide on top of the raised source/drain
 parameter real RHOC      =  1.0e-12 from [1.0e-18:1.0e-9];
 parameter real RHORSD    =  1.0 from (0:inf);
 parameter real CRATIO    =  0.5 from [0:1];
@@ -453,201 +464,201 @@ parameter real DELTAPRSD =  0.0 from (-FPITCH:inf);
 parameter integer SDTERM =  0 from [0:1];
 parameter real LSP       =  0.2 * (L + XL) from (0:inf);
 //parameter real LDG       =  5.0e-9 from [0:inf);
-parameter real EPSRSP    =  3.9 from [1:inf);       // Relative dielectric constant of the spacer
-parameter real TGATE     =  30.0n from (0:inf);     // Gate height on top of the hard mask
-parameter real TMASK     =  30.0n from [0:inf);     // Height of hard mask on top of the fin
+parameter real EPSRSP    =  3.9 from [1:inf) `attr(info="Relative dielectric constant of the spacer");       // Relative dielectric constant of the spacer
+parameter real TGATE     =  30.0n from (0:inf) `attr(info="Gate height on top of the hard mask");     // Gate height on top of the hard mask
+parameter real TMASK     =  30.0n from [0:inf) `attr(info="Height of hard mask on top of the fin");     // Height of hard mask on top of the fin
 parameter real ASILIEND  =  0.0 from [0:inf);
 parameter real ARSDEND   =  0.0 from [0:inf);
 parameter real PRSDEND   =  0.0 from [0:inf);
-parameter real NSDE      =  2e25 from [1e25:1e26];  // Source/drain active doping concentration at Leff edge
-parameter real RGEOA     =  1.0;                    // Fitting parameter for RGEOMOD=1
-parameter real RGEOB     =  0.0;                    // Fitting parameter for RGEOMOD=1
-parameter real RGEOC     =  0.0;                    // Fitting parameter for RGEOMOD=1
-parameter real RGEOD     =  0.0;                    // Fitting parameter for RGEOMOD=1
-parameter real RGEOE     =  0.0;                    // Fitting parameter for RGEOMOD=1
-parameter real CGEOA     =  1.0;                    // Fitting parameter for CGEOMOD=2
-parameter real CGEOB     =  0.0;                    // Fitting parameter for CGEOMOD=2
-parameter real CGEOC     =  0.0;                    // Fitting parameter for CGEOMOD=2
-parameter real CGEOD     =  0.0;                    // Fitting parameter for CGEOMOD=2
-parameter real CGEOE     =  1.0 from [0:inf);       // Fitting parameter for CGEOMOD=2
+parameter real NSDE      =  2e25 from [1e25:1e26] `attr(info="Source/drain active doping concentration at Leff edge");  // Source/drain active doping concentration at Leff edge
+parameter real RGEOA     =  1.0 `attr(info="Fitting parameter for RGEOMOD=1");                    // Fitting parameter for RGEOMOD=1
+parameter real RGEOB     =  0.0 `attr(info="Fitting parameter for RGEOMOD=1");                    // Fitting parameter for RGEOMOD=1
+parameter real RGEOC     =  0.0 `attr(info="Fitting parameter for RGEOMOD=1");                    // Fitting parameter for RGEOMOD=1
+parameter real RGEOD     =  0.0 `attr(info="Fitting parameter for RGEOMOD=1");                    // Fitting parameter for RGEOMOD=1
+parameter real RGEOE     =  0.0 `attr(info="Fitting parameter for RGEOMOD=1");                    // Fitting parameter for RGEOMOD=1
+parameter real CGEOA     =  1.0 `attr(info="Fitting parameter for CGEOMOD=2");                    // Fitting parameter for CGEOMOD=2
+parameter real CGEOB     =  0.0 `attr(info="Fitting parameter for CGEOMOD=2");                    // Fitting parameter for CGEOMOD=2
+parameter real CGEOC     =  0.0 `attr(info="Fitting parameter for CGEOMOD=2");                    // Fitting parameter for CGEOMOD=2
+parameter real CGEOD     =  0.0 `attr(info="Fitting parameter for CGEOMOD=2");                    // Fitting parameter for CGEOMOD=2
+parameter real CGEOE     =  1.0 from [0:inf) `attr(info="Fitting parameter for CGEOMOD=2");       // Fitting parameter for CGEOMOD=2
 
 // Gate Current
-parameter real AIGBINV  =  1.11e-2;                 // parameter for Igb in inversion
-parameter real AIGBINV1 =  0;                       // parameter for Igb in inversion
-parameter real BIGBINV  =  9.49e-4;                 // parameter for Igb in inversion
-parameter real CIGBINV  =  6.00e-3;                 // parameter for Igb in inversion
-parameter real EIGBINV  =  1.1;                     // parameter for Igb in inversion
-parameter real NIGBINV  =  3.0;                     // parameter for Igb in inversion
-parameter real AIGBACC  =  1.36e-2;                 // parameter for Igb in accumulation
-parameter real AIGBACC1 =  0;                       // parameter for Igb in accumulation
-parameter real BIGBACC  =  1.71e-3;                 // parameter for Igb in accumulation
-parameter real CIGBACC  =  7.5e-2;                  // parameter for Igb in accumulation
-parameter real NIGBACC  =  1.0;                     // parameter for Igb in accumulation
-parameter real AIGC     =  1.36e-2;                 // parameter for Igc in inversion
-parameter real AIGC1    =  0;                       // parameter for Igc in inversion
-parameter real BIGC     =  1.71e-3;                 // parameter for Igc in inversion
-parameter real CIGC     =  0.075;                   // parameter for Igc in inversion
-parameter real PIGCD    =  1.0;                     // parameter for Igc partition
-parameter real DLCIGS   =  0;                       // Delta L for Igs model
-parameter real AIGS     =  1.36e-2;                 // parameter for Igs in inversion
-parameter real AIGS1    =  0;                       // parameter for Igs in inversion
-parameter real BIGS     =  1.71e-3;                 // parameter for Igs in inversion
-parameter real CIGS     =  0.075;                   // parameter for Igs in inversion
-parameter real DLCIGD   =  DLCIGS;                  // Delta L for Igd model
-parameter real AIGD     =  AIGS;                    // parameter for Igd in inversion
-parameter real AIGD1    =  AIGS1;                   // parameter for Igd in inversion
-parameter real BIGD     =  BIGS;                    // parameter for Igd in inversion
-parameter real CIGD     =  CIGS;                    // parameter for Igd in inversion
-parameter real TOXREF   =  1.2n from (0:inf);       // Target tox value [m]
-parameter real TOXG     =  TOXP;                    // oxide thickness for gate current model in meters, Introduced in BSIM-CMG106.1.0
-parameter real NTOX     =  1.0;                     // Exponent for Tox ratio
-parameter real POXEDGE  =  1.0;                     // Factor for the gate edge Tox
+parameter real AIGBINV  =  1.11e-2 `attr(info="parameter for Igb in inversion");                 // parameter for Igb in inversion
+parameter real AIGBINV1 =  0 `attr(info="parameter for Igb in inversion");                       // parameter for Igb in inversion
+parameter real BIGBINV  =  9.49e-4 `attr(info="parameter for Igb in inversion");                 // parameter for Igb in inversion
+parameter real CIGBINV  =  6.00e-3 `attr(info="parameter for Igb in inversion");                 // parameter for Igb in inversion
+parameter real EIGBINV  =  1.1 `attr(info="parameter for Igb in inversion");                     // parameter for Igb in inversion
+parameter real NIGBINV  =  3.0 `attr(info="parameter for Igb in inversion");                     // parameter for Igb in inversion
+parameter real AIGBACC  =  1.36e-2 `attr(info="parameter for Igb in accumulation");                 // parameter for Igb in accumulation
+parameter real AIGBACC1 =  0 `attr(info="parameter for Igb in accumulation");                       // parameter for Igb in accumulation
+parameter real BIGBACC  =  1.71e-3 `attr(info="parameter for Igb in accumulation");                 // parameter for Igb in accumulation
+parameter real CIGBACC  =  7.5e-2 `attr(info="parameter for Igb in accumulation");                  // parameter for Igb in accumulation
+parameter real NIGBACC  =  1.0 `attr(info="parameter for Igb in accumulation");                     // parameter for Igb in accumulation
+parameter real AIGC     =  1.36e-2 `attr(info="parameter for Igc in inversion");                 // parameter for Igc in inversion
+parameter real AIGC1    =  0 `attr(info="parameter for Igc in inversion");                       // parameter for Igc in inversion
+parameter real BIGC     =  1.71e-3 `attr(info="parameter for Igc in inversion");                 // parameter for Igc in inversion
+parameter real CIGC     =  0.075 `attr(info="parameter for Igc in inversion");                   // parameter for Igc in inversion
+parameter real PIGCD    =  1.0 `attr(info="parameter for Igc partition");                     // parameter for Igc partition
+parameter real DLCIGS   =  0 `attr(info="Delta L for Igs model");                       // Delta L for Igs model
+parameter real AIGS     =  1.36e-2 `attr(info="parameter for Igs in inversion");                 // parameter for Igs in inversion
+parameter real AIGS1    =  0 `attr(info="parameter for Igs in inversion");                       // parameter for Igs in inversion
+parameter real BIGS     =  1.71e-3 `attr(info="parameter for Igs in inversion");                 // parameter for Igs in inversion
+parameter real CIGS     =  0.075 `attr(info="parameter for Igs in inversion");                   // parameter for Igs in inversion
+parameter real DLCIGD   =  DLCIGS `attr(info="Delta L for Igd model");                  // Delta L for Igd model
+parameter real AIGD     =  AIGS `attr(info="parameter for Igd in inversion");                    // parameter for Igd in inversion
+parameter real AIGD1    =  AIGS1 `attr(info="parameter for Igd in inversion");                   // parameter for Igd in inversion
+parameter real BIGD     =  BIGS `attr(info="parameter for Igd in inversion");                    // parameter for Igd in inversion
+parameter real CIGD     =  CIGS `attr(info="parameter for Igd in inversion");                    // parameter for Igd in inversion
+parameter real TOXREF   =  1.2n from (0:inf) `attr(info="Target tox value [m]");       // Target tox value [m]
+parameter real TOXG     =  TOXP `attr(info="oxide thickness for gate current model in meters, Introduced in BSIM-CMG106.1.0");                    // oxide thickness for gate current model in meters, Introduced in BSIM-CMG106.1.0
+parameter real NTOX     =  1.0 `attr(info="Exponent for Tox ratio");                     // Exponent for Tox ratio
+parameter real POXEDGE  =  1.0 `attr(info="Factor for the gate edge Tox");                     // Factor for the gate edge Tox
 // GIDL/GISL Current
-parameter real AGISL   =  6.055p;                   // pre-exponential coeff. for GISL in mho
-parameter real BGISL   =  0.3e9;                    // exponential coeff. for GISL in V/m
-parameter real CGISL   =  0.5;                      // parameter for body-effect of GISL in V^3
-parameter real EGISL   =  0.2;                      // band bending parameter for GISL in V
-parameter real PGISL   =  1.0;                      // parameter for body-bias effect on GISL
-parameter real AGIDL   =  AGISL;                    // pre-exponential coeff. for GIDL in mho
-parameter real BGIDL   =  BGISL;                    // exponential coeff. for GIDL in V/m
-parameter real CGIDL   =  CGISL;                    // parameter for body-effect of GIDL in V^3
-parameter real EGIDL   =  EGISL;                    // band bending parameter for GIDL in V
-parameter real PGIDL   =  PGISL;                    // parameter for body-bias effect on GIDL
+parameter real AGISL   =  6.055p `attr(info="pre-exponential coeff. for GISL in mho");                   // pre-exponential coeff. for GISL in mho
+parameter real BGISL   =  0.3e9 `attr(info="exponential coeff. for GISL in V/m");                    // exponential coeff. for GISL in V/m
+parameter real CGISL   =  0.5 `attr(info="parameter for body-effect of GISL in V^3");                      // parameter for body-effect of GISL in V^3
+parameter real EGISL   =  0.2 `attr(info="band bending parameter for GISL in V");                      // band bending parameter for GISL in V
+parameter real PGISL   =  1.0 `attr(info="parameter for body-bias effect on GISL");                      // parameter for body-bias effect on GISL
+parameter real AGIDL   =  AGISL `attr(info="pre-exponential coeff. for GIDL in mho");                    // pre-exponential coeff. for GIDL in mho
+parameter real BGIDL   =  BGISL `attr(info="exponential coeff. for GIDL in V/m");                    // exponential coeff. for GIDL in V/m
+parameter real CGIDL   =  CGISL `attr(info="parameter for body-effect of GIDL in V^3");                    // parameter for body-effect of GIDL in V^3
+parameter real EGIDL   =  EGISL `attr(info="band bending parameter for GIDL in V");                    // band bending parameter for GIDL in V
+parameter real PGIDL   =  PGISL `attr(info="parameter for body-bias effect on GIDL");                    // parameter for body-bias effect on GIDL
 
 // Impact Ionization Current
 // IIMOD=1    
-parameter real ALPHA0  =  0.0;                       // first parameter of Iii, m/V
-parameter real ALPHA01 =  0.0;                       // Temperature dependence of ALPHA0, m/V/degrees
-parameter real ALPHA1  =  0.0;                       // L scaling parameter of Iii, 1/V
-parameter real ALPHA11 =  0.0;                       // Temperature dependence ALPHA1, 1/V/degree
-parameter real BETA0   =  0.0;                       // Vds dependent parameter of Iii, 1/V
+parameter real ALPHA0  =  0.0 `attr(info="first parameter of Iii, m/V");                       // first parameter of Iii, m/V
+parameter real ALPHA01 =  0.0 `attr(info="Temperature dependence of ALPHA0, m/V/degrees");                       // Temperature dependence of ALPHA0, m/V/degrees
+parameter real ALPHA1  =  0.0 `attr(info="L scaling parameter of Iii, 1/V");                       // L scaling parameter of Iii, 1/V
+parameter real ALPHA11 =  0.0 `attr(info="Temperature dependence ALPHA1, 1/V/degree");                       // Temperature dependence ALPHA1, 1/V/degree
+parameter real BETA0   =  0.0 `attr(info="Vds dependent parameter of Iii, 1/V");                       // Vds dependent parameter of Iii, 1/V
 // IIMOD=2
-parameter real ALPHAII0  =  0.0;                     // first parameter of Iii for IIMOD=2, m/V                                                
-parameter real ALPHAII01 =  0.0;                     // Temperature dependence of ALPHAII0, m/V/degrees
-parameter real ALPHAII1  =  0.0;                     // L scaling parameter of Iii for IIMOD=2, 1/V
-parameter real ALPHAII11 =  0.0;                     // Temperature dependence of ALPHAII1, 1/V/degrees
+parameter real ALPHAII0  =  0.0 `attr(info="first parameter of Iii for IIMOD=2, m/V                                                ");                     // first parameter of Iii for IIMOD=2, m/V                                                
+parameter real ALPHAII01 =  0.0 `attr(info="Temperature dependence of ALPHAII0, m/V/degrees");                     // Temperature dependence of ALPHAII0, m/V/degrees
+parameter real ALPHAII1  =  0.0 `attr(info="L scaling parameter of Iii for IIMOD=2, 1/V");                     // L scaling parameter of Iii for IIMOD=2, 1/V
+parameter real ALPHAII11 =  0.0 `attr(info="Temperature dependence of ALPHAII1, 1/V/degrees");                     // Temperature dependence of ALPHAII1, 1/V/degrees
 
-parameter real BETAII0     =  0.0;                   // Vds dependent parameter of Iii, 1/V
-parameter real BETAII1     =  0.0;                   // Vds dependent parameter of Iii
-parameter real BETAII2     =  0.1;                   // Vds dependent parameter of Iii, V
-parameter real ESATII      =  1.0e7;                 // Saturation channel E-Field for Iii, V/m
-parameter real LII         =  0.5E-9;                // Channel length dependent parameter of Iii, V-m
-parameter real SII0        =  0.5;                   // Vgs dependent parameter of Iii, 1/V
-parameter real SII1        =  0.1;                   // 1st Vgs dependent parameter of Iii, 1/V
-parameter real SII2        =  0.0;                   // 2nd Vgs dependent parameter of Iii
-parameter real SIID        =  0.0;                   // 3rd Vds dependent parameter of Iii, 1/V
+parameter real BETAII0     =  0.0 `attr(info="Vds dependent parameter of Iii, 1/V");                   // Vds dependent parameter of Iii, 1/V
+parameter real BETAII1     =  0.0 `attr(info="Vds dependent parameter of Iii");                   // Vds dependent parameter of Iii
+parameter real BETAII2     =  0.1 `attr(info="Vds dependent parameter of Iii, V");                   // Vds dependent parameter of Iii, V
+parameter real ESATII      =  1.0e7 `attr(info="Saturation channel E-Field for Iii, V/m");                 // Saturation channel E-Field for Iii, V/m
+parameter real LII         =  0.5E-9 `attr(info="Channel length dependent parameter of Iii, V-m");                // Channel length dependent parameter of Iii, V-m
+parameter real SII0        =  0.5 `attr(info="Vgs dependent parameter of Iii, 1/V");                   // Vgs dependent parameter of Iii, 1/V
+parameter real SII1        =  0.1 `attr(info="1st Vgs dependent parameter of Iii, 1/V");                   // 1st Vgs dependent parameter of Iii, 1/V
+parameter real SII2        =  0.0 `attr(info="2nd Vgs dependent parameter of Iii");                   // 2nd Vgs dependent parameter of Iii
+parameter real SIID        =  0.0 `attr(info="3rd Vds dependent parameter of Iii, 1/V");                   // 3rd Vds dependent parameter of Iii, 1/V
 
 // Accumulation Capacitance (CAPMOD=1)
-parameter real EOTACC    =  EOT from [0.1n:inf);     // equivalent oxide thickness for accumulation region in meters
-parameter real DELVFBACC =  0.0;                     // Change in Flatband Voltage; Vfb_accumulation-Vfb_inversion
+parameter real EOTACC    =  EOT from [0.1n:inf) `attr(info="equivalent oxide thickness for accumulation region in meters");     // equivalent oxide thickness for accumulation region in meters
+parameter real DELVFBACC =  0.0 `attr(info="Change in Flatband Voltage; Vfb_accumulation-Vfb_inversion");                     // Change in Flatband Voltage; Vfb_accumulation-Vfb_inversion
 
 // Fringe capacitance
 // CGEOMOD=0
-parameter real CFS =  2.5e-11 from [0:inf);          // Outer Fringe Cap (source side)
-parameter real CFD =  CFS from [0:inf);              // Outer Fringe Cap (drain side)
+parameter real CFS =  2.5e-11 from [0:inf) `attr(info="Outer Fringe Cap (source side)");          // Outer Fringe Cap (source side)
+parameter real CFD =  CFS from [0:inf) `attr(info="Outer Fringe Cap (drain side)");              // Outer Fringe Cap (drain side)
 
 // Overlap capacitance (CGEOMOD=0 and 2)
-parameter real CGSO    =  0.0 from [0:inf);          // Non LDD region source-gate overlap capacitance per unit channel width
-parameter real CGDO    =  CGSO from [0:inf);         // Non LDD region drain-gate overlap capacitance per unit channel width
+parameter real CGSO    =  0.0 from [0:inf) `attr(info="Non LDD region source-gate overlap capacitance per unit channel width");          // Non LDD region source-gate overlap capacitance per unit channel width
+parameter real CGDO    =  CGSO from [0:inf) `attr(info="Non LDD region drain-gate overlap capacitance per unit channel width");         // Non LDD region drain-gate overlap capacitance per unit channel width
 parameter real CGSL    =  0.0 from [0:inf);
 parameter real CGDL    =  CGSL from [0:inf);
 parameter real CKAPPAS =  0.6 from [0.02:inf);
 parameter real CKAPPAD =  CKAPPAS from [0.02:inf);
-parameter real CGBO    =  0.0 from [0:inf);          // Gate to substrate overlap cap per unit channel length per finger per NGCON    
-parameter real CGBN    =  0.0 from [0:inf);          // Gate to substrate overlap cap per unit channel length per fin per finger
-parameter real CGBL    =  0.0 from [0:inf);          // Bias dependent component of Gate to substrate overlap cap 
+parameter real CGBO    =  0.0 from [0:inf) `attr(info="Gate to substrate overlap cap per unit channel length per finger per NGCON    ");          // Gate to substrate overlap cap per unit channel length per finger per NGCON    
+parameter real CGBN    =  0.0 from [0:inf) `attr(info="Gate to substrate overlap cap per unit channel length per fin per finger");          // Gate to substrate overlap cap per unit channel length per fin per finger
+parameter real CGBL    =  0.0 from [0:inf) `attr(info="Bias dependent component of Gate to substrate overlap cap per unit channel length per fin per finger");          // Bias dependent component of Gate to substrate overlap cap 
                                                      // per unit channel length per fin per finger 
 parameter real CKAPPAB =  0.6 from [0.02:inf);
 
 // Source/drain to substrate sidewall capacitance
-parameter real CSDESW  =  0.0 from [0:inf);          // Coefficient for source/drain to substrate sidewall cap
+parameter real CSDESW  =  0.0 from [0:inf) `attr(info="Coefficient for source/drain to substrate sidewall cap");          // Coefficient for source/drain to substrate sidewall cap
 
 // Junction current and capacitance
 // Junction Capacitance
-parameter real CJS    =  5.0e-4;                     // Unit area source-side junction capacitance at zero bias
-parameter real CJD    =  CJS;                        // Unit area drain-side junction capacitance at zero bias
-parameter real CJSWS  =  5.0e-10;                    // Unit length source-side sidewall junction capacitance at zero bias
-parameter real CJSWD  =  CJSWS;                      // Unit length drain-side sidewall junction capacitance at zero bias
-parameter real CJSWGS =  0.0;                        // Unit length source-side gate sidewall junction capacitance at zero bias
-parameter real CJSWGD =  CJSWGS;                     // Unit length drain-side gate sidewall junction capacitance at zero bias
-parameter real PBS    =  1.0;                        // Source-side bulk junction built-in potential
-parameter real PBD    =  PBS;                        // Drain-side bulk junction built-in potential
-parameter real PBSWS  =  1.0;                        // Built-in potential for Source-side sidewall junction capacitance
-parameter real PBSWD  =  PBSWS;                      // Built-in potential for Drain-side sidewall junction capacitance
-parameter real PBSWGS =  PBSWS;                      // Built-in potential for Source-side gate sidewall junction capacitance
-parameter real PBSWGD =  PBSWGS;                     // Built-in potential for Drain-side gate sidewall junction capacitance
-parameter real MJS    =  0.5;                        // Source bottom junction capacitance grading coefficient
-parameter real MJD    =  MJS;                        // Drain bottom junction capacitance grading coefficient
-parameter real MJSWS  =  0.33;                       // Source sidewall junction capacitance grading coefficient
-parameter real MJSWD  =  MJSWS;                      // Drain sidewall junction capacitance grading coefficient
-parameter real MJSWGS =  MJSWS;                      // Source-side gate sidewall junction capacitance grading coefficient
-parameter real MJSWGD =  MJSWGS;                     // Drain-side gate sidewall junction capacitance grading coefficient
+parameter real CJS    =  5.0e-4 `attr(info="Unit area source-side junction capacitance at zero bias");                     // Unit area source-side junction capacitance at zero bias
+parameter real CJD    =  CJS `attr(info="Unit area drain-side junction capacitance at zero bias");                        // Unit area drain-side junction capacitance at zero bias
+parameter real CJSWS  =  5.0e-10 `attr(info="Unit length source-side sidewall junction capacitance at zero bias");                    // Unit length source-side sidewall junction capacitance at zero bias
+parameter real CJSWD  =  CJSWS `attr(info="Unit length drain-side sidewall junction capacitance at zero bias");                      // Unit length drain-side sidewall junction capacitance at zero bias
+parameter real CJSWGS =  0.0 `attr(info="Unit length source-side gate sidewall junction capacitance at zero bias");                        // Unit length source-side gate sidewall junction capacitance at zero bias
+parameter real CJSWGD =  CJSWGS `attr(info="Unit length drain-side gate sidewall junction capacitance at zero bias");                     // Unit length drain-side gate sidewall junction capacitance at zero bias
+parameter real PBS    =  1.0 `attr(info="Source-side bulk junction built-in potential");                        // Source-side bulk junction built-in potential
+parameter real PBD    =  PBS `attr(info="Drain-side bulk junction built-in potential");                        // Drain-side bulk junction built-in potential
+parameter real PBSWS  =  1.0 `attr(info="Built-in potential for Source-side sidewall junction capacitance");                        // Built-in potential for Source-side sidewall junction capacitance
+parameter real PBSWD  =  PBSWS `attr(info="Built-in potential for Drain-side sidewall junction capacitance");                      // Built-in potential for Drain-side sidewall junction capacitance
+parameter real PBSWGS =  PBSWS `attr(info="Built-in potential for Source-side gate sidewall junction capacitance");                      // Built-in potential for Source-side gate sidewall junction capacitance
+parameter real PBSWGD =  PBSWGS `attr(info="Built-in potential for Drain-side gate sidewall junction capacitance");                     // Built-in potential for Drain-side gate sidewall junction capacitance
+parameter real MJS    =  0.5 `attr(info="Source bottom junction capacitance grading coefficient");                        // Source bottom junction capacitance grading coefficient
+parameter real MJD    =  MJS `attr(info="Drain bottom junction capacitance grading coefficient");                        // Drain bottom junction capacitance grading coefficient
+parameter real MJSWS  =  0.33 `attr(info="Source sidewall junction capacitance grading coefficient");                       // Source sidewall junction capacitance grading coefficient
+parameter real MJSWD  =  MJSWS `attr(info="Drain sidewall junction capacitance grading coefficient");                      // Drain sidewall junction capacitance grading coefficient
+parameter real MJSWGS =  MJSWS `attr(info="Source-side gate sidewall junction capacitance grading coefficient");                      // Source-side gate sidewall junction capacitance grading coefficient
+parameter real MJSWGD =  MJSWGS `attr(info="Drain-side gate sidewall junction capacitance grading coefficient");                     // Drain-side gate sidewall junction capacitance grading coefficient
 
 // Second junction for the Two-Step junction cap 
-parameter real SJS     =  0.0 from [0:inf);          // Constant for source-side two-step second junction
-parameter real SJD     =  SJS from [0:inf);          // Constant for drain-side two-step second junction
-parameter real SJSWS   =  0.0 from [0:inf);          // Constant for source-side sidewall two-step second junction
-parameter real SJSWD   =  SJSWS from [0:inf);        // Constant for drain-side sidewall two-step second junction
-parameter real SJSWGS  =  0.0 from [0:inf);          // Constant for source-side gate sidewall two-step second junction
-parameter real SJSWGD  =  SJSWGS from [0:inf);       // Constant for source-side gate sidewall two-step second junction
-parameter real MJS2    =  0.125;                     // Source bottom two-step second junction capacitance grading coefficient
-parameter real MJD2    =  MJS2;                      // Drain bottom two-step second junction capacitance grading coefficient        
-parameter real MJSWS2  =  0.083;                     // Source sidewall two-step second junction capacitance grading coefficient
-parameter real MJSWD2  =  MJSWS2;                    // Drain sidewall two-step second junction capacitance grading coefficient
-parameter real MJSWGS2 =  MJSWS2;                    // Source-side gate sidewall two-step
+parameter real SJS     =  0.0 from [0:inf) `attr(info="Constant for source-side two-step second junction");          // Constant for source-side two-step second junction
+parameter real SJD     =  SJS from [0:inf) `attr(info="Constant for drain-side two-step second junction");          // Constant for drain-side two-step second junction
+parameter real SJSWS   =  0.0 from [0:inf) `attr(info="Constant for source-side sidewall two-step second junction");          // Constant for source-side sidewall two-step second junction
+parameter real SJSWD   =  SJSWS from [0:inf) `attr(info="Constant for drain-side sidewall two-step second junction");        // Constant for drain-side sidewall two-step second junction
+parameter real SJSWGS  =  0.0 from [0:inf) `attr(info="Constant for source-side gate sidewall two-step second junction");          // Constant for source-side gate sidewall two-step second junction
+parameter real SJSWGD  =  SJSWGS from [0:inf) `attr(info="Constant for source-side gate sidewall two-step second junction");       // Constant for source-side gate sidewall two-step second junction
+parameter real MJS2    =  0.125 `attr(info="Source bottom two-step second junction capacitance grading coefficient");                     // Source bottom two-step second junction capacitance grading coefficient
+parameter real MJD2    =  MJS2 `attr(info="Drain bottom two-step second junction capacitance grading coefficient        ");                      // Drain bottom two-step second junction capacitance grading coefficient        
+parameter real MJSWS2  =  0.083 `attr(info="Source sidewall two-step second junction capacitance grading coefficient");                     // Source sidewall two-step second junction capacitance grading coefficient
+parameter real MJSWD2  =  MJSWS2 `attr(info="Drain sidewall two-step second junction capacitance grading coefficient");                    // Drain sidewall two-step second junction capacitance grading coefficient
+parameter real MJSWGS2 =  MJSWS2 `attr(info="Source-side gate sidewall two-step second junction capacitance grading coefficient");                    // Source-side gate sidewall two-step
                                                      // second junction capacitance grading coefficient
-parameter real MJSWGD2 =  MJSWGS2;                   // Drain-side gate sidewall two-step
+parameter real MJSWGD2 =  MJSWGS2 `attr(info="Drain-side gate sidewall two-step second junction capacitance grading coefficient");                   // Drain-side gate sidewall two-step
                                                      // second junction capacitance grading coefficient
 // Junction Current
-parameter real JSS =  1.0e-4;                        // Bottom source junction reverse saturation current density
-parameter real JSD =  JSS;                           // Bottom drain junction reverse saturation current density
-parameter real JSWS  =  0.0;                         // Unit length reverse saturation current for sidewall source junction
-parameter real JSWD  =  JSWS;                        // Unit length reverse saturation current for sidewall drain junction
-parameter real JSWGS =  0.0;                         // Unit length reverse saturation current for gate-edge sidewall source junction
-parameter real JSWGD =  JSWGS;                       // Unit length reverse saturation current for gate-edge sidewall drain junction
-parameter real NJS   =  1.0 exclude 0;               // Source junction emission coefficient
-parameter real NJD   =  NJS exclude 0;               // Drain junction emission coefficient
-parameter real IJTHSFWD  =  0.1;                     // Forward source diode breakdown limiting current
-parameter real IJTHDFWD  =  IJTHSFWD;                // Forward drain diode breakdown limiting current
-parameter real IJTHSREV  =  0.1;                     // Reverse source diode breakdown limiting current
-parameter real IJTHDREV  =  IJTHSREV;                // Reverse drain diode breakdown limiting current
-parameter real BVS =  10.0;                          // Source diode breakdown voltage
-parameter real BVD =  BVS;                           // Drain diode breakdown voltage
-parameter real XJBVS =  1.0;                         // Fitting parameter for source diode breakdown current
-parameter real XJBVD =  XJBVS;                       // Fitting parameter for drain diode breakdown current
+parameter real JSS =  1.0e-4 `attr(info="Bottom source junction reverse saturation current density");                        // Bottom source junction reverse saturation current density
+parameter real JSD =  JSS `attr(info="Bottom drain junction reverse saturation current density");                           // Bottom drain junction reverse saturation current density
+parameter real JSWS  =  0.0 `attr(info="Unit length reverse saturation current for sidewall source junction");                         // Unit length reverse saturation current for sidewall source junction
+parameter real JSWD  =  JSWS `attr(info="Unit length reverse saturation current for sidewall drain junction");                        // Unit length reverse saturation current for sidewall drain junction
+parameter real JSWGS =  0.0 `attr(info="Unit length reverse saturation current for gate-edge sidewall source junction");                         // Unit length reverse saturation current for gate-edge sidewall source junction
+parameter real JSWGD =  JSWGS `attr(info="Unit length reverse saturation current for gate-edge sidewall drain junction");                       // Unit length reverse saturation current for gate-edge sidewall drain junction
+parameter real NJS   =  1.0 exclude 0 `attr(info="Source junction emission coefficient");               // Source junction emission coefficient
+parameter real NJD   =  NJS exclude 0 `attr(info="Drain junction emission coefficient");               // Drain junction emission coefficient
+parameter real IJTHSFWD  =  0.1 `attr(info="Forward source diode breakdown limiting current");                     // Forward source diode breakdown limiting current
+parameter real IJTHDFWD  =  IJTHSFWD `attr(info="Forward drain diode breakdown limiting current");                // Forward drain diode breakdown limiting current
+parameter real IJTHSREV  =  0.1 `attr(info="Reverse source diode breakdown limiting current");                     // Reverse source diode breakdown limiting current
+parameter real IJTHDREV  =  IJTHSREV `attr(info="Reverse drain diode breakdown limiting current");                // Reverse drain diode breakdown limiting current
+parameter real BVS =  10.0 `attr(info="Source diode breakdown voltage");                          // Source diode breakdown voltage
+parameter real BVD =  BVS `attr(info="Drain diode breakdown voltage");                           // Drain diode breakdown voltage
+parameter real XJBVS =  1.0 `attr(info="Fitting parameter for source diode breakdown current");                         // Fitting parameter for source diode breakdown current
+parameter real XJBVD =  XJBVS `attr(info="Fitting parameter for drain diode breakdown current");                       // Fitting parameter for drain diode breakdown current
 
 // Tunneling Component of Junction Current
-parameter real JTSS    =  0.0;                       // Bottom source junction trap-assisted saturation current density
-parameter real JTSD    =  JTSS;                      // Bottom drain junction trap-assisted saturation current density
-parameter real JTSSWS  =  0.0;                       // Unit length trap-assisted saturation current for sidewall source junction
-parameter real JTSSWD  =  JTSSWS;                    // Unit length trap-assisted saturation current for sidewall drain junction
-parameter real JTSSWGS =  0.0;                       // Unit length trap-assisted saturation current for 
+parameter real JTSS    =  0.0 `attr(info="Bottom source junction trap-assisted saturation current density");                       // Bottom source junction trap-assisted saturation current density
+parameter real JTSD    =  JTSS `attr(info="Bottom drain junction trap-assisted saturation current density");                      // Bottom drain junction trap-assisted saturation current density
+parameter real JTSSWS  =  0.0 `attr(info="Unit length trap-assisted saturation current for sidewall source junction");                       // Unit length trap-assisted saturation current for sidewall source junction
+parameter real JTSSWD  =  JTSSWS `attr(info="Unit length trap-assisted saturation current for sidewall drain junction");                    // Unit length trap-assisted saturation current for sidewall drain junction
+parameter real JTSSWGS =  0.0 `attr(info="Unit length trap-assisted saturation current for gate-edge sidewall source junction");                       // Unit length trap-assisted saturation current for 
                                                      // gate-edge sidewall source junction
-parameter real JTSSWGD =  JTSSWGS;                   // Unit length trap-assisted saturation current for 
+parameter real JTSSWGD =  JTSSWGS `attr(info="Unit length trap-assisted saturation current for gate-edge sidewall drain junction");                   // Unit length trap-assisted saturation current for 
                                                      // gate-edge sidewall drain junction
-parameter real JTWEFF  =  0.0;                       // Trap assisted tunneling current width dependence
-parameter real NJTS    =  20.0;                      // Non-ideality factor for JTSS
-parameter real NJTSD   =  NJTS;                      // Non-ideality factor for JTSD
-parameter real NJTSSW  =  20.0;                      // Non-ideality factor for JTSSWS
-parameter real NJTSSWD =  NJTSSW;                    // Non-ideality factor for JTSSWD
-parameter real NJTSSWG =  20.0;                      // Non-ideality factor for JTSSWGS
-parameter real NJTSSWGD=  NJTSSWG;                   // Non-ideality factor for JTSSWGD
-parameter real VTSS    =  10.0;                      // Bottom source junction trap-assisted current voltage dependent parameter
-parameter real VTSD    =  VTSS;                      // Bottom drain junction trap-assisted current voltage dependent parameter
-parameter real VTSSWS  =  10.0;                      // Unit length trap-assisted current voltage dependent parameter 
+parameter real JTWEFF  =  0.0 `attr(info="Trap assisted tunneling current width dependence");                       // Trap assisted tunneling current width dependence
+parameter real NJTS    =  20.0 `attr(info="Non-ideality factor for JTSS");                      // Non-ideality factor for JTSS
+parameter real NJTSD   =  NJTS `attr(info="Non-ideality factor for JTSD");                      // Non-ideality factor for JTSD
+parameter real NJTSSW  =  20.0 `attr(info="Non-ideality factor for JTSSWS");                      // Non-ideality factor for JTSSWS
+parameter real NJTSSWD =  NJTSSW `attr(info="Non-ideality factor for JTSSWD");                    // Non-ideality factor for JTSSWD
+parameter real NJTSSWG =  20.0 `attr(info="Non-ideality factor for JTSSWGS");                      // Non-ideality factor for JTSSWGS
+parameter real NJTSSWGD=  NJTSSWG `attr(info="Non-ideality factor for JTSSWGD");                   // Non-ideality factor for JTSSWGD
+parameter real VTSS    =  10.0 `attr(info="Bottom source junction trap-assisted current voltage dependent parameter");                      // Bottom source junction trap-assisted current voltage dependent parameter
+parameter real VTSD    =  VTSS `attr(info="Bottom drain junction trap-assisted current voltage dependent parameter");                      // Bottom drain junction trap-assisted current voltage dependent parameter
+parameter real VTSSWS  =  10.0 `attr(info="Unit length trap-assisted current voltage dependent parameter for sidewall source junction");                      // Unit length trap-assisted current voltage dependent parameter 
                                                      // for sidewall source junction
-parameter real VTSSWD  =  VTSSWS;                    // Unit length trap-assisted current voltage dependent parameter 
+parameter real VTSSWD  =  VTSSWS `attr(info="Unit length trap-assisted current voltage dependent parameter for sidewall drain junction");                    // Unit length trap-assisted current voltage dependent parameter 
                                                      // for sidewall drain junction
-parameter real VTSSWGS =  10.0;                      // Unit length trap-assisted current voltage dependent parameter for 
+parameter real VTSSWGS =  10.0 `attr(info="Unit length trap-assisted current voltage dependent parameter for gate-edge sidewall source junction");                      // Unit length trap-assisted current voltage dependent parameter for 
                                                      // gate-edge sidewall source junction
-parameter real VTSSWGD =  VTSSWGS;                   // Unit length trap-assisted current voltage dependent parameter for 
+parameter real VTSSWGD =  VTSSWGS `attr(info="Unit length trap-assisted current voltage dependent parameter for gate-edge sidewall drain junction");                   // Unit length trap-assisted current voltage dependent parameter for 
                                                      // gate-edge sidewall drain junction
 
 // Recombination-Generation Current
-parameter real LINTIGEN  =  0;                       // Lint for Thermal Generation Current
-parameter real NTGEN     =  1.0;                     // Thermal Generation Current Parameter
-parameter real AIGEN     =  0;                       // Thermal Generation Current Parameter
-parameter real BIGEN     =  0;                       // Thermal Generation Current Parameter
+parameter real LINTIGEN  =  0 `attr(info="Lint for Thermal Generation Current");                       // Lint for Thermal Generation Current
+parameter real NTGEN     =  1.0 `attr(info="Thermal Generation Current Parameter");                     // Thermal Generation Current Parameter
+parameter real AIGEN     =  0 `attr(info="Thermal Generation Current Parameter");                       // Thermal Generation Current Parameter
+parameter real BIGEN     =  0 `attr(info="Thermal Generation Current Parameter");                       // Thermal Generation Current Parameter
 
 // NQS Gate Resistance Model & NQS Charge Deficit Model
 // For NQSMOD=1, Set XRCRG1=0 to turn off NQS gate resistance
@@ -655,10 +666,10 @@ parameter real XRCRG1  =  12.0;
 parameter real XRCRG2  =  1.0;
 
 // NQS Charge Segmentation Model
-parameter integer NSEG =  4 from [4:10];             // Number of segments for NQSMOD=3 (3,5 & 10 supported)
+parameter integer NSEG =  4 from [4:10] `attr(info="Number of segments for NQSMOD=3 (3,5 & 10 supported)");             // Number of segments for NQSMOD=3 (3,5 & 10 supported)
 
 // Flicker Noise
-parameter real EF    =  1.0;                         // Flicker Noise frequency exponent
+parameter real EF    =  1.0 `attr(info="Flicker Noise frequency exponent");                         // Flicker Noise frequency exponent
 parameter real EM    =  4.1e7;
 parameter real NOIA  =  6.250e+39;
 parameter real NOIB  =  3.125e+24;
@@ -666,54 +677,54 @@ parameter real NOIC  =  8.750e+07;
 
 // Thermal Noise
 parameter real NTNOI =  1.0 from [0:inf);
-parameter integer TNOIMOD  = 0 from [0:2];           // 0: charge based, 1: holistic thermal noise based on BSIM4 noise model
-parameter real      TNOIA    = 1.5;                  // Thermal noise parameter
-parameter real    TNOIB    = 3.5;                    // Thermal noise parameter
-parameter real      RNOIA    = 0.577;                // Thermal noise coefficient
-parameter real      RNOIB    = 0.37;                 // Thermal noise coefficient
+parameter integer TNOIMOD  = 0 from [0:2] `attr(info="0: charge based, 1: holistic thermal noise based on BSIM4 noise model");           // 0: charge based, 1: holistic thermal noise based on BSIM4 noise model
+parameter real      TNOIA    = 1.5 `attr(info="Thermal noise parameter");                  // Thermal noise parameter
+parameter real    TNOIB    = 3.5 `attr(info="Thermal noise parameter");                    // Thermal noise parameter
+parameter real      RNOIA    = 0.577 `attr(info="Thermal noise coefficient");                // Thermal noise coefficient
+parameter real      RNOIB    = 0.37 `attr(info="Thermal noise coefficient");                 // Thermal noise coefficient
 
 //Parameters controlled by Correlated Thermal Noise Switch
 `ifdef  __TNOIMOD2__
-    parameter real TNOIC    = 3.5;                   // Thermal noise parameter for TNOIMOD=2
-    parameter real RNOIC    = 0.395;                 // Thermal noise coefficient for TNOIMOD=2
+    parameter real TNOIC    = 3.5 `attr(info="Thermal noise parameter for TNOIMOD=2");                   // Thermal noise parameter for TNOIMOD=2
+    parameter real RNOIC    = 0.395 `attr(info="Thermal noise coefficient for TNOIMOD=2");                 // Thermal noise coefficient for TNOIMOD=2
     parameter real SCALEN   = 1e5;
 `endif
 // Temperature Effects;
-parameter real TNOM      =  27.0 from [ -`P_CELSIUS0:inf);      // Temperature at which the model is extracted (degrees)
-parameter real TBGASUB   =  7.02e-4;                  // Bandgap Temperature Coefficient (eV / degrees)
-parameter real TBGBSUB   =  1108.0;                   // Bandgap Temperature Coefficient (degrees)
-parameter real KT1       =  0.0;                      // Vth Temperature Coefficient (V)
-parameter real KT1L      =  0.0;                      // Vth Temperature L Coefficient (m-V)
-parameter real TSS       =  0.0;                      // SSwing Temperature Coefficient (/ degrees)
-parameter real IIT       =  -0.5;                     // Impact Ionization Temperature Dependence, IIMOD=1
-parameter real TII       =  0.0;                      // Impact Ionization Temperature Dependence, IIMOD=2
-parameter real TGIDL     =  -0.003;                   // GIDL/GISL Temperature Dependence
-parameter real IGT       =  2.5;                      // Gate Current Temperature Dependence
-parameter real TCJ       =  0.0;                      // Temperature coefficient for CJS/CJD
-parameter real TCJSW     =  0.0;                      // Temperature coefficient for CJSWS/CJSWD
-parameter real TCJSWG    =  0.0;                      // Temperature coefficient for CJSWGS/CJSWGD
-parameter real TPB       =  0.0;                      // Temperature coefficient for PBS/PBD
-parameter real TPBSW     =  0.0;                      // Temperature coefficient for PBSWS/PBSWD
-parameter real TPBSWG    =  0.0;                      // Temperature coefficient for PBSWGS/PBSWGD
-parameter real XTIS      =  3.0;                      // Source junction current temperature exponent
-parameter real XTID      =  XTIS;                     // Drain junction current temperature exponent
-parameter real XTSS      =  0.02;                     // Power dependence of JTSS on temperature
-parameter real XTSD      =  XTSS;                     // Power dependence of JTSD on temperature
-parameter real XTSSWS    =  0.02;                     // Power dependence of JTSSWS on temperature
-parameter real XTSSWD    =  XTSSWS;                   // Power dependence of JTSSWD on temperature
-parameter real XTSSWGS   =  0.02;                     // Power dependence of JTSSWGS on temperature
-parameter real XTSSWGD   =  XTSSWGS;                  // Power dependence of JTSSWGD on temperature
-parameter real TNJTS     =  0.0;                      // Temperature coefficient for NJTS
-parameter real TNJTSD    =  TNJTS;                    // Temperature coefficient for NJTSD
-parameter real TNJTSSW   =  0.0;                      // Temperature coefficient for NJTSSW
-parameter real TNJTSSWD  =  TNJTSSW;                  // NTemperature coefficient for NJTSSWD
-parameter real TNJTSSWG  =  0.0;                      // Temperature coefficient for NJTSSWG
-parameter real TNJTSSWGD =  TNJTSSWG;                 // Temperature coefficient for NJTSSWGD
+parameter real TNOM      =  27.0 from [ -`P_CELSIUS0:inf) `attr(info="Temperature at which the model is extracted (degrees)");      // Temperature at which the model is extracted (degrees)
+parameter real TBGASUB   =  7.02e-4 `attr(info="Bandgap Temperature Coefficient (eV / degrees)");                  // Bandgap Temperature Coefficient (eV / degrees)
+parameter real TBGBSUB   =  1108.0 `attr(info="Bandgap Temperature Coefficient (degrees)");                   // Bandgap Temperature Coefficient (degrees)
+parameter real KT1       =  0.0 `attr(info="Vth Temperature Coefficient (V)");                      // Vth Temperature Coefficient (V)
+parameter real KT1L      =  0.0 `attr(info="Vth Temperature L Coefficient (m-V)");                      // Vth Temperature L Coefficient (m-V)
+parameter real TSS       =  0.0 `attr(info="SSwing Temperature Coefficient (/ degrees)");                      // SSwing Temperature Coefficient (/ degrees)
+parameter real IIT       =  -0.5 `attr(info="Impact Ionization Temperature Dependence, IIMOD=1");                     // Impact Ionization Temperature Dependence, IIMOD=1
+parameter real TII       =  0.0 `attr(info="Impact Ionization Temperature Dependence, IIMOD=2");                      // Impact Ionization Temperature Dependence, IIMOD=2
+parameter real TGIDL     =  -0.003 `attr(info="GIDL/GISL Temperature Dependence");                   // GIDL/GISL Temperature Dependence
+parameter real IGT       =  2.5 `attr(info="Gate Current Temperature Dependence");                      // Gate Current Temperature Dependence
+parameter real TCJ       =  0.0 `attr(info="Temperature coefficient for CJS/CJD");                      // Temperature coefficient for CJS/CJD
+parameter real TCJSW     =  0.0 `attr(info="Temperature coefficient for CJSWS/CJSWD");                      // Temperature coefficient for CJSWS/CJSWD
+parameter real TCJSWG    =  0.0 `attr(info="Temperature coefficient for CJSWGS/CJSWGD");                      // Temperature coefficient for CJSWGS/CJSWGD
+parameter real TPB       =  0.0 `attr(info="Temperature coefficient for PBS/PBD");                      // Temperature coefficient for PBS/PBD
+parameter real TPBSW     =  0.0 `attr(info="Temperature coefficient for PBSWS/PBSWD");                      // Temperature coefficient for PBSWS/PBSWD
+parameter real TPBSWG    =  0.0 `attr(info="Temperature coefficient for PBSWGS/PBSWGD");                      // Temperature coefficient for PBSWGS/PBSWGD
+parameter real XTIS      =  3.0 `attr(info="Source junction current temperature exponent");                      // Source junction current temperature exponent
+parameter real XTID      =  XTIS `attr(info="Drain junction current temperature exponent");                     // Drain junction current temperature exponent
+parameter real XTSS      =  0.02 `attr(info="Power dependence of JTSS on temperature");                     // Power dependence of JTSS on temperature
+parameter real XTSD      =  XTSS `attr(info="Power dependence of JTSD on temperature");                     // Power dependence of JTSD on temperature
+parameter real XTSSWS    =  0.02 `attr(info="Power dependence of JTSSWS on temperature");                     // Power dependence of JTSSWS on temperature
+parameter real XTSSWD    =  XTSSWS `attr(info="Power dependence of JTSSWD on temperature");                   // Power dependence of JTSSWD on temperature
+parameter real XTSSWGS   =  0.02 `attr(info="Power dependence of JTSSWGS on temperature");                     // Power dependence of JTSSWGS on temperature
+parameter real XTSSWGD   =  XTSSWGS `attr(info="Power dependence of JTSSWGD on temperature");                  // Power dependence of JTSSWGD on temperature
+parameter real TNJTS     =  0.0 `attr(info="Temperature coefficient for NJTS");                      // Temperature coefficient for NJTS
+parameter real TNJTSD    =  TNJTS `attr(info="Temperature coefficient for NJTSD");                    // Temperature coefficient for NJTSD
+parameter real TNJTSSW   =  0.0 `attr(info="Temperature coefficient for NJTSSW");                      // Temperature coefficient for NJTSSW
+parameter real TNJTSSWD  =  TNJTSSW `attr(info="NTemperature coefficient for NJTSSWD");                  // NTemperature coefficient for NJTSSWD
+parameter real TNJTSSWG  =  0.0 `attr(info="Temperature coefficient for NJTSSWG");                      // Temperature coefficient for NJTSSWG
+parameter real TNJTSSWGD =  TNJTSSWG `attr(info="Temperature coefficient for NJTSSWGD");                 // Temperature coefficient for NJTSSWGD
 
 // Self Heating
-parameter real RTH0  =  0.01 from [0:inf);            // Thermal resistance
-parameter real CTH0  =  1.0E-05 from [0:inf);         // Thermal capacitance
-parameter real WTH0  =  0.0 from [0:inf);             // Width dependence coefficient for Rth and Cth
+parameter real RTH0  =  0.01 from [0:inf) `attr(info="Thermal resistance");            // Thermal resistance
+parameter real CTH0  =  1.0E-05 from [0:inf) `attr(info="Thermal capacitance");         // Thermal capacitance
+parameter real WTH0  =  0.0 from [0:inf) `attr(info="Width dependence coefficient for Rth and Cth");             // Width dependence coefficient for Rth and Cth
 
 //Binning Parameters
 `include "bsimcmg_binning_parameters.include"
@@ -1062,6 +1073,9 @@ analog begin
     /************************************************/
     /*      Geometry dependent calculations         */
     /************************************************/
+`ifdef insideADMS
+    @(initial_instance)
+`endif
     begin : CMGBiasIndepCalc
         initialized  =  1;
         
@@ -1908,7 +1922,7 @@ analog begin
                         
             // Component 2: Spreading Resistance (extension -> hdd)
             thetarsp =  55 * `M_PI / 180;
-            afin     =  min(max(TFIN * (HFIN + min(HEPI, 0)), 1.0e-18), Arsd);
+            afin     =  min(max(TFIN * (HFIN + min(HEPI, 0.0)), 1.0e-18), Arsd);
             T1       =  `COT(thetarsp);
             Rsp      =  rhorsd * T1 / (sqrt(`M_PI) * NFIN) * (1.0 / sqrt(afin) - 2.0 / sqrt(Arsd) + sqrt(afin / (Arsd*Arsd)));
             
@@ -1979,8 +1993,8 @@ analog begin
         if(CGEOMOD == 2) begin
             Hg =  TGATE + TMASK;
             Trsd =  0.5 * (FPITCH - TFIN);
-            Wg   =  max(Trsd - TOXP, 0);
-            Hrsd =  max(HEPI + TSILI, 0);
+            Wg   =  max(Trsd - TOXP, 0.0);
+            Hrsd =  max(HEPI + TSILI, 0.0);
             
             // Top component
             if(TMASK > 0) begin
@@ -2016,8 +2030,8 @@ analog begin
         
         // Source/gate/drain to substrate parasitic capacitances
         T0     =  CSDESW * lln(1.0 + HFIN / EOTBOX);
-        csbox  =  cbox * ASEO + T0 * max(0, PSEO - FPITCH * NFINtotal);
-        cdbox  =  cbox * ADEO + T0 * max(0, PDEO - FPITCH * NFINtotal);
+        csbox  =  cbox * ASEO + T0 * max(0.0, PSEO - FPITCH * NFINtotal);
+        cdbox  =  cbox * ADEO + T0 * max(0.0, PDEO - FPITCH * NFINtotal);
         cgbox  =  (CGBO * NF * NGCON + CGBN * NFINtotal) * Lg;
         
         // Mobility Degradation
@@ -4021,6 +4035,7 @@ analog begin
                 sid    =  4 * Vtm * `q * Gtnoi;
                end
             1 : begin
+`ifndef __XYCE__
                 T0            = qis / EsatL;
                 T1            = Leff * T0 * T0;
                 theta_tnoi        = RNOIB * (1.0 + TNOIB * T1);    // theta_tnoi
@@ -4041,6 +4056,11 @@ analog begin
                 T8    = theta_tnoi * overall_conductance;
                 sid    = 4 * Vtm * `q * (T7 * T7 - T8 * T8) * Vdseff / max(ids, 1.0e-9);
                 if(sid < 0.0) sid = 0.0;
+`else // !`ifndef __XYCE__
+               // Technically this should be $fatal, but Xyce implements $finish as if it were fatal,
+               // and does not implement $fatal.
+               $finish("BSIM-CMG 108 TNOIMOD=1 is unsupported.");
+`endif
                end 
             2: begin  //Correlated Thermal Noise by Navid, November 2013, Reference BSIMSOI4.5.0
             `ifdef __TNOIMOD2__

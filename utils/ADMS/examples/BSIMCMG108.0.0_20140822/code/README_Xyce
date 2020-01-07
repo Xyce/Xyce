@@ -1,0 +1,37 @@
+The following changes were made to BSIM-CMG 108 for its import into
+Xyce:
+
+
+ - In bsimcmg_main.include, __OPINFO__ was undefined.  Xyce/ADMS does
+   not yet support the ddx operator needed, nor does Xyce/ADMS yet
+   permit operating point information to be output.
+
+ - The "module" line was renamed to "bsimcmg_108" to deconflict the
+   resulting C++ from other bsimcmg models in Xyce, because the module
+   name is used for various class and namespace names.
+
+ - The TNOIMOD=1 model, introduced in BSIM-CMG 108 and then removed in
+   BSIM-CMG 110, has been ifdefed out.  It uses ddx, which is
+   currently unsupported in Xyce/ADMS.  Since this noise model was
+   removed by the BSIM group after only one release, it should probably
+   not be getting used anyway.
+
+ - Module attributes added to make this device import as the level 108
+   MOSFET.
+
+  - All parameters that are noted in the BSIM-CMG technical note as being
+    instance parameters have had the "type" attribute set to "instance"
+
+  - Parameters that have been noted as both instance and model in the technical
+    note have been had the "type" attribute set to "instance" and the Xyce-
+    specific "xyceAlsoModel" attribute set to "YES"
+
+  - In a number of cases, integer constants "0" were being passed as
+    arguments to the min or max functions.  This is problematic in
+    emitting C++, and resulted in compilation errors when a matching
+    templatized function could not be found.  These integer "0" were
+    replaced with "0.0".
+
+  - An ADMS specific "initial_instance" pseudo event was added around
+    the bias-independent initialization block so that it is not
+    unnecessarily recomputed along with the bias-dependent code.

@@ -67,7 +67,11 @@
 //   a model parameter.  Therefore we use `define statements
 //   to control it.  Comment the following lines whenever 
 //   possible for best computational efficiency.
-`define __OPINFO__
+
+// Xyce/ADMS does not yet support ddx, nor does Xyce have good
+// support for OP output, so disable it.
+//`define __OPINFO__
+
 //`define __DEBUG__
 `define __SHMOD__
 `define __RDSMOD__
@@ -80,7 +84,7 @@
 `include "common_defs.include"
 `include "bsimcmg_cfringe.include"
 
-module bsimcmg(d, g, s, e);
+module bsimcmg_108(d, g, s, e) `attr(xyceModelGroup="MOSFET" xyceLevelNumber="108" xyceDeviceName="BSIM-CMG FINFET v108.0.0" xyceTypeVariable="TYPE" xycePTypeValue="0");
     inout d, g, s, e;
     electrical d, g, s, e;
 
