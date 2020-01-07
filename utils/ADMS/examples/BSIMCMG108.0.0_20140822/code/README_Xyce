@@ -41,3 +41,8 @@ Xyce:
     is necessary to collapse the internal N node to ground.  Failure
     to do this leads to convergence errors.  This was fixed in BSIM-CMG 110,
     and we are back-porting that fix to 108 in Xyce.
+
+  - Support for explicit multiplicity added.  BSIM-CMG assumed this to
+    be handled implicitly by the simulator until version 110.  Xyce
+    does not handle multiplicity implicitly and requires devices to
+    implement it explicitly.

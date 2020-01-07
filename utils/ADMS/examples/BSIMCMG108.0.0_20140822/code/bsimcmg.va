@@ -43,5 +43,6 @@
 // TVR: Xyce/ADMS specific definitions:
 `define attr(txt) (*txt*)
 `define __XYCE__ 1
+`define __EXPLICIT_MFACTOR__ 1
 
 `include "bsimcmg_main.va"

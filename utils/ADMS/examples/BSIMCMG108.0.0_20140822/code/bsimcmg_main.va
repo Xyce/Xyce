@@ -70,7 +70,9 @@
 
 // Xyce/ADMS does not yet support ddx, nor does Xyce have good
 // support for OP output, so disable it.
-//`define __OPINFO__
+`ifndef __XYCE__
+`define __OPINFO__
+`endif
 
 //`define __DEBUG__
 `define __SHMOD__
