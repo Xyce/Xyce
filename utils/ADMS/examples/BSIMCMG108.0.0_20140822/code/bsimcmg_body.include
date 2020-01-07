@@ -4295,9 +4295,12 @@ analog begin
     
     // Channel thermal noise and induced gate noise stamping
     //    Implementation of correlated noise follows C. C. McAndrew, WCM 2005
-    if (TNOIMOD !=2)
+    if (TNOIMOD !=2)  begin
         I(di, si) <+ white_noise(sid, "thermal");
-    else begin
+        `ifdef __TNOIMOD2__
+            V(N) <+ 0.0;
+        `endif
+    end else begin
         `ifdef __TNOIMOD2__
             I(di,si) <+  white_noise(sid*abs(1.0-ctnoi * ctnoi), "thermal");
             I(N)     <+  V(N) * sf * SCALEN; 

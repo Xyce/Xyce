@@ -35,3 +35,9 @@ Xyce:
   - An ADMS specific "initial_instance" pseudo event was added around
     the bias-independent initialization block so that it is not
     unnecessarily recomputed along with the bias-dependent code.
+
+
+  - When __TNOIMOD2__ is enabled, but TNOIMOD is not set to 2, it
+    is necessary to collapse the internal N node to ground.  Failure
+    to do this leads to convergence errors.  This was fixed in BSIM-CMG 110,
+    and we are back-porting that fix to 108 in Xyce.
