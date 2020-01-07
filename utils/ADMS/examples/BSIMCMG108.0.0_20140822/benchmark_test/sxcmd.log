@@ -1,0 +1,9 @@
+### SPICE Explorer log file, revision C2009.03-SP1 (build 0906) ###
+### created at 21:19:59 on Fri Aug 22 2014 (Linux AMD64) ###
+# (0) running in waveview only mode
+# (0) SW_SX_PERL_LIB defined
+# (0) SW_SX_TCL_LIB defined
+# (0) HOME defined
+# (0) HOME defined
+sx_open_sim_file_read "/users/sourabh/sourabh/CMG/Release_Work/108_working_version/BSIMCMG108.0.0_08222014/benchmark_test/ringosc_17stg.lis"
+sx_log "disp_sig 1 A P=null file=0 S='' W='1'' "
