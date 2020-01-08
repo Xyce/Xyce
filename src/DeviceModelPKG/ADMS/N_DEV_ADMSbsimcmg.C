@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:23:13
+// Creation Date  : Wed, 08 Jan 2020 12:17:09
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -3457,6 +3457,34 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimcmg::Model> &p)
 ;
   p.addPar("WTH0", static_cast<double>(0.0), &ADMSbsimcmg::Model::WTH0)
     .setDescription("Width dependence coefficient for Rth and Cth")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("LMIN", static_cast<double>(0), &ADMSbsimcmg::Model::LMIN)
+    .setDescription("Minimum length for which this model should be used.")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("LMAX", static_cast<double>(100), &ADMSbsimcmg::Model::LMAX)
+    .setDescription("Maximum length for which this model should be used.")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("NFINMIN", static_cast<double>(0), &ADMSbsimcmg::Model::NFINMIN)
+    .setDescription("Minimum NFIN for which this model should be used.")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("NFINMAX", static_cast<double>(100), &ADMSbsimcmg::Model::NFINMAX)
+    .setDescription("Maximum NFIN for which this model should be used.")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -23347,6 +23375,30 @@ if (getType() == "pmos" || getType() == "PMOS")
     UserWarning(*this) << "ADMSbsimcmg: Parameter WTH0 value " << WTH0 << " out of range [ 0,  (+inf) [";
   }
 
+//    Parameter LMIN : [ 0,  (+inf) [
+  if ( (!((LMIN >=0))) )
+  {
+    UserWarning(*this) << "ADMSbsimcmg: Parameter LMIN value " << LMIN << " out of range [ 0,  (+inf) [";
+  }
+
+//    Parameter LMAX : [ 0,  (+inf) [
+  if ( (!((LMAX >=0))) )
+  {
+    UserWarning(*this) << "ADMSbsimcmg: Parameter LMAX value " << LMAX << " out of range [ 0,  (+inf) [";
+  }
+
+//    Parameter NFINMIN : [ 0,  (+inf) [
+  if ( (!((NFINMIN >=0))) )
+  {
+    UserWarning(*this) << "ADMSbsimcmg: Parameter NFINMIN value " << NFINMIN << " out of range [ 0,  (+inf) [";
+  }
+
+//    Parameter NFINMAX : [ 0,  (+inf) [
+  if ( (!((NFINMAX >=0))) )
+  {
+    UserWarning(*this) << "ADMSbsimcmg: Parameter NFINMAX value " << NFINMAX << " out of range [ 0,  (+inf) [";
+  }
+
   // and of course, this routine is where we should put the initial_model
   // stuff
 
@@ -23828,6 +23880,10 @@ Model::Model(
     RTH0(0.01),
     CTH0(1.0E-05),
     WTH0(0.0),
+    LMIN(0),
+    LMAX(100),
+    NFINMIN(0),
+    NFINMAX(100),
     LNBODY(0),
     NNBODY(0),
     PNBODY(0),
@@ -25321,6 +25377,14 @@ AdmsSensFadType & modelPar_CTH0,
 bool modelPar_given_CTH0,
 AdmsSensFadType & modelPar_WTH0,
 bool modelPar_given_WTH0,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 AdmsSensFadType & modelPar_LNBODY,
 bool modelPar_given_LNBODY,
 AdmsSensFadType & modelPar_NNBODY,
@@ -27149,6 +27213,14 @@ AdmsSensFadType & modelPar_CTH0,
 bool modelPar_given_CTH0,
 AdmsSensFadType & modelPar_WTH0,
 bool modelPar_given_WTH0,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 AdmsSensFadType & modelPar_LNBODY,
 bool modelPar_given_LNBODY,
 AdmsSensFadType & modelPar_NNBODY,
@@ -29050,6 +29122,14 @@ AdmsSensFadType & modelPar_CTH0,
 bool modelPar_given_CTH0,
 AdmsSensFadType & modelPar_WTH0,
 bool modelPar_given_WTH0,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 AdmsSensFadType & modelPar_LNBODY,
 bool modelPar_given_LNBODY,
 AdmsSensFadType & modelPar_NNBODY,
@@ -35594,6 +35674,14 @@ AdmsSensFadType modelPar_CTH0=mod.CTH0;
 bool modelPar_given_CTH0=mod.given("CTH0");
 AdmsSensFadType modelPar_WTH0=mod.WTH0;
 bool modelPar_given_WTH0=mod.given("WTH0");
+AdmsSensFadType modelPar_LMIN=mod.LMIN;
+bool modelPar_given_LMIN=mod.given("LMIN");
+AdmsSensFadType modelPar_LMAX=mod.LMAX;
+bool modelPar_given_LMAX=mod.given("LMAX");
+AdmsSensFadType modelPar_NFINMIN=mod.NFINMIN;
+bool modelPar_given_NFINMIN=mod.given("NFINMIN");
+AdmsSensFadType modelPar_NFINMAX=mod.NFINMAX;
+bool modelPar_given_NFINMAX=mod.given("NFINMAX");
 AdmsSensFadType modelPar_LNBODY=mod.LNBODY;
 bool modelPar_given_LNBODY=mod.given("LNBODY");
 AdmsSensFadType modelPar_NNBODY=mod.NNBODY;
@@ -37611,6 +37699,14 @@ modelPar_CTH0,
 modelPar_given_CTH0,
 modelPar_WTH0,
 modelPar_given_WTH0,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_NFINMIN,
+modelPar_given_NFINMIN,
+modelPar_NFINMAX,
+modelPar_given_NFINMAX,
 modelPar_LNBODY,
 modelPar_given_LNBODY,
 modelPar_NNBODY,
@@ -39933,6 +40029,18 @@ modParamMap["CTH0"] = &modelPar_CTH0;
 AdmsSensFadType modelPar_WTH0=mod.WTH0;
 bool modelPar_given_WTH0=mod.given("WTH0");
 modParamMap["WTH0"] = &modelPar_WTH0;
+AdmsSensFadType modelPar_LMIN=mod.LMIN;
+bool modelPar_given_LMIN=mod.given("LMIN");
+modParamMap["LMIN"] = &modelPar_LMIN;
+AdmsSensFadType modelPar_LMAX=mod.LMAX;
+bool modelPar_given_LMAX=mod.given("LMAX");
+modParamMap["LMAX"] = &modelPar_LMAX;
+AdmsSensFadType modelPar_NFINMIN=mod.NFINMIN;
+bool modelPar_given_NFINMIN=mod.given("NFINMIN");
+modParamMap["NFINMIN"] = &modelPar_NFINMIN;
+AdmsSensFadType modelPar_NFINMAX=mod.NFINMAX;
+bool modelPar_given_NFINMAX=mod.given("NFINMAX");
+modParamMap["NFINMAX"] = &modelPar_NFINMAX;
 AdmsSensFadType modelPar_LNBODY=mod.LNBODY;
 bool modelPar_given_LNBODY=mod.given("LNBODY");
 modParamMap["LNBODY"] = &modelPar_LNBODY;
@@ -42502,6 +42610,14 @@ modelPar_CTH0,
 modelPar_given_CTH0,
 modelPar_WTH0,
 modelPar_given_WTH0,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_NFINMIN,
+modelPar_given_NFINMIN,
+modelPar_NFINMAX,
+modelPar_given_NFINMAX,
 modelPar_LNBODY,
 modelPar_given_LNBODY,
 modelPar_NNBODY,

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:23:13
+// Creation Date  : Wed, 08 Jan 2020 12:17:09
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_h
@@ -1078,6 +1078,14 @@ AdmsSensFadType & modelPar_CTH0,
 bool modelPar_given_CTH0,
 AdmsSensFadType & modelPar_WTH0,
 bool modelPar_given_WTH0,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 AdmsSensFadType & modelPar_LNBODY,
 bool modelPar_given_LNBODY,
 AdmsSensFadType & modelPar_NNBODY,
@@ -2942,6 +2950,14 @@ AdmsSensFadType & modelPar_CTH0,
 bool modelPar_given_CTH0,
 AdmsSensFadType & modelPar_WTH0,
 bool modelPar_given_WTH0,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 AdmsSensFadType & modelPar_LNBODY,
 bool modelPar_given_LNBODY,
 AdmsSensFadType & modelPar_NNBODY,
@@ -4758,6 +4774,14 @@ AdmsSensFadType & modelPar_CTH0,
 bool modelPar_given_CTH0,
 AdmsSensFadType & modelPar_WTH0,
 bool modelPar_given_WTH0,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 AdmsSensFadType & modelPar_LNBODY,
 bool modelPar_given_LNBODY,
 AdmsSensFadType & modelPar_NNBODY,
@@ -6780,6 +6804,10 @@ public:
     double RTH0;
     double CTH0;
     double WTH0;
+    double LMIN;
+    double LMAX;
+    double NFINMIN;
+    double NFINMAX;
     double LNBODY;
     double NNBODY;
     double PNBODY;

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 12:11:31
+// Creation Date  : Wed, 08 Jan 2020 12:18:24
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -4692,6 +4692,38 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimcmg_110::Model> &p)
   p.addPar("ALPHA_UFCM", static_cast<double>(0.5556), &ADMSbsimcmg_110::Model::ALPHA_UFCM)
     .setUnit(U_UNKNOWN)
     .setDescription("Mobile charge scaling term taking QM effects into account")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("LMIN", static_cast<double>(0.0), &ADMSbsimcmg_110::Model::LMIN)
+    .setUnit(U_METER)
+    .setDescription("Minimum length for which this model should be used")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("WMIN", static_cast<double>(0.0), &ADMSbsimcmg_110::Model::WMIN)
+    .setUnit(U_METER)
+    .setDescription("Minimum width for which this model should be used")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("LMAX", static_cast<double>(100.0), &ADMSbsimcmg_110::Model::LMAX)
+    .setUnit(U_METER)
+    .setDescription("Maximum length for which this model should be used")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("WMAX", static_cast<double>(100.0), &ADMSbsimcmg_110::Model::WMAX)
+    .setUnit(U_METER)
+    .setDescription("Maximum width for which this model should be used")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -28027,6 +28059,10 @@ Model::Model(
     TFIN_BASE(1.5e-8),
     QMFACTORCV(0.0),
     ALPHA_UFCM(0.5556),
+    LMIN(0.0),
+    WMIN(0.0),
+    LMAX(100.0),
+    WMAX(100.0),
     LNBODY(0.0),
     NNBODY(0.0),
     PNBODY(0.0),
@@ -30175,6 +30211,14 @@ AdmsSensFadType & modelPar_QMFACTORCV,
 bool modelPar_given_QMFACTORCV,
 AdmsSensFadType & modelPar_ALPHA_UFCM,
 bool modelPar_given_ALPHA_UFCM,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_WMIN,
+bool modelPar_given_WMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_WMAX,
+bool modelPar_given_WMAX,
 AdmsSensFadType & modelPar_LNBODY,
 bool modelPar_given_LNBODY,
 AdmsSensFadType & modelPar_NNBODY,
@@ -34096,6 +34140,14 @@ AdmsSensFadType & modelPar_QMFACTORCV,
 bool modelPar_given_QMFACTORCV,
 AdmsSensFadType & modelPar_ALPHA_UFCM,
 bool modelPar_given_ALPHA_UFCM,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_WMIN,
+bool modelPar_given_WMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_WMAX,
+bool modelPar_given_WMAX,
 AdmsSensFadType & modelPar_LNBODY,
 bool modelPar_given_LNBODY,
 AdmsSensFadType & modelPar_NNBODY,
@@ -36734,6 +36786,14 @@ AdmsSensFadType & modelPar_QMFACTORCV,
 bool modelPar_given_QMFACTORCV,
 AdmsSensFadType & modelPar_ALPHA_UFCM,
 bool modelPar_given_ALPHA_UFCM,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_WMIN,
+bool modelPar_given_WMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_WMAX,
+bool modelPar_given_WMAX,
 AdmsSensFadType & modelPar_LNBODY,
 bool modelPar_given_LNBODY,
 AdmsSensFadType & modelPar_NNBODY,
@@ -41165,6 +41225,14 @@ AdmsSensFadType modelPar_QMFACTORCV=mod.QMFACTORCV;
 bool modelPar_given_QMFACTORCV=mod.given("QMFACTORCV");
 AdmsSensFadType modelPar_ALPHA_UFCM=mod.ALPHA_UFCM;
 bool modelPar_given_ALPHA_UFCM=mod.given("ALPHA_UFCM");
+AdmsSensFadType modelPar_LMIN=mod.LMIN;
+bool modelPar_given_LMIN=mod.given("LMIN");
+AdmsSensFadType modelPar_WMIN=mod.WMIN;
+bool modelPar_given_WMIN=mod.given("WMIN");
+AdmsSensFadType modelPar_LMAX=mod.LMAX;
+bool modelPar_given_LMAX=mod.given("LMAX");
+AdmsSensFadType modelPar_WMAX=mod.WMAX;
+bool modelPar_given_WMAX=mod.given("WMAX");
 AdmsSensFadType modelPar_LNBODY=mod.LNBODY;
 bool modelPar_given_LNBODY=mod.given("LNBODY");
 AdmsSensFadType modelPar_NNBODY=mod.NNBODY;
@@ -44327,6 +44395,14 @@ modelPar_QMFACTORCV,
 modelPar_given_QMFACTORCV,
 modelPar_ALPHA_UFCM,
 modelPar_given_ALPHA_UFCM,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_WMIN,
+modelPar_given_WMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_WMAX,
+modelPar_given_WMAX,
 modelPar_LNBODY,
 modelPar_given_LNBODY,
 modelPar_NNBODY,
@@ -46953,6 +47029,14 @@ modelPar_QMFACTORCV,
 modelPar_given_QMFACTORCV,
 modelPar_ALPHA_UFCM,
 modelPar_given_ALPHA_UFCM,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_WMIN,
+modelPar_given_WMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_WMAX,
+modelPar_given_WMAX,
 modelPar_LNBODY,
 modelPar_given_LNBODY,
 modelPar_NNBODY,
@@ -49648,6 +49732,18 @@ modParamMap["QMFACTORCV"] = &modelPar_QMFACTORCV;
 AdmsSensFadType modelPar_ALPHA_UFCM=mod.ALPHA_UFCM;
 bool modelPar_given_ALPHA_UFCM=mod.given("ALPHA_UFCM");
 modParamMap["ALPHA_UFCM"] = &modelPar_ALPHA_UFCM;
+AdmsSensFadType modelPar_LMIN=mod.LMIN;
+bool modelPar_given_LMIN=mod.given("LMIN");
+modParamMap["LMIN"] = &modelPar_LMIN;
+AdmsSensFadType modelPar_WMIN=mod.WMIN;
+bool modelPar_given_WMIN=mod.given("WMIN");
+modParamMap["WMIN"] = &modelPar_WMIN;
+AdmsSensFadType modelPar_LMAX=mod.LMAX;
+bool modelPar_given_LMAX=mod.given("LMAX");
+modParamMap["LMAX"] = &modelPar_LMAX;
+AdmsSensFadType modelPar_WMAX=mod.WMAX;
+bool modelPar_given_WMAX=mod.given("WMAX");
+modParamMap["WMAX"] = &modelPar_WMAX;
 AdmsSensFadType modelPar_LNBODY=mod.LNBODY;
 bool modelPar_given_LNBODY=mod.given("LNBODY");
 modParamMap["LNBODY"] = &modelPar_LNBODY;
@@ -53434,6 +53530,14 @@ modelPar_QMFACTORCV,
 modelPar_given_QMFACTORCV,
 modelPar_ALPHA_UFCM,
 modelPar_given_ALPHA_UFCM,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_WMIN,
+modelPar_given_WMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_WMAX,
+modelPar_given_WMAX,
 modelPar_LNBODY,
 modelPar_given_LNBODY,
 modelPar_NNBODY,
@@ -56061,6 +56165,14 @@ modelPar_QMFACTORCV,
 modelPar_given_QMFACTORCV,
 modelPar_ALPHA_UFCM,
 modelPar_given_ALPHA_UFCM,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_WMIN,
+modelPar_given_WMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_WMAX,
+modelPar_given_WMAX,
 modelPar_LNBODY,
 modelPar_given_LNBODY,
 modelPar_NNBODY,

@@ -304,10 +304,12 @@ public:
   bool findBinnedModel(std::string const& modelName,
                  ParameterBlock* & modelPtr,
                  std::string& modelPrefix,
-                 const double L, const double W, std::string & binNumber ) const;
+                 const bool LWfound, const bool LNFINfound,
+                 const double L, const double W, const double NFIN, std::string & binNumber ) const;
 
   bool findBinnedModel(std::string const& modelName, ParameterBlock* & modelPtr, 
-      const double L, const double W, std::string & binNumber ) const;
+      const bool LWfound, const bool LNFINfound,
+      const double L, const double W, const double NFIN, std::string & binNumber ) const;
 
   // Check whether a subcircuit context is dependent on subcircuit parameters.
   // These are parameters on the .subckt line identified by "params:"

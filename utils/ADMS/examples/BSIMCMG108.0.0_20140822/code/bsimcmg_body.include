@@ -735,6 +735,14 @@ parameter real WTH0  =  0.0 from [0:inf) `attr(info="Width dependence coefficien
 //Binning Parameters
 `include "bsimcmg_binning_parameters.include"
 
+`ifdef __XYCE__
+// dummy parameters for binning
+parameter real LMIN = 0 from [0:inf) `attr(info="Minimum length for which this model should be used.");
+parameter real LMAX = 100 from [0:inf) `attr(info="Maximum length for which this model should be used.");
+parameter real NFINMIN = 0 from [0:inf) `attr(info="Minimum NFIN for which this model should be used.");
+parameter real NFINMAX = 100 from [0:inf) `attr(info="Maximum NFIN for which this model should be used.");
+`endif
+
 // Output variables
 `ifdef __OPINFO__
     (* desc=  "WEFF" *)     real WEFF;
