@@ -364,6 +364,68 @@ int xyce_getDeviceParamVal(void **ptr, char* full_param_name, double* value)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : xyce_getNumAdjNodesForDevice
+// Purpose       : Call the Xyce::Circuit::Simulator::getNumAdjNodesForDevice function
+//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 to create that pointer with the xyce_open() function, and to
+//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 function before using this function.  The device name should be
+//                 fully-qualified; so X1:R1 for device R1 in subcircuit X1.
+//                 This function returns 1 if the device that exists in the netlist.
+//                 It returns 0, otherwise. For a return value of 0, the numAdjNodes
+//                 parameter is also set to 0.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/7/2020
+//-----------------------------------------------------------------------------
+int xyce_getNumAdjNodesForDevice(void **ptr, char * deviceName, int* numAdjNodes)
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  std::string deviceName_str(deviceName);
+  int mNumAdjNodes;
+
+  int result = xycePtr->getNumAdjNodesForDevice(deviceName_str, mNumAdjNodes);
+  *numAdjNodes = mNumAdjNodes;
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_getAdjGIDsForDevice
+// Purpose       : Call the Xyce::Circuit::Simulator::getAdjGIDsForDevice function
+//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 to create that pointer with the xyce_open() function, and to
+//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 function before using this function.  The device name should be
+//                 fully-qualified; so X1:R1 for device R1 in subcircuit X1.
+//                 This function returns 1 if the device that exists in the netlist.
+//                 It returns 0, otherwise. For a return value of 0, the adjGID
+//                 parameter is empty.
+// Special Notes : The GID of the ground node is -1.  The other GIDs are
+//                 non-negative integers.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/7/2020
+//-----------------------------------------------------------------------------
+int xyce_getAdjGIDsForDevice(void **ptr, char * deviceName, int* numAdjNodes, int* adjGIDs)
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  std::string deviceName_str(deviceName);
+  std::vector<int> gids;
+
+  int result = xycePtr->getAdjGIDsForDevice(deviceName_str, gids);
+  *numAdjNodes = gids.size();
+
+  for( int i=0; i<gids.size(); i++ )
+  {
+    adjGIDs[i] = gids[i];
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : xyce_getADCmap
 // Purpose       : Call the Xyce::Circuit::Simulator::getADCMap function via
 //                 a pointer to an N_CIR_Xyce object. A typical use case is to

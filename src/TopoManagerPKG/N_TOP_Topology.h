@@ -215,6 +215,9 @@ public:
   // Returns the number of adjacent nodes, without their GIDs.
   int numAdjNodes( int gid ) const;
 
+  // Returns the number of adjacent nodes, including ground, without their GIDs.
+  int numAdjNodesWithGround( int gid ) const;
+
   const std::map< int, int > &getDepSolnGIDMap() const {
     return depSolnGIDMap_;
   }

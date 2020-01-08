@@ -135,7 +135,7 @@ void Topology::returnAdjIDs( const NodeID& id, std::vector<NodeID>& adj_ids ) co
 }
 
 //-----------------------------------------------------------------------------
-// Returns adj GIDs to the given GID
+// Returns adj GIDs to the given GID, including the ground node (GID of -1)
 //-----------------------------------------------------------------------------
 void Topology::returnAdjGIDsWithGround( int gid, std::vector<int>& adj_gids ) const
 {
@@ -148,6 +148,14 @@ void Topology::returnAdjGIDsWithGround( int gid, std::vector<int>& adj_gids ) co
 int Topology::numAdjNodes( int gid ) const
 {
   return mainGraphPtr_->numAdjNodes( gid );
+}
+
+//-----------------------------------------------------------------------------
+// Returns number of adj nodes, including the ground node
+//-----------------------------------------------------------------------------
+int Topology::numAdjNodesWithGround( int gid ) const
+{
+  return mainGraphPtr_->numAdjNodesWithGround( gid );
 }
 
 //-----------------------------------------------------------------------------

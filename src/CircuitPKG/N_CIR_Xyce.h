@@ -201,6 +201,9 @@ class Simulator
   bool getDeviceParamVal(const std::string full_param_name, double& val) const;
   bool checkDeviceParamName(const std::string full_param_name) const;
 
+  bool getAdjGIDsForDevice(const std::string deviceName, std::vector<int> & adj_GIDs) const;
+  bool getNumAdjNodesForDevice(const std::string deviceName, int & numAdjNodes) const;
+
   //---------------------------------------------------------------------------
   // Function      : getDACDeviceNames
   // Purpose       : Gets the (stripped) names of the DAC devices

@@ -115,12 +115,14 @@
 #include <N_TIA_WorkingIntegrationMethod.h>
 
 #include <N_TOP_Topology.h>
+#include <N_TOP_CktNode.h>
 
 #include <N_UTL_Algorithm.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_Misc.h>
 #include <N_UTL_Timer.h>
 #include <N_UTL_Expression.h>
+#include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_LogStream.h>
 #include <N_UTL_PrintStats.h>
@@ -1309,6 +1311,66 @@ bool Simulator::getDeviceParamVal(const std::string full_param_name, double& val
   }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::getNumAdjNodesForDevice
+// Purpose       : get the number of the nodes that are adjacent to a specified
+//                 device, including the ground node
+// Special Notes : This function will return false if the device does not exist.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/7/2020
+//-----------------------------------------------------------------------------
+bool Simulator::getNumAdjNodesForDevice(const std::string deviceName, int& numAdjNodes) const
+{
+  bool retVal = true;
+  ExtendedString deviceNameUC(deviceName);
+  deviceNameUC.toUpper();
+  const Topo::CktNode * cNodePtr = topology_->findCktNode(NodeID(deviceNameUC, Xyce::_DNODE));
+
+  if (cNodePtr == 0)
+  {
+    Report::UserWarning0() << "Device " << deviceName << " not found" << std::endl;
+    numAdjNodes = 0;
+    retVal = false;
+  }
+  else
+  {
+    numAdjNodes = topology_->numAdjNodesWithGround(cNodePtr->get_gID());
+  }
+
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::getAdjGIDsForDevice
+// Purpose       : get the GIDs of the nodes that are adjacent to a specified
+//                 device, including the ground node (GID of -1).  The other
+//                 GIDs are non-negative integers.
+// Special Notes : This function will return false if the device does not exist.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/7/2020
+//-----------------------------------------------------------------------------
+bool Simulator::getAdjGIDsForDevice(const std::string deviceName, std::vector<int> & adj_GIDs) const
+{
+  bool retVal = true;
+  ExtendedString deviceNameUC(deviceName);
+  deviceNameUC.toUpper();
+  const Topo::CktNode * cNodePtr = topology_->findCktNode(NodeID(deviceNameUC, Xyce::_DNODE));
+
+  if (cNodePtr == 0)
+  {
+    Report::UserWarning0() << "Device " << deviceName << " not found" << std::endl;
+    retVal = false;
+  }
+  else
+  {
+    topology_->returnAdjGIDsWithGround(cNodePtr->get_gID(), adj_GIDs);
+  }
+
+  return retVal;
 }
 
 //----------------------------------------------------------------------------
