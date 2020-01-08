@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 08 Jan 2020 11:55:09
+// Creation Date  : Wed, 08 Jan 2020 13:35:23
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -2170,14 +2170,14 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimcmg_108::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PRWGS", static_cast<double>(0.0), &ADMSbsimcmg_108::Model::PRWGS)
-    .setDescription("Gate bias dependence of source extension resistance, Units:V^-1")
+    .setDescription("Gate bias dependence of source extension resistance, Units:1/V")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PRWGD", 0.0, &ADMSbsimcmg_108::Model::PRWGD)
-    .setDescription("Gate bias dependence of drain extension resistance, Units:V^-1")
+    .setDescription("Gate bias dependence of drain extension resistance, Units:1/V")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -2739,7 +2739,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimcmg_108::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CGISL", static_cast<double>(0.5), &ADMSbsimcmg_108::Model::CGISL)
-    .setDescription("parameter for body-effect of GISL in V^3")
+    .setDescription("parameter for body-effect of GISL in V**3")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -2774,7 +2774,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimcmg_108::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("CGIDL", 0.0, &ADMSbsimcmg_108::Model::CGIDL)
-    .setDescription("parameter for body-effect of GIDL in V^3")
+    .setDescription("parameter for body-effect of GIDL in V**3")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -3516,7 +3516,7 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimcmg_108::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("NSEG", static_cast<int>(4), &ADMSbsimcmg_108::Model::NSEG)
-    .setDescription("Number of segments for NQSMOD=3 (3,5 & 10 supported)");
+    .setDescription("Number of segments for NQSMOD=3 (3,5 and 10 supported)");
   p.addPar("EF", static_cast<double>(1.0), &ADMSbsimcmg_108::Model::EF)
     .setDescription("Flicker Noise frequency exponent")
 #ifdef Xyce_ADMS_SENSITIVITIES

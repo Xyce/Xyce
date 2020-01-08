@@ -420,8 +420,8 @@ parameter real RDDR    =  RSDR   from[0:inf) `attr(info="Drain side drift resist
 parameter real RDDRR   =  RDDR   from[0:inf) `attr(info="Drain side drift resistance parameter - reverse mode");       // Drain side drift resistance parameter - reverse mode
 parameter real PRSDR   =  1.0 `attr(info="Source side quasi-saturation parameter");                      // Source side quasi-saturation parameter
 parameter real PRDDR   =  PRSDR `attr(info="Drain side quasi-saturation parameter");                    // Drain side quasi-saturation parameter
-parameter real PRWGS   =  0.0 `attr(info="Gate bias dependence of source extension resistance, Units:V^-1");                      // Gate bias dependence of source extension resistance, Units:V^-1
-parameter real PRWGD   =  PRWGS `attr(info="Gate bias dependence of drain extension resistance, Units:V^-1");                    // Gate bias dependence of drain extension resistance, Units:V^-1
+parameter real PRWGS   =  0.0 `attr(info="Gate bias dependence of source extension resistance, Units:1/V");                      // Gate bias dependence of source extension resistance, Units:V^-1
+parameter real PRWGD   =  PRWGS `attr(info="Gate bias dependence of drain extension resistance, Units:1/V");                    // Gate bias dependence of drain extension resistance, Units:V^-1
 parameter real WR      =  1.0; 
 parameter real PRT     =  0.001;
 parameter real TRSDR   =  0.0;
@@ -522,12 +522,12 @@ parameter real POXEDGE  =  1.0 `attr(info="Factor for the gate edge Tox");      
 // GIDL/GISL Current
 parameter real AGISL   =  6.055p `attr(info="pre-exponential coeff. for GISL in mho");                   // pre-exponential coeff. for GISL in mho
 parameter real BGISL   =  0.3e9 `attr(info="exponential coeff. for GISL in V/m");                    // exponential coeff. for GISL in V/m
-parameter real CGISL   =  0.5 `attr(info="parameter for body-effect of GISL in V^3");                      // parameter for body-effect of GISL in V^3
+parameter real CGISL   =  0.5 `attr(info="parameter for body-effect of GISL in V**3");                      // parameter for body-effect of GISL in V^3
 parameter real EGISL   =  0.2 `attr(info="band bending parameter for GISL in V");                      // band bending parameter for GISL in V
 parameter real PGISL   =  1.0 `attr(info="parameter for body-bias effect on GISL");                      // parameter for body-bias effect on GISL
 parameter real AGIDL   =  AGISL `attr(info="pre-exponential coeff. for GIDL in mho");                    // pre-exponential coeff. for GIDL in mho
 parameter real BGIDL   =  BGISL `attr(info="exponential coeff. for GIDL in V/m");                    // exponential coeff. for GIDL in V/m
-parameter real CGIDL   =  CGISL `attr(info="parameter for body-effect of GIDL in V^3");                    // parameter for body-effect of GIDL in V^3
+parameter real CGIDL   =  CGISL `attr(info="parameter for body-effect of GIDL in V**3");                    // parameter for body-effect of GIDL in V^3
 parameter real EGIDL   =  EGISL `attr(info="band bending parameter for GIDL in V");                    // band bending parameter for GIDL in V
 parameter real PGIDL   =  PGISL `attr(info="parameter for body-bias effect on GIDL");                    // parameter for body-bias effect on GIDL
 
@@ -672,7 +672,7 @@ parameter real XRCRG1  =  12.0;
 parameter real XRCRG2  =  1.0;
 
 // NQS Charge Segmentation Model
-parameter integer NSEG =  4 from [4:10] `attr(info="Number of segments for NQSMOD=3 (3,5 & 10 supported)");             // Number of segments for NQSMOD=3 (3,5 & 10 supported)
+parameter integer NSEG =  4 from [4:10] `attr(info="Number of segments for NQSMOD=3 (3,5 and 10 supported)");             // Number of segments for NQSMOD=3 (3,5 & 10 supported)
 
 // Flicker Noise
 parameter real EF    =  1.0 `attr(info="Flicker Noise frequency exponent");                         // Flicker Noise frequency exponent
