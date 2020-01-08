@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 07 Jan 2020 16:04:16
+// Creation Date  : Wed, 08 Jan 2020 11:55:09
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_108_h
@@ -2588,6 +2588,14 @@ AdmsSensFadType & modelPar_NIGT,
 bool modelPar_given_NIGT,
 AdmsSensFadType & modelPar_PIGT,
 bool modelPar_given_PIGT,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 // non-reals (including hidden)
 int modelPar_NF,
 bool modelPar_given_NF,
@@ -5030,6 +5038,14 @@ AdmsSensFadType & modelPar_NIGT,
 bool modelPar_given_NIGT,
 AdmsSensFadType & modelPar_PIGT,
 bool modelPar_given_PIGT,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 // non-reals (including hidden)
 int modelPar_NF,
 bool modelPar_given_NF,
@@ -7046,6 +7062,14 @@ AdmsSensFadType & modelPar_NIGT,
 bool modelPar_given_NIGT,
 AdmsSensFadType & modelPar_PIGT,
 bool modelPar_given_PIGT,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 // non-reals (including hidden)
 int modelPar_NF,
 bool modelPar_given_NF,
@@ -9848,6 +9872,10 @@ public:
     double LIGT;
     double NIGT;
     double PIGT;
+    double LMIN;
+    double LMAX;
+    double NFINMIN;
+    double NFINMAX;
     //  Variables of global_model scope
     // end verilog model variables=====
 };

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 12:11:31
+// Creation Date  : Wed, 08 Jan 2020 12:18:24
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_110_h
@@ -1667,6 +1667,14 @@ void evaluateModelEquations(
    bool modelPar_given_QMFACTORCV,
    AdmsSensFadType & modelPar_ALPHA_UFCM,
    bool modelPar_given_ALPHA_UFCM,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    AdmsSensFadType & modelPar_LNBODY,
    bool modelPar_given_LNBODY,
    AdmsSensFadType & modelPar_NNBODY,
@@ -4260,6 +4268,14 @@ void evaluateInitialInstance(
    bool modelPar_given_QMFACTORCV,
    AdmsSensFadType & modelPar_ALPHA_UFCM,
    bool modelPar_given_ALPHA_UFCM,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    AdmsSensFadType & modelPar_LNBODY,
    bool modelPar_given_LNBODY,
    AdmsSensFadType & modelPar_NNBODY,
@@ -6366,6 +6382,14 @@ void evaluateInitialModel(
    bool modelPar_given_QMFACTORCV,
    AdmsSensFadType & modelPar_ALPHA_UFCM,
    bool modelPar_given_ALPHA_UFCM,
+   AdmsSensFadType & modelPar_LMIN,
+   bool modelPar_given_LMIN,
+   AdmsSensFadType & modelPar_WMIN,
+   bool modelPar_given_WMIN,
+   AdmsSensFadType & modelPar_LMAX,
+   bool modelPar_given_LMAX,
+   AdmsSensFadType & modelPar_WMAX,
+   bool modelPar_given_WMAX,
    AdmsSensFadType & modelPar_LNBODY,
    bool modelPar_given_LNBODY,
    AdmsSensFadType & modelPar_NNBODY,
@@ -9840,6 +9864,10 @@ private:
   double TFIN_BASE;
   double QMFACTORCV;
   double ALPHA_UFCM;
+  double LMIN;
+  double WMIN;
+  double LMAX;
+  double WMAX;
   double LNBODY;
   double NNBODY;
   double PNBODY;

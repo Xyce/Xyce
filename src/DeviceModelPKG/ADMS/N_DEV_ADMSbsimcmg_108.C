@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 07 Jan 2020 16:04:16
+// Creation Date  : Wed, 08 Jan 2020 11:55:09
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -6951,6 +6951,34 @@ void Traits::loadModelParameters(ParametricData<ADMSbsimcmg_108::Model> &p)
 #endif // Xyce_ADMS_SENSITIVITIES
 ;
   p.addPar("PIGT", static_cast<double>(0), &ADMSbsimcmg_108::Model::PIGT)
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("LMIN", static_cast<double>(0), &ADMSbsimcmg_108::Model::LMIN)
+    .setDescription("Minimum length for which this model should be used.")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("LMAX", static_cast<double>(100), &ADMSbsimcmg_108::Model::LMAX)
+    .setDescription("Maximum length for which this model should be used.")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("NFINMIN", static_cast<double>(0), &ADMSbsimcmg_108::Model::NFINMIN)
+    .setDescription("Minimum NFIN for which this model should be used.")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&modSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("NFINMAX", static_cast<double>(100), &ADMSbsimcmg_108::Model::NFINMAX)
+    .setDescription("Maximum NFIN for which this model should be used.")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&modSens)
@@ -28403,6 +28431,30 @@ if (getType() == "pmos" || getType() == "PMOS")
     UserWarning(*this) << "ADMSbsimcmg_108: Parameter WTH0 value " << WTH0 << " out of range [ 0,  (+inf) [";
   }
 
+//    Parameter LMIN : [ 0,  (+inf) [
+  if ( (!((LMIN >=0))) )
+  {
+    UserWarning(*this) << "ADMSbsimcmg_108: Parameter LMIN value " << LMIN << " out of range [ 0,  (+inf) [";
+  }
+
+//    Parameter LMAX : [ 0,  (+inf) [
+  if ( (!((LMAX >=0))) )
+  {
+    UserWarning(*this) << "ADMSbsimcmg_108: Parameter LMAX value " << LMAX << " out of range [ 0,  (+inf) [";
+  }
+
+//    Parameter NFINMIN : [ 0,  (+inf) [
+  if ( (!((NFINMIN >=0))) )
+  {
+    UserWarning(*this) << "ADMSbsimcmg_108: Parameter NFINMIN value " << NFINMIN << " out of range [ 0,  (+inf) [";
+  }
+
+//    Parameter NFINMAX : [ 0,  (+inf) [
+  if ( (!((NFINMAX >=0))) )
+  {
+    UserWarning(*this) << "ADMSbsimcmg_108: Parameter NFINMAX value " << NFINMAX << " out of range [ 0,  (+inf) [";
+  }
+
   // and of course, this routine is where we should put the initial_model
   // stuff
 
@@ -29449,7 +29501,11 @@ Model::Model(
     PTGIDL(0),
     LIGT(0),
     NIGT(0),
-    PIGT(0)
+    PIGT(0),
+    LMIN(0),
+    LMAX(100),
+    NFINMIN(0),
+    NFINMAX(100)
 {
   // Set params to constant default values (from parTable):
   setDefaultParams();
@@ -31983,6 +32039,14 @@ AdmsSensFadType & modelPar_NIGT,
 bool modelPar_given_NIGT,
 AdmsSensFadType & modelPar_PIGT,
 bool modelPar_given_PIGT,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 // non-reals (including hidden)
 int modelPar_NF,
 bool modelPar_given_NF,
@@ -35660,6 +35724,14 @@ AdmsSensFadType & modelPar_NIGT,
 bool modelPar_given_NIGT,
 AdmsSensFadType & modelPar_PIGT,
 bool modelPar_given_PIGT,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 // non-reals (including hidden)
 int modelPar_NF,
 bool modelPar_given_NF,
@@ -38145,6 +38217,14 @@ AdmsSensFadType & modelPar_NIGT,
 bool modelPar_given_NIGT,
 AdmsSensFadType & modelPar_PIGT,
 bool modelPar_given_PIGT,
+AdmsSensFadType & modelPar_LMIN,
+bool modelPar_given_LMIN,
+AdmsSensFadType & modelPar_LMAX,
+bool modelPar_given_LMAX,
+AdmsSensFadType & modelPar_NFINMIN,
+bool modelPar_given_NFINMIN,
+AdmsSensFadType & modelPar_NFINMAX,
+bool modelPar_given_NFINMAX,
 // non-reals (including hidden)
 int modelPar_NF,
 bool modelPar_given_NF,
@@ -43429,6 +43509,14 @@ AdmsSensFadType modelPar_NIGT=mod.NIGT;
 bool modelPar_given_NIGT=mod.given("NIGT");
 AdmsSensFadType modelPar_PIGT=mod.PIGT;
 bool modelPar_given_PIGT=mod.given("PIGT");
+AdmsSensFadType modelPar_LMIN=mod.LMIN;
+bool modelPar_given_LMIN=mod.given("LMIN");
+AdmsSensFadType modelPar_LMAX=mod.LMAX;
+bool modelPar_given_LMAX=mod.given("LMAX");
+AdmsSensFadType modelPar_NFINMIN=mod.NFINMIN;
+bool modelPar_given_NFINMIN=mod.given("NFINMIN");
+AdmsSensFadType modelPar_NFINMAX=mod.NFINMAX;
+bool modelPar_given_NFINMAX=mod.given("NFINMAX");
 
 
 // hidden reals
@@ -46376,6 +46464,14 @@ modelPar_NIGT,
 modelPar_given_NIGT,
 modelPar_PIGT,
 modelPar_given_PIGT,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_NFINMIN,
+modelPar_given_NFINMIN,
+modelPar_NFINMAX,
+modelPar_given_NFINMAX,
 // non-reals (including hidden)
  modelPar_NF,
 modelPar_given_NF,
@@ -48849,6 +48945,14 @@ modelPar_NIGT,
 modelPar_given_NIGT,
 modelPar_PIGT,
 modelPar_given_PIGT,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_NFINMIN,
+modelPar_given_NFINMIN,
+modelPar_NFINMAX,
+modelPar_given_NFINMAX,
 // non-reals (including hidden)
  modelPar_NF,
 modelPar_given_NF,
@@ -51946,6 +52050,18 @@ modParamMap["NIGT"] = &modelPar_NIGT;
 AdmsSensFadType modelPar_PIGT=mod.PIGT;
 bool modelPar_given_PIGT=mod.given("PIGT");
 modParamMap["PIGT"] = &modelPar_PIGT;
+AdmsSensFadType modelPar_LMIN=mod.LMIN;
+bool modelPar_given_LMIN=mod.given("LMIN");
+modParamMap["LMIN"] = &modelPar_LMIN;
+AdmsSensFadType modelPar_LMAX=mod.LMAX;
+bool modelPar_given_LMAX=mod.given("LMAX");
+modParamMap["LMAX"] = &modelPar_LMAX;
+AdmsSensFadType modelPar_NFINMIN=mod.NFINMIN;
+bool modelPar_given_NFINMIN=mod.given("NFINMIN");
+modParamMap["NFINMIN"] = &modelPar_NFINMIN;
+AdmsSensFadType modelPar_NFINMAX=mod.NFINMAX;
+bool modelPar_given_NFINMAX=mod.given("NFINMAX");
+modParamMap["NFINMAX"] = &modelPar_NFINMAX;
 
 
 // hidden reals
@@ -54981,6 +55097,14 @@ modelPar_NIGT,
 modelPar_given_NIGT,
 modelPar_PIGT,
 modelPar_given_PIGT,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_NFINMIN,
+modelPar_given_NFINMIN,
+modelPar_NFINMAX,
+modelPar_given_NFINMAX,
 // non-reals (including hidden)
  modelPar_NF,
 modelPar_given_NF,
@@ -57455,6 +57579,14 @@ modelPar_NIGT,
 modelPar_given_NIGT,
 modelPar_PIGT,
 modelPar_given_PIGT,
+modelPar_LMIN,
+modelPar_given_LMIN,
+modelPar_LMAX,
+modelPar_given_LMAX,
+modelPar_NFINMIN,
+modelPar_given_NFINMIN,
+modelPar_NFINMAX,
+modelPar_given_NFINMAX,
 // non-reals (including hidden)
  modelPar_NF,
 modelPar_given_NF,
