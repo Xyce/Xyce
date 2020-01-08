@@ -1905,8 +1905,11 @@ bool CircuitContext::findBinnedModel(
   const std::string &           modelName,
   ParameterBlock* &             modelPtr,
   std::string &                 modelPrefix,
+  const bool LWfound,
+  const bool LNFINfound,
   const double L,
-  const double W, std::string & binNumber) const
+  const double W,
+  const double NFIN, std::string & binNumber) const
 {
   bool success = false;
 
@@ -1923,34 +1926,72 @@ bool CircuitContext::findBinnedModel(
     {
       Device::Param parLmax(std::string("LMAX"), "");
       Device::Param parLmin(std::string("LMIN"), "");
-      Device::Param parWmax(std::string("WMAX"), "");
-      Device::Param parWmin(std::string("WMIN"), "");
 
       ParameterBlock & tmpModelParamBlock = *(modelIter->second);
       Device::Param * Lmaxptr = tmpModelParamBlock.findParameter(parLmax);
       Device::Param * Lminptr = tmpModelParamBlock.findParameter(parLmin);
-      Device::Param * Wmaxptr = tmpModelParamBlock.findParameter(parWmax);
-      Device::Param * Wminptr = tmpModelParamBlock.findParameter(parWmin);
 
-      if (Lmaxptr != NULL && Lminptr != NULL && Wmaxptr != NULL && Wminptr != NULL) 
-      { 
-        double Lmax = 1.0, Lmin = 0.0, Wmax = 1.0, Wmin = 0.0;
-        bool resolvedLmax=false, resolvedLmin=false, resolvedWmax=false, resolvedWmin=false;
+      // for the case of L & W geometric parameters 
+      if (LWfound)
+      {
+        Device::Param parWmax(std::string("WMAX"), "");
+        Device::Param parWmin(std::string("WMIN"), "");
 
-        resolvedLmax = fullyResolveParam(*Lmaxptr,Lmax);
-        resolvedLmin = fullyResolveParam(*Lminptr,Lmin);
-        resolvedWmax = fullyResolveParam(*Wmaxptr,Wmax);
-        resolvedWmin = fullyResolveParam(*Wminptr,Wmin);
+        Device::Param * Wmaxptr = tmpModelParamBlock.findParameter(parWmax);
+        Device::Param * Wminptr = tmpModelParamBlock.findParameter(parWmin);
 
-        if (resolvedLmax && resolvedLmin && resolvedWmax && resolvedWmin)
-        {
-          if (InBinRange(L, Lmin, Lmax) && InBinRange(W, Wmin, Wmax)) 
+        if (Lmaxptr != NULL && Lminptr != NULL && Wmaxptr != NULL && Wminptr != NULL) 
+        { 
+          double Lmax = 1.0, Lmin = 0.0, Wmax = 1.0, Wmin = 0.0;
+          bool resolvedLmax=false, resolvedLmin=false, resolvedWmax=false, resolvedWmin=false;
+
+          resolvedLmax = fullyResolveParam(*Lmaxptr,Lmax);
+          resolvedLmin = fullyResolveParam(*Lminptr,Lmin);
+          resolvedWmax = fullyResolveParam(*Wmaxptr,Wmax);
+          resolvedWmin = fullyResolveParam(*Wminptr,Wmin);
+
+          if (resolvedLmax && resolvedLmin && resolvedWmax && resolvedWmin)
           {
-            binNumber = key.substr( (tmpName.size()+1), (key.size()-1) );
-            done=true;
+            if (InBinRange(L, Lmin, Lmax) && InBinRange(W, Wmin, Wmax)) 
+            {
+              binNumber = key.substr( (tmpName.size()+1), (key.size()-1) );
+              done=true;
+            }
           }
         }
       }
+
+
+      // for the case of L & NFIN geometric parameters 
+      if (LNFINfound)
+      {
+        Device::Param parNFINmax(std::string("NFINMAX"), "");
+        Device::Param parNFINmin(std::string("NFINMIN"), "");
+
+        Device::Param * NFINmaxptr = tmpModelParamBlock.findParameter(parNFINmax);
+        Device::Param * NFINminptr = tmpModelParamBlock.findParameter(parNFINmin);
+
+        if (Lmaxptr != NULL && Lminptr != NULL && NFINmaxptr != NULL && NFINminptr != NULL) 
+        { 
+          double Lmax = 1.0, Lmin = 0.0, NFINmax = 1.0, NFINmin = 0.0;
+          bool resolvedLmax=false, resolvedLmin=false, resolvedNFINmax=false, resolvedNFINmin=false;
+
+          resolvedLmax = fullyResolveParam(*Lmaxptr,Lmax);
+          resolvedLmin = fullyResolveParam(*Lminptr,Lmin);
+          resolvedNFINmax = fullyResolveParam(*NFINmaxptr,NFINmax);
+          resolvedNFINmin = fullyResolveParam(*NFINminptr,NFINmin);
+
+          if (resolvedLmax && resolvedLmin && resolvedNFINmax && resolvedNFINmin)
+          {
+            if (InBinRange(L, Lmin, Lmax) && InBinRange(NFIN, NFINmin, NFINmax)) 
+            {
+              binNumber = key.substr( (tmpName.size()+1), (key.size()-1) );
+              done=true;
+            }
+          }
+        }
+      }
+
     }
     else // if prefix no longer matches, we are done, and have probably failed.
     {
@@ -1984,7 +2025,7 @@ bool CircuitContext::findBinnedModel(
   if (currentContextPtr_->parentContextPtr_ != NULL )
   {
     setContext(currentContextPtr_->parentContextPtr_);
-    success = findBinnedModel( modelName, modelPtr, modelPrefix, L, W, binNumber);
+    success = findBinnedModel( modelName, modelPtr, modelPrefix, LWfound, LNFINfound, L, W, NFIN, binNumber);
     restorePreviousContext();
   }
 
@@ -2002,11 +2043,12 @@ bool CircuitContext::findBinnedModel(
 bool CircuitContext::findBinnedModel(
   const std::string &           modelName,
   ParameterBlock* &        modelPtr,
-  const double L, const double W, std::string & binNumber) const
+  const bool LWfound, const bool LNFINfound,
+  const double L, const double W, const double NFIN, std::string & binNumber) const
 {
   bool success;
   std::string temp;
-  success = findBinnedModel(modelName, modelPtr, temp, L, W, binNumber);
+  success = findBinnedModel(modelName, modelPtr, temp, LWfound, LNFINfound, L, W, NFIN, binNumber);
 
   return success;
 }
