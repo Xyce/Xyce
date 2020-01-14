@@ -5724,7 +5724,7 @@ Instance::Instance(
       }
     }
 
-    if (DEBUG_DEVICE)
+    if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
     {
       Xyce::dout() << "About to remap away optional nodes from the jacStamp!" << std::endl;
     debugJacStampOutput ();
@@ -5834,7 +5834,7 @@ Instance::Instance(
     }
 
 
-    if (DEBUG_DEVICE)
+    if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
     {
       Xyce::dout() << "Done remap away optional nodes from the jacStamp!" << std::endl;
     debugJacStampOutput ();
