@@ -276,7 +276,7 @@ void HBICTecplot::copyTmpFileToOutputFile()
       // re-open tmp file for input
       std::string tmpFilename = outFilename_ + ".tmp";
       std::ifstream infile;
-      infile.open(tmpFilename,std::ifstream::in);
+      infile.open(tmpFilename.c_str(),std::ifstream::in);
 
       if (infile.good())
         *os_ << infile.rdbuf();
