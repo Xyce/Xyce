@@ -119,6 +119,7 @@ public:
   virtual void returnAdjGIDsWithGround( int gid, std::vector<int>& adj_gids ) = 0;
 
   virtual int numAdjNodes( int gid ) = 0;
+  virtual int numAdjNodesWithGround( int gid ) = 0;
 
   // Redo global index node map (abstract).
   virtual void regenerateGIDNodeMap() = 0;

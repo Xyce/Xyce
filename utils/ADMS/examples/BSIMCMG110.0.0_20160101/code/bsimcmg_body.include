@@ -714,6 +714,13 @@ endfunction
 `MPRcz( QMFACTORCV     ,0.0            ,""            ,"Charge dependence taking QM effects into account" ) 
 `MPRcz( ALPHA_UFCM     ,0.5556         ,""            ,"Mobile charge scaling term taking QM effects into account" ) 
 
+`ifdef __XYCE__
+`MPRnb( LMIN           ,0.0            ,"m"                                                             ,"Minimum length for which this model should be used")
+`MPRnb( WMIN           ,0.0            ,"m"                                                             ,"Minimum width for which this model should be used")
+`MPRnb( LMAX           ,100.0            ,"m"                                                           ,"Maximum length for which this model should be used")
+`MPRnb( WMAX           ,100.0            ,"m"                                                             ,"Maximum width for which this model should be used")
+`endif
+
 // Binning Parameters
 `include "bsimcmg_binning_parameters.include"
 

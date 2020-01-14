@@ -663,6 +663,12 @@ parameter real RTH0  =  0.01 from [0:inf) `attr(info="Thermal resistance");  		/
 parameter real CTH0  =  1.0E-05 from [0:inf) `attr(info="Thermal capacitance");   	// Thermal capacitance
 parameter real WTH0  =  0.0 from [0:inf) `attr(info="Width dependence coefficient for Rth and Cth");       	// Width dependence coefficient for Rth and Cth
 
+// dummy parameters for binning
+parameter real LMIN = 0 from [0:inf) `attr(info="Minimum length for which this model should be used.");
+parameter real LMAX = 100 from [0:inf) `attr(info="Maximum length for which this model should be used.");
+parameter real NFINMIN = 0 from [0:inf) `attr(info="Minimum NFIN for which this model should be used.");
+parameter real NFINMAX = 100 from [0:inf) `attr(info="Maximum NFIN for which this model should be used.");
+
 //Binning Parameters
 `include "bsimcmg_binning_parameters.include"
 

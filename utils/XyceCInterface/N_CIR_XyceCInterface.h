@@ -52,7 +52,13 @@ int xyce_getNumDevices(void **ptr, char * modelGroupName, int* numDevNames, int*
 int xyce_getDeviceNames(void ** ptr, char * modelGroupName, int* numDevNames, char ** deviceNames);
 int xyce_getTotalNumDevices(void **ptr, int* numDevNames, int* maxDevNameLength);
 int xyce_getAllDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames);
-int xyce_getDACDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames); 
+int xyce_getDACDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames);
+
+int xyce_checkDeviceParamName(void **ptr, char* full_param_name);
+int xyce_getDeviceParamVal(void **ptr, char* full_param_name, double* value);
+
+int xyce_getNumAdjNodesForDevice(void **ptr, char* deviceName, int* numAdjNodes);
+int xyce_getAdjGIDsForDevice(void **ptr, char* deviceName, int* numAdjNodes, int* adjGIDs);
 
 int xyce_updateTimeVoltagePairs(void ** ptr, char * DACname, int numPoints, double * timeArray, double * voltageArray);
                 

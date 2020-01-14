@@ -146,6 +146,40 @@ class xyce_interface:
     return (status, DACnames)
     return status
 
+  def checkDeviceParamName(self , paramName):
+    cvarName = c_char_p(paramName)
+    status = self.lib.xyce_checkDeviceParamName( byref(self.xycePtr), cvarName )
+    return status
+
+  def getDeviceParamVal(self, paramName):
+    cparamName = c_char_p(paramName.encode('utf-8'))
+    cValue = c_double(0.0)
+    status = self.lib.xyce_getDeviceParamVal( byref(self.xycePtr), cparamName, byref(cValue) )
+    return (status, (cValue.value))
+
+  def getNumAdjNodesForDevice( self, deviceName):
+    cdeviceName = c_char_p(deviceName.encode('utf-8'))
+    cNumAdjNodes = c_int(0)
+    status = self.lib.xyce_getNumAdjNodesForDevice( byref(self.xycePtr), cdeviceName, byref(cNumAdjNodes) )
+    return (status, (cNumAdjNodes.value))
+
+  def getAdjGIDsForDevice( self, deviceName):
+    cdeviceName = c_char_p(deviceName.encode('utf-8'))
+    cNumAdjNodes = c_int(0)
+    GIDs=[]
+
+    # if the call to xyce_getNumAdjNodesForDevice() fails then return an empty array
+    status = self.lib.xyce_getNumAdjNodesForDevice( byref(self.xycePtr), cdeviceName, byref(cNumAdjNodes) )
+    if status != 1:
+      return (status, GIDs)
+
+    cGIDs = (c_int*cNumAdjNodes.value)()
+    status = self.lib.xyce_getAdjGIDsForDevice( byref(self.xycePtr), cdeviceName, byref(cNumAdjNodes), byref(cGIDs) )
+
+    for i in range(0,cNumAdjNodes.value):
+      GIDs.insert(i,cGIDs[i])
+    return (status, GIDs)
+
   def getADCMap( self ):
     basename = "YADC"
     cBaseName = c_char_p(basename.encode('utf-8'))

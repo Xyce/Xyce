@@ -675,21 +675,31 @@ the BSIM web site at
 \input{M_110_Device_Instance_Params}
 \input{M_110_Device_Model_Params}
 
-\subsubsection{Level 107 MOSFET Tables (BSIM CMG version 107.0.0)}
-\Xyce{} includes the BSIM CMG Common Multi-gate model version 107.
-This model has been superceded by the level 110 version, but has been
+\subsubsection{Level 107  and 108 MOSFET Tables (BSIM CMG versions 107.0.0 and 108.0.0)}
+\Xyce{} includes the legacy BSIM CMG Common Multi-gate model versions 107 and 108.
+These models have been superceded by the level 110 version, but has been
 retained for backward compatibility with previous versions of Xyce and
-older model cards.  The code in \Xyce{} was generated from the BSIM
+older model cards and PDKs.  The code in \Xyce{} was generated from the BSIM
 group's Verilog-A input using the default ``ifdef'' lines provided,
 and therefore supports only the subset of BSIM CMG features those
 defaults enable.  Instance and model parameters for the BSIM CMG model
-are given in tables~\ref{M_107_Device_Instance_Params} and
-\ref{M_107_Device_Model_Params}.  Details of the model are documented
+are given in tables~\ref{M_107_Device_Instance_Params},
+\ref{M_107_Device_Model_Params}, \ref{M_108_Device_Instance_Params},
+and~\ref{M_108_Device_Model_Params}.  Details of the model are documented
 in the BSIM-CMG technical report\cite{BSIMCMG:Manual}, available from
 the BSIM web site at \url{http://bsim.berkeley.edu/models/bsimcmg/}.
 
+Note that the TNOIMOD=1 option of BSIM-CMG 108 is not supported in
+Xyce, as it uses features of Verilog-A that are not supported in our
+Verilog-A compiler.  This noise model was added in version 108 and
+removed in version 109.  The TNOIMOD=2 option of BSIM-CMG 108 is the
+same as the TNOIMOD=1 option of BSIM-CMG 110.
+
 \input{M_107_Device_Instance_Params}
 \input{M_107_Device_Model_Params}
+
+\input{M_108_Device_Instance_Params}
+\input{M_108_Device_Model_Params}
 
 
 \clearpage

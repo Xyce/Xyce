@@ -254,7 +254,7 @@ void CktGraphBasic::returnAdjGIDsWithGround( int gid,
 }
 
 //-----------------------------------------------------------------------------
-// Function      : CktGraphBasic::returnAdjGIDs
+// Function      : CktGraphBasic::numAdjNodes
 // Purpose       : 
 // Special Notes :
 // Scope         : public
@@ -278,6 +278,28 @@ int CktGraphBasic::numAdjNodes( int gid )
         count++;
     }
   }
+  return count;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : CktGraphBasic::numAdjNodesWithGround
+// Purpose       : This also counts the ground node as an adjacent node
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/7/2020
+//-----------------------------------------------------------------------------
+int CktGraphBasic::numAdjNodesWithGround( int gid )
+{
+  int count = 0;
+
+  unordered_map<int,int>::iterator it = gIDtoIndex_.find( gid );
+  if ( it != gIDtoIndex_.end() )
+  {
+    const std::vector<int>& adjIndices = cktgph_.getAdjacentRow( it->second );
+    count = adjIndices.size();
+  }
+
   return count;
 }
 

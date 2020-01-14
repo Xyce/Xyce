@@ -120,8 +120,11 @@ public:
   // Returns adj GIDs to the given GID, including ground
   void returnAdjGIDsWithGround( int gid, std::vector<int>& adj_gids );
   
-  // Reutrns number of adj gids
-  int numAdjNodes( int gid ); 
+  // Returns number of adj gids
+  int numAdjNodes( int gid );
+
+  // Returns number of adj gids, including ground node
+  int numAdjNodesWithGround( int gid );
 
   // Redo global index node map
   void regenerateGIDNodeMap();

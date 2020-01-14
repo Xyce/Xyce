@@ -311,6 +311,121 @@ int xyce_getDACDeviceNames(void ** ptr, int* numDevNames, char ** deviceNames)
 }
 
 //-----------------------------------------------------------------------------
+// Function      : xyce_checkDeviceParamName
+// Purpose       : Call the Xyce::Circuit::Simulator::checkDeviceParamName function
+//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 to create that pointer with the xyce_open() function, and to
+//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 function before using this function.  The full_param_name
+//                 should be identical to that used on a .PRINT line; so X1:R1:R
+//                 for the resistance (R) of device R1 that is in subcircuit X1.
+//                 This function returns 1 if full_param__name is a valid
+//                 parameter for a device that exists in the netlist. It returns
+//                 0, otherwise.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 12/18/2019
+//-----------------------------------------------------------------------------
+int xyce_checkDeviceParamName(void **ptr, char* full_param_name)
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  std::string full_param_nameStr( full_param_name);
+  int result = xycePtr->checkDeviceParamName( full_param_nameStr );
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_getDeviceParamVal
+// Purpose       : Call the Xyce::Circuit::Simulator::getDeviceParamVal function
+//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 to create that pointer with the xyce_open() function, and to
+//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 function before using this function.  The full_param_name
+//                 should be identical to that used on a .PRINT line; so X1:R1:R
+//                 for the resistance (R) of device R1 that is in subcircuit X1.
+//                 This function returns 1 if full_param__name is a valid
+//                 parameter for a device that exists in the netlist. It returns
+//                 0, otherwise. For a return value of 0, the value parameter is
+//                 also set to 0.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 12/18/2019
+//-----------------------------------------------------------------------------
+int xyce_getDeviceParamVal(void **ptr, char* full_param_name, double* value)
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  std::string full_param_nameStr( full_param_name);
+  double pVal;
+  int result = xycePtr->getDeviceParamVal( full_param_nameStr, pVal );
+  *value = pVal;
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_getNumAdjNodesForDevice
+// Purpose       : Call the Xyce::Circuit::Simulator::getNumAdjNodesForDevice function
+//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 to create that pointer with the xyce_open() function, and to
+//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 function before using this function.  The device name should be
+//                 fully-qualified; so X1:R1 for device R1 in subcircuit X1.
+//                 This function returns 1 if the device that exists in the netlist.
+//                 It returns 0, otherwise. For a return value of 0, the numAdjNodes
+//                 parameter is also set to 0.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/7/2020
+//-----------------------------------------------------------------------------
+int xyce_getNumAdjNodesForDevice(void **ptr, char * deviceName, int* numAdjNodes)
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  std::string deviceName_str(deviceName);
+  int mNumAdjNodes;
+
+  int result = xycePtr->getNumAdjNodesForDevice(deviceName_str, mNumAdjNodes);
+  *numAdjNodes = mNumAdjNodes;
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : xyce_getAdjGIDsForDevice
+// Purpose       : Call the Xyce::Circuit::Simulator::getAdjGIDsForDevice function
+//                 via a pointer to an N_CIR_Xyce object.  A typical use case is
+//                 to create that pointer with the xyce_open() function, and to
+//                 then initialize the N_CIR_Xyce object with the xyce_initialize()
+//                 function before using this function.  The device name should be
+//                 fully-qualified; so X1:R1 for device R1 in subcircuit X1.
+//                 This function returns 1 if the device that exists in the netlist.
+//                 It returns 0, otherwise. For a return value of 0, the adjGID
+//                 parameter is empty.
+// Special Notes : The GID of the ground node is -1.  The other GIDs are
+//                 non-negative integers.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/7/2020
+//-----------------------------------------------------------------------------
+int xyce_getAdjGIDsForDevice(void **ptr, char * deviceName, int* numAdjNodes, int* adjGIDs)
+{
+  N_CIR_Xyce * xycePtr = static_cast<N_CIR_Xyce *>( *ptr );
+  std::string deviceName_str(deviceName);
+  std::vector<int> gids;
+
+  int result = xycePtr->getAdjGIDsForDevice(deviceName_str, gids);
+  *numAdjNodes = gids.size();
+
+  for( int i=0; i<gids.size(); i++ )
+  {
+    adjGIDs[i] = gids[i];
+  }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : xyce_getADCmap
 // Purpose       : Call the Xyce::Circuit::Simulator::getADCMap function via
 //                 a pointer to an N_CIR_Xyce object. A typical use case is to

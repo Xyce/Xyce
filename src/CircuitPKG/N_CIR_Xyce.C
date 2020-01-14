@@ -115,11 +115,14 @@
 #include <N_TIA_WorkingIntegrationMethod.h>
 
 #include <N_TOP_Topology.h>
+#include <N_TOP_CktNode.h>
 
+#include <N_UTL_Algorithm.h>
 #include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_Misc.h>
 #include <N_UTL_Timer.h>
 #include <N_UTL_Expression.h>
+#include <N_UTL_ExtendedString.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_LogStream.h>
 #include <N_UTL_PrintStats.h>
@@ -1253,6 +1256,121 @@ bool Simulator::getAllDeviceNames(std::vector<std::string> &deviceNames)
     deviceNames.push_back((*it)->getName().getEncodedName());
   }
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::checkDeviceParamName
+// Purpose       : check if the specified parameter name (e.g., X1:R1:R) is
+//                 a valid parameter for a device that exists in the netlist.
+// Special Notes : This function will return false if the device or parameter
+//                 does not exist.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 12/18/2019
+//-----------------------------------------------------------------------------
+bool Simulator::checkDeviceParamName(const std::string full_param_name) const
+{
+  Device::DeviceEntity *device_entity = deviceManager_->getDeviceEntity(full_param_name);
+  if (!device_entity)
+  {
+    Report::UserWarning0() << "Device entity not found for " << full_param_name << std::endl;
+    return false;
+  }
+
+  if ( !device_entity->findParam(Util::paramNameFromFullParamName(full_param_name)) )
+  {
+    Report::UserWarning0() << "Device parameter not found for " << full_param_name << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::getDeviceParamVal
+// Purpose       : get the value of a specified device parameter.
+// Special Notes : This function will return false if the device or parameter
+//                 does not exist.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 12/11/2019
+//-----------------------------------------------------------------------------
+bool Simulator::getDeviceParamVal(const std::string full_param_name, double& val) const
+{
+  Device::DeviceEntity *device_entity = deviceManager_->getDeviceEntity(full_param_name);
+  if (!device_entity)
+  {
+    Report::UserWarning0() << "Device entity not found for " << full_param_name << std::endl;
+    return false;
+  }
+
+  if ( !device_entity->getParam(Util::paramNameFromFullParamName(full_param_name), val) )
+  {
+    Report::UserWarning0() << "Device parameter not found for " << full_param_name << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::getNumAdjNodesForDevice
+// Purpose       : get the number of the nodes that are adjacent to a specified
+//                 device, including the ground node
+// Special Notes : This function will return false if the device does not exist.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/7/2020
+//-----------------------------------------------------------------------------
+bool Simulator::getNumAdjNodesForDevice(const std::string deviceName, int& numAdjNodes) const
+{
+  bool retVal = true;
+  ExtendedString deviceNameUC(deviceName);
+  deviceNameUC.toUpper();
+  const Topo::CktNode * cNodePtr = topology_->findCktNode(NodeID(deviceNameUC, Xyce::_DNODE));
+
+  if (cNodePtr == 0)
+  {
+    Report::UserWarning0() << "Device " << deviceName << " not found" << std::endl;
+    numAdjNodes = 0;
+    retVal = false;
+  }
+  else
+  {
+    numAdjNodes = topology_->numAdjNodesWithGround(cNodePtr->get_gID());
+  }
+
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Simulator::getAdjGIDsForDevice
+// Purpose       : get the GIDs of the nodes that are adjacent to a specified
+//                 device, including the ground node (GID of -1).  The other
+//                 GIDs are non-negative integers.
+// Special Notes : This function will return false if the device does not exist.
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/7/2020
+//-----------------------------------------------------------------------------
+bool Simulator::getAdjGIDsForDevice(const std::string deviceName, std::vector<int> & adj_GIDs) const
+{
+  bool retVal = true;
+  ExtendedString deviceNameUC(deviceName);
+  deviceNameUC.toUpper();
+  const Topo::CktNode * cNodePtr = topology_->findCktNode(NodeID(deviceNameUC, Xyce::_DNODE));
+
+  if (cNodePtr == 0)
+  {
+    Report::UserWarning0() << "Device " << deviceName << " not found" << std::endl;
+    retVal = false;
+  }
+  else
+  {
+    topology_->returnAdjGIDsWithGround(cNodePtr->get_gID(), adj_GIDs);
+  }
+
+  return retVal;
 }
 
 //----------------------------------------------------------------------------

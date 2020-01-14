@@ -1533,6 +1533,49 @@ bool getLandW (
 }
 
 //-----------------------------------------------------------------------------
+// Function       : getLandNFIN
+// Purpose        : 
+// Special Notes  : Added to support model binning
+// Scope          :
+// Creator        : Eric R. Keiter
+// Creation Date  : 10/2/2018
+//-----------------------------------------------------------------------------
+bool getLandNFIN (
+  const TokenVector & parsedInputLine,
+  CircuitContext & circuitContext_, 
+  double & L,
+  double & NFIN
+    )
+{
+  size_t model_search_begin_index = 1;
+  size_t model_search_end_index = parsedInputLine.size();
+
+  bool LNFINfound=false, foundL=false, foundNFIN=false;
+  for (size_t LNFINsearchFieldno = model_search_begin_index; LNFINsearchFieldno < model_search_end_index; ++LNFINsearchFieldno )
+  {
+    std::string tmp = parsedInputLine[LNFINsearchFieldno].string_;
+    Util::toUpper(tmp);
+    if (tmp == "L" && LNFINsearchFieldno+2<model_search_end_index)
+    {
+      Device::Param par(std::string("L"), parsedInputLine[LNFINsearchFieldno+2].string_);
+      foundL = circuitContext_.fullyResolveParam(par,L);
+    }
+    if (tmp == "NFIN" && LNFINsearchFieldno+2<model_search_end_index)
+    {
+      Device::Param par(std::string("NFIN"), parsedInputLine[LNFINsearchFieldno+2].string_);
+      foundNFIN = circuitContext_.fullyResolveParam(par,NFIN);
+    }
+  }
+
+  if ( foundL && foundNFIN )
+  { 
+    LNFINfound=true;
+  }
+
+  return LNFINfound;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : DeviceBlock::extractModelName
 // Purpose       : Check parsedLine for existance of model name. If a model
 //                 name exists, set its position in parsedLine and the device
@@ -1566,10 +1609,12 @@ DeviceBlock::extractModelName(
 
   // Model Binning stuff:
   bool LWfound=false;
-  double L = 0.0, W = 0.0;
+  bool LNFINfound=false;
+  double L = 0.0, W = 0.0, NFIN=0.0;
   if (modelBinning && device_type == "M")
   {
     LWfound = getLandW (parsedInputLine, circuitContext_, L, W);
+    LNFINfound = getLandNFIN (parsedInputLine, circuitContext_, L, NFIN);
   }
 
   for (size_t fieldno = model_search_begin_index; fieldno < model_search_end_index; ++fieldno )
@@ -1593,12 +1638,12 @@ DeviceBlock::extractModelName(
     // Model Binning stuff:
     std::string final_model_name = model_name;
     bool foundTheBinnedModel = false;
-    if ( modelBinning && !foundTheModel && LWfound)
+    if ( modelBinning && !foundTheModel && (LWfound || LNFINfound))
     {
       if (device_type == "M")
       {
         std::string binNumber;
-        foundTheBinnedModel = circuitContext_.findBinnedModel(model_name, modelPtr, L, W, binNumber);
+        foundTheBinnedModel = circuitContext_.findBinnedModel(model_name, modelPtr, LWfound, LNFINfound, L, W, NFIN, binNumber);
         final_model_name = model_name + "." + binNumber;
       }
     }
