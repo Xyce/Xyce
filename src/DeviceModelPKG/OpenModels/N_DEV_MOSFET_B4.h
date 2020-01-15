@@ -917,9 +917,9 @@ private:
   double IgateMid;  // used by rgateMod= 3 only
 
   // gate model voltage drops:
-  double Vgegp, Vgegp_orig;
-  double Vgegm, Vgegm_orig;
-  double Vgmgp, Vgmgp_orig;
+  double Vgegp;
+  double Vgegm;
+  double Vgmgp;
 
   // state variables, intrinsic capacitors
   double qb;

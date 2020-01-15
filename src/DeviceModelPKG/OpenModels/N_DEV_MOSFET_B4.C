@@ -5165,9 +5165,9 @@ Instance::Instance(
 
     Igate(0.0),
     IgateMid(0.0),
-    Vgegp(0.0), Vgegp_orig(0.0),
-    Vgegm(0.0), Vgegm_orig(0.0),
-    Vgmgp(0.0), Vgmgp_orig(0.0),
+    Vgegp(0.0),
+    Vgegm(0.0),
+    Vgmgp(0.0),
 
     qb                (0.0),
     qg                (0.0),
@@ -8895,10 +8895,8 @@ bool Instance::updateIntermediateVars ()
   vbs_jct = (!rbodyMod) ? vbs : vsbs;
   vbd_jct = (!rbodyMod) ? vbd : vdbd;
 
-  // Set up the linear resistors.  Use type to "un-type" them:
-  //  Vgegp = model_.dtype *(vges-vgs);
-  //  Vgegm = model_.dtype *(vges-vgms);
-  //  Vgmgp = Vgegp-Vgegm;
+  // Set up the linear resistors.  We need the exact drops, not munged by
+  // type.
   Vgegp = Vge - Vgp;
   Vgegm = Vge - Vgm;
   Vgmgp = Vgm - Vgp;
@@ -8923,10 +8921,6 @@ bool Instance::updateIntermediateVars ()
   vbd_jct_orig = vbd_jct;
   vgmb_orig = vgmb;
   vgb_orig = vgb;
-
-  Vgegp_orig = Vgegp;
-  Vgegm_orig = Vgegm;
-  Vgmgp_orig = Vgmgp;
 
   // What follows is a block of code designed to impose some  limits,
   //  or initial conditions on the junction voltages.  Initial conditions
@@ -9128,6 +9122,8 @@ bool Instance::updateIntermediateVars ()
         {
          vges = devSupport.fetlim(vges, vges_old, von_local);
          vgms = devSupport.fetlim(vgms, vgms_old, von_local);
+         vged = vges - vds;
+         vgmd - vgms - vds;
         }
         else if ((rgateMod == 1) || (rgateMod == 2))
         {
