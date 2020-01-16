@@ -9123,7 +9123,7 @@ bool Instance::updateIntermediateVars ()
          vges = devSupport.fetlim(vges, vges_old, von_local);
          vgms = devSupport.fetlim(vgms, vgms_old, von_local);
          vged = vges - vds;
-         vgmd - vgms - vds;
+         vgmd = vgms - vds;
         }
         else if ((rgateMod == 1) || (rgateMod == 2))
         {
