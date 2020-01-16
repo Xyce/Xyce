@@ -40,6 +40,29 @@
 %\\ \hline
 %
 %
+\textbf{1262-SON}: Duplicate L device definitions are not a parsing error
+when one of the duplicate L devices is part of a K device &
+As an example, this netlist will not produce a parsing error.  Instead,
+the first L1 definition will be used in the K1 device definition.
+\begin{verbatim}
+* parsing fails to detect duplicate L1 devices
+V1 1 0 SIN(0 1 1KHz)
+L1 1 2 1e-3
+R1 2 0 1
+C1 2 0 1e-9
+* mutual inductor definition, with duplicate L1 device
+L1 4 0 1e-6
+L2 3 0 1mH
+K1 L1 L2 0.75
+.TRAN 0 1ms
+.PRINT TRAN V(1) v(2)
+.END
+\end{verbatim}
+
+\textbf{\textit{Workaround}}:
+There is none.
+\\ \hline
+
 \textbf{1241-SON}: Expression library parsing bottleneck on large expressions &
 It has been determined that the expression library in Xyce can be the
 source of a severe parsing bottleneck when expressions are large and
