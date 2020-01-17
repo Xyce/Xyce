@@ -959,7 +959,6 @@ private:
   int li_store_vdbd;
   int li_store_vged;
   int li_store_vgmd;
-  int li_store_von;
 
   // internal output vars, including transconductance:
   int li_store_gm;

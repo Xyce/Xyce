@@ -4596,7 +4596,7 @@ bool Instance::processParams ()
 
   // set up numStateVars
   numStateVars = 3;
-  setNumStoreVars(23);
+  setNumStoreVars(22);
 
   if (rgateMod == 3)
   {
@@ -5196,7 +5196,6 @@ Instance::Instance(
     li_store_vdbd(-1),
     li_store_vged(-1),
     li_store_vgmd(-1),
-    li_store_von (-1),
     li_store_gm  (-1),
     li_store_Vds     (-1),
     li_store_Vgs     (-1),
@@ -6152,7 +6151,6 @@ void Instance::registerStoreLIDs( const std::vector<int> & stoLIDVecRef )
   li_store_vdbd = stoLIDVec[lid++];
   li_store_vged = stoLIDVec[lid++];
   li_store_vgmd = stoLIDVec[lid++];
-  li_store_von  = stoLIDVec[lid++];
 
   // transconductance, and other outputs:
   li_store_gm    = stoLIDVec[lid++];
@@ -9009,7 +9007,6 @@ bool Instance::updateIntermediateVars ()
       vdbd_old = (extData.currStoVectorRawPtr)[li_store_vdbd];
       vged_old = (extData.currStoVectorRawPtr)[li_store_vged];
       vgmd_old = (extData.currStoVectorRawPtr)[li_store_vgmd];
-      von_local = (extData.currStoVectorRawPtr)[li_store_von];
     }
     else
     {  // no history
@@ -9026,7 +9023,6 @@ bool Instance::updateIntermediateVars ()
       vdbd_old = vdbd;
       vged_old = vged;
       vgmd_old = vgmd;
-      von_local = 0.0;
     }
   }
   else
@@ -9044,7 +9040,6 @@ bool Instance::updateIntermediateVars ()
     vdbd_old = (extData.nextStoVectorRawPtr)[li_store_vdbd];
     vged_old = (extData.nextStoVectorRawPtr)[li_store_vged];
     vgmd_old = (extData.nextStoVectorRawPtr)[li_store_vgmd];
-    von_local = (extData.nextStoVectorRawPtr)[li_store_von];
   }
 
   vgd_old = vgs_old - vds_old;
@@ -9060,7 +9055,6 @@ bool Instance::updateIntermediateVars ()
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
       Xyce::dout().width(21); Xyce::dout().precision(13); Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << "  von_local = " << von_local << std::endl;
       Xyce::dout() << "  CONSTvt0  = " << CONSTvt0 << std::endl;
       Xyce::dout() << "  vcrit     = " << model_.vcrit << std::endl;
       Xyce::dout().width(3);
@@ -9109,7 +9103,7 @@ bool Instance::updateIntermediateVars ()
     // only do this if we are beyond the first Newton iteration.  On the
     // first newton iteration, the "old" values are from a previous time
     // step.
-
+    von_local=von;
     if (getSolverState().newtonIter >= 0 && !(getSolverState().initJctFlag_))
     {
       if (vds_old >= 0.0)
@@ -12800,7 +12794,6 @@ bool Instance::updatePrimaryState ()
   stoVec[li_store_vdbs] = vdbs;
   stoVec[li_store_vsbs] = vsbs;
   stoVec[li_store_vdbd] = vdbd;
-  stoVec[li_store_von] = von;
 
   // transconductance:
   if (mode >= 0)
@@ -17182,7 +17175,6 @@ bool Master::updateState (double * solVec, double * staVec, double * stoVec)
     stoVec[mi.li_store_vdbs] = mi.vdbs;
     stoVec[mi.li_store_vsbs] = mi.vsbs;
     stoVec[mi.li_store_vdbd] = mi.vdbd;
-    stoVec[mi.li_store_von] = mi.von;
 
     // transconductance:
     if (mi.mode >= 0)
