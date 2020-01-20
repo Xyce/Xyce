@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 08 Jan 2020 13:35:23
+// Creation Date  : Mon, 20 Jan 2020 12:01:45
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_108_h
@@ -245,6 +245,10 @@ AdmsSensFadType & instancePar_LRSD,
 bool instancePar_given_LRSD,
 AdmsSensFadType & instancePar_m,
 bool instancePar_given_m,
+AdmsSensFadType & instancePar_DELVTRAND,
+bool instancePar_given_DELVTRAND,
+AdmsSensFadType & instancePar_U0MULT,
+bool instancePar_given_U0MULT,
 // non-reals(including hidden)
 int instancePar_NF,
 bool instancePar_given_NF,
@@ -2695,6 +2699,10 @@ AdmsSensFadType & instancePar_LRSD,
 bool instancePar_given_LRSD,
 AdmsSensFadType & instancePar_m,
 bool instancePar_given_m,
+AdmsSensFadType & instancePar_DELVTRAND,
+bool instancePar_given_DELVTRAND,
+AdmsSensFadType & instancePar_U0MULT,
+bool instancePar_given_U0MULT,
 // non-reals(including hidden)
 int instancePar_NF,
 bool instancePar_given_NF,
@@ -7275,6 +7283,8 @@ public:
     double NRD;
     double LRSD;
     double m;
+    double DELVTRAND;
+    double U0MULT;
     //  Variables of global_instance scope
     int initialized;
     int devsign;

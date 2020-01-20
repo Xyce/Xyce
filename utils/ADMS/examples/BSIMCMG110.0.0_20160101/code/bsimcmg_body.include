@@ -146,8 +146,8 @@ endfunction
 // Variability Handles
 `MPRnb( XL             ,0.0            ,"m"           ,"L offset for channel length due to mask/etch effect" ) 
 `MPRnb( DTEMP          ,0.0            ,"degC"     ,"Variability in device temperature" ) 
-`MPRnb( DELVTRAND      ,0.0            ,"V"           ,"Variability in Vth" ) 
-`MPRcz( U0MULT         ,1.0            ,""            ,"Variability in carrier mobility" ) 
+`MPRnb_BOTH( DELVTRAND      ,0.0            ,"V"           ,"Variability in Vth" ) 
+`MPRcz_BOTH( U0MULT         ,1.0            ,""            ,"Variability in carrier mobility" ) 
 `MPRcz( IDS0MULT       ,1.0            ,""            ,"Variability in drain current for miscellaneous reasons" ) 
 
 // ************************

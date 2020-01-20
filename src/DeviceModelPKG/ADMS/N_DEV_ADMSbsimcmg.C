@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 08 Jan 2020 12:17:09
+// Creation Date  : Mon, 20 Jan 2020 12:03:25
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -545,6 +545,20 @@ Traits::loadInstanceParameters(ParametricData<ADMSbsimcmg::Instance> &p)
 ;
   p.addPar("LRSD", 0.0, &ADMSbsimcmg::Instance::LRSD)
     .setDescription("Length of the source/drain")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&instSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("DELVTRAND", static_cast<double>(0), &ADMSbsimcmg::Instance::DELVTRAND)
+    .setDescription("Variability in Vth")
+#ifdef Xyce_ADMS_SENSITIVITIES
+    .setAnalyticSensitivityAvailable(true)
+    .setSensitivityFunctor(&instSens)
+#endif // Xyce_ADMS_SENSITIVITIES
+;
+  p.addPar("U0MULT", static_cast<double>(1), &ADMSbsimcmg::Instance::U0MULT)
+    .setDescription("Variability in carrier mobility")
 #ifdef Xyce_ADMS_SENSITIVITIES
     .setAnalyticSensitivityAvailable(true)
     .setSensitivityFunctor(&instSens)
@@ -6391,6 +6405,14 @@ bool Instance::processParams()
    {
       LRSD = model_.LRSD;
    }
+   if (!(given("DELVTRAND")))
+   {
+      DELVTRAND = model_.DELVTRAND;
+   }
+   if (!(given("U0MULT")))
+   {
+      U0MULT = model_.U0MULT;
+   }
 
 
 
@@ -6541,6 +6563,12 @@ bool Instance::processParams()
     UserWarning(*this) << "ADMSbsimcmg: Parameter LRSD value " << LRSD << " out of range ] 0,  (+inf) [";
   }
 
+//    Parameter U0MULT : [ 0,  (+inf) [
+  if ( (!((U0MULT >=0))) )
+  {
+    UserWarning(*this) << "ADMSbsimcmg: Parameter U0MULT value " << U0MULT << " out of range [ 0,  (+inf) [";
+  }
+
 
   // this seems a little stupid, but verilog models that use $temperature
   // don't also use a defined parameter "Temp", and count on $temperature
@@ -6593,6 +6621,8 @@ Instance::Instance(
     NRS(0.0),
     NRD(0.0),
     LRSD(0.0),
+    DELVTRAND(0),
+    U0MULT(1),
     li_d(-1),
     li_g(-1),
     li_s(-1),
@@ -11781,7 +11811,7 @@ T0 = (-(dvch_qm+(nVtm*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((b
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_g_e =  0.0;
 d_T1_dV_di_si = (d_vgsfb_dV_di_si+d_T0_dV_di_si);
 d_T1_dV_g_si = (d_vgsfb_dV_g_si+d_T0_dV_g_si);
-T1 = ((vgsfb+T0)+(model_.DELVTRAND));
+T1 = ((vgsfb+T0)+DELVTRAND);
 {
 AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(T1,1.0E-4);
 
@@ -11803,7 +11833,7 @@ T0 = (-(dvch_qm+(nVtm*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((b
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_g_e =  0.0;
 d_T1_dV_di_si = ((d_vgsfb_dV_di_si+d_T0_dV_di_si)+((phib*d_nVtm_dV_di_si)/Vtm));
 d_T1_dV_g_si = (d_vgsfb_dV_g_si+d_T0_dV_g_si);
-T1 = ((((vgsfb+(model_.DELVTRAND))+T0)+(0.5*Eg))+((phib*nVtm)/Vtm));
+T1 = ((((vgsfb+DELVTRAND)+T0)+(0.5*Eg))+((phib*nVtm)/Vtm));
 {
 AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0(T1,1.0E-4);
 
@@ -13699,12 +13729,12 @@ d_Dmobs_dV_g_si = d_T3_dV_g_si;
 d_Dmobs_dV_g_e = d_T3_dV_g_e;
 Dmobs = (1.0+T3);
 
-d_Dmobs_dV_di_si = (d_Dmobs_dV_di_si/(model_.U0MULT));
-d_Dmobs_dV_e_di = (d_Dmobs_dV_e_di/(model_.U0MULT));
-d_Dmobs_dV_e_si = (d_Dmobs_dV_e_si/(model_.U0MULT));
-d_Dmobs_dV_g_si = (d_Dmobs_dV_g_si/(model_.U0MULT));
-d_Dmobs_dV_g_e = (d_Dmobs_dV_g_e/(model_.U0MULT));
-Dmobs = (Dmobs/(model_.U0MULT));
+d_Dmobs_dV_di_si = (d_Dmobs_dV_di_si/U0MULT);
+d_Dmobs_dV_e_di = (d_Dmobs_dV_e_di/U0MULT);
+d_Dmobs_dV_e_si = (d_Dmobs_dV_e_si/U0MULT);
+d_Dmobs_dV_g_si = (d_Dmobs_dV_g_si/U0MULT);
+d_Dmobs_dV_g_e = (d_Dmobs_dV_g_e/U0MULT);
+Dmobs = (Dmobs/U0MULT);
 if (((model_.RDSMOD)!=0))
 {
 
@@ -15377,12 +15407,12 @@ d_Dmob_dV_g_si = d_T3_dV_g_si;
 d_Dmob_dV_g_e = d_T3_dV_g_e;
 Dmob = (1.0+T3);
 
-d_Dmob_dV_di_si = (d_Dmob_dV_di_si/(model_.U0MULT));
-d_Dmob_dV_e_di = (d_Dmob_dV_e_di/(model_.U0MULT));
-d_Dmob_dV_e_si = (d_Dmob_dV_e_si/(model_.U0MULT));
-d_Dmob_dV_g_si = (d_Dmob_dV_g_si/(model_.U0MULT));
-d_Dmob_dV_g_e = (d_Dmob_dV_g_e/(model_.U0MULT));
-Dmob = (Dmob/(model_.U0MULT));
+d_Dmob_dV_di_si = (d_Dmob_dV_di_si/U0MULT);
+d_Dmob_dV_e_di = (d_Dmob_dV_e_di/U0MULT);
+d_Dmob_dV_e_si = (d_Dmob_dV_e_si/U0MULT);
+d_Dmob_dV_g_si = (d_Dmob_dV_g_si/U0MULT);
+d_Dmob_dV_g_e = (d_Dmob_dV_g_e/U0MULT);
+Dmob = (Dmob/U0MULT);
 
 d_ueff_dV_di_si = (-u0*d_Dmob_dV_di_si/Dmob/Dmob);
 d_ueff_dV_e_di = (-u0*d_Dmob_dV_e_di/Dmob/Dmob);
@@ -15419,12 +15449,12 @@ d_Dmob_cv_dV_g_si = d_T3_dV_g_si;
 d_Dmob_cv_dV_g_e = d_T3_dV_g_e;
 Dmob_cv = (1.0+T3);
 
-d_Dmob_cv_dV_di_si = (d_Dmob_cv_dV_di_si/(model_.U0MULT));
-d_Dmob_cv_dV_e_di = (d_Dmob_cv_dV_e_di/(model_.U0MULT));
-d_Dmob_cv_dV_e_si = (d_Dmob_cv_dV_e_si/(model_.U0MULT));
-d_Dmob_cv_dV_g_si = (d_Dmob_cv_dV_g_si/(model_.U0MULT));
-d_Dmob_cv_dV_g_e = (d_Dmob_cv_dV_g_e/(model_.U0MULT));
-Dmob_cv = (Dmob_cv/(model_.U0MULT));
+d_Dmob_cv_dV_di_si = (d_Dmob_cv_dV_di_si/U0MULT);
+d_Dmob_cv_dV_e_di = (d_Dmob_cv_dV_e_di/U0MULT);
+d_Dmob_cv_dV_e_si = (d_Dmob_cv_dV_e_si/U0MULT);
+d_Dmob_cv_dV_g_si = (d_Dmob_cv_dV_g_si/U0MULT);
+d_Dmob_cv_dV_g_e = (d_Dmob_cv_dV_g_e/U0MULT);
+Dmob_cv = (Dmob_cv/U0MULT);
 tmp = (((DROUT_i*Leff)/scl)+1.0e-6);
 if ((tmp<40.0))
 {
@@ -24434,6 +24464,8 @@ std::ostream &Model::printOutInstances(std::ostream &os) const
       os << "NRS  =  " << (*iter)->NRS << std::endl;
       os << "NRD  =  " << (*iter)->NRD << std::endl;
       os << "LRSD  =  " << (*iter)->LRSD << std::endl;
+      os << "DELVTRAND  =  " << (*iter)->DELVTRAND << std::endl;
+      os << "U0MULT  =  " << (*iter)->U0MULT << std::endl;
     os << std::endl;
   }
 
@@ -24536,6 +24568,10 @@ AdmsSensFadType & instancePar_NRD,
 bool instancePar_given_NRD,
 AdmsSensFadType & instancePar_LRSD,
 bool instancePar_given_LRSD,
+AdmsSensFadType & instancePar_DELVTRAND,
+bool instancePar_given_DELVTRAND,
+AdmsSensFadType & instancePar_U0MULT,
+bool instancePar_given_U0MULT,
 // non-reals(including hidden)
 int instancePar_NGCON,
 bool instancePar_given_NGCON,
@@ -28281,6 +28317,10 @@ AdmsSensFadType & instancePar_NRD,
 bool instancePar_given_NRD,
 AdmsSensFadType & instancePar_LRSD,
 bool instancePar_given_LRSD,
+AdmsSensFadType & instancePar_DELVTRAND,
+bool instancePar_given_DELVTRAND,
+AdmsSensFadType & instancePar_U0MULT,
+bool instancePar_given_U0MULT,
 // non-reals(including hidden)
 int instancePar_NGCON,
 bool instancePar_given_NGCON,
@@ -32473,13 +32513,13 @@ vt0_acc = (((0.5*T0)-(Vtm*AnalogFunctions::lln<AdmsSensFadType>(((0.5*T0)/Vtm)))
 if ((modelPar_GEOMOD!=3))
 {
 T0 = (-(dvch_qm+(nVtm*AnalogFunctions::lln<AdmsSensFadType>((((2.0*cox)*modelPar_Imin)/((((beta0*nVtm)*1.60219e-19)*Nc)*instancePar_TFIN))))));
-T1 = ((vgsfb+T0)+modelPar_DELVTRAND);
+T1 = ((vgsfb+T0)+instancePar_DELVTRAND);
 vgsfbeff = (AnalogFunctions::hypsmooth<AdmsSensFadType>(T1,1.0E-4)-T0);
 }
 else
 {
 T0 = (-(dvch_qm+(nVtm*AnalogFunctions::lln<AdmsSensFadType>((((2.0*cox)*modelPar_Imin)/((((beta0*nVtm)*1.60219e-19)*ni)*R))))));
-T1 = ((((vgsfb+modelPar_DELVTRAND)+T0)+(0.5*Eg))+((phib*nVtm)/Vtm));
+T1 = ((((vgsfb+instancePar_DELVTRAND)+T0)+(0.5*Eg))+((phib*nVtm)/Vtm));
 vgsfbeff = ((AnalogFunctions::hypsmooth<AdmsSensFadType>(T1,1.0E-4)-T0)-vt0);
 }
 if (((modelPar_CAPMOD!=0)&&(modelPar_BULKMOD!=0)))
@@ -32945,7 +32985,7 @@ else
 T3 = ((UA_t*pow(fabs(Eeffs),EU_i))+(UD_t/T2));
 }
 Dmobs = (1.0+T3);
-Dmobs = (Dmobs/modelPar_U0MULT);
+Dmobs = (Dmobs/instancePar_U0MULT);
 if ((modelPar_RDSMOD!=0))
 {
 Rdss = 0.0;
@@ -33326,12 +33366,12 @@ else
 T3 = ((UA_t*pow(fabs(Eeffm),EU_i))+(UD_t/T2));
 }
 Dmob = (1.0+T3);
-Dmob = (Dmob/modelPar_U0MULT);
+Dmob = (Dmob/instancePar_U0MULT);
 ueff = (u0/Dmob);
 Eeffm_cv = (EeffFactor*(qba+(eta_mu_cv*qia2)));
 T3 = ((UA_t*pow(fabs(Eeffm_cv),EU_i))+(UD_t/T2));
 Dmob_cv = (1.0+T3);
-Dmob_cv = (Dmob_cv/modelPar_U0MULT);
+Dmob_cv = (Dmob_cv/instancePar_U0MULT);
 tmp = (((DROUT_i*Leff)/scl)+1.0e-6);
 if ((tmp<40.0))
 {
@@ -36735,6 +36775,12 @@ inParamMap["NRD"] = &instancePar_NRD;
 AdmsSensFadType instancePar_LRSD=in.LRSD;
 bool instancePar_given_LRSD=in.given("LRSD");
 inParamMap["LRSD"] = &instancePar_LRSD;
+AdmsSensFadType instancePar_DELVTRAND=in.DELVTRAND;
+bool instancePar_given_DELVTRAND=in.given("DELVTRAND");
+inParamMap["DELVTRAND"] = &instancePar_DELVTRAND;
+AdmsSensFadType instancePar_U0MULT=in.U0MULT;
+bool instancePar_given_U0MULT=in.given("U0MULT");
+inParamMap["U0MULT"] = &instancePar_U0MULT;
 
 
 // Copy all the real hidden instance params into fad types
@@ -36858,6 +36904,10 @@ instancePar_NRD,
 instancePar_given_NRD,
 instancePar_LRSD,
 instancePar_given_LRSD,
+instancePar_DELVTRAND,
+instancePar_given_DELVTRAND,
+instancePar_U0MULT,
+instancePar_given_U0MULT,
 // non-reals(including hidden)
  instancePar_NGCON,
 instancePar_given_NGCON,
@@ -41562,6 +41612,10 @@ AdmsSensFadType instancePar_NRD=in.NRD;
 bool instancePar_given_NRD=in.given("NRD");
 AdmsSensFadType instancePar_LRSD=in.LRSD;
 bool instancePar_given_LRSD=in.given("LRSD");
+AdmsSensFadType instancePar_DELVTRAND=in.DELVTRAND;
+bool instancePar_given_DELVTRAND=in.given("DELVTRAND");
+AdmsSensFadType instancePar_U0MULT=in.U0MULT;
+bool instancePar_given_U0MULT=in.given("U0MULT");
 
 
   // real hidden instance
@@ -41667,6 +41721,14 @@ bool instancePar_given_NGCON=in.given("NGCON");
    {
       instancePar_LRSD = modelPar_LRSD;
    }
+   if (!(in.given("DELVTRAND")))
+   {
+      instancePar_DELVTRAND = modelPar_DELVTRAND;
+   }
+   if (!(in.given("U0MULT")))
+   {
+      instancePar_U0MULT = modelPar_U0MULT;
+   }
 
 
   //make local copies of all instance vars
@@ -41769,6 +41831,10 @@ instancePar_NRD,
 instancePar_given_NRD,
 instancePar_LRSD,
 instancePar_given_LRSD,
+instancePar_DELVTRAND,
+instancePar_given_DELVTRAND,
+instancePar_U0MULT,
+instancePar_given_U0MULT,
 // non-reals(including hidden)
  instancePar_NGCON,
 instancePar_given_NGCON,
