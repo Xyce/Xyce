@@ -1176,6 +1176,7 @@ extractMEASUREData(
   typeSetTran.insert( std::string("FOUR") );
 
   // allowed types for the AC mode
+  typeSetAc.insert( std::string("AVG") );
   typeSetAc.insert( std::string("ERROR") );
   typeSetAc.insert( std::string("EQN") );
   typeSetAc.insert( std::string("MAX") );
@@ -1184,6 +1185,7 @@ extractMEASUREData(
   typeSetAc.insert( std::string("PP") );
 
   // allowed types for the DC mode
+  typeSetDc.insert( std::string("AVG") );
   typeSetDc.insert( std::string("ERROR") );
   typeSetDc.insert( std::string("EQN") );
   typeSetDc.insert( std::string("MAX") );

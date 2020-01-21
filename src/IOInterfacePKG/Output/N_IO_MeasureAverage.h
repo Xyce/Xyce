@@ -92,7 +92,7 @@ private:
   int numOutVars_;
   std::vector<double> outVarValues_;
   double averageValue_;
-  double lastTimeValue_;
+  double lastIndepVarValue_;
   double lastSignalValue_;
   double totalAveragingWindow_;
 
