@@ -1,10 +1,10 @@
 ***********************************************************
 
-The following generic instructions that come with Automake and
-Autoconf, the method currently used to configure and build Xyce.  The
-file documents the features of the "configure" script that Autoconf
-creates .  This file is provided solely for completeness of the autoconf
-documentation.
+The following text contains generic instructions that come with
+Automake and Autoconf, the method currently used to configure and
+build Xyce.  The file documents the features of the "configure" script
+that Autoconf creates .  This file is provided solely for completeness
+of the autoconf documentation.
 
 They may be useful to advanced users, but they are NOT specific
 instructions for building Xyce.
