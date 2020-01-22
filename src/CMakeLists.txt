@@ -22,6 +22,8 @@ add_subdirectory(NonlinearSolverPKG)
 add_subdirectory(TimeIntegrationPKG)
 add_subdirectory(DakotaLinkPKG)
 add_subdirectory(MultiTimePDEPKG)
+add_subdirectory(test)
+
 # For debugging:
 #    message(STATUS "Xyce Source ${XYCE_SOURCES}")
 #    message(STATUS "Xyce Inc ${XYCE_INCLUDE_DIRECTORIES}")
