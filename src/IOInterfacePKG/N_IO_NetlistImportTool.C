@@ -1131,66 +1131,79 @@ checkNodeDevConflicts(
   Parallel::Machine comm = pds_comm.comm();
 
   int proc_size = Parallel::size(comm);
+  int proc_rank = Parallel::rank(comm);
 
   if (proc_size > 1)
   {
     int byteCount = 0;
 
     // Count the number of bytes needed to send this buffer.
-    for (unordered_set<std::string>::const_iterator it = device_names.begin(), end = device_names.end(); it != end; ++it)
+    if (proc_rank > 0)
     {
-      byteCount += sizeof(int) + (*it).size();
+      for (unordered_set<std::string>::const_iterator it = device_names.begin(), end = device_names.end(); it != end; ++it)
+      {
+        byteCount += sizeof(int) + (*it).size();
+      }
     }
 
     N_ERH_ErrorMgr::safeBarrier(comm);     // All procs call (5)
 
-    int maxByteCount;
+    int maxByteCount = 0;
     Parallel::AllReduce(comm, MPI_MAX, &byteCount, &maxByteCount, 1);
 
-    std::vector<char> sendBuffer(byteCount);
-    std::vector<char> recvBuffer(maxByteCount);
-    int pos = 0;
-    for (unordered_set<std::string>::const_iterator it = device_names.begin(), end = device_names.end(); it != end; ++it)
+    std::vector<char> sendBuffer, recvBuffer;
+    unordered_set<std::string> tmp_device_names;
+
+    if (proc_rank == 0)
     {
-      int length = (*it).size();
-      pds_comm.pack(&length, 1, &sendBuffer[0], byteCount, pos);
-      pds_comm.pack((*it).c_str(), length, &sendBuffer[0], byteCount, pos);
+      recvBuffer.resize(maxByteCount);
+      tmp_device_names = device_names;
     }
 
-    int proc_rank = Parallel::rank(comm);
-
-    int sendProc = proc_rank + 1;
-    int recvProc = proc_rank - 1;
-    if (sendProc == proc_size) sendProc = 0;
-    if (recvProc == -1) recvProc = proc_size - 1;
-
-    std::vector<std::string> deviceNames;
-    while (sendProc != proc_rank)
+    for (int proc = 1; proc < proc_size; ++proc)
     {
-      int bsize;
-      pds_comm.iRecv( &bsize, 1, recvProc );
-      pds_comm.send( &byteCount, 1, sendProc );
-      pds_comm.waitAll();
-      pds_comm.iRecv( &recvBuffer[0], bsize, recvProc );
-      pds_comm.send( &sendBuffer[0], byteCount, sendProc );
-      pds_comm.waitAll();
-      deviceNames.resize(0);
-      pos = 0;
-      while (pos < bsize)
+      int bsize = 0;
+      if (proc_rank == 0)
       {
-        int length = 0;
+        // Get the size of the buffer and then get the buffer.
+        pds_comm.recv( &bsize, 1, proc );
+        pds_comm.recv( &recvBuffer[0], bsize, proc ); 
 
-        pds_comm.unpack(&recvBuffer[0], bsize, pos, &length, 1);
-        deviceNames.push_back(std::string((&recvBuffer[0])+pos, length));
-        pos += length;
+        int pos = 0;
+        while (pos < bsize)
+        { 
+          int length = 0;
+          
+          pds_comm.unpack(&recvBuffer[0], bsize, pos, &length, 1);
+        
+          // find duplicates across procs
+          std::pair<unordered_set<std::string>::iterator, bool> result = tmp_device_names.insert(std::string((&recvBuffer[0])+pos, length));
+          if (!result.second)
+          {
+            Report::UserError() << "Duplicate device " << std::string((&recvBuffer[0])+pos, length);
+          }
+          pos += length;
+        }
       }
+      else if (proc_rank == proc) 
+      {
+        // Pack the buffer and send it
+        sendBuffer.resize(byteCount);
 
-      checkDeviceNames(device_names, deviceNames);
-      N_ERH_ErrorMgr::safeBarrier(comm);          // All procs call (5+N)
+        int pos = 0;
+        for (unordered_set<std::string>::const_iterator it = device_names.begin(), end = device_names.end(); it != end; ++it)
+        {
+          int length = (*it).size();
+          pds_comm.pack(&length, 1, &sendBuffer[0], byteCount, pos);
+          pds_comm.pack((*it).c_str(), length, &sendBuffer[0], byteCount, pos);
+        }
 
-      if (++sendProc == proc_size) sendProc = 0;
-      if (--recvProc == -1) recvProc = proc_size - 1;
+        pds_comm.send( &byteCount, 1, 0 );
+        pds_comm.send( &sendBuffer[0], byteCount, 0 );
+      }
     }
+
+    N_ERH_ErrorMgr::safeBarrier(comm);          // All procs call (5+N)
   }
 }
 
@@ -1327,28 +1340,6 @@ void getWildCardLeadCurrentDevices(
     {
       Xyce::dout() << *currentDeviceNameItr << "  ";
       currentDeviceNameItr++;
-    }
-  }
-}
-
-//----------------------------------------------------------------------------
-// Function       : CircuitBlock::checkDeviceNames
-// Purpose        : checks a vector of device names against the local device names
-// Special Notes  :
-// Scope          : public
-// Creator        : Dave Shirley, PSSI
-// Creation Date  : 01/20/2006
-//----------------------------------------------------------------------------
-void checkDeviceNames(const unordered_set<std::string> & device_names, const std::vector<std::string> & names)
-{
-  for (std::vector<std::string>::const_iterator nName = names.begin(); nName != names.end(); ++nName)
-  {
-   // find duplicates across procs
-    unordered_set<std::string>::const_iterator it = device_names.find(*nName);
-
-    if (it != device_names.end())
-    {
-      Report::UserError() << "Duplicate device " << *nName;
     }
   }
 }
