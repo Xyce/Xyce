@@ -1,14 +1,21 @@
-Installing Xyce is largely an exercise in obtaining the various third party
-libraries required to build it.  Once this is done, one runs Xyce's configure
-script, possibly with options to help it find libraries and header files.
+***********************************************************
 
-The complete process is documented in the Xyce building guide, which may be
-found at https://xyce.sandia.gov/documentation/BuildingGuide.html
-This document should be read carefully before attempting to build Xyce.
+The following generic instructions that come with Automake and
+Autoconf, the method currently used to configure and build Xyce.  The
+file documents the features of the "configure" script that Autoconf
+creates .  This file is provided solely for completeness of the autoconf
+documentation.
 
-------------
-The following generic instructions that come with Automake and Autoconf may be
-useful, but not without first visiting the building guide as noted above.
+They may be useful to advanced users, but they are NOT specific
+instructions for building Xyce.
+
+Complete instructions for building Xyce are found in the Building
+Guide on the Xyce web site,
+https://xyce-d.sandia.gov/documentation/BuildingGuide.html Users
+interested in building Xyce should refer to that web page first, and
+only continue with this file for advanced questions about the
+operation of "configure".
+
 
 Installation Instructions
 *************************
