@@ -17,7 +17,7 @@ message(STATUS "Looking for required Trilinos packages - found")
 set( CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
 set( CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
 
-project(Xyce VERSION 7.0.0 LANGUAGES CXX C)
+project(Xyce VERSION 8.0.0 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

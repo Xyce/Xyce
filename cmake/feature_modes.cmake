@@ -14,6 +14,7 @@ set (HAVE_ISINF TRUE)
 
 # This should always be true, so why is it optional?
 set(Xyce_BELOS TRUE)
+set(Xyce_SPICE_NORMS TRUE)
 
 # For communicating the exact version of Xyce to the code
 set(Xyce_RELEASE                   FALSE CACHE BOOL "Set to TRUE to designate a release version")

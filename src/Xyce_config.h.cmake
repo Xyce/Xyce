@@ -13,6 +13,7 @@
 
 // This is required (so why is it ifdef'd?)
 #cmakedefine Xyce_BELOS
+#cmakedefine Xyce_SPICE_NORMS
 
 // Compile Xyce for MPI parallelism
 #cmakedefine Xyce_PARALLEL_MPI
