@@ -127,11 +127,6 @@ public:
     return currentFreq_;
   }
 
-  bool getSparcalc()
-  {
-    return sparcalc_;
-  }
-
   void setRFParamsRequested(const std::string & type);
 
   bool setACLinOptions(const Util::OptionBlock & OB);

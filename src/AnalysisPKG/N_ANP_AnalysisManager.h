@@ -192,8 +192,6 @@ public:
 
   bool getACFlag() const;
 
-  bool getACLinFlag() const;
-
   bool getNoiseFlag() const;
 
   bool getDCSweepFlag() const;
@@ -524,8 +522,6 @@ public:
   }
 
   double getCurrentFreq() const;
-
-  bool getSparcalc() const;
 
   void setRFParamsRequested(const std::string & type);
 

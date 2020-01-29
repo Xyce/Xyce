@@ -533,6 +533,13 @@ public:
     enableSparCalcFlag_ = value;
   }
 
+  // used to determine, for -r output and the .STEP case, whether a
+  // .LIN analysis is being done.
+  bool getEnableSparCalcFlag() const
+  {
+    return enableSparCalcFlag_;
+  }
+
   double getCircuitTime() const
   {
     return outputState_.circuitTime_;
