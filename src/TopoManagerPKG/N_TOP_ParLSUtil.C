@@ -61,6 +61,7 @@
 #include <N_UTL_Stats.h>
 #include <N_UTL_fwd.h>
 
+#include <Epetra_Util.h>
 #include <Teuchos_Utils.hpp>
 
 namespace Xyce {
@@ -1394,35 +1395,24 @@ bool ParLSUtil::setupSolnAndStateGIDs()
 void ParLSUtil::generateRowColData()
 {
   int procID = pdsManager_.getPDSComm()->procID();
-  int procCnt = pdsManager_.getPDSComm()->numProc();
 
   //--- add in dep soln var stuff
-  std::vector<unordered_set<int> > tmpVec(procCnt);
-
-  for( unsigned int i = 0; i < rowList_ExternGID_.size(); ++i )
-    if( rowList_ExternGID_[i].second  != procID )
-      tmpVec[ rowList_ExternGID_[i].second ].insert( rowList_ExternGID_[i].first );
-
-  std::map<int,int>::const_iterator iterIIM = topology_.getDepSolnGIDMap().begin();
-  std::map<int,int>::const_iterator endIIM = topology_.getDepSolnGIDMap().end();
-  for( ; iterIIM != endIIM; ++iterIIM )
+  if( !topology_.getDepSolnGIDMap().empty() )
   {
-    if( iterIIM->second != procID )
-      tmpVec[(*iterIIM).second].insert( (*iterIIM).first );  
-  }
+    std::map<int,int> tmpMap;
+    std::map<int,int>::const_iterator iterIIM = topology_.getDepSolnGIDMap().begin();
+    std::map<int,int>::const_iterator endIIM = topology_.getDepSolnGIDMap().end();
+    for( ; iterIIM != endIIM; ++iterIIM )
+      if( iterIIM->second != procID ) tmpMap.insert( *iterIIM );
 
-  //--- sort the GIDs based on the processor number (may be required by linear algebra) 
-  if ( rowList_ExternGID_.size() || !topology_.getDepSolnGIDMap().empty() )
-  {
-    rowList_ExternGID_.clear();
-    for (int proc=0; proc < procCnt; ++proc)
-    {
-      unordered_set<int>::iterator it_tV = tmpVec[proc].begin();
-      unordered_set<int>::iterator end_tV = tmpVec[proc].end();
+    for( unsigned int i = 0; i < rowList_ExternGID_.size(); ++i )
+      if( rowList_ExternGID_[i].second  != procID )
+        tmpMap.insert( rowList_ExternGID_[i] );
 
-      for ( ; it_tV != end_tV; ++it_tV )
-        rowList_ExternGID_.push_back( std::pair<int,int>( *it_tV, proc ) );
-    }
+    rowList_ExternGID_.resize( tmpMap.size() );
+    iterIIM = tmpMap.begin();
+    for( unsigned int i = 0; i < tmpMap.size(); ++iterIIM, ++i )
+      rowList_ExternGID_[i] = *iterIIM;
   }
 
   //--- set numLocalRows_, numLocalStateVars_, and resize lists
@@ -1453,6 +1443,27 @@ void ParLSUtil::generateRowColData()
   tmpVar1 = numLocalLeadCurrentVars_;
   pdsManager_.getPDSComm()->sumAll( &tmpVar1, &tmpVar2, 1 );
   numGlobalLeadCurrentVars_ = static_cast<int>(tmpVar2);
+
+  //--- block extern gids by processor to support aztec requirements
+  if( numExternRows_ )
+  {
+    std::vector<int> externGIDs( numExternRows_ );
+    std::vector<int> PIDs( numExternRows_ );
+    for( int i = 0; i < numExternRows_; ++i )
+    {
+      externGIDs[i] = rowList_ExternGID_[i].first;
+      PIDs[i] = rowList_ExternGID_[i].second;
+    }
+
+    Epetra_Util Util;
+    int ** listPtr = new int *[1];
+    listPtr[0] = &externGIDs[0];
+    Util.Sort( true, numExternRows_, &PIDs[0], 0, 0, 1, listPtr );
+    delete [] listPtr;
+
+    for( int i = 0; i < numExternRows_; ++i )
+      rowList_ExternGID_[i] = std::pair<int,int>( externGIDs[i], PIDs[i] );
+  }
 
   if (DEBUG_TOPOLOGY)
     Xyce::dout() << "Parallel Topology Util Vals: " << std::endl
@@ -1492,6 +1503,7 @@ void ParLSUtil::generateRowColData()
       copy( extGIDs.begin(), extGIDs.end(), gids.begin() );
       copy( intGIDs.begin(), intGIDs.end(), gids.begin() + extGIDs.size() );
       copy( depGIDs.begin(), depGIDs.end(), gids.begin() + extGIDs.size() + intGIDs.size() );
+
 
       for( unsigned int i = 0; i < stamp.size(); ++i )
       {
