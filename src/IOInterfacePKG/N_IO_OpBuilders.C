@@ -1451,7 +1451,7 @@ struct RFparamsVariableOpBuilder : public Util::Op::Builder
 
     if ( ((param_tag[0] == 'S') || (param_tag[0] == 'Y') || (param_tag[0] == 'Z')) && args.size() == 2)
     {
-      if (!analysisManager_.getACLinFlag())
+      if ( !(analysisManager_.getACFlag() && outputManager_.getEnableSparCalcFlag()) )
       {
         Report::UserError0() << "S(), Y() and Z() operators only supported for .LIN analyses";
         return new_op;

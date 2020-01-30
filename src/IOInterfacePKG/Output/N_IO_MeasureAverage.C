@@ -48,7 +48,7 @@ namespace Measure {
 Average::Average(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
   averageValue_(0.0),
-  lastTimeValue_(0.0),
+  lastIndepVarValue_(0.0),
   lastSignalValue_(0.0),
   totalAveragingWindow_(0.0)
 {
@@ -133,7 +133,7 @@ void Average::updateTran(
     // the measured waveform has a DC offset at time=0  
     if (!firstStepInMeasureWindow_)
     {
-      lastOutputValue_ = outVarValues_[0]; 
+      lastOutputValue_ = outVarValues_[0];
       firstStepInMeasureWindow_ = true;
     }
 
@@ -162,25 +162,24 @@ void Average::updateTran(
       if( initialized_ && withinMinMaxThresh( outVarValues_[0] ) )
       {
         // Calculating an average of outVarValues_[0];
-        averageValue_ += 0.5 * (circuitTime - lastTimeValue_) * (outVarValues_[0] + lastSignalValue_);
-        totalAveragingWindow_ += (circuitTime - lastTimeValue_);
+        averageValue_ += 0.5 * (circuitTime - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
+        totalAveragingWindow_ += (circuitTime - lastIndepVarValue_);
       }
     
-      lastTimeValue_ = circuitTime;
+      lastIndepVarValue_ = circuitTime;
       lastSignalValue_ = outVarValues_[0];
       initialized_=true;
     }
   }
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : Average::updateDC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/21/2020
 //-----------------------------------------------------------------------------
 void Average::updateDC(
   Parallel::Machine comm,
@@ -192,7 +191,55 @@ void Average::updateDC(
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
+  // The dcParamsVec will be empty if the netlist has a .OP statement without a .DC statement.
+  // In that case, a DC MEASURE will be reported as FAILED.
+  if ( dcParamsVec.size() > 0 )
+  {
+    double dcSweepVal = dcParamsVec[0].currentVal;
 
+    // Used in descriptive output to stdout. Store name and first/last values of
+    // first variable found in the DC sweep vector
+    sweepVar_= dcParamsVec[0].name;
+    if (!firstSweepValueFound_)
+    {
+        startSweepValue_ = dcSweepVal;
+        firstSweepValueFound_ = true;
+    }
+    endSweepValue_ = dcSweepVal;
+
+    if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
+    {
+      outVarValues_[0] = getOutputValue(comm, outputVars_[0],
+                                        solnVec, stateVec, storeVec, 0,
+                                        lead_current_vector,
+                                        junction_voltage_vector,
+                                        lead_current_dqdt_vector, 0);
+
+      // Used in descriptive output to stdout. These are the first/last values
+      // within the measurement window.
+      if (!firstStepInMeasureWindow_)
+      {
+        startACDCmeasureWindow_ = dcSweepVal;
+        firstStepInMeasureWindow_ = true;
+      }
+      endACDCmeasureWindow_ = dcSweepVal;
+
+      if ( withinMinMaxThresh( outVarValues_[0] ) )
+      {
+        if (initialized_)
+	{
+          // Calculating an average of outVarValues_[0].  The abs() are needed to
+          // account for both monotonically increasing and decreasing stepped variables
+          averageValue_ += 0.5 * abs(dcSweepVal - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
+          totalAveragingWindow_ += abs(dcSweepVal - lastIndepVarValue_);
+        }
+      }
+
+      lastIndepVarValue_ = dcSweepVal;
+      lastSignalValue_ = outVarValues_[0];
+      initialized_=true;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -200,8 +247,8 @@ void Average::updateDC(
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical Models & Simulation
-// Creation Date : 8/7/2019
+// Creator       : Pete Sholander, SNL
+// Creation Date : 1/21/2020
 //-----------------------------------------------------------------------------
 void Average::updateAC(
   Parallel::Machine comm,
@@ -210,13 +257,50 @@ void Average::updateAC(
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
 {
+  // Used in descriptive output to stdout. Store first/last frequency values
+  if (!firstSweepValueFound_)
+  {
+    startSweepValue_ = frequency;
+    firstSweepValueFound_ = true;
+  }
+  endSweepValue_ = frequency;
 
+  if( !calculationDone_ && withinFreqWindow( frequency ) )
+  {
+    // update our outVarValues_ vector
+    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                     imaginaryVec, 0, 0, 0, RFparams);
+
+    // Used in descriptive output to stdout. These are the first/last values
+    // within the measurement window.
+    if (!firstStepInMeasureWindow_)
+    {
+      startACDCmeasureWindow_ = frequency;
+      firstStepInMeasureWindow_ = true;
+    }
+    endACDCmeasureWindow_ = frequency;
+
+    if ( withinMinMaxThresh( outVarValues_[0] ) )
+    {
+      if (initialized_)
+      {
+        // Calculating an average of outVarValues_[0]
+        averageValue_ += 0.5 * (frequency - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
+        totalAveragingWindow_ += (frequency - lastIndepVarValue_);
+      }
+    }
+
+    lastIndepVarValue_ = frequency;
+    lastSignalValue_ = outVarValues_[0];
+    initialized_=true;
+  }
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Average::getMeasureResult()
 // Purpose       :
-// Special Notes :
+// Special Notes : If the averaging window is zero, then measure is reported
+//                 as "FAILED".
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
@@ -225,7 +309,13 @@ double Average::getMeasureResult()
 {
   if( initialized_ )
   {
-    calculationResult_ =  averageValue_ / totalAveragingWindow_;
+    if (totalAveragingWindow_ > 0)
+      calculationResult_ =  averageValue_ / totalAveragingWindow_;
+    else
+    {
+      calculationResult_ = calculationDefaultVal_;
+      initialized_ = false;
+    }
   }
   return calculationResult_;
 }

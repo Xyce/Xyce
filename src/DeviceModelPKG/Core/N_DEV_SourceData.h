@@ -116,10 +116,12 @@ public:
 
   double returnSource ();
 
+#if 0
   bool getResetFlag ()
   {
     return resetFlag_;
   }
+#endif
 
   std::string getSourceTypeName ();
 

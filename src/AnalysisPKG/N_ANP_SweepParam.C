@@ -83,23 +83,50 @@ bool SweepParam::updateCurrentVal (int stepNumberArg)
   {
     sweepResetFlag_=false;
   }
-  lastLocalStepNumber_=localStepNumber;
 
+
+  // This flag determines if the setParam function will be called for this parameter.
+  // Some parameters, like TEMP are expensive to set, so don't do it unless you have to.
+  bool callSetParam=true; 
   if (type == "LIN")
   {
-    currentVal = startVal + static_cast<double>(localStepNumber)*stepVal;
+    if(localStepNumber != lastLocalStepNumber_)
+    {
+      currentVal = startVal + static_cast<double>(localStepNumber)*stepVal;
+      callSetParam=true;
+    }
+    else
+    {
+      callSetParam=false;
+    }
     ++count;
   }
   else if (type == "DEC" || type == "OCT")
   {
-    currentVal = startVal*pow(stepMult, static_cast<double>(localStepNumber) );
+    if(localStepNumber != lastLocalStepNumber_)
+    {
+      currentVal = startVal*pow(stepMult, static_cast<double>(localStepNumber) );
+      callSetParam=true;
+    }
+    else
+    {
+      callSetParam=false;
+    }
     ++count;
   }
   else if (type == "LIST")
   {
-    int size=  valList.size();
-    int index = (localStepNumber < size)?localStepNumber:(size-1);
-    currentVal = valList[index];
+    if(localStepNumber != lastLocalStepNumber_)
+    {
+      int size=  valList.size();
+      int index = (localStepNumber < size)?localStepNumber:(size-1);
+      currentVal = valList[index];
+      callSetParam=true;
+    }
+    else
+    {
+      callSetParam=false;
+    }
     ++count;
   }
   else if (type == "TABLE")
@@ -124,7 +151,10 @@ bool SweepParam::updateCurrentVal (int stepNumberArg)
     Report::DevelFatal0().in("SweepParam::updateCurrentVal") << "Unsupported type " << type << " specified";
   }
 
+
   if (DEBUG_TIME)
+  {
+#if 0
     Xyce::dout() << std::endl
                  << Xyce::subsection_divider << std::endl
                  << "updateCurrentVal" << std::endl
@@ -137,8 +167,13 @@ bool SweepParam::updateCurrentVal (int stepNumberArg)
                  << "  sweepResetFlag   = " << sweepResetFlag_ << std::endl
                  << "  currentVal       = " << currentVal << std::endl
                  << Xyce::subsection_divider << std::endl;
+#else
+    Xyce::dout() << "  " << name << "  "<< outerStepNumber << "  "<< localStepNumber << "  "<< lastLocalStepNumber_ << std::endl;
+#endif
+  }
 
-  return true;
+  lastLocalStepNumber_=localStepNumber;
+  return callSetParam;
 }
 
 //-----------------------------------------------------------------------------
@@ -516,9 +551,12 @@ bool updateSweepParams(Loader::Loader &loader, int step_count, std::vector<Sweep
   // set parameter(s)
   for (std::vector<SweepParam>::iterator it = begin; it != end; ++it)
   {
-    (*it).updateCurrentVal(step_count);
+    bool setParamFlag = (*it).updateCurrentVal(step_count);
     reset = reset || (*it).getSweepResetFlag();
-    loader.setParam((*it).name, (*it).currentVal, overrideOriginal);
+    if (setParamFlag)
+    {
+      loader.setParam((*it).name, (*it).currentVal, overrideOriginal);
+    }
     if (DEBUG_ANALYSIS)
     {
       Xyce::dout() << "Updating parameter " << (*it).name << " to " << (*it).currentVal << std::endl;

@@ -314,8 +314,6 @@ int CktGraphBasic::numAdjNodesWithGround( int gid )
 //-----------------------------------------------------------------------------
 void CktGraphBasic::registerGIDs()
 {
-  std::vector<int> gidList, svGIDList;
-
   const CktNodeList * tmpNodeList = getBFSNodeList();
   CktNodeList::const_iterator it_nL = tmpNodeList->begin();
   CktNodeList::const_iterator it_nL_end = tmpNodeList->end();
@@ -330,14 +328,11 @@ void CktGraphBasic::registerGIDs()
     if (type == _DNODE)
     {
       CktNode_Dev * cktNodeDevPtr = dynamic_cast<CktNode_Dev*>(*it_nL);
-
-      //------- Clear lists for each node
-      gidList.clear();
-      svGIDList.clear();
+      std::vector<int> & svGIDList = cktNodeDevPtr->get_ExtSolnVarGIDList();
 
       //------  Generate global id list for external variables
 
-      // initialize the local gidList, the svGIDList.
+      // initialize the local svGIDList.
       const std::vector<int> &adjIDs = cktgph_.getAdjacentRow( *it_bfs );
       std::vector<int>::const_iterator adj_it = adjIDs.begin();
       std::vector<int>::const_iterator adj_end = adjIDs.end();
@@ -345,11 +340,8 @@ void CktGraphBasic::registerGIDs()
       for ( ; adj_it != adj_end; adj_it++ )
       {
         CktNode * cktnode = cktgph_.getData(*adj_it);
-        gidList.push_back( cktnode->get_gID() );
         svGIDList.insert( svGIDList.end(), cktnode->get_SolnVarGIDList().begin(), cktnode->get_SolnVarGIDList().end() );
       }
-
-      cktNodeDevPtr->set_ExtSolnVarGIDList( svGIDList );
     }
   }
 }
@@ -365,7 +357,7 @@ void CktGraphBasic::registerGIDs()
 //-----------------------------------------------------------------------------
 void CktGraphBasic::registerLIDswithDevs( Indexor & indexor )
 {
-  std::vector<int> gidList, svGIDList;
+  std::vector<int> svGIDList;
   std::vector<int>::const_iterator it_iL, end_iL;
   std::vector<int> intVec, extVec;
 
@@ -383,7 +375,6 @@ void CktGraphBasic::registerLIDswithDevs( Indexor & indexor )
       CktNode_Dev * cktNodeDevPtr = dynamic_cast<CktNode_Dev*>(*it_nL);
 
       //------- Clear lists for each node
-      gidList.clear();
       svGIDList.clear();
 
       //------- Push list of int. and ext. local id's to ckt node
