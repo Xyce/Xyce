@@ -152,8 +152,8 @@ parameter real m = 1.0 from (0:inf) `attr(units="" type="instance" desc="multipl
 //Variability Handles
 parameter real XL         =  0 `attr(info="L offset for channel length due to mask/etch effect");                       // L offset for channel length due to mask/etch effect
 parameter real DTEMP      =  0 `attr(info="Variability in Device Temperature    ");                       // Variability in Device Temperature    
-parameter real DELVTRAND =  0 `attr(info="Variability in Vth");                        // Variability in Vth
-parameter real U0MULT    =  1 from [0:inf) `attr(info="Variability in carrier mobility");           // Variability in carrier mobility
+parameter real DELVTRAND =  0 `attr(info="Variability in Vth" type="instance" xyceAlsoModel="yes");                        // Variability in Vth
+parameter real U0MULT    =  1 from [0:inf) `attr(info="Variability in carrier mobility" type="instance" xyceAlsoModel="yes");           // Variability in carrier mobility
 parameter real IDS0MULT  =  1 from [0:inf) `attr(info="Variability in Drain current for misc. reasons    ");           // Variability in Drain current for misc. reasons    
 
 

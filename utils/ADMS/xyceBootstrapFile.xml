@@ -30,7 +30,7 @@
   <!-- The output proper -->
   <admst:open file="$bootstrapname.C">
 //-------------------------------------------------------------------------
-//   Copyright 2002-2019 National Technology &amp; Engineering Solutions of
+//   Copyright 2002-2020 National Technology &amp; Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //

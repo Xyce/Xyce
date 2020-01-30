@@ -4,7 +4,7 @@
 % Department of Energy’s National Nuclear Security Administration under
 % contract DE-NA0003525.
 
-% Copyright 2002-2019 National Technology & Engineering Solutions of Sandia,
+% Copyright 2002-2020 National Technology & Engineering Solutions of Sandia,
 % LLC (NTESS).
 
 
@@ -17,17 +17,16 @@
 %%
 %%-------------------------------------------------------------------------
 
-The \texttt{POLY} keyword, available in the
-\texttt{E},\texttt{F},\texttt{G}, \texttt{H} and \texttt{B} dependent
-sources, is provided to simplify migration of netlists from PSpice to
-\Xyce{}.  \texttt{POLY} provides a compact method of specifying
-polynomial expressions in which the variables in the polynomial are
-specified followed by an ordered list of polynomial coefficients.  All
-expressions specified with \texttt{POLY} are ultimately translated by
-\Xyce{} into an equivalent, straightforward polynomial expression in a
-\texttt{B} source.  Since a straightforward polynomial expression can
-be easier to read, there is no real benefit to using \texttt{POLY}
-except to support legacy netlists imported from PSpice.
+The \texttt{POLY} keyword is available in the \texttt{E}, \texttt{F},
+\texttt{G}, \texttt{H} and \texttt{B} dependent sources. Based on the same
+keyword from SPICE2, \texttt{POLY} provides a compact method of specifying
+polynomial expressions in which the variables in the polynomial are specified
+followed by an ordered list of polynomial coefficients.  All expressions
+specified with \texttt{POLY} are ultimately translated by \Xyce{} into an
+equivalent, straightforward polynomial expression in a \texttt{B} source.
+Since a straightforward polynomial expression can be easier to read, there is
+no real benefit to using \texttt{POLY} except to support netlists imported from
+other SPICE-based simulators.
 
 There are three different syntax forms for \texttt{POLY}, which can be
 a source of confusion.  The \texttt{E} and \texttt{G} sources
@@ -139,12 +138,11 @@ $$Value = C_0 + \sum_{j=1}^{N} C_j X_j + \sum_{i=1}^N\sum_{j=1}^N C_{ij}X_iX_j +
 Here we have used the general form $X_i$ for the $i^{th}$ variable,
 which may be either a current or voltage variable in the general case.
 
-It should be reiterated that the \texttt{POLY} format is provided
-primarily for support of legacy PSpice netlists that use the feature,
-and that its compactness may be a disadvantage in readability of the
-netlist and may be more prone to usage error.  \Xyce{} users are
-therefore advised that use of the more straightforward expression
-format in the \texttt{B} source may be more appropriate when crafting
-original netlists for use in \Xyce{}.  Since \Xyce{} converts
-\texttt{POLY} format expressions to the simpler format internally,
+It should be reiterated that the \texttt{POLY} format is provided primarily for
+support of netlists from other simulators, and that its compactness may be a
+disadvantage in readability of the netlist and may be more prone to usage
+error.  \Xyce{} users are therefore advised that use of the more
+straightforward expression format in the \texttt{B} source may be more
+appropriate when crafting original netlists for use in \Xyce{}.  Since \Xyce{}
+converts \texttt{POLY} format expressions to the simpler format internally,
 there is no performance benefit to use of \texttt{POLY}.

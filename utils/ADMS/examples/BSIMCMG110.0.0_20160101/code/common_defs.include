@@ -177,13 +177,20 @@
 `define IPIoz(nam,def,uni,        des) (*units=uni, type="instance",  desc=des*) parameter integer nam=def from(  0:inf);
 
 `ifdef __XYCE__
-// 
+// These macros should be used where BSIM-CMG defines a parameter as instance,
+// but the manual describes them as being both model and instance
 `define IPRco_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des, xyceAlsoModel="yes"*) parameter real    nam=def from[lwr:upr) ; 
 `define IPRcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des, xyceAlsoModel="yes"*) parameter real    nam=def from[lwr:upr] ; 
 `define IPRcz_BOTH(nam,def,uni,        des) (*units=uni, type="instance",  desc=des, xyceAlsoModel="yes"*) parameter real    nam=def from[  0:inf);
 `define IPRoz_BOTH(nam,def,uni,        des) (*units=uni, type="instance",  desc=des, xyceAlsoModel="yes"*) parameter real    nam=def from(  0:inf);
 `define IPIco_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des, xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr) ; 
-`define IPIcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des, xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr] ; 
+`define IPIcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des, xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr] ;
+
+// These macros should be used where BSIM-CMG defines a parameter as model
+// but we want them to be both model and instance for some reason
+`define MPRnb_BOTH(nam,def,uni,        des) (*units=uni, type="instance", xyceAlsoModel="yes", desc=des*) parameter real    nam=def ;
+`define MPRcz_BOTH(nam,def,uni,        des) (*units=uni, type="instance", xyceAlsoModel="yes", desc=des*) parameter real    nam=def from[  0:inf);
+
 `else
 `define IPRco_BOTH(nam,def,uni,lwr,upr,des) `IPRco(nam,def,uni,lwr,upr,des)
 `define IPRcc_BOTH(nam,def,uni,lwr,upr,des) `IPRcc(nam,def,uni,lwr,upr,des)
@@ -191,6 +198,8 @@
 `define IPRoz_BOTH(nam,def,uni,        des) `IPRoz(nam,def,uni,        des) 
 `define IPIco_BOTH(nam,def,uni,lwr,upr,des) `IPIco(nam,def,uni,lwr,upr,des)
 `define IPIcc_BOTH(nam,def,uni,lwr,upr,des) `IPIcc(nam,def,uni,lwr,upr,des)
+`define MPRnb_BOTH(nam,def,uni,        des) `MPRnb(nam,def,uni,        des)
+`define MPRcz_BOTH(nam,def,uni,        des) `MPRcz(nam,def,uni,        des)
 `endif //__XYCE__
 
 `ifdef EXPLICIT_MFACTOR

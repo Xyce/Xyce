@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------
-//   Copyright 2002-2019 National Technology & Engineering Solutions of
+//   Copyright 2002-2020 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -276,7 +276,7 @@ void HBICTecplot::copyTmpFileToOutputFile()
       // re-open tmp file for input
       std::string tmpFilename = outFilename_ + ".tmp";
       std::ifstream infile;
-      infile.open(tmpFilename,std::ifstream::in);
+      infile.open(tmpFilename.c_str(),std::ifstream::in);
 
       if (infile.good())
         *os_ << infile.rdbuf();
