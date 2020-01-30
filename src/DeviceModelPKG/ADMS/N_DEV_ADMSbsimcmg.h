@@ -1,7 +1,7 @@
 
 // -*-c++-*-
 //-------------------------------------------------------------------------
-//   Copyright 2002-2019 National Technology & Engineering Solutions of
+//   Copyright 2002-2020 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 08 Jan 2020 12:17:09
+// Creation Date  : Mon, 20 Jan 2020 12:03:25
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_h
@@ -237,6 +237,10 @@ AdmsSensFadType & instancePar_NRD,
 bool instancePar_given_NRD,
 AdmsSensFadType & instancePar_LRSD,
 bool instancePar_given_LRSD,
+AdmsSensFadType & instancePar_DELVTRAND,
+bool instancePar_given_DELVTRAND,
+AdmsSensFadType & instancePar_U0MULT,
+bool instancePar_given_U0MULT,
 // non-reals(including hidden)
 int instancePar_NGCON,
 bool instancePar_given_NGCON,
@@ -2109,6 +2113,10 @@ AdmsSensFadType & instancePar_NRD,
 bool instancePar_given_NRD,
 AdmsSensFadType & instancePar_LRSD,
 bool instancePar_given_LRSD,
+AdmsSensFadType & instancePar_DELVTRAND,
+bool instancePar_given_DELVTRAND,
+AdmsSensFadType & instancePar_U0MULT,
+bool instancePar_given_U0MULT,
 // non-reals(including hidden)
 int instancePar_NGCON,
 bool instancePar_given_NGCON,
@@ -5910,6 +5918,8 @@ public:
     double NRS;
     double NRD;
     double LRSD;
+    double DELVTRAND;
+    double U0MULT;
     //  Variables of global_instance scope
     // end verilog Instance Variables=====
     // Nodal LID Variables

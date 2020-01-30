@@ -1,7 +1,7 @@
 
 // -*-c++-*-
 //-------------------------------------------------------------------------
-//   Copyright 2002-2019 National Technology & Engineering Solutions of
+//   Copyright 2002-2020 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 08 Jan 2020 12:18:24
+// Creation Date  : Mon, 20 Jan 2020 11:55:07
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_110_h
@@ -247,6 +247,10 @@ void evaluateModelEquations(
    bool instancePar_given_LRSD,
    AdmsSensFadType & instancePar_NFINNOM,
    bool instancePar_given_NFINNOM,
+   AdmsSensFadType & instancePar_DELVTRAND,
+   bool instancePar_given_DELVTRAND,
+   AdmsSensFadType & instancePar_U0MULT,
+   bool instancePar_given_U0MULT,
    AdmsSensFadType & instancePar_m,
    bool instancePar_given_m,
    // non-reals(including hidden)
@@ -2848,6 +2852,10 @@ void evaluateInitialInstance(
    bool instancePar_given_LRSD,
    AdmsSensFadType & instancePar_NFINNOM,
    bool instancePar_given_NFINNOM,
+   AdmsSensFadType & instancePar_DELVTRAND,
+   bool instancePar_given_DELVTRAND,
+   AdmsSensFadType & instancePar_U0MULT,
+   bool instancePar_given_U0MULT,
    AdmsSensFadType & instancePar_m,
    bool instancePar_given_m,
    // non-reals(including hidden)
@@ -7670,6 +7678,8 @@ private:
   double NRD;
   double LRSD;
   double NFINNOM;
+  double DELVTRAND;
+  double U0MULT;
   double m;
   //  Variables of global_instance scope
   int devsign;
