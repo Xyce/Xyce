@@ -1190,10 +1190,12 @@ extractMEASUREData(
   typeSetDc.insert( std::string("AVG") );
   typeSetDc.insert( std::string("ERROR") );
   typeSetDc.insert( std::string("EQN") );
+  typeSetDc.insert( std::string("FIND") );
   typeSetDc.insert( std::string("MAX") );
   typeSetDc.insert( std::string("MIN") );
   typeSetDc.insert( std::string("PARAM") );
   typeSetDc.insert( std::string("PP") );
+  typeSetDc.insert( std::string("WHEN") );
 
   // Make a union for the TYPE sets.  This is useful, once we know that the TYPE is valid 
   // for one of the allowed modes (e.g, TRAN, AC or DC).  This happens after we've parsed the
@@ -1357,7 +1359,7 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, ERROR, EQN/PARAM, MIN, MAX and PP measure types are supported for DC measure mode";
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, ERROR, EQN/PARAM, FIND, MIN, MAX, PP and WHEN measure types are supported for DC measure mode";
       return false;
     }
   }
