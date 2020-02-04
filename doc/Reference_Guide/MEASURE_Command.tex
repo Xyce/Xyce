@@ -1169,4 +1169,12 @@ curly-braces format.)
 .measure tran parSyntax MAX PAR(`V(1)+1')
 \end{alltt}
 
+Undelimited expressions are allowed in some contexts in HSPICE.
+However, the syntax for the notLegalInXyce measure shown below
+is not allowed in \Xyce{}, since it uses an undelimited expression.
+\begin{alltt}
+.measure tran PLUS PP PAR(`V(1)+V(2)')
+.measure tran notLegalInXyce PARAM PLUS+2.0 ; not legal
+\end{alltt}
+
 
