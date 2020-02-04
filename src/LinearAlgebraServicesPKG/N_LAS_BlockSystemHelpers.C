@@ -78,9 +78,12 @@ namespace Linear {
 int generateOffset( const N_PDS_ParMap& baseMap )
 {
    // Compute the offset needed for global indexing.
-   int maxGID = baseMap.maxGlobalEntity();
-   int offset = 1;
-   while( offset <= maxGID ) offset *= 10;
+   int offset = baseMap.maxGlobalEntity();
+   if (baseMap.indexBase() == 0)
+     offset++;
+
+   if (offset <= 0)
+     offset = 1;
 
    return offset;
 }
