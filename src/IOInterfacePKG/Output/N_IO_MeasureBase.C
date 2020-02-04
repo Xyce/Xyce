@@ -372,7 +372,14 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
         numDepSolVars_++;
         depSolVarIterVector_.push_back(aParam);
       }
-      
+      else if ( (*it).getType() == Xyce::Util::EXPR )
+      {
+        Util::Param aParam;
+        aParam.set( '{' + (*it).stringValue() + '}', 0 );
+        numDepSolVars_++;
+        depSolVarIterVector_.push_back(aParam);
+      }
+
       if( inTrigBlock )
       {
         trigOutputValueTarget_ = outputValueTarget_;
