@@ -85,7 +85,6 @@ AmesosSolver::AmesosSolver(
     problem_(problem.epetraObj()),
     solver_(0),
     repivot_(true),
-    reindex_(false),
     outputLS_(0),
     outputBaseLS_(0),
     outputFailedLS_(0),
@@ -130,8 +129,6 @@ bool AmesosSolver::setOptions( const Util::OptionBlock & OB )
 
     if( tag == "KLU_REPIVOT" ) repivot_ = static_cast<bool>(it_tpL->getImmutableValue<int>());
     
-    if( tag == "KLU_REINDEX" ) reindex_ = static_cast<bool>(it_tpL->getImmutableValue<int>());
-
     if( tag == "OUTPUT_LS" ) outputLS_ = it_tpL->getImmutableValue<int>();
 
     if( tag == "OUTPUT_BASE_LS" ) outputBaseLS_ = it_tpL->getImmutableValue<int>();
@@ -340,12 +337,6 @@ int AmesosSolver::doSolve( bool reuse_factors, bool transpose )
       sludistParams.set("ReuseSymbolic", true );
     }
 #endif
-
-    // Let Amesos reindex the linear problem.
-    // NOTE:  This is used by MPDE and HB since the map indices are not continguous.
-    if (reindex_) {
-      params.set( "Reindex", reindex_ );
-    }
 
     if (VERBOSE_LINEAR)
       Xyce::dout() << "AmesosSolver::solve() setting solver : " << type_ << "\n"
