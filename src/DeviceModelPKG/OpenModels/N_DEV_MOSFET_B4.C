@@ -114,6 +114,7 @@
         }                                                                  \
     }
 
+
 namespace Xyce {
 namespace Device {
 
@@ -8786,7 +8787,7 @@ bool Instance::updateIntermediateVars ()
     ChargeComputationNeeded = false;
   }
 
-  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag && isActive(Diag::TIME_STEP) )
   {
     Xyce::dout() << subsection_divider << std::endl;
     Xyce::dout() << "  Instance::updateIntermediateVars\n";
@@ -8883,8 +8884,8 @@ bool Instance::updateIntermediateVars ()
   qdef = model_.dtype * (Qtotal);
 
   vbd = vbs - vds;
-  vdbd = vdbs - vds;
   vgd = vgs - vds;
+  vgb = vgs - vbs;
   vged = vges - vds;
   vgmd = vgms - vds;
   vgmb = vgms - vbs;
@@ -9052,11 +9053,13 @@ bool Instance::updateIntermediateVars ()
   if (getDeviceOptions().voltageLimiterFlag && !(getSolverState().initFixFlag && OFF))
   {
 
+#if 0
     if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
       Xyce::dout().width(21); Xyce::dout().precision(13); Xyce::dout().setf(std::ios::scientific);
       Xyce::dout() << "  CONSTvt0  = " << CONSTvt0 << std::endl;
       Xyce::dout() << "  vcrit     = " << model_.vcrit << std::endl;
+#if 0
       Xyce::dout().width(3);
       Xyce::dout() << getSolverState().newtonIter;
       Xyce::dout().width(5);Xyce::dout() << getName();
@@ -9077,6 +9080,7 @@ bool Instance::updateIntermediateVars ()
       Xyce::dout() << vged_old;
       Xyce::dout()<<" vgmd:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
       Xyce::dout() << vgmd_old << std::endl;
+#endif
       Xyce::dout().width(3);
       Xyce::dout() << getSolverState().newtonIter;
       Xyce::dout().width(5);Xyce::dout() << getName();
@@ -9099,6 +9103,7 @@ bool Instance::updateIntermediateVars ()
       Xyce::dout() << vgmd << std::endl;
       Xyce::dout().width(21); Xyce::dout().precision(13); Xyce::dout().setf(std::ios::scientific);
     }
+#endif
 
     // only do this if we are beyond the first Newton iteration.  On the
     // first newton iteration, the "old" values are from a previous time
@@ -9201,31 +9206,6 @@ bool Instance::updateIntermediateVars ()
     // for convergence testing:
     if (Check == 1) limitedFlag=true;
 
-    double machprec= Util::MachineDependentParams::MachinePrecision();
-
-    if (
-       fabs( vbd_orig - vbd) > machprec ||
-       fabs( vbs_orig - vbs) > machprec ||
-       fabs( vgs_orig - vgs) > machprec ||
-       fabs( vds_orig - vds) > machprec ||
-       fabs( vgd_orig - vgd) > machprec ||
-       fabs( vges_orig - vges) > machprec ||
-       fabs( vgms_orig - vgms) > machprec ||
-       fabs( vdes_orig - vdes) > machprec ||
-       fabs( vses_orig - vses) > machprec ||
-       fabs( vdbs_orig - vdbs) > machprec ||
-       fabs( vsbs_orig - vsbs) > machprec ||
-       fabs( vdbd_orig - vdbd) > machprec ||
-       fabs( vbs_jct_orig - vbs_jct) > machprec ||
-       fabs( vbd_jct_orig - vbd_jct) > machprec ||
-       fabs( vgmb_orig - vgmb) > machprec ||
-       fabs( vgb_orig - vgb) > machprec ||
-       fabs( vged_orig - vged) > machprec ||
-       fabs( vgmd_orig - vgmd) > machprec )
-    {
-      origFlag = 0;
-    }
-
   } // getDeviceOptions().voltageLimiterFlag
 
   // Calculate DC currents and their derivatives
@@ -9240,38 +9220,97 @@ bool Instance::updateIntermediateVars ()
   vbs_jct = (!rbodyMod) ? vbs : vsbs;
   vbd_jct = (!rbodyMod) ? vbd : vdbd;
 
+  if (getDeviceOptions().voltageLimiterFlag)
+  {
+    double machprec= Util::MachineDependentParams::MachinePrecision();
+
+    if (
+       fabs( vbs_orig - vbs) > machprec ||
+       fabs( vgs_orig - vgs) > machprec ||
+       fabs( vds_orig - vds) > machprec ||
+       fabs( vges_orig - vges) > machprec ||
+       fabs( vgms_orig - vgms) > machprec ||
+       fabs( vdes_orig - vdes) > machprec ||
+       fabs( vses_orig - vses) > machprec ||
+       fabs( vdbs_orig - vdbs) > machprec ||
+       fabs( vsbs_orig - vsbs) > machprec 
+       )
+    {
+      origFlag = 0;
+    }
+  }
+
+
   if (DEBUG_DEVICE && getDeviceOptions().voltageLimiterFlag)
   {
     if (isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
     {
-      Xyce::dout().width(3);
-      Xyce::dout() << getSolverState().newtonIter;
-      Xyce::dout().width(5);Xyce::dout() << getName();
-      Xyce::dout() << " Alim:";
-      Xyce::dout()<<" vgs:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vgs << "(diff="<<vgs-vgs_orig<<")";
-      Xyce::dout()<<" vds:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vds << "(diff="<<vds-vds_orig<<")";
-      Xyce::dout()<<" vbs:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vbs<< "(diff="<<vbs-vbs_orig<<")";
-      Xyce::dout()<<" vbd:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vbd<< "(diff="<<vbd-vbd_orig<<")";
-      Xyce::dout()<<" vges:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vges<< "(diff="<<vges-vges_orig<<")";
-      Xyce::dout()<<" vgms:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vgms<< "(diff="<<vgms-vgms_orig<<")";
-      Xyce::dout()<<" vged:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vged<< "(diff="<<vged-vged_orig<<")";
-      Xyce::dout()<<" vgmd:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vgmd<< "(diff="<<vgmd-vgmd_orig<<")";
-      Xyce::dout()<<" vbs_jct:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vbs_jct<< "(diff="<<vbs_jct-vbs_jct_orig<<")";
-      Xyce::dout()<<" vbd_jct:";//Xyce::dout().width(10);Xyce::dout().precision(3);Xyce::dout().setf(std::ios::scientific);
-      Xyce::dout() << vbd_jct<< "(diff="<<vbd_jct-vbd_jct_orig<<")";
-      if (origFlag) Xyce::dout() << " SAME";
-      else          Xyce::dout() << " DIFF";
-      Xyce::dout() << std::endl;
-      Xyce::dout().width(21); Xyce::dout().precision(13); Xyce::dout().setf(std::ios::scientific);
+      if (!origFlag)
+      {
+        double machprec = Util::MachineDependentParams::MachinePrecision();
+#if 0
+        double vbd_update = vbd_orig-vbd;
+        double vbs_update = vbs_orig-vbs;
+        double vgs_update = vgs_orig-vgs;
+        double vds_update = vds_orig-vds;
+        double vgd_update = vgd_orig-vgd;
+        double vges_update = vges_orig-vges;
+        double vgms_update = vgms_orig-vgms;
+        double vdes_update = vdes_orig-vdes;
+        double vses_update = vses_orig-vses;
+        double vdbs_update = vdbs_orig-vdbs;
+        double vsbs_update = vsbs_orig-vsbs;
+        double vdbd_update = vdbd_orig-vdbd;
+        double vbs_jct_update = vbs_jct_orig-vbs_jct;
+        double vbd_jct_update = vbd_jct_orig-vbd_jct;
+        double vgmb_update = vgmb_orig-vgmb;
+        double vgb_update = vgb_orig-vgb;
+        double vged_update = vged_orig-vged;
+        double vgmd_update = vgmd_orig-vgmd;
+#endif
+#define SET_UPDATE(VAR) double VAR ## _update = VAR ## _orig -  VAR;
+#define ORIG_OUTPUT(VAR) if ( fabs(VAR ## _update) > machprec ) Xyce::dout()<<" "#VAR ":"	  << ((VAR ## _orig>=0)?"+":"")  << VAR ## _orig;
+#define LIMIT_OUTPUT(VAR) if ( fabs(VAR ## _update) > machprec ) Xyce::dout()<<" "#VAR ":"	  << ((VAR >=0)?"+":"")  << VAR;
+#define DIFF_OUTPUT(VAR) if ( fabs(VAR ## _update) > machprec ) Xyce::dout()<<" "#VAR ":"	  << ((VAR ## _update >=0)?"+":"")  << VAR ## _update;
+
+        SET_UPDATE(vbd) SET_UPDATE(vbs) SET_UPDATE(vgs) SET_UPDATE(vds) SET_UPDATE(vgd) SET_UPDATE(vges)
+        SET_UPDATE(vgms) SET_UPDATE(vdes) SET_UPDATE(vses) SET_UPDATE(vdbs) SET_UPDATE(vsbs) SET_UPDATE(vdbd)
+        SET_UPDATE(vbs_jct) SET_UPDATE(vbd_jct) SET_UPDATE(vgmb) SET_UPDATE(vged) SET_UPDATE(vgmd)
+        SET_UPDATE(vgb)
+
+        Xyce::dout().width(3);
+        Xyce::dout() << getSolverState().newtonIter;
+        Xyce::dout().width(5);Xyce::dout() << getName();
+        Xyce::dout() << " Blim:";
+        Xyce::dout().width(12); Xyce::dout().precision(4); Xyce::dout().setf(std::ios::scientific);
+        LIMIT_OUTPUT(vbd) LIMIT_OUTPUT(vbs) LIMIT_OUTPUT(vgs) LIMIT_OUTPUT(vds) LIMIT_OUTPUT(vgd) LIMIT_OUTPUT(vges)
+        LIMIT_OUTPUT(vgms) LIMIT_OUTPUT(vdes) LIMIT_OUTPUT(vses) LIMIT_OUTPUT(vdbs) LIMIT_OUTPUT(vsbs) LIMIT_OUTPUT(vdbd)
+        LIMIT_OUTPUT(vbs_jct) LIMIT_OUTPUT(vbd_jct) LIMIT_OUTPUT(vgmb) LIMIT_OUTPUT(vged) LIMIT_OUTPUT(vgmd)
+        LIMIT_OUTPUT(vgb)
+        Xyce::dout() << std::endl;
+
+        Xyce::dout().width(3);
+        Xyce::dout() << getSolverState().newtonIter;
+        Xyce::dout().width(5);Xyce::dout() << getName();
+        Xyce::dout() << " Alim:";
+        Xyce::dout().width(12); Xyce::dout().precision(4); Xyce::dout().setf(std::ios::scientific);
+        LIMIT_OUTPUT(vbd) LIMIT_OUTPUT(vbs) LIMIT_OUTPUT(vgs) LIMIT_OUTPUT(vds) LIMIT_OUTPUT(vgd) LIMIT_OUTPUT(vges)
+        LIMIT_OUTPUT(vgms) LIMIT_OUTPUT(vdes) LIMIT_OUTPUT(vses) LIMIT_OUTPUT(vdbs) LIMIT_OUTPUT(vsbs) LIMIT_OUTPUT(vdbd)
+        LIMIT_OUTPUT(vbs_jct) LIMIT_OUTPUT(vbd_jct) LIMIT_OUTPUT(vgmb) LIMIT_OUTPUT(vged) LIMIT_OUTPUT(vgmd)
+        LIMIT_OUTPUT(vgb)
+        Xyce::dout()  <<std::endl;
+
+        Xyce::dout().width(3);
+        Xyce::dout() << getSolverState().newtonIter;
+        Xyce::dout().width(5);Xyce::dout() << getName();
+        Xyce::dout() << " Dlim:";
+        Xyce::dout().width(12); Xyce::dout().precision(4); Xyce::dout().setf(std::ios::scientific);
+        DIFF_OUTPUT(vbd) DIFF_OUTPUT(vbs) DIFF_OUTPUT(vgs) DIFF_OUTPUT(vds) DIFF_OUTPUT(vgd) DIFF_OUTPUT(vges)
+        DIFF_OUTPUT(vgms) DIFF_OUTPUT(vdes) DIFF_OUTPUT(vses) DIFF_OUTPUT(vdbs) DIFF_OUTPUT(vsbs) DIFF_OUTPUT(vdbd)
+        DIFF_OUTPUT(vbs_jct) DIFF_OUTPUT(vbd_jct) DIFF_OUTPUT(vgmb) DIFF_OUTPUT(vged) DIFF_OUTPUT(vgmd)
+        DIFF_OUTPUT(vgb)
+        Xyce::dout()  <<std::endl;
+      }
     }
   }
 
@@ -9660,11 +9699,14 @@ bool Instance::updateIntermediateVars ()
   // This idea is based, loosely, on a paper by Jaijeet
   // Rosychowdhury.  If the artificial parameter flag has been enabled,
   // modify Vds and Vgs.
-  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) )
   {
-    Xyce::dout() << "HOMOTOPY INFO: gainscale   = " << getSolverState().gainScale_[blockHomotopyID] << std::endl
-                 << "HOMOTOPY INFO: before vds  = " << Vds << std::endl
-                 << "HOMOTOPY INFO: before vgst = " << Vgs << std::endl;
+    if ( getSolverState().dcopFlag || getSolverState().tranopFlag )
+    {
+      Xyce::dout() << "HOMOTOPY INFO: gainscale   = " << getSolverState().gainScale_[blockHomotopyID] << std::endl
+                   << "HOMOTOPY INFO: before vds  = " << Vds << std::endl
+                   << "HOMOTOPY INFO: before vgst = " << Vgs << std::endl;
+    }
   }
   if (getSolverState().artParameterFlag_)
   {
@@ -9687,10 +9729,13 @@ bool Instance::updateIntermediateVars ()
     Vds = devSupport.contVds (Vds,getSolverState().nltermScale_, getDeviceOptions().vdsScaleMin);
     Vgs = devSupport.contVgst(Vgs, alpha, vgstConst);
   }
-  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag && isActive(Diag::TIME_STEP))
   {
-    Xyce::dout() << "HOMOTOPY INFO: after vds   = " << Vds << std::endl;
-    Xyce::dout() << "HOMOTOPY INFO: after vgst  = " << Vgs << std::endl;
+    if ( getSolverState().dcopFlag || getSolverState().tranopFlag )
+    {
+      Xyce::dout() << "HOMOTOPY INFO: after vds   = " << Vds << std::endl;
+      Xyce::dout() << "HOMOTOPY INFO: after vgst  = " << Vgs << std::endl;
+    }
   }
   // end of mosfet continuation block.
   /////////////////////////////////////////////////////////////////////////////

@@ -54,7 +54,7 @@ class Instance;
 struct Traits : public DeviceTraits<Model, Instance>
 {
   static const char *name() {return "JFET";}
-  static const char *deviceTypeName() {return "J leve1 1,2";}
+  static const char *deviceTypeName() {return "J level 1,2";}
   static int numNodes() {return 3;}
   static bool modelRequired() {return true;}
   static bool isLinearDevice() {return false;}

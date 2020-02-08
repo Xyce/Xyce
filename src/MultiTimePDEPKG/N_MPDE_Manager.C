@@ -1945,11 +1945,6 @@ bool N_MPDE_Manager::setupMPDEProblem_()
   deviceManager_.registerNonlinearSolver( &nonlinearManager_ );
   deviceManager_.registerAnalysisManager( &analysisManager_ );
 
-  // Set linear solver options.
-#ifdef Xyce_PARALLEL_MPI
-  // Set reindexing for KLU
-  linSolOptionBlock_.addParam(Xyce::Util::Param("KLU_REINDEX", 1));
-#endif
   nonlinearManager_.setLinSolOptions(linSolOptionBlock_);
 
   //hack needed by TIA initialization currently

@@ -106,9 +106,6 @@ private:
   //Repivot every time or use static pivoting
   bool repivot_;
   
-  //Have Amesos reindex the linear problem
-  bool reindex_;
-
   //Output linear system every outputLS_ calls
   int outputLS_;
   int outputBaseLS_;
