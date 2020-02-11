@@ -325,7 +325,10 @@ void FindWhen::updateDC(
       }
       endACDCmeasureWindow_ = dcSweepVal;
 
-      if( !initialized_ )
+      // The second part of this conditional is needed to deal with multiple sweep
+      // variables.  We need to reset the last value variables, each time the first
+      // sweep variable rolls over.
+      if( !initialized_ || (initialized_ && dcSweepVal == startACDCmeasureWindow_) )
       {
         // Assigned last dependent and independent var to frequency and outVarValue_[whenIdx_]
         // While we can't interpolate on this step, it ensures that the initial history is
