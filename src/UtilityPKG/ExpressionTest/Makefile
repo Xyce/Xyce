@@ -1,0 +1,61 @@
+#
+
+CXX = /usr/bin/clang++
+FLEX = /opt/local/bin/flex
+BISON = /opt/local/bin/bison
+LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/lib
+LIBPATH = -L/opt/local/lib  $(LIBDIRTRI)
+INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../
+CXXFLAGS_AST =  -std=c++11  -g  -I/opt/local/include/ $(INCLUDE)
+CXXFLAGS =  -std=c++11  -g -I/opt/local/include/ $(INCLUDE)
+
+#    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
+
+RCPLIBS =  -lteuchoscore -lkokkoscore
+
+all:  test
+
+test:  astUnitTest parserUnitTest   astCopyConstUnitTest  parserCopyUnitTest
+
+# main program
+astUnitTest: astUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h
+	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astUnitTest astUnitTest.C  -lm -lgtest -lgtest_main  $(RCPLIBS)
+
+
+astCopyConstUnitTest: astCopyConstUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h
+	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astCopyConstUnitTest astCopyConstUnitTest.C  -lm -lgtest -lgtest_main $(RCPLIBS)
+
+
+# expression lexer/parser
+ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h ../ExpressionSrc/value.h
+	$(FLEX) -i -+ --prefix=exp  -o ExpressionLexer.cxx ../ExpressionSrc/ExpressionLexer.l
+
+ExpressionParser.cxx: ../ExpressionSrc/ExpressionParser.yxx  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h
+	$(BISON) --graph -o$@ ../ExpressionSrc/ExpressionParser.yxx
+
+ExpressionLexer.o: ExpressionLexer.cxx
+	$(CXX) $(CXXFLAGS) -c $<
+
+ExpressionParser.o: ExpressionParser.cxx
+	$(CXX) $(CXXFLAGS) -c $<
+
+expressionGroup.o: ../ExpressionSrc/expressionGroup.C ../ExpressionSrc/expressionGroup.h 
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_BreakPoint.o: ../ExpressionSrc/N_UTL_BreakPoint.C ../ExpressionSrc/N_UTL_BreakPoint.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression.h ../ExpressionSrc/ExpressionLexer.h  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h  ../ExpressionSrc/ExpressionType.h  ../ExpressionSrc/N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o
+	$(CXX) $(CXXFLAGS) -c $<
+
+parserUnitTest: parserUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserUnitTest parserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o -lm -lgtest -lgtest_main  $(RCPLIBS)
+
+parserCopyUnitTest: parserCopyUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserCopyUnitTest parserCopyUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o -lm -lgtest -lgtest_main  $(RCPLIBS)
+
+clean:
+	rm -f astUnitTest  parserUnitTest parserCopyUnitTest astCopyConstUnitTest  *.o \
+		NetlistLexer.cxx NetlistParser.cxx  	stack.hh  position.hh location.hh  \
+		ExpressionLexer.cxx  ExpressionParser.cxx  ExpressionParser.hxx ExpressionParser.dot
+

@@ -78,6 +78,10 @@
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_SaveIOSState.h>
 
+#if 1
+#include <newExpression.h>
+#endif
+
 // ----------   Static Declarations ----------
 
 namespace Xyce {
@@ -217,7 +221,13 @@ void setupObjectiveFunctions
 {
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
+#if 1
+    // use new expression library
+    objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString, true);
+#else
+    // using the old one
     objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString);
+#endif
 
     if (!(objVec[iobj]->expPtr->parsed()))
     {

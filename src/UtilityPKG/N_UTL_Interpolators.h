@@ -36,8 +36,18 @@
 
 #include <Sacado_No_Kokkos.hpp>
 
+#include <complex>
+
 namespace Xyce {
 namespace Util {
+
+#if 1
+template <typename ScalarT>
+inline bool greaterThan(ScalarT & left, ScalarT & right) { return (left > right); }
+
+template <>
+inline bool greaterThan(std::complex<double> & left, std::complex<double> & right) { return (std::real(left) > std::real(right)); }
+#endif
 
 //-----------------------------------------------------------------------------
 // Class         : interpolator base class
@@ -108,7 +118,11 @@ interpolator<ScalarT>::binarySearch(
   {
     //size_t i = (ihi + ilo)/2;
     size_t i = (ihi + ilo) >> 1;
-    if(xa[i] > x)
+#if 0
+    if(std::real(xa[i]) > std::real(x))
+#else 
+    if(greaterThan(xa[i],x))
+#endif
     {
       ihi = i;
     }
@@ -1083,7 +1097,11 @@ void linear<ScalarT>::eval(
   while (khi-klo > 1)
   {
     k = (khi+klo) >> 1;
-    if (xa[k] > x) 
+#if 0
+    if (std::real(xa[k]) > std::real(x)) 
+#else
+    if(greaterThan(xa[k],x))
+#endif 
     {
       khi=k;
     }
@@ -1136,7 +1154,11 @@ void linear<ScalarT>::evalDeriv(
   while (khi-klo > 1)
   {
     k = (khi+klo) >> 1;
-    if (xa[k] > x) 
+#if 0
+    if (std::real(xa[k]) > std::real(x)) 
+#else
+    if(greaterThan(xa[k],x))
+#endif
     {
       khi=k;
     }

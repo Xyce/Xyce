@@ -1,0 +1,51 @@
+#
+
+CXX = clang++
+FLEX = /usr/local/bin/flex
+BISON = /usr/local/bin/bison
+LIBDIRTRI=-L/Net/Proj/Xyce/arch/FreeBSD11_trilinos12.12.1_clang/lib
+LIBPATH = -L/usr/local/lib  $(LIBDIRTRI)
+INCLUDE = -I/Net/Proj/Xyce/arch/FreeBSD11_trilinos12.12.1_clang/include  -I../src -I../gtest
+CXXFLAGS_AST =  -std=c++11  -g  -I/usr/local/include/ $(INCLUDE)
+CXXFLAGS =  -std=c++11  -g -I/usr/local/include/  -I/usr/local/include/flex $(INCLUDE)
+
+#    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
+
+all:  test
+
+test:  astUnitTest parserUnitTest
+
+# main program
+astUnitTest: astUnitTest.C  ../src/ast.h ../src/astbinary.h ../src/astfuncs.h ../src/astcomp.h ../src/ast_spice_src.h
+	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astUnitTest astUnitTest.C  -lm -lgtest -lgtest_main 
+
+# expression lexer/parser
+ExpressionLexer.cxx: ../src/ExpressionLexer.l  ../src/ast.h ../src/astfuncs.h ../src/astbinary.h ../src/astcomp.h ../src/ast_spice_src.h ../src/ExpressionType.h ../src/value.h
+	$(FLEX) -i -+ --prefix=exp  -o ExpressionLexer.cxx ../src/ExpressionLexer.l
+
+ExpressionParser.cxx: ../src/ExpressionParser.yxx  ../src/ast.h ../src/astfuncs.h ../src/astbinary.h ../src/astcomp.h ../src/ast_spice_src.h ../src/ExpressionType.h
+	$(BISON) --graph -o$@ ../src/ExpressionParser.yxx
+
+ExpressionLexer.o: ExpressionLexer.cxx
+	$(CXX) $(CXXFLAGS) -c $<
+
+ExpressionParser.o: ExpressionParser.cxx
+	$(CXX) $(CXXFLAGS) -c $<
+
+expressionGroup.o: ../src/expressionGroup.C ../src/expressionGroup.h 
+	$(CXX) $(CXXFLAGS) -c $<
+
+N_UTL_BreakPoint.o: ../src/N_UTL_BreakPoint.C ../src/N_UTL_BreakPoint.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+newExpression.o: ../src/newExpression.C ../src/newExpression.h ../src/ExpressionLexer.h  ../src/ast.h ../src/astfuncs.h ../src/astbinary.h ../src/astcomp.h ../src/ast_spice_src.h  ../src/ExpressionType.h  ../src/N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o
+	$(CXX) $(CXXFLAGS) -c $<
+
+parserUnitTest: parserUnitTest.C  ../src/ast.h ../src/astbinary.h ../src/astfuncs.h ../src/astcomp.h ../src/ast_spice_src.h ../src/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserUnitTest parserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o -lm -lgtest -lgtest_main 
+
+clean:
+	rm -f astUnitTest  parserUnitTest  *.o \
+		NetlistLexer.cxx NetlistParser.cxx   \
+		ExpressionLexer.cxx  ExpressionParser.cxx 
+

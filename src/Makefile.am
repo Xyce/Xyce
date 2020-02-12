@@ -37,6 +37,7 @@ XYCELINK = \
   $(top_builddir)/src/TimeIntegrationPKG/libTimeIntegration.la \
   $(top_builddir)/src/TopoManagerPKG/libTopoManager.la \
   $(top_builddir)/src/UtilityPKG/libUtility.la \
+  $(top_builddir)/src/UtilityPKG/ExpressionSrc/libExpressionSrc.la \
   $(top_builddir)/src/MultiTimePDEPKG/libMPDE.la
 
 

@@ -49,6 +49,9 @@
 #include <sstream> 
 // ----------   Xyce Includes   ----------
 #include <N_UTL_Expression.h>
+
+#include <newExpression.h>
+#include <xyceExpressionGroup.h>
 #include <N_UTL_ExpressionInternals.h>
 
 namespace Xyce {
@@ -62,11 +65,27 @@ namespace Util {
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-
-Expression::Expression( const std::string & exp )
-  :expPtr_(NULL)
+Expression::Expression( const std::string & exp, bool useNew )
+  :
+   useNewExpressionLibrary_(useNew),
+   newExpPtr_(NULL),
+   expPtr_(NULL)
 {
-  expPtr_ = new ExpressionInternals(exp);
+
+  if(useNewExpressionLibrary_)
+  {
+    if (exp!=std::string(""))
+    {
+      Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
+      grp_ = xyceGroup;
+      newExpPtr_ = new newExpression(exp, grp_);
+      newExpPtr_->lexAndParseExpression();
+    }
+  }
+  else
+  {
+    expPtr_ = new ExpressionInternals(exp);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -78,12 +97,38 @@ Expression::Expression( const std::string & exp )
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 Expression::Expression( const Expression & right)
-  :expPtr_(NULL)
+  :
+   newExpPtr_(NULL),
+   expPtr_(NULL)
 {
-  expPtr_ = new ExpressionInternals( *(right.expPtr_));
+  if(useNewExpressionLibrary_)
+  {
+    newExpPtr_ = new newExpression( *(right.newExpPtr_));
+    newExpPtr_->lexAndParseExpression();
+  }
+  else
+  {
+    expPtr_ = new ExpressionInternals( *(right.expPtr_));
+  }
   return;
 }
 
+#ifdef NEW_EXPRESSION
+//-----------------------------------------------------------------------------
+// Function      : Expression::operator=
+// Purpose       : assignment operator
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 1/7/2019
+//-----------------------------------------------------------------------------
+Expression& Expression::operator=(const Expression& right) 
+{
+  expPtr_ = new ExpressionInternals( *(right.expPtr_));
+  expPtr_->lexAndParseExpression();
+  return *this;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::~Expression
@@ -95,13 +140,25 @@ Expression::Expression( const Expression & right)
 //-----------------------------------------------------------------------------
 Expression::~Expression ()
 {
-  delete expPtr_;
+  if(useNewExpressionLibrary_)
+  {
+    delete newExpPtr_;
+  }
+  else
+  {
+    delete expPtr_;
+  }
   return;
 }
 
-bool
-Expression::parsed() const {
-  return expPtr_->parsed();
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+bool Expression::parsed() const 
+{
+  if(useNewExpressionLibrary_)
+    return newExpPtr_->parsed();
+  else
+    return expPtr_->parsed();
 }
 
 
@@ -116,9 +173,16 @@ Expression::parsed() const {
 bool Expression::set ( const std::string & exp )
 {
   bool retVal = false; 
+
+  if(useNewExpressionLibrary_)
+  {
+    retVal = newExpPtr_->set (exp);
+  }
+  else
   {
     retVal = expPtr_->set (exp);
   }
+
   return retVal;
 }
 
@@ -133,7 +197,10 @@ bool Expression::set ( const std::string & exp )
 void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theSymbolTable ) const
 { 
   {
+#ifdef NEW_EXPRESSION
+#else
     expPtr_->getSymbolTable(theSymbolTable);
+#endif
   }
   return;
 }
@@ -149,7 +216,10 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
 void Expression::get_names(int const & type, std::vector<std::string> & names ) const
 { 
   {
+#ifdef NEW_EXPRESSION
+#else
     expPtr_->get_names(type,names);
+#endif
   }
   return;
 }
@@ -166,7 +236,10 @@ int Expression::get_type ( const std::string & var )
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->get_type (var);
+#endif
   }
   return retVal;
 }
@@ -183,7 +256,10 @@ bool Expression::make_constant (const std::string & var, const double & val)
 {
   bool retVal=false; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->make_constant (var,val);
+#endif
   }
   return retVal;
 }
@@ -200,7 +276,10 @@ bool Expression::make_var (std::string const & var)
 {
   bool retVal=false; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->make_var(var);
+#endif
   }
   return retVal;
 }
@@ -217,7 +296,10 @@ int Expression::differentiate ()
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->differentiate ();
+#endif
   }
   return retVal;
 }
@@ -230,14 +312,19 @@ int Expression::differentiate ()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-bool Expression::set_var ( const std::string & var,
-                                 const double & val)
+bool Expression::set_var ( const std::string & var, const double & val)
 {
+#ifdef NEW_EXPRESSION
+  Teuchos::RCP<xyceExpressionGroup> testGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+  testGroup->setSoln( var, val );
+  return true;
+#else
   bool retVal=false; 
   {
     retVal = expPtr_->set_var (var, val);
   }
   return retVal;
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -252,7 +339,10 @@ bool Expression::set_vars ( const std::vector<double> & vals )
 {
   bool retVal=false; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->set_vars ( vals );
+#endif
   }
   return retVal;
 }
@@ -269,7 +359,10 @@ std::string Expression::get_expression () const
 {
   std::string retVal; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->get_expression ();
+#endif
   }
   return retVal;
 }
@@ -286,7 +379,10 @@ std::string Expression::get_derivative ( std::string const & var )
 {
   std::string retVal; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->get_derivative ( var );
+#endif
   }
   return retVal;
 }
@@ -303,7 +399,10 @@ int Expression::get_num(int const & type)
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->get_num(type);
+#endif
   }
   return retVal;
 }
@@ -322,7 +421,10 @@ int Expression::evaluate ( double & exp_r,
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->evaluate ( exp_r, deriv_r, vals );
+#endif
   }
   return retVal;
 }
@@ -340,7 +442,10 @@ int Expression::evaluateFunction ( double & exp_r, std::vector<double> & vals )
 {
   int retVal=0;
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->evaluateFunction ( exp_r, vals );
+#endif
   }
   return retVal;
 }
@@ -390,7 +495,13 @@ int Expression::evaluateFunction ( double & exp_r )
 //-----------------------------------------------------------------------------
 bool Expression::set_sim_time(double time)
 {
+#ifdef NEW_EXPRESSION
+  Teuchos::RCP<xyceExpressionGroup> testGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+  testGroup->setTime(time);
+  return true;
+#else
   return expPtr_->set_sim_time(time);
+#endif
 }
 
 
@@ -404,7 +515,11 @@ bool Expression::set_sim_time(double time)
 //-----------------------------------------------------------------------------
 bool Expression::set_sim_dt(double dt)
 {
+#ifdef NEW_EXPRESSION
+  return false;
+#else
   return expPtr_->set_sim_dt(dt);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -419,7 +534,10 @@ bool Expression::set_temp(double const & tempIn)
 {
   bool retVal=false;
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->set_temp(tempIn);
+#endif
   }
   return retVal;
 }
@@ -434,7 +552,11 @@ bool Expression::set_temp(double const & tempIn)
 //-----------------------------------------------------------------------------
 bool Expression::set_sim_freq(double freq)
 {
+#ifdef NEW_EXPRESSION
+  return false;
+#else
   return expPtr_->set_sim_freq(freq);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -448,7 +570,10 @@ bool Expression::set_sim_freq(double freq)
 void Expression::set_accepted_time(double const time)
 { 
   {
+#ifdef NEW_EXPRESSION
+#else
     expPtr_->set_accepted_time(time);
+#endif
   }
   return;
 }
@@ -465,7 +590,10 @@ double Expression::get_break_time()
 {
   double retVal=0.0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->get_break_time();
+#endif
   }
   return retVal;
 }
@@ -482,7 +610,10 @@ double Expression::get_break_time_i()
 {
   double retVal=0.0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->get_break_time_i();
+#endif
   }
   return retVal;
 }
@@ -497,7 +628,11 @@ double Expression::get_break_time_i()
 //-----------------------------------------------------------------------------
 const std::string & Expression::get_input ()
 {
+#ifdef NEW_EXPRESSION
+  return expPtr_->getExpressionString();
+#else
   return expPtr_->get_input ();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -514,15 +649,23 @@ int Expression::order_names(std::vector<std::string> const & new_names)
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->order_names(new_names);
+#endif
   }
   return retVal;
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::replace_func
+//
 // Purpose       : Replace user defined function with its definition in expression
-// Special Notes :
+// 
+// Special Notes : ERK.  I think for the "new" expression library, this function 
+//                 should (probably) be obsolete, unless there is a use case where
+//                 it is absolutely necessary.  Currently I don't see a use case
+//                 for it.
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
@@ -533,7 +676,10 @@ int Expression::replace_func (std::string const & func_name,
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->replace_func (func_name, *(func_def.expPtr_), numArgs);
+#endif
   }
   return retVal;
 }
@@ -541,27 +687,44 @@ int Expression::replace_func (std::string const & func_name,
 //-----------------------------------------------------------------------------
 // Function      : Expression::replace_var
 // Purpose       : Replace a variable usage with a parsed sub-expression
+//
 // Special Notes : This is used for subcircuit parameters that cannot be
 //                 fully resolved to a constant because they have global
 //                 parameter usage.
+//
+//                 ERK: See bug 1801.
+//                 http://charleston.sandia.gov/bugzilla/show_bug.cgi?id=1801
+//
+//                 And also tests:
+//                 Xyce_Regression/Netlists/Certification_Tests/BUG_1801
+//
+//                 ERK.  Do I go thru the "group" for this one?  or not bother.
+//                 Note that parameters,etc that need this step will probably 
+//                 fail to be resolved in my early "resolveExpression" functions.
+//
 // Scope         :
 // Creator       : Thomas Russo, SNL
 // Creation Date : 08/10/2010
 //-----------------------------------------------------------------------------
-int
-Expression::replace_var(
+int Expression::replace_var(
   const std::string &   var_name,
   const Expression &    subexpr)
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->replace_var (var_name, *(subexpr.expPtr_));
+#endif
   }
   return retVal;
 }
+
+
 //-----------------------------------------------------------------------------
 // Function      : Expression::replace_var
 // Purpose       : Replace a variable usage with a parsed sub-expression
+//
 // Special Notes : This is used for subcircuit parameters that cannot be
 //                 fully resolved to a constant because they have global
 //                 parameter usage.
@@ -574,7 +737,10 @@ int Expression::replace_var (std::string const & var_name,
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->replace_var (var_name, op);
+#endif
   }
   return retVal;
 }
@@ -583,17 +749,38 @@ int Expression::replace_var (std::string const & var_name,
 //-----------------------------------------------------------------------------
 // Function      : Expression::replace_name
 // Purpose       : Change the name of an input quantity
-// Special Notes :
+//
+// Special Notes : ERK.  This called from the N_IO_DistToolBase.C file/class
+//                 in the function DistToolBase::instantiateDevice.
+//
+//                 "Input quantity" in this case means voltage nodes (XEXP_NODE), 
+//                 device instances (XEXP_INSTANCE), and lead currents (XEXP_LEAD).
+//
+//                 Sometimes, they are specified in expressions without their 
+//                 names being fully resolved.  ie, the expression is inside of 
+//                 a subcircuit, and thus implicitly assumes the full prefix.
+//
+//                 So, this function adds the full prefix to these names, 
+//                 so they can be fully resolved.
+//
+//                 The function DistToolBase::instantiateDevice calls this 
+//                 function twice for some reason that I don't (yet) understand.
+//                 It seems to require 2 passes to properly update the name. ie,
+//                 "name" -> "; name" -> "prefix:name".
+//  
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 bool Expression::replace_name ( const std::string & old_name,
-                                      const std::string & new_name)
+                                const std::string & new_name)
 {
   bool retVal=false; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->replace_name ( old_name, new_name);
+#endif
   }
   return retVal;
 }
@@ -610,7 +797,10 @@ int Expression::getNumDdt ()
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_-> getNumDdt ();
+#endif
   }
   return retVal;
 }
@@ -626,7 +816,10 @@ int Expression::getNumDdt ()
 void Expression::getDdtVals ( std::vector<double> & vals )
 { 
   {
+#ifdef NEW_EXPRESSION
+#else
     expPtr_-> getDdtVals ( vals );
+#endif
   }
   return;
 }
@@ -643,7 +836,10 @@ void Expression::getDdtVals ( std::vector<double> & vals )
 void Expression::setDdtDerivs ( std::vector<double> & vals )
 { 
   {
+#ifdef NEW_EXPRESSION
+#else
     expPtr_->setDdtDerivs ( vals );
+#endif
   }
   return;
 }
@@ -660,7 +856,10 @@ int Expression::num_vars() const
 {
   int retVal=0; 
   {
+#ifdef NEW_EXPRESSION
+#else
     retVal = expPtr_->num_vars();
+#endif
   }
   return retVal;
 }
@@ -682,6 +881,9 @@ int Expression::num_vars() const
 //-----------------------------------------------------------------------------
 bool Expression::isTimeDependent() const
 {
+#ifdef NEW_EXPRESSION
+  return false;
+#else
   bool implicitTimeDep = expPtr_->isImplicitTimeDepedent();
   bool explicitTimeDep = false;
   std::vector<std::string> specials;
@@ -691,6 +893,7 @@ bool Expression::isTimeDependent() const
     explicitTimeDep=(std::find(specials.begin(), specials.end(), "TIME") != specials.end());
   }
   return (implicitTimeDep || explicitTimeDep);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -703,7 +906,10 @@ bool Expression::isTimeDependent() const
 //-----------------------------------------------------------------------------
 bool Expression::isRandomDependent() const
 {
+#ifdef NEW_EXPRESSION
+#else
   return ( expPtr_->isRandomDepedent() );
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -716,7 +922,11 @@ bool Expression::isRandomDependent() const
 //-----------------------------------------------------------------------------
 void Expression::dumpParseTree()
 {
+#ifdef NEW_EXPRESSION
+  expPtr_->dumpParseTree(std::cout);
+#else
   expPtr_->dumpParseTree();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -734,7 +944,10 @@ void Expression::dumpParseTree()
 ///
 void Expression::seedRandom(long seed)
 {
+#ifdef NEW_EXPRESSION
+#else
   ExpressionInternals::seedRandom(seed);
+#endif
 }
 
 } // namespace Util

@@ -45,9 +45,12 @@
 #include <N_UTL_Interface_Enum_Types.h>
 #include <N_UTL_ExpressionSymbolTable.h>
 
+#include <expressionGroup.h>
+
 namespace Xyce {
 namespace Util {
 
+class newExpression;
 class ExpressionInternals;
 
 //-----------------------------------------------------------------------------
@@ -62,13 +65,15 @@ class Expression
 
 public:
 
-  Expression (std::string const & exp = std::string());
+  Expression (std::string const & exp = std::string(), bool useNew=false);
   Expression (const Expression &);
-  //  Expression& operator=(const Expression& right) ;  ///< Should never have copy constructor without this too?!?
+#ifdef NEW_EXPRESSION
+  Expression& operator=(const Expression& right) ; 
+#endif
   ~Expression (void);
 
   bool parsed() const;
-    
+ 
   bool set (std::string const & exp);
   void getSymbolTable (std::vector< ExpressionSymbolTableEntry > & names) const;
   void get_names (int const & type, std::vector< std::string > & names) const;
@@ -115,8 +120,10 @@ public:
   static void seedRandom(long seed);
 private:
 
+  bool useNewExpressionLibrary_;
+  newExpression *newExpPtr_;
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp_;
   ExpressionInternals *expPtr_;
-
 };
 
 } // namespace Util

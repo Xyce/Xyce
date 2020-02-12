@@ -1,6 +1,8 @@
 
 AM_CPPFLAGS = @Xyce_INCS@ -DXYCEBUILDTIMESTAMP=\"`$(top_srcdir)/utils/XyceDatestamp.sh $(top_srcdir)`\"
 
+SUBDIRS = ExpressionSrc
+
 noinst_LTLIBRARIES = libUtility.la
 
 if BUILD_INTEL_FFT_SUPPORT
