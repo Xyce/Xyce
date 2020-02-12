@@ -18,9 +18,10 @@ synonym for \texttt{.MEASURE}.
 
 The syntaxes for the \texttt{.MEASURE} statements are as follows.  All of these
 measure types are supported for \texttt{.TRAN} analyses.  For \texttt{.DC} analyses,
-only the \texttt{AVG}, \texttt{ERROR}, \texttt{EQN}, \texttt{MIN}, \texttt{MAX} and \texttt{PP}
-measures are supported.  For \texttt{.AC} analyses, only the \texttt{AVG}, \texttt{EQN},
-\texttt{MIN}, \texttt{MAX} and \texttt{PP} measures are supported.  Also, note that 
+only the \texttt{AVG}, \texttt{ERROR}, \texttt{EQN}, \texttt{FIND-WHEN}, \texttt{MIN},
+\texttt{MAX}, \texttt{PP} and \texttt{WHEN} measures are supported.  For \texttt{.AC}
+analyses, only the \texttt{AVG}, \texttt{EQN}, \texttt{FIND-WHEN}, \texttt{MIN},
+\texttt{MAX}, \texttt{PP} and \texttt{WHEN} measures are supported.  Also, note that
 each measure type (e.g., \texttt{MAX}) may be listed thrice, once for each supported
 ``measure mode'' (\texttt{TRAN}, \texttt{DC} and \texttt{AC}). This is because only 
 a subset of the allowed ``qualifiers'' (e.g., \texttt{FROM} and \texttt{TO}) may be 
@@ -144,6 +145,12 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 + [DEPVARCOL=<value>] [COMP_FUNCTION=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
+.MEASURE DC <result name> FIND <variable>
++ WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [FROM=<value>] [TO=<value>]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
 .MEASURE DC <result name> MAX <variable>
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] 
@@ -156,7 +163,12 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 
 .MEASURE DC <result name> PP <variable>
 + [FROM=<value>] [TO=<value>] 
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>] 
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+MEASURE DC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [FROM=<value>] [TO=<value>]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE AC <result name> AVG <variable>
 + [FROM=<value>] [TO=<value>]
@@ -165,6 +177,12 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 .MEASURE AC <result name> EQN <expression> 
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE AC <result name> FIND <variable>
++ WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [FROM=<value>] [TO=<value>]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE AC <result name> MAX <variable>
 + [FROM=<value>] [TO=<value>] 
@@ -178,7 +196,12 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 
 .MEASURE AC <result name> PP <variable>
 + [FROM=<value>] [TO=<value>] 
-+ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]    
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+MEASURE AC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [FROM=<value>] [TO=<value>]
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
 
 \end{alltt}
 \index{\texttt{.MEASURE}}
@@ -350,9 +373,10 @@ The supported measure types and their definitions are:
 
   \item[\tt WHEN] Returns the time when {\tt <variable>} reaches {\tt
     <variable\(\sb{2}\)>} or the constant value, {\tt value}.  The
-    time over which the value is searched can be limited by the
-    qualifiers {\tt TO}, {\tt FROM}, {\tt TD}, {\tt RISE}, {\tt FALL}
-    and {\tt CROSS}.  The qualifier {\tt MINVAL} acts as a tolerance
+    time over which the value is searched can be limited the qualifiers
+    {\tt FROM}, {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS}
+    for {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt DC}
+    and {\tt AC} measures. The qualifier {\tt MINVAL} acts as a tolerance
     for the comparison.  For example when {\tt <variable\(\sb{2}\)>}
     is specified, the comparison used is when {\tt <variable>} $=$
     {\tt <variable\(\sb{2}\)>} $\pm$ {\tt MINVAL} or when a constant,
