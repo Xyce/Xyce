@@ -1620,9 +1620,11 @@ bool Simulator::simulateUntil(
   double finalTime = analysisManager_->getFinalTime();
   double initialTime = analysisManager_->getInitialTime();
 
+  if (requestedUntilTime < currentTimeBeforeSim)
+    Report::UserWarning0() << "requestedUntilTime < current simulation time in simulateUntil() call.  Simulation will now run to completion.";
+
   // Silence the "Percent Complete" noise, we don't want it when using this
   // interface
-
   analysisManager_->silenceProgress();
 
   if (DEBUG_CIRCUIT)
