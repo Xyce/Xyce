@@ -102,11 +102,14 @@ private:
   Type          type_;                  ///< SIMPLE or PAUSE
 };
 
+// For this comparison, PAUSE breakpoints are considered "less than" SIMPLE breakpoints
+// that occur at the same time.  See SON Bug 1275 for more details.
 struct BreakPointLess
 {
 public:
   BreakPointLess(double tolerance) : tolerance_(tolerance) {}
-  bool operator()(const BreakPoint &l, const BreakPoint &r) const { return l.time_ < r.time_ && std::fabs(r.time_ - l.time_) > tolerance_; }
+  bool operator()(const BreakPoint &l, const BreakPoint &r) const { return (l.time_ < r.time_ && std::fabs(r.time_ - l.time_) > tolerance_) ||
+      ( std::fabs(r.time_ - l.time_) <= tolerance_ && l.type_ == BreakPoint::PAUSE && r.type_ == BreakPoint::SIMPLE) ; }
   bool operator()(const BreakPoint &l, const double &d) const { return l.time_ < d && std::fabs(d - l.time_) > tolerance_; }
   double tolerance_;                            ///< Tolerance
 };
