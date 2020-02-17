@@ -152,7 +152,11 @@ void FindWhen::updateTran(
       // something realistic.
       lastIndepVarValue_=circuitTime;
       lastDepVarValue_=outVarValues_[whenIdx_];
-      lastOutputVarValue_=outVarValues_[0]; 
+      lastOutputVarValue_=outVarValues_[0];
+      if (outputValueTargetGiven_)
+        lastTargValue_ = outputValueTarget_;
+      else
+        lastTargValue_ = outVarValues_[whenIdx_+1];
       initialized_=true;
     }  
 
@@ -222,16 +226,17 @@ void FindWhen::updateTran(
         }
         else
         {
-          // check and see if last point and this point bound the target point 
-          double backDiff    = lastDepVarValue_ - targVal;
-          double forwardDiff = outVarValues_[whenIdx_] - targVal;
+          // check and see if the lines defined by the current and previous values in the WHEN
+          // clause indicate that the two lines, defined by those four values, have crossed.
+          double prevDiff    = lastDepVarValue_ - lastTargValue_;
+          double currentDiff = outVarValues_[whenIdx_] - targVal;
 
-          // if we bound the target then either
-          //  (backDiff < 0) && (forwardDiff > 0)  
+          // if the lines intersected then either
+          //  (prevDiff < 0) && (currentDiff > 0)
           //   OR
-          //  (backDiff > 0) && (forwardDiff < 0) 
-          // or more simply sgn( backDiff ) = - sgn( forwardDiff ) 
-          if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) )
+          //  (prevDiff > 0) && (currentDiff < 0)
+          // or more simply sgn( prevDiff ) = - sgn( currentDiff )
+          if( ((prevDiff < 0.0) && (currentDiff > 0.0)) || ((prevDiff > 0.0) && (currentDiff < 0.0)) )
           {
             // Set the calculationInstant_ and calculationResult_ via interpolation
             interpolateResults(circuitTime, targVal);
@@ -331,6 +336,10 @@ void FindWhen::updateDC(
         lastIndepVarValue_=dcSweepVal;
         lastDepVarValue_=outVarValues_[whenIdx_];
         lastOutputVarValue_=outVarValues_[0];
+        if (outputValueTargetGiven_)
+          lastTargValue_ = outputValueTarget_;
+        else
+          lastTargValue_ = outVarValues_[whenIdx_+1];
         initialized_=true;
       }
 
@@ -379,16 +388,17 @@ void FindWhen::updateDC(
           }
           else
           {
-            // check and see if last point and this point bound the target point
-            double backDiff    = lastDepVarValue_ - targVal;
-            double forwardDiff = outVarValues_[whenIdx_] - targVal;
+            // check and see if the lines defined by the current and previous values in the WHEN
+            // clause indicate that the two lines, defined by those four values, have crossed.
+            double prevDiff    = lastDepVarValue_ - lastTargValue_;
+            double currentDiff = outVarValues_[whenIdx_] - targVal;
 
-            // if we bound the target then either
-            //  (backDiff < 0) && (forwardDiff > 0)
+            // if the lines intersected then either
+            //  (prevDiff < 0) && (currentDiff > 0)
             //   OR
-            //  (backDiff > 0) && (forwardDiff < 0)
-            // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-            if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) )
+            //  (prevDiff > 0) && (currentDiff < 0)
+            // or more simply sgn( prevDiff ) = - sgn( currentDiff )
+            if( ((prevDiff < 0.0) && (currentDiff > 0.0)) || ((prevDiff > 0.0) && (currentDiff < 0.0)) )
             {
               // Set the calculationInstant_ and calculationResult_ via interpolation
               interpolateResults(dcSweepVal, targVal);
@@ -466,6 +476,10 @@ void FindWhen::updateAC(
       lastIndepVarValue_=frequency;
       lastDepVarValue_=outVarValues_[whenIdx_];
       lastOutputVarValue_=outVarValues_[0];
+      if (outputValueTargetGiven_)
+        lastTargValue_ = outputValueTarget_;
+      else
+        lastTargValue_ = outVarValues_[whenIdx_+1];
       initialized_=true;
     }
 
@@ -514,16 +528,17 @@ void FindWhen::updateAC(
         }
         else
         {
-          // check and see if last point and this point bound the target point
-          double backDiff    = lastDepVarValue_ - targVal;
-          double forwardDiff = outVarValues_[whenIdx_] - targVal;
+          // check and see if the lines defined by the current and previous values in the WHEN
+          // clause indicate that the two lines, defined by those four values, have crossed.
+          double prevDiff    = lastDepVarValue_ - lastTargValue_;
+          double currentDiff = outVarValues_[whenIdx_] - targVal;
 
-          // if we bound the target then either
-          //  (backDiff < 0) && (forwardDiff > 0)
+          // if the lines intersected then either
+          //  (prevDiff < 0) && (currentDiff > 0)
           //   OR
-          //  (backDiff > 0) && (forwardDiff < 0)
-          // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-          if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) )
+          //  (prevDiff > 0) && (currentDiff < 0)
+          // or more simply sgn( prevDiff ) = - sgn( currentDiff )
+          if( ((prevDiff < 0.0) && (currentDiff > 0.0)) || ((prevDiff > 0.0) && (currentDiff < 0.0)) )
           {
             // Set the calculationInstant_ and calculationResult_ via interpolation
             interpolateResults(frequency, targVal);
