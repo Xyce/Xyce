@@ -33,6 +33,25 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{1273-SON}: Bug fixes for FIND-WHEN and WHEN measures for all analysis modes &
+Several issues with the \texttt{FIND-WHEN} and \texttt{WHEN} measures, for \texttt{AC},
+\texttt{DC} and \texttt{TRAN} measure modes, were addressed for this release.  First,
+the right-hand side of the equality in the \texttt{WHEN} clause can now be an expression.
+An example is:
+\begin{verbatim}
+.MEASURE DC whenExample1 when v(2)={v(1)+1}
+\end{verbatim}
+The second issue was that the interpolation algorithm for determining the time
+(or frequency or DC sweep value) at which the \texttt{WHEN} clause was satisifed
+could be inaccurate if the \texttt{WHEN} clause used varying quantities.
+An example is:
+\begin{verbatim}
+.MEASURE AC whenExample2 when vr(1)=vi(1)
+\end{verbatim}
+The third issue was that, especially for \texttt{TRAN} measures, the \texttt{WHEN}
+clause could miss some of the crossings if that clause used varying quantities.
+\\ \hline
+
 \textbf{1271-SON}: Incorrect error handling for .PRINT AC when .LIN is used with
 .STEP & An attempt to print out an S-,Y- or Z-parameter value via a .PRINT AC line
 would cause a parsing error when .LIN was used with .STEP.
