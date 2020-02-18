@@ -33,7 +33,11 @@
   \color{white}\textbf{Change} &
   \color{white}\textbf{Detail} \\ \hline \endhead
 
-Place holder  & place holder
+Mixed Signal Interface behavior when a ``backwards time step'' is requested.  &
+For the Mixed Signal Interface, if the \texttt{requestedUntilTime} in a
+\texttt{simulateUntil()} call is less than the current simulation time then
+the \Xyce{} simulation will run to completion.  The interface change is that
+a warning message is now emitted for this case.
 \\ \hline
 
 \end{longtable}
