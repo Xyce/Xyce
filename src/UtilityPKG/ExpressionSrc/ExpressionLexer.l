@@ -53,9 +53,14 @@ class ExpressionLexer;
 %s voltagenodedef
 %s currentdevdef
 
+ /* ID is used for device instance names, particularly inside of current vars */
+ /* NODE is used for voltage node names, particularly inside of voltage vars */
+ /* Both ID and NODE include the colon, to handle Xyce subcircuit syntax */
+ /* Other simulators use other delimiters for subcircuit names, so might */
+ /* want to consider supporting delimiters other than the colon. */
 DIGIT [0-9]
-ID [a-zA-Z][a-zA-Z0-9_]*
-NODE [a-zA-Z0-9_]*
+ID [a-zA-Z][a-zA-Z0-9_:]*
+NODE [a-zA-Z0-9_:]*
 
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
