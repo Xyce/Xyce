@@ -33,6 +33,16 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{1275-SON}: Bug with handling SIMPLE and PAUSE breakpoints that occur at the same time &
+\Xyce{} supports two types of ``breakpoints'' -- namely SIMPLE and PAUSE breakpoints.  The SIMPLE
+breakpoints are, for example, set based on the times of the slope discontinuities in any PULSE
+and PWL sources in the netlist.  The PAUSE breakpoints are set, for example, by the simulation
+end time and any \texttt{simulateUntil(requested\_time)} calls used by the Mixed Signal Interface.
+In previous versions of \Xyce{}, if a SIMPLE and PAUSE breakpoint occurred at the same time
+then the PAUSE breakpoint would be ignored and the \texttt{simulateUntil()} calls would work
+incorrectly.
+\\ \hline
+
 \textbf{1273-SON}: Bug fixes for FIND-WHEN and WHEN measures for all analysis modes &
 Several issues with the \texttt{FIND-WHEN} and \texttt{WHEN} measures, for \texttt{AC},
 \texttt{DC} and \texttt{TRAN} measure modes, were addressed for this release.  First,
