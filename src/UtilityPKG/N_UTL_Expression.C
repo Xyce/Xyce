@@ -304,7 +304,12 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
 
           for (int jj=0;jj<size;jj++)
           {
-            names.push_back( newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] );
+            std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
+            std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
+            if (it == names.end())
+            {
+              names.push_back( tmpName );
+            }
           }
         }
         break;
@@ -312,7 +317,12 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
       case XEXP_INSTANCE:
         for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
         {
-          names.push_back( newExpPtr_->getCurrentOpVec()[ii]->getName() );
+          std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
+            std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
+            if (it == names.end())
+            {
+              names.push_back( tmpName );
+            }
         }
         break;
 
