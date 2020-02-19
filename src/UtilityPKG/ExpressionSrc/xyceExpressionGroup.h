@@ -18,10 +18,28 @@ namespace Util {
 //-----------------------------------------------------------------------------
 // Class         : xyceExpressionGroup
 //
-// Purpose       : This is a prototype, developed primarily for this test program.
+// Purpose       : This is the group class for connecting the new 
+//                 expression library to Xyce
 //
-// Special Notes : When migrated to Xyce, a new "Xyce" group will need to be 
-//                 developed.
+// Special Notes : For now, this is a lightweight class, which will hopefully be
+//                 temporary.  In this class, there will (probably) be a
+//                 different unique instance for each newExpression class
+//                 instance.   This is necessary because in the current design,
+//                 the newExpression object is hiding behind N_UTL_Expression,
+//                 and so each instance of N_UTL_Expression will allocate a
+//                 newExpression object, and will also create a xyceExpressionGroup
+//                 object to use with that object.
+//
+//                 Long term, there should be a better way to do this.  One drawback
+//                 of having a unique group for each expression is that for expressions
+//                 that have external dependencies, we want to make sure that variables
+//                 don't get updated multiple times.  There are use cases where this
+//                 mistake would be easy to do.
+//
+//                 Long term, it should be possible to have a single group
+//                 used by all expressions.  It should also contain all the machinery
+//                 necessary to obtain the values that it needs for voltages, currents,
+//                 parameters, etc.
 //
 // Creator       : Eric Keiter
 // Creation Date : 2/12/2020
@@ -37,7 +55,7 @@ public:
   virtual bool isOption (const std::string & optionStr)
   {
     std::string tmp = optionStr;
-    Xyce::Util::toLower(tmp);
+    Xyce::Util::toUpper(tmp);
     return false; //  FIX THIS
   }
 
@@ -45,7 +63,7 @@ public:
   {
     bool success=true;
     std::string tmp = nodeName;
-    Xyce::Util::toLower(tmp);
+    Xyce::Util::toUpper(tmp);
     retval = 0.0;
     return success; // FIX THIS
   }
@@ -54,7 +72,7 @@ public:
   {
     bool success=true;
     std::string tmp = nodeName;
-    Xyce::Util::toLower(tmp);
+    Xyce::Util::toUpper(tmp);
     retval = 0.0;
     return success; // FIX THIS
   }
@@ -62,9 +80,17 @@ public:
   virtual bool getSolutionVal(const std::string & nodeName, double & retval )
   {
     bool success=true;
-    std::string tmp = nodeName;
-    Xyce::Util::toLower(tmp);
     retval = 0.0;
+    std::string tmp = nodeName;
+    Xyce::Util::toUpper(tmp);
+
+    std::vector<std::string>::iterator it = std::find(names_.begin(), names_.end(), tmp);
+    if (it != names_.end())
+    {
+      int index = it - names_.begin();
+      retval = dvals_[index];
+    }
+
     return success; // FIX THIS
   }
 
@@ -96,7 +122,31 @@ public:
   virtual bool getGlobalParam (const std::string & name, Xyce::Util::newExpression & exp);
 #endif
 
+  void setNames ( const std::vector<std::string> & names )
+  {
+    names_ = names;
+    for (int ii=0;ii<names_.size();ii++)
+    {
+      Xyce::Util::toUpper(names_[ii]);
+    }
+  }
+
+  void setVals( const std::vector<double> & vals )
+  {
+    dvals_ = vals;
+  }
+
+  void setVals( const std::vector<std::complex<double> > & vals )
+  {
+    cvals_ = vals;
+  }
+
 private:
+
+  // don't know if these are best way ...
+  std::vector<std::string> names_;
+  std::vector< double> dvals_;
+  std::vector< std::complex<double> > cvals_;
 
 };
 

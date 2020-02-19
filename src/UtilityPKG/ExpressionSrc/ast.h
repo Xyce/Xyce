@@ -714,7 +714,13 @@ class voltageOp: public astNode<ScalarT>
       voltageVals_(voltageNodes.size(),0.0),
       number_(0.0),
       derivIndex_(-1)
-    {};
+    {
+      int voltNodeSize = voltageNodes_.size();
+      for (int ii=0;ii<voltNodeSize;++ii)
+      {
+        Xyce::Util::toUpper(voltageNodes_[ii]);
+      }
+    };
 
     virtual ScalarT val()
     {
@@ -805,10 +811,12 @@ class currentOp: public astNode<ScalarT>
   public:
     currentOp (std::string currentDevice):
       astNode<ScalarT>(),
-      currentDevice_(currentDevice),
       number_(0.0),
+      currentDevice_(currentDevice),
       derivIndex_(-1)
-    {};
+    {
+      Xyce::Util::toUpper(currentDevice_);
+    };
 
     virtual ScalarT val() {return number_;}
 
@@ -2169,13 +2177,13 @@ class ddxOp : public astNode<ScalarT>
         std::string tmp = this->rightAst_->getName();
         if (!(tmp.empty()))
         {
-          Xyce::Util::toLower(tmp);
+          Xyce::Util::toUpper(tmp);
           for (int ii=0;ii<paramOpVector.size();ii++)
           {
             std::string tmp2 = paramOpVector[ii]->getName();
             if (!(tmp2.empty()))
             {
-              Xyce::Util::toLower(tmp2);
+              Xyce::Util::toUpper(tmp2);
               if (tmp==tmp2) { foundX_ = true; astNodeX_ = paramOpVector[ii]; }
             }
           }
@@ -2191,14 +2199,14 @@ class ddxOp : public astNode<ScalarT>
         std::vector<std::string> tmp = this->rightAst_->getNodeNames();
         if (!(tmp.empty()))
         {
-          for (int jj=0;jj<tmp.size();jj++) Xyce::Util::toLower(tmp[jj]);
+          for (int jj=0;jj<tmp.size();jj++) Xyce::Util::toUpper(tmp[jj]);
 
           for (int ii=0;ii<voltOpVector.size();ii++)
           {
             std::vector<std::string> tmp2 = this->rightAst_->getNodeNames();
             if (!(tmp2.empty()))
             {
-              for (int jj=0;jj<tmp2.size();jj++) Xyce::Util::toLower(tmp2[jj]);
+              for (int jj=0;jj<tmp2.size();jj++) Xyce::Util::toUpper(tmp2[jj]);
 
               if (tmp.size() == tmp2.size())
               {
@@ -2219,13 +2227,13 @@ class ddxOp : public astNode<ScalarT>
         std::string tmp = this->rightAst_->getName();
         if (!(tmp.empty()))
         {
-          Xyce::Util::toLower(tmp);
+          Xyce::Util::toUpper(tmp);
           for (int ii=0;ii<currentOpVector.size();ii++)
           {
             std::string tmp2 = currentOpVector[ii]->getName();
             if (!(tmp2.empty()))
             {
-              Xyce::Util::toLower(tmp2);
+              Xyce::Util::toUpper(tmp2);
               if (tmp==tmp2) { foundX_ = true; astNodeX_ = currentOpVector[ii]; }
             }
           }

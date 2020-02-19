@@ -68,6 +68,7 @@ namespace Util {
 Expression::Expression( const std::string & exp, bool useNew )
   :
    useNewExpressionLibrary_(useNew),
+   namesSet_(false),
    newExpPtr_(NULL),
    expPtr_(NULL)
 {
@@ -78,7 +79,17 @@ Expression::Expression( const std::string & exp, bool useNew )
     {
       Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
       grp_ = xyceGroup;
-      newExpPtr_ = new newExpression(exp, grp_);
+
+      // ERK; removing the beginning and ending brace should really be handled by flex/bison, 
+      // but I was in a hurry today.
+      std::string expCopy = exp;
+      if (expCopy[0]== '{' && expCopy[expCopy.size()-1]=='}')
+      {
+        expCopy.erase(0,1);// lop off open curly brace
+        expCopy.erase(expCopy.length()-1); // lop off close curly brace
+      }
+
+      newExpPtr_ = new newExpression(expCopy, grp_);
       newExpPtr_->lexAndParseExpression();
     }
   }
@@ -98,6 +109,8 @@ Expression::Expression( const std::string & exp, bool useNew )
 //-----------------------------------------------------------------------------
 Expression::Expression( const Expression & right)
   :
+   useNewExpressionLibrary_(right.useNewExpressionLibrary_),
+   namesSet_(right.namesSet_),
    newExpPtr_(NULL),
    expPtr_(NULL)
 {
@@ -156,9 +169,13 @@ Expression::~Expression ()
 bool Expression::parsed() const 
 {
   if(useNewExpressionLibrary_)
+  {
     return newExpPtr_->parsed();
+  }
   else
+  {
     return expPtr_->parsed();
+  }
 }
 
 
@@ -196,30 +213,138 @@ bool Expression::set ( const std::string & exp )
 //-----------------------------------------------------------------------------
 void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theSymbolTable ) const
 { 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+    //newExpPtr_->getSymbolTable(theSymbolTable);
+  }
+  else
+  {
     expPtr_->getSymbolTable(theSymbolTable);
-#endif
   }
   return;
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_names
-// Purpose       : Returns the names of input quantities by type
-// Special Notes :
+//
+// Purpose       : This function returns the names of various entities present 
+//                 in a parsed expression by type.
+//
+// Special Notes : These notes pertain to the newExpression implementation.
+//
+//                 This function, which is a holdover of the old expression 
+//                 library, is vaguely named.  Its name, "get_names" begs the 
+//                 question, "names of what?"
+//
+//                 I believe that this function returns a vector of strings, 
+//                 and the strings are all names of different types of entities 
+//                 which may or may not be present in the expression.  These are
+//                 generally entities which will need some kind of external 
+//                 information, from outside the expression class, 
+//                 to be evaluated.
+//
+//                 So, to use the old expression library, the calling code would 
+//                 first call this function, to get the list of named entities.  
+//                 It would then see if it could resolve them all.  For example, 
+//                 a named entity of type XEXP_NODE refers to a voltage node,
+//                 and so the next logical thing to do for those entities 
+//                 would be to see if that node actually existed in the 
+//                 circuit, and what machinery was needed to obtain its value.
+//
+//                 Similar thing with XEXP_FUNCTION, for .FUNC references, etc.
+//
+//                 The full list of types is as follows.
+//
+//                 enum XEXP_TYPES
+//                 {
+//                   XEXP_ALL,            // 0
+//                   XEXP_NODE,           // 1    nodal variables, does this include currents?
+//                   XEXP_INSTANCE,       // 2
+//                   XEXP_LEAD,           // 3
+//                   XEXP_STRING,         // 4
+//                   XEXP_SPECIAL,        // 5
+//                   XEXP_VARIABLE,       // 6
+//                   XEXP_FUNCTION,       // 7
+//                   XEXP_NODAL_COMPUTATION, // 8
+//                   XEXP_COUNT    
+//                 };
+//
+//                 Note, the implied order of "variables" is the order of the types in the enum.
+//
+//                 The old expression library expects that *all* of these entities will 
+//                 be passed into it when the function "evaluate" or "evaluateFunction" 
+//                 is called, and they will be passed in as a std::vector<double>.   This
+//                 vector will include all of the above things, if they exist.  So, they are
+//                 not passed in via separate calls, or in separate containers.  That is, 
+//                 the global parameter values will be passed in along with the voltage 
+//                 and current values, etc, all in the same vector.  It is up to the user to
+//                 establish the order, using the order_names function.
+//
+//                 I don't like this design.  So I am attempting to have as much of 
+//                 it as possible be handled directly in the interface class 
+//                 (N_UTL_Expression), rather than in this class.
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 void Expression::get_names(int const & type, std::vector<std::string> & names ) const
 { 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+    switch (type)
+    {
+      case XEXP_ALL:
+        break;
+
+      case XEXP_NODE:
+        for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
+        {
+          int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
+
+          for (int jj=0;jj<size;jj++)
+          {
+            names.push_back( newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] );
+          }
+        }
+        break;
+
+      case XEXP_INSTANCE:
+        for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
+        {
+          names.push_back( newExpPtr_->getCurrentOpVec()[ii]->getName() );
+        }
+        break;
+
+      case XEXP_LEAD:
+        break;
+
+      case XEXP_STRING:
+        break;
+
+      case XEXP_SPECIAL:
+        break;
+
+      case XEXP_VARIABLE:
+        break;
+
+      case XEXP_FUNCTION:
+        break;
+
+      case XEXP_NODAL_COMPUTATION:
+        break;
+
+      case XEXP_COUNT:
+        break;
+
+      default:
+        break;
+
+    }
+  }
+  else
+  {
     expPtr_->get_names(type,names);
-#endif
   }
   return;
 }
@@ -235,11 +360,12 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
 int Expression::get_type ( const std::string & var )
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->get_type (var);
-#endif
   }
   return retVal;
 }
@@ -255,11 +381,12 @@ int Expression::get_type ( const std::string & var )
 bool Expression::make_constant (const std::string & var, const double & val)
 {
   bool retVal=false; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->make_constant (var,val);
-#endif
   }
   return retVal;
 }
@@ -275,11 +402,12 @@ bool Expression::make_constant (const std::string & var, const double & val)
 bool Expression::make_var (std::string const & var)
 {
   bool retVal=false; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->make_var(var);
-#endif
   }
   return retVal;
 }
@@ -295,11 +423,12 @@ bool Expression::make_var (std::string const & var)
 int Expression::differentiate ()
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->differentiate ();
-#endif
   }
   return retVal;
 }
@@ -314,17 +443,20 @@ int Expression::differentiate ()
 //-----------------------------------------------------------------------------
 bool Expression::set_var ( const std::string & var, const double & val)
 {
-#ifdef NEW_EXPRESSION
-  Teuchos::RCP<xyceExpressionGroup> testGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-  testGroup->setSoln( var, val );
-  return true;
-#else
-  bool retVal=false; 
+  if(useNewExpressionLibrary_)
   {
-    retVal = expPtr_->set_var (var, val);
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    //xyceGroup->setSoln( var, val );
+    return true;
   }
-  return retVal;
-#endif
+  else
+  {
+    bool retVal=false; 
+    {
+      retVal = expPtr_->set_var (var, val);
+    }
+    return retVal;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -338,11 +470,12 @@ bool Expression::set_var ( const std::string & var, const double & val)
 bool Expression::set_vars ( const std::vector<double> & vals )
 {
   bool retVal=false; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->set_vars ( vals );
-#endif
   }
   return retVal;
 }
@@ -358,11 +491,12 @@ bool Expression::set_vars ( const std::vector<double> & vals )
 std::string Expression::get_expression () const
 {
   std::string retVal; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->get_expression ();
-#endif
   }
   return retVal;
 }
@@ -378,11 +512,12 @@ std::string Expression::get_expression () const
 std::string Expression::get_derivative ( std::string const & var )
 {
   std::string retVal; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->get_derivative ( var );
-#endif
   }
   return retVal;
 }
@@ -398,11 +533,12 @@ std::string Expression::get_derivative ( std::string const & var )
 int Expression::get_num(int const & type)
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->get_num(type);
-#endif
   }
   return retVal;
 }
@@ -416,15 +552,29 @@ int Expression::get_num(int const & type)
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 int Expression::evaluate ( double & exp_r,
-                                 std::vector<double> & deriv_r,
-                                 std::vector<double> & vals )
+                           std::vector<double> & deriv_r,
+                           std::vector<double> & vals )
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+
+    if (!namesSet_) // kludge
+    {
+      std::vector<std::string> names;
+      get_names( XEXP_NODE, names); // for now just nodes. make XEXP_ALL later
+      get_names( XEXP_INSTANCE, names); // for now just nodes. make XEXP_ALL later
+      xyceGroup->setNames ( names );
+      namesSet_ = true;
+    }
+
+    xyceGroup->setVals ( vals );
+    retVal = newExpPtr_->evaluate( exp_r, deriv_r);
+  }
+  else
+  {
     retVal = expPtr_->evaluate ( exp_r, deriv_r, vals );
-#endif
   }
   return retVal;
 }
@@ -434,18 +584,32 @@ int Expression::evaluate ( double & exp_r,
 // Purpose       : Evaluate expression using provided input values.  
 // Special Notes : This is for cases in which the user does not need 
 //                 the derivatives.
-// Scope         :
+// Scope         : public
 // Creator       : Eric Keiter, SNL
 // Creation Date : 04/14/08
 //-----------------------------------------------------------------------------
 int Expression::evaluateFunction ( double & exp_r, std::vector<double> & vals )
 {
   int retVal=0;
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+
+    if (!namesSet_) // kludge
+    {
+      std::vector<std::string> names;
+      get_names( XEXP_NODE, names); // for now just nodes. make XEXP_ALL later
+      get_names( XEXP_INSTANCE, names); // for now just nodes. make XEXP_ALL later
+      xyceGroup->setNames ( names );
+      namesSet_ = true;
+    }
+
+    xyceGroup->setVals ( vals );
+    retVal = newExpPtr_->evaluateFunction ( exp_r );
+  }
+  else
+  {
     retVal = expPtr_->evaluateFunction ( exp_r, vals );
-#endif
   }
   return retVal;
 }
@@ -495,13 +659,16 @@ int Expression::evaluateFunction ( double & exp_r )
 //-----------------------------------------------------------------------------
 bool Expression::set_sim_time(double time)
 {
-#ifdef NEW_EXPRESSION
-  Teuchos::RCP<xyceExpressionGroup> testGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-  testGroup->setTime(time);
-  return true;
-#else
-  return expPtr_->set_sim_time(time);
-#endif
+  if(useNewExpressionLibrary_)
+  {
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    //xyceGroup->setTime(time);
+    return true;
+  }
+  else
+  {
+    return expPtr_->set_sim_time(time);
+  }
 }
 
 
@@ -515,11 +682,14 @@ bool Expression::set_sim_time(double time)
 //-----------------------------------------------------------------------------
 bool Expression::set_sim_dt(double dt)
 {
-#ifdef NEW_EXPRESSION
-  return false;
-#else
-  return expPtr_->set_sim_dt(dt);
-#endif
+  if(useNewExpressionLibrary_)
+  {
+    return false;
+  }
+  else
+  {
+    return expPtr_->set_sim_dt(dt);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -533,11 +703,12 @@ bool Expression::set_sim_dt(double dt)
 bool Expression::set_temp(double const & tempIn)
 {
   bool retVal=false;
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->set_temp(tempIn);
-#endif
   }
   return retVal;
 }
@@ -552,11 +723,14 @@ bool Expression::set_temp(double const & tempIn)
 //-----------------------------------------------------------------------------
 bool Expression::set_sim_freq(double freq)
 {
-#ifdef NEW_EXPRESSION
-  return false;
-#else
-  return expPtr_->set_sim_freq(freq);
-#endif
+  if(useNewExpressionLibrary_)
+  {
+    return false;
+  }
+  else
+  {
+    return expPtr_->set_sim_freq(freq);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -569,11 +743,12 @@ bool Expression::set_sim_freq(double freq)
 //-----------------------------------------------------------------------------
 void Expression::set_accepted_time(double const time)
 { 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     expPtr_->set_accepted_time(time);
-#endif
   }
   return;
 }
@@ -589,11 +764,12 @@ void Expression::set_accepted_time(double const time)
 double Expression::get_break_time()
 {
   double retVal=0.0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->get_break_time();
-#endif
   }
   return retVal;
 }
@@ -609,11 +785,12 @@ double Expression::get_break_time()
 double Expression::get_break_time_i()
 {
   double retVal=0.0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->get_break_time_i();
-#endif
   }
   return retVal;
 }
@@ -628,11 +805,14 @@ double Expression::get_break_time_i()
 //-----------------------------------------------------------------------------
 const std::string & Expression::get_input ()
 {
-#ifdef NEW_EXPRESSION
-  return expPtr_->getExpressionString();
-#else
-  return expPtr_->get_input ();
-#endif
+  if(useNewExpressionLibrary_)
+  {
+    return newExpPtr_->getExpressionString();
+  }
+  else
+  {
+    return expPtr_->get_input ();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -648,11 +828,12 @@ const std::string & Expression::get_input ()
 int Expression::order_names(std::vector<std::string> const & new_names)
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->order_names(new_names);
-#endif
   }
   return retVal;
 }
@@ -675,11 +856,12 @@ int Expression::replace_func (std::string const & func_name,
                                    int numArgs)
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->replace_func (func_name, *(func_def.expPtr_), numArgs);
-#endif
   }
   return retVal;
 }
@@ -711,11 +893,12 @@ int Expression::replace_var(
   const Expression &    subexpr)
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->replace_var (var_name, *(subexpr.expPtr_));
-#endif
   }
   return retVal;
 }
@@ -736,11 +919,12 @@ int Expression::replace_var (std::string const & var_name,
                              Op::Operator *op )
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->replace_var (var_name, op);
-#endif
   }
   return retVal;
 }
@@ -776,11 +960,12 @@ bool Expression::replace_name ( const std::string & old_name,
                                 const std::string & new_name)
 {
   bool retVal=false; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->replace_name ( old_name, new_name);
-#endif
   }
   return retVal;
 }
@@ -796,11 +981,12 @@ bool Expression::replace_name ( const std::string & old_name,
 int Expression::getNumDdt ()
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_-> getNumDdt ();
-#endif
   }
   return retVal;
 }
@@ -815,11 +1001,12 @@ int Expression::getNumDdt ()
 //-----------------------------------------------------------------------------
 void Expression::getDdtVals ( std::vector<double> & vals )
 { 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     expPtr_-> getDdtVals ( vals );
-#endif
   }
   return;
 }
@@ -835,11 +1022,12 @@ void Expression::getDdtVals ( std::vector<double> & vals )
 //-----------------------------------------------------------------------------
 void Expression::setDdtDerivs ( std::vector<double> & vals )
 { 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     expPtr_->setDdtDerivs ( vals );
-#endif
   }
   return;
 }
@@ -855,11 +1043,12 @@ void Expression::setDdtDerivs ( std::vector<double> & vals )
 int Expression::num_vars() const
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
   {
-#ifdef NEW_EXPRESSION
-#else
+  }
+  else
+  {
     retVal = expPtr_->num_vars();
-#endif
   }
   return retVal;
 }
@@ -881,19 +1070,22 @@ int Expression::num_vars() const
 //-----------------------------------------------------------------------------
 bool Expression::isTimeDependent() const
 {
-#ifdef NEW_EXPRESSION
-  return false;
-#else
-  bool implicitTimeDep = expPtr_->isImplicitTimeDepedent();
-  bool explicitTimeDep = false;
-  std::vector<std::string> specials;
-  expPtr_->get_names(XEXP_SPECIAL, specials);
-  if (!specials.empty())
+  if(useNewExpressionLibrary_)
   {
-    explicitTimeDep=(std::find(specials.begin(), specials.end(), "TIME") != specials.end());
+    return false;
   }
-  return (implicitTimeDep || explicitTimeDep);
-#endif
+  else
+  {
+    bool implicitTimeDep = expPtr_->isImplicitTimeDepedent();
+    bool explicitTimeDep = false;
+    std::vector<std::string> specials;
+    expPtr_->get_names(XEXP_SPECIAL, specials);
+    if (!specials.empty())
+    {
+      explicitTimeDep=(std::find(specials.begin(), specials.end(), "TIME") != specials.end());
+    }
+    return (implicitTimeDep || explicitTimeDep);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -906,10 +1098,14 @@ bool Expression::isTimeDependent() const
 //-----------------------------------------------------------------------------
 bool Expression::isRandomDependent() const
 {
-#ifdef NEW_EXPRESSION
-#else
-  return ( expPtr_->isRandomDepedent() );
-#endif
+  if(useNewExpressionLibrary_)
+  {
+    return false;
+  }
+  else
+  {
+    return ( expPtr_->isRandomDepedent() );
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -922,11 +1118,14 @@ bool Expression::isRandomDependent() const
 //-----------------------------------------------------------------------------
 void Expression::dumpParseTree()
 {
-#ifdef NEW_EXPRESSION
-  expPtr_->dumpParseTree(std::cout);
-#else
-  expPtr_->dumpParseTree();
-#endif
+  if(useNewExpressionLibrary_)
+  {
+    newExpPtr_->dumpParseTree(std::cout);
+  }
+  else
+  {
+    expPtr_->dumpParseTree();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -944,10 +1143,13 @@ void Expression::dumpParseTree()
 ///
 void Expression::seedRandom(long seed)
 {
-#ifdef NEW_EXPRESSION
-#else
-  ExpressionInternals::seedRandom(seed);
-#endif
+  //if(useNewExpressionLibrary_)
+  //{
+  //}
+  //else
+  {
+    ExpressionInternals::seedRandom(seed);
+  }
 }
 
 } // namespace Util

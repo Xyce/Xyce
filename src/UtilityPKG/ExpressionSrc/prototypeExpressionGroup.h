@@ -41,7 +41,7 @@ public:
   virtual bool isOption (const std::string & optionStr)
   {
     std::string tmp = optionStr;
-    Xyce::Util::toLower(tmp);
+    Xyce::Util::toUpper(tmp);
     return (nd_.getOptions().find(tmp) != nd_.getOptions().end());
   }
 
@@ -49,7 +49,7 @@ public:
   {
     bool success=true;
     std::string tmp = nodeName;
-    Xyce::Util::toLower(tmp);
+    Xyce::Util::toUpper(tmp);
 
     retval = 0.0;
     std::unordered_map<std::string,Xyce::Util::nodeData> & nodes = nd_.getNodes ();
@@ -69,7 +69,7 @@ public:
   {
     bool success=true;
     std::string tmp = nodeName;
-    Xyce::Util::toLower(tmp);
+    Xyce::Util::toUpper(tmp);
 
     retval = 0.0;
     std::unordered_map<std::string,Xyce::Util::nodeData> & nodes = nd_.getNodes ();
@@ -89,7 +89,7 @@ public:
   {
     bool success=true;
     std::string tmp = nodeName;
-    Xyce::Util::toLower(tmp);
+    Xyce::Util::toUpper(tmp);
 
     retval = 0.0;
     std::unordered_map<std::string,Xyce::Util::nodeData> & nodes = nd_.getNodes ();

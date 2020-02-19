@@ -228,6 +228,30 @@ bool newExpression::set (std::string const & exp)
 }
 
 //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+int newExpression::get_type (std::string const & var)
+{
+  std::cout << "Error.  newExpression::get_type function not implemented yet!!!" <<std::endl;
+  return 0;
+}
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+bool newExpression::make_constant (std::string const & var, double const & val)
+{
+  std::cout << "Error.  newExpression::make_constant function not implemented yet!!!" <<std::endl;
+  return false;
+}
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+bool newExpression::make_var (std::string const & var)
+{
+  std::cout << "Error.  newExpression::make_var function not implemented yet!!!" <<std::endl;
+  return false;
+}
+
+//-------------------------------------------------------------------------------
 // Function      : newExpression::setupDerivatives_
 //
 // Purpose       : this is yet another phase in setup, which must be called after 
@@ -260,7 +284,7 @@ void newExpression::setupDerivatives_ ()
 
       if (nodes.size() == 1) // putting this here b/c I now want to handle the V(A,B) case differently than I planned for
       {
-        std::string tmp = nodes[0]; Xyce::Util::toLower(tmp);
+        std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
         std::unordered_map<std::string, int>::iterator mapIter;
         mapIter = derivNodeIndexMap_.find(tmp);
         if (mapIter == derivNodeIndexMap_.end()) 
@@ -280,7 +304,7 @@ void newExpression::setupDerivatives_ ()
     {
       Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
       std::string tmp = currOp->getCurrentDevice();
-      Xyce::Util::toLower(tmp);
+      Xyce::Util::toUpper(tmp);
       std::unordered_map<std::string, int>::iterator mapIter;
       mapIter = derivNodeIndexMap_.find(tmp);
       if (mapIter == derivNodeIndexMap_.end()) 

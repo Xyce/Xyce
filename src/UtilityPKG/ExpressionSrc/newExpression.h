@@ -15,6 +15,7 @@
 
 // Xyce includes.  
 #include <N_UTL_BreakPoint.h>
+#include <N_UTL_Interface_Enum_Types.h>
 
 // new code includes:
 #include <ast.h>
@@ -310,7 +311,20 @@ public:
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
 
-  bool set(std::string const & exp);
+  bool set(std::string const & exp); // is this needed?  
+
+  //void getSymbolTable (std::vector< ExpressionSymbolTableEntry > & names) const;
+
+#if 0
+  void get_names (int const & type, std::vector< std::string > & names) const;
+#else
+
+#endif
+
+  int get_type (std::string const & var);
+  bool make_constant (std::string const & var, double const & val);
+  bool make_var (std::string const & var);
+
 
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 

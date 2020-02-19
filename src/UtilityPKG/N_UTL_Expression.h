@@ -121,6 +121,7 @@ public:
 private:
 
   bool useNewExpressionLibrary_;
+  bool namesSet_;
   newExpression *newExpPtr_;
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp_;
   ExpressionInternals *expPtr_;
