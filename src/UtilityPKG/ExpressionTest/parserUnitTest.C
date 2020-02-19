@@ -2080,6 +2080,29 @@ TEST ( Double_Parser_calculus, ddx11)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, std::pow(std::sin(Aval),Aval)*(Aval/std::tan(Aval) + std::log(sin(Aval))) );
 }
 
+TEST ( Double_Parser_calculus, ddx12)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression ddxTest(std::string("0.5*(V(B)-3.0)**2.0"), testGroup); 
+  ddxTest.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_ddxTest(ddxTest); 
+  Xyce::Util::newExpression assign_ddxTest; 
+  assign_ddxTest = ddxTest; 
+
+  double Aval=2.5;
+  solnGroup->setSoln(std::string("B"),Aval);
+  double result;
+  std::vector<double> derivs;
+  double refRes = 1.25e-01; 
+  std::vector<double> refderivs = { -0.5 };
+
+  ddxTest.evaluate(result,derivs);        EXPECT_EQ( derivs, refderivs );
+  copy_ddxTest.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
+  assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
+}
+
 TEST ( Double_Parser_floor, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
