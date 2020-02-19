@@ -11,7 +11,7 @@ CXXFLAGS =  -std=c++11  -g -I/opt/local/include/ $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 
-RCPLIBS =  -lteuchoscore -lkokkoscore
+RCPLIBS =  -lteuchoscore -lkokkoscore -lteuchosparameterlist -lteuchoscomm -lteuchoskokkoscomm -lteuchoskokkoscompat -lteuchosnumerics -lteuchosremainder
 
 all:  test
 
@@ -27,7 +27,7 @@ astCopyConstUnitTest: astCopyConstUnitTest.C  ../ExpressionSrc/ast.h ../Expressi
 
 
 # expression lexer/parser
-ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h ../ExpressionSrc/value.h
+ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h ../N_UTL_ExtendedString.h
 	$(FLEX) -i -+ --prefix=exp  -o ExpressionLexer.cxx ../ExpressionSrc/ExpressionLexer.l
 
 ExpressionParser.cxx: ../ExpressionSrc/ExpressionParser.yxx  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h
@@ -42,17 +42,23 @@ ExpressionParser.o: ExpressionParser.cxx
 expressionGroup.o: ../ExpressionSrc/expressionGroup.C ../ExpressionSrc/expressionGroup.h 
 	$(CXX) $(CXXFLAGS) -c $<
 
-N_UTL_BreakPoint.o: ../ExpressionSrc/N_UTL_BreakPoint.C ../ExpressionSrc/N_UTL_BreakPoint.h
+N_UTL_BreakPoint.o: ../N_UTL_BreakPoint.C ../N_UTL_BreakPoint.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression.h ../ExpressionSrc/ExpressionLexer.h  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h  ../ExpressionSrc/ExpressionType.h  ../ExpressionSrc/N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o
+N_UTL_ExtendedString.o: ../N_UTL_ExtendedString.C ../N_UTL_ExtendedString.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-parserUnitTest: parserUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o
-	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserUnitTest parserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o -lm -lgtest -lgtest_main  $(RCPLIBS)
+N_UTL_NoCase.o: ../N_UTL_NoCase.C ../N_UTL_NoCase.h
+	$(CXX) $(CXXFLAGS) -c $<
 
-parserCopyUnitTest: parserCopyUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o
-	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserCopyUnitTest parserCopyUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o -lm -lgtest -lgtest_main  $(RCPLIBS)
+newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression.h ../ExpressionSrc/ExpressionLexer.h  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h  ../ExpressionSrc/ExpressionType.h  ../N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o
+	$(CXX) $(CXXFLAGS) -c $<
+
+parserUnitTest: parserUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserUnitTest parserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o  -lm -lgtest -lgtest_main  $(RCPLIBS)
+
+parserCopyUnitTest: parserCopyUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o  N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserCopyUnitTest parserCopyUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o  N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o -lm -lgtest -lgtest_main  $(RCPLIBS)
 
 clean:
 	rm -f astUnitTest  parserUnitTest parserCopyUnitTest astCopyConstUnitTest  *.o \

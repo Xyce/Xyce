@@ -14,9 +14,8 @@
 #include <iterator>
 
 #include "ast.h"
-#include "N_UTL_BreakPoint.h"
-
-#include "value.h"
+#include <N_UTL_BreakPoint.h>
+#include <N_UTL_ExtendedString.h>
 
 using namespace Teuchos;
 

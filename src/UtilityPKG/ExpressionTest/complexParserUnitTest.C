@@ -14,10 +14,9 @@
 #include <iterator>
 
 #include "ast.h"
-#include "newExpression.h"
-#include "N_UTL_BreakPoint.h"
-
-#include "value.h"
+#include <newExpression.h>
+#include <N_UTL_BreakPoint.h>
+#include <N_UTL_ExtendedString.h>
 
 class testExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
