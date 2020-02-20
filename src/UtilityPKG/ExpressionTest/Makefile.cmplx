@@ -5,21 +5,23 @@ FLEX = /opt/local/bin/flex
 BISON = /opt/local/bin/bison
 LIBDIRTRI=-L/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/lib
 LIBPATH = -L/opt/local/lib  $(LIBDIRTRI)
-INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I/Users/erkeite/NEW_EXPRESSION_LIB/cxx_prototype/src -I/Users/erkeite/NEW_EXPRESSION_LIB/cxx_prototype/gtest
+INCLUDE = -I/Users/erkeite/XYCE/Xyce_Lib/intel64_osx_clang_trilinos12.12_withStokhos_withBasker/include  -I../ExpressionSrc  -I./  -I../
 CXXFLAGS_AST =  -std=c++11  -g  -I/opt/local/include/ $(INCLUDE)
 CXXFLAGS =  -std=c++11 -DUSE_TYPE_COMPLEX -g -I/opt/local/include/ $(INCLUDE)
 
-RCPLIBS =  -lteuchoscore -lkokkoscore
+#    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
+
+RCPLIBS =  -lteuchoscore -lkokkoscore -lteuchosparameterlist -lteuchoscomm -lteuchoskokkoscomm -lteuchoskokkoscompat -lteuchosnumerics -lteuchosremainder
 
 all:  test
 test:  complexParserUnitTest 
 
 # expression lexer/parser
-ExpressionLexer.cxx: ../src/ExpressionLexer.l  ../src/ast.h ../src/astfuncs.h ../src/astbinary.h ../src/astcomp.h ../src/ast_spice_src.h ../src/ExpressionType.h ../src/value.h
-	$(FLEX) -i -+ --prefix=exp  -o ExpressionLexer.cxx ../src/ExpressionLexer.l
+ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h ../N_UTL_ExtendedString.h ../N_UTL_Interpolators.h
+	$(FLEX) -i -+ --prefix=exp  -o ExpressionLexer.cxx ../ExpressionSrc/ExpressionLexer.l
 
-ExpressionParser.cxx: ../src/ExpressionParser.yxx  ../src/ast.h ../src/astfuncs.h ../src/astbinary.h ../src/astcomp.h ../src/ast_spice_src.h ../src/ExpressionType.h
-	$(BISON) --graph -o$@ ../src/ExpressionParser.yxx
+ExpressionParser.cxx: ../ExpressionSrc/ExpressionParser.yxx  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h ../N_UTL_Interpolators.h
+	$(BISON) --graph -o$@ ../ExpressionSrc/ExpressionParser.yxx
 
 ExpressionLexer.o: ExpressionLexer.cxx
 	$(CXX) $(CXXFLAGS) -c $<
@@ -27,17 +29,23 @@ ExpressionLexer.o: ExpressionLexer.cxx
 ExpressionParser.o: ExpressionParser.cxx
 	$(CXX) $(CXXFLAGS) -c $<
 
-expressionGroup.o: ../src/expressionGroup.C ../src/expressionGroup.h 
+expressionGroup.o: ../ExpressionSrc/expressionGroup.C ../ExpressionSrc/expressionGroup.h 
 	$(CXX) $(CXXFLAGS) -c $<
 
-N_UTL_BreakPoint.o: ../src/N_UTL_BreakPoint.C ../src/N_UTL_BreakPoint.h
+N_UTL_BreakPoint.o: ../N_UTL_BreakPoint.C ../N_UTL_BreakPoint.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-newExpression.o: ../src/newExpression.C ../src/newExpression.h ../src/ExpressionLexer.h  ../src/ast.h ../src/astfuncs.h ../src/astbinary.h ../src/astcomp.h ../src/ast_spice_src.h  ../src/ExpressionType.h  ../src/N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o
+N_UTL_ExtendedString.o: ../N_UTL_ExtendedString.C ../N_UTL_ExtendedString.h
 	$(CXX) $(CXXFLAGS) -c $<
 
-complexParserUnitTest: complexParserUnitTest.C  ../src/ast.h ../src/astbinary.h ../src/astfuncs.h ../src/astcomp.h ../src/ast_spice_src.h ../src/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o
-	$(CXX) $(CXXFLAGS) $(LIBPATH) -o complexParserUnitTest complexParserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o -lm -lgtest -lgtest_main $(RCPLIBS)
+N_UTL_NoCase.o: ../N_UTL_NoCase.C ../N_UTL_NoCase.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression.h ../ExpressionSrc/ExpressionLexer.h  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h  ../ExpressionSrc/ExpressionType.h  ../N_UTL_BreakPoint.h  ExpressionParser.o ExpressionLexer.o ../N_UTL_Interpolators.h
+	$(CXX) $(CXXFLAGS) -c $<
+
+complexParserUnitTest: complexParserUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o ../N_UTL_Interpolators.h
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o complexParserUnitTest complexParserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o -lm -lgtest -lgtest_main $(RCPLIBS)
 
 clean:
 	rm -f complexParserUnitTest  *.o \
