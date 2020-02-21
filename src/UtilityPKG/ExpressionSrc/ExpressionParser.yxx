@@ -102,8 +102,6 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %token <sval> TOK_CURRENTDEV "currentdevice"
 
 // non-value tokens from the lexer (ExpressionLexer.l)
-%token TOK_VOLTAGE	"voltage"
-%token TOK_CURRENT	"current"
 %token TOK_SQRT	"sqrt"
 %token TOK_MAX	"max"
 %token TOK_MIN	"min"
@@ -224,7 +222,6 @@ exp:
           newExp.getMasterNodeVec().push_back(tmpPtr2);
 
           $$ = tmpPtr2;
-    //newExp.getMasterNodeVec().push_back( $$ ); /*std::cout << "processing TOK_WORD = " << *$1 << " ptr = " << tmpPtr << std::endl;*/
           delete tmpPtr;
         }
         else
@@ -363,7 +360,7 @@ exp:
         delete $1;
         delete $3;
     }
-  | TOK_VOLTAGE  nonempty_voltagenodelist
+  | TOK_WORD nonempty_voltagenodelist
     {
       Teuchos::RCP<voltageOp<usedType> > * voltPtr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(*$2));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
@@ -373,7 +370,7 @@ exp:
       delete voltPtr;
       delete $2;
     }
-  | TOK_CURRENT  TOK_CURRENTDEV
+  | TOK_WORD TOK_CURRENTDEV
     {
       Teuchos::RCP<currentOp<usedType> > * currentPtr = new Teuchos::RCP<currentOp<usedType> >(new currentOp<usedType>(*$2));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*currentPtr);

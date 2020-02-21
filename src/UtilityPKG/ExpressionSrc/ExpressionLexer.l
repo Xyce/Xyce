@@ -32,7 +32,7 @@ class ExpressionLexer;
   int Xyce::Util::ExpressionLexer::getToken(XyceExpression::ExpressionParser::semantic_type *lvalp, \
                                             XyceExpression::location *llocp)
 
-  // YECH!  Work around very stupid way that multiple parsers/lexers are 
+  // YECH!  Work around very stupid way that multiple parsers/lexers are
   // handled.
   // Bison's "%name-prefix" is implemented as a #define yylex "prefix"lex
   // which BREAKS flex's C++ lexer: it contains a method "yylex" in the
@@ -40,7 +40,7 @@ class ExpressionLexer;
   // with the define as well, and the result is a broken set of classes
 #undef yylex
 #include "ExpressionLexer.h"
-  // undo that kludge.  Note that because of this stupidity, if the 
+  // undo that kludge.  Note that because of this stupidity, if the
   // "%name-prefix" is changed, this line needs to be changed, too.
 #define yylex XyceExpressionlex
 
@@ -73,50 +73,50 @@ NODE [a-zA-Z0-9_:]*
 
  /* ------------------------------------------------------------------------*/
  /* numbers with suffixes */
-<INITIAL>{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? { 
+<INITIAL>{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-     return XyceExpression::ExpressionParser::token::TOK_NUM; 
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}*[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? { 
+<INITIAL>{DIGIT}*"."{DIGIT}*[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-     return XyceExpression::ExpressionParser::token::TOK_NUM; 
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? { 
+<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-     return XyceExpression::ExpressionParser::token::TOK_NUM; 
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
  /* numbers with 3-character suffixes; meg and mil */
-<INITIAL>{DIGIT}+[mM][eE][gG][sSvVaA]? { 
+<INITIAL>{DIGIT}+[mM][eE][gG][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-     return XyceExpression::ExpressionParser::token::TOK_NUM; 
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}*[mM][eE][gG][sSvVaA]? { 
+<INITIAL>{DIGIT}*"."{DIGIT}*[mM][eE][gG][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-     return XyceExpression::ExpressionParser::token::TOK_NUM; 
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][sSvVaA]? { 
+<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-     return XyceExpression::ExpressionParser::token::TOK_NUM; 
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}+[mM][iI][lL][sSvVaA]? { 
+<INITIAL>{DIGIT}+[mM][iI][lL][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-     return XyceExpression::ExpressionParser::token::TOK_NUM; 
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."{DIGIT}*[mM][iI][lL][sSvVaA]? { 
+<INITIAL>{DIGIT}*"."{DIGIT}*[mM][iI][lL][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-     return XyceExpression::ExpressionParser::token::TOK_NUM; 
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
-<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][sSvVaA]? { 
+<INITIAL>{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][sSvVaA]? {
      lvalp->dval=Xyce::Util::Value(std::string(YYText()));
-     return XyceExpression::ExpressionParser::token::TOK_NUM; 
+     return XyceExpression::ExpressionParser::token::TOK_NUM;
   }
 
  /* ----------------------------------------------------------*/
@@ -155,14 +155,15 @@ NODE [a-zA-Z0-9_:]*
 <INITIAL>">="    { return XyceExpression::ExpressionParser::token::TOK_GE; }
 <INITIAL>"<="    { return XyceExpression::ExpressionParser::token::TOK_LE; }
 
-<INITIAL>"V"     { 
+<INITIAL>"V"     {
   BEGIN(voltagenodedef);
-  return XyceExpression::ExpressionParser::token::TOK_VOLTAGE; 
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
  /* single node name by itself */
 <voltagenodedef>"("{NODE}")" {
-  lvalp->sval=new std::string(YYText()); 
+  lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase(0,1);// lop off open paren
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
@@ -171,7 +172,7 @@ NODE [a-zA-Z0-9_:]*
 
  /* first node in a comma-separated list of two nodes */
 <voltagenodedef>"("{NODE}"," {
-  lvalp->sval=new std::string(YYText()); 
+  lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase(0,1);// lop off open paren
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
@@ -179,25 +180,36 @@ NODE [a-zA-Z0-9_:]*
 
  /* second node in a comma-separated list of two nodes. This one calls the next context (expression) */
 <voltagenodedef>{NODE}")" {
-  lvalp->sval=new std::string(YYText()); 
+  lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
 }
 
-<INITIAL>"I"     { 
+ /* followed by unrecognized character; In this case "V" is probably a parameter, rather than a current variable */
+ /* yyless is used here so that the unrecognized character will be put back on the stack, and processed */
+ /* by the rules under the INITIAL state */
+<voltagenodedef>. { BEGIN(INITIAL); yyless(0); }
+
+<INITIAL>"I"     {
   BEGIN(currentdevdef);
-  return XyceExpression::ExpressionParser::token::TOK_CURRENT; 
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
  /* single device name by itself */
 <currentdevdef>"("{ID}")" {
-  lvalp->sval=new std::string(YYText()); 
+  lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase(0,1);// lop off open paren
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
   }
+
+ /* followed by unrecognized character; In this case "I" is probably a parameter, rather than a current variable */
+ /* yyless is used here so that the unrecognized character will be put back on the stack, and processed */
+ /* by the rules under the INITIAL state */
+<currentdevdef>. { BEGIN(INITIAL); yyless(0); }
 
  /* built in functions */
 <INITIAL>"P"     { return XyceExpression::ExpressionParser::token::TOK_PHASE; }
