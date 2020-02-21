@@ -112,15 +112,9 @@ public:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
   virtual double getBpTol() { return 0.0; }
 
-#if 0
-  virtual bool getFunction    (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression > & exp);
-  virtual bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression > & exp);
-  virtual bool getGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression > & exp);
-#else
   virtual bool getFunction    (const std::string & name, Xyce::Util::newExpression & exp);
   virtual bool getParam       (const std::string & name, Xyce::Util::newExpression & exp);
   virtual bool getGlobalParam (const std::string & name, Xyce::Util::newExpression & exp);
-#endif
 
   void setNames ( const std::vector<std::string> & names )
   {
@@ -141,12 +135,16 @@ public:
     cvals_ = vals;
   }
 
+  void addFunction (const std::string & name, Xyce::Util::newExpression & exp);
+
 private:
 
   // don't know if these are best way ...
   std::vector<std::string> names_;
   std::vector< double> dvals_;
   std::vector< std::complex<double> > cvals_;
+
+  std::unordered_map <std::string, Xyce::Util::newExpression  >  functions_;
 
 };
 

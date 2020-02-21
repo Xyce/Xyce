@@ -104,7 +104,29 @@ bool xyceExpressionGroup::getFunction
 (const std::string & name, Xyce::Util::newExpression & exp)
 {
   bool retval=true;
-  return retval; // FIX THIS
+
+  std::string upperName = name;
+  Xyce::Util::toUpper(upperName);
+
+  if (functions_.find(upperName) != functions_.end()) { exp = functions_[upperName]; }
+  else { retval = false; }
+
+  return retval;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : xyceExpressionGroup::addFunction
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 12/28/2019
+//-------------------------------------------------------------------------------
+void xyceExpressionGroup::addFunction (const std::string & name, Xyce::Util::newExpression & exp)
+{
+  std::string upperName = name;
+  Xyce::Util::toUpper(upperName);
+  functions_[upperName] = exp;
 }
 
 //-------------------------------------------------------------------------------

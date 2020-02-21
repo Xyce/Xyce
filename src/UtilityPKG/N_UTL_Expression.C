@@ -257,16 +257,16 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
 //
 //                 enum XEXP_TYPES
 //                 {
-//                   XEXP_ALL,            // 0
-//                   XEXP_NODE,           // 1    nodal variables, does this include currents?
-//                   XEXP_INSTANCE,       // 2
-//                   XEXP_LEAD,           // 3
-//                   XEXP_STRING,         // 4
-//                   XEXP_SPECIAL,        // 5
-//                   XEXP_VARIABLE,       // 6
-//                   XEXP_FUNCTION,       // 7
-//                   XEXP_NODAL_COMPUTATION, // 8
-//                   XEXP_COUNT    
+//                   XEXP_ALL,            // 0    everything
+//                   XEXP_NODE,           // 1    nodal variables, does this include currents? (no)
+//                   XEXP_INSTANCE,       // 2    current variables, from voltage sources, current sources
+//                   XEXP_LEAD,           // 3    current variables, but not from solution vec. ( like I(R1) )
+//                   XEXP_STRING,         // 4    for some mysterious reason, this means params and global_params
+//                   XEXP_SPECIAL,        // 5    special returns vars like TIME
+//                   XEXP_VARIABLE,       // 6    also global params, apparently.  Also, it set_var targets?
+//                   XEXP_FUNCTION,       // 7    these are .funcs
+//                   XEXP_NODAL_COMPUTATION, // 8  these are things like power P()
+//                   XEXP_COUNT     // total
 //                 };
 //
 //                 Note, the implied order of "variables" is the order of the types in the enum.
@@ -318,18 +318,27 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
         {
           std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
-            std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
-            if (it == names.end())
-            {
-              names.push_back( tmpName );
-            }
+          std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
+          if (it == names.end())
+          {
+            names.push_back( tmpName );
+          }
         }
         break;
 
       case XEXP_LEAD:
         break;
 
-      case XEXP_STRING:
+      case XEXP_STRING: // for some mysterious reason, this means params and global_params
+        for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
+        {
+          std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
+          std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
+          if (it == names.end())
+          {
+            names.push_back( tmpName );
+          }
+        }
         break;
 
       case XEXP_SPECIAL:
@@ -339,6 +348,15 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         break;
 
       case XEXP_FUNCTION:
+        for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
+        {
+          std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
+          std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
+          if (it == names.end())
+          {
+            names.push_back( tmpName );
+          }
+        }
         break;
 
       case XEXP_NODAL_COMPUTATION:
@@ -403,8 +421,27 @@ bool Expression::make_constant (const std::string & var, const double & val)
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::make_var
+//
 // Purpose       : Convert a 'string' placeholder into a variable
-// Special Notes :
+//
+// Special Notes : I set up the new expression library to compute derivatives 
+//                 with respect to any voltage nodes and also any source 
+//                 currents present in the expression.  I did not set up the new
+//                 expression library to compute derivatives w.r.t. parameters.
+//                 This seemed like a fraught exercise, as params and 
+//                 global_params were often just proxies for other, complicated 
+//                 expressions.  Why differentiate them? why not differentiation 
+//                 something more atomistic?
+//
+//                 But there was a solution.  The old expresison library also 
+//                 only assumed you wanted voltages and currents differentiated.  
+//                 There is a "make_var" function, which allows you to tag 
+//                 certain variables as needing differentiation.  This is useful
+//                 for newExpression as well, for obvious reasons.
+//
+//                 For the reasons given above, make_var can only operate on
+//                 paramOp classes.
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
@@ -414,6 +451,20 @@ bool Expression::make_var (std::string const & var)
   bool retVal=false; 
   if(useNewExpressionLibrary_)
   {
+#if 0
+    std::string tmpParName = var;
+    Xyce::Util::toUpper(tmpParName);
+    //std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > > & paramOpMap = 
+
+   //   newExpPtr_->getParamOpMap () ;
+
+    if (newExpPtr_->getParamOpMap().find(tmpParName) != newExpPtr_->getParamOpMap().end())
+    {
+      newExpPtr_->getParamOpMap()[tmpParName].setVar();
+    }
+#endif
+
+    newExpPtr_->setVar(var);
   }
   else
   {
@@ -840,6 +891,7 @@ int Expression::order_names(std::vector<std::string> const & new_names)
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+    newExpPtr_->setFunctionArgStringVec ( new_names );
   }
   else
   {
@@ -853,10 +905,10 @@ int Expression::order_names(std::vector<std::string> const & new_names)
 //
 // Purpose       : Replace user defined function with its definition in expression
 // 
-// Special Notes : ERK.  I think for the "new" expression library, this function 
-//                 should (probably) be obsolete, unless there is a use case where
-//                 it is absolutely necessary.  Currently I don't see a use case
-//                 for it.
+// Special Notes : ERK.  For the "new" expression library, this function will 
+//                 eventually be obsolete.  For now, it is being used to 
+//                 integrate the new library in while using the old API.
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
@@ -868,6 +920,17 @@ int Expression::replace_func (std::string const & func_name,
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+    Xyce::Util::newExpression funcExpr = *(func_def.newExpPtr_) ; // copy construction
+    funcExpr.lexAndParseExpression();
+
+    //std::vector<std::string> funcArgStrings ;
+    //funcExpr.setFunctionArgStringVec ( funcArgStrings );
+
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    xyceGroup->addFunction(func_name, funcExpr);
+    newExpPtr_->resolveExpression();
+
+    return numArgs;
   }
   else
   {

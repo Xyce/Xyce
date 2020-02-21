@@ -252,6 +252,20 @@ bool newExpression::make_var (std::string const & var)
 }
 
 //-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+void newExpression::setVar(const std::string & var)
+{
+  std::string tmpParName = var;
+  Xyce::Util::toUpper(tmpParName);
+
+  if (paramOpMap_.find(tmpParName) != paramOpMap_.end())
+  {
+    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpMap_[tmpParName]);
+    parOp->setVar();
+  }
+}
+
+//-------------------------------------------------------------------------------
 // Function      : newExpression::setupDerivatives_
 //
 // Purpose       : this is yet another phase in setup, which must be called after 
@@ -271,7 +285,8 @@ void newExpression::setupDerivatives_ ()
   // voltages and currents.
   //
   // I was considering automatically doing parameters as well, but 
-  // that got too confusing.  So holding off on that for now.
+  // that isn't what the old library does.  Params are only differentiated 
+  // if "make_var" is called on them.
   {
     numDerivs_=0;
     derivIndexVec_.clear();
@@ -315,8 +330,7 @@ void newExpression::setupDerivatives_ ()
       derivIndexVec_.push_back(currentNodePair);
     }
 
-#if 0
-    // leave params out of this for now, until I understand better what I want to do.
+    // Complication for params:
     // Unlike voltages and currents, params can be assigned to each other, etc, and they can be *anything*.
     // So, for example if I have 
     //
@@ -334,14 +348,26 @@ void newExpression::setupDerivatives_ ()
     // that are set to simple numerical values.  That would mean 
     // that for the above set of expressions, I only would do x and y.
     //
- 
+    // Solution: only differentiate params that have their "setVar" boolean set to true.
+    //
+
     for (int ii=0;ii<paramOpVec_.size();ii++)
     {
-      derivIndexPair_ paramNodePair(paramOpVec_[ii],numDerivs_);
-      derivIndexVec_.push_back(paramNodePair);
-      numDerivs_++;
+      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+      if (parOp->getVar())
+      {
+        std::string tmp = parOp->getName();
+        Xyce::Util::toUpper(tmp);
+        std::unordered_map<std::string, int>::iterator mapIter;
+        mapIter = derivNodeIndexMap_.find(tmp);
+        if (mapIter == derivNodeIndexMap_.end()) 
+        {
+          derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
+        }
+        derivIndexPair_ parNodePair(paramOpVec_[ii],derivNodeIndexMap_[tmp]);
+        derivIndexVec_.push_back(parNodePair);
+      }
     }
-#endif
 
     if (group_->isOption (std::string("verbose")))
     {
@@ -566,7 +592,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 int newExpression::evaluateFunction (usedType &result)
-{ 
+  { 
   int retVal=0;
   if (parsed_)
   {

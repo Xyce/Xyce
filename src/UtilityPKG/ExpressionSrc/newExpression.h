@@ -73,12 +73,27 @@ public:
     traditionalParse_(true),
     externalDependencies_(false)
   {
-    garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("garbage")));
+    // The bison file is officially case-insensitive.  So converting the 
+    // input string to all upper case is not necessary for it to work.
+    //
+    // However:
+    //
+    // Xyce mostly deals with netlist strings by converting to upper case.
+    // So, when the code outside of bison code interacts with it, Bison will not
+    // have converted it to upper or lower case.  It will be the original case,
+    // whatever that was in the netlist.
+    // 
+    // The simplest, easiest way to make all of this work is to simply 
+    // upcase the whole string.
+    //
+    Xyce::Util::toUpper(expressionString_);
 
-    timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("time")));
-    tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("temp")));
-    vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("vt")));
-    freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("freq")));
+    garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
+
+    timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
+    tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
+    vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("VT")));
+    freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("FREQ")));
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
   };
 
@@ -87,7 +102,7 @@ public:
   newExpression (const std::vector<usedType> & xvals, const std::vector<usedType> & yvals,
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
-    expressionString_("time"),
+    expressionString_("TIME"),
     parsed_(false),
     resolved_(false),
     derivsSetup_(false),
@@ -100,12 +115,12 @@ public:
     traditionalParse_(false),
     externalDependencies_(false)
   {
-    garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("garbage")));
+    garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
-    timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("time")));
-    tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("temp")));
-    vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("vt")));
-    freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("freq")));
+    timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
+    tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
+    vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("VT")));
+    freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("FREQ")));
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
 
     Teuchos::RCP<astNode<usedType> > time_base = timeNodePtr_;
@@ -119,7 +134,7 @@ public:
       const std::vector<usedType> & xvals, const std::vector<usedType> & yvals, 
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
-    expressionString_("time"),
+    expressionString_("TIME"),
     parsed_(false),
     resolved_(false),
     derivsSetup_(false),
@@ -132,12 +147,12 @@ public:
     traditionalParse_(false),
     externalDependencies_(false)
   {
-    garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("garbage")));
+    garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
-    timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("time")));
-    tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("temp")));
-    vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("vt")));
-    freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("freq")));
+    timeNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TIME")));
+    tempNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("TEMP")));
+    vtNodePtr_   = Teuchos::rcp(new specialsOp<usedType> (std::string("VT")));
+    freqNodePtr_ = Teuchos::rcp(new specialsOp<usedType> (std::string("FREQ")));
     piNodePtr_   = Teuchos::rcp(new piConstOp<usedType>  ());
 
     tableNodePtrPtr_ = new Teuchos::RCP<tableOp<usedType> >(new tableOp<usedType> (left, xvals, yvals));
@@ -351,7 +366,16 @@ public:
   Teuchos::RCP<astNode<usedType> > getPiNode () { return piNodePtr_; }
 
   // some of the parameter and function objects are stored in multiple containers.
-  void setFunctionArgStringVec (const std::vector<std::string> & args) { functionArgStringVec_ = args; };
+  void setFunctionArgStringVec (const std::vector<std::string> & args) 
+  { 
+    functionArgStringVec_ = args; 
+    int size = functionArgStringVec_.size();
+    for (int ii=0;ii<size;ii++)
+    {
+      Xyce::Util::toUpper(functionArgStringVec_[ii]);
+    }
+  };
+
   std::vector<std::string> & getFunctionArgStringVec () { return functionArgStringVec_; };
 
   std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > > & getParamOpMap () { return paramOpMap_; };
@@ -376,6 +400,8 @@ public:
   std::vector< Teuchos::RCP<astNode<usedType> > * > & getSrcNodeVec() { return srcAstNodeVec_;}
 
   const std::string & getExpressionString() { return expressionString_; };
+
+  void setVar(const std::string & var);
 
 private:
   void setupDerivatives_ ();
