@@ -1070,7 +1070,6 @@ TEST ( Double_Parser_ternary_precedence, precplusparenif)
   }
 }
 
-
 //-------------------------------------------------------------------------------
 // tests are taken from the "ifstatement.cir" Xyce regression test
 class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
@@ -2283,6 +2282,70 @@ TEST ( Double_Parser_specials, temp)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+}
+
+// these next two tests are for the use case of a parameter that is named either "I" or "V".
+// In an earlier implementation, the parser would get confused by this.  The string res*I*I, 
+// which is used by the regression test BUG_645_SON/bug645son_Func.cir, would simply fail to 
+// parse and wouldn't even issue an error.  It would proceed but then fail to compute anything.
+//
+
+TEST ( Double_Parser_Param_Test, I )
+{
+  Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
+
+  Xyce::Util::newExpression iExpression(std::string("2+3"), testGroup);
+  iExpression.lexAndParseExpression();
+  std::string iName = "I";
+  paramGroup->addParam(iName,iExpression);
+
+  Xyce::Util::newExpression resExpression(std::string("4"), testGroup);
+  resExpression.lexAndParseExpression();
+  std::string resName = "RES";
+  paramGroup->addParam(resName,resExpression);
+
+  Xyce::Util::newExpression testExpression(std::string("RES*I*I"), testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.resolveExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  double result;
+  testExpression.evaluateFunction(result);        EXPECT_EQ( result, (2+3)*(2+3)*4 );
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, (2+3)*(2+3)*4 );
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, (2+3)*(2+3)*4 );
+}
+
+TEST ( Double_Parser_Param_Test, V )
+{
+  Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
+
+  Xyce::Util::newExpression vExpression(std::string("2+3"), testGroup);
+  vExpression.lexAndParseExpression();
+  std::string vName = "V";
+  paramGroup->addParam(vName,vExpression);
+
+  Xyce::Util::newExpression resExpression(std::string("4"), testGroup);
+  resExpression.lexAndParseExpression();
+  std::string resName = "RES";
+  paramGroup->addParam(resName,resExpression);
+
+  Xyce::Util::newExpression testExpression(std::string("RES*V*V"), testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.resolveExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  double result;
+  testExpression.evaluateFunction(result);        EXPECT_EQ( result, (2+3)*(2+3)*4 );
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, (2+3)*(2+3)*4 );
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, (2+3)*(2+3)*4 );
 }
 
 int main (int argc, char **argv)

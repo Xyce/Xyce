@@ -2207,6 +2207,75 @@ TEST ( Complex_Parser_specials, temp)
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
 }
 
+// these next two tests are for the use case of a parameter that is named either "I" or "V".
+// In an earlier implementation, the parser would get confused by this.  The string res*I*I, 
+// which is used by the regression test BUG_645_SON/bug645son_Func.cir, would simply fail to 
+// parse and wouldn't even issue an error.  It would proceed but then fail to compute anything.
+//
+
+TEST ( Double_Parser_Param_Test, I )
+{
+  Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
+
+  Xyce::Util::newExpression iExpression(std::string("2+3J"), testGroup);
+  iExpression.lexAndParseExpression();
+  std::string iName = "I";
+  paramGroup->addParam(iName,iExpression);
+
+  Xyce::Util::newExpression resExpression(std::string("4"), testGroup);
+  resExpression.lexAndParseExpression();
+  std::string resName = "RES";
+  paramGroup->addParam(resName,resExpression);
+
+  Xyce::Util::newExpression testExpression(std::string("RES*I*I"), testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.resolveExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  std::complex<double> iVal(2.0,3.0);
+  std::complex<double> resVal(4.0,0.0);
+
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( result, iVal*iVal*resVal );
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, iVal*iVal*resVal );
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, iVal*iVal*resVal );
+}
+
+TEST ( Double_Parser_Param_Test, V )
+{
+  Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
+
+  Xyce::Util::newExpression vExpression(std::string("2+3J"), testGroup);
+  vExpression.lexAndParseExpression();
+  std::string vName = "V";
+  paramGroup->addParam(vName,vExpression);
+
+  Xyce::Util::newExpression resExpression(std::string("4"), testGroup);
+  resExpression.lexAndParseExpression();
+  std::string resName = "RES";
+  paramGroup->addParam(resName,resExpression);
+
+  Xyce::Util::newExpression testExpression(std::string("RES*V*V"), testGroup);
+  testExpression.lexAndParseExpression();
+  testExpression.resolveExpression();
+
+  Xyce::Util::newExpression copy_testExpression(testExpression); 
+  Xyce::Util::newExpression assign_testExpression; 
+  assign_testExpression = testExpression; 
+
+  std::complex<double> vVal(2.0,3.0);
+  std::complex<double> resVal(4.0,0.0);
+
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);        EXPECT_EQ( result, vVal*vVal*resVal );
+  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, vVal*vVal*resVal );
+  assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, vVal*vVal*resVal );
+}
 
 int main (int argc, char **argv)
 {
