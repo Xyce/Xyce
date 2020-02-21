@@ -585,6 +585,7 @@ class paramOp: public astNode<ScalarT>
       paramNode_(tmpNode),
       nodeResolved_(true),
       thisIsAFunctionArgument_(false),
+      isVar(false),
       derivIndex_(-1)
   {};
 
@@ -690,6 +691,10 @@ class paramOp: public astNode<ScalarT>
     virtual void setFunctionArgType() { thisIsAFunctionArgument_ = true;};
     virtual void unsetFunctionArgType() { thisIsAFunctionArgument_ = true;};
 
+    void setVar() { isVar = true; }
+    void unsetVar() { isVar = false; }
+    bool getVar() { return isVar; }
+
   private:
     // data:
     std::string paramName_;
@@ -699,6 +704,8 @@ class paramOp: public astNode<ScalarT>
 
     bool thisIsAFunctionArgument_;
 
+    bool isVar;
+
     int derivIndex_;
 };
 
@@ -707,7 +714,6 @@ template <typename ScalarT>
 class voltageOp: public astNode<ScalarT>
 {
   public:
-
     voltageOp (std::vector<std::string> voltageNodes):
       astNode<ScalarT>(),
       voltageNodes_(voltageNodes),
@@ -906,7 +912,10 @@ class funcOp: public astNode<ScalarT>
         {
           std::vector<std::string> errStr;
           errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_); yyerror(errStr);
+          errStr.push_back(funcName_); 
+          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
+          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
+          yyerror(errStr);
         }
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
         number_ = functionNode_->val();
@@ -929,6 +938,8 @@ class funcOp: public astNode<ScalarT>
         {
           std::string tmp = "FuncOp Function Args sizes don't match for " + funcName_;
           std::vector<std::string> errStr(1,tmp);
+          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
+          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
           yyerror(errStr);
         }
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
@@ -953,7 +964,10 @@ class funcOp: public astNode<ScalarT>
         {
           std::vector<std::string> errStr;
           errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_); yyerror(errStr);
+          errStr.push_back(funcName_); 
+          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
+          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
+          yyerror(errStr);
         }
 
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
@@ -1030,7 +1044,10 @@ class funcOp: public astNode<ScalarT>
         {
           std::vector<std::string> errStr;
           errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_); yyerror(errStr);
+          errStr.push_back(funcName_); 
+          errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
+          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
+          yyerror(errStr);
         }
 
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
