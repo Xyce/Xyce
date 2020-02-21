@@ -51,6 +51,7 @@
 #include <N_IO_PkgOptionsMgr.h>
 #include <N_IO_SpiceSeparatedFieldTool.h>
 #include <N_IO_OutputMgr.h>
+#include <N_IO_CmdParse.h>
 #include <N_LAS_Builder.h>
 #include <N_LAS_Matrix.h>
 #include <N_LAS_Problem.h>
@@ -78,9 +79,7 @@
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_SaveIOSState.h>
 
-#if 1
 #include <newExpression.h>
-#endif
 
 // ----------   Static Declarations ----------
 
@@ -175,9 +174,11 @@ bool evaluateObjFuncs (
       int tmpGID = objVec[iobj]->expVarGIDs[i];
       double tmpDODX = objVec[iobj]->expVarDerivs[i];
 
-      if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
+      //if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
       {
-        Xyce::dout() << "i="<<i<<"  gid = " << tmpGID << "  dodx = "<< tmpDODX << std::endl;
+        Xyce::dout() 
+          <<  objVec[iobj]->expVarNames[i] << "  "
+          << "i="<<i<<"  gid = " << tmpGID << "  dodx = "<< tmpDODX << std::endl;
       }
 
       if (tmpGID >= 0)
@@ -216,18 +217,29 @@ void setupObjectiveFunctions
   (std::vector<objectiveFunctionData*> & objVec,
    IO::OutputMgr & output_manager,
   Linear::System & lasSys,
+  const IO::CmdParse &cp,
   bool checkTimeDeriv
   )
 {
+
+  Xyce::ExtendedString exprType = cp.getArgumentValue( "-expression" );
+  exprType.toUpper();
+
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
-#if 1
-    // use new expression library
-    objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString, true);
-#else
-    // using the old one
-    objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString);
-#endif
+    bool useNewExprLib=true;
+    if(exprType == "OLD") 
+    {
+      useNewExprLib=false;
+      std::cout << "USING OLD EXPRESSION LIBRARY FOR OBJFUNC" << std::endl;
+    }
+    else
+    {
+      useNewExprLib=true;
+      std::cout << "USING NEW EXPRESSION LIBRARY FOR OBJFUNC" << std::endl;
+    }
+
+    objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString, useNewExprLib);
 
     if (!(objVec[iobj]->expPtr->parsed()))
     {
@@ -267,11 +279,11 @@ void setupObjectiveFunctions
       // create an expression from the function definition and
       // order its names from that list. Finally, replace the
       // function in the expression to be resolved.
-      Util::Expression prototypeExression(functionPrototype);
+      Util::Expression prototypeExression(functionPrototype, useNewExprLib);
       std::vector<std::string> arguments;
       prototypeExression.get_names(XEXP_STRING, arguments);
-      Util::Expression functionExpression(functionBody);
-      functionExpression.order_names(arguments);
+      Util::Expression functionExpression(functionBody, useNewExprLib);
+      functionExpression.order_names(arguments); 
 
       if (objVec[iobj]->expPtr->replace_func(*it, functionExpression, static_cast<int>(arguments.size())) < 0)
       {
@@ -369,7 +381,7 @@ void setupObjectiveFunctions
 
     // Order the names in the expression so that it agrees with the order
     // in expVarNames.
-    if ( !(objVec[iobj]->expVarNames.empty()) )
+    if ( !(objVec[iobj]->expVarNames.empty()) ) // this seems pointless as "order_names" is mainly for function arguments.  Otherwise, these names just came from the expression, so they should be in this order already.
     {
       objVec[iobj]->expPtr->order_names( objVec[iobj]->expVarNames );
     }
@@ -478,7 +490,7 @@ void setupObjectiveFuncGIDs (
 
       if (!found && !found2 && !found3 && !foundAliasNode)
       {
-        Report::UserFatal() << "objective function variable not found!";
+        Report::UserFatal() << "objective function variable not found!  Cannot find " << objVec[iobj]->expVarNames[i] ;
       }
 
       if (found || found2 || foundAliasNode)
@@ -1213,7 +1225,7 @@ bool Sensitivity::calcObjFuncTimeDerivs ()
     }
 
     bool checkTimeDeriv=false;
-    setupObjectiveFunctions(objFuncTimeDerivDataVec_, *outMgrPtr_, *lasSysPtr_, checkTimeDeriv);
+    setupObjectiveFunctions(objFuncTimeDerivDataVec_, *outMgrPtr_, *lasSysPtr_, commandLine_, checkTimeDeriv);
     timeDerivsSetup_ = true;
   }
 
@@ -1662,7 +1674,7 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
   // up early in the simulation.
   if (objFuncGiven_)
   {
-    setupObjectiveFunctions(objFuncDataVec_, *outMgrPtr_, *lasSysPtr_);
+    setupObjectiveFunctions(objFuncDataVec_, *outMgrPtr_, *lasSysPtr_, commandLine_);
   }
 
   if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
