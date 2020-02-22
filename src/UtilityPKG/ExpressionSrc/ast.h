@@ -64,7 +64,8 @@ class astNode
     virtual void setDerivIndex(int i) {};
     virtual void unsetDerivIndex() {};
 
-    virtual void setValue(ScalarT val) {}; // this only supports the "specialsOp".  otherwise a no-op
+    virtual void setValue(ScalarT val) {}; // supports specialsOp, and paramOp. otherwise no-op
+    virtual void unsetValue() {};          // supports specialsOp, and paramOp. otherwise no-op
 
     virtual bool numvalType()      { return false; };
     virtual bool paramType()       { return false; };
@@ -568,6 +569,30 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
 };
 
 //-------------------------------------------------------------------------------
+//
+// This is the parameter Op class.
+//
+// This is still a work in progress.  I originally wrote it to primarily behave 
+// like a global_param.  ie, something that could dynamically change, and was 
+// attached to an external expression via the "paramNode" object, which points 
+// to the top of the ast tree of another expression.
+//
+// I have been modifying this slowly to make it so that it can also (under 
+// some circumstances) behave like a Xyce .param.  ie, a hardwired constant.
+// This aspect is not 100% fleshed out yet.  
+//
+// For a simple evaluation of the "val" function, this class will:
+//
+//    (1) call the "val" function of the underlying external syntax tree 
+//          if acting like a global_param (if "nodeResolved_" is true)
+//
+//    (2) return the scalar quantity "number_" 
+//          if acting like a param (if "nodeResolved_" is false)
+//
+// For derivative calculation, there is at least one use case that mixes these two 
+// modes of operation together.  So I still need to think about that.  Possibly 
+// there should be two different kinds of classes for this, to avoid confusion.
+//
 template <typename ScalarT>
 class paramOp: public astNode<ScalarT>
 {
@@ -594,7 +619,12 @@ class paramOp: public astNode<ScalarT>
       return (nodeResolved_)?(paramNode_->val()):(number_);
     }
 
-    virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
+    // ERK. sort this out.
+    virtual ScalarT dx(int i) 
+    { 
+      //return  (nodeResolved_)?(paramNode_->dx(i)):((derivIndex_==i)?1.0:0.0);
+      return  (derivIndex_==i)?1.0:0.0; 
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -618,6 +648,9 @@ class paramOp: public astNode<ScalarT>
       //paramNode_ = NULL;
       nodeResolved_ = false;
     };
+
+    virtual void setValue(ScalarT val) {number_ = val;};
+    virtual void unsetValue() {number_ = 0.0;};
 
     virtual void setDerivIndex(int i) {derivIndex_=i;};
     virtual void unsetDerivIndex() {derivIndex_=-1;};
@@ -942,9 +975,49 @@ class funcOp: public astNode<ScalarT>
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
           yyerror(errStr);
         }
+
+        // Two phases, do do a complete chain rule calculation: 
+        //
+        // all the "d" symbols should be partials:
+        // chain rule :  F′(x) = F'(x) + f′(g(x)) * g′(x)  ->  df/dx = df/dx + df/dp * dp/dx 
+        //
+        // phase 1:  F'(x) = df/dx.
+        //
+        // For this phase, the funcArgs are in the "full" form - 
+        //   ie, if they represent an AST tree, we use the whole tree to evaluate.
+        number_ = 0.0;
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
         number_ = functionNode_->dx(i);
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
+
+        // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
+        //
+        // g(x) = funcArg->val().  This should be evaluated inside of dx call.
+        // g'(x) = funcArg->dx(i)
+        // f'(g(x)) = functionNode_->dx(ii);
+        //
+        // For this phase, the funcArgs are simple params.  
+        //   ie, they don't have an AST tree, just a number.
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
+        { 
+          dummyFuncArgs_[ii]->setValue ( funcArgs_[ii]->val() ); 
+          dummyFuncArgs_[ii]->setDerivIndex ( ii );
+        }
+
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii)  // loop over args (p).  ii = p index, i = x index
+        {
+          ScalarT delta = functionNode_->dx(ii) *  funcArgs_[ii]->dx(i);
+
+          number_ += functionNode_->dx(ii) *  funcArgs_[ii]->dx(i);
+          //std::cout << "ii="<< ii << "  functionNode_->dx(ii) = " << functionNode_->dx(ii) << "  funcArgs_[ii]->dx(i) = " << funcArgs_[ii]->dx(i) << "  delta = " << delta << " number_ = " << number_ << std::endl;
+        }
+
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
+        { 
+          dummyFuncArgs_[ii]->unsetValue ();
+          dummyFuncArgs_[ii]->unsetDerivIndex ();
+        } // restore
+
       }
       return number_;
     }
