@@ -46,7 +46,6 @@ TEST ( NAME, SUBNAME ) \
   EXPECT_EQ( (result-(CPPEXP)), 0.0); \
 }
 
-#if 0
 // number by itself
 TEST ( Double_Parser_Test, numval)
 {
@@ -2102,7 +2101,6 @@ TEST ( Double_Parser_calculus, simpleDerivs1 )
   copy_ddxTest.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
   assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
 }
-#endif
 
 class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
@@ -2156,7 +2154,6 @@ class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
     double Aval_, Bval_, Cval_, R1val_;
 };
 
-#if 0 
 // These tests (derivsThruFuncs?) tests if derivatives work thru expression arguments.
 // At the time of test creation (2/21/2020), the answer was NO.
 //
@@ -2196,7 +2193,6 @@ TEST ( Double_Parser_calculus, derivsThruFuncs1 )
   copy_derivFuncTestExpr.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
   assign_derivFuncTestExpr.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
 }
-#endif
 
 // there are a bunch of tests in this one, all testing if derivatives propagate thru
 // a .FUNC in the right way.
@@ -2205,20 +2201,20 @@ TEST ( Double_Parser_calculus, derivsThruFuncs2 )
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
 
+  std::vector<std::string> funcArgStrings = { std::string("A"), std::string("B") };
+
   // this expression is the RHS of a .func statement:  .func F1(A,B) {sin(A)*cos(B)}
   Xyce::Util::newExpression f1Expression (std::string("sin(A)*cos(B)"), testGroup);
-  Xyce::Util::newExpression f2Expression (std::string("A*B"), testGroup);
-  std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
-  f1Expression.setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression.setFunctionArgStringVec ( funcArgStrings );
   f1Expression.lexAndParseExpression();
-  f2Expression.setFunctionArgStringVec ( f1ArgStrings );
+
+  // this expression is the RHS of a .func statement:  .func F2(A,B) {A*B}
+  Xyce::Util::newExpression f2Expression (std::string("A*B"), testGroup);
+  f2Expression.setFunctionArgStringVec ( funcArgStrings );
   f2Expression.lexAndParseExpression();
 
-  std::string f1Name = "F1";
-  solnFuncGroup->addFunction( f1Name ,  f1Expression);
-
-  std::string f2Name = "F2";
-  solnFuncGroup->addFunction( f2Name ,  f2Expression);
+  solnFuncGroup->addFunction( std::string("F1"),  f1Expression);
+  solnFuncGroup->addFunction( std::string("F2") , f2Expression);
 
   Xyce::Util::newExpression derivFuncTestExpr1(std::string("0.5*(F1(V(A),V(B)))**2.0"), testGroup); 
   Xyce::Util::newExpression derivFuncTestExpr2(std::string("0.5*(F2(sin(V(A)),cos(V(B))))**2.0"), testGroup); 
@@ -2282,7 +2278,128 @@ TEST ( Double_Parser_calculus, derivsThruFuncs2 )
   EXPECT_EQ( derivs, derivs2 );
 }
 
-#if 0
+TEST ( Double_Parser_calculus, derivsThruFuncs3 )
+{
+  Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
+
+  Xyce::Util::newExpression f1Expression (std::string("A*B"), testGroup);
+  std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
+  f1Expression.setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression.lexAndParseExpression();
+
+  solnFuncGroup->addFunction( std::string("F1"),  f1Expression);
+
+  Xyce::Util::newExpression derivFuncTestExpr1(std::string("V(A)*F1(V(A),V(B)*V(B))+3.0*V(B)"), testGroup); 
+
+  derivFuncTestExpr1.lexAndParseExpression();
+  derivFuncTestExpr1.resolveExpression(); 
+
+  Xyce::Util::newExpression copy_derivFuncTestExpr1(derivFuncTestExpr1); 
+  Xyce::Util::newExpression assign_derivFuncTestExpr1; 
+  assign_derivFuncTestExpr1 = derivFuncTestExpr1; 
+
+  double Aval=1.0;
+  double Bval=2.0;
+  solnFuncGroup->setSoln(std::string("A"),Aval);
+  solnFuncGroup->setSoln(std::string("B"),Bval);
+  double result;
+  std::vector<double> derivs;
+
+  derivFuncTestExpr1.evaluate(result,derivs);   
+
+  double resRef = Aval*Aval*Bval*Bval+3.0*Bval;
+  double dfdA = (2.0*Aval*Bval*Bval);
+  double dfdB = (2.0*Aval*Aval*Bval + 3.0);
+
+  std::vector<double> derivsRef = { dfdA, dfdB };
+
+  EXPECT_EQ( result-resRef, 0.0 );
+
+  std::vector<double> derivDiffs = { (derivs[0]-derivsRef[0]),  (derivs[1]-derivsRef[1]) };
+  EXPECT_EQ( derivDiffs[0], 0.0 );
+  EXPECT_EQ( derivDiffs[1], 0.0 );
+
+}
+
+TEST ( Double_Parser_calculus, derivsThruFuncs4 )
+{
+  Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
+
+  Xyce::Util::newExpression f1Expression (std::string("A*B+100*V(C)"), testGroup);
+  std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
+  f1Expression.setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression.lexAndParseExpression();
+
+  solnFuncGroup->addFunction( std::string("F1"),  f1Expression);
+
+  Xyce::Util::newExpression derivFuncTestExpr1(std::string("F1(V(A),V(B))"), testGroup); 
+
+  derivFuncTestExpr1.lexAndParseExpression();
+  derivFuncTestExpr1.resolveExpression(); 
+
+  Xyce::Util::newExpression copy_derivFuncTestExpr1(derivFuncTestExpr1); 
+  Xyce::Util::newExpression assign_derivFuncTestExpr1; 
+  assign_derivFuncTestExpr1 = derivFuncTestExpr1; 
+
+  double Aval=17.0;
+  double Bval=2.0;
+  double Cval=3.0;
+  solnFuncGroup->setSoln(std::string("A"),Aval);
+  solnFuncGroup->setSoln(std::string("B"),Bval);
+  solnFuncGroup->setSoln(std::string("C"),Cval);
+  double result;
+  std::vector<double> derivs;
+
+  derivFuncTestExpr1.evaluate(result,derivs);   
+
+  double resRef = (Aval*Bval+100*Cval);
+  std::vector<double> derivsRef = { Bval, Aval, 100.0 };
+
+  EXPECT_EQ( result,resRef);
+  EXPECT_EQ( derivs,derivsRef);
+}
+
+TEST ( Double_Parser_calculus, derivsThruFuncs5 )
+{
+  Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
+
+  Xyce::Util::newExpression f1Expression (std::string("A*B+100*V(A)"), testGroup);
+  std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
+  f1Expression.setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression.lexAndParseExpression();
+
+  solnFuncGroup->addFunction( std::string("F1"),  f1Expression);
+
+  Xyce::Util::newExpression derivFuncTestExpr1(std::string("F1(V(A),V(B))"), testGroup); 
+
+  derivFuncTestExpr1.lexAndParseExpression();
+  derivFuncTestExpr1.resolveExpression(); 
+
+  //derivFuncTestExpr1.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copy_derivFuncTestExpr1(derivFuncTestExpr1); 
+  Xyce::Util::newExpression assign_derivFuncTestExpr1; 
+  assign_derivFuncTestExpr1 = derivFuncTestExpr1; 
+
+  double Aval=17.0;
+  double Bval=2.0;
+  solnFuncGroup->setSoln(std::string("A"),Aval);
+  solnFuncGroup->setSoln(std::string("B"),Bval);
+  double result;
+  std::vector<double> derivs;
+
+  derivFuncTestExpr1.evaluate(result,derivs);   
+
+  double resRef = (Aval*Bval+100.0*Aval);
+  std::vector<double> derivsRef = { (Bval+100.0), Aval };
+
+  EXPECT_EQ( result,resRef);
+  EXPECT_EQ( derivs,derivsRef);
+}
+
 TEST ( Double_Parser_floor, test1)
 {
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = Teuchos::rcp(new testExpressionGroup() );
@@ -2528,7 +2645,6 @@ TEST ( Double_Parser_Param_Test, V )
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, (2+3)*(2+3)*4 );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, (2+3)*(2+3)*4 );
 }
-#endif
 
 int main (int argc, char **argv)
 {

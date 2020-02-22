@@ -522,7 +522,7 @@ class numval : public astNode<ScalarT>
     numval (ScalarT d): astNode<ScalarT>(),number(d) {};
     numval (std::complex<ScalarT> d): astNode<ScalarT>(),number(std::real(d)) {};
 
-    virtual ScalarT val() {return number;}
+    virtual ScalarT val() { return number; }
     virtual ScalarT dx(int i) {return 0.0;}
     ScalarT number;
 
@@ -614,17 +614,10 @@ class paramOp: public astNode<ScalarT>
       derivIndex_(-1)
   {};
 
-    virtual ScalarT val()
-    {
-      return (nodeResolved_)?(paramNode_->val()):(number_);
-    }
+    virtual ScalarT val() { return (nodeResolved_)?(paramNode_->val()):(number_); }
 
     // ERK. sort this out.
-    virtual ScalarT dx(int i) 
-    { 
-      //return  (nodeResolved_)?(paramNode_->dx(i)):((derivIndex_==i)?1.0:0.0);
-      return  (derivIndex_==i)?1.0:0.0; 
-    }
+    virtual ScalarT dx(int i) { return  (derivIndex_==i)?1.0:0.0; }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -652,7 +645,7 @@ class paramOp: public astNode<ScalarT>
     virtual void setValue(ScalarT val) {number_ = val;};
     virtual void unsetValue() {number_ = 0.0;};
 
-    virtual void setDerivIndex(int i) {derivIndex_=i;};
+    virtual void setDerivIndex(int i) { derivIndex_=i; };
     virtual void unsetDerivIndex() {derivIndex_=-1;};
 
     virtual std::string getName() { return paramName_; }
@@ -817,16 +810,11 @@ class voltageOp: public astNode<ScalarT>
         yyerror(errStr);
       }
 
-      for (int ii=0;ii<voltageVals_.size();ii++)
-      {
-        voltageVals_[ii] = vals[ii];
-        //std::cout << "voltageVals_["<<ii<<"] = " << voltageVals_[ii] <<std::endl;
-
-      }
+      for (int ii=0;ii<voltageVals_.size();ii++) { voltageVals_[ii] = vals[ii]; }
     }
 
-    virtual void setDerivIndex(int i) {derivIndex_=i;};
-    virtual void unsetDerivIndex() {derivIndex_=-1;};
+    virtual void setDerivIndex(int i) { derivIndex_=i; };
+    virtual void unsetDerivIndex() { derivIndex_=-1; };
 
     std::vector<std::string> & getVoltageNodes() { return voltageNodes_; }
     std::vector<ScalarT> & getVoltageVals() { return voltageVals_; }
@@ -990,6 +978,8 @@ class funcOp: public astNode<ScalarT>
         number_ = functionNode_->dx(i);
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
 
+        //std::cout << "number_ = " << number_ << std::endl;
+
         // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
         //
         // g(x) = funcArg->val().  This should be evaluated inside of dx call.
@@ -1000,16 +990,20 @@ class funcOp: public astNode<ScalarT>
         //   ie, they don't have an AST tree, just a number.
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
         { 
+          // the index is intentionally negative, starting at -1.  This is so it 
+          // doesn't conflict with derivative indices that were already set at 
+          // the top of the tree in the newExpression::evaluate function.
+          int index=-ii-1;
           dummyFuncArgs_[ii]->setValue ( funcArgs_[ii]->val() ); 
-          dummyFuncArgs_[ii]->setDerivIndex ( ii );
+          dummyFuncArgs_[ii]->setDerivIndex ( index );
         }
 
         for (int ii=0;ii<dummyFuncArgs_.size();++ii)  // loop over args (p).  ii = p index, i = x index
         {
-          ScalarT delta = functionNode_->dx(ii) *  funcArgs_[ii]->dx(i);
-
-          number_ += functionNode_->dx(ii) *  funcArgs_[ii]->dx(i);
-          //std::cout << "ii="<< ii << "  functionNode_->dx(ii) = " << functionNode_->dx(ii) << "  funcArgs_[ii]->dx(i) = " << funcArgs_[ii]->dx(i) << "  delta = " << delta << " number_ = " << number_ << std::endl;
+          int index=-ii-1;
+          ScalarT delta = functionNode_->dx(index) *  funcArgs_[ii]->dx(i);
+          number_ += delta; // functionNode_->dx(index) *  funcArgs_[ii]->dx(i);
+          //std::cout << "ii="<< ii << "  functionNode_->dx(-ii-1) = " << functionNode_->dx(index) << "  funcArgs_[ii]->dx(i) = " << funcArgs_[ii]->dx(i) << "  delta = " << delta << " number_ = " << number_ << std::endl;
         }
 
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
