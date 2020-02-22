@@ -33,7 +33,13 @@
   \color{white}\textbf{Change} &
   \color{white}\textbf{Detail} \\ \hline \endhead
 
-Place holder  & place holder
+Mixed Signal Interface behavior when a ``backwards or null time step'' is requested.  &
+Previously, for the Mixed Signal Interface, if the \texttt{requestedUntilTime}
+in a \texttt{simulateUntil()} call was less than the current simulation time
+then the \Xyce{} simulation would run to completion.  If the \texttt{requestedUntilTime}
+was equal to the current simulation time then the simulation would get stuck in a
+``time-step too small'' error loop.  The interface change is that both of these
+cases are now simulation errors that will cause the \Xyce{} simulation to abort.
 \\ \hline
 
 \end{longtable}

@@ -32,6 +32,7 @@
 
 #include <N_IO_MeasureFindWhen.h>
 #include <N_ERH_ErrorMgr.h>
+#include <N_UTL_FeatureTest.h>
 
 namespace Xyce {
 namespace IO {
@@ -50,6 +51,7 @@ FindWhen::FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureB
   lastIndepVarValue_(0.0),
   lastDepVarValue_(0.0),
   lastOutputVarValue_(0.0),
+  lastTargValue_(0.0),
   whenIdx_(0)
 
 {
@@ -99,6 +101,7 @@ void FindWhen::reset()
   lastIndepVarValue_=0.0;
   lastDepVarValue_=0.0;
   lastOutputVarValue_=0.0;
+  lastTargValue_=0.0;
 }
 
 
@@ -144,12 +147,16 @@ void FindWhen::updateTran(
 
     if( !initialized_ )
     {
-      // assigned last dependent and independent var to current time and outVarValue_[whenIdx_] 
+      // assigned last independent and dependent var to current time and outVarValue_[whenIdx_] 
       // while we can't interpolate on this step, it ensures that the initial history is
       // something realistic.
       lastIndepVarValue_=circuitTime;
       lastDepVarValue_=outVarValues_[whenIdx_];
-      lastOutputVarValue_=outVarValues_[0]; 
+      lastOutputVarValue_=outVarValues_[0];
+      if (outputValueTargetGiven_)
+        lastTargValue_ = outputValueTarget_;
+      else
+        lastTargValue_ = outVarValues_[whenIdx_+1];
       initialized_=true;
     }  
 
@@ -219,31 +226,21 @@ void FindWhen::updateTran(
         }
         else
         {
-          // check and see if last point and this point bound the target point 
-          double backDiff    = lastDepVarValue_ - targVal;
-          double forwardDiff = outVarValues_[whenIdx_] - targVal;
+          // check and see if the lines defined by the current and previous values in the WHEN
+          // clause indicate that the two lines, defined by those four values, have crossed.
+          double prevDiff    = lastDepVarValue_ - lastTargValue_;
+          double currentDiff = outVarValues_[whenIdx_] - targVal;
 
-          // if we bound the target then either
-          //  (backDiff < 0) && (forwardDiff > 0)  
+          // if the lines intersected then either
+          //  (prevDiff < 0) && (currentDiff > 0)
           //   OR
-          //  (backDiff > 0) && (forwardDiff < 0) 
-          // or more simply sgn( backDiff ) = - sgn( forwardDiff ) 
-          if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) )
+          //  (prevDiff > 0) && (currentDiff < 0)
+          // or more simply sgn( prevDiff ) = - sgn( currentDiff )
+          if( ((prevDiff < 0.0) && (currentDiff > 0.0)) || ((prevDiff > 0.0) && (currentDiff < 0.0)) )
           {
-            // bound the solution so interpolate to find the target time (or frequency etc)
-            calculationInstant_ = circuitTime - ( ((circuitTime - lastIndepVarValue_)/(outVarValues_[whenIdx_]-lastDepVarValue_)) * (outVarValues_[whenIdx_]-targVal) );
-            if (findGiven_)
-	    {
-              // interpolate the value for the variable in the FIND clause, for a FIND-WHEN
-              // measure, based on the interpolated measureTime variable
-              calculationResult_= outVarValues_[0] - (circuitTime - calculationInstant_)*
-	        ( (outVarValues_[0] - lastOutputVarValue_)/(circuitTime - lastIndepVarValue_) ); 
-	    }
-	    else
-	    {
-              // return the interpolated time if the measure is WHEN, rather than FIND-WHEN
-              calculationResult_ = calculationInstant_;
-	    }
+            // Set the calculationInstant_ and calculationResult_ via interpolation
+            interpolateResults(circuitTime, targVal);
+
             calculationDone_ = measureLastRFC_ ? false : doneIfFound;
             // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN 
             //  measure.  If it is false, the measure shows FAILED in stdout.  This is needed for
@@ -253,7 +250,6 @@ void FindWhen::updateTran(
         }
       }
     }
-
   }
 
   // remember the last points in case we need to interpolate to the time when v(a)=x.  
@@ -261,7 +257,11 @@ void FindWhen::updateTran(
   // lastOutputVarValue_ is used to interpolate the output value for a FIND-WHEN measure.
   lastIndepVarValue_=circuitTime;
   lastDepVarValue_=outVarValues_[whenIdx_]; 
-  lastOutputVarValue_=outVarValues_[0]; 
+  lastOutputVarValue_=outVarValues_[0];
+  if (outputValueTargetGiven_)
+    lastTargValue_ = outputValueTarget_;
+  else
+    lastTargValue_ = outVarValues_[whenIdx_+1];
 }
 
 
@@ -330,12 +330,16 @@ void FindWhen::updateDC(
       // sweep variable rolls over.
       if( !initialized_ || (initialized_ && dcSweepVal == startACDCmeasureWindow_) )
       {
-        // Assigned last dependent and independent var to frequency and outVarValue_[whenIdx_]
+        // Assigned last independent and dependent var to dcSweepVal and outVarValue_[whenIdx_]
         // While we can't interpolate on this step, it ensures that the initial history is
         // something realistic.
         lastIndepVarValue_=dcSweepVal;
         lastDepVarValue_=outVarValues_[whenIdx_];
         lastOutputVarValue_=outVarValues_[0];
+        if (outputValueTargetGiven_)
+          lastTargValue_ = outputValueTarget_;
+        else
+          lastTargValue_ = outVarValues_[whenIdx_+1];
         initialized_=true;
       }
 
@@ -384,31 +388,21 @@ void FindWhen::updateDC(
           }
           else
           {
-            // check and see if last point and this point bound the target point
-            double backDiff    = lastDepVarValue_ - targVal;
-            double forwardDiff = outVarValues_[whenIdx_] - targVal;
+            // check and see if the lines defined by the current and previous values in the WHEN
+            // clause indicate that the two lines, defined by those four values, have crossed.
+            double prevDiff    = lastDepVarValue_ - lastTargValue_;
+            double currentDiff = outVarValues_[whenIdx_] - targVal;
 
-            // if we bound the target then either
-            //  (backDiff < 0) && (forwardDiff > 0)
+            // if the lines intersected then either
+            //  (prevDiff < 0) && (currentDiff > 0)
             //   OR
-            //  (backDiff > 0) && (forwardDiff < 0)
-            // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-            if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) )
+            //  (prevDiff > 0) && (currentDiff < 0)
+            // or more simply sgn( prevDiff ) = - sgn( currentDiff )
+            if( ((prevDiff < 0.0) && (currentDiff > 0.0)) || ((prevDiff > 0.0) && (currentDiff < 0.0)) )
             {
-              // bound the solution so interpolate to find the target time (or frequency etc)
-              calculationInstant_ = dcSweepVal - ( ((dcSweepVal - lastIndepVarValue_)/(outVarValues_[whenIdx_]-lastDepVarValue_)) * (outVarValues_[whenIdx_]-targVal) );
-              if (findGiven_)
-	      {
-                // interpolate the value for the variable in the FIND clause, for a FIND-WHEN
-                // measure
-                calculationResult_= outVarValues_[0] - (dcSweepVal - calculationInstant_)*
-	          ( (outVarValues_[0] - lastOutputVarValue_)/(dcSweepVal - lastIndepVarValue_) );
-	      }
-	      else
-	      {
-                // return the interpolated value of the dcSweepVal if the measure is WHEN, rather than FIND-WHEN
-                calculationResult_ = calculationInstant_;
-	      }
+              // Set the calculationInstant_ and calculationResult_ via interpolation
+              interpolateResults(dcSweepVal, targVal);
+
               calculationDone_ = doneIfFound;
               // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
               //  measure.  If it is false, the measure shows FAILED in stdout.
@@ -425,6 +419,10 @@ void FindWhen::updateDC(
     lastIndepVarValue_=dcSweepVal;
     lastDepVarValue_=outVarValues_[whenIdx_];
     lastOutputVarValue_=outVarValues_[0];
+    if (outputValueTargetGiven_)
+      lastTargValue_ = outputValueTarget_;
+    else
+      lastTargValue_ = outVarValues_[whenIdx_+1];
   }
 }
 
@@ -472,12 +470,16 @@ void FindWhen::updateAC(
 
     if( !initialized_ )
     {
-      // Assigned last dependent and independent var to frequency and outVarValue_[whenIdx_]
+      // Assigned last independent and dependent var to frequency and outVarValue_[whenIdx_]
       // While we can't interpolate on this step, it ensures that the initial history is
       // something realistic.
       lastIndepVarValue_=frequency;
       lastDepVarValue_=outVarValues_[whenIdx_];
       lastOutputVarValue_=outVarValues_[0];
+      if (outputValueTargetGiven_)
+        lastTargValue_ = outputValueTarget_;
+      else
+        lastTargValue_ = outVarValues_[whenIdx_+1];
       initialized_=true;
     }
 
@@ -526,31 +528,21 @@ void FindWhen::updateAC(
         }
         else
         {
-          // check and see if last point and this point bound the target point
-          double backDiff    = lastDepVarValue_ - targVal;
-          double forwardDiff = outVarValues_[whenIdx_] - targVal;
+          // check and see if the lines defined by the current and previous values in the WHEN
+          // clause indicate that the two lines, defined by those four values, have crossed.
+          double prevDiff    = lastDepVarValue_ - lastTargValue_;
+          double currentDiff = outVarValues_[whenIdx_] - targVal;
 
-          // if we bound the target then either
-          //  (backDiff < 0) && (forwardDiff > 0)
+          // if the lines intersected then either
+          //  (prevDiff < 0) && (currentDiff > 0)
           //   OR
-          //  (backDiff > 0) && (forwardDiff < 0)
-          // or more simply sgn( backDiff ) = - sgn( forwardDiff )
-          if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) )
+          //  (prevDiff > 0) && (currentDiff < 0)
+          // or more simply sgn( prevDiff ) = - sgn( currentDiff )
+          if( ((prevDiff < 0.0) && (currentDiff > 0.0)) || ((prevDiff > 0.0) && (currentDiff < 0.0)) )
           {
-            // bound the solution so interpolate to find the target time (or frequency etc)
-            calculationInstant_ = frequency - ( ((frequency - lastIndepVarValue_)/(outVarValues_[whenIdx_]-lastDepVarValue_)) * (outVarValues_[whenIdx_]-targVal) );
-            if (findGiven_)
-	    {
-              // interpolate the value for the variable in the FIND clause, for a FIND-WHEN
-              // measure
-              calculationResult_= outVarValues_[0] - (frequency - calculationInstant_)*
-	        ( (outVarValues_[0] - lastOutputVarValue_)/(frequency - lastIndepVarValue_) );
-	    }
-	    else
-	    {
-              // return the interpolated frequency if the measure is WHEN, rather than FIND-WHEN
-              calculationResult_ = calculationInstant_;
-	    }
+            // Set the calculationInstant_ and calculationResult_ via interpolation
+            interpolateResults(frequency, targVal);
+
             calculationDone_ = doneIfFound;
             // resultFound_ is used to control the descriptive output (to stdout) for a FIND-WHEN
             //  measure.  If it is false, the measure shows FAILED in stdout.
@@ -567,6 +559,10 @@ void FindWhen::updateAC(
   lastIndepVarValue_=frequency;
   lastDepVarValue_=outVarValues_[whenIdx_];
   lastOutputVarValue_=outVarValues_[0];
+  if (outputValueTargetGiven_)
+    lastTargValue_ = outputValueTarget_;
+  else
+    lastTargValue_ = outVarValues_[whenIdx_+1];
 }
 
 //-----------------------------------------------------------------------------
@@ -661,6 +657,50 @@ std::ostream& FindWhen::printRFCWindow(std::ostream& os)
   // no op, for any measure that supports WHEN 
  
   return os;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : FindWhen::interpolateResults()
+// Purpose       : Interpolate the calculationInstance_ and calculationResult_
+//                 values for when the measure is satisifed.  This accounts
+//                 for case of WHEN V(1)=V(2) where both variables may be
+//                 changing.
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 02/13/2020
+//-----------------------------------------------------------------------------
+void FindWhen::interpolateResults(double currIndepVarValue, double targVal)
+{
+  // Calculate slopes and y-intercepts of the two lines, to get them into
+  // canonical y=ax+c and y=bx+d form.  If the WHEN clause is of the form
+  // WHEN V(1)=V(2) then the line with (a,c) is the value of V(1), which is the
+  // "dependent variable".  The line with (b,d) is the value of V(2), which
+  // is the "target value".
+  double a = (outVarValues_[whenIdx_] - lastDepVarValue_)/(currIndepVarValue - lastIndepVarValue_);
+  double b = (targVal - lastTargValue_)/(currIndepVarValue - lastIndepVarValue_);
+  double c = outVarValues_[whenIdx_] - a*currIndepVarValue;
+  double d = targVal - b*currIndepVarValue;
+
+  // This is the algebra for when the two non-parallel lines associated with
+  // the WHEN clause intersect.
+  calculationInstant_ = (d-c)/(a-b);
+  if (DEBUG_IO)
+  {
+    double targValAtCalcInstant = a*(d-c)/(a-b) + c;
+    Xyce::dout() << "Target value at calculation instant for measure " << name_ << " is:"
+                 << targValAtCalcInstant << std::endl;
+  }
+
+  // For a FIND measure, we need to interpolate the value of the variable in
+  // the find clause and set the measure value to that interpolated value.
+  if (findGiven_)
+    calculationResult_ = outVarValues_[0] - (currIndepVarValue - calculationInstant_)*
+	     ( (outVarValues_[0] - lastOutputVarValue_)/(currIndepVarValue - lastIndepVarValue_) );
+  else
+    calculationResult_ = calculationInstant_;
+
+  return;
 }
 
 } // namespace Measure

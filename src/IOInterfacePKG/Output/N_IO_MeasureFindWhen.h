@@ -90,14 +90,20 @@ public:
   std::ostream& printRFCWindow(std::ostream& os);
 
 private:
+  void interpolateResults(double currIndepVarValue, double targVal);
+
   int numOutVars_;
   std::vector<double> outVarValues_;
 
-  // these are used to interpolate to the target independent var (time, frequency etc)  when 
-  // the simulation has reported values that bound the target value
+  // These are used to interpolate the independent variable (time, frequency or
+  // dcSweepVal) value when the simulation has reported values that bound the target value.
+  // If the WHEN clause is of the form WHEN V(1)=V(2) then the previous V(1) value
+  // is in the lastDepVarValue_ variable. The previous V(2) value is in the
+  // lastTargValue_ variable.
   double lastIndepVarValue_;
   double lastDepVarValue_;
   double lastOutputVarValue_;
+  double lastTargValue_;
 
   // This variable controls what is tested against in the WHEN clause.  
   // It refers to an index in the outputVarValues_ array.  Its value 
