@@ -52,7 +52,7 @@ TEST ( Double_Parser_Test, numval)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
   Xyce::Util::newExpression testExpression(std::string("1.0"), testGroup);
   testExpression.lexAndParseExpression();
-  double result(1.0);
+  double result(0.0);
   testExpression.evaluateFunction(result);
   EXPECT_EQ( (result-(1.0)), 0.0);
 
@@ -1190,7 +1190,7 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
   }
 }
 
-TEST ( Double_Parser_ifstatement, simple_ested_func)
+TEST ( Double_Parser_ifstatement, simple_nested_func)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
