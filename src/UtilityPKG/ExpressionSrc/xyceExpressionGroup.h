@@ -5,7 +5,9 @@
 
 #include<string>
 #include<complex>
+#include<unordered_map>
 
+#include<newExpression.h>
 #include <ExpressionType.h>
 #include <expressionGroup.h>
 #include <N_UTL_ExtendedString.h>
