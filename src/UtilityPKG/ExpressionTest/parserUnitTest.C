@@ -305,6 +305,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_VOLT,  "SIN(5.0V)", std:
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_AMP,  "SIN(6.0A)", std::sin(6.0))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_Suffix_Test, SIN_SEC,  "SIN(7.0S)", std::sin(7.0))
 
+
 // source functions:
 class timeDepExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
@@ -1615,6 +1616,7 @@ class Bsrc_C1_ExpressionGroup : public Xyce::Util::baseExpressionGroup
     double time, ONEval, TWOval;
 };
 
+
 #if 0
 // adapted from Bsrc_C1.cir.
 // See the Double_Parser_Param_Test.test2  test below,
@@ -2398,6 +2400,92 @@ TEST ( Double_Parser_calculus, derivsThruFuncs5 )
 
   EXPECT_EQ( result,resRef);
   EXPECT_EQ( derivs,derivsRef);
+}
+
+class solnAndParamExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    solnAndParamExpressionGroup () :
+      Xyce::Util::baseExpressionGroup(), Aval_(0.0), Bval_(0.0), Cval_(0.0), R1val_(0.0)  {};
+    ~solnAndParamExpressionGroup () {};
+
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { retval = Aval_; return true; }
+    else if (tmp==std::string("b")) { retval = Bval_; return true; }
+    else if (tmp==std::string("c")) { retval = Cval_; return true; }
+    else if (tmp==std::string("r1")) { retval = R1val_; return true; }
+    else { return 0.0; return false; }
+  }
+
+  void setSoln(const std::string & nodeName, double val)
+  {
+    std::string tmp = nodeName; Xyce::Util::toLower(tmp);
+    if (tmp==std::string("a")) { Aval_ = val; }
+    else if (tmp==std::string("b")) { Bval_ = val; }
+    else if (tmp==std::string("c")) { Cval_ = val; }
+    else if (tmp==std::string("r1")) { R1val_ = val; }
+  }
+
+  void addParam (const std::string & name, Xyce::Util::newExpression & exp)
+  {
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+
+    params_[lowerName] = exp;
+  };
+
+  bool getParam (const std::string & name, Xyce::Util::newExpression & exp)
+  {
+    bool retval=true;
+
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+
+    if (params_.find(lowerName) != params_.end()) { exp = params_[lowerName]; }
+    else { retval = false; }
+
+    return retval;
+  }
+
+  private:
+    std::unordered_map <std::string, Xyce::Util::newExpression  >  params_;
+    double Aval_, Bval_, Cval_, R1val_;
+};
+
+TEST ( Double_Parser_calculus, derivsThruParams1 )
+{
+  Teuchos::RCP<solnAndParamExpressionGroup> solnParamGroup = Teuchos::rcp(new solnAndParamExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnParamGroup;
+
+  // this expression is the RHS of a .global_param statement:  .global_param P1 {V(A)-V(B)}
+  Xyce::Util::newExpression p1Expression (std::string("V(A)-V(B)"), testGroup);
+  p1Expression.lexAndParseExpression();
+
+  std::string p1Name = "P1";
+  solnParamGroup->addParam( p1Name ,  p1Expression);
+
+  Xyce::Util::newExpression derivParamTestExpr(std::string("0.5*P1"), testGroup); 
+  derivParamTestExpr.lexAndParseExpression();
+  derivParamTestExpr.resolveExpression(); 
+
+  Xyce::Util::newExpression copy_derivParamTestExpr(derivParamTestExpr); 
+  Xyce::Util::newExpression assign_derivParamTestExpr; 
+  assign_derivParamTestExpr = derivParamTestExpr; 
+
+  double Aval=7.5;
+  double Bval=2.5;
+  solnParamGroup->setSoln(std::string("A"),Aval);
+  solnParamGroup->setSoln(std::string("B"),Bval);
+  double result;
+  std::vector<double> derivs;
+  double refRes = 2.5;
+  std::vector<double> refderivs = { 0.5, -0.5 };
+
+  derivParamTestExpr.evaluate(result,derivs);        EXPECT_EQ( derivs, refderivs );
+  copy_derivParamTestExpr.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
+  assign_derivParamTestExpr.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
 }
 
 TEST ( Double_Parser_floor, test1)
