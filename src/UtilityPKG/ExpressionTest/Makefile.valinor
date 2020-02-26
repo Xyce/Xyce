@@ -2,15 +2,16 @@
 CXX = /projects/sems/install/rhel7-x86_64/sems/compiler/gcc/5.3.0/base/bin/g++
 FLEX = /usr/bin/flex
 BISON = /usr/local/bin/bison
-LIBDIRTRI=-L/home/erkeite/XYCE/Xyce_Lib/intel_linux_gcc5.3_trilinos12.12/lib
+LIBDIRTRI=-L/home/erkeite/XYCE/Xyce_Lib/intel_linux_gcc5.3_trilinos12.12_withStokhos_withBasker/lib
 LIBPATH = -L/usr/local/lib  $(LIBDIRTRI)
-INCLUDE = -I/home/erkeite/XYCE/Xyce_Lib/intel_linux_gcc5.3_trilinos12.12/include -I../ExpressionSrc  -I./  -I../
+INCLUDE = -I/home/erkeite/XYCE/Xyce_Lib/intel_linux_gcc5.3_trilinos12.12_withStokhos_withBasker/include -I../ExpressionSrc  -I./  -I../
 CXXFLAGS_AST =  -std=c++11  -g  -I/usr/local/include/ $(INCLUDE)
 CXXFLAGS =  -std=c++11  -g -I/usr/local/include/ $(INCLUDE)
 
 #    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 
-RCPLIBS =  -lteuchoscore -lkokkoscore -lteuchosparameterlist -lteuchoscomm -lteuchoskokkoscomm -lteuchoskokkoscompat -lteuchosnumerics -lteuchosremainder  -pthread
+MAINLIBS = -Wl,--no-as-needed -ldl -lm -lgtest -lgtest_main
+RCPLIBS =  -lteuchoscomm -lteuchosparameterlist -lteuchoscore -lteuchoskokkoscomm -lteuchoskokkoscompat -lkokkoscore -lteuchosnumerics -lteuchosremainder  -pthread
 
 all:  test
 
@@ -18,11 +19,11 @@ test:  astUnitTest parserUnitTest   astCopyConstUnitTest  parserCopyUnitTest
 
 # main program
 astUnitTest: astUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../N_UTL_Interpolators.h
-	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astUnitTest astUnitTest.C  -lm -lgtest -lgtest_main  $(RCPLIBS)
+	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astUnitTest astUnitTest.C  $(MAINLIBS) $(RCPLIBS)
 
 
 astCopyConstUnitTest: astCopyConstUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../N_UTL_Interpolators.h
-	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astCopyConstUnitTest astCopyConstUnitTest.C  -lm -lgtest -lgtest_main $(RCPLIBS)
+	$(CXX) $(CXXFLAGS_AST) $(LIBPATH) -o astCopyConstUnitTest astCopyConstUnitTest.C  $(MAINLIBS) $(RCPLIBS)
 
 
 # expression lexer/parser
@@ -54,10 +55,10 @@ newExpression.o: ../ExpressionSrc/newExpression.C ../ExpressionSrc/newExpression
 	$(CXX) $(CXXFLAGS) -c $<
 
 parserUnitTest: parserUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o ../N_UTL_Interpolators.h
-	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserUnitTest parserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o  -lm -lgtest -lgtest_main  $(RCPLIBS)
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserUnitTest parserUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o  $(MAINLIBS) $(RCPLIBS)
 
 parserCopyUnitTest: parserCopyUnitTest.C  ../ExpressionSrc/ast.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/newExpression.h newExpression.o ExpressionParser.o  ExpressionLexer.o expressionGroup.o  N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o ../N_UTL_Interpolators.h
-	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserCopyUnitTest parserCopyUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o  N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o -lm -lgtest -lgtest_main  $(RCPLIBS)
+	$(CXX) $(CXXFLAGS) $(LIBPATH) -o parserCopyUnitTest parserCopyUnitTest.C newExpression.o ExpressionLexer.o ExpressionParser.o  expressionGroup.o  N_UTL_BreakPoint.o N_UTL_ExtendedString.o N_UTL_NoCase.o $(MAINLIBS) $(RCPLIBS)
 
 clean:
 	rm -f astUnitTest  parserUnitTest parserCopyUnitTest astCopyConstUnitTest  *.o \
