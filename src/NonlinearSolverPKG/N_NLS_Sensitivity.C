@@ -174,7 +174,7 @@ bool evaluateObjFuncs (
       int tmpGID = objVec[iobj]->expVarGIDs[i];
       double tmpDODX = objVec[iobj]->expVarDerivs[i];
 
-      //if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
+      if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))
       {
         Xyce::dout() 
           <<  objVec[iobj]->expVarNames[i] << "  "
