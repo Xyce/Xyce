@@ -368,6 +368,7 @@ exp:
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getVoltOpVec ().push_back(*voltPtr);
       delete voltPtr;
+      delete $1;
       delete $2;
     }
   | TOK_WORD TOK_CURRENTDEV
@@ -378,6 +379,7 @@ exp:
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getCurrentOpVec().push_back(*currentPtr);
       delete currentPtr;
+      delete $1;
       delete $2;
     }
 
