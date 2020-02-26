@@ -21,6 +21,8 @@
 
 using namespace Teuchos;
 
+typedef std::complex<double> cmplx;
+
 //ASSERT_TRUE(1 == 1);
 
 //-------------------------------------------------------------------------------
@@ -41,7 +43,6 @@ AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryMulOp,*,1.0,2.0)
 AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryDivOp,/,1.0,2.0) 
 AST_BINARY_OP_TEST_MACRO(double,Double_Binary_Ast_Op,binaryModOp,%,15,3)  // must be ints
 
-typedef std::complex<double> cmplx;
 
 AST_BINARY_OP_TEST_MACRO(cmplx,Complex_Binary_Ast_Op,binaryAddOp,+,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
 AST_BINARY_OP_TEST_MACRO(cmplx,Complex_Binary_Ast_Op,binaryMinusOp,-,cmplx(1.0,0.5),cmplx(2.0,1.0)) 
@@ -350,8 +351,10 @@ TEST ( Double_Ast_Deriv_Test, test1)
   EXPECT_EQ(binaryAddOp_1->val(),(2.0 + 5.0));
 
   // derivs
-  arg1->setDerivIndex(0);
+  arg1->setDerivIndex(0);  
   arg2->setDerivIndex(1);
+  arg1->setVar();
+  arg2->setVar();
   EXPECT_EQ(binaryAddOp_1->dx(0),1.0);
   EXPECT_EQ(binaryAddOp_1->dx(1),1.0);
 }
@@ -367,6 +370,8 @@ TEST ( NAME, OP ) \
   EXPECT_EQ(OP_1->val(),(VAL1 CPPOP VAL2)); \
   arg1->setDerivIndex(0); \
   arg2->setDerivIndex(1); \
+  arg1->setVar(); \
+  arg2->setVar(); \
   EXPECT_EQ(OP_1->dx(0),D1); \
   EXPECT_EQ(OP_1->dx(1),D2); \
 }  
@@ -391,6 +396,7 @@ TEST ( NAME, OP ) \
   RCP<astNode<TYPE> > OP_1 = rcp(new OP<TYPE> (arg1)); \
   EXPECT_EQ(OP_1->val(),CPPFUNC(VAL1)); \
   arg1->setDerivIndex(0); \
+  arg1->setVar(); \
   EXPECT_EQ( (OP_1->dx(0)-D1), 0.0); \
 } 
 
@@ -459,6 +465,8 @@ TEST ( Double_Ast_Deriv_Test, powOp )
   // derivative
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
+  arg1->setVar();
+  arg2->setVar();
   EXPECT_EQ(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
   EXPECT_EQ(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
 }
@@ -490,6 +498,8 @@ TEST ( Complex_Ast_Deriv_Test, powOp )
   // derivative
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
+  arg1->setVar();
+  arg2->setVar();
   EXPECT_EQ(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
   EXPECT_EQ(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
 }
