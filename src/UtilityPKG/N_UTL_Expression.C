@@ -411,6 +411,7 @@ bool Expression::make_constant (const std::string & var, const double & val)
   bool retVal=false; 
   if(useNewExpressionLibrary_)
   {
+    retVal = newExpPtr_->make_constant (var,val);
   }
   else
   {
@@ -626,6 +627,10 @@ int Expression::evaluate ( double & exp_r,
       std::vector<std::string> names;
       get_names( XEXP_NODE, names); // for now just nodes. make XEXP_ALL later
       get_names( XEXP_INSTANCE, names); // for now just nodes. make XEXP_ALL later
+
+      // get the global param names.
+      newExpPtr_->getGlobalParamNames ( names );
+
       xyceGroup->setNames ( names );
       namesSet_ = true;
     }
@@ -922,9 +927,6 @@ int Expression::replace_func (std::string const & func_name,
   {
     Xyce::Util::newExpression funcExpr = *(func_def.newExpPtr_) ; // copy construction
     funcExpr.lexAndParseExpression();
-
-    //std::vector<std::string> funcArgStrings ;
-    //funcExpr.setFunctionArgStringVec ( funcArgStrings );
 
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
     xyceGroup->addFunction(func_name, funcExpr);

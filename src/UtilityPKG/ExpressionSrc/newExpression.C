@@ -237,18 +237,41 @@ int newExpression::get_type (std::string const & var)
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-bool newExpression::make_constant (std::string const & var, double const & val)
+bool newExpression::make_constant (std::string const & var, usedType const & val)
 {
-  std::cout << "Error.  newExpression::make_constant function not implemented yet!!!" <<std::endl;
-  return false;
+  std::string tmpParName = var;
+  Xyce::Util::toUpper(tmpParName);
+
+  if (paramOpMap_.find(tmpParName) != paramOpMap_.end())
+  {
+    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpMap_[tmpParName]);
+    parOp->setValue(val);
+  }
+
+  return true;
 }
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 bool newExpression::make_var (std::string const & var)
 {
-  std::cout << "Error.  newExpression::make_var function not implemented yet!!!" <<std::endl;
-  return false;
+  //std::cout << "Error.  newExpression::make_var function not implemented yet!!!" <<std::endl;
+
+  bool retval=false;
+
+  std::string tmpParName = var;
+  Xyce::Util::toUpper(tmpParName);
+
+  if (paramOpMap_.find(tmpParName) != paramOpMap_.end())
+  {
+    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpMap_[tmpParName]);
+    parOp->unsetValue(); // just to be safe "unset" the value
+    parOp->setVar();
+
+    retval = true; // just means we found it
+  }
+  
+  return retval;
 }
 
 //-------------------------------------------------------------------------------
@@ -592,7 +615,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 int newExpression::evaluateFunction (usedType &result)
-  { 
+{ 
   int retVal=0;
   if (parsed_)
   {
@@ -623,6 +646,33 @@ int newExpression::evaluateFunction (usedType &result)
         group_->getSolutionVal(currOp->getCurrentDevice(),val);
         currOp->setCurrentVal ( val );
       }
+  
+     // ERK. The global parameter setting here should eventually go away.
+     // It is only here b/c I am trying to maintain the API to the old expression library for now.
+      for (int ii=0;ii<paramOpVec_.size();++ii)
+      {
+        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]); 
+
+        // the "isVar" boolean currently serves two purposes.  
+        //
+        // (1) if we want derivatives w.r.t. it.  
+        //    (this meaning will probably persist after old API is gone, albeit with a different name)
+        //
+        // (2) if it should be considered a dynamic variable that gets its values from the vals array.  
+        //    (this meaning will be obsolete later, once old API is gone)
+        //
+        // The old API is set up to set *everything* thru a single std::vector of values, 
+        // that is passed into the expression as a function argument to the "evaluate" function.
+        // This vector includes both 
+        //
+        //
+        if ( parOp->getVar() ) 
+        {
+          usedType val;
+          group_->getGlobalParameterVal(parOp->getName(),val);
+          parOp->setValue(val);
+        }
+      } 
     } 
 
     timeNodePtr_->setValue(group_->getTime());

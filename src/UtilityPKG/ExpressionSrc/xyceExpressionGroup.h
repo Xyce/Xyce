@@ -94,6 +94,23 @@ public:
     return success; // FIX THIS
   }
 
+  virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval )
+  {
+    bool success=true;
+    retval = 0.0;
+    std::string tmp = nodeName;
+    Xyce::Util::toUpper(tmp);
+
+    std::vector<std::string>::iterator it = std::find(names_.begin(), names_.end(), tmp);
+    if (it != names_.end())
+    {
+      int index = it - names_.begin();
+      retval = dvals_[index];
+    }
+
+    return success; // FIX THIS
+  }
+
   // ERK NOTE:  Need to have a "notify" (or something) for .STEP loops.  
   // Important for time-dependent expressions.
   //

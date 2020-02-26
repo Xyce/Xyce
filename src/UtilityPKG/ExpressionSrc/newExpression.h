@@ -337,9 +337,20 @@ public:
 #endif
 
   int get_type (std::string const & var);
-  bool make_constant (std::string const & var, double const & val);
+  bool make_constant (std::string const & var, usedType const & val);
   bool make_var (std::string const & var);
 
+  void getGlobalParamNames ( std::vector<std::string> & names )
+  {
+    for (int ii=0;ii<paramOpVec_.size();++ii)
+    {
+      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]); 
+      if ( parOp->getVar() )
+      {
+        names.push_back( parOp->getName() ); 
+      }
+    }
+  };
 
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 

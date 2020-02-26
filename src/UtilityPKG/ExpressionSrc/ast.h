@@ -67,6 +67,11 @@ class astNode
     virtual void setValue(ScalarT val) {}; // supports specialsOp, and paramOp. otherwise no-op
     virtual void unsetValue() {};          // supports specialsOp, and paramOp. otherwise no-op
 
+    // base class no-ops.  Derived functions only in paramOp, only called from ddx.
+    virtual void setVar() {};
+    virtual void unsetVar() {};
+    virtual bool getVar() { return false; }
+
     virtual bool numvalType()      { return false; };
     virtual bool paramType()       { return false; };
     virtual bool funcType()        { return false; };
@@ -584,10 +589,7 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
 // For a simple evaluation of the "val" function, this class will:
 //
 //    (1) call the "val" function of the underlying external syntax tree 
-//          if acting like a global_param (if "nodeResolved_" is true)
-//
 //    (2) return the scalar quantity "number_" 
-//          if acting like a param (if "nodeResolved_" is false)
 //
 // For derivative calculation, there is at least one use case that mixes these two 
 // modes of operation together.  So I still need to think about that.  Possibly 
@@ -599,25 +601,36 @@ class paramOp: public astNode<ScalarT>
   public:
     paramOp (std::string par):
       astNode<ScalarT>(),
-      paramName_(par), number_(0.0),
-      nodeResolved_(false),
-      derivIndex_(-1)
-  {};
-
-    paramOp (std::string par, Teuchos::RCP<astNode<ScalarT> > & tmpNode):
-      astNode<ScalarT>(),
-      paramName_(par), number_(0.0),
-      paramNode_(tmpNode),
-      nodeResolved_(true),
+      paramName_(par), 
       thisIsAFunctionArgument_(false),
       isVar(false),
       derivIndex_(-1)
-  {};
+  {
+    numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
+    paramNode_ = numvalNode_;
+    savedParamNode_ = numvalNode_;
+  };
 
-    virtual ScalarT val() { return (nodeResolved_)?(paramNode_->val()):(number_); }
+    paramOp (std::string par, Teuchos::RCP<astNode<ScalarT> > & tmpNode):
+      astNode<ScalarT>(),
+      paramName_(par), 
+      paramNode_(tmpNode),
+      savedParamNode_(tmpNode),
+      thisIsAFunctionArgument_(false),
+      isVar(false),
+      derivIndex_(-1)
+  {
+    numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
+  };
 
-    // ERK. sort this out.
-    virtual ScalarT dx(int i) { return  (derivIndex_==i)?1.0:0.0; }
+    virtual ScalarT val() { return paramNode_->val(); }
+    virtual ScalarT dx(int i) 
+    { 
+      ScalarT retval=0.0;
+      if (isVar) { retval = (derivIndex_==i)?1.0:0.0; }
+      else       { retval = paramNode_->dx(i); }
+      return retval;
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -630,20 +643,11 @@ class paramOp: public astNode<ScalarT>
       os << paramName_;
     }
 
-    virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode)
-    {
-      paramNode_ = tmpNode;
-      nodeResolved_ = true;
-    };
+    virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) { paramNode_ = tmpNode; savedParamNode_ = tmpNode; };
+    virtual void unsetNode() { paramNode_ = numvalNode_; };
 
-    virtual void unsetNode()
-    {
-      //paramNode_ = NULL;
-      nodeResolved_ = false;
-    };
-
-    virtual void setValue(ScalarT val) {number_ = val;};
-    virtual void unsetValue() {number_ = 0.0;};
+    virtual void setValue(ScalarT val) { numvalNode_->number = val; paramNode_ = numvalNode_; };
+    virtual void unsetValue() { paramNode_ = savedParamNode_; };
 
     virtual void setDerivIndex(int i) { derivIndex_=i; };
     virtual void unsetDerivIndex() {derivIndex_=-1;};
@@ -717,6 +721,10 @@ class paramOp: public astNode<ScalarT>
     virtual void setFunctionArgType() { thisIsAFunctionArgument_ = true;};
     virtual void unsetFunctionArgType() { thisIsAFunctionArgument_ = true;};
 
+    // the variable "isVar" is to support the old expression library API.
+    // If true, it means that this parameter is one of the variables included 
+    // in the "vars" array that is passed into the functions expression::evalauate 
+    // and expression::evaluateFunction.
     void setVar() { isVar = true; }
     void unsetVar() { isVar = false; }
     bool getVar() { return isVar; }
@@ -724,9 +732,10 @@ class paramOp: public astNode<ScalarT>
   private:
     // data:
     std::string paramName_;
-    ScalarT number_;
+
     Teuchos::RCP<astNode<ScalarT> > paramNode_;
-    bool nodeResolved_;
+    Teuchos::RCP<astNode<ScalarT> > savedParamNode_;
+    Teuchos::RCP<numval<ScalarT> > numvalNode_;
 
     bool thisIsAFunctionArgument_;
 
@@ -2342,8 +2351,10 @@ class ddxOp : public astNode<ScalarT>
       if( !(Teuchos::is_null( astNodeX_)))
       {
         astNodeX_->setDerivIndex(0);
+        astNodeX_->setVar();
         ret = this->leftAst_->dx(0);
         astNodeX_->unsetDerivIndex();
+        astNodeX_->unsetVar();
       }
       return ret;
     };
