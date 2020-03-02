@@ -560,11 +560,23 @@ bool Model::readTouchStoneFile()
 	    {
               dataFormat_ = tokenStr;
             }
-            else if ( (tokenStr.toUpper() == "HZ") || (tokenStr.toUpper() == "KHZ") ||
-                      (tokenStr.toUpper() == "MHZ") || (tokenStr.toUpper() == "GHZ") )
+            else if (tokenStr.toUpper() == "HZ")
 	    {
-              ExtendedString freqMultStr("1.0"+parsedLine[i].string_);
-              freqMultiplier_ = freqMultStr.Value();
+              // There are four allowed frequency multipliers.  So, explicitly
+              // check for each one and hard-code the conversion.
+	      freqMultiplier_ = 1.0;
+            }
+            else if (tokenStr.toUpper() == "KHZ")
+            {
+	      freqMultiplier_ = 1.0e+3;
+            }
+            else if (tokenStr.toUpper() == "MHZ")
+            {
+	      freqMultiplier_ = 1.0e+6;
+            }
+            else if (tokenStr.toUpper() == "GHZ")
+	    {
+              freqMultiplier_ = 1.0e+9;
             }
             else if ( tokenStr == "R" )
 	    {
