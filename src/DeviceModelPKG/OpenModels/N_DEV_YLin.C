@@ -1346,29 +1346,6 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  double * bVec,
                              double * leadF, double * leadQ, double * junctionV, int loadType)
 {
-  InstanceVector::const_iterator it, end;
-
-  if (loadType == ALL || loadType == NONLINEAR )
-  {
-    it = getInstanceBegin();
-    end = getInstanceEnd();
-  }
-
-  for ( ; it != end; ++it )
-  {
-    Instance & ri = *(*it);
-
-    // Load RHS vector element for the positive circuit node KCL equ.
-    ri.i0 = (solVec[ri.li_Pos]-solVec[ri.li_Neg])*ri.G;
-
-    fVec[ri.li_Pos] += ri.i0;
-    fVec[ri.li_Neg] += -ri.i0;
-    if( ri.loadLeadCurrent )
-    {
-      leadF[ri.li_branch_data] = ri.i0;
-      junctionV[ri.li_branch_data] = solVec[ri.li_Pos] - solVec[ri.li_Neg];
-    }
-  }
   return true;
 }
 
@@ -1400,31 +1377,6 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
 
 bool Master::loadDAEMatrices(Linear::Matrix & dFdx, Linear::Matrix & dQdx, int loadType)
 {
-  InstanceVector::const_iterator it, end;
-
-  if (loadType == ALL || loadType == NONLINEAR )  
-  {
-    it = getInstanceBegin();
-    end = getInstanceEnd();
-  }
-
-  for ( ; it != end; ++it )
-  {
-    Instance & ri = *(*it);
-
-#ifndef Xyce_NONPOINTER_MATRIX_LOAD
-    *(ri.f_PosEquPosNodePtr) += ri.G;
-    *(ri.f_PosEquNegNodePtr) -= ri.G;
-    *(ri.f_NegEquPosNodePtr) -= ri.G;
-    *(ri.f_NegEquNegNodePtr) += ri.G;
-#else
-    dFdx[ri.li_Pos][ri.APosEquPosNodeOffset] += ri.G;
-    dFdx[ri.li_Pos][ri.APosEquNegNodeOffset] -= ri.G;
-    dFdx[ri.li_Neg][ri.ANegEquPosNodeOffset] -= ri.G;
-    dFdx[ri.li_Neg][ri.ANegEquNegNodeOffset] += ri.G;
-#endif
-  }
-
   return true;
 }
 
