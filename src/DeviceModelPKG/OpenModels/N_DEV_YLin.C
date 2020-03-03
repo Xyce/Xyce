@@ -56,11 +56,6 @@ namespace Xyce {
 namespace Device {
 namespace YLin {
 
-///
-/// Common Jacobian Stamp for all YLin devices.
-/// Because all resistors have identical Jacobian stamps, this data is
-/// declared static and is shared by all resistor instances.
-
 //-----------------------------------------------------------------------------
 // Function      : Xyce::Device::YLin::Instance::initializeJacobianStamp
 // Purpose       :
