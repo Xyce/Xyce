@@ -865,22 +865,25 @@ bool Model::readTouchStoneFile()
 	        ExtendedString Str2(parsedLine[2*(i*numPorts_+j)+2].string_);
                 if (dataFormat_ == "RI")
 		{
-                  inputNetworkData[i][j].real(Str1.Value());
-                  inputNetworkData[i][j].imag(Str2.Value());
+                  // Use inputNetworkData(i,j) format for accessing, in
+                  // order to use row-column indexing.  Also, indexing
+                  // starts at (0,0).
+                  inputNetworkData(i,j).real(Str1.Value());
+                  inputNetworkData(i,j).imag(Str2.Value());
                 }
                 else if (dataFormat_ == "MA")
 		{
                   double mag = Str1.Value();
                   double angle = M_PI*Str2.Value()/180.0;
-                  inputNetworkData[i][j].real(mag*cos(angle));
-                  inputNetworkData[i][j].imag(mag*sin(angle));
+                  inputNetworkData(i,j).real(mag*cos(angle));
+                  inputNetworkData(i,j).imag(mag*sin(angle));
                 }
                 else if (dataFormat_ == "DB")
 		{
                   double mag = pow(10.0,0.05*Str1.Value());
                   double angle = M_PI*Str2.Value()/180.0;
-                  inputNetworkData[i][j].real(mag*cos(angle));
-                  inputNetworkData[i][j].imag(mag*sin(angle));
+                  inputNetworkData(i,j).real(mag*cos(angle));
+                  inputNetworkData(i,j).imag(mag*sin(angle));
                 }
                 else
 		{
@@ -893,9 +896,10 @@ bool Model::readTouchStoneFile()
 
             if ( (twoPortDataOrder_ == "21_12") && (numPorts_ == 2) )
 	    {
-	      complex tempVal = inputNetworkData[1][2];
-              inputNetworkData[1][2] = inputNetworkData[2][1];
-              inputNetworkData[2][1] = tempVal;
+              // indexing into inputNetworkData starts at (0,0)
+	      complex tempVal = inputNetworkData(0,1);
+              inputNetworkData(0,1) = inputNetworkData(1,0);
+              inputNetworkData(1,0) = tempVal;
 	    }
 
             // YLin model will use Y-parameter format internally
