@@ -147,6 +147,22 @@ bool newExpression::lexAndParseExpression()
     }
   }
 
+  {
+    for (int ii=0;ii<voltOpVec_.size();++ii)
+    {
+      Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
+      std::vector<std::string> & tmp = voltOp->getVoltageNodes();
+      for (int jj=0;jj<tmp.size();++jj) { voltOpNames_[tmp[jj]] = 1; }
+    }
+
+    for (int ii=0;ii<currentOpVec_.size();++ii)
+    {
+      Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
+      std::string tmp = currOp->getCurrentDevice();
+      currentOpNames_[tmp] = 1;
+    }
+  }
+
   return parsed_;
 }
 
@@ -224,15 +240,8 @@ void newExpression::resolveExpression ()
 bool newExpression::set (std::string const & exp)
 {
   std::cout << "Error.  newExpression::set function not implemented yet!!!" <<std::endl;
+  exit(0);
   return false;
-}
-
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-int newExpression::get_type (std::string const & var)
-{
-  std::cout << "Error.  newExpression::get_type function not implemented yet!!!" <<std::endl;
-  return 0;
 }
 
 //-------------------------------------------------------------------------------
@@ -286,6 +295,15 @@ void newExpression::setVar(const std::string & var)
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpMap_[tmpParName]);
     parOp->setVar();
   }
+}
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+int newExpression::differentiate ()
+{
+  std::cout << "newExpression::differentiate not set up yet." <<std::endl;
+  exit(0);
+  return -1;
 }
 
 //-------------------------------------------------------------------------------
@@ -532,6 +550,20 @@ void newExpression::setupVariousAstArrays_()
       //std::sort (paramOpVec_.begin(), paramOpVec_.end());
       //std::unique (paramOpVec_.begin(), paramOpVec_.end());
     }
+
+    for (int ii=0;ii<voltOpVec_.size();++ii)
+    {
+      Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
+      std::vector<std::string> & tmp = voltOp->getVoltageNodes();
+      for (int jj=0;jj<tmp.size();++jj) { voltOpNames_[tmp[jj]] = 1; }
+    }
+
+    for (int ii=0;ii<currentOpVec_.size();++ii)
+    {
+      Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
+      std::string tmp = currOp->getCurrentDevice();
+      currentOpNames_[tmp] = 1;
+    }
   }
 
 #if 0
@@ -592,6 +624,10 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
       setupDerivatives_ ();
     }
 
+#if 0
+    dumpParseTree(std::cout);
+#endif
+
     int err1 = evaluateFunction (result);
 
     if (derivs.size() != numDerivs_) {derivs.clear(); derivs.resize(numDerivs_);}
@@ -619,10 +655,7 @@ int newExpression::evaluateFunction (usedType &result)
   int retVal=0;
   if (parsed_)
   {
-    if (!astArraysSetup_)
-    {
-      setupVariousAstArrays_ ();
-    }
+    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
 
     // get solution values we need from the group
     {

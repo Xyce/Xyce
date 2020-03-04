@@ -18,7 +18,8 @@ namespace Util {
 // Creator       : Eric Keiter
 // Creation Date : 11/11/2019
 //-------------------------------------------------------------------------------
-xyceExpressionGroup::xyceExpressionGroup () 
+xyceExpressionGroup::xyceExpressionGroup () :
+  time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
 {
 
 }
@@ -91,6 +92,47 @@ bool xyceExpressionGroup::resolveExpression (Xyce::Util::newExpression & exp)
 
   return true;
 }
+
+
+bool xyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
+{
+  bool success=true;
+  retval = 0.0;
+  std::string tmp = nodeName;
+  Xyce::Util::toUpper(tmp);
+
+  std::vector<std::string>::iterator it = std::find(names_.begin(), names_.end(), tmp);
+  if (it != names_.end())
+  {
+    int index = it - names_.begin();
+    retval = dvals_[index];
+    std::cout << "Solution variable " << nodeName << " found by the xyceExpresionGroup! value = " << retval << std::endl;
+  }
+  else // not found
+  {
+    std::cout << "ERROR.  Solution variable " << nodeName << " not found by the xyceExpresionGroup!" << std::endl;
+  }
+
+  return success; // FIX THIS
+}
+
+bool xyceExpressionGroup::getGlobalParameterVal (const std::string & nodeName, double & retval )
+{
+  bool success=true;
+  retval = 0.0;
+  std::string tmp = nodeName;
+  Xyce::Util::toUpper(tmp);
+
+  std::vector<std::string>::iterator it = std::find(names_.begin(), names_.end(), tmp);
+  if (it != names_.end())
+  {
+    int index = it - names_.begin();
+    retval = dvals_[index];
+  }
+
+  return success; // FIX THIS
+}
+
 
 //-------------------------------------------------------------------------------
 // Function      : xyceExpressionGroup::getFunction

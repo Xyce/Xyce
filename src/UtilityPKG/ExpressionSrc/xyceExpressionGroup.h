@@ -79,7 +79,48 @@ public:
     return success; // FIX THIS
   }
 
-  virtual bool getSolutionVal(const std::string & nodeName, double & retval )
+  virtual bool setSolutionVal(const std::string & nodeName, const double & val )
+  {
+    bool success=true;
+    std::string tmp = nodeName;
+    Xyce::Util::toUpper(tmp);
+
+    std::vector<std::string>::iterator it = std::find(names_.begin(), names_.end(), tmp);
+    if (it != names_.end())
+    {
+      int index = it - names_.begin();
+      dvals_[index] = val;
+    }
+
+    return success; // FIX THIS
+  }
+
+  virtual bool getSolutionVal(const std::string & nodeName, double & retval );
+#if 0
+  {
+    bool success=true;
+    retval = 0.0;
+    std::string tmp = nodeName;
+    Xyce::Util::toUpper(tmp);
+
+    std::vector<std::string>::iterator it = std::find(names_.begin(), names_.end(), tmp);
+    if (it != names_.end())
+    {
+      int index = it - names_.begin();
+      retval = dvals_[index];
+      std::cout << "Solution variable " << nodeName << " found by the xyceExpresionGroup! value = " << retval << std::endl;
+    }
+    else // not found
+    {
+      std::cout << "ERROR.  Solution variable " << nodeName << " not found by the xyceExpresionGroup!" << std::endl;
+    }
+
+    return success; // FIX THIS
+  }
+#endif
+
+  virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval );
+#if 0
   {
     bool success=true;
     retval = 0.0;
@@ -95,37 +136,29 @@ public:
 
     return success; // FIX THIS
   }
-
-  virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval )
-  {
-    bool success=true;
-    retval = 0.0;
-    std::string tmp = nodeName;
-    Xyce::Util::toUpper(tmp);
-
-    std::vector<std::string>::iterator it = std::find(names_.begin(), names_.end(), tmp);
-    if (it != names_.end())
-    {
-      int index = it - names_.begin();
-      retval = dvals_[index];
-    }
-
-    return success; // FIX THIS
-  }
+#endif
 
   // ERK NOTE:  Need to have a "notify" (or something) for .STEP loops.  
   // Important for time-dependent expressions.
   //
   // Also, for "time" related quantities, should these have names 
   // like "getCurrTimeStep", rather than "getTimeStep"?  Do we ever need much else?
-  virtual double getTimeStep () { return 1.0e-8; } // WAG
-  virtual double getTimeStepAlpha () { return 1.0; }
-  virtual double getTimeStepPrefac () { return (getTimeStepAlpha() / getTimeStep ()) ; }
+  virtual bool setTimeStep (double dt) { dt_ = dt; return true; } // WAG
+  virtual bool setTimeStepAlpha (double a) { alpha_ = a; return true; }
 
-  virtual double getTime() { return 0.0;} // nd_.getTime(); }
-  virtual double getTemp() { return 0.0;} // nd_.getTemp() - CONSTCtoK; }
-  virtual double getVT  () { return 0.0;} // nd_.getTemp() * CONSTCtoK; }
-  virtual double getFreq() { return 0.0;} // nd_.getFreq(); }
+  virtual double getTimeStep () { return dt_; } // WAG
+  virtual double getTimeStepAlpha () { return alpha_; }
+  virtual double getTimeStepPrefac () { return (getTimeStepAlpha() / getTimeStep ()) ; } // FIX
+
+  virtual bool setTime(double t) { time_ = t; return true; } 
+  virtual bool setTemp(double t) { temp_ = t; return true; } 
+  virtual bool setVT  (double v) { VT_ = v; return true; } 
+  virtual bool setFreq(double f) { freq_ = f; return true; } 
+
+  virtual double getTime() { return time_;} 
+  virtual double getTemp() { return temp_;} 
+  virtual double getVT  () { return VT_;} 
+  virtual double getFreq() { return freq_;} 
 
   // in a real Xyce group, need something like this:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
@@ -165,6 +198,8 @@ private:
 
   std::unordered_map <std::string, Xyce::Util::newExpression  >  functions_;
 
+  double time_, temp_, VT_, freq_;
+  double dt_, alpha_;
 };
 
 }

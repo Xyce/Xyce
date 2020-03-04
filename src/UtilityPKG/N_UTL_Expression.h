@@ -65,7 +65,8 @@ class Expression
 
 public:
 
-  Expression (std::string const & exp = std::string(), bool useNew=false);
+  //Expression (std::string const & exp = std::string(), bool useNew=false);
+  Expression (std::string const & exp = std::string(), bool useNew=true);
   Expression (const Expression &);
 #ifdef NEW_EXPRESSION
   Expression& operator=(const Expression& right) ; 

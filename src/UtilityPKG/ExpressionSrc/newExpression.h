@@ -62,13 +62,10 @@ public:
     group_(group),
     expressionString_(exp),
     parsed_(false),
-    resolved_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
-    voltOpVecSetup_(false),
-    currentOpVecSetup_(false),
     numDerivs_(0),
     traditionalParse_(true),
     externalDependencies_(false)
@@ -104,13 +101,10 @@ public:
     group_(group),
     expressionString_("TIME"),
     parsed_(false),
-    resolved_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
-    voltOpVecSetup_(false),
-    currentOpVecSetup_(false),
     numDerivs_(0),
     traditionalParse_(false),
     externalDependencies_(false)
@@ -136,13 +130,10 @@ public:
     group_(group),
     expressionString_("TIME"),
     parsed_(false),
-    resolved_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
-    voltOpVecSetup_(false),
-    currentOpVecSetup_(false),
     numDerivs_(0),
     traditionalParse_(false),
     externalDependencies_(false)
@@ -167,6 +158,9 @@ public:
       if (left->currentType()) { currentOpVec_.push_back(left); }
       left->getInterestingOps(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_);
     }
+// setup voltOpNames here?
+// setup currentOpNames here?
+
   };
 
   // copy constructor - this may need work
@@ -175,7 +169,6 @@ public:
     group_(right.group_),
     expressionString_(right.expressionString_),
     parsed_(right.parsed_),
-    resolved_(right.resolved_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
     astNodePtrPtr_(NULL),
@@ -187,12 +180,12 @@ public:
     unresolvedParamOpVec_(right.unresolvedParamOpVec_),
     funcOpVec_(right.funcOpVec_),
     unresolvedFuncOpVec_(right.unresolvedFuncOpVec_),
-    voltOpVecSetup_(right.voltOpVecSetup_),
     voltOpVec_(right.voltOpVec_),
     unresolvedVoltOpVec_(right.unresolvedVoltOpVec_),
-    currentOpVecSetup_(right.currentOpVecSetup_),
+    voltOpNames_(right.voltOpNames_),
     currentOpVec_(right.currentOpVec_),
     unresolvedCurrentOpVec_(right.unresolvedCurrentOpVec_),
+    currentOpNames_(right.currentOpNames_),
     derivIndexVec_ (right.derivIndexVec_),
     derivNodeIndexMap_(right.derivNodeIndexMap_),
     numDerivs_(right.numDerivs_),
@@ -236,7 +229,6 @@ public:
     group_ = right.group_;
     expressionString_ = right.expressionString_;
     parsed_ = right.parsed_;
-    resolved_ = right.resolved_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
     astNodePtrPtr_ = NULL;
@@ -248,11 +240,11 @@ public:
     unresolvedParamOpVec_ = right.unresolvedParamOpVec_;
     funcOpVec_ = right.funcOpVec_;
     unresolvedFuncOpVec_ = right.unresolvedFuncOpVec_;
-    voltOpVecSetup_ = right.voltOpVecSetup_;
     voltOpVec_ = right.voltOpVec_;
+    voltOpNames_ = right.voltOpNames_;
     unresolvedVoltOpVec_ = right.unresolvedVoltOpVec_;
-    currentOpVecSetup_ = right.currentOpVecSetup_;
     currentOpVec_ = right.currentOpVec_;
+    currentOpNames_ = right.currentOpNames_;
     unresolvedCurrentOpVec_ = right.unresolvedCurrentOpVec_;
     derivIndexVec_ = right.derivIndexVec_;
     derivNodeIndexMap_ = right.derivNodeIndexMap_;
@@ -328,15 +320,6 @@ public:
 
   bool set(std::string const & exp); // is this needed?  
 
-  //void getSymbolTable (std::vector< ExpressionSymbolTableEntry > & names) const;
-
-#if 0
-  void get_names (int const & type, std::vector< std::string > & names) const;
-#else
-
-#endif
-
-  int get_type (std::string const & var);
   bool make_constant (std::string const & var, usedType const & val);
   bool make_var (std::string const & var);
 
@@ -401,9 +384,19 @@ public:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getVoltOpVec () { return voltOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
+  const std::unordered_map<std::string,int> & getVoltOpNames () 
+  { 
+    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    return voltOpNames_; 
+  };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
+  const std::unordered_map<std::string,int> & getCurrentOpNames () 
+  { 
+    if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+    return currentOpNames_; 
+  };
 
   void codeGen( std::ostream & os ) { astNodePtr_->codeGen(os); os << ";" <<std::endl; };
 
@@ -414,6 +407,8 @@ public:
 
   void setVar(const std::string & var);
 
+  int differentiate ();
+
 private:
   void setupDerivatives_ ();
   void setupVariousAstArrays_ () ;
@@ -421,7 +416,6 @@ private:
   Teuchos::RCP<baseExpressionGroup> group_;
   std::string expressionString_;
   bool parsed_;
-  bool resolved_;
   bool derivsSetup_;
   bool astArraysSetup_;
   Teuchos::RCP<astNode<usedType> > astNodePtr_;
@@ -442,13 +436,13 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > funcOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedFuncOpVec_;
 
-  bool voltOpVecSetup_;
   std::vector<Teuchos::RCP<astNode<usedType> > > voltOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedVoltOpVec_;
+  std::unordered_map<std::string,int> voltOpNames_;
 
-  bool currentOpVecSetup_;
   std::vector<Teuchos::RCP<astNode<usedType> > > currentOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedCurrentOpVec_;
+  std::unordered_map<std::string,int> currentOpNames_;
 
   // master vector of nodes.  This is only used for deleting the ast tree in
   // the destructor.  The tree should be deleted by marching down the

@@ -112,12 +112,12 @@ Expression::Expression( const Expression & right)
    useNewExpressionLibrary_(right.useNewExpressionLibrary_),
    namesSet_(right.namesSet_),
    newExpPtr_(NULL),
+   grp_(right.grp_),
    expPtr_(NULL)
 {
   if(useNewExpressionLibrary_)
   {
     newExpPtr_ = new newExpression( *(right.newExpPtr_));
-    newExpPtr_->lexAndParseExpression();
   }
   else
   {
@@ -137,8 +137,20 @@ Expression::Expression( const Expression & right)
 //-----------------------------------------------------------------------------
 Expression& Expression::operator=(const Expression& right) 
 {
-  expPtr_ = new ExpressionInternals( *(right.expPtr_));
-  expPtr_->lexAndParseExpression();
+  useNewExpressionLibrary_ = right.useNewExpressionLibrary_;
+  namesSet_ = right.namesSet_;
+  grp_ = right.grp_;
+
+  if(useNewExpressionLibrary_)
+  {
+    newExpPtr_ = new newExpression( *(right.newExpPtr_) );
+    newExpPtr_->lexAndParseExpression();
+  }
+  else
+  {
+    expPtr_ = new ExpressionInternals( *(right.expPtr_));
+  }
+
   return *this;
 }
 #endif
@@ -289,7 +301,7 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 void Expression::get_names(int const & type, std::vector<std::string> & names ) const
-{ 
+{
   if(useNewExpressionLibrary_)
   {
     switch (type)
@@ -390,6 +402,25 @@ int Expression::get_type ( const std::string & var )
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+    std::string tmpName = var;
+    Xyce::Util::toUpper(tmpName);
+
+    const std::unordered_map<std::string,int> & voltMap = newExpPtr_->getVoltOpNames ();
+    const std::unordered_map<std::string,int> & currMap = newExpPtr_->getCurrentOpNames ();
+
+    if ( voltMap.find(tmpName) != voltMap.end() )
+    {
+      retVal = XEXP_NODE;
+    }
+    else if ( currMap.find(tmpName) != currMap.end() )
+    {
+      retVal = XEXP_INSTANCE;
+    }
+    else
+    {
+      newExpPtr_->dumpParseTree(std::cout);
+      std::cout << "Error. newExpression::get_type.  Cannot find type for " << var << std::endl;
+    }
   }
   else
   {
@@ -487,6 +518,7 @@ int Expression::differentiate ()
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+    retVal = newExpPtr_->differentiate ();
   }
   else
   {
@@ -508,7 +540,7 @@ bool Expression::set_var ( const std::string & var, const double & val)
   if(useNewExpressionLibrary_)
   {
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    //xyceGroup->setSoln( var, val );
+    xyceGroup->setSolutionVal( var, val );
     return true;
   }
   else
@@ -534,6 +566,24 @@ bool Expression::set_vars ( const std::vector<double> & vals )
   bool retVal=false; 
   if(useNewExpressionLibrary_)
   {
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+
+    std::cout << "Expression::set_vars" << std::endl;
+
+    if (!namesSet_) // kludge
+    {
+      std::vector<std::string> names;
+      get_names( XEXP_NODE, names); // for now just nodes. make XEXP_ALL later
+      get_names( XEXP_INSTANCE, names); // for now just nodes. make XEXP_ALL later
+      xyceGroup->setNames ( names );
+      namesSet_ = true;
+
+      for (int ii=0;ii<names.size();++ii) { std::cout << "names["<<ii<<"] = " << names[ii] << std::endl; }
+    }
+
+    for (int ii=0;ii<vals.size();++ii) { std::cout << "vals["<<ii<<"] = " << vals[ii] << std::endl; }
+
+    xyceGroup->setVals ( vals );
   }
   else
   {
@@ -555,6 +605,9 @@ std::string Expression::get_expression () const
   std::string retVal; 
   if(useNewExpressionLibrary_)
   {
+    //std::cout << "Expression::get_expression not implemented for newExpression library yet" <<std::endl;
+    //exit(0);
+    retVal = newExpPtr_->getExpressionString(); // note, for new expression, this is not a reconstruction
   }
   else
   {
@@ -576,6 +629,8 @@ std::string Expression::get_derivative ( std::string const & var )
   std::string retVal; 
   if(useNewExpressionLibrary_)
   {
+    std::cout << "Expression::get_derivative not implemented for newExpression library yet" <<std::endl;
+    exit(0);
   }
   else
   {
@@ -597,6 +652,48 @@ int Expression::get_num(int const & type)
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+
+    switch (type)
+    {
+      case XEXP_ALL:
+        retVal = newExpPtr_->getVoltOpVec().size() + newExpPtr_->getCurrentOpVec().size() + newExpPtr_->getParamOpVec().size();
+        break;
+
+      case XEXP_NODE:
+        retVal = newExpPtr_->getVoltOpVec().size();
+        break;
+
+      case XEXP_INSTANCE:
+        retVal = newExpPtr_->getCurrentOpVec().size();
+        break;
+
+      case XEXP_LEAD:
+        break;
+
+      case XEXP_STRING: 
+        retVal = newExpPtr_->getParamOpVec().size();
+        break;
+
+      case XEXP_SPECIAL:
+        break;
+
+      case XEXP_VARIABLE:
+        break;
+
+      case XEXP_FUNCTION:
+        retVal = newExpPtr_->getFuncOpVec().size();
+        break;
+
+      case XEXP_NODAL_COMPUTATION:
+        break;
+
+      case XEXP_COUNT:
+        break;
+
+      default:
+        break;
+    }
   }
   else
   {
@@ -688,12 +785,16 @@ int Expression::evaluateFunction ( double & exp_r, std::vector<double> & vals )
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-int Expression::evaluate ( double & exp_r,
-                                 std::vector<double> & deriv_r)
+int Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 {
   int retVal=0;
+  if(useNewExpressionLibrary_)
   {
-    retVal = expPtr_->evaluate ( exp_r, deriv_r);
+    retVal = newExpPtr_->evaluate( exp_r, deriv_r );
+  }
+  else
+  {
+    retVal = expPtr_->evaluate( exp_r, deriv_r );
   }
   return retVal;
 }
@@ -709,6 +810,11 @@ int Expression::evaluate ( double & exp_r,
 int Expression::evaluateFunction ( double & exp_r )
 {
   int retVal=0; 
+  if(useNewExpressionLibrary_)
+  {
+    retVal = newExpPtr_->evaluateFunction ( exp_r );
+  }
+  else
   {
     retVal = expPtr_->evaluateFunction ( exp_r );
   }
@@ -728,7 +834,7 @@ bool Expression::set_sim_time(double time)
   if(useNewExpressionLibrary_)
   {
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    //xyceGroup->setTime(time);
+    xyceGroup->setTime(time);
     return true;
   }
   else
@@ -750,7 +856,8 @@ bool Expression::set_sim_dt(double dt)
 {
   if(useNewExpressionLibrary_)
   {
-    return false;
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    return xyceGroup->setTimeStep(dt);
   }
   else
   {
@@ -771,6 +878,8 @@ bool Expression::set_temp(double const & tempIn)
   bool retVal=false;
   if(useNewExpressionLibrary_)
   {
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    return xyceGroup->setTemp(tempIn);
   }
   else
   {
@@ -791,7 +900,8 @@ bool Expression::set_sim_freq(double freq)
 {
   if(useNewExpressionLibrary_)
   {
-    return false;
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    return xyceGroup->setFreq(freq);
   }
   else
   {
