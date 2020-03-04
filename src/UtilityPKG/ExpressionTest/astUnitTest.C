@@ -446,6 +446,32 @@ AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, atanhOp, std::atan
 AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, logOp, std::log, cmplx(0.5,0.2), 1.0/cmplx(0.5,0.2))
 AST_UNARY_DERIV_TEST_MACRO(cmplx, Complex_UnaryDeriv_Ast_Ops, log10Op, std::log10, cmplx(0.5,0.2), 1.0/(cmplx(0.5,0.2)*std::log(10)))
 
+// testing cosh and acosh for -10  (see the ascth.cir test)
+
+TEST ( Double_UnaryDeriv_Ast_Ops , coshOp_ascth_test ) 
+{
+  RCP<astNode<double> > val1 = rcp(new numval<double> (-10.0));
+  RCP<astNode<double> > arg1 = rcp(new paramOp<double> ( std::string("A"),val1));
+  RCP<astNode<double> > cosh_1 = rcp(new coshOp<double> (arg1));
+  EXPECT_EQ(cosh_1->val(), std::cosh(-10.0)); 
+  arg1->setDerivIndex(0);
+  arg1->setVar();
+  EXPECT_EQ( (cosh_1->dx(0)-std::sinh(-10.0)), 0.0);
+}
+
+TEST ( Double_UnaryDeriv_Ast_Ops , acoshOp_ascth_test ) 
+{
+  double tmp = -10.0;
+  double input = std::cosh(-10.0);
+  RCP<astNode<double> > val1 = rcp(new numval<double> (input));
+  RCP<astNode<double> > arg1 = rcp(new paramOp<double> ( std::string("A"),val1));
+  RCP<astNode<double> > acosh_1 = rcp(new acoshOp<double> (arg1));
+  EXPECT_EQ(acosh_1->val(), std::acosh(input)); 
+  arg1->setDerivIndex(0);
+  arg1->setVar();
+  double deriv = 1.0/(std::sqrt( (input-1) * (input+1) ));
+  EXPECT_EQ( (acosh_1->dx(0)-deriv), 0.0 );
+}
 
 //-------------------------------------------------------------------------------
 // pow function

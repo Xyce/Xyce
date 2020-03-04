@@ -2734,6 +2734,58 @@ TEST ( Double_Parser_Param_Test, V )
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, (2+3)*(2+3)*4 );
 }
 
+
+TEST ( Double_Parser_ASCTH_Test, test0)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("cosh(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //Xyce::Util::newExpression copyExpression(testExpression); 
+  //Xyce::Util::newExpression assignExpression; 
+  //assignExpression = testExpression; 
+
+  double result=0.0, Aval=-10.0;
+  double refRes = std::cosh(-10.0);
+  std::cout << "refRes = " << refRes <<std::endl;
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<double> derivs;
+  testExpression.evaluate(result, derivs);   
+  std::cout << "derivs[0] = " << derivs[0] <<std::endl;
+  EXPECT_EQ( result, refRes);
+
+  //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  //assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+}
+
+TEST ( Double_Parser_ASCTH_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("acosh(cosh(V(A)))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //Xyce::Util::newExpression copyExpression(testExpression); 
+  //Xyce::Util::newExpression assignExpression; 
+  //assignExpression = testExpression; 
+
+  double result=0.0, Aval=-10.0;
+  double refRes = std::acosh(std::cosh(-10.0));
+  std::cout << "refRes = " << refRes <<std::endl;
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<double> derivs;
+  testExpression.evaluate(result, derivs);   
+  std::cout << "derivs[0] = " << derivs[0] <<std::endl;
+  EXPECT_EQ( result, refRes);
+
+  //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  //assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+}
+
+
 int main (int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
