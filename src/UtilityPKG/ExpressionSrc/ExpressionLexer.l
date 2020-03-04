@@ -156,29 +156,18 @@ NODE [a-zA-Z0-9_:]*
 <INITIAL>"<="    { return XyceExpression::ExpressionParser::token::TOK_LE; }
 
 <INITIAL>"V"     {
-  BEGIN(voltagenodedef);
   lvalp->sval=new std::string(YYText());
   return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
+<INITIAL>"V""("     {
+  BEGIN(voltagenodedef); 
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
  /* single node name by itself */
-<voltagenodedef>"("{NODE}")" {
-  lvalp->sval=new std::string(YYText());
-  (lvalp->sval)->erase(0,1);// lop off open paren
-  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
-  BEGIN(INITIAL);
-  return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
-}
-
- /* first node in a comma-separated list of two nodes */
-<voltagenodedef>"("{NODE}"," {
-  lvalp->sval=new std::string(YYText());
-  (lvalp->sval)->erase(0,1);// lop off open paren
-  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
-  return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
-}
-
- /* second node in a comma-separated list of two nodes. This one calls the next context (expression) */
 <voltagenodedef>{NODE}")" {
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
@@ -186,30 +175,32 @@ NODE [a-zA-Z0-9_:]*
   return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
 }
 
- /* followed by unrecognized character; In this case "V" is probably a parameter, rather than a current variable */
- /* yyless is used here so that the unrecognized character will be put back on the stack, and processed */
- /* by the rules under the INITIAL state */
-<voltagenodedef>. { BEGIN(INITIAL); yyless(0); }
+ /* first node in a comma-separated list of two nodes */
+<voltagenodedef>{NODE}"," {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
+  return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
+}
 
 <INITIAL>"I"     {
-  BEGIN(currentdevdef);
   lvalp->sval=new std::string(YYText());
   return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
- /* single device name by itself */
-<currentdevdef>"("{ID}")" {
+<INITIAL>"I""("    {
+  BEGIN(currentdevdef);
   lvalp->sval=new std::string(YYText());
-  (lvalp->sval)->erase(0,1);// lop off open paren
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* single device name by itself */
+<currentdevdef>{ID}")" {
+  lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
   }
-
- /* followed by unrecognized character; In this case "I" is probably a parameter, rather than a current variable */
- /* yyless is used here so that the unrecognized character will be put back on the stack, and processed */
- /* by the rules under the INITIAL state */
-<currentdevdef>. { BEGIN(INITIAL); yyless(0); }
 
  /* built in functions */
 <INITIAL>"P"     { return XyceExpression::ExpressionParser::token::TOK_PHASE; }

@@ -220,8 +220,7 @@ const std::vector<int> & CktNode_Dev::leadConnect() const
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/18/02
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::registerLIDswithDev(
+void CktNode_Dev::registerLIDswithDev(
   const std::vector<int> &      intLIDVec,
   const std::vector<int> &      extLIDVec )
 {
@@ -251,8 +250,7 @@ CktNode_Dev::registerStateLIDswithDev(
 // Creator       : Eric Keiter
 // Creation Date :
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::registerStoreLIDswithDev(
+void CktNode_Dev::registerStoreLIDswithDev(
   const std::vector<int> &      storeLIDVec)
 {
   deviceInstance_->registerStoreLIDs( storeLIDVec );
@@ -266,8 +264,7 @@ CktNode_Dev::registerStoreLIDswithDev(
 // Creator       : Eric Keiter
 // Creation Date :
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::registerLeadCurrentLIDswithDev(
+void CktNode_Dev::registerLeadCurrentLIDswithDev(
   const std::vector<int> &      leadCurrentLIDVec)
 {
   deviceInstance_->registerBranchDataLIDs( leadCurrentLIDVec );
@@ -282,9 +279,8 @@ CktNode_Dev::registerLeadCurrentLIDswithDev(
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 6/21/02
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::registerDepLIDswithDev(
-  const std::vector< std::vector<int> > &       depLIDVec )
+void CktNode_Dev::registerDepLIDswithDev(
+    const std::vector< std::vector<int> > & depLIDVec)
 {
   deviceInstance_->registerDepSolnLIDs( depLIDVec );
 }
@@ -297,9 +293,7 @@ CktNode_Dev::registerDepLIDswithDev(
 // Creator       : Rob Hoekstra, SNL, Parallel Computational Sciences
 // Creation Date : 5/05/01
 //-----------------------------------------------------------------------------
-void
-CktNode_Dev::getDepSolnVars(
-  std::vector<NodeID> &         dsVars )
+void CktNode_Dev::getDepSolnVars(std::vector<NodeID> & dsVars )
 {
   // Get dependent solution variables from the device and the Depend structure to determine which node type to look for in the graph.
   dsVars.clear();
