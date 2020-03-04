@@ -67,6 +67,7 @@ NLParams::NLParams(AnalysisMode mode, const IO::CmdParse & cp)
     debugMinTime_(0.0),
     debugMaxTime_(Util::MachineDependentParams::DoubleMax()),
     screenOutputFlag_(false),
+    matrixMarketFormat_(false),
     maskingFlag_(false)
 {
   // Set default update norm tolerance
