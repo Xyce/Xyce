@@ -435,6 +435,7 @@ bool Model::readTouchStoneFile()
   int numReferenceLinesFound = 0;
   int numMatrixFormatLinesFound = 0;
   int numNetworkDataLinesFound = 0;
+  int numNetworkDataElementsFound = 0;
   bool skipReadNextLine = false;
   bool psuccess = true;
 
@@ -838,19 +839,25 @@ bool Model::readTouchStoneFile()
         Teuchos::SerialDenseMatrix<int, std::complex<double> > inputNetworkData;
         inputNetworkData.shape(numPorts_, numPorts_);
 
+        parsedLine.clear();
+
 	// now populate the matrix assuming the input is in "Full" format
 	while ( (!inputFile.eof()) && ( aLine[0] !='[') )
 	{
-          ++numDataLinesFound;
-          splitTouchStoneFileLine(aLine,parsedLine);
-          if ( parsedLine.size() != (2*(numPorts_*numPorts_)+1 ) )
+          // account for Touchstone 2 files where each row of network data may
+          // be "wrapped" across several rows in the input file
+          IO::TokenVector tempParsedLine;
+          splitTouchStoneFileLine(aLine,tempParsedLine);
+          numNetworkDataElementsFound += tempParsedLine.size();
+          if ( tempParsedLine.size() <= (2*(numPorts_*numPorts_)+1 ) )
 	  {
-            Report::UserError() << "Incorrect number of entries for network data on lineNum "
-               << lineNum << " in file " << TSFileName_ << " for model " << getName();
-            return false;
+            parsedLine.insert(parsedLine.end(),tempParsedLine.begin(),tempParsedLine.end());
           }
-          else
+
+          // We have a full line of network data if this conditional is true
+          if (parsedLine.size() == (2*(numPorts_*numPorts_)+1 ) )
 	  {
+            ++numDataLinesFound;
             ExtendedString freqStr(parsedLine[0].string_);
             freqVec_.push_back(freqMultiplier_*freqStr.Value());
 
@@ -922,6 +929,10 @@ bool Model::readTouchStoneFile()
               // input was in Y-parameter format
               inputNetworkDataVec_.push_back(inputNetworkData);
             }
+
+            // clear parsedLine here, to support parsing network data that
+            // is "wrapped" across multiple rows in the input file
+            parsedLine.clear();
           }
 
           // read in next line
@@ -986,6 +997,16 @@ bool Model::readTouchStoneFile()
   {
     Report::UserError() << "No valid [Network Data] block of lines found in file " << TSFileName_
       << " for model " << getName();
+    psuccess = false;
+  }
+
+  if ( (numNetworkDataElementsFound != numFreq_*(2*(numPorts_*numPorts_)+1 )) &&
+       (numPorts_ != 0) && (numFreq_ != 0) )
+  {
+    Report::UserError() << "Incorrect number of entries in [Network Data] block found in file "
+                        << TSFileName_ << " for model " << getName()
+                        << ". Found " << numNetworkDataElementsFound
+                        << ". Expected " << numFreq_*(2*(numPorts_*numPorts_)+1 );
     psuccess = false;
   }
 
