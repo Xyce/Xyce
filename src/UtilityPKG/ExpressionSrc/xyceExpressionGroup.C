@@ -105,7 +105,12 @@ bool xyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & 
   if (it != names_.end())
   {
     int index = it - names_.begin();
-    retval = dvals_[index];
+    int size = dvals_.size();
+    if (index<size)
+    {
+      retval = dvals_[index];
+    }
+
     std::cout << "Solution variable " << nodeName << " found by the xyceExpresionGroup! value = " << retval << std::endl;
   }
   else // not found

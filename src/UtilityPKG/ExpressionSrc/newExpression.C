@@ -5,8 +5,18 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <cmath>
 
 #include "newExpression.h"
+
+#if( defined HAVE__ISNAN_AND__FINITE_SUPPORT )
+#include <float.h>
+#define isnan(x) _isnan(x)
+#define isinf(x) (!_finite(x))
+#else
+#define isnan(x) std::isnan(x)
+#define isinf(x) std::isinf(x)
+#endif
 
 //-------------------------------------------------------------------------------
 // Expression Lexer/Parser header stuff
@@ -35,7 +45,7 @@ int ExpressionLexer::getToken(ExpressionParser::semantic_type *lvalp,  \
   // yyFlexLexer class.  Unless we do this kludge, that method gets renamed
   // with the define as well, and the result is a broken set of classes
 #undef yylex
-#undef yyFlexLexer 
+#undef yyFlexLexer
 #define yyFlexLexer expFlexLexer
 #include <FlexLexer.h>
 #include "ExpressionLexer.h"
@@ -56,20 +66,20 @@ namespace Util {
 // Function      : newExpression::lexAndParseExpression
 // Purpose       : Lexes and Parses the expression string
 //
-// Special Notes : The lexer and parser objects are local to this function.  
-//                 If successful, It will have created an Abstract Syntax Tree, 
-//                 and the top level pointer to that tree will be set.  
+// Special Notes : The lexer and parser objects are local to this function.
+//                 If successful, It will have created an Abstract Syntax Tree,
+//                 and the top level pointer to that tree will be set.
 //
-//                 If this function hasn't been called yet, the astNodePtr will be 
-//                 NULL.  After it has been called, it should contain a valid 
+//                 If this function hasn't been called yet, the astNodePtr will be
+//                 NULL.  After it has been called, it should contain a valid
 //                 pointer value.
 //
-//                 Also, in addition to allocating the AST, the parsing process 
-//                 will populate the paramOpMap object.  Prior to calling this function 
-//                 that map will be empty.  After calling this function that map 
+//                 Also, in addition to allocating the AST, the parsing process
+//                 will populate the paramOpMap object.  Prior to calling this function
+//                 that map will be empty.  After calling this function that map
 //                 may have some stuff in it.
 //
-//                 This is not called automatically.  After the expression is 
+//                 This is not called automatically.  After the expression is
 //                 allocated, a second call must be made to parse it.
 //
 // Scope         :
@@ -84,7 +94,7 @@ bool newExpression::lexAndParseExpression()
     std::stringstream expressionStringStream ( expressionString_ );
     Xyce::Util::ExpressionLexer expLexer(fileName,&expressionStringStream);
     XyceExpression::ExpressionParser expParser(&expLexer,*this);
-    int retCode = expParser.parse(); 
+    int retCode = expParser.parse();
     parsed_ = (retCode == 0);
   }
   else
@@ -94,36 +104,36 @@ bool newExpression::lexAndParseExpression()
 
   // pull the function arguments (if they are present) out of the parameter vector
   {
-    // The paramOpMap_ was set up during parsing (see the ExpressionParser.yxx file and the 
+    // The paramOpMap_ was set up during parsing (see the ExpressionParser.yxx file and the
     // ExpressionParser.cxx file.  All the code for setting up the paramOpMap_ is there)
     //
-    // The functionArgStringVec was hopefully set right after the expression was allocated. 
-    // (if not, code below won't work).  The functionArgStringVec contains the "prototype" 
-    // ie. for .func f(x,y) {2*x+3*y}, "x" and "y" would be found in the 
+    // The functionArgStringVec was hopefully set right after the expression was allocated.
+    // (if not, code below won't work).  The functionArgStringVec contains the "prototype"
+    // ie. for .func f(x,y) {2*x+3*y}, "x" and "y" would be found in the
     // functionArgStringVec object.  Since they are passed into the function, they should
-    // not be considered as params or global_params.  
+    // not be considered as params or global_params.
     //
-    // Note, if using the flex/bison NetlistParser, 
+    // Note, if using the flex/bison NetlistParser,
     // when each .func statement is processed, a functionData object is created, and different
-    // fields are populated, including "args_", which is where functionArgStringVec comes from 
-    // (it gets copied over in ExpressioTest).  So, anyway, paramOpMap comes from expression 
+    // fields are populated, including "args_", which is where functionArgStringVec comes from
+    // (it gets copied over in ExpressioTest).  So, anyway, paramOpMap comes from expression
     // parsing, but functionArgStringVec comes from Netlist parsing.
     //
-    // the paramOpMap_, immediately after parsing will contain 
+    // the paramOpMap_, immediately after parsing will contain
     // both regular params and function arguments.  It cannot tell the difference yet.  This
-    // next bit of code is designed to pull them apart.  When finished, the elements of 
+    // next bit of code is designed to pull them apart.  When finished, the elements of
     // the param container should contain ONLY parameters and no function arguments.
     //
-    // If the functionArgStringVec object is empty, then it is assumed that this expression 
+    // If the functionArgStringVec object is empty, then it is assumed that this expression
     // is not a function, and thus it has no arguments to resolve.
     //
-    // Also: this search is performed before any attempt is made to resolve 
-    // parameters.  So, if the user has used the same symbol for both a function 
-    // argument and a parameter, the function argument interpretation will take 
-    // priority, since it is being checked first.  This seems reasonable, as the 
+    // Also: this search is performed before any attempt is made to resolve
+    // parameters.  So, if the user has used the same symbol for both a function
+    // argument and a parameter, the function argument interpretation will take
+    // priority, since it is being checked first.  This seems reasonable, as the
     // function argument will be more of a "local" variable.
 
-    int stringArgsSize=functionArgStringVec_.size(); 
+    int stringArgsSize=functionArgStringVec_.size();
     std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > >::iterator paramIter;
     if (stringArgsSize>0)
     {
@@ -152,16 +162,23 @@ bool newExpression::lexAndParseExpression()
     {
       Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
       std::vector<std::string> & tmp = voltOp->getVoltageNodes();
-      for (int jj=0;jj<tmp.size();++jj) { voltOpNames_[tmp[jj]] = 1; }
+      for (int jj=0;jj<tmp.size();++jj)
+      {
+        voltOpNames_[tmp[jj]].push_back(voltOpVec_[ii]);
+      }
     }
 
     for (int ii=0;ii<currentOpVec_.size();++ii)
     {
       Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
       std::string tmp = currOp->getCurrentDevice();
-      currentOpNames_[tmp] = 1;
+      currentOpNames_[tmp].push_back(currentOpVec_[ii]);
     }
   }
+
+#if 0
+  dumpParseTree(std::cout);
+#endif
 
   return parsed_;
 }
@@ -171,22 +188,22 @@ bool newExpression::lexAndParseExpression()
 // Purpose       : resolve parameters, and external functions.
 //
 // This must be a separate phase from the setup in lexAndParseExpression function, as
-// *all* the relevant expressions must be allocated and have gone thru their initial 
+// *all* the relevant expressions must be allocated and have gone thru their initial
 // set up before the group can perform the next phase.
 //
-// The role of the "group_" is to provide a lookup for external .func, 
+// The role of the "group_" is to provide a lookup for external .func,
 // .param and .global_param expressions, that must be used to resolve them in
 // this expression.
 //
-// Special Notes : 
+// Special Notes :
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 11/5/2019
 //-------------------------------------------------------------------------------
-void newExpression::resolveExpression () 
+void newExpression::resolveExpression ()
 {
   //---------------------------------------------------------------------------
-  // Attempt to resolve the unresolved functions. Get them from the group, 
+  // Attempt to resolve the unresolved functions. Get them from the group,
   // which is the newExpression class connection to other expressions
   // and then assign the node pointer to the symbol.
   int funcOpSize = funcOpVec_.size();
@@ -235,13 +252,69 @@ void newExpression::resolveExpression ()
 }
 
 //-------------------------------------------------------------------------------
-//
 //-------------------------------------------------------------------------------
-bool newExpression::set (std::string const & exp)
+void newExpression::clear ()
 {
-  std::cout << "Error.  newExpression::set function not implemented yet!!!" <<std::endl;
-  exit(0);
-  return false;
+  // copied from destructor
+  if (astNodePtrPtr_)
+  {
+    delete astNodePtrPtr_;
+  }
+  if ( tableNodePtrPtr_ )
+  {
+    delete tableNodePtrPtr_;
+  }
+
+  // vectors of pointers to RCPs of AST nodes; use constructors
+  for (int ii=0;ii<masterAstNodeVec_.size();ii++)
+  {
+    delete masterAstNodeVec_[ii];
+  }
+  masterAstNodeVec_.clear();
+
+  for (int ii=0;ii<srcAstNodeVec_.size();ii++)
+  {
+    delete srcAstNodeVec_[ii];
+  }
+  masterAstNodeVec_.clear();
+
+
+  expressionString_ = std::string("");
+  parsed_ = false;
+  derivsSetup_ = false;
+  astArraysSetup_ = false;
+  astNodePtrPtr_ = NULL;
+  tableNodePtrPtr_ = NULL;
+  numDerivs_ = 0;
+  traditionalParse_ = true;
+  externalDependencies_ = false;
+
+  functionArgStringVec_.clear();
+  paramOpMap_.clear();
+  functionArgOpVec_.clear();
+
+  paramOpVec_.clear();
+  unresolvedParamOpVec_.clear();
+
+  funcOpVec_.clear();
+  unresolvedFuncOpVec_.clear();
+
+  voltOpVec_.clear();
+  unresolvedVoltOpVec_.clear();
+  voltOpNames_.clear();
+
+  currentOpVec_.clear();
+  unresolvedCurrentOpVec_.clear();
+  currentOpNames_.clear();
+
+  bpTol_ = 0.0;
+  timeStep_ = 0.0;
+  timeStepAlpha_ = 0.0;
+  timeStepPrefac_ = 0.0;
+
+  derivIndexVec_.clear();
+
+  return;
 }
 
 //-------------------------------------------------------------------------------
@@ -279,7 +352,7 @@ bool newExpression::make_var (std::string const & var)
 
     retval = true; // just means we found it
   }
-  
+
   return retval;
 }
 
@@ -298,6 +371,9 @@ void newExpression::setVar(const std::string & var)
 }
 
 //-------------------------------------------------------------------------------
+// ERK.  This probably isn't needed.  In the old expression library, this
+// function`appears to be equivalent (kind of) to the
+// newExpression::setupDerivatives_  function.
 //-------------------------------------------------------------------------------
 int newExpression::differentiate ()
 {
@@ -309,24 +385,24 @@ int newExpression::differentiate ()
 //-------------------------------------------------------------------------------
 // Function      : newExpression::setupDerivatives_
 //
-// Purpose       : this is yet another phase in setup, which must be called after 
-//                 the "resolveExpression" calls (above) for all relevant expressions 
-//                 have been completed first.  If they are not, then there 
-//                 will be some NULL pointers in the AST tree, which will cause 
+// Purpose       : this is yet another phase in setup, which must be called after
+//                 the "resolveExpression" calls (above) for all relevant expressions
+//                 have been completed first.  If they are not, then there
+//                 will be some NULL pointers in the AST tree, which will cause
 //                 seg faults.
-// Special Notes : 
+// Special Notes :
 // Scope         : private
 // Creator       : Eric Keiter
 // Creation Date : 11/5/2019
 //-------------------------------------------------------------------------------
-void newExpression::setupDerivatives_ () 
+void newExpression::setupDerivatives_ ()
 {
   // figure out the derivative indices
-  // This assumes we need derivatives with respect to all 
+  // This assumes we need derivatives with respect to all
   // voltages and currents.
   //
-  // I was considering automatically doing parameters as well, but 
-  // that isn't what the old library does.  Params are only differentiated 
+  // I was considering automatically doing parameters as well, but
+  // that isn't what the old library does.  Params are only differentiated
   // if "make_var" is called on them.
   {
     numDerivs_=0;
@@ -343,7 +419,7 @@ void newExpression::setupDerivatives_ ()
         std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
         std::unordered_map<std::string, int>::iterator mapIter;
         mapIter = derivNodeIndexMap_.find(tmp);
-        if (mapIter == derivNodeIndexMap_.end()) 
+        if (mapIter == derivNodeIndexMap_.end())
         {
           derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
         }
@@ -363,7 +439,7 @@ void newExpression::setupDerivatives_ ()
       Xyce::Util::toUpper(tmp);
       std::unordered_map<std::string, int>::iterator mapIter;
       mapIter = derivNodeIndexMap_.find(tmp);
-      if (mapIter == derivNodeIndexMap_.end()) 
+      if (mapIter == derivNodeIndexMap_.end())
       {
         derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
       }
@@ -373,20 +449,20 @@ void newExpression::setupDerivatives_ ()
 
     // Complication for params:
     // Unlike voltages and currents, params can be assigned to each other, etc, and they can be *anything*.
-    // So, for example if I have 
+    // So, for example if I have
     //
-    //  .param a = {10*c+b} 
+    //  .param a = {10*c+b}
     //  .param b = {5*x}
     //  .param c = {sqrt(y)}
     //  .param x = 10.0
     //  .param y = 20.0
     //
-    // the most likely params I would want differentiated are x and y.  
-    // Differentiating w.r.t. a,b,c might not make sense, as they are 
+    // the most likely params I would want differentiated are x and y.
+    // Differentiating w.r.t. a,b,c might not make sense, as they are
     // placeholders for other expressions.
     //
-    // So, possibly I need to do this only w.r.t. terminal parameters, 
-    // that are set to simple numerical values.  That would mean 
+    // So, possibly I need to do this only w.r.t. terminal parameters,
+    // that are set to simple numerical values.  That would mean
     // that for the above set of expressions, I only would do x and y.
     //
     // Solution: only differentiate params that have their "setVar" boolean set to true.
@@ -401,7 +477,7 @@ void newExpression::setupDerivatives_ ()
         Xyce::Util::toUpper(tmp);
         std::unordered_map<std::string, int>::iterator mapIter;
         mapIter = derivNodeIndexMap_.find(tmp);
-        if (mapIter == derivNodeIndexMap_.end()) 
+        if (mapIter == derivNodeIndexMap_.end())
         {
           derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
         }
@@ -424,8 +500,8 @@ void newExpression::setupDerivatives_ ()
       if (numDerivs_>0)
       {
         std::cout << "Derivative indices:"<<std::endl;
-        for (int ii=0;ii<numDerivs_;ii++) 
-        { 
+        for (int ii=0;ii<numDerivs_;ii++)
+        {
           std::cout << ii << ": index = " << derivIndexVec_[ii].second;
           derivIndexVec_[ii].first->output(std::cout);
           //std::cout << std::endl;
@@ -449,26 +525,26 @@ void newExpression::setupDerivatives_ ()
 
 // ERK.  12/26/2019. This may be refactored away later.
 // This is not the best way to do this.
-// But, I needed it for several parserUnitTests to pass, 
+// But, I needed it for several parserUnitTests to pass,
 // post-RCP refactor.
 //
 // Notes from 2/7/2020
 //
-// (1) This function had a bug in it that was not revealed until I made calling 
+// (1) This function had a bug in it that was not revealed until I made calling
 // this function mandatory when "evaluate" or "evaluateFunction" is called.
 //
-// (2) The flaw was in handling function arguments.  The "getInterestingOps" 
+// (2) The flaw was in handling function arguments.  The "getInterestingOps"
 // function was using dummy args instead of actual args.  This has been fixed now.
 //
-// (3) another flaw, which is not fixed, is that the code treats function arguments 
-// are parameters.  And even after their paramNodes are "set" by the actual args, 
-// they will still get included in the param array.  
+// (3) another flaw, which is not fixed, is that the code treats function arguments
+// are parameters.  And even after their paramNodes are "set" by the actual args,
+// they will still get included in the param array.
 //
-// (4) In principal, they don't need to be in this array, as they are function args 
-// NOT regular params such as global params, etc.  So possibly the right thing to 
-// do is create a different Op for function args.   This is not done yet.  
+// (4) In principal, they don't need to be in this array, as they are function args
+// NOT regular params such as global params, etc.  So possibly the right thing to
+// do is create a different Op for function args.   This is not done yet.
 //
-// (5) this second issue does not break the code, but adds an inefficiency and 
+// (5) this second issue does not break the code, but adds an inefficiency and
 // memory bloat.
 //
 // private function
@@ -525,24 +601,24 @@ void newExpression::setupVariousAstArrays_()
 
     if( !(Teuchos::is_null(astNodePtr_)) )
     {
-      if (astNodePtr_->paramType())   
+      if (astNodePtr_->paramType())
       {
         if ( !(astNodePtr_->getFunctionArgType()) )  // parameters are occasionally function arguments.  Don't include those
         {
-          paramOpVec_.push_back(astNodePtr_); 
+          paramOpVec_.push_back(astNodePtr_);
         }
       }
-      if (astNodePtr_->funcType())    
+      if (astNodePtr_->funcType())
       {
-        funcOpVec_.push_back(astNodePtr_); 
+        funcOpVec_.push_back(astNodePtr_);
       }
-      if (astNodePtr_->voltageType()) 
+      if (astNodePtr_->voltageType())
       {
-        voltOpVec_.push_back(astNodePtr_); 
+        voltOpVec_.push_back(astNodePtr_);
       }
-      if (astNodePtr_->currentType()) 
+      if (astNodePtr_->currentType())
       {
-        currentOpVec_.push_back(astNodePtr_); 
+        currentOpVec_.push_back(astNodePtr_);
       }
 
       astNodePtr_->getInterestingOps(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_);
@@ -555,16 +631,24 @@ void newExpression::setupVariousAstArrays_()
     {
       Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
       std::vector<std::string> & tmp = voltOp->getVoltageNodes();
-      for (int jj=0;jj<tmp.size();++jj) { voltOpNames_[tmp[jj]] = 1; }
+      for (int jj=0;jj<tmp.size();++jj)
+      {
+        voltOpNames_[tmp[jj]].push_back(voltOpVec_[ii]);
+      }
     }
 
     for (int ii=0;ii<currentOpVec_.size();++ii)
     {
       Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
       std::string tmp = currOp->getCurrentDevice();
-      currentOpNames_[tmp] = 1;
+      currentOpNames_[tmp].push_back(currentOpVec_[ii]);
     }
   }
+
+
+  // need to more thoroughly set up the specials booleans.  Check external dependencies for these nodes.
+
+
 
 #if 0
   std::cout << "Array sizes AFTER update:" <<std::endl;
@@ -609,7 +693,7 @@ void newExpression::setupVariousAstArrays_()
 //-------------------------------------------------------------------------------
 // these two functions return int error codes in the original expression library
 //-------------------------------------------------------------------------------
-int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs) 
+int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 {
   int retVal=0;
   if (parsed_)
@@ -643,7 +727,19 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
     std::cout << "Error.  Expression " << expressionString_ << " is not parsed yet" << std::endl;
   }
 
-  // old expression library returns EXPRerrno, which is a static variable.  
+  // fix these properly for std::complex later.
+  for(int ii=0;ii<derivs.size();++ii)
+  {
+    if ( isnan(std::real(derivs[ii])) )
+    {
+      derivs[ii] = 0.0;
+    }
+    if ( isinf(std::real(derivs[ii])) ) 
+    {
+      derivs[ii] = 1.0e+10; // fix this
+    }
+  }
+  // old expression library returns EXPRerrno, which is a static variable.
   // If it is zero, everything is cool.
   return retVal;
 };
@@ -651,7 +747,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
 int newExpression::evaluateFunction (usedType &result)
-{ 
+{
   int retVal=0;
   if (parsed_)
   {
@@ -679,38 +775,38 @@ int newExpression::evaluateFunction (usedType &result)
         group_->getSolutionVal(currOp->getCurrentDevice(),val);
         currOp->setCurrentVal ( val );
       }
-  
+
      // ERK. The global parameter setting here should eventually go away.
      // It is only here b/c I am trying to maintain the API to the old expression library for now.
       for (int ii=0;ii<paramOpVec_.size();++ii)
       {
-        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]); 
+        Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
 
-        // the "isVar" boolean currently serves two purposes.  
+        // the "isVar" boolean currently serves two purposes.
         //
-        // (1) if we want derivatives w.r.t. it.  
+        // (1) if we want derivatives w.r.t. it.
         //    (this meaning will probably persist after old API is gone, albeit with a different name)
         //
-        // (2) if it should be considered a dynamic variable that gets its values from the vals array.  
+        // (2) if it should be considered a dynamic variable that gets its values from the vals array.
         //    (this meaning will be obsolete later, once old API is gone)
         //
-        // The old API is set up to set *everything* thru a single std::vector of values, 
+        // The old API is set up to set *everything* thru a single std::vector of values,
         // that is passed into the expression as a function argument to the "evaluate" function.
-        // This vector includes both 
+        // This vector includes both
         //
         //
-        if ( parOp->getVar() ) 
+        if ( parOp->getVar() )
         {
           usedType val;
           group_->getGlobalParameterVal(parOp->getName(),val);
           parOp->setValue(val);
         }
-      } 
-    } 
+      }
+    }
 
     timeNodePtr_->setValue(group_->getTime());
     tempNodePtr_->setValue(group_->getTemp()); // assuming correct units.  Conversion happens in the group
-    vtNodePtr_->setValue(group_->getTemp());
+    vtNodePtr_->setValue(group_->getVT());
     freqNodePtr_->setValue(group_->getFreq());
 
     bpTol_ = group_->getBpTol();
@@ -718,7 +814,17 @@ int newExpression::evaluateFunction (usedType &result)
     timeStepAlpha_ = group_->getTimeStepAlpha ();
     timeStepPrefac_ = group_->getTimeStepPrefac ();
 
-    result = astNodePtr_->val(); 
+    result = astNodePtr_->val();
+
+    // ERK: fix this failsafe properly for std::complex 
+    if (isnan(std::real(result)))
+    {
+      result = 0.0;
+    }
+    if (isinf(std::real(result)))
+    {
+      result = 1.0e+20; // ERK fix this
+    }
   }
   else
   {

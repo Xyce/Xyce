@@ -189,6 +189,8 @@ public:
 
   void addFunction (const std::string & name, Xyce::Util::newExpression & exp);
 
+  const std::vector<std::string> & getNames() { return names_; }
+
 private:
 
   // don't know if these are best way ...

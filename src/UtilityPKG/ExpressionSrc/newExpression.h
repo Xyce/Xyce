@@ -13,7 +13,7 @@
 // trilinos includes
 #include <Teuchos_RCP.hpp>
 
-// Xyce includes.  
+// Xyce includes.
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_Interface_Enum_Types.h>
 
@@ -66,11 +66,19 @@ public:
     astArraysSetup_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
+    bpTol_(0.0),
+    timeStep_(0.0),
+    timeStepAlpha_(0.0),
+    timeStepPrefac_(0.0),
     numDerivs_(0),
     traditionalParse_(true),
-    externalDependencies_(false)
+    externalDependencies_(false),
+    isTimeDepdendent_(false),
+    isTempDepdendent_(false),
+    isVTDepdendent_(false),
+    isFreqDepdendent_(false)
   {
-    // The bison file is officially case-insensitive.  So converting the 
+    // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
     //
     // However:
@@ -79,8 +87,8 @@ public:
     // So, when the code outside of bison code interacts with it, Bison will not
     // have converted it to upper or lower case.  It will be the original case,
     // whatever that was in the netlist.
-    // 
-    // The simplest, easiest way to make all of this work is to simply 
+    //
+    // The simplest, easiest way to make all of this work is to simply
     // upcase the whole string.
     //
     Xyce::Util::toUpper(expressionString_);
@@ -105,9 +113,17 @@ public:
     astArraysSetup_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
+    bpTol_(0.0),
+    timeStep_(0.0),
+    timeStepAlpha_(0.0),
+    timeStepPrefac_(0.0),
     numDerivs_(0),
     traditionalParse_(false),
-    externalDependencies_(false)
+    externalDependencies_(false),
+    isTimeDepdendent_(false),
+    isTempDepdendent_(false),
+    isVTDepdendent_(false),
+    isFreqDepdendent_(false)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -125,7 +141,7 @@ public:
 
   // another "big table" constructor
   newExpression (Teuchos::RCP<astNode<usedType> > & left,
-      const std::vector<usedType> & xvals, const std::vector<usedType> & yvals, 
+      const std::vector<usedType> & xvals, const std::vector<usedType> & yvals,
       Teuchos::RCP<baseExpressionGroup> & group ) :
     group_(group),
     expressionString_("TIME"),
@@ -134,9 +150,17 @@ public:
     astArraysSetup_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
+    bpTol_(0.0),
+    timeStep_(0.0),
+    timeStepAlpha_(0.0),
+    timeStepPrefac_(0.0),
     numDerivs_(0),
     traditionalParse_(false),
-    externalDependencies_(false)
+    externalDependencies_(false),
+    isTimeDepdendent_(false),
+    isTempDepdendent_(false),
+    isVTDepdendent_(false),
+    isFreqDepdendent_(false)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -186,11 +210,19 @@ public:
     currentOpVec_(right.currentOpVec_),
     unresolvedCurrentOpVec_(right.unresolvedCurrentOpVec_),
     currentOpNames_(right.currentOpNames_),
+    bpTol_(right.bpTol_),
+    timeStep_(right.timeStep_),
+    timeStepAlpha_(right.timeStepAlpha_),
+    timeStepPrefac_(right.timeStepPrefac_),
     derivIndexVec_ (right.derivIndexVec_),
     derivNodeIndexMap_(right.derivNodeIndexMap_),
     numDerivs_(right.numDerivs_),
     traditionalParse_(right.traditionalParse_),
-    externalDependencies_(right.externalDependencies_)
+    externalDependencies_(right.externalDependencies_),
+    isTimeDepdendent_(right.isTimeDepdendent_),
+    isTempDepdendent_(right.isTempDepdendent_),
+    isVTDepdendent_(right.isVTDepdendent_),
+    isFreqDepdendent_(right.isFreqDepdendent_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -246,11 +278,22 @@ public:
     currentOpVec_ = right.currentOpVec_;
     currentOpNames_ = right.currentOpNames_;
     unresolvedCurrentOpVec_ = right.unresolvedCurrentOpVec_;
+
+    bpTol_ = right.bpTol_;
+    timeStep_ = right.timeStep_;
+    timeStepAlpha_ = right.timeStepAlpha_;
+    timeStepPrefac_ = right.timeStepPrefac_;
+
     derivIndexVec_ = right.derivIndexVec_;
     derivNodeIndexMap_ = right.derivNodeIndexMap_;
     numDerivs_ = right.numDerivs_;
     traditionalParse_ = right.traditionalParse_;
     externalDependencies_ = right.externalDependencies_;
+
+    isTimeDepdendent_ = right.isTimeDepdendent_;
+    isTempDepdendent_ = right.isTempDepdendent_;
+    isVTDepdendent_ = right.isVTDepdendent_;
+    isFreqDepdendent_ = right.isFreqDepdendent_;
 
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -314,11 +357,13 @@ public:
 
   void resolveExpression();
 
+  void clear(); // reset expression to the state it should be before lexAndParseExpression
+
   bool parsed() const { return parsed_; };
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
 
-  bool set(std::string const & exp); // is this needed?  
+  void setExpressionString (std::string const & exp)  { expressionString_ = exp; }
 
   bool make_constant (std::string const & var, usedType const & val);
   bool make_var (std::string const & var);
@@ -327,10 +372,10 @@ public:
   {
     for (int ii=0;ii<paramOpVec_.size();++ii)
     {
-      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]); 
+      Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
       if ( parOp->getVar() )
       {
-        names.push_back( parOp->getName() ); 
+        names.push_back( parOp->getName() );
       }
     }
   };
@@ -341,7 +386,7 @@ public:
   int evaluate (usedType &result, std::vector< usedType > &derivs);
   int evaluateFunction (usedType &result);
 
-  void dumpParseTree(std::ostream & os) { astNodePtr_->output(os); }
+  void dumpParseTree(std::ostream & os) { if ( !(Teuchos::is_null(astNodePtr_)) ){astNodePtr_->output(os); }}
 
   bool getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes )
   {
@@ -360,9 +405,9 @@ public:
   Teuchos::RCP<astNode<usedType> > getPiNode () { return piNodePtr_; }
 
   // some of the parameter and function objects are stored in multiple containers.
-  void setFunctionArgStringVec (const std::vector<std::string> & args) 
-  { 
-    functionArgStringVec_ = args; 
+  void setFunctionArgStringVec (const std::vector<std::string> & args)
+  {
+    functionArgStringVec_ = args;
     int size = functionArgStringVec_.size();
     for (int ii=0;ii<size;ii++)
     {
@@ -384,18 +429,18 @@ public:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getVoltOpVec () { return voltOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
-  const std::unordered_map<std::string,int> & getVoltOpNames () 
-  { 
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getVoltOpNames ()
+  {
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
-    return voltOpNames_; 
+    return voltOpNames_;
   };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
-  const std::unordered_map<std::string,int> & getCurrentOpNames () 
-  { 
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
+  {
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
-    return currentOpNames_; 
+    return currentOpNames_;
   };
 
   void codeGen( std::ostream & os ) { astNodePtr_->codeGen(os); os << ";" <<std::endl; };
@@ -408,6 +453,21 @@ public:
   void setVar(const std::string & var);
 
   int differentiate ();
+
+  double getTime() { return timeNodePtr_->val(); };
+
+  bool getTimeDependent() { return isTimeDepdendent_; }
+  void setTimeDependent(bool val) { isTimeDepdendent_ = val; }
+
+  bool getTempDependent() { return isTempDepdendent_; }
+  void setTempDependent(bool val) { isTempDepdendent_ = val; }
+
+  bool getVTDependent() { return isVTDepdendent_; }
+  void setVTDependent(bool val) { isVTDepdendent_ = val; }
+
+  bool getFreqDependent() { return isFreqDepdendent_; }
+  void setFreqDependent(bool val) { isFreqDepdendent_ = val; }
+
 
 private:
   void setupDerivatives_ ();
@@ -438,11 +498,11 @@ private:
 
   std::vector<Teuchos::RCP<astNode<usedType> > > voltOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedVoltOpVec_;
-  std::unordered_map<std::string,int> voltOpNames_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > voltOpNames_;
 
   std::vector<Teuchos::RCP<astNode<usedType> > > currentOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedCurrentOpVec_;
-  std::unordered_map<std::string,int> currentOpNames_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpNames_;
 
   // master vector of nodes.  This is only used for deleting the ast tree in
   // the destructor.  The tree should be deleted by marching down the
@@ -475,6 +535,11 @@ private:
 
   bool traditionalParse_;
   bool externalDependencies_; // true if expression includes a call to a .func, .param or .global_param
+
+  bool isTimeDepdendent_;
+  bool isTempDepdendent_;
+  bool isVTDepdendent_;
+  bool isFreqDepdendent_;
 };
 
 }

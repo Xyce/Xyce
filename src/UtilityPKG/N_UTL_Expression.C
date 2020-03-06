@@ -45,6 +45,7 @@
 #include <iterator>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 
 #include <sstream> 
 // ----------   Xyce Includes   ----------
@@ -75,23 +76,23 @@ Expression::Expression( const std::string & exp, bool useNew )
 
   if(useNewExpressionLibrary_)
   {
-    if (exp!=std::string(""))
-    {
-      Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
-      grp_ = xyceGroup;
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
+    grp_ = xyceGroup;
 
-      // ERK; removing the beginning and ending brace should really be handled by flex/bison, 
-      // but I was in a hurry today.
-      std::string expCopy = exp;
+    // ERK; removing the beginning and ending brace should really be handled by flex/bison, 
+    // but I was in a hurry today.
+    std::string expCopy = exp;
+    if ( !(expCopy.empty()))
+    {
       if (expCopy[0]== '{' && expCopy[expCopy.size()-1]=='}')
       {
         expCopy.erase(0,1);// lop off open curly brace
         expCopy.erase(expCopy.length()-1); // lop off close curly brace
       }
-
-      newExpPtr_ = new newExpression(expCopy, grp_);
-      newExpPtr_->lexAndParseExpression();
     }
+
+    newExpPtr_ = new newExpression(expCopy, grp_);
+    newExpPtr_->lexAndParseExpression();
   }
   else
   {
@@ -205,7 +206,29 @@ bool Expression::set ( const std::string & exp )
 
   if(useNewExpressionLibrary_)
   {
-    retVal = newExpPtr_->set (exp);
+    std::string expCopy = exp;
+
+    if ( !(expCopy.empty()))
+    {
+      if (expCopy[0]== '{' && expCopy[expCopy.size()-1]=='}')
+      {
+        expCopy.erase(0,1);// lop off open curly brace
+        expCopy.erase(expCopy.length()-1); // lop off close curly brace
+      }
+    }
+
+    if (newExpPtr_)
+    {
+      newExpPtr_->clear();
+      newExpPtr_->setExpressionString (expCopy);
+    }
+    else
+    {
+      Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
+      grp_ = xyceGroup;
+      newExpPtr_ = new newExpression(expCopy, grp_);
+    }
+    newExpPtr_->lexAndParseExpression();
   }
   else
   {
@@ -304,9 +327,11 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
 {
   if(useNewExpressionLibrary_)
   {
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+
     switch (type)
     {
-      case XEXP_ALL:
+      case XEXP_ALL:  // ERK.  I don't think this one gets called by anyone
         break;
 
       case XEXP_NODE:
@@ -338,7 +363,7 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         }
         break;
 
-      case XEXP_LEAD:
+      case XEXP_LEAD: // ERK.  I haven't figured this out yet, but need to.
         break;
 
       case XEXP_STRING: // for some mysterious reason, this means params and global_params
@@ -353,10 +378,15 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         }
         break;
 
-      case XEXP_SPECIAL:
+      case XEXP_SPECIAL: // ERK.  This doesn't yet track external specials dependencies
+        if (newExpPtr_->getTimeDependent()) { names.push_back(std::string("TIME")); }
+        if (newExpPtr_->getTempDependent()) { names.push_back(std::string("TEMP")); }
+        if (newExpPtr_->getVTDependent()) { names.push_back(std::string("VT")); }
+        if (newExpPtr_->getFreqDependent()) { names.push_back(std::string("FREQ")); }
         break;
 
       case XEXP_VARIABLE:
+        names.insert(names.end(),(xyceGroup->getNames()).begin(), (xyceGroup->getNames()).end());
         break;
 
       case XEXP_FUNCTION:
@@ -381,6 +411,14 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         break;
 
     }
+
+#if 0
+    for(int ii=0;ii<names.size();++ii)
+    {
+      std::cout << "N_UTL_Expression::get_names:  names["<<ii<<"] = " << names[ii] << std::endl;
+    }
+#endif
+
   }
   else
   {
@@ -405,8 +443,8 @@ int Expression::get_type ( const std::string & var )
     std::string tmpName = var;
     Xyce::Util::toUpper(tmpName);
 
-    const std::unordered_map<std::string,int> & voltMap = newExpPtr_->getVoltOpNames ();
-    const std::unordered_map<std::string,int> & currMap = newExpPtr_->getCurrentOpNames ();
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
+    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
 
     if ( voltMap.find(tmpName) != voltMap.end() )
     {
@@ -942,6 +980,66 @@ double Expression::get_break_time()
   double retVal=0.0; 
   if(useNewExpressionLibrary_)
   {
+    //newExpPtr_->evaluate
+    // ERK. Note, I shouldn't have to process this list of BP at all, if the API was any good.
+    // The API should simply request this vector of breakpoints, and I should return it.
+    std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+    newExpPtr_->getBreakPoints ( breakPointTimes );
+#if 0
+    Xyce::Util::BreakPointLess breakPointLess_ = Xyce::Util::BreakPoint::defaultTolerance_;
+    std::sort ( breakPointTimes.begin(), breakPointTimes.end(), breakPointLess_ );
+    std::vector<Xyce::Util::BreakPoint>::iterator it = std::unique ( breakPointTimes.begin(), breakPointTimes.end());
+    breakPointTimes.resize( std::distance (breakPointTimes.begin(), it ));
+#endif
+
+    // ERK. This is a total kludge.  This really should just be 
+    // replaced by a "getBreakPoints(std::vector<breakpoint> & bpVec)" 
+    // call that follows the same patterns as all the other getBreakPoints calls 
+    // throughout Xyce (especially in device package).
+    //
+    // Having logic here to pull out a single BP is silly.  There is better logic 
+    // for that sort of thing in the time integrator.
+    //
+    // Part of the reason for this (bad) structure is that the old expression library
+    // doesn't setup breakpoints in a smart way.  There are no sources in the old
+    // library that have precomputed formula for breakpoints. (unlike the spice 
+    // sources in the device package).  Instead, it "solves" for when the next 
+    // breakpoint should be, using a Newton-ish loop.  It does this for *all* 
+    // time-dependent expressions, no matter what the nature of their 
+    // time dependence.  It does have the benefit of identifying discontinuities 
+    // in functions like "STP" (the step function) which do not have set breakpoint times.
+    // But it is silly to apply it to things like the PWL or PULSE source, which are sources
+    // with known, fixed breakpoints.
+    //
+    // I should probably attempt to apply the Newton-ish loop to functions like STP, 
+    // however.  I had not considered that.
+    //
+    // Another issue; for time-dependent expressions that do *not* have any 
+    // solution variable dependence, Bsrc's have some hidden (weird) behavior.
+    // In the Bsrc, if the numExtVars==0, then the evaluate function is not called
+    // on the primary expression.  At all.    But, somehow, mysteriously, it gets 
+    // updated.  
+    //
+    // Follow up: I think I just figured this out.  The Bsrc has 2 expression-dependent parameters: V and I.
+    // If the core expression does NOT depend on solution variables, then the expression value is simply 
+    // set to V or I (depending our src type).   V and/or I are updated during the more 
+    // global "updateDependentParams" call, using an "evaluateFunction" call.  If there are no solution vars,
+    // then this is sufficient.  However, if there *are* solution vars, then derivatives are needed,
+    // so, then device takes over and calls "evaluate" prior to and/or during the load functions.
+    //
+    double simTime = newExpPtr_->getTime();
+    int size = breakPointTimes.size();
+    double min = 1.0e+99;
+    for (int ii=0;ii<size;++ii)
+    {
+      double bpTime = breakPointTimes[ii].value();
+      double delta = bpTime-simTime;
+      if (delta > 0.0 && delta < min)
+      {
+        min = delta;
+        retVal = bpTime;
+      }
+    }
   }
   else
   {
@@ -1080,6 +1178,7 @@ int Expression::replace_var(
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+    std::cout << "NOTE:  replace_var (expr version) just got called on " << var_name <<std::endl;
   }
   else
   {
@@ -1106,6 +1205,7 @@ int Expression::replace_var (std::string const & var_name,
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+    std::cout << "NOTE:  replace_var (op version) just got called on " << var_name <<std::endl;
   }
   else
   {
@@ -1147,6 +1247,56 @@ bool Expression::replace_name ( const std::string & old_name,
   bool retVal=false; 
   if(useNewExpressionLibrary_)
   {
+    std::cout << "NOTE:  replace_name just got called on " << old_name << " to now be " << new_name <<std::endl;
+
+    bool found=false;
+    {
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
+
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltMap.find(old_name);
+
+    if (iter != voltMap.end())
+    {
+      std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
+
+      for(int ii=0;ii<astVec.size();++ii)
+      {
+        Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (astVec[ii]);
+        std::vector<std::string> & nodes = voltOp->getVoltageNodes();
+        for(int jj=0;jj<nodes.size();++jj)
+        {
+          if(nodes[jj]==old_name)
+          {
+            nodes[jj] = new_name;
+          }
+        }
+      }
+      voltMap[new_name] = astVec;
+      voltMap.erase(old_name);
+      found=true;
+    }
+    }
+
+    if(!found)
+    {
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
+    std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = currMap.find(old_name);
+
+    if (iter != currMap.end())
+    {
+      std::vector<Teuchos::RCP<astNode<usedType> > > & astVec = iter->second;
+
+      for(int ii=0;ii<astVec.size();++ii)
+      {
+        Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (astVec[ii]);
+        currOp->setCurrentDevice(new_name);
+      }
+
+      currMap[new_name] = astVec;
+      currMap.erase(old_name);
+      found=true;
+    }
+    }
   }
   else
   {
@@ -1257,7 +1407,8 @@ bool Expression::isTimeDependent() const
 {
   if(useNewExpressionLibrary_)
   {
-    return false;
+    //return false;
+    return true;
   }
   else
   {
