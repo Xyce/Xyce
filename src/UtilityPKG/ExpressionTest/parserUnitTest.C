@@ -2860,6 +2860,136 @@ TEST ( Double_Parser_STP_Test, test2)
   EXPECT_EQ( result, refRes);
 }
 
+
+TEST ( Double_Parser_atan2_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("atan2(V(A),V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=0.5, Bval=0.25;
+  double refRes = std::atan2(Aval,Bval);
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+
+  std::vector<double> derivs;
+
+  double denom = Aval*Aval+Bval*Bval;
+  std::vector<double> refderivs = { (Bval/denom), (-Aval/denom) };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
+
+TEST ( Double_Parser_atan2_Test, test2)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("atan2(V(A),V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=0.5, Bval=-0.25;
+  double refRes = std::atan2(Aval,Bval);
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+
+  std::vector<double> derivs;
+
+  double denom = Aval*Aval+Bval*Bval;
+  std::vector<double> refderivs = { (Bval/denom), (-Aval/denom) };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
+TEST ( Double_Parser_atan2_Test, test3)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("atan2(V(A),V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=-0.5, Bval=0.25;
+  double refRes = std::atan2(Aval,Bval);
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+
+  std::vector<double> derivs;
+
+  double denom = Aval*Aval+Bval*Bval;
+  std::vector<double> refderivs = { (Bval/denom), (-Aval/denom) };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
+TEST ( Double_Parser_atan2_Test, test4)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("atan2(V(A),V(B))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=-0.5, Bval=-0.25;
+  double refRes = std::atan2(Aval,Bval);
+  solnGroup->setSoln(std::string("A"),Aval);
+  solnGroup->setSoln(std::string("B"),Bval);
+
+  std::vector<double> derivs;
+
+  double denom = Aval*Aval+Bval*Bval;
+  std::vector<double> refderivs = { (Bval/denom), (-Aval/denom) };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
 int main (int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);
