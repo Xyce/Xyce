@@ -224,7 +224,9 @@ NODE [a-zA-Z0-9_:]*
 <INITIAL>"acosh" { return XyceExpression::ExpressionParser::token::TOK_ACOSH; }
 <INITIAL>"asin"  { return XyceExpression::ExpressionParser::token::TOK_ASIN; }
 <INITIAL>"asinh" { return XyceExpression::ExpressionParser::token::TOK_ASINH; }
+<INITIAL>"arctan"  { return XyceExpression::ExpressionParser::token::TOK_ATAN; }
 <INITIAL>"atan"  { return XyceExpression::ExpressionParser::token::TOK_ATAN; }
+<INITIAL>"atan2"  { return XyceExpression::ExpressionParser::token::TOK_ATAN2; }
 <INITIAL>"atanh" { return XyceExpression::ExpressionParser::token::TOK_ATANH; }
 <INITIAL>"cosh"  { return XyceExpression::ExpressionParser::token::TOK_COSH; }
 <INITIAL>"ln"    { return XyceExpression::ExpressionParser::token::TOK_LN; }     /* Xyce version of ln */

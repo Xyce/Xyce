@@ -253,6 +253,57 @@ class powOp : public astNode<ScalarT>
 };
 
 //-------------------------------------------------------------------------------
+// atan2(y,x) operator
+template <typename ScalarT>
+class atan2Op : public astNode<ScalarT>
+{
+  public:
+    atan2Op (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
+      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
+    {
+      rightConst_ = this->rightAst_->numvalType();
+      leftConst_ = this->leftAst_->numvalType();
+    };
+
+    virtual ScalarT val() { return std::atan2(this->leftAst_->val(), this->rightAst_->val());}
+
+    virtual ScalarT dx (int i)
+    {
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      ScalarT retVal = 0.0;
+
+      if (rightConst_ && !leftConst_) { retVal = (rig->val()*lef->dx(i))/ (lef->val()*lef->val() + rig->val()*rig->val()); }
+      else if (!rightConst_ && leftConst_) { retVal = (-lef->val()*rig->dx(i)) / (lef->val()*lef->val() + rig->val()*rig->val()); }
+      else { retVal = (rig->val()*lef->dx(i) - lef->val()*rig->dx(i))/ (lef->val()*lef->val() + rig->val()*rig->val()) ; }
+      return  retVal;
+    }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "atan2 operator " << std::endl;
+      ++indent;
+      this->leftAst_->output(os,indent+1);
+      this->rightAst_->output(os,indent+1);
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      os << "std::atan2(";
+      this->leftAst_->codeGen(os);
+      os << ",";
+      this->rightAst_->codeGen(os);
+      os << ")";
+    }
+
+  private:
+    bool rightConst_;
+    bool leftConst_;
+
+};
+
+//-------------------------------------------------------------------------------
 // phase operator
 template <typename ScalarT>
 class phaseOp : public astNode<ScalarT>
