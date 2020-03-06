@@ -2742,22 +2742,21 @@ TEST ( Double_Parser_ASCTH_Test, test0)
   Xyce::Util::newExpression testExpression(std::string("cosh(V(A))"), testGroup);
   testExpression.lexAndParseExpression();
 
-  //Xyce::Util::newExpression copyExpression(testExpression); 
-  //Xyce::Util::newExpression assignExpression; 
-  //assignExpression = testExpression; 
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
 
   double result=0.0, Aval=-10.0;
   double refRes = std::cosh(-10.0);
-  std::cout << "refRes = " << refRes <<std::endl;
   solnGroup->setSoln(std::string("A"),Aval);
 
   std::vector<double> derivs;
   testExpression.evaluate(result, derivs);   
-  std::cout << "derivs[0] = " << derivs[0] <<std::endl;
   EXPECT_EQ( result, refRes);
-
-  //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
-  //assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
 }
 
 TEST ( Double_Parser_ASCTH_Test, test1)
@@ -2767,24 +2766,99 @@ TEST ( Double_Parser_ASCTH_Test, test1)
   Xyce::Util::newExpression testExpression(std::string("acosh(cosh(V(A)))"), testGroup);
   testExpression.lexAndParseExpression();
 
-  //Xyce::Util::newExpression copyExpression(testExpression); 
-  //Xyce::Util::newExpression assignExpression; 
-  //assignExpression = testExpression; 
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
 
   double result=0.0, Aval=-10.0;
   double refRes = std::acosh(std::cosh(-10.0));
-  std::cout << "refRes = " << refRes <<std::endl;
   solnGroup->setSoln(std::string("A"),Aval);
 
   std::vector<double> derivs;
   testExpression.evaluate(result, derivs);   
-  std::cout << "derivs[0] = " << derivs[0] <<std::endl;
   EXPECT_EQ( result, refRes);
-
-  //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
-  //assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  copyExpression.evaluate(result,derivs);   
+  EXPECT_EQ( result, refRes);
+  assignExpression.evaluate(result,derivs); 
+  EXPECT_EQ( result, refRes);
 }
 
+TEST ( Double_Parser_ASCTH_Test, test2)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("acosh(cosh(V(A)))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=0.0;
+  double refRes = std::acosh(std::cosh(0.0));
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  // this double checks if the derivatives are NOT Nan.
+  std::vector<double> derivs;
+  std::vector<double> refderivs = {0.0};
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
+TEST ( Double_Parser_STP_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("stp(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=2.0;
+  double refRes = 1.0;
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<double> derivs;
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+}
+
+TEST ( Double_Parser_STP_Test, test2)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("stp(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=-2.0;
+  double refRes = 0.0;
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<double> derivs;
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+}
 
 int main (int argc, char **argv)
 {
