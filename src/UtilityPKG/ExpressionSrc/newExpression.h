@@ -454,7 +454,7 @@ public:
 
   int differentiate ();
 
-  double getTime() { return timeNodePtr_->val(); };
+  double getTime() { return std::real(timeNodePtr_->val()); };
 
   bool getTimeDependent() { return isTimeDepdendent_; }
   void setTimeDependent(bool val) { isTimeDepdendent_ = val; }

@@ -94,7 +94,8 @@ PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, asinh, "asinh(0.5)", std
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, atan,  "atan(0.5)", std::atan(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, atanh, "atanh(0.5)", std::atanh(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, cosh,  "cosh(0.5)", std::cosh(std::complex<double>(0.5,0.0)))
-PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log(std::complex<double>(0.5,0.0)))
+//PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log(std::complex<double>(0.5,0.0)))
+PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log10(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, log10, "log10(0.5)", std::log10(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, sinh,  "sinh(0.5)", std::sinh(std::complex<double>(0.5,0.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_UnaryFunc_Test, tan,   "tan(0.5)", std::tan(std::complex<double>(0.5,0.0)))
@@ -2707,6 +2708,122 @@ TEST ( Complex_Parser_Param_Test, V )
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, vVal*vVal*resVal );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, vVal*vVal*resVal );
 }
+
+#if 1
+TEST ( Complex_Parser_ASCTH_Test, test0)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("cosh(V(A))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, Aval=-10.0;
+  std::complex<double> refRes = std::cosh(Aval);
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > derivs;
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+}
+
+TEST ( Complex_Parser_ASCTH_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("acosh(cosh(V(A)))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, Aval=-10.0;
+  std::complex<double> refRes = std::acosh(std::cosh(Aval));
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<std::complex<double> > derivs;
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  copyExpression.evaluate(result,derivs);   
+  EXPECT_EQ( result, refRes);
+  assignExpression.evaluate(result,derivs); 
+  EXPECT_EQ( result, refRes);
+}
+
+TEST ( Complex_Parser_ASCTH_Test, test2)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("acosh(cosh(V(A)))"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, Aval=0.0;
+  std::complex<double> refRes = std::acosh(std::cosh(0.0));
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  // this double checks if the derivatives are NOT Nan.
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refderivs = { std::complex<double>(0.0,0.0) };
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
+
+TEST ( Complex_Parser_TwoNodeDeriv_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("V(A,B)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //testExpression.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0, vAval=5.0, vBval=1.0;
+
+  solnGroup->setSoln(std::string("A"),vAval);
+  solnGroup->setSoln(std::string("B"),vBval);
+
+  std::complex<double> refRes = (vAval-vBval);
+
+  std::vector<std::complex<double> > derivs;
+  std::vector<std::complex<double> > refderivs = { 1, -1 };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
+#endif
+
 
 int main (int argc, char **argv)
 {

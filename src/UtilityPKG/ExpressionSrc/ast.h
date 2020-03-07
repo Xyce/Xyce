@@ -265,7 +265,7 @@ class atan2Op : public astNode<ScalarT>
       leftConst_ = this->leftAst_->numvalType();
     };
 
-    virtual ScalarT val() { return std::atan2(this->leftAst_->val(), this->rightAst_->val());}
+    virtual ScalarT val() { return std::atan2(std::real(this->leftAst_->val()), std::real(this->rightAst_->val()));}
 
     virtual ScalarT dx (int i)
     {

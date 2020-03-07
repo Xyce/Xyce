@@ -93,7 +93,8 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, asinh, "asinh(0.5)", std:
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, atan,  "atan(0.5)", std::atan(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, atanh, "atanh(0.5)", std::atanh(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, cosh,  "cosh(0.5)", std::cosh(0.5))
-PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log(0.5))
+//PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log(0.5))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log10(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log10, "log10(0.5)", std::log10(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, sinh,  "sinh(0.5)", std::sinh(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, tan,   "tan(0.5)", std::tan(0.5))
@@ -3080,9 +3081,9 @@ TEST ( Double_Parser_poly_Test, test3)
 
   //testExpression.dumpParseTree(std::cout);
 
-  //Xyce::Util::newExpression copyExpression(testExpression); 
-  //Xyce::Util::newExpression assignExpression; 
-  //assignExpression = testExpression; 
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
 
   double result=0.0, vAval=5.0, vBval=1.0, vCval=2.0;
 
@@ -3099,12 +3100,12 @@ TEST ( Double_Parser_poly_Test, test3)
   testExpression.evaluate(result, derivs);   
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  //copyExpression.evaluate(result, derivs);   
-  //EXPECT_EQ( result, refRes);
-  //EXPECT_EQ( derivs, refderivs);
-  //assignExpression.evaluate(result, derivs); 
-  //EXPECT_EQ( result, refRes);
-  //EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
 }
 
 TEST ( Double_Parser_poly_Test, test4)
@@ -3116,9 +3117,9 @@ TEST ( Double_Parser_poly_Test, test4)
 
   //testExpression.dumpParseTree(std::cout);
 
-  //Xyce::Util::newExpression copyExpression(testExpression); 
-  //Xyce::Util::newExpression assignExpression; 
-  //assignExpression = testExpression; 
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
 
   double result=0.0, vAval=5.0, vBval=1.0;
 
@@ -3133,12 +3134,12 @@ TEST ( Double_Parser_poly_Test, test4)
   testExpression.evaluate(result, derivs);   
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  //copyExpression.evaluate(result, derivs);   
-  //EXPECT_EQ( result, refRes);
-  //EXPECT_EQ( derivs, refderivs);
-  //assignExpression.evaluate(result, derivs); 
-  //EXPECT_EQ( result, refRes);
-  //EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
 }
 
 
@@ -3151,9 +3152,9 @@ TEST ( Double_Parser_TwoNodeDeriv_Test, test1)
 
   //testExpression.dumpParseTree(std::cout);
 
-  //Xyce::Util::newExpression copyExpression(testExpression); 
-  //Xyce::Util::newExpression assignExpression; 
-  //assignExpression = testExpression; 
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
 
   double result=0.0, vAval=5.0, vBval=1.0;
 
@@ -3168,12 +3169,12 @@ TEST ( Double_Parser_TwoNodeDeriv_Test, test1)
   testExpression.evaluate(result, derivs);   
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  //copyExpression.evaluate(result, derivs);   
-  //EXPECT_EQ( result, refRes);
-  //EXPECT_EQ( derivs, refderivs);
-  //assignExpression.evaluate(result, derivs); 
-  //EXPECT_EQ( result, refRes);
-  //EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
 }
 
 int main (int argc, char **argv)
