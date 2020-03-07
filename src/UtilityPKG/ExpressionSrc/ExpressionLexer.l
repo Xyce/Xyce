@@ -269,6 +269,7 @@ NODE [a-zA-Z0-9_:]*
 <INITIAL>"sqrt"  {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
 <INITIAL>"table" {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
 <INITIAL>"uramp" {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
+<INITIAL>"poly"  {return XyceExpression::ExpressionParser::token::TOK_POLY; }
 
  /* a bunch of spice source functions.  Doing them the right way this time */
 <INITIAL>"spice_pulse" {return XyceExpression::ExpressionParser::token::TOK_SPICE_PULSE; }

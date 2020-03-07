@@ -31,7 +31,7 @@ ExpressionLexer.cxx: ../ExpressionSrc/ExpressionLexer.l  ../ExpressionSrc/ast.h 
 	$(FLEX) -i -+ --prefix=exp  -o ExpressionLexer.cxx ../ExpressionSrc/ExpressionLexer.l
 
 ExpressionParser.cxx: ../ExpressionSrc/ExpressionParser.yxx  ../ExpressionSrc/ast.h ../ExpressionSrc/astfuncs.h ../ExpressionSrc/astbinary.h ../ExpressionSrc/astcomp.h ../ExpressionSrc/ast_spice_src.h ../ExpressionSrc/ExpressionType.h ../N_UTL_Interpolators.h
-	$(BISON) --graph -o$@ ../ExpressionSrc/ExpressionParser.yxx
+	$(BISON) --graph -v -o$@ ../ExpressionSrc/ExpressionParser.yxx
 
 ExpressionLexer.o: ExpressionLexer.cxx
 	$(CXX) $(CXXFLAGS) -c $<

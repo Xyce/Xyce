@@ -410,7 +410,6 @@ void newExpression::setupDerivatives_ ()
 
     for (int ii=0;ii<voltOpVec_.size();ii++)
     {
-
       Teuchos::RCP<voltageOp<usedType> > voltOp = Teuchos::rcp_static_cast<voltageOp<usedType> > (voltOpVec_[ii]);
       std::vector<std::string> & nodes = voltOp->getVoltageNodes();
 
@@ -419,16 +418,26 @@ void newExpression::setupDerivatives_ ()
         std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
         std::unordered_map<std::string, int>::iterator mapIter;
         mapIter = derivNodeIndexMap_.find(tmp);
-        if (mapIter == derivNodeIndexMap_.end())
-        {
-          derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++;
-        }
-        derivIndexPair_ voltNodePair(voltOpVec_[ii],derivNodeIndexMap_[tmp]);
-        derivIndexVec_.push_back(voltNodePair);
+        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
+        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
       }
       else
       {
         std::cout << "ERROR. derivatives not correct for 2-node V(A,B) specification" <<std::endl;
+#if 0
+        // first node:      
+        std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
+        std::unordered_map<std::string, int>::iterator mapIter;
+        mapIter = derivNodeIndexMap_.find(tmp);
+        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
+        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
+
+        // second node:      
+        tmp = nodes[1]; Xyce::Util::toUpper(tmp);
+        mapIter = derivNodeIndexMap_.find(tmp);
+        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
+        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
+#endif
       }
     }
 

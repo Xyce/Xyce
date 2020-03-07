@@ -2990,6 +2990,123 @@ TEST ( Double_Parser_atan2_Test, test4)
   EXPECT_EQ( derivs, refderivs);
 }
 
+//
+TEST ( Double_Parser_poly_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("POLY(1) V(A) 1.0 2.0"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //testExpression.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=5.0;
+  solnGroup->setSoln(std::string("A"),Aval);
+  double refRes = 1.0 + 2.0*Aval;
+
+  std::vector<double> derivs;
+  std::vector<double> refderivs = { 2.0 };
+
+  testExpression.evaluate(result, derivs);
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
+
+// poly test taken from amp_mod.cir
+//
+// BAM = 0 + 0*V(10) + 0*V(20) + 0*V(10)^2 + 1*V(10)*V(20) 
+//
+TEST ( Double_Parser_poly_Test, test2)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("POLY(2) V(A) V(B) 0 0 0 0 1 "), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //testExpression.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, vAval=5.0, vBval=1.0;
+
+  solnGroup->setSoln(std::string("A"),vAval);
+  solnGroup->setSoln(std::string("B"),vBval);
+
+  double refRes = vAval*vBval;
+
+  std::vector<double> derivs;
+  std::vector<double> refderivs = {  vBval, vAval };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+}
+
+
+// poly test taken from polyg.cir
+//
+// G1 8 9 POLY(2) 8 9 1 0  0 0 0 0 1
+//
+// this translates to:  POLY(2) V(8,9) V(1) 0 0 0 0 1
+//
+// And this means:
+// G1 = V(8,9)*V(1)
+//
+TEST ( Double_Parser_poly_Test, test3)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("POLY(2) V(A,B) V(C) 0 0 0 0 1 "), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //testExpression.dumpParseTree(std::cout);
+
+  //Xyce::Util::newExpression copyExpression(testExpression); 
+  //Xyce::Util::newExpression assignExpression; 
+  //assignExpression = testExpression; 
+
+  double result=0.0, vAval=5.0, vBval=1.0, vCval=2.0;
+
+  solnGroup->setSoln(std::string("A"),vAval);
+  solnGroup->setSoln(std::string("B"),vBval);
+  solnGroup->setSoln(std::string("C"),vCval);
+
+  double refRes = (vAval-vBval)*vCval;
+
+  std::vector<double> derivs;
+  std::vector<double> refderivs = { (vAval)*vCval, (-vBval)*vCval, (vAval-vBval) };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  //copyExpression.evaluate(result, derivs);   
+  //EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+  //assignExpression.evaluate(result, derivs); 
+  //EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+}
+
+
 int main (int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);

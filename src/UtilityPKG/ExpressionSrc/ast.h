@@ -146,7 +146,7 @@ class astNode
     }
 
     // func Ops are operators of class funcOp.
-    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector) 
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
     {
       if( !(Teuchos::is_null(leftAst_)) )
       {
@@ -628,22 +628,22 @@ class numval<std::complex<double>> : public astNode<std::complex<double>>
 //
 // This is the parameter Op class.
 //
-// This is still a work in progress.  I originally wrote it to primarily behave 
-// like a global_param.  ie, something that could dynamically change, and was 
-// attached to an external expression via the "paramNode" object, which points 
+// This is still a work in progress.  I originally wrote it to primarily behave
+// like a global_param.  ie, something that could dynamically change, and was
+// attached to an external expression via the "paramNode" object, which points
 // to the top of the ast tree of another expression.
 //
-// I have been modifying this slowly to make it so that it can also (under 
+// I have been modifying this slowly to make it so that it can also (under
 // some circumstances) behave like a Xyce .param.  ie, a hardwired constant.
-// This aspect is not 100% fleshed out yet.  
+// This aspect is not 100% fleshed out yet.
 //
 // For a simple evaluation of the "val" function, this class will:
 //
-//    (1) call the "val" function of the underlying external syntax tree 
-//    (2) return the scalar quantity "number_" 
+//    (1) call the "val" function of the underlying external syntax tree
+//    (2) return the scalar quantity "number_"
 //
-// For derivative calculation, there is at least one use case that mixes these two 
-// modes of operation together.  So I still need to think about that.  Possibly 
+// For derivative calculation, there is at least one use case that mixes these two
+// modes of operation together.  So I still need to think about that.  Possibly
 // there should be two different kinds of classes for this, to avoid confusion.
 //
 template <typename ScalarT>
@@ -652,7 +652,7 @@ class paramOp: public astNode<ScalarT>
   public:
     paramOp (std::string par):
       astNode<ScalarT>(),
-      paramName_(par), 
+      paramName_(par),
       thisIsAFunctionArgument_(false),
       isVar(false),
       derivIndex_(-1)
@@ -664,7 +664,7 @@ class paramOp: public astNode<ScalarT>
 
     paramOp (std::string par, Teuchos::RCP<astNode<ScalarT> > & tmpNode):
       astNode<ScalarT>(),
-      paramName_(par), 
+      paramName_(par),
       paramNode_(tmpNode),
       savedParamNode_(tmpNode),
       thisIsAFunctionArgument_(false),
@@ -675,8 +675,8 @@ class paramOp: public astNode<ScalarT>
   };
 
     virtual ScalarT val() { return paramNode_->val(); }
-    virtual ScalarT dx(int i) 
-    { 
+    virtual ScalarT dx(int i)
+    {
       ScalarT retval=0.0;
       if (isVar) { retval = (derivIndex_==i)?1.0:0.0; }
       else       { retval = paramNode_->dx(i); }
@@ -773,8 +773,8 @@ class paramOp: public astNode<ScalarT>
     virtual void unsetFunctionArgType() { thisIsAFunctionArgument_ = true;};
 
     // the variable "isVar" is to support the old expression library API.
-    // If true, it means that this parameter is one of the variables included 
-    // in the "vars" array that is passed into the functions expression::evalauate 
+    // If true, it means that this parameter is one of the variables included
+    // in the "vars" array that is passed into the functions expression::evalauate
     // and expression::evaluateFunction.
     void setVar() { isVar = true; }
     void unsetVar() { isVar = false; }
@@ -820,7 +820,11 @@ class voltageOp: public astNode<ScalarT>
       return number_;
     }
 
-    virtual ScalarT dx(int i) { return (derivIndex_==i)?1.0:0.0; }
+    virtual ScalarT dx(int i)
+    {
+      ScalarT retval = (derivIndex_==i)?1.0:0.0;
+      return retval;
+    }
 
     virtual void output(std::ostream & os, int indent=0)
     {
@@ -965,7 +969,7 @@ class currentOp: public astNode<ScalarT>
 // x,y     = dummyFuncArgs_  - parameter nodes, used by functionNode_ AST. Their setNode function must be called to set them to specific values
 //
 //internal to this funcOp class:
-// 2,3     = funcArgs_ - generic AST nodes.  Could be anything.  These are the nodes that are "set" onto the dummyArgs. 
+// 2,3     = funcArgs_ - generic AST nodes.  Could be anything.  These are the nodes that are "set" onto the dummyArgs.
 // f(2,3)  = function call handled by this class
 //
 //internal to this AST:
@@ -994,7 +998,7 @@ class funcOp: public astNode<ScalarT>
         {
           std::vector<std::string> errStr;
           errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_); 
+          errStr.push_back(funcName_);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
           yyerror(errStr);
@@ -1025,14 +1029,14 @@ class funcOp: public astNode<ScalarT>
           yyerror(errStr);
         }
 
-        // Two phases, do do a complete chain rule calculation: 
+        // Two phases, do do a complete chain rule calculation:
         //
         // all the "d" symbols should be partials:
-        // chain rule :  F′(x) = F'(x) + f′(g(x)) * g′(x)  ->  df/dx = df/dx + df/dp * dp/dx 
+        // chain rule :  F′(x) = F'(x) + f′(g(x)) * g′(x)  ->  df/dx = df/dx + df/dp * dp/dx
         //
         // phase 1:  F'(x) = df/dx.
         //
-        // For this phase, the funcArgs are in the "full" form - 
+        // For this phase, the funcArgs are in the "full" form -
         //   ie, if they represent an AST tree, we use the whole tree to evaluate.
         number_ = 0.0;
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
@@ -1047,15 +1051,15 @@ class funcOp: public astNode<ScalarT>
         // g'(x) = funcArg->dx(i)
         // f'(g(x)) = functionNode_->dx(ii);
         //
-        // For this phase, the funcArgs are simple params.  
+        // For this phase, the funcArgs are simple params.
         //   ie, they don't have an AST tree, just a number.
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
-        { 
-          // the index is intentionally negative, starting at -1.  This is so it 
-          // doesn't conflict with derivative indices that were already set at 
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii)
+        {
+          // the index is intentionally negative, starting at -1.  This is so it
+          // doesn't conflict with derivative indices that were already set at
           // the top of the tree in the newExpression::evaluate function.
           int index=-ii-1;
-          dummyFuncArgs_[ii]->setValue ( funcArgs_[ii]->val() ); 
+          dummyFuncArgs_[ii]->setValue ( funcArgs_[ii]->val() );
           dummyFuncArgs_[ii]->setDerivIndex ( index );
         }
 
@@ -1067,8 +1071,8 @@ class funcOp: public astNode<ScalarT>
           //std::cout << "ii="<< ii << "  functionNode_->dx(-ii-1) = " << functionNode_->dx(index) << "  funcArgs_[ii]->dx(i) = " << funcArgs_[ii]->dx(i) << "  delta = " << delta << " number_ = " << number_ << std::endl;
         }
 
-        for (int ii=0;ii<dummyFuncArgs_.size();++ii) 
-        { 
+        for (int ii=0;ii<dummyFuncArgs_.size();++ii)
+        {
           dummyFuncArgs_[ii]->unsetValue ();
           dummyFuncArgs_[ii]->unsetDerivIndex ();
         } // restore
@@ -1092,7 +1096,7 @@ class funcOp: public astNode<ScalarT>
         {
           std::vector<std::string> errStr;
           errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_); 
+          errStr.push_back(funcName_);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
           yyerror(errStr);
@@ -1172,7 +1176,7 @@ class funcOp: public astNode<ScalarT>
         {
           std::vector<std::string> errStr;
           errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
-          errStr.push_back(funcName_); 
+          errStr.push_back(funcName_);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
           yyerror(errStr);
@@ -1418,7 +1422,7 @@ class ceilOp : public astNode<ScalarT>
       ++indent;
       this->leftAst_->output(os,indent+1);
     }
-   
+
     virtual void codeGen (std::ostream & os )
     {
       os << "std::ceil(";
@@ -1946,6 +1950,289 @@ class urampOp : public astNode<ScalarT>
 };
 
 //-------------------------------------------------------------------------------
+// POLY(2) V(1) V(2) 1.0 2.0 3.0
+//
+// Polynomial ordering:
+//
+// POLY(N) X1 ...XN   C0 C1 ...CN   C11 ...C1N    C21 ...CN1 ...CNN    C121 ...C12N ...
+//
+// Value = C0 + sum_{j=1}^N C_j X_j + sum_{i=1}^N sum_{j=1}^N C_{ij} X_i X_j + sum_{i=1}^N sum_{j=1}^N C_{ij} X_i * X_i * X_j + ...
+//
+//
+template <typename ScalarT>
+class polyOp : public astNode<ScalarT>
+{
+  public:
+    // functions:
+    polyOp (ScalarT numvars, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
+      astNode<ScalarT>(), allNumVal_(true), sizeOfVars_(static_cast<int>(std::real(numvars))),
+      numBlocks_(0)
+      {
+        if ( std::fmod( std::real(numvars) , 1.0) != 0.0 )
+        {
+          std::vector<std::string> errStr(1,std::string("AST node (poly) number of nodes must be an integer:"));
+          yyerror(errStr);
+        }
+
+        if (sizeOfVars_ <= 0)
+        {
+          std::vector<std::string> errStr(1,std::string("AST node (poly) number of nodes in expression must be >= 0:"));
+          yyerror(errStr);
+        }
+
+        if (args->size() >= sizeOfVars_)
+        {
+          for (int ii=0;ii<sizeOfVars_;++ii) { polyVars_.push_back((*args)[ii]); }
+        }
+
+        if (args->size() > sizeOfVars_)
+        {
+          polyCoefs_.push_back((*args)[sizeOfVars_]);
+
+          if (  !( (*args)[sizeOfVars_]->numvalType() ) ) { allNumVal_ = false; }
+        }
+
+        if (args->size() > sizeOfVars_+1)
+        {
+          for (int ii=sizeOfVars_+1;ii<args->size();++ii)
+          {
+            polyCoefs_.push_back((*args)[ii]);
+            if (  !( (*args)[ii]->numvalType() ) ) { allNumVal_ = false; }
+          }
+        }
+
+        if (!allNumVal_)
+        {
+          std::vector<std::string> errStr(1,std::string("AST node (poly) coefficients must all be simple numbers:"));
+          yyerror(errStr);
+        }
+
+        numBlocks_ = (args->size() - sizeOfVars_ - 1)/sizeOfVars_;
+      };
+
+    virtual ScalarT val()
+    {
+      ScalarT y = 0.0;
+
+      if (!(polyCoefs_.empty()))
+      {
+        y += polyCoefs_[0]->val();
+
+        // simple linear terms  sum_{j=1}^N C_j X_j
+        int coefIndex=1;
+        for (int ii=0; (coefIndex<polyCoefs_.size() && ii<polyVars_.size()) ;++ii, ++coefIndex)
+        {
+          y+= polyCoefs_[coefIndex]->val()*polyVars_[ii]->val();
+        }
+
+        // cross terms:  sum_{i=1}^N sum_{j=1}^N C_{ij} X_i X_j
+        for (int ii=0;ii<polyVars_.size();++ii)
+        {
+          bool stop=false;
+          for (int jj=0;jj<polyVars_.size();++jj)
+          {
+            if (polyCoefs_.size()<=coefIndex)
+            {
+              stop=true;
+              break;
+            }
+            y+= polyCoefs_[coefIndex++]->val()*polyVars_[ii]->val()*polyVars_[jj]->val();
+          }
+          if (stop) break;
+        }
+
+        // same type of loop but with squares for one of the variables.
+        // ie, x_i*x_i*x_j
+        // cross terms:  sum_{i=1}^N sum_{j=1}^N C_{ij} X_i * X_i * X_j
+        for (int ii=0;ii<polyVars_.size();++ii)
+        {
+          bool stop=false;
+          for (int jj=0;jj<polyVars_.size();++jj)
+          {
+            if (polyCoefs_.size()<=coefIndex)
+            {
+              stop=true;
+              break;
+            }
+            y+= polyCoefs_[coefIndex++]->val()*
+                  polyVars_[ii]->val()*polyVars_[ii]->val()*polyVars_[jj]->val();
+          }
+          if (stop) break;
+        }
+      }
+
+      return y;
+    };
+
+    virtual ScalarT dx(int i)
+    {
+      ScalarT dydx = 0.0;
+
+      if (!(polyCoefs_.empty()))
+      {
+        // simple linear terms  sum_{j=1}^N C_j X_j
+        int coefIndex=1;
+        for (int ii=0; (coefIndex<polyCoefs_.size() && ii<polyVars_.size()) ;++ii, ++coefIndex)
+        {
+          dydx+= polyCoefs_[coefIndex]->val()*polyVars_[ii]->dx(i);
+        }
+
+        // cross terms:  sum_{i=1}^N sum_{j=1}^N C_{ij} X_i X_j
+        for (int ii=0;ii<polyVars_.size();++ii)
+        {
+          bool stop=false;
+          for (int jj=0;jj<polyVars_.size();++jj)
+          {
+            if (polyCoefs_.size()<=coefIndex)
+            {
+              stop=true;
+              break;
+            }
+            dydx+= polyCoefs_[coefIndex++]->val()*
+              ( polyVars_[ii]->dx(i)*polyVars_[jj]->val() + polyVars_[ii]->val()*polyVars_[jj]->dx(i)) ;
+          }
+          if (stop) break;
+        }
+
+        // same type of loop but with squares for one of the variables.
+        // ie, x_i*x_i*x_j
+        // cross terms:  sum_{i=1}^N sum_{j=1}^N C_{ij} X_i * X_i * X_j
+        for (int ii=0;ii<polyVars_.size();++ii)
+        {
+          bool stop=false;
+          for (int jj=0;jj<polyVars_.size();++jj)
+          {
+            if (polyCoefs_.size()<=coefIndex)
+            {
+              stop=true;
+              break;
+            }
+            dydx+= polyCoefs_[coefIndex++]->val()*
+              (
+                  polyVars_[ii]->dx(i)*polyVars_[ii]->val()*polyVars_[jj]->val() +
+                  polyVars_[ii]->val()*polyVars_[ii]->dx(i)*polyVars_[jj]->val() +
+                  polyVars_[ii]->val()*polyVars_[ii]->val()*polyVars_[jj]->dx(i)
+              );
+          }
+          if (stop) break;
+        }
+      }
+
+      return dydx;
+    }
+
+    virtual void output(std::ostream & os, int indent=0)
+    {
+      os << std::setw(indent) << " ";
+      os << "poly operator "<< "sizeOfVars_ = " << sizeOfVars_ << " , numBlocks_ " << numBlocks_ << std::endl;
+      os << "polynomial variables: " << std::endl;
+      ++indent;
+      for (int ii=0;ii<polyVars_.size();ii++) { this->polyVars_[ii]->output(os,indent+1); }
+      os << "polynomial coefs: " << std::endl;
+      for (int ii=0;ii<polyCoefs_.size();ii++) { this->polyCoefs_[ii]->output(os,indent+1); }
+    }
+
+    virtual void codeGen (std::ostream & os )
+    {
+      // fix this
+      os << "POLY";
+    }
+
+    virtual void getInterestingOps(
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector,
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector,
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector,
+      std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+      int size=polyVars_.size();
+      for(int ii=0;ii<size;ii++)
+      {
+        if( !(Teuchos::is_null(polyVars_[ii])) )
+        {
+          if (polyVars_[ii]->paramType())   { paramOpVector.push_back(polyVars_[ii]); }
+          if (polyVars_[ii]->funcType())    { funcOpVector.push_back(polyVars_[ii]); }
+          if (polyVars_[ii]->voltageType()) { voltOpVector.push_back(polyVars_[ii]); }
+          if (polyVars_[ii]->currentType()) { currentOpVector.push_back(polyVars_[ii]); }
+          polyVars_[ii]->getInterestingOps(paramOpVector,funcOpVector,voltOpVector,currentOpVector);
+        }
+      }
+    }
+
+    virtual void getParamOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector)
+    {
+      int size=polyVars_.size();
+      for(int ii=0;ii<size;ii++)
+      {
+        if( !(Teuchos::is_null(polyVars_[ii])) )
+        {
+          if (polyVars_[ii]->paramType()) { paramOpVector.push_back(polyVars_[ii]); }
+          polyVars_[ii]->getParamOps(paramOpVector);
+        }
+      }
+    }
+
+    virtual void getFuncArgOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcArgOpVector)
+    {
+      int size=polyVars_.size();
+      for(int ii=0;ii<size;ii++)
+      {
+        if( !(Teuchos::is_null(polyVars_[ii])) )
+        {
+          if (polyVars_[ii]->getFunctionArgType()) { funcArgOpVector.push_back(polyVars_[ii]); }
+          polyVars_[ii]->getFuncArgOps(funcArgOpVector);
+        }
+      }
+    }
+
+    virtual void getFuncOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector)
+    {
+      int size=polyVars_.size();
+      for(int ii=0;ii<size;ii++)
+      {
+        if( !(Teuchos::is_null(polyVars_[ii])) )
+        {
+          if (polyVars_[ii]->funcType()) { funcOpVector.push_back(polyVars_[ii]); }
+          polyVars_[ii]->getFuncOps(funcOpVector);
+        }
+      }
+    }
+
+    virtual void getVoltageOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector)
+    {
+      int size=polyVars_.size();
+      for(int ii=0;ii<size;ii++)
+      {
+        if( !(Teuchos::is_null(polyVars_[ii])) )
+        {
+          if (polyVars_[ii]->voltageType()) { voltOpVector.push_back(polyVars_[ii]); }
+          polyVars_[ii]->getVoltageOps(voltOpVector);
+        }
+      }
+    }
+
+    virtual void getCurrentOps(std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    {
+      int size=polyVars_.size();
+      for(int ii=0;ii<size;ii++)
+      {
+        if( !(Teuchos::is_null(polyVars_[ii])) )
+        {
+          if (polyVars_[ii]->currentType()) { currentOpVector.push_back(polyVars_[ii]); }
+          polyVars_[ii]->getCurrentOps(currentOpVector);
+        }
+      }
+    }
+
+  private:
+// data:
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > polyVars_;
+    std::vector<Teuchos::RCP<astNode<ScalarT> > > polyCoefs_;
+    bool allNumVal_;
+    int sizeOfVars_;
+    int numBlocks_;
+};
+
+//-------------------------------------------------------------------------------
 // TABLE(x,y,z,*)
 // f(x) where f(y) = z
 // piecewise linear interpolation, multiple (y,z) pairs can be specified
@@ -2294,8 +2581,8 @@ class ddxOp : public astNode<ScalarT>
     {
       // check for params
       //
-      // For most uses of "paramType" it is important to exclude function 
-      // arguments, which are also allocated as parameters, but are usually 
+      // For most uses of "paramType" it is important to exclude function
+      // arguments, which are also allocated as parameters, but are usually
       // not used in the same way as parameters.  This is the one use case where
       // function arguments must be included.
       //
@@ -2309,10 +2596,10 @@ class ddxOp : public astNode<ScalarT>
       if ( this->rightAst_->paramType() || this->rightAst_->getFunctionArgType() )
       {
         std::vector<Teuchos::RCP<astNode<ScalarT> > > paramOpVector;
-        if ( this->leftAst_->paramType() || this->leftAst_->getFunctionArgType() ) 
+        if ( this->leftAst_->paramType() || this->leftAst_->getFunctionArgType() )
         { paramOpVector.push_back(this->leftAst_); }
 
-        this->leftAst_->getParamOps(paramOpVector); 
+        this->leftAst_->getParamOps(paramOpVector);
         this->leftAst_->getFuncArgOps(paramOpVector);
 
         // now match the user-specified right hand argument with a parameter inside
