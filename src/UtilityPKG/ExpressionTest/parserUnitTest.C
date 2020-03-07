@@ -3090,10 +3090,11 @@ TEST ( Double_Parser_poly_Test, test3)
   solnGroup->setSoln(std::string("B"),vBval);
   solnGroup->setSoln(std::string("C"),vCval);
 
-  double refRes = (vAval-vBval)*vCval;
+  double refRes = 
+    (vAval-vBval)*vCval;
 
   std::vector<double> derivs;
-  std::vector<double> refderivs = { (vAval)*vCval, (-vBval)*vCval, (vAval-vBval) };
+  std::vector<double> refderivs = { vCval, -vCval, (vAval-vBval) };
 
   testExpression.evaluate(result, derivs);   
   EXPECT_EQ( result, refRes);
@@ -3106,6 +3107,74 @@ TEST ( Double_Parser_poly_Test, test3)
   //EXPECT_EQ( derivs, refderivs);
 }
 
+TEST ( Double_Parser_poly_Test, test4)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("POLY(1) V(A,B) 0 1  "), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //testExpression.dumpParseTree(std::cout);
+
+  //Xyce::Util::newExpression copyExpression(testExpression); 
+  //Xyce::Util::newExpression assignExpression; 
+  //assignExpression = testExpression; 
+
+  double result=0.0, vAval=5.0, vBval=1.0;
+
+  solnGroup->setSoln(std::string("A"),vAval);
+  solnGroup->setSoln(std::string("B"),vBval);
+
+  double refRes = (vAval-vBval);
+
+  std::vector<double> derivs;
+  std::vector<double> refderivs = { 1, -1 };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  //copyExpression.evaluate(result, derivs);   
+  //EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+  //assignExpression.evaluate(result, derivs); 
+  //EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+}
+
+
+TEST ( Double_Parser_TwoNodeDeriv_Test, test1)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("V(A,B)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //testExpression.dumpParseTree(std::cout);
+
+  //Xyce::Util::newExpression copyExpression(testExpression); 
+  //Xyce::Util::newExpression assignExpression; 
+  //assignExpression = testExpression; 
+
+  double result=0.0, vAval=5.0, vBval=1.0;
+
+  solnGroup->setSoln(std::string("A"),vAval);
+  solnGroup->setSoln(std::string("B"),vBval);
+
+  double refRes = (vAval-vBval);
+
+  std::vector<double> derivs;
+  std::vector<double> refderivs = { 1, -1 };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  //copyExpression.evaluate(result, derivs);   
+  //EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+  //assignExpression.evaluate(result, derivs); 
+  //EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+}
 
 int main (int argc, char **argv)
 {

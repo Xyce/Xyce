@@ -424,20 +424,6 @@ void newExpression::setupDerivatives_ ()
       else
       {
         std::cout << "ERROR. derivatives not correct for 2-node V(A,B) specification" <<std::endl;
-#if 0
-        // first node:      
-        std::string tmp = nodes[0]; Xyce::Util::toUpper(tmp);
-        std::unordered_map<std::string, int>::iterator mapIter;
-        mapIter = derivNodeIndexMap_.find(tmp);
-        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
-        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
-
-        // second node:      
-        tmp = nodes[1]; Xyce::Util::toUpper(tmp);
-        mapIter = derivNodeIndexMap_.find(tmp);
-        if (mapIter == derivNodeIndexMap_.end()) { derivNodeIndexMap_[tmp] = numDerivs_; numDerivs_++; }
-        derivIndexVec_.push_back(derivIndexPair_(voltOpVec_[ii],derivNodeIndexMap_[tmp]));
-#endif
       }
     }
 
