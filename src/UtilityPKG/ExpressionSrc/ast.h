@@ -1256,7 +1256,11 @@ class pwrsOp : public astNode<ScalarT>
 {
   public:
     pwrsOp (Teuchos::RCP<astNode<ScalarT> > &left, Teuchos::RCP<astNode<ScalarT> > &right):
-      astNode<ScalarT>(left,right) {};
+      astNode<ScalarT>(left,right), rightConst_(true),leftConst_(false)
+    {
+      rightConst_ = this->rightAst_->numvalType();
+      leftConst_ = this->leftAst_->numvalType();
+    }
 
     virtual ScalarT val()
     {
@@ -1267,23 +1271,54 @@ class pwrsOp : public astNode<ScalarT>
       }
       else if (std::real(this->leftAst_->val()) < 0)
       {
-        ret = std::pow(-(this->leftAst_->val()), this->rightAst_->val());
+        ret = -std::pow(-(this->leftAst_->val()), this->rightAst_->val());
       }
       return ret;
     }
 
     virtual ScalarT dx (int i)
     {
-      std::vector<std::string> errStr(1,std::string("AST node (pwrs) without a dx function"));
-      yyerror(errStr);
-      ScalarT ret = 0.0;
-      return ret;
-// fix this:
-#if 0
-      astNode<ScalarT> & lef = *(this->leftAst_);
-      astNode<ScalarT> & rig = *(this->rightAst_);
-      return  ((rig.dx(i)*std::log(lef.val())+rig.val()*lef.dx(i)/lef.val())*std::pow(lef.val(),rig.val()));
-#endif
+      Teuchos::RCP<astNode<ScalarT> > & lef = this->leftAst_;
+      Teuchos::RCP<astNode<ScalarT> > & rig = this->rightAst_;
+      ScalarT retVal = 0.0;
+
+      if (lef->val() != 0.0) 
+      {
+        if (rightConst_ && !leftConst_) 
+        {
+          if (std::real(this->leftAst_->val()) >= 0)
+          {
+            retVal = rig->val()*lef->dx(i)/lef->val()*std::pow(lef->val(),rig->val()) ; 
+          }
+          else if (std::real(this->leftAst_->val()) < 0)
+          {
+            retVal = rig->val()*(-lef->dx(i))/(-lef->val())*std::pow((-lef->val()),rig->val()) ; 
+          }
+        }
+        else if (!rightConst_ && leftConst_) 
+        {
+          if (std::real(this->leftAst_->val()) >= 0)
+          {
+            retVal = std::log(lef->val())*std::pow(lef->val(),rig->val())*rig->dx(i); 
+          }
+          else if (std::real(this->leftAst_->val()) < 0)
+          {
+            retVal = -std::log(-lef->val())*std::pow(-lef->val(),rig->val())*rig->dx(i); 
+          }
+        }
+        else 
+        {
+          if (std::real(this->leftAst_->val()) >= 0)
+          {
+            retVal = (rig->dx(i)*std::log(lef->val())+rig->val()*lef->dx(i)/lef->val())*std::pow(lef->val(),rig->val());
+          }
+          else if (std::real(this->leftAst_->val()) < 0)
+          {
+            retVal = (-rig->dx(i)*std::log(-lef->val())+rig->val()*(-lef->dx(i))/(-lef->val()))*std::pow((-lef->val()),rig->val());
+          }
+        }
+      }
+      return  retVal;
     }
 
     virtual void output(std::ostream & os, int indent=0)
@@ -1299,12 +1334,16 @@ class pwrsOp : public astNode<ScalarT>
     {
       if (std::real(this->leftAst_->val()) < 0) { os << "-"; }
       os << "std::pow(";
+      if (std::real(this->leftAst_->val()) < 0) { os << "-"; }
       this->leftAst_->codeGen(os);
       os << ",";
       this->rightAst_->codeGen(os);
       os << ")";
     }
 
+  private:
+    bool rightConst_;
+    bool leftConst_;
 };
 
 //-------------------------------------------------------------------------------

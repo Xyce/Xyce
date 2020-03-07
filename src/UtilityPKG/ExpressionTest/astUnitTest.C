@@ -114,6 +114,30 @@ TEST ( Double_Ast_Func_Test, powOp )
   EXPECT_EQ(testPow->val(), std::pow(2.0,3.0));  
 }
 
+TEST ( Double_Ast_Func_Test, pwrsOp )
+{  
+  RCP<astNode<double> > arg1 = rcp(new numval<double> (2.0));
+  RCP<astNode<double> > arg2 = rcp(new numval<double> (3.0));
+  RCP<astNode<double> > testPow = rcp(new pwrsOp<double>(arg1,arg2)); 
+  EXPECT_EQ(testPow->val(), std::pow(2.0,3.0));  
+}
+
+TEST ( Double_Ast_Func_Test, pwrsOp2 )
+{  
+  RCP<astNode<double> > arg1 = rcp(new numval<double> (0.0));
+  RCP<astNode<double> > arg2 = rcp(new numval<double> (3.0));
+  RCP<astNode<double> > testPow = rcp(new pwrsOp<double>(arg1,arg2)); 
+  EXPECT_EQ(testPow->val(), 0.0);  
+}
+
+TEST ( Double_Ast_Func_Test, pwrsOp3 )
+{  
+  RCP<astNode<double> > arg1 = rcp(new numval<double> (-2.0));
+  RCP<astNode<double> > arg2 = rcp(new numval<double> (3.0));
+  RCP<astNode<double> > testPow = rcp(new pwrsOp<double>(arg1,arg2)); 
+  EXPECT_EQ(testPow->val(), -std::pow(2.0,3.0) );
+}
+
 TEST ( Double_Ast_Func_Test, phaseOp )
 {  
   double a1(-1.0);
@@ -132,6 +156,42 @@ TEST ( Complex_Ast_Func_Test, powOp )
   RCP<astNode<cmplx> > testPow = rcp(new powOp<cmplx>(arg1,arg2)); 
 
   EXPECT_EQ(testPow->val(), std::pow(a1,a2));  
+}
+
+TEST ( Complex_Ast_Func_Test, pwrsOp )
+{  
+  std::complex<double> a1(2.0,3.0);
+  std::complex<double> a2(3.0,4.0);
+
+  RCP<astNode<cmplx> > arg1 = rcp(new numval<cmplx> (a1));
+  RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (a2));
+  RCP<astNode<cmplx> > testPow = rcp(new pwrsOp<cmplx>(arg1,arg2)); 
+
+  EXPECT_EQ(testPow->val(), std::pow(a1,a2));  
+}
+
+TEST ( Complex_Ast_Func_Test, pwrsOp2 )
+{  
+  std::complex<double> a1(0.0,0.0);
+  std::complex<double> a2(3.0,4.0);
+
+  RCP<astNode<cmplx> > arg1 = rcp(new numval<cmplx> (a1));
+  RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (a2));
+  RCP<astNode<cmplx> > testPow = rcp(new pwrsOp<cmplx>(arg1,arg2)); 
+
+  EXPECT_EQ(testPow->val(), std::complex<double>(0.0,0.0));
+}
+
+TEST ( Complex_Ast_Func_Test, pwrsOp3 )
+{  
+  std::complex<double> a1(-2.0,0.0);
+  std::complex<double> a2(3.0,0.0);
+
+  RCP<astNode<cmplx> > arg1 = rcp(new numval<cmplx> (a1));
+  RCP<astNode<cmplx> > arg2 = rcp(new numval<cmplx> (a2));
+  RCP<astNode<cmplx> > testPow = rcp(new pwrsOp<cmplx>(arg1,arg2)); 
+
+  EXPECT_EQ(testPow->val(), -std::pow( std::complex<double>(2.0,0.0),std::complex<double>(3.0,0.0) ));
 }
 
 TEST ( Complex_Ast_Func_Test, phaseOp )
@@ -157,6 +217,26 @@ TEST ( Complex_Ast_Func_Test, imagOp )
   RCP<astNode<cmplx> > testImag = rcp(new imagOp<cmplx>(arg1)); 
   EXPECT_EQ(testImag->val(), std::imag(a1));   
 }
+
+TEST ( Double_Ast_Func_Test, unaryMinusOp)
+{  
+  double a1(1.0);
+  RCP<astNode<double> > arg1 = rcp(new numval<double> (a1));
+  RCP<astNode<double> > negarg1 = rcp(new unaryMinusOp<double>(arg1)); 
+
+  EXPECT_EQ(negarg1->val(), -1.0);
+}
+
+TEST ( Complex_Ast_Func_Test, unaryMinusOp)
+{  
+  std::complex<double> a1(1.0,1.0);
+  RCP<astNode<std::complex<double> > > arg1 = rcp(new numval<std::complex<double> > (a1));
+  RCP<astNode<std::complex<double> > > negarg1 = rcp(new unaryMinusOp<std::complex<double> >(arg1)); 
+
+  EXPECT_EQ(negarg1->val(), std::complex<double>(-1.0,-1.0));
+}
+
+
 
 //-------------------------------------------------------------------------------
 // spice time-dependent source functions
@@ -495,6 +575,163 @@ TEST ( Double_Ast_Deriv_Test, powOp )
   arg2->setVar();
   EXPECT_EQ(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
   EXPECT_EQ(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
+}
+
+TEST ( Double_Ast_Deriv_Test, pwrsOp )
+{  
+  double A=7.0;
+  double B=4.0;
+  RCP<astNode<double> > val1 = rcp(new numval<double> (A));
+  RCP<astNode<double> > val2 = rcp(new numval<double> (B));
+  RCP<astNode<double> > arg1 = rcp(new paramOp<double> (std::string("A"),val1));
+  RCP<astNode<double> > arg2 = rcp(new paramOp<double> (std::string("B"),val2));
+
+  // value
+  RCP<astNode<double> > testPwrs = rcp(new pwrsOp<double> (arg1,arg2));
+  EXPECT_EQ(testPwrs->val(), std::pow(A,B));  
+
+  // derivative
+  arg1->setDerivIndex(0);
+  arg2->setDerivIndex(1);
+  arg1->setVar();
+  arg2->setVar();
+  EXPECT_EQ(testPwrs->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
+  EXPECT_EQ(testPwrs->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
+}
+
+TEST ( Double_Ast_Deriv_Test, pwrsOp2 )
+{  
+  double A=0.0;
+  double B=4.0;
+  RCP<astNode<double> > val1 = rcp(new numval<double> (A));
+  RCP<astNode<double> > val2 = rcp(new numval<double> (B));
+  RCP<astNode<double> > arg1 = rcp(new paramOp<double> (std::string("A"),val1));
+  RCP<astNode<double> > arg2 = rcp(new paramOp<double> (std::string("B"),val2));
+
+  // value
+  RCP<astNode<double> > testPwrs = rcp(new pwrsOp<double> (arg1,arg2));
+  EXPECT_EQ(testPwrs->val(), std::pow(A,B));  
+
+  // derivative
+  arg1->setDerivIndex(0);
+  arg2->setDerivIndex(1);
+  arg1->setVar();
+  arg2->setVar();
+  EXPECT_EQ(testPwrs->dx(0)-0.0, 0.0 );
+  EXPECT_EQ(testPwrs->dx(1)-0.0, 0.0 );
+}
+
+TEST ( Double_Ast_Deriv_Test, pwrsOp3 )
+{  
+  double A=-7.0;
+  double B=4.0;
+  RCP<astNode<double> > val1 = rcp(new numval<double> (A));
+  RCP<astNode<double> > val2 = rcp(new numval<double> (B));
+  RCP<astNode<double> > arg1 = rcp(new paramOp<double> (std::string("A"),val1));
+  RCP<astNode<double> > arg2 = rcp(new paramOp<double> (std::string("B"),val2));
+
+  RCP<astNode<double> > testPwrs = rcp(new pwrsOp<double> (arg1,arg2));
+
+  // test expression, using powOp
+  double negA=+7.0;
+  RCP<astNode<double> > negval1 = rcp(new numval<double> (negA));
+  RCP<astNode<double> > negarg1 = rcp(new paramOp<double> (std::string("A"),negval1));
+  RCP<astNode<double> > refPow = rcp(new powOp<double> (negarg1,arg2));
+  RCP<astNode<double> > negPow = rcp(new unaryMinusOp<double> (refPow));
+
+  // value
+  EXPECT_EQ(testPwrs->val(), negPow->val());
+
+  // derivative
+  negarg1->setDerivIndex(0);
+  arg1->setDerivIndex(0);
+  arg2->setDerivIndex(1);
+  negarg1->setVar();
+  arg1->setVar();
+  arg2->setVar();
+  EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
+  EXPECT_EQ(testPwrs->dx(1),negPow->dx(1));
+}
+
+TEST ( Double_Ast_Deriv_Test, pwrsOp4 )
+{  
+  double A=-7.0;
+  double B=4.0;
+  RCP<astNode<double> > val1 = rcp(new numval<double> (A));
+  RCP<astNode<double> > val2 = rcp(new numval<double> (B));
+  RCP<astNode<double> > arg1 = rcp(new paramOp<double> (std::string("A"),val1));
+
+  RCP<astNode<double> > testPwrs = rcp(new pwrsOp<double> (arg1,val2));
+
+  // test expression, using powOp
+  double negA=+7.0;
+  RCP<astNode<double> > negval1 = rcp(new numval<double> (negA));
+  RCP<astNode<double> > negarg1 = rcp(new paramOp<double> (std::string("A"),negval1));
+  RCP<astNode<double> > refPow = rcp(new powOp<double> (negarg1,val2));
+  RCP<astNode<double> > negPow = rcp(new unaryMinusOp<double> (refPow));
+
+  // value
+  EXPECT_EQ(testPwrs->val(), negPow->val());
+
+  // derivative
+  negarg1->setDerivIndex(0);
+  arg1->setDerivIndex(0);
+  negarg1->setVar();
+  arg1->setVar();
+  EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
+}
+
+TEST ( Double_Ast_Deriv_Test, pwrsOp5 )
+{  
+  double A=-7.0;
+  double B=-4.0;
+  RCP<astNode<double> > val1 = rcp(new numval<double> (A));
+  RCP<astNode<double> > val2 = rcp(new numval<double> (B));
+  RCP<astNode<double> > arg1 = rcp(new paramOp<double> (std::string("A"),val1));
+
+  RCP<astNode<double> > testPwrs = rcp(new pwrsOp<double> (arg1,val2));
+
+  // test expression, using powOp
+  double negA=+7.0;
+  RCP<astNode<double> > negval1 = rcp(new numval<double> (negA));
+  RCP<astNode<double> > negarg1 = rcp(new paramOp<double> (std::string("A"),negval1));
+  RCP<astNode<double> > refPow = rcp(new powOp<double> (negarg1,val2));
+  RCP<astNode<double> > negPow = rcp(new unaryMinusOp<double> (refPow));
+
+  // value
+  EXPECT_EQ(testPwrs->val(), negPow->val());
+
+  // derivative
+  negarg1->setDerivIndex(0);
+  arg1->setDerivIndex(0);
+  negarg1->setVar();
+  arg1->setVar();
+  EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
+}
+
+TEST ( Double_Ast_Deriv_Test, pwrsOp6 )
+{  
+  double A=-7.0;
+  double B=-4.0;
+  RCP<astNode<double> > val1 = rcp(new numval<double> (A));
+  RCP<astNode<double> > val2 = rcp(new numval<double> (B));
+  RCP<astNode<double> > arg2 = rcp(new paramOp<double> (std::string("B"),val2));
+
+  RCP<astNode<double> > testPwrs = rcp(new pwrsOp<double> (val1,arg2));
+
+  // test expression, using powOp
+  double negA=+7.0;
+  RCP<astNode<double> > negval1 = rcp(new numval<double> (negA));
+  RCP<astNode<double> > refPow = rcp(new powOp<double> (negval1,arg2));
+  RCP<astNode<double> > negPow = rcp(new unaryMinusOp<double> (refPow));
+
+  // value
+  EXPECT_EQ(testPwrs->val(), negPow->val());
+
+  // derivative
+  arg2->setDerivIndex(0);
+  arg2->setVar();
+  EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
 }
 
 TEST ( Complex_Ast_Deriv_Test, powOp )
