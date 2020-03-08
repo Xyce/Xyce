@@ -2026,19 +2026,21 @@ class polyOp : public astNode<ScalarT>
 
         if (args->size() > sizeOfVars_)
         {
-          polyCoefs_.push_back((*args)[sizeOfVars_]);
-
-          if (  !( (*args)[sizeOfVars_]->numvalType() ) ) { allNumVal_ = false; }
-        }
-
-        if (args->size() > sizeOfVars_+1)
-        {
-          for (int ii=sizeOfVars_+1;ii<args->size();++ii)
+          for (int ii=sizeOfVars_;ii<args->size();++ii)
           {
             polyCoefs_.push_back((*args)[ii]);
             if (  !( (*args)[ii]->numvalType() ) ) { allNumVal_ = false; }
           }
         }
+
+#if 0
+        std::cout << "polyOp::polyOp  Number of variables = " << sizeOfVars_ <<std::endl;
+
+        for (int ii=0;ii<polyCoefs_.size();++ii)
+        {
+          std::cout << "polyOp::polyOp  polyCoefs_["<<ii<<"] = " << polyCoefs_[ii]->val() <<std::endl;
+        }
+#endif
 
         if (!allNumVal_)
         {
@@ -2056,12 +2058,24 @@ class polyOp : public astNode<ScalarT>
       if (!(polyCoefs_.empty()))
       {
         y += polyCoefs_[0]->val();
+#if 0
+        std::cout << "polyCoefs_[0] = " << polyCoefs_[0]->val() 
+            << "  y = " <<  y << std::endl;
+#endif
 
         // simple linear terms  sum_{j=1}^N C_j X_j
         int coefIndex=1;
         for (int ii=0; (coefIndex<polyCoefs_.size() && ii<polyVars_.size()) ;++ii, ++coefIndex)
         {
           y+= polyCoefs_[coefIndex]->val()*polyVars_[ii]->val();
+
+#if 0
+          std::cout 
+            << "polyCoefs_["<<coefIndex<<"] = " << polyCoefs_[coefIndex]->val()
+            << "  polyVars_["<<ii<<"] = " << polyVars_[ii]->val()
+            << "  product = " <<  polyCoefs_[coefIndex]->val()*polyVars_[ii]->val()
+            << "  y = " <<  y << std::endl;
+#endif
         }
 
         // cross terms:  sum_{i=1}^N sum_{j=1}^N C_{ij} X_i X_j

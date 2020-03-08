@@ -66,6 +66,25 @@ TEST ( Double_Parser_Test, numval)
   EXPECT_EQ( (result-(1.0)), 0.0);
 }
 
+TEST ( Double_Parser_Test, numval2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("10.61E6"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(10.61E6);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( (result-(10.61E6)), 0.0);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  copyExpression.evaluateFunction(result); 
+  EXPECT_EQ( (result-(10.61E6)), 0.0);
+
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+  assignExpression.evaluateFunction(result); 
+  EXPECT_EQ( (result-(10.61E6)), 0.0);
+}
+
 // binary operators
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryAdd, "1.0+2.0", (1.0+2.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, binaryMinus, "1.0-2.0", (1.0-2.0) )
@@ -441,7 +460,9 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
     solnExpressionGroup () :
-      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0)  {};
+      Xyce::Util::baseExpressionGroup(), Aval(0.0), Bval(0.0), Cval(0.0), R1val(0.0), 
+         VBval(0.0), VCval(0.0), VEval(0.0), VLPval(0.0), VLNval(0.0)
+  {};
     ~solnExpressionGroup () {};
 
   virtual bool getSolutionVal(const std::string & nodeName, double & retval )
@@ -451,6 +472,12 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("b")) { retval = Bval; return true; }
     else if (tmp==std::string("c")) { retval = Cval; return true; }
     else if (tmp==std::string("r1")) { retval = R1val; return true; }
+
+    else if (tmp==std::string("vb")) { retval = VBval; return true; }
+    else if (tmp==std::string("vc")) { retval = VCval; return true; }
+    else if (tmp==std::string("ve")) { retval = VEval; return true; }
+    else if (tmp==std::string("vlp")) { retval = VLPval; return true; }
+    else if (tmp==std::string("vln")) { retval = VLNval; return true; }
     else { return 0.0; return false; }
   }
 
@@ -461,8 +488,15 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("b")) { Bval = val; }
     else if (tmp==std::string("c")) { Cval = val; }
     else if (tmp==std::string("r1")) { R1val = val; }
+
+    else if (tmp==std::string("vb")) { VBval = val; }
+    else if (tmp==std::string("vc")) { VCval = val; }
+    else if (tmp==std::string("ve")) { VEval = val; }
+    else if (tmp==std::string("vlp")) { VLPval = val; }
+    else if (tmp==std::string("vln")) { VLNval = val; }
   }
   double Aval, Bval, Cval, R1val;
+  double VBval, VCval, VEval, VLPval, VLNval;
 };
 
 TEST ( Double_Parser_VoltSoln_Test, test0)
@@ -3142,6 +3176,54 @@ TEST ( Double_Parser_poly_Test, test4)
   EXPECT_EQ( derivs, refderivs);
 }
 
+
+// POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
+TEST ( Double_Parser_poly_Test, test5)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  // this does not work, because it performs subtraction:
+  //Xyce::Util::newExpression testExpression(std::string("POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6"), testGroup);
+  //
+  // this does work, because I added parens.
+  Xyce::Util::newExpression testExpression(std::string("POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 (10.61E6) (-10E6) (10E6) (10E6) (-10E6)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  //testExpression.dumpParseTree(std::cout);
+
+  //Xyce::Util::newExpression copyExpression(testExpression); 
+  //Xyce::Util::newExpression assignExpression; 
+  //assignExpression = testExpression; 
+
+  double result=0.0; 
+  double VB=-1.0;
+  double VC=-2.0;
+  double VE=-3.0;
+  double VLP=-4.0;
+  double VLN=-5.0;
+
+  solnGroup->setSoln(std::string("VB"),VB);
+  solnGroup->setSoln(std::string("VC"),VC);
+  solnGroup->setSoln(std::string("VE"),VE);
+  solnGroup->setSoln(std::string("VLP"),VLP);
+  solnGroup->setSoln(std::string("VLN"),VLN);
+
+  double refRes = 0 +  (10.61E6)*(-1) +  (-10E6)*(-2) +  (10E6)*(-3) +  (10E6)*(-4) +  (-10E6)*(-5);
+
+  std::vector<double> derivs;
+  //std::vector<double> refderivs = { 1, -1 };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+  //copyExpression.evaluate(result, derivs);   
+  //EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+  //assignExpression.evaluate(result, derivs); 
+  //EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+}
 
 TEST ( Double_Parser_TwoNodeDeriv_Test, test1)
 {

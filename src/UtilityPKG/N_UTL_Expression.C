@@ -250,7 +250,104 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
 { 
   if(useNewExpressionLibrary_)
   {
-    //newExpPtr_->getSymbolTable(theSymbolTable);
+    //ERK.  Like with everything else, stuff that is old-expression specific I am 
+    //handling here, rather than in newExpression.
+
+    //  local versions of these
+    //  set them up, and then go thru a similar loop as the getSymbolTable function in N_UTL_ExpressionInternals
+    std::vector<int> varTypes;            ///< array of types of variables
+    std::vector<std::string> varValues;   ///< array of values of variables
+    std::string leadDesignator;           ///< lead designator for current variables
+
+    theSymbolTable.clear();
+
+    int var_type = XEXP_NODE;
+    for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
+    {
+      int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
+
+      for (int jj=0;jj<size;jj++)
+      {
+        std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
+        std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
+        if (it == varValues.end())
+        {
+          varValues.push_back( tmpName );
+          varTypes.push_back(var_type);
+          leadDesignator.push_back(' ');
+        }
+      }
+    }
+
+    var_type = XEXP_INSTANCE;
+    for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
+    {
+      std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
+      std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
+      if (it == varValues.end())
+      {
+        varValues.push_back( tmpName );
+        varTypes.push_back(var_type);
+        leadDesignator.push_back(' ');
+      }
+    }
+
+    var_type = XEXP_LEAD; // ERK.  I haven't figured this out yet, but need to.
+
+
+    var_type = XEXP_STRING; // for some mysterious reason, this means params and global_params
+    for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
+    {
+      std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
+      std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
+      if (it == varValues.end())
+      {
+        varValues.push_back( tmpName );
+        varTypes.push_back(var_type);
+        leadDesignator.push_back(' ');
+      }
+    }
+
+    var_type = XEXP_SPECIAL; // ERK.  This doesn't yet track external specials dependencies
+    if (newExpPtr_->getTimeDependent()) { varValues.push_back(std::string("TIME")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
+    if (newExpPtr_->getTempDependent()) { varValues.push_back(std::string("TEMP")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
+    if (newExpPtr_->getVTDependent()) { varValues.push_back(std::string("VT")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
+    if (newExpPtr_->getFreqDependent()) { varValues.push_back(std::string("FREQ")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
+
+    // VARIABLE is a global parameter that needs to be updated at each call.
+    var_type = XEXP_VARIABLE;
+#if 1
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    const std::vector<std::string> & names = xyceGroup->getNames();
+    int nameSize = names.size();
+    for (int ii=0;ii<nameSize;++ii)
+    {
+      varValues.push_back(names[ii]);
+      varTypes.push_back(var_type);
+      leadDesignator.push_back(' ');
+    }
+#endif
+
+    var_type = XEXP_FUNCTION;
+    for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
+    {
+      std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
+      std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
+      if (it == varValues.end())
+      {
+        varValues.push_back( tmpName );
+        varTypes.push_back(var_type);
+        leadDesignator.push_back(' ');
+      }
+    }
+
+    var_type = XEXP_NODAL_COMPUTATION; // haven't figure this out yet
+
+    int size = varValues.size();
+    for (int ii=0;ii<size;++ii)
+    {
+      theSymbolTable.push_back(ExpressionSymbolTableEntry(varValues[ii],varTypes[ii],leadDesignator[ii]));
+    }
   }
   else
   {
