@@ -136,18 +136,23 @@ NODE [a-zA-Z0-9_:]*
 ";" |
 ":" |
 "?" |
-"J" |
+"J" { return((YYText())[0]); }
+  /* |
 "{" |
 "}" |
 "(" |
-")"     { return((YYText())[0]); }
+")"      */
+<INITIAL>")" { return XyceExpression::ExpressionParser::token::TOK_RIGHTPAREN; }
+<INITIAL>"(" { return XyceExpression::ExpressionParser::token::TOK_LEFTPAREN; }
+<INITIAL>"}" { return XyceExpression::ExpressionParser::token::TOK_RIGHTCURLYBRACE; }
+<INITIAL>"{" { return XyceExpression::ExpressionParser::token::TOK_LEFTCURLYBRACE; }
 
  /* logic ops */
 <INITIAL>"~"    { return XyceExpression::ExpressionParser::token::TOK_NOT; } /* Xyce */
 <INITIAL>"|"    { return XyceExpression::ExpressionParser::token::TOK_OR; }  /* Xyce */
-<INITIAL>"||"   { return XyceExpression::ExpressionParser::token::TOK_OR; }  /* Hspice */
+<INITIAL>"||"   { return XyceExpression::ExpressionParser::token::TOK_OR; }   /* Hspice */
 <INITIAL>"&"    { return XyceExpression::ExpressionParser::token::TOK_AND; } /* Xyce */
-<INITIAL>"&&"   { return XyceExpression::ExpressionParser::token::TOK_AND; } /* Hspice */
+<INITIAL>"&&"   { return XyceExpression::ExpressionParser::token::TOK_AND; }  /* Hspice */
 <INITIAL>"^"    {return XyceExpression::ExpressionParser::token::TOK_XOR; } /* Xyce: caret (^) = XOR; Hspice caret (^) = power */
 
  /* comparison ops */
@@ -274,8 +279,6 @@ NODE [a-zA-Z0-9_:]*
 <INITIAL>"table" {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
 <INITIAL>"uramp" {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
 
- /* <INITIAL>"poly"  { return XyceExpression::ExpressionParser::token::TOK_POLY; } */ /* original */
-
 <INITIAL>"poly""("  {
     BEGIN(polydef);
 //std::cout << "found POLY" <<std::endl;
@@ -283,53 +286,12 @@ NODE [a-zA-Z0-9_:]*
   } 
 
 <polydef>{DIGIT}+")" {
-    lvalp->sval=new std::string(YYText());
-    (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
-//std::cout << "poly size = " << *(lvalp->sval) <<std::endl;
+    std::string tmp(YYText());
+    tmp.erase(tmp.length()-1);
+    lvalp->dval=Xyce::Util::Value(tmp);
+//std::cout << "poly size = " << lvalp->dval <<std::endl;
     BEGIN(polyargs);
     return XyceExpression::ExpressionParser::token::TOK_POLYSIZE; 
-  }
-
-<polyargs>"V""("     {
-  BEGIN(polyvoltagenodedef); 
-  lvalp->sval=new std::string(YYText());
-  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
-//std::cout << "poly V( found" <<std::endl;
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-}
-
- /* single node name by itself */
-<polyvoltagenodedef>{NODE}")" {
-  lvalp->sval=new std::string(YYText());
-  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
-  BEGIN(polyargs);
-//std::cout << "poly VOLTAGENODE found = "<< lvalp->sval << std::endl;
-  return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
-}
-
- /* first node in a comma-separated list of two nodes */
-<polyvoltagenodedef>{NODE}"," {
-  lvalp->sval=new std::string(YYText());
-  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
-//std::cout << "poly VOLTAGENODE found = "<< lvalp->sval << std::endl;
-  return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
-}
-
-<polyargs>"I""("    {
-  BEGIN(polycurrentdevdef);
-  lvalp->sval=new std::string(YYText());
-  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
-//std::cout << "poly I( found" <<std::endl;
-  return XyceExpression::ExpressionParser::token::TOK_WORD;
-}
-
- /* single device name by itself */
-<polycurrentdevdef>{ID}")" {
-  lvalp->sval=new std::string(YYText());
-  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
-  BEGIN(polyargs);
-//std::cout << "poly CURRENTDEV found" <<std::endl;
-  return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
   }
 
  /* numbers with suffixes */
@@ -388,12 +350,60 @@ NODE [a-zA-Z0-9_:]*
      return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
   }
 
+
+<polyargs>"V""("     {
+  BEGIN(polyvoltagenodedef); 
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+//std::cout << "poly V( found" <<std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* single node name by itself */
+<polyvoltagenodedef>{NODE}")" {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+  BEGIN(polyargs);
+//std::cout << "poly VOLTAGENODE found = "<< *(lvalp->sval) << std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
+}
+
+ /* first node in a comma-separated list of two nodes */
+<polyvoltagenodedef>{NODE}"," {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
+//std::cout << "poly VOLTAGENODE found = "<< *(lvalp->sval) << std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
+}
+
+<polyargs>"I""("    {
+  BEGIN(polycurrentdevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+//std::cout << "poly I( found" <<std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* single device name by itself */
+<polycurrentdevdef>{ID}")" {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+  BEGIN(polyargs);
+//std::cout << "poly CURRENTDEV found" << *(lvalp->sval) << std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
+  }
+
+<polyargs>")" { return XyceExpression::ExpressionParser::token::TOK_RIGHTPAREN; }
+<polyargs>"(" { return XyceExpression::ExpressionParser::token::TOK_LEFTPAREN; }
+<polyargs>"}" { return XyceExpression::ExpressionParser::token::TOK_RIGHTCURLYBRACE; }
+<polyargs>"{" { return XyceExpression::ExpressionParser::token::TOK_LEFTCURLYBRACE; }
+
 <polyargs>[ \t]+  { llocp->step(); }   /* eat up whitespace */
 
 <polyargs>.  {
   BEGIN(INITIAL);
 //std::cout << "end of poly found " <<std::endl;
-  //lvalp->sval=new std::string(YYText());
+  lvalp->sval=new std::string(YYText());
 //std::cout << "remaining string after the end (before yyless) " << *(lvalp->sval) <<std::endl;
   yyless(0);
 }
