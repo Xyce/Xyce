@@ -80,8 +80,6 @@ class Instance : public DeviceInstance
   friend class Model;
   friend struct Traits;
   friend class Master;
-  friend class resistorSensitivity;
-  friend class resistorMatrixSensitivity;
 
 public:
   Instance(
@@ -100,7 +98,7 @@ private:
 public:
 
 
-  /// Gets the resistor model that owns this instance.
+  /// Gets the YLIN model that owns this instance.
   Model &getModel()   { return model_;  }
 
   virtual void registerLIDs(const std::vector<int> & intLIDVecRef, const std::vector<int> & extLIDVecRef) /* override */;
@@ -114,8 +112,7 @@ public:
   virtual bool updateIntermediateVars() { return true; }
   virtual bool updatePrimaryState() { return true; }
 
-  /// Return Jacobian stamp that informs topology of the layout of the
-  /// resistor jacobian.
+  /// Return Jacobian stamp that informs topology of the layout of the YLIN device jacobian.
   virtual const std::vector< std::vector<int> > &jacobianStamp() const  /* override */ {
     return jacStamp;
   }
@@ -124,14 +121,14 @@ public:
   virtual bool loadDAEdFdx() /* override */;
 
   /// Load Q vector
-  /// Since the Resistor does no charge storage, this is a no-op.
+  /// Since the YLIN device does no charge storage, this is a no-op.
   virtual bool loadDAEQVector()
   {
     return true;
   }
 
   /// Load derivative of Q vector with respect to solution vector
-  /// Since the Resistor does no charge storage, this is a no-op.
+  /// Since the YLIN device does no charge storage, this is a no-op.
   virtual bool loadDAEdQdx()
   {
     return true;
@@ -255,7 +252,7 @@ public:
   void readTouchStoneFileLine(std::istream & in, std::string& line, int& lineNum);
 
 private:
-  InstanceVector      instanceContainer;            ///< List of owned resistor instances
+  InstanceVector      instanceContainer;            ///< List of owned YLIN device instances
 
   // variables specific to the YLIN model
   std::string            TSFileName_;       ///< Name of the Touchstone file
@@ -357,8 +354,8 @@ public:
                                    std::vector<Util::FreqMatEntry>& dFdx);
 
   private:
-    InstanceVector      linearInstances_;            ///< List of owned linear resistor instances
-    InstanceVector      nonlinearInstances_;         ///< List of owned nonlinear resistor instances
+    InstanceVector      linearInstances_;            ///< List of owned linear instances
+    InstanceVector      nonlinearInstances_;         ///< List of owned nonlinear instances
 };
 
 void registerDevice(const DeviceCountMap& deviceMap = DeviceCountMap(),

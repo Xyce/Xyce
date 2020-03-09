@@ -56,11 +56,6 @@ namespace Xyce {
 namespace Device {
 namespace YLin {
 
-///
-/// Common Jacobian Stamp for all YLin devices.
-/// Because all resistors have identical Jacobian stamps, this data is
-/// declared static and is shared by all resistor instances.
-
 //-----------------------------------------------------------------------------
 // Function      : Xyce::Device::YLin::Instance::initializeJacobianStamp
 // Purpose       :
@@ -440,6 +435,7 @@ bool Model::readTouchStoneFile()
   int numReferenceLinesFound = 0;
   int numMatrixFormatLinesFound = 0;
   int numNetworkDataLinesFound = 0;
+  int numNetworkDataElementsFound = 0;
   bool skipReadNextLine = false;
   bool psuccess = true;
 
@@ -560,11 +556,23 @@ bool Model::readTouchStoneFile()
 	    {
               dataFormat_ = tokenStr;
             }
-            else if ( (tokenStr.toUpper() == "HZ") || (tokenStr.toUpper() == "KHZ") ||
-                      (tokenStr.toUpper() == "MHZ") || (tokenStr.toUpper() == "GHZ") )
+            else if (tokenStr.toUpper() == "HZ")
 	    {
-              ExtendedString freqMultStr("1.0"+parsedLine[i].string_);
-              freqMultiplier_ = freqMultStr.Value();
+              // There are four allowed frequency multipliers.  So, explicitly
+              // check for each one and hard-code the conversion.
+	      freqMultiplier_ = 1.0;
+            }
+            else if (tokenStr.toUpper() == "KHZ")
+            {
+	      freqMultiplier_ = 1.0e+3;
+            }
+            else if (tokenStr.toUpper() == "MHZ")
+            {
+	      freqMultiplier_ = 1.0e+6;
+            }
+            else if (tokenStr.toUpper() == "GHZ")
+	    {
+              freqMultiplier_ = 1.0e+9;
             }
             else if ( tokenStr == "R" )
 	    {
@@ -831,19 +839,25 @@ bool Model::readTouchStoneFile()
         Teuchos::SerialDenseMatrix<int, std::complex<double> > inputNetworkData;
         inputNetworkData.shape(numPorts_, numPorts_);
 
+        parsedLine.clear();
+
 	// now populate the matrix assuming the input is in "Full" format
 	while ( (!inputFile.eof()) && ( aLine[0] !='[') )
 	{
-          ++numDataLinesFound;
-          splitTouchStoneFileLine(aLine,parsedLine);
-          if ( parsedLine.size() != (2*(numPorts_*numPorts_)+1 ) )
+          // account for Touchstone 2 files where each row of network data may
+          // be "wrapped" across several rows in the input file
+          IO::TokenVector tempParsedLine;
+          splitTouchStoneFileLine(aLine,tempParsedLine);
+          numNetworkDataElementsFound += tempParsedLine.size();
+          if ( tempParsedLine.size() <= (2*(numPorts_*numPorts_)+1 ) )
 	  {
-            Report::UserError() << "Incorrect number of entries for network data on lineNum "
-               << lineNum << " in file " << TSFileName_ << " for model " << getName();
-            return false;
+            parsedLine.insert(parsedLine.end(),tempParsedLine.begin(),tempParsedLine.end());
           }
-          else
+
+          // We have a full line of network data if this conditional is true
+          if (parsedLine.size() == (2*(numPorts_*numPorts_)+1 ) )
 	  {
+            ++numDataLinesFound;
             ExtendedString freqStr(parsedLine[0].string_);
             freqVec_.push_back(freqMultiplier_*freqStr.Value());
 
@@ -858,22 +872,25 @@ bool Model::readTouchStoneFile()
 	        ExtendedString Str2(parsedLine[2*(i*numPorts_+j)+2].string_);
                 if (dataFormat_ == "RI")
 		{
-                  inputNetworkData[i][j].real(Str1.Value());
-                  inputNetworkData[i][j].imag(Str2.Value());
+                  // Use inputNetworkData(i,j) format for accessing, in
+                  // order to use row-column indexing.  Also, indexing
+                  // starts at (0,0).
+                  inputNetworkData(i,j).real(Str1.Value());
+                  inputNetworkData(i,j).imag(Str2.Value());
                 }
                 else if (dataFormat_ == "MA")
 		{
                   double mag = Str1.Value();
                   double angle = M_PI*Str2.Value()/180.0;
-                  inputNetworkData[i][j].real(mag*cos(angle));
-                  inputNetworkData[i][j].imag(mag*sin(angle));
+                  inputNetworkData(i,j).real(mag*cos(angle));
+                  inputNetworkData(i,j).imag(mag*sin(angle));
                 }
                 else if (dataFormat_ == "DB")
 		{
                   double mag = pow(10.0,0.05*Str1.Value());
                   double angle = M_PI*Str2.Value()/180.0;
-                  inputNetworkData[i][j].real(mag*cos(angle));
-                  inputNetworkData[i][j].imag(mag*sin(angle));
+                  inputNetworkData(i,j).real(mag*cos(angle));
+                  inputNetworkData(i,j).imag(mag*sin(angle));
                 }
                 else
 		{
@@ -886,9 +903,10 @@ bool Model::readTouchStoneFile()
 
             if ( (twoPortDataOrder_ == "21_12") && (numPorts_ == 2) )
 	    {
-	      complex tempVal = inputNetworkData[1][2];
-              inputNetworkData[1][2] = inputNetworkData[2][1];
-              inputNetworkData[2][1] = tempVal;
+              // indexing into inputNetworkData starts at (0,0)
+	      complex tempVal = inputNetworkData(0,1);
+              inputNetworkData(0,1) = inputNetworkData(1,0);
+              inputNetworkData(1,0) = tempVal;
 	    }
 
             // YLin model will use Y-parameter format internally
@@ -911,6 +929,10 @@ bool Model::readTouchStoneFile()
               // input was in Y-parameter format
               inputNetworkDataVec_.push_back(inputNetworkData);
             }
+
+            // clear parsedLine here, to support parsing network data that
+            // is "wrapped" across multiple rows in the input file
+            parsedLine.clear();
           }
 
           // read in next line
@@ -975,6 +997,16 @@ bool Model::readTouchStoneFile()
   {
     Report::UserError() << "No valid [Network Data] block of lines found in file " << TSFileName_
       << " for model " << getName();
+    psuccess = false;
+  }
+
+  if ( (numNetworkDataElementsFound != numFreq_*(2*(numPorts_*numPorts_)+1 )) &&
+       (numPorts_ != 0) && (numFreq_ != 0) )
+  {
+    Report::UserError() << "Incorrect number of entries in [Network Data] block found in file "
+                        << TSFileName_ << " for model " << getName()
+                        << ". Found " << numNetworkDataElementsFound
+                        << ". Expected " << numFreq_*(2*(numPorts_*numPorts_)+1 );
     psuccess = false;
   }
 
@@ -1334,29 +1366,6 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  double * bVec,
                              double * leadF, double * leadQ, double * junctionV, int loadType)
 {
-  InstanceVector::const_iterator it, end;
-
-  if (loadType == ALL || loadType == NONLINEAR )
-  {
-    it = getInstanceBegin();
-    end = getInstanceEnd();
-  }
-
-  for ( ; it != end; ++it )
-  {
-    Instance & ri = *(*it);
-
-    // Load RHS vector element for the positive circuit node KCL equ.
-    ri.i0 = (solVec[ri.li_Pos]-solVec[ri.li_Neg])*ri.G;
-
-    fVec[ri.li_Pos] += ri.i0;
-    fVec[ri.li_Neg] += -ri.i0;
-    if( ri.loadLeadCurrent )
-    {
-      leadF[ri.li_branch_data] = ri.i0;
-      junctionV[ri.li_branch_data] = solVec[ri.li_Pos] - solVec[ri.li_Neg];
-    }
-  }
   return true;
 }
 
@@ -1388,31 +1397,6 @@ bool Master::loadDAEVectors (double * solVec, double * fVec, double *qVec,  doub
 
 bool Master::loadDAEMatrices(Linear::Matrix & dFdx, Linear::Matrix & dQdx, int loadType)
 {
-  InstanceVector::const_iterator it, end;
-
-  if (loadType == ALL || loadType == NONLINEAR )  
-  {
-    it = getInstanceBegin();
-    end = getInstanceEnd();
-  }
-
-  for ( ; it != end; ++it )
-  {
-    Instance & ri = *(*it);
-
-#ifndef Xyce_NONPOINTER_MATRIX_LOAD
-    *(ri.f_PosEquPosNodePtr) += ri.G;
-    *(ri.f_PosEquNegNodePtr) -= ri.G;
-    *(ri.f_NegEquPosNodePtr) -= ri.G;
-    *(ri.f_NegEquNegNodePtr) += ri.G;
-#else
-    dFdx[ri.li_Pos][ri.APosEquPosNodeOffset] += ri.G;
-    dFdx[ri.li_Pos][ri.APosEquNegNodeOffset] -= ri.G;
-    dFdx[ri.li_Neg][ri.ANegEquPosNodeOffset] -= ri.G;
-    dFdx[ri.li_Neg][ri.ANegEquNegNodeOffset] += ri.G;
-#endif
-  }
-
   return true;
 }
 
