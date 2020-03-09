@@ -2003,9 +2003,11 @@ class polyOp : public astNode<ScalarT>
 {
   public:
     // functions:
-    polyOp (ScalarT numvars, std::vector<Teuchos::RCP<astNode<ScalarT> > > * args):
-      astNode<ScalarT>(), allNumVal_(true), sizeOfVars_(static_cast<int>(std::real(numvars))),
-      numBlocks_(0)
+    polyOp (ScalarT numvars, 
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > * vars,
+        std::vector<Teuchos::RCP<astNode<ScalarT> > > * coefs 
+        ):
+      astNode<ScalarT>(), allNumVal_(true), sizeOfVars_(static_cast<int>(std::real(numvars)))
       {
         if ( std::fmod( std::real(numvars) , 1.0) != 0.0 )
         {
@@ -2019,22 +2021,21 @@ class polyOp : public astNode<ScalarT>
           yyerror(errStr);
         }
 
-        if (args->size() >= sizeOfVars_)
-        {
-          for (int ii=0;ii<sizeOfVars_;++ii) { polyVars_.push_back((*args)[ii]); }
+        for (int ii=0;ii<vars->size();++ii) 
+        { 
+          polyVars_.push_back((*vars)[ii]); 
         }
 
-        if (args->size() > sizeOfVars_)
+        for (int ii=0;ii<coefs->size();++ii)
         {
-          for (int ii=sizeOfVars_;ii<args->size();++ii)
-          {
-            polyCoefs_.push_back((*args)[ii]);
-            if (  !( (*args)[ii]->numvalType() ) ) { allNumVal_ = false; }
-          }
+          polyCoefs_.push_back((*coefs)[ii]);
+          if (  !( (*coefs)[ii]->numvalType() ) ) { allNumVal_ = false; }
         }
 
 #if 0
         std::cout << "polyOp::polyOp  Number of variables = " << sizeOfVars_ <<std::endl;
+        std::cout << "polyOp::polyOp  size of vars = " << vars->size() <<std::endl;
+        std::cout << "polyOp::polyOp  size of coefs = " << coefs->size() <<std::endl;
 
         for (int ii=0;ii<polyCoefs_.size();++ii)
         {
@@ -2047,8 +2048,6 @@ class polyOp : public astNode<ScalarT>
           std::vector<std::string> errStr(1,std::string("AST node (poly) coefficients must all be simple numbers:"));
           yyerror(errStr);
         }
-
-        numBlocks_ = (args->size() - sizeOfVars_ - 1)/sizeOfVars_;
       };
 
     virtual ScalarT val()
@@ -2177,7 +2176,7 @@ class polyOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "poly operator "<< "sizeOfVars_ = " << sizeOfVars_ << " , numBlocks_ " << numBlocks_ << std::endl;
+      os << "poly operator "<< "sizeOfVars_ = " << sizeOfVars_ <<std::endl;
       os << "polynomial variables: " << std::endl;
       ++indent;
       for (int ii=0;ii<polyVars_.size();ii++) { this->polyVars_[ii]->output(os,indent+1); }
@@ -2282,7 +2281,6 @@ class polyOp : public astNode<ScalarT>
     std::vector<Teuchos::RCP<astNode<ScalarT> > > polyCoefs_;
     bool allNumVal_;
     int sizeOfVars_;
-    int numBlocks_;
 };
 
 //-------------------------------------------------------------------------------

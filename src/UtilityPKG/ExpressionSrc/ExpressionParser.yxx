@@ -96,6 +96,8 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %}
 
 // value tokens from the lexer (ExpressionLexer.l)
+%token <dval> TOK_POLYSIZE	"polysize"
+%token <dval> TOK_POLYCOEF "polycoef"
 %token <dval> TOK_NUM	"num"
 %token <sval> TOK_WORD "word"
 %token <sval> TOK_VOLTAGENODE "voltagenode"
@@ -162,7 +164,9 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %type  <astNodePtr>   expression
 %type  <nodeVecPtr>   nonempty_arglist
 %type  <nodeVecPtr>   no_comma_arglist
+%type  <nodeVecPtr>   no_comma_coeflist
 %type  <vecsval>  nonempty_voltagenodelist
+%type  <dval>  paren_polycoef
 
 %destructor { delete $$; } TOK_WORD
 %destructor { delete $$; } TOK_VOLTAGENODE
@@ -609,12 +613,15 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_POLY '(' TOK_NUM ')' no_comma_arglist
+  /* | TOK_POLY '(' TOK_NUM ')' no_comma_arglist */
+   | TOK_POLY  TOK_POLYSIZE no_comma_arglist no_comma_coeflist
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new polyOp<usedType>($3,$5));
+
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new polyOp<usedType>($2,$3,$4));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-      delete $5;
+      delete $3;
+      delete $4;
     }
   | TOK_TABLE '(' '{' exp '}' '=' nonempty_arglist ')'
     {
@@ -804,6 +811,23 @@ nonempty_arglist: exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedT
 no_comma_arglist: exp         { $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*$1);  }
   | no_comma_arglist  exp { $$->push_back((*$2)); }
 
+no_comma_coeflist: TOK_POLYCOEF         { 
+      Teuchos::RCP<astNode<usedType> > *tmpPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType>($1));
+      $$ = new std::vector< Teuchos::RCP<astNode<usedType> > >(1,*tmpPtr);  
+    }
+  | no_comma_coeflist  TOK_POLYCOEF { 
+      Teuchos::RCP<astNode<usedType> > *tmpPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType>($2));
+      $$->push_back((*tmpPtr)); 
+     }
+  | no_comma_coeflist  paren_polycoef{ 
+      Teuchos::RCP<astNode<usedType> > *tmpPtr = new Teuchos::RCP<astNode<usedType> >(new numval<usedType>($2));
+      $$->push_back((*tmpPtr)); 
+     }
+
+paren_polycoef: '(' TOK_POLYCOEF ')'
+    {
+       $$ = $2;
+    }
 %%
 
 int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, XyceExpression::location *locp,

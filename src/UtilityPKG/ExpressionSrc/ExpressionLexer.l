@@ -52,6 +52,10 @@ class ExpressionLexer;
 %option yyclass="Xyce::Util::ExpressionLexer"
 %s voltagenodedef
 %s currentdevdef
+%s polydef
+%s polyargs
+%s polyvoltagenodedef
+%s polycurrentdevdef
 
  /* ID is used for device instance names, particularly inside of current vars */
  /* NODE is used for voltage node names, particularly inside of voltage vars */
@@ -269,7 +273,131 @@ NODE [a-zA-Z0-9_:]*
 <INITIAL>"sqrt"  {return XyceExpression::ExpressionParser::token::TOK_SQRT; }
 <INITIAL>"table" {return XyceExpression::ExpressionParser::token::TOK_TABLE; }
 <INITIAL>"uramp" {return XyceExpression::ExpressionParser::token::TOK_URAMP; }
-<INITIAL>"poly"  {return XyceExpression::ExpressionParser::token::TOK_POLY; }
+
+ /* <INITIAL>"poly"  { return XyceExpression::ExpressionParser::token::TOK_POLY; } */ /* original */
+
+<INITIAL>"poly""("  {
+    BEGIN(polydef);
+//std::cout << "found POLY" <<std::endl;
+    return XyceExpression::ExpressionParser::token::TOK_POLY; 
+  } 
+
+<polydef>{DIGIT}+")" {
+    lvalp->sval=new std::string(YYText());
+    (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+//std::cout << "poly size = " << *(lvalp->sval) <<std::endl;
+    BEGIN(polyargs);
+    return XyceExpression::ExpressionParser::token::TOK_POLYSIZE; 
+  }
+
+<polyargs>"V""("     {
+  BEGIN(polyvoltagenodedef); 
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+//std::cout << "poly V( found" <<std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* single node name by itself */
+<polyvoltagenodedef>{NODE}")" {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+  BEGIN(polyargs);
+//std::cout << "poly VOLTAGENODE found = "<< lvalp->sval << std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
+}
+
+ /* first node in a comma-separated list of two nodes */
+<polyvoltagenodedef>{NODE}"," {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off comma
+//std::cout << "poly VOLTAGENODE found = "<< lvalp->sval << std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_VOLTAGENODE;
+}
+
+<polyargs>"I""("    {
+  BEGIN(polycurrentdevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+//std::cout << "poly I( found" <<std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* single device name by itself */
+<polycurrentdevdef>{ID}")" {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+  BEGIN(polyargs);
+//std::cout << "poly CURRENTDEV found" <<std::endl;
+  return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
+  }
+
+ /* numbers with suffixes */
+<polyargs>[-+]?{DIGIT}+[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
+     return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
+  }
+
+<polyargs>[-+]?{DIGIT}*"."{DIGIT}*[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
+     return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
+  }
+
+<polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[tTgGkKmMxXuUnNpPfF]?[sSvVaA]? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
+     return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
+  }
+
+ /* numbers with 3-character suffixes; meg and mil */
+<polyargs>[-+]?{DIGIT}+[mM][eE][gG][sSvVaA]? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
+     return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
+  }
+
+<polyargs>[-+]?{DIGIT}*"."{DIGIT}*[mM][eE][gG][sSvVaA]? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
+     return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
+  }
+
+<polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][eE][gG][sSvVaA]? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
+     return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
+  }
+
+<polyargs>[-+]?{DIGIT}+[mM][iI][lL][sSvVaA]? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
+     return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
+  }
+
+<polyargs>[-+]?{DIGIT}*"."{DIGIT}*[mM][iI][lL][sSvVaA]? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
+     return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
+  }
+
+<polyargs>[-+]?{DIGIT}*"."?{DIGIT}*[eE][\-\+]?{DIGIT}{1,3}[mM][iI][lL][sSvVaA]? {
+     lvalp->dval=Xyce::Util::Value(std::string(YYText()));
+//std::cout << "poly coef found = "<< lvalp->dval << std::endl;
+     return XyceExpression::ExpressionParser::token::TOK_POLYCOEF;
+  }
+
+<polyargs>[ \t]+  { llocp->step(); }   /* eat up whitespace */
+
+<polyargs>.  {
+  BEGIN(INITIAL);
+//std::cout << "end of poly found " <<std::endl;
+  //lvalp->sval=new std::string(YYText());
+//std::cout << "remaining string after the end (before yyless) " << *(lvalp->sval) <<std::endl;
+  yyless(0);
+}
+
 
  /* a bunch of spice source functions.  Doing them the right way this time */
 <INITIAL>"spice_pulse" {return XyceExpression::ExpressionParser::token::TOK_SPICE_PULSE; }

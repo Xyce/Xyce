@@ -3033,7 +3033,7 @@ TEST ( Double_Parser_poly_Test, test1)
   Xyce::Util::newExpression testExpression(std::string("POLY(1) V(A) 1.0 2.0"), testGroup);
   testExpression.lexAndParseExpression();
 
-  //testExpression.dumpParseTree(std::cout);
+  testExpression.dumpParseTree(std::cout);
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -3176,25 +3176,21 @@ TEST ( Double_Parser_poly_Test, test4)
   EXPECT_EQ( derivs, refderivs);
 }
 
-
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
 TEST ( Double_Parser_poly_Test, test5)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
 
-  // this does not work, because it performs subtraction:
-  //Xyce::Util::newExpression testExpression(std::string("POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6"), testGroup);
-  //
-  // this does work, because I added parens.
+  // with parens
   Xyce::Util::newExpression testExpression(std::string("POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 (10.61E6) (-10E6) (10E6) (10E6) (-10E6)"), testGroup);
   testExpression.lexAndParseExpression();
 
   //testExpression.dumpParseTree(std::cout);
 
-  //Xyce::Util::newExpression copyExpression(testExpression); 
-  //Xyce::Util::newExpression assignExpression; 
-  //assignExpression = testExpression; 
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
 
   double result=0.0; 
   double VB=-1.0;
@@ -3217,11 +3213,57 @@ TEST ( Double_Parser_poly_Test, test5)
   testExpression.evaluate(result, derivs);   
   EXPECT_EQ( result, refRes);
   //EXPECT_EQ( derivs, refderivs);
-  //copyExpression.evaluate(result, derivs);   
-  //EXPECT_EQ( result, refRes);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
   //EXPECT_EQ( derivs, refderivs);
-  //assignExpression.evaluate(result, derivs); 
-  //EXPECT_EQ( result, refRes);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+}
+
+// POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
+TEST ( Double_Parser_poly_Test, test6)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+
+  // without parens
+  Xyce::Util::newExpression testExpression(std::string("POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6"), testGroup);
+  //
+  testExpression.lexAndParseExpression();
+
+  //testExpression.dumpParseTree(std::cout);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0; 
+  double VB=-1.0;
+  double VC=-2.0;
+  double VE=-3.0;
+  double VLP=-4.0;
+  double VLN=-5.0;
+
+  solnGroup->setSoln(std::string("VB"),VB);
+  solnGroup->setSoln(std::string("VC"),VC);
+  solnGroup->setSoln(std::string("VE"),VE);
+  solnGroup->setSoln(std::string("VLP"),VLP);
+  solnGroup->setSoln(std::string("VLN"),VLN);
+
+  double refRes = 0 +  (10.61E6)*(-1) +  (-10E6)*(-2) +  (10E6)*(-3) +  (10E6)*(-4) +  (-10E6)*(-5);
+
+  std::vector<double> derivs;
+  //std::vector<double> refderivs = { 1, -1 };
+
+  testExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  //EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
   //EXPECT_EQ( derivs, refderivs);
 }
 
