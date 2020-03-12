@@ -150,6 +150,9 @@ bool xyceExpressionGroup::getGlobalParameterVal (const std::string & nodeName, d
 bool xyceExpressionGroup::getFunction
 (const std::string & name, Xyce::Util::newExpression & exp)
 {
+#if 1
+  std::cout << "xyceExpressionGroup::getFunction name = " << name <<std::endl;
+#endif
   bool retval=true;
 
   std::string upperName = name;
@@ -171,6 +174,9 @@ bool xyceExpressionGroup::getFunction
 //-------------------------------------------------------------------------------
 void xyceExpressionGroup::addFunction (const std::string & name, Xyce::Util::newExpression & exp)
 {
+#if 1
+  std::cout << "xyceExpressionGroup::addFunction name = " << name <<std::endl;
+#endif
   std::string upperName = name;
   Xyce::Util::toUpper(upperName);
   functions_[upperName] = exp;
@@ -187,8 +193,8 @@ void xyceExpressionGroup::addFunction (const std::string & name, Xyce::Util::new
 bool xyceExpressionGroup::getParam
 (const std::string & name, Xyce::Util::newExpression & exp)
 {
-  bool retval=true;
-  return retval; // FIX THIS
+  bool retval=false;
+  return retval;
 }
 
 //-------------------------------------------------------------------------------
@@ -202,8 +208,8 @@ bool xyceExpressionGroup::getParam
 bool xyceExpressionGroup::getGlobalParam
 (const std::string & name, Xyce::Util::newExpression & exp)
 {
-  bool retval=true;
-  return retval; // FIX THIS
+  bool retval=false;
+  return retval;
 }
 
 }

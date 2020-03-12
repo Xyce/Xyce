@@ -55,7 +55,25 @@ bool ExpressionInternals::set_temp(double const & tempIn)
 class newExpression
 {
 public:
-  newExpression () {};
+  newExpression () :
+    parsed_(false),
+    derivsSetup_(false),
+    astArraysSetup_(false),
+    expressionResolved_(false),
+    astNodePtrPtr_(NULL),
+    tableNodePtrPtr_(NULL),
+    bpTol_(0.0),
+    timeStep_(0.0),
+    timeStepAlpha_(0.0),
+    timeStepPrefac_(0.0),
+    numDerivs_(0),
+    traditionalParse_(true),
+    externalDependencies_(false),
+    isTimeDepdendent_(false),
+    isTempDepdendent_(false),
+    isVTDepdendent_(false),
+    isFreqDepdendent_(false)
+  {};
 
   // primary constructor
   newExpression ( std::string const & exp, Teuchos::RCP<baseExpressionGroup> & group ) :
@@ -64,6 +82,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    expressionResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -111,6 +130,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    expressionResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -148,6 +168,7 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
+    expressionResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -181,6 +202,26 @@ public:
       if (left->voltageType()) { voltOpVec_.push_back(left); }
       if (left->currentType()) { currentOpVec_.push_back(left); }
       left->getInterestingOps(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_);
+
+#if 0
+      paramNameVec_.clear();
+      std::vector<Teuchos::RCP<astNode<usedType> > >::iterator iterParamOp;
+      for (iterParamOp=paramOpVec_.begin();iterParamOp!=paramOpVec_.end();)
+      {
+        std::string name = iterParamOp->getName();
+        std::vector<std::string>::iterator nameIter = std::find(paramNameVec_.begin(),paramNameVec_.end(),name);
+
+        if (nameIter != paramNameVec_.end())
+        {
+          paramNameVec_.push_back(name);
+          ++iterParamOp;
+        }
+        else
+        {
+          iterParamOp = paramOpVec_.erase(iterParamOp);
+        }
+      }
+#endif
     }
 // setup voltOpNames here?
 // setup currentOpNames here?
@@ -195,10 +236,10 @@ public:
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
+    expressionResolved_(right.expressionResolved_),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     functionArgStringVec_(right.functionArgStringVec_),
-    paramOpMap_(right.paramOpMap_),
     functionArgOpVec_ (right.functionArgOpVec_),
     paramOpVec_(right.paramOpVec_),
     unresolvedParamOpVec_(right.unresolvedParamOpVec_),
@@ -263,10 +304,10 @@ public:
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
+    expressionResolved_ = right.expressionResolved_;
     astNodePtrPtr_ = NULL;
     tableNodePtrPtr_ = NULL;
     functionArgStringVec_ = right.functionArgStringVec_;
-    paramOpMap_ = right.paramOpMap_;
     functionArgOpVec_  = right.functionArgOpVec_;
     paramOpVec_ = right.paramOpVec_;
     unresolvedParamOpVec_ = right.unresolvedParamOpVec_;
@@ -362,6 +403,7 @@ public:
   bool parsed() const { return parsed_; };
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
+  bool expressionResolved() const {return expressionResolved_; }
 
   void setExpressionString (std::string const & exp)  { expressionString_ = exp; }
 
@@ -405,22 +447,13 @@ public:
   Teuchos::RCP<astNode<usedType> > getPiNode () { return piNodePtr_; }
 
   // some of the parameter and function objects are stored in multiple containers.
-  void setFunctionArgStringVec (const std::vector<std::string> & args)
-  {
-    functionArgStringVec_ = args;
-    int size = functionArgStringVec_.size();
-    for (int ii=0;ii<size;ii++)
-    {
-      Xyce::Util::toUpper(functionArgStringVec_[ii]);
-    }
-  };
+  void setFunctionArgStringVec (const std::vector<std::string> & args);
 
   std::vector<std::string> & getFunctionArgStringVec () { return functionArgStringVec_; };
 
-  std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > > & getParamOpMap () { return paramOpMap_; };
-
   std::vector< Teuchos::RCP<astNode<usedType> > > & getFunctionArgOpVec() { return functionArgOpVec_; };
 
+  std::vector<std::string> & getParamNameVec () { return paramNameVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getParamOpVec () { return paramOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedParamOpVector() {  return unresolvedParamOpVec_; };
 
@@ -431,6 +464,7 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getVoltOpNames ()
   {
+    if (!expressionResolved_) { resolveExpression(); }
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
     return voltOpNames_;
   };
@@ -439,6 +473,7 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
   {
+    if (!expressionResolved_) { resolveExpression(); }
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
     return currentOpNames_;
   };
@@ -468,6 +503,46 @@ public:
   bool getFreqDependent() { return isFreqDepdendent_; }
   void setFreqDependent(bool val) { isFreqDepdendent_ = val; }
 
+  // note: I don't particularly like these next 2 functions, but they are needed
+  // to support the old expression API.
+  //
+  // this function is only used to determine function arguments of a function prototype
+  // So if we have .func abc(x,y) {x+y+10}
+  // At a certain point the prototype abc(x,y) will get parsed, and x,y are the prototype args.
+  //
+  // The old Xyce source code uses an expression to parse abc(x,y) so I'm attempting to 
+  // do the same here. When doing this, it is necessary to keep the args in order, 
+  // which is why I can't rely on the getParamOpVec function (as the paramOpVec is in 
+  // the same order as the paramOpMap)
+  void getFuncPrototypeArgStrings ( std::vector< std::string > & funcArgStrings )
+  {
+    if (!expressionResolved_) { resolveExpression(); }
+
+    funcArgStrings.clear();
+    if(!(funcOpVec_.empty()))
+    {
+      Teuchos::RCP<funcOp<usedType> > funcOperator = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec_[0]) ;
+      if ( !(Teuchos::is_null(funcOperator)) )
+      {
+        std::vector< Teuchos::RCP<astNode<usedType> > > & funcArgs = funcOperator->getFuncArgs();
+        for(int ii=0;ii<funcArgs.size();++ii) { funcArgStrings.push_back(funcArgs[ii]->getName()); }
+      }
+    }
+    return;
+  }
+
+  // when parsing the function prototype, the function name is needed as well.
+  void getFuncPrototypeName ( std::string & prototypeName) 
+  {
+    if (!expressionResolved_) { resolveExpression(); }
+
+    if(!(funcOpVec_.empty()))
+    {
+      prototypeName = funcOpVec_[0]->getName();
+    }
+  }
+
+
 
 private:
   void setupDerivatives_ ();
@@ -478,6 +553,7 @@ private:
   bool parsed_;
   bool derivsSetup_;
   bool astArraysSetup_;
+  bool expressionResolved_;
   Teuchos::RCP<astNode<usedType> > astNodePtr_;
   Teuchos::RCP<astNode<usedType> > * astNodePtrPtr_;
   Teuchos::RCP<tableOp<usedType> > * tableNodePtrPtr_;
@@ -487,9 +563,9 @@ private:
 
   Teuchos::RCP<paramOp<usedType> > garbageParamOpPtr_; // convenient for unused params/args
 
-  std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > > paramOpMap_;
   std::vector< Teuchos::RCP<astNode<usedType> > > functionArgOpVec_;
 
+  std::vector<std::string> paramNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > paramOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedParamOpVec_;
 

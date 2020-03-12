@@ -393,7 +393,7 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
 //                   XEXP_NODE,           // 1    nodal variables, does this include currents? (no)
 //                   XEXP_INSTANCE,       // 2    current variables, from voltage sources, current sources
 //                   XEXP_LEAD,           // 3    current variables, but not from solution vec. ( like I(R1) )
-//                   XEXP_STRING,         // 4    for some mysterious reason, this means params and global_params
+//                   XEXP_STRING,         // 4    as-yet unresolved strings.  Once preliminary resolution is done, this is .func arguments.  
 //                   XEXP_SPECIAL,        // 5    special returns vars like TIME
 //                   XEXP_VARIABLE,       // 6    also global params, apparently.  Also, it set_var targets?
 //                   XEXP_FUNCTION,       // 7    these are .funcs
@@ -463,7 +463,32 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
       case XEXP_LEAD: // ERK.  I haven't figured this out yet, but need to.
         break;
 
-      case XEXP_STRING: // for some mysterious reason, this means params and global_params
+      case XEXP_STRING: // unresolved strings.  
+        // This is called in a few use cases:
+        //
+        // (1) to obtain the function arguments specified in the function definition.  
+        // ie, if you have:
+        //
+        // .func abc(x,y)
+        //
+        // the old Xyce code creates an expression (probably called "functionPrototype") from 
+        // the string "abc(x,y)" and then requests the "strings" back, which will be x,y.  
+        // For it to work properly, the string vector needs to be in the same order as 
+        // they were specified in the prototype.
+        //
+        // (2) to obtain what are probably function arguments in a function body.  
+        // ie, if you have:
+        //
+        // .param a=2.0
+        // .func abc(x,y) {x+y+5*a}
+        //
+        // Then the function body is {x+y+5*a}.  A "resolution" will figure out that "a" 
+        // is a .param, and mark it accordingly, but it will NOT find x and y, as they are 
+        // not .params or .global_params.  As a result, x and y will still be in the list 
+        // of "strings". (I think.  check this).  This seems a bit backward - the code should
+        // already know that x,y are the arguments, if it has already executed use case (1), 
+        // above.
+        //
         for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
         {
           std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
@@ -521,6 +546,7 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
   {
     expPtr_->get_names(type,names);
   }
+  std::cout << "Expression::get_names(int const & type, std::vector<std::string> & names ) const " << std::endl;
   return;
 }
 
@@ -561,6 +587,7 @@ int Expression::get_type ( const std::string & var )
   {
     retVal = expPtr_->get_type (var);
   }
+  std::cout << "Expression::get_type ( const std::string & var ) " << std::endl;
   return retVal;
 }
 
@@ -583,6 +610,7 @@ bool Expression::make_constant (const std::string & var, const double & val)
   {
     retVal = expPtr_->make_constant (var,val);
   }
+  std::cout << "Expression::make_constant (const std::string & var, const double & val).   var = " << var << "  val = " << val << std::endl;
   return retVal;
 }
 
@@ -637,6 +665,7 @@ bool Expression::make_var (std::string const & var)
   {
     retVal = expPtr_->make_var(var);
   }
+  std::cout << "Expression::make_var (std::string const & var)  var = " << var << std::endl;
   return retVal;
 }
 
@@ -659,6 +688,7 @@ int Expression::differentiate ()
   {
     retVal = expPtr_->differentiate ();
   }
+  std::cout << "Expression::differentiate() " << std::endl;
   return retVal;
 }
 
@@ -672,6 +702,8 @@ int Expression::differentiate ()
 //-----------------------------------------------------------------------------
 bool Expression::set_var ( const std::string & var, const double & val)
 {
+  std::cout << "Expression::set_var ( const std::string & var, const double & val) var = " << var << " val = " << val << std::endl;
+
   if(useNewExpressionLibrary_)
   {
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
@@ -699,6 +731,12 @@ bool Expression::set_var ( const std::string & var, const double & val)
 bool Expression::set_vars ( const std::vector<double> & vals )
 {
   bool retVal=false; 
+  std::cout << "Expression::set_vars ( const std::vector<double> & vals ) " <<std::endl;
+  for(int ii=0;ii<vals.size();++ii)
+  {
+    std::cout << "vals["<<ii<<"] = " << vals[ii] <<std::endl;
+  }
+
   if(useNewExpressionLibrary_)
   {
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
@@ -748,6 +786,7 @@ std::string Expression::get_expression () const
   {
     retVal = expPtr_->get_expression ();
   }
+  std::cout << "Expression::get_expression () const " << std::endl;
   return retVal;
 }
 
@@ -834,6 +873,7 @@ int Expression::get_num(int const & type)
   {
     retVal = expPtr_->get_num(type);
   }
+  std::cout << "Expression::get_num(int const & type) type = " << type << " num = " << retVal << std::endl;
   return retVal;
 }
 
@@ -1235,8 +1275,6 @@ int Expression::replace_func (std::string const & func_name,
 
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
     xyceGroup->addFunction(func_name, funcExpr);
-    newExpPtr_->resolveExpression();
-
     return numArgs;
   }
   else

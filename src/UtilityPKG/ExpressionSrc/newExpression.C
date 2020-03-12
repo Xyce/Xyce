@@ -116,7 +116,7 @@ bool newExpression::lexAndParseExpression()
     // Note, if using the flex/bison NetlistParser,
     // when each .func statement is processed, a functionData object is created, and different
     // fields are populated, including "args_", which is where functionArgStringVec comes from
-    // (it gets copied over in ExpressioTest).  So, anyway, paramOpMap comes from expression
+    // (it gets copied over in ExpressionTest).  So, anyway, paramOpMap comes from expression
     // parsing, but functionArgStringVec comes from Netlist parsing.
     //
     // the paramOpMap_, immediately after parsing will contain
@@ -134,26 +134,23 @@ bool newExpression::lexAndParseExpression()
     // function argument will be more of a "local" variable.
 
     int stringArgsSize=functionArgStringVec_.size();
-    std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > >::iterator paramIter;
+    std::vector<std::string>::iterator paramIter;
     if (stringArgsSize>0)
     {
       functionArgOpVec_.clear();
       functionArgOpVec_.resize(stringArgsSize,(getGarbageParam()));
       for (int ii=0;ii<stringArgsSize;++ii)
       {
-        paramIter = paramOpMap_.find(functionArgStringVec_[ii]);
-        if (paramIter != paramOpMap_.end()) // found it
+        paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), functionArgStringVec_[ii]);
+        if (paramIter != paramNameVec_.end()) // found it
         {
-          functionArgOpVec_[ii] = paramOpMap_[functionArgStringVec_[ii]];
-          paramOpMap_.erase(paramIter);
+          int index = std::distance(paramNameVec_.begin(),paramIter);
+          functionArgOpVec_[ii] = paramOpVec_[index];
+          paramNameVec_.erase(paramNameVec_.begin()+index);
+          paramOpVec_.erase(paramOpVec_.begin()+index);
           functionArgOpVec_[ii]->setFunctionArgType();
         }
       }
-    }
-
-    for (paramIter=paramOpMap_.begin();paramIter!= paramOpMap_.end(); ++paramIter)
-    {
-      paramOpVec_.push_back(paramIter->second);
     }
   }
 
@@ -215,8 +212,11 @@ void newExpression::resolveExpression ()
       funcOpVec_[ii]->setNode(exp.getAst());
 
       Teuchos::RCP<funcOp<usedType> > tmpPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec_[ii]);
-      tmpPtr->setFuncArgs(  exp.getFunctionArgOpVec() );
-      externalDependencies_ = true;
+      if ( !(Teuchos::is_null(tmpPtr)) )
+      {
+        tmpPtr->setFuncArgs(  exp.getFunctionArgOpVec() );
+        externalDependencies_ = true;
+      }
     }
     else
     {
@@ -249,6 +249,7 @@ void newExpression::resolveExpression ()
       }
     }
   }
+  expressionResolved_ = true;
 }
 
 //-------------------------------------------------------------------------------
@@ -290,9 +291,9 @@ void newExpression::clear ()
   externalDependencies_ = false;
 
   functionArgStringVec_.clear();
-  paramOpMap_.clear();
   functionArgOpVec_.clear();
 
+  paramNameVec_.clear();
   paramOpVec_.clear();
   unresolvedParamOpVec_.clear();
 
@@ -323,34 +324,16 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
 {
   std::string tmpParName = var;
   Xyce::Util::toUpper(tmpParName);
-
-  if (paramOpMap_.find(tmpParName) != paramOpMap_.end())
-  {
-    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpMap_[tmpParName]);
-    parOp->setValue(val);
-  }
-
-  return true;
-}
-
-//-------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------
-bool newExpression::make_var (std::string const & var)
-{
-  //std::cout << "Error.  newExpression::make_var function not implemented yet!!!" <<std::endl;
-
   bool retval=false;
 
-  std::string tmpParName = var;
-  Xyce::Util::toUpper(tmpParName);
-
-  if (paramOpMap_.find(tmpParName) != paramOpMap_.end())
+  std::vector<std::string>::iterator paramIter;
+  paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), tmpParName);
+  if (paramIter != paramNameVec_.end()) // found it
   {
-    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpMap_[tmpParName]);
-    parOp->unsetValue(); // just to be safe "unset" the value
-    parOp->setVar();
-
-    retval = true; // just means we found it
+    int index = std::distance(paramNameVec_.begin(),paramIter);
+    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
+    parOp->setValue(val);
+    retval=true;
   }
 
   return retval;
@@ -358,14 +341,39 @@ bool newExpression::make_var (std::string const & var)
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
+bool newExpression::make_var (std::string const & var)
+{
+  std::string tmpParName = var;
+  Xyce::Util::toUpper(tmpParName);
+  bool retval=false;
+
+  std::vector<std::string>::iterator paramIter;
+  paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), tmpParName);
+  if (paramIter != paramNameVec_.end()) // found it
+  {
+    int index = std::distance(paramNameVec_.begin(),paramIter);
+    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
+    parOp->unsetValue(); // just to be safe "unset" the value
+    parOp->setVar();
+    retval = true; // just means we found it
+  }
+
+  return retval;
+}
+
+//-------------------------------------------------------------------------------
+// ERK.  do we really need this function and the one above (make_var)?
+//-------------------------------------------------------------------------------
 void newExpression::setVar(const std::string & var)
 {
   std::string tmpParName = var;
   Xyce::Util::toUpper(tmpParName);
-
-  if (paramOpMap_.find(tmpParName) != paramOpMap_.end())
+  std::vector<std::string>::iterator paramIter;
+  paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), tmpParName);
+  if (paramIter != paramNameVec_.end()) // found it
   {
-    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpMap_[tmpParName]);
+    int index = std::distance(paramNameVec_.begin(),paramIter);
+    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->setVar();
   }
 }
@@ -693,6 +701,8 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   int retVal=0;
   if (parsed_)
   {
+    if (!expressionResolved_) { resolveExpression(); }
+
     if (!astArraysSetup_)
     {
       setupVariousAstArrays_ ();
@@ -746,6 +756,8 @@ int newExpression::evaluateFunction (usedType &result)
   int retVal=0;
   if (parsed_)
   {
+    if (!expressionResolved_) { resolveExpression(); }
+
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
 
     // get solution values we need from the group
@@ -829,5 +841,16 @@ int newExpression::evaluateFunction (usedType &result)
   return retVal;
 };
 
+
+// some of the parameter and function objects are stored in multiple containers.
+void newExpression::setFunctionArgStringVec (const std::vector<std::string> & args)
+{
+  functionArgStringVec_ = args;
+  int size = functionArgStringVec_.size();
+  for (int ii=0;ii<size;ii++)
+  {
+    Xyce::Util::toUpper(functionArgStringVec_[ii]);
+  }
+};
 }
 }

@@ -1154,6 +1154,11 @@ class funcOp: public astNode<ScalarT>
       argsResolved_ = true;
     };
 
+    std::vector< Teuchos::RCP<astNode<ScalarT> > > & getFuncArgs()
+    {
+      return funcArgs_;
+    };
+
     virtual bool funcType()    { return true; };
 
     virtual std::string getName() { return funcName_; }

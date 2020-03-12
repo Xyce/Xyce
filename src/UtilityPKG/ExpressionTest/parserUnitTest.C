@@ -18,7 +18,6 @@
 #include <N_UTL_BreakPoint.h>
 #include <N_UTL_ExtendedString.h>
 
-#if 1
 class testExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
   public:
@@ -84,6 +83,37 @@ TEST ( Double_Parser_Test, numval2)
   assignExpression = testExpression; 
   assignExpression.evaluateFunction(result); 
   EXPECT_EQ( (result-(10.61E6)), 0.0);
+}
+
+// these next 3 tests are for parameters that happen to have the same name as single-character operators
+TEST ( Double_Parser_Test, singleParam_R)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("R"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 0.0);
+}
+
+TEST ( Double_Parser_Test, singleParam_M)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("M"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 0.0);
+}
+
+TEST ( Double_Parser_Test, singleParam_P)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("P"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 0.0);
 }
 
 // binary operators
@@ -456,7 +486,6 @@ TEST ( Double_Parser_SourceFunc_Test, sffm)
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
 }
-#endif
 
 class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
@@ -523,7 +552,6 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
   double VBval, VCval, VEval, VLPval, VLNval;
 };
 
-#if 1
 TEST ( Double_Parser_VoltSoln_Test, test0)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
@@ -837,14 +865,29 @@ TEST ( Double_Parser_Func_Test, test1)
 
   // this expression is the RHS of a .func statement:  .func F1(A,B) {A+B}
   Xyce::Util::newExpression f1Expression (std::string("A+B"), testGroup);
-  std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
-  f1Expression.setFunctionArgStringVec ( f1ArgStrings );
+
+  // I originally had this set up so that the calling code would manually set the 
+  // vector of prototype function arguments, as well as the name of the function 
+  // itself.  But in a code like Xyce, that isn't how it is likely to work. The 
+  // function prototype F1(A,B) has to be parsed, and the appropriate information 
+  // pulled out of it.  In Xyce, the old expression library is used to parse the 
+  // prototype(LHS), so attempting same here.
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A,B)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+  f1Expression.setFunctionArgStringVec (f1ArgStrings);
   // during lex/parse, this vector of arg strings will be compared to any
   // param classes.  If it finds them, then they will be placed in the
   // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
   f1Expression.lexAndParseExpression();
 
-  std::string f1Name = "F1";
+  // now parse the function name from the prototype
+  //std::string f1Name = "F1";
+  std::string f1Name; 
+  f1_LHS.getFuncPrototypeName(f1Name);
+
   funcGroup->addFunction( f1Name ,  f1Expression);
   testExpression.resolveExpression(); // this *does* do something, unlike other calls in this file
 
@@ -866,8 +909,14 @@ TEST ( Double_Parser_ternary_precedence, simple)
 
   // this expression is the RHS of a .func statement:  .func simple(X) {x>0?2*x :0}
   Xyce::Util::newExpression simpleExpression(std::string("x>0?2*x :0"), testGroup);
-  std::vector<std::string> simpleArgStrings = { std::string("x") }; // CASE MATTERS!!!  EEK
-  simpleExpression.setFunctionArgStringVec ( simpleArgStrings );
+
+  std::vector<std::string> simpleArgStrings ; // = { std::string("x") }; // CASE MATTERS!!!  EEK
+
+  Xyce::Util::newExpression simple_LHS (std::string("simple(X)"), testGroup);
+  simple_LHS.lexAndParseExpression();
+  simple_LHS.getFuncPrototypeArgStrings(simpleArgStrings);
+  simpleExpression.setFunctionArgStringVec (simpleArgStrings);
+
   simpleExpression.lexAndParseExpression();
 
   // these expressions uses the .func simple.
@@ -875,7 +924,10 @@ TEST ( Double_Parser_ternary_precedence, simple)
     Xyce::Util::newExpression simpleTrue(std::string("simple(4)"), testGroup);
     simpleTrue.lexAndParseExpression();
 
-    std::string simpleName = "simple";
+    //std::string simpleName = "simple";
+    std::string simpleName;
+    simple_LHS.getFuncPrototypeName(simpleName);
+
     funcGroup->addFunction( simpleName ,  simpleExpression);
     simpleTrue.resolveExpression();
 
@@ -892,7 +944,9 @@ TEST ( Double_Parser_ternary_precedence, simple)
     Xyce::Util::newExpression simpleFalse(std::string("simple(0)"), testGroup);
     simpleFalse.lexAndParseExpression();
 
-    std::string simpleName = "simple";
+    //std::string simpleName = "simple";
+    std::string simpleName;
+    simple_LHS.getFuncPrototypeName(simpleName);
     funcGroup->addFunction( simpleName ,  simpleExpression);
     simpleFalse.resolveExpression();
 
@@ -907,6 +961,7 @@ TEST ( Double_Parser_ternary_precedence, simple)
   }
 }
 
+#if 1
 TEST ( Double_Parser_ternary_precedence, precplus)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
@@ -914,14 +969,20 @@ TEST ( Double_Parser_ternary_precedence, precplus)
 
   // this expression is the RHS of a .func statement:  .func precplus(X) {1+x>0?2*x :0+2}
   Xyce::Util::newExpression precplusExpression(std::string("1+x>0?2*x :0+2"), testGroup);
-  std::vector<std::string> precplusArgStrings = { std::string("x") }; // CASE MATTERS!!!  EEK
-  precplusExpression.setFunctionArgStringVec ( precplusArgStrings );
+  std::vector<std::string> precplusArgStrings; // = { std::string("x") }; // CASE MATTERS!!!  EEK
+
+  Xyce::Util::newExpression precplus_LHS (std::string("precplus(X)"), testGroup);
+  precplus_LHS.lexAndParseExpression();
+  precplus_LHS.getFuncPrototypeArgStrings(precplusArgStrings);
+  precplusExpression.setFunctionArgStringVec (precplusArgStrings);
   precplusExpression.lexAndParseExpression();
 
   {
     Xyce::Util::newExpression precplusTrue(std::string("precplus(4)"), testGroup);
     precplusTrue.lexAndParseExpression();
-    std::string precplusName = "precplus";
+    //std::string precplusName = "precplus";
+    std::string precplusName;
+    precplus_LHS.getFuncPrototypeName(precplusName);
     funcGroup->addFunction( precplusName ,  precplusExpression);
     precplusTrue.resolveExpression();
 
@@ -937,7 +998,9 @@ TEST ( Double_Parser_ternary_precedence, precplus)
   {
     Xyce::Util::newExpression precplusFalse(std::string("precplus(-4)"), testGroup);
     precplusFalse.lexAndParseExpression();
-    std::string precplusName = "precplus";
+    //std::string precplusName = "precplus";
+    std::string precplusName;
+    precplus_LHS.getFuncPrototypeName(precplusName);
     funcGroup->addFunction( precplusName ,  precplusExpression);
     precplusFalse.resolveExpression();
 
@@ -959,14 +1022,20 @@ TEST ( Double_Parser_ternary_precedence, precplusparen)
 
   // this expression is the RHS of a .func statement:  .func precplusparen(X) {(1+x)>0?(2*x) :(0+2)}
   Xyce::Util::newExpression precplusparenExpression(std::string("(1+x)>0?(2*x) :(0+2)"), testGroup);
-  std::vector<std::string> precplusparenArgStrings = { std::string("x") }; // CASE MATTERS!!!  EEK
+  std::vector<std::string> precplusparenArgStrings;// = { std::string("x") }; // CASE MATTERS!!!  EEK
+
+  Xyce::Util::newExpression precplusparen_LHS (std::string("precplusparen(X)"), testGroup);
+  precplusparen_LHS.lexAndParseExpression();
+  precplusparen_LHS.getFuncPrototypeArgStrings(precplusparenArgStrings);
   precplusparenExpression.setFunctionArgStringVec ( precplusparenArgStrings );
   precplusparenExpression.lexAndParseExpression();
 
   {
     Xyce::Util::newExpression precplusparenTrue(std::string("precplusparen(4)"), testGroup);
     precplusparenTrue.lexAndParseExpression();
-    std::string precplusparenName = "precplusparen";
+    //std::string precplusparenName = "precplusparen";
+    std::string precplusparenName;
+    precplusparen_LHS.getFuncPrototypeName(precplusparenName);
     funcGroup->addFunction( precplusparenName ,  precplusparenExpression);
     precplusparenTrue.resolveExpression();
 
@@ -982,7 +1051,9 @@ TEST ( Double_Parser_ternary_precedence, precplusparen)
   {
     Xyce::Util::newExpression precplusparenFalse(std::string("precplusparen(-4)"), testGroup);
     precplusparenFalse.lexAndParseExpression();
-    std::string precplusparenName = "precplusparen";
+    //std::string precplusparenName = "precplusparen";
+    std::string precplusparenName;
+    precplusparen_LHS.getFuncPrototypeName(precplusparenName);
     funcGroup->addFunction( precplusparenName ,  precplusparenExpression);
     precplusparenFalse.resolveExpression();
 
@@ -1004,7 +1075,11 @@ TEST ( Double_Parser_ternary_precedence, simpleif)
 
   // this expression is the RHS of a .func statement:  .func simpleif(X) {if(x>0,2*x,0)}
   Xyce::Util::newExpression simpleifExpression(std::string("if(x>0,2*x,0)"), testGroup);
-  std::vector<std::string> simpleifArgStrings = { std::string("x") }; // CASE MATTERS!!!  EEK
+  std::vector<std::string> simpleifArgStrings; // = { std::string("x") }; // CASE MATTERS!!!  EEK
+
+  Xyce::Util::newExpression simpleif_LHS (std::string("simpleif(X)"), testGroup);
+  simpleif_LHS.lexAndParseExpression();
+  simpleif_LHS.getFuncPrototypeArgStrings(simpleifArgStrings);
   simpleifExpression.setFunctionArgStringVec ( simpleifArgStrings );
   simpleifExpression.lexAndParseExpression();
 
@@ -1012,7 +1087,9 @@ TEST ( Double_Parser_ternary_precedence, simpleif)
   {
     Xyce::Util::newExpression simpleifTrue(std::string("simpleif(4)"), testGroup);
     simpleifTrue.lexAndParseExpression();
-    std::string simpleifName = "simpleif";
+    //std::string simpleifName = "simpleif";
+    std::string simpleifName;
+    simpleif_LHS.getFuncPrototypeName(simpleifName);
     funcGroup->addFunction( simpleifName ,  simpleifExpression);
     simpleifTrue.resolveExpression();
 
@@ -1028,7 +1105,9 @@ TEST ( Double_Parser_ternary_precedence, simpleif)
   {
     Xyce::Util::newExpression simpleifFalse(std::string("simpleif(0)"), testGroup);
     simpleifFalse.lexAndParseExpression();
-    std::string simpleifName = "simpleif";
+    //std::string simpleifName = "simpleif";
+    std::string simpleifName;
+    simpleif_LHS.getFuncPrototypeName(simpleifName);
     funcGroup->addFunction( simpleifName ,  simpleifExpression);
     simpleifFalse.resolveExpression();
 
@@ -1050,13 +1129,19 @@ TEST ( Double_Parser_ternary_precedence, precplusif)
 
   // this expression is the RHS of a .func statement:  .func precplusif(X) {if((1+x>0),2*x,0+2)}
   Xyce::Util::newExpression precplusifExpression(std::string("if((1+x>0),2*x,0+2)"), testGroup);
-  std::vector<std::string> precplusifArgStrings = { std::string("x") }; // CASE MATTERS!!!  EEK
+  std::vector<std::string> precplusifArgStrings; // = { std::string("x") }; // CASE MATTERS!!!  EEK
+
+  Xyce::Util::newExpression precplusif_LHS (std::string("precplusif(X)"), testGroup);
+  precplusif_LHS.lexAndParseExpression();
+  precplusif_LHS.getFuncPrototypeArgStrings(precplusifArgStrings);
   precplusifExpression.setFunctionArgStringVec ( precplusifArgStrings );
   precplusifExpression.lexAndParseExpression();
   {
     Xyce::Util::newExpression precplusifTrue(std::string("precplusif(4)"), testGroup);
     precplusifTrue.lexAndParseExpression();
-    std::string precplusifName = "precplusif";
+    //std::string precplusifName = "precplusif";
+    std::string precplusifName;
+    precplusif_LHS.getFuncPrototypeName(precplusifName);
     funcGroup->addFunction( precplusifName ,  precplusifExpression);
     precplusifTrue.resolveExpression();
 
@@ -1072,7 +1157,9 @@ TEST ( Double_Parser_ternary_precedence, precplusif)
   {
     Xyce::Util::newExpression precplusifFalse(std::string("precplusif(-4)"), testGroup);
     precplusifFalse.lexAndParseExpression();
-    std::string precplusifName = "precplusif";
+    //std::string precplusifName = "precplusif";
+    std::string precplusifName;
+    precplusif_LHS.getFuncPrototypeName(precplusifName);
     funcGroup->addFunction( precplusifName ,  precplusifExpression);
     precplusifFalse.resolveExpression();
 
@@ -1094,13 +1181,20 @@ TEST ( Double_Parser_ternary_precedence, precplusparenif)
 
   // this expression is the RHS of a .func statement:  .func precplusparenif(X) {if(((1+x)>0),(2*x),(0+2))}
   Xyce::Util::newExpression precplusparenifExpression(std::string("if(((1+x)>0),(2*x),(0+2))"), testGroup);
-  std::vector<std::string> precplusparenifArgStrings = { std::string("x") }; // CASE MATTERS!!!  EEK
+
+  std::vector<std::string> precplusparenifArgStrings; // = { std::string("x") }; // CASE MATTERS!!!  EEK
+
+  Xyce::Util::newExpression precplusparenif_LHS (std::string("precplusparenif(X)"), testGroup);
+  precplusparenif_LHS.lexAndParseExpression();
+  precplusparenif_LHS.getFuncPrototypeArgStrings(precplusparenifArgStrings);
   precplusparenifExpression.setFunctionArgStringVec ( precplusparenifArgStrings );
   precplusparenifExpression.lexAndParseExpression();
   {
     Xyce::Util::newExpression precplusparenifTrue(std::string("precplusparenif(4)"), testGroup);
     precplusparenifTrue.lexAndParseExpression();
-    std::string precplusparenifName = "precplusparenif";
+    //std::string precplusparenifName = "precplusparenif";
+    std::string precplusparenifName;
+    precplusparenif_LHS.getFuncPrototypeName (precplusparenifName);
     funcGroup->addFunction( precplusparenifName ,  precplusparenifExpression);
     precplusparenifTrue.resolveExpression();
 
@@ -1116,7 +1210,9 @@ TEST ( Double_Parser_ternary_precedence, precplusparenif)
   {
     Xyce::Util::newExpression precplusparenifFalse(std::string("precplusparenif(-4)"), testGroup);
     precplusparenifFalse.lexAndParseExpression();
-    std::string precplusparenifName = "precplusparenif";
+    //std::string precplusparenifName = "precplusparenif";
+    std::string precplusparenifName;
+    precplusparenif_LHS.getFuncPrototypeName (precplusparenifName);
     funcGroup->addFunction( precplusparenifName ,  precplusparenifExpression);
     precplusparenifFalse.resolveExpression();
 
@@ -1128,6 +1224,56 @@ TEST ( Double_Parser_ternary_precedence, precplusparenif)
     precplusparenifFalse.evaluateFunction(result);       EXPECT_EQ( result, 2.0 );
     copyPrecplusparenifFalse.evaluateFunction(result);   EXPECT_EQ( result, 2.0 );
     assignPrecplusparenifFalse.evaluateFunction(result); EXPECT_EQ( result, 2.0 );
+  }
+}
+
+TEST ( Double_Parser_Func_Test, longArgList)
+{
+  Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  // this expression is the RHS of a .func statement:  .func crazy(X,A,B,Y,E,C,D,F) {E}
+  Xyce::Util::newExpression crazyExpression(std::string("E"), testGroup);
+
+  std::vector<std::string> crazyArgStrings;
+  Xyce::Util::newExpression crazy_LHS (std::string("crazy(X,A,B,Y,E,C,D,F)"), testGroup);
+  crazy_LHS.lexAndParseExpression();
+  crazy_LHS.getFuncPrototypeArgStrings(crazyArgStrings); // should be std::vector<std::string> = { "X","A","B","Y","E","C","D","F" }
+  crazyExpression.setFunctionArgStringVec ( crazyArgStrings );
+  crazyExpression.lexAndParseExpression();
+  {
+    Xyce::Util::newExpression crazyTrue(std::string("crazy(0,0,0,0,4,0,0,0)"), testGroup);
+    crazyTrue.lexAndParseExpression();
+    std::string crazyName;
+    crazy_LHS.getFuncPrototypeName (crazyName); // should be "crazy"
+    funcGroup->addFunction( crazyName ,  crazyExpression);
+    crazyTrue.resolveExpression();
+
+    Xyce::Util::newExpression copyCrazyTrue(crazyTrue); 
+    Xyce::Util::newExpression assignCrazyTrue; 
+    assignCrazyTrue = crazyTrue; 
+
+    double result;
+    crazyTrue.evaluateFunction(result);       EXPECT_EQ( result, 4.0 );
+    copyCrazyTrue.evaluateFunction(result);   EXPECT_EQ( result, 4.0 );
+    assignCrazyTrue.evaluateFunction(result); EXPECT_EQ( result, 4.0 );
+  }
+  {
+    Xyce::Util::newExpression crazyFalse(std::string("crazy(0,0,0,0,-4,0,0,0)"), testGroup);
+    crazyFalse.lexAndParseExpression();
+    std::string crazyName;
+    crazy_LHS.getFuncPrototypeName (crazyName); // should be "crazy"
+    funcGroup->addFunction( crazyName ,  crazyExpression);
+    crazyFalse.resolveExpression();
+
+    Xyce::Util::newExpression copyCrazyFalse(crazyFalse); 
+    Xyce::Util::newExpression assignCrazyFalse; 
+    assignCrazyFalse = crazyFalse; 
+
+    double result;
+    crazyFalse.evaluateFunction(result);       EXPECT_EQ( result, -4.0 );
+    copyCrazyFalse.evaluateFunction(result);   EXPECT_EQ( result, -4.0 );
+    assignCrazyFalse.evaluateFunction(result); EXPECT_EQ( result, -4.0 );
   }
 }
 
@@ -1198,18 +1344,28 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
 
   // The ifmin expression is the RHS of a .func statement:  .func ifmin (a,b) {if(a<b, a, b)}
   Xyce::Util::newExpression ifmin(std::string("if(a<b, a, b)"), baseGroup);
-  std::vector<std::string> ifminArgStrings = { std::string("a"), std::string("b") };
+  std::vector<std::string> ifminArgStrings; // = { std::string("a"), std::string("b") };
+  Xyce::Util::newExpression ifmin_LHS (std::string("ifmin (a,b)"), baseGroup);
+  ifmin_LHS.lexAndParseExpression();
+  ifmin_LHS.getFuncPrototypeArgStrings(ifminArgStrings);
   ifmin.setFunctionArgStringVec ( ifminArgStrings );
   ifmin.lexAndParseExpression();
 
   // The ifmax expression is the RHS of a .func statement:  .func ifmax (a,b) {if(a>b, a, b)}
   Xyce::Util::newExpression ifmax(std::string("if(a>b, a, b)"), baseGroup);
-  std::vector<std::string> ifmaxArgStrings = { std::string("a"), std::string("b") };
+  std::vector<std::string> ifmaxArgStrings; // = { std::string("a"), std::string("b") };
+  Xyce::Util::newExpression ifmax_LHS (std::string("ifmax (a,b)"), baseGroup);
+  ifmax_LHS.lexAndParseExpression();
+  ifmax_LHS.getFuncPrototypeArgStrings(ifmaxArgStrings);
   ifmax.setFunctionArgStringVec ( ifmaxArgStrings );
   ifmax.lexAndParseExpression();
 
-  std::string ifmaxName="ifmax";
-  std::string ifminName="ifmin";
+  std::string ifmaxName;//="ifmax";
+  std::string ifminName;//="ifmin";
+
+  ifmax_LHS.getFuncPrototypeName (ifmaxName);
+  ifmin_LHS.getFuncPrototypeName (ifminName);
+
   ifGroup->addFunction( ifmaxName ,  ifmax);
   ifGroup->addFunction( ifminName ,  ifmin);
 
@@ -1258,18 +1414,27 @@ TEST ( Double_Parser_ifstatement, simple_nested_func)
 
   // The doubleIt expression is the RHS of a .func statement:  .func doubleIt(a) {2*a)}
   Xyce::Util::newExpression doubleIt(std::string("2*a"), baseGroup);
-  std::vector<std::string> doubleItArgStrings = { std::string("a") };
+  std::vector<std::string> doubleItArgStrings;// = { std::string("a") };
+  Xyce::Util::newExpression doubleIt_LHS (std::string("doubleIt(a)"), baseGroup);
+  doubleIt_LHS.lexAndParseExpression();
+  doubleIt_LHS.getFuncPrototypeArgStrings(doubleItArgStrings);
   doubleIt.setFunctionArgStringVec ( doubleItArgStrings );
   doubleIt.lexAndParseExpression();
 
   // The tripleIt expression is the RHS of a .func statement:  .func tripleIt (a) {3*a)}
   Xyce::Util::newExpression tripleIt(std::string("3*a"), baseGroup);
-  std::vector<std::string> tripleItArgStrings = { std::string("a") };
+  std::vector<std::string> tripleItArgStrings;// = { std::string("a") };
+  Xyce::Util::newExpression tripleIt_LHS (std::string("tripleIt(a)"), baseGroup);
+  tripleIt_LHS.lexAndParseExpression();
+  tripleIt_LHS.getFuncPrototypeArgStrings(tripleItArgStrings);
   tripleIt.setFunctionArgStringVec ( tripleItArgStrings );
   tripleIt.lexAndParseExpression();
 
-  std::string tripleItName="tripleIt";
-  std::string doubleItName="doubleIt";
+  std::string doubleItName;//="doubleIt";
+  std::string tripleItName;//="tripleIt";
+  doubleIt_LHS.getFuncPrototypeName(doubleItName);
+  tripleIt_LHS.getFuncPrototypeName(tripleItName);
+
   ifGroup->addFunction( tripleItName ,  tripleIt);
   ifGroup->addFunction( doubleItName ,  doubleIt);
 
@@ -2163,6 +2328,7 @@ TEST ( Double_Parser_calculus, simpleDerivs1 )
   copy_ddxTest.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
   assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
 }
+#endif
 
 class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
@@ -2227,13 +2393,18 @@ TEST ( Double_Parser_calculus, derivsThruFuncs1 )
   // this expression is the RHS of a .func statement:  .func F1(A,B) {A-B}
   Xyce::Util::newExpression f1Expression (std::string("A-B"), testGroup);
   std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A,B)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
   f1Expression.setFunctionArgStringVec ( f1ArgStrings );
   // during lex/parse, this vector of arg strings will be compared to any
   // param classes.  If it finds them, then they will be placed in the
   // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
   f1Expression.lexAndParseExpression();
 
-  std::string f1Name = "F1";
+  std::string f1Name;// = "F1";
+  f1_LHS.getFuncPrototypeName(f1Name);
   solnFuncGroup->addFunction( f1Name ,  f1Expression);
 
   Xyce::Util::newExpression derivFuncTestExpr(std::string("0.5*(F1(V(B),3.0))**2.0"), testGroup); 
@@ -3083,7 +3254,6 @@ TEST ( Double_Parser_TwoNodeDeriv_Test, test1)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
 }
-#endif
 
 //
 TEST ( Double_Parser_poly_Test, test1)

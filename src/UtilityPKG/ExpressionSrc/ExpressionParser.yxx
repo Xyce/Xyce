@@ -113,6 +113,7 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %token TOK_EXP	"exp"
 %token TOK_SIN	"sin"
 %token TOK_COS	"cos"
+%token TOK_MABS	"m"
 %token TOK_ABS	"abs"
 %token TOK_ACOS	"acos"
 %token TOK_ACOSH	"acosh"
@@ -224,12 +225,23 @@ exp:
   | TOK_WORD
       {
         // ensures that each parameter and/or function argument  has a single, unique astNode allocated for it
+        std::vector<std::string> & paramNameVec = newExp.getParamNameVec ();
+        std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExp.getParamOpVec ();
+#if 0
         std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > > & paramOpMap = newExp.getParamOpMap();
         std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > >::const_iterator got = paramOpMap.find(*$1);
         if ( got == paramOpMap.end() )
+#else
+        std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), *$1);
+        if ( nameIter == paramNameVec.end() )
+#endif
         {
           Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>(*$1));
+#if 0
           paramOpMap[*$1] = *tmpPtr;
+#endif
+          paramOpVec.push_back(*tmpPtr);
+          paramNameVec.push_back(*$1);
           Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(*tmpPtr);
           newExp.getMasterNodeVec().push_back(tmpPtr2);
 
@@ -238,7 +250,12 @@ exp:
         }
         else
         {
+#if 0
           Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >((paramOpMap[*$1]));
+#else
+          int index = std::distance(paramNameVec.begin(),nameIter);
+          Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(paramOpVec[index]);
+#endif
           newExp.getMasterNodeVec().push_back(tmpPtr2);
           $$ = tmpPtr2;
         }
@@ -319,7 +336,6 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  /* | TOK_POWFUNC TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN */
    | TOK_POWFUNC TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN 
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new powOp<usedType>  (*$3,*$5));
@@ -333,6 +349,10 @@ exp:
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
   | TOK_LEFTPAREN exp TOK_RIGHTPAREN
+    {
+       $$ = $2;
+    }
+  | TOK_LEFTCURLYBRACE exp TOK_RIGHTCURLYBRACE
     {
        $$ = $2;
     }
@@ -441,15 +461,17 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_PHASE TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  /* | TOK_PHASE TOK_LEFTPAREN exp TOK_RIGHTPAREN */
+  | TOK_PHASE exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_REAL TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  /* | TOK_REAL TOK_LEFTPAREN exp TOK_RIGHTPAREN */
+  | TOK_REAL exp TOK_RIGHTPAREN
     {
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(*$3));
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
@@ -483,7 +505,13 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  | TOK_ABS TOK_LEFTPAREN exp TOK_RIGHTPAREN
+  | TOK_MABS exp TOK_RIGHTPAREN 
+    {
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*$2));
+      $$ = tmpPtr;
+      newExp.getMasterNodeVec().push_back(tmpPtr);
+    }
+  | TOK_ABS TOK_LEFTPAREN exp TOK_RIGHTPAREN 
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*$3));
       $$ = tmpPtr;
