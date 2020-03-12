@@ -12,7 +12,6 @@
 #include <cmath>
 #include <complex>
 
-//#include <Sacado_No_Kokkos.hpp>
 #include <Teuchos_RCP.hpp>
 
 #include "location.hh"
@@ -227,19 +226,10 @@ exp:
         // ensures that each parameter and/or function argument  has a single, unique astNode allocated for it
         std::vector<std::string> & paramNameVec = newExp.getParamNameVec ();
         std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExp.getParamOpVec ();
-#if 0
-        std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > > & paramOpMap = newExp.getParamOpMap();
-        std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > >::const_iterator got = paramOpMap.find(*$1);
-        if ( got == paramOpMap.end() )
-#else
         std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), *$1);
         if ( nameIter == paramNameVec.end() )
-#endif
         {
           Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new paramOp<usedType>(*$1));
-#if 0
-          paramOpMap[*$1] = *tmpPtr;
-#endif
           paramOpVec.push_back(*tmpPtr);
           paramNameVec.push_back(*$1);
           Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(*tmpPtr);
@@ -250,12 +240,8 @@ exp:
         }
         else
         {
-#if 0
-          Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >((paramOpMap[*$1]));
-#else
           int index = std::distance(paramNameVec.begin(),nameIter);
           Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(paramOpVec[index]);
-#endif
           newExp.getMasterNodeVec().push_back(tmpPtr2);
           $$ = tmpPtr2;
         }
@@ -461,14 +447,12 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  /* | TOK_PHASE TOK_LEFTPAREN exp TOK_RIGHTPAREN */
   | TOK_PHASE exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*$2));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  /* | TOK_REAL TOK_LEFTPAREN exp TOK_RIGHTPAREN */
   | TOK_REAL exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(*$2));
@@ -543,17 +527,9 @@ exp:
     }
   | TOK_ATAN2 TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
     {
-#if 0
-      Teuchos::RCP<astNode<usedType> > * divPtr = new Teuchos::RCP<astNode<usedType> >(new binaryDivOp<usedType>(*$3,*$5));
-      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new atanOp<usedType>(*divPtr));
-#else
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new atan2Op<usedType>(*$3,*$5));
-#endif
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
-#if 0
-      newExp.getMasterNodeVec().push_back(divPtr);
-#endif
     }
   | TOK_ATAN TOK_LEFTPAREN exp TOK_RIGHTPAREN
     {
@@ -647,7 +623,6 @@ exp:
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
     }
-  /* | TOK_POLY TOK_LEFTPAREN TOK_NUM TOK_RIGHTPAREN no_comma_arglist */
    | TOK_POLY  TOK_POLYSIZE no_comma_arglist no_comma_coeflist
     {
 

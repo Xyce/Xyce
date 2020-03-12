@@ -65,6 +65,179 @@ TEST ( Complex_Parser_Test, numval)
   assignExpression.evaluateFunction(result); 
   EXPECT_EQ( result,std::complex<double>(1.0,2.0) );
 }
+
+
+TEST ( Complex_Parser_Test, numval2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("10.61E6"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result (10.61E6);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( (result-(10.61E6)), 0.0);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  copyExpression.evaluateFunction(result); 
+  EXPECT_EQ( (result-(10.61E6)), 0.0);
+
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+  assignExpression.evaluateFunction(result); 
+  EXPECT_EQ( (result-(10.61E6)), 0.0);
+}
+
+// these next 3 tests are for parameters that happen to have the same name as single-character operators
+TEST ( Complex_Parser_Test, singleParam_R)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("R"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 0.0);
+}
+
+TEST ( Complex_Parser_Test, singleParam_M)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("M"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 0.0);
+}
+
+TEST ( Complex_Parser_Test, singleParam_P)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("P"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 0.0);
+}
+
+// these next 3 tests are for the single-character operators, which are mostly relevant to complex numbers
+// In some codes, R(number) means "real part" of number.
+TEST ( Complex_Parser_Test, singleCharacter_Rop)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("R(1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 1.0);
+}
+
+// make sure it also works with a space, as the lexing of R operator requires that the 
+// left paren be part of the token, so whitespace is optionally handled via regex
+TEST ( Complex_Parser_Test, singleCharacter_Rop2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("R (1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 1.0);
+}
+
+
+// M(number) = abs of number.
+TEST ( Complex_Parser_Test, singleCharacter_Mop)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("M(1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::abs(input));
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+// make sure it also works with a space, as the lexing of M operator requires that the 
+// left paren be part of the token, so whitespace is optionally handled via regex
+TEST ( Complex_Parser_Test, singleCharacter_Mop2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("M (1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::abs(input));
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+// P(number) = phase of number
+TEST ( Complex_Parser_Test, singleCharacter_Pop)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("P(1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::arg(input));
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+// make sure it also works with a space, as the lexing of P operator requires that the 
+// left paren be part of the token, so whitespace is optionally handled via regex
+TEST ( Complex_Parser_Test, singleCharacter_Pop2)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("P (1.0+2.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> input(1.0,2.0);
+  std::complex<double> refresult(std::arg(input));
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, refresult);
+}
+
+
+// other complex number oriented operators:
+TEST ( Complex_Parser_Test, complexOps_REop)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("RE(2.0+3.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 2.0);
+}
+
+TEST ( Complex_Parser_Test, complexOps_IMop)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("IM(2.0+3.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 3.0);
+}
+
+TEST ( Complex_Parser_Test, complexOps_IMGop)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("IMG(2.0+3.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, 3.0);
+}
+
+TEST ( Complex_Parser_Test, complexOps_ABSop)
+{
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  testGroup = Teuchos::rcp(new testExpressionGroup() );
+  Xyce::Util::newExpression testExpression(std::string("ABS(2.0+3.0J)"), testGroup);
+  testExpression.lexAndParseExpression();
+  std::complex<double> result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( result, std::abs(std::complex<double>(2.0,3.0)));
+}
+
 // binary operators
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryAdd, "(1.0+2.0J)+(3.0+4.0J)", (std::complex<double>(1.0,2.0)+std::complex<double>(3.0,4.0)))
 PARSER_SIMPLE_TEST_MACRO(Complex_Parser_Test, binaryMinus, "(1.0+2.0J)-(3.0+4.0J)", (std::complex<double>(1.0,2.0)-std::complex<double>(3.0,4.0)))

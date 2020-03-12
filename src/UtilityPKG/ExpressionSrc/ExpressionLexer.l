@@ -212,9 +212,9 @@ NODE [a-zA-Z0-9_:]*
   }
 
  /* built in functions */
-<INITIAL>"P""("    { return XyceExpression::ExpressionParser::token::TOK_PHASE; }
+<INITIAL>"P"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_PHASE; }
 
-<INITIAL>"R""("     { return XyceExpression::ExpressionParser::token::TOK_REAL; }
+<INITIAL>"R"[ \t]*"("     { return XyceExpression::ExpressionParser::token::TOK_REAL; }
 <INITIAL>"Re""("    { return XyceExpression::ExpressionParser::token::TOK_REAL; }
 <INITIAL>"Im"    { return XyceExpression::ExpressionParser::token::TOK_IMAG; }
 <INITIAL>"Img"   { return XyceExpression::ExpressionParser::token::TOK_IMAG; }
@@ -227,7 +227,7 @@ NODE [a-zA-Z0-9_:]*
 
 <INITIAL>"sin"   { return XyceExpression::ExpressionParser::token::TOK_SIN; }
 <INITIAL>"cos"   { return XyceExpression::ExpressionParser::token::TOK_COS; }
-<INITIAL>"M""("     { return XyceExpression::ExpressionParser::token::TOK_MABS; }
+<INITIAL>"M"[ \t]*"("     { return XyceExpression::ExpressionParser::token::TOK_MABS; }
 <INITIAL>"abs"   { return XyceExpression::ExpressionParser::token::TOK_ABS; }
 <INITIAL>"acos"  { return XyceExpression::ExpressionParser::token::TOK_ACOS; }
 <INITIAL>"acosh" { return XyceExpression::ExpressionParser::token::TOK_ACOSH; }
