@@ -1767,7 +1767,7 @@ void CircuitBlock::updateAliasNodeMapHelper()
     Util::Expression expression(expressionString);
 
     if (expression.parsed())
-    {     
+    {
       // Resolve the strings in the expression. Unresolved strings
       // may be parameters defined in a .PARAM statement or global
       // parameters defined in .GLOBAL_PARAM statement or may
@@ -1794,7 +1794,7 @@ void CircuitBlock::updateAliasNodeMapHelper()
         {
           if ((*node_it)[0] == 'X')
              aliasNodeMapHelper_.insert((*node_it));
-	}
+        }
       }
     }
 

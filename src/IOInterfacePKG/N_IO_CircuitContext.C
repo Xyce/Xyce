@@ -917,7 +917,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
             // expressions.  If additional "specials" are added to Xyce then this check ensures
             // that they must also be enabled for use in expressions in global parameters.
             bool badSpecial = false;
-	    std::string message;
+            std::string message;
             for (std::vector<std::string>::iterator s_i=specials.begin() ; s_i!=specials.end() ; ++s_i)
             {
               if ( !((*s_i == "TIME") || (*s_i == "TEMP") || (*s_i == "VT") || (*s_i == "FREQ")) )
