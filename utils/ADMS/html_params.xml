@@ -44,6 +44,7 @@
   <admst:variable name="globalCurrentScope" select="instance"/>
   <admst:variable name="skipFunctionPrecomp" select="y"/>
   <admst:variable name="derivProbe"/>
+  <admst:variable name="derivProbe2"/>
   <admst:apply-templates select="/module" match="xyceClassBaseName">
     <admst:value-of select="returned('classname')/value"/>
     <admst:variable name="classname" select="%s"/>
