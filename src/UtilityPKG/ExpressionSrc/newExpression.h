@@ -396,7 +396,7 @@ public:
 
   bool lexAndParseExpression();
 
-  void resolveExpression();
+  bool resolveExpression();
 
   void clear(); // reset expression to the state it should be before lexAndParseExpression
 

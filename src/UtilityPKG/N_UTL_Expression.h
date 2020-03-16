@@ -105,6 +105,8 @@ public:
   double get_break_time (void);
   double get_break_time_i (void);
   const std::string & get_input (void);
+
+
   int order_names (std::vector< std::string > const & new_names);
   int replace_func (std::string const & func_name, Expression & func_def, int numArgs);
   bool replace_name (const std::string & old_name, const std::string & new_name);
@@ -123,7 +125,7 @@ private:
 
   bool useNewExpressionLibrary_;
   bool namesSet_;
-  newExpression *newExpPtr_;
+  Teuchos::RCP<Xyce::Util::newExpression> newExpPtr_;
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp_;
   ExpressionInternals *expPtr_;
 };

@@ -29,7 +29,7 @@ public:
   baseExpressionGroup () {};
   virtual ~baseExpressionGroup () {};
 
-  virtual bool resolveExpression (Xyce::Util::newExpression & exp){return true;};
+  virtual bool resolveExpression (Teuchos::RCP<Xyce::Util::newExpression> exp){return true;};
 
   virtual bool isOption (const std::string & optionStr) { return false; }
 
@@ -63,9 +63,9 @@ public:
 
   virtual double getBpTol() { return 0.0; }
 
-  virtual bool getFunction    (const std::string & name, Xyce::Util::newExpression & exp) {return false;};
-  virtual bool getParam       (const std::string & name, Xyce::Util::newExpression & exp) {return false;};
-  virtual bool getGlobalParam (const std::string & name, Xyce::Util::newExpression & exp) {return false;};
+  virtual bool getFunction    (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp) {return false;};
+  virtual bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp) {return false;};
+  virtual bool getGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp) {return false;};
 
 private:
 

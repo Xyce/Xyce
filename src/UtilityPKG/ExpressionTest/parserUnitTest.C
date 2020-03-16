@@ -527,7 +527,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("vln")) { VLNval = val; }
   }
 
-  void addParam (const std::string & name, Xyce::Util::newExpression & exp)
+  void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
   {
     std::string lowerName = name;
     Xyce::Util::toLower(lowerName);
@@ -535,7 +535,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     parameters_[lowerName] = exp;
   };
 
-  bool getParam       (const std::string & name, Xyce::Util::newExpression & exp)
+  bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
   {
     bool retval=true;
     std::string lowerName = name;
@@ -546,7 +546,7 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
   }
 
   private:
-    std::unordered_map <std::string, Xyce::Util::newExpression >  parameters_;
+    std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
 
   double Aval, Bval, Cval, R1val;
   double VBval, VCval, VEval, VLPval, VLNval;
@@ -829,7 +829,7 @@ class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGrou
     testExpressionGroupWithFuncSupport () : Xyce::Util::baseExpressionGroup()  {};
     ~testExpressionGroupWithFuncSupport () {};
 
-    void addFunction (const std::string & name, Xyce::Util::newExpression & exp)
+    void addFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
     {
       std::string lowerName = name;
       Xyce::Util::toLower(lowerName);
@@ -837,7 +837,7 @@ class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGrou
       functions_[lowerName] = exp;
     };
 
-    bool getFunction (const std::string & name, Xyce::Util::newExpression & exp)
+    bool getFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
     {
       bool retval=true;
 
@@ -851,7 +851,7 @@ class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGrou
     }
 
   private:
-    std::unordered_map <std::string, Xyce::Util::newExpression  >  functions_;
+    std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression>  >  functions_;
 };
 
 TEST ( Double_Parser_Func_Test, test1)
@@ -864,7 +864,7 @@ TEST ( Double_Parser_Func_Test, test1)
   testExpression.lexAndParseExpression();
 
   // this expression is the RHS of a .func statement:  .func F1(A,B) {A+B}
-  Xyce::Util::newExpression f1Expression (std::string("A+B"), testGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A+B"), testGroup) );
 
   // I originally had this set up so that the calling code would manually set the 
   // vector of prototype function arguments, as well as the name of the function 
@@ -877,11 +877,11 @@ TEST ( Double_Parser_Func_Test, test1)
 
   std::vector<std::string> f1ArgStrings ;
   f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
-  f1Expression.setFunctionArgStringVec (f1ArgStrings);
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
   // during lex/parse, this vector of arg strings will be compared to any
   // param classes.  If it finds them, then they will be placed in the
   // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
-  f1Expression.lexAndParseExpression();
+  f1Expression->lexAndParseExpression();
 
   // now parse the function name from the prototype
   //std::string f1Name = "F1";
@@ -908,16 +908,15 @@ TEST ( Double_Parser_ternary_precedence, simple)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
   // this expression is the RHS of a .func statement:  .func simple(X) {x>0?2*x :0}
-  Xyce::Util::newExpression simpleExpression(std::string("x>0?2*x :0"), testGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> simpleExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression(std::string("x>0?2*x :0"), testGroup) );
 
-  std::vector<std::string> simpleArgStrings ; // = { std::string("x") }; // CASE MATTERS!!!  EEK
-
+  std::vector<std::string> simpleArgStrings;
   Xyce::Util::newExpression simple_LHS (std::string("simple(X)"), testGroup);
   simple_LHS.lexAndParseExpression();
   simple_LHS.getFuncPrototypeArgStrings(simpleArgStrings);
-  simpleExpression.setFunctionArgStringVec (simpleArgStrings);
-
-  simpleExpression.lexAndParseExpression();
+  simpleExpression->setFunctionArgStringVec (simpleArgStrings);
+  simpleExpression->lexAndParseExpression();
 
   // these expressions uses the .func simple.
   {
@@ -961,26 +960,25 @@ TEST ( Double_Parser_ternary_precedence, simple)
   }
 }
 
-#if 1
 TEST ( Double_Parser_ternary_precedence, precplus)
 {
   Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
   // this expression is the RHS of a .func statement:  .func precplus(X) {1+x>0?2*x :0+2}
-  Xyce::Util::newExpression precplusExpression(std::string("1+x>0?2*x :0+2"), testGroup);
-  std::vector<std::string> precplusArgStrings; // = { std::string("x") }; // CASE MATTERS!!!  EEK
+  Teuchos::RCP<Xyce::Util::newExpression> precplusExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression(std::string("1+x>0?2*x :0+2"), testGroup) );
+  std::vector<std::string> precplusArgStrings; 
 
   Xyce::Util::newExpression precplus_LHS (std::string("precplus(X)"), testGroup);
   precplus_LHS.lexAndParseExpression();
   precplus_LHS.getFuncPrototypeArgStrings(precplusArgStrings);
-  precplusExpression.setFunctionArgStringVec (precplusArgStrings);
-  precplusExpression.lexAndParseExpression();
+  precplusExpression->setFunctionArgStringVec (precplusArgStrings);
+  precplusExpression->lexAndParseExpression();
 
   {
     Xyce::Util::newExpression precplusTrue(std::string("precplus(4)"), testGroup);
     precplusTrue.lexAndParseExpression();
-    //std::string precplusName = "precplus";
     std::string precplusName;
     precplus_LHS.getFuncPrototypeName(precplusName);
     funcGroup->addFunction( precplusName ,  precplusExpression);
@@ -998,7 +996,6 @@ TEST ( Double_Parser_ternary_precedence, precplus)
   {
     Xyce::Util::newExpression precplusFalse(std::string("precplus(-4)"), testGroup);
     precplusFalse.lexAndParseExpression();
-    //std::string precplusName = "precplus";
     std::string precplusName;
     precplus_LHS.getFuncPrototypeName(precplusName);
     funcGroup->addFunction( precplusName ,  precplusExpression);
@@ -1021,19 +1018,19 @@ TEST ( Double_Parser_ternary_precedence, precplusparen)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
   // this expression is the RHS of a .func statement:  .func precplusparen(X) {(1+x)>0?(2*x) :(0+2)}
-  Xyce::Util::newExpression precplusparenExpression(std::string("(1+x)>0?(2*x) :(0+2)"), testGroup);
-  std::vector<std::string> precplusparenArgStrings;// = { std::string("x") }; // CASE MATTERS!!!  EEK
+  Teuchos::RCP<Xyce::Util::newExpression> precplusparenExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression(std::string("(1+x)>0?(2*x) :(0+2)"), testGroup));
 
+  std::vector<std::string> precplusparenArgStrings;
   Xyce::Util::newExpression precplusparen_LHS (std::string("precplusparen(X)"), testGroup);
   precplusparen_LHS.lexAndParseExpression();
   precplusparen_LHS.getFuncPrototypeArgStrings(precplusparenArgStrings);
-  precplusparenExpression.setFunctionArgStringVec ( precplusparenArgStrings );
-  precplusparenExpression.lexAndParseExpression();
+  precplusparenExpression->setFunctionArgStringVec ( precplusparenArgStrings );
+  precplusparenExpression->lexAndParseExpression();
 
   {
     Xyce::Util::newExpression precplusparenTrue(std::string("precplusparen(4)"), testGroup);
     precplusparenTrue.lexAndParseExpression();
-    //std::string precplusparenName = "precplusparen";
     std::string precplusparenName;
     precplusparen_LHS.getFuncPrototypeName(precplusparenName);
     funcGroup->addFunction( precplusparenName ,  precplusparenExpression);
@@ -1051,7 +1048,6 @@ TEST ( Double_Parser_ternary_precedence, precplusparen)
   {
     Xyce::Util::newExpression precplusparenFalse(std::string("precplusparen(-4)"), testGroup);
     precplusparenFalse.lexAndParseExpression();
-    //std::string precplusparenName = "precplusparen";
     std::string precplusparenName;
     precplusparen_LHS.getFuncPrototypeName(precplusparenName);
     funcGroup->addFunction( precplusparenName ,  precplusparenExpression);
@@ -1074,20 +1070,21 @@ TEST ( Double_Parser_ternary_precedence, simpleif)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
   // this expression is the RHS of a .func statement:  .func simpleif(X) {if(x>0,2*x,0)}
-  Xyce::Util::newExpression simpleifExpression(std::string("if(x>0,2*x,0)"), testGroup);
-  std::vector<std::string> simpleifArgStrings; // = { std::string("x") }; // CASE MATTERS!!!  EEK
+  Teuchos::RCP<Xyce::Util::newExpression> simpleifExpression 
+     = Teuchos::rcp(new Xyce::Util::newExpression(std::string("if(x>0,2*x,0)"), testGroup) );
+
+  std::vector<std::string> simpleifArgStrings;
 
   Xyce::Util::newExpression simpleif_LHS (std::string("simpleif(X)"), testGroup);
   simpleif_LHS.lexAndParseExpression();
   simpleif_LHS.getFuncPrototypeArgStrings(simpleifArgStrings);
-  simpleifExpression.setFunctionArgStringVec ( simpleifArgStrings );
-  simpleifExpression.lexAndParseExpression();
+  simpleifExpression->setFunctionArgStringVec ( simpleifArgStrings );
+  simpleifExpression->lexAndParseExpression();
 
   // these expressions uses the .func simpleif.
   {
     Xyce::Util::newExpression simpleifTrue(std::string("simpleif(4)"), testGroup);
     simpleifTrue.lexAndParseExpression();
-    //std::string simpleifName = "simpleif";
     std::string simpleifName;
     simpleif_LHS.getFuncPrototypeName(simpleifName);
     funcGroup->addFunction( simpleifName ,  simpleifExpression);
@@ -1105,7 +1102,6 @@ TEST ( Double_Parser_ternary_precedence, simpleif)
   {
     Xyce::Util::newExpression simpleifFalse(std::string("simpleif(0)"), testGroup);
     simpleifFalse.lexAndParseExpression();
-    //std::string simpleifName = "simpleif";
     std::string simpleifName;
     simpleif_LHS.getFuncPrototypeName(simpleifName);
     funcGroup->addFunction( simpleifName ,  simpleifExpression);
@@ -1128,18 +1124,19 @@ TEST ( Double_Parser_ternary_precedence, precplusif)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
   // this expression is the RHS of a .func statement:  .func precplusif(X) {if((1+x>0),2*x,0+2)}
-  Xyce::Util::newExpression precplusifExpression(std::string("if((1+x>0),2*x,0+2)"), testGroup);
-  std::vector<std::string> precplusifArgStrings; // = { std::string("x") }; // CASE MATTERS!!!  EEK
+  Teuchos::RCP<Xyce::Util::newExpression> precplusifExpression
+     = Teuchos::rcp(new Xyce::Util::newExpression(std::string("if((1+x>0),2*x,0+2)"), testGroup));
+
+  std::vector<std::string> precplusifArgStrings;
 
   Xyce::Util::newExpression precplusif_LHS (std::string("precplusif(X)"), testGroup);
   precplusif_LHS.lexAndParseExpression();
   precplusif_LHS.getFuncPrototypeArgStrings(precplusifArgStrings);
-  precplusifExpression.setFunctionArgStringVec ( precplusifArgStrings );
-  precplusifExpression.lexAndParseExpression();
+  precplusifExpression->setFunctionArgStringVec ( precplusifArgStrings );
+  precplusifExpression->lexAndParseExpression();
   {
     Xyce::Util::newExpression precplusifTrue(std::string("precplusif(4)"), testGroup);
     precplusifTrue.lexAndParseExpression();
-    //std::string precplusifName = "precplusif";
     std::string precplusifName;
     precplusif_LHS.getFuncPrototypeName(precplusifName);
     funcGroup->addFunction( precplusifName ,  precplusifExpression);
@@ -1157,7 +1154,6 @@ TEST ( Double_Parser_ternary_precedence, precplusif)
   {
     Xyce::Util::newExpression precplusifFalse(std::string("precplusif(-4)"), testGroup);
     precplusifFalse.lexAndParseExpression();
-    //std::string precplusifName = "precplusif";
     std::string precplusifName;
     precplusif_LHS.getFuncPrototypeName(precplusifName);
     funcGroup->addFunction( precplusifName ,  precplusifExpression);
@@ -1180,15 +1176,17 @@ TEST ( Double_Parser_ternary_precedence, precplusparenif)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
   // this expression is the RHS of a .func statement:  .func precplusparenif(X) {if(((1+x)>0),(2*x),(0+2))}
-  Xyce::Util::newExpression precplusparenifExpression(std::string("if(((1+x)>0),(2*x),(0+2))"), testGroup);
+  //Xyce::Util::newExpression precplusparenifExpression(std::string("if(((1+x)>0),(2*x),(0+2))"), testGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> precplusparenifExpression
+     = Teuchos::rcp(new Xyce::Util::newExpression(std::string("if(((1+x)>0),(2*x),(0+2))"), testGroup));
 
   std::vector<std::string> precplusparenifArgStrings; // = { std::string("x") }; // CASE MATTERS!!!  EEK
 
   Xyce::Util::newExpression precplusparenif_LHS (std::string("precplusparenif(X)"), testGroup);
   precplusparenif_LHS.lexAndParseExpression();
   precplusparenif_LHS.getFuncPrototypeArgStrings(precplusparenifArgStrings);
-  precplusparenifExpression.setFunctionArgStringVec ( precplusparenifArgStrings );
-  precplusparenifExpression.lexAndParseExpression();
+  precplusparenifExpression->setFunctionArgStringVec ( precplusparenifArgStrings );
+  precplusparenifExpression->lexAndParseExpression();
   {
     Xyce::Util::newExpression precplusparenifTrue(std::string("precplusparenif(4)"), testGroup);
     precplusparenifTrue.lexAndParseExpression();
@@ -1233,14 +1231,15 @@ TEST ( Double_Parser_Func_Test, longArgList)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
   // this expression is the RHS of a .func statement:  .func crazy(X,A,B,Y,E,C,D,F) {E}
-  Xyce::Util::newExpression crazyExpression(std::string("E"), testGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> crazyExpression
+     = Teuchos::rcp(new Xyce::Util::newExpression(std::string("E"), testGroup));
 
   std::vector<std::string> crazyArgStrings;
   Xyce::Util::newExpression crazy_LHS (std::string("crazy(X,A,B,Y,E,C,D,F)"), testGroup);
   crazy_LHS.lexAndParseExpression();
   crazy_LHS.getFuncPrototypeArgStrings(crazyArgStrings); // should be std::vector<std::string> = { "X","A","B","Y","E","C","D","F" }
-  crazyExpression.setFunctionArgStringVec ( crazyArgStrings );
-  crazyExpression.lexAndParseExpression();
+  crazyExpression->setFunctionArgStringVec ( crazyArgStrings );
+  crazyExpression->lexAndParseExpression();
   {
     Xyce::Util::newExpression crazyTrue(std::string("crazy(0,0,0,0,4,0,0,0)"), testGroup);
     crazyTrue.lexAndParseExpression();
@@ -1306,7 +1305,7 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
     }
 
 
-    void addFunction (const std::string & name, Xyce::Util::newExpression & exp)
+    void addFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
     {
       std::string lowerName = name;
       Xyce::Util::toLower(lowerName);
@@ -1314,7 +1313,7 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
       functions_[lowerName] = exp;
     };
 
-    bool getFunction (const std::string & name, Xyce::Util::newExpression & exp)
+    bool getFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
     {
       bool retval=true;
 
@@ -1328,7 +1327,7 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
     }
 
   private:
-    std::unordered_map <std::string, Xyce::Util::newExpression >  functions_;
+    std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  functions_;
 
     double time;
     double B2;
@@ -1343,22 +1342,24 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
 
   // The ifmin expression is the RHS of a .func statement:  .func ifmin (a,b) {if(a<b, a, b)}
-  Xyce::Util::newExpression ifmin(std::string("if(a<b, a, b)"), baseGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> ifmin
+     = Teuchos::rcp(new Xyce::Util::newExpression(std::string("if(a<b, a, b)"), baseGroup));
   std::vector<std::string> ifminArgStrings; // = { std::string("a"), std::string("b") };
   Xyce::Util::newExpression ifmin_LHS (std::string("ifmin (a,b)"), baseGroup);
   ifmin_LHS.lexAndParseExpression();
   ifmin_LHS.getFuncPrototypeArgStrings(ifminArgStrings);
-  ifmin.setFunctionArgStringVec ( ifminArgStrings );
-  ifmin.lexAndParseExpression();
+  ifmin->setFunctionArgStringVec ( ifminArgStrings );
+  ifmin->lexAndParseExpression();
 
   // The ifmax expression is the RHS of a .func statement:  .func ifmax (a,b) {if(a>b, a, b)}
-  Xyce::Util::newExpression ifmax(std::string("if(a>b, a, b)"), baseGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> ifmax
+     = Teuchos::rcp(new Xyce::Util::newExpression(std::string("if(a>b, a, b)"), baseGroup));
   std::vector<std::string> ifmaxArgStrings; // = { std::string("a"), std::string("b") };
   Xyce::Util::newExpression ifmax_LHS (std::string("ifmax (a,b)"), baseGroup);
   ifmax_LHS.lexAndParseExpression();
   ifmax_LHS.getFuncPrototypeArgStrings(ifmaxArgStrings);
-  ifmax.setFunctionArgStringVec ( ifmaxArgStrings );
-  ifmax.lexAndParseExpression();
+  ifmax->setFunctionArgStringVec ( ifmaxArgStrings );
+  ifmax->lexAndParseExpression();
 
   std::string ifmaxName;//="ifmax";
   std::string ifminName;//="ifmin";
@@ -1413,22 +1414,24 @@ TEST ( Double_Parser_ifstatement, simple_nested_func)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
 
   // The doubleIt expression is the RHS of a .func statement:  .func doubleIt(a) {2*a)}
-  Xyce::Util::newExpression doubleIt(std::string("2*a"), baseGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> doubleIt
+     = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2*a"), baseGroup));
   std::vector<std::string> doubleItArgStrings;// = { std::string("a") };
   Xyce::Util::newExpression doubleIt_LHS (std::string("doubleIt(a)"), baseGroup);
   doubleIt_LHS.lexAndParseExpression();
   doubleIt_LHS.getFuncPrototypeArgStrings(doubleItArgStrings);
-  doubleIt.setFunctionArgStringVec ( doubleItArgStrings );
-  doubleIt.lexAndParseExpression();
+  doubleIt->setFunctionArgStringVec ( doubleItArgStrings );
+  doubleIt->lexAndParseExpression();
 
   // The tripleIt expression is the RHS of a .func statement:  .func tripleIt (a) {3*a)}
-  Xyce::Util::newExpression tripleIt(std::string("3*a"), baseGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> tripleIt
+     = Teuchos::rcp(new Xyce::Util::newExpression(std::string("3*a"), baseGroup));
   std::vector<std::string> tripleItArgStrings;// = { std::string("a") };
   Xyce::Util::newExpression tripleIt_LHS (std::string("tripleIt(a)"), baseGroup);
   tripleIt_LHS.lexAndParseExpression();
   tripleIt_LHS.getFuncPrototypeArgStrings(tripleItArgStrings);
-  tripleIt.setFunctionArgStringVec ( tripleItArgStrings );
-  tripleIt.lexAndParseExpression();
+  tripleIt->setFunctionArgStringVec ( tripleItArgStrings );
+  tripleIt->lexAndParseExpression();
 
   std::string doubleItName;//="doubleIt";
   std::string tripleItName;//="tripleIt";
@@ -1818,7 +1821,7 @@ class Bsrc_C1_ExpressionGroup : public Xyce::Util::baseExpressionGroup
   virtual double getTime() { return time; };
   void setTime(double t) { time = t; };
 
-  void addParam (const std::string & name, Xyce::Util::newExpression & exp)
+  void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
   {
     std::string lowerName = name;
     Xyce::Util::toLower(lowerName);
@@ -1826,7 +1829,7 @@ class Bsrc_C1_ExpressionGroup : public Xyce::Util::baseExpressionGroup
     parameters_[lowerName] = exp;
   };
 
-  bool getParam       (const std::string & name, Xyce::Util::newExpression & exp)
+  bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
   {
     bool retval=true;
     std::string lowerName = name;
@@ -1837,7 +1840,7 @@ class Bsrc_C1_ExpressionGroup : public Xyce::Util::baseExpressionGroup
   }
 
   private:
-    std::unordered_map <std::string, Xyce::Util::newExpression >  parameters_;
+    std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
     double time, ONEval, TWOval;
 };
 
@@ -1959,7 +1962,7 @@ class testExpressionGroupWithParamSupport : public Xyce::Util::baseExpressionGro
     testExpressionGroupWithParamSupport () : Xyce::Util::baseExpressionGroup()  {};
     ~testExpressionGroupWithParamSupport () {};
 
-    void addParam (const std::string & name, Xyce::Util::newExpression & exp)
+    void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
     {
       std::string lowerName = name;
       Xyce::Util::toLower(lowerName);
@@ -1967,7 +1970,7 @@ class testExpressionGroupWithParamSupport : public Xyce::Util::baseExpressionGro
       parameters_[lowerName] = exp;
     };
 
-    bool getParam       (const std::string & name, Xyce::Util::newExpression & exp)
+    bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
     {
       bool retval=true;
       std::string lowerName = name;
@@ -1978,7 +1981,7 @@ class testExpressionGroupWithParamSupport : public Xyce::Util::baseExpressionGro
     }
 
   private:
-    std::unordered_map <std::string, Xyce::Util::newExpression >  parameters_;
+    std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
 };
 
 TEST ( Double_Parser_Param_Test, test1)
@@ -1986,8 +1989,8 @@ TEST ( Double_Parser_Param_Test, test1)
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
 
-  Xyce::Util::newExpression p1Expression(std::string("2+3"), testGroup);
-  p1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2+3"), testGroup));
+  p1Expression->lexAndParseExpression();
   std::string p1Name = "p1";
   paramGroup->addParam(p1Name,p1Expression);
 
@@ -2018,7 +2021,9 @@ TEST ( Double_Parser_Param_Test, test2)
   Xyce::Util::newExpression v1exp(std::string("spice_sin(0, 20, 1k, -.25e-3, 0, 0)" ), grp);            v1exp.lexAndParseExpression();
   Xyce::Util::newExpression v2exp(std::string("spice_pulse(0, 1, 0, 0.5us, 0.5us, 2us, 20us) " ), grp); v2exp.lexAndParseExpression();
   Xyce::Util::newExpression testExpression(std::string("2*p1"), grp);                                   testExpression.lexAndParseExpression();
-  Xyce::Util::newExpression p1exp(std::string("V(2) * (V(1) + 30) / 60" ), grp);                        p1exp.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1exp
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("V(2) * (V(1) + 30) / 60" ), grp));
+  p1exp->lexAndParseExpression();
   std::string p1Name="p1";
   paramGroup->addParam(p1Name, p1exp);
 
@@ -2056,8 +2061,8 @@ TEST ( Double_Parser_calculus, ddx1)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
-  Xyce::Util::newExpression p1Expression(std::string("2+3"), testGroup);
-  p1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2+3"), testGroup));
+  p1Expression->lexAndParseExpression();
   std::string p1Name="p1";
   paramGroup->addParam(p1Name,p1Expression);
 
@@ -2078,8 +2083,8 @@ TEST ( Double_Parser_calculus, ddx2)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
-  Xyce::Util::newExpression p1Expression (std::string("2+3"), testGroup);
-  p1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2+3"), testGroup));
+  p1Expression->lexAndParseExpression();
   std::string p1Name="p1";
   paramGroup->addParam(p1Name,p1Expression);
 
@@ -2100,8 +2105,8 @@ TEST ( Double_Parser_calculus, ddx3)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
-  Xyce::Util::newExpression p1Expression(std::string("2+3"), testGroup);
-  p1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2+3"), testGroup));
+  p1Expression->lexAndParseExpression();
   std::string p1Name="p1";
   paramGroup->addParam(p1Name,p1Expression);
 
@@ -2122,7 +2127,7 @@ TEST ( Double_Parser_calculus, ddx4)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
-  Xyce::Util::newExpression p1Expression(std::string("2+3"), testGroup); p1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2+3"), testGroup)); p1Expression->lexAndParseExpression();
   std::string p1Name="p1";
   paramGroup->addParam(p1Name,p1Expression);
 
@@ -2144,7 +2149,8 @@ TEST ( Double_Parser_calculus, ddx5)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
-  Xyce::Util::newExpression p1Expression(std::string("2+3"), testGroup); p1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2+3"), testGroup)); 
+  p1Expression->lexAndParseExpression();
   std::string p1Name="p1";
   paramGroup->addParam(p1Name,p1Expression);
 
@@ -2187,13 +2193,14 @@ TEST ( Double_Parser_calculus, ddx5b)
   ddxTest.evaluate(result,derivs);        EXPECT_EQ( derivs, refderivs );
   copy_ddxTest.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
   assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
-}
+} 
 
 TEST ( Double_Parser_calculus, ddx6)
 {
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
-  Xyce::Util::newExpression p1Expression(std::string("2+3"), testGroup); p1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2+3"), testGroup)); 
+  p1Expression->lexAndParseExpression();
   std::string p1Name="p1";
   paramGroup->addParam(p1Name,p1Expression);
 
@@ -2211,7 +2218,7 @@ TEST ( Double_Parser_calculus, ddx6)
   ddxTest.evaluateFunction(result);        EXPECT_EQ( result, refRes );
   copy_ddxTest.evaluateFunction(result);   EXPECT_EQ( result, refRes );
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, refRes );
-}
+} 
 
 TEST ( Double_Parser_calculus, ddx7)
 {
@@ -2230,6 +2237,7 @@ TEST ( Double_Parser_calculus, ddx7)
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, std::cos(5.0) );
 }
 
+#if 0
 TEST ( Double_Parser_calculus, ddx8)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
@@ -2247,6 +2255,7 @@ TEST ( Double_Parser_calculus, ddx8)
   copy_ddxTest.evaluateFunction(result);   EXPECT_EQ( result, std::cos(2.0) );
   assign_ddxTest.evaluateFunction(result); EXPECT_EQ( result, std::cos(2.0) );
 }
+#endif
 
 TEST ( Double_Parser_calculus, ddx9)
 {
@@ -2288,7 +2297,8 @@ TEST ( Double_Parser_calculus, ddx11)
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
 
-  Xyce::Util::newExpression p1Expression(std::string("2"), testGroup); p1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2"), testGroup)); 
+  p1Expression->lexAndParseExpression();
   std::string p1Name="p1";
   paramGroup->addParam(p1Name,p1Expression);
 
@@ -2328,7 +2338,6 @@ TEST ( Double_Parser_calculus, simpleDerivs1 )
   copy_ddxTest.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
   assign_ddxTest.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
 }
-#endif
 
 class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
 {
@@ -2356,7 +2365,7 @@ class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("r1")) { R1val_ = val; }
   }
 
-  void addFunction (const std::string & name, Xyce::Util::newExpression & exp)
+  void addFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
   {
     std::string lowerName = name;
     Xyce::Util::toLower(lowerName);
@@ -2364,7 +2373,7 @@ class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
     functions_[lowerName] = exp;
   };
 
-  bool getFunction (const std::string & name, Xyce::Util::newExpression & exp)
+  bool getFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
   {
     bool retval=true;
 
@@ -2378,7 +2387,7 @@ class solnAndFuncExpressionGroup : public Xyce::Util::baseExpressionGroup
   }
 
   private:
-    std::unordered_map <std::string, Xyce::Util::newExpression  >  functions_;
+    std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  functions_;
     double Aval_, Bval_, Cval_, R1val_;
 };
 
@@ -2391,17 +2400,17 @@ TEST ( Double_Parser_calculus, derivsThruFuncs1 )
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
 
   // this expression is the RHS of a .func statement:  .func F1(A,B) {A-B}
-  Xyce::Util::newExpression f1Expression (std::string("A-B"), testGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression (std::string("A-B"), testGroup));
   std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
 
   Xyce::Util::newExpression f1_LHS (std::string("F1(A,B)"), testGroup);
   f1_LHS.lexAndParseExpression();
   f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
-  f1Expression.setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression->setFunctionArgStringVec ( f1ArgStrings );
   // during lex/parse, this vector of arg strings will be compared to any
   // param classes.  If it finds them, then they will be placed in the
   // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
-  f1Expression.lexAndParseExpression();
+  f1Expression->lexAndParseExpression();
 
   std::string f1Name;// = "F1";
   f1_LHS.getFuncPrototypeName(f1Name);
@@ -2437,14 +2446,14 @@ TEST ( Double_Parser_calculus, derivsThruFuncs2 )
   std::vector<std::string> funcArgStrings = { std::string("A"), std::string("B") };
 
   // this expression is the RHS of a .func statement:  .func F1(A,B) {sin(A)*cos(B)}
-  Xyce::Util::newExpression f1Expression (std::string("sin(A)*cos(B)"), testGroup);
-  f1Expression.setFunctionArgStringVec ( funcArgStrings );
-  f1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("sin(A)*cos(B)"), testGroup));
+  f1Expression->setFunctionArgStringVec ( funcArgStrings );
+  f1Expression->lexAndParseExpression();
 
   // this expression is the RHS of a .func statement:  .func F2(A,B) {A*B}
-  Xyce::Util::newExpression f2Expression (std::string("A*B"), testGroup);
-  f2Expression.setFunctionArgStringVec ( funcArgStrings );
-  f2Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> f2Expression  = Teuchos::rcp(new Xyce::Util::newExpression (std::string("A*B"), testGroup));
+  f2Expression->setFunctionArgStringVec ( funcArgStrings );
+  f2Expression->lexAndParseExpression();
 
   solnFuncGroup->addFunction( std::string("F1"),  f1Expression);
   solnFuncGroup->addFunction( std::string("F2") , f2Expression);
@@ -2516,10 +2525,10 @@ TEST ( Double_Parser_calculus, derivsThruFuncs3 )
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
 
-  Xyce::Util::newExpression f1Expression (std::string("A*B"), testGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression (std::string("A*B"), testGroup));
   std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
-  f1Expression.setFunctionArgStringVec ( f1ArgStrings );
-  f1Expression.lexAndParseExpression();
+  f1Expression->setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression->lexAndParseExpression();
 
   solnFuncGroup->addFunction( std::string("F1"),  f1Expression);
 
@@ -2560,10 +2569,10 @@ TEST ( Double_Parser_calculus, derivsThruFuncs4 )
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
 
-  Xyce::Util::newExpression f1Expression (std::string("A*B+100*V(C)"), testGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A*B+100*V(C)"), testGroup));
   std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
-  f1Expression.setFunctionArgStringVec ( f1ArgStrings );
-  f1Expression.lexAndParseExpression();
+  f1Expression->setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression->lexAndParseExpression();
 
   solnFuncGroup->addFunction( std::string("F1"),  f1Expression);
 
@@ -2599,10 +2608,10 @@ TEST ( Double_Parser_calculus, derivsThruFuncs5 )
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
 
-  Xyce::Util::newExpression f1Expression (std::string("A*B+100*V(A)"), testGroup);
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A*B+100*V(A)"), testGroup));
   std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
-  f1Expression.setFunctionArgStringVec ( f1ArgStrings );
-  f1Expression.lexAndParseExpression();
+  f1Expression->setFunctionArgStringVec ( f1ArgStrings );
+  f1Expression->lexAndParseExpression();
 
   solnFuncGroup->addFunction( std::string("F1"),  f1Expression);
 
@@ -2659,7 +2668,7 @@ class solnAndParamExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("r1")) { R1val_ = val; }
   }
 
-  void addParam (const std::string & name, Xyce::Util::newExpression & exp)
+  void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
   {
     std::string lowerName = name;
     Xyce::Util::toLower(lowerName);
@@ -2667,7 +2676,7 @@ class solnAndParamExpressionGroup : public Xyce::Util::baseExpressionGroup
     params_[lowerName] = exp;
   };
 
-  bool getParam (const std::string & name, Xyce::Util::newExpression & exp)
+  bool getParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
   {
     bool retval=true;
 
@@ -2681,7 +2690,7 @@ class solnAndParamExpressionGroup : public Xyce::Util::baseExpressionGroup
   }
 
   private:
-    std::unordered_map <std::string, Xyce::Util::newExpression  >  params_;
+    std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  params_;
     double Aval_, Bval_, Cval_, R1val_;
 };
 
@@ -2691,8 +2700,8 @@ TEST ( Double_Parser_calculus, derivsThruParams1 )
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnParamGroup;
 
   // this expression is the RHS of a .global_param statement:  .global_param P1 {V(A)-V(B)}
-  Xyce::Util::newExpression p1Expression (std::string("V(A)-V(B)"), testGroup);
-  p1Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("V(A)-V(B)"), testGroup));
+  p1Expression->lexAndParseExpression();
 
   std::string p1Name = "P1";
   solnParamGroup->addParam( p1Name ,  p1Expression);
@@ -2912,13 +2921,15 @@ TEST ( Double_Parser_Param_Test, I )
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
 
-  Xyce::Util::newExpression iExpression(std::string("2+3"), testGroup);
-  iExpression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> iExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2+3"), testGroup));
+  iExpression->lexAndParseExpression();
   std::string iName = "I";
   paramGroup->addParam(iName,iExpression);
 
-  Xyce::Util::newExpression resExpression(std::string("4"), testGroup);
-  resExpression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> resExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("4"), testGroup));
+  resExpression->lexAndParseExpression();
   std::string resName = "RES";
   paramGroup->addParam(resName,resExpression);
 
@@ -2941,13 +2952,15 @@ TEST ( Double_Parser_Param_Test, V )
   Teuchos::RCP<testExpressionGroupWithParamSupport> paramGroup = Teuchos::rcp(new testExpressionGroupWithParamSupport() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
 
-  Xyce::Util::newExpression vExpression(std::string("2+3"), testGroup);
-  vExpression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> vExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2+3"), testGroup));
+  vExpression->lexAndParseExpression();
   std::string vName = "V";
   paramGroup->addParam(vName,vExpression);
 
-  Xyce::Util::newExpression resExpression(std::string("4"), testGroup);
-  resExpression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> resExpression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("4"), testGroup));
+  resExpression->lexAndParseExpression();
   std::string resName = "RES";
   paramGroup->addParam(resName,resExpression);
 
@@ -3012,7 +3025,7 @@ TEST ( Double_Parser_ASCTH_Test, test1)
   EXPECT_EQ( result, refRes);
   assignExpression.evaluate(result,derivs); 
   EXPECT_EQ( result, refRes);
-}
+} 
 
 TEST ( Double_Parser_ASCTH_Test, test2)
 {
@@ -3604,6 +3617,7 @@ TEST ( Double_Parser_poly_Test, test9)
   EXPECT_EQ( derivs, refderivs);
 }
 
+#if 0
 TEST ( Double_Parser_poly_Test, test10)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
@@ -3613,10 +3627,12 @@ TEST ( Double_Parser_poly_Test, test10)
   testExpression.lexAndParseExpression();
 
 
-  Xyce::Util::newExpression p1Expression(std::string("1.0"), testGroup);
-  Xyce::Util::newExpression p2Expression(std::string("2.0"), testGroup);
-  p1Expression.lexAndParseExpression();
-  p2Expression.lexAndParseExpression();
+  Teuchos::RCP<Xyce::Util::newExpression> p1Expression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("1.0"), testGroup));
+  Teuchos::RCP<Xyce::Util::newExpression> p2Expression
+    = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2.0"), testGroup));
+  p1Expression->lexAndParseExpression();
+  p2Expression->lexAndParseExpression();
   std::string p1Name = "p1";
   std::string p2Name = "p2";
   solnGroup->addParam(p1Name,p1Expression);
@@ -3624,9 +3640,9 @@ TEST ( Double_Parser_poly_Test, test10)
 
   //testExpression.dumpParseTree(std::cout);
 
-  //Xyce::Util::newExpression copyExpression(testExpression); 
-  //Xyce::Util::newExpression assignExpression; 
-  //assignExpression = testExpression; 
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
 
   double result=0.0, Aval=5.0;
   solnGroup->setSoln(std::string("A"),Aval);
@@ -3638,13 +3654,99 @@ TEST ( Double_Parser_poly_Test, test10)
   testExpression.evaluate(result, derivs);
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
-  //copyExpression.evaluate(result, derivs);   
-  //EXPECT_EQ( result, refRes);
-  //EXPECT_EQ( derivs, refderivs);
-  //assignExpression.evaluate(result, derivs); 
-  //EXPECT_EQ( result, refRes);
-  //EXPECT_EQ( derivs, refderivs);
+  copyExpression.evaluate(result, derivs);   
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
+  assignExpression.evaluate(result, derivs); 
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( derivs, refderivs);
 }
+#endif
+
+
+TEST ( Double_Parser_NestedFunc_Test, func_cir)
+{
+  Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  // this expression will use the .func f.
+  //Xyce::Util::newExpression testExpression(std::string("f(v(x), v(y), v(z))"), testGroup);
+  Xyce::Util::newExpression testExpression(std::string("f(4.0, 2.0, 3.0)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // need to set up 3 functions:  fy, diff and f.
+  //
+  // this expression is the RHS of .func fy(x,y) {y}
+  Teuchos::RCP<Xyce::Util::newExpression> fyExpression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("y"), testGroup) );
+  Xyce::Util::newExpression fy_LHS (std::string("fy(x,y)"), testGroup);
+  fy_LHS.lexAndParseExpression();
+  std::vector<std::string> fyArgStrings ;
+  fy_LHS.getFuncPrototypeArgStrings(fyArgStrings);
+  fyExpression->setFunctionArgStringVec (fyArgStrings);
+  fyExpression->lexAndParseExpression();
+  std::string fyName; 
+  fy_LHS.getFuncPrototypeName(fyName);
+
+  // this expression is the RHS of .func diff(x,y) {x-y}
+  Teuchos::RCP<Xyce::Util::newExpression> diffExpression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("x-y"), testGroup) );
+  Xyce::Util::newExpression diff_LHS (std::string("diff(x,y)"), testGroup);
+  diff_LHS.lexAndParseExpression();
+  std::vector<std::string> diffArgStrings ;
+  diff_LHS.getFuncPrototypeArgStrings(diffArgStrings);
+  diffExpression->setFunctionArgStringVec (diffArgStrings);
+  diffExpression->lexAndParseExpression();
+  std::string diffName; 
+  diff_LHS.getFuncPrototypeName(diffName);
+
+  // this expression is the RHS of .func f(x,y,z) {diff(y,z)-4+fy(z,x)**2}
+  Teuchos::RCP<Xyce::Util::newExpression> fExpression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("diff(y,z)-4+fy(z,x)**2"), testGroup) );
+  Xyce::Util::newExpression f_LHS (std::string("f(x,y,z)"), testGroup);
+  f_LHS.lexAndParseExpression();
+  std::vector<std::string> fArgStrings ;
+  f_LHS.getFuncPrototypeArgStrings(fArgStrings);
+  fExpression->setFunctionArgStringVec (fArgStrings);
+  fExpression->lexAndParseExpression();
+  std::string fName; 
+  f_LHS.getFuncPrototypeName(fName);
+
+  funcGroup->addFunction( fyName ,  fyExpression);
+  funcGroup->addFunction( diffName ,  diffExpression);
+  funcGroup->addFunction( fName ,  fExpression);
+
+  // what happens if not called?  IT WILL PRODUCE THE WRONG ANSWER
+  // "resolveExpression" is automatically called from evaluateFunction, if it 
+  // has not previously been called.  However, it doesn't automatically call 
+  // "resolveExpression" on any external expressions, which it would need to 
+  // in the event of many nested functions, because it doesn't know how.  It 
+  // only has access to the external AST node RCP, and to do that call it would 
+  // need access to the newExpression RCP.
+  //
+  // As a practical matter in Xyce, this needs to be fixed.  I think this is why 
+  // func.cir is failing at present.
+  //fyExpression->resolveExpression();
+  //diffExpression->resolveExpression();
+  //fExpression->resolveExpression();
+  //testExpression.resolveExpression();
+
+  //Xyce::Util::newExpression copyExpression(testExpression); 
+  //Xyce::Util::newExpression assignExpression; 
+  //assignExpression = testExpression; 
+
+  double result;
+  // x,y,z = 4,2,3
+  // refresult = diff(y,z)-4+fy(z,x)**2;
+  // refresult = diff(2,3)-4+fy(3,4)**2;
+  // refresult = (2-3)-4+4*4;
+  // refresult = -5+16;
+  // refresult = 11;
+  double refresult = 11;
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refresult );
+  //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
+  //assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+}
+
+
+
 
 int main (int argc, char **argv)
 {

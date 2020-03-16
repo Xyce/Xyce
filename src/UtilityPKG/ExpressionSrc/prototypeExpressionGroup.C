@@ -64,14 +64,14 @@ prototypeExpressionGroup::prototypeExpressionGroup
 // Creator       : Eric Keiter
 // Creation Date : 11/4/2019
 //-------------------------------------------------------------------------------
-bool prototypeExpressionGroup::resolveExpression (Xyce::Util::newExpression & exp)
+bool prototypeExpressionGroup::resolveExpression (Teuchos::RCP<Xyce::Util::newExpression> exp)
 {
-  std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVector = exp.getParamOpVec();
+  std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVector = exp->getParamOpVec();
 
   //---------------------------------------------------------------------------
   // get the unresolved functions
-  std::vector<Teuchos::RCP<astNode<usedType> > > & funcOpVector = exp.getFuncOpVec ();
-  std::vector<Teuchos::RCP<astNode<usedType> > > & unresolvedFuncOpVector = exp.getUnresolvedFuncOpVec();
+  std::vector<Teuchos::RCP<astNode<usedType> > > & funcOpVector = exp->getFuncOpVec ();
+  std::vector<Teuchos::RCP<astNode<usedType> > > & unresolvedFuncOpVector = exp->getUnresolvedFuncOpVec();
 
   //---------------------------------------------------------------------------
   // Attempt to resolve the unresolved functions (i.e., find them in the functions container, 
@@ -97,7 +97,7 @@ bool prototypeExpressionGroup::resolveExpression (Xyce::Util::newExpression & ex
   // Attempt to resolve the unresolved params and global parameters 
   // (i.e., find them in the params/global_params containers, and then 
   // assign the node pointer to the symbol)
-  std::vector<Teuchos::RCP<astNode<usedType> > > & unresolvedParamOpVector = exp.getUnresolvedParamOpVector();
+  std::vector<Teuchos::RCP<astNode<usedType> > > & unresolvedParamOpVector = exp->getUnresolvedParamOpVector();
   int paramOpVectorSize = paramOpVector.size();
   for (int ii=0;ii<paramOpVectorSize;++ii)
   {
@@ -131,7 +131,7 @@ bool prototypeExpressionGroup::resolveExpression (Xyce::Util::newExpression & ex
 // Creation Date : 12/28/2019
 //-------------------------------------------------------------------------------
 bool prototypeExpressionGroup::getFunction
-(const std::string & name, Xyce::Util::newExpression & exp)
+(const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> exp)
 {
   std::unordered_map<std::string, Xyce::Util::functionData > & functions = nd_.getFunctions();
   bool retval=true;
@@ -154,7 +154,7 @@ bool prototypeExpressionGroup::getFunction
 // Creation Date : 12/28/2019
 //-------------------------------------------------------------------------------
 bool prototypeExpressionGroup::getParam
-(const std::string & name, Xyce::Util::newExpression & exp)
+(const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> exp)
 {
   std::unordered_map<std::string, Xyce::Util::paramData > & params = nd_.getParams() ;
   bool retval=true;
@@ -177,7 +177,7 @@ bool prototypeExpressionGroup::getParam
 // Creation Date : 12/28/2019
 //-------------------------------------------------------------------------------
 bool prototypeExpressionGroup::getGlobalParam
-(const std::string & name, Xyce::Util::newExpression & exp)
+(const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> exp)
 {
   std::unordered_map<std::string, Xyce::Util::globalParamData > & global_params = nd_.getGlobalParams() ;
 

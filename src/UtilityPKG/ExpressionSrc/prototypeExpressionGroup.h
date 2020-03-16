@@ -36,7 +36,7 @@ public:
 
   ~prototypeExpressionGroup () {};
 
-  virtual bool resolveExpression (Xyce::Util::newExpression & exp);
+  virtual bool resolveExpression (Teuchos::RCP<Xyce::Util::newExpression> exp);
 
   virtual bool isOption (const std::string & optionStr)
   {
@@ -128,9 +128,9 @@ public:
   virtual bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression > & exp);
   virtual bool getGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression > & exp);
 #else
-  virtual bool getFunction    (const std::string & name, Xyce::Util::newExpression & exp);
-  virtual bool getParam       (const std::string & name, Xyce::Util::newExpression & exp);
-  virtual bool getGlobalParam (const std::string & name, Xyce::Util::newExpression & exp);
+  virtual bool getFunction    (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> exp);
+  virtual bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> exp);
+  virtual bool getGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> exp);
 #endif
 
 private:

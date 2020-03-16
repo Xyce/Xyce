@@ -197,8 +197,9 @@ bool newExpression::lexAndParseExpression()
 // Creator       : Eric Keiter
 // Creation Date : 11/5/2019
 //-------------------------------------------------------------------------------
-void newExpression::resolveExpression ()
+bool newExpression::resolveExpression ()
 {
+  bool retval = true;
   //---------------------------------------------------------------------------
   // Attempt to resolve the unresolved functions. Get them from the group,
   // which is the newExpression class connection to other expressions
@@ -206,21 +207,34 @@ void newExpression::resolveExpression ()
   int funcOpSize = funcOpVec_.size();
   for (int ii=0;ii<funcOpSize;++ii)
   {
-    Xyce::Util::newExpression exp;
+    Teuchos::RCP<Xyce::Util::newExpression> exp;
     if ( group_->getFunction(funcOpVec_[ii]->getName(),exp) ) // found it
     {
-      funcOpVec_[ii]->setNode(exp.getAst());
+      funcOpVec_[ii]->setNode(exp->getAst());
+      externalDependencies_ = true;
+
+      if ( !(exp->expressionResolved()) )
+      {
+        if ( !(exp->resolveExpression()) )
+        {
+          retval = false;
+        }
+      }
 
       Teuchos::RCP<funcOp<usedType> > tmpPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec_[ii]);
       if ( !(Teuchos::is_null(tmpPtr)) )
       {
-        tmpPtr->setFuncArgs(  exp.getFunctionArgOpVec() );
-        externalDependencies_ = true;
+        tmpPtr->setFuncArgs(  exp->getFunctionArgOpVec() );
+      }
+      else
+      {
+        retval = false;
       }
     }
     else
     {
       unresolvedFuncOpVec_.push_back(funcOpVec_[ii]);
+      retval = false;
     }
   }
 
@@ -230,26 +244,44 @@ void newExpression::resolveExpression ()
   int paramOpVec_Size = paramOpVec_.size();
   for (int ii=0;ii<paramOpVec_Size;++ii)
   {
-    Xyce::Util::newExpression exp;
+    Teuchos::RCP<Xyce::Util::newExpression> exp;
     if ( group_->getParam(paramOpVec_[ii]->getName(),exp) ) // found it
     {
-      paramOpVec_[ii]->setNode(exp.getAst());
+      paramOpVec_[ii]->setNode(exp->getAst());
       externalDependencies_ = true;
+
+      if ( !(exp->expressionResolved()) )
+      {
+        if ( !(exp->resolveExpression()) )
+        {
+          retval = false;
+        }
+      }
     }
     else
     {
       if (group_->getGlobalParam(paramOpVec_[ii]->getName(),exp)) // found it
       {
-        paramOpVec_[ii]->setNode(exp.getAst());
+        paramOpVec_[ii]->setNode(exp->getAst());
         externalDependencies_ = true;
+
+        if ( !(exp->expressionResolved()) )
+        {
+          if ( !(exp->resolveExpression()) )
+          {
+            retval = false;
+          }
+        }
       }
       else
       {
         unresolvedParamOpVec_.push_back(paramOpVec_[ii]);
+        retval = false;
       }
     }
   }
   expressionResolved_ = true;
+  return retval;
 }
 
 //-------------------------------------------------------------------------------
@@ -701,7 +733,14 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   int retVal=0;
   if (parsed_)
   {
-    if (!expressionResolved_) { resolveExpression(); }
+    if (!expressionResolved_) 
+    { 
+      if (!resolveExpression())
+      {
+        std::cout << "ERROR. Expression not resolvable" << std::endl;
+        //exit(0);
+      }
+    }
 
     if (!astArraysSetup_)
     {
@@ -756,9 +795,26 @@ int newExpression::evaluateFunction (usedType &result)
   int retVal=0;
   if (parsed_)
   {
-    if (!expressionResolved_) { resolveExpression(); }
+    if (!expressionResolved_) 
+    { 
+      if (!resolveExpression())
+      {
+        std::cout << "ERROR. Expression not resolvable" << std::endl;
+        //exit(0);
+      }
+    }
 
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
+
+
+    if ( !(unresolvedFuncOpVec_.empty()) )
+    {
+      std::cout << "ERROR.  Unresolved functions in expression " << expressionString_ <<std::endl;
+      for(int ii=0;ii<unresolvedFuncOpVec_.size();++ii)
+      {
+        std::cout << "unresolvedFuncOpVec_[" << ii << "] = " << unresolvedFuncOpVec_[ii]->getName() <<std::endl;
+      }
+    }
 
     // get solution values we need from the group
     {

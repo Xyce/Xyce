@@ -91,7 +91,7 @@ Expression::Expression( const std::string & exp, bool useNew )
       }
     }
 
-    newExpPtr_ = new newExpression(expCopy, grp_);
+    newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy,grp_) );
     newExpPtr_->lexAndParseExpression();
   }
   else
@@ -112,13 +112,13 @@ Expression::Expression( const Expression & right)
   :
    useNewExpressionLibrary_(right.useNewExpressionLibrary_),
    namesSet_(right.namesSet_),
-   newExpPtr_(NULL),
+   newExpPtr_(right.newExpPtr_),
    grp_(right.grp_),
    expPtr_(NULL)
 {
   if(useNewExpressionLibrary_)
   {
-    newExpPtr_ = new newExpression( *(right.newExpPtr_));
+    //newExpPtr_ = new Xyce::Util::newExpression( *(right.newExpPtr_));
   }
   else
   {
@@ -144,8 +144,10 @@ Expression& Expression::operator=(const Expression& right)
 
   if(useNewExpressionLibrary_)
   {
-    newExpPtr_ = new newExpression( *(right.newExpPtr_) );
-    newExpPtr_->lexAndParseExpression();
+    //newExpPtr_ = new Xyce::Util::newExpression( *(right.newExpPtr_) );
+    //newExpPtr_->lexAndParseExpression();
+    newExpPtr_ = right.newExpPtr_;
+    if (*(newExpPtr_.parsed())) newExpPtr_->lexAndParseExpression();
   }
   else
   {
@@ -168,7 +170,7 @@ Expression::~Expression ()
 {
   if(useNewExpressionLibrary_)
   {
-    delete newExpPtr_;
+    //delete newExpPtr_;
   }
   else
   {
@@ -217,7 +219,7 @@ bool Expression::set ( const std::string & exp )
       }
     }
 
-    if (newExpPtr_)
+    if ( !(Teuchos::is_null(newExpPtr_)) )
     {
       newExpPtr_->clear();
       newExpPtr_->setExpressionString (expCopy);
@@ -226,7 +228,8 @@ bool Expression::set ( const std::string & exp )
     {
       Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
       grp_ = xyceGroup;
-      newExpPtr_ = new newExpression(expCopy, grp_);
+      //newExpPtr_ = new Xyce::Util::newExpression(expCopy, grp_);
+      newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy, grp_) );
     }
     newExpPtr_->lexAndParseExpression();
   }
@@ -251,7 +254,7 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
   if(useNewExpressionLibrary_)
   {
     //ERK.  Like with everything else, stuff that is old-expression specific I am 
-    //handling here, rather than in newExpression.
+    //handling here, rather than in Xyce::Util::newExpression.
 
     //  local versions of these
     //  set them up, and then go thru a similar loop as the getSymbolTable function in N_UTL_ExpressionInternals
@@ -362,7 +365,7 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
 // Purpose       : This function returns the names of various entities present 
 //                 in a parsed expression by type.
 //
-// Special Notes : These notes pertain to the newExpression implementation.
+// Special Notes : These notes pertain to the Xyce::Util::newExpression implementation.
 //
 //                 This function, which is a holdover of the old expression 
 //                 library, is vaguely named.  Its name, "get_names" begs the 
@@ -580,7 +583,7 @@ int Expression::get_type ( const std::string & var )
     else
     {
       newExpPtr_->dumpParseTree(std::cout);
-      std::cout << "Error. newExpression::get_type.  Cannot find type for " << var << std::endl;
+      std::cout << "Error. Xyce::Util::newExpression::get_type.  Cannot find type for " << var << std::endl;
     }
   }
   else
@@ -632,7 +635,7 @@ bool Expression::make_constant (const std::string & var, const double & val)
 //                 only assumed you wanted voltages and currents differentiated.  
 //                 There is a "make_var" function, which allows you to tag 
 //                 certain variables as needing differentiation.  This is useful
-//                 for newExpression as well, for obvious reasons.
+//                 for Xyce::Util::newExpression as well, for obvious reasons.
 //
 //                 For the reasons given above, make_var can only operate on
 //                 paramOp classes.
@@ -778,7 +781,7 @@ std::string Expression::get_expression () const
   std::string retVal; 
   if(useNewExpressionLibrary_)
   {
-    //std::cout << "Expression::get_expression not implemented for newExpression library yet" <<std::endl;
+    //std::cout << "Expression::get_expression not implemented for Xyce::Util::newExpression library yet" <<std::endl;
     //exit(0);
     retVal = newExpPtr_->getExpressionString(); // note, for new expression, this is not a reconstruction
   }
@@ -803,7 +806,7 @@ std::string Expression::get_derivative ( std::string const & var )
   std::string retVal; 
   if(useNewExpressionLibrary_)
   {
-    std::cout << "Expression::get_derivative not implemented for newExpression library yet" <<std::endl;
+    std::cout << "Expression::get_derivative not implemented for Xyce::Util::newExpression library yet" <<std::endl;
     exit(0);
   }
   else
@@ -1270,11 +1273,18 @@ int Expression::replace_func (std::string const & func_name,
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+#if 0
     Xyce::Util::newExpression funcExpr = *(func_def.newExpPtr_) ; // copy construction
     funcExpr.lexAndParseExpression();
-
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
     xyceGroup->addFunction(func_name, funcExpr);
+#else
+    if (!(func_def.newExpPtr_->parsed()))
+    {
+      func_def.newExpPtr_->lexAndParseExpression();
+    }
+    xyceGroup->addFunction(func_name, *(func_def.newExpPtr_));
+#endif
     return numArgs;
   }
   else
