@@ -65,7 +65,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     td_(0.0),
     tdGiven_(false),
     goal_(0.0),
-    weight_(0.0),
+    weight_(1.0),
     minval_(1.0e-12),
     at_(0.0),
     atGiven_(false),
@@ -73,8 +73,8 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     fromGiven_(false),
     to_(0.0),
     toGiven_(false),
-    ymin_(0.0),
-    ymax_(0.0),
+    ymin_(1.0e-15),
+    ymax_(1.0e+15),
     rise_(0),
     riseGiven_(false),
     fall_(0),
@@ -276,13 +276,22 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
       to_ = (*it).getImmutableValue<double>();
       toGiven_ = true;
     }
-    else if( (tag == "IGNORE") || (tag == "YMIN") )
+    else if( (tag == "IGNORE") || (tag == "IGNOR") || (tag == "YMIN") )
     {
       ymin_ = (*it).getImmutableValue<double>();
+      if (ymin_ < 0)
+      {
+        Report::UserError0() << "YMIN or IGNORE keyword for measure " << name_ << " must be non-negative";
+      }
+
     }
     else if( tag == "YMAX" )
     {
       ymax_ = (*it).getImmutableValue<double>();
+      if (ymax_ <= 0)
+      {
+        Report::UserError0() << "YMAX keyword for measure " << name_ << " must be positive";
+      }
     }
     else if( tag == "RISE" )
     {

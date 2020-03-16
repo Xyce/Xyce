@@ -23,6 +23,8 @@ libOutput_la_SOURCES = \
   N_IO_MeasureAverage.h \
   N_IO_MeasureDuty.C \
   N_IO_MeasureDuty.h \
+  N_IO_MeasureErrorFunctions.C \
+  N_IO_MeasureErrorFunctions.h \
   N_IO_MeasureFrequency.C \
   N_IO_MeasureFrequency.h \
   N_IO_MeasureMax.C \

@@ -12,6 +12,7 @@ set ( OutputInterface_SOURCES
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureRiseFallDelay.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureAverage.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureDuty.C
+     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureErrorFunctions.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureFrequency.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureMax.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureMin.C
