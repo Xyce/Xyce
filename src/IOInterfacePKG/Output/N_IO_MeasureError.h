@@ -22,8 +22,8 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Measure relative error of an output variable
-//
+// Purpose        : Implement ERROR measure, which is different from the
+//                  ERR, ERR1 and ERR2 measures
 // Special Notes  :
 //
 // Creator        : Richard Schiek, SNL, Electrical and Microsystem Modeling
@@ -33,8 +33,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef Xyce_N_IO_MeasureRelativeError_h
-#define Xyce_N_IO_MeasureRelativeError_h
+#ifndef Xyce_N_IO_MeasureError_h
+#define Xyce_N_IO_MeasureError_h
 
 #include <N_IO_MeasureBase.h>
 
@@ -43,17 +43,17 @@ namespace IO {
 namespace Measure {
 
 //-------------------------------------------------------------------------
-// Class         : RelativeError
-// Purpose       : Measure relative error of an output variable
+// Class         : Error
+// Purpose       : Implement ERROR measure
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-------------------------------------------------------------------------
-class RelativeError : public Base
+class Error : public Base
 {
   public:
-  RelativeError(const Manager &measureMgr, const Util::OptionBlock & measureBlock );
-    ~RelativeError() {};
+  Error(const Manager &measureMgr, const Util::OptionBlock & measureBlock );
+    ~Error() {};
     
     void prepareOutputVariables();
     void reset();

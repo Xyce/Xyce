@@ -72,7 +72,7 @@ void EquationEvaluation::prepareOutputVariables()
   
   if ( numOutVars_ > 1 )
   {
-    std::string msg = "Too many dependent variables for relative error measure, \"" + name_ + "\" Exiting.";
+    std::string msg = "Too many dependent variables for EQN measure, \"" + name_ + "\" Exiting.";
     Report::UserFatal() << msg;
   }
 

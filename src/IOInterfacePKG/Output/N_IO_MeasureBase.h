@@ -215,14 +215,7 @@ public:
     // this is the mode under which the measurement is active (DC, AC or TRAN)
     std::string mode_;
 
-    // This is the type of measurement to be done.  A text string is stored here
-    // but derrived classes do the work.  Here are the types:
-    // TRIG TARG                 -- see MeasureRiseFallDelay
-    // AVG, MAX, MIN, PP, RMS    -- see MeasureStatistics
-    // FIND, WHEN                -- see MeasureFindWhen
-    // DERIVATIVE, DERIV         -- see MeasureDerivativeEvaluation
-    // INTEGRAL                  -- see Measure Integral Evaluation
-    // ERROR                     -- see MeasureRelativeError
+    // This is the type of measurement to be done (e.g., MIN or MAX).  A text string is stored here.
     std::string type_;
 
     // this bool is set by the constructor of the derived class.  So those that

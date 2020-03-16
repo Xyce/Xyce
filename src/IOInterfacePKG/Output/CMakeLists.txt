@@ -24,7 +24,7 @@ set ( OutputInterface_SOURCES
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureEquationEvaluation.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureDerivativeEvaluation.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureIntegralEvaluation.C
-     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureRelativeError.C
+     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureError.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureFourier.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_Remeasure.C
       CACHE INTERNAL "X_S" )

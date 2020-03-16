@@ -56,7 +56,7 @@
 #include <N_IO_MeasureOnTime.h>
 #include <N_IO_MeasurePeakToPeak.h>
 #include <N_IO_MeasureRMS.h>
-#include <N_IO_MeasureRelativeError.h>
+#include <N_IO_MeasureError.h>
 #include <N_IO_MeasureRiseFallDelay.h>
 #include <N_IO_Remeasure.h>
 #include <N_IO_NetlistImportTool.h>
@@ -273,7 +273,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   }
   else if( type=="ERROR" )
   {
-    theMeasureObject = new Measure::RelativeError(measureMgr, measureBlock);
+    theMeasureObject = new Measure::Error(measureMgr, measureBlock);
   }
   else if( type=="ERR1" || type=="ERR" )
   {

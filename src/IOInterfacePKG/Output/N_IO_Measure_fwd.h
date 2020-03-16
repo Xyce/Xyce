@@ -58,7 +58,7 @@ class OffTime;
 class OnTime;
 class PeakToPeak;
 class RMS;
-class RelativeError;
+class Error;
 class RiseFallDelay;
 
 } // namespace Measure
