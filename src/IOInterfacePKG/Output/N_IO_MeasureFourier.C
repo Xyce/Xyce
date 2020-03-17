@@ -86,8 +86,8 @@ void Fourier::prepareOutputVariables()
 
   if ( numOutVars_ > 1 )
   {
-    std::string msg = "Too many dependent variables for statistical measure, \"" + name_ + "\" Exiting.";
-    Report::UserFatal() << msg;
+    std::string msg = "Too many dependent variables for FOUR measure, \"" + name_ + "\"";
+    Report::UserError0() << msg;
   }
 }
 

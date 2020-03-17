@@ -74,7 +74,7 @@ void IntegralEvaluation::prepareOutputVariables()
   
   // this measurement should have only one dependent variable.
   if (outVarValues_.size() > 1 )
-    Xyce::Report::UserError0() << "Too many dependent variables for statistical measure, \"" << name_ << "\"";
+    Xyce::Report::UserError0() << "Too many dependent variables for INTEG measure, \"" << name_ << "\"";
 }
 
 

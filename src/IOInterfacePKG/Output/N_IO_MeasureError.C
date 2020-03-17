@@ -257,13 +257,13 @@ Error::Error(const Manager &measureMgr, const Util::OptionBlock & measureBlock )
 void Error::prepareOutputVariables()
 {
   // this measurement should have only one dependent variable.
-  // Error for now if it doesn't
+  // Error out if it doesn't
   numOutVars_ = outputVars_.size();
   
   if ( numOutVars_ > 1 )
   {
-    std::string msg = "Too many dependent variables for ERROR measure, \"" + name_ + "\" Exiting.";
-    Report::UserFatal() << msg;
+    std::string msg = "Too many dependent variables for ERROR measure, \"" + name_ + "\"";
+    Report::UserError0() << msg;
   }
 
   outVarValues_.resize( numOutVars_, 0.0 );
