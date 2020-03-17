@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 20 Jan 2020 12:03:25
+// Creation Date  : Tue, 17 Mar 2020 14:53:34
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -7352,12 +7352,6 @@ bool Instance::updateIntermediateVars()
      double d_Esatnoi_dV_e_di;
      double d_Esatnoi_dV_di_si;
   double IdovVds;
-     double d_IdovVds_dV_e_si;
-     double d_IdovVds_dV_e_di;
-     double d_IdovVds_dV_g_e;
-     double d_IdovVds_dV_g_si;
-     double d_IdovVds_dV_di_si;
-     double d_IdovVds_dV_g_di;
   double vge_overlap;
      double d_vge_overlap_dV_g_di;
      double d_vge_overlap_dV_e_si;
@@ -7584,11 +7578,6 @@ bool Instance::updateIntermediateVars()
      double d_dqi_idscv_dV_g_e;
      double d_dqi_idscv_dV_g_si;
   double beta_cv;
-     double d_beta_cv_dV_e_si;
-     double d_beta_cv_dV_e_di;
-     double d_beta_cv_dV_g_e;
-     double d_beta_cv_dV_g_si;
-     double d_beta_cv_dV_di_si;
   double idscv;
      double d_idscv_dV_di_si;
      double d_idscv_dV_e_si;
@@ -8145,8 +8134,6 @@ bool Instance::updateIntermediateVars()
      double d_ves_dV_e_si;
      double d_ves_dV_e_di;
   double vgd;
-     double d_vgd_dV_g_di;
-     double d_vgd_dV_di_si;
   double vds;
      double d_vds_dV_di_si;
   double vgs;
@@ -11524,9 +11511,6 @@ vgs = (vgs_noswap-vds_noswap);
 
 d_vds_dV_di_si = ((-1.0)*d_vds_noswap_dV_di_si);
 vds = ((-1.0)*vds_noswap);
-
-d_vgd_dV_di_si = d_vds_noswap_dV_di_si;
-d_vgd_dV_g_di = d_vgd_noswap_dV_g_di;
 vgd = (vgd_noswap+vds_noswap);
 
 d_ves_dV_e_si =  0.0;
@@ -11542,9 +11526,6 @@ vgs = vgs_noswap;
 
 d_vds_dV_di_si = d_vds_noswap_dV_di_si;
 vds = vds_noswap;
-
-d_vgd_dV_di_si =  0.0;
-d_vgd_dV_g_di = d_vgd_noswap_dV_g_di;
 vgd = vgd_noswap;
 
 d_ves_dV_e_di =  0.0;
@@ -16181,12 +16162,6 @@ d_idscv_dV_e_di = ((DvsatCV*d_idscv_dV_e_di-idscv*d_DvsatCV_dV_e_di)/DvsatCV/Dvs
 d_idscv_dV_e_si = ((DvsatCV*d_idscv_dV_e_si-idscv*d_DvsatCV_dV_e_si)/DvsatCV/DvsatCV);
 d_idscv_dV_di_si = ((DvsatCV*d_idscv_dV_di_si-idscv*d_DvsatCV_dV_di_si)/DvsatCV/DvsatCV);
 idscv = (idscv/DvsatCV);
-
-d_beta_cv_dV_di_si = ((((u0*coxeff)*d_WeffCV_dV_di_si)+((u0*d_coxeff_dV_di_si)*WeffCV))/LeffCV);
-d_beta_cv_dV_g_si = ((((u0*coxeff)*d_WeffCV_dV_g_si)+((u0*d_coxeff_dV_g_si)*WeffCV))/LeffCV);
-d_beta_cv_dV_g_e = ((((u0*coxeff)*d_WeffCV_dV_g_e)+((u0*d_coxeff_dV_g_e)*WeffCV))/LeffCV);
-d_beta_cv_dV_e_di = ((((u0*coxeff)*d_WeffCV_dV_e_di)+((u0*d_coxeff_dV_e_di)*WeffCV))/LeffCV);
-d_beta_cv_dV_e_si = ((((u0*coxeff)*d_WeffCV_dV_e_si)+((u0*d_coxeff_dV_e_si)*WeffCV))/LeffCV);
 beta_cv = (((u0*coxeff)*WeffCV)/LeffCV);
 
 d_dqi_idscv_dV_g_si = ((idscv*d_dqi_dV_g_si-dqi*d_idscv_dV_g_si)/idscv/idscv);
@@ -16693,12 +16668,6 @@ d_idscv_dV_e_di = ((DvsatCV*d_idscv_dV_e_di-idscv*d_DvsatCV_dV_e_di)/DvsatCV/Dvs
 d_idscv_dV_e_si = ((DvsatCV*d_idscv_dV_e_si-idscv*d_DvsatCV_dV_e_si)/DvsatCV/DvsatCV);
 d_idscv_dV_di_si = ((DvsatCV*d_idscv_dV_di_si-idscv*d_DvsatCV_dV_di_si)/DvsatCV/DvsatCV);
 idscv = (idscv/DvsatCV);
-
-d_beta_cv_dV_di_si = ((((u0*coxeff)*d_WeffCV_dV_di_si)+((u0*d_coxeff_dV_di_si)*WeffCV))/LeffCV);
-d_beta_cv_dV_g_si = ((((u0*coxeff)*d_WeffCV_dV_g_si)+((u0*d_coxeff_dV_g_si)*WeffCV))/LeffCV);
-d_beta_cv_dV_g_e = ((((u0*coxeff)*d_WeffCV_dV_g_e)+((u0*d_coxeff_dV_g_e)*WeffCV))/LeffCV);
-d_beta_cv_dV_e_di = ((((u0*coxeff)*d_WeffCV_dV_e_di)+((u0*d_coxeff_dV_e_di)*WeffCV))/LeffCV);
-d_beta_cv_dV_e_si = ((((u0*coxeff)*d_WeffCV_dV_e_si)+((u0*d_coxeff_dV_e_si)*WeffCV))/LeffCV);
 beta_cv = (((u0*coxeff)*WeffCV)/LeffCV);
 
 d_dqi_idscv_dV_g_si = ((idscv*d_dqi_dV_g_si-dqi*d_idscv_dV_g_si)/idscv/idscv);
@@ -20296,13 +20265,6 @@ d_idsgen_dV_e_di = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_
 d_idsgen_dV_e_si = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_e_si);
 d_idsgen_dV_g_di = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_g_di);
 idsgen = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*T1);
-
-d_IdovVds_dV_g_di = ((((Dmob*Dvsat)*Dr)*((beta*d_ids0_ov_dqi_dV_g_di)*Moc)-((beta*ids0_ov_dqi)*Moc)*((Dmob*Dvsat)*d_Dr_dV_g_di))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_IdovVds_dV_di_si = ((((Dmob*Dvsat)*Dr)*(((beta*ids0_ov_dqi)*d_Moc_dV_di_si)+(((beta*d_ids0_ov_dqi_dV_di_si)+(d_beta_dV_di_si*ids0_ov_dqi))*Moc))-((beta*ids0_ov_dqi)*Moc)*(((Dmob*Dvsat)*d_Dr_dV_di_si)+(((Dmob*d_Dvsat_dV_di_si)+(d_Dmob_dV_di_si*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_IdovVds_dV_g_si = ((((Dmob*Dvsat)*Dr)*(((beta*ids0_ov_dqi)*d_Moc_dV_g_si)+(((beta*d_ids0_ov_dqi_dV_g_si)+(d_beta_dV_g_si*ids0_ov_dqi))*Moc))-((beta*ids0_ov_dqi)*Moc)*(((Dmob*Dvsat)*d_Dr_dV_g_si)+(((Dmob*d_Dvsat_dV_g_si)+(d_Dmob_dV_g_si*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_IdovVds_dV_g_e = ((((Dmob*Dvsat)*Dr)*(((beta*ids0_ov_dqi)*d_Moc_dV_g_e)+(((beta*d_ids0_ov_dqi_dV_g_e)+(d_beta_dV_g_e*ids0_ov_dqi))*Moc))-((beta*ids0_ov_dqi)*Moc)*(((Dmob*Dvsat)*d_Dr_dV_g_e)+(((Dmob*d_Dvsat_dV_g_e)+(d_Dmob_dV_g_e*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_IdovVds_dV_e_di = ((((Dmob*Dvsat)*Dr)*(((beta*ids0_ov_dqi)*d_Moc_dV_e_di)+(((beta*d_ids0_ov_dqi_dV_e_di)+(d_beta_dV_e_di*ids0_ov_dqi))*Moc))-((beta*ids0_ov_dqi)*Moc)*(((Dmob*Dvsat)*d_Dr_dV_e_di)+(((Dmob*d_Dvsat_dV_e_di)+(d_Dmob_dV_e_di*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_IdovVds_dV_e_si = ((((Dmob*Dvsat)*Dr)*(((beta*ids0_ov_dqi)*d_Moc_dV_e_si)+(((beta*d_ids0_ov_dqi_dV_e_si)+(d_beta_dV_e_si*ids0_ov_dqi))*Moc))-((beta*ids0_ov_dqi)*Moc)*(((Dmob*Dvsat)*d_Dr_dV_e_si)+(((Dmob*d_Dvsat_dV_e_si)+(d_Dmob_dV_e_si*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
 IdovVds = (((beta*ids0_ov_dqi)*Moc)/((Dmob*Dvsat)*Dr));
 
 d_T0_dV_g_di =  0.0;

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 13:43:24
+// Creation Date  : Tue, 17 Mar 2020 15:53:46
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1652,8 +1652,6 @@ bool Instance::processParams()
     {
       double value_pow_0 = pow(rT,((model_.xii)/(model_.ncip)));
       double value_exp_1 = exp((((-(model_.eais))*(1.0-rT))/(vtv*(model_.ncip))));
-
-      d_ibcip_t_dTemp_dt_GND =  0.0;
       ibcip_t = (((model_.ibcip)*value_pow_0)*value_exp_1);
     }
     if ((ibcip_t>0.0))
@@ -1670,8 +1668,6 @@ bool Instance::processParams()
     {
       double value_pow_0 = pow(rT,((model_.xin)/(model_.ncnp)));
       double value_exp_1 = exp((((-(model_.eans))*(1.0-rT))/(vtv*(model_.ncnp))));
-
-      d_ibcnp_t_dTemp_dt_GND =  0.0;
       ibcnp_t = (((model_.ibcnp)*value_pow_0)*value_exp_1);
     }
     if ((ibcnp_t>0.0))
@@ -1731,9 +1727,7 @@ Instance::Instance(
     ibenp_t(0.0),
     d_ibenp_t_dTemp_dt_GND(0.0),
     ibcip_t(0.0),
-    d_ibcip_t_dTemp_dt_GND(0.0),
     ibcnp_t(0.0),
-    d_ibcnp_t_dTemp_dt_GND(0.0),
     tdevC(0.0),
     d_tdevC_dTemp_dt_GND(0.0),
     tdevK(0.0),
@@ -3069,7 +3063,6 @@ bool Instance::updateIntermediateVars()
   double re_t;
   double d_re_t_dTemp_dt_GND;
   double rs_t;
-  double d_rs_t_dTemp_dt_GND;
   double rbp_t;
   double d_rbp_t_dTemp_dt_GND;
   double rth_t;
@@ -3091,7 +3084,6 @@ bool Instance::updateIntermediateVars()
   double pc_t;
   double d_pc_t_dTemp_dt_GND;
   double ps_t;
-  double d_ps_t_dTemp_dt_GND;
   double cje_t;
   double d_cje_t_dTemp_dt_GND;
   double cjc_t;
@@ -3099,7 +3091,6 @@ bool Instance::updateIntermediateVars()
   double cjep_t;
   double d_cjep_t_dTemp_dt_GND;
   double cjcp_t;
-  double d_cjcp_t_dTemp_dt_GND;
   double gamm_t;
   double d_gamm_t_dTemp_dt_GND;
   double vo_t;
@@ -3111,7 +3102,6 @@ bool Instance::updateIntermediateVars()
   double ver_t;
   double d_ver_t_dTemp_dt_GND;
   double Gs;
-  double d_Gs_dTemp_dt_GND;
   double Gth;
   double d_Gth_dTemp_dt_GND;
   double Ivef;
@@ -3699,9 +3689,6 @@ bool Instance::updateIntermediateVars()
     }
     {
       double value_pow_0 = pow(rT,(model_.xrs));
-      double  deriv_pow_0_d0 = ((rT == 0.0)?0.0:(value_pow_0*(model_.xrs)/rT));
-
-      d_rs_t_dTemp_dt_GND = ((model_.rs)*(deriv_pow_0_d0*(d_rT_dTemp_dt_GND)));
       rs_t = ((model_.rs)*value_pow_0);
     }
     if ((model_.given("xrbp")))
@@ -3811,19 +3798,11 @@ bool Instance::updateIntermediateVars()
     {
       double value_pow_0 = pow(rT,((model_.xii)/(model_.ncip)));
       double value_exp_1 = exp((((-(model_.eais))*(1.0-rT))/(vtv*(model_.ncip))));
-      double  deriv_pow_0_d0 = ((rT == 0.0)?0.0:(value_pow_0*((model_.xii)/(model_.ncip))/rT));
-      double  deriv_exp_1_d0 = value_exp_1;
-
-      d_ibcip_t_dTemp_dt_GND = ((((model_.ibcip)*value_pow_0)*(deriv_exp_1_d0*((((vtv*(model_.ncip))*((-(model_.eais))*(-d_rT_dTemp_dt_GND))-((-(model_.eais))*(1.0-rT))*(d_vtv_dTemp_dt_GND*(model_.ncip)))/(vtv*(model_.ncip))/(vtv*(model_.ncip))))))+(((model_.ibcip)*(deriv_pow_0_d0*(d_rT_dTemp_dt_GND)))*value_exp_1));
       ibcip_t = (((model_.ibcip)*value_pow_0)*value_exp_1);
     }
     {
       double value_pow_0 = pow(rT,((model_.xin)/(model_.ncnp)));
       double value_exp_1 = exp((((-(model_.eans))*(1.0-rT))/(vtv*(model_.ncnp))));
-      double  deriv_pow_0_d0 = ((rT == 0.0)?0.0:(value_pow_0*((model_.xin)/(model_.ncnp))/rT));
-      double  deriv_exp_1_d0 = value_exp_1;
-
-      d_ibcnp_t_dTemp_dt_GND = ((((model_.ibcnp)*value_pow_0)*(deriv_exp_1_d0*((((vtv*(model_.ncnp))*((-(model_.eans))*(-d_rT_dTemp_dt_GND))-((-(model_.eans))*(1.0-rT))*(d_vtv_dTemp_dt_GND*(model_.ncnp)))/(vtv*(model_.ncnp))/(vtv*(model_.ncnp))))))+(((model_.ibcnp)*(deriv_pow_0_d0*(d_rT_dTemp_dt_GND)))*value_exp_1));
       ibcnp_t = (((model_.ibcnp)*value_pow_0)*value_exp_1);
     }
 
@@ -3926,37 +3905,22 @@ bool Instance::updateIntermediateVars()
     {
       //Block-local variables for block psPsibiBlock
       double psiio;
-      double d_psiio_dTemp_dt_GND;
       double psiin;
-      double d_psiin_dTemp_dt_GND;
       //End of Block-local variables
       {
         double value_exp_0 = exp((((0.5*(model_.ps))*rT)/vtv));
         double value_exp_1 = exp(((((-0.5)*(model_.ps))*rT)/vtv));
         double value_log_2 = log((value_exp_0-value_exp_1));
-        double  deriv_exp_0_d0 = value_exp_0;
-        double  deriv_exp_1_d0 = value_exp_1;
-        double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
-
-        d_psiio_dTemp_dt_GND = (((2.0*(vtv/rT))*(deriv_log_2_d0*(((deriv_exp_0_d0*(((vtv*((0.5*(model_.ps))*d_rT_dTemp_dt_GND)-((0.5*(model_.ps))*rT)*d_vtv_dTemp_dt_GND)/vtv/vtv)))-(deriv_exp_1_d0*(((vtv*(((-0.5)*(model_.ps))*d_rT_dTemp_dt_GND)-(((-0.5)*(model_.ps))*rT)*d_vtv_dTemp_dt_GND)/vtv/vtv)))))))+((2.0*((rT*d_vtv_dTemp_dt_GND-vtv*d_rT_dTemp_dt_GND)/rT/rT))*value_log_2));
         psiio = ((2.0*(vtv/rT))*value_log_2);
       }
       {
         double value_log_0 = log(rT);
-        double  deriv_log_0_d0 = (1.0/rT);
-
-        d_psiin_dTemp_dt_GND = (((psiio*d_rT_dTemp_dt_GND)-(((3.0*vtv)*(deriv_log_0_d0*(d_rT_dTemp_dt_GND)))+((3.0*d_vtv_dTemp_dt_GND)*value_log_0)))-((model_.eais)*d_rT_dTemp_dt_GND));
         psiin = (((psiio*rT)-((3.0*vtv)*value_log_0))-((model_.eais)*(rT-1.0)));
       }
       {
         double value_exp_0 = exp(((-psiin)/vtv));
         double value_sqrt_1 = sqrt((1.0+(4.0*value_exp_0)));
         double value_log_2 = log((0.5*(1.0+value_sqrt_1)));
-        double  deriv_exp_0_d0 = value_exp_0;
-        double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
-        double  deriv_log_2_d0 = (1.0/(0.5*(1.0+value_sqrt_1)));
-
-        d_ps_t_dTemp_dt_GND = (((2.0*vtv)*(deriv_log_2_d0*((0.5*(deriv_sqrt_1_d0*((4.0*(deriv_exp_0_d0*((-(-psiin)*d_vtv_dTemp_dt_GND/vtv/vtv))))))))))+((2.0*d_vtv_dTemp_dt_GND)*value_log_2));
         ps_t = (psiin+((2.0*vtv)*value_log_2));
       }
     }
@@ -3984,9 +3948,6 @@ bool Instance::updateIntermediateVars()
     }
     {
       double value_pow_0 = pow(((model_.ps)/ps_t),(model_.ms));
-      double  deriv_pow_0_d0 = ((((model_.ps)/ps_t) == 0.0)?0.0:(value_pow_0*(model_.ms)/((model_.ps)/ps_t)));
-
-      d_cjcp_t_dTemp_dt_GND = 0.0;
       cjcp_t = ((model_.cjcp)*value_pow_0);
     }
     {
@@ -4036,8 +3997,6 @@ bool Instance::updateIntermediateVars()
 
     d_Gbp_dTemp_dt_GND = ((rbp_t>1.0e-3)?(-d_rbp_t_dTemp_dt_GND/rbp_t/rbp_t):0.0);
     Gbp = ((rbp_t>1.0e-3)?(1.0/rbp_t):1.0e3);
-
-    d_Gs_dTemp_dt_GND = ((rs_t>1.0e-3)?0.0:0.0);
     Gs = ((rs_t>1.0e-3)?(1.0/rs_t):1.0e3);
 
     d_Gth_dTemp_dt_GND = ((rth_t>1.0e-3)?(-d_rth_t_dTemp_dt_GND/rth_t/rth_t):0.0);

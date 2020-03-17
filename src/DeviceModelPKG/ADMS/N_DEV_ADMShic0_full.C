@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:59:53
+// Creation Date  : Tue, 17 Mar 2020 14:53:34
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1977,11 +1977,6 @@ bool Instance::updateIntermediateVars()
   double fourkt;
      double d_fourkt_dV_tnode_GND;
   double it_wop;
-     double d_it_wop_dV_tnode_GND;
-     double d_it_wop_dV_bi_ei;
-     double d_it_wop_dV_bi_ci;
-     double d_it_wop_dV_b_ci;
-     double d_it_wop_dV_ci_ei;
   double Qbiei;
      double d_Qbiei_dV_tnode_GND;
      double d_Qbiei_dV_ci_ei;
@@ -2451,9 +2446,6 @@ bool Instance::updateIntermediateVars()
      double d_qjcii_dV_tnode_GND;
      double d_qjcii_dV_b_ci;
   double qjci_int;
-     double d_qjci_int_dV_bi_ci;
-     double d_qjci_int_dV_tnode_GND;
-     double d_qjci_int_dV_b_ci;
   double qjcx;
      double d_qjcx_dV_bi_ci;
      double d_qjcx_dV_tnode_GND;
@@ -2607,7 +2599,6 @@ bool Instance::updateIntermediateVars()
   double aver_t;
      double d_aver_t_dV_tnode_GND;
   double rth_t;
-     double d_rth_t_dV_tnode_GND;
   double kavl_t;
      double d_kavl_t_dV_tnode_GND;
   double eavl_t;
@@ -3157,17 +3148,11 @@ if (((model_.zetarth)!=0))
 {
 double value_log_0 = log((Tdev/Tnom));
 double value_exp_1 = exp(((model_.zetarth)*value_log_0));
-double  deriv_log_0_d0 = (1.0/(Tdev/Tnom));
-double  deriv_exp_1_d0 = value_exp_1;
-
-d_rth_t_dV_tnode_GND = ((model_.rth)*(deriv_exp_1_d0*(((model_.zetarth)*(deriv_log_0_d0*((d_Tdev_dV_tnode_GND/Tnom)))))));
 rth_t = ((model_.rth)*value_exp_1);
 }
 }
 else
 {
-
-d_rth_t_dV_tnode_GND =  0.0;
 rth_t = (model_.rth);
 }
 {
@@ -4208,10 +4193,6 @@ d_qjci_dV_bi_ci = d_qjci_dV_tnode_GND = d_qjci_dV_b_ci =  0.0;
 qjci = 0.00;
 }
 }
-
-d_qjci_int_dV_b_ci = d_qjci_dV_b_ci;
-d_qjci_int_dV_tnode_GND = d_qjci_dV_tnode_GND;
-d_qjci_int_dV_bi_ci = d_qjci_dV_bi_ci;
 qjci_int = qjci;
 
 d_qjcii_dV_b_ci = (d_qjci_dV_b_ci+d_qjcxi_dV_b_ci);
@@ -6099,12 +6080,6 @@ d_Qbiei_dV_bi_ei = (HICUMtype*d_Qbiei_dV_bi_ei);
 d_Qbiei_dV_ci_ei = (HICUMtype*d_Qbiei_dV_ci_ei);
 d_Qbiei_dV_tnode_GND = (HICUMtype*d_Qbiei_dV_tnode_GND);
 Qbiei = (HICUMtype*Qbiei);
-
-d_it_wop_dV_ci_ei = (HICUMtype*d_it_dV_ci_ei);
-d_it_wop_dV_b_ci = (HICUMtype*d_it_dV_b_ci);
-d_it_wop_dV_bi_ci = (HICUMtype*d_it_dV_bi_ci);
-d_it_wop_dV_bi_ei = (HICUMtype*d_it_dV_bi_ei);
-d_it_wop_dV_tnode_GND = (HICUMtype*d_it_dV_tnode_GND);
 it_wop = (HICUMtype*it);
 
 d_it_dV_ci_ei = (HICUMtype*(d_Itxf_dV_ci_ei-d_itr_dV_ci_ei));

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:59:06
+// Creation Date  : Tue, 17 Mar 2020 14:53:34
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -4235,9 +4235,6 @@ bool Instance::updateIntermediateVars()
      double d_d_Q_dV_bi_ei;
      double d_d_Q_dV_bi_ci;
   double d_Q0;
-     double d_d_Q0_dV_tnode_GND;
-     double d_d_Q0_dV_bi_ei;
-     double d_d_Q0_dV_bi_ci;
   double Qdei;
      double d_Qdei_dV_tnode_GND;
      double d_Qdei_dV_bi_ci;
@@ -4288,11 +4285,6 @@ bool Instance::updateIntermediateVars()
      double d_ibet_dV_bi_ci;
      double d_ibet_dV_bi_ei;
   double CjCx_ii;
-     double d_CjCx_ii_dV_bp_ei;
-     double d_CjCx_ii_dV_bi_ei;
-     double d_CjCx_ii_dV_bp_ci;
-     double d_CjCx_ii_dV_tnode_GND;
-     double d_CjCx_ii_dV_bi_ci;
   double qjcx0_t_ii;
      double d_qjcx0_t_ii_dV_bp_ei;
      double d_qjcx0_t_ii_dV_bi_ei;
@@ -4300,12 +4292,6 @@ bool Instance::updateIntermediateVars()
      double d_qjcx0_t_ii_dV_tnode_GND;
      double d_qjcx0_t_ii_dV_bi_ci;
   double CjCx_i;
-     double d_CjCx_i_dV_bp_ei;
-     double d_CjCx_i_dV_bi_ei;
-     double d_CjCx_i_dV_b_ci;
-     double d_CjCx_i_dV_bp_ci;
-     double d_CjCx_i_dV_tnode_GND;
-     double d_CjCx_i_dV_bi_ci;
   double qjcx0_t_i;
      double d_qjcx0_t_i_dV_bp_ei;
      double d_qjcx0_t_i_dV_bi_ei;
@@ -4314,13 +4300,6 @@ bool Instance::updateIntermediateVars()
      double d_qjcx0_t_i_dV_tnode_GND;
      double d_qjcx0_t_i_dV_bi_ci;
   double Cjs;
-     double d_Cjs_dV_bp_ei;
-     double d_Cjs_dV_bi_ei;
-     double d_Cjs_dV_si_ci;
-     double d_Cjs_dV_b_ci;
-     double d_Cjs_dV_bp_ci;
-     double d_Cjs_dV_tnode_GND;
-     double d_Cjs_dV_bi_ci;
   double Qjs;
      double d_Qjs_dV_bp_ei;
      double d_Qjs_dV_bi_ei;
@@ -4330,14 +4309,6 @@ bool Instance::updateIntermediateVars()
      double d_Qjs_dV_tnode_GND;
      double d_Qjs_dV_bi_ci;
   double Cscp;
-     double d_Cscp_dV_bp_ei;
-     double d_Cscp_dV_bi_ei;
-     double d_Cscp_dV_s_c;
-     double d_Cscp_dV_si_ci;
-     double d_Cscp_dV_b_ci;
-     double d_Cscp_dV_bp_ci;
-     double d_Cscp_dV_tnode_GND;
-     double d_Cscp_dV_bi_ci;
   double Qscp;
      double d_Qscp_dV_bp_ei;
      double d_Qscp_dV_bi_ei;
@@ -7079,10 +7050,6 @@ d_d_Q_dV_tnode_GND = d_Q_pT_dV_tnode_GND;
 d_Q = Q_pT;
 while (((fabs(d_Q)>=(1.0e-5*fabs(Q_pT)))&&(l_it<=100)))
 {
-
-d_d_Q0_dV_bi_ci = d_d_Q_dV_bi_ci;
-d_d_Q0_dV_bi_ei = d_d_Q_dV_bi_ei;
-d_d_Q0_dV_tnode_GND = d_d_Q_dV_tnode_GND;
 d_Q0 = d_Q;
 
 d_I_Tf1_dV_bi_ci = (-i_0f*d_Q_pT_dV_bi_ci/Q_pT/Q_pT);
@@ -9586,11 +9553,6 @@ d_DC_j3_dV_bi_ci = (DC_max*(-d_De_1_dV_bi_ci));
 d_DC_j3_dV_bp_ci = (DC_max*(-d_De_1_dV_bp_ci));
 d_DC_j3_dV_tnode_GND = ((DC_max*(-d_De_1_dV_tnode_GND))+(d_DC_max_dV_tnode_GND*(1.0-De_1)));
 DC_j3 = (DC_max*(1.0-De_1));
-
-d_CjCx_ii_dV_bp_ei = d_CjCx_ii_dV_bi_ei =  0.0;
-d_CjCx_ii_dV_bi_ci = ((d_DC_j1_dV_bi_ci+d_DC_j2_dV_bi_ci)+d_DC_j3_dV_bi_ci);
-d_CjCx_ii_dV_tnode_GND = ((d_DC_j1_dV_tnode_GND+d_DC_j2_dV_tnode_GND)+d_DC_j3_dV_tnode_GND);
-d_CjCx_ii_dV_bp_ci = ((d_DC_j1_dV_bp_ci+d_DC_j2_dV_bp_ci)+d_DC_j3_dV_bp_ci);
 CjCx_ii = ((DC_j1+DC_j2)+DC_j3);
 {
 double value_exp_0 = exp((DCln2*Dz1));
@@ -9631,8 +9593,6 @@ qjcx0_t_ii = ((((DQ_j1+DQ_j2)-DQ_j3)*vdcx_t)+(DC_max*Dv_j4));
 }
 else
 {
-
-d_CjCx_ii_dV_bp_ei = d_CjCx_ii_dV_bi_ei = d_CjCx_ii_dV_bp_ci = d_CjCx_ii_dV_tnode_GND = d_CjCx_ii_dV_bi_ci =  0.0;
 CjCx_ii = 0.0;
 
 d_qjcx0_t_ii_dV_bp_ei = d_qjcx0_t_ii_dV_bi_ei = d_qjcx0_t_ii_dV_bp_ci = d_qjcx0_t_ii_dV_tnode_GND = d_qjcx0_t_ii_dV_bi_ci =  0.0;
@@ -9715,12 +9675,6 @@ d_DFC_j1_dV_bp_ci = (((cjcx02_t*value_exp_0)*d_DFdvj_dv_dV_bp_ci)+((cjcx02_t*(de
 d_DFC_j1_dV_tnode_GND = (((cjcx02_t*value_exp_0)*d_DFdvj_dv_dV_tnode_GND)+(((cjcx02_t*(deriv_exp_0_d0*(((-(model_.zcx))*d_DFb_dV_tnode_GND))))+(d_cjcx02_t_dV_tnode_GND*value_exp_0))*DFdvj_dv));
 DFC_j1 = ((cjcx02_t*value_exp_0)*DFdvj_dv);
 }
-
-d_CjCx_ii_dV_bi_ei = (d_DFC_j1_dV_bi_ei+((2.4*cjcx02_t)*(-d_DFdvj_dv_dV_bi_ei)));
-d_CjCx_ii_dV_tnode_GND = (d_DFC_j1_dV_tnode_GND+(((2.4*cjcx02_t)*(-d_DFdvj_dv_dV_tnode_GND))+((2.4*d_cjcx02_t_dV_tnode_GND)*(1.0-DFdvj_dv))));
-d_CjCx_ii_dV_bi_ci = (d_DFC_j1_dV_bi_ci+((2.4*cjcx02_t)*(-d_DFdvj_dv_dV_bi_ci)));
-d_CjCx_ii_dV_bp_ei = (d_DFC_j1_dV_bp_ei+((2.4*cjcx02_t)*(-d_DFdvj_dv_dV_bp_ei)));
-d_CjCx_ii_dV_bp_ci = (d_DFC_j1_dV_bp_ci+((2.4*cjcx02_t)*(-d_DFdvj_dv_dV_bp_ci)));
 CjCx_ii = (DFC_j1+((2.4*cjcx02_t)*(1.0-DFdvj_dv)));
 {
 double value_exp_0 = exp((DFb*(1.0-(model_.zcx))));
@@ -9744,8 +9698,6 @@ qjcx0_t_ii = (DFQ_j+((2.4*cjcx02_t)*(Vbpci-DFv_j)));
 }
 else
 {
-
-d_CjCx_ii_dV_bp_ei = d_CjCx_ii_dV_bi_ei = d_CjCx_ii_dV_bp_ci = d_CjCx_ii_dV_tnode_GND = d_CjCx_ii_dV_bi_ci =  0.0;
 CjCx_ii = 0.0;
 
 d_qjcx0_t_ii_dV_bp_ei = d_qjcx0_t_ii_dV_bi_ei = d_qjcx0_t_ii_dV_bp_ci = d_qjcx0_t_ii_dV_tnode_GND = d_qjcx0_t_ii_dV_bi_ci =  0.0;
@@ -10003,12 +9955,6 @@ d_DC_j3_dV_bp_ci = (DC_max*(-d_De_1_dV_bp_ci));
 d_DC_j3_dV_b_ci = (DC_max*(-d_De_1_dV_b_ci));
 d_DC_j3_dV_tnode_GND = ((DC_max*(-d_De_1_dV_tnode_GND))+(d_DC_max_dV_tnode_GND*(1.0-De_1)));
 DC_j3 = (DC_max*(1.0-De_1));
-
-d_CjCx_i_dV_bp_ei = d_CjCx_i_dV_bi_ei =  0.0;
-d_CjCx_i_dV_bi_ci = ((d_DC_j1_dV_bi_ci+d_DC_j2_dV_bi_ci)+d_DC_j3_dV_bi_ci);
-d_CjCx_i_dV_tnode_GND = ((d_DC_j1_dV_tnode_GND+d_DC_j2_dV_tnode_GND)+d_DC_j3_dV_tnode_GND);
-d_CjCx_i_dV_bp_ci = ((d_DC_j1_dV_bp_ci+d_DC_j2_dV_bp_ci)+d_DC_j3_dV_bp_ci);
-d_CjCx_i_dV_b_ci = ((d_DC_j1_dV_b_ci+d_DC_j2_dV_b_ci)+d_DC_j3_dV_b_ci);
 CjCx_i = ((DC_j1+DC_j2)+DC_j3);
 {
 double value_exp_0 = exp((DCln2*Dz1));
@@ -10053,8 +9999,6 @@ qjcx0_t_i = ((((DQ_j1+DQ_j2)-DQ_j3)*vdcx_t)+(DC_max*Dv_j4));
 }
 else
 {
-
-d_CjCx_i_dV_bp_ei = d_CjCx_i_dV_bi_ei = d_CjCx_i_dV_b_ci = d_CjCx_i_dV_bp_ci = d_CjCx_i_dV_tnode_GND = d_CjCx_i_dV_bi_ci =  0.0;
 CjCx_i = 0.0;
 
 d_qjcx0_t_i_dV_bp_ei = d_qjcx0_t_i_dV_bi_ei = d_qjcx0_t_i_dV_b_ci = d_qjcx0_t_i_dV_bp_ci = d_qjcx0_t_i_dV_tnode_GND = d_qjcx0_t_i_dV_bi_ci =  0.0;
@@ -10143,13 +10087,6 @@ d_DFC_j1_dV_b_ci = (((cjcx01_t*value_exp_0)*d_DFdvj_dv_dV_b_ci)+((cjcx01_t*(deri
 d_DFC_j1_dV_tnode_GND = (((cjcx01_t*value_exp_0)*d_DFdvj_dv_dV_tnode_GND)+(((cjcx01_t*(deriv_exp_0_d0*(((-(model_.zcx))*d_DFb_dV_tnode_GND))))+(d_cjcx01_t_dV_tnode_GND*value_exp_0))*DFdvj_dv));
 DFC_j1 = ((cjcx01_t*value_exp_0)*DFdvj_dv);
 }
-
-d_CjCx_i_dV_bi_ei = (d_DFC_j1_dV_bi_ei+((2.4*cjcx01_t)*(-d_DFdvj_dv_dV_bi_ei)));
-d_CjCx_i_dV_tnode_GND = (d_DFC_j1_dV_tnode_GND+(((2.4*cjcx01_t)*(-d_DFdvj_dv_dV_tnode_GND))+((2.4*d_cjcx01_t_dV_tnode_GND)*(1.0-DFdvj_dv))));
-d_CjCx_i_dV_bi_ci = (d_DFC_j1_dV_bi_ci+((2.4*cjcx01_t)*(-d_DFdvj_dv_dV_bi_ci)));
-d_CjCx_i_dV_bp_ei = (d_DFC_j1_dV_bp_ei+((2.4*cjcx01_t)*(-d_DFdvj_dv_dV_bp_ei)));
-d_CjCx_i_dV_bp_ci = (d_DFC_j1_dV_bp_ci+((2.4*cjcx01_t)*(-d_DFdvj_dv_dV_bp_ci)));
-d_CjCx_i_dV_b_ci = (d_DFC_j1_dV_b_ci+((2.4*cjcx01_t)*(-d_DFdvj_dv_dV_b_ci)));
 CjCx_i = (DFC_j1+((2.4*cjcx01_t)*(1.0-DFdvj_dv)));
 {
 double value_exp_0 = exp((DFb*(1.0-(model_.zcx))));
@@ -10175,8 +10112,6 @@ qjcx0_t_i = (DFQ_j+((2.4*cjcx01_t)*(Vbci-DFv_j)));
 }
 else
 {
-
-d_CjCx_i_dV_bp_ei = d_CjCx_i_dV_bi_ei = d_CjCx_i_dV_b_ci = d_CjCx_i_dV_bp_ci = d_CjCx_i_dV_tnode_GND = d_CjCx_i_dV_bi_ci =  0.0;
 CjCx_i = 0.0;
 
 d_qjcx0_t_i_dV_bp_ei = d_qjcx0_t_i_dV_bi_ei = d_qjcx0_t_i_dV_b_ci = d_qjcx0_t_i_dV_bp_ci = d_qjcx0_t_i_dV_tnode_GND = d_qjcx0_t_i_dV_bi_ci =  0.0;
@@ -10388,13 +10323,6 @@ d_DC_j3_dV_b_ci = (DC_max*(-d_De_1_dV_b_ci));
 d_DC_j3_dV_si_ci = (DC_max*(-d_De_1_dV_si_ci));
 d_DC_j3_dV_tnode_GND = ((DC_max*(-d_De_1_dV_tnode_GND))+(d_DC_max_dV_tnode_GND*(1.0-De_1)));
 DC_j3 = (DC_max*(1.0-De_1));
-
-d_Cjs_dV_bp_ei = d_Cjs_dV_bi_ei =  0.0;
-d_Cjs_dV_bi_ci = ((d_DC_j1_dV_bi_ci+d_DC_j2_dV_bi_ci)+d_DC_j3_dV_bi_ci);
-d_Cjs_dV_tnode_GND = ((d_DC_j1_dV_tnode_GND+d_DC_j2_dV_tnode_GND)+d_DC_j3_dV_tnode_GND);
-d_Cjs_dV_bp_ci = ((d_DC_j1_dV_bp_ci+d_DC_j2_dV_bp_ci)+d_DC_j3_dV_bp_ci);
-d_Cjs_dV_b_ci = ((d_DC_j1_dV_b_ci+d_DC_j2_dV_b_ci)+d_DC_j3_dV_b_ci);
-d_Cjs_dV_si_ci = ((d_DC_j1_dV_si_ci+d_DC_j2_dV_si_ci)+d_DC_j3_dV_si_ci);
 Cjs = ((DC_j1+DC_j2)+DC_j3);
 {
 double value_exp_0 = exp((DCln2*Dz1));
@@ -10443,8 +10371,6 @@ Qjs = ((((DQ_j1+DQ_j2)-DQ_j3)*vds_t)+(DC_max*Dv_j4));
 }
 else
 {
-
-d_Cjs_dV_bp_ei = d_Cjs_dV_bi_ei = d_Cjs_dV_si_ci = d_Cjs_dV_b_ci = d_Cjs_dV_bp_ci = d_Cjs_dV_tnode_GND = d_Cjs_dV_bi_ci =  0.0;
 Cjs = 0.0;
 
 d_Qjs_dV_bp_ei = d_Qjs_dV_bi_ei = d_Qjs_dV_si_ci = d_Qjs_dV_b_ci = d_Qjs_dV_bp_ci = d_Qjs_dV_tnode_GND = d_Qjs_dV_bi_ci =  0.0;
@@ -10539,14 +10465,6 @@ d_DFC_j1_dV_si_ci = (((cjs0_t*value_exp_0)*d_DFdvj_dv_dV_si_ci)+((cjs0_t*(deriv_
 d_DFC_j1_dV_tnode_GND = (((cjs0_t*value_exp_0)*d_DFdvj_dv_dV_tnode_GND)+(((cjs0_t*(deriv_exp_0_d0*(((-(model_.zs))*d_DFb_dV_tnode_GND))))+(d_cjs0_t_dV_tnode_GND*value_exp_0))*DFdvj_dv));
 DFC_j1 = ((cjs0_t*value_exp_0)*DFdvj_dv);
 }
-
-d_Cjs_dV_bi_ei = (d_DFC_j1_dV_bi_ei+((2.4*cjs0_t)*(-d_DFdvj_dv_dV_bi_ei)));
-d_Cjs_dV_tnode_GND = (d_DFC_j1_dV_tnode_GND+(((2.4*cjs0_t)*(-d_DFdvj_dv_dV_tnode_GND))+((2.4*d_cjs0_t_dV_tnode_GND)*(1.0-DFdvj_dv))));
-d_Cjs_dV_bi_ci = (d_DFC_j1_dV_bi_ci+((2.4*cjs0_t)*(-d_DFdvj_dv_dV_bi_ci)));
-d_Cjs_dV_bp_ei = (d_DFC_j1_dV_bp_ei+((2.4*cjs0_t)*(-d_DFdvj_dv_dV_bp_ei)));
-d_Cjs_dV_bp_ci = (d_DFC_j1_dV_bp_ci+((2.4*cjs0_t)*(-d_DFdvj_dv_dV_bp_ci)));
-d_Cjs_dV_b_ci = (d_DFC_j1_dV_b_ci+((2.4*cjs0_t)*(-d_DFdvj_dv_dV_b_ci)));
-d_Cjs_dV_si_ci = (d_DFC_j1_dV_si_ci+((2.4*cjs0_t)*(-d_DFdvj_dv_dV_si_ci)));
 Cjs = (DFC_j1+((2.4*cjs0_t)*(1.0-DFdvj_dv)));
 {
 double value_exp_0 = exp((DFb*(1.0-(model_.zs))));
@@ -10574,8 +10492,6 @@ Qjs = (DFQ_j+((2.4*cjs0_t)*(Vsici-DFv_j)));
 }
 else
 {
-
-d_Cjs_dV_bp_ei = d_Cjs_dV_bi_ei = d_Cjs_dV_si_ci = d_Cjs_dV_b_ci = d_Cjs_dV_bp_ci = d_Cjs_dV_tnode_GND = d_Cjs_dV_bi_ci =  0.0;
 Cjs = 0.0;
 
 d_Qjs_dV_bp_ei = d_Qjs_dV_bi_ei = d_Qjs_dV_si_ci = d_Qjs_dV_b_ci = d_Qjs_dV_bp_ci = d_Qjs_dV_tnode_GND = d_Qjs_dV_bi_ci =  0.0;
@@ -10789,14 +10705,6 @@ d_DC_j3_dV_si_ci = (DC_max*(-d_De_1_dV_si_ci));
 d_DC_j3_dV_s_c = (DC_max*(-d_De_1_dV_s_c));
 d_DC_j3_dV_tnode_GND = ((DC_max*(-d_De_1_dV_tnode_GND))+(d_DC_max_dV_tnode_GND*(1.0-De_1)));
 DC_j3 = (DC_max*(1.0-De_1));
-
-d_Cscp_dV_bp_ei = d_Cscp_dV_bi_ei =  0.0;
-d_Cscp_dV_bi_ci = ((d_DC_j1_dV_bi_ci+d_DC_j2_dV_bi_ci)+d_DC_j3_dV_bi_ci);
-d_Cscp_dV_tnode_GND = ((d_DC_j1_dV_tnode_GND+d_DC_j2_dV_tnode_GND)+d_DC_j3_dV_tnode_GND);
-d_Cscp_dV_bp_ci = ((d_DC_j1_dV_bp_ci+d_DC_j2_dV_bp_ci)+d_DC_j3_dV_bp_ci);
-d_Cscp_dV_b_ci = ((d_DC_j1_dV_b_ci+d_DC_j2_dV_b_ci)+d_DC_j3_dV_b_ci);
-d_Cscp_dV_si_ci = ((d_DC_j1_dV_si_ci+d_DC_j2_dV_si_ci)+d_DC_j3_dV_si_ci);
-d_Cscp_dV_s_c = ((d_DC_j1_dV_s_c+d_DC_j2_dV_s_c)+d_DC_j3_dV_s_c);
 Cscp = ((DC_j1+DC_j2)+DC_j3);
 {
 double value_exp_0 = exp((DCln2*Dz1));
@@ -10846,8 +10754,6 @@ Qscp = ((((DQ_j1+DQ_j2)-DQ_j3)*vdsp_t)+(DC_max*Dv_j4));
 }
 else
 {
-
-d_Cscp_dV_bp_ei = d_Cscp_dV_bi_ei = d_Cscp_dV_s_c = d_Cscp_dV_si_ci = d_Cscp_dV_b_ci = d_Cscp_dV_bp_ci = d_Cscp_dV_tnode_GND = d_Cscp_dV_bi_ci =  0.0;
 Cscp = 0.0;
 
 d_Qscp_dV_bp_ei = d_Qscp_dV_bi_ei = d_Qscp_dV_s_c = d_Qscp_dV_si_ci = d_Qscp_dV_b_ci = d_Qscp_dV_bp_ci = d_Qscp_dV_tnode_GND = d_Qscp_dV_bi_ci =  0.0;
@@ -10942,15 +10848,6 @@ d_DFC_j1_dV_s_c = (((cscp0_t*value_exp_0)*d_DFdvj_dv_dV_s_c)+((cscp0_t*(deriv_ex
 d_DFC_j1_dV_tnode_GND = (((cscp0_t*value_exp_0)*d_DFdvj_dv_dV_tnode_GND)+(((cscp0_t*(deriv_exp_0_d0*(((-(model_.zsp))*d_DFb_dV_tnode_GND))))+(d_cscp0_t_dV_tnode_GND*value_exp_0))*DFdvj_dv));
 DFC_j1 = ((cscp0_t*value_exp_0)*DFdvj_dv);
 }
-
-d_Cscp_dV_bi_ei = (d_DFC_j1_dV_bi_ei+((2.4*cscp0_t)*(-d_DFdvj_dv_dV_bi_ei)));
-d_Cscp_dV_tnode_GND = (d_DFC_j1_dV_tnode_GND+(((2.4*cscp0_t)*(-d_DFdvj_dv_dV_tnode_GND))+((2.4*d_cscp0_t_dV_tnode_GND)*(1.0-DFdvj_dv))));
-d_Cscp_dV_bi_ci = (d_DFC_j1_dV_bi_ci+((2.4*cscp0_t)*(-d_DFdvj_dv_dV_bi_ci)));
-d_Cscp_dV_bp_ei = (d_DFC_j1_dV_bp_ei+((2.4*cscp0_t)*(-d_DFdvj_dv_dV_bp_ei)));
-d_Cscp_dV_bp_ci = (d_DFC_j1_dV_bp_ci+((2.4*cscp0_t)*(-d_DFdvj_dv_dV_bp_ci)));
-d_Cscp_dV_b_ci = (d_DFC_j1_dV_b_ci+((2.4*cscp0_t)*(-d_DFdvj_dv_dV_b_ci)));
-d_Cscp_dV_si_ci = (d_DFC_j1_dV_si_ci+((2.4*cscp0_t)*(-d_DFdvj_dv_dV_si_ci)));
-d_Cscp_dV_s_c = (d_DFC_j1_dV_s_c+((2.4*cscp0_t)*(-d_DFdvj_dv_dV_s_c)));
 Cscp = (DFC_j1+((2.4*cscp0_t)*(1.0-DFdvj_dv)));
 {
 double value_exp_0 = exp((DFb*(1.0-(model_.zsp))));
@@ -10979,8 +10876,6 @@ Qscp = (DFQ_j+((2.4*cscp0_t)*(Vsc-DFv_j)));
 }
 else
 {
-
-d_Cscp_dV_bp_ei = d_Cscp_dV_bi_ei = d_Cscp_dV_s_c = d_Cscp_dV_si_ci = d_Cscp_dV_b_ci = d_Cscp_dV_bp_ci = d_Cscp_dV_tnode_GND = d_Cscp_dV_bi_ci =  0.0;
 Cscp = 0.0;
 
 d_Qscp_dV_bp_ei = d_Qscp_dV_bi_ei = d_Qscp_dV_s_c = d_Qscp_dV_si_ci = d_Qscp_dV_b_ci = d_Qscp_dV_bp_ci = d_Qscp_dV_tnode_GND = d_Qscp_dV_bi_ci =  0.0;
@@ -10990,8 +10885,6 @@ Qscp = 0.0;
 }
 else
 {
-
-d_Cscp_dV_bp_ei = d_Cscp_dV_bi_ei = d_Cscp_dV_s_c = d_Cscp_dV_si_ci = d_Cscp_dV_b_ci = d_Cscp_dV_bp_ci = d_Cscp_dV_tnode_GND = d_Cscp_dV_bi_ci =  0.0;
 Cscp = (model_.cscp0);
 
 d_Qscp_dV_bp_ei = d_Qscp_dV_bi_ei = d_Qscp_dV_si_ci = d_Qscp_dV_b_ci = d_Qscp_dV_bp_ci = d_Qscp_dV_tnode_GND = d_Qscp_dV_bi_ci =  0.0;

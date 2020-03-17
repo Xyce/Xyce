@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 13:43:24
+// Creation Date  : Tue, 17 Mar 2020 15:53:46
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSvbic13_h
@@ -1302,9 +1302,7 @@ private:
   double ibenp_t;
   double d_ibenp_t_dTemp_dt_GND;
   double ibcip_t;
-  double d_ibcip_t_dTemp_dt_GND;
   double ibcnp_t;
-  double d_ibcnp_t_dTemp_dt_GND;
   double tdevC;
   double d_tdevC_dTemp_dt_GND;
   double tdevK;

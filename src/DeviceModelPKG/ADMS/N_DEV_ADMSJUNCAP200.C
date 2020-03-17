@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:50:01
+// Creation Date  : Tue, 17 Mar 2020 14:53:34
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -5247,20 +5247,14 @@ bool Instance::updateIntermediateVars()
   double cjossti;
   double cjosbot;
   double si;
-     double d_si_dV_A_K;
   double ij;
-     double d_ij_dV_A_K;
   double idsatsgat;
   double idsatssti;
   double idsatsbot;
   double ijsti;
-     double d_ijsti_dV_A_K;
   double ijgat;
-     double d_ijgat_dV_A_K;
   double ijbot;
-     double d_ijbot_dV_A_K;
   double vak;
-     double d_vak_dV_A_K;
 
 
   // set the sizes of the Fad arrays:
@@ -6731,19 +6725,11 @@ if (getSolverState().noiseFlag)
 // End block noise
 //Begin block OPinfo
 {
-
-d_vak_dV_A_K = d_VAK_dV_A_K;
 vak = VAK;
 if (((model_.SWJUNEXP_i)==1.0))
 {
-
-d_ijbot_dV_A_K =  0.0;
 ijbot = 0.0;
-
-d_ijgat_dV_A_K =  0.0;
 ijgat = 0.0;
-
-d_ijsti_dV_A_K =  0.0;
 ijsti = 0.0;
 idsatsbot = 0.0;
 idsatssti = 0.0;
@@ -6751,24 +6737,14 @@ idsatsgat = 0.0;
 }
 else
 {
-
-d_ijbot_dV_A_K = ((MULT_i*AB_i)*d_ijunbot_dV_A_K);
 ijbot = ((MULT_i*AB_i)*ijunbot);
-
-d_ijgat_dV_A_K = ((MULT_i*LG_i)*d_ijungat_dV_A_K);
 ijgat = ((MULT_i*LG_i)*ijungat);
-
-d_ijsti_dV_A_K = ((MULT_i*LS_i)*d_ijunsti_dV_A_K);
 ijsti = ((MULT_i*LS_i)*ijunsti);
 idsatsbot = ((MULT_i*AB_i)*(model_.idsatbot));
 idsatssti = ((MULT_i*LS_i)*(model_.idsatsti));
 idsatsgat = ((MULT_i*LG_i)*(model_.idsatgat));
 }
-
-d_ij_dV_A_K = (MULT_i*d_ijun_dV_A_K);
 ij = (MULT_i*ijun);
-
-d_si_dV_A_K = (MULT_i*d_jnoise_dV_A_K);
 si = (MULT_i*jnoise);
 cjosbot = ((MULT_i*AB_i)*(model_.cjobot));
 cjossti = ((MULT_i*LS_i)*(model_.cjosti));
