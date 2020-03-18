@@ -3530,13 +3530,13 @@ other variables does not get propagated into a variable's
             <admst:variable name="expressionDeriv12" select="0.0"/>
           </admst:when>
           <admst:when test="[arg1/math/value=0.0]">
-            <admst:variable name="expression" select="(+%($a2))"/>
+            <admst:variable name="expression" select="%($a2)"/>
             <admst:choose>
               <admst:when test="[$a2Deriv = '0.0']">
                 <admst:variable name="expressionDeriv" select="0.0"/>
               </admst:when>
               <admst:otherwise>
-                <admst:variable name="expressionDeriv" select="(+%($a2Deriv))"/>
+                <admst:variable name="expressionDeriv" select="%($a2Deriv)"/>
               </admst:otherwise>
             </admst:choose>
             <admst:if test="$derivProbe2">
@@ -3545,7 +3545,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv2" select="0.0"/>
                 </admst:when>
                 <admst:otherwise>
-                  <admst:variable name="expressionDeriv2" select="(+%($a2Deriv2))"/>
+                  <admst:variable name="expressionDeriv2" select="%($a2Deriv2)"/>
                 </admst:otherwise>
               </admst:choose>
               <admst:choose>
@@ -3553,7 +3553,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv12" select="0.0"/>
                 </admst:when>
                 <admst:otherwise>
-                  <admst:variable name="expressionDeriv12" select="(+%($a2Deriv12))"/>
+                  <admst:variable name="expressionDeriv12" select="%($a2Deriv12)"/>
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
@@ -3565,7 +3565,7 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv" select="0.0"/>
               </admst:when>
               <admst:otherwise>
-                <admst:variable name="expressionDeriv" select="(%($a1Deriv))"/>
+                <admst:variable name="expressionDeriv" select="%($a1Deriv)"/>
               </admst:otherwise>
             </admst:choose>
             <admst:if test="$derivProbe2">
@@ -3574,7 +3574,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv2" select="0.0"/>
                 </admst:when>
                 <admst:otherwise>
-                  <admst:variable name="expressionDeriv2" select="(%($a1Deriv2))"/>
+                  <admst:variable name="expressionDeriv2" select="%($a1Deriv2)"/>
                 </admst:otherwise>
               </admst:choose>
               <admst:choose>
@@ -3582,7 +3582,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv12" select="0.0"/>
                 </admst:when>
                 <admst:otherwise>
-                  <admst:variable name="expressionDeriv12" select="(%($a1Deriv12))"/>
+                  <admst:variable name="expressionDeriv12" select="%($a1Deriv12)"/>
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
@@ -3681,7 +3681,7 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv" select="0.0"/>
               </admst:when>
               <admst:otherwise>
-                <admst:variable name="expressionDeriv" select="(%($a1Deriv))"/>
+                <admst:variable name="expressionDeriv" select="%($a1Deriv)"/>
               </admst:otherwise>
             </admst:choose>
             <admst:if test="$derivProbe2">
@@ -3690,7 +3690,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv2" select="0.0"/>
                 </admst:when>
                 <admst:otherwise>
-                  <admst:variable name="expressionDeriv2" select="(%($a1Deriv2))"/>
+                  <admst:variable name="expressionDeriv2" select="%($a1Deriv2)"/>
                 </admst:otherwise>
               </admst:choose>
               <admst:choose>
@@ -3698,7 +3698,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv12" select="0.0"/>
                 </admst:when>
                 <admst:otherwise>
-                  <admst:variable name="expressionDeriv12" select="(%($a1Deriv12))"/>
+                  <admst:variable name="expressionDeriv12" select="%($a1Deriv12)"/>
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
@@ -3773,19 +3773,19 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv" select="0.0"/>
               </admst:when>
               <admst:when test="[$a1Deriv = '0.0' and $a2Deriv = '1.0']">
-                <admst:variable name="expressionDeriv" select="($a1)"/>
+                <admst:variable name="expressionDeriv" select="$a1"/>
               </admst:when>
               <admst:when test="[$a1Deriv = '1.0' and $a2Deriv = '0.0']">
-                <admst:variable name="expressionDeriv" select="($a2)"/>
+                <admst:variable name="expressionDeriv" select="$a2"/>
               </admst:when>
               <admst:when test="[$a1Deriv = '1.0' and $a2Deriv = '1.0']">
                 <admst:variable name="expressionDeriv" select="($a1+$a2)"/>
               </admst:when>
               <admst:when test="[$a1Deriv = '0.0']">
-                <admst:variable name="expressionDeriv" select="($a1*$a2Deriv)"/>
+                <admst:variable name="expressionDeriv" select="$a1*$a2Deriv"/>
               </admst:when>
               <admst:when test="[$a2Deriv = '0.0']">
-                <admst:variable name="expressionDeriv" select="($a1Deriv*$a2)"/>
+                <admst:variable name="expressionDeriv" select="$a1Deriv*$a2"/>
               </admst:when>
               <admst:when test="[$a1Deriv = '1.0']">
                 <admst:variable name="expressionDeriv" select="($a1*$a2Deriv+$a2)"/>
@@ -3794,13 +3794,13 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv" select="($a1+$a2*$a1Deriv)"/>
               </admst:when>
               <admst:when test="[$a1 = '1.0']">
-                <admst:variable name="expressionDeriv" select="($a2Deriv)"/>
+                <admst:variable name="expressionDeriv" select="$a2Deriv"/>
               </admst:when>
               <admst:when test="[$a2 = '1.0']">
-                <admst:variable name="expressionDeriv" select="($a1Deriv)"/>
+                <admst:variable name="expressionDeriv" select="$a1Deriv"/>
               </admst:when>
               <admst:otherwise>
-                <admst:variable name="expressionDeriv" select="(($a1*$a2Deriv)+($a1Deriv*$a2))"/>
+                <admst:variable name="expressionDeriv" select="($a1*$a2Deriv+$a1Deriv*$a2)"/>
               </admst:otherwise>
             </admst:choose>
             <!-- now do derivative with respect to second probe, if it exists -->
@@ -3811,19 +3811,19 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv2" select="0.0"/>
                 </admst:when>
                 <admst:when test="[$a1Deriv2 = '0.0' and $a2Deriv2 = '1.0']">
-                  <admst:variable name="expressionDeriv2" select="($a1)"/>
+                  <admst:variable name="expressionDeriv2" select="$a1"/>
                 </admst:when>
                 <admst:when test="[$a1Deriv2 = '1.0' and $a2Deriv2 = '0.0']">
-                  <admst:variable name="expressionDeriv2" select="($a2)"/>
+                  <admst:variable name="expressionDeriv2" select="$a2"/>
                 </admst:when>
                 <admst:when test="[$a1Deriv2 = '1.0' and $a2Deriv2 = '1.0']">
                   <admst:variable name="expressionDeriv2" select="($a1+$a2)"/>
                 </admst:when>
                 <admst:when test="[$a1Deriv2 = '0.0']">
-                  <admst:variable name="expressionDeriv2" select="($a1*$a2Deriv2)"/>
+                  <admst:variable name="expressionDeriv2" select="$a1*$a2Deriv2"/>
                 </admst:when>
                 <admst:when test="[$a2Deriv2 = '0.0']">
-                  <admst:variable name="expressionDeriv2" select="($a1Deriv2*$a2)"/>
+                  <admst:variable name="expressionDeriv2" select="$a1Deriv2*$a2"/>
                 </admst:when>
                 <admst:when test="[$a1Deriv2 = '1.0']">
                   <admst:variable name="expressionDeriv2" select="($a1*$a2Deriv2+$a2)"/>
@@ -3832,13 +3832,13 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv2" select="($a1+$a2*$a1Deriv2)"/>
                 </admst:when>
                 <admst:when test="[$a1 = '1.0']">
-                  <admst:variable name="expressionDeriv2" select="($a2Deriv2)"/>
+                  <admst:variable name="expressionDeriv2" select="$a2Deriv2"/>
                 </admst:when>
                 <admst:when test="[$a2 = '1.0']">
                   <admst:variable name="expressionDeriv2" select="($a1Deriv2)"/>
                 </admst:when>
                 <admst:otherwise>
-                  <admst:variable name="expressionDeriv2" select="(($a1*$a2Deriv2)+($a1Deriv2*$a2))"/>
+                  <admst:variable name="expressionDeriv2" select="($a1*$a2Deriv2+$a1Deriv2*$a2)"/>
                 </admst:otherwise>
                 <!-- Now we must do derivative w.r.t. 1 and 2, and all the special cases -->
                 <!-- first term is d2a1/dp2dp1*a2 -->
