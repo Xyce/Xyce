@@ -5137,6 +5137,26 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv2" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv2))"/>
               </admst:otherwise>
             </admst:choose>
+            <admst:choose>
+              <admst:when test="[($a1Deriv ='0.0' or $a1Deriv2='0.0') and $a1Deriv12='0.0']">
+                <admst:variable name="expressionDeriv12" select="0.0"/>
+              </admst:when>
+              <admst:when test="[$a1Deriv12='0.0']">
+                <admst:apply-templates select="." match="oneArgSecondDeriv">
+                  <admst:variable name="d2fdx2" select="%(returned('d2fdx2')/value)"/>
+                </admst:apply-templates>
+                <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2"/>
+              </admst:when>
+              <admst:when test="[($a1Deriv='0.0' or $a1Deriv2='0.0')]">
+                <admst:variable name="expressionDeriv12" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:apply-templates select="." match="oneArgSecondDeriv">
+                  <admst:variable name="d2fdx2" select="%(returned('d2fdx2')/value)"/>
+                </admst:apply-templates>
+                <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:when>
           <!-- two-argument functions -->
           <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
@@ -5961,6 +5981,76 @@ other variables does not get propagated into a variable's
     </admst:otherwise>
   </admst:choose>
   <admst:return name="fname" value="$expression"/>
+</admst:template>
+
+<!-- This template returns the second derivative of one-argument
+     builtin functions with respect to their argument -->
+<admst:template match="oneArgSecondDeriv">
+  <!-- set this to a complete bogon return value, so it becomes
+       a compilation error if we ever emerge from this function
+       without setting it properly -->
+  <admst:variable name="d2fdx2" select="fixme"/>
+  <admst:apply-templates select="arguments[1]" match="processTerm">
+    <admst:variable name="a1" select="%(returned('returnedExpression')/value)"/>
+  </admst:apply-templates>
+  <admst:choose>
+    <admst:when test="[name='exp']">
+      <admst:variable name="d2fdx2" select="exp($a1)"/>
+    </admst:when>
+    <admst:when test="[name='ln']">
+      <admst:variable name="d2fdx2" select="(-1.0/$a1/$a1)"/>
+    </admst:when>
+    <admst:when test="[name='log']">
+      <admst:variable name="d2fdx2" select="(-1.0/$a1/$a1/log(10.0))"/>
+    </admst:when>
+    <admst:when test="[name='sqrt']">
+      <admst:variable name="d2fdx2" select="(-0.25/$a1/sqrt($a1))"/>
+    </admst:when>
+    <admst:when test="[name='abs']">
+      <admst:variable name="d2fdx2" select="0.0"/>
+    </admst:when>
+    <admst:when test="[name='limexp']">
+      <admst:variable name="d2fdx2" select="((($a1)&lt;80)?exp($a1):0.0)"/>
+    </admst:when>
+    <admst:when test="[name='cos']">
+      <admst:variable name="d2fdx2" select="(-cos($a1))"/>
+    </admst:when>
+    <admst:when test="[name='sin']">
+      <admst:variable name="d2fdx2" select="(-sin($a1))"/>
+    </admst:when>
+    <admst:when test="[name='tan']">
+      <admst:variable name="d2fdx2" select="2.0*tan($a1)/cos($a1)/cos($a1)"/>
+    </admst:when>
+    <admst:when test="[name='acos']">
+      <admst:variable name="d2fdx2" select="(-$a1/(1-$a1*$a1)/sqrt(1-$a1*$a1))"/>
+    </admst:when>
+    <admst:when test="[name='asin']">
+      <admst:variable name="d2fdx2" select="($a1/(1-$a1*$a1)/sqrt(1-$a1*$a1))"/>
+    </admst:when>
+    <admst:when test="[name='atan']">
+      <admst:variable name="d2fdx2" select="(-2.0*$a1/($a1*$a1+1)/($a1*$a1+1))"/>
+    </admst:when>
+    <admst:when test="[name='cosh']">
+      <admst:variable name="d2fdx2" select="cosh($a1)"/>
+    </admst:when>
+    <admst:when test="[name='sinh']">
+      <admst:variable name="d2fdx2" select="sinh($a1)"/>
+    </admst:when>
+    <admst:when test="[name='tanh']">
+      <admst:variable name="d2fdx2" select="(-2*tanh($a1)/cosh($a1)/cosh($a1))"/>
+    </admst:when>
+    <admst:when test="[name='acosh']">
+      <admst:variable name="d2fdx2" select="(-$a1/($a1*$a1-1)/sqrt($a1*$a1-1))"/>
+    </admst:when>
+    <admst:when test="[name='asinh']">
+      <admst:variable name="d2fdx2" select="(-$a1/($a1*$a1+1)/sqrt($a1*$a1+1))"/>
+    </admst:when>
+    <admst:when test="[name='atanh']">
+      <admst:variable name="d2fdx2" select="2.0*$a1/(1-$a1*$a1)/(1-$a1*$a1)"/>
+    </admst:when>
+  </admst:choose>
+
+  <admst:return name="d2fdx2" value="$d2fdx2"/>
 </admst:template>
 
 <!-- This variant doesn't try to return fancy names for functions in all
