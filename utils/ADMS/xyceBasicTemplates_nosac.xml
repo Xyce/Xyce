@@ -6057,6 +6057,32 @@ other variables does not get propagated into a variable's
   <admst:return name="d2fdx2" value="$d2fdx2"/>
 </admst:template>
 
+<!-- This template returns the second derivatives of two-argument
+     builtin functions with respect to their arguments -->
+<admst:template match="twoArgSecondDerivs">
+  <admst:choose>
+    <admst:when test="[name='pow']">
+      <admst:apply-templates select="arguments[1]" match="processTerm">
+        <admst:variable name="a1" select="%(returned('returnedExpression')/value)"/>
+      </admst:apply-templates>
+      <admst:apply-templates select="arguments[2]" match="processTerm">
+        <admst:variable name="a2" select="%(returned('returnedExpression')/value)"/>
+      </admst:apply-templates>
+      <admst:variable name="d2fdx2" select="(($a1==0.0)?0.0:$a2*($a2-1)*pow($a1,$a2)/$a1/$a1)"/>
+      <admst:variable name="d2fdxdy" select="(($a1==0.0)?0.0:(1+$a2*log($a1))*pow($a1,$a2)/$a1)"/>
+      <admst:variable name="d2fdx2" select="(($a1==0.0)?0.0:log($a1)*log($a1)*pow($a1,$a2)"/>
+    </admst:when>
+    <admst:otherwise>
+      <admst:variable name="d2fdx2" select="fixme/*second derivs of %(name) unimplemented*/"/>
+      <admst:variable name="d2fdxdy" select="fixme/*second derivs of %(name) unimplemented*/"/>
+      <admst:variable name="d2fdy2" select="fixme/*second derivs of %(name) unimplemented*/"/>
+    </admst:otherwise>
+  </admst:choose>
+  <admst:return name="d2fdx2" value="$d2fdx2"/>
+  <admst:return name="d2fdy2" value="$d2fdy2"/>
+  <admst:return name="d2fdxdy" value="$d2fdxdy"/>
+</admst:template>
+
 <!-- This variant doesn't try to return fancy names for functions in all
      contexts, just makes certain Verilog-A to C++ mappings.  Used for
      creation of variable names, not function calls -->
