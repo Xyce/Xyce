@@ -4875,8 +4875,10 @@ other variables does not get propagated into a variable's
         <admst:apply-templates select="arguments[1]" match="processTerm">
           <admst:variable name="expression" select="(%(returned('returnedExpression')/value))"/>
           <admst:variable name="expressionDeriv" select="(%(returned('returnedExpressionDeriv')/value))"/>
-          <admst:variable name="expressionDeriv2" select="(%(returned('returnedExpressionDeriv2')/value))"/>
-          <admst:variable name="expressionDeriv12" select="(%(returned('returnedExpressionDeriv12')/value))"/>
+          <admst:if test="$derivProbe2">
+            <admst:variable name="expressionDeriv2" select="(%(returned('returnedExpressionDeriv2')/value))"/>
+            <admst:variable name="expressionDeriv12" select="(%(returned('returnedExpressionDeriv12')/value))"/>
+          </admst:if>
         </admst:apply-templates>
       </admst:when>
       <admst:when test="[name='\$given' or name='\$param_given']">
@@ -5129,34 +5131,36 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv))"/>
               </admst:otherwise>
             </admst:choose>
-            <admst:choose>
-              <admst:when test="[$a1Deriv2='0.0']">
-                <admst:variable name="expressionDeriv2" select="0.0"/>
-              </admst:when>
-              <admst:otherwise>
-                <admst:variable name="expressionDeriv2" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv2))"/>
-              </admst:otherwise>
-            </admst:choose>
-            <admst:choose>
-              <admst:when test="[($a1Deriv ='0.0' or $a1Deriv2='0.0') and $a1Deriv12='0.0']">
-                <admst:variable name="expressionDeriv12" select="0.0"/>
-              </admst:when>
-              <admst:when test="[$a1Deriv12='0.0']">
-                <admst:apply-templates select="." match="oneArgSecondDeriv">
-                  <admst:variable name="d2fdx2" select="%(returned('d2fdx2')/value)"/>
-                </admst:apply-templates>
-                <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2"/>
-              </admst:when>
-              <admst:when test="[($a1Deriv='0.0' or $a1Deriv2='0.0')]">
-                <admst:variable name="expressionDeriv12" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
-              </admst:when>
-              <admst:otherwise>
-                <admst:apply-templates select="." match="oneArgSecondDeriv">
-                  <admst:variable name="d2fdx2" select="%(returned('d2fdx2')/value)"/>
-                </admst:apply-templates>
-                <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
-              </admst:otherwise>
-            </admst:choose>
+            <admst:if test="$derivProbe2">
+              <admst:choose>
+                <admst:when test="[$a1Deriv2='0.0']">
+                  <admst:variable name="expressionDeriv2" select="0.0"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDeriv2" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv2))"/>
+                </admst:otherwise>
+              </admst:choose>
+              <admst:choose>
+                <admst:when test="[($a1Deriv ='0.0' or $a1Deriv2='0.0') and $a1Deriv12='0.0']">
+                  <admst:variable name="expressionDeriv12" select="0.0"/>
+                </admst:when>
+                <admst:when test="[$a1Deriv12='0.0']">
+                  <admst:apply-templates select="." match="oneArgSecondDeriv">
+                    <admst:variable name="d2fdx2" select="%(returned('d2fdx2')/value)"/>
+                  </admst:apply-templates>
+                  <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2"/>
+                </admst:when>
+                <admst:when test="[($a1Deriv='0.0' or $a1Deriv2='0.0')]">
+                  <admst:variable name="expressionDeriv12" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:apply-templates select="." match="oneArgSecondDeriv">
+                    <admst:variable name="d2fdx2" select="%(returned('d2fdx2')/value)"/>
+                  </admst:apply-templates>
+                  <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:when>
           <!-- two-argument functions -->
           <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
