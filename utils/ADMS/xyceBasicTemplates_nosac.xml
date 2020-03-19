@@ -5157,7 +5157,15 @@ other variables does not get propagated into a variable's
                   <admst:apply-templates select="." match="oneArgSecondDeriv">
                     <admst:variable name="d2fdx2" select="%(returned('d2fdx2')/value)"/>
                   </admst:apply-templates>
-                  <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+                  <admst:choose>
+                    <admst:when test="[$d2fdx2='0.0']">
+                      <!-- pretty much only for abs()-->
+                      <admst:variable name="expressionDeriv12" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+                    </admst:when>
+                    <admst:otherwise>
+                      <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+                    </admst:otherwise>
+                  </admst:choose>
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
