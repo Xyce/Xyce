@@ -5166,9 +5166,13 @@ other variables does not get propagated into a variable's
           <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+              <admst:variable name="a1Deriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
+              <admst:variable name="a1Deriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
             </admst:apply-templates>
             <admst:apply-templates select="arguments[2]" match="processTerm">
               <admst:variable name="a2Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+              <admst:variable name="a2Deriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
+              <admst:variable name="a2Deriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
             </admst:apply-templates>
             <admst:choose>
               <admst:when test="[$a1Deriv='0.0' and $a2Deriv='0.0']">
@@ -5184,6 +5188,22 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv" select="((deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv))+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2Deriv)))"/>
               </admst:otherwise>
             </admst:choose>
+            <admst:if test="$derivProbe2">
+              <admst:choose>
+                <admst:when test="[$a1Deriv2='0.0' and $a2Deriv2='0.0']">
+                  <admst:variable name="expressionDeriv2" select="0.0"/>
+                </admst:when>
+                <admst:when test="[$a2Deriv2='0.0']">
+                  <admst:variable name="expressionDeriv2" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv2))"/>
+                </admst:when>
+                <admst:when test="[$a1Deriv2='0.0']">
+                  <admst:variable name="expressionDeriv2" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2Deriv2))"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDeriv2" select="((deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv2))+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2Deriv2)))"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:when>
           <admst:otherwise>
             <admst:variable name="thisFunctionCall" path="."/>
@@ -6071,6 +6091,18 @@ other variables does not get propagated into a variable's
       <admst:variable name="d2fdx2" select="(($a1==0.0)?0.0:$a2*($a2-1)*pow($a1,$a2)/$a1/$a1)"/>
       <admst:variable name="d2fdxdy" select="(($a1==0.0)?0.0:(1+$a2*log($a1))*pow($a1,$a2)/$a1)"/>
       <admst:variable name="d2fdx2" select="(($a1==0.0)?0.0:log($a1)*log($a1)*pow($a1,$a2)"/>
+    </admst:when>
+    <admst:when test="[name='min' or name='max']">
+      <admst:variable name="d2fdx2" select="0.0"/>
+      <admst:variable name="d2fdxdy" select="0.0"/>
+      <admst:variable name="d2fdy2" select="0.0"/>
+    </admst:when>
+    <admst:when test="[name='hypot']">
+      <admst:variable name="functionIndex" select="%(index(../function,.))"/>
+      <admst:variable name="hypotval" select="value_hypot_%($functionIndex)"/>
+      <admst:variable name="d2fdx2" select="(1.0/$hypotval - $a1*$a1/($a1*$a1+$a2*$a2)/$hypotval)"/>
+      <admst:variable name="d2fdxdy" select="( - $a1*$a2/($a1*$a1+$a2*$a2)/$hypotval)"/>
+      <admst:variable name="d2fdy2" select="(1.0/$hypotval - $a2*$a2/($a1*$a1+$a2*$a2)/$hypotval)"/>
     </admst:when>
     <admst:otherwise>
       <admst:variable name="d2fdx2" select="fixme/*second derivs of %(name) unimplemented*/"/>
