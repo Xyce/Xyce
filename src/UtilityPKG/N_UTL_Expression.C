@@ -51,6 +51,9 @@
 // ----------   Xyce Includes   ----------
 #include <N_UTL_Expression.h>
 
+// ERK.  Adding this (utl param) may be more trouble than I want ...
+#include <N_UTL_Param.h>
+
 #include <newExpression.h>
 #include <xyceExpressionGroup.h>
 #include <N_UTL_ExpressionInternals.h>
@@ -662,7 +665,8 @@ bool Expression::make_var (std::string const & var)
     }
 #endif
 
-    newExpPtr_->setVar(var);
+    //newExpPtr_->setVar(var);
+    retVal = newExpPtr_->make_var(var);
   }
   else
   {
@@ -685,7 +689,8 @@ int Expression::differentiate ()
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
-    retVal = newExpPtr_->differentiate ();
+    // do nothing in this case.  newExpression forms these trees automatically
+    //retVal = newExpPtr_->differentiate ();
   }
   else
   {
@@ -1230,6 +1235,69 @@ const std::string & Expression::get_input ()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::setFunctionMap
+// Purpose       : 
+//
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/16/2020
+//-----------------------------------------------------------------------------
+void Expression::setFunctionMap ( const Xyce::Util::ParamMap & context_function_map )
+{
+  if(useNewExpressionLibrary_)
+  {
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+
+    // add the functions to the group
+    Xyce::Util::ParamMap::const_iterator mapIter;
+
+    mapIter = context_function_map.begin();
+    for (; mapIter != context_function_map.end(); ++mapIter)
+    {
+      const Xyce::Util::Param & tmpPar = mapIter->second;
+
+      if ( tmpPar.hasExpressionValue() )
+      {
+        const Xyce::Util::Expression & expression = tmpPar.getValue<Util::Expression>();
+        // this line can't compile b/c of const.
+        //xyceGroup->addFunction (mapIter->first , expression.newExpPtr_ );
+      }
+      else
+      {
+        std::cout << "Expression::setFunctionMap.  ACK!!  parameter in the function map does not have an expression value!! " <<std::endl;
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setParamMap
+// Purpose       :
+//
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/16/2020
+//-----------------------------------------------------------------------------
+void Expression::setParamMap       ( const Xyce::Util::ParamMap & context_param_map )
+{
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::setGlobalParamMap
+// Purpose       : 
+//
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter, SNL
+// Creation Date : 03/16/2020
+//-----------------------------------------------------------------------------
+void Expression::setGlobalParamMap ( const Xyce::Util::ParamMap & context_param_map )
+{
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::order_names
 // Purpose       : Put input quantity names in a particular order (used for
 //                 replace_func which requires identical ordering for expression
@@ -1283,7 +1351,7 @@ int Expression::replace_func (std::string const & func_name,
     {
       func_def.newExpPtr_->lexAndParseExpression();
     }
-    xyceGroup->addFunction(func_name, *(func_def.newExpPtr_));
+    xyceGroup->addFunction(func_name, func_def.newExpPtr_);
 #endif
     return numArgs;
   }
@@ -1332,7 +1400,6 @@ int Expression::replace_var(
   return retVal;
 }
 
-
 //-----------------------------------------------------------------------------
 // Function      : Expression::replace_var
 // Purpose       : Replace a variable usage with a parsed sub-expression
@@ -1358,7 +1425,6 @@ int Expression::replace_var (std::string const & var_name,
   }
   return retVal;
 }
-
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::replace_name

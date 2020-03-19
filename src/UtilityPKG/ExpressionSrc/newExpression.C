@@ -285,6 +285,16 @@ bool newExpression::resolveExpression ()
 }
 
 //-------------------------------------------------------------------------------
+// Function      : newExpression::clear
+//
+// Purpose       : Empties/resets out everything in the newExpression class, 
+//                 and puts the class in the state that it should be in
+//                 prior to calling the function lexAndParseExpression
+//
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : ??
 //-------------------------------------------------------------------------------
 void newExpression::clear ()
 {
@@ -351,6 +361,13 @@ void newExpression::clear ()
 }
 
 //-------------------------------------------------------------------------------
+// Function      : newExpression::make_constant
+// Purpose       : Needed for the old API.   Applies a specified value to a 
+//                 specified parameter.
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : ??
 //-------------------------------------------------------------------------------
 bool newExpression::make_constant (std::string const & var, usedType const & val)
 {
@@ -372,6 +389,16 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
 }
 
 //-------------------------------------------------------------------------------
+// Function      : newExpression::make_var
+//
+// Purpose       : Needed for the old API.   This sets the "var" boolean flag on 
+//                 a specified parameter. In the old API, this means two things:
+//                   (1) it is a global parameter rather than a regular parameter.
+//                   (2) it should have derivatives computed.
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : ??
 //-------------------------------------------------------------------------------
 bool newExpression::make_var (std::string const & var)
 {
@@ -391,35 +418,6 @@ bool newExpression::make_var (std::string const & var)
   }
 
   return retval;
-}
-
-//-------------------------------------------------------------------------------
-// ERK.  do we really need this function and the one above (make_var)?
-//-------------------------------------------------------------------------------
-void newExpression::setVar(const std::string & var)
-{
-  std::string tmpParName = var;
-  Xyce::Util::toUpper(tmpParName);
-  std::vector<std::string>::iterator paramIter;
-  paramIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), tmpParName);
-  if (paramIter != paramNameVec_.end()) // found it
-  {
-    int index = std::distance(paramNameVec_.begin(),paramIter);
-    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
-    parOp->setVar();
-  }
-}
-
-//-------------------------------------------------------------------------------
-// ERK.  This probably isn't needed.  In the old expression library, this
-// function`appears to be equivalent (kind of) to the
-// newExpression::setupDerivatives_  function.
-//-------------------------------------------------------------------------------
-int newExpression::differentiate ()
-{
-  std::cout << "newExpression::differentiate not set up yet." <<std::endl;
-  exit(0);
-  return -1;
 }
 
 //-------------------------------------------------------------------------------
@@ -839,7 +837,7 @@ int newExpression::evaluateFunction (usedType &result)
         currOp->setCurrentVal ( val );
       }
 
-     // ERK. The global parameter setting here should eventually go away.
+     // ERK. The global parameter setting here should eventually go away or be changed.
      // It is only here b/c I am trying to maintain the API to the old expression library for now.
       for (int ii=0;ii<paramOpVec_.size();++ii)
       {

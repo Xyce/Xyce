@@ -47,8 +47,13 @@
 
 #include <expressionGroup.h>
 
+#include <N_UTL_NoCase.h>
+
 namespace Xyce {
 namespace Util {
+
+class Param;
+typedef unordered_map<std::string, Param, Xyce::HashNoCase, Xyce::EqualNoCase> ParamMap;
 
 class newExpression;
 class ExpressionInternals;
@@ -62,6 +67,7 @@ class ExpressionInternals;
 //-----------------------------------------------------------------------------
 class Expression
 {
+  friend Expression;
 
 public:
 
@@ -106,6 +112,9 @@ public:
   double get_break_time_i (void);
   const std::string & get_input (void);
 
+  void setFunctionMap    ( const Util::ParamMap & context_function_map );
+  void setParamMap       ( const Util::ParamMap & context_param_map );
+  void setGlobalParamMap ( const Util::ParamMap & context_param_map );
 
   int order_names (std::vector< std::string > const & new_names);
   int replace_func (std::string const & func_name, Expression & func_def, int numArgs);
@@ -128,6 +137,7 @@ private:
   Teuchos::RCP<Xyce::Util::newExpression> newExpPtr_;
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp_;
   ExpressionInternals *expPtr_;
+
 };
 
 } // namespace Util

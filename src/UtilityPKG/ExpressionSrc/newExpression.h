@@ -485,10 +485,6 @@ public:
 
   const std::string & getExpressionString() { return expressionString_; };
 
-  void setVar(const std::string & var);
-
-  int differentiate ();
-
   double getTime() { return std::real(timeNodePtr_->val()); };
 
   bool getTimeDependent() { return isTimeDepdendent_; }
@@ -541,8 +537,6 @@ public:
       prototypeName = funcOpVec_[0]->getName();
     }
   }
-
-
 
 private:
   void setupDerivatives_ ();

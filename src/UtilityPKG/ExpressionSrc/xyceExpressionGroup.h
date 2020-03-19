@@ -96,47 +96,8 @@ public:
   }
 
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
-#if 0
-  {
-    bool success=true;
-    retval = 0.0;
-    std::string tmp = nodeName;
-    Xyce::Util::toUpper(tmp);
-
-    std::vector<std::string>::iterator it = std::find(names_.begin(), names_.end(), tmp);
-    if (it != names_.end())
-    {
-      int index = it - names_.begin();
-      retval = dvals_[index];
-      std::cout << "Solution variable " << nodeName << " found by the xyceExpresionGroup! value = " << retval << std::endl;
-    }
-    else // not found
-    {
-      std::cout << "ERROR.  Solution variable " << nodeName << " not found by the xyceExpresionGroup!" << std::endl;
-    }
-
-    return success; // FIX THIS
-  }
-#endif
 
   virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval );
-#if 0
-  {
-    bool success=true;
-    retval = 0.0;
-    std::string tmp = nodeName;
-    Xyce::Util::toUpper(tmp);
-
-    std::vector<std::string>::iterator it = std::find(names_.begin(), names_.end(), tmp);
-    if (it != names_.end())
-    {
-      int index = it - names_.begin();
-      retval = dvals_[index];
-    }
-
-    return success; // FIX THIS
-  }
-#endif
 
   // ERK NOTE:  Need to have a "notify" (or something) for .STEP loops.  
   // Important for time-dependent expressions.
@@ -164,9 +125,9 @@ public:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
   virtual double getBpTol() { return 0.0; }
 
-  virtual bool getFunction    (const std::string & name, Xyce::Util::newExpression & exp);
-  virtual bool getParam       (const std::string & name, Xyce::Util::newExpression & exp);
-  virtual bool getGlobalParam (const std::string & name, Xyce::Util::newExpression & exp);
+  virtual bool getFunction    (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
+  virtual bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
+  virtual bool getGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
 
   void setNames ( const std::vector<std::string> & names )
   {
@@ -187,7 +148,7 @@ public:
     cvals_ = vals;
   }
 
-  void addFunction (const std::string & name, Xyce::Util::newExpression & exp);
+  void addFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
 
   const std::vector<std::string> & getNames() { return names_; }
 
@@ -198,7 +159,8 @@ private:
   std::vector< double> dvals_;
   std::vector< std::complex<double> > cvals_;
 
-  std::unordered_map <std::string, Xyce::Util::newExpression  >  functions_;
+  std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  params_;
+  std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  functions_;
 
   double time_, temp_, VT_, freq_;
   double dt_, alpha_;

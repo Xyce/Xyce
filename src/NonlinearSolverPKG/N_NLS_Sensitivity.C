@@ -254,9 +254,10 @@ void setupObjectiveFunctions
     objVec[iobj]->expPtr->get_names(XEXP_FUNCTION, global_function_names);
     std::vector<std::string>::iterator it = global_function_names.begin();
     std::vector<std::string>::iterator end = global_function_names.end();
+    const Util::ParamMap & context_function_map = output_manager.getMainContextFunctionMap();
+    objVec[iobj]->expPtr->setFunctionMap(context_function_map);
     for ( ; it != end; ++it)
     {
-      const Util::ParamMap & context_function_map = output_manager.getMainContextFunctionMap();
       Util::ParamMap::const_iterator paramMapIter = context_function_map.find(*it);
 
       if (paramMapIter == context_function_map.end())
@@ -332,6 +333,8 @@ void setupObjectiveFunctions
 
     const Util::ParamMap & context_param_map = output_manager.getMainContextParamMap();
     const Util::ParamMap & context_global_param_map = output_manager.getMainContextGlobalParamMap();
+    objVec[iobj]->expPtr->setParamMap(context_param_map);
+    objVec[iobj]->expPtr->setGlobalParamMap(context_global_param_map);
     for (int istring=0;istring<strings.size();istring++)
     {
       Util::ParamMap::const_iterator param_it = context_param_map.find(strings[istring]);

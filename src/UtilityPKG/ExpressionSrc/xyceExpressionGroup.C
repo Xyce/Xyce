@@ -50,13 +50,13 @@ bool xyceExpressionGroup::resolveExpression (Xyce::Util::newExpression & exp)
   int funcOpSize = funcOpVector.size();
   for (int ii=0;ii<funcOpSize;++ii)
   {
-    Xyce::Util::newExpression externalExp;
+    Teuchos::RCP<Xyce::Util::newExpression> externalExp;
     if ( getFunction(funcOpVector[ii]->getName(),externalExp) ) // found it
     {
-      funcOpVector[ii]->setNode(externalExp.getAst());
+      funcOpVector[ii]->setNode(externalExp->getAst());
 
       Teuchos::RCP<funcOp<usedType> > tmpPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVector[ii]);
-      tmpPtr->setFuncArgs(  externalExp.getFunctionArgOpVec() );
+      tmpPtr->setFuncArgs(  externalExp->getFunctionArgOpVec() );
     }
     else
     {
@@ -72,16 +72,16 @@ bool xyceExpressionGroup::resolveExpression (Xyce::Util::newExpression & exp)
   int paramOpVectorSize = paramOpVector.size();
   for (int ii=0;ii<paramOpVectorSize;++ii)
   {
-    Xyce::Util::newExpression externalExp;
+    Teuchos::RCP<Xyce::Util::newExpression> externalExp;
     if ( getParam(paramOpVector[ii]->getName(),externalExp) ) // found it
     {
-      paramOpVector[ii]->setNode(externalExp.getAst());
+      paramOpVector[ii]->setNode(externalExp->getAst());
     }
     else
     {
       if (getGlobalParam(paramOpVector[ii]->getName(),externalExp)) // found it
       {
-        paramOpVector[ii]->setNode(externalExp.getAst());
+        paramOpVector[ii]->setNode(externalExp->getAst());
       }
       else
       {
@@ -94,6 +94,14 @@ bool xyceExpressionGroup::resolveExpression (Xyce::Util::newExpression & exp)
 }
 
 
+//-------------------------------------------------------------------------------
+// Function      : xyceExpressionGroup::getSolutionVal
+// Purpose       : This was added to attempt to support the old API.  I hate it.
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : ???
+//-------------------------------------------------------------------------------
 bool xyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
 {
   bool success=true;
@@ -121,6 +129,14 @@ bool xyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & 
   return success; // FIX THIS
 }
 
+//-------------------------------------------------------------------------------
+// Function      : xyceExpressionGroup::getGlobalParameterVal
+// Purpose       : This was added to attempt to support the old API.  I hate it.
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : ???
+//-------------------------------------------------------------------------------
 bool xyceExpressionGroup::getGlobalParameterVal (const std::string & nodeName, double & retval )
 {
   bool success=true;
@@ -138,7 +154,6 @@ bool xyceExpressionGroup::getGlobalParameterVal (const std::string & nodeName, d
   return success; // FIX THIS
 }
 
-
 //-------------------------------------------------------------------------------
 // Function      : xyceExpressionGroup::getFunction
 // Purpose       : 
@@ -148,7 +163,7 @@ bool xyceExpressionGroup::getGlobalParameterVal (const std::string & nodeName, d
 // Creation Date : 12/28/2019
 //-------------------------------------------------------------------------------
 bool xyceExpressionGroup::getFunction
-(const std::string & name, Xyce::Util::newExpression & exp)
+  (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
 {
 #if 1
   std::cout << "xyceExpressionGroup::getFunction name = " << name <<std::endl;
@@ -172,7 +187,7 @@ bool xyceExpressionGroup::getFunction
 // Creator       : Eric Keiter
 // Creation Date : 12/28/2019
 //-------------------------------------------------------------------------------
-void xyceExpressionGroup::addFunction (const std::string & name, Xyce::Util::newExpression & exp)
+void xyceExpressionGroup::addFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
 {
 #if 1
   std::cout << "xyceExpressionGroup::addFunction name = " << name <<std::endl;
@@ -191,7 +206,7 @@ void xyceExpressionGroup::addFunction (const std::string & name, Xyce::Util::new
 // Creation Date : 12/28/2019
 //-------------------------------------------------------------------------------
 bool xyceExpressionGroup::getParam
-(const std::string & name, Xyce::Util::newExpression & exp)
+  (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
 {
   bool retval=false;
   return retval;
@@ -206,7 +221,7 @@ bool xyceExpressionGroup::getParam
 // Creation Date : 12/28/2019
 //-------------------------------------------------------------------------------
 bool xyceExpressionGroup::getGlobalParam
-(const std::string & name, Xyce::Util::newExpression & exp)
+  (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
 {
   bool retval=false;
   return retval;
