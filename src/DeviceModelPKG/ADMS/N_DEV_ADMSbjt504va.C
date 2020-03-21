@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:55:04
+// Creation Date  : Tue, 17 Mar 2020 14:53:38
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -3700,9 +3700,6 @@ bool Instance::updateIntermediateVars()
      double d_Gmax_dV_c3_c4;
      double d_Gmax_dV_b2_e1;
   double Vb2c2star;
-     double d_Vb2c2star_dV_b2_c2;
-     double d_Vb2c2star_dV_b2_c1;
-     double d_Vb2c2star_dV_c1_c2;
   double Qte;
      double d_Qte_dV_b2_e1;
      double d_Qte_dV_b2_c2;
@@ -5875,19 +5872,11 @@ if ((eVb2c2star>0.0))
 {
 {
 double value_log_0 = log(eVb2c2star);
-double  deriv_log_0_d0 = (1.0/eVb2c2star);
-
-d_Vb2c2star_dV_c1_c2 = (Vt*(deriv_log_0_d0*(d_eVb2c2star_dV_c1_c2)));
-d_Vb2c2star_dV_b2_c1 = (Vt*(deriv_log_0_d0*(d_eVb2c2star_dV_b2_c1)));
-d_Vb2c2star_dV_b2_c2 = (Vt*(deriv_log_0_d0*(d_eVb2c2star_dV_b2_c2)));
 Vb2c2star = (Vt*value_log_0);
 }
 }
 else
 {
-
-d_Vb2c2star_dV_b2_c1 = d_Vb2c2star_dV_c1_c2 =  0.0;
-d_Vb2c2star_dV_b2_c2 = d_Vb2c2_dV_b2_c2;
 Vb2c2star = Vb2c2;
 }
 

@@ -45,6 +45,9 @@ class Average;
 class DerivativeEvaluation;
 class Duty;
 class EquationEvaluation;
+class ErrorFunctions;
+class Err1;
+class Err2;
 class FindWhen;
 class Fourier;
 class Frequency;
@@ -55,7 +58,7 @@ class OffTime;
 class OnTime;
 class PeakToPeak;
 class RMS;
-class RelativeError;
+class Error;
 class RiseFallDelay;
 
 } // namespace Measure

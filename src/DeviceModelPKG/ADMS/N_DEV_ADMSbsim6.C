@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:30:04
+// Creation Date  : Tue, 17 Mar 2020 14:53:34
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -15050,39 +15050,9 @@ bool Instance::updateIntermediateVars()
      double d_QGI_dV_di_bi;
      double d_QGI_dV_si_bi;
   double QBI;
-     double d_QBI_dTemp_t_GND;
-     double d_QBI_dV_dbulk_di;
-     double d_QBI_dV_sbulk_si;
-     double d_QBI_dV_gi_bi;
-     double d_QBI_dV_di_bi;
-     double d_QBI_dV_si_bi;
   double QG;
-     double d_QG_dTemp_t_GND;
-     double d_QG_dV_dbulk_di;
-     double d_QG_dV_sbulk_si;
-     double d_QG_dV_gi_bi;
-     double d_QG_dV_di_bi;
-     double d_QG_dV_si_bi;
-     double d_QG_dV_gm_si;
-     double d_QG_dV_gm_di;
-     double d_QG_dV_gm_bi;
   double QD;
-     double d_QD_dV_dbulk_di;
-     double d_QD_dV_sbulk_si;
-     double d_QD_dTemp_t_GND;
-     double d_QD_dV_gi_bi;
-     double d_QD_dV_di_bi;
-     double d_QD_dV_si_bi;
-     double d_QD_dV_gm_si;
-     double d_QD_dV_gm_di;
   double QS;
-     double d_QS_dV_dbulk_di;
-     double d_QS_dV_sbulk_si;
-     double d_QS_dTemp_t_GND;
-     double d_QS_dV_gi_bi;
-     double d_QS_dV_di_bi;
-     double d_QS_dV_si_bi;
-     double d_QS_dV_gm_si;
   double QDI;
      double d_QDI_dV_dbulk_di;
      double d_QDI_dV_sbulk_si;
@@ -15098,13 +15068,6 @@ bool Instance::updateIntermediateVars()
      double d_QSI_dV_di_bi;
      double d_QSI_dV_si_bi;
   double QB;
-     double d_QB_dTemp_t_GND;
-     double d_QB_dV_dbulk_di;
-     double d_QB_dV_sbulk_si;
-     double d_QB_dV_gi_bi;
-     double d_QB_dV_di_bi;
-     double d_QB_dV_si_bi;
-     double d_QB_dV_gm_bi;
   double ids_edge;
      double d_ids_edge_dV_gm_si;
      double d_ids_edge_dV_gm_di;
@@ -15161,15 +15124,6 @@ bool Instance::updateIntermediateVars()
   double NFACTOREDGE_t;
      double d_NFACTOREDGE_t_dTemp_t_GND;
   double Qovg;
-     double d_Qovg_dTemp_t_GND;
-     double d_Qovg_dV_dbulk_di;
-     double d_Qovg_dV_sbulk_si;
-     double d_Qovg_dV_gi_bi;
-     double d_Qovg_dV_di_bi;
-     double d_Qovg_dV_si_bi;
-     double d_Qovg_dV_gm_si;
-     double d_Qovg_dV_gm_di;
-     double d_Qovg_dV_gm_bi;
   double Qovb;
      double d_Qovb_dV_gm_bi;
   double Qovd;
@@ -16217,13 +16171,7 @@ bool Instance::updateIntermediateVars()
      double d_inv_gam_dV_si_bi;
      double d_inv_gam_dTemp_t_GND;
   double VTH;
-     double d_VTH_dV_di_bi;
-     double d_VTH_dV_si_bi;
-     double d_VTH_dTemp_t_GND;
   double psip_th;
-     double d_psip_th_dV_di_bi;
-     double d_psip_th_dV_si_bi;
-     double d_psip_th_dTemp_t_GND;
   double nq;
      double d_nq_dV_gm_si;
      double d_nq_dV_gm_di;
@@ -16705,7 +16653,6 @@ bool Instance::updateIntermediateVars()
   double Vt;
      double d_Vt_dTemp_t_GND;
   double TK;
-     double d_TK_dTemp_t_GND;
   double delTemp1;
      double d_delTemp1_dTemp_t_GND;
   double DevTemp;
@@ -16823,8 +16770,6 @@ delTemp1 = 0;
 
 d_DevTemp_dTemp_t_GND = (d_delTemp1_dTemp_t_GND+d_DevTemp_dTemp_t_GND);
 DevTemp = (delTemp1+DevTemp);
-
-d_TK_dTemp_t_GND = d_DevTemp_dTemp_t_GND;
 TK = DevTemp;
 
 d_Vt_dTemp_t_GND = 0.0;
@@ -18527,21 +18472,10 @@ double value_log_0 = log(q_vth);
 double value_sqrt_1 = sqrt(T0);
 double value_log_2 = log((((2*nq)/gam)*((((2*q_vth)*nq)/gam)+(2*value_sqrt_1))));
 AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_3((((((Vs*inv_Vt)+(2*phib))+value_log_0)+(2*q_vth))+value_log_2),1e-3);
-double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
-double  deriv_log_2_d0 = (1.0/(((2*nq)/gam)*((((2*q_vth)*nq)/gam)+(2*value_sqrt_1))));
-
-d_psip_th_dTemp_t_GND = evaluator_hypsmooth_3.getDerivs((((((Vs*inv_Vt)+(2*phib))+value_log_0)+(2*q_vth))+value_log_2),1e-3,(((Vs*d_inv_Vt_dTemp_t_GND)+(2*d_phib_dTemp_t_GND))+(deriv_log_2_d0*(((((2*nq)/gam)*(((gam*((2*q_vth)*d_nq_dTemp_t_GND)-((2*q_vth)*nq)*d_gam_dTemp_t_GND)/gam/gam)+(2*(deriv_sqrt_1_d0*(d_T0_dTemp_t_GND)))))+(((gam*(2*d_nq_dTemp_t_GND)-(2*nq)*d_gam_dTemp_t_GND)/gam/gam)*((((2*q_vth)*nq)/gam)+(2*value_sqrt_1))))))),0.0);
-d_psip_th_dV_si_bi = evaluator_hypsmooth_3.getDerivs((((((Vs*inv_Vt)+(2*phib))+value_log_0)+(2*q_vth))+value_log_2),1e-3,((d_Vs_dV_si_bi*inv_Vt)+(deriv_log_2_d0*(((((2*nq)/gam)*(((gam*((2*q_vth)*d_nq_dV_si_bi)-((2*q_vth)*nq)*d_gam_dV_si_bi)/gam/gam)+(2*(deriv_sqrt_1_d0*(d_T0_dV_si_bi)))))+(((gam*(2*d_nq_dV_si_bi)-(2*nq)*d_gam_dV_si_bi)/gam/gam)*((((2*q_vth)*nq)/gam)+(2*value_sqrt_1))))))),0.0);
-d_psip_th_dV_di_bi = evaluator_hypsmooth_3.getDerivs((((((Vs*inv_Vt)+(2*phib))+value_log_0)+(2*q_vth))+value_log_2),1e-3,((d_Vs_dV_di_bi*inv_Vt)+(deriv_log_2_d0*(((((2*nq)/gam)*(((gam*((2*q_vth)*d_nq_dV_di_bi)-((2*q_vth)*nq)*d_gam_dV_di_bi)/gam/gam)+(2*(deriv_sqrt_1_d0*(d_T0_dV_di_bi)))))+(((gam*(2*d_nq_dV_di_bi)-(2*nq)*d_gam_dV_di_bi)/gam/gam)*((((2*q_vth)*nq)/gam)+(2*value_sqrt_1))))))),0.0);
 psip_th = evaluator_hypsmooth_3.getValues((((((Vs*inv_Vt)+(2*phib))+value_log_0)+(2*q_vth))+value_log_2),1e-3);
 }
 {
 double value_sqrt_0 = sqrt(psip_th);
-double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
-
-d_VTH_dTemp_t_GND = (((((psip_th-(Vs*inv_Vt))*d_Vt_dTemp_t_GND)+((-(Vs*d_inv_Vt_dTemp_t_GND))*Vt))+(((Vt*d_gam_dTemp_t_GND)+(d_Vt_dTemp_t_GND*gam))*value_sqrt_0))+d_Vth_shift_dTemp_t_GND);
-d_VTH_dV_si_bi = ((((-(d_Vs_dV_si_bi*inv_Vt))*Vt)+((Vt*d_gam_dV_si_bi)*value_sqrt_0))+d_Vth_shift_dV_si_bi);
-d_VTH_dV_di_bi = ((((-(d_Vs_dV_di_bi*inv_Vt))*Vt)+((Vt*d_gam_dV_di_bi)*value_sqrt_0))+d_Vth_shift_dV_di_bi);
 VTH = (((VFB_i+((psip_th-(Vs*inv_Vt))*Vt))+((Vt*gam)*value_sqrt_0))+Vth_shift);
 }
 {
@@ -24763,16 +24697,6 @@ Qovd = (((-Wact)*NF)*((Cgdof*Vgd_ov_noswap)+(CGDL_i*(((Vgd_ov_noswap-Vfbsdr)-Vgd
 
 d_Qovb_dV_gm_bi = (((((-devsign)*NF)*Lact)*(model_.CGBO))*d_probeVars[admsProbeID_V_gm_bi][admsProbeID_V_gm_bi]);
 Qovb = (((((-devsign)*NF)*Lact)*(model_.CGBO))*(probeVars[admsProbeID_V_gm_bi]));
-
-d_Qovg_dV_gm_bi = (-d_Qovb_dV_gm_bi);
-d_Qovg_dV_gm_di = (-d_Qovd_dV_gm_di);
-d_Qovg_dV_gm_si = (-(d_Qovs_dV_gm_si+d_Qovd_dV_gm_si));
-d_Qovg_dV_si_bi = (-(d_Qovs_dV_si_bi+d_Qovd_dV_si_bi));
-d_Qovg_dV_di_bi = (-(d_Qovs_dV_di_bi+d_Qovd_dV_di_bi));
-d_Qovg_dV_gi_bi = (-(d_Qovs_dV_gi_bi+d_Qovd_dV_gi_bi));
-d_Qovg_dV_sbulk_si = (-(d_Qovs_dV_sbulk_si+d_Qovd_dV_sbulk_si));
-d_Qovg_dV_dbulk_di = (-(d_Qovs_dV_dbulk_di+d_Qovd_dV_dbulk_di));
-d_Qovg_dTemp_t_GND = (-(d_Qovs_dTemp_t_GND+d_Qovd_dTemp_t_GND));
 Qovg = (-((Qovs+Qovd)+Qovb));
 if (((model_.EDGEFET)==1))
 {
@@ -25866,14 +25790,6 @@ d_ids_dV_gm_di = (d_ids_edge_dV_gm_di+d_ids_dV_gm_di);
 d_ids_dV_gm_si = (d_ids_edge_dV_gm_si+d_ids_dV_gm_si);
 ids = (ids_edge+ids);
 }
-
-d_QB_dV_gm_bi = (devsign*d_Qovb_dV_gm_bi);
-d_QB_dV_si_bi = (devsign*((d_QBi_dV_si_bi+d_Qbs_dV_si_bi)+d_Qbd_dV_si_bi));
-d_QB_dV_di_bi = (devsign*((d_QBi_dV_di_bi+d_Qbs_dV_di_bi)+d_Qbd_dV_di_bi));
-d_QB_dV_gi_bi = (devsign*((d_QBi_dV_gi_bi+d_Qbs_dV_gi_bi)+d_Qbd_dV_gi_bi));
-d_QB_dV_sbulk_si = (devsign*((d_QBi_dV_sbulk_si+d_Qbs_dV_sbulk_si)+d_Qbd_dV_sbulk_si));
-d_QB_dV_dbulk_di = (devsign*((d_QBi_dV_dbulk_di+d_Qbs_dV_dbulk_di)+d_Qbd_dV_dbulk_di));
-d_QB_dTemp_t_GND = (devsign*((d_QBi_dTemp_t_GND+d_Qbs_dTemp_t_GND)+d_Qbd_dTemp_t_GND));
 QB = (devsign*(((QBi+Qovb)+Qbs)+Qbd));
 if ((sigvds>0))
 {
@@ -25893,24 +25809,7 @@ d_QDI_dTemp_t_GND = (devsign*d_QDi_dTemp_t_GND);
 d_QDI_dV_sbulk_si = (devsign*d_QDi_dV_sbulk_si);
 d_QDI_dV_dbulk_di = (devsign*d_QDi_dV_dbulk_di);
 QDI = (devsign*QDi);
-
-d_QS_dV_gm_si = (devsign*d_Qovs_dV_gm_si);
-d_QS_dV_si_bi = (devsign*((d_QSi_dV_si_bi+d_Qovs_dV_si_bi)-d_Qbs_dV_si_bi));
-d_QS_dV_di_bi = (devsign*((d_QSi_dV_di_bi+d_Qovs_dV_di_bi)-d_Qbs_dV_di_bi));
-d_QS_dV_gi_bi = (devsign*((d_QSi_dV_gi_bi+d_Qovs_dV_gi_bi)-d_Qbs_dV_gi_bi));
-d_QS_dTemp_t_GND = (devsign*((d_QSi_dTemp_t_GND+d_Qovs_dTemp_t_GND)-d_Qbs_dTemp_t_GND));
-d_QS_dV_sbulk_si = (devsign*((d_QSi_dV_sbulk_si+d_Qovs_dV_sbulk_si)-d_Qbs_dV_sbulk_si));
-d_QS_dV_dbulk_di = (devsign*((d_QSi_dV_dbulk_di+d_Qovs_dV_dbulk_di)-d_Qbs_dV_dbulk_di));
 QS = (devsign*((QSi+Qovs)-Qbs));
-
-d_QD_dV_gm_di = (devsign*d_Qovd_dV_gm_di);
-d_QD_dV_gm_si = (devsign*d_Qovd_dV_gm_si);
-d_QD_dV_si_bi = (devsign*((d_QDi_dV_si_bi+d_Qovd_dV_si_bi)-d_Qbd_dV_si_bi));
-d_QD_dV_di_bi = (devsign*((d_QDi_dV_di_bi+d_Qovd_dV_di_bi)-d_Qbd_dV_di_bi));
-d_QD_dV_gi_bi = (devsign*((d_QDi_dV_gi_bi+d_Qovd_dV_gi_bi)-d_Qbd_dV_gi_bi));
-d_QD_dTemp_t_GND = (devsign*((d_QDi_dTemp_t_GND+d_Qovd_dTemp_t_GND)-d_Qbd_dTemp_t_GND));
-d_QD_dV_sbulk_si = (devsign*((d_QDi_dV_sbulk_si+d_Qovd_dV_sbulk_si)-d_Qbd_dV_sbulk_si));
-d_QD_dV_dbulk_di = (devsign*((d_QDi_dV_dbulk_di+d_Qovd_dV_dbulk_di)-d_Qbd_dV_dbulk_di));
 QD = (devsign*((QDi+Qovd)-Qbd));
 }
 else
@@ -25931,44 +25830,10 @@ d_QDI_dTemp_t_GND = (devsign*d_QSi_dTemp_t_GND);
 d_QDI_dV_sbulk_si = (devsign*d_QSi_dV_sbulk_si);
 d_QDI_dV_dbulk_di = (devsign*d_QSi_dV_dbulk_di);
 QDI = (devsign*QSi);
-
-d_QS_dV_gm_si = (devsign*d_Qovs_dV_gm_si);
-d_QS_dV_si_bi = (devsign*((d_QDi_dV_si_bi+d_Qovs_dV_si_bi)-d_Qbs_dV_si_bi));
-d_QS_dV_di_bi = (devsign*((d_QDi_dV_di_bi+d_Qovs_dV_di_bi)-d_Qbs_dV_di_bi));
-d_QS_dV_gi_bi = (devsign*((d_QDi_dV_gi_bi+d_Qovs_dV_gi_bi)-d_Qbs_dV_gi_bi));
-d_QS_dTemp_t_GND = (devsign*((d_QDi_dTemp_t_GND+d_Qovs_dTemp_t_GND)-d_Qbs_dTemp_t_GND));
-d_QS_dV_sbulk_si = (devsign*((d_QDi_dV_sbulk_si+d_Qovs_dV_sbulk_si)-d_Qbs_dV_sbulk_si));
-d_QS_dV_dbulk_di = (devsign*((d_QDi_dV_dbulk_di+d_Qovs_dV_dbulk_di)-d_Qbs_dV_dbulk_di));
 QS = (devsign*((QDi+Qovs)-Qbs));
-
-d_QD_dV_gm_di = (devsign*d_Qovd_dV_gm_di);
-d_QD_dV_gm_si = (devsign*d_Qovd_dV_gm_si);
-d_QD_dV_si_bi = (devsign*((d_QSi_dV_si_bi+d_Qovd_dV_si_bi)-d_Qbd_dV_si_bi));
-d_QD_dV_di_bi = (devsign*((d_QSi_dV_di_bi+d_Qovd_dV_di_bi)-d_Qbd_dV_di_bi));
-d_QD_dV_gi_bi = (devsign*((d_QSi_dV_gi_bi+d_Qovd_dV_gi_bi)-d_Qbd_dV_gi_bi));
-d_QD_dTemp_t_GND = (devsign*((d_QSi_dTemp_t_GND+d_Qovd_dTemp_t_GND)-d_Qbd_dTemp_t_GND));
-d_QD_dV_sbulk_si = (devsign*((d_QSi_dV_sbulk_si+d_Qovd_dV_sbulk_si)-d_Qbd_dV_sbulk_si));
-d_QD_dV_dbulk_di = (devsign*((d_QSi_dV_dbulk_di+d_Qovd_dV_dbulk_di)-d_Qbd_dV_dbulk_di));
 QD = (devsign*((QSi+Qovd)-Qbd));
 }
-
-d_QG_dV_gm_bi = 0.0;
-d_QG_dV_gm_di = 0.0;
-d_QG_dV_gm_si = 0.0;
-d_QG_dV_si_bi = (devsign*d_QGi_dV_si_bi);
-d_QG_dV_di_bi = (devsign*d_QGi_dV_di_bi);
-d_QG_dV_gi_bi = (devsign*d_QGi_dV_gi_bi);
-d_QG_dV_sbulk_si = (devsign*d_QGi_dV_sbulk_si);
-d_QG_dV_dbulk_di = (devsign*d_QGi_dV_dbulk_di);
-d_QG_dTemp_t_GND = (devsign*d_QGi_dTemp_t_GND);
 QG = (devsign*(QGi+Qovg));
-
-d_QBI_dV_si_bi = (devsign*d_QBi_dV_si_bi);
-d_QBI_dV_di_bi = (devsign*d_QBi_dV_di_bi);
-d_QBI_dV_gi_bi = (devsign*d_QBi_dV_gi_bi);
-d_QBI_dV_sbulk_si = (devsign*d_QBi_dV_sbulk_si);
-d_QBI_dV_dbulk_di = (devsign*d_QBi_dV_dbulk_di);
-d_QBI_dTemp_t_GND = (devsign*d_QBi_dTemp_t_GND);
 QBI = (devsign*QBi);
 
 d_QGI_dV_si_bi = (devsign*d_QGi_dV_si_bi);

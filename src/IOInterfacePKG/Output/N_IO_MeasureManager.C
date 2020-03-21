@@ -44,6 +44,7 @@
 #include <N_IO_MeasureDerivativeEvaluation.h>
 #include <N_IO_MeasureDuty.h>
 #include <N_IO_MeasureEquationEvaluation.h>
+#include <N_IO_MeasureErrorFunctions.h>
 #include <N_IO_MeasureFindWhen.h>
 #include <N_IO_MeasureFourier.h>
 #include <N_IO_MeasureFrequency.h>
@@ -55,7 +56,7 @@
 #include <N_IO_MeasureOnTime.h>
 #include <N_IO_MeasurePeakToPeak.h>
 #include <N_IO_MeasureRMS.h>
-#include <N_IO_MeasureRelativeError.h>
+#include <N_IO_MeasureError.h>
 #include <N_IO_MeasureRiseFallDelay.h>
 #include <N_IO_Remeasure.h>
 #include <N_IO_NetlistImportTool.h>
@@ -272,7 +273,15 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   }
   else if( type=="ERROR" )
   {
-    theMeasureObject = new Measure::RelativeError(measureMgr, measureBlock);
+    theMeasureObject = new Measure::Error(measureMgr, measureBlock);
+  }
+  else if( type=="ERR1" || type=="ERR" )
+  {
+    theMeasureObject = new Measure::Err1(measureMgr, measureBlock);
+  }
+  else if( type=="ERR2" )
+  {
+    theMeasureObject = new Measure::Err2(measureMgr, measureBlock);
   }
   else if( type=="FOUR" )
   {
@@ -1134,6 +1143,9 @@ extractMEASUREData(
   //              DERIVATIVE or DERIV = Derivative
   //              INTEGRAL = Integral
   //              ERROR = Error
+  //              ERR = Err function
+  //              ERR1 = Err1 function
+  //              ERR2 = Err2 function
   //              FOUR = Fourier analysis (similar to .FOUR)
   //       output_var = simulation variale to be measured.  This can be any of the following
   //              v(a), v(a,b), v(a)=number v(a)=v(b), i(a) ix(a) or an expression.
@@ -1174,11 +1186,17 @@ extractMEASUREData(
   typeSetTran.insert( std::string("ON_TIME") );
   typeSetTran.insert( std::string("OFF_TIME") );
   typeSetTran.insert( std::string("FOUR") );
+  typeSetTran.insert( std::string("ERR") );
+  typeSetTran.insert( std::string("ERR1") );
+  typeSetTran.insert( std::string("ERR2") );
 
   // allowed types for the AC mode
   typeSetAc.insert( std::string("AVG") );
   typeSetAc.insert( std::string("ERROR") );
   typeSetAc.insert( std::string("EQN") );
+  typeSetAc.insert( std::string("ERR") );
+  typeSetAc.insert( std::string("ERR1") );
+  typeSetAc.insert( std::string("ERR2") );
   typeSetAc.insert( std::string("FIND") );
   typeSetAc.insert( std::string("MAX") );
   typeSetAc.insert( std::string("MIN") );
@@ -1190,6 +1208,9 @@ extractMEASUREData(
   typeSetDc.insert( std::string("AVG") );
   typeSetDc.insert( std::string("ERROR") );
   typeSetDc.insert( std::string("EQN") );
+  typeSetDc.insert( std::string("ERR") );
+  typeSetDc.insert( std::string("ERR1") );
+  typeSetDc.insert( std::string("ERR2") );
   typeSetDc.insert( std::string("FIND") );
   typeSetDc.insert( std::string("MAX") );
   typeSetDc.insert( std::string("MIN") );
@@ -1222,6 +1243,7 @@ extractMEASUREData(
   simpleKeywords.insert( std::string("FROM") );
   simpleKeywords.insert( std::string("TO") );
   simpleKeywords.insert( std::string("IGNORE") );
+  simpleKeywords.insert( std::string("IGNOR") );
   simpleKeywords.insert( std::string("YMIN") );
   simpleKeywords.insert( std::string("YMAX") );
   simpleKeywords.insert( std::string("ON") );
@@ -1330,8 +1352,8 @@ extractMEASUREData(
     else
     {
       Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Illegal type in .MEASURE line for TRAN mode.  "
-	   << "Must be one of: AVG, DERIV/DERIVATIVE, DUTY, EQN/PARAM, ERROR, FIND, WHEN, FOUR, INTEG/INTEGRAL, MIN, MAX, "
-	   << "OFF_TIME, ON_TIME, PP, RMS, TRIG, TARG";
+	   << "Must be one of: AVG, DERIV/DERIVATIVE, DUTY, EQN/PARAM, ERR, ERR1, ERR2, ERROR, FIND, WHEN, FOUR, "
+           << "INTEG/INTEGRAL, MIN, MAX, OFF_TIME, ON_TIME, PP, RMS, TRIG, TARG";
       return false;
     }
   } 
@@ -1345,7 +1367,8 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, ERROR, EQN/PARAM, FIND, MIN, MAX, PP and WHEN measure types are supported for AC measure mode";
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, EQN/PARAM, ERR, ERR1, ERR2, ERROR, "
+	 << "FIND, MIN, MAX, PP and WHEN measure types are supported for AC measure mode";
       return false;
     }
   }
@@ -1359,7 +1382,8 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, ERROR, EQN/PARAM, FIND, MIN, MAX, PP and WHEN measure types are supported for DC measure mode";
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, EQN/PARAM, ERR, ERR1, ERR2, ERROR, "
+	 << "FIND, MIN, MAX, PP and WHEN measure types are supported for DC measure mode";
       return false;
     }
   }

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:56:45
+// Creation Date  : Tue, 17 Mar 2020 14:53:35
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -934,12 +934,7 @@ bool Instance::updateIntermediateVars()
      double d_Vdsi_dV_di_GND;
      double d_Vdsi_dV_si_GND;
   double Vgs;
-     double d_Vgs_dV_d_GND;
-     double d_Vgs_dV_g_GND;
-     double d_Vgs_dV_s_GND;
   double Vds;
-     double d_Vds_dV_d_GND;
-     double d_Vds_dV_s_GND;
   double Vgdraw;
      double d_Vgdraw_dV_g_GND;
      double d_Vgdraw_dV_di_GND;
@@ -1008,14 +1003,7 @@ d_Vgdraw_dV_g_GND = ((model_.type)*d_probeVars[admsProbeID_V_g_GND][admsProbeID_
 Vgdraw = ((model_.type)*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_di_GND])));
 if ((Vgsraw>=Vgdraw))
 {
-
-d_Vds_dV_s_GND = ((model_.type)*(-d_probeVars[admsProbeID_V_s_GND][admsProbeID_V_s_GND]));
-d_Vds_dV_d_GND = ((model_.type)*d_probeVars[admsProbeID_V_d_GND][admsProbeID_V_d_GND]);
 Vds = ((model_.type)*((probeVars[admsProbeID_V_d_GND])-(probeVars[admsProbeID_V_s_GND])));
-
-d_Vgs_dV_d_GND =  0.0;
-d_Vgs_dV_s_GND = ((model_.type)*(-d_probeVars[admsProbeID_V_s_GND][admsProbeID_V_s_GND]));
-d_Vgs_dV_g_GND = ((model_.type)*d_probeVars[admsProbeID_V_g_GND][admsProbeID_V_g_GND]);
 Vgs = ((model_.type)*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_s_GND])));
 
 d_Vdsi_dV_si_GND = ((model_.type)*(-d_probeVars[admsProbeID_V_si_GND][admsProbeID_V_si_GND]));
@@ -1030,14 +1018,7 @@ dir = 1;
 }
 else
 {
-
-d_Vds_dV_d_GND = ((model_.type)*(-d_probeVars[admsProbeID_V_d_GND][admsProbeID_V_d_GND]));
-d_Vds_dV_s_GND = ((model_.type)*d_probeVars[admsProbeID_V_s_GND][admsProbeID_V_s_GND]);
 Vds = ((model_.type)*((probeVars[admsProbeID_V_s_GND])-(probeVars[admsProbeID_V_d_GND])));
-
-d_Vgs_dV_s_GND =  0.0;
-d_Vgs_dV_d_GND = ((model_.type)*(-d_probeVars[admsProbeID_V_d_GND][admsProbeID_V_d_GND]));
-d_Vgs_dV_g_GND = ((model_.type)*d_probeVars[admsProbeID_V_g_GND][admsProbeID_V_g_GND]);
 Vgs = ((model_.type)*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_d_GND])));
 
 d_Vdsi_dV_di_GND = ((model_.type)*(-d_probeVars[admsProbeID_V_di_GND][admsProbeID_V_di_GND]));

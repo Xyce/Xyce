@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:51:56
+// Creation Date  : Tue, 17 Mar 2020 14:53:59
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -17333,28 +17333,10 @@ bool Instance::updateIntermediateVars()
 
   // Local variables
   double vth_i;
-     double d_vth_i_dTemp_DT_GND;
-     double d_vth_i_dV_DI_SI;
-     double d_vth_i_dV_GP_SI;
-     double d_vth_i_dV_SI_BP;
   double vts_i;
-     double d_vts_i_dTemp_DT_GND;
-     double d_vts_i_dV_DI_SI;
-     double d_vts_i_dV_GP_SI;
-     double d_vts_i_dV_SI_BP;
   double facvsb;
-     double d_facvsb_dV_DI_SI;
-     double d_facvsb_dV_SI_BP;
-     double d_facvsb_dTemp_DT_GND;
   double facvsb0;
-     double d_facvsb0_dTemp_DT_GND;
-     double d_facvsb0_dV_DI_SI;
-     double d_facvsb0_dV_SI_BP;
   double P_D;
-     double d_P_D_dTemp_DT_GND;
-     double d_P_D_dV_DI_SI;
-     double d_P_D_dV_GP_SI;
-     double d_P_D_dV_SI_BP;
   double delVsat;
      double d_delVsat_dV_DI_SI;
      double d_delVsat_dV_GP_SI;
@@ -17694,15 +17676,7 @@ bool Instance::updateIntermediateVars()
      double d_x_m_dc_dV_SI_BP;
      double d_x_m_dc_dTemp_DT_GND;
   double Gf_dc;
-     double d_Gf_dc_dTemp_DT_GND;
-     double d_Gf_dc_dV_DI_SI;
-     double d_Gf_dc_dV_GP_SI;
-     double d_Gf_dc_dV_SI_BP;
   double Vdsat_dc;
-     double d_Vdsat_dc_dV_GP_SI;
-     double d_Vdsat_dc_dTemp_DT_GND;
-     double d_Vdsat_dc_dV_DI_SI;
-     double d_Vdsat_dc_dV_SI_BP;
   double Udse_dc;
      double d_Udse_dc_dV_GP_SI;
      double d_Udse_dc_dV_SI_BP;
@@ -22263,17 +22237,7 @@ d_x_m_dc_dV_SI_BP = d_x_m_dV_SI_BP;
 d_x_m_dc_dV_GP_SI = d_x_m_dV_GP_SI;
 d_x_m_dc_dV_DI_SI = d_x_m_dV_DI_SI;
 x_m_dc = x_m;
-
-d_Gf_dc_dV_SI_BP = d_Gf_dV_SI_BP;
-d_Gf_dc_dV_GP_SI = d_Gf_dV_GP_SI;
-d_Gf_dc_dV_DI_SI = d_Gf_dV_DI_SI;
-d_Gf_dc_dTemp_DT_GND = d_Gf_dTemp_DT_GND;
 Gf_dc = Gf;
-
-d_Vdsat_dc_dV_SI_BP = d_Vdsat_dV_SI_BP;
-d_Vdsat_dc_dV_DI_SI = d_Vdsat_dV_DI_SI;
-d_Vdsat_dc_dTemp_DT_GND = d_Vdsat_dTemp_DT_GND;
-d_Vdsat_dc_dV_GP_SI = d_Vdsat_dV_GP_SI;
 Vdsat_dc = Vdsat;
 
 d_Udse_dc_dV_DI_SI = d_Udse_dV_DI_SI;
@@ -23713,37 +23677,13 @@ d_Iimpact_dV_DI_SI = ((mavl*(d_Ids_dV_DI_SI+d_Idsedge_dV_DI_SI))+(d_mavl_dV_DI_S
 Iimpact = (mavl*(Ids+Idsedge));
 }
 }
-
-d_P_D_dV_SI_BP = 0.0;
-d_P_D_dV_GP_SI = 0.0;
-d_P_D_dV_DI_SI = 0.0;
-d_P_D_dTemp_DT_GND = (0.25*(Gf_dc*d_kp_dTemp_DT_GND));
 P_D = (1.0+(0.25*(Gf_dc*kp)));
-
-d_facvsb0_dV_SI_BP = (2.0*d_phit1_dV_SI_BP);
-d_facvsb0_dV_DI_SI = (2.0*d_phit1_dV_DI_SI);
-d_facvsb0_dTemp_DT_GND = (d_phib_dc_dTemp_DT_GND+(2.0*d_phit1_dTemp_DT_GND));
 facvsb0 = (phib_dc+(2.0*phit1));
-
-d_facvsb_dTemp_DT_GND = d_Vsbstar_dc_dTemp_DT_GND;
-d_facvsb_dV_SI_BP = d_Vsbstar_dc_dV_SI_BP;
-d_facvsb_dV_DI_SI = d_Vsbstar_dc_dV_DI_SI;
 facvsb = (Vsbstar_dc+facvsb0);
 {
 double value_sqrt_0 = sqrt((phit1*facvsb));
-double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
-
-d_vts_i_dV_SI_BP = ((-d_Vsbstar_dc_dV_SI_BP)+(Gf_dc*(deriv_sqrt_0_d0*((d_phit1_dV_SI_BP*facvsb)))));
-d_vts_i_dV_GP_SI = (Gf_dc*(deriv_sqrt_0_d0*((d_phit1_dV_GP_SI*facvsb))));
-d_vts_i_dV_DI_SI = ((-d_Vsbstar_dc_dV_DI_SI)+(Gf_dc*(deriv_sqrt_0_d0*((d_phit1_dV_DI_SI*facvsb)))));
-d_vts_i_dTemp_DT_GND = ((d_VFB_T_dTemp_DT_GND-d_Vsbstar_dc_dTemp_DT_GND)+(Gf_dc*(deriv_sqrt_0_d0*((d_phit1_dTemp_DT_GND*facvsb)))));
 vts_i = (((VFB_T+(P_D*facvsb))-Vsbstar_dc)+(Gf_dc*value_sqrt_0));
 }
-
-d_vth_i_dV_SI_BP = (-d_delVg_dV_SI_BP);
-d_vth_i_dV_GP_SI = (-d_delVg_dV_GP_SI);
-d_vth_i_dV_DI_SI = (-d_delVg_dV_DI_SI);
-d_vth_i_dTemp_DT_GND = (-d_delVg_dTemp_DT_GND);
 vth_i = (vts_i-delVg);
 }
 // End block evaluateStatic
@@ -30258,10 +30198,6 @@ d_staticContributions[admsNodeID_DT][admsProbeID_Temp_DT_GND] += ((MULT_i*d_prob
 {
 //Block-local variables for block loadDynamic
 double temp;
-     double d_temp_dV_DI_SI;
-     double d_temp_dV_GP_SI;
-     double d_temp_dV_SI_BP;
-     double d_temp_dTemp_DT_GND;
 //End of Block-local variables
 
 d_Qs_dTemp_DT_GND = (-((d_Qg_dTemp_DT_GND+d_Qb_dTemp_DT_GND)+d_Qd_dTemp_DT_GND));
@@ -30286,11 +30222,6 @@ d_qjun_d_dV_DI_BD = (((ABDRAIN_i*d_qjunbot_d_dV_DI_BD)+(LSDRAIN_i*d_qjunsti_d_dV
 qjun_d = (((ABDRAIN_i*qjunbot_d)+(LSDRAIN_i*qjunsti_d))+(LGDRAIN_i*qjungat_d));
 if ((sigVds<0.0))
 {
-
-d_temp_dTemp_DT_GND = d_Qd_dTemp_DT_GND;
-d_temp_dV_SI_BP = d_Qd_dV_SI_BP;
-d_temp_dV_GP_SI = d_Qd_dV_GP_SI;
-d_temp_dV_DI_SI = d_Qd_dV_DI_SI;
 temp = Qd;
 
 d_Qd_dTemp_DT_GND = d_Qs_dTemp_DT_GND;

@@ -23,6 +23,8 @@ libOutput_la_SOURCES = \
   N_IO_MeasureAverage.h \
   N_IO_MeasureDuty.C \
   N_IO_MeasureDuty.h \
+  N_IO_MeasureErrorFunctions.C \
+  N_IO_MeasureErrorFunctions.h \
   N_IO_MeasureFrequency.C \
   N_IO_MeasureFrequency.h \
   N_IO_MeasureMax.C \
@@ -45,8 +47,8 @@ libOutput_la_SOURCES = \
   N_IO_MeasureDerivativeEvaluation.h \
   N_IO_MeasureIntegralEvaluation.C \
   N_IO_MeasureIntegralEvaluation.h \
-  N_IO_MeasureRelativeError.C \
-  N_IO_MeasureRelativeError.h \
+  N_IO_MeasureError.C \
+  N_IO_MeasureError.h \
   N_IO_MeasureFourier.C \
   N_IO_MeasureFourier.h \
   N_IO_Remeasure.C \

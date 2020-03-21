@@ -273,6 +273,9 @@ private:
   std::vector<double>    Z0Vec_;            ///< vector of impedances (for S-parameters)
   std::vector<double>    freqVec_;          ///< vector of the frequencies in the input Network Data
 
+  bool                                                Isc_;          ///< Touchstone file contains short-circuit current data
+  std::vector< std::vector<std::complex<double> > >   inputIscVec_;  ///< Vector of vectors of per-port short-circuit currents
+
   // store a separate matrix (that will be Y-parameters in RI-format) for each frequency
   // in freqVec_
   std::vector<Teuchos::SerialDenseMatrix<int, std::complex<double> > > inputNetworkDataVec_;

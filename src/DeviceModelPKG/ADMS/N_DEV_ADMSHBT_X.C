@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:13:17
+// Creation Date  : Tue, 17 Mar 2020 14:53:34
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -3123,7 +3123,6 @@ bool Instance::updateIntermediateVars()
   double Tex;
   double d_Tex_dV_ti_GND;
   double TjK;
-  double d_TjK_dV_ti_GND;
   double Tj;
   double d_Tj_dV_ti_GND;
   double Texi;
@@ -3397,8 +3396,6 @@ bool Instance::updateIntermediateVars()
 
   d_Tj_dV_ti_GND = d_Texi_dV_ti_GND;
   Tj = (Texi+Temp);
-
-  d_TjK_dV_ti_GND = d_Tj_dV_ti_GND;
   TjK = (Tj+273.15);
 
   d_Tex_dV_ti_GND = d_Tj_dV_ti_GND;

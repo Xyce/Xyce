@@ -115,11 +115,16 @@ void Traits::loadInstanceParameters(ParametricData<YLin::Instance> &p)
 void Traits::loadModelParameters(ParametricData<YLin::Model> &p)
 {
   // Create parameter definitions for parameter member variables
-    p.addPar("TSTONEFILE", "", &YLin::Model::TSFileName_)
+  p.addPar("TSTONEFILE", "", &YLin::Model::TSFileName_)
     .setGivenMember(&YLin::Model::TSFileNameGiven_)
     .setUnit(U_NONE)
     .setCategory(CAT_NONE)
     .setDescription("Touchstone File Name");
+
+  p.addPar("ISC", false, &YLin::Model::Isc_)
+    .setUnit(U_LOGIC)
+    .setCategory(CAT_NONE)
+    .setDescription("Touchstone file contains short-circuit current data");
 }
 
 //-----------------------------------------------------------------------------
@@ -436,6 +441,8 @@ bool Model::readTouchStoneFile()
   int numMatrixFormatLinesFound = 0;
   int numNetworkDataLinesFound = 0;
   int numNetworkDataElementsFound = 0;
+  int expectedNumElementsPerNetworkDataLine;
+
   bool skipReadNextLine = false;
   bool psuccess = true;
 
@@ -836,8 +843,14 @@ bool Model::readTouchStoneFile()
           readTouchStoneFileLine(inputFile,aLine,lineNum);
         }
 
+        std::vector<std::complex<double> > inputIscData;
         Teuchos::SerialDenseMatrix<int, std::complex<double> > inputNetworkData;
         inputNetworkData.shape(numPorts_, numPorts_);
+
+        // expected number of data elements on each line, assuming "Full" format
+        expectedNumElementsPerNetworkDataLine = 2*(numPorts_*numPorts_)+ 1;
+        if (Isc_)
+          expectedNumElementsPerNetworkDataLine += 2*numPorts_;
 
         parsedLine.clear();
 
@@ -849,15 +862,16 @@ bool Model::readTouchStoneFile()
           IO::TokenVector tempParsedLine;
           splitTouchStoneFileLine(aLine,tempParsedLine);
           numNetworkDataElementsFound += tempParsedLine.size();
-          if ( tempParsedLine.size() <= (2*(numPorts_*numPorts_)+1 ) )
+          if ( tempParsedLine.size() <= expectedNumElementsPerNetworkDataLine )
 	  {
             parsedLine.insert(parsedLine.end(),tempParsedLine.begin(),tempParsedLine.end());
           }
 
           // We have a full line of network data if this conditional is true
-          if (parsedLine.size() == (2*(numPorts_*numPorts_)+1 ) )
+          if (parsedLine.size() == expectedNumElementsPerNetworkDataLine)
 	  {
             ++numDataLinesFound;
+
             ExtendedString freqStr(parsedLine[0].string_);
             freqVec_.push_back(freqMultiplier_*freqStr.Value());
 
@@ -930,6 +944,43 @@ bool Model::readTouchStoneFile()
               inputNetworkDataVec_.push_back(inputNetworkData);
             }
 
+            // Handle optional Isc data. There are two additional columns for
+	    // each port added to each row, if that data is included.
+            if (Isc_)
+	    {
+              inputIscData.clear();
+              for (int i=2*numPorts_*numPorts_+1, pIdx=1; i < expectedNumElementsPerNetworkDataLine; i=i+2, pIdx++)
+	      {
+                ExtendedString Str1(parsedLine[i].string_);
+                ExtendedString Str2(parsedLine[i+1].string_);
+                if (dataFormat_ == "RI")
+		{
+                  inputIscData.push_back(std::complex<double>(Str1.Value(), Str2.Value()));
+                 }
+                else if (dataFormat_ == "MA")
+		{
+                  double mag = Str1.Value();
+                  double angle = M_PI*Str2.Value()/180.0;
+                  inputIscData.push_back(std::complex<double>(mag*cos(angle), mag*sin(angle)));
+                }
+                else if (dataFormat_ == "DB")
+		{
+                  double mag = pow(10.0,0.05*Str1.Value());
+                  double angle = M_PI*Str2.Value()/180.0;
+                  inputIscData.push_back(std::complex<double>(mag*cos(angle), mag*sin(angle)));
+                }
+
+                if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+                {
+                  Xyce::dout() << "For Freq " << freqVec_[freqVec_.size()-1] << " Isc" << pIdx
+                               << "=(" << inputIscData[pIdx-1].real() << ", "
+                               << inputIscData[pIdx-1].imag() << ")" << std::endl;
+                }
+
+              }
+              inputIscVec_.push_back(inputIscData);
+	    }
+
             // clear parsedLine here, to support parsing network data that
             // is "wrapped" across multiple rows in the input file
             parsedLine.clear();
@@ -1000,13 +1051,13 @@ bool Model::readTouchStoneFile()
     psuccess = false;
   }
 
-  if ( (numNetworkDataElementsFound != numFreq_*(2*(numPorts_*numPorts_)+1 )) &&
+  if ( (numNetworkDataElementsFound != numFreq_*expectedNumElementsPerNetworkDataLine) &&
        (numPorts_ != 0) && (numFreq_ != 0) )
   {
     Report::UserError() << "Incorrect number of entries in [Network Data] block found in file "
                         << TSFileName_ << " for model " << getName()
                         << ". Found " << numNetworkDataElementsFound
-                        << ". Expected " << numFreq_*(2*(numPorts_*numPorts_)+1 );
+                        << ". Expected " << numFreq_*expectedNumElementsPerNetworkDataLine;
     psuccess = false;
   }
 

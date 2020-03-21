@@ -72,13 +72,13 @@ Frequency::Frequency(const Manager &measureMgr, const Util::OptionBlock & measur
 void Frequency::prepareOutputVariables() 
 {
   // this measurement should have only one dependent variable.
-  // Error for now if it doesn't
+  // Error out if it doesn't
   numOutVars_ = outputVars_.size();
 
   if ( numOutVars_ > 1 )
   {
-    std::string msg = "Too many dependent variables for statistical measure, \"" + name_ + "\" Exiting.";
-    Report::UserFatal() << msg;
+    std::string msg = "Too many dependent variables for FREQ  measure, \"" + name_ + "\"";
+    Report::UserError0() << msg;
   }
 
   outVarValues_.resize( numOutVars_, 0.0 );

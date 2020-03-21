@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Dec 2019 14:36:27
+// Creation Date  : Tue, 17 Mar 2020 14:53:34
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -12757,21 +12757,10 @@ bool Instance::updateIntermediateVars()
 
   // Local variables
   double vth_i;
-     double d_vth_i_dV_D_S;
-     double d_vth_i_dV_GP_S;
-     double d_vth_i_dV_S_BP;
   double vts_i;
-     double d_vts_i_dV_D_S;
-     double d_vts_i_dV_GP_S;
-     double d_vts_i_dV_S_BP;
   double facvsb;
-     double d_facvsb_dV_D_S;
-     double d_facvsb_dV_S_BP;
   double facvsb0;
   double P_D;
-     double d_P_D_dV_D_S;
-     double d_P_D_dV_GP_S;
-     double d_P_D_dV_S_BP;
   double Vtovs;
      double d_Vtovs_dV_GP_S;
      double d_Vtovs_dV_D_S;
@@ -13345,8 +13334,6 @@ bool Instance::updateIntermediateVars()
      double d_Vgbstar_dV_GP_S;
      double d_Vgbstar_dV_S_BP;
   double Vdbstar;
-     double d_Vdbstar_dV_D_S;
-     double d_Vdbstar_dV_S_BP;
   double Vsbstar;
      double d_Vsbstar_dV_D_S;
      double d_Vsbstar_dV_S_BP;
@@ -13358,8 +13345,6 @@ bool Instance::updateIntermediateVars()
      double d_Vdb_dV_D_S;
      double d_Vdb_dV_S_BP;
   double Vgd;
-     double d_Vgd_dV_D_S;
-     double d_Vgd_dV_GP_S;
   double xgd_ov;
      double d_xgd_ov_dV_GP_S;
      double d_xgd_ov_dV_D_S;
@@ -13388,15 +13373,10 @@ bool Instance::updateIntermediateVars()
      double d_Vgs_dV_D_S;
      double d_Vgs_dV_GP_S;
   double Vrwell;
-     double d_Vrwell_dV_B_BI;
   double Vrbulk;
-     double d_Vrbulk_dV_BP_BI;
   double Vrjund;
-     double d_Vrjund_dV_BD_BI;
   double Vrjuns;
-     double d_Vrjuns_dV_BS_BI;
   double Vrg;
-     double d_Vrg_dV_G_GP;
   double Vovd;
      double d_Vovd_dV_GP_S;
      double d_Vovd_dV_D_S;
@@ -14118,20 +14098,10 @@ Iimpact = 0.0;
 
 d_mavl_dV_D_S = d_mavl_dV_GP_S = d_mavl_dV_S_BP =  0.0;
 mavl = 0.0;
-
-d_Vrg_dV_G_GP = d_probeVars[admsProbeID_V_G_GP][admsProbeID_V_G_GP];
 Vrg = (probeVars[admsProbeID_V_G_GP]);
-
-d_Vrjuns_dV_BS_BI = d_probeVars[admsProbeID_V_BS_BI][admsProbeID_V_BS_BI];
 Vrjuns = (probeVars[admsProbeID_V_BS_BI]);
-
-d_Vrjund_dV_BD_BI = d_probeVars[admsProbeID_V_BD_BI][admsProbeID_V_BD_BI];
 Vrjund = (probeVars[admsProbeID_V_BD_BI]);
-
-d_Vrbulk_dV_BP_BI = d_probeVars[admsProbeID_V_BP_BI][admsProbeID_V_BP_BI];
 Vrbulk = (probeVars[admsProbeID_V_BP_BI]);
-
-d_Vrwell_dV_B_BI = d_probeVars[admsProbeID_V_B_BI][admsProbeID_V_B_BI];
 Vrwell = (probeVars[admsProbeID_V_B_BI]);
 if (((model_.CHNL_TYPE)==(+1)))
 {
@@ -14208,9 +14178,6 @@ Vsb = (Vsb+Vds);
 d_Vds_dV_D_S = (-d_Vds_dV_D_S);
 Vds = (-Vds);
 }
-
-d_Vgd_dV_GP_S = d_Vgs_dV_GP_S;
-d_Vgd_dV_D_S = (d_Vgs_dV_D_S-d_Vds_dV_D_S);
 Vgd = (Vgs-Vds);
 
 d_Vdb_dV_S_BP = d_Vsb_dV_S_BP;
@@ -14233,9 +14200,6 @@ d_Vsbstar_dV_S_BP = (d_Vsb_dV_S_BP-(0.5*((d_temp_dV_S_BP)-(deriv_sqrt_0_d0*((((t
 d_Vsbstar_dV_D_S = (d_Vsb_dV_D_S-(0.5*((d_temp_dV_D_S)-(deriv_sqrt_0_d0*((((temp)*(d_temp_dV_D_S))+((d_temp_dV_D_S)*(temp))))))));
 Vsbstar = ((Vsb-(0.5*((temp)-value_sqrt_0)))+phix1);
 }
-
-d_Vdbstar_dV_S_BP = d_Vsbstar_dV_S_BP;
-d_Vdbstar_dV_D_S = (d_Vds_dV_D_S+d_Vsbstar_dV_D_S);
 Vdbstar = (Vds+Vsbstar);
 
 d_Vgbstar_dV_S_BP = d_Vsbstar_dV_S_BP;
@@ -17287,29 +17251,13 @@ d_Igisl_dV_S_BP = ((-AGIDLs)*((((VsbPrime*Vovs)*Vtovs)*d_temp2_dV_S_BP)+((((VsbP
 Igisl = ((-AGIDLs)*(((VsbPrime*Vovs)*Vtovs)*temp2));
 }
 }
-
-d_P_D_dV_S_BP = (0.25*(d_Gf_dV_S_BP*kp));
-d_P_D_dV_GP_S = (0.25*(d_Gf_dV_GP_S*kp));
-d_P_D_dV_D_S = (0.25*(d_Gf_dV_D_S*kp));
 P_D = (1+(0.25*(Gf*kp)));
 facvsb0 = (phib+(2*phit1));
-
-d_facvsb_dV_S_BP = d_Vsbstar_dV_S_BP;
-d_facvsb_dV_D_S = d_Vsbstar_dV_D_S;
 facvsb = (Vsbstar+facvsb0);
 {
 double value_sqrt_0 = sqrt((phit1*facvsb));
-double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
-
-d_vts_i_dV_S_BP = ((-d_Vsbstar_dV_S_BP)+(d_Gf_dV_S_BP*value_sqrt_0));
-d_vts_i_dV_GP_S = (d_Gf_dV_GP_S*value_sqrt_0);
-d_vts_i_dV_D_S = ((-d_Vsbstar_dV_D_S)+(d_Gf_dV_D_S*value_sqrt_0));
 vts_i = (((VFB_i+(P_D*facvsb))-Vsbstar)+(Gf*value_sqrt_0));
 }
-
-d_vth_i_dV_S_BP = (-d_delVg_dV_S_BP);
-d_vth_i_dV_GP_S = 0.0;
-d_vth_i_dV_D_S = (-d_delVg_dV_D_S);
 vth_i = (vts_i-delVg);
 }
 // End block evaluateStatic

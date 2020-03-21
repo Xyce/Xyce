@@ -11,7 +11,7 @@ instructions for building Xyce.
 
 Complete instructions for building Xyce are found in the Building
 Guide on the Xyce web site,
-https://xyce-d.sandia.gov/documentation/BuildingGuide.html Users
+https://xyce.sandia.gov/documentation/BuildingGuide.html Users
 interested in building Xyce should refer to that web page first, and
 only continue with this file for advanced questions about the
 operation of "configure".

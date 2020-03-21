@@ -30,7 +30,7 @@
 
 #include <Xyce_config.h>
 
-#include <N_IO_MeasureRelativeError.h>
+#include <N_IO_MeasureError.h>
 #include <N_IO_OutputPrn.h>
 #include <N_IO_OutputCsd.h>
 #include <N_ERH_ErrorMgr.h>
@@ -44,14 +44,14 @@ namespace IO {
 namespace Measure {
 
 //-----------------------------------------------------------------------------
-// Function      : RelativeError::RelativeError()
+// Function      : Error::Error()
 // Purpose       :
 // Special Notes : 
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-RelativeError::RelativeError(const Manager &measureMgr, const Util::OptionBlock & measureBlock ):
+Error::Error(const Manager &measureMgr, const Util::OptionBlock & measureBlock ):
   Base(measureMgr, measureBlock)
 {
   // indicate that this measure type is supported and should be processed in simulation
@@ -246,7 +246,7 @@ RelativeError::RelativeError(const Manager &measureMgr, const Util::OptionBlock 
 }
 
 //-----------------------------------------------------------------------------
-// Function      : RelativeError::prepareOutputVariables()
+// Function      : Error::prepareOutputVariables()
 // Purpose       : Validates that the number of output variables is legal for this
 //                 measure type, and then makes the vector for those variables.
 // Special Notes :
@@ -254,30 +254,30 @@ RelativeError::RelativeError(const Manager &measureMgr, const Util::OptionBlock 
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-void RelativeError::prepareOutputVariables()
+void Error::prepareOutputVariables()
 {
   // this measurement should have only one dependent variable.
-  // Error for now if it doesn't
+  // Error out if it doesn't
   numOutVars_ = outputVars_.size();
   
   if ( numOutVars_ > 1 )
   {
-    std::string msg = "Too many dependent variables for relative error measure, \"" + name_ + "\" Exiting.";
-    Report::UserFatal() << msg;
+    std::string msg = "Too many dependent variables for ERROR measure, \"" + name_ + "\"";
+    Report::UserError0() << msg;
   }
 
   outVarValues_.resize( numOutVars_, 0.0 );
 }
 
 //-----------------------------------------------------------------------------
-// Function      : RelativeError::reset()
+// Function      : Error::reset()
 // Purpose       : Called when restarting a measure function.  Resets any state
 // Special Notes :
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 8/28/2014
 //-----------------------------------------------------------------------------
-void RelativeError::reset() 
+void Error::reset() 
 {
   resetBase();
 
@@ -288,14 +288,14 @@ void RelativeError::reset()
 
 
 //-----------------------------------------------------------------------------
-// Function      : RelativeError::updateTran()
+// Function      : Error::updateTran()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void RelativeError::updateTran(
+void Error::updateTran(
   Parallel::Machine comm,
   const double circuitTime,
   const Linear::Vector *solnVec,
@@ -324,14 +324,14 @@ void RelativeError::updateTran(
 
 
 //-----------------------------------------------------------------------------
-// Function      : RelativeError::updateDC()
+// Function      : Error::updateDC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-void RelativeError::updateDC(
+void Error::updateDC(
   Parallel::Machine comm,
   const std::vector<Analysis::SweepParam> & dcParamsVec,
   const Linear::Vector *solnVec,
@@ -361,14 +361,14 @@ void RelativeError::updateDC(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : RelativeError::updateAC()
+// Function      : Error::updateAC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2014
 //-----------------------------------------------------------------------------
-void RelativeError::updateAC(
+void Error::updateAC(
   Parallel::Machine comm,
   const double frequency,
   const Linear::Vector *solnVec,
@@ -391,7 +391,7 @@ void RelativeError::updateAC(
 }
 
 //-----------------------------------------------------------------------------
-// Function      : RelativeError::printMeasureResult()
+// Function      : Error::printMeasureResult()
 // Purpose       : ERROR measure needs its own printMeasureResult() function
 //                 because it uses parallel comms.
 // Special Notes : 
@@ -399,7 +399,7 @@ void RelativeError::updateAC(
 // Creator       : Pete Sholander, Electrical and Microsystems Modeling
 // Creation Date : 8/03/2016
 //-----------------------------------------------------------------------------
-std::ostream& RelativeError::printMeasureResult(std::ostream& os, bool printVerbose)
+std::ostream& Error::printMeasureResult(std::ostream& os, bool printVerbose)
 {
   basic_ios_all_saver<std::ostream::char_type> save(os);
   os << std::scientific << std::setprecision(precision_);
@@ -445,14 +445,14 @@ std::ostream& RelativeError::printMeasureResult(std::ostream& os, bool printVerb
 }
 
 //-----------------------------------------------------------------------------
-// Function      : RelativeError::printMeasureWindow
+// Function      : Error::printMeasureWindow
 // Purpose       : prints information related to time/frequency window used.
 // Special Notes :
 // Scope         : public
 // Creator       : Pete Sholander, Electrical and Microsystem Modeling
 // Creation Date : 09/8/2016
 //-----------------------------------------------------------------------------
-std::ostream& RelativeError::printMeasureWindow(std::ostream& os, const double endSimTime)
+std::ostream& Error::printMeasureWindow(std::ostream& os, const double endSimTime)
 {
   // The measure window info is not printed for DC mode.
   if (mode_ != "DC")
@@ -472,14 +472,14 @@ std::ostream& RelativeError::printMeasureWindow(std::ostream& os, const double e
 }
 
 //-----------------------------------------------------------------------------
-// Function      : RelativeError::getMeasureResult()
+// Function      : Error::getMeasureResult()
 // Purpose       :
 // Special Notes :
 // Scope         : public
 // Creator       : Rich Schiek, Electrical and Microsystems Modeling
 // Creation Date : 3/10/2009
 //-----------------------------------------------------------------------------
-double RelativeError::getMeasureResult()
+double Error::getMeasureResult()
 {
   // Only need to execute these calculations on the first pass through this 
   // function.  This function will be called twice (once for the output to 
