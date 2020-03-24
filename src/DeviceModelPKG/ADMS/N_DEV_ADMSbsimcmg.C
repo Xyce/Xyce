@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Mar 2020 14:53:34
+// Creation Date  : Tue, 24 Mar 2020 14:42:32
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -11483,22 +11483,22 @@ std::cerr  << "Warning: initial_step is not triggered at the first execution of 
 else
 {
 
-d_vgs_noswap_dV_g_si = (devsign*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si]);
+d_vgs_noswap_dV_g_si = devsign*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si];
 vgs_noswap = (devsign*(probeVars[admsProbeID_V_g_si]));
 
-d_vds_noswap_dV_di_si = (devsign*d_probeVars[admsProbeID_V_di_si][admsProbeID_V_di_si]);
+d_vds_noswap_dV_di_si = devsign*d_probeVars[admsProbeID_V_di_si][admsProbeID_V_di_si];
 vds_noswap = (devsign*(probeVars[admsProbeID_V_di_si]));
 
-d_vgd_noswap_dV_g_di = (devsign*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di]);
+d_vgd_noswap_dV_g_di = devsign*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di];
 vgd_noswap = (devsign*(probeVars[admsProbeID_V_g_di]));
 
-d_ves_jct_dV_e_si = (devsign*d_probeVars[admsProbeID_V_e_si][admsProbeID_V_e_si]);
+d_ves_jct_dV_e_si = devsign*d_probeVars[admsProbeID_V_e_si][admsProbeID_V_e_si];
 ves_jct = (devsign*(probeVars[admsProbeID_V_e_si]));
 
-d_ved_jct_dV_e_di = (devsign*d_probeVars[admsProbeID_V_e_di][admsProbeID_V_e_di]);
+d_ved_jct_dV_e_di = devsign*d_probeVars[admsProbeID_V_e_di][admsProbeID_V_e_di];
 ved_jct = (devsign*(probeVars[admsProbeID_V_e_di]));
 
-d_vge_dV_g_e = (devsign*d_probeVars[admsProbeID_V_g_e][admsProbeID_V_g_e]);
+d_vge_dV_g_e = devsign*d_probeVars[admsProbeID_V_g_e][admsProbeID_V_g_e];
 vge = (devsign*(probeVars[admsProbeID_V_g_e]));
 sigvds = 1.0;
 if ((vds_noswap<0.0))
@@ -11509,7 +11509,7 @@ d_vgs_dV_di_si = (-d_vds_noswap_dV_di_si);
 d_vgs_dV_g_si = d_vgs_noswap_dV_g_si;
 vgs = (vgs_noswap-vds_noswap);
 
-d_vds_dV_di_si = ((-1.0)*d_vds_noswap_dV_di_si);
+d_vds_dV_di_si = (-1.0)*d_vds_noswap_dV_di_si;
 vds = ((-1.0)*vds_noswap);
 vgd = (vgd_noswap+vds_noswap);
 
@@ -11558,13 +11558,13 @@ Qedj = 0.0;
 double value_sqrt_0 = sqrt(((vds*vds)+0.01));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_vdsx_dV_di_si = (deriv_sqrt_0_d0*(((vds*d_vds_dV_di_si)+(d_vds_dV_di_si*vds))));
+d_vdsx_dV_di_si = (deriv_sqrt_0_d0*((vds*d_vds_dV_di_si+d_vds_dV_di_si*vds)));
 vdsx = (value_sqrt_0-0.1);
 }
 if (((model_.BULKMOD)!=0))
 {
 
-d_vesx_dV_di_si = (-(0.5*(d_vds_dV_di_si-d_vdsx_dV_di_si)));
+d_vesx_dV_di_si = (-0.5*(d_vds_dV_di_si-d_vdsx_dV_di_si));
 d_vesx_dV_e_di = d_ves_dV_e_di;
 d_vesx_dV_e_si = d_ves_dV_e_si;
 vesx = (ves-(0.5*(vds-vdsx)));
@@ -11579,9 +11579,9 @@ T2 = ((vesmax-vesx)-1.0E-3);
 double value_sqrt_0 = sqrt(((T2*T2)+(0.004*vesmax)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_veseff_dV_di_si = (-(0.5*(d_T2_dV_di_si+(deriv_sqrt_0_d0*(((T2*d_T2_dV_di_si)+(d_T2_dV_di_si*T2)))))));
-d_veseff_dV_e_di = (-(0.5*(d_T2_dV_e_di+(deriv_sqrt_0_d0*(((T2*d_T2_dV_e_di)+(d_T2_dV_e_di*T2)))))));
-d_veseff_dV_e_si = (-(0.5*(d_T2_dV_e_si+(deriv_sqrt_0_d0*(((T2*d_T2_dV_e_si)+(d_T2_dV_e_si*T2)))))));
+d_veseff_dV_di_si = (-0.5*(d_T2_dV_di_si+(deriv_sqrt_0_d0*((T2*d_T2_dV_di_si+d_T2_dV_di_si*T2)))));
+d_veseff_dV_e_di = (-0.5*(d_T2_dV_e_di+(deriv_sqrt_0_d0*((T2*d_T2_dV_e_di+d_T2_dV_e_di*T2)))));
+d_veseff_dV_e_si = (-0.5*(d_T2_dV_e_si+(deriv_sqrt_0_d0*((T2*d_T2_dV_e_si+d_T2_dV_e_si*T2)))));
 veseff = (vesmax-(0.5*(T2+value_sqrt_0)));
 }
 }
@@ -11590,11 +11590,11 @@ double value_tanh_0 = tanh(((0.6*vds_noswap)/Vtm));
 double  deriv_tanh_0_d0 = (1.0/cosh(((0.6*vds_noswap)/Vtm))/cosh(((0.6*vds_noswap)/Vtm)));
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si =  0.0;
-d_T0_dV_di_si = (deriv_tanh_0_d0*(((0.6*d_vds_noswap_dV_di_si)/Vtm)));
+d_T0_dV_di_si = (deriv_tanh_0_d0*((0.6*d_vds_noswap_dV_di_si/Vtm)));
 T0 = value_tanh_0;
 }
 
-d_wf_dV_di_si = (0.5*d_T0_dV_di_si);
+d_wf_dV_di_si = 0.5*d_T0_dV_di_si;
 wf = (0.5+(0.5*T0));
 
 d_wr_dV_di_si = (-d_wf_dV_di_si);
@@ -11602,28 +11602,28 @@ wr = (1.0-wf);
 if (((model_.ASYMMOD)!=0))
 {
 
-d_CDSCD_a_dV_di_si = ((CDSCDR_i*d_wr_dV_di_si)+(CDSCD_i*d_wf_dV_di_si));
+d_CDSCD_a_dV_di_si = (CDSCDR_i*d_wr_dV_di_si+CDSCD_i*d_wf_dV_di_si);
 CDSCD_a = ((CDSCDR_i*wr)+(CDSCD_i*wf));
 
-d_ETA0_a_dV_di_si = ((ETA0R_t*d_wr_dV_di_si)+(ETA0_t*d_wf_dV_di_si));
+d_ETA0_a_dV_di_si = (ETA0R_t*d_wr_dV_di_si+ETA0_t*d_wf_dV_di_si);
 ETA0_a = ((ETA0R_t*wr)+(ETA0_t*wf));
 
-d_PDIBL1_a_dV_di_si = ((PDIBL1R_i*d_wr_dV_di_si)+(PDIBL1_i*d_wf_dV_di_si));
+d_PDIBL1_a_dV_di_si = (PDIBL1R_i*d_wr_dV_di_si+PDIBL1_i*d_wf_dV_di_si);
 PDIBL1_a = ((PDIBL1R_i*wr)+(PDIBL1_i*wf));
 
-d_MEXP_a_dV_di_si = ((MEXPR_t*d_wr_dV_di_si)+(MEXP_t*d_wf_dV_di_si));
+d_MEXP_a_dV_di_si = (MEXPR_t*d_wr_dV_di_si+MEXP_t*d_wf_dV_di_si);
 MEXP_a = ((MEXPR_t*wr)+(MEXP_t*wf));
 
-d_PTWG_a_dV_di_si = ((PTWGR_t*d_wr_dV_di_si)+(PTWG_t*d_wf_dV_di_si));
+d_PTWG_a_dV_di_si = (PTWGR_t*d_wr_dV_di_si+PTWG_t*d_wf_dV_di_si);
 PTWG_a = ((PTWGR_t*wr)+(PTWG_t*wf));
 
-d_VSAT1_a_dV_di_si = ((VSAT1R_t*d_wr_dV_di_si)+(VSAT1_t*d_wf_dV_di_si));
+d_VSAT1_a_dV_di_si = (VSAT1R_t*d_wr_dV_di_si+VSAT1_t*d_wf_dV_di_si);
 VSAT1_a = ((VSAT1R_t*wr)+(VSAT1_t*wf));
 
-d_RSDR_a_dV_di_si = ((RSDRR_t*d_wr_dV_di_si)+(RSDR_t*d_wf_dV_di_si));
+d_RSDR_a_dV_di_si = (RSDRR_t*d_wr_dV_di_si+RSDR_t*d_wf_dV_di_si);
 RSDR_a = ((RSDRR_t*wr)+(RSDR_t*wf));
 
-d_RDDR_a_dV_di_si = ((RDDRR_t*d_wr_dV_di_si)+(RDDR_t*d_wf_dV_di_si));
+d_RDDR_a_dV_di_si = (RDDRR_t*d_wr_dV_di_si+RDDR_t*d_wf_dV_di_si);
 RDDR_a = ((RDDRR_t*wr)+(RDDR_t*wf));
 }
 else
@@ -11670,17 +11670,17 @@ d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_
 T1 = cox;
 }
 
-d_cdsc_dV_di_si = (Theta_SW*((CDSCD_a*d_vdsx_dV_di_si)+(d_CDSCD_a_dV_di_si*vdsx)));
+d_cdsc_dV_di_si = Theta_SW*(CDSCD_a*d_vdsx_dV_di_si+d_CDSCD_a_dV_di_si*vdsx);
 cdsc = (Theta_SW*(CDSC_i+(CDSCD_a*vdsx)));
 
-d_nVtm_dV_di_si = ((Vtm*ThetaSS)*((T1*d_cdsc_dV_di_si-((CIT_i/TRatio)+cdsc)*d_T1_dV_di_si)/T1/T1));
+d_nVtm_dV_di_si = (Vtm*ThetaSS)*((T1*d_cdsc_dV_di_si-((CIT_i/TRatio)+cdsc)*d_T1_dV_di_si)/T1/T1);
 nVtm = ((Vtm*ThetaSS)*(1.0+(((CIT_i/TRatio)+cdsc)/T1)));
 dvth_vtroll = (((-DVT0_i)*Theta_SCE)*(vbi-phist));
 {
 double value_pow_0 = pow(vdsx,(model_.DVTP1));
 double  deriv_pow_0_d0 = ((vdsx == 0.0)?0.0:(value_pow_0*(model_.DVTP1)/vdsx));
 
-d_dvth_dibl_dV_di_si = (((((-ETA0_a)*Theta_DIBL)*d_vdsx_dV_di_si)+(((-d_ETA0_a_dV_di_si)*Theta_DIBL)*vdsx))+((model_.DVTP0)*(deriv_pow_0_d0*(d_vdsx_dV_di_si))));
+d_dvth_dibl_dV_di_si = ((((-ETA0_a)*Theta_DIBL)*d_vdsx_dV_di_si+(-d_ETA0_a_dV_di_si)*Theta_DIBL*vdsx)+(model_.DVTP0)*(deriv_pow_0_d0*(d_vdsx_dV_di_si)));
 dvth_dibl = ((((-ETA0_a)*Theta_DIBL)*vdsx)+((model_.DVTP0)*value_pow_0));
 }
 {
@@ -11698,7 +11698,7 @@ if (((model_.GEOMOD)!=3))
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0((((2*epssub)*nVtm)/(1.60219e-19*Nc)));
 
-d_F1_dV_di_si = (0.5*evaluator_lln_0.getDerivs((((2*epssub)*nVtm)/(1.60219e-19*Nc)),(((2*epssub)*d_nVtm_dV_di_si)/(1.60219e-19*Nc))));
+d_F1_dV_di_si = 0.5*evaluator_lln_0.getDerivs((((2*epssub)*nVtm)/(1.60219e-19*Nc)),((2*epssub)*d_nVtm_dV_di_si/(1.60219e-19*Nc)));
 F1 = ((0.5*evaluator_lln_0.getValues((((2*epssub)*nVtm)/(1.60219e-19*Nc))))+F2);
 }
 if (((model_.COREMOD)!=0))
@@ -11709,7 +11709,7 @@ vgsfb = (vgsfb-((((0.5*1.60219e-19)*nbody)*TFIN)/cox));
 else
 {
 
-d_q0_dV_di_si = (((5.0*d_nVtm_dV_di_si)*(epssub/TFIN))/cox);
+d_q0_dV_di_si = (5.0*d_nVtm_dV_di_si*(epssub/TFIN)/cox);
 q0 = ((((5.0*nVtm)*(epssub/TFIN))+(2.0*Qbul))/cox);
 }
 if ((((model_.CAPMOD)!=0)&&((model_.BULKMOD)!=0)))
@@ -11726,7 +11726,7 @@ cdop = 1.0;
 else
 {
 
-d_q0_dV_di_si = ((2.0*d_nVtm_dV_di_si)*r1);
+d_q0_dV_di_si = 2.0*d_nVtm_dV_di_si*r1;
 q0 = ((2.0*nVtm)*r1);
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si = d_T0_dV_di_si =  0.0;
@@ -11736,19 +11736,19 @@ AnalogFunctions::llnEvaluator evaluator_lln_0((nVtm/T0));
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-T0)/((2.0*r1)*nVtm)));
 AnalogFunctions::llnEvaluator evaluator_lln_2((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1)*nVtm)))));
 
-d_vtdop_dV_di_si = ((((-nVtm)*evaluator_lln_0.getDerivs((nVtm/T0),((T0*d_nVtm_dV_di_si-nVtm*d_T0_dV_di_si)/T0/T0)))+((-d_nVtm_dV_di_si)*evaluator_lln_0.getValues((nVtm/T0))))-((nVtm*evaluator_lln_2.getDerivs((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1)*nVtm)))),(-evaluator_lexp_1.getDerivs(((-T0)/((2.0*r1)*nVtm)),((((2.0*r1)*nVtm)*(-d_T0_dV_di_si)-(-T0)*((2.0*r1)*d_nVtm_dV_di_si))/((2.0*r1)*nVtm)/((2.0*r1)*nVtm))))))+(d_nVtm_dV_di_si*evaluator_lln_2.getValues((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1)*nVtm))))))));
+d_vtdop_dV_di_si = (((-nVtm)*evaluator_lln_0.getDerivs((nVtm/T0),((T0*d_nVtm_dV_di_si-nVtm*d_T0_dV_di_si)/T0/T0))+(-d_nVtm_dV_di_si)*evaluator_lln_0.getValues((nVtm/T0)))-(nVtm*evaluator_lln_2.getDerivs((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1)*nVtm)))),(-evaluator_lexp_1.getDerivs(((-T0)/((2.0*r1)*nVtm)),((((2.0*r1)*nVtm)*(-d_T0_dV_di_si)-(-T0)*(2.0*r1)*d_nVtm_dV_di_si)/((2.0*r1)*nVtm)/((2.0*r1)*nVtm)))))+d_nVtm_dV_di_si*evaluator_lln_2.getValues((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1)*nVtm)))))));
 vtdop = (((-nVtm)*evaluator_lln_0.getValues((nVtm/T0)))-(nVtm*evaluator_lln_2.getValues((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1)*nVtm)))))));
 }
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-vtdop)/nVtm));
 
-d_cdop_dV_di_si = ((2.0*r1)*evaluator_lexp_0.getDerivs(((-vtdop)/nVtm),((nVtm*(-d_vtdop_dV_di_si)-(-vtdop)*d_nVtm_dV_di_si)/nVtm/nVtm)));
+d_cdop_dV_di_si = (2.0*r1)*evaluator_lexp_0.getDerivs(((-vtdop)/nVtm),((nVtm*(-d_vtdop_dV_di_si)-(-vtdop)*d_nVtm_dV_di_si)/nVtm/nVtm));
 cdop = ((2.0*r1)*evaluator_lexp_0.getValues(((-vtdop)/nVtm)));
 }
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(((0.5*T0)/nVtm));
 
-d_vt0_dV_di_si = ((((0.5*d_T0_dV_di_si)+(((2.0*phib)*d_nVtm_dV_di_si)/Vtm))-((nVtm*evaluator_lln_0.getDerivs(((0.5*T0)/nVtm),((nVtm*(0.5*d_T0_dV_di_si)-(0.5*T0)*d_nVtm_dV_di_si)/nVtm/nVtm)))+(d_nVtm_dV_di_si*evaluator_lln_0.getValues(((0.5*T0)/nVtm)))))+d_vtdop_dV_di_si);
+d_vt0_dV_di_si = (((0.5*d_T0_dV_di_si+((2.0*phib)*d_nVtm_dV_di_si/Vtm))-(nVtm*evaluator_lln_0.getDerivs(((0.5*T0)/nVtm),((nVtm*0.5*d_T0_dV_di_si-(0.5*T0)*d_nVtm_dV_di_si)/nVtm/nVtm))+d_nVtm_dV_di_si*evaluator_lln_0.getValues(((0.5*T0)/nVtm))))+d_vtdop_dV_di_si);
 vt0 = ((((0.5*T0)+(((2.0*phib)*nVtm)/Vtm))-(nVtm*evaluator_lln_0.getValues(((0.5*T0)/nVtm))))+vtdop);
 }
 if ((((model_.CAPMOD)!=0)&&((model_.BULKMOD)!=0)))
@@ -11762,19 +11762,19 @@ AnalogFunctions::llnEvaluator evaluator_lln_0((Vtm/T0));
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-T0)/((2.0*r1_acc)*Vtm)));
 AnalogFunctions::llnEvaluator evaluator_lln_2((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1_acc)*Vtm)))));
 
-d_vtdop_acc_dV_di_si = (((-Vtm)*evaluator_lln_0.getDerivs((Vtm/T0),(-Vtm*d_T0_dV_di_si/T0/T0)))-(Vtm*evaluator_lln_2.getDerivs((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1_acc)*Vtm)))),(-evaluator_lexp_1.getDerivs(((-T0)/((2.0*r1_acc)*Vtm)),((-d_T0_dV_di_si)/((2.0*r1_acc)*Vtm)))))));
+d_vtdop_acc_dV_di_si = ((-Vtm)*evaluator_lln_0.getDerivs((Vtm/T0),(-Vtm*d_T0_dV_di_si/T0/T0))-Vtm*evaluator_lln_2.getDerivs((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1_acc)*Vtm)))),(-evaluator_lexp_1.getDerivs(((-T0)/((2.0*r1_acc)*Vtm)),((-d_T0_dV_di_si)/((2.0*r1_acc)*Vtm))))));
 vtdop_acc = (((-Vtm)*evaluator_lln_0.getValues((Vtm/T0)))-(Vtm*evaluator_lln_2.getValues((1-evaluator_lexp_1.getValues(((-T0)/((2.0*r1_acc)*Vtm)))))));
 }
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-vtdop_acc)/Vtm));
 
-d_cdop_acc_dV_di_si = ((2.0*r1_acc)*evaluator_lexp_0.getDerivs(((-vtdop_acc)/Vtm),((-d_vtdop_acc_dV_di_si)/Vtm)));
+d_cdop_acc_dV_di_si = (2.0*r1_acc)*evaluator_lexp_0.getDerivs(((-vtdop_acc)/Vtm),((-d_vtdop_acc_dV_di_si)/Vtm));
 cdop_acc = ((2.0*r1_acc)*evaluator_lexp_0.getValues(((-vtdop_acc)/Vtm)));
 }
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(((0.5*T0)/Vtm));
 
-d_vt0_acc_dV_di_si = (((0.5*d_T0_dV_di_si)-(Vtm*evaluator_lln_0.getDerivs(((0.5*T0)/Vtm),((0.5*d_T0_dV_di_si)/Vtm))))+d_vtdop_acc_dV_di_si);
+d_vt0_acc_dV_di_si = ((0.5*d_T0_dV_di_si-Vtm*evaluator_lln_0.getDerivs(((0.5*T0)/Vtm),(0.5*d_T0_dV_di_si/Vtm)))+d_vtdop_acc_dV_di_si);
 vt0_acc = (((0.5*T0)-(Vtm*evaluator_lln_0.getValues(((0.5*T0)/Vtm))))+vtdop_acc);
 }
 }
@@ -11785,7 +11785,7 @@ if (((model_.GEOMOD)!=3))
 AnalogFunctions::llnEvaluator evaluator_lln_0((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)));
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si =  0.0;
-d_T0_dV_di_si = (-((nVtm*evaluator_lln_0.getDerivs((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)),(-((2.0*cox)*(model_.Imin))*((((beta0*d_nVtm_dV_di_si)*1.60219e-19)*Nc)*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))+(d_nVtm_dV_di_si*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))));
+d_T0_dV_di_si = (-(nVtm*evaluator_lln_0.getDerivs((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)),(-((2.0*cox)*(model_.Imin))*beta0*d_nVtm_dV_di_si*1.60219e-19*Nc*TFIN/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)))+d_nVtm_dV_di_si*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN)))));
 T0 = (-(dvch_qm+(nVtm*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*Nc)*TFIN))))));
 }
 
@@ -11807,12 +11807,12 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*ni)*R)));
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si =  0.0;
-d_T0_dV_di_si = (-((nVtm*evaluator_lln_0.getDerivs((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*ni)*R)),(-((2.0*cox)*(model_.Imin))*((((beta0*d_nVtm_dV_di_si)*1.60219e-19)*ni)*R)/((((beta0*nVtm)*1.60219e-19)*ni)*R)/((((beta0*nVtm)*1.60219e-19)*ni)*R))))+(d_nVtm_dV_di_si*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*ni)*R))))));
+d_T0_dV_di_si = (-(nVtm*evaluator_lln_0.getDerivs((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*ni)*R)),(-((2.0*cox)*(model_.Imin))*beta0*d_nVtm_dV_di_si*1.60219e-19*ni*R/((((beta0*nVtm)*1.60219e-19)*ni)*R)/((((beta0*nVtm)*1.60219e-19)*ni)*R)))+d_nVtm_dV_di_si*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*ni)*R)))));
 T0 = (-(dvch_qm+(nVtm*evaluator_lln_0.getValues((((2.0*cox)*(model_.Imin))/((((beta0*nVtm)*1.60219e-19)*ni)*R))))));
 }
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_g_e =  0.0;
-d_T1_dV_di_si = ((d_vgsfb_dV_di_si+d_T0_dV_di_si)+((phib*d_nVtm_dV_di_si)/Vtm));
+d_T1_dV_di_si = ((d_vgsfb_dV_di_si+d_T0_dV_di_si)+(phib*d_nVtm_dV_di_si/Vtm));
 d_T1_dV_g_si = (d_vgsfb_dV_g_si+d_T0_dV_g_si);
 T1 = ((((vgsfb+DELVTRAND)+T0)+(0.5*Eg))+((phib*nVtm)/Vtm));
 {
@@ -11855,29 +11855,29 @@ vgsfbeff_acc = (evaluator_hypsmooth_0.getValues(T1,1.0E-4)-vt0_acc);
 if (((model_.GEOMOD)!=3))
 {
 
-d_T14_dV_di_si = (2.0*d_nVtm_dV_di_si);
+d_T14_dV_di_si = 2.0*d_nVtm_dV_di_si;
 T14 = (2.0*nVtm);
 if (((model_.COREMOD)==0))
 {
 
-d_aab_dV_di_si = (-phibulk*((nVtm*d_nVtm_dV_di_si)+(d_nVtm_dV_di_si*nVtm))/(nVtm*nVtm)/(nVtm*nVtm));
+d_aab_dV_di_si = (-phibulk*(nVtm*d_nVtm_dV_di_si+d_nVtm_dV_di_si*nVtm)/(nVtm*nVtm)/(nVtm*nVtm));
 aab = (phibulk/(nVtm*nVtm));
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si =  0.0;
-d_T0_dV_di_si = (phibulk*d_aab_dV_di_si);
+d_T0_dV_di_si = phibulk*d_aab_dV_di_si;
 T0 = (phibulk*aab);
 
 d_T11_dV_e_si = d_T11_dV_e_di = d_T11_dV_g_e = d_T11_dV_g_si =  0.0;
-d_T11_dV_di_si = ((-(r1*phibulk)*d_nVtm_dV_di_si/nVtm/nVtm)+(r2*d_T0_dV_di_si));
+d_T11_dV_di_si = ((-(r1*phibulk)*d_nVtm_dV_di_si/nVtm/nVtm)+r2*d_T0_dV_di_si);
 T11 = (((r1*phibulk)/nVtm)+(r2*T0));
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((phibulk/(2.0*nVtm)));
 
-d_T12_dV_di_si = evaluator_lexp_0.getDerivs((phibulk/(2.0*nVtm)),(-phibulk*(2.0*d_nVtm_dV_di_si)/(2.0*nVtm)/(2.0*nVtm)));
+d_T12_dV_di_si = evaluator_lexp_0.getDerivs((phibulk/(2.0*nVtm)),(-phibulk*2.0*d_nVtm_dV_di_si/(2.0*nVtm)/(2.0*nVtm)));
 T12 = evaluator_lexp_0.getValues((phibulk/(2.0*nVtm)));
 }
 
-d_T13_dV_di_si = ((T12*d_T12_dV_di_si)+(d_T12_dV_di_si*T12));
+d_T13_dV_di_si = (T12*d_T12_dV_di_si+d_T12_dV_di_si*T12);
 T13 = (T12*T12);
 }
 }
@@ -11936,9 +11936,9 @@ double value_atan_0 = atan(((2*T0)*Inv_r1pi_acc));
 double  deriv_atan_0_d0 = (+1.0/(1+((2*T0)*Inv_r1pi_acc)*((2*T0)*Inv_r1pi_acc)));
 
 d_z2_dV_e_si = d_z2_dV_e_di =  0.0;
-d_z2_dV_di_si = (deriv_atan_0_d0*(((2*d_T0_dV_di_si)*Inv_r1pi_acc)));
-d_z2_dV_g_si = (deriv_atan_0_d0*(((2*d_T0_dV_g_si)*Inv_r1pi_acc)));
-d_z2_dV_g_e = (deriv_atan_0_d0*(((2*d_T0_dV_g_e)*Inv_r1pi_acc)));
+d_z2_dV_di_si = (deriv_atan_0_d0*(2*d_T0_dV_di_si*Inv_r1pi_acc));
+d_z2_dV_g_si = (deriv_atan_0_d0*(2*d_T0_dV_g_si*Inv_r1pi_acc));
+d_z2_dV_g_e = (deriv_atan_0_d0*(2*d_T0_dV_g_e*Inv_r1pi_acc));
 z2 = value_atan_0;
 }
 {
@@ -11990,17 +11990,17 @@ lng0 = evaluator_lln_0.getValues(g0);
 }
 
 d_secg0sq_dV_e_si = d_secg0sq_dV_e_di =  0.0;
-d_secg0sq_dV_di_si = ((tang0*d_tang0_dV_di_si)+(d_tang0_dV_di_si*tang0));
-d_secg0sq_dV_g_si = ((tang0*d_tang0_dV_g_si)+(d_tang0_dV_g_si*tang0));
-d_secg0sq_dV_g_e = ((tang0*d_tang0_dV_g_e)+(d_tang0_dV_g_e*tang0));
+d_secg0sq_dV_di_si = (tang0*d_tang0_dV_di_si+d_tang0_dV_di_si*tang0);
+d_secg0sq_dV_g_si = (tang0*d_tang0_dV_g_si+d_tang0_dV_g_si*tang0);
+d_secg0sq_dV_g_e = (tang0*d_tang0_dV_g_e+d_tang0_dV_g_e*tang0);
 secg0sq = ((tang0*tang0)+1.0);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(secg0sq);
 
 d_lncosg0_dV_e_si = d_lncosg0_dV_e_di =  0.0;
-d_lncosg0_dV_di_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si));
-d_lncosg0_dV_g_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si));
-d_lncosg0_dV_g_e = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e));
+d_lncosg0_dV_di_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si);
+d_lncosg0_dV_g_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si);
+d_lncosg0_dV_g_e = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e);
 lncosg0 = ((-0.5)*evaluator_lln_0.getValues(secg0sq));
 }
 
@@ -12011,39 +12011,39 @@ d_inv_g0_dV_g_e = (-d_g0_dV_g_e/g0/g0);
 inv_g0 = (1.0/g0);
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
 T0 = (g0*tang0);
 
 d_e0_dV_e_si = d_e0_dV_e_di =  0.0;
-d_e0_dV_di_si = (((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+(r1_acc*d_T0_dV_di_si))-d_F0_dV_di_si);
-d_e0_dV_g_si = (((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+(r1_acc*d_T0_dV_g_si))-d_F0_dV_g_si);
-d_e0_dV_g_e = (((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+(r1_acc*d_T0_dV_g_e))-d_F0_dV_g_e);
+d_e0_dV_di_si = (((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+r1_acc*d_T0_dV_di_si)-d_F0_dV_di_si);
+d_e0_dV_g_si = (((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+r1_acc*d_T0_dV_g_si)-d_F0_dV_g_si);
+d_e0_dV_g_e = (((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+r1_acc*d_T0_dV_g_e)-d_F0_dV_g_e);
 e0 = (((lng0-lncosg0)+(r1_acc*T0))-F0);
 
 d_e1_dV_e_si = d_e1_dV_e_di =  0.0;
-d_e1_dV_di_si = ((d_inv_g0_dV_di_si+(((secg0sq*d_g0_dV_di_si)+(d_secg0sq_dV_di_si*g0))*r1_acc))+(d_tang0_dV_di_si*(1.0+r1_acc)));
-d_e1_dV_g_si = ((d_inv_g0_dV_g_si+(((secg0sq*d_g0_dV_g_si)+(d_secg0sq_dV_g_si*g0))*r1_acc))+(d_tang0_dV_g_si*(1.0+r1_acc)));
-d_e1_dV_g_e = ((d_inv_g0_dV_g_e+(((secg0sq*d_g0_dV_g_e)+(d_secg0sq_dV_g_e*g0))*r1_acc))+(d_tang0_dV_g_e*(1.0+r1_acc)));
+d_e1_dV_di_si = ((d_inv_g0_dV_di_si+(secg0sq*d_g0_dV_di_si+d_secg0sq_dV_di_si*g0)*r1_acc)+d_tang0_dV_di_si*(1.0+r1_acc));
+d_e1_dV_g_si = ((d_inv_g0_dV_g_si+(secg0sq*d_g0_dV_g_si+d_secg0sq_dV_g_si*g0)*r1_acc)+d_tang0_dV_g_si*(1.0+r1_acc));
+d_e1_dV_g_e = ((d_inv_g0_dV_g_e+(secg0sq*d_g0_dV_g_e+d_secg0sq_dV_g_e*g0)*r1_acc)+d_tang0_dV_g_e*(1.0+r1_acc));
 e1 = ((inv_g0+((secg0sq*g0)*r1_acc))+(tang0*(1.0+r1_acc)));
 
 d_e2_dV_e_si = d_e2_dV_e_di =  0.0;
-d_e2_dV_di_si = (((secg0sq*(2.0*(d_T0_dV_di_si*r1_acc)))+(d_secg0sq_dV_di_si*(1.0+(2.0*(r1_acc+(T0*r1_acc))))))-((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0)));
-d_e2_dV_g_si = (((secg0sq*(2.0*(d_T0_dV_g_si*r1_acc)))+(d_secg0sq_dV_g_si*(1.0+(2.0*(r1_acc+(T0*r1_acc))))))-((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0)));
-d_e2_dV_g_e = (((secg0sq*(2.0*(d_T0_dV_g_e*r1_acc)))+(d_secg0sq_dV_g_e*(1.0+(2.0*(r1_acc+(T0*r1_acc))))))-((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0)));
+d_e2_dV_di_si = ((secg0sq*2.0*d_T0_dV_di_si*r1_acc+d_secg0sq_dV_di_si*(1.0+(2.0*(r1_acc+(T0*r1_acc)))))-(inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0));
+d_e2_dV_g_si = ((secg0sq*2.0*d_T0_dV_g_si*r1_acc+d_secg0sq_dV_g_si*(1.0+(2.0*(r1_acc+(T0*r1_acc)))))-(inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0));
+d_e2_dV_g_e = ((secg0sq*2.0*d_T0_dV_g_e*r1_acc+d_secg0sq_dV_g_e*(1.0+(2.0*(r1_acc+(T0*r1_acc)))))-(inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0));
 e2 = ((secg0sq*(1.0+(2.0*(r1_acc+(T0*r1_acc)))))-(inv_g0*inv_g0));
 
 d_e3_dV_e_si = d_e3_dV_e_di =  0.0;
-d_e3_dV_di_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si)+((((2.0*inv_g0)*d_inv_g0_dV_di_si)+((2.0*d_inv_g0_dV_di_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((2.0*g0)*d_secg0sq_dV_di_si)+((2.0*d_g0_dV_di_si)*secg0sq))*secg0sq))*r1_acc))+((((2.0*secg0sq)*tang0)*((2.0*r1_acc)*d_T0_dV_di_si))+((((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0))*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0)))));
-d_e3_dV_g_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si)+((((2.0*inv_g0)*d_inv_g0_dV_g_si)+((2.0*d_inv_g0_dV_g_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((2.0*g0)*d_secg0sq_dV_g_si)+((2.0*d_g0_dV_g_si)*secg0sq))*secg0sq))*r1_acc))+((((2.0*secg0sq)*tang0)*((2.0*r1_acc)*d_T0_dV_g_si))+((((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0))*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0)))));
-d_e3_dV_g_e = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e)+((((2.0*inv_g0)*d_inv_g0_dV_g_e)+((2.0*d_inv_g0_dV_g_e)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((2.0*g0)*d_secg0sq_dV_g_e)+((2.0*d_g0_dV_g_e)*secg0sq))*secg0sq))*r1_acc))+((((2.0*secg0sq)*tang0)*((2.0*r1_acc)*d_T0_dV_g_e))+((((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0))*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0)))));
+d_e3_dV_di_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si+((2.0*inv_g0)*d_inv_g0_dV_di_si+2.0*d_inv_g0_dV_di_si*inv_g0)*inv_g0)+(((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si+((2.0*g0)*d_secg0sq_dV_di_si+2.0*d_g0_dV_di_si*secg0sq)*secg0sq)*r1_acc)+(((2.0*secg0sq)*tang0)*(2.0*r1_acc)*d_T0_dV_di_si+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0)*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0))));
+d_e3_dV_g_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si+((2.0*inv_g0)*d_inv_g0_dV_g_si+2.0*d_inv_g0_dV_g_si*inv_g0)*inv_g0)+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si+((2.0*g0)*d_secg0sq_dV_g_si+2.0*d_g0_dV_g_si*secg0sq)*secg0sq)*r1_acc)+(((2.0*secg0sq)*tang0)*(2.0*r1_acc)*d_T0_dV_g_si+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0)*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0))));
+d_e3_dV_g_e = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e+((2.0*inv_g0)*d_inv_g0_dV_g_e+2.0*d_inv_g0_dV_g_e*inv_g0)*inv_g0)+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e+((2.0*g0)*d_secg0sq_dV_g_e+2.0*d_g0_dV_g_e*secg0sq)*secg0sq)*r1_acc)+(((2.0*secg0sq)*tang0)*(2.0*r1_acc)*d_T0_dV_g_e+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0)*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0))));
 e3 = (((((2.0*inv_g0)*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*r1_acc))+(((2.0*secg0sq)*tang0)*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0))));
 
 d_g0_dV_e_si = d_g0_dV_e_di =  0.0;
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -12081,17 +12081,17 @@ lng0 = evaluator_lln_0.getValues(g0);
 }
 
 d_secg0sq_dV_e_si = d_secg0sq_dV_e_di =  0.0;
-d_secg0sq_dV_di_si = ((tang0*d_tang0_dV_di_si)+(d_tang0_dV_di_si*tang0));
-d_secg0sq_dV_g_si = ((tang0*d_tang0_dV_g_si)+(d_tang0_dV_g_si*tang0));
-d_secg0sq_dV_g_e = ((tang0*d_tang0_dV_g_e)+(d_tang0_dV_g_e*tang0));
+d_secg0sq_dV_di_si = (tang0*d_tang0_dV_di_si+d_tang0_dV_di_si*tang0);
+d_secg0sq_dV_g_si = (tang0*d_tang0_dV_g_si+d_tang0_dV_g_si*tang0);
+d_secg0sq_dV_g_e = (tang0*d_tang0_dV_g_e+d_tang0_dV_g_e*tang0);
 secg0sq = ((tang0*tang0)+1.0);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(secg0sq);
 
 d_lncosg0_dV_e_si = d_lncosg0_dV_e_di =  0.0;
-d_lncosg0_dV_di_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si));
-d_lncosg0_dV_g_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si));
-d_lncosg0_dV_g_e = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e));
+d_lncosg0_dV_di_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si);
+d_lncosg0_dV_g_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si);
+d_lncosg0_dV_g_e = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e);
 lncosg0 = ((-0.5)*evaluator_lln_0.getValues(secg0sq));
 }
 
@@ -12102,39 +12102,39 @@ d_inv_g0_dV_g_e = (-d_g0_dV_g_e/g0/g0);
 inv_g0 = (1.0/g0);
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
 T0 = (g0*tang0);
 
 d_e0_dV_e_si = d_e0_dV_e_di =  0.0;
-d_e0_dV_di_si = (((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+(r1_acc*d_T0_dV_di_si))-d_F0_dV_di_si);
-d_e0_dV_g_si = (((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+(r1_acc*d_T0_dV_g_si))-d_F0_dV_g_si);
-d_e0_dV_g_e = (((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+(r1_acc*d_T0_dV_g_e))-d_F0_dV_g_e);
+d_e0_dV_di_si = (((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+r1_acc*d_T0_dV_di_si)-d_F0_dV_di_si);
+d_e0_dV_g_si = (((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+r1_acc*d_T0_dV_g_si)-d_F0_dV_g_si);
+d_e0_dV_g_e = (((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+r1_acc*d_T0_dV_g_e)-d_F0_dV_g_e);
 e0 = (((lng0-lncosg0)+(r1_acc*T0))-F0);
 
 d_e1_dV_e_si = d_e1_dV_e_di =  0.0;
-d_e1_dV_di_si = ((d_inv_g0_dV_di_si+(((secg0sq*d_g0_dV_di_si)+(d_secg0sq_dV_di_si*g0))*r1_acc))+(d_tang0_dV_di_si*(1.0+r1_acc)));
-d_e1_dV_g_si = ((d_inv_g0_dV_g_si+(((secg0sq*d_g0_dV_g_si)+(d_secg0sq_dV_g_si*g0))*r1_acc))+(d_tang0_dV_g_si*(1.0+r1_acc)));
-d_e1_dV_g_e = ((d_inv_g0_dV_g_e+(((secg0sq*d_g0_dV_g_e)+(d_secg0sq_dV_g_e*g0))*r1_acc))+(d_tang0_dV_g_e*(1.0+r1_acc)));
+d_e1_dV_di_si = ((d_inv_g0_dV_di_si+(secg0sq*d_g0_dV_di_si+d_secg0sq_dV_di_si*g0)*r1_acc)+d_tang0_dV_di_si*(1.0+r1_acc));
+d_e1_dV_g_si = ((d_inv_g0_dV_g_si+(secg0sq*d_g0_dV_g_si+d_secg0sq_dV_g_si*g0)*r1_acc)+d_tang0_dV_g_si*(1.0+r1_acc));
+d_e1_dV_g_e = ((d_inv_g0_dV_g_e+(secg0sq*d_g0_dV_g_e+d_secg0sq_dV_g_e*g0)*r1_acc)+d_tang0_dV_g_e*(1.0+r1_acc));
 e1 = ((inv_g0+((secg0sq*g0)*r1_acc))+(tang0*(1.0+r1_acc)));
 
 d_e2_dV_e_si = d_e2_dV_e_di =  0.0;
-d_e2_dV_di_si = (((secg0sq*(2.0*(d_T0_dV_di_si*r1_acc)))+(d_secg0sq_dV_di_si*(1.0+(2.0*(r1_acc+(T0*r1_acc))))))-((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0)));
-d_e2_dV_g_si = (((secg0sq*(2.0*(d_T0_dV_g_si*r1_acc)))+(d_secg0sq_dV_g_si*(1.0+(2.0*(r1_acc+(T0*r1_acc))))))-((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0)));
-d_e2_dV_g_e = (((secg0sq*(2.0*(d_T0_dV_g_e*r1_acc)))+(d_secg0sq_dV_g_e*(1.0+(2.0*(r1_acc+(T0*r1_acc))))))-((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0)));
+d_e2_dV_di_si = ((secg0sq*2.0*d_T0_dV_di_si*r1_acc+d_secg0sq_dV_di_si*(1.0+(2.0*(r1_acc+(T0*r1_acc)))))-(inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0));
+d_e2_dV_g_si = ((secg0sq*2.0*d_T0_dV_g_si*r1_acc+d_secg0sq_dV_g_si*(1.0+(2.0*(r1_acc+(T0*r1_acc)))))-(inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0));
+d_e2_dV_g_e = ((secg0sq*2.0*d_T0_dV_g_e*r1_acc+d_secg0sq_dV_g_e*(1.0+(2.0*(r1_acc+(T0*r1_acc)))))-(inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0));
 e2 = ((secg0sq*(1.0+(2.0*(r1_acc+(T0*r1_acc)))))-(inv_g0*inv_g0));
 
 d_e3_dV_e_si = d_e3_dV_e_di =  0.0;
-d_e3_dV_di_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si)+((((2.0*inv_g0)*d_inv_g0_dV_di_si)+((2.0*d_inv_g0_dV_di_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((2.0*g0)*d_secg0sq_dV_di_si)+((2.0*d_g0_dV_di_si)*secg0sq))*secg0sq))*r1_acc))+((((2.0*secg0sq)*tang0)*((2.0*r1_acc)*d_T0_dV_di_si))+((((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0))*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0)))));
-d_e3_dV_g_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si)+((((2.0*inv_g0)*d_inv_g0_dV_g_si)+((2.0*d_inv_g0_dV_g_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((2.0*g0)*d_secg0sq_dV_g_si)+((2.0*d_g0_dV_g_si)*secg0sq))*secg0sq))*r1_acc))+((((2.0*secg0sq)*tang0)*((2.0*r1_acc)*d_T0_dV_g_si))+((((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0))*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0)))));
-d_e3_dV_g_e = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e)+((((2.0*inv_g0)*d_inv_g0_dV_g_e)+((2.0*d_inv_g0_dV_g_e)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((2.0*g0)*d_secg0sq_dV_g_e)+((2.0*d_g0_dV_g_e)*secg0sq))*secg0sq))*r1_acc))+((((2.0*secg0sq)*tang0)*((2.0*r1_acc)*d_T0_dV_g_e))+((((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0))*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0)))));
+d_e3_dV_di_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si+((2.0*inv_g0)*d_inv_g0_dV_di_si+2.0*d_inv_g0_dV_di_si*inv_g0)*inv_g0)+(((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si+((2.0*g0)*d_secg0sq_dV_di_si+2.0*d_g0_dV_di_si*secg0sq)*secg0sq)*r1_acc)+(((2.0*secg0sq)*tang0)*(2.0*r1_acc)*d_T0_dV_di_si+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0)*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0))));
+d_e3_dV_g_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si+((2.0*inv_g0)*d_inv_g0_dV_g_si+2.0*d_inv_g0_dV_g_si*inv_g0)*inv_g0)+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si+((2.0*g0)*d_secg0sq_dV_g_si+2.0*d_g0_dV_g_si*secg0sq)*secg0sq)*r1_acc)+(((2.0*secg0sq)*tang0)*(2.0*r1_acc)*d_T0_dV_g_si+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0)*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0))));
+d_e3_dV_g_e = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e+((2.0*inv_g0)*d_inv_g0_dV_g_e+2.0*d_inv_g0_dV_g_e*inv_g0)*inv_g0)+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e+((2.0*g0)*d_secg0sq_dV_g_e+2.0*d_g0_dV_g_e*secg0sq)*secg0sq)*r1_acc)+(((2.0*secg0sq)*tang0)*(2.0*r1_acc)*d_T0_dV_g_e+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0)*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0))));
 e3 = (((((2.0*inv_g0)*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*r1_acc))+(((2.0*secg0sq)*tang0)*((1.0+(3.0*r1_acc))+((2.0*r1_acc)*T0))));
 
 d_g0_dV_e_si = d_g0_dV_e_di =  0.0;
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -12171,9 +12171,9 @@ AnalogFunctions::llnEvaluator evaluator_lln_0(g0a);
 AnalogFunctions::llnEvaluator evaluator_lln_1((1.0+(tang0a*tang0a)));
 
 d_qi_acc_dV_e_si = d_qi_acc_dV_e_di =  0.0;
-d_qi_acc_dV_di_si = (d_vgsfbeff_acc_dV_di_si-((2.0*Vtm)*(evaluator_lln_0.getDerivs(g0a,d_g0a_dV_di_si)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0a*tang0a)),((tang0a*d_tang0a_dV_di_si)+(d_tang0a_dV_di_si*tang0a)))))));
-d_qi_acc_dV_g_si = (d_vgsfbeff_acc_dV_g_si-((2.0*Vtm)*(evaluator_lln_0.getDerivs(g0a,d_g0a_dV_g_si)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0a*tang0a)),((tang0a*d_tang0a_dV_g_si)+(d_tang0a_dV_g_si*tang0a)))))));
-d_qi_acc_dV_g_e = (d_vgsfbeff_acc_dV_g_e-((2.0*Vtm)*(evaluator_lln_0.getDerivs(g0a,d_g0a_dV_g_e)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0a*tang0a)),((tang0a*d_tang0a_dV_g_e)+(d_tang0a_dV_g_e*tang0a)))))));
+d_qi_acc_dV_di_si = (d_vgsfbeff_acc_dV_di_si-(2.0*Vtm)*(evaluator_lln_0.getDerivs(g0a,d_g0a_dV_di_si)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0a*tang0a)),(tang0a*d_tang0a_dV_di_si+d_tang0a_dV_di_si*tang0a))));
+d_qi_acc_dV_g_si = (d_vgsfbeff_acc_dV_g_si-(2.0*Vtm)*(evaluator_lln_0.getDerivs(g0a,d_g0a_dV_g_si)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0a*tang0a)),(tang0a*d_tang0a_dV_g_si+d_tang0a_dV_g_si*tang0a))));
+d_qi_acc_dV_g_e = (d_vgsfbeff_acc_dV_g_e-(2.0*Vtm)*(evaluator_lln_0.getDerivs(g0a,d_g0a_dV_g_e)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0a*tang0a)),(tang0a*d_tang0a_dV_g_e+d_tang0a_dV_g_e*tang0a))));
 qi_acc = (vgsfbeff_acc-((2.0*Vtm)*((evaluator_lln_0.getValues(g0a)+(0.5*evaluator_lln_1.getValues((1.0+(tang0a*tang0a)))))+F1_acc)));
 }
 }
@@ -12213,9 +12213,9 @@ if ((F0<(-10)))
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((2*F0));
 
 d_g0_dV_e_si = d_g0_dV_e_di =  0.0;
-d_g0_dV_di_si = evaluator_lexp_0.getDerivs((2*F0),(2*d_F0_dV_di_si));
-d_g0_dV_g_si = evaluator_lexp_0.getDerivs((2*F0),(2*d_F0_dV_g_si));
-d_g0_dV_g_e = evaluator_lexp_0.getDerivs((2*F0),(2*d_F0_dV_g_e));
+d_g0_dV_di_si = evaluator_lexp_0.getDerivs((2*F0),2*d_F0_dV_di_si);
+d_g0_dV_g_si = evaluator_lexp_0.getDerivs((2*F0),2*d_F0_dV_g_si);
+d_g0_dV_g_e = evaluator_lexp_0.getDerivs((2*F0),2*d_F0_dV_g_e);
 g0 = evaluator_lexp_0.getValues((2*F0));
 }
 }
@@ -12237,9 +12237,9 @@ double value_sqrt_0 = sqrt((0.25+(((r1_acc*r1_acc)*T0)*T0)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
 d_g0_dV_e_si = d_g0_dV_e_di =  0.0;
-d_g0_dV_di_si = ((deriv_sqrt_0_d0*(((((r1_acc*r1_acc)*T0)*d_T0_dV_di_si)+(((r1_acc*r1_acc)*d_T0_dV_di_si)*T0))))/(r1_acc*r1_acc));
-d_g0_dV_g_si = ((deriv_sqrt_0_d0*(((((r1_acc*r1_acc)*T0)*d_T0_dV_g_si)+(((r1_acc*r1_acc)*d_T0_dV_g_si)*T0))))/(r1_acc*r1_acc));
-d_g0_dV_g_e = ((deriv_sqrt_0_d0*(((((r1_acc*r1_acc)*T0)*d_T0_dV_g_e)+(((r1_acc*r1_acc)*d_T0_dV_g_e)*T0))))/(r1_acc*r1_acc));
+d_g0_dV_di_si = ((deriv_sqrt_0_d0*((((r1_acc*r1_acc)*T0)*d_T0_dV_di_si+(r1_acc*r1_acc)*d_T0_dV_di_si*T0)))/(r1_acc*r1_acc));
+d_g0_dV_g_si = ((deriv_sqrt_0_d0*((((r1_acc*r1_acc)*T0)*d_T0_dV_g_si+(r1_acc*r1_acc)*d_T0_dV_g_si*T0)))/(r1_acc*r1_acc));
+d_g0_dV_g_e = ((deriv_sqrt_0_d0*((((r1_acc*r1_acc)*T0)*d_T0_dV_g_e+(r1_acc*r1_acc)*d_T0_dV_g_e*T0)))/(r1_acc*r1_acc));
 g0 = ((value_sqrt_0-0.5)/(r1_acc*r1_acc));
 }
 }
@@ -12278,15 +12278,15 @@ d_inv_g0_dV_g_e = (-d_g0_dV_g_e/g0/g0);
 inv_g0 = (1.0/g0);
 
 d_inv_g0sq_dV_e_si = d_inv_g0sq_dV_e_di =  0.0;
-d_inv_g0sq_dV_di_si = ((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0));
-d_inv_g0sq_dV_g_si = ((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0));
-d_inv_g0sq_dV_g_e = ((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0));
+d_inv_g0sq_dV_di_si = (inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0);
+d_inv_g0sq_dV_g_si = (inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0);
+d_inv_g0sq_dV_g_e = (inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0);
 inv_g0sq = (inv_g0*inv_g0);
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di =  0.0;
-d_T0_dV_g_si = (cdop_acc*d_g0_dV_g_si);
-d_T0_dV_g_e = (cdop_acc*d_g0_dV_g_e);
-d_T0_dV_di_si = ((cdop_acc*d_g0_dV_di_si)+(d_cdop_acc_dV_di_si*g0));
+d_T0_dV_g_si = cdop_acc*d_g0_dV_g_si;
+d_T0_dV_g_e = cdop_acc*d_g0_dV_g_e;
+d_T0_dV_di_si = (cdop_acc*d_g0_dV_di_si+d_cdop_acc_dV_di_si*g0);
 T0 = (1+(cdop_acc*g0));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di =  0.0;
@@ -12296,46 +12296,46 @@ d_T1_dV_di_si = ((T0*d_cdop_acc_dV_di_si-cdop_acc*d_T0_dV_di_si)/T0/T0);
 T1 = (cdop_acc/T0);
 
 d_T2_dV_g_di = d_T2_dV_e_si = d_T2_dV_e_di =  0.0;
-d_T2_dV_di_si = ((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1));
-d_T2_dV_g_si = ((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1));
-d_T2_dV_g_e = ((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1));
+d_T2_dV_di_si = (T1*d_T1_dV_di_si+d_T1_dV_di_si*T1);
+d_T2_dV_g_si = (T1*d_T1_dV_g_si+d_T1_dV_g_si*T1);
+d_T2_dV_g_e = (T1*d_T1_dV_g_e+d_T1_dV_g_e*T1);
 T2 = (T1*T1);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(g0);
 AnalogFunctions::llnEvaluator evaluator_lln_1(T0);
 
 d_e0_dV_e_si = d_e0_dV_e_di =  0.0;
-d_e0_dV_di_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si)))+(r1_acc*d_g0_dV_di_si))-d_F0_dV_di_si);
-d_e0_dV_g_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si)))+(r1_acc*d_g0_dV_g_si))-d_F0_dV_g_si);
-d_e0_dV_g_e = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e)))+(r1_acc*d_g0_dV_g_e))-d_F0_dV_g_e);
+d_e0_dV_di_si = (((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si))+r1_acc*d_g0_dV_di_si)-d_F0_dV_di_si);
+d_e0_dV_g_si = (((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si))+r1_acc*d_g0_dV_g_si)-d_F0_dV_g_si);
+d_e0_dV_g_e = (((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e))+r1_acc*d_g0_dV_g_e)-d_F0_dV_g_e);
 e0 = ((((0.5*evaluator_lln_0.getValues(g0))+(0.5*evaluator_lln_1.getValues(T0)))+(r1_acc*g0))-F0);
 }
 
 d_e1_dV_e_si = d_e1_dV_e_di =  0.0;
-d_e1_dV_di_si = ((0.5*d_inv_g0_dV_di_si)+(0.5*d_T1_dV_di_si));
-d_e1_dV_g_si = ((0.5*d_inv_g0_dV_g_si)+(0.5*d_T1_dV_g_si));
-d_e1_dV_g_e = ((0.5*d_inv_g0_dV_g_e)+(0.5*d_T1_dV_g_e));
+d_e1_dV_di_si = (0.5*d_inv_g0_dV_di_si+0.5*d_T1_dV_di_si);
+d_e1_dV_g_si = (0.5*d_inv_g0_dV_g_si+0.5*d_T1_dV_g_si);
+d_e1_dV_g_e = (0.5*d_inv_g0_dV_g_e+0.5*d_T1_dV_g_e);
 e1 = (((0.5*inv_g0)+(0.5*T1))+r1_acc);
 
-d_e2_dV_e_di = (((-0.5)*d_inv_g0sq_dV_e_di)-(0.5*d_T2_dV_e_di));
-d_e2_dV_e_si = (((-0.5)*d_inv_g0sq_dV_e_si)-(0.5*d_T2_dV_e_si));
-d_e2_dV_di_si = (((-0.5)*d_inv_g0sq_dV_di_si)-(0.5*d_T2_dV_di_si));
-d_e2_dV_g_si = (((-0.5)*d_inv_g0sq_dV_g_si)-(0.5*d_T2_dV_g_si));
-d_e2_dV_g_e = (((-0.5)*d_inv_g0sq_dV_g_e)-(0.5*d_T2_dV_g_e));
+d_e2_dV_e_di = ((-0.5)*d_inv_g0sq_dV_e_di-0.5*d_T2_dV_e_di);
+d_e2_dV_e_si = ((-0.5)*d_inv_g0sq_dV_e_si-0.5*d_T2_dV_e_si);
+d_e2_dV_di_si = ((-0.5)*d_inv_g0sq_dV_di_si-0.5*d_T2_dV_di_si);
+d_e2_dV_g_si = ((-0.5)*d_inv_g0sq_dV_g_si-0.5*d_T2_dV_g_si);
+d_e2_dV_g_e = ((-0.5)*d_inv_g0sq_dV_g_e-0.5*d_T2_dV_g_e);
 e2 = (((-0.5)*inv_g0sq)-(0.5*T2));
 
-d_e3_dV_e_di = (((inv_g0*d_inv_g0sq_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0sq))+((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*T1)));
-d_e3_dV_e_si = (((inv_g0*d_inv_g0sq_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0sq))+((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*T1)));
-d_e3_dV_di_si = (((inv_g0*d_inv_g0sq_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0sq))+((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*T1)));
-d_e3_dV_g_si = (((inv_g0*d_inv_g0sq_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0sq))+((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*T1)));
-d_e3_dV_g_e = (((inv_g0*d_inv_g0sq_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0sq))+((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*T1)));
+d_e3_dV_e_di = ((inv_g0*d_inv_g0sq_dV_e_di+d_inv_g0_dV_e_di*inv_g0sq)+(T2*d_T1_dV_e_di+d_T2_dV_e_di*T1));
+d_e3_dV_e_si = ((inv_g0*d_inv_g0sq_dV_e_si+d_inv_g0_dV_e_si*inv_g0sq)+(T2*d_T1_dV_e_si+d_T2_dV_e_si*T1));
+d_e3_dV_di_si = ((inv_g0*d_inv_g0sq_dV_di_si+d_inv_g0_dV_di_si*inv_g0sq)+(T2*d_T1_dV_di_si+d_T2_dV_di_si*T1));
+d_e3_dV_g_si = ((inv_g0*d_inv_g0sq_dV_g_si+d_inv_g0_dV_g_si*inv_g0sq)+(T2*d_T1_dV_g_si+d_T2_dV_g_si*T1));
+d_e3_dV_g_e = ((inv_g0*d_inv_g0sq_dV_g_e+d_inv_g0_dV_g_e*inv_g0sq)+(T2*d_T1_dV_g_e+d_T2_dV_g_e*T1));
 e3 = ((inv_g0*inv_g0sq)+(T2*T1));
 
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -12360,19 +12360,19 @@ d_inv_g0_dV_e_di = (-d_g0_dV_e_di/g0/g0);
 d_inv_g0_dV_e_si = (-d_g0_dV_e_si/g0/g0);
 inv_g0 = (1.0/g0);
 
-d_inv_g0sq_dV_di_si = ((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0));
-d_inv_g0sq_dV_g_si = ((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0));
-d_inv_g0sq_dV_g_e = ((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0));
-d_inv_g0sq_dV_e_di = ((inv_g0*d_inv_g0_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0));
-d_inv_g0sq_dV_e_si = ((inv_g0*d_inv_g0_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0));
+d_inv_g0sq_dV_di_si = (inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0);
+d_inv_g0sq_dV_g_si = (inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0);
+d_inv_g0sq_dV_g_e = (inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0);
+d_inv_g0sq_dV_e_di = (inv_g0*d_inv_g0_dV_e_di+d_inv_g0_dV_e_di*inv_g0);
+d_inv_g0sq_dV_e_si = (inv_g0*d_inv_g0_dV_e_si+d_inv_g0_dV_e_si*inv_g0);
 inv_g0sq = (inv_g0*inv_g0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_g_si = (cdop_acc*d_g0_dV_g_si);
-d_T0_dV_g_e = (cdop_acc*d_g0_dV_g_e);
-d_T0_dV_e_di = (cdop_acc*d_g0_dV_e_di);
-d_T0_dV_e_si = (cdop_acc*d_g0_dV_e_si);
-d_T0_dV_di_si = ((cdop_acc*d_g0_dV_di_si)+(d_cdop_acc_dV_di_si*g0));
+d_T0_dV_g_si = cdop_acc*d_g0_dV_g_si;
+d_T0_dV_g_e = cdop_acc*d_g0_dV_g_e;
+d_T0_dV_e_di = cdop_acc*d_g0_dV_e_di;
+d_T0_dV_e_si = cdop_acc*d_g0_dV_e_si;
+d_T0_dV_di_si = (cdop_acc*d_g0_dV_di_si+d_cdop_acc_dV_di_si*g0);
 T0 = (1+(cdop_acc*g0));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
@@ -12384,50 +12384,50 @@ d_T1_dV_di_si = ((T0*d_cdop_acc_dV_di_si-cdop_acc*d_T0_dV_di_si)/T0/T0);
 T1 = (cdop_acc/T0);
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = ((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1));
-d_T2_dV_g_si = ((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1));
-d_T2_dV_g_e = ((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1));
-d_T2_dV_e_di = ((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1));
-d_T2_dV_e_si = ((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1));
+d_T2_dV_di_si = (T1*d_T1_dV_di_si+d_T1_dV_di_si*T1);
+d_T2_dV_g_si = (T1*d_T1_dV_g_si+d_T1_dV_g_si*T1);
+d_T2_dV_g_e = (T1*d_T1_dV_g_e+d_T1_dV_g_e*T1);
+d_T2_dV_e_di = (T1*d_T1_dV_e_di+d_T1_dV_e_di*T1);
+d_T2_dV_e_si = (T1*d_T1_dV_e_si+d_T1_dV_e_si*T1);
 T2 = (T1*T1);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(g0);
 AnalogFunctions::llnEvaluator evaluator_lln_1(T0);
 
-d_e0_dV_di_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si)))+(r1_acc*d_g0_dV_di_si))-d_F0_dV_di_si);
-d_e0_dV_g_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si)))+(r1_acc*d_g0_dV_g_si))-d_F0_dV_g_si);
-d_e0_dV_g_e = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e)))+(r1_acc*d_g0_dV_g_e))-d_F0_dV_g_e);
-d_e0_dV_e_di = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di)))+(r1_acc*d_g0_dV_e_di))-d_F0_dV_e_di);
-d_e0_dV_e_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si)))+(r1_acc*d_g0_dV_e_si))-d_F0_dV_e_si);
+d_e0_dV_di_si = (((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si))+r1_acc*d_g0_dV_di_si)-d_F0_dV_di_si);
+d_e0_dV_g_si = (((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si))+r1_acc*d_g0_dV_g_si)-d_F0_dV_g_si);
+d_e0_dV_g_e = (((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e))+r1_acc*d_g0_dV_g_e)-d_F0_dV_g_e);
+d_e0_dV_e_di = (((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di))+r1_acc*d_g0_dV_e_di)-d_F0_dV_e_di);
+d_e0_dV_e_si = (((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si))+r1_acc*d_g0_dV_e_si)-d_F0_dV_e_si);
 e0 = ((((0.5*evaluator_lln_0.getValues(g0))+(0.5*evaluator_lln_1.getValues(T0)))+(r1_acc*g0))-F0);
 }
 
-d_e1_dV_di_si = ((0.5*d_inv_g0_dV_di_si)+(0.5*d_T1_dV_di_si));
-d_e1_dV_g_si = ((0.5*d_inv_g0_dV_g_si)+(0.5*d_T1_dV_g_si));
-d_e1_dV_g_e = ((0.5*d_inv_g0_dV_g_e)+(0.5*d_T1_dV_g_e));
-d_e1_dV_e_di = ((0.5*d_inv_g0_dV_e_di)+(0.5*d_T1_dV_e_di));
-d_e1_dV_e_si = ((0.5*d_inv_g0_dV_e_si)+(0.5*d_T1_dV_e_si));
+d_e1_dV_di_si = (0.5*d_inv_g0_dV_di_si+0.5*d_T1_dV_di_si);
+d_e1_dV_g_si = (0.5*d_inv_g0_dV_g_si+0.5*d_T1_dV_g_si);
+d_e1_dV_g_e = (0.5*d_inv_g0_dV_g_e+0.5*d_T1_dV_g_e);
+d_e1_dV_e_di = (0.5*d_inv_g0_dV_e_di+0.5*d_T1_dV_e_di);
+d_e1_dV_e_si = (0.5*d_inv_g0_dV_e_si+0.5*d_T1_dV_e_si);
 e1 = (((0.5*inv_g0)+(0.5*T1))+r1_acc);
 
-d_e2_dV_di_si = (((-0.5)*d_inv_g0sq_dV_di_si)-(0.5*d_T2_dV_di_si));
-d_e2_dV_g_si = (((-0.5)*d_inv_g0sq_dV_g_si)-(0.5*d_T2_dV_g_si));
-d_e2_dV_g_e = (((-0.5)*d_inv_g0sq_dV_g_e)-(0.5*d_T2_dV_g_e));
-d_e2_dV_e_di = (((-0.5)*d_inv_g0sq_dV_e_di)-(0.5*d_T2_dV_e_di));
-d_e2_dV_e_si = (((-0.5)*d_inv_g0sq_dV_e_si)-(0.5*d_T2_dV_e_si));
+d_e2_dV_di_si = ((-0.5)*d_inv_g0sq_dV_di_si-0.5*d_T2_dV_di_si);
+d_e2_dV_g_si = ((-0.5)*d_inv_g0sq_dV_g_si-0.5*d_T2_dV_g_si);
+d_e2_dV_g_e = ((-0.5)*d_inv_g0sq_dV_g_e-0.5*d_T2_dV_g_e);
+d_e2_dV_e_di = ((-0.5)*d_inv_g0sq_dV_e_di-0.5*d_T2_dV_e_di);
+d_e2_dV_e_si = ((-0.5)*d_inv_g0sq_dV_e_si-0.5*d_T2_dV_e_si);
 e2 = (((-0.5)*inv_g0sq)-(0.5*T2));
 
-d_e3_dV_di_si = (((inv_g0*d_inv_g0sq_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0sq))+((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*T1)));
-d_e3_dV_g_si = (((inv_g0*d_inv_g0sq_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0sq))+((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*T1)));
-d_e3_dV_g_e = (((inv_g0*d_inv_g0sq_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0sq))+((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*T1)));
-d_e3_dV_e_di = (((inv_g0*d_inv_g0sq_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0sq))+((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*T1)));
-d_e3_dV_e_si = (((inv_g0*d_inv_g0sq_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0sq))+((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*T1)));
+d_e3_dV_di_si = ((inv_g0*d_inv_g0sq_dV_di_si+d_inv_g0_dV_di_si*inv_g0sq)+(T2*d_T1_dV_di_si+d_T2_dV_di_si*T1));
+d_e3_dV_g_si = ((inv_g0*d_inv_g0sq_dV_g_si+d_inv_g0_dV_g_si*inv_g0sq)+(T2*d_T1_dV_g_si+d_T2_dV_g_si*T1));
+d_e3_dV_g_e = ((inv_g0*d_inv_g0sq_dV_g_e+d_inv_g0_dV_g_e*inv_g0sq)+(T2*d_T1_dV_g_e+d_T2_dV_g_e*T1));
+d_e3_dV_e_di = ((inv_g0*d_inv_g0sq_dV_e_di+d_inv_g0_dV_e_di*inv_g0sq)+(T2*d_T1_dV_e_di+d_T2_dV_e_di*T1));
+d_e3_dV_e_si = ((inv_g0*d_inv_g0sq_dV_e_si+d_inv_g0_dV_e_si*inv_g0sq)+(T2*d_T1_dV_e_si+d_T2_dV_e_si*T1));
 e3 = ((inv_g0*inv_g0sq)+(T2*T1));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -12453,24 +12453,24 @@ d_g0a_dV_e_si = d_g0_dV_e_si;
 g0a = g0;
 }
 
-d_qi_acc_dV_di_si = (q0_acc*d_g0a_dV_di_si);
-d_qi_acc_dV_g_si = (q0_acc*d_g0a_dV_g_si);
-d_qi_acc_dV_g_e = (q0_acc*d_g0a_dV_g_e);
-d_qi_acc_dV_e_di = (q0_acc*d_g0a_dV_e_di);
-d_qi_acc_dV_e_si = (q0_acc*d_g0a_dV_e_si);
+d_qi_acc_dV_di_si = q0_acc*d_g0a_dV_di_si;
+d_qi_acc_dV_g_si = q0_acc*d_g0a_dV_g_si;
+d_qi_acc_dV_g_e = q0_acc*d_g0a_dV_g_e;
+d_qi_acc_dV_e_di = q0_acc*d_g0a_dV_e_di;
+d_qi_acc_dV_e_si = q0_acc*d_g0a_dV_e_si;
 qi_acc = (q0_acc*g0a);
 }
 }
 
 d_vch_dV_di_si = d_vch_dV_e_si = d_vch_dV_e_di = d_vch_dV_g_e = d_vch_dV_g_si =  0.0;
-vch = (+dvch_qm);
+vch = dvch_qm;
 if (((model_.GEOMOD)!=3))
 {
 if (((model_.COREMOD)!=0))
 {
 
 d_F0_dV_e_si = d_F0_dV_e_di = d_F0_dV_g_e =  0.0;
-d_F0_dV_di_si = ((((2.0*nVtm)*(d_vgsfbeff_dV_di_si-d_vch_dV_di_si)-(vgsfbeff-vch)*(2.0*d_nVtm_dV_di_si))/(2.0*nVtm)/(2.0*nVtm))-d_F1_dV_di_si);
+d_F0_dV_di_si = ((((2.0*nVtm)*(d_vgsfbeff_dV_di_si-d_vch_dV_di_si)-(vgsfbeff-vch)*2.0*d_nVtm_dV_di_si)/(2.0*nVtm)/(2.0*nVtm))-d_F1_dV_di_si);
 d_F0_dV_g_si = ((d_vgsfbeff_dV_g_si-d_vch_dV_g_si)/(2.0*nVtm));
 F0 = (((vgsfbeff-vch)/(2.0*nVtm))-F1);
 {
@@ -12517,11 +12517,11 @@ T0 = evaluator_lln_0.getValues((1.0+expff));
 double value_atan_0 = atan(((2*T0)*Inv_r1pi));
 double  deriv_atan_0_d0 = (+1.0/(1+((2*T0)*Inv_r1pi)*((2*T0)*Inv_r1pi)));
 
-d_z2_dV_di_si = (deriv_atan_0_d0*(((2*d_T0_dV_di_si)*Inv_r1pi)));
-d_z2_dV_g_si = (deriv_atan_0_d0*(((2*d_T0_dV_g_si)*Inv_r1pi)));
-d_z2_dV_g_e = (deriv_atan_0_d0*(((2*d_T0_dV_g_e)*Inv_r1pi)));
-d_z2_dV_e_di = (deriv_atan_0_d0*(((2*d_T0_dV_e_di)*Inv_r1pi)));
-d_z2_dV_e_si = (deriv_atan_0_d0*(((2*d_T0_dV_e_si)*Inv_r1pi)));
+d_z2_dV_di_si = (deriv_atan_0_d0*(2*d_T0_dV_di_si*Inv_r1pi));
+d_z2_dV_g_si = (deriv_atan_0_d0*(2*d_T0_dV_g_si*Inv_r1pi));
+d_z2_dV_g_e = (deriv_atan_0_d0*(2*d_T0_dV_g_e*Inv_r1pi));
+d_z2_dV_e_di = (deriv_atan_0_d0*(2*d_T0_dV_e_di*Inv_r1pi));
+d_z2_dV_e_si = (deriv_atan_0_d0*(2*d_T0_dV_e_si*Inv_r1pi));
 z2 = value_atan_0;
 }
 {
@@ -12575,20 +12575,20 @@ d_lng0_dV_e_si = evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si);
 lng0 = evaluator_lln_0.getValues(g0);
 }
 
-d_secg0sq_dV_di_si = ((tang0*d_tang0_dV_di_si)+(d_tang0_dV_di_si*tang0));
-d_secg0sq_dV_g_si = ((tang0*d_tang0_dV_g_si)+(d_tang0_dV_g_si*tang0));
-d_secg0sq_dV_g_e = ((tang0*d_tang0_dV_g_e)+(d_tang0_dV_g_e*tang0));
-d_secg0sq_dV_e_di = ((tang0*d_tang0_dV_e_di)+(d_tang0_dV_e_di*tang0));
-d_secg0sq_dV_e_si = ((tang0*d_tang0_dV_e_si)+(d_tang0_dV_e_si*tang0));
+d_secg0sq_dV_di_si = (tang0*d_tang0_dV_di_si+d_tang0_dV_di_si*tang0);
+d_secg0sq_dV_g_si = (tang0*d_tang0_dV_g_si+d_tang0_dV_g_si*tang0);
+d_secg0sq_dV_g_e = (tang0*d_tang0_dV_g_e+d_tang0_dV_g_e*tang0);
+d_secg0sq_dV_e_di = (tang0*d_tang0_dV_e_di+d_tang0_dV_e_di*tang0);
+d_secg0sq_dV_e_si = (tang0*d_tang0_dV_e_si+d_tang0_dV_e_si*tang0);
 secg0sq = ((tang0*tang0)+1.0);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(secg0sq);
 
-d_lncosg0_dV_di_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si));
-d_lncosg0_dV_g_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si));
-d_lncosg0_dV_g_e = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e));
-d_lncosg0_dV_e_di = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_di));
-d_lncosg0_dV_e_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_si));
+d_lncosg0_dV_di_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si);
+d_lncosg0_dV_g_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si);
+d_lncosg0_dV_g_e = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e);
+d_lncosg0_dV_e_di = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_di);
+d_lncosg0_dV_e_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_si);
 lncosg0 = ((-0.5)*evaluator_lln_0.getValues(secg0sq));
 }
 
@@ -12600,54 +12600,54 @@ d_inv_g0_dV_e_si = (-d_g0_dV_e_si/g0/g0);
 inv_g0 = (1.0/g0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
-d_T0_dV_e_di = ((g0*d_tang0_dV_e_di)+(d_g0_dV_e_di*tang0));
-d_T0_dV_e_si = ((g0*d_tang0_dV_e_si)+(d_g0_dV_e_si*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
+d_T0_dV_e_di = (g0*d_tang0_dV_e_di+d_g0_dV_e_di*tang0);
+d_T0_dV_e_si = (g0*d_tang0_dV_e_si+d_g0_dV_e_si*tang0);
 T0 = (g0*tang0);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0));
-d_T1_dV_g_si = ((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0));
-d_T1_dV_g_e = ((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0));
-d_T1_dV_e_di = ((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0));
-d_T1_dV_e_si = ((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0));
+d_T1_dV_di_si = (T0*d_T0_dV_di_si+d_T0_dV_di_si*T0);
+d_T1_dV_g_si = (T0*d_T0_dV_g_si+d_T0_dV_g_si*T0);
+d_T1_dV_g_e = (T0*d_T0_dV_g_e+d_T0_dV_g_e*T0);
+d_T1_dV_e_di = (T0*d_T0_dV_e_di+d_T0_dV_e_di*T0);
+d_T1_dV_e_si = (T0*d_T0_dV_e_si+d_T0_dV_e_si*T0);
 T1 = (T0*T0);
 
-d_e0_dV_di_si = ((((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+(r1*d_T0_dV_di_si))+(r2*d_T1_dV_di_si))-d_F0_dV_di_si);
-d_e0_dV_g_si = ((((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+(r1*d_T0_dV_g_si))+(r2*d_T1_dV_g_si))-d_F0_dV_g_si);
-d_e0_dV_g_e = ((((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+(r1*d_T0_dV_g_e))+(r2*d_T1_dV_g_e))-d_F0_dV_g_e);
-d_e0_dV_e_di = ((((d_lng0_dV_e_di-d_lncosg0_dV_e_di)+(r1*d_T0_dV_e_di))+(r2*d_T1_dV_e_di))-d_F0_dV_e_di);
-d_e0_dV_e_si = ((((d_lng0_dV_e_si-d_lncosg0_dV_e_si)+(r1*d_T0_dV_e_si))+(r2*d_T1_dV_e_si))-d_F0_dV_e_si);
+d_e0_dV_di_si = ((((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+r1*d_T0_dV_di_si)+r2*d_T1_dV_di_si)-d_F0_dV_di_si);
+d_e0_dV_g_si = ((((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+r1*d_T0_dV_g_si)+r2*d_T1_dV_g_si)-d_F0_dV_g_si);
+d_e0_dV_g_e = ((((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+r1*d_T0_dV_g_e)+r2*d_T1_dV_g_e)-d_F0_dV_g_e);
+d_e0_dV_e_di = ((((d_lng0_dV_e_di-d_lncosg0_dV_e_di)+r1*d_T0_dV_e_di)+r2*d_T1_dV_e_di)-d_F0_dV_e_di);
+d_e0_dV_e_si = ((((d_lng0_dV_e_si-d_lncosg0_dV_e_si)+r1*d_T0_dV_e_si)+r2*d_T1_dV_e_si)-d_F0_dV_e_si);
 e0 = ((((lng0-lncosg0)+(r1*T0))+(r2*T1))-F0);
 
-d_e1_dV_di_si = ((d_inv_g0_dV_di_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_di_si))+(((secg0sq*d_g0_dV_di_si)+(d_secg0sq_dV_di_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_di_si))+(d_tang0_dV_di_si*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_g_si = ((d_inv_g0_dV_g_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_g_si))+(((secg0sq*d_g0_dV_g_si)+(d_secg0sq_dV_g_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_g_si))+(d_tang0_dV_g_si*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_g_e = ((d_inv_g0_dV_g_e+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_g_e))+(((secg0sq*d_g0_dV_g_e)+(d_secg0sq_dV_g_e*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_g_e))+(d_tang0_dV_g_e*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_e_di = ((d_inv_g0_dV_e_di+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_e_di))+(((secg0sq*d_g0_dV_e_di)+(d_secg0sq_dV_e_di*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_e_di))+(d_tang0_dV_e_di*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_e_si = ((d_inv_g0_dV_e_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_e_si))+(((secg0sq*d_g0_dV_e_si)+(d_secg0sq_dV_e_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_e_si))+(d_tang0_dV_e_si*(1.0+(r1+((2.0*r2)*T0))))));
+d_e1_dV_di_si = ((d_inv_g0_dV_di_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_di_si+(secg0sq*d_g0_dV_di_si+d_secg0sq_dV_di_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_di_si+d_tang0_dV_di_si*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_g_si = ((d_inv_g0_dV_g_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_g_si+(secg0sq*d_g0_dV_g_si+d_secg0sq_dV_g_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_g_si+d_tang0_dV_g_si*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_g_e = ((d_inv_g0_dV_g_e+((secg0sq*g0)*(2.0*r2)*d_T0_dV_g_e+(secg0sq*d_g0_dV_g_e+d_secg0sq_dV_g_e*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_g_e+d_tang0_dV_g_e*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_e_di = ((d_inv_g0_dV_e_di+((secg0sq*g0)*(2.0*r2)*d_T0_dV_e_di+(secg0sq*d_g0_dV_e_di+d_secg0sq_dV_e_di*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_e_di+d_tang0_dV_e_di*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_e_si = ((d_inv_g0_dV_e_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_e_si+(secg0sq*d_g0_dV_e_si+d_secg0sq_dV_e_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_e_si+d_tang0_dV_e_si*(1.0+(r1+((2.0*r2)*T0)))));
 e1 = ((inv_g0+((secg0sq*g0)*(r1+((2.0*r2)*T0))))+(tang0*(1.0+(r1+((2.0*r2)*T0)))));
 
-d_e2_dV_di_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_di_si)+((((r2*g0)*d_g0_dV_di_si)+((r2*d_g0_dV_di_si)*g0))*secg0sq))+(d_T0_dV_di_si*r1))+((2.0*r2)*(d_T1_dV_di_si+(2.0*d_T0_dV_di_si))))))+(d_secg0sq_dV_di_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_di_si)*r2))+(((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_g_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_g_si)+((((r2*g0)*d_g0_dV_g_si)+((r2*d_g0_dV_g_si)*g0))*secg0sq))+(d_T0_dV_g_si*r1))+((2.0*r2)*(d_T1_dV_g_si+(2.0*d_T0_dV_g_si))))))+(d_secg0sq_dV_g_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_g_si)*r2))+(((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_g_e = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_g_e)+((((r2*g0)*d_g0_dV_g_e)+((r2*d_g0_dV_g_e)*g0))*secg0sq))+(d_T0_dV_g_e*r1))+((2.0*r2)*(d_T1_dV_g_e+(2.0*d_T0_dV_g_e))))))+(d_secg0sq_dV_g_e*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_g_e)*r2))+(((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_e_di = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_e_di)+((((r2*g0)*d_g0_dV_e_di)+((r2*d_g0_dV_e_di)*g0))*secg0sq))+(d_T0_dV_e_di*r1))+((2.0*r2)*(d_T1_dV_e_di+(2.0*d_T0_dV_e_di))))))+(d_secg0sq_dV_e_di*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_e_di)*r2))+(((inv_g0*d_inv_g0_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_e_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_e_si)+((((r2*g0)*d_g0_dV_e_si)+((r2*d_g0_dV_e_si)*g0))*secg0sq))+(d_T0_dV_e_si*r1))+((2.0*r2)*(d_T1_dV_e_si+(2.0*d_T0_dV_e_si))))))+(d_secg0sq_dV_e_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_e_si)*r2))+(((inv_g0*d_inv_g0_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
+d_e2_dV_di_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_di_si+((r2*g0)*d_g0_dV_di_si+r2*d_g0_dV_di_si*g0)*secg0sq)+d_T0_dV_di_si*r1)+(2.0*r2)*(d_T1_dV_di_si+2.0*d_T0_dV_di_si))+d_secg0sq_dV_di_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_di_si*r2+(inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_g_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_g_si+((r2*g0)*d_g0_dV_g_si+r2*d_g0_dV_g_si*g0)*secg0sq)+d_T0_dV_g_si*r1)+(2.0*r2)*(d_T1_dV_g_si+2.0*d_T0_dV_g_si))+d_secg0sq_dV_g_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_g_si*r2+(inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_g_e = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_g_e+((r2*g0)*d_g0_dV_g_e+r2*d_g0_dV_g_e*g0)*secg0sq)+d_T0_dV_g_e*r1)+(2.0*r2)*(d_T1_dV_g_e+2.0*d_T0_dV_g_e))+d_secg0sq_dV_g_e*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_g_e*r2+(inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_e_di = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_e_di+((r2*g0)*d_g0_dV_e_di+r2*d_g0_dV_e_di*g0)*secg0sq)+d_T0_dV_e_di*r1)+(2.0*r2)*(d_T1_dV_e_di+2.0*d_T0_dV_e_di))+d_secg0sq_dV_e_di*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_e_di*r2+(inv_g0*d_inv_g0_dV_e_di+d_inv_g0_dV_e_di*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_e_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_e_si+((r2*g0)*d_g0_dV_e_si+r2*d_g0_dV_e_si*g0)*secg0sq)+d_T0_dV_e_si*r1)+(2.0*r2)*(d_T1_dV_e_si+2.0*d_T0_dV_e_si))+d_secg0sq_dV_e_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_e_si*r2+(inv_g0*d_inv_g0_dV_e_si+d_inv_g0_dV_e_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
 e2 = ((secg0sq*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*(((2.0*T1)*r2)-1.0)));
 
-d_e3_dV_di_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si)+((((2.0*inv_g0)*d_inv_g0_dV_di_si)+((2.0*d_inv_g0_dV_di_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_di_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((2.0*g0)*d_secg0sq_dV_di_si)+((2.0*d_g0_dV_di_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_di_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_di_si))+(2.0*d_T1_dV_di_si)))))+((((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_g_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si)+((((2.0*inv_g0)*d_inv_g0_dV_g_si)+((2.0*d_inv_g0_dV_g_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_g_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((2.0*g0)*d_secg0sq_dV_g_si)+((2.0*d_g0_dV_g_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_g_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_g_si))+(2.0*d_T1_dV_g_si)))))+((((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_g_e = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e)+((((2.0*inv_g0)*d_inv_g0_dV_g_e)+((2.0*d_inv_g0_dV_g_e)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_g_e)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((2.0*g0)*d_secg0sq_dV_g_e)+((2.0*d_g0_dV_g_e)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_g_e)+((2.0*r2)*((3.0*(2.0*d_T0_dV_g_e))+(2.0*d_T1_dV_g_e)))))+((((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_e_di = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_di)+((((2.0*inv_g0)*d_inv_g0_dV_e_di)+((2.0*d_inv_g0_dV_e_di)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_e_di)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_e_di)+((((2.0*g0)*d_secg0sq_dV_e_di)+((2.0*d_g0_dV_e_di)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_e_di)+((2.0*r2)*((3.0*(2.0*d_T0_dV_e_di))+(2.0*d_T1_dV_e_di)))))+((((2.0*secg0sq)*d_tang0_dV_e_di)+((2.0*d_secg0sq_dV_e_di)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_e_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_si)+((((2.0*inv_g0)*d_inv_g0_dV_e_si)+((2.0*d_inv_g0_dV_e_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_e_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_e_si)+((((2.0*g0)*d_secg0sq_dV_e_si)+((2.0*d_g0_dV_e_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_e_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_e_si))+(2.0*d_T1_dV_e_si)))))+((((2.0*secg0sq)*d_tang0_dV_e_si)+((2.0*d_secg0sq_dV_e_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
+d_e3_dV_di_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si+((2.0*inv_g0)*d_inv_g0_dV_di_si+2.0*d_inv_g0_dV_di_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_di_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si+((2.0*g0)*d_secg0sq_dV_di_si+2.0*d_g0_dV_di_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_di_si+(2.0*r2)*(3.0*2.0*d_T0_dV_di_si+2.0*d_T1_dV_di_si))+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_g_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si+((2.0*inv_g0)*d_inv_g0_dV_g_si+2.0*d_inv_g0_dV_g_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_g_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si+((2.0*g0)*d_secg0sq_dV_g_si+2.0*d_g0_dV_g_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_g_si+(2.0*r2)*(3.0*2.0*d_T0_dV_g_si+2.0*d_T1_dV_g_si))+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_g_e = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e+((2.0*inv_g0)*d_inv_g0_dV_g_e+2.0*d_inv_g0_dV_g_e*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_g_e+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e+((2.0*g0)*d_secg0sq_dV_g_e+2.0*d_g0_dV_g_e*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_g_e+(2.0*r2)*(3.0*2.0*d_T0_dV_g_e+2.0*d_T1_dV_g_e))+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_e_di = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_di+((2.0*inv_g0)*d_inv_g0_dV_e_di+2.0*d_inv_g0_dV_e_di*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_e_di+(((2.0*g0)*secg0sq)*d_secg0sq_dV_e_di+((2.0*g0)*d_secg0sq_dV_e_di+2.0*d_g0_dV_e_di*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_e_di+(2.0*r2)*(3.0*2.0*d_T0_dV_e_di+2.0*d_T1_dV_e_di))+((2.0*secg0sq)*d_tang0_dV_e_di+2.0*d_secg0sq_dV_e_di*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_e_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_si+((2.0*inv_g0)*d_inv_g0_dV_e_si+2.0*d_inv_g0_dV_e_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_e_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_e_si+((2.0*g0)*d_secg0sq_dV_e_si+2.0*d_g0_dV_e_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_e_si+(2.0*r2)*(3.0*2.0*d_T0_dV_e_si+2.0*d_T1_dV_e_si))+((2.0*secg0sq)*d_tang0_dV_e_si+2.0*d_secg0sq_dV_e_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
 e3 = (((((2.0*inv_g0)*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -12686,20 +12686,20 @@ d_lng0_dV_e_si = evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si);
 lng0 = evaluator_lln_0.getValues(g0);
 }
 
-d_secg0sq_dV_di_si = ((tang0*d_tang0_dV_di_si)+(d_tang0_dV_di_si*tang0));
-d_secg0sq_dV_g_si = ((tang0*d_tang0_dV_g_si)+(d_tang0_dV_g_si*tang0));
-d_secg0sq_dV_g_e = ((tang0*d_tang0_dV_g_e)+(d_tang0_dV_g_e*tang0));
-d_secg0sq_dV_e_di = ((tang0*d_tang0_dV_e_di)+(d_tang0_dV_e_di*tang0));
-d_secg0sq_dV_e_si = ((tang0*d_tang0_dV_e_si)+(d_tang0_dV_e_si*tang0));
+d_secg0sq_dV_di_si = (tang0*d_tang0_dV_di_si+d_tang0_dV_di_si*tang0);
+d_secg0sq_dV_g_si = (tang0*d_tang0_dV_g_si+d_tang0_dV_g_si*tang0);
+d_secg0sq_dV_g_e = (tang0*d_tang0_dV_g_e+d_tang0_dV_g_e*tang0);
+d_secg0sq_dV_e_di = (tang0*d_tang0_dV_e_di+d_tang0_dV_e_di*tang0);
+d_secg0sq_dV_e_si = (tang0*d_tang0_dV_e_si+d_tang0_dV_e_si*tang0);
 secg0sq = ((tang0*tang0)+1.0);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(secg0sq);
 
-d_lncosg0_dV_di_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si));
-d_lncosg0_dV_g_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si));
-d_lncosg0_dV_g_e = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e));
-d_lncosg0_dV_e_di = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_di));
-d_lncosg0_dV_e_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_si));
+d_lncosg0_dV_di_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si);
+d_lncosg0_dV_g_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si);
+d_lncosg0_dV_g_e = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e);
+d_lncosg0_dV_e_di = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_di);
+d_lncosg0_dV_e_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_si);
 lncosg0 = ((-0.5)*evaluator_lln_0.getValues(secg0sq));
 }
 
@@ -12711,54 +12711,54 @@ d_inv_g0_dV_e_si = (-d_g0_dV_e_si/g0/g0);
 inv_g0 = (1.0/g0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
-d_T0_dV_e_di = ((g0*d_tang0_dV_e_di)+(d_g0_dV_e_di*tang0));
-d_T0_dV_e_si = ((g0*d_tang0_dV_e_si)+(d_g0_dV_e_si*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
+d_T0_dV_e_di = (g0*d_tang0_dV_e_di+d_g0_dV_e_di*tang0);
+d_T0_dV_e_si = (g0*d_tang0_dV_e_si+d_g0_dV_e_si*tang0);
 T0 = (g0*tang0);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0));
-d_T1_dV_g_si = ((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0));
-d_T1_dV_g_e = ((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0));
-d_T1_dV_e_di = ((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0));
-d_T1_dV_e_si = ((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0));
+d_T1_dV_di_si = (T0*d_T0_dV_di_si+d_T0_dV_di_si*T0);
+d_T1_dV_g_si = (T0*d_T0_dV_g_si+d_T0_dV_g_si*T0);
+d_T1_dV_g_e = (T0*d_T0_dV_g_e+d_T0_dV_g_e*T0);
+d_T1_dV_e_di = (T0*d_T0_dV_e_di+d_T0_dV_e_di*T0);
+d_T1_dV_e_si = (T0*d_T0_dV_e_si+d_T0_dV_e_si*T0);
 T1 = (T0*T0);
 
-d_e0_dV_di_si = ((((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+(r1*d_T0_dV_di_si))+(r2*d_T1_dV_di_si))-d_F0_dV_di_si);
-d_e0_dV_g_si = ((((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+(r1*d_T0_dV_g_si))+(r2*d_T1_dV_g_si))-d_F0_dV_g_si);
-d_e0_dV_g_e = ((((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+(r1*d_T0_dV_g_e))+(r2*d_T1_dV_g_e))-d_F0_dV_g_e);
-d_e0_dV_e_di = ((((d_lng0_dV_e_di-d_lncosg0_dV_e_di)+(r1*d_T0_dV_e_di))+(r2*d_T1_dV_e_di))-d_F0_dV_e_di);
-d_e0_dV_e_si = ((((d_lng0_dV_e_si-d_lncosg0_dV_e_si)+(r1*d_T0_dV_e_si))+(r2*d_T1_dV_e_si))-d_F0_dV_e_si);
+d_e0_dV_di_si = ((((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+r1*d_T0_dV_di_si)+r2*d_T1_dV_di_si)-d_F0_dV_di_si);
+d_e0_dV_g_si = ((((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+r1*d_T0_dV_g_si)+r2*d_T1_dV_g_si)-d_F0_dV_g_si);
+d_e0_dV_g_e = ((((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+r1*d_T0_dV_g_e)+r2*d_T1_dV_g_e)-d_F0_dV_g_e);
+d_e0_dV_e_di = ((((d_lng0_dV_e_di-d_lncosg0_dV_e_di)+r1*d_T0_dV_e_di)+r2*d_T1_dV_e_di)-d_F0_dV_e_di);
+d_e0_dV_e_si = ((((d_lng0_dV_e_si-d_lncosg0_dV_e_si)+r1*d_T0_dV_e_si)+r2*d_T1_dV_e_si)-d_F0_dV_e_si);
 e0 = ((((lng0-lncosg0)+(r1*T0))+(r2*T1))-F0);
 
-d_e1_dV_di_si = ((d_inv_g0_dV_di_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_di_si))+(((secg0sq*d_g0_dV_di_si)+(d_secg0sq_dV_di_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_di_si))+(d_tang0_dV_di_si*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_g_si = ((d_inv_g0_dV_g_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_g_si))+(((secg0sq*d_g0_dV_g_si)+(d_secg0sq_dV_g_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_g_si))+(d_tang0_dV_g_si*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_g_e = ((d_inv_g0_dV_g_e+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_g_e))+(((secg0sq*d_g0_dV_g_e)+(d_secg0sq_dV_g_e*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_g_e))+(d_tang0_dV_g_e*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_e_di = ((d_inv_g0_dV_e_di+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_e_di))+(((secg0sq*d_g0_dV_e_di)+(d_secg0sq_dV_e_di*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_e_di))+(d_tang0_dV_e_di*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_e_si = ((d_inv_g0_dV_e_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_e_si))+(((secg0sq*d_g0_dV_e_si)+(d_secg0sq_dV_e_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_e_si))+(d_tang0_dV_e_si*(1.0+(r1+((2.0*r2)*T0))))));
+d_e1_dV_di_si = ((d_inv_g0_dV_di_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_di_si+(secg0sq*d_g0_dV_di_si+d_secg0sq_dV_di_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_di_si+d_tang0_dV_di_si*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_g_si = ((d_inv_g0_dV_g_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_g_si+(secg0sq*d_g0_dV_g_si+d_secg0sq_dV_g_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_g_si+d_tang0_dV_g_si*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_g_e = ((d_inv_g0_dV_g_e+((secg0sq*g0)*(2.0*r2)*d_T0_dV_g_e+(secg0sq*d_g0_dV_g_e+d_secg0sq_dV_g_e*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_g_e+d_tang0_dV_g_e*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_e_di = ((d_inv_g0_dV_e_di+((secg0sq*g0)*(2.0*r2)*d_T0_dV_e_di+(secg0sq*d_g0_dV_e_di+d_secg0sq_dV_e_di*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_e_di+d_tang0_dV_e_di*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_e_si = ((d_inv_g0_dV_e_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_e_si+(secg0sq*d_g0_dV_e_si+d_secg0sq_dV_e_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_e_si+d_tang0_dV_e_si*(1.0+(r1+((2.0*r2)*T0)))));
 e1 = ((inv_g0+((secg0sq*g0)*(r1+((2.0*r2)*T0))))+(tang0*(1.0+(r1+((2.0*r2)*T0)))));
 
-d_e2_dV_di_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_di_si)+((((r2*g0)*d_g0_dV_di_si)+((r2*d_g0_dV_di_si)*g0))*secg0sq))+(d_T0_dV_di_si*r1))+((2.0*r2)*(d_T1_dV_di_si+(2.0*d_T0_dV_di_si))))))+(d_secg0sq_dV_di_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_di_si)*r2))+(((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_g_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_g_si)+((((r2*g0)*d_g0_dV_g_si)+((r2*d_g0_dV_g_si)*g0))*secg0sq))+(d_T0_dV_g_si*r1))+((2.0*r2)*(d_T1_dV_g_si+(2.0*d_T0_dV_g_si))))))+(d_secg0sq_dV_g_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_g_si)*r2))+(((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_g_e = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_g_e)+((((r2*g0)*d_g0_dV_g_e)+((r2*d_g0_dV_g_e)*g0))*secg0sq))+(d_T0_dV_g_e*r1))+((2.0*r2)*(d_T1_dV_g_e+(2.0*d_T0_dV_g_e))))))+(d_secg0sq_dV_g_e*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_g_e)*r2))+(((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_e_di = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_e_di)+((((r2*g0)*d_g0_dV_e_di)+((r2*d_g0_dV_e_di)*g0))*secg0sq))+(d_T0_dV_e_di*r1))+((2.0*r2)*(d_T1_dV_e_di+(2.0*d_T0_dV_e_di))))))+(d_secg0sq_dV_e_di*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_e_di)*r2))+(((inv_g0*d_inv_g0_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_e_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_e_si)+((((r2*g0)*d_g0_dV_e_si)+((r2*d_g0_dV_e_si)*g0))*secg0sq))+(d_T0_dV_e_si*r1))+((2.0*r2)*(d_T1_dV_e_si+(2.0*d_T0_dV_e_si))))))+(d_secg0sq_dV_e_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_e_si)*r2))+(((inv_g0*d_inv_g0_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
+d_e2_dV_di_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_di_si+((r2*g0)*d_g0_dV_di_si+r2*d_g0_dV_di_si*g0)*secg0sq)+d_T0_dV_di_si*r1)+(2.0*r2)*(d_T1_dV_di_si+2.0*d_T0_dV_di_si))+d_secg0sq_dV_di_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_di_si*r2+(inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_g_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_g_si+((r2*g0)*d_g0_dV_g_si+r2*d_g0_dV_g_si*g0)*secg0sq)+d_T0_dV_g_si*r1)+(2.0*r2)*(d_T1_dV_g_si+2.0*d_T0_dV_g_si))+d_secg0sq_dV_g_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_g_si*r2+(inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_g_e = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_g_e+((r2*g0)*d_g0_dV_g_e+r2*d_g0_dV_g_e*g0)*secg0sq)+d_T0_dV_g_e*r1)+(2.0*r2)*(d_T1_dV_g_e+2.0*d_T0_dV_g_e))+d_secg0sq_dV_g_e*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_g_e*r2+(inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_e_di = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_e_di+((r2*g0)*d_g0_dV_e_di+r2*d_g0_dV_e_di*g0)*secg0sq)+d_T0_dV_e_di*r1)+(2.0*r2)*(d_T1_dV_e_di+2.0*d_T0_dV_e_di))+d_secg0sq_dV_e_di*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_e_di*r2+(inv_g0*d_inv_g0_dV_e_di+d_inv_g0_dV_e_di*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_e_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_e_si+((r2*g0)*d_g0_dV_e_si+r2*d_g0_dV_e_si*g0)*secg0sq)+d_T0_dV_e_si*r1)+(2.0*r2)*(d_T1_dV_e_si+2.0*d_T0_dV_e_si))+d_secg0sq_dV_e_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_e_si*r2+(inv_g0*d_inv_g0_dV_e_si+d_inv_g0_dV_e_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
 e2 = ((secg0sq*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*(((2.0*T1)*r2)-1.0)));
 
-d_e3_dV_di_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si)+((((2.0*inv_g0)*d_inv_g0_dV_di_si)+((2.0*d_inv_g0_dV_di_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_di_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((2.0*g0)*d_secg0sq_dV_di_si)+((2.0*d_g0_dV_di_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_di_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_di_si))+(2.0*d_T1_dV_di_si)))))+((((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_g_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si)+((((2.0*inv_g0)*d_inv_g0_dV_g_si)+((2.0*d_inv_g0_dV_g_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_g_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((2.0*g0)*d_secg0sq_dV_g_si)+((2.0*d_g0_dV_g_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_g_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_g_si))+(2.0*d_T1_dV_g_si)))))+((((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_g_e = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e)+((((2.0*inv_g0)*d_inv_g0_dV_g_e)+((2.0*d_inv_g0_dV_g_e)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_g_e)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((2.0*g0)*d_secg0sq_dV_g_e)+((2.0*d_g0_dV_g_e)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_g_e)+((2.0*r2)*((3.0*(2.0*d_T0_dV_g_e))+(2.0*d_T1_dV_g_e)))))+((((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_e_di = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_di)+((((2.0*inv_g0)*d_inv_g0_dV_e_di)+((2.0*d_inv_g0_dV_e_di)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_e_di)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_e_di)+((((2.0*g0)*d_secg0sq_dV_e_di)+((2.0*d_g0_dV_e_di)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_e_di)+((2.0*r2)*((3.0*(2.0*d_T0_dV_e_di))+(2.0*d_T1_dV_e_di)))))+((((2.0*secg0sq)*d_tang0_dV_e_di)+((2.0*d_secg0sq_dV_e_di)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_e_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_si)+((((2.0*inv_g0)*d_inv_g0_dV_e_si)+((2.0*d_inv_g0_dV_e_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_e_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_e_si)+((((2.0*g0)*d_secg0sq_dV_e_si)+((2.0*d_g0_dV_e_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_e_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_e_si))+(2.0*d_T1_dV_e_si)))))+((((2.0*secg0sq)*d_tang0_dV_e_si)+((2.0*d_secg0sq_dV_e_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
+d_e3_dV_di_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si+((2.0*inv_g0)*d_inv_g0_dV_di_si+2.0*d_inv_g0_dV_di_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_di_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si+((2.0*g0)*d_secg0sq_dV_di_si+2.0*d_g0_dV_di_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_di_si+(2.0*r2)*(3.0*2.0*d_T0_dV_di_si+2.0*d_T1_dV_di_si))+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_g_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si+((2.0*inv_g0)*d_inv_g0_dV_g_si+2.0*d_inv_g0_dV_g_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_g_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si+((2.0*g0)*d_secg0sq_dV_g_si+2.0*d_g0_dV_g_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_g_si+(2.0*r2)*(3.0*2.0*d_T0_dV_g_si+2.0*d_T1_dV_g_si))+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_g_e = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e+((2.0*inv_g0)*d_inv_g0_dV_g_e+2.0*d_inv_g0_dV_g_e*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_g_e+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e+((2.0*g0)*d_secg0sq_dV_g_e+2.0*d_g0_dV_g_e*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_g_e+(2.0*r2)*(3.0*2.0*d_T0_dV_g_e+2.0*d_T1_dV_g_e))+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_e_di = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_di+((2.0*inv_g0)*d_inv_g0_dV_e_di+2.0*d_inv_g0_dV_e_di*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_e_di+(((2.0*g0)*secg0sq)*d_secg0sq_dV_e_di+((2.0*g0)*d_secg0sq_dV_e_di+2.0*d_g0_dV_e_di*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_e_di+(2.0*r2)*(3.0*2.0*d_T0_dV_e_di+2.0*d_T1_dV_e_di))+((2.0*secg0sq)*d_tang0_dV_e_di+2.0*d_secg0sq_dV_e_di*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_e_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_si+((2.0*inv_g0)*d_inv_g0_dV_e_si+2.0*d_inv_g0_dV_e_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_e_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_e_si+((2.0*g0)*d_secg0sq_dV_e_si+2.0*d_g0_dV_e_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_e_si+(2.0*r2)*(3.0*2.0*d_T0_dV_e_si+2.0*d_T1_dV_e_si))+((2.0*secg0sq)*d_tang0_dV_e_si+2.0*d_secg0sq_dV_e_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
 e3 = (((((2.0*inv_g0)*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -12797,11 +12797,11 @@ tang0s = value_tan_0;
 AnalogFunctions::llnEvaluator evaluator_lln_0(g0s);
 AnalogFunctions::llnEvaluator evaluator_lln_1((1.0+(tang0s*tang0s)));
 
-d_phis_dV_g_si = (d_vch_dV_g_si+((2.0*nVtm)*(evaluator_lln_0.getDerivs(g0s,d_g0s_dV_g_si)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),((tang0s*d_tang0s_dV_g_si)+(d_tang0s_dV_g_si*tang0s)))))));
-d_phis_dV_g_e = (d_vch_dV_g_e+((2.0*nVtm)*(evaluator_lln_0.getDerivs(g0s,d_g0s_dV_g_e)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),((tang0s*d_tang0s_dV_g_e)+(d_tang0s_dV_g_e*tang0s)))))));
-d_phis_dV_e_di = (d_vch_dV_e_di+((2.0*nVtm)*(evaluator_lln_0.getDerivs(g0s,d_g0s_dV_e_di)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),((tang0s*d_tang0s_dV_e_di)+(d_tang0s_dV_e_di*tang0s)))))));
-d_phis_dV_e_si = (d_vch_dV_e_si+((2.0*nVtm)*(evaluator_lln_0.getDerivs(g0s,d_g0s_dV_e_si)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),((tang0s*d_tang0s_dV_e_si)+(d_tang0s_dV_e_si*tang0s)))))));
-d_phis_dV_di_si = (d_vch_dV_di_si+(((2.0*nVtm)*((evaluator_lln_0.getDerivs(g0s,d_g0s_dV_di_si)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),((tang0s*d_tang0s_dV_di_si)+(d_tang0s_dV_di_si*tang0s)))))+d_F1_dV_di_si))+((2.0*d_nVtm_dV_di_si)*((evaluator_lln_0.getValues(g0s)+(0.5*evaluator_lln_1.getValues((1.0+(tang0s*tang0s)))))+F1))));
+d_phis_dV_g_si = (d_vch_dV_g_si+(2.0*nVtm)*(evaluator_lln_0.getDerivs(g0s,d_g0s_dV_g_si)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),(tang0s*d_tang0s_dV_g_si+d_tang0s_dV_g_si*tang0s))));
+d_phis_dV_g_e = (d_vch_dV_g_e+(2.0*nVtm)*(evaluator_lln_0.getDerivs(g0s,d_g0s_dV_g_e)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),(tang0s*d_tang0s_dV_g_e+d_tang0s_dV_g_e*tang0s))));
+d_phis_dV_e_di = (d_vch_dV_e_di+(2.0*nVtm)*(evaluator_lln_0.getDerivs(g0s,d_g0s_dV_e_di)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),(tang0s*d_tang0s_dV_e_di+d_tang0s_dV_e_di*tang0s))));
+d_phis_dV_e_si = (d_vch_dV_e_si+(2.0*nVtm)*(evaluator_lln_0.getDerivs(g0s,d_g0s_dV_e_si)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),(tang0s*d_tang0s_dV_e_si+d_tang0s_dV_e_si*tang0s))));
+d_phis_dV_di_si = (d_vch_dV_di_si+((2.0*nVtm)*((evaluator_lln_0.getDerivs(g0s,d_g0s_dV_di_si)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0s*tang0s)),(tang0s*d_tang0s_dV_di_si+d_tang0s_dV_di_si*tang0s)))+d_F1_dV_di_si)+2.0*d_nVtm_dV_di_si*((evaluator_lln_0.getValues(g0s)+(0.5*evaluator_lln_1.getValues((1.0+(tang0s*tang0s)))))+F1)));
 phis = (vch+((2.0*nVtm)*((evaluator_lln_0.getValues(g0s)+(0.5*evaluator_lln_1.getValues((1.0+(tang0s*tang0s)))))+F1)));
 }
 }
@@ -12814,25 +12814,25 @@ d_F0_dV_g_si = ((d_vgsfbeff_dV_g_si-d_vch_dV_g_si)/T14);
 F0 = ((((vgsfbeff-phibulk)-vch)/T14)-F1);
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si =  0.0;
-d_T0_dV_di_si = (phibulk*d_aab_dV_di_si);
+d_T0_dV_di_si = phibulk*d_aab_dV_di_si;
 T0 = (phibulk*aab);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_g_e = d_T1_dV_g_si =  0.0;
 d_T1_dV_di_si = (-phibulk*d_T14_dV_di_si/T14/T14);
 T1 = (phibulk/T14);
 
-d_z1_dV_di_si = ((((2.0*r1)-1.0)*d_T1_dV_di_si)+(r2*d_T0_dV_di_si));
-d_z1_dV_g_si = ((((2.0*r1)-1.0)*d_T1_dV_g_si)+(r2*d_T0_dV_g_si));
-d_z1_dV_g_e = ((((2.0*r1)-1.0)*d_T1_dV_g_e)+(r2*d_T0_dV_g_e));
-d_z1_dV_e_di = ((((2.0*r1)-1.0)*d_T1_dV_e_di)+(r2*d_T0_dV_e_di));
-d_z1_dV_e_si = ((((2.0*r1)-1.0)*d_T1_dV_e_si)+(r2*d_T0_dV_e_si));
+d_z1_dV_di_si = (((2.0*r1)-1.0)*d_T1_dV_di_si+r2*d_T0_dV_di_si);
+d_z1_dV_g_si = (((2.0*r1)-1.0)*d_T1_dV_g_si+r2*d_T0_dV_g_si);
+d_z1_dV_g_e = (((2.0*r1)-1.0)*d_T1_dV_g_e+r2*d_T0_dV_g_e);
+d_z1_dV_e_di = (((2.0*r1)-1.0)*d_T1_dV_e_di+r2*d_T0_dV_e_di);
+d_z1_dV_e_si = (((2.0*r1)-1.0)*d_T1_dV_e_si+r2*d_T0_dV_e_si);
 z1 = ((((2.0*r1)-1.0)*T1)+(r2*T0));
 
-d_guessA_dV_di_si = ((2.0*r1)*d_T1_dV_di_si);
-d_guessA_dV_g_si = ((2.0*r1)*d_T1_dV_g_si);
-d_guessA_dV_g_e = ((2.0*r1)*d_T1_dV_g_e);
-d_guessA_dV_e_di = ((2.0*r1)*d_T1_dV_e_di);
-d_guessA_dV_e_si = ((2.0*r1)*d_T1_dV_e_si);
+d_guessA_dV_di_si = (2.0*r1)*d_T1_dV_di_si;
+d_guessA_dV_g_si = (2.0*r1)*d_T1_dV_g_si;
+d_guessA_dV_g_e = (2.0*r1)*d_T1_dV_g_e;
+d_guessA_dV_e_di = (2.0*r1)*d_T1_dV_e_di;
+d_guessA_dV_e_si = (2.0*r1)*d_T1_dV_e_si;
 guessA = ((2.0*r1)*T1);
 {
 double value_exp_0 = exp((-guessA));
@@ -12869,11 +12869,11 @@ double  deriv_exp_0_d0 = value_exp_0;
 double  deriv_log_1_d0 = (1.0/(1.0+value_exp_0));
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_di_si-d_z2_dV_di_si)))))))+((-0.5*d_guessA_dV_di_si/guessA/guessA)*value_log_1));
-d_T2_dV_g_si = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_g_si-d_z2_dV_g_si)))))))+((-0.5*d_guessA_dV_g_si/guessA/guessA)*value_log_1));
-d_T2_dV_g_e = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_g_e-d_z2_dV_g_e)))))))+((-0.5*d_guessA_dV_g_e/guessA/guessA)*value_log_1));
-d_T2_dV_e_di = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_e_di-d_z2_dV_e_di)))))))+((-0.5*d_guessA_dV_e_di/guessA/guessA)*value_log_1));
-d_T2_dV_e_si = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_e_si-d_z2_dV_e_si)))))))+((-0.5*d_guessA_dV_e_si/guessA/guessA)*value_log_1));
+d_T2_dV_di_si = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_di_si-d_z2_dV_di_si)))))+(-0.5*d_guessA_dV_di_si/guessA/guessA)*value_log_1);
+d_T2_dV_g_si = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_g_si-d_z2_dV_g_si)))))+(-0.5*d_guessA_dV_g_si/guessA/guessA)*value_log_1);
+d_T2_dV_g_e = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_g_e-d_z2_dV_g_e)))))+(-0.5*d_guessA_dV_g_e/guessA/guessA)*value_log_1);
+d_T2_dV_e_di = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_e_di-d_z2_dV_e_di)))))+(-0.5*d_guessA_dV_e_di/guessA/guessA)*value_log_1);
+d_T2_dV_e_si = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_e_si-d_z2_dV_e_si)))))+(-0.5*d_guessA_dV_e_si/guessA/guessA)*value_log_1);
 T2 = (((0.5/guessA)*value_log_1)+1.0);
 }
 }
@@ -12881,11 +12881,11 @@ else
 {
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = (((0.5/guessA)*(2.0*(d_F0_dV_di_si-d_z2_dV_di_si)))+((-0.5*d_guessA_dV_di_si/guessA/guessA)*(2.0*(F0-z2))));
-d_T2_dV_g_si = (((0.5/guessA)*(2.0*(d_F0_dV_g_si-d_z2_dV_g_si)))+((-0.5*d_guessA_dV_g_si/guessA/guessA)*(2.0*(F0-z2))));
-d_T2_dV_g_e = (((0.5/guessA)*(2.0*(d_F0_dV_g_e-d_z2_dV_g_e)))+((-0.5*d_guessA_dV_g_e/guessA/guessA)*(2.0*(F0-z2))));
-d_T2_dV_e_di = (((0.5/guessA)*(2.0*(d_F0_dV_e_di-d_z2_dV_e_di)))+((-0.5*d_guessA_dV_e_di/guessA/guessA)*(2.0*(F0-z2))));
-d_T2_dV_e_si = (((0.5/guessA)*(2.0*(d_F0_dV_e_si-d_z2_dV_e_si)))+((-0.5*d_guessA_dV_e_si/guessA/guessA)*(2.0*(F0-z2))));
+d_T2_dV_di_si = ((0.5/guessA)*2.0*(d_F0_dV_di_si-d_z2_dV_di_si)+(-0.5*d_guessA_dV_di_si/guessA/guessA)*(2.0*(F0-z2)));
+d_T2_dV_g_si = ((0.5/guessA)*2.0*(d_F0_dV_g_si-d_z2_dV_g_si)+(-0.5*d_guessA_dV_g_si/guessA/guessA)*(2.0*(F0-z2)));
+d_T2_dV_g_e = ((0.5/guessA)*2.0*(d_F0_dV_g_e-d_z2_dV_g_e)+(-0.5*d_guessA_dV_g_e/guessA/guessA)*(2.0*(F0-z2)));
+d_T2_dV_e_di = ((0.5/guessA)*2.0*(d_F0_dV_e_di-d_z2_dV_e_di)+(-0.5*d_guessA_dV_e_di/guessA/guessA)*(2.0*(F0-z2)));
+d_T2_dV_e_si = ((0.5/guessA)*2.0*(d_F0_dV_e_si-d_z2_dV_e_si)+(-0.5*d_guessA_dV_e_si/guessA/guessA)*(2.0*(F0-z2)));
 T2 = (((0.5/guessA)*(2.0*(F0-z2)))+1.0);
 }
 {
@@ -12906,11 +12906,11 @@ double value_exp_1 = exp((-T1));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 double  deriv_exp_1_d0 = value_exp_1;
 
-d_guessB_dV_di_si = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_di_si))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_di_si)))+((d_guessA_dV_di_si/r1)*value_sqrt_0))*value_exp_1));
-d_guessB_dV_g_si = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_g_si))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_si)))+((d_guessA_dV_g_si/r1)*value_sqrt_0))*value_exp_1));
-d_guessB_dV_g_e = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_g_e))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_e)))+((d_guessA_dV_g_e/r1)*value_sqrt_0))*value_exp_1));
-d_guessB_dV_e_di = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_e_di))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_di)))+((d_guessA_dV_e_di/r1)*value_sqrt_0))*value_exp_1));
-d_guessB_dV_e_si = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_e_si))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_si)))+((d_guessA_dV_e_si/r1)*value_sqrt_0))*value_exp_1));
+d_guessB_dV_di_si = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_di_si)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_di_si))+(d_guessA_dV_di_si/r1)*value_sqrt_0)*value_exp_1);
+d_guessB_dV_g_si = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_g_si)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_si))+(d_guessA_dV_g_si/r1)*value_sqrt_0)*value_exp_1);
+d_guessB_dV_g_e = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_g_e)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_e))+(d_guessA_dV_g_e/r1)*value_sqrt_0)*value_exp_1);
+d_guessB_dV_e_di = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_e_di)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_di))+(d_guessA_dV_e_di/r1)*value_sqrt_0)*value_exp_1);
+d_guessB_dV_e_si = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_e_si)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_si))+(d_guessA_dV_e_si/r1)*value_sqrt_0)*value_exp_1);
 guessB = (((guessA/r1)*value_sqrt_0)*value_exp_1);
 }
 }
@@ -12974,11 +12974,11 @@ d_secg0_dV_e_di = (-d_cosg0_dV_e_di/cosg0/cosg0);
 d_secg0_dV_e_si = (-d_cosg0_dV_e_si/cosg0/cosg0);
 secg0 = (1.0/cosg0);
 
-d_secg0sq_dV_di_si = ((secg0*d_secg0_dV_di_si)+(d_secg0_dV_di_si*secg0));
-d_secg0sq_dV_g_si = ((secg0*d_secg0_dV_g_si)+(d_secg0_dV_g_si*secg0));
-d_secg0sq_dV_g_e = ((secg0*d_secg0_dV_g_e)+(d_secg0_dV_g_e*secg0));
-d_secg0sq_dV_e_di = ((secg0*d_secg0_dV_e_di)+(d_secg0_dV_e_di*secg0));
-d_secg0sq_dV_e_si = ((secg0*d_secg0_dV_e_si)+(d_secg0_dV_e_si*secg0));
+d_secg0sq_dV_di_si = (secg0*d_secg0_dV_di_si+d_secg0_dV_di_si*secg0);
+d_secg0sq_dV_g_si = (secg0*d_secg0_dV_g_si+d_secg0_dV_g_si*secg0);
+d_secg0sq_dV_g_e = (secg0*d_secg0_dV_g_e+d_secg0_dV_g_e*secg0);
+d_secg0sq_dV_e_di = (secg0*d_secg0_dV_e_di+d_secg0_dV_e_di*secg0);
+d_secg0sq_dV_e_si = (secg0*d_secg0_dV_e_si+d_secg0_dV_e_si*secg0);
 secg0sq = (secg0*secg0);
 {
 double value_log_0 = log((1.0/g0));
@@ -12993,21 +12993,21 @@ lng0 = (-value_log_0);
 }
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
-d_T0_dV_e_di = ((g0*d_tang0_dV_e_di)+(d_g0_dV_e_di*tang0));
-d_T0_dV_e_si = ((g0*d_tang0_dV_e_si)+(d_g0_dV_e_si*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
+d_T0_dV_e_di = (g0*d_tang0_dV_e_di+d_g0_dV_e_di*tang0);
+d_T0_dV_e_si = (g0*d_tang0_dV_e_si+d_g0_dV_e_si*tang0);
 T0 = (1.0+(g0*tang0));
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(cosg0);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((((g0*g0)*((T13*d_secg0sq_dV_di_si)+(d_T13_dV_di_si*secg0sq)))+(((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))*((T13*secg0sq)-1.0)))+((aab*(-((T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+(d_T14_dV_di_si*evaluator_lln_0.getValues(cosg0)))))+(d_aab_dV_di_si*(phibulk-(T14*evaluator_lln_0.getValues(cosg0))))));
-d_T1_dV_g_si = ((((g0*g0)*(T13*d_secg0sq_dV_g_si))+(((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si)))));
-d_T1_dV_g_e = ((((g0*g0)*(T13*d_secg0sq_dV_g_e))+(((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e)))));
-d_T1_dV_e_di = ((((g0*g0)*(T13*d_secg0sq_dV_e_di))+(((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di)))));
-d_T1_dV_e_si = ((((g0*g0)*(T13*d_secg0sq_dV_e_si))+(((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si)))));
+d_T1_dV_di_si = (((g0*g0)*(T13*d_secg0sq_dV_di_si+d_T13_dV_di_si*secg0sq)+(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)*((T13*secg0sq)-1.0))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si)+d_T14_dV_di_si*evaluator_lln_0.getValues(cosg0)))+d_aab_dV_di_si*(phibulk-(T14*evaluator_lln_0.getValues(cosg0)))));
+d_T1_dV_g_si = (((g0*g0)*T13*d_secg0sq_dV_g_si+(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si)));
+d_T1_dV_g_e = (((g0*g0)*T13*d_secg0sq_dV_g_e+(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e)));
+d_T1_dV_e_di = (((g0*g0)*T13*d_secg0sq_dV_e_di+(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di)));
+d_T1_dV_e_si = (((g0*g0)*T13*d_secg0sq_dV_e_si+(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si)));
 T1 = (((g0*g0)*((T13*secg0sq)-1.0))+(aab*(phibulk-(T14*evaluator_lln_0.getValues(cosg0)))));
 }
 {
@@ -13024,72 +13024,72 @@ T2 = value_sqrt_0;
 }
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_di_si = ((((-2.0)*d_g0_dV_di_si)+(((aab*T14)*d_tang0_dV_di_si)+(((aab*d_T14_dV_di_si)+(d_aab_dV_di_si*T14))*tang0)))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_di_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_di_si)+((((2.0*T13)*d_g0_dV_di_si)+((2.0*d_T13_dV_di_si)*g0))*secg0sq))*T0)));
-d_T3_dV_g_si = ((((-2.0)*d_g0_dV_g_si)+((aab*T14)*d_tang0_dV_g_si))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_g_si)+(((2.0*T13)*d_g0_dV_g_si)*secg0sq))*T0)));
-d_T3_dV_g_e = ((((-2.0)*d_g0_dV_g_e)+((aab*T14)*d_tang0_dV_g_e))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_e)+(((((2.0*T13)*g0)*d_secg0sq_dV_g_e)+(((2.0*T13)*d_g0_dV_g_e)*secg0sq))*T0)));
-d_T3_dV_e_di = ((((-2.0)*d_g0_dV_e_di)+((aab*T14)*d_tang0_dV_e_di))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_di)+(((((2.0*T13)*g0)*d_secg0sq_dV_e_di)+(((2.0*T13)*d_g0_dV_e_di)*secg0sq))*T0)));
-d_T3_dV_e_si = ((((-2.0)*d_g0_dV_e_si)+((aab*T14)*d_tang0_dV_e_si))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_e_si)+(((2.0*T13)*d_g0_dV_e_si)*secg0sq))*T0)));
+d_T3_dV_di_si = (((-2.0)*d_g0_dV_di_si+((aab*T14)*d_tang0_dV_di_si+(aab*d_T14_dV_di_si+d_aab_dV_di_si*T14)*tang0))+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_di_si+(((2.0*T13)*g0)*d_secg0sq_dV_di_si+((2.0*T13)*d_g0_dV_di_si+2.0*d_T13_dV_di_si*g0)*secg0sq)*T0));
+d_T3_dV_g_si = (((-2.0)*d_g0_dV_g_si+(aab*T14)*d_tang0_dV_g_si)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_si+(((2.0*T13)*g0)*d_secg0sq_dV_g_si+(2.0*T13)*d_g0_dV_g_si*secg0sq)*T0));
+d_T3_dV_g_e = (((-2.0)*d_g0_dV_g_e+(aab*T14)*d_tang0_dV_g_e)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_e+(((2.0*T13)*g0)*d_secg0sq_dV_g_e+(2.0*T13)*d_g0_dV_g_e*secg0sq)*T0));
+d_T3_dV_e_di = (((-2.0)*d_g0_dV_e_di+(aab*T14)*d_tang0_dV_e_di)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_di+(((2.0*T13)*g0)*d_secg0sq_dV_e_di+(2.0*T13)*d_g0_dV_e_di*secg0sq)*T0));
+d_T3_dV_e_si = (((-2.0)*d_g0_dV_e_si+(aab*T14)*d_tang0_dV_e_si)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_si+(((2.0*T13)*g0)*d_secg0sq_dV_e_si+(2.0*T13)*d_g0_dV_e_si*secg0sq)*T0));
 T3 = ((((-2.0)*g0)+((aab*T14)*tang0))+((((2.0*T13)*g0)*secg0sq)*T0));
 
 d_T4_dV_g_di =  0.0;
-d_T4_dV_g_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_si)+(((((2.0*T13)*g0)*d_g0_dV_g_si)+(((2.0*T13)*d_g0_dV_g_si)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_g_si)+(((8.0*T13)*d_g0_dV_g_si)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_g_si)+(((((4.0*T13)*g0)*d_g0_dV_g_si)+(((4.0*T13)*d_g0_dV_g_si)*g0))*tang0))*tang0))))+(d_secg0sq_dV_g_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_g_e = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_e)+(((((2.0*T13)*g0)*d_g0_dV_g_e)+(((2.0*T13)*d_g0_dV_g_e)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_g_e)+(((8.0*T13)*d_g0_dV_g_e)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_e)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_g_e)+(((((4.0*T13)*g0)*d_g0_dV_g_e)+(((4.0*T13)*d_g0_dV_g_e)*g0))*tang0))*tang0))))+(d_secg0sq_dV_g_e*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_e_di = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_di)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_di)+(((((2.0*T13)*g0)*d_g0_dV_e_di)+(((2.0*T13)*d_g0_dV_e_di)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_e_di)+(((8.0*T13)*d_g0_dV_e_di)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_di)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_e_di)+(((((4.0*T13)*g0)*d_g0_dV_e_di)+(((4.0*T13)*d_g0_dV_e_di)*g0))*tang0))*tang0))))+(d_secg0sq_dV_e_di*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_e_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_si)+(((((2.0*T13)*g0)*d_g0_dV_e_si)+(((2.0*T13)*d_g0_dV_e_si)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_e_si)+(((8.0*T13)*d_g0_dV_e_si)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_e_si)+(((((4.0*T13)*g0)*d_g0_dV_e_si)+(((4.0*T13)*d_g0_dV_e_si)*g0))*tang0))*tang0))))+(d_secg0sq_dV_e_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_di_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_di_si)+(((((2.0*T13)*g0)*d_g0_dV_di_si)+((((2.0*T13)*d_g0_dV_di_si)+((2.0*d_T13_dV_di_si)*g0))*g0))*secg0sq))*secg0sq))+((secg0sq*((((2*d_T13_dV_di_si)+((aab*d_T14_dV_di_si)+(d_aab_dV_di_si*T14)))+((((8.0*T13)*g0)*d_tang0_dV_di_si)+((((8.0*T13)*d_g0_dV_di_si)+((8.0*d_T13_dV_di_si)*g0))*tang0)))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_di_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_di_si)+(((((4.0*T13)*g0)*d_g0_dV_di_si)+((((4.0*T13)*d_g0_dV_di_si)+((4.0*d_T13_dV_di_si)*g0))*g0))*tang0))*tang0))))+(d_secg0sq_dV_di_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
+d_T4_dV_g_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_si+(((2.0*T13)*g0)*d_g0_dV_g_si+(2.0*T13)*d_g0_dV_g_si*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_g_si+(8.0*T13)*d_g0_dV_g_si*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_g_si+(((4.0*T13)*g0)*d_g0_dV_g_si+(4.0*T13)*d_g0_dV_g_si*g0)*tang0)*tang0))+d_secg0sq_dV_g_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_g_e = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_e+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_e+(((2.0*T13)*g0)*d_g0_dV_g_e+(2.0*T13)*d_g0_dV_g_e*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_g_e+(8.0*T13)*d_g0_dV_g_e*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_e+((((4.0*T13)*g0)*g0)*d_tang0_dV_g_e+(((4.0*T13)*g0)*d_g0_dV_g_e+(4.0*T13)*d_g0_dV_g_e*g0)*tang0)*tang0))+d_secg0sq_dV_g_e*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_e_di = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_di+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_di+(((2.0*T13)*g0)*d_g0_dV_e_di+(2.0*T13)*d_g0_dV_e_di*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_e_di+(8.0*T13)*d_g0_dV_e_di*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_di+((((4.0*T13)*g0)*g0)*d_tang0_dV_e_di+(((4.0*T13)*g0)*d_g0_dV_e_di+(4.0*T13)*d_g0_dV_e_di*g0)*tang0)*tang0))+d_secg0sq_dV_e_di*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_e_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_si+(((2.0*T13)*g0)*d_g0_dV_e_si+(2.0*T13)*d_g0_dV_e_si*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_e_si+(8.0*T13)*d_g0_dV_e_si*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_e_si+(((4.0*T13)*g0)*d_g0_dV_e_si+(4.0*T13)*d_g0_dV_e_si*g0)*tang0)*tang0))+d_secg0sq_dV_e_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_di_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_di_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_di_si+(((2.0*T13)*g0)*d_g0_dV_di_si+((2.0*T13)*d_g0_dV_di_si+2.0*d_T13_dV_di_si*g0)*g0)*secg0sq)*secg0sq)+(secg0sq*(((2*d_T13_dV_di_si+(aab*d_T14_dV_di_si+d_aab_dV_di_si*T14))+(((8.0*T13)*g0)*d_tang0_dV_di_si+((8.0*T13)*d_g0_dV_di_si+8.0*d_T13_dV_di_si*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_di_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_di_si+(((4.0*T13)*g0)*d_g0_dV_di_si+((4.0*T13)*d_g0_dV_di_si+4.0*d_T13_dV_di_si*g0)*g0)*tang0)*tang0))+d_secg0sq_dV_di_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
 T4 = (((-2.0)+(((((2.0*T13)*g0)*g0)*secg0sq)*secg0sq))+(secg0sq*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
 
 d_T5_dV_g_di = d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((((2.0*tang0)*d_T4_dV_di_si)+((2.0*d_tang0_dV_di_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_di_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_di_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_di_si)+((((3.0*T13)*d_g0_dV_di_si)+((3.0*d_T13_dV_di_si)*g0))*secg0sq))*secg0sq))*T0))+d_tang0_dV_di_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_di_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_di_si)+((((2.0*T13)*d_secg0sq_dV_di_si)+((2.0*d_T13_dV_di_si)*secg0sq))*T0))*tang0)))));
-d_T5_dV_g_si = ((((2.0*tang0)*d_T4_dV_g_si)+((2.0*d_tang0_dV_g_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_g_si)+(((3.0*T13)*d_g0_dV_g_si)*secg0sq))*secg0sq))*T0))+d_tang0_dV_g_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_g_si)+(((2.0*T13)*d_secg0sq_dV_g_si)*T0))*tang0)))));
-d_T5_dV_g_e = ((((2.0*tang0)*d_T4_dV_g_e)+((2.0*d_tang0_dV_g_e)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_e)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_e)+(((((3.0*T13)*g0)*d_secg0sq_dV_g_e)+(((3.0*T13)*d_g0_dV_g_e)*secg0sq))*secg0sq))*T0))+d_tang0_dV_g_e)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_e)+(((((2.0*T13)*secg0sq)*d_T0_dV_g_e)+(((2.0*T13)*d_secg0sq_dV_g_e)*T0))*tang0)))));
-d_T5_dV_e_di = ((((2.0*tang0)*d_T4_dV_e_di)+((2.0*d_tang0_dV_e_di)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_di)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_di)+(((((3.0*T13)*g0)*d_secg0sq_dV_e_di)+(((3.0*T13)*d_g0_dV_e_di)*secg0sq))*secg0sq))*T0))+d_tang0_dV_e_di)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_di)+(((((2.0*T13)*secg0sq)*d_T0_dV_e_di)+(((2.0*T13)*d_secg0sq_dV_e_di)*T0))*tang0)))));
-d_T5_dV_e_si = ((((2.0*tang0)*d_T4_dV_e_si)+((2.0*d_tang0_dV_e_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_e_si)+(((3.0*T13)*d_g0_dV_e_si)*secg0sq))*secg0sq))*T0))+d_tang0_dV_e_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_e_si)+(((2.0*T13)*d_secg0sq_dV_e_si)*T0))*tang0)))));
+d_T5_dV_di_si = (((2.0*tang0)*d_T4_dV_di_si+2.0*d_tang0_dV_di_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_di_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_di_si+(((3.0*T13)*g0)*d_secg0sq_dV_di_si+((3.0*T13)*d_g0_dV_di_si+3.0*d_T13_dV_di_si*g0)*secg0sq)*secg0sq)*T0)+d_tang0_dV_di_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_di_si+(((2.0*T13)*secg0sq)*d_T0_dV_di_si+((2.0*T13)*d_secg0sq_dV_di_si+2.0*d_T13_dV_di_si*secg0sq)*T0)*tang0)));
+d_T5_dV_g_si = (((2.0*tang0)*d_T4_dV_g_si+2.0*d_tang0_dV_g_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_si+(((3.0*T13)*g0)*d_secg0sq_dV_g_si+(3.0*T13)*d_g0_dV_g_si*secg0sq)*secg0sq)*T0)+d_tang0_dV_g_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_si+(((2.0*T13)*secg0sq)*d_T0_dV_g_si+(2.0*T13)*d_secg0sq_dV_g_si*T0)*tang0)));
+d_T5_dV_g_e = (((2.0*tang0)*d_T4_dV_g_e+2.0*d_tang0_dV_g_e*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_e+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_e+(((3.0*T13)*g0)*d_secg0sq_dV_g_e+(3.0*T13)*d_g0_dV_g_e*secg0sq)*secg0sq)*T0)+d_tang0_dV_g_e)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_e+(((2.0*T13)*secg0sq)*d_T0_dV_g_e+(2.0*T13)*d_secg0sq_dV_g_e*T0)*tang0)));
+d_T5_dV_e_di = (((2.0*tang0)*d_T4_dV_e_di+2.0*d_tang0_dV_e_di*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_di+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_di+(((3.0*T13)*g0)*d_secg0sq_dV_e_di+(3.0*T13)*d_g0_dV_e_di*secg0sq)*secg0sq)*T0)+d_tang0_dV_e_di)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_di+(((2.0*T13)*secg0sq)*d_T0_dV_e_di+(2.0*T13)*d_secg0sq_dV_e_di*T0)*tang0)));
+d_T5_dV_e_si = (((2.0*tang0)*d_T4_dV_e_si+2.0*d_tang0_dV_e_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_si+(((3.0*T13)*g0)*d_secg0sq_dV_e_si+(3.0*T13)*d_g0_dV_e_si*secg0sq)*secg0sq)*T0)+d_tang0_dV_e_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_si+(((2.0*T13)*secg0sq)*d_T0_dV_e_si+(2.0*T13)*d_secg0sq_dV_e_si*T0)*tang0)));
 T5 = (((2.0*tang0)*T4)+(4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*T0)+tang0)+((((2.0*T13)*secg0sq)*T0)*tang0))));
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(cosg0);
 
-d_T7_dV_di_si = ((((d_lng0_dV_di_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+(r2*d_T1_dV_di_si))+(r1*d_T2_dV_di_si))-d_F0_dV_di_si);
-d_T7_dV_g_si = ((((d_lng0_dV_g_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si))+(r2*d_T1_dV_g_si))+(r1*d_T2_dV_g_si))-d_F0_dV_g_si);
-d_T7_dV_g_e = ((((d_lng0_dV_g_e-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e))+(r2*d_T1_dV_g_e))+(r1*d_T2_dV_g_e))-d_F0_dV_g_e);
-d_T7_dV_e_di = ((((d_lng0_dV_e_di-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di))+(r2*d_T1_dV_e_di))+(r1*d_T2_dV_e_di))-d_F0_dV_e_di);
-d_T7_dV_e_si = ((((d_lng0_dV_e_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si))+(r2*d_T1_dV_e_si))+(r1*d_T2_dV_e_si))-d_F0_dV_e_si);
+d_T7_dV_di_si = ((((d_lng0_dV_di_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+r2*d_T1_dV_di_si)+r1*d_T2_dV_di_si)-d_F0_dV_di_si);
+d_T7_dV_g_si = ((((d_lng0_dV_g_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si))+r2*d_T1_dV_g_si)+r1*d_T2_dV_g_si)-d_F0_dV_g_si);
+d_T7_dV_g_e = ((((d_lng0_dV_g_e-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e))+r2*d_T1_dV_g_e)+r1*d_T2_dV_g_e)-d_F0_dV_g_e);
+d_T7_dV_e_di = ((((d_lng0_dV_e_di-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di))+r2*d_T1_dV_e_di)+r1*d_T2_dV_e_di)-d_F0_dV_e_di);
+d_T7_dV_e_si = ((((d_lng0_dV_e_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si))+r2*d_T1_dV_e_si)+r1*d_T2_dV_e_si)-d_F0_dV_e_si);
 T7 = ((((lng0-evaluator_lln_0.getValues(cosg0))+(r2*T1))+(r1*T2))-F0);
 }
 
-d_T8_dV_di_si = ((((-d_g0_dV_di_si/g0/g0)+d_tang0_dV_di_si)+(r2*d_T3_dV_di_si))+(((2.0*T2)*(r1*d_T3_dV_di_si)-(r1*T3)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_g_si = ((((-d_g0_dV_g_si/g0/g0)+d_tang0_dV_g_si)+(r2*d_T3_dV_g_si))+(((2.0*T2)*(r1*d_T3_dV_g_si)-(r1*T3)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_g_e = ((((-d_g0_dV_g_e/g0/g0)+d_tang0_dV_g_e)+(r2*d_T3_dV_g_e))+(((2.0*T2)*(r1*d_T3_dV_g_e)-(r1*T3)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_e_di = ((((-d_g0_dV_e_di/g0/g0)+d_tang0_dV_e_di)+(r2*d_T3_dV_e_di))+(((2.0*T2)*(r1*d_T3_dV_e_di)-(r1*T3)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_e_si = ((((-d_g0_dV_e_si/g0/g0)+d_tang0_dV_e_si)+(r2*d_T3_dV_e_si))+(((2.0*T2)*(r1*d_T3_dV_e_si)-(r1*T3)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)));
+d_T8_dV_di_si = ((((-d_g0_dV_di_si/g0/g0)+d_tang0_dV_di_si)+r2*d_T3_dV_di_si)+(((2.0*T2)*r1*d_T3_dV_di_si-(r1*T3)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_g_si = ((((-d_g0_dV_g_si/g0/g0)+d_tang0_dV_g_si)+r2*d_T3_dV_g_si)+(((2.0*T2)*r1*d_T3_dV_g_si-(r1*T3)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_g_e = ((((-d_g0_dV_g_e/g0/g0)+d_tang0_dV_g_e)+r2*d_T3_dV_g_e)+(((2.0*T2)*r1*d_T3_dV_g_e-(r1*T3)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_e_di = ((((-d_g0_dV_e_di/g0/g0)+d_tang0_dV_e_di)+r2*d_T3_dV_e_di)+(((2.0*T2)*r1*d_T3_dV_e_di-(r1*T3)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_e_si = ((((-d_g0_dV_e_si/g0/g0)+d_tang0_dV_e_si)+r2*d_T3_dV_e_si)+(((2.0*T2)*r1*d_T3_dV_e_si-(r1*T3)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)));
 T8 = ((((1.0/g0)+tang0)+(r2*T3))+((r1*T3)/(2.0*T2)));
 
-d_T9_dV_di_si = (((((-(-1.0)*((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_di_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_di_si)+((r1*d_T3_dV_di_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_di_si)+((((4*T2)*d_T2_dV_di_si)+((4*d_T2_dV_di_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_di_si)-(r1*T4)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_di_si));
-d_T9_dV_g_si = (((((-(-1.0)*((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_g_si)+((r1*d_T3_dV_g_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_g_si)+((((4*T2)*d_T2_dV_g_si)+((4*d_T2_dV_g_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_g_si)-(r1*T4)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_g_si));
-d_T9_dV_g_e = (((((-(-1.0)*((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_e)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_g_e)+((r1*d_T3_dV_g_e)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_g_e)+((((4*T2)*d_T2_dV_g_e)+((4*d_T2_dV_g_e)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_g_e)-(r1*T4)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_g_e));
-d_T9_dV_e_di = (((((-(-1.0)*((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_di)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_e_di)+((r1*d_T3_dV_e_di)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_e_di)+((((4*T2)*d_T2_dV_e_di)+((4*d_T2_dV_e_di)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_e_di)-(r1*T4)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_e_di));
-d_T9_dV_e_si = (((((-(-1.0)*((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_e_si)+((r1*d_T3_dV_e_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_e_si)+((((4*T2)*d_T2_dV_e_si)+((4*d_T2_dV_e_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_e_si)-(r1*T4)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_e_si));
+d_T9_dV_di_si = (((((-(-1.0)*(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_di_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_di_si+r1*d_T3_dV_di_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_di_si+((4*T2)*d_T2_dV_di_si+4*d_T2_dV_di_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_di_si-(r1*T4)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_di_si);
+d_T9_dV_g_si = (((((-(-1.0)*(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_g_si+r1*d_T3_dV_g_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_g_si+((4*T2)*d_T2_dV_g_si+4*d_T2_dV_g_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_g_si-(r1*T4)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_g_si);
+d_T9_dV_g_e = (((((-(-1.0)*(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_e)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_g_e+r1*d_T3_dV_g_e*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_g_e+((4*T2)*d_T2_dV_g_e+4*d_T2_dV_g_e*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_g_e-(r1*T4)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_g_e);
+d_T9_dV_e_di = (((((-(-1.0)*(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_di)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_e_di+r1*d_T3_dV_e_di*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_e_di+((4*T2)*d_T2_dV_e_di+4*d_T2_dV_e_di*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_e_di-(r1*T4)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_e_di);
+d_T9_dV_e_si = (((((-(-1.0)*(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_e_si+r1*d_T3_dV_e_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_e_si+((4*T2)*d_T2_dV_e_si+4*d_T2_dV_e_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_e_si-(r1*T4)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_e_si);
 T9 = ((((((-1.0)/(g0*g0))+secg0sq)-(((r1*T3)*T3)/(((4*T2)*T2)*T2)))+((r1*T4)/(2.0*T2)))+(r2*T4));
 {
 double value_pow_0 = pow(T2,3);
 double  deriv_pow_0_d0 = ((T2 == 0.0)?0.0:(value_pow_0*3/T2));
 
-d_TA_dV_di_si = (((((-2.0*(((g0*g0)*d_g0_dV_di_si)+(((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_di_si)+(d_T3_dV_di_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_di_si)+((2.0*d_T2_dV_di_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_di_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_di_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_di_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_di_si)-(r1*T5)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_di_si));
-d_TA_dV_g_si = (((((-2.0*(((g0*g0)*d_g0_dV_g_si)+(((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_g_si)+(d_T3_dV_g_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_g_si)+((2.0*d_T2_dV_g_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_g_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_g_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_g_si)-(r1*T5)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_g_si));
-d_TA_dV_g_e = (((((-2.0*(((g0*g0)*d_g0_dV_g_e)+(((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_g_e)+(d_T3_dV_g_e*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_g_e)+((2.0*d_T2_dV_g_e)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_e))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_g_e)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_g_e))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_g_e)-(r1*T5)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_g_e));
-d_TA_dV_e_di = (((((-2.0*(((g0*g0)*d_g0_dV_e_di)+(((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_e_di)+((2.0*d_secg0sq_dV_e_di)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_e_di)+(d_T3_dV_e_di*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_e_di)+((2.0*d_T2_dV_e_di)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_di))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_e_di)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_e_di))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_e_di)-(r1*T5)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_e_di));
-d_TA_dV_e_si = (((((-2.0*(((g0*g0)*d_g0_dV_e_si)+(((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_e_si)+((2.0*d_secg0sq_dV_e_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_e_si)+(d_T3_dV_e_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_e_si)+((2.0*d_T2_dV_e_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_e_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_e_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_e_si)-(r1*T5)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_e_si));
+d_TA_dV_di_si = (((((-2.0*((g0*g0)*d_g0_dV_di_si+(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_di_si+d_T3_dV_di_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_di_si+2.0*d_T2_dV_di_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_di_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_di_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_di_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_di_si-(r1*T5)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_di_si);
+d_TA_dV_g_si = (((((-2.0*((g0*g0)*d_g0_dV_g_si+(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_g_si+d_T3_dV_g_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_g_si+2.0*d_T2_dV_g_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_g_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_g_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_g_si-(r1*T5)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_g_si);
+d_TA_dV_g_e = (((((-2.0*((g0*g0)*d_g0_dV_g_e+(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_g_e+d_T3_dV_g_e*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_g_e+2.0*d_T2_dV_g_e*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_e)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_g_e-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_g_e)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_g_e-(r1*T5)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_g_e);
+d_TA_dV_e_di = (((((-2.0*((g0*g0)*d_g0_dV_e_di+(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_e_di+2.0*d_secg0sq_dV_e_di*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_e_di+d_T3_dV_e_di*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_e_di+2.0*d_T2_dV_e_di*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_di)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_e_di-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_e_di)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_e_di-(r1*T5)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_e_di);
+d_TA_dV_e_si = (((((-2.0*((g0*g0)*d_g0_dV_e_si+(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_e_si+2.0*d_secg0sq_dV_e_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_e_si+d_T3_dV_e_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_e_si+2.0*d_T2_dV_e_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_e_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_e_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_e_si-(r1*T5)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_e_si);
 TA = (((((2.0/((g0*g0)*g0))+((2.0*secg0sq)*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+((r1*T5)/(2.0*T2)))+(r2*T5));
 }
 {
 double value_pow_0 = pow(T8,4);
 double  deriv_pow_0_d0 = ((T8 == 0.0)?0.0:(value_pow_0*4/T8));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_di_si)+(d_T7_dV_di_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_di_si)+((2.0*d_T8_dV_di_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_di_si)+((3.0*d_T9_dV_di_si)*T9))-((T8*d_TA_dV_di_si)+(d_T8_dV_di_si*TA))))+(((T7*d_T7_dV_di_si)+(d_T7_dV_di_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_di_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_di_si-T7*d_T8_dV_di_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_g_si)+(d_T7_dV_g_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_g_si)+((2.0*d_T8_dV_g_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_g_si)+((3.0*d_T9_dV_g_si)*T9))-((T8*d_TA_dV_g_si)+(d_T8_dV_g_si*TA))))+(((T7*d_T7_dV_g_si)+(d_T7_dV_g_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_g_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_g_si-T7*d_T8_dV_g_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_g_e)+(d_T7_dV_g_e*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_g_e)+((2.0*d_T8_dV_g_e)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_g_e)+((3.0*d_T9_dV_g_e)*T9))-((T8*d_TA_dV_g_e)+(d_T8_dV_g_e*TA))))+(((T7*d_T7_dV_g_e)+(d_T7_dV_g_e*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_g_e))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_g_e-T7*d_T8_dV_g_e)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_e_di)+(d_T7_dV_e_di*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_e_di)+((2.0*d_T8_dV_e_di)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_e_di)+((3.0*d_T9_dV_e_di)*T9))-((T8*d_TA_dV_e_di)+(d_T8_dV_e_di*TA))))+(((T7*d_T7_dV_e_di)+(d_T7_dV_e_di*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_e_di))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_e_di-T7*d_T8_dV_e_di)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_e_si)+(d_T7_dV_e_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_e_si)+((2.0*d_T8_dV_e_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_e_si)+((3.0*d_T9_dV_e_si)*T9))-((T8*d_TA_dV_e_si)+(d_T8_dV_e_si*TA))))+(((T7*d_T7_dV_e_si)+(d_T7_dV_e_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_e_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_e_si-T7*d_T8_dV_e_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_di_si+d_T7_dV_di_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_di_si+2.0*d_T8_dV_di_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_di_si+3.0*d_T9_dV_di_si*T9)-(T8*d_TA_dV_di_si+d_T8_dV_di_si*TA))+(T7*d_T7_dV_di_si+d_T7_dV_di_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_di_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_di_si-T7*d_T8_dV_di_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_g_si+d_T7_dV_g_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_g_si+2.0*d_T8_dV_g_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_g_si+3.0*d_T9_dV_g_si*T9)-(T8*d_TA_dV_g_si+d_T8_dV_g_si*TA))+(T7*d_T7_dV_g_si+d_T7_dV_g_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_g_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_g_si-T7*d_T8_dV_g_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_g_e+d_T7_dV_g_e*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_g_e+2.0*d_T8_dV_g_e*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_g_e+3.0*d_T9_dV_g_e*T9)-(T8*d_TA_dV_g_e+d_T8_dV_g_e*TA))+(T7*d_T7_dV_g_e+d_T7_dV_g_e*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_g_e)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_g_e-T7*d_T8_dV_g_e)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_e_di+d_T7_dV_e_di*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_e_di+2.0*d_T8_dV_e_di*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_e_di+3.0*d_T9_dV_e_di*T9)-(T8*d_TA_dV_e_di+d_T8_dV_e_di*TA))+(T7*d_T7_dV_e_di+d_T7_dV_e_di*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_e_di)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_e_di-T7*d_T8_dV_e_di)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_e_si+d_T7_dV_e_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_e_si+2.0*d_T8_dV_e_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_e_si+3.0*d_T9_dV_e_si*T9)-(T8*d_TA_dV_e_si+d_T8_dV_e_si*TA))+(T7*d_T7_dV_e_si+d_T7_dV_e_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_e_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_e_si-T7*d_T8_dV_e_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
 g0 = (g0-((T7/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
 }
 {
@@ -13122,11 +13122,11 @@ d_secg0_dV_e_di = (-d_cosg0_dV_e_di/cosg0/cosg0);
 d_secg0_dV_e_si = (-d_cosg0_dV_e_si/cosg0/cosg0);
 secg0 = (1.0/cosg0);
 
-d_secg0sq_dV_di_si = ((secg0*d_secg0_dV_di_si)+(d_secg0_dV_di_si*secg0));
-d_secg0sq_dV_g_si = ((secg0*d_secg0_dV_g_si)+(d_secg0_dV_g_si*secg0));
-d_secg0sq_dV_g_e = ((secg0*d_secg0_dV_g_e)+(d_secg0_dV_g_e*secg0));
-d_secg0sq_dV_e_di = ((secg0*d_secg0_dV_e_di)+(d_secg0_dV_e_di*secg0));
-d_secg0sq_dV_e_si = ((secg0*d_secg0_dV_e_si)+(d_secg0_dV_e_si*secg0));
+d_secg0sq_dV_di_si = (secg0*d_secg0_dV_di_si+d_secg0_dV_di_si*secg0);
+d_secg0sq_dV_g_si = (secg0*d_secg0_dV_g_si+d_secg0_dV_g_si*secg0);
+d_secg0sq_dV_g_e = (secg0*d_secg0_dV_g_e+d_secg0_dV_g_e*secg0);
+d_secg0sq_dV_e_di = (secg0*d_secg0_dV_e_di+d_secg0_dV_e_di*secg0);
+d_secg0sq_dV_e_si = (secg0*d_secg0_dV_e_si+d_secg0_dV_e_si*secg0);
 secg0sq = (secg0*secg0);
 {
 double value_log_0 = log((1.0/g0));
@@ -13141,21 +13141,21 @@ lng0 = (-value_log_0);
 }
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
-d_T0_dV_e_di = ((g0*d_tang0_dV_e_di)+(d_g0_dV_e_di*tang0));
-d_T0_dV_e_si = ((g0*d_tang0_dV_e_si)+(d_g0_dV_e_si*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
+d_T0_dV_e_di = (g0*d_tang0_dV_e_di+d_g0_dV_e_di*tang0);
+d_T0_dV_e_si = (g0*d_tang0_dV_e_si+d_g0_dV_e_si*tang0);
 T0 = (1.0+(g0*tang0));
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(cosg0);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((((g0*g0)*((T13*d_secg0sq_dV_di_si)+(d_T13_dV_di_si*secg0sq)))+(((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))*((T13*secg0sq)-1.0)))+((aab*(-((T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+(d_T14_dV_di_si*evaluator_lln_0.getValues(cosg0)))))+(d_aab_dV_di_si*(phibulk-(T14*evaluator_lln_0.getValues(cosg0))))));
-d_T1_dV_g_si = ((((g0*g0)*(T13*d_secg0sq_dV_g_si))+(((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si)))));
-d_T1_dV_g_e = ((((g0*g0)*(T13*d_secg0sq_dV_g_e))+(((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e)))));
-d_T1_dV_e_di = ((((g0*g0)*(T13*d_secg0sq_dV_e_di))+(((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di)))));
-d_T1_dV_e_si = ((((g0*g0)*(T13*d_secg0sq_dV_e_si))+(((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si)))));
+d_T1_dV_di_si = (((g0*g0)*(T13*d_secg0sq_dV_di_si+d_T13_dV_di_si*secg0sq)+(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)*((T13*secg0sq)-1.0))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si)+d_T14_dV_di_si*evaluator_lln_0.getValues(cosg0)))+d_aab_dV_di_si*(phibulk-(T14*evaluator_lln_0.getValues(cosg0)))));
+d_T1_dV_g_si = (((g0*g0)*T13*d_secg0sq_dV_g_si+(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si)));
+d_T1_dV_g_e = (((g0*g0)*T13*d_secg0sq_dV_g_e+(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e)));
+d_T1_dV_e_di = (((g0*g0)*T13*d_secg0sq_dV_e_di+(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di)));
+d_T1_dV_e_si = (((g0*g0)*T13*d_secg0sq_dV_e_si+(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si)));
 T1 = (((g0*g0)*((T13*secg0sq)-1.0))+(aab*(phibulk-(T14*evaluator_lln_0.getValues(cosg0)))));
 }
 {
@@ -13172,72 +13172,72 @@ T2 = value_sqrt_0;
 }
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_di_si = ((((-2.0)*d_g0_dV_di_si)+(((aab*T14)*d_tang0_dV_di_si)+(((aab*d_T14_dV_di_si)+(d_aab_dV_di_si*T14))*tang0)))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_di_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_di_si)+((((2.0*T13)*d_g0_dV_di_si)+((2.0*d_T13_dV_di_si)*g0))*secg0sq))*T0)));
-d_T3_dV_g_si = ((((-2.0)*d_g0_dV_g_si)+((aab*T14)*d_tang0_dV_g_si))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_g_si)+(((2.0*T13)*d_g0_dV_g_si)*secg0sq))*T0)));
-d_T3_dV_g_e = ((((-2.0)*d_g0_dV_g_e)+((aab*T14)*d_tang0_dV_g_e))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_e)+(((((2.0*T13)*g0)*d_secg0sq_dV_g_e)+(((2.0*T13)*d_g0_dV_g_e)*secg0sq))*T0)));
-d_T3_dV_e_di = ((((-2.0)*d_g0_dV_e_di)+((aab*T14)*d_tang0_dV_e_di))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_di)+(((((2.0*T13)*g0)*d_secg0sq_dV_e_di)+(((2.0*T13)*d_g0_dV_e_di)*secg0sq))*T0)));
-d_T3_dV_e_si = ((((-2.0)*d_g0_dV_e_si)+((aab*T14)*d_tang0_dV_e_si))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_e_si)+(((2.0*T13)*d_g0_dV_e_si)*secg0sq))*T0)));
+d_T3_dV_di_si = (((-2.0)*d_g0_dV_di_si+((aab*T14)*d_tang0_dV_di_si+(aab*d_T14_dV_di_si+d_aab_dV_di_si*T14)*tang0))+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_di_si+(((2.0*T13)*g0)*d_secg0sq_dV_di_si+((2.0*T13)*d_g0_dV_di_si+2.0*d_T13_dV_di_si*g0)*secg0sq)*T0));
+d_T3_dV_g_si = (((-2.0)*d_g0_dV_g_si+(aab*T14)*d_tang0_dV_g_si)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_si+(((2.0*T13)*g0)*d_secg0sq_dV_g_si+(2.0*T13)*d_g0_dV_g_si*secg0sq)*T0));
+d_T3_dV_g_e = (((-2.0)*d_g0_dV_g_e+(aab*T14)*d_tang0_dV_g_e)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_e+(((2.0*T13)*g0)*d_secg0sq_dV_g_e+(2.0*T13)*d_g0_dV_g_e*secg0sq)*T0));
+d_T3_dV_e_di = (((-2.0)*d_g0_dV_e_di+(aab*T14)*d_tang0_dV_e_di)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_di+(((2.0*T13)*g0)*d_secg0sq_dV_e_di+(2.0*T13)*d_g0_dV_e_di*secg0sq)*T0));
+d_T3_dV_e_si = (((-2.0)*d_g0_dV_e_si+(aab*T14)*d_tang0_dV_e_si)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_si+(((2.0*T13)*g0)*d_secg0sq_dV_e_si+(2.0*T13)*d_g0_dV_e_si*secg0sq)*T0));
 T3 = ((((-2.0)*g0)+((aab*T14)*tang0))+((((2.0*T13)*g0)*secg0sq)*T0));
 
 d_T4_dV_g_di =  0.0;
-d_T4_dV_g_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_si)+(((((2.0*T13)*g0)*d_g0_dV_g_si)+(((2.0*T13)*d_g0_dV_g_si)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_g_si)+(((8.0*T13)*d_g0_dV_g_si)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_g_si)+(((((4.0*T13)*g0)*d_g0_dV_g_si)+(((4.0*T13)*d_g0_dV_g_si)*g0))*tang0))*tang0))))+(d_secg0sq_dV_g_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_g_e = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_e)+(((((2.0*T13)*g0)*d_g0_dV_g_e)+(((2.0*T13)*d_g0_dV_g_e)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_g_e)+(((8.0*T13)*d_g0_dV_g_e)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_e)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_g_e)+(((((4.0*T13)*g0)*d_g0_dV_g_e)+(((4.0*T13)*d_g0_dV_g_e)*g0))*tang0))*tang0))))+(d_secg0sq_dV_g_e*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_e_di = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_di)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_di)+(((((2.0*T13)*g0)*d_g0_dV_e_di)+(((2.0*T13)*d_g0_dV_e_di)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_e_di)+(((8.0*T13)*d_g0_dV_e_di)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_di)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_e_di)+(((((4.0*T13)*g0)*d_g0_dV_e_di)+(((4.0*T13)*d_g0_dV_e_di)*g0))*tang0))*tang0))))+(d_secg0sq_dV_e_di*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_e_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_si)+(((((2.0*T13)*g0)*d_g0_dV_e_si)+(((2.0*T13)*d_g0_dV_e_si)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_e_si)+(((8.0*T13)*d_g0_dV_e_si)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_e_si)+(((((4.0*T13)*g0)*d_g0_dV_e_si)+(((4.0*T13)*d_g0_dV_e_si)*g0))*tang0))*tang0))))+(d_secg0sq_dV_e_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_di_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_di_si)+(((((2.0*T13)*g0)*d_g0_dV_di_si)+((((2.0*T13)*d_g0_dV_di_si)+((2.0*d_T13_dV_di_si)*g0))*g0))*secg0sq))*secg0sq))+((secg0sq*((((2*d_T13_dV_di_si)+((aab*d_T14_dV_di_si)+(d_aab_dV_di_si*T14)))+((((8.0*T13)*g0)*d_tang0_dV_di_si)+((((8.0*T13)*d_g0_dV_di_si)+((8.0*d_T13_dV_di_si)*g0))*tang0)))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_di_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_di_si)+(((((4.0*T13)*g0)*d_g0_dV_di_si)+((((4.0*T13)*d_g0_dV_di_si)+((4.0*d_T13_dV_di_si)*g0))*g0))*tang0))*tang0))))+(d_secg0sq_dV_di_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
+d_T4_dV_g_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_si+(((2.0*T13)*g0)*d_g0_dV_g_si+(2.0*T13)*d_g0_dV_g_si*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_g_si+(8.0*T13)*d_g0_dV_g_si*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_g_si+(((4.0*T13)*g0)*d_g0_dV_g_si+(4.0*T13)*d_g0_dV_g_si*g0)*tang0)*tang0))+d_secg0sq_dV_g_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_g_e = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_e+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_e+(((2.0*T13)*g0)*d_g0_dV_g_e+(2.0*T13)*d_g0_dV_g_e*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_g_e+(8.0*T13)*d_g0_dV_g_e*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_e+((((4.0*T13)*g0)*g0)*d_tang0_dV_g_e+(((4.0*T13)*g0)*d_g0_dV_g_e+(4.0*T13)*d_g0_dV_g_e*g0)*tang0)*tang0))+d_secg0sq_dV_g_e*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_e_di = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_di+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_di+(((2.0*T13)*g0)*d_g0_dV_e_di+(2.0*T13)*d_g0_dV_e_di*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_e_di+(8.0*T13)*d_g0_dV_e_di*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_di+((((4.0*T13)*g0)*g0)*d_tang0_dV_e_di+(((4.0*T13)*g0)*d_g0_dV_e_di+(4.0*T13)*d_g0_dV_e_di*g0)*tang0)*tang0))+d_secg0sq_dV_e_di*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_e_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_si+(((2.0*T13)*g0)*d_g0_dV_e_si+(2.0*T13)*d_g0_dV_e_si*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_e_si+(8.0*T13)*d_g0_dV_e_si*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_e_si+(((4.0*T13)*g0)*d_g0_dV_e_si+(4.0*T13)*d_g0_dV_e_si*g0)*tang0)*tang0))+d_secg0sq_dV_e_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_di_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_di_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_di_si+(((2.0*T13)*g0)*d_g0_dV_di_si+((2.0*T13)*d_g0_dV_di_si+2.0*d_T13_dV_di_si*g0)*g0)*secg0sq)*secg0sq)+(secg0sq*(((2*d_T13_dV_di_si+(aab*d_T14_dV_di_si+d_aab_dV_di_si*T14))+(((8.0*T13)*g0)*d_tang0_dV_di_si+((8.0*T13)*d_g0_dV_di_si+8.0*d_T13_dV_di_si*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_di_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_di_si+(((4.0*T13)*g0)*d_g0_dV_di_si+((4.0*T13)*d_g0_dV_di_si+4.0*d_T13_dV_di_si*g0)*g0)*tang0)*tang0))+d_secg0sq_dV_di_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
 T4 = (((-2.0)+(((((2.0*T13)*g0)*g0)*secg0sq)*secg0sq))+(secg0sq*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
 
 d_T5_dV_g_di = d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((((2.0*tang0)*d_T4_dV_di_si)+((2.0*d_tang0_dV_di_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_di_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_di_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_di_si)+((((3.0*T13)*d_g0_dV_di_si)+((3.0*d_T13_dV_di_si)*g0))*secg0sq))*secg0sq))*T0))+d_tang0_dV_di_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_di_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_di_si)+((((2.0*T13)*d_secg0sq_dV_di_si)+((2.0*d_T13_dV_di_si)*secg0sq))*T0))*tang0)))));
-d_T5_dV_g_si = ((((2.0*tang0)*d_T4_dV_g_si)+((2.0*d_tang0_dV_g_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_g_si)+(((3.0*T13)*d_g0_dV_g_si)*secg0sq))*secg0sq))*T0))+d_tang0_dV_g_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_g_si)+(((2.0*T13)*d_secg0sq_dV_g_si)*T0))*tang0)))));
-d_T5_dV_g_e = ((((2.0*tang0)*d_T4_dV_g_e)+((2.0*d_tang0_dV_g_e)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_e)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_e)+(((((3.0*T13)*g0)*d_secg0sq_dV_g_e)+(((3.0*T13)*d_g0_dV_g_e)*secg0sq))*secg0sq))*T0))+d_tang0_dV_g_e)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_e)+(((((2.0*T13)*secg0sq)*d_T0_dV_g_e)+(((2.0*T13)*d_secg0sq_dV_g_e)*T0))*tang0)))));
-d_T5_dV_e_di = ((((2.0*tang0)*d_T4_dV_e_di)+((2.0*d_tang0_dV_e_di)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_di)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_di)+(((((3.0*T13)*g0)*d_secg0sq_dV_e_di)+(((3.0*T13)*d_g0_dV_e_di)*secg0sq))*secg0sq))*T0))+d_tang0_dV_e_di)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_di)+(((((2.0*T13)*secg0sq)*d_T0_dV_e_di)+(((2.0*T13)*d_secg0sq_dV_e_di)*T0))*tang0)))));
-d_T5_dV_e_si = ((((2.0*tang0)*d_T4_dV_e_si)+((2.0*d_tang0_dV_e_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_e_si)+(((3.0*T13)*d_g0_dV_e_si)*secg0sq))*secg0sq))*T0))+d_tang0_dV_e_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_e_si)+(((2.0*T13)*d_secg0sq_dV_e_si)*T0))*tang0)))));
+d_T5_dV_di_si = (((2.0*tang0)*d_T4_dV_di_si+2.0*d_tang0_dV_di_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_di_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_di_si+(((3.0*T13)*g0)*d_secg0sq_dV_di_si+((3.0*T13)*d_g0_dV_di_si+3.0*d_T13_dV_di_si*g0)*secg0sq)*secg0sq)*T0)+d_tang0_dV_di_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_di_si+(((2.0*T13)*secg0sq)*d_T0_dV_di_si+((2.0*T13)*d_secg0sq_dV_di_si+2.0*d_T13_dV_di_si*secg0sq)*T0)*tang0)));
+d_T5_dV_g_si = (((2.0*tang0)*d_T4_dV_g_si+2.0*d_tang0_dV_g_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_si+(((3.0*T13)*g0)*d_secg0sq_dV_g_si+(3.0*T13)*d_g0_dV_g_si*secg0sq)*secg0sq)*T0)+d_tang0_dV_g_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_si+(((2.0*T13)*secg0sq)*d_T0_dV_g_si+(2.0*T13)*d_secg0sq_dV_g_si*T0)*tang0)));
+d_T5_dV_g_e = (((2.0*tang0)*d_T4_dV_g_e+2.0*d_tang0_dV_g_e*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_e+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_e+(((3.0*T13)*g0)*d_secg0sq_dV_g_e+(3.0*T13)*d_g0_dV_g_e*secg0sq)*secg0sq)*T0)+d_tang0_dV_g_e)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_e+(((2.0*T13)*secg0sq)*d_T0_dV_g_e+(2.0*T13)*d_secg0sq_dV_g_e*T0)*tang0)));
+d_T5_dV_e_di = (((2.0*tang0)*d_T4_dV_e_di+2.0*d_tang0_dV_e_di*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_di+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_di+(((3.0*T13)*g0)*d_secg0sq_dV_e_di+(3.0*T13)*d_g0_dV_e_di*secg0sq)*secg0sq)*T0)+d_tang0_dV_e_di)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_di+(((2.0*T13)*secg0sq)*d_T0_dV_e_di+(2.0*T13)*d_secg0sq_dV_e_di*T0)*tang0)));
+d_T5_dV_e_si = (((2.0*tang0)*d_T4_dV_e_si+2.0*d_tang0_dV_e_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_si+(((3.0*T13)*g0)*d_secg0sq_dV_e_si+(3.0*T13)*d_g0_dV_e_si*secg0sq)*secg0sq)*T0)+d_tang0_dV_e_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_si+(((2.0*T13)*secg0sq)*d_T0_dV_e_si+(2.0*T13)*d_secg0sq_dV_e_si*T0)*tang0)));
 T5 = (((2.0*tang0)*T4)+(4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*T0)+tang0)+((((2.0*T13)*secg0sq)*T0)*tang0))));
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(cosg0);
 
-d_T7_dV_di_si = ((((d_lng0_dV_di_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+(r2*d_T1_dV_di_si))+(r1*d_T2_dV_di_si))-d_F0_dV_di_si);
-d_T7_dV_g_si = ((((d_lng0_dV_g_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si))+(r2*d_T1_dV_g_si))+(r1*d_T2_dV_g_si))-d_F0_dV_g_si);
-d_T7_dV_g_e = ((((d_lng0_dV_g_e-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e))+(r2*d_T1_dV_g_e))+(r1*d_T2_dV_g_e))-d_F0_dV_g_e);
-d_T7_dV_e_di = ((((d_lng0_dV_e_di-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di))+(r2*d_T1_dV_e_di))+(r1*d_T2_dV_e_di))-d_F0_dV_e_di);
-d_T7_dV_e_si = ((((d_lng0_dV_e_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si))+(r2*d_T1_dV_e_si))+(r1*d_T2_dV_e_si))-d_F0_dV_e_si);
+d_T7_dV_di_si = ((((d_lng0_dV_di_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+r2*d_T1_dV_di_si)+r1*d_T2_dV_di_si)-d_F0_dV_di_si);
+d_T7_dV_g_si = ((((d_lng0_dV_g_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si))+r2*d_T1_dV_g_si)+r1*d_T2_dV_g_si)-d_F0_dV_g_si);
+d_T7_dV_g_e = ((((d_lng0_dV_g_e-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e))+r2*d_T1_dV_g_e)+r1*d_T2_dV_g_e)-d_F0_dV_g_e);
+d_T7_dV_e_di = ((((d_lng0_dV_e_di-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di))+r2*d_T1_dV_e_di)+r1*d_T2_dV_e_di)-d_F0_dV_e_di);
+d_T7_dV_e_si = ((((d_lng0_dV_e_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si))+r2*d_T1_dV_e_si)+r1*d_T2_dV_e_si)-d_F0_dV_e_si);
 T7 = ((((lng0-evaluator_lln_0.getValues(cosg0))+(r2*T1))+(r1*T2))-F0);
 }
 
-d_T8_dV_di_si = ((((-d_g0_dV_di_si/g0/g0)+d_tang0_dV_di_si)+(r2*d_T3_dV_di_si))+(((2.0*T2)*(r1*d_T3_dV_di_si)-(r1*T3)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_g_si = ((((-d_g0_dV_g_si/g0/g0)+d_tang0_dV_g_si)+(r2*d_T3_dV_g_si))+(((2.0*T2)*(r1*d_T3_dV_g_si)-(r1*T3)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_g_e = ((((-d_g0_dV_g_e/g0/g0)+d_tang0_dV_g_e)+(r2*d_T3_dV_g_e))+(((2.0*T2)*(r1*d_T3_dV_g_e)-(r1*T3)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_e_di = ((((-d_g0_dV_e_di/g0/g0)+d_tang0_dV_e_di)+(r2*d_T3_dV_e_di))+(((2.0*T2)*(r1*d_T3_dV_e_di)-(r1*T3)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_e_si = ((((-d_g0_dV_e_si/g0/g0)+d_tang0_dV_e_si)+(r2*d_T3_dV_e_si))+(((2.0*T2)*(r1*d_T3_dV_e_si)-(r1*T3)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)));
+d_T8_dV_di_si = ((((-d_g0_dV_di_si/g0/g0)+d_tang0_dV_di_si)+r2*d_T3_dV_di_si)+(((2.0*T2)*r1*d_T3_dV_di_si-(r1*T3)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_g_si = ((((-d_g0_dV_g_si/g0/g0)+d_tang0_dV_g_si)+r2*d_T3_dV_g_si)+(((2.0*T2)*r1*d_T3_dV_g_si-(r1*T3)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_g_e = ((((-d_g0_dV_g_e/g0/g0)+d_tang0_dV_g_e)+r2*d_T3_dV_g_e)+(((2.0*T2)*r1*d_T3_dV_g_e-(r1*T3)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_e_di = ((((-d_g0_dV_e_di/g0/g0)+d_tang0_dV_e_di)+r2*d_T3_dV_e_di)+(((2.0*T2)*r1*d_T3_dV_e_di-(r1*T3)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_e_si = ((((-d_g0_dV_e_si/g0/g0)+d_tang0_dV_e_si)+r2*d_T3_dV_e_si)+(((2.0*T2)*r1*d_T3_dV_e_si-(r1*T3)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)));
 T8 = ((((1.0/g0)+tang0)+(r2*T3))+((r1*T3)/(2.0*T2)));
 
-d_T9_dV_di_si = (((((-(-1.0)*((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_di_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_di_si)+((r1*d_T3_dV_di_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_di_si)+((((4*T2)*d_T2_dV_di_si)+((4*d_T2_dV_di_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_di_si)-(r1*T4)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_di_si));
-d_T9_dV_g_si = (((((-(-1.0)*((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_g_si)+((r1*d_T3_dV_g_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_g_si)+((((4*T2)*d_T2_dV_g_si)+((4*d_T2_dV_g_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_g_si)-(r1*T4)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_g_si));
-d_T9_dV_g_e = (((((-(-1.0)*((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_e)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_g_e)+((r1*d_T3_dV_g_e)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_g_e)+((((4*T2)*d_T2_dV_g_e)+((4*d_T2_dV_g_e)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_g_e)-(r1*T4)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_g_e));
-d_T9_dV_e_di = (((((-(-1.0)*((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_di)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_e_di)+((r1*d_T3_dV_e_di)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_e_di)+((((4*T2)*d_T2_dV_e_di)+((4*d_T2_dV_e_di)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_e_di)-(r1*T4)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_e_di));
-d_T9_dV_e_si = (((((-(-1.0)*((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_e_si)+((r1*d_T3_dV_e_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_e_si)+((((4*T2)*d_T2_dV_e_si)+((4*d_T2_dV_e_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_e_si)-(r1*T4)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_e_si));
+d_T9_dV_di_si = (((((-(-1.0)*(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_di_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_di_si+r1*d_T3_dV_di_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_di_si+((4*T2)*d_T2_dV_di_si+4*d_T2_dV_di_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_di_si-(r1*T4)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_di_si);
+d_T9_dV_g_si = (((((-(-1.0)*(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_g_si+r1*d_T3_dV_g_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_g_si+((4*T2)*d_T2_dV_g_si+4*d_T2_dV_g_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_g_si-(r1*T4)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_g_si);
+d_T9_dV_g_e = (((((-(-1.0)*(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_e)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_g_e+r1*d_T3_dV_g_e*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_g_e+((4*T2)*d_T2_dV_g_e+4*d_T2_dV_g_e*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_g_e-(r1*T4)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_g_e);
+d_T9_dV_e_di = (((((-(-1.0)*(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_di)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_e_di+r1*d_T3_dV_e_di*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_e_di+((4*T2)*d_T2_dV_e_di+4*d_T2_dV_e_di*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_e_di-(r1*T4)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_e_di);
+d_T9_dV_e_si = (((((-(-1.0)*(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_e_si+r1*d_T3_dV_e_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_e_si+((4*T2)*d_T2_dV_e_si+4*d_T2_dV_e_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_e_si-(r1*T4)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_e_si);
 T9 = ((((((-1.0)/(g0*g0))+secg0sq)-(((r1*T3)*T3)/(((4*T2)*T2)*T2)))+((r1*T4)/(2.0*T2)))+(r2*T4));
 {
 double value_pow_0 = pow(T2,3);
 double  deriv_pow_0_d0 = ((T2 == 0.0)?0.0:(value_pow_0*3/T2));
 
-d_TA_dV_di_si = (((((-2.0*(((g0*g0)*d_g0_dV_di_si)+(((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_di_si)+(d_T3_dV_di_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_di_si)+((2.0*d_T2_dV_di_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_di_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_di_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_di_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_di_si)-(r1*T5)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_di_si));
-d_TA_dV_g_si = (((((-2.0*(((g0*g0)*d_g0_dV_g_si)+(((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_g_si)+(d_T3_dV_g_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_g_si)+((2.0*d_T2_dV_g_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_g_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_g_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_g_si)-(r1*T5)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_g_si));
-d_TA_dV_g_e = (((((-2.0*(((g0*g0)*d_g0_dV_g_e)+(((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_g_e)+(d_T3_dV_g_e*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_g_e)+((2.0*d_T2_dV_g_e)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_e))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_g_e)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_g_e))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_g_e)-(r1*T5)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_g_e));
-d_TA_dV_e_di = (((((-2.0*(((g0*g0)*d_g0_dV_e_di)+(((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_e_di)+((2.0*d_secg0sq_dV_e_di)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_e_di)+(d_T3_dV_e_di*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_e_di)+((2.0*d_T2_dV_e_di)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_di))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_e_di)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_e_di))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_e_di)-(r1*T5)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_e_di));
-d_TA_dV_e_si = (((((-2.0*(((g0*g0)*d_g0_dV_e_si)+(((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_e_si)+((2.0*d_secg0sq_dV_e_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_e_si)+(d_T3_dV_e_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_e_si)+((2.0*d_T2_dV_e_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_e_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_e_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_e_si)-(r1*T5)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_e_si));
+d_TA_dV_di_si = (((((-2.0*((g0*g0)*d_g0_dV_di_si+(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_di_si+d_T3_dV_di_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_di_si+2.0*d_T2_dV_di_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_di_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_di_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_di_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_di_si-(r1*T5)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_di_si);
+d_TA_dV_g_si = (((((-2.0*((g0*g0)*d_g0_dV_g_si+(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_g_si+d_T3_dV_g_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_g_si+2.0*d_T2_dV_g_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_g_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_g_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_g_si-(r1*T5)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_g_si);
+d_TA_dV_g_e = (((((-2.0*((g0*g0)*d_g0_dV_g_e+(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_g_e+d_T3_dV_g_e*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_g_e+2.0*d_T2_dV_g_e*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_e)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_g_e-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_g_e)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_g_e-(r1*T5)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_g_e);
+d_TA_dV_e_di = (((((-2.0*((g0*g0)*d_g0_dV_e_di+(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_e_di+2.0*d_secg0sq_dV_e_di*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_e_di+d_T3_dV_e_di*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_e_di+2.0*d_T2_dV_e_di*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_di)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_e_di-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_e_di)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_e_di-(r1*T5)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_e_di);
+d_TA_dV_e_si = (((((-2.0*((g0*g0)*d_g0_dV_e_si+(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_e_si+2.0*d_secg0sq_dV_e_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_e_si+d_T3_dV_e_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_e_si+2.0*d_T2_dV_e_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_e_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_e_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_e_si-(r1*T5)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_e_si);
 TA = (((((2.0/((g0*g0)*g0))+((2.0*secg0sq)*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+((r1*T5)/(2.0*T2)))+(r2*T5));
 }
 {
 double value_pow_0 = pow(T8,4);
 double  deriv_pow_0_d0 = ((T8 == 0.0)?0.0:(value_pow_0*4/T8));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_di_si)+(d_T7_dV_di_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_di_si)+((2.0*d_T8_dV_di_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_di_si)+((3.0*d_T9_dV_di_si)*T9))-((T8*d_TA_dV_di_si)+(d_T8_dV_di_si*TA))))+(((T7*d_T7_dV_di_si)+(d_T7_dV_di_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_di_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_di_si-T7*d_T8_dV_di_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_g_si)+(d_T7_dV_g_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_g_si)+((2.0*d_T8_dV_g_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_g_si)+((3.0*d_T9_dV_g_si)*T9))-((T8*d_TA_dV_g_si)+(d_T8_dV_g_si*TA))))+(((T7*d_T7_dV_g_si)+(d_T7_dV_g_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_g_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_g_si-T7*d_T8_dV_g_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_g_e)+(d_T7_dV_g_e*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_g_e)+((2.0*d_T8_dV_g_e)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_g_e)+((3.0*d_T9_dV_g_e)*T9))-((T8*d_TA_dV_g_e)+(d_T8_dV_g_e*TA))))+(((T7*d_T7_dV_g_e)+(d_T7_dV_g_e*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_g_e))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_g_e-T7*d_T8_dV_g_e)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_e_di)+(d_T7_dV_e_di*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_e_di)+((2.0*d_T8_dV_e_di)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_e_di)+((3.0*d_T9_dV_e_di)*T9))-((T8*d_TA_dV_e_di)+(d_T8_dV_e_di*TA))))+(((T7*d_T7_dV_e_di)+(d_T7_dV_e_di*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_e_di))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_e_di-T7*d_T8_dV_e_di)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_e_si)+(d_T7_dV_e_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_e_si)+((2.0*d_T8_dV_e_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_e_si)+((3.0*d_T9_dV_e_si)*T9))-((T8*d_TA_dV_e_si)+(d_T8_dV_e_si*TA))))+(((T7*d_T7_dV_e_si)+(d_T7_dV_e_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_e_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_e_si-T7*d_T8_dV_e_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_di_si+d_T7_dV_di_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_di_si+2.0*d_T8_dV_di_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_di_si+3.0*d_T9_dV_di_si*T9)-(T8*d_TA_dV_di_si+d_T8_dV_di_si*TA))+(T7*d_T7_dV_di_si+d_T7_dV_di_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_di_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_di_si-T7*d_T8_dV_di_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_g_si+d_T7_dV_g_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_g_si+2.0*d_T8_dV_g_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_g_si+3.0*d_T9_dV_g_si*T9)-(T8*d_TA_dV_g_si+d_T8_dV_g_si*TA))+(T7*d_T7_dV_g_si+d_T7_dV_g_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_g_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_g_si-T7*d_T8_dV_g_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_g_e+d_T7_dV_g_e*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_g_e+2.0*d_T8_dV_g_e*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_g_e+3.0*d_T9_dV_g_e*T9)-(T8*d_TA_dV_g_e+d_T8_dV_g_e*TA))+(T7*d_T7_dV_g_e+d_T7_dV_g_e*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_g_e)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_g_e-T7*d_T8_dV_g_e)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_e_di+d_T7_dV_e_di*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_e_di+2.0*d_T8_dV_e_di*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_e_di+3.0*d_T9_dV_e_di*T9)-(T8*d_TA_dV_e_di+d_T8_dV_e_di*TA))+(T7*d_T7_dV_e_di+d_T7_dV_e_di*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_e_di)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_e_di-T7*d_T8_dV_e_di)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_e_si+d_T7_dV_e_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_e_si+2.0*d_T8_dV_e_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_e_si+3.0*d_T9_dV_e_si*T9)-(T8*d_TA_dV_e_si+d_T8_dV_e_si*TA))+(T7*d_T7_dV_e_si+d_T7_dV_e_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_e_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_e_si-T7*d_T8_dV_e_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
 g0 = (g0-((T7/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
 }
 {
@@ -13278,11 +13278,11 @@ double value_log_1 = log((1.0/((guessA/r1)*value_sqrt_0)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 double  deriv_log_1_d0 = (1.0/(1.0/((guessA/r1)*value_sqrt_0)));
 
-d_lng0_dV_di_si = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_di_si)))+((d_guessA_dV_di_si/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_di_si);
-d_lng0_dV_g_si = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_si)))+((d_guessA_dV_g_si/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_g_si);
-d_lng0_dV_g_e = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_e)))+((d_guessA_dV_g_e/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_g_e);
-d_lng0_dV_e_di = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_di)))+((d_guessA_dV_e_di/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_e_di);
-d_lng0_dV_e_si = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_si)))+((d_guessA_dV_e_si/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_e_si);
+d_lng0_dV_di_si = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_di_si))+(d_guessA_dV_di_si/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_di_si);
+d_lng0_dV_g_si = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_si))+(d_guessA_dV_g_si/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_g_si);
+d_lng0_dV_g_e = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_e))+(d_guessA_dV_g_e/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_g_e);
+d_lng0_dV_e_di = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_di))+(d_guessA_dV_e_di/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_e_di);
+d_lng0_dV_e_si = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_si))+(d_guessA_dV_e_si/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_e_si);
 lng0 = ((-value_log_1)-T1);
 }
 }
@@ -13303,11 +13303,11 @@ double value_cos_0 = cos(g0);
 AnalogFunctions::llnEvaluator evaluator_lln_1(value_cos_0);
 double  deriv_cos_0_d0 = (-sin(g0));
 
-d_phis_dV_g_si = (d_vch_dV_g_si+(T14*(d_lng0_dV_g_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_g_si))))));
-d_phis_dV_g_e = (d_vch_dV_g_e+(T14*(d_lng0_dV_g_e-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_g_e))))));
-d_phis_dV_e_di = (d_vch_dV_e_di+(T14*(d_lng0_dV_e_di-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_e_di))))));
-d_phis_dV_e_si = (d_vch_dV_e_si+(T14*(d_lng0_dV_e_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_e_si))))));
-d_phis_dV_di_si = (d_vch_dV_di_si+((T14*((d_lng0_dV_di_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_di_si))))+d_F1_dV_di_si))+(d_T14_dV_di_si*((lng0-evaluator_lln_1.getValues(value_cos_0))+F1))));
+d_phis_dV_g_si = (d_vch_dV_g_si+T14*(d_lng0_dV_g_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_g_si)))));
+d_phis_dV_g_e = (d_vch_dV_g_e+T14*(d_lng0_dV_g_e-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_g_e)))));
+d_phis_dV_e_di = (d_vch_dV_e_di+T14*(d_lng0_dV_e_di-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_e_di)))));
+d_phis_dV_e_si = (d_vch_dV_e_si+T14*(d_lng0_dV_e_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_e_si)))));
+d_phis_dV_di_si = (d_vch_dV_di_si+(T14*((d_lng0_dV_di_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_di_si))))+d_F1_dV_di_si)+d_T14_dV_di_si*((lng0-evaluator_lln_1.getValues(value_cos_0))+F1)));
 phis = ((vch+(T14*((lng0-evaluator_lln_1.getValues(value_cos_0))+F1)))+phibulk);
 }
 }
@@ -13316,7 +13316,7 @@ else
 {
 
 d_F0_dV_e_si = d_F0_dV_e_di = d_F0_dV_g_e =  0.0;
-d_F0_dV_di_si = (((2.0*nVtm)*(d_vgsfbeff_dV_di_si-d_vch_dV_di_si)-(vgsfbeff-vch)*(2.0*d_nVtm_dV_di_si))/(2.0*nVtm)/(2.0*nVtm));
+d_F0_dV_di_si = (((2.0*nVtm)*(d_vgsfbeff_dV_di_si-d_vch_dV_di_si)-(vgsfbeff-vch)*2.0*d_nVtm_dV_di_si)/(2.0*nVtm)/(2.0*nVtm));
 d_F0_dV_g_si = ((d_vgsfbeff_dV_g_si-d_vch_dV_g_si)/(2.0*nVtm));
 F0 = ((vgsfbeff-vch)/(2.0*nVtm));
 if ((F0<(-10)))
@@ -13325,9 +13325,9 @@ if ((F0<(-10)))
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((2.0*F0));
 
 d_g0_dV_e_si = d_g0_dV_e_di =  0.0;
-d_g0_dV_di_si = evaluator_lexp_0.getDerivs((2.0*F0),(2.0*d_F0_dV_di_si));
-d_g0_dV_g_si = evaluator_lexp_0.getDerivs((2.0*F0),(2.0*d_F0_dV_g_si));
-d_g0_dV_g_e = evaluator_lexp_0.getDerivs((2.0*F0),(2.0*d_F0_dV_g_e));
+d_g0_dV_di_si = evaluator_lexp_0.getDerivs((2.0*F0),2.0*d_F0_dV_di_si);
+d_g0_dV_g_si = evaluator_lexp_0.getDerivs((2.0*F0),2.0*d_F0_dV_g_si);
+d_g0_dV_g_e = evaluator_lexp_0.getDerivs((2.0*F0),2.0*d_F0_dV_g_e);
 g0 = evaluator_lexp_0.getValues((2.0*F0));
 }
 }
@@ -13358,11 +13358,11 @@ T0 = evaluator_lln_1.getValues((1+evaluator_lexp_0.getValues(F0)));
 double value_sqrt_0 = sqrt((0.25+(((r1*r1)*T0)*T0)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_g0_dV_di_si = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_di_si)+(((r1*r1)*d_T0_dV_di_si)*T0))))/(r1*r1));
-d_g0_dV_g_si = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_g_si)+(((r1*r1)*d_T0_dV_g_si)*T0))))/(r1*r1));
-d_g0_dV_g_e = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_g_e)+(((r1*r1)*d_T0_dV_g_e)*T0))))/(r1*r1));
-d_g0_dV_e_di = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_e_di)+(((r1*r1)*d_T0_dV_e_di)*T0))))/(r1*r1));
-d_g0_dV_e_si = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_e_si)+(((r1*r1)*d_T0_dV_e_si)*T0))))/(r1*r1));
+d_g0_dV_di_si = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_di_si+(r1*r1)*d_T0_dV_di_si*T0)))/(r1*r1));
+d_g0_dV_g_si = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_g_si+(r1*r1)*d_T0_dV_g_si*T0)))/(r1*r1));
+d_g0_dV_g_e = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_g_e+(r1*r1)*d_T0_dV_g_e*T0)))/(r1*r1));
+d_g0_dV_e_di = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_e_di+(r1*r1)*d_T0_dV_e_di*T0)))/(r1*r1));
+d_g0_dV_e_si = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_e_si+(r1*r1)*d_T0_dV_e_si*T0)))/(r1*r1));
 g0 = ((value_sqrt_0-0.5)/(r1*r1));
 }
 }
@@ -13402,19 +13402,19 @@ d_inv_g0_dV_e_di = (-d_g0_dV_e_di/g0/g0);
 d_inv_g0_dV_e_si = (-d_g0_dV_e_si/g0/g0);
 inv_g0 = (1.0/g0);
 
-d_inv_g0sq_dV_di_si = ((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0));
-d_inv_g0sq_dV_g_si = ((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0));
-d_inv_g0sq_dV_g_e = ((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0));
-d_inv_g0sq_dV_e_di = ((inv_g0*d_inv_g0_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0));
-d_inv_g0sq_dV_e_si = ((inv_g0*d_inv_g0_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0));
+d_inv_g0sq_dV_di_si = (inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0);
+d_inv_g0sq_dV_g_si = (inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0);
+d_inv_g0sq_dV_g_e = (inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0);
+d_inv_g0sq_dV_e_di = (inv_g0*d_inv_g0_dV_e_di+d_inv_g0_dV_e_di*inv_g0);
+d_inv_g0sq_dV_e_si = (inv_g0*d_inv_g0_dV_e_si+d_inv_g0_dV_e_si*inv_g0);
 inv_g0sq = (inv_g0*inv_g0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_g_si = (cdop*d_g0_dV_g_si);
-d_T0_dV_g_e = (cdop*d_g0_dV_g_e);
-d_T0_dV_e_di = (cdop*d_g0_dV_e_di);
-d_T0_dV_e_si = (cdop*d_g0_dV_e_si);
-d_T0_dV_di_si = ((cdop*d_g0_dV_di_si)+(d_cdop_dV_di_si*g0));
+d_T0_dV_g_si = cdop*d_g0_dV_g_si;
+d_T0_dV_g_e = cdop*d_g0_dV_g_e;
+d_T0_dV_e_di = cdop*d_g0_dV_e_di;
+d_T0_dV_e_si = cdop*d_g0_dV_e_si;
+d_T0_dV_di_si = (cdop*d_g0_dV_di_si+d_cdop_dV_di_si*g0);
 T0 = (1+(cdop*g0));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
@@ -13426,50 +13426,50 @@ d_T1_dV_di_si = ((T0*d_cdop_dV_di_si-cdop*d_T0_dV_di_si)/T0/T0);
 T1 = (cdop/T0);
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = ((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1));
-d_T2_dV_g_si = ((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1));
-d_T2_dV_g_e = ((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1));
-d_T2_dV_e_di = ((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1));
-d_T2_dV_e_si = ((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1));
+d_T2_dV_di_si = (T1*d_T1_dV_di_si+d_T1_dV_di_si*T1);
+d_T2_dV_g_si = (T1*d_T1_dV_g_si+d_T1_dV_g_si*T1);
+d_T2_dV_g_e = (T1*d_T1_dV_g_e+d_T1_dV_g_e*T1);
+d_T2_dV_e_di = (T1*d_T1_dV_e_di+d_T1_dV_e_di*T1);
+d_T2_dV_e_si = (T1*d_T1_dV_e_si+d_T1_dV_e_si*T1);
 T2 = (T1*T1);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(g0);
 AnalogFunctions::llnEvaluator evaluator_lln_1(T0);
 
-d_e0_dV_di_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si)))+(r1*d_g0_dV_di_si))+(((r2*g0)*d_g0_dV_di_si)+((r2*d_g0_dV_di_si)*g0)))-d_F0_dV_di_si);
-d_e0_dV_g_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si)))+(r1*d_g0_dV_g_si))+(((r2*g0)*d_g0_dV_g_si)+((r2*d_g0_dV_g_si)*g0)))-d_F0_dV_g_si);
-d_e0_dV_g_e = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e)))+(r1*d_g0_dV_g_e))+(((r2*g0)*d_g0_dV_g_e)+((r2*d_g0_dV_g_e)*g0)))-d_F0_dV_g_e);
-d_e0_dV_e_di = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di)))+(r1*d_g0_dV_e_di))+(((r2*g0)*d_g0_dV_e_di)+((r2*d_g0_dV_e_di)*g0)))-d_F0_dV_e_di);
-d_e0_dV_e_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si)))+(r1*d_g0_dV_e_si))+(((r2*g0)*d_g0_dV_e_si)+((r2*d_g0_dV_e_si)*g0)))-d_F0_dV_e_si);
+d_e0_dV_di_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si))+r1*d_g0_dV_di_si)+((r2*g0)*d_g0_dV_di_si+r2*d_g0_dV_di_si*g0))-d_F0_dV_di_si);
+d_e0_dV_g_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si))+r1*d_g0_dV_g_si)+((r2*g0)*d_g0_dV_g_si+r2*d_g0_dV_g_si*g0))-d_F0_dV_g_si);
+d_e0_dV_g_e = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e))+r1*d_g0_dV_g_e)+((r2*g0)*d_g0_dV_g_e+r2*d_g0_dV_g_e*g0))-d_F0_dV_g_e);
+d_e0_dV_e_di = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di))+r1*d_g0_dV_e_di)+((r2*g0)*d_g0_dV_e_di+r2*d_g0_dV_e_di*g0))-d_F0_dV_e_di);
+d_e0_dV_e_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si))+r1*d_g0_dV_e_si)+((r2*g0)*d_g0_dV_e_si+r2*d_g0_dV_e_si*g0))-d_F0_dV_e_si);
 e0 = (((((0.5*evaluator_lln_0.getValues(g0))+(0.5*evaluator_lln_1.getValues(T0)))+(r1*g0))+((r2*g0)*g0))-F0);
 }
 
-d_e1_dV_di_si = (((0.5*d_inv_g0_dV_di_si)+(0.5*d_T1_dV_di_si))+((2*r2)*d_g0_dV_di_si));
-d_e1_dV_g_si = (((0.5*d_inv_g0_dV_g_si)+(0.5*d_T1_dV_g_si))+((2*r2)*d_g0_dV_g_si));
-d_e1_dV_g_e = (((0.5*d_inv_g0_dV_g_e)+(0.5*d_T1_dV_g_e))+((2*r2)*d_g0_dV_g_e));
-d_e1_dV_e_di = (((0.5*d_inv_g0_dV_e_di)+(0.5*d_T1_dV_e_di))+((2*r2)*d_g0_dV_e_di));
-d_e1_dV_e_si = (((0.5*d_inv_g0_dV_e_si)+(0.5*d_T1_dV_e_si))+((2*r2)*d_g0_dV_e_si));
+d_e1_dV_di_si = ((0.5*d_inv_g0_dV_di_si+0.5*d_T1_dV_di_si)+(2*r2)*d_g0_dV_di_si);
+d_e1_dV_g_si = ((0.5*d_inv_g0_dV_g_si+0.5*d_T1_dV_g_si)+(2*r2)*d_g0_dV_g_si);
+d_e1_dV_g_e = ((0.5*d_inv_g0_dV_g_e+0.5*d_T1_dV_g_e)+(2*r2)*d_g0_dV_g_e);
+d_e1_dV_e_di = ((0.5*d_inv_g0_dV_e_di+0.5*d_T1_dV_e_di)+(2*r2)*d_g0_dV_e_di);
+d_e1_dV_e_si = ((0.5*d_inv_g0_dV_e_si+0.5*d_T1_dV_e_si)+(2*r2)*d_g0_dV_e_si);
 e1 = ((((0.5*inv_g0)+(0.5*T1))+r1)+((2*r2)*g0));
 
-d_e2_dV_di_si = (((-0.5)*d_inv_g0sq_dV_di_si)-(0.5*d_T2_dV_di_si));
-d_e2_dV_g_si = (((-0.5)*d_inv_g0sq_dV_g_si)-(0.5*d_T2_dV_g_si));
-d_e2_dV_g_e = (((-0.5)*d_inv_g0sq_dV_g_e)-(0.5*d_T2_dV_g_e));
-d_e2_dV_e_di = (((-0.5)*d_inv_g0sq_dV_e_di)-(0.5*d_T2_dV_e_di));
-d_e2_dV_e_si = (((-0.5)*d_inv_g0sq_dV_e_si)-(0.5*d_T2_dV_e_si));
+d_e2_dV_di_si = ((-0.5)*d_inv_g0sq_dV_di_si-0.5*d_T2_dV_di_si);
+d_e2_dV_g_si = ((-0.5)*d_inv_g0sq_dV_g_si-0.5*d_T2_dV_g_si);
+d_e2_dV_g_e = ((-0.5)*d_inv_g0sq_dV_g_e-0.5*d_T2_dV_g_e);
+d_e2_dV_e_di = ((-0.5)*d_inv_g0sq_dV_e_di-0.5*d_T2_dV_e_di);
+d_e2_dV_e_si = ((-0.5)*d_inv_g0sq_dV_e_si-0.5*d_T2_dV_e_si);
 e2 = ((((-0.5)*inv_g0sq)-(0.5*T2))+(2*r2));
 
-d_e3_dV_di_si = (((inv_g0*d_inv_g0sq_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0sq))+((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*T1)));
-d_e3_dV_g_si = (((inv_g0*d_inv_g0sq_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0sq))+((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*T1)));
-d_e3_dV_g_e = (((inv_g0*d_inv_g0sq_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0sq))+((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*T1)));
-d_e3_dV_e_di = (((inv_g0*d_inv_g0sq_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0sq))+((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*T1)));
-d_e3_dV_e_si = (((inv_g0*d_inv_g0sq_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0sq))+((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*T1)));
+d_e3_dV_di_si = ((inv_g0*d_inv_g0sq_dV_di_si+d_inv_g0_dV_di_si*inv_g0sq)+(T2*d_T1_dV_di_si+d_T2_dV_di_si*T1));
+d_e3_dV_g_si = ((inv_g0*d_inv_g0sq_dV_g_si+d_inv_g0_dV_g_si*inv_g0sq)+(T2*d_T1_dV_g_si+d_T2_dV_g_si*T1));
+d_e3_dV_g_e = ((inv_g0*d_inv_g0sq_dV_g_e+d_inv_g0_dV_g_e*inv_g0sq)+(T2*d_T1_dV_g_e+d_T2_dV_g_e*T1));
+d_e3_dV_e_di = ((inv_g0*d_inv_g0sq_dV_e_di+d_inv_g0_dV_e_di*inv_g0sq)+(T2*d_T1_dV_e_di+d_T2_dV_e_di*T1));
+d_e3_dV_e_si = ((inv_g0*d_inv_g0sq_dV_e_si+d_inv_g0_dV_e_si*inv_g0sq)+(T2*d_T1_dV_e_si+d_T2_dV_e_si*T1));
 e3 = ((inv_g0*inv_g0sq)+(T2*T1));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -13494,19 +13494,19 @@ d_inv_g0_dV_e_di = (-d_g0_dV_e_di/g0/g0);
 d_inv_g0_dV_e_si = (-d_g0_dV_e_si/g0/g0);
 inv_g0 = (1.0/g0);
 
-d_inv_g0sq_dV_di_si = ((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0));
-d_inv_g0sq_dV_g_si = ((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0));
-d_inv_g0sq_dV_g_e = ((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0));
-d_inv_g0sq_dV_e_di = ((inv_g0*d_inv_g0_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0));
-d_inv_g0sq_dV_e_si = ((inv_g0*d_inv_g0_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0));
+d_inv_g0sq_dV_di_si = (inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0);
+d_inv_g0sq_dV_g_si = (inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0);
+d_inv_g0sq_dV_g_e = (inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0);
+d_inv_g0sq_dV_e_di = (inv_g0*d_inv_g0_dV_e_di+d_inv_g0_dV_e_di*inv_g0);
+d_inv_g0sq_dV_e_si = (inv_g0*d_inv_g0_dV_e_si+d_inv_g0_dV_e_si*inv_g0);
 inv_g0sq = (inv_g0*inv_g0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_g_si = (cdop*d_g0_dV_g_si);
-d_T0_dV_g_e = (cdop*d_g0_dV_g_e);
-d_T0_dV_e_di = (cdop*d_g0_dV_e_di);
-d_T0_dV_e_si = (cdop*d_g0_dV_e_si);
-d_T0_dV_di_si = ((cdop*d_g0_dV_di_si)+(d_cdop_dV_di_si*g0));
+d_T0_dV_g_si = cdop*d_g0_dV_g_si;
+d_T0_dV_g_e = cdop*d_g0_dV_g_e;
+d_T0_dV_e_di = cdop*d_g0_dV_e_di;
+d_T0_dV_e_si = cdop*d_g0_dV_e_si;
+d_T0_dV_di_si = (cdop*d_g0_dV_di_si+d_cdop_dV_di_si*g0);
 T0 = (1+(cdop*g0));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
@@ -13518,50 +13518,50 @@ d_T1_dV_di_si = ((T0*d_cdop_dV_di_si-cdop*d_T0_dV_di_si)/T0/T0);
 T1 = (cdop/T0);
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = ((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1));
-d_T2_dV_g_si = ((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1));
-d_T2_dV_g_e = ((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1));
-d_T2_dV_e_di = ((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1));
-d_T2_dV_e_si = ((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1));
+d_T2_dV_di_si = (T1*d_T1_dV_di_si+d_T1_dV_di_si*T1);
+d_T2_dV_g_si = (T1*d_T1_dV_g_si+d_T1_dV_g_si*T1);
+d_T2_dV_g_e = (T1*d_T1_dV_g_e+d_T1_dV_g_e*T1);
+d_T2_dV_e_di = (T1*d_T1_dV_e_di+d_T1_dV_e_di*T1);
+d_T2_dV_e_si = (T1*d_T1_dV_e_si+d_T1_dV_e_si*T1);
 T2 = (T1*T1);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(g0);
 AnalogFunctions::llnEvaluator evaluator_lln_1(T0);
 
-d_e0_dV_di_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si)))+(r1*d_g0_dV_di_si))+(((r2*g0)*d_g0_dV_di_si)+((r2*d_g0_dV_di_si)*g0)))-d_F0_dV_di_si);
-d_e0_dV_g_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si)))+(r1*d_g0_dV_g_si))+(((r2*g0)*d_g0_dV_g_si)+((r2*d_g0_dV_g_si)*g0)))-d_F0_dV_g_si);
-d_e0_dV_g_e = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e)))+(r1*d_g0_dV_g_e))+(((r2*g0)*d_g0_dV_g_e)+((r2*d_g0_dV_g_e)*g0)))-d_F0_dV_g_e);
-d_e0_dV_e_di = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di)))+(r1*d_g0_dV_e_di))+(((r2*g0)*d_g0_dV_e_di)+((r2*d_g0_dV_e_di)*g0)))-d_F0_dV_e_di);
-d_e0_dV_e_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si)))+(r1*d_g0_dV_e_si))+(((r2*g0)*d_g0_dV_e_si)+((r2*d_g0_dV_e_si)*g0)))-d_F0_dV_e_si);
+d_e0_dV_di_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si))+r1*d_g0_dV_di_si)+((r2*g0)*d_g0_dV_di_si+r2*d_g0_dV_di_si*g0))-d_F0_dV_di_si);
+d_e0_dV_g_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si))+r1*d_g0_dV_g_si)+((r2*g0)*d_g0_dV_g_si+r2*d_g0_dV_g_si*g0))-d_F0_dV_g_si);
+d_e0_dV_g_e = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e))+r1*d_g0_dV_g_e)+((r2*g0)*d_g0_dV_g_e+r2*d_g0_dV_g_e*g0))-d_F0_dV_g_e);
+d_e0_dV_e_di = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di))+r1*d_g0_dV_e_di)+((r2*g0)*d_g0_dV_e_di+r2*d_g0_dV_e_di*g0))-d_F0_dV_e_di);
+d_e0_dV_e_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si))+r1*d_g0_dV_e_si)+((r2*g0)*d_g0_dV_e_si+r2*d_g0_dV_e_si*g0))-d_F0_dV_e_si);
 e0 = (((((0.5*evaluator_lln_0.getValues(g0))+(0.5*evaluator_lln_1.getValues(T0)))+(r1*g0))+((r2*g0)*g0))-F0);
 }
 
-d_e1_dV_di_si = (((0.5*d_inv_g0_dV_di_si)+(0.5*d_T1_dV_di_si))+((2*r2)*d_g0_dV_di_si));
-d_e1_dV_g_si = (((0.5*d_inv_g0_dV_g_si)+(0.5*d_T1_dV_g_si))+((2*r2)*d_g0_dV_g_si));
-d_e1_dV_g_e = (((0.5*d_inv_g0_dV_g_e)+(0.5*d_T1_dV_g_e))+((2*r2)*d_g0_dV_g_e));
-d_e1_dV_e_di = (((0.5*d_inv_g0_dV_e_di)+(0.5*d_T1_dV_e_di))+((2*r2)*d_g0_dV_e_di));
-d_e1_dV_e_si = (((0.5*d_inv_g0_dV_e_si)+(0.5*d_T1_dV_e_si))+((2*r2)*d_g0_dV_e_si));
+d_e1_dV_di_si = ((0.5*d_inv_g0_dV_di_si+0.5*d_T1_dV_di_si)+(2*r2)*d_g0_dV_di_si);
+d_e1_dV_g_si = ((0.5*d_inv_g0_dV_g_si+0.5*d_T1_dV_g_si)+(2*r2)*d_g0_dV_g_si);
+d_e1_dV_g_e = ((0.5*d_inv_g0_dV_g_e+0.5*d_T1_dV_g_e)+(2*r2)*d_g0_dV_g_e);
+d_e1_dV_e_di = ((0.5*d_inv_g0_dV_e_di+0.5*d_T1_dV_e_di)+(2*r2)*d_g0_dV_e_di);
+d_e1_dV_e_si = ((0.5*d_inv_g0_dV_e_si+0.5*d_T1_dV_e_si)+(2*r2)*d_g0_dV_e_si);
 e1 = ((((0.5*inv_g0)+(0.5*T1))+r1)+((2*r2)*g0));
 
-d_e2_dV_di_si = (((-0.5)*d_inv_g0sq_dV_di_si)-(0.5*d_T2_dV_di_si));
-d_e2_dV_g_si = (((-0.5)*d_inv_g0sq_dV_g_si)-(0.5*d_T2_dV_g_si));
-d_e2_dV_g_e = (((-0.5)*d_inv_g0sq_dV_g_e)-(0.5*d_T2_dV_g_e));
-d_e2_dV_e_di = (((-0.5)*d_inv_g0sq_dV_e_di)-(0.5*d_T2_dV_e_di));
-d_e2_dV_e_si = (((-0.5)*d_inv_g0sq_dV_e_si)-(0.5*d_T2_dV_e_si));
+d_e2_dV_di_si = ((-0.5)*d_inv_g0sq_dV_di_si-0.5*d_T2_dV_di_si);
+d_e2_dV_g_si = ((-0.5)*d_inv_g0sq_dV_g_si-0.5*d_T2_dV_g_si);
+d_e2_dV_g_e = ((-0.5)*d_inv_g0sq_dV_g_e-0.5*d_T2_dV_g_e);
+d_e2_dV_e_di = ((-0.5)*d_inv_g0sq_dV_e_di-0.5*d_T2_dV_e_di);
+d_e2_dV_e_si = ((-0.5)*d_inv_g0sq_dV_e_si-0.5*d_T2_dV_e_si);
 e2 = ((((-0.5)*inv_g0sq)-(0.5*T2))+(2.0*r2));
 
-d_e3_dV_di_si = (((inv_g0*d_inv_g0sq_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0sq))+((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*T1)));
-d_e3_dV_g_si = (((inv_g0*d_inv_g0sq_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0sq))+((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*T1)));
-d_e3_dV_g_e = (((inv_g0*d_inv_g0sq_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0sq))+((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*T1)));
-d_e3_dV_e_di = (((inv_g0*d_inv_g0sq_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0sq))+((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*T1)));
-d_e3_dV_e_si = (((inv_g0*d_inv_g0sq_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0sq))+((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*T1)));
+d_e3_dV_di_si = ((inv_g0*d_inv_g0sq_dV_di_si+d_inv_g0_dV_di_si*inv_g0sq)+(T2*d_T1_dV_di_si+d_T2_dV_di_si*T1));
+d_e3_dV_g_si = ((inv_g0*d_inv_g0sq_dV_g_si+d_inv_g0_dV_g_si*inv_g0sq)+(T2*d_T1_dV_g_si+d_T2_dV_g_si*T1));
+d_e3_dV_g_e = ((inv_g0*d_inv_g0sq_dV_g_e+d_inv_g0_dV_g_e*inv_g0sq)+(T2*d_T1_dV_g_e+d_T2_dV_g_e*T1));
+d_e3_dV_e_di = ((inv_g0*d_inv_g0sq_dV_e_di+d_inv_g0_dV_e_di*inv_g0sq)+(T2*d_T1_dV_e_di+d_T2_dV_e_di*T1));
+d_e3_dV_e_si = ((inv_g0*d_inv_g0sq_dV_e_si+d_inv_g0_dV_e_si*inv_g0sq)+(T2*d_T1_dV_e_si+d_T2_dV_e_si*T1));
 e3 = ((inv_g0*inv_g0sq)+(T2*T1));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -13587,25 +13587,25 @@ d_g0s_dV_e_si = d_g0_dV_e_si;
 g0s = g0;
 }
 
-d_vpolys_dV_g_si = (((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_g_si)+((((2.0*nVtm)*r2)*d_g0s_dV_g_si)*g0s));
-d_vpolys_dV_g_e = (((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_g_e)+((((2.0*nVtm)*r2)*d_g0s_dV_g_e)*g0s));
-d_vpolys_dV_e_di = (((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_e_di)+((((2.0*nVtm)*r2)*d_g0s_dV_e_di)*g0s));
-d_vpolys_dV_e_si = (((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_e_si)+((((2.0*nVtm)*r2)*d_g0s_dV_e_si)*g0s));
-d_vpolys_dV_di_si = (((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_di_si)+(((((2.0*nVtm)*r2)*d_g0s_dV_di_si)+(((2.0*d_nVtm_dV_di_si)*r2)*g0s))*g0s));
+d_vpolys_dV_g_si = ((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_g_si+((2.0*nVtm)*r2)*d_g0s_dV_g_si*g0s);
+d_vpolys_dV_g_e = ((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_g_e+((2.0*nVtm)*r2)*d_g0s_dV_g_e*g0s);
+d_vpolys_dV_e_di = ((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_e_di+((2.0*nVtm)*r2)*d_g0s_dV_e_di*g0s);
+d_vpolys_dV_e_si = ((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_e_si+((2.0*nVtm)*r2)*d_g0s_dV_e_si*g0s);
+d_vpolys_dV_di_si = ((((2.0*nVtm)*r2)*g0s)*d_g0s_dV_di_si+(((2.0*nVtm)*r2)*d_g0s_dV_di_si+2.0*d_nVtm_dV_di_si*r2*g0s)*g0s);
 vpolys = ((((2.0*nVtm)*r2)*g0s)*g0s);
 
-d_phis_dV_g_e = ((-(((2.0*nVtm)*r1)*d_g0s_dV_g_e))-d_vpolys_dV_g_e);
-d_phis_dV_e_di = ((-(((2.0*nVtm)*r1)*d_g0s_dV_e_di))-d_vpolys_dV_e_di);
-d_phis_dV_e_si = ((-(((2.0*nVtm)*r1)*d_g0s_dV_e_si))-d_vpolys_dV_e_si);
-d_phis_dV_di_si = ((d_vgsfbeff_dV_di_si-((((2.0*nVtm)*r1)*d_g0s_dV_di_si)+(((2.0*d_nVtm_dV_di_si)*r1)*g0s)))-d_vpolys_dV_di_si);
-d_phis_dV_g_si = ((d_vgsfbeff_dV_g_si-(((2.0*nVtm)*r1)*d_g0s_dV_g_si))-d_vpolys_dV_g_si);
+d_phis_dV_g_e = ((-((2.0*nVtm)*r1)*d_g0s_dV_g_e)-d_vpolys_dV_g_e);
+d_phis_dV_e_di = ((-((2.0*nVtm)*r1)*d_g0s_dV_e_di)-d_vpolys_dV_e_di);
+d_phis_dV_e_si = ((-((2.0*nVtm)*r1)*d_g0s_dV_e_si)-d_vpolys_dV_e_si);
+d_phis_dV_di_si = ((d_vgsfbeff_dV_di_si-(((2.0*nVtm)*r1)*d_g0s_dV_di_si+2.0*d_nVtm_dV_di_si*r1*g0s))-d_vpolys_dV_di_si);
+d_phis_dV_g_si = ((d_vgsfbeff_dV_g_si-((2.0*nVtm)*r1)*d_g0s_dV_g_si)-d_vpolys_dV_g_si);
 phis = ((vgsfbeff-(((2.0*nVtm)*r1)*g0s))-vpolys);
 
-d_qis_dV_g_si = (q0*d_g0s_dV_g_si);
-d_qis_dV_g_e = (q0*d_g0s_dV_g_e);
-d_qis_dV_e_di = (q0*d_g0s_dV_e_di);
-d_qis_dV_e_si = (q0*d_g0s_dV_e_si);
-d_qis_dV_di_si = ((q0*d_g0s_dV_di_si)+(d_q0_dV_di_si*g0s));
+d_qis_dV_g_si = q0*d_g0s_dV_g_si;
+d_qis_dV_g_e = q0*d_g0s_dV_g_e;
+d_qis_dV_e_di = q0*d_g0s_dV_e_di;
+d_qis_dV_e_si = q0*d_g0s_dV_e_si;
+d_qis_dV_di_si = (q0*d_g0s_dV_di_si+d_q0_dV_di_si*g0s);
 qis = (q0*g0s);
 }
 if (((model_.GEOMOD)!=3))
@@ -13625,11 +13625,11 @@ d_T0_dV_g_si = (deriv_sqrt_0_d0*(((d_vgsfbeff_dV_g_si-d_phis_dV_g_si)/vpoly0)));
 T0 = (value_sqrt_0-1.0);
 }
 
-d_vpolys_dV_di_si = (((vpoly0*T0)*d_T0_dV_di_si)+((vpoly0*d_T0_dV_di_si)*T0));
-d_vpolys_dV_g_si = (((vpoly0*T0)*d_T0_dV_g_si)+((vpoly0*d_T0_dV_g_si)*T0));
-d_vpolys_dV_g_e = (((vpoly0*T0)*d_T0_dV_g_e)+((vpoly0*d_T0_dV_g_e)*T0));
-d_vpolys_dV_e_di = (((vpoly0*T0)*d_T0_dV_e_di)+((vpoly0*d_T0_dV_e_di)*T0));
-d_vpolys_dV_e_si = (((vpoly0*T0)*d_T0_dV_e_si)+((vpoly0*d_T0_dV_e_si)*T0));
+d_vpolys_dV_di_si = ((vpoly0*T0)*d_T0_dV_di_si+vpoly0*d_T0_dV_di_si*T0);
+d_vpolys_dV_g_si = ((vpoly0*T0)*d_T0_dV_g_si+vpoly0*d_T0_dV_g_si*T0);
+d_vpolys_dV_g_e = ((vpoly0*T0)*d_T0_dV_g_e+vpoly0*d_T0_dV_g_e*T0);
+d_vpolys_dV_e_di = ((vpoly0*T0)*d_T0_dV_e_di+vpoly0*d_T0_dV_e_di*T0);
+d_vpolys_dV_e_si = ((vpoly0*T0)*d_T0_dV_e_si+vpoly0*d_T0_dV_e_si*T0);
 vpolys = ((vpoly0*T0)*T0);
 }
 else
@@ -13647,11 +13647,11 @@ d_qis_dV_g_si = (((model_.COREMOD)!=0)?((d_vgsfbeff_dV_g_si-d_phis_dV_g_si)-d_vp
 qis = (((model_.COREMOD)!=0)?((vgsfbeff-phis)-vpolys):(((vgsfbeff-phis)-qbs)-vpolys));
 }
 
-d_Eeffs_dV_g_si = (EeffFactor*(eta_mu*d_qis_dV_g_si));
-d_Eeffs_dV_g_e = (EeffFactor*(eta_mu*d_qis_dV_g_e));
-d_Eeffs_dV_e_di = (EeffFactor*(eta_mu*d_qis_dV_e_di));
-d_Eeffs_dV_e_si = (EeffFactor*(eta_mu*d_qis_dV_e_si));
-d_Eeffs_dV_di_si = (EeffFactor*(eta_mu*d_qis_dV_di_si));
+d_Eeffs_dV_g_si = EeffFactor*eta_mu*d_qis_dV_g_si;
+d_Eeffs_dV_g_e = EeffFactor*eta_mu*d_qis_dV_g_e;
+d_Eeffs_dV_e_di = EeffFactor*eta_mu*d_qis_dV_e_di;
+d_Eeffs_dV_e_si = EeffFactor*eta_mu*d_qis_dV_e_si;
+d_Eeffs_dV_di_si = EeffFactor*eta_mu*d_qis_dV_di_si;
 Eeffs = (EeffFactor*(qbs+(eta_mu*qis)));
 qb0 = (1.0e-2/cox);
 {
@@ -13661,11 +13661,11 @@ double  deriv_fabs_0_d0 = ((((qis/qb0))>=0)?(+1.0):(-1.0));
 double  deriv_pow_1_d0 = (((0.5*(1.0+value_fabs_0)) == 0.0)?0.0:(value_pow_1*UCS_t/(0.5*(1.0+value_fabs_0))));
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_g_si = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qis_dV_g_si/qb0))))));
-d_T2_dV_g_e = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qis_dV_g_e/qb0))))));
-d_T2_dV_e_di = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qis_dV_e_di/qb0))))));
-d_T2_dV_e_si = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qis_dV_e_si/qb0))))));
-d_T2_dV_di_si = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qis_dV_di_si/qb0))))));
+d_T2_dV_g_si = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qis_dV_g_si/qb0)))));
+d_T2_dV_g_e = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qis_dV_g_e/qb0)))));
+d_T2_dV_e_di = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qis_dV_e_di/qb0)))));
+d_T2_dV_e_si = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qis_dV_e_si/qb0)))));
+d_T2_dV_di_si = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qis_dV_di_si/qb0)))));
 T2 = value_pow_1;
 }
 if (((model_.BULKMOD)!=0))
@@ -13677,11 +13677,11 @@ double  deriv_fabs_0_d0 = (((Eeffs)>=0)?(+1.0):(-1.0));
 double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*EU_i/value_fabs_0));
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_g_si = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_g_si)))))+(-UD_t*d_T2_dV_g_si/T2/T2));
-d_T3_dV_g_e = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_g_e)))))+(-UD_t*d_T2_dV_g_e/T2/T2));
-d_T3_dV_di_si = ((((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_di_si)))))+((UC_t*d_veseff_dV_di_si)*value_pow_1))+(-UD_t*d_T2_dV_di_si/T2/T2));
-d_T3_dV_e_di = ((((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_e_di)))))+((UC_t*d_veseff_dV_e_di)*value_pow_1))+(-UD_t*d_T2_dV_e_di/T2/T2));
-d_T3_dV_e_si = ((((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_e_si)))))+((UC_t*d_veseff_dV_e_si)*value_pow_1))+(-UD_t*d_T2_dV_e_si/T2/T2));
+d_T3_dV_g_si = ((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_g_si))))+(-UD_t*d_T2_dV_g_si/T2/T2));
+d_T3_dV_g_e = ((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_g_e))))+(-UD_t*d_T2_dV_g_e/T2/T2));
+d_T3_dV_di_si = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_di_si))))+UC_t*d_veseff_dV_di_si*value_pow_1)+(-UD_t*d_T2_dV_di_si/T2/T2));
+d_T3_dV_e_di = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_e_di))))+UC_t*d_veseff_dV_e_di*value_pow_1)+(-UD_t*d_T2_dV_e_di/T2/T2));
+d_T3_dV_e_si = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_e_si))))+UC_t*d_veseff_dV_e_si*value_pow_1)+(-UD_t*d_T2_dV_e_si/T2/T2));
 T3 = (((UA_t+(UC_t*veseff))*value_pow_1)+(UD_t/T2));
 }
 }
@@ -13694,11 +13694,11 @@ double  deriv_fabs_0_d0 = (((Eeffs)>=0)?(+1.0):(-1.0));
 double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*EU_i/value_fabs_0));
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_g_si = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_g_si)))))+(-UD_t*d_T2_dV_g_si/T2/T2));
-d_T3_dV_g_e = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_g_e)))))+(-UD_t*d_T2_dV_g_e/T2/T2));
-d_T3_dV_e_di = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_e_di)))))+(-UD_t*d_T2_dV_e_di/T2/T2));
-d_T3_dV_e_si = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_e_si)))))+(-UD_t*d_T2_dV_e_si/T2/T2));
-d_T3_dV_di_si = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_di_si)))))+(-UD_t*d_T2_dV_di_si/T2/T2));
+d_T3_dV_g_si = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_g_si))))+(-UD_t*d_T2_dV_g_si/T2/T2));
+d_T3_dV_g_e = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_g_e))))+(-UD_t*d_T2_dV_g_e/T2/T2));
+d_T3_dV_e_di = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_e_di))))+(-UD_t*d_T2_dV_e_di/T2/T2));
+d_T3_dV_e_si = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_e_si))))+(-UD_t*d_T2_dV_e_si/T2/T2));
+d_T3_dV_di_si = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffs_dV_di_si))))+(-UD_t*d_T2_dV_di_si/T2/T2));
 T3 = ((UA_t*value_pow_1)+(UD_t/T2));
 }
 }
@@ -13726,11 +13726,11 @@ else
 {
 
 d_T4_dV_g_di =  0.0;
-d_T4_dV_g_si = (PRWGS_i*d_qis_dV_g_si);
-d_T4_dV_g_e = (PRWGS_i*d_qis_dV_g_e);
-d_T4_dV_e_di = (PRWGS_i*d_qis_dV_e_di);
-d_T4_dV_e_si = (PRWGS_i*d_qis_dV_e_si);
-d_T4_dV_di_si = (PRWGS_i*d_qis_dV_di_si);
+d_T4_dV_g_si = PRWGS_i*d_qis_dV_g_si;
+d_T4_dV_g_e = PRWGS_i*d_qis_dV_g_e;
+d_T4_dV_e_di = PRWGS_i*d_qis_dV_e_di;
+d_T4_dV_e_si = PRWGS_i*d_qis_dV_e_si;
+d_T4_dV_di_si = PRWGS_i*d_qis_dV_di_si;
 T4 = (1.0+(PRWGS_i*qis));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
@@ -13745,51 +13745,51 @@ double value_sqrt_0 = sqrt(((T1*T1)+0.01));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = (0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1))))));
-d_T0_dV_g_si = (0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1))))));
-d_T0_dV_g_e = (0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1))))));
-d_T0_dV_e_di = (0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1))))));
-d_T0_dV_e_si = (0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1))))));
+d_T0_dV_di_si = 0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_di_si+d_T1_dV_di_si*T1))));
+d_T0_dV_g_si = 0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_si+d_T1_dV_g_si*T1))));
+d_T0_dV_g_e = 0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_e+d_T1_dV_g_e*T1))));
+d_T0_dV_e_di = 0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_di+d_T1_dV_e_di*T1))));
+d_T0_dV_e_si = 0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_si+d_T1_dV_e_si*T1))));
 T0 = (0.5*(T1+value_sqrt_0));
 }
 
-d_Rdss_dV_di_si = ((((RDSW_i*d_T0_dV_di_si)*WeffWRFactor)*NFINtotal)*rdstemp);
-d_Rdss_dV_g_si = ((((RDSW_i*d_T0_dV_g_si)*WeffWRFactor)*NFINtotal)*rdstemp);
-d_Rdss_dV_g_e = ((((RDSW_i*d_T0_dV_g_e)*WeffWRFactor)*NFINtotal)*rdstemp);
-d_Rdss_dV_e_di = ((((RDSW_i*d_T0_dV_e_di)*WeffWRFactor)*NFINtotal)*rdstemp);
-d_Rdss_dV_e_si = ((((RDSW_i*d_T0_dV_e_si)*WeffWRFactor)*NFINtotal)*rdstemp);
+d_Rdss_dV_di_si = RDSW_i*d_T0_dV_di_si*WeffWRFactor*NFINtotal*rdstemp;
+d_Rdss_dV_g_si = RDSW_i*d_T0_dV_g_si*WeffWRFactor*NFINtotal*rdstemp;
+d_Rdss_dV_g_e = RDSW_i*d_T0_dV_g_e*WeffWRFactor*NFINtotal*rdstemp;
+d_Rdss_dV_e_di = RDSW_i*d_T0_dV_e_di*WeffWRFactor*NFINtotal*rdstemp;
+d_Rdss_dV_e_si = RDSW_i*d_T0_dV_e_si*WeffWRFactor*NFINtotal*rdstemp;
 Rdss = ((((RDSWMIN_i+(RDSW_i*T0))*WeffWRFactor)*NFINtotal)*rdstemp);
 }
 
-d_Esat_dV_di_si = (((2*VSAT_t)/u0)*d_Dmobs_dV_di_si);
-d_Esat_dV_e_di = (((2*VSAT_t)/u0)*d_Dmobs_dV_e_di);
-d_Esat_dV_e_si = (((2*VSAT_t)/u0)*d_Dmobs_dV_e_si);
-d_Esat_dV_g_si = (((2*VSAT_t)/u0)*d_Dmobs_dV_g_si);
-d_Esat_dV_g_e = (((2*VSAT_t)/u0)*d_Dmobs_dV_g_e);
+d_Esat_dV_di_si = ((2*VSAT_t)/u0)*d_Dmobs_dV_di_si;
+d_Esat_dV_e_di = ((2*VSAT_t)/u0)*d_Dmobs_dV_e_di;
+d_Esat_dV_e_si = ((2*VSAT_t)/u0)*d_Dmobs_dV_e_si;
+d_Esat_dV_g_si = ((2*VSAT_t)/u0)*d_Dmobs_dV_g_si;
+d_Esat_dV_g_e = ((2*VSAT_t)/u0)*d_Dmobs_dV_g_e;
 Esat = (((2*VSAT_t)/u0)*Dmobs);
 
-d_EsatL_dV_di_si = (d_Esat_dV_di_si*Leff);
-d_EsatL_dV_e_di = (d_Esat_dV_e_di*Leff);
-d_EsatL_dV_e_si = (d_Esat_dV_e_si*Leff);
-d_EsatL_dV_g_si = (d_Esat_dV_g_si*Leff);
-d_EsatL_dV_g_e = (d_Esat_dV_g_e*Leff);
+d_EsatL_dV_di_si = d_Esat_dV_di_si*Leff;
+d_EsatL_dV_e_di = d_Esat_dV_e_di*Leff;
+d_EsatL_dV_e_si = d_Esat_dV_e_si*Leff;
+d_EsatL_dV_g_si = d_Esat_dV_g_si*Leff;
+d_EsatL_dV_g_e = d_Esat_dV_g_e*Leff;
 EsatL = (Esat*Leff);
 
 d_T6_dV_g_di = d_T6_dV_di_d = d_T6_dV_si_s =  0.0;
-d_T6_dV_g_e = (KSATIV_i*(-d_phis_dV_g_e));
-d_T6_dV_e_di = (KSATIV_i*(-d_phis_dV_e_di));
-d_T6_dV_e_si = (KSATIV_i*(-d_phis_dV_e_si));
-d_T6_dV_di_si = (KSATIV_i*(d_vgsfbeff_dV_di_si-d_phis_dV_di_si));
-d_T6_dV_g_si = (KSATIV_i*(d_vgsfbeff_dV_g_si-d_phis_dV_g_si));
+d_T6_dV_g_e = KSATIV_i*(-d_phis_dV_g_e);
+d_T6_dV_e_di = KSATIV_i*(-d_phis_dV_e_di);
+d_T6_dV_e_si = KSATIV_i*(-d_phis_dV_e_si);
+d_T6_dV_di_si = KSATIV_i*(d_vgsfbeff_dV_di_si-d_phis_dV_di_si);
+d_T6_dV_g_si = KSATIV_i*(d_vgsfbeff_dV_g_si-d_phis_dV_g_si);
 T6 = (KSATIV_i*((vgsfbeff-phis)+(2*Vtm)));
 if ((Rdss==0))
 {
 
-d_Vdsat_dV_di_si = (((EsatL+T6)*((EsatL*d_T6_dV_di_si)+(d_EsatL_dV_di_si*T6))-(EsatL*T6)*(d_EsatL_dV_di_si+d_T6_dV_di_si))/(EsatL+T6)/(EsatL+T6));
-d_Vdsat_dV_e_di = (((EsatL+T6)*((EsatL*d_T6_dV_e_di)+(d_EsatL_dV_e_di*T6))-(EsatL*T6)*(d_EsatL_dV_e_di+d_T6_dV_e_di))/(EsatL+T6)/(EsatL+T6));
-d_Vdsat_dV_e_si = (((EsatL+T6)*((EsatL*d_T6_dV_e_si)+(d_EsatL_dV_e_si*T6))-(EsatL*T6)*(d_EsatL_dV_e_si+d_T6_dV_e_si))/(EsatL+T6)/(EsatL+T6));
-d_Vdsat_dV_g_si = (((EsatL+T6)*((EsatL*d_T6_dV_g_si)+(d_EsatL_dV_g_si*T6))-(EsatL*T6)*(d_EsatL_dV_g_si+d_T6_dV_g_si))/(EsatL+T6)/(EsatL+T6));
-d_Vdsat_dV_g_e = (((EsatL+T6)*((EsatL*d_T6_dV_g_e)+(d_EsatL_dV_g_e*T6))-(EsatL*T6)*(d_EsatL_dV_g_e+d_T6_dV_g_e))/(EsatL+T6)/(EsatL+T6));
+d_Vdsat_dV_di_si = (((EsatL+T6)*(EsatL*d_T6_dV_di_si+d_EsatL_dV_di_si*T6)-(EsatL*T6)*(d_EsatL_dV_di_si+d_T6_dV_di_si))/(EsatL+T6)/(EsatL+T6));
+d_Vdsat_dV_e_di = (((EsatL+T6)*(EsatL*d_T6_dV_e_di+d_EsatL_dV_e_di*T6)-(EsatL*T6)*(d_EsatL_dV_e_di+d_T6_dV_e_di))/(EsatL+T6)/(EsatL+T6));
+d_Vdsat_dV_e_si = (((EsatL+T6)*(EsatL*d_T6_dV_e_si+d_EsatL_dV_e_si*T6)-(EsatL*T6)*(d_EsatL_dV_e_si+d_T6_dV_e_si))/(EsatL+T6)/(EsatL+T6));
+d_Vdsat_dV_g_si = (((EsatL+T6)*(EsatL*d_T6_dV_g_si+d_EsatL_dV_g_si*T6)-(EsatL*T6)*(d_EsatL_dV_g_si+d_T6_dV_g_si))/(EsatL+T6)/(EsatL+T6));
+d_Vdsat_dV_g_e = (((EsatL+T6)*(EsatL*d_T6_dV_g_e+d_EsatL_dV_g_e*T6)-(EsatL*T6)*(d_EsatL_dV_g_e+d_T6_dV_g_e))/(EsatL+T6)/(EsatL+T6));
 Vdsat = ((EsatL*T6)/(EsatL+T6));
 }
 else
@@ -13797,42 +13797,42 @@ else
 WVCox = ((Weff0*VSAT_t)*cox);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = (WVCox*d_Rdss_dV_di_si);
-d_T0_dV_g_si = (WVCox*d_Rdss_dV_g_si);
-d_T0_dV_g_e = (WVCox*d_Rdss_dV_g_e);
-d_T0_dV_e_di = (WVCox*d_Rdss_dV_e_di);
-d_T0_dV_e_si = (WVCox*d_Rdss_dV_e_si);
+d_T0_dV_di_si = WVCox*d_Rdss_dV_di_si;
+d_T0_dV_g_si = WVCox*d_Rdss_dV_g_si;
+d_T0_dV_g_e = WVCox*d_Rdss_dV_g_e;
+d_T0_dV_e_di = WVCox*d_Rdss_dV_e_di;
+d_T0_dV_e_si = WVCox*d_Rdss_dV_e_si;
 T0 = (WVCox*Rdss);
 
-d_Ta_dV_di_si = (2*d_T0_dV_di_si);
-d_Ta_dV_g_si = (2*d_T0_dV_g_si);
-d_Ta_dV_g_e = (2*d_T0_dV_g_e);
-d_Ta_dV_e_di = (2*d_T0_dV_e_di);
-d_Ta_dV_e_si = (2*d_T0_dV_e_si);
+d_Ta_dV_di_si = 2*d_T0_dV_di_si;
+d_Ta_dV_g_si = 2*d_T0_dV_g_si;
+d_Ta_dV_g_e = 2*d_T0_dV_g_e;
+d_Ta_dV_e_di = 2*d_T0_dV_e_di;
+d_Ta_dV_e_si = 2*d_T0_dV_e_si;
 Ta = (2*T0);
 
-d_Tb_dV_g_e = ((d_T6_dV_g_e+d_EsatL_dV_g_e)+(((3*T6)*d_T0_dV_g_e)+((3*d_T6_dV_g_e)*T0)));
-d_Tb_dV_e_di = ((d_T6_dV_e_di+d_EsatL_dV_e_di)+(((3*T6)*d_T0_dV_e_di)+((3*d_T6_dV_e_di)*T0)));
-d_Tb_dV_e_si = ((d_T6_dV_e_si+d_EsatL_dV_e_si)+(((3*T6)*d_T0_dV_e_si)+((3*d_T6_dV_e_si)*T0)));
-d_Tb_dV_di_si = ((d_T6_dV_di_si+d_EsatL_dV_di_si)+(((3*T6)*d_T0_dV_di_si)+((3*d_T6_dV_di_si)*T0)));
-d_Tb_dV_g_si = ((d_T6_dV_g_si+d_EsatL_dV_g_si)+(((3*T6)*d_T0_dV_g_si)+((3*d_T6_dV_g_si)*T0)));
+d_Tb_dV_g_e = ((d_T6_dV_g_e+d_EsatL_dV_g_e)+((3*T6)*d_T0_dV_g_e+3*d_T6_dV_g_e*T0));
+d_Tb_dV_e_di = ((d_T6_dV_e_di+d_EsatL_dV_e_di)+((3*T6)*d_T0_dV_e_di+3*d_T6_dV_e_di*T0));
+d_Tb_dV_e_si = ((d_T6_dV_e_si+d_EsatL_dV_e_si)+((3*T6)*d_T0_dV_e_si+3*d_T6_dV_e_si*T0));
+d_Tb_dV_di_si = ((d_T6_dV_di_si+d_EsatL_dV_di_si)+((3*T6)*d_T0_dV_di_si+3*d_T6_dV_di_si*T0));
+d_Tb_dV_g_si = ((d_T6_dV_g_si+d_EsatL_dV_g_si)+((3*T6)*d_T0_dV_g_si+3*d_T6_dV_g_si*T0));
 Tb = ((T6+EsatL)+((3*T6)*T0));
 
-d_Tc_dV_g_e = ((T6*(d_EsatL_dV_g_e+(((2*T6)*d_T0_dV_g_e)+((2*d_T6_dV_g_e)*T0))))+(d_T6_dV_g_e*(EsatL+((2*T6)*T0))));
-d_Tc_dV_e_di = ((T6*(d_EsatL_dV_e_di+(((2*T6)*d_T0_dV_e_di)+((2*d_T6_dV_e_di)*T0))))+(d_T6_dV_e_di*(EsatL+((2*T6)*T0))));
-d_Tc_dV_e_si = ((T6*(d_EsatL_dV_e_si+(((2*T6)*d_T0_dV_e_si)+((2*d_T6_dV_e_si)*T0))))+(d_T6_dV_e_si*(EsatL+((2*T6)*T0))));
-d_Tc_dV_di_si = ((T6*(d_EsatL_dV_di_si+(((2*T6)*d_T0_dV_di_si)+((2*d_T6_dV_di_si)*T0))))+(d_T6_dV_di_si*(EsatL+((2*T6)*T0))));
-d_Tc_dV_g_si = ((T6*(d_EsatL_dV_g_si+(((2*T6)*d_T0_dV_g_si)+((2*d_T6_dV_g_si)*T0))))+(d_T6_dV_g_si*(EsatL+((2*T6)*T0))));
+d_Tc_dV_g_e = (T6*(d_EsatL_dV_g_e+((2*T6)*d_T0_dV_g_e+2*d_T6_dV_g_e*T0))+d_T6_dV_g_e*(EsatL+((2*T6)*T0)));
+d_Tc_dV_e_di = (T6*(d_EsatL_dV_e_di+((2*T6)*d_T0_dV_e_di+2*d_T6_dV_e_di*T0))+d_T6_dV_e_di*(EsatL+((2*T6)*T0)));
+d_Tc_dV_e_si = (T6*(d_EsatL_dV_e_si+((2*T6)*d_T0_dV_e_si+2*d_T6_dV_e_si*T0))+d_T6_dV_e_si*(EsatL+((2*T6)*T0)));
+d_Tc_dV_di_si = (T6*(d_EsatL_dV_di_si+((2*T6)*d_T0_dV_di_si+2*d_T6_dV_di_si*T0))+d_T6_dV_di_si*(EsatL+((2*T6)*T0)));
+d_Tc_dV_g_si = (T6*(d_EsatL_dV_g_si+((2*T6)*d_T0_dV_g_si+2*d_T6_dV_g_si*T0))+d_T6_dV_g_si*(EsatL+((2*T6)*T0)));
 Tc = (T6*(EsatL+((2*T6)*T0)));
 {
 double value_sqrt_0 = sqrt(((Tb*Tb)-((2*Ta)*Tc)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_Vdsat_dV_g_e = ((Ta*(d_Tb_dV_g_e-(deriv_sqrt_0_d0*((((Tb*d_Tb_dV_g_e)+(d_Tb_dV_g_e*Tb))-(((2*Ta)*d_Tc_dV_g_e)+((2*d_Ta_dV_g_e)*Tc))))))-(Tb-value_sqrt_0)*d_Ta_dV_g_e)/Ta/Ta);
-d_Vdsat_dV_e_di = ((Ta*(d_Tb_dV_e_di-(deriv_sqrt_0_d0*((((Tb*d_Tb_dV_e_di)+(d_Tb_dV_e_di*Tb))-(((2*Ta)*d_Tc_dV_e_di)+((2*d_Ta_dV_e_di)*Tc))))))-(Tb-value_sqrt_0)*d_Ta_dV_e_di)/Ta/Ta);
-d_Vdsat_dV_e_si = ((Ta*(d_Tb_dV_e_si-(deriv_sqrt_0_d0*((((Tb*d_Tb_dV_e_si)+(d_Tb_dV_e_si*Tb))-(((2*Ta)*d_Tc_dV_e_si)+((2*d_Ta_dV_e_si)*Tc))))))-(Tb-value_sqrt_0)*d_Ta_dV_e_si)/Ta/Ta);
-d_Vdsat_dV_di_si = ((Ta*(d_Tb_dV_di_si-(deriv_sqrt_0_d0*((((Tb*d_Tb_dV_di_si)+(d_Tb_dV_di_si*Tb))-(((2*Ta)*d_Tc_dV_di_si)+((2*d_Ta_dV_di_si)*Tc))))))-(Tb-value_sqrt_0)*d_Ta_dV_di_si)/Ta/Ta);
-d_Vdsat_dV_g_si = ((Ta*(d_Tb_dV_g_si-(deriv_sqrt_0_d0*((((Tb*d_Tb_dV_g_si)+(d_Tb_dV_g_si*Tb))-(((2*Ta)*d_Tc_dV_g_si)+((2*d_Ta_dV_g_si)*Tc))))))-(Tb-value_sqrt_0)*d_Ta_dV_g_si)/Ta/Ta);
+d_Vdsat_dV_g_e = ((Ta*(d_Tb_dV_g_e-(deriv_sqrt_0_d0*(((Tb*d_Tb_dV_g_e+d_Tb_dV_g_e*Tb)-((2*Ta)*d_Tc_dV_g_e+2*d_Ta_dV_g_e*Tc)))))-(Tb-value_sqrt_0)*d_Ta_dV_g_e)/Ta/Ta);
+d_Vdsat_dV_e_di = ((Ta*(d_Tb_dV_e_di-(deriv_sqrt_0_d0*(((Tb*d_Tb_dV_e_di+d_Tb_dV_e_di*Tb)-((2*Ta)*d_Tc_dV_e_di+2*d_Ta_dV_e_di*Tc)))))-(Tb-value_sqrt_0)*d_Ta_dV_e_di)/Ta/Ta);
+d_Vdsat_dV_e_si = ((Ta*(d_Tb_dV_e_si-(deriv_sqrt_0_d0*(((Tb*d_Tb_dV_e_si+d_Tb_dV_e_si*Tb)-((2*Ta)*d_Tc_dV_e_si+2*d_Ta_dV_e_si*Tc)))))-(Tb-value_sqrt_0)*d_Ta_dV_e_si)/Ta/Ta);
+d_Vdsat_dV_di_si = ((Ta*(d_Tb_dV_di_si-(deriv_sqrt_0_d0*(((Tb*d_Tb_dV_di_si+d_Tb_dV_di_si*Tb)-((2*Ta)*d_Tc_dV_di_si+2*d_Ta_dV_di_si*Tc)))))-(Tb-value_sqrt_0)*d_Ta_dV_di_si)/Ta/Ta);
+d_Vdsat_dV_g_si = ((Ta*(d_Tb_dV_g_si-(deriv_sqrt_0_d0*(((Tb*d_Tb_dV_g_si+d_Tb_dV_g_si*Tb)-((2*Ta)*d_Tc_dV_g_si+2*d_Ta_dV_g_si*Tc)))))-(Tb-value_sqrt_0)*d_Ta_dV_g_si)/Ta/Ta);
 Vdsat = ((Tb-value_sqrt_0)/Ta);
 }
 }
@@ -13899,7 +13899,7 @@ if (((model_.COREMOD)!=0))
 d_F0_dV_g_e = ((-d_vch_dV_g_e)/(2.0*nVtm));
 d_F0_dV_e_di = ((-d_vch_dV_e_di)/(2.0*nVtm));
 d_F0_dV_e_si = ((-d_vch_dV_e_si)/(2.0*nVtm));
-d_F0_dV_di_si = ((((2.0*nVtm)*(d_vgsfbeff_dV_di_si-d_vch_dV_di_si)-(vgsfbeff-vch)*(2.0*d_nVtm_dV_di_si))/(2.0*nVtm)/(2.0*nVtm))-d_F1_dV_di_si);
+d_F0_dV_di_si = ((((2.0*nVtm)*(d_vgsfbeff_dV_di_si-d_vch_dV_di_si)-(vgsfbeff-vch)*2.0*d_nVtm_dV_di_si)/(2.0*nVtm)/(2.0*nVtm))-d_F1_dV_di_si);
 d_F0_dV_g_si = ((d_vgsfbeff_dV_g_si-d_vch_dV_g_si)/(2.0*nVtm));
 F0 = (((vgsfbeff-vch)/(2.0*nVtm))-F1);
 {
@@ -13952,11 +13952,11 @@ T0 = evaluator_lln_0.getValues((1.0+expff));
 double value_atan_0 = atan(((2*T0)*Inv_r1pi));
 double  deriv_atan_0_d0 = (+1.0/(1+((2*T0)*Inv_r1pi)*((2*T0)*Inv_r1pi)));
 
-d_z2_dV_di_si = (deriv_atan_0_d0*(((2*d_T0_dV_di_si)*Inv_r1pi)));
-d_z2_dV_g_si = (deriv_atan_0_d0*(((2*d_T0_dV_g_si)*Inv_r1pi)));
-d_z2_dV_g_e = (deriv_atan_0_d0*(((2*d_T0_dV_g_e)*Inv_r1pi)));
-d_z2_dV_e_di = (deriv_atan_0_d0*(((2*d_T0_dV_e_di)*Inv_r1pi)));
-d_z2_dV_e_si = (deriv_atan_0_d0*(((2*d_T0_dV_e_si)*Inv_r1pi)));
+d_z2_dV_di_si = (deriv_atan_0_d0*(2*d_T0_dV_di_si*Inv_r1pi));
+d_z2_dV_g_si = (deriv_atan_0_d0*(2*d_T0_dV_g_si*Inv_r1pi));
+d_z2_dV_g_e = (deriv_atan_0_d0*(2*d_T0_dV_g_e*Inv_r1pi));
+d_z2_dV_e_di = (deriv_atan_0_d0*(2*d_T0_dV_e_di*Inv_r1pi));
+d_z2_dV_e_si = (deriv_atan_0_d0*(2*d_T0_dV_e_si*Inv_r1pi));
 z2 = value_atan_0;
 }
 {
@@ -14010,20 +14010,20 @@ d_lng0_dV_e_si = evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si);
 lng0 = evaluator_lln_0.getValues(g0);
 }
 
-d_secg0sq_dV_di_si = ((tang0*d_tang0_dV_di_si)+(d_tang0_dV_di_si*tang0));
-d_secg0sq_dV_g_si = ((tang0*d_tang0_dV_g_si)+(d_tang0_dV_g_si*tang0));
-d_secg0sq_dV_g_e = ((tang0*d_tang0_dV_g_e)+(d_tang0_dV_g_e*tang0));
-d_secg0sq_dV_e_di = ((tang0*d_tang0_dV_e_di)+(d_tang0_dV_e_di*tang0));
-d_secg0sq_dV_e_si = ((tang0*d_tang0_dV_e_si)+(d_tang0_dV_e_si*tang0));
+d_secg0sq_dV_di_si = (tang0*d_tang0_dV_di_si+d_tang0_dV_di_si*tang0);
+d_secg0sq_dV_g_si = (tang0*d_tang0_dV_g_si+d_tang0_dV_g_si*tang0);
+d_secg0sq_dV_g_e = (tang0*d_tang0_dV_g_e+d_tang0_dV_g_e*tang0);
+d_secg0sq_dV_e_di = (tang0*d_tang0_dV_e_di+d_tang0_dV_e_di*tang0);
+d_secg0sq_dV_e_si = (tang0*d_tang0_dV_e_si+d_tang0_dV_e_si*tang0);
 secg0sq = ((tang0*tang0)+1.0);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(secg0sq);
 
-d_lncosg0_dV_di_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si));
-d_lncosg0_dV_g_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si));
-d_lncosg0_dV_g_e = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e));
-d_lncosg0_dV_e_di = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_di));
-d_lncosg0_dV_e_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_si));
+d_lncosg0_dV_di_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si);
+d_lncosg0_dV_g_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si);
+d_lncosg0_dV_g_e = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e);
+d_lncosg0_dV_e_di = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_di);
+d_lncosg0_dV_e_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_si);
 lncosg0 = ((-0.5)*evaluator_lln_0.getValues(secg0sq));
 }
 
@@ -14035,54 +14035,54 @@ d_inv_g0_dV_e_si = (-d_g0_dV_e_si/g0/g0);
 inv_g0 = (1.0/g0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
-d_T0_dV_e_di = ((g0*d_tang0_dV_e_di)+(d_g0_dV_e_di*tang0));
-d_T0_dV_e_si = ((g0*d_tang0_dV_e_si)+(d_g0_dV_e_si*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
+d_T0_dV_e_di = (g0*d_tang0_dV_e_di+d_g0_dV_e_di*tang0);
+d_T0_dV_e_si = (g0*d_tang0_dV_e_si+d_g0_dV_e_si*tang0);
 T0 = (g0*tang0);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0));
-d_T1_dV_g_si = ((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0));
-d_T1_dV_g_e = ((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0));
-d_T1_dV_e_di = ((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0));
-d_T1_dV_e_si = ((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0));
+d_T1_dV_di_si = (T0*d_T0_dV_di_si+d_T0_dV_di_si*T0);
+d_T1_dV_g_si = (T0*d_T0_dV_g_si+d_T0_dV_g_si*T0);
+d_T1_dV_g_e = (T0*d_T0_dV_g_e+d_T0_dV_g_e*T0);
+d_T1_dV_e_di = (T0*d_T0_dV_e_di+d_T0_dV_e_di*T0);
+d_T1_dV_e_si = (T0*d_T0_dV_e_si+d_T0_dV_e_si*T0);
 T1 = (T0*T0);
 
-d_e0_dV_di_si = ((((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+(r1*d_T0_dV_di_si))+(r2*d_T1_dV_di_si))-d_F0_dV_di_si);
-d_e0_dV_g_si = ((((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+(r1*d_T0_dV_g_si))+(r2*d_T1_dV_g_si))-d_F0_dV_g_si);
-d_e0_dV_g_e = ((((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+(r1*d_T0_dV_g_e))+(r2*d_T1_dV_g_e))-d_F0_dV_g_e);
-d_e0_dV_e_di = ((((d_lng0_dV_e_di-d_lncosg0_dV_e_di)+(r1*d_T0_dV_e_di))+(r2*d_T1_dV_e_di))-d_F0_dV_e_di);
-d_e0_dV_e_si = ((((d_lng0_dV_e_si-d_lncosg0_dV_e_si)+(r1*d_T0_dV_e_si))+(r2*d_T1_dV_e_si))-d_F0_dV_e_si);
+d_e0_dV_di_si = ((((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+r1*d_T0_dV_di_si)+r2*d_T1_dV_di_si)-d_F0_dV_di_si);
+d_e0_dV_g_si = ((((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+r1*d_T0_dV_g_si)+r2*d_T1_dV_g_si)-d_F0_dV_g_si);
+d_e0_dV_g_e = ((((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+r1*d_T0_dV_g_e)+r2*d_T1_dV_g_e)-d_F0_dV_g_e);
+d_e0_dV_e_di = ((((d_lng0_dV_e_di-d_lncosg0_dV_e_di)+r1*d_T0_dV_e_di)+r2*d_T1_dV_e_di)-d_F0_dV_e_di);
+d_e0_dV_e_si = ((((d_lng0_dV_e_si-d_lncosg0_dV_e_si)+r1*d_T0_dV_e_si)+r2*d_T1_dV_e_si)-d_F0_dV_e_si);
 e0 = ((((lng0-lncosg0)+(r1*T0))+(r2*T1))-F0);
 
-d_e1_dV_di_si = ((d_inv_g0_dV_di_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_di_si))+(((secg0sq*d_g0_dV_di_si)+(d_secg0sq_dV_di_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_di_si))+(d_tang0_dV_di_si*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_g_si = ((d_inv_g0_dV_g_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_g_si))+(((secg0sq*d_g0_dV_g_si)+(d_secg0sq_dV_g_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_g_si))+(d_tang0_dV_g_si*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_g_e = ((d_inv_g0_dV_g_e+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_g_e))+(((secg0sq*d_g0_dV_g_e)+(d_secg0sq_dV_g_e*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_g_e))+(d_tang0_dV_g_e*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_e_di = ((d_inv_g0_dV_e_di+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_e_di))+(((secg0sq*d_g0_dV_e_di)+(d_secg0sq_dV_e_di*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_e_di))+(d_tang0_dV_e_di*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_e_si = ((d_inv_g0_dV_e_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_e_si))+(((secg0sq*d_g0_dV_e_si)+(d_secg0sq_dV_e_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_e_si))+(d_tang0_dV_e_si*(1.0+(r1+((2.0*r2)*T0))))));
+d_e1_dV_di_si = ((d_inv_g0_dV_di_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_di_si+(secg0sq*d_g0_dV_di_si+d_secg0sq_dV_di_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_di_si+d_tang0_dV_di_si*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_g_si = ((d_inv_g0_dV_g_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_g_si+(secg0sq*d_g0_dV_g_si+d_secg0sq_dV_g_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_g_si+d_tang0_dV_g_si*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_g_e = ((d_inv_g0_dV_g_e+((secg0sq*g0)*(2.0*r2)*d_T0_dV_g_e+(secg0sq*d_g0_dV_g_e+d_secg0sq_dV_g_e*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_g_e+d_tang0_dV_g_e*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_e_di = ((d_inv_g0_dV_e_di+((secg0sq*g0)*(2.0*r2)*d_T0_dV_e_di+(secg0sq*d_g0_dV_e_di+d_secg0sq_dV_e_di*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_e_di+d_tang0_dV_e_di*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_e_si = ((d_inv_g0_dV_e_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_e_si+(secg0sq*d_g0_dV_e_si+d_secg0sq_dV_e_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_e_si+d_tang0_dV_e_si*(1.0+(r1+((2.0*r2)*T0)))));
 e1 = ((inv_g0+((secg0sq*g0)*(r1+((2.0*r2)*T0))))+(tang0*(1.0+(r1+((2.0*r2)*T0)))));
 
-d_e2_dV_di_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_di_si)+((((r2*g0)*d_g0_dV_di_si)+((r2*d_g0_dV_di_si)*g0))*secg0sq))+(d_T0_dV_di_si*r1))+((2.0*r2)*(d_T1_dV_di_si+(2.0*d_T0_dV_di_si))))))+(d_secg0sq_dV_di_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_di_si)*r2))+(((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_g_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_g_si)+((((r2*g0)*d_g0_dV_g_si)+((r2*d_g0_dV_g_si)*g0))*secg0sq))+(d_T0_dV_g_si*r1))+((2.0*r2)*(d_T1_dV_g_si+(2.0*d_T0_dV_g_si))))))+(d_secg0sq_dV_g_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_g_si)*r2))+(((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_g_e = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_g_e)+((((r2*g0)*d_g0_dV_g_e)+((r2*d_g0_dV_g_e)*g0))*secg0sq))+(d_T0_dV_g_e*r1))+((2.0*r2)*(d_T1_dV_g_e+(2.0*d_T0_dV_g_e))))))+(d_secg0sq_dV_g_e*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_g_e)*r2))+(((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_e_di = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_e_di)+((((r2*g0)*d_g0_dV_e_di)+((r2*d_g0_dV_e_di)*g0))*secg0sq))+(d_T0_dV_e_di*r1))+((2.0*r2)*(d_T1_dV_e_di+(2.0*d_T0_dV_e_di))))))+(d_secg0sq_dV_e_di*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_e_di)*r2))+(((inv_g0*d_inv_g0_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_e_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_e_si)+((((r2*g0)*d_g0_dV_e_si)+((r2*d_g0_dV_e_si)*g0))*secg0sq))+(d_T0_dV_e_si*r1))+((2.0*r2)*(d_T1_dV_e_si+(2.0*d_T0_dV_e_si))))))+(d_secg0sq_dV_e_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_e_si)*r2))+(((inv_g0*d_inv_g0_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
+d_e2_dV_di_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_di_si+((r2*g0)*d_g0_dV_di_si+r2*d_g0_dV_di_si*g0)*secg0sq)+d_T0_dV_di_si*r1)+(2.0*r2)*(d_T1_dV_di_si+2.0*d_T0_dV_di_si))+d_secg0sq_dV_di_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_di_si*r2+(inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_g_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_g_si+((r2*g0)*d_g0_dV_g_si+r2*d_g0_dV_g_si*g0)*secg0sq)+d_T0_dV_g_si*r1)+(2.0*r2)*(d_T1_dV_g_si+2.0*d_T0_dV_g_si))+d_secg0sq_dV_g_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_g_si*r2+(inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_g_e = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_g_e+((r2*g0)*d_g0_dV_g_e+r2*d_g0_dV_g_e*g0)*secg0sq)+d_T0_dV_g_e*r1)+(2.0*r2)*(d_T1_dV_g_e+2.0*d_T0_dV_g_e))+d_secg0sq_dV_g_e*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_g_e*r2+(inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_e_di = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_e_di+((r2*g0)*d_g0_dV_e_di+r2*d_g0_dV_e_di*g0)*secg0sq)+d_T0_dV_e_di*r1)+(2.0*r2)*(d_T1_dV_e_di+2.0*d_T0_dV_e_di))+d_secg0sq_dV_e_di*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_e_di*r2+(inv_g0*d_inv_g0_dV_e_di+d_inv_g0_dV_e_di*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_e_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_e_si+((r2*g0)*d_g0_dV_e_si+r2*d_g0_dV_e_si*g0)*secg0sq)+d_T0_dV_e_si*r1)+(2.0*r2)*(d_T1_dV_e_si+2.0*d_T0_dV_e_si))+d_secg0sq_dV_e_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_e_si*r2+(inv_g0*d_inv_g0_dV_e_si+d_inv_g0_dV_e_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
 e2 = ((secg0sq*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*(((2.0*T1)*r2)-1.0)));
 
-d_e3_dV_di_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si)+((((2.0*inv_g0)*d_inv_g0_dV_di_si)+((2.0*d_inv_g0_dV_di_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_di_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((2.0*g0)*d_secg0sq_dV_di_si)+((2.0*d_g0_dV_di_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_di_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_di_si))+(2.0*d_T1_dV_di_si)))))+((((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_g_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si)+((((2.0*inv_g0)*d_inv_g0_dV_g_si)+((2.0*d_inv_g0_dV_g_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_g_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((2.0*g0)*d_secg0sq_dV_g_si)+((2.0*d_g0_dV_g_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_g_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_g_si))+(2.0*d_T1_dV_g_si)))))+((((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_g_e = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e)+((((2.0*inv_g0)*d_inv_g0_dV_g_e)+((2.0*d_inv_g0_dV_g_e)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_g_e)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((2.0*g0)*d_secg0sq_dV_g_e)+((2.0*d_g0_dV_g_e)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_g_e)+((2.0*r2)*((3.0*(2.0*d_T0_dV_g_e))+(2.0*d_T1_dV_g_e)))))+((((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_e_di = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_di)+((((2.0*inv_g0)*d_inv_g0_dV_e_di)+((2.0*d_inv_g0_dV_e_di)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_e_di)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_e_di)+((((2.0*g0)*d_secg0sq_dV_e_di)+((2.0*d_g0_dV_e_di)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_e_di)+((2.0*r2)*((3.0*(2.0*d_T0_dV_e_di))+(2.0*d_T1_dV_e_di)))))+((((2.0*secg0sq)*d_tang0_dV_e_di)+((2.0*d_secg0sq_dV_e_di)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_e_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_si)+((((2.0*inv_g0)*d_inv_g0_dV_e_si)+((2.0*d_inv_g0_dV_e_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_e_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_e_si)+((((2.0*g0)*d_secg0sq_dV_e_si)+((2.0*d_g0_dV_e_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_e_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_e_si))+(2.0*d_T1_dV_e_si)))))+((((2.0*secg0sq)*d_tang0_dV_e_si)+((2.0*d_secg0sq_dV_e_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
+d_e3_dV_di_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si+((2.0*inv_g0)*d_inv_g0_dV_di_si+2.0*d_inv_g0_dV_di_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_di_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si+((2.0*g0)*d_secg0sq_dV_di_si+2.0*d_g0_dV_di_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_di_si+(2.0*r2)*(3.0*2.0*d_T0_dV_di_si+2.0*d_T1_dV_di_si))+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_g_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si+((2.0*inv_g0)*d_inv_g0_dV_g_si+2.0*d_inv_g0_dV_g_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_g_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si+((2.0*g0)*d_secg0sq_dV_g_si+2.0*d_g0_dV_g_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_g_si+(2.0*r2)*(3.0*2.0*d_T0_dV_g_si+2.0*d_T1_dV_g_si))+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_g_e = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e+((2.0*inv_g0)*d_inv_g0_dV_g_e+2.0*d_inv_g0_dV_g_e*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_g_e+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e+((2.0*g0)*d_secg0sq_dV_g_e+2.0*d_g0_dV_g_e*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_g_e+(2.0*r2)*(3.0*2.0*d_T0_dV_g_e+2.0*d_T1_dV_g_e))+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_e_di = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_di+((2.0*inv_g0)*d_inv_g0_dV_e_di+2.0*d_inv_g0_dV_e_di*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_e_di+(((2.0*g0)*secg0sq)*d_secg0sq_dV_e_di+((2.0*g0)*d_secg0sq_dV_e_di+2.0*d_g0_dV_e_di*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_e_di+(2.0*r2)*(3.0*2.0*d_T0_dV_e_di+2.0*d_T1_dV_e_di))+((2.0*secg0sq)*d_tang0_dV_e_di+2.0*d_secg0sq_dV_e_di*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_e_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_si+((2.0*inv_g0)*d_inv_g0_dV_e_si+2.0*d_inv_g0_dV_e_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_e_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_e_si+((2.0*g0)*d_secg0sq_dV_e_si+2.0*d_g0_dV_e_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_e_si+(2.0*r2)*(3.0*2.0*d_T0_dV_e_si+2.0*d_T1_dV_e_si))+((2.0*secg0sq)*d_tang0_dV_e_si+2.0*d_secg0sq_dV_e_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
 e3 = (((((2.0*inv_g0)*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -14121,20 +14121,20 @@ d_lng0_dV_e_si = evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si);
 lng0 = evaluator_lln_0.getValues(g0);
 }
 
-d_secg0sq_dV_di_si = ((tang0*d_tang0_dV_di_si)+(d_tang0_dV_di_si*tang0));
-d_secg0sq_dV_g_si = ((tang0*d_tang0_dV_g_si)+(d_tang0_dV_g_si*tang0));
-d_secg0sq_dV_g_e = ((tang0*d_tang0_dV_g_e)+(d_tang0_dV_g_e*tang0));
-d_secg0sq_dV_e_di = ((tang0*d_tang0_dV_e_di)+(d_tang0_dV_e_di*tang0));
-d_secg0sq_dV_e_si = ((tang0*d_tang0_dV_e_si)+(d_tang0_dV_e_si*tang0));
+d_secg0sq_dV_di_si = (tang0*d_tang0_dV_di_si+d_tang0_dV_di_si*tang0);
+d_secg0sq_dV_g_si = (tang0*d_tang0_dV_g_si+d_tang0_dV_g_si*tang0);
+d_secg0sq_dV_g_e = (tang0*d_tang0_dV_g_e+d_tang0_dV_g_e*tang0);
+d_secg0sq_dV_e_di = (tang0*d_tang0_dV_e_di+d_tang0_dV_e_di*tang0);
+d_secg0sq_dV_e_si = (tang0*d_tang0_dV_e_si+d_tang0_dV_e_si*tang0);
 secg0sq = ((tang0*tang0)+1.0);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(secg0sq);
 
-d_lncosg0_dV_di_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si));
-d_lncosg0_dV_g_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si));
-d_lncosg0_dV_g_e = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e));
-d_lncosg0_dV_e_di = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_di));
-d_lncosg0_dV_e_si = ((-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_si));
+d_lncosg0_dV_di_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_di_si);
+d_lncosg0_dV_g_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_si);
+d_lncosg0_dV_g_e = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_g_e);
+d_lncosg0_dV_e_di = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_di);
+d_lncosg0_dV_e_si = (-0.5)*evaluator_lln_0.getDerivs(secg0sq,d_secg0sq_dV_e_si);
 lncosg0 = ((-0.5)*evaluator_lln_0.getValues(secg0sq));
 }
 
@@ -14146,54 +14146,54 @@ d_inv_g0_dV_e_si = (-d_g0_dV_e_si/g0/g0);
 inv_g0 = (1.0/g0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
-d_T0_dV_e_di = ((g0*d_tang0_dV_e_di)+(d_g0_dV_e_di*tang0));
-d_T0_dV_e_si = ((g0*d_tang0_dV_e_si)+(d_g0_dV_e_si*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
+d_T0_dV_e_di = (g0*d_tang0_dV_e_di+d_g0_dV_e_di*tang0);
+d_T0_dV_e_si = (g0*d_tang0_dV_e_si+d_g0_dV_e_si*tang0);
 T0 = (g0*tang0);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0));
-d_T1_dV_g_si = ((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0));
-d_T1_dV_g_e = ((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0));
-d_T1_dV_e_di = ((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0));
-d_T1_dV_e_si = ((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0));
+d_T1_dV_di_si = (T0*d_T0_dV_di_si+d_T0_dV_di_si*T0);
+d_T1_dV_g_si = (T0*d_T0_dV_g_si+d_T0_dV_g_si*T0);
+d_T1_dV_g_e = (T0*d_T0_dV_g_e+d_T0_dV_g_e*T0);
+d_T1_dV_e_di = (T0*d_T0_dV_e_di+d_T0_dV_e_di*T0);
+d_T1_dV_e_si = (T0*d_T0_dV_e_si+d_T0_dV_e_si*T0);
 T1 = (T0*T0);
 
-d_e0_dV_di_si = ((((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+(r1*d_T0_dV_di_si))+(r2*d_T1_dV_di_si))-d_F0_dV_di_si);
-d_e0_dV_g_si = ((((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+(r1*d_T0_dV_g_si))+(r2*d_T1_dV_g_si))-d_F0_dV_g_si);
-d_e0_dV_g_e = ((((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+(r1*d_T0_dV_g_e))+(r2*d_T1_dV_g_e))-d_F0_dV_g_e);
-d_e0_dV_e_di = ((((d_lng0_dV_e_di-d_lncosg0_dV_e_di)+(r1*d_T0_dV_e_di))+(r2*d_T1_dV_e_di))-d_F0_dV_e_di);
-d_e0_dV_e_si = ((((d_lng0_dV_e_si-d_lncosg0_dV_e_si)+(r1*d_T0_dV_e_si))+(r2*d_T1_dV_e_si))-d_F0_dV_e_si);
+d_e0_dV_di_si = ((((d_lng0_dV_di_si-d_lncosg0_dV_di_si)+r1*d_T0_dV_di_si)+r2*d_T1_dV_di_si)-d_F0_dV_di_si);
+d_e0_dV_g_si = ((((d_lng0_dV_g_si-d_lncosg0_dV_g_si)+r1*d_T0_dV_g_si)+r2*d_T1_dV_g_si)-d_F0_dV_g_si);
+d_e0_dV_g_e = ((((d_lng0_dV_g_e-d_lncosg0_dV_g_e)+r1*d_T0_dV_g_e)+r2*d_T1_dV_g_e)-d_F0_dV_g_e);
+d_e0_dV_e_di = ((((d_lng0_dV_e_di-d_lncosg0_dV_e_di)+r1*d_T0_dV_e_di)+r2*d_T1_dV_e_di)-d_F0_dV_e_di);
+d_e0_dV_e_si = ((((d_lng0_dV_e_si-d_lncosg0_dV_e_si)+r1*d_T0_dV_e_si)+r2*d_T1_dV_e_si)-d_F0_dV_e_si);
 e0 = ((((lng0-lncosg0)+(r1*T0))+(r2*T1))-F0);
 
-d_e1_dV_di_si = ((d_inv_g0_dV_di_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_di_si))+(((secg0sq*d_g0_dV_di_si)+(d_secg0sq_dV_di_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_di_si))+(d_tang0_dV_di_si*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_g_si = ((d_inv_g0_dV_g_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_g_si))+(((secg0sq*d_g0_dV_g_si)+(d_secg0sq_dV_g_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_g_si))+(d_tang0_dV_g_si*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_g_e = ((d_inv_g0_dV_g_e+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_g_e))+(((secg0sq*d_g0_dV_g_e)+(d_secg0sq_dV_g_e*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_g_e))+(d_tang0_dV_g_e*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_e_di = ((d_inv_g0_dV_e_di+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_e_di))+(((secg0sq*d_g0_dV_e_di)+(d_secg0sq_dV_e_di*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_e_di))+(d_tang0_dV_e_di*(1.0+(r1+((2.0*r2)*T0))))));
-d_e1_dV_e_si = ((d_inv_g0_dV_e_si+(((secg0sq*g0)*((2.0*r2)*d_T0_dV_e_si))+(((secg0sq*d_g0_dV_e_si)+(d_secg0sq_dV_e_si*g0))*(r1+((2.0*r2)*T0)))))+((tang0*((2.0*r2)*d_T0_dV_e_si))+(d_tang0_dV_e_si*(1.0+(r1+((2.0*r2)*T0))))));
+d_e1_dV_di_si = ((d_inv_g0_dV_di_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_di_si+(secg0sq*d_g0_dV_di_si+d_secg0sq_dV_di_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_di_si+d_tang0_dV_di_si*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_g_si = ((d_inv_g0_dV_g_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_g_si+(secg0sq*d_g0_dV_g_si+d_secg0sq_dV_g_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_g_si+d_tang0_dV_g_si*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_g_e = ((d_inv_g0_dV_g_e+((secg0sq*g0)*(2.0*r2)*d_T0_dV_g_e+(secg0sq*d_g0_dV_g_e+d_secg0sq_dV_g_e*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_g_e+d_tang0_dV_g_e*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_e_di = ((d_inv_g0_dV_e_di+((secg0sq*g0)*(2.0*r2)*d_T0_dV_e_di+(secg0sq*d_g0_dV_e_di+d_secg0sq_dV_e_di*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_e_di+d_tang0_dV_e_di*(1.0+(r1+((2.0*r2)*T0)))));
+d_e1_dV_e_si = ((d_inv_g0_dV_e_si+((secg0sq*g0)*(2.0*r2)*d_T0_dV_e_si+(secg0sq*d_g0_dV_e_si+d_secg0sq_dV_e_si*g0)*(r1+((2.0*r2)*T0))))+(tang0*(2.0*r2)*d_T0_dV_e_si+d_tang0_dV_e_si*(1.0+(r1+((2.0*r2)*T0)))));
 e1 = ((inv_g0+((secg0sq*g0)*(r1+((2.0*r2)*T0))))+(tang0*(1.0+(r1+((2.0*r2)*T0)))));
 
-d_e2_dV_di_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_di_si)+((((r2*g0)*d_g0_dV_di_si)+((r2*d_g0_dV_di_si)*g0))*secg0sq))+(d_T0_dV_di_si*r1))+((2.0*r2)*(d_T1_dV_di_si+(2.0*d_T0_dV_di_si))))))+(d_secg0sq_dV_di_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_di_si)*r2))+(((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_g_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_g_si)+((((r2*g0)*d_g0_dV_g_si)+((r2*d_g0_dV_g_si)*g0))*secg0sq))+(d_T0_dV_g_si*r1))+((2.0*r2)*(d_T1_dV_g_si+(2.0*d_T0_dV_g_si))))))+(d_secg0sq_dV_g_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_g_si)*r2))+(((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_g_e = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_g_e)+((((r2*g0)*d_g0_dV_g_e)+((r2*d_g0_dV_g_e)*g0))*secg0sq))+(d_T0_dV_g_e*r1))+((2.0*r2)*(d_T1_dV_g_e+(2.0*d_T0_dV_g_e))))))+(d_secg0sq_dV_g_e*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_g_e)*r2))+(((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_e_di = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_e_di)+((((r2*g0)*d_g0_dV_e_di)+((r2*d_g0_dV_e_di)*g0))*secg0sq))+(d_T0_dV_e_di*r1))+((2.0*r2)*(d_T1_dV_e_di+(2.0*d_T0_dV_e_di))))))+(d_secg0sq_dV_e_di*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_e_di)*r2))+(((inv_g0*d_inv_g0_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0))*(((2.0*T1)*r2)-1.0))));
-d_e2_dV_e_si = (((secg0sq*(2.0*((((((r2*g0)*g0)*d_secg0sq_dV_e_si)+((((r2*g0)*d_g0_dV_e_si)+((r2*d_g0_dV_e_si)*g0))*secg0sq))+(d_T0_dV_e_si*r1))+((2.0*r2)*(d_T1_dV_e_si+(2.0*d_T0_dV_e_si))))))+(d_secg0sq_dV_e_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0))))))))+(((inv_g0*inv_g0)*((2.0*d_T1_dV_e_si)*r2))+(((inv_g0*d_inv_g0_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0))*(((2.0*T1)*r2)-1.0))));
+d_e2_dV_di_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_di_si+((r2*g0)*d_g0_dV_di_si+r2*d_g0_dV_di_si*g0)*secg0sq)+d_T0_dV_di_si*r1)+(2.0*r2)*(d_T1_dV_di_si+2.0*d_T0_dV_di_si))+d_secg0sq_dV_di_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_di_si*r2+(inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_g_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_g_si+((r2*g0)*d_g0_dV_g_si+r2*d_g0_dV_g_si*g0)*secg0sq)+d_T0_dV_g_si*r1)+(2.0*r2)*(d_T1_dV_g_si+2.0*d_T0_dV_g_si))+d_secg0sq_dV_g_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_g_si*r2+(inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_g_e = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_g_e+((r2*g0)*d_g0_dV_g_e+r2*d_g0_dV_g_e*g0)*secg0sq)+d_T0_dV_g_e*r1)+(2.0*r2)*(d_T1_dV_g_e+2.0*d_T0_dV_g_e))+d_secg0sq_dV_g_e*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_g_e*r2+(inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_e_di = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_e_di+((r2*g0)*d_g0_dV_e_di+r2*d_g0_dV_e_di*g0)*secg0sq)+d_T0_dV_e_di*r1)+(2.0*r2)*(d_T1_dV_e_di+2.0*d_T0_dV_e_di))+d_secg0sq_dV_e_di*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_e_di*r2+(inv_g0*d_inv_g0_dV_e_di+d_inv_g0_dV_e_di*inv_g0)*(((2.0*T1)*r2)-1.0)));
+d_e2_dV_e_si = ((secg0sq*2.0*(((((r2*g0)*g0)*d_secg0sq_dV_e_si+((r2*g0)*d_g0_dV_e_si+r2*d_g0_dV_e_si*g0)*secg0sq)+d_T0_dV_e_si*r1)+(2.0*r2)*(d_T1_dV_e_si+2.0*d_T0_dV_e_si))+d_secg0sq_dV_e_si*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*2.0*d_T1_dV_e_si*r2+(inv_g0*d_inv_g0_dV_e_si+d_inv_g0_dV_e_si*inv_g0)*(((2.0*T1)*r2)-1.0)));
 e2 = ((secg0sq*(1.0+(2.0*(((r1+(((r2*g0)*g0)*secg0sq))+(T0*r1))+((2.0*r2)*(T1+(2.0*T0)))))))+((inv_g0*inv_g0)*(((2.0*T1)*r2)-1.0)));
 
-d_e3_dV_di_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si)+((((2.0*inv_g0)*d_inv_g0_dV_di_si)+((2.0*d_inv_g0_dV_di_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_di_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((2.0*g0)*d_secg0sq_dV_di_si)+((2.0*d_g0_dV_di_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_di_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_di_si))+(2.0*d_T1_dV_di_si)))))+((((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_g_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si)+((((2.0*inv_g0)*d_inv_g0_dV_g_si)+((2.0*d_inv_g0_dV_g_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_g_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((2.0*g0)*d_secg0sq_dV_g_si)+((2.0*d_g0_dV_g_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_g_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_g_si))+(2.0*d_T1_dV_g_si)))))+((((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_g_e = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e)+((((2.0*inv_g0)*d_inv_g0_dV_g_e)+((2.0*d_inv_g0_dV_g_e)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_g_e)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((2.0*g0)*d_secg0sq_dV_g_e)+((2.0*d_g0_dV_g_e)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_g_e)+((2.0*r2)*((3.0*(2.0*d_T0_dV_g_e))+(2.0*d_T1_dV_g_e)))))+((((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_e_di = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_di)+((((2.0*inv_g0)*d_inv_g0_dV_e_di)+((2.0*d_inv_g0_dV_e_di)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_e_di)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_e_di)+((((2.0*g0)*d_secg0sq_dV_e_di)+((2.0*d_g0_dV_e_di)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_e_di)+((2.0*r2)*((3.0*(2.0*d_T0_dV_e_di))+(2.0*d_T1_dV_e_di)))))+((((2.0*secg0sq)*d_tang0_dV_e_di)+((2.0*d_secg0sq_dV_e_di)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
-d_e3_dV_e_si = ((((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_si)+((((2.0*inv_g0)*d_inv_g0_dV_e_si)+((2.0*d_inv_g0_dV_e_si)*inv_g0))*inv_g0))+(((((2.0*g0)*secg0sq)*secg0sq)*((2.0*r2)*(4.0*d_T0_dV_e_si)))+(((((2.0*g0)*secg0sq)*d_secg0sq_dV_e_si)+((((2.0*g0)*d_secg0sq_dV_e_si)+((2.0*d_g0_dV_e_si)*secg0sq))*secg0sq))*(r1+((2.0*r2)*(3.0+(4.0*T0)))))))+((((2.0*secg0sq)*tang0)*(((2.0*r1)*d_T0_dV_e_si)+((2.0*r2)*((3.0*(2.0*d_T0_dV_e_si))+(2.0*d_T1_dV_e_si)))))+((((2.0*secg0sq)*d_tang0_dV_e_si)+((2.0*d_secg0sq_dV_e_si)*tang0))*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1)))))));
+d_e3_dV_di_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_di_si+((2.0*inv_g0)*d_inv_g0_dV_di_si+2.0*d_inv_g0_dV_di_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_di_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_di_si+((2.0*g0)*d_secg0sq_dV_di_si+2.0*d_g0_dV_di_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_di_si+(2.0*r2)*(3.0*2.0*d_T0_dV_di_si+2.0*d_T1_dV_di_si))+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_g_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_si+((2.0*inv_g0)*d_inv_g0_dV_g_si+2.0*d_inv_g0_dV_g_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_g_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_si+((2.0*g0)*d_secg0sq_dV_g_si+2.0*d_g0_dV_g_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_g_si+(2.0*r2)*(3.0*2.0*d_T0_dV_g_si+2.0*d_T1_dV_g_si))+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_g_e = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_g_e+((2.0*inv_g0)*d_inv_g0_dV_g_e+2.0*d_inv_g0_dV_g_e*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_g_e+(((2.0*g0)*secg0sq)*d_secg0sq_dV_g_e+((2.0*g0)*d_secg0sq_dV_g_e+2.0*d_g0_dV_g_e*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_g_e+(2.0*r2)*(3.0*2.0*d_T0_dV_g_e+2.0*d_T1_dV_g_e))+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_e_di = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_di+((2.0*inv_g0)*d_inv_g0_dV_e_di+2.0*d_inv_g0_dV_e_di*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_e_di+(((2.0*g0)*secg0sq)*d_secg0sq_dV_e_di+((2.0*g0)*d_secg0sq_dV_e_di+2.0*d_g0_dV_e_di*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_e_di+(2.0*r2)*(3.0*2.0*d_T0_dV_e_di+2.0*d_T1_dV_e_di))+((2.0*secg0sq)*d_tang0_dV_e_di+2.0*d_secg0sq_dV_e_di*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
+d_e3_dV_e_si = (((((2.0*inv_g0)*inv_g0)*d_inv_g0_dV_e_si+((2.0*inv_g0)*d_inv_g0_dV_e_si+2.0*d_inv_g0_dV_e_si*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(2.0*r2)*4.0*d_T0_dV_e_si+(((2.0*g0)*secg0sq)*d_secg0sq_dV_e_si+((2.0*g0)*d_secg0sq_dV_e_si+2.0*d_g0_dV_e_si*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*((2.0*r1)*d_T0_dV_e_si+(2.0*r2)*(3.0*2.0*d_T0_dV_e_si+2.0*d_T1_dV_e_si))+((2.0*secg0sq)*d_tang0_dV_e_si+2.0*d_secg0sq_dV_e_si*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
 e3 = (((((2.0*inv_g0)*inv_g0)*inv_g0)+((((2.0*g0)*secg0sq)*secg0sq)*(r1+((2.0*r2)*(3.0+(4.0*T0))))))+(((2.0*secg0sq)*tang0)*(((1.0+(3.0*r1))+((2.0*r1)*T0))+((2.0*r2)*((3.0*(1+(2.0*T0)))+(2.0*T1))))));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -14232,11 +14232,11 @@ tang0d = value_tan_0;
 AnalogFunctions::llnEvaluator evaluator_lln_0(g0d);
 AnalogFunctions::llnEvaluator evaluator_lln_1((1.0+(tang0d*tang0d)));
 
-d_phid_dV_g_si = (d_vch_dV_g_si+((2.0*nVtm)*(evaluator_lln_0.getDerivs(g0d,d_g0d_dV_g_si)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),((tang0d*d_tang0d_dV_g_si)+(d_tang0d_dV_g_si*tang0d)))))));
-d_phid_dV_g_e = (d_vch_dV_g_e+((2.0*nVtm)*(evaluator_lln_0.getDerivs(g0d,d_g0d_dV_g_e)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),((tang0d*d_tang0d_dV_g_e)+(d_tang0d_dV_g_e*tang0d)))))));
-d_phid_dV_e_di = (d_vch_dV_e_di+((2.0*nVtm)*(evaluator_lln_0.getDerivs(g0d,d_g0d_dV_e_di)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),((tang0d*d_tang0d_dV_e_di)+(d_tang0d_dV_e_di*tang0d)))))));
-d_phid_dV_e_si = (d_vch_dV_e_si+((2.0*nVtm)*(evaluator_lln_0.getDerivs(g0d,d_g0d_dV_e_si)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),((tang0d*d_tang0d_dV_e_si)+(d_tang0d_dV_e_si*tang0d)))))));
-d_phid_dV_di_si = (d_vch_dV_di_si+(((2.0*nVtm)*((evaluator_lln_0.getDerivs(g0d,d_g0d_dV_di_si)+(0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),((tang0d*d_tang0d_dV_di_si)+(d_tang0d_dV_di_si*tang0d)))))+d_F1_dV_di_si))+((2.0*d_nVtm_dV_di_si)*((evaluator_lln_0.getValues(g0d)+(0.5*evaluator_lln_1.getValues((1.0+(tang0d*tang0d)))))+F1))));
+d_phid_dV_g_si = (d_vch_dV_g_si+(2.0*nVtm)*(evaluator_lln_0.getDerivs(g0d,d_g0d_dV_g_si)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),(tang0d*d_tang0d_dV_g_si+d_tang0d_dV_g_si*tang0d))));
+d_phid_dV_g_e = (d_vch_dV_g_e+(2.0*nVtm)*(evaluator_lln_0.getDerivs(g0d,d_g0d_dV_g_e)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),(tang0d*d_tang0d_dV_g_e+d_tang0d_dV_g_e*tang0d))));
+d_phid_dV_e_di = (d_vch_dV_e_di+(2.0*nVtm)*(evaluator_lln_0.getDerivs(g0d,d_g0d_dV_e_di)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),(tang0d*d_tang0d_dV_e_di+d_tang0d_dV_e_di*tang0d))));
+d_phid_dV_e_si = (d_vch_dV_e_si+(2.0*nVtm)*(evaluator_lln_0.getDerivs(g0d,d_g0d_dV_e_si)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),(tang0d*d_tang0d_dV_e_si+d_tang0d_dV_e_si*tang0d))));
+d_phid_dV_di_si = (d_vch_dV_di_si+((2.0*nVtm)*((evaluator_lln_0.getDerivs(g0d,d_g0d_dV_di_si)+0.5*evaluator_lln_1.getDerivs((1.0+(tang0d*tang0d)),(tang0d*d_tang0d_dV_di_si+d_tang0d_dV_di_si*tang0d)))+d_F1_dV_di_si)+2.0*d_nVtm_dV_di_si*((evaluator_lln_0.getValues(g0d)+(0.5*evaluator_lln_1.getValues((1.0+(tang0d*tang0d)))))+F1)));
 phid = (vch+((2.0*nVtm)*((evaluator_lln_0.getValues(g0d)+(0.5*evaluator_lln_1.getValues((1.0+(tang0d*tang0d)))))+F1)));
 }
 }
@@ -14251,25 +14251,25 @@ d_F0_dV_g_si = ((d_vgsfbeff_dV_g_si-d_vch_dV_g_si)/T14);
 F0 = ((((vgsfbeff-phibulk)-vch)/T14)-F1);
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si =  0.0;
-d_T0_dV_di_si = (phibulk*d_aab_dV_di_si);
+d_T0_dV_di_si = phibulk*d_aab_dV_di_si;
 T0 = (phibulk*aab);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_dV_g_e = d_T1_dV_g_si =  0.0;
 d_T1_dV_di_si = (-phibulk*d_T14_dV_di_si/T14/T14);
 T1 = (phibulk/T14);
 
-d_z1_dV_di_si = ((((2.0*r1)-1.0)*d_T1_dV_di_si)+(r2*d_T0_dV_di_si));
-d_z1_dV_g_si = ((((2.0*r1)-1.0)*d_T1_dV_g_si)+(r2*d_T0_dV_g_si));
-d_z1_dV_g_e = ((((2.0*r1)-1.0)*d_T1_dV_g_e)+(r2*d_T0_dV_g_e));
-d_z1_dV_e_di = ((((2.0*r1)-1.0)*d_T1_dV_e_di)+(r2*d_T0_dV_e_di));
-d_z1_dV_e_si = ((((2.0*r1)-1.0)*d_T1_dV_e_si)+(r2*d_T0_dV_e_si));
+d_z1_dV_di_si = (((2.0*r1)-1.0)*d_T1_dV_di_si+r2*d_T0_dV_di_si);
+d_z1_dV_g_si = (((2.0*r1)-1.0)*d_T1_dV_g_si+r2*d_T0_dV_g_si);
+d_z1_dV_g_e = (((2.0*r1)-1.0)*d_T1_dV_g_e+r2*d_T0_dV_g_e);
+d_z1_dV_e_di = (((2.0*r1)-1.0)*d_T1_dV_e_di+r2*d_T0_dV_e_di);
+d_z1_dV_e_si = (((2.0*r1)-1.0)*d_T1_dV_e_si+r2*d_T0_dV_e_si);
 z1 = ((((2.0*r1)-1.0)*T1)+(r2*T0));
 
-d_guessA_dV_di_si = ((2.0*r1)*d_T1_dV_di_si);
-d_guessA_dV_g_si = ((2.0*r1)*d_T1_dV_g_si);
-d_guessA_dV_g_e = ((2.0*r1)*d_T1_dV_g_e);
-d_guessA_dV_e_di = ((2.0*r1)*d_T1_dV_e_di);
-d_guessA_dV_e_si = ((2.0*r1)*d_T1_dV_e_si);
+d_guessA_dV_di_si = (2.0*r1)*d_T1_dV_di_si;
+d_guessA_dV_g_si = (2.0*r1)*d_T1_dV_g_si;
+d_guessA_dV_g_e = (2.0*r1)*d_T1_dV_g_e;
+d_guessA_dV_e_di = (2.0*r1)*d_T1_dV_e_di;
+d_guessA_dV_e_si = (2.0*r1)*d_T1_dV_e_si;
 guessA = ((2.0*r1)*T1);
 {
 double value_exp_0 = exp((-guessA));
@@ -14306,11 +14306,11 @@ double  deriv_exp_0_d0 = value_exp_0;
 double  deriv_log_1_d0 = (1.0/(1.0+value_exp_0));
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_di_si-d_z2_dV_di_si)))))))+((-0.5*d_guessA_dV_di_si/guessA/guessA)*value_log_1));
-d_T2_dV_g_si = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_g_si-d_z2_dV_g_si)))))))+((-0.5*d_guessA_dV_g_si/guessA/guessA)*value_log_1));
-d_T2_dV_g_e = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_g_e-d_z2_dV_g_e)))))))+((-0.5*d_guessA_dV_g_e/guessA/guessA)*value_log_1));
-d_T2_dV_e_di = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_e_di-d_z2_dV_e_di)))))))+((-0.5*d_guessA_dV_e_di/guessA/guessA)*value_log_1));
-d_T2_dV_e_si = (((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*((2.0*(d_F0_dV_e_si-d_z2_dV_e_si)))))))+((-0.5*d_guessA_dV_e_si/guessA/guessA)*value_log_1));
+d_T2_dV_di_si = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_di_si-d_z2_dV_di_si)))))+(-0.5*d_guessA_dV_di_si/guessA/guessA)*value_log_1);
+d_T2_dV_g_si = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_g_si-d_z2_dV_g_si)))))+(-0.5*d_guessA_dV_g_si/guessA/guessA)*value_log_1);
+d_T2_dV_g_e = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_g_e-d_z2_dV_g_e)))))+(-0.5*d_guessA_dV_g_e/guessA/guessA)*value_log_1);
+d_T2_dV_e_di = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_e_di-d_z2_dV_e_di)))))+(-0.5*d_guessA_dV_e_di/guessA/guessA)*value_log_1);
+d_T2_dV_e_si = ((0.5/guessA)*(deriv_log_1_d0*((deriv_exp_0_d0*(2.0*(d_F0_dV_e_si-d_z2_dV_e_si)))))+(-0.5*d_guessA_dV_e_si/guessA/guessA)*value_log_1);
 T2 = (((0.5/guessA)*value_log_1)+1.0);
 }
 }
@@ -14318,11 +14318,11 @@ else
 {
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = (((0.5/guessA)*(2.0*(d_F0_dV_di_si-d_z2_dV_di_si)))+((-0.5*d_guessA_dV_di_si/guessA/guessA)*(2.0*(F0-z2))));
-d_T2_dV_g_si = (((0.5/guessA)*(2.0*(d_F0_dV_g_si-d_z2_dV_g_si)))+((-0.5*d_guessA_dV_g_si/guessA/guessA)*(2.0*(F0-z2))));
-d_T2_dV_g_e = (((0.5/guessA)*(2.0*(d_F0_dV_g_e-d_z2_dV_g_e)))+((-0.5*d_guessA_dV_g_e/guessA/guessA)*(2.0*(F0-z2))));
-d_T2_dV_e_di = (((0.5/guessA)*(2.0*(d_F0_dV_e_di-d_z2_dV_e_di)))+((-0.5*d_guessA_dV_e_di/guessA/guessA)*(2.0*(F0-z2))));
-d_T2_dV_e_si = (((0.5/guessA)*(2.0*(d_F0_dV_e_si-d_z2_dV_e_si)))+((-0.5*d_guessA_dV_e_si/guessA/guessA)*(2.0*(F0-z2))));
+d_T2_dV_di_si = ((0.5/guessA)*2.0*(d_F0_dV_di_si-d_z2_dV_di_si)+(-0.5*d_guessA_dV_di_si/guessA/guessA)*(2.0*(F0-z2)));
+d_T2_dV_g_si = ((0.5/guessA)*2.0*(d_F0_dV_g_si-d_z2_dV_g_si)+(-0.5*d_guessA_dV_g_si/guessA/guessA)*(2.0*(F0-z2)));
+d_T2_dV_g_e = ((0.5/guessA)*2.0*(d_F0_dV_g_e-d_z2_dV_g_e)+(-0.5*d_guessA_dV_g_e/guessA/guessA)*(2.0*(F0-z2)));
+d_T2_dV_e_di = ((0.5/guessA)*2.0*(d_F0_dV_e_di-d_z2_dV_e_di)+(-0.5*d_guessA_dV_e_di/guessA/guessA)*(2.0*(F0-z2)));
+d_T2_dV_e_si = ((0.5/guessA)*2.0*(d_F0_dV_e_si-d_z2_dV_e_si)+(-0.5*d_guessA_dV_e_si/guessA/guessA)*(2.0*(F0-z2)));
 T2 = (((0.5/guessA)*(2.0*(F0-z2)))+1.0);
 }
 {
@@ -14343,11 +14343,11 @@ double value_exp_1 = exp((-T1));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 double  deriv_exp_1_d0 = value_exp_1;
 
-d_guessB_dV_di_si = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_di_si))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_di_si)))+((d_guessA_dV_di_si/r1)*value_sqrt_0))*value_exp_1));
-d_guessB_dV_g_si = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_g_si))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_si)))+((d_guessA_dV_g_si/r1)*value_sqrt_0))*value_exp_1));
-d_guessB_dV_g_e = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_g_e))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_e)))+((d_guessA_dV_g_e/r1)*value_sqrt_0))*value_exp_1));
-d_guessB_dV_e_di = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_e_di))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_di)))+((d_guessA_dV_e_di/r1)*value_sqrt_0))*value_exp_1));
-d_guessB_dV_e_si = ((((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_e_si))))+((((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_si)))+((d_guessA_dV_e_si/r1)*value_sqrt_0))*value_exp_1));
+d_guessB_dV_di_si = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_di_si)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_di_si))+(d_guessA_dV_di_si/r1)*value_sqrt_0)*value_exp_1);
+d_guessB_dV_g_si = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_g_si)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_si))+(d_guessA_dV_g_si/r1)*value_sqrt_0)*value_exp_1);
+d_guessB_dV_g_e = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_g_e)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_e))+(d_guessA_dV_g_e/r1)*value_sqrt_0)*value_exp_1);
+d_guessB_dV_e_di = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_e_di)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_di))+(d_guessA_dV_e_di/r1)*value_sqrt_0)*value_exp_1);
+d_guessB_dV_e_si = (((guessA/r1)*value_sqrt_0)*(deriv_exp_1_d0*((-d_T1_dV_e_si)))+((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_si))+(d_guessA_dV_e_si/r1)*value_sqrt_0)*value_exp_1);
 guessB = (((guessA/r1)*value_sqrt_0)*value_exp_1);
 }
 }
@@ -14411,11 +14411,11 @@ d_secg0_dV_e_di = (-d_cosg0_dV_e_di/cosg0/cosg0);
 d_secg0_dV_e_si = (-d_cosg0_dV_e_si/cosg0/cosg0);
 secg0 = (1.0/cosg0);
 
-d_secg0sq_dV_di_si = ((secg0*d_secg0_dV_di_si)+(d_secg0_dV_di_si*secg0));
-d_secg0sq_dV_g_si = ((secg0*d_secg0_dV_g_si)+(d_secg0_dV_g_si*secg0));
-d_secg0sq_dV_g_e = ((secg0*d_secg0_dV_g_e)+(d_secg0_dV_g_e*secg0));
-d_secg0sq_dV_e_di = ((secg0*d_secg0_dV_e_di)+(d_secg0_dV_e_di*secg0));
-d_secg0sq_dV_e_si = ((secg0*d_secg0_dV_e_si)+(d_secg0_dV_e_si*secg0));
+d_secg0sq_dV_di_si = (secg0*d_secg0_dV_di_si+d_secg0_dV_di_si*secg0);
+d_secg0sq_dV_g_si = (secg0*d_secg0_dV_g_si+d_secg0_dV_g_si*secg0);
+d_secg0sq_dV_g_e = (secg0*d_secg0_dV_g_e+d_secg0_dV_g_e*secg0);
+d_secg0sq_dV_e_di = (secg0*d_secg0_dV_e_di+d_secg0_dV_e_di*secg0);
+d_secg0sq_dV_e_si = (secg0*d_secg0_dV_e_si+d_secg0_dV_e_si*secg0);
 secg0sq = (secg0*secg0);
 {
 double value_log_0 = log((1.0/g0));
@@ -14430,21 +14430,21 @@ lng0 = (-value_log_0);
 }
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
-d_T0_dV_e_di = ((g0*d_tang0_dV_e_di)+(d_g0_dV_e_di*tang0));
-d_T0_dV_e_si = ((g0*d_tang0_dV_e_si)+(d_g0_dV_e_si*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
+d_T0_dV_e_di = (g0*d_tang0_dV_e_di+d_g0_dV_e_di*tang0);
+d_T0_dV_e_si = (g0*d_tang0_dV_e_si+d_g0_dV_e_si*tang0);
 T0 = (1.0+(g0*tang0));
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(cosg0);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((((g0*g0)*((T13*d_secg0sq_dV_di_si)+(d_T13_dV_di_si*secg0sq)))+(((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))*((T13*secg0sq)-1.0)))+((aab*(-((T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+(d_T14_dV_di_si*evaluator_lln_0.getValues(cosg0)))))+(d_aab_dV_di_si*(phibulk-(T14*evaluator_lln_0.getValues(cosg0))))));
-d_T1_dV_g_si = ((((g0*g0)*(T13*d_secg0sq_dV_g_si))+(((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si)))));
-d_T1_dV_g_e = ((((g0*g0)*(T13*d_secg0sq_dV_g_e))+(((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e)))));
-d_T1_dV_e_di = ((((g0*g0)*(T13*d_secg0sq_dV_e_di))+(((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di)))));
-d_T1_dV_e_si = ((((g0*g0)*(T13*d_secg0sq_dV_e_si))+(((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si)))));
+d_T1_dV_di_si = (((g0*g0)*(T13*d_secg0sq_dV_di_si+d_T13_dV_di_si*secg0sq)+(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)*((T13*secg0sq)-1.0))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si)+d_T14_dV_di_si*evaluator_lln_0.getValues(cosg0)))+d_aab_dV_di_si*(phibulk-(T14*evaluator_lln_0.getValues(cosg0)))));
+d_T1_dV_g_si = (((g0*g0)*T13*d_secg0sq_dV_g_si+(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si)));
+d_T1_dV_g_e = (((g0*g0)*T13*d_secg0sq_dV_g_e+(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e)));
+d_T1_dV_e_di = (((g0*g0)*T13*d_secg0sq_dV_e_di+(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di)));
+d_T1_dV_e_si = (((g0*g0)*T13*d_secg0sq_dV_e_si+(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si)));
 T1 = (((g0*g0)*((T13*secg0sq)-1.0))+(aab*(phibulk-(T14*evaluator_lln_0.getValues(cosg0)))));
 }
 {
@@ -14461,72 +14461,72 @@ T2 = value_sqrt_0;
 }
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_di_si = ((((-2.0)*d_g0_dV_di_si)+(((aab*T14)*d_tang0_dV_di_si)+(((aab*d_T14_dV_di_si)+(d_aab_dV_di_si*T14))*tang0)))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_di_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_di_si)+((((2.0*T13)*d_g0_dV_di_si)+((2.0*d_T13_dV_di_si)*g0))*secg0sq))*T0)));
-d_T3_dV_g_si = ((((-2.0)*d_g0_dV_g_si)+((aab*T14)*d_tang0_dV_g_si))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_g_si)+(((2.0*T13)*d_g0_dV_g_si)*secg0sq))*T0)));
-d_T3_dV_g_e = ((((-2.0)*d_g0_dV_g_e)+((aab*T14)*d_tang0_dV_g_e))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_e)+(((((2.0*T13)*g0)*d_secg0sq_dV_g_e)+(((2.0*T13)*d_g0_dV_g_e)*secg0sq))*T0)));
-d_T3_dV_e_di = ((((-2.0)*d_g0_dV_e_di)+((aab*T14)*d_tang0_dV_e_di))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_di)+(((((2.0*T13)*g0)*d_secg0sq_dV_e_di)+(((2.0*T13)*d_g0_dV_e_di)*secg0sq))*T0)));
-d_T3_dV_e_si = ((((-2.0)*d_g0_dV_e_si)+((aab*T14)*d_tang0_dV_e_si))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_e_si)+(((2.0*T13)*d_g0_dV_e_si)*secg0sq))*T0)));
+d_T3_dV_di_si = (((-2.0)*d_g0_dV_di_si+((aab*T14)*d_tang0_dV_di_si+(aab*d_T14_dV_di_si+d_aab_dV_di_si*T14)*tang0))+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_di_si+(((2.0*T13)*g0)*d_secg0sq_dV_di_si+((2.0*T13)*d_g0_dV_di_si+2.0*d_T13_dV_di_si*g0)*secg0sq)*T0));
+d_T3_dV_g_si = (((-2.0)*d_g0_dV_g_si+(aab*T14)*d_tang0_dV_g_si)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_si+(((2.0*T13)*g0)*d_secg0sq_dV_g_si+(2.0*T13)*d_g0_dV_g_si*secg0sq)*T0));
+d_T3_dV_g_e = (((-2.0)*d_g0_dV_g_e+(aab*T14)*d_tang0_dV_g_e)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_e+(((2.0*T13)*g0)*d_secg0sq_dV_g_e+(2.0*T13)*d_g0_dV_g_e*secg0sq)*T0));
+d_T3_dV_e_di = (((-2.0)*d_g0_dV_e_di+(aab*T14)*d_tang0_dV_e_di)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_di+(((2.0*T13)*g0)*d_secg0sq_dV_e_di+(2.0*T13)*d_g0_dV_e_di*secg0sq)*T0));
+d_T3_dV_e_si = (((-2.0)*d_g0_dV_e_si+(aab*T14)*d_tang0_dV_e_si)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_si+(((2.0*T13)*g0)*d_secg0sq_dV_e_si+(2.0*T13)*d_g0_dV_e_si*secg0sq)*T0));
 T3 = ((((-2.0)*g0)+((aab*T14)*tang0))+((((2.0*T13)*g0)*secg0sq)*T0));
 
 d_T4_dV_g_di =  0.0;
-d_T4_dV_g_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_si)+(((((2.0*T13)*g0)*d_g0_dV_g_si)+(((2.0*T13)*d_g0_dV_g_si)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_g_si)+(((8.0*T13)*d_g0_dV_g_si)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_g_si)+(((((4.0*T13)*g0)*d_g0_dV_g_si)+(((4.0*T13)*d_g0_dV_g_si)*g0))*tang0))*tang0))))+(d_secg0sq_dV_g_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_g_e = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_e)+(((((2.0*T13)*g0)*d_g0_dV_g_e)+(((2.0*T13)*d_g0_dV_g_e)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_g_e)+(((8.0*T13)*d_g0_dV_g_e)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_e)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_g_e)+(((((4.0*T13)*g0)*d_g0_dV_g_e)+(((4.0*T13)*d_g0_dV_g_e)*g0))*tang0))*tang0))))+(d_secg0sq_dV_g_e*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_e_di = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_di)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_di)+(((((2.0*T13)*g0)*d_g0_dV_e_di)+(((2.0*T13)*d_g0_dV_e_di)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_e_di)+(((8.0*T13)*d_g0_dV_e_di)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_di)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_e_di)+(((((4.0*T13)*g0)*d_g0_dV_e_di)+(((4.0*T13)*d_g0_dV_e_di)*g0))*tang0))*tang0))))+(d_secg0sq_dV_e_di*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_e_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_si)+(((((2.0*T13)*g0)*d_g0_dV_e_si)+(((2.0*T13)*d_g0_dV_e_si)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_e_si)+(((8.0*T13)*d_g0_dV_e_si)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_e_si)+(((((4.0*T13)*g0)*d_g0_dV_e_si)+(((4.0*T13)*d_g0_dV_e_si)*g0))*tang0))*tang0))))+(d_secg0sq_dV_e_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_di_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_di_si)+(((((2.0*T13)*g0)*d_g0_dV_di_si)+((((2.0*T13)*d_g0_dV_di_si)+((2.0*d_T13_dV_di_si)*g0))*g0))*secg0sq))*secg0sq))+((secg0sq*((((2*d_T13_dV_di_si)+((aab*d_T14_dV_di_si)+(d_aab_dV_di_si*T14)))+((((8.0*T13)*g0)*d_tang0_dV_di_si)+((((8.0*T13)*d_g0_dV_di_si)+((8.0*d_T13_dV_di_si)*g0))*tang0)))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_di_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_di_si)+(((((4.0*T13)*g0)*d_g0_dV_di_si)+((((4.0*T13)*d_g0_dV_di_si)+((4.0*d_T13_dV_di_si)*g0))*g0))*tang0))*tang0))))+(d_secg0sq_dV_di_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
+d_T4_dV_g_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_si+(((2.0*T13)*g0)*d_g0_dV_g_si+(2.0*T13)*d_g0_dV_g_si*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_g_si+(8.0*T13)*d_g0_dV_g_si*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_g_si+(((4.0*T13)*g0)*d_g0_dV_g_si+(4.0*T13)*d_g0_dV_g_si*g0)*tang0)*tang0))+d_secg0sq_dV_g_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_g_e = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_e+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_e+(((2.0*T13)*g0)*d_g0_dV_g_e+(2.0*T13)*d_g0_dV_g_e*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_g_e+(8.0*T13)*d_g0_dV_g_e*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_e+((((4.0*T13)*g0)*g0)*d_tang0_dV_g_e+(((4.0*T13)*g0)*d_g0_dV_g_e+(4.0*T13)*d_g0_dV_g_e*g0)*tang0)*tang0))+d_secg0sq_dV_g_e*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_e_di = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_di+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_di+(((2.0*T13)*g0)*d_g0_dV_e_di+(2.0*T13)*d_g0_dV_e_di*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_e_di+(8.0*T13)*d_g0_dV_e_di*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_di+((((4.0*T13)*g0)*g0)*d_tang0_dV_e_di+(((4.0*T13)*g0)*d_g0_dV_e_di+(4.0*T13)*d_g0_dV_e_di*g0)*tang0)*tang0))+d_secg0sq_dV_e_di*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_e_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_si+(((2.0*T13)*g0)*d_g0_dV_e_si+(2.0*T13)*d_g0_dV_e_si*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_e_si+(8.0*T13)*d_g0_dV_e_si*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_e_si+(((4.0*T13)*g0)*d_g0_dV_e_si+(4.0*T13)*d_g0_dV_e_si*g0)*tang0)*tang0))+d_secg0sq_dV_e_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_di_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_di_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_di_si+(((2.0*T13)*g0)*d_g0_dV_di_si+((2.0*T13)*d_g0_dV_di_si+2.0*d_T13_dV_di_si*g0)*g0)*secg0sq)*secg0sq)+(secg0sq*(((2*d_T13_dV_di_si+(aab*d_T14_dV_di_si+d_aab_dV_di_si*T14))+(((8.0*T13)*g0)*d_tang0_dV_di_si+((8.0*T13)*d_g0_dV_di_si+8.0*d_T13_dV_di_si*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_di_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_di_si+(((4.0*T13)*g0)*d_g0_dV_di_si+((4.0*T13)*d_g0_dV_di_si+4.0*d_T13_dV_di_si*g0)*g0)*tang0)*tang0))+d_secg0sq_dV_di_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
 T4 = (((-2.0)+(((((2.0*T13)*g0)*g0)*secg0sq)*secg0sq))+(secg0sq*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
 
 d_T5_dV_g_di = d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((((2.0*tang0)*d_T4_dV_di_si)+((2.0*d_tang0_dV_di_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_di_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_di_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_di_si)+((((3.0*T13)*d_g0_dV_di_si)+((3.0*d_T13_dV_di_si)*g0))*secg0sq))*secg0sq))*T0))+d_tang0_dV_di_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_di_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_di_si)+((((2.0*T13)*d_secg0sq_dV_di_si)+((2.0*d_T13_dV_di_si)*secg0sq))*T0))*tang0)))));
-d_T5_dV_g_si = ((((2.0*tang0)*d_T4_dV_g_si)+((2.0*d_tang0_dV_g_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_g_si)+(((3.0*T13)*d_g0_dV_g_si)*secg0sq))*secg0sq))*T0))+d_tang0_dV_g_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_g_si)+(((2.0*T13)*d_secg0sq_dV_g_si)*T0))*tang0)))));
-d_T5_dV_g_e = ((((2.0*tang0)*d_T4_dV_g_e)+((2.0*d_tang0_dV_g_e)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_e)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_e)+(((((3.0*T13)*g0)*d_secg0sq_dV_g_e)+(((3.0*T13)*d_g0_dV_g_e)*secg0sq))*secg0sq))*T0))+d_tang0_dV_g_e)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_e)+(((((2.0*T13)*secg0sq)*d_T0_dV_g_e)+(((2.0*T13)*d_secg0sq_dV_g_e)*T0))*tang0)))));
-d_T5_dV_e_di = ((((2.0*tang0)*d_T4_dV_e_di)+((2.0*d_tang0_dV_e_di)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_di)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_di)+(((((3.0*T13)*g0)*d_secg0sq_dV_e_di)+(((3.0*T13)*d_g0_dV_e_di)*secg0sq))*secg0sq))*T0))+d_tang0_dV_e_di)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_di)+(((((2.0*T13)*secg0sq)*d_T0_dV_e_di)+(((2.0*T13)*d_secg0sq_dV_e_di)*T0))*tang0)))));
-d_T5_dV_e_si = ((((2.0*tang0)*d_T4_dV_e_si)+((2.0*d_tang0_dV_e_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_e_si)+(((3.0*T13)*d_g0_dV_e_si)*secg0sq))*secg0sq))*T0))+d_tang0_dV_e_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_e_si)+(((2.0*T13)*d_secg0sq_dV_e_si)*T0))*tang0)))));
+d_T5_dV_di_si = (((2.0*tang0)*d_T4_dV_di_si+2.0*d_tang0_dV_di_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_di_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_di_si+(((3.0*T13)*g0)*d_secg0sq_dV_di_si+((3.0*T13)*d_g0_dV_di_si+3.0*d_T13_dV_di_si*g0)*secg0sq)*secg0sq)*T0)+d_tang0_dV_di_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_di_si+(((2.0*T13)*secg0sq)*d_T0_dV_di_si+((2.0*T13)*d_secg0sq_dV_di_si+2.0*d_T13_dV_di_si*secg0sq)*T0)*tang0)));
+d_T5_dV_g_si = (((2.0*tang0)*d_T4_dV_g_si+2.0*d_tang0_dV_g_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_si+(((3.0*T13)*g0)*d_secg0sq_dV_g_si+(3.0*T13)*d_g0_dV_g_si*secg0sq)*secg0sq)*T0)+d_tang0_dV_g_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_si+(((2.0*T13)*secg0sq)*d_T0_dV_g_si+(2.0*T13)*d_secg0sq_dV_g_si*T0)*tang0)));
+d_T5_dV_g_e = (((2.0*tang0)*d_T4_dV_g_e+2.0*d_tang0_dV_g_e*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_e+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_e+(((3.0*T13)*g0)*d_secg0sq_dV_g_e+(3.0*T13)*d_g0_dV_g_e*secg0sq)*secg0sq)*T0)+d_tang0_dV_g_e)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_e+(((2.0*T13)*secg0sq)*d_T0_dV_g_e+(2.0*T13)*d_secg0sq_dV_g_e*T0)*tang0)));
+d_T5_dV_e_di = (((2.0*tang0)*d_T4_dV_e_di+2.0*d_tang0_dV_e_di*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_di+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_di+(((3.0*T13)*g0)*d_secg0sq_dV_e_di+(3.0*T13)*d_g0_dV_e_di*secg0sq)*secg0sq)*T0)+d_tang0_dV_e_di)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_di+(((2.0*T13)*secg0sq)*d_T0_dV_e_di+(2.0*T13)*d_secg0sq_dV_e_di*T0)*tang0)));
+d_T5_dV_e_si = (((2.0*tang0)*d_T4_dV_e_si+2.0*d_tang0_dV_e_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_si+(((3.0*T13)*g0)*d_secg0sq_dV_e_si+(3.0*T13)*d_g0_dV_e_si*secg0sq)*secg0sq)*T0)+d_tang0_dV_e_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_si+(((2.0*T13)*secg0sq)*d_T0_dV_e_si+(2.0*T13)*d_secg0sq_dV_e_si*T0)*tang0)));
 T5 = (((2.0*tang0)*T4)+(4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*T0)+tang0)+((((2.0*T13)*secg0sq)*T0)*tang0))));
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(cosg0);
 
-d_T7_dV_di_si = ((((d_lng0_dV_di_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+(r2*d_T1_dV_di_si))+(r1*d_T2_dV_di_si))-d_F0_dV_di_si);
-d_T7_dV_g_si = ((((d_lng0_dV_g_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si))+(r2*d_T1_dV_g_si))+(r1*d_T2_dV_g_si))-d_F0_dV_g_si);
-d_T7_dV_g_e = ((((d_lng0_dV_g_e-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e))+(r2*d_T1_dV_g_e))+(r1*d_T2_dV_g_e))-d_F0_dV_g_e);
-d_T7_dV_e_di = ((((d_lng0_dV_e_di-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di))+(r2*d_T1_dV_e_di))+(r1*d_T2_dV_e_di))-d_F0_dV_e_di);
-d_T7_dV_e_si = ((((d_lng0_dV_e_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si))+(r2*d_T1_dV_e_si))+(r1*d_T2_dV_e_si))-d_F0_dV_e_si);
+d_T7_dV_di_si = ((((d_lng0_dV_di_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+r2*d_T1_dV_di_si)+r1*d_T2_dV_di_si)-d_F0_dV_di_si);
+d_T7_dV_g_si = ((((d_lng0_dV_g_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si))+r2*d_T1_dV_g_si)+r1*d_T2_dV_g_si)-d_F0_dV_g_si);
+d_T7_dV_g_e = ((((d_lng0_dV_g_e-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e))+r2*d_T1_dV_g_e)+r1*d_T2_dV_g_e)-d_F0_dV_g_e);
+d_T7_dV_e_di = ((((d_lng0_dV_e_di-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di))+r2*d_T1_dV_e_di)+r1*d_T2_dV_e_di)-d_F0_dV_e_di);
+d_T7_dV_e_si = ((((d_lng0_dV_e_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si))+r2*d_T1_dV_e_si)+r1*d_T2_dV_e_si)-d_F0_dV_e_si);
 T7 = ((((lng0-evaluator_lln_0.getValues(cosg0))+(r2*T1))+(r1*T2))-F0);
 }
 
-d_T8_dV_di_si = ((((-d_g0_dV_di_si/g0/g0)+d_tang0_dV_di_si)+(r2*d_T3_dV_di_si))+(((2.0*T2)*(r1*d_T3_dV_di_si)-(r1*T3)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_g_si = ((((-d_g0_dV_g_si/g0/g0)+d_tang0_dV_g_si)+(r2*d_T3_dV_g_si))+(((2.0*T2)*(r1*d_T3_dV_g_si)-(r1*T3)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_g_e = ((((-d_g0_dV_g_e/g0/g0)+d_tang0_dV_g_e)+(r2*d_T3_dV_g_e))+(((2.0*T2)*(r1*d_T3_dV_g_e)-(r1*T3)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_e_di = ((((-d_g0_dV_e_di/g0/g0)+d_tang0_dV_e_di)+(r2*d_T3_dV_e_di))+(((2.0*T2)*(r1*d_T3_dV_e_di)-(r1*T3)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_e_si = ((((-d_g0_dV_e_si/g0/g0)+d_tang0_dV_e_si)+(r2*d_T3_dV_e_si))+(((2.0*T2)*(r1*d_T3_dV_e_si)-(r1*T3)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)));
+d_T8_dV_di_si = ((((-d_g0_dV_di_si/g0/g0)+d_tang0_dV_di_si)+r2*d_T3_dV_di_si)+(((2.0*T2)*r1*d_T3_dV_di_si-(r1*T3)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_g_si = ((((-d_g0_dV_g_si/g0/g0)+d_tang0_dV_g_si)+r2*d_T3_dV_g_si)+(((2.0*T2)*r1*d_T3_dV_g_si-(r1*T3)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_g_e = ((((-d_g0_dV_g_e/g0/g0)+d_tang0_dV_g_e)+r2*d_T3_dV_g_e)+(((2.0*T2)*r1*d_T3_dV_g_e-(r1*T3)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_e_di = ((((-d_g0_dV_e_di/g0/g0)+d_tang0_dV_e_di)+r2*d_T3_dV_e_di)+(((2.0*T2)*r1*d_T3_dV_e_di-(r1*T3)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_e_si = ((((-d_g0_dV_e_si/g0/g0)+d_tang0_dV_e_si)+r2*d_T3_dV_e_si)+(((2.0*T2)*r1*d_T3_dV_e_si-(r1*T3)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)));
 T8 = ((((1.0/g0)+tang0)+(r2*T3))+((r1*T3)/(2.0*T2)));
 
-d_T9_dV_di_si = (((((-(-1.0)*((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_di_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_di_si)+((r1*d_T3_dV_di_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_di_si)+((((4*T2)*d_T2_dV_di_si)+((4*d_T2_dV_di_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_di_si)-(r1*T4)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_di_si));
-d_T9_dV_g_si = (((((-(-1.0)*((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_g_si)+((r1*d_T3_dV_g_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_g_si)+((((4*T2)*d_T2_dV_g_si)+((4*d_T2_dV_g_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_g_si)-(r1*T4)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_g_si));
-d_T9_dV_g_e = (((((-(-1.0)*((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_e)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_g_e)+((r1*d_T3_dV_g_e)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_g_e)+((((4*T2)*d_T2_dV_g_e)+((4*d_T2_dV_g_e)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_g_e)-(r1*T4)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_g_e));
-d_T9_dV_e_di = (((((-(-1.0)*((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_di)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_e_di)+((r1*d_T3_dV_e_di)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_e_di)+((((4*T2)*d_T2_dV_e_di)+((4*d_T2_dV_e_di)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_e_di)-(r1*T4)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_e_di));
-d_T9_dV_e_si = (((((-(-1.0)*((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_e_si)+((r1*d_T3_dV_e_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_e_si)+((((4*T2)*d_T2_dV_e_si)+((4*d_T2_dV_e_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_e_si)-(r1*T4)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_e_si));
+d_T9_dV_di_si = (((((-(-1.0)*(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_di_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_di_si+r1*d_T3_dV_di_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_di_si+((4*T2)*d_T2_dV_di_si+4*d_T2_dV_di_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_di_si-(r1*T4)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_di_si);
+d_T9_dV_g_si = (((((-(-1.0)*(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_g_si+r1*d_T3_dV_g_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_g_si+((4*T2)*d_T2_dV_g_si+4*d_T2_dV_g_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_g_si-(r1*T4)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_g_si);
+d_T9_dV_g_e = (((((-(-1.0)*(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_e)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_g_e+r1*d_T3_dV_g_e*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_g_e+((4*T2)*d_T2_dV_g_e+4*d_T2_dV_g_e*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_g_e-(r1*T4)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_g_e);
+d_T9_dV_e_di = (((((-(-1.0)*(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_di)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_e_di+r1*d_T3_dV_e_di*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_e_di+((4*T2)*d_T2_dV_e_di+4*d_T2_dV_e_di*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_e_di-(r1*T4)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_e_di);
+d_T9_dV_e_si = (((((-(-1.0)*(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_e_si+r1*d_T3_dV_e_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_e_si+((4*T2)*d_T2_dV_e_si+4*d_T2_dV_e_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_e_si-(r1*T4)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_e_si);
 T9 = ((((((-1.0)/(g0*g0))+secg0sq)-(((r1*T3)*T3)/(((4*T2)*T2)*T2)))+((r1*T4)/(2.0*T2)))+(r2*T4));
 {
 double value_pow_0 = pow(T2,3);
 double  deriv_pow_0_d0 = ((T2 == 0.0)?0.0:(value_pow_0*3/T2));
 
-d_TA_dV_di_si = (((((-2.0*(((g0*g0)*d_g0_dV_di_si)+(((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_di_si)+(d_T3_dV_di_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_di_si)+((2.0*d_T2_dV_di_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_di_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_di_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_di_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_di_si)-(r1*T5)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_di_si));
-d_TA_dV_g_si = (((((-2.0*(((g0*g0)*d_g0_dV_g_si)+(((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_g_si)+(d_T3_dV_g_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_g_si)+((2.0*d_T2_dV_g_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_g_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_g_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_g_si)-(r1*T5)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_g_si));
-d_TA_dV_g_e = (((((-2.0*(((g0*g0)*d_g0_dV_g_e)+(((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_g_e)+(d_T3_dV_g_e*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_g_e)+((2.0*d_T2_dV_g_e)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_e))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_g_e)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_g_e))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_g_e)-(r1*T5)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_g_e));
-d_TA_dV_e_di = (((((-2.0*(((g0*g0)*d_g0_dV_e_di)+(((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_e_di)+((2.0*d_secg0sq_dV_e_di)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_e_di)+(d_T3_dV_e_di*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_e_di)+((2.0*d_T2_dV_e_di)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_di))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_e_di)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_e_di))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_e_di)-(r1*T5)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_e_di));
-d_TA_dV_e_si = (((((-2.0*(((g0*g0)*d_g0_dV_e_si)+(((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_e_si)+((2.0*d_secg0sq_dV_e_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_e_si)+(d_T3_dV_e_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_e_si)+((2.0*d_T2_dV_e_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_e_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_e_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_e_si)-(r1*T5)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_e_si));
+d_TA_dV_di_si = (((((-2.0*((g0*g0)*d_g0_dV_di_si+(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_di_si+d_T3_dV_di_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_di_si+2.0*d_T2_dV_di_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_di_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_di_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_di_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_di_si-(r1*T5)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_di_si);
+d_TA_dV_g_si = (((((-2.0*((g0*g0)*d_g0_dV_g_si+(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_g_si+d_T3_dV_g_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_g_si+2.0*d_T2_dV_g_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_g_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_g_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_g_si-(r1*T5)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_g_si);
+d_TA_dV_g_e = (((((-2.0*((g0*g0)*d_g0_dV_g_e+(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_g_e+d_T3_dV_g_e*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_g_e+2.0*d_T2_dV_g_e*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_e)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_g_e-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_g_e)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_g_e-(r1*T5)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_g_e);
+d_TA_dV_e_di = (((((-2.0*((g0*g0)*d_g0_dV_e_di+(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_e_di+2.0*d_secg0sq_dV_e_di*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_e_di+d_T3_dV_e_di*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_e_di+2.0*d_T2_dV_e_di*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_di)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_e_di-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_e_di)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_e_di-(r1*T5)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_e_di);
+d_TA_dV_e_si = (((((-2.0*((g0*g0)*d_g0_dV_e_si+(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_e_si+2.0*d_secg0sq_dV_e_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_e_si+d_T3_dV_e_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_e_si+2.0*d_T2_dV_e_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_e_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_e_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_e_si-(r1*T5)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_e_si);
 TA = (((((2.0/((g0*g0)*g0))+((2.0*secg0sq)*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+((r1*T5)/(2.0*T2)))+(r2*T5));
 }
 {
 double value_pow_0 = pow(T8,4);
 double  deriv_pow_0_d0 = ((T8 == 0.0)?0.0:(value_pow_0*4/T8));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_di_si)+(d_T7_dV_di_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_di_si)+((2.0*d_T8_dV_di_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_di_si)+((3.0*d_T9_dV_di_si)*T9))-((T8*d_TA_dV_di_si)+(d_T8_dV_di_si*TA))))+(((T7*d_T7_dV_di_si)+(d_T7_dV_di_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_di_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_di_si-T7*d_T8_dV_di_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_g_si)+(d_T7_dV_g_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_g_si)+((2.0*d_T8_dV_g_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_g_si)+((3.0*d_T9_dV_g_si)*T9))-((T8*d_TA_dV_g_si)+(d_T8_dV_g_si*TA))))+(((T7*d_T7_dV_g_si)+(d_T7_dV_g_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_g_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_g_si-T7*d_T8_dV_g_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_g_e)+(d_T7_dV_g_e*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_g_e)+((2.0*d_T8_dV_g_e)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_g_e)+((3.0*d_T9_dV_g_e)*T9))-((T8*d_TA_dV_g_e)+(d_T8_dV_g_e*TA))))+(((T7*d_T7_dV_g_e)+(d_T7_dV_g_e*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_g_e))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_g_e-T7*d_T8_dV_g_e)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_e_di)+(d_T7_dV_e_di*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_e_di)+((2.0*d_T8_dV_e_di)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_e_di)+((3.0*d_T9_dV_e_di)*T9))-((T8*d_TA_dV_e_di)+(d_T8_dV_e_di*TA))))+(((T7*d_T7_dV_e_di)+(d_T7_dV_e_di*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_e_di))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_e_di-T7*d_T8_dV_e_di)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_e_si)+(d_T7_dV_e_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_e_si)+((2.0*d_T8_dV_e_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_e_si)+((3.0*d_T9_dV_e_si)*T9))-((T8*d_TA_dV_e_si)+(d_T8_dV_e_si*TA))))+(((T7*d_T7_dV_e_si)+(d_T7_dV_e_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_e_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_e_si-T7*d_T8_dV_e_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_di_si+d_T7_dV_di_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_di_si+2.0*d_T8_dV_di_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_di_si+3.0*d_T9_dV_di_si*T9)-(T8*d_TA_dV_di_si+d_T8_dV_di_si*TA))+(T7*d_T7_dV_di_si+d_T7_dV_di_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_di_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_di_si-T7*d_T8_dV_di_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_g_si+d_T7_dV_g_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_g_si+2.0*d_T8_dV_g_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_g_si+3.0*d_T9_dV_g_si*T9)-(T8*d_TA_dV_g_si+d_T8_dV_g_si*TA))+(T7*d_T7_dV_g_si+d_T7_dV_g_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_g_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_g_si-T7*d_T8_dV_g_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_g_e+d_T7_dV_g_e*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_g_e+2.0*d_T8_dV_g_e*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_g_e+3.0*d_T9_dV_g_e*T9)-(T8*d_TA_dV_g_e+d_T8_dV_g_e*TA))+(T7*d_T7_dV_g_e+d_T7_dV_g_e*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_g_e)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_g_e-T7*d_T8_dV_g_e)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_e_di+d_T7_dV_e_di*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_e_di+2.0*d_T8_dV_e_di*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_e_di+3.0*d_T9_dV_e_di*T9)-(T8*d_TA_dV_e_di+d_T8_dV_e_di*TA))+(T7*d_T7_dV_e_di+d_T7_dV_e_di*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_e_di)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_e_di-T7*d_T8_dV_e_di)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_e_si+d_T7_dV_e_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_e_si+2.0*d_T8_dV_e_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_e_si+3.0*d_T9_dV_e_si*T9)-(T8*d_TA_dV_e_si+d_T8_dV_e_si*TA))+(T7*d_T7_dV_e_si+d_T7_dV_e_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_e_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_e_si-T7*d_T8_dV_e_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
 g0 = (g0-((T7/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
 }
 {
@@ -14559,11 +14559,11 @@ d_secg0_dV_e_di = (-d_cosg0_dV_e_di/cosg0/cosg0);
 d_secg0_dV_e_si = (-d_cosg0_dV_e_si/cosg0/cosg0);
 secg0 = (1.0/cosg0);
 
-d_secg0sq_dV_di_si = ((secg0*d_secg0_dV_di_si)+(d_secg0_dV_di_si*secg0));
-d_secg0sq_dV_g_si = ((secg0*d_secg0_dV_g_si)+(d_secg0_dV_g_si*secg0));
-d_secg0sq_dV_g_e = ((secg0*d_secg0_dV_g_e)+(d_secg0_dV_g_e*secg0));
-d_secg0sq_dV_e_di = ((secg0*d_secg0_dV_e_di)+(d_secg0_dV_e_di*secg0));
-d_secg0sq_dV_e_si = ((secg0*d_secg0_dV_e_si)+(d_secg0_dV_e_si*secg0));
+d_secg0sq_dV_di_si = (secg0*d_secg0_dV_di_si+d_secg0_dV_di_si*secg0);
+d_secg0sq_dV_g_si = (secg0*d_secg0_dV_g_si+d_secg0_dV_g_si*secg0);
+d_secg0sq_dV_g_e = (secg0*d_secg0_dV_g_e+d_secg0_dV_g_e*secg0);
+d_secg0sq_dV_e_di = (secg0*d_secg0_dV_e_di+d_secg0_dV_e_di*secg0);
+d_secg0sq_dV_e_si = (secg0*d_secg0_dV_e_si+d_secg0_dV_e_si*secg0);
 secg0sq = (secg0*secg0);
 {
 double value_log_0 = log((1.0/g0));
@@ -14578,21 +14578,21 @@ lng0 = (-value_log_0);
 }
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = ((g0*d_tang0_dV_di_si)+(d_g0_dV_di_si*tang0));
-d_T0_dV_g_si = ((g0*d_tang0_dV_g_si)+(d_g0_dV_g_si*tang0));
-d_T0_dV_g_e = ((g0*d_tang0_dV_g_e)+(d_g0_dV_g_e*tang0));
-d_T0_dV_e_di = ((g0*d_tang0_dV_e_di)+(d_g0_dV_e_di*tang0));
-d_T0_dV_e_si = ((g0*d_tang0_dV_e_si)+(d_g0_dV_e_si*tang0));
+d_T0_dV_di_si = (g0*d_tang0_dV_di_si+d_g0_dV_di_si*tang0);
+d_T0_dV_g_si = (g0*d_tang0_dV_g_si+d_g0_dV_g_si*tang0);
+d_T0_dV_g_e = (g0*d_tang0_dV_g_e+d_g0_dV_g_e*tang0);
+d_T0_dV_e_di = (g0*d_tang0_dV_e_di+d_g0_dV_e_di*tang0);
+d_T0_dV_e_si = (g0*d_tang0_dV_e_si+d_g0_dV_e_si*tang0);
 T0 = (1.0+(g0*tang0));
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(cosg0);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((((g0*g0)*((T13*d_secg0sq_dV_di_si)+(d_T13_dV_di_si*secg0sq)))+(((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))*((T13*secg0sq)-1.0)))+((aab*(-((T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+(d_T14_dV_di_si*evaluator_lln_0.getValues(cosg0)))))+(d_aab_dV_di_si*(phibulk-(T14*evaluator_lln_0.getValues(cosg0))))));
-d_T1_dV_g_si = ((((g0*g0)*(T13*d_secg0sq_dV_g_si))+(((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si)))));
-d_T1_dV_g_e = ((((g0*g0)*(T13*d_secg0sq_dV_g_e))+(((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e)))));
-d_T1_dV_e_di = ((((g0*g0)*(T13*d_secg0sq_dV_e_di))+(((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di)))));
-d_T1_dV_e_si = ((((g0*g0)*(T13*d_secg0sq_dV_e_si))+(((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))*((T13*secg0sq)-1.0)))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si)))));
+d_T1_dV_di_si = (((g0*g0)*(T13*d_secg0sq_dV_di_si+d_T13_dV_di_si*secg0sq)+(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)*((T13*secg0sq)-1.0))+(aab*(-(T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si)+d_T14_dV_di_si*evaluator_lln_0.getValues(cosg0)))+d_aab_dV_di_si*(phibulk-(T14*evaluator_lln_0.getValues(cosg0)))));
+d_T1_dV_g_si = (((g0*g0)*T13*d_secg0sq_dV_g_si+(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si)));
+d_T1_dV_g_e = (((g0*g0)*T13*d_secg0sq_dV_g_e+(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e)));
+d_T1_dV_e_di = (((g0*g0)*T13*d_secg0sq_dV_e_di+(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di)));
+d_T1_dV_e_si = (((g0*g0)*T13*d_secg0sq_dV_e_si+(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)*((T13*secg0sq)-1.0))+aab*(-T14*evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si)));
 T1 = (((g0*g0)*((T13*secg0sq)-1.0))+(aab*(phibulk-(T14*evaluator_lln_0.getValues(cosg0)))));
 }
 {
@@ -14609,72 +14609,72 @@ T2 = value_sqrt_0;
 }
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_di_si = ((((-2.0)*d_g0_dV_di_si)+(((aab*T14)*d_tang0_dV_di_si)+(((aab*d_T14_dV_di_si)+(d_aab_dV_di_si*T14))*tang0)))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_di_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_di_si)+((((2.0*T13)*d_g0_dV_di_si)+((2.0*d_T13_dV_di_si)*g0))*secg0sq))*T0)));
-d_T3_dV_g_si = ((((-2.0)*d_g0_dV_g_si)+((aab*T14)*d_tang0_dV_g_si))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_g_si)+(((2.0*T13)*d_g0_dV_g_si)*secg0sq))*T0)));
-d_T3_dV_g_e = ((((-2.0)*d_g0_dV_g_e)+((aab*T14)*d_tang0_dV_g_e))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_e)+(((((2.0*T13)*g0)*d_secg0sq_dV_g_e)+(((2.0*T13)*d_g0_dV_g_e)*secg0sq))*T0)));
-d_T3_dV_e_di = ((((-2.0)*d_g0_dV_e_di)+((aab*T14)*d_tang0_dV_e_di))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_di)+(((((2.0*T13)*g0)*d_secg0sq_dV_e_di)+(((2.0*T13)*d_g0_dV_e_di)*secg0sq))*T0)));
-d_T3_dV_e_si = ((((-2.0)*d_g0_dV_e_si)+((aab*T14)*d_tang0_dV_e_si))+(((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_si)+(((((2.0*T13)*g0)*d_secg0sq_dV_e_si)+(((2.0*T13)*d_g0_dV_e_si)*secg0sq))*T0)));
+d_T3_dV_di_si = (((-2.0)*d_g0_dV_di_si+((aab*T14)*d_tang0_dV_di_si+(aab*d_T14_dV_di_si+d_aab_dV_di_si*T14)*tang0))+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_di_si+(((2.0*T13)*g0)*d_secg0sq_dV_di_si+((2.0*T13)*d_g0_dV_di_si+2.0*d_T13_dV_di_si*g0)*secg0sq)*T0));
+d_T3_dV_g_si = (((-2.0)*d_g0_dV_g_si+(aab*T14)*d_tang0_dV_g_si)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_si+(((2.0*T13)*g0)*d_secg0sq_dV_g_si+(2.0*T13)*d_g0_dV_g_si*secg0sq)*T0));
+d_T3_dV_g_e = (((-2.0)*d_g0_dV_g_e+(aab*T14)*d_tang0_dV_g_e)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_g_e+(((2.0*T13)*g0)*d_secg0sq_dV_g_e+(2.0*T13)*d_g0_dV_g_e*secg0sq)*T0));
+d_T3_dV_e_di = (((-2.0)*d_g0_dV_e_di+(aab*T14)*d_tang0_dV_e_di)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_di+(((2.0*T13)*g0)*d_secg0sq_dV_e_di+(2.0*T13)*d_g0_dV_e_di*secg0sq)*T0));
+d_T3_dV_e_si = (((-2.0)*d_g0_dV_e_si+(aab*T14)*d_tang0_dV_e_si)+((((2.0*T13)*g0)*secg0sq)*d_T0_dV_e_si+(((2.0*T13)*g0)*d_secg0sq_dV_e_si+(2.0*T13)*d_g0_dV_e_si*secg0sq)*T0));
 T3 = ((((-2.0)*g0)+((aab*T14)*tang0))+((((2.0*T13)*g0)*secg0sq)*T0));
 
 d_T4_dV_g_di =  0.0;
-d_T4_dV_g_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_si)+(((((2.0*T13)*g0)*d_g0_dV_g_si)+(((2.0*T13)*d_g0_dV_g_si)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_g_si)+(((8.0*T13)*d_g0_dV_g_si)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_g_si)+(((((4.0*T13)*g0)*d_g0_dV_g_si)+(((4.0*T13)*d_g0_dV_g_si)*g0))*tang0))*tang0))))+(d_secg0sq_dV_g_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_g_e = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_e)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_e)+(((((2.0*T13)*g0)*d_g0_dV_g_e)+(((2.0*T13)*d_g0_dV_g_e)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_g_e)+(((8.0*T13)*d_g0_dV_g_e)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_e)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_g_e)+(((((4.0*T13)*g0)*d_g0_dV_g_e)+(((4.0*T13)*d_g0_dV_g_e)*g0))*tang0))*tang0))))+(d_secg0sq_dV_g_e*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_e_di = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_di)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_di)+(((((2.0*T13)*g0)*d_g0_dV_e_di)+(((2.0*T13)*d_g0_dV_e_di)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_e_di)+(((8.0*T13)*d_g0_dV_e_di)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_di)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_e_di)+(((((4.0*T13)*g0)*d_g0_dV_e_di)+(((4.0*T13)*d_g0_dV_e_di)*g0))*tang0))*tang0))))+(d_secg0sq_dV_e_di*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_e_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_si)+(((((2.0*T13)*g0)*d_g0_dV_e_si)+(((2.0*T13)*d_g0_dV_e_si)*g0))*secg0sq))*secg0sq))+((secg0sq*(((((8.0*T13)*g0)*d_tang0_dV_e_si)+(((8.0*T13)*d_g0_dV_e_si)*tang0))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_e_si)+(((((4.0*T13)*g0)*d_g0_dV_e_si)+(((4.0*T13)*d_g0_dV_e_si)*g0))*tang0))*tang0))))+(d_secg0sq_dV_e_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
-d_T4_dV_di_si = (((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_di_si)+((((((2.0*T13)*g0)*g0)*d_secg0sq_dV_di_si)+(((((2.0*T13)*g0)*d_g0_dV_di_si)+((((2.0*T13)*d_g0_dV_di_si)+((2.0*d_T13_dV_di_si)*g0))*g0))*secg0sq))*secg0sq))+((secg0sq*((((2*d_T13_dV_di_si)+((aab*d_T14_dV_di_si)+(d_aab_dV_di_si*T14)))+((((8.0*T13)*g0)*d_tang0_dV_di_si)+((((8.0*T13)*d_g0_dV_di_si)+((8.0*d_T13_dV_di_si)*g0))*tang0)))+((((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_di_si)+((((((4.0*T13)*g0)*g0)*d_tang0_dV_di_si)+(((((4.0*T13)*g0)*d_g0_dV_di_si)+((((4.0*T13)*d_g0_dV_di_si)+((4.0*d_T13_dV_di_si)*g0))*g0))*tang0))*tang0))))+(d_secg0sq_dV_di_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0)))));
+d_T4_dV_g_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_si+(((2.0*T13)*g0)*d_g0_dV_g_si+(2.0*T13)*d_g0_dV_g_si*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_g_si+(8.0*T13)*d_g0_dV_g_si*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_g_si+(((4.0*T13)*g0)*d_g0_dV_g_si+(4.0*T13)*d_g0_dV_g_si*g0)*tang0)*tang0))+d_secg0sq_dV_g_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_g_e = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_g_e+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_g_e+(((2.0*T13)*g0)*d_g0_dV_g_e+(2.0*T13)*d_g0_dV_g_e*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_g_e+(8.0*T13)*d_g0_dV_g_e*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_g_e+((((4.0*T13)*g0)*g0)*d_tang0_dV_g_e+(((4.0*T13)*g0)*d_g0_dV_g_e+(4.0*T13)*d_g0_dV_g_e*g0)*tang0)*tang0))+d_secg0sq_dV_g_e*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_e_di = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_di+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_di+(((2.0*T13)*g0)*d_g0_dV_e_di+(2.0*T13)*d_g0_dV_e_di*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_e_di+(8.0*T13)*d_g0_dV_e_di*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_di+((((4.0*T13)*g0)*g0)*d_tang0_dV_e_di+(((4.0*T13)*g0)*d_g0_dV_e_di+(4.0*T13)*d_g0_dV_e_di*g0)*tang0)*tang0))+d_secg0sq_dV_e_di*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_e_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_e_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_e_si+(((2.0*T13)*g0)*d_g0_dV_e_si+(2.0*T13)*d_g0_dV_e_si*g0)*secg0sq)*secg0sq)+(secg0sq*((((8.0*T13)*g0)*d_tang0_dV_e_si+(8.0*T13)*d_g0_dV_e_si*tang0)+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_e_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_e_si+(((4.0*T13)*g0)*d_g0_dV_e_si+(4.0*T13)*d_g0_dV_e_si*g0)*tang0)*tang0))+d_secg0sq_dV_e_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
+d_T4_dV_di_si = ((((((2.0*T13)*g0)*g0)*secg0sq)*d_secg0sq_dV_di_si+((((2.0*T13)*g0)*g0)*d_secg0sq_dV_di_si+(((2.0*T13)*g0)*d_g0_dV_di_si+((2.0*T13)*d_g0_dV_di_si+2.0*d_T13_dV_di_si*g0)*g0)*secg0sq)*secg0sq)+(secg0sq*(((2*d_T13_dV_di_si+(aab*d_T14_dV_di_si+d_aab_dV_di_si*T14))+(((8.0*T13)*g0)*d_tang0_dV_di_si+((8.0*T13)*d_g0_dV_di_si+8.0*d_T13_dV_di_si*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*d_tang0_dV_di_si+((((4.0*T13)*g0)*g0)*d_tang0_dV_di_si+(((4.0*T13)*g0)*d_g0_dV_di_si+((4.0*T13)*d_g0_dV_di_si+4.0*d_T13_dV_di_si*g0)*g0)*tang0)*tang0))+d_secg0sq_dV_di_si*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
 T4 = (((-2.0)+(((((2.0*T13)*g0)*g0)*secg0sq)*secg0sq))+(secg0sq*((((2*T13)+(aab*T14))+(((8.0*T13)*g0)*tang0))+(((((4.0*T13)*g0)*g0)*tang0)*tang0))));
 
 d_T5_dV_g_di = d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((((2.0*tang0)*d_T4_dV_di_si)+((2.0*d_tang0_dV_di_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_di_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_di_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_di_si)+((((3.0*T13)*d_g0_dV_di_si)+((3.0*d_T13_dV_di_si)*g0))*secg0sq))*secg0sq))*T0))+d_tang0_dV_di_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_di_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_di_si)+((((2.0*T13)*d_secg0sq_dV_di_si)+((2.0*d_T13_dV_di_si)*secg0sq))*T0))*tang0)))));
-d_T5_dV_g_si = ((((2.0*tang0)*d_T4_dV_g_si)+((2.0*d_tang0_dV_g_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_g_si)+(((3.0*T13)*d_g0_dV_g_si)*secg0sq))*secg0sq))*T0))+d_tang0_dV_g_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_g_si)+(((2.0*T13)*d_secg0sq_dV_g_si)*T0))*tang0)))));
-d_T5_dV_g_e = ((((2.0*tang0)*d_T4_dV_g_e)+((2.0*d_tang0_dV_g_e)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_e)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_e)+(((((3.0*T13)*g0)*d_secg0sq_dV_g_e)+(((3.0*T13)*d_g0_dV_g_e)*secg0sq))*secg0sq))*T0))+d_tang0_dV_g_e)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_e)+(((((2.0*T13)*secg0sq)*d_T0_dV_g_e)+(((2.0*T13)*d_secg0sq_dV_g_e)*T0))*tang0)))));
-d_T5_dV_e_di = ((((2.0*tang0)*d_T4_dV_e_di)+((2.0*d_tang0_dV_e_di)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_di)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_di)+(((((3.0*T13)*g0)*d_secg0sq_dV_e_di)+(((3.0*T13)*d_g0_dV_e_di)*secg0sq))*secg0sq))*T0))+d_tang0_dV_e_di)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_di)+(((((2.0*T13)*secg0sq)*d_T0_dV_e_di)+(((2.0*T13)*d_secg0sq_dV_e_di)*T0))*tang0)))));
-d_T5_dV_e_si = ((((2.0*tang0)*d_T4_dV_e_si)+((2.0*d_tang0_dV_e_si)*T4))+(4.0*((((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_si)+((((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_si)+(((((3.0*T13)*g0)*d_secg0sq_dV_e_si)+(((3.0*T13)*d_g0_dV_e_si)*secg0sq))*secg0sq))*T0))+d_tang0_dV_e_si)+(((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_si)+(((((2.0*T13)*secg0sq)*d_T0_dV_e_si)+(((2.0*T13)*d_secg0sq_dV_e_si)*T0))*tang0)))));
+d_T5_dV_di_si = (((2.0*tang0)*d_T4_dV_di_si+2.0*d_tang0_dV_di_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_di_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_di_si+(((3.0*T13)*g0)*d_secg0sq_dV_di_si+((3.0*T13)*d_g0_dV_di_si+3.0*d_T13_dV_di_si*g0)*secg0sq)*secg0sq)*T0)+d_tang0_dV_di_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_di_si+(((2.0*T13)*secg0sq)*d_T0_dV_di_si+((2.0*T13)*d_secg0sq_dV_di_si+2.0*d_T13_dV_di_si*secg0sq)*T0)*tang0)));
+d_T5_dV_g_si = (((2.0*tang0)*d_T4_dV_g_si+2.0*d_tang0_dV_g_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_si+(((3.0*T13)*g0)*d_secg0sq_dV_g_si+(3.0*T13)*d_g0_dV_g_si*secg0sq)*secg0sq)*T0)+d_tang0_dV_g_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_si+(((2.0*T13)*secg0sq)*d_T0_dV_g_si+(2.0*T13)*d_secg0sq_dV_g_si*T0)*tang0)));
+d_T5_dV_g_e = (((2.0*tang0)*d_T4_dV_g_e+2.0*d_tang0_dV_g_e*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_g_e+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_g_e+(((3.0*T13)*g0)*d_secg0sq_dV_g_e+(3.0*T13)*d_g0_dV_g_e*secg0sq)*secg0sq)*T0)+d_tang0_dV_g_e)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_g_e+(((2.0*T13)*secg0sq)*d_T0_dV_g_e+(2.0*T13)*d_secg0sq_dV_g_e*T0)*tang0)));
+d_T5_dV_e_di = (((2.0*tang0)*d_T4_dV_e_di+2.0*d_tang0_dV_e_di*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_di+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_di+(((3.0*T13)*g0)*d_secg0sq_dV_e_di+(3.0*T13)*d_g0_dV_e_di*secg0sq)*secg0sq)*T0)+d_tang0_dV_e_di)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_di+(((2.0*T13)*secg0sq)*d_T0_dV_e_di+(2.0*T13)*d_secg0sq_dV_e_di*T0)*tang0)));
+d_T5_dV_e_si = (((2.0*tang0)*d_T4_dV_e_si+2.0*d_tang0_dV_e_si*T4)+4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*d_T0_dV_e_si+((((3.0*T13)*g0)*secg0sq)*d_secg0sq_dV_e_si+(((3.0*T13)*g0)*d_secg0sq_dV_e_si+(3.0*T13)*d_g0_dV_e_si*secg0sq)*secg0sq)*T0)+d_tang0_dV_e_si)+((((2.0*T13)*secg0sq)*T0)*d_tang0_dV_e_si+(((2.0*T13)*secg0sq)*d_T0_dV_e_si+(2.0*T13)*d_secg0sq_dV_e_si*T0)*tang0)));
 T5 = (((2.0*tang0)*T4)+(4.0*(((((((3.0*T13)*g0)*secg0sq)*secg0sq)*T0)+tang0)+((((2.0*T13)*secg0sq)*T0)*tang0))));
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(cosg0);
 
-d_T7_dV_di_si = ((((d_lng0_dV_di_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+(r2*d_T1_dV_di_si))+(r1*d_T2_dV_di_si))-d_F0_dV_di_si);
-d_T7_dV_g_si = ((((d_lng0_dV_g_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si))+(r2*d_T1_dV_g_si))+(r1*d_T2_dV_g_si))-d_F0_dV_g_si);
-d_T7_dV_g_e = ((((d_lng0_dV_g_e-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e))+(r2*d_T1_dV_g_e))+(r1*d_T2_dV_g_e))-d_F0_dV_g_e);
-d_T7_dV_e_di = ((((d_lng0_dV_e_di-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di))+(r2*d_T1_dV_e_di))+(r1*d_T2_dV_e_di))-d_F0_dV_e_di);
-d_T7_dV_e_si = ((((d_lng0_dV_e_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si))+(r2*d_T1_dV_e_si))+(r1*d_T2_dV_e_si))-d_F0_dV_e_si);
+d_T7_dV_di_si = ((((d_lng0_dV_di_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_di_si))+r2*d_T1_dV_di_si)+r1*d_T2_dV_di_si)-d_F0_dV_di_si);
+d_T7_dV_g_si = ((((d_lng0_dV_g_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_si))+r2*d_T1_dV_g_si)+r1*d_T2_dV_g_si)-d_F0_dV_g_si);
+d_T7_dV_g_e = ((((d_lng0_dV_g_e-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_g_e))+r2*d_T1_dV_g_e)+r1*d_T2_dV_g_e)-d_F0_dV_g_e);
+d_T7_dV_e_di = ((((d_lng0_dV_e_di-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_di))+r2*d_T1_dV_e_di)+r1*d_T2_dV_e_di)-d_F0_dV_e_di);
+d_T7_dV_e_si = ((((d_lng0_dV_e_si-evaluator_lln_0.getDerivs(cosg0,d_cosg0_dV_e_si))+r2*d_T1_dV_e_si)+r1*d_T2_dV_e_si)-d_F0_dV_e_si);
 T7 = ((((lng0-evaluator_lln_0.getValues(cosg0))+(r2*T1))+(r1*T2))-F0);
 }
 
-d_T8_dV_di_si = ((((-d_g0_dV_di_si/g0/g0)+d_tang0_dV_di_si)+(r2*d_T3_dV_di_si))+(((2.0*T2)*(r1*d_T3_dV_di_si)-(r1*T3)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_g_si = ((((-d_g0_dV_g_si/g0/g0)+d_tang0_dV_g_si)+(r2*d_T3_dV_g_si))+(((2.0*T2)*(r1*d_T3_dV_g_si)-(r1*T3)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_g_e = ((((-d_g0_dV_g_e/g0/g0)+d_tang0_dV_g_e)+(r2*d_T3_dV_g_e))+(((2.0*T2)*(r1*d_T3_dV_g_e)-(r1*T3)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_e_di = ((((-d_g0_dV_e_di/g0/g0)+d_tang0_dV_e_di)+(r2*d_T3_dV_e_di))+(((2.0*T2)*(r1*d_T3_dV_e_di)-(r1*T3)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)));
-d_T8_dV_e_si = ((((-d_g0_dV_e_si/g0/g0)+d_tang0_dV_e_si)+(r2*d_T3_dV_e_si))+(((2.0*T2)*(r1*d_T3_dV_e_si)-(r1*T3)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)));
+d_T8_dV_di_si = ((((-d_g0_dV_di_si/g0/g0)+d_tang0_dV_di_si)+r2*d_T3_dV_di_si)+(((2.0*T2)*r1*d_T3_dV_di_si-(r1*T3)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_g_si = ((((-d_g0_dV_g_si/g0/g0)+d_tang0_dV_g_si)+r2*d_T3_dV_g_si)+(((2.0*T2)*r1*d_T3_dV_g_si-(r1*T3)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_g_e = ((((-d_g0_dV_g_e/g0/g0)+d_tang0_dV_g_e)+r2*d_T3_dV_g_e)+(((2.0*T2)*r1*d_T3_dV_g_e-(r1*T3)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_e_di = ((((-d_g0_dV_e_di/g0/g0)+d_tang0_dV_e_di)+r2*d_T3_dV_e_di)+(((2.0*T2)*r1*d_T3_dV_e_di-(r1*T3)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)));
+d_T8_dV_e_si = ((((-d_g0_dV_e_si/g0/g0)+d_tang0_dV_e_si)+r2*d_T3_dV_e_si)+(((2.0*T2)*r1*d_T3_dV_e_si-(r1*T3)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)));
 T8 = ((((1.0/g0)+tang0)+(r2*T3))+((r1*T3)/(2.0*T2)));
 
-d_T9_dV_di_si = (((((-(-1.0)*((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_di_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_di_si)+((r1*d_T3_dV_di_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_di_si)+((((4*T2)*d_T2_dV_di_si)+((4*d_T2_dV_di_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_di_si)-(r1*T4)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_di_si));
-d_T9_dV_g_si = (((((-(-1.0)*((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_g_si)+((r1*d_T3_dV_g_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_g_si)+((((4*T2)*d_T2_dV_g_si)+((4*d_T2_dV_g_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_g_si)-(r1*T4)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_g_si));
-d_T9_dV_g_e = (((((-(-1.0)*((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_e)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_g_e)+((r1*d_T3_dV_g_e)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_g_e)+((((4*T2)*d_T2_dV_g_e)+((4*d_T2_dV_g_e)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_g_e)-(r1*T4)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_g_e));
-d_T9_dV_e_di = (((((-(-1.0)*((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_di)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_e_di)+((r1*d_T3_dV_e_di)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_e_di)+((((4*T2)*d_T2_dV_e_di)+((4*d_T2_dV_e_di)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_e_di)-(r1*T4)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_e_di));
-d_T9_dV_e_si = (((((-(-1.0)*((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_si)-(((((4*T2)*T2)*T2)*(((r1*T3)*d_T3_dV_e_si)+((r1*d_T3_dV_e_si)*T3))-((r1*T3)*T3)*((((4*T2)*T2)*d_T2_dV_e_si)+((((4*T2)*d_T2_dV_e_si)+((4*d_T2_dV_e_si)*T2))*T2)))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*(r1*d_T4_dV_e_si)-(r1*T4)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T4_dV_e_si));
+d_T9_dV_di_si = (((((-(-1.0)*(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_di_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_di_si+r1*d_T3_dV_di_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_di_si+((4*T2)*d_T2_dV_di_si+4*d_T2_dV_di_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_di_si-(r1*T4)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_di_si);
+d_T9_dV_g_si = (((((-(-1.0)*(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_g_si+r1*d_T3_dV_g_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_g_si+((4*T2)*d_T2_dV_g_si+4*d_T2_dV_g_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_g_si-(r1*T4)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_g_si);
+d_T9_dV_g_e = (((((-(-1.0)*(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_g_e)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_g_e+r1*d_T3_dV_g_e*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_g_e+((4*T2)*d_T2_dV_g_e+4*d_T2_dV_g_e*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_g_e-(r1*T4)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_g_e);
+d_T9_dV_e_di = (((((-(-1.0)*(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_di)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_e_di+r1*d_T3_dV_e_di*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_e_di+((4*T2)*d_T2_dV_e_di+4*d_T2_dV_e_di*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_e_di-(r1*T4)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_e_di);
+d_T9_dV_e_si = (((((-(-1.0)*(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)/(g0*g0)/(g0*g0))+d_secg0sq_dV_e_si)-(((((4*T2)*T2)*T2)*((r1*T3)*d_T3_dV_e_si+r1*d_T3_dV_e_si*T3)-((r1*T3)*T3)*(((4*T2)*T2)*d_T2_dV_e_si+((4*T2)*d_T2_dV_e_si+4*d_T2_dV_e_si*T2)*T2))/(((4*T2)*T2)*T2)/(((4*T2)*T2)*T2)))+(((2.0*T2)*r1*d_T4_dV_e_si-(r1*T4)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)))+r2*d_T4_dV_e_si);
 T9 = ((((((-1.0)/(g0*g0))+secg0sq)-(((r1*T3)*T3)/(((4*T2)*T2)*T2)))+((r1*T4)/(2.0*T2)))+(r2*T4));
 {
 double value_pow_0 = pow(T2,3);
 double  deriv_pow_0_d0 = ((T2 == 0.0)?0.0:(value_pow_0*3/T2));
 
-d_TA_dV_di_si = (((((-2.0*(((g0*g0)*d_g0_dV_di_si)+(((g0*d_g0_dV_di_si)+(d_g0_dV_di_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_di_si)+((2.0*d_secg0sq_dV_di_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_di_si)+(d_T3_dV_di_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_di_si)+((2.0*d_T2_dV_di_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_di_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_di_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_di_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_di_si)-(r1*T5)*(2.0*d_T2_dV_di_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_di_si));
-d_TA_dV_g_si = (((((-2.0*(((g0*g0)*d_g0_dV_g_si)+(((g0*d_g0_dV_g_si)+(d_g0_dV_g_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_g_si)+((2.0*d_secg0sq_dV_g_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_g_si)+(d_T3_dV_g_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_g_si)+((2.0*d_T2_dV_g_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_g_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_g_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_g_si)-(r1*T5)*(2.0*d_T2_dV_g_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_g_si));
-d_TA_dV_g_e = (((((-2.0*(((g0*g0)*d_g0_dV_g_e)+(((g0*d_g0_dV_g_e)+(d_g0_dV_g_e*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_g_e)+((2.0*d_secg0sq_dV_g_e)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_g_e)+(d_T3_dV_g_e*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_g_e)+((2.0*d_T2_dV_g_e)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_e))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_g_e)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_g_e))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_g_e)-(r1*T5)*(2.0*d_T2_dV_g_e))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_g_e));
-d_TA_dV_e_di = (((((-2.0*(((g0*g0)*d_g0_dV_e_di)+(((g0*d_g0_dV_e_di)+(d_g0_dV_e_di*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_e_di)+((2.0*d_secg0sq_dV_e_di)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_e_di)+(d_T3_dV_e_di*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_e_di)+((2.0*d_T2_dV_e_di)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_di))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_e_di)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_e_di))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_e_di)-(r1*T5)*(2.0*d_T2_dV_e_di))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_e_di));
-d_TA_dV_e_si = (((((-2.0*(((g0*g0)*d_g0_dV_e_si)+(((g0*d_g0_dV_e_si)+(d_g0_dV_e_si*g0))*g0))/((g0*g0)*g0)/((g0*g0)*g0))+(((2.0*secg0sq)*d_tang0_dV_e_si)+((2.0*d_secg0sq_dV_e_si)*tang0)))+(((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*((T3*d_T3_dV_e_si)+(d_T3_dV_e_si*T3))-(T3*T3)*(((2.0*T2)*d_T2_dV_e_si)+((2.0*d_T2_dV_e_si)*T2)))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_si))+((((4.0*value_pow_0)*((3.0*r1)*d_T3_dV_e_si)-((3.0*r1)*T3)*(4.0*(deriv_pow_0_d0*(d_T2_dV_e_si))))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4))))+(((2.0*T2)*(r1*d_T5_dV_e_si)-(r1*T5)*(2.0*d_T2_dV_e_si))/(2.0*T2)/(2.0*T2)))+(r2*d_T5_dV_e_si));
+d_TA_dV_di_si = (((((-2.0*((g0*g0)*d_g0_dV_di_si+(g0*d_g0_dV_di_si+d_g0_dV_di_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_di_si+2.0*d_secg0sq_dV_di_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_di_si+d_T3_dV_di_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_di_si+2.0*d_T2_dV_di_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_di_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_di_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_di_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_di_si-(r1*T5)*2.0*d_T2_dV_di_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_di_si);
+d_TA_dV_g_si = (((((-2.0*((g0*g0)*d_g0_dV_g_si+(g0*d_g0_dV_g_si+d_g0_dV_g_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_g_si+2.0*d_secg0sq_dV_g_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_g_si+d_T3_dV_g_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_g_si+2.0*d_T2_dV_g_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_g_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_g_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_g_si-(r1*T5)*2.0*d_T2_dV_g_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_g_si);
+d_TA_dV_g_e = (((((-2.0*((g0*g0)*d_g0_dV_g_e+(g0*d_g0_dV_g_e+d_g0_dV_g_e*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_g_e+2.0*d_secg0sq_dV_g_e*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_g_e+d_T3_dV_g_e*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_g_e+2.0*d_T2_dV_g_e*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_g_e)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_g_e-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_g_e)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_g_e-(r1*T5)*2.0*d_T2_dV_g_e)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_g_e);
+d_TA_dV_e_di = (((((-2.0*((g0*g0)*d_g0_dV_e_di+(g0*d_g0_dV_e_di+d_g0_dV_e_di*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_e_di+2.0*d_secg0sq_dV_e_di*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_e_di+d_T3_dV_e_di*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_e_di+2.0*d_T2_dV_e_di*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_di)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_e_di-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_e_di)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_e_di-(r1*T5)*2.0*d_T2_dV_e_di)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_e_di);
+d_TA_dV_e_si = (((((-2.0*((g0*g0)*d_g0_dV_e_si+(g0*d_g0_dV_e_si+d_g0_dV_e_si*g0)*g0)/((g0*g0)*g0)/((g0*g0)*g0))+((2.0*secg0sq)*d_tang0_dV_e_si+2.0*d_secg0sq_dV_e_si*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((((2.0*T2)*T2)*(T3*d_T3_dV_e_si+d_T3_dV_e_si*T3)-(T3*T3)*((2.0*T2)*d_T2_dV_e_si+2.0*d_T2_dV_e_si*T2))/((2.0*T2)*T2)/((2.0*T2)*T2))-d_T4_dV_e_si)+(((4.0*value_pow_0)*(3.0*r1)*d_T3_dV_e_si-((3.0*r1)*T3)*4.0*(deriv_pow_0_d0*(d_T2_dV_e_si)))/(4.0*value_pow_0)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+(((2.0*T2)*r1*d_T5_dV_e_si-(r1*T5)*2.0*d_T2_dV_e_si)/(2.0*T2)/(2.0*T2)))+r2*d_T5_dV_e_si);
 TA = (((((2.0/((g0*g0)*g0))+((2.0*secg0sq)*tang0))+((((3.0*r1)*T3)/(4.0*value_pow_0))*(((T3*T3)/((2.0*T2)*T2))-T4)))+((r1*T5)/(2.0*T2)))+(r2*T5));
 }
 {
 double value_pow_0 = pow(T8,4);
 double  deriv_pow_0_d0 = ((T8 == 0.0)?0.0:(value_pow_0*4/T8));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_di_si)+(d_T7_dV_di_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_di_si)+((2.0*d_T8_dV_di_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_di_si)+((3.0*d_T9_dV_di_si)*T9))-((T8*d_TA_dV_di_si)+(d_T8_dV_di_si*TA))))+(((T7*d_T7_dV_di_si)+(d_T7_dV_di_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_di_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_di_si-T7*d_T8_dV_di_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_g_si)+(d_T7_dV_g_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_g_si)+((2.0*d_T8_dV_g_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_g_si)+((3.0*d_T9_dV_g_si)*T9))-((T8*d_TA_dV_g_si)+(d_T8_dV_g_si*TA))))+(((T7*d_T7_dV_g_si)+(d_T7_dV_g_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_g_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_g_si-T7*d_T8_dV_g_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_g_e)+(d_T7_dV_g_e*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_g_e)+((2.0*d_T8_dV_g_e)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_g_e)+((3.0*d_T9_dV_g_e)*T9))-((T8*d_TA_dV_g_e)+(d_T8_dV_g_e*TA))))+(((T7*d_T7_dV_g_e)+(d_T7_dV_g_e*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_g_e))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_g_e-T7*d_T8_dV_g_e)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_e_di)+(d_T7_dV_e_di*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_e_di)+((2.0*d_T8_dV_e_di)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_e_di)+((3.0*d_T9_dV_e_di)*T9))-((T8*d_TA_dV_e_di)+(d_T8_dV_e_di*TA))))+(((T7*d_T7_dV_e_di)+(d_T7_dV_e_di*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_e_di))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_e_di-T7*d_T8_dV_e_di)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((T7/T8)*(((((2.0*T8)*T8)*((T7*d_T9_dV_e_si)+(d_T7_dV_e_si*T9))-(T7*T9)*(((2.0*T8)*d_T8_dV_e_si)+((2.0*d_T8_dV_e_si)*T8)))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*(((T7*T7)*((((3.0*T9)*d_T9_dV_e_si)+((3.0*d_T9_dV_e_si)*T9))-((T8*d_TA_dV_e_si)+(d_T8_dV_e_si*TA))))+(((T7*d_T7_dV_e_si)+(d_T7_dV_e_si*T7))*(((3.0*T9)*T9)-(T8*TA))))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*(6.0*(deriv_pow_0_d0*(d_T8_dV_e_si))))/(6.0*value_pow_0)/(6.0*value_pow_0))))+(((T8*d_T7_dV_e_si-T7*d_T8_dV_e_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_di_si+d_T7_dV_di_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_di_si+2.0*d_T8_dV_di_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_di_si+3.0*d_T9_dV_di_si*T9)-(T8*d_TA_dV_di_si+d_T8_dV_di_si*TA))+(T7*d_T7_dV_di_si+d_T7_dV_di_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_di_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_di_si-T7*d_T8_dV_di_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_g_si+d_T7_dV_g_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_g_si+2.0*d_T8_dV_g_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_g_si+3.0*d_T9_dV_g_si*T9)-(T8*d_TA_dV_g_si+d_T8_dV_g_si*TA))+(T7*d_T7_dV_g_si+d_T7_dV_g_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_g_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_g_si-T7*d_T8_dV_g_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_g_e+d_T7_dV_g_e*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_g_e+2.0*d_T8_dV_g_e*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_g_e+3.0*d_T9_dV_g_e*T9)-(T8*d_TA_dV_g_e+d_T8_dV_g_e*TA))+(T7*d_T7_dV_g_e+d_T7_dV_g_e*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_g_e)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_g_e-T7*d_T8_dV_g_e)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_e_di+d_T7_dV_e_di*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_e_di+2.0*d_T8_dV_e_di*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_e_di+3.0*d_T9_dV_e_di*T9)-(T8*d_TA_dV_e_di+d_T8_dV_e_di*TA))+(T7*d_T7_dV_e_di+d_T7_dV_e_di*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_e_di)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_e_di-T7*d_T8_dV_e_di)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((T7/T8)*(((((2.0*T8)*T8)*(T7*d_T9_dV_e_si+d_T7_dV_e_si*T9)-(T7*T9)*((2.0*T8)*d_T8_dV_e_si+2.0*d_T8_dV_e_si*T8))/((2.0*T8)*T8)/((2.0*T8)*T8))+(((6.0*value_pow_0)*((T7*T7)*(((3.0*T9)*d_T9_dV_e_si+3.0*d_T9_dV_e_si*T9)-(T8*d_TA_dV_e_si+d_T8_dV_e_si*TA))+(T7*d_T7_dV_e_si+d_T7_dV_e_si*T7)*(((3.0*T9)*T9)-(T8*TA)))-((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))*6.0*(deriv_pow_0_d0*(d_T8_dV_e_si)))/(6.0*value_pow_0)/(6.0*value_pow_0)))+((T8*d_T7_dV_e_si-T7*d_T8_dV_e_si)/T8/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
 g0 = (g0-((T7/T8)*((1.0+((T7*T9)/((2.0*T8)*T8)))+(((T7*T7)*(((3.0*T9)*T9)-(T8*TA)))/(6.0*value_pow_0)))));
 }
 {
@@ -14715,11 +14715,11 @@ double value_log_1 = log((1.0/((guessA/r1)*value_sqrt_0)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 double  deriv_log_1_d0 = (1.0/(1.0/((guessA/r1)*value_sqrt_0)));
 
-d_lng0_dV_di_si = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_di_si)))+((d_guessA_dV_di_si/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_di_si);
-d_lng0_dV_g_si = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_si)))+((d_guessA_dV_g_si/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_g_si);
-d_lng0_dV_g_e = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_e)))+((d_guessA_dV_g_e/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_g_e);
-d_lng0_dV_e_di = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_di)))+((d_guessA_dV_e_di/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_e_di);
-d_lng0_dV_e_si = ((-(deriv_log_1_d0*((-(((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_si)))+((d_guessA_dV_e_si/r1)*value_sqrt_0))/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_e_si);
+d_lng0_dV_di_si = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_di_si))+(d_guessA_dV_di_si/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_di_si);
+d_lng0_dV_g_si = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_si))+(d_guessA_dV_g_si/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_g_si);
+d_lng0_dV_g_e = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_g_e))+(d_guessA_dV_g_e/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_g_e);
+d_lng0_dV_e_di = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_di))+(d_guessA_dV_e_di/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_e_di);
+d_lng0_dV_e_si = ((-(deriv_log_1_d0*((-((guessA/r1)*(deriv_sqrt_0_d0*(d_T3_dV_e_si))+(d_guessA_dV_e_si/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)/((guessA/r1)*value_sqrt_0)))))-d_T1_dV_e_si);
 lng0 = ((-value_log_1)-T1);
 }
 }
@@ -14740,11 +14740,11 @@ double value_cos_0 = cos(g0);
 AnalogFunctions::llnEvaluator evaluator_lln_1(value_cos_0);
 double  deriv_cos_0_d0 = (-sin(g0));
 
-d_phid_dV_g_si = (d_vch_dV_g_si+(T14*(d_lng0_dV_g_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_g_si))))));
-d_phid_dV_g_e = (d_vch_dV_g_e+(T14*(d_lng0_dV_g_e-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_g_e))))));
-d_phid_dV_e_di = (d_vch_dV_e_di+(T14*(d_lng0_dV_e_di-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_e_di))))));
-d_phid_dV_e_si = (d_vch_dV_e_si+(T14*(d_lng0_dV_e_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_e_si))))));
-d_phid_dV_di_si = (d_vch_dV_di_si+((T14*((d_lng0_dV_di_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_di_si))))+d_F1_dV_di_si))+(d_T14_dV_di_si*((lng0-evaluator_lln_1.getValues(value_cos_0))+F1))));
+d_phid_dV_g_si = (d_vch_dV_g_si+T14*(d_lng0_dV_g_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_g_si)))));
+d_phid_dV_g_e = (d_vch_dV_g_e+T14*(d_lng0_dV_g_e-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_g_e)))));
+d_phid_dV_e_di = (d_vch_dV_e_di+T14*(d_lng0_dV_e_di-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_e_di)))));
+d_phid_dV_e_si = (d_vch_dV_e_si+T14*(d_lng0_dV_e_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_e_si)))));
+d_phid_dV_di_si = (d_vch_dV_di_si+(T14*((d_lng0_dV_di_si-evaluator_lln_1.getDerivs(value_cos_0,(deriv_cos_0_d0*(d_g0_dV_di_si))))+d_F1_dV_di_si)+d_T14_dV_di_si*((lng0-evaluator_lln_1.getValues(value_cos_0))+F1)));
 phid = ((vch+(T14*((lng0-evaluator_lln_1.getValues(value_cos_0))+F1)))+phibulk);
 }
 }
@@ -14755,7 +14755,7 @@ else
 d_F0_dV_g_e = ((-d_vch_dV_g_e)/(2.0*nVtm));
 d_F0_dV_e_di = ((-d_vch_dV_e_di)/(2.0*nVtm));
 d_F0_dV_e_si = ((-d_vch_dV_e_si)/(2.0*nVtm));
-d_F0_dV_di_si = (((2.0*nVtm)*(d_vgsfbeff_dV_di_si-d_vch_dV_di_si)-(vgsfbeff-vch)*(2.0*d_nVtm_dV_di_si))/(2.0*nVtm)/(2.0*nVtm));
+d_F0_dV_di_si = (((2.0*nVtm)*(d_vgsfbeff_dV_di_si-d_vch_dV_di_si)-(vgsfbeff-vch)*2.0*d_nVtm_dV_di_si)/(2.0*nVtm)/(2.0*nVtm));
 d_F0_dV_g_si = ((d_vgsfbeff_dV_g_si-d_vch_dV_g_si)/(2.0*nVtm));
 F0 = ((vgsfbeff-vch)/(2.0*nVtm));
 if ((F0<(-10)))
@@ -14763,11 +14763,11 @@ if ((F0<(-10)))
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((2.0*F0));
 
-d_g0_dV_di_si = evaluator_lexp_0.getDerivs((2.0*F0),(2.0*d_F0_dV_di_si));
-d_g0_dV_g_si = evaluator_lexp_0.getDerivs((2.0*F0),(2.0*d_F0_dV_g_si));
-d_g0_dV_g_e = evaluator_lexp_0.getDerivs((2.0*F0),(2.0*d_F0_dV_g_e));
-d_g0_dV_e_di = evaluator_lexp_0.getDerivs((2.0*F0),(2.0*d_F0_dV_e_di));
-d_g0_dV_e_si = evaluator_lexp_0.getDerivs((2.0*F0),(2.0*d_F0_dV_e_si));
+d_g0_dV_di_si = evaluator_lexp_0.getDerivs((2.0*F0),2.0*d_F0_dV_di_si);
+d_g0_dV_g_si = evaluator_lexp_0.getDerivs((2.0*F0),2.0*d_F0_dV_g_si);
+d_g0_dV_g_e = evaluator_lexp_0.getDerivs((2.0*F0),2.0*d_F0_dV_g_e);
+d_g0_dV_e_di = evaluator_lexp_0.getDerivs((2.0*F0),2.0*d_F0_dV_e_di);
+d_g0_dV_e_si = evaluator_lexp_0.getDerivs((2.0*F0),2.0*d_F0_dV_e_si);
 g0 = evaluator_lexp_0.getValues((2.0*F0));
 }
 }
@@ -14801,11 +14801,11 @@ T0 = evaluator_lln_1.getValues((1.0+evaluator_lexp_0.getValues(F0)));
 double value_sqrt_0 = sqrt((0.25+(((r1*r1)*T0)*T0)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_g0_dV_di_si = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_di_si)+(((r1*r1)*d_T0_dV_di_si)*T0))))/(r1*r1));
-d_g0_dV_g_si = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_g_si)+(((r1*r1)*d_T0_dV_g_si)*T0))))/(r1*r1));
-d_g0_dV_g_e = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_g_e)+(((r1*r1)*d_T0_dV_g_e)*T0))))/(r1*r1));
-d_g0_dV_e_di = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_e_di)+(((r1*r1)*d_T0_dV_e_di)*T0))))/(r1*r1));
-d_g0_dV_e_si = ((deriv_sqrt_0_d0*(((((r1*r1)*T0)*d_T0_dV_e_si)+(((r1*r1)*d_T0_dV_e_si)*T0))))/(r1*r1));
+d_g0_dV_di_si = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_di_si+(r1*r1)*d_T0_dV_di_si*T0)))/(r1*r1));
+d_g0_dV_g_si = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_g_si+(r1*r1)*d_T0_dV_g_si*T0)))/(r1*r1));
+d_g0_dV_g_e = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_g_e+(r1*r1)*d_T0_dV_g_e*T0)))/(r1*r1));
+d_g0_dV_e_di = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_e_di+(r1*r1)*d_T0_dV_e_di*T0)))/(r1*r1));
+d_g0_dV_e_si = ((deriv_sqrt_0_d0*((((r1*r1)*T0)*d_T0_dV_e_si+(r1*r1)*d_T0_dV_e_si*T0)))/(r1*r1));
 g0 = ((value_sqrt_0-0.5)/(r1*r1));
 }
 }
@@ -14845,19 +14845,19 @@ d_inv_g0_dV_e_di = (-d_g0_dV_e_di/g0/g0);
 d_inv_g0_dV_e_si = (-d_g0_dV_e_si/g0/g0);
 inv_g0 = (1.0/g0);
 
-d_inv_g0sq_dV_di_si = ((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0));
-d_inv_g0sq_dV_g_si = ((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0));
-d_inv_g0sq_dV_g_e = ((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0));
-d_inv_g0sq_dV_e_di = ((inv_g0*d_inv_g0_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0));
-d_inv_g0sq_dV_e_si = ((inv_g0*d_inv_g0_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0));
+d_inv_g0sq_dV_di_si = (inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0);
+d_inv_g0sq_dV_g_si = (inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0);
+d_inv_g0sq_dV_g_e = (inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0);
+d_inv_g0sq_dV_e_di = (inv_g0*d_inv_g0_dV_e_di+d_inv_g0_dV_e_di*inv_g0);
+d_inv_g0sq_dV_e_si = (inv_g0*d_inv_g0_dV_e_si+d_inv_g0_dV_e_si*inv_g0);
 inv_g0sq = (inv_g0*inv_g0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_g_si = (cdop*d_g0_dV_g_si);
-d_T0_dV_g_e = (cdop*d_g0_dV_g_e);
-d_T0_dV_e_di = (cdop*d_g0_dV_e_di);
-d_T0_dV_e_si = (cdop*d_g0_dV_e_si);
-d_T0_dV_di_si = ((cdop*d_g0_dV_di_si)+(d_cdop_dV_di_si*g0));
+d_T0_dV_g_si = cdop*d_g0_dV_g_si;
+d_T0_dV_g_e = cdop*d_g0_dV_g_e;
+d_T0_dV_e_di = cdop*d_g0_dV_e_di;
+d_T0_dV_e_si = cdop*d_g0_dV_e_si;
+d_T0_dV_di_si = (cdop*d_g0_dV_di_si+d_cdop_dV_di_si*g0);
 T0 = (1+(cdop*g0));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
@@ -14869,50 +14869,50 @@ d_T1_dV_di_si = ((T0*d_cdop_dV_di_si-cdop*d_T0_dV_di_si)/T0/T0);
 T1 = (cdop/T0);
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = ((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1));
-d_T2_dV_g_si = ((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1));
-d_T2_dV_g_e = ((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1));
-d_T2_dV_e_di = ((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1));
-d_T2_dV_e_si = ((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1));
+d_T2_dV_di_si = (T1*d_T1_dV_di_si+d_T1_dV_di_si*T1);
+d_T2_dV_g_si = (T1*d_T1_dV_g_si+d_T1_dV_g_si*T1);
+d_T2_dV_g_e = (T1*d_T1_dV_g_e+d_T1_dV_g_e*T1);
+d_T2_dV_e_di = (T1*d_T1_dV_e_di+d_T1_dV_e_di*T1);
+d_T2_dV_e_si = (T1*d_T1_dV_e_si+d_T1_dV_e_si*T1);
 T2 = (T1*T1);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(g0);
 AnalogFunctions::llnEvaluator evaluator_lln_1(T0);
 
-d_e0_dV_di_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si)))+(r1*d_g0_dV_di_si))+(((r2*g0)*d_g0_dV_di_si)+((r2*d_g0_dV_di_si)*g0)))-d_F0_dV_di_si);
-d_e0_dV_g_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si)))+(r1*d_g0_dV_g_si))+(((r2*g0)*d_g0_dV_g_si)+((r2*d_g0_dV_g_si)*g0)))-d_F0_dV_g_si);
-d_e0_dV_g_e = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e)))+(r1*d_g0_dV_g_e))+(((r2*g0)*d_g0_dV_g_e)+((r2*d_g0_dV_g_e)*g0)))-d_F0_dV_g_e);
-d_e0_dV_e_di = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di)))+(r1*d_g0_dV_e_di))+(((r2*g0)*d_g0_dV_e_di)+((r2*d_g0_dV_e_di)*g0)))-d_F0_dV_e_di);
-d_e0_dV_e_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si)))+(r1*d_g0_dV_e_si))+(((r2*g0)*d_g0_dV_e_si)+((r2*d_g0_dV_e_si)*g0)))-d_F0_dV_e_si);
+d_e0_dV_di_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si))+r1*d_g0_dV_di_si)+((r2*g0)*d_g0_dV_di_si+r2*d_g0_dV_di_si*g0))-d_F0_dV_di_si);
+d_e0_dV_g_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si))+r1*d_g0_dV_g_si)+((r2*g0)*d_g0_dV_g_si+r2*d_g0_dV_g_si*g0))-d_F0_dV_g_si);
+d_e0_dV_g_e = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e))+r1*d_g0_dV_g_e)+((r2*g0)*d_g0_dV_g_e+r2*d_g0_dV_g_e*g0))-d_F0_dV_g_e);
+d_e0_dV_e_di = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di))+r1*d_g0_dV_e_di)+((r2*g0)*d_g0_dV_e_di+r2*d_g0_dV_e_di*g0))-d_F0_dV_e_di);
+d_e0_dV_e_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si))+r1*d_g0_dV_e_si)+((r2*g0)*d_g0_dV_e_si+r2*d_g0_dV_e_si*g0))-d_F0_dV_e_si);
 e0 = (((((0.5*evaluator_lln_0.getValues(g0))+(0.5*evaluator_lln_1.getValues(T0)))+(r1*g0))+((r2*g0)*g0))-F0);
 }
 
-d_e1_dV_di_si = (((0.5*d_inv_g0_dV_di_si)+(0.5*d_T1_dV_di_si))+((2*r2)*d_g0_dV_di_si));
-d_e1_dV_g_si = (((0.5*d_inv_g0_dV_g_si)+(0.5*d_T1_dV_g_si))+((2*r2)*d_g0_dV_g_si));
-d_e1_dV_g_e = (((0.5*d_inv_g0_dV_g_e)+(0.5*d_T1_dV_g_e))+((2*r2)*d_g0_dV_g_e));
-d_e1_dV_e_di = (((0.5*d_inv_g0_dV_e_di)+(0.5*d_T1_dV_e_di))+((2*r2)*d_g0_dV_e_di));
-d_e1_dV_e_si = (((0.5*d_inv_g0_dV_e_si)+(0.5*d_T1_dV_e_si))+((2*r2)*d_g0_dV_e_si));
+d_e1_dV_di_si = ((0.5*d_inv_g0_dV_di_si+0.5*d_T1_dV_di_si)+(2*r2)*d_g0_dV_di_si);
+d_e1_dV_g_si = ((0.5*d_inv_g0_dV_g_si+0.5*d_T1_dV_g_si)+(2*r2)*d_g0_dV_g_si);
+d_e1_dV_g_e = ((0.5*d_inv_g0_dV_g_e+0.5*d_T1_dV_g_e)+(2*r2)*d_g0_dV_g_e);
+d_e1_dV_e_di = ((0.5*d_inv_g0_dV_e_di+0.5*d_T1_dV_e_di)+(2*r2)*d_g0_dV_e_di);
+d_e1_dV_e_si = ((0.5*d_inv_g0_dV_e_si+0.5*d_T1_dV_e_si)+(2*r2)*d_g0_dV_e_si);
 e1 = ((((0.5*inv_g0)+(0.5*T1))+r1)+((2*r2)*g0));
 
-d_e2_dV_di_si = (((-0.5)*d_inv_g0sq_dV_di_si)-(0.5*d_T2_dV_di_si));
-d_e2_dV_g_si = (((-0.5)*d_inv_g0sq_dV_g_si)-(0.5*d_T2_dV_g_si));
-d_e2_dV_g_e = (((-0.5)*d_inv_g0sq_dV_g_e)-(0.5*d_T2_dV_g_e));
-d_e2_dV_e_di = (((-0.5)*d_inv_g0sq_dV_e_di)-(0.5*d_T2_dV_e_di));
-d_e2_dV_e_si = (((-0.5)*d_inv_g0sq_dV_e_si)-(0.5*d_T2_dV_e_si));
+d_e2_dV_di_si = ((-0.5)*d_inv_g0sq_dV_di_si-0.5*d_T2_dV_di_si);
+d_e2_dV_g_si = ((-0.5)*d_inv_g0sq_dV_g_si-0.5*d_T2_dV_g_si);
+d_e2_dV_g_e = ((-0.5)*d_inv_g0sq_dV_g_e-0.5*d_T2_dV_g_e);
+d_e2_dV_e_di = ((-0.5)*d_inv_g0sq_dV_e_di-0.5*d_T2_dV_e_di);
+d_e2_dV_e_si = ((-0.5)*d_inv_g0sq_dV_e_si-0.5*d_T2_dV_e_si);
 e2 = ((((-0.5)*inv_g0sq)-(0.5*T2))+(2*r2));
 
-d_e3_dV_di_si = (((inv_g0*d_inv_g0sq_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0sq))+((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*T1)));
-d_e3_dV_g_si = (((inv_g0*d_inv_g0sq_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0sq))+((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*T1)));
-d_e3_dV_g_e = (((inv_g0*d_inv_g0sq_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0sq))+((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*T1)));
-d_e3_dV_e_di = (((inv_g0*d_inv_g0sq_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0sq))+((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*T1)));
-d_e3_dV_e_si = (((inv_g0*d_inv_g0sq_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0sq))+((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*T1)));
+d_e3_dV_di_si = ((inv_g0*d_inv_g0sq_dV_di_si+d_inv_g0_dV_di_si*inv_g0sq)+(T2*d_T1_dV_di_si+d_T2_dV_di_si*T1));
+d_e3_dV_g_si = ((inv_g0*d_inv_g0sq_dV_g_si+d_inv_g0_dV_g_si*inv_g0sq)+(T2*d_T1_dV_g_si+d_T2_dV_g_si*T1));
+d_e3_dV_g_e = ((inv_g0*d_inv_g0sq_dV_g_e+d_inv_g0_dV_g_e*inv_g0sq)+(T2*d_T1_dV_g_e+d_T2_dV_g_e*T1));
+d_e3_dV_e_di = ((inv_g0*d_inv_g0sq_dV_e_di+d_inv_g0_dV_e_di*inv_g0sq)+(T2*d_T1_dV_e_di+d_T2_dV_e_di*T1));
+d_e3_dV_e_si = ((inv_g0*d_inv_g0sq_dV_e_si+d_inv_g0_dV_e_si*inv_g0sq)+(T2*d_T1_dV_e_si+d_T2_dV_e_si*T1));
 e3 = ((inv_g0*inv_g0sq)+(T2*T1));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -14937,19 +14937,19 @@ d_inv_g0_dV_e_di = (-d_g0_dV_e_di/g0/g0);
 d_inv_g0_dV_e_si = (-d_g0_dV_e_si/g0/g0);
 inv_g0 = (1.0/g0);
 
-d_inv_g0sq_dV_di_si = ((inv_g0*d_inv_g0_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0));
-d_inv_g0sq_dV_g_si = ((inv_g0*d_inv_g0_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0));
-d_inv_g0sq_dV_g_e = ((inv_g0*d_inv_g0_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0));
-d_inv_g0sq_dV_e_di = ((inv_g0*d_inv_g0_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0));
-d_inv_g0sq_dV_e_si = ((inv_g0*d_inv_g0_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0));
+d_inv_g0sq_dV_di_si = (inv_g0*d_inv_g0_dV_di_si+d_inv_g0_dV_di_si*inv_g0);
+d_inv_g0sq_dV_g_si = (inv_g0*d_inv_g0_dV_g_si+d_inv_g0_dV_g_si*inv_g0);
+d_inv_g0sq_dV_g_e = (inv_g0*d_inv_g0_dV_g_e+d_inv_g0_dV_g_e*inv_g0);
+d_inv_g0sq_dV_e_di = (inv_g0*d_inv_g0_dV_e_di+d_inv_g0_dV_e_di*inv_g0);
+d_inv_g0sq_dV_e_si = (inv_g0*d_inv_g0_dV_e_si+d_inv_g0_dV_e_si*inv_g0);
 inv_g0sq = (inv_g0*inv_g0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_g_si = (cdop*d_g0_dV_g_si);
-d_T0_dV_g_e = (cdop*d_g0_dV_g_e);
-d_T0_dV_e_di = (cdop*d_g0_dV_e_di);
-d_T0_dV_e_si = (cdop*d_g0_dV_e_si);
-d_T0_dV_di_si = ((cdop*d_g0_dV_di_si)+(d_cdop_dV_di_si*g0));
+d_T0_dV_g_si = cdop*d_g0_dV_g_si;
+d_T0_dV_g_e = cdop*d_g0_dV_g_e;
+d_T0_dV_e_di = cdop*d_g0_dV_e_di;
+d_T0_dV_e_si = cdop*d_g0_dV_e_si;
+d_T0_dV_di_si = (cdop*d_g0_dV_di_si+d_cdop_dV_di_si*g0);
 T0 = (1+(cdop*g0));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
@@ -14961,50 +14961,50 @@ d_T1_dV_di_si = ((T0*d_cdop_dV_di_si-cdop*d_T0_dV_di_si)/T0/T0);
 T1 = (cdop/T0);
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = ((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1));
-d_T2_dV_g_si = ((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1));
-d_T2_dV_g_e = ((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1));
-d_T2_dV_e_di = ((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1));
-d_T2_dV_e_si = ((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1));
+d_T2_dV_di_si = (T1*d_T1_dV_di_si+d_T1_dV_di_si*T1);
+d_T2_dV_g_si = (T1*d_T1_dV_g_si+d_T1_dV_g_si*T1);
+d_T2_dV_g_e = (T1*d_T1_dV_g_e+d_T1_dV_g_e*T1);
+d_T2_dV_e_di = (T1*d_T1_dV_e_di+d_T1_dV_e_di*T1);
+d_T2_dV_e_si = (T1*d_T1_dV_e_si+d_T1_dV_e_si*T1);
 T2 = (T1*T1);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(g0);
 AnalogFunctions::llnEvaluator evaluator_lln_1(T0);
 
-d_e0_dV_di_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si)))+(r1*d_g0_dV_di_si))+(((r2*g0)*d_g0_dV_di_si)+((r2*d_g0_dV_di_si)*g0)))-d_F0_dV_di_si);
-d_e0_dV_g_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si)))+(r1*d_g0_dV_g_si))+(((r2*g0)*d_g0_dV_g_si)+((r2*d_g0_dV_g_si)*g0)))-d_F0_dV_g_si);
-d_e0_dV_g_e = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e)))+(r1*d_g0_dV_g_e))+(((r2*g0)*d_g0_dV_g_e)+((r2*d_g0_dV_g_e)*g0)))-d_F0_dV_g_e);
-d_e0_dV_e_di = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di)))+(r1*d_g0_dV_e_di))+(((r2*g0)*d_g0_dV_e_di)+((r2*d_g0_dV_e_di)*g0)))-d_F0_dV_e_di);
-d_e0_dV_e_si = (((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si))+(0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si)))+(r1*d_g0_dV_e_si))+(((r2*g0)*d_g0_dV_e_si)+((r2*d_g0_dV_e_si)*g0)))-d_F0_dV_e_si);
+d_e0_dV_di_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_di_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_di_si))+r1*d_g0_dV_di_si)+((r2*g0)*d_g0_dV_di_si+r2*d_g0_dV_di_si*g0))-d_F0_dV_di_si);
+d_e0_dV_g_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_si))+r1*d_g0_dV_g_si)+((r2*g0)*d_g0_dV_g_si+r2*d_g0_dV_g_si*g0))-d_F0_dV_g_si);
+d_e0_dV_g_e = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_g_e)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_g_e))+r1*d_g0_dV_g_e)+((r2*g0)*d_g0_dV_g_e+r2*d_g0_dV_g_e*g0))-d_F0_dV_g_e);
+d_e0_dV_e_di = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_di)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_di))+r1*d_g0_dV_e_di)+((r2*g0)*d_g0_dV_e_di+r2*d_g0_dV_e_di*g0))-d_F0_dV_e_di);
+d_e0_dV_e_si = ((((0.5*evaluator_lln_0.getDerivs(g0,d_g0_dV_e_si)+0.5*evaluator_lln_1.getDerivs(T0,d_T0_dV_e_si))+r1*d_g0_dV_e_si)+((r2*g0)*d_g0_dV_e_si+r2*d_g0_dV_e_si*g0))-d_F0_dV_e_si);
 e0 = (((((0.5*evaluator_lln_0.getValues(g0))+(0.5*evaluator_lln_1.getValues(T0)))+(r1*g0))+((r2*g0)*g0))-F0);
 }
 
-d_e1_dV_di_si = (((0.5*d_inv_g0_dV_di_si)+(0.5*d_T1_dV_di_si))+((2*r2)*d_g0_dV_di_si));
-d_e1_dV_g_si = (((0.5*d_inv_g0_dV_g_si)+(0.5*d_T1_dV_g_si))+((2*r2)*d_g0_dV_g_si));
-d_e1_dV_g_e = (((0.5*d_inv_g0_dV_g_e)+(0.5*d_T1_dV_g_e))+((2*r2)*d_g0_dV_g_e));
-d_e1_dV_e_di = (((0.5*d_inv_g0_dV_e_di)+(0.5*d_T1_dV_e_di))+((2*r2)*d_g0_dV_e_di));
-d_e1_dV_e_si = (((0.5*d_inv_g0_dV_e_si)+(0.5*d_T1_dV_e_si))+((2*r2)*d_g0_dV_e_si));
+d_e1_dV_di_si = ((0.5*d_inv_g0_dV_di_si+0.5*d_T1_dV_di_si)+(2*r2)*d_g0_dV_di_si);
+d_e1_dV_g_si = ((0.5*d_inv_g0_dV_g_si+0.5*d_T1_dV_g_si)+(2*r2)*d_g0_dV_g_si);
+d_e1_dV_g_e = ((0.5*d_inv_g0_dV_g_e+0.5*d_T1_dV_g_e)+(2*r2)*d_g0_dV_g_e);
+d_e1_dV_e_di = ((0.5*d_inv_g0_dV_e_di+0.5*d_T1_dV_e_di)+(2*r2)*d_g0_dV_e_di);
+d_e1_dV_e_si = ((0.5*d_inv_g0_dV_e_si+0.5*d_T1_dV_e_si)+(2*r2)*d_g0_dV_e_si);
 e1 = ((((0.5*inv_g0)+(0.5*T1))+r1)+((2*r2)*g0));
 
-d_e2_dV_di_si = (((-0.5)*d_inv_g0sq_dV_di_si)-(0.5*d_T2_dV_di_si));
-d_e2_dV_g_si = (((-0.5)*d_inv_g0sq_dV_g_si)-(0.5*d_T2_dV_g_si));
-d_e2_dV_g_e = (((-0.5)*d_inv_g0sq_dV_g_e)-(0.5*d_T2_dV_g_e));
-d_e2_dV_e_di = (((-0.5)*d_inv_g0sq_dV_e_di)-(0.5*d_T2_dV_e_di));
-d_e2_dV_e_si = (((-0.5)*d_inv_g0sq_dV_e_si)-(0.5*d_T2_dV_e_si));
+d_e2_dV_di_si = ((-0.5)*d_inv_g0sq_dV_di_si-0.5*d_T2_dV_di_si);
+d_e2_dV_g_si = ((-0.5)*d_inv_g0sq_dV_g_si-0.5*d_T2_dV_g_si);
+d_e2_dV_g_e = ((-0.5)*d_inv_g0sq_dV_g_e-0.5*d_T2_dV_g_e);
+d_e2_dV_e_di = ((-0.5)*d_inv_g0sq_dV_e_di-0.5*d_T2_dV_e_di);
+d_e2_dV_e_si = ((-0.5)*d_inv_g0sq_dV_e_si-0.5*d_T2_dV_e_si);
 e2 = ((((-0.5)*inv_g0sq)-(0.5*T2))+(2*r2));
 
-d_e3_dV_di_si = (((inv_g0*d_inv_g0sq_dV_di_si)+(d_inv_g0_dV_di_si*inv_g0sq))+((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*T1)));
-d_e3_dV_g_si = (((inv_g0*d_inv_g0sq_dV_g_si)+(d_inv_g0_dV_g_si*inv_g0sq))+((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*T1)));
-d_e3_dV_g_e = (((inv_g0*d_inv_g0sq_dV_g_e)+(d_inv_g0_dV_g_e*inv_g0sq))+((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*T1)));
-d_e3_dV_e_di = (((inv_g0*d_inv_g0sq_dV_e_di)+(d_inv_g0_dV_e_di*inv_g0sq))+((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*T1)));
-d_e3_dV_e_si = (((inv_g0*d_inv_g0sq_dV_e_si)+(d_inv_g0_dV_e_si*inv_g0sq))+((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*T1)));
+d_e3_dV_di_si = ((inv_g0*d_inv_g0sq_dV_di_si+d_inv_g0_dV_di_si*inv_g0sq)+(T2*d_T1_dV_di_si+d_T2_dV_di_si*T1));
+d_e3_dV_g_si = ((inv_g0*d_inv_g0sq_dV_g_si+d_inv_g0_dV_g_si*inv_g0sq)+(T2*d_T1_dV_g_si+d_T2_dV_g_si*T1));
+d_e3_dV_g_e = ((inv_g0*d_inv_g0sq_dV_g_e+d_inv_g0_dV_g_e*inv_g0sq)+(T2*d_T1_dV_g_e+d_T2_dV_g_e*T1));
+d_e3_dV_e_di = ((inv_g0*d_inv_g0sq_dV_e_di+d_inv_g0_dV_e_di*inv_g0sq)+(T2*d_T1_dV_e_di+d_T2_dV_e_di*T1));
+d_e3_dV_e_si = ((inv_g0*d_inv_g0sq_dV_e_si+d_inv_g0_dV_e_si*inv_g0sq)+(T2*d_T1_dV_e_si+d_T2_dV_e_si*T1));
 e3 = ((inv_g0*inv_g0sq)+(T2*T1));
 
-d_g0_dV_di_si = (d_g0_dV_di_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_di_si)+(d_e0_dV_di_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_di_si)+((2.0*d_e1_dV_di_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_di_si)+((3.0*d_e2_dV_di_si)*e2))-((e1*d_e3_dV_di_si)+(d_e1_dV_di_si*e3))))+(((e0*d_e0_dV_di_si)+(d_e0_dV_di_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_di_si)+(((((6.0*e1)*e1)*d_e1_dV_di_si)+((((6.0*e1)*d_e1_dV_di_si)+((6.0*d_e1_dV_di_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_si = (d_g0_dV_g_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_si)+(d_e0_dV_g_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_si)+((2.0*d_e1_dV_g_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_si)+((3.0*d_e2_dV_g_si)*e2))-((e1*d_e3_dV_g_si)+(d_e1_dV_g_si*e3))))+(((e0*d_e0_dV_g_si)+(d_e0_dV_g_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_si)+(((((6.0*e1)*e1)*d_e1_dV_g_si)+((((6.0*e1)*d_e1_dV_g_si)+((6.0*d_e1_dV_g_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_g_e = (d_g0_dV_g_e-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_g_e)+(d_e0_dV_g_e*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_g_e)+((2.0*d_e1_dV_g_e)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_g_e)+((3.0*d_e2_dV_g_e)*e2))-((e1*d_e3_dV_g_e)+(d_e1_dV_g_e*e3))))+(((e0*d_e0_dV_g_e)+(d_e0_dV_g_e*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_g_e)+(((((6.0*e1)*e1)*d_e1_dV_g_e)+((((6.0*e1)*d_e1_dV_g_e)+((6.0*d_e1_dV_g_e)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_di = (d_g0_dV_e_di-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_di)+(d_e0_dV_e_di*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_di)+((2.0*d_e1_dV_e_di)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_di)+((3.0*d_e2_dV_e_di)*e2))-((e1*d_e3_dV_e_di)+(d_e1_dV_e_di*e3))))+(((e0*d_e0_dV_e_di)+(d_e0_dV_e_di*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_di)+(((((6.0*e1)*e1)*d_e1_dV_e_di)+((((6.0*e1)*d_e1_dV_e_di)+((6.0*d_e1_dV_e_di)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
-d_g0_dV_e_si = (d_g0_dV_e_si-(((e0/e1)*(((((2.0*e1)*e1)*((e0*d_e2_dV_e_si)+(d_e0_dV_e_si*e2))-(e0*e2)*(((2.0*e1)*d_e1_dV_e_si)+((2.0*d_e1_dV_e_si)*e1)))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*(((e0*e0)*((((3.0*e2)*d_e2_dV_e_si)+((3.0*d_e2_dV_e_si)*e2))-((e1*d_e3_dV_e_si)+(d_e1_dV_e_si*e3))))+(((e0*d_e0_dV_e_si)+(d_e0_dV_e_si*e0))*(((3.0*e2)*e2)-(e1*e3))))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*(((((6.0*e1)*e1)*e1)*d_e1_dV_e_si)+(((((6.0*e1)*e1)*d_e1_dV_e_si)+((((6.0*e1)*d_e1_dV_e_si)+((6.0*d_e1_dV_e_si)*e1))*e1))*e1)))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1))))+(((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1))))));
+d_g0_dV_di_si = (d_g0_dV_di_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_di_si+d_e0_dV_di_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_di_si+2.0*d_e1_dV_di_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_di_si+3.0*d_e2_dV_di_si*e2)-(e1*d_e3_dV_di_si+d_e1_dV_di_si*e3))+(e0*d_e0_dV_di_si+d_e0_dV_di_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_di_si+(((6.0*e1)*e1)*d_e1_dV_di_si+((6.0*e1)*d_e1_dV_di_si+6.0*d_e1_dV_di_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_di_si-e0*d_e1_dV_di_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_si = (d_g0_dV_g_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_si+d_e0_dV_g_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_si+2.0*d_e1_dV_g_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_si+3.0*d_e2_dV_g_si*e2)-(e1*d_e3_dV_g_si+d_e1_dV_g_si*e3))+(e0*d_e0_dV_g_si+d_e0_dV_g_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_si+(((6.0*e1)*e1)*d_e1_dV_g_si+((6.0*e1)*d_e1_dV_g_si+6.0*d_e1_dV_g_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_si-e0*d_e1_dV_g_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_g_e = (d_g0_dV_g_e-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_g_e+d_e0_dV_g_e*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_g_e+2.0*d_e1_dV_g_e*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_g_e+3.0*d_e2_dV_g_e*e2)-(e1*d_e3_dV_g_e+d_e1_dV_g_e*e3))+(e0*d_e0_dV_g_e+d_e0_dV_g_e*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_g_e+(((6.0*e1)*e1)*d_e1_dV_g_e+((6.0*e1)*d_e1_dV_g_e+6.0*d_e1_dV_g_e*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_g_e-e0*d_e1_dV_g_e)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_di = (d_g0_dV_e_di-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_di+d_e0_dV_e_di*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_di+2.0*d_e1_dV_e_di*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_di+3.0*d_e2_dV_e_di*e2)-(e1*d_e3_dV_e_di+d_e1_dV_e_di*e3))+(e0*d_e0_dV_e_di+d_e0_dV_e_di*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_di+(((6.0*e1)*e1)*d_e1_dV_e_di+((6.0*e1)*d_e1_dV_e_di+6.0*d_e1_dV_e_di*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_di-e0*d_e1_dV_e_di)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
+d_g0_dV_e_si = (d_g0_dV_e_si-((e0/e1)*(((((2.0*e1)*e1)*(e0*d_e2_dV_e_si+d_e0_dV_e_si*e2)-(e0*e2)*((2.0*e1)*d_e1_dV_e_si+2.0*d_e1_dV_e_si*e1))/((2.0*e1)*e1)/((2.0*e1)*e1))+((((((6.0*e1)*e1)*e1)*e1)*((e0*e0)*(((3.0*e2)*d_e2_dV_e_si+3.0*d_e2_dV_e_si*e2)-(e1*d_e3_dV_e_si+d_e1_dV_e_si*e3))+(e0*d_e0_dV_e_si+d_e0_dV_e_si*e0)*(((3.0*e2)*e2)-(e1*e3)))-((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))*((((6.0*e1)*e1)*e1)*d_e1_dV_e_si+(((6.0*e1)*e1)*d_e1_dV_e_si+((6.0*e1)*d_e1_dV_e_si+6.0*d_e1_dV_e_si*e1)*e1)*e1))/((((6.0*e1)*e1)*e1)*e1)/((((6.0*e1)*e1)*e1)*e1)))+((e1*d_e0_dV_e_si-e0*d_e1_dV_e_si)/e1/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 g0 = (g0-((e0/e1)*((1.0+((e0*e2)/((2.0*e1)*e1)))+(((e0*e0)*(((3.0*e2)*e2)-(e1*e3)))/((((6.0*e1)*e1)*e1)*e1)))));
 if (((g0>g0max)||(g0<g0min)))
 {
@@ -15030,25 +15030,25 @@ d_g0d_dV_e_si = d_g0_dV_e_si;
 g0d = g0;
 }
 
-d_vpolyd_dV_g_si = (((((2*nVtm)*r2)*g0d)*d_g0d_dV_g_si)+((((2*nVtm)*r2)*d_g0d_dV_g_si)*g0d));
-d_vpolyd_dV_g_e = (((((2*nVtm)*r2)*g0d)*d_g0d_dV_g_e)+((((2*nVtm)*r2)*d_g0d_dV_g_e)*g0d));
-d_vpolyd_dV_e_di = (((((2*nVtm)*r2)*g0d)*d_g0d_dV_e_di)+((((2*nVtm)*r2)*d_g0d_dV_e_di)*g0d));
-d_vpolyd_dV_e_si = (((((2*nVtm)*r2)*g0d)*d_g0d_dV_e_si)+((((2*nVtm)*r2)*d_g0d_dV_e_si)*g0d));
-d_vpolyd_dV_di_si = (((((2*nVtm)*r2)*g0d)*d_g0d_dV_di_si)+(((((2*nVtm)*r2)*d_g0d_dV_di_si)+(((2*d_nVtm_dV_di_si)*r2)*g0d))*g0d));
+d_vpolyd_dV_g_si = ((((2*nVtm)*r2)*g0d)*d_g0d_dV_g_si+((2*nVtm)*r2)*d_g0d_dV_g_si*g0d);
+d_vpolyd_dV_g_e = ((((2*nVtm)*r2)*g0d)*d_g0d_dV_g_e+((2*nVtm)*r2)*d_g0d_dV_g_e*g0d);
+d_vpolyd_dV_e_di = ((((2*nVtm)*r2)*g0d)*d_g0d_dV_e_di+((2*nVtm)*r2)*d_g0d_dV_e_di*g0d);
+d_vpolyd_dV_e_si = ((((2*nVtm)*r2)*g0d)*d_g0d_dV_e_si+((2*nVtm)*r2)*d_g0d_dV_e_si*g0d);
+d_vpolyd_dV_di_si = ((((2*nVtm)*r2)*g0d)*d_g0d_dV_di_si+(((2*nVtm)*r2)*d_g0d_dV_di_si+2*d_nVtm_dV_di_si*r2*g0d)*g0d);
 vpolyd = ((((2*nVtm)*r2)*g0d)*g0d);
 
-d_phid_dV_g_e = ((-(((2*nVtm)*r1)*d_g0d_dV_g_e))-d_vpolyd_dV_g_e);
-d_phid_dV_e_di = ((-(((2*nVtm)*r1)*d_g0d_dV_e_di))-d_vpolyd_dV_e_di);
-d_phid_dV_e_si = ((-(((2*nVtm)*r1)*d_g0d_dV_e_si))-d_vpolyd_dV_e_si);
-d_phid_dV_di_si = ((d_vgsfbeff_dV_di_si-((((2*nVtm)*r1)*d_g0d_dV_di_si)+(((2*d_nVtm_dV_di_si)*r1)*g0d)))-d_vpolyd_dV_di_si);
-d_phid_dV_g_si = ((d_vgsfbeff_dV_g_si-(((2*nVtm)*r1)*d_g0d_dV_g_si))-d_vpolyd_dV_g_si);
+d_phid_dV_g_e = ((-((2*nVtm)*r1)*d_g0d_dV_g_e)-d_vpolyd_dV_g_e);
+d_phid_dV_e_di = ((-((2*nVtm)*r1)*d_g0d_dV_e_di)-d_vpolyd_dV_e_di);
+d_phid_dV_e_si = ((-((2*nVtm)*r1)*d_g0d_dV_e_si)-d_vpolyd_dV_e_si);
+d_phid_dV_di_si = ((d_vgsfbeff_dV_di_si-(((2*nVtm)*r1)*d_g0d_dV_di_si+2*d_nVtm_dV_di_si*r1*g0d))-d_vpolyd_dV_di_si);
+d_phid_dV_g_si = ((d_vgsfbeff_dV_g_si-((2*nVtm)*r1)*d_g0d_dV_g_si)-d_vpolyd_dV_g_si);
 phid = ((vgsfbeff-(((2*nVtm)*r1)*g0d))-vpolyd);
 
-d_qid_dV_g_si = (q0*d_g0d_dV_g_si);
-d_qid_dV_g_e = (q0*d_g0d_dV_g_e);
-d_qid_dV_e_di = (q0*d_g0d_dV_e_di);
-d_qid_dV_e_si = (q0*d_g0d_dV_e_si);
-d_qid_dV_di_si = ((q0*d_g0d_dV_di_si)+(d_q0_dV_di_si*g0d));
+d_qid_dV_g_si = q0*d_g0d_dV_g_si;
+d_qid_dV_g_e = q0*d_g0d_dV_g_e;
+d_qid_dV_e_di = q0*d_g0d_dV_e_di;
+d_qid_dV_e_si = q0*d_g0d_dV_e_si;
+d_qid_dV_di_si = (q0*d_g0d_dV_di_si+d_q0_dV_di_si*g0d);
 qid = (q0*g0d);
 }
 qba = qbs;
@@ -15069,11 +15069,11 @@ d_T0_dV_g_si = (deriv_sqrt_0_d0*(((d_vgsfbeff_dV_g_si-d_phid_dV_g_si)/vpoly0)));
 T0 = (value_sqrt_0-1);
 }
 
-d_vpolyd_dV_di_si = (((vpoly0*T0)*d_T0_dV_di_si)+((vpoly0*d_T0_dV_di_si)*T0));
-d_vpolyd_dV_g_si = (((vpoly0*T0)*d_T0_dV_g_si)+((vpoly0*d_T0_dV_g_si)*T0));
-d_vpolyd_dV_g_e = (((vpoly0*T0)*d_T0_dV_g_e)+((vpoly0*d_T0_dV_g_e)*T0));
-d_vpolyd_dV_e_di = (((vpoly0*T0)*d_T0_dV_e_di)+((vpoly0*d_T0_dV_e_di)*T0));
-d_vpolyd_dV_e_si = (((vpoly0*T0)*d_T0_dV_e_si)+((vpoly0*d_T0_dV_e_si)*T0));
+d_vpolyd_dV_di_si = ((vpoly0*T0)*d_T0_dV_di_si+vpoly0*d_T0_dV_di_si*T0);
+d_vpolyd_dV_g_si = ((vpoly0*T0)*d_T0_dV_g_si+vpoly0*d_T0_dV_g_si*T0);
+d_vpolyd_dV_g_e = ((vpoly0*T0)*d_T0_dV_g_e+vpoly0*d_T0_dV_g_e*T0);
+d_vpolyd_dV_e_di = ((vpoly0*T0)*d_T0_dV_e_di+vpoly0*d_T0_dV_e_di*T0);
+d_vpolyd_dV_e_si = ((vpoly0*T0)*d_T0_dV_e_si+vpoly0*d_T0_dV_e_si*T0);
 vpolyd = ((vpoly0*T0)*T0);
 }
 else
@@ -15091,11 +15091,11 @@ d_qid_dV_g_si = (((model_.COREMOD)!=0)?((d_vgsfbeff_dV_g_si-d_phid_dV_g_si)-d_vp
 qid = (((model_.COREMOD)!=0)?((vgsfbeff-phid)-vpolyd):(((vgsfbeff-phid)-qbs)-vpolyd));
 }
 
-d_qia_dV_g_si = (0.5*(d_qis_dV_g_si+d_qid_dV_g_si));
-d_qia_dV_g_e = (0.5*(d_qis_dV_g_e+d_qid_dV_g_e));
-d_qia_dV_e_di = (0.5*(d_qis_dV_e_di+d_qid_dV_e_di));
-d_qia_dV_e_si = (0.5*(d_qis_dV_e_si+d_qid_dV_e_si));
-d_qia_dV_di_si = (0.5*(d_qis_dV_di_si+d_qid_dV_di_si));
+d_qia_dV_g_si = 0.5*(d_qis_dV_g_si+d_qid_dV_g_si);
+d_qia_dV_g_e = 0.5*(d_qis_dV_g_e+d_qid_dV_g_e);
+d_qia_dV_e_di = 0.5*(d_qis_dV_e_di+d_qid_dV_e_di);
+d_qia_dV_e_si = 0.5*(d_qis_dV_e_si+d_qid_dV_e_si);
+d_qia_dV_di_si = 0.5*(d_qis_dV_di_si+d_qid_dV_di_si);
 qia = (0.5*(qis+qid));
 
 d_dqi_dV_g_si = (d_qis_dV_g_si-d_qid_dV_g_si);
@@ -15121,22 +15121,22 @@ if (((model_.CHARGEWF)!=0))
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T0));
 
-d_qia2_dV_g_si = ((0.5*(d_qis_dV_g_si+d_qid_dV_g_si))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_g_si)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_g_si))))*0.5)*dqi)));
-d_qia2_dV_g_e = ((0.5*(d_qis_dV_g_e+d_qid_dV_g_e))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_g_e)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_g_e))))*0.5)*dqi)));
-d_qia2_dV_e_di = ((0.5*(d_qis_dV_e_di+d_qid_dV_e_di))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_e_di)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_e_di))))*0.5)*dqi)));
-d_qia2_dV_e_si = ((0.5*(d_qis_dV_e_si+d_qid_dV_e_si))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_e_si)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_e_si))))*0.5)*dqi)));
-d_qia2_dV_di_si = ((0.5*(d_qis_dV_di_si+d_qid_dV_di_si))+(((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_di_si)+((((model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_di_si))))*0.5)*dqi)));
+d_qia2_dV_g_si = (0.5*(d_qis_dV_g_si+d_qid_dV_g_si)+((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_g_si+(model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_g_si)))*0.5*dqi));
+d_qia2_dV_g_e = (0.5*(d_qis_dV_g_e+d_qid_dV_g_e)+((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_g_e+(model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_g_e)))*0.5*dqi));
+d_qia2_dV_e_di = (0.5*(d_qis_dV_e_di+d_qid_dV_e_di)+((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_e_di+(model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_e_di)))*0.5*dqi));
+d_qia2_dV_e_si = (0.5*(d_qis_dV_e_si+d_qid_dV_e_si)+((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_e_si+(model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_e_si)))*0.5*dqi));
+d_qia2_dV_di_si = (0.5*(d_qis_dV_di_si+d_qid_dV_di_si)+((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*d_dqi_dV_di_si+(model_.CHARGEWF)*(-evaluator_lexp_0.getDerivs((-T0),(-d_T0_dV_di_si)))*0.5*dqi));
 qia2 = ((0.5*(qis+qid))+((((model_.CHARGEWF)*(1.0-evaluator_lexp_0.getValues((-T0))))*0.5)*dqi));
 }
 }
 else
 {
 
-d_qia2_dV_g_si = (0.5*(d_qis_dV_g_si+d_qid_dV_g_si));
-d_qia2_dV_g_e = (0.5*(d_qis_dV_g_e+d_qid_dV_g_e));
-d_qia2_dV_e_di = (0.5*(d_qis_dV_e_di+d_qid_dV_e_di));
-d_qia2_dV_e_si = (0.5*(d_qis_dV_e_si+d_qid_dV_e_si));
-d_qia2_dV_di_si = (0.5*(d_qis_dV_di_si+d_qid_dV_di_si));
+d_qia2_dV_g_si = 0.5*(d_qis_dV_g_si+d_qid_dV_g_si);
+d_qia2_dV_g_e = 0.5*(d_qis_dV_g_e+d_qid_dV_g_e);
+d_qia2_dV_e_di = 0.5*(d_qis_dV_e_di+d_qid_dV_e_di);
+d_qia2_dV_e_si = 0.5*(d_qis_dV_e_si+d_qid_dV_e_si);
+d_qia2_dV_di_si = 0.5*(d_qis_dV_di_si+d_qid_dV_di_si);
 qia2 = (0.5*(qis+qid));
 }
 if (((QMTCENIV_i>0.0)||(QMTCENCV_i>0.0)))
@@ -15181,54 +15181,54 @@ else
 if ( (model_.GEOMOD) == (1))
 {
 
-d_Weff_dV_di_si = (-((4.0*QMTCENIV_i)*d_Tcen_dV_di_si));
-d_Weff_dV_g_si = (-((4.0*QMTCENIV_i)*d_Tcen_dV_g_si));
-d_Weff_dV_g_e = (-((4.0*QMTCENIV_i)*d_Tcen_dV_g_e));
-d_Weff_dV_e_di = (-((4.0*QMTCENIV_i)*d_Tcen_dV_e_di));
-d_Weff_dV_e_si = (-((4.0*QMTCENIV_i)*d_Tcen_dV_e_si));
+d_Weff_dV_di_si = (-(4.0*QMTCENIV_i)*d_Tcen_dV_di_si);
+d_Weff_dV_g_si = (-(4.0*QMTCENIV_i)*d_Tcen_dV_g_si);
+d_Weff_dV_g_e = (-(4.0*QMTCENIV_i)*d_Tcen_dV_g_e);
+d_Weff_dV_e_di = (-(4.0*QMTCENIV_i)*d_Tcen_dV_e_di);
+d_Weff_dV_e_si = (-(4.0*QMTCENIV_i)*d_Tcen_dV_e_si);
 Weff = (Weff0-((4.0*QMTCENIV_i)*Tcen));
 
-d_WeffCV_dV_di_si = (-((4.0*QMTCENCV_i)*d_Tcen_dV_di_si));
-d_WeffCV_dV_g_si = (-((4.0*QMTCENCV_i)*d_Tcen_dV_g_si));
-d_WeffCV_dV_g_e = (-((4.0*QMTCENCV_i)*d_Tcen_dV_g_e));
-d_WeffCV_dV_e_di = (-((4.0*QMTCENCV_i)*d_Tcen_dV_e_di));
-d_WeffCV_dV_e_si = (-((4.0*QMTCENCV_i)*d_Tcen_dV_e_si));
+d_WeffCV_dV_di_si = (-(4.0*QMTCENCV_i)*d_Tcen_dV_di_si);
+d_WeffCV_dV_g_si = (-(4.0*QMTCENCV_i)*d_Tcen_dV_g_si);
+d_WeffCV_dV_g_e = (-(4.0*QMTCENCV_i)*d_Tcen_dV_g_e);
+d_WeffCV_dV_e_di = (-(4.0*QMTCENCV_i)*d_Tcen_dV_e_di);
+d_WeffCV_dV_e_si = (-(4.0*QMTCENCV_i)*d_Tcen_dV_e_si);
 WeffCV = (WeffCV0-((4.0*QMTCENCV_i)*Tcen));
 }
 else
 if ( (model_.GEOMOD) == (2))
 {
 
-d_Weff_dV_di_si = (-((8.0*QMTCENIV_i)*d_Tcen_dV_di_si));
-d_Weff_dV_g_si = (-((8.0*QMTCENIV_i)*d_Tcen_dV_g_si));
-d_Weff_dV_g_e = (-((8.0*QMTCENIV_i)*d_Tcen_dV_g_e));
-d_Weff_dV_e_di = (-((8.0*QMTCENIV_i)*d_Tcen_dV_e_di));
-d_Weff_dV_e_si = (-((8.0*QMTCENIV_i)*d_Tcen_dV_e_si));
+d_Weff_dV_di_si = (-(8.0*QMTCENIV_i)*d_Tcen_dV_di_si);
+d_Weff_dV_g_si = (-(8.0*QMTCENIV_i)*d_Tcen_dV_g_si);
+d_Weff_dV_g_e = (-(8.0*QMTCENIV_i)*d_Tcen_dV_g_e);
+d_Weff_dV_e_di = (-(8.0*QMTCENIV_i)*d_Tcen_dV_e_di);
+d_Weff_dV_e_si = (-(8.0*QMTCENIV_i)*d_Tcen_dV_e_si);
 Weff = (Weff0-((8.0*QMTCENIV_i)*Tcen));
 
-d_WeffCV_dV_di_si = (-((8.0*QMTCENCV_i)*d_Tcen_dV_di_si));
-d_WeffCV_dV_g_si = (-((8.0*QMTCENCV_i)*d_Tcen_dV_g_si));
-d_WeffCV_dV_g_e = (-((8.0*QMTCENCV_i)*d_Tcen_dV_g_e));
-d_WeffCV_dV_e_di = (-((8.0*QMTCENCV_i)*d_Tcen_dV_e_di));
-d_WeffCV_dV_e_si = (-((8.0*QMTCENCV_i)*d_Tcen_dV_e_si));
+d_WeffCV_dV_di_si = (-(8.0*QMTCENCV_i)*d_Tcen_dV_di_si);
+d_WeffCV_dV_g_si = (-(8.0*QMTCENCV_i)*d_Tcen_dV_g_si);
+d_WeffCV_dV_g_e = (-(8.0*QMTCENCV_i)*d_Tcen_dV_g_e);
+d_WeffCV_dV_e_di = (-(8.0*QMTCENCV_i)*d_Tcen_dV_e_di);
+d_WeffCV_dV_e_si = (-(8.0*QMTCENCV_i)*d_Tcen_dV_e_si);
 WeffCV = (WeffCV0-((8.0*QMTCENCV_i)*Tcen));
 }
 else
 if ( (model_.GEOMOD) == (3))
 {
 
-d_Weff_dV_di_si = (-(((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_di_si));
-d_Weff_dV_g_si = (-(((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_g_si));
-d_Weff_dV_g_e = (-(((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_g_e));
-d_Weff_dV_e_di = (-(((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_e_di));
-d_Weff_dV_e_si = (-(((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_e_si));
+d_Weff_dV_di_si = (-((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_di_si);
+d_Weff_dV_g_si = (-((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_g_si);
+d_Weff_dV_g_e = (-((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_g_e);
+d_Weff_dV_e_di = (-((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_e_di);
+d_Weff_dV_e_si = (-((2.0*3.14159265358979323846)*QMTCENIV_i)*d_Tcen_dV_e_si);
 Weff = (Weff0-(((2.0*3.14159265358979323846)*QMTCENIV_i)*Tcen));
 
-d_WeffCV_dV_di_si = (-(((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_di_si));
-d_WeffCV_dV_g_si = (-(((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_g_si));
-d_WeffCV_dV_g_e = (-(((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_g_e));
-d_WeffCV_dV_e_di = (-(((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_e_di));
-d_WeffCV_dV_e_si = (-(((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_e_si));
+d_WeffCV_dV_di_si = (-((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_di_si);
+d_WeffCV_dV_g_si = (-((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_g_si);
+d_WeffCV_dV_g_e = (-((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_g_e);
+d_WeffCV_dV_e_di = (-((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_e_di);
+d_WeffCV_dV_e_si = (-((2.0*3.14159265358979323846)*QMTCENCV_i)*d_Tcen_dV_e_si);
 WeffCV = (WeffCV0-(((2.0*3.14159265358979323846)*QMTCENCV_i)*Tcen));
 }
 else
@@ -15238,11 +15238,11 @@ else
 if (((model_.GEOMOD)!=3))
 {
 
-d_coxeff_dV_di_si = (-(3.9*8.8542e-12)*((d_Tcen_dV_di_si*QMTCENCV_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
-d_coxeff_dV_g_si = (-(3.9*8.8542e-12)*((d_Tcen_dV_g_si*QMTCENCV_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
-d_coxeff_dV_g_e = (-(3.9*8.8542e-12)*((d_Tcen_dV_g_e*QMTCENCV_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
-d_coxeff_dV_e_di = (-(3.9*8.8542e-12)*((d_Tcen_dV_e_di*QMTCENCV_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
-d_coxeff_dV_e_si = (-(3.9*8.8542e-12)*((d_Tcen_dV_e_si*QMTCENCV_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
+d_coxeff_dV_di_si = (-(3.9*8.8542e-12)*(d_Tcen_dV_di_si*QMTCENCV_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
+d_coxeff_dV_g_si = (-(3.9*8.8542e-12)*(d_Tcen_dV_g_si*QMTCENCV_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
+d_coxeff_dV_g_e = (-(3.9*8.8542e-12)*(d_Tcen_dV_g_e*QMTCENCV_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
+d_coxeff_dV_e_di = (-(3.9*8.8542e-12)*(d_Tcen_dV_e_di*QMTCENCV_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
+d_coxeff_dV_e_si = (-(3.9*8.8542e-12)*(d_Tcen_dV_e_si*QMTCENCV_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
 coxeff = ((3.9*8.8542e-12)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCV_i)/epsratio)));
 }
 else
@@ -15251,11 +15251,11 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0((R/(R-(Tcen*QMTCENCV_i))));
 AnalogFunctions::llnEvaluator evaluator_lln_1((1+((model_.TOXP)/R)));
 
-d_coxeff_dV_di_si = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-(d_Tcen_dV_di_si*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
-d_coxeff_dV_g_si = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-(d_Tcen_dV_g_si*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
-d_coxeff_dV_g_e = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-(d_Tcen_dV_g_e*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
-d_coxeff_dV_e_di = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-(d_Tcen_dV_e_di*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
-d_coxeff_dV_e_si = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-(d_Tcen_dV_e_si*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_coxeff_dV_di_si = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-d_Tcen_dV_di_si*QMTCENCV_i)/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_coxeff_dV_g_si = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-d_Tcen_dV_g_si*QMTCENCV_i)/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_coxeff_dV_g_e = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-d_Tcen_dV_g_e*QMTCENCV_i)/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_coxeff_dV_e_di = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-d_Tcen_dV_e_di*QMTCENCV_i)/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_coxeff_dV_e_si = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCV_i))),(-R*(-d_Tcen_dV_e_si*QMTCENCV_i)/(R-(Tcen*QMTCENCV_i))/(R-(Tcen*QMTCENCV_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
 coxeff = ((3.9*8.8542e-12)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCV_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
 }
 }
@@ -15296,11 +15296,11 @@ Tcen = (Tcen0/T6);
 if (((model_.GEOMOD)!=3))
 {
 
-d_cox_acc_dV_di_si = (-(3.9*8.8542e-12)*((d_Tcen_dV_di_si*QMTCENCVA_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
-d_cox_acc_dV_g_si = (-(3.9*8.8542e-12)*((d_Tcen_dV_g_si*QMTCENCVA_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
-d_cox_acc_dV_g_e = (-(3.9*8.8542e-12)*((d_Tcen_dV_g_e*QMTCENCVA_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
-d_cox_acc_dV_e_di = (-(3.9*8.8542e-12)*((d_Tcen_dV_e_di*QMTCENCVA_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
-d_cox_acc_dV_e_si = (-(3.9*8.8542e-12)*((d_Tcen_dV_e_si*QMTCENCVA_i)/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
+d_cox_acc_dV_di_si = (-(3.9*8.8542e-12)*(d_Tcen_dV_di_si*QMTCENCVA_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
+d_cox_acc_dV_g_si = (-(3.9*8.8542e-12)*(d_Tcen_dV_g_si*QMTCENCVA_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
+d_cox_acc_dV_g_e = (-(3.9*8.8542e-12)*(d_Tcen_dV_g_e*QMTCENCVA_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
+d_cox_acc_dV_e_di = (-(3.9*8.8542e-12)*(d_Tcen_dV_e_di*QMTCENCVA_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
+d_cox_acc_dV_e_si = (-(3.9*8.8542e-12)*(d_Tcen_dV_e_si*QMTCENCVA_i/epsratio)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio))/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
 cox_acc = ((3.9*8.8542e-12)/((((model_.TOXP)*3.9)/(model_.EPSROX))+((Tcen*QMTCENCVA_i)/epsratio)));
 }
 else
@@ -15309,28 +15309,28 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0((R/(R-(Tcen*QMTCENCVA_i))));
 AnalogFunctions::llnEvaluator evaluator_lln_1((1+((model_.TOXP)/R)));
 
-d_cox_acc_dV_di_si = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-(d_Tcen_dV_di_si*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
-d_cox_acc_dV_g_si = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-(d_Tcen_dV_g_si*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
-d_cox_acc_dV_g_e = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-(d_Tcen_dV_g_e*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
-d_cox_acc_dV_e_di = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-(d_Tcen_dV_e_di*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
-d_cox_acc_dV_e_si = (-(3.9*8.8542e-12)*(R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-(d_Tcen_dV_e_si*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_cox_acc_dV_di_si = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-d_Tcen_dV_di_si*QMTCENCVA_i)/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_cox_acc_dV_g_si = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-d_Tcen_dV_g_si*QMTCENCVA_i)/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_cox_acc_dV_g_e = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-d_Tcen_dV_g_e*QMTCENCVA_i)/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_cox_acc_dV_e_di = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-d_Tcen_dV_e_di*QMTCENCVA_i)/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
+d_cox_acc_dV_e_si = (-(3.9*8.8542e-12)*R*(evaluator_lln_0.getDerivs((R/(R-(Tcen*QMTCENCVA_i))),(-R*(-d_Tcen_dV_e_si*QMTCENCVA_i)/(R-(Tcen*QMTCENCVA_i))/(R-(Tcen*QMTCENCVA_i))))/epsratio)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX))))/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
 cox_acc = ((3.9*8.8542e-12)/(R*((evaluator_lln_0.getValues((R/(R-(Tcen*QMTCENCVA_i))))/epsratio)+((evaluator_lln_1.getValues((1+((model_.TOXP)/R)))*3.9)/(model_.EPSROX)))));
 }
 }
 }
 
-d_beta_dV_di_si = (((u0*cox)*d_Weff_dV_di_si)/Leff);
-d_beta_dV_g_si = (((u0*cox)*d_Weff_dV_g_si)/Leff);
-d_beta_dV_g_e = (((u0*cox)*d_Weff_dV_g_e)/Leff);
-d_beta_dV_e_di = (((u0*cox)*d_Weff_dV_e_di)/Leff);
-d_beta_dV_e_si = (((u0*cox)*d_Weff_dV_e_si)/Leff);
+d_beta_dV_di_si = ((u0*cox)*d_Weff_dV_di_si/Leff);
+d_beta_dV_g_si = ((u0*cox)*d_Weff_dV_g_si/Leff);
+d_beta_dV_g_e = ((u0*cox)*d_Weff_dV_g_e/Leff);
+d_beta_dV_e_di = ((u0*cox)*d_Weff_dV_e_di/Leff);
+d_beta_dV_e_si = ((u0*cox)*d_Weff_dV_e_si/Leff);
 beta = (((u0*cox)*Weff)/Leff);
 
-d_Eeffm_dV_g_si = (EeffFactor*(eta_mu*d_qia2_dV_g_si));
-d_Eeffm_dV_g_e = (EeffFactor*(eta_mu*d_qia2_dV_g_e));
-d_Eeffm_dV_e_di = (EeffFactor*(eta_mu*d_qia2_dV_e_di));
-d_Eeffm_dV_e_si = (EeffFactor*(eta_mu*d_qia2_dV_e_si));
-d_Eeffm_dV_di_si = (EeffFactor*(eta_mu*d_qia2_dV_di_si));
+d_Eeffm_dV_g_si = EeffFactor*eta_mu*d_qia2_dV_g_si;
+d_Eeffm_dV_g_e = EeffFactor*eta_mu*d_qia2_dV_g_e;
+d_Eeffm_dV_e_di = EeffFactor*eta_mu*d_qia2_dV_e_di;
+d_Eeffm_dV_e_si = EeffFactor*eta_mu*d_qia2_dV_e_si;
+d_Eeffm_dV_di_si = EeffFactor*eta_mu*d_qia2_dV_di_si;
 Eeffm = (EeffFactor*(qba+(eta_mu*qia2)));
 {
 double value_fabs_0 = fabs((qia2/qb0));
@@ -15339,11 +15339,11 @@ double  deriv_fabs_0_d0 = ((((qia2/qb0))>=0)?(+1.0):(-1.0));
 double  deriv_pow_1_d0 = (((0.5*(1.0+value_fabs_0)) == 0.0)?0.0:(value_pow_1*UCS_t/(0.5*(1.0+value_fabs_0))));
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_g_si = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qia2_dV_g_si/qb0))))));
-d_T2_dV_g_e = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qia2_dV_g_e/qb0))))));
-d_T2_dV_e_di = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qia2_dV_e_di/qb0))))));
-d_T2_dV_e_si = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qia2_dV_e_si/qb0))))));
-d_T2_dV_di_si = (deriv_pow_1_d0*((0.5*(deriv_fabs_0_d0*((d_qia2_dV_di_si/qb0))))));
+d_T2_dV_g_si = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qia2_dV_g_si/qb0)))));
+d_T2_dV_g_e = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qia2_dV_g_e/qb0)))));
+d_T2_dV_e_di = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qia2_dV_e_di/qb0)))));
+d_T2_dV_e_si = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qia2_dV_e_si/qb0)))));
+d_T2_dV_di_si = (deriv_pow_1_d0*(0.5*(deriv_fabs_0_d0*((d_qia2_dV_di_si/qb0)))));
 T2 = value_pow_1;
 }
 if (((model_.BULKMOD)!=0))
@@ -15355,11 +15355,11 @@ double  deriv_fabs_0_d0 = (((Eeffm)>=0)?(+1.0):(-1.0));
 double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*EU_i/value_fabs_0));
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_g_si = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_g_si)))))+(-UD_t*d_T2_dV_g_si/T2/T2));
-d_T3_dV_g_e = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_g_e)))))+(-UD_t*d_T2_dV_g_e/T2/T2));
-d_T3_dV_di_si = ((((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_di_si)))))+((UC_t*d_veseff_dV_di_si)*value_pow_1))+(-UD_t*d_T2_dV_di_si/T2/T2));
-d_T3_dV_e_di = ((((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_e_di)))))+((UC_t*d_veseff_dV_e_di)*value_pow_1))+(-UD_t*d_T2_dV_e_di/T2/T2));
-d_T3_dV_e_si = ((((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_e_si)))))+((UC_t*d_veseff_dV_e_si)*value_pow_1))+(-UD_t*d_T2_dV_e_si/T2/T2));
+d_T3_dV_g_si = ((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_g_si))))+(-UD_t*d_T2_dV_g_si/T2/T2));
+d_T3_dV_g_e = ((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_g_e))))+(-UD_t*d_T2_dV_g_e/T2/T2));
+d_T3_dV_di_si = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_di_si))))+UC_t*d_veseff_dV_di_si*value_pow_1)+(-UD_t*d_T2_dV_di_si/T2/T2));
+d_T3_dV_e_di = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_e_di))))+UC_t*d_veseff_dV_e_di*value_pow_1)+(-UD_t*d_T2_dV_e_di/T2/T2));
+d_T3_dV_e_si = (((UA_t+(UC_t*veseff))*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_e_si))))+UC_t*d_veseff_dV_e_si*value_pow_1)+(-UD_t*d_T2_dV_e_si/T2/T2));
 T3 = (((UA_t+(UC_t*veseff))*value_pow_1)+(UD_t/T2));
 }
 }
@@ -15372,11 +15372,11 @@ double  deriv_fabs_0_d0 = (((Eeffm)>=0)?(+1.0):(-1.0));
 double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*EU_i/value_fabs_0));
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_g_si = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_g_si)))))+(-UD_t*d_T2_dV_g_si/T2/T2));
-d_T3_dV_g_e = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_g_e)))))+(-UD_t*d_T2_dV_g_e/T2/T2));
-d_T3_dV_e_di = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_e_di)))))+(-UD_t*d_T2_dV_e_di/T2/T2));
-d_T3_dV_e_si = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_e_si)))))+(-UD_t*d_T2_dV_e_si/T2/T2));
-d_T3_dV_di_si = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_di_si)))))+(-UD_t*d_T2_dV_di_si/T2/T2));
+d_T3_dV_g_si = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_g_si))))+(-UD_t*d_T2_dV_g_si/T2/T2));
+d_T3_dV_g_e = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_g_e))))+(-UD_t*d_T2_dV_g_e/T2/T2));
+d_T3_dV_e_di = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_e_di))))+(-UD_t*d_T2_dV_e_di/T2/T2));
+d_T3_dV_e_si = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_e_si))))+(-UD_t*d_T2_dV_e_si/T2/T2));
+d_T3_dV_di_si = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_dV_di_si))))+(-UD_t*d_T2_dV_di_si/T2/T2));
 T3 = ((UA_t*value_pow_1)+(UD_t/T2));
 }
 }
@@ -15402,11 +15402,11 @@ d_ueff_dV_g_si = (-u0*d_Dmob_dV_g_si/Dmob/Dmob);
 d_ueff_dV_g_e = (-u0*d_Dmob_dV_g_e/Dmob/Dmob);
 ueff = (u0/Dmob);
 
-d_Eeffm_cv_dV_g_si = (EeffFactor*(eta_mu_cv*d_qia2_dV_g_si));
-d_Eeffm_cv_dV_g_e = (EeffFactor*(eta_mu_cv*d_qia2_dV_g_e));
-d_Eeffm_cv_dV_e_di = (EeffFactor*(eta_mu_cv*d_qia2_dV_e_di));
-d_Eeffm_cv_dV_e_si = (EeffFactor*(eta_mu_cv*d_qia2_dV_e_si));
-d_Eeffm_cv_dV_di_si = (EeffFactor*(eta_mu_cv*d_qia2_dV_di_si));
+d_Eeffm_cv_dV_g_si = EeffFactor*eta_mu_cv*d_qia2_dV_g_si;
+d_Eeffm_cv_dV_g_e = EeffFactor*eta_mu_cv*d_qia2_dV_g_e;
+d_Eeffm_cv_dV_e_di = EeffFactor*eta_mu_cv*d_qia2_dV_e_di;
+d_Eeffm_cv_dV_e_si = EeffFactor*eta_mu_cv*d_qia2_dV_e_si;
+d_Eeffm_cv_dV_di_si = EeffFactor*eta_mu_cv*d_qia2_dV_di_si;
 Eeffm_cv = (EeffFactor*(qba+(eta_mu_cv*qia2)));
 {
 double value_fabs_0 = fabs(Eeffm_cv);
@@ -15415,11 +15415,11 @@ double  deriv_fabs_0_d0 = (((Eeffm_cv)>=0)?(+1.0):(-1.0));
 double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*EU_i/value_fabs_0));
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_g_si = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_g_si)))))+(-UD_t*d_T2_dV_g_si/T2/T2));
-d_T3_dV_g_e = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_g_e)))))+(-UD_t*d_T2_dV_g_e/T2/T2));
-d_T3_dV_e_di = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_e_di)))))+(-UD_t*d_T2_dV_e_di/T2/T2));
-d_T3_dV_e_si = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_e_si)))))+(-UD_t*d_T2_dV_e_si/T2/T2));
-d_T3_dV_di_si = ((UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_di_si)))))+(-UD_t*d_T2_dV_di_si/T2/T2));
+d_T3_dV_g_si = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_g_si))))+(-UD_t*d_T2_dV_g_si/T2/T2));
+d_T3_dV_g_e = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_g_e))))+(-UD_t*d_T2_dV_g_e/T2/T2));
+d_T3_dV_e_di = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_e_di))))+(-UD_t*d_T2_dV_e_di/T2/T2));
+d_T3_dV_e_si = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_e_si))))+(-UD_t*d_T2_dV_e_si/T2/T2));
+d_T3_dV_di_si = (UA_t*(deriv_pow_1_d0*((deriv_fabs_0_d0*(d_Eeffm_cv_dV_di_si))))+(-UD_t*d_T2_dV_di_si/T2/T2));
 T3 = ((UA_t*value_pow_1)+(UD_t/T2));
 }
 
@@ -15442,7 +15442,7 @@ if ((tmp<40.0))
 {
 double value_cosh_0 = cosh(tmp);
 
-d_DIBLfactor_dV_di_si = ((0.5*d_PDIBL1_a_dV_di_si)/(value_cosh_0-1.0));
+d_DIBLfactor_dV_di_si = (0.5*d_PDIBL1_a_dV_di_si/(value_cosh_0-1.0));
 DIBLfactor = (((0.5*PDIBL1_a)/(value_cosh_0-1.0))+PDIBL2_i);
 }
 }
@@ -15451,28 +15451,28 @@ else
 {
 double value_exp_0 = exp((-tmp));
 
-d_DIBLfactor_dV_di_si = (d_PDIBL1_a_dV_di_si*value_exp_0);
+d_DIBLfactor_dV_di_si = d_PDIBL1_a_dV_di_si*value_exp_0;
 DIBLfactor = ((PDIBL1_a*value_exp_0)+PDIBL2_i);
 }
 }
 if ((PVAG_i>0))
 {
 
-d_PVAGfactor_dV_g_si = ((EsatL*(PVAG_i*d_qia_dV_g_si)-(PVAG_i*qia)*d_EsatL_dV_g_si)/EsatL/EsatL);
-d_PVAGfactor_dV_g_e = ((EsatL*(PVAG_i*d_qia_dV_g_e)-(PVAG_i*qia)*d_EsatL_dV_g_e)/EsatL/EsatL);
-d_PVAGfactor_dV_e_di = ((EsatL*(PVAG_i*d_qia_dV_e_di)-(PVAG_i*qia)*d_EsatL_dV_e_di)/EsatL/EsatL);
-d_PVAGfactor_dV_e_si = ((EsatL*(PVAG_i*d_qia_dV_e_si)-(PVAG_i*qia)*d_EsatL_dV_e_si)/EsatL/EsatL);
-d_PVAGfactor_dV_di_si = ((EsatL*(PVAG_i*d_qia_dV_di_si)-(PVAG_i*qia)*d_EsatL_dV_di_si)/EsatL/EsatL);
+d_PVAGfactor_dV_g_si = ((EsatL*PVAG_i*d_qia_dV_g_si-(PVAG_i*qia)*d_EsatL_dV_g_si)/EsatL/EsatL);
+d_PVAGfactor_dV_g_e = ((EsatL*PVAG_i*d_qia_dV_g_e-(PVAG_i*qia)*d_EsatL_dV_g_e)/EsatL/EsatL);
+d_PVAGfactor_dV_e_di = ((EsatL*PVAG_i*d_qia_dV_e_di-(PVAG_i*qia)*d_EsatL_dV_e_di)/EsatL/EsatL);
+d_PVAGfactor_dV_e_si = ((EsatL*PVAG_i*d_qia_dV_e_si-(PVAG_i*qia)*d_EsatL_dV_e_si)/EsatL/EsatL);
+d_PVAGfactor_dV_di_si = ((EsatL*PVAG_i*d_qia_dV_di_si-(PVAG_i*qia)*d_EsatL_dV_di_si)/EsatL/EsatL);
 PVAGfactor = (1.0+((PVAG_i*qia)/EsatL));
 }
 else
 {
 
-d_PVAGfactor_dV_g_si = (-(-((EsatL*(PVAG_i*d_qia_dV_g_si)-(PVAG_i*qia)*d_EsatL_dV_g_si)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
-d_PVAGfactor_dV_g_e = (-(-((EsatL*(PVAG_i*d_qia_dV_g_e)-(PVAG_i*qia)*d_EsatL_dV_g_e)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
-d_PVAGfactor_dV_e_di = (-(-((EsatL*(PVAG_i*d_qia_dV_e_di)-(PVAG_i*qia)*d_EsatL_dV_e_di)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
-d_PVAGfactor_dV_e_si = (-(-((EsatL*(PVAG_i*d_qia_dV_e_si)-(PVAG_i*qia)*d_EsatL_dV_e_si)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
-d_PVAGfactor_dV_di_si = (-(-((EsatL*(PVAG_i*d_qia_dV_di_si)-(PVAG_i*qia)*d_EsatL_dV_di_si)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
+d_PVAGfactor_dV_g_si = (-(-((EsatL*PVAG_i*d_qia_dV_g_si-(PVAG_i*qia)*d_EsatL_dV_g_si)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
+d_PVAGfactor_dV_g_e = (-(-((EsatL*PVAG_i*d_qia_dV_g_e-(PVAG_i*qia)*d_EsatL_dV_g_e)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
+d_PVAGfactor_dV_e_di = (-(-((EsatL*PVAG_i*d_qia_dV_e_di-(PVAG_i*qia)*d_EsatL_dV_e_di)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
+d_PVAGfactor_dV_e_si = (-(-((EsatL*PVAG_i*d_qia_dV_e_si-(PVAG_i*qia)*d_EsatL_dV_e_si)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
+d_PVAGfactor_dV_di_si = (-(-((EsatL*PVAG_i*d_qia_dV_di_si-(PVAG_i*qia)*d_EsatL_dV_di_si)/EsatL/EsatL))/(1.0-((PVAG_i*qia)/EsatL))/(1.0-((PVAG_i*qia)/EsatL)));
 PVAGfactor = (1.0/(1.0-((PVAG_i*qia)/EsatL)));
 }
 if ((Vdseff>vds))
@@ -15515,11 +15515,11 @@ d_T3_dV_e_di = (((Vdsat+T1)*d_T1_dV_e_di-T1*(d_Vdsat_dV_e_di+d_T1_dV_e_di))/(Vds
 d_T3_dV_e_si = (((Vdsat+T1)*d_T1_dV_e_si-T1*(d_Vdsat_dV_e_si+d_T1_dV_e_si))/(Vdsat+T1)/(Vdsat+T1));
 T3 = (T1/(Vdsat+T1));
 
-d_VaDIBL_dV_di_si = ((((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_di_si)+((((T1/DIBLfactor)*d_T3_dV_di_si)+(((DIBLfactor*d_T1_dV_di_si-T1*d_DIBLfactor_dV_di_si)/DIBLfactor/DIBLfactor)*T3))*PVAGfactor));
-d_VaDIBL_dV_g_si = ((((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_g_si)+((((T1/DIBLfactor)*d_T3_dV_g_si)+((d_T1_dV_g_si/DIBLfactor)*T3))*PVAGfactor));
-d_VaDIBL_dV_g_e = ((((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_g_e)+((((T1/DIBLfactor)*d_T3_dV_g_e)+((d_T1_dV_g_e/DIBLfactor)*T3))*PVAGfactor));
-d_VaDIBL_dV_e_di = ((((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_e_di)+((((T1/DIBLfactor)*d_T3_dV_e_di)+((d_T1_dV_e_di/DIBLfactor)*T3))*PVAGfactor));
-d_VaDIBL_dV_e_si = ((((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_e_si)+((((T1/DIBLfactor)*d_T3_dV_e_si)+((d_T1_dV_e_si/DIBLfactor)*T3))*PVAGfactor));
+d_VaDIBL_dV_di_si = (((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_di_si+((T1/DIBLfactor)*d_T3_dV_di_si+((DIBLfactor*d_T1_dV_di_si-T1*d_DIBLfactor_dV_di_si)/DIBLfactor/DIBLfactor)*T3)*PVAGfactor);
+d_VaDIBL_dV_g_si = (((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_g_si+((T1/DIBLfactor)*d_T3_dV_g_si+(d_T1_dV_g_si/DIBLfactor)*T3)*PVAGfactor);
+d_VaDIBL_dV_g_e = (((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_g_e+((T1/DIBLfactor)*d_T3_dV_g_e+(d_T1_dV_g_e/DIBLfactor)*T3)*PVAGfactor);
+d_VaDIBL_dV_e_di = (((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_e_di+((T1/DIBLfactor)*d_T3_dV_e_di+(d_T1_dV_e_di/DIBLfactor)*T3)*PVAGfactor);
+d_VaDIBL_dV_e_si = (((T1/DIBLfactor)*T3)*d_PVAGfactor_dV_e_si+((T1/DIBLfactor)*d_T3_dV_e_si+(d_T1_dV_e_si/DIBLfactor)*T3)*PVAGfactor);
 VaDIBL = (((T1/DIBLfactor)*T3)*PVAGfactor);
 
 d_Moc_dV_g_si = ((VaDIBL*d_diffVds_dV_g_si-diffVds*d_VaDIBL_dV_g_si)/VaDIBL/VaDIBL);
@@ -15541,32 +15541,32 @@ if ((PCLMG_i<0.0))
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = (-(-(PCLMG_i*d_qia_dV_g_si))/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
-d_T1_dV_g_e = (-(-(PCLMG_i*d_qia_dV_g_e))/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
-d_T1_dV_e_di = (-(-(PCLMG_i*d_qia_dV_e_di))/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
-d_T1_dV_e_si = (-(-(PCLMG_i*d_qia_dV_e_si))/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
-d_T1_dV_di_si = (-(-(PCLMG_i*d_qia_dV_di_si))/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
+d_T1_dV_g_si = (-(-PCLMG_i*d_qia_dV_g_si)/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
+d_T1_dV_g_e = (-(-PCLMG_i*d_qia_dV_g_e)/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
+d_T1_dV_e_di = (-(-PCLMG_i*d_qia_dV_e_di)/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
+d_T1_dV_e_si = (-(-PCLMG_i*d_qia_dV_e_si)/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
+d_T1_dV_di_si = (-(-PCLMG_i*d_qia_dV_di_si)/((1.0/PCLM_i)-(PCLMG_i*qia))/((1.0/PCLM_i)-(PCLMG_i*qia)));
 T1 = (1.0/((1.0/PCLM_i)-(PCLMG_i*qia)));
 }
 else
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = (PCLMG_i*d_qia_dV_g_si);
-d_T1_dV_g_e = (PCLMG_i*d_qia_dV_g_e);
-d_T1_dV_e_di = (PCLMG_i*d_qia_dV_e_di);
-d_T1_dV_e_si = (PCLMG_i*d_qia_dV_e_si);
-d_T1_dV_di_si = (PCLMG_i*d_qia_dV_di_si);
+d_T1_dV_g_si = PCLMG_i*d_qia_dV_g_si;
+d_T1_dV_g_e = PCLMG_i*d_qia_dV_g_e;
+d_T1_dV_e_di = PCLMG_i*d_qia_dV_e_di;
+d_T1_dV_e_si = PCLMG_i*d_qia_dV_e_si;
+d_T1_dV_di_si = PCLMG_i*d_qia_dV_di_si;
 T1 = (PCLM_i+(PCLMG_i*qia));
 }
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))));
 
-d_Mclm_dV_di_si = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(d_vds_dV_di_si-d_Vdseff_dV_di_si)-(vds-Vdseff)*d_T1_dV_di_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_di_si+d_EsatL_dV_di_si))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_di_si*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-d_Mclm_dV_g_si = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_g_si)-(vds-Vdseff)*d_T1_dV_g_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_g_si+d_EsatL_dV_g_si))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_g_si*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-d_Mclm_dV_g_e = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_g_e)-(vds-Vdseff)*d_T1_dV_g_e)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_g_e+d_EsatL_dV_g_e))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_g_e*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-d_Mclm_dV_e_di = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_e_di)-(vds-Vdseff)*d_T1_dV_e_di)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_e_di+d_EsatL_dV_e_di))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_e_di*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
-d_Mclm_dV_e_si = ((T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_e_si)-(vds-Vdseff)*d_T1_dV_e_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_e_si+d_EsatL_dV_e_si))/(Vdsat+EsatL)/(Vdsat+EsatL))))+(d_T1_dV_e_si*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
+d_Mclm_dV_di_si = (T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(d_vds_dV_di_si-d_Vdseff_dV_di_si)-(vds-Vdseff)*d_T1_dV_di_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_di_si+d_EsatL_dV_di_si))/(Vdsat+EsatL)/(Vdsat+EsatL)))+d_T1_dV_di_si*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL)))));
+d_Mclm_dV_g_si = (T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_g_si)-(vds-Vdseff)*d_T1_dV_g_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_g_si+d_EsatL_dV_g_si))/(Vdsat+EsatL)/(Vdsat+EsatL)))+d_T1_dV_g_si*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL)))));
+d_Mclm_dV_g_e = (T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_g_e)-(vds-Vdseff)*d_T1_dV_g_e)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_g_e+d_EsatL_dV_g_e))/(Vdsat+EsatL)/(Vdsat+EsatL)))+d_T1_dV_g_e*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL)))));
+d_Mclm_dV_e_di = (T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_e_di)-(vds-Vdseff)*d_T1_dV_e_di)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_e_di+d_EsatL_dV_e_di))/(Vdsat+EsatL)/(Vdsat+EsatL)))+d_T1_dV_e_di*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL)))));
+d_Mclm_dV_e_si = (T1*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))),(((Vdsat+EsatL)*((T1*(-d_Vdseff_dV_e_si)-(vds-Vdseff)*d_T1_dV_e_si)/T1/T1)-((vds-Vdseff)/T1)*(d_Vdsat_dV_e_si+d_EsatL_dV_e_si))/(Vdsat+EsatL)/(Vdsat+EsatL)))+d_T1_dV_e_si*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL)))));
 Mclm = (1.0+(T1*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/T1)/(Vdsat+EsatL))))));
 }
 }
@@ -15577,36 +15577,36 @@ d_Mclm_dV_e_si = d_Mclm_dV_e_di = d_Mclm_dV_g_e = d_Mclm_dV_g_si = d_Mclm_dV_di_
 Mclm = 1.0;
 }
 
-d_Moc_dV_g_si = ((Moc*d_Mclm_dV_g_si)+(d_Moc_dV_g_si*Mclm));
-d_Moc_dV_g_e = ((Moc*d_Mclm_dV_g_e)+(d_Moc_dV_g_e*Mclm));
-d_Moc_dV_e_di = ((Moc*d_Mclm_dV_e_di)+(d_Moc_dV_e_di*Mclm));
-d_Moc_dV_e_si = ((Moc*d_Mclm_dV_e_si)+(d_Moc_dV_e_si*Mclm));
-d_Moc_dV_di_si = ((Moc*d_Mclm_dV_di_si)+(d_Moc_dV_di_si*Mclm));
+d_Moc_dV_g_si = (Moc*d_Mclm_dV_g_si+d_Moc_dV_g_si*Mclm);
+d_Moc_dV_g_e = (Moc*d_Mclm_dV_g_e+d_Moc_dV_g_e*Mclm);
+d_Moc_dV_e_di = (Moc*d_Mclm_dV_e_di+d_Moc_dV_e_di*Mclm);
+d_Moc_dV_e_si = (Moc*d_Mclm_dV_e_si+d_Moc_dV_e_si*Mclm);
+d_Moc_dV_di_si = (Moc*d_Mclm_dV_di_si+d_Moc_dV_di_si*Mclm);
 Moc = (Moc*Mclm);
 
 d_Esat1_dV_e_di = (-(2.0*VSAT1_a)*d_ueff_dV_e_di/ueff/ueff);
 d_Esat1_dV_e_si = (-(2.0*VSAT1_a)*d_ueff_dV_e_si/ueff/ueff);
 d_Esat1_dV_g_si = (-(2.0*VSAT1_a)*d_ueff_dV_g_si/ueff/ueff);
 d_Esat1_dV_g_e = (-(2.0*VSAT1_a)*d_ueff_dV_g_e/ueff/ueff);
-d_Esat1_dV_di_si = ((ueff*(2.0*d_VSAT1_a_dV_di_si)-(2.0*VSAT1_a)*d_ueff_dV_di_si)/ueff/ueff);
+d_Esat1_dV_di_si = ((ueff*2.0*d_VSAT1_a_dV_di_si-(2.0*VSAT1_a)*d_ueff_dV_di_si)/ueff/ueff);
 Esat1 = ((2.0*VSAT1_a)/ueff);
 
-d_Esat1L_dV_e_di = (d_Esat1_dV_e_di*Leff);
-d_Esat1L_dV_e_si = (d_Esat1_dV_e_si*Leff);
-d_Esat1L_dV_g_si = (d_Esat1_dV_g_si*Leff);
-d_Esat1L_dV_g_e = (d_Esat1_dV_g_e*Leff);
-d_Esat1L_dV_di_si = (d_Esat1_dV_di_si*Leff);
+d_Esat1L_dV_e_di = d_Esat1_dV_e_di*Leff;
+d_Esat1L_dV_e_si = d_Esat1_dV_e_si*Leff;
+d_Esat1L_dV_g_si = d_Esat1_dV_g_si*Leff;
+d_Esat1L_dV_g_e = d_Esat1_dV_g_e*Leff;
+d_Esat1L_dV_di_si = d_Esat1_dV_di_si*Leff;
 Esat1L = (Esat1*Leff);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0((dqi/Esat1L));
 AnalogFunctions::lexpEvaluator evaluator_lexp_1((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))));
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_g_si = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_g_si-dqi*d_Esat1L_dV_g_si)/Esat1L/Esat1L))));
-d_T0_dV_g_e = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_g_e-dqi*d_Esat1L_dV_g_e)/Esat1L/Esat1L))));
-d_T0_dV_e_di = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_e_di-dqi*d_Esat1L_dV_e_di)/Esat1L/Esat1L))));
-d_T0_dV_e_si = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_e_si-dqi*d_Esat1L_dV_e_si)/Esat1L/Esat1L))));
-d_T0_dV_di_si = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),(PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_di_si-dqi*d_Esat1L_dV_di_si)/Esat1L/Esat1L))));
+d_T0_dV_g_si = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_g_si-dqi*d_Esat1L_dV_g_si)/Esat1L/Esat1L)));
+d_T0_dV_g_e = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_g_e-dqi*d_Esat1L_dV_g_e)/Esat1L/Esat1L)));
+d_T0_dV_e_di = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_e_di-dqi*d_Esat1L_dV_e_di)/Esat1L/Esat1L)));
+d_T0_dV_e_si = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_e_si-dqi*d_Esat1L_dV_e_si)/Esat1L/Esat1L)));
+d_T0_dV_di_si = evaluator_lexp_1.getDerivs((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))),PSAT_i*evaluator_lln_0.getDerivs((dqi/Esat1L),((Esat1L*d_dqi_dV_di_si-dqi*d_Esat1L_dV_di_si)/Esat1L/Esat1L)));
 T0 = evaluator_lexp_1.getValues((PSAT_i*evaluator_lln_0.getValues((dqi/Esat1L))));
 }
 {
@@ -15620,19 +15620,19 @@ Ta = (1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues(DEL
 AnalogFunctions::llnEvaluator evaluator_lln_0((DELTAVSAT_i+T0));
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))));
 
-d_Dvsat_dV_di_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_di_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_di_si)/Ta/Ta);
-d_Dvsat_dV_g_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_g_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_g_si)/Ta/Ta);
-d_Dvsat_dV_g_e = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_g_e)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_g_e)/Ta/Ta);
-d_Dvsat_dV_e_di = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_e_di)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_e_di)/Ta/Ta);
-d_Dvsat_dV_e_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),((1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_e_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_e_si)/Ta/Ta);
+d_Dvsat_dV_di_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),(1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_di_si))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_di_si)/Ta/Ta);
+d_Dvsat_dV_g_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),(1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_g_si))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_g_si)/Ta/Ta);
+d_Dvsat_dV_g_e = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),(1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_g_e))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_g_e)/Ta/Ta);
+d_Dvsat_dV_e_di = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),(1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_e_di))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_e_di)/Ta/Ta);
+d_Dvsat_dV_e_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0))),(1.0/PSAT_i)*evaluator_lln_0.getDerivs((DELTAVSAT_i+T0),d_T0_dV_e_si))-(1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))*d_Ta_dV_e_si)/Ta/Ta);
 Dvsat = ((1.0+evaluator_lexp_1.getValues(((1.0/PSAT_i)*evaluator_lln_0.getValues((DELTAVSAT_i+T0)))))/Ta);
 }
 
-d_Dvsat_dV_di_si = (d_Dvsat_dV_di_si+(((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_di_si)+(((((0.5*PTWG_a)*qia)*d_dqi_dV_di_si)+((((0.5*PTWG_a)*d_qia_dV_di_si)+((0.5*d_PTWG_a_dV_di_si)*qia))*dqi))*dqi)));
-d_Dvsat_dV_g_si = (d_Dvsat_dV_g_si+(((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_g_si)+(((((0.5*PTWG_a)*qia)*d_dqi_dV_g_si)+(((0.5*PTWG_a)*d_qia_dV_g_si)*dqi))*dqi)));
-d_Dvsat_dV_g_e = (d_Dvsat_dV_g_e+(((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_g_e)+(((((0.5*PTWG_a)*qia)*d_dqi_dV_g_e)+(((0.5*PTWG_a)*d_qia_dV_g_e)*dqi))*dqi)));
-d_Dvsat_dV_e_di = (d_Dvsat_dV_e_di+(((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_e_di)+(((((0.5*PTWG_a)*qia)*d_dqi_dV_e_di)+(((0.5*PTWG_a)*d_qia_dV_e_di)*dqi))*dqi)));
-d_Dvsat_dV_e_si = (d_Dvsat_dV_e_si+(((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_e_si)+(((((0.5*PTWG_a)*qia)*d_dqi_dV_e_si)+(((0.5*PTWG_a)*d_qia_dV_e_si)*dqi))*dqi)));
+d_Dvsat_dV_di_si = (d_Dvsat_dV_di_si+((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_di_si+(((0.5*PTWG_a)*qia)*d_dqi_dV_di_si+((0.5*PTWG_a)*d_qia_dV_di_si+0.5*d_PTWG_a_dV_di_si*qia)*dqi)*dqi));
+d_Dvsat_dV_g_si = (d_Dvsat_dV_g_si+((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_g_si+(((0.5*PTWG_a)*qia)*d_dqi_dV_g_si+(0.5*PTWG_a)*d_qia_dV_g_si*dqi)*dqi));
+d_Dvsat_dV_g_e = (d_Dvsat_dV_g_e+((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_g_e+(((0.5*PTWG_a)*qia)*d_dqi_dV_g_e+(0.5*PTWG_a)*d_qia_dV_g_e*dqi)*dqi));
+d_Dvsat_dV_e_di = (d_Dvsat_dV_e_di+((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_e_di+(((0.5*PTWG_a)*qia)*d_dqi_dV_e_di+(0.5*PTWG_a)*d_qia_dV_e_di*dqi)*dqi));
+d_Dvsat_dV_e_si = (d_Dvsat_dV_e_si+((((0.5*PTWG_a)*qia)*dqi)*d_dqi_dV_e_si+(((0.5*PTWG_a)*qia)*d_dqi_dV_e_si+(0.5*PTWG_a)*d_qia_dV_e_si*dqi)*dqi));
 Dvsat = (Dvsat+((((0.5*PTWG_a)*qia)*dqi)*dqi));
 
 d_T0_dV_g_di =  0.0;
@@ -15640,15 +15640,15 @@ d_T0_dV_g_si = (-A2_t*d_qia_dV_g_si/(qia+(2.0*nVtm))/(qia+(2.0*nVtm)));
 d_T0_dV_g_e = (-A2_t*d_qia_dV_g_e/(qia+(2.0*nVtm))/(qia+(2.0*nVtm)));
 d_T0_dV_e_di = (-A2_t*d_qia_dV_e_di/(qia+(2.0*nVtm))/(qia+(2.0*nVtm)));
 d_T0_dV_e_si = (-A2_t*d_qia_dV_e_si/(qia+(2.0*nVtm))/(qia+(2.0*nVtm)));
-d_T0_dV_di_si = (-A2_t*(d_qia_dV_di_si+(2.0*d_nVtm_dV_di_si))/(qia+(2.0*nVtm))/(qia+(2.0*nVtm)));
+d_T0_dV_di_si = (-A2_t*(d_qia_dV_di_si+2.0*d_nVtm_dV_di_si)/(qia+(2.0*nVtm))/(qia+(2.0*nVtm)));
 T0 = (A1_t+(A2_t/(qia+(2.0*nVtm))));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = (((T0*dqi)*d_dqi_dV_di_si)+(((T0*d_dqi_dV_di_si)+(d_T0_dV_di_si*dqi))*dqi));
-d_T1_dV_g_si = (((T0*dqi)*d_dqi_dV_g_si)+(((T0*d_dqi_dV_g_si)+(d_T0_dV_g_si*dqi))*dqi));
-d_T1_dV_g_e = (((T0*dqi)*d_dqi_dV_g_e)+(((T0*d_dqi_dV_g_e)+(d_T0_dV_g_e*dqi))*dqi));
-d_T1_dV_e_di = (((T0*dqi)*d_dqi_dV_e_di)+(((T0*d_dqi_dV_e_di)+(d_T0_dV_e_di*dqi))*dqi));
-d_T1_dV_e_si = (((T0*dqi)*d_dqi_dV_e_si)+(((T0*d_dqi_dV_e_si)+(d_T0_dV_e_si*dqi))*dqi));
+d_T1_dV_di_si = ((T0*dqi)*d_dqi_dV_di_si+(T0*d_dqi_dV_di_si+d_T0_dV_di_si*dqi)*dqi);
+d_T1_dV_g_si = ((T0*dqi)*d_dqi_dV_g_si+(T0*d_dqi_dV_g_si+d_T0_dV_g_si*dqi)*dqi);
+d_T1_dV_g_e = ((T0*dqi)*d_dqi_dV_g_e+(T0*d_dqi_dV_g_e+d_T0_dV_g_e*dqi)*dqi);
+d_T1_dV_e_di = ((T0*dqi)*d_dqi_dV_e_di+(T0*d_dqi_dV_e_di+d_T0_dV_e_di*dqi)*dqi);
+d_T1_dV_e_si = ((T0*dqi)*d_dqi_dV_e_si+(T0*d_dqi_dV_e_si+d_T0_dV_e_si*dqi)*dqi);
 T1 = ((T0*dqi)*dqi);
 
 d_T2_dV_g_di =  0.0;
@@ -15663,40 +15663,40 @@ double value_sqrt_0 = sqrt(((T2*T2)+0.004));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_di_si = (0.5*(d_T2_dV_di_si+(deriv_sqrt_0_d0*(((T2*d_T2_dV_di_si)+(d_T2_dV_di_si*T2))))));
-d_T3_dV_e_di = (0.5*(d_T2_dV_e_di+(deriv_sqrt_0_d0*(((T2*d_T2_dV_e_di)+(d_T2_dV_e_di*T2))))));
-d_T3_dV_e_si = (0.5*(d_T2_dV_e_si+(deriv_sqrt_0_d0*(((T2*d_T2_dV_e_si)+(d_T2_dV_e_si*T2))))));
-d_T3_dV_g_si = (0.5*(d_T2_dV_g_si+(deriv_sqrt_0_d0*(((T2*d_T2_dV_g_si)+(d_T2_dV_g_si*T2))))));
-d_T3_dV_g_e = (0.5*(d_T2_dV_g_e+(deriv_sqrt_0_d0*(((T2*d_T2_dV_g_e)+(d_T2_dV_g_e*T2))))));
+d_T3_dV_di_si = 0.5*(d_T2_dV_di_si+(deriv_sqrt_0_d0*((T2*d_T2_dV_di_si+d_T2_dV_di_si*T2))));
+d_T3_dV_e_di = 0.5*(d_T2_dV_e_di+(deriv_sqrt_0_d0*((T2*d_T2_dV_e_di+d_T2_dV_e_di*T2))));
+d_T3_dV_e_si = 0.5*(d_T2_dV_e_si+(deriv_sqrt_0_d0*((T2*d_T2_dV_e_si+d_T2_dV_e_si*T2))));
+d_T3_dV_g_si = 0.5*(d_T2_dV_g_si+(deriv_sqrt_0_d0*((T2*d_T2_dV_g_si+d_T2_dV_g_si*T2))));
+d_T3_dV_g_e = 0.5*(d_T2_dV_g_e+(deriv_sqrt_0_d0*((T2*d_T2_dV_g_e+d_T2_dV_g_e*T2))));
 T3 = ((-1.0)+(0.5*(T2+value_sqrt_0)));
 }
 {
 double value_sqrt_0 = sqrt((1.0+T3));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_Nsat_dV_di_si = (0.5*(deriv_sqrt_0_d0*(d_T3_dV_di_si)));
-d_Nsat_dV_e_di = (0.5*(deriv_sqrt_0_d0*(d_T3_dV_e_di)));
-d_Nsat_dV_e_si = (0.5*(deriv_sqrt_0_d0*(d_T3_dV_e_si)));
-d_Nsat_dV_g_si = (0.5*(deriv_sqrt_0_d0*(d_T3_dV_g_si)));
-d_Nsat_dV_g_e = (0.5*(deriv_sqrt_0_d0*(d_T3_dV_g_e)));
+d_Nsat_dV_di_si = 0.5*(deriv_sqrt_0_d0*(d_T3_dV_di_si));
+d_Nsat_dV_e_di = 0.5*(deriv_sqrt_0_d0*(d_T3_dV_e_di));
+d_Nsat_dV_e_si = 0.5*(deriv_sqrt_0_d0*(d_T3_dV_e_si));
+d_Nsat_dV_g_si = 0.5*(deriv_sqrt_0_d0*(d_T3_dV_g_si));
+d_Nsat_dV_g_e = 0.5*(deriv_sqrt_0_d0*(d_T3_dV_g_e));
 Nsat = (0.5*(1.0+value_sqrt_0));
 }
 
-d_Dvsat_dV_di_si = ((Dvsat*d_Nsat_dV_di_si)+(d_Dvsat_dV_di_si*Nsat));
-d_Dvsat_dV_g_si = ((Dvsat*d_Nsat_dV_g_si)+(d_Dvsat_dV_g_si*Nsat));
-d_Dvsat_dV_g_e = ((Dvsat*d_Nsat_dV_g_e)+(d_Dvsat_dV_g_e*Nsat));
-d_Dvsat_dV_e_di = ((Dvsat*d_Nsat_dV_e_di)+(d_Dvsat_dV_e_di*Nsat));
-d_Dvsat_dV_e_si = ((Dvsat*d_Nsat_dV_e_si)+(d_Dvsat_dV_e_si*Nsat));
+d_Dvsat_dV_di_si = (Dvsat*d_Nsat_dV_di_si+d_Dvsat_dV_di_si*Nsat);
+d_Dvsat_dV_g_si = (Dvsat*d_Nsat_dV_g_si+d_Dvsat_dV_g_si*Nsat);
+d_Dvsat_dV_g_e = (Dvsat*d_Nsat_dV_g_e+d_Dvsat_dV_g_e*Nsat);
+d_Dvsat_dV_e_di = (Dvsat*d_Nsat_dV_e_di+d_Dvsat_dV_e_di*Nsat);
+d_Dvsat_dV_e_si = (Dvsat*d_Nsat_dV_e_si+d_Dvsat_dV_e_si*Nsat);
 Dvsat = (Dvsat*Nsat);
 if ((K0_t!=0))
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = (-K0_t*(K0SI_t*d_qia_dV_g_si)/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
-d_T1_dV_g_e = (-K0_t*(K0SI_t*d_qia_dV_g_e)/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
-d_T1_dV_e_di = (-K0_t*(K0SI_t*d_qia_dV_e_di)/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
-d_T1_dV_e_si = (-K0_t*(K0SI_t*d_qia_dV_e_si)/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
-d_T1_dV_di_si = (-K0_t*((K0SI_t*d_qia_dV_di_si)+(2.0*d_nVtm_dV_di_si))/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_g_si = (-K0_t*K0SI_t*d_qia_dV_g_si/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_g_e = (-K0_t*K0SI_t*d_qia_dV_g_e/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_e_di = (-K0_t*K0SI_t*d_qia_dV_e_di/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_e_si = (-K0_t*K0SI_t*d_qia_dV_e_si/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_di_si = (-K0_t*(K0SI_t*d_qia_dV_di_si+2.0*d_nVtm_dV_di_si)/((K0SI_t*qia)+(2.0*nVtm))/((K0SI_t*qia)+(2.0*nVtm)));
 T1 = (K0_t/((K0SI_t*qia)+(2.0*nVtm)));
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T1));
@@ -15721,16 +15721,16 @@ if (((model_.BULKMOD)!=0))
 AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((K1_t+(K1SAT_t*vdsx)),1.0E-6);
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si =  0.0;
-d_T0_dV_di_si = evaluator_hypsmooth_0.getDerivs((K1_t+(K1SAT_t*vdsx)),1.0E-6,(K1SAT_t*d_vdsx_dV_di_si),0.0);
+d_T0_dV_di_si = evaluator_hypsmooth_0.getDerivs((K1_t+(K1SAT_t*vdsx)),1.0E-6,K1SAT_t*d_vdsx_dV_di_si,0.0);
 T0 = evaluator_hypsmooth_0.getValues((K1_t+(K1SAT_t*vdsx)),1.0E-6);
 }
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_di_si-T0*((K1SI_t*d_qia_dV_di_si)+(2.0*d_nVtm_dV_di_si)))/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
-d_T1_dV_g_si = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_g_si-T0*(K1SI_t*d_qia_dV_g_si))/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
-d_T1_dV_g_e = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_g_e-T0*(K1SI_t*d_qia_dV_g_e))/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
-d_T1_dV_e_di = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_e_di-T0*(K1SI_t*d_qia_dV_e_di))/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
-d_T1_dV_e_si = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_e_si-T0*(K1SI_t*d_qia_dV_e_si))/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_di_si = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_di_si-T0*(K1SI_t*d_qia_dV_di_si+2.0*d_nVtm_dV_di_si))/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_g_si = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_g_si-T0*K1SI_t*d_qia_dV_g_si)/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_g_e = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_g_e-T0*K1SI_t*d_qia_dV_g_e)/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_e_di = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_e_di-T0*K1SI_t*d_qia_dV_e_di)/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
+d_T1_dV_e_si = ((((K1SI_t*qia)+(2.0*nVtm))*d_T0_dV_e_si-T0*K1SI_t*d_qia_dV_e_si)/((K1SI_t*qia)+(2.0*nVtm))/((K1SI_t*qia)+(2.0*nVtm)));
 T1 = (T0/((K1SI_t*qia)+(2.0*nVtm)));
 {
 double value_sqrt_0 = sqrt((PHIBE_i-veseff));
@@ -15746,11 +15746,11 @@ T3 = (value_sqrt_0-value_sqrt_1);
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(((-T1)*T3));
 
-d_Mob_dV_di_si = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_di_si)+((-d_T1_dV_di_si)*T3)));
-d_Mob_dV_g_si = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_g_si)+((-d_T1_dV_g_si)*T3)));
-d_Mob_dV_g_e = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_g_e)+((-d_T1_dV_g_e)*T3)));
-d_Mob_dV_e_di = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_e_di)+((-d_T1_dV_e_di)*T3)));
-d_Mob_dV_e_si = evaluator_lexp_0.getDerivs(((-T1)*T3),(((-T1)*d_T3_dV_e_si)+((-d_T1_dV_e_si)*T3)));
+d_Mob_dV_di_si = evaluator_lexp_0.getDerivs(((-T1)*T3),((-T1)*d_T3_dV_di_si+(-d_T1_dV_di_si)*T3));
+d_Mob_dV_g_si = evaluator_lexp_0.getDerivs(((-T1)*T3),((-T1)*d_T3_dV_g_si+(-d_T1_dV_g_si)*T3));
+d_Mob_dV_g_e = evaluator_lexp_0.getDerivs(((-T1)*T3),((-T1)*d_T3_dV_g_e+(-d_T1_dV_g_e)*T3));
+d_Mob_dV_e_di = evaluator_lexp_0.getDerivs(((-T1)*T3),((-T1)*d_T3_dV_e_di+(-d_T1_dV_e_di)*T3));
+d_Mob_dV_e_si = evaluator_lexp_0.getDerivs(((-T1)*T3),((-T1)*d_T3_dV_e_si+(-d_T1_dV_e_si)*T3));
 Mob = evaluator_lexp_0.getValues(((-T1)*T3));
 }
 }
@@ -15761,29 +15761,29 @@ d_Mob_dV_e_si = d_Mob_dV_e_di = d_Mob_dV_g_e = d_Mob_dV_g_si = d_Mob_dV_di_si = 
 Mob = 1.0;
 }
 
-d_EsatCV_dV_di_si = (((2.0*VSATCV_t)*d_Dmob_cv_dV_di_si)/u0);
-d_EsatCV_dV_e_di = (((2.0*VSATCV_t)*d_Dmob_cv_dV_e_di)/u0);
-d_EsatCV_dV_e_si = (((2.0*VSATCV_t)*d_Dmob_cv_dV_e_si)/u0);
-d_EsatCV_dV_g_si = (((2.0*VSATCV_t)*d_Dmob_cv_dV_g_si)/u0);
-d_EsatCV_dV_g_e = (((2.0*VSATCV_t)*d_Dmob_cv_dV_g_e)/u0);
+d_EsatCV_dV_di_si = ((2.0*VSATCV_t)*d_Dmob_cv_dV_di_si/u0);
+d_EsatCV_dV_e_di = ((2.0*VSATCV_t)*d_Dmob_cv_dV_e_di/u0);
+d_EsatCV_dV_e_si = ((2.0*VSATCV_t)*d_Dmob_cv_dV_e_si/u0);
+d_EsatCV_dV_g_si = ((2.0*VSATCV_t)*d_Dmob_cv_dV_g_si/u0);
+d_EsatCV_dV_g_e = ((2.0*VSATCV_t)*d_Dmob_cv_dV_g_e/u0);
 EsatCV = (((2.0*VSATCV_t)*Dmob_cv)/u0);
 
-d_EsatCVL_dV_di_si = (d_EsatCV_dV_di_si*LeffCV);
-d_EsatCVL_dV_e_di = (d_EsatCV_dV_e_di*LeffCV);
-d_EsatCVL_dV_e_si = (d_EsatCV_dV_e_si*LeffCV);
-d_EsatCVL_dV_g_si = (d_EsatCV_dV_g_si*LeffCV);
-d_EsatCVL_dV_g_e = (d_EsatCV_dV_g_e*LeffCV);
+d_EsatCVL_dV_di_si = d_EsatCV_dV_di_si*LeffCV;
+d_EsatCVL_dV_e_di = d_EsatCV_dV_e_di*LeffCV;
+d_EsatCVL_dV_e_si = d_EsatCV_dV_e_si*LeffCV;
+d_EsatCVL_dV_g_si = d_EsatCV_dV_g_si*LeffCV;
+d_EsatCVL_dV_g_e = d_EsatCV_dV_g_e*LeffCV;
 EsatCVL = (EsatCV*LeffCV);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0((dqi/EsatCVL));
 AnalogFunctions::lexpEvaluator evaluator_lexp_1((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))));
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_g_si = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_g_si-dqi*d_EsatCVL_dV_g_si)/EsatCVL/EsatCVL))));
-d_T0_dV_g_e = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_g_e-dqi*d_EsatCVL_dV_g_e)/EsatCVL/EsatCVL))));
-d_T0_dV_e_di = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_e_di-dqi*d_EsatCVL_dV_e_di)/EsatCVL/EsatCVL))));
-d_T0_dV_e_si = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_e_si-dqi*d_EsatCVL_dV_e_si)/EsatCVL/EsatCVL))));
-d_T0_dV_di_si = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),(PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_di_si-dqi*d_EsatCVL_dV_di_si)/EsatCVL/EsatCVL))));
+d_T0_dV_g_si = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_g_si-dqi*d_EsatCVL_dV_g_si)/EsatCVL/EsatCVL)));
+d_T0_dV_g_e = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_g_e-dqi*d_EsatCVL_dV_g_e)/EsatCVL/EsatCVL)));
+d_T0_dV_e_di = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_e_di-dqi*d_EsatCVL_dV_e_di)/EsatCVL/EsatCVL)));
+d_T0_dV_e_si = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_e_si-dqi*d_EsatCVL_dV_e_si)/EsatCVL/EsatCVL)));
+d_T0_dV_di_si = evaluator_lexp_1.getDerivs((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))),PSATCV_i*evaluator_lln_0.getDerivs((dqi/EsatCVL),((EsatCVL*d_dqi_dV_di_si-dqi*d_EsatCVL_dV_di_si)/EsatCVL/EsatCVL)));
 T0 = evaluator_lexp_1.getValues((PSATCV_i*evaluator_lln_0.getValues((dqi/EsatCVL))));
 }
 {
@@ -15797,11 +15797,11 @@ Ta = (1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues(D
 AnalogFunctions::llnEvaluator evaluator_lln_0((DELTAVSATCV_i+T0));
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))));
 
-d_DvsatCV_dV_di_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_di_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_di_si)/Ta/Ta);
-d_DvsatCV_dV_g_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_g_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_g_si)/Ta/Ta);
-d_DvsatCV_dV_g_e = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_g_e)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_g_e)/Ta/Ta);
-d_DvsatCV_dV_e_di = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_e_di)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_e_di)/Ta/Ta);
-d_DvsatCV_dV_e_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),((1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_e_si)))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_e_si)/Ta/Ta);
+d_DvsatCV_dV_di_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),(1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_di_si))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_di_si)/Ta/Ta);
+d_DvsatCV_dV_g_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),(1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_g_si))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_g_si)/Ta/Ta);
+d_DvsatCV_dV_g_e = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),(1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_g_e))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_g_e)/Ta/Ta);
+d_DvsatCV_dV_e_di = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),(1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_e_di))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_e_di)/Ta/Ta);
+d_DvsatCV_dV_e_si = ((Ta*evaluator_lexp_1.getDerivs(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0))),(1.0/PSATCV_i)*evaluator_lln_0.getDerivs((DELTAVSATCV_i+T0),d_T0_dV_e_si))-(1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))*d_Ta_dV_e_si)/Ta/Ta);
 DvsatCV = ((1.0+evaluator_lexp_1.getValues(((1.0/PSATCV_i)*evaluator_lln_0.getValues((DELTAVSATCV_i+T0)))))/Ta);
 }
 if ((PCLMCV_i!=0))
@@ -15809,11 +15809,11 @@ if ((PCLMCV_i!=0))
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))));
 
-d_MclmCV_dV_g_si = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_g_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_g_si+d_EsatCVL_dV_g_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-d_MclmCV_dV_g_e = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_g_e)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_g_e+d_EsatCVL_dV_g_e))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-d_MclmCV_dV_e_di = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_e_di)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_e_di+d_EsatCVL_dV_e_di))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-d_MclmCV_dV_e_si = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_e_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_e_si+d_EsatCVL_dV_e_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
-d_MclmCV_dV_di_si = (PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((d_vds_dV_di_si-d_Vdseff_dV_di_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_di_si+d_EsatCVL_dV_di_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL))));
+d_MclmCV_dV_g_si = PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_g_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_g_si+d_EsatCVL_dV_g_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL)));
+d_MclmCV_dV_g_e = PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_g_e)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_g_e+d_EsatCVL_dV_g_e))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL)));
+d_MclmCV_dV_e_di = PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_e_di)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_e_di+d_EsatCVL_dV_e_di))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL)));
+d_MclmCV_dV_e_si = PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((-d_Vdseff_dV_e_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_e_si+d_EsatCVL_dV_e_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL)));
+d_MclmCV_dV_di_si = PCLMCV_i*evaluator_lln_0.getDerivs((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))),(((Vdsat+EsatCVL)*((d_vds_dV_di_si-d_Vdseff_dV_di_si)/PCLMCV_i)-((vds-Vdseff)/PCLMCV_i)*(d_Vdsat_dV_di_si+d_EsatCVL_dV_di_si))/(Vdsat+EsatCVL)/(Vdsat+EsatCVL)));
 MclmCV = (1.0+(PCLMCV_i*evaluator_lln_0.getValues((1.0+(((vds-Vdseff)/PCLMCV_i)/(Vdsat+EsatCVL))))));
 }
 }
@@ -15838,65 +15838,65 @@ d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si = d_T0_d
 T0 = ((2.0*csi)/cox);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((g0s*d_tang0s_dV_di_si)+(d_g0s_dV_di_si*tang0s));
-d_T1_dV_g_si = ((g0s*d_tang0s_dV_g_si)+(d_g0s_dV_g_si*tang0s));
-d_T1_dV_g_e = ((g0s*d_tang0s_dV_g_e)+(d_g0s_dV_g_e*tang0s));
-d_T1_dV_e_di = ((g0s*d_tang0s_dV_e_di)+(d_g0s_dV_e_di*tang0s));
-d_T1_dV_e_si = ((g0s*d_tang0s_dV_e_si)+(d_g0s_dV_e_si*tang0s));
+d_T1_dV_di_si = (g0s*d_tang0s_dV_di_si+d_g0s_dV_di_si*tang0s);
+d_T1_dV_g_si = (g0s*d_tang0s_dV_g_si+d_g0s_dV_g_si*tang0s);
+d_T1_dV_g_e = (g0s*d_tang0s_dV_g_e+d_g0s_dV_g_e*tang0s);
+d_T1_dV_e_di = (g0s*d_tang0s_dV_e_di+d_g0s_dV_e_di*tang0s);
+d_T1_dV_e_si = (g0s*d_tang0s_dV_e_si+d_g0s_dV_e_si*tang0s);
 T1 = (g0s*tang0s);
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = ((g0d*d_tang0d_dV_di_si)+(d_g0d_dV_di_si*tang0d));
-d_T2_dV_g_si = ((g0d*d_tang0d_dV_g_si)+(d_g0d_dV_g_si*tang0d));
-d_T2_dV_g_e = ((g0d*d_tang0d_dV_g_e)+(d_g0d_dV_g_e*tang0d));
-d_T2_dV_e_di = ((g0d*d_tang0d_dV_e_di)+(d_g0d_dV_e_di*tang0d));
-d_T2_dV_e_si = ((g0d*d_tang0d_dV_e_si)+(d_g0d_dV_e_si*tang0d));
+d_T2_dV_di_si = (g0d*d_tang0d_dV_di_si+d_g0d_dV_di_si*tang0d);
+d_T2_dV_g_si = (g0d*d_tang0d_dV_g_si+d_g0d_dV_g_si*tang0d);
+d_T2_dV_g_e = (g0d*d_tang0d_dV_g_e+d_g0d_dV_g_e*tang0d);
+d_T2_dV_e_di = (g0d*d_tang0d_dV_e_di+d_g0d_dV_e_di*tang0d);
+d_T2_dV_e_si = (g0d*d_tang0d_dV_e_si+d_g0d_dV_e_si*tang0d);
 T2 = (g0d*tang0d);
 if ((NGATE_i>0.0))
 {
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_di_si = ((((4.0*r2)*((((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1))+((T1*d_T2_dV_di_si)+(d_T1_dV_di_si*T2)))+((T2*d_T2_dV_di_si)+(d_T2_dV_di_si*T2))))/3.0)+((T0*(d_T1_dV_di_si+d_T2_dV_di_si))+(d_T0_dV_di_si*(T1+T2))));
-d_T3_dV_g_si = ((((4.0*r2)*((((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1))+((T1*d_T2_dV_g_si)+(d_T1_dV_g_si*T2)))+((T2*d_T2_dV_g_si)+(d_T2_dV_g_si*T2))))/3.0)+((T0*(d_T1_dV_g_si+d_T2_dV_g_si))+(d_T0_dV_g_si*(T1+T2))));
-d_T3_dV_g_e = ((((4.0*r2)*((((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1))+((T1*d_T2_dV_g_e)+(d_T1_dV_g_e*T2)))+((T2*d_T2_dV_g_e)+(d_T2_dV_g_e*T2))))/3.0)+((T0*(d_T1_dV_g_e+d_T2_dV_g_e))+(d_T0_dV_g_e*(T1+T2))));
-d_T3_dV_e_di = ((((4.0*r2)*((((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1))+((T1*d_T2_dV_e_di)+(d_T1_dV_e_di*T2)))+((T2*d_T2_dV_e_di)+(d_T2_dV_e_di*T2))))/3.0)+((T0*(d_T1_dV_e_di+d_T2_dV_e_di))+(d_T0_dV_e_di*(T1+T2))));
-d_T3_dV_e_si = ((((4.0*r2)*((((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1))+((T1*d_T2_dV_e_si)+(d_T1_dV_e_si*T2)))+((T2*d_T2_dV_e_si)+(d_T2_dV_e_si*T2))))/3.0)+((T0*(d_T1_dV_e_si+d_T2_dV_e_si))+(d_T0_dV_e_si*(T1+T2))));
+d_T3_dV_di_si = (((4.0*r2)*(((T1*d_T1_dV_di_si+d_T1_dV_di_si*T1)+(T1*d_T2_dV_di_si+d_T1_dV_di_si*T2))+(T2*d_T2_dV_di_si+d_T2_dV_di_si*T2))/3.0)+(T0*(d_T1_dV_di_si+d_T2_dV_di_si)+d_T0_dV_di_si*(T1+T2)));
+d_T3_dV_g_si = (((4.0*r2)*(((T1*d_T1_dV_g_si+d_T1_dV_g_si*T1)+(T1*d_T2_dV_g_si+d_T1_dV_g_si*T2))+(T2*d_T2_dV_g_si+d_T2_dV_g_si*T2))/3.0)+(T0*(d_T1_dV_g_si+d_T2_dV_g_si)+d_T0_dV_g_si*(T1+T2)));
+d_T3_dV_g_e = (((4.0*r2)*(((T1*d_T1_dV_g_e+d_T1_dV_g_e*T1)+(T1*d_T2_dV_g_e+d_T1_dV_g_e*T2))+(T2*d_T2_dV_g_e+d_T2_dV_g_e*T2))/3.0)+(T0*(d_T1_dV_g_e+d_T2_dV_g_e)+d_T0_dV_g_e*(T1+T2)));
+d_T3_dV_e_di = (((4.0*r2)*(((T1*d_T1_dV_e_di+d_T1_dV_e_di*T1)+(T1*d_T2_dV_e_di+d_T1_dV_e_di*T2))+(T2*d_T2_dV_e_di+d_T2_dV_e_di*T2))/3.0)+(T0*(d_T1_dV_e_di+d_T2_dV_e_di)+d_T0_dV_e_di*(T1+T2)));
+d_T3_dV_e_si = (((4.0*r2)*(((T1*d_T1_dV_e_si+d_T1_dV_e_si*T1)+(T1*d_T2_dV_e_si+d_T1_dV_e_si*T2))+(T2*d_T2_dV_e_si+d_T2_dV_e_si*T2))/3.0)+(T0*(d_T1_dV_e_si+d_T2_dV_e_si)+d_T0_dV_e_si*(T1+T2)));
 T3 = ((((4.0*r2)*(((T1*T1)+(T1*T2))+(T2*T2)))/3.0)+(T0*(T1+T2)));
 }
 else
 {
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_di_si = ((T0*(d_T1_dV_di_si+d_T2_dV_di_si))+(d_T0_dV_di_si*(T1+T2)));
-d_T3_dV_g_si = ((T0*(d_T1_dV_g_si+d_T2_dV_g_si))+(d_T0_dV_g_si*(T1+T2)));
-d_T3_dV_g_e = ((T0*(d_T1_dV_g_e+d_T2_dV_g_e))+(d_T0_dV_g_e*(T1+T2)));
-d_T3_dV_e_di = ((T0*(d_T1_dV_e_di+d_T2_dV_e_di))+(d_T0_dV_e_di*(T1+T2)));
-d_T3_dV_e_si = ((T0*(d_T1_dV_e_si+d_T2_dV_e_si))+(d_T0_dV_e_si*(T1+T2)));
+d_T3_dV_di_si = (T0*(d_T1_dV_di_si+d_T2_dV_di_si)+d_T0_dV_di_si*(T1+T2));
+d_T3_dV_g_si = (T0*(d_T1_dV_g_si+d_T2_dV_g_si)+d_T0_dV_g_si*(T1+T2));
+d_T3_dV_g_e = (T0*(d_T1_dV_g_e+d_T2_dV_g_e)+d_T0_dV_g_e*(T1+T2));
+d_T3_dV_e_di = (T0*(d_T1_dV_e_di+d_T2_dV_e_di)+d_T0_dV_e_di*(T1+T2));
+d_T3_dV_e_si = (T0*(d_T1_dV_e_si+d_T2_dV_e_si)+d_T0_dV_e_si*(T1+T2));
 T3 = (T0*(T1+T2));
 }
 
 d_T6_dV_g_di = d_T6_dV_di_d = d_T6_dV_si_s =  0.0;
-d_T6_dV_di_si = (((g0s*d_g0s_dV_di_si)+(d_g0s_dV_di_si*g0s))-((g0d*d_g0d_dV_di_si)+(d_g0d_dV_di_si*g0d)));
-d_T6_dV_g_si = (((g0s*d_g0s_dV_g_si)+(d_g0s_dV_g_si*g0s))-((g0d*d_g0d_dV_g_si)+(d_g0d_dV_g_si*g0d)));
-d_T6_dV_g_e = (((g0s*d_g0s_dV_g_e)+(d_g0s_dV_g_e*g0s))-((g0d*d_g0d_dV_g_e)+(d_g0d_dV_g_e*g0d)));
-d_T6_dV_e_di = (((g0s*d_g0s_dV_e_di)+(d_g0s_dV_e_di*g0s))-((g0d*d_g0d_dV_e_di)+(d_g0d_dV_e_di*g0d)));
-d_T6_dV_e_si = (((g0s*d_g0s_dV_e_si)+(d_g0s_dV_e_si*g0s))-((g0d*d_g0d_dV_e_si)+(d_g0d_dV_e_si*g0d)));
+d_T6_dV_di_si = ((g0s*d_g0s_dV_di_si+d_g0s_dV_di_si*g0s)-(g0d*d_g0d_dV_di_si+d_g0d_dV_di_si*g0d));
+d_T6_dV_g_si = ((g0s*d_g0s_dV_g_si+d_g0s_dV_g_si*g0s)-(g0d*d_g0d_dV_g_si+d_g0d_dV_g_si*g0d));
+d_T6_dV_g_e = ((g0s*d_g0s_dV_g_e+d_g0s_dV_g_e*g0s)-(g0d*d_g0d_dV_g_e+d_g0d_dV_g_e*g0d));
+d_T6_dV_e_di = ((g0s*d_g0s_dV_e_di+d_g0s_dV_e_di*g0s)-(g0d*d_g0d_dV_e_di+d_g0d_dV_e_di*g0d));
+d_T6_dV_e_si = ((g0s*d_g0s_dV_e_si+d_g0s_dV_e_si*g0s)-(g0d*d_g0d_dV_e_si+d_g0d_dV_e_si*g0d));
 T6 = ((g0s*g0s)-(g0d*g0d));
 
 d_ids0_dV_g_di =  0.0;
-d_ids0_dV_di_si = (((((2.0*T0)*nVtm)*nVtm)*((((T3+2.0)*(d_T1_dV_di_si-d_T2_dV_di_si))+(d_T3_dV_di_si*(T1-T2)))-d_T6_dV_di_si))+(((((2.0*T0)*nVtm)*d_nVtm_dV_di_si)+((((2.0*T0)*d_nVtm_dV_di_si)+((2.0*d_T0_dV_di_si)*nVtm))*nVtm))*(((T3+2.0)*(T1-T2))-T6)));
-d_ids0_dV_g_si = (((((2.0*T0)*nVtm)*nVtm)*((((T3+2.0)*(d_T1_dV_g_si-d_T2_dV_g_si))+(d_T3_dV_g_si*(T1-T2)))-d_T6_dV_g_si))+((((2.0*d_T0_dV_g_si)*nVtm)*nVtm)*(((T3+2.0)*(T1-T2))-T6)));
-d_ids0_dV_g_e = (((((2.0*T0)*nVtm)*nVtm)*((((T3+2.0)*(d_T1_dV_g_e-d_T2_dV_g_e))+(d_T3_dV_g_e*(T1-T2)))-d_T6_dV_g_e))+((((2.0*d_T0_dV_g_e)*nVtm)*nVtm)*(((T3+2.0)*(T1-T2))-T6)));
-d_ids0_dV_e_di = (((((2.0*T0)*nVtm)*nVtm)*((((T3+2.0)*(d_T1_dV_e_di-d_T2_dV_e_di))+(d_T3_dV_e_di*(T1-T2)))-d_T6_dV_e_di))+((((2.0*d_T0_dV_e_di)*nVtm)*nVtm)*(((T3+2.0)*(T1-T2))-T6)));
-d_ids0_dV_e_si = (((((2.0*T0)*nVtm)*nVtm)*((((T3+2.0)*(d_T1_dV_e_si-d_T2_dV_e_si))+(d_T3_dV_e_si*(T1-T2)))-d_T6_dV_e_si))+((((2.0*d_T0_dV_e_si)*nVtm)*nVtm)*(((T3+2.0)*(T1-T2))-T6)));
+d_ids0_dV_di_si = ((((2.0*T0)*nVtm)*nVtm)*(((T3+2.0)*(d_T1_dV_di_si-d_T2_dV_di_si)+d_T3_dV_di_si*(T1-T2))-d_T6_dV_di_si)+(((2.0*T0)*nVtm)*d_nVtm_dV_di_si+((2.0*T0)*d_nVtm_dV_di_si+2.0*d_T0_dV_di_si*nVtm)*nVtm)*(((T3+2.0)*(T1-T2))-T6));
+d_ids0_dV_g_si = ((((2.0*T0)*nVtm)*nVtm)*(((T3+2.0)*(d_T1_dV_g_si-d_T2_dV_g_si)+d_T3_dV_g_si*(T1-T2))-d_T6_dV_g_si)+2.0*d_T0_dV_g_si*nVtm*nVtm*(((T3+2.0)*(T1-T2))-T6));
+d_ids0_dV_g_e = ((((2.0*T0)*nVtm)*nVtm)*(((T3+2.0)*(d_T1_dV_g_e-d_T2_dV_g_e)+d_T3_dV_g_e*(T1-T2))-d_T6_dV_g_e)+2.0*d_T0_dV_g_e*nVtm*nVtm*(((T3+2.0)*(T1-T2))-T6));
+d_ids0_dV_e_di = ((((2.0*T0)*nVtm)*nVtm)*(((T3+2.0)*(d_T1_dV_e_di-d_T2_dV_e_di)+d_T3_dV_e_di*(T1-T2))-d_T6_dV_e_di)+2.0*d_T0_dV_e_di*nVtm*nVtm*(((T3+2.0)*(T1-T2))-T6));
+d_ids0_dV_e_si = ((((2.0*T0)*nVtm)*nVtm)*(((T3+2.0)*(d_T1_dV_e_si-d_T2_dV_e_si)+d_T3_dV_e_si*(T1-T2))-d_T6_dV_e_si)+2.0*d_T0_dV_e_si*nVtm*nVtm*(((T3+2.0)*(T1-T2))-T6));
 ids0 = ((((2.0*T0)*nVtm)*nVtm)*(((T3+2.0)*(T1-T2))-T6));
 
 d_ids0_ov_dqi_dV_g_di =  0.0;
-d_ids0_ov_dqi_dV_e_di = ((0.5*nVtm)*d_T3_dV_e_di);
-d_ids0_ov_dqi_dV_e_si = ((0.5*nVtm)*d_T3_dV_e_si);
-d_ids0_ov_dqi_dV_g_si = ((0.5*nVtm)*d_T3_dV_g_si);
-d_ids0_ov_dqi_dV_g_e = ((0.5*nVtm)*d_T3_dV_g_e);
-d_ids0_ov_dqi_dV_di_si = (((0.5*nVtm)*d_T3_dV_di_si)+((0.5*d_nVtm_dV_di_si)*(T3+1.0)));
+d_ids0_ov_dqi_dV_e_di = (0.5*nVtm)*d_T3_dV_e_di;
+d_ids0_ov_dqi_dV_e_si = (0.5*nVtm)*d_T3_dV_e_si;
+d_ids0_ov_dqi_dV_g_si = (0.5*nVtm)*d_T3_dV_g_si;
+d_ids0_ov_dqi_dV_g_e = (0.5*nVtm)*d_T3_dV_g_e;
+d_ids0_ov_dqi_dV_di_si = ((0.5*nVtm)*d_T3_dV_di_si+0.5*d_nVtm_dV_di_si*(T3+1.0));
 ids0_ov_dqi = ((0.5*nVtm)*(T3+1.0));
 if (((model_.RDSMOD)!=0))
 {
@@ -15915,28 +15915,28 @@ double value_sqrt_0 = sqrt(((T2*T2)+1.0e-1));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_di_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_di_si)+(d_T2_dV_di_si*T2))));
-d_T3_dV_e_di = (deriv_sqrt_0_d0*(((T2*d_T2_dV_e_di)+(d_T2_dV_e_di*T2))));
-d_T3_dV_e_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_e_si)+(d_T2_dV_e_si*T2))));
-d_T3_dV_g_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_si)+(d_T2_dV_g_si*T2))));
-d_T3_dV_g_e = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_e)+(d_T2_dV_g_e*T2))));
+d_T3_dV_di_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_di_si+d_T2_dV_di_si*T2)));
+d_T3_dV_e_di = (deriv_sqrt_0_d0*((T2*d_T2_dV_e_di+d_T2_dV_e_di*T2)));
+d_T3_dV_e_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_e_si+d_T2_dV_e_si*T2)));
+d_T3_dV_g_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_si+d_T2_dV_g_si*T2)));
+d_T3_dV_g_e = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_e+d_T2_dV_g_e*T2)));
 T3 = value_sqrt_0;
 }
 
 d_vgs_eff_dV_g_di =  0.0;
-d_vgs_eff_dV_di_si = (0.5*(d_T2_dV_di_si+d_T3_dV_di_si));
-d_vgs_eff_dV_e_di = (0.5*(d_T2_dV_e_di+d_T3_dV_e_di));
-d_vgs_eff_dV_e_si = (0.5*(d_T2_dV_e_si+d_T3_dV_e_si));
-d_vgs_eff_dV_g_si = (0.5*(d_T2_dV_g_si+d_T3_dV_g_si));
-d_vgs_eff_dV_g_e = (0.5*(d_T2_dV_g_e+d_T3_dV_g_e));
+d_vgs_eff_dV_di_si = 0.5*(d_T2_dV_di_si+d_T3_dV_di_si);
+d_vgs_eff_dV_e_di = 0.5*(d_T2_dV_e_di+d_T3_dV_e_di);
+d_vgs_eff_dV_e_si = 0.5*(d_T2_dV_e_si+d_T3_dV_e_si);
+d_vgs_eff_dV_g_si = 0.5*(d_T2_dV_g_si+d_T3_dV_g_si);
+d_vgs_eff_dV_g_e = 0.5*(d_T2_dV_g_e+d_T3_dV_g_e);
 vgs_eff = (0.5*(T2+T3));
 
 d_T4_dV_g_di =  0.0;
-d_T4_dV_di_si = (PRWGS_i*d_vgs_eff_dV_di_si);
-d_T4_dV_e_di = (PRWGS_i*d_vgs_eff_dV_e_di);
-d_T4_dV_e_si = (PRWGS_i*d_vgs_eff_dV_e_si);
-d_T4_dV_g_si = (PRWGS_i*d_vgs_eff_dV_g_si);
-d_T4_dV_g_e = (PRWGS_i*d_vgs_eff_dV_g_e);
+d_T4_dV_di_si = PRWGS_i*d_vgs_eff_dV_di_si;
+d_T4_dV_e_di = PRWGS_i*d_vgs_eff_dV_e_di;
+d_T4_dV_e_si = PRWGS_i*d_vgs_eff_dV_e_si;
+d_T4_dV_g_si = PRWGS_i*d_vgs_eff_dV_g_si;
+d_T4_dV_g_e = PRWGS_i*d_vgs_eff_dV_g_e;
 T4 = (1.0+(PRWGS_i*vgs_eff));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
@@ -15951,11 +15951,11 @@ double value_sqrt_0 = sqrt(((T1*T1)+0.01));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = (0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1))))));
-d_T0_dV_g_si = (0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1))))));
-d_T0_dV_g_e = (0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1))))));
-d_T0_dV_e_di = (0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1))))));
-d_T0_dV_e_si = (0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1))))));
+d_T0_dV_di_si = 0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_di_si+d_T1_dV_di_si*T1))));
+d_T0_dV_g_si = 0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_si+d_T1_dV_g_si*T1))));
+d_T0_dV_g_e = 0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_e+d_T1_dV_g_e*T1))));
+d_T0_dV_e_di = 0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_di+d_T1_dV_e_di*T1))));
+d_T0_dV_e_si = 0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_si+d_T1_dV_e_si*T1))));
 T0 = (0.5*(T1+value_sqrt_0));
 }
 {
@@ -15963,18 +15963,18 @@ AnalogFunctions::llnEvaluator evaluator_lln_0((((probeVars[admsProbeID_V_si_s])*
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))));
 
 d_T5_dV_g_di = d_T5_dV_di_d = d_T5_dV_e_si = d_T5_dV_e_di = d_T5_dV_g_e = d_T5_dV_g_si =  0.0;
-d_T5_dV_si_s = (RSW_i*(RSDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))),((0.5*(model_.PRSDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6),(((probeVars[admsProbeID_V_si_s])*d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s])+(d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s]*(probeVars[admsProbeID_V_si_s]))))))));
-d_T5_dV_di_si = (RSW_i*(d_RSDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))))));
+d_T5_dV_si_s = RSW_i*RSDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))),(0.5*(model_.PRSDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6),((probeVars[admsProbeID_V_si_s])*d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s]+d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s]*(probeVars[admsProbeID_V_si_s]))));
+d_T5_dV_di_si = RSW_i*d_RSDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))));
 T5 = (RSW_i*(1.0+(RSDR_a*evaluator_lexp_1.getValues(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6)))))));
 }
 
 d_Rsource_dV_di_d = d_Rsource_dV_g_di =  0.0;
-d_Rsource_dV_di_si = (rdstemp*(((T5*d_T0_dV_di_si)+(d_T5_dV_di_si*T0))*WeffWRFactor));
-d_Rsource_dV_g_si = (rdstemp*(((T5*d_T0_dV_g_si)+(d_T5_dV_g_si*T0))*WeffWRFactor));
-d_Rsource_dV_g_e = (rdstemp*(((T5*d_T0_dV_g_e)+(d_T5_dV_g_e*T0))*WeffWRFactor));
-d_Rsource_dV_e_di = (rdstemp*(((T5*d_T0_dV_e_di)+(d_T5_dV_e_di*T0))*WeffWRFactor));
-d_Rsource_dV_e_si = (rdstemp*(((T5*d_T0_dV_e_si)+(d_T5_dV_e_si*T0))*WeffWRFactor));
-d_Rsource_dV_si_s = (rdstemp*((d_T5_dV_si_s*T0)*WeffWRFactor));
+d_Rsource_dV_di_si = rdstemp*(T5*d_T0_dV_di_si+d_T5_dV_di_si*T0)*WeffWRFactor;
+d_Rsource_dV_g_si = rdstemp*(T5*d_T0_dV_g_si+d_T5_dV_g_si*T0)*WeffWRFactor;
+d_Rsource_dV_g_e = rdstemp*(T5*d_T0_dV_g_e+d_T5_dV_g_e*T0)*WeffWRFactor;
+d_Rsource_dV_e_di = rdstemp*(T5*d_T0_dV_e_di+d_T5_dV_e_di*T0)*WeffWRFactor;
+d_Rsource_dV_e_si = rdstemp*(T5*d_T0_dV_e_si+d_T5_dV_e_si*T0)*WeffWRFactor;
+d_Rsource_dV_si_s = rdstemp*d_T5_dV_si_s*T0*WeffWRFactor;
 Rsource = (rdstemp*(RSourceGeo+((RSWMIN_i+(T5*T0))*WeffWRFactor)));
 
 d_T2_dV_g_e = d_T2_dV_g_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
@@ -15984,29 +15984,29 @@ T2 = (vgd_noswap-vfbsd);
 double value_sqrt_0 = sqrt(((T2*T2)+1.0e-1));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_T3_dV_di_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_di_si)+(d_T2_dV_di_si*T2))));
-d_T3_dV_e_di = (deriv_sqrt_0_d0*(((T2*d_T2_dV_e_di)+(d_T2_dV_e_di*T2))));
-d_T3_dV_e_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_e_si)+(d_T2_dV_e_si*T2))));
-d_T3_dV_g_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_si)+(d_T2_dV_g_si*T2))));
-d_T3_dV_g_e = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_e)+(d_T2_dV_g_e*T2))));
-d_T3_dV_g_di = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_di)+(d_T2_dV_g_di*T2))));
+d_T3_dV_di_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_di_si+d_T2_dV_di_si*T2)));
+d_T3_dV_e_di = (deriv_sqrt_0_d0*((T2*d_T2_dV_e_di+d_T2_dV_e_di*T2)));
+d_T3_dV_e_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_e_si+d_T2_dV_e_si*T2)));
+d_T3_dV_g_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_si+d_T2_dV_g_si*T2)));
+d_T3_dV_g_e = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_e+d_T2_dV_g_e*T2)));
+d_T3_dV_g_di = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_di+d_T2_dV_g_di*T2)));
 T3 = value_sqrt_0;
 }
 
-d_vgd_eff_dV_di_si = (0.5*(d_T2_dV_di_si+d_T3_dV_di_si));
-d_vgd_eff_dV_e_di = (0.5*(d_T2_dV_e_di+d_T3_dV_e_di));
-d_vgd_eff_dV_e_si = (0.5*(d_T2_dV_e_si+d_T3_dV_e_si));
-d_vgd_eff_dV_g_si = (0.5*(d_T2_dV_g_si+d_T3_dV_g_si));
-d_vgd_eff_dV_g_e = (0.5*(d_T2_dV_g_e+d_T3_dV_g_e));
-d_vgd_eff_dV_g_di = (0.5*(d_T2_dV_g_di+d_T3_dV_g_di));
+d_vgd_eff_dV_di_si = 0.5*(d_T2_dV_di_si+d_T3_dV_di_si);
+d_vgd_eff_dV_e_di = 0.5*(d_T2_dV_e_di+d_T3_dV_e_di);
+d_vgd_eff_dV_e_si = 0.5*(d_T2_dV_e_si+d_T3_dV_e_si);
+d_vgd_eff_dV_g_si = 0.5*(d_T2_dV_g_si+d_T3_dV_g_si);
+d_vgd_eff_dV_g_e = 0.5*(d_T2_dV_g_e+d_T3_dV_g_e);
+d_vgd_eff_dV_g_di = 0.5*(d_T2_dV_g_di+d_T3_dV_g_di);
 vgd_eff = (0.5*(T2+T3));
 
-d_T4_dV_di_si = (PRWGD_i*d_vgd_eff_dV_di_si);
-d_T4_dV_e_di = (PRWGD_i*d_vgd_eff_dV_e_di);
-d_T4_dV_e_si = (PRWGD_i*d_vgd_eff_dV_e_si);
-d_T4_dV_g_si = (PRWGD_i*d_vgd_eff_dV_g_si);
-d_T4_dV_g_e = (PRWGD_i*d_vgd_eff_dV_g_e);
-d_T4_dV_g_di = (PRWGD_i*d_vgd_eff_dV_g_di);
+d_T4_dV_di_si = PRWGD_i*d_vgd_eff_dV_di_si;
+d_T4_dV_e_di = PRWGD_i*d_vgd_eff_dV_e_di;
+d_T4_dV_e_si = PRWGD_i*d_vgd_eff_dV_e_si;
+d_T4_dV_g_si = PRWGD_i*d_vgd_eff_dV_g_si;
+d_T4_dV_g_e = PRWGD_i*d_vgd_eff_dV_g_e;
+d_T4_dV_g_di = PRWGD_i*d_vgd_eff_dV_g_di;
 T4 = (1.0+(PRWGD_i*vgd_eff));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
@@ -16021,12 +16021,12 @@ T1 = (1.0/T4);
 double value_sqrt_0 = sqrt(((T1*T1)+0.01));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_T0_dV_di_si = (0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1))))));
-d_T0_dV_g_si = (0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1))))));
-d_T0_dV_g_e = (0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1))))));
-d_T0_dV_e_di = (0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1))))));
-d_T0_dV_e_si = (0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1))))));
-d_T0_dV_g_di = (0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_di)+(d_T1_dV_g_di*T1))))));
+d_T0_dV_di_si = 0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_di_si+d_T1_dV_di_si*T1))));
+d_T0_dV_g_si = 0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_si+d_T1_dV_g_si*T1))));
+d_T0_dV_g_e = 0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_e+d_T1_dV_g_e*T1))));
+d_T0_dV_e_di = 0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_di+d_T1_dV_e_di*T1))));
+d_T0_dV_e_si = 0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_si+d_T1_dV_e_si*T1))));
+d_T0_dV_g_di = 0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_di+d_T1_dV_g_di*T1))));
 T0 = (0.5*(T1+value_sqrt_0));
 }
 {
@@ -16034,19 +16034,19 @@ AnalogFunctions::llnEvaluator evaluator_lln_0((((probeVars[admsProbeID_V_di_d])*
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))));
 
 d_T5_dV_g_di = d_T5_dV_si_s = d_T5_dV_e_si = d_T5_dV_e_di = d_T5_dV_g_e = d_T5_dV_g_si =  0.0;
-d_T5_dV_di_d = (RDW_i*(RDDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))),((0.5*(model_.PRDDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6),(((probeVars[admsProbeID_V_di_d])*d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d])+(d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d]*(probeVars[admsProbeID_V_di_d]))))))));
-d_T5_dV_di_si = (RDW_i*(d_RDDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))))));
+d_T5_dV_di_d = RDW_i*RDDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))),(0.5*(model_.PRDDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6),((probeVars[admsProbeID_V_di_d])*d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d]+d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d]*(probeVars[admsProbeID_V_di_d]))));
+d_T5_dV_di_si = RDW_i*d_RDDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))));
 T5 = (RDW_i*(1.0+(RDDR_a*evaluator_lexp_1.getValues(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6)))))));
 }
 
-d_Rdrain_dV_g_di = (rdstemp*(((T5*d_T0_dV_g_di)+(d_T5_dV_g_di*T0))*WeffWRFactor));
-d_Rdrain_dV_di_si = (rdstemp*(((T5*d_T0_dV_di_si)+(d_T5_dV_di_si*T0))*WeffWRFactor));
-d_Rdrain_dV_g_si = (rdstemp*(((T5*d_T0_dV_g_si)+(d_T5_dV_g_si*T0))*WeffWRFactor));
-d_Rdrain_dV_g_e = (rdstemp*(((T5*d_T0_dV_g_e)+(d_T5_dV_g_e*T0))*WeffWRFactor));
-d_Rdrain_dV_e_di = (rdstemp*(((T5*d_T0_dV_e_di)+(d_T5_dV_e_di*T0))*WeffWRFactor));
-d_Rdrain_dV_e_si = (rdstemp*(((T5*d_T0_dV_e_si)+(d_T5_dV_e_si*T0))*WeffWRFactor));
-d_Rdrain_dV_si_s = (rdstemp*((d_T5_dV_si_s*T0)*WeffWRFactor));
-d_Rdrain_dV_di_d = (rdstemp*((d_T5_dV_di_d*T0)*WeffWRFactor));
+d_Rdrain_dV_g_di = rdstemp*(T5*d_T0_dV_g_di+d_T5_dV_g_di*T0)*WeffWRFactor;
+d_Rdrain_dV_di_si = rdstemp*(T5*d_T0_dV_di_si+d_T5_dV_di_si*T0)*WeffWRFactor;
+d_Rdrain_dV_g_si = rdstemp*(T5*d_T0_dV_g_si+d_T5_dV_g_si*T0)*WeffWRFactor;
+d_Rdrain_dV_g_e = rdstemp*(T5*d_T0_dV_g_e+d_T5_dV_g_e*T0)*WeffWRFactor;
+d_Rdrain_dV_e_di = rdstemp*(T5*d_T0_dV_e_di+d_T5_dV_e_di*T0)*WeffWRFactor;
+d_Rdrain_dV_e_si = rdstemp*(T5*d_T0_dV_e_si+d_T5_dV_e_si*T0)*WeffWRFactor;
+d_Rdrain_dV_si_s = rdstemp*d_T5_dV_si_s*T0*WeffWRFactor;
+d_Rdrain_dV_di_d = rdstemp*d_T5_dV_di_d*T0*WeffWRFactor;
 Rdrain = (rdstemp*(RDrainGeo+((RDWMIN_i+(T5*T0))*WeffWRFactor)));
 }
 else
@@ -16059,11 +16059,11 @@ d_Rdrain_dV_di_d = d_Rdrain_dV_si_s = d_Rdrain_dV_e_si = d_Rdrain_dV_e_di = d_Rd
 Rdrain = RDrainGeo;
 
 d_T4_dV_g_di =  0.0;
-d_T4_dV_g_si = (PRWGS_i*d_qia_dV_g_si);
-d_T4_dV_g_e = (PRWGS_i*d_qia_dV_g_e);
-d_T4_dV_e_di = (PRWGS_i*d_qia_dV_e_di);
-d_T4_dV_e_si = (PRWGS_i*d_qia_dV_e_si);
-d_T4_dV_di_si = (PRWGS_i*d_qia_dV_di_si);
+d_T4_dV_g_si = PRWGS_i*d_qia_dV_g_si;
+d_T4_dV_g_e = PRWGS_i*d_qia_dV_g_e;
+d_T4_dV_e_di = PRWGS_i*d_qia_dV_e_di;
+d_T4_dV_e_si = PRWGS_i*d_qia_dV_e_si;
+d_T4_dV_di_si = PRWGS_i*d_qia_dV_di_si;
 T4 = (1.0+(PRWGS_i*qia));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
@@ -16078,55 +16078,55 @@ T1 = (1.0/T4);
 double value_sqrt_0 = sqrt(((T1*T1)+0.01));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_T0_dV_di_si = (0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1))))));
-d_T0_dV_g_si = (0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1))))));
-d_T0_dV_g_e = (0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1))))));
-d_T0_dV_e_di = (0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1))))));
-d_T0_dV_e_si = (0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1))))));
-d_T0_dV_g_di = (0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_di)+(d_T1_dV_g_di*T1))))));
+d_T0_dV_di_si = 0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_di_si+d_T1_dV_di_si*T1))));
+d_T0_dV_g_si = 0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_si+d_T1_dV_g_si*T1))));
+d_T0_dV_g_e = 0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_e+d_T1_dV_g_e*T1))));
+d_T0_dV_e_di = 0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_di+d_T1_dV_e_di*T1))));
+d_T0_dV_e_si = 0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_si+d_T1_dV_e_si*T1))));
+d_T0_dV_g_di = 0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_di+d_T1_dV_g_di*T1))));
 T0 = (0.5*(T1+value_sqrt_0));
 }
 
-d_Rdsi_dV_di_si = ((rdstemp*(RDSW_i*d_T0_dV_di_si))*WeffWRFactor);
-d_Rdsi_dV_g_si = ((rdstemp*(RDSW_i*d_T0_dV_g_si))*WeffWRFactor);
-d_Rdsi_dV_g_e = ((rdstemp*(RDSW_i*d_T0_dV_g_e))*WeffWRFactor);
-d_Rdsi_dV_e_di = ((rdstemp*(RDSW_i*d_T0_dV_e_di))*WeffWRFactor);
-d_Rdsi_dV_e_si = ((rdstemp*(RDSW_i*d_T0_dV_e_si))*WeffWRFactor);
-d_Rdsi_dV_g_di = ((rdstemp*(RDSW_i*d_T0_dV_g_di))*WeffWRFactor);
+d_Rdsi_dV_di_si = rdstemp*RDSW_i*d_T0_dV_di_si*WeffWRFactor;
+d_Rdsi_dV_g_si = rdstemp*RDSW_i*d_T0_dV_g_si*WeffWRFactor;
+d_Rdsi_dV_g_e = rdstemp*RDSW_i*d_T0_dV_g_e*WeffWRFactor;
+d_Rdsi_dV_e_di = rdstemp*RDSW_i*d_T0_dV_e_di*WeffWRFactor;
+d_Rdsi_dV_e_si = rdstemp*RDSW_i*d_T0_dV_e_si*WeffWRFactor;
+d_Rdsi_dV_g_di = rdstemp*RDSW_i*d_T0_dV_g_di*WeffWRFactor;
 Rdsi = ((rdstemp*(RDSWMIN_i+(RDSW_i*T0)))*WeffWRFactor);
 
-d_Dr_dV_g_di = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_di)+((((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_di)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_di_si = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_di_si)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_di_si)+((NFINtotal*d_beta_dV_di_si)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_di_si)+(d_Dmob_dV_di_si*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_g_si = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_si)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_si)+((NFINtotal*d_beta_dV_g_si)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_g_si)+(d_Dmob_dV_g_si*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_g_e = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_e)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_e)+((NFINtotal*d_beta_dV_g_e)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_g_e)+(d_Dmob_dV_g_e*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_e_di = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_e_di)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_e_di)+((NFINtotal*d_beta_dV_e_di)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_e_di)+(d_Dmob_dV_e_di*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_e_si = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_e_si)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_e_si)+((NFINtotal*d_beta_dV_e_si)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_e_si)+(d_Dmob_dV_e_si*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
+d_Dr_dV_g_di = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_di+((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_di/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_di_si = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_di_si+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_di_si+NFINtotal*d_beta_dV_di_si*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_di_si+d_Dmob_dV_di_si*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_g_si = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_si+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_si+NFINtotal*d_beta_dV_g_si*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_g_si+d_Dmob_dV_g_si*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_g_e = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_e+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_e+NFINtotal*d_beta_dV_g_e*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_g_e+d_Dmob_dV_g_e*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_e_di = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_e_di+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_e_di+NFINtotal*d_beta_dV_e_di*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_e_di+d_Dmob_dV_e_di*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_e_si = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_e_si+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_e_si+NFINtotal*d_beta_dV_e_si*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_e_si+d_Dmob_dV_e_si*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
 Dr = (1.0+((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*Rdsi));
 }
 
-d_ids_dV_g_di = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*d_ids0_dV_g_di)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_g_di))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_di_si = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_di_si)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_di_si)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_di_si)+((((NFINtotal*beta)*d_ids0_dV_di_si)+((NFINtotal*d_beta_dV_di_si)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_di_si)+(((Dmob*d_Dvsat_dV_di_si)+(d_Dmob_dV_di_si*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_g_si = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_g_si)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_g_si)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_g_si)+((((NFINtotal*beta)*d_ids0_dV_g_si)+((NFINtotal*d_beta_dV_g_si)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_g_si)+(((Dmob*d_Dvsat_dV_g_si)+(d_Dmob_dV_g_si*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_g_e = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_g_e)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_g_e)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_g_e)+((((NFINtotal*beta)*d_ids0_dV_g_e)+((NFINtotal*d_beta_dV_g_e)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_g_e)+(((Dmob*d_Dvsat_dV_g_e)+(d_Dmob_dV_g_e*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_e_di = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_e_di)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_e_di)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_e_di)+((((NFINtotal*beta)*d_ids0_dV_e_di)+((NFINtotal*d_beta_dV_e_di)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_e_di)+(((Dmob*d_Dvsat_dV_e_di)+(d_Dmob_dV_e_di*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_e_si = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_e_si)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_e_si)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_e_si)+((((NFINtotal*beta)*d_ids0_dV_e_si)+((NFINtotal*d_beta_dV_e_si)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_e_si)+(((Dmob*d_Dvsat_dV_e_si)+(d_Dmob_dV_e_si*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_g_di = ((((Dmob*Dvsat)*Dr)*(NFINtotal*beta)*d_ids0_dV_g_di*Moc*Mob*Mnud-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(Dmob*Dvsat)*d_Dr_dV_g_di)/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_di_si = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_di_si+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_di_si+(((NFINtotal*beta)*ids0)*d_Moc_dV_di_si+((NFINtotal*beta)*d_ids0_dV_di_si+NFINtotal*d_beta_dV_di_si*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_di_si+(Dmob*d_Dvsat_dV_di_si+d_Dmob_dV_di_si*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_g_si = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_g_si+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_g_si+(((NFINtotal*beta)*ids0)*d_Moc_dV_g_si+((NFINtotal*beta)*d_ids0_dV_g_si+NFINtotal*d_beta_dV_g_si*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_g_si+(Dmob*d_Dvsat_dV_g_si+d_Dmob_dV_g_si*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_g_e = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_g_e+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_g_e+(((NFINtotal*beta)*ids0)*d_Moc_dV_g_e+((NFINtotal*beta)*d_ids0_dV_g_e+NFINtotal*d_beta_dV_g_e*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_g_e+(Dmob*d_Dvsat_dV_g_e+d_Dmob_dV_g_e*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_e_di = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_e_di+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_e_di+(((NFINtotal*beta)*ids0)*d_Moc_dV_e_di+((NFINtotal*beta)*d_ids0_dV_e_di+NFINtotal*d_beta_dV_e_di*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_e_di+(Dmob*d_Dvsat_dV_e_di+d_Dmob_dV_e_di*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_e_si = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_e_si+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_e_si+(((NFINtotal*beta)*ids0)*d_Moc_dV_e_si+((NFINtotal*beta)*d_ids0_dV_e_si+NFINtotal*d_beta_dV_e_si*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_e_si+(Dmob*d_Dvsat_dV_e_si+d_Dmob_dV_e_si*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
 ids = ((((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)/((Dmob*Dvsat)*Dr));
 
-d_ids_dV_g_di = (d_ids_dV_g_di*(model_.IDS0MULT));
-d_ids_dV_di_si = (d_ids_dV_di_si*(model_.IDS0MULT));
-d_ids_dV_g_si = (d_ids_dV_g_si*(model_.IDS0MULT));
-d_ids_dV_g_e = (d_ids_dV_g_e*(model_.IDS0MULT));
-d_ids_dV_e_di = (d_ids_dV_e_di*(model_.IDS0MULT));
-d_ids_dV_e_si = (d_ids_dV_e_si*(model_.IDS0MULT));
+d_ids_dV_g_di = d_ids_dV_g_di*(model_.IDS0MULT);
+d_ids_dV_di_si = d_ids_dV_di_si*(model_.IDS0MULT);
+d_ids_dV_g_si = d_ids_dV_g_si*(model_.IDS0MULT);
+d_ids_dV_g_e = d_ids_dV_g_e*(model_.IDS0MULT);
+d_ids_dV_e_di = d_ids_dV_e_di*(model_.IDS0MULT);
+d_ids_dV_e_si = d_ids_dV_e_si*(model_.IDS0MULT);
 ids = (ids*(model_.IDS0MULT));
 if ((NGATE_i>0.0))
 {
 
-d_Tcom_dV_g_si = ((((qis*d_qis_dV_g_si)+(d_qis_dV_g_si*qis))+((qis*d_qid_dV_g_si)+(d_qis_dV_g_si*qid)))+((qid*d_qid_dV_g_si)+(d_qid_dV_g_si*qid)));
-d_Tcom_dV_g_e = ((((qis*d_qis_dV_g_e)+(d_qis_dV_g_e*qis))+((qis*d_qid_dV_g_e)+(d_qis_dV_g_e*qid)))+((qid*d_qid_dV_g_e)+(d_qid_dV_g_e*qid)));
-d_Tcom_dV_e_di = ((((qis*d_qis_dV_e_di)+(d_qis_dV_e_di*qis))+((qis*d_qid_dV_e_di)+(d_qis_dV_e_di*qid)))+((qid*d_qid_dV_e_di)+(d_qid_dV_e_di*qid)));
-d_Tcom_dV_e_si = ((((qis*d_qis_dV_e_si)+(d_qis_dV_e_si*qis))+((qis*d_qid_dV_e_si)+(d_qis_dV_e_si*qid)))+((qid*d_qid_dV_e_si)+(d_qid_dV_e_si*qid)));
-d_Tcom_dV_di_si = ((((qis*d_qis_dV_di_si)+(d_qis_dV_di_si*qis))+((qis*d_qid_dV_di_si)+(d_qis_dV_di_si*qid)))+((qid*d_qid_dV_di_si)+(d_qid_dV_di_si*qid)));
+d_Tcom_dV_g_si = (((qis*d_qis_dV_g_si+d_qis_dV_g_si*qis)+(qis*d_qid_dV_g_si+d_qis_dV_g_si*qid))+(qid*d_qid_dV_g_si+d_qid_dV_g_si*qid));
+d_Tcom_dV_g_e = (((qis*d_qis_dV_g_e+d_qis_dV_g_e*qis)+(qis*d_qid_dV_g_e+d_qis_dV_g_e*qid))+(qid*d_qid_dV_g_e+d_qid_dV_g_e*qid));
+d_Tcom_dV_e_di = (((qis*d_qis_dV_e_di+d_qis_dV_e_di*qis)+(qis*d_qid_dV_e_di+d_qis_dV_e_di*qid))+(qid*d_qid_dV_e_di+d_qid_dV_e_di*qid));
+d_Tcom_dV_e_si = (((qis*d_qis_dV_e_si+d_qis_dV_e_si*qis)+(qis*d_qid_dV_e_si+d_qis_dV_e_si*qid))+(qid*d_qid_dV_e_si+d_qid_dV_e_si*qid));
+d_Tcom_dV_di_si = (((qis*d_qis_dV_di_si+d_qis_dV_di_si*qis)+(qis*d_qid_dV_di_si+d_qis_dV_di_si*qid))+(qid*d_qid_dV_di_si+d_qid_dV_di_si*qid));
 Tcom = (((qis*qis)+(qis*qid))+(qid*qid));
 }
 else
@@ -16138,21 +16138,21 @@ Tcom = 0.0;
 if ((NGATE_i>0))
 {
 
-d_idscv_dV_g_si = (((((2.0*cpoly)*d_Tcom_dV_g_si)/3.0)+(kpoly*d_qia_dV_g_si))+((-d_etaiv_dV_g_si)*nVtm));
-d_idscv_dV_g_e = (((((2.0*cpoly)*d_Tcom_dV_g_e)/3.0)+(kpoly*d_qia_dV_g_e))+((-d_etaiv_dV_g_e)*nVtm));
-d_idscv_dV_e_di = (((((2.0*cpoly)*d_Tcom_dV_e_di)/3.0)+(kpoly*d_qia_dV_e_di))+((-d_etaiv_dV_e_di)*nVtm));
-d_idscv_dV_e_si = (((((2.0*cpoly)*d_Tcom_dV_e_si)/3.0)+(kpoly*d_qia_dV_e_si))+((-d_etaiv_dV_e_si)*nVtm));
-d_idscv_dV_di_si = (((((2.0*cpoly)*d_Tcom_dV_di_si)/3.0)+(kpoly*d_qia_dV_di_si))+(((2.0-etaiv)*d_nVtm_dV_di_si)+((-d_etaiv_dV_di_si)*nVtm)));
+d_idscv_dV_g_si = ((((2.0*cpoly)*d_Tcom_dV_g_si/3.0)+kpoly*d_qia_dV_g_si)+(-d_etaiv_dV_g_si)*nVtm);
+d_idscv_dV_g_e = ((((2.0*cpoly)*d_Tcom_dV_g_e/3.0)+kpoly*d_qia_dV_g_e)+(-d_etaiv_dV_g_e)*nVtm);
+d_idscv_dV_e_di = ((((2.0*cpoly)*d_Tcom_dV_e_di/3.0)+kpoly*d_qia_dV_e_di)+(-d_etaiv_dV_e_di)*nVtm);
+d_idscv_dV_e_si = ((((2.0*cpoly)*d_Tcom_dV_e_si/3.0)+kpoly*d_qia_dV_e_si)+(-d_etaiv_dV_e_si)*nVtm);
+d_idscv_dV_di_si = ((((2.0*cpoly)*d_Tcom_dV_di_si/3.0)+kpoly*d_qia_dV_di_si)+((2.0-etaiv)*d_nVtm_dV_di_si+(-d_etaiv_dV_di_si)*nVtm));
 idscv = (((((2.0*cpoly)*Tcom)/3.0)+(kpoly*qia))+((2.0-etaiv)*nVtm));
 }
 else
 {
 
-d_idscv_dV_g_si = (d_qia_dV_g_si+((-d_etaiv_dV_g_si)*nVtm));
-d_idscv_dV_g_e = (d_qia_dV_g_e+((-d_etaiv_dV_g_e)*nVtm));
-d_idscv_dV_e_di = (d_qia_dV_e_di+((-d_etaiv_dV_e_di)*nVtm));
-d_idscv_dV_e_si = (d_qia_dV_e_si+((-d_etaiv_dV_e_si)*nVtm));
-d_idscv_dV_di_si = (d_qia_dV_di_si+(((2.0-etaiv)*d_nVtm_dV_di_si)+((-d_etaiv_dV_di_si)*nVtm)));
+d_idscv_dV_g_si = (d_qia_dV_g_si+(-d_etaiv_dV_g_si)*nVtm);
+d_idscv_dV_g_e = (d_qia_dV_g_e+(-d_etaiv_dV_g_e)*nVtm);
+d_idscv_dV_e_di = (d_qia_dV_e_di+(-d_etaiv_dV_e_di)*nVtm);
+d_idscv_dV_e_si = (d_qia_dV_e_si+(-d_etaiv_dV_e_si)*nVtm);
+d_idscv_dV_di_si = (d_qia_dV_di_si+((2.0-etaiv)*d_nVtm_dV_di_si+(-d_etaiv_dV_di_si)*nVtm));
 idscv = (qia+((2.0-etaiv)*nVtm));
 }
 
@@ -16174,11 +16174,11 @@ if ((NGATE_i>0))
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = ((4.0*cpoly)*d_qia_dV_g_si);
-d_T1_dV_g_e = ((4.0*cpoly)*d_qia_dV_g_e);
-d_T1_dV_e_di = ((4.0*cpoly)*d_qia_dV_e_di);
-d_T1_dV_e_si = ((4.0*cpoly)*d_qia_dV_e_si);
-d_T1_dV_di_si = ((4.0*cpoly)*d_qia_dV_di_si);
+d_T1_dV_g_si = (4.0*cpoly)*d_qia_dV_g_si;
+d_T1_dV_g_e = (4.0*cpoly)*d_qia_dV_g_e;
+d_T1_dV_e_di = (4.0*cpoly)*d_qia_dV_e_di;
+d_T1_dV_e_si = (4.0*cpoly)*d_qia_dV_e_si;
+d_T1_dV_di_si = (4.0*cpoly)*d_qia_dV_di_si;
 T1 = (kpoly+((4.0*cpoly)*qia));
 }
 else
@@ -16188,30 +16188,30 @@ d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_
 T1 = 1.0;
 }
 
-d_qg_dV_g_di = (((d_T1_dV_g_di*dqi)*dqi_idscv)/12.0);
-d_qg_dV_g_si = (d_qia_dV_g_si+((((T1*dqi)*d_dqi_idscv_dV_g_si)+(((T1*d_dqi_dV_g_si)+(d_T1_dV_g_si*dqi))*dqi_idscv))/12.0));
-d_qg_dV_g_e = (d_qia_dV_g_e+((((T1*dqi)*d_dqi_idscv_dV_g_e)+(((T1*d_dqi_dV_g_e)+(d_T1_dV_g_e*dqi))*dqi_idscv))/12.0));
-d_qg_dV_e_di = (d_qia_dV_e_di+((((T1*dqi)*d_dqi_idscv_dV_e_di)+(((T1*d_dqi_dV_e_di)+(d_T1_dV_e_di*dqi))*dqi_idscv))/12.0));
-d_qg_dV_e_si = (d_qia_dV_e_si+((((T1*dqi)*d_dqi_idscv_dV_e_si)+(((T1*d_dqi_dV_e_si)+(d_T1_dV_e_si*dqi))*dqi_idscv))/12.0));
-d_qg_dV_di_si = (d_qia_dV_di_si+((((T1*dqi)*d_dqi_idscv_dV_di_si)+(((T1*d_dqi_dV_di_si)+(d_T1_dV_di_si*dqi))*dqi_idscv))/12.0));
+d_qg_dV_g_di = (d_T1_dV_g_di*dqi*dqi_idscv/12.0);
+d_qg_dV_g_si = (d_qia_dV_g_si+(((T1*dqi)*d_dqi_idscv_dV_g_si+(T1*d_dqi_dV_g_si+d_T1_dV_g_si*dqi)*dqi_idscv)/12.0));
+d_qg_dV_g_e = (d_qia_dV_g_e+(((T1*dqi)*d_dqi_idscv_dV_g_e+(T1*d_dqi_dV_g_e+d_T1_dV_g_e*dqi)*dqi_idscv)/12.0));
+d_qg_dV_e_di = (d_qia_dV_e_di+(((T1*dqi)*d_dqi_idscv_dV_e_di+(T1*d_dqi_dV_e_di+d_T1_dV_e_di*dqi)*dqi_idscv)/12.0));
+d_qg_dV_e_si = (d_qia_dV_e_si+(((T1*dqi)*d_dqi_idscv_dV_e_si+(T1*d_dqi_dV_e_si+d_T1_dV_e_si*dqi)*dqi_idscv)/12.0));
+d_qg_dV_di_si = (d_qia_dV_di_si+(((T1*dqi)*d_dqi_idscv_dV_di_si+(T1*d_dqi_dV_di_si+d_T1_dV_di_si*dqi)*dqi_idscv)/12.0));
 qg = (qia+(((T1*dqi)*dqi_idscv)/12.0));
 if ((NGATE_i>0))
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = (cpoly*((32.0*d_qid_dV_g_si)+(28.0*d_qis_dV_g_si)));
-d_T1_dV_g_e = (cpoly*((32.0*d_qid_dV_g_e)+(28.0*d_qis_dV_g_e)));
-d_T1_dV_e_di = (cpoly*((32.0*d_qid_dV_e_di)+(28.0*d_qis_dV_e_di)));
-d_T1_dV_e_si = (cpoly*((32.0*d_qid_dV_e_si)+(28.0*d_qis_dV_e_si)));
-d_T1_dV_di_si = (cpoly*((32.0*d_qid_dV_di_si)+(28.0*d_qis_dV_di_si)));
+d_T1_dV_g_si = cpoly*(32.0*d_qid_dV_g_si+28.0*d_qis_dV_g_si);
+d_T1_dV_g_e = cpoly*(32.0*d_qid_dV_g_e+28.0*d_qis_dV_g_e);
+d_T1_dV_e_di = cpoly*(32.0*d_qid_dV_e_di+28.0*d_qis_dV_e_di);
+d_T1_dV_e_si = cpoly*(32.0*d_qid_dV_e_si+28.0*d_qis_dV_e_si);
+d_T1_dV_di_si = cpoly*(32.0*d_qid_dV_di_si+28.0*d_qis_dV_di_si);
 T1 = ((15.0*kpoly)+(cpoly*((32.0*qid)+(28.0*qis))));
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_g_si = ((((126.0*cpoly)*kpoly)*d_qia_dV_g_si)+((cpoly*cpoly)*((256.0*d_Tcom_dV_g_si)+(((240.0*qis)*d_qid_dV_g_si)+((240.0*d_qis_dV_g_si)*qid)))));
-d_T2_dV_g_e = ((((126.0*cpoly)*kpoly)*d_qia_dV_g_e)+((cpoly*cpoly)*((256.0*d_Tcom_dV_g_e)+(((240.0*qis)*d_qid_dV_g_e)+((240.0*d_qis_dV_g_e)*qid)))));
-d_T2_dV_e_di = ((((126.0*cpoly)*kpoly)*d_qia_dV_e_di)+((cpoly*cpoly)*((256.0*d_Tcom_dV_e_di)+(((240.0*qis)*d_qid_dV_e_di)+((240.0*d_qis_dV_e_di)*qid)))));
-d_T2_dV_e_si = ((((126.0*cpoly)*kpoly)*d_qia_dV_e_si)+((cpoly*cpoly)*((256.0*d_Tcom_dV_e_si)+(((240.0*qis)*d_qid_dV_e_si)+((240.0*d_qis_dV_e_si)*qid)))));
-d_T2_dV_di_si = ((((126.0*cpoly)*kpoly)*d_qia_dV_di_si)+((cpoly*cpoly)*((256.0*d_Tcom_dV_di_si)+(((240.0*qis)*d_qid_dV_di_si)+((240.0*d_qis_dV_di_si)*qid)))));
+d_T2_dV_g_si = (((126.0*cpoly)*kpoly)*d_qia_dV_g_si+(cpoly*cpoly)*(256.0*d_Tcom_dV_g_si+((240.0*qis)*d_qid_dV_g_si+240.0*d_qis_dV_g_si*qid)));
+d_T2_dV_g_e = (((126.0*cpoly)*kpoly)*d_qia_dV_g_e+(cpoly*cpoly)*(256.0*d_Tcom_dV_g_e+((240.0*qis)*d_qid_dV_g_e+240.0*d_qis_dV_g_e*qid)));
+d_T2_dV_e_di = (((126.0*cpoly)*kpoly)*d_qia_dV_e_di+(cpoly*cpoly)*(256.0*d_Tcom_dV_e_di+((240.0*qis)*d_qid_dV_e_di+240.0*d_qis_dV_e_di*qid)));
+d_T2_dV_e_si = (((126.0*cpoly)*kpoly)*d_qia_dV_e_si+(cpoly*cpoly)*(256.0*d_Tcom_dV_e_si+((240.0*qis)*d_qid_dV_e_si+240.0*d_qis_dV_e_si*qid)));
+d_T2_dV_di_si = (((126.0*cpoly)*kpoly)*d_qia_dV_di_si+(cpoly*cpoly)*(256.0*d_Tcom_dV_di_si+((240.0*qis)*d_qid_dV_di_si+240.0*d_qis_dV_di_si*qid)));
 T2 = ((((63.0*kpoly)*kpoly)+(((126.0*cpoly)*kpoly)*qia))+((cpoly*cpoly)*((256.0*Tcom)+((240.0*qis)*qid))));
 }
 else
@@ -16224,12 +16224,12 @@ d_T2_dV_g_di = d_T2_dV_g_e = d_T2_dV_g_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_d
 T2 = 63.0;
 }
 
-d_qd_dV_g_di = (-((dqi*((-((d_T1_dV_g_di*dqi_idscv)/30.0))-(((d_T2_dV_g_di*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
-d_qd_dV_g_si = ((0.5*d_qia_dV_g_si)-(((dqi*((-(((T1*d_dqi_idscv_dV_g_si)+(d_T1_dV_g_si*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_g_si)+(((T2*d_dqi_idscv_dV_g_si)+(d_T2_dV_g_si*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_g_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
-d_qd_dV_g_e = ((0.5*d_qia_dV_g_e)-(((dqi*((-(((T1*d_dqi_idscv_dV_g_e)+(d_T1_dV_g_e*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_g_e)+(((T2*d_dqi_idscv_dV_g_e)+(d_T2_dV_g_e*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_g_e*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
-d_qd_dV_e_di = ((0.5*d_qia_dV_e_di)-(((dqi*((-(((T1*d_dqi_idscv_dV_e_di)+(d_T1_dV_e_di*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_e_di)+(((T2*d_dqi_idscv_dV_e_di)+(d_T2_dV_e_di*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_e_di*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
-d_qd_dV_e_si = ((0.5*d_qia_dV_e_si)-(((dqi*((-(((T1*d_dqi_idscv_dV_e_si)+(d_T1_dV_e_si*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_e_si)+(((T2*d_dqi_idscv_dV_e_si)+(d_T2_dV_e_si*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_e_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
-d_qd_dV_di_si = ((0.5*d_qia_dV_di_si)-(((dqi*((-(((T1*d_dqi_idscv_dV_di_si)+(d_T1_dV_di_si*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_di_si)+(((T2*d_dqi_idscv_dV_di_si)+(d_T2_dV_di_si*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_di_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
+d_qd_dV_g_di = (-(dqi*((-(d_T1_dV_g_di*dqi_idscv/30.0))-(d_T2_dV_g_di*dqi_idscv*dqi_idscv/1260.0))/12.0));
+d_qd_dV_g_si = (0.5*d_qia_dV_g_si-((dqi*((-((T1*d_dqi_idscv_dV_g_si+d_T1_dV_g_si*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_g_si+(T2*d_dqi_idscv_dV_g_si+d_T2_dV_g_si*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_g_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
+d_qd_dV_g_e = (0.5*d_qia_dV_g_e-((dqi*((-((T1*d_dqi_idscv_dV_g_e+d_T1_dV_g_e*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_g_e+(T2*d_dqi_idscv_dV_g_e+d_T2_dV_g_e*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_g_e*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
+d_qd_dV_e_di = (0.5*d_qia_dV_e_di-((dqi*((-((T1*d_dqi_idscv_dV_e_di+d_T1_dV_e_di*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_e_di+(T2*d_dqi_idscv_dV_e_di+d_T2_dV_e_di*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_e_di*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
+d_qd_dV_e_si = (0.5*d_qia_dV_e_si-((dqi*((-((T1*d_dqi_idscv_dV_e_si+d_T1_dV_e_si*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_e_si+(T2*d_dqi_idscv_dV_e_si+d_T2_dV_e_si*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_e_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
+d_qd_dV_di_si = (0.5*d_qia_dV_di_si-((dqi*((-((T1*d_dqi_idscv_dV_di_si+d_T1_dV_di_si*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_di_si+(T2*d_dqi_idscv_dV_di_si+d_T2_dV_di_si*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_di_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
 qd = ((0.5*qia)-((dqi*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
 
 d_inv_MclmCV_dV_g_si = (-d_MclmCV_dV_g_si/MclmCV/MclmCV);
@@ -16239,44 +16239,44 @@ d_inv_MclmCV_dV_e_si = (-d_MclmCV_dV_e_si/MclmCV/MclmCV);
 d_inv_MclmCV_dV_di_si = (-d_MclmCV_dV_di_si/MclmCV/MclmCV);
 inv_MclmCV = (1.0/MclmCV);
 
-d_qg_dV_g_di = (inv_MclmCV*d_qg_dV_g_di);
-d_qg_dV_g_si = (((inv_MclmCV*d_qg_dV_g_si)+(d_inv_MclmCV_dV_g_si*qg))+(((MclmCV-1.0)*d_qid_dV_g_si)+(d_MclmCV_dV_g_si*qid)));
-d_qg_dV_g_e = (((inv_MclmCV*d_qg_dV_g_e)+(d_inv_MclmCV_dV_g_e*qg))+(((MclmCV-1.0)*d_qid_dV_g_e)+(d_MclmCV_dV_g_e*qid)));
-d_qg_dV_e_di = (((inv_MclmCV*d_qg_dV_e_di)+(d_inv_MclmCV_dV_e_di*qg))+(((MclmCV-1.0)*d_qid_dV_e_di)+(d_MclmCV_dV_e_di*qid)));
-d_qg_dV_e_si = (((inv_MclmCV*d_qg_dV_e_si)+(d_inv_MclmCV_dV_e_si*qg))+(((MclmCV-1.0)*d_qid_dV_e_si)+(d_MclmCV_dV_e_si*qid)));
-d_qg_dV_di_si = (((inv_MclmCV*d_qg_dV_di_si)+(d_inv_MclmCV_dV_di_si*qg))+(((MclmCV-1.0)*d_qid_dV_di_si)+(d_MclmCV_dV_di_si*qid)));
+d_qg_dV_g_di = inv_MclmCV*d_qg_dV_g_di;
+d_qg_dV_g_si = ((inv_MclmCV*d_qg_dV_g_si+d_inv_MclmCV_dV_g_si*qg)+((MclmCV-1.0)*d_qid_dV_g_si+d_MclmCV_dV_g_si*qid));
+d_qg_dV_g_e = ((inv_MclmCV*d_qg_dV_g_e+d_inv_MclmCV_dV_g_e*qg)+((MclmCV-1.0)*d_qid_dV_g_e+d_MclmCV_dV_g_e*qid));
+d_qg_dV_e_di = ((inv_MclmCV*d_qg_dV_e_di+d_inv_MclmCV_dV_e_di*qg)+((MclmCV-1.0)*d_qid_dV_e_di+d_MclmCV_dV_e_di*qid));
+d_qg_dV_e_si = ((inv_MclmCV*d_qg_dV_e_si+d_inv_MclmCV_dV_e_si*qg)+((MclmCV-1.0)*d_qid_dV_e_si+d_MclmCV_dV_e_si*qid));
+d_qg_dV_di_si = ((inv_MclmCV*d_qg_dV_di_si+d_inv_MclmCV_dV_di_si*qg)+((MclmCV-1.0)*d_qid_dV_di_si+d_MclmCV_dV_di_si*qid));
 qg = ((inv_MclmCV*qg)+((MclmCV-1.0)*qid));
 
-d_qd_dV_g_di = ((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_di);
-d_qd_dV_g_si = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_si)+(((inv_MclmCV*d_inv_MclmCV_dV_g_si)+(d_inv_MclmCV_dV_g_si*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_g_si)+((0.5*(d_MclmCV_dV_g_si-d_inv_MclmCV_dV_g_si))*qid)));
-d_qd_dV_g_e = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_e)+(((inv_MclmCV*d_inv_MclmCV_dV_g_e)+(d_inv_MclmCV_dV_g_e*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_g_e)+((0.5*(d_MclmCV_dV_g_e-d_inv_MclmCV_dV_g_e))*qid)));
-d_qd_dV_e_di = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_e_di)+(((inv_MclmCV*d_inv_MclmCV_dV_e_di)+(d_inv_MclmCV_dV_e_di*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_e_di)+((0.5*(d_MclmCV_dV_e_di-d_inv_MclmCV_dV_e_di))*qid)));
-d_qd_dV_e_si = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_e_si)+(((inv_MclmCV*d_inv_MclmCV_dV_e_si)+(d_inv_MclmCV_dV_e_si*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_e_si)+((0.5*(d_MclmCV_dV_e_si-d_inv_MclmCV_dV_e_si))*qid)));
-d_qd_dV_di_si = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_di_si)+(((inv_MclmCV*d_inv_MclmCV_dV_di_si)+(d_inv_MclmCV_dV_di_si*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_di_si)+((0.5*(d_MclmCV_dV_di_si-d_inv_MclmCV_dV_di_si))*qid)));
+d_qd_dV_g_di = (inv_MclmCV*inv_MclmCV)*d_qd_dV_g_di;
+d_qd_dV_g_si = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_si+(inv_MclmCV*d_inv_MclmCV_dV_g_si+d_inv_MclmCV_dV_g_si*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_g_si+0.5*(d_MclmCV_dV_g_si-d_inv_MclmCV_dV_g_si)*qid));
+d_qd_dV_g_e = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_e+(inv_MclmCV*d_inv_MclmCV_dV_g_e+d_inv_MclmCV_dV_g_e*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_g_e+0.5*(d_MclmCV_dV_g_e-d_inv_MclmCV_dV_g_e)*qid));
+d_qd_dV_e_di = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_e_di+(inv_MclmCV*d_inv_MclmCV_dV_e_di+d_inv_MclmCV_dV_e_di*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_e_di+0.5*(d_MclmCV_dV_e_di-d_inv_MclmCV_dV_e_di)*qid));
+d_qd_dV_e_si = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_e_si+(inv_MclmCV*d_inv_MclmCV_dV_e_si+d_inv_MclmCV_dV_e_si*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_e_si+0.5*(d_MclmCV_dV_e_si-d_inv_MclmCV_dV_e_si)*qid));
+d_qd_dV_di_si = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_di_si+(inv_MclmCV*d_inv_MclmCV_dV_di_si+d_inv_MclmCV_dV_di_si*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_di_si+0.5*(d_MclmCV_dV_di_si-d_inv_MclmCV_dV_di_si)*qid));
 qd = (((inv_MclmCV*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*qid));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = (((WeffCV*LeffCV)*d_coxeff_dV_di_si)+((d_WeffCV_dV_di_si*LeffCV)*coxeff));
-d_T1_dV_g_si = (((WeffCV*LeffCV)*d_coxeff_dV_g_si)+((d_WeffCV_dV_g_si*LeffCV)*coxeff));
-d_T1_dV_g_e = (((WeffCV*LeffCV)*d_coxeff_dV_g_e)+((d_WeffCV_dV_g_e*LeffCV)*coxeff));
-d_T1_dV_e_di = (((WeffCV*LeffCV)*d_coxeff_dV_e_di)+((d_WeffCV_dV_e_di*LeffCV)*coxeff));
-d_T1_dV_e_si = (((WeffCV*LeffCV)*d_coxeff_dV_e_si)+((d_WeffCV_dV_e_si*LeffCV)*coxeff));
+d_T1_dV_di_si = ((WeffCV*LeffCV)*d_coxeff_dV_di_si+d_WeffCV_dV_di_si*LeffCV*coxeff);
+d_T1_dV_g_si = ((WeffCV*LeffCV)*d_coxeff_dV_g_si+d_WeffCV_dV_g_si*LeffCV*coxeff);
+d_T1_dV_g_e = ((WeffCV*LeffCV)*d_coxeff_dV_g_e+d_WeffCV_dV_g_e*LeffCV*coxeff);
+d_T1_dV_e_di = ((WeffCV*LeffCV)*d_coxeff_dV_e_di+d_WeffCV_dV_e_di*LeffCV*coxeff);
+d_T1_dV_e_si = ((WeffCV*LeffCV)*d_coxeff_dV_e_si+d_WeffCV_dV_e_si*LeffCV*coxeff);
 T1 = ((WeffCV*LeffCV)*coxeff);
 
-d_qinv_dV_g_di = (((NFINtotal*qg)*d_T1_dV_g_di)+((NFINtotal*d_qg_dV_g_di)*T1));
-d_qinv_dV_g_si = (((NFINtotal*qg)*d_T1_dV_g_si)+((NFINtotal*d_qg_dV_g_si)*T1));
-d_qinv_dV_g_e = (((NFINtotal*qg)*d_T1_dV_g_e)+((NFINtotal*d_qg_dV_g_e)*T1));
-d_qinv_dV_e_di = (((NFINtotal*qg)*d_T1_dV_e_di)+((NFINtotal*d_qg_dV_e_di)*T1));
-d_qinv_dV_e_si = (((NFINtotal*qg)*d_T1_dV_e_si)+((NFINtotal*d_qg_dV_e_si)*T1));
-d_qinv_dV_di_si = (((NFINtotal*qg)*d_T1_dV_di_si)+((NFINtotal*d_qg_dV_di_si)*T1));
+d_qinv_dV_g_di = ((NFINtotal*qg)*d_T1_dV_g_di+NFINtotal*d_qg_dV_g_di*T1);
+d_qinv_dV_g_si = ((NFINtotal*qg)*d_T1_dV_g_si+NFINtotal*d_qg_dV_g_si*T1);
+d_qinv_dV_g_e = ((NFINtotal*qg)*d_T1_dV_g_e+NFINtotal*d_qg_dV_g_e*T1);
+d_qinv_dV_e_di = ((NFINtotal*qg)*d_T1_dV_e_di+NFINtotal*d_qg_dV_e_di*T1);
+d_qinv_dV_e_si = ((NFINtotal*qg)*d_T1_dV_e_si+NFINtotal*d_qg_dV_e_si*T1);
+d_qinv_dV_di_si = ((NFINtotal*qg)*d_T1_dV_di_si+NFINtotal*d_qg_dV_di_si*T1);
 qinv = ((NFINtotal*qg)*T1);
 
-d_qd_dV_g_di = (((NFINtotal*qd)*d_T1_dV_g_di)+((NFINtotal*d_qd_dV_g_di)*T1));
-d_qd_dV_g_si = (((NFINtotal*qd)*d_T1_dV_g_si)+((NFINtotal*d_qd_dV_g_si)*T1));
-d_qd_dV_g_e = (((NFINtotal*qd)*d_T1_dV_g_e)+((NFINtotal*d_qd_dV_g_e)*T1));
-d_qd_dV_e_di = (((NFINtotal*qd)*d_T1_dV_e_di)+((NFINtotal*d_qd_dV_e_di)*T1));
-d_qd_dV_e_si = (((NFINtotal*qd)*d_T1_dV_e_si)+((NFINtotal*d_qd_dV_e_si)*T1));
-d_qd_dV_di_si = (((NFINtotal*qd)*d_T1_dV_di_si)+((NFINtotal*d_qd_dV_di_si)*T1));
+d_qd_dV_g_di = ((NFINtotal*qd)*d_T1_dV_g_di+NFINtotal*d_qd_dV_g_di*T1);
+d_qd_dV_g_si = ((NFINtotal*qd)*d_T1_dV_g_si+NFINtotal*d_qd_dV_g_si*T1);
+d_qd_dV_g_e = ((NFINtotal*qd)*d_T1_dV_g_e+NFINtotal*d_qd_dV_g_e*T1);
+d_qd_dV_e_di = ((NFINtotal*qd)*d_T1_dV_e_di+NFINtotal*d_qd_dV_e_di*T1);
+d_qd_dV_e_si = ((NFINtotal*qd)*d_T1_dV_e_si+NFINtotal*d_qd_dV_e_si*T1);
+d_qd_dV_di_si = ((NFINtotal*qd)*d_T1_dV_di_si+NFINtotal*d_qd_dV_di_si*T1);
 qd = ((NFINtotal*qd)*T1);
 
 d_qg_dV_g_di = d_qinv_dV_g_di;
@@ -16341,11 +16341,11 @@ std::cerr  << "[bsimcmg] Although the model selector NQSMOD is set to 3, the NQS
 if ((NGATE_i>0.0))
 {
 
-d_Tcom_dV_g_si = ((((qis*d_qis_dV_g_si)+(d_qis_dV_g_si*qis))+((qis*d_qid_dV_g_si)+(d_qis_dV_g_si*qid)))+((qid*d_qid_dV_g_si)+(d_qid_dV_g_si*qid)));
-d_Tcom_dV_g_e = ((((qis*d_qis_dV_g_e)+(d_qis_dV_g_e*qis))+((qis*d_qid_dV_g_e)+(d_qis_dV_g_e*qid)))+((qid*d_qid_dV_g_e)+(d_qid_dV_g_e*qid)));
-d_Tcom_dV_e_di = ((((qis*d_qis_dV_e_di)+(d_qis_dV_e_di*qis))+((qis*d_qid_dV_e_di)+(d_qis_dV_e_di*qid)))+((qid*d_qid_dV_e_di)+(d_qid_dV_e_di*qid)));
-d_Tcom_dV_e_si = ((((qis*d_qis_dV_e_si)+(d_qis_dV_e_si*qis))+((qis*d_qid_dV_e_si)+(d_qis_dV_e_si*qid)))+((qid*d_qid_dV_e_si)+(d_qid_dV_e_si*qid)));
-d_Tcom_dV_di_si = ((((qis*d_qis_dV_di_si)+(d_qis_dV_di_si*qis))+((qis*d_qid_dV_di_si)+(d_qis_dV_di_si*qid)))+((qid*d_qid_dV_di_si)+(d_qid_dV_di_si*qid)));
+d_Tcom_dV_g_si = (((qis*d_qis_dV_g_si+d_qis_dV_g_si*qis)+(qis*d_qid_dV_g_si+d_qis_dV_g_si*qid))+(qid*d_qid_dV_g_si+d_qid_dV_g_si*qid));
+d_Tcom_dV_g_e = (((qis*d_qis_dV_g_e+d_qis_dV_g_e*qis)+(qis*d_qid_dV_g_e+d_qis_dV_g_e*qid))+(qid*d_qid_dV_g_e+d_qid_dV_g_e*qid));
+d_Tcom_dV_e_di = (((qis*d_qis_dV_e_di+d_qis_dV_e_di*qis)+(qis*d_qid_dV_e_di+d_qis_dV_e_di*qid))+(qid*d_qid_dV_e_di+d_qid_dV_e_di*qid));
+d_Tcom_dV_e_si = (((qis*d_qis_dV_e_si+d_qis_dV_e_si*qis)+(qis*d_qid_dV_e_si+d_qis_dV_e_si*qid))+(qid*d_qid_dV_e_si+d_qid_dV_e_si*qid));
+d_Tcom_dV_di_si = (((qis*d_qis_dV_di_si+d_qis_dV_di_si*qis)+(qis*d_qid_dV_di_si+d_qis_dV_di_si*qid))+(qid*d_qid_dV_di_si+d_qid_dV_di_si*qid));
 Tcom = (((qis*qis)+(qis*qid))+(qid*qid));
 }
 else
@@ -16358,19 +16358,19 @@ if ((NGATE_i>0))
 {
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_g_si = (((2.0*cpoly)*d_Tcom_dV_g_si)/3);
-d_T0_dV_g_e = (((2.0*cpoly)*d_Tcom_dV_g_e)/3);
-d_T0_dV_e_di = (((2.0*cpoly)*d_Tcom_dV_e_di)/3);
-d_T0_dV_e_si = (((2.0*cpoly)*d_Tcom_dV_e_si)/3);
-d_T0_dV_di_si = (((2.0*cpoly)*d_Tcom_dV_di_si)/3);
+d_T0_dV_g_si = ((2.0*cpoly)*d_Tcom_dV_g_si/3);
+d_T0_dV_g_e = ((2.0*cpoly)*d_Tcom_dV_g_e/3);
+d_T0_dV_e_di = ((2.0*cpoly)*d_Tcom_dV_e_di/3);
+d_T0_dV_e_si = ((2.0*cpoly)*d_Tcom_dV_e_si/3);
+d_T0_dV_di_si = ((2.0*cpoly)*d_Tcom_dV_di_si/3);
 T0 = (((2.0*cpoly)*Tcom)/3);
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = (kpoly*d_qia_dV_g_si);
-d_T1_dV_g_e = (kpoly*d_qia_dV_g_e);
-d_T1_dV_e_di = (kpoly*d_qia_dV_e_di);
-d_T1_dV_e_si = (kpoly*d_qia_dV_e_si);
-d_T1_dV_di_si = (kpoly*d_qia_dV_di_si);
+d_T1_dV_g_si = kpoly*d_qia_dV_g_si;
+d_T1_dV_g_e = kpoly*d_qia_dV_g_e;
+d_T1_dV_e_di = kpoly*d_qia_dV_e_di;
+d_T1_dV_e_si = kpoly*d_qia_dV_e_si;
+d_T1_dV_di_si = kpoly*d_qia_dV_di_si;
 T1 = (kpoly*qia);
 }
 else
@@ -16388,19 +16388,19 @@ d_T1_dV_di_si = d_qia_dV_di_si;
 T1 = qia;
 }
 
-d_etaiv_dV_g_si = (-q0*(cdop*d_qia_dV_g_si)/(q0+(cdop*qia))/(q0+(cdop*qia)));
-d_etaiv_dV_g_e = (-q0*(cdop*d_qia_dV_g_e)/(q0+(cdop*qia))/(q0+(cdop*qia)));
-d_etaiv_dV_e_di = (-q0*(cdop*d_qia_dV_e_di)/(q0+(cdop*qia))/(q0+(cdop*qia)));
-d_etaiv_dV_e_si = (-q0*(cdop*d_qia_dV_e_si)/(q0+(cdop*qia))/(q0+(cdop*qia)));
-d_etaiv_dV_di_si = (((q0+(cdop*qia))*d_q0_dV_di_si-q0*(d_q0_dV_di_si+((cdop*d_qia_dV_di_si)+(d_cdop_dV_di_si*qia))))/(q0+(cdop*qia))/(q0+(cdop*qia)));
+d_etaiv_dV_g_si = (-q0*cdop*d_qia_dV_g_si/(q0+(cdop*qia))/(q0+(cdop*qia)));
+d_etaiv_dV_g_e = (-q0*cdop*d_qia_dV_g_e/(q0+(cdop*qia))/(q0+(cdop*qia)));
+d_etaiv_dV_e_di = (-q0*cdop*d_qia_dV_e_di/(q0+(cdop*qia))/(q0+(cdop*qia)));
+d_etaiv_dV_e_si = (-q0*cdop*d_qia_dV_e_si/(q0+(cdop*qia))/(q0+(cdop*qia)));
+d_etaiv_dV_di_si = (((q0+(cdop*qia))*d_q0_dV_di_si-q0*(d_q0_dV_di_si+(cdop*d_qia_dV_di_si+d_cdop_dV_di_si*qia)))/(q0+(cdop*qia))/(q0+(cdop*qia)));
 etaiv = (q0/(q0+(cdop*qia)));
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_g_si = ((-d_etaiv_dV_g_si)*nVtm);
-d_T2_dV_g_e = ((-d_etaiv_dV_g_e)*nVtm);
-d_T2_dV_e_di = ((-d_etaiv_dV_e_di)*nVtm);
-d_T2_dV_e_si = ((-d_etaiv_dV_e_si)*nVtm);
-d_T2_dV_di_si = (((2.0-etaiv)*d_nVtm_dV_di_si)+((-d_etaiv_dV_di_si)*nVtm));
+d_T2_dV_g_si = (-d_etaiv_dV_g_si)*nVtm;
+d_T2_dV_g_e = (-d_etaiv_dV_g_e)*nVtm;
+d_T2_dV_e_di = (-d_etaiv_dV_e_di)*nVtm;
+d_T2_dV_e_si = (-d_etaiv_dV_e_si)*nVtm;
+d_T2_dV_di_si = ((2.0-etaiv)*d_nVtm_dV_di_si+(-d_etaiv_dV_di_si)*nVtm);
 T2 = ((2.0-etaiv)*nVtm);
 
 d_ids0_ov_dqi_dV_di_si = ((d_T0_dV_di_si+d_T1_dV_di_si)+d_T2_dV_di_si);
@@ -16411,12 +16411,12 @@ d_ids0_ov_dqi_dV_e_si = ((d_T0_dV_e_si+d_T1_dV_e_si)+d_T2_dV_e_si);
 d_ids0_ov_dqi_dV_g_di = ((d_T0_dV_g_di+d_T1_dV_g_di)+d_T2_dV_g_di);
 ids0_ov_dqi = ((T0+T1)+T2);
 
-d_ids0_dV_e_di = ((ids0_ov_dqi*d_dqi_dV_e_di)+(d_ids0_ov_dqi_dV_e_di*dqi));
-d_ids0_dV_e_si = ((ids0_ov_dqi*d_dqi_dV_e_si)+(d_ids0_ov_dqi_dV_e_si*dqi));
-d_ids0_dV_g_si = ((ids0_ov_dqi*d_dqi_dV_g_si)+(d_ids0_ov_dqi_dV_g_si*dqi));
-d_ids0_dV_g_e = ((ids0_ov_dqi*d_dqi_dV_g_e)+(d_ids0_ov_dqi_dV_g_e*dqi));
-d_ids0_dV_di_si = ((ids0_ov_dqi*d_dqi_dV_di_si)+(d_ids0_ov_dqi_dV_di_si*dqi));
-d_ids0_dV_g_di = (d_ids0_ov_dqi_dV_g_di*dqi);
+d_ids0_dV_e_di = (ids0_ov_dqi*d_dqi_dV_e_di+d_ids0_ov_dqi_dV_e_di*dqi);
+d_ids0_dV_e_si = (ids0_ov_dqi*d_dqi_dV_e_si+d_ids0_ov_dqi_dV_e_si*dqi);
+d_ids0_dV_g_si = (ids0_ov_dqi*d_dqi_dV_g_si+d_ids0_ov_dqi_dV_g_si*dqi);
+d_ids0_dV_g_e = (ids0_ov_dqi*d_dqi_dV_g_e+d_ids0_ov_dqi_dV_g_e*dqi);
+d_ids0_dV_di_si = (ids0_ov_dqi*d_dqi_dV_di_si+d_ids0_ov_dqi_dV_di_si*dqi);
+d_ids0_dV_g_di = d_ids0_ov_dqi_dV_g_di*dqi;
 ids0 = (ids0_ov_dqi*dqi);
 if (((model_.RDSMOD)!=0))
 {
@@ -16434,29 +16434,29 @@ T2 = (vgs_noswap-vfbsd);
 double value_sqrt_0 = sqrt(((T2*T2)+1.0e-1));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_T3_dV_di_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_di_si)+(d_T2_dV_di_si*T2))));
-d_T3_dV_e_di = (deriv_sqrt_0_d0*(((T2*d_T2_dV_e_di)+(d_T2_dV_e_di*T2))));
-d_T3_dV_e_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_e_si)+(d_T2_dV_e_si*T2))));
-d_T3_dV_g_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_si)+(d_T2_dV_g_si*T2))));
-d_T3_dV_g_e = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_e)+(d_T2_dV_g_e*T2))));
-d_T3_dV_g_di = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_di)+(d_T2_dV_g_di*T2))));
+d_T3_dV_di_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_di_si+d_T2_dV_di_si*T2)));
+d_T3_dV_e_di = (deriv_sqrt_0_d0*((T2*d_T2_dV_e_di+d_T2_dV_e_di*T2)));
+d_T3_dV_e_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_e_si+d_T2_dV_e_si*T2)));
+d_T3_dV_g_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_si+d_T2_dV_g_si*T2)));
+d_T3_dV_g_e = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_e+d_T2_dV_g_e*T2)));
+d_T3_dV_g_di = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_di+d_T2_dV_g_di*T2)));
 T3 = value_sqrt_0;
 }
 
-d_vgs_eff_dV_di_si = (0.5*(d_T2_dV_di_si+d_T3_dV_di_si));
-d_vgs_eff_dV_e_di = (0.5*(d_T2_dV_e_di+d_T3_dV_e_di));
-d_vgs_eff_dV_e_si = (0.5*(d_T2_dV_e_si+d_T3_dV_e_si));
-d_vgs_eff_dV_g_si = (0.5*(d_T2_dV_g_si+d_T3_dV_g_si));
-d_vgs_eff_dV_g_e = (0.5*(d_T2_dV_g_e+d_T3_dV_g_e));
-d_vgs_eff_dV_g_di = (0.5*(d_T2_dV_g_di+d_T3_dV_g_di));
+d_vgs_eff_dV_di_si = 0.5*(d_T2_dV_di_si+d_T3_dV_di_si);
+d_vgs_eff_dV_e_di = 0.5*(d_T2_dV_e_di+d_T3_dV_e_di);
+d_vgs_eff_dV_e_si = 0.5*(d_T2_dV_e_si+d_T3_dV_e_si);
+d_vgs_eff_dV_g_si = 0.5*(d_T2_dV_g_si+d_T3_dV_g_si);
+d_vgs_eff_dV_g_e = 0.5*(d_T2_dV_g_e+d_T3_dV_g_e);
+d_vgs_eff_dV_g_di = 0.5*(d_T2_dV_g_di+d_T3_dV_g_di);
 vgs_eff = (0.5*(T2+T3));
 
-d_T4_dV_di_si = (PRWGS_i*d_vgs_eff_dV_di_si);
-d_T4_dV_e_di = (PRWGS_i*d_vgs_eff_dV_e_di);
-d_T4_dV_e_si = (PRWGS_i*d_vgs_eff_dV_e_si);
-d_T4_dV_g_si = (PRWGS_i*d_vgs_eff_dV_g_si);
-d_T4_dV_g_e = (PRWGS_i*d_vgs_eff_dV_g_e);
-d_T4_dV_g_di = (PRWGS_i*d_vgs_eff_dV_g_di);
+d_T4_dV_di_si = PRWGS_i*d_vgs_eff_dV_di_si;
+d_T4_dV_e_di = PRWGS_i*d_vgs_eff_dV_e_di;
+d_T4_dV_e_si = PRWGS_i*d_vgs_eff_dV_e_si;
+d_T4_dV_g_si = PRWGS_i*d_vgs_eff_dV_g_si;
+d_T4_dV_g_e = PRWGS_i*d_vgs_eff_dV_g_e;
+d_T4_dV_g_di = PRWGS_i*d_vgs_eff_dV_g_di;
 T4 = (1.0+(PRWGS_i*vgs_eff));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
@@ -16471,12 +16471,12 @@ T1 = (1.0/T4);
 double value_sqrt_0 = sqrt(((T1*T1)+0.01));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_T0_dV_di_si = (0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1))))));
-d_T0_dV_g_si = (0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1))))));
-d_T0_dV_g_e = (0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1))))));
-d_T0_dV_e_di = (0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1))))));
-d_T0_dV_e_si = (0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1))))));
-d_T0_dV_g_di = (0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_di)+(d_T1_dV_g_di*T1))))));
+d_T0_dV_di_si = 0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_di_si+d_T1_dV_di_si*T1))));
+d_T0_dV_g_si = 0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_si+d_T1_dV_g_si*T1))));
+d_T0_dV_g_e = 0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_e+d_T1_dV_g_e*T1))));
+d_T0_dV_e_di = 0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_di+d_T1_dV_e_di*T1))));
+d_T0_dV_e_si = 0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_si+d_T1_dV_e_si*T1))));
+d_T0_dV_g_di = 0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_di+d_T1_dV_g_di*T1))));
 T0 = (0.5*(T1+value_sqrt_0));
 }
 {
@@ -16484,19 +16484,19 @@ AnalogFunctions::llnEvaluator evaluator_lln_0((((probeVars[admsProbeID_V_si_s])*
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))));
 
 d_T5_dV_g_di = d_T5_dV_di_d = d_T5_dV_e_si = d_T5_dV_e_di = d_T5_dV_g_e = d_T5_dV_g_si =  0.0;
-d_T5_dV_si_s = (RSW_i*(RSDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))),((0.5*(model_.PRSDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6),(((probeVars[admsProbeID_V_si_s])*d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s])+(d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s]*(probeVars[admsProbeID_V_si_s]))))))));
-d_T5_dV_di_si = (RSW_i*(d_RSDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))))));
+d_T5_dV_si_s = RSW_i*RSDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))),(0.5*(model_.PRSDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6),((probeVars[admsProbeID_V_si_s])*d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s]+d_probeVars[admsProbeID_V_si_s][admsProbeID_V_si_s]*(probeVars[admsProbeID_V_si_s]))));
+d_T5_dV_di_si = RSW_i*d_RSDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6))));
 T5 = (RSW_i*(1.0+(RSDR_a*evaluator_lexp_1.getValues(((0.5*(model_.PRSDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_si_s])*(probeVars[admsProbeID_V_si_s]))+1.0E-6)))))));
 }
 
-d_Rsource_dV_g_di = (rdstemp*(((T5*d_T0_dV_g_di)+(d_T5_dV_g_di*T0))*WeffWRFactor));
-d_Rsource_dV_di_si = (rdstemp*(((T5*d_T0_dV_di_si)+(d_T5_dV_di_si*T0))*WeffWRFactor));
-d_Rsource_dV_g_si = (rdstemp*(((T5*d_T0_dV_g_si)+(d_T5_dV_g_si*T0))*WeffWRFactor));
-d_Rsource_dV_g_e = (rdstemp*(((T5*d_T0_dV_g_e)+(d_T5_dV_g_e*T0))*WeffWRFactor));
-d_Rsource_dV_e_di = (rdstemp*(((T5*d_T0_dV_e_di)+(d_T5_dV_e_di*T0))*WeffWRFactor));
-d_Rsource_dV_e_si = (rdstemp*(((T5*d_T0_dV_e_si)+(d_T5_dV_e_si*T0))*WeffWRFactor));
-d_Rsource_dV_si_s = (rdstemp*((d_T5_dV_si_s*T0)*WeffWRFactor));
-d_Rsource_dV_di_d = (rdstemp*((d_T5_dV_di_d*T0)*WeffWRFactor));
+d_Rsource_dV_g_di = rdstemp*(T5*d_T0_dV_g_di+d_T5_dV_g_di*T0)*WeffWRFactor;
+d_Rsource_dV_di_si = rdstemp*(T5*d_T0_dV_di_si+d_T5_dV_di_si*T0)*WeffWRFactor;
+d_Rsource_dV_g_si = rdstemp*(T5*d_T0_dV_g_si+d_T5_dV_g_si*T0)*WeffWRFactor;
+d_Rsource_dV_g_e = rdstemp*(T5*d_T0_dV_g_e+d_T5_dV_g_e*T0)*WeffWRFactor;
+d_Rsource_dV_e_di = rdstemp*(T5*d_T0_dV_e_di+d_T5_dV_e_di*T0)*WeffWRFactor;
+d_Rsource_dV_e_si = rdstemp*(T5*d_T0_dV_e_si+d_T5_dV_e_si*T0)*WeffWRFactor;
+d_Rsource_dV_si_s = rdstemp*d_T5_dV_si_s*T0*WeffWRFactor;
+d_Rsource_dV_di_d = rdstemp*d_T5_dV_di_d*T0*WeffWRFactor;
 Rsource = (rdstemp*(RSourceGeo+((RSWMIN_i+(T5*T0))*WeffWRFactor)));
 
 d_T2_dV_g_e = d_T2_dV_g_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
@@ -16506,29 +16506,29 @@ T2 = (vgd_noswap-vfbsd);
 double value_sqrt_0 = sqrt(((T2*T2)+1.0e-1));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_T3_dV_di_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_di_si)+(d_T2_dV_di_si*T2))));
-d_T3_dV_e_di = (deriv_sqrt_0_d0*(((T2*d_T2_dV_e_di)+(d_T2_dV_e_di*T2))));
-d_T3_dV_e_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_e_si)+(d_T2_dV_e_si*T2))));
-d_T3_dV_g_si = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_si)+(d_T2_dV_g_si*T2))));
-d_T3_dV_g_e = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_e)+(d_T2_dV_g_e*T2))));
-d_T3_dV_g_di = (deriv_sqrt_0_d0*(((T2*d_T2_dV_g_di)+(d_T2_dV_g_di*T2))));
+d_T3_dV_di_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_di_si+d_T2_dV_di_si*T2)));
+d_T3_dV_e_di = (deriv_sqrt_0_d0*((T2*d_T2_dV_e_di+d_T2_dV_e_di*T2)));
+d_T3_dV_e_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_e_si+d_T2_dV_e_si*T2)));
+d_T3_dV_g_si = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_si+d_T2_dV_g_si*T2)));
+d_T3_dV_g_e = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_e+d_T2_dV_g_e*T2)));
+d_T3_dV_g_di = (deriv_sqrt_0_d0*((T2*d_T2_dV_g_di+d_T2_dV_g_di*T2)));
 T3 = value_sqrt_0;
 }
 
-d_vgd_eff_dV_di_si = (0.5*(d_T2_dV_di_si+d_T3_dV_di_si));
-d_vgd_eff_dV_e_di = (0.5*(d_T2_dV_e_di+d_T3_dV_e_di));
-d_vgd_eff_dV_e_si = (0.5*(d_T2_dV_e_si+d_T3_dV_e_si));
-d_vgd_eff_dV_g_si = (0.5*(d_T2_dV_g_si+d_T3_dV_g_si));
-d_vgd_eff_dV_g_e = (0.5*(d_T2_dV_g_e+d_T3_dV_g_e));
-d_vgd_eff_dV_g_di = (0.5*(d_T2_dV_g_di+d_T3_dV_g_di));
+d_vgd_eff_dV_di_si = 0.5*(d_T2_dV_di_si+d_T3_dV_di_si);
+d_vgd_eff_dV_e_di = 0.5*(d_T2_dV_e_di+d_T3_dV_e_di);
+d_vgd_eff_dV_e_si = 0.5*(d_T2_dV_e_si+d_T3_dV_e_si);
+d_vgd_eff_dV_g_si = 0.5*(d_T2_dV_g_si+d_T3_dV_g_si);
+d_vgd_eff_dV_g_e = 0.5*(d_T2_dV_g_e+d_T3_dV_g_e);
+d_vgd_eff_dV_g_di = 0.5*(d_T2_dV_g_di+d_T3_dV_g_di);
 vgd_eff = (0.5*(T2+T3));
 
-d_T4_dV_di_si = (PRWGD_i*d_vgd_eff_dV_di_si);
-d_T4_dV_e_di = (PRWGD_i*d_vgd_eff_dV_e_di);
-d_T4_dV_e_si = (PRWGD_i*d_vgd_eff_dV_e_si);
-d_T4_dV_g_si = (PRWGD_i*d_vgd_eff_dV_g_si);
-d_T4_dV_g_e = (PRWGD_i*d_vgd_eff_dV_g_e);
-d_T4_dV_g_di = (PRWGD_i*d_vgd_eff_dV_g_di);
+d_T4_dV_di_si = PRWGD_i*d_vgd_eff_dV_di_si;
+d_T4_dV_e_di = PRWGD_i*d_vgd_eff_dV_e_di;
+d_T4_dV_e_si = PRWGD_i*d_vgd_eff_dV_e_si;
+d_T4_dV_g_si = PRWGD_i*d_vgd_eff_dV_g_si;
+d_T4_dV_g_e = PRWGD_i*d_vgd_eff_dV_g_e;
+d_T4_dV_g_di = PRWGD_i*d_vgd_eff_dV_g_di;
 T4 = (1.0+(PRWGD_i*vgd_eff));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
@@ -16543,12 +16543,12 @@ T1 = (1.0/T4);
 double value_sqrt_0 = sqrt(((T1*T1)+0.01));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_T0_dV_di_si = (0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1))))));
-d_T0_dV_g_si = (0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1))))));
-d_T0_dV_g_e = (0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1))))));
-d_T0_dV_e_di = (0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1))))));
-d_T0_dV_e_si = (0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1))))));
-d_T0_dV_g_di = (0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_di)+(d_T1_dV_g_di*T1))))));
+d_T0_dV_di_si = 0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_di_si+d_T1_dV_di_si*T1))));
+d_T0_dV_g_si = 0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_si+d_T1_dV_g_si*T1))));
+d_T0_dV_g_e = 0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_e+d_T1_dV_g_e*T1))));
+d_T0_dV_e_di = 0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_di+d_T1_dV_e_di*T1))));
+d_T0_dV_e_si = 0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_si+d_T1_dV_e_si*T1))));
+d_T0_dV_g_di = 0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_di+d_T1_dV_g_di*T1))));
 T0 = (0.5*(T1+value_sqrt_0));
 }
 {
@@ -16556,19 +16556,19 @@ AnalogFunctions::llnEvaluator evaluator_lln_0((((probeVars[admsProbeID_V_di_d])*
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))));
 
 d_T5_dV_g_di = d_T5_dV_si_s = d_T5_dV_e_si = d_T5_dV_e_di = d_T5_dV_g_e = d_T5_dV_g_si =  0.0;
-d_T5_dV_di_d = (RDW_i*(RDDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))),((0.5*(model_.PRDDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6),(((probeVars[admsProbeID_V_di_d])*d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d])+(d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d]*(probeVars[admsProbeID_V_di_d]))))))));
-d_T5_dV_di_si = (RDW_i*(d_RDDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))))));
+d_T5_dV_di_d = RDW_i*RDDR_a*evaluator_lexp_1.getDerivs(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))),(0.5*(model_.PRDDR))*evaluator_lln_0.getDerivs((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6),((probeVars[admsProbeID_V_di_d])*d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d]+d_probeVars[admsProbeID_V_di_d][admsProbeID_V_di_d]*(probeVars[admsProbeID_V_di_d]))));
+d_T5_dV_di_si = RDW_i*d_RDDR_a_dV_di_si*evaluator_lexp_1.getValues(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6))));
 T5 = (RDW_i*(1.0+(RDDR_a*evaluator_lexp_1.getValues(((0.5*(model_.PRDDR))*evaluator_lln_0.getValues((((probeVars[admsProbeID_V_di_d])*(probeVars[admsProbeID_V_di_d]))+1.0E-6)))))));
 }
 
-d_Rdrain_dV_g_di = (rdstemp*(((T5*d_T0_dV_g_di)+(d_T5_dV_g_di*T0))*WeffWRFactor));
-d_Rdrain_dV_di_si = (rdstemp*(((T5*d_T0_dV_di_si)+(d_T5_dV_di_si*T0))*WeffWRFactor));
-d_Rdrain_dV_g_si = (rdstemp*(((T5*d_T0_dV_g_si)+(d_T5_dV_g_si*T0))*WeffWRFactor));
-d_Rdrain_dV_g_e = (rdstemp*(((T5*d_T0_dV_g_e)+(d_T5_dV_g_e*T0))*WeffWRFactor));
-d_Rdrain_dV_e_di = (rdstemp*(((T5*d_T0_dV_e_di)+(d_T5_dV_e_di*T0))*WeffWRFactor));
-d_Rdrain_dV_e_si = (rdstemp*(((T5*d_T0_dV_e_si)+(d_T5_dV_e_si*T0))*WeffWRFactor));
-d_Rdrain_dV_si_s = (rdstemp*((d_T5_dV_si_s*T0)*WeffWRFactor));
-d_Rdrain_dV_di_d = (rdstemp*((d_T5_dV_di_d*T0)*WeffWRFactor));
+d_Rdrain_dV_g_di = rdstemp*(T5*d_T0_dV_g_di+d_T5_dV_g_di*T0)*WeffWRFactor;
+d_Rdrain_dV_di_si = rdstemp*(T5*d_T0_dV_di_si+d_T5_dV_di_si*T0)*WeffWRFactor;
+d_Rdrain_dV_g_si = rdstemp*(T5*d_T0_dV_g_si+d_T5_dV_g_si*T0)*WeffWRFactor;
+d_Rdrain_dV_g_e = rdstemp*(T5*d_T0_dV_g_e+d_T5_dV_g_e*T0)*WeffWRFactor;
+d_Rdrain_dV_e_di = rdstemp*(T5*d_T0_dV_e_di+d_T5_dV_e_di*T0)*WeffWRFactor;
+d_Rdrain_dV_e_si = rdstemp*(T5*d_T0_dV_e_si+d_T5_dV_e_si*T0)*WeffWRFactor;
+d_Rdrain_dV_si_s = rdstemp*d_T5_dV_si_s*T0*WeffWRFactor;
+d_Rdrain_dV_di_d = rdstemp*d_T5_dV_di_d*T0*WeffWRFactor;
 Rdrain = (rdstemp*(RDrainGeo+((RDWMIN_i+(T5*T0))*WeffWRFactor)));
 }
 else
@@ -16581,11 +16581,11 @@ d_Rdrain_dV_di_d = d_Rdrain_dV_si_s = d_Rdrain_dV_e_si = d_Rdrain_dV_e_di = d_Rd
 Rdrain = RDrainGeo;
 
 d_T4_dV_g_di =  0.0;
-d_T4_dV_g_si = (PRWGS_i*d_qia_dV_g_si);
-d_T4_dV_g_e = (PRWGS_i*d_qia_dV_g_e);
-d_T4_dV_e_di = (PRWGS_i*d_qia_dV_e_di);
-d_T4_dV_e_si = (PRWGS_i*d_qia_dV_e_si);
-d_T4_dV_di_si = (PRWGS_i*d_qia_dV_di_si);
+d_T4_dV_g_si = PRWGS_i*d_qia_dV_g_si;
+d_T4_dV_g_e = PRWGS_i*d_qia_dV_g_e;
+d_T4_dV_e_di = PRWGS_i*d_qia_dV_e_di;
+d_T4_dV_e_si = PRWGS_i*d_qia_dV_e_si;
+d_T4_dV_di_si = PRWGS_i*d_qia_dV_di_si;
 T4 = (1.0+(PRWGS_i*qia));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
@@ -16600,65 +16600,65 @@ T1 = (1.0/T4);
 double value_sqrt_0 = sqrt(((T1*T1)+0.01));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_T0_dV_di_si = (0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1))))));
-d_T0_dV_g_si = (0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1))))));
-d_T0_dV_g_e = (0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1))))));
-d_T0_dV_e_di = (0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1))))));
-d_T0_dV_e_si = (0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*(((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1))))));
-d_T0_dV_g_di = (0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*(((T1*d_T1_dV_g_di)+(d_T1_dV_g_di*T1))))));
+d_T0_dV_di_si = 0.5*(d_T1_dV_di_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_di_si+d_T1_dV_di_si*T1))));
+d_T0_dV_g_si = 0.5*(d_T1_dV_g_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_si+d_T1_dV_g_si*T1))));
+d_T0_dV_g_e = 0.5*(d_T1_dV_g_e+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_e+d_T1_dV_g_e*T1))));
+d_T0_dV_e_di = 0.5*(d_T1_dV_e_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_di+d_T1_dV_e_di*T1))));
+d_T0_dV_e_si = 0.5*(d_T1_dV_e_si+(deriv_sqrt_0_d0*((T1*d_T1_dV_e_si+d_T1_dV_e_si*T1))));
+d_T0_dV_g_di = 0.5*(d_T1_dV_g_di+(deriv_sqrt_0_d0*((T1*d_T1_dV_g_di+d_T1_dV_g_di*T1))));
 T0 = (0.5*(T1+value_sqrt_0));
 }
 
-d_Rdsi_dV_di_si = ((rdstemp*(RDSW_i*d_T0_dV_di_si))*WeffWRFactor);
-d_Rdsi_dV_g_si = ((rdstemp*(RDSW_i*d_T0_dV_g_si))*WeffWRFactor);
-d_Rdsi_dV_g_e = ((rdstemp*(RDSW_i*d_T0_dV_g_e))*WeffWRFactor);
-d_Rdsi_dV_e_di = ((rdstemp*(RDSW_i*d_T0_dV_e_di))*WeffWRFactor);
-d_Rdsi_dV_e_si = ((rdstemp*(RDSW_i*d_T0_dV_e_si))*WeffWRFactor);
-d_Rdsi_dV_g_di = ((rdstemp*(RDSW_i*d_T0_dV_g_di))*WeffWRFactor);
+d_Rdsi_dV_di_si = rdstemp*RDSW_i*d_T0_dV_di_si*WeffWRFactor;
+d_Rdsi_dV_g_si = rdstemp*RDSW_i*d_T0_dV_g_si*WeffWRFactor;
+d_Rdsi_dV_g_e = rdstemp*RDSW_i*d_T0_dV_g_e*WeffWRFactor;
+d_Rdsi_dV_e_di = rdstemp*RDSW_i*d_T0_dV_e_di*WeffWRFactor;
+d_Rdsi_dV_e_si = rdstemp*RDSW_i*d_T0_dV_e_si*WeffWRFactor;
+d_Rdsi_dV_g_di = rdstemp*RDSW_i*d_T0_dV_g_di*WeffWRFactor;
 Rdsi = ((rdstemp*(RDSWMIN_i+(RDSW_i*T0)))*WeffWRFactor);
 
-d_Dr_dV_g_di = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_di)+((((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_di)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_di_si = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_di_si)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_di_si)+((NFINtotal*d_beta_dV_di_si)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_di_si)+(d_Dmob_dV_di_si*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_g_si = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_si)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_si)+((NFINtotal*d_beta_dV_g_si)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_g_si)+(d_Dmob_dV_g_si*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_g_e = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_e)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_e)+((NFINtotal*d_beta_dV_g_e)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_g_e)+(d_Dmob_dV_g_e*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_e_di = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_e_di)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_e_di)+((NFINtotal*d_beta_dV_e_di)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_e_di)+(d_Dmob_dV_e_di*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
-d_Dr_dV_e_si = (((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_e_si)+((((Dmob*Dvsat)*(((NFINtotal*beta)*d_ids0_ov_dqi_dV_e_si)+((NFINtotal*d_beta_dV_e_si)*ids0_ov_dqi))-((NFINtotal*beta)*ids0_ov_dqi)*((Dmob*d_Dvsat_dV_e_si)+(d_Dmob_dV_e_si*Dvsat)))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi));
+d_Dr_dV_g_di = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_di+((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_di/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_di_si = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_di_si+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_di_si+NFINtotal*d_beta_dV_di_si*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_di_si+d_Dmob_dV_di_si*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_g_si = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_si+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_si+NFINtotal*d_beta_dV_g_si*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_g_si+d_Dmob_dV_g_si*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_g_e = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_g_e+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_g_e+NFINtotal*d_beta_dV_g_e*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_g_e+d_Dmob_dV_g_e*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_e_di = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_e_di+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_e_di+NFINtotal*d_beta_dV_e_di*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_e_di+d_Dmob_dV_e_di*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
+d_Dr_dV_e_si = ((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*d_Rdsi_dV_e_si+(((Dmob*Dvsat)*((NFINtotal*beta)*d_ids0_ov_dqi_dV_e_si+NFINtotal*d_beta_dV_e_si*ids0_ov_dqi)-((NFINtotal*beta)*ids0_ov_dqi)*(Dmob*d_Dvsat_dV_e_si+d_Dmob_dV_e_si*Dvsat))/(Dmob*Dvsat)/(Dmob*Dvsat))*Rdsi);
 Dr = (1.0+((((NFINtotal*beta)*ids0_ov_dqi)/(Dmob*Dvsat))*Rdsi));
 }
 
-d_ids_dV_g_di = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*d_ids0_dV_g_di)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_g_di))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_di_si = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_di_si)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_di_si)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_di_si)+((((NFINtotal*beta)*d_ids0_dV_di_si)+((NFINtotal*d_beta_dV_di_si)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_di_si)+(((Dmob*d_Dvsat_dV_di_si)+(d_Dmob_dV_di_si*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_g_si = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_g_si)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_g_si)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_g_si)+((((NFINtotal*beta)*d_ids0_dV_g_si)+((NFINtotal*d_beta_dV_g_si)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_g_si)+(((Dmob*d_Dvsat_dV_g_si)+(d_Dmob_dV_g_si*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_g_e = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_g_e)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_g_e)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_g_e)+((((NFINtotal*beta)*d_ids0_dV_g_e)+((NFINtotal*d_beta_dV_g_e)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_g_e)+(((Dmob*d_Dvsat_dV_g_e)+(d_Dmob_dV_g_e*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_e_di = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_e_di)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_e_di)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_e_di)+((((NFINtotal*beta)*d_ids0_dV_e_di)+((NFINtotal*d_beta_dV_e_di)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_e_di)+(((Dmob*d_Dvsat_dV_e_di)+(d_Dmob_dV_e_di*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
-d_ids_dV_e_si = ((((Dmob*Dvsat)*Dr)*((((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_e_si)+((((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_e_si)+(((((NFINtotal*beta)*ids0)*d_Moc_dV_e_si)+((((NFINtotal*beta)*d_ids0_dV_e_si)+((NFINtotal*d_beta_dV_e_si)*ids0))*Moc))*Mob))*Mnud))-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(((Dmob*Dvsat)*d_Dr_dV_e_si)+(((Dmob*d_Dvsat_dV_e_si)+(d_Dmob_dV_e_si*Dvsat))*Dr)))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_g_di = ((((Dmob*Dvsat)*Dr)*(NFINtotal*beta)*d_ids0_dV_g_di*Moc*Mob*Mnud-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*(Dmob*Dvsat)*d_Dr_dV_g_di)/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_di_si = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_di_si+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_di_si+(((NFINtotal*beta)*ids0)*d_Moc_dV_di_si+((NFINtotal*beta)*d_ids0_dV_di_si+NFINtotal*d_beta_dV_di_si*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_di_si+(Dmob*d_Dvsat_dV_di_si+d_Dmob_dV_di_si*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_g_si = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_g_si+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_g_si+(((NFINtotal*beta)*ids0)*d_Moc_dV_g_si+((NFINtotal*beta)*d_ids0_dV_g_si+NFINtotal*d_beta_dV_g_si*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_g_si+(Dmob*d_Dvsat_dV_g_si+d_Dmob_dV_g_si*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_g_e = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_g_e+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_g_e+(((NFINtotal*beta)*ids0)*d_Moc_dV_g_e+((NFINtotal*beta)*d_ids0_dV_g_e+NFINtotal*d_beta_dV_g_e*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_g_e+(Dmob*d_Dvsat_dV_g_e+d_Dmob_dV_g_e*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_e_di = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_e_di+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_e_di+(((NFINtotal*beta)*ids0)*d_Moc_dV_e_di+((NFINtotal*beta)*d_ids0_dV_e_di+NFINtotal*d_beta_dV_e_di*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_e_di+(Dmob*d_Dvsat_dV_e_di+d_Dmob_dV_e_di*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
+d_ids_dV_e_si = ((((Dmob*Dvsat)*Dr)*(((((NFINtotal*beta)*ids0)*Moc)*Mob)*d_Mnud_dV_e_si+((((NFINtotal*beta)*ids0)*Moc)*d_Mob_dV_e_si+(((NFINtotal*beta)*ids0)*d_Moc_dV_e_si+((NFINtotal*beta)*d_ids0_dV_e_si+NFINtotal*d_beta_dV_e_si*ids0)*Moc)*Mob)*Mnud)-(((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)*((Dmob*Dvsat)*d_Dr_dV_e_si+(Dmob*d_Dvsat_dV_e_si+d_Dmob_dV_e_si*Dvsat)*Dr))/((Dmob*Dvsat)*Dr)/((Dmob*Dvsat)*Dr));
 ids = ((((((NFINtotal*beta)*ids0)*Moc)*Mob)*Mnud)/((Dmob*Dvsat)*Dr));
 
-d_ids_dV_g_di = (d_ids_dV_g_di*(model_.IDS0MULT));
-d_ids_dV_di_si = (d_ids_dV_di_si*(model_.IDS0MULT));
-d_ids_dV_g_si = (d_ids_dV_g_si*(model_.IDS0MULT));
-d_ids_dV_g_e = (d_ids_dV_g_e*(model_.IDS0MULT));
-d_ids_dV_e_di = (d_ids_dV_e_di*(model_.IDS0MULT));
-d_ids_dV_e_si = (d_ids_dV_e_si*(model_.IDS0MULT));
+d_ids_dV_g_di = d_ids_dV_g_di*(model_.IDS0MULT);
+d_ids_dV_di_si = d_ids_dV_di_si*(model_.IDS0MULT);
+d_ids_dV_g_si = d_ids_dV_g_si*(model_.IDS0MULT);
+d_ids_dV_g_e = d_ids_dV_g_e*(model_.IDS0MULT);
+d_ids_dV_e_di = d_ids_dV_e_di*(model_.IDS0MULT);
+d_ids_dV_e_si = d_ids_dV_e_si*(model_.IDS0MULT);
 ids = (ids*(model_.IDS0MULT));
 if ((NGATE_i>0))
 {
 
-d_idscv_dV_g_si = (((((2.0*cpoly)*d_Tcom_dV_g_si)/3.0)+(kpoly*d_qia_dV_g_si))+((-d_etaiv_dV_g_si)*nVtm));
-d_idscv_dV_g_e = (((((2.0*cpoly)*d_Tcom_dV_g_e)/3.0)+(kpoly*d_qia_dV_g_e))+((-d_etaiv_dV_g_e)*nVtm));
-d_idscv_dV_e_di = (((((2.0*cpoly)*d_Tcom_dV_e_di)/3.0)+(kpoly*d_qia_dV_e_di))+((-d_etaiv_dV_e_di)*nVtm));
-d_idscv_dV_e_si = (((((2.0*cpoly)*d_Tcom_dV_e_si)/3.0)+(kpoly*d_qia_dV_e_si))+((-d_etaiv_dV_e_si)*nVtm));
-d_idscv_dV_di_si = (((((2.0*cpoly)*d_Tcom_dV_di_si)/3.0)+(kpoly*d_qia_dV_di_si))+(((2.0-etaiv)*d_nVtm_dV_di_si)+((-d_etaiv_dV_di_si)*nVtm)));
+d_idscv_dV_g_si = ((((2.0*cpoly)*d_Tcom_dV_g_si/3.0)+kpoly*d_qia_dV_g_si)+(-d_etaiv_dV_g_si)*nVtm);
+d_idscv_dV_g_e = ((((2.0*cpoly)*d_Tcom_dV_g_e/3.0)+kpoly*d_qia_dV_g_e)+(-d_etaiv_dV_g_e)*nVtm);
+d_idscv_dV_e_di = ((((2.0*cpoly)*d_Tcom_dV_e_di/3.0)+kpoly*d_qia_dV_e_di)+(-d_etaiv_dV_e_di)*nVtm);
+d_idscv_dV_e_si = ((((2.0*cpoly)*d_Tcom_dV_e_si/3.0)+kpoly*d_qia_dV_e_si)+(-d_etaiv_dV_e_si)*nVtm);
+d_idscv_dV_di_si = ((((2.0*cpoly)*d_Tcom_dV_di_si/3.0)+kpoly*d_qia_dV_di_si)+((2.0-etaiv)*d_nVtm_dV_di_si+(-d_etaiv_dV_di_si)*nVtm));
 idscv = (((((2.0*cpoly)*Tcom)/3.0)+(kpoly*qia))+((2.0-etaiv)*nVtm));
 }
 else
 {
 
-d_idscv_dV_g_si = (d_qia_dV_g_si+((-d_etaiv_dV_g_si)*nVtm));
-d_idscv_dV_g_e = (d_qia_dV_g_e+((-d_etaiv_dV_g_e)*nVtm));
-d_idscv_dV_e_di = (d_qia_dV_e_di+((-d_etaiv_dV_e_di)*nVtm));
-d_idscv_dV_e_si = (d_qia_dV_e_si+((-d_etaiv_dV_e_si)*nVtm));
-d_idscv_dV_di_si = (d_qia_dV_di_si+(((2.0-etaiv)*d_nVtm_dV_di_si)+((-d_etaiv_dV_di_si)*nVtm)));
+d_idscv_dV_g_si = (d_qia_dV_g_si+(-d_etaiv_dV_g_si)*nVtm);
+d_idscv_dV_g_e = (d_qia_dV_g_e+(-d_etaiv_dV_g_e)*nVtm);
+d_idscv_dV_e_di = (d_qia_dV_e_di+(-d_etaiv_dV_e_di)*nVtm);
+d_idscv_dV_e_si = (d_qia_dV_e_si+(-d_etaiv_dV_e_si)*nVtm);
+d_idscv_dV_di_si = (d_qia_dV_di_si+((2.0-etaiv)*d_nVtm_dV_di_si+(-d_etaiv_dV_di_si)*nVtm));
 idscv = (qia+((2.0-etaiv)*nVtm));
 }
 
@@ -16680,11 +16680,11 @@ if ((NGATE_i>0))
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = ((4.0*cpoly)*d_qia_dV_g_si);
-d_T1_dV_g_e = ((4.0*cpoly)*d_qia_dV_g_e);
-d_T1_dV_e_di = ((4.0*cpoly)*d_qia_dV_e_di);
-d_T1_dV_e_si = ((4.0*cpoly)*d_qia_dV_e_si);
-d_T1_dV_di_si = ((4.0*cpoly)*d_qia_dV_di_si);
+d_T1_dV_g_si = (4.0*cpoly)*d_qia_dV_g_si;
+d_T1_dV_g_e = (4.0*cpoly)*d_qia_dV_g_e;
+d_T1_dV_e_di = (4.0*cpoly)*d_qia_dV_e_di;
+d_T1_dV_e_si = (4.0*cpoly)*d_qia_dV_e_si;
+d_T1_dV_di_si = (4.0*cpoly)*d_qia_dV_di_si;
 T1 = (kpoly+((4.0*cpoly)*qia));
 }
 else
@@ -16694,30 +16694,30 @@ d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_
 T1 = 1.0;
 }
 
-d_qg_dV_g_di = (((d_T1_dV_g_di*dqi)*dqi_idscv)/12.0);
-d_qg_dV_g_si = (d_qia_dV_g_si+((((T1*dqi)*d_dqi_idscv_dV_g_si)+(((T1*d_dqi_dV_g_si)+(d_T1_dV_g_si*dqi))*dqi_idscv))/12.0));
-d_qg_dV_g_e = (d_qia_dV_g_e+((((T1*dqi)*d_dqi_idscv_dV_g_e)+(((T1*d_dqi_dV_g_e)+(d_T1_dV_g_e*dqi))*dqi_idscv))/12.0));
-d_qg_dV_e_di = (d_qia_dV_e_di+((((T1*dqi)*d_dqi_idscv_dV_e_di)+(((T1*d_dqi_dV_e_di)+(d_T1_dV_e_di*dqi))*dqi_idscv))/12.0));
-d_qg_dV_e_si = (d_qia_dV_e_si+((((T1*dqi)*d_dqi_idscv_dV_e_si)+(((T1*d_dqi_dV_e_si)+(d_T1_dV_e_si*dqi))*dqi_idscv))/12.0));
-d_qg_dV_di_si = (d_qia_dV_di_si+((((T1*dqi)*d_dqi_idscv_dV_di_si)+(((T1*d_dqi_dV_di_si)+(d_T1_dV_di_si*dqi))*dqi_idscv))/12.0));
+d_qg_dV_g_di = (d_T1_dV_g_di*dqi*dqi_idscv/12.0);
+d_qg_dV_g_si = (d_qia_dV_g_si+(((T1*dqi)*d_dqi_idscv_dV_g_si+(T1*d_dqi_dV_g_si+d_T1_dV_g_si*dqi)*dqi_idscv)/12.0));
+d_qg_dV_g_e = (d_qia_dV_g_e+(((T1*dqi)*d_dqi_idscv_dV_g_e+(T1*d_dqi_dV_g_e+d_T1_dV_g_e*dqi)*dqi_idscv)/12.0));
+d_qg_dV_e_di = (d_qia_dV_e_di+(((T1*dqi)*d_dqi_idscv_dV_e_di+(T1*d_dqi_dV_e_di+d_T1_dV_e_di*dqi)*dqi_idscv)/12.0));
+d_qg_dV_e_si = (d_qia_dV_e_si+(((T1*dqi)*d_dqi_idscv_dV_e_si+(T1*d_dqi_dV_e_si+d_T1_dV_e_si*dqi)*dqi_idscv)/12.0));
+d_qg_dV_di_si = (d_qia_dV_di_si+(((T1*dqi)*d_dqi_idscv_dV_di_si+(T1*d_dqi_dV_di_si+d_T1_dV_di_si*dqi)*dqi_idscv)/12.0));
 qg = (qia+(((T1*dqi)*dqi_idscv)/12.0));
 if ((NGATE_i>0))
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = (cpoly*((32.0*d_qid_dV_g_si)+(28.0*d_qis_dV_g_si)));
-d_T1_dV_g_e = (cpoly*((32.0*d_qid_dV_g_e)+(28.0*d_qis_dV_g_e)));
-d_T1_dV_e_di = (cpoly*((32.0*d_qid_dV_e_di)+(28.0*d_qis_dV_e_di)));
-d_T1_dV_e_si = (cpoly*((32.0*d_qid_dV_e_si)+(28.0*d_qis_dV_e_si)));
-d_T1_dV_di_si = (cpoly*((32.0*d_qid_dV_di_si)+(28.0*d_qis_dV_di_si)));
+d_T1_dV_g_si = cpoly*(32.0*d_qid_dV_g_si+28.0*d_qis_dV_g_si);
+d_T1_dV_g_e = cpoly*(32.0*d_qid_dV_g_e+28.0*d_qis_dV_g_e);
+d_T1_dV_e_di = cpoly*(32.0*d_qid_dV_e_di+28.0*d_qis_dV_e_di);
+d_T1_dV_e_si = cpoly*(32.0*d_qid_dV_e_si+28.0*d_qis_dV_e_si);
+d_T1_dV_di_si = cpoly*(32.0*d_qid_dV_di_si+28.0*d_qis_dV_di_si);
 T1 = ((15.0*kpoly)+(cpoly*((32.0*qid)+(28.0*qis))));
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_g_si = ((((126.0*cpoly)*kpoly)*d_qia_dV_g_si)+((cpoly*cpoly)*((256.0*d_Tcom_dV_g_si)+(((240.0*qis)*d_qid_dV_g_si)+((240.0*d_qis_dV_g_si)*qid)))));
-d_T2_dV_g_e = ((((126.0*cpoly)*kpoly)*d_qia_dV_g_e)+((cpoly*cpoly)*((256.0*d_Tcom_dV_g_e)+(((240.0*qis)*d_qid_dV_g_e)+((240.0*d_qis_dV_g_e)*qid)))));
-d_T2_dV_e_di = ((((126.0*cpoly)*kpoly)*d_qia_dV_e_di)+((cpoly*cpoly)*((256.0*d_Tcom_dV_e_di)+(((240.0*qis)*d_qid_dV_e_di)+((240.0*d_qis_dV_e_di)*qid)))));
-d_T2_dV_e_si = ((((126.0*cpoly)*kpoly)*d_qia_dV_e_si)+((cpoly*cpoly)*((256.0*d_Tcom_dV_e_si)+(((240.0*qis)*d_qid_dV_e_si)+((240.0*d_qis_dV_e_si)*qid)))));
-d_T2_dV_di_si = ((((126.0*cpoly)*kpoly)*d_qia_dV_di_si)+((cpoly*cpoly)*((256.0*d_Tcom_dV_di_si)+(((240.0*qis)*d_qid_dV_di_si)+((240.0*d_qis_dV_di_si)*qid)))));
+d_T2_dV_g_si = (((126.0*cpoly)*kpoly)*d_qia_dV_g_si+(cpoly*cpoly)*(256.0*d_Tcom_dV_g_si+((240.0*qis)*d_qid_dV_g_si+240.0*d_qis_dV_g_si*qid)));
+d_T2_dV_g_e = (((126.0*cpoly)*kpoly)*d_qia_dV_g_e+(cpoly*cpoly)*(256.0*d_Tcom_dV_g_e+((240.0*qis)*d_qid_dV_g_e+240.0*d_qis_dV_g_e*qid)));
+d_T2_dV_e_di = (((126.0*cpoly)*kpoly)*d_qia_dV_e_di+(cpoly*cpoly)*(256.0*d_Tcom_dV_e_di+((240.0*qis)*d_qid_dV_e_di+240.0*d_qis_dV_e_di*qid)));
+d_T2_dV_e_si = (((126.0*cpoly)*kpoly)*d_qia_dV_e_si+(cpoly*cpoly)*(256.0*d_Tcom_dV_e_si+((240.0*qis)*d_qid_dV_e_si+240.0*d_qis_dV_e_si*qid)));
+d_T2_dV_di_si = (((126.0*cpoly)*kpoly)*d_qia_dV_di_si+(cpoly*cpoly)*(256.0*d_Tcom_dV_di_si+((240.0*qis)*d_qid_dV_di_si+240.0*d_qis_dV_di_si*qid)));
 T2 = ((((63.0*kpoly)*kpoly)+(((126.0*cpoly)*kpoly)*qia))+((cpoly*cpoly)*((256.0*Tcom)+((240.0*qis)*qid))));
 }
 else
@@ -16730,12 +16730,12 @@ d_T2_dV_g_di = d_T2_dV_g_e = d_T2_dV_g_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_d
 T2 = 63.0;
 }
 
-d_qd_dV_g_di = (-((dqi*((-((d_T1_dV_g_di*dqi_idscv)/30.0))-(((d_T2_dV_g_di*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
-d_qd_dV_g_si = ((0.5*d_qia_dV_g_si)-(((dqi*((-(((T1*d_dqi_idscv_dV_g_si)+(d_T1_dV_g_si*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_g_si)+(((T2*d_dqi_idscv_dV_g_si)+(d_T2_dV_g_si*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_g_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
-d_qd_dV_g_e = ((0.5*d_qia_dV_g_e)-(((dqi*((-(((T1*d_dqi_idscv_dV_g_e)+(d_T1_dV_g_e*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_g_e)+(((T2*d_dqi_idscv_dV_g_e)+(d_T2_dV_g_e*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_g_e*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
-d_qd_dV_e_di = ((0.5*d_qia_dV_e_di)-(((dqi*((-(((T1*d_dqi_idscv_dV_e_di)+(d_T1_dV_e_di*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_e_di)+(((T2*d_dqi_idscv_dV_e_di)+(d_T2_dV_e_di*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_e_di*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
-d_qd_dV_e_si = ((0.5*d_qia_dV_e_si)-(((dqi*((-(((T1*d_dqi_idscv_dV_e_si)+(d_T1_dV_e_si*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_e_si)+(((T2*d_dqi_idscv_dV_e_si)+(d_T2_dV_e_si*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_e_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
-d_qd_dV_di_si = ((0.5*d_qia_dV_di_si)-(((dqi*((-(((T1*d_dqi_idscv_dV_di_si)+(d_T1_dV_di_si*dqi_idscv))/30.0))-((((T2*dqi_idscv)*d_dqi_idscv_dV_di_si)+(((T2*d_dqi_idscv_dV_di_si)+(d_T2_dV_di_si*dqi_idscv))*dqi_idscv))/1260.0)))+(d_dqi_dV_di_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0))))/12.0));
+d_qd_dV_g_di = (-(dqi*((-(d_T1_dV_g_di*dqi_idscv/30.0))-(d_T2_dV_g_di*dqi_idscv*dqi_idscv/1260.0))/12.0));
+d_qd_dV_g_si = (0.5*d_qia_dV_g_si-((dqi*((-((T1*d_dqi_idscv_dV_g_si+d_T1_dV_g_si*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_g_si+(T2*d_dqi_idscv_dV_g_si+d_T2_dV_g_si*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_g_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
+d_qd_dV_g_e = (0.5*d_qia_dV_g_e-((dqi*((-((T1*d_dqi_idscv_dV_g_e+d_T1_dV_g_e*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_g_e+(T2*d_dqi_idscv_dV_g_e+d_T2_dV_g_e*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_g_e*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
+d_qd_dV_e_di = (0.5*d_qia_dV_e_di-((dqi*((-((T1*d_dqi_idscv_dV_e_di+d_T1_dV_e_di*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_e_di+(T2*d_dqi_idscv_dV_e_di+d_T2_dV_e_di*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_e_di*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
+d_qd_dV_e_si = (0.5*d_qia_dV_e_si-((dqi*((-((T1*d_dqi_idscv_dV_e_si+d_T1_dV_e_si*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_e_si+(T2*d_dqi_idscv_dV_e_si+d_T2_dV_e_si*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_e_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
+d_qd_dV_di_si = (0.5*d_qia_dV_di_si-((dqi*((-((T1*d_dqi_idscv_dV_di_si+d_T1_dV_di_si*dqi_idscv)/30.0))-(((T2*dqi_idscv)*d_dqi_idscv_dV_di_si+(T2*d_dqi_idscv_dV_di_si+d_T2_dV_di_si*dqi_idscv)*dqi_idscv)/1260.0))+d_dqi_dV_di_si*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
 qd = ((0.5*qia)-((dqi*((1.0-((T1*dqi_idscv)/30.0))-(((T2*dqi_idscv)*dqi_idscv)/1260.0)))/12.0));
 
 d_inv_MclmCV_dV_g_si = (-d_MclmCV_dV_g_si/MclmCV/MclmCV);
@@ -16745,44 +16745,44 @@ d_inv_MclmCV_dV_e_si = (-d_MclmCV_dV_e_si/MclmCV/MclmCV);
 d_inv_MclmCV_dV_di_si = (-d_MclmCV_dV_di_si/MclmCV/MclmCV);
 inv_MclmCV = (1.0/MclmCV);
 
-d_qg_dV_g_di = (inv_MclmCV*d_qg_dV_g_di);
-d_qg_dV_g_si = (((inv_MclmCV*d_qg_dV_g_si)+(d_inv_MclmCV_dV_g_si*qg))+(((MclmCV-1.0)*d_qid_dV_g_si)+(d_MclmCV_dV_g_si*qid)));
-d_qg_dV_g_e = (((inv_MclmCV*d_qg_dV_g_e)+(d_inv_MclmCV_dV_g_e*qg))+(((MclmCV-1.0)*d_qid_dV_g_e)+(d_MclmCV_dV_g_e*qid)));
-d_qg_dV_e_di = (((inv_MclmCV*d_qg_dV_e_di)+(d_inv_MclmCV_dV_e_di*qg))+(((MclmCV-1.0)*d_qid_dV_e_di)+(d_MclmCV_dV_e_di*qid)));
-d_qg_dV_e_si = (((inv_MclmCV*d_qg_dV_e_si)+(d_inv_MclmCV_dV_e_si*qg))+(((MclmCV-1.0)*d_qid_dV_e_si)+(d_MclmCV_dV_e_si*qid)));
-d_qg_dV_di_si = (((inv_MclmCV*d_qg_dV_di_si)+(d_inv_MclmCV_dV_di_si*qg))+(((MclmCV-1.0)*d_qid_dV_di_si)+(d_MclmCV_dV_di_si*qid)));
+d_qg_dV_g_di = inv_MclmCV*d_qg_dV_g_di;
+d_qg_dV_g_si = ((inv_MclmCV*d_qg_dV_g_si+d_inv_MclmCV_dV_g_si*qg)+((MclmCV-1.0)*d_qid_dV_g_si+d_MclmCV_dV_g_si*qid));
+d_qg_dV_g_e = ((inv_MclmCV*d_qg_dV_g_e+d_inv_MclmCV_dV_g_e*qg)+((MclmCV-1.0)*d_qid_dV_g_e+d_MclmCV_dV_g_e*qid));
+d_qg_dV_e_di = ((inv_MclmCV*d_qg_dV_e_di+d_inv_MclmCV_dV_e_di*qg)+((MclmCV-1.0)*d_qid_dV_e_di+d_MclmCV_dV_e_di*qid));
+d_qg_dV_e_si = ((inv_MclmCV*d_qg_dV_e_si+d_inv_MclmCV_dV_e_si*qg)+((MclmCV-1.0)*d_qid_dV_e_si+d_MclmCV_dV_e_si*qid));
+d_qg_dV_di_si = ((inv_MclmCV*d_qg_dV_di_si+d_inv_MclmCV_dV_di_si*qg)+((MclmCV-1.0)*d_qid_dV_di_si+d_MclmCV_dV_di_si*qid));
 qg = ((inv_MclmCV*qg)+((MclmCV-1.0)*qid));
 
-d_qd_dV_g_di = ((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_di);
-d_qd_dV_g_si = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_si)+(((inv_MclmCV*d_inv_MclmCV_dV_g_si)+(d_inv_MclmCV_dV_g_si*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_g_si)+((0.5*(d_MclmCV_dV_g_si-d_inv_MclmCV_dV_g_si))*qid)));
-d_qd_dV_g_e = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_e)+(((inv_MclmCV*d_inv_MclmCV_dV_g_e)+(d_inv_MclmCV_dV_g_e*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_g_e)+((0.5*(d_MclmCV_dV_g_e-d_inv_MclmCV_dV_g_e))*qid)));
-d_qd_dV_e_di = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_e_di)+(((inv_MclmCV*d_inv_MclmCV_dV_e_di)+(d_inv_MclmCV_dV_e_di*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_e_di)+((0.5*(d_MclmCV_dV_e_di-d_inv_MclmCV_dV_e_di))*qid)));
-d_qd_dV_e_si = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_e_si)+(((inv_MclmCV*d_inv_MclmCV_dV_e_si)+(d_inv_MclmCV_dV_e_si*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_e_si)+((0.5*(d_MclmCV_dV_e_si-d_inv_MclmCV_dV_e_si))*qid)));
-d_qd_dV_di_si = ((((inv_MclmCV*inv_MclmCV)*d_qd_dV_di_si)+(((inv_MclmCV*d_inv_MclmCV_dV_di_si)+(d_inv_MclmCV_dV_di_si*inv_MclmCV))*qd))+(((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_di_si)+((0.5*(d_MclmCV_dV_di_si-d_inv_MclmCV_dV_di_si))*qid)));
+d_qd_dV_g_di = (inv_MclmCV*inv_MclmCV)*d_qd_dV_g_di;
+d_qd_dV_g_si = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_si+(inv_MclmCV*d_inv_MclmCV_dV_g_si+d_inv_MclmCV_dV_g_si*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_g_si+0.5*(d_MclmCV_dV_g_si-d_inv_MclmCV_dV_g_si)*qid));
+d_qd_dV_g_e = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_g_e+(inv_MclmCV*d_inv_MclmCV_dV_g_e+d_inv_MclmCV_dV_g_e*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_g_e+0.5*(d_MclmCV_dV_g_e-d_inv_MclmCV_dV_g_e)*qid));
+d_qd_dV_e_di = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_e_di+(inv_MclmCV*d_inv_MclmCV_dV_e_di+d_inv_MclmCV_dV_e_di*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_e_di+0.5*(d_MclmCV_dV_e_di-d_inv_MclmCV_dV_e_di)*qid));
+d_qd_dV_e_si = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_e_si+(inv_MclmCV*d_inv_MclmCV_dV_e_si+d_inv_MclmCV_dV_e_si*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_e_si+0.5*(d_MclmCV_dV_e_si-d_inv_MclmCV_dV_e_si)*qid));
+d_qd_dV_di_si = (((inv_MclmCV*inv_MclmCV)*d_qd_dV_di_si+(inv_MclmCV*d_inv_MclmCV_dV_di_si+d_inv_MclmCV_dV_di_si*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*d_qid_dV_di_si+0.5*(d_MclmCV_dV_di_si-d_inv_MclmCV_dV_di_si)*qid));
 qd = (((inv_MclmCV*inv_MclmCV)*qd)+((0.5*(MclmCV-inv_MclmCV))*qid));
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = (((WeffCV*LeffCV)*d_coxeff_dV_di_si)+((d_WeffCV_dV_di_si*LeffCV)*coxeff));
-d_T1_dV_g_si = (((WeffCV*LeffCV)*d_coxeff_dV_g_si)+((d_WeffCV_dV_g_si*LeffCV)*coxeff));
-d_T1_dV_g_e = (((WeffCV*LeffCV)*d_coxeff_dV_g_e)+((d_WeffCV_dV_g_e*LeffCV)*coxeff));
-d_T1_dV_e_di = (((WeffCV*LeffCV)*d_coxeff_dV_e_di)+((d_WeffCV_dV_e_di*LeffCV)*coxeff));
-d_T1_dV_e_si = (((WeffCV*LeffCV)*d_coxeff_dV_e_si)+((d_WeffCV_dV_e_si*LeffCV)*coxeff));
+d_T1_dV_di_si = ((WeffCV*LeffCV)*d_coxeff_dV_di_si+d_WeffCV_dV_di_si*LeffCV*coxeff);
+d_T1_dV_g_si = ((WeffCV*LeffCV)*d_coxeff_dV_g_si+d_WeffCV_dV_g_si*LeffCV*coxeff);
+d_T1_dV_g_e = ((WeffCV*LeffCV)*d_coxeff_dV_g_e+d_WeffCV_dV_g_e*LeffCV*coxeff);
+d_T1_dV_e_di = ((WeffCV*LeffCV)*d_coxeff_dV_e_di+d_WeffCV_dV_e_di*LeffCV*coxeff);
+d_T1_dV_e_si = ((WeffCV*LeffCV)*d_coxeff_dV_e_si+d_WeffCV_dV_e_si*LeffCV*coxeff);
 T1 = ((WeffCV*LeffCV)*coxeff);
 
-d_qinv_dV_g_di = (((NFINtotal*qg)*d_T1_dV_g_di)+((NFINtotal*d_qg_dV_g_di)*T1));
-d_qinv_dV_g_si = (((NFINtotal*qg)*d_T1_dV_g_si)+((NFINtotal*d_qg_dV_g_si)*T1));
-d_qinv_dV_g_e = (((NFINtotal*qg)*d_T1_dV_g_e)+((NFINtotal*d_qg_dV_g_e)*T1));
-d_qinv_dV_e_di = (((NFINtotal*qg)*d_T1_dV_e_di)+((NFINtotal*d_qg_dV_e_di)*T1));
-d_qinv_dV_e_si = (((NFINtotal*qg)*d_T1_dV_e_si)+((NFINtotal*d_qg_dV_e_si)*T1));
-d_qinv_dV_di_si = (((NFINtotal*qg)*d_T1_dV_di_si)+((NFINtotal*d_qg_dV_di_si)*T1));
+d_qinv_dV_g_di = ((NFINtotal*qg)*d_T1_dV_g_di+NFINtotal*d_qg_dV_g_di*T1);
+d_qinv_dV_g_si = ((NFINtotal*qg)*d_T1_dV_g_si+NFINtotal*d_qg_dV_g_si*T1);
+d_qinv_dV_g_e = ((NFINtotal*qg)*d_T1_dV_g_e+NFINtotal*d_qg_dV_g_e*T1);
+d_qinv_dV_e_di = ((NFINtotal*qg)*d_T1_dV_e_di+NFINtotal*d_qg_dV_e_di*T1);
+d_qinv_dV_e_si = ((NFINtotal*qg)*d_T1_dV_e_si+NFINtotal*d_qg_dV_e_si*T1);
+d_qinv_dV_di_si = ((NFINtotal*qg)*d_T1_dV_di_si+NFINtotal*d_qg_dV_di_si*T1);
 qinv = ((NFINtotal*qg)*T1);
 
-d_qd_dV_g_di = (((NFINtotal*qd)*d_T1_dV_g_di)+((NFINtotal*d_qd_dV_g_di)*T1));
-d_qd_dV_g_si = (((NFINtotal*qd)*d_T1_dV_g_si)+((NFINtotal*d_qd_dV_g_si)*T1));
-d_qd_dV_g_e = (((NFINtotal*qd)*d_T1_dV_g_e)+((NFINtotal*d_qd_dV_g_e)*T1));
-d_qd_dV_e_di = (((NFINtotal*qd)*d_T1_dV_e_di)+((NFINtotal*d_qd_dV_e_di)*T1));
-d_qd_dV_e_si = (((NFINtotal*qd)*d_T1_dV_e_si)+((NFINtotal*d_qd_dV_e_si)*T1));
-d_qd_dV_di_si = (((NFINtotal*qd)*d_T1_dV_di_si)+((NFINtotal*d_qd_dV_di_si)*T1));
+d_qd_dV_g_di = ((NFINtotal*qd)*d_T1_dV_g_di+NFINtotal*d_qd_dV_g_di*T1);
+d_qd_dV_g_si = ((NFINtotal*qd)*d_T1_dV_g_si+NFINtotal*d_qd_dV_g_si*T1);
+d_qd_dV_g_e = ((NFINtotal*qd)*d_T1_dV_g_e+NFINtotal*d_qd_dV_g_e*T1);
+d_qd_dV_e_di = ((NFINtotal*qd)*d_T1_dV_e_di+NFINtotal*d_qd_dV_e_di*T1);
+d_qd_dV_e_si = ((NFINtotal*qd)*d_T1_dV_e_si+NFINtotal*d_qd_dV_e_si*T1);
+d_qd_dV_di_si = ((NFINtotal*qd)*d_T1_dV_di_si+NFINtotal*d_qd_dV_di_si*T1);
 qd = ((NFINtotal*qd)*T1);
 
 d_qg_dV_g_di = d_qinv_dV_g_di;
@@ -16842,27 +16842,27 @@ if ((((model_.CAPMOD)!=0)&&((model_.BULKMOD)!=0)))
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = (((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_di_si);
-d_T1_dV_g_si = (((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_g_si);
-d_T1_dV_g_e = (((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_g_e);
-d_T1_dV_e_di = (((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_e_di);
-d_T1_dV_e_si = (((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_e_si);
+d_T1_dV_di_si = ((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_di_si;
+d_T1_dV_g_si = ((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_g_si;
+d_T1_dV_g_e = ((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_g_e;
+d_T1_dV_e_di = ((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_e_di;
+d_T1_dV_e_si = ((NFINtotal*WeffCV0)*LeffCV_acc)*d_cox_acc_dV_e_si;
 T1 = (((NFINtotal*WeffCV0)*LeffCV_acc)*cox_acc);
 
-d_qg_acc_dV_g_di = ((-qi_acc)*d_T1_dV_g_di);
-d_qg_acc_dV_di_si = (((-qi_acc)*d_T1_dV_di_si)+((-d_qi_acc_dV_di_si)*T1));
-d_qg_acc_dV_g_si = (((-qi_acc)*d_T1_dV_g_si)+((-d_qi_acc_dV_g_si)*T1));
-d_qg_acc_dV_g_e = (((-qi_acc)*d_T1_dV_g_e)+((-d_qi_acc_dV_g_e)*T1));
-d_qg_acc_dV_e_di = (((-qi_acc)*d_T1_dV_e_di)+((-d_qi_acc_dV_e_di)*T1));
-d_qg_acc_dV_e_si = (((-qi_acc)*d_T1_dV_e_si)+((-d_qi_acc_dV_e_si)*T1));
+d_qg_acc_dV_g_di = (-qi_acc)*d_T1_dV_g_di;
+d_qg_acc_dV_di_si = ((-qi_acc)*d_T1_dV_di_si+(-d_qi_acc_dV_di_si)*T1);
+d_qg_acc_dV_g_si = ((-qi_acc)*d_T1_dV_g_si+(-d_qi_acc_dV_g_si)*T1);
+d_qg_acc_dV_g_e = ((-qi_acc)*d_T1_dV_g_e+(-d_qi_acc_dV_g_e)*T1);
+d_qg_acc_dV_e_di = ((-qi_acc)*d_T1_dV_e_di+(-d_qi_acc_dV_e_di)*T1);
+d_qg_acc_dV_e_si = ((-qi_acc)*d_T1_dV_e_si+(-d_qi_acc_dV_e_si)*T1);
 qg_acc = ((-qi_acc)*T1);
 
-d_qb_acc_dV_g_di = ((+qi_acc)*d_T1_dV_g_di);
-d_qb_acc_dV_di_si = (((+qi_acc)*d_T1_dV_di_si)+((+d_qi_acc_dV_di_si)*T1));
-d_qb_acc_dV_g_si = (((+qi_acc)*d_T1_dV_g_si)+((+d_qi_acc_dV_g_si)*T1));
-d_qb_acc_dV_g_e = (((+qi_acc)*d_T1_dV_g_e)+((+d_qi_acc_dV_g_e)*T1));
-d_qb_acc_dV_e_di = (((+qi_acc)*d_T1_dV_e_di)+((+d_qi_acc_dV_e_di)*T1));
-d_qb_acc_dV_e_si = (((+qi_acc)*d_T1_dV_e_si)+((+d_qi_acc_dV_e_si)*T1));
+d_qb_acc_dV_g_di = (+qi_acc)*d_T1_dV_g_di;
+d_qb_acc_dV_di_si = ((+qi_acc)*d_T1_dV_di_si+(+d_qi_acc_dV_di_si)*T1);
+d_qb_acc_dV_g_si = ((+qi_acc)*d_T1_dV_g_si+(+d_qi_acc_dV_g_si)*T1);
+d_qb_acc_dV_g_e = ((+qi_acc)*d_T1_dV_g_e+(+d_qi_acc_dV_g_e)*T1);
+d_qb_acc_dV_e_di = ((+qi_acc)*d_T1_dV_e_di+(+d_qi_acc_dV_e_di)*T1);
+d_qb_acc_dV_e_si = ((+qi_acc)*d_T1_dV_e_si+(+d_qi_acc_dV_e_si)*T1);
 qb_acc = ((+qi_acc)*T1);
 }
 
@@ -16875,15 +16875,15 @@ if (((model_.CGEOMOD)!=1))
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_di_si = ((NFINtotal*d_WeffCV_dV_di_si)*devsign);
-d_T1_dV_g_si = ((NFINtotal*d_WeffCV_dV_g_si)*devsign);
-d_T1_dV_g_e = ((NFINtotal*d_WeffCV_dV_g_e)*devsign);
-d_T1_dV_e_di = ((NFINtotal*d_WeffCV_dV_e_di)*devsign);
-d_T1_dV_e_si = ((NFINtotal*d_WeffCV_dV_e_si)*devsign);
+d_T1_dV_di_si = NFINtotal*d_WeffCV_dV_di_si*devsign;
+d_T1_dV_g_si = NFINtotal*d_WeffCV_dV_g_si*devsign;
+d_T1_dV_g_e = NFINtotal*d_WeffCV_dV_g_e*devsign;
+d_T1_dV_e_di = NFINtotal*d_WeffCV_dV_e_di*devsign;
+d_T1_dV_e_si = NFINtotal*d_WeffCV_dV_e_si*devsign;
 T1 = ((NFINtotal*WeffCV)*devsign);
 
 d_T2_dV_g_di = d_T2_dV_g_e = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
-d_T2_dV_g_si = (devsign*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si]);
+d_T2_dV_g_si = devsign*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si];
 T2 = (devsign*(probeVars[admsProbeID_V_g_si]));
 
 d_T0_dV_di_si = d_T2_dV_di_si;
@@ -16897,29 +16897,29 @@ T0 = ((T2-vfbsd)+0.02);
 double value_sqrt_0 = sqrt(((T0*T0)+(4.0*0.02)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_vgs_overlap_dV_di_si = (0.5*(d_T0_dV_di_si-(deriv_sqrt_0_d0*(((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0))))));
-d_vgs_overlap_dV_g_si = (0.5*(d_T0_dV_g_si-(deriv_sqrt_0_d0*(((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0))))));
-d_vgs_overlap_dV_g_e = (0.5*(d_T0_dV_g_e-(deriv_sqrt_0_d0*(((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0))))));
-d_vgs_overlap_dV_e_di = (0.5*(d_T0_dV_e_di-(deriv_sqrt_0_d0*(((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0))))));
-d_vgs_overlap_dV_e_si = (0.5*(d_T0_dV_e_si-(deriv_sqrt_0_d0*(((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0))))));
-d_vgs_overlap_dV_g_di = (0.5*(d_T0_dV_g_di-(deriv_sqrt_0_d0*(((T0*d_T0_dV_g_di)+(d_T0_dV_g_di*T0))))));
+d_vgs_overlap_dV_di_si = 0.5*(d_T0_dV_di_si-(deriv_sqrt_0_d0*((T0*d_T0_dV_di_si+d_T0_dV_di_si*T0))));
+d_vgs_overlap_dV_g_si = 0.5*(d_T0_dV_g_si-(deriv_sqrt_0_d0*((T0*d_T0_dV_g_si+d_T0_dV_g_si*T0))));
+d_vgs_overlap_dV_g_e = 0.5*(d_T0_dV_g_e-(deriv_sqrt_0_d0*((T0*d_T0_dV_g_e+d_T0_dV_g_e*T0))));
+d_vgs_overlap_dV_e_di = 0.5*(d_T0_dV_e_di-(deriv_sqrt_0_d0*((T0*d_T0_dV_e_di+d_T0_dV_e_di*T0))));
+d_vgs_overlap_dV_e_si = 0.5*(d_T0_dV_e_si-(deriv_sqrt_0_d0*((T0*d_T0_dV_e_si+d_T0_dV_e_si*T0))));
+d_vgs_overlap_dV_g_di = 0.5*(d_T0_dV_g_di-(deriv_sqrt_0_d0*((T0*d_T0_dV_g_di+d_T0_dV_g_di*T0))));
 vgs_overlap = (0.5*(T0-value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((1.0-((4.0*vgs_overlap)/CKAPPAS_i)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_qgs_ov_dV_di_si = ((T1*((CGSL_i*((d_T2_dV_di_si-d_vgs_overlap_dV_di_si)-((0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgs_overlap_dV_di_si)/CKAPPAS_i)))))))+(CGSO_i*d_T2_dV_di_si)))+(d_T1_dV_di_si*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2))));
-d_qgs_ov_dV_g_si = ((T1*((CGSL_i*((d_T2_dV_g_si-d_vgs_overlap_dV_g_si)-((0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgs_overlap_dV_g_si)/CKAPPAS_i)))))))+(CGSO_i*d_T2_dV_g_si)))+(d_T1_dV_g_si*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2))));
-d_qgs_ov_dV_g_e = ((T1*((CGSL_i*((d_T2_dV_g_e-d_vgs_overlap_dV_g_e)-((0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgs_overlap_dV_g_e)/CKAPPAS_i)))))))+(CGSO_i*d_T2_dV_g_e)))+(d_T1_dV_g_e*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2))));
-d_qgs_ov_dV_e_di = ((T1*((CGSL_i*((d_T2_dV_e_di-d_vgs_overlap_dV_e_di)-((0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgs_overlap_dV_e_di)/CKAPPAS_i)))))))+(CGSO_i*d_T2_dV_e_di)))+(d_T1_dV_e_di*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2))));
-d_qgs_ov_dV_e_si = ((T1*((CGSL_i*((d_T2_dV_e_si-d_vgs_overlap_dV_e_si)-((0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgs_overlap_dV_e_si)/CKAPPAS_i)))))))+(CGSO_i*d_T2_dV_e_si)))+(d_T1_dV_e_si*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2))));
-d_qgs_ov_dV_g_di = ((T1*((CGSL_i*((d_T2_dV_g_di-d_vgs_overlap_dV_g_di)-((0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgs_overlap_dV_g_di)/CKAPPAS_i)))))))+(CGSO_i*d_T2_dV_g_di)))+(d_T1_dV_g_di*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2))));
+d_qgs_ov_dV_di_si = (T1*(CGSL_i*((d_T2_dV_di_si-d_vgs_overlap_dV_di_si)-(0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgs_overlap_dV_di_si/CKAPPAS_i)))))+CGSO_i*d_T2_dV_di_si)+d_T1_dV_di_si*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2)));
+d_qgs_ov_dV_g_si = (T1*(CGSL_i*((d_T2_dV_g_si-d_vgs_overlap_dV_g_si)-(0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgs_overlap_dV_g_si/CKAPPAS_i)))))+CGSO_i*d_T2_dV_g_si)+d_T1_dV_g_si*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2)));
+d_qgs_ov_dV_g_e = (T1*(CGSL_i*((d_T2_dV_g_e-d_vgs_overlap_dV_g_e)-(0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgs_overlap_dV_g_e/CKAPPAS_i)))))+CGSO_i*d_T2_dV_g_e)+d_T1_dV_g_e*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2)));
+d_qgs_ov_dV_e_di = (T1*(CGSL_i*((d_T2_dV_e_di-d_vgs_overlap_dV_e_di)-(0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgs_overlap_dV_e_di/CKAPPAS_i)))))+CGSO_i*d_T2_dV_e_di)+d_T1_dV_e_di*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2)));
+d_qgs_ov_dV_e_si = (T1*(CGSL_i*((d_T2_dV_e_si-d_vgs_overlap_dV_e_si)-(0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgs_overlap_dV_e_si/CKAPPAS_i)))))+CGSO_i*d_T2_dV_e_si)+d_T1_dV_e_si*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2)));
+d_qgs_ov_dV_g_di = (T1*(CGSL_i*((d_T2_dV_g_di-d_vgs_overlap_dV_g_di)-(0.5*CKAPPAS_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgs_overlap_dV_g_di/CKAPPAS_i)))))+CGSO_i*d_T2_dV_g_di)+d_T1_dV_g_di*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2)));
 qgs_ov = (T1*((CGSL_i*(((T2-vfbsd)-vgs_overlap)-((0.5*CKAPPAS_i)*(value_sqrt_0-1.0))))+(CGSO_i*T2)));
 }
 
 d_T2_dV_g_e = d_T2_dV_g_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
-d_T2_dV_g_di = (devsign*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di]);
+d_T2_dV_g_di = devsign*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di];
 T2 = (devsign*(probeVars[admsProbeID_V_g_di]));
 
 d_T0_dV_di_si = d_T2_dV_di_si;
@@ -16933,24 +16933,24 @@ T0 = ((T2-vfbsd)+0.02);
 double value_sqrt_0 = sqrt(((T0*T0)+(4.0*0.02)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_vgd_overlap_dV_di_si = (0.5*(d_T0_dV_di_si-(deriv_sqrt_0_d0*(((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0))))));
-d_vgd_overlap_dV_g_si = (0.5*(d_T0_dV_g_si-(deriv_sqrt_0_d0*(((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0))))));
-d_vgd_overlap_dV_g_e = (0.5*(d_T0_dV_g_e-(deriv_sqrt_0_d0*(((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0))))));
-d_vgd_overlap_dV_e_di = (0.5*(d_T0_dV_e_di-(deriv_sqrt_0_d0*(((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0))))));
-d_vgd_overlap_dV_e_si = (0.5*(d_T0_dV_e_si-(deriv_sqrt_0_d0*(((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0))))));
-d_vgd_overlap_dV_g_di = (0.5*(d_T0_dV_g_di-(deriv_sqrt_0_d0*(((T0*d_T0_dV_g_di)+(d_T0_dV_g_di*T0))))));
+d_vgd_overlap_dV_di_si = 0.5*(d_T0_dV_di_si-(deriv_sqrt_0_d0*((T0*d_T0_dV_di_si+d_T0_dV_di_si*T0))));
+d_vgd_overlap_dV_g_si = 0.5*(d_T0_dV_g_si-(deriv_sqrt_0_d0*((T0*d_T0_dV_g_si+d_T0_dV_g_si*T0))));
+d_vgd_overlap_dV_g_e = 0.5*(d_T0_dV_g_e-(deriv_sqrt_0_d0*((T0*d_T0_dV_g_e+d_T0_dV_g_e*T0))));
+d_vgd_overlap_dV_e_di = 0.5*(d_T0_dV_e_di-(deriv_sqrt_0_d0*((T0*d_T0_dV_e_di+d_T0_dV_e_di*T0))));
+d_vgd_overlap_dV_e_si = 0.5*(d_T0_dV_e_si-(deriv_sqrt_0_d0*((T0*d_T0_dV_e_si+d_T0_dV_e_si*T0))));
+d_vgd_overlap_dV_g_di = 0.5*(d_T0_dV_g_di-(deriv_sqrt_0_d0*((T0*d_T0_dV_g_di+d_T0_dV_g_di*T0))));
 vgd_overlap = (0.5*(T0-value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((1.0-((4.0*vgd_overlap)/CKAPPAD_i)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_qgd_ov_dV_di_si = ((T1*((CGDL_i*((d_T2_dV_di_si-d_vgd_overlap_dV_di_si)-((0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgd_overlap_dV_di_si)/CKAPPAD_i)))))))+(CGDO_i*d_T2_dV_di_si)))+(d_T1_dV_di_si*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2))));
-d_qgd_ov_dV_g_si = ((T1*((CGDL_i*((d_T2_dV_g_si-d_vgd_overlap_dV_g_si)-((0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgd_overlap_dV_g_si)/CKAPPAD_i)))))))+(CGDO_i*d_T2_dV_g_si)))+(d_T1_dV_g_si*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2))));
-d_qgd_ov_dV_g_e = ((T1*((CGDL_i*((d_T2_dV_g_e-d_vgd_overlap_dV_g_e)-((0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgd_overlap_dV_g_e)/CKAPPAD_i)))))))+(CGDO_i*d_T2_dV_g_e)))+(d_T1_dV_g_e*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2))));
-d_qgd_ov_dV_e_di = ((T1*((CGDL_i*((d_T2_dV_e_di-d_vgd_overlap_dV_e_di)-((0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgd_overlap_dV_e_di)/CKAPPAD_i)))))))+(CGDO_i*d_T2_dV_e_di)))+(d_T1_dV_e_di*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2))));
-d_qgd_ov_dV_e_si = ((T1*((CGDL_i*((d_T2_dV_e_si-d_vgd_overlap_dV_e_si)-((0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgd_overlap_dV_e_si)/CKAPPAD_i)))))))+(CGDO_i*d_T2_dV_e_si)))+(d_T1_dV_e_si*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2))));
-d_qgd_ov_dV_g_di = ((T1*((CGDL_i*((d_T2_dV_g_di-d_vgd_overlap_dV_g_di)-((0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-((4.0*d_vgd_overlap_dV_g_di)/CKAPPAD_i)))))))+(CGDO_i*d_T2_dV_g_di)))+(d_T1_dV_g_di*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2))));
+d_qgd_ov_dV_di_si = (T1*(CGDL_i*((d_T2_dV_di_si-d_vgd_overlap_dV_di_si)-(0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgd_overlap_dV_di_si/CKAPPAD_i)))))+CGDO_i*d_T2_dV_di_si)+d_T1_dV_di_si*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2)));
+d_qgd_ov_dV_g_si = (T1*(CGDL_i*((d_T2_dV_g_si-d_vgd_overlap_dV_g_si)-(0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgd_overlap_dV_g_si/CKAPPAD_i)))))+CGDO_i*d_T2_dV_g_si)+d_T1_dV_g_si*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2)));
+d_qgd_ov_dV_g_e = (T1*(CGDL_i*((d_T2_dV_g_e-d_vgd_overlap_dV_g_e)-(0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgd_overlap_dV_g_e/CKAPPAD_i)))))+CGDO_i*d_T2_dV_g_e)+d_T1_dV_g_e*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2)));
+d_qgd_ov_dV_e_di = (T1*(CGDL_i*((d_T2_dV_e_di-d_vgd_overlap_dV_e_di)-(0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgd_overlap_dV_e_di/CKAPPAD_i)))))+CGDO_i*d_T2_dV_e_di)+d_T1_dV_e_di*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2)));
+d_qgd_ov_dV_e_si = (T1*(CGDL_i*((d_T2_dV_e_si-d_vgd_overlap_dV_e_si)-(0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgd_overlap_dV_e_si/CKAPPAD_i)))))+CGDO_i*d_T2_dV_e_si)+d_T1_dV_e_si*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2)));
+d_qgd_ov_dV_g_di = (T1*(CGDL_i*((d_T2_dV_g_di-d_vgd_overlap_dV_g_di)-(0.5*CKAPPAD_i)*(deriv_sqrt_0_d0*((-(4.0*d_vgd_overlap_dV_g_di/CKAPPAD_i)))))+CGDO_i*d_T2_dV_g_di)+d_T1_dV_g_di*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2)));
 qgd_ov = (T1*((CGDL_i*(((T2-vfbsd)-vgd_overlap)-((0.5*CKAPPAD_i)*(value_sqrt_0-1.0))))+(CGDO_i*T2)));
 }
 }
@@ -16961,21 +16961,21 @@ d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di = d_T1_dV_e_si = d_T1_dV_e_di = d_T1_
 T1 = (NFINtotal*WeffCV0);
 
 d_qgs_fr_dV_g_s =  0.0;
-d_qgs_fr_dV_di_si = ((d_T1_dV_di_si*CFS_i)*(probeVars[admsProbeID_V_g_si]));
-d_qgs_fr_dV_g_si = (((T1*CFS_i)*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si])+((d_T1_dV_g_si*CFS_i)*(probeVars[admsProbeID_V_g_si])));
-d_qgs_fr_dV_g_e = ((d_T1_dV_g_e*CFS_i)*(probeVars[admsProbeID_V_g_si]));
-d_qgs_fr_dV_e_di = ((d_T1_dV_e_di*CFS_i)*(probeVars[admsProbeID_V_g_si]));
-d_qgs_fr_dV_e_si = ((d_T1_dV_e_si*CFS_i)*(probeVars[admsProbeID_V_g_si]));
-d_qgs_fr_dV_g_di = ((d_T1_dV_g_di*CFS_i)*(probeVars[admsProbeID_V_g_si]));
+d_qgs_fr_dV_di_si = d_T1_dV_di_si*CFS_i*(probeVars[admsProbeID_V_g_si]);
+d_qgs_fr_dV_g_si = ((T1*CFS_i)*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si]+d_T1_dV_g_si*CFS_i*(probeVars[admsProbeID_V_g_si]));
+d_qgs_fr_dV_g_e = d_T1_dV_g_e*CFS_i*(probeVars[admsProbeID_V_g_si]);
+d_qgs_fr_dV_e_di = d_T1_dV_e_di*CFS_i*(probeVars[admsProbeID_V_g_si]);
+d_qgs_fr_dV_e_si = d_T1_dV_e_si*CFS_i*(probeVars[admsProbeID_V_g_si]);
+d_qgs_fr_dV_g_di = d_T1_dV_g_di*CFS_i*(probeVars[admsProbeID_V_g_si]);
 qgs_fr = ((T1*CFS_i)*(probeVars[admsProbeID_V_g_si]));
 
 d_qgd_fr_dV_g_d =  0.0;
-d_qgd_fr_dV_di_si = ((d_T1_dV_di_si*CFD_i)*(probeVars[admsProbeID_V_g_di]));
-d_qgd_fr_dV_g_si = ((d_T1_dV_g_si*CFD_i)*(probeVars[admsProbeID_V_g_di]));
-d_qgd_fr_dV_g_e = ((d_T1_dV_g_e*CFD_i)*(probeVars[admsProbeID_V_g_di]));
-d_qgd_fr_dV_e_di = ((d_T1_dV_e_di*CFD_i)*(probeVars[admsProbeID_V_g_di]));
-d_qgd_fr_dV_e_si = ((d_T1_dV_e_si*CFD_i)*(probeVars[admsProbeID_V_g_di]));
-d_qgd_fr_dV_g_di = (((T1*CFD_i)*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di])+((d_T1_dV_g_di*CFD_i)*(probeVars[admsProbeID_V_g_di])));
+d_qgd_fr_dV_di_si = d_T1_dV_di_si*CFD_i*(probeVars[admsProbeID_V_g_di]);
+d_qgd_fr_dV_g_si = d_T1_dV_g_si*CFD_i*(probeVars[admsProbeID_V_g_di]);
+d_qgd_fr_dV_g_e = d_T1_dV_g_e*CFD_i*(probeVars[admsProbeID_V_g_di]);
+d_qgd_fr_dV_e_di = d_T1_dV_e_di*CFD_i*(probeVars[admsProbeID_V_g_di]);
+d_qgd_fr_dV_e_si = d_T1_dV_e_si*CFD_i*(probeVars[admsProbeID_V_g_di]);
+d_qgd_fr_dV_g_di = ((T1*CFD_i)*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di]+d_T1_dV_g_di*CFD_i*(probeVars[admsProbeID_V_g_di]));
 qgd_fr = ((T1*CFD_i)*(probeVars[admsProbeID_V_g_di]));
 
 d_qgs_parasitic_dV_g_s =  0.0;
@@ -17006,36 +17006,36 @@ if (((model_.CGEO1SW)==1))
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si = d_T0_dV_di_si =  0.0;
 T0 = (NFINtotal*WeffCV0);
 
-d_COVS_i_dV_di_si = ((T0*d_COVS_i_dV_di_si)+(d_T0_dV_di_si*COVS_i));
-d_COVS_i_dV_g_si = ((T0*d_COVS_i_dV_g_si)+(d_T0_dV_g_si*COVS_i));
-d_COVS_i_dV_g_e = ((T0*d_COVS_i_dV_g_e)+(d_T0_dV_g_e*COVS_i));
-d_COVS_i_dV_e_di = ((T0*d_COVS_i_dV_e_di)+(d_T0_dV_e_di*COVS_i));
-d_COVS_i_dV_e_si = ((T0*d_COVS_i_dV_e_si)+(d_T0_dV_e_si*COVS_i));
-d_COVS_i_dV_g_di = ((T0*d_COVS_i_dV_g_di)+(d_T0_dV_g_di*COVS_i));
+d_COVS_i_dV_di_si = (T0*d_COVS_i_dV_di_si+d_T0_dV_di_si*COVS_i);
+d_COVS_i_dV_g_si = (T0*d_COVS_i_dV_g_si+d_T0_dV_g_si*COVS_i);
+d_COVS_i_dV_g_e = (T0*d_COVS_i_dV_g_e+d_T0_dV_g_e*COVS_i);
+d_COVS_i_dV_e_di = (T0*d_COVS_i_dV_e_di+d_T0_dV_e_di*COVS_i);
+d_COVS_i_dV_e_si = (T0*d_COVS_i_dV_e_si+d_T0_dV_e_si*COVS_i);
+d_COVS_i_dV_g_di = (T0*d_COVS_i_dV_g_di+d_T0_dV_g_di*COVS_i);
 COVS_i = (T0*COVS_i);
 
-d_COVD_i_dV_di_si = ((T0*d_COVD_i_dV_di_si)+(d_T0_dV_di_si*COVD_i));
-d_COVD_i_dV_g_si = ((T0*d_COVD_i_dV_g_si)+(d_T0_dV_g_si*COVD_i));
-d_COVD_i_dV_g_e = ((T0*d_COVD_i_dV_g_e)+(d_T0_dV_g_e*COVD_i));
-d_COVD_i_dV_e_di = ((T0*d_COVD_i_dV_e_di)+(d_T0_dV_e_di*COVD_i));
-d_COVD_i_dV_e_si = ((T0*d_COVD_i_dV_e_si)+(d_T0_dV_e_si*COVD_i));
-d_COVD_i_dV_g_di = ((T0*d_COVD_i_dV_g_di)+(d_T0_dV_g_di*COVD_i));
+d_COVD_i_dV_di_si = (T0*d_COVD_i_dV_di_si+d_T0_dV_di_si*COVD_i);
+d_COVD_i_dV_g_si = (T0*d_COVD_i_dV_g_si+d_T0_dV_g_si*COVD_i);
+d_COVD_i_dV_g_e = (T0*d_COVD_i_dV_g_e+d_T0_dV_g_e*COVD_i);
+d_COVD_i_dV_e_di = (T0*d_COVD_i_dV_e_di+d_T0_dV_e_di*COVD_i);
+d_COVD_i_dV_e_si = (T0*d_COVD_i_dV_e_si+d_T0_dV_e_si*COVD_i);
+d_COVD_i_dV_g_di = (T0*d_COVD_i_dV_g_di+d_T0_dV_g_di*COVD_i);
 COVD_i = (T0*COVD_i);
 
-d_cgsp_dV_di_si = (d_T0_dV_di_si*CGSP);
-d_cgsp_dV_g_si = (d_T0_dV_g_si*CGSP);
-d_cgsp_dV_g_e = (d_T0_dV_g_e*CGSP);
-d_cgsp_dV_e_di = (d_T0_dV_e_di*CGSP);
-d_cgsp_dV_e_si = (d_T0_dV_e_si*CGSP);
-d_cgsp_dV_g_di = (d_T0_dV_g_di*CGSP);
+d_cgsp_dV_di_si = d_T0_dV_di_si*CGSP;
+d_cgsp_dV_g_si = d_T0_dV_g_si*CGSP;
+d_cgsp_dV_g_e = d_T0_dV_g_e*CGSP;
+d_cgsp_dV_e_di = d_T0_dV_e_di*CGSP;
+d_cgsp_dV_e_si = d_T0_dV_e_si*CGSP;
+d_cgsp_dV_g_di = d_T0_dV_g_di*CGSP;
 cgsp = (T0*CGSP);
 
-d_cgdp_dV_di_si = (d_T0_dV_di_si*CGDP);
-d_cgdp_dV_g_si = (d_T0_dV_g_si*CGDP);
-d_cgdp_dV_g_e = (d_T0_dV_g_e*CGDP);
-d_cgdp_dV_e_di = (d_T0_dV_e_di*CGDP);
-d_cgdp_dV_e_si = (d_T0_dV_e_si*CGDP);
-d_cgdp_dV_g_di = (d_T0_dV_g_di*CGDP);
+d_cgdp_dV_di_si = d_T0_dV_di_si*CGDP;
+d_cgdp_dV_g_si = d_T0_dV_g_si*CGDP;
+d_cgdp_dV_g_e = d_T0_dV_g_e*CGDP;
+d_cgdp_dV_e_di = d_T0_dV_e_di*CGDP;
+d_cgdp_dV_e_si = d_T0_dV_e_si*CGDP;
+d_cgdp_dV_g_di = d_T0_dV_g_di*CGDP;
 cgdp = (T0*CGDP);
 }
 else
@@ -17048,20 +17048,20 @@ d_cgdp_dV_g_di = d_cgdp_dV_e_si = d_cgdp_dV_e_di = d_cgdp_dV_g_e = d_cgdp_dV_g_s
 cgdp = CGDP;
 }
 
-d_qgs_ov_dV_di_si = (d_COVS_i_dV_di_si*(probeVars[admsProbeID_V_g_si]));
-d_qgs_ov_dV_g_si = ((COVS_i*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si])+(d_COVS_i_dV_g_si*(probeVars[admsProbeID_V_g_si])));
-d_qgs_ov_dV_g_e = (d_COVS_i_dV_g_e*(probeVars[admsProbeID_V_g_si]));
-d_qgs_ov_dV_e_di = (d_COVS_i_dV_e_di*(probeVars[admsProbeID_V_g_si]));
-d_qgs_ov_dV_e_si = (d_COVS_i_dV_e_si*(probeVars[admsProbeID_V_g_si]));
-d_qgs_ov_dV_g_di = (d_COVS_i_dV_g_di*(probeVars[admsProbeID_V_g_si]));
+d_qgs_ov_dV_di_si = d_COVS_i_dV_di_si*(probeVars[admsProbeID_V_g_si]);
+d_qgs_ov_dV_g_si = (COVS_i*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si]+d_COVS_i_dV_g_si*(probeVars[admsProbeID_V_g_si]));
+d_qgs_ov_dV_g_e = d_COVS_i_dV_g_e*(probeVars[admsProbeID_V_g_si]);
+d_qgs_ov_dV_e_di = d_COVS_i_dV_e_di*(probeVars[admsProbeID_V_g_si]);
+d_qgs_ov_dV_e_si = d_COVS_i_dV_e_si*(probeVars[admsProbeID_V_g_si]);
+d_qgs_ov_dV_g_di = d_COVS_i_dV_g_di*(probeVars[admsProbeID_V_g_si]);
 qgs_ov = (COVS_i*(probeVars[admsProbeID_V_g_si]));
 
-d_qgd_ov_dV_di_si = (d_COVD_i_dV_di_si*(probeVars[admsProbeID_V_g_di]));
-d_qgd_ov_dV_g_si = (d_COVD_i_dV_g_si*(probeVars[admsProbeID_V_g_di]));
-d_qgd_ov_dV_g_e = (d_COVD_i_dV_g_e*(probeVars[admsProbeID_V_g_di]));
-d_qgd_ov_dV_e_di = (d_COVD_i_dV_e_di*(probeVars[admsProbeID_V_g_di]));
-d_qgd_ov_dV_e_si = (d_COVD_i_dV_e_si*(probeVars[admsProbeID_V_g_di]));
-d_qgd_ov_dV_g_di = ((COVD_i*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di])+(d_COVD_i_dV_g_di*(probeVars[admsProbeID_V_g_di])));
+d_qgd_ov_dV_di_si = d_COVD_i_dV_di_si*(probeVars[admsProbeID_V_g_di]);
+d_qgd_ov_dV_g_si = d_COVD_i_dV_g_si*(probeVars[admsProbeID_V_g_di]);
+d_qgd_ov_dV_g_e = d_COVD_i_dV_g_e*(probeVars[admsProbeID_V_g_di]);
+d_qgd_ov_dV_e_di = d_COVD_i_dV_e_di*(probeVars[admsProbeID_V_g_di]);
+d_qgd_ov_dV_e_si = d_COVD_i_dV_e_si*(probeVars[admsProbeID_V_g_di]);
+d_qgd_ov_dV_g_di = (COVD_i*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di]+d_COVD_i_dV_g_di*(probeVars[admsProbeID_V_g_di]));
 qgd_ov = (COVD_i*(probeVars[admsProbeID_V_g_di]));
 
 d_qgs_parasitic_dV_g_s =  0.0;
@@ -17082,33 +17082,33 @@ d_qgd_parasitic_dV_e_si = d_qgd_ov_dV_e_si;
 d_qgd_parasitic_dV_g_di = d_qgd_ov_dV_g_di;
 qgd_parasitic = qgd_ov;
 
-d_qgs_fr_dV_g_s = (cgsp*d_probeVars[admsProbeID_V_g_s][admsProbeID_V_g_s]);
-d_qgs_fr_dV_di_si = (d_cgsp_dV_di_si*(probeVars[admsProbeID_V_g_s]));
-d_qgs_fr_dV_g_si = (d_cgsp_dV_g_si*(probeVars[admsProbeID_V_g_s]));
-d_qgs_fr_dV_g_e = (d_cgsp_dV_g_e*(probeVars[admsProbeID_V_g_s]));
-d_qgs_fr_dV_e_di = (d_cgsp_dV_e_di*(probeVars[admsProbeID_V_g_s]));
-d_qgs_fr_dV_e_si = (d_cgsp_dV_e_si*(probeVars[admsProbeID_V_g_s]));
-d_qgs_fr_dV_g_di = (d_cgsp_dV_g_di*(probeVars[admsProbeID_V_g_s]));
+d_qgs_fr_dV_g_s = cgsp*d_probeVars[admsProbeID_V_g_s][admsProbeID_V_g_s];
+d_qgs_fr_dV_di_si = d_cgsp_dV_di_si*(probeVars[admsProbeID_V_g_s]);
+d_qgs_fr_dV_g_si = d_cgsp_dV_g_si*(probeVars[admsProbeID_V_g_s]);
+d_qgs_fr_dV_g_e = d_cgsp_dV_g_e*(probeVars[admsProbeID_V_g_s]);
+d_qgs_fr_dV_e_di = d_cgsp_dV_e_di*(probeVars[admsProbeID_V_g_s]);
+d_qgs_fr_dV_e_si = d_cgsp_dV_e_si*(probeVars[admsProbeID_V_g_s]);
+d_qgs_fr_dV_g_di = d_cgsp_dV_g_di*(probeVars[admsProbeID_V_g_s]);
 qgs_fr = (cgsp*(probeVars[admsProbeID_V_g_s]));
 
-d_qgd_fr_dV_g_d = (cgdp*d_probeVars[admsProbeID_V_g_d][admsProbeID_V_g_d]);
-d_qgd_fr_dV_di_si = (d_cgdp_dV_di_si*(probeVars[admsProbeID_V_g_d]));
-d_qgd_fr_dV_g_si = (d_cgdp_dV_g_si*(probeVars[admsProbeID_V_g_d]));
-d_qgd_fr_dV_g_e = (d_cgdp_dV_g_e*(probeVars[admsProbeID_V_g_d]));
-d_qgd_fr_dV_e_di = (d_cgdp_dV_e_di*(probeVars[admsProbeID_V_g_d]));
-d_qgd_fr_dV_e_si = (d_cgdp_dV_e_si*(probeVars[admsProbeID_V_g_d]));
-d_qgd_fr_dV_g_di = (d_cgdp_dV_g_di*(probeVars[admsProbeID_V_g_d]));
+d_qgd_fr_dV_g_d = cgdp*d_probeVars[admsProbeID_V_g_d][admsProbeID_V_g_d];
+d_qgd_fr_dV_di_si = d_cgdp_dV_di_si*(probeVars[admsProbeID_V_g_d]);
+d_qgd_fr_dV_g_si = d_cgdp_dV_g_si*(probeVars[admsProbeID_V_g_d]);
+d_qgd_fr_dV_g_e = d_cgdp_dV_g_e*(probeVars[admsProbeID_V_g_d]);
+d_qgd_fr_dV_e_di = d_cgdp_dV_e_di*(probeVars[admsProbeID_V_g_d]);
+d_qgd_fr_dV_e_si = d_cgdp_dV_e_si*(probeVars[admsProbeID_V_g_d]);
+d_qgd_fr_dV_g_di = d_cgdp_dV_g_di*(probeVars[admsProbeID_V_g_d]);
 qgd_fr = (cgdp*(probeVars[admsProbeID_V_g_d]));
 }
 else
 {
 
 d_qgs_fr_dV_g_s = d_qgs_fr_dV_g_di = d_qgs_fr_dV_e_si = d_qgs_fr_dV_e_di = d_qgs_fr_dV_g_e = d_qgs_fr_dV_di_si =  0.0;
-d_qgs_fr_dV_g_si = (Cfr_geo*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si]);
+d_qgs_fr_dV_g_si = Cfr_geo*d_probeVars[admsProbeID_V_g_si][admsProbeID_V_g_si];
 qgs_fr = (Cfr_geo*(probeVars[admsProbeID_V_g_si]));
 
 d_qgd_fr_dV_g_d = d_qgd_fr_dV_e_si = d_qgd_fr_dV_e_di = d_qgd_fr_dV_g_e = d_qgd_fr_dV_g_si = d_qgd_fr_dV_di_si =  0.0;
-d_qgd_fr_dV_g_di = (Cfr_geo*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di]);
+d_qgd_fr_dV_g_di = Cfr_geo*d_probeVars[admsProbeID_V_g_di][admsProbeID_V_g_di];
 qgd_fr = (Cfr_geo*(probeVars[admsProbeID_V_g_di]));
 
 d_qgs_parasitic_dV_g_s = d_qgs_fr_dV_g_s;
@@ -17131,7 +17131,7 @@ qgd_parasitic = (qgd_ov+qgd_fr);
 }
 }
 
-d_qds_fr_dV_d_s = (CDSP*d_probeVars[admsProbeID_V_d_s][admsProbeID_V_d_s]);
+d_qds_fr_dV_d_s = CDSP*d_probeVars[admsProbeID_V_d_s][admsProbeID_V_d_s];
 qds_fr = (CDSP*(probeVars[admsProbeID_V_d_s]));
 
 d_Iii_dV_g_di = d_Iii_dV_e_si = d_Iii_dV_e_di = d_Iii_dV_g_e = d_Iii_dV_g_si = d_Iii_dV_di_si =  0.0;
@@ -17160,12 +17160,12 @@ T1 = ((-BETA0_t)/(diffVds+1.0e-30));
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T1);
 
-d_Iii_dV_di_si = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_di_si))+((((T0*diffVds)*d_ids_dV_di_si)+(((T0*d_diffVds_dV_di_si)+(d_T0_dV_di_si*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
-d_Iii_dV_g_si = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_si))+((((T0*diffVds)*d_ids_dV_g_si)+(((T0*d_diffVds_dV_g_si)+(d_T0_dV_g_si*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
-d_Iii_dV_g_e = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_e))+((((T0*diffVds)*d_ids_dV_g_e)+(((T0*d_diffVds_dV_g_e)+(d_T0_dV_g_e*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
-d_Iii_dV_e_di = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_di))+((((T0*diffVds)*d_ids_dV_e_di)+(((T0*d_diffVds_dV_e_di)+(d_T0_dV_e_di*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
-d_Iii_dV_e_si = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_si))+((((T0*diffVds)*d_ids_dV_e_si)+(((T0*d_diffVds_dV_e_si)+(d_T0_dV_e_si*diffVds))*ids))*evaluator_lexp_0.getValues(T1)));
-d_Iii_dV_g_di = ((((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_di))+((((T0*diffVds)*d_ids_dV_g_di)+((d_T0_dV_g_di*diffVds)*ids))*evaluator_lexp_0.getValues(T1)));
+d_Iii_dV_di_si = (((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_di_si)+((T0*diffVds)*d_ids_dV_di_si+(T0*d_diffVds_dV_di_si+d_T0_dV_di_si*diffVds)*ids)*evaluator_lexp_0.getValues(T1));
+d_Iii_dV_g_si = (((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_si)+((T0*diffVds)*d_ids_dV_g_si+(T0*d_diffVds_dV_g_si+d_T0_dV_g_si*diffVds)*ids)*evaluator_lexp_0.getValues(T1));
+d_Iii_dV_g_e = (((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_e)+((T0*diffVds)*d_ids_dV_g_e+(T0*d_diffVds_dV_g_e+d_T0_dV_g_e*diffVds)*ids)*evaluator_lexp_0.getValues(T1));
+d_Iii_dV_e_di = (((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_di)+((T0*diffVds)*d_ids_dV_e_di+(T0*d_diffVds_dV_e_di+d_T0_dV_e_di*diffVds)*ids)*evaluator_lexp_0.getValues(T1));
+d_Iii_dV_e_si = (((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_si)+((T0*diffVds)*d_ids_dV_e_si+(T0*d_diffVds_dV_e_si+d_T0_dV_e_si*diffVds)*ids)*evaluator_lexp_0.getValues(T1));
+d_Iii_dV_g_di = (((T0*diffVds)*ids)*evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_di)+((T0*diffVds)*d_ids_dV_g_di+d_T0_dV_g_di*diffVds*ids)*evaluator_lexp_0.getValues(T1));
 Iii = (((T0*diffVds)*ids)*evaluator_lexp_0.getValues(T1));
 }
 }
@@ -17188,19 +17188,19 @@ d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_g_si = d_T0_d
 T0 = (ESATII_i*Leff);
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = (((1.0+T0)*(SII0_t*d_T0_dV_di_si)-(SII0_t*T0)*d_T0_dV_di_si)/(1.0+T0)/(1.0+T0));
-d_T1_dV_g_si = (((1.0+T0)*(SII0_t*d_T0_dV_g_si)-(SII0_t*T0)*d_T0_dV_g_si)/(1.0+T0)/(1.0+T0));
-d_T1_dV_g_e = (((1.0+T0)*(SII0_t*d_T0_dV_g_e)-(SII0_t*T0)*d_T0_dV_g_e)/(1.0+T0)/(1.0+T0));
-d_T1_dV_e_di = (((1.0+T0)*(SII0_t*d_T0_dV_e_di)-(SII0_t*T0)*d_T0_dV_e_di)/(1.0+T0)/(1.0+T0));
-d_T1_dV_e_si = (((1.0+T0)*(SII0_t*d_T0_dV_e_si)-(SII0_t*T0)*d_T0_dV_e_si)/(1.0+T0)/(1.0+T0));
-d_T1_dV_g_di = (((1.0+T0)*(SII0_t*d_T0_dV_g_di)-(SII0_t*T0)*d_T0_dV_g_di)/(1.0+T0)/(1.0+T0));
+d_T1_dV_di_si = (((1.0+T0)*SII0_t*d_T0_dV_di_si-(SII0_t*T0)*d_T0_dV_di_si)/(1.0+T0)/(1.0+T0));
+d_T1_dV_g_si = (((1.0+T0)*SII0_t*d_T0_dV_g_si-(SII0_t*T0)*d_T0_dV_g_si)/(1.0+T0)/(1.0+T0));
+d_T1_dV_g_e = (((1.0+T0)*SII0_t*d_T0_dV_g_e-(SII0_t*T0)*d_T0_dV_g_e)/(1.0+T0)/(1.0+T0));
+d_T1_dV_e_di = (((1.0+T0)*SII0_t*d_T0_dV_e_di-(SII0_t*T0)*d_T0_dV_e_di)/(1.0+T0)/(1.0+T0));
+d_T1_dV_e_si = (((1.0+T0)*SII0_t*d_T0_dV_e_si-(SII0_t*T0)*d_T0_dV_e_si)/(1.0+T0)/(1.0+T0));
+d_T1_dV_g_di = (((1.0+T0)*SII0_t*d_T0_dV_g_di-(SII0_t*T0)*d_T0_dV_g_di)/(1.0+T0)/(1.0+T0));
 T1 = ((SII0_t*T0)/(1.0+T0));
 {
 AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((SII1_i*vgsfbeff),1.0e-3);
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e =  0.0;
-d_T0_dV_di_si = (-evaluator_hypsmooth_0.getDerivs((SII1_i*vgsfbeff),1.0e-3,(SII1_i*d_vgsfbeff_dV_di_si),0.0)/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),1.0e-3))/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),1.0e-3)));
-d_T0_dV_g_si = (-evaluator_hypsmooth_0.getDerivs((SII1_i*vgsfbeff),1.0e-3,(SII1_i*d_vgsfbeff_dV_g_si),0.0)/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),1.0e-3))/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),1.0e-3)));
+d_T0_dV_di_si = (-evaluator_hypsmooth_0.getDerivs((SII1_i*vgsfbeff),1.0e-3,SII1_i*d_vgsfbeff_dV_di_si,0.0)/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),1.0e-3))/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),1.0e-3)));
+d_T0_dV_g_si = (-evaluator_hypsmooth_0.getDerivs((SII1_i*vgsfbeff),1.0e-3,SII1_i*d_vgsfbeff_dV_g_si,0.0)/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),1.0e-3))/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),1.0e-3)));
 T0 = (1.0/(1.0+evaluator_hypsmooth_0.getValues((SII1_i*vgsfbeff),1.0e-3)));
 }
 
@@ -17214,33 +17214,33 @@ T3 = (T0+SII2_i);
 {
 AnalogFunctions::hypsmoothEvaluator evaluator_hypsmooth_0((vgsfbeff*T3),1.0e-3);
 
-d_T2_dV_e_di = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,(vgsfbeff*d_T3_dV_e_di),0.0);
-d_T2_dV_e_si = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,(vgsfbeff*d_T3_dV_e_si),0.0);
-d_T2_dV_g_e = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,(vgsfbeff*d_T3_dV_g_e),0.0);
-d_T2_dV_g_di = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,(vgsfbeff*d_T3_dV_g_di),0.0);
-d_T2_dV_di_si = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,((vgsfbeff*d_T3_dV_di_si)+(d_vgsfbeff_dV_di_si*T3)),0.0);
-d_T2_dV_g_si = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,((vgsfbeff*d_T3_dV_g_si)+(d_vgsfbeff_dV_g_si*T3)),0.0);
+d_T2_dV_e_di = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,vgsfbeff*d_T3_dV_e_di,0.0);
+d_T2_dV_e_si = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,vgsfbeff*d_T3_dV_e_si,0.0);
+d_T2_dV_g_e = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,vgsfbeff*d_T3_dV_g_e,0.0);
+d_T2_dV_g_di = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,vgsfbeff*d_T3_dV_g_di,0.0);
+d_T2_dV_di_si = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,(vgsfbeff*d_T3_dV_di_si+d_vgsfbeff_dV_di_si*T3),0.0);
+d_T2_dV_g_si = evaluator_hypsmooth_0.getDerivs((vgsfbeff*T3),1.0e-3,(vgsfbeff*d_T3_dV_g_si+d_vgsfbeff_dV_g_si*T3),0.0);
 T2 = evaluator_hypsmooth_0.getValues((vgsfbeff*T3),1.0e-3);
 }
 
 d_T3_dV_g_di = d_T3_dV_g_e = d_T3_dV_g_si = d_T3_dV_e_si = d_T3_dV_e_di =  0.0;
-d_T3_dV_di_si = (-(SIID_i*d_vds_dV_di_si)/(1.0+(SIID_i*vds))/(1.0+(SIID_i*vds)));
+d_T3_dV_di_si = (-SIID_i*d_vds_dV_di_si/(1.0+(SIID_i*vds))/(1.0+(SIID_i*vds)));
 T3 = (1.0/(1.0+(SIID_i*vds)));
 
-d_VgsStep_dV_di_si = (((T1*T2)*d_T3_dV_di_si)+(((T1*d_T2_dV_di_si)+(d_T1_dV_di_si*T2))*T3));
-d_VgsStep_dV_g_si = (((T1*T2)*d_T3_dV_g_si)+(((T1*d_T2_dV_g_si)+(d_T1_dV_g_si*T2))*T3));
-d_VgsStep_dV_g_e = (((T1*T2)*d_T3_dV_g_e)+(((T1*d_T2_dV_g_e)+(d_T1_dV_g_e*T2))*T3));
-d_VgsStep_dV_e_di = (((T1*T2)*d_T3_dV_e_di)+(((T1*d_T2_dV_e_di)+(d_T1_dV_e_di*T2))*T3));
-d_VgsStep_dV_e_si = (((T1*T2)*d_T3_dV_e_si)+(((T1*d_T2_dV_e_si)+(d_T1_dV_e_si*T2))*T3));
-d_VgsStep_dV_g_di = (((T1*T2)*d_T3_dV_g_di)+(((T1*d_T2_dV_g_di)+(d_T1_dV_g_di*T2))*T3));
+d_VgsStep_dV_di_si = ((T1*T2)*d_T3_dV_di_si+(T1*d_T2_dV_di_si+d_T1_dV_di_si*T2)*T3);
+d_VgsStep_dV_g_si = ((T1*T2)*d_T3_dV_g_si+(T1*d_T2_dV_g_si+d_T1_dV_g_si*T2)*T3);
+d_VgsStep_dV_g_e = ((T1*T2)*d_T3_dV_g_e+(T1*d_T2_dV_g_e+d_T1_dV_g_e*T2)*T3);
+d_VgsStep_dV_e_di = ((T1*T2)*d_T3_dV_e_di+(T1*d_T2_dV_e_di+d_T1_dV_e_di*T2)*T3);
+d_VgsStep_dV_e_si = ((T1*T2)*d_T3_dV_e_si+(T1*d_T2_dV_e_si+d_T1_dV_e_si*T2)*T3);
+d_VgsStep_dV_g_di = ((T1*T2)*d_T3_dV_g_di+(T1*d_T2_dV_g_di+d_T1_dV_g_di*T2)*T3);
 VgsStep = ((T1*T2)*T3);
 
-d_Vdsatii_dV_di_si = (d_VgsStep_dV_di_si*(1.0-(LII_i/Leff)));
-d_Vdsatii_dV_g_si = (d_VgsStep_dV_g_si*(1.0-(LII_i/Leff)));
-d_Vdsatii_dV_g_e = (d_VgsStep_dV_g_e*(1.0-(LII_i/Leff)));
-d_Vdsatii_dV_e_di = (d_VgsStep_dV_e_di*(1.0-(LII_i/Leff)));
-d_Vdsatii_dV_e_si = (d_VgsStep_dV_e_si*(1.0-(LII_i/Leff)));
-d_Vdsatii_dV_g_di = (d_VgsStep_dV_g_di*(1.0-(LII_i/Leff)));
+d_Vdsatii_dV_di_si = d_VgsStep_dV_di_si*(1.0-(LII_i/Leff));
+d_Vdsatii_dV_g_si = d_VgsStep_dV_g_si*(1.0-(LII_i/Leff));
+d_Vdsatii_dV_g_e = d_VgsStep_dV_g_e*(1.0-(LII_i/Leff));
+d_Vdsatii_dV_e_di = d_VgsStep_dV_e_di*(1.0-(LII_i/Leff));
+d_Vdsatii_dV_e_si = d_VgsStep_dV_e_si*(1.0-(LII_i/Leff));
+d_Vdsatii_dV_g_di = d_VgsStep_dV_g_di*(1.0-(LII_i/Leff));
 Vdsatii = (VgsStep*(1.0-(LII_i/Leff)));
 
 d_Vdiff_dV_g_si = (-d_Vdsatii_dV_g_si);
@@ -17251,56 +17251,56 @@ d_Vdiff_dV_g_di = (-d_Vdsatii_dV_g_di);
 d_Vdiff_dV_di_si = (d_vds_dV_di_si-d_Vdsatii_dV_di_si);
 Vdiff = (vds-Vdsatii);
 
-d_T0_dV_g_si = ((BETAII1_i*d_Vdiff_dV_g_si)+(((BETAII0_i*Vdiff)*d_Vdiff_dV_g_si)+((BETAII0_i*d_Vdiff_dV_g_si)*Vdiff)));
-d_T0_dV_g_e = ((BETAII1_i*d_Vdiff_dV_g_e)+(((BETAII0_i*Vdiff)*d_Vdiff_dV_g_e)+((BETAII0_i*d_Vdiff_dV_g_e)*Vdiff)));
-d_T0_dV_e_di = ((BETAII1_i*d_Vdiff_dV_e_di)+(((BETAII0_i*Vdiff)*d_Vdiff_dV_e_di)+((BETAII0_i*d_Vdiff_dV_e_di)*Vdiff)));
-d_T0_dV_e_si = ((BETAII1_i*d_Vdiff_dV_e_si)+(((BETAII0_i*Vdiff)*d_Vdiff_dV_e_si)+((BETAII0_i*d_Vdiff_dV_e_si)*Vdiff)));
-d_T0_dV_g_di = ((BETAII1_i*d_Vdiff_dV_g_di)+(((BETAII0_i*Vdiff)*d_Vdiff_dV_g_di)+((BETAII0_i*d_Vdiff_dV_g_di)*Vdiff)));
-d_T0_dV_di_si = ((BETAII1_i*d_Vdiff_dV_di_si)+(((BETAII0_i*Vdiff)*d_Vdiff_dV_di_si)+((BETAII0_i*d_Vdiff_dV_di_si)*Vdiff)));
+d_T0_dV_g_si = (BETAII1_i*d_Vdiff_dV_g_si+((BETAII0_i*Vdiff)*d_Vdiff_dV_g_si+BETAII0_i*d_Vdiff_dV_g_si*Vdiff));
+d_T0_dV_g_e = (BETAII1_i*d_Vdiff_dV_g_e+((BETAII0_i*Vdiff)*d_Vdiff_dV_g_e+BETAII0_i*d_Vdiff_dV_g_e*Vdiff));
+d_T0_dV_e_di = (BETAII1_i*d_Vdiff_dV_e_di+((BETAII0_i*Vdiff)*d_Vdiff_dV_e_di+BETAII0_i*d_Vdiff_dV_e_di*Vdiff));
+d_T0_dV_e_si = (BETAII1_i*d_Vdiff_dV_e_si+((BETAII0_i*Vdiff)*d_Vdiff_dV_e_si+BETAII0_i*d_Vdiff_dV_e_si*Vdiff));
+d_T0_dV_g_di = (BETAII1_i*d_Vdiff_dV_g_di+((BETAII0_i*Vdiff)*d_Vdiff_dV_g_di+BETAII0_i*d_Vdiff_dV_g_di*Vdiff));
+d_T0_dV_di_si = (BETAII1_i*d_Vdiff_dV_di_si+((BETAII0_i*Vdiff)*d_Vdiff_dV_di_si+BETAII0_i*d_Vdiff_dV_di_si*Vdiff));
 T0 = ((BETAII2_i+(BETAII1_i*Vdiff))+((BETAII0_i*Vdiff)*Vdiff));
 {
 double value_sqrt_0 = sqrt(((T0*T0)+1.0E-10));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = (deriv_sqrt_0_d0*(((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0))));
-d_T1_dV_g_si = (deriv_sqrt_0_d0*(((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0))));
-d_T1_dV_g_e = (deriv_sqrt_0_d0*(((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0))));
-d_T1_dV_e_di = (deriv_sqrt_0_d0*(((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0))));
-d_T1_dV_e_si = (deriv_sqrt_0_d0*(((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0))));
-d_T1_dV_g_di = (deriv_sqrt_0_d0*(((T0*d_T0_dV_g_di)+(d_T0_dV_g_di*T0))));
+d_T1_dV_di_si = (deriv_sqrt_0_d0*((T0*d_T0_dV_di_si+d_T0_dV_di_si*T0)));
+d_T1_dV_g_si = (deriv_sqrt_0_d0*((T0*d_T0_dV_g_si+d_T0_dV_g_si*T0)));
+d_T1_dV_g_e = (deriv_sqrt_0_d0*((T0*d_T0_dV_g_e+d_T0_dV_g_e*T0)));
+d_T1_dV_e_di = (deriv_sqrt_0_d0*((T0*d_T0_dV_e_di+d_T0_dV_e_di*T0)));
+d_T1_dV_e_si = (deriv_sqrt_0_d0*((T0*d_T0_dV_e_si+d_T0_dV_e_si*T0)));
+d_T1_dV_g_di = (deriv_sqrt_0_d0*((T0*d_T0_dV_g_di+d_T0_dV_g_di*T0)));
 T1 = value_sqrt_0;
 }
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((Vdiff/T1));
 
-d_T2_dV_g_si = (-(ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_g_si-Vdiff*d_T1_dV_g_si)/T1/T1))));
-d_T2_dV_g_e = (-(ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_g_e-Vdiff*d_T1_dV_g_e)/T1/T1))));
-d_T2_dV_e_di = (-(ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_e_di-Vdiff*d_T1_dV_e_di)/T1/T1))));
-d_T2_dV_e_si = (-(ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_e_si-Vdiff*d_T1_dV_e_si)/T1/T1))));
-d_T2_dV_g_di = (-(ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_g_di-Vdiff*d_T1_dV_g_di)/T1/T1))));
-d_T2_dV_di_si = (-(ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_di_si-Vdiff*d_T1_dV_di_si)/T1/T1))));
+d_T2_dV_g_si = (-ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_g_si-Vdiff*d_T1_dV_g_si)/T1/T1)));
+d_T2_dV_g_e = (-ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_g_e-Vdiff*d_T1_dV_g_e)/T1/T1)));
+d_T2_dV_e_di = (-ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_e_di-Vdiff*d_T1_dV_e_di)/T1/T1)));
+d_T2_dV_e_si = (-ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_e_si-Vdiff*d_T1_dV_e_si)/T1/T1)));
+d_T2_dV_g_di = (-ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_g_di-Vdiff*d_T1_dV_g_di)/T1/T1)));
+d_T2_dV_di_si = (-ALPHAII*evaluator_lexp_0.getDerivs((Vdiff/T1),((T1*d_Vdiff_dV_di_si-Vdiff*d_T1_dV_di_si)/T1/T1)));
 T2 = ((10.0-(ALPHAII*evaluator_lexp_0.getValues((Vdiff/T1))))-0.01);
 }
 {
 double value_sqrt_0 = sqrt(((T2*T2)+((4.0*10.0)*0.01)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_Ratio_dV_di_si = (-(0.5*(d_T2_dV_di_si+(deriv_sqrt_0_d0*(((T2*d_T2_dV_di_si)+(d_T2_dV_di_si*T2)))))));
-d_Ratio_dV_e_di = (-(0.5*(d_T2_dV_e_di+(deriv_sqrt_0_d0*(((T2*d_T2_dV_e_di)+(d_T2_dV_e_di*T2)))))));
-d_Ratio_dV_e_si = (-(0.5*(d_T2_dV_e_si+(deriv_sqrt_0_d0*(((T2*d_T2_dV_e_si)+(d_T2_dV_e_si*T2)))))));
-d_Ratio_dV_g_si = (-(0.5*(d_T2_dV_g_si+(deriv_sqrt_0_d0*(((T2*d_T2_dV_g_si)+(d_T2_dV_g_si*T2)))))));
-d_Ratio_dV_g_e = (-(0.5*(d_T2_dV_g_e+(deriv_sqrt_0_d0*(((T2*d_T2_dV_g_e)+(d_T2_dV_g_e*T2)))))));
-d_Ratio_dV_g_di = (-(0.5*(d_T2_dV_g_di+(deriv_sqrt_0_d0*(((T2*d_T2_dV_g_di)+(d_T2_dV_g_di*T2)))))));
+d_Ratio_dV_di_si = (-0.5*(d_T2_dV_di_si+(deriv_sqrt_0_d0*((T2*d_T2_dV_di_si+d_T2_dV_di_si*T2)))));
+d_Ratio_dV_e_di = (-0.5*(d_T2_dV_e_di+(deriv_sqrt_0_d0*((T2*d_T2_dV_e_di+d_T2_dV_e_di*T2)))));
+d_Ratio_dV_e_si = (-0.5*(d_T2_dV_e_si+(deriv_sqrt_0_d0*((T2*d_T2_dV_e_si+d_T2_dV_e_si*T2)))));
+d_Ratio_dV_g_si = (-0.5*(d_T2_dV_g_si+(deriv_sqrt_0_d0*((T2*d_T2_dV_g_si+d_T2_dV_g_si*T2)))));
+d_Ratio_dV_g_e = (-0.5*(d_T2_dV_g_e+(deriv_sqrt_0_d0*((T2*d_T2_dV_g_e+d_T2_dV_g_e*T2)))));
+d_Ratio_dV_g_di = (-0.5*(d_T2_dV_g_di+(deriv_sqrt_0_d0*((T2*d_T2_dV_g_di+d_T2_dV_g_di*T2)))));
 Ratio = (10.0-(0.5*(T2+value_sqrt_0)));
 }
 
-d_Iii_dV_di_si = ((Ratio*d_ids_dV_di_si)+(d_Ratio_dV_di_si*ids));
-d_Iii_dV_e_di = ((Ratio*d_ids_dV_e_di)+(d_Ratio_dV_e_di*ids));
-d_Iii_dV_e_si = ((Ratio*d_ids_dV_e_si)+(d_Ratio_dV_e_si*ids));
-d_Iii_dV_g_si = ((Ratio*d_ids_dV_g_si)+(d_Ratio_dV_g_si*ids));
-d_Iii_dV_g_e = ((Ratio*d_ids_dV_g_e)+(d_Ratio_dV_g_e*ids));
-d_Iii_dV_g_di = ((Ratio*d_ids_dV_g_di)+(d_Ratio_dV_g_di*ids));
+d_Iii_dV_di_si = (Ratio*d_ids_dV_di_si+d_Ratio_dV_di_si*ids);
+d_Iii_dV_e_di = (Ratio*d_ids_dV_e_di+d_Ratio_dV_e_di*ids);
+d_Iii_dV_e_si = (Ratio*d_ids_dV_e_si+d_Ratio_dV_e_si*ids);
+d_Iii_dV_g_si = (Ratio*d_ids_dV_g_si+d_Ratio_dV_g_si*ids);
+d_Iii_dV_g_e = (Ratio*d_ids_dV_g_e+d_Ratio_dV_g_e*ids);
+d_Iii_dV_g_di = (Ratio*d_ids_dV_g_di+d_Ratio_dV_g_di*ids);
 Iii = (Ratio*ids);
 }
 }
@@ -17337,37 +17337,37 @@ T1 = (((qia-EIGBINV_i)/NIGBINV_i)/Vtm);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T1);
 AnalogFunctions::llnEvaluator evaluator_lln_1((1+evaluator_lexp_0.getValues(T1)));
 
-d_Vaux_Igbinv_dV_di_si = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_di_si)));
-d_Vaux_Igbinv_dV_g_si = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_si)));
-d_Vaux_Igbinv_dV_g_e = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_e)));
-d_Vaux_Igbinv_dV_e_di = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_di)));
-d_Vaux_Igbinv_dV_e_si = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_si)));
-d_Vaux_Igbinv_dV_g_di = ((NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_di)));
+d_Vaux_Igbinv_dV_di_si = (NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_di_si));
+d_Vaux_Igbinv_dV_g_si = (NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_si));
+d_Vaux_Igbinv_dV_g_e = (NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_e));
+d_Vaux_Igbinv_dV_e_di = (NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_di));
+d_Vaux_Igbinv_dV_e_si = (NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_si));
+d_Vaux_Igbinv_dV_g_di = (NIGBINV_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_di));
 Vaux_Igbinv = ((NIGBINV_i*Vtm)*evaluator_lln_1.getValues((1+evaluator_lexp_0.getValues(T1))));
 }
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_g_si = (-(BIGBINV_i*d_qia_dV_g_si));
-d_T2_dV_g_e = (-(BIGBINV_i*d_qia_dV_g_e));
-d_T2_dV_e_di = (-(BIGBINV_i*d_qia_dV_e_di));
-d_T2_dV_e_si = (-(BIGBINV_i*d_qia_dV_e_si));
-d_T2_dV_di_si = (-(BIGBINV_i*d_qia_dV_di_si));
+d_T2_dV_g_si = (-BIGBINV_i*d_qia_dV_g_si);
+d_T2_dV_g_e = (-BIGBINV_i*d_qia_dV_g_e);
+d_T2_dV_e_di = (-BIGBINV_i*d_qia_dV_e_di);
+d_T2_dV_e_si = (-BIGBINV_i*d_qia_dV_e_si);
+d_T2_dV_di_si = (-BIGBINV_i*d_qia_dV_di_si);
 T2 = (AIGBINV_t-(BIGBINV_i*qia));
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_g_si = (CIGBINV_i*d_qia_dV_g_si);
-d_T3_dV_g_e = (CIGBINV_i*d_qia_dV_g_e);
-d_T3_dV_e_di = (CIGBINV_i*d_qia_dV_e_di);
-d_T3_dV_e_si = (CIGBINV_i*d_qia_dV_e_si);
-d_T3_dV_di_si = (CIGBINV_i*d_qia_dV_di_si);
+d_T3_dV_g_si = CIGBINV_i*d_qia_dV_g_si;
+d_T3_dV_g_e = CIGBINV_i*d_qia_dV_g_e;
+d_T3_dV_e_di = CIGBINV_i*d_qia_dV_e_di;
+d_T3_dV_e_si = CIGBINV_i*d_qia_dV_e_si;
+d_T3_dV_di_si = CIGBINV_i*d_qia_dV_di_si;
 T3 = (1+(CIGBINV_i*qia));
 
-d_T4_dV_di_si = (((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_di_si)+((((-9.82222e11)*(model_.TOXG))*d_T2_dV_di_si)*T3));
-d_T4_dV_e_di = (((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_e_di)+((((-9.82222e11)*(model_.TOXG))*d_T2_dV_e_di)*T3));
-d_T4_dV_e_si = (((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_e_si)+((((-9.82222e11)*(model_.TOXG))*d_T2_dV_e_si)*T3));
-d_T4_dV_g_si = (((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_g_si)+((((-9.82222e11)*(model_.TOXG))*d_T2_dV_g_si)*T3));
-d_T4_dV_g_e = (((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_g_e)+((((-9.82222e11)*(model_.TOXG))*d_T2_dV_g_e)*T3));
-d_T4_dV_g_di = (((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_g_di)+((((-9.82222e11)*(model_.TOXG))*d_T2_dV_g_di)*T3));
+d_T4_dV_di_si = ((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_di_si+((-9.82222e11)*(model_.TOXG))*d_T2_dV_di_si*T3);
+d_T4_dV_e_di = ((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_e_di+((-9.82222e11)*(model_.TOXG))*d_T2_dV_e_di*T3);
+d_T4_dV_e_si = ((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_e_si+((-9.82222e11)*(model_.TOXG))*d_T2_dV_e_si*T3);
+d_T4_dV_g_si = ((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_g_si+((-9.82222e11)*(model_.TOXG))*d_T2_dV_g_si*T3);
+d_T4_dV_g_e = ((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_g_e+((-9.82222e11)*(model_.TOXG))*d_T2_dV_g_e*T3);
+d_T4_dV_g_di = ((((-9.82222e11)*(model_.TOXG))*T2)*d_T3_dV_g_di+((-9.82222e11)*(model_.TOXG))*d_T2_dV_g_di*T3);
 T4 = ((((-9.82222e11)*(model_.TOXG))*T2)*T3);
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T4);
@@ -17385,24 +17385,24 @@ T5 = evaluator_lexp_0.getValues(T4);
 d_T6_dV_g_di = d_T6_dV_di_d = d_T6_dV_si_s = d_T6_dV_g_si = d_T6_dV_di_si = d_T6_dV_e_si = d_T6_dV_e_di = d_T6_dV_g_e =  0.0;
 T6 = 3.75956e-7;
 
-d_igbinv_dV_si_s = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_si_s)+((((((Weff0*Leff)*d_T6_dV_si_s)*Toxratio)*vge)*Vaux_Igbinv)*T5));
-d_igbinv_dV_di_d = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_di_d)+((((((Weff0*Leff)*d_T6_dV_di_d)*Toxratio)*vge)*Vaux_Igbinv)*T5));
-d_igbinv_dV_g_di = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_g_di)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_g_di)+(((((Weff0*Leff)*d_T6_dV_g_di)*Toxratio)*vge)*Vaux_Igbinv))*T5));
-d_igbinv_dV_g_e = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_g_e)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_g_e)+((((((Weff0*Leff)*T6)*Toxratio)*d_vge_dV_g_e)+((((Weff0*Leff)*d_T6_dV_g_e)*Toxratio)*vge))*Vaux_Igbinv))*T5));
-d_igbinv_dV_e_di = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_e_di)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_e_di)+(((((Weff0*Leff)*d_T6_dV_e_di)*Toxratio)*vge)*Vaux_Igbinv))*T5));
-d_igbinv_dV_e_si = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_e_si)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_e_si)+(((((Weff0*Leff)*d_T6_dV_e_si)*Toxratio)*vge)*Vaux_Igbinv))*T5));
-d_igbinv_dV_di_si = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_di_si)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_di_si)+(((((Weff0*Leff)*d_T6_dV_di_si)*Toxratio)*vge)*Vaux_Igbinv))*T5));
-d_igbinv_dV_g_si = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_g_si)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_g_si)+(((((Weff0*Leff)*d_T6_dV_g_si)*Toxratio)*vge)*Vaux_Igbinv))*T5));
+d_igbinv_dV_si_s = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_si_s+(Weff0*Leff)*d_T6_dV_si_s*Toxratio*vge*Vaux_Igbinv*T5);
+d_igbinv_dV_di_d = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_di_d+(Weff0*Leff)*d_T6_dV_di_d*Toxratio*vge*Vaux_Igbinv*T5);
+d_igbinv_dV_g_di = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_g_di+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_g_di+(Weff0*Leff)*d_T6_dV_g_di*Toxratio*vge*Vaux_Igbinv)*T5);
+d_igbinv_dV_g_e = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_g_e+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_g_e+((((Weff0*Leff)*T6)*Toxratio)*d_vge_dV_g_e+(Weff0*Leff)*d_T6_dV_g_e*Toxratio*vge)*Vaux_Igbinv)*T5);
+d_igbinv_dV_e_di = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_e_di+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_e_di+(Weff0*Leff)*d_T6_dV_e_di*Toxratio*vge*Vaux_Igbinv)*T5);
+d_igbinv_dV_e_si = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_e_si+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_e_si+(Weff0*Leff)*d_T6_dV_e_si*Toxratio*vge*Vaux_Igbinv)*T5);
+d_igbinv_dV_di_si = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_di_si+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_di_si+(Weff0*Leff)*d_T6_dV_di_si*Toxratio*vge*Vaux_Igbinv)*T5);
+d_igbinv_dV_g_si = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*d_T5_dV_g_si+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbinv_dV_g_si+(Weff0*Leff)*d_T6_dV_g_si*Toxratio*vge*Vaux_Igbinv)*T5);
 igbinv = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbinv)*T5);
 
-d_igbinv_dV_si_s = (d_igbinv_dV_si_s*igtemp);
-d_igbinv_dV_di_d = (d_igbinv_dV_di_d*igtemp);
-d_igbinv_dV_g_di = (d_igbinv_dV_g_di*igtemp);
-d_igbinv_dV_g_e = (d_igbinv_dV_g_e*igtemp);
-d_igbinv_dV_e_di = (d_igbinv_dV_e_di*igtemp);
-d_igbinv_dV_e_si = (d_igbinv_dV_e_si*igtemp);
-d_igbinv_dV_di_si = (d_igbinv_dV_di_si*igtemp);
-d_igbinv_dV_g_si = (d_igbinv_dV_g_si*igtemp);
+d_igbinv_dV_si_s = d_igbinv_dV_si_s*igtemp;
+d_igbinv_dV_di_d = d_igbinv_dV_di_d*igtemp;
+d_igbinv_dV_g_di = d_igbinv_dV_g_di*igtemp;
+d_igbinv_dV_g_e = d_igbinv_dV_g_e*igtemp;
+d_igbinv_dV_e_di = d_igbinv_dV_e_di*igtemp;
+d_igbinv_dV_e_si = d_igbinv_dV_e_si*igtemp;
+d_igbinv_dV_di_si = d_igbinv_dV_di_si*igtemp;
+d_igbinv_dV_g_si = d_igbinv_dV_g_si*igtemp;
 igbinv = (igbinv*igtemp);
 vfbzb = ((deltaPhi-(Eg/2.0))-phib);
 
@@ -17422,12 +17422,12 @@ T1 = ((T0/NIGBACC_i)/Vtm);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T1);
 AnalogFunctions::llnEvaluator evaluator_lln_1((1+evaluator_lexp_0.getValues(T1)));
 
-d_Vaux_Igbacc_dV_di_si = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_di_si)));
-d_Vaux_Igbacc_dV_g_si = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_si)));
-d_Vaux_Igbacc_dV_g_e = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_e)));
-d_Vaux_Igbacc_dV_e_di = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_di)));
-d_Vaux_Igbacc_dV_e_si = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_si)));
-d_Vaux_Igbacc_dV_g_di = ((NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_di)));
+d_Vaux_Igbacc_dV_di_si = (NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_di_si));
+d_Vaux_Igbacc_dV_g_si = (NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_si));
+d_Vaux_Igbacc_dV_g_e = (NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_e));
+d_Vaux_Igbacc_dV_e_di = (NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_di));
+d_Vaux_Igbacc_dV_e_si = (NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_e_si));
+d_Vaux_Igbacc_dV_g_di = (NIGBACC_i*Vtm)*evaluator_lln_1.getDerivs((1+evaluator_lexp_0.getValues(T1)),evaluator_lexp_0.getDerivs(T1,d_T1_dV_g_di));
 Vaux_Igbacc = ((NIGBACC_i*Vtm)*evaluator_lln_1.getValues((1+evaluator_lexp_0.getValues(T1))));
 }
 if ((((model_.CAPMOD)!=0)&&((model_.BULKMOD)!=0)))
@@ -17449,12 +17449,12 @@ if ((vfbzb<=0))
 double value_sqrt_0 = sqrt((((T0-0.02)*(T0-0.02))-(0.08*vfbzb)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_Voxacc_dV_di_si = (0.5*(d_T0_dV_di_si+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_di_si)+(d_T0_dV_di_si*(T0-0.02)))))));
-d_Voxacc_dV_g_si = (0.5*(d_T0_dV_g_si+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_g_si)+(d_T0_dV_g_si*(T0-0.02)))))));
-d_Voxacc_dV_g_e = (0.5*(d_T0_dV_g_e+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_g_e)+(d_T0_dV_g_e*(T0-0.02)))))));
-d_Voxacc_dV_e_di = (0.5*(d_T0_dV_e_di+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_e_di)+(d_T0_dV_e_di*(T0-0.02)))))));
-d_Voxacc_dV_e_si = (0.5*(d_T0_dV_e_si+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_e_si)+(d_T0_dV_e_si*(T0-0.02)))))));
-d_Voxacc_dV_g_di = (0.5*(d_T0_dV_g_di+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_g_di)+(d_T0_dV_g_di*(T0-0.02)))))));
+d_Voxacc_dV_di_si = 0.5*(d_T0_dV_di_si+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_di_si+d_T0_dV_di_si*(T0-0.02)))));
+d_Voxacc_dV_g_si = 0.5*(d_T0_dV_g_si+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_g_si+d_T0_dV_g_si*(T0-0.02)))));
+d_Voxacc_dV_g_e = 0.5*(d_T0_dV_g_e+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_g_e+d_T0_dV_g_e*(T0-0.02)))));
+d_Voxacc_dV_e_di = 0.5*(d_T0_dV_e_di+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_e_di+d_T0_dV_e_di*(T0-0.02)))));
+d_Voxacc_dV_e_si = 0.5*(d_T0_dV_e_si+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_e_si+d_T0_dV_e_si*(T0-0.02)))));
+d_Voxacc_dV_g_di = 0.5*(d_T0_dV_g_di+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_g_di+d_T0_dV_g_di*(T0-0.02)))));
 Voxacc = (0.5*((T0-0.02)+value_sqrt_0));
 }
 }
@@ -17464,39 +17464,39 @@ else
 double value_sqrt_0 = sqrt((((T0-0.02)*(T0-0.02))+(0.08*vfbzb)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_Voxacc_dV_di_si = (0.5*(d_T0_dV_di_si+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_di_si)+(d_T0_dV_di_si*(T0-0.02)))))));
-d_Voxacc_dV_g_si = (0.5*(d_T0_dV_g_si+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_g_si)+(d_T0_dV_g_si*(T0-0.02)))))));
-d_Voxacc_dV_g_e = (0.5*(d_T0_dV_g_e+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_g_e)+(d_T0_dV_g_e*(T0-0.02)))))));
-d_Voxacc_dV_e_di = (0.5*(d_T0_dV_e_di+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_e_di)+(d_T0_dV_e_di*(T0-0.02)))))));
-d_Voxacc_dV_e_si = (0.5*(d_T0_dV_e_si+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_e_si)+(d_T0_dV_e_si*(T0-0.02)))))));
-d_Voxacc_dV_g_di = (0.5*(d_T0_dV_g_di+(deriv_sqrt_0_d0*((((T0-0.02)*d_T0_dV_g_di)+(d_T0_dV_g_di*(T0-0.02)))))));
+d_Voxacc_dV_di_si = 0.5*(d_T0_dV_di_si+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_di_si+d_T0_dV_di_si*(T0-0.02)))));
+d_Voxacc_dV_g_si = 0.5*(d_T0_dV_g_si+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_g_si+d_T0_dV_g_si*(T0-0.02)))));
+d_Voxacc_dV_g_e = 0.5*(d_T0_dV_g_e+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_g_e+d_T0_dV_g_e*(T0-0.02)))));
+d_Voxacc_dV_e_di = 0.5*(d_T0_dV_e_di+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_e_di+d_T0_dV_e_di*(T0-0.02)))));
+d_Voxacc_dV_e_si = 0.5*(d_T0_dV_e_si+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_e_si+d_T0_dV_e_si*(T0-0.02)))));
+d_Voxacc_dV_g_di = 0.5*(d_T0_dV_g_di+(deriv_sqrt_0_d0*(((T0-0.02)*d_T0_dV_g_di+d_T0_dV_g_di*(T0-0.02)))));
 Voxacc = (0.5*((T0-0.02)+value_sqrt_0));
 }
 }
 }
 
-d_T2_dV_di_si = (-(BIGBACC_i*d_Voxacc_dV_di_si));
-d_T2_dV_g_si = (-(BIGBACC_i*d_Voxacc_dV_g_si));
-d_T2_dV_g_e = (-(BIGBACC_i*d_Voxacc_dV_g_e));
-d_T2_dV_e_di = (-(BIGBACC_i*d_Voxacc_dV_e_di));
-d_T2_dV_e_si = (-(BIGBACC_i*d_Voxacc_dV_e_si));
-d_T2_dV_g_di = (-(BIGBACC_i*d_Voxacc_dV_g_di));
+d_T2_dV_di_si = (-BIGBACC_i*d_Voxacc_dV_di_si);
+d_T2_dV_g_si = (-BIGBACC_i*d_Voxacc_dV_g_si);
+d_T2_dV_g_e = (-BIGBACC_i*d_Voxacc_dV_g_e);
+d_T2_dV_e_di = (-BIGBACC_i*d_Voxacc_dV_e_di);
+d_T2_dV_e_si = (-BIGBACC_i*d_Voxacc_dV_e_si);
+d_T2_dV_g_di = (-BIGBACC_i*d_Voxacc_dV_g_di);
 T2 = (AIGBACC_t-(BIGBACC_i*Voxacc));
 
-d_T3_dV_di_si = (CIGBACC_i*d_Voxacc_dV_di_si);
-d_T3_dV_g_si = (CIGBACC_i*d_Voxacc_dV_g_si);
-d_T3_dV_g_e = (CIGBACC_i*d_Voxacc_dV_g_e);
-d_T3_dV_e_di = (CIGBACC_i*d_Voxacc_dV_e_di);
-d_T3_dV_e_si = (CIGBACC_i*d_Voxacc_dV_e_si);
-d_T3_dV_g_di = (CIGBACC_i*d_Voxacc_dV_g_di);
+d_T3_dV_di_si = CIGBACC_i*d_Voxacc_dV_di_si;
+d_T3_dV_g_si = CIGBACC_i*d_Voxacc_dV_g_si;
+d_T3_dV_g_e = CIGBACC_i*d_Voxacc_dV_g_e;
+d_T3_dV_e_di = CIGBACC_i*d_Voxacc_dV_e_di;
+d_T3_dV_e_si = CIGBACC_i*d_Voxacc_dV_e_si;
+d_T3_dV_g_di = CIGBACC_i*d_Voxacc_dV_g_di;
 T3 = (1+(CIGBACC_i*Voxacc));
 
-d_T4_dV_di_si = (((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_di_si)+((((-7.45669e11)*(model_.TOXG))*d_T2_dV_di_si)*T3));
-d_T4_dV_e_di = (((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_e_di)+((((-7.45669e11)*(model_.TOXG))*d_T2_dV_e_di)*T3));
-d_T4_dV_e_si = (((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_e_si)+((((-7.45669e11)*(model_.TOXG))*d_T2_dV_e_si)*T3));
-d_T4_dV_g_si = (((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_g_si)+((((-7.45669e11)*(model_.TOXG))*d_T2_dV_g_si)*T3));
-d_T4_dV_g_e = (((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_g_e)+((((-7.45669e11)*(model_.TOXG))*d_T2_dV_g_e)*T3));
-d_T4_dV_g_di = (((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_g_di)+((((-7.45669e11)*(model_.TOXG))*d_T2_dV_g_di)*T3));
+d_T4_dV_di_si = ((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_di_si+((-7.45669e11)*(model_.TOXG))*d_T2_dV_di_si*T3);
+d_T4_dV_e_di = ((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_e_di+((-7.45669e11)*(model_.TOXG))*d_T2_dV_e_di*T3);
+d_T4_dV_e_si = ((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_e_si+((-7.45669e11)*(model_.TOXG))*d_T2_dV_e_si*T3);
+d_T4_dV_g_si = ((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_g_si+((-7.45669e11)*(model_.TOXG))*d_T2_dV_g_si*T3);
+d_T4_dV_g_e = ((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_g_e+((-7.45669e11)*(model_.TOXG))*d_T2_dV_g_e*T3);
+d_T4_dV_g_di = ((((-7.45669e11)*(model_.TOXG))*T2)*d_T3_dV_g_di+((-7.45669e11)*(model_.TOXG))*d_T2_dV_g_di*T3);
 T4 = ((((-7.45669e11)*(model_.TOXG))*T2)*T3);
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T4);
@@ -17514,98 +17514,98 @@ T5 = evaluator_lexp_0.getValues(T4);
 d_T6_dV_g_di = d_T6_dV_di_d = d_T6_dV_si_s = d_T6_dV_g_si = d_T6_dV_di_si = d_T6_dV_e_si = d_T6_dV_e_di = d_T6_dV_g_e =  0.0;
 T6 = 4.97232e-7;
 
-d_igbacc_dV_si_s = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_si_s)+((((((Weff0*Leff)*d_T6_dV_si_s)*Toxratio)*vge)*Vaux_Igbacc)*T5));
-d_igbacc_dV_di_d = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_di_d)+((((((Weff0*Leff)*d_T6_dV_di_d)*Toxratio)*vge)*Vaux_Igbacc)*T5));
-d_igbacc_dV_g_di = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_g_di)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_g_di)+(((((Weff0*Leff)*d_T6_dV_g_di)*Toxratio)*vge)*Vaux_Igbacc))*T5));
-d_igbacc_dV_g_e = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_g_e)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_g_e)+((((((Weff0*Leff)*T6)*Toxratio)*d_vge_dV_g_e)+((((Weff0*Leff)*d_T6_dV_g_e)*Toxratio)*vge))*Vaux_Igbacc))*T5));
-d_igbacc_dV_e_di = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_e_di)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_e_di)+(((((Weff0*Leff)*d_T6_dV_e_di)*Toxratio)*vge)*Vaux_Igbacc))*T5));
-d_igbacc_dV_e_si = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_e_si)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_e_si)+(((((Weff0*Leff)*d_T6_dV_e_si)*Toxratio)*vge)*Vaux_Igbacc))*T5));
-d_igbacc_dV_di_si = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_di_si)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_di_si)+(((((Weff0*Leff)*d_T6_dV_di_si)*Toxratio)*vge)*Vaux_Igbacc))*T5));
-d_igbacc_dV_g_si = (((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_g_si)+(((((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_g_si)+(((((Weff0*Leff)*d_T6_dV_g_si)*Toxratio)*vge)*Vaux_Igbacc))*T5));
+d_igbacc_dV_si_s = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_si_s+(Weff0*Leff)*d_T6_dV_si_s*Toxratio*vge*Vaux_Igbacc*T5);
+d_igbacc_dV_di_d = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_di_d+(Weff0*Leff)*d_T6_dV_di_d*Toxratio*vge*Vaux_Igbacc*T5);
+d_igbacc_dV_g_di = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_g_di+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_g_di+(Weff0*Leff)*d_T6_dV_g_di*Toxratio*vge*Vaux_Igbacc)*T5);
+d_igbacc_dV_g_e = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_g_e+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_g_e+((((Weff0*Leff)*T6)*Toxratio)*d_vge_dV_g_e+(Weff0*Leff)*d_T6_dV_g_e*Toxratio*vge)*Vaux_Igbacc)*T5);
+d_igbacc_dV_e_di = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_e_di+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_e_di+(Weff0*Leff)*d_T6_dV_e_di*Toxratio*vge*Vaux_Igbacc)*T5);
+d_igbacc_dV_e_si = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_e_si+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_e_si+(Weff0*Leff)*d_T6_dV_e_si*Toxratio*vge*Vaux_Igbacc)*T5);
+d_igbacc_dV_di_si = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_di_si+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_di_si+(Weff0*Leff)*d_T6_dV_di_si*Toxratio*vge*Vaux_Igbacc)*T5);
+d_igbacc_dV_g_si = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*d_T5_dV_g_si+(((((Weff0*Leff)*T6)*Toxratio)*vge)*d_Vaux_Igbacc_dV_g_si+(Weff0*Leff)*d_T6_dV_g_si*Toxratio*vge*Vaux_Igbacc)*T5);
 igbacc = ((((((Weff0*Leff)*T6)*Toxratio)*vge)*Vaux_Igbacc)*T5);
 
-d_igbacc_dV_si_s = (d_igbacc_dV_si_s*igtemp);
-d_igbacc_dV_di_d = (d_igbacc_dV_di_d*igtemp);
-d_igbacc_dV_g_di = (d_igbacc_dV_g_di*igtemp);
-d_igbacc_dV_g_e = (d_igbacc_dV_g_e*igtemp);
-d_igbacc_dV_e_di = (d_igbacc_dV_e_di*igtemp);
-d_igbacc_dV_e_si = (d_igbacc_dV_e_si*igtemp);
-d_igbacc_dV_di_si = (d_igbacc_dV_di_si*igtemp);
-d_igbacc_dV_g_si = (d_igbacc_dV_g_si*igtemp);
+d_igbacc_dV_si_s = d_igbacc_dV_si_s*igtemp;
+d_igbacc_dV_di_d = d_igbacc_dV_di_d*igtemp;
+d_igbacc_dV_g_di = d_igbacc_dV_g_di*igtemp;
+d_igbacc_dV_g_e = d_igbacc_dV_g_e*igtemp;
+d_igbacc_dV_e_di = d_igbacc_dV_e_di*igtemp;
+d_igbacc_dV_e_si = d_igbacc_dV_e_si*igtemp;
+d_igbacc_dV_di_si = d_igbacc_dV_di_si*igtemp;
+d_igbacc_dV_g_si = d_igbacc_dV_g_si*igtemp;
 igbacc = (igbacc*igtemp);
 }
 if (((model_.IGCMOD)!=0))
 {
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = (-(BIGC_i*d_qia_dV_g_si));
-d_T1_dV_g_e = (-(BIGC_i*d_qia_dV_g_e));
-d_T1_dV_e_di = (-(BIGC_i*d_qia_dV_e_di));
-d_T1_dV_e_si = (-(BIGC_i*d_qia_dV_e_si));
-d_T1_dV_di_si = (-(BIGC_i*d_qia_dV_di_si));
+d_T1_dV_g_si = (-BIGC_i*d_qia_dV_g_si);
+d_T1_dV_g_e = (-BIGC_i*d_qia_dV_g_e);
+d_T1_dV_e_di = (-BIGC_i*d_qia_dV_e_di);
+d_T1_dV_e_si = (-BIGC_i*d_qia_dV_e_si);
+d_T1_dV_di_si = (-BIGC_i*d_qia_dV_di_si);
 T1 = (AIGC_t-(BIGC_i*qia));
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_g_si = (CIGC_i*d_qia_dV_g_si);
-d_T2_dV_g_e = (CIGC_i*d_qia_dV_g_e);
-d_T2_dV_e_di = (CIGC_i*d_qia_dV_e_di);
-d_T2_dV_e_si = (CIGC_i*d_qia_dV_e_si);
-d_T2_dV_di_si = (CIGC_i*d_qia_dV_di_si);
+d_T2_dV_g_si = CIGC_i*d_qia_dV_g_si;
+d_T2_dV_g_e = CIGC_i*d_qia_dV_g_e;
+d_T2_dV_e_di = CIGC_i*d_qia_dV_e_di;
+d_T2_dV_e_si = CIGC_i*d_qia_dV_e_si;
+d_T2_dV_di_si = CIGC_i*d_qia_dV_di_si;
 T2 = (1.0+(CIGC_i*qia));
 
-d_T3_dV_di_si = (((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_di_si)+((((-Bechvb)*(model_.TOXG))*d_T1_dV_di_si)*T2));
-d_T3_dV_g_si = (((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_g_si)+((((-Bechvb)*(model_.TOXG))*d_T1_dV_g_si)*T2));
-d_T3_dV_g_e = (((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_g_e)+((((-Bechvb)*(model_.TOXG))*d_T1_dV_g_e)*T2));
-d_T3_dV_e_di = (((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_e_di)+((((-Bechvb)*(model_.TOXG))*d_T1_dV_e_di)*T2));
-d_T3_dV_e_si = (((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_e_si)+((((-Bechvb)*(model_.TOXG))*d_T1_dV_e_si)*T2));
-d_T3_dV_g_di = (((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_g_di)+((((-Bechvb)*(model_.TOXG))*d_T1_dV_g_di)*T2));
+d_T3_dV_di_si = ((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_di_si+((-Bechvb)*(model_.TOXG))*d_T1_dV_di_si*T2);
+d_T3_dV_g_si = ((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_g_si+((-Bechvb)*(model_.TOXG))*d_T1_dV_g_si*T2);
+d_T3_dV_g_e = ((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_g_e+((-Bechvb)*(model_.TOXG))*d_T1_dV_g_e*T2);
+d_T3_dV_e_di = ((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_e_di+((-Bechvb)*(model_.TOXG))*d_T1_dV_e_di*T2);
+d_T3_dV_e_si = ((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_e_si+((-Bechvb)*(model_.TOXG))*d_T1_dV_e_si*T2);
+d_T3_dV_g_di = ((((-Bechvb)*(model_.TOXG))*T1)*d_T2_dV_g_di+((-Bechvb)*(model_.TOXG))*d_T1_dV_g_di*T2);
 T3 = ((((-Bechvb)*(model_.TOXG))*T1)*T2);
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T3);
 
-d_T4_dV_g_di = (qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_g_di));
-d_T4_dV_g_si = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_g_si))+(d_qia_dV_g_si*evaluator_lexp_0.getValues(T3)));
-d_T4_dV_g_e = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_g_e))+(d_qia_dV_g_e*evaluator_lexp_0.getValues(T3)));
-d_T4_dV_e_di = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_di))+(d_qia_dV_e_di*evaluator_lexp_0.getValues(T3)));
-d_T4_dV_e_si = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_si))+(d_qia_dV_e_si*evaluator_lexp_0.getValues(T3)));
-d_T4_dV_di_si = ((qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_di_si))+(d_qia_dV_di_si*evaluator_lexp_0.getValues(T3)));
+d_T4_dV_g_di = qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_g_di);
+d_T4_dV_g_si = (qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_g_si)+d_qia_dV_g_si*evaluator_lexp_0.getValues(T3));
+d_T4_dV_g_e = (qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_g_e)+d_qia_dV_g_e*evaluator_lexp_0.getValues(T3));
+d_T4_dV_e_di = (qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_di)+d_qia_dV_e_di*evaluator_lexp_0.getValues(T3));
+d_T4_dV_e_si = (qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_e_si)+d_qia_dV_e_si*evaluator_lexp_0.getValues(T3));
+d_T4_dV_di_si = (qia*evaluator_lexp_0.getDerivs(T3,d_T3_dV_di_si)+d_qia_dV_di_si*evaluator_lexp_0.getValues(T3));
 T4 = (qia*evaluator_lexp_0.getValues(T3));
 }
 
 d_T5_dV_g_di = d_T5_dV_di_d = d_T5_dV_si_s = d_T5_dV_g_si =  0.0;
-d_T5_dV_e_di = (0.5*d_ved_jct_dV_e_di);
-d_T5_dV_e_si = (0.5*d_ves_jct_dV_e_si);
-d_T5_dV_di_si = (0.5*d_vdsx_dV_di_si);
+d_T5_dV_e_di = 0.5*d_ved_jct_dV_e_di;
+d_T5_dV_e_si = 0.5*d_ves_jct_dV_e_si;
+d_T5_dV_di_si = 0.5*d_vdsx_dV_di_si;
 d_T5_dV_g_e = d_vge_dV_g_e;
 T5 = ((vge+(0.5*vdsx))+(0.5*(ves_jct+ved_jct)));
 
-d_igc0_dV_si_s = ((((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_si_s)*igtemp);
-d_igc0_dV_di_d = ((((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_di_d)*igtemp);
-d_igc0_dV_g_si = (((((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_g_si)+(((((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_g_si)*T5))*igtemp);
-d_igc0_dV_g_e = (((((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_g_e)+(((((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_g_e)*T5))*igtemp);
-d_igc0_dV_e_di = (((((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_e_di)+(((((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_e_di)*T5))*igtemp);
-d_igc0_dV_e_si = (((((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_e_si)+(((((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_e_si)*T5))*igtemp);
-d_igc0_dV_di_si = (((((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_di_si)+(((((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_di_si)*T5))*igtemp);
-d_igc0_dV_g_di = (((((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_g_di)+(((((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_g_di)*T5))*igtemp);
+d_igc0_dV_si_s = ((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_si_s*igtemp;
+d_igc0_dV_di_d = ((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_di_d*igtemp;
+d_igc0_dV_g_si = (((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_g_si+(((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_g_si*T5)*igtemp;
+d_igc0_dV_g_e = (((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_g_e+(((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_g_e*T5)*igtemp;
+d_igc0_dV_e_di = (((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_e_di+(((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_e_di*T5)*igtemp;
+d_igc0_dV_e_si = (((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_e_si+(((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_e_si*T5)*igtemp;
+d_igc0_dV_di_si = (((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_di_si+(((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_di_si*T5)*igtemp;
+d_igc0_dV_g_di = (((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*d_T5_dV_g_di+(((Weff0*Leff)*Aechvb)*Toxratio)*d_T4_dV_g_di*T5)*igtemp;
 igc0 = ((((((Weff0*Leff)*Aechvb)*Toxratio)*T4)*T5)*igtemp);
 {
 double value_sqrt_0 = sqrt(((Vdseff*Vdseff)+0.01));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_Vdseffx_dV_g_si = (deriv_sqrt_0_d0*(((Vdseff*d_Vdseff_dV_g_si)+(d_Vdseff_dV_g_si*Vdseff))));
-d_Vdseffx_dV_g_e = (deriv_sqrt_0_d0*(((Vdseff*d_Vdseff_dV_g_e)+(d_Vdseff_dV_g_e*Vdseff))));
-d_Vdseffx_dV_e_di = (deriv_sqrt_0_d0*(((Vdseff*d_Vdseff_dV_e_di)+(d_Vdseff_dV_e_di*Vdseff))));
-d_Vdseffx_dV_e_si = (deriv_sqrt_0_d0*(((Vdseff*d_Vdseff_dV_e_si)+(d_Vdseff_dV_e_si*Vdseff))));
-d_Vdseffx_dV_di_si = (deriv_sqrt_0_d0*(((Vdseff*d_Vdseff_dV_di_si)+(d_Vdseff_dV_di_si*Vdseff))));
+d_Vdseffx_dV_g_si = (deriv_sqrt_0_d0*((Vdseff*d_Vdseff_dV_g_si+d_Vdseff_dV_g_si*Vdseff)));
+d_Vdseffx_dV_g_e = (deriv_sqrt_0_d0*((Vdseff*d_Vdseff_dV_g_e+d_Vdseff_dV_g_e*Vdseff)));
+d_Vdseffx_dV_e_di = (deriv_sqrt_0_d0*((Vdseff*d_Vdseff_dV_e_di+d_Vdseff_dV_e_di*Vdseff)));
+d_Vdseffx_dV_e_si = (deriv_sqrt_0_d0*((Vdseff*d_Vdseff_dV_e_si+d_Vdseff_dV_e_si*Vdseff)));
+d_Vdseffx_dV_di_si = (deriv_sqrt_0_d0*((Vdseff*d_Vdseff_dV_di_si+d_Vdseff_dV_di_si*Vdseff)));
 Vdseffx = (value_sqrt_0-0.1);
 }
 
 d_T1_dV_di_d = d_T1_dV_si_s = d_T1_dV_g_di =  0.0;
-d_T1_dV_g_si = (PIGCD_i*d_Vdseffx_dV_g_si);
-d_T1_dV_g_e = (PIGCD_i*d_Vdseffx_dV_g_e);
-d_T1_dV_e_di = (PIGCD_i*d_Vdseffx_dV_e_di);
-d_T1_dV_e_si = (PIGCD_i*d_Vdseffx_dV_e_si);
-d_T1_dV_di_si = (PIGCD_i*d_Vdseffx_dV_di_si);
+d_T1_dV_g_si = PIGCD_i*d_Vdseffx_dV_g_si;
+d_T1_dV_g_e = PIGCD_i*d_Vdseffx_dV_g_e;
+d_T1_dV_e_di = PIGCD_i*d_Vdseffx_dV_e_di;
+d_T1_dV_e_si = PIGCD_i*d_Vdseffx_dV_e_si;
+d_T1_dV_di_si = PIGCD_i*d_Vdseffx_dV_di_si;
 T1 = (PIGCD_i*Vdseffx);
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T1));
@@ -17627,41 +17627,41 @@ d_T3_dV_e_si = (d_T1_dV_e_si+d_T1_exp_dV_e_si);
 d_T3_dV_g_di = (d_T1_dV_g_di+d_T1_exp_dV_g_di);
 T3 = (((T1+T1_exp)-1.0)+1.0E-4);
 
-d_T4_dV_di_si = (-(((T1+1.0)*d_T1_exp_dV_di_si)+(d_T1_dV_di_si*T1_exp)));
-d_T4_dV_g_si = (-(((T1+1.0)*d_T1_exp_dV_g_si)+(d_T1_dV_g_si*T1_exp)));
-d_T4_dV_g_e = (-(((T1+1.0)*d_T1_exp_dV_g_e)+(d_T1_dV_g_e*T1_exp)));
-d_T4_dV_e_di = (-(((T1+1.0)*d_T1_exp_dV_e_di)+(d_T1_dV_e_di*T1_exp)));
-d_T4_dV_e_si = (-(((T1+1.0)*d_T1_exp_dV_e_si)+(d_T1_dV_e_si*T1_exp)));
-d_T4_dV_g_di = (-(((T1+1.0)*d_T1_exp_dV_g_di)+(d_T1_dV_g_di*T1_exp)));
+d_T4_dV_di_si = (-((T1+1.0)*d_T1_exp_dV_di_si+d_T1_dV_di_si*T1_exp));
+d_T4_dV_g_si = (-((T1+1.0)*d_T1_exp_dV_g_si+d_T1_dV_g_si*T1_exp));
+d_T4_dV_g_e = (-((T1+1.0)*d_T1_exp_dV_g_e+d_T1_dV_g_e*T1_exp));
+d_T4_dV_e_di = (-((T1+1.0)*d_T1_exp_dV_e_di+d_T1_dV_e_di*T1_exp));
+d_T4_dV_e_si = (-((T1+1.0)*d_T1_exp_dV_e_si+d_T1_dV_e_si*T1_exp));
+d_T4_dV_g_di = (-((T1+1.0)*d_T1_exp_dV_g_di+d_T1_dV_g_di*T1_exp));
 T4 = ((1.0-((T1+1.0)*T1_exp))+1.0E-4);
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((T1*d_T1_dV_di_si)+(d_T1_dV_di_si*T1));
-d_T5_dV_g_si = ((T1*d_T1_dV_g_si)+(d_T1_dV_g_si*T1));
-d_T5_dV_g_e = ((T1*d_T1_dV_g_e)+(d_T1_dV_g_e*T1));
-d_T5_dV_e_di = ((T1*d_T1_dV_e_di)+(d_T1_dV_e_di*T1));
-d_T5_dV_e_si = ((T1*d_T1_dV_e_si)+(d_T1_dV_e_si*T1));
-d_T5_dV_g_di = ((T1*d_T1_dV_g_di)+(d_T1_dV_g_di*T1));
+d_T5_dV_di_si = (T1*d_T1_dV_di_si+d_T1_dV_di_si*T1);
+d_T5_dV_g_si = (T1*d_T1_dV_g_si+d_T1_dV_g_si*T1);
+d_T5_dV_g_e = (T1*d_T1_dV_g_e+d_T1_dV_g_e*T1);
+d_T5_dV_e_di = (T1*d_T1_dV_e_di+d_T1_dV_e_di*T1);
+d_T5_dV_e_si = (T1*d_T1_dV_e_si+d_T1_dV_e_si*T1);
+d_T5_dV_g_di = (T1*d_T1_dV_g_di+d_T1_dV_g_di*T1);
 T5 = ((T1*T1)+2.0E-4);
 
-d_igcd_dV_si_s = ((T5*(d_igc0_dV_si_s*T4)-(igc0*T4)*d_T5_dV_si_s)/T5/T5);
-d_igcd_dV_di_d = ((T5*(d_igc0_dV_di_d*T4)-(igc0*T4)*d_T5_dV_di_d)/T5/T5);
-d_igcd_dV_g_si = ((T5*((igc0*d_T4_dV_g_si)+(d_igc0_dV_g_si*T4))-(igc0*T4)*d_T5_dV_g_si)/T5/T5);
-d_igcd_dV_g_e = ((T5*((igc0*d_T4_dV_g_e)+(d_igc0_dV_g_e*T4))-(igc0*T4)*d_T5_dV_g_e)/T5/T5);
-d_igcd_dV_e_di = ((T5*((igc0*d_T4_dV_e_di)+(d_igc0_dV_e_di*T4))-(igc0*T4)*d_T5_dV_e_di)/T5/T5);
-d_igcd_dV_e_si = ((T5*((igc0*d_T4_dV_e_si)+(d_igc0_dV_e_si*T4))-(igc0*T4)*d_T5_dV_e_si)/T5/T5);
-d_igcd_dV_di_si = ((T5*((igc0*d_T4_dV_di_si)+(d_igc0_dV_di_si*T4))-(igc0*T4)*d_T5_dV_di_si)/T5/T5);
-d_igcd_dV_g_di = ((T5*((igc0*d_T4_dV_g_di)+(d_igc0_dV_g_di*T4))-(igc0*T4)*d_T5_dV_g_di)/T5/T5);
+d_igcd_dV_si_s = ((T5*d_igc0_dV_si_s*T4-(igc0*T4)*d_T5_dV_si_s)/T5/T5);
+d_igcd_dV_di_d = ((T5*d_igc0_dV_di_d*T4-(igc0*T4)*d_T5_dV_di_d)/T5/T5);
+d_igcd_dV_g_si = ((T5*(igc0*d_T4_dV_g_si+d_igc0_dV_g_si*T4)-(igc0*T4)*d_T5_dV_g_si)/T5/T5);
+d_igcd_dV_g_e = ((T5*(igc0*d_T4_dV_g_e+d_igc0_dV_g_e*T4)-(igc0*T4)*d_T5_dV_g_e)/T5/T5);
+d_igcd_dV_e_di = ((T5*(igc0*d_T4_dV_e_di+d_igc0_dV_e_di*T4)-(igc0*T4)*d_T5_dV_e_di)/T5/T5);
+d_igcd_dV_e_si = ((T5*(igc0*d_T4_dV_e_si+d_igc0_dV_e_si*T4)-(igc0*T4)*d_T5_dV_e_si)/T5/T5);
+d_igcd_dV_di_si = ((T5*(igc0*d_T4_dV_di_si+d_igc0_dV_di_si*T4)-(igc0*T4)*d_T5_dV_di_si)/T5/T5);
+d_igcd_dV_g_di = ((T5*(igc0*d_T4_dV_g_di+d_igc0_dV_g_di*T4)-(igc0*T4)*d_T5_dV_g_di)/T5/T5);
 igcd = ((igc0*T4)/T5);
 
-d_igcs_dV_si_s = ((T5*(d_igc0_dV_si_s*T3)-(igc0*T3)*d_T5_dV_si_s)/T5/T5);
-d_igcs_dV_di_d = ((T5*(d_igc0_dV_di_d*T3)-(igc0*T3)*d_T5_dV_di_d)/T5/T5);
-d_igcs_dV_g_si = ((T5*((igc0*d_T3_dV_g_si)+(d_igc0_dV_g_si*T3))-(igc0*T3)*d_T5_dV_g_si)/T5/T5);
-d_igcs_dV_g_e = ((T5*((igc0*d_T3_dV_g_e)+(d_igc0_dV_g_e*T3))-(igc0*T3)*d_T5_dV_g_e)/T5/T5);
-d_igcs_dV_e_di = ((T5*((igc0*d_T3_dV_e_di)+(d_igc0_dV_e_di*T3))-(igc0*T3)*d_T5_dV_e_di)/T5/T5);
-d_igcs_dV_e_si = ((T5*((igc0*d_T3_dV_e_si)+(d_igc0_dV_e_si*T3))-(igc0*T3)*d_T5_dV_e_si)/T5/T5);
-d_igcs_dV_di_si = ((T5*((igc0*d_T3_dV_di_si)+(d_igc0_dV_di_si*T3))-(igc0*T3)*d_T5_dV_di_si)/T5/T5);
-d_igcs_dV_g_di = ((T5*((igc0*d_T3_dV_g_di)+(d_igc0_dV_g_di*T3))-(igc0*T3)*d_T5_dV_g_di)/T5/T5);
+d_igcs_dV_si_s = ((T5*d_igc0_dV_si_s*T3-(igc0*T3)*d_T5_dV_si_s)/T5/T5);
+d_igcs_dV_di_d = ((T5*d_igc0_dV_di_d*T3-(igc0*T3)*d_T5_dV_di_d)/T5/T5);
+d_igcs_dV_g_si = ((T5*(igc0*d_T3_dV_g_si+d_igc0_dV_g_si*T3)-(igc0*T3)*d_T5_dV_g_si)/T5/T5);
+d_igcs_dV_g_e = ((T5*(igc0*d_T3_dV_g_e+d_igc0_dV_g_e*T3)-(igc0*T3)*d_T5_dV_g_e)/T5/T5);
+d_igcs_dV_e_di = ((T5*(igc0*d_T3_dV_e_di+d_igc0_dV_e_di*T3)-(igc0*T3)*d_T5_dV_e_di)/T5/T5);
+d_igcs_dV_e_si = ((T5*(igc0*d_T3_dV_e_si+d_igc0_dV_e_si*T3)-(igc0*T3)*d_T5_dV_e_si)/T5/T5);
+d_igcs_dV_di_si = ((T5*(igc0*d_T3_dV_di_si+d_igc0_dV_di_si*T3)-(igc0*T3)*d_T5_dV_di_si)/T5/T5);
+d_igcs_dV_g_di = ((T5*(igc0*d_T3_dV_g_di+d_igc0_dV_g_di*T3)-(igc0*T3)*d_T5_dV_g_di)/T5/T5);
 igcs = ((igc0*T3)/T5);
 
 d_T0_dV_g_di = d_T0_dV_e_si = d_T0_dV_e_di = d_T0_dV_g_e = d_T0_dV_di_si =  0.0;
@@ -17671,38 +17671,38 @@ T0 = vgs_noswap;
 double value_sqrt_0 = sqrt(((T0*T0)+1.0e-4));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_vgs_eff_dV_di_si = (deriv_sqrt_0_d0*(((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0))));
-d_vgs_eff_dV_g_si = (deriv_sqrt_0_d0*(((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0))));
-d_vgs_eff_dV_g_e = (deriv_sqrt_0_d0*(((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0))));
-d_vgs_eff_dV_e_di = (deriv_sqrt_0_d0*(((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0))));
-d_vgs_eff_dV_e_si = (deriv_sqrt_0_d0*(((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0))));
-d_vgs_eff_dV_g_di = (deriv_sqrt_0_d0*(((T0*d_T0_dV_g_di)+(d_T0_dV_g_di*T0))));
+d_vgs_eff_dV_di_si = (deriv_sqrt_0_d0*((T0*d_T0_dV_di_si+d_T0_dV_di_si*T0)));
+d_vgs_eff_dV_g_si = (deriv_sqrt_0_d0*((T0*d_T0_dV_g_si+d_T0_dV_g_si*T0)));
+d_vgs_eff_dV_g_e = (deriv_sqrt_0_d0*((T0*d_T0_dV_g_e+d_T0_dV_g_e*T0)));
+d_vgs_eff_dV_e_di = (deriv_sqrt_0_d0*((T0*d_T0_dV_e_di+d_T0_dV_e_di*T0)));
+d_vgs_eff_dV_e_si = (deriv_sqrt_0_d0*((T0*d_T0_dV_e_si+d_T0_dV_e_si*T0)));
+d_vgs_eff_dV_g_di = (deriv_sqrt_0_d0*((T0*d_T0_dV_g_di+d_T0_dV_g_di*T0)));
 vgs_eff = value_sqrt_0;
 }
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = (-(BIGS_i*d_vgs_eff_dV_di_si));
-d_T1_dV_e_di = (-(BIGS_i*d_vgs_eff_dV_e_di));
-d_T1_dV_e_si = (-(BIGS_i*d_vgs_eff_dV_e_si));
-d_T1_dV_g_si = (-(BIGS_i*d_vgs_eff_dV_g_si));
-d_T1_dV_g_e = (-(BIGS_i*d_vgs_eff_dV_g_e));
-d_T1_dV_g_di = (-(BIGS_i*d_vgs_eff_dV_g_di));
+d_T1_dV_di_si = (-BIGS_i*d_vgs_eff_dV_di_si);
+d_T1_dV_e_di = (-BIGS_i*d_vgs_eff_dV_e_di);
+d_T1_dV_e_si = (-BIGS_i*d_vgs_eff_dV_e_si);
+d_T1_dV_g_si = (-BIGS_i*d_vgs_eff_dV_g_si);
+d_T1_dV_g_e = (-BIGS_i*d_vgs_eff_dV_g_e);
+d_T1_dV_g_di = (-BIGS_i*d_vgs_eff_dV_g_di);
 T1 = (AIGS_t-(BIGS_i*vgs_eff));
 
-d_T2_dV_di_si = (CIGS_i*d_vgs_eff_dV_di_si);
-d_T2_dV_e_di = (CIGS_i*d_vgs_eff_dV_e_di);
-d_T2_dV_e_si = (CIGS_i*d_vgs_eff_dV_e_si);
-d_T2_dV_g_si = (CIGS_i*d_vgs_eff_dV_g_si);
-d_T2_dV_g_e = (CIGS_i*d_vgs_eff_dV_g_e);
-d_T2_dV_g_di = (CIGS_i*d_vgs_eff_dV_g_di);
+d_T2_dV_di_si = CIGS_i*d_vgs_eff_dV_di_si;
+d_T2_dV_e_di = CIGS_i*d_vgs_eff_dV_e_di;
+d_T2_dV_e_si = CIGS_i*d_vgs_eff_dV_e_si;
+d_T2_dV_g_si = CIGS_i*d_vgs_eff_dV_g_si;
+d_T2_dV_g_e = CIGS_i*d_vgs_eff_dV_g_e;
+d_T2_dV_g_di = CIGS_i*d_vgs_eff_dV_g_di;
 T2 = (1.0+(CIGS_i*vgs_eff));
 
-d_T3_dV_di_si = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_di_si)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_di_si)*T2));
-d_T3_dV_g_si = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_si)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_si)*T2));
-d_T3_dV_g_e = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_e)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_e)*T2));
-d_T3_dV_e_di = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_di)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_e_di)*T2));
-d_T3_dV_e_si = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_si)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_e_si)*T2));
-d_T3_dV_g_di = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_di)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_di)*T2));
+d_T3_dV_di_si = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_di_si+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_di_si*T2);
+d_T3_dV_g_si = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_si+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_si*T2);
+d_T3_dV_g_e = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_e+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_e*T2);
+d_T3_dV_e_di = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_di+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_e_di*T2);
+d_T3_dV_e_si = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_si+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_e_si*T2);
+d_T3_dV_g_di = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_di+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_di*T2);
 T3 = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*T2);
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T3);
@@ -17718,23 +17718,23 @@ T4 = evaluator_lexp_0.getValues(T3);
 if ((sigvds>0))
 {
 
-d_igs_dV_di_si = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_di_si)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_di_si)*T4));
-d_igs_dV_e_di = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_e_di)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_e_di)*T4));
-d_igs_dV_e_si = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_e_si)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_e_si)*T4));
-d_igs_dV_g_e = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_e)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_e)*T4));
-d_igs_dV_g_di = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_di)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_di)*T4));
-d_igs_dV_g_si = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_si)+(((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_si)+(((igsd_mult*(model_.DLCIGS))*d_vgs_noswap_dV_g_si)*vgs_eff))*T4));
+d_igs_dV_di_si = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_di_si+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_di_si*T4);
+d_igs_dV_e_di = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_e_di+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_e_di*T4);
+d_igs_dV_e_si = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_e_si+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_e_si*T4);
+d_igs_dV_g_e = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_e+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_e*T4);
+d_igs_dV_g_di = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_di+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_di*T4);
+d_igs_dV_g_si = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_si+(((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_si+(igsd_mult*(model_.DLCIGS))*d_vgs_noswap_dV_g_si*vgs_eff)*T4);
 igs = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*T4);
 }
 else
 {
 
-d_igd_dV_di_si = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_di_si)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_di_si)*T4));
-d_igd_dV_e_di = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_e_di)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_e_di)*T4));
-d_igd_dV_e_si = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_e_si)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_e_si)*T4));
-d_igd_dV_g_e = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_e)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_e)*T4));
-d_igd_dV_g_di = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_di)+((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_di)*T4));
-d_igd_dV_g_si = (((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_si)+(((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_si)+(((igsd_mult*(model_.DLCIGS))*d_vgs_noswap_dV_g_si)*vgs_eff))*T4));
+d_igd_dV_di_si = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_di_si+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_di_si*T4);
+d_igd_dV_e_di = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_e_di+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_e_di*T4);
+d_igd_dV_e_si = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_e_si+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_e_si*T4);
+d_igd_dV_g_e = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_e+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_e*T4);
+d_igd_dV_g_di = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_di+((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_di*T4);
+d_igd_dV_g_si = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*d_T4_dV_g_si+(((igsd_mult*(model_.DLCIGS))*vgs_noswap)*d_vgs_eff_dV_g_si+(igsd_mult*(model_.DLCIGS))*d_vgs_noswap_dV_g_si*vgs_eff)*T4);
 igd = ((((igsd_mult*(model_.DLCIGS))*vgs_noswap)*vgs_eff)*T4);
 }
 
@@ -17745,38 +17745,38 @@ T0 = vgd_noswap;
 double value_sqrt_0 = sqrt(((T0*T0)+1.0e-4));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_vgd_eff_dV_di_si = (deriv_sqrt_0_d0*(((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0))));
-d_vgd_eff_dV_g_si = (deriv_sqrt_0_d0*(((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0))));
-d_vgd_eff_dV_g_e = (deriv_sqrt_0_d0*(((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0))));
-d_vgd_eff_dV_e_di = (deriv_sqrt_0_d0*(((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0))));
-d_vgd_eff_dV_e_si = (deriv_sqrt_0_d0*(((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0))));
-d_vgd_eff_dV_g_di = (deriv_sqrt_0_d0*(((T0*d_T0_dV_g_di)+(d_T0_dV_g_di*T0))));
+d_vgd_eff_dV_di_si = (deriv_sqrt_0_d0*((T0*d_T0_dV_di_si+d_T0_dV_di_si*T0)));
+d_vgd_eff_dV_g_si = (deriv_sqrt_0_d0*((T0*d_T0_dV_g_si+d_T0_dV_g_si*T0)));
+d_vgd_eff_dV_g_e = (deriv_sqrt_0_d0*((T0*d_T0_dV_g_e+d_T0_dV_g_e*T0)));
+d_vgd_eff_dV_e_di = (deriv_sqrt_0_d0*((T0*d_T0_dV_e_di+d_T0_dV_e_di*T0)));
+d_vgd_eff_dV_e_si = (deriv_sqrt_0_d0*((T0*d_T0_dV_e_si+d_T0_dV_e_si*T0)));
+d_vgd_eff_dV_g_di = (deriv_sqrt_0_d0*((T0*d_T0_dV_g_di+d_T0_dV_g_di*T0)));
 vgd_eff = value_sqrt_0;
 }
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = (-(BIGD_i*d_vgd_eff_dV_di_si));
-d_T1_dV_e_di = (-(BIGD_i*d_vgd_eff_dV_e_di));
-d_T1_dV_e_si = (-(BIGD_i*d_vgd_eff_dV_e_si));
-d_T1_dV_g_si = (-(BIGD_i*d_vgd_eff_dV_g_si));
-d_T1_dV_g_e = (-(BIGD_i*d_vgd_eff_dV_g_e));
-d_T1_dV_g_di = (-(BIGD_i*d_vgd_eff_dV_g_di));
+d_T1_dV_di_si = (-BIGD_i*d_vgd_eff_dV_di_si);
+d_T1_dV_e_di = (-BIGD_i*d_vgd_eff_dV_e_di);
+d_T1_dV_e_si = (-BIGD_i*d_vgd_eff_dV_e_si);
+d_T1_dV_g_si = (-BIGD_i*d_vgd_eff_dV_g_si);
+d_T1_dV_g_e = (-BIGD_i*d_vgd_eff_dV_g_e);
+d_T1_dV_g_di = (-BIGD_i*d_vgd_eff_dV_g_di);
 T1 = (AIGD_t-(BIGD_i*vgd_eff));
 
-d_T2_dV_di_si = (CIGD_i*d_vgd_eff_dV_di_si);
-d_T2_dV_e_di = (CIGD_i*d_vgd_eff_dV_e_di);
-d_T2_dV_e_si = (CIGD_i*d_vgd_eff_dV_e_si);
-d_T2_dV_g_si = (CIGD_i*d_vgd_eff_dV_g_si);
-d_T2_dV_g_e = (CIGD_i*d_vgd_eff_dV_g_e);
-d_T2_dV_g_di = (CIGD_i*d_vgd_eff_dV_g_di);
+d_T2_dV_di_si = CIGD_i*d_vgd_eff_dV_di_si;
+d_T2_dV_e_di = CIGD_i*d_vgd_eff_dV_e_di;
+d_T2_dV_e_si = CIGD_i*d_vgd_eff_dV_e_si;
+d_T2_dV_g_si = CIGD_i*d_vgd_eff_dV_g_si;
+d_T2_dV_g_e = CIGD_i*d_vgd_eff_dV_g_e;
+d_T2_dV_g_di = CIGD_i*d_vgd_eff_dV_g_di;
 T2 = (1.0+(CIGD_i*vgd_eff));
 
-d_T3_dV_di_si = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_di_si)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_di_si)*T2));
-d_T3_dV_g_si = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_si)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_si)*T2));
-d_T3_dV_g_e = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_e)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_e)*T2));
-d_T3_dV_e_di = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_di)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_e_di)*T2));
-d_T3_dV_e_si = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_si)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_e_si)*T2));
-d_T3_dV_g_di = ((((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_di)+(((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_di)*T2));
+d_T3_dV_di_si = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_di_si+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_di_si*T2);
+d_T3_dV_g_si = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_si+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_si*T2);
+d_T3_dV_g_e = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_e+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_e*T2);
+d_T3_dV_e_di = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_di+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_e_di*T2);
+d_T3_dV_e_si = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_e_si+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_e_si*T2);
+d_T3_dV_g_di = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*d_T2_dV_g_di+(((-Bechvb)*(model_.TOXG))*POXEDGE_i)*d_T1_dV_g_di*T2);
 T3 = (((((-Bechvb)*(model_.TOXG))*POXEDGE_i)*T1)*T2);
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T3);
@@ -17792,23 +17792,23 @@ T4 = evaluator_lexp_0.getValues(T3);
 if ((sigvds>0))
 {
 
-d_igd_dV_di_si = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_di_si)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_di_si)*T4));
-d_igd_dV_e_di = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_e_di)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_e_di)*T4));
-d_igd_dV_e_si = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_e_si)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_e_si)*T4));
-d_igd_dV_g_si = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_si)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_si)*T4));
-d_igd_dV_g_e = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_e)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_e)*T4));
-d_igd_dV_g_di = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_di)+(((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_di)+(((igsd_mult*(model_.DLCIGD))*d_vgd_noswap_dV_g_di)*vgd_eff))*T4));
+d_igd_dV_di_si = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_di_si+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_di_si*T4);
+d_igd_dV_e_di = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_e_di+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_e_di*T4);
+d_igd_dV_e_si = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_e_si+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_e_si*T4);
+d_igd_dV_g_si = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_si+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_si*T4);
+d_igd_dV_g_e = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_e+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_e*T4);
+d_igd_dV_g_di = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_di+(((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_di+(igsd_mult*(model_.DLCIGD))*d_vgd_noswap_dV_g_di*vgd_eff)*T4);
 igd = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*T4);
 }
 else
 {
 
-d_igs_dV_di_si = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_di_si)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_di_si)*T4));
-d_igs_dV_e_di = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_e_di)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_e_di)*T4));
-d_igs_dV_e_si = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_e_si)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_e_si)*T4));
-d_igs_dV_g_si = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_si)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_si)*T4));
-d_igs_dV_g_e = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_e)+((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_e)*T4));
-d_igs_dV_g_di = (((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_di)+(((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_di)+(((igsd_mult*(model_.DLCIGD))*d_vgd_noswap_dV_g_di)*vgd_eff))*T4));
+d_igs_dV_di_si = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_di_si+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_di_si*T4);
+d_igs_dV_e_di = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_e_di+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_e_di*T4);
+d_igs_dV_e_si = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_e_si+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_e_si*T4);
+d_igs_dV_g_si = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_si+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_si*T4);
+d_igs_dV_g_e = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_e+((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_e*T4);
+d_igs_dV_g_di = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*d_T4_dV_g_di+(((igsd_mult*(model_.DLCIGD))*vgd_noswap)*d_vgd_eff_dV_g_di+(igsd_mult*(model_.DLCIGD))*d_vgd_noswap_dV_g_di*vgd_eff)*T4);
 igs = ((((igsd_mult*(model_.DLCIGD))*vgd_noswap)*vgd_eff)*T4);
 }
 }
@@ -17864,19 +17864,19 @@ T2 = (BGIDL_t/(T1+1.0E-3));
 AnalogFunctions::llnEvaluator evaluator_lln_0(T1);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1((PGIDL_i*evaluator_lln_0.getValues(T1)));
 
-d_T3_dV_di_si = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_di_si)));
-d_T3_dV_g_si = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_si)));
-d_T3_dV_g_e = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_e)));
-d_T3_dV_e_di = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_di)));
-d_T3_dV_e_si = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_si)));
-d_T3_dV_g_di = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),(PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_di)));
+d_T3_dV_di_si = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_di_si));
+d_T3_dV_g_si = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_si));
+d_T3_dV_g_e = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_e));
+d_T3_dV_e_di = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_di));
+d_T3_dV_e_si = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_si));
+d_T3_dV_g_di = evaluator_lexp_1.getDerivs((PGIDL_i*evaluator_lln_0.getValues(T1)),PGIDL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_di));
 T3 = evaluator_lexp_1.getValues((PGIDL_i*evaluator_lln_0.getValues(T1)));
 }
 if (((model_.BULKMOD)!=0))
 {
 
 d_T4_dV_g_di = d_T4_dV_di_si = d_T4_dV_e_si = d_T4_dV_g_e = d_T4_dV_g_si =  0.0;
-d_T4_dV_e_di = ((((-ved_jct)*ved_jct)*d_ved_jct_dV_e_di)+((((-ved_jct)*d_ved_jct_dV_e_di)+((-d_ved_jct_dV_e_di)*ved_jct))*ved_jct));
+d_T4_dV_e_di = (((-ved_jct)*ved_jct)*d_ved_jct_dV_e_di+((-ved_jct)*d_ved_jct_dV_e_di+(-d_ved_jct_dV_e_di)*ved_jct)*ved_jct);
 T4 = (((-ved_jct)*ved_jct)*ved_jct);
 {
 double value_fabs_0 = fabs(T4);
@@ -17905,14 +17905,14 @@ T5 = (evaluator_hypsmooth_0.getValues((T4/T4a),1.0E-6)-1.0E-6);
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T2));
 
-d_T6_dV_si_s = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_si_s);
-d_T6_dV_di_d = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_d);
-d_T6_dV_di_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_si)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si)))+(((AGIDL_i*Weff0)*d_T3_dV_di_si)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_e_di = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_di)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di)))+(((AGIDL_i*Weff0)*d_T3_dV_e_di)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_e_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_si)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si)))+(((AGIDL_i*Weff0)*d_T3_dV_e_si)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_g_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_si)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_si)))+(((AGIDL_i*Weff0)*d_T3_dV_g_si)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_g_e = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_e)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_e)))+(((AGIDL_i*Weff0)*d_T3_dV_g_e)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_g_di = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_di)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_di)))+(((AGIDL_i*Weff0)*d_T3_dV_g_di)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_si_s = (((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_si_s;
+d_T6_dV_di_d = (((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_d;
+d_T6_dV_di_si = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_si+(((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si))+(AGIDL_i*Weff0)*d_T3_dV_di_si*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_e_di = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_di+(((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di))+(AGIDL_i*Weff0)*d_T3_dV_e_di*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_e_si = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_si+(((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si))+(AGIDL_i*Weff0)*d_T3_dV_e_si*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_g_si = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_si+(((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_si))+(AGIDL_i*Weff0)*d_T3_dV_g_si*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_g_e = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_e+(((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_e))+(AGIDL_i*Weff0)*d_T3_dV_g_e*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_g_di = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_di+(((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_di))+(AGIDL_i*Weff0)*d_T3_dV_g_di*evaluator_lexp_0.getValues((-T2)))*T5);
 T6 = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*T5);
 }
 }
@@ -17922,12 +17922,12 @@ else
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T2));
 
 d_T6_dV_di_d = d_T6_dV_si_s =  0.0;
-d_T6_dV_di_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_vds_noswap_dV_di_si)+(((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si)))+(((AGIDL_i*Weff0)*d_T3_dV_di_si)*evaluator_lexp_0.getValues((-T2))))*vds_noswap));
-d_T6_dV_e_di = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di)))+(((AGIDL_i*Weff0)*d_T3_dV_e_di)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
-d_T6_dV_e_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si)))+(((AGIDL_i*Weff0)*d_T3_dV_e_si)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
-d_T6_dV_g_si = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_si)))+(((AGIDL_i*Weff0)*d_T3_dV_g_si)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
-d_T6_dV_g_e = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_e)))+(((AGIDL_i*Weff0)*d_T3_dV_g_e)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
-d_T6_dV_g_di = (((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_di)))+(((AGIDL_i*Weff0)*d_T3_dV_g_di)*evaluator_lexp_0.getValues((-T2))))*vds_noswap);
+d_T6_dV_di_si = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_vds_noswap_dV_di_si+(((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si))+(AGIDL_i*Weff0)*d_T3_dV_di_si*evaluator_lexp_0.getValues((-T2)))*vds_noswap);
+d_T6_dV_e_di = (((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di))+(AGIDL_i*Weff0)*d_T3_dV_e_di*evaluator_lexp_0.getValues((-T2)))*vds_noswap;
+d_T6_dV_e_si = (((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si))+(AGIDL_i*Weff0)*d_T3_dV_e_si*evaluator_lexp_0.getValues((-T2)))*vds_noswap;
+d_T6_dV_g_si = (((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_si))+(AGIDL_i*Weff0)*d_T3_dV_g_si*evaluator_lexp_0.getValues((-T2)))*vds_noswap;
+d_T6_dV_g_e = (((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_e))+(AGIDL_i*Weff0)*d_T3_dV_g_e*evaluator_lexp_0.getValues((-T2)))*vds_noswap;
+d_T6_dV_g_di = (((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_di))+(AGIDL_i*Weff0)*d_T3_dV_g_di*evaluator_lexp_0.getValues((-T2)))*vds_noswap;
 T6 = ((((AGIDL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*vds_noswap);
 }
 }
@@ -17999,19 +17999,19 @@ T2 = (BGISL_t/(T1+1.0E-3));
 AnalogFunctions::llnEvaluator evaluator_lln_0(T1);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1((PGISL_i*evaluator_lln_0.getValues(T1)));
 
-d_T3_dV_di_si = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_di_si)));
-d_T3_dV_g_si = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_si)));
-d_T3_dV_g_e = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_e)));
-d_T3_dV_e_di = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_di)));
-d_T3_dV_e_si = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_si)));
-d_T3_dV_g_di = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),(PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_di)));
+d_T3_dV_di_si = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_di_si));
+d_T3_dV_g_si = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_si));
+d_T3_dV_g_e = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_e));
+d_T3_dV_e_di = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_di));
+d_T3_dV_e_si = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_e_si));
+d_T3_dV_g_di = evaluator_lexp_1.getDerivs((PGISL_i*evaluator_lln_0.getValues(T1)),PGISL_i*evaluator_lln_0.getDerivs(T1,d_T1_dV_g_di));
 T3 = evaluator_lexp_1.getValues((PGISL_i*evaluator_lln_0.getValues(T1)));
 }
 if (((model_.BULKMOD)!=0))
 {
 
 d_T4_dV_g_di = d_T4_dV_di_si = d_T4_dV_e_di = d_T4_dV_g_e = d_T4_dV_g_si =  0.0;
-d_T4_dV_e_si = ((((-ves_jct)*ves_jct)*d_ves_jct_dV_e_si)+((((-ves_jct)*d_ves_jct_dV_e_si)+((-d_ves_jct_dV_e_si)*ves_jct))*ves_jct));
+d_T4_dV_e_si = (((-ves_jct)*ves_jct)*d_ves_jct_dV_e_si+((-ves_jct)*d_ves_jct_dV_e_si+(-d_ves_jct_dV_e_si)*ves_jct)*ves_jct);
 T4 = (((-ves_jct)*ves_jct)*ves_jct);
 {
 double value_fabs_0 = fabs(T4);
@@ -18040,14 +18040,14 @@ T5 = (evaluator_hypsmooth_0.getValues((T4/T4a),1.0E-6)-1.0E-6);
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T2));
 
-d_T6_dV_si_s = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_si_s);
-d_T6_dV_di_d = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_d);
-d_T6_dV_di_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_si)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si)))+(((AGISL_i*Weff0)*d_T3_dV_di_si)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_e_di = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_di)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di)))+(((AGISL_i*Weff0)*d_T3_dV_e_di)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_e_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_si)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si)))+(((AGISL_i*Weff0)*d_T3_dV_e_si)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_g_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_si)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_si)))+(((AGISL_i*Weff0)*d_T3_dV_g_si)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_g_e = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_e)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_e)))+(((AGISL_i*Weff0)*d_T3_dV_g_e)*evaluator_lexp_0.getValues((-T2))))*T5));
-d_T6_dV_g_di = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_di)+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_di)))+(((AGISL_i*Weff0)*d_T3_dV_g_di)*evaluator_lexp_0.getValues((-T2))))*T5));
+d_T6_dV_si_s = (((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_si_s;
+d_T6_dV_di_d = (((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_d;
+d_T6_dV_di_si = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_di_si+(((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si))+(AGISL_i*Weff0)*d_T3_dV_di_si*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_e_di = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_di+(((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di))+(AGISL_i*Weff0)*d_T3_dV_e_di*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_e_si = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_e_si+(((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si))+(AGISL_i*Weff0)*d_T3_dV_e_si*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_g_si = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_si+(((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_si))+(AGISL_i*Weff0)*d_T3_dV_g_si*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_g_e = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_e+(((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_e))+(AGISL_i*Weff0)*d_T3_dV_g_e*evaluator_lexp_0.getValues((-T2)))*T5);
+d_T6_dV_g_di = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*d_T5_dV_g_di+(((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_di))+(AGISL_i*Weff0)*d_T3_dV_g_di*evaluator_lexp_0.getValues((-T2)))*T5);
 T6 = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*T5);
 }
 }
@@ -18057,12 +18057,12 @@ else
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((-T2));
 
 d_T6_dV_di_d = d_T6_dV_si_s =  0.0;
-d_T6_dV_di_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*(-d_vds_noswap_dV_di_si))+(((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si)))+(((AGISL_i*Weff0)*d_T3_dV_di_si)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap)));
-d_T6_dV_e_di = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di)))+(((AGISL_i*Weff0)*d_T3_dV_e_di)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
-d_T6_dV_e_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si)))+(((AGISL_i*Weff0)*d_T3_dV_e_si)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
-d_T6_dV_g_si = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_si)))+(((AGISL_i*Weff0)*d_T3_dV_g_si)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
-d_T6_dV_g_e = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_e)))+(((AGISL_i*Weff0)*d_T3_dV_g_e)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
-d_T6_dV_g_di = (((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_di)))+(((AGISL_i*Weff0)*d_T3_dV_g_di)*evaluator_lexp_0.getValues((-T2))))*(-vds_noswap));
+d_T6_dV_di_si = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*(-d_vds_noswap_dV_di_si)+(((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_di_si))+(AGISL_i*Weff0)*d_T3_dV_di_si*evaluator_lexp_0.getValues((-T2)))*(-vds_noswap));
+d_T6_dV_e_di = (((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_di))+(AGISL_i*Weff0)*d_T3_dV_e_di*evaluator_lexp_0.getValues((-T2)))*(-vds_noswap);
+d_T6_dV_e_si = (((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_e_si))+(AGISL_i*Weff0)*d_T3_dV_e_si*evaluator_lexp_0.getValues((-T2)))*(-vds_noswap);
+d_T6_dV_g_si = (((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_si))+(AGISL_i*Weff0)*d_T3_dV_g_si*evaluator_lexp_0.getValues((-T2)))*(-vds_noswap);
+d_T6_dV_g_e = (((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_e))+(AGISL_i*Weff0)*d_T3_dV_g_e*evaluator_lexp_0.getValues((-T2)))*(-vds_noswap);
+d_T6_dV_g_di = (((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getDerivs((-T2),(-d_T2_dV_g_di))+(AGISL_i*Weff0)*d_T3_dV_g_di*evaluator_lexp_0.getValues((-T2)))*(-vds_noswap);
 T6 = ((((AGISL_i*Weff0)*T3)*evaluator_lexp_0.getValues((-T2)))*(-vds_noswap));
 }
 }
@@ -18118,15 +18118,15 @@ T1 = (evaluator_lexp_0.getValues(T0)-1.0);
 }
 
 d_T2_dV_g_di = d_T2_dV_g_e = d_T2_dV_g_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
-d_T2_dV_e_si = (SslpRev*d_ves_jct_dV_e_si);
+d_T2_dV_e_si = SslpRev*d_ves_jct_dV_e_si;
 T2 = (IVjsmRev+(SslpRev*(ves_jct-VjsmRev)));
 
-d_Ies_dV_di_si = ((T1*d_T2_dV_di_si)+(d_T1_dV_di_si*T2));
-d_Ies_dV_g_si = ((T1*d_T2_dV_g_si)+(d_T1_dV_g_si*T2));
-d_Ies_dV_g_e = ((T1*d_T2_dV_g_e)+(d_T1_dV_g_e*T2));
-d_Ies_dV_e_di = ((T1*d_T2_dV_e_di)+(d_T1_dV_e_di*T2));
-d_Ies_dV_e_si = ((T1*d_T2_dV_e_si)+(d_T1_dV_e_si*T2));
-d_Ies_dV_g_di = ((T1*d_T2_dV_g_di)+(d_T1_dV_g_di*T2));
+d_Ies_dV_di_si = (T1*d_T2_dV_di_si+d_T1_dV_di_si*T2);
+d_Ies_dV_g_si = (T1*d_T2_dV_g_si+d_T1_dV_g_si*T2);
+d_Ies_dV_g_e = (T1*d_T2_dV_g_e+d_T1_dV_g_e*T2);
+d_Ies_dV_e_di = (T1*d_T2_dV_e_di+d_T1_dV_e_di*T2);
+d_Ies_dV_e_si = (T1*d_T2_dV_e_si+d_T1_dV_e_si*T2);
+d_Ies_dV_g_di = (T1*d_T2_dV_g_di+d_T1_dV_g_di*T2);
 Ies = (T1*T2);
 }
 else
@@ -18155,12 +18155,12 @@ T2 = evaluator_lexp_0.getValues((-T1));
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T0);
 
-d_Ies_dV_di_si = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_di_si)-((model_.XJBVS)*d_T2_dV_di_si)));
-d_Ies_dV_g_si = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_si)-((model_.XJBVS)*d_T2_dV_g_si)));
-d_Ies_dV_g_e = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_e)-((model_.XJBVS)*d_T2_dV_g_e)));
-d_Ies_dV_e_di = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_di)-((model_.XJBVS)*d_T2_dV_e_di)));
-d_Ies_dV_e_si = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_si)-((model_.XJBVS)*d_T2_dV_e_si)));
-d_Ies_dV_g_di = (Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_di)-((model_.XJBVS)*d_T2_dV_g_di)));
+d_Ies_dV_di_si = Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_di_si)-(model_.XJBVS)*d_T2_dV_di_si);
+d_Ies_dV_g_si = Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_si)-(model_.XJBVS)*d_T2_dV_g_si);
+d_Ies_dV_g_e = Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_e)-(model_.XJBVS)*d_T2_dV_g_e);
+d_Ies_dV_e_di = Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_di)-(model_.XJBVS)*d_T2_dV_e_di);
+d_Ies_dV_e_si = Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_si)-(model_.XJBVS)*d_T2_dV_e_si);
+d_Ies_dV_g_di = Isbs*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_di)-(model_.XJBVS)*d_T2_dV_g_di);
 Ies = (Isbs*(((evaluator_lexp_0.getValues(T0)+XExpBVS)-1.0)-((model_.XJBVS)*T2)));
 }
 }
@@ -18168,7 +18168,7 @@ else
 {
 
 d_Ies_dV_g_di = d_Ies_dV_e_di = d_Ies_dV_g_e = d_Ies_dV_g_si = d_Ies_dV_di_si =  0.0;
-d_Ies_dV_e_si = (SslpFwd*d_ves_jct_dV_e_si);
+d_Ies_dV_e_si = SslpFwd*d_ves_jct_dV_e_si;
 Ies = (IVjsmFwd+(SslpFwd*(ves_jct-VjsmFwd)));
 }
 }
@@ -18191,21 +18191,21 @@ T0 = (((-ves_jct)/Vtm0)/NJTS_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e+3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_di_si*1.0e+3));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_si*1.0e+3));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_e*1.0e+3));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_di*1.0e+3));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_si*1.0e+3));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_di*1.0e+3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_di_si*1.0e+3);
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_si*1.0e+3);
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_e*1.0e+3);
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_di*1.0e+3);
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_si*1.0e+3);
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_di*1.0e+3);
 T1 = (evaluator_lexp_0.getValues((T0*1.0e+3))-1.0);
 }
 
-d_Ies_dV_di_si = (d_Ies_dV_di_si-((ASEJ*JTSS_t)*d_T1_dV_di_si));
-d_Ies_dV_g_si = (d_Ies_dV_g_si-((ASEJ*JTSS_t)*d_T1_dV_g_si));
-d_Ies_dV_g_e = (d_Ies_dV_g_e-((ASEJ*JTSS_t)*d_T1_dV_g_e));
-d_Ies_dV_e_di = (d_Ies_dV_e_di-((ASEJ*JTSS_t)*d_T1_dV_e_di));
-d_Ies_dV_e_si = (d_Ies_dV_e_si-((ASEJ*JTSS_t)*d_T1_dV_e_si));
-d_Ies_dV_g_di = (d_Ies_dV_g_di-((ASEJ*JTSS_t)*d_T1_dV_g_di));
+d_Ies_dV_di_si = (d_Ies_dV_di_si-(ASEJ*JTSS_t)*d_T1_dV_di_si);
+d_Ies_dV_g_si = (d_Ies_dV_g_si-(ASEJ*JTSS_t)*d_T1_dV_g_si);
+d_Ies_dV_g_e = (d_Ies_dV_g_e-(ASEJ*JTSS_t)*d_T1_dV_g_e);
+d_Ies_dV_e_di = (d_Ies_dV_e_di-(ASEJ*JTSS_t)*d_T1_dV_e_di);
+d_Ies_dV_e_si = (d_Ies_dV_e_si-(ASEJ*JTSS_t)*d_T1_dV_e_si);
+d_Ies_dV_g_di = (d_Ies_dV_g_di-(ASEJ*JTSS_t)*d_T1_dV_g_di);
 Ies = (Ies-((ASEJ*JTSS_t)*T1));
 }
 else
@@ -18218,21 +18218,21 @@ T0 = (((-ves_jct)/Vtm0)/NJTS_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_di_si*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_g_si*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_g_e*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_e_di*(model_.VTSS))/((model_.VTSS)-ves_jct)));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((((model_.VTSS)-ves_jct)*(d_T0_dV_e_si*(model_.VTSS))-(T0*(model_.VTSS))*(-d_ves_jct_dV_e_si))/((model_.VTSS)-ves_jct)/((model_.VTSS)-ves_jct)));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((d_T0_dV_g_di*(model_.VTSS))/((model_.VTSS)-ves_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),(d_T0_dV_di_si*(model_.VTSS)/((model_.VTSS)-ves_jct)));
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),(d_T0_dV_g_si*(model_.VTSS)/((model_.VTSS)-ves_jct)));
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),(d_T0_dV_g_e*(model_.VTSS)/((model_.VTSS)-ves_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),(d_T0_dV_e_di*(model_.VTSS)/((model_.VTSS)-ves_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),((((model_.VTSS)-ves_jct)*d_T0_dV_e_si*(model_.VTSS)-(T0*(model_.VTSS))*(-d_ves_jct_dV_e_si))/((model_.VTSS)-ves_jct)/((model_.VTSS)-ves_jct)));
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)),(d_T0_dV_g_di*(model_.VTSS)/((model_.VTSS)-ves_jct)));
 T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSS))/((model_.VTSS)-ves_jct)))-1.0);
 }
 
-d_Ies_dV_di_si = (d_Ies_dV_di_si-((ASEJ*JTSS_t)*d_T1_dV_di_si));
-d_Ies_dV_g_si = (d_Ies_dV_g_si-((ASEJ*JTSS_t)*d_T1_dV_g_si));
-d_Ies_dV_g_e = (d_Ies_dV_g_e-((ASEJ*JTSS_t)*d_T1_dV_g_e));
-d_Ies_dV_e_di = (d_Ies_dV_e_di-((ASEJ*JTSS_t)*d_T1_dV_e_di));
-d_Ies_dV_e_si = (d_Ies_dV_e_si-((ASEJ*JTSS_t)*d_T1_dV_e_si));
-d_Ies_dV_g_di = (d_Ies_dV_g_di-((ASEJ*JTSS_t)*d_T1_dV_g_di));
+d_Ies_dV_di_si = (d_Ies_dV_di_si-(ASEJ*JTSS_t)*d_T1_dV_di_si);
+d_Ies_dV_g_si = (d_Ies_dV_g_si-(ASEJ*JTSS_t)*d_T1_dV_g_si);
+d_Ies_dV_g_e = (d_Ies_dV_g_e-(ASEJ*JTSS_t)*d_T1_dV_g_e);
+d_Ies_dV_e_di = (d_Ies_dV_e_di-(ASEJ*JTSS_t)*d_T1_dV_e_di);
+d_Ies_dV_e_si = (d_Ies_dV_e_si-(ASEJ*JTSS_t)*d_T1_dV_e_si);
+d_Ies_dV_g_di = (d_Ies_dV_g_di-(ASEJ*JTSS_t)*d_T1_dV_g_di);
 Ies = (Ies-((ASEJ*JTSS_t)*T1));
 }
 }
@@ -18248,21 +18248,21 @@ T0 = (((-ves_jct)/Vtm0)/NJTSSW_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e+3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_di_si*1.0e+3));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_si*1.0e+3));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_e*1.0e+3));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_di*1.0e+3));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_si*1.0e+3));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_di*1.0e+3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_di_si*1.0e+3);
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_si*1.0e+3);
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_e*1.0e+3);
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_di*1.0e+3);
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_si*1.0e+3);
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_di*1.0e+3);
 T1 = (evaluator_lexp_0.getValues((T0*1.0e+3))-1.0);
 }
 
-d_Ies_dV_di_si = (d_Ies_dV_di_si-((PSEJ*JTSSWS_t)*d_T1_dV_di_si));
-d_Ies_dV_g_si = (d_Ies_dV_g_si-((PSEJ*JTSSWS_t)*d_T1_dV_g_si));
-d_Ies_dV_g_e = (d_Ies_dV_g_e-((PSEJ*JTSSWS_t)*d_T1_dV_g_e));
-d_Ies_dV_e_di = (d_Ies_dV_e_di-((PSEJ*JTSSWS_t)*d_T1_dV_e_di));
-d_Ies_dV_e_si = (d_Ies_dV_e_si-((PSEJ*JTSSWS_t)*d_T1_dV_e_si));
-d_Ies_dV_g_di = (d_Ies_dV_g_di-((PSEJ*JTSSWS_t)*d_T1_dV_g_di));
+d_Ies_dV_di_si = (d_Ies_dV_di_si-(PSEJ*JTSSWS_t)*d_T1_dV_di_si);
+d_Ies_dV_g_si = (d_Ies_dV_g_si-(PSEJ*JTSSWS_t)*d_T1_dV_g_si);
+d_Ies_dV_g_e = (d_Ies_dV_g_e-(PSEJ*JTSSWS_t)*d_T1_dV_g_e);
+d_Ies_dV_e_di = (d_Ies_dV_e_di-(PSEJ*JTSSWS_t)*d_T1_dV_e_di);
+d_Ies_dV_e_si = (d_Ies_dV_e_si-(PSEJ*JTSSWS_t)*d_T1_dV_e_si);
+d_Ies_dV_g_di = (d_Ies_dV_g_di-(PSEJ*JTSSWS_t)*d_T1_dV_g_di);
 Ies = (Ies-((PSEJ*JTSSWS_t)*T1));
 }
 else
@@ -18275,21 +18275,21 @@ T0 = (((-ves_jct)/Vtm0)/NJTSSW_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_di_si*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_g_si*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_g_e*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_e_di*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((((model_.VTSSWS)-ves_jct)*(d_T0_dV_e_si*(model_.VTSSWS))-(T0*(model_.VTSSWS))*(-d_ves_jct_dV_e_si))/((model_.VTSSWS)-ves_jct)/((model_.VTSSWS)-ves_jct)));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((d_T0_dV_g_di*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),(d_T0_dV_di_si*(model_.VTSSWS)/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),(d_T0_dV_g_si*(model_.VTSSWS)/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),(d_T0_dV_g_e*(model_.VTSSWS)/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),(d_T0_dV_e_di*(model_.VTSSWS)/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),((((model_.VTSSWS)-ves_jct)*d_T0_dV_e_si*(model_.VTSSWS)-(T0*(model_.VTSSWS))*(-d_ves_jct_dV_e_si))/((model_.VTSSWS)-ves_jct)/((model_.VTSSWS)-ves_jct)));
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)),(d_T0_dV_g_di*(model_.VTSSWS)/((model_.VTSSWS)-ves_jct)));
 T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSSWS))/((model_.VTSSWS)-ves_jct)))-1.0);
 }
 
-d_Ies_dV_di_si = (d_Ies_dV_di_si-((PSEJ*JTSSWS_t)*d_T1_dV_di_si));
-d_Ies_dV_g_si = (d_Ies_dV_g_si-((PSEJ*JTSSWS_t)*d_T1_dV_g_si));
-d_Ies_dV_g_e = (d_Ies_dV_g_e-((PSEJ*JTSSWS_t)*d_T1_dV_g_e));
-d_Ies_dV_e_di = (d_Ies_dV_e_di-((PSEJ*JTSSWS_t)*d_T1_dV_e_di));
-d_Ies_dV_e_si = (d_Ies_dV_e_si-((PSEJ*JTSSWS_t)*d_T1_dV_e_si));
-d_Ies_dV_g_di = (d_Ies_dV_g_di-((PSEJ*JTSSWS_t)*d_T1_dV_g_di));
+d_Ies_dV_di_si = (d_Ies_dV_di_si-(PSEJ*JTSSWS_t)*d_T1_dV_di_si);
+d_Ies_dV_g_si = (d_Ies_dV_g_si-(PSEJ*JTSSWS_t)*d_T1_dV_g_si);
+d_Ies_dV_g_e = (d_Ies_dV_g_e-(PSEJ*JTSSWS_t)*d_T1_dV_g_e);
+d_Ies_dV_e_di = (d_Ies_dV_e_di-(PSEJ*JTSSWS_t)*d_T1_dV_e_di);
+d_Ies_dV_e_si = (d_Ies_dV_e_si-(PSEJ*JTSSWS_t)*d_T1_dV_e_si);
+d_Ies_dV_g_di = (d_Ies_dV_g_di-(PSEJ*JTSSWS_t)*d_T1_dV_g_di);
 Ies = (Ies-((PSEJ*JTSSWS_t)*T1));
 }
 }
@@ -18305,21 +18305,21 @@ T0 = (((-ves_jct)/Vtm0)/NJTSSWG_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e+3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_di_si*1.0e+3));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_si*1.0e+3));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_e*1.0e+3));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_di*1.0e+3));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_si*1.0e+3));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_di*1.0e+3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_di_si*1.0e+3);
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_si*1.0e+3);
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_e*1.0e+3);
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_di*1.0e+3);
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_si*1.0e+3);
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_di*1.0e+3);
 T1 = (evaluator_lexp_0.getValues((T0*1.0e+3))-1.0);
 }
 
-d_Ies_dV_di_si = (d_Ies_dV_di_si-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_di_si));
-d_Ies_dV_g_si = (d_Ies_dV_g_si-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_si));
-d_Ies_dV_g_e = (d_Ies_dV_g_e-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_e));
-d_Ies_dV_e_di = (d_Ies_dV_e_di-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_e_di));
-d_Ies_dV_e_si = (d_Ies_dV_e_si-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_e_si));
-d_Ies_dV_g_di = (d_Ies_dV_g_di-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_di));
+d_Ies_dV_di_si = (d_Ies_dV_di_si-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_di_si);
+d_Ies_dV_g_si = (d_Ies_dV_g_si-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_si);
+d_Ies_dV_g_e = (d_Ies_dV_g_e-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_e);
+d_Ies_dV_e_di = (d_Ies_dV_e_di-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_e_di);
+d_Ies_dV_e_si = (d_Ies_dV_e_si-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_e_si);
+d_Ies_dV_g_di = (d_Ies_dV_g_di-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_di);
 Ies = (Ies-(((Weff0*NFINtotal)*JTSSWGS_t)*T1));
 }
 else
@@ -18332,21 +18332,21 @@ T0 = (((-ves_jct)/Vtm0)/NJTSSWG_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_di_si*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_g_si*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_g_e*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_e_di*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((((model_.VTSSWGS)-ves_jct)*(d_T0_dV_e_si*(model_.VTSSWGS))-(T0*(model_.VTSSWGS))*(-d_ves_jct_dV_e_si))/((model_.VTSSWGS)-ves_jct)/((model_.VTSSWGS)-ves_jct)));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((d_T0_dV_g_di*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),(d_T0_dV_di_si*(model_.VTSSWGS)/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),(d_T0_dV_g_si*(model_.VTSSWGS)/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),(d_T0_dV_g_e*(model_.VTSSWGS)/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),(d_T0_dV_e_di*(model_.VTSSWGS)/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),((((model_.VTSSWGS)-ves_jct)*d_T0_dV_e_si*(model_.VTSSWGS)-(T0*(model_.VTSSWGS))*(-d_ves_jct_dV_e_si))/((model_.VTSSWGS)-ves_jct)/((model_.VTSSWGS)-ves_jct)));
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)),(d_T0_dV_g_di*(model_.VTSSWGS)/((model_.VTSSWGS)-ves_jct)));
 T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSSWGS))/((model_.VTSSWGS)-ves_jct)))-1.0);
 }
 
-d_Ies_dV_di_si = (d_Ies_dV_di_si-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_di_si));
-d_Ies_dV_g_si = (d_Ies_dV_g_si-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_si));
-d_Ies_dV_g_e = (d_Ies_dV_g_e-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_e));
-d_Ies_dV_e_di = (d_Ies_dV_e_di-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_e_di));
-d_Ies_dV_e_si = (d_Ies_dV_e_si-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_e_si));
-d_Ies_dV_g_di = (d_Ies_dV_g_di-(((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_di));
+d_Ies_dV_di_si = (d_Ies_dV_di_si-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_di_si);
+d_Ies_dV_g_si = (d_Ies_dV_g_si-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_si);
+d_Ies_dV_g_e = (d_Ies_dV_g_e-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_e);
+d_Ies_dV_e_di = (d_Ies_dV_e_di-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_e_di);
+d_Ies_dV_e_si = (d_Ies_dV_e_si-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_e_si);
+d_Ies_dV_g_di = (d_Ies_dV_g_di-((Weff0*NFINtotal)*JTSSWGS_t)*d_T1_dV_g_di);
 Ies = (Ies-(((Weff0*NFINtotal)*JTSSWGS_t)*T1));
 }
 }
@@ -18372,15 +18372,15 @@ T1 = (evaluator_lexp_0.getValues(T0)-1.0);
 }
 
 d_T2_dV_g_di = d_T2_dV_g_e = d_T2_dV_g_si = d_T2_dV_e_si = d_T2_dV_di_si =  0.0;
-d_T2_dV_e_di = (DslpRev*d_ved_jct_dV_e_di);
+d_T2_dV_e_di = DslpRev*d_ved_jct_dV_e_di;
 T2 = (IVjdmRev+(DslpRev*(ved_jct-VjdmRev)));
 
-d_Ied_dV_di_si = ((T1*d_T2_dV_di_si)+(d_T1_dV_di_si*T2));
-d_Ied_dV_g_si = ((T1*d_T2_dV_g_si)+(d_T1_dV_g_si*T2));
-d_Ied_dV_g_e = ((T1*d_T2_dV_g_e)+(d_T1_dV_g_e*T2));
-d_Ied_dV_e_di = ((T1*d_T2_dV_e_di)+(d_T1_dV_e_di*T2));
-d_Ied_dV_e_si = ((T1*d_T2_dV_e_si)+(d_T1_dV_e_si*T2));
-d_Ied_dV_g_di = ((T1*d_T2_dV_g_di)+(d_T1_dV_g_di*T2));
+d_Ied_dV_di_si = (T1*d_T2_dV_di_si+d_T1_dV_di_si*T2);
+d_Ied_dV_g_si = (T1*d_T2_dV_g_si+d_T1_dV_g_si*T2);
+d_Ied_dV_g_e = (T1*d_T2_dV_g_e+d_T1_dV_g_e*T2);
+d_Ied_dV_e_di = (T1*d_T2_dV_e_di+d_T1_dV_e_di*T2);
+d_Ied_dV_e_si = (T1*d_T2_dV_e_si+d_T1_dV_e_si*T2);
+d_Ied_dV_g_di = (T1*d_T2_dV_g_di+d_T1_dV_g_di*T2);
 Ied = (T1*T2);
 }
 else
@@ -18409,12 +18409,12 @@ T2 = evaluator_lexp_0.getValues((-T1));
 {
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(T0);
 
-d_Ied_dV_di_si = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_di_si)-((model_.XJBVD)*d_T2_dV_di_si)));
-d_Ied_dV_g_si = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_si)-((model_.XJBVD)*d_T2_dV_g_si)));
-d_Ied_dV_g_e = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_e)-((model_.XJBVD)*d_T2_dV_g_e)));
-d_Ied_dV_e_di = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_di)-((model_.XJBVD)*d_T2_dV_e_di)));
-d_Ied_dV_e_si = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_si)-((model_.XJBVD)*d_T2_dV_e_si)));
-d_Ied_dV_g_di = (Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_di)-((model_.XJBVD)*d_T2_dV_g_di)));
+d_Ied_dV_di_si = Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_di_si)-(model_.XJBVD)*d_T2_dV_di_si);
+d_Ied_dV_g_si = Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_si)-(model_.XJBVD)*d_T2_dV_g_si);
+d_Ied_dV_g_e = Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_e)-(model_.XJBVD)*d_T2_dV_g_e);
+d_Ied_dV_e_di = Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_di)-(model_.XJBVD)*d_T2_dV_e_di);
+d_Ied_dV_e_si = Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_e_si)-(model_.XJBVD)*d_T2_dV_e_si);
+d_Ied_dV_g_di = Isbd*(evaluator_lexp_0.getDerivs(T0,d_T0_dV_g_di)-(model_.XJBVD)*d_T2_dV_g_di);
 Ied = (Isbd*(((evaluator_lexp_0.getValues(T0)+XExpBVD)-1.0)-((model_.XJBVD)*T2)));
 }
 }
@@ -18422,7 +18422,7 @@ else
 {
 
 d_Ied_dV_g_di = d_Ied_dV_e_si = d_Ied_dV_g_e = d_Ied_dV_g_si = d_Ied_dV_di_si =  0.0;
-d_Ied_dV_e_di = (DslpFwd*d_ved_jct_dV_e_di);
+d_Ied_dV_e_di = DslpFwd*d_ved_jct_dV_e_di;
 Ied = (IVjdmFwd+(DslpFwd*(ved_jct-VjdmFwd)));
 }
 }
@@ -18445,21 +18445,21 @@ T0 = (((-ved_jct)/Vtm0)/NJTSD_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e+3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_di_si*1.0e+3));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_si*1.0e+3));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_e*1.0e+3));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_di*1.0e+3));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_si*1.0e+3));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_di*1.0e+3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_di_si*1.0e+3);
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_si*1.0e+3);
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_e*1.0e+3);
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_di*1.0e+3);
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_si*1.0e+3);
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_di*1.0e+3);
 T1 = (evaluator_lexp_0.getValues((T0*1.0e+3))-1.0);
 }
 
-d_Ied_dV_di_si = (d_Ied_dV_di_si-((ADEJ*JTSD_t)*d_T1_dV_di_si));
-d_Ied_dV_g_si = (d_Ied_dV_g_si-((ADEJ*JTSD_t)*d_T1_dV_g_si));
-d_Ied_dV_g_e = (d_Ied_dV_g_e-((ADEJ*JTSD_t)*d_T1_dV_g_e));
-d_Ied_dV_e_di = (d_Ied_dV_e_di-((ADEJ*JTSD_t)*d_T1_dV_e_di));
-d_Ied_dV_e_si = (d_Ied_dV_e_si-((ADEJ*JTSD_t)*d_T1_dV_e_si));
-d_Ied_dV_g_di = (d_Ied_dV_g_di-((ADEJ*JTSD_t)*d_T1_dV_g_di));
+d_Ied_dV_di_si = (d_Ied_dV_di_si-(ADEJ*JTSD_t)*d_T1_dV_di_si);
+d_Ied_dV_g_si = (d_Ied_dV_g_si-(ADEJ*JTSD_t)*d_T1_dV_g_si);
+d_Ied_dV_g_e = (d_Ied_dV_g_e-(ADEJ*JTSD_t)*d_T1_dV_g_e);
+d_Ied_dV_e_di = (d_Ied_dV_e_di-(ADEJ*JTSD_t)*d_T1_dV_e_di);
+d_Ied_dV_e_si = (d_Ied_dV_e_si-(ADEJ*JTSD_t)*d_T1_dV_e_si);
+d_Ied_dV_g_di = (d_Ied_dV_g_di-(ADEJ*JTSD_t)*d_T1_dV_g_di);
 Ied = (Ied-((ADEJ*JTSD_t)*T1));
 }
 else
@@ -18472,21 +18472,21 @@ T0 = (((-ved_jct)/Vtm0)/NJTSD_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_di_si*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_g_si*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_g_e*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((((model_.VTSD)-ved_jct)*(d_T0_dV_e_di*(model_.VTSD))-(T0*(model_.VTSD))*(-d_ved_jct_dV_e_di))/((model_.VTSD)-ved_jct)/((model_.VTSD)-ved_jct)));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_e_si*(model_.VTSD))/((model_.VTSD)-ved_jct)));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((d_T0_dV_g_di*(model_.VTSD))/((model_.VTSD)-ved_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),(d_T0_dV_di_si*(model_.VTSD)/((model_.VTSD)-ved_jct)));
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),(d_T0_dV_g_si*(model_.VTSD)/((model_.VTSD)-ved_jct)));
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),(d_T0_dV_g_e*(model_.VTSD)/((model_.VTSD)-ved_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),((((model_.VTSD)-ved_jct)*d_T0_dV_e_di*(model_.VTSD)-(T0*(model_.VTSD))*(-d_ved_jct_dV_e_di))/((model_.VTSD)-ved_jct)/((model_.VTSD)-ved_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),(d_T0_dV_e_si*(model_.VTSD)/((model_.VTSD)-ved_jct)));
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)),(d_T0_dV_g_di*(model_.VTSD)/((model_.VTSD)-ved_jct)));
 T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSD))/((model_.VTSD)-ved_jct)))-1.0);
 }
 
-d_Ied_dV_di_si = (d_Ied_dV_di_si-((ADEJ*JTSD_t)*d_T1_dV_di_si));
-d_Ied_dV_g_si = (d_Ied_dV_g_si-((ADEJ*JTSD_t)*d_T1_dV_g_si));
-d_Ied_dV_g_e = (d_Ied_dV_g_e-((ADEJ*JTSD_t)*d_T1_dV_g_e));
-d_Ied_dV_e_di = (d_Ied_dV_e_di-((ADEJ*JTSD_t)*d_T1_dV_e_di));
-d_Ied_dV_e_si = (d_Ied_dV_e_si-((ADEJ*JTSD_t)*d_T1_dV_e_si));
-d_Ied_dV_g_di = (d_Ied_dV_g_di-((ADEJ*JTSD_t)*d_T1_dV_g_di));
+d_Ied_dV_di_si = (d_Ied_dV_di_si-(ADEJ*JTSD_t)*d_T1_dV_di_si);
+d_Ied_dV_g_si = (d_Ied_dV_g_si-(ADEJ*JTSD_t)*d_T1_dV_g_si);
+d_Ied_dV_g_e = (d_Ied_dV_g_e-(ADEJ*JTSD_t)*d_T1_dV_g_e);
+d_Ied_dV_e_di = (d_Ied_dV_e_di-(ADEJ*JTSD_t)*d_T1_dV_e_di);
+d_Ied_dV_e_si = (d_Ied_dV_e_si-(ADEJ*JTSD_t)*d_T1_dV_e_si);
+d_Ied_dV_g_di = (d_Ied_dV_g_di-(ADEJ*JTSD_t)*d_T1_dV_g_di);
 Ied = (Ied-((ADEJ*JTSD_t)*T1));
 }
 }
@@ -18502,21 +18502,21 @@ T0 = (((-ved_jct)/Vtm0)/NJTSSWD_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e+3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_di_si*1.0e+3));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_si*1.0e+3));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_e*1.0e+3));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_di*1.0e+3));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_si*1.0e+3));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_di*1.0e+3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_di_si*1.0e+3);
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_si*1.0e+3);
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_e*1.0e+3);
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_di*1.0e+3);
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_si*1.0e+3);
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_di*1.0e+3);
 T1 = (evaluator_lexp_0.getValues((T0*1.0e+3))-1.0);
 }
 
-d_Ied_dV_di_si = (d_Ied_dV_di_si-((PDEJ*JTSSWD_t)*d_T1_dV_di_si));
-d_Ied_dV_g_si = (d_Ied_dV_g_si-((PDEJ*JTSSWD_t)*d_T1_dV_g_si));
-d_Ied_dV_g_e = (d_Ied_dV_g_e-((PDEJ*JTSSWD_t)*d_T1_dV_g_e));
-d_Ied_dV_e_di = (d_Ied_dV_e_di-((PDEJ*JTSSWD_t)*d_T1_dV_e_di));
-d_Ied_dV_e_si = (d_Ied_dV_e_si-((PDEJ*JTSSWD_t)*d_T1_dV_e_si));
-d_Ied_dV_g_di = (d_Ied_dV_g_di-((PDEJ*JTSSWD_t)*d_T1_dV_g_di));
+d_Ied_dV_di_si = (d_Ied_dV_di_si-(PDEJ*JTSSWD_t)*d_T1_dV_di_si);
+d_Ied_dV_g_si = (d_Ied_dV_g_si-(PDEJ*JTSSWD_t)*d_T1_dV_g_si);
+d_Ied_dV_g_e = (d_Ied_dV_g_e-(PDEJ*JTSSWD_t)*d_T1_dV_g_e);
+d_Ied_dV_e_di = (d_Ied_dV_e_di-(PDEJ*JTSSWD_t)*d_T1_dV_e_di);
+d_Ied_dV_e_si = (d_Ied_dV_e_si-(PDEJ*JTSSWD_t)*d_T1_dV_e_si);
+d_Ied_dV_g_di = (d_Ied_dV_g_di-(PDEJ*JTSSWD_t)*d_T1_dV_g_di);
 Ied = (Ied-((PDEJ*JTSSWD_t)*T1));
 }
 else
@@ -18529,21 +18529,21 @@ T0 = (((-ved_jct)/Vtm0)/NJTSSWD_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_di_si*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_g_si*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_g_e*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((((model_.VTSSWD)-ved_jct)*(d_T0_dV_e_di*(model_.VTSSWD))-(T0*(model_.VTSSWD))*(-d_ved_jct_dV_e_di))/((model_.VTSSWD)-ved_jct)/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_e_si*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((d_T0_dV_g_di*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),(d_T0_dV_di_si*(model_.VTSSWD)/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),(d_T0_dV_g_si*(model_.VTSSWD)/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),(d_T0_dV_g_e*(model_.VTSSWD)/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),((((model_.VTSSWD)-ved_jct)*d_T0_dV_e_di*(model_.VTSSWD)-(T0*(model_.VTSSWD))*(-d_ved_jct_dV_e_di))/((model_.VTSSWD)-ved_jct)/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),(d_T0_dV_e_si*(model_.VTSSWD)/((model_.VTSSWD)-ved_jct)));
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)),(d_T0_dV_g_di*(model_.VTSSWD)/((model_.VTSSWD)-ved_jct)));
 T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSSWD))/((model_.VTSSWD)-ved_jct)))-1.0);
 }
 
-d_Ied_dV_di_si = (d_Ied_dV_di_si-((PDEJ*JTSSWD_t)*d_T1_dV_di_si));
-d_Ied_dV_g_si = (d_Ied_dV_g_si-((PDEJ*JTSSWD_t)*d_T1_dV_g_si));
-d_Ied_dV_g_e = (d_Ied_dV_g_e-((PDEJ*JTSSWD_t)*d_T1_dV_g_e));
-d_Ied_dV_e_di = (d_Ied_dV_e_di-((PDEJ*JTSSWD_t)*d_T1_dV_e_di));
-d_Ied_dV_e_si = (d_Ied_dV_e_si-((PDEJ*JTSSWD_t)*d_T1_dV_e_si));
-d_Ied_dV_g_di = (d_Ied_dV_g_di-((PDEJ*JTSSWD_t)*d_T1_dV_g_di));
+d_Ied_dV_di_si = (d_Ied_dV_di_si-(PDEJ*JTSSWD_t)*d_T1_dV_di_si);
+d_Ied_dV_g_si = (d_Ied_dV_g_si-(PDEJ*JTSSWD_t)*d_T1_dV_g_si);
+d_Ied_dV_g_e = (d_Ied_dV_g_e-(PDEJ*JTSSWD_t)*d_T1_dV_g_e);
+d_Ied_dV_e_di = (d_Ied_dV_e_di-(PDEJ*JTSSWD_t)*d_T1_dV_e_di);
+d_Ied_dV_e_si = (d_Ied_dV_e_si-(PDEJ*JTSSWD_t)*d_T1_dV_e_si);
+d_Ied_dV_g_di = (d_Ied_dV_g_di-(PDEJ*JTSSWD_t)*d_T1_dV_g_di);
 Ied = (Ied-((PDEJ*JTSSWD_t)*T1));
 }
 }
@@ -18559,21 +18559,21 @@ T0 = (((-ved_jct)/Vtm0)/NJTSSWGD_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0((T0*1.0e+3));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_di_si*1.0e+3));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_si*1.0e+3));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_e*1.0e+3));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_di*1.0e+3));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_e_si*1.0e+3));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),(d_T0_dV_g_di*1.0e+3));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_di_si*1.0e+3);
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_si*1.0e+3);
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_e*1.0e+3);
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_di*1.0e+3);
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_e_si*1.0e+3);
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs((T0*1.0e+3),d_T0_dV_g_di*1.0e+3);
 T1 = (evaluator_lexp_0.getValues((T0*1.0e+3))-1.0);
 }
 
-d_Ied_dV_di_si = (d_Ied_dV_di_si-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_di_si));
-d_Ied_dV_g_si = (d_Ied_dV_g_si-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_si));
-d_Ied_dV_g_e = (d_Ied_dV_g_e-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_e));
-d_Ied_dV_e_di = (d_Ied_dV_e_di-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_e_di));
-d_Ied_dV_e_si = (d_Ied_dV_e_si-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_e_si));
-d_Ied_dV_g_di = (d_Ied_dV_g_di-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_di));
+d_Ied_dV_di_si = (d_Ied_dV_di_si-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_di_si);
+d_Ied_dV_g_si = (d_Ied_dV_g_si-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_si);
+d_Ied_dV_g_e = (d_Ied_dV_g_e-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_e);
+d_Ied_dV_e_di = (d_Ied_dV_e_di-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_e_di);
+d_Ied_dV_e_si = (d_Ied_dV_e_si-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_e_si);
+d_Ied_dV_g_di = (d_Ied_dV_g_di-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_di);
 Ied = (Ied-(((Weff0*NFINtotal)*JTSSWGD_t)*T1));
 }
 else
@@ -18586,21 +18586,21 @@ T0 = (((-ved_jct)/Vtm0)/NJTSSWGD_t);
 AnalogFunctions::lexpEvaluator evaluator_lexp_0(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_di_si*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_g_si*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_g_e*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((((model_.VTSSWGD)-ved_jct)*(d_T0_dV_e_di*(model_.VTSSWGD))-(T0*(model_.VTSSWGD))*(-d_ved_jct_dV_e_di))/((model_.VTSSWGD)-ved_jct)/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_e_si*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
-d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((d_T0_dV_g_di*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_di_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),(d_T0_dV_di_si*(model_.VTSSWGD)/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_g_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),(d_T0_dV_g_si*(model_.VTSSWGD)/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_g_e = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),(d_T0_dV_g_e*(model_.VTSSWGD)/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_e_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),((((model_.VTSSWGD)-ved_jct)*d_T0_dV_e_di*(model_.VTSSWGD)-(T0*(model_.VTSSWGD))*(-d_ved_jct_dV_e_di))/((model_.VTSSWGD)-ved_jct)/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_e_si = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),(d_T0_dV_e_si*(model_.VTSSWGD)/((model_.VTSSWGD)-ved_jct)));
+d_T1_dV_g_di = evaluator_lexp_0.getDerivs(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)),(d_T0_dV_g_di*(model_.VTSSWGD)/((model_.VTSSWGD)-ved_jct)));
 T1 = (evaluator_lexp_0.getValues(((T0*(model_.VTSSWGD))/((model_.VTSSWGD)-ved_jct)))-1.0);
 }
 
-d_Ied_dV_di_si = (d_Ied_dV_di_si-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_di_si));
-d_Ied_dV_g_si = (d_Ied_dV_g_si-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_si));
-d_Ied_dV_g_e = (d_Ied_dV_g_e-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_e));
-d_Ied_dV_e_di = (d_Ied_dV_e_di-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_e_di));
-d_Ied_dV_e_si = (d_Ied_dV_e_si-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_e_si));
-d_Ied_dV_g_di = (d_Ied_dV_g_di-(((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_di));
+d_Ied_dV_di_si = (d_Ied_dV_di_si-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_di_si);
+d_Ied_dV_g_si = (d_Ied_dV_g_si-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_si);
+d_Ied_dV_g_e = (d_Ied_dV_g_e-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_e);
+d_Ied_dV_e_di = (d_Ied_dV_e_di-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_e_di);
+d_Ied_dV_e_si = (d_Ied_dV_e_si-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_e_si);
+d_Ied_dV_g_di = (d_Ied_dV_g_di-((Weff0*NFINtotal)*JTSSWGD_t)*d_T1_dV_g_di);
 Ied = (Ied-(((Weff0*NFINtotal)*JTSSWGD_t)*T1));
 }
 }
@@ -18656,23 +18656,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qesj1_dV_di_d = d_Qesj1_dV_si_s =  0.0;
-d_Qesj1_dV_di_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_g_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_g_e = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_e_di = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_e_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_g_di = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJS)));
+d_Qesj1_dV_di_si = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_g_si = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_g_e = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_e_di = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_e_si = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_g_di = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJS)));
 Qesj1 = (((PBS_t*Czbs)*(1.0-(arg*sarg)))/(1.0-(model_.MJS)));
 }
 else
@@ -18701,22 +18701,22 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
 }
 }
 
-d_Qec_dV_di_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJS)));
-d_Qec_dV_g_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJS)));
-d_Qec_dV_g_e = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJS)));
-d_Qec_dV_e_di = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJS)));
-d_Qec_dV_e_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJS)));
-d_Qec_dV_g_di = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJS)));
+d_Qec_dV_di_si = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJS)));
+d_Qec_dV_g_si = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJS)));
+d_Qec_dV_g_e = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJS)));
+d_Qec_dV_e_di = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJS)));
+d_Qec_dV_e_si = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJS)));
+d_Qec_dV_g_di = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJS)));
 Qec = (((PBS_t*Czbs)*(1.0-(arg*sarg)))/(1.0-(model_.MJS)));
 
 d_arg_dV_g_di = d_arg_dV_e_di = d_arg_dV_g_e = d_arg_dV_g_si = d_arg_dV_di_si =  0.0;
@@ -18743,23 +18743,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJS2))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qesj1_dV_di_d = d_Qesj1_dV_si_s =  0.0;
-d_Qesj1_dV_di_si = (d_Qec_dV_di_si+(((((model_.SJS)*pb2)*Czbs)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJS2))));
-d_Qesj1_dV_g_si = (d_Qec_dV_g_si+(((((model_.SJS)*pb2)*Czbs)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJS2))));
-d_Qesj1_dV_g_e = (d_Qec_dV_g_e+(((((model_.SJS)*pb2)*Czbs)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJS2))));
-d_Qesj1_dV_e_di = (d_Qec_dV_e_di+(((((model_.SJS)*pb2)*Czbs)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJS2))));
-d_Qesj1_dV_e_si = (d_Qec_dV_e_si+(((((model_.SJS)*pb2)*Czbs)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJS2))));
-d_Qesj1_dV_g_di = (d_Qec_dV_g_di+(((((model_.SJS)*pb2)*Czbs)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJS2))));
+d_Qesj1_dV_di_si = (d_Qec_dV_di_si+((((model_.SJS)*pb2)*Czbs)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJS2))));
+d_Qesj1_dV_g_si = (d_Qec_dV_g_si+((((model_.SJS)*pb2)*Czbs)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJS2))));
+d_Qesj1_dV_g_e = (d_Qec_dV_g_e+((((model_.SJS)*pb2)*Czbs)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJS2))));
+d_Qesj1_dV_e_di = (d_Qec_dV_e_di+((((model_.SJS)*pb2)*Czbs)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJS2))));
+d_Qesj1_dV_e_si = (d_Qec_dV_e_si+((((model_.SJS)*pb2)*Czbs)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJS2))));
+d_Qesj1_dV_g_di = (d_Qec_dV_g_di+((((model_.SJS)*pb2)*Czbs)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJS2))));
 Qesj1 = (Qec+(((((model_.SJS)*pb2)*Czbs)*(1.0-(arg*sarg)))/(1.0-(model_.MJS2))));
 }
 }
@@ -18794,23 +18794,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),((-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJS))*evaluator_lln_0.getValues(arg)),(-(model_.MJS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJS))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qesj1_dV_di_d = d_Qesj1_dV_si_s =  0.0;
-d_Qesj1_dV_di_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_g_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_g_e = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_e_di = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_e_si = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJS)));
-d_Qesj1_dV_g_di = (((PBS_t*Czbs)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJS)));
+d_Qesj1_dV_di_si = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_g_si = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_g_e = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_e_di = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_e_si = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJS)));
+d_Qesj1_dV_g_di = ((PBS_t*Czbs)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJS)));
 Qesj1 = (((PBS_t*Czbs)*(1.0-(arg*sarg)))/(1.0-(model_.MJS)));
 }
 }
@@ -18827,31 +18827,31 @@ T2 = evaluator_lexp_1.getValues(((-(model_.MJS))*evaluator_lln_0.getValues(0.1))
 d_T3_dV_g_di = d_T3_dV_g_e = d_T3_dV_g_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_di_si =  0.0;
 T3 = (1.0/(1.0-(model_.MJS)));
 
-d_T4_dV_di_si = (((T2*(T1-1.0))*((5.0*(model_.MJS))*d_T1_dV_di_si))+(((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*(T1-1.0)))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS)))));
-d_T4_dV_e_di = (((T2*(T1-1.0))*((5.0*(model_.MJS))*d_T1_dV_e_di))+(((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*(T1-1.0)))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS)))));
-d_T4_dV_e_si = (((T2*(T1-1.0))*((5.0*(model_.MJS))*d_T1_dV_e_si))+(((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*(T1-1.0)))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS)))));
-d_T4_dV_g_si = (((T2*(T1-1.0))*((5.0*(model_.MJS))*d_T1_dV_g_si))+(((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*(T1-1.0)))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS)))));
-d_T4_dV_g_e = (((T2*(T1-1.0))*((5.0*(model_.MJS))*d_T1_dV_g_e))+(((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*(T1-1.0)))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS)))));
-d_T4_dV_g_di = (((T2*(T1-1.0))*((5.0*(model_.MJS))*d_T1_dV_g_di))+(((T2*d_T1_dV_g_di)+(d_T2_dV_g_di*(T1-1.0)))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS)))));
+d_T4_dV_di_si = ((T2*(T1-1.0))*(5.0*(model_.MJS))*d_T1_dV_di_si+(T2*d_T1_dV_di_si+d_T2_dV_di_si*(T1-1.0))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS))));
+d_T4_dV_e_di = ((T2*(T1-1.0))*(5.0*(model_.MJS))*d_T1_dV_e_di+(T2*d_T1_dV_e_di+d_T2_dV_e_di*(T1-1.0))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS))));
+d_T4_dV_e_si = ((T2*(T1-1.0))*(5.0*(model_.MJS))*d_T1_dV_e_si+(T2*d_T1_dV_e_si+d_T2_dV_e_si*(T1-1.0))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS))));
+d_T4_dV_g_si = ((T2*(T1-1.0))*(5.0*(model_.MJS))*d_T1_dV_g_si+(T2*d_T1_dV_g_si+d_T2_dV_g_si*(T1-1.0))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS))));
+d_T4_dV_g_e = ((T2*(T1-1.0))*(5.0*(model_.MJS))*d_T1_dV_g_e+(T2*d_T1_dV_g_e+d_T2_dV_g_e*(T1-1.0))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS))));
+d_T4_dV_g_di = ((T2*(T1-1.0))*(5.0*(model_.MJS))*d_T1_dV_g_di+(T2*d_T1_dV_g_di+d_T2_dV_g_di*(T1-1.0))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS))));
 T4 = ((T2*(T1-1.0))*(((5.0*(model_.MJS))*(T1-1.0))+(1.0+(model_.MJS))));
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((T3*(-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_di_si)))+(d_T3_dV_di_si*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2))));
-d_T5_dV_e_di = ((T3*(-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_e_di)))+(d_T3_dV_e_di*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2))));
-d_T5_dV_e_si = ((T3*(-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_e_si)))+(d_T3_dV_e_si*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2))));
-d_T5_dV_g_si = ((T3*(-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_g_si)))+(d_T3_dV_g_si*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2))));
-d_T5_dV_g_e = ((T3*(-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_g_e)))+(d_T3_dV_g_e*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2))));
-d_T5_dV_g_di = ((T3*(-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_g_di)))+(d_T3_dV_g_di*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2))));
+d_T5_dV_di_si = (T3*(-((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_di_si)+d_T3_dV_di_si*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2)));
+d_T5_dV_e_di = (T3*(-((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_e_di)+d_T3_dV_e_di*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2)));
+d_T5_dV_e_si = (T3*(-((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_e_si)+d_T3_dV_e_si*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2)));
+d_T5_dV_g_si = (T3*(-((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_g_si)+d_T3_dV_g_si*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2)));
+d_T5_dV_g_e = (T3*(-((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_g_e)+d_T3_dV_g_e*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2)));
+d_T5_dV_g_di = (T3*(-((0.05*(model_.MJS))*(1.0+(model_.MJS)))*d_T2_dV_g_di)+d_T3_dV_g_di*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2)));
 T5 = (T3*(1.0-(((0.05*(model_.MJS))*(1.0+(model_.MJS)))*T2)));
 
-d_Qesj1_dV_si_s = ((PBS_t*Czbs)*d_T5_dV_si_s);
-d_Qesj1_dV_di_d = ((PBS_t*Czbs)*d_T5_dV_di_d);
-d_Qesj1_dV_g_si = ((PBS_t*Czbs)*(d_T4_dV_g_si+d_T5_dV_g_si));
-d_Qesj1_dV_g_e = ((PBS_t*Czbs)*(d_T4_dV_g_e+d_T5_dV_g_e));
-d_Qesj1_dV_e_di = ((PBS_t*Czbs)*(d_T4_dV_e_di+d_T5_dV_e_di));
-d_Qesj1_dV_e_si = ((PBS_t*Czbs)*(d_T4_dV_e_si+d_T5_dV_e_si));
-d_Qesj1_dV_di_si = ((PBS_t*Czbs)*(d_T4_dV_di_si+d_T5_dV_di_si));
-d_Qesj1_dV_g_di = ((PBS_t*Czbs)*(d_T4_dV_g_di+d_T5_dV_g_di));
+d_Qesj1_dV_si_s = (PBS_t*Czbs)*d_T5_dV_si_s;
+d_Qesj1_dV_di_d = (PBS_t*Czbs)*d_T5_dV_di_d;
+d_Qesj1_dV_g_si = (PBS_t*Czbs)*(d_T4_dV_g_si+d_T5_dV_g_si);
+d_Qesj1_dV_g_e = (PBS_t*Czbs)*(d_T4_dV_g_e+d_T5_dV_g_e);
+d_Qesj1_dV_e_di = (PBS_t*Czbs)*(d_T4_dV_e_di+d_T5_dV_e_di);
+d_Qesj1_dV_e_si = (PBS_t*Czbs)*(d_T4_dV_e_si+d_T5_dV_e_si);
+d_Qesj1_dV_di_si = (PBS_t*Czbs)*(d_T4_dV_di_si+d_T5_dV_di_si);
+d_Qesj1_dV_g_di = (PBS_t*Czbs)*(d_T4_dV_g_di+d_T5_dV_g_di);
 Qesj1 = ((PBS_t*Czbs)*(T4+T5));
 }
 }
@@ -18914,23 +18914,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qesj2_dV_di_d = d_Qesj2_dV_si_s =  0.0;
-d_Qesj2_dV_di_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_g_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_g_e = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_e_di = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_e_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_g_di = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_di_si = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_g_si = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_g_e = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_e_di = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_e_si = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_g_di = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWS)));
 Qesj2 = (((PBSWS_t*Czbssw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWS)));
 }
 else
@@ -18959,22 +18959,22 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
 }
 }
 
-d_Qec_dV_di_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWS)));
-d_Qec_dV_g_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWS)));
-d_Qec_dV_g_e = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWS)));
-d_Qec_dV_e_di = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWS)));
-d_Qec_dV_e_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWS)));
-d_Qec_dV_g_di = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWS)));
+d_Qec_dV_di_si = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWS)));
+d_Qec_dV_g_si = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWS)));
+d_Qec_dV_g_e = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWS)));
+d_Qec_dV_e_di = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWS)));
+d_Qec_dV_e_si = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWS)));
+d_Qec_dV_g_di = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWS)));
 Qec = (((PBSWS_t*Czbssw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWS)));
 
 d_arg_dV_g_di = d_arg_dV_e_di = d_arg_dV_g_e = d_arg_dV_g_si = d_arg_dV_di_si =  0.0;
@@ -19001,23 +19001,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWS2))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qesj2_dV_di_d = d_Qesj2_dV_si_s =  0.0;
-d_Qesj2_dV_di_si = (d_Qec_dV_di_si+(((((model_.SJSWS)*pb2)*Czbssw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWS2))));
-d_Qesj2_dV_g_si = (d_Qec_dV_g_si+(((((model_.SJSWS)*pb2)*Czbssw)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWS2))));
-d_Qesj2_dV_g_e = (d_Qec_dV_g_e+(((((model_.SJSWS)*pb2)*Czbssw)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWS2))));
-d_Qesj2_dV_e_di = (d_Qec_dV_e_di+(((((model_.SJSWS)*pb2)*Czbssw)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWS2))));
-d_Qesj2_dV_e_si = (d_Qec_dV_e_si+(((((model_.SJSWS)*pb2)*Czbssw)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWS2))));
-d_Qesj2_dV_g_di = (d_Qec_dV_g_di+(((((model_.SJSWS)*pb2)*Czbssw)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWS2))));
+d_Qesj2_dV_di_si = (d_Qec_dV_di_si+((((model_.SJSWS)*pb2)*Czbssw)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWS2))));
+d_Qesj2_dV_g_si = (d_Qec_dV_g_si+((((model_.SJSWS)*pb2)*Czbssw)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWS2))));
+d_Qesj2_dV_g_e = (d_Qec_dV_g_e+((((model_.SJSWS)*pb2)*Czbssw)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWS2))));
+d_Qesj2_dV_e_di = (d_Qec_dV_e_di+((((model_.SJSWS)*pb2)*Czbssw)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWS2))));
+d_Qesj2_dV_e_si = (d_Qec_dV_e_si+((((model_.SJSWS)*pb2)*Czbssw)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWS2))));
+d_Qesj2_dV_g_di = (d_Qec_dV_g_di+((((model_.SJSWS)*pb2)*Czbssw)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWS2))));
 Qesj2 = (Qec+(((((model_.SJSWS)*pb2)*Czbssw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWS2))));
 }
 }
@@ -19052,23 +19052,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWS))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qesj2_dV_di_d = d_Qesj2_dV_si_s =  0.0;
-d_Qesj2_dV_di_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_g_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_g_e = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_e_di = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_e_si = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWS)));
-d_Qesj2_dV_g_di = (((PBSWS_t*Czbssw)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_di_si = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_g_si = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_g_e = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_e_di = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_e_si = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWS)));
+d_Qesj2_dV_g_di = ((PBSWS_t*Czbssw)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWS)));
 Qesj2 = (((PBSWS_t*Czbssw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWS)));
 }
 }
@@ -19085,31 +19085,31 @@ T2 = evaluator_lexp_1.getValues(((-(model_.MJSWS))*evaluator_lln_0.getValues(0.1
 d_T3_dV_g_di = d_T3_dV_g_e = d_T3_dV_g_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_di_si =  0.0;
 T3 = (1.0/(1.0-(model_.MJSWS)));
 
-d_T4_dV_di_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWS))*d_T1_dV_di_si))+(((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*(T1-1.0)))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS)))));
-d_T4_dV_e_di = (((T2*(T1-1.0))*((5.0*(model_.MJSWS))*d_T1_dV_e_di))+(((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*(T1-1.0)))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS)))));
-d_T4_dV_e_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWS))*d_T1_dV_e_si))+(((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*(T1-1.0)))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS)))));
-d_T4_dV_g_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWS))*d_T1_dV_g_si))+(((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*(T1-1.0)))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS)))));
-d_T4_dV_g_e = (((T2*(T1-1.0))*((5.0*(model_.MJSWS))*d_T1_dV_g_e))+(((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*(T1-1.0)))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS)))));
-d_T4_dV_g_di = (((T2*(T1-1.0))*((5.0*(model_.MJSWS))*d_T1_dV_g_di))+(((T2*d_T1_dV_g_di)+(d_T2_dV_g_di*(T1-1.0)))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS)))));
+d_T4_dV_di_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWS))*d_T1_dV_di_si+(T2*d_T1_dV_di_si+d_T2_dV_di_si*(T1-1.0))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS))));
+d_T4_dV_e_di = ((T2*(T1-1.0))*(5.0*(model_.MJSWS))*d_T1_dV_e_di+(T2*d_T1_dV_e_di+d_T2_dV_e_di*(T1-1.0))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS))));
+d_T4_dV_e_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWS))*d_T1_dV_e_si+(T2*d_T1_dV_e_si+d_T2_dV_e_si*(T1-1.0))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS))));
+d_T4_dV_g_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWS))*d_T1_dV_g_si+(T2*d_T1_dV_g_si+d_T2_dV_g_si*(T1-1.0))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS))));
+d_T4_dV_g_e = ((T2*(T1-1.0))*(5.0*(model_.MJSWS))*d_T1_dV_g_e+(T2*d_T1_dV_g_e+d_T2_dV_g_e*(T1-1.0))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS))));
+d_T4_dV_g_di = ((T2*(T1-1.0))*(5.0*(model_.MJSWS))*d_T1_dV_g_di+(T2*d_T1_dV_g_di+d_T2_dV_g_di*(T1-1.0))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS))));
 T4 = ((T2*(T1-1.0))*(((5.0*(model_.MJSWS))*(T1-1.0))+(1.0+(model_.MJSWS))));
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((T3*(-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_di_si)))+(d_T3_dV_di_si*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2))));
-d_T5_dV_e_di = ((T3*(-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_e_di)))+(d_T3_dV_e_di*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2))));
-d_T5_dV_e_si = ((T3*(-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_e_si)))+(d_T3_dV_e_si*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2))));
-d_T5_dV_g_si = ((T3*(-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_g_si)))+(d_T3_dV_g_si*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2))));
-d_T5_dV_g_e = ((T3*(-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_g_e)))+(d_T3_dV_g_e*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2))));
-d_T5_dV_g_di = ((T3*(-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_g_di)))+(d_T3_dV_g_di*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2))));
+d_T5_dV_di_si = (T3*(-((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_di_si)+d_T3_dV_di_si*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2)));
+d_T5_dV_e_di = (T3*(-((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_e_di)+d_T3_dV_e_di*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2)));
+d_T5_dV_e_si = (T3*(-((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_e_si)+d_T3_dV_e_si*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2)));
+d_T5_dV_g_si = (T3*(-((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_g_si)+d_T3_dV_g_si*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2)));
+d_T5_dV_g_e = (T3*(-((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_g_e)+d_T3_dV_g_e*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2)));
+d_T5_dV_g_di = (T3*(-((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*d_T2_dV_g_di)+d_T3_dV_g_di*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2)));
 T5 = (T3*(1.0-(((0.05*(model_.MJSWS))*(1.0+(model_.MJSWS)))*T2)));
 
-d_Qesj2_dV_si_s = ((PBSWS_t*Czbssw)*d_T5_dV_si_s);
-d_Qesj2_dV_di_d = ((PBSWS_t*Czbssw)*d_T5_dV_di_d);
-d_Qesj2_dV_g_si = ((PBSWS_t*Czbssw)*(d_T4_dV_g_si+d_T5_dV_g_si));
-d_Qesj2_dV_g_e = ((PBSWS_t*Czbssw)*(d_T4_dV_g_e+d_T5_dV_g_e));
-d_Qesj2_dV_e_di = ((PBSWS_t*Czbssw)*(d_T4_dV_e_di+d_T5_dV_e_di));
-d_Qesj2_dV_e_si = ((PBSWS_t*Czbssw)*(d_T4_dV_e_si+d_T5_dV_e_si));
-d_Qesj2_dV_di_si = ((PBSWS_t*Czbssw)*(d_T4_dV_di_si+d_T5_dV_di_si));
-d_Qesj2_dV_g_di = ((PBSWS_t*Czbssw)*(d_T4_dV_g_di+d_T5_dV_g_di));
+d_Qesj2_dV_si_s = (PBSWS_t*Czbssw)*d_T5_dV_si_s;
+d_Qesj2_dV_di_d = (PBSWS_t*Czbssw)*d_T5_dV_di_d;
+d_Qesj2_dV_g_si = (PBSWS_t*Czbssw)*(d_T4_dV_g_si+d_T5_dV_g_si);
+d_Qesj2_dV_g_e = (PBSWS_t*Czbssw)*(d_T4_dV_g_e+d_T5_dV_g_e);
+d_Qesj2_dV_e_di = (PBSWS_t*Czbssw)*(d_T4_dV_e_di+d_T5_dV_e_di);
+d_Qesj2_dV_e_si = (PBSWS_t*Czbssw)*(d_T4_dV_e_si+d_T5_dV_e_si);
+d_Qesj2_dV_di_si = (PBSWS_t*Czbssw)*(d_T4_dV_di_si+d_T5_dV_di_si);
+d_Qesj2_dV_g_di = (PBSWS_t*Czbssw)*(d_T4_dV_g_di+d_T5_dV_g_di);
 Qesj2 = ((PBSWS_t*Czbssw)*(T4+T5));
 }
 }
@@ -19172,23 +19172,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qesj3_dV_di_d = d_Qesj3_dV_si_s =  0.0;
-d_Qesj3_dV_di_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_g_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_g_e = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_e_di = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_e_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_g_di = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_di_si = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_g_si = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_g_e = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_e_di = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_e_si = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_g_di = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWGS)));
 Qesj3 = (((PBSWGS_t*Czbsswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGS)));
 }
 else
@@ -19217,22 +19217,22 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
 }
 }
 
-d_Qec_dV_di_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qec_dV_g_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qec_dV_g_e = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qec_dV_e_di = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qec_dV_e_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qec_dV_g_di = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWGS)));
+d_Qec_dV_di_si = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWGS)));
+d_Qec_dV_g_si = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWGS)));
+d_Qec_dV_g_e = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWGS)));
+d_Qec_dV_e_di = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWGS)));
+d_Qec_dV_e_si = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWGS)));
+d_Qec_dV_g_di = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWGS)));
 Qec = (((PBSWGS_t*Czbsswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGS)));
 
 d_arg_dV_g_di = d_arg_dV_e_di = d_arg_dV_g_e = d_arg_dV_g_si = d_arg_dV_di_si =  0.0;
@@ -19259,23 +19259,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGS2))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qesj3_dV_di_d = d_Qesj3_dV_si_s =  0.0;
-d_Qesj3_dV_di_si = (d_Qec_dV_di_si+(((((model_.SJSWGS)*pb2)*Czbsswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGS2))));
-d_Qesj3_dV_g_si = (d_Qec_dV_g_si+(((((model_.SJSWGS)*pb2)*Czbsswg)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWGS2))));
-d_Qesj3_dV_g_e = (d_Qec_dV_g_e+(((((model_.SJSWGS)*pb2)*Czbsswg)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWGS2))));
-d_Qesj3_dV_e_di = (d_Qec_dV_e_di+(((((model_.SJSWGS)*pb2)*Czbsswg)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWGS2))));
-d_Qesj3_dV_e_si = (d_Qec_dV_e_si+(((((model_.SJSWGS)*pb2)*Czbsswg)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWGS2))));
-d_Qesj3_dV_g_di = (d_Qec_dV_g_di+(((((model_.SJSWGS)*pb2)*Czbsswg)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWGS2))));
+d_Qesj3_dV_di_si = (d_Qec_dV_di_si+((((model_.SJSWGS)*pb2)*Czbsswg)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWGS2))));
+d_Qesj3_dV_g_si = (d_Qec_dV_g_si+((((model_.SJSWGS)*pb2)*Czbsswg)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWGS2))));
+d_Qesj3_dV_g_e = (d_Qec_dV_g_e+((((model_.SJSWGS)*pb2)*Czbsswg)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWGS2))));
+d_Qesj3_dV_e_di = (d_Qec_dV_e_di+((((model_.SJSWGS)*pb2)*Czbsswg)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWGS2))));
+d_Qesj3_dV_e_si = (d_Qec_dV_e_si+((((model_.SJSWGS)*pb2)*Czbsswg)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWGS2))));
+d_Qesj3_dV_g_di = (d_Qec_dV_g_di+((((model_.SJSWGS)*pb2)*Czbsswg)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWGS2))));
 Qesj3 = (Qec+(((((model_.SJSWGS)*pb2)*Czbsswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGS2))));
 }
 }
@@ -19310,23 +19310,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGS))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGS))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qesj3_dV_di_d = d_Qesj3_dV_si_s =  0.0;
-d_Qesj3_dV_di_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_g_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_g_e = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_e_di = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_e_si = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWGS)));
-d_Qesj3_dV_g_di = (((PBSWGS_t*Czbsswg)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_di_si = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_g_si = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_g_e = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_e_di = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_e_si = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWGS)));
+d_Qesj3_dV_g_di = ((PBSWGS_t*Czbsswg)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWGS)));
 Qesj3 = (((PBSWGS_t*Czbsswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGS)));
 }
 }
@@ -19343,31 +19343,31 @@ T2 = evaluator_lexp_1.getValues(((-(model_.MJSWGS))*evaluator_lln_0.getValues(0.
 d_T3_dV_g_di = d_T3_dV_g_e = d_T3_dV_g_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_di_si =  0.0;
 T3 = (1.0/(1.0-(model_.MJSWGS)));
 
-d_T4_dV_di_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWGS))*d_T1_dV_di_si))+(((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*(T1-1.0)))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS)))));
-d_T4_dV_e_di = (((T2*(T1-1.0))*((5.0*(model_.MJSWGS))*d_T1_dV_e_di))+(((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*(T1-1.0)))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS)))));
-d_T4_dV_e_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWGS))*d_T1_dV_e_si))+(((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*(T1-1.0)))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS)))));
-d_T4_dV_g_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWGS))*d_T1_dV_g_si))+(((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*(T1-1.0)))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS)))));
-d_T4_dV_g_e = (((T2*(T1-1.0))*((5.0*(model_.MJSWGS))*d_T1_dV_g_e))+(((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*(T1-1.0)))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS)))));
-d_T4_dV_g_di = (((T2*(T1-1.0))*((5.0*(model_.MJSWGS))*d_T1_dV_g_di))+(((T2*d_T1_dV_g_di)+(d_T2_dV_g_di*(T1-1.0)))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS)))));
+d_T4_dV_di_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWGS))*d_T1_dV_di_si+(T2*d_T1_dV_di_si+d_T2_dV_di_si*(T1-1.0))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS))));
+d_T4_dV_e_di = ((T2*(T1-1.0))*(5.0*(model_.MJSWGS))*d_T1_dV_e_di+(T2*d_T1_dV_e_di+d_T2_dV_e_di*(T1-1.0))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS))));
+d_T4_dV_e_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWGS))*d_T1_dV_e_si+(T2*d_T1_dV_e_si+d_T2_dV_e_si*(T1-1.0))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS))));
+d_T4_dV_g_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWGS))*d_T1_dV_g_si+(T2*d_T1_dV_g_si+d_T2_dV_g_si*(T1-1.0))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS))));
+d_T4_dV_g_e = ((T2*(T1-1.0))*(5.0*(model_.MJSWGS))*d_T1_dV_g_e+(T2*d_T1_dV_g_e+d_T2_dV_g_e*(T1-1.0))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS))));
+d_T4_dV_g_di = ((T2*(T1-1.0))*(5.0*(model_.MJSWGS))*d_T1_dV_g_di+(T2*d_T1_dV_g_di+d_T2_dV_g_di*(T1-1.0))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS))));
 T4 = ((T2*(T1-1.0))*(((5.0*(model_.MJSWGS))*(T1-1.0))+(1.0+(model_.MJSWGS))));
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((T3*(-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_di_si)))+(d_T3_dV_di_si*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2))));
-d_T5_dV_e_di = ((T3*(-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_e_di)))+(d_T3_dV_e_di*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2))));
-d_T5_dV_e_si = ((T3*(-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_e_si)))+(d_T3_dV_e_si*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2))));
-d_T5_dV_g_si = ((T3*(-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_g_si)))+(d_T3_dV_g_si*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2))));
-d_T5_dV_g_e = ((T3*(-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_g_e)))+(d_T3_dV_g_e*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2))));
-d_T5_dV_g_di = ((T3*(-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_g_di)))+(d_T3_dV_g_di*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2))));
+d_T5_dV_di_si = (T3*(-((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_di_si)+d_T3_dV_di_si*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2)));
+d_T5_dV_e_di = (T3*(-((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_e_di)+d_T3_dV_e_di*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2)));
+d_T5_dV_e_si = (T3*(-((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_e_si)+d_T3_dV_e_si*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2)));
+d_T5_dV_g_si = (T3*(-((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_g_si)+d_T3_dV_g_si*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2)));
+d_T5_dV_g_e = (T3*(-((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_g_e)+d_T3_dV_g_e*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2)));
+d_T5_dV_g_di = (T3*(-((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*d_T2_dV_g_di)+d_T3_dV_g_di*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2)));
 T5 = (T3*(1.0-(((0.05*(model_.MJSWGS))*(1.0+(model_.MJSWGS)))*T2)));
 
-d_Qesj3_dV_si_s = ((PBSWGS_t*Czbsswg)*d_T5_dV_si_s);
-d_Qesj3_dV_di_d = ((PBSWGS_t*Czbsswg)*d_T5_dV_di_d);
-d_Qesj3_dV_g_si = ((PBSWGS_t*Czbsswg)*(d_T4_dV_g_si+d_T5_dV_g_si));
-d_Qesj3_dV_g_e = ((PBSWGS_t*Czbsswg)*(d_T4_dV_g_e+d_T5_dV_g_e));
-d_Qesj3_dV_e_di = ((PBSWGS_t*Czbsswg)*(d_T4_dV_e_di+d_T5_dV_e_di));
-d_Qesj3_dV_e_si = ((PBSWGS_t*Czbsswg)*(d_T4_dV_e_si+d_T5_dV_e_si));
-d_Qesj3_dV_di_si = ((PBSWGS_t*Czbsswg)*(d_T4_dV_di_si+d_T5_dV_di_si));
-d_Qesj3_dV_g_di = ((PBSWGS_t*Czbsswg)*(d_T4_dV_g_di+d_T5_dV_g_di));
+d_Qesj3_dV_si_s = (PBSWGS_t*Czbsswg)*d_T5_dV_si_s;
+d_Qesj3_dV_di_d = (PBSWGS_t*Czbsswg)*d_T5_dV_di_d;
+d_Qesj3_dV_g_si = (PBSWGS_t*Czbsswg)*(d_T4_dV_g_si+d_T5_dV_g_si);
+d_Qesj3_dV_g_e = (PBSWGS_t*Czbsswg)*(d_T4_dV_g_e+d_T5_dV_g_e);
+d_Qesj3_dV_e_di = (PBSWGS_t*Czbsswg)*(d_T4_dV_e_di+d_T5_dV_e_di);
+d_Qesj3_dV_e_si = (PBSWGS_t*Czbsswg)*(d_T4_dV_e_si+d_T5_dV_e_si);
+d_Qesj3_dV_di_si = (PBSWGS_t*Czbsswg)*(d_T4_dV_di_si+d_T5_dV_di_si);
+d_Qesj3_dV_g_di = (PBSWGS_t*Czbsswg)*(d_T4_dV_g_di+d_T5_dV_g_di);
 Qesj3 = ((PBSWGS_t*Czbsswg)*(T4+T5));
 }
 }
@@ -19440,23 +19440,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qedj1_dV_di_d = d_Qedj1_dV_si_s =  0.0;
-d_Qedj1_dV_di_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_g_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_g_e = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_e_di = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_e_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_g_di = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJD)));
+d_Qedj1_dV_di_si = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_g_si = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_g_e = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_e_di = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_e_si = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_g_di = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJD)));
 Qedj1 = (((PBD_t*Czbd)*(1.0-(arg*sarg)))/(1.0-(model_.MJD)));
 }
 else
@@ -19485,22 +19485,22 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
 }
 }
 
-d_Qec_dV_di_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJD)));
-d_Qec_dV_g_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJD)));
-d_Qec_dV_g_e = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJD)));
-d_Qec_dV_e_di = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJD)));
-d_Qec_dV_e_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJD)));
-d_Qec_dV_g_di = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJD)));
+d_Qec_dV_di_si = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJD)));
+d_Qec_dV_g_si = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJD)));
+d_Qec_dV_g_e = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJD)));
+d_Qec_dV_e_di = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJD)));
+d_Qec_dV_e_si = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJD)));
+d_Qec_dV_g_di = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJD)));
 Qec = (((PBD_t*Czbd)*(1.0-(arg*sarg)))/(1.0-(model_.MJD)));
 
 d_arg_dV_g_di = d_arg_dV_e_si = d_arg_dV_g_e = d_arg_dV_g_si = d_arg_dV_di_si =  0.0;
@@ -19527,23 +19527,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJD2))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qedj1_dV_di_d = d_Qedj1_dV_si_s =  0.0;
-d_Qedj1_dV_di_si = (d_Qec_dV_di_si+(((((model_.SJD)*pb2)*Czbd)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJD2))));
-d_Qedj1_dV_g_si = (d_Qec_dV_g_si+(((((model_.SJD)*pb2)*Czbd)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJD2))));
-d_Qedj1_dV_g_e = (d_Qec_dV_g_e+(((((model_.SJD)*pb2)*Czbd)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJD2))));
-d_Qedj1_dV_e_di = (d_Qec_dV_e_di+(((((model_.SJD)*pb2)*Czbd)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJD2))));
-d_Qedj1_dV_e_si = (d_Qec_dV_e_si+(((((model_.SJD)*pb2)*Czbd)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJD2))));
-d_Qedj1_dV_g_di = (d_Qec_dV_g_di+(((((model_.SJD)*pb2)*Czbd)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJD2))));
+d_Qedj1_dV_di_si = (d_Qec_dV_di_si+((((model_.SJD)*pb2)*Czbd)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJD2))));
+d_Qedj1_dV_g_si = (d_Qec_dV_g_si+((((model_.SJD)*pb2)*Czbd)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJD2))));
+d_Qedj1_dV_g_e = (d_Qec_dV_g_e+((((model_.SJD)*pb2)*Czbd)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJD2))));
+d_Qedj1_dV_e_di = (d_Qec_dV_e_di+((((model_.SJD)*pb2)*Czbd)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJD2))));
+d_Qedj1_dV_e_si = (d_Qec_dV_e_si+((((model_.SJD)*pb2)*Czbd)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJD2))));
+d_Qedj1_dV_g_di = (d_Qec_dV_g_di+((((model_.SJD)*pb2)*Czbd)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJD2))));
 Qedj1 = (Qec+(((((model_.SJD)*pb2)*Czbd)*(1.0-(arg*sarg)))/(1.0-(model_.MJD2))));
 }
 }
@@ -19578,23 +19578,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),((-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJD))*evaluator_lln_0.getValues(arg)),(-(model_.MJD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJD))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qedj1_dV_di_d = d_Qedj1_dV_si_s =  0.0;
-d_Qedj1_dV_di_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_g_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_g_e = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_e_di = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_e_si = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJD)));
-d_Qedj1_dV_g_di = (((PBD_t*Czbd)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJD)));
+d_Qedj1_dV_di_si = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_g_si = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_g_e = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_e_di = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_e_si = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJD)));
+d_Qedj1_dV_g_di = ((PBD_t*Czbd)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJD)));
 Qedj1 = (((PBD_t*Czbd)*(1.0-(arg*sarg)))/(1.0-(model_.MJD)));
 }
 }
@@ -19611,31 +19611,31 @@ T2 = evaluator_lexp_1.getValues(((-(model_.MJD))*evaluator_lln_0.getValues(0.1))
 d_T3_dV_g_di = d_T3_dV_g_e = d_T3_dV_g_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_di_si =  0.0;
 T3 = (1.0/(1.0-(model_.MJD)));
 
-d_T4_dV_di_si = (((T2*(T1-1.0))*((5.0*(model_.MJD))*d_T1_dV_di_si))+(((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*(T1-1.0)))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD)))));
-d_T4_dV_e_di = (((T2*(T1-1.0))*((5.0*(model_.MJD))*d_T1_dV_e_di))+(((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*(T1-1.0)))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD)))));
-d_T4_dV_e_si = (((T2*(T1-1.0))*((5.0*(model_.MJD))*d_T1_dV_e_si))+(((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*(T1-1.0)))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD)))));
-d_T4_dV_g_si = (((T2*(T1-1.0))*((5.0*(model_.MJD))*d_T1_dV_g_si))+(((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*(T1-1.0)))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD)))));
-d_T4_dV_g_e = (((T2*(T1-1.0))*((5.0*(model_.MJD))*d_T1_dV_g_e))+(((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*(T1-1.0)))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD)))));
-d_T4_dV_g_di = (((T2*(T1-1.0))*((5.0*(model_.MJD))*d_T1_dV_g_di))+(((T2*d_T1_dV_g_di)+(d_T2_dV_g_di*(T1-1.0)))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD)))));
+d_T4_dV_di_si = ((T2*(T1-1.0))*(5.0*(model_.MJD))*d_T1_dV_di_si+(T2*d_T1_dV_di_si+d_T2_dV_di_si*(T1-1.0))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD))));
+d_T4_dV_e_di = ((T2*(T1-1.0))*(5.0*(model_.MJD))*d_T1_dV_e_di+(T2*d_T1_dV_e_di+d_T2_dV_e_di*(T1-1.0))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD))));
+d_T4_dV_e_si = ((T2*(T1-1.0))*(5.0*(model_.MJD))*d_T1_dV_e_si+(T2*d_T1_dV_e_si+d_T2_dV_e_si*(T1-1.0))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD))));
+d_T4_dV_g_si = ((T2*(T1-1.0))*(5.0*(model_.MJD))*d_T1_dV_g_si+(T2*d_T1_dV_g_si+d_T2_dV_g_si*(T1-1.0))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD))));
+d_T4_dV_g_e = ((T2*(T1-1.0))*(5.0*(model_.MJD))*d_T1_dV_g_e+(T2*d_T1_dV_g_e+d_T2_dV_g_e*(T1-1.0))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD))));
+d_T4_dV_g_di = ((T2*(T1-1.0))*(5.0*(model_.MJD))*d_T1_dV_g_di+(T2*d_T1_dV_g_di+d_T2_dV_g_di*(T1-1.0))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD))));
 T4 = ((T2*(T1-1.0))*(((5.0*(model_.MJD))*(T1-1.0))+(1.0+(model_.MJD))));
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((T3*(-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_di_si)))+(d_T3_dV_di_si*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2))));
-d_T5_dV_e_di = ((T3*(-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_e_di)))+(d_T3_dV_e_di*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2))));
-d_T5_dV_e_si = ((T3*(-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_e_si)))+(d_T3_dV_e_si*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2))));
-d_T5_dV_g_si = ((T3*(-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_g_si)))+(d_T3_dV_g_si*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2))));
-d_T5_dV_g_e = ((T3*(-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_g_e)))+(d_T3_dV_g_e*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2))));
-d_T5_dV_g_di = ((T3*(-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_g_di)))+(d_T3_dV_g_di*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2))));
+d_T5_dV_di_si = (T3*(-((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_di_si)+d_T3_dV_di_si*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2)));
+d_T5_dV_e_di = (T3*(-((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_e_di)+d_T3_dV_e_di*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2)));
+d_T5_dV_e_si = (T3*(-((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_e_si)+d_T3_dV_e_si*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2)));
+d_T5_dV_g_si = (T3*(-((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_g_si)+d_T3_dV_g_si*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2)));
+d_T5_dV_g_e = (T3*(-((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_g_e)+d_T3_dV_g_e*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2)));
+d_T5_dV_g_di = (T3*(-((0.05*(model_.MJD))*(1.0+(model_.MJD)))*d_T2_dV_g_di)+d_T3_dV_g_di*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2)));
 T5 = (T3*(1.0-(((0.05*(model_.MJD))*(1.0+(model_.MJD)))*T2)));
 
-d_Qedj1_dV_si_s = ((PBD_t*Czbd)*d_T5_dV_si_s);
-d_Qedj1_dV_di_d = ((PBD_t*Czbd)*d_T5_dV_di_d);
-d_Qedj1_dV_g_si = ((PBD_t*Czbd)*(d_T4_dV_g_si+d_T5_dV_g_si));
-d_Qedj1_dV_g_e = ((PBD_t*Czbd)*(d_T4_dV_g_e+d_T5_dV_g_e));
-d_Qedj1_dV_e_di = ((PBD_t*Czbd)*(d_T4_dV_e_di+d_T5_dV_e_di));
-d_Qedj1_dV_e_si = ((PBD_t*Czbd)*(d_T4_dV_e_si+d_T5_dV_e_si));
-d_Qedj1_dV_di_si = ((PBD_t*Czbd)*(d_T4_dV_di_si+d_T5_dV_di_si));
-d_Qedj1_dV_g_di = ((PBD_t*Czbd)*(d_T4_dV_g_di+d_T5_dV_g_di));
+d_Qedj1_dV_si_s = (PBD_t*Czbd)*d_T5_dV_si_s;
+d_Qedj1_dV_di_d = (PBD_t*Czbd)*d_T5_dV_di_d;
+d_Qedj1_dV_g_si = (PBD_t*Czbd)*(d_T4_dV_g_si+d_T5_dV_g_si);
+d_Qedj1_dV_g_e = (PBD_t*Czbd)*(d_T4_dV_g_e+d_T5_dV_g_e);
+d_Qedj1_dV_e_di = (PBD_t*Czbd)*(d_T4_dV_e_di+d_T5_dV_e_di);
+d_Qedj1_dV_e_si = (PBD_t*Czbd)*(d_T4_dV_e_si+d_T5_dV_e_si);
+d_Qedj1_dV_di_si = (PBD_t*Czbd)*(d_T4_dV_di_si+d_T5_dV_di_si);
+d_Qedj1_dV_g_di = (PBD_t*Czbd)*(d_T4_dV_g_di+d_T5_dV_g_di);
 Qedj1 = ((PBD_t*Czbd)*(T4+T5));
 }
 }
@@ -19698,23 +19698,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qedj2_dV_di_d = d_Qedj2_dV_si_s =  0.0;
-d_Qedj2_dV_di_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_g_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_g_e = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_e_di = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_e_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_g_di = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_di_si = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_g_si = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_g_e = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_e_di = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_e_si = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_g_di = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWD)));
 Qedj2 = (((PBSWD_t*Czbdsw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWD)));
 }
 else
@@ -19743,22 +19743,22 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
 }
 }
 
-d_Qec_dV_di_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWD)));
-d_Qec_dV_g_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWD)));
-d_Qec_dV_g_e = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWD)));
-d_Qec_dV_e_di = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWD)));
-d_Qec_dV_e_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWD)));
-d_Qec_dV_g_di = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWD)));
+d_Qec_dV_di_si = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWD)));
+d_Qec_dV_g_si = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWD)));
+d_Qec_dV_g_e = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWD)));
+d_Qec_dV_e_di = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWD)));
+d_Qec_dV_e_si = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWD)));
+d_Qec_dV_g_di = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWD)));
 Qec = (((PBSWD_t*Czbdsw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWD)));
 
 d_arg_dV_g_di = d_arg_dV_e_si = d_arg_dV_g_e = d_arg_dV_g_si = d_arg_dV_di_si =  0.0;
@@ -19785,23 +19785,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWD2))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qedj2_dV_di_d = d_Qedj2_dV_si_s =  0.0;
-d_Qedj2_dV_di_si = (d_Qec_dV_di_si+(((((model_.SJSWD)*pb2)*Czbdsw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWD2))));
-d_Qedj2_dV_g_si = (d_Qec_dV_g_si+(((((model_.SJSWD)*pb2)*Czbdsw)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWD2))));
-d_Qedj2_dV_g_e = (d_Qec_dV_g_e+(((((model_.SJSWD)*pb2)*Czbdsw)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWD2))));
-d_Qedj2_dV_e_di = (d_Qec_dV_e_di+(((((model_.SJSWD)*pb2)*Czbdsw)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWD2))));
-d_Qedj2_dV_e_si = (d_Qec_dV_e_si+(((((model_.SJSWD)*pb2)*Czbdsw)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWD2))));
-d_Qedj2_dV_g_di = (d_Qec_dV_g_di+(((((model_.SJSWD)*pb2)*Czbdsw)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWD2))));
+d_Qedj2_dV_di_si = (d_Qec_dV_di_si+((((model_.SJSWD)*pb2)*Czbdsw)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWD2))));
+d_Qedj2_dV_g_si = (d_Qec_dV_g_si+((((model_.SJSWD)*pb2)*Czbdsw)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWD2))));
+d_Qedj2_dV_g_e = (d_Qec_dV_g_e+((((model_.SJSWD)*pb2)*Czbdsw)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWD2))));
+d_Qedj2_dV_e_di = (d_Qec_dV_e_di+((((model_.SJSWD)*pb2)*Czbdsw)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWD2))));
+d_Qedj2_dV_e_si = (d_Qec_dV_e_si+((((model_.SJSWD)*pb2)*Czbdsw)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWD2))));
+d_Qedj2_dV_g_di = (d_Qec_dV_g_di+((((model_.SJSWD)*pb2)*Czbdsw)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWD2))));
 Qedj2 = (Qec+(((((model_.SJSWD)*pb2)*Czbdsw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWD2))));
 }
 }
@@ -19836,23 +19836,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWD))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qedj2_dV_di_d = d_Qedj2_dV_si_s =  0.0;
-d_Qedj2_dV_di_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_g_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_g_e = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_e_di = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_e_si = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWD)));
-d_Qedj2_dV_g_di = (((PBSWD_t*Czbdsw)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_di_si = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_g_si = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_g_e = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_e_di = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_e_si = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWD)));
+d_Qedj2_dV_g_di = ((PBSWD_t*Czbdsw)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWD)));
 Qedj2 = (((PBSWD_t*Czbdsw)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWD)));
 }
 }
@@ -19869,31 +19869,31 @@ T2 = evaluator_lexp_1.getValues(((-(model_.MJSWD))*evaluator_lln_0.getValues(0.1
 d_T3_dV_g_di = d_T3_dV_g_e = d_T3_dV_g_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_di_si =  0.0;
 T3 = (1.0/(1.0-(model_.MJSWD)));
 
-d_T4_dV_di_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWD))*d_T1_dV_di_si))+(((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*(T1-1.0)))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD)))));
-d_T4_dV_e_di = (((T2*(T1-1.0))*((5.0*(model_.MJSWD))*d_T1_dV_e_di))+(((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*(T1-1.0)))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD)))));
-d_T4_dV_e_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWD))*d_T1_dV_e_si))+(((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*(T1-1.0)))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD)))));
-d_T4_dV_g_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWD))*d_T1_dV_g_si))+(((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*(T1-1.0)))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD)))));
-d_T4_dV_g_e = (((T2*(T1-1.0))*((5.0*(model_.MJSWD))*d_T1_dV_g_e))+(((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*(T1-1.0)))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD)))));
-d_T4_dV_g_di = (((T2*(T1-1.0))*((5.0*(model_.MJSWD))*d_T1_dV_g_di))+(((T2*d_T1_dV_g_di)+(d_T2_dV_g_di*(T1-1.0)))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD)))));
+d_T4_dV_di_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWD))*d_T1_dV_di_si+(T2*d_T1_dV_di_si+d_T2_dV_di_si*(T1-1.0))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD))));
+d_T4_dV_e_di = ((T2*(T1-1.0))*(5.0*(model_.MJSWD))*d_T1_dV_e_di+(T2*d_T1_dV_e_di+d_T2_dV_e_di*(T1-1.0))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD))));
+d_T4_dV_e_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWD))*d_T1_dV_e_si+(T2*d_T1_dV_e_si+d_T2_dV_e_si*(T1-1.0))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD))));
+d_T4_dV_g_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWD))*d_T1_dV_g_si+(T2*d_T1_dV_g_si+d_T2_dV_g_si*(T1-1.0))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD))));
+d_T4_dV_g_e = ((T2*(T1-1.0))*(5.0*(model_.MJSWD))*d_T1_dV_g_e+(T2*d_T1_dV_g_e+d_T2_dV_g_e*(T1-1.0))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD))));
+d_T4_dV_g_di = ((T2*(T1-1.0))*(5.0*(model_.MJSWD))*d_T1_dV_g_di+(T2*d_T1_dV_g_di+d_T2_dV_g_di*(T1-1.0))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD))));
 T4 = ((T2*(T1-1.0))*(((5.0*(model_.MJSWD))*(T1-1.0))+(1.0+(model_.MJSWD))));
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((T3*(-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_di_si)))+(d_T3_dV_di_si*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2))));
-d_T5_dV_e_di = ((T3*(-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_e_di)))+(d_T3_dV_e_di*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2))));
-d_T5_dV_e_si = ((T3*(-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_e_si)))+(d_T3_dV_e_si*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2))));
-d_T5_dV_g_si = ((T3*(-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_g_si)))+(d_T3_dV_g_si*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2))));
-d_T5_dV_g_e = ((T3*(-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_g_e)))+(d_T3_dV_g_e*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2))));
-d_T5_dV_g_di = ((T3*(-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_g_di)))+(d_T3_dV_g_di*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2))));
+d_T5_dV_di_si = (T3*(-((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_di_si)+d_T3_dV_di_si*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2)));
+d_T5_dV_e_di = (T3*(-((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_e_di)+d_T3_dV_e_di*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2)));
+d_T5_dV_e_si = (T3*(-((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_e_si)+d_T3_dV_e_si*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2)));
+d_T5_dV_g_si = (T3*(-((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_g_si)+d_T3_dV_g_si*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2)));
+d_T5_dV_g_e = (T3*(-((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_g_e)+d_T3_dV_g_e*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2)));
+d_T5_dV_g_di = (T3*(-((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*d_T2_dV_g_di)+d_T3_dV_g_di*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2)));
 T5 = (T3*(1.0-(((0.05*(model_.MJSWD))*(1.0+(model_.MJSWD)))*T2)));
 
-d_Qedj2_dV_si_s = ((PBSWD_t*Czbdsw)*d_T5_dV_si_s);
-d_Qedj2_dV_di_d = ((PBSWD_t*Czbdsw)*d_T5_dV_di_d);
-d_Qedj2_dV_g_si = ((PBSWD_t*Czbdsw)*(d_T4_dV_g_si+d_T5_dV_g_si));
-d_Qedj2_dV_g_e = ((PBSWD_t*Czbdsw)*(d_T4_dV_g_e+d_T5_dV_g_e));
-d_Qedj2_dV_e_di = ((PBSWD_t*Czbdsw)*(d_T4_dV_e_di+d_T5_dV_e_di));
-d_Qedj2_dV_e_si = ((PBSWD_t*Czbdsw)*(d_T4_dV_e_si+d_T5_dV_e_si));
-d_Qedj2_dV_di_si = ((PBSWD_t*Czbdsw)*(d_T4_dV_di_si+d_T5_dV_di_si));
-d_Qedj2_dV_g_di = ((PBSWD_t*Czbdsw)*(d_T4_dV_g_di+d_T5_dV_g_di));
+d_Qedj2_dV_si_s = (PBSWD_t*Czbdsw)*d_T5_dV_si_s;
+d_Qedj2_dV_di_d = (PBSWD_t*Czbdsw)*d_T5_dV_di_d;
+d_Qedj2_dV_g_si = (PBSWD_t*Czbdsw)*(d_T4_dV_g_si+d_T5_dV_g_si);
+d_Qedj2_dV_g_e = (PBSWD_t*Czbdsw)*(d_T4_dV_g_e+d_T5_dV_g_e);
+d_Qedj2_dV_e_di = (PBSWD_t*Czbdsw)*(d_T4_dV_e_di+d_T5_dV_e_di);
+d_Qedj2_dV_e_si = (PBSWD_t*Czbdsw)*(d_T4_dV_e_si+d_T5_dV_e_si);
+d_Qedj2_dV_di_si = (PBSWD_t*Czbdsw)*(d_T4_dV_di_si+d_T5_dV_di_si);
+d_Qedj2_dV_g_di = (PBSWD_t*Czbdsw)*(d_T4_dV_g_di+d_T5_dV_g_di);
 Qedj2 = ((PBSWD_t*Czbdsw)*(T4+T5));
 }
 }
@@ -19956,23 +19956,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qedj3_dV_di_d = d_Qedj3_dV_si_s =  0.0;
-d_Qedj3_dV_di_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_g_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_g_e = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_e_di = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_e_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_g_di = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_di_si = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_g_si = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_g_e = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_e_di = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_e_si = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_g_di = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWGD)));
 Qedj3 = (((PBSWGD_t*Czbdswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGD)));
 }
 else
@@ -20001,22 +20001,22 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
 }
 }
 
-d_Qec_dV_di_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qec_dV_g_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qec_dV_g_e = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qec_dV_e_di = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qec_dV_e_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qec_dV_g_di = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWGD)));
+d_Qec_dV_di_si = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWGD)));
+d_Qec_dV_g_si = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWGD)));
+d_Qec_dV_g_e = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWGD)));
+d_Qec_dV_e_di = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWGD)));
+d_Qec_dV_e_si = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWGD)));
+d_Qec_dV_g_di = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWGD)));
 Qec = (((PBSWGD_t*Czbdswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGD)));
 
 d_arg_dV_g_di = d_arg_dV_e_si = d_arg_dV_g_e = d_arg_dV_g_si = d_arg_dV_di_si =  0.0;
@@ -20043,23 +20043,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD2))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGD2))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qedj3_dV_di_d = d_Qedj3_dV_si_s =  0.0;
-d_Qedj3_dV_di_si = (d_Qec_dV_di_si+(((((model_.SJSWGD)*pb2)*Czbdswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGD2))));
-d_Qedj3_dV_g_si = (d_Qec_dV_g_si+(((((model_.SJSWGD)*pb2)*Czbdswg)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWGD2))));
-d_Qedj3_dV_g_e = (d_Qec_dV_g_e+(((((model_.SJSWGD)*pb2)*Czbdswg)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWGD2))));
-d_Qedj3_dV_e_di = (d_Qec_dV_e_di+(((((model_.SJSWGD)*pb2)*Czbdswg)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWGD2))));
-d_Qedj3_dV_e_si = (d_Qec_dV_e_si+(((((model_.SJSWGD)*pb2)*Czbdswg)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWGD2))));
-d_Qedj3_dV_g_di = (d_Qec_dV_g_di+(((((model_.SJSWGD)*pb2)*Czbdswg)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWGD2))));
+d_Qedj3_dV_di_si = (d_Qec_dV_di_si+((((model_.SJSWGD)*pb2)*Czbdswg)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWGD2))));
+d_Qedj3_dV_g_si = (d_Qec_dV_g_si+((((model_.SJSWGD)*pb2)*Czbdswg)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWGD2))));
+d_Qedj3_dV_g_e = (d_Qec_dV_g_e+((((model_.SJSWGD)*pb2)*Czbdswg)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWGD2))));
+d_Qedj3_dV_e_di = (d_Qec_dV_e_di+((((model_.SJSWGD)*pb2)*Czbdswg)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWGD2))));
+d_Qedj3_dV_e_si = (d_Qec_dV_e_si+((((model_.SJSWGD)*pb2)*Czbdswg)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWGD2))));
+d_Qedj3_dV_g_di = (d_Qec_dV_g_di+((((model_.SJSWGD)*pb2)*Czbdswg)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWGD2))));
 Qedj3 = (Qec+(((((model_.SJSWGD)*pb2)*Czbdswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGD2))));
 }
 }
@@ -20094,23 +20094,23 @@ else
 AnalogFunctions::llnEvaluator evaluator_lln_0(arg);
 AnalogFunctions::lexpEvaluator evaluator_lexp_1(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
 
-d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si)));
-d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si)));
-d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e)));
-d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di)));
-d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si)));
-d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),((-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di)));
+d_sarg_dV_di_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_di_si));
+d_sarg_dV_g_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_si));
+d_sarg_dV_g_e = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_e));
+d_sarg_dV_e_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_di));
+d_sarg_dV_e_si = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_e_si));
+d_sarg_dV_g_di = evaluator_lexp_1.getDerivs(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)),(-(model_.MJSWGD))*evaluator_lln_0.getDerivs(arg,d_arg_dV_g_di));
 sarg = evaluator_lexp_1.getValues(((-(model_.MJSWGD))*evaluator_lln_0.getValues(arg)));
 }
 }
 
 d_Qedj3_dV_di_d = d_Qedj3_dV_si_s =  0.0;
-d_Qedj3_dV_di_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_di_si)+(d_arg_dV_di_si*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_g_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_g_si)+(d_arg_dV_g_si*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_g_e = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_g_e)+(d_arg_dV_g_e*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_e_di = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_e_di)+(d_arg_dV_e_di*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_e_si = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_e_si)+(d_arg_dV_e_si*sarg))))/(1.0-(model_.MJSWGD)));
-d_Qedj3_dV_g_di = (((PBSWGD_t*Czbdswg)*(-((arg*d_sarg_dV_g_di)+(d_arg_dV_g_di*sarg))))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_di_si = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_di_si+d_arg_dV_di_si*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_g_si = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_g_si+d_arg_dV_g_si*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_g_e = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_g_e+d_arg_dV_g_e*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_e_di = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_e_di+d_arg_dV_e_di*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_e_si = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_e_si+d_arg_dV_e_si*sarg))/(1.0-(model_.MJSWGD)));
+d_Qedj3_dV_g_di = ((PBSWGD_t*Czbdswg)*(-(arg*d_sarg_dV_g_di+d_arg_dV_g_di*sarg))/(1.0-(model_.MJSWGD)));
 Qedj3 = (((PBSWGD_t*Czbdswg)*(1.0-(arg*sarg)))/(1.0-(model_.MJSWGD)));
 }
 }
@@ -20127,31 +20127,31 @@ T2 = evaluator_lexp_1.getValues(((-(model_.MJSWGD))*evaluator_lln_0.getValues(0.
 d_T3_dV_g_di = d_T3_dV_g_e = d_T3_dV_g_si = d_T3_dV_e_si = d_T3_dV_e_di = d_T3_dV_di_si =  0.0;
 T3 = (1.0/(1.0-(model_.MJSWGD)));
 
-d_T4_dV_di_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWGD))*d_T1_dV_di_si))+(((T2*d_T1_dV_di_si)+(d_T2_dV_di_si*(T1-1.0)))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD)))));
-d_T4_dV_e_di = (((T2*(T1-1.0))*((5.0*(model_.MJSWGD))*d_T1_dV_e_di))+(((T2*d_T1_dV_e_di)+(d_T2_dV_e_di*(T1-1.0)))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD)))));
-d_T4_dV_e_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWGD))*d_T1_dV_e_si))+(((T2*d_T1_dV_e_si)+(d_T2_dV_e_si*(T1-1.0)))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD)))));
-d_T4_dV_g_si = (((T2*(T1-1.0))*((5.0*(model_.MJSWGD))*d_T1_dV_g_si))+(((T2*d_T1_dV_g_si)+(d_T2_dV_g_si*(T1-1.0)))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD)))));
-d_T4_dV_g_e = (((T2*(T1-1.0))*((5.0*(model_.MJSWGD))*d_T1_dV_g_e))+(((T2*d_T1_dV_g_e)+(d_T2_dV_g_e*(T1-1.0)))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD)))));
-d_T4_dV_g_di = (((T2*(T1-1.0))*((5.0*(model_.MJSWGD))*d_T1_dV_g_di))+(((T2*d_T1_dV_g_di)+(d_T2_dV_g_di*(T1-1.0)))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD)))));
+d_T4_dV_di_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWGD))*d_T1_dV_di_si+(T2*d_T1_dV_di_si+d_T2_dV_di_si*(T1-1.0))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD))));
+d_T4_dV_e_di = ((T2*(T1-1.0))*(5.0*(model_.MJSWGD))*d_T1_dV_e_di+(T2*d_T1_dV_e_di+d_T2_dV_e_di*(T1-1.0))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD))));
+d_T4_dV_e_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWGD))*d_T1_dV_e_si+(T2*d_T1_dV_e_si+d_T2_dV_e_si*(T1-1.0))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD))));
+d_T4_dV_g_si = ((T2*(T1-1.0))*(5.0*(model_.MJSWGD))*d_T1_dV_g_si+(T2*d_T1_dV_g_si+d_T2_dV_g_si*(T1-1.0))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD))));
+d_T4_dV_g_e = ((T2*(T1-1.0))*(5.0*(model_.MJSWGD))*d_T1_dV_g_e+(T2*d_T1_dV_g_e+d_T2_dV_g_e*(T1-1.0))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD))));
+d_T4_dV_g_di = ((T2*(T1-1.0))*(5.0*(model_.MJSWGD))*d_T1_dV_g_di+(T2*d_T1_dV_g_di+d_T2_dV_g_di*(T1-1.0))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD))));
 T4 = ((T2*(T1-1.0))*(((5.0*(model_.MJSWGD))*(T1-1.0))+(1.0+(model_.MJSWGD))));
 
 d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((T3*(-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_di_si)))+(d_T3_dV_di_si*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2))));
-d_T5_dV_e_di = ((T3*(-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_e_di)))+(d_T3_dV_e_di*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2))));
-d_T5_dV_e_si = ((T3*(-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_e_si)))+(d_T3_dV_e_si*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2))));
-d_T5_dV_g_si = ((T3*(-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_g_si)))+(d_T3_dV_g_si*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2))));
-d_T5_dV_g_e = ((T3*(-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_g_e)))+(d_T3_dV_g_e*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2))));
-d_T5_dV_g_di = ((T3*(-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_g_di)))+(d_T3_dV_g_di*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2))));
+d_T5_dV_di_si = (T3*(-((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_di_si)+d_T3_dV_di_si*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2)));
+d_T5_dV_e_di = (T3*(-((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_e_di)+d_T3_dV_e_di*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2)));
+d_T5_dV_e_si = (T3*(-((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_e_si)+d_T3_dV_e_si*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2)));
+d_T5_dV_g_si = (T3*(-((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_g_si)+d_T3_dV_g_si*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2)));
+d_T5_dV_g_e = (T3*(-((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_g_e)+d_T3_dV_g_e*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2)));
+d_T5_dV_g_di = (T3*(-((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*d_T2_dV_g_di)+d_T3_dV_g_di*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2)));
 T5 = (T3*(1.0-(((0.05*(model_.MJSWGD))*(1.0+(model_.MJSWGD)))*T2)));
 
-d_Qedj3_dV_si_s = ((PBSWGD_t*Czbdswg)*d_T5_dV_si_s);
-d_Qedj3_dV_di_d = ((PBSWGD_t*Czbdswg)*d_T5_dV_di_d);
-d_Qedj3_dV_g_si = ((PBSWGD_t*Czbdswg)*(d_T4_dV_g_si+d_T5_dV_g_si));
-d_Qedj3_dV_g_e = ((PBSWGD_t*Czbdswg)*(d_T4_dV_g_e+d_T5_dV_g_e));
-d_Qedj3_dV_e_di = ((PBSWGD_t*Czbdswg)*(d_T4_dV_e_di+d_T5_dV_e_di));
-d_Qedj3_dV_e_si = ((PBSWGD_t*Czbdswg)*(d_T4_dV_e_si+d_T5_dV_e_si));
-d_Qedj3_dV_di_si = ((PBSWGD_t*Czbdswg)*(d_T4_dV_di_si+d_T5_dV_di_si));
-d_Qedj3_dV_g_di = ((PBSWGD_t*Czbdswg)*(d_T4_dV_g_di+d_T5_dV_g_di));
+d_Qedj3_dV_si_s = (PBSWGD_t*Czbdswg)*d_T5_dV_si_s;
+d_Qedj3_dV_di_d = (PBSWGD_t*Czbdswg)*d_T5_dV_di_d;
+d_Qedj3_dV_g_si = (PBSWGD_t*Czbdswg)*(d_T4_dV_g_si+d_T5_dV_g_si);
+d_Qedj3_dV_g_e = (PBSWGD_t*Czbdswg)*(d_T4_dV_g_e+d_T5_dV_g_e);
+d_Qedj3_dV_e_di = (PBSWGD_t*Czbdswg)*(d_T4_dV_e_di+d_T5_dV_e_di);
+d_Qedj3_dV_e_si = (PBSWGD_t*Czbdswg)*(d_T4_dV_e_si+d_T5_dV_e_si);
+d_Qedj3_dV_di_si = (PBSWGD_t*Czbdswg)*(d_T4_dV_di_si+d_T5_dV_di_si);
+d_Qedj3_dV_g_di = (PBSWGD_t*Czbdswg)*(d_T4_dV_g_di+d_T5_dV_g_di);
 Qedj3 = ((PBSWGD_t*Czbdswg)*(T4+T5));
 }
 }
@@ -20178,7 +20178,7 @@ d_Qes_dV_di_si = d_Qesj_dV_di_si;
 d_Qes_dV_g_si = d_Qesj_dV_g_si;
 d_Qes_dV_g_e = d_Qesj_dV_g_e;
 d_Qes_dV_e_di = d_Qesj_dV_e_di;
-d_Qes_dV_e_si = (d_Qesj_dV_e_si+(csbox*d_ves_jct_dV_e_si));
+d_Qes_dV_e_si = (d_Qesj_dV_e_si+csbox*d_ves_jct_dV_e_si);
 d_Qes_dV_g_di = d_Qesj_dV_g_di;
 d_Qes_dV_si_s = d_Qesj_dV_si_s;
 d_Qes_dV_di_d = d_Qesj_dV_di_d;
@@ -20187,7 +20187,7 @@ Qes = (Qesj+(csbox*ves_jct));
 d_Qed_dV_di_si = d_Qedj_dV_di_si;
 d_Qed_dV_g_si = d_Qedj_dV_g_si;
 d_Qed_dV_g_e = d_Qedj_dV_g_e;
-d_Qed_dV_e_di = (d_Qedj_dV_e_di+(cdbox*d_ved_jct_dV_e_di));
+d_Qed_dV_e_di = (d_Qedj_dV_e_di+cdbox*d_ved_jct_dV_e_di);
 d_Qed_dV_e_si = d_Qedj_dV_e_si;
 d_Qed_dV_g_di = d_Qedj_dV_g_di;
 d_Qed_dV_si_s = d_Qedj_dV_si_s;
@@ -20195,13 +20195,13 @@ d_Qed_dV_di_d = d_Qedj_dV_di_d;
 Qed = (Qedj+(cdbox*ved_jct));
 
 d_Qeg_dV_g_di = d_Qeg_dV_g_e = d_Qeg_dV_g_si = d_Qeg_dV_e_si = d_Qeg_dV_e_di = d_Qeg_dV_di_si =  0.0;
-d_Qeg_dV_e_g = ((cgbox*devsign)*d_probeVars[admsProbeID_V_e_g][admsProbeID_V_e_g]);
+d_Qeg_dV_e_g = (cgbox*devsign)*d_probeVars[admsProbeID_V_e_g][admsProbeID_V_e_g];
 Qeg = ((cgbox*devsign)*(probeVars[admsProbeID_V_e_g]));
 if (((model_.BULKMOD)!=0))
 {
 
 d_T2_dV_g_di = d_T2_dV_g_si = d_T2_dV_e_si = d_T2_dV_e_di = d_T2_dV_di_si =  0.0;
-d_T2_dV_g_e = (devsign*d_probeVars[admsProbeID_V_g_e][admsProbeID_V_g_e]);
+d_T2_dV_g_e = devsign*d_probeVars[admsProbeID_V_g_e][admsProbeID_V_g_e];
 T2 = (devsign*(probeVars[admsProbeID_V_g_e]));
 
 d_T3_dV_di_si = d_T2_dV_di_si;
@@ -20223,24 +20223,24 @@ T0 = (T3+0.02);
 double value_sqrt_0 = sqrt(((T0*T0)+(4.0*0.02)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_vge_overlap_dV_di_si = (0.5*(d_T0_dV_di_si+(deriv_sqrt_0_d0*(((T0*d_T0_dV_di_si)+(d_T0_dV_di_si*T0))))));
-d_vge_overlap_dV_g_si = (0.5*(d_T0_dV_g_si+(deriv_sqrt_0_d0*(((T0*d_T0_dV_g_si)+(d_T0_dV_g_si*T0))))));
-d_vge_overlap_dV_g_e = (0.5*(d_T0_dV_g_e+(deriv_sqrt_0_d0*(((T0*d_T0_dV_g_e)+(d_T0_dV_g_e*T0))))));
-d_vge_overlap_dV_e_di = (0.5*(d_T0_dV_e_di+(deriv_sqrt_0_d0*(((T0*d_T0_dV_e_di)+(d_T0_dV_e_di*T0))))));
-d_vge_overlap_dV_e_si = (0.5*(d_T0_dV_e_si+(deriv_sqrt_0_d0*(((T0*d_T0_dV_e_si)+(d_T0_dV_e_si*T0))))));
-d_vge_overlap_dV_g_di = (0.5*(d_T0_dV_g_di+(deriv_sqrt_0_d0*(((T0*d_T0_dV_g_di)+(d_T0_dV_g_di*T0))))));
+d_vge_overlap_dV_di_si = 0.5*(d_T0_dV_di_si+(deriv_sqrt_0_d0*((T0*d_T0_dV_di_si+d_T0_dV_di_si*T0))));
+d_vge_overlap_dV_g_si = 0.5*(d_T0_dV_g_si+(deriv_sqrt_0_d0*((T0*d_T0_dV_g_si+d_T0_dV_g_si*T0))));
+d_vge_overlap_dV_g_e = 0.5*(d_T0_dV_g_e+(deriv_sqrt_0_d0*((T0*d_T0_dV_g_e+d_T0_dV_g_e*T0))));
+d_vge_overlap_dV_e_di = 0.5*(d_T0_dV_e_di+(deriv_sqrt_0_d0*((T0*d_T0_dV_e_di+d_T0_dV_e_di*T0))));
+d_vge_overlap_dV_e_si = 0.5*(d_T0_dV_e_si+(deriv_sqrt_0_d0*((T0*d_T0_dV_e_si+d_T0_dV_e_si*T0))));
+d_vge_overlap_dV_g_di = 0.5*(d_T0_dV_g_di+(deriv_sqrt_0_d0*((T0*d_T0_dV_g_di+d_T0_dV_g_di*T0))));
 vge_overlap = (0.5*(T0+value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((1.0+((4.0*vge_overlap)/CKAPPAB_i)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-d_Qeg_dV_di_si = (d_Qeg_dV_di_si-((NFINtotal*LeffCV)*(CGBL_i*((d_T3_dV_di_si-d_vge_overlap_dV_di_si)+((0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*(((4.0*d_vge_overlap_dV_di_si)/CKAPPAB_i))))))));
-d_Qeg_dV_e_di = (d_Qeg_dV_e_di-((NFINtotal*LeffCV)*(CGBL_i*((d_T3_dV_e_di-d_vge_overlap_dV_e_di)+((0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*(((4.0*d_vge_overlap_dV_e_di)/CKAPPAB_i))))))));
-d_Qeg_dV_e_si = (d_Qeg_dV_e_si-((NFINtotal*LeffCV)*(CGBL_i*((d_T3_dV_e_si-d_vge_overlap_dV_e_si)+((0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*(((4.0*d_vge_overlap_dV_e_si)/CKAPPAB_i))))))));
-d_Qeg_dV_g_si = (d_Qeg_dV_g_si-((NFINtotal*LeffCV)*(CGBL_i*((d_T3_dV_g_si-d_vge_overlap_dV_g_si)+((0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*(((4.0*d_vge_overlap_dV_g_si)/CKAPPAB_i))))))));
-d_Qeg_dV_g_e = (d_Qeg_dV_g_e-((NFINtotal*LeffCV)*(CGBL_i*((d_T3_dV_g_e-d_vge_overlap_dV_g_e)+((0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*(((4.0*d_vge_overlap_dV_g_e)/CKAPPAB_i))))))));
-d_Qeg_dV_g_di = (d_Qeg_dV_g_di-((NFINtotal*LeffCV)*(CGBL_i*((d_T3_dV_g_di-d_vge_overlap_dV_g_di)+((0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*(((4.0*d_vge_overlap_dV_g_di)/CKAPPAB_i))))))));
+d_Qeg_dV_di_si = (d_Qeg_dV_di_si-(NFINtotal*LeffCV)*CGBL_i*((d_T3_dV_di_si-d_vge_overlap_dV_di_si)+(0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*((4.0*d_vge_overlap_dV_di_si/CKAPPAB_i)))));
+d_Qeg_dV_e_di = (d_Qeg_dV_e_di-(NFINtotal*LeffCV)*CGBL_i*((d_T3_dV_e_di-d_vge_overlap_dV_e_di)+(0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*((4.0*d_vge_overlap_dV_e_di/CKAPPAB_i)))));
+d_Qeg_dV_e_si = (d_Qeg_dV_e_si-(NFINtotal*LeffCV)*CGBL_i*((d_T3_dV_e_si-d_vge_overlap_dV_e_si)+(0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*((4.0*d_vge_overlap_dV_e_si/CKAPPAB_i)))));
+d_Qeg_dV_g_si = (d_Qeg_dV_g_si-(NFINtotal*LeffCV)*CGBL_i*((d_T3_dV_g_si-d_vge_overlap_dV_g_si)+(0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*((4.0*d_vge_overlap_dV_g_si/CKAPPAB_i)))));
+d_Qeg_dV_g_e = (d_Qeg_dV_g_e-(NFINtotal*LeffCV)*CGBL_i*((d_T3_dV_g_e-d_vge_overlap_dV_g_e)+(0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*((4.0*d_vge_overlap_dV_g_e/CKAPPAB_i)))));
+d_Qeg_dV_g_di = (d_Qeg_dV_g_di-(NFINtotal*LeffCV)*CGBL_i*((d_T3_dV_g_di-d_vge_overlap_dV_g_di)+(0.5*CKAPPAB_i)*(deriv_sqrt_0_d0*((4.0*d_vge_overlap_dV_g_di/CKAPPAB_i)))));
 Qeg = (Qeg-((NFINtotal*LeffCV)*(CGBL_i*((T3-vge_overlap)+((0.5*CKAPPAB_i)*(value_sqrt_0-1.0))))));
 }
 }
@@ -20250,121 +20250,121 @@ d_T0_dV_di_si = d_vds_dV_di_si;
 T0 = vds;
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = ((T0*(((BIGEN_i*T0)*d_T0_dV_di_si)+((BIGEN_i*d_T0_dV_di_si)*T0)))+(d_T0_dV_di_si*(AIGEN_i+((BIGEN_i*T0)*T0))));
-d_T1_dV_g_si = ((T0*(((BIGEN_i*T0)*d_T0_dV_g_si)+((BIGEN_i*d_T0_dV_g_si)*T0)))+(d_T0_dV_g_si*(AIGEN_i+((BIGEN_i*T0)*T0))));
-d_T1_dV_g_e = ((T0*(((BIGEN_i*T0)*d_T0_dV_g_e)+((BIGEN_i*d_T0_dV_g_e)*T0)))+(d_T0_dV_g_e*(AIGEN_i+((BIGEN_i*T0)*T0))));
-d_T1_dV_e_di = ((T0*(((BIGEN_i*T0)*d_T0_dV_e_di)+((BIGEN_i*d_T0_dV_e_di)*T0)))+(d_T0_dV_e_di*(AIGEN_i+((BIGEN_i*T0)*T0))));
-d_T1_dV_e_si = ((T0*(((BIGEN_i*T0)*d_T0_dV_e_si)+((BIGEN_i*d_T0_dV_e_si)*T0)))+(d_T0_dV_e_si*(AIGEN_i+((BIGEN_i*T0)*T0))));
-d_T1_dV_g_di = ((T0*(((BIGEN_i*T0)*d_T0_dV_g_di)+((BIGEN_i*d_T0_dV_g_di)*T0)))+(d_T0_dV_g_di*(AIGEN_i+((BIGEN_i*T0)*T0))));
+d_T1_dV_di_si = (T0*((BIGEN_i*T0)*d_T0_dV_di_si+BIGEN_i*d_T0_dV_di_si*T0)+d_T0_dV_di_si*(AIGEN_i+((BIGEN_i*T0)*T0)));
+d_T1_dV_g_si = (T0*((BIGEN_i*T0)*d_T0_dV_g_si+BIGEN_i*d_T0_dV_g_si*T0)+d_T0_dV_g_si*(AIGEN_i+((BIGEN_i*T0)*T0)));
+d_T1_dV_g_e = (T0*((BIGEN_i*T0)*d_T0_dV_g_e+BIGEN_i*d_T0_dV_g_e*T0)+d_T0_dV_g_e*(AIGEN_i+((BIGEN_i*T0)*T0)));
+d_T1_dV_e_di = (T0*((BIGEN_i*T0)*d_T0_dV_e_di+BIGEN_i*d_T0_dV_e_di*T0)+d_T0_dV_e_di*(AIGEN_i+((BIGEN_i*T0)*T0)));
+d_T1_dV_e_si = (T0*((BIGEN_i*T0)*d_T0_dV_e_si+BIGEN_i*d_T0_dV_e_si*T0)+d_T0_dV_e_si*(AIGEN_i+((BIGEN_i*T0)*T0)));
+d_T1_dV_g_di = (T0*((BIGEN_i*T0)*d_T0_dV_g_di+BIGEN_i*d_T0_dV_g_di*T0)+d_T0_dV_g_di*(AIGEN_i+((BIGEN_i*T0)*T0)));
 T1 = (T0*(AIGEN_i+((BIGEN_i*T0)*T0)));
 
-d_idsgen_dV_di_si = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_di_si);
-d_idsgen_dV_g_si = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_g_si);
-d_idsgen_dV_g_e = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_g_e);
-d_idsgen_dV_e_di = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_e_di);
-d_idsgen_dV_e_si = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_e_si);
-d_idsgen_dV_g_di = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_g_di);
+d_idsgen_dV_di_si = ((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_di_si;
+d_idsgen_dV_g_si = ((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_g_si;
+d_idsgen_dV_g_e = ((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_g_e;
+d_idsgen_dV_e_di = ((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_e_di;
+d_idsgen_dV_e_si = ((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_e_si;
+d_idsgen_dV_g_di = ((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*d_T1_dV_g_di;
 idsgen = (((((model_.HFIN)*TFIN)*(Leff-(2.0*LINTIGEN_i)))*igentemp)*T1);
 IdovVds = (((beta*ids0_ov_dqi)*Moc)/((Dmob*Dvsat)*Dr));
 
 d_T0_dV_g_di =  0.0;
-d_T0_dV_di_si = ((((ueff*coxeff)*d_Weff_dV_di_si)+(((ueff*d_coxeff_dV_di_si)+(d_ueff_dV_di_si*coxeff))*Weff))/Leff);
-d_T0_dV_e_di = ((((ueff*coxeff)*d_Weff_dV_e_di)+(((ueff*d_coxeff_dV_e_di)+(d_ueff_dV_e_di*coxeff))*Weff))/Leff);
-d_T0_dV_e_si = ((((ueff*coxeff)*d_Weff_dV_e_si)+(((ueff*d_coxeff_dV_e_si)+(d_ueff_dV_e_si*coxeff))*Weff))/Leff);
-d_T0_dV_g_si = ((((ueff*coxeff)*d_Weff_dV_g_si)+(((ueff*d_coxeff_dV_g_si)+(d_ueff_dV_g_si*coxeff))*Weff))/Leff);
-d_T0_dV_g_e = ((((ueff*coxeff)*d_Weff_dV_g_e)+(((ueff*d_coxeff_dV_g_e)+(d_ueff_dV_g_e*coxeff))*Weff))/Leff);
+d_T0_dV_di_si = (((ueff*coxeff)*d_Weff_dV_di_si+(ueff*d_coxeff_dV_di_si+d_ueff_dV_di_si*coxeff)*Weff)/Leff);
+d_T0_dV_e_di = (((ueff*coxeff)*d_Weff_dV_e_di+(ueff*d_coxeff_dV_e_di+d_ueff_dV_e_di*coxeff)*Weff)/Leff);
+d_T0_dV_e_si = (((ueff*coxeff)*d_Weff_dV_e_si+(ueff*d_coxeff_dV_e_si+d_ueff_dV_e_si*coxeff)*Weff)/Leff);
+d_T0_dV_g_si = (((ueff*coxeff)*d_Weff_dV_g_si+(ueff*d_coxeff_dV_g_si+d_ueff_dV_g_si*coxeff)*Weff)/Leff);
+d_T0_dV_g_e = (((ueff*coxeff)*d_Weff_dV_g_e+(ueff*d_coxeff_dV_g_e+d_ueff_dV_g_e*coxeff)*Weff)/Leff);
 T0 = (((ueff*coxeff)*Weff)/Leff);
 
-d_igidl_dV_g_e = (NFINtotal*d_igidl_dV_g_e);
-d_igidl_dV_e_di = (NFINtotal*d_igidl_dV_e_di);
-d_igidl_dV_e_si = (NFINtotal*d_igidl_dV_e_si);
-d_igidl_dV_di_si = (NFINtotal*d_igidl_dV_di_si);
-d_igidl_dV_g_si = (NFINtotal*d_igidl_dV_g_si);
-d_igidl_dV_si_s = (NFINtotal*d_igidl_dV_si_s);
-d_igidl_dV_di_d = (NFINtotal*d_igidl_dV_di_d);
-d_igidl_dV_g_di = (NFINtotal*d_igidl_dV_g_di);
+d_igidl_dV_g_e = NFINtotal*d_igidl_dV_g_e;
+d_igidl_dV_e_di = NFINtotal*d_igidl_dV_e_di;
+d_igidl_dV_e_si = NFINtotal*d_igidl_dV_e_si;
+d_igidl_dV_di_si = NFINtotal*d_igidl_dV_di_si;
+d_igidl_dV_g_si = NFINtotal*d_igidl_dV_g_si;
+d_igidl_dV_si_s = NFINtotal*d_igidl_dV_si_s;
+d_igidl_dV_di_d = NFINtotal*d_igidl_dV_di_d;
+d_igidl_dV_g_di = NFINtotal*d_igidl_dV_g_di;
 igidl = (NFINtotal*igidl);
 
-d_igisl_dV_g_e = (NFINtotal*d_igisl_dV_g_e);
-d_igisl_dV_e_di = (NFINtotal*d_igisl_dV_e_di);
-d_igisl_dV_e_si = (NFINtotal*d_igisl_dV_e_si);
-d_igisl_dV_di_si = (NFINtotal*d_igisl_dV_di_si);
-d_igisl_dV_g_si = (NFINtotal*d_igisl_dV_g_si);
-d_igisl_dV_si_s = (NFINtotal*d_igisl_dV_si_s);
-d_igisl_dV_di_d = (NFINtotal*d_igisl_dV_di_d);
-d_igisl_dV_g_di = (NFINtotal*d_igisl_dV_g_di);
+d_igisl_dV_g_e = NFINtotal*d_igisl_dV_g_e;
+d_igisl_dV_e_di = NFINtotal*d_igisl_dV_e_di;
+d_igisl_dV_e_si = NFINtotal*d_igisl_dV_e_si;
+d_igisl_dV_di_si = NFINtotal*d_igisl_dV_di_si;
+d_igisl_dV_g_si = NFINtotal*d_igisl_dV_g_si;
+d_igisl_dV_si_s = NFINtotal*d_igisl_dV_si_s;
+d_igisl_dV_di_d = NFINtotal*d_igisl_dV_di_d;
+d_igisl_dV_g_di = NFINtotal*d_igisl_dV_g_di;
 igisl = (NFINtotal*igisl);
 
-d_igcd_dV_si_s = (NFINtotal*d_igcd_dV_si_s);
-d_igcd_dV_di_d = (NFINtotal*d_igcd_dV_di_d);
-d_igcd_dV_g_si = (NFINtotal*d_igcd_dV_g_si);
-d_igcd_dV_g_e = (NFINtotal*d_igcd_dV_g_e);
-d_igcd_dV_e_di = (NFINtotal*d_igcd_dV_e_di);
-d_igcd_dV_e_si = (NFINtotal*d_igcd_dV_e_si);
-d_igcd_dV_di_si = (NFINtotal*d_igcd_dV_di_si);
-d_igcd_dV_g_di = (NFINtotal*d_igcd_dV_g_di);
+d_igcd_dV_si_s = NFINtotal*d_igcd_dV_si_s;
+d_igcd_dV_di_d = NFINtotal*d_igcd_dV_di_d;
+d_igcd_dV_g_si = NFINtotal*d_igcd_dV_g_si;
+d_igcd_dV_g_e = NFINtotal*d_igcd_dV_g_e;
+d_igcd_dV_e_di = NFINtotal*d_igcd_dV_e_di;
+d_igcd_dV_e_si = NFINtotal*d_igcd_dV_e_si;
+d_igcd_dV_di_si = NFINtotal*d_igcd_dV_di_si;
+d_igcd_dV_g_di = NFINtotal*d_igcd_dV_g_di;
 igcd = (NFINtotal*igcd);
 
-d_igcs_dV_si_s = (NFINtotal*d_igcs_dV_si_s);
-d_igcs_dV_di_d = (NFINtotal*d_igcs_dV_di_d);
-d_igcs_dV_g_si = (NFINtotal*d_igcs_dV_g_si);
-d_igcs_dV_g_e = (NFINtotal*d_igcs_dV_g_e);
-d_igcs_dV_e_di = (NFINtotal*d_igcs_dV_e_di);
-d_igcs_dV_e_si = (NFINtotal*d_igcs_dV_e_si);
-d_igcs_dV_di_si = (NFINtotal*d_igcs_dV_di_si);
-d_igcs_dV_g_di = (NFINtotal*d_igcs_dV_g_di);
+d_igcs_dV_si_s = NFINtotal*d_igcs_dV_si_s;
+d_igcs_dV_di_d = NFINtotal*d_igcs_dV_di_d;
+d_igcs_dV_g_si = NFINtotal*d_igcs_dV_g_si;
+d_igcs_dV_g_e = NFINtotal*d_igcs_dV_g_e;
+d_igcs_dV_e_di = NFINtotal*d_igcs_dV_e_di;
+d_igcs_dV_e_si = NFINtotal*d_igcs_dV_e_si;
+d_igcs_dV_di_si = NFINtotal*d_igcs_dV_di_si;
+d_igcs_dV_g_di = NFINtotal*d_igcs_dV_g_di;
 igcs = (NFINtotal*igcs);
 
-d_igs_dV_di_si = (NFINtotal*d_igs_dV_di_si);
-d_igs_dV_e_di = (NFINtotal*d_igs_dV_e_di);
-d_igs_dV_e_si = (NFINtotal*d_igs_dV_e_si);
-d_igs_dV_g_e = (NFINtotal*d_igs_dV_g_e);
-d_igs_dV_g_di = (NFINtotal*d_igs_dV_g_di);
-d_igs_dV_g_si = (NFINtotal*d_igs_dV_g_si);
+d_igs_dV_di_si = NFINtotal*d_igs_dV_di_si;
+d_igs_dV_e_di = NFINtotal*d_igs_dV_e_di;
+d_igs_dV_e_si = NFINtotal*d_igs_dV_e_si;
+d_igs_dV_g_e = NFINtotal*d_igs_dV_g_e;
+d_igs_dV_g_di = NFINtotal*d_igs_dV_g_di;
+d_igs_dV_g_si = NFINtotal*d_igs_dV_g_si;
 igs = (NFINtotal*igs);
 
-d_igd_dV_di_si = (NFINtotal*d_igd_dV_di_si);
-d_igd_dV_e_di = (NFINtotal*d_igd_dV_e_di);
-d_igd_dV_e_si = (NFINtotal*d_igd_dV_e_si);
-d_igd_dV_g_e = (NFINtotal*d_igd_dV_g_e);
-d_igd_dV_g_di = (NFINtotal*d_igd_dV_g_di);
-d_igd_dV_g_si = (NFINtotal*d_igd_dV_g_si);
+d_igd_dV_di_si = NFINtotal*d_igd_dV_di_si;
+d_igd_dV_e_di = NFINtotal*d_igd_dV_e_di;
+d_igd_dV_e_si = NFINtotal*d_igd_dV_e_si;
+d_igd_dV_g_e = NFINtotal*d_igd_dV_g_e;
+d_igd_dV_g_di = NFINtotal*d_igd_dV_g_di;
+d_igd_dV_g_si = NFINtotal*d_igd_dV_g_si;
 igd = (NFINtotal*igd);
 
-d_igbinv_dV_si_s = (NFINtotal*d_igbinv_dV_si_s);
-d_igbinv_dV_di_d = (NFINtotal*d_igbinv_dV_di_d);
-d_igbinv_dV_g_di = (NFINtotal*d_igbinv_dV_g_di);
-d_igbinv_dV_g_e = (NFINtotal*d_igbinv_dV_g_e);
-d_igbinv_dV_e_di = (NFINtotal*d_igbinv_dV_e_di);
-d_igbinv_dV_e_si = (NFINtotal*d_igbinv_dV_e_si);
-d_igbinv_dV_di_si = (NFINtotal*d_igbinv_dV_di_si);
-d_igbinv_dV_g_si = (NFINtotal*d_igbinv_dV_g_si);
+d_igbinv_dV_si_s = NFINtotal*d_igbinv_dV_si_s;
+d_igbinv_dV_di_d = NFINtotal*d_igbinv_dV_di_d;
+d_igbinv_dV_g_di = NFINtotal*d_igbinv_dV_g_di;
+d_igbinv_dV_g_e = NFINtotal*d_igbinv_dV_g_e;
+d_igbinv_dV_e_di = NFINtotal*d_igbinv_dV_e_di;
+d_igbinv_dV_e_si = NFINtotal*d_igbinv_dV_e_si;
+d_igbinv_dV_di_si = NFINtotal*d_igbinv_dV_di_si;
+d_igbinv_dV_g_si = NFINtotal*d_igbinv_dV_g_si;
 igbinv = (NFINtotal*igbinv);
 
-d_igbacc_dV_si_s = (NFINtotal*d_igbacc_dV_si_s);
-d_igbacc_dV_di_d = (NFINtotal*d_igbacc_dV_di_d);
-d_igbacc_dV_g_di = (NFINtotal*d_igbacc_dV_g_di);
-d_igbacc_dV_g_e = (NFINtotal*d_igbacc_dV_g_e);
-d_igbacc_dV_e_di = (NFINtotal*d_igbacc_dV_e_di);
-d_igbacc_dV_e_si = (NFINtotal*d_igbacc_dV_e_si);
-d_igbacc_dV_di_si = (NFINtotal*d_igbacc_dV_di_si);
-d_igbacc_dV_g_si = (NFINtotal*d_igbacc_dV_g_si);
+d_igbacc_dV_si_s = NFINtotal*d_igbacc_dV_si_s;
+d_igbacc_dV_di_d = NFINtotal*d_igbacc_dV_di_d;
+d_igbacc_dV_g_di = NFINtotal*d_igbacc_dV_g_di;
+d_igbacc_dV_g_e = NFINtotal*d_igbacc_dV_g_e;
+d_igbacc_dV_e_di = NFINtotal*d_igbacc_dV_e_di;
+d_igbacc_dV_e_si = NFINtotal*d_igbacc_dV_e_si;
+d_igbacc_dV_di_si = NFINtotal*d_igbacc_dV_di_si;
+d_igbacc_dV_g_si = NFINtotal*d_igbacc_dV_g_si;
 igbacc = (NFINtotal*igbacc);
 
-d_idsgen_dV_di_si = (NFINtotal*d_idsgen_dV_di_si);
-d_idsgen_dV_g_si = (NFINtotal*d_idsgen_dV_g_si);
-d_idsgen_dV_g_e = (NFINtotal*d_idsgen_dV_g_e);
-d_idsgen_dV_e_di = (NFINtotal*d_idsgen_dV_e_di);
-d_idsgen_dV_e_si = (NFINtotal*d_idsgen_dV_e_si);
-d_idsgen_dV_g_di = (NFINtotal*d_idsgen_dV_g_di);
+d_idsgen_dV_di_si = NFINtotal*d_idsgen_dV_di_si;
+d_idsgen_dV_g_si = NFINtotal*d_idsgen_dV_g_si;
+d_idsgen_dV_g_e = NFINtotal*d_idsgen_dV_g_e;
+d_idsgen_dV_e_di = NFINtotal*d_idsgen_dV_e_di;
+d_idsgen_dV_e_si = NFINtotal*d_idsgen_dV_e_si;
+d_idsgen_dV_g_di = NFINtotal*d_idsgen_dV_g_di;
 idsgen = (NFINtotal*idsgen);
 
-d_Iii_dV_di_si = (NFINtotal*d_Iii_dV_di_si);
-d_Iii_dV_g_si = (NFINtotal*d_Iii_dV_g_si);
-d_Iii_dV_g_e = (NFINtotal*d_Iii_dV_g_e);
-d_Iii_dV_e_di = (NFINtotal*d_Iii_dV_e_di);
-d_Iii_dV_e_si = (NFINtotal*d_Iii_dV_e_si);
-d_Iii_dV_g_di = (NFINtotal*d_Iii_dV_g_di);
+d_Iii_dV_di_si = NFINtotal*d_Iii_dV_di_si;
+d_Iii_dV_g_si = NFINtotal*d_Iii_dV_g_si;
+d_Iii_dV_g_e = NFINtotal*d_Iii_dV_g_e;
+d_Iii_dV_e_di = NFINtotal*d_Iii_dV_e_di;
+d_Iii_dV_e_si = NFINtotal*d_Iii_dV_e_si;
+d_Iii_dV_g_di = NFINtotal*d_Iii_dV_g_di;
 Iii = (NFINtotal*Iii);
 
 d_igbs_dV_g_si = d_igbs_dV_di_si = d_igbs_dV_e_si = d_igbs_dV_e_di = d_igbs_dV_g_e = d_igbs_dV_g_di = d_igbs_dV_di_d = d_igbs_dV_si_s =  0.0;
@@ -20375,24 +20375,24 @@ igbd = 0.0;
 if (((model_.BULKMOD)==0))
 {
 
-d_igbs_dV_si_s = ((d_igbinv_dV_si_s+d_igbacc_dV_si_s)*wf);
-d_igbs_dV_di_d = ((d_igbinv_dV_di_d+d_igbacc_dV_di_d)*wf);
-d_igbs_dV_g_di = ((d_igbinv_dV_g_di+d_igbacc_dV_g_di)*wf);
-d_igbs_dV_g_e = ((d_igbinv_dV_g_e+d_igbacc_dV_g_e)*wf);
-d_igbs_dV_e_di = ((d_igbinv_dV_e_di+d_igbacc_dV_e_di)*wf);
-d_igbs_dV_e_si = ((d_igbinv_dV_e_si+d_igbacc_dV_e_si)*wf);
-d_igbs_dV_di_si = (((igbinv+igbacc)*d_wf_dV_di_si)+((d_igbinv_dV_di_si+d_igbacc_dV_di_si)*wf));
-d_igbs_dV_g_si = ((d_igbinv_dV_g_si+d_igbacc_dV_g_si)*wf);
+d_igbs_dV_si_s = (d_igbinv_dV_si_s+d_igbacc_dV_si_s)*wf;
+d_igbs_dV_di_d = (d_igbinv_dV_di_d+d_igbacc_dV_di_d)*wf;
+d_igbs_dV_g_di = (d_igbinv_dV_g_di+d_igbacc_dV_g_di)*wf;
+d_igbs_dV_g_e = (d_igbinv_dV_g_e+d_igbacc_dV_g_e)*wf;
+d_igbs_dV_e_di = (d_igbinv_dV_e_di+d_igbacc_dV_e_di)*wf;
+d_igbs_dV_e_si = (d_igbinv_dV_e_si+d_igbacc_dV_e_si)*wf;
+d_igbs_dV_di_si = ((igbinv+igbacc)*d_wf_dV_di_si+(d_igbinv_dV_di_si+d_igbacc_dV_di_si)*wf);
+d_igbs_dV_g_si = (d_igbinv_dV_g_si+d_igbacc_dV_g_si)*wf;
 igbs = ((igbinv+igbacc)*wf);
 
-d_igbd_dV_si_s = ((d_igbinv_dV_si_s+d_igbacc_dV_si_s)*wr);
-d_igbd_dV_di_d = ((d_igbinv_dV_di_d+d_igbacc_dV_di_d)*wr);
-d_igbd_dV_g_di = ((d_igbinv_dV_g_di+d_igbacc_dV_g_di)*wr);
-d_igbd_dV_g_e = ((d_igbinv_dV_g_e+d_igbacc_dV_g_e)*wr);
-d_igbd_dV_e_di = ((d_igbinv_dV_e_di+d_igbacc_dV_e_di)*wr);
-d_igbd_dV_e_si = ((d_igbinv_dV_e_si+d_igbacc_dV_e_si)*wr);
-d_igbd_dV_di_si = (((igbinv+igbacc)*d_wr_dV_di_si)+((d_igbinv_dV_di_si+d_igbacc_dV_di_si)*wr));
-d_igbd_dV_g_si = ((d_igbinv_dV_g_si+d_igbacc_dV_g_si)*wr);
+d_igbd_dV_si_s = (d_igbinv_dV_si_s+d_igbacc_dV_si_s)*wr;
+d_igbd_dV_di_d = (d_igbinv_dV_di_d+d_igbacc_dV_di_d)*wr;
+d_igbd_dV_g_di = (d_igbinv_dV_g_di+d_igbacc_dV_g_di)*wr;
+d_igbd_dV_g_e = (d_igbinv_dV_g_e+d_igbacc_dV_g_e)*wr;
+d_igbd_dV_e_di = (d_igbinv_dV_e_di+d_igbacc_dV_e_di)*wr;
+d_igbd_dV_e_si = (d_igbinv_dV_e_si+d_igbacc_dV_e_si)*wr;
+d_igbd_dV_di_si = ((igbinv+igbacc)*d_wr_dV_di_si+(d_igbinv_dV_di_si+d_igbacc_dV_di_si)*wr);
+d_igbd_dV_g_si = (d_igbinv_dV_g_si+d_igbacc_dV_g_si)*wr;
 igbd = ((igbinv+igbacc)*wr);
 }
 
@@ -20425,12 +20425,12 @@ T0 = (((diffVds/litl)+(model_.EM))/Esatnoi);
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(T0);
 
-d_DelClm_dV_di_si = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_di_si));
-d_DelClm_dV_g_si = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_g_si));
-d_DelClm_dV_g_e = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_g_e));
-d_DelClm_dV_e_di = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_e_di));
-d_DelClm_dV_e_si = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_e_si));
-d_DelClm_dV_g_di = (litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_g_di));
+d_DelClm_dV_di_si = litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_di_si);
+d_DelClm_dV_g_si = litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_g_si);
+d_DelClm_dV_g_e = litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_g_e);
+d_DelClm_dV_e_di = litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_e_di);
+d_DelClm_dV_e_si = litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_e_si);
+d_DelClm_dV_g_di = litl*evaluator_lln_0.getDerivs(T0,d_T0_dV_g_di);
 DelClm = (litl*evaluator_lln_0.getValues(T0));
 }
 if ((DelClm<0.0))
@@ -20445,125 +20445,125 @@ double value_fabs_0 = fabs(ids);
 double  deriv_fabs_0_d0 = (((ids)>=0)?(+1.0):(-1.0));
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_g_di = (((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_g_di)))*ueff);
-d_T1_dV_di_si = ((((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_di_si)+(((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_di_si)))*ueff));
-d_T1_dV_g_si = ((((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_g_si)+(((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_g_si)))*ueff));
-d_T1_dV_g_e = ((((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_g_e)+(((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_g_e)))*ueff));
-d_T1_dV_e_di = ((((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_e_di)+(((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_e_di)))*ueff));
-d_T1_dV_e_si = ((((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_e_si)+(((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_e_si)))*ueff));
+d_T1_dV_g_di = (((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_g_di))*ueff;
+d_T1_dV_di_si = (((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_di_si+(((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_di_si))*ueff);
+d_T1_dV_g_si = (((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_g_si+(((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_g_si))*ueff);
+d_T1_dV_g_e = (((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_g_e+(((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_g_e))*ueff);
+d_T1_dV_e_di = (((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_e_di+(((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_e_di))*ueff);
+d_T1_dV_e_si = (((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*d_ueff_dV_e_si+(((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*(deriv_fabs_0_d0*(d_ids_dV_e_si))*ueff);
 T1 = (((((1.60219e-19*1.60219e-19)*1.60219e-19)*Vtm)*value_fabs_0)*ueff);
 }
 
 d_T2_dV_g_di =  0.0;
-d_T2_dV_di_si = ((1.0e10*d_coxeff_dV_di_si)*Leffnoisq);
-d_T2_dV_g_si = ((1.0e10*d_coxeff_dV_g_si)*Leffnoisq);
-d_T2_dV_g_e = ((1.0e10*d_coxeff_dV_g_e)*Leffnoisq);
-d_T2_dV_e_di = ((1.0e10*d_coxeff_dV_e_di)*Leffnoisq);
-d_T2_dV_e_si = ((1.0e10*d_coxeff_dV_e_si)*Leffnoisq);
+d_T2_dV_di_si = 1.0e10*d_coxeff_dV_di_si*Leffnoisq;
+d_T2_dV_g_si = 1.0e10*d_coxeff_dV_g_si*Leffnoisq;
+d_T2_dV_g_e = 1.0e10*d_coxeff_dV_g_e*Leffnoisq;
+d_T2_dV_e_di = 1.0e10*d_coxeff_dV_e_di*Leffnoisq;
+d_T2_dV_e_si = 1.0e10*d_coxeff_dV_e_si*Leffnoisq;
 T2 = ((1.0e10*coxeff)*Leffnoisq);
 
-d_N0_dV_di_si = (((coxeff*d_qis_dV_di_si)+(d_coxeff_dV_di_si*qis))/1.60219e-19);
-d_N0_dV_g_si = (((coxeff*d_qis_dV_g_si)+(d_coxeff_dV_g_si*qis))/1.60219e-19);
-d_N0_dV_g_e = (((coxeff*d_qis_dV_g_e)+(d_coxeff_dV_g_e*qis))/1.60219e-19);
-d_N0_dV_e_di = (((coxeff*d_qis_dV_e_di)+(d_coxeff_dV_e_di*qis))/1.60219e-19);
-d_N0_dV_e_si = (((coxeff*d_qis_dV_e_si)+(d_coxeff_dV_e_si*qis))/1.60219e-19);
+d_N0_dV_di_si = ((coxeff*d_qis_dV_di_si+d_coxeff_dV_di_si*qis)/1.60219e-19);
+d_N0_dV_g_si = ((coxeff*d_qis_dV_g_si+d_coxeff_dV_g_si*qis)/1.60219e-19);
+d_N0_dV_g_e = ((coxeff*d_qis_dV_g_e+d_coxeff_dV_g_e*qis)/1.60219e-19);
+d_N0_dV_e_di = ((coxeff*d_qis_dV_e_di+d_coxeff_dV_e_di*qis)/1.60219e-19);
+d_N0_dV_e_si = ((coxeff*d_qis_dV_e_si+d_coxeff_dV_e_si*qis)/1.60219e-19);
 N0 = ((coxeff*qis)/1.60219e-19);
 
-d_Nl_dV_di_si = (((coxeff*d_qid_dV_di_si)+(d_coxeff_dV_di_si*qid))/1.60219e-19);
-d_Nl_dV_g_si = (((coxeff*d_qid_dV_g_si)+(d_coxeff_dV_g_si*qid))/1.60219e-19);
-d_Nl_dV_g_e = (((coxeff*d_qid_dV_g_e)+(d_coxeff_dV_g_e*qid))/1.60219e-19);
-d_Nl_dV_e_di = (((coxeff*d_qid_dV_e_di)+(d_coxeff_dV_e_di*qid))/1.60219e-19);
-d_Nl_dV_e_si = (((coxeff*d_qid_dV_e_si)+(d_coxeff_dV_e_si*qid))/1.60219e-19);
+d_Nl_dV_di_si = ((coxeff*d_qid_dV_di_si+d_coxeff_dV_di_si*qid)/1.60219e-19);
+d_Nl_dV_g_si = ((coxeff*d_qid_dV_g_si+d_coxeff_dV_g_si*qid)/1.60219e-19);
+d_Nl_dV_g_e = ((coxeff*d_qid_dV_g_e+d_coxeff_dV_g_e*qid)/1.60219e-19);
+d_Nl_dV_e_di = ((coxeff*d_qid_dV_e_di+d_coxeff_dV_e_di*qid)/1.60219e-19);
+d_Nl_dV_e_si = ((coxeff*d_qid_dV_e_si+d_coxeff_dV_e_si*qid)/1.60219e-19);
 Nl = ((coxeff*qid)/1.60219e-19);
 
-d_Nstar_dV_di_si = ((Vtm/1.60219e-19)*d_coxeff_dV_di_si);
-d_Nstar_dV_g_si = ((Vtm/1.60219e-19)*d_coxeff_dV_g_si);
-d_Nstar_dV_g_e = ((Vtm/1.60219e-19)*d_coxeff_dV_g_e);
-d_Nstar_dV_e_di = ((Vtm/1.60219e-19)*d_coxeff_dV_e_di);
-d_Nstar_dV_e_si = ((Vtm/1.60219e-19)*d_coxeff_dV_e_si);
+d_Nstar_dV_di_si = (Vtm/1.60219e-19)*d_coxeff_dV_di_si;
+d_Nstar_dV_g_si = (Vtm/1.60219e-19)*d_coxeff_dV_g_si;
+d_Nstar_dV_g_e = (Vtm/1.60219e-19)*d_coxeff_dV_g_e;
+d_Nstar_dV_e_di = (Vtm/1.60219e-19)*d_coxeff_dV_e_di;
+d_Nstar_dV_e_si = (Vtm/1.60219e-19)*d_coxeff_dV_e_si;
 Nstar = ((Vtm/1.60219e-19)*(coxeff+CIT_i));
 {
 AnalogFunctions::llnEvaluator evaluator_lln_0(((N0+Nstar)/(Nl+Nstar)));
 
 d_T3_dV_g_di =  0.0;
-d_T3_dV_di_si = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_di_si+d_Nstar_dV_di_si)-(N0+Nstar)*(d_Nl_dV_di_si+d_Nstar_dV_di_si))/(Nl+Nstar)/(Nl+Nstar))));
-d_T3_dV_g_si = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_g_si+d_Nstar_dV_g_si)-(N0+Nstar)*(d_Nl_dV_g_si+d_Nstar_dV_g_si))/(Nl+Nstar)/(Nl+Nstar))));
-d_T3_dV_g_e = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_g_e+d_Nstar_dV_g_e)-(N0+Nstar)*(d_Nl_dV_g_e+d_Nstar_dV_g_e))/(Nl+Nstar)/(Nl+Nstar))));
-d_T3_dV_e_di = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_e_di+d_Nstar_dV_e_di)-(N0+Nstar)*(d_Nl_dV_e_di+d_Nstar_dV_e_di))/(Nl+Nstar)/(Nl+Nstar))));
-d_T3_dV_e_si = ((model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_e_si+d_Nstar_dV_e_si)-(N0+Nstar)*(d_Nl_dV_e_si+d_Nstar_dV_e_si))/(Nl+Nstar)/(Nl+Nstar))));
+d_T3_dV_di_si = (model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_di_si+d_Nstar_dV_di_si)-(N0+Nstar)*(d_Nl_dV_di_si+d_Nstar_dV_di_si))/(Nl+Nstar)/(Nl+Nstar)));
+d_T3_dV_g_si = (model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_g_si+d_Nstar_dV_g_si)-(N0+Nstar)*(d_Nl_dV_g_si+d_Nstar_dV_g_si))/(Nl+Nstar)/(Nl+Nstar)));
+d_T3_dV_g_e = (model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_g_e+d_Nstar_dV_g_e)-(N0+Nstar)*(d_Nl_dV_g_e+d_Nstar_dV_g_e))/(Nl+Nstar)/(Nl+Nstar)));
+d_T3_dV_e_di = (model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_e_di+d_Nstar_dV_e_di)-(N0+Nstar)*(d_Nl_dV_e_di+d_Nstar_dV_e_di))/(Nl+Nstar)/(Nl+Nstar)));
+d_T3_dV_e_si = (model_.NOIA)*evaluator_lln_0.getDerivs(((N0+Nstar)/(Nl+Nstar)),(((Nl+Nstar)*(d_N0_dV_e_si+d_Nstar_dV_e_si)-(N0+Nstar)*(d_Nl_dV_e_si+d_Nstar_dV_e_si))/(Nl+Nstar)/(Nl+Nstar)));
 T3 = ((model_.NOIA)*evaluator_lln_0.getValues(((N0+Nstar)/(Nl+Nstar))));
 }
 
 d_T4_dV_g_di =  0.0;
-d_T4_dV_di_si = ((model_.NOIB)*(d_N0_dV_di_si-d_Nl_dV_di_si));
-d_T4_dV_g_si = ((model_.NOIB)*(d_N0_dV_g_si-d_Nl_dV_g_si));
-d_T4_dV_g_e = ((model_.NOIB)*(d_N0_dV_g_e-d_Nl_dV_g_e));
-d_T4_dV_e_di = ((model_.NOIB)*(d_N0_dV_e_di-d_Nl_dV_e_di));
-d_T4_dV_e_si = ((model_.NOIB)*(d_N0_dV_e_si-d_Nl_dV_e_si));
+d_T4_dV_di_si = (model_.NOIB)*(d_N0_dV_di_si-d_Nl_dV_di_si);
+d_T4_dV_g_si = (model_.NOIB)*(d_N0_dV_g_si-d_Nl_dV_g_si);
+d_T4_dV_g_e = (model_.NOIB)*(d_N0_dV_g_e-d_Nl_dV_g_e);
+d_T4_dV_e_di = (model_.NOIB)*(d_N0_dV_e_di-d_Nl_dV_e_di);
+d_T4_dV_e_si = (model_.NOIB)*(d_N0_dV_e_si-d_Nl_dV_e_si);
 T4 = ((model_.NOIB)*(N0-Nl));
 
 d_T5_dV_g_di = d_T5_dV_di_d = d_T5_dV_si_s =  0.0;
-d_T5_dV_di_si = ((0.5*(model_.NOIC))*(((N0*d_N0_dV_di_si)+(d_N0_dV_di_si*N0))-((Nl*d_Nl_dV_di_si)+(d_Nl_dV_di_si*Nl))));
-d_T5_dV_g_si = ((0.5*(model_.NOIC))*(((N0*d_N0_dV_g_si)+(d_N0_dV_g_si*N0))-((Nl*d_Nl_dV_g_si)+(d_Nl_dV_g_si*Nl))));
-d_T5_dV_g_e = ((0.5*(model_.NOIC))*(((N0*d_N0_dV_g_e)+(d_N0_dV_g_e*N0))-((Nl*d_Nl_dV_g_e)+(d_Nl_dV_g_e*Nl))));
-d_T5_dV_e_di = ((0.5*(model_.NOIC))*(((N0*d_N0_dV_e_di)+(d_N0_dV_e_di*N0))-((Nl*d_Nl_dV_e_di)+(d_Nl_dV_e_di*Nl))));
-d_T5_dV_e_si = ((0.5*(model_.NOIC))*(((N0*d_N0_dV_e_si)+(d_N0_dV_e_si*N0))-((Nl*d_Nl_dV_e_si)+(d_Nl_dV_e_si*Nl))));
+d_T5_dV_di_si = (0.5*(model_.NOIC))*((N0*d_N0_dV_di_si+d_N0_dV_di_si*N0)-(Nl*d_Nl_dV_di_si+d_Nl_dV_di_si*Nl));
+d_T5_dV_g_si = (0.5*(model_.NOIC))*((N0*d_N0_dV_g_si+d_N0_dV_g_si*N0)-(Nl*d_Nl_dV_g_si+d_Nl_dV_g_si*Nl));
+d_T5_dV_g_e = (0.5*(model_.NOIC))*((N0*d_N0_dV_g_e+d_N0_dV_g_e*N0)-(Nl*d_Nl_dV_g_e+d_Nl_dV_g_e*Nl));
+d_T5_dV_e_di = (0.5*(model_.NOIC))*((N0*d_N0_dV_e_di+d_N0_dV_e_di*N0)-(Nl*d_Nl_dV_e_di+d_Nl_dV_e_di*Nl));
+d_T5_dV_e_si = (0.5*(model_.NOIC))*((N0*d_N0_dV_e_si+d_N0_dV_e_si*N0)-(Nl*d_Nl_dV_e_si+d_Nl_dV_e_si*Nl));
 T5 = ((0.5*(model_.NOIC))*((N0*N0)-(Nl*Nl)));
 
 d_T6_dV_di_d = d_T6_dV_si_s =  0.0;
-d_T6_dV_g_di = ((((1.60219e-19*Vtm)*ids)*d_ids_dV_g_di)+(((1.60219e-19*Vtm)*d_ids_dV_g_di)*ids));
-d_T6_dV_di_si = ((((1.60219e-19*Vtm)*ids)*d_ids_dV_di_si)+(((1.60219e-19*Vtm)*d_ids_dV_di_si)*ids));
-d_T6_dV_g_si = ((((1.60219e-19*Vtm)*ids)*d_ids_dV_g_si)+(((1.60219e-19*Vtm)*d_ids_dV_g_si)*ids));
-d_T6_dV_g_e = ((((1.60219e-19*Vtm)*ids)*d_ids_dV_g_e)+(((1.60219e-19*Vtm)*d_ids_dV_g_e)*ids));
-d_T6_dV_e_di = ((((1.60219e-19*Vtm)*ids)*d_ids_dV_e_di)+(((1.60219e-19*Vtm)*d_ids_dV_e_di)*ids));
-d_T6_dV_e_si = ((((1.60219e-19*Vtm)*ids)*d_ids_dV_e_si)+(((1.60219e-19*Vtm)*d_ids_dV_e_si)*ids));
+d_T6_dV_g_di = (((1.60219e-19*Vtm)*ids)*d_ids_dV_g_di+(1.60219e-19*Vtm)*d_ids_dV_g_di*ids);
+d_T6_dV_di_si = (((1.60219e-19*Vtm)*ids)*d_ids_dV_di_si+(1.60219e-19*Vtm)*d_ids_dV_di_si*ids);
+d_T6_dV_g_si = (((1.60219e-19*Vtm)*ids)*d_ids_dV_g_si+(1.60219e-19*Vtm)*d_ids_dV_g_si*ids);
+d_T6_dV_g_e = (((1.60219e-19*Vtm)*ids)*d_ids_dV_g_e+(1.60219e-19*Vtm)*d_ids_dV_g_e*ids);
+d_T6_dV_e_di = (((1.60219e-19*Vtm)*ids)*d_ids_dV_e_di+(1.60219e-19*Vtm)*d_ids_dV_e_di*ids);
+d_T6_dV_e_si = (((1.60219e-19*Vtm)*ids)*d_ids_dV_e_si+(1.60219e-19*Vtm)*d_ids_dV_e_si*ids);
 T6 = (((1.60219e-19*Vtm)*ids)*ids);
 
-d_T7_dV_di_si = (((1.0e10*Leffnoisq)*d_Weff_dV_di_si)*NFINtotal);
-d_T7_dV_g_si = (((1.0e10*Leffnoisq)*d_Weff_dV_g_si)*NFINtotal);
-d_T7_dV_g_e = (((1.0e10*Leffnoisq)*d_Weff_dV_g_e)*NFINtotal);
-d_T7_dV_e_di = (((1.0e10*Leffnoisq)*d_Weff_dV_e_di)*NFINtotal);
-d_T7_dV_e_si = (((1.0e10*Leffnoisq)*d_Weff_dV_e_si)*NFINtotal);
+d_T7_dV_di_si = (1.0e10*Leffnoisq)*d_Weff_dV_di_si*NFINtotal;
+d_T7_dV_g_si = (1.0e10*Leffnoisq)*d_Weff_dV_g_si*NFINtotal;
+d_T7_dV_g_e = (1.0e10*Leffnoisq)*d_Weff_dV_g_e*NFINtotal;
+d_T7_dV_e_di = (1.0e10*Leffnoisq)*d_Weff_dV_e_di*NFINtotal;
+d_T7_dV_e_si = (1.0e10*Leffnoisq)*d_Weff_dV_e_si*NFINtotal;
 T7 = (((1.0e10*Leffnoisq)*Weff)*NFINtotal);
 
-d_T8_dV_di_si = (((model_.NOIB)*d_Nl_dV_di_si)+((((model_.NOIC)*Nl)*d_Nl_dV_di_si)+(((model_.NOIC)*d_Nl_dV_di_si)*Nl)));
-d_T8_dV_g_si = (((model_.NOIB)*d_Nl_dV_g_si)+((((model_.NOIC)*Nl)*d_Nl_dV_g_si)+(((model_.NOIC)*d_Nl_dV_g_si)*Nl)));
-d_T8_dV_g_e = (((model_.NOIB)*d_Nl_dV_g_e)+((((model_.NOIC)*Nl)*d_Nl_dV_g_e)+(((model_.NOIC)*d_Nl_dV_g_e)*Nl)));
-d_T8_dV_e_di = (((model_.NOIB)*d_Nl_dV_e_di)+((((model_.NOIC)*Nl)*d_Nl_dV_e_di)+(((model_.NOIC)*d_Nl_dV_e_di)*Nl)));
-d_T8_dV_e_si = (((model_.NOIB)*d_Nl_dV_e_si)+((((model_.NOIC)*Nl)*d_Nl_dV_e_si)+(((model_.NOIC)*d_Nl_dV_e_si)*Nl)));
+d_T8_dV_di_si = ((model_.NOIB)*d_Nl_dV_di_si+(((model_.NOIC)*Nl)*d_Nl_dV_di_si+(model_.NOIC)*d_Nl_dV_di_si*Nl));
+d_T8_dV_g_si = ((model_.NOIB)*d_Nl_dV_g_si+(((model_.NOIC)*Nl)*d_Nl_dV_g_si+(model_.NOIC)*d_Nl_dV_g_si*Nl));
+d_T8_dV_g_e = ((model_.NOIB)*d_Nl_dV_g_e+(((model_.NOIC)*Nl)*d_Nl_dV_g_e+(model_.NOIC)*d_Nl_dV_g_e*Nl));
+d_T8_dV_e_di = ((model_.NOIB)*d_Nl_dV_e_di+(((model_.NOIC)*Nl)*d_Nl_dV_e_di+(model_.NOIC)*d_Nl_dV_e_di*Nl));
+d_T8_dV_e_si = ((model_.NOIB)*d_Nl_dV_e_si+(((model_.NOIC)*Nl)*d_Nl_dV_e_si+(model_.NOIC)*d_Nl_dV_e_si*Nl));
 T8 = (((model_.NOIA)+((model_.NOIB)*Nl))+(((model_.NOIC)*Nl)*Nl));
 
-d_T9_dV_di_si = (((Nl+Nstar)*(d_Nl_dV_di_si+d_Nstar_dV_di_si))+((d_Nl_dV_di_si+d_Nstar_dV_di_si)*(Nl+Nstar)));
-d_T9_dV_g_si = (((Nl+Nstar)*(d_Nl_dV_g_si+d_Nstar_dV_g_si))+((d_Nl_dV_g_si+d_Nstar_dV_g_si)*(Nl+Nstar)));
-d_T9_dV_g_e = (((Nl+Nstar)*(d_Nl_dV_g_e+d_Nstar_dV_g_e))+((d_Nl_dV_g_e+d_Nstar_dV_g_e)*(Nl+Nstar)));
-d_T9_dV_e_di = (((Nl+Nstar)*(d_Nl_dV_e_di+d_Nstar_dV_e_di))+((d_Nl_dV_e_di+d_Nstar_dV_e_di)*(Nl+Nstar)));
-d_T9_dV_e_si = (((Nl+Nstar)*(d_Nl_dV_e_si+d_Nstar_dV_e_si))+((d_Nl_dV_e_si+d_Nstar_dV_e_si)*(Nl+Nstar)));
+d_T9_dV_di_si = ((Nl+Nstar)*(d_Nl_dV_di_si+d_Nstar_dV_di_si)+(d_Nl_dV_di_si+d_Nstar_dV_di_si)*(Nl+Nstar));
+d_T9_dV_g_si = ((Nl+Nstar)*(d_Nl_dV_g_si+d_Nstar_dV_g_si)+(d_Nl_dV_g_si+d_Nstar_dV_g_si)*(Nl+Nstar));
+d_T9_dV_g_e = ((Nl+Nstar)*(d_Nl_dV_g_e+d_Nstar_dV_g_e)+(d_Nl_dV_g_e+d_Nstar_dV_g_e)*(Nl+Nstar));
+d_T9_dV_e_di = ((Nl+Nstar)*(d_Nl_dV_e_di+d_Nstar_dV_e_di)+(d_Nl_dV_e_di+d_Nstar_dV_e_di)*(Nl+Nstar));
+d_T9_dV_e_si = ((Nl+Nstar)*(d_Nl_dV_e_si+d_Nstar_dV_e_si)+(d_Nl_dV_e_si+d_Nstar_dV_e_si)*(Nl+Nstar));
 T9 = ((Nl+Nstar)*(Nl+Nstar));
 
-d_Ssi_dV_si_s = ((((T1/T2)*d_T5_dV_si_s)+((d_T1_dV_si_s/T2)*((T3+T4)+T5)))+((((d_T6_dV_si_s/T7)*DelClm)*T8)/T9));
-d_Ssi_dV_di_d = ((((T1/T2)*d_T5_dV_di_d)+((d_T1_dV_di_d/T2)*((T3+T4)+T5)))+((((d_T6_dV_di_d/T7)*DelClm)*T8)/T9));
-d_Ssi_dV_di_si = ((((T1/T2)*((d_T3_dV_di_si+d_T4_dV_di_si)+d_T5_dV_di_si))+(((T2*d_T1_dV_di_si-T1*d_T2_dV_di_si)/T2/T2)*((T3+T4)+T5)))+((T9*((((T6/T7)*DelClm)*d_T8_dV_di_si)+((((T6/T7)*d_DelClm_dV_di_si)+(((T7*d_T6_dV_di_si-T6*d_T7_dV_di_si)/T7/T7)*DelClm))*T8))-(((T6/T7)*DelClm)*T8)*d_T9_dV_di_si)/T9/T9));
-d_Ssi_dV_g_si = ((((T1/T2)*((d_T3_dV_g_si+d_T4_dV_g_si)+d_T5_dV_g_si))+(((T2*d_T1_dV_g_si-T1*d_T2_dV_g_si)/T2/T2)*((T3+T4)+T5)))+((T9*((((T6/T7)*DelClm)*d_T8_dV_g_si)+((((T6/T7)*d_DelClm_dV_g_si)+(((T7*d_T6_dV_g_si-T6*d_T7_dV_g_si)/T7/T7)*DelClm))*T8))-(((T6/T7)*DelClm)*T8)*d_T9_dV_g_si)/T9/T9));
-d_Ssi_dV_g_e = ((((T1/T2)*((d_T3_dV_g_e+d_T4_dV_g_e)+d_T5_dV_g_e))+(((T2*d_T1_dV_g_e-T1*d_T2_dV_g_e)/T2/T2)*((T3+T4)+T5)))+((T9*((((T6/T7)*DelClm)*d_T8_dV_g_e)+((((T6/T7)*d_DelClm_dV_g_e)+(((T7*d_T6_dV_g_e-T6*d_T7_dV_g_e)/T7/T7)*DelClm))*T8))-(((T6/T7)*DelClm)*T8)*d_T9_dV_g_e)/T9/T9));
-d_Ssi_dV_e_di = ((((T1/T2)*((d_T3_dV_e_di+d_T4_dV_e_di)+d_T5_dV_e_di))+(((T2*d_T1_dV_e_di-T1*d_T2_dV_e_di)/T2/T2)*((T3+T4)+T5)))+((T9*((((T6/T7)*DelClm)*d_T8_dV_e_di)+((((T6/T7)*d_DelClm_dV_e_di)+(((T7*d_T6_dV_e_di-T6*d_T7_dV_e_di)/T7/T7)*DelClm))*T8))-(((T6/T7)*DelClm)*T8)*d_T9_dV_e_di)/T9/T9));
-d_Ssi_dV_e_si = ((((T1/T2)*((d_T3_dV_e_si+d_T4_dV_e_si)+d_T5_dV_e_si))+(((T2*d_T1_dV_e_si-T1*d_T2_dV_e_si)/T2/T2)*((T3+T4)+T5)))+((T9*((((T6/T7)*DelClm)*d_T8_dV_e_si)+((((T6/T7)*d_DelClm_dV_e_si)+(((T7*d_T6_dV_e_si-T6*d_T7_dV_e_si)/T7/T7)*DelClm))*T8))-(((T6/T7)*DelClm)*T8)*d_T9_dV_e_si)/T9/T9));
-d_Ssi_dV_g_di = ((((T1/T2)*((d_T3_dV_g_di+d_T4_dV_g_di)+d_T5_dV_g_di))+(((T2*d_T1_dV_g_di-T1*d_T2_dV_g_di)/T2/T2)*((T3+T4)+T5)))+(((((T6/T7)*d_DelClm_dV_g_di)+((d_T6_dV_g_di/T7)*DelClm))*T8)/T9));
+d_Ssi_dV_si_s = (((T1/T2)*d_T5_dV_si_s+(d_T1_dV_si_s/T2)*((T3+T4)+T5))+((d_T6_dV_si_s/T7)*DelClm*T8/T9));
+d_Ssi_dV_di_d = (((T1/T2)*d_T5_dV_di_d+(d_T1_dV_di_d/T2)*((T3+T4)+T5))+((d_T6_dV_di_d/T7)*DelClm*T8/T9));
+d_Ssi_dV_di_si = (((T1/T2)*((d_T3_dV_di_si+d_T4_dV_di_si)+d_T5_dV_di_si)+((T2*d_T1_dV_di_si-T1*d_T2_dV_di_si)/T2/T2)*((T3+T4)+T5))+((T9*(((T6/T7)*DelClm)*d_T8_dV_di_si+((T6/T7)*d_DelClm_dV_di_si+((T7*d_T6_dV_di_si-T6*d_T7_dV_di_si)/T7/T7)*DelClm)*T8)-(((T6/T7)*DelClm)*T8)*d_T9_dV_di_si)/T9/T9));
+d_Ssi_dV_g_si = (((T1/T2)*((d_T3_dV_g_si+d_T4_dV_g_si)+d_T5_dV_g_si)+((T2*d_T1_dV_g_si-T1*d_T2_dV_g_si)/T2/T2)*((T3+T4)+T5))+((T9*(((T6/T7)*DelClm)*d_T8_dV_g_si+((T6/T7)*d_DelClm_dV_g_si+((T7*d_T6_dV_g_si-T6*d_T7_dV_g_si)/T7/T7)*DelClm)*T8)-(((T6/T7)*DelClm)*T8)*d_T9_dV_g_si)/T9/T9));
+d_Ssi_dV_g_e = (((T1/T2)*((d_T3_dV_g_e+d_T4_dV_g_e)+d_T5_dV_g_e)+((T2*d_T1_dV_g_e-T1*d_T2_dV_g_e)/T2/T2)*((T3+T4)+T5))+((T9*(((T6/T7)*DelClm)*d_T8_dV_g_e+((T6/T7)*d_DelClm_dV_g_e+((T7*d_T6_dV_g_e-T6*d_T7_dV_g_e)/T7/T7)*DelClm)*T8)-(((T6/T7)*DelClm)*T8)*d_T9_dV_g_e)/T9/T9));
+d_Ssi_dV_e_di = (((T1/T2)*((d_T3_dV_e_di+d_T4_dV_e_di)+d_T5_dV_e_di)+((T2*d_T1_dV_e_di-T1*d_T2_dV_e_di)/T2/T2)*((T3+T4)+T5))+((T9*(((T6/T7)*DelClm)*d_T8_dV_e_di+((T6/T7)*d_DelClm_dV_e_di+((T7*d_T6_dV_e_di-T6*d_T7_dV_e_di)/T7/T7)*DelClm)*T8)-(((T6/T7)*DelClm)*T8)*d_T9_dV_e_di)/T9/T9));
+d_Ssi_dV_e_si = (((T1/T2)*((d_T3_dV_e_si+d_T4_dV_e_si)+d_T5_dV_e_si)+((T2*d_T1_dV_e_si-T1*d_T2_dV_e_si)/T2/T2)*((T3+T4)+T5))+((T9*(((T6/T7)*DelClm)*d_T8_dV_e_si+((T6/T7)*d_DelClm_dV_e_si+((T7*d_T6_dV_e_si-T6*d_T7_dV_e_si)/T7/T7)*DelClm)*T8)-(((T6/T7)*DelClm)*T8)*d_T9_dV_e_si)/T9/T9));
+d_Ssi_dV_g_di = (((T1/T2)*((d_T3_dV_g_di+d_T4_dV_g_di)+d_T5_dV_g_di)+((T2*d_T1_dV_g_di-T1*d_T2_dV_g_di)/T2/T2)*((T3+T4)+T5))+(((T6/T7)*d_DelClm_dV_g_di+(d_T6_dV_g_di/T7)*DelClm)*T8/T9));
 Ssi = (((T1/T2)*((T3+T4)+T5))+((((T6/T7)*DelClm)*T8)/T9));
 T10 = (((model_.NOIA)*1.60219e-19)*Vtm);
 
-d_T11_dV_di_si = ((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_di_si)+((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_di_si)+((((d_Weff_dV_di_si*NFINtotal)*Leffnoi)*1.0e10)*Nstar))*Nstar));
-d_T11_dV_g_si = ((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_g_si)+((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_g_si)+((((d_Weff_dV_g_si*NFINtotal)*Leffnoi)*1.0e10)*Nstar))*Nstar));
-d_T11_dV_g_e = ((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_g_e)+((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_g_e)+((((d_Weff_dV_g_e*NFINtotal)*Leffnoi)*1.0e10)*Nstar))*Nstar));
-d_T11_dV_e_di = ((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_e_di)+((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_e_di)+((((d_Weff_dV_e_di*NFINtotal)*Leffnoi)*1.0e10)*Nstar))*Nstar));
-d_T11_dV_e_si = ((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_e_si)+((((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_e_si)+((((d_Weff_dV_e_si*NFINtotal)*Leffnoi)*1.0e10)*Nstar))*Nstar));
+d_T11_dV_di_si = (((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_di_si+((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_di_si+d_Weff_dV_di_si*NFINtotal*Leffnoi*1.0e10*Nstar)*Nstar);
+d_T11_dV_g_si = (((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_g_si+((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_g_si+d_Weff_dV_g_si*NFINtotal*Leffnoi*1.0e10*Nstar)*Nstar);
+d_T11_dV_g_e = (((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_g_e+((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_g_e+d_Weff_dV_g_e*NFINtotal*Leffnoi*1.0e10*Nstar)*Nstar);
+d_T11_dV_e_di = (((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_e_di+((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_e_di+d_Weff_dV_e_di*NFINtotal*Leffnoi*1.0e10*Nstar)*Nstar);
+d_T11_dV_e_si = (((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*d_Nstar_dV_e_si+((((Weff*NFINtotal)*Leffnoi)*1.0e10)*d_Nstar_dV_e_si+d_Weff_dV_e_si*NFINtotal*Leffnoi*1.0e10*Nstar)*Nstar);
 T11 = (((((Weff*NFINtotal)*Leffnoi)*1.0e10)*Nstar)*Nstar);
 
-d_Swi_dV_g_di = ((((T10/T11)*ids)*d_ids_dV_g_di)+(((T10/T11)*d_ids_dV_g_di)*ids));
-d_Swi_dV_di_si = ((((T10/T11)*ids)*d_ids_dV_di_si)+((((T10/T11)*d_ids_dV_di_si)+((-T10*d_T11_dV_di_si/T11/T11)*ids))*ids));
-d_Swi_dV_g_si = ((((T10/T11)*ids)*d_ids_dV_g_si)+((((T10/T11)*d_ids_dV_g_si)+((-T10*d_T11_dV_g_si/T11/T11)*ids))*ids));
-d_Swi_dV_g_e = ((((T10/T11)*ids)*d_ids_dV_g_e)+((((T10/T11)*d_ids_dV_g_e)+((-T10*d_T11_dV_g_e/T11/T11)*ids))*ids));
-d_Swi_dV_e_di = ((((T10/T11)*ids)*d_ids_dV_e_di)+((((T10/T11)*d_ids_dV_e_di)+((-T10*d_T11_dV_e_di/T11/T11)*ids))*ids));
-d_Swi_dV_e_si = ((((T10/T11)*ids)*d_ids_dV_e_si)+((((T10/T11)*d_ids_dV_e_si)+((-T10*d_T11_dV_e_si/T11/T11)*ids))*ids));
+d_Swi_dV_g_di = (((T10/T11)*ids)*d_ids_dV_g_di+(T10/T11)*d_ids_dV_g_di*ids);
+d_Swi_dV_di_si = (((T10/T11)*ids)*d_ids_dV_di_si+((T10/T11)*d_ids_dV_di_si+(-T10*d_T11_dV_di_si/T11/T11)*ids)*ids);
+d_Swi_dV_g_si = (((T10/T11)*ids)*d_ids_dV_g_si+((T10/T11)*d_ids_dV_g_si+(-T10*d_T11_dV_g_si/T11/T11)*ids)*ids);
+d_Swi_dV_g_e = (((T10/T11)*ids)*d_ids_dV_g_e+((T10/T11)*d_ids_dV_g_e+(-T10*d_T11_dV_g_e/T11/T11)*ids)*ids);
+d_Swi_dV_e_di = (((T10/T11)*ids)*d_ids_dV_e_di+((T10/T11)*d_ids_dV_e_di+(-T10*d_T11_dV_e_di/T11/T11)*ids)*ids);
+d_Swi_dV_e_si = (((T10/T11)*ids)*d_ids_dV_e_si+((T10/T11)*d_ids_dV_e_si+(-T10*d_T11_dV_e_si/T11/T11)*ids)*ids);
 Swi = (((T10/T11)*ids)*ids);
 
 d_T1_dV_si_s = d_Ssi_dV_si_s;
@@ -20578,14 +20578,14 @@ T1 = (Swi+Ssi);
 if ((T1>0.0))
 {
 
-d_FNPowerAt1Hz_dV_si_s = ((T1*(d_Ssi_dV_si_s*Swi)-(Ssi*Swi)*d_T1_dV_si_s)/T1/T1);
-d_FNPowerAt1Hz_dV_di_d = ((T1*(d_Ssi_dV_di_d*Swi)-(Ssi*Swi)*d_T1_dV_di_d)/T1/T1);
-d_FNPowerAt1Hz_dV_di_si = ((T1*((Ssi*d_Swi_dV_di_si)+(d_Ssi_dV_di_si*Swi))-(Ssi*Swi)*d_T1_dV_di_si)/T1/T1);
-d_FNPowerAt1Hz_dV_g_si = ((T1*((Ssi*d_Swi_dV_g_si)+(d_Ssi_dV_g_si*Swi))-(Ssi*Swi)*d_T1_dV_g_si)/T1/T1);
-d_FNPowerAt1Hz_dV_g_e = ((T1*((Ssi*d_Swi_dV_g_e)+(d_Ssi_dV_g_e*Swi))-(Ssi*Swi)*d_T1_dV_g_e)/T1/T1);
-d_FNPowerAt1Hz_dV_e_di = ((T1*((Ssi*d_Swi_dV_e_di)+(d_Ssi_dV_e_di*Swi))-(Ssi*Swi)*d_T1_dV_e_di)/T1/T1);
-d_FNPowerAt1Hz_dV_e_si = ((T1*((Ssi*d_Swi_dV_e_si)+(d_Ssi_dV_e_si*Swi))-(Ssi*Swi)*d_T1_dV_e_si)/T1/T1);
-d_FNPowerAt1Hz_dV_g_di = ((T1*((Ssi*d_Swi_dV_g_di)+(d_Ssi_dV_g_di*Swi))-(Ssi*Swi)*d_T1_dV_g_di)/T1/T1);
+d_FNPowerAt1Hz_dV_si_s = ((T1*d_Ssi_dV_si_s*Swi-(Ssi*Swi)*d_T1_dV_si_s)/T1/T1);
+d_FNPowerAt1Hz_dV_di_d = ((T1*d_Ssi_dV_di_d*Swi-(Ssi*Swi)*d_T1_dV_di_d)/T1/T1);
+d_FNPowerAt1Hz_dV_di_si = ((T1*(Ssi*d_Swi_dV_di_si+d_Ssi_dV_di_si*Swi)-(Ssi*Swi)*d_T1_dV_di_si)/T1/T1);
+d_FNPowerAt1Hz_dV_g_si = ((T1*(Ssi*d_Swi_dV_g_si+d_Ssi_dV_g_si*Swi)-(Ssi*Swi)*d_T1_dV_g_si)/T1/T1);
+d_FNPowerAt1Hz_dV_g_e = ((T1*(Ssi*d_Swi_dV_g_e+d_Ssi_dV_g_e*Swi)-(Ssi*Swi)*d_T1_dV_g_e)/T1/T1);
+d_FNPowerAt1Hz_dV_e_di = ((T1*(Ssi*d_Swi_dV_e_di+d_Ssi_dV_e_di*Swi)-(Ssi*Swi)*d_T1_dV_e_di)/T1/T1);
+d_FNPowerAt1Hz_dV_e_si = ((T1*(Ssi*d_Swi_dV_e_si+d_Ssi_dV_e_si*Swi)-(Ssi*Swi)*d_T1_dV_e_si)/T1/T1);
+d_FNPowerAt1Hz_dV_g_di = ((T1*(Ssi*d_Swi_dV_g_di+d_Ssi_dV_g_di*Swi)-(Ssi*Swi)*d_T1_dV_g_di)/T1/T1);
 FNPowerAt1Hz = ((Ssi*Swi)/T1);
 }
 else
@@ -20602,41 +20602,41 @@ d_FNPowerAt1Hz_dV_g_di = d_FNPowerAt1Hz_dV_e_si = d_FNPowerAt1Hz_dV_e_di = d_FNP
 FNPowerAt1Hz = 0.0;
 }
 
-d_T0_dV_g_di = (ueff*d_qinv_dV_g_di);
-d_T0_dV_di_si = ((ueff*d_qinv_dV_di_si)+(d_ueff_dV_di_si*qinv));
-d_T0_dV_e_di = ((ueff*d_qinv_dV_e_di)+(d_ueff_dV_e_di*qinv));
-d_T0_dV_e_si = ((ueff*d_qinv_dV_e_si)+(d_ueff_dV_e_si*qinv));
-d_T0_dV_g_si = ((ueff*d_qinv_dV_g_si)+(d_ueff_dV_g_si*qinv));
-d_T0_dV_g_e = ((ueff*d_qinv_dV_g_e)+(d_ueff_dV_g_e*qinv));
+d_T0_dV_g_di = ueff*d_qinv_dV_g_di;
+d_T0_dV_di_si = (ueff*d_qinv_dV_di_si+d_ueff_dV_di_si*qinv);
+d_T0_dV_e_di = (ueff*d_qinv_dV_e_di+d_ueff_dV_e_di*qinv);
+d_T0_dV_e_si = (ueff*d_qinv_dV_e_si+d_ueff_dV_e_si*qinv);
+d_T0_dV_g_si = (ueff*d_qinv_dV_g_si+d_ueff_dV_g_si*qinv);
+d_T0_dV_g_e = (ueff*d_qinv_dV_g_e+d_ueff_dV_g_e*qinv);
 T0 = (ueff*qinv);
 
 d_T1_dV_di_d = d_T1_dV_si_s =  0.0;
-d_T1_dV_di_si = ((T0*d_Rdsi_dV_di_si)+(d_T0_dV_di_si*Rdsi));
-d_T1_dV_g_si = ((T0*d_Rdsi_dV_g_si)+(d_T0_dV_g_si*Rdsi));
-d_T1_dV_g_e = ((T0*d_Rdsi_dV_g_e)+(d_T0_dV_g_e*Rdsi));
-d_T1_dV_e_di = ((T0*d_Rdsi_dV_e_di)+(d_T0_dV_e_di*Rdsi));
-d_T1_dV_e_si = ((T0*d_Rdsi_dV_e_si)+(d_T0_dV_e_si*Rdsi));
-d_T1_dV_g_di = ((T0*d_Rdsi_dV_g_di)+(d_T0_dV_g_di*Rdsi));
+d_T1_dV_di_si = (T0*d_Rdsi_dV_di_si+d_T0_dV_di_si*Rdsi);
+d_T1_dV_g_si = (T0*d_Rdsi_dV_g_si+d_T0_dV_g_si*Rdsi);
+d_T1_dV_g_e = (T0*d_Rdsi_dV_g_e+d_T0_dV_g_e*Rdsi);
+d_T1_dV_e_di = (T0*d_Rdsi_dV_e_di+d_T0_dV_e_di*Rdsi);
+d_T1_dV_e_si = (T0*d_Rdsi_dV_e_si+d_T0_dV_e_si*Rdsi);
+d_T1_dV_g_di = (T0*d_Rdsi_dV_g_di+d_T0_dV_g_di*Rdsi);
 T1 = ((T0*Rdsi)+(Leff*Leff));
 
-d_Gtnoi_dV_si_s = ((-T0*d_T1_dV_si_s/T1/T1)*NTNOI_i);
-d_Gtnoi_dV_di_d = ((-T0*d_T1_dV_di_d/T1/T1)*NTNOI_i);
-d_Gtnoi_dV_di_si = (((T1*d_T0_dV_di_si-T0*d_T1_dV_di_si)/T1/T1)*NTNOI_i);
-d_Gtnoi_dV_g_si = (((T1*d_T0_dV_g_si-T0*d_T1_dV_g_si)/T1/T1)*NTNOI_i);
-d_Gtnoi_dV_g_e = (((T1*d_T0_dV_g_e-T0*d_T1_dV_g_e)/T1/T1)*NTNOI_i);
-d_Gtnoi_dV_e_di = (((T1*d_T0_dV_e_di-T0*d_T1_dV_e_di)/T1/T1)*NTNOI_i);
-d_Gtnoi_dV_e_si = (((T1*d_T0_dV_e_si-T0*d_T1_dV_e_si)/T1/T1)*NTNOI_i);
-d_Gtnoi_dV_g_di = (((T1*d_T0_dV_g_di-T0*d_T1_dV_g_di)/T1/T1)*NTNOI_i);
+d_Gtnoi_dV_si_s = (-T0*d_T1_dV_si_s/T1/T1)*NTNOI_i;
+d_Gtnoi_dV_di_d = (-T0*d_T1_dV_di_d/T1/T1)*NTNOI_i;
+d_Gtnoi_dV_di_si = ((T1*d_T0_dV_di_si-T0*d_T1_dV_di_si)/T1/T1)*NTNOI_i;
+d_Gtnoi_dV_g_si = ((T1*d_T0_dV_g_si-T0*d_T1_dV_g_si)/T1/T1)*NTNOI_i;
+d_Gtnoi_dV_g_e = ((T1*d_T0_dV_g_e-T0*d_T1_dV_g_e)/T1/T1)*NTNOI_i;
+d_Gtnoi_dV_e_di = ((T1*d_T0_dV_e_di-T0*d_T1_dV_e_di)/T1/T1)*NTNOI_i;
+d_Gtnoi_dV_e_si = ((T1*d_T0_dV_e_si-T0*d_T1_dV_e_si)/T1/T1)*NTNOI_i;
+d_Gtnoi_dV_g_di = ((T1*d_T0_dV_g_di-T0*d_T1_dV_g_di)/T1/T1)*NTNOI_i;
 Gtnoi = ((T0/T1)*NTNOI_i);
 
-d_sid_dV_si_s = (((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_si_s);
-d_sid_dV_di_d = (((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_di_d);
-d_sid_dV_di_si = (((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_di_si);
-d_sid_dV_g_si = (((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_g_si);
-d_sid_dV_g_e = (((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_g_e);
-d_sid_dV_e_di = (((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_e_di);
-d_sid_dV_e_si = (((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_e_si);
-d_sid_dV_g_di = (((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_g_di);
+d_sid_dV_si_s = ((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_si_s;
+d_sid_dV_di_d = ((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_di_d;
+d_sid_dV_di_si = ((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_di_si;
+d_sid_dV_g_si = ((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_g_si;
+d_sid_dV_g_e = ((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_g_e;
+d_sid_dV_e_di = ((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_e_di;
+d_sid_dV_e_si = ((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_e_si;
+d_sid_dV_g_di = ((4*Vtm)*1.60219e-19)*d_Gtnoi_dV_g_di;
 sid = (((4*Vtm)*1.60219e-19)*Gtnoi);
 
 d_gspr_dV_di_si = (-1*d_Rsource_dV_di_si/Rsource/Rsource);
@@ -20674,511 +20674,511 @@ if ((sigvds>0.0))
 {
 // I(di,si) <+ ((devsign*ids))
 staticContributions[admsNodeID_di] += (devsign*ids);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += (devsign*d_ids_dV_g_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += (devsign*d_ids_dV_di_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += (devsign*d_ids_dV_g_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += (devsign*d_ids_dV_g_e);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += (devsign*d_ids_dV_e_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += (devsign*d_ids_dV_e_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += devsign*d_ids_dV_g_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += devsign*d_ids_dV_di_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += devsign*d_ids_dV_g_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += devsign*d_ids_dV_g_e;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += devsign*d_ids_dV_e_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += devsign*d_ids_dV_e_si;
 staticContributions[admsNodeID_si] -= (devsign*ids);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*d_ids_dV_g_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*d_ids_dV_di_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*d_ids_dV_g_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*d_ids_dV_g_e);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*d_ids_dV_e_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*d_ids_dV_e_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*d_ids_dV_g_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*d_ids_dV_di_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*d_ids_dV_g_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*d_ids_dV_g_e;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*d_ids_dV_e_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*d_ids_dV_e_si;
 }
 else
 {
 // I(si,di) <+ ((devsign*ids))
 staticContributions[admsNodeID_si] += (devsign*ids);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += (devsign*d_ids_dV_g_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += (devsign*d_ids_dV_di_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += (devsign*d_ids_dV_g_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += (devsign*d_ids_dV_g_e);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += (devsign*d_ids_dV_e_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += (devsign*d_ids_dV_e_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += devsign*d_ids_dV_g_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += devsign*d_ids_dV_di_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += devsign*d_ids_dV_g_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += devsign*d_ids_dV_g_e;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += devsign*d_ids_dV_e_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += devsign*d_ids_dV_e_si;
 staticContributions[admsNodeID_di] -= (devsign*ids);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= (devsign*d_ids_dV_g_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= (devsign*d_ids_dV_di_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= (devsign*d_ids_dV_g_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= (devsign*d_ids_dV_g_e);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= (devsign*d_ids_dV_e_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= (devsign*d_ids_dV_e_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= devsign*d_ids_dV_g_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= devsign*d_ids_dV_di_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= devsign*d_ids_dV_g_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= devsign*d_ids_dV_g_e;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= devsign*d_ids_dV_e_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= devsign*d_ids_dV_e_si;
 }
 // I(di,si) <+ ((devsign*ddt(qd)))
 dynamicContributions[admsNodeID_di] += (devsign*(qd));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_di] += (devsign*(d_qd_dV_g_di));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_si] += (devsign*(d_qd_dV_g_si));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_e] += (devsign*(d_qd_dV_g_e));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_e_di] += (devsign*(d_qd_dV_e_di));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_e_si] += (devsign*(d_qd_dV_e_si));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_di_si] += (devsign*(d_qd_dV_di_si));
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_di] += devsign*(d_qd_dV_g_di);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_si] += devsign*(d_qd_dV_g_si);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_e] += devsign*(d_qd_dV_g_e);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_e_di] += devsign*(d_qd_dV_e_di);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_e_si] += devsign*(d_qd_dV_e_si);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_di_si] += devsign*(d_qd_dV_di_si);
 dynamicContributions[admsNodeID_si] -= (devsign*(qd));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*(d_qd_dV_g_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*(d_qd_dV_g_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*(d_qd_dV_g_e));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*(d_qd_dV_e_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*(d_qd_dV_e_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*(d_qd_dV_di_si));
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*(d_qd_dV_g_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*(d_qd_dV_g_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*(d_qd_dV_g_e);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*(d_qd_dV_e_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*(d_qd_dV_e_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*(d_qd_dV_di_si);
 // I(g,si) <+ ((devsign*ddt(qg)))
 dynamicContributions[admsNodeID_g] += (devsign*(qg));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*(d_qg_dV_g_di));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*(d_qg_dV_g_si));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*(d_qg_dV_g_e));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*(d_qg_dV_e_di));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*(d_qg_dV_e_si));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*(d_qg_dV_di_si));
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*(d_qg_dV_g_di);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*(d_qg_dV_g_si);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*(d_qg_dV_g_e);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*(d_qg_dV_e_di);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*(d_qg_dV_e_si);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*(d_qg_dV_di_si);
 dynamicContributions[admsNodeID_si] -= (devsign*(qg));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*(d_qg_dV_g_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*(d_qg_dV_g_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*(d_qg_dV_g_e));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*(d_qg_dV_e_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*(d_qg_dV_e_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*(d_qg_dV_di_si));
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*(d_qg_dV_g_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*(d_qg_dV_g_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*(d_qg_dV_g_e);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*(d_qg_dV_e_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*(d_qg_dV_e_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*(d_qg_dV_di_si);
 if ((sigvds>0))
 {
 // I(di,si) <+ ((devsign*idsgen))
 staticContributions[admsNodeID_di] += (devsign*idsgen);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += (devsign*d_idsgen_dV_di_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += (devsign*d_idsgen_dV_g_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += (devsign*d_idsgen_dV_g_e);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += (devsign*d_idsgen_dV_e_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += (devsign*d_idsgen_dV_e_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += (devsign*d_idsgen_dV_g_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += devsign*d_idsgen_dV_di_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += devsign*d_idsgen_dV_g_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += devsign*d_idsgen_dV_g_e;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += devsign*d_idsgen_dV_e_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += devsign*d_idsgen_dV_e_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += devsign*d_idsgen_dV_g_di;
 staticContributions[admsNodeID_si] -= (devsign*idsgen);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*d_idsgen_dV_di_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*d_idsgen_dV_g_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*d_idsgen_dV_g_e);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*d_idsgen_dV_e_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*d_idsgen_dV_e_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*d_idsgen_dV_g_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*d_idsgen_dV_di_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*d_idsgen_dV_g_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*d_idsgen_dV_g_e;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*d_idsgen_dV_e_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*d_idsgen_dV_e_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*d_idsgen_dV_g_di;
 // I(g,si) <+ ((devsign*(igcs+igs)))
 staticContributions[admsNodeID_g] += (devsign*(igcs+igs));
-d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += (devsign*d_igcs_dV_si_s);
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += (devsign*d_igcs_dV_di_d);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*(d_igcs_dV_g_si+d_igs_dV_g_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*(d_igcs_dV_g_e+d_igs_dV_g_e));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*(d_igcs_dV_e_di+d_igs_dV_e_di));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*(d_igcs_dV_e_si+d_igs_dV_e_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*(d_igcs_dV_di_si+d_igs_dV_di_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*(d_igcs_dV_g_di+d_igs_dV_g_di));
+d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += devsign*d_igcs_dV_si_s;
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += devsign*d_igcs_dV_di_d;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*(d_igcs_dV_g_si+d_igs_dV_g_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*(d_igcs_dV_g_e+d_igs_dV_g_e);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*(d_igcs_dV_e_di+d_igs_dV_e_di);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*(d_igcs_dV_e_si+d_igs_dV_e_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*(d_igcs_dV_di_si+d_igs_dV_di_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*(d_igcs_dV_g_di+d_igs_dV_g_di);
 staticContributions[admsNodeID_si] -= (devsign*(igcs+igs));
-d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= (devsign*d_igcs_dV_si_s);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= (devsign*d_igcs_dV_di_d);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*(d_igcs_dV_g_si+d_igs_dV_g_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*(d_igcs_dV_g_e+d_igs_dV_g_e));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*(d_igcs_dV_e_di+d_igs_dV_e_di));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*(d_igcs_dV_e_si+d_igs_dV_e_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*(d_igcs_dV_di_si+d_igs_dV_di_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*(d_igcs_dV_g_di+d_igs_dV_g_di));
+d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= devsign*d_igcs_dV_si_s;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= devsign*d_igcs_dV_di_d;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*(d_igcs_dV_g_si+d_igs_dV_g_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*(d_igcs_dV_g_e+d_igs_dV_g_e);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*(d_igcs_dV_e_di+d_igs_dV_e_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*(d_igcs_dV_e_si+d_igs_dV_e_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*(d_igcs_dV_di_si+d_igs_dV_di_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*(d_igcs_dV_g_di+d_igs_dV_g_di);
 // I(g,di) <+ ((devsign*(igcd+igd)))
 staticContributions[admsNodeID_g] += (devsign*(igcd+igd));
-d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += (devsign*d_igcd_dV_si_s);
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += (devsign*d_igcd_dV_di_d);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*(d_igcd_dV_g_si+d_igd_dV_g_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*(d_igcd_dV_g_e+d_igd_dV_g_e));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*(d_igcd_dV_e_di+d_igd_dV_e_di));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*(d_igcd_dV_e_si+d_igd_dV_e_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*(d_igcd_dV_di_si+d_igd_dV_di_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*(d_igcd_dV_g_di+d_igd_dV_g_di));
+d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += devsign*d_igcd_dV_si_s;
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += devsign*d_igcd_dV_di_d;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*(d_igcd_dV_g_si+d_igd_dV_g_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*(d_igcd_dV_g_e+d_igd_dV_g_e);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*(d_igcd_dV_e_di+d_igd_dV_e_di);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*(d_igcd_dV_e_si+d_igd_dV_e_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*(d_igcd_dV_di_si+d_igd_dV_di_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*(d_igcd_dV_g_di+d_igd_dV_g_di);
 staticContributions[admsNodeID_di] -= (devsign*(igcd+igd));
-d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= (devsign*d_igcd_dV_si_s);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= (devsign*d_igcd_dV_di_d);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= (devsign*(d_igcd_dV_g_si+d_igd_dV_g_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= (devsign*(d_igcd_dV_g_e+d_igd_dV_g_e));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= (devsign*(d_igcd_dV_e_di+d_igd_dV_e_di));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= (devsign*(d_igcd_dV_e_si+d_igd_dV_e_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= (devsign*(d_igcd_dV_di_si+d_igd_dV_di_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= (devsign*(d_igcd_dV_g_di+d_igd_dV_g_di));
+d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= devsign*d_igcd_dV_si_s;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= devsign*d_igcd_dV_di_d;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= devsign*(d_igcd_dV_g_si+d_igd_dV_g_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= devsign*(d_igcd_dV_g_e+d_igd_dV_g_e);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= devsign*(d_igcd_dV_e_di+d_igd_dV_e_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= devsign*(d_igcd_dV_e_si+d_igd_dV_e_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= devsign*(d_igcd_dV_di_si+d_igd_dV_di_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= devsign*(d_igcd_dV_g_di+d_igd_dV_g_di);
 if (((model_.BULKMOD)!=0))
 {
 // I(di,e) <+ ((devsign*(igidl+Iii)))
 staticContributions[admsNodeID_di] += (devsign*(igidl+Iii));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += (devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += (devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += (devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += (devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += (devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] += (devsign*d_igidl_dV_si_s);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] += (devsign*d_igidl_dV_di_d);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += (devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di));
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] += devsign*d_igidl_dV_si_s;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] += devsign*d_igidl_dV_di_d;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di);
 staticContributions[admsNodeID_e] -= (devsign*(igidl+Iii));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= (devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e));
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= (devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di));
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= (devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= (devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= (devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= (devsign*d_igidl_dV_si_s);
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= (devsign*d_igidl_dV_di_d);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= (devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di));
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e);
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= devsign*d_igidl_dV_si_s;
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= devsign*d_igidl_dV_di_d;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di);
 // I(si,e) <+ ((devsign*igisl))
 staticContributions[admsNodeID_si] += (devsign*igisl);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += (devsign*d_igisl_dV_g_e);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += (devsign*d_igisl_dV_e_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += (devsign*d_igisl_dV_e_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += (devsign*d_igisl_dV_di_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += (devsign*d_igisl_dV_g_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] += (devsign*d_igisl_dV_si_s);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] += (devsign*d_igisl_dV_di_d);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += (devsign*d_igisl_dV_g_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += devsign*d_igisl_dV_g_e;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += devsign*d_igisl_dV_e_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += devsign*d_igisl_dV_e_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += devsign*d_igisl_dV_di_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += devsign*d_igisl_dV_g_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] += devsign*d_igisl_dV_si_s;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] += devsign*d_igisl_dV_di_d;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += devsign*d_igisl_dV_g_di;
 staticContributions[admsNodeID_e] -= (devsign*igisl);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= (devsign*d_igisl_dV_g_e);
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= (devsign*d_igisl_dV_e_di);
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= (devsign*d_igisl_dV_e_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= (devsign*d_igisl_dV_di_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= (devsign*d_igisl_dV_g_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= (devsign*d_igisl_dV_si_s);
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= (devsign*d_igisl_dV_di_d);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= (devsign*d_igisl_dV_g_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= devsign*d_igisl_dV_g_e;
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= devsign*d_igisl_dV_e_di;
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= devsign*d_igisl_dV_e_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= devsign*d_igisl_dV_di_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= devsign*d_igisl_dV_g_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= devsign*d_igisl_dV_si_s;
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= devsign*d_igisl_dV_di_d;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= devsign*d_igisl_dV_g_di;
 // I(g,e) <+ ((devsign*(igbinv+igbacc)))
 staticContributions[admsNodeID_g] += (devsign*(igbinv+igbacc));
-d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += (devsign*(d_igbinv_dV_si_s+d_igbacc_dV_si_s));
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += (devsign*(d_igbinv_dV_di_d+d_igbacc_dV_di_d));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*(d_igbinv_dV_g_di+d_igbacc_dV_g_di));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*(d_igbinv_dV_g_e+d_igbacc_dV_g_e));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*(d_igbinv_dV_e_di+d_igbacc_dV_e_di));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*(d_igbinv_dV_e_si+d_igbacc_dV_e_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*(d_igbinv_dV_di_si+d_igbacc_dV_di_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*(d_igbinv_dV_g_si+d_igbacc_dV_g_si));
+d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += devsign*(d_igbinv_dV_si_s+d_igbacc_dV_si_s);
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += devsign*(d_igbinv_dV_di_d+d_igbacc_dV_di_d);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*(d_igbinv_dV_g_di+d_igbacc_dV_g_di);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*(d_igbinv_dV_g_e+d_igbacc_dV_g_e);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*(d_igbinv_dV_e_di+d_igbacc_dV_e_di);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*(d_igbinv_dV_e_si+d_igbacc_dV_e_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*(d_igbinv_dV_di_si+d_igbacc_dV_di_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*(d_igbinv_dV_g_si+d_igbacc_dV_g_si);
 staticContributions[admsNodeID_e] -= (devsign*(igbinv+igbacc));
-d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= (devsign*(d_igbinv_dV_si_s+d_igbacc_dV_si_s));
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= (devsign*(d_igbinv_dV_di_d+d_igbacc_dV_di_d));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= (devsign*(d_igbinv_dV_g_di+d_igbacc_dV_g_di));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= (devsign*(d_igbinv_dV_g_e+d_igbacc_dV_g_e));
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= (devsign*(d_igbinv_dV_e_di+d_igbacc_dV_e_di));
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= (devsign*(d_igbinv_dV_e_si+d_igbacc_dV_e_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= (devsign*(d_igbinv_dV_di_si+d_igbacc_dV_di_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= (devsign*(d_igbinv_dV_g_si+d_igbacc_dV_g_si));
+d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= devsign*(d_igbinv_dV_si_s+d_igbacc_dV_si_s);
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= devsign*(d_igbinv_dV_di_d+d_igbacc_dV_di_d);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= devsign*(d_igbinv_dV_g_di+d_igbacc_dV_g_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= devsign*(d_igbinv_dV_g_e+d_igbacc_dV_g_e);
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= devsign*(d_igbinv_dV_e_di+d_igbacc_dV_e_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= devsign*(d_igbinv_dV_e_si+d_igbacc_dV_e_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= devsign*(d_igbinv_dV_di_si+d_igbacc_dV_di_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= devsign*(d_igbinv_dV_g_si+d_igbacc_dV_g_si);
 }
 else
 {
 // I(di,si) <+ ((devsign*(igidl+Iii)))
 staticContributions[admsNodeID_di] += (devsign*(igidl+Iii));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += (devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += (devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += (devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += (devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += (devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] += (devsign*d_igidl_dV_si_s);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] += (devsign*d_igidl_dV_di_d);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += (devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di));
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] += devsign*d_igidl_dV_si_s;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] += devsign*d_igidl_dV_di_d;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di);
 staticContributions[admsNodeID_si] -= (devsign*(igidl+Iii));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= (devsign*d_igidl_dV_si_s);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= (devsign*d_igidl_dV_di_d);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di));
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= devsign*d_igidl_dV_si_s;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= devsign*d_igidl_dV_di_d;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di);
 // I(si,di) <+ ((devsign*igisl))
 staticContributions[admsNodeID_si] += (devsign*igisl);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += (devsign*d_igisl_dV_g_e);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += (devsign*d_igisl_dV_e_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += (devsign*d_igisl_dV_e_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += (devsign*d_igisl_dV_di_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += (devsign*d_igisl_dV_g_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] += (devsign*d_igisl_dV_si_s);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] += (devsign*d_igisl_dV_di_d);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += (devsign*d_igisl_dV_g_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += devsign*d_igisl_dV_g_e;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += devsign*d_igisl_dV_e_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += devsign*d_igisl_dV_e_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += devsign*d_igisl_dV_di_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += devsign*d_igisl_dV_g_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] += devsign*d_igisl_dV_si_s;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] += devsign*d_igisl_dV_di_d;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += devsign*d_igisl_dV_g_di;
 staticContributions[admsNodeID_di] -= (devsign*igisl);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= (devsign*d_igisl_dV_g_e);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= (devsign*d_igisl_dV_e_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= (devsign*d_igisl_dV_e_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= (devsign*d_igisl_dV_di_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= (devsign*d_igisl_dV_g_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= (devsign*d_igisl_dV_si_s);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= (devsign*d_igisl_dV_di_d);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= (devsign*d_igisl_dV_g_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= devsign*d_igisl_dV_g_e;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= devsign*d_igisl_dV_e_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= devsign*d_igisl_dV_e_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= devsign*d_igisl_dV_di_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= devsign*d_igisl_dV_g_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= devsign*d_igisl_dV_si_s;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= devsign*d_igisl_dV_di_d;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= devsign*d_igisl_dV_g_di;
 }
 }
 else
 {
 // I(si,di) <+ ((devsign*idsgen))
 staticContributions[admsNodeID_si] += (devsign*idsgen);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += (devsign*d_idsgen_dV_di_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += (devsign*d_idsgen_dV_g_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += (devsign*d_idsgen_dV_g_e);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += (devsign*d_idsgen_dV_e_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += (devsign*d_idsgen_dV_e_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += (devsign*d_idsgen_dV_g_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += devsign*d_idsgen_dV_di_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += devsign*d_idsgen_dV_g_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += devsign*d_idsgen_dV_g_e;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += devsign*d_idsgen_dV_e_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += devsign*d_idsgen_dV_e_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += devsign*d_idsgen_dV_g_di;
 staticContributions[admsNodeID_di] -= (devsign*idsgen);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= (devsign*d_idsgen_dV_di_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= (devsign*d_idsgen_dV_g_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= (devsign*d_idsgen_dV_g_e);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= (devsign*d_idsgen_dV_e_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= (devsign*d_idsgen_dV_e_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= (devsign*d_idsgen_dV_g_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= devsign*d_idsgen_dV_di_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= devsign*d_idsgen_dV_g_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= devsign*d_idsgen_dV_g_e;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= devsign*d_idsgen_dV_e_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= devsign*d_idsgen_dV_e_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= devsign*d_idsgen_dV_g_di;
 // I(g,di) <+ ((devsign*(igcs+igs)))
 staticContributions[admsNodeID_g] += (devsign*(igcs+igs));
-d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += (devsign*d_igcs_dV_si_s);
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += (devsign*d_igcs_dV_di_d);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*(d_igcs_dV_g_si+d_igs_dV_g_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*(d_igcs_dV_g_e+d_igs_dV_g_e));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*(d_igcs_dV_e_di+d_igs_dV_e_di));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*(d_igcs_dV_e_si+d_igs_dV_e_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*(d_igcs_dV_di_si+d_igs_dV_di_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*(d_igcs_dV_g_di+d_igs_dV_g_di));
+d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += devsign*d_igcs_dV_si_s;
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += devsign*d_igcs_dV_di_d;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*(d_igcs_dV_g_si+d_igs_dV_g_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*(d_igcs_dV_g_e+d_igs_dV_g_e);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*(d_igcs_dV_e_di+d_igs_dV_e_di);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*(d_igcs_dV_e_si+d_igs_dV_e_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*(d_igcs_dV_di_si+d_igs_dV_di_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*(d_igcs_dV_g_di+d_igs_dV_g_di);
 staticContributions[admsNodeID_di] -= (devsign*(igcs+igs));
-d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= (devsign*d_igcs_dV_si_s);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= (devsign*d_igcs_dV_di_d);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= (devsign*(d_igcs_dV_g_si+d_igs_dV_g_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= (devsign*(d_igcs_dV_g_e+d_igs_dV_g_e));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= (devsign*(d_igcs_dV_e_di+d_igs_dV_e_di));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= (devsign*(d_igcs_dV_e_si+d_igs_dV_e_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= (devsign*(d_igcs_dV_di_si+d_igs_dV_di_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= (devsign*(d_igcs_dV_g_di+d_igs_dV_g_di));
+d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= devsign*d_igcs_dV_si_s;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= devsign*d_igcs_dV_di_d;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= devsign*(d_igcs_dV_g_si+d_igs_dV_g_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= devsign*(d_igcs_dV_g_e+d_igs_dV_g_e);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= devsign*(d_igcs_dV_e_di+d_igs_dV_e_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= devsign*(d_igcs_dV_e_si+d_igs_dV_e_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= devsign*(d_igcs_dV_di_si+d_igs_dV_di_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= devsign*(d_igcs_dV_g_di+d_igs_dV_g_di);
 // I(g,si) <+ ((devsign*(igcd+igd)))
 staticContributions[admsNodeID_g] += (devsign*(igcd+igd));
-d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += (devsign*d_igcd_dV_si_s);
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += (devsign*d_igcd_dV_di_d);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*(d_igcd_dV_g_si+d_igd_dV_g_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*(d_igcd_dV_g_e+d_igd_dV_g_e));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*(d_igcd_dV_e_di+d_igd_dV_e_di));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*(d_igcd_dV_e_si+d_igd_dV_e_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*(d_igcd_dV_di_si+d_igd_dV_di_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*(d_igcd_dV_g_di+d_igd_dV_g_di));
+d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += devsign*d_igcd_dV_si_s;
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += devsign*d_igcd_dV_di_d;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*(d_igcd_dV_g_si+d_igd_dV_g_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*(d_igcd_dV_g_e+d_igd_dV_g_e);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*(d_igcd_dV_e_di+d_igd_dV_e_di);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*(d_igcd_dV_e_si+d_igd_dV_e_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*(d_igcd_dV_di_si+d_igd_dV_di_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*(d_igcd_dV_g_di+d_igd_dV_g_di);
 staticContributions[admsNodeID_si] -= (devsign*(igcd+igd));
-d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= (devsign*d_igcd_dV_si_s);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= (devsign*d_igcd_dV_di_d);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*(d_igcd_dV_g_si+d_igd_dV_g_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*(d_igcd_dV_g_e+d_igd_dV_g_e));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*(d_igcd_dV_e_di+d_igd_dV_e_di));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*(d_igcd_dV_e_si+d_igd_dV_e_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*(d_igcd_dV_di_si+d_igd_dV_di_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*(d_igcd_dV_g_di+d_igd_dV_g_di));
+d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= devsign*d_igcd_dV_si_s;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= devsign*d_igcd_dV_di_d;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*(d_igcd_dV_g_si+d_igd_dV_g_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*(d_igcd_dV_g_e+d_igd_dV_g_e);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*(d_igcd_dV_e_di+d_igd_dV_e_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*(d_igcd_dV_e_si+d_igd_dV_e_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*(d_igcd_dV_di_si+d_igd_dV_di_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*(d_igcd_dV_g_di+d_igd_dV_g_di);
 if (((model_.BULKMOD)!=0))
 {
 // I(si,e) <+ ((devsign*(igidl+Iii)))
 staticContributions[admsNodeID_si] += (devsign*(igidl+Iii));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += (devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += (devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += (devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += (devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += (devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] += (devsign*d_igidl_dV_si_s);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] += (devsign*d_igidl_dV_di_d);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += (devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di));
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] += devsign*d_igidl_dV_si_s;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] += devsign*d_igidl_dV_di_d;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di);
 staticContributions[admsNodeID_e] -= (devsign*(igidl+Iii));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= (devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e));
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= (devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di));
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= (devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= (devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= (devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= (devsign*d_igidl_dV_si_s);
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= (devsign*d_igidl_dV_di_d);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= (devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di));
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e);
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= devsign*d_igidl_dV_si_s;
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= devsign*d_igidl_dV_di_d;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di);
 // I(di,e) <+ ((devsign*igisl))
 staticContributions[admsNodeID_di] += (devsign*igisl);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += (devsign*d_igisl_dV_g_e);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += (devsign*d_igisl_dV_e_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += (devsign*d_igisl_dV_e_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += (devsign*d_igisl_dV_di_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += (devsign*d_igisl_dV_g_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] += (devsign*d_igisl_dV_si_s);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] += (devsign*d_igisl_dV_di_d);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += (devsign*d_igisl_dV_g_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += devsign*d_igisl_dV_g_e;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += devsign*d_igisl_dV_e_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += devsign*d_igisl_dV_e_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += devsign*d_igisl_dV_di_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += devsign*d_igisl_dV_g_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] += devsign*d_igisl_dV_si_s;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] += devsign*d_igisl_dV_di_d;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += devsign*d_igisl_dV_g_di;
 staticContributions[admsNodeID_e] -= (devsign*igisl);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= (devsign*d_igisl_dV_g_e);
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= (devsign*d_igisl_dV_e_di);
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= (devsign*d_igisl_dV_e_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= (devsign*d_igisl_dV_di_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= (devsign*d_igisl_dV_g_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= (devsign*d_igisl_dV_si_s);
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= (devsign*d_igisl_dV_di_d);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= (devsign*d_igisl_dV_g_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= devsign*d_igisl_dV_g_e;
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= devsign*d_igisl_dV_e_di;
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= devsign*d_igisl_dV_e_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= devsign*d_igisl_dV_di_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= devsign*d_igisl_dV_g_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= devsign*d_igisl_dV_si_s;
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= devsign*d_igisl_dV_di_d;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= devsign*d_igisl_dV_g_di;
 // I(g,e) <+ ((devsign*(igbinv+igbacc)))
 staticContributions[admsNodeID_g] += (devsign*(igbinv+igbacc));
-d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += (devsign*(d_igbinv_dV_si_s+d_igbacc_dV_si_s));
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += (devsign*(d_igbinv_dV_di_d+d_igbacc_dV_di_d));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*(d_igbinv_dV_g_di+d_igbacc_dV_g_di));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*(d_igbinv_dV_g_e+d_igbacc_dV_g_e));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*(d_igbinv_dV_e_di+d_igbacc_dV_e_di));
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*(d_igbinv_dV_e_si+d_igbacc_dV_e_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*(d_igbinv_dV_di_si+d_igbacc_dV_di_si));
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*(d_igbinv_dV_g_si+d_igbacc_dV_g_si));
+d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += devsign*(d_igbinv_dV_si_s+d_igbacc_dV_si_s);
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += devsign*(d_igbinv_dV_di_d+d_igbacc_dV_di_d);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*(d_igbinv_dV_g_di+d_igbacc_dV_g_di);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*(d_igbinv_dV_g_e+d_igbacc_dV_g_e);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*(d_igbinv_dV_e_di+d_igbacc_dV_e_di);
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*(d_igbinv_dV_e_si+d_igbacc_dV_e_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*(d_igbinv_dV_di_si+d_igbacc_dV_di_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*(d_igbinv_dV_g_si+d_igbacc_dV_g_si);
 staticContributions[admsNodeID_e] -= (devsign*(igbinv+igbacc));
-d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= (devsign*(d_igbinv_dV_si_s+d_igbacc_dV_si_s));
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= (devsign*(d_igbinv_dV_di_d+d_igbacc_dV_di_d));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= (devsign*(d_igbinv_dV_g_di+d_igbacc_dV_g_di));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= (devsign*(d_igbinv_dV_g_e+d_igbacc_dV_g_e));
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= (devsign*(d_igbinv_dV_e_di+d_igbacc_dV_e_di));
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= (devsign*(d_igbinv_dV_e_si+d_igbacc_dV_e_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= (devsign*(d_igbinv_dV_di_si+d_igbacc_dV_di_si));
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= (devsign*(d_igbinv_dV_g_si+d_igbacc_dV_g_si));
+d_staticContributions[admsNodeID_e][admsProbeID_V_si_s] -= devsign*(d_igbinv_dV_si_s+d_igbacc_dV_si_s);
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_d] -= devsign*(d_igbinv_dV_di_d+d_igbacc_dV_di_d);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] -= devsign*(d_igbinv_dV_g_di+d_igbacc_dV_g_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] -= devsign*(d_igbinv_dV_g_e+d_igbacc_dV_g_e);
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] -= devsign*(d_igbinv_dV_e_di+d_igbacc_dV_e_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] -= devsign*(d_igbinv_dV_e_si+d_igbacc_dV_e_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] -= devsign*(d_igbinv_dV_di_si+d_igbacc_dV_di_si);
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] -= devsign*(d_igbinv_dV_g_si+d_igbacc_dV_g_si);
 }
 else
 {
 // I(si,di) <+ ((devsign*(igidl+Iii)))
 staticContributions[admsNodeID_si] += (devsign*(igidl+Iii));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += (devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += (devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di));
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += (devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += (devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += (devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si));
-d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] += (devsign*d_igidl_dV_si_s);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] += (devsign*d_igidl_dV_di_d);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += (devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di));
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] += devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] += devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] += devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] += devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] += devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] += devsign*d_igidl_dV_si_s;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] += devsign*d_igidl_dV_di_d;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] += devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di);
 staticContributions[admsNodeID_di] -= (devsign*(igidl+Iii));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= (devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= (devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di));
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= (devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= (devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= (devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si));
-d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= (devsign*d_igidl_dV_si_s);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= (devsign*d_igidl_dV_di_d);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= (devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di));
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= devsign*(d_igidl_dV_g_e+d_Iii_dV_g_e);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= devsign*(d_igidl_dV_e_di+d_Iii_dV_e_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= devsign*(d_igidl_dV_e_si+d_Iii_dV_e_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= devsign*(d_igidl_dV_di_si+d_Iii_dV_di_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= devsign*(d_igidl_dV_g_si+d_Iii_dV_g_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= devsign*d_igidl_dV_si_s;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= devsign*d_igidl_dV_di_d;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= devsign*(d_igidl_dV_g_di+d_Iii_dV_g_di);
 // I(di,si) <+ ((devsign*igisl))
 staticContributions[admsNodeID_di] += (devsign*igisl);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += (devsign*d_igisl_dV_g_e);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += (devsign*d_igisl_dV_e_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += (devsign*d_igisl_dV_e_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += (devsign*d_igisl_dV_di_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += (devsign*d_igisl_dV_g_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] += (devsign*d_igisl_dV_si_s);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] += (devsign*d_igisl_dV_di_d);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += (devsign*d_igisl_dV_g_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] += devsign*d_igisl_dV_g_e;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] += devsign*d_igisl_dV_e_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] += devsign*d_igisl_dV_e_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] += devsign*d_igisl_dV_di_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] += devsign*d_igisl_dV_g_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] += devsign*d_igisl_dV_si_s;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] += devsign*d_igisl_dV_di_d;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] += devsign*d_igisl_dV_g_di;
 staticContributions[admsNodeID_si] -= (devsign*igisl);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*d_igisl_dV_g_e);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*d_igisl_dV_e_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*d_igisl_dV_e_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*d_igisl_dV_di_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*d_igisl_dV_g_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= (devsign*d_igisl_dV_si_s);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= (devsign*d_igisl_dV_di_d);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*d_igisl_dV_g_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*d_igisl_dV_g_e;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*d_igisl_dV_e_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*d_igisl_dV_e_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*d_igisl_dV_di_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*d_igisl_dV_g_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= devsign*d_igisl_dV_si_s;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= devsign*d_igisl_dV_di_d;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*d_igisl_dV_g_di;
 }
 }
 if (((model_.BULKMOD)==0))
 {
 // I(g,si) <+ ((devsign*igbs))
 staticContributions[admsNodeID_g] += (devsign*igbs);
-d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += (devsign*d_igbs_dV_si_s);
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += (devsign*d_igbs_dV_di_d);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*d_igbs_dV_g_di);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*d_igbs_dV_g_e);
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*d_igbs_dV_e_di);
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*d_igbs_dV_e_si);
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*d_igbs_dV_di_si);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*d_igbs_dV_g_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += devsign*d_igbs_dV_si_s;
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += devsign*d_igbs_dV_di_d;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*d_igbs_dV_g_di;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*d_igbs_dV_g_e;
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*d_igbs_dV_e_di;
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*d_igbs_dV_e_si;
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*d_igbs_dV_di_si;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*d_igbs_dV_g_si;
 staticContributions[admsNodeID_si] -= (devsign*igbs);
-d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= (devsign*d_igbs_dV_si_s);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= (devsign*d_igbs_dV_di_d);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*d_igbs_dV_g_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*d_igbs_dV_g_e);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*d_igbs_dV_e_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*d_igbs_dV_e_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*d_igbs_dV_di_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*d_igbs_dV_g_si);
+d_staticContributions[admsNodeID_si][admsProbeID_V_si_s] -= devsign*d_igbs_dV_si_s;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_d] -= devsign*d_igbs_dV_di_d;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*d_igbs_dV_g_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*d_igbs_dV_g_e;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*d_igbs_dV_e_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*d_igbs_dV_e_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*d_igbs_dV_di_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*d_igbs_dV_g_si;
 // I(g,di) <+ ((devsign*igbd))
 staticContributions[admsNodeID_g] += (devsign*igbd);
-d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += (devsign*d_igbd_dV_si_s);
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += (devsign*d_igbd_dV_di_d);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*d_igbd_dV_g_di);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*d_igbd_dV_g_e);
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*d_igbd_dV_e_di);
-d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*d_igbd_dV_e_si);
-d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*d_igbd_dV_di_si);
-d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*d_igbd_dV_g_si);
+d_staticContributions[admsNodeID_g][admsProbeID_V_si_s] += devsign*d_igbd_dV_si_s;
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_d] += devsign*d_igbd_dV_di_d;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*d_igbd_dV_g_di;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*d_igbd_dV_g_e;
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*d_igbd_dV_e_di;
+d_staticContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*d_igbd_dV_e_si;
+d_staticContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*d_igbd_dV_di_si;
+d_staticContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*d_igbd_dV_g_si;
 staticContributions[admsNodeID_di] -= (devsign*igbd);
-d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= (devsign*d_igbd_dV_si_s);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= (devsign*d_igbd_dV_di_d);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= (devsign*d_igbd_dV_g_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= (devsign*d_igbd_dV_g_e);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= (devsign*d_igbd_dV_e_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= (devsign*d_igbd_dV_e_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= (devsign*d_igbd_dV_di_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= (devsign*d_igbd_dV_g_si);
+d_staticContributions[admsNodeID_di][admsProbeID_V_si_s] -= devsign*d_igbd_dV_si_s;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_d] -= devsign*d_igbd_dV_di_d;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= devsign*d_igbd_dV_g_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= devsign*d_igbd_dV_g_e;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= devsign*d_igbd_dV_e_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= devsign*d_igbd_dV_e_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= devsign*d_igbd_dV_di_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= devsign*d_igbd_dV_g_si;
 }
 if (((model_.BULKMOD)!=0))
 {
 // I(e,si) <+ ((devsign*Ies))
 staticContributions[admsNodeID_e] += (devsign*Ies);
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] += (devsign*d_Ies_dV_di_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] += (devsign*d_Ies_dV_g_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] += (devsign*d_Ies_dV_g_e);
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] += (devsign*d_Ies_dV_e_di);
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] += (devsign*d_Ies_dV_e_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] += (devsign*d_Ies_dV_g_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] += devsign*d_Ies_dV_di_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] += devsign*d_Ies_dV_g_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] += devsign*d_Ies_dV_g_e;
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] += devsign*d_Ies_dV_e_di;
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] += devsign*d_Ies_dV_e_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] += devsign*d_Ies_dV_g_di;
 staticContributions[admsNodeID_si] -= (devsign*Ies);
-d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*d_Ies_dV_di_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*d_Ies_dV_g_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*d_Ies_dV_g_e);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*d_Ies_dV_e_di);
-d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*d_Ies_dV_e_si);
-d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*d_Ies_dV_g_di);
+d_staticContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*d_Ies_dV_di_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*d_Ies_dV_g_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*d_Ies_dV_g_e;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*d_Ies_dV_e_di;
+d_staticContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*d_Ies_dV_e_si;
+d_staticContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*d_Ies_dV_g_di;
 // I(e,di) <+ ((devsign*Ied))
 staticContributions[admsNodeID_e] += (devsign*Ied);
-d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] += (devsign*d_Ied_dV_di_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] += (devsign*d_Ied_dV_g_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] += (devsign*d_Ied_dV_g_e);
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] += (devsign*d_Ied_dV_e_di);
-d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] += (devsign*d_Ied_dV_e_si);
-d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] += (devsign*d_Ied_dV_g_di);
+d_staticContributions[admsNodeID_e][admsProbeID_V_di_si] += devsign*d_Ied_dV_di_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_si] += devsign*d_Ied_dV_g_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_e] += devsign*d_Ied_dV_g_e;
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_di] += devsign*d_Ied_dV_e_di;
+d_staticContributions[admsNodeID_e][admsProbeID_V_e_si] += devsign*d_Ied_dV_e_si;
+d_staticContributions[admsNodeID_e][admsProbeID_V_g_di] += devsign*d_Ied_dV_g_di;
 staticContributions[admsNodeID_di] -= (devsign*Ied);
-d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= (devsign*d_Ied_dV_di_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= (devsign*d_Ied_dV_g_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= (devsign*d_Ied_dV_g_e);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= (devsign*d_Ied_dV_e_di);
-d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= (devsign*d_Ied_dV_e_si);
-d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= (devsign*d_Ied_dV_g_di);
+d_staticContributions[admsNodeID_di][admsProbeID_V_di_si] -= devsign*d_Ied_dV_di_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_si] -= devsign*d_Ied_dV_g_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_e] -= devsign*d_Ied_dV_g_e;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_di] -= devsign*d_Ied_dV_e_di;
+d_staticContributions[admsNodeID_di][admsProbeID_V_e_si] -= devsign*d_Ied_dV_e_si;
+d_staticContributions[admsNodeID_di][admsProbeID_V_g_di] -= devsign*d_Ied_dV_g_di;
 }
 // I(e,si) <+ ((devsign*ddt(Qes)))
 dynamicContributions[admsNodeID_e] += (devsign*(Qes));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_si] += (devsign*(d_Qes_dV_di_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_si] += (devsign*(d_Qes_dV_g_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_e] += (devsign*(d_Qes_dV_g_e));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_di] += (devsign*(d_Qes_dV_e_di));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_si] += (devsign*(d_Qes_dV_e_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_di] += (devsign*(d_Qes_dV_g_di));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_si_s] += (devsign*(d_Qes_dV_si_s));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_d] += (devsign*(d_Qes_dV_di_d));
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_si] += devsign*(d_Qes_dV_di_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_si] += devsign*(d_Qes_dV_g_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_e] += devsign*(d_Qes_dV_g_e);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_di] += devsign*(d_Qes_dV_e_di);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_si] += devsign*(d_Qes_dV_e_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_di] += devsign*(d_Qes_dV_g_di);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_si_s] += devsign*(d_Qes_dV_si_s);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_d] += devsign*(d_Qes_dV_di_d);
 dynamicContributions[admsNodeID_si] -= (devsign*(Qes));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*(d_Qes_dV_di_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*(d_Qes_dV_g_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*(d_Qes_dV_g_e));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*(d_Qes_dV_e_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*(d_Qes_dV_e_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*(d_Qes_dV_g_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_si_s] -= (devsign*(d_Qes_dV_si_s));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_d] -= (devsign*(d_Qes_dV_di_d));
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*(d_Qes_dV_di_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*(d_Qes_dV_g_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*(d_Qes_dV_g_e);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*(d_Qes_dV_e_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*(d_Qes_dV_e_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*(d_Qes_dV_g_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_si_s] -= devsign*(d_Qes_dV_si_s);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_d] -= devsign*(d_Qes_dV_di_d);
 // I(e,di) <+ ((devsign*ddt(Qed)))
 dynamicContributions[admsNodeID_e] += (devsign*(Qed));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_si] += (devsign*(d_Qed_dV_di_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_si] += (devsign*(d_Qed_dV_g_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_e] += (devsign*(d_Qed_dV_g_e));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_di] += (devsign*(d_Qed_dV_e_di));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_si] += (devsign*(d_Qed_dV_e_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_di] += (devsign*(d_Qed_dV_g_di));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_si_s] += (devsign*(d_Qed_dV_si_s));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_d] += (devsign*(d_Qed_dV_di_d));
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_si] += devsign*(d_Qed_dV_di_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_si] += devsign*(d_Qed_dV_g_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_e] += devsign*(d_Qed_dV_g_e);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_di] += devsign*(d_Qed_dV_e_di);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_si] += devsign*(d_Qed_dV_e_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_di] += devsign*(d_Qed_dV_g_di);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_si_s] += devsign*(d_Qed_dV_si_s);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_d] += devsign*(d_Qed_dV_di_d);
 dynamicContributions[admsNodeID_di] -= (devsign*(Qed));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_di_si] -= (devsign*(d_Qed_dV_di_si));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_si] -= (devsign*(d_Qed_dV_g_si));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_e] -= (devsign*(d_Qed_dV_g_e));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_e_di] -= (devsign*(d_Qed_dV_e_di));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_e_si] -= (devsign*(d_Qed_dV_e_si));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_di] -= (devsign*(d_Qed_dV_g_di));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_si_s] -= (devsign*(d_Qed_dV_si_s));
-d_dynamicContributions[admsNodeID_di][admsProbeID_V_di_d] -= (devsign*(d_Qed_dV_di_d));
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_di_si] -= devsign*(d_Qed_dV_di_si);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_si] -= devsign*(d_Qed_dV_g_si);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_e] -= devsign*(d_Qed_dV_g_e);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_e_di] -= devsign*(d_Qed_dV_e_di);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_e_si] -= devsign*(d_Qed_dV_e_si);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_g_di] -= devsign*(d_Qed_dV_g_di);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_si_s] -= devsign*(d_Qed_dV_si_s);
+d_dynamicContributions[admsNodeID_di][admsProbeID_V_di_d] -= devsign*(d_Qed_dV_di_d);
 // I(e,g) <+ ((devsign*ddt(Qeg)))
 dynamicContributions[admsNodeID_e] += (devsign*(Qeg));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_g] += (devsign*(d_Qeg_dV_e_g));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_si] += (devsign*(d_Qeg_dV_di_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_di] += (devsign*(d_Qeg_dV_e_di));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_si] += (devsign*(d_Qeg_dV_e_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_si] += (devsign*(d_Qeg_dV_g_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_e] += (devsign*(d_Qeg_dV_g_e));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_di] += (devsign*(d_Qeg_dV_g_di));
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_g] += devsign*(d_Qeg_dV_e_g);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_si] += devsign*(d_Qeg_dV_di_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_di] += devsign*(d_Qeg_dV_e_di);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_si] += devsign*(d_Qeg_dV_e_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_si] += devsign*(d_Qeg_dV_g_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_e] += devsign*(d_Qeg_dV_g_e);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_di] += devsign*(d_Qeg_dV_g_di);
 dynamicContributions[admsNodeID_g] -= (devsign*(Qeg));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_g] -= (devsign*(d_Qeg_dV_e_g));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_di_si] -= (devsign*(d_Qeg_dV_di_si));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_di] -= (devsign*(d_Qeg_dV_e_di));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_si] -= (devsign*(d_Qeg_dV_e_si));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_si] -= (devsign*(d_Qeg_dV_g_si));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_e] -= (devsign*(d_Qeg_dV_g_e));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_di] -= (devsign*(d_Qeg_dV_g_di));
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_g] -= devsign*(d_Qeg_dV_e_g);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_di_si] -= devsign*(d_Qeg_dV_di_si);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_di] -= devsign*(d_Qeg_dV_e_di);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_si] -= devsign*(d_Qeg_dV_e_si);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_si] -= devsign*(d_Qeg_dV_g_si);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_e] -= devsign*(d_Qeg_dV_g_e);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_di] -= devsign*(d_Qeg_dV_g_di);
 // I(g,si) <+ (ddt(qgs_parasitic))
 dynamicContributions[admsNodeID_g] += (qgs_parasitic);
 d_dynamicContributions[admsNodeID_g][admsProbeID_V_di_si] += (d_qgs_parasitic_dV_di_si);
@@ -21259,34 +21259,34 @@ if ((((model_.CAPMOD)!=0)&&((model_.BULKMOD)!=0)))
 {
 // I(g,si) <+ ((devsign*ddt(qg_acc)))
 dynamicContributions[admsNodeID_g] += (devsign*(qg_acc));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_di] += (devsign*(d_qg_acc_dV_g_di));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_di_si] += (devsign*(d_qg_acc_dV_di_si));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_si] += (devsign*(d_qg_acc_dV_g_si));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_e] += (devsign*(d_qg_acc_dV_g_e));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_di] += (devsign*(d_qg_acc_dV_e_di));
-d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_si] += (devsign*(d_qg_acc_dV_e_si));
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_di] += devsign*(d_qg_acc_dV_g_di);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_di_si] += devsign*(d_qg_acc_dV_di_si);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_si] += devsign*(d_qg_acc_dV_g_si);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_g_e] += devsign*(d_qg_acc_dV_g_e);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_di] += devsign*(d_qg_acc_dV_e_di);
+d_dynamicContributions[admsNodeID_g][admsProbeID_V_e_si] += devsign*(d_qg_acc_dV_e_si);
 dynamicContributions[admsNodeID_si] -= (devsign*(qg_acc));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*(d_qg_acc_dV_g_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*(d_qg_acc_dV_di_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*(d_qg_acc_dV_g_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*(d_qg_acc_dV_g_e));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*(d_qg_acc_dV_e_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*(d_qg_acc_dV_e_si));
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*(d_qg_acc_dV_g_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*(d_qg_acc_dV_di_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*(d_qg_acc_dV_g_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*(d_qg_acc_dV_g_e);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*(d_qg_acc_dV_e_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*(d_qg_acc_dV_e_si);
 // I(e,si) <+ ((devsign*ddt(qb_acc)))
 dynamicContributions[admsNodeID_e] += (devsign*(qb_acc));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_di] += (devsign*(d_qb_acc_dV_g_di));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_si] += (devsign*(d_qb_acc_dV_di_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_si] += (devsign*(d_qb_acc_dV_g_si));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_e] += (devsign*(d_qb_acc_dV_g_e));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_di] += (devsign*(d_qb_acc_dV_e_di));
-d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_si] += (devsign*(d_qb_acc_dV_e_si));
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_di] += devsign*(d_qb_acc_dV_g_di);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_di_si] += devsign*(d_qb_acc_dV_di_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_si] += devsign*(d_qb_acc_dV_g_si);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_g_e] += devsign*(d_qb_acc_dV_g_e);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_di] += devsign*(d_qb_acc_dV_e_di);
+d_dynamicContributions[admsNodeID_e][admsProbeID_V_e_si] += devsign*(d_qb_acc_dV_e_si);
 dynamicContributions[admsNodeID_si] -= (devsign*(qb_acc));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= (devsign*(d_qb_acc_dV_g_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= (devsign*(d_qb_acc_dV_di_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= (devsign*(d_qb_acc_dV_g_si));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= (devsign*(d_qb_acc_dV_g_e));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= (devsign*(d_qb_acc_dV_e_di));
-d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= (devsign*(d_qb_acc_dV_e_si));
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_di] -= devsign*(d_qb_acc_dV_g_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_si] -= devsign*(d_qb_acc_dV_di_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_si] -= devsign*(d_qb_acc_dV_g_si);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_g_e] -= devsign*(d_qb_acc_dV_g_e);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_di] -= devsign*(d_qb_acc_dV_e_di);
+d_dynamicContributions[admsNodeID_si][admsProbeID_V_e_si] -= devsign*(d_qb_acc_dV_e_si);
 }
 // I(d,di) <+ ((V(d,di)/Rdrain))
 staticContributions[admsNodeID_d] += ((probeVars[admsProbeID_V_d_di])/Rdrain);
@@ -32674,7 +32674,7 @@ g0a = g0;
 qi_acc = (q0_acc*g0a);
 }
 }
-vch = (+dvch_qm);
+vch = dvch_qm;
 if ((modelPar_GEOMOD!=3))
 {
 if ((modelPar_COREMOD!=0))
