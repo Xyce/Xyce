@@ -3943,9 +3943,14 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expressionDeriv12" select="$expressionDeriv12+"/>
               </admst:if>
               <admst:variable name="expressionDeriv12" select="$expressionDeriv12$term4"/>
-              <admst:if test="[$expressionDeriv12='']">
-                <admst:variable name="expressionDeriv12" select="0.0"/>
-              </admst:if>
+              <admst:choose>
+                <admst:when test="[$expressionDeriv12='']">
+                  <admst:variable name="expressionDeriv12" select="0.0"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDeriv12" select="($expressionDeriv12)"/>
+                </admst:otherwise>
+              </admst:choose>
             </admst:if>
           </admst:otherwise>
         </admst:choose>
@@ -4203,9 +4208,14 @@ other variables does not get propagated into a variable's
               <admst:variable name="expressionDeriv12" select="$expressionDeriv12+"/>
             </admst:if>
             <admst:variable name="expressionDeriv12" select="$expressionDeriv12$term3"/>
-            <admst:if test="[$expressionDeriv12='']">
-              <admst:variable name="expressionDeriv12" select="0.0"/>
-            </admst:if>
+            <admst:choose>
+              <admst:when test="[$expressionDeriv12='']">
+                <admst:variable name="expressionDeriv12" select="0.0"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv12" select="($expressionDeriv12)"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:otherwise>
         </admst:choose>
       </admst:when>
@@ -5186,7 +5196,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv2" select="0.0"/>
                 </admst:when>
                 <admst:otherwise>
-                  <admst:variable name="expressionDeriv2" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv2))"/>
+                  <admst:variable name="expressionDeriv2" select="deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv2)"/>
                 </admst:otherwise>
               </admst:choose>
               <admst:choose>
@@ -5200,7 +5210,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2"/>
                 </admst:when>
                 <admst:when test="[($a1Deriv='0.0' or $a1Deriv2='0.0')]">
-                  <admst:variable name="expressionDeriv12" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+                  <admst:variable name="expressionDeriv12" select="deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12)"/>
                 </admst:when>
                 <admst:otherwise>
                   <admst:apply-templates select="." match="oneArgSecondDeriv">
@@ -5209,10 +5219,10 @@ other variables does not get propagated into a variable's
                   <admst:choose>
                     <admst:when test="[$d2fdx2='0.0']">
                       <!-- pretty much only for abs()-->
-                      <admst:variable name="expressionDeriv12" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+                      <admst:variable name="expressionDeriv12" select="deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12)"/>
                     </admst:when>
                     <admst:otherwise>
-                      <admst:variable name="expressionDeriv12" select="$d2fdx2*$a1Deriv*$a1Deriv2+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12))"/>
+                      <admst:variable name="expressionDeriv12" select="($d2fdx2*$a1Deriv*$a1Deriv2+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1Deriv12)))"/>
                     </admst:otherwise>
                   </admst:choose>
                 </admst:otherwise>
@@ -5329,9 +5339,14 @@ other variables does not get propagated into a variable's
                     <admst:variable name="expressionDeriv12" select="$expressionDeriv12+"/>
                   </admst:if>
                   <admst:variable name="expressionDeriv12" select="$expressionDeriv12$term4"/>
-                  <admst:if test="[$expressionDeriv12='']">
-                    <admst:variable name="expressionDeriv12" select="0.0"/>
-                  </admst:if>
+                  <admst:choose>
+                    <admst:when test="[$expressionDeriv12='']">
+                      <admst:variable name="expressionDeriv12" select="0.0"/>
+                    </admst:when>
+                    <admst:otherwise>
+                      <admst:variable name="expressionDeriv12" select="($expressionDeriv12)"/>
+                    </admst:otherwise>
+                  </admst:choose>
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
@@ -5399,11 +5414,7 @@ other variables does not get propagated into a variable's
               <!-- It is not necessarily an error that we can't do
                    these, it's only a problem if the derivatives are
                    actually needed, and we don't know this yet -->
-              <!-- putting this here assures that a user will get
-                   compilation errors from C++ on any model that
-                   *needs* these derivatives -->
-
-              <admst:variable name="expressionDeriv12" select="FIXME/*second derivatives of analog functions not implemented*/"/>
+              <admst:variable name="expressionDeriv12" select="0.0/*second derivatives of analog functions not implemented*/"/>
             </admst:if>
           </admst:otherwise>
         </admst:choose>
