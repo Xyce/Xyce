@@ -5406,6 +5406,7 @@ other variables does not get propagated into a variable's
               <admst:variable name="expressionDeriv12" select="FIXME/*derivatives for %(name) not implemented*/"/>
             </admst:if>
             <admst:variable name="argsDep" select="no"/>
+            <admst:variable name="argsDep2" select="no"/>
             <admst:if test="[definition/datatypename='analogfunction']">
               <admst:if test="[exists(definition/variable[(output='yes') and (name!=$thisFunctionCall/name)])]">
                 <!-- <admst:message format="Called analog function has output variables other than return value, pretending args have dependencies.\n"/> -->
