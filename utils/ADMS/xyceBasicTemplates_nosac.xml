@@ -5032,7 +5032,53 @@ other variables does not get propagated into a variable's
       <admst:when test="[name='ddx']">
         <admst:assert test="arguments[count(.)=2]" format="%(name): should have two arguments exactly\n"/>
         <admst:assert test="arguments[2]/adms[datatypename='probe']" format="%(name): second argument is not a probe\n"/>
-        <admst:variable name="expression" select="FIXME: ddx(%(arguments[1]),%(arguments[2]))"/>
+        <admst:assert test="arguments[2]/branch/nnode[grounded='yes']" format="%(name): probe argument has non-ground negative node [Xyce/ADMS limitation]\n"/>
+        <admst:assert test="arguments[1]/adms[datatypename='variable' or datatypename='expression']" format="%(name): expression argument %(arguments[1]) is not of type variable or expression (it is type %(arguments[1]/adms/datatypename)) [Xyce/ADMS limitation]\n"/>
+          <admst:choose>
+            <admst:when test="[$globalCurrentScope='sensitivity']">
+              <admst:variable name="expression" select="0.0 /*FIXME: ddx(%(arguments[1]),%(arguments[2])) not implemented in sensitivity context */"/>
+            </admst:when>
+            <admst:otherwise>
+              <!-- save any "derivProbe" value because we're monkeying with it -->
+              <admst:variable name="savedDerivProbe" path="$derivProbe" />
+              <admst:variable name="savedDerivProbe2" path="$derivProbe2" />
+              <admst:variable name="expressionToDDX" path="arguments[1]"/>
+              <admst:variable name="theDDXProbe" path="arguments[2]"/>
+              <admst:variable name="expression" select=""/>
+              <admst:variable name="expressionDeriv" select=""/>
+              <admst:for-each select="$expressionToDDX/probe">
+                <admst:variable name="derivProbe" path="."/>
+                <admst:variable name="derivProbe2" path="$savedDerivProbe"/>
+                <admst:choose>
+                  <admst:when test="$derivProbe/branch/pnode[.=$theDDXProbe/branch/pnode]">
+                    <admst:apply-templates select="$expressionToDDX" match="processTerm">
+                      <admst:variable name="exprPartialDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+                      <admst:variable name="exprPartialDeriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
+                    </admst:apply-templates>
+                    <admst:variable name="expression" select="$expression+$exprPartialDeriv"/>
+                    <admst:variable name="expressionDeriv" select="$expressionDeriv+$exprPartialDeriv12"/>
+                  </admst:when>
+                  <admst:when test="$derivProbe/branch/nnode[.=$theDDXProbe/branch/pnode]">
+                    <admst:apply-templates select="$expressionToDDX" match="processTerm">
+                      <admst:variable name="exprPartialDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+                      <admst:variable name="exprPartialDeriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
+                    </admst:apply-templates>
+                    <admst:variable name="expression" select="$expression-$exprPartialDeriv"/>
+                    <admst:variable name="expressionDeriv" select="$expressionDeriv-$exprPartialDeriv12"/>
+                  </admst:when>
+                </admst:choose>
+              </admst:for-each>
+              <admst:if test="[not($expression = '')]">
+                <admst:variable name="expression" select="($expression)"/>
+              </admst:if>
+              <admst:if test="[not($expressionDeriv = '')]">
+                <admst:variable name="expressionDeriv" select="($expressionDeriv)"/>
+              </admst:if>
+              <!-- restore original "derivProbe"  -->
+              <admst:variable name="derivProbe" path="$savedDerivProbe" />
+              <admst:variable name="derivProbe2" path="$savedDerivProbe2" />
+            </admst:otherwise>
+          </admst:choose>
       </admst:when>
       <admst:when test="[name='floor']">
         <admst:assert test="arguments[count(.)=1]" format="%(name): should have one argument exactly\n"/>
