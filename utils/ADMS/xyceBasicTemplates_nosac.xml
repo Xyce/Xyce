@@ -268,7 +268,7 @@
         <admst:apply-templates select="." match="verilog2CXXtype"/>
       </admst:otherwise>
     </admst:choose>
-    <admst:text format=" %(name);//insource=%(insource) \n"/>
+    <admst:text format=" %(name);\n"/>
     <admst:if test="[type='real' and exists(probe) and not($globalCurrentScope='sensitivity') and insource='yes']">
       <admst:variable name="myVar" path="."/>
       <admst:for-each select="probe">
@@ -6396,7 +6396,7 @@ other variables does not get propagated into a variable's
       <admst:variable name="skipFunctionPrecomp" select="y"/>
       <admst:text format="std::cerr "/>
       <admst:for-each select="function/arguments">
-      <admst:text format=" &lt;&lt; %(printTerm(.))"/>
+      <admst:text format=" &lt;&lt; %(printTerm(.)) &lt;&lt; &quot; &quot;"/>
       </admst:for-each>
       <admst:text format=" &lt;&lt;  std::endl; \n"/>
       <admst:variable name="skipFunctionPrecomp" select="$saveSkipFunctionPrecomp"/>
