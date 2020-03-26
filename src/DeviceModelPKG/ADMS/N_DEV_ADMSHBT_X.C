@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Mar 2020 14:53:34
+// Creation Date  : Thu, 26 Mar 2020 13:35:06
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -3379,16 +3379,16 @@ bool Instance::updateIntermediateVars()
   d_vbei_dV_bii_ei = d_probeVars[admsProbeID_V_bii_ei][admsProbeID_V_bii_ei];
 
 
-  d_vxe_dV_ex_ei = ((model_.dtype)*d_probeVars[admsProbeID_V_ex_ei][admsProbeID_V_ex_ei]);
+  d_vxe_dV_ex_ei = (model_.dtype)*d_probeVars[admsProbeID_V_ex_ei][admsProbeID_V_ex_ei];
   vxe = ((model_.dtype)*(probeVars[admsProbeID_V_ex_ei]));
 
-  d_vxc_dV_cx_ci = ((model_.dtype)*d_probeVars[admsProbeID_V_cx_ci][admsProbeID_V_cx_ci]);
+  d_vxc_dV_cx_ci = (model_.dtype)*d_probeVars[admsProbeID_V_cx_ci][admsProbeID_V_cx_ci];
   vxc = ((model_.dtype)*(probeVars[admsProbeID_V_cx_ci]));
 
-  d_vxxe_dV_exx_ei = ((model_.dtype)*d_probeVars[admsProbeID_V_exx_ei][admsProbeID_V_exx_ei]);
+  d_vxxe_dV_exx_ei = (model_.dtype)*d_probeVars[admsProbeID_V_exx_ei][admsProbeID_V_exx_ei];
   vxxe = ((model_.dtype)*(probeVars[admsProbeID_V_exx_ei]));
 
-  d_vcei_dV_ci_ei = ((model_.dtype)*d_probeVars[admsProbeID_V_ci_ei][admsProbeID_V_ci_ei]);
+  d_vcei_dV_ci_ei = (model_.dtype)*d_probeVars[admsProbeID_V_ci_ei][admsProbeID_V_ci_ei];
   vcei = ((model_.dtype)*(probeVars[admsProbeID_V_ci_ei]));
 
   d_Texi_dV_ti_GND = d_probeVars[admsProbeID_V_ti_GND][admsProbeID_V_ti_GND];
@@ -3504,9 +3504,9 @@ bool Instance::updateIntermediateVars()
     double value_sqrt_0 = sqrt(((q1*q1)+(4.0*q2)));
     double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
-    d_qb_dV_ti_GND = ((deriv_sqrt_0_d0*((4.0*d_q2_dV_ti_GND)))/2.0);
-    d_qb_dV_bii_ci = ((d_q1_dV_bii_ci+(deriv_sqrt_0_d0*((((q1*d_q1_dV_bii_ci)+(d_q1_dV_bii_ci*q1))+(4.0*d_q2_dV_bii_ci)))))/2.0);
-    d_qb_dV_bii_ei = ((d_q1_dV_bii_ei+(deriv_sqrt_0_d0*((((q1*d_q1_dV_bii_ei)+(d_q1_dV_bii_ei*q1))+(4.0*d_q2_dV_bii_ei)))))/2.0);
+    d_qb_dV_ti_GND = ((deriv_sqrt_0_d0*(4.0*d_q2_dV_ti_GND))/2.0);
+    d_qb_dV_bii_ci = ((d_q1_dV_bii_ci+(deriv_sqrt_0_d0*(((q1*d_q1_dV_bii_ci+d_q1_dV_bii_ci*q1)+4.0*d_q2_dV_bii_ci))))/2.0);
+    d_qb_dV_bii_ei = ((d_q1_dV_bii_ei+(deriv_sqrt_0_d0*(((q1*d_q1_dV_bii_ei+d_q1_dV_bii_ei*q1)+4.0*d_q2_dV_bii_ei))))/2.0);
     qb = ((q1+value_sqrt_0)/2.0);
   }
 
@@ -3556,15 +3556,15 @@ bool Instance::updateIntermediateVars()
       if ((((model_.Bf)-((model_.kBeta)*Tex))>1e-6))
       {
 
-        d_EdBeta_dV_bii_ci = (((((model_.kc)*(mm-1))+1)*(-((model_.kc)*d_mm_dV_bii_ci))-((1/((model_.Bf)-((model_.kBeta)*Tex)))-((model_.kc)*(mm-1)))*((model_.kc)*d_mm_dV_bii_ci))/(((model_.kc)*(mm-1))+1)/(((model_.kc)*(mm-1))+1));
-        d_EdBeta_dV_ti_GND = ((-1*(-((model_.kBeta)*d_Tex_dV_ti_GND))/((model_.Bf)-((model_.kBeta)*Tex))/((model_.Bf)-((model_.kBeta)*Tex)))/(((model_.kc)*(mm-1))+1));
+        d_EdBeta_dV_bii_ci = (((((model_.kc)*(mm-1))+1)*(-(model_.kc)*d_mm_dV_bii_ci)-((1/((model_.Bf)-((model_.kBeta)*Tex)))-((model_.kc)*(mm-1)))*(model_.kc)*d_mm_dV_bii_ci)/(((model_.kc)*(mm-1))+1)/(((model_.kc)*(mm-1))+1));
+        d_EdBeta_dV_ti_GND = ((-1*(-(model_.kBeta)*d_Tex_dV_ti_GND)/((model_.Bf)-((model_.kBeta)*Tex))/((model_.Bf)-((model_.kBeta)*Tex)))/(((model_.kc)*(mm-1))+1));
         EdBeta = (((1/((model_.Bf)-((model_.kBeta)*Tex)))-((model_.kc)*(mm-1)))/(((model_.kc)*(mm-1))+1));
       }
       else
       {
 
         d_EdBeta_dV_ti_GND =  0.0;
-        d_EdBeta_dV_bii_ci = (((((model_.kc)*(mm-1))+1)*(-((model_.kc)*d_mm_dV_bii_ci))-(1e6-((model_.kc)*(mm-1)))*((model_.kc)*d_mm_dV_bii_ci))/(((model_.kc)*(mm-1))+1)/(((model_.kc)*(mm-1))+1));
+        d_EdBeta_dV_bii_ci = (((((model_.kc)*(mm-1))+1)*(-(model_.kc)*d_mm_dV_bii_ci)-(1e6-((model_.kc)*(mm-1)))*(model_.kc)*d_mm_dV_bii_ci)/(((model_.kc)*(mm-1))+1)/(((model_.kc)*(mm-1))+1));
         EdBeta = ((1e6-((model_.kc)*(mm-1)))/(((model_.kc)*(mm-1))+1));
       }
     }
@@ -3572,7 +3572,7 @@ bool Instance::updateIntermediateVars()
     {
 
       d_EdBeta_dV_ti_GND =  0.0;
-      d_EdBeta_dV_bii_ci = (((((model_.kc)*(mm-1))+1)*(-((model_.kc)*d_mm_dV_bii_ci))-((1/(model_.Bf))-((model_.kc)*(mm-1)))*((model_.kc)*d_mm_dV_bii_ci))/(((model_.kc)*(mm-1))+1)/(((model_.kc)*(mm-1))+1));
+      d_EdBeta_dV_bii_ci = (((((model_.kc)*(mm-1))+1)*(-(model_.kc)*d_mm_dV_bii_ci)-((1/(model_.Bf))-((model_.kc)*(mm-1)))*(model_.kc)*d_mm_dV_bii_ci)/(((model_.kc)*(mm-1))+1)/(((model_.kc)*(mm-1))+1));
       EdBeta = (((1/(model_.Bf))-((model_.kc)*(mm-1)))/(((model_.kc)*(mm-1))+1));
     }
   }
@@ -3584,7 +3584,7 @@ bool Instance::updateIntermediateVars()
       {
 
         d_EdBeta_dV_bii_ci =  0.0;
-        d_EdBeta_dV_ti_GND = (-1*(-((model_.kBeta)*d_Tex_dV_ti_GND))/((model_.Bf)-((model_.kBeta)*Tex))/((model_.Bf)-((model_.kBeta)*Tex)));
+        d_EdBeta_dV_ti_GND = (-1*(-(model_.kBeta)*d_Tex_dV_ti_GND)/((model_.Bf)-((model_.kBeta)*Tex))/((model_.Bf)-((model_.kBeta)*Tex)));
         EdBeta = (1/((model_.Bf)-((model_.kBeta)*Tex)));
       }
       else
@@ -3602,9 +3602,9 @@ bool Instance::updateIntermediateVars()
     }
   }
 
-  d_Ib0_dV_bii_ci = (Ic0a*d_EdBeta_dV_bii_ci);
-  d_Ib0_dV_ti_GND = ((Ic0a*d_EdBeta_dV_ti_GND)+(d_Ic0a_dV_ti_GND*EdBeta));
-  d_Ib0_dV_bii_ei = (d_Ic0a_dV_bii_ei*EdBeta);
+  d_Ib0_dV_bii_ci = Ic0a*d_EdBeta_dV_bii_ci;
+  d_Ib0_dV_ti_GND = (Ic0a*d_EdBeta_dV_ti_GND+d_Ic0a_dV_ti_GND*EdBeta);
+  d_Ib0_dV_bii_ei = d_Ic0a_dV_bii_ei*EdBeta;
   Ib0 = (Ic0a*EdBeta);
   if (((model_.BVebo)>0))
   {
@@ -3639,7 +3639,7 @@ bool Instance::updateIntermediateVars()
   {
 
     d_Ibdx_dV_ti_GND =  0.0;
-    d_Ibdx_dV_ex_ei = (d_vxe_dV_ex_ei*1e-12);
+    d_Ibdx_dV_ex_ei = d_vxe_dV_ex_ei*1e-12;
     Ibdx = (vxe*1e-12);
   }
   if ((((model_.Jsee)>0.0)&&((model_.nee)>0)))
@@ -3656,7 +3656,7 @@ bool Instance::updateIntermediateVars()
   {
 
     d_Ibdxx_dV_ti_GND =  0.0;
-    d_Ibdxx_dV_exx_ei = (d_vxxe_dV_exx_ei*1e-12);
+    d_Ibdxx_dV_exx_ei = d_vxxe_dV_exx_ei*1e-12;
     Ibdxx = (vxxe*1e-12);
   }
   if ((((model_.Jsc)>0.0)&&((model_.nc)>0)))
@@ -3673,15 +3673,15 @@ bool Instance::updateIntermediateVars()
   {
 
     d_Icdx_dV_ti_GND =  0.0;
-    d_Icdx_dV_cx_ci = (d_vxc_dV_cx_ci*1e-12);
+    d_Icdx_dV_cx_ci = d_vxc_dV_cx_ci*1e-12;
     Icdx = (vxc*1e-12);
   }
 
-  d_Ipdiss_dV_bi_ci = ((Ibx*d_vbcx_dV_bi_ci)+(d_Ibx_dV_bi_ci*vbcx));
-  d_Ipdiss_dV_ci_ei = (Ic1*d_vcei_dV_ci_ei);
-  d_Ipdiss_dV_bii_ci = (((d_Ic1_dV_bii_ci*vcei)+(d_Ib1_dV_bii_ci*vbei))+((Ib2*d_vbci_dV_bii_ci)+(d_Ib2_dV_bii_ci*vbci)));
-  d_Ipdiss_dV_ti_GND = ((((d_Ic1_dV_ti_GND*vcei)+(d_Ib1_dV_ti_GND*vbei))+(d_Ib2_dV_ti_GND*vbci))+(d_Ibx_dV_ti_GND*vbcx));
-  d_Ipdiss_dV_bii_ei = ((d_Ic1_dV_bii_ei*vcei)+((Ib1*d_vbei_dV_bii_ei)+(d_Ib1_dV_bii_ei*vbei)));
+  d_Ipdiss_dV_bi_ci = (Ibx*d_vbcx_dV_bi_ci+d_Ibx_dV_bi_ci*vbcx);
+  d_Ipdiss_dV_ci_ei = Ic1*d_vcei_dV_ci_ei;
+  d_Ipdiss_dV_bii_ci = ((d_Ic1_dV_bii_ci*vcei+d_Ib1_dV_bii_ci*vbei)+(Ib2*d_vbci_dV_bii_ci+d_Ib2_dV_bii_ci*vbci));
+  d_Ipdiss_dV_ti_GND = (((d_Ic1_dV_ti_GND*vcei+d_Ib1_dV_ti_GND*vbei)+d_Ib2_dV_ti_GND*vbci)+d_Ibx_dV_ti_GND*vbcx);
+  d_Ipdiss_dV_bii_ei = (d_Ic1_dV_bii_ei*vcei+(Ib1*d_vbei_dV_bii_ei+d_Ib1_dV_bii_ei*vbei));
   Ipdiss = ((((Ic1*vcei)+(Ib1*vbei))+(Ib2*vbci))+(Ibx*vbcx));
   if ((Ipdiss<0.0))
   {
@@ -3698,7 +3698,7 @@ bool Instance::updateIntermediateVars()
         AnalogFunctions::chargeEvaluator evaluator_charge_0(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
 
         d_qb2med_dV_bii_ei = d_qb2med_dV_ti_GND =  0.0;
-        d_qb2med_dV_bii_ci = (((model_.XCjc)*evaluator_charge_0.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0))+((((model_.XCjc)*Area)*(model_.Cmin))*d_vbci_dV_bii_ci));
+        d_qb2med_dV_bii_ci = ((model_.XCjc)*evaluator_charge_0.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+(((model_.XCjc)*Area)*(model_.Cmin))*d_vbci_dV_bii_ci);
         qb2med = (((model_.XCjc)*evaluator_charge_0.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area))+((((model_.XCjc)*Area)*(model_.Cmin))*vbci));
       }
     }
@@ -3714,9 +3714,9 @@ bool Instance::updateIntermediateVars()
         AnalogFunctions::chargeEvaluator evaluator_charge_1(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
         double  deriv_tanh_0_d0 = (1.0/cosh(xix)/cosh(xix));
 
-        d_qb2med_dV_bii_ci = (((((model_.XCjc)*(1.0-value_tanh_0))*(evaluator_charge_1.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci)))+(((model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_bii_ci))))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci))))+(((((model_.XJ0)*(model_.XCjc))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci));
-        d_qb2med_dV_ti_GND = (((model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_ti_GND))))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
-        d_qb2med_dV_bii_ei = (((model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_bii_ei))))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
+        d_qb2med_dV_bii_ci = ((((model_.XCjc)*(1.0-value_tanh_0))*(evaluator_charge_1.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+(((1.0-(model_.XJ0))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci)+(model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_bii_ci)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)))+((((model_.XJ0)*(model_.XCjc))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci);
+        d_qb2med_dV_ti_GND = (model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_ti_GND)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci));
+        d_qb2med_dV_bii_ei = (model_.XCjc)*(-(deriv_tanh_0_d0*(d_xix_dV_bii_ei)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci));
         qb2med = ((((model_.XCjc)*(1.0-value_tanh_0))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)))+(((((model_.XJ0)*(model_.XCjc))*Area)*(model_.Cmin))*vbci));
       }
     }
@@ -3729,7 +3729,7 @@ bool Instance::updateIntermediateVars()
         AnalogFunctions::chargeEvaluator evaluator_charge_0(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
 
         d_qb2med_dV_bii_ei = d_qb2med_dV_ti_GND =  0.0;
-        d_qb2med_dV_bii_ci = (evaluator_charge_0.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+((Area*(model_.Cmin))*d_vbci_dV_bii_ci));
+        d_qb2med_dV_bii_ci = (evaluator_charge_0.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+(Area*(model_.Cmin))*d_vbci_dV_bii_ci);
         qb2med = (evaluator_charge_0.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((Area*(model_.Cmin))*vbci));
       }
     }
@@ -3745,9 +3745,9 @@ bool Instance::updateIntermediateVars()
         AnalogFunctions::chargeEvaluator evaluator_charge_1(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
         double  deriv_tanh_0_d0 = (1.0/cosh(xix)/cosh(xix));
 
-        d_qb2med_dV_bii_ci = ((((1.0-value_tanh_0)*(evaluator_charge_1.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci)))+((-(deriv_tanh_0_d0*(d_xix_dV_bii_ci)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci))))+((((model_.XJ0)*Area)*(model_.Cmin))*d_vbci_dV_bii_ci));
-        d_qb2med_dV_ti_GND = ((-(deriv_tanh_0_d0*(d_xix_dV_ti_GND)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
-        d_qb2med_dV_bii_ei = ((-(deriv_tanh_0_d0*(d_xix_dV_bii_ei)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)));
+        d_qb2med_dV_bii_ci = (((1.0-value_tanh_0)*(evaluator_charge_1.getDerivs(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbci_dV_bii_ci,0.0,0.0,0.0,0.0)+(((1.0-(model_.XJ0))*Area)*(model_.Cmin))*d_vbci_dV_bii_ci)+(-(deriv_tanh_0_d0*(d_xix_dV_bii_ci)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)))+(((model_.XJ0)*Area)*(model_.Cmin))*d_vbci_dV_bii_ci);
+        d_qb2med_dV_ti_GND = (-(deriv_tanh_0_d0*(d_xix_dV_ti_GND)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci));
+        d_qb2med_dV_bii_ei = (-(deriv_tanh_0_d0*(d_xix_dV_bii_ei)))*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci));
         qb2med = (((1.0-value_tanh_0)*(evaluator_charge_1.getValues(vbci,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area)+((((1.0-(model_.XJ0))*Area)*(model_.Cmin))*vbci)))+((((model_.XJ0)*Area)*(model_.Cmin))*vbci));
       }
     }
@@ -3757,7 +3757,7 @@ bool Instance::updateIntermediateVars()
     {
       AnalogFunctions::chargeEvaluator evaluator_charge_0(vbcx,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area);
 
-      d_qb1_dV_bi_ci = (((1.0-(model_.XCjc))*evaluator_charge_0.getDerivs(vbcx,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbcx_dV_bi_ci,0.0,0.0,0.0,0.0))+((((1.0-(model_.XCjc))*Area)*(model_.Cmin))*d_vbcx_dV_bi_ci));
+      d_qb1_dV_bi_ci = ((1.0-(model_.XCjc))*evaluator_charge_0.getDerivs(vbcx,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area,d_vbcx_dV_bi_ci,0.0,0.0,0.0,0.0)+(((1.0-(model_.XCjc))*Area)*(model_.Cmin))*d_vbcx_dV_bi_ci);
       qb1 = (((1.0-(model_.XCjc))*evaluator_charge_0.getValues(vbcx,((model_.Cjc)-(model_.Cmin)),(model_.Vjc),(model_.mjc),Area))+((((1.0-(model_.XCjc))*Area)*(model_.Cmin))*vbcx));
     }
   }
@@ -3768,13 +3768,13 @@ bool Instance::updateIntermediateVars()
     qb1 = 0.0;
   }
 
-  d_qbtr_dV_bii_ei = ((model_.Tr)*d_Ic1r_dV_bii_ei);
-  d_qbtr_dV_ti_GND = ((model_.Tr)*d_Ic1r_dV_ti_GND);
-  d_qbtr_dV_bii_ci = ((model_.Tr)*d_Ic1r_dV_bii_ci);
+  d_qbtr_dV_bii_ei = (model_.Tr)*d_Ic1r_dV_bii_ei;
+  d_qbtr_dV_ti_GND = (model_.Tr)*d_Ic1r_dV_ti_GND;
+  d_qbtr_dV_bii_ci = (model_.Tr)*d_Ic1r_dV_bii_ci;
   qbtr = ((model_.Tr)*Ic1r);
 
-  d_qbtra_dV_ti_GND = ((model_.Trx)*d_Ibx_dV_ti_GND);
-  d_qbtra_dV_bi_ci = ((model_.Trx)*d_Ibx_dV_bi_ci);
+  d_qbtra_dV_ti_GND = (model_.Trx)*d_Ibx_dV_ti_GND;
+  d_qbtra_dV_bi_ci = (model_.Trx)*d_Ibx_dV_bi_ci;
   qbtra = ((model_.Trx)*Ibx);
 
   d_qb2_dV_bii_ci = (d_qb2med_dV_bii_ci+d_qbtr_dV_bii_ci);
@@ -3815,9 +3815,9 @@ bool Instance::updateIntermediateVars()
       {
         AnalogFunctions::VceffEvaluator evaluator_Vceff_0(vcei,(model_.Vces));
 
-        d_Ih_dV_bii_ci = (-(-evaluator_Vceff_0.getValues(vcei,(model_.Vces))*(RCIO*d_Ic0_dV_bii_ci)/(RCIO*Ic0)/(RCIO*Ic0)));
-        d_Ih_dV_ti_GND = (-(-evaluator_Vceff_0.getValues(vcei,(model_.Vces))*(RCIO*d_Ic0_dV_ti_GND)/(RCIO*Ic0)/(RCIO*Ic0)));
-        d_Ih_dV_bii_ei = (-(-evaluator_Vceff_0.getValues(vcei,(model_.Vces))*(RCIO*d_Ic0_dV_bii_ei)/(RCIO*Ic0)/(RCIO*Ic0)));
+        d_Ih_dV_bii_ci = (-(-evaluator_Vceff_0.getValues(vcei,(model_.Vces))*RCIO*d_Ic0_dV_bii_ci/(RCIO*Ic0)/(RCIO*Ic0)));
+        d_Ih_dV_ti_GND = (-(-evaluator_Vceff_0.getValues(vcei,(model_.Vces))*RCIO*d_Ic0_dV_ti_GND/(RCIO*Ic0)/(RCIO*Ic0)));
+        d_Ih_dV_bii_ei = (-(-evaluator_Vceff_0.getValues(vcei,(model_.Vces))*RCIO*d_Ic0_dV_bii_ei/(RCIO*Ic0)/(RCIO*Ic0)));
         d_Ih_dV_ci_ei = (-(evaluator_Vceff_0.getDerivs(vcei,(model_.Vces),d_vcei_dV_ci_ei,0.0)/(RCIO*Ic0)));
         Ih = (1.0-(evaluator_Vceff_0.getValues(vcei,(model_.Vces))/(RCIO*Ic0)));
       }
@@ -3828,17 +3828,17 @@ bool Instance::updateIntermediateVars()
       double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
       double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
 
-      d_Wh_dV_bii_ci = ((d_Ih_dV_bii_ci+(deriv_sqrt_0_d0*(((Ih*d_Ih_dV_bii_ci)+(d_Ih_dV_bii_ci*Ih)))))/(1.0+value_sqrt_1));
-      d_Wh_dV_ti_GND = ((d_Ih_dV_ti_GND+(deriv_sqrt_0_d0*(((Ih*d_Ih_dV_ti_GND)+(d_Ih_dV_ti_GND*Ih)))))/(1.0+value_sqrt_1));
-      d_Wh_dV_bii_ei = ((d_Ih_dV_bii_ei+(deriv_sqrt_0_d0*(((Ih*d_Ih_dV_bii_ei)+(d_Ih_dV_bii_ei*Ih)))))/(1.0+value_sqrt_1));
-      d_Wh_dV_ci_ei = ((d_Ih_dV_ci_ei+(deriv_sqrt_0_d0*(((Ih*d_Ih_dV_ci_ei)+(d_Ih_dV_ci_ei*Ih)))))/(1.0+value_sqrt_1));
+      d_Wh_dV_bii_ci = ((d_Ih_dV_bii_ci+(deriv_sqrt_0_d0*((Ih*d_Ih_dV_bii_ci+d_Ih_dV_bii_ci*Ih))))/(1.0+value_sqrt_1));
+      d_Wh_dV_ti_GND = ((d_Ih_dV_ti_GND+(deriv_sqrt_0_d0*((Ih*d_Ih_dV_ti_GND+d_Ih_dV_ti_GND*Ih))))/(1.0+value_sqrt_1));
+      d_Wh_dV_bii_ei = ((d_Ih_dV_bii_ei+(deriv_sqrt_0_d0*((Ih*d_Ih_dV_bii_ei+d_Ih_dV_bii_ei*Ih))))/(1.0+value_sqrt_1));
+      d_Wh_dV_ci_ei = ((d_Ih_dV_ci_ei+(deriv_sqrt_0_d0*((Ih*d_Ih_dV_ci_ei+d_Ih_dV_ci_ei*Ih))))/(1.0+value_sqrt_1));
       Wh = ((Ih+value_sqrt_0)/(1.0+value_sqrt_1));
     }
 
-    d_xtff_dV_ci_ei = (((model_.Thcs)*Ic0)*((Wh*d_Wh_dV_ci_ei)+(d_Wh_dV_ci_ei*Wh)));
-    d_xtff_dV_bii_ci = ((((model_.Thcs)*Ic0)*((Wh*d_Wh_dV_bii_ci)+(d_Wh_dV_bii_ci*Wh)))+(((model_.Thcs)*d_Ic0_dV_bii_ci)*(Wh*Wh)));
-    d_xtff_dV_ti_GND = ((((model_.Thcs)*Ic0)*((Wh*d_Wh_dV_ti_GND)+(d_Wh_dV_ti_GND*Wh)))+(((model_.Thcs)*d_Ic0_dV_ti_GND)*(Wh*Wh)));
-    d_xtff_dV_bii_ei = ((((model_.Thcs)*Ic0)*((Wh*d_Wh_dV_bii_ei)+(d_Wh_dV_bii_ei*Wh)))+(((model_.Thcs)*d_Ic0_dV_bii_ei)*(Wh*Wh)));
+    d_xtff_dV_ci_ei = ((model_.Thcs)*Ic0)*(Wh*d_Wh_dV_ci_ei+d_Wh_dV_ci_ei*Wh);
+    d_xtff_dV_bii_ci = (((model_.Thcs)*Ic0)*(Wh*d_Wh_dV_bii_ci+d_Wh_dV_bii_ci*Wh)+(model_.Thcs)*d_Ic0_dV_bii_ci*(Wh*Wh));
+    d_xtff_dV_ti_GND = (((model_.Thcs)*Ic0)*(Wh*d_Wh_dV_ti_GND+d_Wh_dV_ti_GND*Wh)+(model_.Thcs)*d_Ic0_dV_ti_GND*(Wh*Wh));
+    d_xtff_dV_bii_ei = (((model_.Thcs)*Ic0)*(Wh*d_Wh_dV_bii_ei+d_Wh_dV_bii_ei*Wh)+(model_.Thcs)*d_Ic0_dV_bii_ei*(Wh*Wh));
     xtff = (((model_.Thcs)*Ic0)*(Wh*Wh));
   }
   else
@@ -3848,9 +3848,9 @@ bool Instance::updateIntermediateVars()
     xtff = 0;
   }
 
-  d_qbtf_dV_bii_ci = (((model_.Tf)+((model_.Tft)*Tex))*d_Ic0_dV_bii_ci);
-  d_qbtf_dV_bii_ei = (((model_.Tf)+((model_.Tft)*Tex))*d_Ic0_dV_bii_ei);
-  d_qbtf_dV_ti_GND = ((((model_.Tf)+((model_.Tft)*Tex))*d_Ic0_dV_ti_GND)+(((model_.Tft)*d_Tex_dV_ti_GND)*Ic0));
+  d_qbtf_dV_bii_ci = ((model_.Tf)+((model_.Tft)*Tex))*d_Ic0_dV_bii_ci;
+  d_qbtf_dV_bii_ei = ((model_.Tf)+((model_.Tft)*Tex))*d_Ic0_dV_bii_ei;
+  d_qbtf_dV_ti_GND = (((model_.Tf)+((model_.Tft)*Tex))*d_Ic0_dV_ti_GND+(model_.Tft)*d_Tex_dV_ti_GND*Ic0);
   qbtf = (((model_.Tf)+((model_.Tft)*Tex))*Ic0);
   {
     AnalogFunctions::chargeEvaluator evaluator_charge_0(vbei,(model_.Cje),(model_.Vje),(model_.mje),Area);
@@ -3867,8 +3867,8 @@ bool Instance::updateIntermediateVars()
     double d_contribTemp_dV_ti_GND;
     double d_contribTemp_dV_bi_ci;
     contribTemp= ((model_.dtype)*Ibx);
-    d_contribTemp_dV_ti_GND = ((model_.dtype)*d_Ibx_dV_ti_GND);
-    d_contribTemp_dV_bi_ci = ((model_.dtype)*d_Ibx_dV_bi_ci);
+    d_contribTemp_dV_ti_GND = (model_.dtype)*d_Ibx_dV_ti_GND;
+    d_contribTemp_dV_bi_ci = (model_.dtype)*d_Ibx_dV_bi_ci;
     staticContributions[admsNodeID_bi] += contribTemp;
     d_staticContributions[admsNodeID_bi][admsProbeID_V_ti_GND] += d_contribTemp_dV_ti_GND;
     d_staticContributions[admsNodeID_bi][admsProbeID_V_bi_ci] += d_contribTemp_dV_bi_ci;
@@ -3885,8 +3885,8 @@ bool Instance::updateIntermediateVars()
     double d_contribTemp_dV_ti_GND;
     double d_contribTemp_dV_bi_ci;
     contribTemp= ((model_.dtype)*((qb1+qbtra)));
-    d_contribTemp_dV_ti_GND = ((model_.dtype)*(d_qbtra_dV_ti_GND));
-    d_contribTemp_dV_bi_ci = ((model_.dtype)*((d_qb1_dV_bi_ci+d_qbtra_dV_bi_ci)));
+    d_contribTemp_dV_ti_GND = (model_.dtype)*(d_qbtra_dV_ti_GND);
+    d_contribTemp_dV_bi_ci = (model_.dtype)*((d_qb1_dV_bi_ci+d_qbtra_dV_bi_ci));
     dynamicContributions[admsNodeID_bi] += contribTemp;
     d_dynamicContributions[admsNodeID_bi][admsProbeID_V_ti_GND] += d_contribTemp_dV_ti_GND;
     d_dynamicContributions[admsNodeID_bi][admsProbeID_V_bi_ci] += d_contribTemp_dV_bi_ci;
@@ -3903,8 +3903,8 @@ bool Instance::updateIntermediateVars()
     double d_contribTemp_dV_ti_GND;
     double d_contribTemp_dV_bii_ci;
     contribTemp= ((model_.dtype)*Ib2);
-    d_contribTemp_dV_ti_GND = ((model_.dtype)*d_Ib2_dV_ti_GND);
-    d_contribTemp_dV_bii_ci = ((model_.dtype)*d_Ib2_dV_bii_ci);
+    d_contribTemp_dV_ti_GND = (model_.dtype)*d_Ib2_dV_ti_GND;
+    d_contribTemp_dV_bii_ci = (model_.dtype)*d_Ib2_dV_bii_ci;
     staticContributions[admsNodeID_bii] += contribTemp;
     d_staticContributions[admsNodeID_bii][admsProbeID_V_ti_GND] += d_contribTemp_dV_ti_GND;
     d_staticContributions[admsNodeID_bii][admsProbeID_V_bii_ci] += d_contribTemp_dV_bii_ci;
@@ -3922,9 +3922,9 @@ bool Instance::updateIntermediateVars()
     double d_contribTemp_dV_ti_GND;
     double d_contribTemp_dV_bii_ei;
     contribTemp= ((model_.dtype)*(qb2));
-    d_contribTemp_dV_bii_ci = ((model_.dtype)*(d_qb2_dV_bii_ci));
-    d_contribTemp_dV_ti_GND = ((model_.dtype)*(d_qb2_dV_ti_GND));
-    d_contribTemp_dV_bii_ei = ((model_.dtype)*(d_qb2_dV_bii_ei));
+    d_contribTemp_dV_bii_ci = (model_.dtype)*(d_qb2_dV_bii_ci);
+    d_contribTemp_dV_ti_GND = (model_.dtype)*(d_qb2_dV_ti_GND);
+    d_contribTemp_dV_bii_ei = (model_.dtype)*(d_qb2_dV_bii_ei);
     dynamicContributions[admsNodeID_bii] += contribTemp;
     d_dynamicContributions[admsNodeID_bii][admsProbeID_V_bii_ci] += d_contribTemp_dV_bii_ci;
     d_dynamicContributions[admsNodeID_bii][admsProbeID_V_ti_GND] += d_contribTemp_dV_ti_GND;
@@ -3944,9 +3944,9 @@ bool Instance::updateIntermediateVars()
     double d_contribTemp_dV_ti_GND;
     double d_contribTemp_dV_bii_ei;
     contribTemp= ((model_.dtype)*Ib1);
-    d_contribTemp_dV_bii_ci = ((model_.dtype)*d_Ib1_dV_bii_ci);
-    d_contribTemp_dV_ti_GND = ((model_.dtype)*d_Ib1_dV_ti_GND);
-    d_contribTemp_dV_bii_ei = ((model_.dtype)*d_Ib1_dV_bii_ei);
+    d_contribTemp_dV_bii_ci = (model_.dtype)*d_Ib1_dV_bii_ci;
+    d_contribTemp_dV_ti_GND = (model_.dtype)*d_Ib1_dV_ti_GND;
+    d_contribTemp_dV_bii_ei = (model_.dtype)*d_Ib1_dV_bii_ei;
     staticContributions[admsNodeID_bii] += contribTemp;
     d_staticContributions[admsNodeID_bii][admsProbeID_V_bii_ci] += d_contribTemp_dV_bii_ci;
     d_staticContributions[admsNodeID_bii][admsProbeID_V_ti_GND] += d_contribTemp_dV_ti_GND;
@@ -3967,10 +3967,10 @@ bool Instance::updateIntermediateVars()
     double d_contribTemp_dV_ti_GND;
     double d_contribTemp_dV_bii_ei;
     contribTemp= ((model_.dtype)*(qbe));
-    d_contribTemp_dV_ci_ei = ((model_.dtype)*(d_qbe_dV_ci_ei));
-    d_contribTemp_dV_bii_ci = ((model_.dtype)*(d_qbe_dV_bii_ci));
-    d_contribTemp_dV_ti_GND = ((model_.dtype)*(d_qbe_dV_ti_GND));
-    d_contribTemp_dV_bii_ei = ((model_.dtype)*(d_qbe_dV_bii_ei));
+    d_contribTemp_dV_ci_ei = (model_.dtype)*(d_qbe_dV_ci_ei);
+    d_contribTemp_dV_bii_ci = (model_.dtype)*(d_qbe_dV_bii_ci);
+    d_contribTemp_dV_ti_GND = (model_.dtype)*(d_qbe_dV_ti_GND);
+    d_contribTemp_dV_bii_ei = (model_.dtype)*(d_qbe_dV_bii_ei);
     dynamicContributions[admsNodeID_bii] += contribTemp;
     d_dynamicContributions[admsNodeID_bii][admsProbeID_V_ci_ei] += d_contribTemp_dV_ci_ei;
     d_dynamicContributions[admsNodeID_bii][admsProbeID_V_bii_ci] += d_contribTemp_dV_bii_ci;
@@ -3992,9 +3992,9 @@ bool Instance::updateIntermediateVars()
     double d_contribTemp_dV_ti_GND;
     double d_contribTemp_dV_bii_ei;
     contribTemp= ((model_.dtype)*Ic1);
-    d_contribTemp_dV_bii_ci = ((model_.dtype)*d_Ic1_dV_bii_ci);
-    d_contribTemp_dV_ti_GND = ((model_.dtype)*d_Ic1_dV_ti_GND);
-    d_contribTemp_dV_bii_ei = ((model_.dtype)*d_Ic1_dV_bii_ei);
+    d_contribTemp_dV_bii_ci = (model_.dtype)*d_Ic1_dV_bii_ci;
+    d_contribTemp_dV_ti_GND = (model_.dtype)*d_Ic1_dV_ti_GND;
+    d_contribTemp_dV_bii_ei = (model_.dtype)*d_Ic1_dV_bii_ei;
     staticContributions[admsNodeID_ci] += contribTemp;
     d_staticContributions[admsNodeID_ci][admsProbeID_V_bii_ci] += d_contribTemp_dV_bii_ci;
     d_staticContributions[admsNodeID_ci][admsProbeID_V_ti_GND] += d_contribTemp_dV_ti_GND;
@@ -4009,43 +4009,43 @@ bool Instance::updateIntermediateVars()
   }
   // I(ex,ei) <+ ((dtype*Ibdx))
   staticContributions[admsNodeID_ex] += ((model_.dtype)*Ibdx);
-  d_staticContributions[admsNodeID_ex][admsProbeID_V_ti_GND] += ((model_.dtype)*d_Ibdx_dV_ti_GND);
-  d_staticContributions[admsNodeID_ex][admsProbeID_V_ex_ei] += ((model_.dtype)*d_Ibdx_dV_ex_ei);
+  d_staticContributions[admsNodeID_ex][admsProbeID_V_ti_GND] += (model_.dtype)*d_Ibdx_dV_ti_GND;
+  d_staticContributions[admsNodeID_ex][admsProbeID_V_ex_ei] += (model_.dtype)*d_Ibdx_dV_ex_ei;
   staticContributions[admsNodeID_ei] -= ((model_.dtype)*Ibdx);
-  d_staticContributions[admsNodeID_ei][admsProbeID_V_ti_GND] -= ((model_.dtype)*d_Ibdx_dV_ti_GND);
-  d_staticContributions[admsNodeID_ei][admsProbeID_V_ex_ei] -= ((model_.dtype)*d_Ibdx_dV_ex_ei);
+  d_staticContributions[admsNodeID_ei][admsProbeID_V_ti_GND] -= (model_.dtype)*d_Ibdx_dV_ti_GND;
+  d_staticContributions[admsNodeID_ei][admsProbeID_V_ex_ei] -= (model_.dtype)*d_Ibdx_dV_ex_ei;
   // I(exx,ei) <+ ((dtype*Ibdxx))
   staticContributions[admsNodeID_exx] += ((model_.dtype)*Ibdxx);
-  d_staticContributions[admsNodeID_exx][admsProbeID_V_ti_GND] += ((model_.dtype)*d_Ibdxx_dV_ti_GND);
-  d_staticContributions[admsNodeID_exx][admsProbeID_V_exx_ei] += ((model_.dtype)*d_Ibdxx_dV_exx_ei);
+  d_staticContributions[admsNodeID_exx][admsProbeID_V_ti_GND] += (model_.dtype)*d_Ibdxx_dV_ti_GND;
+  d_staticContributions[admsNodeID_exx][admsProbeID_V_exx_ei] += (model_.dtype)*d_Ibdxx_dV_exx_ei;
   staticContributions[admsNodeID_ei] -= ((model_.dtype)*Ibdxx);
-  d_staticContributions[admsNodeID_ei][admsProbeID_V_ti_GND] -= ((model_.dtype)*d_Ibdxx_dV_ti_GND);
-  d_staticContributions[admsNodeID_ei][admsProbeID_V_exx_ei] -= ((model_.dtype)*d_Ibdxx_dV_exx_ei);
+  d_staticContributions[admsNodeID_ei][admsProbeID_V_ti_GND] -= (model_.dtype)*d_Ibdxx_dV_ti_GND;
+  d_staticContributions[admsNodeID_ei][admsProbeID_V_exx_ei] -= (model_.dtype)*d_Ibdxx_dV_exx_ei;
   // I(cx,ci) <+ ((dtype*Icdx))
   staticContributions[admsNodeID_cx] += ((model_.dtype)*Icdx);
-  d_staticContributions[admsNodeID_cx][admsProbeID_V_ti_GND] += ((model_.dtype)*d_Icdx_dV_ti_GND);
-  d_staticContributions[admsNodeID_cx][admsProbeID_V_cx_ci] += ((model_.dtype)*d_Icdx_dV_cx_ci);
+  d_staticContributions[admsNodeID_cx][admsProbeID_V_ti_GND] += (model_.dtype)*d_Icdx_dV_ti_GND;
+  d_staticContributions[admsNodeID_cx][admsProbeID_V_cx_ci] += (model_.dtype)*d_Icdx_dV_cx_ci;
   staticContributions[admsNodeID_ci] -= ((model_.dtype)*Icdx);
-  d_staticContributions[admsNodeID_ci][admsProbeID_V_ti_GND] -= ((model_.dtype)*d_Icdx_dV_ti_GND);
-  d_staticContributions[admsNodeID_ci][admsProbeID_V_cx_ci] -= ((model_.dtype)*d_Icdx_dV_cx_ci);
+  d_staticContributions[admsNodeID_ci][admsProbeID_V_ti_GND] -= (model_.dtype)*d_Icdx_dV_ti_GND;
+  d_staticContributions[admsNodeID_ci][admsProbeID_V_cx_ci] -= (model_.dtype)*d_Icdx_dV_cx_ci;
   // V(b,bi) <+ ((I(b,bi)*(Rb/N)))
   staticContributions[admsBRA_ID_b_bi] += ((probeVars[admsProbeID_I_b_bi])*((model_.Rb)/N));
-  d_staticContributions[admsBRA_ID_b_bi][admsProbeID_I_b_bi] += (d_probeVars[admsProbeID_I_b_bi][admsProbeID_I_b_bi]*((model_.Rb)/N));
+  d_staticContributions[admsBRA_ID_b_bi][admsProbeID_I_b_bi] += d_probeVars[admsProbeID_I_b_bi][admsProbeID_I_b_bi]*((model_.Rb)/N);
   // V(b,bi) <+ (ddt((I(b,bi)*Lb)))
   dynamicContributions[admsBRA_ID_b_bi] += (((probeVars[admsProbeID_I_b_bi])*(model_.Lb)));
-  d_dynamicContributions[admsBRA_ID_b_bi][admsProbeID_I_b_bi] += ((d_probeVars[admsProbeID_I_b_bi][admsProbeID_I_b_bi]*(model_.Lb)));
+  d_dynamicContributions[admsBRA_ID_b_bi][admsProbeID_I_b_bi] += (d_probeVars[admsProbeID_I_b_bi][admsProbeID_I_b_bi]*(model_.Lb));
   // V(e,ei) <+ ((I(e,ei)*(Re/N)))
   staticContributions[admsBRA_ID_e_ei] += ((probeVars[admsProbeID_I_e_ei])*((model_.Re)/N));
-  d_staticContributions[admsBRA_ID_e_ei][admsProbeID_I_e_ei] += (d_probeVars[admsProbeID_I_e_ei][admsProbeID_I_e_ei]*((model_.Re)/N));
+  d_staticContributions[admsBRA_ID_e_ei][admsProbeID_I_e_ei] += d_probeVars[admsProbeID_I_e_ei][admsProbeID_I_e_ei]*((model_.Re)/N);
   // V(e,ei) <+ (ddt((I(e,ei)*Le)))
   dynamicContributions[admsBRA_ID_e_ei] += (((probeVars[admsProbeID_I_e_ei])*(model_.Le)));
-  d_dynamicContributions[admsBRA_ID_e_ei][admsProbeID_I_e_ei] += ((d_probeVars[admsProbeID_I_e_ei][admsProbeID_I_e_ei]*(model_.Le)));
+  d_dynamicContributions[admsBRA_ID_e_ei][admsProbeID_I_e_ei] += (d_probeVars[admsProbeID_I_e_ei][admsProbeID_I_e_ei]*(model_.Le));
   // V(c,ci) <+ ((I(c,ci)*(Rc/N)))
   staticContributions[admsBRA_ID_c_ci] += ((probeVars[admsProbeID_I_c_ci])*((model_.Rc)/N));
-  d_staticContributions[admsBRA_ID_c_ci][admsProbeID_I_c_ci] += (d_probeVars[admsProbeID_I_c_ci][admsProbeID_I_c_ci]*((model_.Rc)/N));
+  d_staticContributions[admsBRA_ID_c_ci][admsProbeID_I_c_ci] += d_probeVars[admsProbeID_I_c_ci][admsProbeID_I_c_ci]*((model_.Rc)/N);
   // V(c,ci) <+ (ddt((I(c,ci)*Lc)))
   dynamicContributions[admsBRA_ID_c_ci] += (((probeVars[admsProbeID_I_c_ci])*(model_.Lc)));
-  d_dynamicContributions[admsBRA_ID_c_ci][admsProbeID_I_c_ci] += ((d_probeVars[admsProbeID_I_c_ci][admsProbeID_I_c_ci]*(model_.Lc)));
+  d_dynamicContributions[admsBRA_ID_c_ci][admsProbeID_I_c_ci] += (d_probeVars[admsProbeID_I_c_ci][admsProbeID_I_c_ci]*(model_.Lc));
   // I(bii,bi) <+ ((V(bii,bi)/(Rb2/N)))
   staticContributions[admsNodeID_bii] += ((probeVars[admsProbeID_V_bii_bi])/((model_.Rb2)/N));
   d_staticContributions[admsNodeID_bii][admsProbeID_V_bii_bi] += (d_probeVars[admsProbeID_V_bii_bi][admsProbeID_V_bii_bi]/((model_.Rb2)/N));
@@ -4063,9 +4063,9 @@ bool Instance::updateIntermediateVars()
   {
     // I(ex,bii) <+ ((V(ex,bii)*1e-12))
     staticContributions[admsNodeID_ex] += ((probeVars[admsProbeID_V_ex_bii])*1e-12);
-    d_staticContributions[admsNodeID_ex][admsProbeID_V_ex_bii] += (d_probeVars[admsProbeID_V_ex_bii][admsProbeID_V_ex_bii]*1e-12);
+    d_staticContributions[admsNodeID_ex][admsProbeID_V_ex_bii] += d_probeVars[admsProbeID_V_ex_bii][admsProbeID_V_ex_bii]*1e-12;
     staticContributions[admsNodeID_bii] -= ((probeVars[admsProbeID_V_ex_bii])*1e-12);
-    d_staticContributions[admsNodeID_bii][admsProbeID_V_ex_bii] -= (d_probeVars[admsProbeID_V_ex_bii][admsProbeID_V_ex_bii]*1e-12);
+    d_staticContributions[admsNodeID_bii][admsProbeID_V_ex_bii] -= d_probeVars[admsProbeID_V_ex_bii][admsProbeID_V_ex_bii]*1e-12;
   }
   if ((((model_.Jsee)>0.0)&&((model_.nee)>0)))
   {
@@ -4079,9 +4079,9 @@ bool Instance::updateIntermediateVars()
   {
     // I(exx,bii) <+ ((V(exx,bii)*1e-12))
     staticContributions[admsNodeID_exx] += ((probeVars[admsProbeID_V_exx_bii])*1e-12);
-    d_staticContributions[admsNodeID_exx][admsProbeID_V_exx_bii] += (d_probeVars[admsProbeID_V_exx_bii][admsProbeID_V_exx_bii]*1e-12);
+    d_staticContributions[admsNodeID_exx][admsProbeID_V_exx_bii] += d_probeVars[admsProbeID_V_exx_bii][admsProbeID_V_exx_bii]*1e-12;
     staticContributions[admsNodeID_bii] -= ((probeVars[admsProbeID_V_exx_bii])*1e-12);
-    d_staticContributions[admsNodeID_bii][admsProbeID_V_exx_bii] -= (d_probeVars[admsProbeID_V_exx_bii][admsProbeID_V_exx_bii]*1e-12);
+    d_staticContributions[admsNodeID_bii][admsProbeID_V_exx_bii] -= d_probeVars[admsProbeID_V_exx_bii][admsProbeID_V_exx_bii]*1e-12;
   }
   if ((((model_.Jsc)>0.0)&&((model_.nc)>0)))
   {
@@ -4095,21 +4095,21 @@ bool Instance::updateIntermediateVars()
   {
     // I(cx,bii) <+ ((V(cx,bii)*1e-12))
     staticContributions[admsNodeID_cx] += ((probeVars[admsProbeID_V_cx_bii])*1e-12);
-    d_staticContributions[admsNodeID_cx][admsProbeID_V_cx_bii] += (d_probeVars[admsProbeID_V_cx_bii][admsProbeID_V_cx_bii]*1e-12);
+    d_staticContributions[admsNodeID_cx][admsProbeID_V_cx_bii] += d_probeVars[admsProbeID_V_cx_bii][admsProbeID_V_cx_bii]*1e-12;
     staticContributions[admsNodeID_bii] -= ((probeVars[admsProbeID_V_cx_bii])*1e-12);
-    d_staticContributions[admsNodeID_bii][admsProbeID_V_cx_bii] -= (d_probeVars[admsProbeID_V_cx_bii][admsProbeID_V_cx_bii]*1e-12);
+    d_staticContributions[admsNodeID_bii][admsProbeID_V_cx_bii] -= d_probeVars[admsProbeID_V_cx_bii][admsProbeID_V_cx_bii]*1e-12;
   }
   // I(b,GND) <+ (ddt((Cpb*V(b,GND))))
   dynamicContributions[admsNodeID_b] += (((model_.Cpb)*(probeVars[admsProbeID_V_b_GND])));
-  d_dynamicContributions[admsNodeID_b][admsProbeID_V_b_GND] += (((model_.Cpb)*d_probeVars[admsProbeID_V_b_GND][admsProbeID_V_b_GND]));
+  d_dynamicContributions[admsNodeID_b][admsProbeID_V_b_GND] += ((model_.Cpb)*d_probeVars[admsProbeID_V_b_GND][admsProbeID_V_b_GND]);
   // I(c,GND) <+ (ddt((Cpc*V(c,GND))))
   dynamicContributions[admsNodeID_c] += (((model_.Cpc)*(probeVars[admsProbeID_V_c_GND])));
-  d_dynamicContributions[admsNodeID_c][admsProbeID_V_c_GND] += (((model_.Cpc)*d_probeVars[admsProbeID_V_c_GND][admsProbeID_V_c_GND]));
+  d_dynamicContributions[admsNodeID_c][admsProbeID_V_c_GND] += ((model_.Cpc)*d_probeVars[admsProbeID_V_c_GND][admsProbeID_V_c_GND]);
   // I(b,c) <+ (ddt((Cq*V(b,c))))
   dynamicContributions[admsNodeID_b] += (((model_.Cq)*(probeVars[admsProbeID_V_b_c])));
-  d_dynamicContributions[admsNodeID_b][admsProbeID_V_b_c] += (((model_.Cq)*d_probeVars[admsProbeID_V_b_c][admsProbeID_V_b_c]));
+  d_dynamicContributions[admsNodeID_b][admsProbeID_V_b_c] += ((model_.Cq)*d_probeVars[admsProbeID_V_b_c][admsProbeID_V_b_c]);
   dynamicContributions[admsNodeID_c] -= (((model_.Cq)*(probeVars[admsProbeID_V_b_c])));
-  d_dynamicContributions[admsNodeID_c][admsProbeID_V_b_c] -= (((model_.Cq)*d_probeVars[admsProbeID_V_b_c][admsProbeID_V_b_c]));
+  d_dynamicContributions[admsNodeID_c][admsProbeID_V_b_c] -= ((model_.Cq)*d_probeVars[admsProbeID_V_b_c][admsProbeID_V_b_c]);
   // I(ti,GND) <+ ((-Ipdiss))
   {
     double contribTemp;
@@ -4142,17 +4142,17 @@ bool Instance::updateIntermediateVars()
     d_staticContributions[admsNodeID_ti][admsProbeID_V_t_ti] -= (d_probeVars[admsProbeID_V_t_ti][admsProbeID_V_t_ti]/(model_.Rth));
     // I(t,ti) <+ ((Cth*ddt(V(t,ti))))
     dynamicContributions[admsNodeID_t] += ((model_.Cth)*((probeVars[admsProbeID_V_t_ti])));
-    d_dynamicContributions[admsNodeID_t][admsProbeID_V_t_ti] += ((model_.Cth)*(d_probeVars[admsProbeID_V_t_ti][admsProbeID_V_t_ti]));
+    d_dynamicContributions[admsNodeID_t][admsProbeID_V_t_ti] += (model_.Cth)*(d_probeVars[admsProbeID_V_t_ti][admsProbeID_V_t_ti]);
     dynamicContributions[admsNodeID_ti] -= ((model_.Cth)*((probeVars[admsProbeID_V_t_ti])));
-    d_dynamicContributions[admsNodeID_ti][admsProbeID_V_t_ti] -= ((model_.Cth)*(d_probeVars[admsProbeID_V_t_ti][admsProbeID_V_t_ti]));
+    d_dynamicContributions[admsNodeID_ti][admsProbeID_V_t_ti] -= (model_.Cth)*(d_probeVars[admsProbeID_V_t_ti][admsProbeID_V_t_ti]);
   }
   else
   {
     // I(t,ti) <+ ((V(t,ti)*1e3))
     staticContributions[admsNodeID_t] += ((probeVars[admsProbeID_V_t_ti])*1e3);
-    d_staticContributions[admsNodeID_t][admsProbeID_V_t_ti] += (d_probeVars[admsProbeID_V_t_ti][admsProbeID_V_t_ti]*1e3);
+    d_staticContributions[admsNodeID_t][admsProbeID_V_t_ti] += d_probeVars[admsProbeID_V_t_ti][admsProbeID_V_t_ti]*1e3;
     staticContributions[admsNodeID_ti] -= ((probeVars[admsProbeID_V_t_ti])*1e3);
-    d_staticContributions[admsNodeID_ti][admsProbeID_V_t_ti] -= (d_probeVars[admsProbeID_V_t_ti][admsProbeID_V_t_ti]*1e3);
+    d_staticContributions[admsNodeID_ti][admsProbeID_V_t_ti] -= d_probeVars[admsProbeID_V_t_ti][admsProbeID_V_t_ti]*1e3;
   }
 
   // Additional term resulting from contributions into V(b,bi)

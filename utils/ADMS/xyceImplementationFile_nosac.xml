@@ -52,12 +52,13 @@
   <!-- save the module so we can reference it later -->
   <admst:variable name="theModule" select="%(.)"/>
 
-  <!-- some variables we'll use later -->
-  <!-- This one will be set to the current probe with respect to which we're
-       differentiating -->
-  <admst:variable name="derivProbe"/>
 
   <admst:variable name="skipFunctionPrecomp" select="y"/>
+
+  <!-- flag any variables that the Verilog-A LRM says should
+       be output variables as such... this should be moved to
+       implicit rules -->
+  <admst:apply-templates select="/module" match="markOutputVariables"/>
 
   <!-- Set up some useful variables: the N_DEV_(foo) class, and its
      related Instance and Model classes -->
