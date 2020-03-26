@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 24 Mar 2020 14:42:32
+// Creation Date  : Thu, 26 Mar 2020 13:35:06
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1395,11 +1395,11 @@ bool Instance::processParams()
     tdevC = ((admsTemperature+trise)-273.15);
     if ((tdevC<(model_.tmin)))
     {
-      std::cerr  << "WARNING: ambient temperature is lower than allowed minimum" <<  std::endl; 
+      std::cerr  << "WARNING: ambient temperature is lower than allowed minimum" << " " <<  std::endl; 
     }
     if ((tdevC>(model_.tmax)))
     {
-      std::cerr  << "WARNING: ambient temperature is higher than allowed maximum" <<  std::endl; 
+      std::cerr  << "WARNING: ambient temperature is higher than allowed maximum" << " " <<  std::endl; 
     }
     if ((tdevC<((model_.tminclip)+1.0)))
     {
@@ -10453,11 +10453,11 @@ void evaluateInitialInstance(
     instanceVar_tdevC = ((admsTemperature+instancePar_trise)-273.15);
     if ((instanceVar_tdevC<modelPar_tmin))
     {
-      std::cerr  << "WARNING: ambient temperature is lower than allowed minimum" <<  std::endl; 
+      std::cerr  << "WARNING: ambient temperature is lower than allowed minimum" << " " <<  std::endl; 
     }
     if ((instanceVar_tdevC>modelPar_tmax))
     {
-      std::cerr  << "WARNING: ambient temperature is higher than allowed maximum" <<  std::endl; 
+      std::cerr  << "WARNING: ambient temperature is higher than allowed maximum" << " " <<  std::endl; 
     }
     if ((instanceVar_tdevC<(modelPar_tminclip+1.0)))
     {

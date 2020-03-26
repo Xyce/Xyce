@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 24 Mar 2020 14:42:32
+// Creation Date  : Thu, 26 Mar 2020 13:35:06
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -7870,14 +7870,14 @@ W_mult = (W*(model_.WMLT));
 Lnew = (L_mult+(model_.XL));
 if ((Lnew<=0))
 {
-std::cerr  << "Fatal: Ldrawn*LMLT+XL = %e for  %M is non-positive" << Lnew <<  std::endl; 
+std::cerr  << "Fatal: Ldrawn*LMLT+XL = %e for  %M is non-positive" << " " << Lnew << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 W_by_NF = (W_mult/NF);
 Wnew = (W_by_NF+(model_.XW));
 if ((Wnew<=0))
 {
-std::cerr  << "Fatal: W/NF*WMLT+XW = %e for  %M is non-positive" << Wnew <<  std::endl; 
+std::cerr  << "Fatal: W/NF*WMLT+XW = %e for  %M is non-positive" << " " << Wnew << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 {
@@ -7903,27 +7903,27 @@ dWIV = ((((model_.WINT)+((model_.WL)*L_WLN))+((model_.WW)*W_WWN))+((model_.WWL)*
 Leff = (Lnew-(2.0*dLIV));
 if ((Leff<=0))
 {
-std::cerr  << "Fatal: Effective channel length = %e for  %M is non-positive" << Leff <<  std::endl; 
+std::cerr  << "Fatal: Effective channel length = %e for  %M is non-positive" << " " << Leff << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
 {
 if ((Leff<=1.0e-9))
 {
-std::cerr  << "Warning: Effective channel length = %e for  %M is <= 1.0e-9. Recommended Leff >= 1e-8" << Leff <<  std::endl; 
+std::cerr  << "Warning: Effective channel length = %e for  %M is <= 1.0e-9. Recommended Leff >= 1e-8" << " " << Leff << " " <<  std::endl; 
 }
 }
 Weff = (Wnew-(2.0*dWIV));
 if ((Weff<=0))
 {
-std::cerr  << "Fatal: Effective channel Width = %e for  %M is non-positive" << Weff <<  std::endl; 
+std::cerr  << "Fatal: Effective channel Width = %e for  %M is non-positive" << " " << Weff << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
 {
 if ((Weff<=1.0e-9))
 {
-std::cerr  << "Warning: Effective channel width = %e for  %M is <= 1.0e-9. Recommended Weff >= 1e-8" << Leff <<  std::endl; 
+std::cerr  << "Warning: Effective channel width = %e for  %M is <= 1.0e-9. Recommended Weff >= 1e-8" << " " << Leff << " " <<  std::endl; 
 }
 }
 dLCV = ((((model_.DLC)+((model_.LLC)*L_LLN))+((model_.LWC)*W_LWN))+((model_.LWLC)*LW_LLN_LWN));
@@ -7931,27 +7931,27 @@ dWCV = ((((model_.DWC)+((model_.WLC)*L_WLN))+((model_.WWC)*W_WWN))+((model_.WWLC
 Lact = (Lnew-(2.0*dLCV));
 if ((Lact<=0))
 {
-std::cerr  << "Fatal: Effective channel length for CV = %e for  %M is non-positive" << Lact <<  std::endl; 
+std::cerr  << "Fatal: Effective channel length for CV = %e for  %M is non-positive" << " " << Lact << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
 {
 if ((Lact<=1.0e-9))
 {
-std::cerr  << "Warning: Effective channel length for CV = %e for  %M is <= 1.0e-9. Recommended Leff >= 1e-8" << Leff <<  std::endl; 
+std::cerr  << "Warning: Effective channel length for CV = %e for  %M is <= 1.0e-9. Recommended Leff >= 1e-8" << " " << Leff << " " <<  std::endl; 
 }
 }
 Wact = (Wnew-(2.0*dWCV));
 if ((Wact<=0))
 {
-std::cerr  << "Fatal: Effective channel width for CV = %e for  %M is non-positive" << Wact <<  std::endl; 
+std::cerr  << "Fatal: Effective channel width for CV = %e for  %M is non-positive" << " " << Wact << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
 {
 if ((Wact<=1.0e-9))
 {
-std::cerr  << "Warning: Effective channel width for CV = %e for  %M is <= 1.0e-9. Recommended Weff >= 1e-8" << Leff <<  std::endl; 
+std::cerr  << "Warning: Effective channel width for CV = %e for  %M is <= 1.0e-9. Recommended Weff >= 1e-8" << " " << Leff << " " <<  std::endl; 
 }
 }
 {
@@ -7964,7 +7964,7 @@ dWJ = ((((model_.DWJ)+((model_.WLC)/value_pow_0))+((model_.WWC)/value_pow_1))+((
 Weffcj = (Wnew-(2.0*dWJ));
 if ((Weffcj<=0))
 {
-std::cerr  << "Fatal: Effective channel width for S/D junctions = %e for  %M is non-positive" << Weffcj <<  std::endl; 
+std::cerr  << "Fatal: Effective channel width for S/D junctions = %e for  %M is non-positive" << " " << Weffcj << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 Inv_L = (1.0e-6/Leff);
@@ -7980,7 +7980,7 @@ if (((model_.DLBIN)!=0))
 {
 if (((model_.DLBIN)<=(-Lnew)))
 {
-std::cerr  << "Fatal: DLBIN for  %M = %e is <= -Ldrawn*LMLT" << (model_.DLBIN) <<  std::endl; 
+std::cerr  << "Fatal: DLBIN for  %M = %e is <= -Ldrawn*LMLT" << " " << (model_.DLBIN) << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
@@ -8001,7 +8001,7 @@ if (((model_.DWBIN)!=0))
 {
 if (((model_.DWBIN)<=(-Wnew)))
 {
-std::cerr  << "Fatal: DWBIN for  %M = %e is <= -Wdrawn*WMLT" << (model_.DWBIN) <<  std::endl; 
+std::cerr  << "Fatal: DWBIN for  %M = %e is <= -Wdrawn*WMLT" << " " << (model_.DWBIN) << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
@@ -8023,13 +8023,13 @@ dWB = ((((model_.WINT)+((model_.WL)*L_WLN1))+((model_.WW)*W_WWN1))+((model_.WWL)
 Leff1 = ((Lnew-(2.0*dLB))+(model_.DLBIN));
 if ((Leff1<=0))
 {
-std::cerr  << "Fatal: Effective channel length for binning = %e for  %M is non-positive" << Leff1 <<  std::endl; 
+std::cerr  << "Fatal: Effective channel length for binning = %e for  %M is non-positive" << " " << Leff1 << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 Weff1 = ((Wnew-(2.0*dWB))+(model_.DWBIN));
 if ((Weff1<=0))
 {
-std::cerr  << "Fatal: Effective channel width for binning = %e for  %M is non-positive" << Weff1 <<  std::endl; 
+std::cerr  << "Fatal: Effective channel width for binning = %e for  %M is non-positive" << " " << Weff1 << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if (((model_.BINUNIT)==1))
@@ -8650,75 +8650,75 @@ UCSR_i = 2.0;
 }
 if ((UCR_i<0))
 {
-std::cerr  << "Fatal: UCR_i = %e is negative." << UCR_i <<  std::endl; 
+std::cerr  << "Fatal: UCR_i = %e is negative." << " " << UCR_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
 if ((CGIDL_i<0))
 {
-std::cerr  << "Fatal: CGIDL_i = %e is negative." << CGIDL_i <<  std::endl; 
+std::cerr  << "Fatal: CGIDL_i = %e is negative." << " " << CGIDL_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((CGISL_i<0))
 {
-std::cerr  << "Fatal: CGISL_i = %e is negative." << CGISL_i <<  std::endl; 
+std::cerr  << "Fatal: CGISL_i = %e is negative." << " " << CGISL_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((CKAPPAD_i<=0))
 {
-std::cerr  << "Fatal: CKAPPAD_i = %e is non-positive." << CKAPPAD_i <<  std::endl; 
+std::cerr  << "Fatal: CKAPPAD_i = %e is non-positive." << " " << CKAPPAD_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((CKAPPAS_i<=0))
 {
-std::cerr  << "Fatal: CKAPPAS_i = %e is non-positive." << CKAPPAS_i <<  std::endl; 
+std::cerr  << "Fatal: CKAPPAS_i = %e is non-positive." << " " << CKAPPAS_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((PDITS_i<0))
 {
-std::cerr  << "Fatal: PDITS_i = %e is negative." << PDITS_i <<  std::endl; 
+std::cerr  << "Fatal: PDITS_i = %e is negative." << " " << PDITS_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((CIT_i<0))
 {
-std::cerr  << "Fatal: CIT_i = %e is negative." << CIT_i <<  std::endl; 
+std::cerr  << "Fatal: CIT_i = %e is negative." << " " << CIT_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((NFACTOR_i<0))
 {
-std::cerr  << "Fatal: NFACTOR_i = %e is negative." << NFACTOR_i <<  std::endl; 
+std::cerr  << "Fatal: NFACTOR_i = %e is negative." << " " << NFACTOR_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((K1_i<0))
 {
-std::cerr  << "Fatal: K1_i = %e is positive." << K1_i <<  std::endl; 
+std::cerr  << "Fatal: K1_i = %e is positive." << " " << K1_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((NSD_i<=0))
 {
-std::cerr  << "Fatal: NSD_i = %e is non-positive." << NSD_i <<  std::endl; 
+std::cerr  << "Fatal: NSD_i = %e is non-positive." << " " << NSD_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((NDEP_i<=0))
 {
-std::cerr  << "Fatal: NDEP_i = %e is non-positive." << NDEP_i <<  std::endl; 
+std::cerr  << "Fatal: NDEP_i = %e is non-positive." << " " << NDEP_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((NDEPCV_i<=0))
 {
-std::cerr  << "Fatal: NDEPCV_i = %e is non-positive." << NDEPCV_i <<  std::endl; 
+std::cerr  << "Fatal: NDEPCV_i = %e is non-positive." << " " << NDEPCV_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if (((model_.IGBMOD)!=0))
 {
 if ((NIGBINV_i<=0))
 {
-std::cerr  << "Fatal: NIGBINV_i = %e is non-positive." << NIGBINV_i <<  std::endl; 
+std::cerr  << "Fatal: NIGBINV_i = %e is non-positive." << " " << NIGBINV_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((NIGBACC_i<=0))
 {
-std::cerr  << "Fatal: NIGBACC_i = %e is non-positive." << NIGBACC_i <<  std::endl; 
+std::cerr  << "Fatal: NIGBACC_i = %e is non-positive." << " " << NIGBACC_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
@@ -8726,20 +8726,20 @@ if (((model_.IGCMOD)!=0))
 {
 if ((POXEDGE_i<=0))
 {
-std::cerr  << "Fatal: POXEDGE_i = %e is non-positive." << POXEDGE_i <<  std::endl; 
+std::cerr  << "Fatal: POXEDGE_i = %e is non-positive." << " " << POXEDGE_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
 if ((CDSCD_i<0))
 {
-std::cerr  << "Fatal: CDSCD_i = %e is negative." << CDSCD_i <<  std::endl; 
+std::cerr  << "Fatal: CDSCD_i = %e is negative." << " " << CDSCD_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if (((model_.ASYMMOD)!=0))
 {
 if ((CDSCDR_i<0))
 {
-std::cerr  << "Fatal: CDSCDR_i = %e is negative." << CDSCDR_i <<  std::endl; 
+std::cerr  << "Fatal: CDSCDR_i = %e is negative." << " " << CDSCDR_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
@@ -16745,7 +16745,7 @@ if (((model_.TNOM)<=(-273.15)))
 
 d_T0_dV_gm_di = d_T0_dV_gm_si = d_T0_dV_dbulk_di = d_T0_dV_sbulk_si = d_T0_dV_gi_bi = d_T0_dV_di_bi = d_T0_dV_si_bi = d_T0_dTemp_t_GND =  0.0;
 T0 = (300.15-273.15);
-std::cerr  << "Warning: TNOM = %e C <= %e C. Setting TNOM to %e C." << (model_.TNOM) << (-273.15) << T0 <<  std::endl; 
+std::cerr  << "Warning: TNOM = %e C <= %e C. Setting TNOM to %e C." << " " << (model_.TNOM) << " " << (-273.15) << " " << T0 << " " <<  std::endl; 
 Tnom = 300.15;
 }
 else
@@ -16995,7 +16995,7 @@ VSAT_t = (VSAT_i*value_pow_0);
 }
 if ((VSAT_t<100.0))
 {
-std::cerr  << "Warning: VSAT(%f) = %e is less than 100, setting it to 100." << DevTemp << VSAT_t <<  std::endl; 
+std::cerr  << "Warning: VSAT(%f) = %e is less than 100, setting it to 100." << " " << DevTemp << " " << VSAT_t << " " <<  std::endl; 
 
 d_VSAT_t_dTemp_t_GND =  0.0;
 VSAT_t = 100.0;
@@ -17011,7 +17011,7 @@ VSATR_t = (VSATR_i*value_pow_0);
 }
 if ((VSATR_t<100.0))
 {
-std::cerr  << "Warning: VSATR(%f) = %e is less than 100, setting it to 100." << DevTemp << VSATR_t <<  std::endl; 
+std::cerr  << "Warning: VSATR(%f) = %e is less than 100, setting it to 100." << " " << DevTemp << " " << VSATR_t << " " <<  std::endl; 
 
 d_VSATR_t_dTemp_t_GND =  0.0;
 VSATR_t = 100.0;
@@ -17026,7 +17026,7 @@ VSATCV_t = (VSATCV_i*value_pow_0);
 }
 if ((VSATCV_t<100.0))
 {
-std::cerr  << "Warning: VSATCV(%f) = %e is less than 100, setting it to 100." << DevTemp << VSATCV_t <<  std::endl; 
+std::cerr  << "Warning: VSATCV(%f) = %e is less than 100, setting it to 100." << " " << DevTemp << " " << VSATCV_t << " " <<  std::endl; 
 
 d_VSATCV_t_dTemp_t_GND =  0.0;
 VSATCV_t = 100.0;
@@ -17554,7 +17554,7 @@ ASeff = temp_ASeff;
 }
 if ((ASeff<0.0))
 {
-std::cerr  << "Warning: (instance %M) ASeff = %e is negative, set to zero." << ASeff <<  std::endl; 
+std::cerr  << "Warning: (instance %M) ASeff = %e is negative, set to zero." << " " << ASeff << " " <<  std::endl; 
 
 d_ASeff_dTemp_t_GND =  0.0;
 ASeff = 0.0;
@@ -17573,7 +17573,7 @@ ADeff = temp_ADeff;
 }
 if ((ADeff<0.0))
 {
-std::cerr  << "Warning: (instance %M) ADeff = %e is negative, set to zero." << ADeff <<  std::endl; 
+std::cerr  << "Warning: (instance %M) ADeff = %e is negative, set to zero." << " " << ADeff << " " <<  std::endl; 
 
 d_ADeff_dTemp_t_GND =  0.0;
 ADeff = 0.0;
@@ -17603,7 +17603,7 @@ d_PSeff_dTemp_t_GND = d_temp_PSeff_dTemp_t_GND;
 PSeff = temp_PSeff;
 if ((PSeff<0.0))
 {
-std::cerr  << "Warning: (instance %M) PSeff = %e is negative.Set to 0.0" << PSeff <<  std::endl; 
+std::cerr  << "Warning: (instance %M) PSeff = %e is negative.Set to 0.0" << " " << PSeff << " " <<  std::endl; 
 
 d_PSeff_dTemp_t_GND =  0.0;
 PSeff = 0.0;
@@ -17634,7 +17634,7 @@ d_PDeff_dTemp_t_GND = d_temp_PDeff_dTemp_t_GND;
 PDeff = temp_PDeff;
 if ((PDeff<0.0))
 {
-std::cerr  << "Warning: (instance %M) PDeff = %e is negative.Set to 0.0" << PDeff <<  std::endl; 
+std::cerr  << "Warning: (instance %M) PDeff = %e is negative.Set to 0.0" << " " << PDeff << " " <<  std::endl; 
 
 d_PDeff_dTemp_t_GND =  0.0;
 PDeff = 0.0;
@@ -22371,7 +22371,7 @@ d_Nt_dTemp_t_GND = 4.0*d_Vt_dTemp_t_GND*1.60219e-19;
 Nt = ((4.0*Vt)*1.60219e-19);
 if (((model_.LINTNOI)>=(Leff/2.0)))
 {
-std::cerr  << "Warning: LINTNOI = %e is too large - Leff for noise is negative.  Re-setting LINTNOI = 0." << (model_.LINTNOI) <<  std::endl; 
+std::cerr  << "Warning: LINTNOI = %e is too large - Leff for noise is negative.  Re-setting LINTNOI = 0." << " " << (model_.LINTNOI) << " " <<  std::endl; 
 LINTNOI_i = 0;
 }
 else
@@ -32616,14 +32616,14 @@ W_mult = (instancePar_W*modelPar_WMLT);
 instanceVar_Lnew = (instanceVar_L_mult+modelPar_XL);
 if ((instanceVar_Lnew<=0))
 {
-std::cerr  << "Fatal: Ldrawn*LMLT+XL = %e for  %M is non-positive" << instanceVar_Lnew <<  std::endl; 
+std::cerr  << "Fatal: Ldrawn*LMLT+XL = %e for  %M is non-positive" << " " << instanceVar_Lnew << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 W_by_NF = (W_mult/instancePar_NF);
 instanceVar_Wnew = (W_by_NF+modelPar_XW);
 if ((instanceVar_Wnew<=0))
 {
-std::cerr  << "Fatal: W/NF*WMLT+XW = %e for  %M is non-positive" << instanceVar_Wnew <<  std::endl; 
+std::cerr  << "Fatal: W/NF*WMLT+XW = %e for  %M is non-positive" << " " << instanceVar_Wnew << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 L_LLN = pow(instanceVar_Lnew,(-modelPar_LLN));
@@ -32637,27 +32637,27 @@ dWIV = (((modelPar_WINT+(modelPar_WL*L_WLN))+(modelPar_WW*W_WWN))+(modelPar_WWL*
 instanceVar_Leff = (instanceVar_Lnew-(2.0*dLIV));
 if ((instanceVar_Leff<=0))
 {
-std::cerr  << "Fatal: Effective channel length = %e for  %M is non-positive" << instanceVar_Leff <<  std::endl; 
+std::cerr  << "Fatal: Effective channel length = %e for  %M is non-positive" << " " << instanceVar_Leff << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
 {
 if ((instanceVar_Leff<=1.0e-9))
 {
-std::cerr  << "Warning: Effective channel length = %e for  %M is <= 1.0e-9. Recommended Leff >= 1e-8" << instanceVar_Leff <<  std::endl; 
+std::cerr  << "Warning: Effective channel length = %e for  %M is <= 1.0e-9. Recommended Leff >= 1e-8" << " " << instanceVar_Leff << " " <<  std::endl; 
 }
 }
 instanceVar_Weff = (instanceVar_Wnew-(2.0*dWIV));
 if ((instanceVar_Weff<=0))
 {
-std::cerr  << "Fatal: Effective channel Width = %e for  %M is non-positive" << instanceVar_Weff <<  std::endl; 
+std::cerr  << "Fatal: Effective channel Width = %e for  %M is non-positive" << " " << instanceVar_Weff << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
 {
 if ((instanceVar_Weff<=1.0e-9))
 {
-std::cerr  << "Warning: Effective channel width = %e for  %M is <= 1.0e-9. Recommended Weff >= 1e-8" << instanceVar_Leff <<  std::endl; 
+std::cerr  << "Warning: Effective channel width = %e for  %M is <= 1.0e-9. Recommended Weff >= 1e-8" << " " << instanceVar_Leff << " " <<  std::endl; 
 }
 }
 dLCV = (((modelPar_DLC+(modelPar_LLC*L_LLN))+(modelPar_LWC*W_LWN))+(modelPar_LWLC*LW_LLN_LWN));
@@ -32665,34 +32665,34 @@ dWCV = (((modelPar_DWC+(modelPar_WLC*L_WLN))+(modelPar_WWC*W_WWN))+(modelPar_WWL
 instanceVar_Lact = (instanceVar_Lnew-(2.0*dLCV));
 if ((instanceVar_Lact<=0))
 {
-std::cerr  << "Fatal: Effective channel length for CV = %e for  %M is non-positive" << instanceVar_Lact <<  std::endl; 
+std::cerr  << "Fatal: Effective channel length for CV = %e for  %M is non-positive" << " " << instanceVar_Lact << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
 {
 if ((instanceVar_Lact<=1.0e-9))
 {
-std::cerr  << "Warning: Effective channel length for CV = %e for  %M is <= 1.0e-9. Recommended Leff >= 1e-8" << instanceVar_Leff <<  std::endl; 
+std::cerr  << "Warning: Effective channel length for CV = %e for  %M is <= 1.0e-9. Recommended Leff >= 1e-8" << " " << instanceVar_Leff << " " <<  std::endl; 
 }
 }
 instanceVar_Wact = (instanceVar_Wnew-(2.0*dWCV));
 if ((instanceVar_Wact<=0))
 {
-std::cerr  << "Fatal: Effective channel width for CV = %e for  %M is non-positive" << instanceVar_Wact <<  std::endl; 
+std::cerr  << "Fatal: Effective channel width for CV = %e for  %M is non-positive" << " " << instanceVar_Wact << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
 {
 if ((instanceVar_Wact<=1.0e-9))
 {
-std::cerr  << "Warning: Effective channel width for CV = %e for  %M is <= 1.0e-9. Recommended Weff >= 1e-8" << instanceVar_Leff <<  std::endl; 
+std::cerr  << "Warning: Effective channel width for CV = %e for  %M is <= 1.0e-9. Recommended Weff >= 1e-8" << " " << instanceVar_Leff << " " <<  std::endl; 
 }
 }
 dWJ = (((modelPar_DWJ+(modelPar_WLC/pow(instanceVar_Lnew,modelPar_WLN)))+(modelPar_WWC/pow(instanceVar_Wnew,modelPar_WWN)))+((modelPar_WWLC/pow(instanceVar_Lnew,modelPar_WLN))/pow(instanceVar_Wnew,modelPar_WWN)));
 instanceVar_Weffcj = (instanceVar_Wnew-(2.0*dWJ));
 if ((instanceVar_Weffcj<=0))
 {
-std::cerr  << "Fatal: Effective channel width for S/D junctions = %e for  %M is non-positive" << instanceVar_Weffcj <<  std::endl; 
+std::cerr  << "Fatal: Effective channel width for S/D junctions = %e for  %M is non-positive" << " " << instanceVar_Weffcj << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 Inv_L = (1.0e-6/instanceVar_Leff);
@@ -32708,7 +32708,7 @@ if ((modelPar_DLBIN!=0))
 {
 if ((modelPar_DLBIN<=(-instanceVar_Lnew)))
 {
-std::cerr  << "Fatal: DLBIN for  %M = %e is <= -Ldrawn*LMLT" << modelPar_DLBIN <<  std::endl; 
+std::cerr  << "Fatal: DLBIN for  %M = %e is <= -Ldrawn*LMLT" << " " << modelPar_DLBIN << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
@@ -32723,7 +32723,7 @@ if ((modelPar_DWBIN!=0))
 {
 if ((modelPar_DWBIN<=(-instanceVar_Wnew)))
 {
-std::cerr  << "Fatal: DWBIN for  %M = %e is <= -Wdrawn*WMLT" << modelPar_DWBIN <<  std::endl; 
+std::cerr  << "Fatal: DWBIN for  %M = %e is <= -Wdrawn*WMLT" << " " << modelPar_DWBIN << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
@@ -32739,13 +32739,13 @@ dWB = (((modelPar_WINT+(modelPar_WL*L_WLN1))+(modelPar_WW*W_WWN1))+(modelPar_WWL
 Leff1 = ((instanceVar_Lnew-(2.0*dLB))+modelPar_DLBIN);
 if ((Leff1<=0))
 {
-std::cerr  << "Fatal: Effective channel length for binning = %e for  %M is non-positive" << Leff1 <<  std::endl; 
+std::cerr  << "Fatal: Effective channel length for binning = %e for  %M is non-positive" << " " << Leff1 << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 Weff1 = ((instanceVar_Wnew-(2.0*dWB))+modelPar_DWBIN);
 if ((Weff1<=0))
 {
-std::cerr  << "Fatal: Effective channel width for binning = %e for  %M is non-positive" << Weff1 <<  std::endl; 
+std::cerr  << "Fatal: Effective channel width for binning = %e for  %M is non-positive" << " " << Weff1 << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((modelPar_BINUNIT==1))
@@ -33055,75 +33055,75 @@ instanceVar_UCSR_i = 2.0;
 }
 if ((instanceVar_UCR_i<0))
 {
-std::cerr  << "Fatal: UCR_i = %e is negative." << instanceVar_UCR_i <<  std::endl; 
+std::cerr  << "Fatal: UCR_i = %e is negative." << " " << instanceVar_UCR_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
 if ((instanceVar_CGIDL_i<0))
 {
-std::cerr  << "Fatal: CGIDL_i = %e is negative." << instanceVar_CGIDL_i <<  std::endl; 
+std::cerr  << "Fatal: CGIDL_i = %e is negative." << " " << instanceVar_CGIDL_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_CGISL_i<0))
 {
-std::cerr  << "Fatal: CGISL_i = %e is negative." << instanceVar_CGISL_i <<  std::endl; 
+std::cerr  << "Fatal: CGISL_i = %e is negative." << " " << instanceVar_CGISL_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_CKAPPAD_i<=0))
 {
-std::cerr  << "Fatal: CKAPPAD_i = %e is non-positive." << instanceVar_CKAPPAD_i <<  std::endl; 
+std::cerr  << "Fatal: CKAPPAD_i = %e is non-positive." << " " << instanceVar_CKAPPAD_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_CKAPPAS_i<=0))
 {
-std::cerr  << "Fatal: CKAPPAS_i = %e is non-positive." << instanceVar_CKAPPAS_i <<  std::endl; 
+std::cerr  << "Fatal: CKAPPAS_i = %e is non-positive." << " " << instanceVar_CKAPPAS_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_PDITS_i<0))
 {
-std::cerr  << "Fatal: PDITS_i = %e is negative." << instanceVar_PDITS_i <<  std::endl; 
+std::cerr  << "Fatal: PDITS_i = %e is negative." << " " << instanceVar_PDITS_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_CIT_i<0))
 {
-std::cerr  << "Fatal: CIT_i = %e is negative." << instanceVar_CIT_i <<  std::endl; 
+std::cerr  << "Fatal: CIT_i = %e is negative." << " " << instanceVar_CIT_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_NFACTOR_i<0))
 {
-std::cerr  << "Fatal: NFACTOR_i = %e is negative." << instanceVar_NFACTOR_i <<  std::endl; 
+std::cerr  << "Fatal: NFACTOR_i = %e is negative." << " " << instanceVar_NFACTOR_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_K1_i<0))
 {
-std::cerr  << "Fatal: K1_i = %e is positive." << instanceVar_K1_i <<  std::endl; 
+std::cerr  << "Fatal: K1_i = %e is positive." << " " << instanceVar_K1_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_NSD_i<=0))
 {
-std::cerr  << "Fatal: NSD_i = %e is non-positive." << instanceVar_NSD_i <<  std::endl; 
+std::cerr  << "Fatal: NSD_i = %e is non-positive." << " " << instanceVar_NSD_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_NDEP_i<=0))
 {
-std::cerr  << "Fatal: NDEP_i = %e is non-positive." << instanceVar_NDEP_i <<  std::endl; 
+std::cerr  << "Fatal: NDEP_i = %e is non-positive." << " " << instanceVar_NDEP_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_NDEPCV_i<=0))
 {
-std::cerr  << "Fatal: NDEPCV_i = %e is non-positive." << instanceVar_NDEPCV_i <<  std::endl; 
+std::cerr  << "Fatal: NDEPCV_i = %e is non-positive." << " " << instanceVar_NDEPCV_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((modelPar_IGBMOD!=0))
 {
 if ((instanceVar_NIGBINV_i<=0))
 {
-std::cerr  << "Fatal: NIGBINV_i = %e is non-positive." << instanceVar_NIGBINV_i <<  std::endl; 
+std::cerr  << "Fatal: NIGBINV_i = %e is non-positive." << " " << instanceVar_NIGBINV_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_NIGBACC_i<=0))
 {
-std::cerr  << "Fatal: NIGBACC_i = %e is non-positive." << instanceVar_NIGBACC_i <<  std::endl; 
+std::cerr  << "Fatal: NIGBACC_i = %e is non-positive." << " " << instanceVar_NIGBACC_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
@@ -33131,20 +33131,20 @@ if ((modelPar_IGCMOD!=0))
 {
 if ((POXEDGE_i<=0))
 {
-std::cerr  << "Fatal: POXEDGE_i = %e is non-positive." << POXEDGE_i <<  std::endl; 
+std::cerr  << "Fatal: POXEDGE_i = %e is non-positive." << " " << POXEDGE_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
 if ((instanceVar_CDSCD_i<0))
 {
-std::cerr  << "Fatal: CDSCD_i = %e is negative." << instanceVar_CDSCD_i <<  std::endl; 
+std::cerr  << "Fatal: CDSCD_i = %e is negative." << " " << instanceVar_CDSCD_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((modelPar_ASYMMOD!=0))
 {
 if ((instanceVar_CDSCDR_i<0))
 {
-std::cerr  << "Fatal: CDSCDR_i = %e is negative." << instanceVar_CDSCDR_i <<  std::endl; 
+std::cerr  << "Fatal: CDSCDR_i = %e is negative." << " " << instanceVar_CDSCDR_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
@@ -41699,7 +41699,7 @@ bool modelPar_given_EDGEFET,
 if ((modelPar_TNOM<=(-273.15)))
 {
 instanceVar_T0 = (300.15-273.15);
-std::cerr  << "Warning: TNOM = %e C <= %e C. Setting TNOM to %e C." << modelPar_TNOM << (-273.15) << instanceVar_T0 <<  std::endl; 
+std::cerr  << "Warning: TNOM = %e C <= %e C. Setting TNOM to %e C." << " " << modelPar_TNOM << " " << (-273.15) << " " << instanceVar_T0 << " " <<  std::endl; 
 Tnom = 300.15;
 }
 else
@@ -41781,7 +41781,7 @@ rdstemp = pow(TRatio,instanceVar_PRT_i);
 VSAT_t = (instanceVar_VSAT_i*pow(TRatio,(-instanceVar_AT_i)));
 if ((VSAT_t<100.0))
 {
-std::cerr  << "Warning: VSAT(%f) = %e is less than 100, setting it to 100." << DevTemp << VSAT_t <<  std::endl; 
+std::cerr  << "Warning: VSAT(%f) = %e is less than 100, setting it to 100." << " " << DevTemp << " " << VSAT_t << " " <<  std::endl; 
 VSAT_t = 100.0;
 }
 if ((modelPar_ASYMMOD!=0))
@@ -41789,14 +41789,14 @@ if ((modelPar_ASYMMOD!=0))
 instanceVar_VSATR_t = (instanceVar_VSATR_i*pow(TRatio,(-instanceVar_AT_i)));
 if ((instanceVar_VSATR_t<100.0))
 {
-std::cerr  << "Warning: VSATR(%f) = %e is less than 100, setting it to 100." << DevTemp << instanceVar_VSATR_t <<  std::endl; 
+std::cerr  << "Warning: VSATR(%f) = %e is less than 100, setting it to 100." << " " << DevTemp << " " << instanceVar_VSATR_t << " " <<  std::endl; 
 instanceVar_VSATR_t = 100.0;
 }
 }
 VSATCV_t = (instanceVar_VSATCV_i*pow(TRatio,(-instanceVar_AT_i)));
 if ((VSATCV_t<100.0))
 {
-std::cerr  << "Warning: VSATCV(%f) = %e is less than 100, setting it to 100." << DevTemp << VSATCV_t <<  std::endl; 
+std::cerr  << "Warning: VSATCV(%f) = %e is less than 100, setting it to 100." << " " << DevTemp << " " << VSATCV_t << " " <<  std::endl; 
 VSATCV_t = 100.0;
 }
 DELTA_t = (1.0/(AnalogFunctions::hypsmooth<AdmsSensFadType>((((1.0/instanceVar_DELTA_i)*(1.0+(modelPar_TDELTA*delTemp)))-2.0),1.0E-3)+2.0));
@@ -41993,7 +41993,7 @@ ASeff = temp_ASeff;
 }
 if ((ASeff<0.0))
 {
-std::cerr  << "Warning: (instance %M) ASeff = %e is negative, set to zero." << ASeff <<  std::endl; 
+std::cerr  << "Warning: (instance %M) ASeff = %e is negative, set to zero." << " " << ASeff << " " <<  std::endl; 
 ASeff = 0.0;
 }
 if (instancePar_given_AD)
@@ -42006,7 +42006,7 @@ ADeff = temp_ADeff;
 }
 if ((ADeff<0.0))
 {
-std::cerr  << "Warning: (instance %M) ADeff = %e is negative, set to zero." << ADeff <<  std::endl; 
+std::cerr  << "Warning: (instance %M) ADeff = %e is negative, set to zero." << " " << ADeff << " " <<  std::endl; 
 ADeff = 0.0;
 }
 if (instancePar_given_PS)
@@ -42025,7 +42025,7 @@ else
 PSeff = temp_PSeff;
 if ((PSeff<0.0))
 {
-std::cerr  << "Warning: (instance %M) PSeff = %e is negative.Set to 0.0" << PSeff <<  std::endl; 
+std::cerr  << "Warning: (instance %M) PSeff = %e is negative.Set to 0.0" << " " << PSeff << " " <<  std::endl; 
 PSeff = 0.0;
 }
 }
@@ -42045,7 +42045,7 @@ else
 PDeff = temp_PDeff;
 if ((PDeff<0.0))
 {
-std::cerr  << "Warning: (instance %M) PDeff = %e is negative.Set to 0.0" << PDeff <<  std::endl; 
+std::cerr  << "Warning: (instance %M) PDeff = %e is negative.Set to 0.0" << " " << PDeff << " " <<  std::endl; 
 PDeff = 0.0;
 }
 }
@@ -43196,7 +43196,7 @@ Qbd = (Qbd+((PBSWGD_t*Czbdswg)*(T4+T5)));
 Nt = ((4.0*Vt)*1.60219e-19);
 if ((modelPar_LINTNOI>=(instanceVar_Leff/2.0)))
 {
-std::cerr  << "Warning: LINTNOI = %e is too large - Leff for noise is negative.  Re-setting LINTNOI = 0." << modelPar_LINTNOI <<  std::endl; 
+std::cerr  << "Warning: LINTNOI = %e is too large - Leff for noise is negative.  Re-setting LINTNOI = 0." << " " << modelPar_LINTNOI << " " <<  std::endl; 
 LINTNOI_i = 0;
 }
 else

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 24 Mar 2020 14:42:32
+// Creation Date  : Thu, 26 Mar 2020 13:35:06
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -9911,26 +9911,26 @@ LeffCV_acc = (LeffCV-(model_.DLCACC));
 NFINtotal = (NFIN*NF);
 if ((Leff<=0.0))
 {
-std::cerr  << "Fatal: Leff = %e is not positive." << Leff <<  std::endl; 
+std::cerr  << "Fatal: Leff = %e is not positive." << " " << Leff << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
 {
 if ((Leff<=1.0e-9))
 {
-std::cerr  << "Warning: Leff = %e <= 1.0e-9." << Leff <<  std::endl; 
+std::cerr  << "Warning: Leff = %e <= 1.0e-9." << " " << Leff << " " <<  std::endl; 
 }
 }
 if ((Leff1<=0.0))
 {
-std::cerr  << "Fatal: Leff1 = %e is not positive." << Leff1 <<  std::endl; 
+std::cerr  << "Fatal: Leff1 = %e is not positive." << " " << Leff1 << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
 {
 if ((Leff1<=1.0e-9))
 {
-std::cerr  << "Warning: Leff1 = %e <= 1.0e-9." << Leff1 <<  std::endl; 
+std::cerr  << "Warning: Leff1 = %e <= 1.0e-9." << " " << Leff1 << " " <<  std::endl; 
 }
 }
 Inv_L = (1.0e-6/Leff1);
@@ -10222,11 +10222,11 @@ UDR_i = ((((model_.UDR)+(Inv_L*(model_.LUDR)))+(Inv_NFIN*(model_.NUDR)))+(Inv_LN
 }
 if (((model_.NQSMOD)==1))
 {
-std::cerr  << " Although the model selector NQSMOD is set to 1, the NQS gate resistance model is not activated in the Verilog-A code. Please uncomment `define __NQSMOD1__ in bsimcmg.va to activate it." <<  std::endl; 
+std::cerr  << " Although the model selector NQSMOD is set to 1, the NQS gate resistance model is not activated in the Verilog-A code. Please uncomment `define __NQSMOD1__ in bsimcmg.va to activate it." << " " <<  std::endl; 
 }
 if (((model_.NQSMOD)==2))
 {
-std::cerr  << " Although the model selector NQSMOD is set to 2, the NQS gate resistance model is not activated in the Verilog-A code. Please uncomment `define __NQSMOD2__ in bsimcmg.va to activate it." <<  std::endl; 
+std::cerr  << " Although the model selector NQSMOD is set to 2, the NQS gate resistance model is not activated in the Verilog-A code. Please uncomment `define __NQSMOD2__ in bsimcmg.va to activate it." << " " <<  std::endl; 
 }
 UTE_i = ((((model_.UTE)+(Inv_L*(model_.LUTE)))+(Inv_NFIN*(model_.NUTE)))+(Inv_LNFIN*(model_.PUTE)));
 UTL_i = ((((model_.UTL)+(Inv_L*(model_.LUTL)))+(Inv_NFIN*(model_.NUTL)))+(Inv_LNFIN*(model_.PUTL)));
@@ -10481,295 +10481,295 @@ Tcen0 = (((2.0*Ach)/Weff_UFCM)*MTcen);
 }
 if ((LeffCV<=1.0e-9))
 {
-std::cerr  << "Warning: LeffCV = %e <= 1.0e-9." << LeffCV <<  std::endl; 
+std::cerr  << "Warning: LeffCV = %e <= 1.0e-9." << " " << LeffCV << " " <<  std::endl; 
 }
 if (((model_.BULKMOD)!=0))
 {
 if ((LeffCV_acc<=1.0e-9))
 {
-std::cerr  << "Warning: LeffCV_acc = %e <= 1.0e-9." << LeffCV_acc <<  std::endl; 
+std::cerr  << "Warning: LeffCV_acc = %e <= 1.0e-9." << " " << LeffCV_acc << " " <<  std::endl; 
 }
 }
 if ((Weff0<=1.0e-9))
 {
-std::cerr  << "Warning: Weff0 = %e <= 1.0e-9." << Weff0 <<  std::endl; 
+std::cerr  << "Warning: Weff0 = %e <= 1.0e-9." << " " << Weff0 << " " <<  std::endl; 
 }
 if ((WeffCV0<=1.0e-9))
 {
-std::cerr  << "Warning: WeffCV0 = %e <= 1.0e-9." << WeffCV0 <<  std::endl; 
+std::cerr  << "Warning: WeffCV0 = %e <= 1.0e-9." << " " << WeffCV0 << " " <<  std::endl; 
 }
 if ((NBODY_i<=0.0))
 {
-std::cerr  << "Fatal: NBODY_i = %e is not positive." << NBODY_i <<  std::endl; 
+std::cerr  << "Fatal: NBODY_i = %e is not positive." << " " << NBODY_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
 {
 if ((NBODY_i<=1.0e18))
 {
-std::cerr  << "Warning: NBODY_i = %e m^-3 may be too small." << NBODY_i <<  std::endl; 
+std::cerr  << "Warning: NBODY_i = %e m^-3 may be too small." << " " << NBODY_i << " " <<  std::endl; 
 }
 }
 if ((NGATE_i<0.0))
 {
-std::cerr  << "Fatal: NGATE_i = %e is negative." << NGATE_i <<  std::endl; 
+std::cerr  << "Fatal: NGATE_i = %e is negative." << " " << NGATE_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
 {
 if (((NGATE_i!=0.0)&&(NGATE_i<=1.0e24)))
 {
-std::cerr  << "Warning: NGATE_i = %e may be too small." << NGATE_i <<  std::endl; 
+std::cerr  << "Warning: NGATE_i = %e may be too small." << " " << NGATE_i << " " <<  std::endl; 
 }
 else
 {
 if ((NGATE_i>1.0e31))
 {
-std::cerr  << "Fatal: NGATE_i = %e is too high." << NGATE_i <<  std::endl; 
+std::cerr  << "Fatal: NGATE_i = %e is too high." << " " << NGATE_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
 }
 if ((DVT0_i<0.0))
 {
-std::cerr  << "Warning: DVT0_i = %e is negative." << DVT0_i <<  std::endl; 
+std::cerr  << "Warning: DVT0_i = %e is negative." << " " << DVT0_i << " " <<  std::endl; 
 }
 if ((PHIG_i<=0.0))
 {
-std::cerr  << "Fatal: PHIG_i = %e is not positive." << PHIG_i <<  std::endl; 
+std::cerr  << "Fatal: PHIG_i = %e is not positive." << " " << PHIG_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((VSAT_i<=0.0))
 {
-std::cerr  << "Fatal: VSAT_i = %e is not positive." << VSAT_i <<  std::endl; 
+std::cerr  << "Fatal: VSAT_i = %e is not positive." << " " << VSAT_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((VSAT1_i<=0.0))
 {
-std::cerr  << "Fatal: VSAT1_i = %e is not positive." << VSAT1_i <<  std::endl; 
+std::cerr  << "Fatal: VSAT1_i = %e is not positive." << " " << VSAT1_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((((model_.ASYMMOD)!=0)&&(VSAT1R_i<=0.0)))
 {
-std::cerr  << "Fatal: VSAT1R_i = %e is not positive." << VSAT1R_i <<  std::endl; 
+std::cerr  << "Fatal: VSAT1R_i = %e is not positive." << " " << VSAT1R_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((DVT1_i<=0.0))
 {
-std::cerr  << "Fatal: DVT1_i = %e is not positive." << DVT1_i <<  std::endl; 
+std::cerr  << "Fatal: DVT1_i = %e is not positive." << " " << DVT1_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((DVT1SS_i<=0.0))
 {
-std::cerr  << "Fatal: DVT1SS_i = %e is not positive." << DVT1SS_i <<  std::endl; 
+std::cerr  << "Fatal: DVT1SS_i = %e is not positive." << " " << DVT1SS_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((CDSC_i<0.0))
 {
-std::cerr  << "Warning: CDSC_i = %e is negative." << CDSC_i <<  std::endl; 
+std::cerr  << "Warning: CDSC_i = %e is negative." << " " << CDSC_i << " " <<  std::endl; 
 }
 if ((CDSCD_i<0.0))
 {
-std::cerr  << "Warning: CDSCD_i = %e is negative." << CDSCD_i <<  std::endl; 
+std::cerr  << "Warning: CDSCD_i = %e is negative." << " " << CDSCD_i << " " <<  std::endl; 
 }
 if ((((model_.ASYMMOD)!=0)&&(CDSCDR_i<0.0)))
 {
-std::cerr  << "Warning: CDSCDR_i = %e is negative." << CDSCDR_i <<  std::endl; 
+std::cerr  << "Warning: CDSCDR_i = %e is negative." << " " << CDSCDR_i << " " <<  std::endl; 
 }
 if ((DSUB_i<=0.0))
 {
-std::cerr  << "Fatal: DSUB_i = %e is not positive." << DSUB_i <<  std::endl; 
+std::cerr  << "Fatal: DSUB_i = %e is not positive." << " " << DSUB_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((ETA0_i<0.0))
 {
-std::cerr  << "Warning: ETA0_i = %e is negative, setting it to 0" << ETA0_i <<  std::endl; 
+std::cerr  << "Warning: ETA0_i = %e is negative, setting it to 0" << " " << ETA0_i << " " <<  std::endl; 
 ETA0_i = 0.0;
 }
 if ((ETA0R_i<0.0))
 {
-std::cerr  << "Warning: ETA0R_i = %e is negative, setting it to 0" << ETA0R_i <<  std::endl; 
+std::cerr  << "Warning: ETA0R_i = %e is negative, setting it to 0" << " " << ETA0R_i << " " <<  std::endl; 
 ETA0R_i = 0.0;
 }
 if ((LPE0_i<(-Leff)))
 {
-std::cerr  << "Warning: LPE0_i = %e is less than -Leff. Clipping LPE0_i to 0" << LPE0_i <<  std::endl; 
+std::cerr  << "Warning: LPE0_i = %e is less than -Leff. Clipping LPE0_i to 0" << " " << LPE0_i << " " <<  std::endl; 
 LPE0_i = 0.0;
 }
 if ((K0SI_i<=0.0))
 {
-std::cerr  << "Warning: K0SI_i = %e is not positive, setting it to 0." << K0SI_i <<  std::endl; 
+std::cerr  << "Warning: K0SI_i = %e is not positive, setting it to 0." << " " << K0SI_i << " " <<  std::endl; 
 K0SI_i = 0.0;
 }
 if ((K2SI_i<=0.0))
 {
-std::cerr  << "Warning: K2SI_i = %e is not positive, setting it to 0." << K2SI_i <<  std::endl; 
+std::cerr  << "Warning: K2SI_i = %e is not positive, setting it to 0." << " " << K2SI_i << " " <<  std::endl; 
 K2SI_i = 0.0;
 }
 if (((PHIBE_i<0.2)&&((model_.BULKMOD)!=0)))
 {
-std::cerr  << "Warning: PHIBE_i = %e is less than 0.2, setting it to 0.2." << PHIBE_i <<  std::endl; 
+std::cerr  << "Warning: PHIBE_i = %e is less than 0.2, setting it to 0.2." << " " << PHIBE_i << " " <<  std::endl; 
 PHIBE_i = 0.2;
 }
 if (((PHIBE_i>1.2)&&((model_.BULKMOD)!=0)))
 {
-std::cerr  << "Warning: PHIBE_i = %e is larger than 1.2, setting it to 1.2." << PHIBE_i <<  std::endl; 
+std::cerr  << "Warning: PHIBE_i = %e is larger than 1.2, setting it to 1.2." << " " << PHIBE_i << " " <<  std::endl; 
 PHIBE_i = 1.2;
 }
 if ((PSAT_i<2.0))
 {
-std::cerr  << "Warning: PSAT_i = %e is less than 2.0, setting it to 2.0." << PSAT_i <<  std::endl; 
+std::cerr  << "Warning: PSAT_i = %e is less than 2.0, setting it to 2.0." << " " << PSAT_i << " " <<  std::endl; 
 PSAT_i = 2.0;
 }
 if ((PSATCV_i<2.0))
 {
-std::cerr  << "Warning: PSATCV_i = %e is less than 2.0, setting it to 2.0." << PSATCV_i <<  std::endl; 
+std::cerr  << "Warning: PSATCV_i = %e is less than 2.0, setting it to 2.0." << " " << PSATCV_i << " " <<  std::endl; 
 PSATCV_i = 2.0;
 }
 if ((U0_i<0.0))
 {
-std::cerr  << "Warning: U0_i = %e is negative, setting it to the default value." << U0_i <<  std::endl; 
+std::cerr  << "Warning: U0_i = %e is negative, setting it to the default value." << " " << U0_i << " " <<  std::endl; 
 U0_i = 0.03;
 }
 if ((UA_i<0.0))
 {
-std::cerr  << "Warning: UA_i = %e is negative, setting it to 0." << UA_i <<  std::endl; 
+std::cerr  << "Warning: UA_i = %e is negative, setting it to 0." << " " << UA_i << " " <<  std::endl; 
 UA_i = 0.0;
 }
 if ((EU_i<0.0))
 {
-std::cerr  << "Warning: EU_i = %e is negative, setting it to 0." << EU_i <<  std::endl; 
+std::cerr  << "Warning: EU_i = %e is negative, setting it to 0." << " " << EU_i << " " <<  std::endl; 
 EU_i = 0.0;
 }
 if ((UD_i<0.0))
 {
-std::cerr  << "Warning: UD_i = %e is negative, setting it to 0." << UD_i <<  std::endl; 
+std::cerr  << "Warning: UD_i = %e is negative, setting it to 0." << " " << UD_i << " " <<  std::endl; 
 UD_i = 0.0;
 }
 if ((UCS_i<0.0))
 {
-std::cerr  << "Warning: UCS_i = %e is negative, setting it to 0." << UCS_i <<  std::endl; 
+std::cerr  << "Warning: UCS_i = %e is negative, setting it to 0." << " " << UCS_i << " " <<  std::endl; 
 UCS_i = 0.0;
 }
 if ((ETAMOB_i<0.0))
 {
-std::cerr  << "Warning: ETAMOB_i = %e is negative, setting it to 0" << ETAMOB_i <<  std::endl; 
+std::cerr  << "Warning: ETAMOB_i = %e is negative, setting it to 0" << " " << ETAMOB_i << " " <<  std::endl; 
 ETAMOB_i = 0.0;
 }
 RDSWMIN_i = (model_.RDSWMIN);
 if ((RDSWMIN_i<0.0))
 {
-std::cerr  << "Warning: RDSWMIN = %e is negative.  Set to zero" << RDSWMIN_i <<  std::endl; 
+std::cerr  << "Warning: RDSWMIN = %e is negative.  Set to zero" << " " << RDSWMIN_i << " " <<  std::endl; 
 RDSWMIN_i = 0.0;
 }
 if ((RDSW_i<0.0))
 {
-std::cerr  << "Warning: RDSW_i = %e is negative.  Set to zero" << RDSW_i <<  std::endl; 
+std::cerr  << "Warning: RDSW_i = %e is negative.  Set to zero" << " " << RDSW_i << " " <<  std::endl; 
 RDSW_i = 0.0;
 }
 RSWMIN_i = (model_.RSWMIN);
 if ((RSWMIN_i<0.0))
 {
-std::cerr  << "Warning: RSWMIN = %e is negative.  Set to zero" << RSWMIN_i <<  std::endl; 
+std::cerr  << "Warning: RSWMIN = %e is negative.  Set to zero" << " " << RSWMIN_i << " " <<  std::endl; 
 RSWMIN_i = 0.0;
 }
 if ((RSW_i<0.0))
 {
-std::cerr  << "Warning: RSW_i = %e is negative.  Set to zero" << RSW_i <<  std::endl; 
+std::cerr  << "Warning: RSW_i = %e is negative.  Set to zero" << " " << RSW_i << " " <<  std::endl; 
 RSW_i = 0.0;
 }
 RDWMIN_i = (model_.RDWMIN);
 if ((RDWMIN_i<0.0))
 {
-std::cerr  << "Warning: RDWMIN = %e is negative.  Set to zero" << RDWMIN_i <<  std::endl; 
+std::cerr  << "Warning: RDWMIN = %e is negative.  Set to zero" << " " << RDWMIN_i << " " <<  std::endl; 
 RDWMIN_i = 0.0;
 }
 if ((RDW_i<0))
 {
-std::cerr  << "Warning: RDW_i = %e is negative.  Set to zero" << RDW_i <<  std::endl; 
+std::cerr  << "Warning: RDW_i = %e is negative.  Set to zero" << " " << RDW_i << " " <<  std::endl; 
 RDW_i = 0.0;
 }
 if ((PRWGD_i<0.0))
 {
-std::cerr  << "Warning: PRWGD_i = %e is negative.  Set to zero" << PRWGD_i <<  std::endl; 
+std::cerr  << "Warning: PRWGD_i = %e is negative.  Set to zero" << " " << PRWGD_i << " " <<  std::endl; 
 PRWGD_i = 0.0;
 }
 if ((PRWGS_i<0.0))
 {
-std::cerr  << "Warning: PRWGS_i = %e is negative.  Set to zero" << PRWGS_i <<  std::endl; 
+std::cerr  << "Warning: PRWGS_i = %e is negative.  Set to zero" << " " << PRWGS_i << " " <<  std::endl; 
 PRWGS_i = 0.0;
 }
 if ((PCLM_i<0))
 {
-std::cerr  << "Warning: PCLM_i = %e is negative." << PCLM_i <<  std::endl; 
+std::cerr  << "Warning: PCLM_i = %e is negative." << " " << PCLM_i << " " <<  std::endl; 
 }
 if ((PDIBL1_i<0.0))
 {
-std::cerr  << "Warning: PDIBL1_i = %e is negative." << PDIBL1_i <<  std::endl; 
+std::cerr  << "Warning: PDIBL1_i = %e is negative." << " " << PDIBL1_i << " " <<  std::endl; 
 }
 if (((model_.ASYMMOD)!=0))
 {
 if ((PDIBL1R_i<0.0))
 {
-std::cerr  << "Warning: PDIBL1R_i = %e is negative." << PDIBL1R_i <<  std::endl; 
+std::cerr  << "Warning: PDIBL1R_i = %e is negative." << " " << PDIBL1R_i << " " <<  std::endl; 
 }
 if ((PDIBL2R_i<0.0))
 {
-std::cerr  << "Warning: PDIBL2R_i = %e is negative." << PDIBL2R_i <<  std::endl; 
+std::cerr  << "Warning: PDIBL2R_i = %e is negative." << " " << PDIBL2R_i << " " <<  std::endl; 
 }
 if ((U0R_i<0))
 {
-std::cerr  << "Warning: U0R_i = %e is negative, setting it to 0." << U0R_i <<  std::endl; 
+std::cerr  << "Warning: U0R_i = %e is negative, setting it to 0." << " " << U0R_i << " " <<  std::endl; 
 U0R_i = 0.0;
 }
 if ((UAR_i<0.0))
 {
-std::cerr  << "Warning: UAR_i = %e is negative, setting it to 0." << UAR_i <<  std::endl; 
+std::cerr  << "Warning: UAR_i = %e is negative, setting it to 0." << " " << UAR_i << " " <<  std::endl; 
 UAR_i = 0.0;
 }
 if ((EUR_i<0.0))
 {
-std::cerr  << "Warning: EUR_i = %e is negative, setting it to 0." << EUR_i <<  std::endl; 
+std::cerr  << "Warning: EUR_i = %e is negative, setting it to 0." << " " << EUR_i << " " <<  std::endl; 
 EUR_i = 0.0;
 }
 if ((UDR_i<0.0))
 {
-std::cerr  << "Warning: UDR_i = %e is negative, setting it to 0." << UDR_i <<  std::endl; 
+std::cerr  << "Warning: UDR_i = %e is negative, setting it to 0." << " " << UDR_i << " " <<  std::endl; 
 UDR_i = 0.0;
 }
 }
 if ((PDIBL2_i<0.0))
 {
-std::cerr  << "Warning: PDIBL2_i = %e is negative." << PDIBL2_i <<  std::endl; 
+std::cerr  << "Warning: PDIBL2_i = %e is negative." << " " << PDIBL2_i << " " <<  std::endl; 
 }
 if ((DROUT_i<=0.0))
 {
-std::cerr  << "Fatal: DROUT_i = %e is non-positive." << DROUT_i <<  std::endl; 
+std::cerr  << "Fatal: DROUT_i = %e is non-positive." << " " << DROUT_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((MEXP_i<2.0))
 {
-std::cerr  << "Warning: MEXP_i = %e < 2. Setting MEXP_i = 2." << MEXP_i <<  std::endl; 
+std::cerr  << "Warning: MEXP_i = %e < 2. Setting MEXP_i = 2." << " " << MEXP_i << " " <<  std::endl; 
 MEXP_i = 2.0;
 }
 if (((model_.ASYMMOD)!=0))
 {
 if ((MEXPR_i<2.0))
 {
-std::cerr  << "Warning: MEXPR_i = %e < 2.  Setting MEXPR_i = 2." << MEXPR_i <<  std::endl; 
+std::cerr  << "Warning: MEXPR_i = %e < 2.  Setting MEXPR_i = 2." << " " << MEXPR_i << " " <<  std::endl; 
 MEXPR_i = 2.0;
 }
 }
 if ((PTWG_i<0))
 {
-std::cerr  << "Warning: PTWG_i = %e is negative, setting it to 0." << PTWG_i <<  std::endl; 
+std::cerr  << "Warning: PTWG_i = %e is negative, setting it to 0." << " " << PTWG_i << " " <<  std::endl; 
 PTWG_i = 0.0;
 }
 if ((QMTCENCV_i>0.0))
 {
 if (((model_.QM0)<=0.0))
 {
-std::cerr  << "Fatal: QM0 = %e is non-positive." << (model_.QM0) <<  std::endl; 
+std::cerr  << "Fatal: QM0 = %e is non-positive." << " " << (model_.QM0) << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
@@ -10777,30 +10777,30 @@ if ((((model_.BULKMOD)!=0)&&(QMTCENCVA_i>0.0)))
 {
 if (((model_.QM0ACC)<=0.0))
 {
-std::cerr  << "Fatal: QM0ACC = %e is non-positive." << (model_.QM0ACC) <<  std::endl; 
+std::cerr  << "Fatal: QM0ACC = %e is non-positive." << " " << (model_.QM0ACC) << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
 if ((CGIDL_i<0.0))
 {
-std::cerr  << "Warning: CGIDL_i = %e < 0.  Setting CGIDL_i = 0." << CGIDL_i <<  std::endl; 
+std::cerr  << "Warning: CGIDL_i = %e < 0.  Setting CGIDL_i = 0." << " " << CGIDL_i << " " <<  std::endl; 
 CGIDL_i = 0.0;
 }
 if ((CGISL_i<0.0))
 {
-std::cerr  << "Warning: CGISL_i = %e < 0.  Setting CGISL_i = 0." << CGISL_i <<  std::endl; 
+std::cerr  << "Warning: CGISL_i = %e < 0.  Setting CGISL_i = 0." << " " << CGISL_i << " " <<  std::endl; 
 CGISL_i = 0.0;
 }
 if (((model_.IGBMOD)!=0))
 {
 if ((NIGBINV_i<=0.0))
 {
-std::cerr  << "Fatal: NIGBINV_i = %e is non-positive." << NIGBINV_i <<  std::endl; 
+std::cerr  << "Fatal: NIGBINV_i = %e is non-positive." << " " << NIGBINV_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((NIGBACC_i<=0.0))
 {
-std::cerr  << "Fatal: NIGBACC_i = %e is non-positive." << NIGBACC_i <<  std::endl; 
+std::cerr  << "Fatal: NIGBACC_i = %e is non-positive." << " " << NIGBACC_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
@@ -10808,12 +10808,12 @@ if (((model_.IGCMOD)!=0))
 {
 if ((POXEDGE_i<=0.0))
 {
-std::cerr  << "Fatal: POXEDGE_i = %e is non-positive." << POXEDGE_i <<  std::endl; 
+std::cerr  << "Fatal: POXEDGE_i = %e is non-positive." << " " << POXEDGE_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if ((PIGCD_i<=0.0))
 {
-std::cerr  << "Fatal: PIGCD_i = %e is non-positive." << PIGCD_i <<  std::endl; 
+std::cerr  << "Fatal: PIGCD_i = %e is non-positive." << " " << PIGCD_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
@@ -10821,13 +10821,13 @@ if ((((model_.IGCMOD)!=0)||((model_.IGBMOD)!=0)))
 {
 if (((model_.TOXREF)<=0))
 {
-std::cerr  << "Fatal: TOXREF = %e is non-positive." << (model_.TOXREF) <<  std::endl; 
+std::cerr  << "Fatal: TOXREF = %e is non-positive." << " " << (model_.TOXREF) << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
 if (((model_.LINTIGEN)>=(Leff/2.0)))
 {
-std::cerr  << "Warning: LINTIGEN = %e is too large - Leff for r/g current is negative.  Re-setting LINTIGEN = 0." << (model_.LINTIGEN) <<  std::endl; 
+std::cerr  << "Warning: LINTIGEN = %e is too large - Leff for r/g current is negative.  Re-setting LINTIGEN = 0." << " " << (model_.LINTIGEN) << " " <<  std::endl; 
 LINTIGEN_i = 0.0;
 }
 else
@@ -10836,60 +10836,60 @@ LINTIGEN_i = (model_.LINTIGEN);
 }
 if ((NTGEN_i<=0.0))
 {
-std::cerr  << "Fatal: NTGEN_i = %e is non-positive." << NTGEN_i <<  std::endl; 
+std::cerr  << "Fatal: NTGEN_i = %e is non-positive." << " " << NTGEN_i << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 if (((model_.IIMOD)==2))
 {
 if ((BETAII0_i<0.0))
 {
-std::cerr  << "Warning:  BETAII0_i = %e is negative." << BETAII0_i <<  std::endl; 
+std::cerr  << "Warning:  BETAII0_i = %e is negative." << " " << BETAII0_i << " " <<  std::endl; 
 }
 if ((BETAII1_i<0.0))
 {
-std::cerr  << "Warning:  BETAII1_i = %e is negative." << BETAII1_i <<  std::endl; 
+std::cerr  << "Warning:  BETAII1_i = %e is negative." << " " << BETAII1_i << " " <<  std::endl; 
 }
 if ((BETAII2_i<0.0))
 {
-std::cerr  << "Warning:  BETAII2_i = %e is negative." << BETAII2_i <<  std::endl; 
+std::cerr  << "Warning:  BETAII2_i = %e is negative." << " " << BETAII2_i << " " <<  std::endl; 
 }
 if ((ESATII_i<0.0))
 {
-std::cerr  << "Warning:  ESATII_i = %e is negative." << ESATII_i <<  std::endl; 
+std::cerr  << "Warning:  ESATII_i = %e is negative." << " " << ESATII_i << " " <<  std::endl; 
 }
 if ((LII_i<0.0))
 {
-std::cerr  << "Warning:  LII_i = %e is negative." << LII_i <<  std::endl; 
+std::cerr  << "Warning:  LII_i = %e is negative." << " " << LII_i << " " <<  std::endl; 
 }
 if ((SII1_i<0.0))
 {
-std::cerr  << "Warning:  SII1_i = %e is negative." << (model_.SII1) <<  std::endl; 
+std::cerr  << "Warning:  SII1_i = %e is negative." << " " << (model_.SII1) << " " <<  std::endl; 
 }
 if ((SII2_i<0.0))
 {
-std::cerr  << "Warning:  SII2_i = %e is negative." << SII2_i <<  std::endl; 
+std::cerr  << "Warning:  SII2_i = %e is negative." << " " << SII2_i << " " <<  std::endl; 
 }
 if ((SIID_i<0.0))
 {
-std::cerr  << "Warning:  SIID_i = %e is negative." << SIID_i <<  std::endl; 
+std::cerr  << "Warning:  SIID_i = %e is negative." << " " << SIID_i << " " <<  std::endl; 
 }
 }
 if (((model_.EF)<=0.0))
 {
-std::cerr  << "Fatal: EF = %e is non-positive." << (model_.EF) <<  std::endl; 
+std::cerr  << "Fatal: EF = %e is non-positive." << " " << (model_.EF) << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 else
 {
 if (((model_.EF)>2.0))
 {
-std::cerr  << "Fatal: EF = %e > 2.0." << (model_.EF) <<  std::endl; 
+std::cerr  << "Fatal: EF = %e > 2.0." << " " << (model_.EF) << " " <<  std::endl; 
  UserError(*this) << "$finish called." << std::endl; 
 }
 }
 if (((model_.LINTNOI)>=(Leff/2.0)))
 {
-std::cerr  << "Warning: LINTNOI = %e is too large - Leff for noise is negative.  Re-setting LINTNOI = 0." << (model_.LINTNOI) <<  std::endl; 
+std::cerr  << "Warning: LINTNOI = %e is too large - Leff for noise is negative.  Re-setting LINTNOI = 0." << " " << (model_.LINTNOI) << " " <<  std::endl; 
 LINTNOI_i = 0.0;
 }
 else
@@ -10898,7 +10898,7 @@ LINTNOI_i = (model_.LINTNOI);
 }
 if (((model_.NTNOI)<0))
 {
-std::cerr  << "Warning: NTNOI = %e is negative. Set to zero." << (model_.NTNOI) <<  std::endl; 
+std::cerr  << "Warning: NTNOI = %e is negative. Set to zero." << " " << (model_.NTNOI) << " " <<  std::endl; 
 NTNOI_i = 0.0;
 }
 else
@@ -11686,7 +11686,7 @@ Toxratioedge = (evaluator_lexp_1.getValues((NTOX_i*evaluator_lln_0.getValues(((m
 igsd_mult0 = ((Weff0*Aechvb)*Toxratioedge);
 if (((model_.TNOM)<(-273.15)))
 {
-std::cerr  << "Warning: (TNOM=%e) < -`P_CELSIUS0. Set to 27 C." << (model_.TNOM) <<  std::endl; 
+std::cerr  << "Warning: (TNOM=%e) < -`P_CELSIUS0. Set to 27 C." << " " << (model_.TNOM) << " " <<  std::endl; 
 Tnom = 300.15;
 }
 else
@@ -15495,7 +15495,7 @@ VSAT_t = evaluator_Tempdep_0.getValues(VSAT_i,(-AT_i),delTemp,(model_.TEMPMOD));
 }
 if ((VSAT_t<1000))
 {
-std::cerr  << "Warning: VSAT(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSAT_t <<  std::endl; 
+std::cerr  << "Warning: VSAT(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << VSAT_t << " " <<  std::endl; 
 
 d_VSAT_t_dTemp_t_GND =  0.0;
 VSAT_t = 1000;
@@ -15510,7 +15510,7 @@ VSATR_t = evaluator_Tempdep_0.getValues(VSATR_i,(-ATR_i),delTemp,(model_.TEMPMOD
 }
 if ((VSATR_t<1000))
 {
-std::cerr  << "Warning: VSATR(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSATR_t <<  std::endl; 
+std::cerr  << "Warning: VSATR(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << VSATR_t << " " <<  std::endl; 
 
 d_VSATR_t_dTemp_t_GND =  0.0;
 VSATR_t = 1000;
@@ -15524,7 +15524,7 @@ VSAT1_t = evaluator_Tempdep_0.getValues(VSAT1_i,(-AT_i),delTemp,(model_.TEMPMOD)
 }
 if ((VSAT1_t<1000))
 {
-std::cerr  << "Warning: VSAT1(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSAT1_t <<  std::endl; 
+std::cerr  << "Warning: VSAT1(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << VSAT1_t << " " <<  std::endl; 
 
 d_VSAT1_t_dTemp_t_GND =  0.0;
 VSAT1_t = 1000;
@@ -15539,7 +15539,7 @@ VSAT1R_t = evaluator_Tempdep_0.getValues(VSAT1R_i,(-AT_i),delTemp,(model_.TEMPMO
 }
 if ((VSAT1R_t<1000))
 {
-std::cerr  << "Warning: VSAT1R(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSAT1R_t <<  std::endl; 
+std::cerr  << "Warning: VSAT1R(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << VSAT1R_t << " " <<  std::endl; 
 
 d_VSAT1R_t_dTemp_t_GND =  0.0;
 VSAT1R_t = 1000;
@@ -15553,7 +15553,7 @@ VSATCV_t = evaluator_Tempdep_0.getValues(VSATCV_i,(-ATCV_i),delTemp,(model_.TEMP
 }
 if ((VSATCV_t<1000))
 {
-std::cerr  << "Warning: VSATCV(%f) = %e is less than 1K, setting it to 1K." << DevTemp << VSATCV_t <<  std::endl; 
+std::cerr  << "Warning: VSATCV(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << VSATCV_t << " " <<  std::endl; 
 
 d_VSATCV_t_dTemp_t_GND =  0.0;
 VSATCV_t = 1000;
@@ -17854,11 +17854,11 @@ qia2 = (0.5*(qis+qid));
 }
 if ((qis<0.0))
 {
-std::cerr  << "Warning: negative source-side inversion carrier density.  Vgs=%f  Vds=%f  Vbs=%f qis=%e" << (probeVars[admsProbeID_V_g_s]) << (probeVars[admsProbeID_V_d_s]) << (probeVars[admsProbeID_V_e_s]) << qis <<  std::endl; 
+std::cerr  << "Warning: negative source-side inversion carrier density.  Vgs=%f  Vds=%f  Vbs=%f qis=%e" << " " << (probeVars[admsProbeID_V_g_s]) << " " << (probeVars[admsProbeID_V_d_s]) << " " << (probeVars[admsProbeID_V_e_s]) << " " << qis << " " <<  std::endl; 
 }
 if ((qid<0.0))
 {
-std::cerr  << "Warning: negative drain-side inversion carrier density.  Vgs=%f  Vds=%f  Vbs=%f qid=%e" << (probeVars[admsProbeID_V_g_s]) << (probeVars[admsProbeID_V_d_s]) << (probeVars[admsProbeID_V_e_s]) << qid <<  std::endl; 
+std::cerr  << "Warning: negative drain-side inversion carrier density.  Vgs=%f  Vds=%f  Vbs=%f qid=%e" << " " << (probeVars[admsProbeID_V_g_s]) << " " << (probeVars[admsProbeID_V_d_s]) << " " << (probeVars[admsProbeID_V_e_s]) << " " << qid << " " <<  std::endl; 
 }
 if ((QMTCENCV_i>0.0))
 {
@@ -31674,26 +31674,26 @@ instanceVar_LeffCV_acc = (instanceVar_LeffCV-modelPar_DLCACC);
 instanceVar_NFINtotal = (instancePar_NFIN*instancePar_NF);
 if ((instanceVar_Leff<=0.0))
 {
-std::cerr  << "Fatal: Leff = %e is not positive." << instanceVar_Leff <<  std::endl; 
+std::cerr  << "Fatal: Leff = %e is not positive." << " " << instanceVar_Leff << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
 {
 if ((instanceVar_Leff<=1.0e-9))
 {
-std::cerr  << "Warning: Leff = %e <= 1.0e-9." << instanceVar_Leff <<  std::endl; 
+std::cerr  << "Warning: Leff = %e <= 1.0e-9." << " " << instanceVar_Leff << " " <<  std::endl; 
 }
 }
 if ((Leff1<=0.0))
 {
-std::cerr  << "Fatal: Leff1 = %e is not positive." << Leff1 <<  std::endl; 
+std::cerr  << "Fatal: Leff1 = %e is not positive." << " " << Leff1 << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
 {
 if ((Leff1<=1.0e-9))
 {
-std::cerr  << "Warning: Leff1 = %e <= 1.0e-9." << Leff1 <<  std::endl; 
+std::cerr  << "Warning: Leff1 = %e <= 1.0e-9." << " " << Leff1 << " " <<  std::endl; 
 }
 }
 Inv_L = (1.0e-6/Leff1);
@@ -31961,11 +31961,11 @@ instanceVar_UDR_i = (((modelPar_UDR+(Inv_L*modelPar_LUDR))+(Inv_NFIN*modelPar_NU
 }
 if ((modelPar_NQSMOD==1))
 {
-std::cerr  << " Although the model selector NQSMOD is set to 1, the NQS gate resistance model is not activated in the Verilog-A code. Please uncomment `define __NQSMOD1__ in bsimcmg.va to activate it." <<  std::endl; 
+std::cerr  << " Although the model selector NQSMOD is set to 1, the NQS gate resistance model is not activated in the Verilog-A code. Please uncomment `define __NQSMOD1__ in bsimcmg.va to activate it." << " " <<  std::endl; 
 }
 if ((modelPar_NQSMOD==2))
 {
-std::cerr  << " Although the model selector NQSMOD is set to 2, the NQS gate resistance model is not activated in the Verilog-A code. Please uncomment `define __NQSMOD2__ in bsimcmg.va to activate it." <<  std::endl; 
+std::cerr  << " Although the model selector NQSMOD is set to 2, the NQS gate resistance model is not activated in the Verilog-A code. Please uncomment `define __NQSMOD2__ in bsimcmg.va to activate it." << " " <<  std::endl; 
 }
 instanceVar_UTE_i = (((modelPar_UTE+(Inv_L*modelPar_LUTE))+(Inv_NFIN*modelPar_NUTE))+(Inv_LNFIN*modelPar_PUTE));
 instanceVar_UTL_i = (((modelPar_UTL+(Inv_L*modelPar_LUTL))+(Inv_NFIN*modelPar_NUTL))+(Inv_LNFIN*modelPar_PUTL));
@@ -32112,295 +32112,295 @@ instanceVar_Tcen0 = (((2.0*instanceVar_Ach)/instanceVar_Weff_UFCM)*MTcen);
 }
 if ((instanceVar_LeffCV<=1.0e-9))
 {
-std::cerr  << "Warning: LeffCV = %e <= 1.0e-9." << instanceVar_LeffCV <<  std::endl; 
+std::cerr  << "Warning: LeffCV = %e <= 1.0e-9." << " " << instanceVar_LeffCV << " " <<  std::endl; 
 }
 if ((modelPar_BULKMOD!=0))
 {
 if ((instanceVar_LeffCV_acc<=1.0e-9))
 {
-std::cerr  << "Warning: LeffCV_acc = %e <= 1.0e-9." << instanceVar_LeffCV_acc <<  std::endl; 
+std::cerr  << "Warning: LeffCV_acc = %e <= 1.0e-9." << " " << instanceVar_LeffCV_acc << " " <<  std::endl; 
 }
 }
 if ((instanceVar_Weff0<=1.0e-9))
 {
-std::cerr  << "Warning: Weff0 = %e <= 1.0e-9." << instanceVar_Weff0 <<  std::endl; 
+std::cerr  << "Warning: Weff0 = %e <= 1.0e-9." << " " << instanceVar_Weff0 << " " <<  std::endl; 
 }
 if ((instanceVar_WeffCV0<=1.0e-9))
 {
-std::cerr  << "Warning: WeffCV0 = %e <= 1.0e-9." << instanceVar_WeffCV0 <<  std::endl; 
+std::cerr  << "Warning: WeffCV0 = %e <= 1.0e-9." << " " << instanceVar_WeffCV0 << " " <<  std::endl; 
 }
 if ((NBODY_i<=0.0))
 {
-std::cerr  << "Fatal: NBODY_i = %e is not positive." << NBODY_i <<  std::endl; 
+std::cerr  << "Fatal: NBODY_i = %e is not positive." << " " << NBODY_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
 {
 if ((NBODY_i<=1.0e18))
 {
-std::cerr  << "Warning: NBODY_i = %e m^-3 may be too small." << NBODY_i <<  std::endl; 
+std::cerr  << "Warning: NBODY_i = %e m^-3 may be too small." << " " << NBODY_i << " " <<  std::endl; 
 }
 }
 if ((NGATE_i<0.0))
 {
-std::cerr  << "Fatal: NGATE_i = %e is negative." << NGATE_i <<  std::endl; 
+std::cerr  << "Fatal: NGATE_i = %e is negative." << " " << NGATE_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
 {
 if (((NGATE_i!=0.0)&&(NGATE_i<=1.0e24)))
 {
-std::cerr  << "Warning: NGATE_i = %e may be too small." << NGATE_i <<  std::endl; 
+std::cerr  << "Warning: NGATE_i = %e may be too small." << " " << NGATE_i << " " <<  std::endl; 
 }
 else
 {
 if ((NGATE_i>1.0e31))
 {
-std::cerr  << "Fatal: NGATE_i = %e is too high." << NGATE_i <<  std::endl; 
+std::cerr  << "Fatal: NGATE_i = %e is too high." << " " << NGATE_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
 }
 if ((instanceVar_DVT0_i<0.0))
 {
-std::cerr  << "Warning: DVT0_i = %e is negative." << instanceVar_DVT0_i <<  std::endl; 
+std::cerr  << "Warning: DVT0_i = %e is negative." << " " << instanceVar_DVT0_i << " " <<  std::endl; 
 }
 if ((instanceVar_PHIG_i<=0.0))
 {
-std::cerr  << "Fatal: PHIG_i = %e is not positive." << instanceVar_PHIG_i <<  std::endl; 
+std::cerr  << "Fatal: PHIG_i = %e is not positive." << " " << instanceVar_PHIG_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_VSAT_i<=0.0))
 {
-std::cerr  << "Fatal: VSAT_i = %e is not positive." << instanceVar_VSAT_i <<  std::endl; 
+std::cerr  << "Fatal: VSAT_i = %e is not positive." << " " << instanceVar_VSAT_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_VSAT1_i<=0.0))
 {
-std::cerr  << "Fatal: VSAT1_i = %e is not positive." << instanceVar_VSAT1_i <<  std::endl; 
+std::cerr  << "Fatal: VSAT1_i = %e is not positive." << " " << instanceVar_VSAT1_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if (((modelPar_ASYMMOD!=0)&&(instanceVar_VSAT1R_i<=0.0)))
 {
-std::cerr  << "Fatal: VSAT1R_i = %e is not positive." << instanceVar_VSAT1R_i <<  std::endl; 
+std::cerr  << "Fatal: VSAT1R_i = %e is not positive." << " " << instanceVar_VSAT1R_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((DVT1_i<=0.0))
 {
-std::cerr  << "Fatal: DVT1_i = %e is not positive." << DVT1_i <<  std::endl; 
+std::cerr  << "Fatal: DVT1_i = %e is not positive." << " " << DVT1_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((DVT1SS_i<=0.0))
 {
-std::cerr  << "Fatal: DVT1SS_i = %e is not positive." << DVT1SS_i <<  std::endl; 
+std::cerr  << "Fatal: DVT1SS_i = %e is not positive." << " " << DVT1SS_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_CDSC_i<0.0))
 {
-std::cerr  << "Warning: CDSC_i = %e is negative." << instanceVar_CDSC_i <<  std::endl; 
+std::cerr  << "Warning: CDSC_i = %e is negative." << " " << instanceVar_CDSC_i << " " <<  std::endl; 
 }
 if ((instanceVar_CDSCD_i<0.0))
 {
-std::cerr  << "Warning: CDSCD_i = %e is negative." << instanceVar_CDSCD_i <<  std::endl; 
+std::cerr  << "Warning: CDSCD_i = %e is negative." << " " << instanceVar_CDSCD_i << " " <<  std::endl; 
 }
 if (((modelPar_ASYMMOD!=0)&&(instanceVar_CDSCDR_i<0.0)))
 {
-std::cerr  << "Warning: CDSCDR_i = %e is negative." << instanceVar_CDSCDR_i <<  std::endl; 
+std::cerr  << "Warning: CDSCDR_i = %e is negative." << " " << instanceVar_CDSCDR_i << " " <<  std::endl; 
 }
 if ((DSUB_i<=0.0))
 {
-std::cerr  << "Fatal: DSUB_i = %e is not positive." << DSUB_i <<  std::endl; 
+std::cerr  << "Fatal: DSUB_i = %e is not positive." << " " << DSUB_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_ETA0_i<0.0))
 {
-std::cerr  << "Warning: ETA0_i = %e is negative, setting it to 0" << instanceVar_ETA0_i <<  std::endl; 
+std::cerr  << "Warning: ETA0_i = %e is negative, setting it to 0" << " " << instanceVar_ETA0_i << " " <<  std::endl; 
 instanceVar_ETA0_i = 0.0;
 }
 if ((instanceVar_ETA0R_i<0.0))
 {
-std::cerr  << "Warning: ETA0R_i = %e is negative, setting it to 0" << instanceVar_ETA0R_i <<  std::endl; 
+std::cerr  << "Warning: ETA0R_i = %e is negative, setting it to 0" << " " << instanceVar_ETA0R_i << " " <<  std::endl; 
 instanceVar_ETA0R_i = 0.0;
 }
 if ((LPE0_i<(-instanceVar_Leff)))
 {
-std::cerr  << "Warning: LPE0_i = %e is less than -Leff. Clipping LPE0_i to 0" << LPE0_i <<  std::endl; 
+std::cerr  << "Warning: LPE0_i = %e is less than -Leff. Clipping LPE0_i to 0" << " " << LPE0_i << " " <<  std::endl; 
 LPE0_i = 0.0;
 }
 if ((instanceVar_K0SI_i<=0.0))
 {
-std::cerr  << "Warning: K0SI_i = %e is not positive, setting it to 0." << instanceVar_K0SI_i <<  std::endl; 
+std::cerr  << "Warning: K0SI_i = %e is not positive, setting it to 0." << " " << instanceVar_K0SI_i << " " <<  std::endl; 
 instanceVar_K0SI_i = 0.0;
 }
 if ((instanceVar_K2SI_i<=0.0))
 {
-std::cerr  << "Warning: K2SI_i = %e is not positive, setting it to 0." << instanceVar_K2SI_i <<  std::endl; 
+std::cerr  << "Warning: K2SI_i = %e is not positive, setting it to 0." << " " << instanceVar_K2SI_i << " " <<  std::endl; 
 instanceVar_K2SI_i = 0.0;
 }
 if (((instanceVar_PHIBE_i<0.2)&&(modelPar_BULKMOD!=0)))
 {
-std::cerr  << "Warning: PHIBE_i = %e is less than 0.2, setting it to 0.2." << instanceVar_PHIBE_i <<  std::endl; 
+std::cerr  << "Warning: PHIBE_i = %e is less than 0.2, setting it to 0.2." << " " << instanceVar_PHIBE_i << " " <<  std::endl; 
 instanceVar_PHIBE_i = 0.2;
 }
 if (((instanceVar_PHIBE_i>1.2)&&(modelPar_BULKMOD!=0)))
 {
-std::cerr  << "Warning: PHIBE_i = %e is larger than 1.2, setting it to 1.2." << instanceVar_PHIBE_i <<  std::endl; 
+std::cerr  << "Warning: PHIBE_i = %e is larger than 1.2, setting it to 1.2." << " " << instanceVar_PHIBE_i << " " <<  std::endl; 
 instanceVar_PHIBE_i = 1.2;
 }
 if ((instanceVar_PSAT_i<2.0))
 {
-std::cerr  << "Warning: PSAT_i = %e is less than 2.0, setting it to 2.0." << instanceVar_PSAT_i <<  std::endl; 
+std::cerr  << "Warning: PSAT_i = %e is less than 2.0, setting it to 2.0." << " " << instanceVar_PSAT_i << " " <<  std::endl; 
 instanceVar_PSAT_i = 2.0;
 }
 if ((instanceVar_PSATCV_i<2.0))
 {
-std::cerr  << "Warning: PSATCV_i = %e is less than 2.0, setting it to 2.0." << instanceVar_PSATCV_i <<  std::endl; 
+std::cerr  << "Warning: PSATCV_i = %e is less than 2.0, setting it to 2.0." << " " << instanceVar_PSATCV_i << " " <<  std::endl; 
 instanceVar_PSATCV_i = 2.0;
 }
 if ((instanceVar_U0_i<0.0))
 {
-std::cerr  << "Warning: U0_i = %e is negative, setting it to the default value." << instanceVar_U0_i <<  std::endl; 
+std::cerr  << "Warning: U0_i = %e is negative, setting it to the default value." << " " << instanceVar_U0_i << " " <<  std::endl; 
 instanceVar_U0_i = 0.03;
 }
 if ((instanceVar_UA_i<0.0))
 {
-std::cerr  << "Warning: UA_i = %e is negative, setting it to 0." << instanceVar_UA_i <<  std::endl; 
+std::cerr  << "Warning: UA_i = %e is negative, setting it to 0." << " " << instanceVar_UA_i << " " <<  std::endl; 
 instanceVar_UA_i = 0.0;
 }
 if ((instanceVar_EU_i<0.0))
 {
-std::cerr  << "Warning: EU_i = %e is negative, setting it to 0." << instanceVar_EU_i <<  std::endl; 
+std::cerr  << "Warning: EU_i = %e is negative, setting it to 0." << " " << instanceVar_EU_i << " " <<  std::endl; 
 instanceVar_EU_i = 0.0;
 }
 if ((instanceVar_UD_i<0.0))
 {
-std::cerr  << "Warning: UD_i = %e is negative, setting it to 0." << instanceVar_UD_i <<  std::endl; 
+std::cerr  << "Warning: UD_i = %e is negative, setting it to 0." << " " << instanceVar_UD_i << " " <<  std::endl; 
 instanceVar_UD_i = 0.0;
 }
 if ((instanceVar_UCS_i<0.0))
 {
-std::cerr  << "Warning: UCS_i = %e is negative, setting it to 0." << instanceVar_UCS_i <<  std::endl; 
+std::cerr  << "Warning: UCS_i = %e is negative, setting it to 0." << " " << instanceVar_UCS_i << " " <<  std::endl; 
 instanceVar_UCS_i = 0.0;
 }
 if ((instanceVar_ETAMOB_i<0.0))
 {
-std::cerr  << "Warning: ETAMOB_i = %e is negative, setting it to 0" << instanceVar_ETAMOB_i <<  std::endl; 
+std::cerr  << "Warning: ETAMOB_i = %e is negative, setting it to 0" << " " << instanceVar_ETAMOB_i << " " <<  std::endl; 
 instanceVar_ETAMOB_i = 0.0;
 }
 instanceVar_RDSWMIN_i = modelPar_RDSWMIN;
 if ((instanceVar_RDSWMIN_i<0.0))
 {
-std::cerr  << "Warning: RDSWMIN = %e is negative.  Set to zero" << instanceVar_RDSWMIN_i <<  std::endl; 
+std::cerr  << "Warning: RDSWMIN = %e is negative.  Set to zero" << " " << instanceVar_RDSWMIN_i << " " <<  std::endl; 
 instanceVar_RDSWMIN_i = 0.0;
 }
 if ((instanceVar_RDSW_i<0.0))
 {
-std::cerr  << "Warning: RDSW_i = %e is negative.  Set to zero" << instanceVar_RDSW_i <<  std::endl; 
+std::cerr  << "Warning: RDSW_i = %e is negative.  Set to zero" << " " << instanceVar_RDSW_i << " " <<  std::endl; 
 instanceVar_RDSW_i = 0.0;
 }
 instanceVar_RSWMIN_i = modelPar_RSWMIN;
 if ((instanceVar_RSWMIN_i<0.0))
 {
-std::cerr  << "Warning: RSWMIN = %e is negative.  Set to zero" << instanceVar_RSWMIN_i <<  std::endl; 
+std::cerr  << "Warning: RSWMIN = %e is negative.  Set to zero" << " " << instanceVar_RSWMIN_i << " " <<  std::endl; 
 instanceVar_RSWMIN_i = 0.0;
 }
 if ((instanceVar_RSW_i<0.0))
 {
-std::cerr  << "Warning: RSW_i = %e is negative.  Set to zero" << instanceVar_RSW_i <<  std::endl; 
+std::cerr  << "Warning: RSW_i = %e is negative.  Set to zero" << " " << instanceVar_RSW_i << " " <<  std::endl; 
 instanceVar_RSW_i = 0.0;
 }
 instanceVar_RDWMIN_i = modelPar_RDWMIN;
 if ((instanceVar_RDWMIN_i<0.0))
 {
-std::cerr  << "Warning: RDWMIN = %e is negative.  Set to zero" << instanceVar_RDWMIN_i <<  std::endl; 
+std::cerr  << "Warning: RDWMIN = %e is negative.  Set to zero" << " " << instanceVar_RDWMIN_i << " " <<  std::endl; 
 instanceVar_RDWMIN_i = 0.0;
 }
 if ((instanceVar_RDW_i<0))
 {
-std::cerr  << "Warning: RDW_i = %e is negative.  Set to zero" << instanceVar_RDW_i <<  std::endl; 
+std::cerr  << "Warning: RDW_i = %e is negative.  Set to zero" << " " << instanceVar_RDW_i << " " <<  std::endl; 
 instanceVar_RDW_i = 0.0;
 }
 if ((instanceVar_PRWGD_i<0.0))
 {
-std::cerr  << "Warning: PRWGD_i = %e is negative.  Set to zero" << instanceVar_PRWGD_i <<  std::endl; 
+std::cerr  << "Warning: PRWGD_i = %e is negative.  Set to zero" << " " << instanceVar_PRWGD_i << " " <<  std::endl; 
 instanceVar_PRWGD_i = 0.0;
 }
 if ((instanceVar_PRWGS_i<0.0))
 {
-std::cerr  << "Warning: PRWGS_i = %e is negative.  Set to zero" << instanceVar_PRWGS_i <<  std::endl; 
+std::cerr  << "Warning: PRWGS_i = %e is negative.  Set to zero" << " " << instanceVar_PRWGS_i << " " <<  std::endl; 
 instanceVar_PRWGS_i = 0.0;
 }
 if ((instanceVar_PCLM_i<0))
 {
-std::cerr  << "Warning: PCLM_i = %e is negative." << instanceVar_PCLM_i <<  std::endl; 
+std::cerr  << "Warning: PCLM_i = %e is negative." << " " << instanceVar_PCLM_i << " " <<  std::endl; 
 }
 if ((instanceVar_PDIBL1_i<0.0))
 {
-std::cerr  << "Warning: PDIBL1_i = %e is negative." << instanceVar_PDIBL1_i <<  std::endl; 
+std::cerr  << "Warning: PDIBL1_i = %e is negative." << " " << instanceVar_PDIBL1_i << " " <<  std::endl; 
 }
 if ((modelPar_ASYMMOD!=0))
 {
 if ((instanceVar_PDIBL1R_i<0.0))
 {
-std::cerr  << "Warning: PDIBL1R_i = %e is negative." << instanceVar_PDIBL1R_i <<  std::endl; 
+std::cerr  << "Warning: PDIBL1R_i = %e is negative." << " " << instanceVar_PDIBL1R_i << " " <<  std::endl; 
 }
 if ((instanceVar_PDIBL2R_i<0.0))
 {
-std::cerr  << "Warning: PDIBL2R_i = %e is negative." << instanceVar_PDIBL2R_i <<  std::endl; 
+std::cerr  << "Warning: PDIBL2R_i = %e is negative." << " " << instanceVar_PDIBL2R_i << " " <<  std::endl; 
 }
 if ((instanceVar_U0R_i<0))
 {
-std::cerr  << "Warning: U0R_i = %e is negative, setting it to 0." << instanceVar_U0R_i <<  std::endl; 
+std::cerr  << "Warning: U0R_i = %e is negative, setting it to 0." << " " << instanceVar_U0R_i << " " <<  std::endl; 
 instanceVar_U0R_i = 0.0;
 }
 if ((instanceVar_UAR_i<0.0))
 {
-std::cerr  << "Warning: UAR_i = %e is negative, setting it to 0." << instanceVar_UAR_i <<  std::endl; 
+std::cerr  << "Warning: UAR_i = %e is negative, setting it to 0." << " " << instanceVar_UAR_i << " " <<  std::endl; 
 instanceVar_UAR_i = 0.0;
 }
 if ((instanceVar_EUR_i<0.0))
 {
-std::cerr  << "Warning: EUR_i = %e is negative, setting it to 0." << instanceVar_EUR_i <<  std::endl; 
+std::cerr  << "Warning: EUR_i = %e is negative, setting it to 0." << " " << instanceVar_EUR_i << " " <<  std::endl; 
 instanceVar_EUR_i = 0.0;
 }
 if ((instanceVar_UDR_i<0.0))
 {
-std::cerr  << "Warning: UDR_i = %e is negative, setting it to 0." << instanceVar_UDR_i <<  std::endl; 
+std::cerr  << "Warning: UDR_i = %e is negative, setting it to 0." << " " << instanceVar_UDR_i << " " <<  std::endl; 
 instanceVar_UDR_i = 0.0;
 }
 }
 if ((instanceVar_PDIBL2_i<0.0))
 {
-std::cerr  << "Warning: PDIBL2_i = %e is negative." << instanceVar_PDIBL2_i <<  std::endl; 
+std::cerr  << "Warning: PDIBL2_i = %e is negative." << " " << instanceVar_PDIBL2_i << " " <<  std::endl; 
 }
 if ((instanceVar_DROUT_i<=0.0))
 {
-std::cerr  << "Fatal: DROUT_i = %e is non-positive." << instanceVar_DROUT_i <<  std::endl; 
+std::cerr  << "Fatal: DROUT_i = %e is non-positive." << " " << instanceVar_DROUT_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_MEXP_i<2.0))
 {
-std::cerr  << "Warning: MEXP_i = %e < 2. Setting MEXP_i = 2." << instanceVar_MEXP_i <<  std::endl; 
+std::cerr  << "Warning: MEXP_i = %e < 2. Setting MEXP_i = 2." << " " << instanceVar_MEXP_i << " " <<  std::endl; 
 instanceVar_MEXP_i = 2.0;
 }
 if ((modelPar_ASYMMOD!=0))
 {
 if ((instanceVar_MEXPR_i<2.0))
 {
-std::cerr  << "Warning: MEXPR_i = %e < 2.  Setting MEXPR_i = 2." << instanceVar_MEXPR_i <<  std::endl; 
+std::cerr  << "Warning: MEXPR_i = %e < 2.  Setting MEXPR_i = 2." << " " << instanceVar_MEXPR_i << " " <<  std::endl; 
 instanceVar_MEXPR_i = 2.0;
 }
 }
 if ((instanceVar_PTWG_i<0))
 {
-std::cerr  << "Warning: PTWG_i = %e is negative, setting it to 0." << instanceVar_PTWG_i <<  std::endl; 
+std::cerr  << "Warning: PTWG_i = %e is negative, setting it to 0." << " " << instanceVar_PTWG_i << " " <<  std::endl; 
 instanceVar_PTWG_i = 0.0;
 }
 if ((instanceVar_QMTCENCV_i>0.0))
 {
 if ((modelPar_QM0<=0.0))
 {
-std::cerr  << "Fatal: QM0 = %e is non-positive." << modelPar_QM0 <<  std::endl; 
+std::cerr  << "Fatal: QM0 = %e is non-positive." << " " << modelPar_QM0 << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
@@ -32408,30 +32408,30 @@ if (((modelPar_BULKMOD!=0)&&(instanceVar_QMTCENCVA_i>0.0)))
 {
 if ((modelPar_QM0ACC<=0.0))
 {
-std::cerr  << "Fatal: QM0ACC = %e is non-positive." << modelPar_QM0ACC <<  std::endl; 
+std::cerr  << "Fatal: QM0ACC = %e is non-positive." << " " << modelPar_QM0ACC << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
 if ((instanceVar_CGIDL_i<0.0))
 {
-std::cerr  << "Warning: CGIDL_i = %e < 0.  Setting CGIDL_i = 0." << instanceVar_CGIDL_i <<  std::endl; 
+std::cerr  << "Warning: CGIDL_i = %e < 0.  Setting CGIDL_i = 0." << " " << instanceVar_CGIDL_i << " " <<  std::endl; 
 instanceVar_CGIDL_i = 0.0;
 }
 if ((instanceVar_CGISL_i<0.0))
 {
-std::cerr  << "Warning: CGISL_i = %e < 0.  Setting CGISL_i = 0." << instanceVar_CGISL_i <<  std::endl; 
+std::cerr  << "Warning: CGISL_i = %e < 0.  Setting CGISL_i = 0." << " " << instanceVar_CGISL_i << " " <<  std::endl; 
 instanceVar_CGISL_i = 0.0;
 }
 if ((modelPar_IGBMOD!=0))
 {
 if ((instanceVar_NIGBINV_i<=0.0))
 {
-std::cerr  << "Fatal: NIGBINV_i = %e is non-positive." << instanceVar_NIGBINV_i <<  std::endl; 
+std::cerr  << "Fatal: NIGBINV_i = %e is non-positive." << " " << instanceVar_NIGBINV_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_NIGBACC_i<=0.0))
 {
-std::cerr  << "Fatal: NIGBACC_i = %e is non-positive." << instanceVar_NIGBACC_i <<  std::endl; 
+std::cerr  << "Fatal: NIGBACC_i = %e is non-positive." << " " << instanceVar_NIGBACC_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
@@ -32439,12 +32439,12 @@ if ((modelPar_IGCMOD!=0))
 {
 if ((instanceVar_POXEDGE_i<=0.0))
 {
-std::cerr  << "Fatal: POXEDGE_i = %e is non-positive." << instanceVar_POXEDGE_i <<  std::endl; 
+std::cerr  << "Fatal: POXEDGE_i = %e is non-positive." << " " << instanceVar_POXEDGE_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((instanceVar_PIGCD_i<=0.0))
 {
-std::cerr  << "Fatal: PIGCD_i = %e is non-positive." << instanceVar_PIGCD_i <<  std::endl; 
+std::cerr  << "Fatal: PIGCD_i = %e is non-positive." << " " << instanceVar_PIGCD_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
@@ -32452,13 +32452,13 @@ if (((modelPar_IGCMOD!=0)||(modelPar_IGBMOD!=0)))
 {
 if ((modelPar_TOXREF<=0))
 {
-std::cerr  << "Fatal: TOXREF = %e is non-positive." << modelPar_TOXREF <<  std::endl; 
+std::cerr  << "Fatal: TOXREF = %e is non-positive." << " " << modelPar_TOXREF << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
 if ((modelPar_LINTIGEN>=(instanceVar_Leff/2.0)))
 {
-std::cerr  << "Warning: LINTIGEN = %e is too large - Leff for r/g current is negative.  Re-setting LINTIGEN = 0." << modelPar_LINTIGEN <<  std::endl; 
+std::cerr  << "Warning: LINTIGEN = %e is too large - Leff for r/g current is negative.  Re-setting LINTIGEN = 0." << " " << modelPar_LINTIGEN << " " <<  std::endl; 
 instanceVar_LINTIGEN_i = 0.0;
 }
 else
@@ -32467,60 +32467,60 @@ instanceVar_LINTIGEN_i = modelPar_LINTIGEN;
 }
 if ((instanceVar_NTGEN_i<=0.0))
 {
-std::cerr  << "Fatal: NTGEN_i = %e is non-positive." << instanceVar_NTGEN_i <<  std::endl; 
+std::cerr  << "Fatal: NTGEN_i = %e is non-positive." << " " << instanceVar_NTGEN_i << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 if ((modelPar_IIMOD==2))
 {
 if ((instanceVar_BETAII0_i<0.0))
 {
-std::cerr  << "Warning:  BETAII0_i = %e is negative." << instanceVar_BETAII0_i <<  std::endl; 
+std::cerr  << "Warning:  BETAII0_i = %e is negative." << " " << instanceVar_BETAII0_i << " " <<  std::endl; 
 }
 if ((instanceVar_BETAII1_i<0.0))
 {
-std::cerr  << "Warning:  BETAII1_i = %e is negative." << instanceVar_BETAII1_i <<  std::endl; 
+std::cerr  << "Warning:  BETAII1_i = %e is negative." << " " << instanceVar_BETAII1_i << " " <<  std::endl; 
 }
 if ((instanceVar_BETAII2_i<0.0))
 {
-std::cerr  << "Warning:  BETAII2_i = %e is negative." << instanceVar_BETAII2_i <<  std::endl; 
+std::cerr  << "Warning:  BETAII2_i = %e is negative." << " " << instanceVar_BETAII2_i << " " <<  std::endl; 
 }
 if ((instanceVar_ESATII_i<0.0))
 {
-std::cerr  << "Warning:  ESATII_i = %e is negative." << instanceVar_ESATII_i <<  std::endl; 
+std::cerr  << "Warning:  ESATII_i = %e is negative." << " " << instanceVar_ESATII_i << " " <<  std::endl; 
 }
 if ((instanceVar_LII_i<0.0))
 {
-std::cerr  << "Warning:  LII_i = %e is negative." << instanceVar_LII_i <<  std::endl; 
+std::cerr  << "Warning:  LII_i = %e is negative." << " " << instanceVar_LII_i << " " <<  std::endl; 
 }
 if ((instanceVar_SII1_i<0.0))
 {
-std::cerr  << "Warning:  SII1_i = %e is negative." << modelPar_SII1 <<  std::endl; 
+std::cerr  << "Warning:  SII1_i = %e is negative." << " " << modelPar_SII1 << " " <<  std::endl; 
 }
 if ((instanceVar_SII2_i<0.0))
 {
-std::cerr  << "Warning:  SII2_i = %e is negative." << instanceVar_SII2_i <<  std::endl; 
+std::cerr  << "Warning:  SII2_i = %e is negative." << " " << instanceVar_SII2_i << " " <<  std::endl; 
 }
 if ((instanceVar_SIID_i<0.0))
 {
-std::cerr  << "Warning:  SIID_i = %e is negative." << instanceVar_SIID_i <<  std::endl; 
+std::cerr  << "Warning:  SIID_i = %e is negative." << " " << instanceVar_SIID_i << " " <<  std::endl; 
 }
 }
 if ((modelPar_EF<=0.0))
 {
-std::cerr  << "Fatal: EF = %e is non-positive." << modelPar_EF <<  std::endl; 
+std::cerr  << "Fatal: EF = %e is non-positive." << " " << modelPar_EF << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 else
 {
 if ((modelPar_EF>2.0))
 {
-std::cerr  << "Fatal: EF = %e > 2.0." << modelPar_EF <<  std::endl; 
+std::cerr  << "Fatal: EF = %e > 2.0." << " " << modelPar_EF << " " <<  std::endl; 
  UserError(theInstance) << "$finish called." << std::endl; 
 }
 }
 if ((modelPar_LINTNOI>=(instanceVar_Leff/2.0)))
 {
-std::cerr  << "Warning: LINTNOI = %e is too large - Leff for noise is negative.  Re-setting LINTNOI = 0." << modelPar_LINTNOI <<  std::endl; 
+std::cerr  << "Warning: LINTNOI = %e is too large - Leff for noise is negative.  Re-setting LINTNOI = 0." << " " << modelPar_LINTNOI << " " <<  std::endl; 
 instanceVar_LINTNOI_i = 0.0;
 }
 else
@@ -32529,7 +32529,7 @@ instanceVar_LINTNOI_i = modelPar_LINTNOI;
 }
 if ((modelPar_NTNOI<0))
 {
-std::cerr  << "Warning: NTNOI = %e is negative. Set to zero." << modelPar_NTNOI <<  std::endl; 
+std::cerr  << "Warning: NTNOI = %e is negative. Set to zero." << " " << modelPar_NTNOI << " " <<  std::endl; 
 instanceVar_NTNOI_i = 0.0;
 }
 else
@@ -33039,7 +33039,7 @@ Toxratioedge = (AnalogFunctions::lexp<AdmsSensFadType>((NTOX_i*AnalogFunctions::
 instanceVar_igsd_mult0 = ((instanceVar_Weff0*instanceVar_Aechvb)*Toxratioedge);
 if ((modelPar_TNOM<(-273.15)))
 {
-std::cerr  << "Warning: (TNOM=%e) < -`P_CELSIUS0. Set to 27 C." << modelPar_TNOM <<  std::endl; 
+std::cerr  << "Warning: (TNOM=%e) < -`P_CELSIUS0. Set to 27 C." << " " << modelPar_TNOM << " " <<  std::endl; 
 instanceVar_Tnom = 300.15;
 }
 else
@@ -38204,7 +38204,7 @@ instanceVar_RDDRR_t = AnalogFunctions::Tempdep<AdmsSensFadType>(modelPar_RDDRR,m
 instanceVar_VSAT_t = AnalogFunctions::Tempdep<AdmsSensFadType>(instanceVar_VSAT_i,(-instanceVar_AT_i),instanceVar_delTemp,modelPar_TEMPMOD);
 if ((instanceVar_VSAT_t<1000))
 {
-std::cerr  << "Warning: VSAT(%f) = %e is less than 1K, setting it to 1K." << DevTemp << instanceVar_VSAT_t <<  std::endl; 
+std::cerr  << "Warning: VSAT(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << instanceVar_VSAT_t << " " <<  std::endl; 
 instanceVar_VSAT_t = 1000;
 }
 if ((modelPar_ASYMMOD!=0))
@@ -38212,14 +38212,14 @@ if ((modelPar_ASYMMOD!=0))
 instanceVar_VSATR_t = AnalogFunctions::Tempdep<AdmsSensFadType>(instanceVar_VSATR_i,(-instanceVar_ATR_i),instanceVar_delTemp,modelPar_TEMPMOD);
 if ((instanceVar_VSATR_t<1000))
 {
-std::cerr  << "Warning: VSATR(%f) = %e is less than 1K, setting it to 1K." << DevTemp << instanceVar_VSATR_t <<  std::endl; 
+std::cerr  << "Warning: VSATR(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << instanceVar_VSATR_t << " " <<  std::endl; 
 instanceVar_VSATR_t = 1000;
 }
 }
 instanceVar_VSAT1_t = AnalogFunctions::Tempdep<AdmsSensFadType>(instanceVar_VSAT1_i,(-instanceVar_AT_i),instanceVar_delTemp,modelPar_TEMPMOD);
 if ((instanceVar_VSAT1_t<1000))
 {
-std::cerr  << "Warning: VSAT1(%f) = %e is less than 1K, setting it to 1K." << DevTemp << instanceVar_VSAT1_t <<  std::endl; 
+std::cerr  << "Warning: VSAT1(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << instanceVar_VSAT1_t << " " <<  std::endl; 
 instanceVar_VSAT1_t = 1000;
 }
 if ((modelPar_ASYMMOD!=0))
@@ -38227,14 +38227,14 @@ if ((modelPar_ASYMMOD!=0))
 instanceVar_VSAT1R_t = AnalogFunctions::Tempdep<AdmsSensFadType>(instanceVar_VSAT1R_i,(-instanceVar_AT_i),instanceVar_delTemp,modelPar_TEMPMOD);
 if ((instanceVar_VSAT1R_t<1000))
 {
-std::cerr  << "Warning: VSAT1R(%f) = %e is less than 1K, setting it to 1K." << DevTemp << instanceVar_VSAT1R_t <<  std::endl; 
+std::cerr  << "Warning: VSAT1R(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << instanceVar_VSAT1R_t << " " <<  std::endl; 
 instanceVar_VSAT1R_t = 1000;
 }
 }
 instanceVar_VSATCV_t = AnalogFunctions::Tempdep<AdmsSensFadType>(instanceVar_VSATCV_i,(-instanceVar_ATCV_i),instanceVar_delTemp,modelPar_TEMPMOD);
 if ((instanceVar_VSATCV_t<1000))
 {
-std::cerr  << "Warning: VSATCV(%f) = %e is less than 1K, setting it to 1K." << DevTemp << instanceVar_VSATCV_t <<  std::endl; 
+std::cerr  << "Warning: VSATCV(%f) = %e is less than 1K, setting it to 1K." << " " << DevTemp << " " << instanceVar_VSATCV_t << " " <<  std::endl; 
 instanceVar_VSATCV_t = 1000;
 }
 instanceVar_MEXP_t = (AnalogFunctions::hypsmooth<AdmsSensFadType>(((instanceVar_MEXP_i*(1.0+(modelPar_TMEXP*instanceVar_delTemp)))-2.0),1.0e-3)+2.0);
@@ -38728,11 +38728,11 @@ qia2 = (0.5*(instanceVar_qis+instanceVar_qid));
 }
 if ((instanceVar_qis<0.0))
 {
-std::cerr  << "Warning: negative source-side inversion carrier density.  Vgs=%f  Vds=%f  Vbs=%f qis=%e" << (probeVars[admsProbeID_V_g_s]) << (probeVars[admsProbeID_V_d_s]) << (probeVars[admsProbeID_V_e_s]) << instanceVar_qis <<  std::endl; 
+std::cerr  << "Warning: negative source-side inversion carrier density.  Vgs=%f  Vds=%f  Vbs=%f qis=%e" << " " << (probeVars[admsProbeID_V_g_s]) << " " << (probeVars[admsProbeID_V_d_s]) << " " << (probeVars[admsProbeID_V_e_s]) << " " << instanceVar_qis << " " <<  std::endl; 
 }
 if ((instanceVar_qid<0.0))
 {
-std::cerr  << "Warning: negative drain-side inversion carrier density.  Vgs=%f  Vds=%f  Vbs=%f qid=%e" << (probeVars[admsProbeID_V_g_s]) << (probeVars[admsProbeID_V_d_s]) << (probeVars[admsProbeID_V_e_s]) << instanceVar_qid <<  std::endl; 
+std::cerr  << "Warning: negative drain-side inversion carrier density.  Vgs=%f  Vds=%f  Vbs=%f qid=%e" << " " << (probeVars[admsProbeID_V_g_s]) << " " << (probeVars[admsProbeID_V_d_s]) << " " << (probeVars[admsProbeID_V_e_s]) << " " << instanceVar_qid << " " <<  std::endl; 
 }
 if ((instanceVar_QMTCENCV_i>0.0))
 {
