@@ -55,11 +55,6 @@
 
   <admst:variable name="skipFunctionPrecomp" select="y"/>
 
-  <!-- flag any variables that the Verilog-A LRM says should
-       be output variables as such... this should be moved to
-       implicit rules -->
-  <admst:apply-templates select="/module" match="markOutputVariables"/>
-
   <!-- Set up some useful variables: the N_DEV_(foo) class, and its
      related Instance and Model classes -->
   <admst:apply-templates select="." match="xyceClassBaseName">
@@ -604,8 +599,8 @@ Instance::Instance(
   <admst:text format="    numIntVars = %(xyceNumberInternalNodes(.)) + %(count(/module/@extraUnknowns));\n"/>
   <admst:text format="    numExtVars = %(xyceNumberExternalNodes(.));\n"/>
 
-  // Right now, we only have store for limited probes...
-  setNumStoreVars(%(count(@limitedProbes)));
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(%(count(@limitedProbes))+%(count(/module/variable[output='yes' and input!='yes'])));
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
@@ -826,6 +821,10 @@ void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
     addInternalNode(symbol_table, %(xyceBranchLIDVariable(.)), getName(), &quot;%(pnode)_%(nnode)_branch&quot;);
   </admst:for-each>
 
+  <admst:for-each select="$theModule/variable[output='yes' and input!='yes']">
+    addStoreNode(symbol_table, li_store_%(name), getName().getEncodedName() + ":%(name)");
+  </admst:for-each>
+  
   if (loadLeadCurrent)
   {
   <admst:choose>
@@ -876,7 +875,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &amp;symbol_table) const
 void Instance::registerStoreLIDs( const LocalIdVector &amp; stoLIDVecRef)
 {
   AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
-<admst:if test="[count(@limitedProbes)>0]">
+<admst:if test="[count(@limitedProbes)>0 or count(variable[output='yes' and input!='yes'])>0]">
 
   int numSto = stoLIDVecRef.size();
   if (numSto > 0)
@@ -886,6 +885,9 @@ void Instance::registerStoreLIDs( const LocalIdVector &amp; stoLIDVecRef)
 
     <admst:for-each select="@limitedProbes">
     %(xyceLimitedProbeStoreLIDVariable(.)) = stoLIDVec[i++];
+    </admst:for-each>
+    <admst:for-each select="variable[output='yes' and input!='yes']">
+      li_store_%(name)= stoLIDVec[i++];
     </admst:for-each>
   }
 </admst:if>
@@ -1138,15 +1140,20 @@ bool Instance::updatePrimaryState()
   // if old DAE were implemented, we'd save dynamic contributions as state
   // here.
 
-<admst:if test="[count(@limitedProbes)>0]">
+<admst:if test="[count(@limitedProbes)>0 or count(variable[output='yes' and input!='yes'])>0]">
   double * stoVec = extData.nextStoVectorRawPtr;
-  // Also need to save limited voltage drops
+  // Also need to save limited voltage drops and output vars
   // This formulation assumes that we have *always* written the
   // limited voltages back into the probeVars[] array.
 
   <admst:for-each select="@limitedProbes">
   stoVec[%(xyceLimitedProbeStoreLIDVariable(.))] = probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)];
   </admst:for-each>
+
+  <admst:for-each select="variable[output='yes' and input!='yes']">
+  stoVec[li_store_%(name)] = %(name);
+  </admst:for-each>
+
 </admst:if>
 
   return bsuccess;

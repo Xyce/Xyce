@@ -401,6 +401,7 @@ public:
     <admst:apply-templates select="." match="xyceDeclareBranchConstants"/>
     <admst:apply-templates select="." match="xyceDeclareProbeConstants"/>
     <admst:apply-templates select="." match="xyceDeclareLimitedProbeStoreLIDs"/>
+    <admst:apply-templates select="." match="xyceDeclareOutputStoreLIDs"/>
     <admst:apply-templates select="." match="declareCollapsibleBools"/>
     <admst:apply-templates select="." match="xyceDeclareFadArrays"/>
 

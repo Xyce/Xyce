@@ -54,7 +54,6 @@
   <admst:apply-templates select="/module" match="collectLimiters"/>
   <admst:apply-templates select="/module" match="collectCollapsibles"/>
   <admst:apply-templates select="/module" match="collectExtraUnknowns"/>
-  <admst:apply-templates select="/module" match="markOutputVariables"/>
 
   <admst:open file="$classname.html">
     <html>

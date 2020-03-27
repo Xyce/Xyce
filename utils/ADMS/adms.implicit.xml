@@ -659,6 +659,15 @@
       <admst:value-to select="[name='type' and value='instance']/../parametertype" string="instance"/>
       <admst:value-to select="[name='ask' and value='yes']/../output" string="yes"/>
       <admst:value-to select="[name='ask' and value='no']/../output" string="no"/>
+      <!-- set output flag if desc or units attribute and we are a module-
+            scoped variable,  not an input parameter, and have 
+            desc or units attribute, per Verilog-A LRM 2.4, section 3.2.1 -->
+      <admst:if test="[../input!='yes' and ../module/name=../block/name and name='desc' and value!='']">
+          <admst:value-to select="../output" string="yes"/>
+      </admst:if>
+     <admst:if test="[../input!='yes' and ../module/name=../block/name and name='units' and value!='']">
+          <admst:value-to select="../output" string="yes"/>
+      </admst:if>
     </admst:for-each>
     <admst:apply-templates select="default" match="e:dependency"/>
     <admst:value-to
