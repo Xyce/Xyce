@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -2548,6 +2548,11 @@ d_rbi_dV_bi_ci(0.0),
     A_n2_Equ_tnode_NodeOffset(-1),
     A_n2_Equ_n2_NodeOffset(-1),
     A_ci_Equ_n2_NodeOffset(-1),
+    collapseNode_ci(false),
+    collapseNode_ei(false),
+    collapseNode_bp(false),
+    collapseNode_bi(false),
+    collapseNode_si(false),
     admsTemperature(getDeviceOptions().temp.getImmutableValue<double>())
 
 {
@@ -2555,8 +2560,8 @@ d_rbi_dV_bi_ci(0.0),
     numExtVars = 5;
 
 
-  // Right now, we only have store for limited probes...
-  setNumStoreVars(0);
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(0+0);
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
@@ -2940,7 +2945,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addInternalNode(symbol_table, li_xf, getName(), "xf");
     addInternalNode(symbol_table, li_n1, getName(), "n1");
     addInternalNode(symbol_table, li_n2, getName(), "n2");
-
+  
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_ic, getName(), "BRANCH_DC");

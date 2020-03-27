@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1149,6 +1149,17 @@ d_ijbe_dV_bi_ei(0.0),
     A_xf_Equ_b_NodeOffset(-1),
     A_xf_Equ_tnode_NodeOffset(-1),
     A_xf_Equ_xf_NodeOffset(-1),
+    li_store_qjci(-1),
+    li_store_qjei(-1),
+    li_store_it(-1),
+    li_store_ijbc(-1),
+    li_store_iavl(-1),
+    li_store_ijsc(-1),
+    li_store_Ibici(-1),
+    li_store_ijbe(-1),
+    collapseNode_ci(false),
+    collapseNode_bi(false),
+    collapseNode_ei(false),
     admsTemperature(getDeviceOptions().temp.getImmutableValue<double>())
 
 {
@@ -1156,8 +1167,8 @@ d_ijbe_dV_bi_ei(0.0),
     numExtVars = 5;
 
 
-  // Right now, we only have store for limited probes...
-  setNumStoreVars(0);
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(0+8);
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
@@ -1446,7 +1457,15 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addInternalNode(symbol_table, li_xf1, getName(), "xf1");
     addInternalNode(symbol_table, li_xf2, getName(), "xf2");
     addInternalNode(symbol_table, li_xf, getName(), "xf");
-
+    addStoreNode(symbol_table, li_store_qjci, getName().getEncodedName() + ":qjci");
+    addStoreNode(symbol_table, li_store_qjei, getName().getEncodedName() + ":qjei");
+    addStoreNode(symbol_table, li_store_it, getName().getEncodedName() + ":it");
+    addStoreNode(symbol_table, li_store_ijbc, getName().getEncodedName() + ":ijbc");
+    addStoreNode(symbol_table, li_store_iavl, getName().getEncodedName() + ":iavl");
+    addStoreNode(symbol_table, li_store_ijsc, getName().getEncodedName() + ":ijsc");
+    addStoreNode(symbol_table, li_store_Ibici, getName().getEncodedName() + ":Ibici");
+    addStoreNode(symbol_table, li_store_ijbe, getName().getEncodedName() + ":ijbe");
+  
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_ic, getName(), "BRANCH_DC");
@@ -1468,6 +1487,22 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 void Instance::registerStoreLIDs( const LocalIdVector & stoLIDVecRef)
 {
   AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
+
+  int numSto = stoLIDVecRef.size();
+  if (numSto > 0)
+  {
+    int i=0;
+    stoLIDVec = stoLIDVecRef;
+
+      li_store_qjci= stoLIDVec[i++];
+      li_store_qjei= stoLIDVec[i++];
+      li_store_it= stoLIDVec[i++];
+      li_store_ijbc= stoLIDVec[i++];
+      li_store_iavl= stoLIDVec[i++];
+      li_store_ijsc= stoLIDVec[i++];
+      li_store_Ibici= stoLIDVec[i++];
+      li_store_ijbe= stoLIDVec[i++];
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1926,6 +1961,19 @@ bool Instance::updatePrimaryState()
   // if old DAE were implemented, we'd save dynamic contributions as state
   // here.
 
+  double * stoVec = extData.nextStoVectorRawPtr;
+  // Also need to save limited voltage drops and output vars
+  // This formulation assumes that we have *always* written the
+  // limited voltages back into the probeVars[] array.
+
+  stoVec[li_store_qjci] = qjci;
+  stoVec[li_store_qjei] = qjei;
+  stoVec[li_store_it] = it;
+  stoVec[li_store_ijbc] = ijbc;
+  stoVec[li_store_iavl] = iavl;
+  stoVec[li_store_ijsc] = ijsc;
+  stoVec[li_store_Ibici] = Ibici;
+  stoVec[li_store_ijbe] = ijbe;
 
   return bsuccess;
 }

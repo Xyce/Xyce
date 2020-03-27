@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -13376,6 +13376,128 @@ d_UD_a_dV_si_bi(0.0),
     nuEndS(0.0),
     gth(0.0),
     cth(0.0),
+    QBI(0.0),
+    QSI(0.0),
+d_QSI_dV_dbulk_di(0.0),
+d_QSI_dV_sbulk_si(0.0),
+d_QSI_dTemp_t_GND(0.0),
+d_QSI_dV_gi_bi(0.0),
+d_QSI_dV_di_bi(0.0),
+d_QSI_dV_si_bi(0.0),
+    QDI(0.0),
+d_QDI_dV_dbulk_di(0.0),
+d_QDI_dV_sbulk_si(0.0),
+d_QDI_dTemp_t_GND(0.0),
+d_QDI_dV_gi_bi(0.0),
+d_QDI_dV_di_bi(0.0),
+d_QDI_dV_si_bi(0.0),
+    QGI(0.0),
+d_QGI_dTemp_t_GND(0.0),
+d_QGI_dV_dbulk_di(0.0),
+d_QGI_dV_sbulk_si(0.0),
+d_QGI_dV_gi_bi(0.0),
+d_QGI_dV_di_bi(0.0),
+d_QGI_dV_si_bi(0.0),
+    CGGI(0.0),
+    CGBI(0.0),
+    CGSI(0.0),
+    CGDI(0.0),
+    CSGI(0.0),
+    CSBI(0.0),
+    CSSI(0.0),
+    CSDI(0.0),
+    CDGI(0.0),
+    CDBI(0.0),
+    CDSI(0.0),
+    CDDI(0.0),
+    CBGI(0.0),
+    CBBI(0.0),
+    CBSI(0.0),
+    CBDI(0.0),
+    QB(0.0),
+    QS(0.0),
+    QD(0.0),
+    QG(0.0),
+    CGG(0.0),
+    CGB(0.0),
+    CGS(0.0),
+    CGD(0.0),
+    CSG(0.0),
+    CSB(0.0),
+    CSS(0.0),
+    CSD(0.0),
+    CDG(0.0),
+    CDB(0.0),
+    CDS(0.0),
+    CDD(0.0),
+    CBG(0.0),
+    CBB(0.0),
+    CBS(0.0),
+    CBD(0.0),
+    ISUB(0.0),
+d_ISUB_dV_di_bi(0.0),
+d_ISUB_dV_si_bi(0.0),
+d_ISUB_dV_gi_bi(0.0),
+d_ISUB_dTemp_t_GND(0.0),
+    IGIDL(0.0),
+d_IGIDL_dV_gi_bi(0.0),
+d_IGIDL_dV_di_bi(0.0),
+d_IGIDL_dV_si_bi(0.0),
+d_IGIDL_dTemp_t_GND(0.0),
+    IGISL(0.0),
+d_IGISL_dV_gi_bi(0.0),
+d_IGISL_dV_di_bi(0.0),
+d_IGISL_dV_si_bi(0.0),
+d_IGISL_dTemp_t_GND(0.0),
+    IGS(0.0),
+d_IGS_dTemp_t_GND(0.0),
+d_IGS_dV_gi_bi(0.0),
+d_IGS_dV_si_bi(0.0),
+d_IGS_dV_di_bi(0.0),
+    IGD(0.0),
+d_IGD_dTemp_t_GND(0.0),
+d_IGD_dV_gi_bi(0.0),
+d_IGD_dV_di_bi(0.0),
+d_IGD_dV_si_bi(0.0),
+    IGCS(0.0),
+d_IGCS_dV_gi_bi(0.0),
+d_IGCS_dV_di_bi(0.0),
+d_IGCS_dV_si_bi(0.0),
+d_IGCS_dTemp_t_GND(0.0),
+    IGCD(0.0),
+d_IGCD_dV_gi_bi(0.0),
+d_IGCD_dV_di_bi(0.0),
+d_IGCD_dV_si_bi(0.0),
+d_IGCD_dTemp_t_GND(0.0),
+    IGB(0.0),
+d_IGB_dV_gi_bi(0.0),
+d_IGB_dV_di_bi(0.0),
+d_IGB_dV_si_bi(0.0),
+d_IGB_dTemp_t_GND(0.0),
+    CGSEXT(0.0),
+    CGDEXT(0.0),
+    CGBOV(0.0),
+    CAPBS(0.0),
+    CAPBD(0.0),
+    WEFF(0.0),
+    LEFF(0.0),
+    WEFFCV(0.0),
+    LEFFCV(0.0),
+    IDS(0.0),
+    IDEFF(0.0),
+    ISEFF(0.0),
+    IGEFF(0.0),
+    IBS(0.0),
+    IBD(0.0),
+    VDS(0.0),
+    VGS(0.0),
+    VBS(0.0),
+    VDSAT(0.0),
+    GM(0.0),
+    GMBS(0.0),
+    GDS(0.0),
+    TK(0.0),
+    VTH(0.0),
     li_d(-1),
     li_g(-1),
     li_s(-1),
@@ -13742,6 +13864,86 @@ d_UD_a_dV_si_bi(0.0),
     A_dbulk_Equ_gi_NodeOffset(-1),
     A_dbulk_Equ_sbulk_NodeOffset(-1),
     A_sbulk_Equ_dbulk_NodeOffset(-1),
+    li_store_QBI(-1),
+    li_store_QSI(-1),
+    li_store_QDI(-1),
+    li_store_QGI(-1),
+    li_store_CGGI(-1),
+    li_store_CGBI(-1),
+    li_store_CGSI(-1),
+    li_store_CGDI(-1),
+    li_store_CSGI(-1),
+    li_store_CSBI(-1),
+    li_store_CSSI(-1),
+    li_store_CSDI(-1),
+    li_store_CDGI(-1),
+    li_store_CDBI(-1),
+    li_store_CDSI(-1),
+    li_store_CDDI(-1),
+    li_store_CBGI(-1),
+    li_store_CBBI(-1),
+    li_store_CBSI(-1),
+    li_store_CBDI(-1),
+    li_store_QB(-1),
+    li_store_QS(-1),
+    li_store_QD(-1),
+    li_store_QG(-1),
+    li_store_CGG(-1),
+    li_store_CGB(-1),
+    li_store_CGS(-1),
+    li_store_CGD(-1),
+    li_store_CSG(-1),
+    li_store_CSB(-1),
+    li_store_CSS(-1),
+    li_store_CSD(-1),
+    li_store_CDG(-1),
+    li_store_CDB(-1),
+    li_store_CDS(-1),
+    li_store_CDD(-1),
+    li_store_CBG(-1),
+    li_store_CBB(-1),
+    li_store_CBS(-1),
+    li_store_CBD(-1),
+    li_store_ISUB(-1),
+    li_store_IGIDL(-1),
+    li_store_IGISL(-1),
+    li_store_IGS(-1),
+    li_store_IGD(-1),
+    li_store_IGCS(-1),
+    li_store_IGCD(-1),
+    li_store_IGB(-1),
+    li_store_CGSEXT(-1),
+    li_store_CGDEXT(-1),
+    li_store_CGBOV(-1),
+    li_store_CAPBS(-1),
+    li_store_CAPBD(-1),
+    li_store_WEFF(-1),
+    li_store_LEFF(-1),
+    li_store_WEFFCV(-1),
+    li_store_LEFFCV(-1),
+    li_store_IDS(-1),
+    li_store_IDEFF(-1),
+    li_store_ISEFF(-1),
+    li_store_IGEFF(-1),
+    li_store_IBS(-1),
+    li_store_IBD(-1),
+    li_store_VDS(-1),
+    li_store_VGS(-1),
+    li_store_VBS(-1),
+    li_store_VDSAT(-1),
+    li_store_GM(-1),
+    li_store_GMBS(-1),
+    li_store_GDS(-1),
+    li_store_TK(-1),
+    li_store_VTH(-1),
+    collapseNode_di(false),
+    collapseNode_si(false),
+    collapseNode_gi(false),
+    collapseNode_gm(false),
+    collapseNode_bi(false),
+    collapseNode_sbulk(false),
+    collapseNode_dbulk(false),
+    collapseNode_t(false),
     admsTemperature(getDeviceOptions().temp.getImmutableValue<double>())
 
 {
@@ -13749,8 +13951,8 @@ d_UD_a_dV_si_bi(0.0),
     numExtVars = 4;
 
 
-  // Right now, we only have store for limited probes...
-  setNumStoreVars(0);
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(0+72);
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
@@ -14182,7 +14384,79 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     {
     addInternalNode(symbol_table, li_t, getName(), "t");
     }
-
+    addStoreNode(symbol_table, li_store_QBI, getName().getEncodedName() + ":QBI");
+    addStoreNode(symbol_table, li_store_QSI, getName().getEncodedName() + ":QSI");
+    addStoreNode(symbol_table, li_store_QDI, getName().getEncodedName() + ":QDI");
+    addStoreNode(symbol_table, li_store_QGI, getName().getEncodedName() + ":QGI");
+    addStoreNode(symbol_table, li_store_CGGI, getName().getEncodedName() + ":CGGI");
+    addStoreNode(symbol_table, li_store_CGBI, getName().getEncodedName() + ":CGBI");
+    addStoreNode(symbol_table, li_store_CGSI, getName().getEncodedName() + ":CGSI");
+    addStoreNode(symbol_table, li_store_CGDI, getName().getEncodedName() + ":CGDI");
+    addStoreNode(symbol_table, li_store_CSGI, getName().getEncodedName() + ":CSGI");
+    addStoreNode(symbol_table, li_store_CSBI, getName().getEncodedName() + ":CSBI");
+    addStoreNode(symbol_table, li_store_CSSI, getName().getEncodedName() + ":CSSI");
+    addStoreNode(symbol_table, li_store_CSDI, getName().getEncodedName() + ":CSDI");
+    addStoreNode(symbol_table, li_store_CDGI, getName().getEncodedName() + ":CDGI");
+    addStoreNode(symbol_table, li_store_CDBI, getName().getEncodedName() + ":CDBI");
+    addStoreNode(symbol_table, li_store_CDSI, getName().getEncodedName() + ":CDSI");
+    addStoreNode(symbol_table, li_store_CDDI, getName().getEncodedName() + ":CDDI");
+    addStoreNode(symbol_table, li_store_CBGI, getName().getEncodedName() + ":CBGI");
+    addStoreNode(symbol_table, li_store_CBBI, getName().getEncodedName() + ":CBBI");
+    addStoreNode(symbol_table, li_store_CBSI, getName().getEncodedName() + ":CBSI");
+    addStoreNode(symbol_table, li_store_CBDI, getName().getEncodedName() + ":CBDI");
+    addStoreNode(symbol_table, li_store_QB, getName().getEncodedName() + ":QB");
+    addStoreNode(symbol_table, li_store_QS, getName().getEncodedName() + ":QS");
+    addStoreNode(symbol_table, li_store_QD, getName().getEncodedName() + ":QD");
+    addStoreNode(symbol_table, li_store_QG, getName().getEncodedName() + ":QG");
+    addStoreNode(symbol_table, li_store_CGG, getName().getEncodedName() + ":CGG");
+    addStoreNode(symbol_table, li_store_CGB, getName().getEncodedName() + ":CGB");
+    addStoreNode(symbol_table, li_store_CGS, getName().getEncodedName() + ":CGS");
+    addStoreNode(symbol_table, li_store_CGD, getName().getEncodedName() + ":CGD");
+    addStoreNode(symbol_table, li_store_CSG, getName().getEncodedName() + ":CSG");
+    addStoreNode(symbol_table, li_store_CSB, getName().getEncodedName() + ":CSB");
+    addStoreNode(symbol_table, li_store_CSS, getName().getEncodedName() + ":CSS");
+    addStoreNode(symbol_table, li_store_CSD, getName().getEncodedName() + ":CSD");
+    addStoreNode(symbol_table, li_store_CDG, getName().getEncodedName() + ":CDG");
+    addStoreNode(symbol_table, li_store_CDB, getName().getEncodedName() + ":CDB");
+    addStoreNode(symbol_table, li_store_CDS, getName().getEncodedName() + ":CDS");
+    addStoreNode(symbol_table, li_store_CDD, getName().getEncodedName() + ":CDD");
+    addStoreNode(symbol_table, li_store_CBG, getName().getEncodedName() + ":CBG");
+    addStoreNode(symbol_table, li_store_CBB, getName().getEncodedName() + ":CBB");
+    addStoreNode(symbol_table, li_store_CBS, getName().getEncodedName() + ":CBS");
+    addStoreNode(symbol_table, li_store_CBD, getName().getEncodedName() + ":CBD");
+    addStoreNode(symbol_table, li_store_ISUB, getName().getEncodedName() + ":ISUB");
+    addStoreNode(symbol_table, li_store_IGIDL, getName().getEncodedName() + ":IGIDL");
+    addStoreNode(symbol_table, li_store_IGISL, getName().getEncodedName() + ":IGISL");
+    addStoreNode(symbol_table, li_store_IGS, getName().getEncodedName() + ":IGS");
+    addStoreNode(symbol_table, li_store_IGD, getName().getEncodedName() + ":IGD");
+    addStoreNode(symbol_table, li_store_IGCS, getName().getEncodedName() + ":IGCS");
+    addStoreNode(symbol_table, li_store_IGCD, getName().getEncodedName() + ":IGCD");
+    addStoreNode(symbol_table, li_store_IGB, getName().getEncodedName() + ":IGB");
+    addStoreNode(symbol_table, li_store_CGSEXT, getName().getEncodedName() + ":CGSEXT");
+    addStoreNode(symbol_table, li_store_CGDEXT, getName().getEncodedName() + ":CGDEXT");
+    addStoreNode(symbol_table, li_store_CGBOV, getName().getEncodedName() + ":CGBOV");
+    addStoreNode(symbol_table, li_store_CAPBS, getName().getEncodedName() + ":CAPBS");
+    addStoreNode(symbol_table, li_store_CAPBD, getName().getEncodedName() + ":CAPBD");
+    addStoreNode(symbol_table, li_store_WEFF, getName().getEncodedName() + ":WEFF");
+    addStoreNode(symbol_table, li_store_LEFF, getName().getEncodedName() + ":LEFF");
+    addStoreNode(symbol_table, li_store_WEFFCV, getName().getEncodedName() + ":WEFFCV");
+    addStoreNode(symbol_table, li_store_LEFFCV, getName().getEncodedName() + ":LEFFCV");
+    addStoreNode(symbol_table, li_store_IDS, getName().getEncodedName() + ":IDS");
+    addStoreNode(symbol_table, li_store_IDEFF, getName().getEncodedName() + ":IDEFF");
+    addStoreNode(symbol_table, li_store_ISEFF, getName().getEncodedName() + ":ISEFF");
+    addStoreNode(symbol_table, li_store_IGEFF, getName().getEncodedName() + ":IGEFF");
+    addStoreNode(symbol_table, li_store_IBS, getName().getEncodedName() + ":IBS");
+    addStoreNode(symbol_table, li_store_IBD, getName().getEncodedName() + ":IBD");
+    addStoreNode(symbol_table, li_store_VDS, getName().getEncodedName() + ":VDS");
+    addStoreNode(symbol_table, li_store_VGS, getName().getEncodedName() + ":VGS");
+    addStoreNode(symbol_table, li_store_VBS, getName().getEncodedName() + ":VBS");
+    addStoreNode(symbol_table, li_store_VDSAT, getName().getEncodedName() + ":VDSAT");
+    addStoreNode(symbol_table, li_store_GM, getName().getEncodedName() + ":GM");
+    addStoreNode(symbol_table, li_store_GMBS, getName().getEncodedName() + ":GMBS");
+    addStoreNode(symbol_table, li_store_GDS, getName().getEncodedName() + ":GDS");
+    addStoreNode(symbol_table, li_store_TK, getName().getEncodedName() + ":TK");
+    addStoreNode(symbol_table, li_store_VTH, getName().getEncodedName() + ":VTH");
+  
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_id, getName(), "BRANCH_DD");
@@ -14203,6 +14477,86 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 void Instance::registerStoreLIDs( const LocalIdVector & stoLIDVecRef)
 {
   AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
+
+  int numSto = stoLIDVecRef.size();
+  if (numSto > 0)
+  {
+    int i=0;
+    stoLIDVec = stoLIDVecRef;
+
+      li_store_QBI= stoLIDVec[i++];
+      li_store_QSI= stoLIDVec[i++];
+      li_store_QDI= stoLIDVec[i++];
+      li_store_QGI= stoLIDVec[i++];
+      li_store_CGGI= stoLIDVec[i++];
+      li_store_CGBI= stoLIDVec[i++];
+      li_store_CGSI= stoLIDVec[i++];
+      li_store_CGDI= stoLIDVec[i++];
+      li_store_CSGI= stoLIDVec[i++];
+      li_store_CSBI= stoLIDVec[i++];
+      li_store_CSSI= stoLIDVec[i++];
+      li_store_CSDI= stoLIDVec[i++];
+      li_store_CDGI= stoLIDVec[i++];
+      li_store_CDBI= stoLIDVec[i++];
+      li_store_CDSI= stoLIDVec[i++];
+      li_store_CDDI= stoLIDVec[i++];
+      li_store_CBGI= stoLIDVec[i++];
+      li_store_CBBI= stoLIDVec[i++];
+      li_store_CBSI= stoLIDVec[i++];
+      li_store_CBDI= stoLIDVec[i++];
+      li_store_QB= stoLIDVec[i++];
+      li_store_QS= stoLIDVec[i++];
+      li_store_QD= stoLIDVec[i++];
+      li_store_QG= stoLIDVec[i++];
+      li_store_CGG= stoLIDVec[i++];
+      li_store_CGB= stoLIDVec[i++];
+      li_store_CGS= stoLIDVec[i++];
+      li_store_CGD= stoLIDVec[i++];
+      li_store_CSG= stoLIDVec[i++];
+      li_store_CSB= stoLIDVec[i++];
+      li_store_CSS= stoLIDVec[i++];
+      li_store_CSD= stoLIDVec[i++];
+      li_store_CDG= stoLIDVec[i++];
+      li_store_CDB= stoLIDVec[i++];
+      li_store_CDS= stoLIDVec[i++];
+      li_store_CDD= stoLIDVec[i++];
+      li_store_CBG= stoLIDVec[i++];
+      li_store_CBB= stoLIDVec[i++];
+      li_store_CBS= stoLIDVec[i++];
+      li_store_CBD= stoLIDVec[i++];
+      li_store_ISUB= stoLIDVec[i++];
+      li_store_IGIDL= stoLIDVec[i++];
+      li_store_IGISL= stoLIDVec[i++];
+      li_store_IGS= stoLIDVec[i++];
+      li_store_IGD= stoLIDVec[i++];
+      li_store_IGCS= stoLIDVec[i++];
+      li_store_IGCD= stoLIDVec[i++];
+      li_store_IGB= stoLIDVec[i++];
+      li_store_CGSEXT= stoLIDVec[i++];
+      li_store_CGDEXT= stoLIDVec[i++];
+      li_store_CGBOV= stoLIDVec[i++];
+      li_store_CAPBS= stoLIDVec[i++];
+      li_store_CAPBD= stoLIDVec[i++];
+      li_store_WEFF= stoLIDVec[i++];
+      li_store_LEFF= stoLIDVec[i++];
+      li_store_WEFFCV= stoLIDVec[i++];
+      li_store_LEFFCV= stoLIDVec[i++];
+      li_store_IDS= stoLIDVec[i++];
+      li_store_IDEFF= stoLIDVec[i++];
+      li_store_ISEFF= stoLIDVec[i++];
+      li_store_IGEFF= stoLIDVec[i++];
+      li_store_IBS= stoLIDVec[i++];
+      li_store_IBD= stoLIDVec[i++];
+      li_store_VDS= stoLIDVec[i++];
+      li_store_VGS= stoLIDVec[i++];
+      li_store_VBS= stoLIDVec[i++];
+      li_store_VDSAT= stoLIDVec[i++];
+      li_store_GM= stoLIDVec[i++];
+      li_store_GMBS= stoLIDVec[i++];
+      li_store_GDS= stoLIDVec[i++];
+      li_store_TK= stoLIDVec[i++];
+      li_store_VTH= stoLIDVec[i++];
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -14988,6 +15342,83 @@ bool Instance::updatePrimaryState()
   // if old DAE were implemented, we'd save dynamic contributions as state
   // here.
 
+  double * stoVec = extData.nextStoVectorRawPtr;
+  // Also need to save limited voltage drops and output vars
+  // This formulation assumes that we have *always* written the
+  // limited voltages back into the probeVars[] array.
+
+  stoVec[li_store_QBI] = QBI;
+  stoVec[li_store_QSI] = QSI;
+  stoVec[li_store_QDI] = QDI;
+  stoVec[li_store_QGI] = QGI;
+  stoVec[li_store_CGGI] = CGGI;
+  stoVec[li_store_CGBI] = CGBI;
+  stoVec[li_store_CGSI] = CGSI;
+  stoVec[li_store_CGDI] = CGDI;
+  stoVec[li_store_CSGI] = CSGI;
+  stoVec[li_store_CSBI] = CSBI;
+  stoVec[li_store_CSSI] = CSSI;
+  stoVec[li_store_CSDI] = CSDI;
+  stoVec[li_store_CDGI] = CDGI;
+  stoVec[li_store_CDBI] = CDBI;
+  stoVec[li_store_CDSI] = CDSI;
+  stoVec[li_store_CDDI] = CDDI;
+  stoVec[li_store_CBGI] = CBGI;
+  stoVec[li_store_CBBI] = CBBI;
+  stoVec[li_store_CBSI] = CBSI;
+  stoVec[li_store_CBDI] = CBDI;
+  stoVec[li_store_QB] = QB;
+  stoVec[li_store_QS] = QS;
+  stoVec[li_store_QD] = QD;
+  stoVec[li_store_QG] = QG;
+  stoVec[li_store_CGG] = CGG;
+  stoVec[li_store_CGB] = CGB;
+  stoVec[li_store_CGS] = CGS;
+  stoVec[li_store_CGD] = CGD;
+  stoVec[li_store_CSG] = CSG;
+  stoVec[li_store_CSB] = CSB;
+  stoVec[li_store_CSS] = CSS;
+  stoVec[li_store_CSD] = CSD;
+  stoVec[li_store_CDG] = CDG;
+  stoVec[li_store_CDB] = CDB;
+  stoVec[li_store_CDS] = CDS;
+  stoVec[li_store_CDD] = CDD;
+  stoVec[li_store_CBG] = CBG;
+  stoVec[li_store_CBB] = CBB;
+  stoVec[li_store_CBS] = CBS;
+  stoVec[li_store_CBD] = CBD;
+  stoVec[li_store_ISUB] = ISUB;
+  stoVec[li_store_IGIDL] = IGIDL;
+  stoVec[li_store_IGISL] = IGISL;
+  stoVec[li_store_IGS] = IGS;
+  stoVec[li_store_IGD] = IGD;
+  stoVec[li_store_IGCS] = IGCS;
+  stoVec[li_store_IGCD] = IGCD;
+  stoVec[li_store_IGB] = IGB;
+  stoVec[li_store_CGSEXT] = CGSEXT;
+  stoVec[li_store_CGDEXT] = CGDEXT;
+  stoVec[li_store_CGBOV] = CGBOV;
+  stoVec[li_store_CAPBS] = CAPBS;
+  stoVec[li_store_CAPBD] = CAPBD;
+  stoVec[li_store_WEFF] = WEFF;
+  stoVec[li_store_LEFF] = LEFF;
+  stoVec[li_store_WEFFCV] = WEFFCV;
+  stoVec[li_store_LEFFCV] = LEFFCV;
+  stoVec[li_store_IDS] = IDS;
+  stoVec[li_store_IDEFF] = IDEFF;
+  stoVec[li_store_ISEFF] = ISEFF;
+  stoVec[li_store_IGEFF] = IGEFF;
+  stoVec[li_store_IBS] = IBS;
+  stoVec[li_store_IBD] = IBD;
+  stoVec[li_store_VDS] = VDS;
+  stoVec[li_store_VGS] = VGS;
+  stoVec[li_store_VBS] = VBS;
+  stoVec[li_store_VDSAT] = VDSAT;
+  stoVec[li_store_GM] = GM;
+  stoVec[li_store_GMBS] = GMBS;
+  stoVec[li_store_GDS] = GDS;
+  stoVec[li_store_TK] = TK;
+  stoVec[li_store_VTH] = VTH;
 
   return bsuccess;
 }
@@ -15042,32 +15473,6 @@ bool Instance::updateIntermediateVars()
      double d_gdpr_dV_gi_bi;
      double d_gdpr_dV_di_bi;
      double d_gdpr_dV_si_bi;
-  double QGI;
-     double d_QGI_dTemp_t_GND;
-     double d_QGI_dV_dbulk_di;
-     double d_QGI_dV_sbulk_si;
-     double d_QGI_dV_gi_bi;
-     double d_QGI_dV_di_bi;
-     double d_QGI_dV_si_bi;
-  double QBI;
-  double QG;
-  double QD;
-  double QS;
-  double QDI;
-     double d_QDI_dV_dbulk_di;
-     double d_QDI_dV_sbulk_si;
-     double d_QDI_dTemp_t_GND;
-     double d_QDI_dV_gi_bi;
-     double d_QDI_dV_di_bi;
-     double d_QDI_dV_si_bi;
-  double QSI;
-     double d_QSI_dV_dbulk_di;
-     double d_QSI_dV_sbulk_si;
-     double d_QSI_dTemp_t_GND;
-     double d_QSI_dV_gi_bi;
-     double d_QSI_dV_di_bi;
-     double d_QSI_dV_si_bi;
-  double QB;
   double ids_edge;
      double d_ids_edge_dV_gm_si;
      double d_ids_edge_dV_gm_di;
@@ -15574,16 +15979,6 @@ bool Instance::updateIntermediateVars()
      double d_Ibs_dV_di_bi;
      double d_Ibs_dV_si_bi;
      double d_Ibs_dTemp_t_GND;
-  double IGISL;
-     double d_IGISL_dV_gi_bi;
-     double d_IGISL_dV_di_bi;
-     double d_IGISL_dV_si_bi;
-     double d_IGISL_dTemp_t_GND;
-  double IGIDL;
-     double d_IGIDL_dV_gi_bi;
-     double d_IGIDL_dV_di_bi;
-     double d_IGIDL_dV_si_bi;
-     double d_IGIDL_dTemp_t_GND;
   double igidl;
      double d_igidl_dV_gi_bi;
      double d_igidl_dV_di_bi;
@@ -15594,31 +15989,6 @@ bool Instance::updateIntermediateVars()
      double d_igisl_dV_di_bi;
      double d_igisl_dV_si_bi;
      double d_igisl_dTemp_t_GND;
-  double IGCD;
-     double d_IGCD_dV_gi_bi;
-     double d_IGCD_dV_di_bi;
-     double d_IGCD_dV_si_bi;
-     double d_IGCD_dTemp_t_GND;
-  double IGCS;
-     double d_IGCS_dV_gi_bi;
-     double d_IGCS_dV_di_bi;
-     double d_IGCS_dV_si_bi;
-     double d_IGCS_dTemp_t_GND;
-  double IGB;
-     double d_IGB_dV_gi_bi;
-     double d_IGB_dV_di_bi;
-     double d_IGB_dV_si_bi;
-     double d_IGB_dTemp_t_GND;
-  double IGD;
-     double d_IGD_dTemp_t_GND;
-     double d_IGD_dV_gi_bi;
-     double d_IGD_dV_di_bi;
-     double d_IGD_dV_si_bi;
-  double IGS;
-     double d_IGS_dTemp_t_GND;
-     double d_IGS_dV_gi_bi;
-     double d_IGS_dV_si_bi;
-     double d_IGS_dV_di_bi;
   double igd_mult;
      double d_igd_mult_dTemp_t_GND;
   double igs_mult;
@@ -15698,11 +16068,6 @@ bool Instance::updateIntermediateVars()
      double d_igbinv_dV_di_bi;
      double d_igbinv_dV_si_bi;
      double d_igbinv_dTemp_t_GND;
-  double ISUB;
-     double d_ISUB_dV_di_bi;
-     double d_ISUB_dV_si_bi;
-     double d_ISUB_dV_gi_bi;
-     double d_ISUB_dTemp_t_GND;
   double Iii;
      double d_Iii_dV_di_bi;
      double d_Iii_dV_si_bi;
@@ -16170,7 +16535,6 @@ bool Instance::updateIntermediateVars()
      double d_inv_gam_dV_di_bi;
      double d_inv_gam_dV_si_bi;
      double d_inv_gam_dTemp_t_GND;
-  double VTH;
   double psip_th;
   double nq;
      double d_nq_dV_gm_si;
@@ -16652,7 +17016,6 @@ bool Instance::updateIntermediateVars()
      double d_inv_Vt_dTemp_t_GND;
   double Vt;
      double d_Vt_dTemp_t_GND;
-  double TK;
   double delTemp1;
      double d_delTemp1_dTemp_t_GND;
   double DevTemp;
@@ -30729,6 +31092,78 @@ AdmsSensFadType & instanceVar_nuIntS,
 double & instanceVar_nuEndS,
 AdmsSensFadType & instanceVar_gth,
 AdmsSensFadType & instanceVar_cth,
+AdmsSensFadType & instanceVar_QBI,
+AdmsSensFadType & instanceVar_QSI,
+AdmsSensFadType & instanceVar_QDI,
+AdmsSensFadType & instanceVar_QGI,
+double & instanceVar_CGGI,
+double & instanceVar_CGBI,
+double & instanceVar_CGSI,
+double & instanceVar_CGDI,
+double & instanceVar_CSGI,
+double & instanceVar_CSBI,
+double & instanceVar_CSSI,
+double & instanceVar_CSDI,
+double & instanceVar_CDGI,
+double & instanceVar_CDBI,
+double & instanceVar_CDSI,
+double & instanceVar_CDDI,
+double & instanceVar_CBGI,
+double & instanceVar_CBBI,
+double & instanceVar_CBSI,
+double & instanceVar_CBDI,
+AdmsSensFadType & instanceVar_QB,
+AdmsSensFadType & instanceVar_QS,
+AdmsSensFadType & instanceVar_QD,
+AdmsSensFadType & instanceVar_QG,
+double & instanceVar_CGG,
+double & instanceVar_CGB,
+double & instanceVar_CGS,
+double & instanceVar_CGD,
+double & instanceVar_CSG,
+double & instanceVar_CSB,
+double & instanceVar_CSS,
+double & instanceVar_CSD,
+double & instanceVar_CDG,
+double & instanceVar_CDB,
+double & instanceVar_CDS,
+double & instanceVar_CDD,
+double & instanceVar_CBG,
+double & instanceVar_CBB,
+double & instanceVar_CBS,
+double & instanceVar_CBD,
+AdmsSensFadType & instanceVar_ISUB,
+AdmsSensFadType & instanceVar_IGIDL,
+AdmsSensFadType & instanceVar_IGISL,
+AdmsSensFadType & instanceVar_IGS,
+AdmsSensFadType & instanceVar_IGD,
+AdmsSensFadType & instanceVar_IGCS,
+AdmsSensFadType & instanceVar_IGCD,
+AdmsSensFadType & instanceVar_IGB,
+double & instanceVar_CGSEXT,
+double & instanceVar_CGDEXT,
+double & instanceVar_CGBOV,
+double & instanceVar_CAPBS,
+double & instanceVar_CAPBD,
+double & instanceVar_WEFF,
+double & instanceVar_LEFF,
+double & instanceVar_WEFFCV,
+double & instanceVar_LEFFCV,
+double & instanceVar_IDS,
+double & instanceVar_IDEFF,
+double & instanceVar_ISEFF,
+double & instanceVar_IGEFF,
+double & instanceVar_IBS,
+double & instanceVar_IBD,
+double & instanceVar_VDS,
+double & instanceVar_VGS,
+double & instanceVar_VBS,
+double & instanceVar_VDSAT,
+double & instanceVar_GM,
+double & instanceVar_GMBS,
+double & instanceVar_GDS,
+AdmsSensFadType & instanceVar_TK,
+AdmsSensFadType & instanceVar_VTH,
 // non-reals
 int instanceVar_devsign,
 // model parameters
@@ -39520,6 +39955,78 @@ AdmsSensFadType & instanceVar_nuIntS,
 double & instanceVar_nuEndS,
 AdmsSensFadType & instanceVar_gth,
 AdmsSensFadType & instanceVar_cth,
+AdmsSensFadType & instanceVar_QBI,
+AdmsSensFadType & instanceVar_QSI,
+AdmsSensFadType & instanceVar_QDI,
+AdmsSensFadType & instanceVar_QGI,
+double & instanceVar_CGGI,
+double & instanceVar_CGBI,
+double & instanceVar_CGSI,
+double & instanceVar_CGDI,
+double & instanceVar_CSGI,
+double & instanceVar_CSBI,
+double & instanceVar_CSSI,
+double & instanceVar_CSDI,
+double & instanceVar_CDGI,
+double & instanceVar_CDBI,
+double & instanceVar_CDSI,
+double & instanceVar_CDDI,
+double & instanceVar_CBGI,
+double & instanceVar_CBBI,
+double & instanceVar_CBSI,
+double & instanceVar_CBDI,
+AdmsSensFadType & instanceVar_QB,
+AdmsSensFadType & instanceVar_QS,
+AdmsSensFadType & instanceVar_QD,
+AdmsSensFadType & instanceVar_QG,
+double & instanceVar_CGG,
+double & instanceVar_CGB,
+double & instanceVar_CGS,
+double & instanceVar_CGD,
+double & instanceVar_CSG,
+double & instanceVar_CSB,
+double & instanceVar_CSS,
+double & instanceVar_CSD,
+double & instanceVar_CDG,
+double & instanceVar_CDB,
+double & instanceVar_CDS,
+double & instanceVar_CDD,
+double & instanceVar_CBG,
+double & instanceVar_CBB,
+double & instanceVar_CBS,
+double & instanceVar_CBD,
+AdmsSensFadType & instanceVar_ISUB,
+AdmsSensFadType & instanceVar_IGIDL,
+AdmsSensFadType & instanceVar_IGISL,
+AdmsSensFadType & instanceVar_IGS,
+AdmsSensFadType & instanceVar_IGD,
+AdmsSensFadType & instanceVar_IGCS,
+AdmsSensFadType & instanceVar_IGCD,
+AdmsSensFadType & instanceVar_IGB,
+double & instanceVar_CGSEXT,
+double & instanceVar_CGDEXT,
+double & instanceVar_CGBOV,
+double & instanceVar_CAPBS,
+double & instanceVar_CAPBD,
+double & instanceVar_WEFF,
+double & instanceVar_LEFF,
+double & instanceVar_WEFFCV,
+double & instanceVar_LEFFCV,
+double & instanceVar_IDS,
+double & instanceVar_IDEFF,
+double & instanceVar_ISEFF,
+double & instanceVar_IGEFF,
+double & instanceVar_IBS,
+double & instanceVar_IBD,
+double & instanceVar_VDS,
+double & instanceVar_VGS,
+double & instanceVar_VBS,
+double & instanceVar_VDSAT,
+double & instanceVar_GM,
+double & instanceVar_GMBS,
+double & instanceVar_GDS,
+AdmsSensFadType & instanceVar_TK,
+AdmsSensFadType & instanceVar_VTH,
 // non-reals
 int instanceVar_devsign,
 // model parameters
@@ -41306,14 +41813,6 @@ bool modelPar_given_EDGEFET,
   // Local variables
   AdmsSensFadType gspr;
   AdmsSensFadType gdpr;
-  AdmsSensFadType QGI;
-  AdmsSensFadType QBI;
-  AdmsSensFadType QG;
-  AdmsSensFadType QD;
-  AdmsSensFadType QS;
-  AdmsSensFadType QDI;
-  AdmsSensFadType QSI;
-  AdmsSensFadType QB;
   AdmsSensFadType ids_edge;
   AdmsSensFadType Vdssate;
   AdmsSensFadType Vdsatedge;
@@ -41400,15 +41899,8 @@ bool modelPar_given_EDGEFET,
   AdmsSensFadType arg;
   AdmsSensFadType Ibd;
   AdmsSensFadType Ibs;
-  AdmsSensFadType IGISL;
-  AdmsSensFadType IGIDL;
   AdmsSensFadType igidl;
   AdmsSensFadType igisl;
-  AdmsSensFadType IGCD;
-  AdmsSensFadType IGCS;
-  AdmsSensFadType IGB;
-  AdmsSensFadType IGD;
-  AdmsSensFadType IGS;
   AdmsSensFadType igd_mult;
   AdmsSensFadType igs_mult;
   AdmsSensFadType T1_exp;
@@ -41426,7 +41918,6 @@ bool modelPar_given_EDGEFET,
   AdmsSensFadType igb;
   AdmsSensFadType igbacc;
   AdmsSensFadType igbinv;
-  AdmsSensFadType ISUB;
   AdmsSensFadType Iii;
   AdmsSensFadType idsovvds;
   AdmsSensFadType Gcrg;
@@ -41499,7 +41990,6 @@ bool modelPar_given_EDGEFET,
   AdmsSensFadType vgfbPD;
   AdmsSensFadType phib_n;
   AdmsSensFadType inv_gam;
-  AdmsSensFadType VTH;
   AdmsSensFadType psip_th;
   AdmsSensFadType nq;
   double q_vth;
@@ -41689,7 +42179,6 @@ bool modelPar_given_EDGEFET,
   AdmsSensFadType TRatio;
   AdmsSensFadType inv_Vt;
   AdmsSensFadType Vt;
-  AdmsSensFadType TK;
   double delTemp1;
   AdmsSensFadType DevTemp;
   AdmsSensFadType Tnom;
@@ -41716,7 +42205,7 @@ else
 delTemp1 = 0;
 }
 DevTemp = (delTemp1+DevTemp);
-TK = DevTemp;
+instanceVar_TK = DevTemp;
 Vt = adms_vt(DevTemp);
 inv_Vt = (1.0/Vt);
 TRatio = (DevTemp/Tnom);
@@ -42283,7 +42772,7 @@ q_vth = 0.5;
 instanceVar_T0 = AnalogFunctions::hypsmooth<AdmsSensFadType>(((2*phib)+(Vs*inv_Vt)),1e-3);
 nq = (1.0+(gam/(2.0*sqrt(instanceVar_T0))));
 psip_th = AnalogFunctions::hypsmooth<AdmsSensFadType>((((((Vs*inv_Vt)+(2*phib))+log(q_vth))+(2*q_vth))+log((((2*nq)/gam)*((((2*q_vth)*nq)/gam)+(2*sqrt(instanceVar_T0)))))),1e-3);
-VTH = (((instanceVar_VFB_i+((psip_th-(Vs*inv_Vt))*Vt))+((Vt*gam)*sqrt(psip_th)))+Vth_shift);
+instanceVar_VTH = (((instanceVar_VFB_i+((psip_th-(Vs*inv_Vt))*Vt))+((Vt*gam)*sqrt(psip_th)))+Vth_shift);
 gam = (sqrt(((((2.0*1.60219e-19)*instanceVar_epssi)*instanceVar_NDEP_i)*inv_nVt))/instanceVar_Cox);
 inv_gam = (1.0/gam);
 phib_n = (phib/n);
@@ -42755,7 +43244,7 @@ else
 Iii = ((((instanceVar_ALPHA0_i*diffVds)*ids)*1.804851387e-35)/Mscbe);
 }
 }
-ISUB = (Iii*instanceVar_devsign);
+instanceVar_ISUB = (Iii*instanceVar_devsign);
 igbinv = 0.0;
 igbacc = 0.0;
 igb = 0.0;
@@ -42832,11 +43321,11 @@ igd_mult = (((igtemp*instancePar_NF)*instanceVar_AechvbEdge)*instanceVar_DLCIGD_
 igd = (((igd_mult*Vgd_noswap)*Vgd_eff)*T4);
 }
 }
-IGS = (instanceVar_devsign*igs);
-IGD = (instanceVar_devsign*igd);
-IGB = (instanceVar_devsign*igb);
-IGCS = (instanceVar_devsign*igcs);
-IGCD = (instanceVar_devsign*igcd);
+instanceVar_IGS = (instanceVar_devsign*igs);
+instanceVar_IGD = (instanceVar_devsign*igd);
+instanceVar_IGB = (instanceVar_devsign*igb);
+instanceVar_IGCS = (instanceVar_devsign*igcs);
+instanceVar_IGCD = (instanceVar_devsign*igcd);
 igisl = 0.0;
 igidl = 0.0;
 if ((modelPar_GIDLMOD!=0))
@@ -42887,8 +43376,8 @@ T6 = ((((instanceVar_AGISL_i*instanceVar_Weff)*instanceVar_T1)*AnalogFunctions::
 }
 igisl = T6;
 }
-IGIDL = ((instanceVar_devsign*instancePar_NF)*igidl);
-IGISL = ((instanceVar_devsign*instancePar_NF)*igisl);
+instanceVar_IGIDL = ((instanceVar_devsign*instancePar_NF)*igidl);
+instanceVar_IGISL = ((instanceVar_devsign*instancePar_NF)*igisl);
 if ((Isbs>0.0))
 {
 if ((Vbs_jct<VjsmRev))
@@ -43729,33 +44218,33 @@ nq = (1.0+(gam/(sqrtpsip+instanceVar_T2)));
 ids_edge = ((((((((((2.0*instancePar_NF)*nq)*ueff)*modelPar_WEDGE)/instanceVar_Leff)*instanceVar_Cox)*nVt)*nVt)*((qs-qdeff)*((1.0+qs)+qdeff)))*Moc);
 ids = (ids_edge+ids);
 }
-QB = (instanceVar_devsign*(((QBi+Qovb)+Qbs)+Qbd));
+instanceVar_QB = (instanceVar_devsign*(((QBi+Qovb)+Qbs)+Qbd));
 if ((sigvds>0))
 {
-QSI = (instanceVar_devsign*QSi);
-QDI = (instanceVar_devsign*QDi);
-QS = (instanceVar_devsign*((QSi+Qovs)-Qbs));
-QD = (instanceVar_devsign*((QDi+Qovd)-Qbd));
+instanceVar_QSI = (instanceVar_devsign*QSi);
+instanceVar_QDI = (instanceVar_devsign*QDi);
+instanceVar_QS = (instanceVar_devsign*((QSi+Qovs)-Qbs));
+instanceVar_QD = (instanceVar_devsign*((QDi+Qovd)-Qbd));
 }
 else
 {
-QSI = (instanceVar_devsign*QDi);
-QDI = (instanceVar_devsign*QSi);
-QS = (instanceVar_devsign*((QDi+Qovs)-Qbs));
-QD = (instanceVar_devsign*((QSi+Qovd)-Qbd));
+instanceVar_QSI = (instanceVar_devsign*QDi);
+instanceVar_QDI = (instanceVar_devsign*QSi);
+instanceVar_QS = (instanceVar_devsign*((QDi+Qovs)-Qbs));
+instanceVar_QD = (instanceVar_devsign*((QSi+Qovd)-Qbd));
 }
-QG = (instanceVar_devsign*(QGi+Qovg));
-QBI = (instanceVar_devsign*QBi);
-QGI = (instanceVar_devsign*QGi);
+instanceVar_QG = (instanceVar_devsign*(QGi+Qovg));
+instanceVar_QBI = (instanceVar_devsign*QBi);
+instanceVar_QGI = (instanceVar_devsign*QGi);
 // I(gi,bi) <+ (ddt(QGI))
-dynamicContributions[admsNodeID_gi] += (QGI);
-dynamicContributions[admsNodeID_bi] -= (QGI);
+dynamicContributions[admsNodeID_gi] += (instanceVar_QGI);
+dynamicContributions[admsNodeID_bi] -= (instanceVar_QGI);
 // I(si,bi) <+ (ddt(QSI))
-dynamicContributions[admsNodeID_si] += (QSI);
-dynamicContributions[admsNodeID_bi] -= (QSI);
+dynamicContributions[admsNodeID_si] += (instanceVar_QSI);
+dynamicContributions[admsNodeID_bi] -= (instanceVar_QSI);
 // I(di,bi) <+ (ddt(QDI))
-dynamicContributions[admsNodeID_di] += (QDI);
-dynamicContributions[admsNodeID_bi] -= (QDI);
+dynamicContributions[admsNodeID_di] += (instanceVar_QDI);
+dynamicContributions[admsNodeID_bi] -= (instanceVar_QDI);
 // I(gm,si) <+ (ddt(((-devsign)*Qovs)))
 dynamicContributions[admsNodeID_gm] += (((-instanceVar_devsign)*Qovs));
 dynamicContributions[admsNodeID_si] -= (((-instanceVar_devsign)*Qovs));
@@ -43771,35 +44260,35 @@ staticContributions[admsNodeID_si] -= ((instanceVar_devsign*sigvds)*ids);
 if ((modelPar_IGBMOD!=0))
 {
 // I(gi,bi) <+ (IGB)
-staticContributions[admsNodeID_gi] += IGB;
-staticContributions[admsNodeID_bi] -= IGB;
+staticContributions[admsNodeID_gi] += instanceVar_IGB;
+staticContributions[admsNodeID_bi] -= instanceVar_IGB;
 }
 if ((modelPar_IGCMOD!=0))
 {
 // I(gi,si) <+ ((IGS+IGCS))
-staticContributions[admsNodeID_gi] += (IGS+IGCS);
-staticContributions[admsNodeID_si] -= (IGS+IGCS);
+staticContributions[admsNodeID_gi] += (instanceVar_IGS+instanceVar_IGCS);
+staticContributions[admsNodeID_si] -= (instanceVar_IGS+instanceVar_IGCS);
 // I(gi,di) <+ ((IGD+IGCD))
-staticContributions[admsNodeID_gi] += (IGD+IGCD);
-staticContributions[admsNodeID_di] -= (IGD+IGCD);
+staticContributions[admsNodeID_gi] += (instanceVar_IGD+instanceVar_IGCD);
+staticContributions[admsNodeID_di] -= (instanceVar_IGD+instanceVar_IGCD);
 }
 if ((sigvds>0))
 {
 // I(di,bi) <+ ((ISUB+IGIDL))
-staticContributions[admsNodeID_di] += (ISUB+IGIDL);
-staticContributions[admsNodeID_bi] -= (ISUB+IGIDL);
+staticContributions[admsNodeID_di] += (instanceVar_ISUB+instanceVar_IGIDL);
+staticContributions[admsNodeID_bi] -= (instanceVar_ISUB+instanceVar_IGIDL);
 // I(si,bi) <+ (IGISL)
-staticContributions[admsNodeID_si] += IGISL;
-staticContributions[admsNodeID_bi] -= IGISL;
+staticContributions[admsNodeID_si] += instanceVar_IGISL;
+staticContributions[admsNodeID_bi] -= instanceVar_IGISL;
 }
 else
 {
 // I(di,bi) <+ (IGIDL)
-staticContributions[admsNodeID_di] += IGIDL;
-staticContributions[admsNodeID_bi] -= IGIDL;
+staticContributions[admsNodeID_di] += instanceVar_IGIDL;
+staticContributions[admsNodeID_bi] -= instanceVar_IGIDL;
 // I(si,bi) <+ ((ISUB+IGISL))
-staticContributions[admsNodeID_si] += (ISUB+IGISL);
-staticContributions[admsNodeID_bi] -= (ISUB+IGISL);
+staticContributions[admsNodeID_si] += (instanceVar_ISUB+instanceVar_IGISL);
+staticContributions[admsNodeID_bi] -= (instanceVar_ISUB+instanceVar_IGISL);
 }
 if ((modelPar_RDSMOD!=2))
 {
@@ -46056,6 +46545,78 @@ AdmsSensFadType instanceVar_nuIntS=in.nuIntS;
 double instanceVar_nuEndS=in.nuEndS;
 AdmsSensFadType instanceVar_gth=in.gth;
 AdmsSensFadType instanceVar_cth=in.cth;
+AdmsSensFadType instanceVar_QBI=in.QBI;
+AdmsSensFadType instanceVar_QSI=in.QSI;
+AdmsSensFadType instanceVar_QDI=in.QDI;
+AdmsSensFadType instanceVar_QGI=in.QGI;
+double instanceVar_CGGI=in.CGGI;
+double instanceVar_CGBI=in.CGBI;
+double instanceVar_CGSI=in.CGSI;
+double instanceVar_CGDI=in.CGDI;
+double instanceVar_CSGI=in.CSGI;
+double instanceVar_CSBI=in.CSBI;
+double instanceVar_CSSI=in.CSSI;
+double instanceVar_CSDI=in.CSDI;
+double instanceVar_CDGI=in.CDGI;
+double instanceVar_CDBI=in.CDBI;
+double instanceVar_CDSI=in.CDSI;
+double instanceVar_CDDI=in.CDDI;
+double instanceVar_CBGI=in.CBGI;
+double instanceVar_CBBI=in.CBBI;
+double instanceVar_CBSI=in.CBSI;
+double instanceVar_CBDI=in.CBDI;
+AdmsSensFadType instanceVar_QB=in.QB;
+AdmsSensFadType instanceVar_QS=in.QS;
+AdmsSensFadType instanceVar_QD=in.QD;
+AdmsSensFadType instanceVar_QG=in.QG;
+double instanceVar_CGG=in.CGG;
+double instanceVar_CGB=in.CGB;
+double instanceVar_CGS=in.CGS;
+double instanceVar_CGD=in.CGD;
+double instanceVar_CSG=in.CSG;
+double instanceVar_CSB=in.CSB;
+double instanceVar_CSS=in.CSS;
+double instanceVar_CSD=in.CSD;
+double instanceVar_CDG=in.CDG;
+double instanceVar_CDB=in.CDB;
+double instanceVar_CDS=in.CDS;
+double instanceVar_CDD=in.CDD;
+double instanceVar_CBG=in.CBG;
+double instanceVar_CBB=in.CBB;
+double instanceVar_CBS=in.CBS;
+double instanceVar_CBD=in.CBD;
+AdmsSensFadType instanceVar_ISUB=in.ISUB;
+AdmsSensFadType instanceVar_IGIDL=in.IGIDL;
+AdmsSensFadType instanceVar_IGISL=in.IGISL;
+AdmsSensFadType instanceVar_IGS=in.IGS;
+AdmsSensFadType instanceVar_IGD=in.IGD;
+AdmsSensFadType instanceVar_IGCS=in.IGCS;
+AdmsSensFadType instanceVar_IGCD=in.IGCD;
+AdmsSensFadType instanceVar_IGB=in.IGB;
+double instanceVar_CGSEXT=in.CGSEXT;
+double instanceVar_CGDEXT=in.CGDEXT;
+double instanceVar_CGBOV=in.CGBOV;
+double instanceVar_CAPBS=in.CAPBS;
+double instanceVar_CAPBD=in.CAPBD;
+double instanceVar_WEFF=in.WEFF;
+double instanceVar_LEFF=in.LEFF;
+double instanceVar_WEFFCV=in.WEFFCV;
+double instanceVar_LEFFCV=in.LEFFCV;
+double instanceVar_IDS=in.IDS;
+double instanceVar_IDEFF=in.IDEFF;
+double instanceVar_ISEFF=in.ISEFF;
+double instanceVar_IGEFF=in.IGEFF;
+double instanceVar_IBS=in.IBS;
+double instanceVar_IBD=in.IBD;
+double instanceVar_VDS=in.VDS;
+double instanceVar_VGS=in.VGS;
+double instanceVar_VBS=in.VBS;
+double instanceVar_VDSAT=in.VDSAT;
+double instanceVar_GM=in.GM;
+double instanceVar_GMBS=in.GMBS;
+double instanceVar_GDS=in.GDS;
+AdmsSensFadType instanceVar_TK=in.TK;
+AdmsSensFadType instanceVar_VTH=in.VTH;
 
 
 //non-reals
@@ -46328,6 +46889,78 @@ instanceVar_nuIntS,
 instanceVar_nuEndS,
 instanceVar_gth,
 instanceVar_cth,
+instanceVar_QBI,
+instanceVar_QSI,
+instanceVar_QDI,
+instanceVar_QGI,
+instanceVar_CGGI,
+instanceVar_CGBI,
+instanceVar_CGSI,
+instanceVar_CGDI,
+instanceVar_CSGI,
+instanceVar_CSBI,
+instanceVar_CSSI,
+instanceVar_CSDI,
+instanceVar_CDGI,
+instanceVar_CDBI,
+instanceVar_CDSI,
+instanceVar_CDDI,
+instanceVar_CBGI,
+instanceVar_CBBI,
+instanceVar_CBSI,
+instanceVar_CBDI,
+instanceVar_QB,
+instanceVar_QS,
+instanceVar_QD,
+instanceVar_QG,
+instanceVar_CGG,
+instanceVar_CGB,
+instanceVar_CGS,
+instanceVar_CGD,
+instanceVar_CSG,
+instanceVar_CSB,
+instanceVar_CSS,
+instanceVar_CSD,
+instanceVar_CDG,
+instanceVar_CDB,
+instanceVar_CDS,
+instanceVar_CDD,
+instanceVar_CBG,
+instanceVar_CBB,
+instanceVar_CBS,
+instanceVar_CBD,
+instanceVar_ISUB,
+instanceVar_IGIDL,
+instanceVar_IGISL,
+instanceVar_IGS,
+instanceVar_IGD,
+instanceVar_IGCS,
+instanceVar_IGCD,
+instanceVar_IGB,
+instanceVar_CGSEXT,
+instanceVar_CGDEXT,
+instanceVar_CGBOV,
+instanceVar_CAPBS,
+instanceVar_CAPBD,
+instanceVar_WEFF,
+instanceVar_LEFF,
+instanceVar_WEFFCV,
+instanceVar_LEFFCV,
+instanceVar_IDS,
+instanceVar_IDEFF,
+instanceVar_ISEFF,
+instanceVar_IGEFF,
+instanceVar_IBS,
+instanceVar_IBD,
+instanceVar_VDS,
+instanceVar_VGS,
+instanceVar_VBS,
+instanceVar_VDSAT,
+instanceVar_GM,
+instanceVar_GMBS,
+instanceVar_GDS,
+instanceVar_TK,
+instanceVar_VTH,
 // non-reals
  instanceVar_devsign,
 // model parameters
@@ -48382,6 +49015,78 @@ instanceVar_nuIntS,
 instanceVar_nuEndS,
 instanceVar_gth,
 instanceVar_cth,
+instanceVar_QBI,
+instanceVar_QSI,
+instanceVar_QDI,
+instanceVar_QGI,
+instanceVar_CGGI,
+instanceVar_CGBI,
+instanceVar_CGSI,
+instanceVar_CGDI,
+instanceVar_CSGI,
+instanceVar_CSBI,
+instanceVar_CSSI,
+instanceVar_CSDI,
+instanceVar_CDGI,
+instanceVar_CDBI,
+instanceVar_CDSI,
+instanceVar_CDDI,
+instanceVar_CBGI,
+instanceVar_CBBI,
+instanceVar_CBSI,
+instanceVar_CBDI,
+instanceVar_QB,
+instanceVar_QS,
+instanceVar_QD,
+instanceVar_QG,
+instanceVar_CGG,
+instanceVar_CGB,
+instanceVar_CGS,
+instanceVar_CGD,
+instanceVar_CSG,
+instanceVar_CSB,
+instanceVar_CSS,
+instanceVar_CSD,
+instanceVar_CDG,
+instanceVar_CDB,
+instanceVar_CDS,
+instanceVar_CDD,
+instanceVar_CBG,
+instanceVar_CBB,
+instanceVar_CBS,
+instanceVar_CBD,
+instanceVar_ISUB,
+instanceVar_IGIDL,
+instanceVar_IGISL,
+instanceVar_IGS,
+instanceVar_IGD,
+instanceVar_IGCS,
+instanceVar_IGCD,
+instanceVar_IGB,
+instanceVar_CGSEXT,
+instanceVar_CGDEXT,
+instanceVar_CGBOV,
+instanceVar_CAPBS,
+instanceVar_CAPBD,
+instanceVar_WEFF,
+instanceVar_LEFF,
+instanceVar_WEFFCV,
+instanceVar_LEFFCV,
+instanceVar_IDS,
+instanceVar_IDEFF,
+instanceVar_ISEFF,
+instanceVar_IGEFF,
+instanceVar_IBS,
+instanceVar_IBD,
+instanceVar_VDS,
+instanceVar_VGS,
+instanceVar_VBS,
+instanceVar_VDSAT,
+instanceVar_GM,
+instanceVar_GMBS,
+instanceVar_GDS,
+instanceVar_TK,
+instanceVar_VTH,
 // non-reals
  instanceVar_devsign,
 // model parameters
@@ -53287,6 +53992,78 @@ AdmsSensFadType instanceVar_nuIntS=in.nuIntS;
 double instanceVar_nuEndS=in.nuEndS;
 AdmsSensFadType instanceVar_gth=in.gth;
 AdmsSensFadType instanceVar_cth=in.cth;
+AdmsSensFadType instanceVar_QBI=in.QBI;
+AdmsSensFadType instanceVar_QSI=in.QSI;
+AdmsSensFadType instanceVar_QDI=in.QDI;
+AdmsSensFadType instanceVar_QGI=in.QGI;
+double instanceVar_CGGI=in.CGGI;
+double instanceVar_CGBI=in.CGBI;
+double instanceVar_CGSI=in.CGSI;
+double instanceVar_CGDI=in.CGDI;
+double instanceVar_CSGI=in.CSGI;
+double instanceVar_CSBI=in.CSBI;
+double instanceVar_CSSI=in.CSSI;
+double instanceVar_CSDI=in.CSDI;
+double instanceVar_CDGI=in.CDGI;
+double instanceVar_CDBI=in.CDBI;
+double instanceVar_CDSI=in.CDSI;
+double instanceVar_CDDI=in.CDDI;
+double instanceVar_CBGI=in.CBGI;
+double instanceVar_CBBI=in.CBBI;
+double instanceVar_CBSI=in.CBSI;
+double instanceVar_CBDI=in.CBDI;
+AdmsSensFadType instanceVar_QB=in.QB;
+AdmsSensFadType instanceVar_QS=in.QS;
+AdmsSensFadType instanceVar_QD=in.QD;
+AdmsSensFadType instanceVar_QG=in.QG;
+double instanceVar_CGG=in.CGG;
+double instanceVar_CGB=in.CGB;
+double instanceVar_CGS=in.CGS;
+double instanceVar_CGD=in.CGD;
+double instanceVar_CSG=in.CSG;
+double instanceVar_CSB=in.CSB;
+double instanceVar_CSS=in.CSS;
+double instanceVar_CSD=in.CSD;
+double instanceVar_CDG=in.CDG;
+double instanceVar_CDB=in.CDB;
+double instanceVar_CDS=in.CDS;
+double instanceVar_CDD=in.CDD;
+double instanceVar_CBG=in.CBG;
+double instanceVar_CBB=in.CBB;
+double instanceVar_CBS=in.CBS;
+double instanceVar_CBD=in.CBD;
+AdmsSensFadType instanceVar_ISUB=in.ISUB;
+AdmsSensFadType instanceVar_IGIDL=in.IGIDL;
+AdmsSensFadType instanceVar_IGISL=in.IGISL;
+AdmsSensFadType instanceVar_IGS=in.IGS;
+AdmsSensFadType instanceVar_IGD=in.IGD;
+AdmsSensFadType instanceVar_IGCS=in.IGCS;
+AdmsSensFadType instanceVar_IGCD=in.IGCD;
+AdmsSensFadType instanceVar_IGB=in.IGB;
+double instanceVar_CGSEXT=in.CGSEXT;
+double instanceVar_CGDEXT=in.CGDEXT;
+double instanceVar_CGBOV=in.CGBOV;
+double instanceVar_CAPBS=in.CAPBS;
+double instanceVar_CAPBD=in.CAPBD;
+double instanceVar_WEFF=in.WEFF;
+double instanceVar_LEFF=in.LEFF;
+double instanceVar_WEFFCV=in.WEFFCV;
+double instanceVar_LEFFCV=in.LEFFCV;
+double instanceVar_IDS=in.IDS;
+double instanceVar_IDEFF=in.IDEFF;
+double instanceVar_ISEFF=in.ISEFF;
+double instanceVar_IGEFF=in.IGEFF;
+double instanceVar_IBS=in.IBS;
+double instanceVar_IBD=in.IBD;
+double instanceVar_VDS=in.VDS;
+double instanceVar_VGS=in.VGS;
+double instanceVar_VBS=in.VBS;
+double instanceVar_VDSAT=in.VDSAT;
+double instanceVar_GM=in.GM;
+double instanceVar_GMBS=in.GMBS;
+double instanceVar_GDS=in.GDS;
+AdmsSensFadType instanceVar_TK=in.TK;
+AdmsSensFadType instanceVar_VTH=in.VTH;
 
 
   //non-reals
@@ -53552,6 +54329,78 @@ instanceVar_nuIntS,
 instanceVar_nuEndS,
 instanceVar_gth,
 instanceVar_cth,
+instanceVar_QBI,
+instanceVar_QSI,
+instanceVar_QDI,
+instanceVar_QGI,
+instanceVar_CGGI,
+instanceVar_CGBI,
+instanceVar_CGSI,
+instanceVar_CGDI,
+instanceVar_CSGI,
+instanceVar_CSBI,
+instanceVar_CSSI,
+instanceVar_CSDI,
+instanceVar_CDGI,
+instanceVar_CDBI,
+instanceVar_CDSI,
+instanceVar_CDDI,
+instanceVar_CBGI,
+instanceVar_CBBI,
+instanceVar_CBSI,
+instanceVar_CBDI,
+instanceVar_QB,
+instanceVar_QS,
+instanceVar_QD,
+instanceVar_QG,
+instanceVar_CGG,
+instanceVar_CGB,
+instanceVar_CGS,
+instanceVar_CGD,
+instanceVar_CSG,
+instanceVar_CSB,
+instanceVar_CSS,
+instanceVar_CSD,
+instanceVar_CDG,
+instanceVar_CDB,
+instanceVar_CDS,
+instanceVar_CDD,
+instanceVar_CBG,
+instanceVar_CBB,
+instanceVar_CBS,
+instanceVar_CBD,
+instanceVar_ISUB,
+instanceVar_IGIDL,
+instanceVar_IGISL,
+instanceVar_IGS,
+instanceVar_IGD,
+instanceVar_IGCS,
+instanceVar_IGCD,
+instanceVar_IGB,
+instanceVar_CGSEXT,
+instanceVar_CGDEXT,
+instanceVar_CGBOV,
+instanceVar_CAPBS,
+instanceVar_CAPBD,
+instanceVar_WEFF,
+instanceVar_LEFF,
+instanceVar_WEFFCV,
+instanceVar_LEFFCV,
+instanceVar_IDS,
+instanceVar_IDEFF,
+instanceVar_ISEFF,
+instanceVar_IGEFF,
+instanceVar_IBS,
+instanceVar_IBD,
+instanceVar_VDS,
+instanceVar_VGS,
+instanceVar_VBS,
+instanceVar_VDSAT,
+instanceVar_GM,
+instanceVar_GMBS,
+instanceVar_GDS,
+instanceVar_TK,
+instanceVar_VTH,
 // non-reals
  instanceVar_devsign,
 // model parameters
@@ -55607,6 +56456,78 @@ instanceVar_nuIntS,
 instanceVar_nuEndS,
 instanceVar_gth,
 instanceVar_cth,
+instanceVar_QBI,
+instanceVar_QSI,
+instanceVar_QDI,
+instanceVar_QGI,
+instanceVar_CGGI,
+instanceVar_CGBI,
+instanceVar_CGSI,
+instanceVar_CGDI,
+instanceVar_CSGI,
+instanceVar_CSBI,
+instanceVar_CSSI,
+instanceVar_CSDI,
+instanceVar_CDGI,
+instanceVar_CDBI,
+instanceVar_CDSI,
+instanceVar_CDDI,
+instanceVar_CBGI,
+instanceVar_CBBI,
+instanceVar_CBSI,
+instanceVar_CBDI,
+instanceVar_QB,
+instanceVar_QS,
+instanceVar_QD,
+instanceVar_QG,
+instanceVar_CGG,
+instanceVar_CGB,
+instanceVar_CGS,
+instanceVar_CGD,
+instanceVar_CSG,
+instanceVar_CSB,
+instanceVar_CSS,
+instanceVar_CSD,
+instanceVar_CDG,
+instanceVar_CDB,
+instanceVar_CDS,
+instanceVar_CDD,
+instanceVar_CBG,
+instanceVar_CBB,
+instanceVar_CBS,
+instanceVar_CBD,
+instanceVar_ISUB,
+instanceVar_IGIDL,
+instanceVar_IGISL,
+instanceVar_IGS,
+instanceVar_IGD,
+instanceVar_IGCS,
+instanceVar_IGCD,
+instanceVar_IGB,
+instanceVar_CGSEXT,
+instanceVar_CGDEXT,
+instanceVar_CGBOV,
+instanceVar_CAPBS,
+instanceVar_CAPBD,
+instanceVar_WEFF,
+instanceVar_LEFF,
+instanceVar_WEFFCV,
+instanceVar_LEFFCV,
+instanceVar_IDS,
+instanceVar_IDEFF,
+instanceVar_ISEFF,
+instanceVar_IGEFF,
+instanceVar_IBS,
+instanceVar_IBD,
+instanceVar_VDS,
+instanceVar_VGS,
+instanceVar_VBS,
+instanceVar_VDSAT,
+instanceVar_GM,
+instanceVar_GMBS,
+instanceVar_GDS,
+instanceVar_TK,
+instanceVar_VTH,
 // non-reals
  instanceVar_devsign,
 // model parameters

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -13390,6 +13390,10 @@ d_F0_dTemp_t_GND(0.0),
     A_t_Equ_ge_NodeOffset(-1),
     A_t_Equ_e_NodeOffset(-1),
     A_t_Equ_t_NodeOffset(-1),
+    collapseNode_si(false),
+    collapseNode_di(false),
+    collapseNode_ge(false),
+    collapseNode_N(false),
     admsTemperature(getDeviceOptions().temp.getImmutableValue<double>())
 
 {
@@ -13397,7 +13401,7 @@ d_F0_dTemp_t_GND(0.0),
     numExtVars = 4;
 
 
-  // Right now, we only have store for limited probes...
+  // Right now, we only have store for limited probes and output vars...
   // HAND HACK: And output variables
   setNumStoreVars(0+7);
 
@@ -13714,7 +13718,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     {
     addInternalNode(symbol_table, li_N, getName(), "N");
     }
-
+  
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_id, getName(), "BRANCH_DD");

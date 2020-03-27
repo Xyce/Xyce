@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -383,8 +383,8 @@ Instance::Instance(
     numExtVars = 3;
 
 
-  // Right now, we only have store for limited probes...
-  setNumStoreVars(0);
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(0+0);
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
@@ -544,7 +544,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addInternalNode(symbol_table, li_si, getName(), "si");
     addInternalNode(symbol_table, li_sf, getName(), "sf");
     addInternalNode(symbol_table, li_BRA_sf_GND, getName(), "sf_GND_branch");
-
+  
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_id, getName(), "BRANCH_DD");

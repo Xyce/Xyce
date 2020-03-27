@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMShic0_full_h
@@ -1303,6 +1303,16 @@ public:
    // end probe numbers
    // Store LIDs
    // end store LIDs
+   // Store LIDs for output vars
+    int li_store_qjci;
+    int li_store_qjei;
+    int li_store_it;
+    int li_store_ijbc;
+    int li_store_iavl;
+    int li_store_ijsc;
+    int li_store_Ibici;
+    int li_store_ijbe;
+   // end store LIDs for output vars
      // bools for collapsing nodes
      bool collapseNode_ci;
      bool collapseNode_bi;
