@@ -7,7 +7,7 @@ XyceADMSFILES = $(ADMSDIR)/adms.implicit.xml \
 	$(ADMSDIR)/xyceHeaderFile_nosac.xml \
 	$(ADMSDIR)/xyceImplementationFile_nosac.xml
 
-CLEANFILES = N_DEV_ADMSHBT_X.C N_DEV_ADMSHBT_X.h
+CLEANFILES = N_DEV_ADMSHBT_X.C N_DEV_ADMSHBT_X.h *.orig *.rej
 
 all-source:  N_DEV_ADMSHBT_X.C 
 

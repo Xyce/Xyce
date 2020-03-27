@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1621,6 +1621,12 @@ d_dxa_dV_dt_GND(0.0),
     A_b2_Equ_noi_NodeOffset(-1),
     A_e1_Equ_noi_NodeOffset(-1),
     A_c2_Equ_noi_NodeOffset(-1),
+    li_store_admsProbeID_V_b2_c1(-1),
+    li_store_admsProbeID_V_b2_c2(-1),
+    li_store_admsProbeID_V_b1_e1(-1),
+    li_store_admsProbeID_V_b1_b2(-1),
+    collapseNode_c1(false),
+    collapseNode_c4(false),
     admsTemperature(getDeviceOptions().temp.getImmutableValue<double>())
 
 {
@@ -1628,8 +1634,8 @@ d_dxa_dV_dt_GND(0.0),
     numExtVars = 5;
 
 
-  // Right now, we only have store for limited probes...
-  setNumStoreVars(4);
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(4+0);
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
@@ -1979,7 +1985,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addInternalNode(symbol_table, li_c4, getName(), "c4");
     }
     addInternalNode(symbol_table, li_noi, getName(), "noi");
-
+  
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_ic, getName(), "BRANCH_DC");
@@ -2761,7 +2767,7 @@ bool Instance::updatePrimaryState()
   // here.
 
   double * stoVec = extData.nextStoVectorRawPtr;
-  // Also need to save limited voltage drops
+  // Also need to save limited voltage drops and output vars
   // This formulation assumes that we have *always* written the
   // limited voltages back into the probeVars[] array.
 

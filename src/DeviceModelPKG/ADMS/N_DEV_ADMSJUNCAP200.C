@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -4768,6 +4768,21 @@ Instance::Instance(
     ISATREV(0.0),
     MREV(0.0),
     m0flag(0.0),
+    vak(0.0),
+    ij(0.0),
+    ijbot(0.0),
+    ijgat(0.0),
+    ijsti(0.0),
+    si(0.0),
+    idsatsbot(0.0),
+    idsatssti(0.0),
+    idsatsgat(0.0),
+    cjosbot(0.0),
+    cjossti(0.0),
+    cjosgat(0.0),
+    vbisbot(0.0),
+    vbissti(0.0),
+    vbisgat(0.0),
     li_A(-1),
     li_K(-1),
     li_branch_iA(-1),
@@ -4783,6 +4798,21 @@ Instance::Instance(
     A_A_Equ_K_NodeOffset(-1),
     A_K_Equ_A_NodeOffset(-1),
     A_K_Equ_K_NodeOffset(-1),
+    li_store_vak(-1),
+    li_store_ij(-1),
+    li_store_ijbot(-1),
+    li_store_ijgat(-1),
+    li_store_ijsti(-1),
+    li_store_si(-1),
+    li_store_idsatsbot(-1),
+    li_store_idsatssti(-1),
+    li_store_idsatsgat(-1),
+    li_store_cjosbot(-1),
+    li_store_cjossti(-1),
+    li_store_cjosgat(-1),
+    li_store_vbisbot(-1),
+    li_store_vbissti(-1),
+    li_store_vbisgat(-1),
     admsTemperature(getDeviceOptions().temp.getImmutableValue<double>())
 
 {
@@ -4790,8 +4820,8 @@ Instance::Instance(
     numExtVars = 2;
 
 
-  // Right now, we only have store for limited probes...
-  setNumStoreVars(0);
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(0+15);
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
@@ -4918,7 +4948,22 @@ void Instance::registerLIDs( const LocalIdVector & intLIDVecRef,
 //-----------------------------------------------------------------------------
 void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 {
-
+    addStoreNode(symbol_table, li_store_vak, getName().getEncodedName() + ":vak");
+    addStoreNode(symbol_table, li_store_ij, getName().getEncodedName() + ":ij");
+    addStoreNode(symbol_table, li_store_ijbot, getName().getEncodedName() + ":ijbot");
+    addStoreNode(symbol_table, li_store_ijgat, getName().getEncodedName() + ":ijgat");
+    addStoreNode(symbol_table, li_store_ijsti, getName().getEncodedName() + ":ijsti");
+    addStoreNode(symbol_table, li_store_si, getName().getEncodedName() + ":si");
+    addStoreNode(symbol_table, li_store_idsatsbot, getName().getEncodedName() + ":idsatsbot");
+    addStoreNode(symbol_table, li_store_idsatssti, getName().getEncodedName() + ":idsatssti");
+    addStoreNode(symbol_table, li_store_idsatsgat, getName().getEncodedName() + ":idsatsgat");
+    addStoreNode(symbol_table, li_store_cjosbot, getName().getEncodedName() + ":cjosbot");
+    addStoreNode(symbol_table, li_store_cjossti, getName().getEncodedName() + ":cjossti");
+    addStoreNode(symbol_table, li_store_cjosgat, getName().getEncodedName() + ":cjosgat");
+    addStoreNode(symbol_table, li_store_vbisbot, getName().getEncodedName() + ":vbisbot");
+    addStoreNode(symbol_table, li_store_vbissti, getName().getEncodedName() + ":vbissti");
+    addStoreNode(symbol_table, li_store_vbisgat, getName().getEncodedName() + ":vbisgat");
+  
   if (loadLeadCurrent)
   {
       addBranchDataNode( symbol_table, li_branch_iA, getName(), "BRANCH_D");
@@ -4936,6 +4981,29 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 void Instance::registerStoreLIDs( const LocalIdVector & stoLIDVecRef)
 {
   AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
+
+  int numSto = stoLIDVecRef.size();
+  if (numSto > 0)
+  {
+    int i=0;
+    stoLIDVec = stoLIDVecRef;
+
+      li_store_vak= stoLIDVec[i++];
+      li_store_ij= stoLIDVec[i++];
+      li_store_ijbot= stoLIDVec[i++];
+      li_store_ijgat= stoLIDVec[i++];
+      li_store_ijsti= stoLIDVec[i++];
+      li_store_si= stoLIDVec[i++];
+      li_store_idsatsbot= stoLIDVec[i++];
+      li_store_idsatssti= stoLIDVec[i++];
+      li_store_idsatsgat= stoLIDVec[i++];
+      li_store_cjosbot= stoLIDVec[i++];
+      li_store_cjossti= stoLIDVec[i++];
+      li_store_cjosgat= stoLIDVec[i++];
+      li_store_vbisbot= stoLIDVec[i++];
+      li_store_vbissti= stoLIDVec[i++];
+      li_store_vbisgat= stoLIDVec[i++];
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -5098,6 +5166,26 @@ bool Instance::updatePrimaryState()
   // if old DAE were implemented, we'd save dynamic contributions as state
   // here.
 
+  double * stoVec = extData.nextStoVectorRawPtr;
+  // Also need to save limited voltage drops and output vars
+  // This formulation assumes that we have *always* written the
+  // limited voltages back into the probeVars[] array.
+
+  stoVec[li_store_vak] = vak;
+  stoVec[li_store_ij] = ij;
+  stoVec[li_store_ijbot] = ijbot;
+  stoVec[li_store_ijgat] = ijgat;
+  stoVec[li_store_ijsti] = ijsti;
+  stoVec[li_store_si] = si;
+  stoVec[li_store_idsatsbot] = idsatsbot;
+  stoVec[li_store_idsatssti] = idsatssti;
+  stoVec[li_store_idsatsgat] = idsatsgat;
+  stoVec[li_store_cjosbot] = cjosbot;
+  stoVec[li_store_cjossti] = cjossti;
+  stoVec[li_store_cjosgat] = cjosgat;
+  stoVec[li_store_vbisbot] = vbisbot;
+  stoVec[li_store_vbissti] = vbissti;
+  stoVec[li_store_vbisgat] = vbisgat;
 
   return bsuccess;
 }
@@ -5240,21 +5328,6 @@ bool Instance::updateIntermediateVars()
      double d_two_psistar_dV_A_K;
   double vbbt;
      double d_vbbt_dV_A_K;
-  double vbisgat;
-  double vbissti;
-  double vbisbot;
-  double cjosgat;
-  double cjossti;
-  double cjosbot;
-  double si;
-  double ij;
-  double idsatsgat;
-  double idsatssti;
-  double idsatsbot;
-  double ijsti;
-  double ijgat;
-  double ijbot;
-  double vak;
 
 
   // set the sizes of the Fad arrays:
@@ -7801,6 +7874,21 @@ AdmsSensFadType & instanceVar_MFOR2,
 AdmsSensFadType & instanceVar_ISATREV,
 AdmsSensFadType & instanceVar_MREV,
 double & instanceVar_m0flag,
+AdmsSensFadType & instanceVar_vak,
+AdmsSensFadType & instanceVar_ij,
+AdmsSensFadType & instanceVar_ijbot,
+AdmsSensFadType & instanceVar_ijgat,
+AdmsSensFadType & instanceVar_ijsti,
+AdmsSensFadType & instanceVar_si,
+AdmsSensFadType & instanceVar_idsatsbot,
+AdmsSensFadType & instanceVar_idsatssti,
+AdmsSensFadType & instanceVar_idsatsgat,
+AdmsSensFadType & instanceVar_cjosbot,
+AdmsSensFadType & instanceVar_cjossti,
+AdmsSensFadType & instanceVar_cjosgat,
+AdmsSensFadType & instanceVar_vbisbot,
+AdmsSensFadType & instanceVar_vbissti,
+AdmsSensFadType & instanceVar_vbisgat,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_DTA,
@@ -11573,6 +11661,21 @@ AdmsSensFadType & instanceVar_MFOR2,
 AdmsSensFadType & instanceVar_ISATREV,
 AdmsSensFadType & instanceVar_MREV,
 double & instanceVar_m0flag,
+AdmsSensFadType & instanceVar_vak,
+AdmsSensFadType & instanceVar_ij,
+AdmsSensFadType & instanceVar_ijbot,
+AdmsSensFadType & instanceVar_ijgat,
+AdmsSensFadType & instanceVar_ijsti,
+AdmsSensFadType & instanceVar_si,
+AdmsSensFadType & instanceVar_idsatsbot,
+AdmsSensFadType & instanceVar_idsatssti,
+AdmsSensFadType & instanceVar_idsatsgat,
+AdmsSensFadType & instanceVar_cjosbot,
+AdmsSensFadType & instanceVar_cjossti,
+AdmsSensFadType & instanceVar_cjosgat,
+AdmsSensFadType & instanceVar_vbisbot,
+AdmsSensFadType & instanceVar_vbissti,
+AdmsSensFadType & instanceVar_vbisgat,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_DTA,
@@ -11819,21 +11922,6 @@ AdmsSensFadType & modelVar_slopegat,
   AdmsSensFadType vj;
   AdmsSensFadType two_psistar;
   AdmsSensFadType vbbt;
-  AdmsSensFadType vbisgat;
-  AdmsSensFadType vbissti;
-  AdmsSensFadType vbisbot;
-  AdmsSensFadType cjosgat;
-  AdmsSensFadType cjossti;
-  AdmsSensFadType cjosbot;
-  AdmsSensFadType si;
-  AdmsSensFadType ij;
-  AdmsSensFadType idsatsgat;
-  AdmsSensFadType idsatssti;
-  AdmsSensFadType idsatsbot;
-  AdmsSensFadType ijsti;
-  AdmsSensFadType ijgat;
-  AdmsSensFadType ijbot;
-  AdmsSensFadType vak;
 
 
   // -- code converted from analog/code block
@@ -12506,33 +12594,33 @@ jnoise = ((2*1.6021918E-19)*fabs(ijun));
 // End block noise
 //Begin block OPinfo
 {
-vak = VAK;
+instanceVar_vak = VAK;
 if ((modelVar_SWJUNEXP_i==1.0))
 {
-ijbot = 0.0;
-ijgat = 0.0;
-ijsti = 0.0;
-idsatsbot = 0.0;
-idsatssti = 0.0;
-idsatsgat = 0.0;
+instanceVar_ijbot = 0.0;
+instanceVar_ijgat = 0.0;
+instanceVar_ijsti = 0.0;
+instanceVar_idsatsbot = 0.0;
+instanceVar_idsatssti = 0.0;
+instanceVar_idsatsgat = 0.0;
 }
 else
 {
-ijbot = ((instanceVar_MULT_i*instanceVar_AB_i)*ijunbot);
-ijgat = ((instanceVar_MULT_i*instanceVar_LG_i)*ijungat);
-ijsti = ((instanceVar_MULT_i*instanceVar_LS_i)*ijunsti);
-idsatsbot = ((instanceVar_MULT_i*instanceVar_AB_i)*modelVar_idsatbot);
-idsatssti = ((instanceVar_MULT_i*instanceVar_LS_i)*modelVar_idsatsti);
-idsatsgat = ((instanceVar_MULT_i*instanceVar_LG_i)*modelVar_idsatgat);
+instanceVar_ijbot = ((instanceVar_MULT_i*instanceVar_AB_i)*ijunbot);
+instanceVar_ijgat = ((instanceVar_MULT_i*instanceVar_LG_i)*ijungat);
+instanceVar_ijsti = ((instanceVar_MULT_i*instanceVar_LS_i)*ijunsti);
+instanceVar_idsatsbot = ((instanceVar_MULT_i*instanceVar_AB_i)*modelVar_idsatbot);
+instanceVar_idsatssti = ((instanceVar_MULT_i*instanceVar_LS_i)*modelVar_idsatsti);
+instanceVar_idsatsgat = ((instanceVar_MULT_i*instanceVar_LG_i)*modelVar_idsatgat);
 }
-ij = (instanceVar_MULT_i*ijun);
-si = (instanceVar_MULT_i*jnoise);
-cjosbot = ((instanceVar_MULT_i*instanceVar_AB_i)*modelVar_cjobot);
-cjossti = ((instanceVar_MULT_i*instanceVar_LS_i)*modelVar_cjosti);
-cjosgat = ((instanceVar_MULT_i*instanceVar_LG_i)*modelVar_cjogat);
-vbisbot = modelVar_vbibot;
-vbissti = modelVar_vbisti;
-vbisgat = modelVar_vbigat;
+instanceVar_ij = (instanceVar_MULT_i*ijun);
+instanceVar_si = (instanceVar_MULT_i*jnoise);
+instanceVar_cjosbot = ((instanceVar_MULT_i*instanceVar_AB_i)*modelVar_cjobot);
+instanceVar_cjossti = ((instanceVar_MULT_i*instanceVar_LS_i)*modelVar_cjosti);
+instanceVar_cjosgat = ((instanceVar_MULT_i*instanceVar_LG_i)*modelVar_cjogat);
+instanceVar_vbisbot = modelVar_vbibot;
+instanceVar_vbissti = modelVar_vbisti;
+instanceVar_vbisgat = modelVar_vbigat;
 }
 // End block OPinfo
 }
@@ -12769,6 +12857,21 @@ AdmsSensFadType instanceVar_MFOR2=in.MFOR2;
 AdmsSensFadType instanceVar_ISATREV=in.ISATREV;
 AdmsSensFadType instanceVar_MREV=in.MREV;
 double instanceVar_m0flag=in.m0flag;
+AdmsSensFadType instanceVar_vak=in.vak;
+AdmsSensFadType instanceVar_ij=in.ij;
+AdmsSensFadType instanceVar_ijbot=in.ijbot;
+AdmsSensFadType instanceVar_ijgat=in.ijgat;
+AdmsSensFadType instanceVar_ijsti=in.ijsti;
+AdmsSensFadType instanceVar_si=in.si;
+AdmsSensFadType instanceVar_idsatsbot=in.idsatsbot;
+AdmsSensFadType instanceVar_idsatssti=in.idsatssti;
+AdmsSensFadType instanceVar_idsatsgat=in.idsatsgat;
+AdmsSensFadType instanceVar_cjosbot=in.cjosbot;
+AdmsSensFadType instanceVar_cjossti=in.cjossti;
+AdmsSensFadType instanceVar_cjosgat=in.cjosgat;
+AdmsSensFadType instanceVar_vbisbot=in.vbisbot;
+AdmsSensFadType instanceVar_vbissti=in.vbissti;
+AdmsSensFadType instanceVar_vbisgat=in.vbisgat;
 
 
 //non-reals
@@ -13111,6 +13214,21 @@ instanceVar_MFOR2,
 instanceVar_ISATREV,
 instanceVar_MREV,
 instanceVar_m0flag,
+instanceVar_vak,
+instanceVar_ij,
+instanceVar_ijbot,
+instanceVar_ijgat,
+instanceVar_ijsti,
+instanceVar_si,
+instanceVar_idsatsbot,
+instanceVar_idsatssti,
+instanceVar_idsatsgat,
+instanceVar_cjosbot,
+instanceVar_cjossti,
+instanceVar_cjosgat,
+instanceVar_vbisbot,
+instanceVar_vbissti,
+instanceVar_vbisgat,
 // model parameters
 // reals
 modelPar_DTA,
@@ -13352,6 +13470,21 @@ instanceVar_MFOR2,
 instanceVar_ISATREV,
 instanceVar_MREV,
 instanceVar_m0flag,
+instanceVar_vak,
+instanceVar_ij,
+instanceVar_ijbot,
+instanceVar_ijgat,
+instanceVar_ijsti,
+instanceVar_si,
+instanceVar_idsatsbot,
+instanceVar_idsatssti,
+instanceVar_idsatsgat,
+instanceVar_cjosbot,
+instanceVar_cjossti,
+instanceVar_cjosgat,
+instanceVar_vbisbot,
+instanceVar_vbissti,
+instanceVar_vbisgat,
 // model parameters
 // reals
 modelPar_DTA,
@@ -13946,6 +14079,21 @@ AdmsSensFadType instanceVar_MFOR2=in.MFOR2;
 AdmsSensFadType instanceVar_ISATREV=in.ISATREV;
 AdmsSensFadType instanceVar_MREV=in.MREV;
 double instanceVar_m0flag=in.m0flag;
+AdmsSensFadType instanceVar_vak=in.vak;
+AdmsSensFadType instanceVar_ij=in.ij;
+AdmsSensFadType instanceVar_ijbot=in.ijbot;
+AdmsSensFadType instanceVar_ijgat=in.ijgat;
+AdmsSensFadType instanceVar_ijsti=in.ijsti;
+AdmsSensFadType instanceVar_si=in.si;
+AdmsSensFadType instanceVar_idsatsbot=in.idsatsbot;
+AdmsSensFadType instanceVar_idsatssti=in.idsatssti;
+AdmsSensFadType instanceVar_idsatsgat=in.idsatsgat;
+AdmsSensFadType instanceVar_cjosbot=in.cjosbot;
+AdmsSensFadType instanceVar_cjossti=in.cjossti;
+AdmsSensFadType instanceVar_cjosgat=in.cjosgat;
+AdmsSensFadType instanceVar_vbisbot=in.vbisbot;
+AdmsSensFadType instanceVar_vbissti=in.vbissti;
+AdmsSensFadType instanceVar_vbisgat=in.vbisgat;
 
 
   //non-reals
@@ -14195,6 +14343,21 @@ instanceVar_MFOR2,
 instanceVar_ISATREV,
 instanceVar_MREV,
 instanceVar_m0flag,
+instanceVar_vak,
+instanceVar_ij,
+instanceVar_ijbot,
+instanceVar_ijgat,
+instanceVar_ijsti,
+instanceVar_si,
+instanceVar_idsatsbot,
+instanceVar_idsatssti,
+instanceVar_idsatsgat,
+instanceVar_cjosbot,
+instanceVar_cjossti,
+instanceVar_cjosgat,
+instanceVar_vbisbot,
+instanceVar_vbissti,
+instanceVar_vbisgat,
 // model parameters
 // reals
 modelPar_DTA,
@@ -14437,6 +14600,21 @@ instanceVar_MFOR2,
 instanceVar_ISATREV,
 instanceVar_MREV,
 instanceVar_m0flag,
+instanceVar_vak,
+instanceVar_ij,
+instanceVar_ijbot,
+instanceVar_ijgat,
+instanceVar_ijsti,
+instanceVar_si,
+instanceVar_idsatsbot,
+instanceVar_idsatssti,
+instanceVar_idsatsgat,
+instanceVar_cjosbot,
+instanceVar_cjossti,
+instanceVar_cjosgat,
+instanceVar_vbisbot,
+instanceVar_vbissti,
+instanceVar_vbisgat,
 // model parameters
 // reals
 modelPar_DTA,

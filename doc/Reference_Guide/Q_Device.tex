@@ -433,8 +433,15 @@ aliases for the \texttt{TRISE} instance parameter.
 \clearpage
 
 \subsubsection{Level 230 BJT Tables (HICUM/L0)}
+The HICUM/L0 device supports output of the internal variables in
+table~\ref{Q_230_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific HICUM/L0 Q device in your netlist.
+
 \input{Q_230_Device_Instance_Params}
 \input{Q_230_Device_Model_Params}
+\input{Q_230_OutputVars}
 \clearpage
 
 \subsubsection{Level 234 BJT Table (HICUM/L2)}

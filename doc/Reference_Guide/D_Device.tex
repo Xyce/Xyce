@@ -106,6 +106,15 @@ tables below.  Complete documentation of JUNCAP200 may be found at
 \paragraph{JUNCAP200 Model Parameters}
 \input{D_200_Device_Model_Params}
 
+\paragraph{JUNCAP200 Output Variables}
+The JUNCAP200 device supports output of the internal variables in
+table~\ref{D_200_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific level 200 D device in your netlist.
+
+\input{D_200_OutputVars}
+
 \paragraph{Level 1 Diode Equations}
 
 The equations in this section use the following variables:

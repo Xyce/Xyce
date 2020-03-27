@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:41:48
+// Creation Date  : Fri, 27 Mar 2020 12:43:56
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -2059,6 +2059,14 @@ Instance::Instance(
     A_b_Equ_c_NodeOffset(-1),
     A_c_Equ_b_NodeOffset(-1),
     A_xf1_Equ_xf1_NodeOffset(-1),
+    li_store_admsProbeID_Temp_dt_GND(-1),
+    li_store_admsProbeID_V_bi_ei(-1),
+    li_store_admsProbeID_V_bx_ei(-1),
+    li_store_admsProbeID_V_bi_ci(-1),
+    li_store_admsProbeID_V_bi_cx(-1),
+    li_store_admsProbeID_V_bx_cx(-1),
+    li_store_admsProbeID_V_bx_bp(-1),
+    li_store_admsProbeID_V_b_e(-1),
     admsTemperature(getDeviceOptions().temp.getImmutableValue<double>()),
     dtExternalNodeMode(false),
     cxExternalNodeMode(false),
@@ -2072,8 +2080,8 @@ Instance::Instance(
   numExtVars = 3;
 
 
-  // Right now, we only have store for limited probes...
-  setNumStoreVars(8);
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(8+0);
 
   // Manually inserted code:  detect extra nodes given on instance line,
   // set external node mode for those normally-internal nodes.
@@ -2361,7 +2369,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
   addInternalNode(symbol_table, li_bp, getName(), "bp");
   addInternalNode(symbol_table, li_xf1, getName(), "xf1");
   addInternalNode(symbol_table, li_xf2, getName(), "xf2");
-
+  
   if (loadLeadCurrent)
   {
     addBranchDataNode( symbol_table, li_branch_ic, getName(), "BRANCH_DC");
@@ -2931,7 +2939,7 @@ bool Instance::updatePrimaryState()
   // here.
 
   double * stoVec = extData.nextStoVectorRawPtr;
-  // Also need to save limited voltage drops
+  // Also need to save limited voltage drops and output vars
   // This formulation assumes that we have *always* written the
   // limited voltages back into the probeVars[] array.
 

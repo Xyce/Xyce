@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -11739,6 +11739,189 @@ Instance::Instance(
     MFOR2_d(0.0),
     ISATREV_d(0.0),
     MREV_d(0.0),
+    ctype(0.0),
+    sdint(0.0),
+    ise(0.0),
+    ige(0.0),
+    ide(0.0),
+    ibe(0.0),
+    ids(0.0),
+    idb(0.0),
+    isb(0.0),
+    igs(0.0),
+    igd(0.0),
+    igb(0.0),
+    igcs(0.0),
+    igcd(0.0),
+    iavl(0.0),
+    igisl(0.0),
+    igidl(0.0),
+    ijs(0.0),
+    ijsbot(0.0),
+    ijsgat(0.0),
+    ijssti(0.0),
+    ijd(0.0),
+    ijdbot(0.0),
+    ijdgat(0.0),
+    ijdsti(0.0),
+    vds(0.0),
+    vgs(0.0),
+    vsb(0.0),
+    vto(0.0),
+    vts(0.0),
+    vth(0.0),
+    vgt(0.0),
+    vdss(0.0),
+    vsat(0.0),
+    gm(0.0),
+    gmb(0.0),
+    gds(0.0),
+    gjs(0.0),
+    gjd(0.0),
+    cdd(0.0),
+    cdg(0.0),
+    cds(0.0),
+    cdb(0.0),
+    cgd(0.0),
+    cgg(0.0),
+    cgs(0.0),
+    cgb(0.0),
+    csd(0.0),
+    csg(0.0),
+    css(0.0),
+    csb(0.0),
+    cbd(0.0),
+    cbg(0.0),
+    cbs(0.0),
+    cbb(0.0),
+    cgsol(0.0),
+    cgdol(0.0),
+    cjs(0.0),
+    cjsbot(0.0),
+    cjsgat(0.0),
+    cjssti(0.0),
+    cjd(0.0),
+    cjdbot(0.0),
+    cjdgat(0.0),
+    cjdsti(0.0),
+    weff(0.0),
+    leff(0.0),
+    u(0.0),
+    rout(0.0),
+    vearly(0.0),
+    beff(0.0),
+    fug(0.0),
+    rg(0.0),
+    sfl(0.0),
+    sqrtsff(0.0),
+    sqrtsfw(0.0),
+    sid(0.0),
+    sig(0.0),
+    cigid(0.0),
+    fknee(0.0),
+    sigs(0.0),
+    sigd(0.0),
+    siavl(0.0),
+    ssi(0.0),
+    sdi(0.0),
+    lp_vfb(0.0),
+    lp_stvfb(0.0),
+    lp_tox(0.0),
+    lp_epsrox(0.0),
+    lp_neff(0.0),
+    lp_vnsub(0.0),
+    lp_nslp(0.0),
+    lp_dnsub(0.0),
+    lp_dphib(0.0),
+    lp_np(0.0),
+    lp_ct(0.0),
+    lp_toxov(0.0),
+    lp_toxovd(0.0),
+    lp_nov(0.0),
+    lp_novd(0.0),
+    lp_cf(0.0),
+    lp_cfb(0.0),
+    lp_betn(0.0),
+    lp_stbet(0.0),
+    lp_mue(0.0),
+    lp_stmue(0.0),
+    lp_themu(0.0),
+    lp_stthemu(0.0),
+    lp_cs(0.0),
+    lp_stcs(0.0),
+    lp_xcor(0.0),
+    lp_stxcor(0.0),
+    lp_feta(0.0),
+    lp_rs(0.0),
+    lp_strs(0.0),
+    lp_rsb(0.0),
+    lp_rsg(0.0),
+    lp_thesat(0.0),
+    lp_stthesat(0.0),
+    lp_thesatb(0.0),
+    lp_thesatg(0.0),
+    lp_ax(0.0),
+    lp_alp(0.0),
+    lp_alp1(0.0),
+    lp_alp2(0.0),
+    lp_vp(0.0),
+    lp_a1(0.0),
+    lp_a2(0.0),
+    lp_sta2(0.0),
+    lp_a3(0.0),
+    lp_a4(0.0),
+    lp_gco(0.0),
+    lp_iginv(0.0),
+    lp_igov(0.0),
+    lp_igovd(0.0),
+    lp_stig(0.0),
+    lp_gc2(0.0),
+    lp_gc3(0.0),
+    lp_chib(0.0),
+    lp_agidl(0.0),
+    lp_agidld(0.0),
+    lp_bgidl(0.0),
+    lp_bgidld(0.0),
+    lp_stbgidl(0.0),
+    lp_stbgidld(0.0),
+    lp_cgidl(0.0),
+    lp_cgidld(0.0),
+    lp_cox(0.0),
+    lp_cgov(0.0),
+    lp_cgovd(0.0),
+    lp_cgbov(0.0),
+    lp_cfr(0.0),
+    lp_cfrd(0.0),
+    lp_fnt(0.0),
+    lp_fntexc(0.0),
+    lp_nfa(0.0),
+    lp_nfb(0.0),
+    lp_nfc(0.0),
+    lp_ef(0.0),
+    lp_rg(0.0),
+    lp_rbulk(0.0),
+    lp_rwell(0.0),
+    lp_rjuns(0.0),
+    lp_rjund(0.0),
+    tk(0.0),
+    cjosbot(0.0),
+    cjossti(0.0),
+    cjosgat(0.0),
+    vbisbot(0.0),
+    vbissti(0.0),
+    vbisgat(0.0),
+    idsatsbot(0.0),
+    idsatssti(0.0),
+    idsatsgat(0.0),
+    cjosbotd(0.0),
+    cjosstid(0.0),
+    cjosgatd(0.0),
+    vbisbotd(0.0),
+    vbisstid(0.0),
+    vbisgatd(0.0),
+    idsatsbotd(0.0),
+    idsatsstid(0.0),
+    idsatsgatd(0.0),
     li_D(-1),
     li_G(-1),
     li_S(-1),
@@ -11937,6 +12120,194 @@ Instance::Instance(
     A_BS_Equ_GP_NodeOffset(-1),
     A_BD_Equ_BP_NodeOffset(-1),
     A_BD_Equ_GP_NodeOffset(-1),
+    li_store_ctype(-1),
+    li_store_sdint(-1),
+    li_store_ise(-1),
+    li_store_ige(-1),
+    li_store_ide(-1),
+    li_store_ibe(-1),
+    li_store_ids(-1),
+    li_store_idb(-1),
+    li_store_isb(-1),
+    li_store_igs(-1),
+    li_store_igd(-1),
+    li_store_igb(-1),
+    li_store_igcs(-1),
+    li_store_igcd(-1),
+    li_store_iavl(-1),
+    li_store_igisl(-1),
+    li_store_igidl(-1),
+    li_store_ijs(-1),
+    li_store_ijsbot(-1),
+    li_store_ijsgat(-1),
+    li_store_ijssti(-1),
+    li_store_ijd(-1),
+    li_store_ijdbot(-1),
+    li_store_ijdgat(-1),
+    li_store_ijdsti(-1),
+    li_store_vds(-1),
+    li_store_vgs(-1),
+    li_store_vsb(-1),
+    li_store_vto(-1),
+    li_store_vts(-1),
+    li_store_vth(-1),
+    li_store_vgt(-1),
+    li_store_vdss(-1),
+    li_store_vsat(-1),
+    li_store_gm(-1),
+    li_store_gmb(-1),
+    li_store_gds(-1),
+    li_store_gjs(-1),
+    li_store_gjd(-1),
+    li_store_cdd(-1),
+    li_store_cdg(-1),
+    li_store_cds(-1),
+    li_store_cdb(-1),
+    li_store_cgd(-1),
+    li_store_cgg(-1),
+    li_store_cgs(-1),
+    li_store_cgb(-1),
+    li_store_csd(-1),
+    li_store_csg(-1),
+    li_store_css(-1),
+    li_store_csb(-1),
+    li_store_cbd(-1),
+    li_store_cbg(-1),
+    li_store_cbs(-1),
+    li_store_cbb(-1),
+    li_store_cgsol(-1),
+    li_store_cgdol(-1),
+    li_store_cjs(-1),
+    li_store_cjsbot(-1),
+    li_store_cjsgat(-1),
+    li_store_cjssti(-1),
+    li_store_cjd(-1),
+    li_store_cjdbot(-1),
+    li_store_cjdgat(-1),
+    li_store_cjdsti(-1),
+    li_store_weff(-1),
+    li_store_leff(-1),
+    li_store_u(-1),
+    li_store_rout(-1),
+    li_store_vearly(-1),
+    li_store_beff(-1),
+    li_store_fug(-1),
+    li_store_rg(-1),
+    li_store_sfl(-1),
+    li_store_sqrtsff(-1),
+    li_store_sqrtsfw(-1),
+    li_store_sid(-1),
+    li_store_sig(-1),
+    li_store_cigid(-1),
+    li_store_fknee(-1),
+    li_store_sigs(-1),
+    li_store_sigd(-1),
+    li_store_siavl(-1),
+    li_store_ssi(-1),
+    li_store_sdi(-1),
+    li_store_lp_vfb(-1),
+    li_store_lp_stvfb(-1),
+    li_store_lp_tox(-1),
+    li_store_lp_epsrox(-1),
+    li_store_lp_neff(-1),
+    li_store_lp_vnsub(-1),
+    li_store_lp_nslp(-1),
+    li_store_lp_dnsub(-1),
+    li_store_lp_dphib(-1),
+    li_store_lp_np(-1),
+    li_store_lp_ct(-1),
+    li_store_lp_toxov(-1),
+    li_store_lp_toxovd(-1),
+    li_store_lp_nov(-1),
+    li_store_lp_novd(-1),
+    li_store_lp_cf(-1),
+    li_store_lp_cfb(-1),
+    li_store_lp_betn(-1),
+    li_store_lp_stbet(-1),
+    li_store_lp_mue(-1),
+    li_store_lp_stmue(-1),
+    li_store_lp_themu(-1),
+    li_store_lp_stthemu(-1),
+    li_store_lp_cs(-1),
+    li_store_lp_stcs(-1),
+    li_store_lp_xcor(-1),
+    li_store_lp_stxcor(-1),
+    li_store_lp_feta(-1),
+    li_store_lp_rs(-1),
+    li_store_lp_strs(-1),
+    li_store_lp_rsb(-1),
+    li_store_lp_rsg(-1),
+    li_store_lp_thesat(-1),
+    li_store_lp_stthesat(-1),
+    li_store_lp_thesatb(-1),
+    li_store_lp_thesatg(-1),
+    li_store_lp_ax(-1),
+    li_store_lp_alp(-1),
+    li_store_lp_alp1(-1),
+    li_store_lp_alp2(-1),
+    li_store_lp_vp(-1),
+    li_store_lp_a1(-1),
+    li_store_lp_a2(-1),
+    li_store_lp_sta2(-1),
+    li_store_lp_a3(-1),
+    li_store_lp_a4(-1),
+    li_store_lp_gco(-1),
+    li_store_lp_iginv(-1),
+    li_store_lp_igov(-1),
+    li_store_lp_igovd(-1),
+    li_store_lp_stig(-1),
+    li_store_lp_gc2(-1),
+    li_store_lp_gc3(-1),
+    li_store_lp_chib(-1),
+    li_store_lp_agidl(-1),
+    li_store_lp_agidld(-1),
+    li_store_lp_bgidl(-1),
+    li_store_lp_bgidld(-1),
+    li_store_lp_stbgidl(-1),
+    li_store_lp_stbgidld(-1),
+    li_store_lp_cgidl(-1),
+    li_store_lp_cgidld(-1),
+    li_store_lp_cox(-1),
+    li_store_lp_cgov(-1),
+    li_store_lp_cgovd(-1),
+    li_store_lp_cgbov(-1),
+    li_store_lp_cfr(-1),
+    li_store_lp_cfrd(-1),
+    li_store_lp_fnt(-1),
+    li_store_lp_fntexc(-1),
+    li_store_lp_nfa(-1),
+    li_store_lp_nfb(-1),
+    li_store_lp_nfc(-1),
+    li_store_lp_ef(-1),
+    li_store_lp_rg(-1),
+    li_store_lp_rbulk(-1),
+    li_store_lp_rwell(-1),
+    li_store_lp_rjuns(-1),
+    li_store_lp_rjund(-1),
+    li_store_tk(-1),
+    li_store_cjosbot(-1),
+    li_store_cjossti(-1),
+    li_store_cjosgat(-1),
+    li_store_vbisbot(-1),
+    li_store_vbissti(-1),
+    li_store_vbisgat(-1),
+    li_store_idsatsbot(-1),
+    li_store_idsatssti(-1),
+    li_store_idsatsgat(-1),
+    li_store_cjosbotd(-1),
+    li_store_cjosstid(-1),
+    li_store_cjosgatd(-1),
+    li_store_vbisbotd(-1),
+    li_store_vbisstid(-1),
+    li_store_vbisgatd(-1),
+    li_store_idsatsbotd(-1),
+    li_store_idsatsstid(-1),
+    li_store_idsatsgatd(-1),
+    collapseNode_GP(false),
+    collapseNode_BP(false),
+    collapseNode_BI(false),
+    collapseNode_BS(false),
+    collapseNode_BD(false),
     admsTemperature(getDeviceOptions().temp.getImmutableValue<double>())
 
 {
@@ -11944,8 +12315,8 @@ Instance::Instance(
     numExtVars = 4;
 
 
-  // Right now, we only have store for limited probes...
-  setNumStoreVars(0);
+  // Right now, we only have store for limited probes and output vars...
+  setNumStoreVars(0+183);
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
@@ -12272,7 +12643,190 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     {
     addInternalNode(symbol_table, li_BD, getName(), "BD");
     }
-
+    addStoreNode(symbol_table, li_store_ctype, getName().getEncodedName() + ":ctype");
+    addStoreNode(symbol_table, li_store_sdint, getName().getEncodedName() + ":sdint");
+    addStoreNode(symbol_table, li_store_ise, getName().getEncodedName() + ":ise");
+    addStoreNode(symbol_table, li_store_ige, getName().getEncodedName() + ":ige");
+    addStoreNode(symbol_table, li_store_ide, getName().getEncodedName() + ":ide");
+    addStoreNode(symbol_table, li_store_ibe, getName().getEncodedName() + ":ibe");
+    addStoreNode(symbol_table, li_store_ids, getName().getEncodedName() + ":ids");
+    addStoreNode(symbol_table, li_store_idb, getName().getEncodedName() + ":idb");
+    addStoreNode(symbol_table, li_store_isb, getName().getEncodedName() + ":isb");
+    addStoreNode(symbol_table, li_store_igs, getName().getEncodedName() + ":igs");
+    addStoreNode(symbol_table, li_store_igd, getName().getEncodedName() + ":igd");
+    addStoreNode(symbol_table, li_store_igb, getName().getEncodedName() + ":igb");
+    addStoreNode(symbol_table, li_store_igcs, getName().getEncodedName() + ":igcs");
+    addStoreNode(symbol_table, li_store_igcd, getName().getEncodedName() + ":igcd");
+    addStoreNode(symbol_table, li_store_iavl, getName().getEncodedName() + ":iavl");
+    addStoreNode(symbol_table, li_store_igisl, getName().getEncodedName() + ":igisl");
+    addStoreNode(symbol_table, li_store_igidl, getName().getEncodedName() + ":igidl");
+    addStoreNode(symbol_table, li_store_ijs, getName().getEncodedName() + ":ijs");
+    addStoreNode(symbol_table, li_store_ijsbot, getName().getEncodedName() + ":ijsbot");
+    addStoreNode(symbol_table, li_store_ijsgat, getName().getEncodedName() + ":ijsgat");
+    addStoreNode(symbol_table, li_store_ijssti, getName().getEncodedName() + ":ijssti");
+    addStoreNode(symbol_table, li_store_ijd, getName().getEncodedName() + ":ijd");
+    addStoreNode(symbol_table, li_store_ijdbot, getName().getEncodedName() + ":ijdbot");
+    addStoreNode(symbol_table, li_store_ijdgat, getName().getEncodedName() + ":ijdgat");
+    addStoreNode(symbol_table, li_store_ijdsti, getName().getEncodedName() + ":ijdsti");
+    addStoreNode(symbol_table, li_store_vds, getName().getEncodedName() + ":vds");
+    addStoreNode(symbol_table, li_store_vgs, getName().getEncodedName() + ":vgs");
+    addStoreNode(symbol_table, li_store_vsb, getName().getEncodedName() + ":vsb");
+    addStoreNode(symbol_table, li_store_vto, getName().getEncodedName() + ":vto");
+    addStoreNode(symbol_table, li_store_vts, getName().getEncodedName() + ":vts");
+    addStoreNode(symbol_table, li_store_vth, getName().getEncodedName() + ":vth");
+    addStoreNode(symbol_table, li_store_vgt, getName().getEncodedName() + ":vgt");
+    addStoreNode(symbol_table, li_store_vdss, getName().getEncodedName() + ":vdss");
+    addStoreNode(symbol_table, li_store_vsat, getName().getEncodedName() + ":vsat");
+    addStoreNode(symbol_table, li_store_gm, getName().getEncodedName() + ":gm");
+    addStoreNode(symbol_table, li_store_gmb, getName().getEncodedName() + ":gmb");
+    addStoreNode(symbol_table, li_store_gds, getName().getEncodedName() + ":gds");
+    addStoreNode(symbol_table, li_store_gjs, getName().getEncodedName() + ":gjs");
+    addStoreNode(symbol_table, li_store_gjd, getName().getEncodedName() + ":gjd");
+    addStoreNode(symbol_table, li_store_cdd, getName().getEncodedName() + ":cdd");
+    addStoreNode(symbol_table, li_store_cdg, getName().getEncodedName() + ":cdg");
+    addStoreNode(symbol_table, li_store_cds, getName().getEncodedName() + ":cds");
+    addStoreNode(symbol_table, li_store_cdb, getName().getEncodedName() + ":cdb");
+    addStoreNode(symbol_table, li_store_cgd, getName().getEncodedName() + ":cgd");
+    addStoreNode(symbol_table, li_store_cgg, getName().getEncodedName() + ":cgg");
+    addStoreNode(symbol_table, li_store_cgs, getName().getEncodedName() + ":cgs");
+    addStoreNode(symbol_table, li_store_cgb, getName().getEncodedName() + ":cgb");
+    addStoreNode(symbol_table, li_store_csd, getName().getEncodedName() + ":csd");
+    addStoreNode(symbol_table, li_store_csg, getName().getEncodedName() + ":csg");
+    addStoreNode(symbol_table, li_store_css, getName().getEncodedName() + ":css");
+    addStoreNode(symbol_table, li_store_csb, getName().getEncodedName() + ":csb");
+    addStoreNode(symbol_table, li_store_cbd, getName().getEncodedName() + ":cbd");
+    addStoreNode(symbol_table, li_store_cbg, getName().getEncodedName() + ":cbg");
+    addStoreNode(symbol_table, li_store_cbs, getName().getEncodedName() + ":cbs");
+    addStoreNode(symbol_table, li_store_cbb, getName().getEncodedName() + ":cbb");
+    addStoreNode(symbol_table, li_store_cgsol, getName().getEncodedName() + ":cgsol");
+    addStoreNode(symbol_table, li_store_cgdol, getName().getEncodedName() + ":cgdol");
+    addStoreNode(symbol_table, li_store_cjs, getName().getEncodedName() + ":cjs");
+    addStoreNode(symbol_table, li_store_cjsbot, getName().getEncodedName() + ":cjsbot");
+    addStoreNode(symbol_table, li_store_cjsgat, getName().getEncodedName() + ":cjsgat");
+    addStoreNode(symbol_table, li_store_cjssti, getName().getEncodedName() + ":cjssti");
+    addStoreNode(symbol_table, li_store_cjd, getName().getEncodedName() + ":cjd");
+    addStoreNode(symbol_table, li_store_cjdbot, getName().getEncodedName() + ":cjdbot");
+    addStoreNode(symbol_table, li_store_cjdgat, getName().getEncodedName() + ":cjdgat");
+    addStoreNode(symbol_table, li_store_cjdsti, getName().getEncodedName() + ":cjdsti");
+    addStoreNode(symbol_table, li_store_weff, getName().getEncodedName() + ":weff");
+    addStoreNode(symbol_table, li_store_leff, getName().getEncodedName() + ":leff");
+    addStoreNode(symbol_table, li_store_u, getName().getEncodedName() + ":u");
+    addStoreNode(symbol_table, li_store_rout, getName().getEncodedName() + ":rout");
+    addStoreNode(symbol_table, li_store_vearly, getName().getEncodedName() + ":vearly");
+    addStoreNode(symbol_table, li_store_beff, getName().getEncodedName() + ":beff");
+    addStoreNode(symbol_table, li_store_fug, getName().getEncodedName() + ":fug");
+    addStoreNode(symbol_table, li_store_rg, getName().getEncodedName() + ":rg");
+    addStoreNode(symbol_table, li_store_sfl, getName().getEncodedName() + ":sfl");
+    addStoreNode(symbol_table, li_store_sqrtsff, getName().getEncodedName() + ":sqrtsff");
+    addStoreNode(symbol_table, li_store_sqrtsfw, getName().getEncodedName() + ":sqrtsfw");
+    addStoreNode(symbol_table, li_store_sid, getName().getEncodedName() + ":sid");
+    addStoreNode(symbol_table, li_store_sig, getName().getEncodedName() + ":sig");
+    addStoreNode(symbol_table, li_store_cigid, getName().getEncodedName() + ":cigid");
+    addStoreNode(symbol_table, li_store_fknee, getName().getEncodedName() + ":fknee");
+    addStoreNode(symbol_table, li_store_sigs, getName().getEncodedName() + ":sigs");
+    addStoreNode(symbol_table, li_store_sigd, getName().getEncodedName() + ":sigd");
+    addStoreNode(symbol_table, li_store_siavl, getName().getEncodedName() + ":siavl");
+    addStoreNode(symbol_table, li_store_ssi, getName().getEncodedName() + ":ssi");
+    addStoreNode(symbol_table, li_store_sdi, getName().getEncodedName() + ":sdi");
+    addStoreNode(symbol_table, li_store_lp_vfb, getName().getEncodedName() + ":lp_vfb");
+    addStoreNode(symbol_table, li_store_lp_stvfb, getName().getEncodedName() + ":lp_stvfb");
+    addStoreNode(symbol_table, li_store_lp_tox, getName().getEncodedName() + ":lp_tox");
+    addStoreNode(symbol_table, li_store_lp_epsrox, getName().getEncodedName() + ":lp_epsrox");
+    addStoreNode(symbol_table, li_store_lp_neff, getName().getEncodedName() + ":lp_neff");
+    addStoreNode(symbol_table, li_store_lp_vnsub, getName().getEncodedName() + ":lp_vnsub");
+    addStoreNode(symbol_table, li_store_lp_nslp, getName().getEncodedName() + ":lp_nslp");
+    addStoreNode(symbol_table, li_store_lp_dnsub, getName().getEncodedName() + ":lp_dnsub");
+    addStoreNode(symbol_table, li_store_lp_dphib, getName().getEncodedName() + ":lp_dphib");
+    addStoreNode(symbol_table, li_store_lp_np, getName().getEncodedName() + ":lp_np");
+    addStoreNode(symbol_table, li_store_lp_ct, getName().getEncodedName() + ":lp_ct");
+    addStoreNode(symbol_table, li_store_lp_toxov, getName().getEncodedName() + ":lp_toxov");
+    addStoreNode(symbol_table, li_store_lp_toxovd, getName().getEncodedName() + ":lp_toxovd");
+    addStoreNode(symbol_table, li_store_lp_nov, getName().getEncodedName() + ":lp_nov");
+    addStoreNode(symbol_table, li_store_lp_novd, getName().getEncodedName() + ":lp_novd");
+    addStoreNode(symbol_table, li_store_lp_cf, getName().getEncodedName() + ":lp_cf");
+    addStoreNode(symbol_table, li_store_lp_cfb, getName().getEncodedName() + ":lp_cfb");
+    addStoreNode(symbol_table, li_store_lp_betn, getName().getEncodedName() + ":lp_betn");
+    addStoreNode(symbol_table, li_store_lp_stbet, getName().getEncodedName() + ":lp_stbet");
+    addStoreNode(symbol_table, li_store_lp_mue, getName().getEncodedName() + ":lp_mue");
+    addStoreNode(symbol_table, li_store_lp_stmue, getName().getEncodedName() + ":lp_stmue");
+    addStoreNode(symbol_table, li_store_lp_themu, getName().getEncodedName() + ":lp_themu");
+    addStoreNode(symbol_table, li_store_lp_stthemu, getName().getEncodedName() + ":lp_stthemu");
+    addStoreNode(symbol_table, li_store_lp_cs, getName().getEncodedName() + ":lp_cs");
+    addStoreNode(symbol_table, li_store_lp_stcs, getName().getEncodedName() + ":lp_stcs");
+    addStoreNode(symbol_table, li_store_lp_xcor, getName().getEncodedName() + ":lp_xcor");
+    addStoreNode(symbol_table, li_store_lp_stxcor, getName().getEncodedName() + ":lp_stxcor");
+    addStoreNode(symbol_table, li_store_lp_feta, getName().getEncodedName() + ":lp_feta");
+    addStoreNode(symbol_table, li_store_lp_rs, getName().getEncodedName() + ":lp_rs");
+    addStoreNode(symbol_table, li_store_lp_strs, getName().getEncodedName() + ":lp_strs");
+    addStoreNode(symbol_table, li_store_lp_rsb, getName().getEncodedName() + ":lp_rsb");
+    addStoreNode(symbol_table, li_store_lp_rsg, getName().getEncodedName() + ":lp_rsg");
+    addStoreNode(symbol_table, li_store_lp_thesat, getName().getEncodedName() + ":lp_thesat");
+    addStoreNode(symbol_table, li_store_lp_stthesat, getName().getEncodedName() + ":lp_stthesat");
+    addStoreNode(symbol_table, li_store_lp_thesatb, getName().getEncodedName() + ":lp_thesatb");
+    addStoreNode(symbol_table, li_store_lp_thesatg, getName().getEncodedName() + ":lp_thesatg");
+    addStoreNode(symbol_table, li_store_lp_ax, getName().getEncodedName() + ":lp_ax");
+    addStoreNode(symbol_table, li_store_lp_alp, getName().getEncodedName() + ":lp_alp");
+    addStoreNode(symbol_table, li_store_lp_alp1, getName().getEncodedName() + ":lp_alp1");
+    addStoreNode(symbol_table, li_store_lp_alp2, getName().getEncodedName() + ":lp_alp2");
+    addStoreNode(symbol_table, li_store_lp_vp, getName().getEncodedName() + ":lp_vp");
+    addStoreNode(symbol_table, li_store_lp_a1, getName().getEncodedName() + ":lp_a1");
+    addStoreNode(symbol_table, li_store_lp_a2, getName().getEncodedName() + ":lp_a2");
+    addStoreNode(symbol_table, li_store_lp_sta2, getName().getEncodedName() + ":lp_sta2");
+    addStoreNode(symbol_table, li_store_lp_a3, getName().getEncodedName() + ":lp_a3");
+    addStoreNode(symbol_table, li_store_lp_a4, getName().getEncodedName() + ":lp_a4");
+    addStoreNode(symbol_table, li_store_lp_gco, getName().getEncodedName() + ":lp_gco");
+    addStoreNode(symbol_table, li_store_lp_iginv, getName().getEncodedName() + ":lp_iginv");
+    addStoreNode(symbol_table, li_store_lp_igov, getName().getEncodedName() + ":lp_igov");
+    addStoreNode(symbol_table, li_store_lp_igovd, getName().getEncodedName() + ":lp_igovd");
+    addStoreNode(symbol_table, li_store_lp_stig, getName().getEncodedName() + ":lp_stig");
+    addStoreNode(symbol_table, li_store_lp_gc2, getName().getEncodedName() + ":lp_gc2");
+    addStoreNode(symbol_table, li_store_lp_gc3, getName().getEncodedName() + ":lp_gc3");
+    addStoreNode(symbol_table, li_store_lp_chib, getName().getEncodedName() + ":lp_chib");
+    addStoreNode(symbol_table, li_store_lp_agidl, getName().getEncodedName() + ":lp_agidl");
+    addStoreNode(symbol_table, li_store_lp_agidld, getName().getEncodedName() + ":lp_agidld");
+    addStoreNode(symbol_table, li_store_lp_bgidl, getName().getEncodedName() + ":lp_bgidl");
+    addStoreNode(symbol_table, li_store_lp_bgidld, getName().getEncodedName() + ":lp_bgidld");
+    addStoreNode(symbol_table, li_store_lp_stbgidl, getName().getEncodedName() + ":lp_stbgidl");
+    addStoreNode(symbol_table, li_store_lp_stbgidld, getName().getEncodedName() + ":lp_stbgidld");
+    addStoreNode(symbol_table, li_store_lp_cgidl, getName().getEncodedName() + ":lp_cgidl");
+    addStoreNode(symbol_table, li_store_lp_cgidld, getName().getEncodedName() + ":lp_cgidld");
+    addStoreNode(symbol_table, li_store_lp_cox, getName().getEncodedName() + ":lp_cox");
+    addStoreNode(symbol_table, li_store_lp_cgov, getName().getEncodedName() + ":lp_cgov");
+    addStoreNode(symbol_table, li_store_lp_cgovd, getName().getEncodedName() + ":lp_cgovd");
+    addStoreNode(symbol_table, li_store_lp_cgbov, getName().getEncodedName() + ":lp_cgbov");
+    addStoreNode(symbol_table, li_store_lp_cfr, getName().getEncodedName() + ":lp_cfr");
+    addStoreNode(symbol_table, li_store_lp_cfrd, getName().getEncodedName() + ":lp_cfrd");
+    addStoreNode(symbol_table, li_store_lp_fnt, getName().getEncodedName() + ":lp_fnt");
+    addStoreNode(symbol_table, li_store_lp_fntexc, getName().getEncodedName() + ":lp_fntexc");
+    addStoreNode(symbol_table, li_store_lp_nfa, getName().getEncodedName() + ":lp_nfa");
+    addStoreNode(symbol_table, li_store_lp_nfb, getName().getEncodedName() + ":lp_nfb");
+    addStoreNode(symbol_table, li_store_lp_nfc, getName().getEncodedName() + ":lp_nfc");
+    addStoreNode(symbol_table, li_store_lp_ef, getName().getEncodedName() + ":lp_ef");
+    addStoreNode(symbol_table, li_store_lp_rg, getName().getEncodedName() + ":lp_rg");
+    addStoreNode(symbol_table, li_store_lp_rbulk, getName().getEncodedName() + ":lp_rbulk");
+    addStoreNode(symbol_table, li_store_lp_rwell, getName().getEncodedName() + ":lp_rwell");
+    addStoreNode(symbol_table, li_store_lp_rjuns, getName().getEncodedName() + ":lp_rjuns");
+    addStoreNode(symbol_table, li_store_lp_rjund, getName().getEncodedName() + ":lp_rjund");
+    addStoreNode(symbol_table, li_store_tk, getName().getEncodedName() + ":tk");
+    addStoreNode(symbol_table, li_store_cjosbot, getName().getEncodedName() + ":cjosbot");
+    addStoreNode(symbol_table, li_store_cjossti, getName().getEncodedName() + ":cjossti");
+    addStoreNode(symbol_table, li_store_cjosgat, getName().getEncodedName() + ":cjosgat");
+    addStoreNode(symbol_table, li_store_vbisbot, getName().getEncodedName() + ":vbisbot");
+    addStoreNode(symbol_table, li_store_vbissti, getName().getEncodedName() + ":vbissti");
+    addStoreNode(symbol_table, li_store_vbisgat, getName().getEncodedName() + ":vbisgat");
+    addStoreNode(symbol_table, li_store_idsatsbot, getName().getEncodedName() + ":idsatsbot");
+    addStoreNode(symbol_table, li_store_idsatssti, getName().getEncodedName() + ":idsatssti");
+    addStoreNode(symbol_table, li_store_idsatsgat, getName().getEncodedName() + ":idsatsgat");
+    addStoreNode(symbol_table, li_store_cjosbotd, getName().getEncodedName() + ":cjosbotd");
+    addStoreNode(symbol_table, li_store_cjosstid, getName().getEncodedName() + ":cjosstid");
+    addStoreNode(symbol_table, li_store_cjosgatd, getName().getEncodedName() + ":cjosgatd");
+    addStoreNode(symbol_table, li_store_vbisbotd, getName().getEncodedName() + ":vbisbotd");
+    addStoreNode(symbol_table, li_store_vbisstid, getName().getEncodedName() + ":vbisstid");
+    addStoreNode(symbol_table, li_store_vbisgatd, getName().getEncodedName() + ":vbisgatd");
+    addStoreNode(symbol_table, li_store_idsatsbotd, getName().getEncodedName() + ":idsatsbotd");
+    addStoreNode(symbol_table, li_store_idsatsstid, getName().getEncodedName() + ":idsatsstid");
+    addStoreNode(symbol_table, li_store_idsatsgatd, getName().getEncodedName() + ":idsatsgatd");
+  
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_iD, getName(), "BRANCH_DD");
@@ -12293,6 +12847,197 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 void Instance::registerStoreLIDs( const LocalIdVector & stoLIDVecRef)
 {
   AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
+
+  int numSto = stoLIDVecRef.size();
+  if (numSto > 0)
+  {
+    int i=0;
+    stoLIDVec = stoLIDVecRef;
+
+      li_store_ctype= stoLIDVec[i++];
+      li_store_sdint= stoLIDVec[i++];
+      li_store_ise= stoLIDVec[i++];
+      li_store_ige= stoLIDVec[i++];
+      li_store_ide= stoLIDVec[i++];
+      li_store_ibe= stoLIDVec[i++];
+      li_store_ids= stoLIDVec[i++];
+      li_store_idb= stoLIDVec[i++];
+      li_store_isb= stoLIDVec[i++];
+      li_store_igs= stoLIDVec[i++];
+      li_store_igd= stoLIDVec[i++];
+      li_store_igb= stoLIDVec[i++];
+      li_store_igcs= stoLIDVec[i++];
+      li_store_igcd= stoLIDVec[i++];
+      li_store_iavl= stoLIDVec[i++];
+      li_store_igisl= stoLIDVec[i++];
+      li_store_igidl= stoLIDVec[i++];
+      li_store_ijs= stoLIDVec[i++];
+      li_store_ijsbot= stoLIDVec[i++];
+      li_store_ijsgat= stoLIDVec[i++];
+      li_store_ijssti= stoLIDVec[i++];
+      li_store_ijd= stoLIDVec[i++];
+      li_store_ijdbot= stoLIDVec[i++];
+      li_store_ijdgat= stoLIDVec[i++];
+      li_store_ijdsti= stoLIDVec[i++];
+      li_store_vds= stoLIDVec[i++];
+      li_store_vgs= stoLIDVec[i++];
+      li_store_vsb= stoLIDVec[i++];
+      li_store_vto= stoLIDVec[i++];
+      li_store_vts= stoLIDVec[i++];
+      li_store_vth= stoLIDVec[i++];
+      li_store_vgt= stoLIDVec[i++];
+      li_store_vdss= stoLIDVec[i++];
+      li_store_vsat= stoLIDVec[i++];
+      li_store_gm= stoLIDVec[i++];
+      li_store_gmb= stoLIDVec[i++];
+      li_store_gds= stoLIDVec[i++];
+      li_store_gjs= stoLIDVec[i++];
+      li_store_gjd= stoLIDVec[i++];
+      li_store_cdd= stoLIDVec[i++];
+      li_store_cdg= stoLIDVec[i++];
+      li_store_cds= stoLIDVec[i++];
+      li_store_cdb= stoLIDVec[i++];
+      li_store_cgd= stoLIDVec[i++];
+      li_store_cgg= stoLIDVec[i++];
+      li_store_cgs= stoLIDVec[i++];
+      li_store_cgb= stoLIDVec[i++];
+      li_store_csd= stoLIDVec[i++];
+      li_store_csg= stoLIDVec[i++];
+      li_store_css= stoLIDVec[i++];
+      li_store_csb= stoLIDVec[i++];
+      li_store_cbd= stoLIDVec[i++];
+      li_store_cbg= stoLIDVec[i++];
+      li_store_cbs= stoLIDVec[i++];
+      li_store_cbb= stoLIDVec[i++];
+      li_store_cgsol= stoLIDVec[i++];
+      li_store_cgdol= stoLIDVec[i++];
+      li_store_cjs= stoLIDVec[i++];
+      li_store_cjsbot= stoLIDVec[i++];
+      li_store_cjsgat= stoLIDVec[i++];
+      li_store_cjssti= stoLIDVec[i++];
+      li_store_cjd= stoLIDVec[i++];
+      li_store_cjdbot= stoLIDVec[i++];
+      li_store_cjdgat= stoLIDVec[i++];
+      li_store_cjdsti= stoLIDVec[i++];
+      li_store_weff= stoLIDVec[i++];
+      li_store_leff= stoLIDVec[i++];
+      li_store_u= stoLIDVec[i++];
+      li_store_rout= stoLIDVec[i++];
+      li_store_vearly= stoLIDVec[i++];
+      li_store_beff= stoLIDVec[i++];
+      li_store_fug= stoLIDVec[i++];
+      li_store_rg= stoLIDVec[i++];
+      li_store_sfl= stoLIDVec[i++];
+      li_store_sqrtsff= stoLIDVec[i++];
+      li_store_sqrtsfw= stoLIDVec[i++];
+      li_store_sid= stoLIDVec[i++];
+      li_store_sig= stoLIDVec[i++];
+      li_store_cigid= stoLIDVec[i++];
+      li_store_fknee= stoLIDVec[i++];
+      li_store_sigs= stoLIDVec[i++];
+      li_store_sigd= stoLIDVec[i++];
+      li_store_siavl= stoLIDVec[i++];
+      li_store_ssi= stoLIDVec[i++];
+      li_store_sdi= stoLIDVec[i++];
+      li_store_lp_vfb= stoLIDVec[i++];
+      li_store_lp_stvfb= stoLIDVec[i++];
+      li_store_lp_tox= stoLIDVec[i++];
+      li_store_lp_epsrox= stoLIDVec[i++];
+      li_store_lp_neff= stoLIDVec[i++];
+      li_store_lp_vnsub= stoLIDVec[i++];
+      li_store_lp_nslp= stoLIDVec[i++];
+      li_store_lp_dnsub= stoLIDVec[i++];
+      li_store_lp_dphib= stoLIDVec[i++];
+      li_store_lp_np= stoLIDVec[i++];
+      li_store_lp_ct= stoLIDVec[i++];
+      li_store_lp_toxov= stoLIDVec[i++];
+      li_store_lp_toxovd= stoLIDVec[i++];
+      li_store_lp_nov= stoLIDVec[i++];
+      li_store_lp_novd= stoLIDVec[i++];
+      li_store_lp_cf= stoLIDVec[i++];
+      li_store_lp_cfb= stoLIDVec[i++];
+      li_store_lp_betn= stoLIDVec[i++];
+      li_store_lp_stbet= stoLIDVec[i++];
+      li_store_lp_mue= stoLIDVec[i++];
+      li_store_lp_stmue= stoLIDVec[i++];
+      li_store_lp_themu= stoLIDVec[i++];
+      li_store_lp_stthemu= stoLIDVec[i++];
+      li_store_lp_cs= stoLIDVec[i++];
+      li_store_lp_stcs= stoLIDVec[i++];
+      li_store_lp_xcor= stoLIDVec[i++];
+      li_store_lp_stxcor= stoLIDVec[i++];
+      li_store_lp_feta= stoLIDVec[i++];
+      li_store_lp_rs= stoLIDVec[i++];
+      li_store_lp_strs= stoLIDVec[i++];
+      li_store_lp_rsb= stoLIDVec[i++];
+      li_store_lp_rsg= stoLIDVec[i++];
+      li_store_lp_thesat= stoLIDVec[i++];
+      li_store_lp_stthesat= stoLIDVec[i++];
+      li_store_lp_thesatb= stoLIDVec[i++];
+      li_store_lp_thesatg= stoLIDVec[i++];
+      li_store_lp_ax= stoLIDVec[i++];
+      li_store_lp_alp= stoLIDVec[i++];
+      li_store_lp_alp1= stoLIDVec[i++];
+      li_store_lp_alp2= stoLIDVec[i++];
+      li_store_lp_vp= stoLIDVec[i++];
+      li_store_lp_a1= stoLIDVec[i++];
+      li_store_lp_a2= stoLIDVec[i++];
+      li_store_lp_sta2= stoLIDVec[i++];
+      li_store_lp_a3= stoLIDVec[i++];
+      li_store_lp_a4= stoLIDVec[i++];
+      li_store_lp_gco= stoLIDVec[i++];
+      li_store_lp_iginv= stoLIDVec[i++];
+      li_store_lp_igov= stoLIDVec[i++];
+      li_store_lp_igovd= stoLIDVec[i++];
+      li_store_lp_stig= stoLIDVec[i++];
+      li_store_lp_gc2= stoLIDVec[i++];
+      li_store_lp_gc3= stoLIDVec[i++];
+      li_store_lp_chib= stoLIDVec[i++];
+      li_store_lp_agidl= stoLIDVec[i++];
+      li_store_lp_agidld= stoLIDVec[i++];
+      li_store_lp_bgidl= stoLIDVec[i++];
+      li_store_lp_bgidld= stoLIDVec[i++];
+      li_store_lp_stbgidl= stoLIDVec[i++];
+      li_store_lp_stbgidld= stoLIDVec[i++];
+      li_store_lp_cgidl= stoLIDVec[i++];
+      li_store_lp_cgidld= stoLIDVec[i++];
+      li_store_lp_cox= stoLIDVec[i++];
+      li_store_lp_cgov= stoLIDVec[i++];
+      li_store_lp_cgovd= stoLIDVec[i++];
+      li_store_lp_cgbov= stoLIDVec[i++];
+      li_store_lp_cfr= stoLIDVec[i++];
+      li_store_lp_cfrd= stoLIDVec[i++];
+      li_store_lp_fnt= stoLIDVec[i++];
+      li_store_lp_fntexc= stoLIDVec[i++];
+      li_store_lp_nfa= stoLIDVec[i++];
+      li_store_lp_nfb= stoLIDVec[i++];
+      li_store_lp_nfc= stoLIDVec[i++];
+      li_store_lp_ef= stoLIDVec[i++];
+      li_store_lp_rg= stoLIDVec[i++];
+      li_store_lp_rbulk= stoLIDVec[i++];
+      li_store_lp_rwell= stoLIDVec[i++];
+      li_store_lp_rjuns= stoLIDVec[i++];
+      li_store_lp_rjund= stoLIDVec[i++];
+      li_store_tk= stoLIDVec[i++];
+      li_store_cjosbot= stoLIDVec[i++];
+      li_store_cjossti= stoLIDVec[i++];
+      li_store_cjosgat= stoLIDVec[i++];
+      li_store_vbisbot= stoLIDVec[i++];
+      li_store_vbissti= stoLIDVec[i++];
+      li_store_vbisgat= stoLIDVec[i++];
+      li_store_idsatsbot= stoLIDVec[i++];
+      li_store_idsatssti= stoLIDVec[i++];
+      li_store_idsatsgat= stoLIDVec[i++];
+      li_store_cjosbotd= stoLIDVec[i++];
+      li_store_cjosstid= stoLIDVec[i++];
+      li_store_cjosgatd= stoLIDVec[i++];
+      li_store_vbisbotd= stoLIDVec[i++];
+      li_store_vbisstid= stoLIDVec[i++];
+      li_store_vbisgatd= stoLIDVec[i++];
+      li_store_idsatsbotd= stoLIDVec[i++];
+      li_store_idsatsstid= stoLIDVec[i++];
+      li_store_idsatsgatd= stoLIDVec[i++];
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -12712,6 +13457,194 @@ bool Instance::updatePrimaryState()
   // if old DAE were implemented, we'd save dynamic contributions as state
   // here.
 
+  double * stoVec = extData.nextStoVectorRawPtr;
+  // Also need to save limited voltage drops and output vars
+  // This formulation assumes that we have *always* written the
+  // limited voltages back into the probeVars[] array.
+
+  stoVec[li_store_ctype] = ctype;
+  stoVec[li_store_sdint] = sdint;
+  stoVec[li_store_ise] = ise;
+  stoVec[li_store_ige] = ige;
+  stoVec[li_store_ide] = ide;
+  stoVec[li_store_ibe] = ibe;
+  stoVec[li_store_ids] = ids;
+  stoVec[li_store_idb] = idb;
+  stoVec[li_store_isb] = isb;
+  stoVec[li_store_igs] = igs;
+  stoVec[li_store_igd] = igd;
+  stoVec[li_store_igb] = igb;
+  stoVec[li_store_igcs] = igcs;
+  stoVec[li_store_igcd] = igcd;
+  stoVec[li_store_iavl] = iavl;
+  stoVec[li_store_igisl] = igisl;
+  stoVec[li_store_igidl] = igidl;
+  stoVec[li_store_ijs] = ijs;
+  stoVec[li_store_ijsbot] = ijsbot;
+  stoVec[li_store_ijsgat] = ijsgat;
+  stoVec[li_store_ijssti] = ijssti;
+  stoVec[li_store_ijd] = ijd;
+  stoVec[li_store_ijdbot] = ijdbot;
+  stoVec[li_store_ijdgat] = ijdgat;
+  stoVec[li_store_ijdsti] = ijdsti;
+  stoVec[li_store_vds] = vds;
+  stoVec[li_store_vgs] = vgs;
+  stoVec[li_store_vsb] = vsb;
+  stoVec[li_store_vto] = vto;
+  stoVec[li_store_vts] = vts;
+  stoVec[li_store_vth] = vth;
+  stoVec[li_store_vgt] = vgt;
+  stoVec[li_store_vdss] = vdss;
+  stoVec[li_store_vsat] = vsat;
+  stoVec[li_store_gm] = gm;
+  stoVec[li_store_gmb] = gmb;
+  stoVec[li_store_gds] = gds;
+  stoVec[li_store_gjs] = gjs;
+  stoVec[li_store_gjd] = gjd;
+  stoVec[li_store_cdd] = cdd;
+  stoVec[li_store_cdg] = cdg;
+  stoVec[li_store_cds] = cds;
+  stoVec[li_store_cdb] = cdb;
+  stoVec[li_store_cgd] = cgd;
+  stoVec[li_store_cgg] = cgg;
+  stoVec[li_store_cgs] = cgs;
+  stoVec[li_store_cgb] = cgb;
+  stoVec[li_store_csd] = csd;
+  stoVec[li_store_csg] = csg;
+  stoVec[li_store_css] = css;
+  stoVec[li_store_csb] = csb;
+  stoVec[li_store_cbd] = cbd;
+  stoVec[li_store_cbg] = cbg;
+  stoVec[li_store_cbs] = cbs;
+  stoVec[li_store_cbb] = cbb;
+  stoVec[li_store_cgsol] = cgsol;
+  stoVec[li_store_cgdol] = cgdol;
+  stoVec[li_store_cjs] = cjs;
+  stoVec[li_store_cjsbot] = cjsbot;
+  stoVec[li_store_cjsgat] = cjsgat;
+  stoVec[li_store_cjssti] = cjssti;
+  stoVec[li_store_cjd] = cjd;
+  stoVec[li_store_cjdbot] = cjdbot;
+  stoVec[li_store_cjdgat] = cjdgat;
+  stoVec[li_store_cjdsti] = cjdsti;
+  stoVec[li_store_weff] = weff;
+  stoVec[li_store_leff] = leff;
+  stoVec[li_store_u] = u;
+  stoVec[li_store_rout] = rout;
+  stoVec[li_store_vearly] = vearly;
+  stoVec[li_store_beff] = beff;
+  stoVec[li_store_fug] = fug;
+  stoVec[li_store_rg] = rg;
+  stoVec[li_store_sfl] = sfl;
+  stoVec[li_store_sqrtsff] = sqrtsff;
+  stoVec[li_store_sqrtsfw] = sqrtsfw;
+  stoVec[li_store_sid] = sid;
+  stoVec[li_store_sig] = sig;
+  stoVec[li_store_cigid] = cigid;
+  stoVec[li_store_fknee] = fknee;
+  stoVec[li_store_sigs] = sigs;
+  stoVec[li_store_sigd] = sigd;
+  stoVec[li_store_siavl] = siavl;
+  stoVec[li_store_ssi] = ssi;
+  stoVec[li_store_sdi] = sdi;
+  stoVec[li_store_lp_vfb] = lp_vfb;
+  stoVec[li_store_lp_stvfb] = lp_stvfb;
+  stoVec[li_store_lp_tox] = lp_tox;
+  stoVec[li_store_lp_epsrox] = lp_epsrox;
+  stoVec[li_store_lp_neff] = lp_neff;
+  stoVec[li_store_lp_vnsub] = lp_vnsub;
+  stoVec[li_store_lp_nslp] = lp_nslp;
+  stoVec[li_store_lp_dnsub] = lp_dnsub;
+  stoVec[li_store_lp_dphib] = lp_dphib;
+  stoVec[li_store_lp_np] = lp_np;
+  stoVec[li_store_lp_ct] = lp_ct;
+  stoVec[li_store_lp_toxov] = lp_toxov;
+  stoVec[li_store_lp_toxovd] = lp_toxovd;
+  stoVec[li_store_lp_nov] = lp_nov;
+  stoVec[li_store_lp_novd] = lp_novd;
+  stoVec[li_store_lp_cf] = lp_cf;
+  stoVec[li_store_lp_cfb] = lp_cfb;
+  stoVec[li_store_lp_betn] = lp_betn;
+  stoVec[li_store_lp_stbet] = lp_stbet;
+  stoVec[li_store_lp_mue] = lp_mue;
+  stoVec[li_store_lp_stmue] = lp_stmue;
+  stoVec[li_store_lp_themu] = lp_themu;
+  stoVec[li_store_lp_stthemu] = lp_stthemu;
+  stoVec[li_store_lp_cs] = lp_cs;
+  stoVec[li_store_lp_stcs] = lp_stcs;
+  stoVec[li_store_lp_xcor] = lp_xcor;
+  stoVec[li_store_lp_stxcor] = lp_stxcor;
+  stoVec[li_store_lp_feta] = lp_feta;
+  stoVec[li_store_lp_rs] = lp_rs;
+  stoVec[li_store_lp_strs] = lp_strs;
+  stoVec[li_store_lp_rsb] = lp_rsb;
+  stoVec[li_store_lp_rsg] = lp_rsg;
+  stoVec[li_store_lp_thesat] = lp_thesat;
+  stoVec[li_store_lp_stthesat] = lp_stthesat;
+  stoVec[li_store_lp_thesatb] = lp_thesatb;
+  stoVec[li_store_lp_thesatg] = lp_thesatg;
+  stoVec[li_store_lp_ax] = lp_ax;
+  stoVec[li_store_lp_alp] = lp_alp;
+  stoVec[li_store_lp_alp1] = lp_alp1;
+  stoVec[li_store_lp_alp2] = lp_alp2;
+  stoVec[li_store_lp_vp] = lp_vp;
+  stoVec[li_store_lp_a1] = lp_a1;
+  stoVec[li_store_lp_a2] = lp_a2;
+  stoVec[li_store_lp_sta2] = lp_sta2;
+  stoVec[li_store_lp_a3] = lp_a3;
+  stoVec[li_store_lp_a4] = lp_a4;
+  stoVec[li_store_lp_gco] = lp_gco;
+  stoVec[li_store_lp_iginv] = lp_iginv;
+  stoVec[li_store_lp_igov] = lp_igov;
+  stoVec[li_store_lp_igovd] = lp_igovd;
+  stoVec[li_store_lp_stig] = lp_stig;
+  stoVec[li_store_lp_gc2] = lp_gc2;
+  stoVec[li_store_lp_gc3] = lp_gc3;
+  stoVec[li_store_lp_chib] = lp_chib;
+  stoVec[li_store_lp_agidl] = lp_agidl;
+  stoVec[li_store_lp_agidld] = lp_agidld;
+  stoVec[li_store_lp_bgidl] = lp_bgidl;
+  stoVec[li_store_lp_bgidld] = lp_bgidld;
+  stoVec[li_store_lp_stbgidl] = lp_stbgidl;
+  stoVec[li_store_lp_stbgidld] = lp_stbgidld;
+  stoVec[li_store_lp_cgidl] = lp_cgidl;
+  stoVec[li_store_lp_cgidld] = lp_cgidld;
+  stoVec[li_store_lp_cox] = lp_cox;
+  stoVec[li_store_lp_cgov] = lp_cgov;
+  stoVec[li_store_lp_cgovd] = lp_cgovd;
+  stoVec[li_store_lp_cgbov] = lp_cgbov;
+  stoVec[li_store_lp_cfr] = lp_cfr;
+  stoVec[li_store_lp_cfrd] = lp_cfrd;
+  stoVec[li_store_lp_fnt] = lp_fnt;
+  stoVec[li_store_lp_fntexc] = lp_fntexc;
+  stoVec[li_store_lp_nfa] = lp_nfa;
+  stoVec[li_store_lp_nfb] = lp_nfb;
+  stoVec[li_store_lp_nfc] = lp_nfc;
+  stoVec[li_store_lp_ef] = lp_ef;
+  stoVec[li_store_lp_rg] = lp_rg;
+  stoVec[li_store_lp_rbulk] = lp_rbulk;
+  stoVec[li_store_lp_rwell] = lp_rwell;
+  stoVec[li_store_lp_rjuns] = lp_rjuns;
+  stoVec[li_store_lp_rjund] = lp_rjund;
+  stoVec[li_store_tk] = tk;
+  stoVec[li_store_cjosbot] = cjosbot;
+  stoVec[li_store_cjossti] = cjossti;
+  stoVec[li_store_cjosgat] = cjosgat;
+  stoVec[li_store_vbisbot] = vbisbot;
+  stoVec[li_store_vbissti] = vbissti;
+  stoVec[li_store_vbisgat] = vbisgat;
+  stoVec[li_store_idsatsbot] = idsatsbot;
+  stoVec[li_store_idsatssti] = idsatssti;
+  stoVec[li_store_idsatsgat] = idsatsgat;
+  stoVec[li_store_cjosbotd] = cjosbotd;
+  stoVec[li_store_cjosstid] = cjosstid;
+  stoVec[li_store_cjosgatd] = cjosgatd;
+  stoVec[li_store_vbisbotd] = vbisbotd;
+  stoVec[li_store_vbisstid] = vbisstid;
+  stoVec[li_store_vbisgatd] = vbisgatd;
+  stoVec[li_store_idsatsbotd] = idsatsbotd;
+  stoVec[li_store_idsatsstid] = idsatsstid;
+  stoVec[li_store_idsatsgatd] = idsatsgatd;
 
   return bsuccess;
 }
@@ -24320,6 +25253,189 @@ AdmsSensFadType & instanceVar_ISATFOR2_d,
 AdmsSensFadType & instanceVar_MFOR2_d,
 AdmsSensFadType & instanceVar_ISATREV_d,
 AdmsSensFadType & instanceVar_MREV_d,
+double & instanceVar_ctype,
+double & instanceVar_sdint,
+double & instanceVar_ise,
+double & instanceVar_ige,
+double & instanceVar_ide,
+double & instanceVar_ibe,
+double & instanceVar_ids,
+double & instanceVar_idb,
+double & instanceVar_isb,
+double & instanceVar_igs,
+double & instanceVar_igd,
+double & instanceVar_igb,
+double & instanceVar_igcs,
+double & instanceVar_igcd,
+double & instanceVar_iavl,
+double & instanceVar_igisl,
+double & instanceVar_igidl,
+double & instanceVar_ijs,
+double & instanceVar_ijsbot,
+double & instanceVar_ijsgat,
+double & instanceVar_ijssti,
+double & instanceVar_ijd,
+double & instanceVar_ijdbot,
+double & instanceVar_ijdgat,
+double & instanceVar_ijdsti,
+double & instanceVar_vds,
+double & instanceVar_vgs,
+double & instanceVar_vsb,
+double & instanceVar_vto,
+double & instanceVar_vts,
+double & instanceVar_vth,
+double & instanceVar_vgt,
+double & instanceVar_vdss,
+double & instanceVar_vsat,
+double & instanceVar_gm,
+double & instanceVar_gmb,
+double & instanceVar_gds,
+double & instanceVar_gjs,
+double & instanceVar_gjd,
+double & instanceVar_cdd,
+double & instanceVar_cdg,
+double & instanceVar_cds,
+double & instanceVar_cdb,
+double & instanceVar_cgd,
+double & instanceVar_cgg,
+double & instanceVar_cgs,
+double & instanceVar_cgb,
+double & instanceVar_csd,
+double & instanceVar_csg,
+double & instanceVar_css,
+double & instanceVar_csb,
+double & instanceVar_cbd,
+double & instanceVar_cbg,
+double & instanceVar_cbs,
+double & instanceVar_cbb,
+double & instanceVar_cgsol,
+double & instanceVar_cgdol,
+double & instanceVar_cjs,
+double & instanceVar_cjsbot,
+double & instanceVar_cjsgat,
+double & instanceVar_cjssti,
+double & instanceVar_cjd,
+double & instanceVar_cjdbot,
+double & instanceVar_cjdgat,
+double & instanceVar_cjdsti,
+double & instanceVar_weff,
+double & instanceVar_leff,
+double & instanceVar_u,
+double & instanceVar_rout,
+double & instanceVar_vearly,
+double & instanceVar_beff,
+double & instanceVar_fug,
+double & instanceVar_rg,
+double & instanceVar_sfl,
+double & instanceVar_sqrtsff,
+double & instanceVar_sqrtsfw,
+double & instanceVar_sid,
+double & instanceVar_sig,
+double & instanceVar_cigid,
+double & instanceVar_fknee,
+double & instanceVar_sigs,
+double & instanceVar_sigd,
+double & instanceVar_siavl,
+double & instanceVar_ssi,
+double & instanceVar_sdi,
+double & instanceVar_lp_vfb,
+double & instanceVar_lp_stvfb,
+double & instanceVar_lp_tox,
+double & instanceVar_lp_epsrox,
+double & instanceVar_lp_neff,
+double & instanceVar_lp_vnsub,
+double & instanceVar_lp_nslp,
+double & instanceVar_lp_dnsub,
+double & instanceVar_lp_dphib,
+double & instanceVar_lp_np,
+double & instanceVar_lp_ct,
+double & instanceVar_lp_toxov,
+double & instanceVar_lp_toxovd,
+double & instanceVar_lp_nov,
+double & instanceVar_lp_novd,
+double & instanceVar_lp_cf,
+double & instanceVar_lp_cfb,
+double & instanceVar_lp_betn,
+double & instanceVar_lp_stbet,
+double & instanceVar_lp_mue,
+double & instanceVar_lp_stmue,
+double & instanceVar_lp_themu,
+double & instanceVar_lp_stthemu,
+double & instanceVar_lp_cs,
+double & instanceVar_lp_stcs,
+double & instanceVar_lp_xcor,
+double & instanceVar_lp_stxcor,
+double & instanceVar_lp_feta,
+double & instanceVar_lp_rs,
+double & instanceVar_lp_strs,
+double & instanceVar_lp_rsb,
+double & instanceVar_lp_rsg,
+double & instanceVar_lp_thesat,
+double & instanceVar_lp_stthesat,
+double & instanceVar_lp_thesatb,
+double & instanceVar_lp_thesatg,
+double & instanceVar_lp_ax,
+double & instanceVar_lp_alp,
+double & instanceVar_lp_alp1,
+double & instanceVar_lp_alp2,
+double & instanceVar_lp_vp,
+double & instanceVar_lp_a1,
+double & instanceVar_lp_a2,
+double & instanceVar_lp_sta2,
+double & instanceVar_lp_a3,
+double & instanceVar_lp_a4,
+double & instanceVar_lp_gco,
+double & instanceVar_lp_iginv,
+double & instanceVar_lp_igov,
+double & instanceVar_lp_igovd,
+double & instanceVar_lp_stig,
+double & instanceVar_lp_gc2,
+double & instanceVar_lp_gc3,
+double & instanceVar_lp_chib,
+double & instanceVar_lp_agidl,
+double & instanceVar_lp_agidld,
+double & instanceVar_lp_bgidl,
+double & instanceVar_lp_bgidld,
+double & instanceVar_lp_stbgidl,
+double & instanceVar_lp_stbgidld,
+double & instanceVar_lp_cgidl,
+double & instanceVar_lp_cgidld,
+double & instanceVar_lp_cox,
+double & instanceVar_lp_cgov,
+double & instanceVar_lp_cgovd,
+double & instanceVar_lp_cgbov,
+double & instanceVar_lp_cfr,
+double & instanceVar_lp_cfrd,
+double & instanceVar_lp_fnt,
+double & instanceVar_lp_fntexc,
+double & instanceVar_lp_nfa,
+double & instanceVar_lp_nfb,
+double & instanceVar_lp_nfc,
+double & instanceVar_lp_ef,
+double & instanceVar_lp_rg,
+double & instanceVar_lp_rbulk,
+double & instanceVar_lp_rwell,
+double & instanceVar_lp_rjuns,
+double & instanceVar_lp_rjund,
+double & instanceVar_tk,
+double & instanceVar_cjosbot,
+double & instanceVar_cjossti,
+double & instanceVar_cjosgat,
+double & instanceVar_vbisbot,
+double & instanceVar_vbissti,
+double & instanceVar_vbisgat,
+double & instanceVar_idsatsbot,
+double & instanceVar_idsatssti,
+double & instanceVar_idsatsgat,
+double & instanceVar_cjosbotd,
+double & instanceVar_cjosstid,
+double & instanceVar_cjosgatd,
+double & instanceVar_vbisbotd,
+double & instanceVar_vbisstid,
+double & instanceVar_vbisgatd,
+double & instanceVar_idsatsbotd,
+double & instanceVar_idsatsstid,
+double & instanceVar_idsatsgatd,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_LEVEL,
@@ -33339,6 +34455,189 @@ AdmsSensFadType & instanceVar_ISATFOR2_d,
 AdmsSensFadType & instanceVar_MFOR2_d,
 AdmsSensFadType & instanceVar_ISATREV_d,
 AdmsSensFadType & instanceVar_MREV_d,
+double & instanceVar_ctype,
+double & instanceVar_sdint,
+double & instanceVar_ise,
+double & instanceVar_ige,
+double & instanceVar_ide,
+double & instanceVar_ibe,
+double & instanceVar_ids,
+double & instanceVar_idb,
+double & instanceVar_isb,
+double & instanceVar_igs,
+double & instanceVar_igd,
+double & instanceVar_igb,
+double & instanceVar_igcs,
+double & instanceVar_igcd,
+double & instanceVar_iavl,
+double & instanceVar_igisl,
+double & instanceVar_igidl,
+double & instanceVar_ijs,
+double & instanceVar_ijsbot,
+double & instanceVar_ijsgat,
+double & instanceVar_ijssti,
+double & instanceVar_ijd,
+double & instanceVar_ijdbot,
+double & instanceVar_ijdgat,
+double & instanceVar_ijdsti,
+double & instanceVar_vds,
+double & instanceVar_vgs,
+double & instanceVar_vsb,
+double & instanceVar_vto,
+double & instanceVar_vts,
+double & instanceVar_vth,
+double & instanceVar_vgt,
+double & instanceVar_vdss,
+double & instanceVar_vsat,
+double & instanceVar_gm,
+double & instanceVar_gmb,
+double & instanceVar_gds,
+double & instanceVar_gjs,
+double & instanceVar_gjd,
+double & instanceVar_cdd,
+double & instanceVar_cdg,
+double & instanceVar_cds,
+double & instanceVar_cdb,
+double & instanceVar_cgd,
+double & instanceVar_cgg,
+double & instanceVar_cgs,
+double & instanceVar_cgb,
+double & instanceVar_csd,
+double & instanceVar_csg,
+double & instanceVar_css,
+double & instanceVar_csb,
+double & instanceVar_cbd,
+double & instanceVar_cbg,
+double & instanceVar_cbs,
+double & instanceVar_cbb,
+double & instanceVar_cgsol,
+double & instanceVar_cgdol,
+double & instanceVar_cjs,
+double & instanceVar_cjsbot,
+double & instanceVar_cjsgat,
+double & instanceVar_cjssti,
+double & instanceVar_cjd,
+double & instanceVar_cjdbot,
+double & instanceVar_cjdgat,
+double & instanceVar_cjdsti,
+double & instanceVar_weff,
+double & instanceVar_leff,
+double & instanceVar_u,
+double & instanceVar_rout,
+double & instanceVar_vearly,
+double & instanceVar_beff,
+double & instanceVar_fug,
+double & instanceVar_rg,
+double & instanceVar_sfl,
+double & instanceVar_sqrtsff,
+double & instanceVar_sqrtsfw,
+double & instanceVar_sid,
+double & instanceVar_sig,
+double & instanceVar_cigid,
+double & instanceVar_fknee,
+double & instanceVar_sigs,
+double & instanceVar_sigd,
+double & instanceVar_siavl,
+double & instanceVar_ssi,
+double & instanceVar_sdi,
+double & instanceVar_lp_vfb,
+double & instanceVar_lp_stvfb,
+double & instanceVar_lp_tox,
+double & instanceVar_lp_epsrox,
+double & instanceVar_lp_neff,
+double & instanceVar_lp_vnsub,
+double & instanceVar_lp_nslp,
+double & instanceVar_lp_dnsub,
+double & instanceVar_lp_dphib,
+double & instanceVar_lp_np,
+double & instanceVar_lp_ct,
+double & instanceVar_lp_toxov,
+double & instanceVar_lp_toxovd,
+double & instanceVar_lp_nov,
+double & instanceVar_lp_novd,
+double & instanceVar_lp_cf,
+double & instanceVar_lp_cfb,
+double & instanceVar_lp_betn,
+double & instanceVar_lp_stbet,
+double & instanceVar_lp_mue,
+double & instanceVar_lp_stmue,
+double & instanceVar_lp_themu,
+double & instanceVar_lp_stthemu,
+double & instanceVar_lp_cs,
+double & instanceVar_lp_stcs,
+double & instanceVar_lp_xcor,
+double & instanceVar_lp_stxcor,
+double & instanceVar_lp_feta,
+double & instanceVar_lp_rs,
+double & instanceVar_lp_strs,
+double & instanceVar_lp_rsb,
+double & instanceVar_lp_rsg,
+double & instanceVar_lp_thesat,
+double & instanceVar_lp_stthesat,
+double & instanceVar_lp_thesatb,
+double & instanceVar_lp_thesatg,
+double & instanceVar_lp_ax,
+double & instanceVar_lp_alp,
+double & instanceVar_lp_alp1,
+double & instanceVar_lp_alp2,
+double & instanceVar_lp_vp,
+double & instanceVar_lp_a1,
+double & instanceVar_lp_a2,
+double & instanceVar_lp_sta2,
+double & instanceVar_lp_a3,
+double & instanceVar_lp_a4,
+double & instanceVar_lp_gco,
+double & instanceVar_lp_iginv,
+double & instanceVar_lp_igov,
+double & instanceVar_lp_igovd,
+double & instanceVar_lp_stig,
+double & instanceVar_lp_gc2,
+double & instanceVar_lp_gc3,
+double & instanceVar_lp_chib,
+double & instanceVar_lp_agidl,
+double & instanceVar_lp_agidld,
+double & instanceVar_lp_bgidl,
+double & instanceVar_lp_bgidld,
+double & instanceVar_lp_stbgidl,
+double & instanceVar_lp_stbgidld,
+double & instanceVar_lp_cgidl,
+double & instanceVar_lp_cgidld,
+double & instanceVar_lp_cox,
+double & instanceVar_lp_cgov,
+double & instanceVar_lp_cgovd,
+double & instanceVar_lp_cgbov,
+double & instanceVar_lp_cfr,
+double & instanceVar_lp_cfrd,
+double & instanceVar_lp_fnt,
+double & instanceVar_lp_fntexc,
+double & instanceVar_lp_nfa,
+double & instanceVar_lp_nfb,
+double & instanceVar_lp_nfc,
+double & instanceVar_lp_ef,
+double & instanceVar_lp_rg,
+double & instanceVar_lp_rbulk,
+double & instanceVar_lp_rwell,
+double & instanceVar_lp_rjuns,
+double & instanceVar_lp_rjund,
+double & instanceVar_tk,
+double & instanceVar_cjosbot,
+double & instanceVar_cjossti,
+double & instanceVar_cjosgat,
+double & instanceVar_vbisbot,
+double & instanceVar_vbissti,
+double & instanceVar_vbisgat,
+double & instanceVar_idsatsbot,
+double & instanceVar_idsatssti,
+double & instanceVar_idsatsgat,
+double & instanceVar_cjosbotd,
+double & instanceVar_cjosstid,
+double & instanceVar_cjosgatd,
+double & instanceVar_vbisbotd,
+double & instanceVar_vbisstid,
+double & instanceVar_vbisgatd,
+double & instanceVar_idsatsbotd,
+double & instanceVar_idsatsstid,
+double & instanceVar_idsatsgatd,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_LEVEL,
@@ -37979,6 +39278,189 @@ AdmsSensFadType instanceVar_ISATFOR2_d=in.ISATFOR2_d;
 AdmsSensFadType instanceVar_MFOR2_d=in.MFOR2_d;
 AdmsSensFadType instanceVar_ISATREV_d=in.ISATREV_d;
 AdmsSensFadType instanceVar_MREV_d=in.MREV_d;
+double instanceVar_ctype=in.ctype;
+double instanceVar_sdint=in.sdint;
+double instanceVar_ise=in.ise;
+double instanceVar_ige=in.ige;
+double instanceVar_ide=in.ide;
+double instanceVar_ibe=in.ibe;
+double instanceVar_ids=in.ids;
+double instanceVar_idb=in.idb;
+double instanceVar_isb=in.isb;
+double instanceVar_igs=in.igs;
+double instanceVar_igd=in.igd;
+double instanceVar_igb=in.igb;
+double instanceVar_igcs=in.igcs;
+double instanceVar_igcd=in.igcd;
+double instanceVar_iavl=in.iavl;
+double instanceVar_igisl=in.igisl;
+double instanceVar_igidl=in.igidl;
+double instanceVar_ijs=in.ijs;
+double instanceVar_ijsbot=in.ijsbot;
+double instanceVar_ijsgat=in.ijsgat;
+double instanceVar_ijssti=in.ijssti;
+double instanceVar_ijd=in.ijd;
+double instanceVar_ijdbot=in.ijdbot;
+double instanceVar_ijdgat=in.ijdgat;
+double instanceVar_ijdsti=in.ijdsti;
+double instanceVar_vds=in.vds;
+double instanceVar_vgs=in.vgs;
+double instanceVar_vsb=in.vsb;
+double instanceVar_vto=in.vto;
+double instanceVar_vts=in.vts;
+double instanceVar_vth=in.vth;
+double instanceVar_vgt=in.vgt;
+double instanceVar_vdss=in.vdss;
+double instanceVar_vsat=in.vsat;
+double instanceVar_gm=in.gm;
+double instanceVar_gmb=in.gmb;
+double instanceVar_gds=in.gds;
+double instanceVar_gjs=in.gjs;
+double instanceVar_gjd=in.gjd;
+double instanceVar_cdd=in.cdd;
+double instanceVar_cdg=in.cdg;
+double instanceVar_cds=in.cds;
+double instanceVar_cdb=in.cdb;
+double instanceVar_cgd=in.cgd;
+double instanceVar_cgg=in.cgg;
+double instanceVar_cgs=in.cgs;
+double instanceVar_cgb=in.cgb;
+double instanceVar_csd=in.csd;
+double instanceVar_csg=in.csg;
+double instanceVar_css=in.css;
+double instanceVar_csb=in.csb;
+double instanceVar_cbd=in.cbd;
+double instanceVar_cbg=in.cbg;
+double instanceVar_cbs=in.cbs;
+double instanceVar_cbb=in.cbb;
+double instanceVar_cgsol=in.cgsol;
+double instanceVar_cgdol=in.cgdol;
+double instanceVar_cjs=in.cjs;
+double instanceVar_cjsbot=in.cjsbot;
+double instanceVar_cjsgat=in.cjsgat;
+double instanceVar_cjssti=in.cjssti;
+double instanceVar_cjd=in.cjd;
+double instanceVar_cjdbot=in.cjdbot;
+double instanceVar_cjdgat=in.cjdgat;
+double instanceVar_cjdsti=in.cjdsti;
+double instanceVar_weff=in.weff;
+double instanceVar_leff=in.leff;
+double instanceVar_u=in.u;
+double instanceVar_rout=in.rout;
+double instanceVar_vearly=in.vearly;
+double instanceVar_beff=in.beff;
+double instanceVar_fug=in.fug;
+double instanceVar_rg=in.rg;
+double instanceVar_sfl=in.sfl;
+double instanceVar_sqrtsff=in.sqrtsff;
+double instanceVar_sqrtsfw=in.sqrtsfw;
+double instanceVar_sid=in.sid;
+double instanceVar_sig=in.sig;
+double instanceVar_cigid=in.cigid;
+double instanceVar_fknee=in.fknee;
+double instanceVar_sigs=in.sigs;
+double instanceVar_sigd=in.sigd;
+double instanceVar_siavl=in.siavl;
+double instanceVar_ssi=in.ssi;
+double instanceVar_sdi=in.sdi;
+double instanceVar_lp_vfb=in.lp_vfb;
+double instanceVar_lp_stvfb=in.lp_stvfb;
+double instanceVar_lp_tox=in.lp_tox;
+double instanceVar_lp_epsrox=in.lp_epsrox;
+double instanceVar_lp_neff=in.lp_neff;
+double instanceVar_lp_vnsub=in.lp_vnsub;
+double instanceVar_lp_nslp=in.lp_nslp;
+double instanceVar_lp_dnsub=in.lp_dnsub;
+double instanceVar_lp_dphib=in.lp_dphib;
+double instanceVar_lp_np=in.lp_np;
+double instanceVar_lp_ct=in.lp_ct;
+double instanceVar_lp_toxov=in.lp_toxov;
+double instanceVar_lp_toxovd=in.lp_toxovd;
+double instanceVar_lp_nov=in.lp_nov;
+double instanceVar_lp_novd=in.lp_novd;
+double instanceVar_lp_cf=in.lp_cf;
+double instanceVar_lp_cfb=in.lp_cfb;
+double instanceVar_lp_betn=in.lp_betn;
+double instanceVar_lp_stbet=in.lp_stbet;
+double instanceVar_lp_mue=in.lp_mue;
+double instanceVar_lp_stmue=in.lp_stmue;
+double instanceVar_lp_themu=in.lp_themu;
+double instanceVar_lp_stthemu=in.lp_stthemu;
+double instanceVar_lp_cs=in.lp_cs;
+double instanceVar_lp_stcs=in.lp_stcs;
+double instanceVar_lp_xcor=in.lp_xcor;
+double instanceVar_lp_stxcor=in.lp_stxcor;
+double instanceVar_lp_feta=in.lp_feta;
+double instanceVar_lp_rs=in.lp_rs;
+double instanceVar_lp_strs=in.lp_strs;
+double instanceVar_lp_rsb=in.lp_rsb;
+double instanceVar_lp_rsg=in.lp_rsg;
+double instanceVar_lp_thesat=in.lp_thesat;
+double instanceVar_lp_stthesat=in.lp_stthesat;
+double instanceVar_lp_thesatb=in.lp_thesatb;
+double instanceVar_lp_thesatg=in.lp_thesatg;
+double instanceVar_lp_ax=in.lp_ax;
+double instanceVar_lp_alp=in.lp_alp;
+double instanceVar_lp_alp1=in.lp_alp1;
+double instanceVar_lp_alp2=in.lp_alp2;
+double instanceVar_lp_vp=in.lp_vp;
+double instanceVar_lp_a1=in.lp_a1;
+double instanceVar_lp_a2=in.lp_a2;
+double instanceVar_lp_sta2=in.lp_sta2;
+double instanceVar_lp_a3=in.lp_a3;
+double instanceVar_lp_a4=in.lp_a4;
+double instanceVar_lp_gco=in.lp_gco;
+double instanceVar_lp_iginv=in.lp_iginv;
+double instanceVar_lp_igov=in.lp_igov;
+double instanceVar_lp_igovd=in.lp_igovd;
+double instanceVar_lp_stig=in.lp_stig;
+double instanceVar_lp_gc2=in.lp_gc2;
+double instanceVar_lp_gc3=in.lp_gc3;
+double instanceVar_lp_chib=in.lp_chib;
+double instanceVar_lp_agidl=in.lp_agidl;
+double instanceVar_lp_agidld=in.lp_agidld;
+double instanceVar_lp_bgidl=in.lp_bgidl;
+double instanceVar_lp_bgidld=in.lp_bgidld;
+double instanceVar_lp_stbgidl=in.lp_stbgidl;
+double instanceVar_lp_stbgidld=in.lp_stbgidld;
+double instanceVar_lp_cgidl=in.lp_cgidl;
+double instanceVar_lp_cgidld=in.lp_cgidld;
+double instanceVar_lp_cox=in.lp_cox;
+double instanceVar_lp_cgov=in.lp_cgov;
+double instanceVar_lp_cgovd=in.lp_cgovd;
+double instanceVar_lp_cgbov=in.lp_cgbov;
+double instanceVar_lp_cfr=in.lp_cfr;
+double instanceVar_lp_cfrd=in.lp_cfrd;
+double instanceVar_lp_fnt=in.lp_fnt;
+double instanceVar_lp_fntexc=in.lp_fntexc;
+double instanceVar_lp_nfa=in.lp_nfa;
+double instanceVar_lp_nfb=in.lp_nfb;
+double instanceVar_lp_nfc=in.lp_nfc;
+double instanceVar_lp_ef=in.lp_ef;
+double instanceVar_lp_rg=in.lp_rg;
+double instanceVar_lp_rbulk=in.lp_rbulk;
+double instanceVar_lp_rwell=in.lp_rwell;
+double instanceVar_lp_rjuns=in.lp_rjuns;
+double instanceVar_lp_rjund=in.lp_rjund;
+double instanceVar_tk=in.tk;
+double instanceVar_cjosbot=in.cjosbot;
+double instanceVar_cjossti=in.cjossti;
+double instanceVar_cjosgat=in.cjosgat;
+double instanceVar_vbisbot=in.vbisbot;
+double instanceVar_vbissti=in.vbissti;
+double instanceVar_vbisgat=in.vbisgat;
+double instanceVar_idsatsbot=in.idsatsbot;
+double instanceVar_idsatssti=in.idsatssti;
+double instanceVar_idsatsgat=in.idsatsgat;
+double instanceVar_cjosbotd=in.cjosbotd;
+double instanceVar_cjosstid=in.cjosstid;
+double instanceVar_cjosgatd=in.cjosgatd;
+double instanceVar_vbisbotd=in.vbisbotd;
+double instanceVar_vbisstid=in.vbisstid;
+double instanceVar_vbisgatd=in.vbisgatd;
+double instanceVar_idsatsbotd=in.idsatsbotd;
+double instanceVar_idsatsstid=in.idsatsstid;
+double instanceVar_idsatsgatd=in.idsatsgatd;
 
 
 //non-reals
@@ -39227,6 +40709,189 @@ instanceVar_ISATFOR2_d,
 instanceVar_MFOR2_d,
 instanceVar_ISATREV_d,
 instanceVar_MREV_d,
+instanceVar_ctype,
+instanceVar_sdint,
+instanceVar_ise,
+instanceVar_ige,
+instanceVar_ide,
+instanceVar_ibe,
+instanceVar_ids,
+instanceVar_idb,
+instanceVar_isb,
+instanceVar_igs,
+instanceVar_igd,
+instanceVar_igb,
+instanceVar_igcs,
+instanceVar_igcd,
+instanceVar_iavl,
+instanceVar_igisl,
+instanceVar_igidl,
+instanceVar_ijs,
+instanceVar_ijsbot,
+instanceVar_ijsgat,
+instanceVar_ijssti,
+instanceVar_ijd,
+instanceVar_ijdbot,
+instanceVar_ijdgat,
+instanceVar_ijdsti,
+instanceVar_vds,
+instanceVar_vgs,
+instanceVar_vsb,
+instanceVar_vto,
+instanceVar_vts,
+instanceVar_vth,
+instanceVar_vgt,
+instanceVar_vdss,
+instanceVar_vsat,
+instanceVar_gm,
+instanceVar_gmb,
+instanceVar_gds,
+instanceVar_gjs,
+instanceVar_gjd,
+instanceVar_cdd,
+instanceVar_cdg,
+instanceVar_cds,
+instanceVar_cdb,
+instanceVar_cgd,
+instanceVar_cgg,
+instanceVar_cgs,
+instanceVar_cgb,
+instanceVar_csd,
+instanceVar_csg,
+instanceVar_css,
+instanceVar_csb,
+instanceVar_cbd,
+instanceVar_cbg,
+instanceVar_cbs,
+instanceVar_cbb,
+instanceVar_cgsol,
+instanceVar_cgdol,
+instanceVar_cjs,
+instanceVar_cjsbot,
+instanceVar_cjsgat,
+instanceVar_cjssti,
+instanceVar_cjd,
+instanceVar_cjdbot,
+instanceVar_cjdgat,
+instanceVar_cjdsti,
+instanceVar_weff,
+instanceVar_leff,
+instanceVar_u,
+instanceVar_rout,
+instanceVar_vearly,
+instanceVar_beff,
+instanceVar_fug,
+instanceVar_rg,
+instanceVar_sfl,
+instanceVar_sqrtsff,
+instanceVar_sqrtsfw,
+instanceVar_sid,
+instanceVar_sig,
+instanceVar_cigid,
+instanceVar_fknee,
+instanceVar_sigs,
+instanceVar_sigd,
+instanceVar_siavl,
+instanceVar_ssi,
+instanceVar_sdi,
+instanceVar_lp_vfb,
+instanceVar_lp_stvfb,
+instanceVar_lp_tox,
+instanceVar_lp_epsrox,
+instanceVar_lp_neff,
+instanceVar_lp_vnsub,
+instanceVar_lp_nslp,
+instanceVar_lp_dnsub,
+instanceVar_lp_dphib,
+instanceVar_lp_np,
+instanceVar_lp_ct,
+instanceVar_lp_toxov,
+instanceVar_lp_toxovd,
+instanceVar_lp_nov,
+instanceVar_lp_novd,
+instanceVar_lp_cf,
+instanceVar_lp_cfb,
+instanceVar_lp_betn,
+instanceVar_lp_stbet,
+instanceVar_lp_mue,
+instanceVar_lp_stmue,
+instanceVar_lp_themu,
+instanceVar_lp_stthemu,
+instanceVar_lp_cs,
+instanceVar_lp_stcs,
+instanceVar_lp_xcor,
+instanceVar_lp_stxcor,
+instanceVar_lp_feta,
+instanceVar_lp_rs,
+instanceVar_lp_strs,
+instanceVar_lp_rsb,
+instanceVar_lp_rsg,
+instanceVar_lp_thesat,
+instanceVar_lp_stthesat,
+instanceVar_lp_thesatb,
+instanceVar_lp_thesatg,
+instanceVar_lp_ax,
+instanceVar_lp_alp,
+instanceVar_lp_alp1,
+instanceVar_lp_alp2,
+instanceVar_lp_vp,
+instanceVar_lp_a1,
+instanceVar_lp_a2,
+instanceVar_lp_sta2,
+instanceVar_lp_a3,
+instanceVar_lp_a4,
+instanceVar_lp_gco,
+instanceVar_lp_iginv,
+instanceVar_lp_igov,
+instanceVar_lp_igovd,
+instanceVar_lp_stig,
+instanceVar_lp_gc2,
+instanceVar_lp_gc3,
+instanceVar_lp_chib,
+instanceVar_lp_agidl,
+instanceVar_lp_agidld,
+instanceVar_lp_bgidl,
+instanceVar_lp_bgidld,
+instanceVar_lp_stbgidl,
+instanceVar_lp_stbgidld,
+instanceVar_lp_cgidl,
+instanceVar_lp_cgidld,
+instanceVar_lp_cox,
+instanceVar_lp_cgov,
+instanceVar_lp_cgovd,
+instanceVar_lp_cgbov,
+instanceVar_lp_cfr,
+instanceVar_lp_cfrd,
+instanceVar_lp_fnt,
+instanceVar_lp_fntexc,
+instanceVar_lp_nfa,
+instanceVar_lp_nfb,
+instanceVar_lp_nfc,
+instanceVar_lp_ef,
+instanceVar_lp_rg,
+instanceVar_lp_rbulk,
+instanceVar_lp_rwell,
+instanceVar_lp_rjuns,
+instanceVar_lp_rjund,
+instanceVar_tk,
+instanceVar_cjosbot,
+instanceVar_cjossti,
+instanceVar_cjosgat,
+instanceVar_vbisbot,
+instanceVar_vbissti,
+instanceVar_vbisgat,
+instanceVar_idsatsbot,
+instanceVar_idsatssti,
+instanceVar_idsatsgat,
+instanceVar_cjosbotd,
+instanceVar_cjosstid,
+instanceVar_cjosgatd,
+instanceVar_vbisbotd,
+instanceVar_vbisstid,
+instanceVar_vbisgatd,
+instanceVar_idsatsbotd,
+instanceVar_idsatsstid,
+instanceVar_idsatsgatd,
 // model parameters
 // reals
 modelPar_LEVEL,
@@ -40266,6 +41931,189 @@ instanceVar_ISATFOR2_d,
 instanceVar_MFOR2_d,
 instanceVar_ISATREV_d,
 instanceVar_MREV_d,
+instanceVar_ctype,
+instanceVar_sdint,
+instanceVar_ise,
+instanceVar_ige,
+instanceVar_ide,
+instanceVar_ibe,
+instanceVar_ids,
+instanceVar_idb,
+instanceVar_isb,
+instanceVar_igs,
+instanceVar_igd,
+instanceVar_igb,
+instanceVar_igcs,
+instanceVar_igcd,
+instanceVar_iavl,
+instanceVar_igisl,
+instanceVar_igidl,
+instanceVar_ijs,
+instanceVar_ijsbot,
+instanceVar_ijsgat,
+instanceVar_ijssti,
+instanceVar_ijd,
+instanceVar_ijdbot,
+instanceVar_ijdgat,
+instanceVar_ijdsti,
+instanceVar_vds,
+instanceVar_vgs,
+instanceVar_vsb,
+instanceVar_vto,
+instanceVar_vts,
+instanceVar_vth,
+instanceVar_vgt,
+instanceVar_vdss,
+instanceVar_vsat,
+instanceVar_gm,
+instanceVar_gmb,
+instanceVar_gds,
+instanceVar_gjs,
+instanceVar_gjd,
+instanceVar_cdd,
+instanceVar_cdg,
+instanceVar_cds,
+instanceVar_cdb,
+instanceVar_cgd,
+instanceVar_cgg,
+instanceVar_cgs,
+instanceVar_cgb,
+instanceVar_csd,
+instanceVar_csg,
+instanceVar_css,
+instanceVar_csb,
+instanceVar_cbd,
+instanceVar_cbg,
+instanceVar_cbs,
+instanceVar_cbb,
+instanceVar_cgsol,
+instanceVar_cgdol,
+instanceVar_cjs,
+instanceVar_cjsbot,
+instanceVar_cjsgat,
+instanceVar_cjssti,
+instanceVar_cjd,
+instanceVar_cjdbot,
+instanceVar_cjdgat,
+instanceVar_cjdsti,
+instanceVar_weff,
+instanceVar_leff,
+instanceVar_u,
+instanceVar_rout,
+instanceVar_vearly,
+instanceVar_beff,
+instanceVar_fug,
+instanceVar_rg,
+instanceVar_sfl,
+instanceVar_sqrtsff,
+instanceVar_sqrtsfw,
+instanceVar_sid,
+instanceVar_sig,
+instanceVar_cigid,
+instanceVar_fknee,
+instanceVar_sigs,
+instanceVar_sigd,
+instanceVar_siavl,
+instanceVar_ssi,
+instanceVar_sdi,
+instanceVar_lp_vfb,
+instanceVar_lp_stvfb,
+instanceVar_lp_tox,
+instanceVar_lp_epsrox,
+instanceVar_lp_neff,
+instanceVar_lp_vnsub,
+instanceVar_lp_nslp,
+instanceVar_lp_dnsub,
+instanceVar_lp_dphib,
+instanceVar_lp_np,
+instanceVar_lp_ct,
+instanceVar_lp_toxov,
+instanceVar_lp_toxovd,
+instanceVar_lp_nov,
+instanceVar_lp_novd,
+instanceVar_lp_cf,
+instanceVar_lp_cfb,
+instanceVar_lp_betn,
+instanceVar_lp_stbet,
+instanceVar_lp_mue,
+instanceVar_lp_stmue,
+instanceVar_lp_themu,
+instanceVar_lp_stthemu,
+instanceVar_lp_cs,
+instanceVar_lp_stcs,
+instanceVar_lp_xcor,
+instanceVar_lp_stxcor,
+instanceVar_lp_feta,
+instanceVar_lp_rs,
+instanceVar_lp_strs,
+instanceVar_lp_rsb,
+instanceVar_lp_rsg,
+instanceVar_lp_thesat,
+instanceVar_lp_stthesat,
+instanceVar_lp_thesatb,
+instanceVar_lp_thesatg,
+instanceVar_lp_ax,
+instanceVar_lp_alp,
+instanceVar_lp_alp1,
+instanceVar_lp_alp2,
+instanceVar_lp_vp,
+instanceVar_lp_a1,
+instanceVar_lp_a2,
+instanceVar_lp_sta2,
+instanceVar_lp_a3,
+instanceVar_lp_a4,
+instanceVar_lp_gco,
+instanceVar_lp_iginv,
+instanceVar_lp_igov,
+instanceVar_lp_igovd,
+instanceVar_lp_stig,
+instanceVar_lp_gc2,
+instanceVar_lp_gc3,
+instanceVar_lp_chib,
+instanceVar_lp_agidl,
+instanceVar_lp_agidld,
+instanceVar_lp_bgidl,
+instanceVar_lp_bgidld,
+instanceVar_lp_stbgidl,
+instanceVar_lp_stbgidld,
+instanceVar_lp_cgidl,
+instanceVar_lp_cgidld,
+instanceVar_lp_cox,
+instanceVar_lp_cgov,
+instanceVar_lp_cgovd,
+instanceVar_lp_cgbov,
+instanceVar_lp_cfr,
+instanceVar_lp_cfrd,
+instanceVar_lp_fnt,
+instanceVar_lp_fntexc,
+instanceVar_lp_nfa,
+instanceVar_lp_nfb,
+instanceVar_lp_nfc,
+instanceVar_lp_ef,
+instanceVar_lp_rg,
+instanceVar_lp_rbulk,
+instanceVar_lp_rwell,
+instanceVar_lp_rjuns,
+instanceVar_lp_rjund,
+instanceVar_tk,
+instanceVar_cjosbot,
+instanceVar_cjossti,
+instanceVar_cjosgat,
+instanceVar_vbisbot,
+instanceVar_vbissti,
+instanceVar_vbisgat,
+instanceVar_idsatsbot,
+instanceVar_idsatssti,
+instanceVar_idsatsgat,
+instanceVar_cjosbotd,
+instanceVar_cjosstid,
+instanceVar_cjosgatd,
+instanceVar_vbisbotd,
+instanceVar_vbisstid,
+instanceVar_vbisgatd,
+instanceVar_idsatsbotd,
+instanceVar_idsatsstid,
+instanceVar_idsatsgatd,
 // model parameters
 // reals
 modelPar_LEVEL,
@@ -42531,6 +44379,189 @@ AdmsSensFadType instanceVar_ISATFOR2_d=in.ISATFOR2_d;
 AdmsSensFadType instanceVar_MFOR2_d=in.MFOR2_d;
 AdmsSensFadType instanceVar_ISATREV_d=in.ISATREV_d;
 AdmsSensFadType instanceVar_MREV_d=in.MREV_d;
+double instanceVar_ctype=in.ctype;
+double instanceVar_sdint=in.sdint;
+double instanceVar_ise=in.ise;
+double instanceVar_ige=in.ige;
+double instanceVar_ide=in.ide;
+double instanceVar_ibe=in.ibe;
+double instanceVar_ids=in.ids;
+double instanceVar_idb=in.idb;
+double instanceVar_isb=in.isb;
+double instanceVar_igs=in.igs;
+double instanceVar_igd=in.igd;
+double instanceVar_igb=in.igb;
+double instanceVar_igcs=in.igcs;
+double instanceVar_igcd=in.igcd;
+double instanceVar_iavl=in.iavl;
+double instanceVar_igisl=in.igisl;
+double instanceVar_igidl=in.igidl;
+double instanceVar_ijs=in.ijs;
+double instanceVar_ijsbot=in.ijsbot;
+double instanceVar_ijsgat=in.ijsgat;
+double instanceVar_ijssti=in.ijssti;
+double instanceVar_ijd=in.ijd;
+double instanceVar_ijdbot=in.ijdbot;
+double instanceVar_ijdgat=in.ijdgat;
+double instanceVar_ijdsti=in.ijdsti;
+double instanceVar_vds=in.vds;
+double instanceVar_vgs=in.vgs;
+double instanceVar_vsb=in.vsb;
+double instanceVar_vto=in.vto;
+double instanceVar_vts=in.vts;
+double instanceVar_vth=in.vth;
+double instanceVar_vgt=in.vgt;
+double instanceVar_vdss=in.vdss;
+double instanceVar_vsat=in.vsat;
+double instanceVar_gm=in.gm;
+double instanceVar_gmb=in.gmb;
+double instanceVar_gds=in.gds;
+double instanceVar_gjs=in.gjs;
+double instanceVar_gjd=in.gjd;
+double instanceVar_cdd=in.cdd;
+double instanceVar_cdg=in.cdg;
+double instanceVar_cds=in.cds;
+double instanceVar_cdb=in.cdb;
+double instanceVar_cgd=in.cgd;
+double instanceVar_cgg=in.cgg;
+double instanceVar_cgs=in.cgs;
+double instanceVar_cgb=in.cgb;
+double instanceVar_csd=in.csd;
+double instanceVar_csg=in.csg;
+double instanceVar_css=in.css;
+double instanceVar_csb=in.csb;
+double instanceVar_cbd=in.cbd;
+double instanceVar_cbg=in.cbg;
+double instanceVar_cbs=in.cbs;
+double instanceVar_cbb=in.cbb;
+double instanceVar_cgsol=in.cgsol;
+double instanceVar_cgdol=in.cgdol;
+double instanceVar_cjs=in.cjs;
+double instanceVar_cjsbot=in.cjsbot;
+double instanceVar_cjsgat=in.cjsgat;
+double instanceVar_cjssti=in.cjssti;
+double instanceVar_cjd=in.cjd;
+double instanceVar_cjdbot=in.cjdbot;
+double instanceVar_cjdgat=in.cjdgat;
+double instanceVar_cjdsti=in.cjdsti;
+double instanceVar_weff=in.weff;
+double instanceVar_leff=in.leff;
+double instanceVar_u=in.u;
+double instanceVar_rout=in.rout;
+double instanceVar_vearly=in.vearly;
+double instanceVar_beff=in.beff;
+double instanceVar_fug=in.fug;
+double instanceVar_rg=in.rg;
+double instanceVar_sfl=in.sfl;
+double instanceVar_sqrtsff=in.sqrtsff;
+double instanceVar_sqrtsfw=in.sqrtsfw;
+double instanceVar_sid=in.sid;
+double instanceVar_sig=in.sig;
+double instanceVar_cigid=in.cigid;
+double instanceVar_fknee=in.fknee;
+double instanceVar_sigs=in.sigs;
+double instanceVar_sigd=in.sigd;
+double instanceVar_siavl=in.siavl;
+double instanceVar_ssi=in.ssi;
+double instanceVar_sdi=in.sdi;
+double instanceVar_lp_vfb=in.lp_vfb;
+double instanceVar_lp_stvfb=in.lp_stvfb;
+double instanceVar_lp_tox=in.lp_tox;
+double instanceVar_lp_epsrox=in.lp_epsrox;
+double instanceVar_lp_neff=in.lp_neff;
+double instanceVar_lp_vnsub=in.lp_vnsub;
+double instanceVar_lp_nslp=in.lp_nslp;
+double instanceVar_lp_dnsub=in.lp_dnsub;
+double instanceVar_lp_dphib=in.lp_dphib;
+double instanceVar_lp_np=in.lp_np;
+double instanceVar_lp_ct=in.lp_ct;
+double instanceVar_lp_toxov=in.lp_toxov;
+double instanceVar_lp_toxovd=in.lp_toxovd;
+double instanceVar_lp_nov=in.lp_nov;
+double instanceVar_lp_novd=in.lp_novd;
+double instanceVar_lp_cf=in.lp_cf;
+double instanceVar_lp_cfb=in.lp_cfb;
+double instanceVar_lp_betn=in.lp_betn;
+double instanceVar_lp_stbet=in.lp_stbet;
+double instanceVar_lp_mue=in.lp_mue;
+double instanceVar_lp_stmue=in.lp_stmue;
+double instanceVar_lp_themu=in.lp_themu;
+double instanceVar_lp_stthemu=in.lp_stthemu;
+double instanceVar_lp_cs=in.lp_cs;
+double instanceVar_lp_stcs=in.lp_stcs;
+double instanceVar_lp_xcor=in.lp_xcor;
+double instanceVar_lp_stxcor=in.lp_stxcor;
+double instanceVar_lp_feta=in.lp_feta;
+double instanceVar_lp_rs=in.lp_rs;
+double instanceVar_lp_strs=in.lp_strs;
+double instanceVar_lp_rsb=in.lp_rsb;
+double instanceVar_lp_rsg=in.lp_rsg;
+double instanceVar_lp_thesat=in.lp_thesat;
+double instanceVar_lp_stthesat=in.lp_stthesat;
+double instanceVar_lp_thesatb=in.lp_thesatb;
+double instanceVar_lp_thesatg=in.lp_thesatg;
+double instanceVar_lp_ax=in.lp_ax;
+double instanceVar_lp_alp=in.lp_alp;
+double instanceVar_lp_alp1=in.lp_alp1;
+double instanceVar_lp_alp2=in.lp_alp2;
+double instanceVar_lp_vp=in.lp_vp;
+double instanceVar_lp_a1=in.lp_a1;
+double instanceVar_lp_a2=in.lp_a2;
+double instanceVar_lp_sta2=in.lp_sta2;
+double instanceVar_lp_a3=in.lp_a3;
+double instanceVar_lp_a4=in.lp_a4;
+double instanceVar_lp_gco=in.lp_gco;
+double instanceVar_lp_iginv=in.lp_iginv;
+double instanceVar_lp_igov=in.lp_igov;
+double instanceVar_lp_igovd=in.lp_igovd;
+double instanceVar_lp_stig=in.lp_stig;
+double instanceVar_lp_gc2=in.lp_gc2;
+double instanceVar_lp_gc3=in.lp_gc3;
+double instanceVar_lp_chib=in.lp_chib;
+double instanceVar_lp_agidl=in.lp_agidl;
+double instanceVar_lp_agidld=in.lp_agidld;
+double instanceVar_lp_bgidl=in.lp_bgidl;
+double instanceVar_lp_bgidld=in.lp_bgidld;
+double instanceVar_lp_stbgidl=in.lp_stbgidl;
+double instanceVar_lp_stbgidld=in.lp_stbgidld;
+double instanceVar_lp_cgidl=in.lp_cgidl;
+double instanceVar_lp_cgidld=in.lp_cgidld;
+double instanceVar_lp_cox=in.lp_cox;
+double instanceVar_lp_cgov=in.lp_cgov;
+double instanceVar_lp_cgovd=in.lp_cgovd;
+double instanceVar_lp_cgbov=in.lp_cgbov;
+double instanceVar_lp_cfr=in.lp_cfr;
+double instanceVar_lp_cfrd=in.lp_cfrd;
+double instanceVar_lp_fnt=in.lp_fnt;
+double instanceVar_lp_fntexc=in.lp_fntexc;
+double instanceVar_lp_nfa=in.lp_nfa;
+double instanceVar_lp_nfb=in.lp_nfb;
+double instanceVar_lp_nfc=in.lp_nfc;
+double instanceVar_lp_ef=in.lp_ef;
+double instanceVar_lp_rg=in.lp_rg;
+double instanceVar_lp_rbulk=in.lp_rbulk;
+double instanceVar_lp_rwell=in.lp_rwell;
+double instanceVar_lp_rjuns=in.lp_rjuns;
+double instanceVar_lp_rjund=in.lp_rjund;
+double instanceVar_tk=in.tk;
+double instanceVar_cjosbot=in.cjosbot;
+double instanceVar_cjossti=in.cjossti;
+double instanceVar_cjosgat=in.cjosgat;
+double instanceVar_vbisbot=in.vbisbot;
+double instanceVar_vbissti=in.vbissti;
+double instanceVar_vbisgat=in.vbisgat;
+double instanceVar_idsatsbot=in.idsatsbot;
+double instanceVar_idsatssti=in.idsatssti;
+double instanceVar_idsatsgat=in.idsatsgat;
+double instanceVar_cjosbotd=in.cjosbotd;
+double instanceVar_cjosstid=in.cjosstid;
+double instanceVar_cjosgatd=in.cjosgatd;
+double instanceVar_vbisbotd=in.vbisbotd;
+double instanceVar_vbisstid=in.vbisstid;
+double instanceVar_vbisgatd=in.vbisgatd;
+double instanceVar_idsatsbotd=in.idsatsbotd;
+double instanceVar_idsatsstid=in.idsatsstid;
+double instanceVar_idsatsgatd=in.idsatsgatd;
 
 
   //non-reals
@@ -43569,6 +45600,189 @@ instanceVar_ISATFOR2_d,
 instanceVar_MFOR2_d,
 instanceVar_ISATREV_d,
 instanceVar_MREV_d,
+instanceVar_ctype,
+instanceVar_sdint,
+instanceVar_ise,
+instanceVar_ige,
+instanceVar_ide,
+instanceVar_ibe,
+instanceVar_ids,
+instanceVar_idb,
+instanceVar_isb,
+instanceVar_igs,
+instanceVar_igd,
+instanceVar_igb,
+instanceVar_igcs,
+instanceVar_igcd,
+instanceVar_iavl,
+instanceVar_igisl,
+instanceVar_igidl,
+instanceVar_ijs,
+instanceVar_ijsbot,
+instanceVar_ijsgat,
+instanceVar_ijssti,
+instanceVar_ijd,
+instanceVar_ijdbot,
+instanceVar_ijdgat,
+instanceVar_ijdsti,
+instanceVar_vds,
+instanceVar_vgs,
+instanceVar_vsb,
+instanceVar_vto,
+instanceVar_vts,
+instanceVar_vth,
+instanceVar_vgt,
+instanceVar_vdss,
+instanceVar_vsat,
+instanceVar_gm,
+instanceVar_gmb,
+instanceVar_gds,
+instanceVar_gjs,
+instanceVar_gjd,
+instanceVar_cdd,
+instanceVar_cdg,
+instanceVar_cds,
+instanceVar_cdb,
+instanceVar_cgd,
+instanceVar_cgg,
+instanceVar_cgs,
+instanceVar_cgb,
+instanceVar_csd,
+instanceVar_csg,
+instanceVar_css,
+instanceVar_csb,
+instanceVar_cbd,
+instanceVar_cbg,
+instanceVar_cbs,
+instanceVar_cbb,
+instanceVar_cgsol,
+instanceVar_cgdol,
+instanceVar_cjs,
+instanceVar_cjsbot,
+instanceVar_cjsgat,
+instanceVar_cjssti,
+instanceVar_cjd,
+instanceVar_cjdbot,
+instanceVar_cjdgat,
+instanceVar_cjdsti,
+instanceVar_weff,
+instanceVar_leff,
+instanceVar_u,
+instanceVar_rout,
+instanceVar_vearly,
+instanceVar_beff,
+instanceVar_fug,
+instanceVar_rg,
+instanceVar_sfl,
+instanceVar_sqrtsff,
+instanceVar_sqrtsfw,
+instanceVar_sid,
+instanceVar_sig,
+instanceVar_cigid,
+instanceVar_fknee,
+instanceVar_sigs,
+instanceVar_sigd,
+instanceVar_siavl,
+instanceVar_ssi,
+instanceVar_sdi,
+instanceVar_lp_vfb,
+instanceVar_lp_stvfb,
+instanceVar_lp_tox,
+instanceVar_lp_epsrox,
+instanceVar_lp_neff,
+instanceVar_lp_vnsub,
+instanceVar_lp_nslp,
+instanceVar_lp_dnsub,
+instanceVar_lp_dphib,
+instanceVar_lp_np,
+instanceVar_lp_ct,
+instanceVar_lp_toxov,
+instanceVar_lp_toxovd,
+instanceVar_lp_nov,
+instanceVar_lp_novd,
+instanceVar_lp_cf,
+instanceVar_lp_cfb,
+instanceVar_lp_betn,
+instanceVar_lp_stbet,
+instanceVar_lp_mue,
+instanceVar_lp_stmue,
+instanceVar_lp_themu,
+instanceVar_lp_stthemu,
+instanceVar_lp_cs,
+instanceVar_lp_stcs,
+instanceVar_lp_xcor,
+instanceVar_lp_stxcor,
+instanceVar_lp_feta,
+instanceVar_lp_rs,
+instanceVar_lp_strs,
+instanceVar_lp_rsb,
+instanceVar_lp_rsg,
+instanceVar_lp_thesat,
+instanceVar_lp_stthesat,
+instanceVar_lp_thesatb,
+instanceVar_lp_thesatg,
+instanceVar_lp_ax,
+instanceVar_lp_alp,
+instanceVar_lp_alp1,
+instanceVar_lp_alp2,
+instanceVar_lp_vp,
+instanceVar_lp_a1,
+instanceVar_lp_a2,
+instanceVar_lp_sta2,
+instanceVar_lp_a3,
+instanceVar_lp_a4,
+instanceVar_lp_gco,
+instanceVar_lp_iginv,
+instanceVar_lp_igov,
+instanceVar_lp_igovd,
+instanceVar_lp_stig,
+instanceVar_lp_gc2,
+instanceVar_lp_gc3,
+instanceVar_lp_chib,
+instanceVar_lp_agidl,
+instanceVar_lp_agidld,
+instanceVar_lp_bgidl,
+instanceVar_lp_bgidld,
+instanceVar_lp_stbgidl,
+instanceVar_lp_stbgidld,
+instanceVar_lp_cgidl,
+instanceVar_lp_cgidld,
+instanceVar_lp_cox,
+instanceVar_lp_cgov,
+instanceVar_lp_cgovd,
+instanceVar_lp_cgbov,
+instanceVar_lp_cfr,
+instanceVar_lp_cfrd,
+instanceVar_lp_fnt,
+instanceVar_lp_fntexc,
+instanceVar_lp_nfa,
+instanceVar_lp_nfb,
+instanceVar_lp_nfc,
+instanceVar_lp_ef,
+instanceVar_lp_rg,
+instanceVar_lp_rbulk,
+instanceVar_lp_rwell,
+instanceVar_lp_rjuns,
+instanceVar_lp_rjund,
+instanceVar_tk,
+instanceVar_cjosbot,
+instanceVar_cjossti,
+instanceVar_cjosgat,
+instanceVar_vbisbot,
+instanceVar_vbissti,
+instanceVar_vbisgat,
+instanceVar_idsatsbot,
+instanceVar_idsatssti,
+instanceVar_idsatsgat,
+instanceVar_cjosbotd,
+instanceVar_cjosstid,
+instanceVar_cjosgatd,
+instanceVar_vbisbotd,
+instanceVar_vbisstid,
+instanceVar_vbisgatd,
+instanceVar_idsatsbotd,
+instanceVar_idsatsstid,
+instanceVar_idsatsgatd,
 // model parameters
 // reals
 modelPar_LEVEL,
@@ -44609,6 +46823,189 @@ instanceVar_ISATFOR2_d,
 instanceVar_MFOR2_d,
 instanceVar_ISATREV_d,
 instanceVar_MREV_d,
+instanceVar_ctype,
+instanceVar_sdint,
+instanceVar_ise,
+instanceVar_ige,
+instanceVar_ide,
+instanceVar_ibe,
+instanceVar_ids,
+instanceVar_idb,
+instanceVar_isb,
+instanceVar_igs,
+instanceVar_igd,
+instanceVar_igb,
+instanceVar_igcs,
+instanceVar_igcd,
+instanceVar_iavl,
+instanceVar_igisl,
+instanceVar_igidl,
+instanceVar_ijs,
+instanceVar_ijsbot,
+instanceVar_ijsgat,
+instanceVar_ijssti,
+instanceVar_ijd,
+instanceVar_ijdbot,
+instanceVar_ijdgat,
+instanceVar_ijdsti,
+instanceVar_vds,
+instanceVar_vgs,
+instanceVar_vsb,
+instanceVar_vto,
+instanceVar_vts,
+instanceVar_vth,
+instanceVar_vgt,
+instanceVar_vdss,
+instanceVar_vsat,
+instanceVar_gm,
+instanceVar_gmb,
+instanceVar_gds,
+instanceVar_gjs,
+instanceVar_gjd,
+instanceVar_cdd,
+instanceVar_cdg,
+instanceVar_cds,
+instanceVar_cdb,
+instanceVar_cgd,
+instanceVar_cgg,
+instanceVar_cgs,
+instanceVar_cgb,
+instanceVar_csd,
+instanceVar_csg,
+instanceVar_css,
+instanceVar_csb,
+instanceVar_cbd,
+instanceVar_cbg,
+instanceVar_cbs,
+instanceVar_cbb,
+instanceVar_cgsol,
+instanceVar_cgdol,
+instanceVar_cjs,
+instanceVar_cjsbot,
+instanceVar_cjsgat,
+instanceVar_cjssti,
+instanceVar_cjd,
+instanceVar_cjdbot,
+instanceVar_cjdgat,
+instanceVar_cjdsti,
+instanceVar_weff,
+instanceVar_leff,
+instanceVar_u,
+instanceVar_rout,
+instanceVar_vearly,
+instanceVar_beff,
+instanceVar_fug,
+instanceVar_rg,
+instanceVar_sfl,
+instanceVar_sqrtsff,
+instanceVar_sqrtsfw,
+instanceVar_sid,
+instanceVar_sig,
+instanceVar_cigid,
+instanceVar_fknee,
+instanceVar_sigs,
+instanceVar_sigd,
+instanceVar_siavl,
+instanceVar_ssi,
+instanceVar_sdi,
+instanceVar_lp_vfb,
+instanceVar_lp_stvfb,
+instanceVar_lp_tox,
+instanceVar_lp_epsrox,
+instanceVar_lp_neff,
+instanceVar_lp_vnsub,
+instanceVar_lp_nslp,
+instanceVar_lp_dnsub,
+instanceVar_lp_dphib,
+instanceVar_lp_np,
+instanceVar_lp_ct,
+instanceVar_lp_toxov,
+instanceVar_lp_toxovd,
+instanceVar_lp_nov,
+instanceVar_lp_novd,
+instanceVar_lp_cf,
+instanceVar_lp_cfb,
+instanceVar_lp_betn,
+instanceVar_lp_stbet,
+instanceVar_lp_mue,
+instanceVar_lp_stmue,
+instanceVar_lp_themu,
+instanceVar_lp_stthemu,
+instanceVar_lp_cs,
+instanceVar_lp_stcs,
+instanceVar_lp_xcor,
+instanceVar_lp_stxcor,
+instanceVar_lp_feta,
+instanceVar_lp_rs,
+instanceVar_lp_strs,
+instanceVar_lp_rsb,
+instanceVar_lp_rsg,
+instanceVar_lp_thesat,
+instanceVar_lp_stthesat,
+instanceVar_lp_thesatb,
+instanceVar_lp_thesatg,
+instanceVar_lp_ax,
+instanceVar_lp_alp,
+instanceVar_lp_alp1,
+instanceVar_lp_alp2,
+instanceVar_lp_vp,
+instanceVar_lp_a1,
+instanceVar_lp_a2,
+instanceVar_lp_sta2,
+instanceVar_lp_a3,
+instanceVar_lp_a4,
+instanceVar_lp_gco,
+instanceVar_lp_iginv,
+instanceVar_lp_igov,
+instanceVar_lp_igovd,
+instanceVar_lp_stig,
+instanceVar_lp_gc2,
+instanceVar_lp_gc3,
+instanceVar_lp_chib,
+instanceVar_lp_agidl,
+instanceVar_lp_agidld,
+instanceVar_lp_bgidl,
+instanceVar_lp_bgidld,
+instanceVar_lp_stbgidl,
+instanceVar_lp_stbgidld,
+instanceVar_lp_cgidl,
+instanceVar_lp_cgidld,
+instanceVar_lp_cox,
+instanceVar_lp_cgov,
+instanceVar_lp_cgovd,
+instanceVar_lp_cgbov,
+instanceVar_lp_cfr,
+instanceVar_lp_cfrd,
+instanceVar_lp_fnt,
+instanceVar_lp_fntexc,
+instanceVar_lp_nfa,
+instanceVar_lp_nfb,
+instanceVar_lp_nfc,
+instanceVar_lp_ef,
+instanceVar_lp_rg,
+instanceVar_lp_rbulk,
+instanceVar_lp_rwell,
+instanceVar_lp_rjuns,
+instanceVar_lp_rjund,
+instanceVar_tk,
+instanceVar_cjosbot,
+instanceVar_cjossti,
+instanceVar_cjosgat,
+instanceVar_vbisbot,
+instanceVar_vbissti,
+instanceVar_vbisgat,
+instanceVar_idsatsbot,
+instanceVar_idsatssti,
+instanceVar_idsatsgat,
+instanceVar_cjosbotd,
+instanceVar_cjosstid,
+instanceVar_cjosgatd,
+instanceVar_vbisbotd,
+instanceVar_vbisstid,
+instanceVar_vbisgatd,
+instanceVar_idsatsbotd,
+instanceVar_idsatsstid,
+instanceVar_idsatsgatd,
 // model parameters
 // reals
 modelPar_LEVEL,

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 26 Mar 2020 13:35:06
+// Creation Date  : Fri, 27 Mar 2020 12:37:29
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_h
@@ -6078,6 +6078,8 @@ public:
    // end probe numbers
    // Store LIDs
    // end store LIDs
+   // Store LIDs for output vars
+   // end store LIDs for output vars
  // Arrays to hold probes
  std::vector < double > probeVars;
  std::vector < std::vector < double > > d_probeVars;
