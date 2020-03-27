@@ -446,7 +446,13 @@ name of the specific HICUM/L0 Q device in your netlist.
 
 \subsubsection{Level 234 BJT Table (HICUM/L2)}
 \textbf{NOTE:} The HICUM/L2 model has no instance parameters.
+The HICUM/L2 device supports output of the internal variables in
+table~\ref{Q_234_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific HICUM/L2 Q device in your netlist.
 \input{Q_234_Device_Model_Params}
+\input{Q_234_OutputVars}
 \clearpage
 
 \subsubsection{Level 504 and 505 BJT Tables (MEXTRAM)}
