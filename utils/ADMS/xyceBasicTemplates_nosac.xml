@@ -3348,6 +3348,86 @@ other variables does not get propagated into a variable's
     </admst:choose>
   </admst:template>
 
+    <!--
+   =================================================================-
+   textUnit2LaTeXUnit
+   given an admst data tree element with a "units" attribute,
+   output the corresponding LaTeX string
+   =================================================================-
+  -->
+  <admst:template match="textUnit2LaTeXUnit">
+    <admst:choose>
+      <!-- Simple units -->
+      <admst:when test="[attribute/[name='units']/value = 'm^-3']">
+        <admst:text format="m\$^{-3}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Ohm']">
+        <admst:text format="Ohm"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = '/V' or attribute/[name='units']/value = 'V^-1']">
+        <admst:text format="V\$^{-1}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'V^-0.5']">
+        <admst:text format="V\$^{-0.5}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'S' or attribute/[name='units']/value = '1/Ohm']">
+        <admst:text format="\$\\mathsf{\\Omega}^{-1}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'K^-1' or attribute/[name='units']/value = '1/K']">
+        <admst:text format="K\$^{-1}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = '/C' or attribute/[name='units']/value = '1/C' or attribute/[name='units']/value = 'degC^-1']">
+        <admst:text format="\$^\\circ\$C\$^{-1}\$"/>
+      </admst:when>
+      <!-- Complex units -->
+      <admst:when test="[attribute/[name='units']/value = 'm^2/V/s']">
+        <admst:text format="m\$^{2}\$/(Vs)"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Vm^-1']">
+        <admst:text format="Vm\$^{-1}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'A/V^3' or attribute/[name='units']/value = 'AV^-3' ]">
+        <admst:text format="A/V\$^{3}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Am/V^3' or attribute/[name='units']/value = 'AV^-3m' ]">
+        <admst:text format="Am/V\$^{3}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Am^-1']">
+        <admst:text format="A/m"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Am^-2']">
+        <admst:text format="A/m\$^{2}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Am^-3']">
+        <admst:text format="A/m\$^{3}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Ohm m^2']">
+        <admst:text format="\$\\mathsf{\\Omega}\$ m\$^{2}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Ohm/sq']">
+        <admst:text format="\$\\mathsf{\\Omega}/\\Box\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Fm^-1']">
+        <admst:text format="F/m"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'Fm^-2']">
+        <admst:text format="F/m\$^{2}\$"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'A^2/Hz']">
+        <admst:text format="A\$^{2}\$/Hz"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'm^2/(V s)']">
+        <admst:text format="m\$^2\$/(V s)"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = '1/(V m^4)']">
+        <admst:text format="1/(V m\$^4\$)"/>
+      </admst:when>
+      <admst:otherwise>
+        <admst:text format="%(attribute/[name='units']/value)"/>
+      </admst:otherwise>
+    </admst:choose>
+  </admst:template>
+
   <!--
    =================================================================-
    processTerm

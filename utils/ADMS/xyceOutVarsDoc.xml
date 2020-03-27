@@ -107,7 +107,7 @@
           </admst:choose>
           <admst:choose>
             <admst:when test="[exists(attribute[name='units'])]">
-              <admst:text format="  %(attribute[name='units']/value) &amp; "/>
+              <admst:text format="  %(textUnit2LaTeXUnit(.)) &amp; "/>
             </admst:when>
             <admst:when test="[exists(attribute[name='unit'])]">
               <admst:text format="  %(attribute[name='unit']/value) &amp; "/>
