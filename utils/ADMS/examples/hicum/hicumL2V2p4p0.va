@@ -210,7 +210,7 @@ organization and externally, subject to the following restrictions.
 `endif
 
 // Comment this line, if calculation of operating point values should be omitted
-// `define CALC_OP
+ `define CALC_OP
 // Uncomment this line to reduce calculation of OP values only for DC simulations
 //`define OP_STATIC
 
@@ -936,17 +936,21 @@ parameter integer  type = 1		 from [-1:1] exclude 0  `ATTR(info="For transistor 
     `endif
     
     `ifdef CALC_OP
+   // Xyce/ADMS does NOT support port currents yet
+     `ifdef PORT_CURR
         (* desc="Base terminal current",                                   units="A"   *) real IB;
         (* desc="Collector terminal current",                              units="A"   *) real IC;
         (* desc="Substrate terminal current",                              units="A"   *) real IS;
+     `endif
         (* desc="Avalanche current",                                       units="A"   *) real IAVL;
         
         (* desc="External BE voltage",                                     units="V"   *) real VBE;
         (* desc="External BC voltage",                                     units="V"   *) real VBC;
         (* desc="External CE voltage",                                     units="V"   *) real VCE;
         (* desc="External SC voltage",                                     units="V"   *) real VSC;
-        
+     `ifdef PORT_CURR
         (* desc="Common emitter forward current gain"                                  *) real BETADC;
+     `endif
         (* desc="Internal transconductance",                               units="A/V" *) real GMi;
         (* desc="Transconductance of the parasitic substrate PNP",         units="A/V" *) real GMS;
         (* desc="Internal base-emitter (input) resistance",                units="Ohm" *) real RPIi;
@@ -2042,22 +2046,24 @@ end     //of Noise_sources
         real gOi;
         real CdEi_ddx, CdCi_ddx, CdS_ddx;
 
+       `ifdef PORT_CURR
         IB   = I(<b>);
         IC   = I(<c>);
         IS   = I(<s>);
+       `endif
         IAVL = type*iavl;
 
         VBE = V(b,e);
         VBC = V(b,c);
         VCE = V(c,e);
         VSC = V(s,c);
-        
+`ifdef PORT_CURR
         if (IB != 0) begin
             BETADC = IC/IB;
         end else begin
             BETADC = 0;
         end
-        
+`endif
         GMi    = type*ddx(it,V(bi))+`Gmin;
         GMS    = -type*ddx(HSI_Tsu,V(ci))+`Gmin;
         

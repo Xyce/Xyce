@@ -117,7 +117,7 @@
 `include "discipline.h"
 
 // Comment this line, if calculation of operating point values should be omitted
-// `define CALC_OP               
+`define CALC_OP               
 
 `define	NPN	+1
 `define	PNP	-1
@@ -602,15 +602,20 @@ module hic0_full (c,b,e,s,tnode) (*xyceModelGroup="BJT" xyceLevelNumber="230" xy
 
 // For .OP pt calculation
 	`ifdef CALC_OP
+               // Xyce/ADMS does not support port currents I(<port>)
+         `ifdef PORT_CURR
 		(* desc="Base terminal current", units="A" *) real IB;
 		(* desc="Collector terminal current", units="A" *) real IC;
 		(* desc="Substrate current", units="A" *) real IS;
+         `endif
 		(* desc="Avalanche current", units="A" *) real IAVL;
 		(* desc="External BE voltage", units="V" *) real VBE;
 		(* desc="External BC voltage", units="V" *) real VBC;
 		(* desc="External CE voltage", units="V" *) real VCE;
 		(* desc="External SC voltage", units="V" *) real VSC;
+         `ifdef PORT_CURR
 		(* desc="Common emitter forward current gain" *) real BETADC;
+         `endif
 		(* desc="Internal transconductance", units="S" *) real GMi;
 		(* desc="Internal input resistance", units="Ohm" *) real RPIi;
 		(* desc="Internal feedback resistance", units="Ohm" *) real RMUi;
@@ -1176,14 +1181,17 @@ analog begin
 
 
 	`ifdef CALC_OP
-		if (analysis("static")) begin : OP_calculation
+        // ADMS does not support "analysis("static")"
+	//	if (analysis("static")) begin : OP_calculation
+		begin : OP_calculation
 			real oRPIi, oRMUi, oROi, gAVL;
 			real Cdei, Cdci, Cjei, Cjci, Cjcx, CBC;
 			real R_tot;
-		
+         `ifdef PORT_CURR
 			IB = I(<b>);
 			IC = I(<c>);
 			IS = I(<s>);
+         `endif
 			IAVL = iavl;
 			
 			VBE = V(b,e);
@@ -1221,7 +1229,9 @@ analog begin
 			RCX = rcx_t;
 			RE = re_t;
 
-			BETADC = IC/IB;		
+         `ifdef PORT_CURR
+			BETADC = IC/IB;
+         `endif
 			BETAAC = GMi*RPIi; 
 
 			R_tot = RCX + RE + ((RB+RE)/BETAAC);

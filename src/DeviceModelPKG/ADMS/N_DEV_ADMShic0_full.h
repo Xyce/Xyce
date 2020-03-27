@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Fri, 27 Mar 2020 12:37:29
+// Creation Date  : Fri, 27 Mar 2020 14:03:49
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMShic0_full_h
@@ -54,7 +54,7 @@ namespace Device {
 namespace ADMShic0_full {
 
 // This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad<double,13> AdmsFadType;
+  typedef Sacado::Fad::SFad<double,20> AdmsFadType;
   typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
@@ -172,6 +172,13 @@ return ifFalse;
 void evaluateModelEquations(
 std::vector <double> & probeVars,
 // probe constants
+const int admsProbeID_V_s_GND,
+const int admsProbeID_V_ei_GND,
+const int admsProbeID_V_ci_GND,
+const int admsProbeID_V_bi_GND,
+const int admsProbeID_V_s_c,
+const int admsProbeID_V_c_e,
+const int admsProbeID_V_b_c,
 const int admsProbeID_V_xf_GND,
 const int admsProbeID_V_xf2_GND,
 const int admsProbeID_V_xf1_GND,
@@ -211,6 +218,26 @@ AdmsSensFadType & instanceVar_iavl,
 AdmsSensFadType & instanceVar_ijsc,
 AdmsSensFadType & instanceVar_Ibici,
 AdmsSensFadType & instanceVar_ijbe,
+AdmsSensFadType & instanceVar_IAVL,
+double & instanceVar_VBE,
+double & instanceVar_VBC,
+double & instanceVar_VCE,
+double & instanceVar_VSC,
+AdmsSensFadType & instanceVar_GMi,
+AdmsSensFadType & instanceVar_RPIi,
+AdmsSensFadType & instanceVar_RMUi,
+AdmsSensFadType & instanceVar_ROi,
+AdmsSensFadType & instanceVar_CPIi,
+AdmsSensFadType & instanceVar_CMUi,
+AdmsSensFadType & instanceVar_CBCX,
+AdmsSensFadType & instanceVar_CCS,
+AdmsSensFadType & instanceVar_RBi,
+AdmsSensFadType & instanceVar_RB,
+AdmsSensFadType & instanceVar_RCX,
+AdmsSensFadType & instanceVar_RE,
+AdmsSensFadType & instanceVar_BETAAC,
+AdmsSensFadType & instanceVar_TF,
+AdmsSensFadType & instanceVar_FT,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_is,
@@ -438,6 +465,26 @@ AdmsSensFadType & instanceVar_iavl,
 AdmsSensFadType & instanceVar_ijsc,
 AdmsSensFadType & instanceVar_Ibici,
 AdmsSensFadType & instanceVar_ijbe,
+AdmsSensFadType & instanceVar_IAVL,
+double & instanceVar_VBE,
+double & instanceVar_VBC,
+double & instanceVar_VCE,
+double & instanceVar_VSC,
+AdmsSensFadType & instanceVar_GMi,
+AdmsSensFadType & instanceVar_RPIi,
+AdmsSensFadType & instanceVar_RMUi,
+AdmsSensFadType & instanceVar_ROi,
+AdmsSensFadType & instanceVar_CPIi,
+AdmsSensFadType & instanceVar_CMUi,
+AdmsSensFadType & instanceVar_CBCX,
+AdmsSensFadType & instanceVar_CCS,
+AdmsSensFadType & instanceVar_RBi,
+AdmsSensFadType & instanceVar_RB,
+AdmsSensFadType & instanceVar_RCX,
+AdmsSensFadType & instanceVar_RE,
+AdmsSensFadType & instanceVar_BETAAC,
+AdmsSensFadType & instanceVar_TF,
+AdmsSensFadType & instanceVar_FT,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_is,
@@ -995,31 +1042,99 @@ public:
     //  Variables of global_instance scope
     double qjci;
      double d_qjci_dV_bi_ci;
+     double d_qjci_dV_bi_ci_dV_bi_ci;
+     double d_qjci_dV_bi_ci_dV_tnode_GND;
+     double d_qjci_dV_bi_ci_dV_b_ci;
      double d_qjci_dV_tnode_GND;
      double d_qjci_dV_b_ci;
+     double d_qjci_dV_b_ci_dV_bi_ci;
+     double d_qjci_dV_b_ci_dV_tnode_GND;
+     double d_qjci_dV_b_ci_dV_b_ci;
     double qjei;
      double d_qjei_dV_tnode_GND;
      double d_qjei_dV_ci_ei;
+     double d_qjei_dV_ci_ei_dV_tnode_GND;
+     double d_qjei_dV_ci_ei_dV_ci_ei;
+     double d_qjei_dV_ci_ei_dV_bi_ei;
+     double d_qjei_dV_ci_ei_dV_bi_ci;
+     double d_qjei_dV_ci_ei_dV_b_ci;
      double d_qjei_dV_bi_ei;
+     double d_qjei_dV_bi_ei_dV_tnode_GND;
+     double d_qjei_dV_bi_ei_dV_ci_ei;
+     double d_qjei_dV_bi_ei_dV_bi_ei;
+     double d_qjei_dV_bi_ei_dV_bi_ci;
+     double d_qjei_dV_bi_ei_dV_b_ci;
      double d_qjei_dV_bi_ci;
+     double d_qjei_dV_bi_ci_dV_tnode_GND;
+     double d_qjei_dV_bi_ci_dV_ci_ei;
+     double d_qjei_dV_bi_ci_dV_bi_ei;
+     double d_qjei_dV_bi_ci_dV_bi_ci;
+     double d_qjei_dV_bi_ci_dV_b_ci;
      double d_qjei_dV_b_ci;
+     double d_qjei_dV_b_ci_dV_tnode_GND;
+     double d_qjei_dV_b_ci_dV_ci_ei;
+     double d_qjei_dV_b_ci_dV_bi_ei;
+     double d_qjei_dV_b_ci_dV_bi_ci;
+     double d_qjei_dV_b_ci_dV_b_ci;
     double it;
      double d_it_dV_xf2_GND;
      double d_it_dV_tnode_GND;
      double d_it_dV_bi_ei;
+     double d_it_dV_bi_ei_dV_xf2_GND;
+     double d_it_dV_bi_ei_dV_tnode_GND;
+     double d_it_dV_bi_ei_dV_bi_ei;
+     double d_it_dV_bi_ei_dV_bi_ci;
+     double d_it_dV_bi_ei_dV_b_ci;
+     double d_it_dV_bi_ei_dV_ci_ei;
      double d_it_dV_bi_ci;
+     double d_it_dV_bi_ci_dV_xf2_GND;
+     double d_it_dV_bi_ci_dV_tnode_GND;
+     double d_it_dV_bi_ci_dV_bi_ei;
+     double d_it_dV_bi_ci_dV_bi_ci;
+     double d_it_dV_bi_ci_dV_b_ci;
+     double d_it_dV_bi_ci_dV_ci_ei;
      double d_it_dV_b_ci;
+     double d_it_dV_b_ci_dV_xf2_GND;
+     double d_it_dV_b_ci_dV_tnode_GND;
+     double d_it_dV_b_ci_dV_bi_ei;
+     double d_it_dV_b_ci_dV_bi_ci;
+     double d_it_dV_b_ci_dV_b_ci;
+     double d_it_dV_b_ci_dV_ci_ei;
      double d_it_dV_ci_ei;
+     double d_it_dV_ci_ei_dV_xf2_GND;
+     double d_it_dV_ci_ei_dV_tnode_GND;
+     double d_it_dV_ci_ei_dV_bi_ei;
+     double d_it_dV_ci_ei_dV_bi_ci;
+     double d_it_dV_ci_ei_dV_b_ci;
+     double d_it_dV_ci_ei_dV_ci_ei;
     double ijbc;
      double d_ijbc_dV_tnode_GND;
      double d_ijbc_dV_bi_ci;
+     double d_ijbc_dV_bi_ci_dV_tnode_GND;
+     double d_ijbc_dV_bi_ci_dV_bi_ci;
+     double d_ijbc_dV_bi_ci_dV_bi_ei;
      double d_ijbc_dV_bi_ei;
     double iavl;
      double d_iavl_dV_tnode_GND;
      double d_iavl_dV_bi_ei;
      double d_iavl_dV_bi_ci;
+     double d_iavl_dV_bi_ci_dV_tnode_GND;
+     double d_iavl_dV_bi_ci_dV_bi_ei;
+     double d_iavl_dV_bi_ci_dV_bi_ci;
+     double d_iavl_dV_bi_ci_dV_b_ci;
+     double d_iavl_dV_bi_ci_dV_ci_ei;
      double d_iavl_dV_b_ci;
+     double d_iavl_dV_b_ci_dV_tnode_GND;
+     double d_iavl_dV_b_ci_dV_bi_ei;
+     double d_iavl_dV_b_ci_dV_bi_ci;
+     double d_iavl_dV_b_ci_dV_b_ci;
+     double d_iavl_dV_b_ci_dV_ci_ei;
      double d_iavl_dV_ci_ei;
+     double d_iavl_dV_ci_ei_dV_tnode_GND;
+     double d_iavl_dV_ci_ei_dV_bi_ei;
+     double d_iavl_dV_ci_ei_dV_bi_ci;
+     double d_iavl_dV_ci_ei_dV_b_ci;
+     double d_iavl_dV_ci_ei_dV_ci_ei;
     double ijsc;
      double d_ijsc_dV_tnode_GND;
      double d_ijsc_dV_s_ci;
@@ -1028,12 +1143,49 @@ public:
     double Ibici;
      double d_Ibici_dV_tnode_GND;
      double d_Ibici_dV_bi_ci;
+     double d_Ibici_dV_bi_ci_dV_tnode_GND;
+     double d_Ibici_dV_bi_ci_dV_bi_ci;
+     double d_Ibici_dV_bi_ci_dV_bi_ei;
+     double d_Ibici_dV_bi_ci_dV_b_ci;
+     double d_Ibici_dV_bi_ci_dV_ci_ei;
      double d_Ibici_dV_bi_ei;
      double d_Ibici_dV_b_ci;
+     double d_Ibici_dV_b_ci_dV_tnode_GND;
+     double d_Ibici_dV_b_ci_dV_bi_ci;
+     double d_Ibici_dV_b_ci_dV_bi_ei;
+     double d_Ibici_dV_b_ci_dV_b_ci;
+     double d_Ibici_dV_b_ci_dV_ci_ei;
      double d_Ibici_dV_ci_ei;
+     double d_Ibici_dV_ci_ei_dV_tnode_GND;
+     double d_Ibici_dV_ci_ei_dV_bi_ci;
+     double d_Ibici_dV_ci_ei_dV_bi_ei;
+     double d_Ibici_dV_ci_ei_dV_b_ci;
+     double d_Ibici_dV_ci_ei_dV_ci_ei;
     double ijbe;
      double d_ijbe_dV_tnode_GND;
      double d_ijbe_dV_bi_ei;
+     double d_ijbe_dV_bi_ei_dV_tnode_GND;
+     double d_ijbe_dV_bi_ei_dV_bi_ei;
+    double IAVL;
+    double VBE;
+    double VBC;
+    double VCE;
+    double VSC;
+    double GMi;
+    double RPIi;
+    double RMUi;
+    double ROi;
+    double CPIi;
+    double CMUi;
+    double CBCX;
+    double CCS;
+    double RBi;
+    double RB;
+    double RCX;
+    double RE;
+    double BETAAC;
+    double TF;
+    double FT;
     // end verilog Instance Variables=====
     // Nodal LID Variables
     int li_c;
@@ -1287,19 +1439,26 @@ public:
    // Additional IDs for branch equations
    // end branch numbers
    // Probe numbers
-    static const int admsProbeID_V_xf_GND = 0;
-    static const int admsProbeID_V_xf2_GND = 1;
-    static const int admsProbeID_V_xf1_GND = 2;
-    static const int admsProbeID_V_tnode_GND = 3;
-    static const int admsProbeID_V_b_e = 4;
-    static const int admsProbeID_V_b_bi = 5;
-    static const int admsProbeID_V_ci_c = 6;
-    static const int admsProbeID_V_ei_e = 7;
-    static const int admsProbeID_V_s_ci = 8;
-    static const int admsProbeID_V_ci_ei = 9;
-    static const int admsProbeID_V_bi_ei = 10;
-    static const int admsProbeID_V_bi_ci = 11;
-    static const int admsProbeID_V_b_ci = 12;
+    static const int admsProbeID_V_s_GND = 0;
+    static const int admsProbeID_V_ei_GND = 1;
+    static const int admsProbeID_V_ci_GND = 2;
+    static const int admsProbeID_V_bi_GND = 3;
+    static const int admsProbeID_V_s_c = 4;
+    static const int admsProbeID_V_c_e = 5;
+    static const int admsProbeID_V_b_c = 6;
+    static const int admsProbeID_V_xf_GND = 7;
+    static const int admsProbeID_V_xf2_GND = 8;
+    static const int admsProbeID_V_xf1_GND = 9;
+    static const int admsProbeID_V_tnode_GND = 10;
+    static const int admsProbeID_V_b_e = 11;
+    static const int admsProbeID_V_b_bi = 12;
+    static const int admsProbeID_V_ci_c = 13;
+    static const int admsProbeID_V_ei_e = 14;
+    static const int admsProbeID_V_s_ci = 15;
+    static const int admsProbeID_V_ci_ei = 16;
+    static const int admsProbeID_V_bi_ei = 17;
+    static const int admsProbeID_V_bi_ci = 18;
+    static const int admsProbeID_V_b_ci = 19;
    // end probe numbers
    // Store LIDs
    // end store LIDs
@@ -1312,6 +1471,26 @@ public:
     int li_store_ijsc;
     int li_store_Ibici;
     int li_store_ijbe;
+    int li_store_IAVL;
+    int li_store_VBE;
+    int li_store_VBC;
+    int li_store_VCE;
+    int li_store_VSC;
+    int li_store_GMi;
+    int li_store_RPIi;
+    int li_store_RMUi;
+    int li_store_ROi;
+    int li_store_CPIi;
+    int li_store_CMUi;
+    int li_store_CBCX;
+    int li_store_CCS;
+    int li_store_RBi;
+    int li_store_RB;
+    int li_store_RCX;
+    int li_store_RE;
+    int li_store_BETAAC;
+    int li_store_TF;
+    int li_store_FT;
    // end store LIDs for output vars
      // bools for collapsing nodes
      bool collapseNode_ci;
