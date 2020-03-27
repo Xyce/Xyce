@@ -1,0 +1,20 @@
+#!/bin/sh
+
+make -f Makefile.gcov_gcc8 clean
+make -f Makefile.gcov_gcc8 
+
+./parserUnitTest 
+
+# Note:  lcov version 1.13 is busted!  Use 1.14 if possible.
+
+rm -rf newExpressionLibrary.info
+/Users/erkeite/LCOV/INSTALL/bin/lcov -t "newExpressionLib" --directory . -c -o newExpressionLibrary.info
+
+/Users/erkeite/LCOV/INSTALL/bin/lcov --remove newExpressionLibrary.info "/Library/*" "/opt/local/include/FlexLexer.h" "/Users/erkeite/XYCE/Xyce_Lib/*" "/Users/erkeite/GTEST/*" -o newExpressionLibrary.info
+
+/Users/erkeite/LCOV/INSTALL/bin/genhtml -o . -t "newExpressionLib coverage" --num-spaces 2 newExpressionLibrary.info
+open index.html
+
+
+
+
