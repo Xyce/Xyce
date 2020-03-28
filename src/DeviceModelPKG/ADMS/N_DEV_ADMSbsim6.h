@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Sat, 28 Mar 2020 15:13:27
+// Creation Date  : Sat, 28 Mar 2020 16:08:28
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsim6_h
@@ -54,7 +54,7 @@ namespace Device {
 namespace ADMSbsim6 {
 
 // This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad<double,21> AdmsFadType;
+  typedef Sacado::Fad::SFad<double,29> AdmsFadType;
   typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
@@ -177,11 +177,19 @@ const int admsProbeID_V_b_dbulk,
 const int admsProbeID_V_b_bi,
 const int admsProbeID_V_b_sbulk,
 const int admsProbeID_V_bi_sbulk,
-const int admsProbeID_V_di_si,
 const int admsProbeID_V_gm_gi,
 const int admsProbeID_V_g_gm,
 const int admsProbeID_V_s_si,
 const int admsProbeID_V_d_di,
+const int admsProbeID_V_gi_si,
+const int admsProbeID_V_di_si,
+const int admsProbeID_V_dbulk_GND,
+const int admsProbeID_V_sbulk_GND,
+const int admsProbeID_V_gm_GND,
+const int admsProbeID_V_gi_GND,
+const int admsProbeID_V_bi_GND,
+const int admsProbeID_V_di_GND,
+const int admsProbeID_V_si_GND,
 const int admsProbeID_V_gm_bi,
 const int admsProbeID_V_N1_GND,
 const int admsProbeID_V_N2_GND,
@@ -443,42 +451,42 @@ AdmsSensFadType & instanceVar_QBI,
 AdmsSensFadType & instanceVar_QSI,
 AdmsSensFadType & instanceVar_QDI,
 AdmsSensFadType & instanceVar_QGI,
-double & instanceVar_CGGI,
-double & instanceVar_CGBI,
-double & instanceVar_CGSI,
-double & instanceVar_CGDI,
-double & instanceVar_CSGI,
-double & instanceVar_CSBI,
-double & instanceVar_CSSI,
-double & instanceVar_CSDI,
-double & instanceVar_CDGI,
-double & instanceVar_CDBI,
-double & instanceVar_CDSI,
-double & instanceVar_CDDI,
-double & instanceVar_CBGI,
-double & instanceVar_CBBI,
-double & instanceVar_CBSI,
-double & instanceVar_CBDI,
+AdmsSensFadType & instanceVar_CGGI,
+AdmsSensFadType & instanceVar_CGBI,
+AdmsSensFadType & instanceVar_CGSI,
+AdmsSensFadType & instanceVar_CGDI,
+AdmsSensFadType & instanceVar_CSGI,
+AdmsSensFadType & instanceVar_CSBI,
+AdmsSensFadType & instanceVar_CSSI,
+AdmsSensFadType & instanceVar_CSDI,
+AdmsSensFadType & instanceVar_CDGI,
+AdmsSensFadType & instanceVar_CDBI,
+AdmsSensFadType & instanceVar_CDSI,
+AdmsSensFadType & instanceVar_CDDI,
+AdmsSensFadType & instanceVar_CBGI,
+AdmsSensFadType & instanceVar_CBBI,
+AdmsSensFadType & instanceVar_CBSI,
+AdmsSensFadType & instanceVar_CBDI,
 AdmsSensFadType & instanceVar_QB,
 AdmsSensFadType & instanceVar_QS,
 AdmsSensFadType & instanceVar_QD,
 AdmsSensFadType & instanceVar_QG,
-double & instanceVar_CGG,
-double & instanceVar_CGB,
-double & instanceVar_CGS,
-double & instanceVar_CGD,
-double & instanceVar_CSG,
-double & instanceVar_CSB,
-double & instanceVar_CSS,
-double & instanceVar_CSD,
-double & instanceVar_CDG,
-double & instanceVar_CDB,
-double & instanceVar_CDS,
-double & instanceVar_CDD,
-double & instanceVar_CBG,
-double & instanceVar_CBB,
-double & instanceVar_CBS,
-double & instanceVar_CBD,
+AdmsSensFadType & instanceVar_CGG,
+AdmsSensFadType & instanceVar_CGB,
+AdmsSensFadType & instanceVar_CGS,
+AdmsSensFadType & instanceVar_CGD,
+AdmsSensFadType & instanceVar_CSG,
+AdmsSensFadType & instanceVar_CSB,
+AdmsSensFadType & instanceVar_CSS,
+AdmsSensFadType & instanceVar_CSD,
+AdmsSensFadType & instanceVar_CDG,
+AdmsSensFadType & instanceVar_CDB,
+AdmsSensFadType & instanceVar_CDS,
+AdmsSensFadType & instanceVar_CDD,
+AdmsSensFadType & instanceVar_CBG,
+AdmsSensFadType & instanceVar_CBB,
+AdmsSensFadType & instanceVar_CBS,
+AdmsSensFadType & instanceVar_CBD,
 AdmsSensFadType & instanceVar_ISUB,
 AdmsSensFadType & instanceVar_IGIDL,
 AdmsSensFadType & instanceVar_IGISL,
@@ -487,28 +495,28 @@ AdmsSensFadType & instanceVar_IGD,
 AdmsSensFadType & instanceVar_IGCS,
 AdmsSensFadType & instanceVar_IGCD,
 AdmsSensFadType & instanceVar_IGB,
-double & instanceVar_CGSEXT,
-double & instanceVar_CGDEXT,
-double & instanceVar_CGBOV,
-double & instanceVar_CAPBS,
-double & instanceVar_CAPBD,
-double & instanceVar_WEFF,
-double & instanceVar_LEFF,
-double & instanceVar_WEFFCV,
-double & instanceVar_LEFFCV,
-double & instanceVar_IDS,
-double & instanceVar_IDEFF,
-double & instanceVar_ISEFF,
-double & instanceVar_IGEFF,
-double & instanceVar_IBS,
-double & instanceVar_IBD,
+AdmsSensFadType & instanceVar_CGSEXT,
+AdmsSensFadType & instanceVar_CGDEXT,
+AdmsSensFadType & instanceVar_CGBOV,
+AdmsSensFadType & instanceVar_CAPBS,
+AdmsSensFadType & instanceVar_CAPBD,
+AdmsSensFadType & instanceVar_WEFF,
+AdmsSensFadType & instanceVar_LEFF,
+AdmsSensFadType & instanceVar_WEFFCV,
+AdmsSensFadType & instanceVar_LEFFCV,
+AdmsSensFadType & instanceVar_IDS,
+AdmsSensFadType & instanceVar_IDEFF,
+AdmsSensFadType & instanceVar_ISEFF,
+AdmsSensFadType & instanceVar_IGEFF,
+AdmsSensFadType & instanceVar_IBS,
+AdmsSensFadType & instanceVar_IBD,
 double & instanceVar_VDS,
 double & instanceVar_VGS,
 double & instanceVar_VBS,
-double & instanceVar_VDSAT,
-double & instanceVar_GM,
-double & instanceVar_GMBS,
-double & instanceVar_GDS,
+AdmsSensFadType & instanceVar_VDSAT,
+AdmsSensFadType & instanceVar_GM,
+AdmsSensFadType & instanceVar_GMBS,
+AdmsSensFadType & instanceVar_GDS,
 AdmsSensFadType & instanceVar_TK,
 AdmsSensFadType & instanceVar_VTH,
 // non-reals
@@ -2529,42 +2537,42 @@ AdmsSensFadType & instanceVar_QBI,
 AdmsSensFadType & instanceVar_QSI,
 AdmsSensFadType & instanceVar_QDI,
 AdmsSensFadType & instanceVar_QGI,
-double & instanceVar_CGGI,
-double & instanceVar_CGBI,
-double & instanceVar_CGSI,
-double & instanceVar_CGDI,
-double & instanceVar_CSGI,
-double & instanceVar_CSBI,
-double & instanceVar_CSSI,
-double & instanceVar_CSDI,
-double & instanceVar_CDGI,
-double & instanceVar_CDBI,
-double & instanceVar_CDSI,
-double & instanceVar_CDDI,
-double & instanceVar_CBGI,
-double & instanceVar_CBBI,
-double & instanceVar_CBSI,
-double & instanceVar_CBDI,
+AdmsSensFadType & instanceVar_CGGI,
+AdmsSensFadType & instanceVar_CGBI,
+AdmsSensFadType & instanceVar_CGSI,
+AdmsSensFadType & instanceVar_CGDI,
+AdmsSensFadType & instanceVar_CSGI,
+AdmsSensFadType & instanceVar_CSBI,
+AdmsSensFadType & instanceVar_CSSI,
+AdmsSensFadType & instanceVar_CSDI,
+AdmsSensFadType & instanceVar_CDGI,
+AdmsSensFadType & instanceVar_CDBI,
+AdmsSensFadType & instanceVar_CDSI,
+AdmsSensFadType & instanceVar_CDDI,
+AdmsSensFadType & instanceVar_CBGI,
+AdmsSensFadType & instanceVar_CBBI,
+AdmsSensFadType & instanceVar_CBSI,
+AdmsSensFadType & instanceVar_CBDI,
 AdmsSensFadType & instanceVar_QB,
 AdmsSensFadType & instanceVar_QS,
 AdmsSensFadType & instanceVar_QD,
 AdmsSensFadType & instanceVar_QG,
-double & instanceVar_CGG,
-double & instanceVar_CGB,
-double & instanceVar_CGS,
-double & instanceVar_CGD,
-double & instanceVar_CSG,
-double & instanceVar_CSB,
-double & instanceVar_CSS,
-double & instanceVar_CSD,
-double & instanceVar_CDG,
-double & instanceVar_CDB,
-double & instanceVar_CDS,
-double & instanceVar_CDD,
-double & instanceVar_CBG,
-double & instanceVar_CBB,
-double & instanceVar_CBS,
-double & instanceVar_CBD,
+AdmsSensFadType & instanceVar_CGG,
+AdmsSensFadType & instanceVar_CGB,
+AdmsSensFadType & instanceVar_CGS,
+AdmsSensFadType & instanceVar_CGD,
+AdmsSensFadType & instanceVar_CSG,
+AdmsSensFadType & instanceVar_CSB,
+AdmsSensFadType & instanceVar_CSS,
+AdmsSensFadType & instanceVar_CSD,
+AdmsSensFadType & instanceVar_CDG,
+AdmsSensFadType & instanceVar_CDB,
+AdmsSensFadType & instanceVar_CDS,
+AdmsSensFadType & instanceVar_CDD,
+AdmsSensFadType & instanceVar_CBG,
+AdmsSensFadType & instanceVar_CBB,
+AdmsSensFadType & instanceVar_CBS,
+AdmsSensFadType & instanceVar_CBD,
 AdmsSensFadType & instanceVar_ISUB,
 AdmsSensFadType & instanceVar_IGIDL,
 AdmsSensFadType & instanceVar_IGISL,
@@ -2573,28 +2581,28 @@ AdmsSensFadType & instanceVar_IGD,
 AdmsSensFadType & instanceVar_IGCS,
 AdmsSensFadType & instanceVar_IGCD,
 AdmsSensFadType & instanceVar_IGB,
-double & instanceVar_CGSEXT,
-double & instanceVar_CGDEXT,
-double & instanceVar_CGBOV,
-double & instanceVar_CAPBS,
-double & instanceVar_CAPBD,
-double & instanceVar_WEFF,
-double & instanceVar_LEFF,
-double & instanceVar_WEFFCV,
-double & instanceVar_LEFFCV,
-double & instanceVar_IDS,
-double & instanceVar_IDEFF,
-double & instanceVar_ISEFF,
-double & instanceVar_IGEFF,
-double & instanceVar_IBS,
-double & instanceVar_IBD,
+AdmsSensFadType & instanceVar_CGSEXT,
+AdmsSensFadType & instanceVar_CGDEXT,
+AdmsSensFadType & instanceVar_CGBOV,
+AdmsSensFadType & instanceVar_CAPBS,
+AdmsSensFadType & instanceVar_CAPBD,
+AdmsSensFadType & instanceVar_WEFF,
+AdmsSensFadType & instanceVar_LEFF,
+AdmsSensFadType & instanceVar_WEFFCV,
+AdmsSensFadType & instanceVar_LEFFCV,
+AdmsSensFadType & instanceVar_IDS,
+AdmsSensFadType & instanceVar_IDEFF,
+AdmsSensFadType & instanceVar_ISEFF,
+AdmsSensFadType & instanceVar_IGEFF,
+AdmsSensFadType & instanceVar_IBS,
+AdmsSensFadType & instanceVar_IBD,
 double & instanceVar_VDS,
 double & instanceVar_VGS,
 double & instanceVar_VBS,
-double & instanceVar_VDSAT,
-double & instanceVar_GM,
-double & instanceVar_GMBS,
-double & instanceVar_GDS,
+AdmsSensFadType & instanceVar_VDSAT,
+AdmsSensFadType & instanceVar_GM,
+AdmsSensFadType & instanceVar_GMBS,
+AdmsSensFadType & instanceVar_GDS,
 AdmsSensFadType & instanceVar_TK,
 AdmsSensFadType & instanceVar_VTH,
 // non-reals
@@ -6320,30 +6328,198 @@ public:
     //  Variables of global_instance scope
     double T0;
      double d_T0_dV_gm_di;
+     double d_T0_dV_gm_di_dV_gm_di;
+     double d_T0_dV_gm_di_dV_gm_si;
+     double d_T0_dV_gm_di_dV_dbulk_di;
+     double d_T0_dV_gm_di_dV_sbulk_si;
+     double d_T0_dV_gm_di_dV_gi_bi;
+     double d_T0_dV_gm_di_dV_di_bi;
+     double d_T0_dV_gm_di_dV_si_bi;
+     double d_T0_dV_gm_di_dTemp_t_GND;
      double d_T0_dV_gm_si;
+     double d_T0_dV_gm_si_dV_gm_di;
+     double d_T0_dV_gm_si_dV_gm_si;
+     double d_T0_dV_gm_si_dV_dbulk_di;
+     double d_T0_dV_gm_si_dV_sbulk_si;
+     double d_T0_dV_gm_si_dV_gi_bi;
+     double d_T0_dV_gm_si_dV_di_bi;
+     double d_T0_dV_gm_si_dV_si_bi;
+     double d_T0_dV_gm_si_dTemp_t_GND;
      double d_T0_dV_dbulk_di;
+     double d_T0_dV_dbulk_di_dV_gm_di;
+     double d_T0_dV_dbulk_di_dV_gm_si;
+     double d_T0_dV_dbulk_di_dV_dbulk_di;
+     double d_T0_dV_dbulk_di_dV_sbulk_si;
+     double d_T0_dV_dbulk_di_dV_gi_bi;
+     double d_T0_dV_dbulk_di_dV_di_bi;
+     double d_T0_dV_dbulk_di_dV_si_bi;
+     double d_T0_dV_dbulk_di_dTemp_t_GND;
      double d_T0_dV_sbulk_si;
+     double d_T0_dV_sbulk_si_dV_gm_di;
+     double d_T0_dV_sbulk_si_dV_gm_si;
+     double d_T0_dV_sbulk_si_dV_dbulk_di;
+     double d_T0_dV_sbulk_si_dV_sbulk_si;
+     double d_T0_dV_sbulk_si_dV_gi_bi;
+     double d_T0_dV_sbulk_si_dV_di_bi;
+     double d_T0_dV_sbulk_si_dV_si_bi;
+     double d_T0_dV_sbulk_si_dTemp_t_GND;
      double d_T0_dV_gi_bi;
+     double d_T0_dV_gi_bi_dV_gm_di;
+     double d_T0_dV_gi_bi_dV_gm_si;
+     double d_T0_dV_gi_bi_dV_dbulk_di;
+     double d_T0_dV_gi_bi_dV_sbulk_si;
+     double d_T0_dV_gi_bi_dV_gi_bi;
+     double d_T0_dV_gi_bi_dV_di_bi;
+     double d_T0_dV_gi_bi_dV_si_bi;
+     double d_T0_dV_gi_bi_dTemp_t_GND;
      double d_T0_dV_di_bi;
+     double d_T0_dV_di_bi_dV_gm_di;
+     double d_T0_dV_di_bi_dV_gm_si;
+     double d_T0_dV_di_bi_dV_dbulk_di;
+     double d_T0_dV_di_bi_dV_sbulk_si;
+     double d_T0_dV_di_bi_dV_gi_bi;
+     double d_T0_dV_di_bi_dV_di_bi;
+     double d_T0_dV_di_bi_dV_si_bi;
+     double d_T0_dV_di_bi_dTemp_t_GND;
      double d_T0_dV_si_bi;
+     double d_T0_dV_si_bi_dV_gm_di;
+     double d_T0_dV_si_bi_dV_gm_si;
+     double d_T0_dV_si_bi_dV_dbulk_di;
+     double d_T0_dV_si_bi_dV_sbulk_si;
+     double d_T0_dV_si_bi_dV_gi_bi;
+     double d_T0_dV_si_bi_dV_di_bi;
+     double d_T0_dV_si_bi_dV_si_bi;
+     double d_T0_dV_si_bi_dTemp_t_GND;
      double d_T0_dTemp_t_GND;
     double T1;
      double d_T1_dV_gm_di;
+     double d_T1_dV_gm_di_dV_gm_di;
+     double d_T1_dV_gm_di_dV_gm_si;
+     double d_T1_dV_gm_di_dV_dbulk_di;
+     double d_T1_dV_gm_di_dV_sbulk_si;
+     double d_T1_dV_gm_di_dV_gi_bi;
+     double d_T1_dV_gm_di_dV_di_bi;
+     double d_T1_dV_gm_di_dV_si_bi;
+     double d_T1_dV_gm_di_dTemp_t_GND;
      double d_T1_dV_gm_si;
+     double d_T1_dV_gm_si_dV_gm_di;
+     double d_T1_dV_gm_si_dV_gm_si;
+     double d_T1_dV_gm_si_dV_dbulk_di;
+     double d_T1_dV_gm_si_dV_sbulk_si;
+     double d_T1_dV_gm_si_dV_gi_bi;
+     double d_T1_dV_gm_si_dV_di_bi;
+     double d_T1_dV_gm_si_dV_si_bi;
+     double d_T1_dV_gm_si_dTemp_t_GND;
      double d_T1_dV_dbulk_di;
+     double d_T1_dV_dbulk_di_dV_gm_di;
+     double d_T1_dV_dbulk_di_dV_gm_si;
+     double d_T1_dV_dbulk_di_dV_dbulk_di;
+     double d_T1_dV_dbulk_di_dV_sbulk_si;
+     double d_T1_dV_dbulk_di_dV_gi_bi;
+     double d_T1_dV_dbulk_di_dV_di_bi;
+     double d_T1_dV_dbulk_di_dV_si_bi;
+     double d_T1_dV_dbulk_di_dTemp_t_GND;
      double d_T1_dV_sbulk_si;
+     double d_T1_dV_sbulk_si_dV_gm_di;
+     double d_T1_dV_sbulk_si_dV_gm_si;
+     double d_T1_dV_sbulk_si_dV_dbulk_di;
+     double d_T1_dV_sbulk_si_dV_sbulk_si;
+     double d_T1_dV_sbulk_si_dV_gi_bi;
+     double d_T1_dV_sbulk_si_dV_di_bi;
+     double d_T1_dV_sbulk_si_dV_si_bi;
+     double d_T1_dV_sbulk_si_dTemp_t_GND;
      double d_T1_dV_gi_bi;
+     double d_T1_dV_gi_bi_dV_gm_di;
+     double d_T1_dV_gi_bi_dV_gm_si;
+     double d_T1_dV_gi_bi_dV_dbulk_di;
+     double d_T1_dV_gi_bi_dV_sbulk_si;
+     double d_T1_dV_gi_bi_dV_gi_bi;
+     double d_T1_dV_gi_bi_dV_di_bi;
+     double d_T1_dV_gi_bi_dV_si_bi;
+     double d_T1_dV_gi_bi_dTemp_t_GND;
      double d_T1_dV_di_bi;
+     double d_T1_dV_di_bi_dV_gm_di;
+     double d_T1_dV_di_bi_dV_gm_si;
+     double d_T1_dV_di_bi_dV_dbulk_di;
+     double d_T1_dV_di_bi_dV_sbulk_si;
+     double d_T1_dV_di_bi_dV_gi_bi;
+     double d_T1_dV_di_bi_dV_di_bi;
+     double d_T1_dV_di_bi_dV_si_bi;
+     double d_T1_dV_di_bi_dTemp_t_GND;
      double d_T1_dV_si_bi;
+     double d_T1_dV_si_bi_dV_gm_di;
+     double d_T1_dV_si_bi_dV_gm_si;
+     double d_T1_dV_si_bi_dV_dbulk_di;
+     double d_T1_dV_si_bi_dV_sbulk_si;
+     double d_T1_dV_si_bi_dV_gi_bi;
+     double d_T1_dV_si_bi_dV_di_bi;
+     double d_T1_dV_si_bi_dV_si_bi;
+     double d_T1_dV_si_bi_dTemp_t_GND;
      double d_T1_dTemp_t_GND;
     double T2;
      double d_T2_dV_gm_di;
+     double d_T2_dV_gm_di_dV_gm_di;
+     double d_T2_dV_gm_di_dV_gm_si;
+     double d_T2_dV_gm_di_dV_dbulk_di;
+     double d_T2_dV_gm_di_dV_sbulk_si;
+     double d_T2_dV_gm_di_dV_gi_bi;
+     double d_T2_dV_gm_di_dV_di_bi;
+     double d_T2_dV_gm_di_dV_si_bi;
+     double d_T2_dV_gm_di_dTemp_t_GND;
      double d_T2_dV_gm_si;
+     double d_T2_dV_gm_si_dV_gm_di;
+     double d_T2_dV_gm_si_dV_gm_si;
+     double d_T2_dV_gm_si_dV_dbulk_di;
+     double d_T2_dV_gm_si_dV_sbulk_si;
+     double d_T2_dV_gm_si_dV_gi_bi;
+     double d_T2_dV_gm_si_dV_di_bi;
+     double d_T2_dV_gm_si_dV_si_bi;
+     double d_T2_dV_gm_si_dTemp_t_GND;
      double d_T2_dV_dbulk_di;
+     double d_T2_dV_dbulk_di_dV_gm_di;
+     double d_T2_dV_dbulk_di_dV_gm_si;
+     double d_T2_dV_dbulk_di_dV_dbulk_di;
+     double d_T2_dV_dbulk_di_dV_sbulk_si;
+     double d_T2_dV_dbulk_di_dV_gi_bi;
+     double d_T2_dV_dbulk_di_dV_di_bi;
+     double d_T2_dV_dbulk_di_dV_si_bi;
+     double d_T2_dV_dbulk_di_dTemp_t_GND;
      double d_T2_dV_sbulk_si;
+     double d_T2_dV_sbulk_si_dV_gm_di;
+     double d_T2_dV_sbulk_si_dV_gm_si;
+     double d_T2_dV_sbulk_si_dV_dbulk_di;
+     double d_T2_dV_sbulk_si_dV_sbulk_si;
+     double d_T2_dV_sbulk_si_dV_gi_bi;
+     double d_T2_dV_sbulk_si_dV_di_bi;
+     double d_T2_dV_sbulk_si_dV_si_bi;
+     double d_T2_dV_sbulk_si_dTemp_t_GND;
      double d_T2_dV_gi_bi;
+     double d_T2_dV_gi_bi_dV_gm_di;
+     double d_T2_dV_gi_bi_dV_gm_si;
+     double d_T2_dV_gi_bi_dV_dbulk_di;
+     double d_T2_dV_gi_bi_dV_sbulk_si;
+     double d_T2_dV_gi_bi_dV_gi_bi;
+     double d_T2_dV_gi_bi_dV_di_bi;
+     double d_T2_dV_gi_bi_dV_si_bi;
+     double d_T2_dV_gi_bi_dTemp_t_GND;
      double d_T2_dV_di_bi;
+     double d_T2_dV_di_bi_dV_gm_di;
+     double d_T2_dV_di_bi_dV_gm_si;
+     double d_T2_dV_di_bi_dV_dbulk_di;
+     double d_T2_dV_di_bi_dV_sbulk_si;
+     double d_T2_dV_di_bi_dV_gi_bi;
+     double d_T2_dV_di_bi_dV_di_bi;
+     double d_T2_dV_di_bi_dV_si_bi;
+     double d_T2_dV_di_bi_dTemp_t_GND;
      double d_T2_dV_si_bi;
+     double d_T2_dV_si_bi_dV_gm_di;
+     double d_T2_dV_si_bi_dV_gm_si;
+     double d_T2_dV_si_bi_dV_dbulk_di;
+     double d_T2_dV_si_bi_dV_sbulk_si;
+     double d_T2_dV_si_bi_dV_gi_bi;
+     double d_T2_dV_si_bi_dV_di_bi;
+     double d_T2_dV_si_bi_dV_si_bi;
+     double d_T2_dV_si_bi_dTemp_t_GND;
      double d_T2_dTemp_t_GND;
     double epssi;
     double epsox;
@@ -6436,7 +6612,13 @@ public:
     double UD_a;
      double d_UD_a_dTemp_t_GND;
      double d_UD_a_dV_di_bi;
+     double d_UD_a_dV_di_bi_dTemp_t_GND;
+     double d_UD_a_dV_di_bi_dV_di_bi;
+     double d_UD_a_dV_di_bi_dV_si_bi;
      double d_UD_a_dV_si_bi;
+     double d_UD_a_dV_si_bi_dTemp_t_GND;
+     double d_UD_a_dV_si_bi_dV_di_bi;
+     double d_UD_a_dV_si_bi_dV_si_bi;
     double UCS_i;
     double UCSR_i;
     double UC_i;
@@ -6524,47 +6706,210 @@ public:
     double gth;
     double cth;
     double QBI;
+     double d_QBI_dTemp_t_GND;
+     double d_QBI_dV_dbulk_di;
+     double d_QBI_dV_sbulk_si;
+     double d_QBI_dV_gi_bi;
+     double d_QBI_dV_di_bi;
+     double d_QBI_dV_si_bi;
     double QSI;
      double d_QSI_dV_dbulk_di;
+     double d_QSI_dV_dbulk_di_dV_dbulk_di;
+     double d_QSI_dV_dbulk_di_dV_sbulk_si;
+     double d_QSI_dV_dbulk_di_dTemp_t_GND;
+     double d_QSI_dV_dbulk_di_dV_gi_bi;
+     double d_QSI_dV_dbulk_di_dV_di_bi;
+     double d_QSI_dV_dbulk_di_dV_si_bi;
      double d_QSI_dV_sbulk_si;
+     double d_QSI_dV_sbulk_si_dV_dbulk_di;
+     double d_QSI_dV_sbulk_si_dV_sbulk_si;
+     double d_QSI_dV_sbulk_si_dTemp_t_GND;
+     double d_QSI_dV_sbulk_si_dV_gi_bi;
+     double d_QSI_dV_sbulk_si_dV_di_bi;
+     double d_QSI_dV_sbulk_si_dV_si_bi;
      double d_QSI_dTemp_t_GND;
      double d_QSI_dV_gi_bi;
+     double d_QSI_dV_gi_bi_dV_dbulk_di;
+     double d_QSI_dV_gi_bi_dV_sbulk_si;
+     double d_QSI_dV_gi_bi_dTemp_t_GND;
+     double d_QSI_dV_gi_bi_dV_gi_bi;
+     double d_QSI_dV_gi_bi_dV_di_bi;
+     double d_QSI_dV_gi_bi_dV_si_bi;
      double d_QSI_dV_di_bi;
+     double d_QSI_dV_di_bi_dV_dbulk_di;
+     double d_QSI_dV_di_bi_dV_sbulk_si;
+     double d_QSI_dV_di_bi_dTemp_t_GND;
+     double d_QSI_dV_di_bi_dV_gi_bi;
+     double d_QSI_dV_di_bi_dV_di_bi;
+     double d_QSI_dV_di_bi_dV_si_bi;
      double d_QSI_dV_si_bi;
+     double d_QSI_dV_si_bi_dV_dbulk_di;
+     double d_QSI_dV_si_bi_dV_sbulk_si;
+     double d_QSI_dV_si_bi_dTemp_t_GND;
+     double d_QSI_dV_si_bi_dV_gi_bi;
+     double d_QSI_dV_si_bi_dV_di_bi;
+     double d_QSI_dV_si_bi_dV_si_bi;
     double QDI;
      double d_QDI_dV_dbulk_di;
+     double d_QDI_dV_dbulk_di_dV_dbulk_di;
+     double d_QDI_dV_dbulk_di_dV_sbulk_si;
+     double d_QDI_dV_dbulk_di_dTemp_t_GND;
+     double d_QDI_dV_dbulk_di_dV_gi_bi;
+     double d_QDI_dV_dbulk_di_dV_di_bi;
+     double d_QDI_dV_dbulk_di_dV_si_bi;
      double d_QDI_dV_sbulk_si;
+     double d_QDI_dV_sbulk_si_dV_dbulk_di;
+     double d_QDI_dV_sbulk_si_dV_sbulk_si;
+     double d_QDI_dV_sbulk_si_dTemp_t_GND;
+     double d_QDI_dV_sbulk_si_dV_gi_bi;
+     double d_QDI_dV_sbulk_si_dV_di_bi;
+     double d_QDI_dV_sbulk_si_dV_si_bi;
      double d_QDI_dTemp_t_GND;
      double d_QDI_dV_gi_bi;
+     double d_QDI_dV_gi_bi_dV_dbulk_di;
+     double d_QDI_dV_gi_bi_dV_sbulk_si;
+     double d_QDI_dV_gi_bi_dTemp_t_GND;
+     double d_QDI_dV_gi_bi_dV_gi_bi;
+     double d_QDI_dV_gi_bi_dV_di_bi;
+     double d_QDI_dV_gi_bi_dV_si_bi;
      double d_QDI_dV_di_bi;
+     double d_QDI_dV_di_bi_dV_dbulk_di;
+     double d_QDI_dV_di_bi_dV_sbulk_si;
+     double d_QDI_dV_di_bi_dTemp_t_GND;
+     double d_QDI_dV_di_bi_dV_gi_bi;
+     double d_QDI_dV_di_bi_dV_di_bi;
+     double d_QDI_dV_di_bi_dV_si_bi;
      double d_QDI_dV_si_bi;
+     double d_QDI_dV_si_bi_dV_dbulk_di;
+     double d_QDI_dV_si_bi_dV_sbulk_si;
+     double d_QDI_dV_si_bi_dTemp_t_GND;
+     double d_QDI_dV_si_bi_dV_gi_bi;
+     double d_QDI_dV_si_bi_dV_di_bi;
+     double d_QDI_dV_si_bi_dV_si_bi;
     double QGI;
      double d_QGI_dTemp_t_GND;
      double d_QGI_dV_dbulk_di;
+     double d_QGI_dV_dbulk_di_dTemp_t_GND;
+     double d_QGI_dV_dbulk_di_dV_dbulk_di;
+     double d_QGI_dV_dbulk_di_dV_sbulk_si;
+     double d_QGI_dV_dbulk_di_dV_gi_bi;
+     double d_QGI_dV_dbulk_di_dV_di_bi;
+     double d_QGI_dV_dbulk_di_dV_si_bi;
      double d_QGI_dV_sbulk_si;
+     double d_QGI_dV_sbulk_si_dTemp_t_GND;
+     double d_QGI_dV_sbulk_si_dV_dbulk_di;
+     double d_QGI_dV_sbulk_si_dV_sbulk_si;
+     double d_QGI_dV_sbulk_si_dV_gi_bi;
+     double d_QGI_dV_sbulk_si_dV_di_bi;
+     double d_QGI_dV_sbulk_si_dV_si_bi;
      double d_QGI_dV_gi_bi;
+     double d_QGI_dV_gi_bi_dTemp_t_GND;
+     double d_QGI_dV_gi_bi_dV_dbulk_di;
+     double d_QGI_dV_gi_bi_dV_sbulk_si;
+     double d_QGI_dV_gi_bi_dV_gi_bi;
+     double d_QGI_dV_gi_bi_dV_di_bi;
+     double d_QGI_dV_gi_bi_dV_si_bi;
      double d_QGI_dV_di_bi;
+     double d_QGI_dV_di_bi_dTemp_t_GND;
+     double d_QGI_dV_di_bi_dV_dbulk_di;
+     double d_QGI_dV_di_bi_dV_sbulk_si;
+     double d_QGI_dV_di_bi_dV_gi_bi;
+     double d_QGI_dV_di_bi_dV_di_bi;
+     double d_QGI_dV_di_bi_dV_si_bi;
      double d_QGI_dV_si_bi;
+     double d_QGI_dV_si_bi_dTemp_t_GND;
+     double d_QGI_dV_si_bi_dV_dbulk_di;
+     double d_QGI_dV_si_bi_dV_sbulk_si;
+     double d_QGI_dV_si_bi_dV_gi_bi;
+     double d_QGI_dV_si_bi_dV_di_bi;
+     double d_QGI_dV_si_bi_dV_si_bi;
     double CGGI;
+     double d_CGGI_dTemp_t_GND;
+     double d_CGGI_dV_dbulk_di;
+     double d_CGGI_dV_sbulk_si;
+     double d_CGGI_dV_gi_bi;
+     double d_CGGI_dV_di_bi;
+     double d_CGGI_dV_si_bi;
     double CGBI;
     double CGSI;
     double CGDI;
     double CSGI;
+     double d_CSGI_dV_dbulk_di;
+     double d_CSGI_dV_sbulk_si;
+     double d_CSGI_dTemp_t_GND;
+     double d_CSGI_dV_gi_bi;
+     double d_CSGI_dV_di_bi;
+     double d_CSGI_dV_si_bi;
     double CSBI;
+     double d_CSBI_dV_dbulk_di;
+     double d_CSBI_dV_sbulk_si;
+     double d_CSBI_dTemp_t_GND;
+     double d_CSBI_dV_gi_bi;
+     double d_CSBI_dV_di_bi;
+     double d_CSBI_dV_si_bi;
     double CSSI;
     double CSDI;
     double CDGI;
+     double d_CDGI_dV_dbulk_di;
+     double d_CDGI_dV_sbulk_si;
+     double d_CDGI_dTemp_t_GND;
+     double d_CDGI_dV_gi_bi;
+     double d_CDGI_dV_di_bi;
+     double d_CDGI_dV_si_bi;
     double CDBI;
+     double d_CDBI_dV_dbulk_di;
+     double d_CDBI_dV_sbulk_si;
+     double d_CDBI_dTemp_t_GND;
+     double d_CDBI_dV_gi_bi;
+     double d_CDBI_dV_di_bi;
+     double d_CDBI_dV_si_bi;
     double CDSI;
     double CDDI;
     double CBGI;
     double CBBI;
+     double d_CBBI_dTemp_t_GND;
+     double d_CBBI_dV_dbulk_di;
+     double d_CBBI_dV_sbulk_si;
+     double d_CBBI_dV_gi_bi;
+     double d_CBBI_dV_di_bi;
+     double d_CBBI_dV_si_bi;
     double CBSI;
     double CBDI;
     double QB;
+     double d_QB_dTemp_t_GND;
+     double d_QB_dV_dbulk_di;
+     double d_QB_dV_sbulk_si;
+     double d_QB_dV_gi_bi;
+     double d_QB_dV_di_bi;
+     double d_QB_dV_si_bi;
+     double d_QB_dV_gm_bi;
     double QS;
+     double d_QS_dV_dbulk_di;
+     double d_QS_dV_sbulk_si;
+     double d_QS_dTemp_t_GND;
+     double d_QS_dV_gi_bi;
+     double d_QS_dV_di_bi;
+     double d_QS_dV_si_bi;
+     double d_QS_dV_gm_si;
     double QD;
+     double d_QD_dV_dbulk_di;
+     double d_QD_dV_sbulk_si;
+     double d_QD_dTemp_t_GND;
+     double d_QD_dV_gi_bi;
+     double d_QD_dV_di_bi;
+     double d_QD_dV_si_bi;
+     double d_QD_dV_gm_si;
+     double d_QD_dV_gm_di;
     double QG;
+     double d_QG_dTemp_t_GND;
+     double d_QG_dV_dbulk_di;
+     double d_QG_dV_sbulk_si;
+     double d_QG_dV_gi_bi;
+     double d_QG_dV_di_bi;
+     double d_QG_dV_si_bi;
+     double d_QG_dV_gm_si;
+     double d_QG_dV_gm_di;
+     double d_QG_dV_gm_bi;
     double CGG;
     double CGB;
     double CGS;
@@ -6631,6 +6976,14 @@ public:
     double WEFFCV;
     double LEFFCV;
     double IDS;
+     double d_IDS_dV_gm_si;
+     double d_IDS_dV_gm_di;
+     double d_IDS_dV_dbulk_di;
+     double d_IDS_dV_sbulk_si;
+     double d_IDS_dV_gi_bi;
+     double d_IDS_dTemp_t_GND;
+     double d_IDS_dV_di_bi;
+     double d_IDS_dV_si_bi;
     double IDEFF;
     double ISEFF;
     double IGEFF;
@@ -7046,22 +7399,30 @@ public:
     static const int admsProbeID_V_b_bi = 2;
     static const int admsProbeID_V_b_sbulk = 3;
     static const int admsProbeID_V_bi_sbulk = 4;
-    static const int admsProbeID_V_di_si = 5;
-    static const int admsProbeID_V_gm_gi = 6;
-    static const int admsProbeID_V_g_gm = 7;
-    static const int admsProbeID_V_s_si = 8;
-    static const int admsProbeID_V_d_di = 9;
-    static const int admsProbeID_V_gm_bi = 10;
-    static const int admsProbeID_V_N1_GND = 11;
-    static const int admsProbeID_V_N2_GND = 12;
-    static const int admsProbeID_V_gm_si = 13;
-    static const int admsProbeID_V_gm_di = 14;
-    static const int admsProbeID_V_dbulk_di = 15;
-    static const int admsProbeID_V_sbulk_si = 16;
-    static const int admsProbeID_V_si_bi = 17;
-    static const int admsProbeID_V_di_bi = 18;
-    static const int admsProbeID_V_gi_bi = 19;
-    static const int admsProbeID_Temp_t_GND = 20;
+    static const int admsProbeID_V_gm_gi = 5;
+    static const int admsProbeID_V_g_gm = 6;
+    static const int admsProbeID_V_s_si = 7;
+    static const int admsProbeID_V_d_di = 8;
+    static const int admsProbeID_V_gi_si = 9;
+    static const int admsProbeID_V_di_si = 10;
+    static const int admsProbeID_V_dbulk_GND = 11;
+    static const int admsProbeID_V_sbulk_GND = 12;
+    static const int admsProbeID_V_gm_GND = 13;
+    static const int admsProbeID_V_gi_GND = 14;
+    static const int admsProbeID_V_bi_GND = 15;
+    static const int admsProbeID_V_di_GND = 16;
+    static const int admsProbeID_V_si_GND = 17;
+    static const int admsProbeID_V_gm_bi = 18;
+    static const int admsProbeID_V_N1_GND = 19;
+    static const int admsProbeID_V_N2_GND = 20;
+    static const int admsProbeID_V_gm_si = 21;
+    static const int admsProbeID_V_gm_di = 22;
+    static const int admsProbeID_V_dbulk_di = 23;
+    static const int admsProbeID_V_sbulk_si = 24;
+    static const int admsProbeID_V_si_bi = 25;
+    static const int admsProbeID_V_di_bi = 26;
+    static const int admsProbeID_V_gi_bi = 27;
+    static const int admsProbeID_Temp_t_GND = 28;
    // end probe numbers
    // Store LIDs
    // end store LIDs
