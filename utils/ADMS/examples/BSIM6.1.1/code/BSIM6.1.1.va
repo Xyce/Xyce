@@ -4358,7 +4358,6 @@ end
 	
 	//QSI and QDI are defined above
 
-`ifdef __OPStuff
 	//Intrinsic Capacitances
 	CGSI = - ddx(QGI,V(`IntrinsicSource));
 	CGDI = - ddx(QGI,V(`IntrinsicDrain));
@@ -4384,22 +4383,40 @@ end
 	CGS = -ddx(QG,V(`IntrinsicSource));
 	CGD = -ddx(QG,V(`IntrinsicDrain));
 	CGB = -ddx(QG,V(`IntrinsicBody));
- 	CGG = CGGI + ddx(devsign*Qovg,V(`GateEdgeNode));
-
+`ifndef __XYCE__
+        CGG = CGGI + ddx(devsign*Qovg,V(`GateEdgeNode));
+`else
+        CGG = CGGI + devsign*ddx(Qovg,V(`GateEdgeNode));
+`endif
+   
 	CSS = ddx(QS,V(`IntrinsicSource));
 	CSD = -ddx(QS,V(`IntrinsicDrain));
+`ifndef __XYCE__
 	CSB = CSBI - ddx((QS-QSI),V(sbulk));
 	CSG = CSGI - ddx((QS-QSI),V(`GateEdgeNode));
-	
+`else
+	CSB = CSBI - ddx(QS,V(sbulk))+ddx(QSI,V(sbulk));
+	CSG = CSGI - ddx(QS,V(`GateEdgeNode))+ddx(QSI,V(`GateEdgeNode));
+`endif
+
 	CDS = -ddx(QD,V(`IntrinsicSource));
 	CDD = ddx(QD,V(`IntrinsicDrain));
+`ifndef __XYCE__
 	CDB = CDBI - ddx((QD-QDI),V(dbulk));
 	CDG = CDGI - ddx((QD-QDI),V(`GateEdgeNode));
+`else
+   	CDB = CDBI - ddx(QD,V(dbulk))+ddx(QDI,V(dbulk));
+	CDG = CDGI - ddx(QD,V(`GateEdgeNode))+ddx(QDI,V(`GateEdgeNode));
+`endif
 	CBS = -ddx(QB,V(`IntrinsicSource));
 	CBD = -ddx(QB,V(`IntrinsicDrain));
+ `ifndef __XYCE__
 	CBB = CBBI + ddx(QB,V(sbulk)) + ddx(QB,V(dbulk)) + ddx((devsign * Qovb), V( `IntrinsicBody));
 	CBG = -ddx(QB,V(`IntrinsicGate)) - ddx((devsign * Qovb), V(`GateEdgeNode));
-	
+`else
+	CBB = CBBI + ddx(QB,V(sbulk)) + ddx(QB,V(dbulk)) + devsign*ddx(Qovb, V( `IntrinsicBody));
+	CBG = -ddx(QB,V(`IntrinsicGate)) - devsign*ddx(Qovb, V(`GateEdgeNode));
+`endif
 
 	//Total extrinsic capacitance
 	CGSEXT 	= - devsign * ddx(Qovg,V(`IntrinsicSource));//Gate-Source Overlap + outer fringing
@@ -4439,7 +4456,6 @@ end
 	GM		= ddx(IDS,V(`IntrinsicGate));//Transconductance
 	GMBS	= ddx(IDS,V(`IntrinsicBody));//Body transconductance
 	GDS		= ddx(IDS,V(`IntrinsicDrain));//Output conductance
-`endif // __OPStuff
 
 	// Loading variables
 	I(`IntrinsicGate, `IntrinsicBody)	<+ ddt(QGI);
