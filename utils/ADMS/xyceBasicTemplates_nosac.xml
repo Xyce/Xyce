@@ -2263,7 +2263,7 @@ other variables does not get propagated into a variable's
       </admst:choose>
     </admst:when>
     <admst:otherwise>
-      <admst:message format=" recursiveDetectProbeDependence on %(.) unimplemented datatype\n"/>
+      <admst:message format=" recursiveDetectProbeDependence on %(.) unimplemented datatype %(adms/datatypename)\n"/>
     </admst:otherwise>
   </admst:choose>
   <admst:return name="isDependent" value="$isDependent"/>
@@ -4390,12 +4390,6 @@ other variables does not get propagated into a variable's
         <admst:variable name="expressionDeriv" select=""/>
       </admst:when>
       <admst:otherwise>
-        <admst:apply-templates select="arg2" match="recursiveDetectProbeDependence">
-          <admst:variable name="arg2Pdep" value="%(returned('isDependent')/value)"/>
-        </admst:apply-templates>
-        <admst:apply-templates select="arg3" match="recursiveDetectProbeDependence">
-          <admst:variable name="arg3Pdep" value="%(returned('isDependent')/value)"/>
-        </admst:apply-templates>
         <admst:choose>
           <admst:when test="[$globalCurrentScope='AF']">
             <admst:variable name="expression" select="adms_ternary_op($a1,$a2,$a3)"/>
