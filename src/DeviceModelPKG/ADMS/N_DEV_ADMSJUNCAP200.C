@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Fri, 27 Mar 2020 12:37:29
+// Creation Date  : Sat, 28 Mar 2020 14:50:19
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1044,7 +1044,7 @@ vbbt = (0.5*((V1+vbbtlim)-value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((((V1)*(V1))+((4.0*1.0e-6)*1.0e-6)));
-vav = (0.5*((V1)-value_sqrt_0));
+vav = (0.5*(V1-value_sqrt_0));
 }
 }
 if ((AB_i==0.0))
@@ -1766,7 +1766,7 @@ vbbt = (0.5*((V2+vbbtlim)-value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((((V2)*(V2))+((4.0*1.0e-6)*1.0e-6)));
-vav = (0.5*((V2)-value_sqrt_0));
+vav = (0.5*(V2-value_sqrt_0));
 }
 }
 if ((AB_i==0.0))
@@ -2488,7 +2488,7 @@ vbbt = (0.5*((V3+vbbtlim)-value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((((V3)*(V3))+((4.0*1.0e-6)*1.0e-6)));
-vav = (0.5*((V3)-value_sqrt_0));
+vav = (0.5*(V3-value_sqrt_0));
 }
 }
 if ((AB_i==0.0))
@@ -3210,7 +3210,7 @@ vbbt = (0.5*((V4+vbbtlim)-value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((((V4)*(V4))+((4.0*1.0e-6)*1.0e-6)));
-vav = (0.5*((V4)-value_sqrt_0));
+vav = (0.5*(V4-value_sqrt_0));
 }
 }
 if ((AB_i==0.0))
@@ -3932,7 +3932,7 @@ vbbt = (0.5*((V5+vbbtlim)-value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((((V5)*(V5))+((4.0*1.0e-6)*1.0e-6)));
-vav = (0.5*((V5)-value_sqrt_0));
+vav = (0.5*(V5-value_sqrt_0));
 }
 }
 if ((AB_i==0.0))
@@ -5709,7 +5709,7 @@ double value_sqrt_0 = sqrt((((VAK)*(VAK))+((4.0*1.0e-6)*1.0e-6)));
 double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 
 d_vav_dV_A_K = 0.5*(d_VAK_dV_A_K-(deriv_sqrt_0_d0*(((VAK)*d_VAK_dV_A_K+d_VAK_dV_A_K*(VAK)))));
-vav = (0.5*((VAK)-value_sqrt_0));
+vav = (0.5*(VAK-value_sqrt_0));
 }
 }
 if ((AB_i==0.0))
@@ -8456,7 +8456,7 @@ two_psistar = ((-V1)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)
 vjlim = (instanceVar_vbimin-two_psistar);
 vjsrh = (0.5*((V1+vjlim)-sqrt((((V1-vjlim)*(V1-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
 vbbt = (0.5*((V1+instanceVar_vbbtlim)-sqrt((((V1-instanceVar_vbbtlim)*(V1-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*((V1)-sqrt((((V1)*(V1))+((4.0*1.0e-6)*1.0e-6)))));
+vav = (0.5*(V1-sqrt((((V1)*(V1))+((4.0*1.0e-6)*1.0e-6)))));
 }
 if ((instanceVar_AB_i==0.0))
 {
@@ -9002,7 +9002,7 @@ two_psistar = ((-V2)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)
 vjlim = (instanceVar_vbimin-two_psistar);
 vjsrh = (0.5*((V2+vjlim)-sqrt((((V2-vjlim)*(V2-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
 vbbt = (0.5*((V2+instanceVar_vbbtlim)-sqrt((((V2-instanceVar_vbbtlim)*(V2-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*((V2)-sqrt((((V2)*(V2))+((4.0*1.0e-6)*1.0e-6)))));
+vav = (0.5*(V2-sqrt((((V2)*(V2))+((4.0*1.0e-6)*1.0e-6)))));
 }
 if ((instanceVar_AB_i==0.0))
 {
@@ -9548,7 +9548,7 @@ two_psistar = ((-V3)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)
 vjlim = (instanceVar_vbimin-two_psistar);
 vjsrh = (0.5*((V3+vjlim)-sqrt((((V3-vjlim)*(V3-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
 vbbt = (0.5*((V3+instanceVar_vbbtlim)-sqrt((((V3-instanceVar_vbbtlim)*(V3-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*((V3)-sqrt((((V3)*(V3))+((4.0*1.0e-6)*1.0e-6)))));
+vav = (0.5*(V3-sqrt((((V3)*(V3))+((4.0*1.0e-6)*1.0e-6)))));
 }
 if ((instanceVar_AB_i==0.0))
 {
@@ -10094,7 +10094,7 @@ two_psistar = ((-V4)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)
 vjlim = (instanceVar_vbimin-two_psistar);
 vjsrh = (0.5*((V4+vjlim)-sqrt((((V4-vjlim)*(V4-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
 vbbt = (0.5*((V4+instanceVar_vbbtlim)-sqrt((((V4-instanceVar_vbbtlim)*(V4-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*((V4)-sqrt((((V4)*(V4))+((4.0*1.0e-6)*1.0e-6)))));
+vav = (0.5*(V4-sqrt((((V4)*(V4))+((4.0*1.0e-6)*1.0e-6)))));
 }
 if ((instanceVar_AB_i==0.0))
 {
@@ -10640,7 +10640,7 @@ two_psistar = ((-V5)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)
 vjlim = (instanceVar_vbimin-two_psistar);
 vjsrh = (0.5*((V5+vjlim)-sqrt((((V5-vjlim)*(V5-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
 vbbt = (0.5*((V5+instanceVar_vbbtlim)-sqrt((((V5-instanceVar_vbbtlim)*(V5-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*((V5)-sqrt((((V5)*(V5))+((4.0*1.0e-6)*1.0e-6)))));
+vav = (0.5*(V5-sqrt((((V5)*(V5))+((4.0*1.0e-6)*1.0e-6)))));
 }
 if ((instanceVar_AB_i==0.0))
 {
@@ -12070,7 +12070,7 @@ two_psistar = ((-VAK)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv
 vjlim = (instanceVar_vbimin-two_psistar);
 vjsrh = (0.5*((VAK+vjlim)-sqrt((((VAK-vjlim)*(VAK-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
 vbbt = (0.5*((VAK+instanceVar_vbbtlim)-sqrt((((VAK-instanceVar_vbbtlim)*(VAK-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*((VAK)-sqrt((((VAK)*(VAK))+((4.0*1.0e-6)*1.0e-6)))));
+vav = (0.5*(VAK-sqrt((((VAK)*(VAK))+((4.0*1.0e-6)*1.0e-6)))));
 }
 if ((instanceVar_AB_i==0.0))
 {
