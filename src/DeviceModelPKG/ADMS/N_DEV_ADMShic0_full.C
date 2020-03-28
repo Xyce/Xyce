@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Fri, 27 Mar 2020 14:03:49
+// Creation Date  : Fri, 27 Mar 2020 23:43:43
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -2125,6 +2125,11 @@ bool Instance::updateIntermediateVars()
   double fourkt;
      double d_fourkt_dV_tnode_GND;
   double it_wop;
+     double d_it_wop_dV_tnode_GND;
+     double d_it_wop_dV_bi_ei;
+     double d_it_wop_dV_bi_ci;
+     double d_it_wop_dV_b_ci;
+     double d_it_wop_dV_ci_ei;
   double Qbiei;
      double d_Qbiei_dV_tnode_GND;
      double d_Qbiei_dV_ci_ei;
@@ -3343,6 +3348,9 @@ bool Instance::updateIntermediateVars()
      double d_qjcii_dV_tnode_GND;
      double d_qjcii_dV_b_ci;
   double qjci_int;
+     double d_qjci_int_dV_bi_ci;
+     double d_qjci_int_dV_tnode_GND;
+     double d_qjci_int_dV_b_ci;
   double qjcx;
      double d_qjcx_dV_bi_ci;
      double d_qjcx_dV_tnode_GND;
@@ -6384,6 +6392,10 @@ d_qjci_dV_bi_ci = d_qjci_dV_bi_ci_dV_bi_ci = d_qjci_dV_bi_ci_dV_tnode_GND = d_qj
 qjci = 0.00;
 }
 }
+
+d_qjci_int_dV_b_ci = d_qjci_dV_b_ci;
+d_qjci_int_dV_tnode_GND = d_qjci_dV_tnode_GND;
+d_qjci_int_dV_bi_ci = d_qjci_dV_bi_ci;
 qjci_int = qjci;
 
 d_qjcii_dV_b_ci = (d_qjci_dV_b_ci+d_qjcxi_dV_b_ci);
@@ -10233,6 +10245,12 @@ d_Qbiei_dV_bi_ei = HICUMtype*d_Qbiei_dV_bi_ei;
 d_Qbiei_dV_ci_ei = HICUMtype*d_Qbiei_dV_ci_ei;
 d_Qbiei_dV_tnode_GND = HICUMtype*d_Qbiei_dV_tnode_GND;
 Qbiei = (HICUMtype*Qbiei);
+
+d_it_wop_dV_ci_ei = HICUMtype*d_it_dV_ci_ei;
+d_it_wop_dV_b_ci = HICUMtype*d_it_dV_b_ci;
+d_it_wop_dV_bi_ci = HICUMtype*d_it_dV_bi_ci;
+d_it_wop_dV_bi_ei = HICUMtype*d_it_dV_bi_ei;
+d_it_wop_dV_tnode_GND = HICUMtype*d_it_dV_tnode_GND;
 it_wop = (HICUMtype*it);
 
 d_it_dV_ci_ei = HICUMtype*(d_Itxf_dV_ci_ei-d_itr_dV_ci_ei);
@@ -10607,19 +10625,19 @@ VBE = (probeVars[admsProbeID_V_b_e]);
 VBC = (probeVars[admsProbeID_V_b_c]);
 VCE = (probeVars[admsProbeID_V_c_e]);
 VSC = (probeVars[admsProbeID_V_s_c]);
-GMi = (+0.0+0.0);
+GMi = (+d_it_wop_dV_bi_ei+d_it_wop_dV_bi_ci);
 oRPIi = (+d_ijbe_dV_bi_ei);
 RPIi = (1.0/(oRPIi+1e-12));
 oRMUi = ((-1)*(-d_Ibici_dV_bi_ci-d_Ibici_dV_b_ci+d_Ibici_dV_ci_ei));
 RMUi = (1.0/(oRMUi+1e-12));
 gAVL = (HICUMtype*(-d_iavl_dV_bi_ci-d_iavl_dV_b_ci+d_iavl_dV_ci_ei));
-oROi = (-0.0-0.0+0.0);
+oROi = (-d_it_wop_dV_bi_ci-d_it_wop_dV_b_ci+d_it_wop_dV_ci_ei);
 ROi = (1.0/((oROi+gAVL)+1e-12));
 Cdei = (((-1)*HICUMtype)*(-d_qf_dV_bi_ei-d_qf_dV_ci_ei));
 Cjei = (+d_qjei_dV_bi_ei+d_qjei_dV_bi_ci);
 CPIi = ((Cjei+Cdei)+(model_.cbepar));
 Cdci = (((-1)*HICUMtype)*(-d_qr_dV_bi_ci-d_qr_dV_b_ci+d_qr_dV_ci_ei));
-Cjci = (+0.0);
+Cjci = (+d_qjci_int_dV_bi_ci);
 CMUi = (Cjci+Cdci);
 Cjcx = ((-1)*(-d_qjcxi_dV_bi_ci-d_qjcxi_dV_b_ci));
 CBCX = (Cjcx+(model_.cbcpar));
