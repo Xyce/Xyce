@@ -3641,7 +3641,7 @@ other variables does not get propagated into a variable's
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
           </admst:when>
-          <admst:when test="[arg1/math/value=0.0]">
+          <admst:when test="[arg1/math/value=0.0 or $a1='0.0']">
             <admst:variable name="expression" select="%($a2)"/>
             <admst:choose>
               <admst:when test="[$a2Deriv = '0.0']">
@@ -3670,8 +3670,8 @@ other variables does not get propagated into a variable's
               </admst:choose>
             </admst:if>
           </admst:when>
-          <admst:when test="[arg2/math/value=0.0]">
-            <admst:variable name="expression" select="(%($a1))"/>
+          <admst:when test="[arg2/math/value=0.0 or $a2='0.0']">
+            <admst:variable name="expression" select="%($a1)"/>
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0']">
                 <admst:variable name="expressionDeriv" select="0.0"/>
@@ -4992,9 +4992,23 @@ other variables does not get propagated into a variable's
         </admst:if-inside>
         <admst:if test="[insource='yes' and not(nilled(ddxprobe))]">
           <admst:if-inside select="$derivProbe" list="%(probe)">
-            <admst:if-inside select="$derivProbe2" list="%(probe)">
-              <admst:variable name="expressionDeriv12" select="d_%(name)_d%($derivProbe/nature/access)_%($derivProbe/branch/pnode/name)_%($derivProbe/branch/nnode/name)_d%($derivProbe2/nature/access)_%($derivProbe2/branch/pnode/name)_%($derivProbe2/branch/nnode/name)"/>
-            </admst:if-inside>
+            <!-- Note that if we are doing second derivatives, it's because
+                 we are differentiating something that has been ddx()ed.
+                 If so, derivProbe is supposed to be the ddx-related
+                 probe, and derivProbe2 is the regular derivative.
+                 If derivProbe is not associated with a ddxprobe in this
+                 variable, we should be returning ZERO.
+            -->
+            <admst:choose>
+              <admst:when test="[exists(ddxprobe/branch/pnode[.=$derivProbe/branch/pnode or .=$derivProbe/branch/nnode])]">
+                <admst:if-inside select="$derivProbe2" list="%(probe)">
+                  <admst:variable name="expressionDeriv12" select="d_%(name)_d%($derivProbe/nature/access)_%($derivProbe/branch/pnode/name)_%($derivProbe/branch/nnode/name)_d%($derivProbe2/nature/access)_%($derivProbe2/branch/pnode/name)_%($derivProbe2/branch/nnode/name)"/>
+                </admst:if-inside>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv12" select="0.0"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:if-inside>
         </admst:if>
       </admst:if>
@@ -5178,12 +5192,22 @@ other variables does not get propagated into a variable's
                   </admst:when>
                 </admst:choose>
               </admst:for-each>
-              <admst:if test="[not($expression = '')]">
-                <admst:variable name="expression" select="($expression)"/>
-              </admst:if>
-              <admst:if test="[not($expressionDeriv = '')]">
-                <admst:variable name="expressionDeriv" select="($expressionDeriv)"/>
-              </admst:if>
+              <admst:choose>
+                <admst:when test="[not($expression = '')]">
+                  <admst:variable name="expression" select="($expression)"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expression" select="0.0"/>
+                </admst:otherwise>
+              </admst:choose>
+              <admst:choose>
+                <admst:when test="[not($expressionDeriv = '')]">
+                  <admst:variable name="expressionDeriv" select="($expressionDeriv)"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDeriv" select="0.0"/>
+                </admst:otherwise>
+              </admst:choose>
               <!-- restore original "derivProbe"  -->
               <admst:variable name="derivProbe" path="$savedDerivProbe" />
               <admst:variable name="derivProbe2" path="$savedDerivProbe2" />

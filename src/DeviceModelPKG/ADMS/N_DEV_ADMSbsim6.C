@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Fri, 27 Mar 2020 12:37:29
+// Creation Date  : Sat, 28 Mar 2020 15:13:27
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -18701,7 +18701,7 @@ double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
 d_dVth_dibl_dV_si_bi = 0.5*(d_dVth_dibl_dV_si_bi-(deriv_sqrt_0_d0*(((dVth_dibl)*d_dVth_dibl_dV_si_bi+d_dVth_dibl_dV_si_bi*(dVth_dibl)))));
 d_dVth_dibl_dV_di_bi = 0.5*(d_dVth_dibl_dV_di_bi-(deriv_sqrt_0_d0*(((dVth_dibl)*d_dVth_dibl_dV_di_bi+d_dVth_dibl_dV_di_bi*(dVth_dibl)))));
 d_dVth_dibl_dTemp_t_GND = 0.5*(d_dVth_dibl_dTemp_t_GND-(deriv_sqrt_0_d0*(((dVth_dibl)*d_dVth_dibl_dTemp_t_GND+d_dVth_dibl_dTemp_t_GND*(dVth_dibl)))));
-dVth_dibl = ((0.5*((dVth_dibl)-value_sqrt_0))+(0.25*5.0e-5));
+dVth_dibl = ((0.5*(dVth_dibl-value_sqrt_0))+(0.25*5.0e-5));
 }
 if ((DVTP0_i>0.0))
 {
@@ -18865,7 +18865,7 @@ d_phib_n_dTemp_t_GND = ((n*d_phib_dTemp_t_GND-phib*d_n_dTemp_t_GND)/n/n);
 phib_n = (phib/n);
 
 d_T1_dV_gm_di = d_T1_dV_gm_si = d_T1_dV_dbulk_di = d_T1_dV_sbulk_si = d_T1_dV_gi_bi = d_T1_dV_di_bi = d_T1_dV_si_bi = d_T1_dTemp_t_GND =  0.0;
-T1 = (1.0);
+T1 = 1.0;
 
 d_vgfbPD_dV_gm_si = d_vgfbPD_dV_dbulk_di = d_vgfbPD_dV_sbulk_si =  0.0;
 d_vgfbPD_dTemp_t_GND = ((T1*d_vgfb_dTemp_t_GND-vgfb*d_T1_dTemp_t_GND)/T1/T1);
@@ -19255,7 +19255,7 @@ d_qbs_dTemp_t_GND = 0.5*(d_T0_dTemp_t_GND+(deriv_sqrt_0_d0*(((T0)*d_T0_dTemp_t_G
 d_qbs_dV_si_bi = 0.5*(d_T0_dV_si_bi+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_si_bi+d_T0_dV_si_bi*(T0)))));
 d_qbs_dV_di_bi = 0.5*(d_T0_dV_di_bi+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_di_bi+d_T0_dV_di_bi*(T0)))));
 d_qbs_dV_gi_bi = 0.5*(d_T0_dV_gi_bi+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_gi_bi+d_T0_dV_gi_bi*(T0)))));
-qbs = (0.5*((T0)+value_sqrt_0));
+qbs = (0.5*(T0+value_sqrt_0));
 }
 
 d_qis_dV_dbulk_di = d_qis_dV_sbulk_si =  0.0;
@@ -19838,7 +19838,7 @@ d_Vdssat_dTemp_t_GND = 0.5*(d_Vdsat_dTemp_t_GND+(deriv_sqrt_0_d0*((((Vdsat-Vs))*
 d_Vdssat_dV_si_bi = 0.5*((d_Vdsat_dV_si_bi-d_Vs_dV_si_bi)+(deriv_sqrt_0_d0*((((Vdsat-Vs))*(d_Vdsat_dV_si_bi-d_Vs_dV_si_bi)+(d_Vdsat_dV_si_bi-d_Vs_dV_si_bi)*((Vdsat-Vs))))));
 d_Vdssat_dV_di_bi = 0.5*((d_Vdsat_dV_di_bi-d_Vs_dV_di_bi)+(deriv_sqrt_0_d0*((((Vdsat-Vs))*(d_Vdsat_dV_di_bi-d_Vs_dV_di_bi)+(d_Vdsat_dV_di_bi-d_Vs_dV_di_bi)*((Vdsat-Vs))))));
 d_Vdssat_dV_gi_bi = 0.5*(d_Vdsat_dV_gi_bi+(deriv_sqrt_0_d0*((((Vdsat-Vs))*d_Vdsat_dV_gi_bi+d_Vdsat_dV_gi_bi*((Vdsat-Vs))))));
-Vdssat = (0.5*(((Vdsat-Vs))+value_sqrt_0));
+Vdssat = (0.5*((Vdsat-Vs)+value_sqrt_0));
 }
 {
 double value_pow_0 = pow((Vds/Vdssat),(1.0/DELTA_t));
@@ -20214,7 +20214,7 @@ d_qba_dV_gi_bi = 0.5*((nVt*d_Qb_dV_gi_bi+d_nVt_dV_gi_bi*Qb)+(deriv_sqrt_0_d0*(((
 d_qba_dTemp_t_GND = 0.5*((nVt*d_Qb_dTemp_t_GND+d_nVt_dTemp_t_GND*Qb)+(deriv_sqrt_0_d0*((((nVt*Qb))*(nVt*d_Qb_dTemp_t_GND+d_nVt_dTemp_t_GND*Qb)+(nVt*d_Qb_dTemp_t_GND+d_nVt_dTemp_t_GND*Qb)*((nVt*Qb))))));
 d_qba_dV_si_bi = 0.5*((nVt*d_Qb_dV_si_bi+d_nVt_dV_si_bi*Qb)+(deriv_sqrt_0_d0*((((nVt*Qb))*(nVt*d_Qb_dV_si_bi+d_nVt_dV_si_bi*Qb)+(nVt*d_Qb_dV_si_bi+d_nVt_dV_si_bi*Qb)*((nVt*Qb))))));
 d_qba_dV_di_bi = 0.5*((nVt*d_Qb_dV_di_bi+d_nVt_dV_di_bi*Qb)+(deriv_sqrt_0_d0*((((nVt*Qb))*(nVt*d_Qb_dV_di_bi+d_nVt_dV_di_bi*Qb)+(nVt*d_Qb_dV_di_bi+d_nVt_dV_di_bi*Qb)*((nVt*Qb))))));
-qba = (0.5*(((nVt*Qb))+value_sqrt_0));
+qba = (0.5*((nVt*Qb)+value_sqrt_0));
 }
 
 d_qia_dV_dbulk_di = d_qia_dV_sbulk_si =  0.0;
@@ -23874,7 +23874,7 @@ d_qbs_dV_di_bi = 0.5*(d_T0_dV_di_bi+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_di_bi+d_T0_d
 d_qbs_dV_gi_bi = 0.5*(d_T0_dV_gi_bi+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_gi_bi+d_T0_dV_gi_bi*(T0)))));
 d_qbs_dV_sbulk_si = 0.5*(d_T0_dV_sbulk_si+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_sbulk_si+d_T0_dV_sbulk_si*(T0)))));
 d_qbs_dV_dbulk_di = 0.5*(d_T0_dV_dbulk_di+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_dbulk_di+d_T0_dV_dbulk_di*(T0)))));
-qbs = (0.5*((T0)+value_sqrt_0));
+qbs = (0.5*(T0+value_sqrt_0));
 }
 
 d_qis_dV_si_bi = (((2.0*nq)*Vt)*d_qs_dV_si_bi+2.0*d_nq_dV_si_bi*Vt*qs);
@@ -23972,7 +23972,7 @@ d_VdssatCV_dV_di_bi = 0.5*((d_VdsatCV_dV_di_bi-d_Vs_dV_di_bi)+(deriv_sqrt_0_d0*(
 d_VdssatCV_dV_gi_bi = 0.5*(d_VdsatCV_dV_gi_bi+(deriv_sqrt_0_d0*((((VdsatCV-Vs))*d_VdsatCV_dV_gi_bi+d_VdsatCV_dV_gi_bi*((VdsatCV-Vs))))));
 d_VdssatCV_dV_sbulk_si = 0.5*(d_VdsatCV_dV_sbulk_si+(deriv_sqrt_0_d0*((((VdsatCV-Vs))*d_VdsatCV_dV_sbulk_si+d_VdsatCV_dV_sbulk_si*((VdsatCV-Vs))))));
 d_VdssatCV_dV_dbulk_di = 0.5*(d_VdsatCV_dV_dbulk_di+(deriv_sqrt_0_d0*((((VdsatCV-Vs))*d_VdsatCV_dV_dbulk_di+d_VdsatCV_dV_dbulk_di*((VdsatCV-Vs))))));
-VdssatCV = (0.5*(((VdsatCV-Vs))+value_sqrt_0));
+VdssatCV = (0.5*((VdsatCV-Vs)+value_sqrt_0));
 }
 {
 double value_pow_0 = pow((Vds/VdssatCV),(1.0/DELTA_t));
@@ -24398,7 +24398,7 @@ d_qbs_dV_di_bi = 0.5*(d_T0_dV_di_bi+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_di_bi+d_T0_d
 d_qbs_dV_gi_bi = 0.5*(d_T0_dV_gi_bi+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_gi_bi+d_T0_dV_gi_bi*(T0)))));
 d_qbs_dV_sbulk_si = 0.5*(d_T0_dV_sbulk_si+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_sbulk_si+d_T0_dV_sbulk_si*(T0)))));
 d_qbs_dV_dbulk_di = 0.5*(d_T0_dV_dbulk_di+(deriv_sqrt_0_d0*(((T0)*d_T0_dV_dbulk_di+d_T0_dV_dbulk_di*(T0)))));
-qbs = (0.5*((T0)+value_sqrt_0));
+qbs = (0.5*(T0+value_sqrt_0));
 }
 
 d_T1_dV_gm_di = d_T1_dV_gm_si =  0.0;
@@ -24419,7 +24419,7 @@ d_qbd_dV_di_bi = 0.5*(d_T1_dV_di_bi+(deriv_sqrt_0_d0*(((T1)*d_T1_dV_di_bi+d_T1_d
 d_qbd_dV_gi_bi = 0.5*(d_T1_dV_gi_bi+(deriv_sqrt_0_d0*(((T1)*d_T1_dV_gi_bi+d_T1_dV_gi_bi*(T1)))));
 d_qbd_dV_sbulk_si = 0.5*(d_T1_dV_sbulk_si+(deriv_sqrt_0_d0*(((T1)*d_T1_dV_sbulk_si+d_T1_dV_sbulk_si*(T1)))));
 d_qbd_dV_dbulk_di = 0.5*(d_T1_dV_dbulk_di+(deriv_sqrt_0_d0*(((T1)*d_T1_dV_dbulk_di+d_T1_dV_dbulk_di*(T1)))));
-qbd = (0.5*((T1)+value_sqrt_0));
+qbd = (0.5*(T1+value_sqrt_0));
 }
 
 d_qb_dTemp_t_GND = 0.5*(d_qbs_dTemp_t_GND+d_qbd_dTemp_t_GND);
@@ -24660,7 +24660,7 @@ d_T1_dTemp_t_GND = 0.5*(d_sis_dTemp_t_GND+(deriv_sqrt_0_d0*(((sis)*d_sis_dTemp_t
 d_T1_dV_si_bi = 0.5*(d_sis_dV_si_bi+(deriv_sqrt_0_d0*(((sis)*d_sis_dV_si_bi+d_sis_dV_si_bi*(sis)))));
 d_T1_dV_di_bi = 0.5*(d_sis_dV_di_bi+(deriv_sqrt_0_d0*(((sis)*d_sis_dV_di_bi+d_sis_dV_di_bi*(sis)))));
 d_T1_dV_gi_bi = 0.5*(d_sis_dV_gi_bi+(deriv_sqrt_0_d0*(((sis)*d_sis_dV_gi_bi+d_sis_dV_gi_bi*(sis)))));
-T1 = (0.5*((sis)+value_sqrt_0));
+T1 = (0.5*(sis+value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((((sid)*(sid))+((0.25*0.5)*0.5)));
@@ -24673,7 +24673,7 @@ d_T2_dTemp_t_GND = 0.5*(d_sid_dTemp_t_GND+(deriv_sqrt_0_d0*(((sid)*d_sid_dTemp_t
 d_T2_dV_si_bi = 0.5*(d_sid_dV_si_bi+(deriv_sqrt_0_d0*(((sid)*d_sid_dV_si_bi+d_sid_dV_si_bi*(sid)))));
 d_T2_dV_di_bi = 0.5*(d_sid_dV_di_bi+(deriv_sqrt_0_d0*(((sid)*d_sid_dV_di_bi+d_sid_dV_di_bi*(sid)))));
 d_T2_dV_gi_bi = 0.5*(d_sid_dV_gi_bi+(deriv_sqrt_0_d0*(((sid)*d_sid_dV_gi_bi+d_sid_dV_gi_bi*(sid)))));
-T2 = (0.5*((sid)+value_sqrt_0));
+T2 = (0.5*(sid+value_sqrt_0));
 }
 {
 double value_sqrt_0 = sqrt((0.25+(T1*invgamg2)));
@@ -24862,7 +24862,7 @@ d_qbaCV_dV_gi_bi = 0.5*(Vt*d_Qb_dV_gi_bi+(deriv_sqrt_0_d0*((((Vt*Qb))*Vt*d_Qb_dV
 d_qbaCV_dV_sbulk_si = 0.5*(Vt*d_Qb_dV_sbulk_si+(deriv_sqrt_0_d0*((((Vt*Qb))*Vt*d_Qb_dV_sbulk_si+Vt*d_Qb_dV_sbulk_si*((Vt*Qb))))));
 d_qbaCV_dV_dbulk_di = 0.5*(Vt*d_Qb_dV_dbulk_di+(deriv_sqrt_0_d0*((((Vt*Qb))*Vt*d_Qb_dV_dbulk_di+Vt*d_Qb_dV_dbulk_di*((Vt*Qb))))));
 d_qbaCV_dTemp_t_GND = 0.5*((Vt*d_Qb_dTemp_t_GND+d_Vt_dTemp_t_GND*Qb)+(deriv_sqrt_0_d0*((((Vt*Qb))*(Vt*d_Qb_dTemp_t_GND+d_Vt_dTemp_t_GND*Qb)+(Vt*d_Qb_dTemp_t_GND+d_Vt_dTemp_t_GND*Qb)*((Vt*Qb))))));
-qbaCV = (0.5*(((Vt*Qb))+value_sqrt_0));
+qbaCV = (0.5*((Vt*Qb)+value_sqrt_0));
 }
 
 d_qiaCV_dV_si_bi = Vt*(d_Qs_dV_si_bi+d_Qd_dV_si_bi);
@@ -25232,7 +25232,7 @@ d_phib_n_dTemp_t_GND = ((n*d_phib_dTemp_t_GND-phib*d_n_dTemp_t_GND)/n/n);
 phib_n = (phib/n);
 
 d_T1_dV_gm_di = d_T1_dV_gm_si = d_T1_dV_dbulk_di = d_T1_dV_sbulk_si = d_T1_dV_gi_bi = d_T1_dV_di_bi = d_T1_dV_si_bi = d_T1_dTemp_t_GND =  0.0;
-T1 = (1.0);
+T1 = 1.0;
 
 d_vgfbPD_dTemp_t_GND = ((T1*d_vgfb_dTemp_t_GND-vgfb*d_T1_dTemp_t_GND)/T1/T1);
 d_vgfbPD_dV_si_bi = ((T1*d_vgfb_dV_si_bi-vgfb*d_T1_dV_si_bi)/T1/T1);
@@ -25696,7 +25696,7 @@ d_Vdssate_dV_gi_bi = 0.5*(d_Vdsatedge_dV_gi_bi+(deriv_sqrt_0_d0*((((Vdsatedge-Vs
 d_Vdssate_dV_sbulk_si = 0.5*(d_Vdsatedge_dV_sbulk_si+(deriv_sqrt_0_d0*((((Vdsatedge-Vs))*d_Vdsatedge_dV_sbulk_si+d_Vdsatedge_dV_sbulk_si*((Vdsatedge-Vs))))));
 d_Vdssate_dV_dbulk_di = 0.5*(d_Vdsatedge_dV_dbulk_di+(deriv_sqrt_0_d0*((((Vdsatedge-Vs))*d_Vdsatedge_dV_dbulk_di+d_Vdsatedge_dV_dbulk_di*((Vdsatedge-Vs))))));
 d_Vdssate_dV_gm_si = 0.5*(d_Vdsatedge_dV_gm_si+(deriv_sqrt_0_d0*((((Vdsatedge-Vs))*d_Vdsatedge_dV_gm_si+d_Vdsatedge_dV_gm_si*((Vdsatedge-Vs))))));
-Vdssate = (0.5*(((Vdsatedge-Vs))+value_sqrt_0));
+Vdssate = (0.5*((Vdsatedge-Vs)+value_sqrt_0));
 }
 {
 double value_pow_0 = pow((Vds/Vdssate),(1.0/DELTA_t));
@@ -42739,7 +42739,7 @@ nVt = (n*Vt);
 inv_nVt = (1.0/nVt);
 dVth_dibl = ((-(ETA0_a+(instanceVar_ETAB_i*Vbsx)))*Vdsx);
 dvth_temp = (((instanceVar_KT1_i+(modelPar_KT1L/instanceVar_Leff))+(instanceVar_KT2_i*Vbsx))*(pow(TRatio,modelPar_KT1EXP)-1.0));
-dVth_dibl = ((0.5*((dVth_dibl)-sqrt((((dVth_dibl)*(dVth_dibl))+((0.25*5.0e-5)*5.0e-5)))))+(0.25*5.0e-5));
+dVth_dibl = ((0.5*(dVth_dibl-sqrt((((dVth_dibl)*(dVth_dibl))+((0.25*5.0e-5)*5.0e-5)))))+(0.25*5.0e-5));
 if ((instanceVar_DVTP0_i>0.0))
 {
 instanceVar_T0 = ((-instanceVar_DVTP1_i)*Vdsx);
@@ -42776,7 +42776,7 @@ instanceVar_VTH = (((instanceVar_VFB_i+((psip_th-(Vs*inv_Vt))*Vt))+((Vt*gam)*sqr
 gam = (sqrt(((((2.0*1.60219e-19)*instanceVar_epssi)*instanceVar_NDEP_i)*inv_nVt))/instanceVar_Cox);
 inv_gam = (1.0/gam);
 phib_n = (phib/n);
-instanceVar_T1 = (1.0);
+instanceVar_T1 = 1.0;
 vgfbPD = (vgfb/instanceVar_T1);
 gammaPD = (gam/instanceVar_T1);
 instanceVar_T1 = ((0.5*vgfbPD)-(3.0*(1.0+(gammaPD/1.41421356237309504880))));
@@ -42844,7 +42844,7 @@ instanceVar_T0 = (0.5*((psiavg+1.0)+sqrt((((psiavg-1.0)*(psiavg-1.0))+((0.25*2.0
 nq = (1.0+(gam/(sqrtpsip+sqrt(instanceVar_T0))));
 EeffFactor = (1.0e-8/(instanceVar_epsratio*modelPar_TOXE));
 instanceVar_T0 = (nVt*((vgfb-psip)-((2.0*qs)*(nq-1.0))));
-qbs = (0.5*((instanceVar_T0)+sqrt((((instanceVar_T0)*(instanceVar_T0))+((0.25*0.1)*0.1)))));
+qbs = (0.5*(instanceVar_T0+sqrt((((instanceVar_T0)*(instanceVar_T0))+((0.25*0.1)*0.1)))));
 qis = (((2.0*nq)*nVt)*qs);
 Eeffs = (EeffFactor*(qbs+(eta_mu*qis)));
 instanceVar_T2 = pow((0.5*(1.0+(qis/qbs))),UCS_a);
@@ -42986,7 +42986,7 @@ qdsat = (instanceVar_T0-(T4/T6));
 }
 vdsat = ((psip-(2.0*phib_n))-((2.0*qdsat)+log(((((qdsat*2.0)*nq)*inv_gam)*((((qdsat*2.0)*nq)*inv_gam)+(gam/(nq-1.0)))))));
 Vdsat = (vdsat*nVt);
-Vdssat = (0.5*(((Vdsat-Vs))+sqrt(((((Vdsat-Vs))*((Vdsat-Vs)))+((0.25*1e-3)*1e-3)))));
+Vdssat = (0.5*((Vdsat-Vs)+sqrt(((((Vdsat-Vs))*((Vdsat-Vs)))+((0.25*1e-3)*1e-3)))));
 T7 = pow((Vds/Vdssat),(1.0/DELTA_t));
 T8 = pow((1.0+T7),(-DELTA_t));
 Vdseff = (Vds*T8);
@@ -43047,7 +43047,7 @@ instanceVar_T2 = (0.33333333333333333*nq);
 T3 = (instanceVar_T1*instanceVar_T0);
 Qs = (instanceVar_T2*(((2.0*qs)+qdeff)+((0.5*((1.0+(0.8*qs))+(1.2*qdeff)))*T3)));
 Qd = (instanceVar_T2*((qs+(2.0*qdeff))+((0.5*((1.0+(1.2*qs))+(0.8*qdeff)))*T3)));
-qba = (0.5*(((nVt*Qb))+sqrt(((((nVt*Qb))*((nVt*Qb)))+((0.25*0.1)*0.1)))));
+qba = (0.5*((nVt*Qb)+sqrt(((((nVt*Qb))*((nVt*Qb)))+((0.25*0.1)*0.1)))));
 qia = (nVt*(Qs+Qd));
 Eeffm = (EeffFactor*(qba+(eta_mu*qia)));
 instanceVar_T2 = pow((0.5*(1.0+(qia/qba))),UCS_a);
@@ -43912,7 +43912,7 @@ psiavg = (psip-(2.0*qs));
 instanceVar_T0 = (0.5*((psiavg+1.0)+sqrt((((psiavg-1.0)*(psiavg-1.0))+((0.25*2.0)*2.0)))));
 nq = (1.0+(gam/(sqrtpsip+sqrt(instanceVar_T0))));
 instanceVar_T0 = (Vt*((vgfbCV-psip)-((2.0*qs)*(nq-1.0))));
-qbs = (0.5*((instanceVar_T0)+sqrt((((instanceVar_T0)*(instanceVar_T0))+((0.25*0.1)*0.1)))));
+qbs = (0.5*(instanceVar_T0+sqrt((((instanceVar_T0)*(instanceVar_T0))+((0.25*0.1)*0.1)))));
 qis = (((2.0*nq)*Vt)*qs);
 Eeffs = (EeffFactor*(qbs+(eta_mu*qis)));
 T3 = ((UA_a+(UC_a*Vbsx))*pow(Eeffs,instanceVar_EU_i));
@@ -43922,7 +43922,7 @@ LambdaC_by2 = (((U0_a/Dmobs)*Vt)/(VSATCV_t*instanceVar_Lact));
 qdsat = ((LambdaC_by2*((qs*qs)+qs))/(1.0+(LambdaC_by2*(1.0+qs))));
 vdsatcv = ((psip-(2.0*phib))-((2.0*qdsat)+log(((((qdsat*2.0)*nq)*inv_gam)*((((qdsat*2.0)*nq)*inv_gam)+(gam/(nq-1.0)))))));
 VdsatCV = (vdsatcv*Vt);
-VdssatCV = (0.5*(((VdsatCV-Vs))+sqrt(((((VdsatCV-Vs))*((VdsatCV-Vs)))+((0.25*1e-3)*1e-3)))));
+VdssatCV = (0.5*((VdsatCV-Vs)+sqrt(((((VdsatCV-Vs))*((VdsatCV-Vs)))+((0.25*1e-3)*1e-3)))));
 T7 = pow((Vds/VdssatCV),(1.0/DELTA_t));
 T8 = pow((1.0+T7),(-DELTA_t));
 Vdseff = (Vds*T8);
@@ -43979,9 +43979,9 @@ T4 = (0.5+((DPD*instanceVar_T2)*inv_gam));
 T5 = sqrt(((T4*T4)+((T3*(qs+qdeff))*invgamg2)));
 nq = (T3/(T4+T5));
 instanceVar_T0 = (Vt*((vgfbCV-psip)-((2.0*qs)*(nq-1.0))));
-qbs = (0.5*((instanceVar_T0)+sqrt((((instanceVar_T0)*(instanceVar_T0))+((0.25*0.1)*0.1)))));
+qbs = (0.5*(instanceVar_T0+sqrt((((instanceVar_T0)*(instanceVar_T0))+((0.25*0.1)*0.1)))));
 instanceVar_T1 = (Vt*((vgfbCV-psip)-((2.0*qdeff)*(nq-1.0))));
-qbd = (0.5*((instanceVar_T1)+sqrt((((instanceVar_T1)*(instanceVar_T1))+((0.25*0.1)*0.1)))));
+qbd = (0.5*(instanceVar_T1+sqrt((((instanceVar_T1)*(instanceVar_T1))+((0.25*0.1)*0.1)))));
 qb = (0.5*(qbs+qbd));
 qia = ((nq*Vt)*(qs+qdeff));
 Eeffm = (EeffFactor*(qb+(eta_mu*qia)));
@@ -44015,8 +44015,8 @@ DQSD = (qs-qdeff);
 DQSD2 = ((qs-qdeff)*(qs-qdeff));
 sis = (vgpqm+(2.0*qs));
 sid = (vgpqm+(2.0*qdeff));
-instanceVar_T1 = (0.5*((sis)+sqrt((((sis)*(sis))+((0.25*0.5)*0.5)))));
-instanceVar_T2 = (0.5*((sid)+sqrt((((sid)*(sid))+((0.25*0.5)*0.5)))));
+instanceVar_T1 = (0.5*(sis+sqrt((((sis)*(sis))+((0.25*0.5)*0.5)))));
+instanceVar_T2 = (0.5*(sid+sqrt((((sid)*(sid))+((0.25*0.5)*0.5)))));
 Temps = sqrt((0.25+(instanceVar_T1*invgamg2)));
 Tempd = sqrt((0.25+(instanceVar_T2*invgamg2)));
 instanceVar_T1 = (sis/(1.0+(2.0*Temps)));
@@ -44037,7 +44037,7 @@ Qd1 = ((nq*inv_MdL_2)*((0.5*T9)-((DQSD/6.0)*((1.0-(DQSD*T5))-(0.2*T10)))));
 Qd2 = ((nq*(MdL-inv_MdL))*qdeff);
 Qd = (Qd1+Qd2);
 Qs = (Qi-Qd);
-qbaCV = (0.5*(((Vt*Qb))+sqrt(((((Vt*Qb))*((Vt*Qb)))+((0.25*0.1)*0.1)))));
+qbaCV = (0.5*((Vt*Qb)+sqrt(((((Vt*Qb))*((Vt*Qb)))+((0.25*0.1)*0.1)))));
 qiaCV = (Vt*(Qs+Qd));
 instanceVar_T0 = ((qiaCV+(modelPar_ETAQM*qbaCV))/modelPar_QM0);
 instanceVar_T1 = (1.0+pow(instanceVar_T0,(0.7*modelPar_BDOS)));
@@ -44096,7 +44096,7 @@ gam = (sqrt(((((2.0*1.60219e-19)*instanceVar_epssi)*instanceVar_NDEP_i)*inv_nVt)
 gam = (gam*(1.0+DGAMMAEDGE_i));
 inv_gam = (1.0/gam);
 phib_n = (phib/n);
-instanceVar_T1 = (1.0);
+instanceVar_T1 = 1.0;
 vgfbPD = (vgfb/instanceVar_T1);
 gammaPD = (gam/instanceVar_T1);
 instanceVar_T1 = ((0.5*vgfbPD)-(3.0*(1.0+(gammaPD/1.41421356237309504880))));
@@ -44160,7 +44160,7 @@ qs = (T3-((T4/T5)*(1.0+((T4*T7)/((2.0*T5)*T5)))));
 vdsatedge = (((2.0*nVt)*qs)+(2.0*nVt));
 Vdsatedge = vdsatedge;
 Vdsatedge = (Vdsatedge+Vs);
-Vdssate = (0.5*(((Vdsatedge-Vs))+sqrt(((((Vdsatedge-Vs))*((Vdsatedge-Vs)))+((0.25*1.0e-3)*1.0e-3)))));
+Vdssate = (0.5*((Vdsatedge-Vs)+sqrt(((((Vdsatedge-Vs))*((Vdsatedge-Vs)))+((0.25*1.0e-3)*1.0e-3)))));
 T7 = pow((Vds/Vdssate),(1.0/DELTA_t));
 T8 = pow((1.0+T7),(-DELTA_t));
 Vdseff = (Vds*T8);
