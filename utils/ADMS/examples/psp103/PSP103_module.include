@@ -2830,7 +2830,6 @@
                 //  --------------------------------------------------------------------------------------------------------------
                 //  Operating point info
                 //  --------------------------------------------------------------------------------------------------------------
-`ifdef doOPinfo
                 begin : OPinfo
 
                     // Auxiliary variables
@@ -3211,7 +3210,6 @@
                     `endif // NQSmodel
 
                 end // OPinfo
-`endif //doOPinfo
             end // evaluateblock
 
         end // analogBlock

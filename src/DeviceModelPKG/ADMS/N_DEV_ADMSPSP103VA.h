@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Sat, 28 Mar 2020 14:50:33
+// Creation Date  : Sun, 29 Mar 2020 11:25:24
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSPSP103VA_h
@@ -54,7 +54,7 @@ namespace Device {
 namespace ADMSPSP103VA {
 
 // This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad<double,14> AdmsFadType;
+  typedef Sacado::Fad::SFad<double,20> AdmsFadType;
   typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
@@ -172,6 +172,12 @@ return ifFalse;
 void evaluateModelEquations(
 std::vector <double> & probeVars,
 // probe constants
+const int admsProbeID_V_DI_GND,
+const int admsProbeID_V_BS_GND,
+const int admsProbeID_V_BD_GND,
+const int admsProbeID_V_SI_GND,
+const int admsProbeID_V_BP_GND,
+const int admsProbeID_V_GP_GND,
 const int admsProbeID_V_NOI_GND,
 const int admsProbeID_V_NOI2_GND,
 const int admsProbeID_V_B_BI,
@@ -265,36 +271,64 @@ bool instancePar_given_MULT,
 // instance variables
 // reals
 AdmsSensFadType & instanceVar_MULT_i,
+AdmsSensFadType & instanceVar_STVFB_i,
+AdmsSensFadType & instanceVar_TOX_i,
+AdmsSensFadType & instanceVar_EPSROX_i,
+AdmsSensFadType & instanceVar_NEFF_i,
+AdmsSensFadType & instanceVar_FACNEFFAC_i,
 AdmsSensFadType & instanceVar_GFACNUD_i,
+AdmsSensFadType & instanceVar_VSBNUD_i,
+AdmsSensFadType & instanceVar_DVSBNUD_i,
 AdmsSensFadType & instanceVar_VNSUB_i,
 AdmsSensFadType & instanceVar_NSLP_i,
 AdmsSensFadType & instanceVar_DNSUB_i,
+AdmsSensFadType & instanceVar_DPHIB_i,
+AdmsSensFadType & instanceVar_DELVTAC_i,
+AdmsSensFadType & instanceVar_NP_i,
+AdmsSensFadType & instanceVar_CT_i,
+AdmsSensFadType & instanceVar_TOXOV_i,
+AdmsSensFadType & instanceVar_TOXOVD_i,
+AdmsSensFadType & instanceVar_NOV_i,
+AdmsSensFadType & instanceVar_NOVD_i,
 AdmsSensFadType & instanceVar_CF_i,
 AdmsSensFadType & instanceVar_CFD_i,
 AdmsSensFadType & instanceVar_CFB_i,
 AdmsSensFadType & instanceVar_PSCE_i,
 AdmsSensFadType & instanceVar_PSCEB_i,
 AdmsSensFadType & instanceVar_PSCED_i,
+AdmsSensFadType & instanceVar_STBET_i,
+AdmsSensFadType & instanceVar_STMUE_i,
+AdmsSensFadType & instanceVar_STTHEMU_i,
+AdmsSensFadType & instanceVar_STCS_i,
+AdmsSensFadType & instanceVar_STXCOR_i,
+AdmsSensFadType & instanceVar_FETA_i,
+AdmsSensFadType & instanceVar_STRS_i,
 AdmsSensFadType & instanceVar_RSB_i,
 AdmsSensFadType & instanceVar_RSG_i,
+AdmsSensFadType & instanceVar_STTHESAT_i,
 AdmsSensFadType & instanceVar_THESATB_i,
 AdmsSensFadType & instanceVar_THESATG_i,
 AdmsSensFadType & instanceVar_AX_i,
 AdmsSensFadType & instanceVar_ALP_i,
 AdmsSensFadType & instanceVar_ALP1_i,
 AdmsSensFadType & instanceVar_ALP2_i,
+AdmsSensFadType & instanceVar_VP_i,
 AdmsSensFadType & instanceVar_A1_i,
+AdmsSensFadType & instanceVar_STA2_i,
 AdmsSensFadType & instanceVar_A3_i,
 AdmsSensFadType & instanceVar_A4_i,
 AdmsSensFadType & instanceVar_GCO_i,
 AdmsSensFadType & instanceVar_IGINV_i,
 AdmsSensFadType & instanceVar_IGOV_i,
 AdmsSensFadType & instanceVar_IGOVD_i,
+AdmsSensFadType & instanceVar_STIG_i,
 AdmsSensFadType & instanceVar_GC2_i,
 AdmsSensFadType & instanceVar_GC3_i,
 AdmsSensFadType & instanceVar_CHIB_i,
 AdmsSensFadType & instanceVar_AGIDL_i,
 AdmsSensFadType & instanceVar_AGIDLD_i,
+AdmsSensFadType & instanceVar_STBGIDL_i,
+AdmsSensFadType & instanceVar_STBGIDLD_i,
 AdmsSensFadType & instanceVar_CGIDL_i,
 AdmsSensFadType & instanceVar_CGIDLD_i,
 AdmsSensFadType & instanceVar_COX_i,
@@ -303,18 +337,25 @@ AdmsSensFadType & instanceVar_CGOVD_i,
 AdmsSensFadType & instanceVar_CGBOV_i,
 AdmsSensFadType & instanceVar_CFR_i,
 AdmsSensFadType & instanceVar_CFRD_i,
+AdmsSensFadType & instanceVar_FNT_i,
 AdmsSensFadType & instanceVar_FNTEXC_i,
 AdmsSensFadType & instanceVar_NFA_i,
 AdmsSensFadType & instanceVar_NFB_i,
 AdmsSensFadType & instanceVar_NFC_i,
 AdmsSensFadType & instanceVar_EF_i,
+AdmsSensFadType & instanceVar_STVFBEDGE_i,
+AdmsSensFadType & instanceVar_DPHIBEDGE_i,
+AdmsSensFadType & instanceVar_NEFFEDGE_i,
+AdmsSensFadType & instanceVar_CTEDGE_i,
 AdmsSensFadType & instanceVar_BETNEDGE_i,
+AdmsSensFadType & instanceVar_STBETEDGE_i,
 AdmsSensFadType & instanceVar_PSCEEDGE_i,
 AdmsSensFadType & instanceVar_PSCEBEDGE_i,
 AdmsSensFadType & instanceVar_PSCEDEDGE_i,
 AdmsSensFadType & instanceVar_CFEDGE_i,
 AdmsSensFadType & instanceVar_CFDEDGE_i,
 AdmsSensFadType & instanceVar_CFBEDGE_i,
+AdmsSensFadType & instanceVar_FNTEDGE_i,
 AdmsSensFadType & instanceVar_NFAEDGE_i,
 AdmsSensFadType & instanceVar_NFBEDGE_i,
 AdmsSensFadType & instanceVar_NFCEDGE_i,
@@ -326,6 +367,8 @@ AdmsSensFadType & instanceVar_RBULK_i,
 AdmsSensFadType & instanceVar_RJUNS_i,
 AdmsSensFadType & instanceVar_RJUND_i,
 AdmsSensFadType & instanceVar_RWELL_i,
+AdmsSensFadType & instanceVar_LE,
+AdmsSensFadType & instanceVar_WE,
 AdmsSensFadType & instanceVar_ABSOURCE_i,
 AdmsSensFadType & instanceVar_LSSOURCE_i,
 AdmsSensFadType & instanceVar_LGSOURCE_i,
@@ -377,12 +420,17 @@ AdmsSensFadType & instanceVar_MFOR2_d,
 AdmsSensFadType & instanceVar_ISATREV_d,
 AdmsSensFadType & instanceVar_MREV_d,
 AdmsSensFadType & instanceVar_VFB_T,
+AdmsSensFadType & instanceVar_BETN_T,
 AdmsSensFadType & instanceVar_MUE_T,
 AdmsSensFadType & instanceVar_THEMU_T,
 AdmsSensFadType & instanceVar_CS_T,
 AdmsSensFadType & instanceVar_XCOR_T,
+AdmsSensFadType & instanceVar_RS_T,
+AdmsSensFadType & instanceVar_BGIDL_T,
+AdmsSensFadType & instanceVar_BGIDLD_T,
 AdmsSensFadType & instanceVar_A2_T,
 AdmsSensFadType & instanceVar_VFBEDGE_T,
+AdmsSensFadType & instanceVar_BETNEDGE_T,
 AdmsSensFadType & instanceVar_phit0,
 AdmsSensFadType & instanceVar_BET_i,
 AdmsSensFadType & instanceVar_BETEDGE_i,
@@ -453,170 +501,233 @@ AdmsSensFadType & instanceVar_gbulk,
 AdmsSensFadType & instanceVar_gjuns,
 AdmsSensFadType & instanceVar_gjund,
 AdmsSensFadType & instanceVar_gwell,
+AdmsSensFadType & instanceVar_Sfl,
+AdmsSensFadType & instanceVar_sqid,
+AdmsSensFadType & instanceVar_mig,
+AdmsSensFadType & instanceVar_CGeff,
+AdmsSensFadType & instanceVar_c_igid,
+AdmsSensFadType & instanceVar_shot_igcsx,
+AdmsSensFadType & instanceVar_shot_igcdx,
+AdmsSensFadType & instanceVar_shot_igsov,
+AdmsSensFadType & instanceVar_shot_igdov,
+AdmsSensFadType & instanceVar_shot_iavl,
+AdmsSensFadType & instanceVar_jnoisex_s,
+AdmsSensFadType & instanceVar_jnoisex_d,
 double & instanceVar_ctype,
 double & instanceVar_sdint,
-double & instanceVar_ise,
-double & instanceVar_ige,
-double & instanceVar_ide,
-double & instanceVar_ibe,
-double & instanceVar_ids,
-double & instanceVar_idb,
-double & instanceVar_isb,
-double & instanceVar_igs,
-double & instanceVar_igd,
-double & instanceVar_igb,
-double & instanceVar_idedge,
-double & instanceVar_igcs,
-double & instanceVar_igcd,
-double & instanceVar_iavl,
-double & instanceVar_igisl,
-double & instanceVar_igidl,
-double & instanceVar_ijs,
-double & instanceVar_ijsbot,
-double & instanceVar_ijsgat,
-double & instanceVar_ijssti,
-double & instanceVar_ijd,
-double & instanceVar_ijdbot,
-double & instanceVar_ijdgat,
-double & instanceVar_ijdsti,
+AdmsSensFadType & instanceVar_ise,
+AdmsSensFadType & instanceVar_ige,
+AdmsSensFadType & instanceVar_ide,
+AdmsSensFadType & instanceVar_ibe,
+AdmsSensFadType & instanceVar_ids,
+AdmsSensFadType & instanceVar_idb,
+AdmsSensFadType & instanceVar_isb,
+AdmsSensFadType & instanceVar_igs,
+AdmsSensFadType & instanceVar_igd,
+AdmsSensFadType & instanceVar_igb,
+AdmsSensFadType & instanceVar_idedge,
+AdmsSensFadType & instanceVar_igcs,
+AdmsSensFadType & instanceVar_igcd,
+AdmsSensFadType & instanceVar_iavl,
+AdmsSensFadType & instanceVar_igisl,
+AdmsSensFadType & instanceVar_igidl,
+AdmsSensFadType & instanceVar_ijs,
+AdmsSensFadType & instanceVar_ijsbot,
+AdmsSensFadType & instanceVar_ijsgat,
+AdmsSensFadType & instanceVar_ijssti,
+AdmsSensFadType & instanceVar_ijd,
+AdmsSensFadType & instanceVar_ijdbot,
+AdmsSensFadType & instanceVar_ijdgat,
+AdmsSensFadType & instanceVar_ijdsti,
 double & instanceVar_vds,
 double & instanceVar_vgs,
 double & instanceVar_vsb,
-double & instanceVar_vto,
-double & instanceVar_vts,
-double & instanceVar_vth,
-double & instanceVar_vgt,
-double & instanceVar_vdss,
-double & instanceVar_vsat,
-double & instanceVar_weff,
-double & instanceVar_leff,
-double & instanceVar_lp_vfb,
-double & instanceVar_lp_stvfb,
-double & instanceVar_lp_tox,
-double & instanceVar_lp_epsrox,
-double & instanceVar_lp_neff,
-double & instanceVar_lp_facneffac,
-double & instanceVar_lp_gfacnud,
-double & instanceVar_lp_vsbnud,
-double & instanceVar_lp_dvsbnud,
-double & instanceVar_lp_vnsub,
-double & instanceVar_lp_nslp,
-double & instanceVar_lp_dnsub,
-double & instanceVar_lp_dphib,
-double & instanceVar_lp_delvtac,
-double & instanceVar_lp_np,
-double & instanceVar_lp_ct,
-double & instanceVar_lp_toxov,
-double & instanceVar_lp_toxovd,
-double & instanceVar_lp_nov,
-double & instanceVar_lp_novd,
-double & instanceVar_lp_cf,
-double & instanceVar_lp_cfd,
-double & instanceVar_lp_cfb,
-double & instanceVar_lp_psce,
-double & instanceVar_lp_psceb,
-double & instanceVar_lp_psced,
-double & instanceVar_lp_betn,
-double & instanceVar_lp_stbet,
-double & instanceVar_lp_mue,
-double & instanceVar_lp_stmue,
-double & instanceVar_lp_themu,
-double & instanceVar_lp_stthemu,
-double & instanceVar_lp_cs,
-double & instanceVar_lp_stcs,
-double & instanceVar_lp_xcor,
-double & instanceVar_lp_stxcor,
-double & instanceVar_lp_feta,
-double & instanceVar_lp_rs,
-double & instanceVar_lp_strs,
-double & instanceVar_lp_rsb,
-double & instanceVar_lp_rsg,
-double & instanceVar_lp_thesat,
-double & instanceVar_lp_stthesat,
-double & instanceVar_lp_thesatb,
-double & instanceVar_lp_thesatg,
-double & instanceVar_lp_ax,
-double & instanceVar_lp_alp,
-double & instanceVar_lp_alp1,
-double & instanceVar_lp_alp2,
-double & instanceVar_lp_vp,
-double & instanceVar_lp_a1,
-double & instanceVar_lp_a2,
-double & instanceVar_lp_sta2,
-double & instanceVar_lp_a3,
-double & instanceVar_lp_a4,
-double & instanceVar_lp_gco,
-double & instanceVar_lp_iginv,
-double & instanceVar_lp_igov,
-double & instanceVar_lp_igovd,
-double & instanceVar_lp_stig,
-double & instanceVar_lp_gc2,
-double & instanceVar_lp_gc3,
-double & instanceVar_lp_chib,
-double & instanceVar_lp_agidl,
-double & instanceVar_lp_agidld,
-double & instanceVar_lp_bgidl,
-double & instanceVar_lp_bgidld,
-double & instanceVar_lp_stbgidl,
-double & instanceVar_lp_stbgidld,
-double & instanceVar_lp_cgidl,
-double & instanceVar_lp_cgidld,
-double & instanceVar_lp_cox,
-double & instanceVar_lp_cgov,
-double & instanceVar_lp_cgovd,
-double & instanceVar_lp_cgbov,
-double & instanceVar_lp_cfr,
-double & instanceVar_lp_cfrd,
-double & instanceVar_lp_fnt,
-double & instanceVar_lp_fntexc,
-double & instanceVar_lp_nfa,
-double & instanceVar_lp_nfb,
-double & instanceVar_lp_nfc,
-double & instanceVar_lp_ef,
-double & instanceVar_lp_vfbedge,
-double & instanceVar_lp_stvfbedge,
-double & instanceVar_lp_dphibedge,
-double & instanceVar_lp_neffedge,
-double & instanceVar_lp_ctedge,
-double & instanceVar_lp_betnedge,
-double & instanceVar_lp_stbetedge,
-double & instanceVar_lp_psceedge,
-double & instanceVar_lp_pscebedge,
-double & instanceVar_lp_pscededge,
-double & instanceVar_lp_cfedge,
-double & instanceVar_lp_cfdedge,
-double & instanceVar_lp_cfbedge,
-double & instanceVar_lp_fntedge,
-double & instanceVar_lp_nfaedge,
-double & instanceVar_lp_nfbedge,
-double & instanceVar_lp_nfcedge,
-double & instanceVar_lp_efedge,
-double & instanceVar_lp_rg,
-double & instanceVar_lp_rse,
-double & instanceVar_lp_rde,
-double & instanceVar_lp_rbulk,
-double & instanceVar_lp_rwell,
-double & instanceVar_lp_rjuns,
-double & instanceVar_lp_rjund,
-double & instanceVar_tk,
-double & instanceVar_cjosbot,
-double & instanceVar_cjossti,
-double & instanceVar_cjosgat,
-double & instanceVar_vbisbot,
-double & instanceVar_vbissti,
-double & instanceVar_vbisgat,
-double & instanceVar_idsatsbot,
-double & instanceVar_idsatssti,
-double & instanceVar_idsatsgat,
-double & instanceVar_cjosbotd,
-double & instanceVar_cjosstid,
-double & instanceVar_cjosgatd,
-double & instanceVar_vbisbotd,
-double & instanceVar_vbisstid,
-double & instanceVar_vbisgatd,
-double & instanceVar_idsatsbotd,
-double & instanceVar_idsatsstid,
-double & instanceVar_idsatsgatd,
+AdmsSensFadType & instanceVar_vto,
+AdmsSensFadType & instanceVar_vts,
+AdmsSensFadType & instanceVar_vth,
+AdmsSensFadType & instanceVar_vgt,
+AdmsSensFadType & instanceVar_vdss,
+AdmsSensFadType & instanceVar_vsat,
+AdmsSensFadType & instanceVar_gm,
+AdmsSensFadType & instanceVar_gmb,
+AdmsSensFadType & instanceVar_gds,
+AdmsSensFadType & instanceVar_gjs,
+AdmsSensFadType & instanceVar_gjd,
+AdmsSensFadType & instanceVar_cdd,
+AdmsSensFadType & instanceVar_cdg,
+AdmsSensFadType & instanceVar_cds,
+AdmsSensFadType & instanceVar_cdb,
+AdmsSensFadType & instanceVar_cgd,
+AdmsSensFadType & instanceVar_cgg,
+AdmsSensFadType & instanceVar_cgs,
+AdmsSensFadType & instanceVar_cgb,
+AdmsSensFadType & instanceVar_csd,
+AdmsSensFadType & instanceVar_csg,
+AdmsSensFadType & instanceVar_css,
+AdmsSensFadType & instanceVar_csb,
+AdmsSensFadType & instanceVar_cbd,
+AdmsSensFadType & instanceVar_cbg,
+AdmsSensFadType & instanceVar_cbs,
+AdmsSensFadType & instanceVar_cbb,
+AdmsSensFadType & instanceVar_cgsol,
+AdmsSensFadType & instanceVar_cgdol,
+AdmsSensFadType & instanceVar_cjs,
+AdmsSensFadType & instanceVar_cjsbot,
+AdmsSensFadType & instanceVar_cjsgat,
+AdmsSensFadType & instanceVar_cjssti,
+AdmsSensFadType & instanceVar_cjd,
+AdmsSensFadType & instanceVar_cjdbot,
+AdmsSensFadType & instanceVar_cjdgat,
+AdmsSensFadType & instanceVar_cjdsti,
+AdmsSensFadType & instanceVar_weff,
+AdmsSensFadType & instanceVar_leff,
+AdmsSensFadType & instanceVar_u,
+AdmsSensFadType & instanceVar_rout,
+AdmsSensFadType & instanceVar_vearly,
+AdmsSensFadType & instanceVar_beff,
+AdmsSensFadType & instanceVar_fug,
+AdmsSensFadType & instanceVar_rg,
+AdmsSensFadType & instanceVar_sfl,
+AdmsSensFadType & instanceVar_sqrtsff,
+AdmsSensFadType & instanceVar_sqrtsfw,
+AdmsSensFadType & instanceVar_sid,
+AdmsSensFadType & instanceVar_sig,
+AdmsSensFadType & instanceVar_cigid,
+AdmsSensFadType & instanceVar_fknee,
+AdmsSensFadType & instanceVar_sigs,
+AdmsSensFadType & instanceVar_sigd,
+AdmsSensFadType & instanceVar_siavl,
+AdmsSensFadType & instanceVar_ssi,
+AdmsSensFadType & instanceVar_sdi,
+AdmsSensFadType & instanceVar_sfledge,
+AdmsSensFadType & instanceVar_sidedge,
+AdmsSensFadType & instanceVar_lp_vfb,
+AdmsSensFadType & instanceVar_lp_stvfb,
+AdmsSensFadType & instanceVar_lp_tox,
+AdmsSensFadType & instanceVar_lp_epsrox,
+AdmsSensFadType & instanceVar_lp_neff,
+AdmsSensFadType & instanceVar_lp_facneffac,
+AdmsSensFadType & instanceVar_lp_gfacnud,
+AdmsSensFadType & instanceVar_lp_vsbnud,
+AdmsSensFadType & instanceVar_lp_dvsbnud,
+AdmsSensFadType & instanceVar_lp_vnsub,
+AdmsSensFadType & instanceVar_lp_nslp,
+AdmsSensFadType & instanceVar_lp_dnsub,
+AdmsSensFadType & instanceVar_lp_dphib,
+AdmsSensFadType & instanceVar_lp_delvtac,
+AdmsSensFadType & instanceVar_lp_np,
+AdmsSensFadType & instanceVar_lp_ct,
+AdmsSensFadType & instanceVar_lp_toxov,
+AdmsSensFadType & instanceVar_lp_toxovd,
+AdmsSensFadType & instanceVar_lp_nov,
+AdmsSensFadType & instanceVar_lp_novd,
+AdmsSensFadType & instanceVar_lp_cf,
+AdmsSensFadType & instanceVar_lp_cfd,
+AdmsSensFadType & instanceVar_lp_cfb,
+AdmsSensFadType & instanceVar_lp_psce,
+AdmsSensFadType & instanceVar_lp_psceb,
+AdmsSensFadType & instanceVar_lp_psced,
+AdmsSensFadType & instanceVar_lp_betn,
+AdmsSensFadType & instanceVar_lp_stbet,
+AdmsSensFadType & instanceVar_lp_mue,
+AdmsSensFadType & instanceVar_lp_stmue,
+AdmsSensFadType & instanceVar_lp_themu,
+AdmsSensFadType & instanceVar_lp_stthemu,
+AdmsSensFadType & instanceVar_lp_cs,
+AdmsSensFadType & instanceVar_lp_stcs,
+AdmsSensFadType & instanceVar_lp_xcor,
+AdmsSensFadType & instanceVar_lp_stxcor,
+AdmsSensFadType & instanceVar_lp_feta,
+AdmsSensFadType & instanceVar_lp_rs,
+AdmsSensFadType & instanceVar_lp_strs,
+AdmsSensFadType & instanceVar_lp_rsb,
+AdmsSensFadType & instanceVar_lp_rsg,
+AdmsSensFadType & instanceVar_lp_thesat,
+AdmsSensFadType & instanceVar_lp_stthesat,
+AdmsSensFadType & instanceVar_lp_thesatb,
+AdmsSensFadType & instanceVar_lp_thesatg,
+AdmsSensFadType & instanceVar_lp_ax,
+AdmsSensFadType & instanceVar_lp_alp,
+AdmsSensFadType & instanceVar_lp_alp1,
+AdmsSensFadType & instanceVar_lp_alp2,
+AdmsSensFadType & instanceVar_lp_vp,
+AdmsSensFadType & instanceVar_lp_a1,
+AdmsSensFadType & instanceVar_lp_a2,
+AdmsSensFadType & instanceVar_lp_sta2,
+AdmsSensFadType & instanceVar_lp_a3,
+AdmsSensFadType & instanceVar_lp_a4,
+AdmsSensFadType & instanceVar_lp_gco,
+AdmsSensFadType & instanceVar_lp_iginv,
+AdmsSensFadType & instanceVar_lp_igov,
+AdmsSensFadType & instanceVar_lp_igovd,
+AdmsSensFadType & instanceVar_lp_stig,
+AdmsSensFadType & instanceVar_lp_gc2,
+AdmsSensFadType & instanceVar_lp_gc3,
+AdmsSensFadType & instanceVar_lp_chib,
+AdmsSensFadType & instanceVar_lp_agidl,
+AdmsSensFadType & instanceVar_lp_agidld,
+AdmsSensFadType & instanceVar_lp_bgidl,
+AdmsSensFadType & instanceVar_lp_bgidld,
+AdmsSensFadType & instanceVar_lp_stbgidl,
+AdmsSensFadType & instanceVar_lp_stbgidld,
+AdmsSensFadType & instanceVar_lp_cgidl,
+AdmsSensFadType & instanceVar_lp_cgidld,
+AdmsSensFadType & instanceVar_lp_cox,
+AdmsSensFadType & instanceVar_lp_cgov,
+AdmsSensFadType & instanceVar_lp_cgovd,
+AdmsSensFadType & instanceVar_lp_cgbov,
+AdmsSensFadType & instanceVar_lp_cfr,
+AdmsSensFadType & instanceVar_lp_cfrd,
+AdmsSensFadType & instanceVar_lp_fnt,
+AdmsSensFadType & instanceVar_lp_fntexc,
+AdmsSensFadType & instanceVar_lp_nfa,
+AdmsSensFadType & instanceVar_lp_nfb,
+AdmsSensFadType & instanceVar_lp_nfc,
+AdmsSensFadType & instanceVar_lp_ef,
+AdmsSensFadType & instanceVar_lp_vfbedge,
+AdmsSensFadType & instanceVar_lp_stvfbedge,
+AdmsSensFadType & instanceVar_lp_dphibedge,
+AdmsSensFadType & instanceVar_lp_neffedge,
+AdmsSensFadType & instanceVar_lp_ctedge,
+AdmsSensFadType & instanceVar_lp_betnedge,
+AdmsSensFadType & instanceVar_lp_stbetedge,
+AdmsSensFadType & instanceVar_lp_psceedge,
+AdmsSensFadType & instanceVar_lp_pscebedge,
+AdmsSensFadType & instanceVar_lp_pscededge,
+AdmsSensFadType & instanceVar_lp_cfedge,
+AdmsSensFadType & instanceVar_lp_cfdedge,
+AdmsSensFadType & instanceVar_lp_cfbedge,
+AdmsSensFadType & instanceVar_lp_fntedge,
+AdmsSensFadType & instanceVar_lp_nfaedge,
+AdmsSensFadType & instanceVar_lp_nfbedge,
+AdmsSensFadType & instanceVar_lp_nfcedge,
+AdmsSensFadType & instanceVar_lp_efedge,
+AdmsSensFadType & instanceVar_lp_rg,
+AdmsSensFadType & instanceVar_lp_rse,
+AdmsSensFadType & instanceVar_lp_rde,
+AdmsSensFadType & instanceVar_lp_rbulk,
+AdmsSensFadType & instanceVar_lp_rwell,
+AdmsSensFadType & instanceVar_lp_rjuns,
+AdmsSensFadType & instanceVar_lp_rjund,
+AdmsSensFadType & instanceVar_tk,
+AdmsSensFadType & instanceVar_cjosbot,
+AdmsSensFadType & instanceVar_cjossti,
+AdmsSensFadType & instanceVar_cjosgat,
+AdmsSensFadType & instanceVar_vbisbot,
+AdmsSensFadType & instanceVar_vbissti,
+AdmsSensFadType & instanceVar_vbisgat,
+AdmsSensFadType & instanceVar_idsatsbot,
+AdmsSensFadType & instanceVar_idsatssti,
+AdmsSensFadType & instanceVar_idsatsgat,
+AdmsSensFadType & instanceVar_cjosbotd,
+AdmsSensFadType & instanceVar_cjosstid,
+AdmsSensFadType & instanceVar_cjosgatd,
+AdmsSensFadType & instanceVar_vbisbotd,
+AdmsSensFadType & instanceVar_vbisstid,
+AdmsSensFadType & instanceVar_vbisgatd,
+AdmsSensFadType & instanceVar_idsatsbotd,
+AdmsSensFadType & instanceVar_idsatsstid,
+AdmsSensFadType & instanceVar_idsatsgatd,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_TR,
@@ -2420,36 +2531,64 @@ bool instancePar_given_MULT,
 // instance variables
 // reals
 AdmsSensFadType & instanceVar_MULT_i,
+AdmsSensFadType & instanceVar_STVFB_i,
+AdmsSensFadType & instanceVar_TOX_i,
+AdmsSensFadType & instanceVar_EPSROX_i,
+AdmsSensFadType & instanceVar_NEFF_i,
+AdmsSensFadType & instanceVar_FACNEFFAC_i,
 AdmsSensFadType & instanceVar_GFACNUD_i,
+AdmsSensFadType & instanceVar_VSBNUD_i,
+AdmsSensFadType & instanceVar_DVSBNUD_i,
 AdmsSensFadType & instanceVar_VNSUB_i,
 AdmsSensFadType & instanceVar_NSLP_i,
 AdmsSensFadType & instanceVar_DNSUB_i,
+AdmsSensFadType & instanceVar_DPHIB_i,
+AdmsSensFadType & instanceVar_DELVTAC_i,
+AdmsSensFadType & instanceVar_NP_i,
+AdmsSensFadType & instanceVar_CT_i,
+AdmsSensFadType & instanceVar_TOXOV_i,
+AdmsSensFadType & instanceVar_TOXOVD_i,
+AdmsSensFadType & instanceVar_NOV_i,
+AdmsSensFadType & instanceVar_NOVD_i,
 AdmsSensFadType & instanceVar_CF_i,
 AdmsSensFadType & instanceVar_CFD_i,
 AdmsSensFadType & instanceVar_CFB_i,
 AdmsSensFadType & instanceVar_PSCE_i,
 AdmsSensFadType & instanceVar_PSCEB_i,
 AdmsSensFadType & instanceVar_PSCED_i,
+AdmsSensFadType & instanceVar_STBET_i,
+AdmsSensFadType & instanceVar_STMUE_i,
+AdmsSensFadType & instanceVar_STTHEMU_i,
+AdmsSensFadType & instanceVar_STCS_i,
+AdmsSensFadType & instanceVar_STXCOR_i,
+AdmsSensFadType & instanceVar_FETA_i,
+AdmsSensFadType & instanceVar_STRS_i,
 AdmsSensFadType & instanceVar_RSB_i,
 AdmsSensFadType & instanceVar_RSG_i,
+AdmsSensFadType & instanceVar_STTHESAT_i,
 AdmsSensFadType & instanceVar_THESATB_i,
 AdmsSensFadType & instanceVar_THESATG_i,
 AdmsSensFadType & instanceVar_AX_i,
 AdmsSensFadType & instanceVar_ALP_i,
 AdmsSensFadType & instanceVar_ALP1_i,
 AdmsSensFadType & instanceVar_ALP2_i,
+AdmsSensFadType & instanceVar_VP_i,
 AdmsSensFadType & instanceVar_A1_i,
+AdmsSensFadType & instanceVar_STA2_i,
 AdmsSensFadType & instanceVar_A3_i,
 AdmsSensFadType & instanceVar_A4_i,
 AdmsSensFadType & instanceVar_GCO_i,
 AdmsSensFadType & instanceVar_IGINV_i,
 AdmsSensFadType & instanceVar_IGOV_i,
 AdmsSensFadType & instanceVar_IGOVD_i,
+AdmsSensFadType & instanceVar_STIG_i,
 AdmsSensFadType & instanceVar_GC2_i,
 AdmsSensFadType & instanceVar_GC3_i,
 AdmsSensFadType & instanceVar_CHIB_i,
 AdmsSensFadType & instanceVar_AGIDL_i,
 AdmsSensFadType & instanceVar_AGIDLD_i,
+AdmsSensFadType & instanceVar_STBGIDL_i,
+AdmsSensFadType & instanceVar_STBGIDLD_i,
 AdmsSensFadType & instanceVar_CGIDL_i,
 AdmsSensFadType & instanceVar_CGIDLD_i,
 AdmsSensFadType & instanceVar_COX_i,
@@ -2458,18 +2597,25 @@ AdmsSensFadType & instanceVar_CGOVD_i,
 AdmsSensFadType & instanceVar_CGBOV_i,
 AdmsSensFadType & instanceVar_CFR_i,
 AdmsSensFadType & instanceVar_CFRD_i,
+AdmsSensFadType & instanceVar_FNT_i,
 AdmsSensFadType & instanceVar_FNTEXC_i,
 AdmsSensFadType & instanceVar_NFA_i,
 AdmsSensFadType & instanceVar_NFB_i,
 AdmsSensFadType & instanceVar_NFC_i,
 AdmsSensFadType & instanceVar_EF_i,
+AdmsSensFadType & instanceVar_STVFBEDGE_i,
+AdmsSensFadType & instanceVar_DPHIBEDGE_i,
+AdmsSensFadType & instanceVar_NEFFEDGE_i,
+AdmsSensFadType & instanceVar_CTEDGE_i,
 AdmsSensFadType & instanceVar_BETNEDGE_i,
+AdmsSensFadType & instanceVar_STBETEDGE_i,
 AdmsSensFadType & instanceVar_PSCEEDGE_i,
 AdmsSensFadType & instanceVar_PSCEBEDGE_i,
 AdmsSensFadType & instanceVar_PSCEDEDGE_i,
 AdmsSensFadType & instanceVar_CFEDGE_i,
 AdmsSensFadType & instanceVar_CFDEDGE_i,
 AdmsSensFadType & instanceVar_CFBEDGE_i,
+AdmsSensFadType & instanceVar_FNTEDGE_i,
 AdmsSensFadType & instanceVar_NFAEDGE_i,
 AdmsSensFadType & instanceVar_NFBEDGE_i,
 AdmsSensFadType & instanceVar_NFCEDGE_i,
@@ -2481,6 +2627,8 @@ AdmsSensFadType & instanceVar_RBULK_i,
 AdmsSensFadType & instanceVar_RJUNS_i,
 AdmsSensFadType & instanceVar_RJUND_i,
 AdmsSensFadType & instanceVar_RWELL_i,
+AdmsSensFadType & instanceVar_LE,
+AdmsSensFadType & instanceVar_WE,
 AdmsSensFadType & instanceVar_ABSOURCE_i,
 AdmsSensFadType & instanceVar_LSSOURCE_i,
 AdmsSensFadType & instanceVar_LGSOURCE_i,
@@ -2532,12 +2680,17 @@ AdmsSensFadType & instanceVar_MFOR2_d,
 AdmsSensFadType & instanceVar_ISATREV_d,
 AdmsSensFadType & instanceVar_MREV_d,
 AdmsSensFadType & instanceVar_VFB_T,
+AdmsSensFadType & instanceVar_BETN_T,
 AdmsSensFadType & instanceVar_MUE_T,
 AdmsSensFadType & instanceVar_THEMU_T,
 AdmsSensFadType & instanceVar_CS_T,
 AdmsSensFadType & instanceVar_XCOR_T,
+AdmsSensFadType & instanceVar_RS_T,
+AdmsSensFadType & instanceVar_BGIDL_T,
+AdmsSensFadType & instanceVar_BGIDLD_T,
 AdmsSensFadType & instanceVar_A2_T,
 AdmsSensFadType & instanceVar_VFBEDGE_T,
+AdmsSensFadType & instanceVar_BETNEDGE_T,
 AdmsSensFadType & instanceVar_phit0,
 AdmsSensFadType & instanceVar_BET_i,
 AdmsSensFadType & instanceVar_BETEDGE_i,
@@ -2608,170 +2761,233 @@ AdmsSensFadType & instanceVar_gbulk,
 AdmsSensFadType & instanceVar_gjuns,
 AdmsSensFadType & instanceVar_gjund,
 AdmsSensFadType & instanceVar_gwell,
+AdmsSensFadType & instanceVar_Sfl,
+AdmsSensFadType & instanceVar_sqid,
+AdmsSensFadType & instanceVar_mig,
+AdmsSensFadType & instanceVar_CGeff,
+AdmsSensFadType & instanceVar_c_igid,
+AdmsSensFadType & instanceVar_shot_igcsx,
+AdmsSensFadType & instanceVar_shot_igcdx,
+AdmsSensFadType & instanceVar_shot_igsov,
+AdmsSensFadType & instanceVar_shot_igdov,
+AdmsSensFadType & instanceVar_shot_iavl,
+AdmsSensFadType & instanceVar_jnoisex_s,
+AdmsSensFadType & instanceVar_jnoisex_d,
 double & instanceVar_ctype,
 double & instanceVar_sdint,
-double & instanceVar_ise,
-double & instanceVar_ige,
-double & instanceVar_ide,
-double & instanceVar_ibe,
-double & instanceVar_ids,
-double & instanceVar_idb,
-double & instanceVar_isb,
-double & instanceVar_igs,
-double & instanceVar_igd,
-double & instanceVar_igb,
-double & instanceVar_idedge,
-double & instanceVar_igcs,
-double & instanceVar_igcd,
-double & instanceVar_iavl,
-double & instanceVar_igisl,
-double & instanceVar_igidl,
-double & instanceVar_ijs,
-double & instanceVar_ijsbot,
-double & instanceVar_ijsgat,
-double & instanceVar_ijssti,
-double & instanceVar_ijd,
-double & instanceVar_ijdbot,
-double & instanceVar_ijdgat,
-double & instanceVar_ijdsti,
+AdmsSensFadType & instanceVar_ise,
+AdmsSensFadType & instanceVar_ige,
+AdmsSensFadType & instanceVar_ide,
+AdmsSensFadType & instanceVar_ibe,
+AdmsSensFadType & instanceVar_ids,
+AdmsSensFadType & instanceVar_idb,
+AdmsSensFadType & instanceVar_isb,
+AdmsSensFadType & instanceVar_igs,
+AdmsSensFadType & instanceVar_igd,
+AdmsSensFadType & instanceVar_igb,
+AdmsSensFadType & instanceVar_idedge,
+AdmsSensFadType & instanceVar_igcs,
+AdmsSensFadType & instanceVar_igcd,
+AdmsSensFadType & instanceVar_iavl,
+AdmsSensFadType & instanceVar_igisl,
+AdmsSensFadType & instanceVar_igidl,
+AdmsSensFadType & instanceVar_ijs,
+AdmsSensFadType & instanceVar_ijsbot,
+AdmsSensFadType & instanceVar_ijsgat,
+AdmsSensFadType & instanceVar_ijssti,
+AdmsSensFadType & instanceVar_ijd,
+AdmsSensFadType & instanceVar_ijdbot,
+AdmsSensFadType & instanceVar_ijdgat,
+AdmsSensFadType & instanceVar_ijdsti,
 double & instanceVar_vds,
 double & instanceVar_vgs,
 double & instanceVar_vsb,
-double & instanceVar_vto,
-double & instanceVar_vts,
-double & instanceVar_vth,
-double & instanceVar_vgt,
-double & instanceVar_vdss,
-double & instanceVar_vsat,
-double & instanceVar_weff,
-double & instanceVar_leff,
-double & instanceVar_lp_vfb,
-double & instanceVar_lp_stvfb,
-double & instanceVar_lp_tox,
-double & instanceVar_lp_epsrox,
-double & instanceVar_lp_neff,
-double & instanceVar_lp_facneffac,
-double & instanceVar_lp_gfacnud,
-double & instanceVar_lp_vsbnud,
-double & instanceVar_lp_dvsbnud,
-double & instanceVar_lp_vnsub,
-double & instanceVar_lp_nslp,
-double & instanceVar_lp_dnsub,
-double & instanceVar_lp_dphib,
-double & instanceVar_lp_delvtac,
-double & instanceVar_lp_np,
-double & instanceVar_lp_ct,
-double & instanceVar_lp_toxov,
-double & instanceVar_lp_toxovd,
-double & instanceVar_lp_nov,
-double & instanceVar_lp_novd,
-double & instanceVar_lp_cf,
-double & instanceVar_lp_cfd,
-double & instanceVar_lp_cfb,
-double & instanceVar_lp_psce,
-double & instanceVar_lp_psceb,
-double & instanceVar_lp_psced,
-double & instanceVar_lp_betn,
-double & instanceVar_lp_stbet,
-double & instanceVar_lp_mue,
-double & instanceVar_lp_stmue,
-double & instanceVar_lp_themu,
-double & instanceVar_lp_stthemu,
-double & instanceVar_lp_cs,
-double & instanceVar_lp_stcs,
-double & instanceVar_lp_xcor,
-double & instanceVar_lp_stxcor,
-double & instanceVar_lp_feta,
-double & instanceVar_lp_rs,
-double & instanceVar_lp_strs,
-double & instanceVar_lp_rsb,
-double & instanceVar_lp_rsg,
-double & instanceVar_lp_thesat,
-double & instanceVar_lp_stthesat,
-double & instanceVar_lp_thesatb,
-double & instanceVar_lp_thesatg,
-double & instanceVar_lp_ax,
-double & instanceVar_lp_alp,
-double & instanceVar_lp_alp1,
-double & instanceVar_lp_alp2,
-double & instanceVar_lp_vp,
-double & instanceVar_lp_a1,
-double & instanceVar_lp_a2,
-double & instanceVar_lp_sta2,
-double & instanceVar_lp_a3,
-double & instanceVar_lp_a4,
-double & instanceVar_lp_gco,
-double & instanceVar_lp_iginv,
-double & instanceVar_lp_igov,
-double & instanceVar_lp_igovd,
-double & instanceVar_lp_stig,
-double & instanceVar_lp_gc2,
-double & instanceVar_lp_gc3,
-double & instanceVar_lp_chib,
-double & instanceVar_lp_agidl,
-double & instanceVar_lp_agidld,
-double & instanceVar_lp_bgidl,
-double & instanceVar_lp_bgidld,
-double & instanceVar_lp_stbgidl,
-double & instanceVar_lp_stbgidld,
-double & instanceVar_lp_cgidl,
-double & instanceVar_lp_cgidld,
-double & instanceVar_lp_cox,
-double & instanceVar_lp_cgov,
-double & instanceVar_lp_cgovd,
-double & instanceVar_lp_cgbov,
-double & instanceVar_lp_cfr,
-double & instanceVar_lp_cfrd,
-double & instanceVar_lp_fnt,
-double & instanceVar_lp_fntexc,
-double & instanceVar_lp_nfa,
-double & instanceVar_lp_nfb,
-double & instanceVar_lp_nfc,
-double & instanceVar_lp_ef,
-double & instanceVar_lp_vfbedge,
-double & instanceVar_lp_stvfbedge,
-double & instanceVar_lp_dphibedge,
-double & instanceVar_lp_neffedge,
-double & instanceVar_lp_ctedge,
-double & instanceVar_lp_betnedge,
-double & instanceVar_lp_stbetedge,
-double & instanceVar_lp_psceedge,
-double & instanceVar_lp_pscebedge,
-double & instanceVar_lp_pscededge,
-double & instanceVar_lp_cfedge,
-double & instanceVar_lp_cfdedge,
-double & instanceVar_lp_cfbedge,
-double & instanceVar_lp_fntedge,
-double & instanceVar_lp_nfaedge,
-double & instanceVar_lp_nfbedge,
-double & instanceVar_lp_nfcedge,
-double & instanceVar_lp_efedge,
-double & instanceVar_lp_rg,
-double & instanceVar_lp_rse,
-double & instanceVar_lp_rde,
-double & instanceVar_lp_rbulk,
-double & instanceVar_lp_rwell,
-double & instanceVar_lp_rjuns,
-double & instanceVar_lp_rjund,
-double & instanceVar_tk,
-double & instanceVar_cjosbot,
-double & instanceVar_cjossti,
-double & instanceVar_cjosgat,
-double & instanceVar_vbisbot,
-double & instanceVar_vbissti,
-double & instanceVar_vbisgat,
-double & instanceVar_idsatsbot,
-double & instanceVar_idsatssti,
-double & instanceVar_idsatsgat,
-double & instanceVar_cjosbotd,
-double & instanceVar_cjosstid,
-double & instanceVar_cjosgatd,
-double & instanceVar_vbisbotd,
-double & instanceVar_vbisstid,
-double & instanceVar_vbisgatd,
-double & instanceVar_idsatsbotd,
-double & instanceVar_idsatsstid,
-double & instanceVar_idsatsgatd,
+AdmsSensFadType & instanceVar_vto,
+AdmsSensFadType & instanceVar_vts,
+AdmsSensFadType & instanceVar_vth,
+AdmsSensFadType & instanceVar_vgt,
+AdmsSensFadType & instanceVar_vdss,
+AdmsSensFadType & instanceVar_vsat,
+AdmsSensFadType & instanceVar_gm,
+AdmsSensFadType & instanceVar_gmb,
+AdmsSensFadType & instanceVar_gds,
+AdmsSensFadType & instanceVar_gjs,
+AdmsSensFadType & instanceVar_gjd,
+AdmsSensFadType & instanceVar_cdd,
+AdmsSensFadType & instanceVar_cdg,
+AdmsSensFadType & instanceVar_cds,
+AdmsSensFadType & instanceVar_cdb,
+AdmsSensFadType & instanceVar_cgd,
+AdmsSensFadType & instanceVar_cgg,
+AdmsSensFadType & instanceVar_cgs,
+AdmsSensFadType & instanceVar_cgb,
+AdmsSensFadType & instanceVar_csd,
+AdmsSensFadType & instanceVar_csg,
+AdmsSensFadType & instanceVar_css,
+AdmsSensFadType & instanceVar_csb,
+AdmsSensFadType & instanceVar_cbd,
+AdmsSensFadType & instanceVar_cbg,
+AdmsSensFadType & instanceVar_cbs,
+AdmsSensFadType & instanceVar_cbb,
+AdmsSensFadType & instanceVar_cgsol,
+AdmsSensFadType & instanceVar_cgdol,
+AdmsSensFadType & instanceVar_cjs,
+AdmsSensFadType & instanceVar_cjsbot,
+AdmsSensFadType & instanceVar_cjsgat,
+AdmsSensFadType & instanceVar_cjssti,
+AdmsSensFadType & instanceVar_cjd,
+AdmsSensFadType & instanceVar_cjdbot,
+AdmsSensFadType & instanceVar_cjdgat,
+AdmsSensFadType & instanceVar_cjdsti,
+AdmsSensFadType & instanceVar_weff,
+AdmsSensFadType & instanceVar_leff,
+AdmsSensFadType & instanceVar_u,
+AdmsSensFadType & instanceVar_rout,
+AdmsSensFadType & instanceVar_vearly,
+AdmsSensFadType & instanceVar_beff,
+AdmsSensFadType & instanceVar_fug,
+AdmsSensFadType & instanceVar_rg,
+AdmsSensFadType & instanceVar_sfl,
+AdmsSensFadType & instanceVar_sqrtsff,
+AdmsSensFadType & instanceVar_sqrtsfw,
+AdmsSensFadType & instanceVar_sid,
+AdmsSensFadType & instanceVar_sig,
+AdmsSensFadType & instanceVar_cigid,
+AdmsSensFadType & instanceVar_fknee,
+AdmsSensFadType & instanceVar_sigs,
+AdmsSensFadType & instanceVar_sigd,
+AdmsSensFadType & instanceVar_siavl,
+AdmsSensFadType & instanceVar_ssi,
+AdmsSensFadType & instanceVar_sdi,
+AdmsSensFadType & instanceVar_sfledge,
+AdmsSensFadType & instanceVar_sidedge,
+AdmsSensFadType & instanceVar_lp_vfb,
+AdmsSensFadType & instanceVar_lp_stvfb,
+AdmsSensFadType & instanceVar_lp_tox,
+AdmsSensFadType & instanceVar_lp_epsrox,
+AdmsSensFadType & instanceVar_lp_neff,
+AdmsSensFadType & instanceVar_lp_facneffac,
+AdmsSensFadType & instanceVar_lp_gfacnud,
+AdmsSensFadType & instanceVar_lp_vsbnud,
+AdmsSensFadType & instanceVar_lp_dvsbnud,
+AdmsSensFadType & instanceVar_lp_vnsub,
+AdmsSensFadType & instanceVar_lp_nslp,
+AdmsSensFadType & instanceVar_lp_dnsub,
+AdmsSensFadType & instanceVar_lp_dphib,
+AdmsSensFadType & instanceVar_lp_delvtac,
+AdmsSensFadType & instanceVar_lp_np,
+AdmsSensFadType & instanceVar_lp_ct,
+AdmsSensFadType & instanceVar_lp_toxov,
+AdmsSensFadType & instanceVar_lp_toxovd,
+AdmsSensFadType & instanceVar_lp_nov,
+AdmsSensFadType & instanceVar_lp_novd,
+AdmsSensFadType & instanceVar_lp_cf,
+AdmsSensFadType & instanceVar_lp_cfd,
+AdmsSensFadType & instanceVar_lp_cfb,
+AdmsSensFadType & instanceVar_lp_psce,
+AdmsSensFadType & instanceVar_lp_psceb,
+AdmsSensFadType & instanceVar_lp_psced,
+AdmsSensFadType & instanceVar_lp_betn,
+AdmsSensFadType & instanceVar_lp_stbet,
+AdmsSensFadType & instanceVar_lp_mue,
+AdmsSensFadType & instanceVar_lp_stmue,
+AdmsSensFadType & instanceVar_lp_themu,
+AdmsSensFadType & instanceVar_lp_stthemu,
+AdmsSensFadType & instanceVar_lp_cs,
+AdmsSensFadType & instanceVar_lp_stcs,
+AdmsSensFadType & instanceVar_lp_xcor,
+AdmsSensFadType & instanceVar_lp_stxcor,
+AdmsSensFadType & instanceVar_lp_feta,
+AdmsSensFadType & instanceVar_lp_rs,
+AdmsSensFadType & instanceVar_lp_strs,
+AdmsSensFadType & instanceVar_lp_rsb,
+AdmsSensFadType & instanceVar_lp_rsg,
+AdmsSensFadType & instanceVar_lp_thesat,
+AdmsSensFadType & instanceVar_lp_stthesat,
+AdmsSensFadType & instanceVar_lp_thesatb,
+AdmsSensFadType & instanceVar_lp_thesatg,
+AdmsSensFadType & instanceVar_lp_ax,
+AdmsSensFadType & instanceVar_lp_alp,
+AdmsSensFadType & instanceVar_lp_alp1,
+AdmsSensFadType & instanceVar_lp_alp2,
+AdmsSensFadType & instanceVar_lp_vp,
+AdmsSensFadType & instanceVar_lp_a1,
+AdmsSensFadType & instanceVar_lp_a2,
+AdmsSensFadType & instanceVar_lp_sta2,
+AdmsSensFadType & instanceVar_lp_a3,
+AdmsSensFadType & instanceVar_lp_a4,
+AdmsSensFadType & instanceVar_lp_gco,
+AdmsSensFadType & instanceVar_lp_iginv,
+AdmsSensFadType & instanceVar_lp_igov,
+AdmsSensFadType & instanceVar_lp_igovd,
+AdmsSensFadType & instanceVar_lp_stig,
+AdmsSensFadType & instanceVar_lp_gc2,
+AdmsSensFadType & instanceVar_lp_gc3,
+AdmsSensFadType & instanceVar_lp_chib,
+AdmsSensFadType & instanceVar_lp_agidl,
+AdmsSensFadType & instanceVar_lp_agidld,
+AdmsSensFadType & instanceVar_lp_bgidl,
+AdmsSensFadType & instanceVar_lp_bgidld,
+AdmsSensFadType & instanceVar_lp_stbgidl,
+AdmsSensFadType & instanceVar_lp_stbgidld,
+AdmsSensFadType & instanceVar_lp_cgidl,
+AdmsSensFadType & instanceVar_lp_cgidld,
+AdmsSensFadType & instanceVar_lp_cox,
+AdmsSensFadType & instanceVar_lp_cgov,
+AdmsSensFadType & instanceVar_lp_cgovd,
+AdmsSensFadType & instanceVar_lp_cgbov,
+AdmsSensFadType & instanceVar_lp_cfr,
+AdmsSensFadType & instanceVar_lp_cfrd,
+AdmsSensFadType & instanceVar_lp_fnt,
+AdmsSensFadType & instanceVar_lp_fntexc,
+AdmsSensFadType & instanceVar_lp_nfa,
+AdmsSensFadType & instanceVar_lp_nfb,
+AdmsSensFadType & instanceVar_lp_nfc,
+AdmsSensFadType & instanceVar_lp_ef,
+AdmsSensFadType & instanceVar_lp_vfbedge,
+AdmsSensFadType & instanceVar_lp_stvfbedge,
+AdmsSensFadType & instanceVar_lp_dphibedge,
+AdmsSensFadType & instanceVar_lp_neffedge,
+AdmsSensFadType & instanceVar_lp_ctedge,
+AdmsSensFadType & instanceVar_lp_betnedge,
+AdmsSensFadType & instanceVar_lp_stbetedge,
+AdmsSensFadType & instanceVar_lp_psceedge,
+AdmsSensFadType & instanceVar_lp_pscebedge,
+AdmsSensFadType & instanceVar_lp_pscededge,
+AdmsSensFadType & instanceVar_lp_cfedge,
+AdmsSensFadType & instanceVar_lp_cfdedge,
+AdmsSensFadType & instanceVar_lp_cfbedge,
+AdmsSensFadType & instanceVar_lp_fntedge,
+AdmsSensFadType & instanceVar_lp_nfaedge,
+AdmsSensFadType & instanceVar_lp_nfbedge,
+AdmsSensFadType & instanceVar_lp_nfcedge,
+AdmsSensFadType & instanceVar_lp_efedge,
+AdmsSensFadType & instanceVar_lp_rg,
+AdmsSensFadType & instanceVar_lp_rse,
+AdmsSensFadType & instanceVar_lp_rde,
+AdmsSensFadType & instanceVar_lp_rbulk,
+AdmsSensFadType & instanceVar_lp_rwell,
+AdmsSensFadType & instanceVar_lp_rjuns,
+AdmsSensFadType & instanceVar_lp_rjund,
+AdmsSensFadType & instanceVar_tk,
+AdmsSensFadType & instanceVar_cjosbot,
+AdmsSensFadType & instanceVar_cjossti,
+AdmsSensFadType & instanceVar_cjosgat,
+AdmsSensFadType & instanceVar_vbisbot,
+AdmsSensFadType & instanceVar_vbissti,
+AdmsSensFadType & instanceVar_vbisgat,
+AdmsSensFadType & instanceVar_idsatsbot,
+AdmsSensFadType & instanceVar_idsatssti,
+AdmsSensFadType & instanceVar_idsatsgat,
+AdmsSensFadType & instanceVar_cjosbotd,
+AdmsSensFadType & instanceVar_cjosstid,
+AdmsSensFadType & instanceVar_cjosgatd,
+AdmsSensFadType & instanceVar_vbisbotd,
+AdmsSensFadType & instanceVar_vbisstid,
+AdmsSensFadType & instanceVar_vbisgatd,
+AdmsSensFadType & instanceVar_idsatsbotd,
+AdmsSensFadType & instanceVar_idsatsstid,
+AdmsSensFadType & instanceVar_idsatsgatd,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_TR,
@@ -6407,36 +6623,64 @@ public:
     double MULT;
     //  Variables of global_instance scope
     double MULT_i;
+    double STVFB_i;
+    double TOX_i;
+    double EPSROX_i;
+    double NEFF_i;
+    double FACNEFFAC_i;
     double GFACNUD_i;
+    double VSBNUD_i;
+    double DVSBNUD_i;
     double VNSUB_i;
     double NSLP_i;
     double DNSUB_i;
+    double DPHIB_i;
+    double DELVTAC_i;
+    double NP_i;
+    double CT_i;
+    double TOXOV_i;
+    double TOXOVD_i;
+    double NOV_i;
+    double NOVD_i;
     double CF_i;
     double CFD_i;
     double CFB_i;
     double PSCE_i;
     double PSCEB_i;
     double PSCED_i;
+    double STBET_i;
+    double STMUE_i;
+    double STTHEMU_i;
+    double STCS_i;
+    double STXCOR_i;
+    double FETA_i;
+    double STRS_i;
     double RSB_i;
     double RSG_i;
+    double STTHESAT_i;
     double THESATB_i;
     double THESATG_i;
     double AX_i;
     double ALP_i;
     double ALP1_i;
     double ALP2_i;
+    double VP_i;
     double A1_i;
+    double STA2_i;
     double A3_i;
     double A4_i;
     double GCO_i;
     double IGINV_i;
     double IGOV_i;
     double IGOVD_i;
+    double STIG_i;
     double GC2_i;
     double GC3_i;
     double CHIB_i;
     double AGIDL_i;
     double AGIDLD_i;
+    double STBGIDL_i;
+    double STBGIDLD_i;
     double CGIDL_i;
     double CGIDLD_i;
     double COX_i;
@@ -6445,18 +6689,25 @@ public:
     double CGBOV_i;
     double CFR_i;
     double CFRD_i;
+    double FNT_i;
     double FNTEXC_i;
     double NFA_i;
     double NFB_i;
     double NFC_i;
     double EF_i;
+    double STVFBEDGE_i;
+    double DPHIBEDGE_i;
+    double NEFFEDGE_i;
+    double CTEDGE_i;
     double BETNEDGE_i;
+    double STBETEDGE_i;
     double PSCEEDGE_i;
     double PSCEBEDGE_i;
     double PSCEDEDGE_i;
     double CFEDGE_i;
     double CFDEDGE_i;
     double CFBEDGE_i;
+    double FNTEDGE_i;
     double NFAEDGE_i;
     double NFBEDGE_i;
     double NFCEDGE_i;
@@ -6468,6 +6719,8 @@ public:
     double RJUNS_i;
     double RJUND_i;
     double RWELL_i;
+    double LE;
+    double WE;
     double ABSOURCE_i;
     double LSSOURCE_i;
     double LGSOURCE_i;
@@ -6519,12 +6772,17 @@ public:
     double ISATREV_d;
     double MREV_d;
     double VFB_T;
+    double BETN_T;
     double MUE_T;
     double THEMU_T;
     double CS_T;
     double XCOR_T;
+    double RS_T;
+    double BGIDL_T;
+    double BGIDLD_T;
     double A2_T;
     double VFBEDGE_T;
+    double BETNEDGE_T;
     double phit0;
     double BET_i;
     double BETEDGE_i;
@@ -6595,6 +6853,52 @@ public:
     double gjuns;
     double gjund;
     double gwell;
+    double Sfl;
+     double d_Sfl_dV_DI_SI;
+     double d_Sfl_dV_GP_SI;
+     double d_Sfl_dV_SI_BP;
+    double sqid;
+     double d_sqid_dV_DI_SI;
+     double d_sqid_dV_SI_BP;
+     double d_sqid_dV_GP_SI;
+    double mig;
+     double d_mig_dV_DI_SI;
+     double d_mig_dV_SI_BP;
+     double d_mig_dV_GP_SI;
+    double CGeff;
+     double d_CGeff_dV_DI_SI;
+     double d_CGeff_dV_GP_SI;
+     double d_CGeff_dV_SI_BP;
+    double c_igid;
+     double d_c_igid_dV_DI_SI;
+     double d_c_igid_dV_SI_BP;
+     double d_c_igid_dV_GP_SI;
+    double shot_igcsx;
+     double d_shot_igcsx_dV_GP_SI;
+     double d_shot_igcsx_dV_DI_SI;
+     double d_shot_igcsx_dV_SI_BP;
+    double shot_igcdx;
+     double d_shot_igcdx_dV_GP_SI;
+     double d_shot_igcdx_dV_DI_SI;
+     double d_shot_igcdx_dV_SI_BP;
+    double shot_igsov;
+     double d_shot_igsov_dV_GP_SI;
+     double d_shot_igsov_dV_DI_SI;
+     double d_shot_igsov_dV_SI_BP;
+    double shot_igdov;
+     double d_shot_igdov_dV_GP_SI;
+     double d_shot_igdov_dV_DI_SI;
+     double d_shot_igdov_dV_SI_BP;
+    double shot_iavl;
+     double d_shot_iavl_dV_DI_SI;
+     double d_shot_iavl_dV_GP_SI;
+     double d_shot_iavl_dV_SI_BP;
+    double jnoisex_s;
+     double d_jnoisex_s_dV_DI_BD;
+     double d_jnoisex_s_dV_SI_BS;
+    double jnoisex_d;
+     double d_jnoisex_d_dV_DI_BD;
+     double d_jnoisex_d_dV_SI_BS;
     double ctype;
     double sdint;
     double ise;
@@ -6630,8 +6934,59 @@ public:
     double vgt;
     double vdss;
     double vsat;
+    double gm;
+    double gmb;
+    double gds;
+    double gjs;
+    double gjd;
+    double cdd;
+    double cdg;
+    double cds;
+    double cdb;
+    double cgd;
+    double cgg;
+    double cgs;
+    double cgb;
+    double csd;
+    double csg;
+    double css;
+    double csb;
+    double cbd;
+    double cbg;
+    double cbs;
+    double cbb;
+    double cgsol;
+    double cgdol;
+    double cjs;
+    double cjsbot;
+    double cjsgat;
+    double cjssti;
+    double cjd;
+    double cjdbot;
+    double cjdgat;
+    double cjdsti;
     double weff;
     double leff;
+    double u;
+    double rout;
+    double vearly;
+    double beff;
+    double fug;
+    double rg;
+    double sfl;
+    double sqrtsff;
+    double sqrtsfw;
+    double sid;
+    double sig;
+    double cigid;
+    double fknee;
+    double sigs;
+    double sigd;
+    double siavl;
+    double ssi;
+    double sdi;
+    double sfledge;
+    double sidedge;
     double lp_vfb;
     double lp_stvfb;
     double lp_tox;
@@ -7006,20 +7361,26 @@ public:
    // Additional IDs for branch equations
    // end branch numbers
    // Probe numbers
-    static const int admsProbeID_V_NOI_GND = 0;
-    static const int admsProbeID_V_NOI2_GND = 1;
-    static const int admsProbeID_V_B_BI = 2;
-    static const int admsProbeID_V_BD_BI = 3;
-    static const int admsProbeID_V_BS_BI = 4;
-    static const int admsProbeID_V_BP_BI = 5;
-    static const int admsProbeID_V_D_DI = 6;
-    static const int admsProbeID_V_S_SI = 7;
-    static const int admsProbeID_V_G_GP = 8;
-    static const int admsProbeID_V_DI_BD = 9;
-    static const int admsProbeID_V_SI_BS = 10;
-    static const int admsProbeID_V_SI_BP = 11;
-    static const int admsProbeID_V_DI_SI = 12;
-    static const int admsProbeID_V_GP_SI = 13;
+    static const int admsProbeID_V_DI_GND = 0;
+    static const int admsProbeID_V_BS_GND = 1;
+    static const int admsProbeID_V_BD_GND = 2;
+    static const int admsProbeID_V_SI_GND = 3;
+    static const int admsProbeID_V_BP_GND = 4;
+    static const int admsProbeID_V_GP_GND = 5;
+    static const int admsProbeID_V_NOI_GND = 6;
+    static const int admsProbeID_V_NOI2_GND = 7;
+    static const int admsProbeID_V_B_BI = 8;
+    static const int admsProbeID_V_BD_BI = 9;
+    static const int admsProbeID_V_BS_BI = 10;
+    static const int admsProbeID_V_BP_BI = 11;
+    static const int admsProbeID_V_D_DI = 12;
+    static const int admsProbeID_V_S_SI = 13;
+    static const int admsProbeID_V_G_GP = 14;
+    static const int admsProbeID_V_DI_BD = 15;
+    static const int admsProbeID_V_SI_BS = 16;
+    static const int admsProbeID_V_SI_BP = 17;
+    static const int admsProbeID_V_DI_SI = 18;
+    static const int admsProbeID_V_GP_SI = 19;
    // end probe numbers
    // Store LIDs
    // end store LIDs
@@ -7059,8 +7420,59 @@ public:
     int li_store_vgt;
     int li_store_vdss;
     int li_store_vsat;
+    int li_store_gm;
+    int li_store_gmb;
+    int li_store_gds;
+    int li_store_gjs;
+    int li_store_gjd;
+    int li_store_cdd;
+    int li_store_cdg;
+    int li_store_cds;
+    int li_store_cdb;
+    int li_store_cgd;
+    int li_store_cgg;
+    int li_store_cgs;
+    int li_store_cgb;
+    int li_store_csd;
+    int li_store_csg;
+    int li_store_css;
+    int li_store_csb;
+    int li_store_cbd;
+    int li_store_cbg;
+    int li_store_cbs;
+    int li_store_cbb;
+    int li_store_cgsol;
+    int li_store_cgdol;
+    int li_store_cjs;
+    int li_store_cjsbot;
+    int li_store_cjsgat;
+    int li_store_cjssti;
+    int li_store_cjd;
+    int li_store_cjdbot;
+    int li_store_cjdgat;
+    int li_store_cjdsti;
     int li_store_weff;
     int li_store_leff;
+    int li_store_u;
+    int li_store_rout;
+    int li_store_vearly;
+    int li_store_beff;
+    int li_store_fug;
+    int li_store_rg;
+    int li_store_sfl;
+    int li_store_sqrtsff;
+    int li_store_sqrtsfw;
+    int li_store_sid;
+    int li_store_sig;
+    int li_store_cigid;
+    int li_store_fknee;
+    int li_store_sigs;
+    int li_store_sigd;
+    int li_store_siavl;
+    int li_store_ssi;
+    int li_store_sdi;
+    int li_store_sfledge;
+    int li_store_sidedge;
     int li_store_lp_vfb;
     int li_store_lp_stvfb;
     int li_store_lp_tox;

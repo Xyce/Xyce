@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Sat, 28 Mar 2020 14:50:19
+// Creation Date  : Sun, 29 Mar 2020 11:25:19
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSJUNCAP200_h
@@ -54,7 +54,7 @@ namespace Device {
 namespace ADMSJUNCAP200 {
 
 // This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad<double,1> AdmsFadType;
+  typedef Sacado::Fad::SFad<double,2> AdmsFadType;
   typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
@@ -172,6 +172,7 @@ return ifFalse;
 void evaluateModelEquations(
 std::vector <double> & probeVars,
 // probe constants
+const int admsProbeID_V_A_GND,
 const int admsProbeID_V_A_K,
 // node constants
 const int admsNodeID_A,
@@ -215,6 +216,10 @@ AdmsSensFadType & instanceVar_ISATREV,
 AdmsSensFadType & instanceVar_MREV,
 double & instanceVar_m0flag,
 AdmsSensFadType & instanceVar_vak,
+AdmsSensFadType & instanceVar_cj,
+AdmsSensFadType & instanceVar_cjbot,
+AdmsSensFadType & instanceVar_cjgat,
+AdmsSensFadType & instanceVar_cjsti,
 AdmsSensFadType & instanceVar_ij,
 AdmsSensFadType & instanceVar_ijbot,
 AdmsSensFadType & instanceVar_ijgat,
@@ -463,6 +468,10 @@ AdmsSensFadType & instanceVar_ISATREV,
 AdmsSensFadType & instanceVar_MREV,
 double & instanceVar_m0flag,
 AdmsSensFadType & instanceVar_vak,
+AdmsSensFadType & instanceVar_cj,
+AdmsSensFadType & instanceVar_cjbot,
+AdmsSensFadType & instanceVar_cjgat,
+AdmsSensFadType & instanceVar_cjsti,
 AdmsSensFadType & instanceVar_ij,
 AdmsSensFadType & instanceVar_ijbot,
 AdmsSensFadType & instanceVar_ijgat,
@@ -1025,6 +1034,10 @@ public:
     double MREV;
     double m0flag;
     double vak;
+    double cj;
+    double cjbot;
+    double cjgat;
+    double cjsti;
     double ij;
     double ijbot;
     double ijgat;
@@ -1072,12 +1085,17 @@ public:
    // Additional IDs for branch equations
    // end branch numbers
    // Probe numbers
-    static const int admsProbeID_V_A_K = 0;
+    static const int admsProbeID_V_A_GND = 0;
+    static const int admsProbeID_V_A_K = 1;
    // end probe numbers
    // Store LIDs
    // end store LIDs
    // Store LIDs for output vars
     int li_store_vak;
+    int li_store_cj;
+    int li_store_cjbot;
+    int li_store_cjgat;
+    int li_store_cjsti;
     int li_store_ij;
     int li_store_ijbot;
     int li_store_ijgat;
