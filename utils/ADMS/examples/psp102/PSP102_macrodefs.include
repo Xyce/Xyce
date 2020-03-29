@@ -48,7 +48,7 @@
 `define oneSixth              1.6666666666666667e-01
 
 
-    `define OPdef(OPvarname, OPdesc, OPunit) (*desc=OPdesc*) real OPvarname;
+    `define OPdef(OPvarname, OPdesc, OPunit) (*desc=OPdesc units=OPunit*) real OPvarname;
 
 
 /////////////////////////////////////////////////////////////////////////////

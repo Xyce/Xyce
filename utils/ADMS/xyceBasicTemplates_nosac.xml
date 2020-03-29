@@ -3391,6 +3391,9 @@ other variables does not get propagated into a variable's
       <admst:when test="[attribute/[name='units']/value = 'A/V^3' or attribute/[name='units']/value = 'AV^-3' ]">
         <admst:text format="A/V\$^{3}\$"/>
       </admst:when>
+      <admst:when test="[attribute/[name='units']/value = 'A/V^2' or attribute/[name='units']/value = 'AV^-2' ]">
+        <admst:text format="A/V\$^{2}\$"/>
+      </admst:when>
       <admst:when test="[attribute/[name='units']/value = 'Am/V^3' or attribute/[name='units']/value = 'AV^-3m' ]">
         <admst:text format="Am/V\$^{3}\$"/>
       </admst:when>
@@ -3420,6 +3423,9 @@ other variables does not get propagated into a variable's
       </admst:when>
       <admst:when test="[attribute/[name='units']/value = 'm^2/(V s)']">
         <admst:text format="m\$^2\$/(V s)"/>
+      </admst:when>
+      <admst:when test="[attribute/[name='units']/value = '1/(V m^2)']">
+        <admst:text format="1/(V m\$^2\$)"/>
       </admst:when>
       <admst:when test="[attribute/[name='units']/value = '1/(V m^4)']">
         <admst:text format="1/(V m\$^4\$)"/>
