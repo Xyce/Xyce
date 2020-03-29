@@ -52,7 +52,10 @@ class astNode
     virtual ScalarT val() = 0;
     virtual ScalarT dx(int i) = 0;
     virtual void output(std::ostream & os, int indent=0) = 0;
-    virtual void codeGen (std::ostream & os ) = 0;
+    virtual void codeGen (std::ostream & os ) 
+    {
+      os << "// This node has not implemented a code gen function yet" <<std::endl;
+    }
 
     virtual void setNode(Teuchos::RCP<astNode<ScalarT> > & tmpNode) {};
     virtual void unsetNode() {};

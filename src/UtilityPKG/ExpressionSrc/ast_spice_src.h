@@ -188,13 +188,7 @@ class spicePulseOp : public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os )
     {
-#if 0
-      os << "std::pow(";
-      this->leftAst_->codeGen(os);
-      os << ",";
-      this->rightAst_->codeGen(os);
-      os << ")";
-#endif
+      os << "// spice_pulse codeGen function is not implemented yet" <<std::endl;
     }
 
     virtual void getInterestingOps(
@@ -308,13 +302,7 @@ class spiceSinOp : public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os )
     {
-#if 0
-      os << "std::pow(";
-      this->leftAst_->codeGen(os);
-      os << ",";
-      this->rightAst_->codeGen(os);
-      os << ")";
-#endif
+      os << "// spice_sin codeGen function is not implemented yet" <<std::endl;
     }
 
     virtual void getInterestingOps(
@@ -431,13 +419,7 @@ class spiceExpOp : public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os )
     {
-#if 0
-      os << "std::pow(";
-      this->leftAst_->codeGen(os);
-      os << ",";
-      this->rightAst_->codeGen(os);
-      os << ")";
-#endif
+      os << "// spice_exp codeGen function is not implemented yet" <<std::endl;
     }
 
     virtual void getInterestingOps(
@@ -544,13 +526,7 @@ class spiceSffmOp : public astNode<ScalarT>
 
     virtual void codeGen (std::ostream & os )
     {
-#if 0
-      os << "std::pow(";
-      this->leftAst_->codeGen(os);
-      os << ",";
-      this->rightAst_->codeGen(os);
-      os << ")";
-#endif
+      os << "// spice_sffm codeGen function is not implemented yet" <<std::endl;
     }
 
     virtual void getInterestingOps(

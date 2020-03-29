@@ -6,6 +6,7 @@
 //    clang++ Test.C -I/opt/local/include -L/opt/local/lib -lgtest -lgtest_main -pthread
 //
 
+#include <fstream>
 #include <iostream>
 #include <gtest/gtest.h>
 
@@ -24,6 +25,46 @@ class testExpressionGroup : public Xyce::Util::baseExpressionGroup
     testExpressionGroup () : Xyce::Util::baseExpressionGroup()  {};
     ~testExpressionGroup () {};
 };
+
+#define OUTPUT_MACRO(NAME,SUBNAME) \
+{ \
+  char filename[ ] = "parserUnitTest.out"; \
+  std::fstream outputFile; \
+  outputFile.open(filename,  std::fstream::in | std::fstream::out | std::fstream::app ); \
+  EXPECT_TRUE(outputFile.is_open()); \
+  outputFile << std::endl << "TEST (" #NAME"," #SUBNAME ")" <<std::endl; \
+  testExpression.dumpParseTree(outputFile); \
+  outputFile.close();  } { \
+  char filename[ ] = "parserUnitTest_codeGen.C"; \
+  std::fstream outputFile; \
+  outputFile.open(filename,  std::fstream::in | std::fstream::out | std::fstream::app ); \
+  EXPECT_TRUE(outputFile.is_open()); \
+  outputFile << std::endl << "// TEST (" #NAME"," #SUBNAME ")" <<std::endl; \
+  outputFile << "{" <<std::endl; \
+  testExpression.codeGen(outputFile); \
+  outputFile << "}" <<std::endl; \
+  outputFile.close(); \
+}
+
+#define OUTPUT_MACRO2(NAME,SUBNAME,EXPRNAME) \
+{ \
+  char filename[ ] = "parserUnitTest.out"; \
+  std::fstream outputFile; \
+  outputFile.open(filename,  std::fstream::in | std::fstream::out | std::fstream::app ); \
+  EXPECT_TRUE(outputFile.is_open()); \
+  outputFile << std::endl << "TEST (" #NAME"," #SUBNAME ")" <<std::endl; \
+  EXPRNAME.dumpParseTree(outputFile); \
+  outputFile.close();  } { \
+  char filename[ ] = "parserUnitTest_codeGen.C"; \
+  std::fstream outputFile; \
+  outputFile.open(filename,  std::fstream::in | std::fstream::out | std::fstream::app ); \
+  EXPECT_TRUE(outputFile.is_open()); \
+  outputFile << std::endl << "// TEST (" #NAME"," #SUBNAME ")" <<std::endl; \
+  outputFile << "{" <<std::endl; \
+  EXPRNAME.codeGen(outputFile); \
+  outputFile << "}" <<std::endl; \
+  outputFile.close(); \
+}
 
 //-------------------------------------------------------------------------------
 // test values of binary operators
@@ -44,6 +85,22 @@ TEST ( NAME, SUBNAME ) \
   assignExpression = testExpression; \
   assignExpression.evaluateFunction(result); \
   EXPECT_EQ( (result-(CPPEXP)), 0.0); \
+  { char filename[ ] = "parserUnitTest.out"; \
+  std::fstream outputFile; \
+  outputFile.open(filename,  std::fstream::in | std::fstream::out | std::fstream::app ); \
+  EXPECT_TRUE(outputFile.is_open()); \
+  outputFile << std::endl << "TEST (" #NAME"," #SUBNAME ")" <<std::endl; \
+  testExpression.dumpParseTree(outputFile); \
+  outputFile.close(); } { \
+  char filename[ ] = "parserUnitTest_codeGen.C"; \
+  std::fstream outputFile; \
+  outputFile.open(filename,  std::fstream::in | std::fstream::out | std::fstream::app ); \
+  EXPECT_TRUE(outputFile.is_open()); \
+  outputFile << std::endl << "// TEST (" #NAME"," #SUBNAME ")" <<std::endl; \
+  outputFile << "{" <<std::endl; \
+  testExpression.codeGen(outputFile); \
+  outputFile << "}" <<std::endl; \
+  outputFile.close();} \
 }
 
 // number by itself
@@ -130,6 +187,21 @@ PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, precedence4, "4.0*(6.0/2.0)", (4.
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, precedence5, "1.0/4.0*10.0", (1.0/4.0*10.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, precedence6, "1.0/(4.0*10.0)", (1.0/(4.0*10.0)) )
 
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, unaryPlus, "+2.0", (2.0) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, unaryMinus, "-2.0", (-2.0) )
+
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, phase, "P(1.0)", std::arg(1.0) )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, real1, "Re(1.0)", 1.0 )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, real2, "R(1.0)", 1.0 )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, imag1, "Im(1.0)", 0.0 )
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, imag2, "Img(1.0)", 0.0 )
+
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, int1, "int(11.2423)", 11)
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, int2, "int(-11.2423)", -11)
+
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, uramp1, "uramp(11.2423)", 11.2423)
+PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, uramp2, "uramp(-11.2423)", 0)
+
 // std library functions
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, sqrt,  "sqrt(4.0)",  std::sqrt(4.0))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, exp,   "exp(0.5)", std::exp(0.5))
@@ -144,6 +216,7 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, atan,  "atan(0.5)", std::
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, atanh, "atanh(0.5)", std::atanh(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, cosh,  "cosh(0.5)", std::cosh(0.5))
 //PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log(0.5))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, ln,   "ln(0.5)", std::log(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log,   "log(0.5)", std::log10(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, log10, "log10(0.5)", std::log10(0.5))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, sinh,  "sinh(0.5)", std::sinh(0.5))
@@ -152,6 +225,13 @@ PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, tanh,  "tanh(0.5)", std::
 
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, pow1,  "pow(2.0,3.0)", std::pow(2.0,3.0))
 PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, pow2,  "2.0**3.0", std::pow(2.0,3.0))
+
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, pwrs1,  "pwrs(2.0,3.0)", std::pow(2.0,3.0))
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, pwrs2,  "pwrs(0.0,3.0)", 0.0);
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, pwrs3,  "pwrs(-2.0,3.0)", -std::pow(2.0,3.0))
+
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, sign1,  "sign(-25,10.25)", 25)
+PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, sign2,  "sign(15,-10.25)", -15)
 
 // Hspice only:
 //PARSER_SIMPLE_TEST_MACRO(Double_Parser_UnaryFunc_Test, pow3,  "2.0^3.0", std::pow(2.0,3.0))
@@ -394,6 +474,8 @@ TEST ( Double_Parser_SourceFunc_Test, pulse)
   assignExpression = testExpression; 
   assignExpression.evaluateFunction(result); 
   EXPECT_EQ( (result-(1.0)), 0.0);
+
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,pulse)
 }
 
 TEST ( Double_Parser_SourceFunc_Test, sin)
@@ -423,6 +505,8 @@ TEST ( Double_Parser_SourceFunc_Test, sin)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
+
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sin)
 }
 
 TEST ( Double_Parser_SourceFunc_Test, exp)
@@ -455,6 +539,8 @@ TEST ( Double_Parser_SourceFunc_Test, exp)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
+
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,exp)
 }
 
 TEST ( Double_Parser_SourceFunc_Test, sffm)
@@ -485,6 +571,7 @@ TEST ( Double_Parser_SourceFunc_Test, sffm)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sffm)
 }
 
 class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
@@ -570,6 +657,7 @@ TEST ( Double_Parser_VoltSoln_Test, test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
 }
 
 TEST ( Double_Parser_VoltSoln_Test, test1)
@@ -589,6 +677,7 @@ TEST ( Double_Parser_VoltSoln_Test, test1)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test1)
 }
 
 TEST ( Double_Parser_VoltSoln_Test, test2)
@@ -609,6 +698,7 @@ TEST ( Double_Parser_VoltSoln_Test, test2)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test2)
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test1)
@@ -635,6 +725,7 @@ TEST ( Double_Parser_VoltDeriv_Test, test1)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test1)
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test2)
@@ -659,6 +750,7 @@ TEST ( Double_Parser_VoltDeriv_Test, test2)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0]-refDer[0], 0.0);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0]-refDer[0], 0.0);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs[0]-refDer[0], 0.0);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test2)
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test3)
@@ -682,6 +774,7 @@ TEST ( Double_Parser_VoltDeriv_Test, test3)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test3)
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test4)
@@ -705,6 +798,7 @@ TEST ( Double_Parser_VoltDeriv_Test, test4)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test4)
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test5)
@@ -728,6 +822,7 @@ TEST ( Double_Parser_VoltDeriv_Test, test5)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test5)
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test6)
@@ -751,6 +846,7 @@ TEST ( Double_Parser_VoltDeriv_Test, test6)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs,refDer);
+  OUTPUT_MACRO(Double_Parser_VoltDeriv_Test, test6)
 }
 
 
@@ -771,6 +867,7 @@ TEST ( Double_Parser_CurrSoln_Test, test1)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_CurrSoln_Test, test1)
 }
 
 TEST ( Double_Parser_CurrDeriv_Test, test1)
@@ -795,6 +892,7 @@ TEST ( Double_Parser_CurrDeriv_Test, test1)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+  OUTPUT_MACRO(Double_Parser_CurrDeriv_Test, test1)
 }
 
 TEST ( Double_Parser_CurrDeriv_Test, test2)
@@ -819,6 +917,7 @@ TEST ( Double_Parser_CurrDeriv_Test, test2)
   testExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
   copyExpression.evaluate(result,derivs);   EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
+  OUTPUT_MACRO(Double_Parser_CurrDeriv_Test, test2)
 }
 
 //-------------------------------------------------------------------------------
@@ -899,6 +998,7 @@ TEST ( Double_Parser_Func_Test, test1)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  OUTPUT_MACRO(Double_Parser_Func_Test, test1)
 }
 
 // tests are taken from the "ternary_precedence.cir" Xyce regression test
@@ -938,6 +1038,7 @@ TEST ( Double_Parser_ternary_precedence, simple)
     simpleTrue.evaluateFunction(result);       EXPECT_EQ( result, 8.0 );
     copySimpleTrue.evaluateFunction(result);   EXPECT_EQ( result, 8.0 );
     assignSimpleTrue.evaluateFunction(result); EXPECT_EQ( result, 8.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, simple, simpleTrue) 
   }
   {
     Xyce::Util::newExpression simpleFalse(std::string("simple(0)"), testGroup);
@@ -957,6 +1058,7 @@ TEST ( Double_Parser_ternary_precedence, simple)
     simpleFalse.evaluateFunction(result);       EXPECT_EQ( result, 0.0 );
     copySimpleFalse.evaluateFunction(result);   EXPECT_EQ( result, 0.0 );
     assignSimpleFalse.evaluateFunction(result); EXPECT_EQ( result, 0.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, simple, simpleFalse) 
   }
 }
 
@@ -992,6 +1094,7 @@ TEST ( Double_Parser_ternary_precedence, precplus)
     precplusTrue.evaluateFunction(result);       EXPECT_EQ( result, 8.0 );
     copyPrecplusTrue.evaluateFunction(result);   EXPECT_EQ( result, 8.0 );
     assignPrecplusTrue.evaluateFunction(result); EXPECT_EQ( result, 8.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, precplus, precplusTrue) 
   }
   {
     Xyce::Util::newExpression precplusFalse(std::string("precplus(-4)"), testGroup);
@@ -1009,6 +1112,7 @@ TEST ( Double_Parser_ternary_precedence, precplus)
     precplusFalse.evaluateFunction(result);       EXPECT_EQ( result, 2.0 );
     copyPrecplusFalse.evaluateFunction(result);   EXPECT_EQ( result, 2.0 );
     assignPrecplusFalse.evaluateFunction(result); EXPECT_EQ( result, 2.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, precplus, precplusFalse) 
   }
 }
 
@@ -1044,6 +1148,7 @@ TEST ( Double_Parser_ternary_precedence, precplusparen)
     precplusparenTrue.evaluateFunction(result);       EXPECT_EQ( result, 8.0 );
     copyPrecplusparenTrue.evaluateFunction(result);   EXPECT_EQ( result, 8.0 );
     assignPrecplusparenTrue.evaluateFunction(result); EXPECT_EQ( result, 8.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, precplusparen, precplusparenTrue) 
   }
   {
     Xyce::Util::newExpression precplusparenFalse(std::string("precplusparen(-4)"), testGroup);
@@ -1061,6 +1166,7 @@ TEST ( Double_Parser_ternary_precedence, precplusparen)
     precplusparenFalse.evaluateFunction(result);       EXPECT_EQ( result, 2.0 );
     copyPrecplusparenFalse.evaluateFunction(result);   EXPECT_EQ( result, 2.0 );
     assignPrecplusparenFalse.evaluateFunction(result); EXPECT_EQ( result, 2.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, precplusparen, precplusparenFalse) 
   }
 }
 
@@ -1098,6 +1204,7 @@ TEST ( Double_Parser_ternary_precedence, simpleif)
     simpleifTrue.evaluateFunction(result);       EXPECT_EQ( result, 8.0 );
     copySimpleifTrue.evaluateFunction(result);   EXPECT_EQ( result, 8.0 );
     assignSimpleifTrue.evaluateFunction(result); EXPECT_EQ( result, 8.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, simpleif, simpleifTrue) 
   }
   {
     Xyce::Util::newExpression simpleifFalse(std::string("simpleif(0)"), testGroup);
@@ -1115,6 +1222,7 @@ TEST ( Double_Parser_ternary_precedence, simpleif)
     simpleifFalse.evaluateFunction(result);       EXPECT_EQ( result, 0.0 );
     copySimpleifFalse.evaluateFunction(result);   EXPECT_EQ( result, 0.0 );
     assignSimpleifFalse.evaluateFunction(result); EXPECT_EQ( result, 0.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, simpleif, simpleifFalse) 
   }
 }
 
@@ -1150,6 +1258,7 @@ TEST ( Double_Parser_ternary_precedence, precplusif)
     precplusifTrue.evaluateFunction(result);       EXPECT_EQ( result, 8.0 );
     copyPrecplusifTrue.evaluateFunction(result);   EXPECT_EQ( result, 8.0 );
     assignPrecplusifTrue.evaluateFunction(result); EXPECT_EQ( result, 8.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, precplusif, precplusifTrue) 
   }
   {
     Xyce::Util::newExpression precplusifFalse(std::string("precplusif(-4)"), testGroup);
@@ -1167,6 +1276,7 @@ TEST ( Double_Parser_ternary_precedence, precplusif)
     precplusifFalse.evaluateFunction(result);       EXPECT_EQ( result, 2.0 );
     copyPrecplusifFalse.evaluateFunction(result);   EXPECT_EQ( result, 2.0 );
     assignPrecplusifFalse.evaluateFunction(result); EXPECT_EQ( result, 2.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, precplusif, precplusifFalse) 
   }
 }
 
@@ -1204,6 +1314,7 @@ TEST ( Double_Parser_ternary_precedence, precplusparenif)
     precplusparenifTrue.evaluateFunction(result);       EXPECT_EQ( result, 8.0 );
     copyPrecplusparenifTrue.evaluateFunction(result);   EXPECT_EQ( result, 8.0 );
     assignPrecplusparenifTrue.evaluateFunction(result); EXPECT_EQ( result, 8.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, precplusparenif, precplusparenifTrue) 
   }
   {
     Xyce::Util::newExpression precplusparenifFalse(std::string("precplusparenif(-4)"), testGroup);
@@ -1222,6 +1333,7 @@ TEST ( Double_Parser_ternary_precedence, precplusparenif)
     precplusparenifFalse.evaluateFunction(result);       EXPECT_EQ( result, 2.0 );
     copyPrecplusparenifFalse.evaluateFunction(result);   EXPECT_EQ( result, 2.0 );
     assignPrecplusparenifFalse.evaluateFunction(result); EXPECT_EQ( result, 2.0 );
+    OUTPUT_MACRO2(Double_Parser_ternary_precedence, precplusparenif, precplusparenifFalse) 
   }
 }
 
@@ -1256,6 +1368,7 @@ TEST ( Double_Parser_Func_Test, longArgList)
     crazyTrue.evaluateFunction(result);       EXPECT_EQ( result, 4.0 );
     copyCrazyTrue.evaluateFunction(result);   EXPECT_EQ( result, 4.0 );
     assignCrazyTrue.evaluateFunction(result); EXPECT_EQ( result, 4.0 );
+    OUTPUT_MACRO2(Double_Parser_Func_Test, longArgList, crazyTrue) 
   }
   {
     Xyce::Util::newExpression crazyFalse(std::string("crazy(0,0,0,0,-4,0,0,0)"), testGroup);
@@ -1273,6 +1386,7 @@ TEST ( Double_Parser_Func_Test, longArgList)
     crazyFalse.evaluateFunction(result);       EXPECT_EQ( result, -4.0 );
     copyCrazyFalse.evaluateFunction(result);   EXPECT_EQ( result, -4.0 );
     assignCrazyFalse.evaluateFunction(result); EXPECT_EQ( result, -4.0 );
+    OUTPUT_MACRO2(Double_Parser_Func_Test, longArgList, crazyFalse) 
   }
 }
 
@@ -1405,6 +1519,7 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
     EXPECT_EQ( result, refRes);
     EXPECT_EQ( copyResult, refRes);
     EXPECT_EQ( assignResult, refRes);
+    OUTPUT_MACRO2(Double_Parser_ifstatement, ifmin_ifmax_func, e3) 
   }
 }
 
@@ -1462,6 +1577,7 @@ TEST ( Double_Parser_ifstatement, simple_nested_func)
     EXPECT_EQ( result, refRes);
     EXPECT_EQ( copyResult, refRes);
     EXPECT_EQ( assignResult, refRes);
+    OUTPUT_MACRO2(Double_Parser_ifstatement, simple_nested_func, e3) 
   }
 }
 
@@ -1503,6 +1619,7 @@ TEST ( Double_Parser_ifstatement, min_max)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, min_max,e4) 
 }
 
 TEST ( Double_Parser_ifstatement, limit)
@@ -1543,6 +1660,96 @@ TEST ( Double_Parser_ifstatement, limit)
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
+  OUTPUT_MACRO2(Double_Parser_ifstatement,limit, e5) 
+}
+
+TEST ( Double_Parser_ifstatement, or_true)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e8(std::string("IF(((V(6) > 1.5) | (V(7) < 1.5)), 3, 1)"), baseGroup);
+  e8.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e8(e8); 
+  Xyce::Util::newExpression assign_e8; 
+  assign_e8 = e8; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e8.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
+  copy_e8.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
+  assign_e8.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, or_true,e8) 
+}
+
+TEST ( Double_Parser_ifstatement, or_false)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e9(std::string("IF(((V(6) > 1.5) | (V(7) > 1.5)), 3, 1)"), baseGroup);
+  e9.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e9(e9); 
+  Xyce::Util::newExpression assign_e9; 
+  assign_e9 = e9; 
+
+  ifGroup->setSoln(std::string("6"),1.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e9.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
+  copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
+  assign_e9.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, or_false,e9) 
+}
+
+
+TEST ( Double_Parser_ifstatement, and_true)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e8(std::string("IF(((V(6) > 1.5) & (V(7) < 1.5)), 3, 1)"), baseGroup);
+  e8.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e8(e8); 
+  Xyce::Util::newExpression assign_e8; 
+  assign_e8 = e8; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e8.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
+  copy_e8.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
+  assign_e8.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, and_true,e8) 
+}
+
+TEST ( Double_Parser_ifstatement, and_false)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e9(std::string("IF(((V(6) > 1.5) & (V(7) > 1.5)), 3, 1)"), baseGroup);
+  e9.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e9(e9); 
+  Xyce::Util::newExpression assign_e9; 
+  assign_e9 = e9; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e9.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
+  copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
+  assign_e9.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, and_false,e9) 
 }
 
 TEST ( Double_Parser_ifstatement, xor_true)
@@ -1564,6 +1771,7 @@ TEST ( Double_Parser_ifstatement, xor_true)
   e8.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
   copy_e8.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e8.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, xor_true,e8) 
 }
 
 TEST ( Double_Parser_ifstatement, xor_false)
@@ -1585,6 +1793,7 @@ TEST ( Double_Parser_ifstatement, xor_false)
   e9.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e9.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, xor_false,e9) 
 }
 
 TEST ( Double_Parser_ifstatement, neq)
@@ -1606,6 +1815,7 @@ TEST ( Double_Parser_ifstatement, neq)
   e10.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_e10.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_e10.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, neq, e10) 
 }
 
 TEST ( Double_Parser_ifstatement, not)
@@ -1627,6 +1837,162 @@ TEST ( Double_Parser_ifstatement, not)
   e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
   copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, not, e11) 
+}
+
+TEST ( Double_Parser_ifstatement, equiv)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e11(std::string("IF(V(6) == V(7), 3, 1)"), baseGroup);
+  e11.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e11(e11); 
+  Xyce::Util::newExpression assign_e11; 
+  assign_e11 = e11; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
+  copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
+  assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, equiv, e11) 
+}
+
+TEST ( Double_Parser_ifstatement, ge1)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e11(std::string("IF(V(6) >= V(7), 3, 1)"), baseGroup);
+  e11.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e11(e11); 
+  Xyce::Util::newExpression assign_e11; 
+  assign_e11 = e11; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e11.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
+  copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
+  assign_e11.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, ge1, e11) 
+}
+
+TEST ( Double_Parser_ifstatement, ge2)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e11(std::string("IF(V(6) >= V(7), 3, 1)"), baseGroup);
+  e11.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e11(e11); 
+  Xyce::Util::newExpression assign_e11; 
+  assign_e11 = e11; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),2.0);
+
+  double result=0.0;
+  e11.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
+  copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
+  assign_e11.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, ge2, e11) 
+}
+
+TEST ( Double_Parser_ifstatement, ge3)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e11(std::string("IF(V(6) >= V(7), 3, 1)"), baseGroup);
+  e11.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e11(e11); 
+  Xyce::Util::newExpression assign_e11; 
+  assign_e11 = e11; 
+
+  ifGroup->setSoln(std::string("6"),1.0);
+  ifGroup->setSoln(std::string("7"),2.0);
+
+  double result=0.0;
+  e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
+  copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
+  assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, ge3, e11) 
+}
+
+
+TEST ( Double_Parser_ifstatement, le1)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e11(std::string("IF(V(6) <= V(7), 3, 1)"), baseGroup);
+  e11.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e11(e11); 
+  Xyce::Util::newExpression assign_e11; 
+  assign_e11 = e11; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e11.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
+  copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
+  assign_e11.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, le1, e11) 
+}
+
+TEST ( Double_Parser_ifstatement, le2)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e11(std::string("IF(V(6) <= V(7), 3, 1)"), baseGroup);
+  e11.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e11(e11); 
+  Xyce::Util::newExpression assign_e11; 
+  assign_e11 = e11; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),2.0);
+
+  double result=0.0;
+  e11.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
+  copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
+  assign_e11.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, le2, e11) 
+}
+
+TEST ( Double_Parser_ifstatement, le3)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e11(std::string("IF(V(6) <= V(7), 3, 1)"), baseGroup);
+  e11.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e11(e11); 
+  Xyce::Util::newExpression assign_e11; 
+  assign_e11 = e11; 
+
+  ifGroup->setSoln(std::string("6"),1.0);
+  ifGroup->setSoln(std::string("7"),2.0);
+
+  double result=0.0;
+  e11.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
+  copy_e11.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
+  assign_e11.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, le3, e11) 
 }
 
 // from "ifstatement.cir":
@@ -1648,6 +2014,7 @@ TEST ( Double_Parser_modulus, test1)
   p1.evaluateFunction(result);        EXPECT_EQ( result, 4.0);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, 4.0);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, 4.0);
+  OUTPUT_MACRO2(Double_Parser_modulus, test1, p1) 
 }
 
 TEST ( Double_Parser_modulus, test2)
@@ -1665,6 +2032,7 @@ TEST ( Double_Parser_modulus, test2)
   p1.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
   copy_p1.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
   assign_p1.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_modulus, test2, p1) 
 }
 
 //-------------------------------------------------------------------------------
@@ -1698,6 +2066,7 @@ TEST ( Double_Parser_table_Test, break1)
   EXPECT_EQ(refRes,result);
   EXPECT_EQ(refRes,copyResult);
   EXPECT_EQ(refRes,assignResult);
+  OUTPUT_MACRO2(Double_Parser_table_Test, break1, tableExpression) 
 }
 
 TEST ( Double_Parser_table_Test, break2)
@@ -1727,6 +2096,7 @@ TEST ( Double_Parser_table_Test, break2)
   EXPECT_EQ(refRes,result);
   EXPECT_EQ(refRes,copyResult);
   EXPECT_EQ(refRes,assignResult);
+  OUTPUT_MACRO2(Double_Parser_table_Test, break2, tableExpression) 
 }
 
 class tempDepExpressionGroup : public Xyce::Util::baseExpressionGroup
@@ -1768,6 +2138,7 @@ TEST ( Double_Parser_table_Test, power_thermalres)
     EXPECT_EQ(refRes,result);
     EXPECT_EQ(refRes,copyResult);
     EXPECT_EQ(refRes,assignResult);
+    OUTPUT_MACRO2(Double_Parser_table_Test, power_thermalres, resistivity) 
   }
   {
     Xyce::Util::newExpression heatcapacity(std::string("8.92e+3*table(temp+273.15, 0, 1, 1000, 1500)"), grp);
@@ -1793,6 +2164,7 @@ TEST ( Double_Parser_table_Test, power_thermalres)
     EXPECT_EQ(refRes,result);
     EXPECT_EQ(refRes,copyResult);
     EXPECT_EQ(refRes,assignResult);
+    OUTPUT_MACRO2(Double_Parser_table_Test, power_thermalres, heatcapacity) 
   }
 }
 
@@ -2006,6 +2378,7 @@ TEST ( Double_Parser_Param_Test, test1)
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, 5.0 );
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  OUTPUT_MACRO(Double_Parser_Param_Test, test1)
 }
 
 //-----------------------------------------------------------------------------
@@ -2055,6 +2428,7 @@ TEST ( Double_Parser_Param_Test, test2)
   EXPECT_EQ(refRes,result);
   EXPECT_EQ(refRes,copyResult);
   EXPECT_EQ(refRes,assignResult);
+  OUTPUT_MACRO(Double_Parser_Param_Test, test2)
 }
 
 TEST ( Double_Parser_calculus, ddx1)
@@ -2742,6 +3116,7 @@ TEST ( Double_Parser_floor, test1)
   floorTest.evaluateFunction(result);        EXPECT_EQ( result, 10);
   copy_floorTest.evaluateFunction(result);   EXPECT_EQ( result, 10);
   assign_floorTest.evaluateFunction(result); EXPECT_EQ( result, 10);
+  OUTPUT_MACRO2(Double_Parser_floor, test1, floorTest) 
 }
 
 TEST ( Double_Parser_floor, test2)
@@ -2758,6 +3133,7 @@ TEST ( Double_Parser_floor, test2)
   floorTest.evaluateFunction(result);        EXPECT_EQ( result, -35);
   copy_floorTest.evaluateFunction(result);   EXPECT_EQ( result, -35);
   assign_floorTest.evaluateFunction(result); EXPECT_EQ( result, -35);
+  OUTPUT_MACRO2(Double_Parser_floor, test2, floorTest) 
 }
 
 TEST ( Double_Parser_floor, test3)
@@ -2774,6 +3150,7 @@ TEST ( Double_Parser_floor, test3)
   floorTest.evaluateFunction(result);        EXPECT_EQ( result, 0);
   copy_floorTest.evaluateFunction(result);   EXPECT_EQ( result, 0);
   assign_floorTest.evaluateFunction(result); EXPECT_EQ( result, 0);
+  OUTPUT_MACRO2(Double_Parser_floor, test3, floorTest) 
 }
 
 TEST ( Double_Parser_ceil, test1)
@@ -2790,6 +3167,7 @@ TEST ( Double_Parser_ceil, test1)
   ceilTest.evaluateFunction(result);        EXPECT_EQ( result, 11);
   copy_ceilTest.evaluateFunction(result);   EXPECT_EQ( result, 11);
   assign_ceilTest.evaluateFunction(result); EXPECT_EQ( result, 11);
+  OUTPUT_MACRO2(Double_Parser_ceil, test1, ceilTest) 
 }
 
 TEST ( Double_Parser_ceil, test2)
@@ -2806,6 +3184,7 @@ TEST ( Double_Parser_ceil, test2)
   ceilTest.evaluateFunction(result);        EXPECT_EQ( result, -34);
   copy_ceilTest.evaluateFunction(result);   EXPECT_EQ( result, -34);
   assign_ceilTest.evaluateFunction(result); EXPECT_EQ( result, -34);
+  OUTPUT_MACRO2(Double_Parser_ceil, test2, ceilTest) 
 }
 
 TEST ( Double_Parser_ceil, test3)
@@ -2822,6 +3201,7 @@ TEST ( Double_Parser_ceil, test3)
   ceilTest.evaluateFunction(result);        EXPECT_EQ( result, 1);
   copy_ceilTest.evaluateFunction(result);   EXPECT_EQ( result, 1);
   assign_ceilTest.evaluateFunction(result); EXPECT_EQ( result, 1);
+  OUTPUT_MACRO2(Double_Parser_ceil, test3, ceilTest) 
 }
 
 TEST ( Double_Parser_specials, pi1)
@@ -2838,6 +3218,7 @@ TEST ( Double_Parser_specials, pi1)
   piTest.evaluateFunction(result);        EXPECT_EQ( result, M_PI);
   copy_piTest.evaluateFunction(result);   EXPECT_EQ( result, M_PI);
   assign_piTest.evaluateFunction(result); EXPECT_EQ( result, M_PI);
+  OUTPUT_MACRO2(Double_Parser_specials, pi1, piTest) 
 }
 
 TEST ( Double_Parser_specials, pi2)
@@ -2854,6 +3235,7 @@ TEST ( Double_Parser_specials, pi2)
   piTest.evaluateFunction(result);        EXPECT_EQ( result, std::sin(M_PI));
   copy_piTest.evaluateFunction(result);   EXPECT_EQ( result, std::sin(M_PI));
   assign_piTest.evaluateFunction(result); EXPECT_EQ( result, std::sin(M_PI));
+  OUTPUT_MACRO2(Double_Parser_specials, pi2, piTest) 
 }
 
 TEST ( Double_Parser_specials, time)
@@ -2872,6 +3254,7 @@ TEST ( Double_Parser_specials, time)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+  OUTPUT_MACRO(Double_Parser_specials, time)
 }
 
 TEST ( Double_Parser_specials, freq)
@@ -2890,6 +3273,7 @@ TEST ( Double_Parser_specials, freq)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+  OUTPUT_MACRO(Double_Parser_specials, freq)
 }
 
 TEST ( Double_Parser_specials, temp)
@@ -2908,6 +3292,7 @@ TEST ( Double_Parser_specials, temp)
   testExpression.evaluateFunction(result);        EXPECT_EQ( (result-(1.0)), 0.0);
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( (result-(1.0)), 0.0);
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( (result-(1.0)), 0.0);
+  OUTPUT_MACRO(Double_Parser_specials, temp)
 }
 
 // these next two tests are for the use case of a parameter that is named either "I" or "V".
@@ -2945,6 +3330,7 @@ TEST ( Double_Parser_Param_Test, I )
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, (2+3)*(2+3)*4 );
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, (2+3)*(2+3)*4 );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, (2+3)*(2+3)*4 );
+  OUTPUT_MACRO(Double_Parser_Param_Test, I)
 }
 
 TEST ( Double_Parser_Param_Test, V )
@@ -2976,6 +3362,7 @@ TEST ( Double_Parser_Param_Test, V )
   testExpression.evaluateFunction(result);        EXPECT_EQ( result, (2+3)*(2+3)*4 );
   copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, (2+3)*(2+3)*4 );
   assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, (2+3)*(2+3)*4 );
+  OUTPUT_MACRO(Double_Parser_Param_Test, V)
 }
 
 
@@ -3001,6 +3388,7 @@ TEST ( Double_Parser_ASCTH_Test, test0)
   EXPECT_EQ( result, refRes);
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_ASCTH_Test, test0)
 }
 
 TEST ( Double_Parser_ASCTH_Test, test1)
@@ -3025,7 +3413,8 @@ TEST ( Double_Parser_ASCTH_Test, test1)
   EXPECT_EQ( result, refRes);
   assignExpression.evaluate(result,derivs); 
   EXPECT_EQ( result, refRes);
-} 
+  OUTPUT_MACRO(Double_Parser_ASCTH_Test, test1)
+}
 
 TEST ( Double_Parser_ASCTH_Test, test2)
 {
@@ -3054,6 +3443,7 @@ TEST ( Double_Parser_ASCTH_Test, test2)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_ASCTH_Test, test2)
 }
 
 TEST ( Double_Parser_STP_Test, test1)
@@ -3078,6 +3468,7 @@ TEST ( Double_Parser_STP_Test, test1)
   EXPECT_EQ( result, refRes);
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_STP_Test, test1)
 }
 
 TEST ( Double_Parser_STP_Test, test2)
@@ -3102,6 +3493,7 @@ TEST ( Double_Parser_STP_Test, test2)
   EXPECT_EQ( result, refRes);
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_STP_Test, test2)
 }
 
 
@@ -3135,6 +3527,7 @@ TEST ( Double_Parser_atan2_Test, test1)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_atan2_Test, test1)
 }
 
 
@@ -3168,6 +3561,7 @@ TEST ( Double_Parser_atan2_Test, test2)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_atan2_Test, test2)
 }
 
 TEST ( Double_Parser_atan2_Test, test3)
@@ -3200,6 +3594,7 @@ TEST ( Double_Parser_atan2_Test, test3)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_atan2_Test, test3)
 }
 
 TEST ( Double_Parser_atan2_Test, test4)
@@ -3232,6 +3627,7 @@ TEST ( Double_Parser_atan2_Test, test4)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_atan2_Test, test4)
 }
 
 TEST ( Double_Parser_TwoNodeDeriv_Test, test1)
@@ -3266,6 +3662,7 @@ TEST ( Double_Parser_TwoNodeDeriv_Test, test1)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_TwoNodeDeriv_Test, test1)
 }
 
 //
@@ -3298,6 +3695,7 @@ TEST ( Double_Parser_poly_Test, test1)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_poly_Test, test1)
 }
 
 
@@ -3337,6 +3735,7 @@ TEST ( Double_Parser_poly_Test, test2)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_poly_Test, test2)
 }
 
 
@@ -3383,6 +3782,7 @@ TEST ( Double_Parser_poly_Test, test3)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_poly_Test, test3)
 }
 
 TEST ( Double_Parser_poly_Test, test4)
@@ -3417,6 +3817,7 @@ TEST ( Double_Parser_poly_Test, test4)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_poly_Test, test4)
 }
 
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
@@ -3462,6 +3863,7 @@ TEST ( Double_Parser_poly_Test, test5)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   //EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_poly_Test, test5)
 }
 
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
@@ -3508,6 +3910,7 @@ TEST ( Double_Parser_poly_Test, test6)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   //EXPECT_EQ( derivs, refderivs);
+  OUTPUT_MACRO(Double_Parser_poly_Test, test6)
 }
 
 // POLY(5) I(VB) I(VC)  I(VE)  I(VLP) I(VLN)  0 10.61E6 -10E6 10E6 10E6 -10E6
@@ -3554,6 +3957,8 @@ TEST ( Double_Parser_poly_Test, test7)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   //EXPECT_EQ( derivs, refderivs);
+
+  OUTPUT_MACRO(Double_Parser_poly_Test, test7)
 }
 
 TEST ( Double_Parser_poly_Test, test8)
@@ -3585,7 +3990,10 @@ TEST ( Double_Parser_poly_Test, test8)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+
+  OUTPUT_MACRO(Double_Parser_poly_Test, test8)
 }
+
 TEST ( Double_Parser_poly_Test, test9)
 {
   Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
@@ -3615,6 +4023,8 @@ TEST ( Double_Parser_poly_Test, test9)
   assignExpression.evaluate(result, derivs); 
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( derivs, refderivs);
+
+  OUTPUT_MACRO(Double_Parser_poly_Test, test9)
 }
 
 #if 0
@@ -3743,13 +4153,28 @@ TEST ( Double_Parser_NestedFunc_Test, func_cir)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refresult );
   //copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
   //assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+
+  OUTPUT_MACRO(Double_Parser_NestedFunc_Test, func_cir)
 }
-
-
-
 
 int main (int argc, char **argv)
 {
+  {
+  char filename[ ] = "parserUnitTest.out";
+  std::fstream outputFile;
+  outputFile.open(filename,  std::fstream::in | std::fstream::out | std::fstream::trunc);
+  outputFile << "parserUnitTest output file.  This is to test the output functions" <<std::endl;
+  outputFile.close();
+  }
+
+  {
+  char filename[ ] = "parserUnitTest_codeGen.C";
+  std::fstream outputFile;
+  outputFile.open(filename,  std::fstream::in | std::fstream::out | std::fstream::trunc);
+  outputFile << "// parserUnitTest code gen file.  This is to test the codegen functions" <<std::endl;
+  outputFile.close();
+  }
+
   testing::InitGoogleTest(&argc, argv);
 
   return RUN_ALL_TESTS();
