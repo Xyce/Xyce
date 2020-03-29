@@ -3211,7 +3211,7 @@
                     `endif // NQSmodel
 
                 end // OPinfo
-`endif //doOpInfo
+`endif //doOPinfo
             end // evaluateblock
 
         end // analogBlock

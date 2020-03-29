@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Mar 2020 14:53:34
+// Creation Date  : Sat, 28 Mar 2020 14:50:19
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbjt504tva_h
@@ -1455,6 +1455,8 @@ public:
     int li_store_admsProbeID_V_b1_e1;
     int li_store_admsProbeID_V_b1_b2;
    // end store LIDs
+   // Store LIDs for output vars
+   // end store LIDs for output vars
      // bools for collapsing nodes
      bool collapseNode_c1;
      bool collapseNode_c4;

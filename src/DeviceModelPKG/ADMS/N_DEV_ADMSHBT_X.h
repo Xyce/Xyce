@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Mar 2020 14:53:34
+// Creation Date  : Sat, 28 Mar 2020 14:50:19
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSHBT_X_h
@@ -1071,6 +1071,8 @@ private:
   int li_store_admsProbeID_V_bii_ci;
   int li_store_admsProbeID_V_bii_ei;
   // end store LIDs
+  // Store LIDs for output vars
+  // end store LIDs for output vars
   // Arrays to hold probes
   std::vector < double > probeVars;
   std::vector < std::vector < double > > d_probeVars;

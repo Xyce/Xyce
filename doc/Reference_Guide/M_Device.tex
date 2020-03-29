@@ -623,8 +623,15 @@ the BSIM6, and lack many descriptions for the parameters.  Consult the
 BSIM6 technical manual from the BSIM group for further details about
 these parameters.
 
+The BSIM6 device supports output of the internal variables in
+table~\ref{M_77_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific level 77 M device in your netlist.
+
 \input{M_77_Device_Instance_Params}
 \input{M_77_Device_Model_Params}
+\input{M_77_OutputVars}
 
 \clearpage
 \subsubsection{Level 102 MOSFET Tables (PSP version 102.5)}
@@ -636,8 +643,15 @@ foundries provide model cards that use the version 102.  Development
 of new model cards should be done using the more recent, supported
 versions of PSP.
 
+The PSP102 device supports output of the internal variables in
+table~\ref{M_102_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific PSP102 M device in your netlist.
+
 \input{M_102_Device_Instance_Params}
 \input{M_102_Device_Model_Params}
+\input{M_102_OutputVars}
 
 \subsubsection{Level 103 and 1031 MOSFET Tables (PSP version 103.4)}
 
@@ -654,10 +668,18 @@ parameters for the PSP model are given in
 tables~\ref{M_103_Device_Instance_Params}, \ref{M_103_Device_Model_Params},
 \ref{M_1031_Device_Instance_Params}, and \ref{M_1031_Device_Model_Params}.
 
+The PSP103 devices support output of the internal variables in
+table~\ref{M_103_OutputVars} and table~\ref{M_1031_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific PSP103 M device in your netlist.
+
 \input{M_103_Device_Instance_Params}
 \input{M_103_Device_Model_Params}
+\input{M_103_OutputVars}
 \input{M_1031_Device_Instance_Params}
 \input{M_1031_Device_Model_Params}
+\input{M_1031_OutputVars}
 
 \clearpage
 \subsubsection{Level 110 MOSFET Tables (BSIM CMG version 110.0.0)}

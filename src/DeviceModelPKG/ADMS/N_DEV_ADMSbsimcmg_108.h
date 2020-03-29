@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Mar 2020 14:53:34
+// Creation Date  : Sat, 28 Mar 2020 14:50:19
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_108_h
@@ -8523,6 +8523,8 @@ public:
    // end probe numbers
    // Store LIDs
    // end store LIDs
+   // Store LIDs for output vars
+   // end store LIDs for output vars
      // bools for collapsing nodes
      bool collapseNode_di;
      bool collapseNode_si;

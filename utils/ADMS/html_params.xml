@@ -44,6 +44,7 @@
   <admst:variable name="globalCurrentScope" select="instance"/>
   <admst:variable name="skipFunctionPrecomp" select="y"/>
   <admst:variable name="derivProbe"/>
+  <admst:variable name="derivProbe2"/>
   <admst:apply-templates select="/module" match="xyceClassBaseName">
     <admst:value-of select="returned('classname')/value"/>
     <admst:variable name="classname" select="%s"/>
@@ -53,7 +54,6 @@
   <admst:apply-templates select="/module" match="collectLimiters"/>
   <admst:apply-templates select="/module" match="collectCollapsibles"/>
   <admst:apply-templates select="/module" match="collectExtraUnknowns"/>
-  <admst:apply-templates select="/module" match="markOutputVariables"/>
 
   <admst:open file="$classname.html">
     <html>
@@ -73,6 +73,10 @@
         <h2>There are 
           <admst:text format=" %(count(/module/variable)) "/>
           total module variables.
+        </h2>
+        <h2>There are 
+          <admst:text format=" %(count(/module/variable[output='yes' and input!='yes'])) "/>
+          output variables.
         </h2>
         <table border="1">
           <tbody>
@@ -378,6 +382,140 @@
                 </tr>
               </admst:if>
             </admst:for-each>
+            <tr><th colspan="14" align="center">Output variables</th></tr>
+            <tr>
+              <th> <p> <admst:text format="position\n"/> </p> </th>
+              <th> <p> <admst:text format="name\n"/> </p> </th>
+              <th> <p> <admst:text format="type\n"/> </p> </th>
+              <th> <p> <admst:text format="description\n"/> </p> </th>
+              <th> <p> <admst:text format="units\n"/> </p> </th>
+              <th> <p> <admst:text format="Declared in\n"/></p></th>
+              <th> <p> <admst:text format="Temperature dependent?\n"/> </p> </th>
+              <th> <p> <admst:text format="OP dependent?\n"/> </p> </th>
+              <th> <p> <admst:text format="scope\n"/> </p> </th>
+              <th> <p> <admst:text format="set in\n"/> </p> </th>
+              <th> <p> <admst:text format="used in\n"/> </p> </th>
+              <th> <p> <admst:text format="variable dependencies\n"/> </p> </th>
+              <th> <p> <admst:text format="probe dependencies\n"/> </p> </th>
+              <th> <p> <admst:text format="ddxprobe dependencies\n"/> </p> </th>
+            </tr>
+            <admst:for-each select="/module/variable[output='yes' and input!='yes']">
+              <!-- Variables that are not inputs are internal to the module, not
+                   parameters -->
+              <tr>
+                <td>
+                  <admst:text format="--%(position(.))\n"/>
+                </td>
+                <td>
+                  <admst:text format="%(name)\n"/>
+                </td>
+                <td>
+                  <admst:text format="%(type)\n"/>
+                </td>
+                <td>
+                  <admst:choose>
+                    <admst:when test="[exists(attribute[name='desc'])]">
+                      <admst:text format="%(attribute[name='desc']/value)"/>
+                    </admst:when>
+                    <admst:otherwise>
+                      <admst:text format="no-description"/>
+                    </admst:otherwise>
+                  </admst:choose>
+                </td>
+                <td>
+                  <admst:choose>
+                    <admst:when test="[exists(attribute[name='units'])]">
+                      <admst:text format="%(attribute[name='units']/value)"/>
+                    </admst:when>
+                    <admst:otherwise>
+                      <admst:text format="no-units"/>
+                    </admst:otherwise>
+                  </admst:choose>
+                </td>
+                <td>
+                  <admst:text format="Level: %(block/adms/datatypename), name:%(block/name)\n"/>
+                </td>
+                <td><admst:text format="%(TemperatureDependent)"/></td>
+                <td><admst:text format="%(OPdependent)"/></td>
+                <td>
+                  <admst:text format="%(scope)"/>
+                  <admst:if test="[module/name=block/name]">
+                    <admst:text format="[module scope]"/>
+                </admst:if>                  </td>
+                <!-- set in -->
+                <td>
+                  <admst:text format="&nbsp;"/>
+                  <admst:if test="[input='yes']"> <admst:text format="input,"/> </admst:if>
+                  <admst:if test="[setininstance='yes']"> <admst:text format="instance,"/> </admst:if>
+                  <admst:if test="[setinmodel='yes']"> <admst:text format="model,"/> </admst:if>
+                  <admst:if test="[setinevaluate='yes']"> <admst:text format="evaluate,"/> </admst:if>
+                  <admst:if       test="[(input='yes' and parametertype='instance') or
+                                        (input='no' and setinmodel='no' and usedinmodel='no' and
+                                        (((setininstance='yes' or usedininstance='yes') and (setininitial_step='yes' or setinevaluate='yes' or setinnoise='yes' or setinfinal='yes'
+                                        or usedininitial_step='yes' or usedinevaluate='yes' or usedinnoise='yes' or usedinfinal='yes' or output='yes'))
+                                        or ((setininitial_step='yes' or usedininitial_step='yes') and (setinevaluate='yes' or setinnoise='yes' or setinfinal='yes'
+                                        or usedinevaluate='yes' or usedinnoise='yes' or usedinfinal='yes' or output='yes'))
+                                        or ((setinevaluate='yes' or usedinevaluate='yes') and (setinnoise='yes' or setinfinal='yes'
+                                        or usedinnoise='yes' or usedinfinal='yes' or output='yes'))
+                                        or ((setinnoise='yes' or usedinnoise='yes') and (setinfinal='yes' or usedinfinal='yes' or output='yes'))
+                                        or ((setinfinal='yes' or usedinfinal='yes') and output='yes')
+                                        or (setinmodel='no' and setininstance='no' and setinevaluate='no' and setinnoise='no' and setinfinal='no' and
+                                        usedinmodel='no' and usedininstance='no' and usedinevaluate='no' and usedinnoise='no' and usedinfinal='no' and output='yes')
+                                        ))]"> <admst:text format="&lt;B&gt;GLOBAL_INSTANCE&lt;/B&gt;"/> </admst:if>
+                </td>
+                <!-- used in -->
+                <td>
+                  <admst:text format="&nbsp;"/>
+                  <admst:if test="[usedininstance='yes']"> <admst:text format="instance,"/> </admst:if>
+                  <admst:if test="[usedinmodel='yes']"> <admst:text format="model,"/> </admst:if>
+                  <admst:if test="[usedinevaluate='yes']"> <admst:text format="evaluate,"/> </admst:if>
+                </td>
+                <td>
+                  <!-- "variable/variable" is supposedly the list of
+                       variables this one depends on -->
+                  <admst:join select="variable" separator=", ">
+                    <admst:choose>
+                      <admst:when test="[input='yes' and parametertype='model']">
+                        <admst:text format="%(name)[param:model]"/>
+                      </admst:when>
+                      <admst:when test="[input='yes' and parametertype='instance' and exists(attribute[name='xyceAlsoModel'])]">
+                        <admst:text format="%(name)[param:instance &amp; model]"/>
+                      </admst:when>
+                      <admst:when test="[input='yes' and parametertype='instance' and not exists(attribute[name='xyceAlsoModel'])]">
+                        <admst:text format="%(name)[param:instance ]"/>
+                      </admst:when>
+                      <admst:otherwise>
+                        <admst:text format="%(name)"/>
+                      </admst:otherwise>
+                    </admst:choose>
+                  </admst:join>
+                  <admst:apply-templates select="." match="collectParamDependence"/>
+                  <admst:if test="[exists(#Pdependent)]">
+                    <admst:text format=" (depends on parameters)"/>
+                  </admst:if>
+                  &nbsp;
+                </td>
+                <td>
+                  <!-- "variable/probe" is supposedly the list of
+                       probes this one depends on -->
+                  <admst:text format="Depends on %(count(probe)) probes:"/>
+                  <admst:join select="probe" separator=", ">
+                    <admst:text format="%(.)"/>
+                  </admst:join>
+                  &nbsp;
+                </td>
+                <td>
+                  <!-- "variable/ddxprobe" is supposedly the list of
+                       ddxprobes this one depends on , whatever the
+                       hell those are
+                  -->
+                  <admst:join select="ddxprobe" separator=", ">
+                    <admst:text format="%(.)"/>
+                  </admst:join>
+                  &nbsp;
+                </td>
+              </tr>
+            </admst:for-each>            
             <tr><td colspan="16" align="center">/module/block/variable</td></tr>
             <admst:for-each select="/module/block/variable">
               <!-- Variables that are not inputs are internal to the module, not

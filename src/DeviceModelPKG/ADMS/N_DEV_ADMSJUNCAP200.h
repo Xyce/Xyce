@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 17 Mar 2020 14:53:34
+// Creation Date  : Sat, 28 Mar 2020 14:50:19
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSJUNCAP200_h
@@ -214,6 +214,21 @@ AdmsSensFadType & instanceVar_MFOR2,
 AdmsSensFadType & instanceVar_ISATREV,
 AdmsSensFadType & instanceVar_MREV,
 double & instanceVar_m0flag,
+AdmsSensFadType & instanceVar_vak,
+AdmsSensFadType & instanceVar_ij,
+AdmsSensFadType & instanceVar_ijbot,
+AdmsSensFadType & instanceVar_ijgat,
+AdmsSensFadType & instanceVar_ijsti,
+AdmsSensFadType & instanceVar_si,
+AdmsSensFadType & instanceVar_idsatsbot,
+AdmsSensFadType & instanceVar_idsatssti,
+AdmsSensFadType & instanceVar_idsatsgat,
+AdmsSensFadType & instanceVar_cjosbot,
+AdmsSensFadType & instanceVar_cjossti,
+AdmsSensFadType & instanceVar_cjosgat,
+AdmsSensFadType & instanceVar_vbisbot,
+AdmsSensFadType & instanceVar_vbissti,
+AdmsSensFadType & instanceVar_vbisgat,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_DTA,
@@ -447,6 +462,21 @@ AdmsSensFadType & instanceVar_MFOR2,
 AdmsSensFadType & instanceVar_ISATREV,
 AdmsSensFadType & instanceVar_MREV,
 double & instanceVar_m0flag,
+AdmsSensFadType & instanceVar_vak,
+AdmsSensFadType & instanceVar_ij,
+AdmsSensFadType & instanceVar_ijbot,
+AdmsSensFadType & instanceVar_ijgat,
+AdmsSensFadType & instanceVar_ijsti,
+AdmsSensFadType & instanceVar_si,
+AdmsSensFadType & instanceVar_idsatsbot,
+AdmsSensFadType & instanceVar_idsatssti,
+AdmsSensFadType & instanceVar_idsatsgat,
+AdmsSensFadType & instanceVar_cjosbot,
+AdmsSensFadType & instanceVar_cjossti,
+AdmsSensFadType & instanceVar_cjosgat,
+AdmsSensFadType & instanceVar_vbisbot,
+AdmsSensFadType & instanceVar_vbissti,
+AdmsSensFadType & instanceVar_vbisgat,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_DTA,
@@ -994,6 +1024,21 @@ public:
     double ISATREV;
     double MREV;
     double m0flag;
+    double vak;
+    double ij;
+    double ijbot;
+    double ijgat;
+    double ijsti;
+    double si;
+    double idsatsbot;
+    double idsatssti;
+    double idsatsgat;
+    double cjosbot;
+    double cjossti;
+    double cjosgat;
+    double vbisbot;
+    double vbissti;
+    double vbisgat;
     // end verilog Instance Variables=====
     // Nodal LID Variables
     int li_A;
@@ -1031,6 +1076,23 @@ public:
    // end probe numbers
    // Store LIDs
    // end store LIDs
+   // Store LIDs for output vars
+    int li_store_vak;
+    int li_store_ij;
+    int li_store_ijbot;
+    int li_store_ijgat;
+    int li_store_ijsti;
+    int li_store_si;
+    int li_store_idsatsbot;
+    int li_store_idsatssti;
+    int li_store_idsatsgat;
+    int li_store_cjosbot;
+    int li_store_cjossti;
+    int li_store_cjosgat;
+    int li_store_vbisbot;
+    int li_store_vbissti;
+    int li_store_vbisgat;
+   // end store LIDs for output vars
  // Arrays to hold probes
  std::vector < double > probeVars;
  std::vector < std::vector < double > > d_probeVars;

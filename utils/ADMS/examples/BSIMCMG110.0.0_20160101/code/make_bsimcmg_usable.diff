@@ -15,8 +15,8 @@
 @@ -12934,7 +12937,25 @@
  
  
-   // Right now, we only have store for limited probes...
--  setNumStoreVars(0);
+   // Right now, we only have store for limited probes and output vars...
+-  setNumStoreVars(0+0);
 +  // HAND HACK: And output variables
 +  setNumStoreVars(0+7);
 +
