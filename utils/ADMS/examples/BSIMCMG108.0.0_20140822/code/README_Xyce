@@ -2,10 +2,6 @@ The following changes were made to BSIM-CMG 108 for its import into
 Xyce:
 
 
- - In bsimcmg_main.include, __OPINFO__ was undefined.  Xyce/ADMS does
-   not yet support the ddx operator needed, nor does Xyce/ADMS yet
-   permit operating point information to be output.
-
  - The "module" line was renamed to "bsimcmg_108" to deconflict the
    resulting C++ from other bsimcmg models in Xyce, because the module
    name is used for various class and namespace names.
@@ -46,3 +42,9 @@ Xyce:
     be handled implicitly by the simulator until version 110.  Xyce
     does not handle multiplicity implicitly and requires devices to
     implement it explicitly.
+
+  - In two instances, uses of ddx() that are not supported by Xyce/ADMS
+    have been recast into equivalent expressions that are supported.
+    The original expressions are inside an ifdef selected by the
+    macro __ORIG_DDX_EXPRESSIONS__.
+

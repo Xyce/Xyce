@@ -717,11 +717,11 @@ Verilog-A compiler.  This noise model was added in version 108 and
 removed in version 109.  The TNOIMOD=2 option of BSIM-CMG 108 is the
 same as the TNOIMOD=1 option of BSIM-CMG 110.
 
-The BSIM CMG version 107 device supports output of the internal variables in
-table~\ref{M_107_OutputVars} on the \texttt{.PRINT} line of a netlist.
+The BSIM CMG version 107 and 108 devices support output of the internal variables in
+tables~\ref{M_107_OutputVars} and~\ref{M_107_OutputVars} on the \texttt{.PRINT} line of a netlist.
 To access them from a print line, use the syntax
 \texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
-name of the specific level 107 M device in your netlist.
+name of the specific level 107 or 108 M device in your netlist.
 
 \input{M_107_Device_Instance_Params}
 \input{M_107_Device_Model_Params}
@@ -729,6 +729,7 @@ name of the specific level 107 M device in your netlist.
 
 \input{M_108_Device_Instance_Params}
 \input{M_108_Device_Model_Params}
+\input{M_108_OutputVars}
 
 
 \clearpage
