@@ -29,7 +29,11 @@
   `define PAR(des,uni) (* desc="des", units="uni" *) parameter real
   `define PAI(des,uni) (* desc="des", units="uni" *) parameter integer
 `else
-  `define OPP(nam,uni,des)
+   `ifndef __XYCE__
+    `define OPP(nam,uni,des)
+   `else   
+    `define OPP(nam,uni,des) (* desc=des, units=uni *) real nam;
+   `endif
   `define PAR(des,uni) parameter real
   `define PAI(des,uni) parameter integer
 `endif 

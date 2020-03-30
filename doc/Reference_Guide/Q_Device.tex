@@ -456,11 +456,21 @@ name of the specific HICUM/L2 Q device in your netlist.
 \clearpage
 
 \subsubsection{Level 504 and 505 BJT Tables (MEXTRAM)}
+
+
+The MEXTRAM device supports output of the internal variables in
+tables~\ref{Q_504_OutputVars} and~\ref{Q_504_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific MEXTRAM Q device in your netlist.
+
 \input{Q_504_Device_Instance_Params}
 \input{Q_504_Device_Model_Params}
+\input{Q_504_OutputVars}
 \clearpage
 
 \input{Q_505_Device_Instance_Params}
 \input{Q_505_Device_Model_Params}
+\input{Q_505_OutputVars}
 \clearpage
 

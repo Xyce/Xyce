@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Sat, 28 Mar 2020 14:50:19
+// Creation Date  : Mon, 30 Mar 2020 15:38:41
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbjt504tva_h
@@ -54,7 +54,7 @@ namespace Device {
 namespace ADMSbjt504tva {
 
 // This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad<double,16> AdmsFadType;
+  typedef Sacado::Fad::SFad<double,28> AdmsFadType;
   typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
@@ -172,6 +172,18 @@ return ifFalse;
 void evaluateModelEquations(
 std::vector <double> & probeVars,
 // probe constants
+const int admsProbeID_V_s_GND,
+const int admsProbeID_V_b_GND,
+const int admsProbeID_V_b2_GND,
+const int admsProbeID_V_b1_GND,
+const int admsProbeID_V_e_GND,
+const int admsProbeID_V_c1_GND,
+const int admsProbeID_V_c2_GND,
+const int admsProbeID_V_e1_GND,
+const int admsProbeID_V_s_c,
+const int admsProbeID_V_b_s,
+const int admsProbeID_V_s_e,
+const int admsProbeID_V_c_e,
 const int admsProbeID_V_noi_GND,
 const int admsProbeID_V_c3_c1,
 const int admsProbeID_V_c3_c4,
@@ -226,6 +238,110 @@ AdmsSensFadType & instanceVar_Xext1,
 AdmsSensFadType & instanceVar_CBEO_M,
 AdmsSensFadType & instanceVar_CBCO_M,
 AdmsSensFadType & instanceVar_dxa,
+double & instanceVar_OP_ic,
+double & instanceVar_OP_ib,
+double & instanceVar_OP_betadc,
+double & instanceVar_OP_ie,
+double & instanceVar_OP_vbe,
+double & instanceVar_OP_vce,
+double & instanceVar_OP_vbc,
+double & instanceVar_OP_is,
+double & instanceVar_OP_vse,
+double & instanceVar_OP_vbs,
+double & instanceVar_OP_vsc,
+AdmsSensFadType & instanceVar_OP_vb2e1,
+AdmsSensFadType & instanceVar_OP_vb2c2,
+AdmsSensFadType & instanceVar_OP_vb2c1,
+AdmsSensFadType & instanceVar_OP_vb1c1,
+AdmsSensFadType & instanceVar_OP_vc4c1,
+AdmsSensFadType & instanceVar_OP_vc3c4,
+AdmsSensFadType & instanceVar_OP_ve1e,
+AdmsSensFadType & instanceVar_OP_in,
+AdmsSensFadType & instanceVar_OP_ic1c2,
+AdmsSensFadType & instanceVar_OP_ib1b2,
+AdmsSensFadType & instanceVar_OP_ib1,
+AdmsSensFadType & instanceVar_OP_sib1,
+AdmsSensFadType & instanceVar_OP_izteb,
+AdmsSensFadType & instanceVar_OP_ib2,
+AdmsSensFadType & instanceVar_OP_ib3,
+AdmsSensFadType & instanceVar_OP_iavl,
+AdmsSensFadType & instanceVar_OP_iex,
+AdmsSensFadType & instanceVar_OP_xiex,
+AdmsSensFadType & instanceVar_OP_isub,
+AdmsSensFadType & instanceVar_OP_xisub,
+AdmsSensFadType & instanceVar_OP_isf,
+AdmsSensFadType & instanceVar_OP_ire,
+AdmsSensFadType & instanceVar_OP_irbc,
+AdmsSensFadType & instanceVar_OP_ircblx,
+AdmsSensFadType & instanceVar_OP_ircbli,
+AdmsSensFadType & instanceVar_OP_ircc,
+AdmsSensFadType & instanceVar_OP_qe,
+AdmsSensFadType & instanceVar_OP_qte,
+AdmsSensFadType & instanceVar_OP_sqte,
+AdmsSensFadType & instanceVar_OP_qbe,
+AdmsSensFadType & instanceVar_OP_qbc,
+AdmsSensFadType & instanceVar_OP_qtc,
+AdmsSensFadType & instanceVar_OP_qepi,
+AdmsSensFadType & instanceVar_OP_qb1b2,
+AdmsSensFadType & instanceVar_OP_qtex,
+AdmsSensFadType & instanceVar_OP_xqtex,
+AdmsSensFadType & instanceVar_OP_qex,
+AdmsSensFadType & instanceVar_OP_xqex,
+AdmsSensFadType & instanceVar_OP_qts,
+AdmsSensFadType & instanceVar_OP_gx,
+AdmsSensFadType & instanceVar_OP_gy,
+AdmsSensFadType & instanceVar_OP_gz,
+AdmsSensFadType & instanceVar_OP_sgpi,
+AdmsSensFadType & instanceVar_OP_gpix,
+AdmsSensFadType & instanceVar_OP_gpiy,
+AdmsSensFadType & instanceVar_OP_gpiz,
+AdmsSensFadType & instanceVar_OP_gmux,
+AdmsSensFadType & instanceVar_OP_gmuy,
+AdmsSensFadType & instanceVar_OP_gmuz,
+AdmsSensFadType & instanceVar_OP_gmuex,
+AdmsSensFadType & instanceVar_OP_xgmuex,
+AdmsSensFadType & instanceVar_OP_grcvy,
+AdmsSensFadType & instanceVar_OP_grcvz,
+AdmsSensFadType & instanceVar_OP_rbv,
+AdmsSensFadType & instanceVar_OP_grbvx,
+AdmsSensFadType & instanceVar_OP_grbvy,
+AdmsSensFadType & instanceVar_OP_grbvz,
+AdmsSensFadType & instanceVar_OP_re,
+AdmsSensFadType & instanceVar_OP_rbc,
+AdmsSensFadType & instanceVar_OP_rcc,
+AdmsSensFadType & instanceVar_OP_rcblx,
+AdmsSensFadType & instanceVar_OP_rcbli,
+AdmsSensFadType & instanceVar_OP_gs,
+AdmsSensFadType & instanceVar_OP_xgs,
+AdmsSensFadType & instanceVar_OP_gsf,
+AdmsSensFadType & instanceVar_OP_scbe,
+AdmsSensFadType & instanceVar_OP_cbex,
+AdmsSensFadType & instanceVar_OP_cbey,
+AdmsSensFadType & instanceVar_OP_cbez,
+AdmsSensFadType & instanceVar_OP_cbcx,
+AdmsSensFadType & instanceVar_OP_cbcy,
+AdmsSensFadType & instanceVar_OP_cbcz,
+AdmsSensFadType & instanceVar_OP_cbcex,
+AdmsSensFadType & instanceVar_OP_xcbcex,
+AdmsSensFadType & instanceVar_OP_cb1b2,
+AdmsSensFadType & instanceVar_OP_cb1b2x,
+AdmsSensFadType & instanceVar_OP_cb1b2y,
+AdmsSensFadType & instanceVar_OP_cb1b2z,
+AdmsSensFadType & instanceVar_OP_cts,
+AdmsSensFadType & instanceVar_OP_gm,
+AdmsSensFadType & instanceVar_OP_beta,
+AdmsSensFadType & instanceVar_OP_gout,
+AdmsSensFadType & instanceVar_OP_gmu,
+AdmsSensFadType & instanceVar_OP_rb,
+AdmsSensFadType & instanceVar_OP_rc,
+AdmsSensFadType & instanceVar_OP_cbe,
+AdmsSensFadType & instanceVar_OP_cbc,
+AdmsSensFadType & instanceVar_OP_ft,
+AdmsSensFadType & instanceVar_OP_iqs,
+AdmsSensFadType & instanceVar_OP_xiwepi,
+AdmsSensFadType & instanceVar_OP_vb2c2star,
+AdmsSensFadType & instanceVar_OP_pdiss,
+AdmsSensFadType & instanceVar_OP_tk,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_TREF,
@@ -443,6 +559,110 @@ AdmsSensFadType & instanceVar_Xext1,
 AdmsSensFadType & instanceVar_CBEO_M,
 AdmsSensFadType & instanceVar_CBCO_M,
 AdmsSensFadType & instanceVar_dxa,
+double & instanceVar_OP_ic,
+double & instanceVar_OP_ib,
+double & instanceVar_OP_betadc,
+double & instanceVar_OP_ie,
+double & instanceVar_OP_vbe,
+double & instanceVar_OP_vce,
+double & instanceVar_OP_vbc,
+double & instanceVar_OP_is,
+double & instanceVar_OP_vse,
+double & instanceVar_OP_vbs,
+double & instanceVar_OP_vsc,
+AdmsSensFadType & instanceVar_OP_vb2e1,
+AdmsSensFadType & instanceVar_OP_vb2c2,
+AdmsSensFadType & instanceVar_OP_vb2c1,
+AdmsSensFadType & instanceVar_OP_vb1c1,
+AdmsSensFadType & instanceVar_OP_vc4c1,
+AdmsSensFadType & instanceVar_OP_vc3c4,
+AdmsSensFadType & instanceVar_OP_ve1e,
+AdmsSensFadType & instanceVar_OP_in,
+AdmsSensFadType & instanceVar_OP_ic1c2,
+AdmsSensFadType & instanceVar_OP_ib1b2,
+AdmsSensFadType & instanceVar_OP_ib1,
+AdmsSensFadType & instanceVar_OP_sib1,
+AdmsSensFadType & instanceVar_OP_izteb,
+AdmsSensFadType & instanceVar_OP_ib2,
+AdmsSensFadType & instanceVar_OP_ib3,
+AdmsSensFadType & instanceVar_OP_iavl,
+AdmsSensFadType & instanceVar_OP_iex,
+AdmsSensFadType & instanceVar_OP_xiex,
+AdmsSensFadType & instanceVar_OP_isub,
+AdmsSensFadType & instanceVar_OP_xisub,
+AdmsSensFadType & instanceVar_OP_isf,
+AdmsSensFadType & instanceVar_OP_ire,
+AdmsSensFadType & instanceVar_OP_irbc,
+AdmsSensFadType & instanceVar_OP_ircblx,
+AdmsSensFadType & instanceVar_OP_ircbli,
+AdmsSensFadType & instanceVar_OP_ircc,
+AdmsSensFadType & instanceVar_OP_qe,
+AdmsSensFadType & instanceVar_OP_qte,
+AdmsSensFadType & instanceVar_OP_sqte,
+AdmsSensFadType & instanceVar_OP_qbe,
+AdmsSensFadType & instanceVar_OP_qbc,
+AdmsSensFadType & instanceVar_OP_qtc,
+AdmsSensFadType & instanceVar_OP_qepi,
+AdmsSensFadType & instanceVar_OP_qb1b2,
+AdmsSensFadType & instanceVar_OP_qtex,
+AdmsSensFadType & instanceVar_OP_xqtex,
+AdmsSensFadType & instanceVar_OP_qex,
+AdmsSensFadType & instanceVar_OP_xqex,
+AdmsSensFadType & instanceVar_OP_qts,
+AdmsSensFadType & instanceVar_OP_gx,
+AdmsSensFadType & instanceVar_OP_gy,
+AdmsSensFadType & instanceVar_OP_gz,
+AdmsSensFadType & instanceVar_OP_sgpi,
+AdmsSensFadType & instanceVar_OP_gpix,
+AdmsSensFadType & instanceVar_OP_gpiy,
+AdmsSensFadType & instanceVar_OP_gpiz,
+AdmsSensFadType & instanceVar_OP_gmux,
+AdmsSensFadType & instanceVar_OP_gmuy,
+AdmsSensFadType & instanceVar_OP_gmuz,
+AdmsSensFadType & instanceVar_OP_gmuex,
+AdmsSensFadType & instanceVar_OP_xgmuex,
+AdmsSensFadType & instanceVar_OP_grcvy,
+AdmsSensFadType & instanceVar_OP_grcvz,
+AdmsSensFadType & instanceVar_OP_rbv,
+AdmsSensFadType & instanceVar_OP_grbvx,
+AdmsSensFadType & instanceVar_OP_grbvy,
+AdmsSensFadType & instanceVar_OP_grbvz,
+AdmsSensFadType & instanceVar_OP_re,
+AdmsSensFadType & instanceVar_OP_rbc,
+AdmsSensFadType & instanceVar_OP_rcc,
+AdmsSensFadType & instanceVar_OP_rcblx,
+AdmsSensFadType & instanceVar_OP_rcbli,
+AdmsSensFadType & instanceVar_OP_gs,
+AdmsSensFadType & instanceVar_OP_xgs,
+AdmsSensFadType & instanceVar_OP_gsf,
+AdmsSensFadType & instanceVar_OP_scbe,
+AdmsSensFadType & instanceVar_OP_cbex,
+AdmsSensFadType & instanceVar_OP_cbey,
+AdmsSensFadType & instanceVar_OP_cbez,
+AdmsSensFadType & instanceVar_OP_cbcx,
+AdmsSensFadType & instanceVar_OP_cbcy,
+AdmsSensFadType & instanceVar_OP_cbcz,
+AdmsSensFadType & instanceVar_OP_cbcex,
+AdmsSensFadType & instanceVar_OP_xcbcex,
+AdmsSensFadType & instanceVar_OP_cb1b2,
+AdmsSensFadType & instanceVar_OP_cb1b2x,
+AdmsSensFadType & instanceVar_OP_cb1b2y,
+AdmsSensFadType & instanceVar_OP_cb1b2z,
+AdmsSensFadType & instanceVar_OP_cts,
+AdmsSensFadType & instanceVar_OP_gm,
+AdmsSensFadType & instanceVar_OP_beta,
+AdmsSensFadType & instanceVar_OP_gout,
+AdmsSensFadType & instanceVar_OP_gmu,
+AdmsSensFadType & instanceVar_OP_rb,
+AdmsSensFadType & instanceVar_OP_rc,
+AdmsSensFadType & instanceVar_OP_cbe,
+AdmsSensFadType & instanceVar_OP_cbc,
+AdmsSensFadType & instanceVar_OP_ft,
+AdmsSensFadType & instanceVar_OP_iqs,
+AdmsSensFadType & instanceVar_OP_xiwepi,
+AdmsSensFadType & instanceVar_OP_vb2c2star,
+AdmsSensFadType & instanceVar_OP_pdiss,
+AdmsSensFadType & instanceVar_OP_tk,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_TREF,
@@ -977,18 +1197,265 @@ public:
     double CBCO_M;
     double dxa;
      double d_dxa_dV_s_c1;
+     double d_dxa_dV_s_c1_dV_s_c1;
+     double d_dxa_dV_s_c1_dV_b_c;
+     double d_dxa_dV_s_c1_dV_b_b1;
+     double d_dxa_dV_s_c1_dV_c3_c1;
+     double d_dxa_dV_s_c1_dV_c3_c4;
+     double d_dxa_dV_s_c1_dV_b1_b2;
+     double d_dxa_dV_s_c1_dV_c4_c1;
+     double d_dxa_dV_s_c1_dV_b1_e1;
+     double d_dxa_dV_s_c1_dV_b2_e1;
+     double d_dxa_dV_s_c1_dV_b2_c2;
+     double d_dxa_dV_s_c1_dV_b2_c1;
+     double d_dxa_dV_s_c1_dV_c1_c2;
+     double d_dxa_dV_s_c1_dV_dt_GND;
      double d_dxa_dV_b_c;
+     double d_dxa_dV_b_c_dV_s_c1;
+     double d_dxa_dV_b_c_dV_b_c;
+     double d_dxa_dV_b_c_dV_b_b1;
+     double d_dxa_dV_b_c_dV_c3_c1;
+     double d_dxa_dV_b_c_dV_c3_c4;
+     double d_dxa_dV_b_c_dV_b1_b2;
+     double d_dxa_dV_b_c_dV_c4_c1;
+     double d_dxa_dV_b_c_dV_b1_e1;
+     double d_dxa_dV_b_c_dV_b2_e1;
+     double d_dxa_dV_b_c_dV_b2_c2;
+     double d_dxa_dV_b_c_dV_b2_c1;
+     double d_dxa_dV_b_c_dV_c1_c2;
+     double d_dxa_dV_b_c_dV_dt_GND;
      double d_dxa_dV_b_b1;
+     double d_dxa_dV_b_b1_dV_s_c1;
+     double d_dxa_dV_b_b1_dV_b_c;
+     double d_dxa_dV_b_b1_dV_b_b1;
+     double d_dxa_dV_b_b1_dV_c3_c1;
+     double d_dxa_dV_b_b1_dV_c3_c4;
+     double d_dxa_dV_b_b1_dV_b1_b2;
+     double d_dxa_dV_b_b1_dV_c4_c1;
+     double d_dxa_dV_b_b1_dV_b1_e1;
+     double d_dxa_dV_b_b1_dV_b2_e1;
+     double d_dxa_dV_b_b1_dV_b2_c2;
+     double d_dxa_dV_b_b1_dV_b2_c1;
+     double d_dxa_dV_b_b1_dV_c1_c2;
+     double d_dxa_dV_b_b1_dV_dt_GND;
      double d_dxa_dV_c3_c1;
+     double d_dxa_dV_c3_c1_dV_s_c1;
+     double d_dxa_dV_c3_c1_dV_b_c;
+     double d_dxa_dV_c3_c1_dV_b_b1;
+     double d_dxa_dV_c3_c1_dV_c3_c1;
+     double d_dxa_dV_c3_c1_dV_c3_c4;
+     double d_dxa_dV_c3_c1_dV_b1_b2;
+     double d_dxa_dV_c3_c1_dV_c4_c1;
+     double d_dxa_dV_c3_c1_dV_b1_e1;
+     double d_dxa_dV_c3_c1_dV_b2_e1;
+     double d_dxa_dV_c3_c1_dV_b2_c2;
+     double d_dxa_dV_c3_c1_dV_b2_c1;
+     double d_dxa_dV_c3_c1_dV_c1_c2;
+     double d_dxa_dV_c3_c1_dV_dt_GND;
      double d_dxa_dV_c3_c4;
      double d_dxa_dV_b1_b2;
+     double d_dxa_dV_b1_b2_dV_s_c1;
+     double d_dxa_dV_b1_b2_dV_b_c;
+     double d_dxa_dV_b1_b2_dV_b_b1;
+     double d_dxa_dV_b1_b2_dV_c3_c1;
+     double d_dxa_dV_b1_b2_dV_c3_c4;
+     double d_dxa_dV_b1_b2_dV_b1_b2;
+     double d_dxa_dV_b1_b2_dV_c4_c1;
+     double d_dxa_dV_b1_b2_dV_b1_e1;
+     double d_dxa_dV_b1_b2_dV_b2_e1;
+     double d_dxa_dV_b1_b2_dV_b2_c2;
+     double d_dxa_dV_b1_b2_dV_b2_c1;
+     double d_dxa_dV_b1_b2_dV_c1_c2;
+     double d_dxa_dV_b1_b2_dV_dt_GND;
      double d_dxa_dV_c4_c1;
+     double d_dxa_dV_c4_c1_dV_s_c1;
+     double d_dxa_dV_c4_c1_dV_b_c;
+     double d_dxa_dV_c4_c1_dV_b_b1;
+     double d_dxa_dV_c4_c1_dV_c3_c1;
+     double d_dxa_dV_c4_c1_dV_c3_c4;
+     double d_dxa_dV_c4_c1_dV_b1_b2;
+     double d_dxa_dV_c4_c1_dV_c4_c1;
+     double d_dxa_dV_c4_c1_dV_b1_e1;
+     double d_dxa_dV_c4_c1_dV_b2_e1;
+     double d_dxa_dV_c4_c1_dV_b2_c2;
+     double d_dxa_dV_c4_c1_dV_b2_c1;
+     double d_dxa_dV_c4_c1_dV_c1_c2;
+     double d_dxa_dV_c4_c1_dV_dt_GND;
      double d_dxa_dV_b1_e1;
+     double d_dxa_dV_b1_e1_dV_s_c1;
+     double d_dxa_dV_b1_e1_dV_b_c;
+     double d_dxa_dV_b1_e1_dV_b_b1;
+     double d_dxa_dV_b1_e1_dV_c3_c1;
+     double d_dxa_dV_b1_e1_dV_c3_c4;
+     double d_dxa_dV_b1_e1_dV_b1_b2;
+     double d_dxa_dV_b1_e1_dV_c4_c1;
+     double d_dxa_dV_b1_e1_dV_b1_e1;
+     double d_dxa_dV_b1_e1_dV_b2_e1;
+     double d_dxa_dV_b1_e1_dV_b2_c2;
+     double d_dxa_dV_b1_e1_dV_b2_c1;
+     double d_dxa_dV_b1_e1_dV_c1_c2;
+     double d_dxa_dV_b1_e1_dV_dt_GND;
      double d_dxa_dV_b2_e1;
+     double d_dxa_dV_b2_e1_dV_s_c1;
+     double d_dxa_dV_b2_e1_dV_b_c;
+     double d_dxa_dV_b2_e1_dV_b_b1;
+     double d_dxa_dV_b2_e1_dV_c3_c1;
+     double d_dxa_dV_b2_e1_dV_c3_c4;
+     double d_dxa_dV_b2_e1_dV_b1_b2;
+     double d_dxa_dV_b2_e1_dV_c4_c1;
+     double d_dxa_dV_b2_e1_dV_b1_e1;
+     double d_dxa_dV_b2_e1_dV_b2_e1;
+     double d_dxa_dV_b2_e1_dV_b2_c2;
+     double d_dxa_dV_b2_e1_dV_b2_c1;
+     double d_dxa_dV_b2_e1_dV_c1_c2;
+     double d_dxa_dV_b2_e1_dV_dt_GND;
      double d_dxa_dV_b2_c2;
+     double d_dxa_dV_b2_c2_dV_s_c1;
+     double d_dxa_dV_b2_c2_dV_b_c;
+     double d_dxa_dV_b2_c2_dV_b_b1;
+     double d_dxa_dV_b2_c2_dV_c3_c1;
+     double d_dxa_dV_b2_c2_dV_c3_c4;
+     double d_dxa_dV_b2_c2_dV_b1_b2;
+     double d_dxa_dV_b2_c2_dV_c4_c1;
+     double d_dxa_dV_b2_c2_dV_b1_e1;
+     double d_dxa_dV_b2_c2_dV_b2_e1;
+     double d_dxa_dV_b2_c2_dV_b2_c2;
+     double d_dxa_dV_b2_c2_dV_b2_c1;
+     double d_dxa_dV_b2_c2_dV_c1_c2;
+     double d_dxa_dV_b2_c2_dV_dt_GND;
      double d_dxa_dV_b2_c1;
+     double d_dxa_dV_b2_c1_dV_s_c1;
+     double d_dxa_dV_b2_c1_dV_b_c;
+     double d_dxa_dV_b2_c1_dV_b_b1;
+     double d_dxa_dV_b2_c1_dV_c3_c1;
+     double d_dxa_dV_b2_c1_dV_c3_c4;
+     double d_dxa_dV_b2_c1_dV_b1_b2;
+     double d_dxa_dV_b2_c1_dV_c4_c1;
+     double d_dxa_dV_b2_c1_dV_b1_e1;
+     double d_dxa_dV_b2_c1_dV_b2_e1;
+     double d_dxa_dV_b2_c1_dV_b2_c2;
+     double d_dxa_dV_b2_c1_dV_b2_c1;
+     double d_dxa_dV_b2_c1_dV_c1_c2;
+     double d_dxa_dV_b2_c1_dV_dt_GND;
      double d_dxa_dV_c1_c2;
+     double d_dxa_dV_c1_c2_dV_s_c1;
+     double d_dxa_dV_c1_c2_dV_b_c;
+     double d_dxa_dV_c1_c2_dV_b_b1;
+     double d_dxa_dV_c1_c2_dV_c3_c1;
+     double d_dxa_dV_c1_c2_dV_c3_c4;
+     double d_dxa_dV_c1_c2_dV_b1_b2;
+     double d_dxa_dV_c1_c2_dV_c4_c1;
+     double d_dxa_dV_c1_c2_dV_b1_e1;
+     double d_dxa_dV_c1_c2_dV_b2_e1;
+     double d_dxa_dV_c1_c2_dV_b2_c2;
+     double d_dxa_dV_c1_c2_dV_b2_c1;
+     double d_dxa_dV_c1_c2_dV_c1_c2;
+     double d_dxa_dV_c1_c2_dV_dt_GND;
      double d_dxa_dV_dt_GND;
+    double OP_ic;
+    double OP_ib;
+    double OP_betadc;
+    double OP_ie;
+    double OP_vbe;
+    double OP_vce;
+    double OP_vbc;
+    double OP_is;
+    double OP_vse;
+    double OP_vbs;
+    double OP_vsc;
+    double OP_vb2e1;
+    double OP_vb2c2;
+    double OP_vb2c1;
+    double OP_vb1c1;
+    double OP_vc4c1;
+    double OP_vc3c4;
+    double OP_ve1e;
+    double OP_in;
+    double OP_ic1c2;
+    double OP_ib1b2;
+    double OP_ib1;
+    double OP_sib1;
+    double OP_izteb;
+    double OP_ib2;
+    double OP_ib3;
+    double OP_iavl;
+    double OP_iex;
+    double OP_xiex;
+    double OP_isub;
+    double OP_xisub;
+    double OP_isf;
+    double OP_ire;
+    double OP_irbc;
+    double OP_ircblx;
+    double OP_ircbli;
+    double OP_ircc;
+    double OP_qe;
+    double OP_qte;
+    double OP_sqte;
+    double OP_qbe;
+    double OP_qbc;
+    double OP_qtc;
+    double OP_qepi;
+    double OP_qb1b2;
+    double OP_qtex;
+    double OP_xqtex;
+    double OP_qex;
+    double OP_xqex;
+    double OP_qts;
+    double OP_gx;
+    double OP_gy;
+    double OP_gz;
+    double OP_sgpi;
+    double OP_gpix;
+    double OP_gpiy;
+    double OP_gpiz;
+    double OP_gmux;
+    double OP_gmuy;
+    double OP_gmuz;
+    double OP_gmuex;
+    double OP_xgmuex;
+    double OP_grcvy;
+    double OP_grcvz;
+    double OP_rbv;
+    double OP_grbvx;
+    double OP_grbvy;
+    double OP_grbvz;
+    double OP_re;
+    double OP_rbc;
+    double OP_rcc;
+    double OP_rcblx;
+    double OP_rcbli;
+    double OP_gs;
+    double OP_xgs;
+    double OP_gsf;
+    double OP_scbe;
+    double OP_cbex;
+    double OP_cbey;
+    double OP_cbez;
+    double OP_cbcx;
+    double OP_cbcy;
+    double OP_cbcz;
+    double OP_cbcex;
+    double OP_xcbcex;
+    double OP_cb1b2;
+    double OP_cb1b2x;
+    double OP_cb1b2y;
+    double OP_cb1b2z;
+    double OP_cts;
+    double OP_gm;
+    double OP_beta;
+    double OP_gout;
+    double OP_gmu;
+    double OP_rb;
+    double OP_rc;
+    double OP_cbe;
+    double OP_cbc;
+    double OP_ft;
+    double OP_iqs;
+    double OP_xiwepi;
+    double OP_vb2c2star;
+    double OP_pdiss;
+    double OP_tk;
     // end verilog Instance Variables=====
     // Nodal LID Variables
     int li_c;
@@ -1432,22 +1899,34 @@ public:
    // Additional IDs for branch equations
    // end branch numbers
    // Probe numbers
-    static const int admsProbeID_V_noi_GND = 0;
-    static const int admsProbeID_V_c3_c1 = 1;
-    static const int admsProbeID_V_c3_c4 = 2;
-    static const int admsProbeID_V_c4_c1 = 3;
-    static const int admsProbeID_V_b_c = 4;
-    static const int admsProbeID_V_b_e = 5;
-    static const int admsProbeID_V_b_b1 = 6;
-    static const int admsProbeID_V_e_e1 = 7;
-    static const int admsProbeID_V_c1_c2 = 8;
-    static const int admsProbeID_V_s_c1 = 9;
-    static const int admsProbeID_V_b1_b2 = 10;
-    static const int admsProbeID_V_b1_e1 = 11;
-    static const int admsProbeID_V_b2_e1 = 12;
-    static const int admsProbeID_V_b2_c2 = 13;
-    static const int admsProbeID_V_b2_c1 = 14;
-    static const int admsProbeID_V_dt_GND = 15;
+    static const int admsProbeID_V_s_GND = 0;
+    static const int admsProbeID_V_b_GND = 1;
+    static const int admsProbeID_V_b2_GND = 2;
+    static const int admsProbeID_V_b1_GND = 3;
+    static const int admsProbeID_V_e_GND = 4;
+    static const int admsProbeID_V_c1_GND = 5;
+    static const int admsProbeID_V_c2_GND = 6;
+    static const int admsProbeID_V_e1_GND = 7;
+    static const int admsProbeID_V_s_c = 8;
+    static const int admsProbeID_V_b_s = 9;
+    static const int admsProbeID_V_s_e = 10;
+    static const int admsProbeID_V_c_e = 11;
+    static const int admsProbeID_V_noi_GND = 12;
+    static const int admsProbeID_V_c3_c1 = 13;
+    static const int admsProbeID_V_c3_c4 = 14;
+    static const int admsProbeID_V_c4_c1 = 15;
+    static const int admsProbeID_V_b_c = 16;
+    static const int admsProbeID_V_b_e = 17;
+    static const int admsProbeID_V_b_b1 = 18;
+    static const int admsProbeID_V_e_e1 = 19;
+    static const int admsProbeID_V_c1_c2 = 20;
+    static const int admsProbeID_V_s_c1 = 21;
+    static const int admsProbeID_V_b1_b2 = 22;
+    static const int admsProbeID_V_b1_e1 = 23;
+    static const int admsProbeID_V_b2_e1 = 24;
+    static const int admsProbeID_V_b2_c2 = 25;
+    static const int admsProbeID_V_b2_c1 = 26;
+    static const int admsProbeID_V_dt_GND = 27;
    // end probe numbers
    // Store LIDs
     int li_store_admsProbeID_V_b2_c1;
@@ -1456,6 +1935,110 @@ public:
     int li_store_admsProbeID_V_b1_b2;
    // end store LIDs
    // Store LIDs for output vars
+    int li_store_OP_ic;
+    int li_store_OP_ib;
+    int li_store_OP_betadc;
+    int li_store_OP_ie;
+    int li_store_OP_vbe;
+    int li_store_OP_vce;
+    int li_store_OP_vbc;
+    int li_store_OP_is;
+    int li_store_OP_vse;
+    int li_store_OP_vbs;
+    int li_store_OP_vsc;
+    int li_store_OP_vb2e1;
+    int li_store_OP_vb2c2;
+    int li_store_OP_vb2c1;
+    int li_store_OP_vb1c1;
+    int li_store_OP_vc4c1;
+    int li_store_OP_vc3c4;
+    int li_store_OP_ve1e;
+    int li_store_OP_in;
+    int li_store_OP_ic1c2;
+    int li_store_OP_ib1b2;
+    int li_store_OP_ib1;
+    int li_store_OP_sib1;
+    int li_store_OP_izteb;
+    int li_store_OP_ib2;
+    int li_store_OP_ib3;
+    int li_store_OP_iavl;
+    int li_store_OP_iex;
+    int li_store_OP_xiex;
+    int li_store_OP_isub;
+    int li_store_OP_xisub;
+    int li_store_OP_isf;
+    int li_store_OP_ire;
+    int li_store_OP_irbc;
+    int li_store_OP_ircblx;
+    int li_store_OP_ircbli;
+    int li_store_OP_ircc;
+    int li_store_OP_qe;
+    int li_store_OP_qte;
+    int li_store_OP_sqte;
+    int li_store_OP_qbe;
+    int li_store_OP_qbc;
+    int li_store_OP_qtc;
+    int li_store_OP_qepi;
+    int li_store_OP_qb1b2;
+    int li_store_OP_qtex;
+    int li_store_OP_xqtex;
+    int li_store_OP_qex;
+    int li_store_OP_xqex;
+    int li_store_OP_qts;
+    int li_store_OP_gx;
+    int li_store_OP_gy;
+    int li_store_OP_gz;
+    int li_store_OP_sgpi;
+    int li_store_OP_gpix;
+    int li_store_OP_gpiy;
+    int li_store_OP_gpiz;
+    int li_store_OP_gmux;
+    int li_store_OP_gmuy;
+    int li_store_OP_gmuz;
+    int li_store_OP_gmuex;
+    int li_store_OP_xgmuex;
+    int li_store_OP_grcvy;
+    int li_store_OP_grcvz;
+    int li_store_OP_rbv;
+    int li_store_OP_grbvx;
+    int li_store_OP_grbvy;
+    int li_store_OP_grbvz;
+    int li_store_OP_re;
+    int li_store_OP_rbc;
+    int li_store_OP_rcc;
+    int li_store_OP_rcblx;
+    int li_store_OP_rcbli;
+    int li_store_OP_gs;
+    int li_store_OP_xgs;
+    int li_store_OP_gsf;
+    int li_store_OP_scbe;
+    int li_store_OP_cbex;
+    int li_store_OP_cbey;
+    int li_store_OP_cbez;
+    int li_store_OP_cbcx;
+    int li_store_OP_cbcy;
+    int li_store_OP_cbcz;
+    int li_store_OP_cbcex;
+    int li_store_OP_xcbcex;
+    int li_store_OP_cb1b2;
+    int li_store_OP_cb1b2x;
+    int li_store_OP_cb1b2y;
+    int li_store_OP_cb1b2z;
+    int li_store_OP_cts;
+    int li_store_OP_gm;
+    int li_store_OP_beta;
+    int li_store_OP_gout;
+    int li_store_OP_gmu;
+    int li_store_OP_rb;
+    int li_store_OP_rc;
+    int li_store_OP_cbe;
+    int li_store_OP_cbc;
+    int li_store_OP_ft;
+    int li_store_OP_iqs;
+    int li_store_OP_xiwepi;
+    int li_store_OP_vb2c2star;
+    int li_store_OP_pdiss;
+    int li_store_OP_tk;
    // end store LIDs for output vars
      // bools for collapsing nodes
      bool collapseNode_c1;

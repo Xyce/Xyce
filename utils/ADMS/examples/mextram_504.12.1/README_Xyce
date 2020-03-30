@@ -6,9 +6,6 @@ authors.  This file documents the changes needed:
     and bjt504t becomes Xyce Q device level 505.  bjtd504 and bjtd504t are
     not used in Xyce.
 
-  - The include of "opinfo.inc" was commented out.  Xyce does nothing with
-    these variables.
-    
   - An analog function "trunc_ev" was added for voltage-limiting of
     some junction voltages, and (very Xyce-specific) "$limit" uses
     were hacked into evaluate.inc.  This dramatically improves MEXTRAM
@@ -28,4 +25,12 @@ authors.  This file documents the changes needed:
     the value there overrides any in the model.
 
   - The parameter "M" was made an alias for "MULT".
-  
+
+  - Various Xyce-specific ifdefs have been added to frontdef.inc and opinfo.inc
+    to work around limitations of Xyce/ADMS.  These are primarily to address
+    limitations of the ddx() implementation and the lack of support for
+    port current accessors such as I(<e>) to get the emitter current.
+
+  - The OPP macro has been modified for Xyce to enable proper
+    expansion of quoted strings, and the use of this macro changed to
+    quote the units and descriptions.
