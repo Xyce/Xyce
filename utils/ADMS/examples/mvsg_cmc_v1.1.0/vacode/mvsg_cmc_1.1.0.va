@@ -605,7 +605,6 @@ thermal dt;
    real drsht, vtcollapse, vtcollapse0, ttrapfac;
    real gm, svc;
 
-`ifdef OP_OUTPUT
    `OPP(vgisi,     "V",    "internal gate-source voltage")
    `OPP(vdisi,     "V",    "internal drain-source voltage")
    `OPP(vti,       "V",    "internal threshold voltage including DIBL")
@@ -644,7 +643,6 @@ thermal dt;
    `OPP(t_delta_sh,"K",    "change in device temperature caused by self-heating")
    `OPD(rs,        "Ohm",  "resistance of source access region")
    `OPD(rd,        "Ohm",  "resistance of drain access region")
-`endif //  `ifdef OP_OUTPUT
 
 analog begin
 
@@ -1031,7 +1029,6 @@ analog begin
    else
       Temp(dt)        <+  0.0;
 
-`ifdef OP_OUTPUT
    // OP-point variables
    vgisi              = V(gi,si);
    vdisi              = V(di,si);
@@ -1071,7 +1068,6 @@ analog begin
    t_delta_sh         = tsh;
    rs                 = ( rsh * lgs / w ) / ngf;
    rd                 = ( rsh * lgd / w ) / ngf;
-`endif //  `ifdef OP_OUTPUT
 
 end
 

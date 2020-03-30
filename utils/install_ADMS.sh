@@ -39,12 +39,13 @@ cp utils/ADMS/examples/mvs_2.0.0/N_DEV_ADMSmvs_2_0_0_hemt.h src/DeviceModelPKG/A
 cp utils/ADMS/examples/mvs_2.0.0/N_DEV_ADMSmvs_2_0_0_etsoi.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/mvsg_cmc_v1.1.0/vacode/N_DEV_ADMSmvsg_cmc.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/mvsg_cmc_v1.1.0/vacode/N_DEV_ADMSmvsg_cmc.C src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/mvsg_cmc_v1.1.0/vacode/*.tex doc/Reference_Guide
 cp utils/ADMS/examples/hicum/N_DEV_ADMShicumL2va.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/hicum/N_DEV_ADMShicumL2va.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/hicum/Q_234_OutputVars.tex doc/Reference_Guide
 cp utils/ADMS/examples/hicum_l0/N_DEV_ADMShic0_full.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/hicum_l0/N_DEV_ADMShic0_full.C src/DeviceModelPKG/ADMS/
-cp utils/ADMS/examples/hicum_l0/Q_230_OutputVars.tex doc/ReferenceGuide
+cp utils/ADMS/examples/hicum_l0/Q_230_OutputVars.tex doc/Reference_Guide
 cp src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv301_02/N_DEV_ADMSekv3.h src/DeviceModelPKG/Xyce_NonFree
 cp src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv301_02/N_DEV_ADMSekv3.C src/DeviceModelPKG/Xyce_NonFree
 cp src/DeviceModelPKG/Xyce_NonFree/Verilog/ekv2.6/N_DEV_ADMSekv_va.h src/DeviceModelPKG/Xyce_NonFree
