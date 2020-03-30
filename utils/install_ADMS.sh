@@ -14,6 +14,7 @@ cp utils/ADMS/examples/BSIMCMG108.0.0_20140822/code/N_DEV_ADMSbsimcmg_108.C src/
 cp utils/ADMS/examples/BSIMCMG108.0.0_20140822/code/*.tex doc/Reference_Guide
 cp utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.C src/DeviceModelPKG/ADMS/
+cp utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/*.tex doc/Reference_Guide
 cp utils/ADMS/examples/psp102/N_DEV_ADMSPSP102VA.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/psp102/N_DEV_ADMSPSP102VA.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/psp102/*.tex doc/Reference_Guide

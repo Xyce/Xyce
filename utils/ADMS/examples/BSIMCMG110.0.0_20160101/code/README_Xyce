@@ -1,10 +1,6 @@
 The following changes to the BSIMCMG 110.0.0 code were needed to make
 it work with Xyce/ADMS.
 
- - In bsimcmg.va, defining __OPINFO__ was commented out.  Xyce/ADMS
-   does not yet support the ddx operator needed, nor does Xyce/ADMS
-   yet permit operating point information to be output.
-
  - An ifdef conditional was added to define the module as having only
    4 required nodes.  Neither Xyce/ADMS nor ADMS itself handle the
    "$port_connected" verilog-A construct needed to support optional
@@ -77,9 +73,12 @@ it work with Xyce/ADMS.
   "processParams" function, which will always be called whenever a .STEP loop
   updates model or instance parameters.
 
-- Finally, though there is not yet an automatic way to generate output
-  (or rather OP) variables from Xyce, or to have Xyce/ADMS properly
-  generate the code to populate the store vector so that they may be
-  accessed via the N() output operator, we have had so many requests
-  for gm, vth, and other specific outputs for BSIM-CMG that we have
-  hacked in the necessary code via a post-ADMS patch file.
+- Output variables for VDSAT, VDS, VGS, and VBS were added to the collection
+  already present in the BSIM-CMG 110 Verilog-A source code.  These are
+  inside an ifdef __XYCE__ block.  VDSAT is a duplicate of the VDSSAT
+  variable originally present.
+
+- A few ddx() expressions in the original source are not yet supported in
+  Xyce/ADMS, and so these were rewritten to equivalent expressions that
+  use only supported ddx() usage.  The original expressions are enclosed
+  in an ifndef __XYCE__ block.

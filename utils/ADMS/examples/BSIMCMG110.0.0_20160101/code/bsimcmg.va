@@ -67,7 +67,7 @@
 //   a model parameter.  Therefore we use `define statements
 //   to control it.  Comment the following lines whenever 
 //   possible for best computational efficiency.
-//`define __OPINFO__
+`define __OPINFO__
 `define __DEBUG__
 `define __SHMOD__
 `define __RDSMOD__

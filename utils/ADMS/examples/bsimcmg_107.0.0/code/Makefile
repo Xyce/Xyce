@@ -18,7 +18,7 @@ BSIMCMGDEPFILES =bsimcmg_binning_parameters.include \
 	bsimcmg_rdsmod.include \
 	common_defs.include 
 
-CLEANFILES = N_DEV_ADMSbsimcmg.h N_DEV_ADMSbsimcmg.C disciplines.vams constants.vams
+CLEANFILES = N_DEV_ADMSbsimcmg.h N_DEV_ADMSbsimcmg.C disciplines.vams constants.vams *.tex
 
 all-source: N_DEV_ADMSbsimcmg.C
 
