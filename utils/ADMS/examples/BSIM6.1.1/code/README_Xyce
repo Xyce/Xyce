@@ -34,10 +34,19 @@ The modifications are:
      "insideADMS", as the @(initial_instance) "event" is an ADMS extension
      to the verilog language.
 
- (6) The block of code that computes variables used only for output of
-     operating point data has been ifdef'd out with "__OPStuff".  Xyce/ADMS
-     has no way at present of causing this information to be output, nor
-     does it yet support the ddx operator.
+     (6) The block of code that computes variables used only for output of
+         operating point data has been ifdef'd out with "__OPStuff".  Xyce/ADMS
+         has no way at present of causing this information to be output, nor
+         does it yet support the ddx operator.
+     (6b) This change was undone, as Xyce/ADMS now supports ddx() in a limited sense.
+          However, because Xyce does not yet fully support ddx(), a few expressions
+          in the BSIM6 source code had to be modified.  The modifications
+          simply rewrite ddx() expressions into an equivalent form that uses
+          only supported ddx() calls.  For example, ddx(constant*variable,probe)
+          has been rewritten as constant*ddx(variable,probe).
+          These original expressions are all wrapped in "ifndef __XYCE__"
+          conditions.  The modified conditions are in the "else" block of that
+          "ifndef".
 
  (7) Contributions to Pwr(t) have been broken up into separate static and
      dynamic (ddt) contributions.  ADMS is ill-equipped to handle contributions

@@ -3,11 +3,6 @@ https://www.iee.et.tu-dresden.de/iee/eb/hic_new/hic_start.html
 
 The following modifications to the original have been made:
 
-- Omitted the calculation of operating point values by commenting out:
-     `define CALC_OP
-  Xyce does not yet support outputting device-specific operating point
-  variables (as of version 6.7).
-
 - module attributes have been added to allow HICUM to plug in to Xyce as BJT
   level 230.
 
