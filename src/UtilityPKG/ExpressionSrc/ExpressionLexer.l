@@ -149,9 +149,9 @@ NODE [a-zA-Z0-9_:]*
  /* logic ops */
 <INITIAL>"~"    { return XyceExpression::ExpressionParser::token::TOK_NOT; } /* Xyce */
 <INITIAL>"|"    { return XyceExpression::ExpressionParser::token::TOK_OR; }  /* Xyce */
-  /* <INITIAL>"||"   { return XyceExpression::ExpressionParser::token::TOK_OR; } */   /* Hspice */
+<INITIAL>"||"   { return XyceExpression::ExpressionParser::token::TOK_OR; }    /* Hspice */
 <INITIAL>"&"    { return XyceExpression::ExpressionParser::token::TOK_AND; } /* Xyce */
-  /* <INITIAL>"&&"   { return XyceExpression::ExpressionParser::token::TOK_AND; } */ /* Hspice */
+<INITIAL>"&&"   { return XyceExpression::ExpressionParser::token::TOK_AND; }  /* Hspice */
 <INITIAL>"^"    {return XyceExpression::ExpressionParser::token::TOK_XOR; } /* Xyce: caret (^) = XOR; Hspice caret (^) = power */
 
  /* comparison ops */
