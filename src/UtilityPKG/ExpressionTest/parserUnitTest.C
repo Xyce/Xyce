@@ -84,7 +84,7 @@ TEST ( NAME, SUBNAME ) \
   Xyce::Util::newExpression assignExpression; \
   assignExpression = testExpression; \
   assignExpression.evaluateFunction(result); \
-  EXPECT_EQ( (result-(CPPEXP)), 0.0); \
+  EXPECT_NEAR( (result-(CPPEXP)), 0.0,1.0e-15); \
   { char filename[ ] = "parserUnitTest.out"; \
   std::fstream outputFile; \
   outputFile.open(filename,  std::fstream::in | std::fstream::out | std::fstream::app ); \
@@ -1707,6 +1707,50 @@ TEST ( Double_Parser_ifstatement, or_false)
   OUTPUT_MACRO2(Double_Parser_ifstatement, or_false,e9) 
 }
 
+TEST ( Double_Parser_ifstatement, hspice_or_true)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e8(std::string("IF(((V(6) > 1.5) || (V(7) < 1.5)), 3, 1)"), baseGroup);
+  e8.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e8(e8); 
+  Xyce::Util::newExpression assign_e8; 
+  assign_e8 = e8; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e8.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
+  copy_e8.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
+  assign_e8.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, hspice_or_true,e8) 
+}
+
+TEST ( Double_Parser_ifstatement, hspice_or_false)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e9(std::string("IF(((V(6) > 1.5) || (V(7) > 1.5)), 3, 1)"), baseGroup);
+  e9.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e9(e9); 
+  Xyce::Util::newExpression assign_e9; 
+  assign_e9 = e9; 
+
+  ifGroup->setSoln(std::string("6"),1.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e9.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
+  copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
+  assign_e9.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, hspice_or_false,e9) 
+}
+
 TEST ( Double_Parser_ifstatement, and_true)
 {
   Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
@@ -1749,6 +1793,50 @@ TEST ( Double_Parser_ifstatement, and_false)
   copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
   assign_e9.evaluateFunction(result); EXPECT_EQ( result, 1.0);
   OUTPUT_MACRO2(Double_Parser_ifstatement, and_false,e9) 
+}
+
+TEST ( Double_Parser_ifstatement, hspice_and_true)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e8(std::string("IF(((V(6) > 1.5) && (V(7) < 1.5)), 3, 1)"), baseGroup);
+  e8.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e8(e8); 
+  Xyce::Util::newExpression assign_e8; 
+  assign_e8 = e8; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e8.evaluateFunction(result);        EXPECT_EQ( result, 3.0);
+  copy_e8.evaluateFunction(result);   EXPECT_EQ( result, 3.0);
+  assign_e8.evaluateFunction(result); EXPECT_EQ( result, 3.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, hspice_and_true,e8) 
+}
+
+TEST ( Double_Parser_ifstatement, hspice_and_false)
+{
+  Teuchos::RCP<ifStatementExpressionGroup> ifGroup = Teuchos::rcp(new ifStatementExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroup = ifGroup;
+
+  Xyce::Util::newExpression e9(std::string("IF(((V(6) > 1.5) && (V(7) > 1.5)), 3, 1)"), baseGroup);
+  e9.lexAndParseExpression();
+
+  Xyce::Util::newExpression copy_e9(e9); 
+  Xyce::Util::newExpression assign_e9; 
+  assign_e9 = e9; 
+
+  ifGroup->setSoln(std::string("6"),2.0);
+  ifGroup->setSoln(std::string("7"),1.0);
+
+  double result=0.0;
+  e9.evaluateFunction(result);        EXPECT_EQ( result, 1.0);
+  copy_e9.evaluateFunction(result);   EXPECT_EQ( result, 1.0);
+  assign_e9.evaluateFunction(result); EXPECT_EQ( result, 1.0);
+  OUTPUT_MACRO2(Double_Parser_ifstatement, hspice_and_false,e9) 
 }
 
 TEST ( Double_Parser_ifstatement, xor_true)
