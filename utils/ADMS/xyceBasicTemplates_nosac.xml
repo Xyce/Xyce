@@ -4501,7 +4501,10 @@ other variables does not get propagated into a variable's
                   <admst:apply-templates select="$theRHS/tree" match="%(adms/datatypename)">
                     <admst:variable name="rhsDeriv12" value="%(returned('returnedExpressionDeriv12')/value)"/>
                   </admst:apply-templates>
-                  <admst:text format="d_%($theLHS/name)_d%($derivProbe/nature)_%($derivProbe/branch/pnode)_%($derivProbe/branch/nnode)_d%($derivProbe2/nature)_%($derivProbe2/branch/pnode)_%($derivProbe2/branch/nnode) = $rhsDeriv12;\n"/>
+                  <admst:variable name="lhsname" select="d_%($theLHS/name)_d%($derivProbe/nature)_%($derivProbe/branch/pnode)_%($derivProbe/branch/nnode)_d%($derivProbe2/nature)_%($derivProbe2/branch/pnode)_%($derivProbe2/branch/nnode)"/>
+                  <admst:if test="[$lhsname != $rhsDeriv12]">
+                    <admst:text format="$lhsname = $rhsDeriv12;\n"/>
+                  </admst:if>
                 </admst:for-each>
               </admst:if>
             </admst:if>
@@ -4521,7 +4524,9 @@ other variables does not get propagated into a variable's
            variable has NO dependence on any probes, but the LHS is a
            double.  This requires that we generate all references to the
            Fad Variable with ".val() calls on the RHS. -->
-      <admst:text format="%(printTerm(lhs)) "/>
+      <admst:apply-templates select="lhs" match="processTerm">
+        <admst:variable name="lhsname" select="%(returned('returnedExpression')/value)"/>
+      </admst:apply-templates>
       <!-- Make sure we check parameter dependence of rhs and lhs variables-->
       <admst:if test="[$globalCurrentScope='sensitivity']">
         <admst:apply-templates select="rhs" match="collectParamDependence"/>
@@ -4529,7 +4534,12 @@ other variables does not get propagated into a variable's
       <admst:if test="[(nilled(lhs/probe) and nilled(rhs/probe) and $globalCurrentScope!='sensitivity') or ($globalCurrentScope='sensitivity' and not(exists(lhs/#Pdependent)) and not(exists(rhs/#Pdependent)))]">
         <admst:variable name="globalMustForceScalar" select="yes"/>
       </admst:if>
-      <admst:text format="= %(printTerm(rhs));\n"/>
+      <admst:apply-templates select="rhs" match="processTerm">
+        <admst:variable name="rhsexpr" select="%(returned('returnedExpression')/value)"/>
+      </admst:apply-templates>
+      <admst:if test="[$lhsname != $rhsexpr]">
+        <admst:text format="$lhsname = $rhsexpr;\n"/>
+      </admst:if>
 
       <admst:variable name="globalMustUseTemplate" select="$saveTemplateUse"/>
       <admst:variable name="globalMustForceScalar" select="$saveScalarForce"/>

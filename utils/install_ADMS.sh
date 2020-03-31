@@ -29,7 +29,7 @@ cp utils/ADMS/examples/mextram_504.12.1/N_DEV_ADMSbjt504va.h src/DeviceModelPKG/
 cp utils/ADMS/examples/mextram_504.12.1/N_DEV_ADMSbjt504va.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/mextram_504.12.1/N_DEV_ADMSbjt504tva.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/mextram_504.12.1/N_DEV_ADMSbjt504tva.C src/DeviceModelPKG/ADMS/
-cp utils/ADMS/examples/mextram_504.12.1/*.tex doc.Reference_Guide
+cp utils/ADMS/examples/mextram_504.12.1/*.tex doc/Reference_Guide
 cp utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.h src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.C src/DeviceModelPKG/ADMS/
 cp utils/ADMS/examples/BSIM6.1.1/code/M_77_OutputVars.tex doc/Reference_Guide
