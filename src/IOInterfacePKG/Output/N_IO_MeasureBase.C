@@ -261,6 +261,7 @@ Base::Base( const Manager &measureMgr, const Util::OptionBlock & measureBlock)
     {
       at_ = (*it).getImmutableValue<double>();
       atGiven_ = true;
+      outputValueTargetGiven_ = true;
       if ( inTargBlock )
       {
         Report::UserError0() << "AT keyword not allowed in TARG block for measure " << name_ ;
@@ -967,6 +968,10 @@ void Base::printMeasureWarnings(const double endSimTime)
       if ( ( fromGiven_ && from_ >= endSweepValue_ ) || ( tdGiven_ && td_ >= endSweepValue_ ) )
       {
         Xyce::Report::UserWarning() << name_ << " failed. FROM value > highest frequency value";
+      }
+      else if ( atGiven_ && (at_ < startSweepValue_ || at_ > endSweepValue_) )
+      {
+        Xyce::Report::UserWarning() << name_ << " failed. AT value outside frequency sweep window";
       }
     }
   }

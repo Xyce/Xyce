@@ -86,15 +86,16 @@ public:
     const Util::Op::RFparamsData *RFparams);
 
   double getMeasureResult();
+  std::ostream& printMeasureWindow(std::ostream& os, const double indepVarValue);
 
 private:
   std::string type_;
   int numOutVars_;
   std::vector<double> outVarValues_;
-  double rootMeanSquareValue_;
-  double lastTimeValue_;
+  double integralXsq_;  // integral of X*X
+  double lastIndepVarValue_;
   double lastSignalValue_;
-  double totalAveragingWindow_;
+  double totalIntegrationWindow_;
 };
 
 } // namespace Measure

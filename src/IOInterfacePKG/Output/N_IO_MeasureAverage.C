@@ -320,6 +320,35 @@ double Average::getMeasureResult()
   return calculationResult_;
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Average::printMeasureWindow
+// Purpose       : prints information related to measure window
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 03/25/2020
+//-----------------------------------------------------------------------------
+std::ostream& Average::printMeasureWindow(std::ostream& os, const double indepVarValue)
+{
+  // Pathological case of FROM=TO within an otherwise valid FROM-TO window.
+  // This a failed measure, but the FROM-TO window should be printed correctly.
+  if ( (fromGiven_ || toGiven_) && (from_==to_) && firstSweepValueFound_ &&
+       ((mode_ == "AC") || (mode_ == "DC")) )
+  {
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+    std::string modeStr = setModeStringForMeasureWindowText();
+    os << "Measure Start " << modeStr << "= " << startACDCmeasureWindow_
+       << "\tMeasure End " << modeStr << "= " << endACDCmeasureWindow_ << std::endl;
+  }
+  else
+  {
+    Base::printMeasureWindow(os,indepVarValue);
+  }
+
+  return os;
+}
+
 } // namespace Measure
 } // namespace IO
 } // namespace Xyce

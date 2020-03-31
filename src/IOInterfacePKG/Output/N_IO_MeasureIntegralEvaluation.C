@@ -48,9 +48,8 @@ namespace Measure {
 IntegralEvaluation::IntegralEvaluation(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
   integralValue_(0.0),
-  lastTimeValue_(0.0),
-  lastSignalValue_(0.0),
-  totalAveragingWindow_(0.0)
+  lastIndepVarValue_(0.0),
+  lastSignalValue_(0.0)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
@@ -90,7 +89,6 @@ void IntegralEvaluation::reset()
 {
   resetBase();
   integralValue_ = 0.0;
-  totalAveragingWindow_ =0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -140,7 +138,6 @@ void IntegralEvaluation::updateTran(
       if( newRiseFallCrossWindowforLast() )
       {
         integralValue_ = 0.0;
-        totalAveragingWindow_ = 0.0;
         initialized_ = false;
         firstStepInRfcWindow_ = false;
       }
@@ -157,11 +154,10 @@ void IntegralEvaluation::updateTran(
       if( initialized_  )
       {
         // update integral of outVarValues_[0];
-        integralValue_ += 0.5 * (circuitTime - lastTimeValue_) * (outVarValues_[0] + lastSignalValue_);
-        totalAveragingWindow_ += (circuitTime - lastTimeValue_);
+        integralValue_ += 0.5 * (circuitTime - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
       }
 
-      lastTimeValue_ = circuitTime;
+      lastIndepVarValue_ = circuitTime;
       lastSignalValue_ = outVarValues_[0];
       initialized_=true;
     }
@@ -170,12 +166,12 @@ void IntegralEvaluation::updateTran(
 
 
 //-----------------------------------------------------------------------------
-// Function      : IntegralEvaluation::updateMeasures()
+// Function      : IntegralEvaluation::updateDC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 3/25/2020
 //-----------------------------------------------------------------------------
 void IntegralEvaluation::updateDC(
   Parallel::Machine comm,
@@ -187,7 +183,54 @@ void IntegralEvaluation::updateDC(
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
+  // The dcParamsVec will be empty if the netlist has a .OP statement without a .DC statement.
+  // In that case, a DC MEASURE will be reported as FAILED.
+  if ( dcParamsVec.size() > 0 )
+  {
+    double dcSweepVal = dcParamsVec[0].currentVal;
 
+    // Used in descriptive output to stdout. Store name and first/last values of
+    // first variable found in the DC sweep vector
+    sweepVar_= dcParamsVec[0].name;
+    if (!firstSweepValueFound_)
+    {
+        startSweepValue_ = dcSweepVal;
+        firstSweepValueFound_ = true;
+    }
+    endSweepValue_ = dcSweepVal;
+
+    if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
+    {
+      outVarValues_[0] = getOutputValue(comm, outputVars_[0],
+                                        solnVec, stateVec, storeVec, 0,
+                                        lead_current_vector,
+                                        junction_voltage_vector,
+                                        lead_current_dqdt_vector, 0);
+
+      // Used in descriptive output to stdout. These are the first/last values
+      // within the measurement window.
+      if (!firstStepInMeasureWindow_)
+      {
+        startACDCmeasureWindow_ = dcSweepVal;
+        firstStepInMeasureWindow_ = true;
+      }
+      endACDCmeasureWindow_ = dcSweepVal;
+
+      if( initialized_  )
+      {
+        // update integral of outVarValues_[0].  Account for both ascending and descending
+        // FROM-TO windows and "direction" (increasing/decreasing) of first swept variable on .DC line.
+        if ( ((from_ <= to_) && (dcSweepVal > startSweepValue_)) || ((from_ >= to_) && (dcSweepVal < startSweepValue_)) )
+          integralValue_ += 0.5 * (dcSweepVal - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
+        else
+          integralValue_ -= 0.5 * (dcSweepVal - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
+      }
+
+      lastIndepVarValue_ = dcSweepVal;
+      lastSignalValue_ = outVarValues_[0];
+      initialized_=true;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -195,8 +238,8 @@ void IntegralEvaluation::updateDC(
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical Models & Simulation
-// Creation Date : 8/7/2019
+// Creator       : Pete Sholander, 3/25/2020
+// Creation Date : 3/25/2020
 //-----------------------------------------------------------------------------
 void IntegralEvaluation::updateAC(
   Parallel::Machine comm,
@@ -205,7 +248,39 @@ void IntegralEvaluation::updateAC(
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
 {
+  // Used in descriptive output to stdout. Store first/last frequency values
+  if (!firstSweepValueFound_)
+  {
+    startSweepValue_ = frequency;
+    firstSweepValueFound_ = true;
+  }
+  endSweepValue_ = frequency;
 
+  if( !calculationDone_ && withinFreqWindow( frequency ) )
+  {
+    // update our outVarValues_ vector
+    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                     imaginaryVec, 0, 0, 0, RFparams);
+
+    // Used in descriptive output to stdout. These are the first/last values
+    // within the measurement window.
+    if (!firstStepInMeasureWindow_)
+    {
+      startACDCmeasureWindow_ = frequency;
+      firstStepInMeasureWindow_ = true;
+    }
+    endACDCmeasureWindow_ = frequency;
+
+    if( initialized_  )
+    {
+      // update integral of outVarValues_[0];
+      integralValue_ += 0.5 * (frequency - lastIndepVarValue_) * (outVarValues_[0] + lastSignalValue_);
+    }
+
+    lastIndepVarValue_ = frequency;
+    lastSignalValue_ = outVarValues_[0];
+    initialized_=true;
+  }
 }
 
 

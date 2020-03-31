@@ -89,18 +89,19 @@ public:
   std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false);
   std::ostream& printRFCWindow(std::ostream& os);
 
+  // used for debugging purpose
+  void interpolateCalculationInstant(double currIndepVarValue, double targVal);
+
 private:
   std::string type_;
   int numOutVars_;
   std::vector<double> outVarValues_;
-  // these are the summary stats to be calculated
-  double firstTimeValue_;
-  double lastTimeValue_;
-  double firstSignalValue_;
-  double lastSignalValue_;
+
   double lastIndepVarValue_;
   double lastDepVarValue_;
   double lastOutputVarValue_;
+  double lastTargValue_;
+  int    numPointsFound_;  // AC and DC calculations need at least two points to be valid
 
   // This variable controls what is tested against in the WHEN clause.  
   // It refers to an index in the outputVarValues_ array.  For the syntax

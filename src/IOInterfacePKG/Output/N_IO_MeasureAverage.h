@@ -86,6 +86,7 @@ public:
     const Util::Op::RFparamsData *RFparams);
 
   double getMeasureResult();
+  std::ostream& printMeasureWindow(std::ostream& os, const double indepVarValue);
 
 private:
   std::string type_;
