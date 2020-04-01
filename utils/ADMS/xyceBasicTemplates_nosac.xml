@@ -3757,13 +3757,13 @@ other variables does not get propagated into a variable's
       <!-- subtraction -->
       <admst:when test="[name='addm']">
         <admst:choose>
-          <admst:when test="[(arg1/math/value=0.0)and(arg2/math/value=0.0)]">
+          <admst:when test="[(arg1/math/value=0.0)and(arg2/math/value=0.0) or ($a1='0.0' and $a2='0.0')]">
             <admst:variable name="expression" select="0.0"/>
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
           </admst:when>
-          <admst:when test="[arg1/math/value=0.0]">
+          <admst:when test="[arg1/math/value=0.0 or $a1='0.0']">
             <admst:variable name="expression" select="(-%($a2))"/>
             <admst:choose>
               <admst:when test="[$a2Deriv = '0.0']">
@@ -3792,7 +3792,7 @@ other variables does not get propagated into a variable's
               </admst:choose>
             </admst:if>
           </admst:when>
-          <admst:when test="[arg2/math/value=0.0]">
+          <admst:when test="[arg2/math/value=0.0 or $a2='0.0']">
             <admst:variable name="expression" select="(%($a1))"/>
             <admst:choose>
               <admst:when test="[$a1Deriv = '0.0']">
@@ -3872,13 +3872,13 @@ other variables does not get propagated into a variable's
       </admst:when>
       <admst:when test="[name='multtime']">
         <admst:choose>
-          <admst:when test="[(arg1/math/value=0.0)or(arg2/math/value=0.0)]">
+          <admst:when test="[(arg1/math/value=0.0)or(arg2/math/value=0.0) or $a1='0.0' or $a2='0.0']">
             <admst:variable name="expression" select="0.0"/>
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
           </admst:when>
-          <admst:when test="[(arg1/math/value=1.0)and(arg2/math/value=1.0)]">
+          <admst:when test="[((arg1/math/value=1.0) and (arg2/math/value=1.0)) or ($a1='1.0' and $a2='1.0')]">
             <admst:variable name="expression" select="1.0"/>
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
@@ -4070,13 +4070,13 @@ other variables does not get propagated into a variable's
         <admst:variable name="term2c" select=""/>
         <admst:variable name="term3" select=""/>
         <admst:choose>
-          <admst:when test="[arg1/math/value=0.0]">
+          <admst:when test="[arg1/math/value=0.0 or $a1='0.0']">
             <admst:variable name="expression" select="0.0"/>
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
           </admst:when>
-          <admst:when test="[(arg1/math/value=1.0)and(arg2/math/value=1.0)]">
+          <admst:when test="[((arg1/math/value=1.0)and(arg2/math/value=1.0)) or ($a1='1.0' and $a2='1.0')]">
             <admst:variable name="expression" select="1.0"/>
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
