@@ -18,10 +18,11 @@ synonym for \texttt{.MEASURE}.
 
 The syntaxes for the \texttt{.MEASURE} statements are as follows.  All of these
 measure types are supported for \texttt{.TRAN} analyses.  For \texttt{.DC} analyses,
-only the \texttt{AVG}, \texttt{ERROR}, \texttt{EQN}, \texttt{FIND-WHEN}, \texttt{MIN},
-\texttt{MAX}, \texttt{PP} and \texttt{WHEN} measures are supported.  For \texttt{.AC}
-analyses, only the \texttt{AVG}, \texttt{EQN}, \texttt{FIND-WHEN}, \texttt{MIN},
-\texttt{MAX}, \texttt{PP} and \texttt{WHEN} measures are supported.  Also, note that
+only the \texttt{AVG}, \texttt{DERIV}, \texttt{ERROR}, \texttt{EQN}, \texttt{FIND-WHEN},
+\texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP}, \texttt{RMS} and \texttt{WHEN}
+measures are supported.  For \texttt{.AC} analyses, only the \texttt{AVG}, \texttt{DERIV},
+\texttt{EQN}, \texttt{FIND-WHEN}, \texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP},
+\texttt{RMS} and \texttt{WHEN} measures are supported.  Also, note that
 each measure type (e.g., \texttt{MAX}) may be listed thrice, once for each supported
 ``measure mode'' (\texttt{TRAN}, \texttt{DC} and \texttt{AC}). This is because only 
 a subset of the allowed ``qualifiers'' (e.g., \texttt{FROM} and \texttt{TO}) may be 
@@ -137,6 +138,15 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 + [FROM=<value>] [TO=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
+.MEASURE DC <result name> DERIV <variable> AT=<value>
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE DC <result name> DERIV <variable>
++ WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [MINVAL=<value>] [FROM=<value>] [TO=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
 .MEASURE DC <result name> EQN <expression> 
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
@@ -150,6 +160,10 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 + [FROM=<value>] [TO=<value>]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE DC <result name> INTEG <variable>
++ [FROM=<value>] [TO=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE DC <result name> MAX <variable>
 + [FROM=<value>] [TO=<value>] 
@@ -165,6 +179,10 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
+.MEASURE DC <result name> RMS <variable>
++ [FROM=<value>] [TO=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
 MEASURE DC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
@@ -172,6 +190,15 @@ MEASURE DC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
 
 .MEASURE AC <result name> AVG <variable>
 + [FROM=<value>] [TO=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE AC <result name> DERIV <variable> AT=<value>
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE AC <result name> DERIV <variable>
++ WHEN <variable>=<variable\(\sb{2}\)>|<value>
++ [MINVAL=<value>] [FROM=<value>] [TO=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE AC <result name> EQN <expression> 
@@ -183,6 +210,10 @@ MEASURE DC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
 + [FROM=<value>] [TO=<value>]
 + [MINVAL=<value>] [DEFAULT_VAL=<value>]
 + [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE AC <result name> INTEG <variable>
++ [FROM=<value>] [TO=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE AC <result name> MAX <variable>
 + [FROM=<value>] [TO=<value>] 
@@ -196,6 +227,10 @@ MEASURE DC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
 
 .MEASURE AC <result name> PP <variable>
 + [FROM=<value>] [TO=<value>] 
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE AC <result name> RMS <variable>
++ [FROM=<value>] [TO=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
 MEASURE AC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
@@ -263,7 +298,8 @@ The supported measure types and their definitions are:
     qualifier). If the {\tt WHEN} qualifier is used then the
     measurement window can be limited with the qualifiers {\tt FROM},
     {\tt TO}, {\tt TD}, {\tt RISE}, {\tt FALL} and {\tt CROSS} for
-    {\tt TRAN} measures. The {\tt MINVAL} qualifier is used as a
+    {\tt TRAN} measures, and with {\tt FROM} and {\tt TO} for {\tt DC}
+    and {\tt AC} measures. The {\tt MINVAL} qualifier is used as a
     comparison tolerance for both {\tt AT} and {\tt WHEN}.  For HSPICE
     compatibility, {\tt DERIVATIVE} is an allowed synonym for {\tt
     DERIV}.
@@ -313,7 +349,8 @@ The supported measure types and their definitions are:
   \item[\tt INTEG] Calculates the integral of {\tt outVal} through
     second order numerical integration.  The integration window can be
     limited with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt
-    RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures.  For
+    RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures, and with
+    {\tt FROM} and {\tt TO} for {\tt DC} and {\tt AC} measures.  For
     HSPICE compatibility, {\tt INTEGRAL} is an allowed synonym for
     {\tt INTEG}.
 
@@ -353,9 +390,12 @@ The supported measure types and their definitions are:
     and {\tt AC} measures.
 
   \item[\tt RMS] Computes the root-mean-squared value of {\tt
-    <variable>} during the simulation.  The measurement window can be
+    <variable>} during the simulation, which is defined as ''the
+    square root of the area under the {\tt <variable>} curve, divided by
+    the period of interest''.  The measurement window can be
     limited with the qualifiers {\tt FROM}, {\tt TO}, {\tt TD}, {\tt
-    RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures.
+    RISE}, {\tt FALL} and {\tt CROSS} for {\tt TRAN} measures, and with
+    {\tt FROM} and {\tt TO} for {\tt DC} and {\tt AC} measures.
 
   \item[\vbox{\hbox{\tt TRIG\hfil}\hbox{\tt TARG\hfil}}] Measures the
     time between a trigger event and a target event.  The trigger is
@@ -1094,8 +1134,7 @@ So, \Xyce{} does not support \texttt{NOISE} or \texttt{HB} measure
 modes.  If those two modes are included in the netlist then \Xyce{}
 parsing will fail and emit error messages.  Similarly, \Xyce{} parsing
 will fail if the requested measure type is not supported for a given
-measure mode (e.g., \texttt{RMS} for a
-\texttt{DC} or \texttt{AC} measure).
+measure mode (e.g., \texttt{OFF\_TIME} for a \texttt{DC} or \texttt{AC} measure).
 
 \subsubsection{HSPICE Compatibility}
 \label{Measure_HSpice_Compatibility}
