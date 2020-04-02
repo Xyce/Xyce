@@ -44,7 +44,7 @@ namespace Measure {
 
 //-------------------------------------------------------------------------
 // Class         : Fourier
-// Purpose       : Measure statistics of a simulation variable
+// Purpose       : Calculate Fourier transform of a simulation variable
 // Special Notes :
 // Creator       : Heidi Thornquist, SNL, Electrical Models & Simulation
 // Creation Date : 06/05/2013

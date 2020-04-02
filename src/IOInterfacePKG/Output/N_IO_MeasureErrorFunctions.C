@@ -239,7 +239,7 @@ bool ErrorFunctions::checkMeasureLine()
 }
 
 //-----------------------------------------------------------------------------
-// Function      : ErrorFunctions::checkMeasureLine
+// Function      : ErrorFunctions::withinYLimits
 // Purpose       : use YMAX and YMIN to filter out "too large" and "too small"
 //                 values from measure result
 // Special Notes :

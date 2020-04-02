@@ -44,7 +44,9 @@ namespace Measure {
 
 //-------------------------------------------------------------------------
 // Class         : OffTime
-// Purpose       : Measure statistics of a simulation variable
+// Purpose       : Measure off-time of a simulation variable, normalized to
+//                 the number of periods when that variable is in the
+//                 "off state".
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009

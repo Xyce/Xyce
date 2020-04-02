@@ -44,7 +44,9 @@ namespace Measure {
 
 //-------------------------------------------------------------------------
 // Class         : OnTime
-// Purpose       : Measure statistics of a simulation variable
+// Purpose       : Measure on-time of a simulation variable, normalized to
+//                 the number of periods when that variable is in the
+//                 "on state".
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009

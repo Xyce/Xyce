@@ -44,7 +44,8 @@ namespace Measure {
 
 //-------------------------------------------------------------------------
 // Class         : Frequency
-// Purpose       : Measure statistics of a simulation variable
+// Purpose       : An estimate of the frequency of a variable, found by cycle
+//                 counting during the simulation.
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009

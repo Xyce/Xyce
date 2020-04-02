@@ -44,7 +44,7 @@ namespace Measure {
 
 //-------------------------------------------------------------------------
 // Class         : EquationEvaluation
-// Purpose       : Evaluates an equations based on measured variables
+// Purpose       : Evaluates an equation based on measured variables
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009

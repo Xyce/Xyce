@@ -229,10 +229,6 @@ void RiseFallDelay::updateTran(
 {
   if( !calculationDone_ && withinTimeWindow( circuitTime ) )
   {
-    // we're in the time window, now we need to calculate the value of this
-    // measure and see if it triggers any specified rise, fall, cross windowing.
-    double tempResult = 0.0;
-
     updateOutputVars(comm, outVarValues_, circuitTime,
       solnVec, stateVec, storeVec, 0, lead_current_vector,
       junction_voltage_vector, lead_current_dqdt_vector, 0);
@@ -572,7 +568,7 @@ void RiseFallDelay::updateTran(
 
 
 //-----------------------------------------------------------------------------
-// Function      : RiseFallDelay::updateMeasures()
+// Function      : RiseFallDelay::updateDC()
 // Purpose       :
 // Special Notes :
 // Scope         : public
