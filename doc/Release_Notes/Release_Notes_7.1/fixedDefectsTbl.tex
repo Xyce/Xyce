@@ -33,6 +33,12 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{1283-SON}: Make RMS measure results more compliant with the HSPICE method &
+The \Xyce{} method for calculating the results of \texttt{RMS} measures, for \texttt{AC},
+\texttt{DC} and \texttt{TRAN} measure modes, now matches the HSPICE approach of using the
+``the square root of the area under the out\_var curve, divided by the period of interest''.
+\\ \hline
+
 \textbf{1275-SON}: Bug with handling SIMPLE and PAUSE breakpoints that occur at the same time &
 \Xyce{} supports two types of ``breakpoints'' -- namely SIMPLE and PAUSE breakpoints.  The SIMPLE
 breakpoints are, for example, set based on the times of the slope discontinuities in any PULSE
