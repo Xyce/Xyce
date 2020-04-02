@@ -144,7 +144,12 @@ void DerivativeEvaluation::updateTran(
       // something realistic
       lastIndepVarValue_=circuitTime;
       lastDepVarValue_=outVarValues_[whenIdx_];
-      lastOutputVarValue_=outVarValues_[0]; 
+      lastOutputVarValue_=outVarValues_[0];
+      if (outputValueTargetGiven_)
+        lastTargValue_ = outputValueTarget_;
+      else
+        lastTargValue_ = outVarValues_[whenIdx_+1];
+
       initialized_=true;
     } 
 
@@ -166,11 +171,6 @@ void DerivativeEvaluation::updateTran(
       if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
 	  (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_)) && circuitTime > 0) )
       {
-        // The interpolated value at time = atVal_ is calculated for debugging purposes.  It is not
-        // currently used in the measure calculation. 
-        //double xVal = lastDepVarValue_ + (outVarValues_[0] - lastDepVarValue_)* 
-	//            ((at_ - lastIndepVarValue_)/(circuitTime - lastIndepVarValue_));
-
         // asymmetrical 3-point approximation for first derivative.  
         calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (circuitTime - lastIndepVarValue_); 
         calculationDone_ = true;
@@ -241,8 +241,10 @@ void DerivativeEvaluation::updateTran(
           // of the target value 
           if( fabs(outVarValues_[whenIdx_] - targVal) < minval_ )
           {
-            calculationResult_ = circuitTime;
+            calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (circuitTime - lastIndepVarValue_);
+            calculationInstant_ = circuitTime;
             calculationDone_ = measureLastRFC_ ? false : doneIfFound;
+            resultFound_=true;
           }
           else
           {
@@ -258,13 +260,8 @@ void DerivativeEvaluation::updateTran(
             if( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
                 (backDiff == 0.0) )
             {
-              // The interpolated value at time = atVal_ is calculated for debugging purposes.  It is not
-              // currently used in the measure calculation. 
-              //double xVal = lastDepVarValue_ + (outVarValues_[0] - lastDepVarValue_)* 
-	      //              ((at_ - lastIndepVarValue_)/(circuitTime - lastIndepVarValue_));
-
               // use same time interpolation algorithm as FIND-WHEN measure
-              calculationInstant_ = circuitTime - ( ((circuitTime - lastIndepVarValue_)/(outVarValues_[whenIdx_]-lastDepVarValue_)) * (outVarValues_[whenIdx_]-targVal) );
+              interpolateCalculationInstant(circuitTime, targVal);
 
               // asymmetrical 3-point approximation for first derivative.  
               calculationResult_ = (outVarValues_[0] - lastOutputVarValue_) / (circuitTime - lastIndepVarValue_);         
@@ -281,7 +278,11 @@ void DerivativeEvaluation::updateTran(
     
     lastIndepVarValue_ = circuitTime;
     lastDepVarValue_ = outVarValues_[whenIdx_]; 
-    lastOutputVarValue_=outVarValues_[0]; 
+    lastOutputVarValue_=outVarValues_[0];
+    if (outputValueTargetGiven_)
+      lastTargValue_ = outputValueTarget_;
+    else
+      lastTargValue_ = outVarValues_[whenIdx_+1];
 }
 
 
