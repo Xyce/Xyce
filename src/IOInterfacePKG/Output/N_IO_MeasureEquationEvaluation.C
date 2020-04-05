@@ -114,7 +114,6 @@ void EquationEvaluation:: updateTran(
 {
   if( !calculationDone_ && withinTimeWindow( circuitTime ) )
   {
-    // we're in the time window
     // update our outVarValues_ vector
     for( int i=0; i< numOutVars_; i++ )
     {

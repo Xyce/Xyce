@@ -47,10 +47,10 @@ namespace Measure {
 //-----------------------------------------------------------------------------
 RMS::RMS(const Manager &measureMgr, const Util::OptionBlock & measureBlock):
   Base(measureMgr, measureBlock),
-  rootMeanSquareValue_(0.0),
-  lastTimeValue_(0.0),
+  integralXsq_(0.0),
+  lastIndepVarValue_(0.0),
   lastSignalValue_(0.0),
-  totalAveragingWindow_(0.0)
+  totalIntegrationWindow_(0.0)
 {
   // indicate that this measure type is supported and should be processed in simulation
   typeSupported_ = true;
@@ -94,8 +94,8 @@ void RMS::prepareOutputVariables()
 void RMS::reset() 
 {
   resetBase();
-  rootMeanSquareValue_ = 0.0;
-  totalAveragingWindow_ = 0.0;
+  integralXsq_ = 0.0;
+  totalIntegrationWindow_ = 0.0;
 }
 
 
@@ -119,9 +119,6 @@ void RMS::updateTran(
 {
   if( !calculationDone_ && withinTimeWindow( circuitTime ) )
   {
-    // we're in the time window, now we need to calculate the value of this
-    // measure and see if it triggers any specified rise, fall, cross windowing.
-
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, circuitTime,
       solnVec, stateVec, storeVec, 0, lead_current_vector,
@@ -144,8 +141,8 @@ void RMS::updateTran(
       // each time a new RFC window is entered.
       if( newRiseFallCrossWindowforLast() )
       {
-        rootMeanSquareValue_ = 0.0;
-        totalAveragingWindow_ = 0.0;
+        integralXsq_ = 0.0;
+        totalIntegrationWindow_ = 0.0;
         initialized_ = false;
         firstStepInRfcWindow_ = false;
       }
@@ -162,11 +159,11 @@ void RMS::updateTran(
       if( initialized_  )
       {
         // update integral of outVarValues_[0];
-        rootMeanSquareValue_ += (circuitTime - lastTimeValue_) * 0.25 *(outVarValues_[0] + lastSignalValue_)*(outVarValues_[0] + lastSignalValue_);
-        totalAveragingWindow_ += (circuitTime - lastTimeValue_);
+        integralXsq_ += 0.5* (circuitTime - lastIndepVarValue_) * (outVarValues_[0]*outVarValues_[0] + lastSignalValue_*lastSignalValue_);
+        totalIntegrationWindow_ += (circuitTime - lastIndepVarValue_);
       }
 
-      lastTimeValue_ = circuitTime;
+      lastIndepVarValue_ = circuitTime;
       lastSignalValue_ = outVarValues_[0];
       initialized_=true;
     }
@@ -179,8 +176,8 @@ void RMS::updateTran(
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Rich Schiek, Electrical and Microsystems Modeling
-// Creation Date : 3/10/2009
+// Creator       : Pete Sholander, SNL
+// Creation Date : 3/25/2020
 //-----------------------------------------------------------------------------
 void RMS::updateDC(
   Parallel::Machine comm,
@@ -192,7 +189,50 @@ void RMS::updateDC(
   const Linear::Vector *junction_voltage_vector,
   const Linear::Vector *lead_current_dqdt_vector)
 {
+  // The dcParamsVec will be empty if the netlist has a .OP statement without a .DC statement.
+  // In that case, a DC MEASURE will be reported as FAILED.
+  if ( dcParamsVec.size() > 0 )
+  {
+    double dcSweepVal = dcParamsVec[0].currentVal;
 
+    // Used in descriptive output to stdout. Store name and first/last values of
+    // first variable found in the DC sweep vector
+    sweepVar_= dcParamsVec[0].name;
+    if (!firstSweepValueFound_)
+    {
+        startSweepValue_ = dcSweepVal;
+        firstSweepValueFound_ = true;
+    }
+    endSweepValue_ = dcSweepVal;
+
+    if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
+    {
+      outVarValues_[0] = getOutputValue(comm, outputVars_[0],
+                                        solnVec, stateVec, storeVec, 0,
+                                        lead_current_vector,
+                                        junction_voltage_vector,
+                                        lead_current_dqdt_vector, 0);
+
+      // Used in descriptive output to stdout. These are the first/last values
+      // within the measurement window.
+      if (!firstStepInMeasureWindow_)
+      {
+        startACDCmeasureWindow_ = dcSweepVal;
+        firstStepInMeasureWindow_ = true;
+      }
+      endACDCmeasureWindow_ = dcSweepVal;
+
+      if ( initialized_ )
+      {
+        integralXsq_ += 0.5* (dcSweepVal - lastIndepVarValue_) * (outVarValues_[0]*outVarValues_[0] + lastSignalValue_*lastSignalValue_);
+        totalIntegrationWindow_ += (dcSweepVal - lastIndepVarValue_);
+      }
+
+      lastIndepVarValue_ = dcSweepVal;
+      lastSignalValue_ = outVarValues_[0];
+      initialized_=true;
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -200,8 +240,8 @@ void RMS::updateDC(
 // Purpose       :
 // Special Notes :
 // Scope         : public
-// Creator       : Pete Sholander, Electrical Models & Simulation
-// Creation Date : 8/7/2019
+// Creator       : Pete Sholander, SNL
+// Creation Date : 3/25/2020
 //-----------------------------------------------------------------------------
 void RMS::updateAC(
   Parallel::Machine comm,
@@ -210,7 +250,39 @@ void RMS::updateAC(
   const Linear::Vector *imaginaryVec,
   const Util::Op::RFparamsData *RFparams)
 {
+  // Used in descriptive output to stdout. Store first/last frequency values
+  if (!firstSweepValueFound_)
+  {
+    startSweepValue_ = frequency;
+    firstSweepValueFound_ = true;
+  }
+  endSweepValue_ = frequency;
 
+  if( !calculationDone_ && withinFreqWindow( frequency ) )
+  {
+    // update our outVarValues_ vector
+    updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
+                     imaginaryVec, 0, 0, 0, RFparams);
+
+    // Used in descriptive output to stdout. These are the first/last values
+    // within the measurement window.
+    if (!firstStepInMeasureWindow_)
+    {
+      startACDCmeasureWindow_ = frequency;
+      firstStepInMeasureWindow_ = true;
+    }
+    endACDCmeasureWindow_ = frequency;
+
+    if ( initialized_ )
+    {
+      integralXsq_ += 0.5* (frequency - lastIndepVarValue_) * (outVarValues_[0]*outVarValues_[0] + lastSignalValue_*lastSignalValue_);
+      totalIntegrationWindow_ += (frequency - lastIndepVarValue_);
+    }
+
+    lastIndepVarValue_ = frequency;
+    lastSignalValue_ = outVarValues_[0];
+    initialized_=true;
+  }
 }
 
 
@@ -226,9 +298,45 @@ double RMS::getMeasureResult()
 {
   if( initialized_ )
   {
-    calculationResult_ =  sqrt(rootMeanSquareValue_ / totalAveragingWindow_);
+    if (abs(totalIntegrationWindow_) > 0)
+      calculationResult_ =  sqrt(integralXsq_ / totalIntegrationWindow_);
+    else
+    {
+      calculationResult_ = calculationDefaultVal_;
+      initialized_=false;
+    }
+
   }
   return calculationResult_;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : RMS::printMeasureWindow
+// Purpose       : prints information related to measure window
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 03/25/2020
+//-----------------------------------------------------------------------------
+std::ostream& RMS::printMeasureWindow(std::ostream& os, const double indepVarValue)
+{
+  // Pathological case of FROM=TO within an otherwise valid FROM-TO window.
+  // This a failed measure, but the FROM-TO window should be printed correctly.
+  if ( (fromGiven_ || toGiven_) && (from_==to_) && firstSweepValueFound_ &&
+       ((mode_ == "AC") || (mode_ == "DC")) )
+  {
+    basic_ios_all_saver<std::ostream::char_type> save(os);
+    os << std::scientific << std::setprecision(precision_);
+    std::string modeStr = setModeStringForMeasureWindowText();
+    os << "Measure Start " << modeStr << "= " << startACDCmeasureWindow_
+       << "\tMeasure End " << modeStr << "= " << endACDCmeasureWindow_ << std::endl;
+  }
+  else
+  {
+    Base::printMeasureWindow(os,indepVarValue);
+  }
+
+  return os;
 }
 
 } // namespace Measure

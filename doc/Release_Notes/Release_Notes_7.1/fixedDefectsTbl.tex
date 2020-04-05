@@ -33,6 +33,12 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{1283-SON}: Make RMS measure results more compliant with the HSPICE method &
+The \Xyce{} method for calculating the results of \texttt{RMS} measures, for \texttt{AC},
+\texttt{DC} and \texttt{TRAN} measure modes, now matches the HSPICE approach of using the
+``the square root of the area under the out\_var curve, divided by the period of interest''.
+\\ \hline
+
 \textbf{1275-SON}: Bug with handling SIMPLE and PAUSE breakpoints that occur at the same time &
 \Xyce{} supports two types of ``breakpoints'' -- namely SIMPLE and PAUSE breakpoints.  The SIMPLE
 breakpoints are, for example, set based on the times of the slope discontinuities in any PULSE
@@ -43,8 +49,8 @@ then the PAUSE breakpoint would be ignored and the \texttt{simulateUntil()} call
 incorrectly.
 \\ \hline
 
-\textbf{1273-SON}: Bug fixes for FIND-WHEN and WHEN measures for all analysis modes &
-Several issues with the \texttt{FIND-WHEN} and \texttt{WHEN} measures, for \texttt{AC},
+\textbf{1273-SON}: Bug fixes for DERIV, FIND-WHEN and WHEN measures for all analysis modes &
+Several issues with the \texttt{DERIV}, \texttt{FIND-WHEN} and \texttt{WHEN} measures, for \texttt{AC},
 \texttt{DC} and \texttt{TRAN} measure modes, were addressed for this release.  First,
 the right-hand side of the equality in the \texttt{WHEN} clause can now be an expression.
 An example is:
@@ -59,7 +65,8 @@ An example is:
 .MEASURE AC whenExample2 when vr(1)=vi(1)
 \end{verbatim}
 The third issue was that, especially for \texttt{TRAN} measures, the \texttt{WHEN}
-clause could miss some of the crossings if that clause used varying quantities.
+clause could miss some of the crossings if that clause used varying quantities.  All of
+the previous discussion applies to \texttt{DERIV} and \texttt{FIND-WHEN} measures.
 \\ \hline
 
 \textbf{1271-SON}: Incorrect error handling for .PRINT AC when .LIN is used with

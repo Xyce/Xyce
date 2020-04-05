@@ -22,8 +22,9 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Find time when a variable hits a target value
-//
+// Purpose        : Find the time when a variable hits a target value (WHEN measure),
+//                  or find the value of a variable at the time that the WHEN
+//                  clause is satisfied (FIND-WHEN measure).
 // Special Notes  :
 //
 // Creator        : Richard Schiek, SNL, Electrical and Microsystem Modeling
@@ -44,7 +45,9 @@ namespace Measure {
 
 //-------------------------------------------------------------------------
 // Class         : FindWhen
-// Purpose       : Find time when a variable hits a target value
+// Purpose       : Find time when a variable hits a target value, or find
+//                 the value of a variable at the time that the WHEN
+//                 clause is satisfied
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009

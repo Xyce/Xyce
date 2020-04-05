@@ -1192,30 +1192,40 @@ extractMEASUREData(
 
   // allowed types for the AC mode
   typeSetAc.insert( std::string("AVG") );
+  typeSetAc.insert( std::string("DERIVATIVE") );
+  typeSetAc.insert( std::string("DERIV") );
   typeSetAc.insert( std::string("ERROR") );
   typeSetAc.insert( std::string("EQN") );
   typeSetAc.insert( std::string("ERR") );
   typeSetAc.insert( std::string("ERR1") );
   typeSetAc.insert( std::string("ERR2") );
   typeSetAc.insert( std::string("FIND") );
+  typeSetAc.insert( std::string("INTEGRAL") );
+  typeSetAc.insert( std::string("INTEG") );
   typeSetAc.insert( std::string("MAX") );
   typeSetAc.insert( std::string("MIN") );
   typeSetAc.insert( std::string("PARAM") );
   typeSetAc.insert( std::string("PP") );
+  typeSetAc.insert( std::string("RMS") );
   typeSetAc.insert( std::string("WHEN") );
 
   // allowed types for the DC mode
   typeSetDc.insert( std::string("AVG") );
+  typeSetDc.insert( std::string("DERIVATIVE") );
+  typeSetDc.insert( std::string("DERIV") );
   typeSetDc.insert( std::string("ERROR") );
   typeSetDc.insert( std::string("EQN") );
   typeSetDc.insert( std::string("ERR") );
   typeSetDc.insert( std::string("ERR1") );
   typeSetDc.insert( std::string("ERR2") );
   typeSetDc.insert( std::string("FIND") );
+  typeSetDc.insert( std::string("INTEGRAL") );
+  typeSetDc.insert( std::string("INTEG") );
   typeSetDc.insert( std::string("MAX") );
   typeSetDc.insert( std::string("MIN") );
   typeSetDc.insert( std::string("PARAM") );
   typeSetDc.insert( std::string("PP") );
+  typeSetDc.insert( std::string("RMS") );
   typeSetDc.insert( std::string("WHEN") );
 
   // Make a union for the TYPE sets.  This is useful, once we know that the TYPE is valid 
@@ -1367,8 +1377,8 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, EQN/PARAM, ERR, ERR1, ERR2, ERROR, "
-	 << "FIND, MIN, MAX, PP and WHEN measure types are supported for AC measure mode";
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, DERIV, EQN/PARAM, ERR, ERR1, ERR2, "
+	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for AC measure mode";
       return false;
     }
   }
@@ -1382,8 +1392,8 @@ extractMEASUREData(
     }
     else
     {
-      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, EQN/PARAM, ERR, ERR1, ERR2, ERROR, "
-	 << "FIND, MIN, MAX, PP and WHEN measure types are supported for DC measure mode";
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, DERIV, EQN/PARAM, ERR, ERR1, ERR2, "
+	 << "ERROR, FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for DC measure mode";
       return false;
     }
   }

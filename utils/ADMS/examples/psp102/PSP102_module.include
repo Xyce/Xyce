@@ -2717,7 +2717,6 @@
             I(BD,D)   <+  white_noise(MULT_i * jnoise_d, "ibd");
         end // noise
 
-`ifdef OPinfo
         /////////////////////////////////////////////////////////////////////////////
         //
         // Operating point info
@@ -3099,7 +3098,6 @@
             lp_munqs     = MUNQS_i;
 `endif // NQSmodel
         end // OPinfo
-`endif // OPinfo
 
         end // evaluateblock
 

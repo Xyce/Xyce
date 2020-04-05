@@ -44,7 +44,7 @@ namespace Measure {
 
 //-------------------------------------------------------------------------
 // Class         : Average
-// Purpose       : Measure statistics of a simulation variable
+// Purpose       : Measure the average value of a simulation variable
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
@@ -86,6 +86,7 @@ public:
     const Util::Op::RFparamsData *RFparams);
 
   double getMeasureResult();
+  std::ostream& printMeasureWindow(std::ostream& os, const double indepVarValue);
 
 private:
   std::string type_;

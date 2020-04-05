@@ -125,10 +125,6 @@ void FindWhen::updateTran(
 {
   if( !calculationDone_ && withinTimeWindow( circuitTime ) )
   {
-    // we're in the time window, now we need to calculate the value of this
-    // measure and see if it triggers any specified rise, fall, cross windowing.
-    double tempResult = 0.0;
-
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, circuitTime,
       solnVec, stateVec, storeVec, 0, lead_current_vector,
@@ -302,9 +298,6 @@ void FindWhen::updateDC(
 
     if( !calculationDone_ && withinDCsweepFromToWindow( dcSweepVal ) )
     {
-      // we're in the frequency window, now we need to calculate the value of this measure
-      double tempResult = 0.0;
-
       outVarValues_[0] = getOutputValue(comm, outputVars_[0],
                                         solnVec, stateVec, storeVec, 0,
                                         lead_current_vector,
@@ -451,9 +444,6 @@ void FindWhen::updateAC(
 
   if( !calculationDone_ && withinFreqWindow(frequency) )
   {
-    // we're in the frequency window, now we need to calculate the value of this measure
-    double tempResult = 0.0;
-
     // update our outVarValues_ vector
     updateOutputVars(comm, outVarValues_, frequency, solnVec, 0, 0,
                      imaginaryVec, 0, 0, 0, RFparams);

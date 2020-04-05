@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Sat, 28 Mar 2020 14:50:19
+// Creation Date  : Tue, 31 Mar 2020 09:16:09
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1425,7 +1425,6 @@ bool Instance::processParams()
       {
 
         d_tdevC_dTemp_dt_GND =  0.0;
-        tdevC = tdevC;
       }
     }
 
@@ -3832,7 +3831,6 @@ bool Instance::updateIntermediateVars()
       else
       {
 
-        tdevC = tdevC;
       }
     }
 
@@ -10479,7 +10477,6 @@ void evaluateInitialInstance(
       }
       else
       {
-        instanceVar_tdevC = instanceVar_tdevC;
       }
     }
     instanceVar_tdevK = (instanceVar_tdevC+273.15);
@@ -11484,7 +11481,6 @@ void evaluateModelEquations(
       }
       else
       {
-        instanceVar_tdevC = instanceVar_tdevC;
       }
     }
     instanceVar_tdevK = (instanceVar_tdevC+273.15);

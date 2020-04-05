@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Sat, 28 Mar 2020 14:50:19
+// Creation Date  : Tue, 31 Mar 2020 09:29:14
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -18276,6 +18276,53 @@ Instance::Instance(
     rcs_w(0.0),
     rcd_w(0.0),
     rg(0.0),
+    vgisi(0.0),
+    vdisi(0.0),
+    vti(0.0),
+    vdsati(0.0),
+    pdc(0.0),
+    idisi(0.0),
+    igs(0.0),
+    igd(0.0),
+    qgi(0.0),
+d_qgi_dV_gi_si(0.0),
+d_qgi_dV_di_si(0.0),
+d_qgi_dTemp_dt_GND(0.0),
+    qdi(0.0),
+d_qdi_dV_gi_si(0.0),
+d_qdi_dV_di_si(0.0),
+d_qdi_dTemp_dt_GND(0.0),
+    qsi(0.0),
+d_qsi_dV_gi_si(0.0),
+d_qsi_dV_di_si(0.0),
+d_qsi_dTemp_dt_GND(0.0),
+    qbi(0.0),
+    gmi(0.0),
+    gdsi(0.0),
+    gmbsi(0.0),
+    cggi(0.0),
+    cgdi(0.0),
+    cgsi(0.0),
+    cgbi(0.0),
+    cdgi(0.0),
+    cddi(0.0),
+    cdsi(0.0),
+    cdbi(0.0),
+    csgi(0.0),
+    csdi(0.0),
+    cssi(0.0),
+    csbi(0.0),
+    cbgi(0.0),
+    cbdi(0.0),
+    cbsi(0.0),
+    cbbi(0.0),
+    cgs(0.0),
+    cgd(0.0),
+    t_total_k(0.0),
+    t_total_c(0.0),
+    t_delta_sh(0.0),
+    rs(0.0),
+    rd(0.0),
     li_d(-1),
     li_g(-1),
     li_s(-1),
@@ -18691,6 +18738,44 @@ Instance::Instance(
     A_dt_Equ_d_NodeOffset(-1),
     A_dt_Equ_drc_NodeOffset(-1),
     A_dt_Equ_tr_NodeOffset(-1),
+    li_store_vgisi(-1),
+    li_store_vdisi(-1),
+    li_store_vti(-1),
+    li_store_vdsati(-1),
+    li_store_pdc(-1),
+    li_store_idisi(-1),
+    li_store_igs(-1),
+    li_store_igd(-1),
+    li_store_qgi(-1),
+    li_store_qdi(-1),
+    li_store_qsi(-1),
+    li_store_qbi(-1),
+    li_store_gmi(-1),
+    li_store_gdsi(-1),
+    li_store_gmbsi(-1),
+    li_store_cggi(-1),
+    li_store_cgdi(-1),
+    li_store_cgsi(-1),
+    li_store_cgbi(-1),
+    li_store_cdgi(-1),
+    li_store_cddi(-1),
+    li_store_cdsi(-1),
+    li_store_cdbi(-1),
+    li_store_csgi(-1),
+    li_store_csdi(-1),
+    li_store_cssi(-1),
+    li_store_csbi(-1),
+    li_store_cbgi(-1),
+    li_store_cbdi(-1),
+    li_store_cbsi(-1),
+    li_store_cbbi(-1),
+    li_store_cgs(-1),
+    li_store_cgd(-1),
+    li_store_t_total_k(-1),
+    li_store_t_total_c(-1),
+    li_store_t_delta_sh(-1),
+    li_store_rs(-1),
+    li_store_rd(-1),
     collapseNode_di(false),
     collapseNode_gi(false),
     collapseNode_si(false),
@@ -18713,7 +18798,7 @@ Instance::Instance(
 
 
   // Right now, we only have store for limited probes and output vars...
-  setNumStoreVars(0+0);
+  setNumStoreVars(0+38);
 
   // Do not allocate "branch" (lead current) vectors by default
   setNumBranchDataVars(0);
@@ -19318,6 +19403,44 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     {
     addInternalNode(symbol_table, li_dt, getName(), "dt");
     }
+    addStoreNode(symbol_table, li_store_vgisi, getName().getEncodedName() + ":vgisi");
+    addStoreNode(symbol_table, li_store_vdisi, getName().getEncodedName() + ":vdisi");
+    addStoreNode(symbol_table, li_store_vti, getName().getEncodedName() + ":vti");
+    addStoreNode(symbol_table, li_store_vdsati, getName().getEncodedName() + ":vdsati");
+    addStoreNode(symbol_table, li_store_pdc, getName().getEncodedName() + ":pdc");
+    addStoreNode(symbol_table, li_store_idisi, getName().getEncodedName() + ":idisi");
+    addStoreNode(symbol_table, li_store_igs, getName().getEncodedName() + ":igs");
+    addStoreNode(symbol_table, li_store_igd, getName().getEncodedName() + ":igd");
+    addStoreNode(symbol_table, li_store_qgi, getName().getEncodedName() + ":qgi");
+    addStoreNode(symbol_table, li_store_qdi, getName().getEncodedName() + ":qdi");
+    addStoreNode(symbol_table, li_store_qsi, getName().getEncodedName() + ":qsi");
+    addStoreNode(symbol_table, li_store_qbi, getName().getEncodedName() + ":qbi");
+    addStoreNode(symbol_table, li_store_gmi, getName().getEncodedName() + ":gmi");
+    addStoreNode(symbol_table, li_store_gdsi, getName().getEncodedName() + ":gdsi");
+    addStoreNode(symbol_table, li_store_gmbsi, getName().getEncodedName() + ":gmbsi");
+    addStoreNode(symbol_table, li_store_cggi, getName().getEncodedName() + ":cggi");
+    addStoreNode(symbol_table, li_store_cgdi, getName().getEncodedName() + ":cgdi");
+    addStoreNode(symbol_table, li_store_cgsi, getName().getEncodedName() + ":cgsi");
+    addStoreNode(symbol_table, li_store_cgbi, getName().getEncodedName() + ":cgbi");
+    addStoreNode(symbol_table, li_store_cdgi, getName().getEncodedName() + ":cdgi");
+    addStoreNode(symbol_table, li_store_cddi, getName().getEncodedName() + ":cddi");
+    addStoreNode(symbol_table, li_store_cdsi, getName().getEncodedName() + ":cdsi");
+    addStoreNode(symbol_table, li_store_cdbi, getName().getEncodedName() + ":cdbi");
+    addStoreNode(symbol_table, li_store_csgi, getName().getEncodedName() + ":csgi");
+    addStoreNode(symbol_table, li_store_csdi, getName().getEncodedName() + ":csdi");
+    addStoreNode(symbol_table, li_store_cssi, getName().getEncodedName() + ":cssi");
+    addStoreNode(symbol_table, li_store_csbi, getName().getEncodedName() + ":csbi");
+    addStoreNode(symbol_table, li_store_cbgi, getName().getEncodedName() + ":cbgi");
+    addStoreNode(symbol_table, li_store_cbdi, getName().getEncodedName() + ":cbdi");
+    addStoreNode(symbol_table, li_store_cbsi, getName().getEncodedName() + ":cbsi");
+    addStoreNode(symbol_table, li_store_cbbi, getName().getEncodedName() + ":cbbi");
+    addStoreNode(symbol_table, li_store_cgs, getName().getEncodedName() + ":cgs");
+    addStoreNode(symbol_table, li_store_cgd, getName().getEncodedName() + ":cgd");
+    addStoreNode(symbol_table, li_store_t_total_k, getName().getEncodedName() + ":t_total_k");
+    addStoreNode(symbol_table, li_store_t_total_c, getName().getEncodedName() + ":t_total_c");
+    addStoreNode(symbol_table, li_store_t_delta_sh, getName().getEncodedName() + ":t_delta_sh");
+    addStoreNode(symbol_table, li_store_rs, getName().getEncodedName() + ":rs");
+    addStoreNode(symbol_table, li_store_rd, getName().getEncodedName() + ":rd");
   
   if (loadLeadCurrent)
   {
@@ -19339,6 +19462,52 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
 void Instance::registerStoreLIDs( const LocalIdVector & stoLIDVecRef)
 {
   AssertLIDs(stoLIDVecRef.size() == getNumStoreVars());
+
+  int numSto = stoLIDVecRef.size();
+  if (numSto > 0)
+  {
+    int i=0;
+    stoLIDVec = stoLIDVecRef;
+
+      li_store_vgisi= stoLIDVec[i++];
+      li_store_vdisi= stoLIDVec[i++];
+      li_store_vti= stoLIDVec[i++];
+      li_store_vdsati= stoLIDVec[i++];
+      li_store_pdc= stoLIDVec[i++];
+      li_store_idisi= stoLIDVec[i++];
+      li_store_igs= stoLIDVec[i++];
+      li_store_igd= stoLIDVec[i++];
+      li_store_qgi= stoLIDVec[i++];
+      li_store_qdi= stoLIDVec[i++];
+      li_store_qsi= stoLIDVec[i++];
+      li_store_qbi= stoLIDVec[i++];
+      li_store_gmi= stoLIDVec[i++];
+      li_store_gdsi= stoLIDVec[i++];
+      li_store_gmbsi= stoLIDVec[i++];
+      li_store_cggi= stoLIDVec[i++];
+      li_store_cgdi= stoLIDVec[i++];
+      li_store_cgsi= stoLIDVec[i++];
+      li_store_cgbi= stoLIDVec[i++];
+      li_store_cdgi= stoLIDVec[i++];
+      li_store_cddi= stoLIDVec[i++];
+      li_store_cdsi= stoLIDVec[i++];
+      li_store_cdbi= stoLIDVec[i++];
+      li_store_csgi= stoLIDVec[i++];
+      li_store_csdi= stoLIDVec[i++];
+      li_store_cssi= stoLIDVec[i++];
+      li_store_csbi= stoLIDVec[i++];
+      li_store_cbgi= stoLIDVec[i++];
+      li_store_cbdi= stoLIDVec[i++];
+      li_store_cbsi= stoLIDVec[i++];
+      li_store_cbbi= stoLIDVec[i++];
+      li_store_cgs= stoLIDVec[i++];
+      li_store_cgd= stoLIDVec[i++];
+      li_store_t_total_k= stoLIDVec[i++];
+      li_store_t_total_c= stoLIDVec[i++];
+      li_store_t_delta_sh= stoLIDVec[i++];
+      li_store_rs= stoLIDVec[i++];
+      li_store_rd= stoLIDVec[i++];
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -20362,6 +20531,49 @@ bool Instance::updatePrimaryState()
   // if old DAE were implemented, we'd save dynamic contributions as state
   // here.
 
+  double * stoVec = extData.nextStoVectorRawPtr;
+  // Also need to save limited voltage drops and output vars
+  // This formulation assumes that we have *always* written the
+  // limited voltages back into the probeVars[] array.
+
+  stoVec[li_store_vgisi] = vgisi;
+  stoVec[li_store_vdisi] = vdisi;
+  stoVec[li_store_vti] = vti;
+  stoVec[li_store_vdsati] = vdsati;
+  stoVec[li_store_pdc] = pdc;
+  stoVec[li_store_idisi] = idisi;
+  stoVec[li_store_igs] = igs;
+  stoVec[li_store_igd] = igd;
+  stoVec[li_store_qgi] = qgi;
+  stoVec[li_store_qdi] = qdi;
+  stoVec[li_store_qsi] = qsi;
+  stoVec[li_store_qbi] = qbi;
+  stoVec[li_store_gmi] = gmi;
+  stoVec[li_store_gdsi] = gdsi;
+  stoVec[li_store_gmbsi] = gmbsi;
+  stoVec[li_store_cggi] = cggi;
+  stoVec[li_store_cgdi] = cgdi;
+  stoVec[li_store_cgsi] = cgsi;
+  stoVec[li_store_cgbi] = cgbi;
+  stoVec[li_store_cdgi] = cdgi;
+  stoVec[li_store_cddi] = cddi;
+  stoVec[li_store_cdsi] = cdsi;
+  stoVec[li_store_cdbi] = cdbi;
+  stoVec[li_store_csgi] = csgi;
+  stoVec[li_store_csdi] = csdi;
+  stoVec[li_store_cssi] = cssi;
+  stoVec[li_store_csbi] = csbi;
+  stoVec[li_store_cbgi] = cbgi;
+  stoVec[li_store_cbdi] = cbdi;
+  stoVec[li_store_cbsi] = cbsi;
+  stoVec[li_store_cbbi] = cbbi;
+  stoVec[li_store_cgs] = cgs;
+  stoVec[li_store_cgd] = cgd;
+  stoVec[li_store_t_total_k] = t_total_k;
+  stoVec[li_store_t_total_c] = t_total_c;
+  stoVec[li_store_t_delta_sh] = t_delta_sh;
+  stoVec[li_store_rs] = rs;
+  stoVec[li_store_rd] = rd;
 
   return bsuccess;
 }
@@ -20473,35 +20685,83 @@ bool Instance::updateIntermediateVars()
      double d_idsrf_dV_xt2_GND;
   double vdsat1i;
      double d_vdsat1i_dV_gi_si;
+     double d_vdsat1i_dV_gi_si_dV_gi_si;
+     double d_vdsat1i_dV_gi_si_dV_di_si;
+     double d_vdsat1i_dV_gi_si_dTemp_dt_GND;
      double d_vdsat1i_dV_di_si;
+     double d_vdsat1i_dV_di_si_dV_gi_si;
+     double d_vdsat1i_dV_di_si_dV_di_si;
+     double d_vdsat1i_dV_di_si_dTemp_dt_GND;
      double d_vdsat1i_dTemp_dt_GND;
   double vtdibli;
      double d_vtdibli_dV_gi_si;
+     double d_vtdibli_dV_gi_si_dV_gi_si;
+     double d_vtdibli_dV_gi_si_dV_di_si;
+     double d_vtdibli_dV_gi_si_dTemp_dt_GND;
      double d_vtdibli_dV_di_si;
+     double d_vtdibli_dV_di_si_dV_gi_si;
+     double d_vtdibli_dV_di_si_dV_di_si;
+     double d_vtdibli_dV_di_si_dTemp_dt_GND;
      double d_vtdibli_dTemp_dt_GND;
   double qs;
      double d_qs_dV_gi_si;
+     double d_qs_dV_gi_si_dV_gi_si;
+     double d_qs_dV_gi_si_dV_di_si;
+     double d_qs_dV_gi_si_dTemp_dt_GND;
      double d_qs_dV_di_si;
+     double d_qs_dV_di_si_dV_gi_si;
+     double d_qs_dV_di_si_dV_di_si;
+     double d_qs_dV_di_si_dTemp_dt_GND;
      double d_qs_dTemp_dt_GND;
   double qb;
      double d_qb_dV_gi_si;
+     double d_qb_dV_gi_si_dV_gi_si;
+     double d_qb_dV_gi_si_dV_di_si;
+     double d_qb_dV_gi_si_dTemp_dt_GND;
      double d_qb_dV_di_si;
+     double d_qb_dV_di_si_dV_gi_si;
+     double d_qb_dV_di_si_dV_di_si;
+     double d_qb_dV_di_si_dTemp_dt_GND;
      double d_qb_dTemp_dt_GND;
   double qc;
      double d_qc_dV_gi_si;
+     double d_qc_dV_gi_si_dV_gi_si;
+     double d_qc_dV_gi_si_dV_di_si;
+     double d_qc_dV_gi_si_dTemp_dt_GND;
      double d_qc_dV_di_si;
+     double d_qc_dV_di_si_dV_gi_si;
+     double d_qc_dV_di_si_dV_di_si;
+     double d_qc_dV_di_si_dTemp_dt_GND;
      double d_qc_dTemp_dt_GND;
   double qgd;
      double d_qgd_dV_gi_si;
+     double d_qgd_dV_gi_si_dV_gi_si;
+     double d_qgd_dV_gi_si_dV_di_si;
+     double d_qgd_dV_gi_si_dTemp_dt_GND;
      double d_qgd_dV_di_si;
+     double d_qgd_dV_di_si_dV_gi_si;
+     double d_qgd_dV_di_si_dV_di_si;
+     double d_qgd_dV_di_si_dTemp_dt_GND;
      double d_qgd_dTemp_dt_GND;
   double qgs;
      double d_qgs_dV_gi_si;
+     double d_qgs_dV_gi_si_dV_gi_si;
+     double d_qgs_dV_gi_si_dV_di_si;
+     double d_qgs_dV_gi_si_dTemp_dt_GND;
      double d_qgs_dV_di_si;
+     double d_qgs_dV_di_si_dV_gi_si;
+     double d_qgs_dV_di_si_dV_di_si;
+     double d_qgs_dV_di_si_dTemp_dt_GND;
      double d_qgs_dTemp_dt_GND;
   double ids;
      double d_ids_dV_gi_si;
+     double d_ids_dV_gi_si_dV_gi_si;
+     double d_ids_dV_gi_si_dV_di_si;
+     double d_ids_dV_gi_si_dTemp_dt_GND;
      double d_ids_dV_di_si;
+     double d_ids_dV_di_si_dV_gi_si;
+     double d_ids_dV_di_si_dV_di_si;
+     double d_ids_dV_di_si_dTemp_dt_GND;
      double d_ids_dTemp_dt_GND;
   double vdsatrd;
      double d_vdsatrd_dV_tr_GND;
@@ -20854,8 +21114,10 @@ bool Instance::updateIntermediateVars()
      double d_vsars_dV_src_s;
   double vgsi;
      double d_vgsi_dV_gi_si;
+     double d_vgsi_dV_gi_si_dV_gi_si;
   double vdsi;
      double d_vdsi_dV_di_si;
+     double d_vdsi_dV_di_si_dV_di_si;
   double ttrapfac;
      double d_ttrapfac_dTemp_dt_GND;
   double phit;
@@ -20875,24 +21137,24 @@ bool Instance::updateIntermediateVars()
 
   // set the sizes of the Fad arrays:
 
-  if (probeVars.size() != (41))
+  if (probeVars.size() != (45))
   {
-    probeVars.resize(41);
-    d_probeVars.resize(41);
-    for (int i=0;i<41;i++)
+    probeVars.resize(45);
+    d_probeVars.resize(45);
+    for (int i=0;i<45;i++)
     {
-      d_probeVars[i].resize(41);
-      for (int j=0;j<41;j++)
+      d_probeVars[i].resize(45);
+      for (int j=0;j<45;j++)
         d_probeVars[i][j]=0.0;
     }
     staticContributions.resize(18+0);
     d_staticContributions.resize(18+0);
     for (int i=0;i<18+0;i++)
-      d_staticContributions[i].resize(41);
+      d_staticContributions[i].resize(45);
     dynamicContributions.resize(18+0);
     d_dynamicContributions.resize(18+0);
     for (int i=0;i<18+0;i++)
-      d_dynamicContributions[i].resize(41);
+      d_dynamicContributions[i].resize(45);
   }
 
 
@@ -20900,14 +21162,22 @@ bool Instance::updateIntermediateVars()
   for (int i=0; i < 18+0 ; ++i)
   {
      staticContributions[i]=0;
-     for (int j=0;j<41;j++)
+     for (int j=0;j<45;j++)
         d_staticContributions[i][j] = 0.0;
      dynamicContributions[i]=0;
-     for (int j=0;j<41;j++)
+     for (int j=0;j<45;j++)
         d_dynamicContributions[i][j] = 0.0;
   }
 
   // extract solution variables and set as Fad independent variables.
+probeVars[admsProbeID_V_si_GND] = (*solVectorPtr)[li_si];
+d_probeVars[admsProbeID_V_si_GND][admsProbeID_V_si_GND] = 1.0;
+probeVars[admsProbeID_V_b_GND] = (*solVectorPtr)[li_b];
+d_probeVars[admsProbeID_V_b_GND][admsProbeID_V_b_GND] = 1.0;
+probeVars[admsProbeID_V_di_GND] = (*solVectorPtr)[li_di];
+d_probeVars[admsProbeID_V_di_GND][admsProbeID_V_di_GND] = 1.0;
+probeVars[admsProbeID_V_gi_GND] = (*solVectorPtr)[li_gi];
+d_probeVars[admsProbeID_V_gi_GND][admsProbeID_V_gi_GND] = 1.0;
 probeVars[admsProbeID_V_drc_d] = (*solVectorPtr)[li_drc] - (*solVectorPtr)[li_d];
 d_probeVars[admsProbeID_V_drc_d][admsProbeID_V_drc_d] = 1.0;
 probeVars[admsProbeID_V_gi_b] = (*solVectorPtr)[li_gi] - (*solVectorPtr)[li_b];
@@ -21065,9 +21335,11 @@ d_ttrapfac_dTemp_dt_GND = (model_.tempt)*d_tdut_dTemp_dt_GND;
 ttrapfac = (1.0+((model_.tempt)*(tdut-tnomk)));
 
 d_vdsi_dV_di_si = (model_.type)*d_probeVars[admsProbeID_V_di_si][admsProbeID_V_di_si];
+d_vdsi_dV_di_si_dV_di_si = 0.0;
 vdsi = ((model_.type)*(probeVars[admsProbeID_V_di_si]));
 
 d_vgsi_dV_gi_si = (model_.type)*d_probeVars[admsProbeID_V_gi_si][admsProbeID_V_gi_si];
+d_vgsi_dV_gi_si_dV_gi_si = 0.0;
 vgsi = ((model_.type)*(probeVars[admsProbeID_V_gi_si]));
 if ((((model_.type)*(probeVars[admsProbeID_V_src_d]))<=((model_.type)*(probeVars[admsProbeID_V_src_s]))))
 {
@@ -22069,6 +22341,12 @@ AnalogFunctions::calc_iqEvaluator evaluator_calc_iq_0(ids,qgs,qgd,qc,qb,qs,vtdib
 d_ids_dTemp_dt_GND = evaluator_calc_iq_0.getDerivs(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,w,l,(model_.cg),0,0,0,(model_.vto),(model_.ss),(model_.delta1),(model_.delta2),(model_.nd),(model_.alpha),(model_.vx0),(model_.mu0),(model_.beta),(model_.mtheta),(model_.vtheta),(model_.vtzeta),(model_.dibsat),(model_.epsilon),(model_.vzeta),(model_.lambda),ngf,(model_.type),d_ids_dTemp_dt_GND,d_qgs_dTemp_dt_GND,d_qgd_dTemp_dt_GND,d_qc_dTemp_dt_GND,d_qb_dTemp_dt_GND,d_qs_dTemp_dt_GND,d_vtdibli_dTemp_dt_GND,d_vdsat1i_dTemp_dt_GND,0.0,0.0,0.0,0.0,0.0,0.0,d_tdut_dTemp_dt_GND,0.0,d_phit_dTemp_dt_GND,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
 d_ids_dV_di_si = evaluator_calc_iq_0.getDerivs(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,w,l,(model_.cg),0,0,0,(model_.vto),(model_.ss),(model_.delta1),(model_.delta2),(model_.nd),(model_.alpha),(model_.vx0),(model_.mu0),(model_.beta),(model_.mtheta),(model_.vtheta),(model_.vtzeta),(model_.dibsat),(model_.epsilon),(model_.vzeta),(model_.lambda),ngf,(model_.type),d_ids_dV_di_si,d_qgs_dV_di_si,d_qgd_dV_di_si,d_qc_dV_di_si,d_qb_dV_di_si,d_qs_dV_di_si,d_vtdibli_dV_di_si,d_vdsat1i_dV_di_si,0.0,d_vdsi_dV_di_si,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
 d_ids_dV_gi_si = evaluator_calc_iq_0.getDerivs(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,w,l,(model_.cg),0,0,0,(model_.vto),(model_.ss),(model_.delta1),(model_.delta2),(model_.nd),(model_.alpha),(model_.vx0),(model_.mu0),(model_.beta),(model_.mtheta),(model_.vtheta),(model_.vtzeta),(model_.dibsat),(model_.epsilon),(model_.vzeta),(model_.lambda),ngf,(model_.type),d_ids_dV_gi_si,d_qgs_dV_gi_si,d_qgd_dV_gi_si,d_qc_dV_gi_si,d_qb_dV_gi_si,d_qs_dV_gi_si,d_vtdibli_dV_gi_si,d_vdsat1i_dV_gi_si,d_vgsi_dV_gi_si,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+d_ids_dV_gi_si_dV_gi_si = 0.0/*second derivatives of analog functions not implemented*/;
+d_ids_dV_gi_si_dV_di_si = 0.0/*second derivatives of analog functions not implemented*/;
+d_ids_dV_gi_si_dTemp_dt_GND = 0.0/*second derivatives of analog functions not implemented*/;
+d_ids_dV_di_si_dV_gi_si = 0.0/*second derivatives of analog functions not implemented*/;
+d_ids_dV_di_si_dV_di_si = 0.0/*second derivatives of analog functions not implemented*/;
+d_ids_dV_di_si_dTemp_dt_GND = 0.0/*second derivatives of analog functions not implemented*/;
 ids = evaluator_calc_iq_0.getValues(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,w,l,(model_.cg),0,0,0,(model_.vto),(model_.ss),(model_.delta1),(model_.delta2),(model_.nd),(model_.alpha),(model_.vx0),(model_.mu0),(model_.beta),(model_.mtheta),(model_.vtheta),(model_.vtzeta),(model_.dibsat),(model_.epsilon),(model_.vzeta),(model_.lambda),ngf,(model_.type));
 }
 
@@ -22373,11 +22651,69 @@ else
 // Temp(dt,GND) <+ (0.0)
 // do nothing at all
 }
+vgisi = (probeVars[admsProbeID_V_gi_si]);
+vdisi = (probeVars[admsProbeID_V_di_si]);
+vti = vtdibli;
+vdsati = vdsat1i;
+pdc = pdiss;
+idisi = ids;
+igs = igsi;
+igd = igdi;
+
+d_qgi_dTemp_dt_GND = (d_qgs_dTemp_dt_GND+d_qgd_dTemp_dt_GND);
+d_qgi_dV_di_si = (d_qgs_dV_di_si+d_qgd_dV_di_si);
+d_qgi_dV_gi_si = (d_qgs_dV_gi_si+d_qgd_dV_gi_si);
+qgi = (qgs+qgd);
+
+d_qdi_dTemp_dt_GND = (-d_qgd_dTemp_dt_GND);
+d_qdi_dV_di_si = (-d_qgd_dV_di_si);
+d_qdi_dV_gi_si = (-d_qgd_dV_gi_si);
+qdi = (-qgd);
+
+d_qsi_dTemp_dt_GND = (-d_qgs_dTemp_dt_GND);
+d_qsi_dV_di_si = (-d_qgs_dV_di_si);
+d_qsi_dV_gi_si = (-d_qgs_dV_gi_si);
+qsi = (-qgs);
+qbi = 0;
+gmi = (+d_ids_dV_gi_si);
+gdsi = (+d_ids_dV_di_si);
+gmbsi = 0.0;
+cggi = (+d_qgi_dV_gi_si);
+cgdi = (+d_qgi_dV_di_si);
+cgsi = (-d_qgi_dV_gi_si-d_qgi_dV_di_si);
+cgbi = 0.0;
+cdgi = (+d_qdi_dV_gi_si);
+cddi = (+d_qdi_dV_di_si);
+cdsi = (-d_qdi_dV_gi_si-d_qdi_dV_di_si);
+cdbi = 0.0;
+csgi = (+d_qsi_dV_gi_si);
+csdi = (+d_qsi_dV_di_si);
+cssi = (-d_qsi_dV_gi_si-d_qsi_dV_di_si);
+csbi = 0.0;
+cbgi = 0.0;
+cbdi = 0.0;
+cbsi = 0.0;
+cbbi = 0.0;
+cgs = ((w*ngf)*(model_.cofsm));
+cgd = ((w*ngf)*(model_.cofdm));
+t_total_k = tdut;
+t_total_c = (tdut-273.15);
+t_delta_sh = tsh;
+rs = ((((model_.rsh)*(model_.lgs))/w)/ngf);
+rd = ((((model_.rsh)*(model_.lgd))/w)/ngf);
 
 
   // -- endcode converted from analog/code block
   if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS) && getSolverState().debugTimeFlag)
   {
+    Xyce::dout() << " probeVars[admsProbeID_V_si_GND] =  "
+         <<probeVars[admsProbeID_V_si_GND] << std::endl;
+    Xyce::dout() << " probeVars[admsProbeID_V_b_GND] =  "
+         <<probeVars[admsProbeID_V_b_GND] << std::endl;
+    Xyce::dout() << " probeVars[admsProbeID_V_di_GND] =  "
+         <<probeVars[admsProbeID_V_di_GND] << std::endl;
+    Xyce::dout() << " probeVars[admsProbeID_V_gi_GND] =  "
+         <<probeVars[admsProbeID_V_gi_GND] << std::endl;
     Xyce::dout() << " probeVars[admsProbeID_V_drc_d] =  "
          <<probeVars[admsProbeID_V_drc_d] << std::endl;
     Xyce::dout() << " probeVars[admsProbeID_V_gi_b] =  "
@@ -22462,6 +22798,10 @@ else
          <<probeVars[admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_d] =  "
          <<staticContributions[admsNodeID_d] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_d].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_d][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_d].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_d][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_d].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_d][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_d].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_d][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_d].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_d][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_d].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_d][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_d].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_d][admsProbeID_V_s_b] << std::endl;
@@ -22505,6 +22845,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_d].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_d][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_d] =  "
          <<dynamicContributions[admsNodeID_d] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_d].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_d][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_d].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_d][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_d].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_d][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_d].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_d][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_d].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_d][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_d].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_d][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_d].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_d][admsProbeID_V_s_b] << std::endl;
@@ -22548,6 +22892,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_d].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_d][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_g] =  "
          <<staticContributions[admsNodeID_g] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_g].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_g][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_g].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_g][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_g].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_g][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_g].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_g][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_g].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_g][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_g].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_g][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_g].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_g][admsProbeID_V_s_b] << std::endl;
@@ -22591,6 +22939,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_g].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_g][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_g] =  "
          <<dynamicContributions[admsNodeID_g] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_g].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_g][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_g].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_g][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_g].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_g][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_g].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_g][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_g].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_g][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_g].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_g][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_g].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_g][admsProbeID_V_s_b] << std::endl;
@@ -22634,6 +22986,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_g].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_g][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_s] =  "
          <<staticContributions[admsNodeID_s] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_s].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_s][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_s].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_s][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_s].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_s][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_s].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_s][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_s].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_s][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_s].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_s][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_s].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_s][admsProbeID_V_s_b] << std::endl;
@@ -22677,6 +23033,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_s].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_s][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_s] =  "
          <<dynamicContributions[admsNodeID_s] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_s].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_s][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_s].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_s][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_s].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_s][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_s].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_s][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_s].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_s][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_s].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_s][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_s].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_s][admsProbeID_V_s_b] << std::endl;
@@ -22720,6 +23080,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_s].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_s][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_b] =  "
          <<staticContributions[admsNodeID_b] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_b].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_b][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_b].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_b][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_b].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_b][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_b].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_b][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_b].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_b][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_b].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_b][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_b].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_b][admsProbeID_V_s_b] << std::endl;
@@ -22763,6 +23127,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_b].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_b][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_b] =  "
          <<dynamicContributions[admsNodeID_b] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_b].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_b][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_b].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_b][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_b].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_b][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_b].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_b][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_b].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_b][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_b].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_b][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_b].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_b][admsProbeID_V_s_b] << std::endl;
@@ -22806,6 +23174,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_b].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_b][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_di] =  "
          <<staticContributions[admsNodeID_di] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_di].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_di][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_di].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_di][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_di].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_di][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_di].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_di][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_di].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_di][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_di].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_di][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_di].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_di][admsProbeID_V_s_b] << std::endl;
@@ -22849,6 +23221,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_di].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_di][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_di] =  "
          <<dynamicContributions[admsNodeID_di] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_di].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_di][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_di].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_di][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_di].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_di][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_di].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_di][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_di].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_di][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_di].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_di][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_di].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_di][admsProbeID_V_s_b] << std::endl;
@@ -22892,6 +23268,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_di].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_di][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_gi] =  "
          <<staticContributions[admsNodeID_gi] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_gi].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_gi][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_gi].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_gi][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_gi].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_gi][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_gi].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_gi][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_gi].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_gi][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_gi].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_gi][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_gi].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_gi][admsProbeID_V_s_b] << std::endl;
@@ -22935,6 +23315,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_gi].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_gi][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_gi] =  "
          <<dynamicContributions[admsNodeID_gi] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_gi].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_gi][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_gi].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_gi][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_gi].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_gi][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_gi].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_gi][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_gi].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_gi][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_gi].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_gi][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_gi].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_gi][admsProbeID_V_s_b] << std::endl;
@@ -22978,6 +23362,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_gi].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_gi][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_si] =  "
          <<staticContributions[admsNodeID_si] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_si].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_si][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_si].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_si][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_si].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_si][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_si].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_si][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_si].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_si][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_si].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_si][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_si].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_si][admsProbeID_V_s_b] << std::endl;
@@ -23021,6 +23409,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_si].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_si][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_si] =  "
          <<dynamicContributions[admsNodeID_si] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_si].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_si][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_si].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_si][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_si].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_si][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_si].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_si][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_si].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_si][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_si].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_si][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_si].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_si][admsProbeID_V_s_b] << std::endl;
@@ -23064,6 +23456,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_si].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_si][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_fp1] =  "
          <<staticContributions[admsNodeID_fp1] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp1].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_fp1][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp1].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_fp1][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp1].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_fp1][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp1].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_fp1][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp1].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_fp1][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp1].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_fp1][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp1].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_fp1][admsProbeID_V_s_b] << std::endl;
@@ -23107,6 +23503,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_fp1].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_fp1][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_fp1] =  "
          <<dynamicContributions[admsNodeID_fp1] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp1].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_fp1][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp1].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_fp1][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp1].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_fp1][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp1].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_fp1][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp1].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_fp1][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp1].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_fp1][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp1].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_fp1][admsProbeID_V_s_b] << std::endl;
@@ -23150,6 +23550,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp1].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_fp1][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_fp2] =  "
          <<staticContributions[admsNodeID_fp2] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp2].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_fp2][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp2].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_fp2][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp2].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_fp2][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp2].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_fp2][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp2].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_fp2][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp2].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_fp2][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp2].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_fp2][admsProbeID_V_s_b] << std::endl;
@@ -23193,6 +23597,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_fp2].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_fp2][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_fp2] =  "
          <<dynamicContributions[admsNodeID_fp2] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp2].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_fp2][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp2].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_fp2][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp2].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_fp2][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp2].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_fp2][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp2].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_fp2][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp2].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_fp2][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp2].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_fp2][admsProbeID_V_s_b] << std::endl;
@@ -23236,6 +23644,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp2].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_fp2][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_fp3] =  "
          <<staticContributions[admsNodeID_fp3] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp3].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_fp3][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp3].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_fp3][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp3].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_fp3][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp3].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_fp3][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp3].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_fp3][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp3].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_fp3][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp3].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_fp3][admsProbeID_V_s_b] << std::endl;
@@ -23279,6 +23691,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_fp3].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_fp3][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_fp3] =  "
          <<dynamicContributions[admsNodeID_fp3] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp3].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_fp3][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp3].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_fp3][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp3].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_fp3][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp3].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_fp3][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp3].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_fp3][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp3].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_fp3][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp3].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_fp3][admsProbeID_V_s_b] << std::endl;
@@ -23322,6 +23738,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp3].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_fp3][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_fp4] =  "
          <<staticContributions[admsNodeID_fp4] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp4].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_fp4][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp4].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_fp4][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp4].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_fp4][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_fp4].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_fp4][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp4].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_fp4][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp4].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_fp4][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_fp4].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_fp4][admsProbeID_V_s_b] << std::endl;
@@ -23365,6 +23785,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_fp4].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_fp4][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_fp4] =  "
          <<dynamicContributions[admsNodeID_fp4] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp4].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_fp4][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp4].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_fp4][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp4].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_fp4][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_fp4].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_fp4][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp4].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_fp4][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp4].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_fp4][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp4].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_fp4][admsProbeID_V_s_b] << std::endl;
@@ -23408,6 +23832,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_fp4].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_fp4][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_drc] =  "
          <<staticContributions[admsNodeID_drc] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_drc].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_drc][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_drc].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_drc][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_drc].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_drc][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_drc].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_drc][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_drc].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_drc][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_drc].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_drc][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_drc].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_drc][admsProbeID_V_s_b] << std::endl;
@@ -23451,6 +23879,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_drc].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_drc][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_drc] =  "
          <<dynamicContributions[admsNodeID_drc] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_drc].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_drc][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_drc].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_drc][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_drc].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_drc][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_drc].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_drc][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_drc].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_drc][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_drc].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_drc][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_drc].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_drc][admsProbeID_V_s_b] << std::endl;
@@ -23494,6 +23926,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_drc].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_drc][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_src] =  "
          <<staticContributions[admsNodeID_src] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_src].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_src][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_src].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_src][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_src].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_src][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_src].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_src][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_src].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_src][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_src].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_src][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_src].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_src][admsProbeID_V_s_b] << std::endl;
@@ -23537,6 +23973,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_src].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_src][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_src] =  "
          <<dynamicContributions[admsNodeID_src] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_src].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_src][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_src].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_src][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_src].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_src][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_src].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_src][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_src].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_src][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_src].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_src][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_src].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_src][admsProbeID_V_s_b] << std::endl;
@@ -23580,6 +24020,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_src].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_src][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_tr] =  "
          <<staticContributions[admsNodeID_tr] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_tr].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_tr][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_tr].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_tr][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_tr].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_tr][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_tr].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_tr][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_tr].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_tr][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_tr].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_tr][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_tr].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_tr][admsProbeID_V_s_b] << std::endl;
@@ -23623,6 +24067,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_tr].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_tr][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_tr] =  "
          <<dynamicContributions[admsNodeID_tr] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_tr].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_tr][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_tr].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_tr][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_tr].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_tr][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_tr].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_tr][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_tr].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_tr][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_tr].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_tr][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_tr].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_tr][admsProbeID_V_s_b] << std::endl;
@@ -23666,6 +24114,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_tr].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_tr][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_tr1] =  "
          <<staticContributions[admsNodeID_tr1] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_tr1].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_tr1][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_tr1].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_tr1][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_tr1].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_tr1][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_tr1].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_tr1][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_tr1].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_tr1][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_tr1].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_tr1][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_tr1].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_tr1][admsProbeID_V_s_b] << std::endl;
@@ -23709,6 +24161,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_tr1].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_tr1][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_tr1] =  "
          <<dynamicContributions[admsNodeID_tr1] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_tr1].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_tr1][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_tr1].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_tr1][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_tr1].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_tr1][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_tr1].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_tr1][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_tr1].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_tr1][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_tr1].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_tr1][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_tr1].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_tr1][admsProbeID_V_s_b] << std::endl;
@@ -23752,6 +24208,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_tr1].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_tr1][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_xt1] =  "
          <<staticContributions[admsNodeID_xt1] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_xt1].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_xt1][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_xt1].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_xt1][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_xt1].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_xt1][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_xt1].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_xt1][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_xt1].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_xt1][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_xt1].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_xt1][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_xt1].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_xt1][admsProbeID_V_s_b] << std::endl;
@@ -23795,6 +24255,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_xt1].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_xt1][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_xt1] =  "
          <<dynamicContributions[admsNodeID_xt1] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_xt1].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_xt1][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_xt1].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_xt1][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_xt1].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_xt1][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_xt1].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_xt1][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_xt1].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_xt1][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_xt1].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_xt1][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_xt1].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_xt1][admsProbeID_V_s_b] << std::endl;
@@ -23838,6 +24302,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_xt1].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_xt1][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_xt2] =  "
          <<staticContributions[admsNodeID_xt2] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_xt2].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_xt2][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_xt2].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_xt2][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_xt2].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_xt2][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_xt2].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_xt2][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_xt2].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_xt2][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_xt2].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_xt2][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_xt2].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_xt2][admsProbeID_V_s_b] << std::endl;
@@ -23881,6 +24349,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_xt2].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_xt2][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_xt2] =  "
          <<dynamicContributions[admsNodeID_xt2] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_xt2].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_xt2][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_xt2].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_xt2][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_xt2].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_xt2][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_xt2].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_xt2][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_xt2].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_xt2][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_xt2].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_xt2][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_xt2].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_xt2][admsProbeID_V_s_b] << std::endl;
@@ -23924,6 +24396,10 @@ else
       Xyce::dout() << "    dynamicContributions[admsNodeID_xt2].dx(admsProbeID_Temp_dt_GND) =  " <<d_dynamicContributions[admsNodeID_xt2][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " staticContributions[admsNodeID_dt] =  "
          <<staticContributions[admsNodeID_dt] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_dt].dx(admsProbeID_V_si_GND) =  " <<d_staticContributions[admsNodeID_dt][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_dt].dx(admsProbeID_V_b_GND) =  " <<d_staticContributions[admsNodeID_dt][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_dt].dx(admsProbeID_V_di_GND) =  " <<d_staticContributions[admsNodeID_dt][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    staticContributions[admsNodeID_dt].dx(admsProbeID_V_gi_GND) =  " <<d_staticContributions[admsNodeID_dt][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_dt].dx(admsProbeID_V_drc_d) =  " <<d_staticContributions[admsNodeID_dt][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_dt].dx(admsProbeID_V_gi_b) =  " <<d_staticContributions[admsNodeID_dt][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    staticContributions[admsNodeID_dt].dx(admsProbeID_V_s_b) =  " <<d_staticContributions[admsNodeID_dt][admsProbeID_V_s_b] << std::endl;
@@ -23967,6 +24443,10 @@ else
       Xyce::dout() << "    staticContributions[admsNodeID_dt].dx(admsProbeID_Temp_dt_GND) =  " <<d_staticContributions[admsNodeID_dt][admsProbeID_Temp_dt_GND] << std::endl;
     Xyce::dout() << " dynamicContributions[admsNodeID_dt] =  "
          <<dynamicContributions[admsNodeID_dt] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_dt].dx(admsProbeID_V_si_GND) =  " <<d_dynamicContributions[admsNodeID_dt][admsProbeID_V_si_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_dt].dx(admsProbeID_V_b_GND) =  " <<d_dynamicContributions[admsNodeID_dt][admsProbeID_V_b_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_dt].dx(admsProbeID_V_di_GND) =  " <<d_dynamicContributions[admsNodeID_dt][admsProbeID_V_di_GND] << std::endl;
+      Xyce::dout() << "    dynamicContributions[admsNodeID_dt].dx(admsProbeID_V_gi_GND) =  " <<d_dynamicContributions[admsNodeID_dt][admsProbeID_V_gi_GND] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_dt].dx(admsProbeID_V_drc_d) =  " <<d_dynamicContributions[admsNodeID_dt][admsProbeID_V_drc_d] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_dt].dx(admsProbeID_V_gi_b) =  " <<d_dynamicContributions[admsNodeID_dt][admsProbeID_V_gi_b] << std::endl;
       Xyce::dout() << "    dynamicContributions[admsNodeID_dt].dx(admsProbeID_V_s_b) =  " <<d_dynamicContributions[admsNodeID_dt][admsProbeID_V_s_b] << std::endl;
@@ -26185,6 +26665,44 @@ bool instancePar_given_ngf,
 AdmsSensFadType & instanceVar_rcs_w,
 AdmsSensFadType & instanceVar_rcd_w,
 AdmsSensFadType & instanceVar_rg,
+double & instanceVar_vgisi,
+double & instanceVar_vdisi,
+AdmsSensFadType & instanceVar_vti,
+AdmsSensFadType & instanceVar_vdsati,
+AdmsSensFadType & instanceVar_pdc,
+AdmsSensFadType & instanceVar_idisi,
+AdmsSensFadType & instanceVar_igs,
+AdmsSensFadType & instanceVar_igd,
+AdmsSensFadType & instanceVar_qgi,
+AdmsSensFadType & instanceVar_qdi,
+AdmsSensFadType & instanceVar_qsi,
+double & instanceVar_qbi,
+AdmsSensFadType & instanceVar_gmi,
+AdmsSensFadType & instanceVar_gdsi,
+AdmsSensFadType & instanceVar_gmbsi,
+AdmsSensFadType & instanceVar_cggi,
+AdmsSensFadType & instanceVar_cgdi,
+AdmsSensFadType & instanceVar_cgsi,
+AdmsSensFadType & instanceVar_cgbi,
+AdmsSensFadType & instanceVar_cdgi,
+AdmsSensFadType & instanceVar_cddi,
+AdmsSensFadType & instanceVar_cdsi,
+AdmsSensFadType & instanceVar_cdbi,
+AdmsSensFadType & instanceVar_csgi,
+AdmsSensFadType & instanceVar_csdi,
+AdmsSensFadType & instanceVar_cssi,
+AdmsSensFadType & instanceVar_csbi,
+double & instanceVar_cbgi,
+double & instanceVar_cbdi,
+double & instanceVar_cbsi,
+double & instanceVar_cbbi,
+AdmsSensFadType & instanceVar_cgs,
+AdmsSensFadType & instanceVar_cgd,
+AdmsSensFadType & instanceVar_t_total_k,
+AdmsSensFadType & instanceVar_t_total_c,
+double & instanceVar_t_delta_sh,
+AdmsSensFadType & instanceVar_rs,
+AdmsSensFadType & instanceVar_rd,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_version,
@@ -26945,6 +27463,10 @@ bool modelPar_given_noisemod,
 void evaluateModelEquations(
 std::vector <double> & probeVars,
 // probe constants
+const int admsProbeID_V_si_GND,
+const int admsProbeID_V_b_GND,
+const int admsProbeID_V_di_GND,
+const int admsProbeID_V_gi_GND,
 const int admsProbeID_V_drc_d,
 const int admsProbeID_V_gi_b,
 const int admsProbeID_V_s_b,
@@ -27021,6 +27543,44 @@ bool instancePar_given_ngf,
 AdmsSensFadType & instanceVar_rcs_w,
 AdmsSensFadType & instanceVar_rcd_w,
 AdmsSensFadType & instanceVar_rg,
+double & instanceVar_vgisi,
+double & instanceVar_vdisi,
+AdmsSensFadType & instanceVar_vti,
+AdmsSensFadType & instanceVar_vdsati,
+AdmsSensFadType & instanceVar_pdc,
+AdmsSensFadType & instanceVar_idisi,
+AdmsSensFadType & instanceVar_igs,
+AdmsSensFadType & instanceVar_igd,
+AdmsSensFadType & instanceVar_qgi,
+AdmsSensFadType & instanceVar_qdi,
+AdmsSensFadType & instanceVar_qsi,
+double & instanceVar_qbi,
+AdmsSensFadType & instanceVar_gmi,
+AdmsSensFadType & instanceVar_gdsi,
+AdmsSensFadType & instanceVar_gmbsi,
+AdmsSensFadType & instanceVar_cggi,
+AdmsSensFadType & instanceVar_cgdi,
+AdmsSensFadType & instanceVar_cgsi,
+AdmsSensFadType & instanceVar_cgbi,
+AdmsSensFadType & instanceVar_cdgi,
+AdmsSensFadType & instanceVar_cddi,
+AdmsSensFadType & instanceVar_cdsi,
+AdmsSensFadType & instanceVar_cdbi,
+AdmsSensFadType & instanceVar_csgi,
+AdmsSensFadType & instanceVar_csdi,
+AdmsSensFadType & instanceVar_cssi,
+AdmsSensFadType & instanceVar_csbi,
+double & instanceVar_cbgi,
+double & instanceVar_cbdi,
+double & instanceVar_cbsi,
+double & instanceVar_cbbi,
+AdmsSensFadType & instanceVar_cgs,
+AdmsSensFadType & instanceVar_cgd,
+AdmsSensFadType & instanceVar_t_total_k,
+AdmsSensFadType & instanceVar_t_total_c,
+double & instanceVar_t_delta_sh,
+AdmsSensFadType & instanceVar_rs,
+AdmsSensFadType & instanceVar_rd,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_version,
@@ -28032,6 +28592,44 @@ else
 // Temp(dt,GND) <+ (0.0)
 // do nothing at all
 }
+instanceVar_vgisi = (probeVars[admsProbeID_V_gi_si]);
+instanceVar_vdisi = (probeVars[admsProbeID_V_di_si]);
+instanceVar_vti = vtdibli;
+instanceVar_vdsati = vdsat1i;
+instanceVar_pdc = pdiss;
+instanceVar_idisi = ids;
+instanceVar_igs = igsi;
+instanceVar_igd = igdi;
+instanceVar_qgi = (qgs+qgd);
+instanceVar_qdi = (-qgd);
+instanceVar_qsi = (-qgs);
+instanceVar_qbi = 0;
+instanceVar_gmi = 0.0 /*FIXME: ddx(ids,V(gi,GND)) not implemented in sensitivity context */;
+instanceVar_gdsi = 0.0 /*FIXME: ddx(ids,V(di,GND)) not implemented in sensitivity context */;
+instanceVar_gmbsi = 0.0 /*FIXME: ddx(ids,V(b,GND)) not implemented in sensitivity context */;
+instanceVar_cggi = 0.0 /*FIXME: ddx(qgi,V(gi,GND)) not implemented in sensitivity context */;
+instanceVar_cgdi = 0.0 /*FIXME: ddx(qgi,V(di,GND)) not implemented in sensitivity context */;
+instanceVar_cgsi = 0.0 /*FIXME: ddx(qgi,V(si,GND)) not implemented in sensitivity context */;
+instanceVar_cgbi = 0.0 /*FIXME: ddx(qgi,V(b,GND)) not implemented in sensitivity context */;
+instanceVar_cdgi = 0.0 /*FIXME: ddx(qdi,V(gi,GND)) not implemented in sensitivity context */;
+instanceVar_cddi = 0.0 /*FIXME: ddx(qdi,V(di,GND)) not implemented in sensitivity context */;
+instanceVar_cdsi = 0.0 /*FIXME: ddx(qdi,V(si,GND)) not implemented in sensitivity context */;
+instanceVar_cdbi = 0.0 /*FIXME: ddx(qdi,V(b,GND)) not implemented in sensitivity context */;
+instanceVar_csgi = 0.0 /*FIXME: ddx(qsi,V(gi,GND)) not implemented in sensitivity context */;
+instanceVar_csdi = 0.0 /*FIXME: ddx(qsi,V(di,GND)) not implemented in sensitivity context */;
+instanceVar_cssi = 0.0 /*FIXME: ddx(qsi,V(si,GND)) not implemented in sensitivity context */;
+instanceVar_csbi = 0.0 /*FIXME: ddx(qsi,V(b,GND)) not implemented in sensitivity context */;
+instanceVar_cbgi = 0.0 /*FIXME: ddx(qbi,V(gi,GND)) not implemented in sensitivity context */;
+instanceVar_cbdi = 0.0 /*FIXME: ddx(qbi,V(di,GND)) not implemented in sensitivity context */;
+instanceVar_cbsi = 0.0 /*FIXME: ddx(qbi,V(si,GND)) not implemented in sensitivity context */;
+instanceVar_cbbi = 0.0 /*FIXME: ddx(qbi,V(b,GND)) not implemented in sensitivity context */;
+instanceVar_cgs = ((instancePar_w*instancePar_ngf)*modelPar_cofsm);
+instanceVar_cgd = ((instancePar_w*instancePar_ngf)*modelPar_cofdm);
+instanceVar_t_total_k = tdut;
+instanceVar_t_total_c = (tdut-273.15);
+instanceVar_t_delta_sh = tsh;
+instanceVar_rs = (((modelPar_rsh*modelPar_lgs)/instancePar_w)/instancePar_ngf);
+instanceVar_rd = (((modelPar_rsh*modelPar_lgd)/instancePar_w)/instancePar_ngf);
 }
 
 
@@ -28079,7 +28677,7 @@ dqdp.resize(18+0);
 Findices.resize(18+0);
 Qindices.resize(18+0);
 
-std::vector <double> probeVars(41);
+std::vector <double> probeVars(45);
 std::vector <AdmsSensFadType> staticContributions(18+0);
 std::vector <AdmsSensFadType> dynamicContributions(18+0);
 
@@ -28492,6 +29090,44 @@ inParamMap[name]->diff(0,1);
 AdmsSensFadType instanceVar_rcs_w=in.rcs_w;
 AdmsSensFadType instanceVar_rcd_w=in.rcd_w;
 AdmsSensFadType instanceVar_rg=in.rg;
+double instanceVar_vgisi=in.vgisi;
+double instanceVar_vdisi=in.vdisi;
+AdmsSensFadType instanceVar_vti=in.vti;
+AdmsSensFadType instanceVar_vdsati=in.vdsati;
+AdmsSensFadType instanceVar_pdc=in.pdc;
+AdmsSensFadType instanceVar_idisi=in.idisi;
+AdmsSensFadType instanceVar_igs=in.igs;
+AdmsSensFadType instanceVar_igd=in.igd;
+AdmsSensFadType instanceVar_qgi=in.qgi;
+AdmsSensFadType instanceVar_qdi=in.qdi;
+AdmsSensFadType instanceVar_qsi=in.qsi;
+double instanceVar_qbi=in.qbi;
+AdmsSensFadType instanceVar_gmi=in.gmi;
+AdmsSensFadType instanceVar_gdsi=in.gdsi;
+AdmsSensFadType instanceVar_gmbsi=in.gmbsi;
+AdmsSensFadType instanceVar_cggi=in.cggi;
+AdmsSensFadType instanceVar_cgdi=in.cgdi;
+AdmsSensFadType instanceVar_cgsi=in.cgsi;
+AdmsSensFadType instanceVar_cgbi=in.cgbi;
+AdmsSensFadType instanceVar_cdgi=in.cdgi;
+AdmsSensFadType instanceVar_cddi=in.cddi;
+AdmsSensFadType instanceVar_cdsi=in.cdsi;
+AdmsSensFadType instanceVar_cdbi=in.cdbi;
+AdmsSensFadType instanceVar_csgi=in.csgi;
+AdmsSensFadType instanceVar_csdi=in.csdi;
+AdmsSensFadType instanceVar_cssi=in.cssi;
+AdmsSensFadType instanceVar_csbi=in.csbi;
+double instanceVar_cbgi=in.cbgi;
+double instanceVar_cbdi=in.cbdi;
+double instanceVar_cbsi=in.cbsi;
+double instanceVar_cbbi=in.cbbi;
+AdmsSensFadType instanceVar_cgs=in.cgs;
+AdmsSensFadType instanceVar_cgd=in.cgd;
+AdmsSensFadType instanceVar_t_total_k=in.t_total_k;
+AdmsSensFadType instanceVar_t_total_c=in.t_total_c;
+double instanceVar_t_delta_sh=in.t_delta_sh;
+AdmsSensFadType instanceVar_rs=in.rs;
+AdmsSensFadType instanceVar_rd=in.rd;
 
 
 //non-reals
@@ -28508,6 +29144,10 @@ AdmsSensFadType instanceVar_rg=in.rg;
 Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
 // extract solution variables and set as Fad independent variables.
+probeVars[in.admsProbeID_V_si_GND] = (*solVectorPtr)[in.li_si];
+probeVars[in.admsProbeID_V_b_GND] = (*solVectorPtr)[in.li_b];
+probeVars[in.admsProbeID_V_di_GND] = (*solVectorPtr)[in.li_di];
+probeVars[in.admsProbeID_V_gi_GND] = (*solVectorPtr)[in.li_gi];
 probeVars[in.admsProbeID_V_drc_d] = (*solVectorPtr)[in.li_drc]- (*solVectorPtr)[in.li_d];
 probeVars[in.admsProbeID_V_gi_b] = (*solVectorPtr)[in.li_gi]- (*solVectorPtr)[in.li_b];
 probeVars[in.admsProbeID_V_s_b] = (*solVectorPtr)[in.li_s]- (*solVectorPtr)[in.li_b];
@@ -28568,6 +29208,44 @@ instancePar_given_ngf,
 instanceVar_rcs_w,
 instanceVar_rcd_w,
 instanceVar_rg,
+instanceVar_vgisi,
+instanceVar_vdisi,
+instanceVar_vti,
+instanceVar_vdsati,
+instanceVar_pdc,
+instanceVar_idisi,
+instanceVar_igs,
+instanceVar_igd,
+instanceVar_qgi,
+instanceVar_qdi,
+instanceVar_qsi,
+instanceVar_qbi,
+instanceVar_gmi,
+instanceVar_gdsi,
+instanceVar_gmbsi,
+instanceVar_cggi,
+instanceVar_cgdi,
+instanceVar_cgsi,
+instanceVar_cgbi,
+instanceVar_cdgi,
+instanceVar_cddi,
+instanceVar_cdsi,
+instanceVar_cdbi,
+instanceVar_csgi,
+instanceVar_csdi,
+instanceVar_cssi,
+instanceVar_csbi,
+instanceVar_cbgi,
+instanceVar_cbdi,
+instanceVar_cbsi,
+instanceVar_cbbi,
+instanceVar_cgs,
+instanceVar_cgd,
+instanceVar_t_total_k,
+instanceVar_t_total_c,
+instanceVar_t_delta_sh,
+instanceVar_rs,
+instanceVar_rd,
 // model parameters
 // reals
 modelPar_version,
@@ -28930,6 +29608,10 @@ in.admsTemperature,in.adms_vt_nom,in.getDeviceOptions().gmin,in);
 evaluateModelEquations(
 probeVars,
 // probe constants
+in.admsProbeID_V_si_GND,
+in.admsProbeID_V_b_GND,
+in.admsProbeID_V_di_GND,
+in.admsProbeID_V_gi_GND,
 in.admsProbeID_V_drc_d,
 in.admsProbeID_V_gi_b,
 in.admsProbeID_V_s_b,
@@ -29007,6 +29689,44 @@ instancePar_given_ngf,
 instanceVar_rcs_w,
 instanceVar_rcd_w,
 instanceVar_rg,
+instanceVar_vgisi,
+instanceVar_vdisi,
+instanceVar_vti,
+instanceVar_vdsati,
+instanceVar_pdc,
+instanceVar_idisi,
+instanceVar_igs,
+instanceVar_igd,
+instanceVar_qgi,
+instanceVar_qdi,
+instanceVar_qsi,
+instanceVar_qbi,
+instanceVar_gmi,
+instanceVar_gdsi,
+instanceVar_gmbsi,
+instanceVar_cggi,
+instanceVar_cgdi,
+instanceVar_cgsi,
+instanceVar_cgbi,
+instanceVar_cdgi,
+instanceVar_cddi,
+instanceVar_cdsi,
+instanceVar_cdbi,
+instanceVar_csgi,
+instanceVar_csdi,
+instanceVar_cssi,
+instanceVar_csbi,
+instanceVar_cbgi,
+instanceVar_cbdi,
+instanceVar_cbsi,
+instanceVar_cbbi,
+instanceVar_cgs,
+instanceVar_cgd,
+instanceVar_t_total_k,
+instanceVar_t_total_c,
+instanceVar_t_delta_sh,
+instanceVar_rs,
+instanceVar_rd,
 // model parameters
 // reals
 modelPar_version,
@@ -29491,7 +30211,7 @@ dqdp.resize((18+0)*sizeInstance);
 Findices.resize((18+0)*sizeInstance);
 Qindices.resize((18+0)*sizeInstance);
 
-std::vector <double> probeVars(41);
+std::vector <double> probeVars(45);
 std::vector <AdmsSensFadType> staticContributions(18+0);
 std::vector <AdmsSensFadType> dynamicContributions(18+0);
 
@@ -30086,6 +30806,44 @@ bool instancePar_given_ngf=in.given("ngf");
 AdmsSensFadType instanceVar_rcs_w=in.rcs_w;
 AdmsSensFadType instanceVar_rcd_w=in.rcd_w;
 AdmsSensFadType instanceVar_rg=in.rg;
+double instanceVar_vgisi=in.vgisi;
+double instanceVar_vdisi=in.vdisi;
+AdmsSensFadType instanceVar_vti=in.vti;
+AdmsSensFadType instanceVar_vdsati=in.vdsati;
+AdmsSensFadType instanceVar_pdc=in.pdc;
+AdmsSensFadType instanceVar_idisi=in.idisi;
+AdmsSensFadType instanceVar_igs=in.igs;
+AdmsSensFadType instanceVar_igd=in.igd;
+AdmsSensFadType instanceVar_qgi=in.qgi;
+AdmsSensFadType instanceVar_qdi=in.qdi;
+AdmsSensFadType instanceVar_qsi=in.qsi;
+double instanceVar_qbi=in.qbi;
+AdmsSensFadType instanceVar_gmi=in.gmi;
+AdmsSensFadType instanceVar_gdsi=in.gdsi;
+AdmsSensFadType instanceVar_gmbsi=in.gmbsi;
+AdmsSensFadType instanceVar_cggi=in.cggi;
+AdmsSensFadType instanceVar_cgdi=in.cgdi;
+AdmsSensFadType instanceVar_cgsi=in.cgsi;
+AdmsSensFadType instanceVar_cgbi=in.cgbi;
+AdmsSensFadType instanceVar_cdgi=in.cdgi;
+AdmsSensFadType instanceVar_cddi=in.cddi;
+AdmsSensFadType instanceVar_cdsi=in.cdsi;
+AdmsSensFadType instanceVar_cdbi=in.cdbi;
+AdmsSensFadType instanceVar_csgi=in.csgi;
+AdmsSensFadType instanceVar_csdi=in.csdi;
+AdmsSensFadType instanceVar_cssi=in.cssi;
+AdmsSensFadType instanceVar_csbi=in.csbi;
+double instanceVar_cbgi=in.cbgi;
+double instanceVar_cbdi=in.cbdi;
+double instanceVar_cbsi=in.cbsi;
+double instanceVar_cbbi=in.cbbi;
+AdmsSensFadType instanceVar_cgs=in.cgs;
+AdmsSensFadType instanceVar_cgd=in.cgd;
+AdmsSensFadType instanceVar_t_total_k=in.t_total_k;
+AdmsSensFadType instanceVar_t_total_c=in.t_total_c;
+double instanceVar_t_delta_sh=in.t_delta_sh;
+AdmsSensFadType instanceVar_rs=in.rs;
+AdmsSensFadType instanceVar_rd=in.rd;
 
 
   //non-reals
@@ -30095,6 +30853,10 @@ AdmsSensFadType instanceVar_rg=in.rg;
   Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
   // extract solution variables and set as Fad independent variables.
+probeVars[in.admsProbeID_V_si_GND] = (*solVectorPtr)[in.li_si];
+probeVars[in.admsProbeID_V_b_GND] = (*solVectorPtr)[in.li_b];
+probeVars[in.admsProbeID_V_di_GND] = (*solVectorPtr)[in.li_di];
+probeVars[in.admsProbeID_V_gi_GND] = (*solVectorPtr)[in.li_gi];
 probeVars[in.admsProbeID_V_drc_d] = (*solVectorPtr)[in.li_drc] - (*solVectorPtr)[in.li_d];
 probeVars[in.admsProbeID_V_gi_b] = (*solVectorPtr)[in.li_gi] - (*solVectorPtr)[in.li_b];
 probeVars[in.admsProbeID_V_s_b] = (*solVectorPtr)[in.li_s] - (*solVectorPtr)[in.li_b];
@@ -30155,6 +30917,44 @@ instancePar_given_ngf,
 instanceVar_rcs_w,
 instanceVar_rcd_w,
 instanceVar_rg,
+instanceVar_vgisi,
+instanceVar_vdisi,
+instanceVar_vti,
+instanceVar_vdsati,
+instanceVar_pdc,
+instanceVar_idisi,
+instanceVar_igs,
+instanceVar_igd,
+instanceVar_qgi,
+instanceVar_qdi,
+instanceVar_qsi,
+instanceVar_qbi,
+instanceVar_gmi,
+instanceVar_gdsi,
+instanceVar_gmbsi,
+instanceVar_cggi,
+instanceVar_cgdi,
+instanceVar_cgsi,
+instanceVar_cgbi,
+instanceVar_cdgi,
+instanceVar_cddi,
+instanceVar_cdsi,
+instanceVar_cdbi,
+instanceVar_csgi,
+instanceVar_csdi,
+instanceVar_cssi,
+instanceVar_csbi,
+instanceVar_cbgi,
+instanceVar_cbdi,
+instanceVar_cbsi,
+instanceVar_cbbi,
+instanceVar_cgs,
+instanceVar_cgd,
+instanceVar_t_total_k,
+instanceVar_t_total_c,
+instanceVar_t_delta_sh,
+instanceVar_rs,
+instanceVar_rd,
 // model parameters
 // reals
 modelPar_version,
@@ -30518,6 +31318,10 @@ in.admsTemperature, in.adms_vt_nom,in.getDeviceOptions().gmin,in);
 evaluateModelEquations(
 probeVars,
 // probe constants
+in.admsProbeID_V_si_GND,
+in.admsProbeID_V_b_GND,
+in.admsProbeID_V_di_GND,
+in.admsProbeID_V_gi_GND,
 in.admsProbeID_V_drc_d,
 in.admsProbeID_V_gi_b,
 in.admsProbeID_V_s_b,
@@ -30595,6 +31399,44 @@ instancePar_given_ngf,
 instanceVar_rcs_w,
 instanceVar_rcd_w,
 instanceVar_rg,
+instanceVar_vgisi,
+instanceVar_vdisi,
+instanceVar_vti,
+instanceVar_vdsati,
+instanceVar_pdc,
+instanceVar_idisi,
+instanceVar_igs,
+instanceVar_igd,
+instanceVar_qgi,
+instanceVar_qdi,
+instanceVar_qsi,
+instanceVar_qbi,
+instanceVar_gmi,
+instanceVar_gdsi,
+instanceVar_gmbsi,
+instanceVar_cggi,
+instanceVar_cgdi,
+instanceVar_cgsi,
+instanceVar_cgbi,
+instanceVar_cdgi,
+instanceVar_cddi,
+instanceVar_cdsi,
+instanceVar_cdbi,
+instanceVar_csgi,
+instanceVar_csdi,
+instanceVar_cssi,
+instanceVar_csbi,
+instanceVar_cbgi,
+instanceVar_cbdi,
+instanceVar_cbsi,
+instanceVar_cbbi,
+instanceVar_cgs,
+instanceVar_cgd,
+instanceVar_t_total_k,
+instanceVar_t_total_c,
+instanceVar_t_delta_sh,
+instanceVar_rs,
+instanceVar_rd,
 // model parameters
 // reals
 modelPar_version,

@@ -93,9 +93,8 @@ class IntegralEvaluation : public Base
     std::string type_;
     std::vector<double> outVarValues_;
     double integralValue_;
-    double lastTimeValue_;
+    double lastIndepVarValue_;
     double lastSignalValue_;
-    double totalAveragingWindow_;
 };
 
 } // namespace Measure

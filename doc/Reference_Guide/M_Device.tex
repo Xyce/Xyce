@@ -694,8 +694,15 @@ in the BSIM-CMG technical report\cite{BSIMCMG:Manual}, available from
 the BSIM web site at
 \url{http://bsim.berkeley.edu/models/bsimcmg/}.
 
+The BSIM CMG devices support output of the internal variables in
+tables~\ref{M_107_OutputVars}, \ref{M_108_OutputVars}, and  \ref{M_110_OutputVars} on the \texttt{.PRINT} line of a netlist.
+To access them from a print line, use the syntax
+\texttt{N(<instance>:<variable>)} where ``\texttt{<instance>}'' refers to the
+name of the specific level 107 or 108 M device in your netlist.
+
 \input{M_110_Device_Instance_Params}
 \input{M_110_Device_Model_Params}
+\input{M_110_OutputVars}
 
 \subsubsection{Level 107  and 108 MOSFET Tables (BSIM CMG versions 107.0.0 and 108.0.0)}
 \Xyce{} includes the legacy BSIM CMG Common Multi-gate model versions 107 and 108.
@@ -719,9 +726,11 @@ same as the TNOIMOD=1 option of BSIM-CMG 110.
 
 \input{M_107_Device_Instance_Params}
 \input{M_107_Device_Model_Params}
+\input{M_107_OutputVars}
 
 \input{M_108_Device_Instance_Params}
 \input{M_108_Device_Model_Params}
+\input{M_108_OutputVars}
 
 
 \clearpage

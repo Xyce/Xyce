@@ -4206,8 +4206,17 @@ analog begin
 		CEE  =  ddx(QB, V(e));
 
 		//Total extrinsic capacitance
-		CGSEXT 	=  - ddx(qgs_parasitic + (CGEOMOD == 1 ? qgs_fr : 0),V(si));  //Gate-Source Overlap + outer fringing 
-		CGDEXT 	=  - ddx(qgd_parasitic + (CGEOMOD == 1 ? qgd_fr : 0),V(di));  //Gate-Drain Overlap + outer fringing 
+                `ifdef __ORIG_DDX_EXPRESSIONS__
+  		  CGSEXT 	=  - ddx(qgs_parasitic + (CGEOMOD == 1 ? qgs_fr : 0),V(si));  //Gate-Source Overlap + outer fringing 
+		  CGDEXT 	=  - ddx(qgd_parasitic + (CGEOMOD == 1 ? qgd_fr : 0),V(di));  //Gate-Drain Overlap + outer fringing
+                `else
+  		  CGSEXT 	=  - ddx(qgs_parasitic,V(si));  //Gate-Source Overlap + outer fringing 
+                  if (CGEOMOD == 1)
+                    CGSEXT = CGSEXT-ddx(qgs_fr,V(si));
+		  CGDEXT 	=  - ddx(qgd_parasitic,V(di));  //Gate-Drain Overlap + outer fringing
+                  if (CGEOMOD == 1)
+                    CGDEXT = CGDEXT-ddx(qgd_fr,V(di));
+                `endif
 		CGBOV	=  - devsign * ddx(Qeg,V(e));                     //Gate-Body Overlap
 
 		// Total of Junction Capacitance and Source/Drain-Body Overlap Capacitance

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Sat, 28 Mar 2020 14:50:19
+// Creation Date  : Tue, 31 Mar 2020 09:29:14
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_h
@@ -54,7 +54,7 @@ namespace Device {
 namespace ADMSbsimcmg {
 
 // This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad<double,14> AdmsFadType;
+  typedef Sacado::Fad::SFad<double,18> AdmsFadType;
   typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
@@ -172,6 +172,10 @@ return ifFalse;
 void evaluateModelEquations(
 std::vector <double> & probeVars,
 // probe constants
+const int admsProbeID_V_si_GND,
+const int admsProbeID_V_e_GND,
+const int admsProbeID_V_di_GND,
+const int admsProbeID_V_g_GND,
 const int admsProbeID_V_s_si,
 const int admsProbeID_V_d_di,
 const int admsProbeID_V_e_g,
@@ -244,6 +248,78 @@ bool instancePar_given_U0MULT,
 // non-reals(including hidden)
 int instancePar_NGCON,
 bool instancePar_given_NGCON,
+// instance variables
+// reals
+AdmsSensFadType & instanceVar_WEFF,
+AdmsSensFadType & instanceVar_LEFF,
+AdmsSensFadType & instanceVar_WEFFCV,
+AdmsSensFadType & instanceVar_LEFFCV,
+AdmsSensFadType & instanceVar_IDS,
+AdmsSensFadType & instanceVar_IDEFF,
+AdmsSensFadType & instanceVar_ISEFF,
+AdmsSensFadType & instanceVar_IGTOT,
+AdmsSensFadType & instanceVar_IDSGEN,
+AdmsSensFadType & instanceVar_III,
+AdmsSensFadType & instanceVar_IGIDL,
+AdmsSensFadType & instanceVar_IGISL,
+AdmsSensFadType & instanceVar_IJSB,
+AdmsSensFadType & instanceVar_IJDB,
+AdmsSensFadType & instanceVar_ISUB,
+AdmsSensFadType & instanceVar_BETA,
+AdmsSensFadType & instanceVar_VTH,
+AdmsSensFadType & instanceVar_VDSSAT,
+AdmsSensFadType & instanceVar_VFB,
+AdmsSensFadType & instanceVar_GM,
+AdmsSensFadType & instanceVar_GDS,
+AdmsSensFadType & instanceVar_GMBS,
+AdmsSensFadType & instanceVar_QGI,
+AdmsSensFadType & instanceVar_QDI,
+AdmsSensFadType & instanceVar_QSI,
+AdmsSensFadType & instanceVar_QBI,
+AdmsSensFadType & instanceVar_QG,
+AdmsSensFadType & instanceVar_QD,
+AdmsSensFadType & instanceVar_QS,
+AdmsSensFadType & instanceVar_QB,
+AdmsSensFadType & instanceVar_CGGI,
+AdmsSensFadType & instanceVar_CGSI,
+AdmsSensFadType & instanceVar_CGDI,
+AdmsSensFadType & instanceVar_CGEI,
+AdmsSensFadType & instanceVar_CDGI,
+AdmsSensFadType & instanceVar_CDDI,
+AdmsSensFadType & instanceVar_CDSI,
+AdmsSensFadType & instanceVar_CDEI,
+AdmsSensFadType & instanceVar_CSGI,
+AdmsSensFadType & instanceVar_CSDI,
+AdmsSensFadType & instanceVar_CSSI,
+AdmsSensFadType & instanceVar_CSEI,
+AdmsSensFadType & instanceVar_CEGI,
+AdmsSensFadType & instanceVar_CEDI,
+AdmsSensFadType & instanceVar_CESI,
+AdmsSensFadType & instanceVar_CEEI,
+AdmsSensFadType & instanceVar_CGG,
+AdmsSensFadType & instanceVar_CGS,
+AdmsSensFadType & instanceVar_CGD,
+AdmsSensFadType & instanceVar_CGE,
+AdmsSensFadType & instanceVar_CDG,
+AdmsSensFadType & instanceVar_CDD,
+AdmsSensFadType & instanceVar_CDS,
+AdmsSensFadType & instanceVar_CDE,
+AdmsSensFadType & instanceVar_CSG,
+AdmsSensFadType & instanceVar_CSD,
+AdmsSensFadType & instanceVar_CSS,
+AdmsSensFadType & instanceVar_CSE,
+AdmsSensFadType & instanceVar_CEG,
+AdmsSensFadType & instanceVar_CED,
+AdmsSensFadType & instanceVar_CES,
+AdmsSensFadType & instanceVar_CEE,
+AdmsSensFadType & instanceVar_CGSEXT,
+AdmsSensFadType & instanceVar_CGDEXT,
+AdmsSensFadType & instanceVar_CGBOV,
+AdmsSensFadType & instanceVar_CJST,
+AdmsSensFadType & instanceVar_CJDT,
+AdmsSensFadType & instanceVar_RSGEO,
+AdmsSensFadType & instanceVar_RDGEO,
+AdmsSensFadType & instanceVar_CFGEO,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_L,
@@ -2120,6 +2196,78 @@ bool instancePar_given_U0MULT,
 // non-reals(including hidden)
 int instancePar_NGCON,
 bool instancePar_given_NGCON,
+// instance variables
+// reals
+AdmsSensFadType & instanceVar_WEFF,
+AdmsSensFadType & instanceVar_LEFF,
+AdmsSensFadType & instanceVar_WEFFCV,
+AdmsSensFadType & instanceVar_LEFFCV,
+AdmsSensFadType & instanceVar_IDS,
+AdmsSensFadType & instanceVar_IDEFF,
+AdmsSensFadType & instanceVar_ISEFF,
+AdmsSensFadType & instanceVar_IGTOT,
+AdmsSensFadType & instanceVar_IDSGEN,
+AdmsSensFadType & instanceVar_III,
+AdmsSensFadType & instanceVar_IGIDL,
+AdmsSensFadType & instanceVar_IGISL,
+AdmsSensFadType & instanceVar_IJSB,
+AdmsSensFadType & instanceVar_IJDB,
+AdmsSensFadType & instanceVar_ISUB,
+AdmsSensFadType & instanceVar_BETA,
+AdmsSensFadType & instanceVar_VTH,
+AdmsSensFadType & instanceVar_VDSSAT,
+AdmsSensFadType & instanceVar_VFB,
+AdmsSensFadType & instanceVar_GM,
+AdmsSensFadType & instanceVar_GDS,
+AdmsSensFadType & instanceVar_GMBS,
+AdmsSensFadType & instanceVar_QGI,
+AdmsSensFadType & instanceVar_QDI,
+AdmsSensFadType & instanceVar_QSI,
+AdmsSensFadType & instanceVar_QBI,
+AdmsSensFadType & instanceVar_QG,
+AdmsSensFadType & instanceVar_QD,
+AdmsSensFadType & instanceVar_QS,
+AdmsSensFadType & instanceVar_QB,
+AdmsSensFadType & instanceVar_CGGI,
+AdmsSensFadType & instanceVar_CGSI,
+AdmsSensFadType & instanceVar_CGDI,
+AdmsSensFadType & instanceVar_CGEI,
+AdmsSensFadType & instanceVar_CDGI,
+AdmsSensFadType & instanceVar_CDDI,
+AdmsSensFadType & instanceVar_CDSI,
+AdmsSensFadType & instanceVar_CDEI,
+AdmsSensFadType & instanceVar_CSGI,
+AdmsSensFadType & instanceVar_CSDI,
+AdmsSensFadType & instanceVar_CSSI,
+AdmsSensFadType & instanceVar_CSEI,
+AdmsSensFadType & instanceVar_CEGI,
+AdmsSensFadType & instanceVar_CEDI,
+AdmsSensFadType & instanceVar_CESI,
+AdmsSensFadType & instanceVar_CEEI,
+AdmsSensFadType & instanceVar_CGG,
+AdmsSensFadType & instanceVar_CGS,
+AdmsSensFadType & instanceVar_CGD,
+AdmsSensFadType & instanceVar_CGE,
+AdmsSensFadType & instanceVar_CDG,
+AdmsSensFadType & instanceVar_CDD,
+AdmsSensFadType & instanceVar_CDS,
+AdmsSensFadType & instanceVar_CDE,
+AdmsSensFadType & instanceVar_CSG,
+AdmsSensFadType & instanceVar_CSD,
+AdmsSensFadType & instanceVar_CSS,
+AdmsSensFadType & instanceVar_CSE,
+AdmsSensFadType & instanceVar_CEG,
+AdmsSensFadType & instanceVar_CED,
+AdmsSensFadType & instanceVar_CES,
+AdmsSensFadType & instanceVar_CEE,
+AdmsSensFadType & instanceVar_CGSEXT,
+AdmsSensFadType & instanceVar_CGDEXT,
+AdmsSensFadType & instanceVar_CGBOV,
+AdmsSensFadType & instanceVar_CJST,
+AdmsSensFadType & instanceVar_CJDT,
+AdmsSensFadType & instanceVar_RSGEO,
+AdmsSensFadType & instanceVar_RDGEO,
+AdmsSensFadType & instanceVar_CFGEO,
 // model parameters
 // reals
 AdmsSensFadType & modelPar_L,
@@ -5921,6 +6069,156 @@ public:
     double DELVTRAND;
     double U0MULT;
     //  Variables of global_instance scope
+    double WEFF;
+    double LEFF;
+    double WEFFCV;
+    double LEFFCV;
+    double IDS;
+     double d_IDS_dV_e_si;
+     double d_IDS_dV_e_di;
+     double d_IDS_dV_g_e;
+     double d_IDS_dV_g_si;
+     double d_IDS_dV_di_si;
+     double d_IDS_dV_g_di;
+    double IDEFF;
+    double ISEFF;
+    double IGTOT;
+    double IDSGEN;
+    double III;
+    double IGIDL;
+    double IGISL;
+    double IJSB;
+    double IJDB;
+    double ISUB;
+    double BETA;
+    double VTH;
+    double VDSSAT;
+    double VFB;
+    double GM;
+    double GDS;
+    double GMBS;
+    double QGI;
+     double d_QGI_dV_di_si;
+     double d_QGI_dV_e_si;
+     double d_QGI_dV_e_di;
+     double d_QGI_dV_g_e;
+     double d_QGI_dV_g_si;
+     double d_QGI_dV_g_di;
+    double QDI;
+     double d_QDI_dV_di_si;
+     double d_QDI_dV_e_si;
+     double d_QDI_dV_e_di;
+     double d_QDI_dV_g_e;
+     double d_QDI_dV_g_si;
+     double d_QDI_dV_g_di;
+    double QSI;
+     double d_QSI_dV_di_si;
+     double d_QSI_dV_e_si;
+     double d_QSI_dV_e_di;
+     double d_QSI_dV_g_e;
+     double d_QSI_dV_g_si;
+     double d_QSI_dV_g_di;
+    double QBI;
+     double d_QBI_dV_e_si;
+     double d_QBI_dV_e_di;
+     double d_QBI_dV_g_e;
+     double d_QBI_dV_g_si;
+     double d_QBI_dV_di_si;
+     double d_QBI_dV_g_di;
+    double QG;
+     double d_QG_dV_di_si;
+     double d_QG_dV_e_si;
+     double d_QG_dV_e_di;
+     double d_QG_dV_g_e;
+     double d_QG_dV_g_si;
+     double d_QG_dV_g_di;
+     double d_QG_dV_g_s;
+     double d_QG_dV_g_d;
+     double d_QG_dV_e_g;
+    double QD;
+     double d_QD_dV_di_si;
+     double d_QD_dV_e_si;
+     double d_QD_dV_e_di;
+     double d_QD_dV_g_e;
+     double d_QD_dV_g_si;
+     double d_QD_dV_g_di;
+     double d_QD_dV_g_d;
+     double d_QD_dV_di_d;
+     double d_QD_dV_si_s;
+    double QS;
+     double d_QS_dV_di_si;
+     double d_QS_dV_e_si;
+     double d_QS_dV_e_di;
+     double d_QS_dV_g_e;
+     double d_QS_dV_g_si;
+     double d_QS_dV_g_di;
+     double d_QS_dV_g_s;
+     double d_QS_dV_di_d;
+     double d_QS_dV_si_s;
+    double QB;
+     double d_QB_dV_e_si;
+     double d_QB_dV_e_di;
+     double d_QB_dV_g_e;
+     double d_QB_dV_g_si;
+     double d_QB_dV_di_si;
+     double d_QB_dV_g_di;
+     double d_QB_dV_e_g;
+     double d_QB_dV_di_d;
+     double d_QB_dV_si_s;
+    double CGGI;
+    double CGSI;
+    double CGDI;
+    double CGEI;
+    double CDGI;
+    double CDDI;
+    double CDSI;
+    double CDEI;
+    double CSGI;
+    double CSDI;
+    double CSSI;
+    double CSEI;
+    double CEGI;
+    double CEDI;
+    double CESI;
+    double CEEI;
+    double CGG;
+    double CGS;
+    double CGD;
+    double CGE;
+    double CDG;
+    double CDD;
+    double CDS;
+    double CDE;
+    double CSG;
+    double CSD;
+    double CSS;
+    double CSE;
+    double CEG;
+    double CED;
+    double CES;
+    double CEE;
+    double CGSEXT;
+     double d_CGSEXT_dV_g_s;
+     double d_CGSEXT_dV_g_di;
+     double d_CGSEXT_dV_e_si;
+     double d_CGSEXT_dV_e_di;
+     double d_CGSEXT_dV_g_e;
+     double d_CGSEXT_dV_g_si;
+     double d_CGSEXT_dV_di_si;
+    double CGDEXT;
+     double d_CGDEXT_dV_g_d;
+     double d_CGDEXT_dV_g_di;
+     double d_CGDEXT_dV_e_si;
+     double d_CGDEXT_dV_e_di;
+     double d_CGDEXT_dV_g_e;
+     double d_CGDEXT_dV_g_si;
+     double d_CGDEXT_dV_di_si;
+    double CGBOV;
+    double CJST;
+    double CJDT;
+    double RSGEO;
+    double RDGEO;
+    double CFGEO;
     // end verilog Instance Variables=====
     // Nodal LID Variables
     int li_d;
@@ -6061,24 +6359,98 @@ public:
    // Additional IDs for branch equations
    // end branch numbers
    // Probe numbers
-    static const int admsProbeID_V_s_si = 0;
-    static const int admsProbeID_V_d_di = 1;
-    static const int admsProbeID_V_e_g = 2;
-    static const int admsProbeID_V_d_s = 3;
-    static const int admsProbeID_V_g_d = 4;
-    static const int admsProbeID_V_g_s = 5;
-    static const int admsProbeID_V_di_d = 6;
-    static const int admsProbeID_V_si_s = 7;
-    static const int admsProbeID_V_g_e = 8;
-    static const int admsProbeID_V_e_di = 9;
-    static const int admsProbeID_V_e_si = 10;
-    static const int admsProbeID_V_g_di = 11;
-    static const int admsProbeID_V_di_si = 12;
-    static const int admsProbeID_V_g_si = 13;
+    static const int admsProbeID_V_si_GND = 0;
+    static const int admsProbeID_V_e_GND = 1;
+    static const int admsProbeID_V_di_GND = 2;
+    static const int admsProbeID_V_g_GND = 3;
+    static const int admsProbeID_V_s_si = 4;
+    static const int admsProbeID_V_d_di = 5;
+    static const int admsProbeID_V_e_g = 6;
+    static const int admsProbeID_V_d_s = 7;
+    static const int admsProbeID_V_g_d = 8;
+    static const int admsProbeID_V_g_s = 9;
+    static const int admsProbeID_V_di_d = 10;
+    static const int admsProbeID_V_si_s = 11;
+    static const int admsProbeID_V_g_e = 12;
+    static const int admsProbeID_V_e_di = 13;
+    static const int admsProbeID_V_e_si = 14;
+    static const int admsProbeID_V_g_di = 15;
+    static const int admsProbeID_V_di_si = 16;
+    static const int admsProbeID_V_g_si = 17;
    // end probe numbers
    // Store LIDs
    // end store LIDs
    // Store LIDs for output vars
+    int li_store_WEFF;
+    int li_store_LEFF;
+    int li_store_WEFFCV;
+    int li_store_LEFFCV;
+    int li_store_IDS;
+    int li_store_IDEFF;
+    int li_store_ISEFF;
+    int li_store_IGTOT;
+    int li_store_IDSGEN;
+    int li_store_III;
+    int li_store_IGIDL;
+    int li_store_IGISL;
+    int li_store_IJSB;
+    int li_store_IJDB;
+    int li_store_ISUB;
+    int li_store_BETA;
+    int li_store_VTH;
+    int li_store_VDSSAT;
+    int li_store_VFB;
+    int li_store_GM;
+    int li_store_GDS;
+    int li_store_GMBS;
+    int li_store_QGI;
+    int li_store_QDI;
+    int li_store_QSI;
+    int li_store_QBI;
+    int li_store_QG;
+    int li_store_QD;
+    int li_store_QS;
+    int li_store_QB;
+    int li_store_CGGI;
+    int li_store_CGSI;
+    int li_store_CGDI;
+    int li_store_CGEI;
+    int li_store_CDGI;
+    int li_store_CDDI;
+    int li_store_CDSI;
+    int li_store_CDEI;
+    int li_store_CSGI;
+    int li_store_CSDI;
+    int li_store_CSSI;
+    int li_store_CSEI;
+    int li_store_CEGI;
+    int li_store_CEDI;
+    int li_store_CESI;
+    int li_store_CEEI;
+    int li_store_CGG;
+    int li_store_CGS;
+    int li_store_CGD;
+    int li_store_CGE;
+    int li_store_CDG;
+    int li_store_CDD;
+    int li_store_CDS;
+    int li_store_CDE;
+    int li_store_CSG;
+    int li_store_CSD;
+    int li_store_CSS;
+    int li_store_CSE;
+    int li_store_CEG;
+    int li_store_CED;
+    int li_store_CES;
+    int li_store_CEE;
+    int li_store_CGSEXT;
+    int li_store_CGDEXT;
+    int li_store_CGBOV;
+    int li_store_CJST;
+    int li_store_CJDT;
+    int li_store_RSGEO;
+    int li_store_RDGEO;
+    int li_store_CFGEO;
    // end store LIDs for output vars
  // Arrays to hold probes
  std::vector < double > probeVars;

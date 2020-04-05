@@ -44,7 +44,7 @@ namespace Measure {
 
 //-------------------------------------------------------------------------
 // Class         : RMS
-// Purpose       : Measure statistics of a simulation variable
+// Purpose       : Measure the RMS value of a simulation variable
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
@@ -86,15 +86,16 @@ public:
     const Util::Op::RFparamsData *RFparams);
 
   double getMeasureResult();
+  std::ostream& printMeasureWindow(std::ostream& os, const double indepVarValue);
 
 private:
   std::string type_;
   int numOutVars_;
   std::vector<double> outVarValues_;
-  double rootMeanSquareValue_;
-  double lastTimeValue_;
+  double integralXsq_;  // integral of X*X
+  double lastIndepVarValue_;
   double lastSignalValue_;
-  double totalAveragingWindow_;
+  double totalIntegrationWindow_;
 };
 
 } // namespace Measure

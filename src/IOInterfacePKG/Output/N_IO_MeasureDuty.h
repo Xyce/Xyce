@@ -44,7 +44,7 @@ namespace Measure {
 
 //-------------------------------------------------------------------------
 // Class         : Duty
-// Purpose       : Measure statistics of a simulation variable
+// Purpose       : Measure the duty cycle of a simulation variable
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009

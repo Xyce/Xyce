@@ -22,7 +22,7 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Measure rise/fall delay times
+// Purpose        : Measure rise/fall delay times for TRIG-TARG measures
 //
 // Special Notes  :
 //
