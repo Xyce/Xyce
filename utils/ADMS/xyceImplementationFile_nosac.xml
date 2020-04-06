@@ -2976,7 +2976,9 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
     <admst:text format="   if (!(in.given(&quot;%(name)&quot;)))\n"/>
     <admst:text format="   {\n"/>
     <admst:text format="      instancePar_%(name) = modelPar_%(name);\n"/>
-    <admst:text format="      d_instancePar_%(name)_dX = d_modelPar_%(name)_dX;\n"/>
+    <admst:if test="[type='real']">
+      <admst:text format="      d_instancePar_%(name)_dX = d_modelPar_%(name)_dX;\n"/>
+    </admst:if>
     <admst:text format="   }\n"/>
   </admst:for-each>
 

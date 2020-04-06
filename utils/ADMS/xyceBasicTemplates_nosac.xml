@@ -5932,9 +5932,6 @@ other variables does not get propagated into a variable's
         <admst:variable name="expression" select="std::min"/>
         <admst:variable name="args" select=""/>
         <admst:for-each select="arguments">
-          <admst:if test="[($globalCurrentScope='sensitivity' and exists(#Pdependent))]">
-            <admst:variable name="expression" select="min"/>
-          </admst:if>
           <admst:if test="[$args!='']">
             <admst:variable name="args" select="$args,"/>
           </admst:if>
@@ -5948,9 +5945,6 @@ other variables does not get propagated into a variable's
         <admst:variable name="expression" select="std::max"/>
         <admst:variable name="args" select=""/>
         <admst:for-each select="arguments">
-          <admst:if test="[($globalCurrentScope='sensitivity' and exists(#Pdependent))]">
-            <admst:variable name="expression" select="max"/>
-          </admst:if>
           <admst:if test="[$args!='']">
             <admst:variable name="args" select="$args,"/>
           </admst:if>
