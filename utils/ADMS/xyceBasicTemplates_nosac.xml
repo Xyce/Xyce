@@ -2032,6 +2032,10 @@ other variables does not get propagated into a variable's
 <admst:template match="recursiveDetectParameterDependence">
   <admst:variable name="isDependent" value="no"/>
   <admst:choose>
+    <!-- if we've already been through this and already flagged as pdep, don't do again -->
+    <admst:when test="[exists(#Pdependent)]">
+      <admst:variable name="isDependent" value="yes"/>
+    </admst:when>
     <admst:when test="[datatypename='number']">
       <!-- no changie da value.  -->
     </admst:when>
@@ -3448,11 +3452,13 @@ other variables does not get propagated into a variable's
       <admst:variable name="expressionDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
       <admst:variable name="expressionDeriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
       <admst:variable name="expressionDeriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
+      <admst:variable name="expressionDerivX" select="%(returned('returnedExpressionDerivX')/value)"/>
     </admst:apply-templates>
     <admst:return name="returnedExpression" value="$expression"/>
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
     <admst:return name="returnedExpressionDeriv2" value="$expressionDeriv2"/>
     <admst:return name="returnedExpressionDeriv12" value="$expressionDeriv12"/>
+    <admst:return name="returnedExpressionDerivX" value="$expressionDerivX"/>
   </admst:template>
 
   <!--
@@ -3493,11 +3499,13 @@ other variables does not get propagated into a variable's
       <admst:variable name="expressionDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
       <admst:variable name="expressionDeriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
       <admst:variable name="expressionDeriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
+      <admst:variable name="expressionDerivX" select="%(returned('returnedExpressionDerivX')/value)"/>
     </admst:apply-templates>
     <admst:return name="returnedExpression" value="$expression"/>
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
     <admst:return name="returnedExpressionDeriv2" value="$expressionDeriv2"/>
     <admst:return name="returnedExpressionDeriv12" value="$expressionDeriv12"/>
+    <admst:return name="returnedExpressionDerivX" value="$expressionDerivX"/>
   </admst:template>
 
   <!--
@@ -3535,6 +3543,7 @@ other variables does not get propagated into a variable's
     <admst:return name="returnedExpressionDeriv" value="0.0"/>
     <admst:return name="returnedExpressionDeriv2" value="0.0"/>
     <admst:return name="returnedExpressionDeriv12" value="0.0"/>
+    <admst:return name="returnedExpressionDerivX" value="0.0"/>
   </admst:template>
 
   <!--
@@ -3551,12 +3560,14 @@ other variables does not get propagated into a variable's
     <admst:if test="[name='bw_not']"> <admst:variable name="op" select="~"/> </admst:if>
     <admst:variable name="expressionDeriv2" select="0.0"/>
     <admst:variable name="expressionDeriv12" select="0.0"/>
+    <admst:variable name="expressionDerivX" select="0.0"/>
     <admst:choose>
       <admst:when test="[arg1/math/value=0.0]">
         <admst:variable name="expression" select="0.0"/>
         <admst:variable name="expressionDeriv" select="0.0"/>
         <admst:variable name="expressionDeriv2" select="0.0"/>
         <admst:variable name="expressionDeriv12" select="0.0"/>
+        <admst:variable name="expressionDerivX" select="0.0"/>
       </admst:when>
       <admst:otherwise>
         <admst:value-of select="arg1/adms/datatypename"/>
@@ -3570,6 +3581,10 @@ other variables does not get propagated into a variable's
             <admst:variable name="a1Deriv2" select="%s"/>
             <admst:value-of select="returned('returnedExpressionDeriv12')/value"/>
             <admst:variable name="a1Deriv12" select="%s"/>
+          </admst:if>
+          <admst:if test="[$globalCurrentScope='sensitivity' and exists(#Pdependent)]">
+            <admst:value-of  select="returned('returnedExpressionDerivX')/value"/>
+            <admst:variable name="a1DerivX" select="%s"/>
           </admst:if>
           <admst:choose>
             <admst:when test="[$a1Deriv='0.0']">
@@ -3597,6 +3612,16 @@ other variables does not get propagated into a variable's
               </admst:otherwise>
             </admst:choose>
           </admst:if>
+          <admst:if test="[$globalCurrentScope='sensitivity' and exists(#Pdependent)]">
+            <admst:choose>
+              <admst:when test="[$a1DerivX='0.0']">
+                <admst:variable name="expressionDerivX" select="0.0"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDerivX" select="($op$a1DerivX)"/>
+              </admst:otherwise>
+            </admst:choose>
+          </admst:if>
         </admst:apply-templates>
       </admst:otherwise>
     </admst:choose>
@@ -3604,6 +3629,7 @@ other variables does not get propagated into a variable's
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
     <admst:return name="returnedExpressionDeriv2" value="$expressionDeriv2"/>
     <admst:return name="returnedExpressionDeriv12" value="$expressionDeriv12"/>
+    <admst:return name="returnedExpressionDerivX" value="$expressionDerivX"/>
 
   </admst:template>
 
@@ -3624,6 +3650,8 @@ other variables does not get propagated into a variable's
       <admst:variable name="a1Deriv2" select="%s"/>
       <admst:value-of select="returned('returnedExpressionDeriv12')/value"/>
       <admst:variable name="a1Deriv12" select="%s"/>
+      <admst:value-of select="returned('returnedExpressionDerivX')/value"/>
+      <admst:variable name="a1DerivX" select="%s"/>
     </admst:apply-templates>
     <admst:apply-templates select="arg2" match="processTerm">
       <admst:value-of select="returned('returnedExpression')/value"/>
@@ -3634,9 +3662,12 @@ other variables does not get propagated into a variable's
       <admst:variable name="a2Deriv2" select="%s"/>
       <admst:value-of select="returned('returnedExpressionDeriv12')/value"/>
       <admst:variable name="a2Deriv12" select="%s"/>
+      <admst:value-of select="returned('returnedExpressionDerivX')/value"/>
+      <admst:variable name="a2DerivX" select="%s"/>
     </admst:apply-templates>
     <admst:variable name="expressionDeriv2" select="0.0"/>
     <admst:variable name="expressionDeriv12" select="0.0"/>
+    <admst:variable name="expressionDerivX" select="0.0"/>
     <admst:choose>
       <!-- addition -->
       <admst:when test="[name='addp']">
@@ -3646,6 +3677,7 @@ other variables does not get propagated into a variable's
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
+            <admst:variable name="expressionDerivX" select="0.0"/>
           </admst:when>
           <admst:when test="[arg1/math/value=0.0 or $a1='0.0']">
             <admst:variable name="expression" select="%($a2)"/>
@@ -3675,6 +3707,16 @@ other variables does not get propagated into a variable's
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
+            <admst:if test="[$globalCurrentScope='sensitivity' and (exists(arg1/#Pdependent)  or exists(arg2/#Pdependent))]">
+              <admst:choose>
+                <admst:when test="[$a2DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="%($a2DerivX)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:when>
           <admst:when test="[arg2/math/value=0.0 or $a2='0.0']">
             <admst:variable name="expression" select="%($a1)"/>
@@ -3701,6 +3743,16 @@ other variables does not get propagated into a variable's
                 </admst:when>
                 <admst:otherwise>
                   <admst:variable name="expressionDeriv12" select="%($a1Deriv12)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
+            <admst:if test="[$globalCurrentScope='sensitivity' and (exists(arg1/#Pdependent) or exists(arg2/#Pdependent))]">
+              <admst:choose>
+                <admst:when test="[$a1DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="%($a1DerivX)"/>
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
@@ -3751,6 +3803,22 @@ other variables does not get propagated into a variable's
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
+            <admst:if test="[$globalCurrentScope='sensitivity' and (exists(arg1/#Pdependent) or exists(arg2/#Pdependent)) ]">
+              <admst:choose>
+                <admst:when test="[$a1DerivX = '0.0' and $a2DerivX ='0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:when test="[$a1DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="$a2DerivX"/>
+                </admst:when>
+                <admst:when test="[$a2DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="$a1DerivX"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="($a1DerivX+$a2DerivX)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:otherwise>
         </admst:choose>
       </admst:when>
@@ -3762,6 +3830,7 @@ other variables does not get propagated into a variable's
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
+            <admst:variable name="expressionDerivX" select="0.0"/>
           </admst:when>
           <admst:when test="[arg1/math/value=0.0 or $a1='0.0']">
             <admst:variable name="expression" select="(-%($a2))"/>
@@ -3791,6 +3860,16 @@ other variables does not get propagated into a variable's
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
+            <admst:if test="[$globalCurrentScope='sensitivity' and (exists(arg1/#Pdependent) or exists(arg2/#Pdependent)) ]">
+              <admst:choose>
+                <admst:when test="[$a2DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="(-%($a2DerivX))"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:when>
           <admst:when test="[arg2/math/value=0.0 or $a2='0.0']">
             <admst:variable name="expression" select="(%($a1))"/>
@@ -3817,6 +3896,16 @@ other variables does not get propagated into a variable's
                 </admst:when>
                 <admst:otherwise>
                   <admst:variable name="expressionDeriv12" select="%($a1Deriv12)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
+            <admst:if test="[$globalCurrentScope='sensitivity' and (exists(arg1/#Pdependent) or exists(arg2/#Pdependent)) ]">
+              <admst:choose>
+                <admst:when test="[$a1DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="%($a1DerivX)"/>
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
@@ -3867,6 +3956,22 @@ other variables does not get propagated into a variable's
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
+            <admst:if test="[$globalCurrentScope='sensitivity' and (exists(arg1/#Pdependent) or exists(arg2/#Pdependent)) ]">
+              <admst:choose>
+                <admst:when test="[$a1DerivX = '0.0' and $a2DerivX ='0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:when test="[$a1DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="(-$a2DerivX)"/>
+                </admst:when>
+                <admst:when test="[$a2DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="$a1DerivX"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="($a1DerivX-$a2DerivX)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:otherwise>
         </admst:choose>
       </admst:when>
@@ -3877,12 +3982,14 @@ other variables does not get propagated into a variable's
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
+            <admst:variable name="expressionDerivX" select="0.0"/>
           </admst:when>
           <admst:when test="[((arg1/math/value=1.0) and (arg2/math/value=1.0)) or ($a1='1.0' and $a2='1.0')]">
             <admst:variable name="expression" select="1.0"/>
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
+            <admst:variable name="expressionDerivX" select="0.0"/>
           </admst:when>
           <admst:otherwise>
             <admst:variable name="expression" select="($a1*$a2)"/>
@@ -4059,6 +4166,44 @@ other variables does not get propagated into a variable's
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
+            <!-- now sensitivity deriv if needed -->
+            <admst:if test="[$globalCurrentScope='sensitivity' and (exists(arg1/#Pdependent) or exists(arg2/#Pdependent)) ]">
+              <admst:choose>
+                <admst:when test="[$a1DerivX = '0.0' and $a2DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:when test="[$a1DerivX = '0.0' and $a2DerivX = '1.0']">
+                  <admst:variable name="expressionDerivX" select="$a1"/>
+                </admst:when>
+                <admst:when test="[$a1DerivX = '1.0' and $a2DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="$a2"/>
+                </admst:when>
+                <admst:when test="[$a1DerivX = '1.0' and $a2DerivX = '1.0']">
+                  <admst:variable name="expressionDerivX" select="($a1+$a2)"/>
+                </admst:when>
+                <admst:when test="[$a1DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="$a1*$a2DerivX"/>
+                </admst:when>
+                <admst:when test="[$a2DerivX = '0.0']">
+                  <admst:variable name="expressionDerivX" select="$a1DerivX*$a2"/>
+                </admst:when>
+                <admst:when test="[$a1DerivX = '1.0']">
+                  <admst:variable name="expressionDerivX" select="($a1*$a2DerivX+$a2)"/>
+                </admst:when>
+                <admst:when test="[$a2DerivX = '1.0']">
+                  <admst:variable name="expressionDerivX" select="($a1+$a2*$a1DerivX)"/>
+                </admst:when>
+                <admst:when test="[$a1 = '1.0']">
+                  <admst:variable name="expressionDerivX" select="$a2DerivX"/>
+                </admst:when>
+                <admst:when test="[$a2 = '1.0']">
+                  <admst:variable name="expressionDerivX" select="($a1DerivX)"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="($a1*$a2DerivX+$a1DerivX*$a2)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:otherwise>
         </admst:choose>
       </admst:when>
@@ -4075,12 +4220,14 @@ other variables does not get propagated into a variable's
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
+            <admst:variable name="expressionDerivX" select="0.0"/>
           </admst:when>
           <admst:when test="[((arg1/math/value=1.0)and(arg2/math/value=1.0)) or ($a1='1.0' and $a2='1.0')]">
             <admst:variable name="expression" select="1.0"/>
             <admst:variable name="expressionDeriv" select="0.0"/>
             <admst:variable name="expressionDeriv2" select="0.0"/>
             <admst:variable name="expressionDeriv12" select="0.0"/>
+            <admst:variable name="expressionDerivX" select="0.0"/>
           </admst:when>
           <admst:otherwise>
             <admst:variable name="expression" select="($a1/$a2)"/>
@@ -4327,6 +4474,63 @@ other variables does not get propagated into a variable's
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
+            <!-- now sensitivity deriv if needed -->
+            <admst:if test="[$globalCurrentScope='sensitivity' and (exists(arg1/#Pdependent) or exists(arg2/#Pdependent)) ]">
+              <admst:choose>
+                <admst:when test="[$a1DerivX='0.0' and $a2DerivX='0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:when test="[$a1 = '1.0']">
+                  <admst:choose>
+                    <admst:when test="[$a2DerivX = '1.0']">
+                      <admst:variable name="expressionDerivX" select="(-1.0/$a2/$a2)"/>
+                    </admst:when>
+                    <admst:otherwise>
+                      <admst:variable name="expressionDerivX" select="(-$a2DerivX/$a2/$a2)"/>
+                    </admst:otherwise>
+                  </admst:choose>
+                </admst:when>
+                <admst:when test="[$a1DerivX = '0.0']">
+                  <admst:choose>
+                    <admst:when test="[$a2DerivX = '1.0']">
+                      <admst:variable name="expressionDerivX" select="(-$a1/$a2/$a2)"/>
+                    </admst:when>
+                    <admst:otherwise>
+                      <admst:variable name="expressionDerivX" select="(-$a1*$a2DerivX/$a2/$a2)"/>
+                    </admst:otherwise>
+                  </admst:choose>
+                </admst:when>
+                <admst:when test="[$a1DerivX = '1.0']">
+                  <admst:choose>
+                    <admst:when test="[$a2DerivX = '0.0']">
+                      <admst:variable name="expressionDerivX" select="(1.0/$a2)"/>
+                    </admst:when>
+                    <admst:when test="[$a2DerivX = '1.0']">
+                      <admst:variable name="expressionDerivX" select="(($a2-$a1)/$a2/$a2)"/>
+                    </admst:when>
+                    <admst:otherwise>
+                      <admst:variable name="expressionDerivX" select="(($a2-($a1*$a2DerivX))/$a2/$a2)"/>
+                    </admst:otherwise>
+                  </admst:choose>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:choose>
+                    <admst:when test="[$a2 = '1.0']">
+                      <admst:variable name="expressionDerivX" select="$a1DerivX"/>
+                    </admst:when>
+                    <admst:when test="[$a2DerivX = '0.0']">
+                      <admst:variable name="expressionDerivX" select="($a1DerivX/$a2)"/>
+                    </admst:when>
+                    <admst:when test="[$a2DerivX = '1.0']">
+                      <admst:variable name="expressionDerivX" select="(($a2*$a1DerivX-$a1)/$a2/$a2)"/>
+                    </admst:when>
+                    <admst:otherwise>
+                      <admst:variable name="expressionDerivX" select="(($a2*$a1DerivX-$a1*$a2DerivX)/$a2/$a2)"/>
+                    </admst:otherwise>
+                  </admst:choose>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:otherwise>
         </admst:choose>
       </admst:when>
@@ -4337,12 +4541,14 @@ other variables does not get propagated into a variable's
         <admst:variable name="expressionDeriv" select="0.0"/>
         <admst:variable name="expressionDeriv2" select="0.0"/>
         <admst:variable name="expressionDeriv12" select="0.0"/>
+        <admst:variable name="expressionDerivX" select="0.0"/>
       </admst:otherwise>
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
     <admst:return name="returnedExpressionDeriv2" value="$expressionDeriv2"/>
     <admst:return name="returnedExpressionDeriv12" value="$expressionDeriv12"/>
+    <admst:return name="returnedExpressionDerivX" value="$expressionDerivX"/>
   </admst:template>
 
   <!--
@@ -4357,6 +4563,14 @@ other variables does not get propagated into a variable's
       <admst:value-of select="returned('returnedExpression')/value"/>
       <admst:variable name="a1" select="%s"/>
     </admst:apply-templates>
+    <admst:if test="[$globalCurrentScope='sensitivity']">
+      <admst:apply-templates select="arg2" match="recursiveDetectParameterDependence">
+        <admst:variable name="arg2Pdep" value="%(returned('isDependent')/value)"/>
+      </admst:apply-templates>
+      <admst:apply-templates select="arg3" match="recursiveDetectParameterDependence">
+        <admst:variable name="arg3Pdep" value="%(returned('isDependent')/value)"/>
+      </admst:apply-templates>
+    </admst:if>
     <admst:apply-templates select="arg2" match="processTerm">
       <admst:value-of select="returned('returnedExpression')/value"/>
       <admst:variable name="a2" select="%s"/>
@@ -4366,6 +4580,8 @@ other variables does not get propagated into a variable's
       <admst:variable name="a2Deriv2" select="%s"/>
       <admst:value-of select="returned('returnedExpressionDeriv12')/value"/>
       <admst:variable name="a2Deriv12" select="%s"/>
+      <admst:value-of select="returned('returnedExpressionDerivX')/value"/>
+      <admst:variable name="a2DerivX" select="%s"/>
     </admst:apply-templates>
     <admst:apply-templates select="arg3" match="processTerm">
       <admst:value-of select="returned('returnedExpression')/value"/>
@@ -4376,23 +4592,22 @@ other variables does not get propagated into a variable's
       <admst:variable name="a3Deriv2" select="%s"/>
       <admst:value-of select="returned('returnedExpressionDeriv12')/value"/>
       <admst:variable name="a3Deriv12" select="%s"/>
+      <admst:value-of select="returned('returnedExpressionDerivX')/value"/>
+      <admst:variable name="a3DerivX" select="%s"/>
     </admst:apply-templates>
     <admst:variable name="expressionDeriv2" select="0.0"/>
     <admst:variable name="expressionDeriv12" select="0.0"/>
+    <admst:variable name="expressionDerivX" select="0.0"/>
     <admst:choose>
       <admst:when test="[$globalCurrentScope='sensitivity']">
-        <admst:apply-templates select="arg2" match="recursiveDetectParameterDependence">
-          <admst:variable name="arg2Pdep" value="%(returned('isDependent')/value)"/>
-        </admst:apply-templates>
-        <admst:apply-templates select="arg3" match="recursiveDetectParameterDependence">
-          <admst:variable name="arg3Pdep" value="%(returned('isDependent')/value)"/>
-        </admst:apply-templates>
         <admst:choose>
           <admst:when test="[$arg2Pdep = 'yes' or $arg3Pdep='yes']">
             <admst:variable name="expression" select="adms_ternary_op&lt;AdmsSensFadType&gt;($a1,$a2,$a3)"/>
+            <admst:variable name="expressionDerivX" select="($a1?$a2DerivX:$a3DerivX)"/>
           </admst:when>
           <admst:otherwise>
             <admst:variable name="expression" select="($a1?$a2:$a3)"/>
+            <admst:variable name="expressionDerivX" select="0.0"/>
           </admst:otherwise>
         </admst:choose>
         <admst:variable name="expressionDeriv" select=""/>
@@ -4409,12 +4624,14 @@ other variables does not get propagated into a variable's
         <admst:variable name="expressionDeriv" select="($a1?$a2Deriv:$a3Deriv)"/>
         <admst:variable name="expressionDeriv2" select="($a1?$a2Deriv2:$a3Deriv2)"/>
         <admst:variable name="expressionDeriv12" select="($a1?$a2Deriv12:$a3Deriv12)"/>
+        <admst:variable name="expressionDerivX" select="($a1?$a2DerivX:$a3DerivX)"/>
       </admst:otherwise>
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
     <admst:return name="returnedExpressionDeriv2" value="$expressionDeriv2"/>
     <admst:return name="returnedExpressionDeriv12" value="$expressionDeriv12"/>
+    <admst:return name="returnedExpressionDerivX" value="$expressionDerivX"/>
   </admst:template>
 
   <!--
@@ -4901,6 +5118,7 @@ other variables does not get propagated into a variable's
     <admst:variable name="expression" select="(probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)])"/>
     <admst:variable name="expressionDeriv2" select="0.0"/>
     <admst:variable name="expressionDeriv12" select="0.0"/>
+    <admst:variable name="expressionDerivX" select="0.0"/>
     <admst:choose>
       <admst:when test="[.=$derivProbe]">
         <admst:variable name="expressionDeriv" select="d_probeVars[%(xyceProbeConstantName(.)/[name='probeConstant']/value)][%(xyceProbeConstantName(.)/[name='probeConstant']/value)]"/>
@@ -4923,6 +5141,7 @@ other variables does not get propagated into a variable's
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
     <admst:return name="returnedExpressionDeriv2" value="$expressionDeriv2"/>
     <admst:return name="returnedExpressionDeriv12" value="$expressionDeriv12"/>
+    <admst:return name="returnedExpressionDerivX" value="$expressionDerivX"/>
   </admst:template>
 
   <!--
@@ -4998,6 +5217,10 @@ other variables does not get propagated into a variable's
     <admst:variable name="expressionDeriv" select="0.0"/>
     <admst:variable name="expressionDeriv2" select="0.0"/>
     <admst:variable name="expressionDeriv12" select="0.0"/>
+    <admst:variable name="expressionDerivX" select="0.0"/>
+    <admst:if test="[$globalCurrentScope='sensitivity' and (exists(#Pdependent))]">
+      <admst:variable name="expressionDerivX" select="d_%(name)_dX"/>
+    </admst:if>
     <admst:if test="[insource='yes' or not(nilled(ddxprobe))]">
       <admst:if-inside select="$derivProbe" list="%(probe)">
         <admst:variable name="expressionDeriv" select="d_%(name)_d%($derivProbe/nature/access)_%($derivProbe/branch/pnode/name)_%($derivProbe/branch/nnode/name)"/>
@@ -5034,6 +5257,7 @@ other variables does not get propagated into a variable's
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
     <admst:return name="returnedExpressionDeriv2" value="$expressionDeriv2"/>
     <admst:return name="returnedExpressionDeriv12" value="$expressionDeriv12"/>
+    <admst:return name="returnedExpressionDerivX" value="$expressionDerivX"/>
   </admst:template>
 
   <!--
@@ -5052,6 +5276,7 @@ other variables does not get propagated into a variable's
     <admst:variable name="expressionDeriv" select="0.0"/>
     <admst:variable name="expressionDeriv2" select="0.0"/>
     <admst:variable name="expressionDeriv12" select="0.0"/>
+    <admst:variable name="expressionDerivX" select="0.0"/>
     <admst:choose>
       <admst:when test="[name='min' or name='max']">
         <admst:choose>
@@ -5078,6 +5303,10 @@ other variables does not get propagated into a variable's
             <admst:variable name="expressionDeriv2" select="(%(returned('returnedExpressionDeriv2')/value))"/>
             <admst:variable name="expressionDeriv12" select="(%(returned('returnedExpressionDeriv12')/value))"/>
           </admst:if>
+          <admst:if test="[$globalCurrentScope='sensitivity' and exists(#Pdependent)]">
+            <admst:variable name="expressionDerivX" select="(%(returned('returnedExpressionDerivX')/value))"/>
+          </admst:if>
+
         </admst:apply-templates>
       </admst:when>
       <admst:when test="[name='\$given' or name='\$param_given']">
@@ -5312,6 +5541,8 @@ other variables does not get propagated into a variable's
           </admst:otherwise>
         </admst:choose>
       </admst:when>
+      <!-- TVR STOPPED HERE! -->
+      <!-- Pick up where you left off -->
       <admst:when test="[$skipFunctionPrecomp='y']">
         <!-- if we aren't caught by anything above, and this is set,
              proceed as normal -->
@@ -5377,6 +5608,7 @@ other variables does not get propagated into a variable's
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
               <admst:variable name="a1Deriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
               <admst:variable name="a1Deriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
+              <admst:variable name="a1DerivX" select="%(returned('returnedExpressionDerivX')/value)"/>
             </admst:apply-templates>
             <admst:choose>
               <admst:when test="[$a1Deriv='0.0']">
@@ -5424,6 +5656,16 @@ other variables does not get propagated into a variable's
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
+            <admst:if test="[$globalCurrentScope='sensitivity' and exists(arguments[1]/#Pdependent)]">
+              <admst:choose>
+                <admst:when test="[$a1DerivX='0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1DerivX)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:when>
           <!-- two-argument functions -->
           <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
@@ -5431,11 +5673,13 @@ other variables does not get propagated into a variable's
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
               <admst:variable name="a1Deriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
               <admst:variable name="a1Deriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
+              <admst:variable name="a1DerivX" select="%(returned('returnedExpressionDerivX')/value)"/>
             </admst:apply-templates>
             <admst:apply-templates select="arguments[2]" match="processTerm">
               <admst:variable name="a2Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
               <admst:variable name="a2Deriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
               <admst:variable name="a2Deriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
+              <admst:variable name="a2DerivX" select="%(returned('returnedExpressionDerivX')/value)"/>
             </admst:apply-templates>
             <admst:choose>
               <admst:when test="[$a1Deriv='0.0' and $a2Deriv='0.0']">
@@ -5546,6 +5790,22 @@ other variables does not get propagated into a variable's
                 </admst:otherwise>
               </admst:choose>
             </admst:if>
+            <admst:if test="[$globalCurrentScope='sensitivity' and (exists(arguments[1]/#Pdependent) or exists(arguments[2]/#Pdependent))]">
+              <admst:choose>
+                <admst:when test="[$a1DerivX='0.0' and $a2DerivX='0.0']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:when test="[$a2DerivX='0.0']">
+                  <admst:variable name="expressionDerivX" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1DerivX))"/>
+                </admst:when>
+                <admst:when test="[$a1DerivX='0.0']">
+                  <admst:variable name="expressionDerivX" select="(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2DerivX))"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="((deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d0*($a1DerivX))+(deriv_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.))_d1*($a2DerivX)))"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:when>
           <admst:otherwise>
             <admst:variable name="thisFunctionCall" path="."/>
@@ -5554,9 +5814,11 @@ other variables does not get propagated into a variable's
               <admst:variable name="expressionDeriv" select="FIXME/*derivatives for %(name) not implemented*/"/>
               <admst:variable name="expressionDeriv2" select="FIXME/*derivatives for %(name) not implemented*/"/>
               <admst:variable name="expressionDeriv12" select="FIXME/*derivatives for %(name) not implemented*/"/>
+              <admst:variable name="expressionDerivX" select="FIXME/*derivatives for %(name) not implemented*/"/>
             </admst:if>
             <admst:variable name="argsDep" select="no"/>
             <admst:variable name="argsDep2" select="no"/>
+            <admst:variable name="argsDepX" select="no"/>
             <admst:if test="[definition/datatypename='analogfunction']">
               <admst:if test="[exists(definition/variable[(output='yes') and (name!=$thisFunctionCall/name)])]">
                 <!-- <admst:message format="Called analog function has output variables other than return value, pretending args have dependencies.\n"/> -->
@@ -5566,6 +5828,7 @@ other variables does not get propagated into a variable's
             <admst:variable name="args" value=""/>
             <admst:variable name="dargs" value=""/>
             <admst:variable name="dargs2" value=""/>
+            <admst:variable name="dargsX" value=""/>
             <admst:for-each select="arguments">
               <admst:if test="[not($args='')]">
                 <admst:variable name="args" value="$(args),"/>
@@ -5576,18 +5839,26 @@ other variables does not get propagated into a variable's
               <admst:if test="[not($dargs2='')]">
                 <admst:variable name="dargs2" value="$(dargs2),"/>
               </admst:if>
+              <admst:if test="[not($dargsX='')]">
+                <admst:variable name="dargsX" value="$(dargsX),"/>
+              </admst:if>
               <admst:apply-templates select="." match="processTerm">
                 <admst:variable name="args" select="$(args)%(returned('returnedExpression')/value)"/>
                 <admst:variable name="aDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
                 <admst:variable name="aDeriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
+                <admst:variable name="aDerivX" select="%(returned('returnedExpressionDerivX')/value)"/>
                 <admst:if test="[$aDeriv != '0.0']">
                   <admst:variable name="argsDep" select="yes"/>
                 </admst:if>
                 <admst:if test="[$aDeriv2 != '0.0']">
                   <admst:variable name="argsDep2" select="yes"/>
                 </admst:if>
+                <admst:if test="[$aDerivX != '0.0']">
+                  <admst:variable name="argsDepX" select="yes"/>
+                </admst:if>
                 <admst:variable name="dargs" select="$(dargs)$(aDeriv)"/>
                 <admst:variable name="dargs2" select="$(dargs2)$(aDeriv2)"/>
+                <admst:variable name="dargsX" select="$(dargsX)$(aDerivX)"/>
               </admst:apply-templates>
             </admst:for-each>
             <admst:choose>
@@ -5613,15 +5884,26 @@ other variables does not get propagated into a variable's
                    actually needed, and we don't know this yet -->
               <admst:variable name="expressionDeriv12" select="0.0/*second derivatives of analog functions not implemented*/"/>
             </admst:if>
+            <admst:if test="[$globalCurrentScope='sensitivity']">
+              <admst:choose>
+                <admst:when test="[$argsDepX = 'no']">
+                  <admst:variable name="expressionDerivX" select="0.0"/>
+                </admst:when>
+                <admst:otherwise>
+                  <admst:variable name="expressionDerivX" select="evaluator_%(funcnameSimple(.)/[name='fname']/value)_%(index(subexpression/expression/function,.)).getDerivs($args,$dargsX)"/>
+                </admst:otherwise>
+              </admst:choose>
+            </admst:if>
           </admst:otherwise>
         </admst:choose>
       </admst:otherwise>
     </admst:choose>
     <admst:return name="returnedExpression" value="$expression"/>
-    <!-- NOT CORRECT YET: Lots of missing function!-->
+
     <admst:return name="returnedExpressionDeriv" value="$expressionDeriv"/>
     <admst:return name="returnedExpressionDeriv2" value="$expressionDeriv2"/>
     <admst:return name="returnedExpressionDeriv12" value="$expressionDeriv12"/>
+    <admst:return name="returnedExpressionDerivX" value="$expressionDerivX"/>
   </admst:template>
 
   <!--
@@ -5925,6 +6207,7 @@ other variables does not get propagated into a variable's
     <admst:return name="returnedExpressionDeriv" value="0.0"/>
     <admst:return name="returnedExpressionDeriv2" value="0.0"/>
     <admst:return name="returnedExpressionDeriv12" value="0.0"/>
+    <admst:return name="returnedExpressionDerivX" value="0.0"/>
   </admst:template>
 
   <!--
