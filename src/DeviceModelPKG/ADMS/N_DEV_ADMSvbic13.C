@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 31 Mar 2020 09:22:19
+// Creation Date  : Mon, 06 Apr 2020 15:50:12
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -2267,7 +2267,7 @@ Instance::~Instance()
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerLIDs
-// Purpose       : function for registering, and setting up, local ID's.
+// Purpose       : function for registering, and setting up, local IDs.
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
@@ -2368,7 +2368,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
   addInternalNode(symbol_table, li_bp, getName(), "bp");
   addInternalNode(symbol_table, li_xf1, getName(), "xf1");
   addInternalNode(symbol_table, li_xf2, getName(), "xf2");
-  
+
   if (loadLeadCurrent)
   {
     addBranchDataNode( symbol_table, li_branch_ic, getName(), "BRANCH_DC");
@@ -2430,7 +2430,7 @@ void Instance::registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef)
 //-----------------------------------------------------------------------------
 // Function      : Instance::jacobianStamp
 // Purpose       :
-// Special Notes : In initial version, we won't support mapping away nodes
+// Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
@@ -3695,6 +3695,7 @@ bool Instance::updateIntermediateVars()
     }
     {
       double value_pow_0 = pow(rT,(model_.xrs));
+      double  deriv_pow_0_d0 = ((rT == 0.0)?0.0:(value_pow_0*(model_.xrs)/rT));
       rs_t = ((model_.rs)*value_pow_0);
     }
     if ((model_.given("xrbp")))
@@ -3804,11 +3805,15 @@ bool Instance::updateIntermediateVars()
     {
       double value_pow_0 = pow(rT,((model_.xii)/(model_.ncip)));
       double value_exp_1 = exp((((-(model_.eais))*(1.0-rT))/(vtv*(model_.ncip))));
+      double  deriv_pow_0_d0 = ((rT == 0.0)?0.0:(value_pow_0*((model_.xii)/(model_.ncip))/rT));
+      double  deriv_exp_1_d0 = value_exp_1;
       ibcip_t = (((model_.ibcip)*value_pow_0)*value_exp_1);
     }
     {
       double value_pow_0 = pow(rT,((model_.xin)/(model_.ncnp)));
       double value_exp_1 = exp((((-(model_.eans))*(1.0-rT))/(vtv*(model_.ncnp))));
+      double  deriv_pow_0_d0 = ((rT == 0.0)?0.0:(value_pow_0*((model_.xin)/(model_.ncnp))/rT));
+      double  deriv_exp_1_d0 = value_exp_1;
       ibcnp_t = (((model_.ibcnp)*value_pow_0)*value_exp_1);
     }
 
@@ -3917,16 +3922,23 @@ bool Instance::updateIntermediateVars()
         double value_exp_0 = exp((((0.5*(model_.ps))*rT)/vtv));
         double value_exp_1 = exp(((((-0.5)*(model_.ps))*rT)/vtv));
         double value_log_2 = log((value_exp_0-value_exp_1));
+        double  deriv_exp_0_d0 = value_exp_0;
+        double  deriv_exp_1_d0 = value_exp_1;
+        double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
         psiio = ((2.0*(vtv/rT))*value_log_2);
       }
       {
         double value_log_0 = log(rT);
+        double  deriv_log_0_d0 = (1.0/rT);
         psiin = (((psiio*rT)-((3.0*vtv)*value_log_0))-((model_.eais)*(rT-1.0)));
       }
       {
         double value_exp_0 = exp(((-psiin)/vtv));
         double value_sqrt_1 = sqrt((1.0+(4.0*value_exp_0)));
         double value_log_2 = log((0.5*(1.0+value_sqrt_1)));
+        double  deriv_exp_0_d0 = value_exp_0;
+        double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+        double  deriv_log_2_d0 = (1.0/(0.5*(1.0+value_sqrt_1)));
         ps_t = (psiin+((2.0*vtv)*value_log_2));
       }
     }
@@ -3954,6 +3966,7 @@ bool Instance::updateIntermediateVars()
     }
     {
       double value_pow_0 = pow(((model_.ps)/ps_t),(model_.ms));
+      double  deriv_pow_0_d0 = ((((model_.ps)/ps_t) == 0.0)?0.0:(value_pow_0*(model_.ms)/((model_.ps)/ps_t)));
       cjcp_t = ((model_.cjcp)*value_pow_0);
     }
     {
@@ -9126,9 +9139,11 @@ registerDevice(const DeviceCountMap& deviceMap, const std::set<int>& levelSet)
 void evaluateInitialInstance(
    // instance parameters
    // reals
-   AdmsSensFadType & instancePar_m,
+   double & instancePar_m,
+   double & d_instancePar_m_dX,
    bool instancePar_given_m,
-   AdmsSensFadType & instancePar_trise,
+   double & instancePar_trise,
+   double & d_instancePar_trise_dX,
    bool instancePar_given_trise,
    // non-reals(including hidden)
    int instancePar_sw_noise,
@@ -9137,304 +9152,432 @@ void evaluateInitialInstance(
    bool instancePar_given_sw_et,
    // instance variables
    // reals
-   AdmsSensFadType & instanceVar_is_t,
-   AdmsSensFadType & instanceVar_isrr_t,
-   AdmsSensFadType & instanceVar_ibei_t,
-   AdmsSensFadType & instanceVar_ibci_t,
-   AdmsSensFadType & instanceVar_isp_t,
-   AdmsSensFadType & instanceVar_iben_t,
-   AdmsSensFadType & instanceVar_ibcn_t,
-   AdmsSensFadType & instanceVar_ibeip_t,
-   AdmsSensFadType & instanceVar_ibenp_t,
-   AdmsSensFadType & instanceVar_ibcip_t,
-   AdmsSensFadType & instanceVar_ibcnp_t,
-   AdmsSensFadType & instanceVar_tdevC,
-   AdmsSensFadType & instanceVar_tdevK,
-   AdmsSensFadType & instanceVar_rT,
-   AdmsSensFadType & instanceVar_Gcx,
-   AdmsSensFadType & instanceVar_Gci,
-   AdmsSensFadType & instanceVar_Gbx,
-   AdmsSensFadType & instanceVar_Gbi,
-   AdmsSensFadType & instanceVar_Ge,
-   AdmsSensFadType & instanceVar_Gbp,
-   AdmsSensFadType & instanceVar_maxvIfi,
-   AdmsSensFadType & instanceVar_maxvIri,
-   AdmsSensFadType & instanceVar_maxvIp,
-   AdmsSensFadType & instanceVar_maxvIbbe,
-   AdmsSensFadType & instanceVar_maxvIbei,
-   AdmsSensFadType & instanceVar_maxvIben,
-   AdmsSensFadType & instanceVar_maxvIbci,
-   AdmsSensFadType & instanceVar_maxvIbcn,
-   AdmsSensFadType & instanceVar_maxvIbeip,
-   AdmsSensFadType & instanceVar_maxvIbenp,
-   AdmsSensFadType & instanceVar_vtv,
-   AdmsSensFadType & instanceVar_Itzf,
-   AdmsSensFadType & instanceVar_qb,
-   AdmsSensFadType & instanceVar_qbp,
-   AdmsSensFadType & instanceVar_Ibe,
-   AdmsSensFadType & instanceVar_Ibex,
-   AdmsSensFadType & instanceVar_Ibep,
-   AdmsSensFadType & instanceVar_Irci,
-   AdmsSensFadType & instanceVar_Vrci,
-   AdmsSensFadType & instanceVar_mMod,
-   AdmsSensFadType & instanceVar_tVCrit,
+   double & instanceVar_is_t, double & d_instanceVar_is_t_dX ,
+   double & instanceVar_isrr_t, double & d_instanceVar_isrr_t_dX ,
+   double & instanceVar_ibei_t, double & d_instanceVar_ibei_t_dX ,
+   double & instanceVar_ibci_t, double & d_instanceVar_ibci_t_dX ,
+   double & instanceVar_isp_t, double & d_instanceVar_isp_t_dX ,
+   double & instanceVar_iben_t, double & d_instanceVar_iben_t_dX ,
+   double & instanceVar_ibcn_t, double & d_instanceVar_ibcn_t_dX ,
+   double & instanceVar_ibeip_t, double & d_instanceVar_ibeip_t_dX ,
+   double & instanceVar_ibenp_t, double & d_instanceVar_ibenp_t_dX ,
+   double & instanceVar_ibcip_t, double & d_instanceVar_ibcip_t_dX ,
+   double & instanceVar_ibcnp_t, double & d_instanceVar_ibcnp_t_dX ,
+   double & instanceVar_tdevC, double & d_instanceVar_tdevC_dX ,
+   double & instanceVar_tdevK, double & d_instanceVar_tdevK_dX ,
+   double & instanceVar_rT, double & d_instanceVar_rT_dX ,
+   double & instanceVar_Gcx, double & d_instanceVar_Gcx_dX ,
+   double & instanceVar_Gci, double & d_instanceVar_Gci_dX ,
+   double & instanceVar_Gbx, double & d_instanceVar_Gbx_dX ,
+   double & instanceVar_Gbi, double & d_instanceVar_Gbi_dX ,
+   double & instanceVar_Ge, double & d_instanceVar_Ge_dX ,
+   double & instanceVar_Gbp, double & d_instanceVar_Gbp_dX ,
+   double & instanceVar_maxvIfi, double & d_instanceVar_maxvIfi_dX ,
+   double & instanceVar_maxvIri, double & d_instanceVar_maxvIri_dX ,
+   double & instanceVar_maxvIp, double & d_instanceVar_maxvIp_dX ,
+   double & instanceVar_maxvIbbe, double & d_instanceVar_maxvIbbe_dX ,
+   double & instanceVar_maxvIbei, double & d_instanceVar_maxvIbei_dX ,
+   double & instanceVar_maxvIben, double & d_instanceVar_maxvIben_dX ,
+   double & instanceVar_maxvIbci, double & d_instanceVar_maxvIbci_dX ,
+   double & instanceVar_maxvIbcn, double & d_instanceVar_maxvIbcn_dX ,
+   double & instanceVar_maxvIbeip, double & d_instanceVar_maxvIbeip_dX ,
+   double & instanceVar_maxvIbenp, double & d_instanceVar_maxvIbenp_dX ,
+   double & instanceVar_vtv, double & d_instanceVar_vtv_dX ,
+   double & instanceVar_Itzf, double & d_instanceVar_Itzf_dX ,
+   double & instanceVar_qb, double & d_instanceVar_qb_dX ,
+   double & instanceVar_qbp, double & d_instanceVar_qbp_dX ,
+   double & instanceVar_Ibe, double & d_instanceVar_Ibe_dX ,
+   double & instanceVar_Ibex, double & d_instanceVar_Ibex_dX ,
+   double & instanceVar_Ibep, double & d_instanceVar_Ibep_dX ,
+   double & instanceVar_Irci, double & d_instanceVar_Irci_dX ,
+   double & instanceVar_Vrci, double & d_instanceVar_Vrci_dX ,
+   double & instanceVar_mMod, double & d_instanceVar_mMod_dX ,
+   double & instanceVar_tVCrit, double & d_instanceVar_tVCrit_dX ,
    // model parameters
    // reals
-   AdmsSensFadType & modelPar_npn,
+   double & modelPar_npn,
+   double & d_modelPar_npn_dX,
    bool modelPar_given_npn,
-   AdmsSensFadType & modelPar_pnp,
+   double & modelPar_pnp,
+   double & d_modelPar_pnp_dX,
    bool modelPar_given_pnp,
-   AdmsSensFadType & modelPar_scale,
+   double & modelPar_scale,
+   double & d_modelPar_scale_dX,
    bool modelPar_given_scale,
-   AdmsSensFadType & modelPar_shrink,
+   double & modelPar_shrink,
+   double & d_modelPar_shrink_dX,
    bool modelPar_given_shrink,
-   AdmsSensFadType & modelPar_tmin,
+   double & modelPar_tmin,
+   double & d_modelPar_tmin_dX,
    bool modelPar_given_tmin,
-   AdmsSensFadType & modelPar_tmax,
+   double & modelPar_tmax,
+   double & d_modelPar_tmax_dX,
    bool modelPar_given_tmax,
-   AdmsSensFadType & modelPar_gmin,
+   double & modelPar_gmin,
+   double & d_modelPar_gmin_dX,
    bool modelPar_given_gmin,
-   AdmsSensFadType & modelPar_pnjmaxi,
+   double & modelPar_pnjmaxi,
+   double & d_modelPar_pnjmaxi_dX,
    bool modelPar_given_pnjmaxi,
-   AdmsSensFadType & modelPar_maxexp,
+   double & modelPar_maxexp,
+   double & d_modelPar_maxexp_dX,
    bool modelPar_given_maxexp,
-   AdmsSensFadType & modelPar_tnom,
+   double & modelPar_tnom,
+   double & d_modelPar_tnom_dX,
    bool modelPar_given_tnom,
-   AdmsSensFadType & modelPar_tminclip,
+   double & modelPar_tminclip,
+   double & d_modelPar_tminclip_dX,
    bool modelPar_given_tminclip,
-   AdmsSensFadType & modelPar_tmaxclip,
+   double & modelPar_tmaxclip,
+   double & d_modelPar_tmaxclip_dX,
    bool modelPar_given_tmaxclip,
-   AdmsSensFadType & modelPar_rcx,
+   double & modelPar_rcx,
+   double & d_modelPar_rcx_dX,
    bool modelPar_given_rcx,
-   AdmsSensFadType & modelPar_rci,
+   double & modelPar_rci,
+   double & d_modelPar_rci_dX,
    bool modelPar_given_rci,
-   AdmsSensFadType & modelPar_vo,
+   double & modelPar_vo,
+   double & d_modelPar_vo_dX,
    bool modelPar_given_vo,
-   AdmsSensFadType & modelPar_gamm,
+   double & modelPar_gamm,
+   double & d_modelPar_gamm_dX,
    bool modelPar_given_gamm,
-   AdmsSensFadType & modelPar_hrcf,
+   double & modelPar_hrcf,
+   double & d_modelPar_hrcf_dX,
    bool modelPar_given_hrcf,
-   AdmsSensFadType & modelPar_rbx,
+   double & modelPar_rbx,
+   double & d_modelPar_rbx_dX,
    bool modelPar_given_rbx,
-   AdmsSensFadType & modelPar_rbi,
+   double & modelPar_rbi,
+   double & d_modelPar_rbi_dX,
    bool modelPar_given_rbi,
-   AdmsSensFadType & modelPar_re,
+   double & modelPar_re,
+   double & d_modelPar_re_dX,
    bool modelPar_given_re,
-   AdmsSensFadType & modelPar_rs,
+   double & modelPar_rs,
+   double & d_modelPar_rs_dX,
    bool modelPar_given_rs,
-   AdmsSensFadType & modelPar_rbp,
+   double & modelPar_rbp,
+   double & d_modelPar_rbp_dX,
    bool modelPar_given_rbp,
-   AdmsSensFadType & modelPar_is,
+   double & modelPar_is,
+   double & d_modelPar_is_dX,
    bool modelPar_given_is,
-   AdmsSensFadType & modelPar_isrr,
+   double & modelPar_isrr,
+   double & d_modelPar_isrr_dX,
    bool modelPar_given_isrr,
-   AdmsSensFadType & modelPar_nf,
+   double & modelPar_nf,
+   double & d_modelPar_nf_dX,
    bool modelPar_given_nf,
-   AdmsSensFadType & modelPar_nr,
+   double & modelPar_nr,
+   double & d_modelPar_nr_dX,
    bool modelPar_given_nr,
-   AdmsSensFadType & modelPar_isp,
+   double & modelPar_isp,
+   double & d_modelPar_isp_dX,
    bool modelPar_given_isp,
-   AdmsSensFadType & modelPar_wsp,
+   double & modelPar_wsp,
+   double & d_modelPar_wsp_dX,
    bool modelPar_given_wsp,
-   AdmsSensFadType & modelPar_nfp,
+   double & modelPar_nfp,
+   double & d_modelPar_nfp_dX,
    bool modelPar_given_nfp,
-   AdmsSensFadType & modelPar_fc,
+   double & modelPar_fc,
+   double & d_modelPar_fc_dX,
    bool modelPar_given_fc,
-   AdmsSensFadType & modelPar_cbeo,
+   double & modelPar_cbeo,
+   double & d_modelPar_cbeo_dX,
    bool modelPar_given_cbeo,
-   AdmsSensFadType & modelPar_cje,
+   double & modelPar_cje,
+   double & d_modelPar_cje_dX,
    bool modelPar_given_cje,
-   AdmsSensFadType & modelPar_pe,
+   double & modelPar_pe,
+   double & d_modelPar_pe_dX,
    bool modelPar_given_pe,
-   AdmsSensFadType & modelPar_me,
+   double & modelPar_me,
+   double & d_modelPar_me_dX,
    bool modelPar_given_me,
-   AdmsSensFadType & modelPar_aje,
+   double & modelPar_aje,
+   double & d_modelPar_aje_dX,
    bool modelPar_given_aje,
-   AdmsSensFadType & modelPar_cbco,
+   double & modelPar_cbco,
+   double & d_modelPar_cbco_dX,
    bool modelPar_given_cbco,
-   AdmsSensFadType & modelPar_cjc,
+   double & modelPar_cjc,
+   double & d_modelPar_cjc_dX,
    bool modelPar_given_cjc,
-   AdmsSensFadType & modelPar_pc,
+   double & modelPar_pc,
+   double & d_modelPar_pc_dX,
    bool modelPar_given_pc,
-   AdmsSensFadType & modelPar_mc,
+   double & modelPar_mc,
+   double & d_modelPar_mc_dX,
    bool modelPar_given_mc,
-   AdmsSensFadType & modelPar_ajc,
+   double & modelPar_ajc,
+   double & d_modelPar_ajc_dX,
    bool modelPar_given_ajc,
-   AdmsSensFadType & modelPar_vrt,
+   double & modelPar_vrt,
+   double & d_modelPar_vrt_dX,
    bool modelPar_given_vrt,
-   AdmsSensFadType & modelPar_art,
+   double & modelPar_art,
+   double & d_modelPar_art_dX,
    bool modelPar_given_art,
-   AdmsSensFadType & modelPar_qco,
+   double & modelPar_qco,
+   double & d_modelPar_qco_dX,
    bool modelPar_given_qco,
-   AdmsSensFadType & modelPar_cjep,
+   double & modelPar_cjep,
+   double & d_modelPar_cjep_dX,
    bool modelPar_given_cjep,
-   AdmsSensFadType & modelPar_cjcp,
+   double & modelPar_cjcp,
+   double & d_modelPar_cjcp_dX,
    bool modelPar_given_cjcp,
-   AdmsSensFadType & modelPar_ps,
+   double & modelPar_ps,
+   double & d_modelPar_ps_dX,
    bool modelPar_given_ps,
-   AdmsSensFadType & modelPar_ms,
+   double & modelPar_ms,
+   double & d_modelPar_ms_dX,
    bool modelPar_given_ms,
-   AdmsSensFadType & modelPar_ajs,
+   double & modelPar_ajs,
+   double & d_modelPar_ajs_dX,
    bool modelPar_given_ajs,
-   AdmsSensFadType & modelPar_ccso,
+   double & modelPar_ccso,
+   double & d_modelPar_ccso_dX,
    bool modelPar_given_ccso,
-   AdmsSensFadType & modelPar_ibei,
+   double & modelPar_ibei,
+   double & d_modelPar_ibei_dX,
    bool modelPar_given_ibei,
-   AdmsSensFadType & modelPar_wbe,
+   double & modelPar_wbe,
+   double & d_modelPar_wbe_dX,
    bool modelPar_given_wbe,
-   AdmsSensFadType & modelPar_nei,
+   double & modelPar_nei,
+   double & d_modelPar_nei_dX,
    bool modelPar_given_nei,
-   AdmsSensFadType & modelPar_qnibeir,
+   double & modelPar_qnibeir,
+   double & d_modelPar_qnibeir_dX,
    bool modelPar_given_qnibeir,
-   AdmsSensFadType & modelPar_iben,
+   double & modelPar_iben,
+   double & d_modelPar_iben_dX,
    bool modelPar_given_iben,
-   AdmsSensFadType & modelPar_nen,
+   double & modelPar_nen,
+   double & d_modelPar_nen_dX,
    bool modelPar_given_nen,
-   AdmsSensFadType & modelPar_ibci,
+   double & modelPar_ibci,
+   double & d_modelPar_ibci_dX,
    bool modelPar_given_ibci,
-   AdmsSensFadType & modelPar_nci,
+   double & modelPar_nci,
+   double & d_modelPar_nci_dX,
    bool modelPar_given_nci,
-   AdmsSensFadType & modelPar_ibcn,
+   double & modelPar_ibcn,
+   double & d_modelPar_ibcn_dX,
    bool modelPar_given_ibcn,
-   AdmsSensFadType & modelPar_ncn,
+   double & modelPar_ncn,
+   double & d_modelPar_ncn_dX,
    bool modelPar_given_ncn,
-   AdmsSensFadType & modelPar_ibeip,
+   double & modelPar_ibeip,
+   double & d_modelPar_ibeip_dX,
    bool modelPar_given_ibeip,
-   AdmsSensFadType & modelPar_ibenp,
+   double & modelPar_ibenp,
+   double & d_modelPar_ibenp_dX,
    bool modelPar_given_ibenp,
-   AdmsSensFadType & modelPar_ibcip,
+   double & modelPar_ibcip,
+   double & d_modelPar_ibcip_dX,
    bool modelPar_given_ibcip,
-   AdmsSensFadType & modelPar_ncip,
+   double & modelPar_ncip,
+   double & d_modelPar_ncip_dX,
    bool modelPar_given_ncip,
-   AdmsSensFadType & modelPar_ibcnp,
+   double & modelPar_ibcnp,
+   double & d_modelPar_ibcnp_dX,
    bool modelPar_given_ibcnp,
-   AdmsSensFadType & modelPar_ncnp,
+   double & modelPar_ncnp,
+   double & d_modelPar_ncnp_dX,
    bool modelPar_given_ncnp,
-   AdmsSensFadType & modelPar_vef,
+   double & modelPar_vef,
+   double & d_modelPar_vef_dX,
    bool modelPar_given_vef,
-   AdmsSensFadType & modelPar_ver,
+   double & modelPar_ver,
+   double & d_modelPar_ver_dX,
    bool modelPar_given_ver,
-   AdmsSensFadType & modelPar_ikf,
+   double & modelPar_ikf,
+   double & d_modelPar_ikf_dX,
    bool modelPar_given_ikf,
-   AdmsSensFadType & modelPar_nkf,
+   double & modelPar_nkf,
+   double & d_modelPar_nkf_dX,
    bool modelPar_given_nkf,
-   AdmsSensFadType & modelPar_ikr,
+   double & modelPar_ikr,
+   double & d_modelPar_ikr_dX,
    bool modelPar_given_ikr,
-   AdmsSensFadType & modelPar_ikp,
+   double & modelPar_ikp,
+   double & d_modelPar_ikp_dX,
    bool modelPar_given_ikp,
-   AdmsSensFadType & modelPar_tf,
+   double & modelPar_tf,
+   double & d_modelPar_tf_dX,
    bool modelPar_given_tf,
-   AdmsSensFadType & modelPar_qtf,
+   double & modelPar_qtf,
+   double & d_modelPar_qtf_dX,
    bool modelPar_given_qtf,
-   AdmsSensFadType & modelPar_xtf,
+   double & modelPar_xtf,
+   double & d_modelPar_xtf_dX,
    bool modelPar_given_xtf,
-   AdmsSensFadType & modelPar_vtf,
+   double & modelPar_vtf,
+   double & d_modelPar_vtf_dX,
    bool modelPar_given_vtf,
-   AdmsSensFadType & modelPar_itf,
+   double & modelPar_itf,
+   double & d_modelPar_itf_dX,
    bool modelPar_given_itf,
-   AdmsSensFadType & modelPar_tr,
+   double & modelPar_tr,
+   double & d_modelPar_tr_dX,
    bool modelPar_given_tr,
-   AdmsSensFadType & modelPar_td,
+   double & modelPar_td,
+   double & d_modelPar_td_dX,
    bool modelPar_given_td,
-   AdmsSensFadType & modelPar_avc1,
+   double & modelPar_avc1,
+   double & d_modelPar_avc1_dX,
    bool modelPar_given_avc1,
-   AdmsSensFadType & modelPar_avc2,
+   double & modelPar_avc2,
+   double & d_modelPar_avc2_dX,
    bool modelPar_given_avc2,
-   AdmsSensFadType & modelPar_avcx1,
+   double & modelPar_avcx1,
+   double & d_modelPar_avcx1_dX,
    bool modelPar_given_avcx1,
-   AdmsSensFadType & modelPar_avcx2,
+   double & modelPar_avcx2,
+   double & d_modelPar_avcx2_dX,
    bool modelPar_given_avcx2,
-   AdmsSensFadType & modelPar_mcx,
+   double & modelPar_mcx,
+   double & d_modelPar_mcx_dX,
    bool modelPar_given_mcx,
-   AdmsSensFadType & modelPar_vbbe,
+   double & modelPar_vbbe,
+   double & d_modelPar_vbbe_dX,
    bool modelPar_given_vbbe,
-   AdmsSensFadType & modelPar_nbbe,
+   double & modelPar_nbbe,
+   double & d_modelPar_nbbe_dX,
    bool modelPar_given_nbbe,
-   AdmsSensFadType & modelPar_ibbe,
+   double & modelPar_ibbe,
+   double & d_modelPar_ibbe_dX,
    bool modelPar_given_ibbe,
-   AdmsSensFadType & modelPar_tvbbe1,
+   double & modelPar_tvbbe1,
+   double & d_modelPar_tvbbe1_dX,
    bool modelPar_given_tvbbe1,
-   AdmsSensFadType & modelPar_tvbbe2,
+   double & modelPar_tvbbe2,
+   double & d_modelPar_tvbbe2_dX,
    bool modelPar_given_tvbbe2,
-   AdmsSensFadType & modelPar_tnbbe,
+   double & modelPar_tnbbe,
+   double & d_modelPar_tnbbe_dX,
    bool modelPar_given_tnbbe,
-   AdmsSensFadType & modelPar_vpte,
+   double & modelPar_vpte,
+   double & d_modelPar_vpte_dX,
    bool modelPar_given_vpte,
-   AdmsSensFadType & modelPar_ibk0,
+   double & modelPar_ibk0,
+   double & d_modelPar_ibk0_dX,
    bool modelPar_given_ibk0,
-   AdmsSensFadType & modelPar_abk,
+   double & modelPar_abk,
+   double & d_modelPar_abk_dX,
    bool modelPar_given_abk,
-   AdmsSensFadType & modelPar_bbk,
+   double & modelPar_bbk,
+   double & d_modelPar_bbk_dX,
    bool modelPar_given_bbk,
-   AdmsSensFadType & modelPar_kfn,
+   double & modelPar_kfn,
+   double & d_modelPar_kfn_dX,
    bool modelPar_given_kfn,
-   AdmsSensFadType & modelPar_afn,
+   double & modelPar_afn,
+   double & d_modelPar_afn_dX,
    bool modelPar_given_afn,
-   AdmsSensFadType & modelPar_bfn,
+   double & modelPar_bfn,
+   double & d_modelPar_bfn_dX,
    bool modelPar_given_bfn,
-   AdmsSensFadType & modelPar_rth,
+   double & modelPar_rth,
+   double & d_modelPar_rth_dX,
    bool modelPar_given_rth,
-   AdmsSensFadType & modelPar_cth,
+   double & modelPar_cth,
+   double & d_modelPar_cth_dX,
    bool modelPar_given_cth,
-   AdmsSensFadType & modelPar_xre,
+   double & modelPar_xre,
+   double & d_modelPar_xre_dX,
    bool modelPar_given_xre,
-   AdmsSensFadType & modelPar_xrb,
+   double & modelPar_xrb,
+   double & d_modelPar_xrb_dX,
    bool modelPar_given_xrb,
-   AdmsSensFadType & modelPar_xrbi,
+   double & modelPar_xrbi,
+   double & d_modelPar_xrbi_dX,
    bool modelPar_given_xrbi,
-   AdmsSensFadType & modelPar_xrbx,
+   double & modelPar_xrbx,
+   double & d_modelPar_xrbx_dX,
    bool modelPar_given_xrbx,
-   AdmsSensFadType & modelPar_xrc,
+   double & modelPar_xrc,
+   double & d_modelPar_xrc_dX,
    bool modelPar_given_xrc,
-   AdmsSensFadType & modelPar_xrci,
+   double & modelPar_xrci,
+   double & d_modelPar_xrci_dX,
    bool modelPar_given_xrci,
-   AdmsSensFadType & modelPar_xrcx,
+   double & modelPar_xrcx,
+   double & d_modelPar_xrcx_dX,
    bool modelPar_given_xrcx,
-   AdmsSensFadType & modelPar_xrbp,
+   double & modelPar_xrbp,
+   double & d_modelPar_xrbp_dX,
    bool modelPar_given_xrbp,
-   AdmsSensFadType & modelPar_xrs,
+   double & modelPar_xrs,
+   double & d_modelPar_xrs_dX,
    bool modelPar_given_xrs,
-   AdmsSensFadType & modelPar_xvo,
+   double & modelPar_xvo,
+   double & d_modelPar_xvo_dX,
    bool modelPar_given_xvo,
-   AdmsSensFadType & modelPar_ea,
+   double & modelPar_ea,
+   double & d_modelPar_ea_dX,
    bool modelPar_given_ea,
-   AdmsSensFadType & modelPar_eaie,
+   double & modelPar_eaie,
+   double & d_modelPar_eaie_dX,
    bool modelPar_given_eaie,
-   AdmsSensFadType & modelPar_eaic,
+   double & modelPar_eaic,
+   double & d_modelPar_eaic_dX,
    bool modelPar_given_eaic,
-   AdmsSensFadType & modelPar_eais,
+   double & modelPar_eais,
+   double & d_modelPar_eais_dX,
    bool modelPar_given_eais,
-   AdmsSensFadType & modelPar_eane,
+   double & modelPar_eane,
+   double & d_modelPar_eane_dX,
    bool modelPar_given_eane,
-   AdmsSensFadType & modelPar_eanc,
+   double & modelPar_eanc,
+   double & d_modelPar_eanc_dX,
    bool modelPar_given_eanc,
-   AdmsSensFadType & modelPar_eans,
+   double & modelPar_eans,
+   double & d_modelPar_eans_dX,
    bool modelPar_given_eans,
-   AdmsSensFadType & modelPar_eap,
+   double & modelPar_eap,
+   double & d_modelPar_eap_dX,
    bool modelPar_given_eap,
-   AdmsSensFadType & modelPar_dear,
+   double & modelPar_dear,
+   double & d_modelPar_dear_dX,
    bool modelPar_given_dear,
-   AdmsSensFadType & modelPar_xis,
+   double & modelPar_xis,
+   double & d_modelPar_xis_dX,
    bool modelPar_given_xis,
-   AdmsSensFadType & modelPar_xii,
+   double & modelPar_xii,
+   double & d_modelPar_xii_dX,
    bool modelPar_given_xii,
-   AdmsSensFadType & modelPar_xin,
+   double & modelPar_xin,
+   double & d_modelPar_xin_dX,
    bool modelPar_given_xin,
-   AdmsSensFadType & modelPar_xisr,
+   double & modelPar_xisr,
+   double & d_modelPar_xisr_dX,
    bool modelPar_given_xisr,
-   AdmsSensFadType & modelPar_xikf,
+   double & modelPar_xikf,
+   double & d_modelPar_xikf_dX,
    bool modelPar_given_xikf,
-   AdmsSensFadType & modelPar_tavc,
+   double & modelPar_tavc,
+   double & d_modelPar_tavc_dX,
    bool modelPar_given_tavc,
-   AdmsSensFadType & modelPar_tavcx,
+   double & modelPar_tavcx,
+   double & d_modelPar_tavcx_dX,
    bool modelPar_given_tavcx,
-   AdmsSensFadType & modelPar_tnf,
+   double & modelPar_tnf,
+   double & d_modelPar_tnf_dX,
    bool modelPar_given_tnf,
-   AdmsSensFadType & modelPar_tcvef,
+   double & modelPar_tcvef,
+   double & d_modelPar_tcvef_dX,
    bool modelPar_given_tcvef,
-   AdmsSensFadType & modelPar_tcver,
+   double & modelPar_tcver,
+   double & d_modelPar_tcver_dX,
    bool modelPar_given_tcver,
-   AdmsSensFadType & modelPar_tcrth,
+   double & modelPar_tcrth,
+   double & d_modelPar_tcrth_dX,
    bool modelPar_given_tcrth,
    // non-reals (including hidden)
    int modelPar_type,
@@ -9444,23 +9587,27 @@ void evaluateInitialInstance(
    bool modelPar_given_qbm// model variables
    ,
    // reals
-   AdmsSensFadType & modelVar_tiniK,
-   AdmsSensFadType & modelVar_Iikr,
-   AdmsSensFadType & modelVar_Iikp,
-   AdmsSensFadType & modelVar_Ihrcf,
-   AdmsSensFadType & modelVar_Ivtf,
-   AdmsSensFadType & modelVar_Iitf,
-   AdmsSensFadType & modelVar_sltf,
-   AdmsSensFadType & modelVar_VmaxExp,
-   AdmsSensFadType & modelVar_gminMod,
-   AdmsSensFadType & modelVar_imaxMod,
+   double & modelVar_tiniK, double & d_modelVar_tiniK_dX ,
+   double & modelVar_Iikr, double & d_modelVar_Iikr_dX ,
+   double & modelVar_Iikp, double & d_modelVar_Iikp_dX ,
+   double & modelVar_Ihrcf, double & d_modelVar_Ihrcf_dX ,
+   double & modelVar_Ivtf, double & d_modelVar_Ivtf_dX ,
+   double & modelVar_Iitf, double & d_modelVar_Iitf_dX ,
+   double & modelVar_sltf, double & d_modelVar_sltf_dX ,
+   double & modelVar_VmaxExp, double & d_modelVar_VmaxExp_dX ,
+   double & modelVar_gminMod, double & d_modelVar_gminMod_dX ,
+   double & modelVar_imaxMod, double & d_modelVar_imaxMod_dX ,
    double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance)
 {
-  AdmsSensFadType maxvIbcnp;
-  AdmsSensFadType maxvIbcip;
+  double maxvIbcnp;
+  double d_maxvIbcnp_dX;
+  double maxvIbcip;
+  double d_maxvIbcip_dX;
   //Begin block initial_instance
   {
+    d_instanceVar_mMod_dX = d_instancePar_m_dX;
     instanceVar_mMod = instancePar_m;
+    d_instanceVar_tdevC_dX = d_instancePar_trise_dX;
     instanceVar_tdevC = ((admsTemperature+instancePar_trise)-273.15);
     if ((instanceVar_tdevC<modelPar_tmin))
     {
@@ -9472,148 +9619,355 @@ void evaluateInitialInstance(
     }
     if ((instanceVar_tdevC<(modelPar_tminclip+1.0)))
     {
-      instanceVar_tdevC = (modelPar_tminclip+exp(((instanceVar_tdevC-modelPar_tminclip)-1.0)));
+      {
+        double value_exp_0 = exp(((instanceVar_tdevC-modelPar_tminclip)-1.0));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_instanceVar_tdevC_dX = (d_modelPar_tminclip_dX+deriv_exp_0_d0*((d_instanceVar_tdevC_dX-d_modelPar_tminclip_dX)));
+        instanceVar_tdevC = (modelPar_tminclip+value_exp_0);
+      }
     }
     else
     {
       if ((instanceVar_tdevC>(modelPar_tmaxclip-1.0)))
       {
-        instanceVar_tdevC = (modelPar_tmaxclip-exp(((modelPar_tmaxclip-instanceVar_tdevC)-1.0)));
+        {
+          double value_exp_0 = exp(((modelPar_tmaxclip-instanceVar_tdevC)-1.0));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_instanceVar_tdevC_dX = (d_modelPar_tmaxclip_dX-deriv_exp_0_d0*((d_modelPar_tmaxclip_dX-d_instanceVar_tdevC_dX)));
+          instanceVar_tdevC = (modelPar_tmaxclip-value_exp_0);
+        }
       }
       else
       {
       }
     }
+    d_instanceVar_tdevK_dX = d_instanceVar_tdevC_dX;
     instanceVar_tdevK = (instanceVar_tdevC+273.15);
+    d_instanceVar_vtv_dX = (1.380662e-23*d_instanceVar_tdevK_dX/1.602189e-19);
     instanceVar_vtv = ((1.380662e-23*instanceVar_tdevK)/1.602189e-19);
+    d_instanceVar_rT_dX = ((modelVar_tiniK*d_instanceVar_tdevK_dX-instanceVar_tdevK*d_modelVar_tiniK_dX)/modelVar_tiniK/modelVar_tiniK);
     instanceVar_rT = (instanceVar_tdevK/modelVar_tiniK);
-    instanceVar_tVCrit = (adms_vt(admsTemperature)*log((adms_vt(admsTemperature)/(1.41421356237309504880*modelPar_is))));
+    {
+      double value_log_0 = log((adms_vt(admsTemperature)/(1.41421356237309504880*modelPar_is)));
+      double  deriv_log_0_d0 = (1.0/(adms_vt(admsTemperature)/(1.41421356237309504880*modelPar_is)));
+      d_instanceVar_tVCrit_dX = adms_vt(admsTemperature)*deriv_log_0_d0*((-adms_vt(admsTemperature)*1.41421356237309504880*d_modelPar_is_dX/(1.41421356237309504880*modelPar_is)/(1.41421356237309504880*modelPar_is)));
+      instanceVar_tVCrit = (adms_vt(admsTemperature)*value_log_0);
+    }
     if ((modelPar_ibbe>0.0))
     {
-      instanceVar_maxvIbbe = ((modelPar_nbbe*instanceVar_vtv)*log((exp(((-modelPar_vbbe)/(modelPar_nbbe*instanceVar_vtv)))+(modelVar_imaxMod/modelPar_ibbe))));
+      {
+        double value_exp_0 = exp(((-modelPar_vbbe)/(modelPar_nbbe*instanceVar_vtv)));
+        double value_log_1 = log((value_exp_0+(modelVar_imaxMod/modelPar_ibbe)));
+        double  deriv_exp_0_d0 = value_exp_0;
+        double  deriv_log_1_d0 = (1.0/(value_exp_0+(modelVar_imaxMod/modelPar_ibbe)));
+        d_instanceVar_maxvIbbe_dX = ((modelPar_nbbe*instanceVar_vtv)*deriv_log_1_d0*((deriv_exp_0_d0*((((modelPar_nbbe*instanceVar_vtv)*(-d_modelPar_vbbe_dX)-(-modelPar_vbbe)*(modelPar_nbbe*d_instanceVar_vtv_dX+d_modelPar_nbbe_dX*instanceVar_vtv))/(modelPar_nbbe*instanceVar_vtv)/(modelPar_nbbe*instanceVar_vtv)))+((modelPar_ibbe*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_modelPar_ibbe_dX)/modelPar_ibbe/modelPar_ibbe)))+(modelPar_nbbe*d_instanceVar_vtv_dX+d_modelPar_nbbe_dX*instanceVar_vtv)*value_log_1);
+        instanceVar_maxvIbbe = ((modelPar_nbbe*instanceVar_vtv)*value_log_1);
+      }
     }
     else
     {
+      d_instanceVar_maxvIbbe_dX = 0.0;
       instanceVar_maxvIbbe = 0.0;
     }
-    instanceVar_is_t = ((modelPar_is*pow(instanceVar_rT,(modelPar_xis/modelPar_nf)))*exp((((-modelPar_ea)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nf))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xis/modelPar_nf));
+      double value_exp_1 = exp((((-modelPar_ea)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nf)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xis/modelPar_nf)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_is_t_dX = ((modelPar_is*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nf)*((-modelPar_ea)*(-d_instanceVar_rT_dX)+(-d_modelPar_ea_dX)*(1.0-instanceVar_rT))-((-modelPar_ea)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nf_dX+d_instanceVar_vtv_dX*modelPar_nf))/(instanceVar_vtv*modelPar_nf)/(instanceVar_vtv*modelPar_nf)))+(modelPar_is*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nf*d_modelPar_xis_dX-modelPar_xis*d_modelPar_nf_dX)/modelPar_nf/modelPar_nf))))+d_modelPar_is_dX*value_pow_0)*value_exp_1);
+      instanceVar_is_t = ((modelPar_is*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_is_t>0.0))
     {
       if (((modelPar_ikf>0.0)&&(modelVar_imaxMod>modelPar_ikf)))
       {
-        instanceVar_maxvIfi = ((modelPar_nf*instanceVar_vtv)*log((1.0+(pow(((0.5*modelVar_imaxMod)*pow((4.0/modelPar_ikf),modelPar_nkf)),(1.0/(1.0-modelPar_nkf)))/instanceVar_is_t))));
+        {
+          double value_pow_0 = pow((4.0/modelPar_ikf),modelPar_nkf);
+          double value_pow_1 = pow(((0.5*modelVar_imaxMod)*value_pow_0),(1.0/(1.0-modelPar_nkf)));
+          double value_log_2 = log((1.0+(value_pow_1/instanceVar_is_t)));
+          double  deriv_pow_0_d0 = (((4.0/modelPar_ikf) == 0.0)?0.0:(value_pow_0*modelPar_nkf/(4.0/modelPar_ikf)));
+          double  deriv_pow_0_d1 = ((4.0/modelPar_ikf) == 0.0)?0.0:(log((4.0/modelPar_ikf))*value_pow_0);
+          double  deriv_pow_1_d0 = ((((0.5*modelVar_imaxMod)*value_pow_0) == 0.0)?0.0:(value_pow_1*(1.0/(1.0-modelPar_nkf))/((0.5*modelVar_imaxMod)*value_pow_0)));
+          double  deriv_pow_1_d1 = (((0.5*modelVar_imaxMod)*value_pow_0) == 0.0)?0.0:(log(((0.5*modelVar_imaxMod)*value_pow_0))*value_pow_1);
+          double  deriv_log_2_d0 = (1.0/(1.0+(value_pow_1/instanceVar_is_t)));
+          d_instanceVar_maxvIfi_dX = ((modelPar_nf*instanceVar_vtv)*deriv_log_2_d0*(((instanceVar_is_t*((deriv_pow_1_d0*(((0.5*modelVar_imaxMod)*((deriv_pow_0_d0*((-4.0*d_modelPar_ikf_dX/modelPar_ikf/modelPar_ikf)))+(deriv_pow_0_d1*(d_modelPar_nkf_dX)))+0.5*d_modelVar_imaxMod_dX*value_pow_0)))+(deriv_pow_1_d1*((-(-d_modelPar_nkf_dX)/(1.0-modelPar_nkf)/(1.0-modelPar_nkf)))))-value_pow_1*d_instanceVar_is_t_dX)/instanceVar_is_t/instanceVar_is_t))+(modelPar_nf*d_instanceVar_vtv_dX+d_modelPar_nf_dX*instanceVar_vtv)*value_log_2);
+          instanceVar_maxvIfi = ((modelPar_nf*instanceVar_vtv)*value_log_2);
+        }
       }
       else
       {
-        instanceVar_maxvIfi = ((modelPar_nf*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_is_t))));
+        {
+          double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_is_t)));
+          double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_is_t)));
+          d_instanceVar_maxvIfi_dX = ((modelPar_nf*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_is_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_is_t_dX)/instanceVar_is_t/instanceVar_is_t))+(modelPar_nf*d_instanceVar_vtv_dX+d_modelPar_nf_dX*instanceVar_vtv)*value_log_0);
+          instanceVar_maxvIfi = ((modelPar_nf*instanceVar_vtv)*value_log_0);
+        }
       }
     }
     else
     {
+      d_instanceVar_maxvIfi_dX = 0.0;
       instanceVar_maxvIfi = 0.0;
     }
-    instanceVar_isrr_t = ((modelPar_isrr*pow(instanceVar_rT,(modelPar_xisr/modelPar_nr)))*exp((((-modelPar_dear)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nr))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xisr/modelPar_nr));
+      double value_exp_1 = exp((((-modelPar_dear)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nr)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xisr/modelPar_nr)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_isrr_t_dX = ((modelPar_isrr*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nr)*((-modelPar_dear)*(-d_instanceVar_rT_dX)+(-d_modelPar_dear_dX)*(1.0-instanceVar_rT))-((-modelPar_dear)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nr_dX+d_instanceVar_vtv_dX*modelPar_nr))/(instanceVar_vtv*modelPar_nr)/(instanceVar_vtv*modelPar_nr)))+(modelPar_isrr*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nr*d_modelPar_xisr_dX-modelPar_xisr*d_modelPar_nr_dX)/modelPar_nr/modelPar_nr))))+d_modelPar_isrr_dX*value_pow_0)*value_exp_1);
+      instanceVar_isrr_t = ((modelPar_isrr*value_pow_0)*value_exp_1);
+    }
     if (((instanceVar_is_t>0.0)&&(instanceVar_isrr_t>0.0)))
     {
       if (((modelPar_ikr>0.0)&&(modelVar_imaxMod>modelPar_ikr)))
       {
-        instanceVar_maxvIri = ((modelPar_nr*instanceVar_vtv)*log((1.0+(pow(((0.5*modelVar_imaxMod)*pow((4.0/modelPar_ikr),modelPar_nkf)),(1.0/(1.0-modelPar_nkf)))/(instanceVar_is_t*instanceVar_isrr_t)))));
+        {
+          double value_pow_0 = pow((4.0/modelPar_ikr),modelPar_nkf);
+          double value_pow_1 = pow(((0.5*modelVar_imaxMod)*value_pow_0),(1.0/(1.0-modelPar_nkf)));
+          double value_log_2 = log((1.0+(value_pow_1/(instanceVar_is_t*instanceVar_isrr_t))));
+          double  deriv_pow_0_d0 = (((4.0/modelPar_ikr) == 0.0)?0.0:(value_pow_0*modelPar_nkf/(4.0/modelPar_ikr)));
+          double  deriv_pow_0_d1 = ((4.0/modelPar_ikr) == 0.0)?0.0:(log((4.0/modelPar_ikr))*value_pow_0);
+          double  deriv_pow_1_d0 = ((((0.5*modelVar_imaxMod)*value_pow_0) == 0.0)?0.0:(value_pow_1*(1.0/(1.0-modelPar_nkf))/((0.5*modelVar_imaxMod)*value_pow_0)));
+          double  deriv_pow_1_d1 = (((0.5*modelVar_imaxMod)*value_pow_0) == 0.0)?0.0:(log(((0.5*modelVar_imaxMod)*value_pow_0))*value_pow_1);
+          double  deriv_log_2_d0 = (1.0/(1.0+(value_pow_1/(instanceVar_is_t*instanceVar_isrr_t))));
+          d_instanceVar_maxvIri_dX = ((modelPar_nr*instanceVar_vtv)*deriv_log_2_d0*((((instanceVar_is_t*instanceVar_isrr_t)*((deriv_pow_1_d0*(((0.5*modelVar_imaxMod)*((deriv_pow_0_d0*((-4.0*d_modelPar_ikr_dX/modelPar_ikr/modelPar_ikr)))+(deriv_pow_0_d1*(d_modelPar_nkf_dX)))+0.5*d_modelVar_imaxMod_dX*value_pow_0)))+(deriv_pow_1_d1*((-(-d_modelPar_nkf_dX)/(1.0-modelPar_nkf)/(1.0-modelPar_nkf)))))-value_pow_1*(instanceVar_is_t*d_instanceVar_isrr_t_dX+d_instanceVar_is_t_dX*instanceVar_isrr_t))/(instanceVar_is_t*instanceVar_isrr_t)/(instanceVar_is_t*instanceVar_isrr_t)))+(modelPar_nr*d_instanceVar_vtv_dX+d_modelPar_nr_dX*instanceVar_vtv)*value_log_2);
+          instanceVar_maxvIri = ((modelPar_nr*instanceVar_vtv)*value_log_2);
+        }
       }
       else
       {
-        instanceVar_maxvIri = ((modelPar_nr*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/(instanceVar_is_t*instanceVar_isrr_t)))));
+        {
+          double value_log_0 = log((1.0+(modelVar_imaxMod/(instanceVar_is_t*instanceVar_isrr_t))));
+          double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/(instanceVar_is_t*instanceVar_isrr_t))));
+          d_instanceVar_maxvIri_dX = ((modelPar_nr*instanceVar_vtv)*deriv_log_0_d0*((((instanceVar_is_t*instanceVar_isrr_t)*d_modelVar_imaxMod_dX-modelVar_imaxMod*(instanceVar_is_t*d_instanceVar_isrr_t_dX+d_instanceVar_is_t_dX*instanceVar_isrr_t))/(instanceVar_is_t*instanceVar_isrr_t)/(instanceVar_is_t*instanceVar_isrr_t)))+(modelPar_nr*d_instanceVar_vtv_dX+d_modelPar_nr_dX*instanceVar_vtv)*value_log_0);
+          instanceVar_maxvIri = ((modelPar_nr*instanceVar_vtv)*value_log_0);
+        }
       }
     }
     else
     {
+      d_instanceVar_maxvIri_dX = 0.0;
       instanceVar_maxvIri = 0.0;
     }
-    instanceVar_isp_t = ((modelPar_isp*pow(instanceVar_rT,(modelPar_xis/modelPar_nfp)))*exp((((-modelPar_eap)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nfp))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xis/modelPar_nfp));
+      double value_exp_1 = exp((((-modelPar_eap)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nfp)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xis/modelPar_nfp)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_isp_t_dX = ((modelPar_isp*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nfp)*((-modelPar_eap)*(-d_instanceVar_rT_dX)+(-d_modelPar_eap_dX)*(1.0-instanceVar_rT))-((-modelPar_eap)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nfp_dX+d_instanceVar_vtv_dX*modelPar_nfp))/(instanceVar_vtv*modelPar_nfp)/(instanceVar_vtv*modelPar_nfp)))+(modelPar_isp*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nfp*d_modelPar_xis_dX-modelPar_xis*d_modelPar_nfp_dX)/modelPar_nfp/modelPar_nfp))))+d_modelPar_isp_dX*value_pow_0)*value_exp_1);
+      instanceVar_isp_t = ((modelPar_isp*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_isp_t>0.0))
     {
       if (((modelPar_ikp>0.0)&&(modelVar_imaxMod>modelPar_ikp)))
       {
-        instanceVar_maxvIp = ((modelPar_nfp*instanceVar_vtv)*log((1.0+(((modelVar_imaxMod*modelVar_imaxMod)*modelVar_Iikp)/instanceVar_isp_t))));
+        {
+          double value_log_0 = log((1.0+(((modelVar_imaxMod*modelVar_imaxMod)*modelVar_Iikp)/instanceVar_isp_t)));
+          double  deriv_log_0_d0 = (1.0/(1.0+(((modelVar_imaxMod*modelVar_imaxMod)*modelVar_Iikp)/instanceVar_isp_t)));
+          d_instanceVar_maxvIp_dX = ((modelPar_nfp*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_isp_t*((modelVar_imaxMod*modelVar_imaxMod)*d_modelVar_Iikp_dX+(modelVar_imaxMod*d_modelVar_imaxMod_dX+d_modelVar_imaxMod_dX*modelVar_imaxMod)*modelVar_Iikp)-((modelVar_imaxMod*modelVar_imaxMod)*modelVar_Iikp)*d_instanceVar_isp_t_dX)/instanceVar_isp_t/instanceVar_isp_t))+(modelPar_nfp*d_instanceVar_vtv_dX+d_modelPar_nfp_dX*instanceVar_vtv)*value_log_0);
+          instanceVar_maxvIp = ((modelPar_nfp*instanceVar_vtv)*value_log_0);
+        }
       }
       else
       {
-        instanceVar_maxvIp = ((modelPar_nfp*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_isp_t))));
+        {
+          double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_isp_t)));
+          double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_isp_t)));
+          d_instanceVar_maxvIp_dX = ((modelPar_nfp*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_isp_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_isp_t_dX)/instanceVar_isp_t/instanceVar_isp_t))+(modelPar_nfp*d_instanceVar_vtv_dX+d_modelPar_nfp_dX*instanceVar_vtv)*value_log_0);
+          instanceVar_maxvIp = ((modelPar_nfp*instanceVar_vtv)*value_log_0);
+        }
       }
     }
     else
     {
+      d_instanceVar_maxvIp_dX = 0.0;
       instanceVar_maxvIp = 0.0;
     }
-    instanceVar_ibei_t = ((modelPar_ibei*pow(instanceVar_rT,(modelPar_xii/modelPar_nei)))*exp((((-modelPar_eaie)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nei))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nei));
+      double value_exp_1 = exp((((-modelPar_eaie)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nei)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xii/modelPar_nei)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibei_t_dX = ((modelPar_ibei*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nei)*((-modelPar_eaie)*(-d_instanceVar_rT_dX)+(-d_modelPar_eaie_dX)*(1.0-instanceVar_rT))-((-modelPar_eaie)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nei_dX+d_instanceVar_vtv_dX*modelPar_nei))/(instanceVar_vtv*modelPar_nei)/(instanceVar_vtv*modelPar_nei)))+(modelPar_ibei*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nei*d_modelPar_xii_dX-modelPar_xii*d_modelPar_nei_dX)/modelPar_nei/modelPar_nei))))+d_modelPar_ibei_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibei_t = ((modelPar_ibei*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_ibei_t>0.0))
     {
-      instanceVar_maxvIbei = ((modelPar_nei*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibei_t))));
+      {
+        double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibei_t)));
+        double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_ibei_t)));
+        d_instanceVar_maxvIbei_dX = ((modelPar_nei*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_ibei_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_ibei_t_dX)/instanceVar_ibei_t/instanceVar_ibei_t))+(modelPar_nei*d_instanceVar_vtv_dX+d_modelPar_nei_dX*instanceVar_vtv)*value_log_0);
+        instanceVar_maxvIbei = ((modelPar_nei*instanceVar_vtv)*value_log_0);
+      }
     }
     else
     {
+      d_instanceVar_maxvIbei_dX = 0.0;
       instanceVar_maxvIbei = 0.0;
     }
-    instanceVar_iben_t = ((modelPar_iben*pow(instanceVar_rT,(modelPar_xin/modelPar_nen)))*exp((((-modelPar_eane)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nen))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_nen));
+      double value_exp_1 = exp((((-modelPar_eane)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nen)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xin/modelPar_nen)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_iben_t_dX = ((modelPar_iben*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nen)*((-modelPar_eane)*(-d_instanceVar_rT_dX)+(-d_modelPar_eane_dX)*(1.0-instanceVar_rT))-((-modelPar_eane)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nen_dX+d_instanceVar_vtv_dX*modelPar_nen))/(instanceVar_vtv*modelPar_nen)/(instanceVar_vtv*modelPar_nen)))+(modelPar_iben*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nen*d_modelPar_xin_dX-modelPar_xin*d_modelPar_nen_dX)/modelPar_nen/modelPar_nen))))+d_modelPar_iben_dX*value_pow_0)*value_exp_1);
+      instanceVar_iben_t = ((modelPar_iben*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_iben_t>0.0))
     {
-      instanceVar_maxvIben = ((modelPar_nen*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_iben_t))));
+      {
+        double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_iben_t)));
+        double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_iben_t)));
+        d_instanceVar_maxvIben_dX = ((modelPar_nen*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_iben_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_iben_t_dX)/instanceVar_iben_t/instanceVar_iben_t))+(modelPar_nen*d_instanceVar_vtv_dX+d_modelPar_nen_dX*instanceVar_vtv)*value_log_0);
+        instanceVar_maxvIben = ((modelPar_nen*instanceVar_vtv)*value_log_0);
+      }
     }
     else
     {
+      d_instanceVar_maxvIben_dX = 0.0;
       instanceVar_maxvIben = 0.0;
     }
-    instanceVar_ibci_t = ((modelPar_ibci*pow(instanceVar_rT,(modelPar_xii/modelPar_nci)))*exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nci));
+      double value_exp_1 = exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xii/modelPar_nci)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibci_t_dX = ((modelPar_ibci*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nci)*((-modelPar_eaic)*(-d_instanceVar_rT_dX)+(-d_modelPar_eaic_dX)*(1.0-instanceVar_rT))-((-modelPar_eaic)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nci_dX+d_instanceVar_vtv_dX*modelPar_nci))/(instanceVar_vtv*modelPar_nci)/(instanceVar_vtv*modelPar_nci)))+(modelPar_ibci*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nci*d_modelPar_xii_dX-modelPar_xii*d_modelPar_nci_dX)/modelPar_nci/modelPar_nci))))+d_modelPar_ibci_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibci_t = ((modelPar_ibci*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_ibci_t>0.0))
     {
-      instanceVar_maxvIbci = ((modelPar_nci*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibci_t))));
+      {
+        double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibci_t)));
+        double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_ibci_t)));
+        d_instanceVar_maxvIbci_dX = ((modelPar_nci*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_ibci_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_ibci_t_dX)/instanceVar_ibci_t/instanceVar_ibci_t))+(modelPar_nci*d_instanceVar_vtv_dX+d_modelPar_nci_dX*instanceVar_vtv)*value_log_0);
+        instanceVar_maxvIbci = ((modelPar_nci*instanceVar_vtv)*value_log_0);
+      }
     }
     else
     {
+      d_instanceVar_maxvIbci_dX = 0.0;
       instanceVar_maxvIbci = 0.0;
     }
-    instanceVar_ibcn_t = ((modelPar_ibcn*pow(instanceVar_rT,(modelPar_xin/modelPar_ncn)))*exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncn));
+      double value_exp_1 = exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xin/modelPar_ncn)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibcn_t_dX = ((modelPar_ibcn*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_ncn)*((-modelPar_eanc)*(-d_instanceVar_rT_dX)+(-d_modelPar_eanc_dX)*(1.0-instanceVar_rT))-((-modelPar_eanc)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_ncn_dX+d_instanceVar_vtv_dX*modelPar_ncn))/(instanceVar_vtv*modelPar_ncn)/(instanceVar_vtv*modelPar_ncn)))+(modelPar_ibcn*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_ncn*d_modelPar_xin_dX-modelPar_xin*d_modelPar_ncn_dX)/modelPar_ncn/modelPar_ncn))))+d_modelPar_ibcn_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibcn_t = ((modelPar_ibcn*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_ibcn_t>0.0))
     {
-      instanceVar_maxvIbcn = ((modelPar_ncn*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibcn_t))));
+      {
+        double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibcn_t)));
+        double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_ibcn_t)));
+        d_instanceVar_maxvIbcn_dX = ((modelPar_ncn*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_ibcn_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_ibcn_t_dX)/instanceVar_ibcn_t/instanceVar_ibcn_t))+(modelPar_ncn*d_instanceVar_vtv_dX+d_modelPar_ncn_dX*instanceVar_vtv)*value_log_0);
+        instanceVar_maxvIbcn = ((modelPar_ncn*instanceVar_vtv)*value_log_0);
+      }
     }
     else
     {
+      d_instanceVar_maxvIbcn_dX = 0.0;
       instanceVar_maxvIbcn = 0.0;
     }
-    instanceVar_ibeip_t = ((modelPar_ibeip*pow(instanceVar_rT,(modelPar_xii/modelPar_nci)))*exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nci));
+      double value_exp_1 = exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xii/modelPar_nci)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibeip_t_dX = ((modelPar_ibeip*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nci)*((-modelPar_eaic)*(-d_instanceVar_rT_dX)+(-d_modelPar_eaic_dX)*(1.0-instanceVar_rT))-((-modelPar_eaic)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nci_dX+d_instanceVar_vtv_dX*modelPar_nci))/(instanceVar_vtv*modelPar_nci)/(instanceVar_vtv*modelPar_nci)))+(modelPar_ibeip*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nci*d_modelPar_xii_dX-modelPar_xii*d_modelPar_nci_dX)/modelPar_nci/modelPar_nci))))+d_modelPar_ibeip_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibeip_t = ((modelPar_ibeip*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_ibeip_t>0.0))
     {
-      instanceVar_maxvIbeip = ((modelPar_nci*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibeip_t))));
+      {
+        double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibeip_t)));
+        double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_ibeip_t)));
+        d_instanceVar_maxvIbeip_dX = ((modelPar_nci*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_ibeip_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_ibeip_t_dX)/instanceVar_ibeip_t/instanceVar_ibeip_t))+(modelPar_nci*d_instanceVar_vtv_dX+d_modelPar_nci_dX*instanceVar_vtv)*value_log_0);
+        instanceVar_maxvIbeip = ((modelPar_nci*instanceVar_vtv)*value_log_0);
+      }
     }
     else
     {
+      d_instanceVar_maxvIbeip_dX = 0.0;
       instanceVar_maxvIbeip = 0.0;
     }
-    instanceVar_ibenp_t = ((modelPar_ibenp*pow(instanceVar_rT,(modelPar_xin/modelPar_ncn)))*exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncn));
+      double value_exp_1 = exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xin/modelPar_ncn)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibenp_t_dX = ((modelPar_ibenp*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_ncn)*((-modelPar_eanc)*(-d_instanceVar_rT_dX)+(-d_modelPar_eanc_dX)*(1.0-instanceVar_rT))-((-modelPar_eanc)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_ncn_dX+d_instanceVar_vtv_dX*modelPar_ncn))/(instanceVar_vtv*modelPar_ncn)/(instanceVar_vtv*modelPar_ncn)))+(modelPar_ibenp*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_ncn*d_modelPar_xin_dX-modelPar_xin*d_modelPar_ncn_dX)/modelPar_ncn/modelPar_ncn))))+d_modelPar_ibenp_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibenp_t = ((modelPar_ibenp*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_ibenp_t>0.0))
     {
-      instanceVar_maxvIbenp = ((modelPar_ncn*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibenp_t))));
+      {
+        double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibenp_t)));
+        double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_ibenp_t)));
+        d_instanceVar_maxvIbenp_dX = ((modelPar_ncn*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_ibenp_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_ibenp_t_dX)/instanceVar_ibenp_t/instanceVar_ibenp_t))+(modelPar_ncn*d_instanceVar_vtv_dX+d_modelPar_ncn_dX*instanceVar_vtv)*value_log_0);
+        instanceVar_maxvIbenp = ((modelPar_ncn*instanceVar_vtv)*value_log_0);
+      }
     }
     else
     {
+      d_instanceVar_maxvIbenp_dX = 0.0;
       instanceVar_maxvIbenp = 0.0;
     }
-    instanceVar_ibcip_t = ((modelPar_ibcip*pow(instanceVar_rT,(modelPar_xii/modelPar_ncip)))*exp((((-modelPar_eais)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncip))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_ncip));
+      double value_exp_1 = exp((((-modelPar_eais)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncip)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xii/modelPar_ncip)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibcip_t_dX = ((modelPar_ibcip*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_ncip)*((-modelPar_eais)*(-d_instanceVar_rT_dX)+(-d_modelPar_eais_dX)*(1.0-instanceVar_rT))-((-modelPar_eais)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_ncip_dX+d_instanceVar_vtv_dX*modelPar_ncip))/(instanceVar_vtv*modelPar_ncip)/(instanceVar_vtv*modelPar_ncip)))+(modelPar_ibcip*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_ncip*d_modelPar_xii_dX-modelPar_xii*d_modelPar_ncip_dX)/modelPar_ncip/modelPar_ncip))))+d_modelPar_ibcip_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibcip_t = ((modelPar_ibcip*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_ibcip_t>0.0))
     {
-      maxvIbcip = ((modelPar_ncip*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibcip_t))));
+      {
+        double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibcip_t)));
+        double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_ibcip_t)));
+        d_maxvIbcip_dX = ((modelPar_ncip*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_ibcip_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_ibcip_t_dX)/instanceVar_ibcip_t/instanceVar_ibcip_t))+(modelPar_ncip*d_instanceVar_vtv_dX+d_modelPar_ncip_dX*instanceVar_vtv)*value_log_0);
+        maxvIbcip = ((modelPar_ncip*instanceVar_vtv)*value_log_0);
+      }
     }
     else
     {
+      d_maxvIbcip_dX = 0.0;
       maxvIbcip = 0.0;
     }
-    instanceVar_ibcnp_t = ((modelPar_ibcnp*pow(instanceVar_rT,(modelPar_xin/modelPar_ncnp)))*exp((((-modelPar_eans)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncnp))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncnp));
+      double value_exp_1 = exp((((-modelPar_eans)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncnp)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xin/modelPar_ncnp)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibcnp_t_dX = ((modelPar_ibcnp*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_ncnp)*((-modelPar_eans)*(-d_instanceVar_rT_dX)+(-d_modelPar_eans_dX)*(1.0-instanceVar_rT))-((-modelPar_eans)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_ncnp_dX+d_instanceVar_vtv_dX*modelPar_ncnp))/(instanceVar_vtv*modelPar_ncnp)/(instanceVar_vtv*modelPar_ncnp)))+(modelPar_ibcnp*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_ncnp*d_modelPar_xin_dX-modelPar_xin*d_modelPar_ncnp_dX)/modelPar_ncnp/modelPar_ncnp))))+d_modelPar_ibcnp_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibcnp_t = ((modelPar_ibcnp*value_pow_0)*value_exp_1);
+    }
     if ((instanceVar_ibcnp_t>0.0))
     {
-      maxvIbcnp = ((modelPar_ncnp*instanceVar_vtv)*log((1.0+(modelVar_imaxMod/instanceVar_ibcnp_t))));
+      {
+        double value_log_0 = log((1.0+(modelVar_imaxMod/instanceVar_ibcnp_t)));
+        double  deriv_log_0_d0 = (1.0/(1.0+(modelVar_imaxMod/instanceVar_ibcnp_t)));
+        d_maxvIbcnp_dX = ((modelPar_ncnp*instanceVar_vtv)*deriv_log_0_d0*(((instanceVar_ibcnp_t*d_modelVar_imaxMod_dX-modelVar_imaxMod*d_instanceVar_ibcnp_t_dX)/instanceVar_ibcnp_t/instanceVar_ibcnp_t))+(modelPar_ncnp*d_instanceVar_vtv_dX+d_modelPar_ncnp_dX*instanceVar_vtv)*value_log_0);
+        maxvIbcnp = ((modelPar_ncnp*instanceVar_vtv)*value_log_0);
+      }
     }
     else
     {
+      d_maxvIbcnp_dX = 0.0;
       maxvIbcnp = 0.0;
     }
   }
@@ -9633,261 +9987,389 @@ void evaluateInitialInstance(
 void evaluateInitialModel(
    // model parameters
    // reals
-   AdmsSensFadType & modelPar_npn,
+   double & modelPar_npn,
+   double & d_modelPar_npn_dX,
    bool modelPar_given_npn,
-   AdmsSensFadType & modelPar_pnp,
+   double & modelPar_pnp,
+   double & d_modelPar_pnp_dX,
    bool modelPar_given_pnp,
-   AdmsSensFadType & modelPar_scale,
+   double & modelPar_scale,
+   double & d_modelPar_scale_dX,
    bool modelPar_given_scale,
-   AdmsSensFadType & modelPar_shrink,
+   double & modelPar_shrink,
+   double & d_modelPar_shrink_dX,
    bool modelPar_given_shrink,
-   AdmsSensFadType & modelPar_tmin,
+   double & modelPar_tmin,
+   double & d_modelPar_tmin_dX,
    bool modelPar_given_tmin,
-   AdmsSensFadType & modelPar_tmax,
+   double & modelPar_tmax,
+   double & d_modelPar_tmax_dX,
    bool modelPar_given_tmax,
-   AdmsSensFadType & modelPar_gmin,
+   double & modelPar_gmin,
+   double & d_modelPar_gmin_dX,
    bool modelPar_given_gmin,
-   AdmsSensFadType & modelPar_pnjmaxi,
+   double & modelPar_pnjmaxi,
+   double & d_modelPar_pnjmaxi_dX,
    bool modelPar_given_pnjmaxi,
-   AdmsSensFadType & modelPar_maxexp,
+   double & modelPar_maxexp,
+   double & d_modelPar_maxexp_dX,
    bool modelPar_given_maxexp,
-   AdmsSensFadType & modelPar_tnom,
+   double & modelPar_tnom,
+   double & d_modelPar_tnom_dX,
    bool modelPar_given_tnom,
-   AdmsSensFadType & modelPar_tminclip,
+   double & modelPar_tminclip,
+   double & d_modelPar_tminclip_dX,
    bool modelPar_given_tminclip,
-   AdmsSensFadType & modelPar_tmaxclip,
+   double & modelPar_tmaxclip,
+   double & d_modelPar_tmaxclip_dX,
    bool modelPar_given_tmaxclip,
-   AdmsSensFadType & modelPar_rcx,
+   double & modelPar_rcx,
+   double & d_modelPar_rcx_dX,
    bool modelPar_given_rcx,
-   AdmsSensFadType & modelPar_rci,
+   double & modelPar_rci,
+   double & d_modelPar_rci_dX,
    bool modelPar_given_rci,
-   AdmsSensFadType & modelPar_vo,
+   double & modelPar_vo,
+   double & d_modelPar_vo_dX,
    bool modelPar_given_vo,
-   AdmsSensFadType & modelPar_gamm,
+   double & modelPar_gamm,
+   double & d_modelPar_gamm_dX,
    bool modelPar_given_gamm,
-   AdmsSensFadType & modelPar_hrcf,
+   double & modelPar_hrcf,
+   double & d_modelPar_hrcf_dX,
    bool modelPar_given_hrcf,
-   AdmsSensFadType & modelPar_rbx,
+   double & modelPar_rbx,
+   double & d_modelPar_rbx_dX,
    bool modelPar_given_rbx,
-   AdmsSensFadType & modelPar_rbi,
+   double & modelPar_rbi,
+   double & d_modelPar_rbi_dX,
    bool modelPar_given_rbi,
-   AdmsSensFadType & modelPar_re,
+   double & modelPar_re,
+   double & d_modelPar_re_dX,
    bool modelPar_given_re,
-   AdmsSensFadType & modelPar_rs,
+   double & modelPar_rs,
+   double & d_modelPar_rs_dX,
    bool modelPar_given_rs,
-   AdmsSensFadType & modelPar_rbp,
+   double & modelPar_rbp,
+   double & d_modelPar_rbp_dX,
    bool modelPar_given_rbp,
-   AdmsSensFadType & modelPar_is,
+   double & modelPar_is,
+   double & d_modelPar_is_dX,
    bool modelPar_given_is,
-   AdmsSensFadType & modelPar_isrr,
+   double & modelPar_isrr,
+   double & d_modelPar_isrr_dX,
    bool modelPar_given_isrr,
-   AdmsSensFadType & modelPar_nf,
+   double & modelPar_nf,
+   double & d_modelPar_nf_dX,
    bool modelPar_given_nf,
-   AdmsSensFadType & modelPar_nr,
+   double & modelPar_nr,
+   double & d_modelPar_nr_dX,
    bool modelPar_given_nr,
-   AdmsSensFadType & modelPar_isp,
+   double & modelPar_isp,
+   double & d_modelPar_isp_dX,
    bool modelPar_given_isp,
-   AdmsSensFadType & modelPar_wsp,
+   double & modelPar_wsp,
+   double & d_modelPar_wsp_dX,
    bool modelPar_given_wsp,
-   AdmsSensFadType & modelPar_nfp,
+   double & modelPar_nfp,
+   double & d_modelPar_nfp_dX,
    bool modelPar_given_nfp,
-   AdmsSensFadType & modelPar_fc,
+   double & modelPar_fc,
+   double & d_modelPar_fc_dX,
    bool modelPar_given_fc,
-   AdmsSensFadType & modelPar_cbeo,
+   double & modelPar_cbeo,
+   double & d_modelPar_cbeo_dX,
    bool modelPar_given_cbeo,
-   AdmsSensFadType & modelPar_cje,
+   double & modelPar_cje,
+   double & d_modelPar_cje_dX,
    bool modelPar_given_cje,
-   AdmsSensFadType & modelPar_pe,
+   double & modelPar_pe,
+   double & d_modelPar_pe_dX,
    bool modelPar_given_pe,
-   AdmsSensFadType & modelPar_me,
+   double & modelPar_me,
+   double & d_modelPar_me_dX,
    bool modelPar_given_me,
-   AdmsSensFadType & modelPar_aje,
+   double & modelPar_aje,
+   double & d_modelPar_aje_dX,
    bool modelPar_given_aje,
-   AdmsSensFadType & modelPar_cbco,
+   double & modelPar_cbco,
+   double & d_modelPar_cbco_dX,
    bool modelPar_given_cbco,
-   AdmsSensFadType & modelPar_cjc,
+   double & modelPar_cjc,
+   double & d_modelPar_cjc_dX,
    bool modelPar_given_cjc,
-   AdmsSensFadType & modelPar_pc,
+   double & modelPar_pc,
+   double & d_modelPar_pc_dX,
    bool modelPar_given_pc,
-   AdmsSensFadType & modelPar_mc,
+   double & modelPar_mc,
+   double & d_modelPar_mc_dX,
    bool modelPar_given_mc,
-   AdmsSensFadType & modelPar_ajc,
+   double & modelPar_ajc,
+   double & d_modelPar_ajc_dX,
    bool modelPar_given_ajc,
-   AdmsSensFadType & modelPar_vrt,
+   double & modelPar_vrt,
+   double & d_modelPar_vrt_dX,
    bool modelPar_given_vrt,
-   AdmsSensFadType & modelPar_art,
+   double & modelPar_art,
+   double & d_modelPar_art_dX,
    bool modelPar_given_art,
-   AdmsSensFadType & modelPar_qco,
+   double & modelPar_qco,
+   double & d_modelPar_qco_dX,
    bool modelPar_given_qco,
-   AdmsSensFadType & modelPar_cjep,
+   double & modelPar_cjep,
+   double & d_modelPar_cjep_dX,
    bool modelPar_given_cjep,
-   AdmsSensFadType & modelPar_cjcp,
+   double & modelPar_cjcp,
+   double & d_modelPar_cjcp_dX,
    bool modelPar_given_cjcp,
-   AdmsSensFadType & modelPar_ps,
+   double & modelPar_ps,
+   double & d_modelPar_ps_dX,
    bool modelPar_given_ps,
-   AdmsSensFadType & modelPar_ms,
+   double & modelPar_ms,
+   double & d_modelPar_ms_dX,
    bool modelPar_given_ms,
-   AdmsSensFadType & modelPar_ajs,
+   double & modelPar_ajs,
+   double & d_modelPar_ajs_dX,
    bool modelPar_given_ajs,
-   AdmsSensFadType & modelPar_ccso,
+   double & modelPar_ccso,
+   double & d_modelPar_ccso_dX,
    bool modelPar_given_ccso,
-   AdmsSensFadType & modelPar_ibei,
+   double & modelPar_ibei,
+   double & d_modelPar_ibei_dX,
    bool modelPar_given_ibei,
-   AdmsSensFadType & modelPar_wbe,
+   double & modelPar_wbe,
+   double & d_modelPar_wbe_dX,
    bool modelPar_given_wbe,
-   AdmsSensFadType & modelPar_nei,
+   double & modelPar_nei,
+   double & d_modelPar_nei_dX,
    bool modelPar_given_nei,
-   AdmsSensFadType & modelPar_qnibeir,
+   double & modelPar_qnibeir,
+   double & d_modelPar_qnibeir_dX,
    bool modelPar_given_qnibeir,
-   AdmsSensFadType & modelPar_iben,
+   double & modelPar_iben,
+   double & d_modelPar_iben_dX,
    bool modelPar_given_iben,
-   AdmsSensFadType & modelPar_nen,
+   double & modelPar_nen,
+   double & d_modelPar_nen_dX,
    bool modelPar_given_nen,
-   AdmsSensFadType & modelPar_ibci,
+   double & modelPar_ibci,
+   double & d_modelPar_ibci_dX,
    bool modelPar_given_ibci,
-   AdmsSensFadType & modelPar_nci,
+   double & modelPar_nci,
+   double & d_modelPar_nci_dX,
    bool modelPar_given_nci,
-   AdmsSensFadType & modelPar_ibcn,
+   double & modelPar_ibcn,
+   double & d_modelPar_ibcn_dX,
    bool modelPar_given_ibcn,
-   AdmsSensFadType & modelPar_ncn,
+   double & modelPar_ncn,
+   double & d_modelPar_ncn_dX,
    bool modelPar_given_ncn,
-   AdmsSensFadType & modelPar_ibeip,
+   double & modelPar_ibeip,
+   double & d_modelPar_ibeip_dX,
    bool modelPar_given_ibeip,
-   AdmsSensFadType & modelPar_ibenp,
+   double & modelPar_ibenp,
+   double & d_modelPar_ibenp_dX,
    bool modelPar_given_ibenp,
-   AdmsSensFadType & modelPar_ibcip,
+   double & modelPar_ibcip,
+   double & d_modelPar_ibcip_dX,
    bool modelPar_given_ibcip,
-   AdmsSensFadType & modelPar_ncip,
+   double & modelPar_ncip,
+   double & d_modelPar_ncip_dX,
    bool modelPar_given_ncip,
-   AdmsSensFadType & modelPar_ibcnp,
+   double & modelPar_ibcnp,
+   double & d_modelPar_ibcnp_dX,
    bool modelPar_given_ibcnp,
-   AdmsSensFadType & modelPar_ncnp,
+   double & modelPar_ncnp,
+   double & d_modelPar_ncnp_dX,
    bool modelPar_given_ncnp,
-   AdmsSensFadType & modelPar_vef,
+   double & modelPar_vef,
+   double & d_modelPar_vef_dX,
    bool modelPar_given_vef,
-   AdmsSensFadType & modelPar_ver,
+   double & modelPar_ver,
+   double & d_modelPar_ver_dX,
    bool modelPar_given_ver,
-   AdmsSensFadType & modelPar_ikf,
+   double & modelPar_ikf,
+   double & d_modelPar_ikf_dX,
    bool modelPar_given_ikf,
-   AdmsSensFadType & modelPar_nkf,
+   double & modelPar_nkf,
+   double & d_modelPar_nkf_dX,
    bool modelPar_given_nkf,
-   AdmsSensFadType & modelPar_ikr,
+   double & modelPar_ikr,
+   double & d_modelPar_ikr_dX,
    bool modelPar_given_ikr,
-   AdmsSensFadType & modelPar_ikp,
+   double & modelPar_ikp,
+   double & d_modelPar_ikp_dX,
    bool modelPar_given_ikp,
-   AdmsSensFadType & modelPar_tf,
+   double & modelPar_tf,
+   double & d_modelPar_tf_dX,
    bool modelPar_given_tf,
-   AdmsSensFadType & modelPar_qtf,
+   double & modelPar_qtf,
+   double & d_modelPar_qtf_dX,
    bool modelPar_given_qtf,
-   AdmsSensFadType & modelPar_xtf,
+   double & modelPar_xtf,
+   double & d_modelPar_xtf_dX,
    bool modelPar_given_xtf,
-   AdmsSensFadType & modelPar_vtf,
+   double & modelPar_vtf,
+   double & d_modelPar_vtf_dX,
    bool modelPar_given_vtf,
-   AdmsSensFadType & modelPar_itf,
+   double & modelPar_itf,
+   double & d_modelPar_itf_dX,
    bool modelPar_given_itf,
-   AdmsSensFadType & modelPar_tr,
+   double & modelPar_tr,
+   double & d_modelPar_tr_dX,
    bool modelPar_given_tr,
-   AdmsSensFadType & modelPar_td,
+   double & modelPar_td,
+   double & d_modelPar_td_dX,
    bool modelPar_given_td,
-   AdmsSensFadType & modelPar_avc1,
+   double & modelPar_avc1,
+   double & d_modelPar_avc1_dX,
    bool modelPar_given_avc1,
-   AdmsSensFadType & modelPar_avc2,
+   double & modelPar_avc2,
+   double & d_modelPar_avc2_dX,
    bool modelPar_given_avc2,
-   AdmsSensFadType & modelPar_avcx1,
+   double & modelPar_avcx1,
+   double & d_modelPar_avcx1_dX,
    bool modelPar_given_avcx1,
-   AdmsSensFadType & modelPar_avcx2,
+   double & modelPar_avcx2,
+   double & d_modelPar_avcx2_dX,
    bool modelPar_given_avcx2,
-   AdmsSensFadType & modelPar_mcx,
+   double & modelPar_mcx,
+   double & d_modelPar_mcx_dX,
    bool modelPar_given_mcx,
-   AdmsSensFadType & modelPar_vbbe,
+   double & modelPar_vbbe,
+   double & d_modelPar_vbbe_dX,
    bool modelPar_given_vbbe,
-   AdmsSensFadType & modelPar_nbbe,
+   double & modelPar_nbbe,
+   double & d_modelPar_nbbe_dX,
    bool modelPar_given_nbbe,
-   AdmsSensFadType & modelPar_ibbe,
+   double & modelPar_ibbe,
+   double & d_modelPar_ibbe_dX,
    bool modelPar_given_ibbe,
-   AdmsSensFadType & modelPar_tvbbe1,
+   double & modelPar_tvbbe1,
+   double & d_modelPar_tvbbe1_dX,
    bool modelPar_given_tvbbe1,
-   AdmsSensFadType & modelPar_tvbbe2,
+   double & modelPar_tvbbe2,
+   double & d_modelPar_tvbbe2_dX,
    bool modelPar_given_tvbbe2,
-   AdmsSensFadType & modelPar_tnbbe,
+   double & modelPar_tnbbe,
+   double & d_modelPar_tnbbe_dX,
    bool modelPar_given_tnbbe,
-   AdmsSensFadType & modelPar_vpte,
+   double & modelPar_vpte,
+   double & d_modelPar_vpte_dX,
    bool modelPar_given_vpte,
-   AdmsSensFadType & modelPar_ibk0,
+   double & modelPar_ibk0,
+   double & d_modelPar_ibk0_dX,
    bool modelPar_given_ibk0,
-   AdmsSensFadType & modelPar_abk,
+   double & modelPar_abk,
+   double & d_modelPar_abk_dX,
    bool modelPar_given_abk,
-   AdmsSensFadType & modelPar_bbk,
+   double & modelPar_bbk,
+   double & d_modelPar_bbk_dX,
    bool modelPar_given_bbk,
-   AdmsSensFadType & modelPar_kfn,
+   double & modelPar_kfn,
+   double & d_modelPar_kfn_dX,
    bool modelPar_given_kfn,
-   AdmsSensFadType & modelPar_afn,
+   double & modelPar_afn,
+   double & d_modelPar_afn_dX,
    bool modelPar_given_afn,
-   AdmsSensFadType & modelPar_bfn,
+   double & modelPar_bfn,
+   double & d_modelPar_bfn_dX,
    bool modelPar_given_bfn,
-   AdmsSensFadType & modelPar_rth,
+   double & modelPar_rth,
+   double & d_modelPar_rth_dX,
    bool modelPar_given_rth,
-   AdmsSensFadType & modelPar_cth,
+   double & modelPar_cth,
+   double & d_modelPar_cth_dX,
    bool modelPar_given_cth,
-   AdmsSensFadType & modelPar_xre,
+   double & modelPar_xre,
+   double & d_modelPar_xre_dX,
    bool modelPar_given_xre,
-   AdmsSensFadType & modelPar_xrb,
+   double & modelPar_xrb,
+   double & d_modelPar_xrb_dX,
    bool modelPar_given_xrb,
-   AdmsSensFadType & modelPar_xrbi,
+   double & modelPar_xrbi,
+   double & d_modelPar_xrbi_dX,
    bool modelPar_given_xrbi,
-   AdmsSensFadType & modelPar_xrbx,
+   double & modelPar_xrbx,
+   double & d_modelPar_xrbx_dX,
    bool modelPar_given_xrbx,
-   AdmsSensFadType & modelPar_xrc,
+   double & modelPar_xrc,
+   double & d_modelPar_xrc_dX,
    bool modelPar_given_xrc,
-   AdmsSensFadType & modelPar_xrci,
+   double & modelPar_xrci,
+   double & d_modelPar_xrci_dX,
    bool modelPar_given_xrci,
-   AdmsSensFadType & modelPar_xrcx,
+   double & modelPar_xrcx,
+   double & d_modelPar_xrcx_dX,
    bool modelPar_given_xrcx,
-   AdmsSensFadType & modelPar_xrbp,
+   double & modelPar_xrbp,
+   double & d_modelPar_xrbp_dX,
    bool modelPar_given_xrbp,
-   AdmsSensFadType & modelPar_xrs,
+   double & modelPar_xrs,
+   double & d_modelPar_xrs_dX,
    bool modelPar_given_xrs,
-   AdmsSensFadType & modelPar_xvo,
+   double & modelPar_xvo,
+   double & d_modelPar_xvo_dX,
    bool modelPar_given_xvo,
-   AdmsSensFadType & modelPar_ea,
+   double & modelPar_ea,
+   double & d_modelPar_ea_dX,
    bool modelPar_given_ea,
-   AdmsSensFadType & modelPar_eaie,
+   double & modelPar_eaie,
+   double & d_modelPar_eaie_dX,
    bool modelPar_given_eaie,
-   AdmsSensFadType & modelPar_eaic,
+   double & modelPar_eaic,
+   double & d_modelPar_eaic_dX,
    bool modelPar_given_eaic,
-   AdmsSensFadType & modelPar_eais,
+   double & modelPar_eais,
+   double & d_modelPar_eais_dX,
    bool modelPar_given_eais,
-   AdmsSensFadType & modelPar_eane,
+   double & modelPar_eane,
+   double & d_modelPar_eane_dX,
    bool modelPar_given_eane,
-   AdmsSensFadType & modelPar_eanc,
+   double & modelPar_eanc,
+   double & d_modelPar_eanc_dX,
    bool modelPar_given_eanc,
-   AdmsSensFadType & modelPar_eans,
+   double & modelPar_eans,
+   double & d_modelPar_eans_dX,
    bool modelPar_given_eans,
-   AdmsSensFadType & modelPar_eap,
+   double & modelPar_eap,
+   double & d_modelPar_eap_dX,
    bool modelPar_given_eap,
-   AdmsSensFadType & modelPar_dear,
+   double & modelPar_dear,
+   double & d_modelPar_dear_dX,
    bool modelPar_given_dear,
-   AdmsSensFadType & modelPar_xis,
+   double & modelPar_xis,
+   double & d_modelPar_xis_dX,
    bool modelPar_given_xis,
-   AdmsSensFadType & modelPar_xii,
+   double & modelPar_xii,
+   double & d_modelPar_xii_dX,
    bool modelPar_given_xii,
-   AdmsSensFadType & modelPar_xin,
+   double & modelPar_xin,
+   double & d_modelPar_xin_dX,
    bool modelPar_given_xin,
-   AdmsSensFadType & modelPar_xisr,
+   double & modelPar_xisr,
+   double & d_modelPar_xisr_dX,
    bool modelPar_given_xisr,
-   AdmsSensFadType & modelPar_xikf,
+   double & modelPar_xikf,
+   double & d_modelPar_xikf_dX,
    bool modelPar_given_xikf,
-   AdmsSensFadType & modelPar_tavc,
+   double & modelPar_tavc,
+   double & d_modelPar_tavc_dX,
    bool modelPar_given_tavc,
-   AdmsSensFadType & modelPar_tavcx,
+   double & modelPar_tavcx,
+   double & d_modelPar_tavcx_dX,
    bool modelPar_given_tavcx,
-   AdmsSensFadType & modelPar_tnf,
+   double & modelPar_tnf,
+   double & d_modelPar_tnf_dX,
    bool modelPar_given_tnf,
-   AdmsSensFadType & modelPar_tcvef,
+   double & modelPar_tcvef,
+   double & d_modelPar_tcvef_dX,
    bool modelPar_given_tcvef,
-   AdmsSensFadType & modelPar_tcver,
+   double & modelPar_tcver,
+   double & d_modelPar_tcver_dX,
    bool modelPar_given_tcver,
-   AdmsSensFadType & modelPar_tcrth,
+   double & modelPar_tcrth,
+   double & d_modelPar_tcrth_dX,
    bool modelPar_given_tcrth,
    // non-reals (including hidden)
    int modelPar_type,
@@ -9897,38 +10379,46 @@ void evaluateInitialModel(
    bool modelPar_given_qbm// model variables
    ,
    // reals
-   AdmsSensFadType & modelVar_tiniK,
-   AdmsSensFadType & modelVar_Iikr,
-   AdmsSensFadType & modelVar_Iikp,
-   AdmsSensFadType & modelVar_Ihrcf,
-   AdmsSensFadType & modelVar_Ivtf,
-   AdmsSensFadType & modelVar_Iitf,
-   AdmsSensFadType & modelVar_sltf,
-   AdmsSensFadType & modelVar_VmaxExp,
-   AdmsSensFadType & modelVar_gminMod,
-   AdmsSensFadType & modelVar_imaxMod,
+   double & modelVar_tiniK, double & d_modelVar_tiniK_dX ,
+   double & modelVar_Iikr, double & d_modelVar_Iikr_dX ,
+   double & modelVar_Iikp, double & d_modelVar_Iikp_dX ,
+   double & modelVar_Ihrcf, double & d_modelVar_Ihrcf_dX ,
+   double & modelVar_Ivtf, double & d_modelVar_Ivtf_dX ,
+   double & modelVar_Iitf, double & d_modelVar_Iitf_dX ,
+   double & modelVar_sltf, double & d_modelVar_sltf_dX ,
+   double & modelVar_VmaxExp, double & d_modelVar_VmaxExp_dX ,
+   double & modelVar_gminMod, double & d_modelVar_gminMod_dX ,
+   double & modelVar_imaxMod, double & d_modelVar_imaxMod_dX ,
    double admsTemperature, double ADMSgmin_arg, const Instance & theInstance)
 {
-  AdmsSensFadType shrinkL;
-  AdmsSensFadType scaleFac;
+  double shrinkL;
+  double d_shrinkL_dX;
+  double scaleFac;
+  double d_scaleFac_dX;
   //Begin block initial_model
   {
+    d_scaleFac_dX = d_modelPar_scale_dX;
     scaleFac = modelPar_scale;
+    d_shrinkL_dX = (-0.01*d_modelPar_shrink_dX);
     shrinkL = (1.0-(0.01*modelPar_shrink));
     if (modelPar_given_gmin)
     {
+      d_modelVar_gminMod_dX = d_modelPar_gmin_dX;
       modelVar_gminMod = modelPar_gmin;
     }
     else
     {
+      d_modelVar_gminMod_dX = 0.0;
       modelVar_gminMod = ADMSgmin_arg;
     }
     if (modelPar_given_pnjmaxi)
     {
+      d_modelVar_imaxMod_dX = d_modelPar_pnjmaxi_dX;
       modelVar_imaxMod = modelPar_pnjmaxi;
     }
     else
     {
+      d_modelVar_imaxMod_dX = 0.0;
       modelVar_imaxMod = 1.0;
     }
     if (modelPar_given_npn)
@@ -9949,13 +10439,25 @@ void evaluateInitialModel(
         }
       }
     }
-    modelVar_VmaxExp = log(modelPar_maxexp);
-    modelVar_Iikr = adms_ternary_op<AdmsSensFadType>((modelPar_ikr>0.0),(1.0/modelPar_ikr),0.0);
-    modelVar_Iikp = adms_ternary_op<AdmsSensFadType>((modelPar_ikp>0.0),(1.0/modelPar_ikp),0.0);
-    modelVar_Ihrcf = adms_ternary_op<AdmsSensFadType>((modelPar_hrcf>0.0),(1.0/modelPar_hrcf),0.0);
-    modelVar_Ivtf = adms_ternary_op<AdmsSensFadType>((modelPar_vtf>0.0),(1.0/modelPar_vtf),0.0);
-    modelVar_Iitf = adms_ternary_op<AdmsSensFadType>((modelPar_itf>0.0),(1.0/modelPar_itf),0.0);
+    {
+      double value_log_0 = log(modelPar_maxexp);
+      double  deriv_log_0_d0 = (1.0/modelPar_maxexp);
+      d_modelVar_VmaxExp_dX = deriv_log_0_d0*(d_modelPar_maxexp_dX);
+      modelVar_VmaxExp = value_log_0;
+    }
+    d_modelVar_Iikr_dX = ((modelPar_ikr>0.0)?(-d_modelPar_ikr_dX/modelPar_ikr/modelPar_ikr):0.0);
+    modelVar_Iikr = ((modelPar_ikr>0.0)?(1.0/modelPar_ikr):0.0);
+    d_modelVar_Iikp_dX = ((modelPar_ikp>0.0)?(-d_modelPar_ikp_dX/modelPar_ikp/modelPar_ikp):0.0);
+    modelVar_Iikp = ((modelPar_ikp>0.0)?(1.0/modelPar_ikp):0.0);
+    d_modelVar_Ihrcf_dX = ((modelPar_hrcf>0.0)?(-d_modelPar_hrcf_dX/modelPar_hrcf/modelPar_hrcf):0.0);
+    modelVar_Ihrcf = ((modelPar_hrcf>0.0)?(1.0/modelPar_hrcf):0.0);
+    d_modelVar_Ivtf_dX = ((modelPar_vtf>0.0)?(-d_modelPar_vtf_dX/modelPar_vtf/modelPar_vtf):0.0);
+    modelVar_Ivtf = ((modelPar_vtf>0.0)?(1.0/modelPar_vtf):0.0);
+    d_modelVar_Iitf_dX = ((modelPar_itf>0.0)?(-d_modelPar_itf_dX/modelPar_itf/modelPar_itf):0.0);
+    modelVar_Iitf = ((modelPar_itf>0.0)?(1.0/modelPar_itf):0.0);
+    d_modelVar_sltf_dX = 0.0;
     modelVar_sltf = ((modelPar_itf>0.0)?0.0:1.0);
+    d_modelVar_tiniK_dX = d_modelPar_tnom_dX;
     modelVar_tiniK = (273.15+modelPar_tnom);
   }
   // End block initial_model
@@ -10010,9 +10512,11 @@ void evaluateModelEquations(
    const int admsNodeID_xf2,
    // instance parameters
    // reals
-   AdmsSensFadType & instancePar_m,
+   double & instancePar_m,
+   double & d_instancePar_m_dX,
    bool instancePar_given_m,
-   AdmsSensFadType & instancePar_trise,
+   double & instancePar_trise,
+   double & d_instancePar_trise_dX,
    bool instancePar_given_trise,
    // non-reals(including hidden)
    int instancePar_sw_noise,
@@ -10021,304 +10525,432 @@ void evaluateModelEquations(
    bool instancePar_given_sw_et,
    // instance variables
    // reals
-   AdmsSensFadType & instanceVar_is_t,
-   AdmsSensFadType & instanceVar_isrr_t,
-   AdmsSensFadType & instanceVar_ibei_t,
-   AdmsSensFadType & instanceVar_ibci_t,
-   AdmsSensFadType & instanceVar_isp_t,
-   AdmsSensFadType & instanceVar_iben_t,
-   AdmsSensFadType & instanceVar_ibcn_t,
-   AdmsSensFadType & instanceVar_ibeip_t,
-   AdmsSensFadType & instanceVar_ibenp_t,
-   AdmsSensFadType & instanceVar_ibcip_t,
-   AdmsSensFadType & instanceVar_ibcnp_t,
-   AdmsSensFadType & instanceVar_tdevC,
-   AdmsSensFadType & instanceVar_tdevK,
-   AdmsSensFadType & instanceVar_rT,
-   AdmsSensFadType & instanceVar_Gcx,
-   AdmsSensFadType & instanceVar_Gci,
-   AdmsSensFadType & instanceVar_Gbx,
-   AdmsSensFadType & instanceVar_Gbi,
-   AdmsSensFadType & instanceVar_Ge,
-   AdmsSensFadType & instanceVar_Gbp,
-   AdmsSensFadType & instanceVar_maxvIfi,
-   AdmsSensFadType & instanceVar_maxvIri,
-   AdmsSensFadType & instanceVar_maxvIp,
-   AdmsSensFadType & instanceVar_maxvIbbe,
-   AdmsSensFadType & instanceVar_maxvIbei,
-   AdmsSensFadType & instanceVar_maxvIben,
-   AdmsSensFadType & instanceVar_maxvIbci,
-   AdmsSensFadType & instanceVar_maxvIbcn,
-   AdmsSensFadType & instanceVar_maxvIbeip,
-   AdmsSensFadType & instanceVar_maxvIbenp,
-   AdmsSensFadType & instanceVar_vtv,
-   AdmsSensFadType & instanceVar_Itzf,
-   AdmsSensFadType & instanceVar_qb,
-   AdmsSensFadType & instanceVar_qbp,
-   AdmsSensFadType & instanceVar_Ibe,
-   AdmsSensFadType & instanceVar_Ibex,
-   AdmsSensFadType & instanceVar_Ibep,
-   AdmsSensFadType & instanceVar_Irci,
-   AdmsSensFadType & instanceVar_Vrci,
-   AdmsSensFadType & instanceVar_mMod,
-   AdmsSensFadType & instanceVar_tVCrit,
+   double & instanceVar_is_t, double & d_instanceVar_is_t_dX ,
+   double & instanceVar_isrr_t, double & d_instanceVar_isrr_t_dX ,
+   double & instanceVar_ibei_t, double & d_instanceVar_ibei_t_dX ,
+   double & instanceVar_ibci_t, double & d_instanceVar_ibci_t_dX ,
+   double & instanceVar_isp_t, double & d_instanceVar_isp_t_dX ,
+   double & instanceVar_iben_t, double & d_instanceVar_iben_t_dX ,
+   double & instanceVar_ibcn_t, double & d_instanceVar_ibcn_t_dX ,
+   double & instanceVar_ibeip_t, double & d_instanceVar_ibeip_t_dX ,
+   double & instanceVar_ibenp_t, double & d_instanceVar_ibenp_t_dX ,
+   double & instanceVar_ibcip_t, double & d_instanceVar_ibcip_t_dX ,
+   double & instanceVar_ibcnp_t, double & d_instanceVar_ibcnp_t_dX ,
+   double & instanceVar_tdevC, double & d_instanceVar_tdevC_dX ,
+   double & instanceVar_tdevK, double & d_instanceVar_tdevK_dX ,
+   double & instanceVar_rT, double & d_instanceVar_rT_dX ,
+   double & instanceVar_Gcx, double & d_instanceVar_Gcx_dX ,
+   double & instanceVar_Gci, double & d_instanceVar_Gci_dX ,
+   double & instanceVar_Gbx, double & d_instanceVar_Gbx_dX ,
+   double & instanceVar_Gbi, double & d_instanceVar_Gbi_dX ,
+   double & instanceVar_Ge, double & d_instanceVar_Ge_dX ,
+   double & instanceVar_Gbp, double & d_instanceVar_Gbp_dX ,
+   double & instanceVar_maxvIfi, double & d_instanceVar_maxvIfi_dX ,
+   double & instanceVar_maxvIri, double & d_instanceVar_maxvIri_dX ,
+   double & instanceVar_maxvIp, double & d_instanceVar_maxvIp_dX ,
+   double & instanceVar_maxvIbbe, double & d_instanceVar_maxvIbbe_dX ,
+   double & instanceVar_maxvIbei, double & d_instanceVar_maxvIbei_dX ,
+   double & instanceVar_maxvIben, double & d_instanceVar_maxvIben_dX ,
+   double & instanceVar_maxvIbci, double & d_instanceVar_maxvIbci_dX ,
+   double & instanceVar_maxvIbcn, double & d_instanceVar_maxvIbcn_dX ,
+   double & instanceVar_maxvIbeip, double & d_instanceVar_maxvIbeip_dX ,
+   double & instanceVar_maxvIbenp, double & d_instanceVar_maxvIbenp_dX ,
+   double & instanceVar_vtv, double & d_instanceVar_vtv_dX ,
+   double & instanceVar_Itzf, double & d_instanceVar_Itzf_dX ,
+   double & instanceVar_qb, double & d_instanceVar_qb_dX ,
+   double & instanceVar_qbp, double & d_instanceVar_qbp_dX ,
+   double & instanceVar_Ibe, double & d_instanceVar_Ibe_dX ,
+   double & instanceVar_Ibex, double & d_instanceVar_Ibex_dX ,
+   double & instanceVar_Ibep, double & d_instanceVar_Ibep_dX ,
+   double & instanceVar_Irci, double & d_instanceVar_Irci_dX ,
+   double & instanceVar_Vrci, double & d_instanceVar_Vrci_dX ,
+   double & instanceVar_mMod, double & d_instanceVar_mMod_dX ,
+   double & instanceVar_tVCrit, double & d_instanceVar_tVCrit_dX ,
    // model parameters
    // reals
-   AdmsSensFadType & modelPar_npn,
+   double & modelPar_npn,
+   double & d_modelPar_npn_dX,
    bool modelPar_given_npn,
-   AdmsSensFadType & modelPar_pnp,
+   double & modelPar_pnp,
+   double & d_modelPar_pnp_dX,
    bool modelPar_given_pnp,
-   AdmsSensFadType & modelPar_scale,
+   double & modelPar_scale,
+   double & d_modelPar_scale_dX,
    bool modelPar_given_scale,
-   AdmsSensFadType & modelPar_shrink,
+   double & modelPar_shrink,
+   double & d_modelPar_shrink_dX,
    bool modelPar_given_shrink,
-   AdmsSensFadType & modelPar_tmin,
+   double & modelPar_tmin,
+   double & d_modelPar_tmin_dX,
    bool modelPar_given_tmin,
-   AdmsSensFadType & modelPar_tmax,
+   double & modelPar_tmax,
+   double & d_modelPar_tmax_dX,
    bool modelPar_given_tmax,
-   AdmsSensFadType & modelPar_gmin,
+   double & modelPar_gmin,
+   double & d_modelPar_gmin_dX,
    bool modelPar_given_gmin,
-   AdmsSensFadType & modelPar_pnjmaxi,
+   double & modelPar_pnjmaxi,
+   double & d_modelPar_pnjmaxi_dX,
    bool modelPar_given_pnjmaxi,
-   AdmsSensFadType & modelPar_maxexp,
+   double & modelPar_maxexp,
+   double & d_modelPar_maxexp_dX,
    bool modelPar_given_maxexp,
-   AdmsSensFadType & modelPar_tnom,
+   double & modelPar_tnom,
+   double & d_modelPar_tnom_dX,
    bool modelPar_given_tnom,
-   AdmsSensFadType & modelPar_tminclip,
+   double & modelPar_tminclip,
+   double & d_modelPar_tminclip_dX,
    bool modelPar_given_tminclip,
-   AdmsSensFadType & modelPar_tmaxclip,
+   double & modelPar_tmaxclip,
+   double & d_modelPar_tmaxclip_dX,
    bool modelPar_given_tmaxclip,
-   AdmsSensFadType & modelPar_rcx,
+   double & modelPar_rcx,
+   double & d_modelPar_rcx_dX,
    bool modelPar_given_rcx,
-   AdmsSensFadType & modelPar_rci,
+   double & modelPar_rci,
+   double & d_modelPar_rci_dX,
    bool modelPar_given_rci,
-   AdmsSensFadType & modelPar_vo,
+   double & modelPar_vo,
+   double & d_modelPar_vo_dX,
    bool modelPar_given_vo,
-   AdmsSensFadType & modelPar_gamm,
+   double & modelPar_gamm,
+   double & d_modelPar_gamm_dX,
    bool modelPar_given_gamm,
-   AdmsSensFadType & modelPar_hrcf,
+   double & modelPar_hrcf,
+   double & d_modelPar_hrcf_dX,
    bool modelPar_given_hrcf,
-   AdmsSensFadType & modelPar_rbx,
+   double & modelPar_rbx,
+   double & d_modelPar_rbx_dX,
    bool modelPar_given_rbx,
-   AdmsSensFadType & modelPar_rbi,
+   double & modelPar_rbi,
+   double & d_modelPar_rbi_dX,
    bool modelPar_given_rbi,
-   AdmsSensFadType & modelPar_re,
+   double & modelPar_re,
+   double & d_modelPar_re_dX,
    bool modelPar_given_re,
-   AdmsSensFadType & modelPar_rs,
+   double & modelPar_rs,
+   double & d_modelPar_rs_dX,
    bool modelPar_given_rs,
-   AdmsSensFadType & modelPar_rbp,
+   double & modelPar_rbp,
+   double & d_modelPar_rbp_dX,
    bool modelPar_given_rbp,
-   AdmsSensFadType & modelPar_is,
+   double & modelPar_is,
+   double & d_modelPar_is_dX,
    bool modelPar_given_is,
-   AdmsSensFadType & modelPar_isrr,
+   double & modelPar_isrr,
+   double & d_modelPar_isrr_dX,
    bool modelPar_given_isrr,
-   AdmsSensFadType & modelPar_nf,
+   double & modelPar_nf,
+   double & d_modelPar_nf_dX,
    bool modelPar_given_nf,
-   AdmsSensFadType & modelPar_nr,
+   double & modelPar_nr,
+   double & d_modelPar_nr_dX,
    bool modelPar_given_nr,
-   AdmsSensFadType & modelPar_isp,
+   double & modelPar_isp,
+   double & d_modelPar_isp_dX,
    bool modelPar_given_isp,
-   AdmsSensFadType & modelPar_wsp,
+   double & modelPar_wsp,
+   double & d_modelPar_wsp_dX,
    bool modelPar_given_wsp,
-   AdmsSensFadType & modelPar_nfp,
+   double & modelPar_nfp,
+   double & d_modelPar_nfp_dX,
    bool modelPar_given_nfp,
-   AdmsSensFadType & modelPar_fc,
+   double & modelPar_fc,
+   double & d_modelPar_fc_dX,
    bool modelPar_given_fc,
-   AdmsSensFadType & modelPar_cbeo,
+   double & modelPar_cbeo,
+   double & d_modelPar_cbeo_dX,
    bool modelPar_given_cbeo,
-   AdmsSensFadType & modelPar_cje,
+   double & modelPar_cje,
+   double & d_modelPar_cje_dX,
    bool modelPar_given_cje,
-   AdmsSensFadType & modelPar_pe,
+   double & modelPar_pe,
+   double & d_modelPar_pe_dX,
    bool modelPar_given_pe,
-   AdmsSensFadType & modelPar_me,
+   double & modelPar_me,
+   double & d_modelPar_me_dX,
    bool modelPar_given_me,
-   AdmsSensFadType & modelPar_aje,
+   double & modelPar_aje,
+   double & d_modelPar_aje_dX,
    bool modelPar_given_aje,
-   AdmsSensFadType & modelPar_cbco,
+   double & modelPar_cbco,
+   double & d_modelPar_cbco_dX,
    bool modelPar_given_cbco,
-   AdmsSensFadType & modelPar_cjc,
+   double & modelPar_cjc,
+   double & d_modelPar_cjc_dX,
    bool modelPar_given_cjc,
-   AdmsSensFadType & modelPar_pc,
+   double & modelPar_pc,
+   double & d_modelPar_pc_dX,
    bool modelPar_given_pc,
-   AdmsSensFadType & modelPar_mc,
+   double & modelPar_mc,
+   double & d_modelPar_mc_dX,
    bool modelPar_given_mc,
-   AdmsSensFadType & modelPar_ajc,
+   double & modelPar_ajc,
+   double & d_modelPar_ajc_dX,
    bool modelPar_given_ajc,
-   AdmsSensFadType & modelPar_vrt,
+   double & modelPar_vrt,
+   double & d_modelPar_vrt_dX,
    bool modelPar_given_vrt,
-   AdmsSensFadType & modelPar_art,
+   double & modelPar_art,
+   double & d_modelPar_art_dX,
    bool modelPar_given_art,
-   AdmsSensFadType & modelPar_qco,
+   double & modelPar_qco,
+   double & d_modelPar_qco_dX,
    bool modelPar_given_qco,
-   AdmsSensFadType & modelPar_cjep,
+   double & modelPar_cjep,
+   double & d_modelPar_cjep_dX,
    bool modelPar_given_cjep,
-   AdmsSensFadType & modelPar_cjcp,
+   double & modelPar_cjcp,
+   double & d_modelPar_cjcp_dX,
    bool modelPar_given_cjcp,
-   AdmsSensFadType & modelPar_ps,
+   double & modelPar_ps,
+   double & d_modelPar_ps_dX,
    bool modelPar_given_ps,
-   AdmsSensFadType & modelPar_ms,
+   double & modelPar_ms,
+   double & d_modelPar_ms_dX,
    bool modelPar_given_ms,
-   AdmsSensFadType & modelPar_ajs,
+   double & modelPar_ajs,
+   double & d_modelPar_ajs_dX,
    bool modelPar_given_ajs,
-   AdmsSensFadType & modelPar_ccso,
+   double & modelPar_ccso,
+   double & d_modelPar_ccso_dX,
    bool modelPar_given_ccso,
-   AdmsSensFadType & modelPar_ibei,
+   double & modelPar_ibei,
+   double & d_modelPar_ibei_dX,
    bool modelPar_given_ibei,
-   AdmsSensFadType & modelPar_wbe,
+   double & modelPar_wbe,
+   double & d_modelPar_wbe_dX,
    bool modelPar_given_wbe,
-   AdmsSensFadType & modelPar_nei,
+   double & modelPar_nei,
+   double & d_modelPar_nei_dX,
    bool modelPar_given_nei,
-   AdmsSensFadType & modelPar_qnibeir,
+   double & modelPar_qnibeir,
+   double & d_modelPar_qnibeir_dX,
    bool modelPar_given_qnibeir,
-   AdmsSensFadType & modelPar_iben,
+   double & modelPar_iben,
+   double & d_modelPar_iben_dX,
    bool modelPar_given_iben,
-   AdmsSensFadType & modelPar_nen,
+   double & modelPar_nen,
+   double & d_modelPar_nen_dX,
    bool modelPar_given_nen,
-   AdmsSensFadType & modelPar_ibci,
+   double & modelPar_ibci,
+   double & d_modelPar_ibci_dX,
    bool modelPar_given_ibci,
-   AdmsSensFadType & modelPar_nci,
+   double & modelPar_nci,
+   double & d_modelPar_nci_dX,
    bool modelPar_given_nci,
-   AdmsSensFadType & modelPar_ibcn,
+   double & modelPar_ibcn,
+   double & d_modelPar_ibcn_dX,
    bool modelPar_given_ibcn,
-   AdmsSensFadType & modelPar_ncn,
+   double & modelPar_ncn,
+   double & d_modelPar_ncn_dX,
    bool modelPar_given_ncn,
-   AdmsSensFadType & modelPar_ibeip,
+   double & modelPar_ibeip,
+   double & d_modelPar_ibeip_dX,
    bool modelPar_given_ibeip,
-   AdmsSensFadType & modelPar_ibenp,
+   double & modelPar_ibenp,
+   double & d_modelPar_ibenp_dX,
    bool modelPar_given_ibenp,
-   AdmsSensFadType & modelPar_ibcip,
+   double & modelPar_ibcip,
+   double & d_modelPar_ibcip_dX,
    bool modelPar_given_ibcip,
-   AdmsSensFadType & modelPar_ncip,
+   double & modelPar_ncip,
+   double & d_modelPar_ncip_dX,
    bool modelPar_given_ncip,
-   AdmsSensFadType & modelPar_ibcnp,
+   double & modelPar_ibcnp,
+   double & d_modelPar_ibcnp_dX,
    bool modelPar_given_ibcnp,
-   AdmsSensFadType & modelPar_ncnp,
+   double & modelPar_ncnp,
+   double & d_modelPar_ncnp_dX,
    bool modelPar_given_ncnp,
-   AdmsSensFadType & modelPar_vef,
+   double & modelPar_vef,
+   double & d_modelPar_vef_dX,
    bool modelPar_given_vef,
-   AdmsSensFadType & modelPar_ver,
+   double & modelPar_ver,
+   double & d_modelPar_ver_dX,
    bool modelPar_given_ver,
-   AdmsSensFadType & modelPar_ikf,
+   double & modelPar_ikf,
+   double & d_modelPar_ikf_dX,
    bool modelPar_given_ikf,
-   AdmsSensFadType & modelPar_nkf,
+   double & modelPar_nkf,
+   double & d_modelPar_nkf_dX,
    bool modelPar_given_nkf,
-   AdmsSensFadType & modelPar_ikr,
+   double & modelPar_ikr,
+   double & d_modelPar_ikr_dX,
    bool modelPar_given_ikr,
-   AdmsSensFadType & modelPar_ikp,
+   double & modelPar_ikp,
+   double & d_modelPar_ikp_dX,
    bool modelPar_given_ikp,
-   AdmsSensFadType & modelPar_tf,
+   double & modelPar_tf,
+   double & d_modelPar_tf_dX,
    bool modelPar_given_tf,
-   AdmsSensFadType & modelPar_qtf,
+   double & modelPar_qtf,
+   double & d_modelPar_qtf_dX,
    bool modelPar_given_qtf,
-   AdmsSensFadType & modelPar_xtf,
+   double & modelPar_xtf,
+   double & d_modelPar_xtf_dX,
    bool modelPar_given_xtf,
-   AdmsSensFadType & modelPar_vtf,
+   double & modelPar_vtf,
+   double & d_modelPar_vtf_dX,
    bool modelPar_given_vtf,
-   AdmsSensFadType & modelPar_itf,
+   double & modelPar_itf,
+   double & d_modelPar_itf_dX,
    bool modelPar_given_itf,
-   AdmsSensFadType & modelPar_tr,
+   double & modelPar_tr,
+   double & d_modelPar_tr_dX,
    bool modelPar_given_tr,
-   AdmsSensFadType & modelPar_td,
+   double & modelPar_td,
+   double & d_modelPar_td_dX,
    bool modelPar_given_td,
-   AdmsSensFadType & modelPar_avc1,
+   double & modelPar_avc1,
+   double & d_modelPar_avc1_dX,
    bool modelPar_given_avc1,
-   AdmsSensFadType & modelPar_avc2,
+   double & modelPar_avc2,
+   double & d_modelPar_avc2_dX,
    bool modelPar_given_avc2,
-   AdmsSensFadType & modelPar_avcx1,
+   double & modelPar_avcx1,
+   double & d_modelPar_avcx1_dX,
    bool modelPar_given_avcx1,
-   AdmsSensFadType & modelPar_avcx2,
+   double & modelPar_avcx2,
+   double & d_modelPar_avcx2_dX,
    bool modelPar_given_avcx2,
-   AdmsSensFadType & modelPar_mcx,
+   double & modelPar_mcx,
+   double & d_modelPar_mcx_dX,
    bool modelPar_given_mcx,
-   AdmsSensFadType & modelPar_vbbe,
+   double & modelPar_vbbe,
+   double & d_modelPar_vbbe_dX,
    bool modelPar_given_vbbe,
-   AdmsSensFadType & modelPar_nbbe,
+   double & modelPar_nbbe,
+   double & d_modelPar_nbbe_dX,
    bool modelPar_given_nbbe,
-   AdmsSensFadType & modelPar_ibbe,
+   double & modelPar_ibbe,
+   double & d_modelPar_ibbe_dX,
    bool modelPar_given_ibbe,
-   AdmsSensFadType & modelPar_tvbbe1,
+   double & modelPar_tvbbe1,
+   double & d_modelPar_tvbbe1_dX,
    bool modelPar_given_tvbbe1,
-   AdmsSensFadType & modelPar_tvbbe2,
+   double & modelPar_tvbbe2,
+   double & d_modelPar_tvbbe2_dX,
    bool modelPar_given_tvbbe2,
-   AdmsSensFadType & modelPar_tnbbe,
+   double & modelPar_tnbbe,
+   double & d_modelPar_tnbbe_dX,
    bool modelPar_given_tnbbe,
-   AdmsSensFadType & modelPar_vpte,
+   double & modelPar_vpte,
+   double & d_modelPar_vpte_dX,
    bool modelPar_given_vpte,
-   AdmsSensFadType & modelPar_ibk0,
+   double & modelPar_ibk0,
+   double & d_modelPar_ibk0_dX,
    bool modelPar_given_ibk0,
-   AdmsSensFadType & modelPar_abk,
+   double & modelPar_abk,
+   double & d_modelPar_abk_dX,
    bool modelPar_given_abk,
-   AdmsSensFadType & modelPar_bbk,
+   double & modelPar_bbk,
+   double & d_modelPar_bbk_dX,
    bool modelPar_given_bbk,
-   AdmsSensFadType & modelPar_kfn,
+   double & modelPar_kfn,
+   double & d_modelPar_kfn_dX,
    bool modelPar_given_kfn,
-   AdmsSensFadType & modelPar_afn,
+   double & modelPar_afn,
+   double & d_modelPar_afn_dX,
    bool modelPar_given_afn,
-   AdmsSensFadType & modelPar_bfn,
+   double & modelPar_bfn,
+   double & d_modelPar_bfn_dX,
    bool modelPar_given_bfn,
-   AdmsSensFadType & modelPar_rth,
+   double & modelPar_rth,
+   double & d_modelPar_rth_dX,
    bool modelPar_given_rth,
-   AdmsSensFadType & modelPar_cth,
+   double & modelPar_cth,
+   double & d_modelPar_cth_dX,
    bool modelPar_given_cth,
-   AdmsSensFadType & modelPar_xre,
+   double & modelPar_xre,
+   double & d_modelPar_xre_dX,
    bool modelPar_given_xre,
-   AdmsSensFadType & modelPar_xrb,
+   double & modelPar_xrb,
+   double & d_modelPar_xrb_dX,
    bool modelPar_given_xrb,
-   AdmsSensFadType & modelPar_xrbi,
+   double & modelPar_xrbi,
+   double & d_modelPar_xrbi_dX,
    bool modelPar_given_xrbi,
-   AdmsSensFadType & modelPar_xrbx,
+   double & modelPar_xrbx,
+   double & d_modelPar_xrbx_dX,
    bool modelPar_given_xrbx,
-   AdmsSensFadType & modelPar_xrc,
+   double & modelPar_xrc,
+   double & d_modelPar_xrc_dX,
    bool modelPar_given_xrc,
-   AdmsSensFadType & modelPar_xrci,
+   double & modelPar_xrci,
+   double & d_modelPar_xrci_dX,
    bool modelPar_given_xrci,
-   AdmsSensFadType & modelPar_xrcx,
+   double & modelPar_xrcx,
+   double & d_modelPar_xrcx_dX,
    bool modelPar_given_xrcx,
-   AdmsSensFadType & modelPar_xrbp,
+   double & modelPar_xrbp,
+   double & d_modelPar_xrbp_dX,
    bool modelPar_given_xrbp,
-   AdmsSensFadType & modelPar_xrs,
+   double & modelPar_xrs,
+   double & d_modelPar_xrs_dX,
    bool modelPar_given_xrs,
-   AdmsSensFadType & modelPar_xvo,
+   double & modelPar_xvo,
+   double & d_modelPar_xvo_dX,
    bool modelPar_given_xvo,
-   AdmsSensFadType & modelPar_ea,
+   double & modelPar_ea,
+   double & d_modelPar_ea_dX,
    bool modelPar_given_ea,
-   AdmsSensFadType & modelPar_eaie,
+   double & modelPar_eaie,
+   double & d_modelPar_eaie_dX,
    bool modelPar_given_eaie,
-   AdmsSensFadType & modelPar_eaic,
+   double & modelPar_eaic,
+   double & d_modelPar_eaic_dX,
    bool modelPar_given_eaic,
-   AdmsSensFadType & modelPar_eais,
+   double & modelPar_eais,
+   double & d_modelPar_eais_dX,
    bool modelPar_given_eais,
-   AdmsSensFadType & modelPar_eane,
+   double & modelPar_eane,
+   double & d_modelPar_eane_dX,
    bool modelPar_given_eane,
-   AdmsSensFadType & modelPar_eanc,
+   double & modelPar_eanc,
+   double & d_modelPar_eanc_dX,
    bool modelPar_given_eanc,
-   AdmsSensFadType & modelPar_eans,
+   double & modelPar_eans,
+   double & d_modelPar_eans_dX,
    bool modelPar_given_eans,
-   AdmsSensFadType & modelPar_eap,
+   double & modelPar_eap,
+   double & d_modelPar_eap_dX,
    bool modelPar_given_eap,
-   AdmsSensFadType & modelPar_dear,
+   double & modelPar_dear,
+   double & d_modelPar_dear_dX,
    bool modelPar_given_dear,
-   AdmsSensFadType & modelPar_xis,
+   double & modelPar_xis,
+   double & d_modelPar_xis_dX,
    bool modelPar_given_xis,
-   AdmsSensFadType & modelPar_xii,
+   double & modelPar_xii,
+   double & d_modelPar_xii_dX,
    bool modelPar_given_xii,
-   AdmsSensFadType & modelPar_xin,
+   double & modelPar_xin,
+   double & d_modelPar_xin_dX,
    bool modelPar_given_xin,
-   AdmsSensFadType & modelPar_xisr,
+   double & modelPar_xisr,
+   double & d_modelPar_xisr_dX,
    bool modelPar_given_xisr,
-   AdmsSensFadType & modelPar_xikf,
+   double & modelPar_xikf,
+   double & d_modelPar_xikf_dX,
    bool modelPar_given_xikf,
-   AdmsSensFadType & modelPar_tavc,
+   double & modelPar_tavc,
+   double & d_modelPar_tavc_dX,
    bool modelPar_given_tavc,
-   AdmsSensFadType & modelPar_tavcx,
+   double & modelPar_tavcx,
+   double & d_modelPar_tavcx_dX,
    bool modelPar_given_tavcx,
-   AdmsSensFadType & modelPar_tnf,
+   double & modelPar_tnf,
+   double & d_modelPar_tnf_dX,
    bool modelPar_given_tnf,
-   AdmsSensFadType & modelPar_tcvef,
+   double & modelPar_tcvef,
+   double & d_modelPar_tcvef_dX,
    bool modelPar_given_tcvef,
-   AdmsSensFadType & modelPar_tcver,
+   double & modelPar_tcver,
+   double & d_modelPar_tcver_dX,
    bool modelPar_given_tcver,
-   AdmsSensFadType & modelPar_tcrth,
+   double & modelPar_tcrth,
+   double & d_modelPar_tcrth_dX,
    bool modelPar_given_tcrth,
    // non-reals (including hidden)
    int modelPar_type,
@@ -10328,80 +10960,138 @@ void evaluateModelEquations(
    bool modelPar_given_qbm// model variables
    ,
    // reals
-   AdmsSensFadType & modelVar_tiniK,
-   AdmsSensFadType & modelVar_Iikr,
-   AdmsSensFadType & modelVar_Iikp,
-   AdmsSensFadType & modelVar_Ihrcf,
-   AdmsSensFadType & modelVar_Ivtf,
-   AdmsSensFadType & modelVar_Iitf,
-   AdmsSensFadType & modelVar_sltf,
-   AdmsSensFadType & modelVar_VmaxExp,
-   AdmsSensFadType & modelVar_gminMod,
-   AdmsSensFadType & modelVar_imaxMod,
+   double & modelVar_tiniK, double & d_modelVar_tiniK_dX ,
+   double & modelVar_Iikr, double & d_modelVar_Iikr_dX ,
+   double & modelVar_Iikp, double & d_modelVar_Iikp_dX ,
+   double & modelVar_Ihrcf, double & d_modelVar_Ihrcf_dX ,
+   double & modelVar_Ivtf, double & d_modelVar_Ivtf_dX ,
+   double & modelVar_Iitf, double & d_modelVar_Iitf_dX ,
+   double & modelVar_sltf, double & d_modelVar_sltf_dX ,
+   double & modelVar_VmaxExp, double & d_modelVar_VmaxExp_dX ,
+   double & modelVar_gminMod, double & d_modelVar_gminMod_dX ,
+   double & modelVar_imaxMod, double & d_modelVar_imaxMod_dX ,
    // basic variables
-   double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance)
+   double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & staticContributions, std::vector <double> & d_staticContributions_dX, std::vector <double> & dynamicContributions, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance)
 {
 
   // Local variables
-  AdmsSensFadType qdbex;
-  AdmsSensFadType qdbep;
-  AdmsSensFadType sgIf;
-  AdmsSensFadType rIf;
-  AdmsSensFadType mIf;
-  AdmsSensFadType tff;
-  AdmsSensFadType Qbe;
-  AdmsSensFadType Qbex;
-  AdmsSensFadType Qbc;
-  AdmsSensFadType Qbcx;
-  AdmsSensFadType Qbep;
-  AdmsSensFadType Qbeo;
-  AdmsSensFadType Qbco;
-  AdmsSensFadType Qcth;
-  AdmsSensFadType Qxf1;
-  AdmsSensFadType Qxf2;
+  double qdbex;
+  double d_qdbex_dX;
+  double qdbep;
+  double d_qdbep_dX;
+  double sgIf;
+  double d_sgIf_dX;
+  double rIf;
+  double d_rIf_dX;
+  double mIf;
+  double d_mIf_dX;
+  double tff;
+  double d_tff_dX;
+  double Qbe;
+  double d_Qbe_dX;
+  double Qbex;
+  double d_Qbex_dX;
+  double Qbc;
+  double d_Qbc_dX;
+  double Qbcx;
+  double d_Qbcx_dX;
+  double Qbep;
+  double d_Qbep_dX;
+  double Qbeo;
+  double d_Qbeo_dX;
+  double Qbco;
+  double d_Qbco_dX;
+  double Qcth;
+  double d_Qcth_dX;
+  double Qxf1;
+  double d_Qxf1_dX;
+  double Qxf2;
+  double d_Qxf2_dX;
   double dt_et;
-  AdmsSensFadType dT;
-  AdmsSensFadType ikf_t;
-  AdmsSensFadType rcx_t;
-  AdmsSensFadType rci_t;
-  AdmsSensFadType rbx_t;
-  AdmsSensFadType rbi_t;
-  AdmsSensFadType re_t;
-  AdmsSensFadType rs_t;
-  AdmsSensFadType rbp_t;
-  AdmsSensFadType rth_t;
-  AdmsSensFadType nf_t;
-  AdmsSensFadType nr_t;
-  AdmsSensFadType avc2_t;
-  AdmsSensFadType avcx2_t;
-  AdmsSensFadType vbbe_t;
-  AdmsSensFadType nbbe_t;
-  AdmsSensFadType pe_t;
-  AdmsSensFadType pc_t;
-  AdmsSensFadType ps_t;
-  AdmsSensFadType cje_t;
-  AdmsSensFadType cjc_t;
-  AdmsSensFadType cjep_t;
-  AdmsSensFadType cjcp_t;
-  AdmsSensFadType gamm_t;
-  AdmsSensFadType vo_t;
-  AdmsSensFadType ebbe_t;
-  AdmsSensFadType vef_t;
-  AdmsSensFadType ver_t;
-  AdmsSensFadType Gs;
-  AdmsSensFadType Gth;
-  AdmsSensFadType Ivef;
-  AdmsSensFadType Iver;
-  AdmsSensFadType Iikf;
-  AdmsSensFadType Ivo;
-  AdmsSensFadType Vbei;
-  AdmsSensFadType Vbex;
-  AdmsSensFadType Vbci;
-  AdmsSensFadType Vbcx;
-  AdmsSensFadType Vbxcx;
-  AdmsSensFadType Vcei;
-  AdmsSensFadType Vbep;
-  AdmsSensFadType Vbe;
+  double dT;
+  double d_dT_dX;
+  double ikf_t;
+  double d_ikf_t_dX;
+  double rcx_t;
+  double d_rcx_t_dX;
+  double rci_t;
+  double d_rci_t_dX;
+  double rbx_t;
+  double d_rbx_t_dX;
+  double rbi_t;
+  double d_rbi_t_dX;
+  double re_t;
+  double d_re_t_dX;
+  double rs_t;
+  double d_rs_t_dX;
+  double rbp_t;
+  double d_rbp_t_dX;
+  double rth_t;
+  double d_rth_t_dX;
+  double nf_t;
+  double d_nf_t_dX;
+  double nr_t;
+  double d_nr_t_dX;
+  double avc2_t;
+  double d_avc2_t_dX;
+  double avcx2_t;
+  double d_avcx2_t_dX;
+  double vbbe_t;
+  double d_vbbe_t_dX;
+  double nbbe_t;
+  double d_nbbe_t_dX;
+  double pe_t;
+  double d_pe_t_dX;
+  double pc_t;
+  double d_pc_t_dX;
+  double ps_t;
+  double d_ps_t_dX;
+  double cje_t;
+  double d_cje_t_dX;
+  double cjc_t;
+  double d_cjc_t_dX;
+  double cjep_t;
+  double d_cjep_t_dX;
+  double cjcp_t;
+  double d_cjcp_t_dX;
+  double gamm_t;
+  double d_gamm_t_dX;
+  double vo_t;
+  double d_vo_t_dX;
+  double ebbe_t;
+  double d_ebbe_t_dX;
+  double vef_t;
+  double d_vef_t_dX;
+  double ver_t;
+  double d_ver_t_dX;
+  double Gs;
+  double d_Gs_dX;
+  double Gth;
+  double d_Gth_dX;
+  double Ivef;
+  double d_Ivef_dX;
+  double Iver;
+  double d_Iver_dX;
+  double Iikf;
+  double d_Iikf_dX;
+  double Ivo;
+  double d_Ivo_dX;
+  double Vbei;
+  double d_Vbei_dX;
+  double Vbex;
+  double d_Vbex_dX;
+  double Vbci;
+  double d_Vbci_dX;
+  double Vbcx;
+  double d_Vbcx_dX;
+  double Vbxcx;
+  double d_Vbxcx_dX;
+  double Vcei;
+  double d_Vcei_dX;
+  double Vbep;
+  double d_Vbep_dX;
+  double Vbe;
+  double d_Vbe_dX;
   double Vbc;
   double Vrcx;
   double Vrbx;
@@ -10410,45 +11100,84 @@ void evaluateModelEquations(
   double Vrbp;
   double Vxf1;
   double Vxf2;
-  AdmsSensFadType qdbe;
-  AdmsSensFadType qdbc;
-  AdmsSensFadType afac;
-  AdmsSensFadType expi;
-  AdmsSensFadType Ifi;
-  AdmsSensFadType Iri;
-  AdmsSensFadType q1z;
-  AdmsSensFadType q1;
-  AdmsSensFadType q2;
-  AdmsSensFadType arg;
-  AdmsSensFadType Itzr;
-  AdmsSensFadType Itxf;
-  AdmsSensFadType expx;
-  AdmsSensFadType Ifp;
-  AdmsSensFadType q2p;
-  AdmsSensFadType expn;
-  AdmsSensFadType Bvbe;
-  AdmsSensFadType Ibcj;
-  AdmsSensFadType Kbci;
-  AdmsSensFadType Kbcx;
-  AdmsSensFadType Ircx;
-  AdmsSensFadType rKp1;
-  AdmsSensFadType Iohm;
-  AdmsSensFadType derf;
-  AdmsSensFadType Irbx;
-  AdmsSensFadType Irbi;
-  AdmsSensFadType Ire;
-  AdmsSensFadType Irbp;
-  AdmsSensFadType avalf;
-  AdmsSensFadType Igc;
-  AdmsSensFadType Igcx;
-  AdmsSensFadType VcbFac;
-  AdmsSensFadType Iibk;
-  AdmsSensFadType Ibk;
-  AdmsSensFadType Ibc;
-  AdmsSensFadType power;
-  AdmsSensFadType Ith;
-  AdmsSensFadType Irth;
-  AdmsSensFadType Ixf1;
+  double qdbe;
+  double d_qdbe_dX;
+  double qdbc;
+  double d_qdbc_dX;
+  double afac;
+  double d_afac_dX;
+  double expi;
+  double d_expi_dX;
+  double Ifi;
+  double d_Ifi_dX;
+  double Iri;
+  double d_Iri_dX;
+  double q1z;
+  double d_q1z_dX;
+  double q1;
+  double d_q1_dX;
+  double q2;
+  double d_q2_dX;
+  double arg;
+  double d_arg_dX;
+  double Itzr;
+  double d_Itzr_dX;
+  double Itxf;
+  double d_Itxf_dX;
+  double expx;
+  double d_expx_dX;
+  double Ifp;
+  double d_Ifp_dX;
+  double q2p;
+  double d_q2p_dX;
+  double expn;
+  double d_expn_dX;
+  double Bvbe;
+  double d_Bvbe_dX;
+  double Ibcj;
+  double d_Ibcj_dX;
+  double Kbci;
+  double d_Kbci_dX;
+  double Kbcx;
+  double d_Kbcx_dX;
+  double Ircx;
+  double d_Ircx_dX;
+  double rKp1;
+  double d_rKp1_dX;
+  double Iohm;
+  double d_Iohm_dX;
+  double derf;
+  double d_derf_dX;
+  double Irbx;
+  double d_Irbx_dX;
+  double Irbi;
+  double d_Irbi_dX;
+  double Ire;
+  double d_Ire_dX;
+  double Irbp;
+  double d_Irbp_dX;
+  double avalf;
+  double d_avalf_dX;
+  double Igc;
+  double d_Igc_dX;
+  double Igcx;
+  double d_Igcx_dX;
+  double VcbFac;
+  double d_VcbFac_dX;
+  double Iibk;
+  double d_Iibk_dX;
+  double Ibk;
+  double d_Ibk_dX;
+  double Ibc;
+  double d_Ibc_dX;
+  double power;
+  double d_power_dX;
+  double Ith;
+  double d_Ith_dX;
+  double Irth;
+  double d_Irth_dX;
+  double Ixf1;
+  double d_Ixf1_dX;
   double Ixf2;
 
 
@@ -10457,140 +11186,460 @@ void evaluateModelEquations(
   {
     dt_et = probeVars[admsProbeID_Temp_dt_GND];
 
+    d_instanceVar_tdevC_dX = d_instancePar_trise_dX;
     instanceVar_tdevC = (((admsTemperature+instancePar_trise)+dt_et)-273.15);
     if ((instanceVar_tdevC<(modelPar_tminclip+1.0)))
     {
-      instanceVar_tdevC = (modelPar_tminclip+exp(((instanceVar_tdevC-modelPar_tminclip)-1.0)));
+      {
+        double value_exp_0 = exp(((instanceVar_tdevC-modelPar_tminclip)-1.0));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_instanceVar_tdevC_dX = (d_modelPar_tminclip_dX+deriv_exp_0_d0*((d_instanceVar_tdevC_dX-d_modelPar_tminclip_dX)));
+        instanceVar_tdevC = (modelPar_tminclip+value_exp_0);
+      }
     }
     else
     {
       if ((instanceVar_tdevC>(modelPar_tmaxclip-1.0)))
       {
-        instanceVar_tdevC = (modelPar_tmaxclip-exp(((modelPar_tmaxclip-instanceVar_tdevC)-1.0)));
+        {
+          double value_exp_0 = exp(((modelPar_tmaxclip-instanceVar_tdevC)-1.0));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_instanceVar_tdevC_dX = (d_modelPar_tmaxclip_dX-deriv_exp_0_d0*((d_modelPar_tmaxclip_dX-d_instanceVar_tdevC_dX)));
+          instanceVar_tdevC = (modelPar_tmaxclip-value_exp_0);
+        }
       }
       else
       {
       }
     }
+    d_instanceVar_tdevK_dX = d_instanceVar_tdevC_dX;
     instanceVar_tdevK = (instanceVar_tdevC+273.15);
+    d_instanceVar_vtv_dX = (1.380662e-23*d_instanceVar_tdevK_dX/1.602189e-19);
     instanceVar_vtv = ((1.380662e-23*instanceVar_tdevK)/1.602189e-19);
+    d_instanceVar_rT_dX = ((modelVar_tiniK*d_instanceVar_tdevK_dX-instanceVar_tdevK*d_modelVar_tiniK_dX)/modelVar_tiniK/modelVar_tiniK);
     instanceVar_rT = (instanceVar_tdevK/modelVar_tiniK);
+    d_dT_dX = (d_instanceVar_tdevK_dX-d_modelVar_tiniK_dX);
     dT = (instanceVar_tdevK-modelVar_tiniK);
-    ikf_t = (modelPar_ikf*pow(instanceVar_rT,modelPar_xikf));
+    {
+      double value_pow_0 = pow(instanceVar_rT,modelPar_xikf);
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xikf/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      d_ikf_t_dX = (modelPar_ikf*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xikf_dX)))+d_modelPar_ikf_dX*value_pow_0);
+      ikf_t = (modelPar_ikf*value_pow_0);
+    }
     if (modelPar_given_xrcx)
     {
-      rcx_t = (modelPar_rcx*pow(instanceVar_rT,modelPar_xrcx));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrcx);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrcx/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rcx_t_dX = (modelPar_rcx*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrcx_dX)))+d_modelPar_rcx_dX*value_pow_0);
+        rcx_t = (modelPar_rcx*value_pow_0);
+      }
     }
     else
     {
-      rcx_t = (modelPar_rcx*pow(instanceVar_rT,modelPar_xrc));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrc);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrc/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rcx_t_dX = (modelPar_rcx*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrc_dX)))+d_modelPar_rcx_dX*value_pow_0);
+        rcx_t = (modelPar_rcx*value_pow_0);
+      }
     }
     if (modelPar_given_xrci)
     {
-      rci_t = (modelPar_rci*pow(instanceVar_rT,modelPar_xrci));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrci);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrci/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rci_t_dX = (modelPar_rci*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrci_dX)))+d_modelPar_rci_dX*value_pow_0);
+        rci_t = (modelPar_rci*value_pow_0);
+      }
     }
     else
     {
-      rci_t = (modelPar_rci*pow(instanceVar_rT,modelPar_xrc));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrc);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrc/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rci_t_dX = (modelPar_rci*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrc_dX)))+d_modelPar_rci_dX*value_pow_0);
+        rci_t = (modelPar_rci*value_pow_0);
+      }
     }
     if (modelPar_given_xrbx)
     {
-      rbx_t = (modelPar_rbx*pow(instanceVar_rT,modelPar_xrbx));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrbx);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrbx/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rbx_t_dX = (modelPar_rbx*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrbx_dX)))+d_modelPar_rbx_dX*value_pow_0);
+        rbx_t = (modelPar_rbx*value_pow_0);
+      }
     }
     else
     {
-      rbx_t = (modelPar_rbx*pow(instanceVar_rT,modelPar_xrb));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrb);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrb/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rbx_t_dX = (modelPar_rbx*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrb_dX)))+d_modelPar_rbx_dX*value_pow_0);
+        rbx_t = (modelPar_rbx*value_pow_0);
+      }
     }
     if (modelPar_given_xrbi)
     {
-      rbi_t = (modelPar_rbi*pow(instanceVar_rT,modelPar_xrbi));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrbi);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrbi/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rbi_t_dX = (modelPar_rbi*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrbi_dX)))+d_modelPar_rbi_dX*value_pow_0);
+        rbi_t = (modelPar_rbi*value_pow_0);
+      }
     }
     else
     {
-      rbi_t = (modelPar_rbi*pow(instanceVar_rT,modelPar_xrb));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrb);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrb/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rbi_t_dX = (modelPar_rbi*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrb_dX)))+d_modelPar_rbi_dX*value_pow_0);
+        rbi_t = (modelPar_rbi*value_pow_0);
+      }
     }
-    re_t = (modelPar_re*pow(instanceVar_rT,modelPar_xre));
-    rs_t = (modelPar_rs*pow(instanceVar_rT,modelPar_xrs));
+    {
+      double value_pow_0 = pow(instanceVar_rT,modelPar_xre);
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xre/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      d_re_t_dX = (modelPar_re*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xre_dX)))+d_modelPar_re_dX*value_pow_0);
+      re_t = (modelPar_re*value_pow_0);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,modelPar_xrs);
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrs/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      d_rs_t_dX = (modelPar_rs*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrs_dX)))+d_modelPar_rs_dX*value_pow_0);
+      rs_t = (modelPar_rs*value_pow_0);
+    }
     if (modelPar_given_xrbp)
     {
-      rbp_t = (modelPar_rbp*pow(instanceVar_rT,modelPar_xrbp));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrbp);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrbp/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rbp_t_dX = (modelPar_rbp*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrbp_dX)))+d_modelPar_rbp_dX*value_pow_0);
+        rbp_t = (modelPar_rbp*value_pow_0);
+      }
     }
     else
     {
-      rbp_t = (modelPar_rbp*pow(instanceVar_rT,modelPar_xrc));
+      {
+        double value_pow_0 = pow(instanceVar_rT,modelPar_xrc);
+        double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xrc/instanceVar_rT));
+        double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+        d_rbp_t_dX = (modelPar_rbp*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xrc_dX)))+d_modelPar_rbp_dX*value_pow_0);
+        rbp_t = (modelPar_rbp*value_pow_0);
+      }
     }
+    d_rth_t_dX = (modelPar_rth*(dT*d_modelPar_tcrth_dX+d_dT_dX*modelPar_tcrth)+d_modelPar_rth_dX*(1.0+(dT*modelPar_tcrth)));
     rth_t = (modelPar_rth*(1.0+(dT*modelPar_tcrth)));
-    instanceVar_is_t = ((modelPar_is*pow(instanceVar_rT,(modelPar_xis/modelPar_nf)))*exp((((-modelPar_ea)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nf))));
-    instanceVar_isrr_t = ((modelPar_isrr*pow(instanceVar_rT,(modelPar_xisr/modelPar_nr)))*exp((((-modelPar_dear)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nr))));
-    instanceVar_isp_t = ((modelPar_isp*pow(instanceVar_rT,(modelPar_xis/modelPar_nfp)))*exp((((-modelPar_eap)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nfp))));
-    instanceVar_ibei_t = ((modelPar_ibei*pow(instanceVar_rT,(modelPar_xii/modelPar_nei)))*exp((((-modelPar_eaie)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nei))));
-    instanceVar_iben_t = ((modelPar_iben*pow(instanceVar_rT,(modelPar_xin/modelPar_nen)))*exp((((-modelPar_eane)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nen))));
-    instanceVar_ibci_t = ((modelPar_ibci*pow(instanceVar_rT,(modelPar_xii/modelPar_nci)))*exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci))));
-    instanceVar_ibcn_t = ((modelPar_ibcn*pow(instanceVar_rT,(modelPar_xin/modelPar_ncn)))*exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn))));
-    instanceVar_ibeip_t = ((modelPar_ibeip*pow(instanceVar_rT,(modelPar_xii/modelPar_nci)))*exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci))));
-    instanceVar_ibenp_t = ((modelPar_ibenp*pow(instanceVar_rT,(modelPar_xin/modelPar_ncn)))*exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn))));
-    instanceVar_ibcip_t = ((modelPar_ibcip*pow(instanceVar_rT,(modelPar_xii/modelPar_ncip)))*exp((((-modelPar_eais)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncip))));
-    instanceVar_ibcnp_t = ((modelPar_ibcnp*pow(instanceVar_rT,(modelPar_xin/modelPar_ncnp)))*exp((((-modelPar_eans)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncnp))));
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xis/modelPar_nf));
+      double value_exp_1 = exp((((-modelPar_ea)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nf)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xis/modelPar_nf)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_is_t_dX = ((modelPar_is*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nf)*((-modelPar_ea)*(-d_instanceVar_rT_dX)+(-d_modelPar_ea_dX)*(1.0-instanceVar_rT))-((-modelPar_ea)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nf_dX+d_instanceVar_vtv_dX*modelPar_nf))/(instanceVar_vtv*modelPar_nf)/(instanceVar_vtv*modelPar_nf)))+(modelPar_is*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nf*d_modelPar_xis_dX-modelPar_xis*d_modelPar_nf_dX)/modelPar_nf/modelPar_nf))))+d_modelPar_is_dX*value_pow_0)*value_exp_1);
+      instanceVar_is_t = ((modelPar_is*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xisr/modelPar_nr));
+      double value_exp_1 = exp((((-modelPar_dear)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nr)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xisr/modelPar_nr)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_isrr_t_dX = ((modelPar_isrr*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nr)*((-modelPar_dear)*(-d_instanceVar_rT_dX)+(-d_modelPar_dear_dX)*(1.0-instanceVar_rT))-((-modelPar_dear)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nr_dX+d_instanceVar_vtv_dX*modelPar_nr))/(instanceVar_vtv*modelPar_nr)/(instanceVar_vtv*modelPar_nr)))+(modelPar_isrr*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nr*d_modelPar_xisr_dX-modelPar_xisr*d_modelPar_nr_dX)/modelPar_nr/modelPar_nr))))+d_modelPar_isrr_dX*value_pow_0)*value_exp_1);
+      instanceVar_isrr_t = ((modelPar_isrr*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xis/modelPar_nfp));
+      double value_exp_1 = exp((((-modelPar_eap)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nfp)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xis/modelPar_nfp)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_isp_t_dX = ((modelPar_isp*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nfp)*((-modelPar_eap)*(-d_instanceVar_rT_dX)+(-d_modelPar_eap_dX)*(1.0-instanceVar_rT))-((-modelPar_eap)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nfp_dX+d_instanceVar_vtv_dX*modelPar_nfp))/(instanceVar_vtv*modelPar_nfp)/(instanceVar_vtv*modelPar_nfp)))+(modelPar_isp*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nfp*d_modelPar_xis_dX-modelPar_xis*d_modelPar_nfp_dX)/modelPar_nfp/modelPar_nfp))))+d_modelPar_isp_dX*value_pow_0)*value_exp_1);
+      instanceVar_isp_t = ((modelPar_isp*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nei));
+      double value_exp_1 = exp((((-modelPar_eaie)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nei)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xii/modelPar_nei)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibei_t_dX = ((modelPar_ibei*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nei)*((-modelPar_eaie)*(-d_instanceVar_rT_dX)+(-d_modelPar_eaie_dX)*(1.0-instanceVar_rT))-((-modelPar_eaie)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nei_dX+d_instanceVar_vtv_dX*modelPar_nei))/(instanceVar_vtv*modelPar_nei)/(instanceVar_vtv*modelPar_nei)))+(modelPar_ibei*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nei*d_modelPar_xii_dX-modelPar_xii*d_modelPar_nei_dX)/modelPar_nei/modelPar_nei))))+d_modelPar_ibei_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibei_t = ((modelPar_ibei*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_nen));
+      double value_exp_1 = exp((((-modelPar_eane)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nen)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xin/modelPar_nen)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_iben_t_dX = ((modelPar_iben*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nen)*((-modelPar_eane)*(-d_instanceVar_rT_dX)+(-d_modelPar_eane_dX)*(1.0-instanceVar_rT))-((-modelPar_eane)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nen_dX+d_instanceVar_vtv_dX*modelPar_nen))/(instanceVar_vtv*modelPar_nen)/(instanceVar_vtv*modelPar_nen)))+(modelPar_iben*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nen*d_modelPar_xin_dX-modelPar_xin*d_modelPar_nen_dX)/modelPar_nen/modelPar_nen))))+d_modelPar_iben_dX*value_pow_0)*value_exp_1);
+      instanceVar_iben_t = ((modelPar_iben*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nci));
+      double value_exp_1 = exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xii/modelPar_nci)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibci_t_dX = ((modelPar_ibci*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nci)*((-modelPar_eaic)*(-d_instanceVar_rT_dX)+(-d_modelPar_eaic_dX)*(1.0-instanceVar_rT))-((-modelPar_eaic)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nci_dX+d_instanceVar_vtv_dX*modelPar_nci))/(instanceVar_vtv*modelPar_nci)/(instanceVar_vtv*modelPar_nci)))+(modelPar_ibci*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nci*d_modelPar_xii_dX-modelPar_xii*d_modelPar_nci_dX)/modelPar_nci/modelPar_nci))))+d_modelPar_ibci_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibci_t = ((modelPar_ibci*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncn));
+      double value_exp_1 = exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xin/modelPar_ncn)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibcn_t_dX = ((modelPar_ibcn*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_ncn)*((-modelPar_eanc)*(-d_instanceVar_rT_dX)+(-d_modelPar_eanc_dX)*(1.0-instanceVar_rT))-((-modelPar_eanc)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_ncn_dX+d_instanceVar_vtv_dX*modelPar_ncn))/(instanceVar_vtv*modelPar_ncn)/(instanceVar_vtv*modelPar_ncn)))+(modelPar_ibcn*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_ncn*d_modelPar_xin_dX-modelPar_xin*d_modelPar_ncn_dX)/modelPar_ncn/modelPar_ncn))))+d_modelPar_ibcn_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibcn_t = ((modelPar_ibcn*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_nci));
+      double value_exp_1 = exp((((-modelPar_eaic)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_nci)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xii/modelPar_nci)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibeip_t_dX = ((modelPar_ibeip*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_nci)*((-modelPar_eaic)*(-d_instanceVar_rT_dX)+(-d_modelPar_eaic_dX)*(1.0-instanceVar_rT))-((-modelPar_eaic)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_nci_dX+d_instanceVar_vtv_dX*modelPar_nci))/(instanceVar_vtv*modelPar_nci)/(instanceVar_vtv*modelPar_nci)))+(modelPar_ibeip*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_nci*d_modelPar_xii_dX-modelPar_xii*d_modelPar_nci_dX)/modelPar_nci/modelPar_nci))))+d_modelPar_ibeip_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibeip_t = ((modelPar_ibeip*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncn));
+      double value_exp_1 = exp((((-modelPar_eanc)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncn)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xin/modelPar_ncn)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibenp_t_dX = ((modelPar_ibenp*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_ncn)*((-modelPar_eanc)*(-d_instanceVar_rT_dX)+(-d_modelPar_eanc_dX)*(1.0-instanceVar_rT))-((-modelPar_eanc)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_ncn_dX+d_instanceVar_vtv_dX*modelPar_ncn))/(instanceVar_vtv*modelPar_ncn)/(instanceVar_vtv*modelPar_ncn)))+(modelPar_ibenp*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_ncn*d_modelPar_xin_dX-modelPar_xin*d_modelPar_ncn_dX)/modelPar_ncn/modelPar_ncn))))+d_modelPar_ibenp_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibenp_t = ((modelPar_ibenp*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xii/modelPar_ncip));
+      double value_exp_1 = exp((((-modelPar_eais)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncip)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xii/modelPar_ncip)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibcip_t_dX = ((modelPar_ibcip*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_ncip)*((-modelPar_eais)*(-d_instanceVar_rT_dX)+(-d_modelPar_eais_dX)*(1.0-instanceVar_rT))-((-modelPar_eais)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_ncip_dX+d_instanceVar_vtv_dX*modelPar_ncip))/(instanceVar_vtv*modelPar_ncip)/(instanceVar_vtv*modelPar_ncip)))+(modelPar_ibcip*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_ncip*d_modelPar_xii_dX-modelPar_xii*d_modelPar_ncip_dX)/modelPar_ncip/modelPar_ncip))))+d_modelPar_ibcip_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibcip_t = ((modelPar_ibcip*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,(modelPar_xin/modelPar_ncnp));
+      double value_exp_1 = exp((((-modelPar_eans)*(1.0-instanceVar_rT))/(instanceVar_vtv*modelPar_ncnp)));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*(modelPar_xin/modelPar_ncnp)/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_instanceVar_ibcnp_t_dX = ((modelPar_ibcnp*value_pow_0)*deriv_exp_1_d0*((((instanceVar_vtv*modelPar_ncnp)*((-modelPar_eans)*(-d_instanceVar_rT_dX)+(-d_modelPar_eans_dX)*(1.0-instanceVar_rT))-((-modelPar_eans)*(1.0-instanceVar_rT))*(instanceVar_vtv*d_modelPar_ncnp_dX+d_instanceVar_vtv_dX*modelPar_ncnp))/(instanceVar_vtv*modelPar_ncnp)/(instanceVar_vtv*modelPar_ncnp)))+(modelPar_ibcnp*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(((modelPar_ncnp*d_modelPar_xin_dX-modelPar_xin*d_modelPar_ncnp_dX)/modelPar_ncnp/modelPar_ncnp))))+d_modelPar_ibcnp_dX*value_pow_0)*value_exp_1);
+      instanceVar_ibcnp_t = ((modelPar_ibcnp*value_pow_0)*value_exp_1);
+    }
+    d_nf_t_dX = (modelPar_nf*(dT*d_modelPar_tnf_dX+d_dT_dX*modelPar_tnf)+d_modelPar_nf_dX*(1.0+(dT*modelPar_tnf)));
     nf_t = (modelPar_nf*(1.0+(dT*modelPar_tnf)));
+    d_nr_t_dX = (modelPar_nr*(dT*d_modelPar_tnf_dX+d_dT_dX*modelPar_tnf)+d_modelPar_nr_dX*(1.0+(dT*modelPar_tnf)));
     nr_t = (modelPar_nr*(1.0+(dT*modelPar_tnf)));
+    d_avc2_t_dX = (modelPar_avc2*(dT*d_modelPar_tavc_dX+d_dT_dX*modelPar_tavc)+d_modelPar_avc2_dX*(1.0+(dT*modelPar_tavc)));
     avc2_t = (modelPar_avc2*(1.0+(dT*modelPar_tavc)));
+    d_avcx2_t_dX = (modelPar_avcx2*(dT*d_modelPar_tavcx_dX+d_dT_dX*modelPar_tavcx)+d_modelPar_avcx2_dX*(1.0+(dT*modelPar_tavcx)));
     avcx2_t = (modelPar_avcx2*(1.0+(dT*modelPar_tavcx)));
+    d_vbbe_t_dX = (modelPar_vbbe*(dT*(d_modelPar_tvbbe1_dX+(dT*d_modelPar_tvbbe2_dX+d_dT_dX*modelPar_tvbbe2))+d_dT_dX*(modelPar_tvbbe1+(dT*modelPar_tvbbe2)))+d_modelPar_vbbe_dX*(1.0+(dT*(modelPar_tvbbe1+(dT*modelPar_tvbbe2)))));
     vbbe_t = (modelPar_vbbe*(1.0+(dT*(modelPar_tvbbe1+(dT*modelPar_tvbbe2)))));
+    d_nbbe_t_dX = (modelPar_nbbe*(dT*d_modelPar_tnbbe_dX+d_dT_dX*modelPar_tnbbe)+d_modelPar_nbbe_dX*(1.0+(dT*modelPar_tnbbe)));
     nbbe_t = (modelPar_nbbe*(1.0+(dT*modelPar_tnbbe)));
     //Begin block pePsibiBlock
     {
       //Block-local variables for block pePsibiBlock
-      AdmsSensFadType psiio;
-      AdmsSensFadType psiin;
+      double psiio;
+      double d_psiio_dX;
+      double psiin;
+      double d_psiin_dX;
       //End of Block-local variables
-      psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*log((exp((((0.5*modelPar_pe)*instanceVar_rT)/instanceVar_vtv))-exp(((((-0.5)*modelPar_pe)*instanceVar_rT)/instanceVar_vtv)))));
-      psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*log(instanceVar_rT)))-(modelPar_eaie*(instanceVar_rT-1.0)));
-      pe_t = (psiin+((2.0*instanceVar_vtv)*log((0.5*(1.0+sqrt((1.0+(4.0*exp(((-psiin)/instanceVar_vtv))))))))));
+      {
+        double value_exp_0 = exp((((0.5*modelPar_pe)*instanceVar_rT)/instanceVar_vtv));
+        double value_exp_1 = exp(((((-0.5)*modelPar_pe)*instanceVar_rT)/instanceVar_vtv));
+        double value_log_2 = log((value_exp_0-value_exp_1));
+        double  deriv_exp_0_d0 = value_exp_0;
+        double  deriv_exp_1_d0 = value_exp_1;
+        double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
+        d_psiio_dX = ((2.0*(instanceVar_vtv/instanceVar_rT))*deriv_log_2_d0*((deriv_exp_0_d0*(((instanceVar_vtv*((0.5*modelPar_pe)*d_instanceVar_rT_dX+0.5*d_modelPar_pe_dX*instanceVar_rT)-((0.5*modelPar_pe)*instanceVar_rT)*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))-deriv_exp_1_d0*(((instanceVar_vtv*(((-0.5)*modelPar_pe)*d_instanceVar_rT_dX+(-0.5)*d_modelPar_pe_dX*instanceVar_rT)-(((-0.5)*modelPar_pe)*instanceVar_rT)*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))))+2.0*((instanceVar_rT*d_instanceVar_vtv_dX-instanceVar_vtv*d_instanceVar_rT_dX)/instanceVar_rT/instanceVar_rT)*value_log_2);
+        psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*value_log_2);
+      }
+      {
+        double value_log_0 = log(instanceVar_rT);
+        double  deriv_log_0_d0 = (1.0/instanceVar_rT);
+        d_psiin_dX = (((psiio*d_instanceVar_rT_dX+d_psiio_dX*instanceVar_rT)-((3.0*instanceVar_vtv)*deriv_log_0_d0*(d_instanceVar_rT_dX)+3.0*d_instanceVar_vtv_dX*value_log_0))-(modelPar_eaie*d_instanceVar_rT_dX+d_modelPar_eaie_dX*(instanceVar_rT-1.0)));
+        psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*value_log_0))-(modelPar_eaie*(instanceVar_rT-1.0)));
+      }
+      {
+        double value_exp_0 = exp(((-psiin)/instanceVar_vtv));
+        double value_sqrt_1 = sqrt((1.0+(4.0*value_exp_0)));
+        double value_log_2 = log((0.5*(1.0+value_sqrt_1)));
+        double  deriv_exp_0_d0 = value_exp_0;
+        double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+        double  deriv_log_2_d0 = (1.0/(0.5*(1.0+value_sqrt_1)));
+        d_pe_t_dX = (d_psiin_dX+((2.0*instanceVar_vtv)*deriv_log_2_d0*(0.5*deriv_sqrt_1_d0*(4.0*deriv_exp_0_d0*(((instanceVar_vtv*(-d_psiin_dX)-(-psiin)*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))))+2.0*d_instanceVar_vtv_dX*value_log_2));
+        pe_t = (psiin+((2.0*instanceVar_vtv)*value_log_2));
+      }
     }
     // End block pePsibiBlock
     //Begin block pcPsibiBlock
     {
       //Block-local variables for block pcPsibiBlock
-      AdmsSensFadType psiio;
-      AdmsSensFadType psiin;
+      double psiio;
+      double d_psiio_dX;
+      double psiin;
+      double d_psiin_dX;
       //End of Block-local variables
-      psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*log((exp((((0.5*modelPar_pc)*instanceVar_rT)/instanceVar_vtv))-exp(((((-0.5)*modelPar_pc)*instanceVar_rT)/instanceVar_vtv)))));
-      psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*log(instanceVar_rT)))-(modelPar_eaic*(instanceVar_rT-1.0)));
-      pc_t = (psiin+((2.0*instanceVar_vtv)*log((0.5*(1.0+sqrt((1.0+(4.0*exp(((-psiin)/instanceVar_vtv))))))))));
+      {
+        double value_exp_0 = exp((((0.5*modelPar_pc)*instanceVar_rT)/instanceVar_vtv));
+        double value_exp_1 = exp(((((-0.5)*modelPar_pc)*instanceVar_rT)/instanceVar_vtv));
+        double value_log_2 = log((value_exp_0-value_exp_1));
+        double  deriv_exp_0_d0 = value_exp_0;
+        double  deriv_exp_1_d0 = value_exp_1;
+        double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
+        d_psiio_dX = ((2.0*(instanceVar_vtv/instanceVar_rT))*deriv_log_2_d0*((deriv_exp_0_d0*(((instanceVar_vtv*((0.5*modelPar_pc)*d_instanceVar_rT_dX+0.5*d_modelPar_pc_dX*instanceVar_rT)-((0.5*modelPar_pc)*instanceVar_rT)*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))-deriv_exp_1_d0*(((instanceVar_vtv*(((-0.5)*modelPar_pc)*d_instanceVar_rT_dX+(-0.5)*d_modelPar_pc_dX*instanceVar_rT)-(((-0.5)*modelPar_pc)*instanceVar_rT)*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))))+2.0*((instanceVar_rT*d_instanceVar_vtv_dX-instanceVar_vtv*d_instanceVar_rT_dX)/instanceVar_rT/instanceVar_rT)*value_log_2);
+        psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*value_log_2);
+      }
+      {
+        double value_log_0 = log(instanceVar_rT);
+        double  deriv_log_0_d0 = (1.0/instanceVar_rT);
+        d_psiin_dX = (((psiio*d_instanceVar_rT_dX+d_psiio_dX*instanceVar_rT)-((3.0*instanceVar_vtv)*deriv_log_0_d0*(d_instanceVar_rT_dX)+3.0*d_instanceVar_vtv_dX*value_log_0))-(modelPar_eaic*d_instanceVar_rT_dX+d_modelPar_eaic_dX*(instanceVar_rT-1.0)));
+        psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*value_log_0))-(modelPar_eaic*(instanceVar_rT-1.0)));
+      }
+      {
+        double value_exp_0 = exp(((-psiin)/instanceVar_vtv));
+        double value_sqrt_1 = sqrt((1.0+(4.0*value_exp_0)));
+        double value_log_2 = log((0.5*(1.0+value_sqrt_1)));
+        double  deriv_exp_0_d0 = value_exp_0;
+        double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+        double  deriv_log_2_d0 = (1.0/(0.5*(1.0+value_sqrt_1)));
+        d_pc_t_dX = (d_psiin_dX+((2.0*instanceVar_vtv)*deriv_log_2_d0*(0.5*deriv_sqrt_1_d0*(4.0*deriv_exp_0_d0*(((instanceVar_vtv*(-d_psiin_dX)-(-psiin)*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))))+2.0*d_instanceVar_vtv_dX*value_log_2));
+        pc_t = (psiin+((2.0*instanceVar_vtv)*value_log_2));
+      }
     }
     // End block pcPsibiBlock
     //Begin block psPsibiBlock
     {
       //Block-local variables for block psPsibiBlock
-      AdmsSensFadType psiio;
-      AdmsSensFadType psiin;
+      double psiio;
+      double d_psiio_dX;
+      double psiin;
+      double d_psiin_dX;
       //End of Block-local variables
-      psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*log((exp((((0.5*modelPar_ps)*instanceVar_rT)/instanceVar_vtv))-exp(((((-0.5)*modelPar_ps)*instanceVar_rT)/instanceVar_vtv)))));
-      psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*log(instanceVar_rT)))-(modelPar_eais*(instanceVar_rT-1.0)));
-      ps_t = (psiin+((2.0*instanceVar_vtv)*log((0.5*(1.0+sqrt((1.0+(4.0*exp(((-psiin)/instanceVar_vtv))))))))));
+      {
+        double value_exp_0 = exp((((0.5*modelPar_ps)*instanceVar_rT)/instanceVar_vtv));
+        double value_exp_1 = exp(((((-0.5)*modelPar_ps)*instanceVar_rT)/instanceVar_vtv));
+        double value_log_2 = log((value_exp_0-value_exp_1));
+        double  deriv_exp_0_d0 = value_exp_0;
+        double  deriv_exp_1_d0 = value_exp_1;
+        double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
+        d_psiio_dX = ((2.0*(instanceVar_vtv/instanceVar_rT))*deriv_log_2_d0*((deriv_exp_0_d0*(((instanceVar_vtv*((0.5*modelPar_ps)*d_instanceVar_rT_dX+0.5*d_modelPar_ps_dX*instanceVar_rT)-((0.5*modelPar_ps)*instanceVar_rT)*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))-deriv_exp_1_d0*(((instanceVar_vtv*(((-0.5)*modelPar_ps)*d_instanceVar_rT_dX+(-0.5)*d_modelPar_ps_dX*instanceVar_rT)-(((-0.5)*modelPar_ps)*instanceVar_rT)*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))))+2.0*((instanceVar_rT*d_instanceVar_vtv_dX-instanceVar_vtv*d_instanceVar_rT_dX)/instanceVar_rT/instanceVar_rT)*value_log_2);
+        psiio = ((2.0*(instanceVar_vtv/instanceVar_rT))*value_log_2);
+      }
+      {
+        double value_log_0 = log(instanceVar_rT);
+        double  deriv_log_0_d0 = (1.0/instanceVar_rT);
+        d_psiin_dX = (((psiio*d_instanceVar_rT_dX+d_psiio_dX*instanceVar_rT)-((3.0*instanceVar_vtv)*deriv_log_0_d0*(d_instanceVar_rT_dX)+3.0*d_instanceVar_vtv_dX*value_log_0))-(modelPar_eais*d_instanceVar_rT_dX+d_modelPar_eais_dX*(instanceVar_rT-1.0)));
+        psiin = (((psiio*instanceVar_rT)-((3.0*instanceVar_vtv)*value_log_0))-(modelPar_eais*(instanceVar_rT-1.0)));
+      }
+      {
+        double value_exp_0 = exp(((-psiin)/instanceVar_vtv));
+        double value_sqrt_1 = sqrt((1.0+(4.0*value_exp_0)));
+        double value_log_2 = log((0.5*(1.0+value_sqrt_1)));
+        double  deriv_exp_0_d0 = value_exp_0;
+        double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+        double  deriv_log_2_d0 = (1.0/(0.5*(1.0+value_sqrt_1)));
+        d_ps_t_dX = (d_psiin_dX+((2.0*instanceVar_vtv)*deriv_log_2_d0*(0.5*deriv_sqrt_1_d0*(4.0*deriv_exp_0_d0*(((instanceVar_vtv*(-d_psiin_dX)-(-psiin)*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))))+2.0*d_instanceVar_vtv_dX*value_log_2));
+        ps_t = (psiin+((2.0*instanceVar_vtv)*value_log_2));
+      }
     }
     // End block psPsibiBlock
-    cje_t = (modelPar_cje*pow((modelPar_pe/pe_t),modelPar_me));
-    cjc_t = (modelPar_cjc*pow((modelPar_pc/pc_t),modelPar_mc));
-    cjep_t = (modelPar_cjep*pow((modelPar_pc/pc_t),modelPar_mc));
-    cjcp_t = (modelPar_cjcp*pow((modelPar_ps/ps_t),modelPar_ms));
-    gamm_t = ((modelPar_gamm*pow(instanceVar_rT,modelPar_xis))*exp((((-modelPar_ea)*(1.0-instanceVar_rT))/instanceVar_vtv)));
-    vo_t = (modelPar_vo*pow(instanceVar_rT,modelPar_xvo));
-    ebbe_t = exp(((-vbbe_t)/(nbbe_t*instanceVar_vtv)));
+    {
+      double value_pow_0 = pow((modelPar_pe/pe_t),modelPar_me);
+      double  deriv_pow_0_d0 = (((modelPar_pe/pe_t) == 0.0)?0.0:(value_pow_0*modelPar_me/(modelPar_pe/pe_t)));
+      double  deriv_pow_0_d1 = ((modelPar_pe/pe_t) == 0.0)?0.0:(log((modelPar_pe/pe_t))*value_pow_0);
+      d_cje_t_dX = (modelPar_cje*((deriv_pow_0_d0*(((pe_t*d_modelPar_pe_dX-modelPar_pe*d_pe_t_dX)/pe_t/pe_t)))+(deriv_pow_0_d1*(d_modelPar_me_dX)))+d_modelPar_cje_dX*value_pow_0);
+      cje_t = (modelPar_cje*value_pow_0);
+    }
+    {
+      double value_pow_0 = pow((modelPar_pc/pc_t),modelPar_mc);
+      double  deriv_pow_0_d0 = (((modelPar_pc/pc_t) == 0.0)?0.0:(value_pow_0*modelPar_mc/(modelPar_pc/pc_t)));
+      double  deriv_pow_0_d1 = ((modelPar_pc/pc_t) == 0.0)?0.0:(log((modelPar_pc/pc_t))*value_pow_0);
+      d_cjc_t_dX = (modelPar_cjc*((deriv_pow_0_d0*(((pc_t*d_modelPar_pc_dX-modelPar_pc*d_pc_t_dX)/pc_t/pc_t)))+(deriv_pow_0_d1*(d_modelPar_mc_dX)))+d_modelPar_cjc_dX*value_pow_0);
+      cjc_t = (modelPar_cjc*value_pow_0);
+    }
+    {
+      double value_pow_0 = pow((modelPar_pc/pc_t),modelPar_mc);
+      double  deriv_pow_0_d0 = (((modelPar_pc/pc_t) == 0.0)?0.0:(value_pow_0*modelPar_mc/(modelPar_pc/pc_t)));
+      double  deriv_pow_0_d1 = ((modelPar_pc/pc_t) == 0.0)?0.0:(log((modelPar_pc/pc_t))*value_pow_0);
+      d_cjep_t_dX = (modelPar_cjep*((deriv_pow_0_d0*(((pc_t*d_modelPar_pc_dX-modelPar_pc*d_pc_t_dX)/pc_t/pc_t)))+(deriv_pow_0_d1*(d_modelPar_mc_dX)))+d_modelPar_cjep_dX*value_pow_0);
+      cjep_t = (modelPar_cjep*value_pow_0);
+    }
+    {
+      double value_pow_0 = pow((modelPar_ps/ps_t),modelPar_ms);
+      double  deriv_pow_0_d0 = (((modelPar_ps/ps_t) == 0.0)?0.0:(value_pow_0*modelPar_ms/(modelPar_ps/ps_t)));
+      double  deriv_pow_0_d1 = ((modelPar_ps/ps_t) == 0.0)?0.0:(log((modelPar_ps/ps_t))*value_pow_0);
+      d_cjcp_t_dX = (modelPar_cjcp*((deriv_pow_0_d0*(((ps_t*d_modelPar_ps_dX-modelPar_ps*d_ps_t_dX)/ps_t/ps_t)))+(deriv_pow_0_d1*(d_modelPar_ms_dX)))+d_modelPar_cjcp_dX*value_pow_0);
+      cjcp_t = (modelPar_cjcp*value_pow_0);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,modelPar_xis);
+      double value_exp_1 = exp((((-modelPar_ea)*(1.0-instanceVar_rT))/instanceVar_vtv));
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xis/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      double  deriv_exp_1_d0 = value_exp_1;
+      d_gamm_t_dX = ((modelPar_gamm*value_pow_0)*deriv_exp_1_d0*(((instanceVar_vtv*((-modelPar_ea)*(-d_instanceVar_rT_dX)+(-d_modelPar_ea_dX)*(1.0-instanceVar_rT))-((-modelPar_ea)*(1.0-instanceVar_rT))*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv))+(modelPar_gamm*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xis_dX)))+d_modelPar_gamm_dX*value_pow_0)*value_exp_1);
+      gamm_t = ((modelPar_gamm*value_pow_0)*value_exp_1);
+    }
+    {
+      double value_pow_0 = pow(instanceVar_rT,modelPar_xvo);
+      double  deriv_pow_0_d0 = ((instanceVar_rT == 0.0)?0.0:(value_pow_0*modelPar_xvo/instanceVar_rT));
+      double  deriv_pow_0_d1 = (instanceVar_rT == 0.0)?0.0:(log(instanceVar_rT)*value_pow_0);
+      d_vo_t_dX = (modelPar_vo*((deriv_pow_0_d0*(d_instanceVar_rT_dX))+(deriv_pow_0_d1*(d_modelPar_xvo_dX)))+d_modelPar_vo_dX*value_pow_0);
+      vo_t = (modelPar_vo*value_pow_0);
+    }
+    {
+      double value_exp_0 = exp(((-vbbe_t)/(nbbe_t*instanceVar_vtv)));
+      double  deriv_exp_0_d0 = value_exp_0;
+      d_ebbe_t_dX = deriv_exp_0_d0*((((nbbe_t*instanceVar_vtv)*(-d_vbbe_t_dX)-(-vbbe_t)*(nbbe_t*d_instanceVar_vtv_dX+d_nbbe_t_dX*instanceVar_vtv))/(nbbe_t*instanceVar_vtv)/(nbbe_t*instanceVar_vtv)));
+      ebbe_t = value_exp_0;
+    }
+    d_vef_t_dX = (modelPar_vef*(dT*d_modelPar_tcvef_dX+d_dT_dX*modelPar_tcvef)+d_modelPar_vef_dX*(1.0+(dT*modelPar_tcvef)));
     vef_t = (modelPar_vef*(1.0+(dT*modelPar_tcvef)));
+    d_ver_t_dX = (modelPar_ver*(dT*d_modelPar_tcver_dX+d_dT_dX*modelPar_tcver)+d_modelPar_ver_dX*(1.0+(dT*modelPar_tcver)));
     ver_t = (modelPar_ver*(1.0+(dT*modelPar_tcver)));
-    instanceVar_Gcx = adms_ternary_op<AdmsSensFadType>((rcx_t>1.0e-3),(1.0/rcx_t),1.0e3);
-    instanceVar_Gci = adms_ternary_op<AdmsSensFadType>((rci_t>1.0e-3),(1.0/rci_t),1.0e3);
-    instanceVar_Gbx = adms_ternary_op<AdmsSensFadType>((rbx_t>1.0e-3),(1.0/rbx_t),1.0e3);
-    instanceVar_Gbi = adms_ternary_op<AdmsSensFadType>((rbi_t>1.0e-3),(1.0/rbi_t),1.0e3);
-    instanceVar_Ge = adms_ternary_op<AdmsSensFadType>((re_t>1.0e-3),(1.0/re_t),1.0e3);
-    instanceVar_Gbp = adms_ternary_op<AdmsSensFadType>((rbp_t>1.0e-3),(1.0/rbp_t),1.0e3);
-    Gs = adms_ternary_op<AdmsSensFadType>((rs_t>1.0e-3),(1.0/rs_t),1.0e3);
-    Gth = adms_ternary_op<AdmsSensFadType>((rth_t>1.0e-3),(1.0/rth_t),1.0e3);
-    Ivef = adms_ternary_op<AdmsSensFadType>((vef_t>0.0),(1.0/vef_t),0.0);
-    Iver = adms_ternary_op<AdmsSensFadType>((ver_t>0.0),(1.0/ver_t),0.0);
-    Iikf = adms_ternary_op<AdmsSensFadType>((ikf_t>0.0),(1.0/ikf_t),0.0);
-    Ivo = adms_ternary_op<AdmsSensFadType>((vo_t>0.0),(1.0/vo_t),0.0);
+    d_instanceVar_Gcx_dX = ((rcx_t>1.0e-3)?(-d_rcx_t_dX/rcx_t/rcx_t):0.0);
+    instanceVar_Gcx = ((rcx_t>1.0e-3)?(1.0/rcx_t):1.0e3);
+    d_instanceVar_Gci_dX = ((rci_t>1.0e-3)?(-d_rci_t_dX/rci_t/rci_t):0.0);
+    instanceVar_Gci = ((rci_t>1.0e-3)?(1.0/rci_t):1.0e3);
+    d_instanceVar_Gbx_dX = ((rbx_t>1.0e-3)?(-d_rbx_t_dX/rbx_t/rbx_t):0.0);
+    instanceVar_Gbx = ((rbx_t>1.0e-3)?(1.0/rbx_t):1.0e3);
+    d_instanceVar_Gbi_dX = ((rbi_t>1.0e-3)?(-d_rbi_t_dX/rbi_t/rbi_t):0.0);
+    instanceVar_Gbi = ((rbi_t>1.0e-3)?(1.0/rbi_t):1.0e3);
+    d_instanceVar_Ge_dX = ((re_t>1.0e-3)?(-d_re_t_dX/re_t/re_t):0.0);
+    instanceVar_Ge = ((re_t>1.0e-3)?(1.0/re_t):1.0e3);
+    d_instanceVar_Gbp_dX = ((rbp_t>1.0e-3)?(-d_rbp_t_dX/rbp_t/rbp_t):0.0);
+    instanceVar_Gbp = ((rbp_t>1.0e-3)?(1.0/rbp_t):1.0e3);
+    d_Gs_dX = ((rs_t>1.0e-3)?(-d_rs_t_dX/rs_t/rs_t):0.0);
+    Gs = ((rs_t>1.0e-3)?(1.0/rs_t):1.0e3);
+    d_Gth_dX = ((rth_t>1.0e-3)?(-d_rth_t_dX/rth_t/rth_t):0.0);
+    Gth = ((rth_t>1.0e-3)?(1.0/rth_t):1.0e3);
+    d_Ivef_dX = ((vef_t>0.0)?(-d_vef_t_dX/vef_t/vef_t):0.0);
+    Ivef = ((vef_t>0.0)?(1.0/vef_t):0.0);
+    d_Iver_dX = ((ver_t>0.0)?(-d_ver_t_dX/ver_t/ver_t):0.0);
+    Iver = ((ver_t>0.0)?(1.0/ver_t):0.0);
+    d_Iikf_dX = ((ikf_t>0.0)?(-d_ikf_t_dX/ikf_t/ikf_t):0.0);
+    Iikf = ((ikf_t>0.0)?(1.0/ikf_t):0.0);
+    d_Ivo_dX = ((vo_t>0.0)?(-d_vo_t_dX/vo_t/vo_t):0.0);
+    Ivo = ((vo_t>0.0)?(1.0/vo_t):0.0);
     Vbei = probeVars[admsProbeID_V_bi_ei];
 
     Vbex = probeVars[admsProbeID_V_bx_ei];
@@ -10601,6 +11650,7 @@ void evaluateModelEquations(
 
     Vbxcx = probeVars[admsProbeID_V_bx_cx];
 
+    d_Vcei_dX = 0.0;
     Vcei = (modelPar_VBICtype*(probeVars[admsProbeID_V_ci_ei]));
     Vbep = probeVars[admsProbeID_V_bx_bp];
 
@@ -10608,6 +11658,7 @@ void evaluateModelEquations(
 
     Vbc = (probeVars[admsProbeID_V_b_c]);
     Vrcx = (probeVars[admsProbeID_V_c_cx]);
+    d_instanceVar_Vrci_dX = 0.0;
     instanceVar_Vrci = (modelPar_VBICtype*(probeVars[admsProbeID_V_cx_ci]));
     Vrbx = (probeVars[admsProbeID_V_b_bx]);
     Vrbi = (probeVars[admsProbeID_V_bx_bi]);
@@ -10618,480 +11669,1044 @@ void evaluateModelEquations(
     //Begin block qdbeBlock
     {
       //Block-local variables for block qdbeBlock
-      AdmsSensFadType dv0;
-      AdmsSensFadType dvh;
-      AdmsSensFadType pwq;
-      AdmsSensFadType qlo;
-      AdmsSensFadType qhi;
-      AdmsSensFadType mv0;
-      AdmsSensFadType vl0;
-      AdmsSensFadType q0;
-      AdmsSensFadType dv;
-      AdmsSensFadType mv;
-      AdmsSensFadType vl;
+      double dv0;
+      double d_dv0_dX;
+      double dvh;
+      double d_dvh_dX;
+      double pwq;
+      double d_pwq_dX;
+      double qlo;
+      double d_qlo_dX;
+      double qhi;
+      double d_qhi_dX;
+      double mv0;
+      double d_mv0_dX;
+      double vl0;
+      double d_vl0_dX;
+      double q0;
+      double d_q0_dX;
+      double dv;
+      double d_dv_dX;
+      double mv;
+      double d_mv_dX;
+      double vl;
+      double d_vl_dX;
       //End of Block-local variables
+      d_dv0_dX = ((-pe_t)*d_modelPar_fc_dX+(-d_pe_t_dX)*modelPar_fc);
       dv0 = ((-pe_t)*modelPar_fc);
       if ((modelPar_aje<=0.0))
       {
+        d_dvh_dX = (d_Vbei_dX+d_dv0_dX);
         dvh = (Vbei+dv0);
         if ((dvh>0.0))
         {
-          pwq = pow((1.0-modelPar_fc),(-modelPar_me));
+          {
+            double value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_me));
+            double  deriv_pow_0_d0 = (((1.0-modelPar_fc) == 0.0)?0.0:(value_pow_0*(-modelPar_me)/(1.0-modelPar_fc)));
+            double  deriv_pow_0_d1 = ((1.0-modelPar_fc) == 0.0)?0.0:(log((1.0-modelPar_fc))*value_pow_0);
+            d_pwq_dX = ((deriv_pow_0_d0*((-d_modelPar_fc_dX)))+(deriv_pow_0_d1*((-d_modelPar_me_dX))));
+            pwq = value_pow_0;
+          }
+          d_qlo_dX = (((1.0-modelPar_me)*(pe_t*(-(pwq*(-d_modelPar_fc_dX)+d_pwq_dX*(1.0-modelPar_fc)))+d_pe_t_dX*(1.0-(pwq*(1.0-modelPar_fc))))-(pe_t*(1.0-(pwq*(1.0-modelPar_fc))))*(-d_modelPar_me_dX))/(1.0-modelPar_me)/(1.0-modelPar_me));
           qlo = ((pe_t*(1.0-(pwq*(1.0-modelPar_fc))))/(1.0-modelPar_me));
+          d_qhi_dX = ((dvh*(1.0+(((0.5*modelPar_me)*dvh)/(pe_t*(1.0-modelPar_fc)))))*d_pwq_dX+(dvh*(((pe_t*(1.0-modelPar_fc))*((0.5*modelPar_me)*d_dvh_dX+0.5*d_modelPar_me_dX*dvh)-((0.5*modelPar_me)*dvh)*(pe_t*(-d_modelPar_fc_dX)+d_pe_t_dX*(1.0-modelPar_fc)))/(pe_t*(1.0-modelPar_fc))/(pe_t*(1.0-modelPar_fc)))+d_dvh_dX*(1.0+(((0.5*modelPar_me)*dvh)/(pe_t*(1.0-modelPar_fc)))))*pwq);
           qhi = ((dvh*(1.0+(((0.5*modelPar_me)*dvh)/(pe_t*(1.0-modelPar_fc)))))*pwq);
         }
         else
         {
-          qlo = ((pe_t*(1.0-pow((1.0-(Vbei/pe_t)),(1.0-modelPar_me))))/(1.0-modelPar_me));
+          {
+            double value_pow_0 = pow((1.0-(Vbei/pe_t)),(1.0-modelPar_me));
+            double  deriv_pow_0_d0 = (((1.0-(Vbei/pe_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_me)/(1.0-(Vbei/pe_t))));
+            double  deriv_pow_0_d1 = ((1.0-(Vbei/pe_t)) == 0.0)?0.0:(log((1.0-(Vbei/pe_t)))*value_pow_0);
+            d_qlo_dX = (((1.0-modelPar_me)*(pe_t*(-((deriv_pow_0_d0*((-((pe_t*d_Vbei_dX-Vbei*d_pe_t_dX)/pe_t/pe_t))))+(deriv_pow_0_d1*((-d_modelPar_me_dX)))))+d_pe_t_dX*(1.0-value_pow_0))-(pe_t*(1.0-value_pow_0))*(-d_modelPar_me_dX))/(1.0-modelPar_me)/(1.0-modelPar_me));
+            qlo = ((pe_t*(1.0-value_pow_0))/(1.0-modelPar_me));
+          }
+          d_qhi_dX = 0.0;
           qhi = 0.0;
         }
+        d_qdbe_dX = (d_qlo_dX+d_qhi_dX);
         qdbe = (qlo+qhi);
       }
       else
       {
-        mv0 = sqrt(((dv0*dv0)+((4.0*modelPar_aje)*modelPar_aje)));
+        {
+          double value_sqrt_0 = sqrt(((dv0*dv0)+((4.0*modelPar_aje)*modelPar_aje)));
+          double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+          d_mv0_dX = deriv_sqrt_0_d0*(((dv0*d_dv0_dX+d_dv0_dX*dv0)+((4.0*modelPar_aje)*d_modelPar_aje_dX+4.0*d_modelPar_aje_dX*modelPar_aje)));
+          mv0 = value_sqrt_0;
+        }
+        d_vl0_dX = (-0.5)*(d_dv0_dX+d_mv0_dX);
         vl0 = ((-0.5)*(dv0+mv0));
-        q0 = (((-pe_t)*pow((1.0-(vl0/pe_t)),(1.0-modelPar_me)))/(1.0-modelPar_me));
+        {
+          double value_pow_0 = pow((1.0-(vl0/pe_t)),(1.0-modelPar_me));
+          double  deriv_pow_0_d0 = (((1.0-(vl0/pe_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_me)/(1.0-(vl0/pe_t))));
+          double  deriv_pow_0_d1 = ((1.0-(vl0/pe_t)) == 0.0)?0.0:(log((1.0-(vl0/pe_t)))*value_pow_0);
+          d_q0_dX = (((1.0-modelPar_me)*((-pe_t)*((deriv_pow_0_d0*((-((pe_t*d_vl0_dX-vl0*d_pe_t_dX)/pe_t/pe_t))))+(deriv_pow_0_d1*((-d_modelPar_me_dX))))+(-d_pe_t_dX)*value_pow_0)-((-pe_t)*value_pow_0)*(-d_modelPar_me_dX))/(1.0-modelPar_me)/(1.0-modelPar_me));
+          q0 = (((-pe_t)*value_pow_0)/(1.0-modelPar_me));
+        }
+        d_dv_dX = (d_Vbei_dX+d_dv0_dX);
         dv = (Vbei+dv0);
-        mv = sqrt(((dv*dv)+((4.0*modelPar_aje)*modelPar_aje)));
+        {
+          double value_sqrt_0 = sqrt(((dv*dv)+((4.0*modelPar_aje)*modelPar_aje)));
+          double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+          d_mv_dX = deriv_sqrt_0_d0*(((dv*d_dv_dX+d_dv_dX*dv)+((4.0*modelPar_aje)*d_modelPar_aje_dX+4.0*d_modelPar_aje_dX*modelPar_aje)));
+          mv = value_sqrt_0;
+        }
+        d_vl_dX = (0.5*(d_dv_dX-d_mv_dX)-d_dv0_dX);
         vl = ((0.5*(dv-mv))-dv0);
-        qlo = (((-pe_t)*pow((1.0-(vl/pe_t)),(1.0-modelPar_me)))/(1.0-modelPar_me));
-        qdbe = ((qlo+((pow((1.0-modelPar_fc),(-modelPar_me))*((Vbei-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbei-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-q0);
+        {
+          double value_pow_0 = pow((1.0-(vl/pe_t)),(1.0-modelPar_me));
+          double  deriv_pow_0_d0 = (((1.0-(vl/pe_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_me)/(1.0-(vl/pe_t))));
+          double  deriv_pow_0_d1 = ((1.0-(vl/pe_t)) == 0.0)?0.0:(log((1.0-(vl/pe_t)))*value_pow_0);
+          d_qlo_dX = (((1.0-modelPar_me)*((-pe_t)*((deriv_pow_0_d0*((-((pe_t*d_vl_dX-vl*d_pe_t_dX)/pe_t/pe_t))))+(deriv_pow_0_d1*((-d_modelPar_me_dX))))+(-d_pe_t_dX)*value_pow_0)-((-pe_t)*value_pow_0)*(-d_modelPar_me_dX))/(1.0-modelPar_me)/(1.0-modelPar_me));
+          qlo = (((-pe_t)*value_pow_0)/(1.0-modelPar_me));
+        }
+        {
+          double value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_me));
+          double  deriv_pow_0_d0 = (((1.0-modelPar_fc) == 0.0)?0.0:(value_pow_0*(-modelPar_me)/(1.0-modelPar_fc)));
+          double  deriv_pow_0_d1 = ((1.0-modelPar_fc) == 0.0)?0.0:(log((1.0-modelPar_fc))*value_pow_0);
+          d_qdbe_dX = ((d_qlo_dX+((value_pow_0*((Vbei-vl)+vl0))*(((pe_t*(1.0-modelPar_fc))*((0.5*modelPar_me)*((d_Vbei_dX-d_vl_dX)+d_vl0_dX)+0.5*d_modelPar_me_dX*((Vbei-vl)+vl0))-((0.5*modelPar_me)*((Vbei-vl)+vl0))*(pe_t*(-d_modelPar_fc_dX)+d_pe_t_dX*(1.0-modelPar_fc)))/(pe_t*(1.0-modelPar_fc))/(pe_t*(1.0-modelPar_fc)))+(value_pow_0*((d_Vbei_dX-d_vl_dX)+d_vl0_dX)+((deriv_pow_0_d0*((-d_modelPar_fc_dX)))+(deriv_pow_0_d1*((-d_modelPar_me_dX))))*((Vbei-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbei-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-d_q0_dX);
+          qdbe = ((qlo+((value_pow_0*((Vbei-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbei-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-q0);
+        }
       }
     }
     // End block qdbeBlock
     //Begin block qdbcBlock
     {
       //Block-local variables for block qdbcBlock
-      AdmsSensFadType dv0;
-      AdmsSensFadType dvh;
-      AdmsSensFadType pwq;
-      AdmsSensFadType qlo;
-      AdmsSensFadType qhi;
-      AdmsSensFadType vn0;
-      AdmsSensFadType vnl0;
-      AdmsSensFadType vl0;
-      AdmsSensFadType qlo0;
-      AdmsSensFadType vn;
-      AdmsSensFadType vnl;
-      AdmsSensFadType vl;
-      AdmsSensFadType sel;
-      AdmsSensFadType crt;
-      AdmsSensFadType cmx;
-      AdmsSensFadType cl;
-      AdmsSensFadType ql;
-      AdmsSensFadType mv0;
-      AdmsSensFadType q0;
-      AdmsSensFadType dv;
-      AdmsSensFadType mv;
+      double dv0;
+      double d_dv0_dX;
+      double dvh;
+      double d_dvh_dX;
+      double pwq;
+      double d_pwq_dX;
+      double qlo;
+      double d_qlo_dX;
+      double qhi;
+      double d_qhi_dX;
+      double vn0;
+      double d_vn0_dX;
+      double vnl0;
+      double d_vnl0_dX;
+      double vl0;
+      double d_vl0_dX;
+      double qlo0;
+      double d_qlo0_dX;
+      double vn;
+      double d_vn_dX;
+      double vnl;
+      double d_vnl_dX;
+      double vl;
+      double d_vl_dX;
+      double sel;
+      double d_sel_dX;
+      double crt;
+      double d_crt_dX;
+      double cmx;
+      double d_cmx_dX;
+      double cl;
+      double d_cl_dX;
+      double ql;
+      double d_ql_dX;
+      double mv0;
+      double d_mv0_dX;
+      double q0;
+      double d_q0_dX;
+      double dv;
+      double d_dv_dX;
+      double mv;
+      double d_mv_dX;
       //End of Block-local variables
+      d_dv0_dX = ((-pc_t)*d_modelPar_fc_dX+(-d_pc_t_dX)*modelPar_fc);
       dv0 = ((-pc_t)*modelPar_fc);
       if ((modelPar_ajc<=0.0))
       {
+        d_dvh_dX = (d_Vbci_dX+d_dv0_dX);
         dvh = (Vbci+dv0);
         if ((dvh>0.0))
         {
-          pwq = pow((1.0-modelPar_fc),((-1.0)-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0-modelPar_fc),((-1.0)-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-modelPar_fc) == 0.0)?0.0:(value_pow_0*((-1.0)-modelPar_mc)/(1.0-modelPar_fc)));
+            double  deriv_pow_0_d1 = ((1.0-modelPar_fc) == 0.0)?0.0:(log((1.0-modelPar_fc))*value_pow_0);
+            d_pwq_dX = ((deriv_pow_0_d0*((-d_modelPar_fc_dX)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))));
+            pwq = value_pow_0;
+          }
+          d_qlo_dX = (((1.0-modelPar_mc)*(pc_t*(-((pwq*(1.0-modelPar_fc))*(-d_modelPar_fc_dX)+(pwq*(-d_modelPar_fc_dX)+d_pwq_dX*(1.0-modelPar_fc))*(1.0-modelPar_fc)))+d_pc_t_dX*(1.0-((pwq*(1.0-modelPar_fc))*(1.0-modelPar_fc))))-(pc_t*(1.0-((pwq*(1.0-modelPar_fc))*(1.0-modelPar_fc))))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
           qlo = ((pc_t*(1.0-((pwq*(1.0-modelPar_fc))*(1.0-modelPar_fc))))/(1.0-modelPar_mc));
+          d_qhi_dX = ((dvh*((1.0-modelPar_fc)+(((0.5*modelPar_mc)*dvh)/pc_t)))*d_pwq_dX+(dvh*((-d_modelPar_fc_dX)+((pc_t*((0.5*modelPar_mc)*d_dvh_dX+0.5*d_modelPar_mc_dX*dvh)-((0.5*modelPar_mc)*dvh)*d_pc_t_dX)/pc_t/pc_t))+d_dvh_dX*((1.0-modelPar_fc)+(((0.5*modelPar_mc)*dvh)/pc_t)))*pwq);
           qhi = ((dvh*((1.0-modelPar_fc)+(((0.5*modelPar_mc)*dvh)/pc_t)))*pwq);
         }
         else
         {
           if (((modelPar_vrt>0.0)&&(Vbci<(-modelPar_vrt))))
           {
-            qlo = ((pc_t*(1.0-(pow((1.0+(modelPar_vrt/pc_t)),(1.0-modelPar_mc))*(1.0-(((1.0-modelPar_mc)*(Vbci+modelPar_vrt))/(pc_t+modelPar_vrt))))))/(1.0-modelPar_mc));
+            {
+              double value_pow_0 = pow((1.0+(modelPar_vrt/pc_t)),(1.0-modelPar_mc));
+              double  deriv_pow_0_d0 = (((1.0+(modelPar_vrt/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0+(modelPar_vrt/pc_t))));
+              double  deriv_pow_0_d1 = ((1.0+(modelPar_vrt/pc_t)) == 0.0)?0.0:(log((1.0+(modelPar_vrt/pc_t)))*value_pow_0);
+              d_qlo_dX = (((1.0-modelPar_mc)*(pc_t*(-(value_pow_0*(-(((pc_t+modelPar_vrt)*((1.0-modelPar_mc)*(d_Vbci_dX+d_modelPar_vrt_dX)+(-d_modelPar_mc_dX)*(Vbci+modelPar_vrt))-((1.0-modelPar_mc)*(Vbci+modelPar_vrt))*(d_pc_t_dX+d_modelPar_vrt_dX))/(pc_t+modelPar_vrt)/(pc_t+modelPar_vrt)))+((deriv_pow_0_d0*(((pc_t*d_modelPar_vrt_dX-modelPar_vrt*d_pc_t_dX)/pc_t/pc_t)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))))*(1.0-(((1.0-modelPar_mc)*(Vbci+modelPar_vrt))/(pc_t+modelPar_vrt)))))+d_pc_t_dX*(1.0-(value_pow_0*(1.0-(((1.0-modelPar_mc)*(Vbci+modelPar_vrt))/(pc_t+modelPar_vrt))))))-(pc_t*(1.0-(value_pow_0*(1.0-(((1.0-modelPar_mc)*(Vbci+modelPar_vrt))/(pc_t+modelPar_vrt))))))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+              qlo = ((pc_t*(1.0-(value_pow_0*(1.0-(((1.0-modelPar_mc)*(Vbci+modelPar_vrt))/(pc_t+modelPar_vrt))))))/(1.0-modelPar_mc));
+            }
           }
           else
           {
-            qlo = ((pc_t*(1.0-pow((1.0-(Vbci/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
+            {
+              double value_pow_0 = pow((1.0-(Vbci/pc_t)),(1.0-modelPar_mc));
+              double  deriv_pow_0_d0 = (((1.0-(Vbci/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(Vbci/pc_t))));
+              double  deriv_pow_0_d1 = ((1.0-(Vbci/pc_t)) == 0.0)?0.0:(log((1.0-(Vbci/pc_t)))*value_pow_0);
+              d_qlo_dX = (((1.0-modelPar_mc)*(pc_t*(-((deriv_pow_0_d0*((-((pc_t*d_Vbci_dX-Vbci*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX)))))+d_pc_t_dX*(1.0-value_pow_0))-(pc_t*(1.0-value_pow_0))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+              qlo = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
+            }
           }
+          d_qhi_dX = 0.0;
           qhi = 0.0;
         }
+        d_qdbc_dX = (d_qlo_dX+d_qhi_dX);
         qdbc = (qlo+qhi);
       }
       else
       {
         if (((modelPar_vrt>0.0)&&(modelPar_art>0.0)))
         {
+          d_vn0_dX = (((modelPar_vrt-dv0)*(d_modelPar_vrt_dX+d_dv0_dX)-(modelPar_vrt+dv0)*(d_modelPar_vrt_dX-d_dv0_dX))/(modelPar_vrt-dv0)/(modelPar_vrt-dv0));
           vn0 = ((modelPar_vrt+dv0)/(modelPar_vrt-dv0));
-          vnl0 = ((2.0*vn0)/(sqrt((((vn0-1.0)*(vn0-1))+((4*modelPar_ajc)*modelPar_ajc)))+sqrt((((vn0+1.0)*(vn0+1))+((4*modelPar_art)*modelPar_art)))));
+          {
+            double value_sqrt_0 = sqrt((((vn0-1.0)*(vn0-1))+((4*modelPar_ajc)*modelPar_ajc)));
+            double value_sqrt_1 = sqrt((((vn0+1.0)*(vn0+1))+((4*modelPar_art)*modelPar_art)));
+            double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+            double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+            d_vnl0_dX = (((value_sqrt_0+value_sqrt_1)*2.0*d_vn0_dX-(2.0*vn0)*(deriv_sqrt_0_d0*((((vn0-1.0)*d_vn0_dX+d_vn0_dX*(vn0-1))+((4*modelPar_ajc)*d_modelPar_ajc_dX+4*d_modelPar_ajc_dX*modelPar_ajc)))+deriv_sqrt_1_d0*((((vn0+1.0)*d_vn0_dX+d_vn0_dX*(vn0+1))+((4*modelPar_art)*d_modelPar_art_dX+4*d_modelPar_art_dX*modelPar_art)))))/(value_sqrt_0+value_sqrt_1)/(value_sqrt_0+value_sqrt_1));
+            vnl0 = ((2.0*vn0)/(value_sqrt_0+value_sqrt_1));
+          }
+          d_vl0_dX = 0.5*(((vnl0*(d_modelPar_vrt_dX-d_dv0_dX)+d_vnl0_dX*(modelPar_vrt-dv0))-d_modelPar_vrt_dX)-d_dv0_dX);
           vl0 = (0.5*(((vnl0*(modelPar_vrt-dv0))-modelPar_vrt)-dv0));
-          qlo0 = ((pc_t*(1.0-pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-(vl0/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(vl0/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0-(vl0/pc_t)) == 0.0)?0.0:(log((1.0-(vl0/pc_t)))*value_pow_0);
+            d_qlo0_dX = (((1.0-modelPar_mc)*(pc_t*(-((deriv_pow_0_d0*((-((pc_t*d_vl0_dX-vl0*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX)))))+d_pc_t_dX*(1.0-value_pow_0))-(pc_t*(1.0-value_pow_0))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+            qlo0 = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
+          }
+          d_vn_dX = (((modelPar_vrt-dv0)*((2*d_Vbci_dX+d_modelPar_vrt_dX)+d_dv0_dX)-(((2*Vbci)+modelPar_vrt)+dv0)*(d_modelPar_vrt_dX-d_dv0_dX))/(modelPar_vrt-dv0)/(modelPar_vrt-dv0));
           vn = ((((2*Vbci)+modelPar_vrt)+dv0)/(modelPar_vrt-dv0));
-          vnl = ((2.0*vn)/(sqrt((((vn-1.0)*(vn-1))+((4*modelPar_ajc)*modelPar_ajc)))+sqrt((((vn+1.0)*(vn+1))+((4*modelPar_art)*modelPar_art)))));
+          {
+            double value_sqrt_0 = sqrt((((vn-1.0)*(vn-1))+((4*modelPar_ajc)*modelPar_ajc)));
+            double value_sqrt_1 = sqrt((((vn+1.0)*(vn+1))+((4*modelPar_art)*modelPar_art)));
+            double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+            double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+            d_vnl_dX = (((value_sqrt_0+value_sqrt_1)*2.0*d_vn_dX-(2.0*vn)*(deriv_sqrt_0_d0*((((vn-1.0)*d_vn_dX+d_vn_dX*(vn-1))+((4*modelPar_ajc)*d_modelPar_ajc_dX+4*d_modelPar_ajc_dX*modelPar_ajc)))+deriv_sqrt_1_d0*((((vn+1.0)*d_vn_dX+d_vn_dX*(vn+1))+((4*modelPar_art)*d_modelPar_art_dX+4*d_modelPar_art_dX*modelPar_art)))))/(value_sqrt_0+value_sqrt_1)/(value_sqrt_0+value_sqrt_1));
+            vnl = ((2.0*vn)/(value_sqrt_0+value_sqrt_1));
+          }
+          d_vl_dX = 0.5*(((vnl*(d_modelPar_vrt_dX-d_dv0_dX)+d_vnl_dX*(modelPar_vrt-dv0))-d_modelPar_vrt_dX)-d_dv0_dX);
           vl = (0.5*(((vnl*(modelPar_vrt-dv0))-modelPar_vrt)-dv0));
-          qlo = ((pc_t*(1.0-pow((1.0-(vl/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0-(vl/pc_t)),(1.0-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-(vl/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(vl/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0-(vl/pc_t)) == 0.0)?0.0:(log((1.0-(vl/pc_t)))*value_pow_0);
+            d_qlo_dX = (((1.0-modelPar_mc)*(pc_t*(-((deriv_pow_0_d0*((-((pc_t*d_vl_dX-vl*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX)))))+d_pc_t_dX*(1.0-value_pow_0))-(pc_t*(1.0-value_pow_0))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+            qlo = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
+          }
+          d_sel_dX = 0.5*d_vnl_dX;
           sel = (0.5*(vnl+1.0));
-          crt = pow((1.0+(modelPar_vrt/pc_t)),(-modelPar_mc));
-          cmx = pow((1.0+(dv0/pc_t)),(-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0+(modelPar_vrt/pc_t)),(-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0+(modelPar_vrt/pc_t)) == 0.0)?0.0:(value_pow_0*(-modelPar_mc)/(1.0+(modelPar_vrt/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0+(modelPar_vrt/pc_t)) == 0.0)?0.0:(log((1.0+(modelPar_vrt/pc_t)))*value_pow_0);
+            d_crt_dX = ((deriv_pow_0_d0*(((pc_t*d_modelPar_vrt_dX-modelPar_vrt*d_pc_t_dX)/pc_t/pc_t)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))));
+            crt = value_pow_0;
+          }
+          {
+            double value_pow_0 = pow((1.0+(dv0/pc_t)),(-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0+(dv0/pc_t)) == 0.0)?0.0:(value_pow_0*(-modelPar_mc)/(1.0+(dv0/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0+(dv0/pc_t)) == 0.0)?0.0:(log((1.0+(dv0/pc_t)))*value_pow_0);
+            d_cmx_dX = ((deriv_pow_0_d0*(((pc_t*d_dv0_dX-dv0*d_pc_t_dX)/pc_t/pc_t)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))));
+            cmx = value_pow_0;
+          }
+          d_cl_dX = (((1.0-sel)*d_crt_dX+(-d_sel_dX)*crt)+(sel*d_cmx_dX+d_sel_dX*cmx));
           cl = (((1.0-sel)*crt)+(sel*cmx));
+          d_ql_dX = (((Vbci-vl)+vl0)*d_cl_dX+((d_Vbci_dX-d_vl_dX)+d_vl0_dX)*cl);
           ql = (((Vbci-vl)+vl0)*cl);
+          d_qdbc_dX = ((d_ql_dX+d_qlo_dX)-d_qlo0_dX);
           qdbc = ((ql+qlo)-qlo0);
         }
         else
         {
-          mv0 = sqrt(((dv0*dv0)+((4*modelPar_ajc)*modelPar_ajc)));
+          {
+            double value_sqrt_0 = sqrt(((dv0*dv0)+((4*modelPar_ajc)*modelPar_ajc)));
+            double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+            d_mv0_dX = deriv_sqrt_0_d0*(((dv0*d_dv0_dX+d_dv0_dX*dv0)+((4*modelPar_ajc)*d_modelPar_ajc_dX+4*d_modelPar_ajc_dX*modelPar_ajc)));
+            mv0 = value_sqrt_0;
+          }
+          d_vl0_dX = (-0.5)*(d_dv0_dX+d_mv0_dX);
           vl0 = ((-0.5)*(dv0+mv0));
-          q0 = (((-pc_t)*pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc)))/(1.0-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-(vl0/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(vl0/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0-(vl0/pc_t)) == 0.0)?0.0:(log((1.0-(vl0/pc_t)))*value_pow_0);
+            d_q0_dX = (((1.0-modelPar_mc)*((-pc_t)*((deriv_pow_0_d0*((-((pc_t*d_vl0_dX-vl0*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))))+(-d_pc_t_dX)*value_pow_0)-((-pc_t)*value_pow_0)*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+            q0 = (((-pc_t)*value_pow_0)/(1.0-modelPar_mc));
+          }
+          d_dv_dX = (d_Vbci_dX+d_dv0_dX);
           dv = (Vbci+dv0);
-          mv = sqrt(((dv*dv)+((4*modelPar_ajc)*modelPar_ajc)));
+          {
+            double value_sqrt_0 = sqrt(((dv*dv)+((4*modelPar_ajc)*modelPar_ajc)));
+            double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+            d_mv_dX = deriv_sqrt_0_d0*(((dv*d_dv_dX+d_dv_dX*dv)+((4*modelPar_ajc)*d_modelPar_ajc_dX+4*d_modelPar_ajc_dX*modelPar_ajc)));
+            mv = value_sqrt_0;
+          }
+          d_vl_dX = (0.5*(d_dv_dX-d_mv_dX)-d_dv0_dX);
           vl = ((0.5*(dv-mv))-dv0);
-          qlo = (((-pc_t)*pow((1.0-(vl/pc_t)),(1.0-modelPar_mc)))/(1.0-modelPar_mc));
-          qdbc = ((qlo+(pow((1.0-modelPar_fc),(-modelPar_mc))*((Vbci-vl)+vl0)))-q0);
+          {
+            double value_pow_0 = pow((1.0-(vl/pc_t)),(1.0-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-(vl/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(vl/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0-(vl/pc_t)) == 0.0)?0.0:(log((1.0-(vl/pc_t)))*value_pow_0);
+            d_qlo_dX = (((1.0-modelPar_mc)*((-pc_t)*((deriv_pow_0_d0*((-((pc_t*d_vl_dX-vl*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))))+(-d_pc_t_dX)*value_pow_0)-((-pc_t)*value_pow_0)*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+            qlo = (((-pc_t)*value_pow_0)/(1.0-modelPar_mc));
+          }
+          {
+            double value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-modelPar_fc) == 0.0)?0.0:(value_pow_0*(-modelPar_mc)/(1.0-modelPar_fc)));
+            double  deriv_pow_0_d1 = ((1.0-modelPar_fc) == 0.0)?0.0:(log((1.0-modelPar_fc))*value_pow_0);
+            d_qdbc_dX = ((d_qlo_dX+(value_pow_0*((d_Vbci_dX-d_vl_dX)+d_vl0_dX)+((deriv_pow_0_d0*((-d_modelPar_fc_dX)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))))*((Vbci-vl)+vl0)))-d_q0_dX);
+            qdbc = ((qlo+(value_pow_0*((Vbci-vl)+vl0)))-q0);
+          }
         }
       }
     }
     // End block qdbcBlock
+    d_afac_dX = (-(nf_t*d_instanceVar_vtv_dX+d_nf_t_dX*instanceVar_vtv)/(nf_t*instanceVar_vtv)/(nf_t*instanceVar_vtv));
     afac = (1.0/(nf_t*instanceVar_vtv));
     if ((Vbei<instanceVar_maxvIfi))
     {
-      expi = exp((Vbei*afac));
+      {
+        double value_exp_0 = exp((Vbei*afac));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = deriv_exp_0_d0*((Vbei*d_afac_dX+d_Vbei_dX*afac));
+        expi = value_exp_0;
+      }
     }
     else
     {
-      expi = (exp((instanceVar_maxvIfi*afac))*(1.0+((Vbei-instanceVar_maxvIfi)*afac)));
+      {
+        double value_exp_0 = exp((instanceVar_maxvIfi*afac));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = (value_exp_0*((Vbei-instanceVar_maxvIfi)*d_afac_dX+(d_Vbei_dX-d_instanceVar_maxvIfi_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIfi*d_afac_dX+d_instanceVar_maxvIfi_dX*afac))*(1.0+((Vbei-instanceVar_maxvIfi)*afac)));
+        expi = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIfi)*afac)));
+      }
     }
+    d_Ifi_dX = (instanceVar_is_t*d_expi_dX+d_instanceVar_is_t_dX*(expi-1.0));
     Ifi = (instanceVar_is_t*(expi-1.0));
+    d_afac_dX = (-(nr_t*d_instanceVar_vtv_dX+d_nr_t_dX*instanceVar_vtv)/(nr_t*instanceVar_vtv)/(nr_t*instanceVar_vtv));
     afac = (1.0/(nr_t*instanceVar_vtv));
     if ((Vbci<instanceVar_maxvIri))
     {
-      expi = exp((Vbci*afac));
+      {
+        double value_exp_0 = exp((Vbci*afac));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = deriv_exp_0_d0*((Vbci*d_afac_dX+d_Vbci_dX*afac));
+        expi = value_exp_0;
+      }
     }
     else
     {
-      expi = (exp((instanceVar_maxvIri*afac))*(1.0+((Vbci-instanceVar_maxvIri)*afac)));
+      {
+        double value_exp_0 = exp((instanceVar_maxvIri*afac));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = (value_exp_0*((Vbci-instanceVar_maxvIri)*d_afac_dX+(d_Vbci_dX-d_instanceVar_maxvIri_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIri*d_afac_dX+d_instanceVar_maxvIri_dX*afac))*(1.0+((Vbci-instanceVar_maxvIri)*afac)));
+        expi = (value_exp_0*(1.0+((Vbci-instanceVar_maxvIri)*afac)));
+      }
     }
+    d_Iri_dX = ((instanceVar_is_t*instanceVar_isrr_t)*d_expi_dX+(instanceVar_is_t*d_instanceVar_isrr_t_dX+d_instanceVar_is_t_dX*instanceVar_isrr_t)*(expi-1.0));
     Iri = ((instanceVar_is_t*instanceVar_isrr_t)*(expi-1.0));
+    d_q1z_dX = ((qdbe*d_Iver_dX+d_qdbe_dX*Iver)+(qdbc*d_Ivef_dX+d_qdbc_dX*Ivef));
     q1z = (((1.0+(qdbe*Iver))+(qdbc*Ivef))-1.0e-4);
-    q1 = ((0.5*(sqrt(((q1z*q1z)+1.0e-8))+q1z))+1.0e-4);
+    {
+      double value_sqrt_0 = sqrt(((q1z*q1z)+1.0e-8));
+      double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+      d_q1_dX = 0.5*(deriv_sqrt_0_d0*((q1z*d_q1z_dX+d_q1z_dX*q1z))+d_q1z_dX);
+      q1 = ((0.5*(value_sqrt_0+q1z))+1.0e-4);
+    }
+    d_q2_dX = ((Ifi*d_Iikf_dX+d_Ifi_dX*Iikf)+(Iri*d_modelVar_Iikr_dX+d_Iri_dX*modelVar_Iikr));
     q2 = ((Ifi*Iikf)+(Iri*modelVar_Iikr));
     if ((modelPar_qbm<0.5))
     {
-      arg = (pow(q1,(1.0/modelPar_nkf))+(4.0*q2));
+      {
+        double value_pow_0 = pow(q1,(1.0/modelPar_nkf));
+        double  deriv_pow_0_d0 = ((q1 == 0.0)?0.0:(value_pow_0*(1.0/modelPar_nkf)/q1));
+        double  deriv_pow_0_d1 = (q1 == 0.0)?0.0:(log(q1)*value_pow_0);
+        d_arg_dX = (((deriv_pow_0_d0*(d_q1_dX))+(deriv_pow_0_d1*((-d_modelPar_nkf_dX/modelPar_nkf/modelPar_nkf))))+4.0*d_q2_dX);
+        arg = (value_pow_0+(4.0*q2));
+      }
       if ((arg>1.0e-8))
       {
-        instanceVar_qb = (0.5*(q1+pow(arg,modelPar_nkf)));
+        {
+          double value_pow_0 = pow(arg,modelPar_nkf);
+          double  deriv_pow_0_d0 = ((arg == 0.0)?0.0:(value_pow_0*modelPar_nkf/arg));
+          double  deriv_pow_0_d1 = (arg == 0.0)?0.0:(log(arg)*value_pow_0);
+          d_instanceVar_qb_dX = 0.5*(d_q1_dX+((deriv_pow_0_d0*(d_arg_dX))+(deriv_pow_0_d1*(d_modelPar_nkf_dX))));
+          instanceVar_qb = (0.5*(q1+value_pow_0));
+        }
       }
       else
       {
-        instanceVar_qb = (0.5*(q1+pow(1.0e-8,modelPar_nkf)));
+        {
+          double value_pow_0 = pow(1.0e-8,modelPar_nkf);
+          double  deriv_pow_0_d1 = (1.0e-8 == 0.0)?0.0:(log(1.0e-8)*value_pow_0);
+          d_instanceVar_qb_dX = 0.5*(d_q1_dX+(deriv_pow_0_d1*(d_modelPar_nkf_dX)));
+          instanceVar_qb = (0.5*(q1+value_pow_0));
+        }
       }
     }
     else
     {
+      d_arg_dX = 4.0*d_q2_dX;
       arg = (1.0+(4.0*q2));
       if ((arg>1.0e-8))
       {
-        instanceVar_qb = ((0.5*q1)*(1.0+pow(arg,modelPar_nkf)));
+        {
+          double value_pow_0 = pow(arg,modelPar_nkf);
+          double  deriv_pow_0_d0 = ((arg == 0.0)?0.0:(value_pow_0*modelPar_nkf/arg));
+          double  deriv_pow_0_d1 = (arg == 0.0)?0.0:(log(arg)*value_pow_0);
+          d_instanceVar_qb_dX = ((0.5*q1)*((deriv_pow_0_d0*(d_arg_dX))+(deriv_pow_0_d1*(d_modelPar_nkf_dX)))+0.5*d_q1_dX*(1.0+value_pow_0));
+          instanceVar_qb = ((0.5*q1)*(1.0+value_pow_0));
+        }
       }
       else
       {
-        instanceVar_qb = ((0.5*q1)*(1.0+pow(1.0e-8,modelPar_nkf)));
+        {
+          double value_pow_0 = pow(1.0e-8,modelPar_nkf);
+          double  deriv_pow_0_d1 = (1.0e-8 == 0.0)?0.0:(log(1.0e-8)*value_pow_0);
+          d_instanceVar_qb_dX = ((0.5*q1)*(deriv_pow_0_d1*(d_modelPar_nkf_dX))+0.5*d_q1_dX*(1.0+value_pow_0));
+          instanceVar_qb = ((0.5*q1)*(1.0+value_pow_0));
+        }
       }
     }
+    d_Itzr_dX = ((instanceVar_qb*d_Iri_dX-Iri*d_instanceVar_qb_dX)/instanceVar_qb/instanceVar_qb);
     Itzr = (Iri/instanceVar_qb);
+    d_instanceVar_Itzf_dX = ((instanceVar_qb*d_Ifi_dX-Ifi*d_instanceVar_qb_dX)/instanceVar_qb/instanceVar_qb);
     instanceVar_Itzf = (Ifi/instanceVar_qb);
+    d_Itxf_dX = 0.0;
     Itxf = Vxf2;
     if ((modelPar_isp>0.0))
     {
+      d_afac_dX = (-(modelPar_nfp*d_instanceVar_vtv_dX+d_modelPar_nfp_dX*instanceVar_vtv)/(modelPar_nfp*instanceVar_vtv)/(modelPar_nfp*instanceVar_vtv));
       afac = (1.0/(modelPar_nfp*instanceVar_vtv));
       if ((Vbep<instanceVar_maxvIp))
       {
-        expi = exp((Vbep*afac));
+        {
+          double value_exp_0 = exp((Vbep*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expi_dX = deriv_exp_0_d0*((Vbep*d_afac_dX+d_Vbep_dX*afac));
+          expi = value_exp_0;
+        }
       }
       else
       {
-        expi = (exp((instanceVar_maxvIp*afac))*(1.0+((Vbep-instanceVar_maxvIp)*afac)));
+        {
+          double value_exp_0 = exp((instanceVar_maxvIp*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expi_dX = (value_exp_0*((Vbep-instanceVar_maxvIp)*d_afac_dX+(d_Vbep_dX-d_instanceVar_maxvIp_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIp*d_afac_dX+d_instanceVar_maxvIp_dX*afac))*(1.0+((Vbep-instanceVar_maxvIp)*afac)));
+          expi = (value_exp_0*(1.0+((Vbep-instanceVar_maxvIp)*afac)));
+        }
       }
       if ((Vbci<instanceVar_maxvIp))
       {
-        expx = exp((Vbci*afac));
+        {
+          double value_exp_0 = exp((Vbci*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expx_dX = deriv_exp_0_d0*((Vbci*d_afac_dX+d_Vbci_dX*afac));
+          expx = value_exp_0;
+        }
       }
       else
       {
-        expx = (exp((instanceVar_maxvIp*afac))*(1.0+((Vbci-instanceVar_maxvIp)*afac)));
+        {
+          double value_exp_0 = exp((instanceVar_maxvIp*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expx_dX = (value_exp_0*((Vbci-instanceVar_maxvIp)*d_afac_dX+(d_Vbci_dX-d_instanceVar_maxvIp_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIp*d_afac_dX+d_instanceVar_maxvIp_dX*afac))*(1.0+((Vbci-instanceVar_maxvIp)*afac)));
+          expx = (value_exp_0*(1.0+((Vbci-instanceVar_maxvIp)*afac)));
+        }
       }
+      d_Ifp_dX = (instanceVar_isp_t*((modelPar_wsp*d_expi_dX+d_modelPar_wsp_dX*expi)+((1.0-modelPar_wsp)*d_expx_dX+(-d_modelPar_wsp_dX)*expx))+d_instanceVar_isp_t_dX*(((modelPar_wsp*expi)+((1.0-modelPar_wsp)*expx))-1.0));
       Ifp = (instanceVar_isp_t*(((modelPar_wsp*expi)+((1.0-modelPar_wsp)*expx))-1.0));
+      d_q2p_dX = (Ifp*d_modelVar_Iikp_dX+d_Ifp_dX*modelVar_Iikp);
       q2p = (Ifp*modelVar_Iikp);
+      d_arg_dX = 4.0*d_q2p_dX;
       arg = (1.0+(4.0*q2p));
       if ((arg>1.0e-8))
       {
-        instanceVar_qbp = (0.5*(1.0+sqrt(arg)));
+        {
+          double value_sqrt_0 = sqrt(arg);
+          double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+          d_instanceVar_qbp_dX = 0.5*deriv_sqrt_0_d0*(d_arg_dX);
+          instanceVar_qbp = (0.5*(1.0+value_sqrt_0));
+        }
       }
       else
       {
-        instanceVar_qbp = (0.5*(1.0+sqrt(static_cast<double>(1.0e-8))));
+        {
+          double value_sqrt_0 = sqrt(static_cast<double>(1.0e-8));
+          d_instanceVar_qbp_dX = 0.0;
+          instanceVar_qbp = (0.5*(1.0+value_sqrt_0));
+        }
       }
     }
     else
     {
+      d_Ifp_dX = 0.0;
       Ifp = 0.0;
+      d_instanceVar_qbp_dX = 0.0;
       instanceVar_qbp = 1.0;
     }
     if ((modelPar_wbe==1.0))
     {
+      d_afac_dX = (-(modelPar_nei*d_instanceVar_vtv_dX+d_modelPar_nei_dX*instanceVar_vtv)/(modelPar_nei*instanceVar_vtv)/(modelPar_nei*instanceVar_vtv));
       afac = (1.0/(modelPar_nei*instanceVar_vtv));
       if ((Vbei<instanceVar_maxvIbei))
       {
-        expi = exp((Vbei*afac));
+        {
+          double value_exp_0 = exp((Vbei*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expi_dX = deriv_exp_0_d0*((Vbei*d_afac_dX+d_Vbei_dX*afac));
+          expi = value_exp_0;
+        }
       }
       else
       {
-        expi = (exp((instanceVar_maxvIbei*afac))*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
+        {
+          double value_exp_0 = exp((instanceVar_maxvIbei*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expi_dX = (value_exp_0*((Vbei-instanceVar_maxvIbei)*d_afac_dX+(d_Vbei_dX-d_instanceVar_maxvIbei_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbei*d_afac_dX+d_instanceVar_maxvIbei_dX*afac))*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
+          expi = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
+        }
       }
+      d_afac_dX = (-(modelPar_nen*d_instanceVar_vtv_dX+d_modelPar_nen_dX*instanceVar_vtv)/(modelPar_nen*instanceVar_vtv)/(modelPar_nen*instanceVar_vtv));
       afac = (1.0/(modelPar_nen*instanceVar_vtv));
       if ((Vbei<instanceVar_maxvIben))
       {
-        expn = exp((Vbei*afac));
+        {
+          double value_exp_0 = exp((Vbei*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expn_dX = deriv_exp_0_d0*((Vbei*d_afac_dX+d_Vbei_dX*afac));
+          expn = value_exp_0;
+        }
       }
       else
       {
-        expn = (exp((instanceVar_maxvIben*afac))*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
+        {
+          double value_exp_0 = exp((instanceVar_maxvIben*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expn_dX = (value_exp_0*((Vbei-instanceVar_maxvIben)*d_afac_dX+(d_Vbei_dX-d_instanceVar_maxvIben_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIben*d_afac_dX+d_instanceVar_maxvIben_dX*afac))*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
+          expn = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
+        }
       }
       if ((modelPar_qnibeir>0.0))
       {
+        d_instanceVar_Ibe_dX = (((instanceVar_ibei_t*(1.0+(modelPar_qnibeir*(q1-1.0))))*d_expi_dX+(instanceVar_ibei_t*(modelPar_qnibeir*d_q1_dX+d_modelPar_qnibeir_dX*(q1-1.0))+d_instanceVar_ibei_t_dX*(1.0+(modelPar_qnibeir*(q1-1.0))))*(expi-1.0))+(instanceVar_iben_t*d_expn_dX+d_instanceVar_iben_t_dX*(expn-1.0)));
         instanceVar_Ibe = (((instanceVar_ibei_t*(1.0+(modelPar_qnibeir*(q1-1.0))))*(expi-1.0))+(instanceVar_iben_t*(expn-1.0)));
       }
       else
       {
+        d_instanceVar_Ibe_dX = ((instanceVar_ibei_t*d_expi_dX+d_instanceVar_ibei_t_dX*(expi-1.0))+(instanceVar_iben_t*d_expn_dX+d_instanceVar_iben_t_dX*(expn-1.0)));
         instanceVar_Ibe = ((instanceVar_ibei_t*(expi-1.0))+(instanceVar_iben_t*(expn-1.0)));
       }
       if ((modelPar_vbbe>0.0))
       {
+        d_Bvbe_dX = ((-d_vbbe_t_dX)-d_Vbei_dX);
         Bvbe = ((-vbbe_t)-Vbei);
+        d_afac_dX = (-(nbbe_t*d_instanceVar_vtv_dX+d_nbbe_t_dX*instanceVar_vtv)/(nbbe_t*instanceVar_vtv)/(nbbe_t*instanceVar_vtv));
         afac = (1.0/(nbbe_t*instanceVar_vtv));
         if ((Bvbe<instanceVar_maxvIbbe))
         {
-          expx = exp((Bvbe*afac));
+          {
+            double value_exp_0 = exp((Bvbe*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expx_dX = deriv_exp_0_d0*((Bvbe*d_afac_dX+d_Bvbe_dX*afac));
+            expx = value_exp_0;
+          }
         }
         else
         {
-          expx = (exp((instanceVar_maxvIbbe*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+          {
+            double value_exp_0 = exp((instanceVar_maxvIbbe*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expx_dX = (value_exp_0*((Bvbe-instanceVar_maxvIbbe)*d_afac_dX+(d_Bvbe_dX-d_instanceVar_maxvIbbe_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbbe*d_afac_dX+d_instanceVar_maxvIbbe_dX*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+            expx = (value_exp_0*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+          }
         }
+        d_instanceVar_Ibe_dX = (d_instanceVar_Ibe_dX-(modelPar_ibbe*(d_expx_dX-d_ebbe_t_dX)+d_modelPar_ibbe_dX*(expx-ebbe_t)));
         instanceVar_Ibe = (instanceVar_Ibe-(modelPar_ibbe*(expx-ebbe_t)));
       }
+      d_instanceVar_Ibex_dX = 0.0;
       instanceVar_Ibex = 0.0;
     }
     else
     {
       if ((modelPar_wbe==0.0))
       {
+        d_instanceVar_Ibe_dX = 0.0;
         instanceVar_Ibe = 0.0;
+        d_afac_dX = (-(modelPar_nei*d_instanceVar_vtv_dX+d_modelPar_nei_dX*instanceVar_vtv)/(modelPar_nei*instanceVar_vtv)/(modelPar_nei*instanceVar_vtv));
         afac = (1.0/(modelPar_nei*instanceVar_vtv));
         if ((Vbex<instanceVar_maxvIbei))
         {
-          expi = exp((Vbex*afac));
+          {
+            double value_exp_0 = exp((Vbex*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expi_dX = deriv_exp_0_d0*((Vbex*d_afac_dX+d_Vbex_dX*afac));
+            expi = value_exp_0;
+          }
         }
         else
         {
-          expi = (exp((instanceVar_maxvIbei*afac))*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
+          {
+            double value_exp_0 = exp((instanceVar_maxvIbei*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expi_dX = (value_exp_0*((Vbex-instanceVar_maxvIbei)*d_afac_dX+(d_Vbex_dX-d_instanceVar_maxvIbei_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbei*d_afac_dX+d_instanceVar_maxvIbei_dX*afac))*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
+            expi = (value_exp_0*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
+          }
         }
+        d_afac_dX = (-(modelPar_nen*d_instanceVar_vtv_dX+d_modelPar_nen_dX*instanceVar_vtv)/(modelPar_nen*instanceVar_vtv)/(modelPar_nen*instanceVar_vtv));
         afac = (1.0/(modelPar_nen*instanceVar_vtv));
         if ((Vbex<instanceVar_maxvIben))
         {
-          expn = exp((Vbex*afac));
+          {
+            double value_exp_0 = exp((Vbex*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expn_dX = deriv_exp_0_d0*((Vbex*d_afac_dX+d_Vbex_dX*afac));
+            expn = value_exp_0;
+          }
         }
         else
         {
-          expn = (exp((instanceVar_maxvIben*afac))*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
+          {
+            double value_exp_0 = exp((instanceVar_maxvIben*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expn_dX = (value_exp_0*((Vbex-instanceVar_maxvIben)*d_afac_dX+(d_Vbex_dX-d_instanceVar_maxvIben_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIben*d_afac_dX+d_instanceVar_maxvIben_dX*afac))*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
+            expn = (value_exp_0*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
+          }
         }
+        d_instanceVar_Ibex_dX = ((instanceVar_ibei_t*d_expi_dX+d_instanceVar_ibei_t_dX*(expi-1.0))+(instanceVar_iben_t*d_expn_dX+d_instanceVar_iben_t_dX*(expn-1.0)));
         instanceVar_Ibex = ((instanceVar_ibei_t*(expi-1.0))+(instanceVar_iben_t*(expn-1.0)));
         if ((modelPar_vbbe>0.0))
         {
+          d_Bvbe_dX = ((-d_vbbe_t_dX)-d_Vbei_dX);
           Bvbe = ((-vbbe_t)-Vbei);
+          d_afac_dX = (-(nbbe_t*d_instanceVar_vtv_dX+d_nbbe_t_dX*instanceVar_vtv)/(nbbe_t*instanceVar_vtv)/(nbbe_t*instanceVar_vtv));
           afac = (1.0/(nbbe_t*instanceVar_vtv));
           if ((Bvbe<instanceVar_maxvIbbe))
           {
-            expx = exp((Bvbe*afac));
+            {
+              double value_exp_0 = exp((Bvbe*afac));
+              double  deriv_exp_0_d0 = value_exp_0;
+              d_expx_dX = deriv_exp_0_d0*((Bvbe*d_afac_dX+d_Bvbe_dX*afac));
+              expx = value_exp_0;
+            }
           }
           else
           {
-            expx = (exp((instanceVar_maxvIbbe*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+            {
+              double value_exp_0 = exp((instanceVar_maxvIbbe*afac));
+              double  deriv_exp_0_d0 = value_exp_0;
+              d_expx_dX = (value_exp_0*((Bvbe-instanceVar_maxvIbbe)*d_afac_dX+(d_Bvbe_dX-d_instanceVar_maxvIbbe_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbbe*d_afac_dX+d_instanceVar_maxvIbbe_dX*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+              expx = (value_exp_0*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+            }
           }
+          d_instanceVar_Ibex_dX = (d_instanceVar_Ibex_dX-(modelPar_ibbe*(d_expx_dX-d_ebbe_t_dX)+d_modelPar_ibbe_dX*(expx-ebbe_t)));
           instanceVar_Ibex = (instanceVar_Ibex-(modelPar_ibbe*(expx-ebbe_t)));
         }
       }
       else
       {
+        d_afac_dX = (-(modelPar_nei*d_instanceVar_vtv_dX+d_modelPar_nei_dX*instanceVar_vtv)/(modelPar_nei*instanceVar_vtv)/(modelPar_nei*instanceVar_vtv));
         afac = (1.0/(modelPar_nei*instanceVar_vtv));
         if ((Vbei<instanceVar_maxvIbei))
         {
-          expi = exp((Vbei*afac));
+          {
+            double value_exp_0 = exp((Vbei*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expi_dX = deriv_exp_0_d0*((Vbei*d_afac_dX+d_Vbei_dX*afac));
+            expi = value_exp_0;
+          }
         }
         else
         {
-          expi = (exp((instanceVar_maxvIbei*afac))*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
+          {
+            double value_exp_0 = exp((instanceVar_maxvIbei*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expi_dX = (value_exp_0*((Vbei-instanceVar_maxvIbei)*d_afac_dX+(d_Vbei_dX-d_instanceVar_maxvIbei_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbei*d_afac_dX+d_instanceVar_maxvIbei_dX*afac))*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
+            expi = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIbei)*afac)));
+          }
         }
+        d_afac_dX = (-(modelPar_nen*d_instanceVar_vtv_dX+d_modelPar_nen_dX*instanceVar_vtv)/(modelPar_nen*instanceVar_vtv)/(modelPar_nen*instanceVar_vtv));
         afac = (1.0/(modelPar_nen*instanceVar_vtv));
         if ((Vbei<instanceVar_maxvIben))
         {
-          expn = exp((Vbei*afac));
+          {
+            double value_exp_0 = exp((Vbei*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expn_dX = deriv_exp_0_d0*((Vbei*d_afac_dX+d_Vbei_dX*afac));
+            expn = value_exp_0;
+          }
         }
         else
         {
-          expn = (exp((instanceVar_maxvIben*afac))*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
+          {
+            double value_exp_0 = exp((instanceVar_maxvIben*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expn_dX = (value_exp_0*((Vbei-instanceVar_maxvIben)*d_afac_dX+(d_Vbei_dX-d_instanceVar_maxvIben_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIben*d_afac_dX+d_instanceVar_maxvIben_dX*afac))*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
+            expn = (value_exp_0*(1.0+((Vbei-instanceVar_maxvIben)*afac)));
+          }
         }
         if ((modelPar_qnibeir>0.0))
         {
+          d_instanceVar_Ibe_dX = (modelPar_wbe*(((instanceVar_ibei_t*(1.0+(modelPar_qnibeir*(q1-1.0))))*d_expi_dX+(instanceVar_ibei_t*(modelPar_qnibeir*d_q1_dX+d_modelPar_qnibeir_dX*(q1-1.0))+d_instanceVar_ibei_t_dX*(1.0+(modelPar_qnibeir*(q1-1.0))))*(expi-1.0))+(instanceVar_iben_t*d_expn_dX+d_instanceVar_iben_t_dX*(expn-1.0)))+d_modelPar_wbe_dX*(((instanceVar_ibei_t*(1.0+(modelPar_qnibeir*(q1-1.0))))*(expi-1.0))+(instanceVar_iben_t*(expn-1.0))));
           instanceVar_Ibe = (modelPar_wbe*(((instanceVar_ibei_t*(1.0+(modelPar_qnibeir*(q1-1.0))))*(expi-1.0))+(instanceVar_iben_t*(expn-1.0))));
         }
         else
         {
+          d_instanceVar_Ibe_dX = (modelPar_wbe*((instanceVar_ibei_t*d_expi_dX+d_instanceVar_ibei_t_dX*(expi-1.0))+(instanceVar_iben_t*d_expn_dX+d_instanceVar_iben_t_dX*(expn-1.0)))+d_modelPar_wbe_dX*((instanceVar_ibei_t*(expi-1.0))+(instanceVar_iben_t*(expn-1.0))));
           instanceVar_Ibe = (modelPar_wbe*((instanceVar_ibei_t*(expi-1.0))+(instanceVar_iben_t*(expn-1.0))));
         }
         if ((modelPar_vbbe>0.0))
         {
+          d_Bvbe_dX = ((-d_vbbe_t_dX)-d_Vbei_dX);
           Bvbe = ((-vbbe_t)-Vbei);
+          d_afac_dX = (-(nbbe_t*d_instanceVar_vtv_dX+d_nbbe_t_dX*instanceVar_vtv)/(nbbe_t*instanceVar_vtv)/(nbbe_t*instanceVar_vtv));
           afac = (1.0/(nbbe_t*instanceVar_vtv));
           if ((Bvbe<instanceVar_maxvIbbe))
           {
-            expx = exp((Bvbe*afac));
+            {
+              double value_exp_0 = exp((Bvbe*afac));
+              double  deriv_exp_0_d0 = value_exp_0;
+              d_expx_dX = deriv_exp_0_d0*((Bvbe*d_afac_dX+d_Bvbe_dX*afac));
+              expx = value_exp_0;
+            }
           }
           else
           {
-            expx = (exp((instanceVar_maxvIbbe*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+            {
+              double value_exp_0 = exp((instanceVar_maxvIbbe*afac));
+              double  deriv_exp_0_d0 = value_exp_0;
+              d_expx_dX = (value_exp_0*((Bvbe-instanceVar_maxvIbbe)*d_afac_dX+(d_Bvbe_dX-d_instanceVar_maxvIbbe_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbbe*d_afac_dX+d_instanceVar_maxvIbbe_dX*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+              expx = (value_exp_0*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+            }
           }
+          d_instanceVar_Ibe_dX = (d_instanceVar_Ibe_dX-((modelPar_wbe*modelPar_ibbe)*(d_expx_dX-d_ebbe_t_dX)+(modelPar_wbe*d_modelPar_ibbe_dX+d_modelPar_wbe_dX*modelPar_ibbe)*(expx-ebbe_t)));
           instanceVar_Ibe = (instanceVar_Ibe-((modelPar_wbe*modelPar_ibbe)*(expx-ebbe_t)));
         }
+        d_afac_dX = (-(modelPar_nei*d_instanceVar_vtv_dX+d_modelPar_nei_dX*instanceVar_vtv)/(modelPar_nei*instanceVar_vtv)/(modelPar_nei*instanceVar_vtv));
         afac = (1.0/(modelPar_nei*instanceVar_vtv));
         if ((Vbex<instanceVar_maxvIbei))
         {
-          expi = exp((Vbex*afac));
+          {
+            double value_exp_0 = exp((Vbex*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expi_dX = deriv_exp_0_d0*((Vbex*d_afac_dX+d_Vbex_dX*afac));
+            expi = value_exp_0;
+          }
         }
         else
         {
-          expi = (exp((instanceVar_maxvIbei*afac))*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
+          {
+            double value_exp_0 = exp((instanceVar_maxvIbei*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expi_dX = (value_exp_0*((Vbex-instanceVar_maxvIbei)*d_afac_dX+(d_Vbex_dX-d_instanceVar_maxvIbei_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbei*d_afac_dX+d_instanceVar_maxvIbei_dX*afac))*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
+            expi = (value_exp_0*(1.0+((Vbex-instanceVar_maxvIbei)*afac)));
+          }
         }
+        d_afac_dX = (-(modelPar_nen*d_instanceVar_vtv_dX+d_modelPar_nen_dX*instanceVar_vtv)/(modelPar_nen*instanceVar_vtv)/(modelPar_nen*instanceVar_vtv));
         afac = (1.0/(modelPar_nen*instanceVar_vtv));
         if ((Vbex<instanceVar_maxvIben))
         {
-          expn = exp((Vbex*afac));
+          {
+            double value_exp_0 = exp((Vbex*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expn_dX = deriv_exp_0_d0*((Vbex*d_afac_dX+d_Vbex_dX*afac));
+            expn = value_exp_0;
+          }
         }
         else
         {
-          expn = (exp((instanceVar_maxvIben*afac))*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
+          {
+            double value_exp_0 = exp((instanceVar_maxvIben*afac));
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expn_dX = (value_exp_0*((Vbex-instanceVar_maxvIben)*d_afac_dX+(d_Vbex_dX-d_instanceVar_maxvIben_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIben*d_afac_dX+d_instanceVar_maxvIben_dX*afac))*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
+            expn = (value_exp_0*(1.0+((Vbex-instanceVar_maxvIben)*afac)));
+          }
         }
+        d_instanceVar_Ibex_dX = ((1.0-modelPar_wbe)*((instanceVar_ibei_t*d_expi_dX+d_instanceVar_ibei_t_dX*(expi-1.0))+(instanceVar_iben_t*d_expn_dX+d_instanceVar_iben_t_dX*(expn-1.0)))+(-d_modelPar_wbe_dX)*((instanceVar_ibei_t*(expi-1.0))+(instanceVar_iben_t*(expn-1.0))));
         instanceVar_Ibex = ((1.0-modelPar_wbe)*((instanceVar_ibei_t*(expi-1.0))+(instanceVar_iben_t*(expn-1.0))));
         if ((modelPar_vbbe>0.0))
         {
+          d_Bvbe_dX = ((-d_vbbe_t_dX)-d_Vbei_dX);
           Bvbe = ((-vbbe_t)-Vbei);
+          d_afac_dX = (-(nbbe_t*d_instanceVar_vtv_dX+d_nbbe_t_dX*instanceVar_vtv)/(nbbe_t*instanceVar_vtv)/(nbbe_t*instanceVar_vtv));
           afac = (1.0/(nbbe_t*instanceVar_vtv));
           if ((Bvbe<instanceVar_maxvIbbe))
           {
-            expx = exp((Bvbe*afac));
+            {
+              double value_exp_0 = exp((Bvbe*afac));
+              double  deriv_exp_0_d0 = value_exp_0;
+              d_expx_dX = deriv_exp_0_d0*((Bvbe*d_afac_dX+d_Bvbe_dX*afac));
+              expx = value_exp_0;
+            }
           }
           else
           {
-            expx = (exp((instanceVar_maxvIbbe*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+            {
+              double value_exp_0 = exp((instanceVar_maxvIbbe*afac));
+              double  deriv_exp_0_d0 = value_exp_0;
+              d_expx_dX = (value_exp_0*((Bvbe-instanceVar_maxvIbbe)*d_afac_dX+(d_Bvbe_dX-d_instanceVar_maxvIbbe_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbbe*d_afac_dX+d_instanceVar_maxvIbbe_dX*afac))*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+              expx = (value_exp_0*(1.0+((Bvbe-instanceVar_maxvIbbe)*afac)));
+            }
           }
+          d_instanceVar_Ibex_dX = (d_instanceVar_Ibex_dX-(((1.0-modelPar_wbe)*modelPar_ibbe)*(d_expx_dX-d_ebbe_t_dX)+((1.0-modelPar_wbe)*d_modelPar_ibbe_dX+(-d_modelPar_wbe_dX)*modelPar_ibbe)*(expx-ebbe_t)));
           instanceVar_Ibex = (instanceVar_Ibex-(((1.0-modelPar_wbe)*modelPar_ibbe)*(expx-ebbe_t)));
         }
       }
     }
+    d_afac_dX = (-(modelPar_nci*d_instanceVar_vtv_dX+d_modelPar_nci_dX*instanceVar_vtv)/(modelPar_nci*instanceVar_vtv)/(modelPar_nci*instanceVar_vtv));
     afac = (1.0/(modelPar_nci*instanceVar_vtv));
     if ((Vbci<instanceVar_maxvIbci))
     {
-      expi = exp((Vbci*afac));
+      {
+        double value_exp_0 = exp((Vbci*afac));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = deriv_exp_0_d0*((Vbci*d_afac_dX+d_Vbci_dX*afac));
+        expi = value_exp_0;
+      }
     }
     else
     {
-      expi = (exp((instanceVar_maxvIbci*afac))*(1.0+((Vbci-instanceVar_maxvIbci)*afac)));
+      {
+        double value_exp_0 = exp((instanceVar_maxvIbci*afac));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = (value_exp_0*((Vbci-instanceVar_maxvIbci)*d_afac_dX+(d_Vbci_dX-d_instanceVar_maxvIbci_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbci*d_afac_dX+d_instanceVar_maxvIbci_dX*afac))*(1.0+((Vbci-instanceVar_maxvIbci)*afac)));
+        expi = (value_exp_0*(1.0+((Vbci-instanceVar_maxvIbci)*afac)));
+      }
     }
+    d_afac_dX = (-(modelPar_ncn*d_instanceVar_vtv_dX+d_modelPar_ncn_dX*instanceVar_vtv)/(modelPar_ncn*instanceVar_vtv)/(modelPar_ncn*instanceVar_vtv));
     afac = (1.0/(modelPar_ncn*instanceVar_vtv));
     if ((Vbci<instanceVar_maxvIbcn))
     {
-      expn = exp((Vbci*afac));
+      {
+        double value_exp_0 = exp((Vbci*afac));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expn_dX = deriv_exp_0_d0*((Vbci*d_afac_dX+d_Vbci_dX*afac));
+        expn = value_exp_0;
+      }
     }
     else
     {
-      expn = (exp((instanceVar_maxvIbcn*afac))*(1.0+((Vbci-instanceVar_maxvIbcn)*afac)));
+      {
+        double value_exp_0 = exp((instanceVar_maxvIbcn*afac));
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expn_dX = (value_exp_0*((Vbci-instanceVar_maxvIbcn)*d_afac_dX+(d_Vbci_dX-d_instanceVar_maxvIbcn_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbcn*d_afac_dX+d_instanceVar_maxvIbcn_dX*afac))*(1.0+((Vbci-instanceVar_maxvIbcn)*afac)));
+        expn = (value_exp_0*(1.0+((Vbci-instanceVar_maxvIbcn)*afac)));
+      }
     }
+    d_Ibcj_dX = ((instanceVar_ibci_t*d_expi_dX+d_instanceVar_ibci_t_dX*(expi-1.0))+(instanceVar_ibcn_t*d_expn_dX+d_instanceVar_ibcn_t_dX*(expn-1.0)));
     Ibcj = ((instanceVar_ibci_t*(expi-1.0))+(instanceVar_ibcn_t*(expn-1.0)));
     if (((modelPar_ibeip>0.0)||(modelPar_ibenp>0.0)))
     {
+      d_afac_dX = (-(modelPar_nci*d_instanceVar_vtv_dX+d_modelPar_nci_dX*instanceVar_vtv)/(modelPar_nci*instanceVar_vtv)/(modelPar_nci*instanceVar_vtv));
       afac = (1.0/(modelPar_nci*instanceVar_vtv));
       if ((Vbep<instanceVar_maxvIbeip))
       {
-        expi = exp((Vbep*afac));
+        {
+          double value_exp_0 = exp((Vbep*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expi_dX = deriv_exp_0_d0*((Vbep*d_afac_dX+d_Vbep_dX*afac));
+          expi = value_exp_0;
+        }
       }
       else
       {
-        expi = (exp((instanceVar_maxvIbeip*afac))*(1.0+((Vbep-instanceVar_maxvIbeip)*afac)));
+        {
+          double value_exp_0 = exp((instanceVar_maxvIbeip*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expi_dX = (value_exp_0*((Vbep-instanceVar_maxvIbeip)*d_afac_dX+(d_Vbep_dX-d_instanceVar_maxvIbeip_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbeip*d_afac_dX+d_instanceVar_maxvIbeip_dX*afac))*(1.0+((Vbep-instanceVar_maxvIbeip)*afac)));
+          expi = (value_exp_0*(1.0+((Vbep-instanceVar_maxvIbeip)*afac)));
+        }
       }
+      d_afac_dX = (-(modelPar_ncn*d_instanceVar_vtv_dX+d_modelPar_ncn_dX*instanceVar_vtv)/(modelPar_ncn*instanceVar_vtv)/(modelPar_ncn*instanceVar_vtv));
       afac = (1.0/(modelPar_ncn*instanceVar_vtv));
       if ((Vbep<instanceVar_maxvIbenp))
       {
-        expn = exp((Vbep*afac));
+        {
+          double value_exp_0 = exp((Vbep*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expn_dX = deriv_exp_0_d0*((Vbep*d_afac_dX+d_Vbep_dX*afac));
+          expn = value_exp_0;
+        }
       }
       else
       {
-        expn = (exp((instanceVar_maxvIbenp*afac))*(1.0+((Vbep-instanceVar_maxvIbenp)*afac)));
+        {
+          double value_exp_0 = exp((instanceVar_maxvIbenp*afac));
+          double  deriv_exp_0_d0 = value_exp_0;
+          d_expn_dX = (value_exp_0*((Vbep-instanceVar_maxvIbenp)*d_afac_dX+(d_Vbep_dX-d_instanceVar_maxvIbenp_dX)*afac)+deriv_exp_0_d0*((instanceVar_maxvIbenp*d_afac_dX+d_instanceVar_maxvIbenp_dX*afac))*(1.0+((Vbep-instanceVar_maxvIbenp)*afac)));
+          expn = (value_exp_0*(1.0+((Vbep-instanceVar_maxvIbenp)*afac)));
+        }
       }
+      d_instanceVar_Ibep_dX = ((instanceVar_ibeip_t*d_expi_dX+d_instanceVar_ibeip_t_dX*(expi-1.0))+(instanceVar_ibenp_t*d_expn_dX+d_instanceVar_ibenp_t_dX*(expn-1.0)));
       instanceVar_Ibep = ((instanceVar_ibeip_t*(expi-1.0))+(instanceVar_ibenp_t*(expn-1.0)));
     }
     else
     {
+      d_instanceVar_Ibep_dX = 0.0;
       instanceVar_Ibep = 0.0;
     }
+    d_arg_dX = ((instanceVar_vtv*d_Vbci_dX-Vbci*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv);
     arg = (Vbci/instanceVar_vtv);
     if ((arg<modelVar_VmaxExp))
     {
-      expi = exp(arg);
+      {
+        double value_exp_0 = exp(arg);
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = deriv_exp_0_d0*(d_arg_dX);
+        expi = value_exp_0;
+      }
     }
     else
     {
-      expi = (exp(modelVar_VmaxExp)*(1.0+(arg-modelVar_VmaxExp)));
+      {
+        double value_exp_0 = exp(modelVar_VmaxExp);
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = (value_exp_0*(d_arg_dX-d_modelVar_VmaxExp_dX)+deriv_exp_0_d0*(d_modelVar_VmaxExp_dX)*(1.0+(arg-modelVar_VmaxExp)));
+        expi = (value_exp_0*(1.0+(arg-modelVar_VmaxExp)));
+      }
     }
+    d_arg_dX = ((instanceVar_vtv*d_Vbcx_dX-Vbcx*d_instanceVar_vtv_dX)/instanceVar_vtv/instanceVar_vtv);
     arg = (Vbcx/instanceVar_vtv);
     if ((arg<modelVar_VmaxExp))
     {
-      expx = exp(arg);
+      {
+        double value_exp_0 = exp(arg);
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expx_dX = deriv_exp_0_d0*(d_arg_dX);
+        expx = value_exp_0;
+      }
     }
     else
     {
-      expx = (exp(modelVar_VmaxExp)*(1.0+(arg-modelVar_VmaxExp)));
+      {
+        double value_exp_0 = exp(modelVar_VmaxExp);
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expx_dX = (value_exp_0*(d_arg_dX-d_modelVar_VmaxExp_dX)+deriv_exp_0_d0*(d_modelVar_VmaxExp_dX)*(1.0+(arg-modelVar_VmaxExp)));
+        expx = (value_exp_0*(1.0+(arg-modelVar_VmaxExp)));
+      }
     }
-    Kbci = sqrt((1.0+(gamm_t*expi)));
-    Kbcx = sqrt((1.0+(gamm_t*expx)));
+    {
+      double value_sqrt_0 = sqrt((1.0+(gamm_t*expi)));
+      double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+      d_Kbci_dX = deriv_sqrt_0_d0*((gamm_t*d_expi_dX+d_gamm_t_dX*expi));
+      Kbci = value_sqrt_0;
+    }
+    {
+      double value_sqrt_0 = sqrt((1.0+(gamm_t*expx)));
+      double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+      d_Kbcx_dX = deriv_sqrt_0_d0*((gamm_t*d_expx_dX+d_gamm_t_dX*expx));
+      Kbcx = value_sqrt_0;
+    }
+    d_Ircx_dX = Vrcx*d_instanceVar_Gcx_dX;
     Ircx = (Vrcx*instanceVar_Gcx);
+    d_rKp1_dX = (((Kbcx+1.0)*d_Kbci_dX-(Kbci+1.0)*d_Kbcx_dX)/(Kbcx+1.0)/(Kbcx+1.0));
     rKp1 = ((Kbci+1.0)/(Kbcx+1.0));
-    Iohm = ((instanceVar_Vrci+(instanceVar_vtv*((Kbci-Kbcx)-log(rKp1))))*instanceVar_Gci);
-    derf = ((Ivo*Iohm)/(instanceVar_Gci*(1.0+(((0.5*Ivo)*modelVar_Ihrcf)*sqrt(((instanceVar_Vrci*instanceVar_Vrci)+0.01))))));
-    instanceVar_Irci = (Iohm/sqrt((1+(derf*derf))));
+    {
+      double value_log_0 = log(rKp1);
+      double  deriv_log_0_d0 = (1.0/rKp1);
+      d_Iohm_dX = ((instanceVar_Vrci+(instanceVar_vtv*((Kbci-Kbcx)-value_log_0)))*d_instanceVar_Gci_dX+(d_instanceVar_Vrci_dX+(instanceVar_vtv*((d_Kbci_dX-d_Kbcx_dX)-deriv_log_0_d0*(d_rKp1_dX))+d_instanceVar_vtv_dX*((Kbci-Kbcx)-value_log_0)))*instanceVar_Gci);
+      Iohm = ((instanceVar_Vrci+(instanceVar_vtv*((Kbci-Kbcx)-value_log_0)))*instanceVar_Gci);
+    }
+    {
+      double value_sqrt_0 = sqrt(((instanceVar_Vrci*instanceVar_Vrci)+0.01));
+      double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+      d_derf_dX = (((instanceVar_Gci*(1.0+(((0.5*Ivo)*modelVar_Ihrcf)*value_sqrt_0)))*(Ivo*d_Iohm_dX+d_Ivo_dX*Iohm)-(Ivo*Iohm)*(instanceVar_Gci*(((0.5*Ivo)*modelVar_Ihrcf)*deriv_sqrt_0_d0*((instanceVar_Vrci*d_instanceVar_Vrci_dX+d_instanceVar_Vrci_dX*instanceVar_Vrci))+((0.5*Ivo)*d_modelVar_Ihrcf_dX+0.5*d_Ivo_dX*modelVar_Ihrcf)*value_sqrt_0)+d_instanceVar_Gci_dX*(1.0+(((0.5*Ivo)*modelVar_Ihrcf)*value_sqrt_0))))/(instanceVar_Gci*(1.0+(((0.5*Ivo)*modelVar_Ihrcf)*value_sqrt_0)))/(instanceVar_Gci*(1.0+(((0.5*Ivo)*modelVar_Ihrcf)*value_sqrt_0))));
+      derf = ((Ivo*Iohm)/(instanceVar_Gci*(1.0+(((0.5*Ivo)*modelVar_Ihrcf)*value_sqrt_0))));
+    }
+    {
+      double value_sqrt_0 = sqrt((1+(derf*derf)));
+      double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+      d_instanceVar_Irci_dX = ((value_sqrt_0*d_Iohm_dX-Iohm*deriv_sqrt_0_d0*((derf*d_derf_dX+d_derf_dX*derf)))/value_sqrt_0/value_sqrt_0);
+      instanceVar_Irci = (Iohm/value_sqrt_0);
+    }
+    d_Irbx_dX = Vrbx*d_instanceVar_Gbx_dX;
     Irbx = (Vrbx*instanceVar_Gbx);
+    d_Irbi_dX = ((Vrbi*instanceVar_qb)*d_instanceVar_Gbi_dX+Vrbi*d_instanceVar_qb_dX*instanceVar_Gbi);
     Irbi = ((Vrbi*instanceVar_qb)*instanceVar_Gbi);
+    d_Ire_dX = Vre*d_instanceVar_Ge_dX;
     Ire = (Vre*instanceVar_Ge);
+    d_Irbp_dX = ((Vrbp*instanceVar_qbp)*d_instanceVar_Gbp_dX+Vrbp*d_instanceVar_qbp_dX*instanceVar_Gbp);
     Irbp = ((Vrbp*instanceVar_qbp)*instanceVar_Gbp);
     if ((modelPar_avc1>0.0))
     {
       //Begin block igcBlock
       {
         //Block-local variables for block igcBlock
-        AdmsSensFadType vminm;
-        AdmsSensFadType vl;
-        AdmsSensFadType mac1;
-        AdmsSensFadType expi;
-        AdmsSensFadType expl;
+        double vminm;
+        double d_vminm_dX;
+        double vl;
+        double d_vl_dX;
+        double mac1;
+        double d_mac1_dX;
+        double expi;
+        double d_expi_dX;
+        double expl;
+        double d_expl_dX;
         //End of Block-local variables
-        vminm = pow((0.02*(avc2_t+1.0)),(1.0/(1.01-modelPar_mc)));
-        vl = ((0.5*(sqrt(((((pc_t-Vbci)-vminm)*((pc_t-Vbci)-vminm))+0.01))+((pc_t-Vbci)-vminm)))+vminm);
-        mac1 = ((-avc2_t)*pow(vl,(modelPar_mc-1.0)));
+        {
+          double value_pow_0 = pow((0.02*(avc2_t+1.0)),(1.0/(1.01-modelPar_mc)));
+          double  deriv_pow_0_d0 = (((0.02*(avc2_t+1.0)) == 0.0)?0.0:(value_pow_0*(1.0/(1.01-modelPar_mc))/(0.02*(avc2_t+1.0))));
+          double  deriv_pow_0_d1 = ((0.02*(avc2_t+1.0)) == 0.0)?0.0:(log((0.02*(avc2_t+1.0)))*value_pow_0);
+          d_vminm_dX = ((deriv_pow_0_d0*(0.02*d_avc2_t_dX))+(deriv_pow_0_d1*((-(-d_modelPar_mc_dX)/(1.01-modelPar_mc)/(1.01-modelPar_mc)))));
+          vminm = value_pow_0;
+        }
+        {
+          double value_sqrt_0 = sqrt(((((pc_t-Vbci)-vminm)*((pc_t-Vbci)-vminm))+0.01));
+          double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+          d_vl_dX = (0.5*(deriv_sqrt_0_d0*((((pc_t-Vbci)-vminm)*((d_pc_t_dX-d_Vbci_dX)-d_vminm_dX)+((d_pc_t_dX-d_Vbci_dX)-d_vminm_dX)*((pc_t-Vbci)-vminm)))+((d_pc_t_dX-d_Vbci_dX)-d_vminm_dX))+d_vminm_dX);
+          vl = ((0.5*(value_sqrt_0+((pc_t-Vbci)-vminm)))+vminm);
+        }
+        {
+          double value_pow_0 = pow(vl,(modelPar_mc-1.0));
+          double  deriv_pow_0_d0 = ((vl == 0.0)?0.0:(value_pow_0*(modelPar_mc-1.0)/vl));
+          double  deriv_pow_0_d1 = (vl == 0.0)?0.0:(log(vl)*value_pow_0);
+          d_mac1_dX = ((-avc2_t)*((deriv_pow_0_d0*(d_vl_dX))+(deriv_pow_0_d1*(d_modelPar_mc_dX)))+(-d_avc2_t_dX)*value_pow_0);
+          mac1 = ((-avc2_t)*value_pow_0);
+        }
         if ((mac1<modelVar_VmaxExp))
         {
-          expi = exp(mac1);
+          {
+            double value_exp_0 = exp(mac1);
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expi_dX = deriv_exp_0_d0*(d_mac1_dX);
+            expi = value_exp_0;
+          }
         }
         else
         {
-          expl = exp(modelVar_VmaxExp);
+          {
+            double value_exp_0 = exp(modelVar_VmaxExp);
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expl_dX = deriv_exp_0_d0*(d_modelVar_VmaxExp_dX);
+            expl = value_exp_0;
+          }
+          d_expi_dX = (expl*(d_mac1_dX-d_modelVar_VmaxExp_dX)+d_expl_dX*(1.0+(mac1-modelVar_VmaxExp)));
           expi = (expl*(1.0+(mac1-modelVar_VmaxExp)));
         }
+        d_avalf_dX = ((modelPar_avc1*vl)*d_expi_dX+(modelPar_avc1*d_vl_dX+d_modelPar_avc1_dX*vl)*expi);
         avalf = ((modelPar_avc1*vl)*expi);
       }
       // End block igcBlock
+      d_Igc_dX = (((Itxf-Itzr)-Ibcj)*d_avalf_dX+((d_Itxf_dX-d_Itzr_dX)-d_Ibcj_dX)*avalf);
       Igc = (((Itxf-Itzr)-Ibcj)*avalf);
     }
     else
     {
+      d_Igc_dX = 0.0;
       Igc = 0.0;
     }
     if ((modelPar_avcx1>0.0))
@@ -11099,77 +12714,154 @@ void evaluateModelEquations(
       //Begin block igcxBlock
       {
         //Block-local variables for block igcxBlock
-        AdmsSensFadType vminm;
-        AdmsSensFadType vl;
-        AdmsSensFadType mac1;
-        AdmsSensFadType expi;
-        AdmsSensFadType expl;
+        double vminm;
+        double d_vminm_dX;
+        double vl;
+        double d_vl_dX;
+        double mac1;
+        double d_mac1_dX;
+        double expi;
+        double d_expi_dX;
+        double expl;
+        double d_expl_dX;
         //End of Block-local variables
-        vminm = pow((0.02*(avcx2_t+1.0)),(1.0/(1.01-modelPar_mcx)));
-        vl = ((0.5*(sqrt(((((-Vbxcx)-vminm)*((-Vbxcx)-vminm))+0.01))+((-Vbxcx)-vminm)))+vminm);
-        mac1 = ((-avcx2_t)*pow(vl,(modelPar_mcx-1.0)));
+        {
+          double value_pow_0 = pow((0.02*(avcx2_t+1.0)),(1.0/(1.01-modelPar_mcx)));
+          double  deriv_pow_0_d0 = (((0.02*(avcx2_t+1.0)) == 0.0)?0.0:(value_pow_0*(1.0/(1.01-modelPar_mcx))/(0.02*(avcx2_t+1.0))));
+          double  deriv_pow_0_d1 = ((0.02*(avcx2_t+1.0)) == 0.0)?0.0:(log((0.02*(avcx2_t+1.0)))*value_pow_0);
+          d_vminm_dX = ((deriv_pow_0_d0*(0.02*d_avcx2_t_dX))+(deriv_pow_0_d1*((-(-d_modelPar_mcx_dX)/(1.01-modelPar_mcx)/(1.01-modelPar_mcx)))));
+          vminm = value_pow_0;
+        }
+        {
+          double value_sqrt_0 = sqrt(((((-Vbxcx)-vminm)*((-Vbxcx)-vminm))+0.01));
+          double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+          d_vl_dX = (0.5*(deriv_sqrt_0_d0*((((-Vbxcx)-vminm)*((-d_Vbxcx_dX)-d_vminm_dX)+((-d_Vbxcx_dX)-d_vminm_dX)*((-Vbxcx)-vminm)))+((-d_Vbxcx_dX)-d_vminm_dX))+d_vminm_dX);
+          vl = ((0.5*(value_sqrt_0+((-Vbxcx)-vminm)))+vminm);
+        }
+        {
+          double value_pow_0 = pow(vl,(modelPar_mcx-1.0));
+          double  deriv_pow_0_d0 = ((vl == 0.0)?0.0:(value_pow_0*(modelPar_mcx-1.0)/vl));
+          double  deriv_pow_0_d1 = (vl == 0.0)?0.0:(log(vl)*value_pow_0);
+          d_mac1_dX = ((-avcx2_t)*((deriv_pow_0_d0*(d_vl_dX))+(deriv_pow_0_d1*(d_modelPar_mcx_dX)))+(-d_avcx2_t_dX)*value_pow_0);
+          mac1 = ((-avcx2_t)*value_pow_0);
+        }
         if ((mac1<modelVar_VmaxExp))
         {
-          expi = exp(mac1);
+          {
+            double value_exp_0 = exp(mac1);
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expi_dX = deriv_exp_0_d0*(d_mac1_dX);
+            expi = value_exp_0;
+          }
         }
         else
         {
-          expl = exp(modelVar_VmaxExp);
+          {
+            double value_exp_0 = exp(modelVar_VmaxExp);
+            double  deriv_exp_0_d0 = value_exp_0;
+            d_expl_dX = deriv_exp_0_d0*(d_modelVar_VmaxExp_dX);
+            expl = value_exp_0;
+          }
+          d_expi_dX = (expl*(d_mac1_dX-d_modelVar_VmaxExp_dX)+d_expl_dX*(1.0+(mac1-modelVar_VmaxExp)));
           expi = (expl*(1.0+(mac1-modelVar_VmaxExp)));
         }
+        d_avalf_dX = ((modelPar_avcx1*vl)*d_expi_dX+(modelPar_avcx1*d_vl_dX+d_modelPar_avcx1_dX*vl)*expi);
         avalf = ((modelPar_avcx1*vl)*expi);
       }
       // End block igcxBlock
+      d_Igcx_dX = ((-Ircx)*d_avalf_dX+(-d_Ircx_dX)*avalf);
       Igcx = ((-Ircx)*avalf);
     }
     else
     {
+      d_Igcx_dX = 0.0;
       Igcx = 0.0;
     }
     if (((modelPar_bbk>0.0)&&(modelPar_ibk0>0.0)))
     {
       if ((modelPar_vpte>0.0))
       {
+        d_VcbFac_dX = (-((modelPar_vpte*d_Vbci_dX-Vbci*d_modelPar_vpte_dX)/modelPar_vpte/modelPar_vpte));
         VcbFac = ((1.0-(Vbci/modelPar_vpte))-0.1);
-        VcbFac = (0.1+(0.5*(VcbFac+sqrt(((VcbFac*VcbFac)+1.0e-4)))));
+        {
+          double value_sqrt_0 = sqrt(((VcbFac*VcbFac)+1.0e-4));
+          double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+          d_VcbFac_dX = 0.5*(d_VcbFac_dX+deriv_sqrt_0_d0*((VcbFac*d_VcbFac_dX+d_VcbFac_dX*VcbFac)));
+          VcbFac = (0.1+(0.5*(VcbFac+value_sqrt_0)));
+        }
+        d_Iibk_dX = (modelPar_ibk0*d_VcbFac_dX+d_modelPar_ibk0_dX*VcbFac);
         Iibk = (modelPar_ibk0*VcbFac);
       }
       else
       {
+        d_Iibk_dX = d_modelPar_ibk0_dX;
         Iibk = modelPar_ibk0;
       }
-      Ibk = (modelPar_bbk*pow(((instanceVar_Itzf/Iibk)-1.0),modelPar_abk));
+      {
+        double value_pow_0 = pow(((instanceVar_Itzf/Iibk)-1.0),modelPar_abk);
+        double  deriv_pow_0_d0 = ((((instanceVar_Itzf/Iibk)-1.0) == 0.0)?0.0:(value_pow_0*modelPar_abk/((instanceVar_Itzf/Iibk)-1.0)));
+        double  deriv_pow_0_d1 = (((instanceVar_Itzf/Iibk)-1.0) == 0.0)?0.0:(log(((instanceVar_Itzf/Iibk)-1.0))*value_pow_0);
+        d_Ibk_dX = (modelPar_bbk*((deriv_pow_0_d0*(((Iibk*d_instanceVar_Itzf_dX-instanceVar_Itzf*d_Iibk_dX)/Iibk/Iibk)))+(deriv_pow_0_d1*(d_modelPar_abk_dX)))+d_modelPar_bbk_dX*value_pow_0);
+        Ibk = (modelPar_bbk*value_pow_0);
+      }
     }
     else
     {
+      d_Ibk_dX = 0.0;
       Ibk = 0.0;
     }
+    d_Ibc_dX = ((d_Ibcj_dX-d_Igc_dX)-d_Ibk_dX);
     Ibc = ((Ibcj-Igc)-Ibk);
+    d_power_dX = (((((((((((instanceVar_Ibe*d_Vbei_dX+d_instanceVar_Ibe_dX*Vbei)+(Ibc*d_Vbci_dX+d_Ibc_dX*Vbci))+((Itxf-Itzr)*d_Vcei_dX+(d_Itxf_dX-d_Itzr_dX)*Vcei))+(instanceVar_Ibex*d_Vbex_dX+d_instanceVar_Ibex_dX*Vbex))+(instanceVar_Ibep*d_Vbep_dX+d_instanceVar_Ibep_dX*Vbep))+d_Ircx_dX*Vrcx)+(instanceVar_Irci*d_instanceVar_Vrci_dX+d_instanceVar_Irci_dX*instanceVar_Vrci))+d_Irbx_dX*Vrbx)+d_Irbi_dX*Vrbi)+d_Ire_dX*Vre)+d_Irbp_dX*Vrbp);
     power = (((((((((((instanceVar_Ibe*Vbei)+(Ibc*Vbci))+((Itxf-Itzr)*Vcei))+(instanceVar_Ibex*Vbex))+(instanceVar_Ibep*Vbep))+(Ircx*Vrcx))+(instanceVar_Irci*instanceVar_Vrci))+(Irbx*Vrbx))+(Irbi*Vrbi))+(Ire*Vre))+(Irbp*Vrbp));
+    d_Ith_dX = (-instancePar_sw_et)*d_power_dX;
     Ith = ((-instancePar_sw_et)*power);
+    d_Irth_dX = dt_et*d_Gth_dX;
     Irth = (dt_et*Gth);
+    d_Ixf1_dX = (-d_instanceVar_Itzf_dX);
     Ixf1 = (Vxf2-instanceVar_Itzf);
     Ixf2 = (Vxf2-Vxf1);
+    d_instanceVar_Ibe_dX = (d_instanceVar_Ibe_dX+(modelVar_gminMod*d_Vbei_dX+d_modelVar_gminMod_dX*Vbei));
     instanceVar_Ibe = (instanceVar_Ibe+(modelVar_gminMod*Vbei));
+    d_instanceVar_Ibex_dX = (d_instanceVar_Ibex_dX+(modelVar_gminMod*d_Vbex_dX+d_modelVar_gminMod_dX*Vbex));
     instanceVar_Ibex = (instanceVar_Ibex+(modelVar_gminMod*Vbex));
+    d_instanceVar_Ibep_dX = (d_instanceVar_Ibep_dX+(modelVar_gminMod*d_Vbep_dX+d_modelVar_gminMod_dX*Vbep));
     instanceVar_Ibep = (instanceVar_Ibep+(modelVar_gminMod*Vbep));
+    d_Ibc_dX = (d_Ibc_dX+(modelVar_gminMod*d_Vbci_dX+d_modelVar_gminMod_dX*Vbci));
     Ibc = (Ibc+(modelVar_gminMod*Vbci));
+    d_Igcx_dX = (d_Igcx_dX+(modelVar_gminMod*d_Vbxcx_dX+d_modelVar_gminMod_dX*Vbxcx));
     Igcx = (Igcx+(modelVar_gminMod*Vbxcx));
+    d_instanceVar_Ibe_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_instanceVar_Ibe_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*instanceVar_Ibe);
     instanceVar_Ibe = ((modelPar_VBICtype*instanceVar_mMod)*instanceVar_Ibe);
+    d_instanceVar_Ibex_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_instanceVar_Ibex_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*instanceVar_Ibex);
     instanceVar_Ibex = ((modelPar_VBICtype*instanceVar_mMod)*instanceVar_Ibex);
+    d_instanceVar_Itzf_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_instanceVar_Itzf_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*instanceVar_Itzf);
     instanceVar_Itzf = ((modelPar_VBICtype*instanceVar_mMod)*instanceVar_Itzf);
+    d_Itxf_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_Itxf_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*Itxf);
     Itxf = ((modelPar_VBICtype*instanceVar_mMod)*Itxf);
+    d_Itzr_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_Itzr_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*Itzr);
     Itzr = ((modelPar_VBICtype*instanceVar_mMod)*Itzr);
+    d_Ibc_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_Ibc_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*Ibc);
     Ibc = ((modelPar_VBICtype*instanceVar_mMod)*Ibc);
+    d_Igcx_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_Igcx_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*Igcx);
     Igcx = ((modelPar_VBICtype*instanceVar_mMod)*Igcx);
+    d_instanceVar_Ibep_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_instanceVar_Ibep_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*instanceVar_Ibep);
     instanceVar_Ibep = ((modelPar_VBICtype*instanceVar_mMod)*instanceVar_Ibep);
+    d_Ircx_dX = (instanceVar_mMod*d_Ircx_dX+d_instanceVar_mMod_dX*Ircx);
     Ircx = (instanceVar_mMod*Ircx);
+    d_instanceVar_Irci_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_instanceVar_Irci_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*instanceVar_Irci);
     instanceVar_Irci = ((modelPar_VBICtype*instanceVar_mMod)*instanceVar_Irci);
+    d_Irbx_dX = (instanceVar_mMod*d_Irbx_dX+d_instanceVar_mMod_dX*Irbx);
     Irbx = (instanceVar_mMod*Irbx);
+    d_Irbi_dX = (instanceVar_mMod*d_Irbi_dX+d_instanceVar_mMod_dX*Irbi);
     Irbi = (instanceVar_mMod*Irbi);
+    d_Ire_dX = (instanceVar_mMod*d_Ire_dX+d_instanceVar_mMod_dX*Ire);
     Ire = (instanceVar_mMod*Ire);
+    d_Irbp_dX = (instanceVar_mMod*d_Irbp_dX+d_instanceVar_mMod_dX*Irbp);
     Irbp = (instanceVar_mMod*Irbp);
+    d_Ith_dX = (instanceVar_mMod*d_Ith_dX+d_instanceVar_mMod_dX*Ith);
     Ith = (instanceVar_mMod*Ith);
+    d_Irth_dX = (instanceVar_mMod*d_Irth_dX+d_instanceVar_mMod_dX*Irth);
     Irth = (instanceVar_mMod*Irth);
   }
   // End block evaluateStatic
@@ -11178,160 +12870,375 @@ void evaluateModelEquations(
     //Begin block qdbexBlock
     {
       //Block-local variables for block qdbexBlock
-      AdmsSensFadType dv0;
-      AdmsSensFadType dvh;
-      AdmsSensFadType pwq;
-      AdmsSensFadType qlo;
-      AdmsSensFadType qhi;
-      AdmsSensFadType mv0;
-      AdmsSensFadType vl0;
-      AdmsSensFadType q0;
-      AdmsSensFadType dv;
-      AdmsSensFadType mv;
-      AdmsSensFadType vl;
+      double dv0;
+      double d_dv0_dX;
+      double dvh;
+      double d_dvh_dX;
+      double pwq;
+      double d_pwq_dX;
+      double qlo;
+      double d_qlo_dX;
+      double qhi;
+      double d_qhi_dX;
+      double mv0;
+      double d_mv0_dX;
+      double vl0;
+      double d_vl0_dX;
+      double q0;
+      double d_q0_dX;
+      double dv;
+      double d_dv_dX;
+      double mv;
+      double d_mv_dX;
+      double vl;
+      double d_vl_dX;
       //End of Block-local variables
+      d_dv0_dX = ((-pe_t)*d_modelPar_fc_dX+(-d_pe_t_dX)*modelPar_fc);
       dv0 = ((-pe_t)*modelPar_fc);
       if ((modelPar_aje<=0.0))
       {
+        d_dvh_dX = (d_Vbex_dX+d_dv0_dX);
         dvh = (Vbex+dv0);
         if ((dvh>0.0))
         {
-          pwq = pow((1.0-modelPar_fc),(-modelPar_me));
+          {
+            double value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_me));
+            double  deriv_pow_0_d0 = (((1.0-modelPar_fc) == 0.0)?0.0:(value_pow_0*(-modelPar_me)/(1.0-modelPar_fc)));
+            double  deriv_pow_0_d1 = ((1.0-modelPar_fc) == 0.0)?0.0:(log((1.0-modelPar_fc))*value_pow_0);
+            d_pwq_dX = ((deriv_pow_0_d0*((-d_modelPar_fc_dX)))+(deriv_pow_0_d1*((-d_modelPar_me_dX))));
+            pwq = value_pow_0;
+          }
+          d_qlo_dX = (((1.0-modelPar_me)*(pe_t*(-(pwq*(-d_modelPar_fc_dX)+d_pwq_dX*(1.0-modelPar_fc)))+d_pe_t_dX*(1.0-(pwq*(1.0-modelPar_fc))))-(pe_t*(1.0-(pwq*(1.0-modelPar_fc))))*(-d_modelPar_me_dX))/(1.0-modelPar_me)/(1.0-modelPar_me));
           qlo = ((pe_t*(1.0-(pwq*(1.0-modelPar_fc))))/(1.0-modelPar_me));
+          d_qhi_dX = ((dvh*(1.0+(((0.5*modelPar_me)*dvh)/(pe_t*(1.0-modelPar_fc)))))*d_pwq_dX+(dvh*(((pe_t*(1.0-modelPar_fc))*((0.5*modelPar_me)*d_dvh_dX+0.5*d_modelPar_me_dX*dvh)-((0.5*modelPar_me)*dvh)*(pe_t*(-d_modelPar_fc_dX)+d_pe_t_dX*(1.0-modelPar_fc)))/(pe_t*(1.0-modelPar_fc))/(pe_t*(1.0-modelPar_fc)))+d_dvh_dX*(1.0+(((0.5*modelPar_me)*dvh)/(pe_t*(1.0-modelPar_fc)))))*pwq);
           qhi = ((dvh*(1.0+(((0.5*modelPar_me)*dvh)/(pe_t*(1.0-modelPar_fc)))))*pwq);
         }
         else
         {
-          qlo = ((pe_t*(1.0-pow((1.0-(Vbex/pe_t)),(1.0-modelPar_me))))/(1.0-modelPar_me));
+          {
+            double value_pow_0 = pow((1.0-(Vbex/pe_t)),(1.0-modelPar_me));
+            double  deriv_pow_0_d0 = (((1.0-(Vbex/pe_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_me)/(1.0-(Vbex/pe_t))));
+            double  deriv_pow_0_d1 = ((1.0-(Vbex/pe_t)) == 0.0)?0.0:(log((1.0-(Vbex/pe_t)))*value_pow_0);
+            d_qlo_dX = (((1.0-modelPar_me)*(pe_t*(-((deriv_pow_0_d0*((-((pe_t*d_Vbex_dX-Vbex*d_pe_t_dX)/pe_t/pe_t))))+(deriv_pow_0_d1*((-d_modelPar_me_dX)))))+d_pe_t_dX*(1.0-value_pow_0))-(pe_t*(1.0-value_pow_0))*(-d_modelPar_me_dX))/(1.0-modelPar_me)/(1.0-modelPar_me));
+            qlo = ((pe_t*(1.0-value_pow_0))/(1.0-modelPar_me));
+          }
+          d_qhi_dX = 0.0;
           qhi = 0.0;
         }
+        d_qdbex_dX = (d_qlo_dX+d_qhi_dX);
         qdbex = (qlo+qhi);
       }
       else
       {
-        mv0 = sqrt(((dv0*dv0)+((4.0*modelPar_aje)*modelPar_aje)));
+        {
+          double value_sqrt_0 = sqrt(((dv0*dv0)+((4.0*modelPar_aje)*modelPar_aje)));
+          double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+          d_mv0_dX = deriv_sqrt_0_d0*(((dv0*d_dv0_dX+d_dv0_dX*dv0)+((4.0*modelPar_aje)*d_modelPar_aje_dX+4.0*d_modelPar_aje_dX*modelPar_aje)));
+          mv0 = value_sqrt_0;
+        }
+        d_vl0_dX = (-0.5)*(d_dv0_dX+d_mv0_dX);
         vl0 = ((-0.5)*(dv0+mv0));
-        q0 = (((-pe_t)*pow((1.0-(vl0/pe_t)),(1.0-modelPar_me)))/(1.0-modelPar_me));
+        {
+          double value_pow_0 = pow((1.0-(vl0/pe_t)),(1.0-modelPar_me));
+          double  deriv_pow_0_d0 = (((1.0-(vl0/pe_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_me)/(1.0-(vl0/pe_t))));
+          double  deriv_pow_0_d1 = ((1.0-(vl0/pe_t)) == 0.0)?0.0:(log((1.0-(vl0/pe_t)))*value_pow_0);
+          d_q0_dX = (((1.0-modelPar_me)*((-pe_t)*((deriv_pow_0_d0*((-((pe_t*d_vl0_dX-vl0*d_pe_t_dX)/pe_t/pe_t))))+(deriv_pow_0_d1*((-d_modelPar_me_dX))))+(-d_pe_t_dX)*value_pow_0)-((-pe_t)*value_pow_0)*(-d_modelPar_me_dX))/(1.0-modelPar_me)/(1.0-modelPar_me));
+          q0 = (((-pe_t)*value_pow_0)/(1.0-modelPar_me));
+        }
+        d_dv_dX = (d_Vbex_dX+d_dv0_dX);
         dv = (Vbex+dv0);
-        mv = sqrt(((dv*dv)+((4.0*modelPar_aje)*modelPar_aje)));
+        {
+          double value_sqrt_0 = sqrt(((dv*dv)+((4.0*modelPar_aje)*modelPar_aje)));
+          double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+          d_mv_dX = deriv_sqrt_0_d0*(((dv*d_dv_dX+d_dv_dX*dv)+((4.0*modelPar_aje)*d_modelPar_aje_dX+4.0*d_modelPar_aje_dX*modelPar_aje)));
+          mv = value_sqrt_0;
+        }
+        d_vl_dX = (0.5*(d_dv_dX-d_mv_dX)-d_dv0_dX);
         vl = ((0.5*(dv-mv))-dv0);
-        qlo = (((-pe_t)*pow((1.0-(vl/pe_t)),(1.0-modelPar_me)))/(1.0-modelPar_me));
-        qdbex = ((qlo+((pow((1.0-modelPar_fc),(-modelPar_me))*((Vbex-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbex-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-q0);
+        {
+          double value_pow_0 = pow((1.0-(vl/pe_t)),(1.0-modelPar_me));
+          double  deriv_pow_0_d0 = (((1.0-(vl/pe_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_me)/(1.0-(vl/pe_t))));
+          double  deriv_pow_0_d1 = ((1.0-(vl/pe_t)) == 0.0)?0.0:(log((1.0-(vl/pe_t)))*value_pow_0);
+          d_qlo_dX = (((1.0-modelPar_me)*((-pe_t)*((deriv_pow_0_d0*((-((pe_t*d_vl_dX-vl*d_pe_t_dX)/pe_t/pe_t))))+(deriv_pow_0_d1*((-d_modelPar_me_dX))))+(-d_pe_t_dX)*value_pow_0)-((-pe_t)*value_pow_0)*(-d_modelPar_me_dX))/(1.0-modelPar_me)/(1.0-modelPar_me));
+          qlo = (((-pe_t)*value_pow_0)/(1.0-modelPar_me));
+        }
+        {
+          double value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_me));
+          double  deriv_pow_0_d0 = (((1.0-modelPar_fc) == 0.0)?0.0:(value_pow_0*(-modelPar_me)/(1.0-modelPar_fc)));
+          double  deriv_pow_0_d1 = ((1.0-modelPar_fc) == 0.0)?0.0:(log((1.0-modelPar_fc))*value_pow_0);
+          d_qdbex_dX = ((d_qlo_dX+((value_pow_0*((Vbex-vl)+vl0))*(((pe_t*(1.0-modelPar_fc))*((0.5*modelPar_me)*((d_Vbex_dX-d_vl_dX)+d_vl0_dX)+0.5*d_modelPar_me_dX*((Vbex-vl)+vl0))-((0.5*modelPar_me)*((Vbex-vl)+vl0))*(pe_t*(-d_modelPar_fc_dX)+d_pe_t_dX*(1.0-modelPar_fc)))/(pe_t*(1.0-modelPar_fc))/(pe_t*(1.0-modelPar_fc)))+(value_pow_0*((d_Vbex_dX-d_vl_dX)+d_vl0_dX)+((deriv_pow_0_d0*((-d_modelPar_fc_dX)))+(deriv_pow_0_d1*((-d_modelPar_me_dX))))*((Vbex-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbex-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-d_q0_dX);
+          qdbex = ((qlo+((value_pow_0*((Vbex-vl)+vl0))*(1.0+(((0.5*modelPar_me)*((Vbex-vl)+vl0))/(pe_t*(1.0-modelPar_fc))))))-q0);
+        }
       }
     }
     // End block qdbexBlock
     //Begin block qdbepBlock
     {
       //Block-local variables for block qdbepBlock
-      AdmsSensFadType dv0;
-      AdmsSensFadType dvh;
-      AdmsSensFadType pwq;
-      AdmsSensFadType qlo;
-      AdmsSensFadType qhi;
-      AdmsSensFadType vn0;
-      AdmsSensFadType vnl0;
-      AdmsSensFadType vl0;
-      AdmsSensFadType qlo0;
-      AdmsSensFadType vn;
-      AdmsSensFadType vnl;
-      AdmsSensFadType vl;
-      AdmsSensFadType sel;
-      AdmsSensFadType crt;
-      AdmsSensFadType cmx;
-      AdmsSensFadType cl;
-      AdmsSensFadType ql;
-      AdmsSensFadType mv0;
-      AdmsSensFadType q0;
-      AdmsSensFadType dv;
-      AdmsSensFadType mv;
+      double dv0;
+      double d_dv0_dX;
+      double dvh;
+      double d_dvh_dX;
+      double pwq;
+      double d_pwq_dX;
+      double qlo;
+      double d_qlo_dX;
+      double qhi;
+      double d_qhi_dX;
+      double vn0;
+      double d_vn0_dX;
+      double vnl0;
+      double d_vnl0_dX;
+      double vl0;
+      double d_vl0_dX;
+      double qlo0;
+      double d_qlo0_dX;
+      double vn;
+      double d_vn_dX;
+      double vnl;
+      double d_vnl_dX;
+      double vl;
+      double d_vl_dX;
+      double sel;
+      double d_sel_dX;
+      double crt;
+      double d_crt_dX;
+      double cmx;
+      double d_cmx_dX;
+      double cl;
+      double d_cl_dX;
+      double ql;
+      double d_ql_dX;
+      double mv0;
+      double d_mv0_dX;
+      double q0;
+      double d_q0_dX;
+      double dv;
+      double d_dv_dX;
+      double mv;
+      double d_mv_dX;
       //End of Block-local variables
+      d_dv0_dX = ((-pc_t)*d_modelPar_fc_dX+(-d_pc_t_dX)*modelPar_fc);
       dv0 = ((-pc_t)*modelPar_fc);
       if ((modelPar_ajc<=0.0))
       {
+        d_dvh_dX = (d_Vbep_dX+d_dv0_dX);
         dvh = (Vbep+dv0);
         if ((dvh>0.0))
         {
-          pwq = pow((1.0-modelPar_fc),((-1.0)-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0-modelPar_fc),((-1.0)-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-modelPar_fc) == 0.0)?0.0:(value_pow_0*((-1.0)-modelPar_mc)/(1.0-modelPar_fc)));
+            double  deriv_pow_0_d1 = ((1.0-modelPar_fc) == 0.0)?0.0:(log((1.0-modelPar_fc))*value_pow_0);
+            d_pwq_dX = ((deriv_pow_0_d0*((-d_modelPar_fc_dX)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))));
+            pwq = value_pow_0;
+          }
+          d_qlo_dX = (((1.0-modelPar_mc)*(pc_t*(-((pwq*(1.0-modelPar_fc))*(-d_modelPar_fc_dX)+(pwq*(-d_modelPar_fc_dX)+d_pwq_dX*(1.0-modelPar_fc))*(1.0-modelPar_fc)))+d_pc_t_dX*(1.0-((pwq*(1.0-modelPar_fc))*(1.0-modelPar_fc))))-(pc_t*(1.0-((pwq*(1.0-modelPar_fc))*(1.0-modelPar_fc))))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
           qlo = ((pc_t*(1.0-((pwq*(1.0-modelPar_fc))*(1.0-modelPar_fc))))/(1.0-modelPar_mc));
+          d_qhi_dX = ((dvh*((1.0-modelPar_fc)+(((0.5*modelPar_mc)*dvh)/pc_t)))*d_pwq_dX+(dvh*((-d_modelPar_fc_dX)+((pc_t*((0.5*modelPar_mc)*d_dvh_dX+0.5*d_modelPar_mc_dX*dvh)-((0.5*modelPar_mc)*dvh)*d_pc_t_dX)/pc_t/pc_t))+d_dvh_dX*((1.0-modelPar_fc)+(((0.5*modelPar_mc)*dvh)/pc_t)))*pwq);
           qhi = ((dvh*((1.0-modelPar_fc)+(((0.5*modelPar_mc)*dvh)/pc_t)))*pwq);
         }
         else
         {
           if (((modelPar_vrt>0.0)&&(Vbep<(-modelPar_vrt))))
           {
-            qlo = ((pc_t*(1.0-(pow((1.0+(modelPar_vrt/pc_t)),(1.0-modelPar_mc))*(1.0-(((1.0-modelPar_mc)*(Vbep+modelPar_vrt))/(pc_t+modelPar_vrt))))))/(1.0-modelPar_mc));
+            {
+              double value_pow_0 = pow((1.0+(modelPar_vrt/pc_t)),(1.0-modelPar_mc));
+              double  deriv_pow_0_d0 = (((1.0+(modelPar_vrt/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0+(modelPar_vrt/pc_t))));
+              double  deriv_pow_0_d1 = ((1.0+(modelPar_vrt/pc_t)) == 0.0)?0.0:(log((1.0+(modelPar_vrt/pc_t)))*value_pow_0);
+              d_qlo_dX = (((1.0-modelPar_mc)*(pc_t*(-(value_pow_0*(-(((pc_t+modelPar_vrt)*((1.0-modelPar_mc)*(d_Vbep_dX+d_modelPar_vrt_dX)+(-d_modelPar_mc_dX)*(Vbep+modelPar_vrt))-((1.0-modelPar_mc)*(Vbep+modelPar_vrt))*(d_pc_t_dX+d_modelPar_vrt_dX))/(pc_t+modelPar_vrt)/(pc_t+modelPar_vrt)))+((deriv_pow_0_d0*(((pc_t*d_modelPar_vrt_dX-modelPar_vrt*d_pc_t_dX)/pc_t/pc_t)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))))*(1.0-(((1.0-modelPar_mc)*(Vbep+modelPar_vrt))/(pc_t+modelPar_vrt)))))+d_pc_t_dX*(1.0-(value_pow_0*(1.0-(((1.0-modelPar_mc)*(Vbep+modelPar_vrt))/(pc_t+modelPar_vrt))))))-(pc_t*(1.0-(value_pow_0*(1.0-(((1.0-modelPar_mc)*(Vbep+modelPar_vrt))/(pc_t+modelPar_vrt))))))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+              qlo = ((pc_t*(1.0-(value_pow_0*(1.0-(((1.0-modelPar_mc)*(Vbep+modelPar_vrt))/(pc_t+modelPar_vrt))))))/(1.0-modelPar_mc));
+            }
           }
           else
           {
-            qlo = ((pc_t*(1.0-pow((1.0-(Vbep/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
+            {
+              double value_pow_0 = pow((1.0-(Vbep/pc_t)),(1.0-modelPar_mc));
+              double  deriv_pow_0_d0 = (((1.0-(Vbep/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(Vbep/pc_t))));
+              double  deriv_pow_0_d1 = ((1.0-(Vbep/pc_t)) == 0.0)?0.0:(log((1.0-(Vbep/pc_t)))*value_pow_0);
+              d_qlo_dX = (((1.0-modelPar_mc)*(pc_t*(-((deriv_pow_0_d0*((-((pc_t*d_Vbep_dX-Vbep*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX)))))+d_pc_t_dX*(1.0-value_pow_0))-(pc_t*(1.0-value_pow_0))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+              qlo = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
+            }
           }
+          d_qhi_dX = 0.0;
           qhi = 0.0;
         }
+        d_qdbep_dX = (d_qlo_dX+d_qhi_dX);
         qdbep = (qlo+qhi);
       }
       else
       {
         if (((modelPar_vrt>0.0)&&(modelPar_art>0.0)))
         {
+          d_vn0_dX = (((modelPar_vrt-dv0)*(d_modelPar_vrt_dX+d_dv0_dX)-(modelPar_vrt+dv0)*(d_modelPar_vrt_dX-d_dv0_dX))/(modelPar_vrt-dv0)/(modelPar_vrt-dv0));
           vn0 = ((modelPar_vrt+dv0)/(modelPar_vrt-dv0));
-          vnl0 = ((2.0*vn0)/(sqrt((((vn0-1.0)*(vn0-1))+((4*modelPar_ajc)*modelPar_ajc)))+sqrt((((vn0+1.0)*(vn0+1))+((4*modelPar_art)*modelPar_art)))));
+          {
+            double value_sqrt_0 = sqrt((((vn0-1.0)*(vn0-1))+((4*modelPar_ajc)*modelPar_ajc)));
+            double value_sqrt_1 = sqrt((((vn0+1.0)*(vn0+1))+((4*modelPar_art)*modelPar_art)));
+            double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+            double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+            d_vnl0_dX = (((value_sqrt_0+value_sqrt_1)*2.0*d_vn0_dX-(2.0*vn0)*(deriv_sqrt_0_d0*((((vn0-1.0)*d_vn0_dX+d_vn0_dX*(vn0-1))+((4*modelPar_ajc)*d_modelPar_ajc_dX+4*d_modelPar_ajc_dX*modelPar_ajc)))+deriv_sqrt_1_d0*((((vn0+1.0)*d_vn0_dX+d_vn0_dX*(vn0+1))+((4*modelPar_art)*d_modelPar_art_dX+4*d_modelPar_art_dX*modelPar_art)))))/(value_sqrt_0+value_sqrt_1)/(value_sqrt_0+value_sqrt_1));
+            vnl0 = ((2.0*vn0)/(value_sqrt_0+value_sqrt_1));
+          }
+          d_vl0_dX = 0.5*(((vnl0*(d_modelPar_vrt_dX-d_dv0_dX)+d_vnl0_dX*(modelPar_vrt-dv0))-d_modelPar_vrt_dX)-d_dv0_dX);
           vl0 = (0.5*(((vnl0*(modelPar_vrt-dv0))-modelPar_vrt)-dv0));
-          qlo0 = ((pc_t*(1.0-pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-(vl0/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(vl0/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0-(vl0/pc_t)) == 0.0)?0.0:(log((1.0-(vl0/pc_t)))*value_pow_0);
+            d_qlo0_dX = (((1.0-modelPar_mc)*(pc_t*(-((deriv_pow_0_d0*((-((pc_t*d_vl0_dX-vl0*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX)))))+d_pc_t_dX*(1.0-value_pow_0))-(pc_t*(1.0-value_pow_0))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+            qlo0 = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
+          }
+          d_vn_dX = (((modelPar_vrt-dv0)*((2*d_Vbep_dX+d_modelPar_vrt_dX)+d_dv0_dX)-(((2*Vbep)+modelPar_vrt)+dv0)*(d_modelPar_vrt_dX-d_dv0_dX))/(modelPar_vrt-dv0)/(modelPar_vrt-dv0));
           vn = ((((2*Vbep)+modelPar_vrt)+dv0)/(modelPar_vrt-dv0));
-          vnl = ((2.0*vn)/(sqrt((((vn-1.0)*(vn-1))+((4*modelPar_ajc)*modelPar_ajc)))+sqrt((((vn+1.0)*(vn+1))+((4*modelPar_art)*modelPar_art)))));
+          {
+            double value_sqrt_0 = sqrt((((vn-1.0)*(vn-1))+((4*modelPar_ajc)*modelPar_ajc)));
+            double value_sqrt_1 = sqrt((((vn+1.0)*(vn+1))+((4*modelPar_art)*modelPar_art)));
+            double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+            double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+            d_vnl_dX = (((value_sqrt_0+value_sqrt_1)*2.0*d_vn_dX-(2.0*vn)*(deriv_sqrt_0_d0*((((vn-1.0)*d_vn_dX+d_vn_dX*(vn-1))+((4*modelPar_ajc)*d_modelPar_ajc_dX+4*d_modelPar_ajc_dX*modelPar_ajc)))+deriv_sqrt_1_d0*((((vn+1.0)*d_vn_dX+d_vn_dX*(vn+1))+((4*modelPar_art)*d_modelPar_art_dX+4*d_modelPar_art_dX*modelPar_art)))))/(value_sqrt_0+value_sqrt_1)/(value_sqrt_0+value_sqrt_1));
+            vnl = ((2.0*vn)/(value_sqrt_0+value_sqrt_1));
+          }
+          d_vl_dX = 0.5*(((vnl*(d_modelPar_vrt_dX-d_dv0_dX)+d_vnl_dX*(modelPar_vrt-dv0))-d_modelPar_vrt_dX)-d_dv0_dX);
           vl = (0.5*(((vnl*(modelPar_vrt-dv0))-modelPar_vrt)-dv0));
-          qlo = ((pc_t*(1.0-pow((1.0-(vl/pc_t)),(1.0-modelPar_mc))))/(1.0-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0-(vl/pc_t)),(1.0-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-(vl/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(vl/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0-(vl/pc_t)) == 0.0)?0.0:(log((1.0-(vl/pc_t)))*value_pow_0);
+            d_qlo_dX = (((1.0-modelPar_mc)*(pc_t*(-((deriv_pow_0_d0*((-((pc_t*d_vl_dX-vl*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX)))))+d_pc_t_dX*(1.0-value_pow_0))-(pc_t*(1.0-value_pow_0))*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+            qlo = ((pc_t*(1.0-value_pow_0))/(1.0-modelPar_mc));
+          }
+          d_sel_dX = 0.5*d_vnl_dX;
           sel = (0.5*(vnl+1.0));
-          crt = pow((1.0+(modelPar_vrt/pc_t)),(-modelPar_mc));
-          cmx = pow((1.0+(dv0/pc_t)),(-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0+(modelPar_vrt/pc_t)),(-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0+(modelPar_vrt/pc_t)) == 0.0)?0.0:(value_pow_0*(-modelPar_mc)/(1.0+(modelPar_vrt/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0+(modelPar_vrt/pc_t)) == 0.0)?0.0:(log((1.0+(modelPar_vrt/pc_t)))*value_pow_0);
+            d_crt_dX = ((deriv_pow_0_d0*(((pc_t*d_modelPar_vrt_dX-modelPar_vrt*d_pc_t_dX)/pc_t/pc_t)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))));
+            crt = value_pow_0;
+          }
+          {
+            double value_pow_0 = pow((1.0+(dv0/pc_t)),(-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0+(dv0/pc_t)) == 0.0)?0.0:(value_pow_0*(-modelPar_mc)/(1.0+(dv0/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0+(dv0/pc_t)) == 0.0)?0.0:(log((1.0+(dv0/pc_t)))*value_pow_0);
+            d_cmx_dX = ((deriv_pow_0_d0*(((pc_t*d_dv0_dX-dv0*d_pc_t_dX)/pc_t/pc_t)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))));
+            cmx = value_pow_0;
+          }
+          d_cl_dX = (((1.0-sel)*d_crt_dX+(-d_sel_dX)*crt)+(sel*d_cmx_dX+d_sel_dX*cmx));
           cl = (((1.0-sel)*crt)+(sel*cmx));
+          d_ql_dX = (((Vbep-vl)+vl0)*d_cl_dX+((d_Vbep_dX-d_vl_dX)+d_vl0_dX)*cl);
           ql = (((Vbep-vl)+vl0)*cl);
+          d_qdbep_dX = ((d_ql_dX+d_qlo_dX)-d_qlo0_dX);
           qdbep = ((ql+qlo)-qlo0);
         }
         else
         {
-          mv0 = sqrt(((dv0*dv0)+((4*modelPar_ajc)*modelPar_ajc)));
+          {
+            double value_sqrt_0 = sqrt(((dv0*dv0)+((4*modelPar_ajc)*modelPar_ajc)));
+            double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+            d_mv0_dX = deriv_sqrt_0_d0*(((dv0*d_dv0_dX+d_dv0_dX*dv0)+((4*modelPar_ajc)*d_modelPar_ajc_dX+4*d_modelPar_ajc_dX*modelPar_ajc)));
+            mv0 = value_sqrt_0;
+          }
+          d_vl0_dX = (-0.5)*(d_dv0_dX+d_mv0_dX);
           vl0 = ((-0.5)*(dv0+mv0));
-          q0 = (((-pc_t)*pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc)))/(1.0-modelPar_mc));
+          {
+            double value_pow_0 = pow((1.0-(vl0/pc_t)),(1.0-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-(vl0/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(vl0/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0-(vl0/pc_t)) == 0.0)?0.0:(log((1.0-(vl0/pc_t)))*value_pow_0);
+            d_q0_dX = (((1.0-modelPar_mc)*((-pc_t)*((deriv_pow_0_d0*((-((pc_t*d_vl0_dX-vl0*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))))+(-d_pc_t_dX)*value_pow_0)-((-pc_t)*value_pow_0)*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+            q0 = (((-pc_t)*value_pow_0)/(1.0-modelPar_mc));
+          }
+          d_dv_dX = (d_Vbep_dX+d_dv0_dX);
           dv = (Vbep+dv0);
-          mv = sqrt(((dv*dv)+((4*modelPar_ajc)*modelPar_ajc)));
+          {
+            double value_sqrt_0 = sqrt(((dv*dv)+((4*modelPar_ajc)*modelPar_ajc)));
+            double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+            d_mv_dX = deriv_sqrt_0_d0*(((dv*d_dv_dX+d_dv_dX*dv)+((4*modelPar_ajc)*d_modelPar_ajc_dX+4*d_modelPar_ajc_dX*modelPar_ajc)));
+            mv = value_sqrt_0;
+          }
+          d_vl_dX = (0.5*(d_dv_dX-d_mv_dX)-d_dv0_dX);
           vl = ((0.5*(dv-mv))-dv0);
-          qlo = (((-pc_t)*pow((1.0-(vl/pc_t)),(1.0-modelPar_mc)))/(1.0-modelPar_mc));
-          qdbep = ((qlo+(pow((1.0-modelPar_fc),(-modelPar_mc))*((Vbep-vl)+vl0)))-q0);
+          {
+            double value_pow_0 = pow((1.0-(vl/pc_t)),(1.0-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-(vl/pc_t)) == 0.0)?0.0:(value_pow_0*(1.0-modelPar_mc)/(1.0-(vl/pc_t))));
+            double  deriv_pow_0_d1 = ((1.0-(vl/pc_t)) == 0.0)?0.0:(log((1.0-(vl/pc_t)))*value_pow_0);
+            d_qlo_dX = (((1.0-modelPar_mc)*((-pc_t)*((deriv_pow_0_d0*((-((pc_t*d_vl_dX-vl*d_pc_t_dX)/pc_t/pc_t))))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))))+(-d_pc_t_dX)*value_pow_0)-((-pc_t)*value_pow_0)*(-d_modelPar_mc_dX))/(1.0-modelPar_mc)/(1.0-modelPar_mc));
+            qlo = (((-pc_t)*value_pow_0)/(1.0-modelPar_mc));
+          }
+          {
+            double value_pow_0 = pow((1.0-modelPar_fc),(-modelPar_mc));
+            double  deriv_pow_0_d0 = (((1.0-modelPar_fc) == 0.0)?0.0:(value_pow_0*(-modelPar_mc)/(1.0-modelPar_fc)));
+            double  deriv_pow_0_d1 = ((1.0-modelPar_fc) == 0.0)?0.0:(log((1.0-modelPar_fc))*value_pow_0);
+            d_qdbep_dX = ((d_qlo_dX+(value_pow_0*((d_Vbep_dX-d_vl_dX)+d_vl0_dX)+((deriv_pow_0_d0*((-d_modelPar_fc_dX)))+(deriv_pow_0_d1*((-d_modelPar_mc_dX))))*((Vbep-vl)+vl0)))-d_q0_dX);
+            qdbep = ((qlo+(value_pow_0*((Vbep-vl)+vl0)))-q0);
+          }
         }
       }
     }
     // End block qdbepBlock
+    d_sgIf_dX = 0.0;
     sgIf = ((Ifi>0.0)?1.0:0.0);
+    d_rIf_dX = ((Ifi*sgIf)*d_modelVar_Iitf_dX+(Ifi*d_sgIf_dX+d_Ifi_dX*sgIf)*modelVar_Iitf);
     rIf = ((Ifi*sgIf)*modelVar_Iitf);
+    d_mIf_dX = (((rIf+1.0)*d_rIf_dX-rIf*d_rIf_dX)/(rIf+1.0)/(rIf+1.0));
     mIf = (rIf/(rIf+1.0));
+    d_arg_dX = ((Vbci*d_modelVar_Ivtf_dX+d_Vbci_dX*modelVar_Ivtf)/1.44);
     arg = ((Vbci*modelVar_Ivtf)/1.44);
     if ((arg<modelVar_VmaxExp))
     {
-      expi = exp(arg);
+      {
+        double value_exp_0 = exp(arg);
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = deriv_exp_0_d0*(d_arg_dX);
+        expi = value_exp_0;
+      }
     }
     else
     {
-      expi = (exp(modelVar_VmaxExp)*(1.0+(arg-modelVar_VmaxExp)));
+      {
+        double value_exp_0 = exp(modelVar_VmaxExp);
+        double  deriv_exp_0_d0 = value_exp_0;
+        d_expi_dX = (value_exp_0*(d_arg_dX-d_modelVar_VmaxExp_dX)+deriv_exp_0_d0*(d_modelVar_VmaxExp_dX)*(1.0+(arg-modelVar_VmaxExp)));
+        expi = (value_exp_0*(1.0+(arg-modelVar_VmaxExp)));
+      }
     }
+    d_tff_dX = ((modelPar_tf*(1.0+(modelPar_qtf*q1)))*(((modelPar_xtf*expi)*(modelVar_sltf+(mIf*mIf)))*d_sgIf_dX+((modelPar_xtf*expi)*(d_modelVar_sltf_dX+(mIf*d_mIf_dX+d_mIf_dX*mIf))+(modelPar_xtf*d_expi_dX+d_modelPar_xtf_dX*expi)*(modelVar_sltf+(mIf*mIf)))*sgIf)+(modelPar_tf*(modelPar_qtf*d_q1_dX+d_modelPar_qtf_dX*q1)+d_modelPar_tf_dX*(1.0+(modelPar_qtf*q1)))*(1.0+(((modelPar_xtf*expi)*(modelVar_sltf+(mIf*mIf)))*sgIf)));
     tff = ((modelPar_tf*(1.0+(modelPar_qtf*q1)))*(1.0+(((modelPar_xtf*expi)*(modelVar_sltf+(mIf*mIf)))*sgIf)));
+    d_Qbe_dX = (((cje_t*qdbe)*d_modelPar_wbe_dX+(cje_t*d_qdbe_dX+d_cje_t_dX*qdbe)*modelPar_wbe)+((instanceVar_qb*(tff*d_Ifi_dX+d_tff_dX*Ifi)-(tff*Ifi)*d_instanceVar_qb_dX)/instanceVar_qb/instanceVar_qb));
     Qbe = (((cje_t*qdbe)*modelPar_wbe)+((tff*Ifi)/instanceVar_qb));
+    d_Qbex_dX = ((cje_t*qdbex)*(-d_modelPar_wbe_dX)+(cje_t*d_qdbex_dX+d_cje_t_dX*qdbex)*(1.0-modelPar_wbe));
     Qbex = ((cje_t*qdbex)*(1.0-modelPar_wbe));
+    d_Qbc_dX = (((cjc_t*d_qdbc_dX+d_cjc_t_dX*qdbc)+(modelPar_tr*d_Iri_dX+d_modelPar_tr_dX*Iri))+(modelPar_qco*d_Kbci_dX+d_modelPar_qco_dX*Kbci));
     Qbc = (((cjc_t*qdbc)+(modelPar_tr*Iri))+(modelPar_qco*Kbci));
+    d_Qbcx_dX = (modelPar_qco*d_Kbcx_dX+d_modelPar_qco_dX*Kbcx);
     Qbcx = (modelPar_qco*Kbcx);
+    d_Qbep_dX = ((cjep_t*d_qdbep_dX+d_cjep_t_dX*qdbep)+(modelPar_tr*d_Ifp_dX+d_modelPar_tr_dX*Ifp));
     Qbep = ((cjep_t*qdbep)+(modelPar_tr*Ifp));
+    d_Qbeo_dX = (Vbe*d_modelPar_cbeo_dX+d_Vbe_dX*modelPar_cbeo);
     Qbeo = (Vbe*modelPar_cbeo);
+    d_Qbco_dX = Vbc*d_modelPar_cbco_dX;
     Qbco = (Vbc*modelPar_cbco);
+    d_Qcth_dX = dt_et*d_modelPar_cth_dX;
     Qcth = (dt_et*modelPar_cth);
+    d_Qxf1_dX = d_modelPar_td_dX*Vxf1;
     Qxf1 = (modelPar_td*Vxf1);
+    d_Qxf2_dX = d_modelPar_td_dX*Vxf2*0.3333333333333333;
     Qxf2 = ((modelPar_td*Vxf2)*0.3333333333333333);
+    d_Qbe_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_Qbe_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*Qbe);
     Qbe = ((modelPar_VBICtype*instanceVar_mMod)*Qbe);
+    d_Qbex_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_Qbex_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*Qbex);
     Qbex = ((modelPar_VBICtype*instanceVar_mMod)*Qbex);
+    d_Qbc_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_Qbc_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*Qbc);
     Qbc = ((modelPar_VBICtype*instanceVar_mMod)*Qbc);
+    d_Qbcx_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_Qbcx_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*Qbcx);
     Qbcx = ((modelPar_VBICtype*instanceVar_mMod)*Qbcx);
+    d_Qbep_dX = ((modelPar_VBICtype*instanceVar_mMod)*d_Qbep_dX+modelPar_VBICtype*d_instanceVar_mMod_dX*Qbep);
     Qbep = ((modelPar_VBICtype*instanceVar_mMod)*Qbep);
+    d_Qbeo_dX = (instanceVar_mMod*d_Qbeo_dX+d_instanceVar_mMod_dX*Qbeo);
     Qbeo = (instanceVar_mMod*Qbeo);
+    d_Qbco_dX = (instanceVar_mMod*d_Qbco_dX+d_instanceVar_mMod_dX*Qbco);
     Qbco = (instanceVar_mMod*Qbco);
+    d_Qcth_dX = (instanceVar_mMod*d_Qcth_dX+d_instanceVar_mMod_dX*Qcth);
     Qcth = (instanceVar_mMod*Qcth);
   }
   // End block evaluateDynamic
@@ -11339,82 +13246,129 @@ void evaluateModelEquations(
   {
     // I(bi,ei) <+ (Ibe)
     staticContributions[admsNodeID_bi] += instanceVar_Ibe;
+    d_staticContributions_dX[admsNodeID_bi]+= d_instanceVar_Ibe_dX;
     staticContributions[admsNodeID_ei] -= instanceVar_Ibe;
+    d_staticContributions_dX[(admsNodeID_ei)]-= d_instanceVar_Ibe_dX;
     // I(bx,ei) <+ (Ibex)
     staticContributions[admsNodeID_bx] += instanceVar_Ibex;
+    d_staticContributions_dX[admsNodeID_bx]+= d_instanceVar_Ibex_dX;
     staticContributions[admsNodeID_ei] -= instanceVar_Ibex;
+    d_staticContributions_dX[(admsNodeID_ei)]-= d_instanceVar_Ibex_dX;
     // I(ci,ei) <+ (Itxf)
     staticContributions[admsNodeID_ci] += Itxf;
+    d_staticContributions_dX[admsNodeID_ci]+= d_Itxf_dX;
     staticContributions[admsNodeID_ei] -= Itxf;
+    d_staticContributions_dX[(admsNodeID_ei)]-= d_Itxf_dX;
     // I(ei,ci) <+ (Itzr)
     staticContributions[admsNodeID_ei] += Itzr;
+    d_staticContributions_dX[admsNodeID_ei]+= d_Itzr_dX;
     staticContributions[admsNodeID_ci] -= Itzr;
+    d_staticContributions_dX[(admsNodeID_ci)]-= d_Itzr_dX;
     // I(bi,ci) <+ (Ibc)
     staticContributions[admsNodeID_bi] += Ibc;
+    d_staticContributions_dX[admsNodeID_bi]+= d_Ibc_dX;
     staticContributions[admsNodeID_ci] -= Ibc;
+    d_staticContributions_dX[(admsNodeID_ci)]-= d_Ibc_dX;
     // I(bx,cx) <+ (Igcx)
     staticContributions[admsNodeID_bx] += Igcx;
+    d_staticContributions_dX[admsNodeID_bx]+= d_Igcx_dX;
     staticContributions[admsNodeID_cx] -= Igcx;
+    d_staticContributions_dX[(admsNodeID_cx)]-= d_Igcx_dX;
     // I(bx,bp) <+ (Ibep)
     staticContributions[admsNodeID_bx] += instanceVar_Ibep;
+    d_staticContributions_dX[admsNodeID_bx]+= d_instanceVar_Ibep_dX;
     staticContributions[admsNodeID_bp] -= instanceVar_Ibep;
+    d_staticContributions_dX[(admsNodeID_bp)]-= d_instanceVar_Ibep_dX;
     // I(c,cx) <+ (Ircx)
     staticContributions[admsNodeID_c] += Ircx;
+    d_staticContributions_dX[admsNodeID_c]+= d_Ircx_dX;
     staticContributions[admsNodeID_cx] -= Ircx;
+    d_staticContributions_dX[(admsNodeID_cx)]-= d_Ircx_dX;
     // I(cx,ci) <+ (Irci)
     staticContributions[admsNodeID_cx] += instanceVar_Irci;
+    d_staticContributions_dX[admsNodeID_cx]+= d_instanceVar_Irci_dX;
     staticContributions[admsNodeID_ci] -= instanceVar_Irci;
+    d_staticContributions_dX[(admsNodeID_ci)]-= d_instanceVar_Irci_dX;
     // I(b,bx) <+ (Irbx)
     staticContributions[admsNodeID_b] += Irbx;
+    d_staticContributions_dX[admsNodeID_b]+= d_Irbx_dX;
     staticContributions[admsNodeID_bx] -= Irbx;
+    d_staticContributions_dX[(admsNodeID_bx)]-= d_Irbx_dX;
     // I(bx,bi) <+ (Irbi)
     staticContributions[admsNodeID_bx] += Irbi;
+    d_staticContributions_dX[admsNodeID_bx]+= d_Irbi_dX;
     staticContributions[admsNodeID_bi] -= Irbi;
+    d_staticContributions_dX[(admsNodeID_bi)]-= d_Irbi_dX;
     // I(e,ei) <+ (Ire)
     staticContributions[admsNodeID_e] += Ire;
+    d_staticContributions_dX[admsNodeID_e]+= d_Ire_dX;
     staticContributions[admsNodeID_ei] -= Ire;
+    d_staticContributions_dX[(admsNodeID_ei)]-= d_Ire_dX;
     // I(bp,cx) <+ (Irbp)
     staticContributions[admsNodeID_bp] += Irbp;
+    d_staticContributions_dX[admsNodeID_bp]+= d_Irbp_dX;
     staticContributions[admsNodeID_cx] -= Irbp;
+    d_staticContributions_dX[(admsNodeID_cx)]-= d_Irbp_dX;
     // I(xf1,GND) <+ (Ixf1)
     staticContributions[admsNodeID_xf1] += Ixf1;
+    d_staticContributions_dX[admsNodeID_xf1]+= d_Ixf1_dX;
     // I(xf2,GND) <+ (Ixf2)
     staticContributions[admsNodeID_xf2] += Ixf2;
+    d_staticContributions_dX[admsNodeID_xf2]+= 0.0;
     // Pwr(dt,GND) <+ (Irth)
     staticContributions[admsNodeID_dt] += Irth;
+    d_staticContributions_dX[admsNodeID_dt]+= d_Irth_dX;
     // Pwr(dt,GND) <+ (Ith)
     staticContributions[admsNodeID_dt] += Ith;
+    d_staticContributions_dX[admsNodeID_dt]+= d_Ith_dX;
   }
   // End block loadStatic
   //Begin block loadDynamic
   {
     // I(bi,ei) <+ (ddt(Qbe))
     dynamicContributions[admsNodeID_bi] += (Qbe);
+    d_dynamicContributions_dX[admsNodeID_bi]+= (d_Qbe_dX);
     dynamicContributions[admsNodeID_ei] -= (Qbe);
+    d_dynamicContributions_dX[(admsNodeID_ei)]-= (d_Qbe_dX);
     // I(bx,ei) <+ (ddt(Qbex))
     dynamicContributions[admsNodeID_bx] += (Qbex);
+    d_dynamicContributions_dX[admsNodeID_bx]+= (d_Qbex_dX);
     dynamicContributions[admsNodeID_ei] -= (Qbex);
+    d_dynamicContributions_dX[(admsNodeID_ei)]-= (d_Qbex_dX);
     // I(bi,ci) <+ (ddt(Qbc))
     dynamicContributions[admsNodeID_bi] += (Qbc);
+    d_dynamicContributions_dX[admsNodeID_bi]+= (d_Qbc_dX);
     dynamicContributions[admsNodeID_ci] -= (Qbc);
+    d_dynamicContributions_dX[(admsNodeID_ci)]-= (d_Qbc_dX);
     // I(bi,cx) <+ (ddt(Qbcx))
     dynamicContributions[admsNodeID_bi] += (Qbcx);
+    d_dynamicContributions_dX[admsNodeID_bi]+= (d_Qbcx_dX);
     dynamicContributions[admsNodeID_cx] -= (Qbcx);
+    d_dynamicContributions_dX[(admsNodeID_cx)]-= (d_Qbcx_dX);
     // I(bx,bp) <+ (ddt(Qbep))
     dynamicContributions[admsNodeID_bx] += (Qbep);
+    d_dynamicContributions_dX[admsNodeID_bx]+= (d_Qbep_dX);
     dynamicContributions[admsNodeID_bp] -= (Qbep);
+    d_dynamicContributions_dX[(admsNodeID_bp)]-= (d_Qbep_dX);
     // I(b,e) <+ (ddt(Qbeo))
     dynamicContributions[admsNodeID_b] += (Qbeo);
+    d_dynamicContributions_dX[admsNodeID_b]+= (d_Qbeo_dX);
     dynamicContributions[admsNodeID_e] -= (Qbeo);
+    d_dynamicContributions_dX[(admsNodeID_e)]-= (d_Qbeo_dX);
     // I(b,c) <+ (ddt(Qbco))
     dynamicContributions[admsNodeID_b] += (Qbco);
+    d_dynamicContributions_dX[admsNodeID_b]+= (d_Qbco_dX);
     dynamicContributions[admsNodeID_c] -= (Qbco);
+    d_dynamicContributions_dX[(admsNodeID_c)]-= (d_Qbco_dX);
     // I(xf1,GND) <+ (ddt(Qxf1))
     dynamicContributions[admsNodeID_xf1] += (Qxf1);
+    d_dynamicContributions_dX[admsNodeID_xf1]+= (d_Qxf1_dX);
     // I(xf2,GND) <+ (ddt(Qxf2))
     dynamicContributions[admsNodeID_xf2] += (Qxf2);
+    d_dynamicContributions_dX[admsNodeID_xf2]+= (d_Qxf2_dX);
     // Pwr(dt,GND) <+ (ddt(Qcth))
     dynamicContributions[admsNodeID_dt] += (Qcth);
+    d_dynamicContributions_dX[admsNodeID_dt]+= (d_Qcth_dX);
   }
   // End block loadDynamic
 }
@@ -11465,8 +13419,10 @@ void InstanceSensitivity::operator()
   Qindices.resize(12+0);
 
   std::vector <double> probeVars(18);
-  std::vector <AdmsSensFadType> staticContributions(12+0);
-  std::vector <AdmsSensFadType> dynamicContributions(12+0);
+  std::vector <double> staticContributions(12+0);
+  std::vector <double> dynamicContributions(12+0);
+  std::vector <double> d_staticContributions_dX(12+0);
+  std::vector <double> d_dynamicContributions_dX(12+0);
 
 
   // initialize contributions to zero (automatically sets derivatives to zero)
@@ -11474,265 +13430,395 @@ void InstanceSensitivity::operator()
   {
     staticContributions[i]=0;
     dynamicContributions[i]=0;
+    d_staticContributions_dX[i]=0;
+    d_dynamicContributions_dX[i]=0;
   }
 
   // Copy out all the model parameters (doubles) into FAD types
   //reals
-  AdmsSensFadType modelPar_npn=mod.npn;
+  double modelPar_npn=mod.npn;
+  double d_modelPar_npn_dX=0.0;
   bool modelPar_given_npn=mod.given("npn");
-  AdmsSensFadType modelPar_pnp=mod.pnp;
+  double modelPar_pnp=mod.pnp;
+  double d_modelPar_pnp_dX=0.0;
   bool modelPar_given_pnp=mod.given("pnp");
-  AdmsSensFadType modelPar_scale=mod.scale;
+  double modelPar_scale=mod.scale;
+  double d_modelPar_scale_dX=0.0;
   bool modelPar_given_scale=mod.given("scale");
-  AdmsSensFadType modelPar_shrink=mod.shrink;
+  double modelPar_shrink=mod.shrink;
+  double d_modelPar_shrink_dX=0.0;
   bool modelPar_given_shrink=mod.given("shrink");
-  AdmsSensFadType modelPar_tmin=mod.tmin;
+  double modelPar_tmin=mod.tmin;
+  double d_modelPar_tmin_dX=0.0;
   bool modelPar_given_tmin=mod.given("tmin");
-  AdmsSensFadType modelPar_tmax=mod.tmax;
+  double modelPar_tmax=mod.tmax;
+  double d_modelPar_tmax_dX=0.0;
   bool modelPar_given_tmax=mod.given("tmax");
-  AdmsSensFadType modelPar_gmin=mod.gmin;
+  double modelPar_gmin=mod.gmin;
+  double d_modelPar_gmin_dX=0.0;
   bool modelPar_given_gmin=mod.given("gmin");
-  AdmsSensFadType modelPar_pnjmaxi=mod.pnjmaxi;
+  double modelPar_pnjmaxi=mod.pnjmaxi;
+  double d_modelPar_pnjmaxi_dX=0.0;
   bool modelPar_given_pnjmaxi=mod.given("pnjmaxi");
-  AdmsSensFadType modelPar_maxexp=mod.maxexp;
+  double modelPar_maxexp=mod.maxexp;
+  double d_modelPar_maxexp_dX=0.0;
   bool modelPar_given_maxexp=mod.given("maxexp");
-  AdmsSensFadType modelPar_tnom=mod.tnom;
+  double modelPar_tnom=mod.tnom;
+  double d_modelPar_tnom_dX=0.0;
   bool modelPar_given_tnom=mod.given("tnom");
-  AdmsSensFadType modelPar_tminclip=mod.tminclip;
+  double modelPar_tminclip=mod.tminclip;
+  double d_modelPar_tminclip_dX=0.0;
   bool modelPar_given_tminclip=mod.given("tminclip");
-  AdmsSensFadType modelPar_tmaxclip=mod.tmaxclip;
+  double modelPar_tmaxclip=mod.tmaxclip;
+  double d_modelPar_tmaxclip_dX=0.0;
   bool modelPar_given_tmaxclip=mod.given("tmaxclip");
-  AdmsSensFadType modelPar_rcx=mod.rcx;
+  double modelPar_rcx=mod.rcx;
+  double d_modelPar_rcx_dX=0.0;
   bool modelPar_given_rcx=mod.given("rcx");
-  AdmsSensFadType modelPar_rci=mod.rci;
+  double modelPar_rci=mod.rci;
+  double d_modelPar_rci_dX=0.0;
   bool modelPar_given_rci=mod.given("rci");
-  AdmsSensFadType modelPar_vo=mod.vo;
+  double modelPar_vo=mod.vo;
+  double d_modelPar_vo_dX=0.0;
   bool modelPar_given_vo=mod.given("vo");
-  AdmsSensFadType modelPar_gamm=mod.gamm;
+  double modelPar_gamm=mod.gamm;
+  double d_modelPar_gamm_dX=0.0;
   bool modelPar_given_gamm=mod.given("gamm");
-  AdmsSensFadType modelPar_hrcf=mod.hrcf;
+  double modelPar_hrcf=mod.hrcf;
+  double d_modelPar_hrcf_dX=0.0;
   bool modelPar_given_hrcf=mod.given("hrcf");
-  AdmsSensFadType modelPar_rbx=mod.rbx;
+  double modelPar_rbx=mod.rbx;
+  double d_modelPar_rbx_dX=0.0;
   bool modelPar_given_rbx=mod.given("rbx");
-  AdmsSensFadType modelPar_rbi=mod.rbi;
+  double modelPar_rbi=mod.rbi;
+  double d_modelPar_rbi_dX=0.0;
   bool modelPar_given_rbi=mod.given("rbi");
-  AdmsSensFadType modelPar_re=mod.re;
+  double modelPar_re=mod.re;
+  double d_modelPar_re_dX=0.0;
   bool modelPar_given_re=mod.given("re");
-  AdmsSensFadType modelPar_rs=mod.rs;
+  double modelPar_rs=mod.rs;
+  double d_modelPar_rs_dX=0.0;
   bool modelPar_given_rs=mod.given("rs");
-  AdmsSensFadType modelPar_rbp=mod.rbp;
+  double modelPar_rbp=mod.rbp;
+  double d_modelPar_rbp_dX=0.0;
   bool modelPar_given_rbp=mod.given("rbp");
-  AdmsSensFadType modelPar_is=mod.is;
+  double modelPar_is=mod.is;
+  double d_modelPar_is_dX=0.0;
   bool modelPar_given_is=mod.given("is");
-  AdmsSensFadType modelPar_isrr=mod.isrr;
+  double modelPar_isrr=mod.isrr;
+  double d_modelPar_isrr_dX=0.0;
   bool modelPar_given_isrr=mod.given("isrr");
-  AdmsSensFadType modelPar_nf=mod.nf;
+  double modelPar_nf=mod.nf;
+  double d_modelPar_nf_dX=0.0;
   bool modelPar_given_nf=mod.given("nf");
-  AdmsSensFadType modelPar_nr=mod.nr;
+  double modelPar_nr=mod.nr;
+  double d_modelPar_nr_dX=0.0;
   bool modelPar_given_nr=mod.given("nr");
-  AdmsSensFadType modelPar_isp=mod.isp;
+  double modelPar_isp=mod.isp;
+  double d_modelPar_isp_dX=0.0;
   bool modelPar_given_isp=mod.given("isp");
-  AdmsSensFadType modelPar_wsp=mod.wsp;
+  double modelPar_wsp=mod.wsp;
+  double d_modelPar_wsp_dX=0.0;
   bool modelPar_given_wsp=mod.given("wsp");
-  AdmsSensFadType modelPar_nfp=mod.nfp;
+  double modelPar_nfp=mod.nfp;
+  double d_modelPar_nfp_dX=0.0;
   bool modelPar_given_nfp=mod.given("nfp");
-  AdmsSensFadType modelPar_fc=mod.fc;
+  double modelPar_fc=mod.fc;
+  double d_modelPar_fc_dX=0.0;
   bool modelPar_given_fc=mod.given("fc");
-  AdmsSensFadType modelPar_cbeo=mod.cbeo;
+  double modelPar_cbeo=mod.cbeo;
+  double d_modelPar_cbeo_dX=0.0;
   bool modelPar_given_cbeo=mod.given("cbeo");
-  AdmsSensFadType modelPar_cje=mod.cje;
+  double modelPar_cje=mod.cje;
+  double d_modelPar_cje_dX=0.0;
   bool modelPar_given_cje=mod.given("cje");
-  AdmsSensFadType modelPar_pe=mod.pe;
+  double modelPar_pe=mod.pe;
+  double d_modelPar_pe_dX=0.0;
   bool modelPar_given_pe=mod.given("pe");
-  AdmsSensFadType modelPar_me=mod.me;
+  double modelPar_me=mod.me;
+  double d_modelPar_me_dX=0.0;
   bool modelPar_given_me=mod.given("me");
-  AdmsSensFadType modelPar_aje=mod.aje;
+  double modelPar_aje=mod.aje;
+  double d_modelPar_aje_dX=0.0;
   bool modelPar_given_aje=mod.given("aje");
-  AdmsSensFadType modelPar_cbco=mod.cbco;
+  double modelPar_cbco=mod.cbco;
+  double d_modelPar_cbco_dX=0.0;
   bool modelPar_given_cbco=mod.given("cbco");
-  AdmsSensFadType modelPar_cjc=mod.cjc;
+  double modelPar_cjc=mod.cjc;
+  double d_modelPar_cjc_dX=0.0;
   bool modelPar_given_cjc=mod.given("cjc");
-  AdmsSensFadType modelPar_pc=mod.pc;
+  double modelPar_pc=mod.pc;
+  double d_modelPar_pc_dX=0.0;
   bool modelPar_given_pc=mod.given("pc");
-  AdmsSensFadType modelPar_mc=mod.mc;
+  double modelPar_mc=mod.mc;
+  double d_modelPar_mc_dX=0.0;
   bool modelPar_given_mc=mod.given("mc");
-  AdmsSensFadType modelPar_ajc=mod.ajc;
+  double modelPar_ajc=mod.ajc;
+  double d_modelPar_ajc_dX=0.0;
   bool modelPar_given_ajc=mod.given("ajc");
-  AdmsSensFadType modelPar_vrt=mod.vrt;
+  double modelPar_vrt=mod.vrt;
+  double d_modelPar_vrt_dX=0.0;
   bool modelPar_given_vrt=mod.given("vrt");
-  AdmsSensFadType modelPar_art=mod.art;
+  double modelPar_art=mod.art;
+  double d_modelPar_art_dX=0.0;
   bool modelPar_given_art=mod.given("art");
-  AdmsSensFadType modelPar_qco=mod.qco;
+  double modelPar_qco=mod.qco;
+  double d_modelPar_qco_dX=0.0;
   bool modelPar_given_qco=mod.given("qco");
-  AdmsSensFadType modelPar_cjep=mod.cjep;
+  double modelPar_cjep=mod.cjep;
+  double d_modelPar_cjep_dX=0.0;
   bool modelPar_given_cjep=mod.given("cjep");
-  AdmsSensFadType modelPar_cjcp=mod.cjcp;
+  double modelPar_cjcp=mod.cjcp;
+  double d_modelPar_cjcp_dX=0.0;
   bool modelPar_given_cjcp=mod.given("cjcp");
-  AdmsSensFadType modelPar_ps=mod.ps;
+  double modelPar_ps=mod.ps;
+  double d_modelPar_ps_dX=0.0;
   bool modelPar_given_ps=mod.given("ps");
-  AdmsSensFadType modelPar_ms=mod.ms;
+  double modelPar_ms=mod.ms;
+  double d_modelPar_ms_dX=0.0;
   bool modelPar_given_ms=mod.given("ms");
-  AdmsSensFadType modelPar_ajs=mod.ajs;
+  double modelPar_ajs=mod.ajs;
+  double d_modelPar_ajs_dX=0.0;
   bool modelPar_given_ajs=mod.given("ajs");
-  AdmsSensFadType modelPar_ccso=mod.ccso;
+  double modelPar_ccso=mod.ccso;
+  double d_modelPar_ccso_dX=0.0;
   bool modelPar_given_ccso=mod.given("ccso");
-  AdmsSensFadType modelPar_ibei=mod.ibei;
+  double modelPar_ibei=mod.ibei;
+  double d_modelPar_ibei_dX=0.0;
   bool modelPar_given_ibei=mod.given("ibei");
-  AdmsSensFadType modelPar_wbe=mod.wbe;
+  double modelPar_wbe=mod.wbe;
+  double d_modelPar_wbe_dX=0.0;
   bool modelPar_given_wbe=mod.given("wbe");
-  AdmsSensFadType modelPar_nei=mod.nei;
+  double modelPar_nei=mod.nei;
+  double d_modelPar_nei_dX=0.0;
   bool modelPar_given_nei=mod.given("nei");
-  AdmsSensFadType modelPar_qnibeir=mod.qnibeir;
+  double modelPar_qnibeir=mod.qnibeir;
+  double d_modelPar_qnibeir_dX=0.0;
   bool modelPar_given_qnibeir=mod.given("qnibeir");
-  AdmsSensFadType modelPar_iben=mod.iben;
+  double modelPar_iben=mod.iben;
+  double d_modelPar_iben_dX=0.0;
   bool modelPar_given_iben=mod.given("iben");
-  AdmsSensFadType modelPar_nen=mod.nen;
+  double modelPar_nen=mod.nen;
+  double d_modelPar_nen_dX=0.0;
   bool modelPar_given_nen=mod.given("nen");
-  AdmsSensFadType modelPar_ibci=mod.ibci;
+  double modelPar_ibci=mod.ibci;
+  double d_modelPar_ibci_dX=0.0;
   bool modelPar_given_ibci=mod.given("ibci");
-  AdmsSensFadType modelPar_nci=mod.nci;
+  double modelPar_nci=mod.nci;
+  double d_modelPar_nci_dX=0.0;
   bool modelPar_given_nci=mod.given("nci");
-  AdmsSensFadType modelPar_ibcn=mod.ibcn;
+  double modelPar_ibcn=mod.ibcn;
+  double d_modelPar_ibcn_dX=0.0;
   bool modelPar_given_ibcn=mod.given("ibcn");
-  AdmsSensFadType modelPar_ncn=mod.ncn;
+  double modelPar_ncn=mod.ncn;
+  double d_modelPar_ncn_dX=0.0;
   bool modelPar_given_ncn=mod.given("ncn");
-  AdmsSensFadType modelPar_ibeip=mod.ibeip;
+  double modelPar_ibeip=mod.ibeip;
+  double d_modelPar_ibeip_dX=0.0;
   bool modelPar_given_ibeip=mod.given("ibeip");
-  AdmsSensFadType modelPar_ibenp=mod.ibenp;
+  double modelPar_ibenp=mod.ibenp;
+  double d_modelPar_ibenp_dX=0.0;
   bool modelPar_given_ibenp=mod.given("ibenp");
-  AdmsSensFadType modelPar_ibcip=mod.ibcip;
+  double modelPar_ibcip=mod.ibcip;
+  double d_modelPar_ibcip_dX=0.0;
   bool modelPar_given_ibcip=mod.given("ibcip");
-  AdmsSensFadType modelPar_ncip=mod.ncip;
+  double modelPar_ncip=mod.ncip;
+  double d_modelPar_ncip_dX=0.0;
   bool modelPar_given_ncip=mod.given("ncip");
-  AdmsSensFadType modelPar_ibcnp=mod.ibcnp;
+  double modelPar_ibcnp=mod.ibcnp;
+  double d_modelPar_ibcnp_dX=0.0;
   bool modelPar_given_ibcnp=mod.given("ibcnp");
-  AdmsSensFadType modelPar_ncnp=mod.ncnp;
+  double modelPar_ncnp=mod.ncnp;
+  double d_modelPar_ncnp_dX=0.0;
   bool modelPar_given_ncnp=mod.given("ncnp");
-  AdmsSensFadType modelPar_vef=mod.vef;
+  double modelPar_vef=mod.vef;
+  double d_modelPar_vef_dX=0.0;
   bool modelPar_given_vef=mod.given("vef");
-  AdmsSensFadType modelPar_ver=mod.ver;
+  double modelPar_ver=mod.ver;
+  double d_modelPar_ver_dX=0.0;
   bool modelPar_given_ver=mod.given("ver");
-  AdmsSensFadType modelPar_ikf=mod.ikf;
+  double modelPar_ikf=mod.ikf;
+  double d_modelPar_ikf_dX=0.0;
   bool modelPar_given_ikf=mod.given("ikf");
-  AdmsSensFadType modelPar_nkf=mod.nkf;
+  double modelPar_nkf=mod.nkf;
+  double d_modelPar_nkf_dX=0.0;
   bool modelPar_given_nkf=mod.given("nkf");
-  AdmsSensFadType modelPar_ikr=mod.ikr;
+  double modelPar_ikr=mod.ikr;
+  double d_modelPar_ikr_dX=0.0;
   bool modelPar_given_ikr=mod.given("ikr");
-  AdmsSensFadType modelPar_ikp=mod.ikp;
+  double modelPar_ikp=mod.ikp;
+  double d_modelPar_ikp_dX=0.0;
   bool modelPar_given_ikp=mod.given("ikp");
-  AdmsSensFadType modelPar_tf=mod.tf;
+  double modelPar_tf=mod.tf;
+  double d_modelPar_tf_dX=0.0;
   bool modelPar_given_tf=mod.given("tf");
-  AdmsSensFadType modelPar_qtf=mod.qtf;
+  double modelPar_qtf=mod.qtf;
+  double d_modelPar_qtf_dX=0.0;
   bool modelPar_given_qtf=mod.given("qtf");
-  AdmsSensFadType modelPar_xtf=mod.xtf;
+  double modelPar_xtf=mod.xtf;
+  double d_modelPar_xtf_dX=0.0;
   bool modelPar_given_xtf=mod.given("xtf");
-  AdmsSensFadType modelPar_vtf=mod.vtf;
+  double modelPar_vtf=mod.vtf;
+  double d_modelPar_vtf_dX=0.0;
   bool modelPar_given_vtf=mod.given("vtf");
-  AdmsSensFadType modelPar_itf=mod.itf;
+  double modelPar_itf=mod.itf;
+  double d_modelPar_itf_dX=0.0;
   bool modelPar_given_itf=mod.given("itf");
-  AdmsSensFadType modelPar_tr=mod.tr;
+  double modelPar_tr=mod.tr;
+  double d_modelPar_tr_dX=0.0;
   bool modelPar_given_tr=mod.given("tr");
-  AdmsSensFadType modelPar_td=mod.td;
+  double modelPar_td=mod.td;
+  double d_modelPar_td_dX=0.0;
   bool modelPar_given_td=mod.given("td");
-  AdmsSensFadType modelPar_avc1=mod.avc1;
+  double modelPar_avc1=mod.avc1;
+  double d_modelPar_avc1_dX=0.0;
   bool modelPar_given_avc1=mod.given("avc1");
-  AdmsSensFadType modelPar_avc2=mod.avc2;
+  double modelPar_avc2=mod.avc2;
+  double d_modelPar_avc2_dX=0.0;
   bool modelPar_given_avc2=mod.given("avc2");
-  AdmsSensFadType modelPar_avcx1=mod.avcx1;
+  double modelPar_avcx1=mod.avcx1;
+  double d_modelPar_avcx1_dX=0.0;
   bool modelPar_given_avcx1=mod.given("avcx1");
-  AdmsSensFadType modelPar_avcx2=mod.avcx2;
+  double modelPar_avcx2=mod.avcx2;
+  double d_modelPar_avcx2_dX=0.0;
   bool modelPar_given_avcx2=mod.given("avcx2");
-  AdmsSensFadType modelPar_mcx=mod.mcx;
+  double modelPar_mcx=mod.mcx;
+  double d_modelPar_mcx_dX=0.0;
   bool modelPar_given_mcx=mod.given("mcx");
-  AdmsSensFadType modelPar_vbbe=mod.vbbe;
+  double modelPar_vbbe=mod.vbbe;
+  double d_modelPar_vbbe_dX=0.0;
   bool modelPar_given_vbbe=mod.given("vbbe");
-  AdmsSensFadType modelPar_nbbe=mod.nbbe;
+  double modelPar_nbbe=mod.nbbe;
+  double d_modelPar_nbbe_dX=0.0;
   bool modelPar_given_nbbe=mod.given("nbbe");
-  AdmsSensFadType modelPar_ibbe=mod.ibbe;
+  double modelPar_ibbe=mod.ibbe;
+  double d_modelPar_ibbe_dX=0.0;
   bool modelPar_given_ibbe=mod.given("ibbe");
-  AdmsSensFadType modelPar_tvbbe1=mod.tvbbe1;
+  double modelPar_tvbbe1=mod.tvbbe1;
+  double d_modelPar_tvbbe1_dX=0.0;
   bool modelPar_given_tvbbe1=mod.given("tvbbe1");
-  AdmsSensFadType modelPar_tvbbe2=mod.tvbbe2;
+  double modelPar_tvbbe2=mod.tvbbe2;
+  double d_modelPar_tvbbe2_dX=0.0;
   bool modelPar_given_tvbbe2=mod.given("tvbbe2");
-  AdmsSensFadType modelPar_tnbbe=mod.tnbbe;
+  double modelPar_tnbbe=mod.tnbbe;
+  double d_modelPar_tnbbe_dX=0.0;
   bool modelPar_given_tnbbe=mod.given("tnbbe");
-  AdmsSensFadType modelPar_vpte=mod.vpte;
+  double modelPar_vpte=mod.vpte;
+  double d_modelPar_vpte_dX=0.0;
   bool modelPar_given_vpte=mod.given("vpte");
-  AdmsSensFadType modelPar_ibk0=mod.ibk0;
+  double modelPar_ibk0=mod.ibk0;
+  double d_modelPar_ibk0_dX=0.0;
   bool modelPar_given_ibk0=mod.given("ibk0");
-  AdmsSensFadType modelPar_abk=mod.abk;
+  double modelPar_abk=mod.abk;
+  double d_modelPar_abk_dX=0.0;
   bool modelPar_given_abk=mod.given("abk");
-  AdmsSensFadType modelPar_bbk=mod.bbk;
+  double modelPar_bbk=mod.bbk;
+  double d_modelPar_bbk_dX=0.0;
   bool modelPar_given_bbk=mod.given("bbk");
-  AdmsSensFadType modelPar_kfn=mod.kfn;
+  double modelPar_kfn=mod.kfn;
+  double d_modelPar_kfn_dX=0.0;
   bool modelPar_given_kfn=mod.given("kfn");
-  AdmsSensFadType modelPar_afn=mod.afn;
+  double modelPar_afn=mod.afn;
+  double d_modelPar_afn_dX=0.0;
   bool modelPar_given_afn=mod.given("afn");
-  AdmsSensFadType modelPar_bfn=mod.bfn;
+  double modelPar_bfn=mod.bfn;
+  double d_modelPar_bfn_dX=0.0;
   bool modelPar_given_bfn=mod.given("bfn");
-  AdmsSensFadType modelPar_rth=mod.rth;
+  double modelPar_rth=mod.rth;
+  double d_modelPar_rth_dX=0.0;
   bool modelPar_given_rth=mod.given("rth");
-  AdmsSensFadType modelPar_cth=mod.cth;
+  double modelPar_cth=mod.cth;
+  double d_modelPar_cth_dX=0.0;
   bool modelPar_given_cth=mod.given("cth");
-  AdmsSensFadType modelPar_xre=mod.xre;
+  double modelPar_xre=mod.xre;
+  double d_modelPar_xre_dX=0.0;
   bool modelPar_given_xre=mod.given("xre");
-  AdmsSensFadType modelPar_xrb=mod.xrb;
+  double modelPar_xrb=mod.xrb;
+  double d_modelPar_xrb_dX=0.0;
   bool modelPar_given_xrb=mod.given("xrb");
-  AdmsSensFadType modelPar_xrbi=mod.xrbi;
+  double modelPar_xrbi=mod.xrbi;
+  double d_modelPar_xrbi_dX=0.0;
   bool modelPar_given_xrbi=mod.given("xrbi");
-  AdmsSensFadType modelPar_xrbx=mod.xrbx;
+  double modelPar_xrbx=mod.xrbx;
+  double d_modelPar_xrbx_dX=0.0;
   bool modelPar_given_xrbx=mod.given("xrbx");
-  AdmsSensFadType modelPar_xrc=mod.xrc;
+  double modelPar_xrc=mod.xrc;
+  double d_modelPar_xrc_dX=0.0;
   bool modelPar_given_xrc=mod.given("xrc");
-  AdmsSensFadType modelPar_xrci=mod.xrci;
+  double modelPar_xrci=mod.xrci;
+  double d_modelPar_xrci_dX=0.0;
   bool modelPar_given_xrci=mod.given("xrci");
-  AdmsSensFadType modelPar_xrcx=mod.xrcx;
+  double modelPar_xrcx=mod.xrcx;
+  double d_modelPar_xrcx_dX=0.0;
   bool modelPar_given_xrcx=mod.given("xrcx");
-  AdmsSensFadType modelPar_xrbp=mod.xrbp;
+  double modelPar_xrbp=mod.xrbp;
+  double d_modelPar_xrbp_dX=0.0;
   bool modelPar_given_xrbp=mod.given("xrbp");
-  AdmsSensFadType modelPar_xrs=mod.xrs;
+  double modelPar_xrs=mod.xrs;
+  double d_modelPar_xrs_dX=0.0;
   bool modelPar_given_xrs=mod.given("xrs");
-  AdmsSensFadType modelPar_xvo=mod.xvo;
+  double modelPar_xvo=mod.xvo;
+  double d_modelPar_xvo_dX=0.0;
   bool modelPar_given_xvo=mod.given("xvo");
-  AdmsSensFadType modelPar_ea=mod.ea;
+  double modelPar_ea=mod.ea;
+  double d_modelPar_ea_dX=0.0;
   bool modelPar_given_ea=mod.given("ea");
-  AdmsSensFadType modelPar_eaie=mod.eaie;
+  double modelPar_eaie=mod.eaie;
+  double d_modelPar_eaie_dX=0.0;
   bool modelPar_given_eaie=mod.given("eaie");
-  AdmsSensFadType modelPar_eaic=mod.eaic;
+  double modelPar_eaic=mod.eaic;
+  double d_modelPar_eaic_dX=0.0;
   bool modelPar_given_eaic=mod.given("eaic");
-  AdmsSensFadType modelPar_eais=mod.eais;
+  double modelPar_eais=mod.eais;
+  double d_modelPar_eais_dX=0.0;
   bool modelPar_given_eais=mod.given("eais");
-  AdmsSensFadType modelPar_eane=mod.eane;
+  double modelPar_eane=mod.eane;
+  double d_modelPar_eane_dX=0.0;
   bool modelPar_given_eane=mod.given("eane");
-  AdmsSensFadType modelPar_eanc=mod.eanc;
+  double modelPar_eanc=mod.eanc;
+  double d_modelPar_eanc_dX=0.0;
   bool modelPar_given_eanc=mod.given("eanc");
-  AdmsSensFadType modelPar_eans=mod.eans;
+  double modelPar_eans=mod.eans;
+  double d_modelPar_eans_dX=0.0;
   bool modelPar_given_eans=mod.given("eans");
-  AdmsSensFadType modelPar_eap=mod.eap;
+  double modelPar_eap=mod.eap;
+  double d_modelPar_eap_dX=0.0;
   bool modelPar_given_eap=mod.given("eap");
-  AdmsSensFadType modelPar_dear=mod.dear;
+  double modelPar_dear=mod.dear;
+  double d_modelPar_dear_dX=0.0;
   bool modelPar_given_dear=mod.given("dear");
-  AdmsSensFadType modelPar_xis=mod.xis;
+  double modelPar_xis=mod.xis;
+  double d_modelPar_xis_dX=0.0;
   bool modelPar_given_xis=mod.given("xis");
-  AdmsSensFadType modelPar_xii=mod.xii;
+  double modelPar_xii=mod.xii;
+  double d_modelPar_xii_dX=0.0;
   bool modelPar_given_xii=mod.given("xii");
-  AdmsSensFadType modelPar_xin=mod.xin;
+  double modelPar_xin=mod.xin;
+  double d_modelPar_xin_dX=0.0;
   bool modelPar_given_xin=mod.given("xin");
-  AdmsSensFadType modelPar_xisr=mod.xisr;
+  double modelPar_xisr=mod.xisr;
+  double d_modelPar_xisr_dX=0.0;
   bool modelPar_given_xisr=mod.given("xisr");
-  AdmsSensFadType modelPar_xikf=mod.xikf;
+  double modelPar_xikf=mod.xikf;
+  double d_modelPar_xikf_dX=0.0;
   bool modelPar_given_xikf=mod.given("xikf");
-  AdmsSensFadType modelPar_tavc=mod.tavc;
+  double modelPar_tavc=mod.tavc;
+  double d_modelPar_tavc_dX=0.0;
   bool modelPar_given_tavc=mod.given("tavc");
-  AdmsSensFadType modelPar_tavcx=mod.tavcx;
+  double modelPar_tavcx=mod.tavcx;
+  double d_modelPar_tavcx_dX=0.0;
   bool modelPar_given_tavcx=mod.given("tavcx");
-  AdmsSensFadType modelPar_tnf=mod.tnf;
+  double modelPar_tnf=mod.tnf;
+  double d_modelPar_tnf_dX=0.0;
   bool modelPar_given_tnf=mod.given("tnf");
-  AdmsSensFadType modelPar_tcvef=mod.tcvef;
+  double modelPar_tcvef=mod.tcvef;
+  double d_modelPar_tcvef_dX=0.0;
   bool modelPar_given_tcvef=mod.given("tcvef");
-  AdmsSensFadType modelPar_tcver=mod.tcver;
+  double modelPar_tcver=mod.tcver;
+  double d_modelPar_tcver_dX=0.0;
   bool modelPar_given_tcver=mod.given("tcver");
-  AdmsSensFadType modelPar_tcrth=mod.tcrth;
+  double modelPar_tcrth=mod.tcrth;
+  double d_modelPar_tcrth_dX=0.0;
   bool modelPar_given_tcrth=mod.given("tcrth");
 
 
@@ -11752,15 +13838,17 @@ void InstanceSensitivity::operator()
   // Keep a map so we can set the right one to the independent variable
   // We do this solely to avoid a big ugly "if/else" block just to find the
   // one parameter we're doing sensitivities on.
-  unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> inParamMap;
+  unordered_map <std::string,double*,HashNoCase,EqualNoCase> inParamMap;
 
   // reals
-  AdmsSensFadType instancePar_m=in.m;
+  double instancePar_m=in.m;
+  double d_instancePar_m_dX=0.0;
   bool instancePar_given_m=in.given("m");
-  inParamMap["m"] = &instancePar_m;
-  AdmsSensFadType instancePar_trise=in.trise;
+  inParamMap["m"] = &d_instancePar_m_dX;
+  double instancePar_trise=in.trise;
+  double d_instancePar_trise_dX=0.0;
   bool instancePar_given_trise=in.given("trise");
-  inParamMap["trise"] = &instancePar_trise;
+  inParamMap["trise"] = &d_instancePar_trise_dX;
 
 
   // Copy all the real hidden instance params into fad types
@@ -11778,51 +13866,92 @@ void InstanceSensitivity::operator()
   // variable for Sacado purposes.  Since we stored variable pointers, this
   // makes sure that that ONE variable gets set right.
   // FIXME: make this check the name first, otherwise segfault on invalid name!
-  inParamMap[name]->diff(0,1);
+  *(inParamMap[name])=1.0;
 
   //make local copies of all instance vars
   //reals
-  AdmsSensFadType instanceVar_is_t=in.is_t;
-  AdmsSensFadType instanceVar_isrr_t=in.isrr_t;
-  AdmsSensFadType instanceVar_ibei_t=in.ibei_t;
-  AdmsSensFadType instanceVar_ibci_t=in.ibci_t;
-  AdmsSensFadType instanceVar_isp_t=in.isp_t;
-  AdmsSensFadType instanceVar_iben_t=in.iben_t;
-  AdmsSensFadType instanceVar_ibcn_t=in.ibcn_t;
-  AdmsSensFadType instanceVar_ibeip_t=in.ibeip_t;
-  AdmsSensFadType instanceVar_ibenp_t=in.ibenp_t;
-  AdmsSensFadType instanceVar_ibcip_t=in.ibcip_t;
-  AdmsSensFadType instanceVar_ibcnp_t=in.ibcnp_t;
-  AdmsSensFadType instanceVar_tdevC=in.tdevC;
-  AdmsSensFadType instanceVar_tdevK=in.tdevK;
-  AdmsSensFadType instanceVar_rT=in.rT;
-  AdmsSensFadType instanceVar_Gcx=in.Gcx;
-  AdmsSensFadType instanceVar_Gci=in.Gci;
-  AdmsSensFadType instanceVar_Gbx=in.Gbx;
-  AdmsSensFadType instanceVar_Gbi=in.Gbi;
-  AdmsSensFadType instanceVar_Ge=in.Ge;
-  AdmsSensFadType instanceVar_Gbp=in.Gbp;
-  AdmsSensFadType instanceVar_maxvIfi=in.maxvIfi;
-  AdmsSensFadType instanceVar_maxvIri=in.maxvIri;
-  AdmsSensFadType instanceVar_maxvIp=in.maxvIp;
-  AdmsSensFadType instanceVar_maxvIbbe=in.maxvIbbe;
-  AdmsSensFadType instanceVar_maxvIbei=in.maxvIbei;
-  AdmsSensFadType instanceVar_maxvIben=in.maxvIben;
-  AdmsSensFadType instanceVar_maxvIbci=in.maxvIbci;
-  AdmsSensFadType instanceVar_maxvIbcn=in.maxvIbcn;
-  AdmsSensFadType instanceVar_maxvIbeip=in.maxvIbeip;
-  AdmsSensFadType instanceVar_maxvIbenp=in.maxvIbenp;
-  AdmsSensFadType instanceVar_vtv=in.vtv;
-  AdmsSensFadType instanceVar_Itzf=in.Itzf;
-  AdmsSensFadType instanceVar_qb=in.qb;
-  AdmsSensFadType instanceVar_qbp=in.qbp;
-  AdmsSensFadType instanceVar_Ibe=in.Ibe;
-  AdmsSensFadType instanceVar_Ibex=in.Ibex;
-  AdmsSensFadType instanceVar_Ibep=in.Ibep;
-  AdmsSensFadType instanceVar_Irci=in.Irci;
-  AdmsSensFadType instanceVar_Vrci=in.Vrci;
-  AdmsSensFadType instanceVar_mMod=in.mMod;
-  AdmsSensFadType instanceVar_tVCrit=in.tVCrit;
+  double instanceVar_is_t=in.is_t;
+  double d_instanceVar_is_t_dX=0.0;
+  double instanceVar_isrr_t=in.isrr_t;
+  double d_instanceVar_isrr_t_dX=0.0;
+  double instanceVar_ibei_t=in.ibei_t;
+  double d_instanceVar_ibei_t_dX=0.0;
+  double instanceVar_ibci_t=in.ibci_t;
+  double d_instanceVar_ibci_t_dX=0.0;
+  double instanceVar_isp_t=in.isp_t;
+  double d_instanceVar_isp_t_dX=0.0;
+  double instanceVar_iben_t=in.iben_t;
+  double d_instanceVar_iben_t_dX=0.0;
+  double instanceVar_ibcn_t=in.ibcn_t;
+  double d_instanceVar_ibcn_t_dX=0.0;
+  double instanceVar_ibeip_t=in.ibeip_t;
+  double d_instanceVar_ibeip_t_dX=0.0;
+  double instanceVar_ibenp_t=in.ibenp_t;
+  double d_instanceVar_ibenp_t_dX=0.0;
+  double instanceVar_ibcip_t=in.ibcip_t;
+  double d_instanceVar_ibcip_t_dX=0.0;
+  double instanceVar_ibcnp_t=in.ibcnp_t;
+  double d_instanceVar_ibcnp_t_dX=0.0;
+  double instanceVar_tdevC=in.tdevC;
+  double d_instanceVar_tdevC_dX=0.0;
+  double instanceVar_tdevK=in.tdevK;
+  double d_instanceVar_tdevK_dX=0.0;
+  double instanceVar_rT=in.rT;
+  double d_instanceVar_rT_dX=0.0;
+  double instanceVar_Gcx=in.Gcx;
+  double d_instanceVar_Gcx_dX=0.0;
+  double instanceVar_Gci=in.Gci;
+  double d_instanceVar_Gci_dX=0.0;
+  double instanceVar_Gbx=in.Gbx;
+  double d_instanceVar_Gbx_dX=0.0;
+  double instanceVar_Gbi=in.Gbi;
+  double d_instanceVar_Gbi_dX=0.0;
+  double instanceVar_Ge=in.Ge;
+  double d_instanceVar_Ge_dX=0.0;
+  double instanceVar_Gbp=in.Gbp;
+  double d_instanceVar_Gbp_dX=0.0;
+  double instanceVar_maxvIfi=in.maxvIfi;
+  double d_instanceVar_maxvIfi_dX=0.0;
+  double instanceVar_maxvIri=in.maxvIri;
+  double d_instanceVar_maxvIri_dX=0.0;
+  double instanceVar_maxvIp=in.maxvIp;
+  double d_instanceVar_maxvIp_dX=0.0;
+  double instanceVar_maxvIbbe=in.maxvIbbe;
+  double d_instanceVar_maxvIbbe_dX=0.0;
+  double instanceVar_maxvIbei=in.maxvIbei;
+  double d_instanceVar_maxvIbei_dX=0.0;
+  double instanceVar_maxvIben=in.maxvIben;
+  double d_instanceVar_maxvIben_dX=0.0;
+  double instanceVar_maxvIbci=in.maxvIbci;
+  double d_instanceVar_maxvIbci_dX=0.0;
+  double instanceVar_maxvIbcn=in.maxvIbcn;
+  double d_instanceVar_maxvIbcn_dX=0.0;
+  double instanceVar_maxvIbeip=in.maxvIbeip;
+  double d_instanceVar_maxvIbeip_dX=0.0;
+  double instanceVar_maxvIbenp=in.maxvIbenp;
+  double d_instanceVar_maxvIbenp_dX=0.0;
+  double instanceVar_vtv=in.vtv;
+  double d_instanceVar_vtv_dX=0.0;
+  double instanceVar_Itzf=in.Itzf;
+  double d_instanceVar_Itzf_dX=0.0;
+  double instanceVar_qb=in.qb;
+  double d_instanceVar_qb_dX=0.0;
+  double instanceVar_qbp=in.qbp;
+  double d_instanceVar_qbp_dX=0.0;
+  double instanceVar_Ibe=in.Ibe;
+  double d_instanceVar_Ibe_dX=0.0;
+  double instanceVar_Ibex=in.Ibex;
+  double d_instanceVar_Ibex_dX=0.0;
+  double instanceVar_Ibep=in.Ibep;
+  double d_instanceVar_Ibep_dX=0.0;
+  double instanceVar_Irci=in.Irci;
+  double d_instanceVar_Irci_dX=0.0;
+  double instanceVar_Vrci=in.Vrci;
+  double d_instanceVar_Vrci_dX=0.0;
+  double instanceVar_mMod=in.mMod;
+  double d_instanceVar_mMod_dX=0.0;
+  double instanceVar_tVCrit=in.tVCrit;
+  double d_instanceVar_tVCrit_dX=0.0;
 
 
   //non-reals
@@ -11830,16 +13959,26 @@ void InstanceSensitivity::operator()
 
   //make local copies of all model vars
   //reals
-  AdmsSensFadType modelVar_tiniK=mod.tiniK;
-  AdmsSensFadType modelVar_Iikr=mod.Iikr;
-  AdmsSensFadType modelVar_Iikp=mod.Iikp;
-  AdmsSensFadType modelVar_Ihrcf=mod.Ihrcf;
-  AdmsSensFadType modelVar_Ivtf=mod.Ivtf;
-  AdmsSensFadType modelVar_Iitf=mod.Iitf;
-  AdmsSensFadType modelVar_sltf=mod.sltf;
-  AdmsSensFadType modelVar_VmaxExp=mod.VmaxExp;
-  AdmsSensFadType modelVar_gminMod=mod.gminMod;
-  AdmsSensFadType modelVar_imaxMod=mod.imaxMod;
+  double modelVar_tiniK=mod.tiniK;
+  double d_modelVar_tiniK_dX = 0.0;
+  double modelVar_Iikr=mod.Iikr;
+  double d_modelVar_Iikr_dX = 0.0;
+  double modelVar_Iikp=mod.Iikp;
+  double d_modelVar_Iikp_dX = 0.0;
+  double modelVar_Ihrcf=mod.Ihrcf;
+  double d_modelVar_Ihrcf_dX = 0.0;
+  double modelVar_Ivtf=mod.Ivtf;
+  double d_modelVar_Ivtf_dX = 0.0;
+  double modelVar_Iitf=mod.Iitf;
+  double d_modelVar_Iitf_dX = 0.0;
+  double modelVar_sltf=mod.sltf;
+  double d_modelVar_sltf_dX = 0.0;
+  double modelVar_VmaxExp=mod.VmaxExp;
+  double d_modelVar_VmaxExp_dX = 0.0;
+  double modelVar_gminMod=mod.gminMod;
+  double d_modelVar_gminMod_dX = 0.0;
+  double modelVar_imaxMod=mod.imaxMod;
+  double d_modelVar_imaxMod_dX = 0.0;
 
 
   // non-reals
@@ -11848,7 +13987,7 @@ void InstanceSensitivity::operator()
 
   Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-  // extract solution variables and set as Fad independent variables.
+  // extract solution variables
   probeVars[in.admsProbeID_V_xf2_GND] = (*solVectorPtr)[in.li_xf2];
   probeVars[in.admsProbeID_V_xf1_GND] = (*solVectorPtr)[in.li_xf1];
   probeVars[in.admsProbeID_V_bp_cx] = (*solVectorPtr)[in.li_bp]- (*solVectorPtr)[in.li_cx];
@@ -11887,260 +14026,388 @@ void InstanceSensitivity::operator()
      // model parameters
      // reals
      modelPar_npn,
+     d_modelPar_npn_dX,
      modelPar_given_npn,
      modelPar_pnp,
+     d_modelPar_pnp_dX,
      modelPar_given_pnp,
      modelPar_scale,
+     d_modelPar_scale_dX,
      modelPar_given_scale,
      modelPar_shrink,
+     d_modelPar_shrink_dX,
      modelPar_given_shrink,
      modelPar_tmin,
+     d_modelPar_tmin_dX,
      modelPar_given_tmin,
      modelPar_tmax,
+     d_modelPar_tmax_dX,
      modelPar_given_tmax,
      modelPar_gmin,
+     d_modelPar_gmin_dX,
      modelPar_given_gmin,
      modelPar_pnjmaxi,
+     d_modelPar_pnjmaxi_dX,
      modelPar_given_pnjmaxi,
      modelPar_maxexp,
+     d_modelPar_maxexp_dX,
      modelPar_given_maxexp,
      modelPar_tnom,
+     d_modelPar_tnom_dX,
      modelPar_given_tnom,
      modelPar_tminclip,
+     d_modelPar_tminclip_dX,
      modelPar_given_tminclip,
      modelPar_tmaxclip,
+     d_modelPar_tmaxclip_dX,
      modelPar_given_tmaxclip,
      modelPar_rcx,
+     d_modelPar_rcx_dX,
      modelPar_given_rcx,
      modelPar_rci,
+     d_modelPar_rci_dX,
      modelPar_given_rci,
      modelPar_vo,
+     d_modelPar_vo_dX,
      modelPar_given_vo,
      modelPar_gamm,
+     d_modelPar_gamm_dX,
      modelPar_given_gamm,
      modelPar_hrcf,
+     d_modelPar_hrcf_dX,
      modelPar_given_hrcf,
      modelPar_rbx,
+     d_modelPar_rbx_dX,
      modelPar_given_rbx,
      modelPar_rbi,
+     d_modelPar_rbi_dX,
      modelPar_given_rbi,
      modelPar_re,
+     d_modelPar_re_dX,
      modelPar_given_re,
      modelPar_rs,
+     d_modelPar_rs_dX,
      modelPar_given_rs,
      modelPar_rbp,
+     d_modelPar_rbp_dX,
      modelPar_given_rbp,
      modelPar_is,
+     d_modelPar_is_dX,
      modelPar_given_is,
      modelPar_isrr,
+     d_modelPar_isrr_dX,
      modelPar_given_isrr,
      modelPar_nf,
+     d_modelPar_nf_dX,
      modelPar_given_nf,
      modelPar_nr,
+     d_modelPar_nr_dX,
      modelPar_given_nr,
      modelPar_isp,
+     d_modelPar_isp_dX,
      modelPar_given_isp,
      modelPar_wsp,
+     d_modelPar_wsp_dX,
      modelPar_given_wsp,
      modelPar_nfp,
+     d_modelPar_nfp_dX,
      modelPar_given_nfp,
      modelPar_fc,
+     d_modelPar_fc_dX,
      modelPar_given_fc,
      modelPar_cbeo,
+     d_modelPar_cbeo_dX,
      modelPar_given_cbeo,
      modelPar_cje,
+     d_modelPar_cje_dX,
      modelPar_given_cje,
      modelPar_pe,
+     d_modelPar_pe_dX,
      modelPar_given_pe,
      modelPar_me,
+     d_modelPar_me_dX,
      modelPar_given_me,
      modelPar_aje,
+     d_modelPar_aje_dX,
      modelPar_given_aje,
      modelPar_cbco,
+     d_modelPar_cbco_dX,
      modelPar_given_cbco,
      modelPar_cjc,
+     d_modelPar_cjc_dX,
      modelPar_given_cjc,
      modelPar_pc,
+     d_modelPar_pc_dX,
      modelPar_given_pc,
      modelPar_mc,
+     d_modelPar_mc_dX,
      modelPar_given_mc,
      modelPar_ajc,
+     d_modelPar_ajc_dX,
      modelPar_given_ajc,
      modelPar_vrt,
+     d_modelPar_vrt_dX,
      modelPar_given_vrt,
      modelPar_art,
+     d_modelPar_art_dX,
      modelPar_given_art,
      modelPar_qco,
+     d_modelPar_qco_dX,
      modelPar_given_qco,
      modelPar_cjep,
+     d_modelPar_cjep_dX,
      modelPar_given_cjep,
      modelPar_cjcp,
+     d_modelPar_cjcp_dX,
      modelPar_given_cjcp,
      modelPar_ps,
+     d_modelPar_ps_dX,
      modelPar_given_ps,
      modelPar_ms,
+     d_modelPar_ms_dX,
      modelPar_given_ms,
      modelPar_ajs,
+     d_modelPar_ajs_dX,
      modelPar_given_ajs,
      modelPar_ccso,
+     d_modelPar_ccso_dX,
      modelPar_given_ccso,
      modelPar_ibei,
+     d_modelPar_ibei_dX,
      modelPar_given_ibei,
      modelPar_wbe,
+     d_modelPar_wbe_dX,
      modelPar_given_wbe,
      modelPar_nei,
+     d_modelPar_nei_dX,
      modelPar_given_nei,
      modelPar_qnibeir,
+     d_modelPar_qnibeir_dX,
      modelPar_given_qnibeir,
      modelPar_iben,
+     d_modelPar_iben_dX,
      modelPar_given_iben,
      modelPar_nen,
+     d_modelPar_nen_dX,
      modelPar_given_nen,
      modelPar_ibci,
+     d_modelPar_ibci_dX,
      modelPar_given_ibci,
      modelPar_nci,
+     d_modelPar_nci_dX,
      modelPar_given_nci,
      modelPar_ibcn,
+     d_modelPar_ibcn_dX,
      modelPar_given_ibcn,
      modelPar_ncn,
+     d_modelPar_ncn_dX,
      modelPar_given_ncn,
      modelPar_ibeip,
+     d_modelPar_ibeip_dX,
      modelPar_given_ibeip,
      modelPar_ibenp,
+     d_modelPar_ibenp_dX,
      modelPar_given_ibenp,
      modelPar_ibcip,
+     d_modelPar_ibcip_dX,
      modelPar_given_ibcip,
      modelPar_ncip,
+     d_modelPar_ncip_dX,
      modelPar_given_ncip,
      modelPar_ibcnp,
+     d_modelPar_ibcnp_dX,
      modelPar_given_ibcnp,
      modelPar_ncnp,
+     d_modelPar_ncnp_dX,
      modelPar_given_ncnp,
      modelPar_vef,
+     d_modelPar_vef_dX,
      modelPar_given_vef,
      modelPar_ver,
+     d_modelPar_ver_dX,
      modelPar_given_ver,
      modelPar_ikf,
+     d_modelPar_ikf_dX,
      modelPar_given_ikf,
      modelPar_nkf,
+     d_modelPar_nkf_dX,
      modelPar_given_nkf,
      modelPar_ikr,
+     d_modelPar_ikr_dX,
      modelPar_given_ikr,
      modelPar_ikp,
+     d_modelPar_ikp_dX,
      modelPar_given_ikp,
      modelPar_tf,
+     d_modelPar_tf_dX,
      modelPar_given_tf,
      modelPar_qtf,
+     d_modelPar_qtf_dX,
      modelPar_given_qtf,
      modelPar_xtf,
+     d_modelPar_xtf_dX,
      modelPar_given_xtf,
      modelPar_vtf,
+     d_modelPar_vtf_dX,
      modelPar_given_vtf,
      modelPar_itf,
+     d_modelPar_itf_dX,
      modelPar_given_itf,
      modelPar_tr,
+     d_modelPar_tr_dX,
      modelPar_given_tr,
      modelPar_td,
+     d_modelPar_td_dX,
      modelPar_given_td,
      modelPar_avc1,
+     d_modelPar_avc1_dX,
      modelPar_given_avc1,
      modelPar_avc2,
+     d_modelPar_avc2_dX,
      modelPar_given_avc2,
      modelPar_avcx1,
+     d_modelPar_avcx1_dX,
      modelPar_given_avcx1,
      modelPar_avcx2,
+     d_modelPar_avcx2_dX,
      modelPar_given_avcx2,
      modelPar_mcx,
+     d_modelPar_mcx_dX,
      modelPar_given_mcx,
      modelPar_vbbe,
+     d_modelPar_vbbe_dX,
      modelPar_given_vbbe,
      modelPar_nbbe,
+     d_modelPar_nbbe_dX,
      modelPar_given_nbbe,
      modelPar_ibbe,
+     d_modelPar_ibbe_dX,
      modelPar_given_ibbe,
      modelPar_tvbbe1,
+     d_modelPar_tvbbe1_dX,
      modelPar_given_tvbbe1,
      modelPar_tvbbe2,
+     d_modelPar_tvbbe2_dX,
      modelPar_given_tvbbe2,
      modelPar_tnbbe,
+     d_modelPar_tnbbe_dX,
      modelPar_given_tnbbe,
      modelPar_vpte,
+     d_modelPar_vpte_dX,
      modelPar_given_vpte,
      modelPar_ibk0,
+     d_modelPar_ibk0_dX,
      modelPar_given_ibk0,
      modelPar_abk,
+     d_modelPar_abk_dX,
      modelPar_given_abk,
      modelPar_bbk,
+     d_modelPar_bbk_dX,
      modelPar_given_bbk,
      modelPar_kfn,
+     d_modelPar_kfn_dX,
      modelPar_given_kfn,
      modelPar_afn,
+     d_modelPar_afn_dX,
      modelPar_given_afn,
      modelPar_bfn,
+     d_modelPar_bfn_dX,
      modelPar_given_bfn,
      modelPar_rth,
+     d_modelPar_rth_dX,
      modelPar_given_rth,
      modelPar_cth,
+     d_modelPar_cth_dX,
      modelPar_given_cth,
      modelPar_xre,
+     d_modelPar_xre_dX,
      modelPar_given_xre,
      modelPar_xrb,
+     d_modelPar_xrb_dX,
      modelPar_given_xrb,
      modelPar_xrbi,
+     d_modelPar_xrbi_dX,
      modelPar_given_xrbi,
      modelPar_xrbx,
+     d_modelPar_xrbx_dX,
      modelPar_given_xrbx,
      modelPar_xrc,
+     d_modelPar_xrc_dX,
      modelPar_given_xrc,
      modelPar_xrci,
+     d_modelPar_xrci_dX,
      modelPar_given_xrci,
      modelPar_xrcx,
+     d_modelPar_xrcx_dX,
      modelPar_given_xrcx,
      modelPar_xrbp,
+     d_modelPar_xrbp_dX,
      modelPar_given_xrbp,
      modelPar_xrs,
+     d_modelPar_xrs_dX,
      modelPar_given_xrs,
      modelPar_xvo,
+     d_modelPar_xvo_dX,
      modelPar_given_xvo,
      modelPar_ea,
+     d_modelPar_ea_dX,
      modelPar_given_ea,
      modelPar_eaie,
+     d_modelPar_eaie_dX,
      modelPar_given_eaie,
      modelPar_eaic,
+     d_modelPar_eaic_dX,
      modelPar_given_eaic,
      modelPar_eais,
+     d_modelPar_eais_dX,
      modelPar_given_eais,
      modelPar_eane,
+     d_modelPar_eane_dX,
      modelPar_given_eane,
      modelPar_eanc,
+     d_modelPar_eanc_dX,
      modelPar_given_eanc,
      modelPar_eans,
+     d_modelPar_eans_dX,
      modelPar_given_eans,
      modelPar_eap,
+     d_modelPar_eap_dX,
      modelPar_given_eap,
      modelPar_dear,
+     d_modelPar_dear_dX,
      modelPar_given_dear,
      modelPar_xis,
+     d_modelPar_xis_dX,
      modelPar_given_xis,
      modelPar_xii,
+     d_modelPar_xii_dX,
      modelPar_given_xii,
      modelPar_xin,
+     d_modelPar_xin_dX,
      modelPar_given_xin,
      modelPar_xisr,
+     d_modelPar_xisr_dX,
      modelPar_given_xisr,
      modelPar_xikf,
+     d_modelPar_xikf_dX,
      modelPar_given_xikf,
      modelPar_tavc,
+     d_modelPar_tavc_dX,
      modelPar_given_tavc,
      modelPar_tavcx,
+     d_modelPar_tavcx_dX,
      modelPar_given_tavcx,
      modelPar_tnf,
+     d_modelPar_tnf_dX,
      modelPar_given_tnf,
      modelPar_tcvef,
+     d_modelPar_tcvef_dX,
      modelPar_given_tcvef,
      modelPar_tcver,
+     d_modelPar_tcver_dX,
      modelPar_given_tcver,
      modelPar_tcrth,
+     d_modelPar_tcrth_dX,
      modelPar_given_tcrth,
      // non-reals (including hidden)
      modelPar_type,
@@ -12150,23 +14417,25 @@ void InstanceSensitivity::operator()
      modelPar_given_qbm// model variables
      ,
      // reals
-     modelVar_tiniK,
-     modelVar_Iikr,
-     modelVar_Iikp,
-     modelVar_Ihrcf,
-     modelVar_Ivtf,
-     modelVar_Iitf,
-     modelVar_sltf,
-     modelVar_VmaxExp,
-     modelVar_gminMod,
-     modelVar_imaxMod,
+     modelVar_tiniK, d_modelVar_tiniK_dX ,
+     modelVar_Iikr, d_modelVar_Iikr_dX ,
+     modelVar_Iikp, d_modelVar_Iikp_dX ,
+     modelVar_Ihrcf, d_modelVar_Ihrcf_dX ,
+     modelVar_Ivtf, d_modelVar_Ivtf_dX ,
+     modelVar_Iitf, d_modelVar_Iitf_dX ,
+     modelVar_sltf, d_modelVar_sltf_dX ,
+     modelVar_VmaxExp, d_modelVar_VmaxExp_dX ,
+     modelVar_gminMod, d_modelVar_gminMod_dX ,
+     modelVar_imaxMod, d_modelVar_imaxMod_dX ,
      mod.admsModTemp,in.getDeviceOptions().gmin,in);
   evaluateInitialInstance(
      // instance parameters
      // reals
      instancePar_m,
+     d_instancePar_m_dX,
      instancePar_given_m,
      instancePar_trise,
+     d_instancePar_trise_dX,
      instancePar_given_trise,
      // non-reals(including hidden)
      instancePar_sw_noise,
@@ -12175,304 +14444,432 @@ void InstanceSensitivity::operator()
      instancePar_given_sw_et,
      // instance variables
      // reals
-     instanceVar_is_t,
-     instanceVar_isrr_t,
-     instanceVar_ibei_t,
-     instanceVar_ibci_t,
-     instanceVar_isp_t,
-     instanceVar_iben_t,
-     instanceVar_ibcn_t,
-     instanceVar_ibeip_t,
-     instanceVar_ibenp_t,
-     instanceVar_ibcip_t,
-     instanceVar_ibcnp_t,
-     instanceVar_tdevC,
-     instanceVar_tdevK,
-     instanceVar_rT,
-     instanceVar_Gcx,
-     instanceVar_Gci,
-     instanceVar_Gbx,
-     instanceVar_Gbi,
-     instanceVar_Ge,
-     instanceVar_Gbp,
-     instanceVar_maxvIfi,
-     instanceVar_maxvIri,
-     instanceVar_maxvIp,
-     instanceVar_maxvIbbe,
-     instanceVar_maxvIbei,
-     instanceVar_maxvIben,
-     instanceVar_maxvIbci,
-     instanceVar_maxvIbcn,
-     instanceVar_maxvIbeip,
-     instanceVar_maxvIbenp,
-     instanceVar_vtv,
-     instanceVar_Itzf,
-     instanceVar_qb,
-     instanceVar_qbp,
-     instanceVar_Ibe,
-     instanceVar_Ibex,
-     instanceVar_Ibep,
-     instanceVar_Irci,
-     instanceVar_Vrci,
-     instanceVar_mMod,
-     instanceVar_tVCrit,
+     instanceVar_is_t, d_instanceVar_is_t_dX ,
+     instanceVar_isrr_t, d_instanceVar_isrr_t_dX ,
+     instanceVar_ibei_t, d_instanceVar_ibei_t_dX ,
+     instanceVar_ibci_t, d_instanceVar_ibci_t_dX ,
+     instanceVar_isp_t, d_instanceVar_isp_t_dX ,
+     instanceVar_iben_t, d_instanceVar_iben_t_dX ,
+     instanceVar_ibcn_t, d_instanceVar_ibcn_t_dX ,
+     instanceVar_ibeip_t, d_instanceVar_ibeip_t_dX ,
+     instanceVar_ibenp_t, d_instanceVar_ibenp_t_dX ,
+     instanceVar_ibcip_t, d_instanceVar_ibcip_t_dX ,
+     instanceVar_ibcnp_t, d_instanceVar_ibcnp_t_dX ,
+     instanceVar_tdevC, d_instanceVar_tdevC_dX ,
+     instanceVar_tdevK, d_instanceVar_tdevK_dX ,
+     instanceVar_rT, d_instanceVar_rT_dX ,
+     instanceVar_Gcx, d_instanceVar_Gcx_dX ,
+     instanceVar_Gci, d_instanceVar_Gci_dX ,
+     instanceVar_Gbx, d_instanceVar_Gbx_dX ,
+     instanceVar_Gbi, d_instanceVar_Gbi_dX ,
+     instanceVar_Ge, d_instanceVar_Ge_dX ,
+     instanceVar_Gbp, d_instanceVar_Gbp_dX ,
+     instanceVar_maxvIfi, d_instanceVar_maxvIfi_dX ,
+     instanceVar_maxvIri, d_instanceVar_maxvIri_dX ,
+     instanceVar_maxvIp, d_instanceVar_maxvIp_dX ,
+     instanceVar_maxvIbbe, d_instanceVar_maxvIbbe_dX ,
+     instanceVar_maxvIbei, d_instanceVar_maxvIbei_dX ,
+     instanceVar_maxvIben, d_instanceVar_maxvIben_dX ,
+     instanceVar_maxvIbci, d_instanceVar_maxvIbci_dX ,
+     instanceVar_maxvIbcn, d_instanceVar_maxvIbcn_dX ,
+     instanceVar_maxvIbeip, d_instanceVar_maxvIbeip_dX ,
+     instanceVar_maxvIbenp, d_instanceVar_maxvIbenp_dX ,
+     instanceVar_vtv, d_instanceVar_vtv_dX ,
+     instanceVar_Itzf, d_instanceVar_Itzf_dX ,
+     instanceVar_qb, d_instanceVar_qb_dX ,
+     instanceVar_qbp, d_instanceVar_qbp_dX ,
+     instanceVar_Ibe, d_instanceVar_Ibe_dX ,
+     instanceVar_Ibex, d_instanceVar_Ibex_dX ,
+     instanceVar_Ibep, d_instanceVar_Ibep_dX ,
+     instanceVar_Irci, d_instanceVar_Irci_dX ,
+     instanceVar_Vrci, d_instanceVar_Vrci_dX ,
+     instanceVar_mMod, d_instanceVar_mMod_dX ,
+     instanceVar_tVCrit, d_instanceVar_tVCrit_dX ,
      // model parameters
      // reals
      modelPar_npn,
+     d_modelPar_npn_dX,
      modelPar_given_npn,
      modelPar_pnp,
+     d_modelPar_pnp_dX,
      modelPar_given_pnp,
      modelPar_scale,
+     d_modelPar_scale_dX,
      modelPar_given_scale,
      modelPar_shrink,
+     d_modelPar_shrink_dX,
      modelPar_given_shrink,
      modelPar_tmin,
+     d_modelPar_tmin_dX,
      modelPar_given_tmin,
      modelPar_tmax,
+     d_modelPar_tmax_dX,
      modelPar_given_tmax,
      modelPar_gmin,
+     d_modelPar_gmin_dX,
      modelPar_given_gmin,
      modelPar_pnjmaxi,
+     d_modelPar_pnjmaxi_dX,
      modelPar_given_pnjmaxi,
      modelPar_maxexp,
+     d_modelPar_maxexp_dX,
      modelPar_given_maxexp,
      modelPar_tnom,
+     d_modelPar_tnom_dX,
      modelPar_given_tnom,
      modelPar_tminclip,
+     d_modelPar_tminclip_dX,
      modelPar_given_tminclip,
      modelPar_tmaxclip,
+     d_modelPar_tmaxclip_dX,
      modelPar_given_tmaxclip,
      modelPar_rcx,
+     d_modelPar_rcx_dX,
      modelPar_given_rcx,
      modelPar_rci,
+     d_modelPar_rci_dX,
      modelPar_given_rci,
      modelPar_vo,
+     d_modelPar_vo_dX,
      modelPar_given_vo,
      modelPar_gamm,
+     d_modelPar_gamm_dX,
      modelPar_given_gamm,
      modelPar_hrcf,
+     d_modelPar_hrcf_dX,
      modelPar_given_hrcf,
      modelPar_rbx,
+     d_modelPar_rbx_dX,
      modelPar_given_rbx,
      modelPar_rbi,
+     d_modelPar_rbi_dX,
      modelPar_given_rbi,
      modelPar_re,
+     d_modelPar_re_dX,
      modelPar_given_re,
      modelPar_rs,
+     d_modelPar_rs_dX,
      modelPar_given_rs,
      modelPar_rbp,
+     d_modelPar_rbp_dX,
      modelPar_given_rbp,
      modelPar_is,
+     d_modelPar_is_dX,
      modelPar_given_is,
      modelPar_isrr,
+     d_modelPar_isrr_dX,
      modelPar_given_isrr,
      modelPar_nf,
+     d_modelPar_nf_dX,
      modelPar_given_nf,
      modelPar_nr,
+     d_modelPar_nr_dX,
      modelPar_given_nr,
      modelPar_isp,
+     d_modelPar_isp_dX,
      modelPar_given_isp,
      modelPar_wsp,
+     d_modelPar_wsp_dX,
      modelPar_given_wsp,
      modelPar_nfp,
+     d_modelPar_nfp_dX,
      modelPar_given_nfp,
      modelPar_fc,
+     d_modelPar_fc_dX,
      modelPar_given_fc,
      modelPar_cbeo,
+     d_modelPar_cbeo_dX,
      modelPar_given_cbeo,
      modelPar_cje,
+     d_modelPar_cje_dX,
      modelPar_given_cje,
      modelPar_pe,
+     d_modelPar_pe_dX,
      modelPar_given_pe,
      modelPar_me,
+     d_modelPar_me_dX,
      modelPar_given_me,
      modelPar_aje,
+     d_modelPar_aje_dX,
      modelPar_given_aje,
      modelPar_cbco,
+     d_modelPar_cbco_dX,
      modelPar_given_cbco,
      modelPar_cjc,
+     d_modelPar_cjc_dX,
      modelPar_given_cjc,
      modelPar_pc,
+     d_modelPar_pc_dX,
      modelPar_given_pc,
      modelPar_mc,
+     d_modelPar_mc_dX,
      modelPar_given_mc,
      modelPar_ajc,
+     d_modelPar_ajc_dX,
      modelPar_given_ajc,
      modelPar_vrt,
+     d_modelPar_vrt_dX,
      modelPar_given_vrt,
      modelPar_art,
+     d_modelPar_art_dX,
      modelPar_given_art,
      modelPar_qco,
+     d_modelPar_qco_dX,
      modelPar_given_qco,
      modelPar_cjep,
+     d_modelPar_cjep_dX,
      modelPar_given_cjep,
      modelPar_cjcp,
+     d_modelPar_cjcp_dX,
      modelPar_given_cjcp,
      modelPar_ps,
+     d_modelPar_ps_dX,
      modelPar_given_ps,
      modelPar_ms,
+     d_modelPar_ms_dX,
      modelPar_given_ms,
      modelPar_ajs,
+     d_modelPar_ajs_dX,
      modelPar_given_ajs,
      modelPar_ccso,
+     d_modelPar_ccso_dX,
      modelPar_given_ccso,
      modelPar_ibei,
+     d_modelPar_ibei_dX,
      modelPar_given_ibei,
      modelPar_wbe,
+     d_modelPar_wbe_dX,
      modelPar_given_wbe,
      modelPar_nei,
+     d_modelPar_nei_dX,
      modelPar_given_nei,
      modelPar_qnibeir,
+     d_modelPar_qnibeir_dX,
      modelPar_given_qnibeir,
      modelPar_iben,
+     d_modelPar_iben_dX,
      modelPar_given_iben,
      modelPar_nen,
+     d_modelPar_nen_dX,
      modelPar_given_nen,
      modelPar_ibci,
+     d_modelPar_ibci_dX,
      modelPar_given_ibci,
      modelPar_nci,
+     d_modelPar_nci_dX,
      modelPar_given_nci,
      modelPar_ibcn,
+     d_modelPar_ibcn_dX,
      modelPar_given_ibcn,
      modelPar_ncn,
+     d_modelPar_ncn_dX,
      modelPar_given_ncn,
      modelPar_ibeip,
+     d_modelPar_ibeip_dX,
      modelPar_given_ibeip,
      modelPar_ibenp,
+     d_modelPar_ibenp_dX,
      modelPar_given_ibenp,
      modelPar_ibcip,
+     d_modelPar_ibcip_dX,
      modelPar_given_ibcip,
      modelPar_ncip,
+     d_modelPar_ncip_dX,
      modelPar_given_ncip,
      modelPar_ibcnp,
+     d_modelPar_ibcnp_dX,
      modelPar_given_ibcnp,
      modelPar_ncnp,
+     d_modelPar_ncnp_dX,
      modelPar_given_ncnp,
      modelPar_vef,
+     d_modelPar_vef_dX,
      modelPar_given_vef,
      modelPar_ver,
+     d_modelPar_ver_dX,
      modelPar_given_ver,
      modelPar_ikf,
+     d_modelPar_ikf_dX,
      modelPar_given_ikf,
      modelPar_nkf,
+     d_modelPar_nkf_dX,
      modelPar_given_nkf,
      modelPar_ikr,
+     d_modelPar_ikr_dX,
      modelPar_given_ikr,
      modelPar_ikp,
+     d_modelPar_ikp_dX,
      modelPar_given_ikp,
      modelPar_tf,
+     d_modelPar_tf_dX,
      modelPar_given_tf,
      modelPar_qtf,
+     d_modelPar_qtf_dX,
      modelPar_given_qtf,
      modelPar_xtf,
+     d_modelPar_xtf_dX,
      modelPar_given_xtf,
      modelPar_vtf,
+     d_modelPar_vtf_dX,
      modelPar_given_vtf,
      modelPar_itf,
+     d_modelPar_itf_dX,
      modelPar_given_itf,
      modelPar_tr,
+     d_modelPar_tr_dX,
      modelPar_given_tr,
      modelPar_td,
+     d_modelPar_td_dX,
      modelPar_given_td,
      modelPar_avc1,
+     d_modelPar_avc1_dX,
      modelPar_given_avc1,
      modelPar_avc2,
+     d_modelPar_avc2_dX,
      modelPar_given_avc2,
      modelPar_avcx1,
+     d_modelPar_avcx1_dX,
      modelPar_given_avcx1,
      modelPar_avcx2,
+     d_modelPar_avcx2_dX,
      modelPar_given_avcx2,
      modelPar_mcx,
+     d_modelPar_mcx_dX,
      modelPar_given_mcx,
      modelPar_vbbe,
+     d_modelPar_vbbe_dX,
      modelPar_given_vbbe,
      modelPar_nbbe,
+     d_modelPar_nbbe_dX,
      modelPar_given_nbbe,
      modelPar_ibbe,
+     d_modelPar_ibbe_dX,
      modelPar_given_ibbe,
      modelPar_tvbbe1,
+     d_modelPar_tvbbe1_dX,
      modelPar_given_tvbbe1,
      modelPar_tvbbe2,
+     d_modelPar_tvbbe2_dX,
      modelPar_given_tvbbe2,
      modelPar_tnbbe,
+     d_modelPar_tnbbe_dX,
      modelPar_given_tnbbe,
      modelPar_vpte,
+     d_modelPar_vpte_dX,
      modelPar_given_vpte,
      modelPar_ibk0,
+     d_modelPar_ibk0_dX,
      modelPar_given_ibk0,
      modelPar_abk,
+     d_modelPar_abk_dX,
      modelPar_given_abk,
      modelPar_bbk,
+     d_modelPar_bbk_dX,
      modelPar_given_bbk,
      modelPar_kfn,
+     d_modelPar_kfn_dX,
      modelPar_given_kfn,
      modelPar_afn,
+     d_modelPar_afn_dX,
      modelPar_given_afn,
      modelPar_bfn,
+     d_modelPar_bfn_dX,
      modelPar_given_bfn,
      modelPar_rth,
+     d_modelPar_rth_dX,
      modelPar_given_rth,
      modelPar_cth,
+     d_modelPar_cth_dX,
      modelPar_given_cth,
      modelPar_xre,
+     d_modelPar_xre_dX,
      modelPar_given_xre,
      modelPar_xrb,
+     d_modelPar_xrb_dX,
      modelPar_given_xrb,
      modelPar_xrbi,
+     d_modelPar_xrbi_dX,
      modelPar_given_xrbi,
      modelPar_xrbx,
+     d_modelPar_xrbx_dX,
      modelPar_given_xrbx,
      modelPar_xrc,
+     d_modelPar_xrc_dX,
      modelPar_given_xrc,
      modelPar_xrci,
+     d_modelPar_xrci_dX,
      modelPar_given_xrci,
      modelPar_xrcx,
+     d_modelPar_xrcx_dX,
      modelPar_given_xrcx,
      modelPar_xrbp,
+     d_modelPar_xrbp_dX,
      modelPar_given_xrbp,
      modelPar_xrs,
+     d_modelPar_xrs_dX,
      modelPar_given_xrs,
      modelPar_xvo,
+     d_modelPar_xvo_dX,
      modelPar_given_xvo,
      modelPar_ea,
+     d_modelPar_ea_dX,
      modelPar_given_ea,
      modelPar_eaie,
+     d_modelPar_eaie_dX,
      modelPar_given_eaie,
      modelPar_eaic,
+     d_modelPar_eaic_dX,
      modelPar_given_eaic,
      modelPar_eais,
+     d_modelPar_eais_dX,
      modelPar_given_eais,
      modelPar_eane,
+     d_modelPar_eane_dX,
      modelPar_given_eane,
      modelPar_eanc,
+     d_modelPar_eanc_dX,
      modelPar_given_eanc,
      modelPar_eans,
+     d_modelPar_eans_dX,
      modelPar_given_eans,
      modelPar_eap,
+     d_modelPar_eap_dX,
      modelPar_given_eap,
      modelPar_dear,
+     d_modelPar_dear_dX,
      modelPar_given_dear,
      modelPar_xis,
+     d_modelPar_xis_dX,
      modelPar_given_xis,
      modelPar_xii,
+     d_modelPar_xii_dX,
      modelPar_given_xii,
      modelPar_xin,
+     d_modelPar_xin_dX,
      modelPar_given_xin,
      modelPar_xisr,
+     d_modelPar_xisr_dX,
      modelPar_given_xisr,
      modelPar_xikf,
+     d_modelPar_xikf_dX,
      modelPar_given_xikf,
      modelPar_tavc,
+     d_modelPar_tavc_dX,
      modelPar_given_tavc,
      modelPar_tavcx,
+     d_modelPar_tavcx_dX,
      modelPar_given_tavcx,
      modelPar_tnf,
+     d_modelPar_tnf_dX,
      modelPar_given_tnf,
      modelPar_tcvef,
+     d_modelPar_tcvef_dX,
      modelPar_given_tcvef,
      modelPar_tcver,
+     d_modelPar_tcver_dX,
      modelPar_given_tcver,
      modelPar_tcrth,
+     d_modelPar_tcrth_dX,
      modelPar_given_tcrth,
      // non-reals (including hidden)
      modelPar_type,
@@ -12482,16 +14879,16 @@ void InstanceSensitivity::operator()
      modelPar_given_qbm// model variables
      ,
      // reals
-     modelVar_tiniK,
-     modelVar_Iikr,
-     modelVar_Iikp,
-     modelVar_Ihrcf,
-     modelVar_Ivtf,
-     modelVar_Iitf,
-     modelVar_sltf,
-     modelVar_VmaxExp,
-     modelVar_gminMod,
-     modelVar_imaxMod,
+     modelVar_tiniK, d_modelVar_tiniK_dX ,
+     modelVar_Iikr, d_modelVar_Iikr_dX ,
+     modelVar_Iikp, d_modelVar_Iikp_dX ,
+     modelVar_Ihrcf, d_modelVar_Ihrcf_dX ,
+     modelVar_Ivtf, d_modelVar_Ivtf_dX ,
+     modelVar_Iitf, d_modelVar_Iitf_dX ,
+     modelVar_sltf, d_modelVar_sltf_dX ,
+     modelVar_VmaxExp, d_modelVar_VmaxExp_dX ,
+     modelVar_gminMod, d_modelVar_gminMod_dX ,
+     modelVar_imaxMod, d_modelVar_imaxMod_dX ,
      in.admsTemperature,in.adms_vt_nom,in.getDeviceOptions().gmin,in);
 
 
@@ -12534,8 +14931,10 @@ void InstanceSensitivity::operator()
      // instance parameters
      // reals
      instancePar_m,
+     d_instancePar_m_dX,
      instancePar_given_m,
      instancePar_trise,
+     d_instancePar_trise_dX,
      instancePar_given_trise,
      // non-reals(including hidden)
      instancePar_sw_noise,
@@ -12544,304 +14943,432 @@ void InstanceSensitivity::operator()
      instancePar_given_sw_et,
      // instance variables
      // reals
-     instanceVar_is_t,
-     instanceVar_isrr_t,
-     instanceVar_ibei_t,
-     instanceVar_ibci_t,
-     instanceVar_isp_t,
-     instanceVar_iben_t,
-     instanceVar_ibcn_t,
-     instanceVar_ibeip_t,
-     instanceVar_ibenp_t,
-     instanceVar_ibcip_t,
-     instanceVar_ibcnp_t,
-     instanceVar_tdevC,
-     instanceVar_tdevK,
-     instanceVar_rT,
-     instanceVar_Gcx,
-     instanceVar_Gci,
-     instanceVar_Gbx,
-     instanceVar_Gbi,
-     instanceVar_Ge,
-     instanceVar_Gbp,
-     instanceVar_maxvIfi,
-     instanceVar_maxvIri,
-     instanceVar_maxvIp,
-     instanceVar_maxvIbbe,
-     instanceVar_maxvIbei,
-     instanceVar_maxvIben,
-     instanceVar_maxvIbci,
-     instanceVar_maxvIbcn,
-     instanceVar_maxvIbeip,
-     instanceVar_maxvIbenp,
-     instanceVar_vtv,
-     instanceVar_Itzf,
-     instanceVar_qb,
-     instanceVar_qbp,
-     instanceVar_Ibe,
-     instanceVar_Ibex,
-     instanceVar_Ibep,
-     instanceVar_Irci,
-     instanceVar_Vrci,
-     instanceVar_mMod,
-     instanceVar_tVCrit,
+     instanceVar_is_t, d_instanceVar_is_t_dX ,
+     instanceVar_isrr_t, d_instanceVar_isrr_t_dX ,
+     instanceVar_ibei_t, d_instanceVar_ibei_t_dX ,
+     instanceVar_ibci_t, d_instanceVar_ibci_t_dX ,
+     instanceVar_isp_t, d_instanceVar_isp_t_dX ,
+     instanceVar_iben_t, d_instanceVar_iben_t_dX ,
+     instanceVar_ibcn_t, d_instanceVar_ibcn_t_dX ,
+     instanceVar_ibeip_t, d_instanceVar_ibeip_t_dX ,
+     instanceVar_ibenp_t, d_instanceVar_ibenp_t_dX ,
+     instanceVar_ibcip_t, d_instanceVar_ibcip_t_dX ,
+     instanceVar_ibcnp_t, d_instanceVar_ibcnp_t_dX ,
+     instanceVar_tdevC, d_instanceVar_tdevC_dX ,
+     instanceVar_tdevK, d_instanceVar_tdevK_dX ,
+     instanceVar_rT, d_instanceVar_rT_dX ,
+     instanceVar_Gcx, d_instanceVar_Gcx_dX ,
+     instanceVar_Gci, d_instanceVar_Gci_dX ,
+     instanceVar_Gbx, d_instanceVar_Gbx_dX ,
+     instanceVar_Gbi, d_instanceVar_Gbi_dX ,
+     instanceVar_Ge, d_instanceVar_Ge_dX ,
+     instanceVar_Gbp, d_instanceVar_Gbp_dX ,
+     instanceVar_maxvIfi, d_instanceVar_maxvIfi_dX ,
+     instanceVar_maxvIri, d_instanceVar_maxvIri_dX ,
+     instanceVar_maxvIp, d_instanceVar_maxvIp_dX ,
+     instanceVar_maxvIbbe, d_instanceVar_maxvIbbe_dX ,
+     instanceVar_maxvIbei, d_instanceVar_maxvIbei_dX ,
+     instanceVar_maxvIben, d_instanceVar_maxvIben_dX ,
+     instanceVar_maxvIbci, d_instanceVar_maxvIbci_dX ,
+     instanceVar_maxvIbcn, d_instanceVar_maxvIbcn_dX ,
+     instanceVar_maxvIbeip, d_instanceVar_maxvIbeip_dX ,
+     instanceVar_maxvIbenp, d_instanceVar_maxvIbenp_dX ,
+     instanceVar_vtv, d_instanceVar_vtv_dX ,
+     instanceVar_Itzf, d_instanceVar_Itzf_dX ,
+     instanceVar_qb, d_instanceVar_qb_dX ,
+     instanceVar_qbp, d_instanceVar_qbp_dX ,
+     instanceVar_Ibe, d_instanceVar_Ibe_dX ,
+     instanceVar_Ibex, d_instanceVar_Ibex_dX ,
+     instanceVar_Ibep, d_instanceVar_Ibep_dX ,
+     instanceVar_Irci, d_instanceVar_Irci_dX ,
+     instanceVar_Vrci, d_instanceVar_Vrci_dX ,
+     instanceVar_mMod, d_instanceVar_mMod_dX ,
+     instanceVar_tVCrit, d_instanceVar_tVCrit_dX ,
      // model parameters
      // reals
      modelPar_npn,
+     d_modelPar_npn_dX,
      modelPar_given_npn,
      modelPar_pnp,
+     d_modelPar_pnp_dX,
      modelPar_given_pnp,
      modelPar_scale,
+     d_modelPar_scale_dX,
      modelPar_given_scale,
      modelPar_shrink,
+     d_modelPar_shrink_dX,
      modelPar_given_shrink,
      modelPar_tmin,
+     d_modelPar_tmin_dX,
      modelPar_given_tmin,
      modelPar_tmax,
+     d_modelPar_tmax_dX,
      modelPar_given_tmax,
      modelPar_gmin,
+     d_modelPar_gmin_dX,
      modelPar_given_gmin,
      modelPar_pnjmaxi,
+     d_modelPar_pnjmaxi_dX,
      modelPar_given_pnjmaxi,
      modelPar_maxexp,
+     d_modelPar_maxexp_dX,
      modelPar_given_maxexp,
      modelPar_tnom,
+     d_modelPar_tnom_dX,
      modelPar_given_tnom,
      modelPar_tminclip,
+     d_modelPar_tminclip_dX,
      modelPar_given_tminclip,
      modelPar_tmaxclip,
+     d_modelPar_tmaxclip_dX,
      modelPar_given_tmaxclip,
      modelPar_rcx,
+     d_modelPar_rcx_dX,
      modelPar_given_rcx,
      modelPar_rci,
+     d_modelPar_rci_dX,
      modelPar_given_rci,
      modelPar_vo,
+     d_modelPar_vo_dX,
      modelPar_given_vo,
      modelPar_gamm,
+     d_modelPar_gamm_dX,
      modelPar_given_gamm,
      modelPar_hrcf,
+     d_modelPar_hrcf_dX,
      modelPar_given_hrcf,
      modelPar_rbx,
+     d_modelPar_rbx_dX,
      modelPar_given_rbx,
      modelPar_rbi,
+     d_modelPar_rbi_dX,
      modelPar_given_rbi,
      modelPar_re,
+     d_modelPar_re_dX,
      modelPar_given_re,
      modelPar_rs,
+     d_modelPar_rs_dX,
      modelPar_given_rs,
      modelPar_rbp,
+     d_modelPar_rbp_dX,
      modelPar_given_rbp,
      modelPar_is,
+     d_modelPar_is_dX,
      modelPar_given_is,
      modelPar_isrr,
+     d_modelPar_isrr_dX,
      modelPar_given_isrr,
      modelPar_nf,
+     d_modelPar_nf_dX,
      modelPar_given_nf,
      modelPar_nr,
+     d_modelPar_nr_dX,
      modelPar_given_nr,
      modelPar_isp,
+     d_modelPar_isp_dX,
      modelPar_given_isp,
      modelPar_wsp,
+     d_modelPar_wsp_dX,
      modelPar_given_wsp,
      modelPar_nfp,
+     d_modelPar_nfp_dX,
      modelPar_given_nfp,
      modelPar_fc,
+     d_modelPar_fc_dX,
      modelPar_given_fc,
      modelPar_cbeo,
+     d_modelPar_cbeo_dX,
      modelPar_given_cbeo,
      modelPar_cje,
+     d_modelPar_cje_dX,
      modelPar_given_cje,
      modelPar_pe,
+     d_modelPar_pe_dX,
      modelPar_given_pe,
      modelPar_me,
+     d_modelPar_me_dX,
      modelPar_given_me,
      modelPar_aje,
+     d_modelPar_aje_dX,
      modelPar_given_aje,
      modelPar_cbco,
+     d_modelPar_cbco_dX,
      modelPar_given_cbco,
      modelPar_cjc,
+     d_modelPar_cjc_dX,
      modelPar_given_cjc,
      modelPar_pc,
+     d_modelPar_pc_dX,
      modelPar_given_pc,
      modelPar_mc,
+     d_modelPar_mc_dX,
      modelPar_given_mc,
      modelPar_ajc,
+     d_modelPar_ajc_dX,
      modelPar_given_ajc,
      modelPar_vrt,
+     d_modelPar_vrt_dX,
      modelPar_given_vrt,
      modelPar_art,
+     d_modelPar_art_dX,
      modelPar_given_art,
      modelPar_qco,
+     d_modelPar_qco_dX,
      modelPar_given_qco,
      modelPar_cjep,
+     d_modelPar_cjep_dX,
      modelPar_given_cjep,
      modelPar_cjcp,
+     d_modelPar_cjcp_dX,
      modelPar_given_cjcp,
      modelPar_ps,
+     d_modelPar_ps_dX,
      modelPar_given_ps,
      modelPar_ms,
+     d_modelPar_ms_dX,
      modelPar_given_ms,
      modelPar_ajs,
+     d_modelPar_ajs_dX,
      modelPar_given_ajs,
      modelPar_ccso,
+     d_modelPar_ccso_dX,
      modelPar_given_ccso,
      modelPar_ibei,
+     d_modelPar_ibei_dX,
      modelPar_given_ibei,
      modelPar_wbe,
+     d_modelPar_wbe_dX,
      modelPar_given_wbe,
      modelPar_nei,
+     d_modelPar_nei_dX,
      modelPar_given_nei,
      modelPar_qnibeir,
+     d_modelPar_qnibeir_dX,
      modelPar_given_qnibeir,
      modelPar_iben,
+     d_modelPar_iben_dX,
      modelPar_given_iben,
      modelPar_nen,
+     d_modelPar_nen_dX,
      modelPar_given_nen,
      modelPar_ibci,
+     d_modelPar_ibci_dX,
      modelPar_given_ibci,
      modelPar_nci,
+     d_modelPar_nci_dX,
      modelPar_given_nci,
      modelPar_ibcn,
+     d_modelPar_ibcn_dX,
      modelPar_given_ibcn,
      modelPar_ncn,
+     d_modelPar_ncn_dX,
      modelPar_given_ncn,
      modelPar_ibeip,
+     d_modelPar_ibeip_dX,
      modelPar_given_ibeip,
      modelPar_ibenp,
+     d_modelPar_ibenp_dX,
      modelPar_given_ibenp,
      modelPar_ibcip,
+     d_modelPar_ibcip_dX,
      modelPar_given_ibcip,
      modelPar_ncip,
+     d_modelPar_ncip_dX,
      modelPar_given_ncip,
      modelPar_ibcnp,
+     d_modelPar_ibcnp_dX,
      modelPar_given_ibcnp,
      modelPar_ncnp,
+     d_modelPar_ncnp_dX,
      modelPar_given_ncnp,
      modelPar_vef,
+     d_modelPar_vef_dX,
      modelPar_given_vef,
      modelPar_ver,
+     d_modelPar_ver_dX,
      modelPar_given_ver,
      modelPar_ikf,
+     d_modelPar_ikf_dX,
      modelPar_given_ikf,
      modelPar_nkf,
+     d_modelPar_nkf_dX,
      modelPar_given_nkf,
      modelPar_ikr,
+     d_modelPar_ikr_dX,
      modelPar_given_ikr,
      modelPar_ikp,
+     d_modelPar_ikp_dX,
      modelPar_given_ikp,
      modelPar_tf,
+     d_modelPar_tf_dX,
      modelPar_given_tf,
      modelPar_qtf,
+     d_modelPar_qtf_dX,
      modelPar_given_qtf,
      modelPar_xtf,
+     d_modelPar_xtf_dX,
      modelPar_given_xtf,
      modelPar_vtf,
+     d_modelPar_vtf_dX,
      modelPar_given_vtf,
      modelPar_itf,
+     d_modelPar_itf_dX,
      modelPar_given_itf,
      modelPar_tr,
+     d_modelPar_tr_dX,
      modelPar_given_tr,
      modelPar_td,
+     d_modelPar_td_dX,
      modelPar_given_td,
      modelPar_avc1,
+     d_modelPar_avc1_dX,
      modelPar_given_avc1,
      modelPar_avc2,
+     d_modelPar_avc2_dX,
      modelPar_given_avc2,
      modelPar_avcx1,
+     d_modelPar_avcx1_dX,
      modelPar_given_avcx1,
      modelPar_avcx2,
+     d_modelPar_avcx2_dX,
      modelPar_given_avcx2,
      modelPar_mcx,
+     d_modelPar_mcx_dX,
      modelPar_given_mcx,
      modelPar_vbbe,
+     d_modelPar_vbbe_dX,
      modelPar_given_vbbe,
      modelPar_nbbe,
+     d_modelPar_nbbe_dX,
      modelPar_given_nbbe,
      modelPar_ibbe,
+     d_modelPar_ibbe_dX,
      modelPar_given_ibbe,
      modelPar_tvbbe1,
+     d_modelPar_tvbbe1_dX,
      modelPar_given_tvbbe1,
      modelPar_tvbbe2,
+     d_modelPar_tvbbe2_dX,
      modelPar_given_tvbbe2,
      modelPar_tnbbe,
+     d_modelPar_tnbbe_dX,
      modelPar_given_tnbbe,
      modelPar_vpte,
+     d_modelPar_vpte_dX,
      modelPar_given_vpte,
      modelPar_ibk0,
+     d_modelPar_ibk0_dX,
      modelPar_given_ibk0,
      modelPar_abk,
+     d_modelPar_abk_dX,
      modelPar_given_abk,
      modelPar_bbk,
+     d_modelPar_bbk_dX,
      modelPar_given_bbk,
      modelPar_kfn,
+     d_modelPar_kfn_dX,
      modelPar_given_kfn,
      modelPar_afn,
+     d_modelPar_afn_dX,
      modelPar_given_afn,
      modelPar_bfn,
+     d_modelPar_bfn_dX,
      modelPar_given_bfn,
      modelPar_rth,
+     d_modelPar_rth_dX,
      modelPar_given_rth,
      modelPar_cth,
+     d_modelPar_cth_dX,
      modelPar_given_cth,
      modelPar_xre,
+     d_modelPar_xre_dX,
      modelPar_given_xre,
      modelPar_xrb,
+     d_modelPar_xrb_dX,
      modelPar_given_xrb,
      modelPar_xrbi,
+     d_modelPar_xrbi_dX,
      modelPar_given_xrbi,
      modelPar_xrbx,
+     d_modelPar_xrbx_dX,
      modelPar_given_xrbx,
      modelPar_xrc,
+     d_modelPar_xrc_dX,
      modelPar_given_xrc,
      modelPar_xrci,
+     d_modelPar_xrci_dX,
      modelPar_given_xrci,
      modelPar_xrcx,
+     d_modelPar_xrcx_dX,
      modelPar_given_xrcx,
      modelPar_xrbp,
+     d_modelPar_xrbp_dX,
      modelPar_given_xrbp,
      modelPar_xrs,
+     d_modelPar_xrs_dX,
      modelPar_given_xrs,
      modelPar_xvo,
+     d_modelPar_xvo_dX,
      modelPar_given_xvo,
      modelPar_ea,
+     d_modelPar_ea_dX,
      modelPar_given_ea,
      modelPar_eaie,
+     d_modelPar_eaie_dX,
      modelPar_given_eaie,
      modelPar_eaic,
+     d_modelPar_eaic_dX,
      modelPar_given_eaic,
      modelPar_eais,
+     d_modelPar_eais_dX,
      modelPar_given_eais,
      modelPar_eane,
+     d_modelPar_eane_dX,
      modelPar_given_eane,
      modelPar_eanc,
+     d_modelPar_eanc_dX,
      modelPar_given_eanc,
      modelPar_eans,
+     d_modelPar_eans_dX,
      modelPar_given_eans,
      modelPar_eap,
+     d_modelPar_eap_dX,
      modelPar_given_eap,
      modelPar_dear,
+     d_modelPar_dear_dX,
      modelPar_given_dear,
      modelPar_xis,
+     d_modelPar_xis_dX,
      modelPar_given_xis,
      modelPar_xii,
+     d_modelPar_xii_dX,
      modelPar_given_xii,
      modelPar_xin,
+     d_modelPar_xin_dX,
      modelPar_given_xin,
      modelPar_xisr,
+     d_modelPar_xisr_dX,
      modelPar_given_xisr,
      modelPar_xikf,
+     d_modelPar_xikf_dX,
      modelPar_given_xikf,
      modelPar_tavc,
+     d_modelPar_tavc_dX,
      modelPar_given_tavc,
      modelPar_tavcx,
+     d_modelPar_tavcx_dX,
      modelPar_given_tavcx,
      modelPar_tnf,
+     d_modelPar_tnf_dX,
      modelPar_given_tnf,
      modelPar_tcvef,
+     d_modelPar_tcvef_dX,
      modelPar_given_tcvef,
      modelPar_tcver,
+     d_modelPar_tcver_dX,
      modelPar_given_tcver,
      modelPar_tcrth,
+     d_modelPar_tcrth_dX,
      modelPar_given_tcrth,
      // non-reals (including hidden)
      modelPar_type,
@@ -12851,72 +15378,74 @@ void InstanceSensitivity::operator()
      modelPar_given_qbm// model variables
      ,
      // reals
-     modelVar_tiniK,
-     modelVar_Iikr,
-     modelVar_Iikp,
-     modelVar_Ihrcf,
-     modelVar_Ivtf,
-     modelVar_Iitf,
-     modelVar_sltf,
-     modelVar_VmaxExp,
-     modelVar_gminMod,
-     modelVar_imaxMod,
+     modelVar_tiniK, d_modelVar_tiniK_dX ,
+     modelVar_Iikr, d_modelVar_Iikr_dX ,
+     modelVar_Iikp, d_modelVar_Iikp_dX ,
+     modelVar_Ihrcf, d_modelVar_Ihrcf_dX ,
+     modelVar_Ivtf, d_modelVar_Ivtf_dX ,
+     modelVar_Iitf, d_modelVar_Iitf_dX ,
+     modelVar_sltf, d_modelVar_sltf_dX ,
+     modelVar_VmaxExp, d_modelVar_VmaxExp_dX ,
+     modelVar_gminMod, d_modelVar_gminMod_dX ,
+     modelVar_imaxMod, d_modelVar_imaxMod_dX ,
      in.admsTemperature,
      in.adms_vt_nom,
      in.getDeviceOptions().gmin,
      staticContributions,
+     d_staticContributions_dX,
      dynamicContributions,
+     d_dynamicContributions_dX,
      in);
 
 
   // We now have the F and Q vector stuff, populate the dependencies:
 
-  dfdp[in.admsNodeID_c] += staticContributions[in.admsNodeID_c].dx(0);
-  dqdp[in.admsNodeID_c] += dynamicContributions[in.admsNodeID_c].dx(0);
+  dfdp[in.admsNodeID_c] += d_staticContributions_dX[in.admsNodeID_c];
+  dqdp[in.admsNodeID_c] += d_dynamicContributions_dX[in.admsNodeID_c];
   Findices[in.admsNodeID_c] = in.li_c;
   Qindices[in.admsNodeID_c] = in.li_c;
-  dfdp[in.admsNodeID_b] += staticContributions[in.admsNodeID_b].dx(0);
-  dqdp[in.admsNodeID_b] += dynamicContributions[in.admsNodeID_b].dx(0);
+  dfdp[in.admsNodeID_b] += d_staticContributions_dX[in.admsNodeID_b];
+  dqdp[in.admsNodeID_b] += d_dynamicContributions_dX[in.admsNodeID_b];
   Findices[in.admsNodeID_b] = in.li_b;
   Qindices[in.admsNodeID_b] = in.li_b;
-  dfdp[in.admsNodeID_e] += staticContributions[in.admsNodeID_e].dx(0);
-  dqdp[in.admsNodeID_e] += dynamicContributions[in.admsNodeID_e].dx(0);
+  dfdp[in.admsNodeID_e] += d_staticContributions_dX[in.admsNodeID_e];
+  dqdp[in.admsNodeID_e] += d_dynamicContributions_dX[in.admsNodeID_e];
   Findices[in.admsNodeID_e] = in.li_e;
   Qindices[in.admsNodeID_e] = in.li_e;
-  dfdp[in.admsNodeID_dt] += staticContributions[in.admsNodeID_dt].dx(0);
-  dqdp[in.admsNodeID_dt] += dynamicContributions[in.admsNodeID_dt].dx(0);
+  dfdp[in.admsNodeID_dt] += d_staticContributions_dX[in.admsNodeID_dt];
+  dqdp[in.admsNodeID_dt] += d_dynamicContributions_dX[in.admsNodeID_dt];
   Findices[in.admsNodeID_dt] = in.li_dt;
   Qindices[in.admsNodeID_dt] = in.li_dt;
-  dfdp[in.admsNodeID_cx] += staticContributions[in.admsNodeID_cx].dx(0);
-  dqdp[in.admsNodeID_cx] += dynamicContributions[in.admsNodeID_cx].dx(0);
+  dfdp[in.admsNodeID_cx] += d_staticContributions_dX[in.admsNodeID_cx];
+  dqdp[in.admsNodeID_cx] += d_dynamicContributions_dX[in.admsNodeID_cx];
   Findices[in.admsNodeID_cx] = in.li_cx;
   Qindices[in.admsNodeID_cx] = in.li_cx;
-  dfdp[in.admsNodeID_ci] += staticContributions[in.admsNodeID_ci].dx(0);
-  dqdp[in.admsNodeID_ci] += dynamicContributions[in.admsNodeID_ci].dx(0);
+  dfdp[in.admsNodeID_ci] += d_staticContributions_dX[in.admsNodeID_ci];
+  dqdp[in.admsNodeID_ci] += d_dynamicContributions_dX[in.admsNodeID_ci];
   Findices[in.admsNodeID_ci] = in.li_ci;
   Qindices[in.admsNodeID_ci] = in.li_ci;
-  dfdp[in.admsNodeID_bx] += staticContributions[in.admsNodeID_bx].dx(0);
-  dqdp[in.admsNodeID_bx] += dynamicContributions[in.admsNodeID_bx].dx(0);
+  dfdp[in.admsNodeID_bx] += d_staticContributions_dX[in.admsNodeID_bx];
+  dqdp[in.admsNodeID_bx] += d_dynamicContributions_dX[in.admsNodeID_bx];
   Findices[in.admsNodeID_bx] = in.li_bx;
   Qindices[in.admsNodeID_bx] = in.li_bx;
-  dfdp[in.admsNodeID_bi] += staticContributions[in.admsNodeID_bi].dx(0);
-  dqdp[in.admsNodeID_bi] += dynamicContributions[in.admsNodeID_bi].dx(0);
+  dfdp[in.admsNodeID_bi] += d_staticContributions_dX[in.admsNodeID_bi];
+  dqdp[in.admsNodeID_bi] += d_dynamicContributions_dX[in.admsNodeID_bi];
   Findices[in.admsNodeID_bi] = in.li_bi;
   Qindices[in.admsNodeID_bi] = in.li_bi;
-  dfdp[in.admsNodeID_ei] += staticContributions[in.admsNodeID_ei].dx(0);
-  dqdp[in.admsNodeID_ei] += dynamicContributions[in.admsNodeID_ei].dx(0);
+  dfdp[in.admsNodeID_ei] += d_staticContributions_dX[in.admsNodeID_ei];
+  dqdp[in.admsNodeID_ei] += d_dynamicContributions_dX[in.admsNodeID_ei];
   Findices[in.admsNodeID_ei] = in.li_ei;
   Qindices[in.admsNodeID_ei] = in.li_ei;
-  dfdp[in.admsNodeID_bp] += staticContributions[in.admsNodeID_bp].dx(0);
-  dqdp[in.admsNodeID_bp] += dynamicContributions[in.admsNodeID_bp].dx(0);
+  dfdp[in.admsNodeID_bp] += d_staticContributions_dX[in.admsNodeID_bp];
+  dqdp[in.admsNodeID_bp] += d_dynamicContributions_dX[in.admsNodeID_bp];
   Findices[in.admsNodeID_bp] = in.li_bp;
   Qindices[in.admsNodeID_bp] = in.li_bp;
-  dfdp[in.admsNodeID_xf1] += staticContributions[in.admsNodeID_xf1].dx(0);
-  dqdp[in.admsNodeID_xf1] += dynamicContributions[in.admsNodeID_xf1].dx(0);
+  dfdp[in.admsNodeID_xf1] += d_staticContributions_dX[in.admsNodeID_xf1];
+  dqdp[in.admsNodeID_xf1] += d_dynamicContributions_dX[in.admsNodeID_xf1];
   Findices[in.admsNodeID_xf1] = in.li_xf1;
   Qindices[in.admsNodeID_xf1] = in.li_xf1;
-  dfdp[in.admsNodeID_xf2] += staticContributions[in.admsNodeID_xf2].dx(0);
-  dqdp[in.admsNodeID_xf2] += dynamicContributions[in.admsNodeID_xf2].dx(0);
+  dfdp[in.admsNodeID_xf2] += d_staticContributions_dX[in.admsNodeID_xf2];
+  dqdp[in.admsNodeID_xf2] += d_dynamicContributions_dX[in.admsNodeID_xf2];
   Findices[in.admsNodeID_xf2] = in.li_xf2;
   Qindices[in.admsNodeID_xf2] = in.li_xf2;
 
@@ -12967,401 +15496,531 @@ void ModelSensitivity::operator()
   Qindices.resize((12+0)*sizeInstance);
 
   std::vector <double> probeVars(18);
-  std::vector <AdmsSensFadType> staticContributions(12+0);
-  std::vector <AdmsSensFadType> dynamicContributions(12+0);
+  std::vector <double> staticContributions(12+0);
+  std::vector <double> dynamicContributions(12+0);
+  std::vector <double> d_staticContributions_dX(12+0);
+  std::vector <double> d_dynamicContributions_dX(12+0);
 
 
   // Copy out all the model parameters (doubles) into FAD types
   // Keep a map so we can set the right one to the independent variable
   // We do this solely to avoid a big ugly "if/else" block just to find the
   // one parameter we're doing sensitivities on.
-  unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> modParamMap;
+  unordered_map <std::string,double*,HashNoCase,EqualNoCase> modParamMap;
 
   // reals
-  AdmsSensFadType modelPar_npn=mod.npn;
+  double modelPar_npn=mod.npn;
+  double d_modelPar_npn_dX=0.0;
   bool modelPar_given_npn=mod.given("npn");
-  modParamMap["npn"] = &modelPar_npn;
-  AdmsSensFadType modelPar_pnp=mod.pnp;
+  modParamMap["npn"] = &d_modelPar_npn_dX;
+  double modelPar_pnp=mod.pnp;
+  double d_modelPar_pnp_dX=0.0;
   bool modelPar_given_pnp=mod.given("pnp");
-  modParamMap["pnp"] = &modelPar_pnp;
-  AdmsSensFadType modelPar_scale=mod.scale;
+  modParamMap["pnp"] = &d_modelPar_pnp_dX;
+  double modelPar_scale=mod.scale;
+  double d_modelPar_scale_dX=0.0;
   bool modelPar_given_scale=mod.given("scale");
-  modParamMap["scale"] = &modelPar_scale;
-  AdmsSensFadType modelPar_shrink=mod.shrink;
+  modParamMap["scale"] = &d_modelPar_scale_dX;
+  double modelPar_shrink=mod.shrink;
+  double d_modelPar_shrink_dX=0.0;
   bool modelPar_given_shrink=mod.given("shrink");
-  modParamMap["shrink"] = &modelPar_shrink;
-  AdmsSensFadType modelPar_tmin=mod.tmin;
+  modParamMap["shrink"] = &d_modelPar_shrink_dX;
+  double modelPar_tmin=mod.tmin;
+  double d_modelPar_tmin_dX=0.0;
   bool modelPar_given_tmin=mod.given("tmin");
-  modParamMap["tmin"] = &modelPar_tmin;
-  AdmsSensFadType modelPar_tmax=mod.tmax;
+  modParamMap["tmin"] = &d_modelPar_tmin_dX;
+  double modelPar_tmax=mod.tmax;
+  double d_modelPar_tmax_dX=0.0;
   bool modelPar_given_tmax=mod.given("tmax");
-  modParamMap["tmax"] = &modelPar_tmax;
-  AdmsSensFadType modelPar_gmin=mod.gmin;
+  modParamMap["tmax"] = &d_modelPar_tmax_dX;
+  double modelPar_gmin=mod.gmin;
+  double d_modelPar_gmin_dX=0.0;
   bool modelPar_given_gmin=mod.given("gmin");
-  modParamMap["gmin"] = &modelPar_gmin;
-  AdmsSensFadType modelPar_pnjmaxi=mod.pnjmaxi;
+  modParamMap["gmin"] = &d_modelPar_gmin_dX;
+  double modelPar_pnjmaxi=mod.pnjmaxi;
+  double d_modelPar_pnjmaxi_dX=0.0;
   bool modelPar_given_pnjmaxi=mod.given("pnjmaxi");
-  modParamMap["pnjmaxi"] = &modelPar_pnjmaxi;
-  AdmsSensFadType modelPar_maxexp=mod.maxexp;
+  modParamMap["pnjmaxi"] = &d_modelPar_pnjmaxi_dX;
+  double modelPar_maxexp=mod.maxexp;
+  double d_modelPar_maxexp_dX=0.0;
   bool modelPar_given_maxexp=mod.given("maxexp");
-  modParamMap["maxexp"] = &modelPar_maxexp;
-  AdmsSensFadType modelPar_tnom=mod.tnom;
+  modParamMap["maxexp"] = &d_modelPar_maxexp_dX;
+  double modelPar_tnom=mod.tnom;
+  double d_modelPar_tnom_dX=0.0;
   bool modelPar_given_tnom=mod.given("tnom");
-  modParamMap["tnom"] = &modelPar_tnom;
-  AdmsSensFadType modelPar_tminclip=mod.tminclip;
+  modParamMap["tnom"] = &d_modelPar_tnom_dX;
+  double modelPar_tminclip=mod.tminclip;
+  double d_modelPar_tminclip_dX=0.0;
   bool modelPar_given_tminclip=mod.given("tminclip");
-  modParamMap["tminclip"] = &modelPar_tminclip;
-  AdmsSensFadType modelPar_tmaxclip=mod.tmaxclip;
+  modParamMap["tminclip"] = &d_modelPar_tminclip_dX;
+  double modelPar_tmaxclip=mod.tmaxclip;
+  double d_modelPar_tmaxclip_dX=0.0;
   bool modelPar_given_tmaxclip=mod.given("tmaxclip");
-  modParamMap["tmaxclip"] = &modelPar_tmaxclip;
-  AdmsSensFadType modelPar_rcx=mod.rcx;
+  modParamMap["tmaxclip"] = &d_modelPar_tmaxclip_dX;
+  double modelPar_rcx=mod.rcx;
+  double d_modelPar_rcx_dX=0.0;
   bool modelPar_given_rcx=mod.given("rcx");
-  modParamMap["rcx"] = &modelPar_rcx;
-  AdmsSensFadType modelPar_rci=mod.rci;
+  modParamMap["rcx"] = &d_modelPar_rcx_dX;
+  double modelPar_rci=mod.rci;
+  double d_modelPar_rci_dX=0.0;
   bool modelPar_given_rci=mod.given("rci");
-  modParamMap["rci"] = &modelPar_rci;
-  AdmsSensFadType modelPar_vo=mod.vo;
+  modParamMap["rci"] = &d_modelPar_rci_dX;
+  double modelPar_vo=mod.vo;
+  double d_modelPar_vo_dX=0.0;
   bool modelPar_given_vo=mod.given("vo");
-  modParamMap["vo"] = &modelPar_vo;
-  AdmsSensFadType modelPar_gamm=mod.gamm;
+  modParamMap["vo"] = &d_modelPar_vo_dX;
+  double modelPar_gamm=mod.gamm;
+  double d_modelPar_gamm_dX=0.0;
   bool modelPar_given_gamm=mod.given("gamm");
-  modParamMap["gamm"] = &modelPar_gamm;
-  AdmsSensFadType modelPar_hrcf=mod.hrcf;
+  modParamMap["gamm"] = &d_modelPar_gamm_dX;
+  double modelPar_hrcf=mod.hrcf;
+  double d_modelPar_hrcf_dX=0.0;
   bool modelPar_given_hrcf=mod.given("hrcf");
-  modParamMap["hrcf"] = &modelPar_hrcf;
-  AdmsSensFadType modelPar_rbx=mod.rbx;
+  modParamMap["hrcf"] = &d_modelPar_hrcf_dX;
+  double modelPar_rbx=mod.rbx;
+  double d_modelPar_rbx_dX=0.0;
   bool modelPar_given_rbx=mod.given("rbx");
-  modParamMap["rbx"] = &modelPar_rbx;
-  AdmsSensFadType modelPar_rbi=mod.rbi;
+  modParamMap["rbx"] = &d_modelPar_rbx_dX;
+  double modelPar_rbi=mod.rbi;
+  double d_modelPar_rbi_dX=0.0;
   bool modelPar_given_rbi=mod.given("rbi");
-  modParamMap["rbi"] = &modelPar_rbi;
-  AdmsSensFadType modelPar_re=mod.re;
+  modParamMap["rbi"] = &d_modelPar_rbi_dX;
+  double modelPar_re=mod.re;
+  double d_modelPar_re_dX=0.0;
   bool modelPar_given_re=mod.given("re");
-  modParamMap["re"] = &modelPar_re;
-  AdmsSensFadType modelPar_rs=mod.rs;
+  modParamMap["re"] = &d_modelPar_re_dX;
+  double modelPar_rs=mod.rs;
+  double d_modelPar_rs_dX=0.0;
   bool modelPar_given_rs=mod.given("rs");
-  modParamMap["rs"] = &modelPar_rs;
-  AdmsSensFadType modelPar_rbp=mod.rbp;
+  modParamMap["rs"] = &d_modelPar_rs_dX;
+  double modelPar_rbp=mod.rbp;
+  double d_modelPar_rbp_dX=0.0;
   bool modelPar_given_rbp=mod.given("rbp");
-  modParamMap["rbp"] = &modelPar_rbp;
-  AdmsSensFadType modelPar_is=mod.is;
+  modParamMap["rbp"] = &d_modelPar_rbp_dX;
+  double modelPar_is=mod.is;
+  double d_modelPar_is_dX=0.0;
   bool modelPar_given_is=mod.given("is");
-  modParamMap["is"] = &modelPar_is;
-  AdmsSensFadType modelPar_isrr=mod.isrr;
+  modParamMap["is"] = &d_modelPar_is_dX;
+  double modelPar_isrr=mod.isrr;
+  double d_modelPar_isrr_dX=0.0;
   bool modelPar_given_isrr=mod.given("isrr");
-  modParamMap["isrr"] = &modelPar_isrr;
-  AdmsSensFadType modelPar_nf=mod.nf;
+  modParamMap["isrr"] = &d_modelPar_isrr_dX;
+  double modelPar_nf=mod.nf;
+  double d_modelPar_nf_dX=0.0;
   bool modelPar_given_nf=mod.given("nf");
-  modParamMap["nf"] = &modelPar_nf;
-  AdmsSensFadType modelPar_nr=mod.nr;
+  modParamMap["nf"] = &d_modelPar_nf_dX;
+  double modelPar_nr=mod.nr;
+  double d_modelPar_nr_dX=0.0;
   bool modelPar_given_nr=mod.given("nr");
-  modParamMap["nr"] = &modelPar_nr;
-  AdmsSensFadType modelPar_isp=mod.isp;
+  modParamMap["nr"] = &d_modelPar_nr_dX;
+  double modelPar_isp=mod.isp;
+  double d_modelPar_isp_dX=0.0;
   bool modelPar_given_isp=mod.given("isp");
-  modParamMap["isp"] = &modelPar_isp;
-  AdmsSensFadType modelPar_wsp=mod.wsp;
+  modParamMap["isp"] = &d_modelPar_isp_dX;
+  double modelPar_wsp=mod.wsp;
+  double d_modelPar_wsp_dX=0.0;
   bool modelPar_given_wsp=mod.given("wsp");
-  modParamMap["wsp"] = &modelPar_wsp;
-  AdmsSensFadType modelPar_nfp=mod.nfp;
+  modParamMap["wsp"] = &d_modelPar_wsp_dX;
+  double modelPar_nfp=mod.nfp;
+  double d_modelPar_nfp_dX=0.0;
   bool modelPar_given_nfp=mod.given("nfp");
-  modParamMap["nfp"] = &modelPar_nfp;
-  AdmsSensFadType modelPar_fc=mod.fc;
+  modParamMap["nfp"] = &d_modelPar_nfp_dX;
+  double modelPar_fc=mod.fc;
+  double d_modelPar_fc_dX=0.0;
   bool modelPar_given_fc=mod.given("fc");
-  modParamMap["fc"] = &modelPar_fc;
-  AdmsSensFadType modelPar_cbeo=mod.cbeo;
+  modParamMap["fc"] = &d_modelPar_fc_dX;
+  double modelPar_cbeo=mod.cbeo;
+  double d_modelPar_cbeo_dX=0.0;
   bool modelPar_given_cbeo=mod.given("cbeo");
-  modParamMap["cbeo"] = &modelPar_cbeo;
-  AdmsSensFadType modelPar_cje=mod.cje;
+  modParamMap["cbeo"] = &d_modelPar_cbeo_dX;
+  double modelPar_cje=mod.cje;
+  double d_modelPar_cje_dX=0.0;
   bool modelPar_given_cje=mod.given("cje");
-  modParamMap["cje"] = &modelPar_cje;
-  AdmsSensFadType modelPar_pe=mod.pe;
+  modParamMap["cje"] = &d_modelPar_cje_dX;
+  double modelPar_pe=mod.pe;
+  double d_modelPar_pe_dX=0.0;
   bool modelPar_given_pe=mod.given("pe");
-  modParamMap["pe"] = &modelPar_pe;
-  AdmsSensFadType modelPar_me=mod.me;
+  modParamMap["pe"] = &d_modelPar_pe_dX;
+  double modelPar_me=mod.me;
+  double d_modelPar_me_dX=0.0;
   bool modelPar_given_me=mod.given("me");
-  modParamMap["me"] = &modelPar_me;
-  AdmsSensFadType modelPar_aje=mod.aje;
+  modParamMap["me"] = &d_modelPar_me_dX;
+  double modelPar_aje=mod.aje;
+  double d_modelPar_aje_dX=0.0;
   bool modelPar_given_aje=mod.given("aje");
-  modParamMap["aje"] = &modelPar_aje;
-  AdmsSensFadType modelPar_cbco=mod.cbco;
+  modParamMap["aje"] = &d_modelPar_aje_dX;
+  double modelPar_cbco=mod.cbco;
+  double d_modelPar_cbco_dX=0.0;
   bool modelPar_given_cbco=mod.given("cbco");
-  modParamMap["cbco"] = &modelPar_cbco;
-  AdmsSensFadType modelPar_cjc=mod.cjc;
+  modParamMap["cbco"] = &d_modelPar_cbco_dX;
+  double modelPar_cjc=mod.cjc;
+  double d_modelPar_cjc_dX=0.0;
   bool modelPar_given_cjc=mod.given("cjc");
-  modParamMap["cjc"] = &modelPar_cjc;
-  AdmsSensFadType modelPar_pc=mod.pc;
+  modParamMap["cjc"] = &d_modelPar_cjc_dX;
+  double modelPar_pc=mod.pc;
+  double d_modelPar_pc_dX=0.0;
   bool modelPar_given_pc=mod.given("pc");
-  modParamMap["pc"] = &modelPar_pc;
-  AdmsSensFadType modelPar_mc=mod.mc;
+  modParamMap["pc"] = &d_modelPar_pc_dX;
+  double modelPar_mc=mod.mc;
+  double d_modelPar_mc_dX=0.0;
   bool modelPar_given_mc=mod.given("mc");
-  modParamMap["mc"] = &modelPar_mc;
-  AdmsSensFadType modelPar_ajc=mod.ajc;
+  modParamMap["mc"] = &d_modelPar_mc_dX;
+  double modelPar_ajc=mod.ajc;
+  double d_modelPar_ajc_dX=0.0;
   bool modelPar_given_ajc=mod.given("ajc");
-  modParamMap["ajc"] = &modelPar_ajc;
-  AdmsSensFadType modelPar_vrt=mod.vrt;
+  modParamMap["ajc"] = &d_modelPar_ajc_dX;
+  double modelPar_vrt=mod.vrt;
+  double d_modelPar_vrt_dX=0.0;
   bool modelPar_given_vrt=mod.given("vrt");
-  modParamMap["vrt"] = &modelPar_vrt;
-  AdmsSensFadType modelPar_art=mod.art;
+  modParamMap["vrt"] = &d_modelPar_vrt_dX;
+  double modelPar_art=mod.art;
+  double d_modelPar_art_dX=0.0;
   bool modelPar_given_art=mod.given("art");
-  modParamMap["art"] = &modelPar_art;
-  AdmsSensFadType modelPar_qco=mod.qco;
+  modParamMap["art"] = &d_modelPar_art_dX;
+  double modelPar_qco=mod.qco;
+  double d_modelPar_qco_dX=0.0;
   bool modelPar_given_qco=mod.given("qco");
-  modParamMap["qco"] = &modelPar_qco;
-  AdmsSensFadType modelPar_cjep=mod.cjep;
+  modParamMap["qco"] = &d_modelPar_qco_dX;
+  double modelPar_cjep=mod.cjep;
+  double d_modelPar_cjep_dX=0.0;
   bool modelPar_given_cjep=mod.given("cjep");
-  modParamMap["cjep"] = &modelPar_cjep;
-  AdmsSensFadType modelPar_cjcp=mod.cjcp;
+  modParamMap["cjep"] = &d_modelPar_cjep_dX;
+  double modelPar_cjcp=mod.cjcp;
+  double d_modelPar_cjcp_dX=0.0;
   bool modelPar_given_cjcp=mod.given("cjcp");
-  modParamMap["cjcp"] = &modelPar_cjcp;
-  AdmsSensFadType modelPar_ps=mod.ps;
+  modParamMap["cjcp"] = &d_modelPar_cjcp_dX;
+  double modelPar_ps=mod.ps;
+  double d_modelPar_ps_dX=0.0;
   bool modelPar_given_ps=mod.given("ps");
-  modParamMap["ps"] = &modelPar_ps;
-  AdmsSensFadType modelPar_ms=mod.ms;
+  modParamMap["ps"] = &d_modelPar_ps_dX;
+  double modelPar_ms=mod.ms;
+  double d_modelPar_ms_dX=0.0;
   bool modelPar_given_ms=mod.given("ms");
-  modParamMap["ms"] = &modelPar_ms;
-  AdmsSensFadType modelPar_ajs=mod.ajs;
+  modParamMap["ms"] = &d_modelPar_ms_dX;
+  double modelPar_ajs=mod.ajs;
+  double d_modelPar_ajs_dX=0.0;
   bool modelPar_given_ajs=mod.given("ajs");
-  modParamMap["ajs"] = &modelPar_ajs;
-  AdmsSensFadType modelPar_ccso=mod.ccso;
+  modParamMap["ajs"] = &d_modelPar_ajs_dX;
+  double modelPar_ccso=mod.ccso;
+  double d_modelPar_ccso_dX=0.0;
   bool modelPar_given_ccso=mod.given("ccso");
-  modParamMap["ccso"] = &modelPar_ccso;
-  AdmsSensFadType modelPar_ibei=mod.ibei;
+  modParamMap["ccso"] = &d_modelPar_ccso_dX;
+  double modelPar_ibei=mod.ibei;
+  double d_modelPar_ibei_dX=0.0;
   bool modelPar_given_ibei=mod.given("ibei");
-  modParamMap["ibei"] = &modelPar_ibei;
-  AdmsSensFadType modelPar_wbe=mod.wbe;
+  modParamMap["ibei"] = &d_modelPar_ibei_dX;
+  double modelPar_wbe=mod.wbe;
+  double d_modelPar_wbe_dX=0.0;
   bool modelPar_given_wbe=mod.given("wbe");
-  modParamMap["wbe"] = &modelPar_wbe;
-  AdmsSensFadType modelPar_nei=mod.nei;
+  modParamMap["wbe"] = &d_modelPar_wbe_dX;
+  double modelPar_nei=mod.nei;
+  double d_modelPar_nei_dX=0.0;
   bool modelPar_given_nei=mod.given("nei");
-  modParamMap["nei"] = &modelPar_nei;
-  AdmsSensFadType modelPar_qnibeir=mod.qnibeir;
+  modParamMap["nei"] = &d_modelPar_nei_dX;
+  double modelPar_qnibeir=mod.qnibeir;
+  double d_modelPar_qnibeir_dX=0.0;
   bool modelPar_given_qnibeir=mod.given("qnibeir");
-  modParamMap["qnibeir"] = &modelPar_qnibeir;
-  AdmsSensFadType modelPar_iben=mod.iben;
+  modParamMap["qnibeir"] = &d_modelPar_qnibeir_dX;
+  double modelPar_iben=mod.iben;
+  double d_modelPar_iben_dX=0.0;
   bool modelPar_given_iben=mod.given("iben");
-  modParamMap["iben"] = &modelPar_iben;
-  AdmsSensFadType modelPar_nen=mod.nen;
+  modParamMap["iben"] = &d_modelPar_iben_dX;
+  double modelPar_nen=mod.nen;
+  double d_modelPar_nen_dX=0.0;
   bool modelPar_given_nen=mod.given("nen");
-  modParamMap["nen"] = &modelPar_nen;
-  AdmsSensFadType modelPar_ibci=mod.ibci;
+  modParamMap["nen"] = &d_modelPar_nen_dX;
+  double modelPar_ibci=mod.ibci;
+  double d_modelPar_ibci_dX=0.0;
   bool modelPar_given_ibci=mod.given("ibci");
-  modParamMap["ibci"] = &modelPar_ibci;
-  AdmsSensFadType modelPar_nci=mod.nci;
+  modParamMap["ibci"] = &d_modelPar_ibci_dX;
+  double modelPar_nci=mod.nci;
+  double d_modelPar_nci_dX=0.0;
   bool modelPar_given_nci=mod.given("nci");
-  modParamMap["nci"] = &modelPar_nci;
-  AdmsSensFadType modelPar_ibcn=mod.ibcn;
+  modParamMap["nci"] = &d_modelPar_nci_dX;
+  double modelPar_ibcn=mod.ibcn;
+  double d_modelPar_ibcn_dX=0.0;
   bool modelPar_given_ibcn=mod.given("ibcn");
-  modParamMap["ibcn"] = &modelPar_ibcn;
-  AdmsSensFadType modelPar_ncn=mod.ncn;
+  modParamMap["ibcn"] = &d_modelPar_ibcn_dX;
+  double modelPar_ncn=mod.ncn;
+  double d_modelPar_ncn_dX=0.0;
   bool modelPar_given_ncn=mod.given("ncn");
-  modParamMap["ncn"] = &modelPar_ncn;
-  AdmsSensFadType modelPar_ibeip=mod.ibeip;
+  modParamMap["ncn"] = &d_modelPar_ncn_dX;
+  double modelPar_ibeip=mod.ibeip;
+  double d_modelPar_ibeip_dX=0.0;
   bool modelPar_given_ibeip=mod.given("ibeip");
-  modParamMap["ibeip"] = &modelPar_ibeip;
-  AdmsSensFadType modelPar_ibenp=mod.ibenp;
+  modParamMap["ibeip"] = &d_modelPar_ibeip_dX;
+  double modelPar_ibenp=mod.ibenp;
+  double d_modelPar_ibenp_dX=0.0;
   bool modelPar_given_ibenp=mod.given("ibenp");
-  modParamMap["ibenp"] = &modelPar_ibenp;
-  AdmsSensFadType modelPar_ibcip=mod.ibcip;
+  modParamMap["ibenp"] = &d_modelPar_ibenp_dX;
+  double modelPar_ibcip=mod.ibcip;
+  double d_modelPar_ibcip_dX=0.0;
   bool modelPar_given_ibcip=mod.given("ibcip");
-  modParamMap["ibcip"] = &modelPar_ibcip;
-  AdmsSensFadType modelPar_ncip=mod.ncip;
+  modParamMap["ibcip"] = &d_modelPar_ibcip_dX;
+  double modelPar_ncip=mod.ncip;
+  double d_modelPar_ncip_dX=0.0;
   bool modelPar_given_ncip=mod.given("ncip");
-  modParamMap["ncip"] = &modelPar_ncip;
-  AdmsSensFadType modelPar_ibcnp=mod.ibcnp;
+  modParamMap["ncip"] = &d_modelPar_ncip_dX;
+  double modelPar_ibcnp=mod.ibcnp;
+  double d_modelPar_ibcnp_dX=0.0;
   bool modelPar_given_ibcnp=mod.given("ibcnp");
-  modParamMap["ibcnp"] = &modelPar_ibcnp;
-  AdmsSensFadType modelPar_ncnp=mod.ncnp;
+  modParamMap["ibcnp"] = &d_modelPar_ibcnp_dX;
+  double modelPar_ncnp=mod.ncnp;
+  double d_modelPar_ncnp_dX=0.0;
   bool modelPar_given_ncnp=mod.given("ncnp");
-  modParamMap["ncnp"] = &modelPar_ncnp;
-  AdmsSensFadType modelPar_vef=mod.vef;
+  modParamMap["ncnp"] = &d_modelPar_ncnp_dX;
+  double modelPar_vef=mod.vef;
+  double d_modelPar_vef_dX=0.0;
   bool modelPar_given_vef=mod.given("vef");
-  modParamMap["vef"] = &modelPar_vef;
-  AdmsSensFadType modelPar_ver=mod.ver;
+  modParamMap["vef"] = &d_modelPar_vef_dX;
+  double modelPar_ver=mod.ver;
+  double d_modelPar_ver_dX=0.0;
   bool modelPar_given_ver=mod.given("ver");
-  modParamMap["ver"] = &modelPar_ver;
-  AdmsSensFadType modelPar_ikf=mod.ikf;
+  modParamMap["ver"] = &d_modelPar_ver_dX;
+  double modelPar_ikf=mod.ikf;
+  double d_modelPar_ikf_dX=0.0;
   bool modelPar_given_ikf=mod.given("ikf");
-  modParamMap["ikf"] = &modelPar_ikf;
-  AdmsSensFadType modelPar_nkf=mod.nkf;
+  modParamMap["ikf"] = &d_modelPar_ikf_dX;
+  double modelPar_nkf=mod.nkf;
+  double d_modelPar_nkf_dX=0.0;
   bool modelPar_given_nkf=mod.given("nkf");
-  modParamMap["nkf"] = &modelPar_nkf;
-  AdmsSensFadType modelPar_ikr=mod.ikr;
+  modParamMap["nkf"] = &d_modelPar_nkf_dX;
+  double modelPar_ikr=mod.ikr;
+  double d_modelPar_ikr_dX=0.0;
   bool modelPar_given_ikr=mod.given("ikr");
-  modParamMap["ikr"] = &modelPar_ikr;
-  AdmsSensFadType modelPar_ikp=mod.ikp;
+  modParamMap["ikr"] = &d_modelPar_ikr_dX;
+  double modelPar_ikp=mod.ikp;
+  double d_modelPar_ikp_dX=0.0;
   bool modelPar_given_ikp=mod.given("ikp");
-  modParamMap["ikp"] = &modelPar_ikp;
-  AdmsSensFadType modelPar_tf=mod.tf;
+  modParamMap["ikp"] = &d_modelPar_ikp_dX;
+  double modelPar_tf=mod.tf;
+  double d_modelPar_tf_dX=0.0;
   bool modelPar_given_tf=mod.given("tf");
-  modParamMap["tf"] = &modelPar_tf;
-  AdmsSensFadType modelPar_qtf=mod.qtf;
+  modParamMap["tf"] = &d_modelPar_tf_dX;
+  double modelPar_qtf=mod.qtf;
+  double d_modelPar_qtf_dX=0.0;
   bool modelPar_given_qtf=mod.given("qtf");
-  modParamMap["qtf"] = &modelPar_qtf;
-  AdmsSensFadType modelPar_xtf=mod.xtf;
+  modParamMap["qtf"] = &d_modelPar_qtf_dX;
+  double modelPar_xtf=mod.xtf;
+  double d_modelPar_xtf_dX=0.0;
   bool modelPar_given_xtf=mod.given("xtf");
-  modParamMap["xtf"] = &modelPar_xtf;
-  AdmsSensFadType modelPar_vtf=mod.vtf;
+  modParamMap["xtf"] = &d_modelPar_xtf_dX;
+  double modelPar_vtf=mod.vtf;
+  double d_modelPar_vtf_dX=0.0;
   bool modelPar_given_vtf=mod.given("vtf");
-  modParamMap["vtf"] = &modelPar_vtf;
-  AdmsSensFadType modelPar_itf=mod.itf;
+  modParamMap["vtf"] = &d_modelPar_vtf_dX;
+  double modelPar_itf=mod.itf;
+  double d_modelPar_itf_dX=0.0;
   bool modelPar_given_itf=mod.given("itf");
-  modParamMap["itf"] = &modelPar_itf;
-  AdmsSensFadType modelPar_tr=mod.tr;
+  modParamMap["itf"] = &d_modelPar_itf_dX;
+  double modelPar_tr=mod.tr;
+  double d_modelPar_tr_dX=0.0;
   bool modelPar_given_tr=mod.given("tr");
-  modParamMap["tr"] = &modelPar_tr;
-  AdmsSensFadType modelPar_td=mod.td;
+  modParamMap["tr"] = &d_modelPar_tr_dX;
+  double modelPar_td=mod.td;
+  double d_modelPar_td_dX=0.0;
   bool modelPar_given_td=mod.given("td");
-  modParamMap["td"] = &modelPar_td;
-  AdmsSensFadType modelPar_avc1=mod.avc1;
+  modParamMap["td"] = &d_modelPar_td_dX;
+  double modelPar_avc1=mod.avc1;
+  double d_modelPar_avc1_dX=0.0;
   bool modelPar_given_avc1=mod.given("avc1");
-  modParamMap["avc1"] = &modelPar_avc1;
-  AdmsSensFadType modelPar_avc2=mod.avc2;
+  modParamMap["avc1"] = &d_modelPar_avc1_dX;
+  double modelPar_avc2=mod.avc2;
+  double d_modelPar_avc2_dX=0.0;
   bool modelPar_given_avc2=mod.given("avc2");
-  modParamMap["avc2"] = &modelPar_avc2;
-  AdmsSensFadType modelPar_avcx1=mod.avcx1;
+  modParamMap["avc2"] = &d_modelPar_avc2_dX;
+  double modelPar_avcx1=mod.avcx1;
+  double d_modelPar_avcx1_dX=0.0;
   bool modelPar_given_avcx1=mod.given("avcx1");
-  modParamMap["avcx1"] = &modelPar_avcx1;
-  AdmsSensFadType modelPar_avcx2=mod.avcx2;
+  modParamMap["avcx1"] = &d_modelPar_avcx1_dX;
+  double modelPar_avcx2=mod.avcx2;
+  double d_modelPar_avcx2_dX=0.0;
   bool modelPar_given_avcx2=mod.given("avcx2");
-  modParamMap["avcx2"] = &modelPar_avcx2;
-  AdmsSensFadType modelPar_mcx=mod.mcx;
+  modParamMap["avcx2"] = &d_modelPar_avcx2_dX;
+  double modelPar_mcx=mod.mcx;
+  double d_modelPar_mcx_dX=0.0;
   bool modelPar_given_mcx=mod.given("mcx");
-  modParamMap["mcx"] = &modelPar_mcx;
-  AdmsSensFadType modelPar_vbbe=mod.vbbe;
+  modParamMap["mcx"] = &d_modelPar_mcx_dX;
+  double modelPar_vbbe=mod.vbbe;
+  double d_modelPar_vbbe_dX=0.0;
   bool modelPar_given_vbbe=mod.given("vbbe");
-  modParamMap["vbbe"] = &modelPar_vbbe;
-  AdmsSensFadType modelPar_nbbe=mod.nbbe;
+  modParamMap["vbbe"] = &d_modelPar_vbbe_dX;
+  double modelPar_nbbe=mod.nbbe;
+  double d_modelPar_nbbe_dX=0.0;
   bool modelPar_given_nbbe=mod.given("nbbe");
-  modParamMap["nbbe"] = &modelPar_nbbe;
-  AdmsSensFadType modelPar_ibbe=mod.ibbe;
+  modParamMap["nbbe"] = &d_modelPar_nbbe_dX;
+  double modelPar_ibbe=mod.ibbe;
+  double d_modelPar_ibbe_dX=0.0;
   bool modelPar_given_ibbe=mod.given("ibbe");
-  modParamMap["ibbe"] = &modelPar_ibbe;
-  AdmsSensFadType modelPar_tvbbe1=mod.tvbbe1;
+  modParamMap["ibbe"] = &d_modelPar_ibbe_dX;
+  double modelPar_tvbbe1=mod.tvbbe1;
+  double d_modelPar_tvbbe1_dX=0.0;
   bool modelPar_given_tvbbe1=mod.given("tvbbe1");
-  modParamMap["tvbbe1"] = &modelPar_tvbbe1;
-  AdmsSensFadType modelPar_tvbbe2=mod.tvbbe2;
+  modParamMap["tvbbe1"] = &d_modelPar_tvbbe1_dX;
+  double modelPar_tvbbe2=mod.tvbbe2;
+  double d_modelPar_tvbbe2_dX=0.0;
   bool modelPar_given_tvbbe2=mod.given("tvbbe2");
-  modParamMap["tvbbe2"] = &modelPar_tvbbe2;
-  AdmsSensFadType modelPar_tnbbe=mod.tnbbe;
+  modParamMap["tvbbe2"] = &d_modelPar_tvbbe2_dX;
+  double modelPar_tnbbe=mod.tnbbe;
+  double d_modelPar_tnbbe_dX=0.0;
   bool modelPar_given_tnbbe=mod.given("tnbbe");
-  modParamMap["tnbbe"] = &modelPar_tnbbe;
-  AdmsSensFadType modelPar_vpte=mod.vpte;
+  modParamMap["tnbbe"] = &d_modelPar_tnbbe_dX;
+  double modelPar_vpte=mod.vpte;
+  double d_modelPar_vpte_dX=0.0;
   bool modelPar_given_vpte=mod.given("vpte");
-  modParamMap["vpte"] = &modelPar_vpte;
-  AdmsSensFadType modelPar_ibk0=mod.ibk0;
+  modParamMap["vpte"] = &d_modelPar_vpte_dX;
+  double modelPar_ibk0=mod.ibk0;
+  double d_modelPar_ibk0_dX=0.0;
   bool modelPar_given_ibk0=mod.given("ibk0");
-  modParamMap["ibk0"] = &modelPar_ibk0;
-  AdmsSensFadType modelPar_abk=mod.abk;
+  modParamMap["ibk0"] = &d_modelPar_ibk0_dX;
+  double modelPar_abk=mod.abk;
+  double d_modelPar_abk_dX=0.0;
   bool modelPar_given_abk=mod.given("abk");
-  modParamMap["abk"] = &modelPar_abk;
-  AdmsSensFadType modelPar_bbk=mod.bbk;
+  modParamMap["abk"] = &d_modelPar_abk_dX;
+  double modelPar_bbk=mod.bbk;
+  double d_modelPar_bbk_dX=0.0;
   bool modelPar_given_bbk=mod.given("bbk");
-  modParamMap["bbk"] = &modelPar_bbk;
-  AdmsSensFadType modelPar_kfn=mod.kfn;
+  modParamMap["bbk"] = &d_modelPar_bbk_dX;
+  double modelPar_kfn=mod.kfn;
+  double d_modelPar_kfn_dX=0.0;
   bool modelPar_given_kfn=mod.given("kfn");
-  modParamMap["kfn"] = &modelPar_kfn;
-  AdmsSensFadType modelPar_afn=mod.afn;
+  modParamMap["kfn"] = &d_modelPar_kfn_dX;
+  double modelPar_afn=mod.afn;
+  double d_modelPar_afn_dX=0.0;
   bool modelPar_given_afn=mod.given("afn");
-  modParamMap["afn"] = &modelPar_afn;
-  AdmsSensFadType modelPar_bfn=mod.bfn;
+  modParamMap["afn"] = &d_modelPar_afn_dX;
+  double modelPar_bfn=mod.bfn;
+  double d_modelPar_bfn_dX=0.0;
   bool modelPar_given_bfn=mod.given("bfn");
-  modParamMap["bfn"] = &modelPar_bfn;
-  AdmsSensFadType modelPar_rth=mod.rth;
+  modParamMap["bfn"] = &d_modelPar_bfn_dX;
+  double modelPar_rth=mod.rth;
+  double d_modelPar_rth_dX=0.0;
   bool modelPar_given_rth=mod.given("rth");
-  modParamMap["rth"] = &modelPar_rth;
-  AdmsSensFadType modelPar_cth=mod.cth;
+  modParamMap["rth"] = &d_modelPar_rth_dX;
+  double modelPar_cth=mod.cth;
+  double d_modelPar_cth_dX=0.0;
   bool modelPar_given_cth=mod.given("cth");
-  modParamMap["cth"] = &modelPar_cth;
-  AdmsSensFadType modelPar_xre=mod.xre;
+  modParamMap["cth"] = &d_modelPar_cth_dX;
+  double modelPar_xre=mod.xre;
+  double d_modelPar_xre_dX=0.0;
   bool modelPar_given_xre=mod.given("xre");
-  modParamMap["xre"] = &modelPar_xre;
-  AdmsSensFadType modelPar_xrb=mod.xrb;
+  modParamMap["xre"] = &d_modelPar_xre_dX;
+  double modelPar_xrb=mod.xrb;
+  double d_modelPar_xrb_dX=0.0;
   bool modelPar_given_xrb=mod.given("xrb");
-  modParamMap["xrb"] = &modelPar_xrb;
-  AdmsSensFadType modelPar_xrbi=mod.xrbi;
+  modParamMap["xrb"] = &d_modelPar_xrb_dX;
+  double modelPar_xrbi=mod.xrbi;
+  double d_modelPar_xrbi_dX=0.0;
   bool modelPar_given_xrbi=mod.given("xrbi");
-  modParamMap["xrbi"] = &modelPar_xrbi;
-  AdmsSensFadType modelPar_xrbx=mod.xrbx;
+  modParamMap["xrbi"] = &d_modelPar_xrbi_dX;
+  double modelPar_xrbx=mod.xrbx;
+  double d_modelPar_xrbx_dX=0.0;
   bool modelPar_given_xrbx=mod.given("xrbx");
-  modParamMap["xrbx"] = &modelPar_xrbx;
-  AdmsSensFadType modelPar_xrc=mod.xrc;
+  modParamMap["xrbx"] = &d_modelPar_xrbx_dX;
+  double modelPar_xrc=mod.xrc;
+  double d_modelPar_xrc_dX=0.0;
   bool modelPar_given_xrc=mod.given("xrc");
-  modParamMap["xrc"] = &modelPar_xrc;
-  AdmsSensFadType modelPar_xrci=mod.xrci;
+  modParamMap["xrc"] = &d_modelPar_xrc_dX;
+  double modelPar_xrci=mod.xrci;
+  double d_modelPar_xrci_dX=0.0;
   bool modelPar_given_xrci=mod.given("xrci");
-  modParamMap["xrci"] = &modelPar_xrci;
-  AdmsSensFadType modelPar_xrcx=mod.xrcx;
+  modParamMap["xrci"] = &d_modelPar_xrci_dX;
+  double modelPar_xrcx=mod.xrcx;
+  double d_modelPar_xrcx_dX=0.0;
   bool modelPar_given_xrcx=mod.given("xrcx");
-  modParamMap["xrcx"] = &modelPar_xrcx;
-  AdmsSensFadType modelPar_xrbp=mod.xrbp;
+  modParamMap["xrcx"] = &d_modelPar_xrcx_dX;
+  double modelPar_xrbp=mod.xrbp;
+  double d_modelPar_xrbp_dX=0.0;
   bool modelPar_given_xrbp=mod.given("xrbp");
-  modParamMap["xrbp"] = &modelPar_xrbp;
-  AdmsSensFadType modelPar_xrs=mod.xrs;
+  modParamMap["xrbp"] = &d_modelPar_xrbp_dX;
+  double modelPar_xrs=mod.xrs;
+  double d_modelPar_xrs_dX=0.0;
   bool modelPar_given_xrs=mod.given("xrs");
-  modParamMap["xrs"] = &modelPar_xrs;
-  AdmsSensFadType modelPar_xvo=mod.xvo;
+  modParamMap["xrs"] = &d_modelPar_xrs_dX;
+  double modelPar_xvo=mod.xvo;
+  double d_modelPar_xvo_dX=0.0;
   bool modelPar_given_xvo=mod.given("xvo");
-  modParamMap["xvo"] = &modelPar_xvo;
-  AdmsSensFadType modelPar_ea=mod.ea;
+  modParamMap["xvo"] = &d_modelPar_xvo_dX;
+  double modelPar_ea=mod.ea;
+  double d_modelPar_ea_dX=0.0;
   bool modelPar_given_ea=mod.given("ea");
-  modParamMap["ea"] = &modelPar_ea;
-  AdmsSensFadType modelPar_eaie=mod.eaie;
+  modParamMap["ea"] = &d_modelPar_ea_dX;
+  double modelPar_eaie=mod.eaie;
+  double d_modelPar_eaie_dX=0.0;
   bool modelPar_given_eaie=mod.given("eaie");
-  modParamMap["eaie"] = &modelPar_eaie;
-  AdmsSensFadType modelPar_eaic=mod.eaic;
+  modParamMap["eaie"] = &d_modelPar_eaie_dX;
+  double modelPar_eaic=mod.eaic;
+  double d_modelPar_eaic_dX=0.0;
   bool modelPar_given_eaic=mod.given("eaic");
-  modParamMap["eaic"] = &modelPar_eaic;
-  AdmsSensFadType modelPar_eais=mod.eais;
+  modParamMap["eaic"] = &d_modelPar_eaic_dX;
+  double modelPar_eais=mod.eais;
+  double d_modelPar_eais_dX=0.0;
   bool modelPar_given_eais=mod.given("eais");
-  modParamMap["eais"] = &modelPar_eais;
-  AdmsSensFadType modelPar_eane=mod.eane;
+  modParamMap["eais"] = &d_modelPar_eais_dX;
+  double modelPar_eane=mod.eane;
+  double d_modelPar_eane_dX=0.0;
   bool modelPar_given_eane=mod.given("eane");
-  modParamMap["eane"] = &modelPar_eane;
-  AdmsSensFadType modelPar_eanc=mod.eanc;
+  modParamMap["eane"] = &d_modelPar_eane_dX;
+  double modelPar_eanc=mod.eanc;
+  double d_modelPar_eanc_dX=0.0;
   bool modelPar_given_eanc=mod.given("eanc");
-  modParamMap["eanc"] = &modelPar_eanc;
-  AdmsSensFadType modelPar_eans=mod.eans;
+  modParamMap["eanc"] = &d_modelPar_eanc_dX;
+  double modelPar_eans=mod.eans;
+  double d_modelPar_eans_dX=0.0;
   bool modelPar_given_eans=mod.given("eans");
-  modParamMap["eans"] = &modelPar_eans;
-  AdmsSensFadType modelPar_eap=mod.eap;
+  modParamMap["eans"] = &d_modelPar_eans_dX;
+  double modelPar_eap=mod.eap;
+  double d_modelPar_eap_dX=0.0;
   bool modelPar_given_eap=mod.given("eap");
-  modParamMap["eap"] = &modelPar_eap;
-  AdmsSensFadType modelPar_dear=mod.dear;
+  modParamMap["eap"] = &d_modelPar_eap_dX;
+  double modelPar_dear=mod.dear;
+  double d_modelPar_dear_dX=0.0;
   bool modelPar_given_dear=mod.given("dear");
-  modParamMap["dear"] = &modelPar_dear;
-  AdmsSensFadType modelPar_xis=mod.xis;
+  modParamMap["dear"] = &d_modelPar_dear_dX;
+  double modelPar_xis=mod.xis;
+  double d_modelPar_xis_dX=0.0;
   bool modelPar_given_xis=mod.given("xis");
-  modParamMap["xis"] = &modelPar_xis;
-  AdmsSensFadType modelPar_xii=mod.xii;
+  modParamMap["xis"] = &d_modelPar_xis_dX;
+  double modelPar_xii=mod.xii;
+  double d_modelPar_xii_dX=0.0;
   bool modelPar_given_xii=mod.given("xii");
-  modParamMap["xii"] = &modelPar_xii;
-  AdmsSensFadType modelPar_xin=mod.xin;
+  modParamMap["xii"] = &d_modelPar_xii_dX;
+  double modelPar_xin=mod.xin;
+  double d_modelPar_xin_dX=0.0;
   bool modelPar_given_xin=mod.given("xin");
-  modParamMap["xin"] = &modelPar_xin;
-  AdmsSensFadType modelPar_xisr=mod.xisr;
+  modParamMap["xin"] = &d_modelPar_xin_dX;
+  double modelPar_xisr=mod.xisr;
+  double d_modelPar_xisr_dX=0.0;
   bool modelPar_given_xisr=mod.given("xisr");
-  modParamMap["xisr"] = &modelPar_xisr;
-  AdmsSensFadType modelPar_xikf=mod.xikf;
+  modParamMap["xisr"] = &d_modelPar_xisr_dX;
+  double modelPar_xikf=mod.xikf;
+  double d_modelPar_xikf_dX=0.0;
   bool modelPar_given_xikf=mod.given("xikf");
-  modParamMap["xikf"] = &modelPar_xikf;
-  AdmsSensFadType modelPar_tavc=mod.tavc;
+  modParamMap["xikf"] = &d_modelPar_xikf_dX;
+  double modelPar_tavc=mod.tavc;
+  double d_modelPar_tavc_dX=0.0;
   bool modelPar_given_tavc=mod.given("tavc");
-  modParamMap["tavc"] = &modelPar_tavc;
-  AdmsSensFadType modelPar_tavcx=mod.tavcx;
+  modParamMap["tavc"] = &d_modelPar_tavc_dX;
+  double modelPar_tavcx=mod.tavcx;
+  double d_modelPar_tavcx_dX=0.0;
   bool modelPar_given_tavcx=mod.given("tavcx");
-  modParamMap["tavcx"] = &modelPar_tavcx;
-  AdmsSensFadType modelPar_tnf=mod.tnf;
+  modParamMap["tavcx"] = &d_modelPar_tavcx_dX;
+  double modelPar_tnf=mod.tnf;
+  double d_modelPar_tnf_dX=0.0;
   bool modelPar_given_tnf=mod.given("tnf");
-  modParamMap["tnf"] = &modelPar_tnf;
-  AdmsSensFadType modelPar_tcvef=mod.tcvef;
+  modParamMap["tnf"] = &d_modelPar_tnf_dX;
+  double modelPar_tcvef=mod.tcvef;
+  double d_modelPar_tcvef_dX=0.0;
   bool modelPar_given_tcvef=mod.given("tcvef");
-  modParamMap["tcvef"] = &modelPar_tcvef;
-  AdmsSensFadType modelPar_tcver=mod.tcver;
+  modParamMap["tcvef"] = &d_modelPar_tcvef_dX;
+  double modelPar_tcver=mod.tcver;
+  double d_modelPar_tcver_dX=0.0;
   bool modelPar_given_tcver=mod.given("tcver");
-  modParamMap["tcver"] = &modelPar_tcver;
-  AdmsSensFadType modelPar_tcrth=mod.tcrth;
+  modParamMap["tcver"] = &d_modelPar_tcver_dX;
+  double modelPar_tcrth=mod.tcrth;
+  double d_modelPar_tcrth_dX=0.0;
   bool modelPar_given_tcrth=mod.given("tcrth");
-  modParamMap["tcrth"] = &modelPar_tcrth;
+  modParamMap["tcrth"] = &d_modelPar_tcrth_dX;
 
 
   // hidden reals
@@ -13379,21 +16038,21 @@ void ModelSensitivity::operator()
   // variable for Sacado purposes.  Since we stored variable pointers, this
   // makes sure that that ONE variable gets set right.
   // FIXME: make this check name for presence first!  Segfault on invalid.
-  modParamMap[name]->diff(0,1);
+  *(modParamMap[name])=1.0;
 
   //make local copies of all model vars
   //reals
-  AdmsSensFadType modelVar_tiniK=mod.tiniK;
-  AdmsSensFadType modelVar_Iikr=mod.Iikr;
-  AdmsSensFadType modelVar_Iikp=mod.Iikp;
-  AdmsSensFadType modelVar_Ihrcf=mod.Ihrcf;
-  AdmsSensFadType modelVar_Ivtf=mod.Ivtf;
-  AdmsSensFadType modelVar_Iitf=mod.Iitf;
-  AdmsSensFadType modelVar_sltf=mod.sltf;
-  AdmsSensFadType modelVar_VmaxExp=mod.VmaxExp;
-  AdmsSensFadType modelVar_gminMod=mod.gminMod;
-  AdmsSensFadType modelVar_imaxMod=mod.imaxMod;
-
+  double modelVar_tiniK=mod.tiniK;
+  double d_modelVar_tiniK_dX=0.0;double modelVar_Iikr=mod.Iikr;
+  double d_modelVar_Iikr_dX=0.0;double modelVar_Iikp=mod.Iikp;
+  double d_modelVar_Iikp_dX=0.0;double modelVar_Ihrcf=mod.Ihrcf;
+  double d_modelVar_Ihrcf_dX=0.0;double modelVar_Ivtf=mod.Ivtf;
+  double d_modelVar_Ivtf_dX=0.0;double modelVar_Iitf=mod.Iitf;
+  double d_modelVar_Iitf_dX=0.0;double modelVar_sltf=mod.sltf;
+  double d_modelVar_sltf_dX=0.0;double modelVar_VmaxExp=mod.VmaxExp;
+  double d_modelVar_VmaxExp_dX=0.0;double modelVar_gminMod=mod.gminMod;
+  double d_modelVar_gminMod_dX=0.0;double modelVar_imaxMod=mod.imaxMod;
+  double d_modelVar_imaxMod_dX=0.0;
 
   // non-reals
 
@@ -13410,15 +16069,19 @@ void ModelSensitivity::operator()
     {
       staticContributions[i]=0;
       dynamicContributions[i]=0;
+      d_staticContributions_dX[i]=0;
+      d_dynamicContributions_dX[i]=0;
     }
 
 
 
     // Copy out all the instance parameters (doubles) into FAD types
     // reals
-    AdmsSensFadType instancePar_m=in.m;
+    double instancePar_m=in.m;
+    double d_instancePar_m_dX=0.0;
     bool instancePar_given_m=in.given("m");
-    AdmsSensFadType instancePar_trise=in.trise;
+    double instancePar_trise=in.trise;
+    double d_instancePar_trise_dX=0.0;
     bool instancePar_given_trise=in.given("trise");
 
 
@@ -13443,47 +16106,88 @@ void ModelSensitivity::operator()
 
     //make local copies of all instance vars
     //reals
-    AdmsSensFadType instanceVar_is_t=in.is_t;
-    AdmsSensFadType instanceVar_isrr_t=in.isrr_t;
-    AdmsSensFadType instanceVar_ibei_t=in.ibei_t;
-    AdmsSensFadType instanceVar_ibci_t=in.ibci_t;
-    AdmsSensFadType instanceVar_isp_t=in.isp_t;
-    AdmsSensFadType instanceVar_iben_t=in.iben_t;
-    AdmsSensFadType instanceVar_ibcn_t=in.ibcn_t;
-    AdmsSensFadType instanceVar_ibeip_t=in.ibeip_t;
-    AdmsSensFadType instanceVar_ibenp_t=in.ibenp_t;
-    AdmsSensFadType instanceVar_ibcip_t=in.ibcip_t;
-    AdmsSensFadType instanceVar_ibcnp_t=in.ibcnp_t;
-    AdmsSensFadType instanceVar_tdevC=in.tdevC;
-    AdmsSensFadType instanceVar_tdevK=in.tdevK;
-    AdmsSensFadType instanceVar_rT=in.rT;
-    AdmsSensFadType instanceVar_Gcx=in.Gcx;
-    AdmsSensFadType instanceVar_Gci=in.Gci;
-    AdmsSensFadType instanceVar_Gbx=in.Gbx;
-    AdmsSensFadType instanceVar_Gbi=in.Gbi;
-    AdmsSensFadType instanceVar_Ge=in.Ge;
-    AdmsSensFadType instanceVar_Gbp=in.Gbp;
-    AdmsSensFadType instanceVar_maxvIfi=in.maxvIfi;
-    AdmsSensFadType instanceVar_maxvIri=in.maxvIri;
-    AdmsSensFadType instanceVar_maxvIp=in.maxvIp;
-    AdmsSensFadType instanceVar_maxvIbbe=in.maxvIbbe;
-    AdmsSensFadType instanceVar_maxvIbei=in.maxvIbei;
-    AdmsSensFadType instanceVar_maxvIben=in.maxvIben;
-    AdmsSensFadType instanceVar_maxvIbci=in.maxvIbci;
-    AdmsSensFadType instanceVar_maxvIbcn=in.maxvIbcn;
-    AdmsSensFadType instanceVar_maxvIbeip=in.maxvIbeip;
-    AdmsSensFadType instanceVar_maxvIbenp=in.maxvIbenp;
-    AdmsSensFadType instanceVar_vtv=in.vtv;
-    AdmsSensFadType instanceVar_Itzf=in.Itzf;
-    AdmsSensFadType instanceVar_qb=in.qb;
-    AdmsSensFadType instanceVar_qbp=in.qbp;
-    AdmsSensFadType instanceVar_Ibe=in.Ibe;
-    AdmsSensFadType instanceVar_Ibex=in.Ibex;
-    AdmsSensFadType instanceVar_Ibep=in.Ibep;
-    AdmsSensFadType instanceVar_Irci=in.Irci;
-    AdmsSensFadType instanceVar_Vrci=in.Vrci;
-    AdmsSensFadType instanceVar_mMod=in.mMod;
-    AdmsSensFadType instanceVar_tVCrit=in.tVCrit;
+    double instanceVar_is_t=in.is_t;
+    double d_instanceVar_is_t_dX=0.0;
+    double instanceVar_isrr_t=in.isrr_t;
+    double d_instanceVar_isrr_t_dX=0.0;
+    double instanceVar_ibei_t=in.ibei_t;
+    double d_instanceVar_ibei_t_dX=0.0;
+    double instanceVar_ibci_t=in.ibci_t;
+    double d_instanceVar_ibci_t_dX=0.0;
+    double instanceVar_isp_t=in.isp_t;
+    double d_instanceVar_isp_t_dX=0.0;
+    double instanceVar_iben_t=in.iben_t;
+    double d_instanceVar_iben_t_dX=0.0;
+    double instanceVar_ibcn_t=in.ibcn_t;
+    double d_instanceVar_ibcn_t_dX=0.0;
+    double instanceVar_ibeip_t=in.ibeip_t;
+    double d_instanceVar_ibeip_t_dX=0.0;
+    double instanceVar_ibenp_t=in.ibenp_t;
+    double d_instanceVar_ibenp_t_dX=0.0;
+    double instanceVar_ibcip_t=in.ibcip_t;
+    double d_instanceVar_ibcip_t_dX=0.0;
+    double instanceVar_ibcnp_t=in.ibcnp_t;
+    double d_instanceVar_ibcnp_t_dX=0.0;
+    double instanceVar_tdevC=in.tdevC;
+    double d_instanceVar_tdevC_dX=0.0;
+    double instanceVar_tdevK=in.tdevK;
+    double d_instanceVar_tdevK_dX=0.0;
+    double instanceVar_rT=in.rT;
+    double d_instanceVar_rT_dX=0.0;
+    double instanceVar_Gcx=in.Gcx;
+    double d_instanceVar_Gcx_dX=0.0;
+    double instanceVar_Gci=in.Gci;
+    double d_instanceVar_Gci_dX=0.0;
+    double instanceVar_Gbx=in.Gbx;
+    double d_instanceVar_Gbx_dX=0.0;
+    double instanceVar_Gbi=in.Gbi;
+    double d_instanceVar_Gbi_dX=0.0;
+    double instanceVar_Ge=in.Ge;
+    double d_instanceVar_Ge_dX=0.0;
+    double instanceVar_Gbp=in.Gbp;
+    double d_instanceVar_Gbp_dX=0.0;
+    double instanceVar_maxvIfi=in.maxvIfi;
+    double d_instanceVar_maxvIfi_dX=0.0;
+    double instanceVar_maxvIri=in.maxvIri;
+    double d_instanceVar_maxvIri_dX=0.0;
+    double instanceVar_maxvIp=in.maxvIp;
+    double d_instanceVar_maxvIp_dX=0.0;
+    double instanceVar_maxvIbbe=in.maxvIbbe;
+    double d_instanceVar_maxvIbbe_dX=0.0;
+    double instanceVar_maxvIbei=in.maxvIbei;
+    double d_instanceVar_maxvIbei_dX=0.0;
+    double instanceVar_maxvIben=in.maxvIben;
+    double d_instanceVar_maxvIben_dX=0.0;
+    double instanceVar_maxvIbci=in.maxvIbci;
+    double d_instanceVar_maxvIbci_dX=0.0;
+    double instanceVar_maxvIbcn=in.maxvIbcn;
+    double d_instanceVar_maxvIbcn_dX=0.0;
+    double instanceVar_maxvIbeip=in.maxvIbeip;
+    double d_instanceVar_maxvIbeip_dX=0.0;
+    double instanceVar_maxvIbenp=in.maxvIbenp;
+    double d_instanceVar_maxvIbenp_dX=0.0;
+    double instanceVar_vtv=in.vtv;
+    double d_instanceVar_vtv_dX=0.0;
+    double instanceVar_Itzf=in.Itzf;
+    double d_instanceVar_Itzf_dX=0.0;
+    double instanceVar_qb=in.qb;
+    double d_instanceVar_qb_dX=0.0;
+    double instanceVar_qbp=in.qbp;
+    double d_instanceVar_qbp_dX=0.0;
+    double instanceVar_Ibe=in.Ibe;
+    double d_instanceVar_Ibe_dX=0.0;
+    double instanceVar_Ibex=in.Ibex;
+    double d_instanceVar_Ibex_dX=0.0;
+    double instanceVar_Ibep=in.Ibep;
+    double d_instanceVar_Ibep_dX=0.0;
+    double instanceVar_Irci=in.Irci;
+    double d_instanceVar_Irci_dX=0.0;
+    double instanceVar_Vrci=in.Vrci;
+    double d_instanceVar_Vrci_dX=0.0;
+    double instanceVar_mMod=in.mMod;
+    double d_instanceVar_mMod_dX=0.0;
+    double instanceVar_tVCrit=in.tVCrit;
+    double d_instanceVar_tVCrit_dX=0.0;
 
 
     //non-reals
@@ -13492,7 +16196,7 @@ void ModelSensitivity::operator()
 
     Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-    // extract solution variables and set as Fad independent variables.
+    // extract solution variables
     probeVars[in.admsProbeID_V_xf2_GND] = (*solVectorPtr)[in.li_xf2];
     probeVars[in.admsProbeID_V_xf1_GND] = (*solVectorPtr)[in.li_xf1];
     probeVars[in.admsProbeID_V_bp_cx] = (*solVectorPtr)[in.li_bp] - (*solVectorPtr)[in.li_cx];
@@ -13531,260 +16235,388 @@ void ModelSensitivity::operator()
        // model parameters
        // reals
        modelPar_npn,
+       d_modelPar_npn_dX,
        modelPar_given_npn,
        modelPar_pnp,
+       d_modelPar_pnp_dX,
        modelPar_given_pnp,
        modelPar_scale,
+       d_modelPar_scale_dX,
        modelPar_given_scale,
        modelPar_shrink,
+       d_modelPar_shrink_dX,
        modelPar_given_shrink,
        modelPar_tmin,
+       d_modelPar_tmin_dX,
        modelPar_given_tmin,
        modelPar_tmax,
+       d_modelPar_tmax_dX,
        modelPar_given_tmax,
        modelPar_gmin,
+       d_modelPar_gmin_dX,
        modelPar_given_gmin,
        modelPar_pnjmaxi,
+       d_modelPar_pnjmaxi_dX,
        modelPar_given_pnjmaxi,
        modelPar_maxexp,
+       d_modelPar_maxexp_dX,
        modelPar_given_maxexp,
        modelPar_tnom,
+       d_modelPar_tnom_dX,
        modelPar_given_tnom,
        modelPar_tminclip,
+       d_modelPar_tminclip_dX,
        modelPar_given_tminclip,
        modelPar_tmaxclip,
+       d_modelPar_tmaxclip_dX,
        modelPar_given_tmaxclip,
        modelPar_rcx,
+       d_modelPar_rcx_dX,
        modelPar_given_rcx,
        modelPar_rci,
+       d_modelPar_rci_dX,
        modelPar_given_rci,
        modelPar_vo,
+       d_modelPar_vo_dX,
        modelPar_given_vo,
        modelPar_gamm,
+       d_modelPar_gamm_dX,
        modelPar_given_gamm,
        modelPar_hrcf,
+       d_modelPar_hrcf_dX,
        modelPar_given_hrcf,
        modelPar_rbx,
+       d_modelPar_rbx_dX,
        modelPar_given_rbx,
        modelPar_rbi,
+       d_modelPar_rbi_dX,
        modelPar_given_rbi,
        modelPar_re,
+       d_modelPar_re_dX,
        modelPar_given_re,
        modelPar_rs,
+       d_modelPar_rs_dX,
        modelPar_given_rs,
        modelPar_rbp,
+       d_modelPar_rbp_dX,
        modelPar_given_rbp,
        modelPar_is,
+       d_modelPar_is_dX,
        modelPar_given_is,
        modelPar_isrr,
+       d_modelPar_isrr_dX,
        modelPar_given_isrr,
        modelPar_nf,
+       d_modelPar_nf_dX,
        modelPar_given_nf,
        modelPar_nr,
+       d_modelPar_nr_dX,
        modelPar_given_nr,
        modelPar_isp,
+       d_modelPar_isp_dX,
        modelPar_given_isp,
        modelPar_wsp,
+       d_modelPar_wsp_dX,
        modelPar_given_wsp,
        modelPar_nfp,
+       d_modelPar_nfp_dX,
        modelPar_given_nfp,
        modelPar_fc,
+       d_modelPar_fc_dX,
        modelPar_given_fc,
        modelPar_cbeo,
+       d_modelPar_cbeo_dX,
        modelPar_given_cbeo,
        modelPar_cje,
+       d_modelPar_cje_dX,
        modelPar_given_cje,
        modelPar_pe,
+       d_modelPar_pe_dX,
        modelPar_given_pe,
        modelPar_me,
+       d_modelPar_me_dX,
        modelPar_given_me,
        modelPar_aje,
+       d_modelPar_aje_dX,
        modelPar_given_aje,
        modelPar_cbco,
+       d_modelPar_cbco_dX,
        modelPar_given_cbco,
        modelPar_cjc,
+       d_modelPar_cjc_dX,
        modelPar_given_cjc,
        modelPar_pc,
+       d_modelPar_pc_dX,
        modelPar_given_pc,
        modelPar_mc,
+       d_modelPar_mc_dX,
        modelPar_given_mc,
        modelPar_ajc,
+       d_modelPar_ajc_dX,
        modelPar_given_ajc,
        modelPar_vrt,
+       d_modelPar_vrt_dX,
        modelPar_given_vrt,
        modelPar_art,
+       d_modelPar_art_dX,
        modelPar_given_art,
        modelPar_qco,
+       d_modelPar_qco_dX,
        modelPar_given_qco,
        modelPar_cjep,
+       d_modelPar_cjep_dX,
        modelPar_given_cjep,
        modelPar_cjcp,
+       d_modelPar_cjcp_dX,
        modelPar_given_cjcp,
        modelPar_ps,
+       d_modelPar_ps_dX,
        modelPar_given_ps,
        modelPar_ms,
+       d_modelPar_ms_dX,
        modelPar_given_ms,
        modelPar_ajs,
+       d_modelPar_ajs_dX,
        modelPar_given_ajs,
        modelPar_ccso,
+       d_modelPar_ccso_dX,
        modelPar_given_ccso,
        modelPar_ibei,
+       d_modelPar_ibei_dX,
        modelPar_given_ibei,
        modelPar_wbe,
+       d_modelPar_wbe_dX,
        modelPar_given_wbe,
        modelPar_nei,
+       d_modelPar_nei_dX,
        modelPar_given_nei,
        modelPar_qnibeir,
+       d_modelPar_qnibeir_dX,
        modelPar_given_qnibeir,
        modelPar_iben,
+       d_modelPar_iben_dX,
        modelPar_given_iben,
        modelPar_nen,
+       d_modelPar_nen_dX,
        modelPar_given_nen,
        modelPar_ibci,
+       d_modelPar_ibci_dX,
        modelPar_given_ibci,
        modelPar_nci,
+       d_modelPar_nci_dX,
        modelPar_given_nci,
        modelPar_ibcn,
+       d_modelPar_ibcn_dX,
        modelPar_given_ibcn,
        modelPar_ncn,
+       d_modelPar_ncn_dX,
        modelPar_given_ncn,
        modelPar_ibeip,
+       d_modelPar_ibeip_dX,
        modelPar_given_ibeip,
        modelPar_ibenp,
+       d_modelPar_ibenp_dX,
        modelPar_given_ibenp,
        modelPar_ibcip,
+       d_modelPar_ibcip_dX,
        modelPar_given_ibcip,
        modelPar_ncip,
+       d_modelPar_ncip_dX,
        modelPar_given_ncip,
        modelPar_ibcnp,
+       d_modelPar_ibcnp_dX,
        modelPar_given_ibcnp,
        modelPar_ncnp,
+       d_modelPar_ncnp_dX,
        modelPar_given_ncnp,
        modelPar_vef,
+       d_modelPar_vef_dX,
        modelPar_given_vef,
        modelPar_ver,
+       d_modelPar_ver_dX,
        modelPar_given_ver,
        modelPar_ikf,
+       d_modelPar_ikf_dX,
        modelPar_given_ikf,
        modelPar_nkf,
+       d_modelPar_nkf_dX,
        modelPar_given_nkf,
        modelPar_ikr,
+       d_modelPar_ikr_dX,
        modelPar_given_ikr,
        modelPar_ikp,
+       d_modelPar_ikp_dX,
        modelPar_given_ikp,
        modelPar_tf,
+       d_modelPar_tf_dX,
        modelPar_given_tf,
        modelPar_qtf,
+       d_modelPar_qtf_dX,
        modelPar_given_qtf,
        modelPar_xtf,
+       d_modelPar_xtf_dX,
        modelPar_given_xtf,
        modelPar_vtf,
+       d_modelPar_vtf_dX,
        modelPar_given_vtf,
        modelPar_itf,
+       d_modelPar_itf_dX,
        modelPar_given_itf,
        modelPar_tr,
+       d_modelPar_tr_dX,
        modelPar_given_tr,
        modelPar_td,
+       d_modelPar_td_dX,
        modelPar_given_td,
        modelPar_avc1,
+       d_modelPar_avc1_dX,
        modelPar_given_avc1,
        modelPar_avc2,
+       d_modelPar_avc2_dX,
        modelPar_given_avc2,
        modelPar_avcx1,
+       d_modelPar_avcx1_dX,
        modelPar_given_avcx1,
        modelPar_avcx2,
+       d_modelPar_avcx2_dX,
        modelPar_given_avcx2,
        modelPar_mcx,
+       d_modelPar_mcx_dX,
        modelPar_given_mcx,
        modelPar_vbbe,
+       d_modelPar_vbbe_dX,
        modelPar_given_vbbe,
        modelPar_nbbe,
+       d_modelPar_nbbe_dX,
        modelPar_given_nbbe,
        modelPar_ibbe,
+       d_modelPar_ibbe_dX,
        modelPar_given_ibbe,
        modelPar_tvbbe1,
+       d_modelPar_tvbbe1_dX,
        modelPar_given_tvbbe1,
        modelPar_tvbbe2,
+       d_modelPar_tvbbe2_dX,
        modelPar_given_tvbbe2,
        modelPar_tnbbe,
+       d_modelPar_tnbbe_dX,
        modelPar_given_tnbbe,
        modelPar_vpte,
+       d_modelPar_vpte_dX,
        modelPar_given_vpte,
        modelPar_ibk0,
+       d_modelPar_ibk0_dX,
        modelPar_given_ibk0,
        modelPar_abk,
+       d_modelPar_abk_dX,
        modelPar_given_abk,
        modelPar_bbk,
+       d_modelPar_bbk_dX,
        modelPar_given_bbk,
        modelPar_kfn,
+       d_modelPar_kfn_dX,
        modelPar_given_kfn,
        modelPar_afn,
+       d_modelPar_afn_dX,
        modelPar_given_afn,
        modelPar_bfn,
+       d_modelPar_bfn_dX,
        modelPar_given_bfn,
        modelPar_rth,
+       d_modelPar_rth_dX,
        modelPar_given_rth,
        modelPar_cth,
+       d_modelPar_cth_dX,
        modelPar_given_cth,
        modelPar_xre,
+       d_modelPar_xre_dX,
        modelPar_given_xre,
        modelPar_xrb,
+       d_modelPar_xrb_dX,
        modelPar_given_xrb,
        modelPar_xrbi,
+       d_modelPar_xrbi_dX,
        modelPar_given_xrbi,
        modelPar_xrbx,
+       d_modelPar_xrbx_dX,
        modelPar_given_xrbx,
        modelPar_xrc,
+       d_modelPar_xrc_dX,
        modelPar_given_xrc,
        modelPar_xrci,
+       d_modelPar_xrci_dX,
        modelPar_given_xrci,
        modelPar_xrcx,
+       d_modelPar_xrcx_dX,
        modelPar_given_xrcx,
        modelPar_xrbp,
+       d_modelPar_xrbp_dX,
        modelPar_given_xrbp,
        modelPar_xrs,
+       d_modelPar_xrs_dX,
        modelPar_given_xrs,
        modelPar_xvo,
+       d_modelPar_xvo_dX,
        modelPar_given_xvo,
        modelPar_ea,
+       d_modelPar_ea_dX,
        modelPar_given_ea,
        modelPar_eaie,
+       d_modelPar_eaie_dX,
        modelPar_given_eaie,
        modelPar_eaic,
+       d_modelPar_eaic_dX,
        modelPar_given_eaic,
        modelPar_eais,
+       d_modelPar_eais_dX,
        modelPar_given_eais,
        modelPar_eane,
+       d_modelPar_eane_dX,
        modelPar_given_eane,
        modelPar_eanc,
+       d_modelPar_eanc_dX,
        modelPar_given_eanc,
        modelPar_eans,
+       d_modelPar_eans_dX,
        modelPar_given_eans,
        modelPar_eap,
+       d_modelPar_eap_dX,
        modelPar_given_eap,
        modelPar_dear,
+       d_modelPar_dear_dX,
        modelPar_given_dear,
        modelPar_xis,
+       d_modelPar_xis_dX,
        modelPar_given_xis,
        modelPar_xii,
+       d_modelPar_xii_dX,
        modelPar_given_xii,
        modelPar_xin,
+       d_modelPar_xin_dX,
        modelPar_given_xin,
        modelPar_xisr,
+       d_modelPar_xisr_dX,
        modelPar_given_xisr,
        modelPar_xikf,
+       d_modelPar_xikf_dX,
        modelPar_given_xikf,
        modelPar_tavc,
+       d_modelPar_tavc_dX,
        modelPar_given_tavc,
        modelPar_tavcx,
+       d_modelPar_tavcx_dX,
        modelPar_given_tavcx,
        modelPar_tnf,
+       d_modelPar_tnf_dX,
        modelPar_given_tnf,
        modelPar_tcvef,
+       d_modelPar_tcvef_dX,
        modelPar_given_tcvef,
        modelPar_tcver,
+       d_modelPar_tcver_dX,
        modelPar_given_tcver,
        modelPar_tcrth,
+       d_modelPar_tcrth_dX,
        modelPar_given_tcrth,
        // non-reals (including hidden)
        modelPar_type,
@@ -13794,23 +16626,25 @@ void ModelSensitivity::operator()
        modelPar_given_qbm// model variables
        ,
        // reals
-       modelVar_tiniK,
-       modelVar_Iikr,
-       modelVar_Iikp,
-       modelVar_Ihrcf,
-       modelVar_Ivtf,
-       modelVar_Iitf,
-       modelVar_sltf,
-       modelVar_VmaxExp,
-       modelVar_gminMod,
-       modelVar_imaxMod,
+       modelVar_tiniK, d_modelVar_tiniK_dX ,
+       modelVar_Iikr, d_modelVar_Iikr_dX ,
+       modelVar_Iikp, d_modelVar_Iikp_dX ,
+       modelVar_Ihrcf, d_modelVar_Ihrcf_dX ,
+       modelVar_Ivtf, d_modelVar_Ivtf_dX ,
+       modelVar_Iitf, d_modelVar_Iitf_dX ,
+       modelVar_sltf, d_modelVar_sltf_dX ,
+       modelVar_VmaxExp, d_modelVar_VmaxExp_dX ,
+       modelVar_gminMod, d_modelVar_gminMod_dX ,
+       modelVar_imaxMod, d_modelVar_imaxMod_dX ,
        mod.admsModTemp,in.getDeviceOptions().gmin,in);
     evaluateInitialInstance(
        // instance parameters
        // reals
        instancePar_m,
+       d_instancePar_m_dX,
        instancePar_given_m,
        instancePar_trise,
+       d_instancePar_trise_dX,
        instancePar_given_trise,
        // non-reals(including hidden)
        instancePar_sw_noise,
@@ -13819,304 +16653,432 @@ void ModelSensitivity::operator()
        instancePar_given_sw_et,
        // instance variables
        // reals
-       instanceVar_is_t,
-       instanceVar_isrr_t,
-       instanceVar_ibei_t,
-       instanceVar_ibci_t,
-       instanceVar_isp_t,
-       instanceVar_iben_t,
-       instanceVar_ibcn_t,
-       instanceVar_ibeip_t,
-       instanceVar_ibenp_t,
-       instanceVar_ibcip_t,
-       instanceVar_ibcnp_t,
-       instanceVar_tdevC,
-       instanceVar_tdevK,
-       instanceVar_rT,
-       instanceVar_Gcx,
-       instanceVar_Gci,
-       instanceVar_Gbx,
-       instanceVar_Gbi,
-       instanceVar_Ge,
-       instanceVar_Gbp,
-       instanceVar_maxvIfi,
-       instanceVar_maxvIri,
-       instanceVar_maxvIp,
-       instanceVar_maxvIbbe,
-       instanceVar_maxvIbei,
-       instanceVar_maxvIben,
-       instanceVar_maxvIbci,
-       instanceVar_maxvIbcn,
-       instanceVar_maxvIbeip,
-       instanceVar_maxvIbenp,
-       instanceVar_vtv,
-       instanceVar_Itzf,
-       instanceVar_qb,
-       instanceVar_qbp,
-       instanceVar_Ibe,
-       instanceVar_Ibex,
-       instanceVar_Ibep,
-       instanceVar_Irci,
-       instanceVar_Vrci,
-       instanceVar_mMod,
-       instanceVar_tVCrit,
+       instanceVar_is_t, d_instanceVar_is_t_dX ,
+       instanceVar_isrr_t, d_instanceVar_isrr_t_dX ,
+       instanceVar_ibei_t, d_instanceVar_ibei_t_dX ,
+       instanceVar_ibci_t, d_instanceVar_ibci_t_dX ,
+       instanceVar_isp_t, d_instanceVar_isp_t_dX ,
+       instanceVar_iben_t, d_instanceVar_iben_t_dX ,
+       instanceVar_ibcn_t, d_instanceVar_ibcn_t_dX ,
+       instanceVar_ibeip_t, d_instanceVar_ibeip_t_dX ,
+       instanceVar_ibenp_t, d_instanceVar_ibenp_t_dX ,
+       instanceVar_ibcip_t, d_instanceVar_ibcip_t_dX ,
+       instanceVar_ibcnp_t, d_instanceVar_ibcnp_t_dX ,
+       instanceVar_tdevC, d_instanceVar_tdevC_dX ,
+       instanceVar_tdevK, d_instanceVar_tdevK_dX ,
+       instanceVar_rT, d_instanceVar_rT_dX ,
+       instanceVar_Gcx, d_instanceVar_Gcx_dX ,
+       instanceVar_Gci, d_instanceVar_Gci_dX ,
+       instanceVar_Gbx, d_instanceVar_Gbx_dX ,
+       instanceVar_Gbi, d_instanceVar_Gbi_dX ,
+       instanceVar_Ge, d_instanceVar_Ge_dX ,
+       instanceVar_Gbp, d_instanceVar_Gbp_dX ,
+       instanceVar_maxvIfi, d_instanceVar_maxvIfi_dX ,
+       instanceVar_maxvIri, d_instanceVar_maxvIri_dX ,
+       instanceVar_maxvIp, d_instanceVar_maxvIp_dX ,
+       instanceVar_maxvIbbe, d_instanceVar_maxvIbbe_dX ,
+       instanceVar_maxvIbei, d_instanceVar_maxvIbei_dX ,
+       instanceVar_maxvIben, d_instanceVar_maxvIben_dX ,
+       instanceVar_maxvIbci, d_instanceVar_maxvIbci_dX ,
+       instanceVar_maxvIbcn, d_instanceVar_maxvIbcn_dX ,
+       instanceVar_maxvIbeip, d_instanceVar_maxvIbeip_dX ,
+       instanceVar_maxvIbenp, d_instanceVar_maxvIbenp_dX ,
+       instanceVar_vtv, d_instanceVar_vtv_dX ,
+       instanceVar_Itzf, d_instanceVar_Itzf_dX ,
+       instanceVar_qb, d_instanceVar_qb_dX ,
+       instanceVar_qbp, d_instanceVar_qbp_dX ,
+       instanceVar_Ibe, d_instanceVar_Ibe_dX ,
+       instanceVar_Ibex, d_instanceVar_Ibex_dX ,
+       instanceVar_Ibep, d_instanceVar_Ibep_dX ,
+       instanceVar_Irci, d_instanceVar_Irci_dX ,
+       instanceVar_Vrci, d_instanceVar_Vrci_dX ,
+       instanceVar_mMod, d_instanceVar_mMod_dX ,
+       instanceVar_tVCrit, d_instanceVar_tVCrit_dX ,
        // model parameters
        // reals
        modelPar_npn,
+       d_modelPar_npn_dX,
        modelPar_given_npn,
        modelPar_pnp,
+       d_modelPar_pnp_dX,
        modelPar_given_pnp,
        modelPar_scale,
+       d_modelPar_scale_dX,
        modelPar_given_scale,
        modelPar_shrink,
+       d_modelPar_shrink_dX,
        modelPar_given_shrink,
        modelPar_tmin,
+       d_modelPar_tmin_dX,
        modelPar_given_tmin,
        modelPar_tmax,
+       d_modelPar_tmax_dX,
        modelPar_given_tmax,
        modelPar_gmin,
+       d_modelPar_gmin_dX,
        modelPar_given_gmin,
        modelPar_pnjmaxi,
+       d_modelPar_pnjmaxi_dX,
        modelPar_given_pnjmaxi,
        modelPar_maxexp,
+       d_modelPar_maxexp_dX,
        modelPar_given_maxexp,
        modelPar_tnom,
+       d_modelPar_tnom_dX,
        modelPar_given_tnom,
        modelPar_tminclip,
+       d_modelPar_tminclip_dX,
        modelPar_given_tminclip,
        modelPar_tmaxclip,
+       d_modelPar_tmaxclip_dX,
        modelPar_given_tmaxclip,
        modelPar_rcx,
+       d_modelPar_rcx_dX,
        modelPar_given_rcx,
        modelPar_rci,
+       d_modelPar_rci_dX,
        modelPar_given_rci,
        modelPar_vo,
+       d_modelPar_vo_dX,
        modelPar_given_vo,
        modelPar_gamm,
+       d_modelPar_gamm_dX,
        modelPar_given_gamm,
        modelPar_hrcf,
+       d_modelPar_hrcf_dX,
        modelPar_given_hrcf,
        modelPar_rbx,
+       d_modelPar_rbx_dX,
        modelPar_given_rbx,
        modelPar_rbi,
+       d_modelPar_rbi_dX,
        modelPar_given_rbi,
        modelPar_re,
+       d_modelPar_re_dX,
        modelPar_given_re,
        modelPar_rs,
+       d_modelPar_rs_dX,
        modelPar_given_rs,
        modelPar_rbp,
+       d_modelPar_rbp_dX,
        modelPar_given_rbp,
        modelPar_is,
+       d_modelPar_is_dX,
        modelPar_given_is,
        modelPar_isrr,
+       d_modelPar_isrr_dX,
        modelPar_given_isrr,
        modelPar_nf,
+       d_modelPar_nf_dX,
        modelPar_given_nf,
        modelPar_nr,
+       d_modelPar_nr_dX,
        modelPar_given_nr,
        modelPar_isp,
+       d_modelPar_isp_dX,
        modelPar_given_isp,
        modelPar_wsp,
+       d_modelPar_wsp_dX,
        modelPar_given_wsp,
        modelPar_nfp,
+       d_modelPar_nfp_dX,
        modelPar_given_nfp,
        modelPar_fc,
+       d_modelPar_fc_dX,
        modelPar_given_fc,
        modelPar_cbeo,
+       d_modelPar_cbeo_dX,
        modelPar_given_cbeo,
        modelPar_cje,
+       d_modelPar_cje_dX,
        modelPar_given_cje,
        modelPar_pe,
+       d_modelPar_pe_dX,
        modelPar_given_pe,
        modelPar_me,
+       d_modelPar_me_dX,
        modelPar_given_me,
        modelPar_aje,
+       d_modelPar_aje_dX,
        modelPar_given_aje,
        modelPar_cbco,
+       d_modelPar_cbco_dX,
        modelPar_given_cbco,
        modelPar_cjc,
+       d_modelPar_cjc_dX,
        modelPar_given_cjc,
        modelPar_pc,
+       d_modelPar_pc_dX,
        modelPar_given_pc,
        modelPar_mc,
+       d_modelPar_mc_dX,
        modelPar_given_mc,
        modelPar_ajc,
+       d_modelPar_ajc_dX,
        modelPar_given_ajc,
        modelPar_vrt,
+       d_modelPar_vrt_dX,
        modelPar_given_vrt,
        modelPar_art,
+       d_modelPar_art_dX,
        modelPar_given_art,
        modelPar_qco,
+       d_modelPar_qco_dX,
        modelPar_given_qco,
        modelPar_cjep,
+       d_modelPar_cjep_dX,
        modelPar_given_cjep,
        modelPar_cjcp,
+       d_modelPar_cjcp_dX,
        modelPar_given_cjcp,
        modelPar_ps,
+       d_modelPar_ps_dX,
        modelPar_given_ps,
        modelPar_ms,
+       d_modelPar_ms_dX,
        modelPar_given_ms,
        modelPar_ajs,
+       d_modelPar_ajs_dX,
        modelPar_given_ajs,
        modelPar_ccso,
+       d_modelPar_ccso_dX,
        modelPar_given_ccso,
        modelPar_ibei,
+       d_modelPar_ibei_dX,
        modelPar_given_ibei,
        modelPar_wbe,
+       d_modelPar_wbe_dX,
        modelPar_given_wbe,
        modelPar_nei,
+       d_modelPar_nei_dX,
        modelPar_given_nei,
        modelPar_qnibeir,
+       d_modelPar_qnibeir_dX,
        modelPar_given_qnibeir,
        modelPar_iben,
+       d_modelPar_iben_dX,
        modelPar_given_iben,
        modelPar_nen,
+       d_modelPar_nen_dX,
        modelPar_given_nen,
        modelPar_ibci,
+       d_modelPar_ibci_dX,
        modelPar_given_ibci,
        modelPar_nci,
+       d_modelPar_nci_dX,
        modelPar_given_nci,
        modelPar_ibcn,
+       d_modelPar_ibcn_dX,
        modelPar_given_ibcn,
        modelPar_ncn,
+       d_modelPar_ncn_dX,
        modelPar_given_ncn,
        modelPar_ibeip,
+       d_modelPar_ibeip_dX,
        modelPar_given_ibeip,
        modelPar_ibenp,
+       d_modelPar_ibenp_dX,
        modelPar_given_ibenp,
        modelPar_ibcip,
+       d_modelPar_ibcip_dX,
        modelPar_given_ibcip,
        modelPar_ncip,
+       d_modelPar_ncip_dX,
        modelPar_given_ncip,
        modelPar_ibcnp,
+       d_modelPar_ibcnp_dX,
        modelPar_given_ibcnp,
        modelPar_ncnp,
+       d_modelPar_ncnp_dX,
        modelPar_given_ncnp,
        modelPar_vef,
+       d_modelPar_vef_dX,
        modelPar_given_vef,
        modelPar_ver,
+       d_modelPar_ver_dX,
        modelPar_given_ver,
        modelPar_ikf,
+       d_modelPar_ikf_dX,
        modelPar_given_ikf,
        modelPar_nkf,
+       d_modelPar_nkf_dX,
        modelPar_given_nkf,
        modelPar_ikr,
+       d_modelPar_ikr_dX,
        modelPar_given_ikr,
        modelPar_ikp,
+       d_modelPar_ikp_dX,
        modelPar_given_ikp,
        modelPar_tf,
+       d_modelPar_tf_dX,
        modelPar_given_tf,
        modelPar_qtf,
+       d_modelPar_qtf_dX,
        modelPar_given_qtf,
        modelPar_xtf,
+       d_modelPar_xtf_dX,
        modelPar_given_xtf,
        modelPar_vtf,
+       d_modelPar_vtf_dX,
        modelPar_given_vtf,
        modelPar_itf,
+       d_modelPar_itf_dX,
        modelPar_given_itf,
        modelPar_tr,
+       d_modelPar_tr_dX,
        modelPar_given_tr,
        modelPar_td,
+       d_modelPar_td_dX,
        modelPar_given_td,
        modelPar_avc1,
+       d_modelPar_avc1_dX,
        modelPar_given_avc1,
        modelPar_avc2,
+       d_modelPar_avc2_dX,
        modelPar_given_avc2,
        modelPar_avcx1,
+       d_modelPar_avcx1_dX,
        modelPar_given_avcx1,
        modelPar_avcx2,
+       d_modelPar_avcx2_dX,
        modelPar_given_avcx2,
        modelPar_mcx,
+       d_modelPar_mcx_dX,
        modelPar_given_mcx,
        modelPar_vbbe,
+       d_modelPar_vbbe_dX,
        modelPar_given_vbbe,
        modelPar_nbbe,
+       d_modelPar_nbbe_dX,
        modelPar_given_nbbe,
        modelPar_ibbe,
+       d_modelPar_ibbe_dX,
        modelPar_given_ibbe,
        modelPar_tvbbe1,
+       d_modelPar_tvbbe1_dX,
        modelPar_given_tvbbe1,
        modelPar_tvbbe2,
+       d_modelPar_tvbbe2_dX,
        modelPar_given_tvbbe2,
        modelPar_tnbbe,
+       d_modelPar_tnbbe_dX,
        modelPar_given_tnbbe,
        modelPar_vpte,
+       d_modelPar_vpte_dX,
        modelPar_given_vpte,
        modelPar_ibk0,
+       d_modelPar_ibk0_dX,
        modelPar_given_ibk0,
        modelPar_abk,
+       d_modelPar_abk_dX,
        modelPar_given_abk,
        modelPar_bbk,
+       d_modelPar_bbk_dX,
        modelPar_given_bbk,
        modelPar_kfn,
+       d_modelPar_kfn_dX,
        modelPar_given_kfn,
        modelPar_afn,
+       d_modelPar_afn_dX,
        modelPar_given_afn,
        modelPar_bfn,
+       d_modelPar_bfn_dX,
        modelPar_given_bfn,
        modelPar_rth,
+       d_modelPar_rth_dX,
        modelPar_given_rth,
        modelPar_cth,
+       d_modelPar_cth_dX,
        modelPar_given_cth,
        modelPar_xre,
+       d_modelPar_xre_dX,
        modelPar_given_xre,
        modelPar_xrb,
+       d_modelPar_xrb_dX,
        modelPar_given_xrb,
        modelPar_xrbi,
+       d_modelPar_xrbi_dX,
        modelPar_given_xrbi,
        modelPar_xrbx,
+       d_modelPar_xrbx_dX,
        modelPar_given_xrbx,
        modelPar_xrc,
+       d_modelPar_xrc_dX,
        modelPar_given_xrc,
        modelPar_xrci,
+       d_modelPar_xrci_dX,
        modelPar_given_xrci,
        modelPar_xrcx,
+       d_modelPar_xrcx_dX,
        modelPar_given_xrcx,
        modelPar_xrbp,
+       d_modelPar_xrbp_dX,
        modelPar_given_xrbp,
        modelPar_xrs,
+       d_modelPar_xrs_dX,
        modelPar_given_xrs,
        modelPar_xvo,
+       d_modelPar_xvo_dX,
        modelPar_given_xvo,
        modelPar_ea,
+       d_modelPar_ea_dX,
        modelPar_given_ea,
        modelPar_eaie,
+       d_modelPar_eaie_dX,
        modelPar_given_eaie,
        modelPar_eaic,
+       d_modelPar_eaic_dX,
        modelPar_given_eaic,
        modelPar_eais,
+       d_modelPar_eais_dX,
        modelPar_given_eais,
        modelPar_eane,
+       d_modelPar_eane_dX,
        modelPar_given_eane,
        modelPar_eanc,
+       d_modelPar_eanc_dX,
        modelPar_given_eanc,
        modelPar_eans,
+       d_modelPar_eans_dX,
        modelPar_given_eans,
        modelPar_eap,
+       d_modelPar_eap_dX,
        modelPar_given_eap,
        modelPar_dear,
+       d_modelPar_dear_dX,
        modelPar_given_dear,
        modelPar_xis,
+       d_modelPar_xis_dX,
        modelPar_given_xis,
        modelPar_xii,
+       d_modelPar_xii_dX,
        modelPar_given_xii,
        modelPar_xin,
+       d_modelPar_xin_dX,
        modelPar_given_xin,
        modelPar_xisr,
+       d_modelPar_xisr_dX,
        modelPar_given_xisr,
        modelPar_xikf,
+       d_modelPar_xikf_dX,
        modelPar_given_xikf,
        modelPar_tavc,
+       d_modelPar_tavc_dX,
        modelPar_given_tavc,
        modelPar_tavcx,
+       d_modelPar_tavcx_dX,
        modelPar_given_tavcx,
        modelPar_tnf,
+       d_modelPar_tnf_dX,
        modelPar_given_tnf,
        modelPar_tcvef,
+       d_modelPar_tcvef_dX,
        modelPar_given_tcvef,
        modelPar_tcver,
+       d_modelPar_tcver_dX,
        modelPar_given_tcver,
        modelPar_tcrth,
+       d_modelPar_tcrth_dX,
        modelPar_given_tcrth,
        // non-reals (including hidden)
        modelPar_type,
@@ -14126,16 +17088,16 @@ void ModelSensitivity::operator()
        modelPar_given_qbm// model variables
        ,
        // reals
-       modelVar_tiniK,
-       modelVar_Iikr,
-       modelVar_Iikp,
-       modelVar_Ihrcf,
-       modelVar_Ivtf,
-       modelVar_Iitf,
-       modelVar_sltf,
-       modelVar_VmaxExp,
-       modelVar_gminMod,
-       modelVar_imaxMod,
+       modelVar_tiniK, d_modelVar_tiniK_dX ,
+       modelVar_Iikr, d_modelVar_Iikr_dX ,
+       modelVar_Iikp, d_modelVar_Iikp_dX ,
+       modelVar_Ihrcf, d_modelVar_Ihrcf_dX ,
+       modelVar_Ivtf, d_modelVar_Ivtf_dX ,
+       modelVar_Iitf, d_modelVar_Iitf_dX ,
+       modelVar_sltf, d_modelVar_sltf_dX ,
+       modelVar_VmaxExp, d_modelVar_VmaxExp_dX ,
+       modelVar_gminMod, d_modelVar_gminMod_dX ,
+       modelVar_imaxMod, d_modelVar_imaxMod_dX ,
        in.admsTemperature, in.adms_vt_nom,in.getDeviceOptions().gmin,in);
 
 
@@ -14179,8 +17141,10 @@ void ModelSensitivity::operator()
        // instance parameters
        // reals
        instancePar_m,
+       d_instancePar_m_dX,
        instancePar_given_m,
        instancePar_trise,
+       d_instancePar_trise_dX,
        instancePar_given_trise,
        // non-reals(including hidden)
        instancePar_sw_noise,
@@ -14189,304 +17153,432 @@ void ModelSensitivity::operator()
        instancePar_given_sw_et,
        // instance variables
        // reals
-       instanceVar_is_t,
-       instanceVar_isrr_t,
-       instanceVar_ibei_t,
-       instanceVar_ibci_t,
-       instanceVar_isp_t,
-       instanceVar_iben_t,
-       instanceVar_ibcn_t,
-       instanceVar_ibeip_t,
-       instanceVar_ibenp_t,
-       instanceVar_ibcip_t,
-       instanceVar_ibcnp_t,
-       instanceVar_tdevC,
-       instanceVar_tdevK,
-       instanceVar_rT,
-       instanceVar_Gcx,
-       instanceVar_Gci,
-       instanceVar_Gbx,
-       instanceVar_Gbi,
-       instanceVar_Ge,
-       instanceVar_Gbp,
-       instanceVar_maxvIfi,
-       instanceVar_maxvIri,
-       instanceVar_maxvIp,
-       instanceVar_maxvIbbe,
-       instanceVar_maxvIbei,
-       instanceVar_maxvIben,
-       instanceVar_maxvIbci,
-       instanceVar_maxvIbcn,
-       instanceVar_maxvIbeip,
-       instanceVar_maxvIbenp,
-       instanceVar_vtv,
-       instanceVar_Itzf,
-       instanceVar_qb,
-       instanceVar_qbp,
-       instanceVar_Ibe,
-       instanceVar_Ibex,
-       instanceVar_Ibep,
-       instanceVar_Irci,
-       instanceVar_Vrci,
-       instanceVar_mMod,
-       instanceVar_tVCrit,
+       instanceVar_is_t, d_instanceVar_is_t_dX ,
+       instanceVar_isrr_t, d_instanceVar_isrr_t_dX ,
+       instanceVar_ibei_t, d_instanceVar_ibei_t_dX ,
+       instanceVar_ibci_t, d_instanceVar_ibci_t_dX ,
+       instanceVar_isp_t, d_instanceVar_isp_t_dX ,
+       instanceVar_iben_t, d_instanceVar_iben_t_dX ,
+       instanceVar_ibcn_t, d_instanceVar_ibcn_t_dX ,
+       instanceVar_ibeip_t, d_instanceVar_ibeip_t_dX ,
+       instanceVar_ibenp_t, d_instanceVar_ibenp_t_dX ,
+       instanceVar_ibcip_t, d_instanceVar_ibcip_t_dX ,
+       instanceVar_ibcnp_t, d_instanceVar_ibcnp_t_dX ,
+       instanceVar_tdevC, d_instanceVar_tdevC_dX ,
+       instanceVar_tdevK, d_instanceVar_tdevK_dX ,
+       instanceVar_rT, d_instanceVar_rT_dX ,
+       instanceVar_Gcx, d_instanceVar_Gcx_dX ,
+       instanceVar_Gci, d_instanceVar_Gci_dX ,
+       instanceVar_Gbx, d_instanceVar_Gbx_dX ,
+       instanceVar_Gbi, d_instanceVar_Gbi_dX ,
+       instanceVar_Ge, d_instanceVar_Ge_dX ,
+       instanceVar_Gbp, d_instanceVar_Gbp_dX ,
+       instanceVar_maxvIfi, d_instanceVar_maxvIfi_dX ,
+       instanceVar_maxvIri, d_instanceVar_maxvIri_dX ,
+       instanceVar_maxvIp, d_instanceVar_maxvIp_dX ,
+       instanceVar_maxvIbbe, d_instanceVar_maxvIbbe_dX ,
+       instanceVar_maxvIbei, d_instanceVar_maxvIbei_dX ,
+       instanceVar_maxvIben, d_instanceVar_maxvIben_dX ,
+       instanceVar_maxvIbci, d_instanceVar_maxvIbci_dX ,
+       instanceVar_maxvIbcn, d_instanceVar_maxvIbcn_dX ,
+       instanceVar_maxvIbeip, d_instanceVar_maxvIbeip_dX ,
+       instanceVar_maxvIbenp, d_instanceVar_maxvIbenp_dX ,
+       instanceVar_vtv, d_instanceVar_vtv_dX ,
+       instanceVar_Itzf, d_instanceVar_Itzf_dX ,
+       instanceVar_qb, d_instanceVar_qb_dX ,
+       instanceVar_qbp, d_instanceVar_qbp_dX ,
+       instanceVar_Ibe, d_instanceVar_Ibe_dX ,
+       instanceVar_Ibex, d_instanceVar_Ibex_dX ,
+       instanceVar_Ibep, d_instanceVar_Ibep_dX ,
+       instanceVar_Irci, d_instanceVar_Irci_dX ,
+       instanceVar_Vrci, d_instanceVar_Vrci_dX ,
+       instanceVar_mMod, d_instanceVar_mMod_dX ,
+       instanceVar_tVCrit, d_instanceVar_tVCrit_dX ,
        // model parameters
        // reals
        modelPar_npn,
+       d_modelPar_npn_dX,
        modelPar_given_npn,
        modelPar_pnp,
+       d_modelPar_pnp_dX,
        modelPar_given_pnp,
        modelPar_scale,
+       d_modelPar_scale_dX,
        modelPar_given_scale,
        modelPar_shrink,
+       d_modelPar_shrink_dX,
        modelPar_given_shrink,
        modelPar_tmin,
+       d_modelPar_tmin_dX,
        modelPar_given_tmin,
        modelPar_tmax,
+       d_modelPar_tmax_dX,
        modelPar_given_tmax,
        modelPar_gmin,
+       d_modelPar_gmin_dX,
        modelPar_given_gmin,
        modelPar_pnjmaxi,
+       d_modelPar_pnjmaxi_dX,
        modelPar_given_pnjmaxi,
        modelPar_maxexp,
+       d_modelPar_maxexp_dX,
        modelPar_given_maxexp,
        modelPar_tnom,
+       d_modelPar_tnom_dX,
        modelPar_given_tnom,
        modelPar_tminclip,
+       d_modelPar_tminclip_dX,
        modelPar_given_tminclip,
        modelPar_tmaxclip,
+       d_modelPar_tmaxclip_dX,
        modelPar_given_tmaxclip,
        modelPar_rcx,
+       d_modelPar_rcx_dX,
        modelPar_given_rcx,
        modelPar_rci,
+       d_modelPar_rci_dX,
        modelPar_given_rci,
        modelPar_vo,
+       d_modelPar_vo_dX,
        modelPar_given_vo,
        modelPar_gamm,
+       d_modelPar_gamm_dX,
        modelPar_given_gamm,
        modelPar_hrcf,
+       d_modelPar_hrcf_dX,
        modelPar_given_hrcf,
        modelPar_rbx,
+       d_modelPar_rbx_dX,
        modelPar_given_rbx,
        modelPar_rbi,
+       d_modelPar_rbi_dX,
        modelPar_given_rbi,
        modelPar_re,
+       d_modelPar_re_dX,
        modelPar_given_re,
        modelPar_rs,
+       d_modelPar_rs_dX,
        modelPar_given_rs,
        modelPar_rbp,
+       d_modelPar_rbp_dX,
        modelPar_given_rbp,
        modelPar_is,
+       d_modelPar_is_dX,
        modelPar_given_is,
        modelPar_isrr,
+       d_modelPar_isrr_dX,
        modelPar_given_isrr,
        modelPar_nf,
+       d_modelPar_nf_dX,
        modelPar_given_nf,
        modelPar_nr,
+       d_modelPar_nr_dX,
        modelPar_given_nr,
        modelPar_isp,
+       d_modelPar_isp_dX,
        modelPar_given_isp,
        modelPar_wsp,
+       d_modelPar_wsp_dX,
        modelPar_given_wsp,
        modelPar_nfp,
+       d_modelPar_nfp_dX,
        modelPar_given_nfp,
        modelPar_fc,
+       d_modelPar_fc_dX,
        modelPar_given_fc,
        modelPar_cbeo,
+       d_modelPar_cbeo_dX,
        modelPar_given_cbeo,
        modelPar_cje,
+       d_modelPar_cje_dX,
        modelPar_given_cje,
        modelPar_pe,
+       d_modelPar_pe_dX,
        modelPar_given_pe,
        modelPar_me,
+       d_modelPar_me_dX,
        modelPar_given_me,
        modelPar_aje,
+       d_modelPar_aje_dX,
        modelPar_given_aje,
        modelPar_cbco,
+       d_modelPar_cbco_dX,
        modelPar_given_cbco,
        modelPar_cjc,
+       d_modelPar_cjc_dX,
        modelPar_given_cjc,
        modelPar_pc,
+       d_modelPar_pc_dX,
        modelPar_given_pc,
        modelPar_mc,
+       d_modelPar_mc_dX,
        modelPar_given_mc,
        modelPar_ajc,
+       d_modelPar_ajc_dX,
        modelPar_given_ajc,
        modelPar_vrt,
+       d_modelPar_vrt_dX,
        modelPar_given_vrt,
        modelPar_art,
+       d_modelPar_art_dX,
        modelPar_given_art,
        modelPar_qco,
+       d_modelPar_qco_dX,
        modelPar_given_qco,
        modelPar_cjep,
+       d_modelPar_cjep_dX,
        modelPar_given_cjep,
        modelPar_cjcp,
+       d_modelPar_cjcp_dX,
        modelPar_given_cjcp,
        modelPar_ps,
+       d_modelPar_ps_dX,
        modelPar_given_ps,
        modelPar_ms,
+       d_modelPar_ms_dX,
        modelPar_given_ms,
        modelPar_ajs,
+       d_modelPar_ajs_dX,
        modelPar_given_ajs,
        modelPar_ccso,
+       d_modelPar_ccso_dX,
        modelPar_given_ccso,
        modelPar_ibei,
+       d_modelPar_ibei_dX,
        modelPar_given_ibei,
        modelPar_wbe,
+       d_modelPar_wbe_dX,
        modelPar_given_wbe,
        modelPar_nei,
+       d_modelPar_nei_dX,
        modelPar_given_nei,
        modelPar_qnibeir,
+       d_modelPar_qnibeir_dX,
        modelPar_given_qnibeir,
        modelPar_iben,
+       d_modelPar_iben_dX,
        modelPar_given_iben,
        modelPar_nen,
+       d_modelPar_nen_dX,
        modelPar_given_nen,
        modelPar_ibci,
+       d_modelPar_ibci_dX,
        modelPar_given_ibci,
        modelPar_nci,
+       d_modelPar_nci_dX,
        modelPar_given_nci,
        modelPar_ibcn,
+       d_modelPar_ibcn_dX,
        modelPar_given_ibcn,
        modelPar_ncn,
+       d_modelPar_ncn_dX,
        modelPar_given_ncn,
        modelPar_ibeip,
+       d_modelPar_ibeip_dX,
        modelPar_given_ibeip,
        modelPar_ibenp,
+       d_modelPar_ibenp_dX,
        modelPar_given_ibenp,
        modelPar_ibcip,
+       d_modelPar_ibcip_dX,
        modelPar_given_ibcip,
        modelPar_ncip,
+       d_modelPar_ncip_dX,
        modelPar_given_ncip,
        modelPar_ibcnp,
+       d_modelPar_ibcnp_dX,
        modelPar_given_ibcnp,
        modelPar_ncnp,
+       d_modelPar_ncnp_dX,
        modelPar_given_ncnp,
        modelPar_vef,
+       d_modelPar_vef_dX,
        modelPar_given_vef,
        modelPar_ver,
+       d_modelPar_ver_dX,
        modelPar_given_ver,
        modelPar_ikf,
+       d_modelPar_ikf_dX,
        modelPar_given_ikf,
        modelPar_nkf,
+       d_modelPar_nkf_dX,
        modelPar_given_nkf,
        modelPar_ikr,
+       d_modelPar_ikr_dX,
        modelPar_given_ikr,
        modelPar_ikp,
+       d_modelPar_ikp_dX,
        modelPar_given_ikp,
        modelPar_tf,
+       d_modelPar_tf_dX,
        modelPar_given_tf,
        modelPar_qtf,
+       d_modelPar_qtf_dX,
        modelPar_given_qtf,
        modelPar_xtf,
+       d_modelPar_xtf_dX,
        modelPar_given_xtf,
        modelPar_vtf,
+       d_modelPar_vtf_dX,
        modelPar_given_vtf,
        modelPar_itf,
+       d_modelPar_itf_dX,
        modelPar_given_itf,
        modelPar_tr,
+       d_modelPar_tr_dX,
        modelPar_given_tr,
        modelPar_td,
+       d_modelPar_td_dX,
        modelPar_given_td,
        modelPar_avc1,
+       d_modelPar_avc1_dX,
        modelPar_given_avc1,
        modelPar_avc2,
+       d_modelPar_avc2_dX,
        modelPar_given_avc2,
        modelPar_avcx1,
+       d_modelPar_avcx1_dX,
        modelPar_given_avcx1,
        modelPar_avcx2,
+       d_modelPar_avcx2_dX,
        modelPar_given_avcx2,
        modelPar_mcx,
+       d_modelPar_mcx_dX,
        modelPar_given_mcx,
        modelPar_vbbe,
+       d_modelPar_vbbe_dX,
        modelPar_given_vbbe,
        modelPar_nbbe,
+       d_modelPar_nbbe_dX,
        modelPar_given_nbbe,
        modelPar_ibbe,
+       d_modelPar_ibbe_dX,
        modelPar_given_ibbe,
        modelPar_tvbbe1,
+       d_modelPar_tvbbe1_dX,
        modelPar_given_tvbbe1,
        modelPar_tvbbe2,
+       d_modelPar_tvbbe2_dX,
        modelPar_given_tvbbe2,
        modelPar_tnbbe,
+       d_modelPar_tnbbe_dX,
        modelPar_given_tnbbe,
        modelPar_vpte,
+       d_modelPar_vpte_dX,
        modelPar_given_vpte,
        modelPar_ibk0,
+       d_modelPar_ibk0_dX,
        modelPar_given_ibk0,
        modelPar_abk,
+       d_modelPar_abk_dX,
        modelPar_given_abk,
        modelPar_bbk,
+       d_modelPar_bbk_dX,
        modelPar_given_bbk,
        modelPar_kfn,
+       d_modelPar_kfn_dX,
        modelPar_given_kfn,
        modelPar_afn,
+       d_modelPar_afn_dX,
        modelPar_given_afn,
        modelPar_bfn,
+       d_modelPar_bfn_dX,
        modelPar_given_bfn,
        modelPar_rth,
+       d_modelPar_rth_dX,
        modelPar_given_rth,
        modelPar_cth,
+       d_modelPar_cth_dX,
        modelPar_given_cth,
        modelPar_xre,
+       d_modelPar_xre_dX,
        modelPar_given_xre,
        modelPar_xrb,
+       d_modelPar_xrb_dX,
        modelPar_given_xrb,
        modelPar_xrbi,
+       d_modelPar_xrbi_dX,
        modelPar_given_xrbi,
        modelPar_xrbx,
+       d_modelPar_xrbx_dX,
        modelPar_given_xrbx,
        modelPar_xrc,
+       d_modelPar_xrc_dX,
        modelPar_given_xrc,
        modelPar_xrci,
+       d_modelPar_xrci_dX,
        modelPar_given_xrci,
        modelPar_xrcx,
+       d_modelPar_xrcx_dX,
        modelPar_given_xrcx,
        modelPar_xrbp,
+       d_modelPar_xrbp_dX,
        modelPar_given_xrbp,
        modelPar_xrs,
+       d_modelPar_xrs_dX,
        modelPar_given_xrs,
        modelPar_xvo,
+       d_modelPar_xvo_dX,
        modelPar_given_xvo,
        modelPar_ea,
+       d_modelPar_ea_dX,
        modelPar_given_ea,
        modelPar_eaie,
+       d_modelPar_eaie_dX,
        modelPar_given_eaie,
        modelPar_eaic,
+       d_modelPar_eaic_dX,
        modelPar_given_eaic,
        modelPar_eais,
+       d_modelPar_eais_dX,
        modelPar_given_eais,
        modelPar_eane,
+       d_modelPar_eane_dX,
        modelPar_given_eane,
        modelPar_eanc,
+       d_modelPar_eanc_dX,
        modelPar_given_eanc,
        modelPar_eans,
+       d_modelPar_eans_dX,
        modelPar_given_eans,
        modelPar_eap,
+       d_modelPar_eap_dX,
        modelPar_given_eap,
        modelPar_dear,
+       d_modelPar_dear_dX,
        modelPar_given_dear,
        modelPar_xis,
+       d_modelPar_xis_dX,
        modelPar_given_xis,
        modelPar_xii,
+       d_modelPar_xii_dX,
        modelPar_given_xii,
        modelPar_xin,
+       d_modelPar_xin_dX,
        modelPar_given_xin,
        modelPar_xisr,
+       d_modelPar_xisr_dX,
        modelPar_given_xisr,
        modelPar_xikf,
+       d_modelPar_xikf_dX,
        modelPar_given_xikf,
        modelPar_tavc,
+       d_modelPar_tavc_dX,
        modelPar_given_tavc,
        modelPar_tavcx,
+       d_modelPar_tavcx_dX,
        modelPar_given_tavcx,
        modelPar_tnf,
+       d_modelPar_tnf_dX,
        modelPar_given_tnf,
        modelPar_tcvef,
+       d_modelPar_tcvef_dX,
        modelPar_given_tcvef,
        modelPar_tcver,
+       d_modelPar_tcver_dX,
        modelPar_given_tcver,
        modelPar_tcrth,
+       d_modelPar_tcrth_dX,
        modelPar_given_tcrth,
        // non-reals (including hidden)
        modelPar_type,
@@ -14496,72 +17588,74 @@ void ModelSensitivity::operator()
        modelPar_given_qbm// model variables
        ,
        // reals
-       modelVar_tiniK,
-       modelVar_Iikr,
-       modelVar_Iikp,
-       modelVar_Ihrcf,
-       modelVar_Ivtf,
-       modelVar_Iitf,
-       modelVar_sltf,
-       modelVar_VmaxExp,
-       modelVar_gminMod,
-       modelVar_imaxMod,
+       modelVar_tiniK, d_modelVar_tiniK_dX ,
+       modelVar_Iikr, d_modelVar_Iikr_dX ,
+       modelVar_Iikp, d_modelVar_Iikp_dX ,
+       modelVar_Ihrcf, d_modelVar_Ihrcf_dX ,
+       modelVar_Ivtf, d_modelVar_Ivtf_dX ,
+       modelVar_Iitf, d_modelVar_Iitf_dX ,
+       modelVar_sltf, d_modelVar_sltf_dX ,
+       modelVar_VmaxExp, d_modelVar_VmaxExp_dX ,
+       modelVar_gminMod, d_modelVar_gminMod_dX ,
+       modelVar_imaxMod, d_modelVar_imaxMod_dX ,
        in.admsTemperature,
        in.adms_vt_nom,
        in.getDeviceOptions().gmin,
        staticContributions,
+       d_staticContributions_dX,
        dynamicContributions,
+       d_dynamicContributions_dX,
        in);
 
 
     // We now have the F and Q vector stuff, populate the dependencies:
 
-    dfdp[in.admsNodeID_c+inst*(12+0)] += staticContributions[in.admsNodeID_c].dx(0);
-    dqdp[in.admsNodeID_c+inst*(12+0)] += dynamicContributions[in.admsNodeID_c].dx(0);
+    dfdp[in.admsNodeID_c+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_c];
+    dqdp[in.admsNodeID_c+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_c];
     Findices[in.admsNodeID_c+inst*(12+0)] = in.li_c;
     Qindices[in.admsNodeID_c+inst*(12+0)] = in.li_c;
-    dfdp[in.admsNodeID_b+inst*(12+0)] += staticContributions[in.admsNodeID_b].dx(0);
-    dqdp[in.admsNodeID_b+inst*(12+0)] += dynamicContributions[in.admsNodeID_b].dx(0);
+    dfdp[in.admsNodeID_b+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_b];
+    dqdp[in.admsNodeID_b+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_b];
     Findices[in.admsNodeID_b+inst*(12+0)] = in.li_b;
     Qindices[in.admsNodeID_b+inst*(12+0)] = in.li_b;
-    dfdp[in.admsNodeID_e+inst*(12+0)] += staticContributions[in.admsNodeID_e].dx(0);
-    dqdp[in.admsNodeID_e+inst*(12+0)] += dynamicContributions[in.admsNodeID_e].dx(0);
+    dfdp[in.admsNodeID_e+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_e];
+    dqdp[in.admsNodeID_e+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_e];
     Findices[in.admsNodeID_e+inst*(12+0)] = in.li_e;
     Qindices[in.admsNodeID_e+inst*(12+0)] = in.li_e;
-    dfdp[in.admsNodeID_dt+inst*(12+0)] += staticContributions[in.admsNodeID_dt].dx(0);
-    dqdp[in.admsNodeID_dt+inst*(12+0)] += dynamicContributions[in.admsNodeID_dt].dx(0);
+    dfdp[in.admsNodeID_dt+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_dt];
+    dqdp[in.admsNodeID_dt+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_dt];
     Findices[in.admsNodeID_dt+inst*(12+0)] = in.li_dt;
     Qindices[in.admsNodeID_dt+inst*(12+0)] = in.li_dt;
-    dfdp[in.admsNodeID_cx+inst*(12+0)] += staticContributions[in.admsNodeID_cx].dx(0);
-    dqdp[in.admsNodeID_cx+inst*(12+0)] += dynamicContributions[in.admsNodeID_cx].dx(0);
+    dfdp[in.admsNodeID_cx+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_cx];
+    dqdp[in.admsNodeID_cx+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_cx];
     Findices[in.admsNodeID_cx+inst*(12+0)] = in.li_cx;
     Qindices[in.admsNodeID_cx+inst*(12+0)] = in.li_cx;
-    dfdp[in.admsNodeID_ci+inst*(12+0)] += staticContributions[in.admsNodeID_ci].dx(0);
-    dqdp[in.admsNodeID_ci+inst*(12+0)] += dynamicContributions[in.admsNodeID_ci].dx(0);
+    dfdp[in.admsNodeID_ci+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_ci];
+    dqdp[in.admsNodeID_ci+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_ci];
     Findices[in.admsNodeID_ci+inst*(12+0)] = in.li_ci;
     Qindices[in.admsNodeID_ci+inst*(12+0)] = in.li_ci;
-    dfdp[in.admsNodeID_bx+inst*(12+0)] += staticContributions[in.admsNodeID_bx].dx(0);
-    dqdp[in.admsNodeID_bx+inst*(12+0)] += dynamicContributions[in.admsNodeID_bx].dx(0);
+    dfdp[in.admsNodeID_bx+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_bx];
+    dqdp[in.admsNodeID_bx+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_bx];
     Findices[in.admsNodeID_bx+inst*(12+0)] = in.li_bx;
     Qindices[in.admsNodeID_bx+inst*(12+0)] = in.li_bx;
-    dfdp[in.admsNodeID_bi+inst*(12+0)] += staticContributions[in.admsNodeID_bi].dx(0);
-    dqdp[in.admsNodeID_bi+inst*(12+0)] += dynamicContributions[in.admsNodeID_bi].dx(0);
+    dfdp[in.admsNodeID_bi+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_bi];
+    dqdp[in.admsNodeID_bi+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_bi];
     Findices[in.admsNodeID_bi+inst*(12+0)] = in.li_bi;
     Qindices[in.admsNodeID_bi+inst*(12+0)] = in.li_bi;
-    dfdp[in.admsNodeID_ei+inst*(12+0)] += staticContributions[in.admsNodeID_ei].dx(0);
-    dqdp[in.admsNodeID_ei+inst*(12+0)] += dynamicContributions[in.admsNodeID_ei].dx(0);
+    dfdp[in.admsNodeID_ei+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_ei];
+    dqdp[in.admsNodeID_ei+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_ei];
     Findices[in.admsNodeID_ei+inst*(12+0)] = in.li_ei;
     Qindices[in.admsNodeID_ei+inst*(12+0)] = in.li_ei;
-    dfdp[in.admsNodeID_bp+inst*(12+0)] += staticContributions[in.admsNodeID_bp].dx(0);
-    dqdp[in.admsNodeID_bp+inst*(12+0)] += dynamicContributions[in.admsNodeID_bp].dx(0);
+    dfdp[in.admsNodeID_bp+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_bp];
+    dqdp[in.admsNodeID_bp+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_bp];
     Findices[in.admsNodeID_bp+inst*(12+0)] = in.li_bp;
     Qindices[in.admsNodeID_bp+inst*(12+0)] = in.li_bp;
-    dfdp[in.admsNodeID_xf1+inst*(12+0)] += staticContributions[in.admsNodeID_xf1].dx(0);
-    dqdp[in.admsNodeID_xf1+inst*(12+0)] += dynamicContributions[in.admsNodeID_xf1].dx(0);
+    dfdp[in.admsNodeID_xf1+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_xf1];
+    dqdp[in.admsNodeID_xf1+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_xf1];
     Findices[in.admsNodeID_xf1+inst*(12+0)] = in.li_xf1;
     Qindices[in.admsNodeID_xf1+inst*(12+0)] = in.li_xf1;
-    dfdp[in.admsNodeID_xf2+inst*(12+0)] += staticContributions[in.admsNodeID_xf2].dx(0);
-    dqdp[in.admsNodeID_xf2+inst*(12+0)] += dynamicContributions[in.admsNodeID_xf2].dx(0);
+    dfdp[in.admsNodeID_xf2+inst*(12+0)] += d_staticContributions_dX[in.admsNodeID_xf2];
+    dqdp[in.admsNodeID_xf2+inst*(12+0)] += d_dynamicContributions_dX[in.admsNodeID_xf2];
     Findices[in.admsNodeID_xf2+inst*(12+0)] = in.li_xf2;
     Qindices[in.admsNodeID_xf2+inst*(12+0)] = in.li_xf2;
   }
