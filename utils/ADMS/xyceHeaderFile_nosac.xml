@@ -111,8 +111,6 @@
   </admst:apply-templates>
   <admst:text format="#ifndef $guardSymbol\n#define $guardSymbol\n"/>
 
-#include &lt;Sacado_No_Kokkos.hpp&gt;
-
 #include &lt;N_DEV_Configuration.h&gt;
 #include &lt;N_DEV_Const.h&gt;
 #include &lt;N_DEV_DeviceBlock.h&gt;
@@ -124,10 +122,6 @@
 namespace Xyce {
 namespace Device {
 namespace <admst:text format="%($nameSpace)"/> {
-
-// This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad&lt;double,%(xyceNumberProbes(.))&gt; AdmsFadType;
-  typedef Sacado::Fad::SFad&lt;double,1&gt; AdmsSensFadType;
 
 class Model;
 class Instance;
