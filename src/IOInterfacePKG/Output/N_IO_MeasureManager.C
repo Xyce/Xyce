@@ -207,6 +207,7 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
 
   // here's the base data we should pull from the option block while
   std::string type;
+  std::string mode;
 
   Util::ParamList::const_iterator it = std::find_if(measureBlock.begin(), measureBlock.end(), Util::EqualParam("TYPE"));
   if (it != measureBlock.end())
@@ -216,7 +217,18 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   else
   {
     // this shouldn't happen, but catch it if does
-    Report::UserError0() << "Missing TYPE in Manager";
+    Report::UserError0() << "Missing TYPE in Measure Manager";
+  }
+
+  it = std::find_if(measureBlock.begin(), measureBlock.end(), Util::EqualParam("MODE"));
+  if (it != measureBlock.end())
+  {
+    mode = (*it).stringValue();
+  }
+  else
+  {
+    // this shouldn't happen, but catch it if does
+    Report::UserError0() << "Missing MODE in Measure Manager";
   }
 
   Base  * theMeasureObject = 0;
@@ -263,7 +275,10 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
   }
   else if( type=="FIND" || type=="WHEN" )
   {
-    theMeasureObject = new Measure::FindWhen(measureMgr, measureBlock);
+    if (mode == "TRAN_CONT" || mode=="AC_CONT" || mode == "NOISE_CONT" || mode=="DC_CONT")
+      theMeasureObject = new Measure::FindWhenCont(measureMgr, measureBlock);
+    else
+      theMeasureObject = new Measure::FindWhen(measureMgr, measureBlock);
   }
   else if( type=="PARAM" || type=="EQN"  )
   {
@@ -348,35 +363,35 @@ bool Manager::checkMeasureModes(const Analysis::Mode analysisMode)
     for (MeasurementVector::const_iterator it = allMeasuresList_.begin(), end = allMeasuresList_.end(); it != end; ++it)
     {
       // Check agreement between each measure's specified mode (from the .MEASURE line) and
-      // the analysis typee.  This could be condensed into one if statement but it seems more
+      // the analysis type.  This could be condensed into one if statement but it seems more
       // readable with the conditions for analysis type broken out.
-      if ( ( (*it)->getMeasureMode() == "TRAN") && (analysisMode != Xyce::Analysis::ANP_MODE_TRANSIENT) ) 
+      if ( (((*it)->getMeasureMode() == "TRAN") || ((*it)->getMeasureMode() == "TRAN_CONT")) && (analysisMode != Xyce::Analysis::ANP_MODE_TRANSIENT) )
       {
-        Report::UserError0() << "Netlist analysis statement and measure mode (TRAN) for measure " << (*it)->getMeasureName() 
-                             << " do not agree";
+        Report::UserError0() << "Netlist analysis statement and measure mode (" << (*it)->getMeasureMode()
+                             << ") for measure " << (*it)->getMeasureName() << " do not agree";
         bsuccess = false;
       }
-      else if ( ( (*it)->getMeasureMode() == "AC") && (analysisMode != Xyce::Analysis::ANP_MODE_AC) )
+      else if ( (((*it)->getMeasureMode() == "AC") || ((*it)->getMeasureMode() == "AC_CONT")) && (analysisMode != Xyce::Analysis::ANP_MODE_AC) )
       {
-        Report::UserError0() << "Netlist analysis statement and measure mode (AC) for measure " << (*it)->getMeasureName()
-                             << " do not agree";
+        Report::UserError0() << "Netlist analysis statement and measure mode (" << (*it)->getMeasureMode()
+                             << ") for measure " << (*it)->getMeasureName() << " do not agree";
         bsuccess = false;
       }
-      else if ( ( (*it)->getMeasureMode() == "DC") && !(analysisMode == Xyce::Analysis::ANP_MODE_DC_SWEEP) )   
+      else if ( (((*it)->getMeasureMode() == "DC") || ((*it)->getMeasureMode() == "DC_CONT")) && !(analysisMode == Xyce::Analysis::ANP_MODE_DC_SWEEP) )
       {
-        Report::UserError0() << "Netlist analysis statement and measure mode (DC) for measure " << (*it)->getMeasureName()
-                             << " do not agree";
+        Report::UserError0() << "Netlist analysis statement and measure mode (" << (*it)->getMeasureMode()
+                             << ") for measure " << (*it)->getMeasureName() << " do not agree";
         bsuccess = false;
       }
-      else if ( ( (*it)->getMeasureMode() == "NOISE") && !(analysisMode == Xyce::Analysis::ANP_MODE_NOISE) )
+      else if ( (((*it)->getMeasureMode() == "NOISE") || ((*it)->getMeasureMode() == "NOISE_CONT")) && !(analysisMode == Xyce::Analysis::ANP_MODE_NOISE) )
       {
-        Report::UserError0() << "Netlist analysis statement and measure mode (NOISE) for measure " << (*it)->getMeasureName()
-                             << " do not agree";
+        Report::UserError0() << "Netlist analysis statement and measure mode (" << (*it)->getMeasureMode()
+                             << ") for measure " << (*it)->getMeasureName() << " do not agree";
         bsuccess = false;
       }
     }
   }
-  
+
   return bsuccess ;
 }
 
@@ -1250,6 +1265,7 @@ extractMEASUREData(
   std::set<std::string> typeSetAc;
   std::set<std::string> typeSetDc;
   std::set<std::string> typeSetNoise;
+  std::set<std::string> typeSetCont;
 
   // allowed types for the TRAN mode
   typeSetTran.insert( std::string("TRIG") );
@@ -1333,15 +1349,21 @@ extractMEASUREData(
   typeSetNoise.insert( std::string("RMS") );
   typeSetNoise.insert( std::string("WHEN") );
 
+  // allowed types for the "continuous" measures
+  typeSetCont.insert( std::string("FIND") );
+  typeSetCont.insert( std::string("WHEN") );
+
   // Make a union for the TYPE sets.  This is useful, once we know that the TYPE is valid
-  // for one of the allowed modes (e.g, TRAN, AC, NOISE or DC).  This happens after we've parsed the
-  // MODE and TYPE fields on the measure line.  In those cases, we just care that the
+  // for one of the allowed modes (e.g, TRAN, AC, DC or NOSIE).  This happens after we've parsed
+  // the MODE and TYPE fields on the measure line.  In those cases, we just care that the
   // TYPE is in the combined union set.
   set_union( typeSetTran.begin(), typeSetTran.end(), typeSetAc.begin(),
              typeSetAc.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
   set_union( typeSetDc.begin(), typeSetDc.end(), typeSet.begin(),
              typeSet.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
   set_union( typeSetNoise.begin(), typeSetNoise.end(), typeSet.begin(),
+             typeSet.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
+  set_union( typeSetCont.begin(), typeSetCont.end(), typeSet.begin(),
              typeSet.end(), std::inserter<std::set<std::string> >(typeSet, typeSet.begin()) );
 
   // Sets of allowed keywords.  simpleKeywords must have a numeric value.
@@ -1422,7 +1444,8 @@ extractMEASUREData(
   std::string parsedMode = currentWord;
 
   if( (currentWord == "TRAN" ) || (currentWord == "AC" ) || (currentWord == "DC") ||
-      (currentWord == "NOISE") )
+      (currentWord == "NOISE") || (currentWord == "TRAN_CONT" ) || (currentWord == "AC_CONT" ) ||
+      (currentWord == "DC_CONT") || (currentWord == "NOISE_CONT"))
   {
     parameter.set("MODE", std::string(currentWord));
     option_block.addParam(parameter);
@@ -1430,8 +1453,8 @@ extractMEASUREData(
   else
   {
     Report::UserError0().at(netlist_filename, parsed_line[1].lineNumber_) << "Unknown mode in .MEASURE line.  "
-	<< "Should be TRAN/TR, DC, AC or NOISE";
-     return false;
+	<< "Should be TRAN/TR, DC, AC, NOISE, TRAN_CONT, DC_CONT, AC_CONT or NOISE_CONT";
+    return false;
   }
 
   // Second word should be the NAME of the measure.  The NAME can not be
@@ -1442,14 +1465,16 @@ extractMEASUREData(
   {
     currentWord = "TRAN"; // TR is a synonym for TRAN
   }
-  if( currentWord != "DC" && currentWord != "TRAN" && currentWord != "AC" && currentWord != "NOISE")
+  if( currentWord != "DC" && currentWord != "TRAN" && currentWord != "AC" && currentWord != "NOISE" &&
+      currentWord != "DC_CONT" && currentWord != "TRAN_CONT" && currentWord != "AC_CONT" && currentWord != "NOISE_CONT")
   {
     parameter.set("NAME", std::string(currentWord));
     option_block.addParam(parameter);
   }
   else
   {
-    Report::UserError0().at(netlist_filename, parsed_line[2].lineNumber_) << "Illegal name in .MEASURE line.  Cannot be AC, DC, NOISE or TRAN/TR";
+    Report::UserError0().at(netlist_filename, parsed_line[2].lineNumber_) << "Illegal name in .MEASURE line.  "
+       << "Cannot be AC, DC, NOISE, TRAN/TR, AC_CONT, DC_CONT, NOISE_CONT or TRAN_CONT";
     return false;
   }
 
@@ -1518,6 +1543,21 @@ extractMEASUREData(
     {
       Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only AVG, DERIV, EQN/PARAM, ERR, ERR1, ERR2, "
 	 << "FIND, INTEG, MIN, MAX, PP, RMS and WHEN measure types are supported for NOISE measure mode";
+      return false;
+    }
+  }
+  else if ( (parsedMode == "TRAN_CONT") || (parsedMode == "AC_CONT") || (parsedMode == "DC_CONT") || (parsedMode == "NOISE_CONT"))
+  {
+    if( typeSetCont.find( currentWord ) != typeSetCont.end() )
+    {
+      parameter.set("TYPE", std::string(currentWord));
+      option_block.addParam(parameter);
+      parsedType=currentWord;  // used later to enable the VAL= syntax for TRIG and TARG
+    }
+    else
+    {
+      Report::UserError0().at(netlist_filename, parsed_line[3].lineNumber_) << "Only FIND and "
+	 << "WHEN measure types are supported for continuous (CONT) measure modes";
       return false;
     }
   }

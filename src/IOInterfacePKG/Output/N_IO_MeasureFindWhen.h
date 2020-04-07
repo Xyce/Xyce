@@ -44,23 +44,31 @@ namespace IO {
 namespace Measure {
 
 //-------------------------------------------------------------------------
-// Class         : FindWhen
+// Class         : FindWhenBase
 // Purpose       : Find time when a variable hits a target value, or find
-//                 the value of a variable at the time that the WHEN
-//                 clause is satisfied
+//                 the value of a variable at the time that the WHEN clause is
+//                 satisfied. This class contains the variables and functions
+//                 that are common to both the continous and non-continuous
+//                 versions of this measure.  The non-continuous version
+//                 (e.g., .MEASURE TRAN) will only return one measure value.
+//                 The continuous version (e.g., .MEASURE TRAN_CONT) may
+//                 return multiple values.
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 03/10/2009
 //-------------------------------------------------------------------------
-class FindWhen : public Base
+class FindWhenBase : public Base
 {
 public:
-  FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
-  ~FindWhen() {};
+  FindWhenBase(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~FindWhenBase() {};
 
   void prepareOutputVariables();
   bool checkMeasureLine();
-  void reset();
+  void resetFindWhenBase();
+
+  virtual void updateCalculationResult(double val)=0;
+  virtual void updateCalculationInstant(double val)=0;
 
   void updateTran(
     Parallel::Machine comm,
@@ -100,9 +108,12 @@ public:
 
   std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime,
 				   const double startSweepVal, const double endSweepVal);
-  std::ostream& printMeasureResult(std::ostream& os);
-  std::ostream& printVerboseMeasureResult(std::ostream& os);
   std::ostream& printRFCWindow(std::ostream& os);
+
+protected:
+  bool doneIfFound_;
+  std::vector<double> calculationResultVec_;
+  std::vector<double> calculationInstantVec_;
 
 private:
   void interpolateResults(double currIndepVarValue, double targVal);
@@ -131,6 +142,67 @@ private:
   // outputVarValues_[whenIdx_+1]
   int whenIdx_;
 
+};
+
+//-------------------------------------------------------------------------
+// Class         : FindWhen
+// Purpose       : Non-continuous version of FindWhen, that returns only
+//                 only one measure value.  This class is invoked by
+//                 .MEASURE AC, .MEASURE DC, .MEASURE NOISE and .MEASURE TRAN.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/03/2020
+//-------------------------------------------------------------------------
+class FindWhen : public FindWhenBase
+{
+public:
+  FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~FindWhen() {};
+
+  void reset();
+
+  void updateCalculationResult(double val)
+  {
+    calculationResult_ = val;
+  }
+
+  void updateCalculationInstant(double val)
+  {
+    calculationInstant_ = val;
+  }
+
+  std::ostream& printMeasureResult(std::ostream& os);
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
+};
+
+//-------------------------------------------------------------------------
+// Class         : FindWhenCont
+// Purpose       : Continuous version of FindWhen that can return multiple
+//                 measure values if RISE, FALL or CROSS is not specified.
+//                 This class is invoked by .MEASURE AC_CONT, .MEASURE DC_CONT,
+//                 .MEASURE NOISE_CONT and .MEASURE TRAN_CONT.
+// Special Notes :
+// Creator       : Pete Sholander, SNL
+// Creation Date : 08/03/20209
+//-------------------------------------------------------------------------
+class FindWhenCont : public FindWhenBase
+{
+public:
+  FindWhenCont(const Manager &measureMgr, const Util::OptionBlock & measureBlock);
+  ~FindWhenCont() {};
+
+  void reset();
+  std::ostream& printMeasureResult(std::ostream& os);
+  std::ostream& printVerboseMeasureResult(std::ostream& os);
+
+  void updateCalculationResult(double val);
+  void updateCalculationInstant(double val);
+
+private:
+  int contCross_;
+  int contRise_;
+  int contFall_;
+  int contRFC_;
 };
 
 } // namespace Measure
