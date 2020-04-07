@@ -2537,8 +2537,6 @@ Findices.resize(%($numSolVars));
 Qindices.resize(%($numSolVars));
 
 std::vector &lt;double&gt; probeVars(%(xyceNumberProbes($theModule)));
-std::vector &lt;double&gt; staticContributions(%($numSolVars));
-std::vector &lt;double&gt; dynamicContributions(%($numSolVars));
 std::vector &lt;double&gt; d_staticContributions_dX(%($numSolVars));
 std::vector &lt;double&gt; d_dynamicContributions_dX(%($numSolVars));
 
@@ -2546,8 +2544,6 @@ std::vector &lt;double&gt; d_dynamicContributions_dX(%($numSolVars));
 // initialize contributions to zero (automatically sets derivatives to zero)
 for (int i=0; i &lt; %($numSolVars) ; ++i)
 {
-   staticContributions[i]=0;
-   dynamicContributions[i]=0;
    d_staticContributions_dX[i]=0;
    d_dynamicContributions_dX[i]=0;
 }
@@ -2621,7 +2617,7 @@ unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; inParamMap;
 //make local copies of all instance vars
 //reals
 
-<admst:for-each select="variable[scope='global_instance' and input='no' and type='real']">
+<admst:for-each select="variable[scope='global_instance' and input='no' and type='real' and not(insource='no' and output='yes')]">
   <admst:apply-templates select="." match="collectParamDependence"/>
   <admst:text format="double instanceVar_%(name)=in.%(name);\n"/>
   <admst:if test="[exists(#Pdependent)]">
@@ -2790,7 +2786,7 @@ probeVars,
 </admst:if>
 <admst:variable name="globalDeclareVars" select="no"/>
 <admst:apply-templates select="." match="generateEvaluateModelEquationsArgs"/>
-<admst:text format=" in.admsTemperature,\n in.adms_vt_nom,\n in.getDeviceOptions().gmin,\n staticContributions,\n d_staticContributions_dX,\n dynamicContributions,\n d_dynamicContributions_dX,\n in);\n"/>
+<admst:text format=" in.admsTemperature,\n in.adms_vt_nom,\n in.getDeviceOptions().gmin,\n d_staticContributions_dX,\n d_dynamicContributions_dX,\n in);\n"/>
 
 // We now have the F and Q vector stuff, populate the dependencies:
 
@@ -2857,8 +2853,6 @@ Findices.resize((%($numSolVars))*sizeInstance);
 Qindices.resize((%($numSolVars))*sizeInstance);
 
 std::vector &lt;double&gt; probeVars(%(xyceNumberProbes($theModule)));
-std::vector &lt;double&gt; staticContributions(%($numSolVars));
-std::vector &lt;double&gt; dynamicContributions(%($numSolVars));
 std::vector &lt;double&gt; d_staticContributions_dX(%($numSolVars));
 std::vector &lt;double&gt; d_dynamicContributions_dX(%($numSolVars));
 
@@ -2930,8 +2924,6 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
   // initialize contributions to zero (automatically sets derivatives to zero)
   for (int i=0; i &lt; %($numSolVars) ; ++i)
   {
-  staticContributions[i]=0;
-  dynamicContributions[i]=0;
   d_staticContributions_dX[i]=0;
   d_dynamicContributions_dX[i]=0;
   }
@@ -2985,7 +2977,7 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
   //make local copies of all instance vars
   //reals
 
-  <admst:for-each select="variable[scope='global_instance' and input='no' and type='real']">
+  <admst:for-each select="variable[scope='global_instance' and input='no' and type='real' and not(insource='no' and output='yes')]">
     <admst:apply-templates select="." match="collectParamDependence"/>
     <admst:text format="double instanceVar_%(name)=in.%(name);\n"/>
     <admst:if test="[exists(#Pdependent)]">
@@ -3137,7 +3129,7 @@ probeVars,
 </admst:if>
 <admst:variable name="globalDeclareVars" select="no"/>
 <admst:apply-templates select="." match="generateEvaluateModelEquationsArgs"/>
-<admst:text format=" in.admsTemperature,\n in.adms_vt_nom,\n in.getDeviceOptions().gmin,\n staticContributions,\n d_staticContributions_dX,\n dynamicContributions,\n d_dynamicContributions_dX,\n in);\n"/>
+<admst:text format=" in.admsTemperature,\n in.adms_vt_nom,\n in.getDeviceOptions().gmin,\n d_staticContributions_dX,\n d_dynamicContributions_dX,\n in);\n"/>
 
   // We now have the F and Q vector stuff, populate the dependencies:
 

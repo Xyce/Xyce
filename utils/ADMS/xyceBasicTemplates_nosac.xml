@@ -4625,140 +4625,143 @@ other variables does not get propagated into a variable's
   -->
   <admst:template match="assignment">
     <admst:assert test="adms[datatypename='assignment']" format="assignment template called with something that is not an assignment\n"/>
-    <admst:choose>
-    <admst:when test="[nilled(rhs/function/[name='\$limit'])]">
-      <admst:variable name="saveTemplateUse" select="$globalMustUseTemplate"/>
-      <admst:variable name="saveScalarForce" select="$globalMustForceScalar"/>
-      <!-- if the lhs has any probe dependence recorded, then it's a Fad type -->
-      <admst:if test="[exists(lhs/probe) and $globalCurrentScope!='sensitivity']">
-        <admst:variable name="globalMustUseTemplate" select="yes"/>
-      </admst:if>
-      <!-- Make sure we check parameter dependence of rhs and lhs variables-->
-      <admst:if test="[$globalCurrentScope='sensitivity']">
-        <admst:apply-templates select="lhs" match="collectParamDependence"/>
-        <admst:if test="[exists(lhs/#Pdependent)]">
-          <admst:variable name="globalMustUseTemplate" select="yes"/>
-        </admst:if>
-      </admst:if>
-      <admst:if test="[$globalCurrentScope='sensitivity']">
-        <admst:apply-templates select="rhs" match="collectParamDependence"/>
-      </admst:if>
-      <!-- If RHS contains any function calls other than
-           $simparam, ddt, and ddx, precompute them -->
-      <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" format="{\n"/>
-      <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" match="functionPrecomputation"/>
-      <!-- If not in sensitivity context, let's emit the derivatives
-           of the assignment first -->
-      <admst:apply-templates select="rhs/[not(nilled(function[name!='\$simparam' and name!='ddt' and name!='ddx']))]" match="functionDerivativePrecomputation"/>
-      <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(lhs/probe)) and $skipFunctionPrecomp='n'  and (lhs/insource='yes' or not(nilled(lhs/ddxprobe)))]">
-        <admst:text format="\n"/>
-        <admst:variable name="needinitialize" select="no"/>
-        <admst:for-each select="lhs/probe">
-          <admst:variable name="myVar" path=".."/>
-          <admst:variable name="myprobe" path="."/>
-          <admst:if test="[not(exists(../../rhs/probe[branch/pnode=$myprobe/branch/pnode and branch/nnode=$myprobe/branch/nnode]))]">
-            <admst:text format="d_%($myVar/name)_d%(nature)_%($myprobe/branch/pnode)_%($myprobe/branch/nnode) = "/>
-            <admst:if test="[../insource='yes']">
-              <admst:if test="[exists(../ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode])]">
-                <admst:for-each select="$myVar/probe">
-                  <admst:text format="d_%($myVar/name)_d%($myprobe/nature)_%($myprobe/branch/pnode)_%($myprobe/branch/nnode)_d%(nature)_%(branch/pnode)_%(branch/nnode) = "/>
-                </admst:for-each>
-              </admst:if>
+    <!-- Try skipping assignments to output variables (only) in sensitivity context -->
+    <admst:if test="[$globalCurrentScope != 'sensitivity' or ($globalCurrentScope='sensitivity' and not(lhs/insource='no' and lhs/output='yes'))]">
+      <admst:choose>
+        <admst:when test="[nilled(rhs/function/[name='\$limit'])]">
+          <admst:variable name="saveTemplateUse" select="$globalMustUseTemplate"/>
+          <admst:variable name="saveScalarForce" select="$globalMustForceScalar"/>
+          <!-- if the lhs has any probe dependence recorded, then it's a Fad type -->
+          <admst:if test="[exists(lhs/probe) and $globalCurrentScope!='sensitivity']">
+            <admst:variable name="globalMustUseTemplate" select="yes"/>
+          </admst:if>
+          <!-- Make sure we check parameter dependence of rhs and lhs variables-->
+          <admst:if test="[$globalCurrentScope='sensitivity']">
+            <admst:apply-templates select="lhs" match="collectParamDependence"/>
+            <admst:if test="[exists(lhs/#Pdependent)]">
+              <admst:variable name="globalMustUseTemplate" select="yes"/>
             </admst:if>
-            <admst:variable name="needinitialize" select="yes"/>
           </admst:if>
-        </admst:for-each>
-        <admst:if test="[$needinitialize = 'yes']">
-          <admst:text format=" 0.0;\n"/>
-        </admst:if>
-      </admst:if>
-      <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(rhs/probe)) and (lhs/insource='yes' or not(nilled(lhs/ddxprobe)))]">
-        <admst:variable name="theLHS" path="lhs"/>
-        <admst:variable name="theRHS" path="rhs"/>
-        <admst:for-each select="rhs/probe">
-          <admst:variable name="derivProbe" select="%(.)"/>
-          <admst:apply-templates select="$theRHS/tree" match="%(adms/datatypename)">
-            <admst:variable name="rhsDeriv" value="%(returned('returnedExpressionDeriv')/value)"/>
-          </admst:apply-templates>
-          <admst:variable name="lhsname" select="d_%($theLHS/name)_d%(nature)_%(branch/pnode)_%(branch/nnode)"/>
-          <admst:if test="[$lhsname != $rhsDeriv]">
-            <admst:text format="$lhsname = $rhsDeriv;\n"/>
+          <admst:if test="[$globalCurrentScope='sensitivity']">
+            <admst:apply-templates select="rhs" match="collectParamDependence"/>
           </admst:if>
-        </admst:for-each>
-        <admst:if test="[lhs/insource='yes']">
-          <!-- now handle the second derivatives as needed if there are ddxprobes in the lhs
-               It would probably be cleaner to do this in the loop above, but it is neither
-               necessary (I think) nor particularly readable.  So we redo loops -->
-          <admst:for-each select="$theLHS/probe">
-            <!-- skip any on which the RHS doesn't depend, because we've already
-                 handled those with explicit 0.0 initialization -->
-            <admst:variable name="myprobe" path="."/>
-            <admst:if test="[exists(../../rhs/probe[branch/pnode=$myprobe/branch/pnode and branch/nnode=$myprobe/branch/nnode])]">
-              <admst:if test="$theLHS/ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode]">
-                <admst:variable name="derivProbe" select="%(.)"/>
-                <admst:for-each select="$theLHS/probe">
-                  <admst:variable name="derivProbe2" select="%(.)"/>
-                  <admst:apply-templates select="$theRHS/tree" match="%(adms/datatypename)">
-                    <admst:variable name="rhsDeriv12" value="%(returned('returnedExpressionDeriv12')/value)"/>
-                  </admst:apply-templates>
-                  <admst:variable name="lhsname" select="d_%($theLHS/name)_d%($derivProbe/nature)_%($derivProbe/branch/pnode)_%($derivProbe/branch/nnode)_d%($derivProbe2/nature)_%($derivProbe2/branch/pnode)_%($derivProbe2/branch/nnode)"/>
-                  <admst:if test="[$lhsname != $rhsDeriv12]">
-                    <admst:text format="$lhsname = $rhsDeriv12;\n"/>
+          <!-- If RHS contains any function calls other than
+               $simparam, ddt, and ddx, precompute them -->
+          <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" format="{\n"/>
+          <admst:apply-templates select="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" match="functionPrecomputation"/>
+          <!-- If not in sensitivity context, let's emit the derivatives
+               of the assignment first -->
+          <admst:apply-templates select="rhs/[not(nilled(function[name!='\$simparam' and name!='ddt' and name!='ddx']))]" match="functionDerivativePrecomputation"/>
+          <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(lhs/probe)) and $skipFunctionPrecomp='n'  and (lhs/insource='yes' or not(nilled(lhs/ddxprobe)))]">
+            <admst:text format="\n"/>
+            <admst:variable name="needinitialize" select="no"/>
+            <admst:for-each select="lhs/probe">
+              <admst:variable name="myVar" path=".."/>
+              <admst:variable name="myprobe" path="."/>
+              <admst:if test="[not(exists(../../rhs/probe[branch/pnode=$myprobe/branch/pnode and branch/nnode=$myprobe/branch/nnode]))]">
+                <admst:text format="d_%($myVar/name)_d%(nature)_%($myprobe/branch/pnode)_%($myprobe/branch/nnode) = "/>
+                <admst:if test="[../insource='yes']">
+                  <admst:if test="[exists(../ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode])]">
+                    <admst:for-each select="$myVar/probe">
+                      <admst:text format="d_%($myVar/name)_d%($myprobe/nature)_%($myprobe/branch/pnode)_%($myprobe/branch/nnode)_d%(nature)_%(branch/pnode)_%(branch/nnode) = "/>
+                    </admst:for-each>
                   </admst:if>
-                </admst:for-each>
+                </admst:if>
+                <admst:variable name="needinitialize" select="yes"/>
               </admst:if>
+            </admst:for-each>
+            <admst:if test="[$needinitialize = 'yes']">
+              <admst:text format=" 0.0;\n"/>
             </admst:if>
-          </admst:for-each>
-        </admst:if>
-      </admst:if>
-      <!-- if we *ARE* in sensitivity context, emit the derivatives of the expression w.r.t. "X" -->
-      <admst:if test="[$globalCurrentScope='sensitivity' and exists(lhs/#Pdependent)]">
-        <admst:variable name="theLHS" path="lhs"/>
-        <admst:variable name="theRHS" path="rhs"/>
-        <admst:apply-templates select="$theLHS" match="%(adms/datatypename)">
-          <admst:variable name="lhsname" select="%(returned('returnedExpressionDerivX')/value)"/>
-        </admst:apply-templates>
-        <admst:apply-templates select="$theRHS/tree" match="%(adms/datatypename)">
-          <admst:variable name="rhsDerivX" value="%(returned('returnedExpressionDerivX')/value)"/>
-        </admst:apply-templates>
-        <admst:if test="[$lhsname != $rhsDerivX]">
-          <admst:text format="$lhsname = $rhsDerivX;\n"/>
-        </admst:if>
-      </admst:if>
-      <!-- Bleh.  Sometimes, even if the lhs is not probe dependent, the
-           rhs could depend on a variable that is *sometimes*
-           probe-dependent but isn't at the moment (as, for example,
-           when a temporary variable is sometimes used to store the
-           results of probe-dependent computations, and sometimes just
-           plain constant expressions).  In this case, both lhs/probe
-           and rhs/probe are nilled because the overall rhs expression
-           has no probe dependence, but some variable in it has a
-           non-nilled probe:  That means that the RHS has a Fad typed
-           variable in it, that the current value stored in that
-           variable has NO dependence on any probes, but the LHS is a
-           double.  This requires that we generate all references to the
-           Fad Variable with ".val() calls on the RHS. -->
-      <admst:apply-templates select="lhs" match="processTerm">
-        <admst:variable name="lhsname" select="%(returned('returnedExpression')/value)"/>
-      </admst:apply-templates>
-      <admst:if test="[(nilled(lhs/probe) and nilled(rhs/probe) and $globalCurrentScope!='sensitivity') or ($globalCurrentScope='sensitivity' and not(exists(lhs/#Pdependent)) and not(exists(rhs/#Pdependent)))]">
-        <admst:variable name="globalMustForceScalar" select="yes"/>
-      </admst:if>
-      <admst:apply-templates select="rhs" match="processTerm">
-        <admst:variable name="rhsexpr" select="%(returned('returnedExpression')/value)"/>
-      </admst:apply-templates>
-      <admst:if test="[$lhsname != $rhsexpr]">
-        <admst:text format="$lhsname = $rhsexpr;\n"/>
-      </admst:if>
+          </admst:if>
+          <admst:if test="[$globalCurrentScope!='sensitivity' and not(nilled(rhs/probe)) and (lhs/insource='yes' or not(nilled(lhs/ddxprobe)))]">
+            <admst:variable name="theLHS" path="lhs"/>
+            <admst:variable name="theRHS" path="rhs"/>
+            <admst:for-each select="rhs/probe">
+              <admst:variable name="derivProbe" select="%(.)"/>
+              <admst:apply-templates select="$theRHS/tree" match="%(adms/datatypename)">
+                <admst:variable name="rhsDeriv" value="%(returned('returnedExpressionDeriv')/value)"/>
+              </admst:apply-templates>
+              <admst:variable name="lhsname" select="d_%($theLHS/name)_d%(nature)_%(branch/pnode)_%(branch/nnode)"/>
+              <admst:if test="[$lhsname != $rhsDeriv]">
+                <admst:text format="$lhsname = $rhsDeriv;\n"/>
+              </admst:if>
+            </admst:for-each>
+            <admst:if test="[lhs/insource='yes']">
+              <!-- now handle the second derivatives as needed if there are ddxprobes in the lhs
+                   It would probably be cleaner to do this in the loop above, but it is neither
+                   necessary (I think) nor particularly readable.  So we redo loops -->
+              <admst:for-each select="$theLHS/probe">
+                <!-- skip any on which the RHS doesn't depend, because we've already
+                     handled those with explicit 0.0 initialization -->
+                <admst:variable name="myprobe" path="."/>
+                <admst:if test="[exists(../../rhs/probe[branch/pnode=$myprobe/branch/pnode and branch/nnode=$myprobe/branch/nnode])]">
+                  <admst:if test="$theLHS/ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode]">
+                    <admst:variable name="derivProbe" select="%(.)"/>
+                    <admst:for-each select="$theLHS/probe">
+                      <admst:variable name="derivProbe2" select="%(.)"/>
+                      <admst:apply-templates select="$theRHS/tree" match="%(adms/datatypename)">
+                        <admst:variable name="rhsDeriv12" value="%(returned('returnedExpressionDeriv12')/value)"/>
+                      </admst:apply-templates>
+                      <admst:variable name="lhsname" select="d_%($theLHS/name)_d%($derivProbe/nature)_%($derivProbe/branch/pnode)_%($derivProbe/branch/nnode)_d%($derivProbe2/nature)_%($derivProbe2/branch/pnode)_%($derivProbe2/branch/nnode)"/>
+                      <admst:if test="[$lhsname != $rhsDeriv12]">
+                        <admst:text format="$lhsname = $rhsDeriv12;\n"/>
+                      </admst:if>
+                    </admst:for-each>
+                  </admst:if>
+                </admst:if>
+              </admst:for-each>
+            </admst:if>
+          </admst:if>
+          <!-- if we *ARE* in sensitivity context, emit the derivatives of the expression w.r.t. "X" -->
+          <admst:if test="[$globalCurrentScope='sensitivity' and exists(lhs/#Pdependent)]">
+            <admst:variable name="theLHS" path="lhs"/>
+            <admst:variable name="theRHS" path="rhs"/>
+            <admst:apply-templates select="$theLHS" match="%(adms/datatypename)">
+              <admst:variable name="lhsname" select="%(returned('returnedExpressionDerivX')/value)"/>
+            </admst:apply-templates>
+            <admst:apply-templates select="$theRHS/tree" match="%(adms/datatypename)">
+              <admst:variable name="rhsDerivX" value="%(returned('returnedExpressionDerivX')/value)"/>
+            </admst:apply-templates>
+            <admst:if test="[$lhsname != $rhsDerivX]">
+              <admst:text format="$lhsname = $rhsDerivX;\n"/>
+            </admst:if>
+          </admst:if>
+          <!-- Bleh.  Sometimes, even if the lhs is not probe dependent, the
+               rhs could depend on a variable that is *sometimes*
+               probe-dependent but isn't at the moment (as, for example,
+               when a temporary variable is sometimes used to store the
+               results of probe-dependent computations, and sometimes just
+               plain constant expressions).  In this case, both lhs/probe
+               and rhs/probe are nilled because the overall rhs expression
+               has no probe dependence, but some variable in it has a
+               non-nilled probe:  That means that the RHS has a Fad typed
+               variable in it, that the current value stored in that
+               variable has NO dependence on any probes, but the LHS is a
+               double.  This requires that we generate all references to the
+               Fad Variable with ".val() calls on the RHS. -->
+          <admst:apply-templates select="lhs" match="processTerm">
+            <admst:variable name="lhsname" select="%(returned('returnedExpression')/value)"/>
+          </admst:apply-templates>
+          <admst:if test="[(nilled(lhs/probe) and nilled(rhs/probe) and $globalCurrentScope!='sensitivity') or ($globalCurrentScope='sensitivity' and not(exists(lhs/#Pdependent)) and not(exists(rhs/#Pdependent)))]">
+            <admst:variable name="globalMustForceScalar" select="yes"/>
+          </admst:if>
+          <admst:apply-templates select="rhs" match="processTerm">
+            <admst:variable name="rhsexpr" select="%(returned('returnedExpression')/value)"/>
+          </admst:apply-templates>
+          <admst:if test="[$lhsname != $rhsexpr]">
+            <admst:text format="$lhsname = $rhsexpr;\n"/>
+          </admst:if>
 
-      <admst:variable name="globalMustUseTemplate" select="$saveTemplateUse"/>
-      <admst:variable name="globalMustForceScalar" select="$saveScalarForce"/>
-      <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" format="}\n"/>
-    </admst:when>
-    <admst:otherwise>
-      <admst:apply-templates select="." match="limiterAssignment"/>
-    </admst:otherwise>
-    </admst:choose>
+          <admst:variable name="globalMustUseTemplate" select="$saveTemplateUse"/>
+          <admst:variable name="globalMustForceScalar" select="$saveScalarForce"/>
+          <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx' and $skipFunctionPrecomp='n']" format="}\n"/>
+        </admst:when>
+        <admst:otherwise>
+          <admst:apply-templates select="." match="limiterAssignment"/>
+        </admst:otherwise>
+      </admst:choose>
+    </admst:if>
   </admst:template>
 
   <!--
@@ -4965,7 +4968,10 @@ other variables does not get propagated into a variable's
 
                 <admst:text format="d_%($mode)Contributions_dX[%($branchConstant)] += %($rhsDerivX);\n"/>
               </admst:if>
-              <admst:text format="%($mode)Contributions[%($branchConstant)] += %(printTerm(rhs));\n"/>
+              <!-- sensitivity doesn't actually need to store the value of the contribution, just deriv -->
+              <admst:if test="[$globalCurrentScope != 'sensitivity']">
+                <admst:text format="%($mode)Contributions[%($branchConstant)] += %(printTerm(rhs));\n"/>
+              </admst:if>
               <admst:text test="rhs/function[name!='\$simparam' and name!='ddt' and name!='ddx']" format="}\n"/>
             </admst:otherwise>
           </admst:choose>
@@ -5048,7 +5054,9 @@ other variables does not get propagated into a variable's
 
             <!-- When no limiting, this is much simpler: Just output RHS -->
             <admst:otherwise>
-              <admst:text format="%($mode)Contributions[$pnodeConstant] += %(printTerm(rhs));\n"/>
+              <admst:if test="[$globalCurrentScope!='sensitivity']">
+                <admst:text format="%($mode)Contributions[$pnodeConstant] += %(printTerm(rhs));\n"/>
+              </admst:if>
               <admst:if test="[$globalCurrentScope='sensitivity']">
                 <admst:apply-templates select="rhs/tree" match="%(adms/datatypename)">
                   <admst:variable name="rhsDerivX" value="%(returned('returnedExpressionDerivX')/value)"/>
@@ -5066,7 +5074,9 @@ other variables does not get propagated into a variable's
               </admst:if>
               <admst:if test="$nnode[grounded='no']">
                 <admst:variable name="nnodeConstant" select="%(xyceNodeConstantName($nnode)/[name='nodeConstant']/value)"/>
-                <admst:text format="%($mode)Contributions[$nnodeConstant] -= %(printTerm(rhs));\n"/>
+                <admst:if test="[$globalCurrentScope!='sensitivity']">
+                  <admst:text format="%($mode)Contributions[$nnodeConstant] -= %(printTerm(rhs));\n"/>
+                </admst:if>
                 <admst:if test="[$globalCurrentScope='sensitivity']">
                   <admst:apply-templates select="rhs/tree" match="%(adms/datatypename)">
                     <admst:variable name="rhsDerivX" value="%(returned('returnedExpressionDerivX')/value)"/>
@@ -6915,9 +6925,7 @@ other variables does not get propagated into a variable's
      <admst:text format=" double admsTemperature"/>
      <admst:text format=", double adms_vt_nom"/>
      <admst:text format=", double ADMSgmin_arg"/>
-     <admst:text format=", std::vector &lt;double&gt; &amp; staticContributions"/>
      <admst:text format=", std::vector &lt;double&gt; &amp; d_staticContributions_dX"/>
-     <admst:text format=", std::vector &lt;double&gt; &amp; dynamicContributions"/>
      <admst:text format=", std::vector &lt;double&gt; &amp; d_dynamicContributions_dX"/>
      <!-- YUCK!  Went through all that trouble to duplicate the instance vars
           and here we are passing an instance pointer!  Why?  Only because
@@ -7040,9 +7048,9 @@ It calls generateInstanceArgs and generateModelArgs.
      </admst:if>
      <admst:text format="// instance variables\n"/>
    </admst:if>
-   <admst:if test="[exists( variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden']) and type='real')])]">
+   <admst:if test="[exists( variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden']) and type='real' and not(insource='no' and output='yes'))])]">
      <admst:text format="// reals\n"/>
-     <admst:join select="variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden'])) and type='real']" separator=",\n">
+     <admst:join select="variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden'])) and type='real' and not(insource='no' and output='yes')]" separator=",\n">
        <admst:apply-templates select="." match="collectParamDependence"/>
        <admst:if test="[$globalDeclareVars='yes']">
          <admst:text format="double &amp; "/>
@@ -7067,6 +7075,7 @@ It calls generateInstanceArgs and generateModelArgs.
      <admst:join select="variable[(scope='global_instance') and input='no' and not (type='real')]" separator=",\n">
        <admst:if test="[$globalDeclareVars='yes']">
          <admst:apply-templates select="." match="verilog2CXXtype"/>
+         <admst:text format=" &amp; "/>
        </admst:if>
        <admst:text format=" instanceVar_%(name)"/>
      </admst:join>
@@ -7187,6 +7196,7 @@ It calls generateInstanceArgs and generateModelArgs.
      <admst:join select="variable[(scope='global_model') and input='no' and not (type='real')]" separator=",\n">
        <admst:if test="[$globalDeclareVars='yes']">
          <admst:apply-templates select="." match="verilog2CXXtype"/>
+         <admst:text format=" &amp; "/>
        </admst:if>
        <admst:text format=" modelVar_%(name)"/>
      </admst:join>
