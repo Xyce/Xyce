@@ -2645,7 +2645,7 @@ unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; inParamMap;
   <admst:text format="double modelVar_%(name)=mod.%(name);\n"/>
   <admst:if test="[exists(#Pdependent)]">
     <!-- Initialize this, but we're gonna clobber it -->
-    <admst:text format="double d_modelVar_%(name)_dX = 0.0;\n"/>
+    <admst:text format="double d_modelVar_%(name)_dX=0.0;\n"/>
   </admst:if>
 </admst:for-each>
 
@@ -2909,7 +2909,7 @@ unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; modParamMap;
   <admst:text format="double modelVar_%(name)=mod.%(name);\n"/>
   <admst:if test="[exists(#Pdependent)]">
     <!-- Initialize this, but we're gonna clobber it -->
-    <admst:text format="double d_modelVar_%(name)_dX=0.0;"/>
+    <admst:text format="double d_modelVar_%(name)_dX=0.0;\n"/>
   </admst:if>
 </admst:for-each>
 
