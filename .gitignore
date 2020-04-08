@@ -52,6 +52,7 @@ utils/ADMS/**/disciplines.h
 utils/ADMS/**/discipline.h
 utils/ADMS/**/N_DEV_ADMS*.[Ch]
 utils/ADMS/**/N_DEV_ADMS*.orig
+utils/ADMS/**/N_DEV_ADMS*.rej
 utils/ADMS/**/N_DEV_ADMS*.html
 utils/ADMS/**/*.tex
 !utils/ADMS/**/N_DEV_ADMS*_bootstrap.C

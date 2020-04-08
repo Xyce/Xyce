@@ -2390,8 +2390,8 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 //-----------------------------------------------------------------------------
 
 <admst:text format="void evaluateInitialInstance(\n"/>
-<admst:variable name="globalDeclareVars" select="yes"/>
-<admst:apply-templates select="." match="generateInstanceAndModelArgs"/>
+<admst:text format="instanceSensStruct &amp; instanceStruct,\n"/>
+<admst:text format="modelSensStruct &amp; modelStruct,\n"/>
 <admst:text format=" double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance &amp; theInstance)\n"/>
 <admst:text format="{\n"/>
 <admst:for-each select="analog/code/item/adms[datatypename='block']/..[name='initial_instance']">
@@ -2418,12 +2418,7 @@ void Model::forEachInstance(DeviceInstanceOp &amp;op) const
 //-----------------------------------------------------------------------------
 
 <admst:text format="void evaluateInitialModel(\n"/>
-<admst:variable name="globalDeclareVars" select="yes"/>
-<admst:apply-templates select="." match="generateModelArgs">
-  <admst:if test="[returned('iGeneratedArgs')/value = 'yes']">
-    <admst:text format=",\n"/>
-  </admst:if>
-</admst:apply-templates>
+<admst:text format="modelSensStruct &amp; modelStruct,\n"/>
 <admst:text format=" double admsTemperature, double ADMSgmin_arg, const Instance &amp; theInstance)\n"/>
 <admst:text format="{\n"/>
 <admst:for-each select="analog/code/item/adms[datatypename='block']/..[name='initial_model']">
@@ -2548,63 +2543,63 @@ for (int i=0; i &lt; %($numSolVars) ; ++i)
    d_dynamicContributions_dX[i]=0;
 }
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 //reals
 
 <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='yes' and type='real']">
-  <admst:text format="double modelPar_%(name)=mod.%(name);\n"/>
-  <admst:text format="double d_modelPar_%(name)_dX=0.0;\n"/>
-  <admst:text format="bool modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
+  <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.d_modelPar_%(name)_dX=0.0;\n"/>
+  <admst:text format="modelStruct.modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
 </admst:for-each>
 
 // hidden reals
 
   <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='no' and exists(attribute[name='hidden']) and type='real']">
-    <admst:text format="double modelPar_%(name)=mod.%(name);\n"/>
-    <admst:text format="double d_modelPar_%(name)_dX=0.0;\n"/>
+    <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+    <admst:text format="modelStruct.d_modelPar_%(name)_dX=0.0;\n"/>
   </admst:for-each>
 
 // non-reals (including hiddens)
 
   <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]">
-    <admst:apply-templates select="." match="verilog2CXXtype"/>
-    <admst:text format=" modelPar_%(name)=mod.%(name);\n"/>
+    <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
     <admst:if test="[not(exists(attribute[name='hidden']))]">
-      <admst:text format="bool modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
+      <admst:text format="modelStruct.modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
     </admst:if>
   </admst:for-each>
 
 
-// Copy out all the instance parameters (doubles) into FAD types
+// Copy out all the instance parameters (doubles) into local struct
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly &quot;if/else&quot; block just to find the
 // one parameter we&apos;re doing sensitivities on.
 unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; inParamMap;
-
+instanceSensStruct instanceStruct;
 // reals
 
 <admst:for-each select="variable[parametertype='instance' and input='yes' and type='real']">
-  <admst:text format="double instancePar_%(name)=in.%(name);\n"/>
-  <admst:text format="double d_instancePar_%(name)_dX=0.0;\n"/>
-  <admst:text format="bool instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
-  <admst:text format="inParamMap[&quot;%(name)&quot;] = &amp;d_instancePar_%(name)_dX;\n"/>
+  <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
+  <admst:text format="instanceStruct.d_instancePar_%(name)_dX=0.0;\n"/>
+  <admst:text format="instanceStruct.instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
+  <admst:text format="inParamMap[&quot;%(name)&quot;] = &amp;(instanceStruct.d_instancePar_%(name)_dX);\n"/>
 </admst:for-each>
 
-// Copy all the real hidden instance params into fad types
+// Copy all the real hidden instance params into local struct
 
 <admst:for-each select="variable[parametertype='instance' and (input='no' and exists(attribute[name='hidden'])) and type='real']">
-  <admst:text format="double instancePar_%(name)=in.%(name);\n"/>
-  <admst:text format="double d_instancePar_%(name)_dX=0.0;\n"/>
+  <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
+  <admst:text format="instanceStruct.d_instancePar_%(name)_dX=0.0;\n"/>
 </admst:for-each>
 
 
 // Copy all the non-real instance params into vars of their appropriate type:
 
 <admst:for-each select="variable[parametertype='instance' and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]">
-  <admst:apply-templates select="." match="verilog2CXXtype"/>
-  <admst:text format=" instancePar_%(name)=in.%(name);\n"/>
+  <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
   <admst:if test="[not(exists(attribute[name='hidden']))]">
-    <admst:text format="bool instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
+    <admst:text format="instanceStruct.instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
   </admst:if>
 </admst:for-each>
 
@@ -2619,18 +2614,17 @@ unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; inParamMap;
 
 <admst:for-each select="variable[scope='global_instance' and input='no' and type='real' and not(insource='no' and output='yes')]">
   <admst:apply-templates select="." match="collectParamDependence"/>
-  <admst:text format="double instanceVar_%(name)=in.%(name);\n"/>
+  <admst:text format="instanceStruct.instanceVar_%(name)=in.%(name);\n"/>
   <admst:if test="[exists(#Pdependent)]">
     <!-- Initialize this, but we're gonna clobber it -->
-    <admst:text format="double d_instanceVar_%(name)_dX=0.0;\n"/>
+    <admst:text format="instanceStruct.d_instanceVar_%(name)_dX=0.0;\n"/>
   </admst:if>
 </admst:for-each>
 
 //non-reals
 
 <admst:for-each select="variable[scope='global_instance' and input='no' and not(type='real')]">
-  <admst:apply-templates select="." match="verilog2CXXtype"/>
-  <admst:text format=" instanceVar_%(name)=in.%(name);\n"/>
+  <admst:text format="instanceStruct.instanceVar_%(name)=in.%(name);\n"/>
 </admst:for-each>
 
 //make local copies of all model vars
@@ -2638,18 +2632,17 @@ unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; inParamMap;
 
 <admst:for-each select="variable[scope='global_model' and input='no' and type='real']">
   <admst:apply-templates select="." match="collectParamDependence"/>
-  <admst:text format="double modelVar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.modelVar_%(name)=mod.%(name);\n"/>
   <admst:if test="[exists(#Pdependent)]">
     <!-- Initialize this, but we're gonna clobber it -->
-    <admst:text format="double d_modelVar_%(name)_dX=0.0;\n"/>
+    <admst:text format="modelStruct.d_modelVar_%(name)_dX=0.0;\n"/>
   </admst:if>
 </admst:for-each>
 
 // non-reals
 
 <admst:for-each select="variable[scope='global_model' and input='no' and not(type='real')]">
-  <admst:apply-templates select="." match="verilog2CXXtype"/>
-  <admst:text format=" modelVar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.modelVar_%(name)=mod.%(name);\n"/>
 </admst:for-each>
 
 
@@ -2740,19 +2733,14 @@ Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
   // params.
 
 <admst:text format="evaluateInitialModel(\n"/>
-<admst:variable name="globalDeclareVars" select="no"/>
-<admst:apply-templates select="." match="generateModelArgs">
-  <admst:if test="[returned('iGeneratedArgs')/value = 'yes']">
-    <admst:text format=",\n"/>
-  </admst:if>
-</admst:apply-templates>
+<admst:text format="modelStruct,\n"/>
 <admst:text format=" mod.admsModTemp,in.getDeviceOptions().gmin,in);\n"/>
 </admst:if>
 
 <admst:if test="[exists(analog/code/item/adms[datatypename='block']/..[name='initial_instance'])]">
   <admst:text format="evaluateInitialInstance(\n"/>
-  <admst:variable name="globalDeclareVars" select="no"/>
-  <admst:apply-templates select="." match="generateInstanceAndModelArgs"/>
+  <admst:text format="instanceStruct,\n"/>
+  <admst:text format="modelStruct,\n"/>
   <admst:text format="in.admsTemperature,in.adms_vt_nom,in.getDeviceOptions().gmin,in);\n"/>
 </admst:if>
 
@@ -2857,7 +2845,9 @@ std::vector &lt;double&gt; d_staticContributions_dX(%($numSolVars));
 std::vector &lt;double&gt; d_dynamicContributions_dX(%($numSolVars));
 
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly "if/else" block just to find the
 // one parameter we're doing sensitivities on.
@@ -2866,26 +2856,25 @@ unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; modParamMap;
 // reals
 
 <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='yes' and type='real']">
-  <admst:text format="double modelPar_%(name)=mod.%(name);\n"/>
-  <admst:text format="double d_modelPar_%(name)_dX=0.0;\n"/>
-  <admst:text format="bool modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
-  <admst:text format="modParamMap[&quot;%(name)&quot;] = &amp;d_modelPar_%(name)_dX;\n"/>
+  <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.d_modelPar_%(name)_dX=0.0;\n"/>
+  <admst:text format="modelStruct.modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
+  <admst:text format="modParamMap[&quot;%(name)&quot;] = &amp;(modelStruct.d_modelPar_%(name)_dX);\n"/>
 </admst:for-each>
 
 // hidden reals
 
 <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='no' and exists(attribute[name='hidden']) and type='real']">
-  <admst:text format="double modelPar_%(name)=mod.%(name);\n"/>
-  <admst:text format="double d_modelPar_%(name)_dX=0.0;\n"/>
+  <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.d_modelPar_%(name)_dX=0.0;\n"/>
 </admst:for-each>
 
 // non-reals (including hiddens)
 
 <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]">
-  <admst:apply-templates select="." match="verilog2CXXtype"/>
-  <admst:text format=" modelPar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.modelPar_%(name)=mod.%(name);\n"/>
   <admst:if test="[not(exists(attribute[name='hidden']))]">
-    <admst:text format="bool modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
+    <admst:text format="modelStruct.modelPar_given_%(name)=mod.given(&quot;%(name)&quot;);\n"/>
   </admst:if>
 </admst:for-each>
 
@@ -2900,18 +2889,17 @@ unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; modParamMap;
 
 <admst:for-each select="variable[scope='global_model' and input='no' and type='real']">
   <admst:apply-templates select="." match="collectParamDependence"/>
-  <admst:text format="double modelVar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.modelVar_%(name)=mod.%(name);\n"/>
   <admst:if test="[exists(#Pdependent)]">
     <!-- Initialize this, but we're gonna clobber it -->
-    <admst:text format="double d_modelVar_%(name)_dX=0.0;\n"/>
+    <admst:text format="modelStruct.d_modelVar_%(name)_dX=0.0;\n"/>
   </admst:if>
 </admst:for-each>
 
 // non-reals
 
 <admst:for-each select="variable[scope='global_model' and input='no' and not(type='real')]">
-  <admst:apply-templates select="." match="verilog2CXXtype"/>
-  <admst:text format=" modelVar_%(name)=mod.%(name);\n"/>
+  <admst:text format="modelStruct.modelVar_%(name)=mod.%(name);\n"/>
 </admst:for-each>
 
 
@@ -2930,29 +2918,30 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
 
 
 
-  // Copy out all the instance parameters (doubles) into FAD types
-  // reals
+  // Copy out all the instance parameters (doubles) into local struct
+ instanceSensStruct instanceStruct;
+
+ // reals
 
   <admst:for-each select="variable[parametertype='instance' and input='yes' and type='real']">
-    <admst:text format="double instancePar_%(name)=in.%(name);\n"/>
-    <admst:text format="double d_instancePar_%(name)_dX=0.0;\n"/>
-    <admst:text format="bool instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
+    <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
+    <admst:text format="instanceStruct.d_instancePar_%(name)_dX=0.0;\n"/>
+    <admst:text format="instanceStruct.instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
   </admst:for-each>
 
   // real hidden instance
 
   <admst:for-each select="variable[parametertype='instance' and (input='no' and exists(attribute[name='hidden'])) and type='real']">
-    <admst:text format="double instancePar_%(name)X=in.%(name);\n"/>
-    <admst:text format="double d_instancePar_%(name)_dX=0.0;\n"/>
+    <admst:text format="instanceStruct.instancePar_%(name)X=in.%(name);\n"/>
+    <admst:text format="instanceStruct.d_instancePar_%(name)_dX=0.0;\n"/>
   </admst:for-each>
 
   // Copy all the non-real instance params into vars of their appropriate type:
 
   <admst:for-each select="variable[parametertype='instance' and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]">
-    <admst:apply-templates select="." match="verilog2CXXtype"/>
-    <admst:text format=" instancePar_%(name)=in.%(name);\n"/>
+    <admst:text format="instanceStruct.instancePar_%(name)=in.%(name);\n"/>
     <admst:if test="[not(exists(attribute[name='hidden']))]">
-      <admst:text format="bool instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
+      <admst:text format="instanceStruct.instancePar_given_%(name)=in.given(&quot;%(name)&quot;);\n"/>
     </admst:if>
   </admst:for-each>
 
@@ -2967,9 +2956,9 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
   <admst:for-each select="variable[parametertype='instance' and exists(attribute[name='xyceAlsoModel']) and input='yes']">
     <admst:text format="   if (!(in.given(&quot;%(name)&quot;)))\n"/>
     <admst:text format="   {\n"/>
-    <admst:text format="      instancePar_%(name) = modelPar_%(name);\n"/>
+    <admst:text format="      instanceStruct.instancePar_%(name) = modelStruct.modelPar_%(name);\n"/>
     <admst:if test="[type='real']">
-      <admst:text format="      d_instancePar_%(name)_dX = d_modelPar_%(name)_dX;\n"/>
+      <admst:text format="      instanceStruct.d_instancePar_%(name)_dX = modelStruct.d_modelPar_%(name)_dX;\n"/>
     </admst:if>
     <admst:text format="   }\n"/>
   </admst:for-each>
@@ -2979,19 +2968,18 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
 
   <admst:for-each select="variable[scope='global_instance' and input='no' and type='real' and not(insource='no' and output='yes')]">
     <admst:apply-templates select="." match="collectParamDependence"/>
-    <admst:text format="double instanceVar_%(name)=in.%(name);\n"/>
+    <admst:text format="instanceStruct.instanceVar_%(name)=in.%(name);\n"/>
     <admst:if test="[exists(#Pdependent)]">
       <!-- this will wind up being set properly either in the evaluateInitialInstance
            or evaluateModelEquations calls -->
-      <admst:text format="double d_instanceVar_%(name)_dX=0.0;\n"/>
+      <admst:text format="instanceStruct.d_instanceVar_%(name)_dX=0.0;\n"/>
     </admst:if>
   </admst:for-each>
 
   //non-reals
 
   <admst:for-each select="variable[scope='global_instance' and input='no' and not(type='real')]">
-    <admst:apply-templates select="." match="verilog2CXXtype"/>
-    <admst:text format=" instanceVar_%(name)=in.%(name);\n"/>
+    <admst:text format="instanceStruct.instanceVar_%(name)=in.%(name);\n"/>
   </admst:for-each>
 
 
@@ -3082,19 +3070,14 @@ for (std::vector&lt;Instance*&gt;::const_iterator in_it=mod.instanceContainer.be
     // params.
 
     <admst:text format="evaluateInitialModel(\n"/>
-    <admst:variable name="globalDeclareVars" select="no"/>
-    <admst:apply-templates select="." match="generateModelArgs">
-      <admst:if test="[returned('iGeneratedArgs')/value = 'yes']">
-        <admst:text format=",\n"/>
-      </admst:if>
-    </admst:apply-templates>
+    <admst:text format="modelStruct,\n"/>
     <admst:text format=" mod.admsModTemp,in.getDeviceOptions().gmin,in);\n"/>
   </admst:if>
 
   <admst:if test="[exists(analog/code/item/adms[datatypename='block']/..[name='initial_instance'])]">
     <admst:text format="evaluateInitialInstance(\n"/>
-    <admst:variable name="globalDeclareVars" select="no"/>
-    <admst:apply-templates select="." match="generateInstanceAndModelArgs"/>
+    <admst:text format="instanceStruct,\n"/>
+    <admst:text format="modelStruct,\n"/>
     <admst:text format="in.admsTemperature, in.adms_vt_nom,in.getDeviceOptions().gmin,in);\n"/>
   </admst:if>
 

@@ -5171,6 +5171,7 @@ other variables does not get propagated into a variable's
   -->
   <admst:template match="variable">
     <admst:assert test="adms[datatypename='variable']" format="variable template called on non-variable\n"/>
+    <admst:variable name="expressionDerivX" select="0.0"/>
     <admst:choose>
       <admst:when test="[scope='local']">
         <admst:variable name="expression" select="%(name)"/>
@@ -5188,15 +5189,24 @@ other variables does not get propagated into a variable's
                     <admst:if test="[not exists(attribute[name='xyceAlsoModel'])]">
                       <admst:fatal format="it is not legal to access instance variable %(name) in model context!  Our current scope is $globalCurrentScope, and we are generating $globalSensitivityScope code.\n"/>
                     </admst:if>
-                    <admst:variable name="expression" select="modelPar_%(name)"/>
+                    <admst:variable name="expression" select="modelStruct.modelPar_%(name)"/>
+                    <admst:if test="[exists(#Pdependent)]">
+                      <admst:variable name="expressionDerivX" select="modelStruct.d_modelPar_%(name)_dX"/>
+                    </admst:if>
                   </admst:when>
                   <admst:otherwise>
-                    <admst:variable name="expression" select="instancePar_%(name)"/>
+                    <admst:variable name="expression" select="instanceStruct.instancePar_%(name)"/>
+                    <admst:if test="[exists(#Pdependent)]">
+                      <admst:variable name="expressionDerivX" select="instanceStruct.d_instancePar_%(name)_dX"/>
+                    </admst:if>
                   </admst:otherwise>
                 </admst:choose>
               </admst:when>
               <admst:otherwise>
-                <admst:variable name="expression" select="instanceVar_%(name)"/>
+                <admst:variable name="expression" select="instanceStruct.instanceVar_%(name)"/>
+                    <admst:if test="[exists(#Pdependent)]">
+                      <admst:variable name="expressionDerivX" select="instanceStruct.d_instanceVar_%(name)_dX"/>
+                    </admst:if>
               </admst:otherwise>
             </admst:choose>
           </admst:when>
@@ -5213,10 +5223,16 @@ other variables does not get propagated into a variable's
           <admst:when test="[$globalCurrentScope='sensitivity']">
             <admst:choose>
               <admst:when test="[input='yes']">
-                <admst:variable name="expression" select="modelPar_%(name)"/>
+                <admst:variable name="expression" select="modelStruct.modelPar_%(name)"/>
+                <admst:if test="[exists(#Pdependent)]">
+                  <admst:variable name="expressionDerivX" select="modelStruct.d_modelPar_%(name)_dX"/>
+                </admst:if>
               </admst:when>
               <admst:otherwise>
-                <admst:variable name="expression" select="modelVar_%(name)"/>
+                <admst:variable name="expression" select="modelStruct.modelVar_%(name)"/>
+                <admst:if test="[exists(#Pdependent)]">
+                  <admst:variable name="expressionDerivX" select="modelStruct.d_modelVar_%(name)_dX"/>
+                </admst:if>
               </admst:otherwise>
             </admst:choose>
           </admst:when>
@@ -5236,8 +5252,7 @@ other variables does not get propagated into a variable's
     <admst:variable name="expressionDeriv" select="0.0"/>
     <admst:variable name="expressionDeriv2" select="0.0"/>
     <admst:variable name="expressionDeriv12" select="0.0"/>
-    <admst:variable name="expressionDerivX" select="0.0"/>
-    <admst:if test="[$globalCurrentScope='sensitivity' and (exists(#Pdependent))]">
+    <admst:if test="[$globalCurrentScope='sensitivity' and exists(#Pdependent) and $expressionDerivX='0.0']">
       <admst:variable name="expressionDerivX" select="d_%($expression)_dX"/>
     </admst:if>
     <admst:if test="[insource='yes' or not(nilled(ddxprobe))]">
@@ -5341,7 +5356,7 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expression" select="(model_.given(&quot;$arg1&quot;))"/>
               </admst:when>
               <admst:when test="[$globalCurrentScope = 'sensitivity']">
-                <admst:variable name="expression" select="modelPar_given_$arg1"/>
+                <admst:variable name="expression" select="modelStruct.modelPar_given_$arg1"/>
               </admst:when>
             </admst:choose>
           </admst:when>
@@ -5351,7 +5366,7 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expression" select="given(&quot;$arg1&quot;)"/>
               </admst:when>
               <admst:when test="[$globalCurrentScope = 'sensitivity']">
-                <admst:variable name="expression" select="instancePar_given_$arg1"/>
+                <admst:variable name="expression" select="instanceStruct.instancePar_given_$arg1"/>
               </admst:when>
               <admst:otherwise>
                 <admst:fatal format="Attempt to use \$given() on an instance variable outside of instance scope\n"/>
@@ -5988,7 +6003,7 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expression" select="(model_.given(&quot;$arg1&quot;))"/>
               </admst:when>
               <admst:when test="[$globalCurrentScope = 'sensitivity']">
-                <admst:variable name="expression" select="modelPar_given_$arg1"/>
+                <admst:variable name="expression" select="modelStruct.modelPar_given_$arg1"/>
               </admst:when>
             </admst:choose>
           </admst:when>
@@ -5998,7 +6013,7 @@ other variables does not get propagated into a variable's
                 <admst:variable name="expression" select="given(&quot;$arg1&quot;)"/>
               </admst:when>
               <admst:when test="[$globalCurrentScope = 'sensitivity']">
-                <admst:variable name="expression" select="instancePar_given_$arg1"/>
+                <admst:variable name="expression" select="instanceStruct.instancePar_given_$arg1"/>
               </admst:when>
               <admst:otherwise>
                 <admst:fatal format="Attempt to use \$given() on an instance variable outside of instance scope\n"/>
@@ -6916,7 +6931,14 @@ other variables does not get propagated into a variable's
    <admst:text format=",\n"/>
 
    <!-- now generate the instance and model parameters and variables -->
-   <admst:apply-templates select="." match="generateInstanceAndModelArgs"/>
+   <admst:if test="[$globalDeclareVars='yes']">
+     <admst:text format="instanceSensStruct &amp; "/>
+   </admst:if>
+   <admst:text format="instanceStruct,\n"/>
+   <admst:if test="[$globalDeclareVars='yes']">
+     <admst:text format="modelSensStruct &amp; "/>
+   </admst:if>
+   <admst:text format="modelStruct,\n"/>
 
    <!-- don't generate these if not declaring, because the caller
         might need to add things like "in." or "mod." to them. -->
@@ -6935,275 +6957,147 @@ other variables does not get propagated into a variable's
    </admst:if>
 </admst:template>
 
+
  <!--
    =================================================================-
-   generateInstanceAndModelArgs
+   generateInstanceStruct
 
-   This method, called both by generateEvaluateModelEquationsArgs
-   and in declarations/definition of evaluateInitialInstance, centralizes
-   declaration or call for instance parameters, model parameters, instance
-   variables and model variables.
-
-It calls generateInstanceArgs and generateModelArgs.
+   Generate the declaration of a structure to hold instance pars and vars
+   to consolidate and simplify passing them to functions
 
    In this version, we're very specifically emitting declarations JUST
    for sensitivity, not for a general version.
    =================================================================-
  -->
+ <admst:template match="generateInstanceStruct">
+   <admst:text format="class instanceSensStruct\n{\npublic:\n"/>
 
-<admst:template  match="generateInstanceAndModelArgs">
-  <admst:variable name="iGeneratedArgs" value="no"/>
-  <admst:apply-templates select="." match="generateInstanceArgs">
-    <admst:if test="[returned('iGeneratedArgs')/value = 'yes']">
-      <admst:variable name="iGeneratedArgs" value="yes"/>
-      <admst:text format=",\n"/>
-    </admst:if>
-  </admst:apply-templates>
-  <admst:apply-templates select="." match="generateModelArgs">
-    <admst:if test="[returned('iGeneratedArgs')/value = 'yes']">
-      <admst:variable name="iGeneratedArgs" value="yes"/>
-      <admst:text format=",\n"/>
-    </admst:if>
-  </admst:apply-templates>
-  <admst:return name="iGeneratedArgs" value="$iGeneratedArgs"/>
-</admst:template>
-
- <!--
-   =================================================================-
-   generateInstanceArgs
-
-   This method, called by generateEvaluateModelEquationsArgs
-   centralizes declaration or call for instance parameters and instance
-   variables.
-
-   In this version, we're very specifically emitting declarations JUST
-   for sensitivity, not for a general version.
-   =================================================================-
- -->
- <admst:template match="generateInstanceArgs">
-   <admst:variable name="iGeneratedArgs" select="no" />
    <admst:if test="[exists( variable[parametertype='instance' and input='yes' and type='real']) or exists( variable[parametertype='instance' and input='no' and exists(attribute[name='hidden']) and type='real'] ) or exists( variable[parametertype='instance' and (input='yes' or input='no' and exists(attribute[name='hidden'])) and not(type='real')] )]">
      <admst:text format="// instance parameters\n"/>
    </admst:if>
 
    <admst:if test="[exists( variable[parametertype='instance' and input='yes' and type='real'])]">
      <admst:text format="// reals\n"/>
-     <admst:join select="variable[parametertype='instance' and input='yes' and type='real']" separator=",\n">
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="instancePar_%(name),\n"/>
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="d_instancePar_%(name)_dX,\n"/>
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="bool "/>
-       </admst:if>
-       <admst:text format="instancePar_given_%(name)"/>
-     </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
+     <admst:for-each select="variable[parametertype='instance' and input='yes' and type='real']">
+       <admst:text format="double instancePar_%(name);\n"/>
+       <admst:text format="double d_instancePar_%(name)_dX;\n"/>
+       <admst:text format="bool instancePar_given_%(name);\n"/>
+     </admst:for-each>
    </admst:if>
 
    <admst:if test="[exists( variable[parametertype='instance' and input='no' and exists(attribute[name='hidden']) and type='real'] )]">
-     <admst:if test="[$iGeneratedArgs = 'yes']">
-       <admst:text format=",\n"/>
-     </admst:if>
      <admst:text format="// real hiddens\n"/>
-     <admst:join select="variable[parametertype='instance' and input='no' and exists(attribute[name='hidden']) and type='real']" separator=",\n">
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="instancePar_%(name), "/>
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="d_instancePar_%(name)_dX"/>
-     </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
+     <admst:for-each select="variable[parametertype='instance' and input='no' and exists(attribute[name='hidden']) and type='real']">
+       <admst:text format="double instancePar_%(name);\n"/>
+       <admst:text format="double d_instancePar_%(name)_dX;\n"/>
+     </admst:for-each>
    </admst:if>
 
    <admst:if test="[exists( variable[parametertype='instance' and (input='yes' or input='no' and exists(attribute[name='hidden'])) and not(type='real')] )]">
-     <admst:text format=",\n"/>
      <admst:text format="// non-reals(including hidden)\n"/>
-     <admst:join select="variable[parametertype='instance' and (input='yes' or input='no' and exists(attribute[name='hidden'])) and not(type='real')]" separator=",\n">
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:apply-templates select="." match="verilog2CXXtype"/>
-       </admst:if>
-       <admst:text format=" instancePar_%(name)"/>
+     <admst:for-each select="variable[parametertype='instance' and (input='yes' or input='no' and exists(attribute[name='hidden'])) and not(type='real')]">
+       <admst:apply-templates select="." match="verilog2CXXtype"/>
+       <admst:text format=" instancePar_%(name);\n"/>
        <admst:if test="[not(exists(attribute[name='hidden']))]">
-         <admst:text format=",\n"/>
-         <admst:if test="[$globalDeclareVars='yes']">
-           <admst:text format="bool "/>
-         </admst:if>
-         <admst:text format="instancePar_given_%(name)"/>
+         <admst:text format="bool instancePar_given_%(name);\n"/>
        </admst:if>
-     </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
+     </admst:for-each>
    </admst:if>
 
    <admst:if test="[exists( variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden']) and type='real')]) or exists( variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden'])) and not (type='real')])]">
-     <admst:if test="[$iGeneratedArgs = 'yes']">
-       <admst:text format=",\n"/>
-     </admst:if>
      <admst:text format="// instance variables\n"/>
    </admst:if>
    <admst:if test="[exists( variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden']) and type='real' and not(insource='no' and output='yes'))])]">
      <admst:text format="// reals\n"/>
-     <admst:join select="variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden'])) and type='real' and not(insource='no' and output='yes')]" separator=",\n">
+     <admst:for-each select="variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden'])) and type='real' and not(insource='no' and output='yes')]">
        <admst:apply-templates select="." match="collectParamDependence"/>
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="instanceVar_%(name)"/>
+       <admst:text format="double instanceVar_%(name);\n"/>
        <admst:if test="[exists(#Pdependent)]">
-         <admst:text format=", "/>
-         <admst:if test="[$globalDeclareVars='yes']">
-           <admst:text format="double &amp; "/>
-         </admst:if>
-         <admst:text format="d_instanceVar_%(name)_dX "/>
+         <admst:text format="double d_instanceVar_%(name)_dX;\n"/>
        </admst:if>
-     </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
+     </admst:for-each>
    </admst:if>
 
    <admst:if test="[exists( variable[(scope='global_instance') and input='no' and not (exists(attribute[name='hidden'])) and not (type='real')])]">
-     <admst:if test="[$iGeneratedArgs = 'yes']">
-       <admst:text format=",\n"/>
-     </admst:if>
      <admst:text format="// non-reals\n"/>
-     <admst:join select="variable[(scope='global_instance') and input='no' and not (type='real')]" separator=",\n">
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:apply-templates select="." match="verilog2CXXtype"/>
-         <admst:text format=" &amp; "/>
-       </admst:if>
-       <admst:text format=" instanceVar_%(name)"/>
-     </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
+     <admst:for-each select="variable[(scope='global_instance') and input='no' and not (type='real')]">
+       <admst:apply-templates select="." match="verilog2CXXtype"/>
+       <admst:text format=" instanceVar_%(name);\n"/>
+     </admst:for-each>
    </admst:if>
 
-   <admst:return name="iGeneratedArgs" value="$iGeneratedArgs"/>
+   <admst:text format="};\n\n"/>
  </admst:template>
 
  <!--
    =================================================================-
-   generateModelArgs
+   generateModelStruct
 
-   This method, called by generateEvaluateModelEquationsArgs and by
-   declarations and calls of evaluateInitialModel,
-   centralizes declaration or call for model parameters and model
-   variables.
-
+   Generate the declaration of a structure to hold model pars and vars
+   to consolidate and simplify passing them to functions
+ 
    In this version, we're very specifically emitting declarations JUST
    for sensitivity, not for a general version.
    =================================================================-
  -->
- <admst:template match="generateModelArgs">
-   <admst:variable name="iGeneratedArgs" select="no" />
+ <admst:template match="generateModelStruct">
+   <admst:text format="class modelSensStruct\n{\npublic:\n"/>
+
    <admst:if test="[exists( variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='yes' and type='real']) or exists( variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='no' and exists(attribute[name='hidden']) and type='real']) or exists( variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')])]">
      <admst:text format="// model parameters\n"/>
    </admst:if>
 
    <admst:if test="[exists( variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='yes' and type='real'])]">
      <admst:text format="// reals\n"/>
-     <admst:join select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='yes' and type='real']" separator=",\n">
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="modelPar_%(name),\n"/>
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="d_modelPar_%(name)_dX,\n"/>
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="bool "/>
-       </admst:if>
-       <admst:text format="modelPar_given_%(name)"/>
-     </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
+     <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='yes' and type='real']">
+       <admst:text format="double modelPar_%(name);\n"/>
+       <admst:text format="double d_modelPar_%(name)_dX;\n"/>
+       <admst:text format="bool modelPar_given_%(name);\n"/>
+     </admst:for-each>
    </admst:if>
 
    <admst:if test="[exists( variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='no' and exists(attribute[name='hidden']) and type='real'])]">
-     <admst:if test="[$iGeneratedArgs = 'yes']">
-       <admst:text format=",\n"/>
-     </admst:if>
      <admst:text format="// real hiddens\n"/>
-     <admst:join select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='no' and exists(attribute[name='hidden']) and type='real']" separator=",\n">
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="modelPar_%(name), "/>
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="d_modelPar_%(name)_dX"/>
-     </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
+     <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and input='no' and exists(attribute[name='hidden']) and type='real']">
+       <admst:text format="double modelPar_%(name); \n"/>
+       <admst:text format="double d_modelPar_%(name)_dX;\n"/>
+     </admst:for-each>
    </admst:if>
 
    <admst:if test="[exists( variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')])]">
-     <admst:if test="[$iGeneratedArgs = 'yes']">
-       <admst:text format=",\n"/>
-     </admst:if>
      <admst:text format="// non-reals (including hidden)\n"/>
-     <admst:join select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]" separator=",\n">
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:apply-templates select="." match="verilog2CXXtype"/>
-       </admst:if>
-       <admst:text format=" modelPar_%(name)"/>
+     <admst:for-each select="variable[(parametertype='model' or (parametertype='instance' and exists(attribute[name='xyceAlsoModel']))) and (input='yes' or (input='no' and exists(attribute[name='hidden']))) and not (type='real')]">
+       <admst:apply-templates select="." match="verilog2CXXtype"/>
+       <admst:text format=" modelPar_%(name);\n"/>
        <admst:if test="[not(exists(attribute[name='hidden']))]">
-         <admst:text format=",\n"/>
-         <admst:if test="[$globalDeclareVars='yes']">
-           <admst:text format="bool "/>
-         </admst:if>
-         <admst:text format="modelPar_given_%(name)"/>
+         <admst:text format="bool modelPar_given_%(name);\n"/>
        </admst:if>
-     </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
+     </admst:for-each>
    </admst:if>
 
    <admst:if test="[exists( variable[(scope='global_model') and input='no' and not (exists(attribute[name='hidden'])) and type='real']) or exists( variable[(scope='global_model') and input='no' and not (type='real')])]">
      <admst:text format="// model variables\n"/>
    </admst:if>
    <admst:if test="[exists( variable[(scope='global_model') and input='no' and not (exists(attribute[name='hidden'])) and type='real'])]">
-     <admst:if test="[$iGeneratedArgs = 'yes']">
-       <admst:text format=",\n"/>
-     </admst:if>
-     <admst:variable name="iGeneratedArgs" select="yes" />
      <admst:text format="// reals\n"/>
-     <admst:join select="variable[(scope='global_model') and input='no' and not (exists(attribute[name='hidden'])) and type='real']" separator=",\n">
+     <admst:for-each select="variable[(scope='global_model') and input='no' and not (exists(attribute[name='hidden'])) and type='real']">
        <admst:apply-templates select="." match="collectParamDependence"/>
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:text format="double &amp; "/>
-       </admst:if>
-       <admst:text format="modelVar_%(name)"/>
+       <admst:text format="double modelVar_%(name);\n"/>
        <admst:if test="[exists(#Pdependent)]">
-         <admst:text format=", "/>
-         <admst:if test="[$globalDeclareVars='yes']">
-           <admst:text format="double &amp; "/>
-         </admst:if>
-         <admst:text format="d_modelVar_%(name)_dX "/>
+         <admst:text format="double d_modelVar_%(name)_dX;"/>
        </admst:if>
-     </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
+     </admst:for-each>
    </admst:if>
 
    <admst:if test="[exists( variable[(scope='global_model') and input='no' and not (type='real')])]">
-     <admst:if test="[$iGeneratedArgs = 'yes']">
-       <admst:text format=",\n"/>
-     </admst:if>
      <admst:text format="// non-reals\n"/>
      <admst:join select="variable[(scope='global_model') and input='no' and not (type='real')]" separator=",\n">
-       <admst:if test="[$globalDeclareVars='yes']">
-         <admst:apply-templates select="." match="verilog2CXXtype"/>
-         <admst:text format=" &amp; "/>
-       </admst:if>
-       <admst:text format=" modelVar_%(name)"/>
+       <admst:apply-templates select="." match="verilog2CXXtype"/>
+       <admst:text format=" modelVar_%(name);"/>
      </admst:join>
-     <admst:variable name="iGeneratedArgs" select="yes" />
    </admst:if>
+   <admst:text format="};\n\n"/>
 
-   <admst:return name="iGeneratedArgs" value="$iGeneratedArgs"/>
- </admst:template>
+</admst:template>
 
 </admst>
