@@ -32,14 +32,12 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 31 Mar 2020 09:29:14
+// Creation Date  : Wed, 08 Apr 2020 17:18:49
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsim6_h
 #define Xyce_N_DEV_ADMSbsim6_h
 
-
-#include <Sacado_No_Kokkos.hpp>
 
 #include <N_DEV_Configuration.h>
 #include <N_DEV_Const.h>
@@ -52,10 +50,6 @@
 namespace Xyce {
 namespace Device {
 namespace ADMSbsim6 {
-
-// This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad<double,29> AdmsFadType;
-  typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
 class Instance;
@@ -166,6 +160,3100 @@ return ifFalse;
 
 #ifdef Xyce_ADMS_SENSITIVITIES
 //-----------------------------------------------------------------------------
+// "structs" to hold instance and model param/variable copies
+//-----------------------------------------------------------------------------
+class instanceSensStruct
+{
+public:
+// instance parameters
+// reals
+double instancePar_L;
+double d_instancePar_L_dX;
+bool instancePar_given_L;
+double instancePar_W;
+double d_instancePar_W_dX;
+bool instancePar_given_W;
+double instancePar_NRS;
+double d_instancePar_NRS_dX;
+bool instancePar_given_NRS;
+double instancePar_NRD;
+double d_instancePar_NRD_dX;
+bool instancePar_given_NRD;
+double instancePar_VFBSDOFF;
+double d_instancePar_VFBSDOFF_dX;
+bool instancePar_given_VFBSDOFF;
+double instancePar_XGW;
+double d_instancePar_XGW_dX;
+bool instancePar_given_XGW;
+double instancePar_RBPB;
+double d_instancePar_RBPB_dX;
+bool instancePar_given_RBPB;
+double instancePar_RBPD;
+double d_instancePar_RBPD_dX;
+bool instancePar_given_RBPD;
+double instancePar_RBPS;
+double d_instancePar_RBPS_dX;
+bool instancePar_given_RBPS;
+double instancePar_RBDB;
+double d_instancePar_RBDB_dX;
+bool instancePar_given_RBDB;
+double instancePar_RBSB;
+double d_instancePar_RBSB_dX;
+bool instancePar_given_RBSB;
+double instancePar_SA;
+double d_instancePar_SA_dX;
+bool instancePar_given_SA;
+double instancePar_SB;
+double d_instancePar_SB_dX;
+bool instancePar_given_SB;
+double instancePar_SD;
+double d_instancePar_SD_dX;
+bool instancePar_given_SD;
+double instancePar_AS;
+double d_instancePar_AS_dX;
+bool instancePar_given_AS;
+double instancePar_AD;
+double d_instancePar_AD_dX;
+bool instancePar_given_AD;
+double instancePar_PS;
+double d_instancePar_PS_dX;
+bool instancePar_given_PS;
+double instancePar_PD;
+double d_instancePar_PD_dX;
+bool instancePar_given_PD;
+// non-reals(including hidden)
+int instancePar_NF;
+bool instancePar_given_NF;
+int instancePar_MINZ;
+bool instancePar_given_MINZ;
+int instancePar_NGCON;
+bool instancePar_given_NGCON;
+int instancePar_RGATEMOD;
+bool instancePar_given_RGATEMOD;
+int instancePar_RBODYMOD;
+bool instancePar_given_RBODYMOD;
+int instancePar_GEOMOD;
+bool instancePar_given_GEOMOD;
+int instancePar_RGEOMOD;
+bool instancePar_given_RGEOMOD;
+int instancePar_SCA;
+bool instancePar_given_SCA;
+int instancePar_SCB;
+bool instancePar_given_SCB;
+int instancePar_SCC;
+bool instancePar_given_SCC;
+int instancePar_SC;
+bool instancePar_given_SC;
+// instance variables
+// reals
+double instanceVar_T0;
+double d_instanceVar_T0_dX;
+double instanceVar_T1;
+double d_instanceVar_T1_dX;
+double instanceVar_T2;
+double d_instanceVar_T2_dX;
+double instanceVar_epssi;
+double d_instanceVar_epssi_dX;
+double instanceVar_epsox;
+double d_instanceVar_epsox_dX;
+double instanceVar_Weff;
+double d_instanceVar_Weff_dX;
+double instanceVar_Leff;
+double d_instanceVar_Leff_dX;
+double instanceVar_Wact;
+double d_instanceVar_Wact_dX;
+double instanceVar_Lact;
+double d_instanceVar_Lact_dX;
+double instanceVar_Weffcj;
+double d_instanceVar_Weffcj_dX;
+double instanceVar_Cox;
+double d_instanceVar_Cox_dX;
+double instanceVar_epsratio;
+double d_instanceVar_epsratio_dX;
+double instanceVar_Lnew;
+double d_instanceVar_Lnew_dX;
+double instanceVar_L_mult;
+double d_instanceVar_L_mult_dX;
+double instanceVar_Wnew;
+double d_instanceVar_Wnew_dX;
+double instanceVar_DVTP0_i;
+double d_instanceVar_DVTP0_i_dX;
+double instanceVar_DVTP1_i;
+double d_instanceVar_DVTP1_i_dX;
+double instanceVar_DVTP2_i;
+double d_instanceVar_DVTP2_i_dX;
+double instanceVar_DVTP3_i;
+double d_instanceVar_DVTP3_i_dX;
+double instanceVar_DVTP4_i;
+double d_instanceVar_DVTP4_i_dX;
+double instanceVar_DVTP5_i;
+double d_instanceVar_DVTP5_i_dX;
+double instanceVar_A1_i;
+double d_instanceVar_A1_i_dX;
+double instanceVar_A11_i;
+double d_instanceVar_A11_i_dX;
+double instanceVar_A2_i;
+double d_instanceVar_A2_i_dX;
+double instanceVar_A21_i;
+double d_instanceVar_A21_i_dX;
+double instanceVar_PSAT_i;
+double d_instanceVar_PSAT_i_dX;
+double instanceVar_PSATR_i;
+double d_instanceVar_PSATR_i_dX;
+double instanceVar_BSIM6TOXP;
+double d_instanceVar_BSIM6TOXP_dX;
+double instanceVar_DMCGeff;
+double d_instanceVar_DMCGeff_dX;
+double instanceVar_DMDGeff;
+double d_instanceVar_DMDGeff_dX;
+double instanceVar_DMCIeff;
+double d_instanceVar_DMCIeff_dX;
+double instanceVar_RSourceGeo;
+double d_instanceVar_RSourceGeo_dX;
+double instanceVar_RDrainGeo;
+double d_instanceVar_RDrainGeo_dX;
+double instanceVar_Grgeltd;
+double d_instanceVar_Grgeltd_dX;
+double instanceVar_Grbsb;
+double d_instanceVar_Grbsb_dX;
+double instanceVar_Grbdb;
+double d_instanceVar_Grbdb_dX;
+double instanceVar_Grbpb;
+double d_instanceVar_Grbpb_dX;
+double instanceVar_Grbps;
+double d_instanceVar_Grbps_dX;
+double instanceVar_Grbpd;
+double d_instanceVar_Grbpd_dX;
+double instanceVar_Aechvb;
+double d_instanceVar_Aechvb_dX;
+double instanceVar_Bechvb;
+double d_instanceVar_Bechvb_dX;
+double instanceVar_AechvbEdge;
+double d_instanceVar_AechvbEdge_dX;
+double instanceVar_BechvbEdge;
+double d_instanceVar_BechvbEdge_dX;
+double instanceVar_ToxRatio;
+double d_instanceVar_ToxRatio_dX;
+double instanceVar_U0R_t;
+double d_instanceVar_U0R_t_dX;
+double instanceVar_UAR_t;
+double d_instanceVar_UAR_t_dX;
+double instanceVar_UCR_t;
+double d_instanceVar_UCR_t_dX;
+double instanceVar_UDR_t;
+double d_instanceVar_UDR_t_dX;
+double instanceVar_UCSR_t;
+double d_instanceVar_UCSR_t_dX;
+double instanceVar_VSATR_t;
+double d_instanceVar_VSATR_t_dX;
+double instanceVar_PTWGR_t;
+double d_instanceVar_PTWGR_t_dX;
+double instanceVar_ETA0R_t;
+double d_instanceVar_ETA0R_t_dX;
+double instanceVar_PSATB_i;
+double d_instanceVar_PSATB_i_dX;
+double instanceVar_KT1_i;
+double d_instanceVar_KT1_i_dX;
+double instanceVar_KT2_i;
+double d_instanceVar_KT2_i_dX;
+double instanceVar_NGATE_i;
+double d_instanceVar_NGATE_i_dX;
+double instanceVar_NSD_i;
+double d_instanceVar_NSD_i_dX;
+double instanceVar_NDEP_i;
+double d_instanceVar_NDEP_i_dX;
+double instanceVar_VFB_i;
+double d_instanceVar_VFB_i_dX;
+double instanceVar_CIT_i;
+double d_instanceVar_CIT_i_dX;
+double instanceVar_CDSCD_i;
+double d_instanceVar_CDSCD_i_dX;
+double instanceVar_CDSCDR_i;
+double d_instanceVar_CDSCDR_i_dX;
+double instanceVar_CDSCB_i;
+double d_instanceVar_CDSCB_i_dX;
+double instanceVar_NFACTOR_i;
+double d_instanceVar_NFACTOR_i_dX;
+double instanceVar_PHIN_i;
+double d_instanceVar_PHIN_i_dX;
+double instanceVar_ETA0_i;
+double d_instanceVar_ETA0_i_dX;
+double instanceVar_ETA0R_i;
+double d_instanceVar_ETA0R_i_dX;
+double instanceVar_ETAB_i;
+double d_instanceVar_ETAB_i_dX;
+double instanceVar_K2_i;
+double d_instanceVar_K2_i_dX;
+double instanceVar_K1_i;
+double d_instanceVar_K1_i_dX;
+double instanceVar_DELTA_i;
+double d_instanceVar_DELTA_i_dX;
+double instanceVar_U0_i;
+double d_instanceVar_U0_i_dX;
+double instanceVar_U0R_i;
+double d_instanceVar_U0R_i_dX;
+double instanceVar_VSAT_i;
+double d_instanceVar_VSAT_i_dX;
+double instanceVar_VSATR_i;
+double d_instanceVar_VSATR_i_dX;
+double instanceVar_VSATCV_i;
+double d_instanceVar_VSATCV_i_dX;
+double instanceVar_UA_i;
+double d_instanceVar_UA_i_dX;
+double instanceVar_UAR_i;
+double d_instanceVar_UAR_i_dX;
+double instanceVar_EU_i;
+double d_instanceVar_EU_i_dX;
+double instanceVar_UD_i;
+double d_instanceVar_UD_i_dX;
+double instanceVar_UDR_i;
+double d_instanceVar_UDR_i_dX;
+double instanceVar_UD_a;
+double d_instanceVar_UD_a_dX;
+double instanceVar_UCS_i;
+double d_instanceVar_UCS_i_dX;
+double instanceVar_UCSR_i;
+double d_instanceVar_UCSR_i_dX;
+double instanceVar_UC_i;
+double d_instanceVar_UC_i_dX;
+double instanceVar_UCR_i;
+double d_instanceVar_UCR_i_dX;
+double instanceVar_PDIBLC_i;
+double d_instanceVar_PDIBLC_i_dX;
+double instanceVar_PDIBLCR_i;
+double d_instanceVar_PDIBLCR_i_dX;
+double instanceVar_PDIBLCB_i;
+double d_instanceVar_PDIBLCB_i_dX;
+double instanceVar_PSCBE1_i;
+double d_instanceVar_PSCBE1_i_dX;
+double instanceVar_PSCBE2_i;
+double d_instanceVar_PSCBE2_i_dX;
+double instanceVar_PDITS_i;
+double d_instanceVar_PDITS_i_dX;
+double instanceVar_PDITSD_i;
+double d_instanceVar_PDITSD_i_dX;
+double instanceVar_FPROUT_i;
+double d_instanceVar_FPROUT_i_dX;
+double instanceVar_PRWG_i;
+double d_instanceVar_PRWG_i_dX;
+double instanceVar_WR_i;
+double d_instanceVar_WR_i_dX;
+double instanceVar_RDWMIN_i;
+double d_instanceVar_RDWMIN_i_dX;
+double instanceVar_RSWMIN_i;
+double d_instanceVar_RSWMIN_i_dX;
+double instanceVar_RDW_i;
+double d_instanceVar_RDW_i_dX;
+double instanceVar_RSW_i;
+double d_instanceVar_RSW_i_dX;
+double instanceVar_RDSW_i;
+double d_instanceVar_RDSW_i_dX;
+double instanceVar_RDSWMIN_i;
+double d_instanceVar_RDSWMIN_i_dX;
+double instanceVar_PTWG_i;
+double d_instanceVar_PTWG_i_dX;
+double instanceVar_PTWGR_i;
+double d_instanceVar_PTWGR_i_dX;
+double instanceVar_PVAG_i;
+double d_instanceVar_PVAG_i_dX;
+double instanceVar_XJ_i;
+double d_instanceVar_XJ_i_dX;
+double instanceVar_PCLM_i;
+double d_instanceVar_PCLM_i_dX;
+double instanceVar_PCLMR_i;
+double d_instanceVar_PCLMR_i_dX;
+double instanceVar_PCLMCV_i;
+double d_instanceVar_PCLMCV_i_dX;
+double instanceVar_PRWB_i;
+double d_instanceVar_PRWB_i_dX;
+double instanceVar_CF_i;
+double d_instanceVar_CF_i_dX;
+double instanceVar_CGSL_i;
+double d_instanceVar_CGSL_i_dX;
+double instanceVar_CGDL_i;
+double d_instanceVar_CGDL_i_dX;
+double instanceVar_CKAPPAS_i;
+double d_instanceVar_CKAPPAS_i_dX;
+double instanceVar_CKAPPAD_i;
+double d_instanceVar_CKAPPAD_i_dX;
+double instanceVar_VFBCV_i;
+double d_instanceVar_VFBCV_i_dX;
+double instanceVar_NDEPCV_i;
+double d_instanceVar_NDEPCV_i_dX;
+double instanceVar_ALPHA0_i;
+double d_instanceVar_ALPHA0_i_dX;
+double instanceVar_BETA0_i;
+double d_instanceVar_BETA0_i_dX;
+double instanceVar_AGIDL_i;
+double d_instanceVar_AGIDL_i_dX;
+double instanceVar_BGIDL_i;
+double d_instanceVar_BGIDL_i_dX;
+double instanceVar_CGIDL_i;
+double d_instanceVar_CGIDL_i_dX;
+double instanceVar_EGIDL_i;
+double d_instanceVar_EGIDL_i_dX;
+double instanceVar_AGISL_i;
+double d_instanceVar_AGISL_i_dX;
+double instanceVar_BGISL_i;
+double d_instanceVar_BGISL_i_dX;
+double instanceVar_CGISL_i;
+double d_instanceVar_CGISL_i_dX;
+double instanceVar_EGISL_i;
+double d_instanceVar_EGISL_i_dX;
+double instanceVar_UTE_i;
+double d_instanceVar_UTE_i_dX;
+double instanceVar_UA1_i;
+double d_instanceVar_UA1_i_dX;
+double instanceVar_UC1_i;
+double d_instanceVar_UC1_i_dX;
+double instanceVar_UD1_i;
+double d_instanceVar_UD1_i_dX;
+double instanceVar_UCSTE_i;
+double d_instanceVar_UCSTE_i_dX;
+double instanceVar_PRT_i;
+double d_instanceVar_PRT_i_dX;
+double instanceVar_AT_i;
+double d_instanceVar_AT_i_dX;
+double instanceVar_PTWGT_i;
+double d_instanceVar_PTWGT_i_dX;
+double instanceVar_IIT_i;
+double d_instanceVar_IIT_i_dX;
+double instanceVar_TGIDL_i;
+double d_instanceVar_TGIDL_i_dX;
+double instanceVar_KVTH0WE_i;
+double d_instanceVar_KVTH0WE_i_dX;
+double instanceVar_K2WE_i;
+double d_instanceVar_K2WE_i_dX;
+double instanceVar_KU0WE_i;
+double d_instanceVar_KU0WE_i_dX;
+double instanceVar_AIGBINV_i;
+double d_instanceVar_AIGBINV_i_dX;
+double instanceVar_BIGBINV_i;
+double d_instanceVar_BIGBINV_i_dX;
+double instanceVar_CIGBINV_i;
+double d_instanceVar_CIGBINV_i_dX;
+double instanceVar_EIGBINV_i;
+double d_instanceVar_EIGBINV_i_dX;
+double instanceVar_NIGBINV_i;
+double d_instanceVar_NIGBINV_i_dX;
+double instanceVar_AIGBACC_i;
+double d_instanceVar_AIGBACC_i_dX;
+double instanceVar_BIGBACC_i;
+double d_instanceVar_BIGBACC_i_dX;
+double instanceVar_CIGBACC_i;
+double d_instanceVar_CIGBACC_i_dX;
+double instanceVar_NIGBACC_i;
+double d_instanceVar_NIGBACC_i_dX;
+double instanceVar_AIGC_i;
+double d_instanceVar_AIGC_i_dX;
+double instanceVar_BIGC_i;
+double d_instanceVar_BIGC_i_dX;
+double instanceVar_CIGC_i;
+double d_instanceVar_CIGC_i_dX;
+double instanceVar_AIGS_i;
+double d_instanceVar_AIGS_i_dX;
+double instanceVar_BIGS_i;
+double d_instanceVar_BIGS_i_dX;
+double instanceVar_CIGS_i;
+double d_instanceVar_CIGS_i_dX;
+double instanceVar_AIGD_i;
+double d_instanceVar_AIGD_i_dX;
+double instanceVar_BIGD_i;
+double d_instanceVar_BIGD_i_dX;
+double instanceVar_CIGD_i;
+double d_instanceVar_CIGD_i_dX;
+double instanceVar_PIGCD_i;
+double d_instanceVar_PIGCD_i_dX;
+double instanceVar_DLCIG_i;
+double d_instanceVar_DLCIG_i_dX;
+double instanceVar_DLCIGD_i;
+double d_instanceVar_DLCIGD_i_dX;
+double instanceVar_IGT_i;
+double d_instanceVar_IGT_i_dX;
+double instanceVar_nuIntD;
+double d_instanceVar_nuIntD_dX;
+double instanceVar_nuEndD;
+double instanceVar_nuIntS;
+double d_instanceVar_nuIntS_dX;
+double instanceVar_nuEndS;
+double instanceVar_gth;
+double d_instanceVar_gth_dX;
+double instanceVar_cth;
+double d_instanceVar_cth_dX;
+double instanceVar_QSI;
+double d_instanceVar_QSI_dX;
+double instanceVar_QDI;
+double d_instanceVar_QDI_dX;
+double instanceVar_QGI;
+double d_instanceVar_QGI_dX;
+double instanceVar_ISUB;
+double d_instanceVar_ISUB_dX;
+double instanceVar_IGIDL;
+double d_instanceVar_IGIDL_dX;
+double instanceVar_IGISL;
+double d_instanceVar_IGISL_dX;
+double instanceVar_IGS;
+double d_instanceVar_IGS_dX;
+double instanceVar_IGD;
+double d_instanceVar_IGD_dX;
+double instanceVar_IGCS;
+double d_instanceVar_IGCS_dX;
+double instanceVar_IGCD;
+double d_instanceVar_IGCD_dX;
+double instanceVar_IGB;
+double d_instanceVar_IGB_dX;
+// non-reals
+int instanceVar_devsign;
+};
+
+class modelSensStruct
+{
+public:
+// model parameters
+// reals
+double modelPar_L;
+double d_modelPar_L_dX;
+bool modelPar_given_L;
+double modelPar_VFBSDOFF;
+double d_modelPar_VFBSDOFF_dX;
+bool modelPar_given_VFBSDOFF;
+double modelPar_XGW;
+double d_modelPar_XGW_dX;
+bool modelPar_given_XGW;
+double modelPar_RBPB;
+double d_modelPar_RBPB_dX;
+bool modelPar_given_RBPB;
+double modelPar_RBPD;
+double d_modelPar_RBPD_dX;
+bool modelPar_given_RBPD;
+double modelPar_RBPS;
+double d_modelPar_RBPS_dX;
+bool modelPar_given_RBPS;
+double modelPar_RBDB;
+double d_modelPar_RBDB_dX;
+bool modelPar_given_RBDB;
+double modelPar_RBSB;
+double d_modelPar_RBSB_dX;
+bool modelPar_given_RBSB;
+double modelPar_SA;
+double d_modelPar_SA_dX;
+bool modelPar_given_SA;
+double modelPar_SB;
+double d_modelPar_SB_dX;
+bool modelPar_given_SB;
+double modelPar_SD;
+double d_modelPar_SD_dX;
+bool modelPar_given_SD;
+double modelPar_LLONG;
+double d_modelPar_LLONG_dX;
+bool modelPar_given_LLONG;
+double modelPar_LMLT;
+double d_modelPar_LMLT_dX;
+bool modelPar_given_LMLT;
+double modelPar_WMLT;
+double d_modelPar_WMLT_dX;
+bool modelPar_given_WMLT;
+double modelPar_XL;
+double d_modelPar_XL_dX;
+bool modelPar_given_XL;
+double modelPar_WWIDE;
+double d_modelPar_WWIDE_dX;
+bool modelPar_given_WWIDE;
+double modelPar_XW;
+double d_modelPar_XW_dX;
+bool modelPar_given_XW;
+double modelPar_LINT;
+double d_modelPar_LINT_dX;
+bool modelPar_given_LINT;
+double modelPar_LL;
+double d_modelPar_LL_dX;
+bool modelPar_given_LL;
+double modelPar_LW;
+double d_modelPar_LW_dX;
+bool modelPar_given_LW;
+double modelPar_LWL;
+double d_modelPar_LWL_dX;
+bool modelPar_given_LWL;
+double modelPar_LLN;
+double d_modelPar_LLN_dX;
+bool modelPar_given_LLN;
+double modelPar_LWN;
+double d_modelPar_LWN_dX;
+bool modelPar_given_LWN;
+double modelPar_WINT;
+double d_modelPar_WINT_dX;
+bool modelPar_given_WINT;
+double modelPar_WL;
+double d_modelPar_WL_dX;
+bool modelPar_given_WL;
+double modelPar_WW;
+double d_modelPar_WW_dX;
+bool modelPar_given_WW;
+double modelPar_WWL;
+double d_modelPar_WWL_dX;
+bool modelPar_given_WWL;
+double modelPar_WLN;
+double d_modelPar_WLN_dX;
+bool modelPar_given_WLN;
+double modelPar_WWN;
+double d_modelPar_WWN_dX;
+bool modelPar_given_WWN;
+double modelPar_DLC;
+double d_modelPar_DLC_dX;
+bool modelPar_given_DLC;
+double modelPar_LLC;
+double d_modelPar_LLC_dX;
+bool modelPar_given_LLC;
+double modelPar_LWC;
+double d_modelPar_LWC_dX;
+bool modelPar_given_LWC;
+double modelPar_LWLC;
+double d_modelPar_LWLC_dX;
+bool modelPar_given_LWLC;
+double modelPar_DWC;
+double d_modelPar_DWC_dX;
+bool modelPar_given_DWC;
+double modelPar_WLC;
+double d_modelPar_WLC_dX;
+bool modelPar_given_WLC;
+double modelPar_WWC;
+double d_modelPar_WWC_dX;
+bool modelPar_given_WWC;
+double modelPar_WWLC;
+double d_modelPar_WWLC_dX;
+bool modelPar_given_WWLC;
+double modelPar_TOXE;
+double d_modelPar_TOXE_dX;
+bool modelPar_given_TOXE;
+double modelPar_TOXP;
+double d_modelPar_TOXP_dX;
+bool modelPar_given_TOXP;
+double modelPar_DTOX;
+double d_modelPar_DTOX_dX;
+bool modelPar_given_DTOX;
+double modelPar_NDEP;
+double d_modelPar_NDEP_dX;
+bool modelPar_given_NDEP;
+double modelPar_NDEPL1;
+double d_modelPar_NDEPL1_dX;
+bool modelPar_given_NDEPL1;
+double modelPar_NDEPLEXP1;
+double d_modelPar_NDEPLEXP1_dX;
+bool modelPar_given_NDEPLEXP1;
+double modelPar_NDEPL2;
+double d_modelPar_NDEPL2_dX;
+bool modelPar_given_NDEPL2;
+double modelPar_NDEPLEXP2;
+double d_modelPar_NDEPLEXP2_dX;
+bool modelPar_given_NDEPLEXP2;
+double modelPar_NDEPW;
+double d_modelPar_NDEPW_dX;
+bool modelPar_given_NDEPW;
+double modelPar_NDEPWEXP;
+double d_modelPar_NDEPWEXP_dX;
+bool modelPar_given_NDEPWEXP;
+double modelPar_NDEPWL;
+double d_modelPar_NDEPWL_dX;
+bool modelPar_given_NDEPWL;
+double modelPar_NDEPWLEXP;
+double d_modelPar_NDEPWLEXP_dX;
+bool modelPar_given_NDEPWLEXP;
+double modelPar_LNDEP;
+double d_modelPar_LNDEP_dX;
+bool modelPar_given_LNDEP;
+double modelPar_WNDEP;
+double d_modelPar_WNDEP_dX;
+bool modelPar_given_WNDEP;
+double modelPar_PNDEP;
+double d_modelPar_PNDEP_dX;
+bool modelPar_given_PNDEP;
+double modelPar_NDEPCV;
+double d_modelPar_NDEPCV_dX;
+bool modelPar_given_NDEPCV;
+double modelPar_NDEPCVL1;
+double d_modelPar_NDEPCVL1_dX;
+bool modelPar_given_NDEPCVL1;
+double modelPar_NDEPCVLEXP1;
+double d_modelPar_NDEPCVLEXP1_dX;
+bool modelPar_given_NDEPCVLEXP1;
+double modelPar_NDEPCVL2;
+double d_modelPar_NDEPCVL2_dX;
+bool modelPar_given_NDEPCVL2;
+double modelPar_NDEPCVLEXP2;
+double d_modelPar_NDEPCVLEXP2_dX;
+bool modelPar_given_NDEPCVLEXP2;
+double modelPar_NDEPCVW;
+double d_modelPar_NDEPCVW_dX;
+bool modelPar_given_NDEPCVW;
+double modelPar_NDEPCVWEXP;
+double d_modelPar_NDEPCVWEXP_dX;
+bool modelPar_given_NDEPCVWEXP;
+double modelPar_NDEPCVWL;
+double d_modelPar_NDEPCVWL_dX;
+bool modelPar_given_NDEPCVWL;
+double modelPar_NDEPCVWLEXP;
+double d_modelPar_NDEPCVWLEXP_dX;
+bool modelPar_given_NDEPCVWLEXP;
+double modelPar_LNDEPCV;
+double d_modelPar_LNDEPCV_dX;
+bool modelPar_given_LNDEPCV;
+double modelPar_WNDEPCV;
+double d_modelPar_WNDEPCV_dX;
+bool modelPar_given_WNDEPCV;
+double modelPar_PNDEPCV;
+double d_modelPar_PNDEPCV_dX;
+bool modelPar_given_PNDEPCV;
+double modelPar_NGATE;
+double d_modelPar_NGATE_dX;
+bool modelPar_given_NGATE;
+double modelPar_LNGATE;
+double d_modelPar_LNGATE_dX;
+bool modelPar_given_LNGATE;
+double modelPar_WNGATE;
+double d_modelPar_WNGATE_dX;
+bool modelPar_given_WNGATE;
+double modelPar_PNGATE;
+double d_modelPar_PNGATE_dX;
+bool modelPar_given_PNGATE;
+double modelPar_EASUB;
+double d_modelPar_EASUB_dX;
+bool modelPar_given_EASUB;
+double modelPar_NI0SUB;
+double d_modelPar_NI0SUB_dX;
+bool modelPar_given_NI0SUB;
+double modelPar_BG0SUB;
+double d_modelPar_BG0SUB_dX;
+bool modelPar_given_BG0SUB;
+double modelPar_EPSRSUB;
+double d_modelPar_EPSRSUB_dX;
+bool modelPar_given_EPSRSUB;
+double modelPar_EPSROX;
+double d_modelPar_EPSROX_dX;
+bool modelPar_given_EPSROX;
+double modelPar_XJ;
+double d_modelPar_XJ_dX;
+bool modelPar_given_XJ;
+double modelPar_LXJ;
+double d_modelPar_LXJ_dX;
+bool modelPar_given_LXJ;
+double modelPar_WXJ;
+double d_modelPar_WXJ_dX;
+bool modelPar_given_WXJ;
+double modelPar_PXJ;
+double d_modelPar_PXJ_dX;
+bool modelPar_given_PXJ;
+double modelPar_LVFB;
+double d_modelPar_LVFB_dX;
+bool modelPar_given_LVFB;
+double modelPar_WVFB;
+double d_modelPar_WVFB_dX;
+bool modelPar_given_WVFB;
+double modelPar_PVFB;
+double d_modelPar_PVFB_dX;
+bool modelPar_given_PVFB;
+double modelPar_VFB;
+double d_modelPar_VFB_dX;
+bool modelPar_given_VFB;
+double modelPar_VFBCV;
+double d_modelPar_VFBCV_dX;
+bool modelPar_given_VFBCV;
+double modelPar_LVFBCV;
+double d_modelPar_LVFBCV_dX;
+bool modelPar_given_LVFBCV;
+double modelPar_WVFBCV;
+double d_modelPar_WVFBCV_dX;
+bool modelPar_given_WVFBCV;
+double modelPar_PVFBCV;
+double d_modelPar_PVFBCV_dX;
+bool modelPar_given_PVFBCV;
+double modelPar_VFBCVL;
+double d_modelPar_VFBCVL_dX;
+bool modelPar_given_VFBCVL;
+double modelPar_VFBCVLEXP;
+double d_modelPar_VFBCVLEXP_dX;
+bool modelPar_given_VFBCVLEXP;
+double modelPar_VFBCVW;
+double d_modelPar_VFBCVW_dX;
+bool modelPar_given_VFBCVW;
+double modelPar_VFBCVWEXP;
+double d_modelPar_VFBCVWEXP_dX;
+bool modelPar_given_VFBCVWEXP;
+double modelPar_VFBCVWL;
+double d_modelPar_VFBCVWL_dX;
+bool modelPar_given_VFBCVWL;
+double modelPar_VFBCVWLEXP;
+double d_modelPar_VFBCVWLEXP_dX;
+bool modelPar_given_VFBCVWLEXP;
+double modelPar_DWJ;
+double d_modelPar_DWJ_dX;
+bool modelPar_given_DWJ;
+double modelPar_NSD;
+double d_modelPar_NSD_dX;
+bool modelPar_given_NSD;
+double modelPar_LNSD;
+double d_modelPar_LNSD_dX;
+bool modelPar_given_LNSD;
+double modelPar_WNSD;
+double d_modelPar_WNSD_dX;
+bool modelPar_given_WNSD;
+double modelPar_PNSD;
+double d_modelPar_PNSD_dX;
+bool modelPar_given_PNSD;
+double modelPar_DELVT0;
+double d_modelPar_DELVT0_dX;
+bool modelPar_given_DELVT0;
+double modelPar_DVTP0;
+double d_modelPar_DVTP0_dX;
+bool modelPar_given_DVTP0;
+double modelPar_LDVTP0;
+double d_modelPar_LDVTP0_dX;
+bool modelPar_given_LDVTP0;
+double modelPar_WDVTP0;
+double d_modelPar_WDVTP0_dX;
+bool modelPar_given_WDVTP0;
+double modelPar_PDVTP0;
+double d_modelPar_PDVTP0_dX;
+bool modelPar_given_PDVTP0;
+double modelPar_DVTP1;
+double d_modelPar_DVTP1_dX;
+bool modelPar_given_DVTP1;
+double modelPar_LDVTP1;
+double d_modelPar_LDVTP1_dX;
+bool modelPar_given_LDVTP1;
+double modelPar_WDVTP1;
+double d_modelPar_WDVTP1_dX;
+bool modelPar_given_WDVTP1;
+double modelPar_PDVTP1;
+double d_modelPar_PDVTP1_dX;
+bool modelPar_given_PDVTP1;
+double modelPar_DVTP2;
+double d_modelPar_DVTP2_dX;
+bool modelPar_given_DVTP2;
+double modelPar_LDVTP2;
+double d_modelPar_LDVTP2_dX;
+bool modelPar_given_LDVTP2;
+double modelPar_WDVTP2;
+double d_modelPar_WDVTP2_dX;
+bool modelPar_given_WDVTP2;
+double modelPar_PDVTP2;
+double d_modelPar_PDVTP2_dX;
+bool modelPar_given_PDVTP2;
+double modelPar_DVTP3;
+double d_modelPar_DVTP3_dX;
+bool modelPar_given_DVTP3;
+double modelPar_LDVTP3;
+double d_modelPar_LDVTP3_dX;
+bool modelPar_given_LDVTP3;
+double modelPar_WDVTP3;
+double d_modelPar_WDVTP3_dX;
+bool modelPar_given_WDVTP3;
+double modelPar_PDVTP3;
+double d_modelPar_PDVTP3_dX;
+bool modelPar_given_PDVTP3;
+double modelPar_DVTP4;
+double d_modelPar_DVTP4_dX;
+bool modelPar_given_DVTP4;
+double modelPar_LDVTP4;
+double d_modelPar_LDVTP4_dX;
+bool modelPar_given_LDVTP4;
+double modelPar_WDVTP4;
+double d_modelPar_WDVTP4_dX;
+bool modelPar_given_WDVTP4;
+double modelPar_PDVTP4;
+double d_modelPar_PDVTP4_dX;
+bool modelPar_given_PDVTP4;
+double modelPar_DVTP5;
+double d_modelPar_DVTP5_dX;
+bool modelPar_given_DVTP5;
+double modelPar_LDVTP5;
+double d_modelPar_LDVTP5_dX;
+bool modelPar_given_LDVTP5;
+double modelPar_WDVTP5;
+double d_modelPar_WDVTP5_dX;
+bool modelPar_given_WDVTP5;
+double modelPar_PDVTP5;
+double d_modelPar_PDVTP5_dX;
+bool modelPar_given_PDVTP5;
+double modelPar_PHIN;
+double d_modelPar_PHIN_dX;
+bool modelPar_given_PHIN;
+double modelPar_LPHIN;
+double d_modelPar_LPHIN_dX;
+bool modelPar_given_LPHIN;
+double modelPar_WPHIN;
+double d_modelPar_WPHIN_dX;
+bool modelPar_given_WPHIN;
+double modelPar_PPHIN;
+double d_modelPar_PPHIN_dX;
+bool modelPar_given_PPHIN;
+double modelPar_ETA0;
+double d_modelPar_ETA0_dX;
+bool modelPar_given_ETA0;
+double modelPar_LETA0;
+double d_modelPar_LETA0_dX;
+bool modelPar_given_LETA0;
+double modelPar_WETA0;
+double d_modelPar_WETA0_dX;
+bool modelPar_given_WETA0;
+double modelPar_PETA0;
+double d_modelPar_PETA0_dX;
+bool modelPar_given_PETA0;
+double modelPar_ETA0R;
+double d_modelPar_ETA0R_dX;
+bool modelPar_given_ETA0R;
+double modelPar_LETA0R;
+double d_modelPar_LETA0R_dX;
+bool modelPar_given_LETA0R;
+double modelPar_WETA0R;
+double d_modelPar_WETA0R_dX;
+bool modelPar_given_WETA0R;
+double modelPar_PETA0R;
+double d_modelPar_PETA0R_dX;
+bool modelPar_given_PETA0R;
+double modelPar_DSUB;
+double d_modelPar_DSUB_dX;
+bool modelPar_given_DSUB;
+double modelPar_ETAB;
+double d_modelPar_ETAB_dX;
+bool modelPar_given_ETAB;
+double modelPar_ETABEXP;
+double d_modelPar_ETABEXP_dX;
+bool modelPar_given_ETABEXP;
+double modelPar_LETAB;
+double d_modelPar_LETAB_dX;
+bool modelPar_given_LETAB;
+double modelPar_WETAB;
+double d_modelPar_WETAB_dX;
+bool modelPar_given_WETAB;
+double modelPar_PETAB;
+double d_modelPar_PETAB_dX;
+bool modelPar_given_PETAB;
+double modelPar_K1;
+double d_modelPar_K1_dX;
+bool modelPar_given_K1;
+double modelPar_K1L;
+double d_modelPar_K1L_dX;
+bool modelPar_given_K1L;
+double modelPar_K1LEXP;
+double d_modelPar_K1LEXP_dX;
+bool modelPar_given_K1LEXP;
+double modelPar_K1W;
+double d_modelPar_K1W_dX;
+bool modelPar_given_K1W;
+double modelPar_K1WEXP;
+double d_modelPar_K1WEXP_dX;
+bool modelPar_given_K1WEXP;
+double modelPar_K1WL;
+double d_modelPar_K1WL_dX;
+bool modelPar_given_K1WL;
+double modelPar_K1WLEXP;
+double d_modelPar_K1WLEXP_dX;
+bool modelPar_given_K1WLEXP;
+double modelPar_LK1;
+double d_modelPar_LK1_dX;
+bool modelPar_given_LK1;
+double modelPar_WK1;
+double d_modelPar_WK1_dX;
+bool modelPar_given_WK1;
+double modelPar_PK1;
+double d_modelPar_PK1_dX;
+bool modelPar_given_PK1;
+double modelPar_K2;
+double d_modelPar_K2_dX;
+bool modelPar_given_K2;
+double modelPar_K2L;
+double d_modelPar_K2L_dX;
+bool modelPar_given_K2L;
+double modelPar_K2LEXP;
+double d_modelPar_K2LEXP_dX;
+bool modelPar_given_K2LEXP;
+double modelPar_K2W;
+double d_modelPar_K2W_dX;
+bool modelPar_given_K2W;
+double modelPar_K2WEXP;
+double d_modelPar_K2WEXP_dX;
+bool modelPar_given_K2WEXP;
+double modelPar_K2WL;
+double d_modelPar_K2WL_dX;
+bool modelPar_given_K2WL;
+double modelPar_K2WLEXP;
+double d_modelPar_K2WLEXP_dX;
+bool modelPar_given_K2WLEXP;
+double modelPar_LK2;
+double d_modelPar_LK2_dX;
+bool modelPar_given_LK2;
+double modelPar_WK2;
+double d_modelPar_WK2_dX;
+bool modelPar_given_WK2;
+double modelPar_PK2;
+double d_modelPar_PK2_dX;
+bool modelPar_given_PK2;
+double modelPar_ADOS;
+double d_modelPar_ADOS_dX;
+bool modelPar_given_ADOS;
+double modelPar_BDOS;
+double d_modelPar_BDOS_dX;
+bool modelPar_given_BDOS;
+double modelPar_QM0;
+double d_modelPar_QM0_dX;
+bool modelPar_given_QM0;
+double modelPar_ETAQM;
+double d_modelPar_ETAQM_dX;
+bool modelPar_given_ETAQM;
+double modelPar_CIT;
+double d_modelPar_CIT_dX;
+bool modelPar_given_CIT;
+double modelPar_LCIT;
+double d_modelPar_LCIT_dX;
+bool modelPar_given_LCIT;
+double modelPar_WCIT;
+double d_modelPar_WCIT_dX;
+bool modelPar_given_WCIT;
+double modelPar_PCIT;
+double d_modelPar_PCIT_dX;
+bool modelPar_given_PCIT;
+double modelPar_NFACTOR;
+double d_modelPar_NFACTOR_dX;
+bool modelPar_given_NFACTOR;
+double modelPar_NFACTORL;
+double d_modelPar_NFACTORL_dX;
+bool modelPar_given_NFACTORL;
+double modelPar_NFACTORLEXP;
+double d_modelPar_NFACTORLEXP_dX;
+bool modelPar_given_NFACTORLEXP;
+double modelPar_NFACTORW;
+double d_modelPar_NFACTORW_dX;
+bool modelPar_given_NFACTORW;
+double modelPar_NFACTORWEXP;
+double d_modelPar_NFACTORWEXP_dX;
+bool modelPar_given_NFACTORWEXP;
+double modelPar_NFACTORWL;
+double d_modelPar_NFACTORWL_dX;
+bool modelPar_given_NFACTORWL;
+double modelPar_NFACTORWLEXP;
+double d_modelPar_NFACTORWLEXP_dX;
+bool modelPar_given_NFACTORWLEXP;
+double modelPar_LNFACTOR;
+double d_modelPar_LNFACTOR_dX;
+bool modelPar_given_LNFACTOR;
+double modelPar_WNFACTOR;
+double d_modelPar_WNFACTOR_dX;
+bool modelPar_given_WNFACTOR;
+double modelPar_PNFACTOR;
+double d_modelPar_PNFACTOR_dX;
+bool modelPar_given_PNFACTOR;
+double modelPar_CDSCD;
+double d_modelPar_CDSCD_dX;
+bool modelPar_given_CDSCD;
+double modelPar_CDSCDL;
+double d_modelPar_CDSCDL_dX;
+bool modelPar_given_CDSCDL;
+double modelPar_CDSCDLEXP;
+double d_modelPar_CDSCDLEXP_dX;
+bool modelPar_given_CDSCDLEXP;
+double modelPar_LCDSCD;
+double d_modelPar_LCDSCD_dX;
+bool modelPar_given_LCDSCD;
+double modelPar_WCDSCD;
+double d_modelPar_WCDSCD_dX;
+bool modelPar_given_WCDSCD;
+double modelPar_PCDSCD;
+double d_modelPar_PCDSCD_dX;
+bool modelPar_given_PCDSCD;
+double modelPar_CDSCDR;
+double d_modelPar_CDSCDR_dX;
+bool modelPar_given_CDSCDR;
+double modelPar_CDSCDLR;
+double d_modelPar_CDSCDLR_dX;
+bool modelPar_given_CDSCDLR;
+double modelPar_LCDSCDR;
+double d_modelPar_LCDSCDR_dX;
+bool modelPar_given_LCDSCDR;
+double modelPar_WCDSCDR;
+double d_modelPar_WCDSCDR_dX;
+bool modelPar_given_WCDSCDR;
+double modelPar_PCDSCDR;
+double d_modelPar_PCDSCDR_dX;
+bool modelPar_given_PCDSCDR;
+double modelPar_CDSCB;
+double d_modelPar_CDSCB_dX;
+bool modelPar_given_CDSCB;
+double modelPar_CDSCBL;
+double d_modelPar_CDSCBL_dX;
+bool modelPar_given_CDSCBL;
+double modelPar_CDSCBLEXP;
+double d_modelPar_CDSCBLEXP_dX;
+bool modelPar_given_CDSCBLEXP;
+double modelPar_LCDSCB;
+double d_modelPar_LCDSCB_dX;
+bool modelPar_given_LCDSCB;
+double modelPar_WCDSCB;
+double d_modelPar_WCDSCB_dX;
+bool modelPar_given_WCDSCB;
+double modelPar_PCDSCB;
+double d_modelPar_PCDSCB_dX;
+bool modelPar_given_PCDSCB;
+double modelPar_VSAT;
+double d_modelPar_VSAT_dX;
+bool modelPar_given_VSAT;
+double modelPar_LVSAT;
+double d_modelPar_LVSAT_dX;
+bool modelPar_given_LVSAT;
+double modelPar_WVSAT;
+double d_modelPar_WVSAT_dX;
+bool modelPar_given_WVSAT;
+double modelPar_PVSAT;
+double d_modelPar_PVSAT_dX;
+bool modelPar_given_PVSAT;
+double modelPar_VSATL;
+double d_modelPar_VSATL_dX;
+bool modelPar_given_VSATL;
+double modelPar_VSATLEXP;
+double d_modelPar_VSATLEXP_dX;
+bool modelPar_given_VSATLEXP;
+double modelPar_VSATW;
+double d_modelPar_VSATW_dX;
+bool modelPar_given_VSATW;
+double modelPar_VSATWEXP;
+double d_modelPar_VSATWEXP_dX;
+bool modelPar_given_VSATWEXP;
+double modelPar_VSATWL;
+double d_modelPar_VSATWL_dX;
+bool modelPar_given_VSATWL;
+double modelPar_VSATWLEXP;
+double d_modelPar_VSATWLEXP_dX;
+bool modelPar_given_VSATWLEXP;
+double modelPar_VSATR;
+double d_modelPar_VSATR_dX;
+bool modelPar_given_VSATR;
+double modelPar_LVSATR;
+double d_modelPar_LVSATR_dX;
+bool modelPar_given_LVSATR;
+double modelPar_WVSATR;
+double d_modelPar_WVSATR_dX;
+bool modelPar_given_WVSATR;
+double modelPar_PVSATR;
+double d_modelPar_PVSATR_dX;
+bool modelPar_given_PVSATR;
+double modelPar_DELTA;
+double d_modelPar_DELTA_dX;
+bool modelPar_given_DELTA;
+double modelPar_LDELTA;
+double d_modelPar_LDELTA_dX;
+bool modelPar_given_LDELTA;
+double modelPar_WDELTA;
+double d_modelPar_WDELTA_dX;
+bool modelPar_given_WDELTA;
+double modelPar_PDELTA;
+double d_modelPar_PDELTA_dX;
+bool modelPar_given_PDELTA;
+double modelPar_DELTAL;
+double d_modelPar_DELTAL_dX;
+bool modelPar_given_DELTAL;
+double modelPar_DELTALEXP;
+double d_modelPar_DELTALEXP_dX;
+bool modelPar_given_DELTALEXP;
+double modelPar_VSATCV;
+double d_modelPar_VSATCV_dX;
+bool modelPar_given_VSATCV;
+double modelPar_LVSATCV;
+double d_modelPar_LVSATCV_dX;
+bool modelPar_given_LVSATCV;
+double modelPar_WVSATCV;
+double d_modelPar_WVSATCV_dX;
+bool modelPar_given_WVSATCV;
+double modelPar_PVSATCV;
+double d_modelPar_PVSATCV_dX;
+bool modelPar_given_PVSATCV;
+double modelPar_VSATCVL;
+double d_modelPar_VSATCVL_dX;
+bool modelPar_given_VSATCVL;
+double modelPar_VSATCVLEXP;
+double d_modelPar_VSATCVLEXP_dX;
+bool modelPar_given_VSATCVLEXP;
+double modelPar_VSATCVW;
+double d_modelPar_VSATCVW_dX;
+bool modelPar_given_VSATCVW;
+double modelPar_VSATCVWEXP;
+double d_modelPar_VSATCVWEXP_dX;
+bool modelPar_given_VSATCVWEXP;
+double modelPar_VSATCVWL;
+double d_modelPar_VSATCVWL_dX;
+bool modelPar_given_VSATCVWL;
+double modelPar_VSATCVWLEXP;
+double d_modelPar_VSATCVWLEXP_dX;
+bool modelPar_given_VSATCVWLEXP;
+double modelPar_UP1;
+double d_modelPar_UP1_dX;
+bool modelPar_given_UP1;
+double modelPar_LP1;
+double d_modelPar_LP1_dX;
+bool modelPar_given_LP1;
+double modelPar_UP2;
+double d_modelPar_UP2_dX;
+bool modelPar_given_UP2;
+double modelPar_LP2;
+double d_modelPar_LP2_dX;
+bool modelPar_given_LP2;
+double modelPar_MULU0;
+double d_modelPar_MULU0_dX;
+bool modelPar_given_MULU0;
+double modelPar_U0;
+double d_modelPar_U0_dX;
+bool modelPar_given_U0;
+double modelPar_U0L;
+double d_modelPar_U0L_dX;
+bool modelPar_given_U0L;
+double modelPar_U0LEXP;
+double d_modelPar_U0LEXP_dX;
+bool modelPar_given_U0LEXP;
+double modelPar_LU0;
+double d_modelPar_LU0_dX;
+bool modelPar_given_LU0;
+double modelPar_WU0;
+double d_modelPar_WU0_dX;
+bool modelPar_given_WU0;
+double modelPar_PU0;
+double d_modelPar_PU0_dX;
+bool modelPar_given_PU0;
+double modelPar_U0R;
+double d_modelPar_U0R_dX;
+bool modelPar_given_U0R;
+double modelPar_LU0R;
+double d_modelPar_LU0R_dX;
+bool modelPar_given_LU0R;
+double modelPar_WU0R;
+double d_modelPar_WU0R_dX;
+bool modelPar_given_WU0R;
+double modelPar_PU0R;
+double d_modelPar_PU0R_dX;
+bool modelPar_given_PU0R;
+double modelPar_ETAMOB;
+double d_modelPar_ETAMOB_dX;
+bool modelPar_given_ETAMOB;
+double modelPar_UA;
+double d_modelPar_UA_dX;
+bool modelPar_given_UA;
+double modelPar_UAL;
+double d_modelPar_UAL_dX;
+bool modelPar_given_UAL;
+double modelPar_UALEXP;
+double d_modelPar_UALEXP_dX;
+bool modelPar_given_UALEXP;
+double modelPar_UAW;
+double d_modelPar_UAW_dX;
+bool modelPar_given_UAW;
+double modelPar_UAWEXP;
+double d_modelPar_UAWEXP_dX;
+bool modelPar_given_UAWEXP;
+double modelPar_UAWL;
+double d_modelPar_UAWL_dX;
+bool modelPar_given_UAWL;
+double modelPar_UAWLEXP;
+double d_modelPar_UAWLEXP_dX;
+bool modelPar_given_UAWLEXP;
+double modelPar_LUA;
+double d_modelPar_LUA_dX;
+bool modelPar_given_LUA;
+double modelPar_WUA;
+double d_modelPar_WUA_dX;
+bool modelPar_given_WUA;
+double modelPar_PUA;
+double d_modelPar_PUA_dX;
+bool modelPar_given_PUA;
+double modelPar_UAR;
+double d_modelPar_UAR_dX;
+bool modelPar_given_UAR;
+double modelPar_LUAR;
+double d_modelPar_LUAR_dX;
+bool modelPar_given_LUAR;
+double modelPar_WUAR;
+double d_modelPar_WUAR_dX;
+bool modelPar_given_WUAR;
+double modelPar_PUAR;
+double d_modelPar_PUAR_dX;
+bool modelPar_given_PUAR;
+double modelPar_EU;
+double d_modelPar_EU_dX;
+bool modelPar_given_EU;
+double modelPar_LEU;
+double d_modelPar_LEU_dX;
+bool modelPar_given_LEU;
+double modelPar_WEU;
+double d_modelPar_WEU_dX;
+bool modelPar_given_WEU;
+double modelPar_PEU;
+double d_modelPar_PEU_dX;
+bool modelPar_given_PEU;
+double modelPar_EUL;
+double d_modelPar_EUL_dX;
+bool modelPar_given_EUL;
+double modelPar_EULEXP;
+double d_modelPar_EULEXP_dX;
+bool modelPar_given_EULEXP;
+double modelPar_EUW;
+double d_modelPar_EUW_dX;
+bool modelPar_given_EUW;
+double modelPar_EUWEXP;
+double d_modelPar_EUWEXP_dX;
+bool modelPar_given_EUWEXP;
+double modelPar_EUWL;
+double d_modelPar_EUWL_dX;
+bool modelPar_given_EUWL;
+double modelPar_EUWLEXP;
+double d_modelPar_EUWLEXP_dX;
+bool modelPar_given_EUWLEXP;
+double modelPar_UD;
+double d_modelPar_UD_dX;
+bool modelPar_given_UD;
+double modelPar_UDL;
+double d_modelPar_UDL_dX;
+bool modelPar_given_UDL;
+double modelPar_UDLEXP;
+double d_modelPar_UDLEXP_dX;
+bool modelPar_given_UDLEXP;
+double modelPar_LUD;
+double d_modelPar_LUD_dX;
+bool modelPar_given_LUD;
+double modelPar_WUD;
+double d_modelPar_WUD_dX;
+bool modelPar_given_WUD;
+double modelPar_PUD;
+double d_modelPar_PUD_dX;
+bool modelPar_given_PUD;
+double modelPar_UDR;
+double d_modelPar_UDR_dX;
+bool modelPar_given_UDR;
+double modelPar_LUDR;
+double d_modelPar_LUDR_dX;
+bool modelPar_given_LUDR;
+double modelPar_WUDR;
+double d_modelPar_WUDR_dX;
+bool modelPar_given_WUDR;
+double modelPar_PUDR;
+double d_modelPar_PUDR_dX;
+bool modelPar_given_PUDR;
+double modelPar_UCS;
+double d_modelPar_UCS_dX;
+bool modelPar_given_UCS;
+double modelPar_LUCS;
+double d_modelPar_LUCS_dX;
+bool modelPar_given_LUCS;
+double modelPar_WUCS;
+double d_modelPar_WUCS_dX;
+bool modelPar_given_WUCS;
+double modelPar_PUCS;
+double d_modelPar_PUCS_dX;
+bool modelPar_given_PUCS;
+double modelPar_UCSR;
+double d_modelPar_UCSR_dX;
+bool modelPar_given_UCSR;
+double modelPar_LUCSR;
+double d_modelPar_LUCSR_dX;
+bool modelPar_given_LUCSR;
+double modelPar_WUCSR;
+double d_modelPar_WUCSR_dX;
+bool modelPar_given_WUCSR;
+double modelPar_PUCSR;
+double d_modelPar_PUCSR_dX;
+bool modelPar_given_PUCSR;
+double modelPar_UC;
+double d_modelPar_UC_dX;
+bool modelPar_given_UC;
+double modelPar_UCL;
+double d_modelPar_UCL_dX;
+bool modelPar_given_UCL;
+double modelPar_UCLEXP;
+double d_modelPar_UCLEXP_dX;
+bool modelPar_given_UCLEXP;
+double modelPar_UCW;
+double d_modelPar_UCW_dX;
+bool modelPar_given_UCW;
+double modelPar_UCWEXP;
+double d_modelPar_UCWEXP_dX;
+bool modelPar_given_UCWEXP;
+double modelPar_UCWL;
+double d_modelPar_UCWL_dX;
+bool modelPar_given_UCWL;
+double modelPar_UCWLEXP;
+double d_modelPar_UCWLEXP_dX;
+bool modelPar_given_UCWLEXP;
+double modelPar_LUC;
+double d_modelPar_LUC_dX;
+bool modelPar_given_LUC;
+double modelPar_WUC;
+double d_modelPar_WUC_dX;
+bool modelPar_given_WUC;
+double modelPar_PUC;
+double d_modelPar_PUC_dX;
+bool modelPar_given_PUC;
+double modelPar_UCR;
+double d_modelPar_UCR_dX;
+bool modelPar_given_UCR;
+double modelPar_LUCR;
+double d_modelPar_LUCR_dX;
+bool modelPar_given_LUCR;
+double modelPar_WUCR;
+double d_modelPar_WUCR_dX;
+bool modelPar_given_WUCR;
+double modelPar_PUCR;
+double d_modelPar_PUCR_dX;
+bool modelPar_given_PUCR;
+double modelPar_PCLM;
+double d_modelPar_PCLM_dX;
+bool modelPar_given_PCLM;
+double modelPar_PCLML;
+double d_modelPar_PCLML_dX;
+bool modelPar_given_PCLML;
+double modelPar_PCLMLEXP;
+double d_modelPar_PCLMLEXP_dX;
+bool modelPar_given_PCLMLEXP;
+double modelPar_LPCLM;
+double d_modelPar_LPCLM_dX;
+bool modelPar_given_LPCLM;
+double modelPar_WPCLM;
+double d_modelPar_WPCLM_dX;
+bool modelPar_given_WPCLM;
+double modelPar_PPCLM;
+double d_modelPar_PPCLM_dX;
+bool modelPar_given_PPCLM;
+double modelPar_PCLMR;
+double d_modelPar_PCLMR_dX;
+bool modelPar_given_PCLMR;
+double modelPar_LPCLMR;
+double d_modelPar_LPCLMR_dX;
+bool modelPar_given_LPCLMR;
+double modelPar_WPCLMR;
+double d_modelPar_WPCLMR_dX;
+bool modelPar_given_WPCLMR;
+double modelPar_PPCLMR;
+double d_modelPar_PPCLMR_dX;
+bool modelPar_given_PPCLMR;
+double modelPar_PCLMG;
+double d_modelPar_PCLMG_dX;
+bool modelPar_given_PCLMG;
+double modelPar_PCLMCV;
+double d_modelPar_PCLMCV_dX;
+bool modelPar_given_PCLMCV;
+double modelPar_PCLMCVL;
+double d_modelPar_PCLMCVL_dX;
+bool modelPar_given_PCLMCVL;
+double modelPar_PCLMCVLEXP;
+double d_modelPar_PCLMCVLEXP_dX;
+bool modelPar_given_PCLMCVLEXP;
+double modelPar_LPCLMCV;
+double d_modelPar_LPCLMCV_dX;
+bool modelPar_given_LPCLMCV;
+double modelPar_WPCLMCV;
+double d_modelPar_WPCLMCV_dX;
+bool modelPar_given_WPCLMCV;
+double modelPar_PPCLMCV;
+double d_modelPar_PPCLMCV_dX;
+bool modelPar_given_PPCLMCV;
+double modelPar_PSCBE1;
+double d_modelPar_PSCBE1_dX;
+bool modelPar_given_PSCBE1;
+double modelPar_LPSCBE1;
+double d_modelPar_LPSCBE1_dX;
+bool modelPar_given_LPSCBE1;
+double modelPar_WPSCBE1;
+double d_modelPar_WPSCBE1_dX;
+bool modelPar_given_WPSCBE1;
+double modelPar_PPSCBE1;
+double d_modelPar_PPSCBE1_dX;
+bool modelPar_given_PPSCBE1;
+double modelPar_PSCBE2;
+double d_modelPar_PSCBE2_dX;
+bool modelPar_given_PSCBE2;
+double modelPar_LPSCBE2;
+double d_modelPar_LPSCBE2_dX;
+bool modelPar_given_LPSCBE2;
+double modelPar_WPSCBE2;
+double d_modelPar_WPSCBE2_dX;
+bool modelPar_given_WPSCBE2;
+double modelPar_PPSCBE2;
+double d_modelPar_PPSCBE2_dX;
+bool modelPar_given_PPSCBE2;
+double modelPar_PDITS;
+double d_modelPar_PDITS_dX;
+bool modelPar_given_PDITS;
+double modelPar_LPDITS;
+double d_modelPar_LPDITS_dX;
+bool modelPar_given_LPDITS;
+double modelPar_WPDITS;
+double d_modelPar_WPDITS_dX;
+bool modelPar_given_WPDITS;
+double modelPar_PPDITS;
+double d_modelPar_PPDITS_dX;
+bool modelPar_given_PPDITS;
+double modelPar_PDITSL;
+double d_modelPar_PDITSL_dX;
+bool modelPar_given_PDITSL;
+double modelPar_PDITSD;
+double d_modelPar_PDITSD_dX;
+bool modelPar_given_PDITSD;
+double modelPar_LPDITSD;
+double d_modelPar_LPDITSD_dX;
+bool modelPar_given_LPDITSD;
+double modelPar_WPDITSD;
+double d_modelPar_WPDITSD_dX;
+bool modelPar_given_WPDITSD;
+double modelPar_PPDITSD;
+double d_modelPar_PPDITSD_dX;
+bool modelPar_given_PPDITSD;
+double modelPar_RSH;
+double d_modelPar_RSH_dX;
+bool modelPar_given_RSH;
+double modelPar_PRWG;
+double d_modelPar_PRWG_dX;
+bool modelPar_given_PRWG;
+double modelPar_LPRWG;
+double d_modelPar_LPRWG_dX;
+bool modelPar_given_LPRWG;
+double modelPar_WPRWG;
+double d_modelPar_WPRWG_dX;
+bool modelPar_given_WPRWG;
+double modelPar_PPRWG;
+double d_modelPar_PPRWG_dX;
+bool modelPar_given_PPRWG;
+double modelPar_PRWB;
+double d_modelPar_PRWB_dX;
+bool modelPar_given_PRWB;
+double modelPar_LPRWB;
+double d_modelPar_LPRWB_dX;
+bool modelPar_given_LPRWB;
+double modelPar_WPRWB;
+double d_modelPar_WPRWB_dX;
+bool modelPar_given_WPRWB;
+double modelPar_PPRWB;
+double d_modelPar_PPRWB_dX;
+bool modelPar_given_PPRWB;
+double modelPar_PRWBL;
+double d_modelPar_PRWBL_dX;
+bool modelPar_given_PRWBL;
+double modelPar_PRWBLEXP;
+double d_modelPar_PRWBLEXP_dX;
+bool modelPar_given_PRWBLEXP;
+double modelPar_WR;
+double d_modelPar_WR_dX;
+bool modelPar_given_WR;
+double modelPar_LWR;
+double d_modelPar_LWR_dX;
+bool modelPar_given_LWR;
+double modelPar_WWR;
+double d_modelPar_WWR_dX;
+bool modelPar_given_WWR;
+double modelPar_PWR;
+double d_modelPar_PWR_dX;
+bool modelPar_given_PWR;
+double modelPar_RSWMIN;
+double d_modelPar_RSWMIN_dX;
+bool modelPar_given_RSWMIN;
+double modelPar_LRSWMIN;
+double d_modelPar_LRSWMIN_dX;
+bool modelPar_given_LRSWMIN;
+double modelPar_WRSWMIN;
+double d_modelPar_WRSWMIN_dX;
+bool modelPar_given_WRSWMIN;
+double modelPar_PRSWMIN;
+double d_modelPar_PRSWMIN_dX;
+bool modelPar_given_PRSWMIN;
+double modelPar_RSW;
+double d_modelPar_RSW_dX;
+bool modelPar_given_RSW;
+double modelPar_LRSW;
+double d_modelPar_LRSW_dX;
+bool modelPar_given_LRSW;
+double modelPar_WRSW;
+double d_modelPar_WRSW_dX;
+bool modelPar_given_WRSW;
+double modelPar_PRSW;
+double d_modelPar_PRSW_dX;
+bool modelPar_given_PRSW;
+double modelPar_RSWL;
+double d_modelPar_RSWL_dX;
+bool modelPar_given_RSWL;
+double modelPar_RSWLEXP;
+double d_modelPar_RSWLEXP_dX;
+bool modelPar_given_RSWLEXP;
+double modelPar_RDWMIN;
+double d_modelPar_RDWMIN_dX;
+bool modelPar_given_RDWMIN;
+double modelPar_LRDWMIN;
+double d_modelPar_LRDWMIN_dX;
+bool modelPar_given_LRDWMIN;
+double modelPar_WRDWMIN;
+double d_modelPar_WRDWMIN_dX;
+bool modelPar_given_WRDWMIN;
+double modelPar_PRDWMIN;
+double d_modelPar_PRDWMIN_dX;
+bool modelPar_given_PRDWMIN;
+double modelPar_RDW;
+double d_modelPar_RDW_dX;
+bool modelPar_given_RDW;
+double modelPar_LRDW;
+double d_modelPar_LRDW_dX;
+bool modelPar_given_LRDW;
+double modelPar_WRDW;
+double d_modelPar_WRDW_dX;
+bool modelPar_given_WRDW;
+double modelPar_PRDW;
+double d_modelPar_PRDW_dX;
+bool modelPar_given_PRDW;
+double modelPar_RDWL;
+double d_modelPar_RDWL_dX;
+bool modelPar_given_RDWL;
+double modelPar_RDWLEXP;
+double d_modelPar_RDWLEXP_dX;
+bool modelPar_given_RDWLEXP;
+double modelPar_RDSWMIN;
+double d_modelPar_RDSWMIN_dX;
+bool modelPar_given_RDSWMIN;
+double modelPar_LRDSWMIN;
+double d_modelPar_LRDSWMIN_dX;
+bool modelPar_given_LRDSWMIN;
+double modelPar_WRDSWMIN;
+double d_modelPar_WRDSWMIN_dX;
+bool modelPar_given_WRDSWMIN;
+double modelPar_PRDSWMIN;
+double d_modelPar_PRDSWMIN_dX;
+bool modelPar_given_PRDSWMIN;
+double modelPar_RDSW;
+double d_modelPar_RDSW_dX;
+bool modelPar_given_RDSW;
+double modelPar_RDSWL;
+double d_modelPar_RDSWL_dX;
+bool modelPar_given_RDSWL;
+double modelPar_RDSWLEXP;
+double d_modelPar_RDSWLEXP_dX;
+bool modelPar_given_RDSWLEXP;
+double modelPar_LRDSW;
+double d_modelPar_LRDSW_dX;
+bool modelPar_given_LRDSW;
+double modelPar_WRDSW;
+double d_modelPar_WRDSW_dX;
+bool modelPar_given_WRDSW;
+double modelPar_PRDSW;
+double d_modelPar_PRDSW_dX;
+bool modelPar_given_PRDSW;
+double modelPar_PSAT;
+double d_modelPar_PSAT_dX;
+bool modelPar_given_PSAT;
+double modelPar_LPSAT;
+double d_modelPar_LPSAT_dX;
+bool modelPar_given_LPSAT;
+double modelPar_WPSAT;
+double d_modelPar_WPSAT_dX;
+bool modelPar_given_WPSAT;
+double modelPar_PPSAT;
+double d_modelPar_PPSAT_dX;
+bool modelPar_given_PPSAT;
+double modelPar_PSATL;
+double d_modelPar_PSATL_dX;
+bool modelPar_given_PSATL;
+double modelPar_PSATLEXP;
+double d_modelPar_PSATLEXP_dX;
+bool modelPar_given_PSATLEXP;
+double modelPar_PSATB;
+double d_modelPar_PSATB_dX;
+bool modelPar_given_PSATB;
+double modelPar_PSATR;
+double d_modelPar_PSATR_dX;
+bool modelPar_given_PSATR;
+double modelPar_LPSATR;
+double d_modelPar_LPSATR_dX;
+bool modelPar_given_LPSATR;
+double modelPar_WPSATR;
+double d_modelPar_WPSATR_dX;
+bool modelPar_given_WPSATR;
+double modelPar_PPSATR;
+double d_modelPar_PPSATR_dX;
+bool modelPar_given_PPSATR;
+double modelPar_LPSATB;
+double d_modelPar_LPSATB_dX;
+bool modelPar_given_LPSATB;
+double modelPar_WPSATB;
+double d_modelPar_WPSATB_dX;
+bool modelPar_given_WPSATB;
+double modelPar_PPSATB;
+double d_modelPar_PPSATB_dX;
+bool modelPar_given_PPSATB;
+double modelPar_PSATX;
+double d_modelPar_PSATX_dX;
+bool modelPar_given_PSATX;
+double modelPar_PTWG;
+double d_modelPar_PTWG_dX;
+bool modelPar_given_PTWG;
+double modelPar_LPTWG;
+double d_modelPar_LPTWG_dX;
+bool modelPar_given_LPTWG;
+double modelPar_WPTWG;
+double d_modelPar_WPTWG_dX;
+bool modelPar_given_WPTWG;
+double modelPar_PPTWG;
+double d_modelPar_PPTWG_dX;
+bool modelPar_given_PPTWG;
+double modelPar_PTWGL;
+double d_modelPar_PTWGL_dX;
+bool modelPar_given_PTWGL;
+double modelPar_PTWGLEXP;
+double d_modelPar_PTWGLEXP_dX;
+bool modelPar_given_PTWGLEXP;
+double modelPar_PTWGR;
+double d_modelPar_PTWGR_dX;
+bool modelPar_given_PTWGR;
+double modelPar_LPTWGR;
+double d_modelPar_LPTWGR_dX;
+bool modelPar_given_LPTWGR;
+double modelPar_WPTWGR;
+double d_modelPar_WPTWGR_dX;
+bool modelPar_given_WPTWGR;
+double modelPar_PPTWGR;
+double d_modelPar_PPTWGR_dX;
+bool modelPar_given_PPTWGR;
+double modelPar_PTWGLR;
+double d_modelPar_PTWGLR_dX;
+bool modelPar_given_PTWGLR;
+double modelPar_PTWGLEXPR;
+double d_modelPar_PTWGLEXPR_dX;
+bool modelPar_given_PTWGLEXPR;
+double modelPar_A1;
+double d_modelPar_A1_dX;
+bool modelPar_given_A1;
+double modelPar_LA1;
+double d_modelPar_LA1_dX;
+bool modelPar_given_LA1;
+double modelPar_WA1;
+double d_modelPar_WA1_dX;
+bool modelPar_given_WA1;
+double modelPar_PA1;
+double d_modelPar_PA1_dX;
+bool modelPar_given_PA1;
+double modelPar_A11;
+double d_modelPar_A11_dX;
+bool modelPar_given_A11;
+double modelPar_LA11;
+double d_modelPar_LA11_dX;
+bool modelPar_given_LA11;
+double modelPar_WA11;
+double d_modelPar_WA11_dX;
+bool modelPar_given_WA11;
+double modelPar_PA11;
+double d_modelPar_PA11_dX;
+bool modelPar_given_PA11;
+double modelPar_A2;
+double d_modelPar_A2_dX;
+bool modelPar_given_A2;
+double modelPar_LA2;
+double d_modelPar_LA2_dX;
+bool modelPar_given_LA2;
+double modelPar_WA2;
+double d_modelPar_WA2_dX;
+bool modelPar_given_WA2;
+double modelPar_PA2;
+double d_modelPar_PA2_dX;
+bool modelPar_given_PA2;
+double modelPar_A21;
+double d_modelPar_A21_dX;
+bool modelPar_given_A21;
+double modelPar_LA21;
+double d_modelPar_LA21_dX;
+bool modelPar_given_LA21;
+double modelPar_WA21;
+double d_modelPar_WA21_dX;
+bool modelPar_given_WA21;
+double modelPar_PA21;
+double d_modelPar_PA21_dX;
+bool modelPar_given_PA21;
+double modelPar_PDIBLC;
+double d_modelPar_PDIBLC_dX;
+bool modelPar_given_PDIBLC;
+double modelPar_PDIBLCL;
+double d_modelPar_PDIBLCL_dX;
+bool modelPar_given_PDIBLCL;
+double modelPar_PDIBLCLEXP;
+double d_modelPar_PDIBLCLEXP_dX;
+bool modelPar_given_PDIBLCLEXP;
+double modelPar_LPDIBLC;
+double d_modelPar_LPDIBLC_dX;
+bool modelPar_given_LPDIBLC;
+double modelPar_WPDIBLC;
+double d_modelPar_WPDIBLC_dX;
+bool modelPar_given_WPDIBLC;
+double modelPar_PPDIBLC;
+double d_modelPar_PPDIBLC_dX;
+bool modelPar_given_PPDIBLC;
+double modelPar_PDIBLCR;
+double d_modelPar_PDIBLCR_dX;
+bool modelPar_given_PDIBLCR;
+double modelPar_PDIBLCLR;
+double d_modelPar_PDIBLCLR_dX;
+bool modelPar_given_PDIBLCLR;
+double modelPar_PDIBLCLEXPR;
+double d_modelPar_PDIBLCLEXPR_dX;
+bool modelPar_given_PDIBLCLEXPR;
+double modelPar_LPDIBLCR;
+double d_modelPar_LPDIBLCR_dX;
+bool modelPar_given_LPDIBLCR;
+double modelPar_WPDIBLCR;
+double d_modelPar_WPDIBLCR_dX;
+bool modelPar_given_WPDIBLCR;
+double modelPar_PPDIBLCR;
+double d_modelPar_PPDIBLCR_dX;
+bool modelPar_given_PPDIBLCR;
+double modelPar_PDIBLCB;
+double d_modelPar_PDIBLCB_dX;
+bool modelPar_given_PDIBLCB;
+double modelPar_LPDIBLCB;
+double d_modelPar_LPDIBLCB_dX;
+bool modelPar_given_LPDIBLCB;
+double modelPar_WPDIBLCB;
+double d_modelPar_WPDIBLCB_dX;
+bool modelPar_given_WPDIBLCB;
+double modelPar_PPDIBLCB;
+double d_modelPar_PPDIBLCB_dX;
+bool modelPar_given_PPDIBLCB;
+double modelPar_PVAG;
+double d_modelPar_PVAG_dX;
+bool modelPar_given_PVAG;
+double modelPar_LPVAG;
+double d_modelPar_LPVAG_dX;
+bool modelPar_given_LPVAG;
+double modelPar_WPVAG;
+double d_modelPar_WPVAG_dX;
+bool modelPar_given_WPVAG;
+double modelPar_PPVAG;
+double d_modelPar_PPVAG_dX;
+bool modelPar_given_PPVAG;
+double modelPar_FPROUT;
+double d_modelPar_FPROUT_dX;
+bool modelPar_given_FPROUT;
+double modelPar_FPROUTL;
+double d_modelPar_FPROUTL_dX;
+bool modelPar_given_FPROUTL;
+double modelPar_FPROUTLEXP;
+double d_modelPar_FPROUTLEXP_dX;
+bool modelPar_given_FPROUTLEXP;
+double modelPar_LFPROUT;
+double d_modelPar_LFPROUT_dX;
+bool modelPar_given_LFPROUT;
+double modelPar_WFPROUT;
+double d_modelPar_WFPROUT_dX;
+bool modelPar_given_WFPROUT;
+double modelPar_PFPROUT;
+double d_modelPar_PFPROUT_dX;
+bool modelPar_given_PFPROUT;
+double modelPar_ALPHA0;
+double d_modelPar_ALPHA0_dX;
+bool modelPar_given_ALPHA0;
+double modelPar_ALPHA0L;
+double d_modelPar_ALPHA0L_dX;
+bool modelPar_given_ALPHA0L;
+double modelPar_ALPHA0LEXP;
+double d_modelPar_ALPHA0LEXP_dX;
+bool modelPar_given_ALPHA0LEXP;
+double modelPar_LALPHA0;
+double d_modelPar_LALPHA0_dX;
+bool modelPar_given_LALPHA0;
+double modelPar_WALPHA0;
+double d_modelPar_WALPHA0_dX;
+bool modelPar_given_WALPHA0;
+double modelPar_PALPHA0;
+double d_modelPar_PALPHA0_dX;
+bool modelPar_given_PALPHA0;
+double modelPar_BETA0;
+double d_modelPar_BETA0_dX;
+bool modelPar_given_BETA0;
+double modelPar_LBETA0;
+double d_modelPar_LBETA0_dX;
+bool modelPar_given_LBETA0;
+double modelPar_WBETA0;
+double d_modelPar_WBETA0_dX;
+bool modelPar_given_WBETA0;
+double modelPar_PBETA0;
+double d_modelPar_PBETA0_dX;
+bool modelPar_given_PBETA0;
+double modelPar_AIGBACC;
+double d_modelPar_AIGBACC_dX;
+bool modelPar_given_AIGBACC;
+double modelPar_BIGBACC;
+double d_modelPar_BIGBACC_dX;
+bool modelPar_given_BIGBACC;
+double modelPar_CIGBACC;
+double d_modelPar_CIGBACC_dX;
+bool modelPar_given_CIGBACC;
+double modelPar_NIGBACC;
+double d_modelPar_NIGBACC_dX;
+bool modelPar_given_NIGBACC;
+double modelPar_AIGBINV;
+double d_modelPar_AIGBINV_dX;
+bool modelPar_given_AIGBINV;
+double modelPar_BIGBINV;
+double d_modelPar_BIGBINV_dX;
+bool modelPar_given_BIGBINV;
+double modelPar_CIGBINV;
+double d_modelPar_CIGBINV_dX;
+bool modelPar_given_CIGBINV;
+double modelPar_EIGBINV;
+double d_modelPar_EIGBINV_dX;
+bool modelPar_given_EIGBINV;
+double modelPar_NIGBINV;
+double d_modelPar_NIGBINV_dX;
+bool modelPar_given_NIGBINV;
+double modelPar_AIGC;
+double d_modelPar_AIGC_dX;
+bool modelPar_given_AIGC;
+double modelPar_BIGC;
+double d_modelPar_BIGC_dX;
+bool modelPar_given_BIGC;
+double modelPar_CIGC;
+double d_modelPar_CIGC_dX;
+bool modelPar_given_CIGC;
+double modelPar_AIGS;
+double d_modelPar_AIGS_dX;
+bool modelPar_given_AIGS;
+double modelPar_BIGS;
+double d_modelPar_BIGS_dX;
+bool modelPar_given_BIGS;
+double modelPar_CIGS;
+double d_modelPar_CIGS_dX;
+bool modelPar_given_CIGS;
+double modelPar_AIGD;
+double d_modelPar_AIGD_dX;
+bool modelPar_given_AIGD;
+double modelPar_BIGD;
+double d_modelPar_BIGD_dX;
+bool modelPar_given_BIGD;
+double modelPar_CIGD;
+double d_modelPar_CIGD_dX;
+bool modelPar_given_CIGD;
+double modelPar_DLCIG;
+double d_modelPar_DLCIG_dX;
+bool modelPar_given_DLCIG;
+double modelPar_DLCIGD;
+double d_modelPar_DLCIGD_dX;
+bool modelPar_given_DLCIGD;
+double modelPar_POXEDGE;
+double d_modelPar_POXEDGE_dX;
+bool modelPar_given_POXEDGE;
+double modelPar_NTOX;
+double d_modelPar_NTOX_dX;
+bool modelPar_given_NTOX;
+double modelPar_TOXREF;
+double d_modelPar_TOXREF_dX;
+bool modelPar_given_TOXREF;
+double modelPar_PIGCD;
+double d_modelPar_PIGCD_dX;
+bool modelPar_given_PIGCD;
+double modelPar_AIGCL;
+double d_modelPar_AIGCL_dX;
+bool modelPar_given_AIGCL;
+double modelPar_AIGCW;
+double d_modelPar_AIGCW_dX;
+bool modelPar_given_AIGCW;
+double modelPar_AIGSL;
+double d_modelPar_AIGSL_dX;
+bool modelPar_given_AIGSL;
+double modelPar_AIGSW;
+double d_modelPar_AIGSW_dX;
+bool modelPar_given_AIGSW;
+double modelPar_AIGDL;
+double d_modelPar_AIGDL_dX;
+bool modelPar_given_AIGDL;
+double modelPar_AIGDW;
+double d_modelPar_AIGDW_dX;
+bool modelPar_given_AIGDW;
+double modelPar_PIGCDL;
+double d_modelPar_PIGCDL_dX;
+bool modelPar_given_PIGCDL;
+double modelPar_LAIGBINV;
+double d_modelPar_LAIGBINV_dX;
+bool modelPar_given_LAIGBINV;
+double modelPar_WAIGBINV;
+double d_modelPar_WAIGBINV_dX;
+bool modelPar_given_WAIGBINV;
+double modelPar_PAIGBINV;
+double d_modelPar_PAIGBINV_dX;
+bool modelPar_given_PAIGBINV;
+double modelPar_LBIGBINV;
+double d_modelPar_LBIGBINV_dX;
+bool modelPar_given_LBIGBINV;
+double modelPar_WBIGBINV;
+double d_modelPar_WBIGBINV_dX;
+bool modelPar_given_WBIGBINV;
+double modelPar_PBIGBINV;
+double d_modelPar_PBIGBINV_dX;
+bool modelPar_given_PBIGBINV;
+double modelPar_LCIGBINV;
+double d_modelPar_LCIGBINV_dX;
+bool modelPar_given_LCIGBINV;
+double modelPar_WCIGBINV;
+double d_modelPar_WCIGBINV_dX;
+bool modelPar_given_WCIGBINV;
+double modelPar_PCIGBINV;
+double d_modelPar_PCIGBINV_dX;
+bool modelPar_given_PCIGBINV;
+double modelPar_LEIGBINV;
+double d_modelPar_LEIGBINV_dX;
+bool modelPar_given_LEIGBINV;
+double modelPar_WEIGBINV;
+double d_modelPar_WEIGBINV_dX;
+bool modelPar_given_WEIGBINV;
+double modelPar_PEIGBINV;
+double d_modelPar_PEIGBINV_dX;
+bool modelPar_given_PEIGBINV;
+double modelPar_LNIGBINV;
+double d_modelPar_LNIGBINV_dX;
+bool modelPar_given_LNIGBINV;
+double modelPar_WNIGBINV;
+double d_modelPar_WNIGBINV_dX;
+bool modelPar_given_WNIGBINV;
+double modelPar_PNIGBINV;
+double d_modelPar_PNIGBINV_dX;
+bool modelPar_given_PNIGBINV;
+double modelPar_LAIGBACC;
+double d_modelPar_LAIGBACC_dX;
+bool modelPar_given_LAIGBACC;
+double modelPar_WAIGBACC;
+double d_modelPar_WAIGBACC_dX;
+bool modelPar_given_WAIGBACC;
+double modelPar_PAIGBACC;
+double d_modelPar_PAIGBACC_dX;
+bool modelPar_given_PAIGBACC;
+double modelPar_LBIGBACC;
+double d_modelPar_LBIGBACC_dX;
+bool modelPar_given_LBIGBACC;
+double modelPar_WBIGBACC;
+double d_modelPar_WBIGBACC_dX;
+bool modelPar_given_WBIGBACC;
+double modelPar_PBIGBACC;
+double d_modelPar_PBIGBACC_dX;
+bool modelPar_given_PBIGBACC;
+double modelPar_LCIGBACC;
+double d_modelPar_LCIGBACC_dX;
+bool modelPar_given_LCIGBACC;
+double modelPar_WCIGBACC;
+double d_modelPar_WCIGBACC_dX;
+bool modelPar_given_WCIGBACC;
+double modelPar_PCIGBACC;
+double d_modelPar_PCIGBACC_dX;
+bool modelPar_given_PCIGBACC;
+double modelPar_LNIGBACC;
+double d_modelPar_LNIGBACC_dX;
+bool modelPar_given_LNIGBACC;
+double modelPar_WNIGBACC;
+double d_modelPar_WNIGBACC_dX;
+bool modelPar_given_WNIGBACC;
+double modelPar_PNIGBACC;
+double d_modelPar_PNIGBACC_dX;
+bool modelPar_given_PNIGBACC;
+double modelPar_LAIGC;
+double d_modelPar_LAIGC_dX;
+bool modelPar_given_LAIGC;
+double modelPar_WAIGC;
+double d_modelPar_WAIGC_dX;
+bool modelPar_given_WAIGC;
+double modelPar_PAIGC;
+double d_modelPar_PAIGC_dX;
+bool modelPar_given_PAIGC;
+double modelPar_LBIGC;
+double d_modelPar_LBIGC_dX;
+bool modelPar_given_LBIGC;
+double modelPar_WBIGC;
+double d_modelPar_WBIGC_dX;
+bool modelPar_given_WBIGC;
+double modelPar_PBIGC;
+double d_modelPar_PBIGC_dX;
+bool modelPar_given_PBIGC;
+double modelPar_LCIGC;
+double d_modelPar_LCIGC_dX;
+bool modelPar_given_LCIGC;
+double modelPar_WCIGC;
+double d_modelPar_WCIGC_dX;
+bool modelPar_given_WCIGC;
+double modelPar_PCIGC;
+double d_modelPar_PCIGC_dX;
+bool modelPar_given_PCIGC;
+double modelPar_LAIGS;
+double d_modelPar_LAIGS_dX;
+bool modelPar_given_LAIGS;
+double modelPar_WAIGS;
+double d_modelPar_WAIGS_dX;
+bool modelPar_given_WAIGS;
+double modelPar_PAIGS;
+double d_modelPar_PAIGS_dX;
+bool modelPar_given_PAIGS;
+double modelPar_LBIGS;
+double d_modelPar_LBIGS_dX;
+bool modelPar_given_LBIGS;
+double modelPar_WBIGS;
+double d_modelPar_WBIGS_dX;
+bool modelPar_given_WBIGS;
+double modelPar_PBIGS;
+double d_modelPar_PBIGS_dX;
+bool modelPar_given_PBIGS;
+double modelPar_LCIGS;
+double d_modelPar_LCIGS_dX;
+bool modelPar_given_LCIGS;
+double modelPar_WCIGS;
+double d_modelPar_WCIGS_dX;
+bool modelPar_given_WCIGS;
+double modelPar_PCIGS;
+double d_modelPar_PCIGS_dX;
+bool modelPar_given_PCIGS;
+double modelPar_LAIGD;
+double d_modelPar_LAIGD_dX;
+bool modelPar_given_LAIGD;
+double modelPar_WAIGD;
+double d_modelPar_WAIGD_dX;
+bool modelPar_given_WAIGD;
+double modelPar_PAIGD;
+double d_modelPar_PAIGD_dX;
+bool modelPar_given_PAIGD;
+double modelPar_LBIGD;
+double d_modelPar_LBIGD_dX;
+bool modelPar_given_LBIGD;
+double modelPar_WBIGD;
+double d_modelPar_WBIGD_dX;
+bool modelPar_given_WBIGD;
+double modelPar_PBIGD;
+double d_modelPar_PBIGD_dX;
+bool modelPar_given_PBIGD;
+double modelPar_LCIGD;
+double d_modelPar_LCIGD_dX;
+bool modelPar_given_LCIGD;
+double modelPar_WCIGD;
+double d_modelPar_WCIGD_dX;
+bool modelPar_given_WCIGD;
+double modelPar_PCIGD;
+double d_modelPar_PCIGD_dX;
+bool modelPar_given_PCIGD;
+double modelPar_LPOXEDGE;
+double d_modelPar_LPOXEDGE_dX;
+bool modelPar_given_LPOXEDGE;
+double modelPar_WPOXEDGE;
+double d_modelPar_WPOXEDGE_dX;
+bool modelPar_given_WPOXEDGE;
+double modelPar_PPOXEDGE;
+double d_modelPar_PPOXEDGE_dX;
+bool modelPar_given_PPOXEDGE;
+double modelPar_LDLCIG;
+double d_modelPar_LDLCIG_dX;
+bool modelPar_given_LDLCIG;
+double modelPar_WDLCIG;
+double d_modelPar_WDLCIG_dX;
+bool modelPar_given_WDLCIG;
+double modelPar_PDLCIG;
+double d_modelPar_PDLCIG_dX;
+bool modelPar_given_PDLCIG;
+double modelPar_LDLCIGD;
+double d_modelPar_LDLCIGD_dX;
+bool modelPar_given_LDLCIGD;
+double modelPar_WDLCIGD;
+double d_modelPar_WDLCIGD_dX;
+bool modelPar_given_WDLCIGD;
+double modelPar_PDLCIGD;
+double d_modelPar_PDLCIGD_dX;
+bool modelPar_given_PDLCIGD;
+double modelPar_LNTOX;
+double d_modelPar_LNTOX_dX;
+bool modelPar_given_LNTOX;
+double modelPar_WNTOX;
+double d_modelPar_WNTOX_dX;
+bool modelPar_given_WNTOX;
+double modelPar_PNTOX;
+double d_modelPar_PNTOX_dX;
+bool modelPar_given_PNTOX;
+double modelPar_AGIDL;
+double d_modelPar_AGIDL_dX;
+bool modelPar_given_AGIDL;
+double modelPar_AGIDLL;
+double d_modelPar_AGIDLL_dX;
+bool modelPar_given_AGIDLL;
+double modelPar_AGIDLW;
+double d_modelPar_AGIDLW_dX;
+bool modelPar_given_AGIDLW;
+double modelPar_LAGIDL;
+double d_modelPar_LAGIDL_dX;
+bool modelPar_given_LAGIDL;
+double modelPar_WAGIDL;
+double d_modelPar_WAGIDL_dX;
+bool modelPar_given_WAGIDL;
+double modelPar_PAGIDL;
+double d_modelPar_PAGIDL_dX;
+bool modelPar_given_PAGIDL;
+double modelPar_BGIDL;
+double d_modelPar_BGIDL_dX;
+bool modelPar_given_BGIDL;
+double modelPar_LBGIDL;
+double d_modelPar_LBGIDL_dX;
+bool modelPar_given_LBGIDL;
+double modelPar_WBGIDL;
+double d_modelPar_WBGIDL_dX;
+bool modelPar_given_WBGIDL;
+double modelPar_PBGIDL;
+double d_modelPar_PBGIDL_dX;
+bool modelPar_given_PBGIDL;
+double modelPar_CGIDL;
+double d_modelPar_CGIDL_dX;
+bool modelPar_given_CGIDL;
+double modelPar_LCGIDL;
+double d_modelPar_LCGIDL_dX;
+bool modelPar_given_LCGIDL;
+double modelPar_WCGIDL;
+double d_modelPar_WCGIDL_dX;
+bool modelPar_given_WCGIDL;
+double modelPar_PCGIDL;
+double d_modelPar_PCGIDL_dX;
+bool modelPar_given_PCGIDL;
+double modelPar_EGIDL;
+double d_modelPar_EGIDL_dX;
+bool modelPar_given_EGIDL;
+double modelPar_LEGIDL;
+double d_modelPar_LEGIDL_dX;
+bool modelPar_given_LEGIDL;
+double modelPar_WEGIDL;
+double d_modelPar_WEGIDL_dX;
+bool modelPar_given_WEGIDL;
+double modelPar_PEGIDL;
+double d_modelPar_PEGIDL_dX;
+bool modelPar_given_PEGIDL;
+double modelPar_AGISL;
+double d_modelPar_AGISL_dX;
+bool modelPar_given_AGISL;
+double modelPar_AGISLL;
+double d_modelPar_AGISLL_dX;
+bool modelPar_given_AGISLL;
+double modelPar_AGISLW;
+double d_modelPar_AGISLW_dX;
+bool modelPar_given_AGISLW;
+double modelPar_LAGISL;
+double d_modelPar_LAGISL_dX;
+bool modelPar_given_LAGISL;
+double modelPar_WAGISL;
+double d_modelPar_WAGISL_dX;
+bool modelPar_given_WAGISL;
+double modelPar_PAGISL;
+double d_modelPar_PAGISL_dX;
+bool modelPar_given_PAGISL;
+double modelPar_BGISL;
+double d_modelPar_BGISL_dX;
+bool modelPar_given_BGISL;
+double modelPar_LBGISL;
+double d_modelPar_LBGISL_dX;
+bool modelPar_given_LBGISL;
+double modelPar_WBGISL;
+double d_modelPar_WBGISL_dX;
+bool modelPar_given_WBGISL;
+double modelPar_PBGISL;
+double d_modelPar_PBGISL_dX;
+bool modelPar_given_PBGISL;
+double modelPar_CGISL;
+double d_modelPar_CGISL_dX;
+bool modelPar_given_CGISL;
+double modelPar_LCGISL;
+double d_modelPar_LCGISL_dX;
+bool modelPar_given_LCGISL;
+double modelPar_WCGISL;
+double d_modelPar_WCGISL_dX;
+bool modelPar_given_WCGISL;
+double modelPar_PCGISL;
+double d_modelPar_PCGISL_dX;
+bool modelPar_given_PCGISL;
+double modelPar_EGISL;
+double d_modelPar_EGISL_dX;
+bool modelPar_given_EGISL;
+double modelPar_LEGISL;
+double d_modelPar_LEGISL_dX;
+bool modelPar_given_LEGISL;
+double modelPar_WEGISL;
+double d_modelPar_WEGISL_dX;
+bool modelPar_given_WEGISL;
+double modelPar_PEGISL;
+double d_modelPar_PEGISL_dX;
+bool modelPar_given_PEGISL;
+double modelPar_CF;
+double d_modelPar_CF_dX;
+bool modelPar_given_CF;
+double modelPar_LCF;
+double d_modelPar_LCF_dX;
+bool modelPar_given_LCF;
+double modelPar_WCF;
+double d_modelPar_WCF_dX;
+bool modelPar_given_WCF;
+double modelPar_PCF;
+double d_modelPar_PCF_dX;
+bool modelPar_given_PCF;
+double modelPar_CFRCOEFF;
+double d_modelPar_CFRCOEFF_dX;
+bool modelPar_given_CFRCOEFF;
+double modelPar_CGSO;
+double d_modelPar_CGSO_dX;
+bool modelPar_given_CGSO;
+double modelPar_CGDO;
+double d_modelPar_CGDO_dX;
+bool modelPar_given_CGDO;
+double modelPar_CGBO;
+double d_modelPar_CGBO_dX;
+bool modelPar_given_CGBO;
+double modelPar_CGSL;
+double d_modelPar_CGSL_dX;
+bool modelPar_given_CGSL;
+double modelPar_LCGSL;
+double d_modelPar_LCGSL_dX;
+bool modelPar_given_LCGSL;
+double modelPar_WCGSL;
+double d_modelPar_WCGSL_dX;
+bool modelPar_given_WCGSL;
+double modelPar_PCGSL;
+double d_modelPar_PCGSL_dX;
+bool modelPar_given_PCGSL;
+double modelPar_CGDL;
+double d_modelPar_CGDL_dX;
+bool modelPar_given_CGDL;
+double modelPar_LCGDL;
+double d_modelPar_LCGDL_dX;
+bool modelPar_given_LCGDL;
+double modelPar_WCGDL;
+double d_modelPar_WCGDL_dX;
+bool modelPar_given_WCGDL;
+double modelPar_PCGDL;
+double d_modelPar_PCGDL_dX;
+bool modelPar_given_PCGDL;
+double modelPar_CKAPPAS;
+double d_modelPar_CKAPPAS_dX;
+bool modelPar_given_CKAPPAS;
+double modelPar_LCKAPPAS;
+double d_modelPar_LCKAPPAS_dX;
+bool modelPar_given_LCKAPPAS;
+double modelPar_WCKAPPAS;
+double d_modelPar_WCKAPPAS_dX;
+bool modelPar_given_WCKAPPAS;
+double modelPar_PCKAPPAS;
+double d_modelPar_PCKAPPAS_dX;
+bool modelPar_given_PCKAPPAS;
+double modelPar_CKAPPAD;
+double d_modelPar_CKAPPAD_dX;
+bool modelPar_given_CKAPPAD;
+double modelPar_LCKAPPAD;
+double d_modelPar_LCKAPPAD_dX;
+bool modelPar_given_LCKAPPAD;
+double modelPar_WCKAPPAD;
+double d_modelPar_WCKAPPAD_dX;
+bool modelPar_given_WCKAPPAD;
+double modelPar_PCKAPPAD;
+double d_modelPar_PCKAPPAD_dX;
+bool modelPar_given_PCKAPPAD;
+double modelPar_DMCG;
+double d_modelPar_DMCG_dX;
+bool modelPar_given_DMCG;
+double modelPar_DMCI;
+double d_modelPar_DMCI_dX;
+bool modelPar_given_DMCI;
+double modelPar_DMDG;
+double d_modelPar_DMDG_dX;
+bool modelPar_given_DMDG;
+double modelPar_DMCGT;
+double d_modelPar_DMCGT_dX;
+bool modelPar_given_DMCGT;
+double modelPar_XGL;
+double d_modelPar_XGL_dX;
+bool modelPar_given_XGL;
+double modelPar_RSHG;
+double d_modelPar_RSHG_dX;
+bool modelPar_given_RSHG;
+double modelPar_CJS;
+double d_modelPar_CJS_dX;
+bool modelPar_given_CJS;
+double modelPar_CJD;
+double d_modelPar_CJD_dX;
+bool modelPar_given_CJD;
+double modelPar_CJSWS;
+double d_modelPar_CJSWS_dX;
+bool modelPar_given_CJSWS;
+double modelPar_CJSWD;
+double d_modelPar_CJSWD_dX;
+bool modelPar_given_CJSWD;
+double modelPar_CJSWGS;
+double d_modelPar_CJSWGS_dX;
+bool modelPar_given_CJSWGS;
+double modelPar_CJSWGD;
+double d_modelPar_CJSWGD_dX;
+bool modelPar_given_CJSWGD;
+double modelPar_PBS;
+double d_modelPar_PBS_dX;
+bool modelPar_given_PBS;
+double modelPar_PBD;
+double d_modelPar_PBD_dX;
+bool modelPar_given_PBD;
+double modelPar_PBSWS;
+double d_modelPar_PBSWS_dX;
+bool modelPar_given_PBSWS;
+double modelPar_PBSWD;
+double d_modelPar_PBSWD_dX;
+bool modelPar_given_PBSWD;
+double modelPar_PBSWGS;
+double d_modelPar_PBSWGS_dX;
+bool modelPar_given_PBSWGS;
+double modelPar_PBSWGD;
+double d_modelPar_PBSWGD_dX;
+bool modelPar_given_PBSWGD;
+double modelPar_MJS;
+double d_modelPar_MJS_dX;
+bool modelPar_given_MJS;
+double modelPar_MJD;
+double d_modelPar_MJD_dX;
+bool modelPar_given_MJD;
+double modelPar_MJSWS;
+double d_modelPar_MJSWS_dX;
+bool modelPar_given_MJSWS;
+double modelPar_MJSWD;
+double d_modelPar_MJSWD_dX;
+bool modelPar_given_MJSWD;
+double modelPar_MJSWGS;
+double d_modelPar_MJSWGS_dX;
+bool modelPar_given_MJSWGS;
+double modelPar_MJSWGD;
+double d_modelPar_MJSWGD_dX;
+bool modelPar_given_MJSWGD;
+double modelPar_JSS;
+double d_modelPar_JSS_dX;
+bool modelPar_given_JSS;
+double modelPar_JSD;
+double d_modelPar_JSD_dX;
+bool modelPar_given_JSD;
+double modelPar_JSWS;
+double d_modelPar_JSWS_dX;
+bool modelPar_given_JSWS;
+double modelPar_JSWD;
+double d_modelPar_JSWD_dX;
+bool modelPar_given_JSWD;
+double modelPar_JSWGS;
+double d_modelPar_JSWGS_dX;
+bool modelPar_given_JSWGS;
+double modelPar_JSWGD;
+double d_modelPar_JSWGD_dX;
+bool modelPar_given_JSWGD;
+double modelPar_NJS;
+double d_modelPar_NJS_dX;
+bool modelPar_given_NJS;
+double modelPar_NJD;
+double d_modelPar_NJD_dX;
+bool modelPar_given_NJD;
+double modelPar_IJTHSFWD;
+double d_modelPar_IJTHSFWD_dX;
+bool modelPar_given_IJTHSFWD;
+double modelPar_IJTHDFWD;
+double d_modelPar_IJTHDFWD_dX;
+bool modelPar_given_IJTHDFWD;
+double modelPar_IJTHSREV;
+double d_modelPar_IJTHSREV_dX;
+bool modelPar_given_IJTHSREV;
+double modelPar_IJTHDREV;
+double d_modelPar_IJTHDREV_dX;
+bool modelPar_given_IJTHDREV;
+double modelPar_BVS;
+double d_modelPar_BVS_dX;
+bool modelPar_given_BVS;
+double modelPar_BVD;
+double d_modelPar_BVD_dX;
+bool modelPar_given_BVD;
+double modelPar_XJBVS;
+double d_modelPar_XJBVS_dX;
+bool modelPar_given_XJBVS;
+double modelPar_XJBVD;
+double d_modelPar_XJBVD_dX;
+bool modelPar_given_XJBVD;
+double modelPar_JTSS;
+double d_modelPar_JTSS_dX;
+bool modelPar_given_JTSS;
+double modelPar_JTSD;
+double d_modelPar_JTSD_dX;
+bool modelPar_given_JTSD;
+double modelPar_JTSSWS;
+double d_modelPar_JTSSWS_dX;
+bool modelPar_given_JTSSWS;
+double modelPar_JTSSWD;
+double d_modelPar_JTSSWD_dX;
+bool modelPar_given_JTSSWD;
+double modelPar_JTSSWGS;
+double d_modelPar_JTSSWGS_dX;
+bool modelPar_given_JTSSWGS;
+double modelPar_JTSSWGD;
+double d_modelPar_JTSSWGD_dX;
+bool modelPar_given_JTSSWGD;
+double modelPar_JTWEFF;
+double d_modelPar_JTWEFF_dX;
+bool modelPar_given_JTWEFF;
+double modelPar_NJTS;
+double d_modelPar_NJTS_dX;
+bool modelPar_given_NJTS;
+double modelPar_NJTSD;
+double d_modelPar_NJTSD_dX;
+bool modelPar_given_NJTSD;
+double modelPar_NJTSSW;
+double d_modelPar_NJTSSW_dX;
+bool modelPar_given_NJTSSW;
+double modelPar_NJTSSWD;
+double d_modelPar_NJTSSWD_dX;
+bool modelPar_given_NJTSSWD;
+double modelPar_NJTSSWG;
+double d_modelPar_NJTSSWG_dX;
+bool modelPar_given_NJTSSWG;
+double modelPar_NJTSSWGD;
+double d_modelPar_NJTSSWGD_dX;
+bool modelPar_given_NJTSSWGD;
+double modelPar_VTSS;
+double d_modelPar_VTSS_dX;
+bool modelPar_given_VTSS;
+double modelPar_VTSD;
+double d_modelPar_VTSD_dX;
+bool modelPar_given_VTSD;
+double modelPar_VTSSWS;
+double d_modelPar_VTSSWS_dX;
+bool modelPar_given_VTSSWS;
+double modelPar_VTSSWD;
+double d_modelPar_VTSSWD_dX;
+bool modelPar_given_VTSSWD;
+double modelPar_VTSSWGS;
+double d_modelPar_VTSSWGS_dX;
+bool modelPar_given_VTSSWGS;
+double modelPar_VTSSWGD;
+double d_modelPar_VTSSWGD_dX;
+bool modelPar_given_VTSSWGD;
+double modelPar_XRCRG1;
+double d_modelPar_XRCRG1_dX;
+bool modelPar_given_XRCRG1;
+double modelPar_XRCRG2;
+double d_modelPar_XRCRG2_dX;
+bool modelPar_given_XRCRG2;
+double modelPar_GBMIN;
+double d_modelPar_GBMIN_dX;
+bool modelPar_given_GBMIN;
+double modelPar_RBPS0;
+double d_modelPar_RBPS0_dX;
+bool modelPar_given_RBPS0;
+double modelPar_RBPSL;
+double d_modelPar_RBPSL_dX;
+bool modelPar_given_RBPSL;
+double modelPar_RBPSW;
+double d_modelPar_RBPSW_dX;
+bool modelPar_given_RBPSW;
+double modelPar_RBPSNF;
+double d_modelPar_RBPSNF_dX;
+bool modelPar_given_RBPSNF;
+double modelPar_RBPD0;
+double d_modelPar_RBPD0_dX;
+bool modelPar_given_RBPD0;
+double modelPar_RBPDL;
+double d_modelPar_RBPDL_dX;
+bool modelPar_given_RBPDL;
+double modelPar_RBPDW;
+double d_modelPar_RBPDW_dX;
+bool modelPar_given_RBPDW;
+double modelPar_RBPDNF;
+double d_modelPar_RBPDNF_dX;
+bool modelPar_given_RBPDNF;
+double modelPar_RBPBX0;
+double d_modelPar_RBPBX0_dX;
+bool modelPar_given_RBPBX0;
+double modelPar_RBPBXL;
+double d_modelPar_RBPBXL_dX;
+bool modelPar_given_RBPBXL;
+double modelPar_RBPBXW;
+double d_modelPar_RBPBXW_dX;
+bool modelPar_given_RBPBXW;
+double modelPar_RBPBXNF;
+double d_modelPar_RBPBXNF_dX;
+bool modelPar_given_RBPBXNF;
+double modelPar_RBPBY0;
+double d_modelPar_RBPBY0_dX;
+bool modelPar_given_RBPBY0;
+double modelPar_RBPBYL;
+double d_modelPar_RBPBYL_dX;
+bool modelPar_given_RBPBYL;
+double modelPar_RBPBYW;
+double d_modelPar_RBPBYW_dX;
+bool modelPar_given_RBPBYW;
+double modelPar_RBPBYNF;
+double d_modelPar_RBPBYNF_dX;
+bool modelPar_given_RBPBYNF;
+double modelPar_RBSBX0;
+double d_modelPar_RBSBX0_dX;
+bool modelPar_given_RBSBX0;
+double modelPar_RBSBY0;
+double d_modelPar_RBSBY0_dX;
+bool modelPar_given_RBSBY0;
+double modelPar_RBDBX0;
+double d_modelPar_RBDBX0_dX;
+bool modelPar_given_RBDBX0;
+double modelPar_RBDBY0;
+double d_modelPar_RBDBY0_dX;
+bool modelPar_given_RBDBY0;
+double modelPar_RBSDBXL;
+double d_modelPar_RBSDBXL_dX;
+bool modelPar_given_RBSDBXL;
+double modelPar_RBSDBXW;
+double d_modelPar_RBSDBXW_dX;
+bool modelPar_given_RBSDBXW;
+double modelPar_RBSDBXNF;
+double d_modelPar_RBSDBXNF_dX;
+bool modelPar_given_RBSDBXNF;
+double modelPar_RBSDBYL;
+double d_modelPar_RBSDBYL_dX;
+bool modelPar_given_RBSDBYL;
+double modelPar_RBSDBYW;
+double d_modelPar_RBSDBYW_dX;
+bool modelPar_given_RBSDBYW;
+double modelPar_RBSDBYNF;
+double d_modelPar_RBSDBYNF_dX;
+bool modelPar_given_RBSDBYNF;
+double modelPar_EF;
+double d_modelPar_EF_dX;
+bool modelPar_given_EF;
+double modelPar_EM;
+double d_modelPar_EM_dX;
+bool modelPar_given_EM;
+double modelPar_NOIA;
+double d_modelPar_NOIA_dX;
+bool modelPar_given_NOIA;
+double modelPar_NOIB;
+double d_modelPar_NOIB_dX;
+bool modelPar_given_NOIB;
+double modelPar_NOIC;
+double d_modelPar_NOIC_dX;
+bool modelPar_given_NOIC;
+double modelPar_LINTNOI;
+double d_modelPar_LINTNOI_dX;
+bool modelPar_given_LINTNOI;
+double modelPar_NTNOI;
+double d_modelPar_NTNOI_dX;
+bool modelPar_given_NTNOI;
+double modelPar_RNOIA;
+double d_modelPar_RNOIA_dX;
+bool modelPar_given_RNOIA;
+double modelPar_RNOIB;
+double d_modelPar_RNOIB_dX;
+bool modelPar_given_RNOIB;
+double modelPar_RNOIC;
+double d_modelPar_RNOIC_dX;
+bool modelPar_given_RNOIC;
+double modelPar_TNOIA;
+double d_modelPar_TNOIA_dX;
+bool modelPar_given_TNOIA;
+double modelPar_TNOIB;
+double d_modelPar_TNOIB_dX;
+bool modelPar_given_TNOIB;
+double modelPar_TNOIC;
+double d_modelPar_TNOIC_dX;
+bool modelPar_given_TNOIC;
+double modelPar_DLBIN;
+double d_modelPar_DLBIN_dX;
+bool modelPar_given_DLBIN;
+double modelPar_DWBIN;
+double d_modelPar_DWBIN_dX;
+bool modelPar_given_DWBIN;
+double modelPar_TNOM;
+double d_modelPar_TNOM_dX;
+bool modelPar_given_TNOM;
+double modelPar_DTEMP;
+double d_modelPar_DTEMP_dX;
+bool modelPar_given_DTEMP;
+double modelPar_TBGASUB;
+double d_modelPar_TBGASUB_dX;
+bool modelPar_given_TBGASUB;
+double modelPar_TBGBSUB;
+double d_modelPar_TBGBSUB_dX;
+bool modelPar_given_TBGBSUB;
+double modelPar_TNFACTOR;
+double d_modelPar_TNFACTOR_dX;
+bool modelPar_given_TNFACTOR;
+double modelPar_UTE;
+double d_modelPar_UTE_dX;
+bool modelPar_given_UTE;
+double modelPar_LUTE;
+double d_modelPar_LUTE_dX;
+bool modelPar_given_LUTE;
+double modelPar_WUTE;
+double d_modelPar_WUTE_dX;
+bool modelPar_given_WUTE;
+double modelPar_PUTE;
+double d_modelPar_PUTE_dX;
+bool modelPar_given_PUTE;
+double modelPar_UTEL;
+double d_modelPar_UTEL_dX;
+bool modelPar_given_UTEL;
+double modelPar_UA1;
+double d_modelPar_UA1_dX;
+bool modelPar_given_UA1;
+double modelPar_LUA1;
+double d_modelPar_LUA1_dX;
+bool modelPar_given_LUA1;
+double modelPar_WUA1;
+double d_modelPar_WUA1_dX;
+bool modelPar_given_WUA1;
+double modelPar_PUA1;
+double d_modelPar_PUA1_dX;
+bool modelPar_given_PUA1;
+double modelPar_UA1L;
+double d_modelPar_UA1L_dX;
+bool modelPar_given_UA1L;
+double modelPar_UC1;
+double d_modelPar_UC1_dX;
+bool modelPar_given_UC1;
+double modelPar_LUC1;
+double d_modelPar_LUC1_dX;
+bool modelPar_given_LUC1;
+double modelPar_WUC1;
+double d_modelPar_WUC1_dX;
+bool modelPar_given_WUC1;
+double modelPar_PUC1;
+double d_modelPar_PUC1_dX;
+bool modelPar_given_PUC1;
+double modelPar_UD1;
+double d_modelPar_UD1_dX;
+bool modelPar_given_UD1;
+double modelPar_LUD1;
+double d_modelPar_LUD1_dX;
+bool modelPar_given_LUD1;
+double modelPar_WUD1;
+double d_modelPar_WUD1_dX;
+bool modelPar_given_WUD1;
+double modelPar_PUD1;
+double d_modelPar_PUD1_dX;
+bool modelPar_given_PUD1;
+double modelPar_UD1L;
+double d_modelPar_UD1L_dX;
+bool modelPar_given_UD1L;
+double modelPar_UCSTE;
+double d_modelPar_UCSTE_dX;
+bool modelPar_given_UCSTE;
+double modelPar_LUCSTE;
+double d_modelPar_LUCSTE_dX;
+bool modelPar_given_LUCSTE;
+double modelPar_WUCSTE;
+double d_modelPar_WUCSTE_dX;
+bool modelPar_given_WUCSTE;
+double modelPar_PUCSTE;
+double d_modelPar_PUCSTE_dX;
+bool modelPar_given_PUCSTE;
+double modelPar_TETA0;
+double d_modelPar_TETA0_dX;
+bool modelPar_given_TETA0;
+double modelPar_PRT;
+double d_modelPar_PRT_dX;
+bool modelPar_given_PRT;
+double modelPar_LPRT;
+double d_modelPar_LPRT_dX;
+bool modelPar_given_LPRT;
+double modelPar_WPRT;
+double d_modelPar_WPRT_dX;
+bool modelPar_given_WPRT;
+double modelPar_PPRT;
+double d_modelPar_PPRT_dX;
+bool modelPar_given_PPRT;
+double modelPar_AT;
+double d_modelPar_AT_dX;
+bool modelPar_given_AT;
+double modelPar_LAT;
+double d_modelPar_LAT_dX;
+bool modelPar_given_LAT;
+double modelPar_WAT;
+double d_modelPar_WAT_dX;
+bool modelPar_given_WAT;
+double modelPar_PAT;
+double d_modelPar_PAT_dX;
+bool modelPar_given_PAT;
+double modelPar_ATL;
+double d_modelPar_ATL_dX;
+bool modelPar_given_ATL;
+double modelPar_TDELTA;
+double d_modelPar_TDELTA_dX;
+bool modelPar_given_TDELTA;
+double modelPar_PTWGT;
+double d_modelPar_PTWGT_dX;
+bool modelPar_given_PTWGT;
+double modelPar_LPTWGT;
+double d_modelPar_LPTWGT_dX;
+bool modelPar_given_LPTWGT;
+double modelPar_WPTWGT;
+double d_modelPar_WPTWGT_dX;
+bool modelPar_given_WPTWGT;
+double modelPar_PPTWGT;
+double d_modelPar_PPTWGT_dX;
+bool modelPar_given_PPTWGT;
+double modelPar_PTWGTL;
+double d_modelPar_PTWGTL_dX;
+bool modelPar_given_PTWGTL;
+double modelPar_KT1;
+double d_modelPar_KT1_dX;
+bool modelPar_given_KT1;
+double modelPar_KT1EXP;
+double d_modelPar_KT1EXP_dX;
+bool modelPar_given_KT1EXP;
+double modelPar_KT1L;
+double d_modelPar_KT1L_dX;
+bool modelPar_given_KT1L;
+double modelPar_LKT1;
+double d_modelPar_LKT1_dX;
+bool modelPar_given_LKT1;
+double modelPar_WKT1;
+double d_modelPar_WKT1_dX;
+bool modelPar_given_WKT1;
+double modelPar_PKT1;
+double d_modelPar_PKT1_dX;
+bool modelPar_given_PKT1;
+double modelPar_KT2;
+double d_modelPar_KT2_dX;
+bool modelPar_given_KT2;
+double modelPar_LKT2;
+double d_modelPar_LKT2_dX;
+bool modelPar_given_LKT2;
+double modelPar_WKT2;
+double d_modelPar_WKT2_dX;
+bool modelPar_given_WKT2;
+double modelPar_PKT2;
+double d_modelPar_PKT2_dX;
+bool modelPar_given_PKT2;
+double modelPar_IIT;
+double d_modelPar_IIT_dX;
+bool modelPar_given_IIT;
+double modelPar_LIIT;
+double d_modelPar_LIIT_dX;
+bool modelPar_given_LIIT;
+double modelPar_WIIT;
+double d_modelPar_WIIT_dX;
+bool modelPar_given_WIIT;
+double modelPar_PIIT;
+double d_modelPar_PIIT_dX;
+bool modelPar_given_PIIT;
+double modelPar_IGT;
+double d_modelPar_IGT_dX;
+bool modelPar_given_IGT;
+double modelPar_LIGT;
+double d_modelPar_LIGT_dX;
+bool modelPar_given_LIGT;
+double modelPar_WIGT;
+double d_modelPar_WIGT_dX;
+bool modelPar_given_WIGT;
+double modelPar_PIGT;
+double d_modelPar_PIGT_dX;
+bool modelPar_given_PIGT;
+double modelPar_TGIDL;
+double d_modelPar_TGIDL_dX;
+bool modelPar_given_TGIDL;
+double modelPar_LTGIDL;
+double d_modelPar_LTGIDL_dX;
+bool modelPar_given_LTGIDL;
+double modelPar_WTGIDL;
+double d_modelPar_WTGIDL_dX;
+bool modelPar_given_WTGIDL;
+double modelPar_PTGIDL;
+double d_modelPar_PTGIDL_dX;
+bool modelPar_given_PTGIDL;
+double modelPar_TCJ;
+double d_modelPar_TCJ_dX;
+bool modelPar_given_TCJ;
+double modelPar_TCJSW;
+double d_modelPar_TCJSW_dX;
+bool modelPar_given_TCJSW;
+double modelPar_TCJSWG;
+double d_modelPar_TCJSWG_dX;
+bool modelPar_given_TCJSWG;
+double modelPar_TPB;
+double d_modelPar_TPB_dX;
+bool modelPar_given_TPB;
+double modelPar_TPBSW;
+double d_modelPar_TPBSW_dX;
+bool modelPar_given_TPBSW;
+double modelPar_TPBSWG;
+double d_modelPar_TPBSWG_dX;
+bool modelPar_given_TPBSWG;
+double modelPar_XTIS;
+double d_modelPar_XTIS_dX;
+bool modelPar_given_XTIS;
+double modelPar_XTID;
+double d_modelPar_XTID_dX;
+bool modelPar_given_XTID;
+double modelPar_XTSS;
+double d_modelPar_XTSS_dX;
+bool modelPar_given_XTSS;
+double modelPar_XTSD;
+double d_modelPar_XTSD_dX;
+bool modelPar_given_XTSD;
+double modelPar_XTSSWS;
+double d_modelPar_XTSSWS_dX;
+bool modelPar_given_XTSSWS;
+double modelPar_XTSSWD;
+double d_modelPar_XTSSWD_dX;
+bool modelPar_given_XTSSWD;
+double modelPar_XTSSWGS;
+double d_modelPar_XTSSWGS_dX;
+bool modelPar_given_XTSSWGS;
+double modelPar_XTSSWGD;
+double d_modelPar_XTSSWGD_dX;
+bool modelPar_given_XTSSWGD;
+double modelPar_TNJTS;
+double d_modelPar_TNJTS_dX;
+bool modelPar_given_TNJTS;
+double modelPar_TNJTSD;
+double d_modelPar_TNJTSD_dX;
+bool modelPar_given_TNJTSD;
+double modelPar_TNJTSSW;
+double d_modelPar_TNJTSSW_dX;
+bool modelPar_given_TNJTSSW;
+double modelPar_TNJTSSWD;
+double d_modelPar_TNJTSSWD_dX;
+bool modelPar_given_TNJTSSWD;
+double modelPar_TNJTSSWG;
+double d_modelPar_TNJTSSWG_dX;
+bool modelPar_given_TNJTSSWG;
+double modelPar_TNJTSSWGD;
+double d_modelPar_TNJTSSWGD_dX;
+bool modelPar_given_TNJTSSWGD;
+double modelPar_RTH0;
+double d_modelPar_RTH0_dX;
+bool modelPar_given_RTH0;
+double modelPar_CTH0;
+double d_modelPar_CTH0_dX;
+bool modelPar_given_CTH0;
+double modelPar_WTH0;
+double d_modelPar_WTH0_dX;
+bool modelPar_given_WTH0;
+double modelPar_SAREF;
+double d_modelPar_SAREF_dX;
+bool modelPar_given_SAREF;
+double modelPar_SBREF;
+double d_modelPar_SBREF_dX;
+bool modelPar_given_SBREF;
+double modelPar_WLOD;
+double d_modelPar_WLOD_dX;
+bool modelPar_given_WLOD;
+double modelPar_KU0;
+double d_modelPar_KU0_dX;
+bool modelPar_given_KU0;
+double modelPar_KVSAT;
+double d_modelPar_KVSAT_dX;
+bool modelPar_given_KVSAT;
+double modelPar_TKU0;
+double d_modelPar_TKU0_dX;
+bool modelPar_given_TKU0;
+double modelPar_LKU0;
+double d_modelPar_LKU0_dX;
+bool modelPar_given_LKU0;
+double modelPar_WKU0;
+double d_modelPar_WKU0_dX;
+bool modelPar_given_WKU0;
+double modelPar_PKU0;
+double d_modelPar_PKU0_dX;
+bool modelPar_given_PKU0;
+double modelPar_LLODKU0;
+double d_modelPar_LLODKU0_dX;
+bool modelPar_given_LLODKU0;
+double modelPar_WLODKU0;
+double d_modelPar_WLODKU0_dX;
+bool modelPar_given_WLODKU0;
+double modelPar_KVTH0;
+double d_modelPar_KVTH0_dX;
+bool modelPar_given_KVTH0;
+double modelPar_LKVTH0;
+double d_modelPar_LKVTH0_dX;
+bool modelPar_given_LKVTH0;
+double modelPar_WKVTH0;
+double d_modelPar_WKVTH0_dX;
+bool modelPar_given_WKVTH0;
+double modelPar_PKVTH0;
+double d_modelPar_PKVTH0_dX;
+bool modelPar_given_PKVTH0;
+double modelPar_LLODVTH;
+double d_modelPar_LLODVTH_dX;
+bool modelPar_given_LLODVTH;
+double modelPar_WLODVTH;
+double d_modelPar_WLODVTH_dX;
+bool modelPar_given_WLODVTH;
+double modelPar_STK2;
+double d_modelPar_STK2_dX;
+bool modelPar_given_STK2;
+double modelPar_LODK2;
+double d_modelPar_LODK2_dX;
+bool modelPar_given_LODK2;
+double modelPar_STETA0;
+double d_modelPar_STETA0_dX;
+bool modelPar_given_STETA0;
+double modelPar_LODETA0;
+double d_modelPar_LODETA0_dX;
+bool modelPar_given_LODETA0;
+double modelPar_WEB;
+double d_modelPar_WEB_dX;
+bool modelPar_given_WEB;
+double modelPar_WEC;
+double d_modelPar_WEC_dX;
+bool modelPar_given_WEC;
+double modelPar_KVTH0WE;
+double d_modelPar_KVTH0WE_dX;
+bool modelPar_given_KVTH0WE;
+double modelPar_LKVTH0WE;
+double d_modelPar_LKVTH0WE_dX;
+bool modelPar_given_LKVTH0WE;
+double modelPar_WKVTH0WE;
+double d_modelPar_WKVTH0WE_dX;
+bool modelPar_given_WKVTH0WE;
+double modelPar_PKVTH0WE;
+double d_modelPar_PKVTH0WE_dX;
+bool modelPar_given_PKVTH0WE;
+double modelPar_K2WE;
+double d_modelPar_K2WE_dX;
+bool modelPar_given_K2WE;
+double modelPar_LK2WE;
+double d_modelPar_LK2WE_dX;
+bool modelPar_given_LK2WE;
+double modelPar_WK2WE;
+double d_modelPar_WK2WE_dX;
+bool modelPar_given_WK2WE;
+double modelPar_PK2WE;
+double d_modelPar_PK2WE_dX;
+bool modelPar_given_PK2WE;
+double modelPar_KU0WE;
+double d_modelPar_KU0WE_dX;
+bool modelPar_given_KU0WE;
+double modelPar_LKU0WE;
+double d_modelPar_LKU0WE_dX;
+bool modelPar_given_LKU0WE;
+double modelPar_WKU0WE;
+double d_modelPar_WKU0WE_dX;
+bool modelPar_given_WKU0WE;
+double modelPar_PKU0WE;
+double d_modelPar_PKU0WE_dX;
+bool modelPar_given_PKU0WE;
+double modelPar_SCREF;
+double d_modelPar_SCREF_dX;
+bool modelPar_given_SCREF;
+double modelPar_WEDGE;
+double d_modelPar_WEDGE_dX;
+bool modelPar_given_WEDGE;
+double modelPar_DGAMMAEDGE;
+double d_modelPar_DGAMMAEDGE_dX;
+bool modelPar_given_DGAMMAEDGE;
+double modelPar_DGAMMAEDGEL;
+double d_modelPar_DGAMMAEDGEL_dX;
+bool modelPar_given_DGAMMAEDGEL;
+double modelPar_DGAMMAEDGELEXP;
+double d_modelPar_DGAMMAEDGELEXP_dX;
+bool modelPar_given_DGAMMAEDGELEXP;
+double modelPar_DVTEDGE;
+double d_modelPar_DVTEDGE_dX;
+bool modelPar_given_DVTEDGE;
+double modelPar_NFACTOREDGE;
+double d_modelPar_NFACTOREDGE_dX;
+bool modelPar_given_NFACTOREDGE;
+double modelPar_CITEDGE;
+double d_modelPar_CITEDGE_dX;
+bool modelPar_given_CITEDGE;
+double modelPar_CDSCDEDGE;
+double d_modelPar_CDSCDEDGE_dX;
+bool modelPar_given_CDSCDEDGE;
+double modelPar_CDSCBEDGE;
+double d_modelPar_CDSCBEDGE_dX;
+bool modelPar_given_CDSCBEDGE;
+double modelPar_ETA0EDGE;
+double d_modelPar_ETA0EDGE_dX;
+bool modelPar_given_ETA0EDGE;
+double modelPar_ETABEDGE;
+double d_modelPar_ETABEDGE_dX;
+bool modelPar_given_ETABEDGE;
+double modelPar_KT1EDGE;
+double d_modelPar_KT1EDGE_dX;
+bool modelPar_given_KT1EDGE;
+double modelPar_KT1LEDGE;
+double d_modelPar_KT1LEDGE_dX;
+bool modelPar_given_KT1LEDGE;
+double modelPar_KT2EDGE;
+double d_modelPar_KT2EDGE_dX;
+bool modelPar_given_KT2EDGE;
+double modelPar_KT1EXPEDGE;
+double d_modelPar_KT1EXPEDGE_dX;
+bool modelPar_given_KT1EXPEDGE;
+double modelPar_TNFACTOREDGE;
+double d_modelPar_TNFACTOREDGE_dX;
+bool modelPar_given_TNFACTOREDGE;
+double modelPar_TETA0EDGE;
+double d_modelPar_TETA0EDGE_dX;
+bool modelPar_given_TETA0EDGE;
+double modelPar_DVT0EDGE;
+double d_modelPar_DVT0EDGE_dX;
+bool modelPar_given_DVT0EDGE;
+double modelPar_DVT1EDGE;
+double d_modelPar_DVT1EDGE_dX;
+bool modelPar_given_DVT1EDGE;
+double modelPar_DVT2EDGE;
+double d_modelPar_DVT2EDGE_dX;
+bool modelPar_given_DVT2EDGE;
+double modelPar_LMIN;
+double d_modelPar_LMIN_dX;
+bool modelPar_given_LMIN;
+double modelPar_WMIN;
+double d_modelPar_WMIN_dX;
+bool modelPar_given_WMIN;
+double modelPar_LMAX;
+double d_modelPar_LMAX_dX;
+bool modelPar_given_LMAX;
+double modelPar_WMAX;
+double d_modelPar_WMAX_dX;
+bool modelPar_given_WMAX;
+// non-reals (including hidden)
+int modelPar_NGCON;
+bool modelPar_given_NGCON;
+int modelPar_RGATEMOD;
+bool modelPar_given_RGATEMOD;
+int modelPar_RBODYMOD;
+bool modelPar_given_RBODYMOD;
+int modelPar_GEOMOD;
+bool modelPar_given_GEOMOD;
+int modelPar_RGEOMOD;
+bool modelPar_given_RGEOMOD;
+int modelPar_SCA;
+bool modelPar_given_SCA;
+int modelPar_SCB;
+bool modelPar_given_SCB;
+int modelPar_SCC;
+bool modelPar_given_SCC;
+int modelPar_SC;
+bool modelPar_given_SC;
+int modelPar_TYPE;
+bool modelPar_given_TYPE;
+int modelPar_CVMOD;
+bool modelPar_given_CVMOD;
+int modelPar_COVMOD;
+bool modelPar_given_COVMOD;
+int modelPar_RDSMOD;
+bool modelPar_given_RDSMOD;
+int modelPar_WPEMOD;
+bool modelPar_given_WPEMOD;
+int modelPar_ASYMMOD;
+bool modelPar_given_ASYMMOD;
+int modelPar_GIDLMOD;
+bool modelPar_given_GIDLMOD;
+int modelPar_IGCMOD;
+bool modelPar_given_IGCMOD;
+int modelPar_IGBMOD;
+bool modelPar_given_IGBMOD;
+int modelPar_TNOIMOD;
+bool modelPar_given_TNOIMOD;
+int modelPar_SHMOD;
+bool modelPar_given_SHMOD;
+int modelPar_MOBSCALE;
+bool modelPar_given_MOBSCALE;
+int modelPar_PERMOD;
+bool modelPar_given_PERMOD;
+int modelPar_BINUNIT;
+bool modelPar_given_BINUNIT;
+int modelPar_EDGEFET;
+bool modelPar_given_EDGEFET;
+};
+
+
+
+//-----------------------------------------------------------------------------
 // Free functions used by sensitivity
 //
 //-----------------------------------------------------------------------------
@@ -216,5954 +3304,18 @@ const int admsNodeID_dbulk,
 const int admsNodeID_N1,
 const int admsNodeID_N2,
 const int admsNodeID_t,
-// instance parameters
-// reals
-AdmsSensFadType & instancePar_L,
-bool instancePar_given_L,
-AdmsSensFadType & instancePar_W,
-bool instancePar_given_W,
-AdmsSensFadType & instancePar_NRS,
-bool instancePar_given_NRS,
-AdmsSensFadType & instancePar_NRD,
-bool instancePar_given_NRD,
-AdmsSensFadType & instancePar_VFBSDOFF,
-bool instancePar_given_VFBSDOFF,
-AdmsSensFadType & instancePar_XGW,
-bool instancePar_given_XGW,
-AdmsSensFadType & instancePar_RBPB,
-bool instancePar_given_RBPB,
-AdmsSensFadType & instancePar_RBPD,
-bool instancePar_given_RBPD,
-AdmsSensFadType & instancePar_RBPS,
-bool instancePar_given_RBPS,
-AdmsSensFadType & instancePar_RBDB,
-bool instancePar_given_RBDB,
-AdmsSensFadType & instancePar_RBSB,
-bool instancePar_given_RBSB,
-AdmsSensFadType & instancePar_SA,
-bool instancePar_given_SA,
-AdmsSensFadType & instancePar_SB,
-bool instancePar_given_SB,
-AdmsSensFadType & instancePar_SD,
-bool instancePar_given_SD,
-AdmsSensFadType & instancePar_AS,
-bool instancePar_given_AS,
-AdmsSensFadType & instancePar_AD,
-bool instancePar_given_AD,
-AdmsSensFadType & instancePar_PS,
-bool instancePar_given_PS,
-AdmsSensFadType & instancePar_PD,
-bool instancePar_given_PD,
-// non-reals(including hidden)
-int instancePar_NF,
-bool instancePar_given_NF,
-int instancePar_MINZ,
-bool instancePar_given_MINZ,
-int instancePar_NGCON,
-bool instancePar_given_NGCON,
-int instancePar_RGATEMOD,
-bool instancePar_given_RGATEMOD,
-int instancePar_RBODYMOD,
-bool instancePar_given_RBODYMOD,
-int instancePar_GEOMOD,
-bool instancePar_given_GEOMOD,
-int instancePar_RGEOMOD,
-bool instancePar_given_RGEOMOD,
-int instancePar_SCA,
-bool instancePar_given_SCA,
-int instancePar_SCB,
-bool instancePar_given_SCB,
-int instancePar_SCC,
-bool instancePar_given_SCC,
-int instancePar_SC,
-bool instancePar_given_SC,
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_T0,
-AdmsSensFadType & instanceVar_T1,
-AdmsSensFadType & instanceVar_T2,
-AdmsSensFadType & instanceVar_epssi,
-AdmsSensFadType & instanceVar_epsox,
-AdmsSensFadType & instanceVar_Weff,
-AdmsSensFadType & instanceVar_Leff,
-AdmsSensFadType & instanceVar_Wact,
-AdmsSensFadType & instanceVar_Lact,
-AdmsSensFadType & instanceVar_Weffcj,
-AdmsSensFadType & instanceVar_Cox,
-AdmsSensFadType & instanceVar_epsratio,
-AdmsSensFadType & instanceVar_Lnew,
-AdmsSensFadType & instanceVar_L_mult,
-AdmsSensFadType & instanceVar_Wnew,
-AdmsSensFadType & instanceVar_DVTP0_i,
-AdmsSensFadType & instanceVar_DVTP1_i,
-AdmsSensFadType & instanceVar_DVTP2_i,
-AdmsSensFadType & instanceVar_DVTP3_i,
-AdmsSensFadType & instanceVar_DVTP4_i,
-AdmsSensFadType & instanceVar_DVTP5_i,
-AdmsSensFadType & instanceVar_A1_i,
-AdmsSensFadType & instanceVar_A11_i,
-AdmsSensFadType & instanceVar_A2_i,
-AdmsSensFadType & instanceVar_A21_i,
-AdmsSensFadType & instanceVar_PSAT_i,
-AdmsSensFadType & instanceVar_PSATR_i,
-AdmsSensFadType & instanceVar_BSIM6TOXP,
-AdmsSensFadType & instanceVar_DMCGeff,
-AdmsSensFadType & instanceVar_DMDGeff,
-AdmsSensFadType & instanceVar_DMCIeff,
-AdmsSensFadType & instanceVar_RSourceGeo,
-AdmsSensFadType & instanceVar_RDrainGeo,
-AdmsSensFadType & instanceVar_Grgeltd,
-AdmsSensFadType & instanceVar_Grbsb,
-AdmsSensFadType & instanceVar_Grbdb,
-AdmsSensFadType & instanceVar_Grbpb,
-AdmsSensFadType & instanceVar_Grbps,
-AdmsSensFadType & instanceVar_Grbpd,
-AdmsSensFadType & instanceVar_Aechvb,
-AdmsSensFadType & instanceVar_Bechvb,
-AdmsSensFadType & instanceVar_AechvbEdge,
-AdmsSensFadType & instanceVar_BechvbEdge,
-AdmsSensFadType & instanceVar_ToxRatio,
-AdmsSensFadType & instanceVar_U0R_t,
-AdmsSensFadType & instanceVar_UAR_t,
-AdmsSensFadType & instanceVar_UCR_t,
-AdmsSensFadType & instanceVar_UDR_t,
-AdmsSensFadType & instanceVar_UCSR_t,
-AdmsSensFadType & instanceVar_VSATR_t,
-AdmsSensFadType & instanceVar_PTWGR_t,
-AdmsSensFadType & instanceVar_ETA0R_t,
-AdmsSensFadType & instanceVar_PSATB_i,
-AdmsSensFadType & instanceVar_KT1_i,
-AdmsSensFadType & instanceVar_KT2_i,
-AdmsSensFadType & instanceVar_NGATE_i,
-AdmsSensFadType & instanceVar_NSD_i,
-AdmsSensFadType & instanceVar_NDEP_i,
-AdmsSensFadType & instanceVar_VFB_i,
-AdmsSensFadType & instanceVar_CIT_i,
-AdmsSensFadType & instanceVar_CDSCD_i,
-AdmsSensFadType & instanceVar_CDSCDR_i,
-AdmsSensFadType & instanceVar_CDSCB_i,
-AdmsSensFadType & instanceVar_NFACTOR_i,
-AdmsSensFadType & instanceVar_PHIN_i,
-AdmsSensFadType & instanceVar_ETA0_i,
-AdmsSensFadType & instanceVar_ETA0R_i,
-AdmsSensFadType & instanceVar_ETAB_i,
-AdmsSensFadType & instanceVar_K2_i,
-AdmsSensFadType & instanceVar_K1_i,
-AdmsSensFadType & instanceVar_DELTA_i,
-AdmsSensFadType & instanceVar_U0_i,
-AdmsSensFadType & instanceVar_U0R_i,
-AdmsSensFadType & instanceVar_VSAT_i,
-AdmsSensFadType & instanceVar_VSATR_i,
-AdmsSensFadType & instanceVar_VSATCV_i,
-AdmsSensFadType & instanceVar_UA_i,
-AdmsSensFadType & instanceVar_UAR_i,
-AdmsSensFadType & instanceVar_EU_i,
-AdmsSensFadType & instanceVar_UD_i,
-AdmsSensFadType & instanceVar_UDR_i,
-AdmsSensFadType & instanceVar_UD_a,
-AdmsSensFadType & instanceVar_UCS_i,
-AdmsSensFadType & instanceVar_UCSR_i,
-AdmsSensFadType & instanceVar_UC_i,
-AdmsSensFadType & instanceVar_UCR_i,
-AdmsSensFadType & instanceVar_PDIBLC_i,
-AdmsSensFadType & instanceVar_PDIBLCR_i,
-AdmsSensFadType & instanceVar_PDIBLCB_i,
-AdmsSensFadType & instanceVar_PSCBE1_i,
-AdmsSensFadType & instanceVar_PSCBE2_i,
-AdmsSensFadType & instanceVar_PDITS_i,
-AdmsSensFadType & instanceVar_PDITSD_i,
-AdmsSensFadType & instanceVar_FPROUT_i,
-AdmsSensFadType & instanceVar_PRWG_i,
-AdmsSensFadType & instanceVar_WR_i,
-AdmsSensFadType & instanceVar_RDWMIN_i,
-AdmsSensFadType & instanceVar_RSWMIN_i,
-AdmsSensFadType & instanceVar_RDW_i,
-AdmsSensFadType & instanceVar_RSW_i,
-AdmsSensFadType & instanceVar_RDSW_i,
-AdmsSensFadType & instanceVar_RDSWMIN_i,
-AdmsSensFadType & instanceVar_PTWG_i,
-AdmsSensFadType & instanceVar_PTWGR_i,
-AdmsSensFadType & instanceVar_PVAG_i,
-AdmsSensFadType & instanceVar_XJ_i,
-AdmsSensFadType & instanceVar_PCLM_i,
-AdmsSensFadType & instanceVar_PCLMR_i,
-AdmsSensFadType & instanceVar_PCLMCV_i,
-AdmsSensFadType & instanceVar_PRWB_i,
-AdmsSensFadType & instanceVar_CF_i,
-AdmsSensFadType & instanceVar_CGSL_i,
-AdmsSensFadType & instanceVar_CGDL_i,
-AdmsSensFadType & instanceVar_CKAPPAS_i,
-AdmsSensFadType & instanceVar_CKAPPAD_i,
-AdmsSensFadType & instanceVar_VFBCV_i,
-AdmsSensFadType & instanceVar_NDEPCV_i,
-AdmsSensFadType & instanceVar_ALPHA0_i,
-AdmsSensFadType & instanceVar_BETA0_i,
-AdmsSensFadType & instanceVar_AGIDL_i,
-AdmsSensFadType & instanceVar_BGIDL_i,
-AdmsSensFadType & instanceVar_CGIDL_i,
-AdmsSensFadType & instanceVar_EGIDL_i,
-AdmsSensFadType & instanceVar_AGISL_i,
-AdmsSensFadType & instanceVar_BGISL_i,
-AdmsSensFadType & instanceVar_CGISL_i,
-AdmsSensFadType & instanceVar_EGISL_i,
-AdmsSensFadType & instanceVar_UTE_i,
-AdmsSensFadType & instanceVar_UA1_i,
-AdmsSensFadType & instanceVar_UC1_i,
-AdmsSensFadType & instanceVar_UD1_i,
-AdmsSensFadType & instanceVar_UCSTE_i,
-AdmsSensFadType & instanceVar_PRT_i,
-AdmsSensFadType & instanceVar_AT_i,
-AdmsSensFadType & instanceVar_PTWGT_i,
-AdmsSensFadType & instanceVar_IIT_i,
-AdmsSensFadType & instanceVar_TGIDL_i,
-AdmsSensFadType & instanceVar_KVTH0WE_i,
-AdmsSensFadType & instanceVar_K2WE_i,
-AdmsSensFadType & instanceVar_KU0WE_i,
-AdmsSensFadType & instanceVar_AIGBINV_i,
-AdmsSensFadType & instanceVar_BIGBINV_i,
-AdmsSensFadType & instanceVar_CIGBINV_i,
-AdmsSensFadType & instanceVar_EIGBINV_i,
-AdmsSensFadType & instanceVar_NIGBINV_i,
-AdmsSensFadType & instanceVar_AIGBACC_i,
-AdmsSensFadType & instanceVar_BIGBACC_i,
-AdmsSensFadType & instanceVar_CIGBACC_i,
-AdmsSensFadType & instanceVar_NIGBACC_i,
-AdmsSensFadType & instanceVar_AIGC_i,
-AdmsSensFadType & instanceVar_BIGC_i,
-AdmsSensFadType & instanceVar_CIGC_i,
-AdmsSensFadType & instanceVar_AIGS_i,
-AdmsSensFadType & instanceVar_BIGS_i,
-AdmsSensFadType & instanceVar_CIGS_i,
-AdmsSensFadType & instanceVar_AIGD_i,
-AdmsSensFadType & instanceVar_BIGD_i,
-AdmsSensFadType & instanceVar_CIGD_i,
-AdmsSensFadType & instanceVar_PIGCD_i,
-AdmsSensFadType & instanceVar_DLCIG_i,
-AdmsSensFadType & instanceVar_DLCIGD_i,
-AdmsSensFadType & instanceVar_IGT_i,
-AdmsSensFadType & instanceVar_nuIntD,
-double & instanceVar_nuEndD,
-AdmsSensFadType & instanceVar_nuIntS,
-double & instanceVar_nuEndS,
-AdmsSensFadType & instanceVar_gth,
-AdmsSensFadType & instanceVar_cth,
-AdmsSensFadType & instanceVar_QBI,
-AdmsSensFadType & instanceVar_QSI,
-AdmsSensFadType & instanceVar_QDI,
-AdmsSensFadType & instanceVar_QGI,
-AdmsSensFadType & instanceVar_CGGI,
-AdmsSensFadType & instanceVar_CGBI,
-AdmsSensFadType & instanceVar_CGSI,
-AdmsSensFadType & instanceVar_CGDI,
-AdmsSensFadType & instanceVar_CSGI,
-AdmsSensFadType & instanceVar_CSBI,
-AdmsSensFadType & instanceVar_CSSI,
-AdmsSensFadType & instanceVar_CSDI,
-AdmsSensFadType & instanceVar_CDGI,
-AdmsSensFadType & instanceVar_CDBI,
-AdmsSensFadType & instanceVar_CDSI,
-AdmsSensFadType & instanceVar_CDDI,
-AdmsSensFadType & instanceVar_CBGI,
-AdmsSensFadType & instanceVar_CBBI,
-AdmsSensFadType & instanceVar_CBSI,
-AdmsSensFadType & instanceVar_CBDI,
-AdmsSensFadType & instanceVar_QB,
-AdmsSensFadType & instanceVar_QS,
-AdmsSensFadType & instanceVar_QD,
-AdmsSensFadType & instanceVar_QG,
-AdmsSensFadType & instanceVar_CGG,
-AdmsSensFadType & instanceVar_CGB,
-AdmsSensFadType & instanceVar_CGS,
-AdmsSensFadType & instanceVar_CGD,
-AdmsSensFadType & instanceVar_CSG,
-AdmsSensFadType & instanceVar_CSB,
-AdmsSensFadType & instanceVar_CSS,
-AdmsSensFadType & instanceVar_CSD,
-AdmsSensFadType & instanceVar_CDG,
-AdmsSensFadType & instanceVar_CDB,
-AdmsSensFadType & instanceVar_CDS,
-AdmsSensFadType & instanceVar_CDD,
-AdmsSensFadType & instanceVar_CBG,
-AdmsSensFadType & instanceVar_CBB,
-AdmsSensFadType & instanceVar_CBS,
-AdmsSensFadType & instanceVar_CBD,
-AdmsSensFadType & instanceVar_ISUB,
-AdmsSensFadType & instanceVar_IGIDL,
-AdmsSensFadType & instanceVar_IGISL,
-AdmsSensFadType & instanceVar_IGS,
-AdmsSensFadType & instanceVar_IGD,
-AdmsSensFadType & instanceVar_IGCS,
-AdmsSensFadType & instanceVar_IGCD,
-AdmsSensFadType & instanceVar_IGB,
-AdmsSensFadType & instanceVar_CGSEXT,
-AdmsSensFadType & instanceVar_CGDEXT,
-AdmsSensFadType & instanceVar_CGBOV,
-AdmsSensFadType & instanceVar_CAPBS,
-AdmsSensFadType & instanceVar_CAPBD,
-AdmsSensFadType & instanceVar_WEFF,
-AdmsSensFadType & instanceVar_LEFF,
-AdmsSensFadType & instanceVar_WEFFCV,
-AdmsSensFadType & instanceVar_LEFFCV,
-AdmsSensFadType & instanceVar_IDS,
-AdmsSensFadType & instanceVar_IDEFF,
-AdmsSensFadType & instanceVar_ISEFF,
-AdmsSensFadType & instanceVar_IGEFF,
-AdmsSensFadType & instanceVar_IBS,
-AdmsSensFadType & instanceVar_IBD,
-double & instanceVar_VDS,
-double & instanceVar_VGS,
-double & instanceVar_VBS,
-AdmsSensFadType & instanceVar_VDSAT,
-AdmsSensFadType & instanceVar_GM,
-AdmsSensFadType & instanceVar_GMBS,
-AdmsSensFadType & instanceVar_GDS,
-AdmsSensFadType & instanceVar_TK,
-AdmsSensFadType & instanceVar_VTH,
-// non-reals
-int instanceVar_devsign,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_L,
-bool modelPar_given_L,
-AdmsSensFadType & modelPar_VFBSDOFF,
-bool modelPar_given_VFBSDOFF,
-AdmsSensFadType & modelPar_XGW,
-bool modelPar_given_XGW,
-AdmsSensFadType & modelPar_RBPB,
-bool modelPar_given_RBPB,
-AdmsSensFadType & modelPar_RBPD,
-bool modelPar_given_RBPD,
-AdmsSensFadType & modelPar_RBPS,
-bool modelPar_given_RBPS,
-AdmsSensFadType & modelPar_RBDB,
-bool modelPar_given_RBDB,
-AdmsSensFadType & modelPar_RBSB,
-bool modelPar_given_RBSB,
-AdmsSensFadType & modelPar_SA,
-bool modelPar_given_SA,
-AdmsSensFadType & modelPar_SB,
-bool modelPar_given_SB,
-AdmsSensFadType & modelPar_SD,
-bool modelPar_given_SD,
-AdmsSensFadType & modelPar_LLONG,
-bool modelPar_given_LLONG,
-AdmsSensFadType & modelPar_LMLT,
-bool modelPar_given_LMLT,
-AdmsSensFadType & modelPar_WMLT,
-bool modelPar_given_WMLT,
-AdmsSensFadType & modelPar_XL,
-bool modelPar_given_XL,
-AdmsSensFadType & modelPar_WWIDE,
-bool modelPar_given_WWIDE,
-AdmsSensFadType & modelPar_XW,
-bool modelPar_given_XW,
-AdmsSensFadType & modelPar_LINT,
-bool modelPar_given_LINT,
-AdmsSensFadType & modelPar_LL,
-bool modelPar_given_LL,
-AdmsSensFadType & modelPar_LW,
-bool modelPar_given_LW,
-AdmsSensFadType & modelPar_LWL,
-bool modelPar_given_LWL,
-AdmsSensFadType & modelPar_LLN,
-bool modelPar_given_LLN,
-AdmsSensFadType & modelPar_LWN,
-bool modelPar_given_LWN,
-AdmsSensFadType & modelPar_WINT,
-bool modelPar_given_WINT,
-AdmsSensFadType & modelPar_WL,
-bool modelPar_given_WL,
-AdmsSensFadType & modelPar_WW,
-bool modelPar_given_WW,
-AdmsSensFadType & modelPar_WWL,
-bool modelPar_given_WWL,
-AdmsSensFadType & modelPar_WLN,
-bool modelPar_given_WLN,
-AdmsSensFadType & modelPar_WWN,
-bool modelPar_given_WWN,
-AdmsSensFadType & modelPar_DLC,
-bool modelPar_given_DLC,
-AdmsSensFadType & modelPar_LLC,
-bool modelPar_given_LLC,
-AdmsSensFadType & modelPar_LWC,
-bool modelPar_given_LWC,
-AdmsSensFadType & modelPar_LWLC,
-bool modelPar_given_LWLC,
-AdmsSensFadType & modelPar_DWC,
-bool modelPar_given_DWC,
-AdmsSensFadType & modelPar_WLC,
-bool modelPar_given_WLC,
-AdmsSensFadType & modelPar_WWC,
-bool modelPar_given_WWC,
-AdmsSensFadType & modelPar_WWLC,
-bool modelPar_given_WWLC,
-AdmsSensFadType & modelPar_TOXE,
-bool modelPar_given_TOXE,
-AdmsSensFadType & modelPar_TOXP,
-bool modelPar_given_TOXP,
-AdmsSensFadType & modelPar_DTOX,
-bool modelPar_given_DTOX,
-AdmsSensFadType & modelPar_NDEP,
-bool modelPar_given_NDEP,
-AdmsSensFadType & modelPar_NDEPL1,
-bool modelPar_given_NDEPL1,
-AdmsSensFadType & modelPar_NDEPLEXP1,
-bool modelPar_given_NDEPLEXP1,
-AdmsSensFadType & modelPar_NDEPL2,
-bool modelPar_given_NDEPL2,
-AdmsSensFadType & modelPar_NDEPLEXP2,
-bool modelPar_given_NDEPLEXP2,
-AdmsSensFadType & modelPar_NDEPW,
-bool modelPar_given_NDEPW,
-AdmsSensFadType & modelPar_NDEPWEXP,
-bool modelPar_given_NDEPWEXP,
-AdmsSensFadType & modelPar_NDEPWL,
-bool modelPar_given_NDEPWL,
-AdmsSensFadType & modelPar_NDEPWLEXP,
-bool modelPar_given_NDEPWLEXP,
-AdmsSensFadType & modelPar_LNDEP,
-bool modelPar_given_LNDEP,
-AdmsSensFadType & modelPar_WNDEP,
-bool modelPar_given_WNDEP,
-AdmsSensFadType & modelPar_PNDEP,
-bool modelPar_given_PNDEP,
-AdmsSensFadType & modelPar_NDEPCV,
-bool modelPar_given_NDEPCV,
-AdmsSensFadType & modelPar_NDEPCVL1,
-bool modelPar_given_NDEPCVL1,
-AdmsSensFadType & modelPar_NDEPCVLEXP1,
-bool modelPar_given_NDEPCVLEXP1,
-AdmsSensFadType & modelPar_NDEPCVL2,
-bool modelPar_given_NDEPCVL2,
-AdmsSensFadType & modelPar_NDEPCVLEXP2,
-bool modelPar_given_NDEPCVLEXP2,
-AdmsSensFadType & modelPar_NDEPCVW,
-bool modelPar_given_NDEPCVW,
-AdmsSensFadType & modelPar_NDEPCVWEXP,
-bool modelPar_given_NDEPCVWEXP,
-AdmsSensFadType & modelPar_NDEPCVWL,
-bool modelPar_given_NDEPCVWL,
-AdmsSensFadType & modelPar_NDEPCVWLEXP,
-bool modelPar_given_NDEPCVWLEXP,
-AdmsSensFadType & modelPar_LNDEPCV,
-bool modelPar_given_LNDEPCV,
-AdmsSensFadType & modelPar_WNDEPCV,
-bool modelPar_given_WNDEPCV,
-AdmsSensFadType & modelPar_PNDEPCV,
-bool modelPar_given_PNDEPCV,
-AdmsSensFadType & modelPar_NGATE,
-bool modelPar_given_NGATE,
-AdmsSensFadType & modelPar_LNGATE,
-bool modelPar_given_LNGATE,
-AdmsSensFadType & modelPar_WNGATE,
-bool modelPar_given_WNGATE,
-AdmsSensFadType & modelPar_PNGATE,
-bool modelPar_given_PNGATE,
-AdmsSensFadType & modelPar_EASUB,
-bool modelPar_given_EASUB,
-AdmsSensFadType & modelPar_NI0SUB,
-bool modelPar_given_NI0SUB,
-AdmsSensFadType & modelPar_BG0SUB,
-bool modelPar_given_BG0SUB,
-AdmsSensFadType & modelPar_EPSRSUB,
-bool modelPar_given_EPSRSUB,
-AdmsSensFadType & modelPar_EPSROX,
-bool modelPar_given_EPSROX,
-AdmsSensFadType & modelPar_XJ,
-bool modelPar_given_XJ,
-AdmsSensFadType & modelPar_LXJ,
-bool modelPar_given_LXJ,
-AdmsSensFadType & modelPar_WXJ,
-bool modelPar_given_WXJ,
-AdmsSensFadType & modelPar_PXJ,
-bool modelPar_given_PXJ,
-AdmsSensFadType & modelPar_LVFB,
-bool modelPar_given_LVFB,
-AdmsSensFadType & modelPar_WVFB,
-bool modelPar_given_WVFB,
-AdmsSensFadType & modelPar_PVFB,
-bool modelPar_given_PVFB,
-AdmsSensFadType & modelPar_VFB,
-bool modelPar_given_VFB,
-AdmsSensFadType & modelPar_VFBCV,
-bool modelPar_given_VFBCV,
-AdmsSensFadType & modelPar_LVFBCV,
-bool modelPar_given_LVFBCV,
-AdmsSensFadType & modelPar_WVFBCV,
-bool modelPar_given_WVFBCV,
-AdmsSensFadType & modelPar_PVFBCV,
-bool modelPar_given_PVFBCV,
-AdmsSensFadType & modelPar_VFBCVL,
-bool modelPar_given_VFBCVL,
-AdmsSensFadType & modelPar_VFBCVLEXP,
-bool modelPar_given_VFBCVLEXP,
-AdmsSensFadType & modelPar_VFBCVW,
-bool modelPar_given_VFBCVW,
-AdmsSensFadType & modelPar_VFBCVWEXP,
-bool modelPar_given_VFBCVWEXP,
-AdmsSensFadType & modelPar_VFBCVWL,
-bool modelPar_given_VFBCVWL,
-AdmsSensFadType & modelPar_VFBCVWLEXP,
-bool modelPar_given_VFBCVWLEXP,
-AdmsSensFadType & modelPar_DWJ,
-bool modelPar_given_DWJ,
-AdmsSensFadType & modelPar_NSD,
-bool modelPar_given_NSD,
-AdmsSensFadType & modelPar_LNSD,
-bool modelPar_given_LNSD,
-AdmsSensFadType & modelPar_WNSD,
-bool modelPar_given_WNSD,
-AdmsSensFadType & modelPar_PNSD,
-bool modelPar_given_PNSD,
-AdmsSensFadType & modelPar_DELVT0,
-bool modelPar_given_DELVT0,
-AdmsSensFadType & modelPar_DVTP0,
-bool modelPar_given_DVTP0,
-AdmsSensFadType & modelPar_LDVTP0,
-bool modelPar_given_LDVTP0,
-AdmsSensFadType & modelPar_WDVTP0,
-bool modelPar_given_WDVTP0,
-AdmsSensFadType & modelPar_PDVTP0,
-bool modelPar_given_PDVTP0,
-AdmsSensFadType & modelPar_DVTP1,
-bool modelPar_given_DVTP1,
-AdmsSensFadType & modelPar_LDVTP1,
-bool modelPar_given_LDVTP1,
-AdmsSensFadType & modelPar_WDVTP1,
-bool modelPar_given_WDVTP1,
-AdmsSensFadType & modelPar_PDVTP1,
-bool modelPar_given_PDVTP1,
-AdmsSensFadType & modelPar_DVTP2,
-bool modelPar_given_DVTP2,
-AdmsSensFadType & modelPar_LDVTP2,
-bool modelPar_given_LDVTP2,
-AdmsSensFadType & modelPar_WDVTP2,
-bool modelPar_given_WDVTP2,
-AdmsSensFadType & modelPar_PDVTP2,
-bool modelPar_given_PDVTP2,
-AdmsSensFadType & modelPar_DVTP3,
-bool modelPar_given_DVTP3,
-AdmsSensFadType & modelPar_LDVTP3,
-bool modelPar_given_LDVTP3,
-AdmsSensFadType & modelPar_WDVTP3,
-bool modelPar_given_WDVTP3,
-AdmsSensFadType & modelPar_PDVTP3,
-bool modelPar_given_PDVTP3,
-AdmsSensFadType & modelPar_DVTP4,
-bool modelPar_given_DVTP4,
-AdmsSensFadType & modelPar_LDVTP4,
-bool modelPar_given_LDVTP4,
-AdmsSensFadType & modelPar_WDVTP4,
-bool modelPar_given_WDVTP4,
-AdmsSensFadType & modelPar_PDVTP4,
-bool modelPar_given_PDVTP4,
-AdmsSensFadType & modelPar_DVTP5,
-bool modelPar_given_DVTP5,
-AdmsSensFadType & modelPar_LDVTP5,
-bool modelPar_given_LDVTP5,
-AdmsSensFadType & modelPar_WDVTP5,
-bool modelPar_given_WDVTP5,
-AdmsSensFadType & modelPar_PDVTP5,
-bool modelPar_given_PDVTP5,
-AdmsSensFadType & modelPar_PHIN,
-bool modelPar_given_PHIN,
-AdmsSensFadType & modelPar_LPHIN,
-bool modelPar_given_LPHIN,
-AdmsSensFadType & modelPar_WPHIN,
-bool modelPar_given_WPHIN,
-AdmsSensFadType & modelPar_PPHIN,
-bool modelPar_given_PPHIN,
-AdmsSensFadType & modelPar_ETA0,
-bool modelPar_given_ETA0,
-AdmsSensFadType & modelPar_LETA0,
-bool modelPar_given_LETA0,
-AdmsSensFadType & modelPar_WETA0,
-bool modelPar_given_WETA0,
-AdmsSensFadType & modelPar_PETA0,
-bool modelPar_given_PETA0,
-AdmsSensFadType & modelPar_ETA0R,
-bool modelPar_given_ETA0R,
-AdmsSensFadType & modelPar_LETA0R,
-bool modelPar_given_LETA0R,
-AdmsSensFadType & modelPar_WETA0R,
-bool modelPar_given_WETA0R,
-AdmsSensFadType & modelPar_PETA0R,
-bool modelPar_given_PETA0R,
-AdmsSensFadType & modelPar_DSUB,
-bool modelPar_given_DSUB,
-AdmsSensFadType & modelPar_ETAB,
-bool modelPar_given_ETAB,
-AdmsSensFadType & modelPar_ETABEXP,
-bool modelPar_given_ETABEXP,
-AdmsSensFadType & modelPar_LETAB,
-bool modelPar_given_LETAB,
-AdmsSensFadType & modelPar_WETAB,
-bool modelPar_given_WETAB,
-AdmsSensFadType & modelPar_PETAB,
-bool modelPar_given_PETAB,
-AdmsSensFadType & modelPar_K1,
-bool modelPar_given_K1,
-AdmsSensFadType & modelPar_K1L,
-bool modelPar_given_K1L,
-AdmsSensFadType & modelPar_K1LEXP,
-bool modelPar_given_K1LEXP,
-AdmsSensFadType & modelPar_K1W,
-bool modelPar_given_K1W,
-AdmsSensFadType & modelPar_K1WEXP,
-bool modelPar_given_K1WEXP,
-AdmsSensFadType & modelPar_K1WL,
-bool modelPar_given_K1WL,
-AdmsSensFadType & modelPar_K1WLEXP,
-bool modelPar_given_K1WLEXP,
-AdmsSensFadType & modelPar_LK1,
-bool modelPar_given_LK1,
-AdmsSensFadType & modelPar_WK1,
-bool modelPar_given_WK1,
-AdmsSensFadType & modelPar_PK1,
-bool modelPar_given_PK1,
-AdmsSensFadType & modelPar_K2,
-bool modelPar_given_K2,
-AdmsSensFadType & modelPar_K2L,
-bool modelPar_given_K2L,
-AdmsSensFadType & modelPar_K2LEXP,
-bool modelPar_given_K2LEXP,
-AdmsSensFadType & modelPar_K2W,
-bool modelPar_given_K2W,
-AdmsSensFadType & modelPar_K2WEXP,
-bool modelPar_given_K2WEXP,
-AdmsSensFadType & modelPar_K2WL,
-bool modelPar_given_K2WL,
-AdmsSensFadType & modelPar_K2WLEXP,
-bool modelPar_given_K2WLEXP,
-AdmsSensFadType & modelPar_LK2,
-bool modelPar_given_LK2,
-AdmsSensFadType & modelPar_WK2,
-bool modelPar_given_WK2,
-AdmsSensFadType & modelPar_PK2,
-bool modelPar_given_PK2,
-AdmsSensFadType & modelPar_ADOS,
-bool modelPar_given_ADOS,
-AdmsSensFadType & modelPar_BDOS,
-bool modelPar_given_BDOS,
-AdmsSensFadType & modelPar_QM0,
-bool modelPar_given_QM0,
-AdmsSensFadType & modelPar_ETAQM,
-bool modelPar_given_ETAQM,
-AdmsSensFadType & modelPar_CIT,
-bool modelPar_given_CIT,
-AdmsSensFadType & modelPar_LCIT,
-bool modelPar_given_LCIT,
-AdmsSensFadType & modelPar_WCIT,
-bool modelPar_given_WCIT,
-AdmsSensFadType & modelPar_PCIT,
-bool modelPar_given_PCIT,
-AdmsSensFadType & modelPar_NFACTOR,
-bool modelPar_given_NFACTOR,
-AdmsSensFadType & modelPar_NFACTORL,
-bool modelPar_given_NFACTORL,
-AdmsSensFadType & modelPar_NFACTORLEXP,
-bool modelPar_given_NFACTORLEXP,
-AdmsSensFadType & modelPar_NFACTORW,
-bool modelPar_given_NFACTORW,
-AdmsSensFadType & modelPar_NFACTORWEXP,
-bool modelPar_given_NFACTORWEXP,
-AdmsSensFadType & modelPar_NFACTORWL,
-bool modelPar_given_NFACTORWL,
-AdmsSensFadType & modelPar_NFACTORWLEXP,
-bool modelPar_given_NFACTORWLEXP,
-AdmsSensFadType & modelPar_LNFACTOR,
-bool modelPar_given_LNFACTOR,
-AdmsSensFadType & modelPar_WNFACTOR,
-bool modelPar_given_WNFACTOR,
-AdmsSensFadType & modelPar_PNFACTOR,
-bool modelPar_given_PNFACTOR,
-AdmsSensFadType & modelPar_CDSCD,
-bool modelPar_given_CDSCD,
-AdmsSensFadType & modelPar_CDSCDL,
-bool modelPar_given_CDSCDL,
-AdmsSensFadType & modelPar_CDSCDLEXP,
-bool modelPar_given_CDSCDLEXP,
-AdmsSensFadType & modelPar_LCDSCD,
-bool modelPar_given_LCDSCD,
-AdmsSensFadType & modelPar_WCDSCD,
-bool modelPar_given_WCDSCD,
-AdmsSensFadType & modelPar_PCDSCD,
-bool modelPar_given_PCDSCD,
-AdmsSensFadType & modelPar_CDSCDR,
-bool modelPar_given_CDSCDR,
-AdmsSensFadType & modelPar_CDSCDLR,
-bool modelPar_given_CDSCDLR,
-AdmsSensFadType & modelPar_LCDSCDR,
-bool modelPar_given_LCDSCDR,
-AdmsSensFadType & modelPar_WCDSCDR,
-bool modelPar_given_WCDSCDR,
-AdmsSensFadType & modelPar_PCDSCDR,
-bool modelPar_given_PCDSCDR,
-AdmsSensFadType & modelPar_CDSCB,
-bool modelPar_given_CDSCB,
-AdmsSensFadType & modelPar_CDSCBL,
-bool modelPar_given_CDSCBL,
-AdmsSensFadType & modelPar_CDSCBLEXP,
-bool modelPar_given_CDSCBLEXP,
-AdmsSensFadType & modelPar_LCDSCB,
-bool modelPar_given_LCDSCB,
-AdmsSensFadType & modelPar_WCDSCB,
-bool modelPar_given_WCDSCB,
-AdmsSensFadType & modelPar_PCDSCB,
-bool modelPar_given_PCDSCB,
-AdmsSensFadType & modelPar_VSAT,
-bool modelPar_given_VSAT,
-AdmsSensFadType & modelPar_LVSAT,
-bool modelPar_given_LVSAT,
-AdmsSensFadType & modelPar_WVSAT,
-bool modelPar_given_WVSAT,
-AdmsSensFadType & modelPar_PVSAT,
-bool modelPar_given_PVSAT,
-AdmsSensFadType & modelPar_VSATL,
-bool modelPar_given_VSATL,
-AdmsSensFadType & modelPar_VSATLEXP,
-bool modelPar_given_VSATLEXP,
-AdmsSensFadType & modelPar_VSATW,
-bool modelPar_given_VSATW,
-AdmsSensFadType & modelPar_VSATWEXP,
-bool modelPar_given_VSATWEXP,
-AdmsSensFadType & modelPar_VSATWL,
-bool modelPar_given_VSATWL,
-AdmsSensFadType & modelPar_VSATWLEXP,
-bool modelPar_given_VSATWLEXP,
-AdmsSensFadType & modelPar_VSATR,
-bool modelPar_given_VSATR,
-AdmsSensFadType & modelPar_LVSATR,
-bool modelPar_given_LVSATR,
-AdmsSensFadType & modelPar_WVSATR,
-bool modelPar_given_WVSATR,
-AdmsSensFadType & modelPar_PVSATR,
-bool modelPar_given_PVSATR,
-AdmsSensFadType & modelPar_DELTA,
-bool modelPar_given_DELTA,
-AdmsSensFadType & modelPar_LDELTA,
-bool modelPar_given_LDELTA,
-AdmsSensFadType & modelPar_WDELTA,
-bool modelPar_given_WDELTA,
-AdmsSensFadType & modelPar_PDELTA,
-bool modelPar_given_PDELTA,
-AdmsSensFadType & modelPar_DELTAL,
-bool modelPar_given_DELTAL,
-AdmsSensFadType & modelPar_DELTALEXP,
-bool modelPar_given_DELTALEXP,
-AdmsSensFadType & modelPar_VSATCV,
-bool modelPar_given_VSATCV,
-AdmsSensFadType & modelPar_LVSATCV,
-bool modelPar_given_LVSATCV,
-AdmsSensFadType & modelPar_WVSATCV,
-bool modelPar_given_WVSATCV,
-AdmsSensFadType & modelPar_PVSATCV,
-bool modelPar_given_PVSATCV,
-AdmsSensFadType & modelPar_VSATCVL,
-bool modelPar_given_VSATCVL,
-AdmsSensFadType & modelPar_VSATCVLEXP,
-bool modelPar_given_VSATCVLEXP,
-AdmsSensFadType & modelPar_VSATCVW,
-bool modelPar_given_VSATCVW,
-AdmsSensFadType & modelPar_VSATCVWEXP,
-bool modelPar_given_VSATCVWEXP,
-AdmsSensFadType & modelPar_VSATCVWL,
-bool modelPar_given_VSATCVWL,
-AdmsSensFadType & modelPar_VSATCVWLEXP,
-bool modelPar_given_VSATCVWLEXP,
-AdmsSensFadType & modelPar_UP1,
-bool modelPar_given_UP1,
-AdmsSensFadType & modelPar_LP1,
-bool modelPar_given_LP1,
-AdmsSensFadType & modelPar_UP2,
-bool modelPar_given_UP2,
-AdmsSensFadType & modelPar_LP2,
-bool modelPar_given_LP2,
-AdmsSensFadType & modelPar_MULU0,
-bool modelPar_given_MULU0,
-AdmsSensFadType & modelPar_U0,
-bool modelPar_given_U0,
-AdmsSensFadType & modelPar_U0L,
-bool modelPar_given_U0L,
-AdmsSensFadType & modelPar_U0LEXP,
-bool modelPar_given_U0LEXP,
-AdmsSensFadType & modelPar_LU0,
-bool modelPar_given_LU0,
-AdmsSensFadType & modelPar_WU0,
-bool modelPar_given_WU0,
-AdmsSensFadType & modelPar_PU0,
-bool modelPar_given_PU0,
-AdmsSensFadType & modelPar_U0R,
-bool modelPar_given_U0R,
-AdmsSensFadType & modelPar_LU0R,
-bool modelPar_given_LU0R,
-AdmsSensFadType & modelPar_WU0R,
-bool modelPar_given_WU0R,
-AdmsSensFadType & modelPar_PU0R,
-bool modelPar_given_PU0R,
-AdmsSensFadType & modelPar_ETAMOB,
-bool modelPar_given_ETAMOB,
-AdmsSensFadType & modelPar_UA,
-bool modelPar_given_UA,
-AdmsSensFadType & modelPar_UAL,
-bool modelPar_given_UAL,
-AdmsSensFadType & modelPar_UALEXP,
-bool modelPar_given_UALEXP,
-AdmsSensFadType & modelPar_UAW,
-bool modelPar_given_UAW,
-AdmsSensFadType & modelPar_UAWEXP,
-bool modelPar_given_UAWEXP,
-AdmsSensFadType & modelPar_UAWL,
-bool modelPar_given_UAWL,
-AdmsSensFadType & modelPar_UAWLEXP,
-bool modelPar_given_UAWLEXP,
-AdmsSensFadType & modelPar_LUA,
-bool modelPar_given_LUA,
-AdmsSensFadType & modelPar_WUA,
-bool modelPar_given_WUA,
-AdmsSensFadType & modelPar_PUA,
-bool modelPar_given_PUA,
-AdmsSensFadType & modelPar_UAR,
-bool modelPar_given_UAR,
-AdmsSensFadType & modelPar_LUAR,
-bool modelPar_given_LUAR,
-AdmsSensFadType & modelPar_WUAR,
-bool modelPar_given_WUAR,
-AdmsSensFadType & modelPar_PUAR,
-bool modelPar_given_PUAR,
-AdmsSensFadType & modelPar_EU,
-bool modelPar_given_EU,
-AdmsSensFadType & modelPar_LEU,
-bool modelPar_given_LEU,
-AdmsSensFadType & modelPar_WEU,
-bool modelPar_given_WEU,
-AdmsSensFadType & modelPar_PEU,
-bool modelPar_given_PEU,
-AdmsSensFadType & modelPar_EUL,
-bool modelPar_given_EUL,
-AdmsSensFadType & modelPar_EULEXP,
-bool modelPar_given_EULEXP,
-AdmsSensFadType & modelPar_EUW,
-bool modelPar_given_EUW,
-AdmsSensFadType & modelPar_EUWEXP,
-bool modelPar_given_EUWEXP,
-AdmsSensFadType & modelPar_EUWL,
-bool modelPar_given_EUWL,
-AdmsSensFadType & modelPar_EUWLEXP,
-bool modelPar_given_EUWLEXP,
-AdmsSensFadType & modelPar_UD,
-bool modelPar_given_UD,
-AdmsSensFadType & modelPar_UDL,
-bool modelPar_given_UDL,
-AdmsSensFadType & modelPar_UDLEXP,
-bool modelPar_given_UDLEXP,
-AdmsSensFadType & modelPar_LUD,
-bool modelPar_given_LUD,
-AdmsSensFadType & modelPar_WUD,
-bool modelPar_given_WUD,
-AdmsSensFadType & modelPar_PUD,
-bool modelPar_given_PUD,
-AdmsSensFadType & modelPar_UDR,
-bool modelPar_given_UDR,
-AdmsSensFadType & modelPar_LUDR,
-bool modelPar_given_LUDR,
-AdmsSensFadType & modelPar_WUDR,
-bool modelPar_given_WUDR,
-AdmsSensFadType & modelPar_PUDR,
-bool modelPar_given_PUDR,
-AdmsSensFadType & modelPar_UCS,
-bool modelPar_given_UCS,
-AdmsSensFadType & modelPar_LUCS,
-bool modelPar_given_LUCS,
-AdmsSensFadType & modelPar_WUCS,
-bool modelPar_given_WUCS,
-AdmsSensFadType & modelPar_PUCS,
-bool modelPar_given_PUCS,
-AdmsSensFadType & modelPar_UCSR,
-bool modelPar_given_UCSR,
-AdmsSensFadType & modelPar_LUCSR,
-bool modelPar_given_LUCSR,
-AdmsSensFadType & modelPar_WUCSR,
-bool modelPar_given_WUCSR,
-AdmsSensFadType & modelPar_PUCSR,
-bool modelPar_given_PUCSR,
-AdmsSensFadType & modelPar_UC,
-bool modelPar_given_UC,
-AdmsSensFadType & modelPar_UCL,
-bool modelPar_given_UCL,
-AdmsSensFadType & modelPar_UCLEXP,
-bool modelPar_given_UCLEXP,
-AdmsSensFadType & modelPar_UCW,
-bool modelPar_given_UCW,
-AdmsSensFadType & modelPar_UCWEXP,
-bool modelPar_given_UCWEXP,
-AdmsSensFadType & modelPar_UCWL,
-bool modelPar_given_UCWL,
-AdmsSensFadType & modelPar_UCWLEXP,
-bool modelPar_given_UCWLEXP,
-AdmsSensFadType & modelPar_LUC,
-bool modelPar_given_LUC,
-AdmsSensFadType & modelPar_WUC,
-bool modelPar_given_WUC,
-AdmsSensFadType & modelPar_PUC,
-bool modelPar_given_PUC,
-AdmsSensFadType & modelPar_UCR,
-bool modelPar_given_UCR,
-AdmsSensFadType & modelPar_LUCR,
-bool modelPar_given_LUCR,
-AdmsSensFadType & modelPar_WUCR,
-bool modelPar_given_WUCR,
-AdmsSensFadType & modelPar_PUCR,
-bool modelPar_given_PUCR,
-AdmsSensFadType & modelPar_PCLM,
-bool modelPar_given_PCLM,
-AdmsSensFadType & modelPar_PCLML,
-bool modelPar_given_PCLML,
-AdmsSensFadType & modelPar_PCLMLEXP,
-bool modelPar_given_PCLMLEXP,
-AdmsSensFadType & modelPar_LPCLM,
-bool modelPar_given_LPCLM,
-AdmsSensFadType & modelPar_WPCLM,
-bool modelPar_given_WPCLM,
-AdmsSensFadType & modelPar_PPCLM,
-bool modelPar_given_PPCLM,
-AdmsSensFadType & modelPar_PCLMR,
-bool modelPar_given_PCLMR,
-AdmsSensFadType & modelPar_LPCLMR,
-bool modelPar_given_LPCLMR,
-AdmsSensFadType & modelPar_WPCLMR,
-bool modelPar_given_WPCLMR,
-AdmsSensFadType & modelPar_PPCLMR,
-bool modelPar_given_PPCLMR,
-AdmsSensFadType & modelPar_PCLMG,
-bool modelPar_given_PCLMG,
-AdmsSensFadType & modelPar_PCLMCV,
-bool modelPar_given_PCLMCV,
-AdmsSensFadType & modelPar_PCLMCVL,
-bool modelPar_given_PCLMCVL,
-AdmsSensFadType & modelPar_PCLMCVLEXP,
-bool modelPar_given_PCLMCVLEXP,
-AdmsSensFadType & modelPar_LPCLMCV,
-bool modelPar_given_LPCLMCV,
-AdmsSensFadType & modelPar_WPCLMCV,
-bool modelPar_given_WPCLMCV,
-AdmsSensFadType & modelPar_PPCLMCV,
-bool modelPar_given_PPCLMCV,
-AdmsSensFadType & modelPar_PSCBE1,
-bool modelPar_given_PSCBE1,
-AdmsSensFadType & modelPar_LPSCBE1,
-bool modelPar_given_LPSCBE1,
-AdmsSensFadType & modelPar_WPSCBE1,
-bool modelPar_given_WPSCBE1,
-AdmsSensFadType & modelPar_PPSCBE1,
-bool modelPar_given_PPSCBE1,
-AdmsSensFadType & modelPar_PSCBE2,
-bool modelPar_given_PSCBE2,
-AdmsSensFadType & modelPar_LPSCBE2,
-bool modelPar_given_LPSCBE2,
-AdmsSensFadType & modelPar_WPSCBE2,
-bool modelPar_given_WPSCBE2,
-AdmsSensFadType & modelPar_PPSCBE2,
-bool modelPar_given_PPSCBE2,
-AdmsSensFadType & modelPar_PDITS,
-bool modelPar_given_PDITS,
-AdmsSensFadType & modelPar_LPDITS,
-bool modelPar_given_LPDITS,
-AdmsSensFadType & modelPar_WPDITS,
-bool modelPar_given_WPDITS,
-AdmsSensFadType & modelPar_PPDITS,
-bool modelPar_given_PPDITS,
-AdmsSensFadType & modelPar_PDITSL,
-bool modelPar_given_PDITSL,
-AdmsSensFadType & modelPar_PDITSD,
-bool modelPar_given_PDITSD,
-AdmsSensFadType & modelPar_LPDITSD,
-bool modelPar_given_LPDITSD,
-AdmsSensFadType & modelPar_WPDITSD,
-bool modelPar_given_WPDITSD,
-AdmsSensFadType & modelPar_PPDITSD,
-bool modelPar_given_PPDITSD,
-AdmsSensFadType & modelPar_RSH,
-bool modelPar_given_RSH,
-AdmsSensFadType & modelPar_PRWG,
-bool modelPar_given_PRWG,
-AdmsSensFadType & modelPar_LPRWG,
-bool modelPar_given_LPRWG,
-AdmsSensFadType & modelPar_WPRWG,
-bool modelPar_given_WPRWG,
-AdmsSensFadType & modelPar_PPRWG,
-bool modelPar_given_PPRWG,
-AdmsSensFadType & modelPar_PRWB,
-bool modelPar_given_PRWB,
-AdmsSensFadType & modelPar_LPRWB,
-bool modelPar_given_LPRWB,
-AdmsSensFadType & modelPar_WPRWB,
-bool modelPar_given_WPRWB,
-AdmsSensFadType & modelPar_PPRWB,
-bool modelPar_given_PPRWB,
-AdmsSensFadType & modelPar_PRWBL,
-bool modelPar_given_PRWBL,
-AdmsSensFadType & modelPar_PRWBLEXP,
-bool modelPar_given_PRWBLEXP,
-AdmsSensFadType & modelPar_WR,
-bool modelPar_given_WR,
-AdmsSensFadType & modelPar_LWR,
-bool modelPar_given_LWR,
-AdmsSensFadType & modelPar_WWR,
-bool modelPar_given_WWR,
-AdmsSensFadType & modelPar_PWR,
-bool modelPar_given_PWR,
-AdmsSensFadType & modelPar_RSWMIN,
-bool modelPar_given_RSWMIN,
-AdmsSensFadType & modelPar_LRSWMIN,
-bool modelPar_given_LRSWMIN,
-AdmsSensFadType & modelPar_WRSWMIN,
-bool modelPar_given_WRSWMIN,
-AdmsSensFadType & modelPar_PRSWMIN,
-bool modelPar_given_PRSWMIN,
-AdmsSensFadType & modelPar_RSW,
-bool modelPar_given_RSW,
-AdmsSensFadType & modelPar_LRSW,
-bool modelPar_given_LRSW,
-AdmsSensFadType & modelPar_WRSW,
-bool modelPar_given_WRSW,
-AdmsSensFadType & modelPar_PRSW,
-bool modelPar_given_PRSW,
-AdmsSensFadType & modelPar_RSWL,
-bool modelPar_given_RSWL,
-AdmsSensFadType & modelPar_RSWLEXP,
-bool modelPar_given_RSWLEXP,
-AdmsSensFadType & modelPar_RDWMIN,
-bool modelPar_given_RDWMIN,
-AdmsSensFadType & modelPar_LRDWMIN,
-bool modelPar_given_LRDWMIN,
-AdmsSensFadType & modelPar_WRDWMIN,
-bool modelPar_given_WRDWMIN,
-AdmsSensFadType & modelPar_PRDWMIN,
-bool modelPar_given_PRDWMIN,
-AdmsSensFadType & modelPar_RDW,
-bool modelPar_given_RDW,
-AdmsSensFadType & modelPar_LRDW,
-bool modelPar_given_LRDW,
-AdmsSensFadType & modelPar_WRDW,
-bool modelPar_given_WRDW,
-AdmsSensFadType & modelPar_PRDW,
-bool modelPar_given_PRDW,
-AdmsSensFadType & modelPar_RDWL,
-bool modelPar_given_RDWL,
-AdmsSensFadType & modelPar_RDWLEXP,
-bool modelPar_given_RDWLEXP,
-AdmsSensFadType & modelPar_RDSWMIN,
-bool modelPar_given_RDSWMIN,
-AdmsSensFadType & modelPar_LRDSWMIN,
-bool modelPar_given_LRDSWMIN,
-AdmsSensFadType & modelPar_WRDSWMIN,
-bool modelPar_given_WRDSWMIN,
-AdmsSensFadType & modelPar_PRDSWMIN,
-bool modelPar_given_PRDSWMIN,
-AdmsSensFadType & modelPar_RDSW,
-bool modelPar_given_RDSW,
-AdmsSensFadType & modelPar_RDSWL,
-bool modelPar_given_RDSWL,
-AdmsSensFadType & modelPar_RDSWLEXP,
-bool modelPar_given_RDSWLEXP,
-AdmsSensFadType & modelPar_LRDSW,
-bool modelPar_given_LRDSW,
-AdmsSensFadType & modelPar_WRDSW,
-bool modelPar_given_WRDSW,
-AdmsSensFadType & modelPar_PRDSW,
-bool modelPar_given_PRDSW,
-AdmsSensFadType & modelPar_PSAT,
-bool modelPar_given_PSAT,
-AdmsSensFadType & modelPar_LPSAT,
-bool modelPar_given_LPSAT,
-AdmsSensFadType & modelPar_WPSAT,
-bool modelPar_given_WPSAT,
-AdmsSensFadType & modelPar_PPSAT,
-bool modelPar_given_PPSAT,
-AdmsSensFadType & modelPar_PSATL,
-bool modelPar_given_PSATL,
-AdmsSensFadType & modelPar_PSATLEXP,
-bool modelPar_given_PSATLEXP,
-AdmsSensFadType & modelPar_PSATB,
-bool modelPar_given_PSATB,
-AdmsSensFadType & modelPar_PSATR,
-bool modelPar_given_PSATR,
-AdmsSensFadType & modelPar_LPSATR,
-bool modelPar_given_LPSATR,
-AdmsSensFadType & modelPar_WPSATR,
-bool modelPar_given_WPSATR,
-AdmsSensFadType & modelPar_PPSATR,
-bool modelPar_given_PPSATR,
-AdmsSensFadType & modelPar_LPSATB,
-bool modelPar_given_LPSATB,
-AdmsSensFadType & modelPar_WPSATB,
-bool modelPar_given_WPSATB,
-AdmsSensFadType & modelPar_PPSATB,
-bool modelPar_given_PPSATB,
-AdmsSensFadType & modelPar_PSATX,
-bool modelPar_given_PSATX,
-AdmsSensFadType & modelPar_PTWG,
-bool modelPar_given_PTWG,
-AdmsSensFadType & modelPar_LPTWG,
-bool modelPar_given_LPTWG,
-AdmsSensFadType & modelPar_WPTWG,
-bool modelPar_given_WPTWG,
-AdmsSensFadType & modelPar_PPTWG,
-bool modelPar_given_PPTWG,
-AdmsSensFadType & modelPar_PTWGL,
-bool modelPar_given_PTWGL,
-AdmsSensFadType & modelPar_PTWGLEXP,
-bool modelPar_given_PTWGLEXP,
-AdmsSensFadType & modelPar_PTWGR,
-bool modelPar_given_PTWGR,
-AdmsSensFadType & modelPar_LPTWGR,
-bool modelPar_given_LPTWGR,
-AdmsSensFadType & modelPar_WPTWGR,
-bool modelPar_given_WPTWGR,
-AdmsSensFadType & modelPar_PPTWGR,
-bool modelPar_given_PPTWGR,
-AdmsSensFadType & modelPar_PTWGLR,
-bool modelPar_given_PTWGLR,
-AdmsSensFadType & modelPar_PTWGLEXPR,
-bool modelPar_given_PTWGLEXPR,
-AdmsSensFadType & modelPar_A1,
-bool modelPar_given_A1,
-AdmsSensFadType & modelPar_LA1,
-bool modelPar_given_LA1,
-AdmsSensFadType & modelPar_WA1,
-bool modelPar_given_WA1,
-AdmsSensFadType & modelPar_PA1,
-bool modelPar_given_PA1,
-AdmsSensFadType & modelPar_A11,
-bool modelPar_given_A11,
-AdmsSensFadType & modelPar_LA11,
-bool modelPar_given_LA11,
-AdmsSensFadType & modelPar_WA11,
-bool modelPar_given_WA11,
-AdmsSensFadType & modelPar_PA11,
-bool modelPar_given_PA11,
-AdmsSensFadType & modelPar_A2,
-bool modelPar_given_A2,
-AdmsSensFadType & modelPar_LA2,
-bool modelPar_given_LA2,
-AdmsSensFadType & modelPar_WA2,
-bool modelPar_given_WA2,
-AdmsSensFadType & modelPar_PA2,
-bool modelPar_given_PA2,
-AdmsSensFadType & modelPar_A21,
-bool modelPar_given_A21,
-AdmsSensFadType & modelPar_LA21,
-bool modelPar_given_LA21,
-AdmsSensFadType & modelPar_WA21,
-bool modelPar_given_WA21,
-AdmsSensFadType & modelPar_PA21,
-bool modelPar_given_PA21,
-AdmsSensFadType & modelPar_PDIBLC,
-bool modelPar_given_PDIBLC,
-AdmsSensFadType & modelPar_PDIBLCL,
-bool modelPar_given_PDIBLCL,
-AdmsSensFadType & modelPar_PDIBLCLEXP,
-bool modelPar_given_PDIBLCLEXP,
-AdmsSensFadType & modelPar_LPDIBLC,
-bool modelPar_given_LPDIBLC,
-AdmsSensFadType & modelPar_WPDIBLC,
-bool modelPar_given_WPDIBLC,
-AdmsSensFadType & modelPar_PPDIBLC,
-bool modelPar_given_PPDIBLC,
-AdmsSensFadType & modelPar_PDIBLCR,
-bool modelPar_given_PDIBLCR,
-AdmsSensFadType & modelPar_PDIBLCLR,
-bool modelPar_given_PDIBLCLR,
-AdmsSensFadType & modelPar_PDIBLCLEXPR,
-bool modelPar_given_PDIBLCLEXPR,
-AdmsSensFadType & modelPar_LPDIBLCR,
-bool modelPar_given_LPDIBLCR,
-AdmsSensFadType & modelPar_WPDIBLCR,
-bool modelPar_given_WPDIBLCR,
-AdmsSensFadType & modelPar_PPDIBLCR,
-bool modelPar_given_PPDIBLCR,
-AdmsSensFadType & modelPar_PDIBLCB,
-bool modelPar_given_PDIBLCB,
-AdmsSensFadType & modelPar_LPDIBLCB,
-bool modelPar_given_LPDIBLCB,
-AdmsSensFadType & modelPar_WPDIBLCB,
-bool modelPar_given_WPDIBLCB,
-AdmsSensFadType & modelPar_PPDIBLCB,
-bool modelPar_given_PPDIBLCB,
-AdmsSensFadType & modelPar_PVAG,
-bool modelPar_given_PVAG,
-AdmsSensFadType & modelPar_LPVAG,
-bool modelPar_given_LPVAG,
-AdmsSensFadType & modelPar_WPVAG,
-bool modelPar_given_WPVAG,
-AdmsSensFadType & modelPar_PPVAG,
-bool modelPar_given_PPVAG,
-AdmsSensFadType & modelPar_FPROUT,
-bool modelPar_given_FPROUT,
-AdmsSensFadType & modelPar_FPROUTL,
-bool modelPar_given_FPROUTL,
-AdmsSensFadType & modelPar_FPROUTLEXP,
-bool modelPar_given_FPROUTLEXP,
-AdmsSensFadType & modelPar_LFPROUT,
-bool modelPar_given_LFPROUT,
-AdmsSensFadType & modelPar_WFPROUT,
-bool modelPar_given_WFPROUT,
-AdmsSensFadType & modelPar_PFPROUT,
-bool modelPar_given_PFPROUT,
-AdmsSensFadType & modelPar_ALPHA0,
-bool modelPar_given_ALPHA0,
-AdmsSensFadType & modelPar_ALPHA0L,
-bool modelPar_given_ALPHA0L,
-AdmsSensFadType & modelPar_ALPHA0LEXP,
-bool modelPar_given_ALPHA0LEXP,
-AdmsSensFadType & modelPar_LALPHA0,
-bool modelPar_given_LALPHA0,
-AdmsSensFadType & modelPar_WALPHA0,
-bool modelPar_given_WALPHA0,
-AdmsSensFadType & modelPar_PALPHA0,
-bool modelPar_given_PALPHA0,
-AdmsSensFadType & modelPar_BETA0,
-bool modelPar_given_BETA0,
-AdmsSensFadType & modelPar_LBETA0,
-bool modelPar_given_LBETA0,
-AdmsSensFadType & modelPar_WBETA0,
-bool modelPar_given_WBETA0,
-AdmsSensFadType & modelPar_PBETA0,
-bool modelPar_given_PBETA0,
-AdmsSensFadType & modelPar_AIGBACC,
-bool modelPar_given_AIGBACC,
-AdmsSensFadType & modelPar_BIGBACC,
-bool modelPar_given_BIGBACC,
-AdmsSensFadType & modelPar_CIGBACC,
-bool modelPar_given_CIGBACC,
-AdmsSensFadType & modelPar_NIGBACC,
-bool modelPar_given_NIGBACC,
-AdmsSensFadType & modelPar_AIGBINV,
-bool modelPar_given_AIGBINV,
-AdmsSensFadType & modelPar_BIGBINV,
-bool modelPar_given_BIGBINV,
-AdmsSensFadType & modelPar_CIGBINV,
-bool modelPar_given_CIGBINV,
-AdmsSensFadType & modelPar_EIGBINV,
-bool modelPar_given_EIGBINV,
-AdmsSensFadType & modelPar_NIGBINV,
-bool modelPar_given_NIGBINV,
-AdmsSensFadType & modelPar_AIGC,
-bool modelPar_given_AIGC,
-AdmsSensFadType & modelPar_BIGC,
-bool modelPar_given_BIGC,
-AdmsSensFadType & modelPar_CIGC,
-bool modelPar_given_CIGC,
-AdmsSensFadType & modelPar_AIGS,
-bool modelPar_given_AIGS,
-AdmsSensFadType & modelPar_BIGS,
-bool modelPar_given_BIGS,
-AdmsSensFadType & modelPar_CIGS,
-bool modelPar_given_CIGS,
-AdmsSensFadType & modelPar_AIGD,
-bool modelPar_given_AIGD,
-AdmsSensFadType & modelPar_BIGD,
-bool modelPar_given_BIGD,
-AdmsSensFadType & modelPar_CIGD,
-bool modelPar_given_CIGD,
-AdmsSensFadType & modelPar_DLCIG,
-bool modelPar_given_DLCIG,
-AdmsSensFadType & modelPar_DLCIGD,
-bool modelPar_given_DLCIGD,
-AdmsSensFadType & modelPar_POXEDGE,
-bool modelPar_given_POXEDGE,
-AdmsSensFadType & modelPar_NTOX,
-bool modelPar_given_NTOX,
-AdmsSensFadType & modelPar_TOXREF,
-bool modelPar_given_TOXREF,
-AdmsSensFadType & modelPar_PIGCD,
-bool modelPar_given_PIGCD,
-AdmsSensFadType & modelPar_AIGCL,
-bool modelPar_given_AIGCL,
-AdmsSensFadType & modelPar_AIGCW,
-bool modelPar_given_AIGCW,
-AdmsSensFadType & modelPar_AIGSL,
-bool modelPar_given_AIGSL,
-AdmsSensFadType & modelPar_AIGSW,
-bool modelPar_given_AIGSW,
-AdmsSensFadType & modelPar_AIGDL,
-bool modelPar_given_AIGDL,
-AdmsSensFadType & modelPar_AIGDW,
-bool modelPar_given_AIGDW,
-AdmsSensFadType & modelPar_PIGCDL,
-bool modelPar_given_PIGCDL,
-AdmsSensFadType & modelPar_LAIGBINV,
-bool modelPar_given_LAIGBINV,
-AdmsSensFadType & modelPar_WAIGBINV,
-bool modelPar_given_WAIGBINV,
-AdmsSensFadType & modelPar_PAIGBINV,
-bool modelPar_given_PAIGBINV,
-AdmsSensFadType & modelPar_LBIGBINV,
-bool modelPar_given_LBIGBINV,
-AdmsSensFadType & modelPar_WBIGBINV,
-bool modelPar_given_WBIGBINV,
-AdmsSensFadType & modelPar_PBIGBINV,
-bool modelPar_given_PBIGBINV,
-AdmsSensFadType & modelPar_LCIGBINV,
-bool modelPar_given_LCIGBINV,
-AdmsSensFadType & modelPar_WCIGBINV,
-bool modelPar_given_WCIGBINV,
-AdmsSensFadType & modelPar_PCIGBINV,
-bool modelPar_given_PCIGBINV,
-AdmsSensFadType & modelPar_LEIGBINV,
-bool modelPar_given_LEIGBINV,
-AdmsSensFadType & modelPar_WEIGBINV,
-bool modelPar_given_WEIGBINV,
-AdmsSensFadType & modelPar_PEIGBINV,
-bool modelPar_given_PEIGBINV,
-AdmsSensFadType & modelPar_LNIGBINV,
-bool modelPar_given_LNIGBINV,
-AdmsSensFadType & modelPar_WNIGBINV,
-bool modelPar_given_WNIGBINV,
-AdmsSensFadType & modelPar_PNIGBINV,
-bool modelPar_given_PNIGBINV,
-AdmsSensFadType & modelPar_LAIGBACC,
-bool modelPar_given_LAIGBACC,
-AdmsSensFadType & modelPar_WAIGBACC,
-bool modelPar_given_WAIGBACC,
-AdmsSensFadType & modelPar_PAIGBACC,
-bool modelPar_given_PAIGBACC,
-AdmsSensFadType & modelPar_LBIGBACC,
-bool modelPar_given_LBIGBACC,
-AdmsSensFadType & modelPar_WBIGBACC,
-bool modelPar_given_WBIGBACC,
-AdmsSensFadType & modelPar_PBIGBACC,
-bool modelPar_given_PBIGBACC,
-AdmsSensFadType & modelPar_LCIGBACC,
-bool modelPar_given_LCIGBACC,
-AdmsSensFadType & modelPar_WCIGBACC,
-bool modelPar_given_WCIGBACC,
-AdmsSensFadType & modelPar_PCIGBACC,
-bool modelPar_given_PCIGBACC,
-AdmsSensFadType & modelPar_LNIGBACC,
-bool modelPar_given_LNIGBACC,
-AdmsSensFadType & modelPar_WNIGBACC,
-bool modelPar_given_WNIGBACC,
-AdmsSensFadType & modelPar_PNIGBACC,
-bool modelPar_given_PNIGBACC,
-AdmsSensFadType & modelPar_LAIGC,
-bool modelPar_given_LAIGC,
-AdmsSensFadType & modelPar_WAIGC,
-bool modelPar_given_WAIGC,
-AdmsSensFadType & modelPar_PAIGC,
-bool modelPar_given_PAIGC,
-AdmsSensFadType & modelPar_LBIGC,
-bool modelPar_given_LBIGC,
-AdmsSensFadType & modelPar_WBIGC,
-bool modelPar_given_WBIGC,
-AdmsSensFadType & modelPar_PBIGC,
-bool modelPar_given_PBIGC,
-AdmsSensFadType & modelPar_LCIGC,
-bool modelPar_given_LCIGC,
-AdmsSensFadType & modelPar_WCIGC,
-bool modelPar_given_WCIGC,
-AdmsSensFadType & modelPar_PCIGC,
-bool modelPar_given_PCIGC,
-AdmsSensFadType & modelPar_LAIGS,
-bool modelPar_given_LAIGS,
-AdmsSensFadType & modelPar_WAIGS,
-bool modelPar_given_WAIGS,
-AdmsSensFadType & modelPar_PAIGS,
-bool modelPar_given_PAIGS,
-AdmsSensFadType & modelPar_LBIGS,
-bool modelPar_given_LBIGS,
-AdmsSensFadType & modelPar_WBIGS,
-bool modelPar_given_WBIGS,
-AdmsSensFadType & modelPar_PBIGS,
-bool modelPar_given_PBIGS,
-AdmsSensFadType & modelPar_LCIGS,
-bool modelPar_given_LCIGS,
-AdmsSensFadType & modelPar_WCIGS,
-bool modelPar_given_WCIGS,
-AdmsSensFadType & modelPar_PCIGS,
-bool modelPar_given_PCIGS,
-AdmsSensFadType & modelPar_LAIGD,
-bool modelPar_given_LAIGD,
-AdmsSensFadType & modelPar_WAIGD,
-bool modelPar_given_WAIGD,
-AdmsSensFadType & modelPar_PAIGD,
-bool modelPar_given_PAIGD,
-AdmsSensFadType & modelPar_LBIGD,
-bool modelPar_given_LBIGD,
-AdmsSensFadType & modelPar_WBIGD,
-bool modelPar_given_WBIGD,
-AdmsSensFadType & modelPar_PBIGD,
-bool modelPar_given_PBIGD,
-AdmsSensFadType & modelPar_LCIGD,
-bool modelPar_given_LCIGD,
-AdmsSensFadType & modelPar_WCIGD,
-bool modelPar_given_WCIGD,
-AdmsSensFadType & modelPar_PCIGD,
-bool modelPar_given_PCIGD,
-AdmsSensFadType & modelPar_LPOXEDGE,
-bool modelPar_given_LPOXEDGE,
-AdmsSensFadType & modelPar_WPOXEDGE,
-bool modelPar_given_WPOXEDGE,
-AdmsSensFadType & modelPar_PPOXEDGE,
-bool modelPar_given_PPOXEDGE,
-AdmsSensFadType & modelPar_LDLCIG,
-bool modelPar_given_LDLCIG,
-AdmsSensFadType & modelPar_WDLCIG,
-bool modelPar_given_WDLCIG,
-AdmsSensFadType & modelPar_PDLCIG,
-bool modelPar_given_PDLCIG,
-AdmsSensFadType & modelPar_LDLCIGD,
-bool modelPar_given_LDLCIGD,
-AdmsSensFadType & modelPar_WDLCIGD,
-bool modelPar_given_WDLCIGD,
-AdmsSensFadType & modelPar_PDLCIGD,
-bool modelPar_given_PDLCIGD,
-AdmsSensFadType & modelPar_LNTOX,
-bool modelPar_given_LNTOX,
-AdmsSensFadType & modelPar_WNTOX,
-bool modelPar_given_WNTOX,
-AdmsSensFadType & modelPar_PNTOX,
-bool modelPar_given_PNTOX,
-AdmsSensFadType & modelPar_AGIDL,
-bool modelPar_given_AGIDL,
-AdmsSensFadType & modelPar_AGIDLL,
-bool modelPar_given_AGIDLL,
-AdmsSensFadType & modelPar_AGIDLW,
-bool modelPar_given_AGIDLW,
-AdmsSensFadType & modelPar_LAGIDL,
-bool modelPar_given_LAGIDL,
-AdmsSensFadType & modelPar_WAGIDL,
-bool modelPar_given_WAGIDL,
-AdmsSensFadType & modelPar_PAGIDL,
-bool modelPar_given_PAGIDL,
-AdmsSensFadType & modelPar_BGIDL,
-bool modelPar_given_BGIDL,
-AdmsSensFadType & modelPar_LBGIDL,
-bool modelPar_given_LBGIDL,
-AdmsSensFadType & modelPar_WBGIDL,
-bool modelPar_given_WBGIDL,
-AdmsSensFadType & modelPar_PBGIDL,
-bool modelPar_given_PBGIDL,
-AdmsSensFadType & modelPar_CGIDL,
-bool modelPar_given_CGIDL,
-AdmsSensFadType & modelPar_LCGIDL,
-bool modelPar_given_LCGIDL,
-AdmsSensFadType & modelPar_WCGIDL,
-bool modelPar_given_WCGIDL,
-AdmsSensFadType & modelPar_PCGIDL,
-bool modelPar_given_PCGIDL,
-AdmsSensFadType & modelPar_EGIDL,
-bool modelPar_given_EGIDL,
-AdmsSensFadType & modelPar_LEGIDL,
-bool modelPar_given_LEGIDL,
-AdmsSensFadType & modelPar_WEGIDL,
-bool modelPar_given_WEGIDL,
-AdmsSensFadType & modelPar_PEGIDL,
-bool modelPar_given_PEGIDL,
-AdmsSensFadType & modelPar_AGISL,
-bool modelPar_given_AGISL,
-AdmsSensFadType & modelPar_AGISLL,
-bool modelPar_given_AGISLL,
-AdmsSensFadType & modelPar_AGISLW,
-bool modelPar_given_AGISLW,
-AdmsSensFadType & modelPar_LAGISL,
-bool modelPar_given_LAGISL,
-AdmsSensFadType & modelPar_WAGISL,
-bool modelPar_given_WAGISL,
-AdmsSensFadType & modelPar_PAGISL,
-bool modelPar_given_PAGISL,
-AdmsSensFadType & modelPar_BGISL,
-bool modelPar_given_BGISL,
-AdmsSensFadType & modelPar_LBGISL,
-bool modelPar_given_LBGISL,
-AdmsSensFadType & modelPar_WBGISL,
-bool modelPar_given_WBGISL,
-AdmsSensFadType & modelPar_PBGISL,
-bool modelPar_given_PBGISL,
-AdmsSensFadType & modelPar_CGISL,
-bool modelPar_given_CGISL,
-AdmsSensFadType & modelPar_LCGISL,
-bool modelPar_given_LCGISL,
-AdmsSensFadType & modelPar_WCGISL,
-bool modelPar_given_WCGISL,
-AdmsSensFadType & modelPar_PCGISL,
-bool modelPar_given_PCGISL,
-AdmsSensFadType & modelPar_EGISL,
-bool modelPar_given_EGISL,
-AdmsSensFadType & modelPar_LEGISL,
-bool modelPar_given_LEGISL,
-AdmsSensFadType & modelPar_WEGISL,
-bool modelPar_given_WEGISL,
-AdmsSensFadType & modelPar_PEGISL,
-bool modelPar_given_PEGISL,
-AdmsSensFadType & modelPar_CF,
-bool modelPar_given_CF,
-AdmsSensFadType & modelPar_LCF,
-bool modelPar_given_LCF,
-AdmsSensFadType & modelPar_WCF,
-bool modelPar_given_WCF,
-AdmsSensFadType & modelPar_PCF,
-bool modelPar_given_PCF,
-AdmsSensFadType & modelPar_CFRCOEFF,
-bool modelPar_given_CFRCOEFF,
-AdmsSensFadType & modelPar_CGSO,
-bool modelPar_given_CGSO,
-AdmsSensFadType & modelPar_CGDO,
-bool modelPar_given_CGDO,
-AdmsSensFadType & modelPar_CGBO,
-bool modelPar_given_CGBO,
-AdmsSensFadType & modelPar_CGSL,
-bool modelPar_given_CGSL,
-AdmsSensFadType & modelPar_LCGSL,
-bool modelPar_given_LCGSL,
-AdmsSensFadType & modelPar_WCGSL,
-bool modelPar_given_WCGSL,
-AdmsSensFadType & modelPar_PCGSL,
-bool modelPar_given_PCGSL,
-AdmsSensFadType & modelPar_CGDL,
-bool modelPar_given_CGDL,
-AdmsSensFadType & modelPar_LCGDL,
-bool modelPar_given_LCGDL,
-AdmsSensFadType & modelPar_WCGDL,
-bool modelPar_given_WCGDL,
-AdmsSensFadType & modelPar_PCGDL,
-bool modelPar_given_PCGDL,
-AdmsSensFadType & modelPar_CKAPPAS,
-bool modelPar_given_CKAPPAS,
-AdmsSensFadType & modelPar_LCKAPPAS,
-bool modelPar_given_LCKAPPAS,
-AdmsSensFadType & modelPar_WCKAPPAS,
-bool modelPar_given_WCKAPPAS,
-AdmsSensFadType & modelPar_PCKAPPAS,
-bool modelPar_given_PCKAPPAS,
-AdmsSensFadType & modelPar_CKAPPAD,
-bool modelPar_given_CKAPPAD,
-AdmsSensFadType & modelPar_LCKAPPAD,
-bool modelPar_given_LCKAPPAD,
-AdmsSensFadType & modelPar_WCKAPPAD,
-bool modelPar_given_WCKAPPAD,
-AdmsSensFadType & modelPar_PCKAPPAD,
-bool modelPar_given_PCKAPPAD,
-AdmsSensFadType & modelPar_DMCG,
-bool modelPar_given_DMCG,
-AdmsSensFadType & modelPar_DMCI,
-bool modelPar_given_DMCI,
-AdmsSensFadType & modelPar_DMDG,
-bool modelPar_given_DMDG,
-AdmsSensFadType & modelPar_DMCGT,
-bool modelPar_given_DMCGT,
-AdmsSensFadType & modelPar_XGL,
-bool modelPar_given_XGL,
-AdmsSensFadType & modelPar_RSHG,
-bool modelPar_given_RSHG,
-AdmsSensFadType & modelPar_CJS,
-bool modelPar_given_CJS,
-AdmsSensFadType & modelPar_CJD,
-bool modelPar_given_CJD,
-AdmsSensFadType & modelPar_CJSWS,
-bool modelPar_given_CJSWS,
-AdmsSensFadType & modelPar_CJSWD,
-bool modelPar_given_CJSWD,
-AdmsSensFadType & modelPar_CJSWGS,
-bool modelPar_given_CJSWGS,
-AdmsSensFadType & modelPar_CJSWGD,
-bool modelPar_given_CJSWGD,
-AdmsSensFadType & modelPar_PBS,
-bool modelPar_given_PBS,
-AdmsSensFadType & modelPar_PBD,
-bool modelPar_given_PBD,
-AdmsSensFadType & modelPar_PBSWS,
-bool modelPar_given_PBSWS,
-AdmsSensFadType & modelPar_PBSWD,
-bool modelPar_given_PBSWD,
-AdmsSensFadType & modelPar_PBSWGS,
-bool modelPar_given_PBSWGS,
-AdmsSensFadType & modelPar_PBSWGD,
-bool modelPar_given_PBSWGD,
-AdmsSensFadType & modelPar_MJS,
-bool modelPar_given_MJS,
-AdmsSensFadType & modelPar_MJD,
-bool modelPar_given_MJD,
-AdmsSensFadType & modelPar_MJSWS,
-bool modelPar_given_MJSWS,
-AdmsSensFadType & modelPar_MJSWD,
-bool modelPar_given_MJSWD,
-AdmsSensFadType & modelPar_MJSWGS,
-bool modelPar_given_MJSWGS,
-AdmsSensFadType & modelPar_MJSWGD,
-bool modelPar_given_MJSWGD,
-AdmsSensFadType & modelPar_JSS,
-bool modelPar_given_JSS,
-AdmsSensFadType & modelPar_JSD,
-bool modelPar_given_JSD,
-AdmsSensFadType & modelPar_JSWS,
-bool modelPar_given_JSWS,
-AdmsSensFadType & modelPar_JSWD,
-bool modelPar_given_JSWD,
-AdmsSensFadType & modelPar_JSWGS,
-bool modelPar_given_JSWGS,
-AdmsSensFadType & modelPar_JSWGD,
-bool modelPar_given_JSWGD,
-AdmsSensFadType & modelPar_NJS,
-bool modelPar_given_NJS,
-AdmsSensFadType & modelPar_NJD,
-bool modelPar_given_NJD,
-AdmsSensFadType & modelPar_IJTHSFWD,
-bool modelPar_given_IJTHSFWD,
-AdmsSensFadType & modelPar_IJTHDFWD,
-bool modelPar_given_IJTHDFWD,
-AdmsSensFadType & modelPar_IJTHSREV,
-bool modelPar_given_IJTHSREV,
-AdmsSensFadType & modelPar_IJTHDREV,
-bool modelPar_given_IJTHDREV,
-AdmsSensFadType & modelPar_BVS,
-bool modelPar_given_BVS,
-AdmsSensFadType & modelPar_BVD,
-bool modelPar_given_BVD,
-AdmsSensFadType & modelPar_XJBVS,
-bool modelPar_given_XJBVS,
-AdmsSensFadType & modelPar_XJBVD,
-bool modelPar_given_XJBVD,
-AdmsSensFadType & modelPar_JTSS,
-bool modelPar_given_JTSS,
-AdmsSensFadType & modelPar_JTSD,
-bool modelPar_given_JTSD,
-AdmsSensFadType & modelPar_JTSSWS,
-bool modelPar_given_JTSSWS,
-AdmsSensFadType & modelPar_JTSSWD,
-bool modelPar_given_JTSSWD,
-AdmsSensFadType & modelPar_JTSSWGS,
-bool modelPar_given_JTSSWGS,
-AdmsSensFadType & modelPar_JTSSWGD,
-bool modelPar_given_JTSSWGD,
-AdmsSensFadType & modelPar_JTWEFF,
-bool modelPar_given_JTWEFF,
-AdmsSensFadType & modelPar_NJTS,
-bool modelPar_given_NJTS,
-AdmsSensFadType & modelPar_NJTSD,
-bool modelPar_given_NJTSD,
-AdmsSensFadType & modelPar_NJTSSW,
-bool modelPar_given_NJTSSW,
-AdmsSensFadType & modelPar_NJTSSWD,
-bool modelPar_given_NJTSSWD,
-AdmsSensFadType & modelPar_NJTSSWG,
-bool modelPar_given_NJTSSWG,
-AdmsSensFadType & modelPar_NJTSSWGD,
-bool modelPar_given_NJTSSWGD,
-AdmsSensFadType & modelPar_VTSS,
-bool modelPar_given_VTSS,
-AdmsSensFadType & modelPar_VTSD,
-bool modelPar_given_VTSD,
-AdmsSensFadType & modelPar_VTSSWS,
-bool modelPar_given_VTSSWS,
-AdmsSensFadType & modelPar_VTSSWD,
-bool modelPar_given_VTSSWD,
-AdmsSensFadType & modelPar_VTSSWGS,
-bool modelPar_given_VTSSWGS,
-AdmsSensFadType & modelPar_VTSSWGD,
-bool modelPar_given_VTSSWGD,
-AdmsSensFadType & modelPar_XRCRG1,
-bool modelPar_given_XRCRG1,
-AdmsSensFadType & modelPar_XRCRG2,
-bool modelPar_given_XRCRG2,
-AdmsSensFadType & modelPar_GBMIN,
-bool modelPar_given_GBMIN,
-AdmsSensFadType & modelPar_RBPS0,
-bool modelPar_given_RBPS0,
-AdmsSensFadType & modelPar_RBPSL,
-bool modelPar_given_RBPSL,
-AdmsSensFadType & modelPar_RBPSW,
-bool modelPar_given_RBPSW,
-AdmsSensFadType & modelPar_RBPSNF,
-bool modelPar_given_RBPSNF,
-AdmsSensFadType & modelPar_RBPD0,
-bool modelPar_given_RBPD0,
-AdmsSensFadType & modelPar_RBPDL,
-bool modelPar_given_RBPDL,
-AdmsSensFadType & modelPar_RBPDW,
-bool modelPar_given_RBPDW,
-AdmsSensFadType & modelPar_RBPDNF,
-bool modelPar_given_RBPDNF,
-AdmsSensFadType & modelPar_RBPBX0,
-bool modelPar_given_RBPBX0,
-AdmsSensFadType & modelPar_RBPBXL,
-bool modelPar_given_RBPBXL,
-AdmsSensFadType & modelPar_RBPBXW,
-bool modelPar_given_RBPBXW,
-AdmsSensFadType & modelPar_RBPBXNF,
-bool modelPar_given_RBPBXNF,
-AdmsSensFadType & modelPar_RBPBY0,
-bool modelPar_given_RBPBY0,
-AdmsSensFadType & modelPar_RBPBYL,
-bool modelPar_given_RBPBYL,
-AdmsSensFadType & modelPar_RBPBYW,
-bool modelPar_given_RBPBYW,
-AdmsSensFadType & modelPar_RBPBYNF,
-bool modelPar_given_RBPBYNF,
-AdmsSensFadType & modelPar_RBSBX0,
-bool modelPar_given_RBSBX0,
-AdmsSensFadType & modelPar_RBSBY0,
-bool modelPar_given_RBSBY0,
-AdmsSensFadType & modelPar_RBDBX0,
-bool modelPar_given_RBDBX0,
-AdmsSensFadType & modelPar_RBDBY0,
-bool modelPar_given_RBDBY0,
-AdmsSensFadType & modelPar_RBSDBXL,
-bool modelPar_given_RBSDBXL,
-AdmsSensFadType & modelPar_RBSDBXW,
-bool modelPar_given_RBSDBXW,
-AdmsSensFadType & modelPar_RBSDBXNF,
-bool modelPar_given_RBSDBXNF,
-AdmsSensFadType & modelPar_RBSDBYL,
-bool modelPar_given_RBSDBYL,
-AdmsSensFadType & modelPar_RBSDBYW,
-bool modelPar_given_RBSDBYW,
-AdmsSensFadType & modelPar_RBSDBYNF,
-bool modelPar_given_RBSDBYNF,
-AdmsSensFadType & modelPar_EF,
-bool modelPar_given_EF,
-AdmsSensFadType & modelPar_EM,
-bool modelPar_given_EM,
-AdmsSensFadType & modelPar_NOIA,
-bool modelPar_given_NOIA,
-AdmsSensFadType & modelPar_NOIB,
-bool modelPar_given_NOIB,
-AdmsSensFadType & modelPar_NOIC,
-bool modelPar_given_NOIC,
-AdmsSensFadType & modelPar_LINTNOI,
-bool modelPar_given_LINTNOI,
-AdmsSensFadType & modelPar_NTNOI,
-bool modelPar_given_NTNOI,
-AdmsSensFadType & modelPar_RNOIA,
-bool modelPar_given_RNOIA,
-AdmsSensFadType & modelPar_RNOIB,
-bool modelPar_given_RNOIB,
-AdmsSensFadType & modelPar_RNOIC,
-bool modelPar_given_RNOIC,
-AdmsSensFadType & modelPar_TNOIA,
-bool modelPar_given_TNOIA,
-AdmsSensFadType & modelPar_TNOIB,
-bool modelPar_given_TNOIB,
-AdmsSensFadType & modelPar_TNOIC,
-bool modelPar_given_TNOIC,
-AdmsSensFadType & modelPar_DLBIN,
-bool modelPar_given_DLBIN,
-AdmsSensFadType & modelPar_DWBIN,
-bool modelPar_given_DWBIN,
-AdmsSensFadType & modelPar_TNOM,
-bool modelPar_given_TNOM,
-AdmsSensFadType & modelPar_DTEMP,
-bool modelPar_given_DTEMP,
-AdmsSensFadType & modelPar_TBGASUB,
-bool modelPar_given_TBGASUB,
-AdmsSensFadType & modelPar_TBGBSUB,
-bool modelPar_given_TBGBSUB,
-AdmsSensFadType & modelPar_TNFACTOR,
-bool modelPar_given_TNFACTOR,
-AdmsSensFadType & modelPar_UTE,
-bool modelPar_given_UTE,
-AdmsSensFadType & modelPar_LUTE,
-bool modelPar_given_LUTE,
-AdmsSensFadType & modelPar_WUTE,
-bool modelPar_given_WUTE,
-AdmsSensFadType & modelPar_PUTE,
-bool modelPar_given_PUTE,
-AdmsSensFadType & modelPar_UTEL,
-bool modelPar_given_UTEL,
-AdmsSensFadType & modelPar_UA1,
-bool modelPar_given_UA1,
-AdmsSensFadType & modelPar_LUA1,
-bool modelPar_given_LUA1,
-AdmsSensFadType & modelPar_WUA1,
-bool modelPar_given_WUA1,
-AdmsSensFadType & modelPar_PUA1,
-bool modelPar_given_PUA1,
-AdmsSensFadType & modelPar_UA1L,
-bool modelPar_given_UA1L,
-AdmsSensFadType & modelPar_UC1,
-bool modelPar_given_UC1,
-AdmsSensFadType & modelPar_LUC1,
-bool modelPar_given_LUC1,
-AdmsSensFadType & modelPar_WUC1,
-bool modelPar_given_WUC1,
-AdmsSensFadType & modelPar_PUC1,
-bool modelPar_given_PUC1,
-AdmsSensFadType & modelPar_UD1,
-bool modelPar_given_UD1,
-AdmsSensFadType & modelPar_LUD1,
-bool modelPar_given_LUD1,
-AdmsSensFadType & modelPar_WUD1,
-bool modelPar_given_WUD1,
-AdmsSensFadType & modelPar_PUD1,
-bool modelPar_given_PUD1,
-AdmsSensFadType & modelPar_UD1L,
-bool modelPar_given_UD1L,
-AdmsSensFadType & modelPar_UCSTE,
-bool modelPar_given_UCSTE,
-AdmsSensFadType & modelPar_LUCSTE,
-bool modelPar_given_LUCSTE,
-AdmsSensFadType & modelPar_WUCSTE,
-bool modelPar_given_WUCSTE,
-AdmsSensFadType & modelPar_PUCSTE,
-bool modelPar_given_PUCSTE,
-AdmsSensFadType & modelPar_TETA0,
-bool modelPar_given_TETA0,
-AdmsSensFadType & modelPar_PRT,
-bool modelPar_given_PRT,
-AdmsSensFadType & modelPar_LPRT,
-bool modelPar_given_LPRT,
-AdmsSensFadType & modelPar_WPRT,
-bool modelPar_given_WPRT,
-AdmsSensFadType & modelPar_PPRT,
-bool modelPar_given_PPRT,
-AdmsSensFadType & modelPar_AT,
-bool modelPar_given_AT,
-AdmsSensFadType & modelPar_LAT,
-bool modelPar_given_LAT,
-AdmsSensFadType & modelPar_WAT,
-bool modelPar_given_WAT,
-AdmsSensFadType & modelPar_PAT,
-bool modelPar_given_PAT,
-AdmsSensFadType & modelPar_ATL,
-bool modelPar_given_ATL,
-AdmsSensFadType & modelPar_TDELTA,
-bool modelPar_given_TDELTA,
-AdmsSensFadType & modelPar_PTWGT,
-bool modelPar_given_PTWGT,
-AdmsSensFadType & modelPar_LPTWGT,
-bool modelPar_given_LPTWGT,
-AdmsSensFadType & modelPar_WPTWGT,
-bool modelPar_given_WPTWGT,
-AdmsSensFadType & modelPar_PPTWGT,
-bool modelPar_given_PPTWGT,
-AdmsSensFadType & modelPar_PTWGTL,
-bool modelPar_given_PTWGTL,
-AdmsSensFadType & modelPar_KT1,
-bool modelPar_given_KT1,
-AdmsSensFadType & modelPar_KT1EXP,
-bool modelPar_given_KT1EXP,
-AdmsSensFadType & modelPar_KT1L,
-bool modelPar_given_KT1L,
-AdmsSensFadType & modelPar_LKT1,
-bool modelPar_given_LKT1,
-AdmsSensFadType & modelPar_WKT1,
-bool modelPar_given_WKT1,
-AdmsSensFadType & modelPar_PKT1,
-bool modelPar_given_PKT1,
-AdmsSensFadType & modelPar_KT2,
-bool modelPar_given_KT2,
-AdmsSensFadType & modelPar_LKT2,
-bool modelPar_given_LKT2,
-AdmsSensFadType & modelPar_WKT2,
-bool modelPar_given_WKT2,
-AdmsSensFadType & modelPar_PKT2,
-bool modelPar_given_PKT2,
-AdmsSensFadType & modelPar_IIT,
-bool modelPar_given_IIT,
-AdmsSensFadType & modelPar_LIIT,
-bool modelPar_given_LIIT,
-AdmsSensFadType & modelPar_WIIT,
-bool modelPar_given_WIIT,
-AdmsSensFadType & modelPar_PIIT,
-bool modelPar_given_PIIT,
-AdmsSensFadType & modelPar_IGT,
-bool modelPar_given_IGT,
-AdmsSensFadType & modelPar_LIGT,
-bool modelPar_given_LIGT,
-AdmsSensFadType & modelPar_WIGT,
-bool modelPar_given_WIGT,
-AdmsSensFadType & modelPar_PIGT,
-bool modelPar_given_PIGT,
-AdmsSensFadType & modelPar_TGIDL,
-bool modelPar_given_TGIDL,
-AdmsSensFadType & modelPar_LTGIDL,
-bool modelPar_given_LTGIDL,
-AdmsSensFadType & modelPar_WTGIDL,
-bool modelPar_given_WTGIDL,
-AdmsSensFadType & modelPar_PTGIDL,
-bool modelPar_given_PTGIDL,
-AdmsSensFadType & modelPar_TCJ,
-bool modelPar_given_TCJ,
-AdmsSensFadType & modelPar_TCJSW,
-bool modelPar_given_TCJSW,
-AdmsSensFadType & modelPar_TCJSWG,
-bool modelPar_given_TCJSWG,
-AdmsSensFadType & modelPar_TPB,
-bool modelPar_given_TPB,
-AdmsSensFadType & modelPar_TPBSW,
-bool modelPar_given_TPBSW,
-AdmsSensFadType & modelPar_TPBSWG,
-bool modelPar_given_TPBSWG,
-AdmsSensFadType & modelPar_XTIS,
-bool modelPar_given_XTIS,
-AdmsSensFadType & modelPar_XTID,
-bool modelPar_given_XTID,
-AdmsSensFadType & modelPar_XTSS,
-bool modelPar_given_XTSS,
-AdmsSensFadType & modelPar_XTSD,
-bool modelPar_given_XTSD,
-AdmsSensFadType & modelPar_XTSSWS,
-bool modelPar_given_XTSSWS,
-AdmsSensFadType & modelPar_XTSSWD,
-bool modelPar_given_XTSSWD,
-AdmsSensFadType & modelPar_XTSSWGS,
-bool modelPar_given_XTSSWGS,
-AdmsSensFadType & modelPar_XTSSWGD,
-bool modelPar_given_XTSSWGD,
-AdmsSensFadType & modelPar_TNJTS,
-bool modelPar_given_TNJTS,
-AdmsSensFadType & modelPar_TNJTSD,
-bool modelPar_given_TNJTSD,
-AdmsSensFadType & modelPar_TNJTSSW,
-bool modelPar_given_TNJTSSW,
-AdmsSensFadType & modelPar_TNJTSSWD,
-bool modelPar_given_TNJTSSWD,
-AdmsSensFadType & modelPar_TNJTSSWG,
-bool modelPar_given_TNJTSSWG,
-AdmsSensFadType & modelPar_TNJTSSWGD,
-bool modelPar_given_TNJTSSWGD,
-AdmsSensFadType & modelPar_RTH0,
-bool modelPar_given_RTH0,
-AdmsSensFadType & modelPar_CTH0,
-bool modelPar_given_CTH0,
-AdmsSensFadType & modelPar_WTH0,
-bool modelPar_given_WTH0,
-AdmsSensFadType & modelPar_SAREF,
-bool modelPar_given_SAREF,
-AdmsSensFadType & modelPar_SBREF,
-bool modelPar_given_SBREF,
-AdmsSensFadType & modelPar_WLOD,
-bool modelPar_given_WLOD,
-AdmsSensFadType & modelPar_KU0,
-bool modelPar_given_KU0,
-AdmsSensFadType & modelPar_KVSAT,
-bool modelPar_given_KVSAT,
-AdmsSensFadType & modelPar_TKU0,
-bool modelPar_given_TKU0,
-AdmsSensFadType & modelPar_LKU0,
-bool modelPar_given_LKU0,
-AdmsSensFadType & modelPar_WKU0,
-bool modelPar_given_WKU0,
-AdmsSensFadType & modelPar_PKU0,
-bool modelPar_given_PKU0,
-AdmsSensFadType & modelPar_LLODKU0,
-bool modelPar_given_LLODKU0,
-AdmsSensFadType & modelPar_WLODKU0,
-bool modelPar_given_WLODKU0,
-AdmsSensFadType & modelPar_KVTH0,
-bool modelPar_given_KVTH0,
-AdmsSensFadType & modelPar_LKVTH0,
-bool modelPar_given_LKVTH0,
-AdmsSensFadType & modelPar_WKVTH0,
-bool modelPar_given_WKVTH0,
-AdmsSensFadType & modelPar_PKVTH0,
-bool modelPar_given_PKVTH0,
-AdmsSensFadType & modelPar_LLODVTH,
-bool modelPar_given_LLODVTH,
-AdmsSensFadType & modelPar_WLODVTH,
-bool modelPar_given_WLODVTH,
-AdmsSensFadType & modelPar_STK2,
-bool modelPar_given_STK2,
-AdmsSensFadType & modelPar_LODK2,
-bool modelPar_given_LODK2,
-AdmsSensFadType & modelPar_STETA0,
-bool modelPar_given_STETA0,
-AdmsSensFadType & modelPar_LODETA0,
-bool modelPar_given_LODETA0,
-AdmsSensFadType & modelPar_WEB,
-bool modelPar_given_WEB,
-AdmsSensFadType & modelPar_WEC,
-bool modelPar_given_WEC,
-AdmsSensFadType & modelPar_KVTH0WE,
-bool modelPar_given_KVTH0WE,
-AdmsSensFadType & modelPar_LKVTH0WE,
-bool modelPar_given_LKVTH0WE,
-AdmsSensFadType & modelPar_WKVTH0WE,
-bool modelPar_given_WKVTH0WE,
-AdmsSensFadType & modelPar_PKVTH0WE,
-bool modelPar_given_PKVTH0WE,
-AdmsSensFadType & modelPar_K2WE,
-bool modelPar_given_K2WE,
-AdmsSensFadType & modelPar_LK2WE,
-bool modelPar_given_LK2WE,
-AdmsSensFadType & modelPar_WK2WE,
-bool modelPar_given_WK2WE,
-AdmsSensFadType & modelPar_PK2WE,
-bool modelPar_given_PK2WE,
-AdmsSensFadType & modelPar_KU0WE,
-bool modelPar_given_KU0WE,
-AdmsSensFadType & modelPar_LKU0WE,
-bool modelPar_given_LKU0WE,
-AdmsSensFadType & modelPar_WKU0WE,
-bool modelPar_given_WKU0WE,
-AdmsSensFadType & modelPar_PKU0WE,
-bool modelPar_given_PKU0WE,
-AdmsSensFadType & modelPar_SCREF,
-bool modelPar_given_SCREF,
-AdmsSensFadType & modelPar_WEDGE,
-bool modelPar_given_WEDGE,
-AdmsSensFadType & modelPar_DGAMMAEDGE,
-bool modelPar_given_DGAMMAEDGE,
-AdmsSensFadType & modelPar_DGAMMAEDGEL,
-bool modelPar_given_DGAMMAEDGEL,
-AdmsSensFadType & modelPar_DGAMMAEDGELEXP,
-bool modelPar_given_DGAMMAEDGELEXP,
-AdmsSensFadType & modelPar_DVTEDGE,
-bool modelPar_given_DVTEDGE,
-AdmsSensFadType & modelPar_NFACTOREDGE,
-bool modelPar_given_NFACTOREDGE,
-AdmsSensFadType & modelPar_CITEDGE,
-bool modelPar_given_CITEDGE,
-AdmsSensFadType & modelPar_CDSCDEDGE,
-bool modelPar_given_CDSCDEDGE,
-AdmsSensFadType & modelPar_CDSCBEDGE,
-bool modelPar_given_CDSCBEDGE,
-AdmsSensFadType & modelPar_ETA0EDGE,
-bool modelPar_given_ETA0EDGE,
-AdmsSensFadType & modelPar_ETABEDGE,
-bool modelPar_given_ETABEDGE,
-AdmsSensFadType & modelPar_KT1EDGE,
-bool modelPar_given_KT1EDGE,
-AdmsSensFadType & modelPar_KT1LEDGE,
-bool modelPar_given_KT1LEDGE,
-AdmsSensFadType & modelPar_KT2EDGE,
-bool modelPar_given_KT2EDGE,
-AdmsSensFadType & modelPar_KT1EXPEDGE,
-bool modelPar_given_KT1EXPEDGE,
-AdmsSensFadType & modelPar_TNFACTOREDGE,
-bool modelPar_given_TNFACTOREDGE,
-AdmsSensFadType & modelPar_TETA0EDGE,
-bool modelPar_given_TETA0EDGE,
-AdmsSensFadType & modelPar_DVT0EDGE,
-bool modelPar_given_DVT0EDGE,
-AdmsSensFadType & modelPar_DVT1EDGE,
-bool modelPar_given_DVT1EDGE,
-AdmsSensFadType & modelPar_DVT2EDGE,
-bool modelPar_given_DVT2EDGE,
-AdmsSensFadType & modelPar_LMIN,
-bool modelPar_given_LMIN,
-AdmsSensFadType & modelPar_WMIN,
-bool modelPar_given_WMIN,
-AdmsSensFadType & modelPar_LMAX,
-bool modelPar_given_LMAX,
-AdmsSensFadType & modelPar_WMAX,
-bool modelPar_given_WMAX,
-// non-reals (including hidden)
-int modelPar_NGCON,
-bool modelPar_given_NGCON,
-int modelPar_RGATEMOD,
-bool modelPar_given_RGATEMOD,
-int modelPar_RBODYMOD,
-bool modelPar_given_RBODYMOD,
-int modelPar_GEOMOD,
-bool modelPar_given_GEOMOD,
-int modelPar_RGEOMOD,
-bool modelPar_given_RGEOMOD,
-int modelPar_SCA,
-bool modelPar_given_SCA,
-int modelPar_SCB,
-bool modelPar_given_SCB,
-int modelPar_SCC,
-bool modelPar_given_SCC,
-int modelPar_SC,
-bool modelPar_given_SC,
-int modelPar_TYPE,
-bool modelPar_given_TYPE,
-int modelPar_CVMOD,
-bool modelPar_given_CVMOD,
-int modelPar_COVMOD,
-bool modelPar_given_COVMOD,
-int modelPar_RDSMOD,
-bool modelPar_given_RDSMOD,
-int modelPar_WPEMOD,
-bool modelPar_given_WPEMOD,
-int modelPar_ASYMMOD,
-bool modelPar_given_ASYMMOD,
-int modelPar_GIDLMOD,
-bool modelPar_given_GIDLMOD,
-int modelPar_IGCMOD,
-bool modelPar_given_IGCMOD,
-int modelPar_IGBMOD,
-bool modelPar_given_IGBMOD,
-int modelPar_TNOIMOD,
-bool modelPar_given_TNOIMOD,
-int modelPar_SHMOD,
-bool modelPar_given_SHMOD,
-int modelPar_MOBSCALE,
-bool modelPar_given_MOBSCALE,
-int modelPar_PERMOD,
-bool modelPar_given_PERMOD,
-int modelPar_BINUNIT,
-bool modelPar_given_BINUNIT,
-int modelPar_EDGEFET,
-bool modelPar_given_EDGEFET,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
 // basic variables
- double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance);
+ double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & d_staticContributions_dX, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance);
 
 void evaluateInitialInstance(
-// instance parameters
-// reals
-AdmsSensFadType & instancePar_L,
-bool instancePar_given_L,
-AdmsSensFadType & instancePar_W,
-bool instancePar_given_W,
-AdmsSensFadType & instancePar_NRS,
-bool instancePar_given_NRS,
-AdmsSensFadType & instancePar_NRD,
-bool instancePar_given_NRD,
-AdmsSensFadType & instancePar_VFBSDOFF,
-bool instancePar_given_VFBSDOFF,
-AdmsSensFadType & instancePar_XGW,
-bool instancePar_given_XGW,
-AdmsSensFadType & instancePar_RBPB,
-bool instancePar_given_RBPB,
-AdmsSensFadType & instancePar_RBPD,
-bool instancePar_given_RBPD,
-AdmsSensFadType & instancePar_RBPS,
-bool instancePar_given_RBPS,
-AdmsSensFadType & instancePar_RBDB,
-bool instancePar_given_RBDB,
-AdmsSensFadType & instancePar_RBSB,
-bool instancePar_given_RBSB,
-AdmsSensFadType & instancePar_SA,
-bool instancePar_given_SA,
-AdmsSensFadType & instancePar_SB,
-bool instancePar_given_SB,
-AdmsSensFadType & instancePar_SD,
-bool instancePar_given_SD,
-AdmsSensFadType & instancePar_AS,
-bool instancePar_given_AS,
-AdmsSensFadType & instancePar_AD,
-bool instancePar_given_AD,
-AdmsSensFadType & instancePar_PS,
-bool instancePar_given_PS,
-AdmsSensFadType & instancePar_PD,
-bool instancePar_given_PD,
-// non-reals(including hidden)
-int instancePar_NF,
-bool instancePar_given_NF,
-int instancePar_MINZ,
-bool instancePar_given_MINZ,
-int instancePar_NGCON,
-bool instancePar_given_NGCON,
-int instancePar_RGATEMOD,
-bool instancePar_given_RGATEMOD,
-int instancePar_RBODYMOD,
-bool instancePar_given_RBODYMOD,
-int instancePar_GEOMOD,
-bool instancePar_given_GEOMOD,
-int instancePar_RGEOMOD,
-bool instancePar_given_RGEOMOD,
-int instancePar_SCA,
-bool instancePar_given_SCA,
-int instancePar_SCB,
-bool instancePar_given_SCB,
-int instancePar_SCC,
-bool instancePar_given_SCC,
-int instancePar_SC,
-bool instancePar_given_SC,
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_T0,
-AdmsSensFadType & instanceVar_T1,
-AdmsSensFadType & instanceVar_T2,
-AdmsSensFadType & instanceVar_epssi,
-AdmsSensFadType & instanceVar_epsox,
-AdmsSensFadType & instanceVar_Weff,
-AdmsSensFadType & instanceVar_Leff,
-AdmsSensFadType & instanceVar_Wact,
-AdmsSensFadType & instanceVar_Lact,
-AdmsSensFadType & instanceVar_Weffcj,
-AdmsSensFadType & instanceVar_Cox,
-AdmsSensFadType & instanceVar_epsratio,
-AdmsSensFadType & instanceVar_Lnew,
-AdmsSensFadType & instanceVar_L_mult,
-AdmsSensFadType & instanceVar_Wnew,
-AdmsSensFadType & instanceVar_DVTP0_i,
-AdmsSensFadType & instanceVar_DVTP1_i,
-AdmsSensFadType & instanceVar_DVTP2_i,
-AdmsSensFadType & instanceVar_DVTP3_i,
-AdmsSensFadType & instanceVar_DVTP4_i,
-AdmsSensFadType & instanceVar_DVTP5_i,
-AdmsSensFadType & instanceVar_A1_i,
-AdmsSensFadType & instanceVar_A11_i,
-AdmsSensFadType & instanceVar_A2_i,
-AdmsSensFadType & instanceVar_A21_i,
-AdmsSensFadType & instanceVar_PSAT_i,
-AdmsSensFadType & instanceVar_PSATR_i,
-AdmsSensFadType & instanceVar_BSIM6TOXP,
-AdmsSensFadType & instanceVar_DMCGeff,
-AdmsSensFadType & instanceVar_DMDGeff,
-AdmsSensFadType & instanceVar_DMCIeff,
-AdmsSensFadType & instanceVar_RSourceGeo,
-AdmsSensFadType & instanceVar_RDrainGeo,
-AdmsSensFadType & instanceVar_Grgeltd,
-AdmsSensFadType & instanceVar_Grbsb,
-AdmsSensFadType & instanceVar_Grbdb,
-AdmsSensFadType & instanceVar_Grbpb,
-AdmsSensFadType & instanceVar_Grbps,
-AdmsSensFadType & instanceVar_Grbpd,
-AdmsSensFadType & instanceVar_Aechvb,
-AdmsSensFadType & instanceVar_Bechvb,
-AdmsSensFadType & instanceVar_AechvbEdge,
-AdmsSensFadType & instanceVar_BechvbEdge,
-AdmsSensFadType & instanceVar_ToxRatio,
-AdmsSensFadType & instanceVar_U0R_t,
-AdmsSensFadType & instanceVar_UAR_t,
-AdmsSensFadType & instanceVar_UCR_t,
-AdmsSensFadType & instanceVar_UDR_t,
-AdmsSensFadType & instanceVar_UCSR_t,
-AdmsSensFadType & instanceVar_VSATR_t,
-AdmsSensFadType & instanceVar_PTWGR_t,
-AdmsSensFadType & instanceVar_ETA0R_t,
-AdmsSensFadType & instanceVar_PSATB_i,
-AdmsSensFadType & instanceVar_KT1_i,
-AdmsSensFadType & instanceVar_KT2_i,
-AdmsSensFadType & instanceVar_NGATE_i,
-AdmsSensFadType & instanceVar_NSD_i,
-AdmsSensFadType & instanceVar_NDEP_i,
-AdmsSensFadType & instanceVar_VFB_i,
-AdmsSensFadType & instanceVar_CIT_i,
-AdmsSensFadType & instanceVar_CDSCD_i,
-AdmsSensFadType & instanceVar_CDSCDR_i,
-AdmsSensFadType & instanceVar_CDSCB_i,
-AdmsSensFadType & instanceVar_NFACTOR_i,
-AdmsSensFadType & instanceVar_PHIN_i,
-AdmsSensFadType & instanceVar_ETA0_i,
-AdmsSensFadType & instanceVar_ETA0R_i,
-AdmsSensFadType & instanceVar_ETAB_i,
-AdmsSensFadType & instanceVar_K2_i,
-AdmsSensFadType & instanceVar_K1_i,
-AdmsSensFadType & instanceVar_DELTA_i,
-AdmsSensFadType & instanceVar_U0_i,
-AdmsSensFadType & instanceVar_U0R_i,
-AdmsSensFadType & instanceVar_VSAT_i,
-AdmsSensFadType & instanceVar_VSATR_i,
-AdmsSensFadType & instanceVar_VSATCV_i,
-AdmsSensFadType & instanceVar_UA_i,
-AdmsSensFadType & instanceVar_UAR_i,
-AdmsSensFadType & instanceVar_EU_i,
-AdmsSensFadType & instanceVar_UD_i,
-AdmsSensFadType & instanceVar_UDR_i,
-AdmsSensFadType & instanceVar_UD_a,
-AdmsSensFadType & instanceVar_UCS_i,
-AdmsSensFadType & instanceVar_UCSR_i,
-AdmsSensFadType & instanceVar_UC_i,
-AdmsSensFadType & instanceVar_UCR_i,
-AdmsSensFadType & instanceVar_PDIBLC_i,
-AdmsSensFadType & instanceVar_PDIBLCR_i,
-AdmsSensFadType & instanceVar_PDIBLCB_i,
-AdmsSensFadType & instanceVar_PSCBE1_i,
-AdmsSensFadType & instanceVar_PSCBE2_i,
-AdmsSensFadType & instanceVar_PDITS_i,
-AdmsSensFadType & instanceVar_PDITSD_i,
-AdmsSensFadType & instanceVar_FPROUT_i,
-AdmsSensFadType & instanceVar_PRWG_i,
-AdmsSensFadType & instanceVar_WR_i,
-AdmsSensFadType & instanceVar_RDWMIN_i,
-AdmsSensFadType & instanceVar_RSWMIN_i,
-AdmsSensFadType & instanceVar_RDW_i,
-AdmsSensFadType & instanceVar_RSW_i,
-AdmsSensFadType & instanceVar_RDSW_i,
-AdmsSensFadType & instanceVar_RDSWMIN_i,
-AdmsSensFadType & instanceVar_PTWG_i,
-AdmsSensFadType & instanceVar_PTWGR_i,
-AdmsSensFadType & instanceVar_PVAG_i,
-AdmsSensFadType & instanceVar_XJ_i,
-AdmsSensFadType & instanceVar_PCLM_i,
-AdmsSensFadType & instanceVar_PCLMR_i,
-AdmsSensFadType & instanceVar_PCLMCV_i,
-AdmsSensFadType & instanceVar_PRWB_i,
-AdmsSensFadType & instanceVar_CF_i,
-AdmsSensFadType & instanceVar_CGSL_i,
-AdmsSensFadType & instanceVar_CGDL_i,
-AdmsSensFadType & instanceVar_CKAPPAS_i,
-AdmsSensFadType & instanceVar_CKAPPAD_i,
-AdmsSensFadType & instanceVar_VFBCV_i,
-AdmsSensFadType & instanceVar_NDEPCV_i,
-AdmsSensFadType & instanceVar_ALPHA0_i,
-AdmsSensFadType & instanceVar_BETA0_i,
-AdmsSensFadType & instanceVar_AGIDL_i,
-AdmsSensFadType & instanceVar_BGIDL_i,
-AdmsSensFadType & instanceVar_CGIDL_i,
-AdmsSensFadType & instanceVar_EGIDL_i,
-AdmsSensFadType & instanceVar_AGISL_i,
-AdmsSensFadType & instanceVar_BGISL_i,
-AdmsSensFadType & instanceVar_CGISL_i,
-AdmsSensFadType & instanceVar_EGISL_i,
-AdmsSensFadType & instanceVar_UTE_i,
-AdmsSensFadType & instanceVar_UA1_i,
-AdmsSensFadType & instanceVar_UC1_i,
-AdmsSensFadType & instanceVar_UD1_i,
-AdmsSensFadType & instanceVar_UCSTE_i,
-AdmsSensFadType & instanceVar_PRT_i,
-AdmsSensFadType & instanceVar_AT_i,
-AdmsSensFadType & instanceVar_PTWGT_i,
-AdmsSensFadType & instanceVar_IIT_i,
-AdmsSensFadType & instanceVar_TGIDL_i,
-AdmsSensFadType & instanceVar_KVTH0WE_i,
-AdmsSensFadType & instanceVar_K2WE_i,
-AdmsSensFadType & instanceVar_KU0WE_i,
-AdmsSensFadType & instanceVar_AIGBINV_i,
-AdmsSensFadType & instanceVar_BIGBINV_i,
-AdmsSensFadType & instanceVar_CIGBINV_i,
-AdmsSensFadType & instanceVar_EIGBINV_i,
-AdmsSensFadType & instanceVar_NIGBINV_i,
-AdmsSensFadType & instanceVar_AIGBACC_i,
-AdmsSensFadType & instanceVar_BIGBACC_i,
-AdmsSensFadType & instanceVar_CIGBACC_i,
-AdmsSensFadType & instanceVar_NIGBACC_i,
-AdmsSensFadType & instanceVar_AIGC_i,
-AdmsSensFadType & instanceVar_BIGC_i,
-AdmsSensFadType & instanceVar_CIGC_i,
-AdmsSensFadType & instanceVar_AIGS_i,
-AdmsSensFadType & instanceVar_BIGS_i,
-AdmsSensFadType & instanceVar_CIGS_i,
-AdmsSensFadType & instanceVar_AIGD_i,
-AdmsSensFadType & instanceVar_BIGD_i,
-AdmsSensFadType & instanceVar_CIGD_i,
-AdmsSensFadType & instanceVar_PIGCD_i,
-AdmsSensFadType & instanceVar_DLCIG_i,
-AdmsSensFadType & instanceVar_DLCIGD_i,
-AdmsSensFadType & instanceVar_IGT_i,
-AdmsSensFadType & instanceVar_nuIntD,
-double & instanceVar_nuEndD,
-AdmsSensFadType & instanceVar_nuIntS,
-double & instanceVar_nuEndS,
-AdmsSensFadType & instanceVar_gth,
-AdmsSensFadType & instanceVar_cth,
-AdmsSensFadType & instanceVar_QBI,
-AdmsSensFadType & instanceVar_QSI,
-AdmsSensFadType & instanceVar_QDI,
-AdmsSensFadType & instanceVar_QGI,
-AdmsSensFadType & instanceVar_CGGI,
-AdmsSensFadType & instanceVar_CGBI,
-AdmsSensFadType & instanceVar_CGSI,
-AdmsSensFadType & instanceVar_CGDI,
-AdmsSensFadType & instanceVar_CSGI,
-AdmsSensFadType & instanceVar_CSBI,
-AdmsSensFadType & instanceVar_CSSI,
-AdmsSensFadType & instanceVar_CSDI,
-AdmsSensFadType & instanceVar_CDGI,
-AdmsSensFadType & instanceVar_CDBI,
-AdmsSensFadType & instanceVar_CDSI,
-AdmsSensFadType & instanceVar_CDDI,
-AdmsSensFadType & instanceVar_CBGI,
-AdmsSensFadType & instanceVar_CBBI,
-AdmsSensFadType & instanceVar_CBSI,
-AdmsSensFadType & instanceVar_CBDI,
-AdmsSensFadType & instanceVar_QB,
-AdmsSensFadType & instanceVar_QS,
-AdmsSensFadType & instanceVar_QD,
-AdmsSensFadType & instanceVar_QG,
-AdmsSensFadType & instanceVar_CGG,
-AdmsSensFadType & instanceVar_CGB,
-AdmsSensFadType & instanceVar_CGS,
-AdmsSensFadType & instanceVar_CGD,
-AdmsSensFadType & instanceVar_CSG,
-AdmsSensFadType & instanceVar_CSB,
-AdmsSensFadType & instanceVar_CSS,
-AdmsSensFadType & instanceVar_CSD,
-AdmsSensFadType & instanceVar_CDG,
-AdmsSensFadType & instanceVar_CDB,
-AdmsSensFadType & instanceVar_CDS,
-AdmsSensFadType & instanceVar_CDD,
-AdmsSensFadType & instanceVar_CBG,
-AdmsSensFadType & instanceVar_CBB,
-AdmsSensFadType & instanceVar_CBS,
-AdmsSensFadType & instanceVar_CBD,
-AdmsSensFadType & instanceVar_ISUB,
-AdmsSensFadType & instanceVar_IGIDL,
-AdmsSensFadType & instanceVar_IGISL,
-AdmsSensFadType & instanceVar_IGS,
-AdmsSensFadType & instanceVar_IGD,
-AdmsSensFadType & instanceVar_IGCS,
-AdmsSensFadType & instanceVar_IGCD,
-AdmsSensFadType & instanceVar_IGB,
-AdmsSensFadType & instanceVar_CGSEXT,
-AdmsSensFadType & instanceVar_CGDEXT,
-AdmsSensFadType & instanceVar_CGBOV,
-AdmsSensFadType & instanceVar_CAPBS,
-AdmsSensFadType & instanceVar_CAPBD,
-AdmsSensFadType & instanceVar_WEFF,
-AdmsSensFadType & instanceVar_LEFF,
-AdmsSensFadType & instanceVar_WEFFCV,
-AdmsSensFadType & instanceVar_LEFFCV,
-AdmsSensFadType & instanceVar_IDS,
-AdmsSensFadType & instanceVar_IDEFF,
-AdmsSensFadType & instanceVar_ISEFF,
-AdmsSensFadType & instanceVar_IGEFF,
-AdmsSensFadType & instanceVar_IBS,
-AdmsSensFadType & instanceVar_IBD,
-double & instanceVar_VDS,
-double & instanceVar_VGS,
-double & instanceVar_VBS,
-AdmsSensFadType & instanceVar_VDSAT,
-AdmsSensFadType & instanceVar_GM,
-AdmsSensFadType & instanceVar_GMBS,
-AdmsSensFadType & instanceVar_GDS,
-AdmsSensFadType & instanceVar_TK,
-AdmsSensFadType & instanceVar_VTH,
-// non-reals
-int instanceVar_devsign,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_L,
-bool modelPar_given_L,
-AdmsSensFadType & modelPar_VFBSDOFF,
-bool modelPar_given_VFBSDOFF,
-AdmsSensFadType & modelPar_XGW,
-bool modelPar_given_XGW,
-AdmsSensFadType & modelPar_RBPB,
-bool modelPar_given_RBPB,
-AdmsSensFadType & modelPar_RBPD,
-bool modelPar_given_RBPD,
-AdmsSensFadType & modelPar_RBPS,
-bool modelPar_given_RBPS,
-AdmsSensFadType & modelPar_RBDB,
-bool modelPar_given_RBDB,
-AdmsSensFadType & modelPar_RBSB,
-bool modelPar_given_RBSB,
-AdmsSensFadType & modelPar_SA,
-bool modelPar_given_SA,
-AdmsSensFadType & modelPar_SB,
-bool modelPar_given_SB,
-AdmsSensFadType & modelPar_SD,
-bool modelPar_given_SD,
-AdmsSensFadType & modelPar_LLONG,
-bool modelPar_given_LLONG,
-AdmsSensFadType & modelPar_LMLT,
-bool modelPar_given_LMLT,
-AdmsSensFadType & modelPar_WMLT,
-bool modelPar_given_WMLT,
-AdmsSensFadType & modelPar_XL,
-bool modelPar_given_XL,
-AdmsSensFadType & modelPar_WWIDE,
-bool modelPar_given_WWIDE,
-AdmsSensFadType & modelPar_XW,
-bool modelPar_given_XW,
-AdmsSensFadType & modelPar_LINT,
-bool modelPar_given_LINT,
-AdmsSensFadType & modelPar_LL,
-bool modelPar_given_LL,
-AdmsSensFadType & modelPar_LW,
-bool modelPar_given_LW,
-AdmsSensFadType & modelPar_LWL,
-bool modelPar_given_LWL,
-AdmsSensFadType & modelPar_LLN,
-bool modelPar_given_LLN,
-AdmsSensFadType & modelPar_LWN,
-bool modelPar_given_LWN,
-AdmsSensFadType & modelPar_WINT,
-bool modelPar_given_WINT,
-AdmsSensFadType & modelPar_WL,
-bool modelPar_given_WL,
-AdmsSensFadType & modelPar_WW,
-bool modelPar_given_WW,
-AdmsSensFadType & modelPar_WWL,
-bool modelPar_given_WWL,
-AdmsSensFadType & modelPar_WLN,
-bool modelPar_given_WLN,
-AdmsSensFadType & modelPar_WWN,
-bool modelPar_given_WWN,
-AdmsSensFadType & modelPar_DLC,
-bool modelPar_given_DLC,
-AdmsSensFadType & modelPar_LLC,
-bool modelPar_given_LLC,
-AdmsSensFadType & modelPar_LWC,
-bool modelPar_given_LWC,
-AdmsSensFadType & modelPar_LWLC,
-bool modelPar_given_LWLC,
-AdmsSensFadType & modelPar_DWC,
-bool modelPar_given_DWC,
-AdmsSensFadType & modelPar_WLC,
-bool modelPar_given_WLC,
-AdmsSensFadType & modelPar_WWC,
-bool modelPar_given_WWC,
-AdmsSensFadType & modelPar_WWLC,
-bool modelPar_given_WWLC,
-AdmsSensFadType & modelPar_TOXE,
-bool modelPar_given_TOXE,
-AdmsSensFadType & modelPar_TOXP,
-bool modelPar_given_TOXP,
-AdmsSensFadType & modelPar_DTOX,
-bool modelPar_given_DTOX,
-AdmsSensFadType & modelPar_NDEP,
-bool modelPar_given_NDEP,
-AdmsSensFadType & modelPar_NDEPL1,
-bool modelPar_given_NDEPL1,
-AdmsSensFadType & modelPar_NDEPLEXP1,
-bool modelPar_given_NDEPLEXP1,
-AdmsSensFadType & modelPar_NDEPL2,
-bool modelPar_given_NDEPL2,
-AdmsSensFadType & modelPar_NDEPLEXP2,
-bool modelPar_given_NDEPLEXP2,
-AdmsSensFadType & modelPar_NDEPW,
-bool modelPar_given_NDEPW,
-AdmsSensFadType & modelPar_NDEPWEXP,
-bool modelPar_given_NDEPWEXP,
-AdmsSensFadType & modelPar_NDEPWL,
-bool modelPar_given_NDEPWL,
-AdmsSensFadType & modelPar_NDEPWLEXP,
-bool modelPar_given_NDEPWLEXP,
-AdmsSensFadType & modelPar_LNDEP,
-bool modelPar_given_LNDEP,
-AdmsSensFadType & modelPar_WNDEP,
-bool modelPar_given_WNDEP,
-AdmsSensFadType & modelPar_PNDEP,
-bool modelPar_given_PNDEP,
-AdmsSensFadType & modelPar_NDEPCV,
-bool modelPar_given_NDEPCV,
-AdmsSensFadType & modelPar_NDEPCVL1,
-bool modelPar_given_NDEPCVL1,
-AdmsSensFadType & modelPar_NDEPCVLEXP1,
-bool modelPar_given_NDEPCVLEXP1,
-AdmsSensFadType & modelPar_NDEPCVL2,
-bool modelPar_given_NDEPCVL2,
-AdmsSensFadType & modelPar_NDEPCVLEXP2,
-bool modelPar_given_NDEPCVLEXP2,
-AdmsSensFadType & modelPar_NDEPCVW,
-bool modelPar_given_NDEPCVW,
-AdmsSensFadType & modelPar_NDEPCVWEXP,
-bool modelPar_given_NDEPCVWEXP,
-AdmsSensFadType & modelPar_NDEPCVWL,
-bool modelPar_given_NDEPCVWL,
-AdmsSensFadType & modelPar_NDEPCVWLEXP,
-bool modelPar_given_NDEPCVWLEXP,
-AdmsSensFadType & modelPar_LNDEPCV,
-bool modelPar_given_LNDEPCV,
-AdmsSensFadType & modelPar_WNDEPCV,
-bool modelPar_given_WNDEPCV,
-AdmsSensFadType & modelPar_PNDEPCV,
-bool modelPar_given_PNDEPCV,
-AdmsSensFadType & modelPar_NGATE,
-bool modelPar_given_NGATE,
-AdmsSensFadType & modelPar_LNGATE,
-bool modelPar_given_LNGATE,
-AdmsSensFadType & modelPar_WNGATE,
-bool modelPar_given_WNGATE,
-AdmsSensFadType & modelPar_PNGATE,
-bool modelPar_given_PNGATE,
-AdmsSensFadType & modelPar_EASUB,
-bool modelPar_given_EASUB,
-AdmsSensFadType & modelPar_NI0SUB,
-bool modelPar_given_NI0SUB,
-AdmsSensFadType & modelPar_BG0SUB,
-bool modelPar_given_BG0SUB,
-AdmsSensFadType & modelPar_EPSRSUB,
-bool modelPar_given_EPSRSUB,
-AdmsSensFadType & modelPar_EPSROX,
-bool modelPar_given_EPSROX,
-AdmsSensFadType & modelPar_XJ,
-bool modelPar_given_XJ,
-AdmsSensFadType & modelPar_LXJ,
-bool modelPar_given_LXJ,
-AdmsSensFadType & modelPar_WXJ,
-bool modelPar_given_WXJ,
-AdmsSensFadType & modelPar_PXJ,
-bool modelPar_given_PXJ,
-AdmsSensFadType & modelPar_LVFB,
-bool modelPar_given_LVFB,
-AdmsSensFadType & modelPar_WVFB,
-bool modelPar_given_WVFB,
-AdmsSensFadType & modelPar_PVFB,
-bool modelPar_given_PVFB,
-AdmsSensFadType & modelPar_VFB,
-bool modelPar_given_VFB,
-AdmsSensFadType & modelPar_VFBCV,
-bool modelPar_given_VFBCV,
-AdmsSensFadType & modelPar_LVFBCV,
-bool modelPar_given_LVFBCV,
-AdmsSensFadType & modelPar_WVFBCV,
-bool modelPar_given_WVFBCV,
-AdmsSensFadType & modelPar_PVFBCV,
-bool modelPar_given_PVFBCV,
-AdmsSensFadType & modelPar_VFBCVL,
-bool modelPar_given_VFBCVL,
-AdmsSensFadType & modelPar_VFBCVLEXP,
-bool modelPar_given_VFBCVLEXP,
-AdmsSensFadType & modelPar_VFBCVW,
-bool modelPar_given_VFBCVW,
-AdmsSensFadType & modelPar_VFBCVWEXP,
-bool modelPar_given_VFBCVWEXP,
-AdmsSensFadType & modelPar_VFBCVWL,
-bool modelPar_given_VFBCVWL,
-AdmsSensFadType & modelPar_VFBCVWLEXP,
-bool modelPar_given_VFBCVWLEXP,
-AdmsSensFadType & modelPar_DWJ,
-bool modelPar_given_DWJ,
-AdmsSensFadType & modelPar_NSD,
-bool modelPar_given_NSD,
-AdmsSensFadType & modelPar_LNSD,
-bool modelPar_given_LNSD,
-AdmsSensFadType & modelPar_WNSD,
-bool modelPar_given_WNSD,
-AdmsSensFadType & modelPar_PNSD,
-bool modelPar_given_PNSD,
-AdmsSensFadType & modelPar_DELVT0,
-bool modelPar_given_DELVT0,
-AdmsSensFadType & modelPar_DVTP0,
-bool modelPar_given_DVTP0,
-AdmsSensFadType & modelPar_LDVTP0,
-bool modelPar_given_LDVTP0,
-AdmsSensFadType & modelPar_WDVTP0,
-bool modelPar_given_WDVTP0,
-AdmsSensFadType & modelPar_PDVTP0,
-bool modelPar_given_PDVTP0,
-AdmsSensFadType & modelPar_DVTP1,
-bool modelPar_given_DVTP1,
-AdmsSensFadType & modelPar_LDVTP1,
-bool modelPar_given_LDVTP1,
-AdmsSensFadType & modelPar_WDVTP1,
-bool modelPar_given_WDVTP1,
-AdmsSensFadType & modelPar_PDVTP1,
-bool modelPar_given_PDVTP1,
-AdmsSensFadType & modelPar_DVTP2,
-bool modelPar_given_DVTP2,
-AdmsSensFadType & modelPar_LDVTP2,
-bool modelPar_given_LDVTP2,
-AdmsSensFadType & modelPar_WDVTP2,
-bool modelPar_given_WDVTP2,
-AdmsSensFadType & modelPar_PDVTP2,
-bool modelPar_given_PDVTP2,
-AdmsSensFadType & modelPar_DVTP3,
-bool modelPar_given_DVTP3,
-AdmsSensFadType & modelPar_LDVTP3,
-bool modelPar_given_LDVTP3,
-AdmsSensFadType & modelPar_WDVTP3,
-bool modelPar_given_WDVTP3,
-AdmsSensFadType & modelPar_PDVTP3,
-bool modelPar_given_PDVTP3,
-AdmsSensFadType & modelPar_DVTP4,
-bool modelPar_given_DVTP4,
-AdmsSensFadType & modelPar_LDVTP4,
-bool modelPar_given_LDVTP4,
-AdmsSensFadType & modelPar_WDVTP4,
-bool modelPar_given_WDVTP4,
-AdmsSensFadType & modelPar_PDVTP4,
-bool modelPar_given_PDVTP4,
-AdmsSensFadType & modelPar_DVTP5,
-bool modelPar_given_DVTP5,
-AdmsSensFadType & modelPar_LDVTP5,
-bool modelPar_given_LDVTP5,
-AdmsSensFadType & modelPar_WDVTP5,
-bool modelPar_given_WDVTP5,
-AdmsSensFadType & modelPar_PDVTP5,
-bool modelPar_given_PDVTP5,
-AdmsSensFadType & modelPar_PHIN,
-bool modelPar_given_PHIN,
-AdmsSensFadType & modelPar_LPHIN,
-bool modelPar_given_LPHIN,
-AdmsSensFadType & modelPar_WPHIN,
-bool modelPar_given_WPHIN,
-AdmsSensFadType & modelPar_PPHIN,
-bool modelPar_given_PPHIN,
-AdmsSensFadType & modelPar_ETA0,
-bool modelPar_given_ETA0,
-AdmsSensFadType & modelPar_LETA0,
-bool modelPar_given_LETA0,
-AdmsSensFadType & modelPar_WETA0,
-bool modelPar_given_WETA0,
-AdmsSensFadType & modelPar_PETA0,
-bool modelPar_given_PETA0,
-AdmsSensFadType & modelPar_ETA0R,
-bool modelPar_given_ETA0R,
-AdmsSensFadType & modelPar_LETA0R,
-bool modelPar_given_LETA0R,
-AdmsSensFadType & modelPar_WETA0R,
-bool modelPar_given_WETA0R,
-AdmsSensFadType & modelPar_PETA0R,
-bool modelPar_given_PETA0R,
-AdmsSensFadType & modelPar_DSUB,
-bool modelPar_given_DSUB,
-AdmsSensFadType & modelPar_ETAB,
-bool modelPar_given_ETAB,
-AdmsSensFadType & modelPar_ETABEXP,
-bool modelPar_given_ETABEXP,
-AdmsSensFadType & modelPar_LETAB,
-bool modelPar_given_LETAB,
-AdmsSensFadType & modelPar_WETAB,
-bool modelPar_given_WETAB,
-AdmsSensFadType & modelPar_PETAB,
-bool modelPar_given_PETAB,
-AdmsSensFadType & modelPar_K1,
-bool modelPar_given_K1,
-AdmsSensFadType & modelPar_K1L,
-bool modelPar_given_K1L,
-AdmsSensFadType & modelPar_K1LEXP,
-bool modelPar_given_K1LEXP,
-AdmsSensFadType & modelPar_K1W,
-bool modelPar_given_K1W,
-AdmsSensFadType & modelPar_K1WEXP,
-bool modelPar_given_K1WEXP,
-AdmsSensFadType & modelPar_K1WL,
-bool modelPar_given_K1WL,
-AdmsSensFadType & modelPar_K1WLEXP,
-bool modelPar_given_K1WLEXP,
-AdmsSensFadType & modelPar_LK1,
-bool modelPar_given_LK1,
-AdmsSensFadType & modelPar_WK1,
-bool modelPar_given_WK1,
-AdmsSensFadType & modelPar_PK1,
-bool modelPar_given_PK1,
-AdmsSensFadType & modelPar_K2,
-bool modelPar_given_K2,
-AdmsSensFadType & modelPar_K2L,
-bool modelPar_given_K2L,
-AdmsSensFadType & modelPar_K2LEXP,
-bool modelPar_given_K2LEXP,
-AdmsSensFadType & modelPar_K2W,
-bool modelPar_given_K2W,
-AdmsSensFadType & modelPar_K2WEXP,
-bool modelPar_given_K2WEXP,
-AdmsSensFadType & modelPar_K2WL,
-bool modelPar_given_K2WL,
-AdmsSensFadType & modelPar_K2WLEXP,
-bool modelPar_given_K2WLEXP,
-AdmsSensFadType & modelPar_LK2,
-bool modelPar_given_LK2,
-AdmsSensFadType & modelPar_WK2,
-bool modelPar_given_WK2,
-AdmsSensFadType & modelPar_PK2,
-bool modelPar_given_PK2,
-AdmsSensFadType & modelPar_ADOS,
-bool modelPar_given_ADOS,
-AdmsSensFadType & modelPar_BDOS,
-bool modelPar_given_BDOS,
-AdmsSensFadType & modelPar_QM0,
-bool modelPar_given_QM0,
-AdmsSensFadType & modelPar_ETAQM,
-bool modelPar_given_ETAQM,
-AdmsSensFadType & modelPar_CIT,
-bool modelPar_given_CIT,
-AdmsSensFadType & modelPar_LCIT,
-bool modelPar_given_LCIT,
-AdmsSensFadType & modelPar_WCIT,
-bool modelPar_given_WCIT,
-AdmsSensFadType & modelPar_PCIT,
-bool modelPar_given_PCIT,
-AdmsSensFadType & modelPar_NFACTOR,
-bool modelPar_given_NFACTOR,
-AdmsSensFadType & modelPar_NFACTORL,
-bool modelPar_given_NFACTORL,
-AdmsSensFadType & modelPar_NFACTORLEXP,
-bool modelPar_given_NFACTORLEXP,
-AdmsSensFadType & modelPar_NFACTORW,
-bool modelPar_given_NFACTORW,
-AdmsSensFadType & modelPar_NFACTORWEXP,
-bool modelPar_given_NFACTORWEXP,
-AdmsSensFadType & modelPar_NFACTORWL,
-bool modelPar_given_NFACTORWL,
-AdmsSensFadType & modelPar_NFACTORWLEXP,
-bool modelPar_given_NFACTORWLEXP,
-AdmsSensFadType & modelPar_LNFACTOR,
-bool modelPar_given_LNFACTOR,
-AdmsSensFadType & modelPar_WNFACTOR,
-bool modelPar_given_WNFACTOR,
-AdmsSensFadType & modelPar_PNFACTOR,
-bool modelPar_given_PNFACTOR,
-AdmsSensFadType & modelPar_CDSCD,
-bool modelPar_given_CDSCD,
-AdmsSensFadType & modelPar_CDSCDL,
-bool modelPar_given_CDSCDL,
-AdmsSensFadType & modelPar_CDSCDLEXP,
-bool modelPar_given_CDSCDLEXP,
-AdmsSensFadType & modelPar_LCDSCD,
-bool modelPar_given_LCDSCD,
-AdmsSensFadType & modelPar_WCDSCD,
-bool modelPar_given_WCDSCD,
-AdmsSensFadType & modelPar_PCDSCD,
-bool modelPar_given_PCDSCD,
-AdmsSensFadType & modelPar_CDSCDR,
-bool modelPar_given_CDSCDR,
-AdmsSensFadType & modelPar_CDSCDLR,
-bool modelPar_given_CDSCDLR,
-AdmsSensFadType & modelPar_LCDSCDR,
-bool modelPar_given_LCDSCDR,
-AdmsSensFadType & modelPar_WCDSCDR,
-bool modelPar_given_WCDSCDR,
-AdmsSensFadType & modelPar_PCDSCDR,
-bool modelPar_given_PCDSCDR,
-AdmsSensFadType & modelPar_CDSCB,
-bool modelPar_given_CDSCB,
-AdmsSensFadType & modelPar_CDSCBL,
-bool modelPar_given_CDSCBL,
-AdmsSensFadType & modelPar_CDSCBLEXP,
-bool modelPar_given_CDSCBLEXP,
-AdmsSensFadType & modelPar_LCDSCB,
-bool modelPar_given_LCDSCB,
-AdmsSensFadType & modelPar_WCDSCB,
-bool modelPar_given_WCDSCB,
-AdmsSensFadType & modelPar_PCDSCB,
-bool modelPar_given_PCDSCB,
-AdmsSensFadType & modelPar_VSAT,
-bool modelPar_given_VSAT,
-AdmsSensFadType & modelPar_LVSAT,
-bool modelPar_given_LVSAT,
-AdmsSensFadType & modelPar_WVSAT,
-bool modelPar_given_WVSAT,
-AdmsSensFadType & modelPar_PVSAT,
-bool modelPar_given_PVSAT,
-AdmsSensFadType & modelPar_VSATL,
-bool modelPar_given_VSATL,
-AdmsSensFadType & modelPar_VSATLEXP,
-bool modelPar_given_VSATLEXP,
-AdmsSensFadType & modelPar_VSATW,
-bool modelPar_given_VSATW,
-AdmsSensFadType & modelPar_VSATWEXP,
-bool modelPar_given_VSATWEXP,
-AdmsSensFadType & modelPar_VSATWL,
-bool modelPar_given_VSATWL,
-AdmsSensFadType & modelPar_VSATWLEXP,
-bool modelPar_given_VSATWLEXP,
-AdmsSensFadType & modelPar_VSATR,
-bool modelPar_given_VSATR,
-AdmsSensFadType & modelPar_LVSATR,
-bool modelPar_given_LVSATR,
-AdmsSensFadType & modelPar_WVSATR,
-bool modelPar_given_WVSATR,
-AdmsSensFadType & modelPar_PVSATR,
-bool modelPar_given_PVSATR,
-AdmsSensFadType & modelPar_DELTA,
-bool modelPar_given_DELTA,
-AdmsSensFadType & modelPar_LDELTA,
-bool modelPar_given_LDELTA,
-AdmsSensFadType & modelPar_WDELTA,
-bool modelPar_given_WDELTA,
-AdmsSensFadType & modelPar_PDELTA,
-bool modelPar_given_PDELTA,
-AdmsSensFadType & modelPar_DELTAL,
-bool modelPar_given_DELTAL,
-AdmsSensFadType & modelPar_DELTALEXP,
-bool modelPar_given_DELTALEXP,
-AdmsSensFadType & modelPar_VSATCV,
-bool modelPar_given_VSATCV,
-AdmsSensFadType & modelPar_LVSATCV,
-bool modelPar_given_LVSATCV,
-AdmsSensFadType & modelPar_WVSATCV,
-bool modelPar_given_WVSATCV,
-AdmsSensFadType & modelPar_PVSATCV,
-bool modelPar_given_PVSATCV,
-AdmsSensFadType & modelPar_VSATCVL,
-bool modelPar_given_VSATCVL,
-AdmsSensFadType & modelPar_VSATCVLEXP,
-bool modelPar_given_VSATCVLEXP,
-AdmsSensFadType & modelPar_VSATCVW,
-bool modelPar_given_VSATCVW,
-AdmsSensFadType & modelPar_VSATCVWEXP,
-bool modelPar_given_VSATCVWEXP,
-AdmsSensFadType & modelPar_VSATCVWL,
-bool modelPar_given_VSATCVWL,
-AdmsSensFadType & modelPar_VSATCVWLEXP,
-bool modelPar_given_VSATCVWLEXP,
-AdmsSensFadType & modelPar_UP1,
-bool modelPar_given_UP1,
-AdmsSensFadType & modelPar_LP1,
-bool modelPar_given_LP1,
-AdmsSensFadType & modelPar_UP2,
-bool modelPar_given_UP2,
-AdmsSensFadType & modelPar_LP2,
-bool modelPar_given_LP2,
-AdmsSensFadType & modelPar_MULU0,
-bool modelPar_given_MULU0,
-AdmsSensFadType & modelPar_U0,
-bool modelPar_given_U0,
-AdmsSensFadType & modelPar_U0L,
-bool modelPar_given_U0L,
-AdmsSensFadType & modelPar_U0LEXP,
-bool modelPar_given_U0LEXP,
-AdmsSensFadType & modelPar_LU0,
-bool modelPar_given_LU0,
-AdmsSensFadType & modelPar_WU0,
-bool modelPar_given_WU0,
-AdmsSensFadType & modelPar_PU0,
-bool modelPar_given_PU0,
-AdmsSensFadType & modelPar_U0R,
-bool modelPar_given_U0R,
-AdmsSensFadType & modelPar_LU0R,
-bool modelPar_given_LU0R,
-AdmsSensFadType & modelPar_WU0R,
-bool modelPar_given_WU0R,
-AdmsSensFadType & modelPar_PU0R,
-bool modelPar_given_PU0R,
-AdmsSensFadType & modelPar_ETAMOB,
-bool modelPar_given_ETAMOB,
-AdmsSensFadType & modelPar_UA,
-bool modelPar_given_UA,
-AdmsSensFadType & modelPar_UAL,
-bool modelPar_given_UAL,
-AdmsSensFadType & modelPar_UALEXP,
-bool modelPar_given_UALEXP,
-AdmsSensFadType & modelPar_UAW,
-bool modelPar_given_UAW,
-AdmsSensFadType & modelPar_UAWEXP,
-bool modelPar_given_UAWEXP,
-AdmsSensFadType & modelPar_UAWL,
-bool modelPar_given_UAWL,
-AdmsSensFadType & modelPar_UAWLEXP,
-bool modelPar_given_UAWLEXP,
-AdmsSensFadType & modelPar_LUA,
-bool modelPar_given_LUA,
-AdmsSensFadType & modelPar_WUA,
-bool modelPar_given_WUA,
-AdmsSensFadType & modelPar_PUA,
-bool modelPar_given_PUA,
-AdmsSensFadType & modelPar_UAR,
-bool modelPar_given_UAR,
-AdmsSensFadType & modelPar_LUAR,
-bool modelPar_given_LUAR,
-AdmsSensFadType & modelPar_WUAR,
-bool modelPar_given_WUAR,
-AdmsSensFadType & modelPar_PUAR,
-bool modelPar_given_PUAR,
-AdmsSensFadType & modelPar_EU,
-bool modelPar_given_EU,
-AdmsSensFadType & modelPar_LEU,
-bool modelPar_given_LEU,
-AdmsSensFadType & modelPar_WEU,
-bool modelPar_given_WEU,
-AdmsSensFadType & modelPar_PEU,
-bool modelPar_given_PEU,
-AdmsSensFadType & modelPar_EUL,
-bool modelPar_given_EUL,
-AdmsSensFadType & modelPar_EULEXP,
-bool modelPar_given_EULEXP,
-AdmsSensFadType & modelPar_EUW,
-bool modelPar_given_EUW,
-AdmsSensFadType & modelPar_EUWEXP,
-bool modelPar_given_EUWEXP,
-AdmsSensFadType & modelPar_EUWL,
-bool modelPar_given_EUWL,
-AdmsSensFadType & modelPar_EUWLEXP,
-bool modelPar_given_EUWLEXP,
-AdmsSensFadType & modelPar_UD,
-bool modelPar_given_UD,
-AdmsSensFadType & modelPar_UDL,
-bool modelPar_given_UDL,
-AdmsSensFadType & modelPar_UDLEXP,
-bool modelPar_given_UDLEXP,
-AdmsSensFadType & modelPar_LUD,
-bool modelPar_given_LUD,
-AdmsSensFadType & modelPar_WUD,
-bool modelPar_given_WUD,
-AdmsSensFadType & modelPar_PUD,
-bool modelPar_given_PUD,
-AdmsSensFadType & modelPar_UDR,
-bool modelPar_given_UDR,
-AdmsSensFadType & modelPar_LUDR,
-bool modelPar_given_LUDR,
-AdmsSensFadType & modelPar_WUDR,
-bool modelPar_given_WUDR,
-AdmsSensFadType & modelPar_PUDR,
-bool modelPar_given_PUDR,
-AdmsSensFadType & modelPar_UCS,
-bool modelPar_given_UCS,
-AdmsSensFadType & modelPar_LUCS,
-bool modelPar_given_LUCS,
-AdmsSensFadType & modelPar_WUCS,
-bool modelPar_given_WUCS,
-AdmsSensFadType & modelPar_PUCS,
-bool modelPar_given_PUCS,
-AdmsSensFadType & modelPar_UCSR,
-bool modelPar_given_UCSR,
-AdmsSensFadType & modelPar_LUCSR,
-bool modelPar_given_LUCSR,
-AdmsSensFadType & modelPar_WUCSR,
-bool modelPar_given_WUCSR,
-AdmsSensFadType & modelPar_PUCSR,
-bool modelPar_given_PUCSR,
-AdmsSensFadType & modelPar_UC,
-bool modelPar_given_UC,
-AdmsSensFadType & modelPar_UCL,
-bool modelPar_given_UCL,
-AdmsSensFadType & modelPar_UCLEXP,
-bool modelPar_given_UCLEXP,
-AdmsSensFadType & modelPar_UCW,
-bool modelPar_given_UCW,
-AdmsSensFadType & modelPar_UCWEXP,
-bool modelPar_given_UCWEXP,
-AdmsSensFadType & modelPar_UCWL,
-bool modelPar_given_UCWL,
-AdmsSensFadType & modelPar_UCWLEXP,
-bool modelPar_given_UCWLEXP,
-AdmsSensFadType & modelPar_LUC,
-bool modelPar_given_LUC,
-AdmsSensFadType & modelPar_WUC,
-bool modelPar_given_WUC,
-AdmsSensFadType & modelPar_PUC,
-bool modelPar_given_PUC,
-AdmsSensFadType & modelPar_UCR,
-bool modelPar_given_UCR,
-AdmsSensFadType & modelPar_LUCR,
-bool modelPar_given_LUCR,
-AdmsSensFadType & modelPar_WUCR,
-bool modelPar_given_WUCR,
-AdmsSensFadType & modelPar_PUCR,
-bool modelPar_given_PUCR,
-AdmsSensFadType & modelPar_PCLM,
-bool modelPar_given_PCLM,
-AdmsSensFadType & modelPar_PCLML,
-bool modelPar_given_PCLML,
-AdmsSensFadType & modelPar_PCLMLEXP,
-bool modelPar_given_PCLMLEXP,
-AdmsSensFadType & modelPar_LPCLM,
-bool modelPar_given_LPCLM,
-AdmsSensFadType & modelPar_WPCLM,
-bool modelPar_given_WPCLM,
-AdmsSensFadType & modelPar_PPCLM,
-bool modelPar_given_PPCLM,
-AdmsSensFadType & modelPar_PCLMR,
-bool modelPar_given_PCLMR,
-AdmsSensFadType & modelPar_LPCLMR,
-bool modelPar_given_LPCLMR,
-AdmsSensFadType & modelPar_WPCLMR,
-bool modelPar_given_WPCLMR,
-AdmsSensFadType & modelPar_PPCLMR,
-bool modelPar_given_PPCLMR,
-AdmsSensFadType & modelPar_PCLMG,
-bool modelPar_given_PCLMG,
-AdmsSensFadType & modelPar_PCLMCV,
-bool modelPar_given_PCLMCV,
-AdmsSensFadType & modelPar_PCLMCVL,
-bool modelPar_given_PCLMCVL,
-AdmsSensFadType & modelPar_PCLMCVLEXP,
-bool modelPar_given_PCLMCVLEXP,
-AdmsSensFadType & modelPar_LPCLMCV,
-bool modelPar_given_LPCLMCV,
-AdmsSensFadType & modelPar_WPCLMCV,
-bool modelPar_given_WPCLMCV,
-AdmsSensFadType & modelPar_PPCLMCV,
-bool modelPar_given_PPCLMCV,
-AdmsSensFadType & modelPar_PSCBE1,
-bool modelPar_given_PSCBE1,
-AdmsSensFadType & modelPar_LPSCBE1,
-bool modelPar_given_LPSCBE1,
-AdmsSensFadType & modelPar_WPSCBE1,
-bool modelPar_given_WPSCBE1,
-AdmsSensFadType & modelPar_PPSCBE1,
-bool modelPar_given_PPSCBE1,
-AdmsSensFadType & modelPar_PSCBE2,
-bool modelPar_given_PSCBE2,
-AdmsSensFadType & modelPar_LPSCBE2,
-bool modelPar_given_LPSCBE2,
-AdmsSensFadType & modelPar_WPSCBE2,
-bool modelPar_given_WPSCBE2,
-AdmsSensFadType & modelPar_PPSCBE2,
-bool modelPar_given_PPSCBE2,
-AdmsSensFadType & modelPar_PDITS,
-bool modelPar_given_PDITS,
-AdmsSensFadType & modelPar_LPDITS,
-bool modelPar_given_LPDITS,
-AdmsSensFadType & modelPar_WPDITS,
-bool modelPar_given_WPDITS,
-AdmsSensFadType & modelPar_PPDITS,
-bool modelPar_given_PPDITS,
-AdmsSensFadType & modelPar_PDITSL,
-bool modelPar_given_PDITSL,
-AdmsSensFadType & modelPar_PDITSD,
-bool modelPar_given_PDITSD,
-AdmsSensFadType & modelPar_LPDITSD,
-bool modelPar_given_LPDITSD,
-AdmsSensFadType & modelPar_WPDITSD,
-bool modelPar_given_WPDITSD,
-AdmsSensFadType & modelPar_PPDITSD,
-bool modelPar_given_PPDITSD,
-AdmsSensFadType & modelPar_RSH,
-bool modelPar_given_RSH,
-AdmsSensFadType & modelPar_PRWG,
-bool modelPar_given_PRWG,
-AdmsSensFadType & modelPar_LPRWG,
-bool modelPar_given_LPRWG,
-AdmsSensFadType & modelPar_WPRWG,
-bool modelPar_given_WPRWG,
-AdmsSensFadType & modelPar_PPRWG,
-bool modelPar_given_PPRWG,
-AdmsSensFadType & modelPar_PRWB,
-bool modelPar_given_PRWB,
-AdmsSensFadType & modelPar_LPRWB,
-bool modelPar_given_LPRWB,
-AdmsSensFadType & modelPar_WPRWB,
-bool modelPar_given_WPRWB,
-AdmsSensFadType & modelPar_PPRWB,
-bool modelPar_given_PPRWB,
-AdmsSensFadType & modelPar_PRWBL,
-bool modelPar_given_PRWBL,
-AdmsSensFadType & modelPar_PRWBLEXP,
-bool modelPar_given_PRWBLEXP,
-AdmsSensFadType & modelPar_WR,
-bool modelPar_given_WR,
-AdmsSensFadType & modelPar_LWR,
-bool modelPar_given_LWR,
-AdmsSensFadType & modelPar_WWR,
-bool modelPar_given_WWR,
-AdmsSensFadType & modelPar_PWR,
-bool modelPar_given_PWR,
-AdmsSensFadType & modelPar_RSWMIN,
-bool modelPar_given_RSWMIN,
-AdmsSensFadType & modelPar_LRSWMIN,
-bool modelPar_given_LRSWMIN,
-AdmsSensFadType & modelPar_WRSWMIN,
-bool modelPar_given_WRSWMIN,
-AdmsSensFadType & modelPar_PRSWMIN,
-bool modelPar_given_PRSWMIN,
-AdmsSensFadType & modelPar_RSW,
-bool modelPar_given_RSW,
-AdmsSensFadType & modelPar_LRSW,
-bool modelPar_given_LRSW,
-AdmsSensFadType & modelPar_WRSW,
-bool modelPar_given_WRSW,
-AdmsSensFadType & modelPar_PRSW,
-bool modelPar_given_PRSW,
-AdmsSensFadType & modelPar_RSWL,
-bool modelPar_given_RSWL,
-AdmsSensFadType & modelPar_RSWLEXP,
-bool modelPar_given_RSWLEXP,
-AdmsSensFadType & modelPar_RDWMIN,
-bool modelPar_given_RDWMIN,
-AdmsSensFadType & modelPar_LRDWMIN,
-bool modelPar_given_LRDWMIN,
-AdmsSensFadType & modelPar_WRDWMIN,
-bool modelPar_given_WRDWMIN,
-AdmsSensFadType & modelPar_PRDWMIN,
-bool modelPar_given_PRDWMIN,
-AdmsSensFadType & modelPar_RDW,
-bool modelPar_given_RDW,
-AdmsSensFadType & modelPar_LRDW,
-bool modelPar_given_LRDW,
-AdmsSensFadType & modelPar_WRDW,
-bool modelPar_given_WRDW,
-AdmsSensFadType & modelPar_PRDW,
-bool modelPar_given_PRDW,
-AdmsSensFadType & modelPar_RDWL,
-bool modelPar_given_RDWL,
-AdmsSensFadType & modelPar_RDWLEXP,
-bool modelPar_given_RDWLEXP,
-AdmsSensFadType & modelPar_RDSWMIN,
-bool modelPar_given_RDSWMIN,
-AdmsSensFadType & modelPar_LRDSWMIN,
-bool modelPar_given_LRDSWMIN,
-AdmsSensFadType & modelPar_WRDSWMIN,
-bool modelPar_given_WRDSWMIN,
-AdmsSensFadType & modelPar_PRDSWMIN,
-bool modelPar_given_PRDSWMIN,
-AdmsSensFadType & modelPar_RDSW,
-bool modelPar_given_RDSW,
-AdmsSensFadType & modelPar_RDSWL,
-bool modelPar_given_RDSWL,
-AdmsSensFadType & modelPar_RDSWLEXP,
-bool modelPar_given_RDSWLEXP,
-AdmsSensFadType & modelPar_LRDSW,
-bool modelPar_given_LRDSW,
-AdmsSensFadType & modelPar_WRDSW,
-bool modelPar_given_WRDSW,
-AdmsSensFadType & modelPar_PRDSW,
-bool modelPar_given_PRDSW,
-AdmsSensFadType & modelPar_PSAT,
-bool modelPar_given_PSAT,
-AdmsSensFadType & modelPar_LPSAT,
-bool modelPar_given_LPSAT,
-AdmsSensFadType & modelPar_WPSAT,
-bool modelPar_given_WPSAT,
-AdmsSensFadType & modelPar_PPSAT,
-bool modelPar_given_PPSAT,
-AdmsSensFadType & modelPar_PSATL,
-bool modelPar_given_PSATL,
-AdmsSensFadType & modelPar_PSATLEXP,
-bool modelPar_given_PSATLEXP,
-AdmsSensFadType & modelPar_PSATB,
-bool modelPar_given_PSATB,
-AdmsSensFadType & modelPar_PSATR,
-bool modelPar_given_PSATR,
-AdmsSensFadType & modelPar_LPSATR,
-bool modelPar_given_LPSATR,
-AdmsSensFadType & modelPar_WPSATR,
-bool modelPar_given_WPSATR,
-AdmsSensFadType & modelPar_PPSATR,
-bool modelPar_given_PPSATR,
-AdmsSensFadType & modelPar_LPSATB,
-bool modelPar_given_LPSATB,
-AdmsSensFadType & modelPar_WPSATB,
-bool modelPar_given_WPSATB,
-AdmsSensFadType & modelPar_PPSATB,
-bool modelPar_given_PPSATB,
-AdmsSensFadType & modelPar_PSATX,
-bool modelPar_given_PSATX,
-AdmsSensFadType & modelPar_PTWG,
-bool modelPar_given_PTWG,
-AdmsSensFadType & modelPar_LPTWG,
-bool modelPar_given_LPTWG,
-AdmsSensFadType & modelPar_WPTWG,
-bool modelPar_given_WPTWG,
-AdmsSensFadType & modelPar_PPTWG,
-bool modelPar_given_PPTWG,
-AdmsSensFadType & modelPar_PTWGL,
-bool modelPar_given_PTWGL,
-AdmsSensFadType & modelPar_PTWGLEXP,
-bool modelPar_given_PTWGLEXP,
-AdmsSensFadType & modelPar_PTWGR,
-bool modelPar_given_PTWGR,
-AdmsSensFadType & modelPar_LPTWGR,
-bool modelPar_given_LPTWGR,
-AdmsSensFadType & modelPar_WPTWGR,
-bool modelPar_given_WPTWGR,
-AdmsSensFadType & modelPar_PPTWGR,
-bool modelPar_given_PPTWGR,
-AdmsSensFadType & modelPar_PTWGLR,
-bool modelPar_given_PTWGLR,
-AdmsSensFadType & modelPar_PTWGLEXPR,
-bool modelPar_given_PTWGLEXPR,
-AdmsSensFadType & modelPar_A1,
-bool modelPar_given_A1,
-AdmsSensFadType & modelPar_LA1,
-bool modelPar_given_LA1,
-AdmsSensFadType & modelPar_WA1,
-bool modelPar_given_WA1,
-AdmsSensFadType & modelPar_PA1,
-bool modelPar_given_PA1,
-AdmsSensFadType & modelPar_A11,
-bool modelPar_given_A11,
-AdmsSensFadType & modelPar_LA11,
-bool modelPar_given_LA11,
-AdmsSensFadType & modelPar_WA11,
-bool modelPar_given_WA11,
-AdmsSensFadType & modelPar_PA11,
-bool modelPar_given_PA11,
-AdmsSensFadType & modelPar_A2,
-bool modelPar_given_A2,
-AdmsSensFadType & modelPar_LA2,
-bool modelPar_given_LA2,
-AdmsSensFadType & modelPar_WA2,
-bool modelPar_given_WA2,
-AdmsSensFadType & modelPar_PA2,
-bool modelPar_given_PA2,
-AdmsSensFadType & modelPar_A21,
-bool modelPar_given_A21,
-AdmsSensFadType & modelPar_LA21,
-bool modelPar_given_LA21,
-AdmsSensFadType & modelPar_WA21,
-bool modelPar_given_WA21,
-AdmsSensFadType & modelPar_PA21,
-bool modelPar_given_PA21,
-AdmsSensFadType & modelPar_PDIBLC,
-bool modelPar_given_PDIBLC,
-AdmsSensFadType & modelPar_PDIBLCL,
-bool modelPar_given_PDIBLCL,
-AdmsSensFadType & modelPar_PDIBLCLEXP,
-bool modelPar_given_PDIBLCLEXP,
-AdmsSensFadType & modelPar_LPDIBLC,
-bool modelPar_given_LPDIBLC,
-AdmsSensFadType & modelPar_WPDIBLC,
-bool modelPar_given_WPDIBLC,
-AdmsSensFadType & modelPar_PPDIBLC,
-bool modelPar_given_PPDIBLC,
-AdmsSensFadType & modelPar_PDIBLCR,
-bool modelPar_given_PDIBLCR,
-AdmsSensFadType & modelPar_PDIBLCLR,
-bool modelPar_given_PDIBLCLR,
-AdmsSensFadType & modelPar_PDIBLCLEXPR,
-bool modelPar_given_PDIBLCLEXPR,
-AdmsSensFadType & modelPar_LPDIBLCR,
-bool modelPar_given_LPDIBLCR,
-AdmsSensFadType & modelPar_WPDIBLCR,
-bool modelPar_given_WPDIBLCR,
-AdmsSensFadType & modelPar_PPDIBLCR,
-bool modelPar_given_PPDIBLCR,
-AdmsSensFadType & modelPar_PDIBLCB,
-bool modelPar_given_PDIBLCB,
-AdmsSensFadType & modelPar_LPDIBLCB,
-bool modelPar_given_LPDIBLCB,
-AdmsSensFadType & modelPar_WPDIBLCB,
-bool modelPar_given_WPDIBLCB,
-AdmsSensFadType & modelPar_PPDIBLCB,
-bool modelPar_given_PPDIBLCB,
-AdmsSensFadType & modelPar_PVAG,
-bool modelPar_given_PVAG,
-AdmsSensFadType & modelPar_LPVAG,
-bool modelPar_given_LPVAG,
-AdmsSensFadType & modelPar_WPVAG,
-bool modelPar_given_WPVAG,
-AdmsSensFadType & modelPar_PPVAG,
-bool modelPar_given_PPVAG,
-AdmsSensFadType & modelPar_FPROUT,
-bool modelPar_given_FPROUT,
-AdmsSensFadType & modelPar_FPROUTL,
-bool modelPar_given_FPROUTL,
-AdmsSensFadType & modelPar_FPROUTLEXP,
-bool modelPar_given_FPROUTLEXP,
-AdmsSensFadType & modelPar_LFPROUT,
-bool modelPar_given_LFPROUT,
-AdmsSensFadType & modelPar_WFPROUT,
-bool modelPar_given_WFPROUT,
-AdmsSensFadType & modelPar_PFPROUT,
-bool modelPar_given_PFPROUT,
-AdmsSensFadType & modelPar_ALPHA0,
-bool modelPar_given_ALPHA0,
-AdmsSensFadType & modelPar_ALPHA0L,
-bool modelPar_given_ALPHA0L,
-AdmsSensFadType & modelPar_ALPHA0LEXP,
-bool modelPar_given_ALPHA0LEXP,
-AdmsSensFadType & modelPar_LALPHA0,
-bool modelPar_given_LALPHA0,
-AdmsSensFadType & modelPar_WALPHA0,
-bool modelPar_given_WALPHA0,
-AdmsSensFadType & modelPar_PALPHA0,
-bool modelPar_given_PALPHA0,
-AdmsSensFadType & modelPar_BETA0,
-bool modelPar_given_BETA0,
-AdmsSensFadType & modelPar_LBETA0,
-bool modelPar_given_LBETA0,
-AdmsSensFadType & modelPar_WBETA0,
-bool modelPar_given_WBETA0,
-AdmsSensFadType & modelPar_PBETA0,
-bool modelPar_given_PBETA0,
-AdmsSensFadType & modelPar_AIGBACC,
-bool modelPar_given_AIGBACC,
-AdmsSensFadType & modelPar_BIGBACC,
-bool modelPar_given_BIGBACC,
-AdmsSensFadType & modelPar_CIGBACC,
-bool modelPar_given_CIGBACC,
-AdmsSensFadType & modelPar_NIGBACC,
-bool modelPar_given_NIGBACC,
-AdmsSensFadType & modelPar_AIGBINV,
-bool modelPar_given_AIGBINV,
-AdmsSensFadType & modelPar_BIGBINV,
-bool modelPar_given_BIGBINV,
-AdmsSensFadType & modelPar_CIGBINV,
-bool modelPar_given_CIGBINV,
-AdmsSensFadType & modelPar_EIGBINV,
-bool modelPar_given_EIGBINV,
-AdmsSensFadType & modelPar_NIGBINV,
-bool modelPar_given_NIGBINV,
-AdmsSensFadType & modelPar_AIGC,
-bool modelPar_given_AIGC,
-AdmsSensFadType & modelPar_BIGC,
-bool modelPar_given_BIGC,
-AdmsSensFadType & modelPar_CIGC,
-bool modelPar_given_CIGC,
-AdmsSensFadType & modelPar_AIGS,
-bool modelPar_given_AIGS,
-AdmsSensFadType & modelPar_BIGS,
-bool modelPar_given_BIGS,
-AdmsSensFadType & modelPar_CIGS,
-bool modelPar_given_CIGS,
-AdmsSensFadType & modelPar_AIGD,
-bool modelPar_given_AIGD,
-AdmsSensFadType & modelPar_BIGD,
-bool modelPar_given_BIGD,
-AdmsSensFadType & modelPar_CIGD,
-bool modelPar_given_CIGD,
-AdmsSensFadType & modelPar_DLCIG,
-bool modelPar_given_DLCIG,
-AdmsSensFadType & modelPar_DLCIGD,
-bool modelPar_given_DLCIGD,
-AdmsSensFadType & modelPar_POXEDGE,
-bool modelPar_given_POXEDGE,
-AdmsSensFadType & modelPar_NTOX,
-bool modelPar_given_NTOX,
-AdmsSensFadType & modelPar_TOXREF,
-bool modelPar_given_TOXREF,
-AdmsSensFadType & modelPar_PIGCD,
-bool modelPar_given_PIGCD,
-AdmsSensFadType & modelPar_AIGCL,
-bool modelPar_given_AIGCL,
-AdmsSensFadType & modelPar_AIGCW,
-bool modelPar_given_AIGCW,
-AdmsSensFadType & modelPar_AIGSL,
-bool modelPar_given_AIGSL,
-AdmsSensFadType & modelPar_AIGSW,
-bool modelPar_given_AIGSW,
-AdmsSensFadType & modelPar_AIGDL,
-bool modelPar_given_AIGDL,
-AdmsSensFadType & modelPar_AIGDW,
-bool modelPar_given_AIGDW,
-AdmsSensFadType & modelPar_PIGCDL,
-bool modelPar_given_PIGCDL,
-AdmsSensFadType & modelPar_LAIGBINV,
-bool modelPar_given_LAIGBINV,
-AdmsSensFadType & modelPar_WAIGBINV,
-bool modelPar_given_WAIGBINV,
-AdmsSensFadType & modelPar_PAIGBINV,
-bool modelPar_given_PAIGBINV,
-AdmsSensFadType & modelPar_LBIGBINV,
-bool modelPar_given_LBIGBINV,
-AdmsSensFadType & modelPar_WBIGBINV,
-bool modelPar_given_WBIGBINV,
-AdmsSensFadType & modelPar_PBIGBINV,
-bool modelPar_given_PBIGBINV,
-AdmsSensFadType & modelPar_LCIGBINV,
-bool modelPar_given_LCIGBINV,
-AdmsSensFadType & modelPar_WCIGBINV,
-bool modelPar_given_WCIGBINV,
-AdmsSensFadType & modelPar_PCIGBINV,
-bool modelPar_given_PCIGBINV,
-AdmsSensFadType & modelPar_LEIGBINV,
-bool modelPar_given_LEIGBINV,
-AdmsSensFadType & modelPar_WEIGBINV,
-bool modelPar_given_WEIGBINV,
-AdmsSensFadType & modelPar_PEIGBINV,
-bool modelPar_given_PEIGBINV,
-AdmsSensFadType & modelPar_LNIGBINV,
-bool modelPar_given_LNIGBINV,
-AdmsSensFadType & modelPar_WNIGBINV,
-bool modelPar_given_WNIGBINV,
-AdmsSensFadType & modelPar_PNIGBINV,
-bool modelPar_given_PNIGBINV,
-AdmsSensFadType & modelPar_LAIGBACC,
-bool modelPar_given_LAIGBACC,
-AdmsSensFadType & modelPar_WAIGBACC,
-bool modelPar_given_WAIGBACC,
-AdmsSensFadType & modelPar_PAIGBACC,
-bool modelPar_given_PAIGBACC,
-AdmsSensFadType & modelPar_LBIGBACC,
-bool modelPar_given_LBIGBACC,
-AdmsSensFadType & modelPar_WBIGBACC,
-bool modelPar_given_WBIGBACC,
-AdmsSensFadType & modelPar_PBIGBACC,
-bool modelPar_given_PBIGBACC,
-AdmsSensFadType & modelPar_LCIGBACC,
-bool modelPar_given_LCIGBACC,
-AdmsSensFadType & modelPar_WCIGBACC,
-bool modelPar_given_WCIGBACC,
-AdmsSensFadType & modelPar_PCIGBACC,
-bool modelPar_given_PCIGBACC,
-AdmsSensFadType & modelPar_LNIGBACC,
-bool modelPar_given_LNIGBACC,
-AdmsSensFadType & modelPar_WNIGBACC,
-bool modelPar_given_WNIGBACC,
-AdmsSensFadType & modelPar_PNIGBACC,
-bool modelPar_given_PNIGBACC,
-AdmsSensFadType & modelPar_LAIGC,
-bool modelPar_given_LAIGC,
-AdmsSensFadType & modelPar_WAIGC,
-bool modelPar_given_WAIGC,
-AdmsSensFadType & modelPar_PAIGC,
-bool modelPar_given_PAIGC,
-AdmsSensFadType & modelPar_LBIGC,
-bool modelPar_given_LBIGC,
-AdmsSensFadType & modelPar_WBIGC,
-bool modelPar_given_WBIGC,
-AdmsSensFadType & modelPar_PBIGC,
-bool modelPar_given_PBIGC,
-AdmsSensFadType & modelPar_LCIGC,
-bool modelPar_given_LCIGC,
-AdmsSensFadType & modelPar_WCIGC,
-bool modelPar_given_WCIGC,
-AdmsSensFadType & modelPar_PCIGC,
-bool modelPar_given_PCIGC,
-AdmsSensFadType & modelPar_LAIGS,
-bool modelPar_given_LAIGS,
-AdmsSensFadType & modelPar_WAIGS,
-bool modelPar_given_WAIGS,
-AdmsSensFadType & modelPar_PAIGS,
-bool modelPar_given_PAIGS,
-AdmsSensFadType & modelPar_LBIGS,
-bool modelPar_given_LBIGS,
-AdmsSensFadType & modelPar_WBIGS,
-bool modelPar_given_WBIGS,
-AdmsSensFadType & modelPar_PBIGS,
-bool modelPar_given_PBIGS,
-AdmsSensFadType & modelPar_LCIGS,
-bool modelPar_given_LCIGS,
-AdmsSensFadType & modelPar_WCIGS,
-bool modelPar_given_WCIGS,
-AdmsSensFadType & modelPar_PCIGS,
-bool modelPar_given_PCIGS,
-AdmsSensFadType & modelPar_LAIGD,
-bool modelPar_given_LAIGD,
-AdmsSensFadType & modelPar_WAIGD,
-bool modelPar_given_WAIGD,
-AdmsSensFadType & modelPar_PAIGD,
-bool modelPar_given_PAIGD,
-AdmsSensFadType & modelPar_LBIGD,
-bool modelPar_given_LBIGD,
-AdmsSensFadType & modelPar_WBIGD,
-bool modelPar_given_WBIGD,
-AdmsSensFadType & modelPar_PBIGD,
-bool modelPar_given_PBIGD,
-AdmsSensFadType & modelPar_LCIGD,
-bool modelPar_given_LCIGD,
-AdmsSensFadType & modelPar_WCIGD,
-bool modelPar_given_WCIGD,
-AdmsSensFadType & modelPar_PCIGD,
-bool modelPar_given_PCIGD,
-AdmsSensFadType & modelPar_LPOXEDGE,
-bool modelPar_given_LPOXEDGE,
-AdmsSensFadType & modelPar_WPOXEDGE,
-bool modelPar_given_WPOXEDGE,
-AdmsSensFadType & modelPar_PPOXEDGE,
-bool modelPar_given_PPOXEDGE,
-AdmsSensFadType & modelPar_LDLCIG,
-bool modelPar_given_LDLCIG,
-AdmsSensFadType & modelPar_WDLCIG,
-bool modelPar_given_WDLCIG,
-AdmsSensFadType & modelPar_PDLCIG,
-bool modelPar_given_PDLCIG,
-AdmsSensFadType & modelPar_LDLCIGD,
-bool modelPar_given_LDLCIGD,
-AdmsSensFadType & modelPar_WDLCIGD,
-bool modelPar_given_WDLCIGD,
-AdmsSensFadType & modelPar_PDLCIGD,
-bool modelPar_given_PDLCIGD,
-AdmsSensFadType & modelPar_LNTOX,
-bool modelPar_given_LNTOX,
-AdmsSensFadType & modelPar_WNTOX,
-bool modelPar_given_WNTOX,
-AdmsSensFadType & modelPar_PNTOX,
-bool modelPar_given_PNTOX,
-AdmsSensFadType & modelPar_AGIDL,
-bool modelPar_given_AGIDL,
-AdmsSensFadType & modelPar_AGIDLL,
-bool modelPar_given_AGIDLL,
-AdmsSensFadType & modelPar_AGIDLW,
-bool modelPar_given_AGIDLW,
-AdmsSensFadType & modelPar_LAGIDL,
-bool modelPar_given_LAGIDL,
-AdmsSensFadType & modelPar_WAGIDL,
-bool modelPar_given_WAGIDL,
-AdmsSensFadType & modelPar_PAGIDL,
-bool modelPar_given_PAGIDL,
-AdmsSensFadType & modelPar_BGIDL,
-bool modelPar_given_BGIDL,
-AdmsSensFadType & modelPar_LBGIDL,
-bool modelPar_given_LBGIDL,
-AdmsSensFadType & modelPar_WBGIDL,
-bool modelPar_given_WBGIDL,
-AdmsSensFadType & modelPar_PBGIDL,
-bool modelPar_given_PBGIDL,
-AdmsSensFadType & modelPar_CGIDL,
-bool modelPar_given_CGIDL,
-AdmsSensFadType & modelPar_LCGIDL,
-bool modelPar_given_LCGIDL,
-AdmsSensFadType & modelPar_WCGIDL,
-bool modelPar_given_WCGIDL,
-AdmsSensFadType & modelPar_PCGIDL,
-bool modelPar_given_PCGIDL,
-AdmsSensFadType & modelPar_EGIDL,
-bool modelPar_given_EGIDL,
-AdmsSensFadType & modelPar_LEGIDL,
-bool modelPar_given_LEGIDL,
-AdmsSensFadType & modelPar_WEGIDL,
-bool modelPar_given_WEGIDL,
-AdmsSensFadType & modelPar_PEGIDL,
-bool modelPar_given_PEGIDL,
-AdmsSensFadType & modelPar_AGISL,
-bool modelPar_given_AGISL,
-AdmsSensFadType & modelPar_AGISLL,
-bool modelPar_given_AGISLL,
-AdmsSensFadType & modelPar_AGISLW,
-bool modelPar_given_AGISLW,
-AdmsSensFadType & modelPar_LAGISL,
-bool modelPar_given_LAGISL,
-AdmsSensFadType & modelPar_WAGISL,
-bool modelPar_given_WAGISL,
-AdmsSensFadType & modelPar_PAGISL,
-bool modelPar_given_PAGISL,
-AdmsSensFadType & modelPar_BGISL,
-bool modelPar_given_BGISL,
-AdmsSensFadType & modelPar_LBGISL,
-bool modelPar_given_LBGISL,
-AdmsSensFadType & modelPar_WBGISL,
-bool modelPar_given_WBGISL,
-AdmsSensFadType & modelPar_PBGISL,
-bool modelPar_given_PBGISL,
-AdmsSensFadType & modelPar_CGISL,
-bool modelPar_given_CGISL,
-AdmsSensFadType & modelPar_LCGISL,
-bool modelPar_given_LCGISL,
-AdmsSensFadType & modelPar_WCGISL,
-bool modelPar_given_WCGISL,
-AdmsSensFadType & modelPar_PCGISL,
-bool modelPar_given_PCGISL,
-AdmsSensFadType & modelPar_EGISL,
-bool modelPar_given_EGISL,
-AdmsSensFadType & modelPar_LEGISL,
-bool modelPar_given_LEGISL,
-AdmsSensFadType & modelPar_WEGISL,
-bool modelPar_given_WEGISL,
-AdmsSensFadType & modelPar_PEGISL,
-bool modelPar_given_PEGISL,
-AdmsSensFadType & modelPar_CF,
-bool modelPar_given_CF,
-AdmsSensFadType & modelPar_LCF,
-bool modelPar_given_LCF,
-AdmsSensFadType & modelPar_WCF,
-bool modelPar_given_WCF,
-AdmsSensFadType & modelPar_PCF,
-bool modelPar_given_PCF,
-AdmsSensFadType & modelPar_CFRCOEFF,
-bool modelPar_given_CFRCOEFF,
-AdmsSensFadType & modelPar_CGSO,
-bool modelPar_given_CGSO,
-AdmsSensFadType & modelPar_CGDO,
-bool modelPar_given_CGDO,
-AdmsSensFadType & modelPar_CGBO,
-bool modelPar_given_CGBO,
-AdmsSensFadType & modelPar_CGSL,
-bool modelPar_given_CGSL,
-AdmsSensFadType & modelPar_LCGSL,
-bool modelPar_given_LCGSL,
-AdmsSensFadType & modelPar_WCGSL,
-bool modelPar_given_WCGSL,
-AdmsSensFadType & modelPar_PCGSL,
-bool modelPar_given_PCGSL,
-AdmsSensFadType & modelPar_CGDL,
-bool modelPar_given_CGDL,
-AdmsSensFadType & modelPar_LCGDL,
-bool modelPar_given_LCGDL,
-AdmsSensFadType & modelPar_WCGDL,
-bool modelPar_given_WCGDL,
-AdmsSensFadType & modelPar_PCGDL,
-bool modelPar_given_PCGDL,
-AdmsSensFadType & modelPar_CKAPPAS,
-bool modelPar_given_CKAPPAS,
-AdmsSensFadType & modelPar_LCKAPPAS,
-bool modelPar_given_LCKAPPAS,
-AdmsSensFadType & modelPar_WCKAPPAS,
-bool modelPar_given_WCKAPPAS,
-AdmsSensFadType & modelPar_PCKAPPAS,
-bool modelPar_given_PCKAPPAS,
-AdmsSensFadType & modelPar_CKAPPAD,
-bool modelPar_given_CKAPPAD,
-AdmsSensFadType & modelPar_LCKAPPAD,
-bool modelPar_given_LCKAPPAD,
-AdmsSensFadType & modelPar_WCKAPPAD,
-bool modelPar_given_WCKAPPAD,
-AdmsSensFadType & modelPar_PCKAPPAD,
-bool modelPar_given_PCKAPPAD,
-AdmsSensFadType & modelPar_DMCG,
-bool modelPar_given_DMCG,
-AdmsSensFadType & modelPar_DMCI,
-bool modelPar_given_DMCI,
-AdmsSensFadType & modelPar_DMDG,
-bool modelPar_given_DMDG,
-AdmsSensFadType & modelPar_DMCGT,
-bool modelPar_given_DMCGT,
-AdmsSensFadType & modelPar_XGL,
-bool modelPar_given_XGL,
-AdmsSensFadType & modelPar_RSHG,
-bool modelPar_given_RSHG,
-AdmsSensFadType & modelPar_CJS,
-bool modelPar_given_CJS,
-AdmsSensFadType & modelPar_CJD,
-bool modelPar_given_CJD,
-AdmsSensFadType & modelPar_CJSWS,
-bool modelPar_given_CJSWS,
-AdmsSensFadType & modelPar_CJSWD,
-bool modelPar_given_CJSWD,
-AdmsSensFadType & modelPar_CJSWGS,
-bool modelPar_given_CJSWGS,
-AdmsSensFadType & modelPar_CJSWGD,
-bool modelPar_given_CJSWGD,
-AdmsSensFadType & modelPar_PBS,
-bool modelPar_given_PBS,
-AdmsSensFadType & modelPar_PBD,
-bool modelPar_given_PBD,
-AdmsSensFadType & modelPar_PBSWS,
-bool modelPar_given_PBSWS,
-AdmsSensFadType & modelPar_PBSWD,
-bool modelPar_given_PBSWD,
-AdmsSensFadType & modelPar_PBSWGS,
-bool modelPar_given_PBSWGS,
-AdmsSensFadType & modelPar_PBSWGD,
-bool modelPar_given_PBSWGD,
-AdmsSensFadType & modelPar_MJS,
-bool modelPar_given_MJS,
-AdmsSensFadType & modelPar_MJD,
-bool modelPar_given_MJD,
-AdmsSensFadType & modelPar_MJSWS,
-bool modelPar_given_MJSWS,
-AdmsSensFadType & modelPar_MJSWD,
-bool modelPar_given_MJSWD,
-AdmsSensFadType & modelPar_MJSWGS,
-bool modelPar_given_MJSWGS,
-AdmsSensFadType & modelPar_MJSWGD,
-bool modelPar_given_MJSWGD,
-AdmsSensFadType & modelPar_JSS,
-bool modelPar_given_JSS,
-AdmsSensFadType & modelPar_JSD,
-bool modelPar_given_JSD,
-AdmsSensFadType & modelPar_JSWS,
-bool modelPar_given_JSWS,
-AdmsSensFadType & modelPar_JSWD,
-bool modelPar_given_JSWD,
-AdmsSensFadType & modelPar_JSWGS,
-bool modelPar_given_JSWGS,
-AdmsSensFadType & modelPar_JSWGD,
-bool modelPar_given_JSWGD,
-AdmsSensFadType & modelPar_NJS,
-bool modelPar_given_NJS,
-AdmsSensFadType & modelPar_NJD,
-bool modelPar_given_NJD,
-AdmsSensFadType & modelPar_IJTHSFWD,
-bool modelPar_given_IJTHSFWD,
-AdmsSensFadType & modelPar_IJTHDFWD,
-bool modelPar_given_IJTHDFWD,
-AdmsSensFadType & modelPar_IJTHSREV,
-bool modelPar_given_IJTHSREV,
-AdmsSensFadType & modelPar_IJTHDREV,
-bool modelPar_given_IJTHDREV,
-AdmsSensFadType & modelPar_BVS,
-bool modelPar_given_BVS,
-AdmsSensFadType & modelPar_BVD,
-bool modelPar_given_BVD,
-AdmsSensFadType & modelPar_XJBVS,
-bool modelPar_given_XJBVS,
-AdmsSensFadType & modelPar_XJBVD,
-bool modelPar_given_XJBVD,
-AdmsSensFadType & modelPar_JTSS,
-bool modelPar_given_JTSS,
-AdmsSensFadType & modelPar_JTSD,
-bool modelPar_given_JTSD,
-AdmsSensFadType & modelPar_JTSSWS,
-bool modelPar_given_JTSSWS,
-AdmsSensFadType & modelPar_JTSSWD,
-bool modelPar_given_JTSSWD,
-AdmsSensFadType & modelPar_JTSSWGS,
-bool modelPar_given_JTSSWGS,
-AdmsSensFadType & modelPar_JTSSWGD,
-bool modelPar_given_JTSSWGD,
-AdmsSensFadType & modelPar_JTWEFF,
-bool modelPar_given_JTWEFF,
-AdmsSensFadType & modelPar_NJTS,
-bool modelPar_given_NJTS,
-AdmsSensFadType & modelPar_NJTSD,
-bool modelPar_given_NJTSD,
-AdmsSensFadType & modelPar_NJTSSW,
-bool modelPar_given_NJTSSW,
-AdmsSensFadType & modelPar_NJTSSWD,
-bool modelPar_given_NJTSSWD,
-AdmsSensFadType & modelPar_NJTSSWG,
-bool modelPar_given_NJTSSWG,
-AdmsSensFadType & modelPar_NJTSSWGD,
-bool modelPar_given_NJTSSWGD,
-AdmsSensFadType & modelPar_VTSS,
-bool modelPar_given_VTSS,
-AdmsSensFadType & modelPar_VTSD,
-bool modelPar_given_VTSD,
-AdmsSensFadType & modelPar_VTSSWS,
-bool modelPar_given_VTSSWS,
-AdmsSensFadType & modelPar_VTSSWD,
-bool modelPar_given_VTSSWD,
-AdmsSensFadType & modelPar_VTSSWGS,
-bool modelPar_given_VTSSWGS,
-AdmsSensFadType & modelPar_VTSSWGD,
-bool modelPar_given_VTSSWGD,
-AdmsSensFadType & modelPar_XRCRG1,
-bool modelPar_given_XRCRG1,
-AdmsSensFadType & modelPar_XRCRG2,
-bool modelPar_given_XRCRG2,
-AdmsSensFadType & modelPar_GBMIN,
-bool modelPar_given_GBMIN,
-AdmsSensFadType & modelPar_RBPS0,
-bool modelPar_given_RBPS0,
-AdmsSensFadType & modelPar_RBPSL,
-bool modelPar_given_RBPSL,
-AdmsSensFadType & modelPar_RBPSW,
-bool modelPar_given_RBPSW,
-AdmsSensFadType & modelPar_RBPSNF,
-bool modelPar_given_RBPSNF,
-AdmsSensFadType & modelPar_RBPD0,
-bool modelPar_given_RBPD0,
-AdmsSensFadType & modelPar_RBPDL,
-bool modelPar_given_RBPDL,
-AdmsSensFadType & modelPar_RBPDW,
-bool modelPar_given_RBPDW,
-AdmsSensFadType & modelPar_RBPDNF,
-bool modelPar_given_RBPDNF,
-AdmsSensFadType & modelPar_RBPBX0,
-bool modelPar_given_RBPBX0,
-AdmsSensFadType & modelPar_RBPBXL,
-bool modelPar_given_RBPBXL,
-AdmsSensFadType & modelPar_RBPBXW,
-bool modelPar_given_RBPBXW,
-AdmsSensFadType & modelPar_RBPBXNF,
-bool modelPar_given_RBPBXNF,
-AdmsSensFadType & modelPar_RBPBY0,
-bool modelPar_given_RBPBY0,
-AdmsSensFadType & modelPar_RBPBYL,
-bool modelPar_given_RBPBYL,
-AdmsSensFadType & modelPar_RBPBYW,
-bool modelPar_given_RBPBYW,
-AdmsSensFadType & modelPar_RBPBYNF,
-bool modelPar_given_RBPBYNF,
-AdmsSensFadType & modelPar_RBSBX0,
-bool modelPar_given_RBSBX0,
-AdmsSensFadType & modelPar_RBSBY0,
-bool modelPar_given_RBSBY0,
-AdmsSensFadType & modelPar_RBDBX0,
-bool modelPar_given_RBDBX0,
-AdmsSensFadType & modelPar_RBDBY0,
-bool modelPar_given_RBDBY0,
-AdmsSensFadType & modelPar_RBSDBXL,
-bool modelPar_given_RBSDBXL,
-AdmsSensFadType & modelPar_RBSDBXW,
-bool modelPar_given_RBSDBXW,
-AdmsSensFadType & modelPar_RBSDBXNF,
-bool modelPar_given_RBSDBXNF,
-AdmsSensFadType & modelPar_RBSDBYL,
-bool modelPar_given_RBSDBYL,
-AdmsSensFadType & modelPar_RBSDBYW,
-bool modelPar_given_RBSDBYW,
-AdmsSensFadType & modelPar_RBSDBYNF,
-bool modelPar_given_RBSDBYNF,
-AdmsSensFadType & modelPar_EF,
-bool modelPar_given_EF,
-AdmsSensFadType & modelPar_EM,
-bool modelPar_given_EM,
-AdmsSensFadType & modelPar_NOIA,
-bool modelPar_given_NOIA,
-AdmsSensFadType & modelPar_NOIB,
-bool modelPar_given_NOIB,
-AdmsSensFadType & modelPar_NOIC,
-bool modelPar_given_NOIC,
-AdmsSensFadType & modelPar_LINTNOI,
-bool modelPar_given_LINTNOI,
-AdmsSensFadType & modelPar_NTNOI,
-bool modelPar_given_NTNOI,
-AdmsSensFadType & modelPar_RNOIA,
-bool modelPar_given_RNOIA,
-AdmsSensFadType & modelPar_RNOIB,
-bool modelPar_given_RNOIB,
-AdmsSensFadType & modelPar_RNOIC,
-bool modelPar_given_RNOIC,
-AdmsSensFadType & modelPar_TNOIA,
-bool modelPar_given_TNOIA,
-AdmsSensFadType & modelPar_TNOIB,
-bool modelPar_given_TNOIB,
-AdmsSensFadType & modelPar_TNOIC,
-bool modelPar_given_TNOIC,
-AdmsSensFadType & modelPar_DLBIN,
-bool modelPar_given_DLBIN,
-AdmsSensFadType & modelPar_DWBIN,
-bool modelPar_given_DWBIN,
-AdmsSensFadType & modelPar_TNOM,
-bool modelPar_given_TNOM,
-AdmsSensFadType & modelPar_DTEMP,
-bool modelPar_given_DTEMP,
-AdmsSensFadType & modelPar_TBGASUB,
-bool modelPar_given_TBGASUB,
-AdmsSensFadType & modelPar_TBGBSUB,
-bool modelPar_given_TBGBSUB,
-AdmsSensFadType & modelPar_TNFACTOR,
-bool modelPar_given_TNFACTOR,
-AdmsSensFadType & modelPar_UTE,
-bool modelPar_given_UTE,
-AdmsSensFadType & modelPar_LUTE,
-bool modelPar_given_LUTE,
-AdmsSensFadType & modelPar_WUTE,
-bool modelPar_given_WUTE,
-AdmsSensFadType & modelPar_PUTE,
-bool modelPar_given_PUTE,
-AdmsSensFadType & modelPar_UTEL,
-bool modelPar_given_UTEL,
-AdmsSensFadType & modelPar_UA1,
-bool modelPar_given_UA1,
-AdmsSensFadType & modelPar_LUA1,
-bool modelPar_given_LUA1,
-AdmsSensFadType & modelPar_WUA1,
-bool modelPar_given_WUA1,
-AdmsSensFadType & modelPar_PUA1,
-bool modelPar_given_PUA1,
-AdmsSensFadType & modelPar_UA1L,
-bool modelPar_given_UA1L,
-AdmsSensFadType & modelPar_UC1,
-bool modelPar_given_UC1,
-AdmsSensFadType & modelPar_LUC1,
-bool modelPar_given_LUC1,
-AdmsSensFadType & modelPar_WUC1,
-bool modelPar_given_WUC1,
-AdmsSensFadType & modelPar_PUC1,
-bool modelPar_given_PUC1,
-AdmsSensFadType & modelPar_UD1,
-bool modelPar_given_UD1,
-AdmsSensFadType & modelPar_LUD1,
-bool modelPar_given_LUD1,
-AdmsSensFadType & modelPar_WUD1,
-bool modelPar_given_WUD1,
-AdmsSensFadType & modelPar_PUD1,
-bool modelPar_given_PUD1,
-AdmsSensFadType & modelPar_UD1L,
-bool modelPar_given_UD1L,
-AdmsSensFadType & modelPar_UCSTE,
-bool modelPar_given_UCSTE,
-AdmsSensFadType & modelPar_LUCSTE,
-bool modelPar_given_LUCSTE,
-AdmsSensFadType & modelPar_WUCSTE,
-bool modelPar_given_WUCSTE,
-AdmsSensFadType & modelPar_PUCSTE,
-bool modelPar_given_PUCSTE,
-AdmsSensFadType & modelPar_TETA0,
-bool modelPar_given_TETA0,
-AdmsSensFadType & modelPar_PRT,
-bool modelPar_given_PRT,
-AdmsSensFadType & modelPar_LPRT,
-bool modelPar_given_LPRT,
-AdmsSensFadType & modelPar_WPRT,
-bool modelPar_given_WPRT,
-AdmsSensFadType & modelPar_PPRT,
-bool modelPar_given_PPRT,
-AdmsSensFadType & modelPar_AT,
-bool modelPar_given_AT,
-AdmsSensFadType & modelPar_LAT,
-bool modelPar_given_LAT,
-AdmsSensFadType & modelPar_WAT,
-bool modelPar_given_WAT,
-AdmsSensFadType & modelPar_PAT,
-bool modelPar_given_PAT,
-AdmsSensFadType & modelPar_ATL,
-bool modelPar_given_ATL,
-AdmsSensFadType & modelPar_TDELTA,
-bool modelPar_given_TDELTA,
-AdmsSensFadType & modelPar_PTWGT,
-bool modelPar_given_PTWGT,
-AdmsSensFadType & modelPar_LPTWGT,
-bool modelPar_given_LPTWGT,
-AdmsSensFadType & modelPar_WPTWGT,
-bool modelPar_given_WPTWGT,
-AdmsSensFadType & modelPar_PPTWGT,
-bool modelPar_given_PPTWGT,
-AdmsSensFadType & modelPar_PTWGTL,
-bool modelPar_given_PTWGTL,
-AdmsSensFadType & modelPar_KT1,
-bool modelPar_given_KT1,
-AdmsSensFadType & modelPar_KT1EXP,
-bool modelPar_given_KT1EXP,
-AdmsSensFadType & modelPar_KT1L,
-bool modelPar_given_KT1L,
-AdmsSensFadType & modelPar_LKT1,
-bool modelPar_given_LKT1,
-AdmsSensFadType & modelPar_WKT1,
-bool modelPar_given_WKT1,
-AdmsSensFadType & modelPar_PKT1,
-bool modelPar_given_PKT1,
-AdmsSensFadType & modelPar_KT2,
-bool modelPar_given_KT2,
-AdmsSensFadType & modelPar_LKT2,
-bool modelPar_given_LKT2,
-AdmsSensFadType & modelPar_WKT2,
-bool modelPar_given_WKT2,
-AdmsSensFadType & modelPar_PKT2,
-bool modelPar_given_PKT2,
-AdmsSensFadType & modelPar_IIT,
-bool modelPar_given_IIT,
-AdmsSensFadType & modelPar_LIIT,
-bool modelPar_given_LIIT,
-AdmsSensFadType & modelPar_WIIT,
-bool modelPar_given_WIIT,
-AdmsSensFadType & modelPar_PIIT,
-bool modelPar_given_PIIT,
-AdmsSensFadType & modelPar_IGT,
-bool modelPar_given_IGT,
-AdmsSensFadType & modelPar_LIGT,
-bool modelPar_given_LIGT,
-AdmsSensFadType & modelPar_WIGT,
-bool modelPar_given_WIGT,
-AdmsSensFadType & modelPar_PIGT,
-bool modelPar_given_PIGT,
-AdmsSensFadType & modelPar_TGIDL,
-bool modelPar_given_TGIDL,
-AdmsSensFadType & modelPar_LTGIDL,
-bool modelPar_given_LTGIDL,
-AdmsSensFadType & modelPar_WTGIDL,
-bool modelPar_given_WTGIDL,
-AdmsSensFadType & modelPar_PTGIDL,
-bool modelPar_given_PTGIDL,
-AdmsSensFadType & modelPar_TCJ,
-bool modelPar_given_TCJ,
-AdmsSensFadType & modelPar_TCJSW,
-bool modelPar_given_TCJSW,
-AdmsSensFadType & modelPar_TCJSWG,
-bool modelPar_given_TCJSWG,
-AdmsSensFadType & modelPar_TPB,
-bool modelPar_given_TPB,
-AdmsSensFadType & modelPar_TPBSW,
-bool modelPar_given_TPBSW,
-AdmsSensFadType & modelPar_TPBSWG,
-bool modelPar_given_TPBSWG,
-AdmsSensFadType & modelPar_XTIS,
-bool modelPar_given_XTIS,
-AdmsSensFadType & modelPar_XTID,
-bool modelPar_given_XTID,
-AdmsSensFadType & modelPar_XTSS,
-bool modelPar_given_XTSS,
-AdmsSensFadType & modelPar_XTSD,
-bool modelPar_given_XTSD,
-AdmsSensFadType & modelPar_XTSSWS,
-bool modelPar_given_XTSSWS,
-AdmsSensFadType & modelPar_XTSSWD,
-bool modelPar_given_XTSSWD,
-AdmsSensFadType & modelPar_XTSSWGS,
-bool modelPar_given_XTSSWGS,
-AdmsSensFadType & modelPar_XTSSWGD,
-bool modelPar_given_XTSSWGD,
-AdmsSensFadType & modelPar_TNJTS,
-bool modelPar_given_TNJTS,
-AdmsSensFadType & modelPar_TNJTSD,
-bool modelPar_given_TNJTSD,
-AdmsSensFadType & modelPar_TNJTSSW,
-bool modelPar_given_TNJTSSW,
-AdmsSensFadType & modelPar_TNJTSSWD,
-bool modelPar_given_TNJTSSWD,
-AdmsSensFadType & modelPar_TNJTSSWG,
-bool modelPar_given_TNJTSSWG,
-AdmsSensFadType & modelPar_TNJTSSWGD,
-bool modelPar_given_TNJTSSWGD,
-AdmsSensFadType & modelPar_RTH0,
-bool modelPar_given_RTH0,
-AdmsSensFadType & modelPar_CTH0,
-bool modelPar_given_CTH0,
-AdmsSensFadType & modelPar_WTH0,
-bool modelPar_given_WTH0,
-AdmsSensFadType & modelPar_SAREF,
-bool modelPar_given_SAREF,
-AdmsSensFadType & modelPar_SBREF,
-bool modelPar_given_SBREF,
-AdmsSensFadType & modelPar_WLOD,
-bool modelPar_given_WLOD,
-AdmsSensFadType & modelPar_KU0,
-bool modelPar_given_KU0,
-AdmsSensFadType & modelPar_KVSAT,
-bool modelPar_given_KVSAT,
-AdmsSensFadType & modelPar_TKU0,
-bool modelPar_given_TKU0,
-AdmsSensFadType & modelPar_LKU0,
-bool modelPar_given_LKU0,
-AdmsSensFadType & modelPar_WKU0,
-bool modelPar_given_WKU0,
-AdmsSensFadType & modelPar_PKU0,
-bool modelPar_given_PKU0,
-AdmsSensFadType & modelPar_LLODKU0,
-bool modelPar_given_LLODKU0,
-AdmsSensFadType & modelPar_WLODKU0,
-bool modelPar_given_WLODKU0,
-AdmsSensFadType & modelPar_KVTH0,
-bool modelPar_given_KVTH0,
-AdmsSensFadType & modelPar_LKVTH0,
-bool modelPar_given_LKVTH0,
-AdmsSensFadType & modelPar_WKVTH0,
-bool modelPar_given_WKVTH0,
-AdmsSensFadType & modelPar_PKVTH0,
-bool modelPar_given_PKVTH0,
-AdmsSensFadType & modelPar_LLODVTH,
-bool modelPar_given_LLODVTH,
-AdmsSensFadType & modelPar_WLODVTH,
-bool modelPar_given_WLODVTH,
-AdmsSensFadType & modelPar_STK2,
-bool modelPar_given_STK2,
-AdmsSensFadType & modelPar_LODK2,
-bool modelPar_given_LODK2,
-AdmsSensFadType & modelPar_STETA0,
-bool modelPar_given_STETA0,
-AdmsSensFadType & modelPar_LODETA0,
-bool modelPar_given_LODETA0,
-AdmsSensFadType & modelPar_WEB,
-bool modelPar_given_WEB,
-AdmsSensFadType & modelPar_WEC,
-bool modelPar_given_WEC,
-AdmsSensFadType & modelPar_KVTH0WE,
-bool modelPar_given_KVTH0WE,
-AdmsSensFadType & modelPar_LKVTH0WE,
-bool modelPar_given_LKVTH0WE,
-AdmsSensFadType & modelPar_WKVTH0WE,
-bool modelPar_given_WKVTH0WE,
-AdmsSensFadType & modelPar_PKVTH0WE,
-bool modelPar_given_PKVTH0WE,
-AdmsSensFadType & modelPar_K2WE,
-bool modelPar_given_K2WE,
-AdmsSensFadType & modelPar_LK2WE,
-bool modelPar_given_LK2WE,
-AdmsSensFadType & modelPar_WK2WE,
-bool modelPar_given_WK2WE,
-AdmsSensFadType & modelPar_PK2WE,
-bool modelPar_given_PK2WE,
-AdmsSensFadType & modelPar_KU0WE,
-bool modelPar_given_KU0WE,
-AdmsSensFadType & modelPar_LKU0WE,
-bool modelPar_given_LKU0WE,
-AdmsSensFadType & modelPar_WKU0WE,
-bool modelPar_given_WKU0WE,
-AdmsSensFadType & modelPar_PKU0WE,
-bool modelPar_given_PKU0WE,
-AdmsSensFadType & modelPar_SCREF,
-bool modelPar_given_SCREF,
-AdmsSensFadType & modelPar_WEDGE,
-bool modelPar_given_WEDGE,
-AdmsSensFadType & modelPar_DGAMMAEDGE,
-bool modelPar_given_DGAMMAEDGE,
-AdmsSensFadType & modelPar_DGAMMAEDGEL,
-bool modelPar_given_DGAMMAEDGEL,
-AdmsSensFadType & modelPar_DGAMMAEDGELEXP,
-bool modelPar_given_DGAMMAEDGELEXP,
-AdmsSensFadType & modelPar_DVTEDGE,
-bool modelPar_given_DVTEDGE,
-AdmsSensFadType & modelPar_NFACTOREDGE,
-bool modelPar_given_NFACTOREDGE,
-AdmsSensFadType & modelPar_CITEDGE,
-bool modelPar_given_CITEDGE,
-AdmsSensFadType & modelPar_CDSCDEDGE,
-bool modelPar_given_CDSCDEDGE,
-AdmsSensFadType & modelPar_CDSCBEDGE,
-bool modelPar_given_CDSCBEDGE,
-AdmsSensFadType & modelPar_ETA0EDGE,
-bool modelPar_given_ETA0EDGE,
-AdmsSensFadType & modelPar_ETABEDGE,
-bool modelPar_given_ETABEDGE,
-AdmsSensFadType & modelPar_KT1EDGE,
-bool modelPar_given_KT1EDGE,
-AdmsSensFadType & modelPar_KT1LEDGE,
-bool modelPar_given_KT1LEDGE,
-AdmsSensFadType & modelPar_KT2EDGE,
-bool modelPar_given_KT2EDGE,
-AdmsSensFadType & modelPar_KT1EXPEDGE,
-bool modelPar_given_KT1EXPEDGE,
-AdmsSensFadType & modelPar_TNFACTOREDGE,
-bool modelPar_given_TNFACTOREDGE,
-AdmsSensFadType & modelPar_TETA0EDGE,
-bool modelPar_given_TETA0EDGE,
-AdmsSensFadType & modelPar_DVT0EDGE,
-bool modelPar_given_DVT0EDGE,
-AdmsSensFadType & modelPar_DVT1EDGE,
-bool modelPar_given_DVT1EDGE,
-AdmsSensFadType & modelPar_DVT2EDGE,
-bool modelPar_given_DVT2EDGE,
-AdmsSensFadType & modelPar_LMIN,
-bool modelPar_given_LMIN,
-AdmsSensFadType & modelPar_WMIN,
-bool modelPar_given_WMIN,
-AdmsSensFadType & modelPar_LMAX,
-bool modelPar_given_LMAX,
-AdmsSensFadType & modelPar_WMAX,
-bool modelPar_given_WMAX,
-// non-reals (including hidden)
-int modelPar_NGCON,
-bool modelPar_given_NGCON,
-int modelPar_RGATEMOD,
-bool modelPar_given_RGATEMOD,
-int modelPar_RBODYMOD,
-bool modelPar_given_RBODYMOD,
-int modelPar_GEOMOD,
-bool modelPar_given_GEOMOD,
-int modelPar_RGEOMOD,
-bool modelPar_given_RGEOMOD,
-int modelPar_SCA,
-bool modelPar_given_SCA,
-int modelPar_SCB,
-bool modelPar_given_SCB,
-int modelPar_SCC,
-bool modelPar_given_SCC,
-int modelPar_SC,
-bool modelPar_given_SC,
-int modelPar_TYPE,
-bool modelPar_given_TYPE,
-int modelPar_CVMOD,
-bool modelPar_given_CVMOD,
-int modelPar_COVMOD,
-bool modelPar_given_COVMOD,
-int modelPar_RDSMOD,
-bool modelPar_given_RDSMOD,
-int modelPar_WPEMOD,
-bool modelPar_given_WPEMOD,
-int modelPar_ASYMMOD,
-bool modelPar_given_ASYMMOD,
-int modelPar_GIDLMOD,
-bool modelPar_given_GIDLMOD,
-int modelPar_IGCMOD,
-bool modelPar_given_IGCMOD,
-int modelPar_IGBMOD,
-bool modelPar_given_IGBMOD,
-int modelPar_TNOIMOD,
-bool modelPar_given_TNOIMOD,
-int modelPar_SHMOD,
-bool modelPar_given_SHMOD,
-int modelPar_MOBSCALE,
-bool modelPar_given_MOBSCALE,
-int modelPar_PERMOD,
-bool modelPar_given_PERMOD,
-int modelPar_BINUNIT,
-bool modelPar_given_BINUNIT,
-int modelPar_EDGEFET,
-bool modelPar_given_EDGEFET,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
  double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance);
 
 void evaluateInitialModel(
-// model parameters
-// reals
-AdmsSensFadType & modelPar_L,
-bool modelPar_given_L,
-AdmsSensFadType & modelPar_VFBSDOFF,
-bool modelPar_given_VFBSDOFF,
-AdmsSensFadType & modelPar_XGW,
-bool modelPar_given_XGW,
-AdmsSensFadType & modelPar_RBPB,
-bool modelPar_given_RBPB,
-AdmsSensFadType & modelPar_RBPD,
-bool modelPar_given_RBPD,
-AdmsSensFadType & modelPar_RBPS,
-bool modelPar_given_RBPS,
-AdmsSensFadType & modelPar_RBDB,
-bool modelPar_given_RBDB,
-AdmsSensFadType & modelPar_RBSB,
-bool modelPar_given_RBSB,
-AdmsSensFadType & modelPar_SA,
-bool modelPar_given_SA,
-AdmsSensFadType & modelPar_SB,
-bool modelPar_given_SB,
-AdmsSensFadType & modelPar_SD,
-bool modelPar_given_SD,
-AdmsSensFadType & modelPar_LLONG,
-bool modelPar_given_LLONG,
-AdmsSensFadType & modelPar_LMLT,
-bool modelPar_given_LMLT,
-AdmsSensFadType & modelPar_WMLT,
-bool modelPar_given_WMLT,
-AdmsSensFadType & modelPar_XL,
-bool modelPar_given_XL,
-AdmsSensFadType & modelPar_WWIDE,
-bool modelPar_given_WWIDE,
-AdmsSensFadType & modelPar_XW,
-bool modelPar_given_XW,
-AdmsSensFadType & modelPar_LINT,
-bool modelPar_given_LINT,
-AdmsSensFadType & modelPar_LL,
-bool modelPar_given_LL,
-AdmsSensFadType & modelPar_LW,
-bool modelPar_given_LW,
-AdmsSensFadType & modelPar_LWL,
-bool modelPar_given_LWL,
-AdmsSensFadType & modelPar_LLN,
-bool modelPar_given_LLN,
-AdmsSensFadType & modelPar_LWN,
-bool modelPar_given_LWN,
-AdmsSensFadType & modelPar_WINT,
-bool modelPar_given_WINT,
-AdmsSensFadType & modelPar_WL,
-bool modelPar_given_WL,
-AdmsSensFadType & modelPar_WW,
-bool modelPar_given_WW,
-AdmsSensFadType & modelPar_WWL,
-bool modelPar_given_WWL,
-AdmsSensFadType & modelPar_WLN,
-bool modelPar_given_WLN,
-AdmsSensFadType & modelPar_WWN,
-bool modelPar_given_WWN,
-AdmsSensFadType & modelPar_DLC,
-bool modelPar_given_DLC,
-AdmsSensFadType & modelPar_LLC,
-bool modelPar_given_LLC,
-AdmsSensFadType & modelPar_LWC,
-bool modelPar_given_LWC,
-AdmsSensFadType & modelPar_LWLC,
-bool modelPar_given_LWLC,
-AdmsSensFadType & modelPar_DWC,
-bool modelPar_given_DWC,
-AdmsSensFadType & modelPar_WLC,
-bool modelPar_given_WLC,
-AdmsSensFadType & modelPar_WWC,
-bool modelPar_given_WWC,
-AdmsSensFadType & modelPar_WWLC,
-bool modelPar_given_WWLC,
-AdmsSensFadType & modelPar_TOXE,
-bool modelPar_given_TOXE,
-AdmsSensFadType & modelPar_TOXP,
-bool modelPar_given_TOXP,
-AdmsSensFadType & modelPar_DTOX,
-bool modelPar_given_DTOX,
-AdmsSensFadType & modelPar_NDEP,
-bool modelPar_given_NDEP,
-AdmsSensFadType & modelPar_NDEPL1,
-bool modelPar_given_NDEPL1,
-AdmsSensFadType & modelPar_NDEPLEXP1,
-bool modelPar_given_NDEPLEXP1,
-AdmsSensFadType & modelPar_NDEPL2,
-bool modelPar_given_NDEPL2,
-AdmsSensFadType & modelPar_NDEPLEXP2,
-bool modelPar_given_NDEPLEXP2,
-AdmsSensFadType & modelPar_NDEPW,
-bool modelPar_given_NDEPW,
-AdmsSensFadType & modelPar_NDEPWEXP,
-bool modelPar_given_NDEPWEXP,
-AdmsSensFadType & modelPar_NDEPWL,
-bool modelPar_given_NDEPWL,
-AdmsSensFadType & modelPar_NDEPWLEXP,
-bool modelPar_given_NDEPWLEXP,
-AdmsSensFadType & modelPar_LNDEP,
-bool modelPar_given_LNDEP,
-AdmsSensFadType & modelPar_WNDEP,
-bool modelPar_given_WNDEP,
-AdmsSensFadType & modelPar_PNDEP,
-bool modelPar_given_PNDEP,
-AdmsSensFadType & modelPar_NDEPCV,
-bool modelPar_given_NDEPCV,
-AdmsSensFadType & modelPar_NDEPCVL1,
-bool modelPar_given_NDEPCVL1,
-AdmsSensFadType & modelPar_NDEPCVLEXP1,
-bool modelPar_given_NDEPCVLEXP1,
-AdmsSensFadType & modelPar_NDEPCVL2,
-bool modelPar_given_NDEPCVL2,
-AdmsSensFadType & modelPar_NDEPCVLEXP2,
-bool modelPar_given_NDEPCVLEXP2,
-AdmsSensFadType & modelPar_NDEPCVW,
-bool modelPar_given_NDEPCVW,
-AdmsSensFadType & modelPar_NDEPCVWEXP,
-bool modelPar_given_NDEPCVWEXP,
-AdmsSensFadType & modelPar_NDEPCVWL,
-bool modelPar_given_NDEPCVWL,
-AdmsSensFadType & modelPar_NDEPCVWLEXP,
-bool modelPar_given_NDEPCVWLEXP,
-AdmsSensFadType & modelPar_LNDEPCV,
-bool modelPar_given_LNDEPCV,
-AdmsSensFadType & modelPar_WNDEPCV,
-bool modelPar_given_WNDEPCV,
-AdmsSensFadType & modelPar_PNDEPCV,
-bool modelPar_given_PNDEPCV,
-AdmsSensFadType & modelPar_NGATE,
-bool modelPar_given_NGATE,
-AdmsSensFadType & modelPar_LNGATE,
-bool modelPar_given_LNGATE,
-AdmsSensFadType & modelPar_WNGATE,
-bool modelPar_given_WNGATE,
-AdmsSensFadType & modelPar_PNGATE,
-bool modelPar_given_PNGATE,
-AdmsSensFadType & modelPar_EASUB,
-bool modelPar_given_EASUB,
-AdmsSensFadType & modelPar_NI0SUB,
-bool modelPar_given_NI0SUB,
-AdmsSensFadType & modelPar_BG0SUB,
-bool modelPar_given_BG0SUB,
-AdmsSensFadType & modelPar_EPSRSUB,
-bool modelPar_given_EPSRSUB,
-AdmsSensFadType & modelPar_EPSROX,
-bool modelPar_given_EPSROX,
-AdmsSensFadType & modelPar_XJ,
-bool modelPar_given_XJ,
-AdmsSensFadType & modelPar_LXJ,
-bool modelPar_given_LXJ,
-AdmsSensFadType & modelPar_WXJ,
-bool modelPar_given_WXJ,
-AdmsSensFadType & modelPar_PXJ,
-bool modelPar_given_PXJ,
-AdmsSensFadType & modelPar_LVFB,
-bool modelPar_given_LVFB,
-AdmsSensFadType & modelPar_WVFB,
-bool modelPar_given_WVFB,
-AdmsSensFadType & modelPar_PVFB,
-bool modelPar_given_PVFB,
-AdmsSensFadType & modelPar_VFB,
-bool modelPar_given_VFB,
-AdmsSensFadType & modelPar_VFBCV,
-bool modelPar_given_VFBCV,
-AdmsSensFadType & modelPar_LVFBCV,
-bool modelPar_given_LVFBCV,
-AdmsSensFadType & modelPar_WVFBCV,
-bool modelPar_given_WVFBCV,
-AdmsSensFadType & modelPar_PVFBCV,
-bool modelPar_given_PVFBCV,
-AdmsSensFadType & modelPar_VFBCVL,
-bool modelPar_given_VFBCVL,
-AdmsSensFadType & modelPar_VFBCVLEXP,
-bool modelPar_given_VFBCVLEXP,
-AdmsSensFadType & modelPar_VFBCVW,
-bool modelPar_given_VFBCVW,
-AdmsSensFadType & modelPar_VFBCVWEXP,
-bool modelPar_given_VFBCVWEXP,
-AdmsSensFadType & modelPar_VFBCVWL,
-bool modelPar_given_VFBCVWL,
-AdmsSensFadType & modelPar_VFBCVWLEXP,
-bool modelPar_given_VFBCVWLEXP,
-AdmsSensFadType & modelPar_DWJ,
-bool modelPar_given_DWJ,
-AdmsSensFadType & modelPar_NSD,
-bool modelPar_given_NSD,
-AdmsSensFadType & modelPar_LNSD,
-bool modelPar_given_LNSD,
-AdmsSensFadType & modelPar_WNSD,
-bool modelPar_given_WNSD,
-AdmsSensFadType & modelPar_PNSD,
-bool modelPar_given_PNSD,
-AdmsSensFadType & modelPar_DELVT0,
-bool modelPar_given_DELVT0,
-AdmsSensFadType & modelPar_DVTP0,
-bool modelPar_given_DVTP0,
-AdmsSensFadType & modelPar_LDVTP0,
-bool modelPar_given_LDVTP0,
-AdmsSensFadType & modelPar_WDVTP0,
-bool modelPar_given_WDVTP0,
-AdmsSensFadType & modelPar_PDVTP0,
-bool modelPar_given_PDVTP0,
-AdmsSensFadType & modelPar_DVTP1,
-bool modelPar_given_DVTP1,
-AdmsSensFadType & modelPar_LDVTP1,
-bool modelPar_given_LDVTP1,
-AdmsSensFadType & modelPar_WDVTP1,
-bool modelPar_given_WDVTP1,
-AdmsSensFadType & modelPar_PDVTP1,
-bool modelPar_given_PDVTP1,
-AdmsSensFadType & modelPar_DVTP2,
-bool modelPar_given_DVTP2,
-AdmsSensFadType & modelPar_LDVTP2,
-bool modelPar_given_LDVTP2,
-AdmsSensFadType & modelPar_WDVTP2,
-bool modelPar_given_WDVTP2,
-AdmsSensFadType & modelPar_PDVTP2,
-bool modelPar_given_PDVTP2,
-AdmsSensFadType & modelPar_DVTP3,
-bool modelPar_given_DVTP3,
-AdmsSensFadType & modelPar_LDVTP3,
-bool modelPar_given_LDVTP3,
-AdmsSensFadType & modelPar_WDVTP3,
-bool modelPar_given_WDVTP3,
-AdmsSensFadType & modelPar_PDVTP3,
-bool modelPar_given_PDVTP3,
-AdmsSensFadType & modelPar_DVTP4,
-bool modelPar_given_DVTP4,
-AdmsSensFadType & modelPar_LDVTP4,
-bool modelPar_given_LDVTP4,
-AdmsSensFadType & modelPar_WDVTP4,
-bool modelPar_given_WDVTP4,
-AdmsSensFadType & modelPar_PDVTP4,
-bool modelPar_given_PDVTP4,
-AdmsSensFadType & modelPar_DVTP5,
-bool modelPar_given_DVTP5,
-AdmsSensFadType & modelPar_LDVTP5,
-bool modelPar_given_LDVTP5,
-AdmsSensFadType & modelPar_WDVTP5,
-bool modelPar_given_WDVTP5,
-AdmsSensFadType & modelPar_PDVTP5,
-bool modelPar_given_PDVTP5,
-AdmsSensFadType & modelPar_PHIN,
-bool modelPar_given_PHIN,
-AdmsSensFadType & modelPar_LPHIN,
-bool modelPar_given_LPHIN,
-AdmsSensFadType & modelPar_WPHIN,
-bool modelPar_given_WPHIN,
-AdmsSensFadType & modelPar_PPHIN,
-bool modelPar_given_PPHIN,
-AdmsSensFadType & modelPar_ETA0,
-bool modelPar_given_ETA0,
-AdmsSensFadType & modelPar_LETA0,
-bool modelPar_given_LETA0,
-AdmsSensFadType & modelPar_WETA0,
-bool modelPar_given_WETA0,
-AdmsSensFadType & modelPar_PETA0,
-bool modelPar_given_PETA0,
-AdmsSensFadType & modelPar_ETA0R,
-bool modelPar_given_ETA0R,
-AdmsSensFadType & modelPar_LETA0R,
-bool modelPar_given_LETA0R,
-AdmsSensFadType & modelPar_WETA0R,
-bool modelPar_given_WETA0R,
-AdmsSensFadType & modelPar_PETA0R,
-bool modelPar_given_PETA0R,
-AdmsSensFadType & modelPar_DSUB,
-bool modelPar_given_DSUB,
-AdmsSensFadType & modelPar_ETAB,
-bool modelPar_given_ETAB,
-AdmsSensFadType & modelPar_ETABEXP,
-bool modelPar_given_ETABEXP,
-AdmsSensFadType & modelPar_LETAB,
-bool modelPar_given_LETAB,
-AdmsSensFadType & modelPar_WETAB,
-bool modelPar_given_WETAB,
-AdmsSensFadType & modelPar_PETAB,
-bool modelPar_given_PETAB,
-AdmsSensFadType & modelPar_K1,
-bool modelPar_given_K1,
-AdmsSensFadType & modelPar_K1L,
-bool modelPar_given_K1L,
-AdmsSensFadType & modelPar_K1LEXP,
-bool modelPar_given_K1LEXP,
-AdmsSensFadType & modelPar_K1W,
-bool modelPar_given_K1W,
-AdmsSensFadType & modelPar_K1WEXP,
-bool modelPar_given_K1WEXP,
-AdmsSensFadType & modelPar_K1WL,
-bool modelPar_given_K1WL,
-AdmsSensFadType & modelPar_K1WLEXP,
-bool modelPar_given_K1WLEXP,
-AdmsSensFadType & modelPar_LK1,
-bool modelPar_given_LK1,
-AdmsSensFadType & modelPar_WK1,
-bool modelPar_given_WK1,
-AdmsSensFadType & modelPar_PK1,
-bool modelPar_given_PK1,
-AdmsSensFadType & modelPar_K2,
-bool modelPar_given_K2,
-AdmsSensFadType & modelPar_K2L,
-bool modelPar_given_K2L,
-AdmsSensFadType & modelPar_K2LEXP,
-bool modelPar_given_K2LEXP,
-AdmsSensFadType & modelPar_K2W,
-bool modelPar_given_K2W,
-AdmsSensFadType & modelPar_K2WEXP,
-bool modelPar_given_K2WEXP,
-AdmsSensFadType & modelPar_K2WL,
-bool modelPar_given_K2WL,
-AdmsSensFadType & modelPar_K2WLEXP,
-bool modelPar_given_K2WLEXP,
-AdmsSensFadType & modelPar_LK2,
-bool modelPar_given_LK2,
-AdmsSensFadType & modelPar_WK2,
-bool modelPar_given_WK2,
-AdmsSensFadType & modelPar_PK2,
-bool modelPar_given_PK2,
-AdmsSensFadType & modelPar_ADOS,
-bool modelPar_given_ADOS,
-AdmsSensFadType & modelPar_BDOS,
-bool modelPar_given_BDOS,
-AdmsSensFadType & modelPar_QM0,
-bool modelPar_given_QM0,
-AdmsSensFadType & modelPar_ETAQM,
-bool modelPar_given_ETAQM,
-AdmsSensFadType & modelPar_CIT,
-bool modelPar_given_CIT,
-AdmsSensFadType & modelPar_LCIT,
-bool modelPar_given_LCIT,
-AdmsSensFadType & modelPar_WCIT,
-bool modelPar_given_WCIT,
-AdmsSensFadType & modelPar_PCIT,
-bool modelPar_given_PCIT,
-AdmsSensFadType & modelPar_NFACTOR,
-bool modelPar_given_NFACTOR,
-AdmsSensFadType & modelPar_NFACTORL,
-bool modelPar_given_NFACTORL,
-AdmsSensFadType & modelPar_NFACTORLEXP,
-bool modelPar_given_NFACTORLEXP,
-AdmsSensFadType & modelPar_NFACTORW,
-bool modelPar_given_NFACTORW,
-AdmsSensFadType & modelPar_NFACTORWEXP,
-bool modelPar_given_NFACTORWEXP,
-AdmsSensFadType & modelPar_NFACTORWL,
-bool modelPar_given_NFACTORWL,
-AdmsSensFadType & modelPar_NFACTORWLEXP,
-bool modelPar_given_NFACTORWLEXP,
-AdmsSensFadType & modelPar_LNFACTOR,
-bool modelPar_given_LNFACTOR,
-AdmsSensFadType & modelPar_WNFACTOR,
-bool modelPar_given_WNFACTOR,
-AdmsSensFadType & modelPar_PNFACTOR,
-bool modelPar_given_PNFACTOR,
-AdmsSensFadType & modelPar_CDSCD,
-bool modelPar_given_CDSCD,
-AdmsSensFadType & modelPar_CDSCDL,
-bool modelPar_given_CDSCDL,
-AdmsSensFadType & modelPar_CDSCDLEXP,
-bool modelPar_given_CDSCDLEXP,
-AdmsSensFadType & modelPar_LCDSCD,
-bool modelPar_given_LCDSCD,
-AdmsSensFadType & modelPar_WCDSCD,
-bool modelPar_given_WCDSCD,
-AdmsSensFadType & modelPar_PCDSCD,
-bool modelPar_given_PCDSCD,
-AdmsSensFadType & modelPar_CDSCDR,
-bool modelPar_given_CDSCDR,
-AdmsSensFadType & modelPar_CDSCDLR,
-bool modelPar_given_CDSCDLR,
-AdmsSensFadType & modelPar_LCDSCDR,
-bool modelPar_given_LCDSCDR,
-AdmsSensFadType & modelPar_WCDSCDR,
-bool modelPar_given_WCDSCDR,
-AdmsSensFadType & modelPar_PCDSCDR,
-bool modelPar_given_PCDSCDR,
-AdmsSensFadType & modelPar_CDSCB,
-bool modelPar_given_CDSCB,
-AdmsSensFadType & modelPar_CDSCBL,
-bool modelPar_given_CDSCBL,
-AdmsSensFadType & modelPar_CDSCBLEXP,
-bool modelPar_given_CDSCBLEXP,
-AdmsSensFadType & modelPar_LCDSCB,
-bool modelPar_given_LCDSCB,
-AdmsSensFadType & modelPar_WCDSCB,
-bool modelPar_given_WCDSCB,
-AdmsSensFadType & modelPar_PCDSCB,
-bool modelPar_given_PCDSCB,
-AdmsSensFadType & modelPar_VSAT,
-bool modelPar_given_VSAT,
-AdmsSensFadType & modelPar_LVSAT,
-bool modelPar_given_LVSAT,
-AdmsSensFadType & modelPar_WVSAT,
-bool modelPar_given_WVSAT,
-AdmsSensFadType & modelPar_PVSAT,
-bool modelPar_given_PVSAT,
-AdmsSensFadType & modelPar_VSATL,
-bool modelPar_given_VSATL,
-AdmsSensFadType & modelPar_VSATLEXP,
-bool modelPar_given_VSATLEXP,
-AdmsSensFadType & modelPar_VSATW,
-bool modelPar_given_VSATW,
-AdmsSensFadType & modelPar_VSATWEXP,
-bool modelPar_given_VSATWEXP,
-AdmsSensFadType & modelPar_VSATWL,
-bool modelPar_given_VSATWL,
-AdmsSensFadType & modelPar_VSATWLEXP,
-bool modelPar_given_VSATWLEXP,
-AdmsSensFadType & modelPar_VSATR,
-bool modelPar_given_VSATR,
-AdmsSensFadType & modelPar_LVSATR,
-bool modelPar_given_LVSATR,
-AdmsSensFadType & modelPar_WVSATR,
-bool modelPar_given_WVSATR,
-AdmsSensFadType & modelPar_PVSATR,
-bool modelPar_given_PVSATR,
-AdmsSensFadType & modelPar_DELTA,
-bool modelPar_given_DELTA,
-AdmsSensFadType & modelPar_LDELTA,
-bool modelPar_given_LDELTA,
-AdmsSensFadType & modelPar_WDELTA,
-bool modelPar_given_WDELTA,
-AdmsSensFadType & modelPar_PDELTA,
-bool modelPar_given_PDELTA,
-AdmsSensFadType & modelPar_DELTAL,
-bool modelPar_given_DELTAL,
-AdmsSensFadType & modelPar_DELTALEXP,
-bool modelPar_given_DELTALEXP,
-AdmsSensFadType & modelPar_VSATCV,
-bool modelPar_given_VSATCV,
-AdmsSensFadType & modelPar_LVSATCV,
-bool modelPar_given_LVSATCV,
-AdmsSensFadType & modelPar_WVSATCV,
-bool modelPar_given_WVSATCV,
-AdmsSensFadType & modelPar_PVSATCV,
-bool modelPar_given_PVSATCV,
-AdmsSensFadType & modelPar_VSATCVL,
-bool modelPar_given_VSATCVL,
-AdmsSensFadType & modelPar_VSATCVLEXP,
-bool modelPar_given_VSATCVLEXP,
-AdmsSensFadType & modelPar_VSATCVW,
-bool modelPar_given_VSATCVW,
-AdmsSensFadType & modelPar_VSATCVWEXP,
-bool modelPar_given_VSATCVWEXP,
-AdmsSensFadType & modelPar_VSATCVWL,
-bool modelPar_given_VSATCVWL,
-AdmsSensFadType & modelPar_VSATCVWLEXP,
-bool modelPar_given_VSATCVWLEXP,
-AdmsSensFadType & modelPar_UP1,
-bool modelPar_given_UP1,
-AdmsSensFadType & modelPar_LP1,
-bool modelPar_given_LP1,
-AdmsSensFadType & modelPar_UP2,
-bool modelPar_given_UP2,
-AdmsSensFadType & modelPar_LP2,
-bool modelPar_given_LP2,
-AdmsSensFadType & modelPar_MULU0,
-bool modelPar_given_MULU0,
-AdmsSensFadType & modelPar_U0,
-bool modelPar_given_U0,
-AdmsSensFadType & modelPar_U0L,
-bool modelPar_given_U0L,
-AdmsSensFadType & modelPar_U0LEXP,
-bool modelPar_given_U0LEXP,
-AdmsSensFadType & modelPar_LU0,
-bool modelPar_given_LU0,
-AdmsSensFadType & modelPar_WU0,
-bool modelPar_given_WU0,
-AdmsSensFadType & modelPar_PU0,
-bool modelPar_given_PU0,
-AdmsSensFadType & modelPar_U0R,
-bool modelPar_given_U0R,
-AdmsSensFadType & modelPar_LU0R,
-bool modelPar_given_LU0R,
-AdmsSensFadType & modelPar_WU0R,
-bool modelPar_given_WU0R,
-AdmsSensFadType & modelPar_PU0R,
-bool modelPar_given_PU0R,
-AdmsSensFadType & modelPar_ETAMOB,
-bool modelPar_given_ETAMOB,
-AdmsSensFadType & modelPar_UA,
-bool modelPar_given_UA,
-AdmsSensFadType & modelPar_UAL,
-bool modelPar_given_UAL,
-AdmsSensFadType & modelPar_UALEXP,
-bool modelPar_given_UALEXP,
-AdmsSensFadType & modelPar_UAW,
-bool modelPar_given_UAW,
-AdmsSensFadType & modelPar_UAWEXP,
-bool modelPar_given_UAWEXP,
-AdmsSensFadType & modelPar_UAWL,
-bool modelPar_given_UAWL,
-AdmsSensFadType & modelPar_UAWLEXP,
-bool modelPar_given_UAWLEXP,
-AdmsSensFadType & modelPar_LUA,
-bool modelPar_given_LUA,
-AdmsSensFadType & modelPar_WUA,
-bool modelPar_given_WUA,
-AdmsSensFadType & modelPar_PUA,
-bool modelPar_given_PUA,
-AdmsSensFadType & modelPar_UAR,
-bool modelPar_given_UAR,
-AdmsSensFadType & modelPar_LUAR,
-bool modelPar_given_LUAR,
-AdmsSensFadType & modelPar_WUAR,
-bool modelPar_given_WUAR,
-AdmsSensFadType & modelPar_PUAR,
-bool modelPar_given_PUAR,
-AdmsSensFadType & modelPar_EU,
-bool modelPar_given_EU,
-AdmsSensFadType & modelPar_LEU,
-bool modelPar_given_LEU,
-AdmsSensFadType & modelPar_WEU,
-bool modelPar_given_WEU,
-AdmsSensFadType & modelPar_PEU,
-bool modelPar_given_PEU,
-AdmsSensFadType & modelPar_EUL,
-bool modelPar_given_EUL,
-AdmsSensFadType & modelPar_EULEXP,
-bool modelPar_given_EULEXP,
-AdmsSensFadType & modelPar_EUW,
-bool modelPar_given_EUW,
-AdmsSensFadType & modelPar_EUWEXP,
-bool modelPar_given_EUWEXP,
-AdmsSensFadType & modelPar_EUWL,
-bool modelPar_given_EUWL,
-AdmsSensFadType & modelPar_EUWLEXP,
-bool modelPar_given_EUWLEXP,
-AdmsSensFadType & modelPar_UD,
-bool modelPar_given_UD,
-AdmsSensFadType & modelPar_UDL,
-bool modelPar_given_UDL,
-AdmsSensFadType & modelPar_UDLEXP,
-bool modelPar_given_UDLEXP,
-AdmsSensFadType & modelPar_LUD,
-bool modelPar_given_LUD,
-AdmsSensFadType & modelPar_WUD,
-bool modelPar_given_WUD,
-AdmsSensFadType & modelPar_PUD,
-bool modelPar_given_PUD,
-AdmsSensFadType & modelPar_UDR,
-bool modelPar_given_UDR,
-AdmsSensFadType & modelPar_LUDR,
-bool modelPar_given_LUDR,
-AdmsSensFadType & modelPar_WUDR,
-bool modelPar_given_WUDR,
-AdmsSensFadType & modelPar_PUDR,
-bool modelPar_given_PUDR,
-AdmsSensFadType & modelPar_UCS,
-bool modelPar_given_UCS,
-AdmsSensFadType & modelPar_LUCS,
-bool modelPar_given_LUCS,
-AdmsSensFadType & modelPar_WUCS,
-bool modelPar_given_WUCS,
-AdmsSensFadType & modelPar_PUCS,
-bool modelPar_given_PUCS,
-AdmsSensFadType & modelPar_UCSR,
-bool modelPar_given_UCSR,
-AdmsSensFadType & modelPar_LUCSR,
-bool modelPar_given_LUCSR,
-AdmsSensFadType & modelPar_WUCSR,
-bool modelPar_given_WUCSR,
-AdmsSensFadType & modelPar_PUCSR,
-bool modelPar_given_PUCSR,
-AdmsSensFadType & modelPar_UC,
-bool modelPar_given_UC,
-AdmsSensFadType & modelPar_UCL,
-bool modelPar_given_UCL,
-AdmsSensFadType & modelPar_UCLEXP,
-bool modelPar_given_UCLEXP,
-AdmsSensFadType & modelPar_UCW,
-bool modelPar_given_UCW,
-AdmsSensFadType & modelPar_UCWEXP,
-bool modelPar_given_UCWEXP,
-AdmsSensFadType & modelPar_UCWL,
-bool modelPar_given_UCWL,
-AdmsSensFadType & modelPar_UCWLEXP,
-bool modelPar_given_UCWLEXP,
-AdmsSensFadType & modelPar_LUC,
-bool modelPar_given_LUC,
-AdmsSensFadType & modelPar_WUC,
-bool modelPar_given_WUC,
-AdmsSensFadType & modelPar_PUC,
-bool modelPar_given_PUC,
-AdmsSensFadType & modelPar_UCR,
-bool modelPar_given_UCR,
-AdmsSensFadType & modelPar_LUCR,
-bool modelPar_given_LUCR,
-AdmsSensFadType & modelPar_WUCR,
-bool modelPar_given_WUCR,
-AdmsSensFadType & modelPar_PUCR,
-bool modelPar_given_PUCR,
-AdmsSensFadType & modelPar_PCLM,
-bool modelPar_given_PCLM,
-AdmsSensFadType & modelPar_PCLML,
-bool modelPar_given_PCLML,
-AdmsSensFadType & modelPar_PCLMLEXP,
-bool modelPar_given_PCLMLEXP,
-AdmsSensFadType & modelPar_LPCLM,
-bool modelPar_given_LPCLM,
-AdmsSensFadType & modelPar_WPCLM,
-bool modelPar_given_WPCLM,
-AdmsSensFadType & modelPar_PPCLM,
-bool modelPar_given_PPCLM,
-AdmsSensFadType & modelPar_PCLMR,
-bool modelPar_given_PCLMR,
-AdmsSensFadType & modelPar_LPCLMR,
-bool modelPar_given_LPCLMR,
-AdmsSensFadType & modelPar_WPCLMR,
-bool modelPar_given_WPCLMR,
-AdmsSensFadType & modelPar_PPCLMR,
-bool modelPar_given_PPCLMR,
-AdmsSensFadType & modelPar_PCLMG,
-bool modelPar_given_PCLMG,
-AdmsSensFadType & modelPar_PCLMCV,
-bool modelPar_given_PCLMCV,
-AdmsSensFadType & modelPar_PCLMCVL,
-bool modelPar_given_PCLMCVL,
-AdmsSensFadType & modelPar_PCLMCVLEXP,
-bool modelPar_given_PCLMCVLEXP,
-AdmsSensFadType & modelPar_LPCLMCV,
-bool modelPar_given_LPCLMCV,
-AdmsSensFadType & modelPar_WPCLMCV,
-bool modelPar_given_WPCLMCV,
-AdmsSensFadType & modelPar_PPCLMCV,
-bool modelPar_given_PPCLMCV,
-AdmsSensFadType & modelPar_PSCBE1,
-bool modelPar_given_PSCBE1,
-AdmsSensFadType & modelPar_LPSCBE1,
-bool modelPar_given_LPSCBE1,
-AdmsSensFadType & modelPar_WPSCBE1,
-bool modelPar_given_WPSCBE1,
-AdmsSensFadType & modelPar_PPSCBE1,
-bool modelPar_given_PPSCBE1,
-AdmsSensFadType & modelPar_PSCBE2,
-bool modelPar_given_PSCBE2,
-AdmsSensFadType & modelPar_LPSCBE2,
-bool modelPar_given_LPSCBE2,
-AdmsSensFadType & modelPar_WPSCBE2,
-bool modelPar_given_WPSCBE2,
-AdmsSensFadType & modelPar_PPSCBE2,
-bool modelPar_given_PPSCBE2,
-AdmsSensFadType & modelPar_PDITS,
-bool modelPar_given_PDITS,
-AdmsSensFadType & modelPar_LPDITS,
-bool modelPar_given_LPDITS,
-AdmsSensFadType & modelPar_WPDITS,
-bool modelPar_given_WPDITS,
-AdmsSensFadType & modelPar_PPDITS,
-bool modelPar_given_PPDITS,
-AdmsSensFadType & modelPar_PDITSL,
-bool modelPar_given_PDITSL,
-AdmsSensFadType & modelPar_PDITSD,
-bool modelPar_given_PDITSD,
-AdmsSensFadType & modelPar_LPDITSD,
-bool modelPar_given_LPDITSD,
-AdmsSensFadType & modelPar_WPDITSD,
-bool modelPar_given_WPDITSD,
-AdmsSensFadType & modelPar_PPDITSD,
-bool modelPar_given_PPDITSD,
-AdmsSensFadType & modelPar_RSH,
-bool modelPar_given_RSH,
-AdmsSensFadType & modelPar_PRWG,
-bool modelPar_given_PRWG,
-AdmsSensFadType & modelPar_LPRWG,
-bool modelPar_given_LPRWG,
-AdmsSensFadType & modelPar_WPRWG,
-bool modelPar_given_WPRWG,
-AdmsSensFadType & modelPar_PPRWG,
-bool modelPar_given_PPRWG,
-AdmsSensFadType & modelPar_PRWB,
-bool modelPar_given_PRWB,
-AdmsSensFadType & modelPar_LPRWB,
-bool modelPar_given_LPRWB,
-AdmsSensFadType & modelPar_WPRWB,
-bool modelPar_given_WPRWB,
-AdmsSensFadType & modelPar_PPRWB,
-bool modelPar_given_PPRWB,
-AdmsSensFadType & modelPar_PRWBL,
-bool modelPar_given_PRWBL,
-AdmsSensFadType & modelPar_PRWBLEXP,
-bool modelPar_given_PRWBLEXP,
-AdmsSensFadType & modelPar_WR,
-bool modelPar_given_WR,
-AdmsSensFadType & modelPar_LWR,
-bool modelPar_given_LWR,
-AdmsSensFadType & modelPar_WWR,
-bool modelPar_given_WWR,
-AdmsSensFadType & modelPar_PWR,
-bool modelPar_given_PWR,
-AdmsSensFadType & modelPar_RSWMIN,
-bool modelPar_given_RSWMIN,
-AdmsSensFadType & modelPar_LRSWMIN,
-bool modelPar_given_LRSWMIN,
-AdmsSensFadType & modelPar_WRSWMIN,
-bool modelPar_given_WRSWMIN,
-AdmsSensFadType & modelPar_PRSWMIN,
-bool modelPar_given_PRSWMIN,
-AdmsSensFadType & modelPar_RSW,
-bool modelPar_given_RSW,
-AdmsSensFadType & modelPar_LRSW,
-bool modelPar_given_LRSW,
-AdmsSensFadType & modelPar_WRSW,
-bool modelPar_given_WRSW,
-AdmsSensFadType & modelPar_PRSW,
-bool modelPar_given_PRSW,
-AdmsSensFadType & modelPar_RSWL,
-bool modelPar_given_RSWL,
-AdmsSensFadType & modelPar_RSWLEXP,
-bool modelPar_given_RSWLEXP,
-AdmsSensFadType & modelPar_RDWMIN,
-bool modelPar_given_RDWMIN,
-AdmsSensFadType & modelPar_LRDWMIN,
-bool modelPar_given_LRDWMIN,
-AdmsSensFadType & modelPar_WRDWMIN,
-bool modelPar_given_WRDWMIN,
-AdmsSensFadType & modelPar_PRDWMIN,
-bool modelPar_given_PRDWMIN,
-AdmsSensFadType & modelPar_RDW,
-bool modelPar_given_RDW,
-AdmsSensFadType & modelPar_LRDW,
-bool modelPar_given_LRDW,
-AdmsSensFadType & modelPar_WRDW,
-bool modelPar_given_WRDW,
-AdmsSensFadType & modelPar_PRDW,
-bool modelPar_given_PRDW,
-AdmsSensFadType & modelPar_RDWL,
-bool modelPar_given_RDWL,
-AdmsSensFadType & modelPar_RDWLEXP,
-bool modelPar_given_RDWLEXP,
-AdmsSensFadType & modelPar_RDSWMIN,
-bool modelPar_given_RDSWMIN,
-AdmsSensFadType & modelPar_LRDSWMIN,
-bool modelPar_given_LRDSWMIN,
-AdmsSensFadType & modelPar_WRDSWMIN,
-bool modelPar_given_WRDSWMIN,
-AdmsSensFadType & modelPar_PRDSWMIN,
-bool modelPar_given_PRDSWMIN,
-AdmsSensFadType & modelPar_RDSW,
-bool modelPar_given_RDSW,
-AdmsSensFadType & modelPar_RDSWL,
-bool modelPar_given_RDSWL,
-AdmsSensFadType & modelPar_RDSWLEXP,
-bool modelPar_given_RDSWLEXP,
-AdmsSensFadType & modelPar_LRDSW,
-bool modelPar_given_LRDSW,
-AdmsSensFadType & modelPar_WRDSW,
-bool modelPar_given_WRDSW,
-AdmsSensFadType & modelPar_PRDSW,
-bool modelPar_given_PRDSW,
-AdmsSensFadType & modelPar_PSAT,
-bool modelPar_given_PSAT,
-AdmsSensFadType & modelPar_LPSAT,
-bool modelPar_given_LPSAT,
-AdmsSensFadType & modelPar_WPSAT,
-bool modelPar_given_WPSAT,
-AdmsSensFadType & modelPar_PPSAT,
-bool modelPar_given_PPSAT,
-AdmsSensFadType & modelPar_PSATL,
-bool modelPar_given_PSATL,
-AdmsSensFadType & modelPar_PSATLEXP,
-bool modelPar_given_PSATLEXP,
-AdmsSensFadType & modelPar_PSATB,
-bool modelPar_given_PSATB,
-AdmsSensFadType & modelPar_PSATR,
-bool modelPar_given_PSATR,
-AdmsSensFadType & modelPar_LPSATR,
-bool modelPar_given_LPSATR,
-AdmsSensFadType & modelPar_WPSATR,
-bool modelPar_given_WPSATR,
-AdmsSensFadType & modelPar_PPSATR,
-bool modelPar_given_PPSATR,
-AdmsSensFadType & modelPar_LPSATB,
-bool modelPar_given_LPSATB,
-AdmsSensFadType & modelPar_WPSATB,
-bool modelPar_given_WPSATB,
-AdmsSensFadType & modelPar_PPSATB,
-bool modelPar_given_PPSATB,
-AdmsSensFadType & modelPar_PSATX,
-bool modelPar_given_PSATX,
-AdmsSensFadType & modelPar_PTWG,
-bool modelPar_given_PTWG,
-AdmsSensFadType & modelPar_LPTWG,
-bool modelPar_given_LPTWG,
-AdmsSensFadType & modelPar_WPTWG,
-bool modelPar_given_WPTWG,
-AdmsSensFadType & modelPar_PPTWG,
-bool modelPar_given_PPTWG,
-AdmsSensFadType & modelPar_PTWGL,
-bool modelPar_given_PTWGL,
-AdmsSensFadType & modelPar_PTWGLEXP,
-bool modelPar_given_PTWGLEXP,
-AdmsSensFadType & modelPar_PTWGR,
-bool modelPar_given_PTWGR,
-AdmsSensFadType & modelPar_LPTWGR,
-bool modelPar_given_LPTWGR,
-AdmsSensFadType & modelPar_WPTWGR,
-bool modelPar_given_WPTWGR,
-AdmsSensFadType & modelPar_PPTWGR,
-bool modelPar_given_PPTWGR,
-AdmsSensFadType & modelPar_PTWGLR,
-bool modelPar_given_PTWGLR,
-AdmsSensFadType & modelPar_PTWGLEXPR,
-bool modelPar_given_PTWGLEXPR,
-AdmsSensFadType & modelPar_A1,
-bool modelPar_given_A1,
-AdmsSensFadType & modelPar_LA1,
-bool modelPar_given_LA1,
-AdmsSensFadType & modelPar_WA1,
-bool modelPar_given_WA1,
-AdmsSensFadType & modelPar_PA1,
-bool modelPar_given_PA1,
-AdmsSensFadType & modelPar_A11,
-bool modelPar_given_A11,
-AdmsSensFadType & modelPar_LA11,
-bool modelPar_given_LA11,
-AdmsSensFadType & modelPar_WA11,
-bool modelPar_given_WA11,
-AdmsSensFadType & modelPar_PA11,
-bool modelPar_given_PA11,
-AdmsSensFadType & modelPar_A2,
-bool modelPar_given_A2,
-AdmsSensFadType & modelPar_LA2,
-bool modelPar_given_LA2,
-AdmsSensFadType & modelPar_WA2,
-bool modelPar_given_WA2,
-AdmsSensFadType & modelPar_PA2,
-bool modelPar_given_PA2,
-AdmsSensFadType & modelPar_A21,
-bool modelPar_given_A21,
-AdmsSensFadType & modelPar_LA21,
-bool modelPar_given_LA21,
-AdmsSensFadType & modelPar_WA21,
-bool modelPar_given_WA21,
-AdmsSensFadType & modelPar_PA21,
-bool modelPar_given_PA21,
-AdmsSensFadType & modelPar_PDIBLC,
-bool modelPar_given_PDIBLC,
-AdmsSensFadType & modelPar_PDIBLCL,
-bool modelPar_given_PDIBLCL,
-AdmsSensFadType & modelPar_PDIBLCLEXP,
-bool modelPar_given_PDIBLCLEXP,
-AdmsSensFadType & modelPar_LPDIBLC,
-bool modelPar_given_LPDIBLC,
-AdmsSensFadType & modelPar_WPDIBLC,
-bool modelPar_given_WPDIBLC,
-AdmsSensFadType & modelPar_PPDIBLC,
-bool modelPar_given_PPDIBLC,
-AdmsSensFadType & modelPar_PDIBLCR,
-bool modelPar_given_PDIBLCR,
-AdmsSensFadType & modelPar_PDIBLCLR,
-bool modelPar_given_PDIBLCLR,
-AdmsSensFadType & modelPar_PDIBLCLEXPR,
-bool modelPar_given_PDIBLCLEXPR,
-AdmsSensFadType & modelPar_LPDIBLCR,
-bool modelPar_given_LPDIBLCR,
-AdmsSensFadType & modelPar_WPDIBLCR,
-bool modelPar_given_WPDIBLCR,
-AdmsSensFadType & modelPar_PPDIBLCR,
-bool modelPar_given_PPDIBLCR,
-AdmsSensFadType & modelPar_PDIBLCB,
-bool modelPar_given_PDIBLCB,
-AdmsSensFadType & modelPar_LPDIBLCB,
-bool modelPar_given_LPDIBLCB,
-AdmsSensFadType & modelPar_WPDIBLCB,
-bool modelPar_given_WPDIBLCB,
-AdmsSensFadType & modelPar_PPDIBLCB,
-bool modelPar_given_PPDIBLCB,
-AdmsSensFadType & modelPar_PVAG,
-bool modelPar_given_PVAG,
-AdmsSensFadType & modelPar_LPVAG,
-bool modelPar_given_LPVAG,
-AdmsSensFadType & modelPar_WPVAG,
-bool modelPar_given_WPVAG,
-AdmsSensFadType & modelPar_PPVAG,
-bool modelPar_given_PPVAG,
-AdmsSensFadType & modelPar_FPROUT,
-bool modelPar_given_FPROUT,
-AdmsSensFadType & modelPar_FPROUTL,
-bool modelPar_given_FPROUTL,
-AdmsSensFadType & modelPar_FPROUTLEXP,
-bool modelPar_given_FPROUTLEXP,
-AdmsSensFadType & modelPar_LFPROUT,
-bool modelPar_given_LFPROUT,
-AdmsSensFadType & modelPar_WFPROUT,
-bool modelPar_given_WFPROUT,
-AdmsSensFadType & modelPar_PFPROUT,
-bool modelPar_given_PFPROUT,
-AdmsSensFadType & modelPar_ALPHA0,
-bool modelPar_given_ALPHA0,
-AdmsSensFadType & modelPar_ALPHA0L,
-bool modelPar_given_ALPHA0L,
-AdmsSensFadType & modelPar_ALPHA0LEXP,
-bool modelPar_given_ALPHA0LEXP,
-AdmsSensFadType & modelPar_LALPHA0,
-bool modelPar_given_LALPHA0,
-AdmsSensFadType & modelPar_WALPHA0,
-bool modelPar_given_WALPHA0,
-AdmsSensFadType & modelPar_PALPHA0,
-bool modelPar_given_PALPHA0,
-AdmsSensFadType & modelPar_BETA0,
-bool modelPar_given_BETA0,
-AdmsSensFadType & modelPar_LBETA0,
-bool modelPar_given_LBETA0,
-AdmsSensFadType & modelPar_WBETA0,
-bool modelPar_given_WBETA0,
-AdmsSensFadType & modelPar_PBETA0,
-bool modelPar_given_PBETA0,
-AdmsSensFadType & modelPar_AIGBACC,
-bool modelPar_given_AIGBACC,
-AdmsSensFadType & modelPar_BIGBACC,
-bool modelPar_given_BIGBACC,
-AdmsSensFadType & modelPar_CIGBACC,
-bool modelPar_given_CIGBACC,
-AdmsSensFadType & modelPar_NIGBACC,
-bool modelPar_given_NIGBACC,
-AdmsSensFadType & modelPar_AIGBINV,
-bool modelPar_given_AIGBINV,
-AdmsSensFadType & modelPar_BIGBINV,
-bool modelPar_given_BIGBINV,
-AdmsSensFadType & modelPar_CIGBINV,
-bool modelPar_given_CIGBINV,
-AdmsSensFadType & modelPar_EIGBINV,
-bool modelPar_given_EIGBINV,
-AdmsSensFadType & modelPar_NIGBINV,
-bool modelPar_given_NIGBINV,
-AdmsSensFadType & modelPar_AIGC,
-bool modelPar_given_AIGC,
-AdmsSensFadType & modelPar_BIGC,
-bool modelPar_given_BIGC,
-AdmsSensFadType & modelPar_CIGC,
-bool modelPar_given_CIGC,
-AdmsSensFadType & modelPar_AIGS,
-bool modelPar_given_AIGS,
-AdmsSensFadType & modelPar_BIGS,
-bool modelPar_given_BIGS,
-AdmsSensFadType & modelPar_CIGS,
-bool modelPar_given_CIGS,
-AdmsSensFadType & modelPar_AIGD,
-bool modelPar_given_AIGD,
-AdmsSensFadType & modelPar_BIGD,
-bool modelPar_given_BIGD,
-AdmsSensFadType & modelPar_CIGD,
-bool modelPar_given_CIGD,
-AdmsSensFadType & modelPar_DLCIG,
-bool modelPar_given_DLCIG,
-AdmsSensFadType & modelPar_DLCIGD,
-bool modelPar_given_DLCIGD,
-AdmsSensFadType & modelPar_POXEDGE,
-bool modelPar_given_POXEDGE,
-AdmsSensFadType & modelPar_NTOX,
-bool modelPar_given_NTOX,
-AdmsSensFadType & modelPar_TOXREF,
-bool modelPar_given_TOXREF,
-AdmsSensFadType & modelPar_PIGCD,
-bool modelPar_given_PIGCD,
-AdmsSensFadType & modelPar_AIGCL,
-bool modelPar_given_AIGCL,
-AdmsSensFadType & modelPar_AIGCW,
-bool modelPar_given_AIGCW,
-AdmsSensFadType & modelPar_AIGSL,
-bool modelPar_given_AIGSL,
-AdmsSensFadType & modelPar_AIGSW,
-bool modelPar_given_AIGSW,
-AdmsSensFadType & modelPar_AIGDL,
-bool modelPar_given_AIGDL,
-AdmsSensFadType & modelPar_AIGDW,
-bool modelPar_given_AIGDW,
-AdmsSensFadType & modelPar_PIGCDL,
-bool modelPar_given_PIGCDL,
-AdmsSensFadType & modelPar_LAIGBINV,
-bool modelPar_given_LAIGBINV,
-AdmsSensFadType & modelPar_WAIGBINV,
-bool modelPar_given_WAIGBINV,
-AdmsSensFadType & modelPar_PAIGBINV,
-bool modelPar_given_PAIGBINV,
-AdmsSensFadType & modelPar_LBIGBINV,
-bool modelPar_given_LBIGBINV,
-AdmsSensFadType & modelPar_WBIGBINV,
-bool modelPar_given_WBIGBINV,
-AdmsSensFadType & modelPar_PBIGBINV,
-bool modelPar_given_PBIGBINV,
-AdmsSensFadType & modelPar_LCIGBINV,
-bool modelPar_given_LCIGBINV,
-AdmsSensFadType & modelPar_WCIGBINV,
-bool modelPar_given_WCIGBINV,
-AdmsSensFadType & modelPar_PCIGBINV,
-bool modelPar_given_PCIGBINV,
-AdmsSensFadType & modelPar_LEIGBINV,
-bool modelPar_given_LEIGBINV,
-AdmsSensFadType & modelPar_WEIGBINV,
-bool modelPar_given_WEIGBINV,
-AdmsSensFadType & modelPar_PEIGBINV,
-bool modelPar_given_PEIGBINV,
-AdmsSensFadType & modelPar_LNIGBINV,
-bool modelPar_given_LNIGBINV,
-AdmsSensFadType & modelPar_WNIGBINV,
-bool modelPar_given_WNIGBINV,
-AdmsSensFadType & modelPar_PNIGBINV,
-bool modelPar_given_PNIGBINV,
-AdmsSensFadType & modelPar_LAIGBACC,
-bool modelPar_given_LAIGBACC,
-AdmsSensFadType & modelPar_WAIGBACC,
-bool modelPar_given_WAIGBACC,
-AdmsSensFadType & modelPar_PAIGBACC,
-bool modelPar_given_PAIGBACC,
-AdmsSensFadType & modelPar_LBIGBACC,
-bool modelPar_given_LBIGBACC,
-AdmsSensFadType & modelPar_WBIGBACC,
-bool modelPar_given_WBIGBACC,
-AdmsSensFadType & modelPar_PBIGBACC,
-bool modelPar_given_PBIGBACC,
-AdmsSensFadType & modelPar_LCIGBACC,
-bool modelPar_given_LCIGBACC,
-AdmsSensFadType & modelPar_WCIGBACC,
-bool modelPar_given_WCIGBACC,
-AdmsSensFadType & modelPar_PCIGBACC,
-bool modelPar_given_PCIGBACC,
-AdmsSensFadType & modelPar_LNIGBACC,
-bool modelPar_given_LNIGBACC,
-AdmsSensFadType & modelPar_WNIGBACC,
-bool modelPar_given_WNIGBACC,
-AdmsSensFadType & modelPar_PNIGBACC,
-bool modelPar_given_PNIGBACC,
-AdmsSensFadType & modelPar_LAIGC,
-bool modelPar_given_LAIGC,
-AdmsSensFadType & modelPar_WAIGC,
-bool modelPar_given_WAIGC,
-AdmsSensFadType & modelPar_PAIGC,
-bool modelPar_given_PAIGC,
-AdmsSensFadType & modelPar_LBIGC,
-bool modelPar_given_LBIGC,
-AdmsSensFadType & modelPar_WBIGC,
-bool modelPar_given_WBIGC,
-AdmsSensFadType & modelPar_PBIGC,
-bool modelPar_given_PBIGC,
-AdmsSensFadType & modelPar_LCIGC,
-bool modelPar_given_LCIGC,
-AdmsSensFadType & modelPar_WCIGC,
-bool modelPar_given_WCIGC,
-AdmsSensFadType & modelPar_PCIGC,
-bool modelPar_given_PCIGC,
-AdmsSensFadType & modelPar_LAIGS,
-bool modelPar_given_LAIGS,
-AdmsSensFadType & modelPar_WAIGS,
-bool modelPar_given_WAIGS,
-AdmsSensFadType & modelPar_PAIGS,
-bool modelPar_given_PAIGS,
-AdmsSensFadType & modelPar_LBIGS,
-bool modelPar_given_LBIGS,
-AdmsSensFadType & modelPar_WBIGS,
-bool modelPar_given_WBIGS,
-AdmsSensFadType & modelPar_PBIGS,
-bool modelPar_given_PBIGS,
-AdmsSensFadType & modelPar_LCIGS,
-bool modelPar_given_LCIGS,
-AdmsSensFadType & modelPar_WCIGS,
-bool modelPar_given_WCIGS,
-AdmsSensFadType & modelPar_PCIGS,
-bool modelPar_given_PCIGS,
-AdmsSensFadType & modelPar_LAIGD,
-bool modelPar_given_LAIGD,
-AdmsSensFadType & modelPar_WAIGD,
-bool modelPar_given_WAIGD,
-AdmsSensFadType & modelPar_PAIGD,
-bool modelPar_given_PAIGD,
-AdmsSensFadType & modelPar_LBIGD,
-bool modelPar_given_LBIGD,
-AdmsSensFadType & modelPar_WBIGD,
-bool modelPar_given_WBIGD,
-AdmsSensFadType & modelPar_PBIGD,
-bool modelPar_given_PBIGD,
-AdmsSensFadType & modelPar_LCIGD,
-bool modelPar_given_LCIGD,
-AdmsSensFadType & modelPar_WCIGD,
-bool modelPar_given_WCIGD,
-AdmsSensFadType & modelPar_PCIGD,
-bool modelPar_given_PCIGD,
-AdmsSensFadType & modelPar_LPOXEDGE,
-bool modelPar_given_LPOXEDGE,
-AdmsSensFadType & modelPar_WPOXEDGE,
-bool modelPar_given_WPOXEDGE,
-AdmsSensFadType & modelPar_PPOXEDGE,
-bool modelPar_given_PPOXEDGE,
-AdmsSensFadType & modelPar_LDLCIG,
-bool modelPar_given_LDLCIG,
-AdmsSensFadType & modelPar_WDLCIG,
-bool modelPar_given_WDLCIG,
-AdmsSensFadType & modelPar_PDLCIG,
-bool modelPar_given_PDLCIG,
-AdmsSensFadType & modelPar_LDLCIGD,
-bool modelPar_given_LDLCIGD,
-AdmsSensFadType & modelPar_WDLCIGD,
-bool modelPar_given_WDLCIGD,
-AdmsSensFadType & modelPar_PDLCIGD,
-bool modelPar_given_PDLCIGD,
-AdmsSensFadType & modelPar_LNTOX,
-bool modelPar_given_LNTOX,
-AdmsSensFadType & modelPar_WNTOX,
-bool modelPar_given_WNTOX,
-AdmsSensFadType & modelPar_PNTOX,
-bool modelPar_given_PNTOX,
-AdmsSensFadType & modelPar_AGIDL,
-bool modelPar_given_AGIDL,
-AdmsSensFadType & modelPar_AGIDLL,
-bool modelPar_given_AGIDLL,
-AdmsSensFadType & modelPar_AGIDLW,
-bool modelPar_given_AGIDLW,
-AdmsSensFadType & modelPar_LAGIDL,
-bool modelPar_given_LAGIDL,
-AdmsSensFadType & modelPar_WAGIDL,
-bool modelPar_given_WAGIDL,
-AdmsSensFadType & modelPar_PAGIDL,
-bool modelPar_given_PAGIDL,
-AdmsSensFadType & modelPar_BGIDL,
-bool modelPar_given_BGIDL,
-AdmsSensFadType & modelPar_LBGIDL,
-bool modelPar_given_LBGIDL,
-AdmsSensFadType & modelPar_WBGIDL,
-bool modelPar_given_WBGIDL,
-AdmsSensFadType & modelPar_PBGIDL,
-bool modelPar_given_PBGIDL,
-AdmsSensFadType & modelPar_CGIDL,
-bool modelPar_given_CGIDL,
-AdmsSensFadType & modelPar_LCGIDL,
-bool modelPar_given_LCGIDL,
-AdmsSensFadType & modelPar_WCGIDL,
-bool modelPar_given_WCGIDL,
-AdmsSensFadType & modelPar_PCGIDL,
-bool modelPar_given_PCGIDL,
-AdmsSensFadType & modelPar_EGIDL,
-bool modelPar_given_EGIDL,
-AdmsSensFadType & modelPar_LEGIDL,
-bool modelPar_given_LEGIDL,
-AdmsSensFadType & modelPar_WEGIDL,
-bool modelPar_given_WEGIDL,
-AdmsSensFadType & modelPar_PEGIDL,
-bool modelPar_given_PEGIDL,
-AdmsSensFadType & modelPar_AGISL,
-bool modelPar_given_AGISL,
-AdmsSensFadType & modelPar_AGISLL,
-bool modelPar_given_AGISLL,
-AdmsSensFadType & modelPar_AGISLW,
-bool modelPar_given_AGISLW,
-AdmsSensFadType & modelPar_LAGISL,
-bool modelPar_given_LAGISL,
-AdmsSensFadType & modelPar_WAGISL,
-bool modelPar_given_WAGISL,
-AdmsSensFadType & modelPar_PAGISL,
-bool modelPar_given_PAGISL,
-AdmsSensFadType & modelPar_BGISL,
-bool modelPar_given_BGISL,
-AdmsSensFadType & modelPar_LBGISL,
-bool modelPar_given_LBGISL,
-AdmsSensFadType & modelPar_WBGISL,
-bool modelPar_given_WBGISL,
-AdmsSensFadType & modelPar_PBGISL,
-bool modelPar_given_PBGISL,
-AdmsSensFadType & modelPar_CGISL,
-bool modelPar_given_CGISL,
-AdmsSensFadType & modelPar_LCGISL,
-bool modelPar_given_LCGISL,
-AdmsSensFadType & modelPar_WCGISL,
-bool modelPar_given_WCGISL,
-AdmsSensFadType & modelPar_PCGISL,
-bool modelPar_given_PCGISL,
-AdmsSensFadType & modelPar_EGISL,
-bool modelPar_given_EGISL,
-AdmsSensFadType & modelPar_LEGISL,
-bool modelPar_given_LEGISL,
-AdmsSensFadType & modelPar_WEGISL,
-bool modelPar_given_WEGISL,
-AdmsSensFadType & modelPar_PEGISL,
-bool modelPar_given_PEGISL,
-AdmsSensFadType & modelPar_CF,
-bool modelPar_given_CF,
-AdmsSensFadType & modelPar_LCF,
-bool modelPar_given_LCF,
-AdmsSensFadType & modelPar_WCF,
-bool modelPar_given_WCF,
-AdmsSensFadType & modelPar_PCF,
-bool modelPar_given_PCF,
-AdmsSensFadType & modelPar_CFRCOEFF,
-bool modelPar_given_CFRCOEFF,
-AdmsSensFadType & modelPar_CGSO,
-bool modelPar_given_CGSO,
-AdmsSensFadType & modelPar_CGDO,
-bool modelPar_given_CGDO,
-AdmsSensFadType & modelPar_CGBO,
-bool modelPar_given_CGBO,
-AdmsSensFadType & modelPar_CGSL,
-bool modelPar_given_CGSL,
-AdmsSensFadType & modelPar_LCGSL,
-bool modelPar_given_LCGSL,
-AdmsSensFadType & modelPar_WCGSL,
-bool modelPar_given_WCGSL,
-AdmsSensFadType & modelPar_PCGSL,
-bool modelPar_given_PCGSL,
-AdmsSensFadType & modelPar_CGDL,
-bool modelPar_given_CGDL,
-AdmsSensFadType & modelPar_LCGDL,
-bool modelPar_given_LCGDL,
-AdmsSensFadType & modelPar_WCGDL,
-bool modelPar_given_WCGDL,
-AdmsSensFadType & modelPar_PCGDL,
-bool modelPar_given_PCGDL,
-AdmsSensFadType & modelPar_CKAPPAS,
-bool modelPar_given_CKAPPAS,
-AdmsSensFadType & modelPar_LCKAPPAS,
-bool modelPar_given_LCKAPPAS,
-AdmsSensFadType & modelPar_WCKAPPAS,
-bool modelPar_given_WCKAPPAS,
-AdmsSensFadType & modelPar_PCKAPPAS,
-bool modelPar_given_PCKAPPAS,
-AdmsSensFadType & modelPar_CKAPPAD,
-bool modelPar_given_CKAPPAD,
-AdmsSensFadType & modelPar_LCKAPPAD,
-bool modelPar_given_LCKAPPAD,
-AdmsSensFadType & modelPar_WCKAPPAD,
-bool modelPar_given_WCKAPPAD,
-AdmsSensFadType & modelPar_PCKAPPAD,
-bool modelPar_given_PCKAPPAD,
-AdmsSensFadType & modelPar_DMCG,
-bool modelPar_given_DMCG,
-AdmsSensFadType & modelPar_DMCI,
-bool modelPar_given_DMCI,
-AdmsSensFadType & modelPar_DMDG,
-bool modelPar_given_DMDG,
-AdmsSensFadType & modelPar_DMCGT,
-bool modelPar_given_DMCGT,
-AdmsSensFadType & modelPar_XGL,
-bool modelPar_given_XGL,
-AdmsSensFadType & modelPar_RSHG,
-bool modelPar_given_RSHG,
-AdmsSensFadType & modelPar_CJS,
-bool modelPar_given_CJS,
-AdmsSensFadType & modelPar_CJD,
-bool modelPar_given_CJD,
-AdmsSensFadType & modelPar_CJSWS,
-bool modelPar_given_CJSWS,
-AdmsSensFadType & modelPar_CJSWD,
-bool modelPar_given_CJSWD,
-AdmsSensFadType & modelPar_CJSWGS,
-bool modelPar_given_CJSWGS,
-AdmsSensFadType & modelPar_CJSWGD,
-bool modelPar_given_CJSWGD,
-AdmsSensFadType & modelPar_PBS,
-bool modelPar_given_PBS,
-AdmsSensFadType & modelPar_PBD,
-bool modelPar_given_PBD,
-AdmsSensFadType & modelPar_PBSWS,
-bool modelPar_given_PBSWS,
-AdmsSensFadType & modelPar_PBSWD,
-bool modelPar_given_PBSWD,
-AdmsSensFadType & modelPar_PBSWGS,
-bool modelPar_given_PBSWGS,
-AdmsSensFadType & modelPar_PBSWGD,
-bool modelPar_given_PBSWGD,
-AdmsSensFadType & modelPar_MJS,
-bool modelPar_given_MJS,
-AdmsSensFadType & modelPar_MJD,
-bool modelPar_given_MJD,
-AdmsSensFadType & modelPar_MJSWS,
-bool modelPar_given_MJSWS,
-AdmsSensFadType & modelPar_MJSWD,
-bool modelPar_given_MJSWD,
-AdmsSensFadType & modelPar_MJSWGS,
-bool modelPar_given_MJSWGS,
-AdmsSensFadType & modelPar_MJSWGD,
-bool modelPar_given_MJSWGD,
-AdmsSensFadType & modelPar_JSS,
-bool modelPar_given_JSS,
-AdmsSensFadType & modelPar_JSD,
-bool modelPar_given_JSD,
-AdmsSensFadType & modelPar_JSWS,
-bool modelPar_given_JSWS,
-AdmsSensFadType & modelPar_JSWD,
-bool modelPar_given_JSWD,
-AdmsSensFadType & modelPar_JSWGS,
-bool modelPar_given_JSWGS,
-AdmsSensFadType & modelPar_JSWGD,
-bool modelPar_given_JSWGD,
-AdmsSensFadType & modelPar_NJS,
-bool modelPar_given_NJS,
-AdmsSensFadType & modelPar_NJD,
-bool modelPar_given_NJD,
-AdmsSensFadType & modelPar_IJTHSFWD,
-bool modelPar_given_IJTHSFWD,
-AdmsSensFadType & modelPar_IJTHDFWD,
-bool modelPar_given_IJTHDFWD,
-AdmsSensFadType & modelPar_IJTHSREV,
-bool modelPar_given_IJTHSREV,
-AdmsSensFadType & modelPar_IJTHDREV,
-bool modelPar_given_IJTHDREV,
-AdmsSensFadType & modelPar_BVS,
-bool modelPar_given_BVS,
-AdmsSensFadType & modelPar_BVD,
-bool modelPar_given_BVD,
-AdmsSensFadType & modelPar_XJBVS,
-bool modelPar_given_XJBVS,
-AdmsSensFadType & modelPar_XJBVD,
-bool modelPar_given_XJBVD,
-AdmsSensFadType & modelPar_JTSS,
-bool modelPar_given_JTSS,
-AdmsSensFadType & modelPar_JTSD,
-bool modelPar_given_JTSD,
-AdmsSensFadType & modelPar_JTSSWS,
-bool modelPar_given_JTSSWS,
-AdmsSensFadType & modelPar_JTSSWD,
-bool modelPar_given_JTSSWD,
-AdmsSensFadType & modelPar_JTSSWGS,
-bool modelPar_given_JTSSWGS,
-AdmsSensFadType & modelPar_JTSSWGD,
-bool modelPar_given_JTSSWGD,
-AdmsSensFadType & modelPar_JTWEFF,
-bool modelPar_given_JTWEFF,
-AdmsSensFadType & modelPar_NJTS,
-bool modelPar_given_NJTS,
-AdmsSensFadType & modelPar_NJTSD,
-bool modelPar_given_NJTSD,
-AdmsSensFadType & modelPar_NJTSSW,
-bool modelPar_given_NJTSSW,
-AdmsSensFadType & modelPar_NJTSSWD,
-bool modelPar_given_NJTSSWD,
-AdmsSensFadType & modelPar_NJTSSWG,
-bool modelPar_given_NJTSSWG,
-AdmsSensFadType & modelPar_NJTSSWGD,
-bool modelPar_given_NJTSSWGD,
-AdmsSensFadType & modelPar_VTSS,
-bool modelPar_given_VTSS,
-AdmsSensFadType & modelPar_VTSD,
-bool modelPar_given_VTSD,
-AdmsSensFadType & modelPar_VTSSWS,
-bool modelPar_given_VTSSWS,
-AdmsSensFadType & modelPar_VTSSWD,
-bool modelPar_given_VTSSWD,
-AdmsSensFadType & modelPar_VTSSWGS,
-bool modelPar_given_VTSSWGS,
-AdmsSensFadType & modelPar_VTSSWGD,
-bool modelPar_given_VTSSWGD,
-AdmsSensFadType & modelPar_XRCRG1,
-bool modelPar_given_XRCRG1,
-AdmsSensFadType & modelPar_XRCRG2,
-bool modelPar_given_XRCRG2,
-AdmsSensFadType & modelPar_GBMIN,
-bool modelPar_given_GBMIN,
-AdmsSensFadType & modelPar_RBPS0,
-bool modelPar_given_RBPS0,
-AdmsSensFadType & modelPar_RBPSL,
-bool modelPar_given_RBPSL,
-AdmsSensFadType & modelPar_RBPSW,
-bool modelPar_given_RBPSW,
-AdmsSensFadType & modelPar_RBPSNF,
-bool modelPar_given_RBPSNF,
-AdmsSensFadType & modelPar_RBPD0,
-bool modelPar_given_RBPD0,
-AdmsSensFadType & modelPar_RBPDL,
-bool modelPar_given_RBPDL,
-AdmsSensFadType & modelPar_RBPDW,
-bool modelPar_given_RBPDW,
-AdmsSensFadType & modelPar_RBPDNF,
-bool modelPar_given_RBPDNF,
-AdmsSensFadType & modelPar_RBPBX0,
-bool modelPar_given_RBPBX0,
-AdmsSensFadType & modelPar_RBPBXL,
-bool modelPar_given_RBPBXL,
-AdmsSensFadType & modelPar_RBPBXW,
-bool modelPar_given_RBPBXW,
-AdmsSensFadType & modelPar_RBPBXNF,
-bool modelPar_given_RBPBXNF,
-AdmsSensFadType & modelPar_RBPBY0,
-bool modelPar_given_RBPBY0,
-AdmsSensFadType & modelPar_RBPBYL,
-bool modelPar_given_RBPBYL,
-AdmsSensFadType & modelPar_RBPBYW,
-bool modelPar_given_RBPBYW,
-AdmsSensFadType & modelPar_RBPBYNF,
-bool modelPar_given_RBPBYNF,
-AdmsSensFadType & modelPar_RBSBX0,
-bool modelPar_given_RBSBX0,
-AdmsSensFadType & modelPar_RBSBY0,
-bool modelPar_given_RBSBY0,
-AdmsSensFadType & modelPar_RBDBX0,
-bool modelPar_given_RBDBX0,
-AdmsSensFadType & modelPar_RBDBY0,
-bool modelPar_given_RBDBY0,
-AdmsSensFadType & modelPar_RBSDBXL,
-bool modelPar_given_RBSDBXL,
-AdmsSensFadType & modelPar_RBSDBXW,
-bool modelPar_given_RBSDBXW,
-AdmsSensFadType & modelPar_RBSDBXNF,
-bool modelPar_given_RBSDBXNF,
-AdmsSensFadType & modelPar_RBSDBYL,
-bool modelPar_given_RBSDBYL,
-AdmsSensFadType & modelPar_RBSDBYW,
-bool modelPar_given_RBSDBYW,
-AdmsSensFadType & modelPar_RBSDBYNF,
-bool modelPar_given_RBSDBYNF,
-AdmsSensFadType & modelPar_EF,
-bool modelPar_given_EF,
-AdmsSensFadType & modelPar_EM,
-bool modelPar_given_EM,
-AdmsSensFadType & modelPar_NOIA,
-bool modelPar_given_NOIA,
-AdmsSensFadType & modelPar_NOIB,
-bool modelPar_given_NOIB,
-AdmsSensFadType & modelPar_NOIC,
-bool modelPar_given_NOIC,
-AdmsSensFadType & modelPar_LINTNOI,
-bool modelPar_given_LINTNOI,
-AdmsSensFadType & modelPar_NTNOI,
-bool modelPar_given_NTNOI,
-AdmsSensFadType & modelPar_RNOIA,
-bool modelPar_given_RNOIA,
-AdmsSensFadType & modelPar_RNOIB,
-bool modelPar_given_RNOIB,
-AdmsSensFadType & modelPar_RNOIC,
-bool modelPar_given_RNOIC,
-AdmsSensFadType & modelPar_TNOIA,
-bool modelPar_given_TNOIA,
-AdmsSensFadType & modelPar_TNOIB,
-bool modelPar_given_TNOIB,
-AdmsSensFadType & modelPar_TNOIC,
-bool modelPar_given_TNOIC,
-AdmsSensFadType & modelPar_DLBIN,
-bool modelPar_given_DLBIN,
-AdmsSensFadType & modelPar_DWBIN,
-bool modelPar_given_DWBIN,
-AdmsSensFadType & modelPar_TNOM,
-bool modelPar_given_TNOM,
-AdmsSensFadType & modelPar_DTEMP,
-bool modelPar_given_DTEMP,
-AdmsSensFadType & modelPar_TBGASUB,
-bool modelPar_given_TBGASUB,
-AdmsSensFadType & modelPar_TBGBSUB,
-bool modelPar_given_TBGBSUB,
-AdmsSensFadType & modelPar_TNFACTOR,
-bool modelPar_given_TNFACTOR,
-AdmsSensFadType & modelPar_UTE,
-bool modelPar_given_UTE,
-AdmsSensFadType & modelPar_LUTE,
-bool modelPar_given_LUTE,
-AdmsSensFadType & modelPar_WUTE,
-bool modelPar_given_WUTE,
-AdmsSensFadType & modelPar_PUTE,
-bool modelPar_given_PUTE,
-AdmsSensFadType & modelPar_UTEL,
-bool modelPar_given_UTEL,
-AdmsSensFadType & modelPar_UA1,
-bool modelPar_given_UA1,
-AdmsSensFadType & modelPar_LUA1,
-bool modelPar_given_LUA1,
-AdmsSensFadType & modelPar_WUA1,
-bool modelPar_given_WUA1,
-AdmsSensFadType & modelPar_PUA1,
-bool modelPar_given_PUA1,
-AdmsSensFadType & modelPar_UA1L,
-bool modelPar_given_UA1L,
-AdmsSensFadType & modelPar_UC1,
-bool modelPar_given_UC1,
-AdmsSensFadType & modelPar_LUC1,
-bool modelPar_given_LUC1,
-AdmsSensFadType & modelPar_WUC1,
-bool modelPar_given_WUC1,
-AdmsSensFadType & modelPar_PUC1,
-bool modelPar_given_PUC1,
-AdmsSensFadType & modelPar_UD1,
-bool modelPar_given_UD1,
-AdmsSensFadType & modelPar_LUD1,
-bool modelPar_given_LUD1,
-AdmsSensFadType & modelPar_WUD1,
-bool modelPar_given_WUD1,
-AdmsSensFadType & modelPar_PUD1,
-bool modelPar_given_PUD1,
-AdmsSensFadType & modelPar_UD1L,
-bool modelPar_given_UD1L,
-AdmsSensFadType & modelPar_UCSTE,
-bool modelPar_given_UCSTE,
-AdmsSensFadType & modelPar_LUCSTE,
-bool modelPar_given_LUCSTE,
-AdmsSensFadType & modelPar_WUCSTE,
-bool modelPar_given_WUCSTE,
-AdmsSensFadType & modelPar_PUCSTE,
-bool modelPar_given_PUCSTE,
-AdmsSensFadType & modelPar_TETA0,
-bool modelPar_given_TETA0,
-AdmsSensFadType & modelPar_PRT,
-bool modelPar_given_PRT,
-AdmsSensFadType & modelPar_LPRT,
-bool modelPar_given_LPRT,
-AdmsSensFadType & modelPar_WPRT,
-bool modelPar_given_WPRT,
-AdmsSensFadType & modelPar_PPRT,
-bool modelPar_given_PPRT,
-AdmsSensFadType & modelPar_AT,
-bool modelPar_given_AT,
-AdmsSensFadType & modelPar_LAT,
-bool modelPar_given_LAT,
-AdmsSensFadType & modelPar_WAT,
-bool modelPar_given_WAT,
-AdmsSensFadType & modelPar_PAT,
-bool modelPar_given_PAT,
-AdmsSensFadType & modelPar_ATL,
-bool modelPar_given_ATL,
-AdmsSensFadType & modelPar_TDELTA,
-bool modelPar_given_TDELTA,
-AdmsSensFadType & modelPar_PTWGT,
-bool modelPar_given_PTWGT,
-AdmsSensFadType & modelPar_LPTWGT,
-bool modelPar_given_LPTWGT,
-AdmsSensFadType & modelPar_WPTWGT,
-bool modelPar_given_WPTWGT,
-AdmsSensFadType & modelPar_PPTWGT,
-bool modelPar_given_PPTWGT,
-AdmsSensFadType & modelPar_PTWGTL,
-bool modelPar_given_PTWGTL,
-AdmsSensFadType & modelPar_KT1,
-bool modelPar_given_KT1,
-AdmsSensFadType & modelPar_KT1EXP,
-bool modelPar_given_KT1EXP,
-AdmsSensFadType & modelPar_KT1L,
-bool modelPar_given_KT1L,
-AdmsSensFadType & modelPar_LKT1,
-bool modelPar_given_LKT1,
-AdmsSensFadType & modelPar_WKT1,
-bool modelPar_given_WKT1,
-AdmsSensFadType & modelPar_PKT1,
-bool modelPar_given_PKT1,
-AdmsSensFadType & modelPar_KT2,
-bool modelPar_given_KT2,
-AdmsSensFadType & modelPar_LKT2,
-bool modelPar_given_LKT2,
-AdmsSensFadType & modelPar_WKT2,
-bool modelPar_given_WKT2,
-AdmsSensFadType & modelPar_PKT2,
-bool modelPar_given_PKT2,
-AdmsSensFadType & modelPar_IIT,
-bool modelPar_given_IIT,
-AdmsSensFadType & modelPar_LIIT,
-bool modelPar_given_LIIT,
-AdmsSensFadType & modelPar_WIIT,
-bool modelPar_given_WIIT,
-AdmsSensFadType & modelPar_PIIT,
-bool modelPar_given_PIIT,
-AdmsSensFadType & modelPar_IGT,
-bool modelPar_given_IGT,
-AdmsSensFadType & modelPar_LIGT,
-bool modelPar_given_LIGT,
-AdmsSensFadType & modelPar_WIGT,
-bool modelPar_given_WIGT,
-AdmsSensFadType & modelPar_PIGT,
-bool modelPar_given_PIGT,
-AdmsSensFadType & modelPar_TGIDL,
-bool modelPar_given_TGIDL,
-AdmsSensFadType & modelPar_LTGIDL,
-bool modelPar_given_LTGIDL,
-AdmsSensFadType & modelPar_WTGIDL,
-bool modelPar_given_WTGIDL,
-AdmsSensFadType & modelPar_PTGIDL,
-bool modelPar_given_PTGIDL,
-AdmsSensFadType & modelPar_TCJ,
-bool modelPar_given_TCJ,
-AdmsSensFadType & modelPar_TCJSW,
-bool modelPar_given_TCJSW,
-AdmsSensFadType & modelPar_TCJSWG,
-bool modelPar_given_TCJSWG,
-AdmsSensFadType & modelPar_TPB,
-bool modelPar_given_TPB,
-AdmsSensFadType & modelPar_TPBSW,
-bool modelPar_given_TPBSW,
-AdmsSensFadType & modelPar_TPBSWG,
-bool modelPar_given_TPBSWG,
-AdmsSensFadType & modelPar_XTIS,
-bool modelPar_given_XTIS,
-AdmsSensFadType & modelPar_XTID,
-bool modelPar_given_XTID,
-AdmsSensFadType & modelPar_XTSS,
-bool modelPar_given_XTSS,
-AdmsSensFadType & modelPar_XTSD,
-bool modelPar_given_XTSD,
-AdmsSensFadType & modelPar_XTSSWS,
-bool modelPar_given_XTSSWS,
-AdmsSensFadType & modelPar_XTSSWD,
-bool modelPar_given_XTSSWD,
-AdmsSensFadType & modelPar_XTSSWGS,
-bool modelPar_given_XTSSWGS,
-AdmsSensFadType & modelPar_XTSSWGD,
-bool modelPar_given_XTSSWGD,
-AdmsSensFadType & modelPar_TNJTS,
-bool modelPar_given_TNJTS,
-AdmsSensFadType & modelPar_TNJTSD,
-bool modelPar_given_TNJTSD,
-AdmsSensFadType & modelPar_TNJTSSW,
-bool modelPar_given_TNJTSSW,
-AdmsSensFadType & modelPar_TNJTSSWD,
-bool modelPar_given_TNJTSSWD,
-AdmsSensFadType & modelPar_TNJTSSWG,
-bool modelPar_given_TNJTSSWG,
-AdmsSensFadType & modelPar_TNJTSSWGD,
-bool modelPar_given_TNJTSSWGD,
-AdmsSensFadType & modelPar_RTH0,
-bool modelPar_given_RTH0,
-AdmsSensFadType & modelPar_CTH0,
-bool modelPar_given_CTH0,
-AdmsSensFadType & modelPar_WTH0,
-bool modelPar_given_WTH0,
-AdmsSensFadType & modelPar_SAREF,
-bool modelPar_given_SAREF,
-AdmsSensFadType & modelPar_SBREF,
-bool modelPar_given_SBREF,
-AdmsSensFadType & modelPar_WLOD,
-bool modelPar_given_WLOD,
-AdmsSensFadType & modelPar_KU0,
-bool modelPar_given_KU0,
-AdmsSensFadType & modelPar_KVSAT,
-bool modelPar_given_KVSAT,
-AdmsSensFadType & modelPar_TKU0,
-bool modelPar_given_TKU0,
-AdmsSensFadType & modelPar_LKU0,
-bool modelPar_given_LKU0,
-AdmsSensFadType & modelPar_WKU0,
-bool modelPar_given_WKU0,
-AdmsSensFadType & modelPar_PKU0,
-bool modelPar_given_PKU0,
-AdmsSensFadType & modelPar_LLODKU0,
-bool modelPar_given_LLODKU0,
-AdmsSensFadType & modelPar_WLODKU0,
-bool modelPar_given_WLODKU0,
-AdmsSensFadType & modelPar_KVTH0,
-bool modelPar_given_KVTH0,
-AdmsSensFadType & modelPar_LKVTH0,
-bool modelPar_given_LKVTH0,
-AdmsSensFadType & modelPar_WKVTH0,
-bool modelPar_given_WKVTH0,
-AdmsSensFadType & modelPar_PKVTH0,
-bool modelPar_given_PKVTH0,
-AdmsSensFadType & modelPar_LLODVTH,
-bool modelPar_given_LLODVTH,
-AdmsSensFadType & modelPar_WLODVTH,
-bool modelPar_given_WLODVTH,
-AdmsSensFadType & modelPar_STK2,
-bool modelPar_given_STK2,
-AdmsSensFadType & modelPar_LODK2,
-bool modelPar_given_LODK2,
-AdmsSensFadType & modelPar_STETA0,
-bool modelPar_given_STETA0,
-AdmsSensFadType & modelPar_LODETA0,
-bool modelPar_given_LODETA0,
-AdmsSensFadType & modelPar_WEB,
-bool modelPar_given_WEB,
-AdmsSensFadType & modelPar_WEC,
-bool modelPar_given_WEC,
-AdmsSensFadType & modelPar_KVTH0WE,
-bool modelPar_given_KVTH0WE,
-AdmsSensFadType & modelPar_LKVTH0WE,
-bool modelPar_given_LKVTH0WE,
-AdmsSensFadType & modelPar_WKVTH0WE,
-bool modelPar_given_WKVTH0WE,
-AdmsSensFadType & modelPar_PKVTH0WE,
-bool modelPar_given_PKVTH0WE,
-AdmsSensFadType & modelPar_K2WE,
-bool modelPar_given_K2WE,
-AdmsSensFadType & modelPar_LK2WE,
-bool modelPar_given_LK2WE,
-AdmsSensFadType & modelPar_WK2WE,
-bool modelPar_given_WK2WE,
-AdmsSensFadType & modelPar_PK2WE,
-bool modelPar_given_PK2WE,
-AdmsSensFadType & modelPar_KU0WE,
-bool modelPar_given_KU0WE,
-AdmsSensFadType & modelPar_LKU0WE,
-bool modelPar_given_LKU0WE,
-AdmsSensFadType & modelPar_WKU0WE,
-bool modelPar_given_WKU0WE,
-AdmsSensFadType & modelPar_PKU0WE,
-bool modelPar_given_PKU0WE,
-AdmsSensFadType & modelPar_SCREF,
-bool modelPar_given_SCREF,
-AdmsSensFadType & modelPar_WEDGE,
-bool modelPar_given_WEDGE,
-AdmsSensFadType & modelPar_DGAMMAEDGE,
-bool modelPar_given_DGAMMAEDGE,
-AdmsSensFadType & modelPar_DGAMMAEDGEL,
-bool modelPar_given_DGAMMAEDGEL,
-AdmsSensFadType & modelPar_DGAMMAEDGELEXP,
-bool modelPar_given_DGAMMAEDGELEXP,
-AdmsSensFadType & modelPar_DVTEDGE,
-bool modelPar_given_DVTEDGE,
-AdmsSensFadType & modelPar_NFACTOREDGE,
-bool modelPar_given_NFACTOREDGE,
-AdmsSensFadType & modelPar_CITEDGE,
-bool modelPar_given_CITEDGE,
-AdmsSensFadType & modelPar_CDSCDEDGE,
-bool modelPar_given_CDSCDEDGE,
-AdmsSensFadType & modelPar_CDSCBEDGE,
-bool modelPar_given_CDSCBEDGE,
-AdmsSensFadType & modelPar_ETA0EDGE,
-bool modelPar_given_ETA0EDGE,
-AdmsSensFadType & modelPar_ETABEDGE,
-bool modelPar_given_ETABEDGE,
-AdmsSensFadType & modelPar_KT1EDGE,
-bool modelPar_given_KT1EDGE,
-AdmsSensFadType & modelPar_KT1LEDGE,
-bool modelPar_given_KT1LEDGE,
-AdmsSensFadType & modelPar_KT2EDGE,
-bool modelPar_given_KT2EDGE,
-AdmsSensFadType & modelPar_KT1EXPEDGE,
-bool modelPar_given_KT1EXPEDGE,
-AdmsSensFadType & modelPar_TNFACTOREDGE,
-bool modelPar_given_TNFACTOREDGE,
-AdmsSensFadType & modelPar_TETA0EDGE,
-bool modelPar_given_TETA0EDGE,
-AdmsSensFadType & modelPar_DVT0EDGE,
-bool modelPar_given_DVT0EDGE,
-AdmsSensFadType & modelPar_DVT1EDGE,
-bool modelPar_given_DVT1EDGE,
-AdmsSensFadType & modelPar_DVT2EDGE,
-bool modelPar_given_DVT2EDGE,
-AdmsSensFadType & modelPar_LMIN,
-bool modelPar_given_LMIN,
-AdmsSensFadType & modelPar_WMIN,
-bool modelPar_given_WMIN,
-AdmsSensFadType & modelPar_LMAX,
-bool modelPar_given_LMAX,
-AdmsSensFadType & modelPar_WMAX,
-bool modelPar_given_WMAX,
-// non-reals (including hidden)
-int modelPar_NGCON,
-bool modelPar_given_NGCON,
-int modelPar_RGATEMOD,
-bool modelPar_given_RGATEMOD,
-int modelPar_RBODYMOD,
-bool modelPar_given_RBODYMOD,
-int modelPar_GEOMOD,
-bool modelPar_given_GEOMOD,
-int modelPar_RGEOMOD,
-bool modelPar_given_RGEOMOD,
-int modelPar_SCA,
-bool modelPar_given_SCA,
-int modelPar_SCB,
-bool modelPar_given_SCB,
-int modelPar_SCC,
-bool modelPar_given_SCC,
-int modelPar_SC,
-bool modelPar_given_SC,
-int modelPar_TYPE,
-bool modelPar_given_TYPE,
-int modelPar_CVMOD,
-bool modelPar_given_CVMOD,
-int modelPar_COVMOD,
-bool modelPar_given_COVMOD,
-int modelPar_RDSMOD,
-bool modelPar_given_RDSMOD,
-int modelPar_WPEMOD,
-bool modelPar_given_WPEMOD,
-int modelPar_ASYMMOD,
-bool modelPar_given_ASYMMOD,
-int modelPar_GIDLMOD,
-bool modelPar_given_GIDLMOD,
-int modelPar_IGCMOD,
-bool modelPar_given_IGCMOD,
-int modelPar_IGBMOD,
-bool modelPar_given_IGBMOD,
-int modelPar_TNOIMOD,
-bool modelPar_given_TNOIMOD,
-int modelPar_SHMOD,
-bool modelPar_given_SHMOD,
-int modelPar_MOBSCALE,
-bool modelPar_given_MOBSCALE,
-int modelPar_PERMOD,
-bool modelPar_given_PERMOD,
-int modelPar_BINUNIT,
-bool modelPar_given_BINUNIT,
-int modelPar_EDGEFET,
-bool modelPar_given_EDGEFET,
+modelSensStruct & modelStruct,
  double admsTemperature, double ADMSgmin_arg, const Instance & theInstance);
 
 #endif // Xyce_ADMS_SENSITIVITIES
@@ -6326,678 +3478,678 @@ public:
     double PS;
     double PD;
     //  Variables of global_instance scope
-    double T0;
-     double d_T0_dV_gm_di;
-     double d_T0_dV_gm_di_dV_gm_di;
-     double d_T0_dV_gm_di_dV_gm_si;
-     double d_T0_dV_gm_di_dV_dbulk_di;
-     double d_T0_dV_gm_di_dV_sbulk_si;
-     double d_T0_dV_gm_di_dV_gi_bi;
-     double d_T0_dV_gm_di_dV_di_bi;
-     double d_T0_dV_gm_di_dV_si_bi;
-     double d_T0_dV_gm_di_dTemp_t_GND;
-     double d_T0_dV_gm_si;
-     double d_T0_dV_gm_si_dV_gm_di;
-     double d_T0_dV_gm_si_dV_gm_si;
-     double d_T0_dV_gm_si_dV_dbulk_di;
-     double d_T0_dV_gm_si_dV_sbulk_si;
-     double d_T0_dV_gm_si_dV_gi_bi;
-     double d_T0_dV_gm_si_dV_di_bi;
-     double d_T0_dV_gm_si_dV_si_bi;
-     double d_T0_dV_gm_si_dTemp_t_GND;
-     double d_T0_dV_dbulk_di;
-     double d_T0_dV_dbulk_di_dV_gm_di;
-     double d_T0_dV_dbulk_di_dV_gm_si;
-     double d_T0_dV_dbulk_di_dV_dbulk_di;
-     double d_T0_dV_dbulk_di_dV_sbulk_si;
-     double d_T0_dV_dbulk_di_dV_gi_bi;
-     double d_T0_dV_dbulk_di_dV_di_bi;
-     double d_T0_dV_dbulk_di_dV_si_bi;
-     double d_T0_dV_dbulk_di_dTemp_t_GND;
-     double d_T0_dV_sbulk_si;
-     double d_T0_dV_sbulk_si_dV_gm_di;
-     double d_T0_dV_sbulk_si_dV_gm_si;
-     double d_T0_dV_sbulk_si_dV_dbulk_di;
-     double d_T0_dV_sbulk_si_dV_sbulk_si;
-     double d_T0_dV_sbulk_si_dV_gi_bi;
-     double d_T0_dV_sbulk_si_dV_di_bi;
-     double d_T0_dV_sbulk_si_dV_si_bi;
-     double d_T0_dV_sbulk_si_dTemp_t_GND;
-     double d_T0_dV_gi_bi;
-     double d_T0_dV_gi_bi_dV_gm_di;
-     double d_T0_dV_gi_bi_dV_gm_si;
-     double d_T0_dV_gi_bi_dV_dbulk_di;
-     double d_T0_dV_gi_bi_dV_sbulk_si;
-     double d_T0_dV_gi_bi_dV_gi_bi;
-     double d_T0_dV_gi_bi_dV_di_bi;
-     double d_T0_dV_gi_bi_dV_si_bi;
-     double d_T0_dV_gi_bi_dTemp_t_GND;
-     double d_T0_dV_di_bi;
-     double d_T0_dV_di_bi_dV_gm_di;
-     double d_T0_dV_di_bi_dV_gm_si;
-     double d_T0_dV_di_bi_dV_dbulk_di;
-     double d_T0_dV_di_bi_dV_sbulk_si;
-     double d_T0_dV_di_bi_dV_gi_bi;
-     double d_T0_dV_di_bi_dV_di_bi;
-     double d_T0_dV_di_bi_dV_si_bi;
-     double d_T0_dV_di_bi_dTemp_t_GND;
-     double d_T0_dV_si_bi;
-     double d_T0_dV_si_bi_dV_gm_di;
-     double d_T0_dV_si_bi_dV_gm_si;
-     double d_T0_dV_si_bi_dV_dbulk_di;
-     double d_T0_dV_si_bi_dV_sbulk_si;
-     double d_T0_dV_si_bi_dV_gi_bi;
-     double d_T0_dV_si_bi_dV_di_bi;
-     double d_T0_dV_si_bi_dV_si_bi;
-     double d_T0_dV_si_bi_dTemp_t_GND;
-     double d_T0_dTemp_t_GND;
-    double T1;
-     double d_T1_dV_gm_di;
-     double d_T1_dV_gm_di_dV_gm_di;
-     double d_T1_dV_gm_di_dV_gm_si;
-     double d_T1_dV_gm_di_dV_dbulk_di;
-     double d_T1_dV_gm_di_dV_sbulk_si;
-     double d_T1_dV_gm_di_dV_gi_bi;
-     double d_T1_dV_gm_di_dV_di_bi;
-     double d_T1_dV_gm_di_dV_si_bi;
-     double d_T1_dV_gm_di_dTemp_t_GND;
-     double d_T1_dV_gm_si;
-     double d_T1_dV_gm_si_dV_gm_di;
-     double d_T1_dV_gm_si_dV_gm_si;
-     double d_T1_dV_gm_si_dV_dbulk_di;
-     double d_T1_dV_gm_si_dV_sbulk_si;
-     double d_T1_dV_gm_si_dV_gi_bi;
-     double d_T1_dV_gm_si_dV_di_bi;
-     double d_T1_dV_gm_si_dV_si_bi;
-     double d_T1_dV_gm_si_dTemp_t_GND;
-     double d_T1_dV_dbulk_di;
-     double d_T1_dV_dbulk_di_dV_gm_di;
-     double d_T1_dV_dbulk_di_dV_gm_si;
-     double d_T1_dV_dbulk_di_dV_dbulk_di;
-     double d_T1_dV_dbulk_di_dV_sbulk_si;
-     double d_T1_dV_dbulk_di_dV_gi_bi;
-     double d_T1_dV_dbulk_di_dV_di_bi;
-     double d_T1_dV_dbulk_di_dV_si_bi;
-     double d_T1_dV_dbulk_di_dTemp_t_GND;
-     double d_T1_dV_sbulk_si;
-     double d_T1_dV_sbulk_si_dV_gm_di;
-     double d_T1_dV_sbulk_si_dV_gm_si;
-     double d_T1_dV_sbulk_si_dV_dbulk_di;
-     double d_T1_dV_sbulk_si_dV_sbulk_si;
-     double d_T1_dV_sbulk_si_dV_gi_bi;
-     double d_T1_dV_sbulk_si_dV_di_bi;
-     double d_T1_dV_sbulk_si_dV_si_bi;
-     double d_T1_dV_sbulk_si_dTemp_t_GND;
-     double d_T1_dV_gi_bi;
-     double d_T1_dV_gi_bi_dV_gm_di;
-     double d_T1_dV_gi_bi_dV_gm_si;
-     double d_T1_dV_gi_bi_dV_dbulk_di;
-     double d_T1_dV_gi_bi_dV_sbulk_si;
-     double d_T1_dV_gi_bi_dV_gi_bi;
-     double d_T1_dV_gi_bi_dV_di_bi;
-     double d_T1_dV_gi_bi_dV_si_bi;
-     double d_T1_dV_gi_bi_dTemp_t_GND;
-     double d_T1_dV_di_bi;
-     double d_T1_dV_di_bi_dV_gm_di;
-     double d_T1_dV_di_bi_dV_gm_si;
-     double d_T1_dV_di_bi_dV_dbulk_di;
-     double d_T1_dV_di_bi_dV_sbulk_si;
-     double d_T1_dV_di_bi_dV_gi_bi;
-     double d_T1_dV_di_bi_dV_di_bi;
-     double d_T1_dV_di_bi_dV_si_bi;
-     double d_T1_dV_di_bi_dTemp_t_GND;
-     double d_T1_dV_si_bi;
-     double d_T1_dV_si_bi_dV_gm_di;
-     double d_T1_dV_si_bi_dV_gm_si;
-     double d_T1_dV_si_bi_dV_dbulk_di;
-     double d_T1_dV_si_bi_dV_sbulk_si;
-     double d_T1_dV_si_bi_dV_gi_bi;
-     double d_T1_dV_si_bi_dV_di_bi;
-     double d_T1_dV_si_bi_dV_si_bi;
-     double d_T1_dV_si_bi_dTemp_t_GND;
-     double d_T1_dTemp_t_GND;
-    double T2;
-     double d_T2_dV_gm_di;
-     double d_T2_dV_gm_di_dV_gm_di;
-     double d_T2_dV_gm_di_dV_gm_si;
-     double d_T2_dV_gm_di_dV_dbulk_di;
-     double d_T2_dV_gm_di_dV_sbulk_si;
-     double d_T2_dV_gm_di_dV_gi_bi;
-     double d_T2_dV_gm_di_dV_di_bi;
-     double d_T2_dV_gm_di_dV_si_bi;
-     double d_T2_dV_gm_di_dTemp_t_GND;
-     double d_T2_dV_gm_si;
-     double d_T2_dV_gm_si_dV_gm_di;
-     double d_T2_dV_gm_si_dV_gm_si;
-     double d_T2_dV_gm_si_dV_dbulk_di;
-     double d_T2_dV_gm_si_dV_sbulk_si;
-     double d_T2_dV_gm_si_dV_gi_bi;
-     double d_T2_dV_gm_si_dV_di_bi;
-     double d_T2_dV_gm_si_dV_si_bi;
-     double d_T2_dV_gm_si_dTemp_t_GND;
-     double d_T2_dV_dbulk_di;
-     double d_T2_dV_dbulk_di_dV_gm_di;
-     double d_T2_dV_dbulk_di_dV_gm_si;
-     double d_T2_dV_dbulk_di_dV_dbulk_di;
-     double d_T2_dV_dbulk_di_dV_sbulk_si;
-     double d_T2_dV_dbulk_di_dV_gi_bi;
-     double d_T2_dV_dbulk_di_dV_di_bi;
-     double d_T2_dV_dbulk_di_dV_si_bi;
-     double d_T2_dV_dbulk_di_dTemp_t_GND;
-     double d_T2_dV_sbulk_si;
-     double d_T2_dV_sbulk_si_dV_gm_di;
-     double d_T2_dV_sbulk_si_dV_gm_si;
-     double d_T2_dV_sbulk_si_dV_dbulk_di;
-     double d_T2_dV_sbulk_si_dV_sbulk_si;
-     double d_T2_dV_sbulk_si_dV_gi_bi;
-     double d_T2_dV_sbulk_si_dV_di_bi;
-     double d_T2_dV_sbulk_si_dV_si_bi;
-     double d_T2_dV_sbulk_si_dTemp_t_GND;
-     double d_T2_dV_gi_bi;
-     double d_T2_dV_gi_bi_dV_gm_di;
-     double d_T2_dV_gi_bi_dV_gm_si;
-     double d_T2_dV_gi_bi_dV_dbulk_di;
-     double d_T2_dV_gi_bi_dV_sbulk_si;
-     double d_T2_dV_gi_bi_dV_gi_bi;
-     double d_T2_dV_gi_bi_dV_di_bi;
-     double d_T2_dV_gi_bi_dV_si_bi;
-     double d_T2_dV_gi_bi_dTemp_t_GND;
-     double d_T2_dV_di_bi;
-     double d_T2_dV_di_bi_dV_gm_di;
-     double d_T2_dV_di_bi_dV_gm_si;
-     double d_T2_dV_di_bi_dV_dbulk_di;
-     double d_T2_dV_di_bi_dV_sbulk_si;
-     double d_T2_dV_di_bi_dV_gi_bi;
-     double d_T2_dV_di_bi_dV_di_bi;
-     double d_T2_dV_di_bi_dV_si_bi;
-     double d_T2_dV_di_bi_dTemp_t_GND;
-     double d_T2_dV_si_bi;
-     double d_T2_dV_si_bi_dV_gm_di;
-     double d_T2_dV_si_bi_dV_gm_si;
-     double d_T2_dV_si_bi_dV_dbulk_di;
-     double d_T2_dV_si_bi_dV_sbulk_si;
-     double d_T2_dV_si_bi_dV_gi_bi;
-     double d_T2_dV_si_bi_dV_di_bi;
-     double d_T2_dV_si_bi_dV_si_bi;
-     double d_T2_dV_si_bi_dTemp_t_GND;
-     double d_T2_dTemp_t_GND;
-    double epssi;
-    double epsox;
-    double Weff;
-    double Leff;
-    double Wact;
-    double Lact;
-    double Weffcj;
-    double Cox;
-    double epsratio;
-    double Lnew;
-    double L_mult;
-    double Wnew;
-    double DVTP0_i;
-    double DVTP1_i;
-    double DVTP2_i;
-    double DVTP3_i;
-    double DVTP4_i;
-    double DVTP5_i;
-    double A1_i;
-    double A11_i;
-    double A2_i;
-    double A21_i;
-    double PSAT_i;
-    double PSATR_i;
-    int devsign;
-    double BSIM6TOXP;
-    double DMCGeff;
-    double DMDGeff;
-    double DMCIeff;
-    double RSourceGeo;
-    double RDrainGeo;
-    double Grgeltd;
-    double Grbsb;
-    double Grbdb;
-    double Grbpb;
-    double Grbps;
-    double Grbpd;
-    double Aechvb;
-    double Bechvb;
-    double AechvbEdge;
-    double BechvbEdge;
-    double ToxRatio;
-    double U0R_t;
-     double d_U0R_t_dTemp_t_GND;
-    double UAR_t;
-     double d_UAR_t_dTemp_t_GND;
-    double UCR_t;
-     double d_UCR_t_dTemp_t_GND;
-    double UDR_t;
-     double d_UDR_t_dTemp_t_GND;
-    double UCSR_t;
-     double d_UCSR_t_dTemp_t_GND;
-    double VSATR_t;
-     double d_VSATR_t_dTemp_t_GND;
-    double PTWGR_t;
-     double d_PTWGR_t_dTemp_t_GND;
-    double ETA0R_t;
-     double d_ETA0R_t_dTemp_t_GND;
-    double PSATB_i;
-    double KT1_i;
-    double KT2_i;
-    double NGATE_i;
-    double NSD_i;
-    double NDEP_i;
-    double VFB_i;
-    double CIT_i;
-    double CDSCD_i;
-    double CDSCDR_i;
-    double CDSCB_i;
-    double NFACTOR_i;
-    double PHIN_i;
-    double ETA0_i;
-    double ETA0R_i;
-    double ETAB_i;
-    double K2_i;
-     double d_K2_i_dTemp_t_GND;
-    double K1_i;
-    double DELTA_i;
-    double U0_i;
-    double U0R_i;
-    double VSAT_i;
-    double VSATR_i;
-    double VSATCV_i;
-    double UA_i;
-    double UAR_i;
-    double EU_i;
-    double UD_i;
-    double UDR_i;
-    double UD_a;
-     double d_UD_a_dTemp_t_GND;
-     double d_UD_a_dV_di_bi;
-     double d_UD_a_dV_di_bi_dTemp_t_GND;
-     double d_UD_a_dV_di_bi_dV_di_bi;
-     double d_UD_a_dV_di_bi_dV_si_bi;
-     double d_UD_a_dV_si_bi;
-     double d_UD_a_dV_si_bi_dTemp_t_GND;
-     double d_UD_a_dV_si_bi_dV_di_bi;
-     double d_UD_a_dV_si_bi_dV_si_bi;
-    double UCS_i;
-    double UCSR_i;
-    double UC_i;
-    double UCR_i;
-    double PDIBLC_i;
-    double PDIBLCR_i;
-    double PDIBLCB_i;
-    double PSCBE1_i;
-    double PSCBE2_i;
-    double PDITS_i;
-    double PDITSD_i;
-    double FPROUT_i;
-    double PRWG_i;
-    double WR_i;
-    double RDWMIN_i;
-    double RSWMIN_i;
-    double RDW_i;
-    double RSW_i;
-    double RDSW_i;
-    double RDSWMIN_i;
-    double PTWG_i;
-    double PTWGR_i;
-    double PVAG_i;
-    double XJ_i;
-    double PCLM_i;
-    double PCLMR_i;
-    double PCLMCV_i;
-    double PRWB_i;
-    double CF_i;
-    double CGSL_i;
-    double CGDL_i;
-    double CKAPPAS_i;
-    double CKAPPAD_i;
-    double VFBCV_i;
-    double NDEPCV_i;
-    double ALPHA0_i;
-    double BETA0_i;
-    double AGIDL_i;
-    double BGIDL_i;
-    double CGIDL_i;
-    double EGIDL_i;
-    double AGISL_i;
-    double BGISL_i;
-    double CGISL_i;
-    double EGISL_i;
-    double UTE_i;
-    double UA1_i;
-    double UC1_i;
-    double UD1_i;
-    double UCSTE_i;
-    double PRT_i;
-    double AT_i;
-    double PTWGT_i;
-    double IIT_i;
-    double TGIDL_i;
-    double KVTH0WE_i;
-    double K2WE_i;
-    double KU0WE_i;
-    double AIGBINV_i;
-    double BIGBINV_i;
-    double CIGBINV_i;
-    double EIGBINV_i;
-    double NIGBINV_i;
-    double AIGBACC_i;
-    double BIGBACC_i;
-    double CIGBACC_i;
-    double NIGBACC_i;
-    double AIGC_i;
-    double BIGC_i;
-    double CIGC_i;
-    double AIGS_i;
-    double BIGS_i;
-    double CIGS_i;
-    double AIGD_i;
-    double BIGD_i;
-    double CIGD_i;
-    double PIGCD_i;
-    double DLCIG_i;
-    double DLCIGD_i;
-    double IGT_i;
-    double nuIntD;
-    double nuEndD;
-    double nuIntS;
-    double nuEndS;
-    double gth;
-    double cth;
-    double QBI;
-     double d_QBI_dTemp_t_GND;
-     double d_QBI_dV_dbulk_di;
-     double d_QBI_dV_sbulk_si;
-     double d_QBI_dV_gi_bi;
-     double d_QBI_dV_di_bi;
-     double d_QBI_dV_si_bi;
-    double QSI;
-     double d_QSI_dV_dbulk_di;
-     double d_QSI_dV_dbulk_di_dV_dbulk_di;
-     double d_QSI_dV_dbulk_di_dV_sbulk_si;
-     double d_QSI_dV_dbulk_di_dTemp_t_GND;
-     double d_QSI_dV_dbulk_di_dV_gi_bi;
-     double d_QSI_dV_dbulk_di_dV_di_bi;
-     double d_QSI_dV_dbulk_di_dV_si_bi;
-     double d_QSI_dV_sbulk_si;
-     double d_QSI_dV_sbulk_si_dV_dbulk_di;
-     double d_QSI_dV_sbulk_si_dV_sbulk_si;
-     double d_QSI_dV_sbulk_si_dTemp_t_GND;
-     double d_QSI_dV_sbulk_si_dV_gi_bi;
-     double d_QSI_dV_sbulk_si_dV_di_bi;
-     double d_QSI_dV_sbulk_si_dV_si_bi;
-     double d_QSI_dTemp_t_GND;
-     double d_QSI_dV_gi_bi;
-     double d_QSI_dV_gi_bi_dV_dbulk_di;
-     double d_QSI_dV_gi_bi_dV_sbulk_si;
-     double d_QSI_dV_gi_bi_dTemp_t_GND;
-     double d_QSI_dV_gi_bi_dV_gi_bi;
-     double d_QSI_dV_gi_bi_dV_di_bi;
-     double d_QSI_dV_gi_bi_dV_si_bi;
-     double d_QSI_dV_di_bi;
-     double d_QSI_dV_di_bi_dV_dbulk_di;
-     double d_QSI_dV_di_bi_dV_sbulk_si;
-     double d_QSI_dV_di_bi_dTemp_t_GND;
-     double d_QSI_dV_di_bi_dV_gi_bi;
-     double d_QSI_dV_di_bi_dV_di_bi;
-     double d_QSI_dV_di_bi_dV_si_bi;
-     double d_QSI_dV_si_bi;
-     double d_QSI_dV_si_bi_dV_dbulk_di;
-     double d_QSI_dV_si_bi_dV_sbulk_si;
-     double d_QSI_dV_si_bi_dTemp_t_GND;
-     double d_QSI_dV_si_bi_dV_gi_bi;
-     double d_QSI_dV_si_bi_dV_di_bi;
-     double d_QSI_dV_si_bi_dV_si_bi;
-    double QDI;
-     double d_QDI_dV_dbulk_di;
-     double d_QDI_dV_dbulk_di_dV_dbulk_di;
-     double d_QDI_dV_dbulk_di_dV_sbulk_si;
-     double d_QDI_dV_dbulk_di_dTemp_t_GND;
-     double d_QDI_dV_dbulk_di_dV_gi_bi;
-     double d_QDI_dV_dbulk_di_dV_di_bi;
-     double d_QDI_dV_dbulk_di_dV_si_bi;
-     double d_QDI_dV_sbulk_si;
-     double d_QDI_dV_sbulk_si_dV_dbulk_di;
-     double d_QDI_dV_sbulk_si_dV_sbulk_si;
-     double d_QDI_dV_sbulk_si_dTemp_t_GND;
-     double d_QDI_dV_sbulk_si_dV_gi_bi;
-     double d_QDI_dV_sbulk_si_dV_di_bi;
-     double d_QDI_dV_sbulk_si_dV_si_bi;
-     double d_QDI_dTemp_t_GND;
-     double d_QDI_dV_gi_bi;
-     double d_QDI_dV_gi_bi_dV_dbulk_di;
-     double d_QDI_dV_gi_bi_dV_sbulk_si;
-     double d_QDI_dV_gi_bi_dTemp_t_GND;
-     double d_QDI_dV_gi_bi_dV_gi_bi;
-     double d_QDI_dV_gi_bi_dV_di_bi;
-     double d_QDI_dV_gi_bi_dV_si_bi;
-     double d_QDI_dV_di_bi;
-     double d_QDI_dV_di_bi_dV_dbulk_di;
-     double d_QDI_dV_di_bi_dV_sbulk_si;
-     double d_QDI_dV_di_bi_dTemp_t_GND;
-     double d_QDI_dV_di_bi_dV_gi_bi;
-     double d_QDI_dV_di_bi_dV_di_bi;
-     double d_QDI_dV_di_bi_dV_si_bi;
-     double d_QDI_dV_si_bi;
-     double d_QDI_dV_si_bi_dV_dbulk_di;
-     double d_QDI_dV_si_bi_dV_sbulk_si;
-     double d_QDI_dV_si_bi_dTemp_t_GND;
-     double d_QDI_dV_si_bi_dV_gi_bi;
-     double d_QDI_dV_si_bi_dV_di_bi;
-     double d_QDI_dV_si_bi_dV_si_bi;
-    double QGI;
-     double d_QGI_dTemp_t_GND;
-     double d_QGI_dV_dbulk_di;
-     double d_QGI_dV_dbulk_di_dTemp_t_GND;
-     double d_QGI_dV_dbulk_di_dV_dbulk_di;
-     double d_QGI_dV_dbulk_di_dV_sbulk_si;
-     double d_QGI_dV_dbulk_di_dV_gi_bi;
-     double d_QGI_dV_dbulk_di_dV_di_bi;
-     double d_QGI_dV_dbulk_di_dV_si_bi;
-     double d_QGI_dV_sbulk_si;
-     double d_QGI_dV_sbulk_si_dTemp_t_GND;
-     double d_QGI_dV_sbulk_si_dV_dbulk_di;
-     double d_QGI_dV_sbulk_si_dV_sbulk_si;
-     double d_QGI_dV_sbulk_si_dV_gi_bi;
-     double d_QGI_dV_sbulk_si_dV_di_bi;
-     double d_QGI_dV_sbulk_si_dV_si_bi;
-     double d_QGI_dV_gi_bi;
-     double d_QGI_dV_gi_bi_dTemp_t_GND;
-     double d_QGI_dV_gi_bi_dV_dbulk_di;
-     double d_QGI_dV_gi_bi_dV_sbulk_si;
-     double d_QGI_dV_gi_bi_dV_gi_bi;
-     double d_QGI_dV_gi_bi_dV_di_bi;
-     double d_QGI_dV_gi_bi_dV_si_bi;
-     double d_QGI_dV_di_bi;
-     double d_QGI_dV_di_bi_dTemp_t_GND;
-     double d_QGI_dV_di_bi_dV_dbulk_di;
-     double d_QGI_dV_di_bi_dV_sbulk_si;
-     double d_QGI_dV_di_bi_dV_gi_bi;
-     double d_QGI_dV_di_bi_dV_di_bi;
-     double d_QGI_dV_di_bi_dV_si_bi;
-     double d_QGI_dV_si_bi;
-     double d_QGI_dV_si_bi_dTemp_t_GND;
-     double d_QGI_dV_si_bi_dV_dbulk_di;
-     double d_QGI_dV_si_bi_dV_sbulk_si;
-     double d_QGI_dV_si_bi_dV_gi_bi;
-     double d_QGI_dV_si_bi_dV_di_bi;
-     double d_QGI_dV_si_bi_dV_si_bi;
-    double CGGI;
-     double d_CGGI_dTemp_t_GND;
-     double d_CGGI_dV_dbulk_di;
-     double d_CGGI_dV_sbulk_si;
-     double d_CGGI_dV_gi_bi;
-     double d_CGGI_dV_di_bi;
-     double d_CGGI_dV_si_bi;
-    double CGBI;
-    double CGSI;
-    double CGDI;
-    double CSGI;
-     double d_CSGI_dV_dbulk_di;
-     double d_CSGI_dV_sbulk_si;
-     double d_CSGI_dTemp_t_GND;
-     double d_CSGI_dV_gi_bi;
-     double d_CSGI_dV_di_bi;
-     double d_CSGI_dV_si_bi;
-    double CSBI;
-     double d_CSBI_dV_dbulk_di;
-     double d_CSBI_dV_sbulk_si;
-     double d_CSBI_dTemp_t_GND;
-     double d_CSBI_dV_gi_bi;
-     double d_CSBI_dV_di_bi;
-     double d_CSBI_dV_si_bi;
-    double CSSI;
-    double CSDI;
-    double CDGI;
-     double d_CDGI_dV_dbulk_di;
-     double d_CDGI_dV_sbulk_si;
-     double d_CDGI_dTemp_t_GND;
-     double d_CDGI_dV_gi_bi;
-     double d_CDGI_dV_di_bi;
-     double d_CDGI_dV_si_bi;
-    double CDBI;
-     double d_CDBI_dV_dbulk_di;
-     double d_CDBI_dV_sbulk_si;
-     double d_CDBI_dTemp_t_GND;
-     double d_CDBI_dV_gi_bi;
-     double d_CDBI_dV_di_bi;
-     double d_CDBI_dV_si_bi;
-    double CDSI;
-    double CDDI;
-    double CBGI;
-    double CBBI;
-     double d_CBBI_dTemp_t_GND;
-     double d_CBBI_dV_dbulk_di;
-     double d_CBBI_dV_sbulk_si;
-     double d_CBBI_dV_gi_bi;
-     double d_CBBI_dV_di_bi;
-     double d_CBBI_dV_si_bi;
-    double CBSI;
-    double CBDI;
-    double QB;
-     double d_QB_dTemp_t_GND;
-     double d_QB_dV_dbulk_di;
-     double d_QB_dV_sbulk_si;
-     double d_QB_dV_gi_bi;
-     double d_QB_dV_di_bi;
-     double d_QB_dV_si_bi;
-     double d_QB_dV_gm_bi;
-    double QS;
-     double d_QS_dV_dbulk_di;
-     double d_QS_dV_sbulk_si;
-     double d_QS_dTemp_t_GND;
-     double d_QS_dV_gi_bi;
-     double d_QS_dV_di_bi;
-     double d_QS_dV_si_bi;
-     double d_QS_dV_gm_si;
-    double QD;
-     double d_QD_dV_dbulk_di;
-     double d_QD_dV_sbulk_si;
-     double d_QD_dTemp_t_GND;
-     double d_QD_dV_gi_bi;
-     double d_QD_dV_di_bi;
-     double d_QD_dV_si_bi;
-     double d_QD_dV_gm_si;
-     double d_QD_dV_gm_di;
-    double QG;
-     double d_QG_dTemp_t_GND;
-     double d_QG_dV_dbulk_di;
-     double d_QG_dV_sbulk_si;
-     double d_QG_dV_gi_bi;
-     double d_QG_dV_di_bi;
-     double d_QG_dV_si_bi;
-     double d_QG_dV_gm_si;
-     double d_QG_dV_gm_di;
-     double d_QG_dV_gm_bi;
-    double CGG;
-    double CGB;
-    double CGS;
-    double CGD;
-    double CSG;
-    double CSB;
-    double CSS;
-    double CSD;
-    double CDG;
-    double CDB;
-    double CDS;
-    double CDD;
-    double CBG;
-    double CBB;
-    double CBS;
-    double CBD;
-    double ISUB;
-     double d_ISUB_dV_di_bi;
-     double d_ISUB_dV_si_bi;
-     double d_ISUB_dV_gi_bi;
-     double d_ISUB_dTemp_t_GND;
-    double IGIDL;
-     double d_IGIDL_dV_gi_bi;
-     double d_IGIDL_dV_di_bi;
-     double d_IGIDL_dV_si_bi;
-     double d_IGIDL_dTemp_t_GND;
-    double IGISL;
-     double d_IGISL_dV_gi_bi;
-     double d_IGISL_dV_di_bi;
-     double d_IGISL_dV_si_bi;
-     double d_IGISL_dTemp_t_GND;
-    double IGS;
-     double d_IGS_dTemp_t_GND;
-     double d_IGS_dV_gi_bi;
-     double d_IGS_dV_si_bi;
-     double d_IGS_dV_di_bi;
-    double IGD;
-     double d_IGD_dTemp_t_GND;
-     double d_IGD_dV_gi_bi;
-     double d_IGD_dV_di_bi;
-     double d_IGD_dV_si_bi;
-    double IGCS;
-     double d_IGCS_dV_gi_bi;
-     double d_IGCS_dV_di_bi;
-     double d_IGCS_dV_si_bi;
-     double d_IGCS_dTemp_t_GND;
-    double IGCD;
-     double d_IGCD_dV_gi_bi;
-     double d_IGCD_dV_di_bi;
-     double d_IGCD_dV_si_bi;
-     double d_IGCD_dTemp_t_GND;
-    double IGB;
-     double d_IGB_dV_gi_bi;
-     double d_IGB_dV_di_bi;
-     double d_IGB_dV_si_bi;
-     double d_IGB_dTemp_t_GND;
-    double CGSEXT;
-    double CGDEXT;
-    double CGBOV;
-    double CAPBS;
-    double CAPBD;
-    double WEFF;
-    double LEFF;
-    double WEFFCV;
-    double LEFFCV;
-    double IDS;
-     double d_IDS_dV_gm_si;
-     double d_IDS_dV_gm_di;
-     double d_IDS_dV_dbulk_di;
-     double d_IDS_dV_sbulk_si;
-     double d_IDS_dV_gi_bi;
-     double d_IDS_dTemp_t_GND;
-     double d_IDS_dV_di_bi;
-     double d_IDS_dV_si_bi;
-    double IDEFF;
-    double ISEFF;
-    double IGEFF;
-    double IBS;
-    double IBD;
-    double VDS;
-    double VGS;
-    double VBS;
-    double VDSAT;
-    double GM;
-    double GMBS;
-    double GDS;
-    double TK;
-    double VTH;
+    double T0=0.0;
+     double d_T0_dV_gm_di=0.0;
+     double d_T0_dV_gm_di_dV_gm_di=0.0;
+     double d_T0_dV_gm_di_dV_gm_si=0.0;
+     double d_T0_dV_gm_di_dV_dbulk_di=0.0;
+     double d_T0_dV_gm_di_dV_sbulk_si=0.0;
+     double d_T0_dV_gm_di_dV_gi_bi=0.0;
+     double d_T0_dV_gm_di_dV_di_bi=0.0;
+     double d_T0_dV_gm_di_dV_si_bi=0.0;
+     double d_T0_dV_gm_di_dTemp_t_GND=0.0;
+     double d_T0_dV_gm_si=0.0;
+     double d_T0_dV_gm_si_dV_gm_di=0.0;
+     double d_T0_dV_gm_si_dV_gm_si=0.0;
+     double d_T0_dV_gm_si_dV_dbulk_di=0.0;
+     double d_T0_dV_gm_si_dV_sbulk_si=0.0;
+     double d_T0_dV_gm_si_dV_gi_bi=0.0;
+     double d_T0_dV_gm_si_dV_di_bi=0.0;
+     double d_T0_dV_gm_si_dV_si_bi=0.0;
+     double d_T0_dV_gm_si_dTemp_t_GND=0.0;
+     double d_T0_dV_dbulk_di=0.0;
+     double d_T0_dV_dbulk_di_dV_gm_di=0.0;
+     double d_T0_dV_dbulk_di_dV_gm_si=0.0;
+     double d_T0_dV_dbulk_di_dV_dbulk_di=0.0;
+     double d_T0_dV_dbulk_di_dV_sbulk_si=0.0;
+     double d_T0_dV_dbulk_di_dV_gi_bi=0.0;
+     double d_T0_dV_dbulk_di_dV_di_bi=0.0;
+     double d_T0_dV_dbulk_di_dV_si_bi=0.0;
+     double d_T0_dV_dbulk_di_dTemp_t_GND=0.0;
+     double d_T0_dV_sbulk_si=0.0;
+     double d_T0_dV_sbulk_si_dV_gm_di=0.0;
+     double d_T0_dV_sbulk_si_dV_gm_si=0.0;
+     double d_T0_dV_sbulk_si_dV_dbulk_di=0.0;
+     double d_T0_dV_sbulk_si_dV_sbulk_si=0.0;
+     double d_T0_dV_sbulk_si_dV_gi_bi=0.0;
+     double d_T0_dV_sbulk_si_dV_di_bi=0.0;
+     double d_T0_dV_sbulk_si_dV_si_bi=0.0;
+     double d_T0_dV_sbulk_si_dTemp_t_GND=0.0;
+     double d_T0_dV_gi_bi=0.0;
+     double d_T0_dV_gi_bi_dV_gm_di=0.0;
+     double d_T0_dV_gi_bi_dV_gm_si=0.0;
+     double d_T0_dV_gi_bi_dV_dbulk_di=0.0;
+     double d_T0_dV_gi_bi_dV_sbulk_si=0.0;
+     double d_T0_dV_gi_bi_dV_gi_bi=0.0;
+     double d_T0_dV_gi_bi_dV_di_bi=0.0;
+     double d_T0_dV_gi_bi_dV_si_bi=0.0;
+     double d_T0_dV_gi_bi_dTemp_t_GND=0.0;
+     double d_T0_dV_di_bi=0.0;
+     double d_T0_dV_di_bi_dV_gm_di=0.0;
+     double d_T0_dV_di_bi_dV_gm_si=0.0;
+     double d_T0_dV_di_bi_dV_dbulk_di=0.0;
+     double d_T0_dV_di_bi_dV_sbulk_si=0.0;
+     double d_T0_dV_di_bi_dV_gi_bi=0.0;
+     double d_T0_dV_di_bi_dV_di_bi=0.0;
+     double d_T0_dV_di_bi_dV_si_bi=0.0;
+     double d_T0_dV_di_bi_dTemp_t_GND=0.0;
+     double d_T0_dV_si_bi=0.0;
+     double d_T0_dV_si_bi_dV_gm_di=0.0;
+     double d_T0_dV_si_bi_dV_gm_si=0.0;
+     double d_T0_dV_si_bi_dV_dbulk_di=0.0;
+     double d_T0_dV_si_bi_dV_sbulk_si=0.0;
+     double d_T0_dV_si_bi_dV_gi_bi=0.0;
+     double d_T0_dV_si_bi_dV_di_bi=0.0;
+     double d_T0_dV_si_bi_dV_si_bi=0.0;
+     double d_T0_dV_si_bi_dTemp_t_GND=0.0;
+     double d_T0_dTemp_t_GND=0.0;
+    double T1=0.0;
+     double d_T1_dV_gm_di=0.0;
+     double d_T1_dV_gm_di_dV_gm_di=0.0;
+     double d_T1_dV_gm_di_dV_gm_si=0.0;
+     double d_T1_dV_gm_di_dV_dbulk_di=0.0;
+     double d_T1_dV_gm_di_dV_sbulk_si=0.0;
+     double d_T1_dV_gm_di_dV_gi_bi=0.0;
+     double d_T1_dV_gm_di_dV_di_bi=0.0;
+     double d_T1_dV_gm_di_dV_si_bi=0.0;
+     double d_T1_dV_gm_di_dTemp_t_GND=0.0;
+     double d_T1_dV_gm_si=0.0;
+     double d_T1_dV_gm_si_dV_gm_di=0.0;
+     double d_T1_dV_gm_si_dV_gm_si=0.0;
+     double d_T1_dV_gm_si_dV_dbulk_di=0.0;
+     double d_T1_dV_gm_si_dV_sbulk_si=0.0;
+     double d_T1_dV_gm_si_dV_gi_bi=0.0;
+     double d_T1_dV_gm_si_dV_di_bi=0.0;
+     double d_T1_dV_gm_si_dV_si_bi=0.0;
+     double d_T1_dV_gm_si_dTemp_t_GND=0.0;
+     double d_T1_dV_dbulk_di=0.0;
+     double d_T1_dV_dbulk_di_dV_gm_di=0.0;
+     double d_T1_dV_dbulk_di_dV_gm_si=0.0;
+     double d_T1_dV_dbulk_di_dV_dbulk_di=0.0;
+     double d_T1_dV_dbulk_di_dV_sbulk_si=0.0;
+     double d_T1_dV_dbulk_di_dV_gi_bi=0.0;
+     double d_T1_dV_dbulk_di_dV_di_bi=0.0;
+     double d_T1_dV_dbulk_di_dV_si_bi=0.0;
+     double d_T1_dV_dbulk_di_dTemp_t_GND=0.0;
+     double d_T1_dV_sbulk_si=0.0;
+     double d_T1_dV_sbulk_si_dV_gm_di=0.0;
+     double d_T1_dV_sbulk_si_dV_gm_si=0.0;
+     double d_T1_dV_sbulk_si_dV_dbulk_di=0.0;
+     double d_T1_dV_sbulk_si_dV_sbulk_si=0.0;
+     double d_T1_dV_sbulk_si_dV_gi_bi=0.0;
+     double d_T1_dV_sbulk_si_dV_di_bi=0.0;
+     double d_T1_dV_sbulk_si_dV_si_bi=0.0;
+     double d_T1_dV_sbulk_si_dTemp_t_GND=0.0;
+     double d_T1_dV_gi_bi=0.0;
+     double d_T1_dV_gi_bi_dV_gm_di=0.0;
+     double d_T1_dV_gi_bi_dV_gm_si=0.0;
+     double d_T1_dV_gi_bi_dV_dbulk_di=0.0;
+     double d_T1_dV_gi_bi_dV_sbulk_si=0.0;
+     double d_T1_dV_gi_bi_dV_gi_bi=0.0;
+     double d_T1_dV_gi_bi_dV_di_bi=0.0;
+     double d_T1_dV_gi_bi_dV_si_bi=0.0;
+     double d_T1_dV_gi_bi_dTemp_t_GND=0.0;
+     double d_T1_dV_di_bi=0.0;
+     double d_T1_dV_di_bi_dV_gm_di=0.0;
+     double d_T1_dV_di_bi_dV_gm_si=0.0;
+     double d_T1_dV_di_bi_dV_dbulk_di=0.0;
+     double d_T1_dV_di_bi_dV_sbulk_si=0.0;
+     double d_T1_dV_di_bi_dV_gi_bi=0.0;
+     double d_T1_dV_di_bi_dV_di_bi=0.0;
+     double d_T1_dV_di_bi_dV_si_bi=0.0;
+     double d_T1_dV_di_bi_dTemp_t_GND=0.0;
+     double d_T1_dV_si_bi=0.0;
+     double d_T1_dV_si_bi_dV_gm_di=0.0;
+     double d_T1_dV_si_bi_dV_gm_si=0.0;
+     double d_T1_dV_si_bi_dV_dbulk_di=0.0;
+     double d_T1_dV_si_bi_dV_sbulk_si=0.0;
+     double d_T1_dV_si_bi_dV_gi_bi=0.0;
+     double d_T1_dV_si_bi_dV_di_bi=0.0;
+     double d_T1_dV_si_bi_dV_si_bi=0.0;
+     double d_T1_dV_si_bi_dTemp_t_GND=0.0;
+     double d_T1_dTemp_t_GND=0.0;
+    double T2=0.0;
+     double d_T2_dV_gm_di=0.0;
+     double d_T2_dV_gm_di_dV_gm_di=0.0;
+     double d_T2_dV_gm_di_dV_gm_si=0.0;
+     double d_T2_dV_gm_di_dV_dbulk_di=0.0;
+     double d_T2_dV_gm_di_dV_sbulk_si=0.0;
+     double d_T2_dV_gm_di_dV_gi_bi=0.0;
+     double d_T2_dV_gm_di_dV_di_bi=0.0;
+     double d_T2_dV_gm_di_dV_si_bi=0.0;
+     double d_T2_dV_gm_di_dTemp_t_GND=0.0;
+     double d_T2_dV_gm_si=0.0;
+     double d_T2_dV_gm_si_dV_gm_di=0.0;
+     double d_T2_dV_gm_si_dV_gm_si=0.0;
+     double d_T2_dV_gm_si_dV_dbulk_di=0.0;
+     double d_T2_dV_gm_si_dV_sbulk_si=0.0;
+     double d_T2_dV_gm_si_dV_gi_bi=0.0;
+     double d_T2_dV_gm_si_dV_di_bi=0.0;
+     double d_T2_dV_gm_si_dV_si_bi=0.0;
+     double d_T2_dV_gm_si_dTemp_t_GND=0.0;
+     double d_T2_dV_dbulk_di=0.0;
+     double d_T2_dV_dbulk_di_dV_gm_di=0.0;
+     double d_T2_dV_dbulk_di_dV_gm_si=0.0;
+     double d_T2_dV_dbulk_di_dV_dbulk_di=0.0;
+     double d_T2_dV_dbulk_di_dV_sbulk_si=0.0;
+     double d_T2_dV_dbulk_di_dV_gi_bi=0.0;
+     double d_T2_dV_dbulk_di_dV_di_bi=0.0;
+     double d_T2_dV_dbulk_di_dV_si_bi=0.0;
+     double d_T2_dV_dbulk_di_dTemp_t_GND=0.0;
+     double d_T2_dV_sbulk_si=0.0;
+     double d_T2_dV_sbulk_si_dV_gm_di=0.0;
+     double d_T2_dV_sbulk_si_dV_gm_si=0.0;
+     double d_T2_dV_sbulk_si_dV_dbulk_di=0.0;
+     double d_T2_dV_sbulk_si_dV_sbulk_si=0.0;
+     double d_T2_dV_sbulk_si_dV_gi_bi=0.0;
+     double d_T2_dV_sbulk_si_dV_di_bi=0.0;
+     double d_T2_dV_sbulk_si_dV_si_bi=0.0;
+     double d_T2_dV_sbulk_si_dTemp_t_GND=0.0;
+     double d_T2_dV_gi_bi=0.0;
+     double d_T2_dV_gi_bi_dV_gm_di=0.0;
+     double d_T2_dV_gi_bi_dV_gm_si=0.0;
+     double d_T2_dV_gi_bi_dV_dbulk_di=0.0;
+     double d_T2_dV_gi_bi_dV_sbulk_si=0.0;
+     double d_T2_dV_gi_bi_dV_gi_bi=0.0;
+     double d_T2_dV_gi_bi_dV_di_bi=0.0;
+     double d_T2_dV_gi_bi_dV_si_bi=0.0;
+     double d_T2_dV_gi_bi_dTemp_t_GND=0.0;
+     double d_T2_dV_di_bi=0.0;
+     double d_T2_dV_di_bi_dV_gm_di=0.0;
+     double d_T2_dV_di_bi_dV_gm_si=0.0;
+     double d_T2_dV_di_bi_dV_dbulk_di=0.0;
+     double d_T2_dV_di_bi_dV_sbulk_si=0.0;
+     double d_T2_dV_di_bi_dV_gi_bi=0.0;
+     double d_T2_dV_di_bi_dV_di_bi=0.0;
+     double d_T2_dV_di_bi_dV_si_bi=0.0;
+     double d_T2_dV_di_bi_dTemp_t_GND=0.0;
+     double d_T2_dV_si_bi=0.0;
+     double d_T2_dV_si_bi_dV_gm_di=0.0;
+     double d_T2_dV_si_bi_dV_gm_si=0.0;
+     double d_T2_dV_si_bi_dV_dbulk_di=0.0;
+     double d_T2_dV_si_bi_dV_sbulk_si=0.0;
+     double d_T2_dV_si_bi_dV_gi_bi=0.0;
+     double d_T2_dV_si_bi_dV_di_bi=0.0;
+     double d_T2_dV_si_bi_dV_si_bi=0.0;
+     double d_T2_dV_si_bi_dTemp_t_GND=0.0;
+     double d_T2_dTemp_t_GND=0.0;
+    double epssi=0.0;
+    double epsox=0.0;
+    double Weff=0.0;
+    double Leff=0.0;
+    double Wact=0.0;
+    double Lact=0.0;
+    double Weffcj=0.0;
+    double Cox=0.0;
+    double epsratio=0.0;
+    double Lnew=0.0;
+    double L_mult=0.0;
+    double Wnew=0.0;
+    double DVTP0_i=0.0;
+    double DVTP1_i=0.0;
+    double DVTP2_i=0.0;
+    double DVTP3_i=0.0;
+    double DVTP4_i=0.0;
+    double DVTP5_i=0.0;
+    double A1_i=0.0;
+    double A11_i=0.0;
+    double A2_i=0.0;
+    double A21_i=0.0;
+    double PSAT_i=0.0;
+    double PSATR_i=0.0;
+    int devsign=0.0;
+    double BSIM6TOXP=0.0;
+    double DMCGeff=0.0;
+    double DMDGeff=0.0;
+    double DMCIeff=0.0;
+    double RSourceGeo=0.0;
+    double RDrainGeo=0.0;
+    double Grgeltd=0.0;
+    double Grbsb=0.0;
+    double Grbdb=0.0;
+    double Grbpb=0.0;
+    double Grbps=0.0;
+    double Grbpd=0.0;
+    double Aechvb=0.0;
+    double Bechvb=0.0;
+    double AechvbEdge=0.0;
+    double BechvbEdge=0.0;
+    double ToxRatio=0.0;
+    double U0R_t=0.0;
+     double d_U0R_t_dTemp_t_GND=0.0;
+    double UAR_t=0.0;
+     double d_UAR_t_dTemp_t_GND=0.0;
+    double UCR_t=0.0;
+     double d_UCR_t_dTemp_t_GND=0.0;
+    double UDR_t=0.0;
+     double d_UDR_t_dTemp_t_GND=0.0;
+    double UCSR_t=0.0;
+     double d_UCSR_t_dTemp_t_GND=0.0;
+    double VSATR_t=0.0;
+     double d_VSATR_t_dTemp_t_GND=0.0;
+    double PTWGR_t=0.0;
+     double d_PTWGR_t_dTemp_t_GND=0.0;
+    double ETA0R_t=0.0;
+     double d_ETA0R_t_dTemp_t_GND=0.0;
+    double PSATB_i=0.0;
+    double KT1_i=0.0;
+    double KT2_i=0.0;
+    double NGATE_i=0.0;
+    double NSD_i=0.0;
+    double NDEP_i=0.0;
+    double VFB_i=0.0;
+    double CIT_i=0.0;
+    double CDSCD_i=0.0;
+    double CDSCDR_i=0.0;
+    double CDSCB_i=0.0;
+    double NFACTOR_i=0.0;
+    double PHIN_i=0.0;
+    double ETA0_i=0.0;
+    double ETA0R_i=0.0;
+    double ETAB_i=0.0;
+    double K2_i=0.0;
+     double d_K2_i_dTemp_t_GND=0.0;
+    double K1_i=0.0;
+    double DELTA_i=0.0;
+    double U0_i=0.0;
+    double U0R_i=0.0;
+    double VSAT_i=0.0;
+    double VSATR_i=0.0;
+    double VSATCV_i=0.0;
+    double UA_i=0.0;
+    double UAR_i=0.0;
+    double EU_i=0.0;
+    double UD_i=0.0;
+    double UDR_i=0.0;
+    double UD_a=0.0;
+     double d_UD_a_dTemp_t_GND=0.0;
+     double d_UD_a_dV_di_bi=0.0;
+     double d_UD_a_dV_di_bi_dTemp_t_GND=0.0;
+     double d_UD_a_dV_di_bi_dV_di_bi=0.0;
+     double d_UD_a_dV_di_bi_dV_si_bi=0.0;
+     double d_UD_a_dV_si_bi=0.0;
+     double d_UD_a_dV_si_bi_dTemp_t_GND=0.0;
+     double d_UD_a_dV_si_bi_dV_di_bi=0.0;
+     double d_UD_a_dV_si_bi_dV_si_bi=0.0;
+    double UCS_i=0.0;
+    double UCSR_i=0.0;
+    double UC_i=0.0;
+    double UCR_i=0.0;
+    double PDIBLC_i=0.0;
+    double PDIBLCR_i=0.0;
+    double PDIBLCB_i=0.0;
+    double PSCBE1_i=0.0;
+    double PSCBE2_i=0.0;
+    double PDITS_i=0.0;
+    double PDITSD_i=0.0;
+    double FPROUT_i=0.0;
+    double PRWG_i=0.0;
+    double WR_i=0.0;
+    double RDWMIN_i=0.0;
+    double RSWMIN_i=0.0;
+    double RDW_i=0.0;
+    double RSW_i=0.0;
+    double RDSW_i=0.0;
+    double RDSWMIN_i=0.0;
+    double PTWG_i=0.0;
+    double PTWGR_i=0.0;
+    double PVAG_i=0.0;
+    double XJ_i=0.0;
+    double PCLM_i=0.0;
+    double PCLMR_i=0.0;
+    double PCLMCV_i=0.0;
+    double PRWB_i=0.0;
+    double CF_i=0.0;
+    double CGSL_i=0.0;
+    double CGDL_i=0.0;
+    double CKAPPAS_i=0.0;
+    double CKAPPAD_i=0.0;
+    double VFBCV_i=0.0;
+    double NDEPCV_i=0.0;
+    double ALPHA0_i=0.0;
+    double BETA0_i=0.0;
+    double AGIDL_i=0.0;
+    double BGIDL_i=0.0;
+    double CGIDL_i=0.0;
+    double EGIDL_i=0.0;
+    double AGISL_i=0.0;
+    double BGISL_i=0.0;
+    double CGISL_i=0.0;
+    double EGISL_i=0.0;
+    double UTE_i=0.0;
+    double UA1_i=0.0;
+    double UC1_i=0.0;
+    double UD1_i=0.0;
+    double UCSTE_i=0.0;
+    double PRT_i=0.0;
+    double AT_i=0.0;
+    double PTWGT_i=0.0;
+    double IIT_i=0.0;
+    double TGIDL_i=0.0;
+    double KVTH0WE_i=0.0;
+    double K2WE_i=0.0;
+    double KU0WE_i=0.0;
+    double AIGBINV_i=0.0;
+    double BIGBINV_i=0.0;
+    double CIGBINV_i=0.0;
+    double EIGBINV_i=0.0;
+    double NIGBINV_i=0.0;
+    double AIGBACC_i=0.0;
+    double BIGBACC_i=0.0;
+    double CIGBACC_i=0.0;
+    double NIGBACC_i=0.0;
+    double AIGC_i=0.0;
+    double BIGC_i=0.0;
+    double CIGC_i=0.0;
+    double AIGS_i=0.0;
+    double BIGS_i=0.0;
+    double CIGS_i=0.0;
+    double AIGD_i=0.0;
+    double BIGD_i=0.0;
+    double CIGD_i=0.0;
+    double PIGCD_i=0.0;
+    double DLCIG_i=0.0;
+    double DLCIGD_i=0.0;
+    double IGT_i=0.0;
+    double nuIntD=0.0;
+    double nuEndD=0.0;
+    double nuIntS=0.0;
+    double nuEndS=0.0;
+    double gth=0.0;
+    double cth=0.0;
+    double QBI=0.0;
+     double d_QBI_dTemp_t_GND=0.0;
+     double d_QBI_dV_dbulk_di=0.0;
+     double d_QBI_dV_sbulk_si=0.0;
+     double d_QBI_dV_gi_bi=0.0;
+     double d_QBI_dV_di_bi=0.0;
+     double d_QBI_dV_si_bi=0.0;
+    double QSI=0.0;
+     double d_QSI_dV_dbulk_di=0.0;
+     double d_QSI_dV_dbulk_di_dV_dbulk_di=0.0;
+     double d_QSI_dV_dbulk_di_dV_sbulk_si=0.0;
+     double d_QSI_dV_dbulk_di_dTemp_t_GND=0.0;
+     double d_QSI_dV_dbulk_di_dV_gi_bi=0.0;
+     double d_QSI_dV_dbulk_di_dV_di_bi=0.0;
+     double d_QSI_dV_dbulk_di_dV_si_bi=0.0;
+     double d_QSI_dV_sbulk_si=0.0;
+     double d_QSI_dV_sbulk_si_dV_dbulk_di=0.0;
+     double d_QSI_dV_sbulk_si_dV_sbulk_si=0.0;
+     double d_QSI_dV_sbulk_si_dTemp_t_GND=0.0;
+     double d_QSI_dV_sbulk_si_dV_gi_bi=0.0;
+     double d_QSI_dV_sbulk_si_dV_di_bi=0.0;
+     double d_QSI_dV_sbulk_si_dV_si_bi=0.0;
+     double d_QSI_dTemp_t_GND=0.0;
+     double d_QSI_dV_gi_bi=0.0;
+     double d_QSI_dV_gi_bi_dV_dbulk_di=0.0;
+     double d_QSI_dV_gi_bi_dV_sbulk_si=0.0;
+     double d_QSI_dV_gi_bi_dTemp_t_GND=0.0;
+     double d_QSI_dV_gi_bi_dV_gi_bi=0.0;
+     double d_QSI_dV_gi_bi_dV_di_bi=0.0;
+     double d_QSI_dV_gi_bi_dV_si_bi=0.0;
+     double d_QSI_dV_di_bi=0.0;
+     double d_QSI_dV_di_bi_dV_dbulk_di=0.0;
+     double d_QSI_dV_di_bi_dV_sbulk_si=0.0;
+     double d_QSI_dV_di_bi_dTemp_t_GND=0.0;
+     double d_QSI_dV_di_bi_dV_gi_bi=0.0;
+     double d_QSI_dV_di_bi_dV_di_bi=0.0;
+     double d_QSI_dV_di_bi_dV_si_bi=0.0;
+     double d_QSI_dV_si_bi=0.0;
+     double d_QSI_dV_si_bi_dV_dbulk_di=0.0;
+     double d_QSI_dV_si_bi_dV_sbulk_si=0.0;
+     double d_QSI_dV_si_bi_dTemp_t_GND=0.0;
+     double d_QSI_dV_si_bi_dV_gi_bi=0.0;
+     double d_QSI_dV_si_bi_dV_di_bi=0.0;
+     double d_QSI_dV_si_bi_dV_si_bi=0.0;
+    double QDI=0.0;
+     double d_QDI_dV_dbulk_di=0.0;
+     double d_QDI_dV_dbulk_di_dV_dbulk_di=0.0;
+     double d_QDI_dV_dbulk_di_dV_sbulk_si=0.0;
+     double d_QDI_dV_dbulk_di_dTemp_t_GND=0.0;
+     double d_QDI_dV_dbulk_di_dV_gi_bi=0.0;
+     double d_QDI_dV_dbulk_di_dV_di_bi=0.0;
+     double d_QDI_dV_dbulk_di_dV_si_bi=0.0;
+     double d_QDI_dV_sbulk_si=0.0;
+     double d_QDI_dV_sbulk_si_dV_dbulk_di=0.0;
+     double d_QDI_dV_sbulk_si_dV_sbulk_si=0.0;
+     double d_QDI_dV_sbulk_si_dTemp_t_GND=0.0;
+     double d_QDI_dV_sbulk_si_dV_gi_bi=0.0;
+     double d_QDI_dV_sbulk_si_dV_di_bi=0.0;
+     double d_QDI_dV_sbulk_si_dV_si_bi=0.0;
+     double d_QDI_dTemp_t_GND=0.0;
+     double d_QDI_dV_gi_bi=0.0;
+     double d_QDI_dV_gi_bi_dV_dbulk_di=0.0;
+     double d_QDI_dV_gi_bi_dV_sbulk_si=0.0;
+     double d_QDI_dV_gi_bi_dTemp_t_GND=0.0;
+     double d_QDI_dV_gi_bi_dV_gi_bi=0.0;
+     double d_QDI_dV_gi_bi_dV_di_bi=0.0;
+     double d_QDI_dV_gi_bi_dV_si_bi=0.0;
+     double d_QDI_dV_di_bi=0.0;
+     double d_QDI_dV_di_bi_dV_dbulk_di=0.0;
+     double d_QDI_dV_di_bi_dV_sbulk_si=0.0;
+     double d_QDI_dV_di_bi_dTemp_t_GND=0.0;
+     double d_QDI_dV_di_bi_dV_gi_bi=0.0;
+     double d_QDI_dV_di_bi_dV_di_bi=0.0;
+     double d_QDI_dV_di_bi_dV_si_bi=0.0;
+     double d_QDI_dV_si_bi=0.0;
+     double d_QDI_dV_si_bi_dV_dbulk_di=0.0;
+     double d_QDI_dV_si_bi_dV_sbulk_si=0.0;
+     double d_QDI_dV_si_bi_dTemp_t_GND=0.0;
+     double d_QDI_dV_si_bi_dV_gi_bi=0.0;
+     double d_QDI_dV_si_bi_dV_di_bi=0.0;
+     double d_QDI_dV_si_bi_dV_si_bi=0.0;
+    double QGI=0.0;
+     double d_QGI_dTemp_t_GND=0.0;
+     double d_QGI_dV_dbulk_di=0.0;
+     double d_QGI_dV_dbulk_di_dTemp_t_GND=0.0;
+     double d_QGI_dV_dbulk_di_dV_dbulk_di=0.0;
+     double d_QGI_dV_dbulk_di_dV_sbulk_si=0.0;
+     double d_QGI_dV_dbulk_di_dV_gi_bi=0.0;
+     double d_QGI_dV_dbulk_di_dV_di_bi=0.0;
+     double d_QGI_dV_dbulk_di_dV_si_bi=0.0;
+     double d_QGI_dV_sbulk_si=0.0;
+     double d_QGI_dV_sbulk_si_dTemp_t_GND=0.0;
+     double d_QGI_dV_sbulk_si_dV_dbulk_di=0.0;
+     double d_QGI_dV_sbulk_si_dV_sbulk_si=0.0;
+     double d_QGI_dV_sbulk_si_dV_gi_bi=0.0;
+     double d_QGI_dV_sbulk_si_dV_di_bi=0.0;
+     double d_QGI_dV_sbulk_si_dV_si_bi=0.0;
+     double d_QGI_dV_gi_bi=0.0;
+     double d_QGI_dV_gi_bi_dTemp_t_GND=0.0;
+     double d_QGI_dV_gi_bi_dV_dbulk_di=0.0;
+     double d_QGI_dV_gi_bi_dV_sbulk_si=0.0;
+     double d_QGI_dV_gi_bi_dV_gi_bi=0.0;
+     double d_QGI_dV_gi_bi_dV_di_bi=0.0;
+     double d_QGI_dV_gi_bi_dV_si_bi=0.0;
+     double d_QGI_dV_di_bi=0.0;
+     double d_QGI_dV_di_bi_dTemp_t_GND=0.0;
+     double d_QGI_dV_di_bi_dV_dbulk_di=0.0;
+     double d_QGI_dV_di_bi_dV_sbulk_si=0.0;
+     double d_QGI_dV_di_bi_dV_gi_bi=0.0;
+     double d_QGI_dV_di_bi_dV_di_bi=0.0;
+     double d_QGI_dV_di_bi_dV_si_bi=0.0;
+     double d_QGI_dV_si_bi=0.0;
+     double d_QGI_dV_si_bi_dTemp_t_GND=0.0;
+     double d_QGI_dV_si_bi_dV_dbulk_di=0.0;
+     double d_QGI_dV_si_bi_dV_sbulk_si=0.0;
+     double d_QGI_dV_si_bi_dV_gi_bi=0.0;
+     double d_QGI_dV_si_bi_dV_di_bi=0.0;
+     double d_QGI_dV_si_bi_dV_si_bi=0.0;
+    double CGGI=0.0;
+     double d_CGGI_dTemp_t_GND=0.0;
+     double d_CGGI_dV_dbulk_di=0.0;
+     double d_CGGI_dV_sbulk_si=0.0;
+     double d_CGGI_dV_gi_bi=0.0;
+     double d_CGGI_dV_di_bi=0.0;
+     double d_CGGI_dV_si_bi=0.0;
+    double CGBI=0.0;
+    double CGSI=0.0;
+    double CGDI=0.0;
+    double CSGI=0.0;
+     double d_CSGI_dV_dbulk_di=0.0;
+     double d_CSGI_dV_sbulk_si=0.0;
+     double d_CSGI_dTemp_t_GND=0.0;
+     double d_CSGI_dV_gi_bi=0.0;
+     double d_CSGI_dV_di_bi=0.0;
+     double d_CSGI_dV_si_bi=0.0;
+    double CSBI=0.0;
+     double d_CSBI_dV_dbulk_di=0.0;
+     double d_CSBI_dV_sbulk_si=0.0;
+     double d_CSBI_dTemp_t_GND=0.0;
+     double d_CSBI_dV_gi_bi=0.0;
+     double d_CSBI_dV_di_bi=0.0;
+     double d_CSBI_dV_si_bi=0.0;
+    double CSSI=0.0;
+    double CSDI=0.0;
+    double CDGI=0.0;
+     double d_CDGI_dV_dbulk_di=0.0;
+     double d_CDGI_dV_sbulk_si=0.0;
+     double d_CDGI_dTemp_t_GND=0.0;
+     double d_CDGI_dV_gi_bi=0.0;
+     double d_CDGI_dV_di_bi=0.0;
+     double d_CDGI_dV_si_bi=0.0;
+    double CDBI=0.0;
+     double d_CDBI_dV_dbulk_di=0.0;
+     double d_CDBI_dV_sbulk_si=0.0;
+     double d_CDBI_dTemp_t_GND=0.0;
+     double d_CDBI_dV_gi_bi=0.0;
+     double d_CDBI_dV_di_bi=0.0;
+     double d_CDBI_dV_si_bi=0.0;
+    double CDSI=0.0;
+    double CDDI=0.0;
+    double CBGI=0.0;
+    double CBBI=0.0;
+     double d_CBBI_dTemp_t_GND=0.0;
+     double d_CBBI_dV_dbulk_di=0.0;
+     double d_CBBI_dV_sbulk_si=0.0;
+     double d_CBBI_dV_gi_bi=0.0;
+     double d_CBBI_dV_di_bi=0.0;
+     double d_CBBI_dV_si_bi=0.0;
+    double CBSI=0.0;
+    double CBDI=0.0;
+    double QB=0.0;
+     double d_QB_dTemp_t_GND=0.0;
+     double d_QB_dV_dbulk_di=0.0;
+     double d_QB_dV_sbulk_si=0.0;
+     double d_QB_dV_gi_bi=0.0;
+     double d_QB_dV_di_bi=0.0;
+     double d_QB_dV_si_bi=0.0;
+     double d_QB_dV_gm_bi=0.0;
+    double QS=0.0;
+     double d_QS_dV_dbulk_di=0.0;
+     double d_QS_dV_sbulk_si=0.0;
+     double d_QS_dTemp_t_GND=0.0;
+     double d_QS_dV_gi_bi=0.0;
+     double d_QS_dV_di_bi=0.0;
+     double d_QS_dV_si_bi=0.0;
+     double d_QS_dV_gm_si=0.0;
+    double QD=0.0;
+     double d_QD_dV_dbulk_di=0.0;
+     double d_QD_dV_sbulk_si=0.0;
+     double d_QD_dTemp_t_GND=0.0;
+     double d_QD_dV_gi_bi=0.0;
+     double d_QD_dV_di_bi=0.0;
+     double d_QD_dV_si_bi=0.0;
+     double d_QD_dV_gm_si=0.0;
+     double d_QD_dV_gm_di=0.0;
+    double QG=0.0;
+     double d_QG_dTemp_t_GND=0.0;
+     double d_QG_dV_dbulk_di=0.0;
+     double d_QG_dV_sbulk_si=0.0;
+     double d_QG_dV_gi_bi=0.0;
+     double d_QG_dV_di_bi=0.0;
+     double d_QG_dV_si_bi=0.0;
+     double d_QG_dV_gm_si=0.0;
+     double d_QG_dV_gm_di=0.0;
+     double d_QG_dV_gm_bi=0.0;
+    double CGG=0.0;
+    double CGB=0.0;
+    double CGS=0.0;
+    double CGD=0.0;
+    double CSG=0.0;
+    double CSB=0.0;
+    double CSS=0.0;
+    double CSD=0.0;
+    double CDG=0.0;
+    double CDB=0.0;
+    double CDS=0.0;
+    double CDD=0.0;
+    double CBG=0.0;
+    double CBB=0.0;
+    double CBS=0.0;
+    double CBD=0.0;
+    double ISUB=0.0;
+     double d_ISUB_dV_di_bi=0.0;
+     double d_ISUB_dV_si_bi=0.0;
+     double d_ISUB_dV_gi_bi=0.0;
+     double d_ISUB_dTemp_t_GND=0.0;
+    double IGIDL=0.0;
+     double d_IGIDL_dV_gi_bi=0.0;
+     double d_IGIDL_dV_di_bi=0.0;
+     double d_IGIDL_dV_si_bi=0.0;
+     double d_IGIDL_dTemp_t_GND=0.0;
+    double IGISL=0.0;
+     double d_IGISL_dV_gi_bi=0.0;
+     double d_IGISL_dV_di_bi=0.0;
+     double d_IGISL_dV_si_bi=0.0;
+     double d_IGISL_dTemp_t_GND=0.0;
+    double IGS=0.0;
+     double d_IGS_dTemp_t_GND=0.0;
+     double d_IGS_dV_gi_bi=0.0;
+     double d_IGS_dV_si_bi=0.0;
+     double d_IGS_dV_di_bi=0.0;
+    double IGD=0.0;
+     double d_IGD_dTemp_t_GND=0.0;
+     double d_IGD_dV_gi_bi=0.0;
+     double d_IGD_dV_di_bi=0.0;
+     double d_IGD_dV_si_bi=0.0;
+    double IGCS=0.0;
+     double d_IGCS_dV_gi_bi=0.0;
+     double d_IGCS_dV_di_bi=0.0;
+     double d_IGCS_dV_si_bi=0.0;
+     double d_IGCS_dTemp_t_GND=0.0;
+    double IGCD=0.0;
+     double d_IGCD_dV_gi_bi=0.0;
+     double d_IGCD_dV_di_bi=0.0;
+     double d_IGCD_dV_si_bi=0.0;
+     double d_IGCD_dTemp_t_GND=0.0;
+    double IGB=0.0;
+     double d_IGB_dV_gi_bi=0.0;
+     double d_IGB_dV_di_bi=0.0;
+     double d_IGB_dV_si_bi=0.0;
+     double d_IGB_dTemp_t_GND=0.0;
+    double CGSEXT=0.0;
+    double CGDEXT=0.0;
+    double CGBOV=0.0;
+    double CAPBS=0.0;
+    double CAPBD=0.0;
+    double WEFF=0.0;
+    double LEFF=0.0;
+    double WEFFCV=0.0;
+    double LEFFCV=0.0;
+    double IDS=0.0;
+     double d_IDS_dV_gm_si=0.0;
+     double d_IDS_dV_gm_di=0.0;
+     double d_IDS_dV_dbulk_di=0.0;
+     double d_IDS_dV_sbulk_si=0.0;
+     double d_IDS_dV_gi_bi=0.0;
+     double d_IDS_dTemp_t_GND=0.0;
+     double d_IDS_dV_di_bi=0.0;
+     double d_IDS_dV_si_bi=0.0;
+    double IDEFF=0.0;
+    double ISEFF=0.0;
+    double IGEFF=0.0;
+    double IBS=0.0;
+    double IBD=0.0;
+    double VDS=0.0;
+    double VGS=0.0;
+    double VBS=0.0;
+    double VDSAT=0.0;
+    double GM=0.0;
+    double GMBS=0.0;
+    double GDS=0.0;
+    double TK=0.0;
+    double VTH=0.0;
     // end verilog Instance Variables=====
     // Nodal LID Variables
     int li_d;

@@ -4177,7 +4177,7 @@ other variables does not get propagated into a variable's
                   <admst:variable name="expressionDerivX" select="$a2DerivX"/>
                 </admst:when>
                 <admst:when test="[$a2 = '1.0']">
-                  <admst:variable name="expressionDerivX" select="($a1DerivX)"/>
+                  <admst:variable name="expressionDerivX" select="$a1DerivX"/>
                 </admst:when>
                 <admst:otherwise>
                   <admst:variable name="expressionDerivX" select="($a1*$a2DerivX+$a1DerivX*$a2)"/>
@@ -5312,15 +5312,8 @@ other variables does not get propagated into a variable's
     <admst:variable name="expressionDeriv12" select="0.0"/>
     <admst:variable name="expressionDerivX" select="0.0"/>
     <admst:choose>
-      <admst:when test="[name='min' or name='max']">
-        <admst:choose>
-          <admst:when test="[$skipFunctionPrecomp='y']">
-            <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
-          </admst:when>
-          <admst:otherwise>
-            <admst:variable name="expression" select="value_%(name)_%(index(subexpression/expression/function,.))"/>
-          </admst:otherwise>
-        </admst:choose>
+      <admst:when test="[name='min' or name='max' and $skipFunctionPrecomp='y']">
+        <admst:variable name="expression" select="%(functionCall(.)/[name='returnedExpression']/value)"/>
       </admst:when>
       <admst:when test="[name='absdelay']">
         <admst:apply-templates select="arguments[1]" match="processTerm">
@@ -5575,8 +5568,6 @@ other variables does not get propagated into a variable's
           </admst:otherwise>
         </admst:choose>
       </admst:when>
-      <!-- TVR STOPPED HERE! -->
-      <!-- Pick up where you left off -->
       <admst:when test="[$skipFunctionPrecomp='y']">
         <!-- if we aren't caught by anything above, and this is set,
              proceed as normal -->
@@ -5704,12 +5695,14 @@ other variables does not get propagated into a variable's
           <!-- two-argument functions -->
           <admst:when test="[name='pow' or name='min' or name='max' or name='hypot']">
             <admst:apply-templates select="arguments[1]" match="processTerm">
+              <admst:variable name="a1" select="%(returned('returnedExpression')/value)"/>
               <admst:variable name="a1Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
               <admst:variable name="a1Deriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
               <admst:variable name="a1Deriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
               <admst:variable name="a1DerivX" select="%(returned('returnedExpressionDerivX')/value)"/>
             </admst:apply-templates>
             <admst:apply-templates select="arguments[2]" match="processTerm">
+              <admst:variable name="a2" select="%(returned('returnedExpression')/value)"/>
               <admst:variable name="a2Deriv" select="%(returned('returnedExpressionDeriv')/value)"/>
               <admst:variable name="a2Deriv2" select="%(returned('returnedExpressionDeriv2')/value)"/>
               <admst:variable name="a2Deriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
