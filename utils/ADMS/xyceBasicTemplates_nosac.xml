@@ -5487,7 +5487,14 @@ other variables does not get propagated into a variable's
       <admst:when test="[name='\$simparam']">
         <admst:choose>
           <admst:when test="[arguments[1]/datatypename='string' and arguments[1]/value='gmin']">
-            <admst:variable name="expression" select="getDeviceOptions().gmin"/>
+            <admst:choose>
+              <admst:when test="[$globalCurrentScope='sensitivity']">
+                <admst:variable name="expression" select="ADMSgmin_arg"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expression" select="getDeviceOptions().gmin"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:when>
           <admst:otherwise>
             <admst:assert test="arguments[count(.)=2]" format="Unrecognized simparam %(arguments[1]) and no expression provided.\n"/>
@@ -6016,7 +6023,14 @@ other variables does not get propagated into a variable's
       <admst:when test="[name='\$simparam']">
         <admst:choose>
           <admst:when test="[arguments[1]/datatypename='string' and arguments[1]/value='gmin']">
+            <admst:choose>
+              <admst:when test="[$globalCurrentScope='sensitivity']">
+                <admst:variable name="expression" select="ADMSgmin_arg"/>
+              </admst:when>
+              <admst:otherwise>
                 <admst:variable name="expression" select="getDeviceOptions().gmin"/>
+              </admst:otherwise>
+            </admst:choose>
           </admst:when>
           <admst:otherwise>
             <admst:assert test="arguments[count(.)=2]" format="Unrecognized simparam %(arguments[1]) and no expression provided.\n"/>

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 08 Apr 2020 19:29:27
+// Creation Date  : Thu, 09 Apr 2020 12:01:05
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSHBT_X_h
@@ -469,23 +469,6 @@ T limexp(const T &x)
     return (exp(x));
   else
     return (exp(80.0)*(x-79.0));
-}
-
-// Maybe this will do as a substitute for a sacado-provided "floor" and "ceil"?
-// It is wrong to try to propagate the Sacado derivatives to the return
-// value, as the floor and ceil functions have zero derivative w.r.t. any
-// of the variables in the argument, except when X is an integer at which
-// point the derivative is undefined.
-template <typename T>
-double ADMSfloor(const T & x)
-{
-  return (floor(x.val()));
-}
-
-template <typename T>
-double ADMSceil(const T & x)
-{
-  return (ceil(x.val()));
 }
 
 

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Wed, 08 Apr 2020 17:31:46
+// Creation Date  : Thu, 09 Apr 2020 12:01:09
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -12495,7 +12495,7 @@ instanceStruct.instancePar_given_sw_et=in.given("sw_et");
 
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check the name first, otherwise segfault on invalid name!
 *(inParamMap[name])=1.0;
@@ -13346,7 +13346,7 @@ modelStruct.modelPar_given_qbm=mod.given("qbm");
 
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check name for presence first!  Segfault on invalid.
 *(modParamMap[name])=1.0;
