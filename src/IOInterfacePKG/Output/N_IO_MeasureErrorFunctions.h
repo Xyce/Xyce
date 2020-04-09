@@ -87,7 +87,7 @@ public:
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
-  virtual double getMeasureResult(){};
+  virtual double getMeasureResult(){return 0.0;};
   virtual void updateErrVars(double mVal, double cVal){};
 
   bool withinYLimits(double mVal); // enforce YMAX and YMIN
