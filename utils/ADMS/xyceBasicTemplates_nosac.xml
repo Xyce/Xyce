@@ -3183,7 +3183,7 @@ other variables does not get propagated into a variable's
             </admst:if>
           </admst:when>
           <admst:otherwise>
-            <admst:if test="[class !='analog' and name !='\$simparam']">
+            <admst:if test="[class !='analog' and name != '\$simparam' and name != 'floor']">
               <admst:text format="//function deriv %(name) not implemented yet.\n"/>
               <admst:warning format="function derivative for %(name) not implemented yet.\n"/>
             </admst:if>
@@ -6958,10 +6958,10 @@ other variables does not get propagated into a variable's
 
    <admst:if test="[exists( variable[(scope='global_model') and input='no' and not (type='real')])]">
      <admst:text format="// non-reals\n"/>
-     <admst:join select="variable[(scope='global_model') and input='no' and not (type='real')]" separator=",\n">
+     <admst:for-each select="variable[(scope='global_model') and input='no' and not (type='real')]">
        <admst:apply-templates select="." match="verilog2CXXtype"/>
        <admst:text format=" modelVar_%(name);"/>
-     </admst:join>
+     </admst:for-each>
    </admst:if>
    <admst:text format="};\n\n"/>
 
