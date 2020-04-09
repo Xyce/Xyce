@@ -276,23 +276,6 @@ T limexp(const T &amp;x)
   return (exp(80.0)*(x-79.0));
 }
 
-// Maybe this will do as a substitute for a sacado-provided "floor" and "ceil"?
-// It is wrong to try to propagate the Sacado derivatives to the return
-// value, as the floor and ceil functions have zero derivative w.r.t. any
-// of the variables in the argument, except when X is an integer at which
-// point the derivative is undefined.
-template &lt;typename T&gt;
-double ADMSfloor(const T &amp; x)
-{
-return (floor(x.val()));
-}
-
-template &lt;typename T&gt;
-double ADMSceil(const T &amp; x)
-{
-return (ceil(x.val()));
-}
-
 
   <admst:apply-templates select="." match="xyceDeclareTraits"/>
 

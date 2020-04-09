@@ -2604,7 +2604,7 @@ instanceSensStruct instanceStruct;
 </admst:for-each>
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check the name first, otherwise segfault on invalid name!
 *(inParamMap[name])=1.0;
@@ -2879,7 +2879,7 @@ unordered_map &lt;std::string,double*,HashNoCase,EqualNoCase&gt; modParamMap;
 </admst:for-each>
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check name for presence first!  Segfault on invalid.
 *(modParamMap[name])=1.0;
