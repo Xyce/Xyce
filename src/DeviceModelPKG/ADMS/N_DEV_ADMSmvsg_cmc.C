@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 31 Mar 2020 09:29:14
+// Creation Date  : Wed, 08 Apr 2020 19:43:46
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -19214,7 +19214,7 @@ Instance::~Instance()
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerLIDs
-// Purpose       : function for registering, and setting up, local ID's.
+// Purpose       : function for registering, and setting up, local IDs.
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
@@ -19441,7 +19441,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addStoreNode(symbol_table, li_store_t_delta_sh, getName().getEncodedName() + ":t_delta_sh");
     addStoreNode(symbol_table, li_store_rs, getName().getEncodedName() + ":rs");
     addStoreNode(symbol_table, li_store_rd, getName().getEncodedName() + ":rd");
-  
+
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_id, getName(), "BRANCH_DD");
@@ -19535,7 +19535,7 @@ void Instance::registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef)
 //-----------------------------------------------------------------------------
 // Function      : Instance::jacobianStamp
 // Purpose       :
-// Special Notes : In initial version, we won't support mapping away nodes
+// Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
@@ -20618,521 +20618,521 @@ bool Instance::updateIntermediateVars()
   }
 
   // Local variables
-  double pdiss;
-     double d_pdiss_dV_drc_d;
-     double d_pdiss_dV_gi_si;
-     double d_pdiss_dV_di_si;
-     double d_pdiss_dTemp_dt_GND;
-     double d_pdiss_dV_tr_GND;
-     double d_pdiss_dV_fp4_d;
-     double d_pdiss_dV_fp4_s;
-     double d_pdiss_dV_drc_fp4;
-     double d_pdiss_dV_src_d;
-     double d_pdiss_dV_src_s;
-     double d_pdiss_dV_si_src;
-     double d_pdiss_dV_s_di;
-     double d_pdiss_dV_gi_di;
-     double d_pdiss_dV_fp1_di;
-     double d_pdiss_dV_b_di;
-     double d_pdiss_dV_s_fp1;
-     double d_pdiss_dV_gi_fp1;
-     double d_pdiss_dV_fp2_fp1;
-     double d_pdiss_dV_b_fp1;
-     double d_pdiss_dV_s_fp2;
-     double d_pdiss_dV_gi_fp2;
-     double d_pdiss_dV_fp3_fp2;
-     double d_pdiss_dV_b_fp2;
-     double d_pdiss_dV_s_fp3;
-     double d_pdiss_dV_gi_fp3;
-     double d_pdiss_dV_fp4_fp3;
-     double d_pdiss_dV_b_fp3;
-  double svc;
-  double gm;
-  double qofgsub;
-     double d_qofgsub_dV_gi_b;
-  double qofssub;
-     double d_qofssub_dV_s_b;
-  double qofdsub;
-     double d_qofdsub_dV_d_b;
-  double qofds;
-     double d_qofds_dV_d_s;
-  double qofd;
-     double d_qofd_dV_gi_d;
-  double qofs;
-     double d_qofs_dV_gi_s;
-  double igdrec;
-     double d_igdrec_dV_gi_si;
-     double d_igdrec_dV_di_si;
-     double d_igdrec_dTemp_dt_GND;
-  double igsrec;
-     double d_igsrec_dV_gi_si;
-     double d_igsrec_dTemp_dt_GND;
-  double igdsdio;
-     double d_igdsdio_dV_gi_si;
-     double d_igdsdio_dV_di_si;
-     double d_igdsdio_dTemp_dt_GND;
-  double igssdio;
-     double d_igssdio_dV_gi_si;
-     double d_igssdio_dTemp_dt_GND;
-  double igdi;
-     double d_igdi_dV_gi_si;
-     double d_igdi_dV_di_si;
-     double d_igdi_dTemp_dt_GND;
-  double igsi;
-     double d_igsi_dV_gi_si;
-     double d_igsi_dTemp_dt_GND;
-  double idsrf;
-     double d_idsrf_dV_xt2_GND;
-  double vdsat1i;
-     double d_vdsat1i_dV_gi_si;
-     double d_vdsat1i_dV_gi_si_dV_gi_si;
-     double d_vdsat1i_dV_gi_si_dV_di_si;
-     double d_vdsat1i_dV_gi_si_dTemp_dt_GND;
-     double d_vdsat1i_dV_di_si;
-     double d_vdsat1i_dV_di_si_dV_gi_si;
-     double d_vdsat1i_dV_di_si_dV_di_si;
-     double d_vdsat1i_dV_di_si_dTemp_dt_GND;
-     double d_vdsat1i_dTemp_dt_GND;
-  double vtdibli;
-     double d_vtdibli_dV_gi_si;
-     double d_vtdibli_dV_gi_si_dV_gi_si;
-     double d_vtdibli_dV_gi_si_dV_di_si;
-     double d_vtdibli_dV_gi_si_dTemp_dt_GND;
-     double d_vtdibli_dV_di_si;
-     double d_vtdibli_dV_di_si_dV_gi_si;
-     double d_vtdibli_dV_di_si_dV_di_si;
-     double d_vtdibli_dV_di_si_dTemp_dt_GND;
-     double d_vtdibli_dTemp_dt_GND;
-  double qs;
-     double d_qs_dV_gi_si;
-     double d_qs_dV_gi_si_dV_gi_si;
-     double d_qs_dV_gi_si_dV_di_si;
-     double d_qs_dV_gi_si_dTemp_dt_GND;
-     double d_qs_dV_di_si;
-     double d_qs_dV_di_si_dV_gi_si;
-     double d_qs_dV_di_si_dV_di_si;
-     double d_qs_dV_di_si_dTemp_dt_GND;
-     double d_qs_dTemp_dt_GND;
-  double qb;
-     double d_qb_dV_gi_si;
-     double d_qb_dV_gi_si_dV_gi_si;
-     double d_qb_dV_gi_si_dV_di_si;
-     double d_qb_dV_gi_si_dTemp_dt_GND;
-     double d_qb_dV_di_si;
-     double d_qb_dV_di_si_dV_gi_si;
-     double d_qb_dV_di_si_dV_di_si;
-     double d_qb_dV_di_si_dTemp_dt_GND;
-     double d_qb_dTemp_dt_GND;
-  double qc;
-     double d_qc_dV_gi_si;
-     double d_qc_dV_gi_si_dV_gi_si;
-     double d_qc_dV_gi_si_dV_di_si;
-     double d_qc_dV_gi_si_dTemp_dt_GND;
-     double d_qc_dV_di_si;
-     double d_qc_dV_di_si_dV_gi_si;
-     double d_qc_dV_di_si_dV_di_si;
-     double d_qc_dV_di_si_dTemp_dt_GND;
-     double d_qc_dTemp_dt_GND;
-  double qgd;
-     double d_qgd_dV_gi_si;
-     double d_qgd_dV_gi_si_dV_gi_si;
-     double d_qgd_dV_gi_si_dV_di_si;
-     double d_qgd_dV_gi_si_dTemp_dt_GND;
-     double d_qgd_dV_di_si;
-     double d_qgd_dV_di_si_dV_gi_si;
-     double d_qgd_dV_di_si_dV_di_si;
-     double d_qgd_dV_di_si_dTemp_dt_GND;
-     double d_qgd_dTemp_dt_GND;
-  double qgs;
-     double d_qgs_dV_gi_si;
-     double d_qgs_dV_gi_si_dV_gi_si;
-     double d_qgs_dV_gi_si_dV_di_si;
-     double d_qgs_dV_gi_si_dTemp_dt_GND;
-     double d_qgs_dV_di_si;
-     double d_qgs_dV_di_si_dV_gi_si;
-     double d_qgs_dV_di_si_dV_di_si;
-     double d_qgs_dV_di_si_dTemp_dt_GND;
-     double d_qgs_dTemp_dt_GND;
-  double ids;
-     double d_ids_dV_gi_si;
-     double d_ids_dV_gi_si_dV_gi_si;
-     double d_ids_dV_gi_si_dV_di_si;
-     double d_ids_dV_gi_si_dTemp_dt_GND;
-     double d_ids_dV_di_si;
-     double d_ids_dV_di_si_dV_gi_si;
-     double d_ids_dV_di_si_dV_di_si;
-     double d_ids_dV_di_si_dTemp_dt_GND;
-     double d_ids_dTemp_dt_GND;
-  double vdsatrd;
-     double d_vdsatrd_dV_tr_GND;
-     double d_vdsatrd_dTemp_dt_GND;
-     double d_vdsatrd_dV_fp4_d;
-     double d_vdsatrd_dV_fp4_s;
-     double d_vdsatrd_dV_drc_fp4;
-  double vtdiblrd;
-     double d_vtdiblrd_dV_tr_GND;
-     double d_vtdiblrd_dTemp_dt_GND;
-     double d_vtdiblrd_dV_fp4_d;
-     double d_vtdiblrd_dV_fp4_s;
-     double d_vtdiblrd_dV_drc_fp4;
-  double qsrd;
-     double d_qsrd_dV_tr_GND;
-     double d_qsrd_dTemp_dt_GND;
-     double d_qsrd_dV_fp4_d;
-     double d_qsrd_dV_fp4_s;
-     double d_qsrd_dV_drc_fp4;
-  double qbrd;
-     double d_qbrd_dV_tr_GND;
-     double d_qbrd_dTemp_dt_GND;
-     double d_qbrd_dV_fp4_d;
-     double d_qbrd_dV_fp4_s;
-     double d_qbrd_dV_drc_fp4;
-  double qcrd;
-     double d_qcrd_dV_tr_GND;
-     double d_qcrd_dTemp_dt_GND;
-     double d_qcrd_dV_fp4_d;
-     double d_qcrd_dV_fp4_s;
-     double d_qcrd_dV_drc_fp4;
-  double qgdrd;
-     double d_qgdrd_dV_tr_GND;
-     double d_qgdrd_dTemp_dt_GND;
-     double d_qgdrd_dV_fp4_d;
-     double d_qgdrd_dV_fp4_s;
-     double d_qgdrd_dV_drc_fp4;
-  double qgsrd;
-     double d_qgsrd_dV_tr_GND;
-     double d_qgsrd_dTemp_dt_GND;
-     double d_qgsrd_dV_fp4_d;
-     double d_qgsrd_dV_fp4_s;
-     double d_qgsrd_dV_drc_fp4;
-  double idsrd;
-     double d_idsrd_dV_tr_GND;
-     double d_idsrd_dTemp_dt_GND;
-     double d_idsrd_dV_fp4_d;
-     double d_idsrd_dV_fp4_s;
-     double d_idsrd_dV_drc_fp4;
-  double vdsatrs;
-     double d_vdsatrs_dV_src_d;
-     double d_vdsatrs_dV_src_s;
-     double d_vdsatrs_dV_si_src;
-     double d_vdsatrs_dTemp_dt_GND;
-  double vtdiblrs;
-     double d_vtdiblrs_dV_src_d;
-     double d_vtdiblrs_dV_src_s;
-     double d_vtdiblrs_dV_si_src;
-     double d_vtdiblrs_dTemp_dt_GND;
-  double qsrs;
-     double d_qsrs_dV_src_d;
-     double d_qsrs_dV_src_s;
-     double d_qsrs_dV_si_src;
-     double d_qsrs_dTemp_dt_GND;
-  double qbrs;
-     double d_qbrs_dV_src_d;
-     double d_qbrs_dV_src_s;
-     double d_qbrs_dV_si_src;
-     double d_qbrs_dTemp_dt_GND;
-  double qcrs;
-     double d_qcrs_dV_src_d;
-     double d_qcrs_dV_src_s;
-     double d_qcrs_dV_si_src;
-     double d_qcrs_dTemp_dt_GND;
-  double qgdrs;
-     double d_qgdrs_dV_src_d;
-     double d_qgdrs_dV_src_s;
-     double d_qgdrs_dV_si_src;
-     double d_qgdrs_dTemp_dt_GND;
-  double qgsrs;
-     double d_qgsrs_dV_src_d;
-     double d_qgsrs_dV_src_s;
-     double d_qgsrs_dV_si_src;
-     double d_qgsrs_dTemp_dt_GND;
-  double idsrs;
-     double d_idsrs_dV_src_d;
-     double d_idsrs_dV_src_s;
-     double d_idsrs_dV_si_src;
-     double d_idsrs_dTemp_dt_GND;
-  double vdsatfp1;
-     double d_vdsatfp1_dV_s_di;
-     double d_vdsatfp1_dV_gi_di;
-     double d_vdsatfp1_dV_fp1_di;
-     double d_vdsatfp1_dV_b_di;
-     double d_vdsatfp1_dTemp_dt_GND;
-  double vtdiblfp1;
-     double d_vtdiblfp1_dV_s_di;
-     double d_vtdiblfp1_dV_gi_di;
-     double d_vtdiblfp1_dV_fp1_di;
-     double d_vtdiblfp1_dV_b_di;
-     double d_vtdiblfp1_dTemp_dt_GND;
-  double qsfp1;
-     double d_qsfp1_dV_s_di;
-     double d_qsfp1_dV_gi_di;
-     double d_qsfp1_dV_fp1_di;
-     double d_qsfp1_dV_b_di;
-     double d_qsfp1_dTemp_dt_GND;
-  double qbfp1;
-     double d_qbfp1_dV_s_di;
-     double d_qbfp1_dV_gi_di;
-     double d_qbfp1_dV_fp1_di;
-     double d_qbfp1_dV_b_di;
-     double d_qbfp1_dTemp_dt_GND;
-  double qcfp1;
-     double d_qcfp1_dV_s_di;
-     double d_qcfp1_dV_gi_di;
-     double d_qcfp1_dV_fp1_di;
-     double d_qcfp1_dV_b_di;
-     double d_qcfp1_dTemp_dt_GND;
-  double qgdfp1;
-     double d_qgdfp1_dV_s_di;
-     double d_qgdfp1_dV_gi_di;
-     double d_qgdfp1_dV_fp1_di;
-     double d_qgdfp1_dV_b_di;
-     double d_qgdfp1_dTemp_dt_GND;
-  double qgsfp1;
-     double d_qgsfp1_dV_s_di;
-     double d_qgsfp1_dV_gi_di;
-     double d_qgsfp1_dV_fp1_di;
-     double d_qgsfp1_dV_b_di;
-     double d_qgsfp1_dTemp_dt_GND;
-  double idsfp1;
-     double d_idsfp1_dV_s_di;
-     double d_idsfp1_dV_gi_di;
-     double d_idsfp1_dV_fp1_di;
-     double d_idsfp1_dV_b_di;
-     double d_idsfp1_dTemp_dt_GND;
-  double vdsatfp2;
-     double d_vdsatfp2_dV_s_fp1;
-     double d_vdsatfp2_dV_gi_fp1;
-     double d_vdsatfp2_dV_fp2_fp1;
-     double d_vdsatfp2_dV_b_fp1;
-     double d_vdsatfp2_dTemp_dt_GND;
-  double vtdiblfp2;
-     double d_vtdiblfp2_dV_s_fp1;
-     double d_vtdiblfp2_dV_gi_fp1;
-     double d_vtdiblfp2_dV_fp2_fp1;
-     double d_vtdiblfp2_dV_b_fp1;
-     double d_vtdiblfp2_dTemp_dt_GND;
-  double qsfp2;
-     double d_qsfp2_dV_s_fp1;
-     double d_qsfp2_dV_gi_fp1;
-     double d_qsfp2_dV_fp2_fp1;
-     double d_qsfp2_dV_b_fp1;
-     double d_qsfp2_dTemp_dt_GND;
-  double qbfp2;
-     double d_qbfp2_dV_s_fp1;
-     double d_qbfp2_dV_gi_fp1;
-     double d_qbfp2_dV_fp2_fp1;
-     double d_qbfp2_dV_b_fp1;
-     double d_qbfp2_dTemp_dt_GND;
-  double qcfp2;
-     double d_qcfp2_dV_s_fp1;
-     double d_qcfp2_dV_gi_fp1;
-     double d_qcfp2_dV_fp2_fp1;
-     double d_qcfp2_dV_b_fp1;
-     double d_qcfp2_dTemp_dt_GND;
-  double qgdfp2;
-     double d_qgdfp2_dV_s_fp1;
-     double d_qgdfp2_dV_gi_fp1;
-     double d_qgdfp2_dV_fp2_fp1;
-     double d_qgdfp2_dV_b_fp1;
-     double d_qgdfp2_dTemp_dt_GND;
-  double qgsfp2;
-     double d_qgsfp2_dV_s_fp1;
-     double d_qgsfp2_dV_gi_fp1;
-     double d_qgsfp2_dV_fp2_fp1;
-     double d_qgsfp2_dV_b_fp1;
-     double d_qgsfp2_dTemp_dt_GND;
-  double idsfp2;
-     double d_idsfp2_dV_s_fp1;
-     double d_idsfp2_dV_gi_fp1;
-     double d_idsfp2_dV_fp2_fp1;
-     double d_idsfp2_dV_b_fp1;
-     double d_idsfp2_dTemp_dt_GND;
-  double vdsatfp3;
-     double d_vdsatfp3_dV_s_fp2;
-     double d_vdsatfp3_dV_gi_fp2;
-     double d_vdsatfp3_dV_fp3_fp2;
-     double d_vdsatfp3_dV_b_fp2;
-     double d_vdsatfp3_dTemp_dt_GND;
-  double vtdiblfp3;
-     double d_vtdiblfp3_dV_s_fp2;
-     double d_vtdiblfp3_dV_gi_fp2;
-     double d_vtdiblfp3_dV_fp3_fp2;
-     double d_vtdiblfp3_dV_b_fp2;
-     double d_vtdiblfp3_dTemp_dt_GND;
-  double qsfp3;
-     double d_qsfp3_dV_s_fp2;
-     double d_qsfp3_dV_gi_fp2;
-     double d_qsfp3_dV_fp3_fp2;
-     double d_qsfp3_dV_b_fp2;
-     double d_qsfp3_dTemp_dt_GND;
-  double qbfp3;
-     double d_qbfp3_dV_s_fp2;
-     double d_qbfp3_dV_gi_fp2;
-     double d_qbfp3_dV_fp3_fp2;
-     double d_qbfp3_dV_b_fp2;
-     double d_qbfp3_dTemp_dt_GND;
-  double qcfp3;
-     double d_qcfp3_dV_s_fp2;
-     double d_qcfp3_dV_gi_fp2;
-     double d_qcfp3_dV_fp3_fp2;
-     double d_qcfp3_dV_b_fp2;
-     double d_qcfp3_dTemp_dt_GND;
-  double qgdfp3;
-     double d_qgdfp3_dV_s_fp2;
-     double d_qgdfp3_dV_gi_fp2;
-     double d_qgdfp3_dV_fp3_fp2;
-     double d_qgdfp3_dV_b_fp2;
-     double d_qgdfp3_dTemp_dt_GND;
-  double qgsfp3;
-     double d_qgsfp3_dV_s_fp2;
-     double d_qgsfp3_dV_gi_fp2;
-     double d_qgsfp3_dV_fp3_fp2;
-     double d_qgsfp3_dV_b_fp2;
-     double d_qgsfp3_dTemp_dt_GND;
-  double idsfp3;
-     double d_idsfp3_dV_s_fp2;
-     double d_idsfp3_dV_gi_fp2;
-     double d_idsfp3_dV_fp3_fp2;
-     double d_idsfp3_dV_b_fp2;
-     double d_idsfp3_dTemp_dt_GND;
-  double vdsatfp4;
-     double d_vdsatfp4_dV_s_fp3;
-     double d_vdsatfp4_dV_gi_fp3;
-     double d_vdsatfp4_dV_fp4_fp3;
-     double d_vdsatfp4_dV_b_fp3;
-     double d_vdsatfp4_dTemp_dt_GND;
-  double vtdiblfp4;
-     double d_vtdiblfp4_dV_s_fp3;
-     double d_vtdiblfp4_dV_gi_fp3;
-     double d_vtdiblfp4_dV_fp4_fp3;
-     double d_vtdiblfp4_dV_b_fp3;
-     double d_vtdiblfp4_dTemp_dt_GND;
-  double qsfp4;
-     double d_qsfp4_dV_s_fp3;
-     double d_qsfp4_dV_gi_fp3;
-     double d_qsfp4_dV_fp4_fp3;
-     double d_qsfp4_dV_b_fp3;
-     double d_qsfp4_dTemp_dt_GND;
-  double qbfp4;
-     double d_qbfp4_dV_s_fp3;
-     double d_qbfp4_dV_gi_fp3;
-     double d_qbfp4_dV_fp4_fp3;
-     double d_qbfp4_dV_b_fp3;
-     double d_qbfp4_dTemp_dt_GND;
-  double qcfp4;
-     double d_qcfp4_dV_s_fp3;
-     double d_qcfp4_dV_gi_fp3;
-     double d_qcfp4_dV_fp4_fp3;
-     double d_qcfp4_dV_b_fp3;
-     double d_qcfp4_dTemp_dt_GND;
-  double qgdfp4;
-     double d_qgdfp4_dV_s_fp3;
-     double d_qgdfp4_dV_gi_fp3;
-     double d_qgdfp4_dV_fp4_fp3;
-     double d_qgdfp4_dV_b_fp3;
-     double d_qgdfp4_dTemp_dt_GND;
-  double qgsfp4;
-     double d_qgsfp4_dV_s_fp3;
-     double d_qgsfp4_dV_gi_fp3;
-     double d_qgsfp4_dV_fp4_fp3;
-     double d_qgsfp4_dV_b_fp3;
-     double d_qgsfp4_dTemp_dt_GND;
-  double idsfp4;
-     double d_idsfp4_dV_s_fp3;
-     double d_idsfp4_dV_gi_fp3;
-     double d_idsfp4_dV_fp4_fp3;
-     double d_idsfp4_dV_b_fp3;
-     double d_idsfp4_dTemp_dt_GND;
-  double vbfp4;
-     double d_vbfp4_dV_b_fp3;
-  double vdsfp4;
-     double d_vdsfp4_dV_fp4_fp3;
-  double vcfp4;
-     double d_vcfp4_dV_gi_fp3;
-     double d_vcfp4_dV_s_fp3;
-  double vgsfp4;
-     double d_vgsfp4_dV_s_fp3;
-     double d_vgsfp4_dV_gi_fp3;
-  double vbfp3;
-     double d_vbfp3_dV_b_fp2;
-  double vdsfp3;
-     double d_vdsfp3_dV_fp3_fp2;
-  double vcfp3;
-     double d_vcfp3_dV_gi_fp2;
-     double d_vcfp3_dV_s_fp2;
-  double vgsfp3;
-     double d_vgsfp3_dV_s_fp2;
-     double d_vgsfp3_dV_gi_fp2;
-  double vbfp2;
-     double d_vbfp2_dV_b_fp1;
-  double vdsfp2;
-     double d_vdsfp2_dV_fp2_fp1;
-  double vcfp2;
-     double d_vcfp2_dV_gi_fp1;
-     double d_vcfp2_dV_s_fp1;
-  double vgsfp2;
-     double d_vgsfp2_dV_s_fp1;
-     double d_vgsfp2_dV_gi_fp1;
-  double vbfp1;
-     double d_vbfp1_dV_b_di;
-  double vdsfp1;
-     double d_vdsfp1_dV_fp1_di;
-  double vcfp1;
-     double d_vcfp1_dV_gi_di;
-     double d_vcfp1_dV_s_di;
-  double vgsfp1;
-     double d_vgsfp1_dV_s_di;
-     double d_vgsfp1_dV_gi_di;
-  double vgsrd;
-     double d_vgsrd_dV_tr_GND;
-     double d_vgsrd_dTemp_dt_GND;
-     double d_vgsrd_dV_fp4_d;
-     double d_vgsrd_dV_fp4_s;
-  double vdsrd;
-     double d_vdsrd_dV_drc_fp4;
-  double vigd;
-     double d_vigd_dV_tr_GND;
-     double d_vigd_dTemp_dt_GND;
-  double vdars;
-     double d_vdars_dV_fp4_d;
-     double d_vdars_dV_fp4_s;
-  double drsht;
-     double d_drsht_dV_tr_GND;
-     double d_drsht_dTemp_dt_GND;
-  double vtcollapse;
-     double d_vtcollapse_dV_tr_GND;
-  double vtcollapse0;
-     double d_vtcollapse0_dV_d_g;
-  double vgsrs;
-     double d_vgsrs_dV_src_d;
-     double d_vgsrs_dV_src_s;
-  double vdsrs;
-     double d_vdsrs_dV_si_src;
-  double vigs;
-  double vsars;
-     double d_vsars_dV_src_d;
-     double d_vsars_dV_src_s;
-  double vgsi;
-     double d_vgsi_dV_gi_si;
-     double d_vgsi_dV_gi_si_dV_gi_si;
-  double vdsi;
-     double d_vdsi_dV_di_si;
-     double d_vdsi_dV_di_si_dV_di_si;
-  double ttrapfac;
-     double d_ttrapfac_dTemp_dt_GND;
-  double phit;
-     double d_phit_dTemp_dt_GND;
-  double rdi;
-     double d_rdi_dTemp_dt_GND;
-  double rsi;
-     double d_rsi_dTemp_dt_GND;
-  double tdut;
-     double d_tdut_dTemp_dt_GND;
-  double tsh;
-     double d_tsh_dTemp_dt_GND;
-  double tambk;
-  double tnomk;
-  double gmin;
+  double pdiss=0.0;
+     double d_pdiss_dV_drc_d=0.0;
+     double d_pdiss_dV_gi_si=0.0;
+     double d_pdiss_dV_di_si=0.0;
+     double d_pdiss_dTemp_dt_GND=0.0;
+     double d_pdiss_dV_tr_GND=0.0;
+     double d_pdiss_dV_fp4_d=0.0;
+     double d_pdiss_dV_fp4_s=0.0;
+     double d_pdiss_dV_drc_fp4=0.0;
+     double d_pdiss_dV_src_d=0.0;
+     double d_pdiss_dV_src_s=0.0;
+     double d_pdiss_dV_si_src=0.0;
+     double d_pdiss_dV_s_di=0.0;
+     double d_pdiss_dV_gi_di=0.0;
+     double d_pdiss_dV_fp1_di=0.0;
+     double d_pdiss_dV_b_di=0.0;
+     double d_pdiss_dV_s_fp1=0.0;
+     double d_pdiss_dV_gi_fp1=0.0;
+     double d_pdiss_dV_fp2_fp1=0.0;
+     double d_pdiss_dV_b_fp1=0.0;
+     double d_pdiss_dV_s_fp2=0.0;
+     double d_pdiss_dV_gi_fp2=0.0;
+     double d_pdiss_dV_fp3_fp2=0.0;
+     double d_pdiss_dV_b_fp2=0.0;
+     double d_pdiss_dV_s_fp3=0.0;
+     double d_pdiss_dV_gi_fp3=0.0;
+     double d_pdiss_dV_fp4_fp3=0.0;
+     double d_pdiss_dV_b_fp3=0.0;
+  double svc=0.0;
+  double gm=0.0;
+  double qofgsub=0.0;
+     double d_qofgsub_dV_gi_b=0.0;
+  double qofssub=0.0;
+     double d_qofssub_dV_s_b=0.0;
+  double qofdsub=0.0;
+     double d_qofdsub_dV_d_b=0.0;
+  double qofds=0.0;
+     double d_qofds_dV_d_s=0.0;
+  double qofd=0.0;
+     double d_qofd_dV_gi_d=0.0;
+  double qofs=0.0;
+     double d_qofs_dV_gi_s=0.0;
+  double igdrec=0.0;
+     double d_igdrec_dV_gi_si=0.0;
+     double d_igdrec_dV_di_si=0.0;
+     double d_igdrec_dTemp_dt_GND=0.0;
+  double igsrec=0.0;
+     double d_igsrec_dV_gi_si=0.0;
+     double d_igsrec_dTemp_dt_GND=0.0;
+  double igdsdio=0.0;
+     double d_igdsdio_dV_gi_si=0.0;
+     double d_igdsdio_dV_di_si=0.0;
+     double d_igdsdio_dTemp_dt_GND=0.0;
+  double igssdio=0.0;
+     double d_igssdio_dV_gi_si=0.0;
+     double d_igssdio_dTemp_dt_GND=0.0;
+  double igdi=0.0;
+     double d_igdi_dV_gi_si=0.0;
+     double d_igdi_dV_di_si=0.0;
+     double d_igdi_dTemp_dt_GND=0.0;
+  double igsi=0.0;
+     double d_igsi_dV_gi_si=0.0;
+     double d_igsi_dTemp_dt_GND=0.0;
+  double idsrf=0.0;
+     double d_idsrf_dV_xt2_GND=0.0;
+  double vdsat1i=0.0;
+     double d_vdsat1i_dV_gi_si=0.0;
+     double d_vdsat1i_dV_gi_si_dV_gi_si=0.0;
+     double d_vdsat1i_dV_gi_si_dV_di_si=0.0;
+     double d_vdsat1i_dV_gi_si_dTemp_dt_GND=0.0;
+     double d_vdsat1i_dV_di_si=0.0;
+     double d_vdsat1i_dV_di_si_dV_gi_si=0.0;
+     double d_vdsat1i_dV_di_si_dV_di_si=0.0;
+     double d_vdsat1i_dV_di_si_dTemp_dt_GND=0.0;
+     double d_vdsat1i_dTemp_dt_GND=0.0;
+  double vtdibli=0.0;
+     double d_vtdibli_dV_gi_si=0.0;
+     double d_vtdibli_dV_gi_si_dV_gi_si=0.0;
+     double d_vtdibli_dV_gi_si_dV_di_si=0.0;
+     double d_vtdibli_dV_gi_si_dTemp_dt_GND=0.0;
+     double d_vtdibli_dV_di_si=0.0;
+     double d_vtdibli_dV_di_si_dV_gi_si=0.0;
+     double d_vtdibli_dV_di_si_dV_di_si=0.0;
+     double d_vtdibli_dV_di_si_dTemp_dt_GND=0.0;
+     double d_vtdibli_dTemp_dt_GND=0.0;
+  double qs=0.0;
+     double d_qs_dV_gi_si=0.0;
+     double d_qs_dV_gi_si_dV_gi_si=0.0;
+     double d_qs_dV_gi_si_dV_di_si=0.0;
+     double d_qs_dV_gi_si_dTemp_dt_GND=0.0;
+     double d_qs_dV_di_si=0.0;
+     double d_qs_dV_di_si_dV_gi_si=0.0;
+     double d_qs_dV_di_si_dV_di_si=0.0;
+     double d_qs_dV_di_si_dTemp_dt_GND=0.0;
+     double d_qs_dTemp_dt_GND=0.0;
+  double qb=0.0;
+     double d_qb_dV_gi_si=0.0;
+     double d_qb_dV_gi_si_dV_gi_si=0.0;
+     double d_qb_dV_gi_si_dV_di_si=0.0;
+     double d_qb_dV_gi_si_dTemp_dt_GND=0.0;
+     double d_qb_dV_di_si=0.0;
+     double d_qb_dV_di_si_dV_gi_si=0.0;
+     double d_qb_dV_di_si_dV_di_si=0.0;
+     double d_qb_dV_di_si_dTemp_dt_GND=0.0;
+     double d_qb_dTemp_dt_GND=0.0;
+  double qc=0.0;
+     double d_qc_dV_gi_si=0.0;
+     double d_qc_dV_gi_si_dV_gi_si=0.0;
+     double d_qc_dV_gi_si_dV_di_si=0.0;
+     double d_qc_dV_gi_si_dTemp_dt_GND=0.0;
+     double d_qc_dV_di_si=0.0;
+     double d_qc_dV_di_si_dV_gi_si=0.0;
+     double d_qc_dV_di_si_dV_di_si=0.0;
+     double d_qc_dV_di_si_dTemp_dt_GND=0.0;
+     double d_qc_dTemp_dt_GND=0.0;
+  double qgd=0.0;
+     double d_qgd_dV_gi_si=0.0;
+     double d_qgd_dV_gi_si_dV_gi_si=0.0;
+     double d_qgd_dV_gi_si_dV_di_si=0.0;
+     double d_qgd_dV_gi_si_dTemp_dt_GND=0.0;
+     double d_qgd_dV_di_si=0.0;
+     double d_qgd_dV_di_si_dV_gi_si=0.0;
+     double d_qgd_dV_di_si_dV_di_si=0.0;
+     double d_qgd_dV_di_si_dTemp_dt_GND=0.0;
+     double d_qgd_dTemp_dt_GND=0.0;
+  double qgs=0.0;
+     double d_qgs_dV_gi_si=0.0;
+     double d_qgs_dV_gi_si_dV_gi_si=0.0;
+     double d_qgs_dV_gi_si_dV_di_si=0.0;
+     double d_qgs_dV_gi_si_dTemp_dt_GND=0.0;
+     double d_qgs_dV_di_si=0.0;
+     double d_qgs_dV_di_si_dV_gi_si=0.0;
+     double d_qgs_dV_di_si_dV_di_si=0.0;
+     double d_qgs_dV_di_si_dTemp_dt_GND=0.0;
+     double d_qgs_dTemp_dt_GND=0.0;
+  double ids=0.0;
+     double d_ids_dV_gi_si=0.0;
+     double d_ids_dV_gi_si_dV_gi_si=0.0;
+     double d_ids_dV_gi_si_dV_di_si=0.0;
+     double d_ids_dV_gi_si_dTemp_dt_GND=0.0;
+     double d_ids_dV_di_si=0.0;
+     double d_ids_dV_di_si_dV_gi_si=0.0;
+     double d_ids_dV_di_si_dV_di_si=0.0;
+     double d_ids_dV_di_si_dTemp_dt_GND=0.0;
+     double d_ids_dTemp_dt_GND=0.0;
+  double vdsatrd=0.0;
+     double d_vdsatrd_dV_tr_GND=0.0;
+     double d_vdsatrd_dTemp_dt_GND=0.0;
+     double d_vdsatrd_dV_fp4_d=0.0;
+     double d_vdsatrd_dV_fp4_s=0.0;
+     double d_vdsatrd_dV_drc_fp4=0.0;
+  double vtdiblrd=0.0;
+     double d_vtdiblrd_dV_tr_GND=0.0;
+     double d_vtdiblrd_dTemp_dt_GND=0.0;
+     double d_vtdiblrd_dV_fp4_d=0.0;
+     double d_vtdiblrd_dV_fp4_s=0.0;
+     double d_vtdiblrd_dV_drc_fp4=0.0;
+  double qsrd=0.0;
+     double d_qsrd_dV_tr_GND=0.0;
+     double d_qsrd_dTemp_dt_GND=0.0;
+     double d_qsrd_dV_fp4_d=0.0;
+     double d_qsrd_dV_fp4_s=0.0;
+     double d_qsrd_dV_drc_fp4=0.0;
+  double qbrd=0.0;
+     double d_qbrd_dV_tr_GND=0.0;
+     double d_qbrd_dTemp_dt_GND=0.0;
+     double d_qbrd_dV_fp4_d=0.0;
+     double d_qbrd_dV_fp4_s=0.0;
+     double d_qbrd_dV_drc_fp4=0.0;
+  double qcrd=0.0;
+     double d_qcrd_dV_tr_GND=0.0;
+     double d_qcrd_dTemp_dt_GND=0.0;
+     double d_qcrd_dV_fp4_d=0.0;
+     double d_qcrd_dV_fp4_s=0.0;
+     double d_qcrd_dV_drc_fp4=0.0;
+  double qgdrd=0.0;
+     double d_qgdrd_dV_tr_GND=0.0;
+     double d_qgdrd_dTemp_dt_GND=0.0;
+     double d_qgdrd_dV_fp4_d=0.0;
+     double d_qgdrd_dV_fp4_s=0.0;
+     double d_qgdrd_dV_drc_fp4=0.0;
+  double qgsrd=0.0;
+     double d_qgsrd_dV_tr_GND=0.0;
+     double d_qgsrd_dTemp_dt_GND=0.0;
+     double d_qgsrd_dV_fp4_d=0.0;
+     double d_qgsrd_dV_fp4_s=0.0;
+     double d_qgsrd_dV_drc_fp4=0.0;
+  double idsrd=0.0;
+     double d_idsrd_dV_tr_GND=0.0;
+     double d_idsrd_dTemp_dt_GND=0.0;
+     double d_idsrd_dV_fp4_d=0.0;
+     double d_idsrd_dV_fp4_s=0.0;
+     double d_idsrd_dV_drc_fp4=0.0;
+  double vdsatrs=0.0;
+     double d_vdsatrs_dV_src_d=0.0;
+     double d_vdsatrs_dV_src_s=0.0;
+     double d_vdsatrs_dV_si_src=0.0;
+     double d_vdsatrs_dTemp_dt_GND=0.0;
+  double vtdiblrs=0.0;
+     double d_vtdiblrs_dV_src_d=0.0;
+     double d_vtdiblrs_dV_src_s=0.0;
+     double d_vtdiblrs_dV_si_src=0.0;
+     double d_vtdiblrs_dTemp_dt_GND=0.0;
+  double qsrs=0.0;
+     double d_qsrs_dV_src_d=0.0;
+     double d_qsrs_dV_src_s=0.0;
+     double d_qsrs_dV_si_src=0.0;
+     double d_qsrs_dTemp_dt_GND=0.0;
+  double qbrs=0.0;
+     double d_qbrs_dV_src_d=0.0;
+     double d_qbrs_dV_src_s=0.0;
+     double d_qbrs_dV_si_src=0.0;
+     double d_qbrs_dTemp_dt_GND=0.0;
+  double qcrs=0.0;
+     double d_qcrs_dV_src_d=0.0;
+     double d_qcrs_dV_src_s=0.0;
+     double d_qcrs_dV_si_src=0.0;
+     double d_qcrs_dTemp_dt_GND=0.0;
+  double qgdrs=0.0;
+     double d_qgdrs_dV_src_d=0.0;
+     double d_qgdrs_dV_src_s=0.0;
+     double d_qgdrs_dV_si_src=0.0;
+     double d_qgdrs_dTemp_dt_GND=0.0;
+  double qgsrs=0.0;
+     double d_qgsrs_dV_src_d=0.0;
+     double d_qgsrs_dV_src_s=0.0;
+     double d_qgsrs_dV_si_src=0.0;
+     double d_qgsrs_dTemp_dt_GND=0.0;
+  double idsrs=0.0;
+     double d_idsrs_dV_src_d=0.0;
+     double d_idsrs_dV_src_s=0.0;
+     double d_idsrs_dV_si_src=0.0;
+     double d_idsrs_dTemp_dt_GND=0.0;
+  double vdsatfp1=0.0;
+     double d_vdsatfp1_dV_s_di=0.0;
+     double d_vdsatfp1_dV_gi_di=0.0;
+     double d_vdsatfp1_dV_fp1_di=0.0;
+     double d_vdsatfp1_dV_b_di=0.0;
+     double d_vdsatfp1_dTemp_dt_GND=0.0;
+  double vtdiblfp1=0.0;
+     double d_vtdiblfp1_dV_s_di=0.0;
+     double d_vtdiblfp1_dV_gi_di=0.0;
+     double d_vtdiblfp1_dV_fp1_di=0.0;
+     double d_vtdiblfp1_dV_b_di=0.0;
+     double d_vtdiblfp1_dTemp_dt_GND=0.0;
+  double qsfp1=0.0;
+     double d_qsfp1_dV_s_di=0.0;
+     double d_qsfp1_dV_gi_di=0.0;
+     double d_qsfp1_dV_fp1_di=0.0;
+     double d_qsfp1_dV_b_di=0.0;
+     double d_qsfp1_dTemp_dt_GND=0.0;
+  double qbfp1=0.0;
+     double d_qbfp1_dV_s_di=0.0;
+     double d_qbfp1_dV_gi_di=0.0;
+     double d_qbfp1_dV_fp1_di=0.0;
+     double d_qbfp1_dV_b_di=0.0;
+     double d_qbfp1_dTemp_dt_GND=0.0;
+  double qcfp1=0.0;
+     double d_qcfp1_dV_s_di=0.0;
+     double d_qcfp1_dV_gi_di=0.0;
+     double d_qcfp1_dV_fp1_di=0.0;
+     double d_qcfp1_dV_b_di=0.0;
+     double d_qcfp1_dTemp_dt_GND=0.0;
+  double qgdfp1=0.0;
+     double d_qgdfp1_dV_s_di=0.0;
+     double d_qgdfp1_dV_gi_di=0.0;
+     double d_qgdfp1_dV_fp1_di=0.0;
+     double d_qgdfp1_dV_b_di=0.0;
+     double d_qgdfp1_dTemp_dt_GND=0.0;
+  double qgsfp1=0.0;
+     double d_qgsfp1_dV_s_di=0.0;
+     double d_qgsfp1_dV_gi_di=0.0;
+     double d_qgsfp1_dV_fp1_di=0.0;
+     double d_qgsfp1_dV_b_di=0.0;
+     double d_qgsfp1_dTemp_dt_GND=0.0;
+  double idsfp1=0.0;
+     double d_idsfp1_dV_s_di=0.0;
+     double d_idsfp1_dV_gi_di=0.0;
+     double d_idsfp1_dV_fp1_di=0.0;
+     double d_idsfp1_dV_b_di=0.0;
+     double d_idsfp1_dTemp_dt_GND=0.0;
+  double vdsatfp2=0.0;
+     double d_vdsatfp2_dV_s_fp1=0.0;
+     double d_vdsatfp2_dV_gi_fp1=0.0;
+     double d_vdsatfp2_dV_fp2_fp1=0.0;
+     double d_vdsatfp2_dV_b_fp1=0.0;
+     double d_vdsatfp2_dTemp_dt_GND=0.0;
+  double vtdiblfp2=0.0;
+     double d_vtdiblfp2_dV_s_fp1=0.0;
+     double d_vtdiblfp2_dV_gi_fp1=0.0;
+     double d_vtdiblfp2_dV_fp2_fp1=0.0;
+     double d_vtdiblfp2_dV_b_fp1=0.0;
+     double d_vtdiblfp2_dTemp_dt_GND=0.0;
+  double qsfp2=0.0;
+     double d_qsfp2_dV_s_fp1=0.0;
+     double d_qsfp2_dV_gi_fp1=0.0;
+     double d_qsfp2_dV_fp2_fp1=0.0;
+     double d_qsfp2_dV_b_fp1=0.0;
+     double d_qsfp2_dTemp_dt_GND=0.0;
+  double qbfp2=0.0;
+     double d_qbfp2_dV_s_fp1=0.0;
+     double d_qbfp2_dV_gi_fp1=0.0;
+     double d_qbfp2_dV_fp2_fp1=0.0;
+     double d_qbfp2_dV_b_fp1=0.0;
+     double d_qbfp2_dTemp_dt_GND=0.0;
+  double qcfp2=0.0;
+     double d_qcfp2_dV_s_fp1=0.0;
+     double d_qcfp2_dV_gi_fp1=0.0;
+     double d_qcfp2_dV_fp2_fp1=0.0;
+     double d_qcfp2_dV_b_fp1=0.0;
+     double d_qcfp2_dTemp_dt_GND=0.0;
+  double qgdfp2=0.0;
+     double d_qgdfp2_dV_s_fp1=0.0;
+     double d_qgdfp2_dV_gi_fp1=0.0;
+     double d_qgdfp2_dV_fp2_fp1=0.0;
+     double d_qgdfp2_dV_b_fp1=0.0;
+     double d_qgdfp2_dTemp_dt_GND=0.0;
+  double qgsfp2=0.0;
+     double d_qgsfp2_dV_s_fp1=0.0;
+     double d_qgsfp2_dV_gi_fp1=0.0;
+     double d_qgsfp2_dV_fp2_fp1=0.0;
+     double d_qgsfp2_dV_b_fp1=0.0;
+     double d_qgsfp2_dTemp_dt_GND=0.0;
+  double idsfp2=0.0;
+     double d_idsfp2_dV_s_fp1=0.0;
+     double d_idsfp2_dV_gi_fp1=0.0;
+     double d_idsfp2_dV_fp2_fp1=0.0;
+     double d_idsfp2_dV_b_fp1=0.0;
+     double d_idsfp2_dTemp_dt_GND=0.0;
+  double vdsatfp3=0.0;
+     double d_vdsatfp3_dV_s_fp2=0.0;
+     double d_vdsatfp3_dV_gi_fp2=0.0;
+     double d_vdsatfp3_dV_fp3_fp2=0.0;
+     double d_vdsatfp3_dV_b_fp2=0.0;
+     double d_vdsatfp3_dTemp_dt_GND=0.0;
+  double vtdiblfp3=0.0;
+     double d_vtdiblfp3_dV_s_fp2=0.0;
+     double d_vtdiblfp3_dV_gi_fp2=0.0;
+     double d_vtdiblfp3_dV_fp3_fp2=0.0;
+     double d_vtdiblfp3_dV_b_fp2=0.0;
+     double d_vtdiblfp3_dTemp_dt_GND=0.0;
+  double qsfp3=0.0;
+     double d_qsfp3_dV_s_fp2=0.0;
+     double d_qsfp3_dV_gi_fp2=0.0;
+     double d_qsfp3_dV_fp3_fp2=0.0;
+     double d_qsfp3_dV_b_fp2=0.0;
+     double d_qsfp3_dTemp_dt_GND=0.0;
+  double qbfp3=0.0;
+     double d_qbfp3_dV_s_fp2=0.0;
+     double d_qbfp3_dV_gi_fp2=0.0;
+     double d_qbfp3_dV_fp3_fp2=0.0;
+     double d_qbfp3_dV_b_fp2=0.0;
+     double d_qbfp3_dTemp_dt_GND=0.0;
+  double qcfp3=0.0;
+     double d_qcfp3_dV_s_fp2=0.0;
+     double d_qcfp3_dV_gi_fp2=0.0;
+     double d_qcfp3_dV_fp3_fp2=0.0;
+     double d_qcfp3_dV_b_fp2=0.0;
+     double d_qcfp3_dTemp_dt_GND=0.0;
+  double qgdfp3=0.0;
+     double d_qgdfp3_dV_s_fp2=0.0;
+     double d_qgdfp3_dV_gi_fp2=0.0;
+     double d_qgdfp3_dV_fp3_fp2=0.0;
+     double d_qgdfp3_dV_b_fp2=0.0;
+     double d_qgdfp3_dTemp_dt_GND=0.0;
+  double qgsfp3=0.0;
+     double d_qgsfp3_dV_s_fp2=0.0;
+     double d_qgsfp3_dV_gi_fp2=0.0;
+     double d_qgsfp3_dV_fp3_fp2=0.0;
+     double d_qgsfp3_dV_b_fp2=0.0;
+     double d_qgsfp3_dTemp_dt_GND=0.0;
+  double idsfp3=0.0;
+     double d_idsfp3_dV_s_fp2=0.0;
+     double d_idsfp3_dV_gi_fp2=0.0;
+     double d_idsfp3_dV_fp3_fp2=0.0;
+     double d_idsfp3_dV_b_fp2=0.0;
+     double d_idsfp3_dTemp_dt_GND=0.0;
+  double vdsatfp4=0.0;
+     double d_vdsatfp4_dV_s_fp3=0.0;
+     double d_vdsatfp4_dV_gi_fp3=0.0;
+     double d_vdsatfp4_dV_fp4_fp3=0.0;
+     double d_vdsatfp4_dV_b_fp3=0.0;
+     double d_vdsatfp4_dTemp_dt_GND=0.0;
+  double vtdiblfp4=0.0;
+     double d_vtdiblfp4_dV_s_fp3=0.0;
+     double d_vtdiblfp4_dV_gi_fp3=0.0;
+     double d_vtdiblfp4_dV_fp4_fp3=0.0;
+     double d_vtdiblfp4_dV_b_fp3=0.0;
+     double d_vtdiblfp4_dTemp_dt_GND=0.0;
+  double qsfp4=0.0;
+     double d_qsfp4_dV_s_fp3=0.0;
+     double d_qsfp4_dV_gi_fp3=0.0;
+     double d_qsfp4_dV_fp4_fp3=0.0;
+     double d_qsfp4_dV_b_fp3=0.0;
+     double d_qsfp4_dTemp_dt_GND=0.0;
+  double qbfp4=0.0;
+     double d_qbfp4_dV_s_fp3=0.0;
+     double d_qbfp4_dV_gi_fp3=0.0;
+     double d_qbfp4_dV_fp4_fp3=0.0;
+     double d_qbfp4_dV_b_fp3=0.0;
+     double d_qbfp4_dTemp_dt_GND=0.0;
+  double qcfp4=0.0;
+     double d_qcfp4_dV_s_fp3=0.0;
+     double d_qcfp4_dV_gi_fp3=0.0;
+     double d_qcfp4_dV_fp4_fp3=0.0;
+     double d_qcfp4_dV_b_fp3=0.0;
+     double d_qcfp4_dTemp_dt_GND=0.0;
+  double qgdfp4=0.0;
+     double d_qgdfp4_dV_s_fp3=0.0;
+     double d_qgdfp4_dV_gi_fp3=0.0;
+     double d_qgdfp4_dV_fp4_fp3=0.0;
+     double d_qgdfp4_dV_b_fp3=0.0;
+     double d_qgdfp4_dTemp_dt_GND=0.0;
+  double qgsfp4=0.0;
+     double d_qgsfp4_dV_s_fp3=0.0;
+     double d_qgsfp4_dV_gi_fp3=0.0;
+     double d_qgsfp4_dV_fp4_fp3=0.0;
+     double d_qgsfp4_dV_b_fp3=0.0;
+     double d_qgsfp4_dTemp_dt_GND=0.0;
+  double idsfp4=0.0;
+     double d_idsfp4_dV_s_fp3=0.0;
+     double d_idsfp4_dV_gi_fp3=0.0;
+     double d_idsfp4_dV_fp4_fp3=0.0;
+     double d_idsfp4_dV_b_fp3=0.0;
+     double d_idsfp4_dTemp_dt_GND=0.0;
+  double vbfp4=0.0;
+     double d_vbfp4_dV_b_fp3=0.0;
+  double vdsfp4=0.0;
+     double d_vdsfp4_dV_fp4_fp3=0.0;
+  double vcfp4=0.0;
+     double d_vcfp4_dV_gi_fp3=0.0;
+     double d_vcfp4_dV_s_fp3=0.0;
+  double vgsfp4=0.0;
+     double d_vgsfp4_dV_s_fp3=0.0;
+     double d_vgsfp4_dV_gi_fp3=0.0;
+  double vbfp3=0.0;
+     double d_vbfp3_dV_b_fp2=0.0;
+  double vdsfp3=0.0;
+     double d_vdsfp3_dV_fp3_fp2=0.0;
+  double vcfp3=0.0;
+     double d_vcfp3_dV_gi_fp2=0.0;
+     double d_vcfp3_dV_s_fp2=0.0;
+  double vgsfp3=0.0;
+     double d_vgsfp3_dV_s_fp2=0.0;
+     double d_vgsfp3_dV_gi_fp2=0.0;
+  double vbfp2=0.0;
+     double d_vbfp2_dV_b_fp1=0.0;
+  double vdsfp2=0.0;
+     double d_vdsfp2_dV_fp2_fp1=0.0;
+  double vcfp2=0.0;
+     double d_vcfp2_dV_gi_fp1=0.0;
+     double d_vcfp2_dV_s_fp1=0.0;
+  double vgsfp2=0.0;
+     double d_vgsfp2_dV_s_fp1=0.0;
+     double d_vgsfp2_dV_gi_fp1=0.0;
+  double vbfp1=0.0;
+     double d_vbfp1_dV_b_di=0.0;
+  double vdsfp1=0.0;
+     double d_vdsfp1_dV_fp1_di=0.0;
+  double vcfp1=0.0;
+     double d_vcfp1_dV_gi_di=0.0;
+     double d_vcfp1_dV_s_di=0.0;
+  double vgsfp1=0.0;
+     double d_vgsfp1_dV_s_di=0.0;
+     double d_vgsfp1_dV_gi_di=0.0;
+  double vgsrd=0.0;
+     double d_vgsrd_dV_tr_GND=0.0;
+     double d_vgsrd_dTemp_dt_GND=0.0;
+     double d_vgsrd_dV_fp4_d=0.0;
+     double d_vgsrd_dV_fp4_s=0.0;
+  double vdsrd=0.0;
+     double d_vdsrd_dV_drc_fp4=0.0;
+  double vigd=0.0;
+     double d_vigd_dV_tr_GND=0.0;
+     double d_vigd_dTemp_dt_GND=0.0;
+  double vdars=0.0;
+     double d_vdars_dV_fp4_d=0.0;
+     double d_vdars_dV_fp4_s=0.0;
+  double drsht=0.0;
+     double d_drsht_dV_tr_GND=0.0;
+     double d_drsht_dTemp_dt_GND=0.0;
+  double vtcollapse=0.0;
+     double d_vtcollapse_dV_tr_GND=0.0;
+  double vtcollapse0=0.0;
+     double d_vtcollapse0_dV_d_g=0.0;
+  double vgsrs=0.0;
+     double d_vgsrs_dV_src_d=0.0;
+     double d_vgsrs_dV_src_s=0.0;
+  double vdsrs=0.0;
+     double d_vdsrs_dV_si_src=0.0;
+  double vigs=0.0;
+  double vsars=0.0;
+     double d_vsars_dV_src_d=0.0;
+     double d_vsars_dV_src_s=0.0;
+  double vgsi=0.0;
+     double d_vgsi_dV_gi_si=0.0;
+     double d_vgsi_dV_gi_si_dV_gi_si=0.0;
+  double vdsi=0.0;
+     double d_vdsi_dV_di_si=0.0;
+     double d_vdsi_dV_di_si_dV_di_si=0.0;
+  double ttrapfac=0.0;
+     double d_ttrapfac_dTemp_dt_GND=0.0;
+  double phit=0.0;
+     double d_phit_dTemp_dt_GND=0.0;
+  double rdi=0.0;
+     double d_rdi_dTemp_dt_GND=0.0;
+  double rsi=0.0;
+     double d_rsi_dTemp_dt_GND=0.0;
+  double tdut=0.0;
+     double d_tdut_dTemp_dt_GND=0.0;
+  double tsh=0.0;
+     double d_tsh_dTemp_dt_GND=0.0;
+  double tambk=0.0;
+  double tnomk=0.0;
+  double gmin=0.0;
 
 
   // set the sizes of the Fad arrays:
@@ -26649,430 +26649,28 @@ MOSFET1::registerDevice();
 // Creation Date :
 //-----------------------------------------------------------------------------
 void evaluateInitialInstance(
-// instance parameters
-// reals
-AdmsSensFadType & instancePar_w,
-bool instancePar_given_w,
-AdmsSensFadType & instancePar_l,
-bool instancePar_given_l,
-AdmsSensFadType & instancePar_dtemp,
-bool instancePar_given_dtemp,
-// non-reals(including hidden)
-int instancePar_ngf,
-bool instancePar_given_ngf,
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_rcs_w,
-AdmsSensFadType & instanceVar_rcd_w,
-AdmsSensFadType & instanceVar_rg,
-double & instanceVar_vgisi,
-double & instanceVar_vdisi,
-AdmsSensFadType & instanceVar_vti,
-AdmsSensFadType & instanceVar_vdsati,
-AdmsSensFadType & instanceVar_pdc,
-AdmsSensFadType & instanceVar_idisi,
-AdmsSensFadType & instanceVar_igs,
-AdmsSensFadType & instanceVar_igd,
-AdmsSensFadType & instanceVar_qgi,
-AdmsSensFadType & instanceVar_qdi,
-AdmsSensFadType & instanceVar_qsi,
-double & instanceVar_qbi,
-AdmsSensFadType & instanceVar_gmi,
-AdmsSensFadType & instanceVar_gdsi,
-AdmsSensFadType & instanceVar_gmbsi,
-AdmsSensFadType & instanceVar_cggi,
-AdmsSensFadType & instanceVar_cgdi,
-AdmsSensFadType & instanceVar_cgsi,
-AdmsSensFadType & instanceVar_cgbi,
-AdmsSensFadType & instanceVar_cdgi,
-AdmsSensFadType & instanceVar_cddi,
-AdmsSensFadType & instanceVar_cdsi,
-AdmsSensFadType & instanceVar_cdbi,
-AdmsSensFadType & instanceVar_csgi,
-AdmsSensFadType & instanceVar_csdi,
-AdmsSensFadType & instanceVar_cssi,
-AdmsSensFadType & instanceVar_csbi,
-double & instanceVar_cbgi,
-double & instanceVar_cbdi,
-double & instanceVar_cbsi,
-double & instanceVar_cbbi,
-AdmsSensFadType & instanceVar_cgs,
-AdmsSensFadType & instanceVar_cgd,
-AdmsSensFadType & instanceVar_t_total_k,
-AdmsSensFadType & instanceVar_t_total_c,
-double & instanceVar_t_delta_sh,
-AdmsSensFadType & instanceVar_rs,
-AdmsSensFadType & instanceVar_rd,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_version,
-bool modelPar_given_version,
-AdmsSensFadType & modelPar_tnom,
-bool modelPar_given_tnom,
-AdmsSensFadType & modelPar_cg,
-bool modelPar_given_cg,
-AdmsSensFadType & modelPar_cofsm,
-bool modelPar_given_cofsm,
-AdmsSensFadType & modelPar_cofdm,
-bool modelPar_given_cofdm,
-AdmsSensFadType & modelPar_cofdsm,
-bool modelPar_given_cofdsm,
-AdmsSensFadType & modelPar_cofdsubm,
-bool modelPar_given_cofdsubm,
-AdmsSensFadType & modelPar_cofssubm,
-bool modelPar_given_cofssubm,
-AdmsSensFadType & modelPar_cofgsubm,
-bool modelPar_given_cofgsubm,
-AdmsSensFadType & modelPar_rsh,
-bool modelPar_given_rsh,
-AdmsSensFadType & modelPar_rcs,
-bool modelPar_given_rcs,
-AdmsSensFadType & modelPar_rcd,
-bool modelPar_given_rcd,
-AdmsSensFadType & modelPar_vx0,
-bool modelPar_given_vx0,
-AdmsSensFadType & modelPar_mu0,
-bool modelPar_given_mu0,
-AdmsSensFadType & modelPar_beta,
-bool modelPar_given_beta,
-AdmsSensFadType & modelPar_vto,
-bool modelPar_given_vto,
-AdmsSensFadType & modelPar_ss,
-bool modelPar_given_ss,
-AdmsSensFadType & modelPar_delta1,
-bool modelPar_given_delta1,
-AdmsSensFadType & modelPar_delta2,
-bool modelPar_given_delta2,
-AdmsSensFadType & modelPar_dibsat,
-bool modelPar_given_dibsat,
-AdmsSensFadType & modelPar_nd,
-bool modelPar_given_nd,
-AdmsSensFadType & modelPar_alpha,
-bool modelPar_given_alpha,
-AdmsSensFadType & modelPar_lambda,
-bool modelPar_given_lambda,
-AdmsSensFadType & modelPar_vtheta,
-bool modelPar_given_vtheta,
-AdmsSensFadType & modelPar_mtheta,
-bool modelPar_given_mtheta,
-AdmsSensFadType & modelPar_vzeta,
-bool modelPar_given_vzeta,
-AdmsSensFadType & modelPar_vtzeta,
-bool modelPar_given_vtzeta,
-AdmsSensFadType & modelPar_epsilon,
-bool modelPar_given_epsilon,
-AdmsSensFadType & modelPar_rct1,
-bool modelPar_given_rct1,
-AdmsSensFadType & modelPar_rct2,
-bool modelPar_given_rct2,
-AdmsSensFadType & modelPar_lgs,
-bool modelPar_given_lgs,
-AdmsSensFadType & modelPar_vtors,
-bool modelPar_given_vtors,
-AdmsSensFadType & modelPar_cgrs,
-bool modelPar_given_cgrs,
-AdmsSensFadType & modelPar_vx0rs,
-bool modelPar_given_vx0rs,
-AdmsSensFadType & modelPar_mu0rs,
-bool modelPar_given_mu0rs,
-AdmsSensFadType & modelPar_betars,
-bool modelPar_given_betars,
-AdmsSensFadType & modelPar_delta1rs,
-bool modelPar_given_delta1rs,
-AdmsSensFadType & modelPar_srs,
-bool modelPar_given_srs,
-AdmsSensFadType & modelPar_ndrs,
-bool modelPar_given_ndrs,
-AdmsSensFadType & modelPar_vthetars,
-bool modelPar_given_vthetars,
-AdmsSensFadType & modelPar_mthetars,
-bool modelPar_given_mthetars,
-AdmsSensFadType & modelPar_alphars,
-bool modelPar_given_alphars,
-AdmsSensFadType & modelPar_lgd,
-bool modelPar_given_lgd,
-AdmsSensFadType & modelPar_vtord,
-bool modelPar_given_vtord,
-AdmsSensFadType & modelPar_cgrd,
-bool modelPar_given_cgrd,
-AdmsSensFadType & modelPar_vx0rd,
-bool modelPar_given_vx0rd,
-AdmsSensFadType & modelPar_mu0rd,
-bool modelPar_given_mu0rd,
-AdmsSensFadType & modelPar_betard,
-bool modelPar_given_betard,
-AdmsSensFadType & modelPar_delta1rd,
-bool modelPar_given_delta1rd,
-AdmsSensFadType & modelPar_srd,
-bool modelPar_given_srd,
-AdmsSensFadType & modelPar_ndrd,
-bool modelPar_given_ndrd,
-AdmsSensFadType & modelPar_vthetard,
-bool modelPar_given_vthetard,
-AdmsSensFadType & modelPar_mthetard,
-bool modelPar_given_mthetard,
-AdmsSensFadType & modelPar_alphard,
-bool modelPar_given_alphard,
-AdmsSensFadType & modelPar_lgfp1,
-bool modelPar_given_lgfp1,
-AdmsSensFadType & modelPar_vtofp1,
-bool modelPar_given_vtofp1,
-AdmsSensFadType & modelPar_cgfp1,
-bool modelPar_given_cgfp1,
-AdmsSensFadType & modelPar_cfp1s,
-bool modelPar_given_cfp1s,
-AdmsSensFadType & modelPar_ccfp1,
-bool modelPar_given_ccfp1,
-AdmsSensFadType & modelPar_cbfp1,
-bool modelPar_given_cbfp1,
-AdmsSensFadType & modelPar_vx0fp1,
-bool modelPar_given_vx0fp1,
-AdmsSensFadType & modelPar_mu0fp1,
-bool modelPar_given_mu0fp1,
-AdmsSensFadType & modelPar_betafp1,
-bool modelPar_given_betafp1,
-AdmsSensFadType & modelPar_delta1fp1,
-bool modelPar_given_delta1fp1,
-AdmsSensFadType & modelPar_sfp1,
-bool modelPar_given_sfp1,
-AdmsSensFadType & modelPar_ndfp1,
-bool modelPar_given_ndfp1,
-AdmsSensFadType & modelPar_vthetafp1,
-bool modelPar_given_vthetafp1,
-AdmsSensFadType & modelPar_mthetafp1,
-bool modelPar_given_mthetafp1,
-AdmsSensFadType & modelPar_alphafp1,
-bool modelPar_given_alphafp1,
-AdmsSensFadType & modelPar_lgfp2,
-bool modelPar_given_lgfp2,
-AdmsSensFadType & modelPar_vtofp2,
-bool modelPar_given_vtofp2,
-AdmsSensFadType & modelPar_cgfp2,
-bool modelPar_given_cgfp2,
-AdmsSensFadType & modelPar_cfp2s,
-bool modelPar_given_cfp2s,
-AdmsSensFadType & modelPar_ccfp2,
-bool modelPar_given_ccfp2,
-AdmsSensFadType & modelPar_cbfp2,
-bool modelPar_given_cbfp2,
-AdmsSensFadType & modelPar_vx0fp2,
-bool modelPar_given_vx0fp2,
-AdmsSensFadType & modelPar_mu0fp2,
-bool modelPar_given_mu0fp2,
-AdmsSensFadType & modelPar_betafp2,
-bool modelPar_given_betafp2,
-AdmsSensFadType & modelPar_delta1fp2,
-bool modelPar_given_delta1fp2,
-AdmsSensFadType & modelPar_sfp2,
-bool modelPar_given_sfp2,
-AdmsSensFadType & modelPar_ndfp2,
-bool modelPar_given_ndfp2,
-AdmsSensFadType & modelPar_vthetafp2,
-bool modelPar_given_vthetafp2,
-AdmsSensFadType & modelPar_mthetafp2,
-bool modelPar_given_mthetafp2,
-AdmsSensFadType & modelPar_alphafp2,
-bool modelPar_given_alphafp2,
-AdmsSensFadType & modelPar_lgfp3,
-bool modelPar_given_lgfp3,
-AdmsSensFadType & modelPar_vtofp3,
-bool modelPar_given_vtofp3,
-AdmsSensFadType & modelPar_cgfp3,
-bool modelPar_given_cgfp3,
-AdmsSensFadType & modelPar_cfp3s,
-bool modelPar_given_cfp3s,
-AdmsSensFadType & modelPar_ccfp3,
-bool modelPar_given_ccfp3,
-AdmsSensFadType & modelPar_cbfp3,
-bool modelPar_given_cbfp3,
-AdmsSensFadType & modelPar_vx0fp3,
-bool modelPar_given_vx0fp3,
-AdmsSensFadType & modelPar_mu0fp3,
-bool modelPar_given_mu0fp3,
-AdmsSensFadType & modelPar_betafp3,
-bool modelPar_given_betafp3,
-AdmsSensFadType & modelPar_delta1fp3,
-bool modelPar_given_delta1fp3,
-AdmsSensFadType & modelPar_sfp3,
-bool modelPar_given_sfp3,
-AdmsSensFadType & modelPar_ndfp3,
-bool modelPar_given_ndfp3,
-AdmsSensFadType & modelPar_vthetafp3,
-bool modelPar_given_vthetafp3,
-AdmsSensFadType & modelPar_mthetafp3,
-bool modelPar_given_mthetafp3,
-AdmsSensFadType & modelPar_alphafp3,
-bool modelPar_given_alphafp3,
-AdmsSensFadType & modelPar_lgfp4,
-bool modelPar_given_lgfp4,
-AdmsSensFadType & modelPar_vtofp4,
-bool modelPar_given_vtofp4,
-AdmsSensFadType & modelPar_cgfp4,
-bool modelPar_given_cgfp4,
-AdmsSensFadType & modelPar_cfp4s,
-bool modelPar_given_cfp4s,
-AdmsSensFadType & modelPar_ccfp4,
-bool modelPar_given_ccfp4,
-AdmsSensFadType & modelPar_cbfp4,
-bool modelPar_given_cbfp4,
-AdmsSensFadType & modelPar_vx0fp4,
-bool modelPar_given_vx0fp4,
-AdmsSensFadType & modelPar_mu0fp4,
-bool modelPar_given_mu0fp4,
-AdmsSensFadType & modelPar_betafp4,
-bool modelPar_given_betafp4,
-AdmsSensFadType & modelPar_delta1fp4,
-bool modelPar_given_delta1fp4,
-AdmsSensFadType & modelPar_sfp4,
-bool modelPar_given_sfp4,
-AdmsSensFadType & modelPar_ndfp4,
-bool modelPar_given_ndfp4,
-AdmsSensFadType & modelPar_vthetafp4,
-bool modelPar_given_vthetafp4,
-AdmsSensFadType & modelPar_mthetafp4,
-bool modelPar_given_mthetafp4,
-AdmsSensFadType & modelPar_alphafp4,
-bool modelPar_given_alphafp4,
-AdmsSensFadType & modelPar_rgsp,
-bool modelPar_given_rgsp,
-AdmsSensFadType & modelPar_vjg,
-bool modelPar_given_vjg,
-AdmsSensFadType & modelPar_pg_param1,
-bool modelPar_given_pg_param1,
-AdmsSensFadType & modelPar_pg_params,
-bool modelPar_given_pg_params,
-AdmsSensFadType & modelPar_ijs,
-bool modelPar_given_ijs,
-AdmsSensFadType & modelPar_vgsats,
-bool modelPar_given_vgsats,
-AdmsSensFadType & modelPar_fracs,
-bool modelPar_given_fracs,
-AdmsSensFadType & modelPar_alphags,
-bool modelPar_given_alphags,
-AdmsSensFadType & modelPar_pg_paramd,
-bool modelPar_given_pg_paramd,
-AdmsSensFadType & modelPar_ijd,
-bool modelPar_given_ijd,
-AdmsSensFadType & modelPar_vgsatd,
-bool modelPar_given_vgsatd,
-AdmsSensFadType & modelPar_fracd,
-bool modelPar_given_fracd,
-AdmsSensFadType & modelPar_alphagd,
-bool modelPar_given_alphagd,
-AdmsSensFadType & modelPar_pgsrecs,
-bool modelPar_given_pgsrecs,
-AdmsSensFadType & modelPar_irecs,
-bool modelPar_given_irecs,
-AdmsSensFadType & modelPar_vgsatqs,
-bool modelPar_given_vgsatqs,
-AdmsSensFadType & modelPar_vbdgs,
-bool modelPar_given_vbdgs,
-AdmsSensFadType & modelPar_pbdgs,
-bool modelPar_given_pbdgs,
-AdmsSensFadType & modelPar_betarecs,
-bool modelPar_given_betarecs,
-AdmsSensFadType & modelPar_kbdgates,
-bool modelPar_given_kbdgates,
-AdmsSensFadType & modelPar_pgsrecd,
-bool modelPar_given_pgsrecd,
-AdmsSensFadType & modelPar_irecd,
-bool modelPar_given_irecd,
-AdmsSensFadType & modelPar_vgsatqd,
-bool modelPar_given_vgsatqd,
-AdmsSensFadType & modelPar_vbdgd,
-bool modelPar_given_vbdgd,
-AdmsSensFadType & modelPar_pbdgd,
-bool modelPar_given_pbdgd,
-AdmsSensFadType & modelPar_betarecd,
-bool modelPar_given_betarecd,
-AdmsSensFadType & modelPar_kbdgated,
-bool modelPar_given_kbdgated,
-AdmsSensFadType & modelPar_rth,
-bool modelPar_given_rth,
-AdmsSensFadType & modelPar_cth,
-bool modelPar_given_cth,
-AdmsSensFadType & modelPar_taugmrf,
-bool modelPar_given_taugmrf,
-AdmsSensFadType & modelPar_ctrap,
-bool modelPar_given_ctrap,
-AdmsSensFadType & modelPar_vttrap,
-bool modelPar_given_vttrap,
-AdmsSensFadType & modelPar_taut,
-bool modelPar_given_taut,
-AdmsSensFadType & modelPar_alphat1,
-bool modelPar_given_alphat1,
-AdmsSensFadType & modelPar_alphat2,
-bool modelPar_given_alphat2,
-AdmsSensFadType & modelPar_tempt,
-bool modelPar_given_tempt,
-AdmsSensFadType & modelPar_shs,
-bool modelPar_given_shs,
-AdmsSensFadType & modelPar_shd,
-bool modelPar_given_shd,
-AdmsSensFadType & modelPar_kf,
-bool modelPar_given_kf,
-AdmsSensFadType & modelPar_af,
-bool modelPar_given_af,
-AdmsSensFadType & modelPar_ffe,
-bool modelPar_given_ffe,
-AdmsSensFadType & modelPar_minr,
-bool modelPar_given_minr,
-AdmsSensFadType & modelPar_minl,
-bool modelPar_given_minl,
-AdmsSensFadType & modelPar_minc,
-bool modelPar_given_minc,
-AdmsSensFadType & modelPar_LMIN,
-bool modelPar_given_LMIN,
-AdmsSensFadType & modelPar_WMIN,
-bool modelPar_given_WMIN,
-AdmsSensFadType & modelPar_LMAX,
-bool modelPar_given_LMAX,
-AdmsSensFadType & modelPar_WMAX,
-bool modelPar_given_WMAX,
-// non-reals (including hidden)
-int modelPar_type,
-bool modelPar_given_type,
-int modelPar_flagres,
-bool modelPar_given_flagres,
-int modelPar_flagfp1,
-bool modelPar_given_flagfp1,
-int modelPar_flagfp1s,
-bool modelPar_given_flagfp1s,
-int modelPar_flagfp2,
-bool modelPar_given_flagfp2,
-int modelPar_flagfp2s,
-bool modelPar_given_flagfp2s,
-int modelPar_flagfp3,
-bool modelPar_given_flagfp3,
-int modelPar_flagfp3s,
-bool modelPar_given_flagfp3s,
-int modelPar_flagfp4,
-bool modelPar_given_flagfp4,
-int modelPar_flagfp4s,
-bool modelPar_given_flagfp4s,
-int modelPar_igmod,
-bool modelPar_given_igmod,
-int modelPar_gmdisp,
-bool modelPar_given_gmdisp,
-int modelPar_trapselect,
-bool modelPar_given_trapselect,
-int modelPar_noisemod,
-bool modelPar_given_noisemod,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
  double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance)
 {
 //Begin block initial_instance
 {
-if ((modelPar_flagres==0))
+if ((modelStruct.modelPar_flagres==0))
 {
-instanceVar_rcs_w = ((modelPar_rcs/instancePar_w)/instancePar_ngf);
-instanceVar_rcd_w = ((modelPar_rcd/instancePar_w)/instancePar_ngf);
+instanceStruct.d_instanceVar_rcs_w_dX = (((instanceStruct.instancePar_w*modelStruct.d_modelPar_rcs_dX-modelStruct.modelPar_rcs*instanceStruct.d_instancePar_w_dX)/instanceStruct.instancePar_w/instanceStruct.instancePar_w)/instanceStruct.instancePar_ngf);
+instanceStruct.instanceVar_rcs_w = ((modelStruct.modelPar_rcs/instanceStruct.instancePar_w)/instanceStruct.instancePar_ngf);
+instanceStruct.d_instanceVar_rcd_w_dX = (((instanceStruct.instancePar_w*modelStruct.d_modelPar_rcd_dX-modelStruct.modelPar_rcd*instanceStruct.d_instancePar_w_dX)/instanceStruct.instancePar_w/instanceStruct.instancePar_w)/instanceStruct.instancePar_ngf);
+instanceStruct.instanceVar_rcd_w = ((modelStruct.modelPar_rcd/instanceStruct.instancePar_w)/instanceStruct.instancePar_ngf);
 }
 else
 {
-instanceVar_rcs_w = (((modelPar_rcs/instancePar_w)+((modelPar_rsh*modelPar_lgs)/instancePar_w))/instancePar_ngf);
-instanceVar_rcd_w = (((modelPar_rcd/instancePar_w)+((modelPar_rsh*modelPar_lgd)/instancePar_w))/instancePar_ngf);
+instanceStruct.d_instanceVar_rcs_w_dX = ((((instanceStruct.instancePar_w*modelStruct.d_modelPar_rcs_dX-modelStruct.modelPar_rcs*instanceStruct.d_instancePar_w_dX)/instanceStruct.instancePar_w/instanceStruct.instancePar_w)+((instanceStruct.instancePar_w*(modelStruct.modelPar_rsh*modelStruct.d_modelPar_lgs_dX+modelStruct.d_modelPar_rsh_dX*modelStruct.modelPar_lgs)-(modelStruct.modelPar_rsh*modelStruct.modelPar_lgs)*instanceStruct.d_instancePar_w_dX)/instanceStruct.instancePar_w/instanceStruct.instancePar_w))/instanceStruct.instancePar_ngf);
+instanceStruct.instanceVar_rcs_w = (((modelStruct.modelPar_rcs/instanceStruct.instancePar_w)+((modelStruct.modelPar_rsh*modelStruct.modelPar_lgs)/instanceStruct.instancePar_w))/instanceStruct.instancePar_ngf);
+instanceStruct.d_instanceVar_rcd_w_dX = ((((instanceStruct.instancePar_w*modelStruct.d_modelPar_rcd_dX-modelStruct.modelPar_rcd*instanceStruct.d_instancePar_w_dX)/instanceStruct.instancePar_w/instanceStruct.instancePar_w)+((instanceStruct.instancePar_w*(modelStruct.modelPar_rsh*modelStruct.d_modelPar_lgd_dX+modelStruct.d_modelPar_rsh_dX*modelStruct.modelPar_lgd)-(modelStruct.modelPar_rsh*modelStruct.modelPar_lgd)*instanceStruct.d_instancePar_w_dX)/instanceStruct.instancePar_w/instanceStruct.instancePar_w))/instanceStruct.instancePar_ngf);
+instanceStruct.instanceVar_rcd_w = (((modelStruct.modelPar_rcd/instanceStruct.instancePar_w)+((modelStruct.modelPar_rsh*modelStruct.modelPar_lgd)/instanceStruct.instancePar_w))/instanceStruct.instancePar_ngf);
 }
-instanceVar_rg = ((modelPar_rgsp/instancePar_w)/instancePar_ngf);
+instanceStruct.d_instanceVar_rg_dX = (((instanceStruct.instancePar_w*modelStruct.d_modelPar_rgsp_dX-modelStruct.modelPar_rgsp*instanceStruct.d_instancePar_w_dX)/instanceStruct.instancePar_w/instanceStruct.instancePar_w)/instanceStruct.instancePar_ngf);
+instanceStruct.instanceVar_rg = ((modelStruct.modelPar_rgsp/instanceStruct.instancePar_w)/instanceStruct.instancePar_ngf);
 }
 // End block initial_instance
 }
@@ -27088,361 +26686,7 @@ instanceVar_rg = ((modelPar_rgsp/instancePar_w)/instancePar_ngf);
 // Creation Date :
 //-----------------------------------------------------------------------------
 void evaluateInitialModel(
-// model parameters
-// reals
-AdmsSensFadType & modelPar_version,
-bool modelPar_given_version,
-AdmsSensFadType & modelPar_tnom,
-bool modelPar_given_tnom,
-AdmsSensFadType & modelPar_cg,
-bool modelPar_given_cg,
-AdmsSensFadType & modelPar_cofsm,
-bool modelPar_given_cofsm,
-AdmsSensFadType & modelPar_cofdm,
-bool modelPar_given_cofdm,
-AdmsSensFadType & modelPar_cofdsm,
-bool modelPar_given_cofdsm,
-AdmsSensFadType & modelPar_cofdsubm,
-bool modelPar_given_cofdsubm,
-AdmsSensFadType & modelPar_cofssubm,
-bool modelPar_given_cofssubm,
-AdmsSensFadType & modelPar_cofgsubm,
-bool modelPar_given_cofgsubm,
-AdmsSensFadType & modelPar_rsh,
-bool modelPar_given_rsh,
-AdmsSensFadType & modelPar_rcs,
-bool modelPar_given_rcs,
-AdmsSensFadType & modelPar_rcd,
-bool modelPar_given_rcd,
-AdmsSensFadType & modelPar_vx0,
-bool modelPar_given_vx0,
-AdmsSensFadType & modelPar_mu0,
-bool modelPar_given_mu0,
-AdmsSensFadType & modelPar_beta,
-bool modelPar_given_beta,
-AdmsSensFadType & modelPar_vto,
-bool modelPar_given_vto,
-AdmsSensFadType & modelPar_ss,
-bool modelPar_given_ss,
-AdmsSensFadType & modelPar_delta1,
-bool modelPar_given_delta1,
-AdmsSensFadType & modelPar_delta2,
-bool modelPar_given_delta2,
-AdmsSensFadType & modelPar_dibsat,
-bool modelPar_given_dibsat,
-AdmsSensFadType & modelPar_nd,
-bool modelPar_given_nd,
-AdmsSensFadType & modelPar_alpha,
-bool modelPar_given_alpha,
-AdmsSensFadType & modelPar_lambda,
-bool modelPar_given_lambda,
-AdmsSensFadType & modelPar_vtheta,
-bool modelPar_given_vtheta,
-AdmsSensFadType & modelPar_mtheta,
-bool modelPar_given_mtheta,
-AdmsSensFadType & modelPar_vzeta,
-bool modelPar_given_vzeta,
-AdmsSensFadType & modelPar_vtzeta,
-bool modelPar_given_vtzeta,
-AdmsSensFadType & modelPar_epsilon,
-bool modelPar_given_epsilon,
-AdmsSensFadType & modelPar_rct1,
-bool modelPar_given_rct1,
-AdmsSensFadType & modelPar_rct2,
-bool modelPar_given_rct2,
-AdmsSensFadType & modelPar_lgs,
-bool modelPar_given_lgs,
-AdmsSensFadType & modelPar_vtors,
-bool modelPar_given_vtors,
-AdmsSensFadType & modelPar_cgrs,
-bool modelPar_given_cgrs,
-AdmsSensFadType & modelPar_vx0rs,
-bool modelPar_given_vx0rs,
-AdmsSensFadType & modelPar_mu0rs,
-bool modelPar_given_mu0rs,
-AdmsSensFadType & modelPar_betars,
-bool modelPar_given_betars,
-AdmsSensFadType & modelPar_delta1rs,
-bool modelPar_given_delta1rs,
-AdmsSensFadType & modelPar_srs,
-bool modelPar_given_srs,
-AdmsSensFadType & modelPar_ndrs,
-bool modelPar_given_ndrs,
-AdmsSensFadType & modelPar_vthetars,
-bool modelPar_given_vthetars,
-AdmsSensFadType & modelPar_mthetars,
-bool modelPar_given_mthetars,
-AdmsSensFadType & modelPar_alphars,
-bool modelPar_given_alphars,
-AdmsSensFadType & modelPar_lgd,
-bool modelPar_given_lgd,
-AdmsSensFadType & modelPar_vtord,
-bool modelPar_given_vtord,
-AdmsSensFadType & modelPar_cgrd,
-bool modelPar_given_cgrd,
-AdmsSensFadType & modelPar_vx0rd,
-bool modelPar_given_vx0rd,
-AdmsSensFadType & modelPar_mu0rd,
-bool modelPar_given_mu0rd,
-AdmsSensFadType & modelPar_betard,
-bool modelPar_given_betard,
-AdmsSensFadType & modelPar_delta1rd,
-bool modelPar_given_delta1rd,
-AdmsSensFadType & modelPar_srd,
-bool modelPar_given_srd,
-AdmsSensFadType & modelPar_ndrd,
-bool modelPar_given_ndrd,
-AdmsSensFadType & modelPar_vthetard,
-bool modelPar_given_vthetard,
-AdmsSensFadType & modelPar_mthetard,
-bool modelPar_given_mthetard,
-AdmsSensFadType & modelPar_alphard,
-bool modelPar_given_alphard,
-AdmsSensFadType & modelPar_lgfp1,
-bool modelPar_given_lgfp1,
-AdmsSensFadType & modelPar_vtofp1,
-bool modelPar_given_vtofp1,
-AdmsSensFadType & modelPar_cgfp1,
-bool modelPar_given_cgfp1,
-AdmsSensFadType & modelPar_cfp1s,
-bool modelPar_given_cfp1s,
-AdmsSensFadType & modelPar_ccfp1,
-bool modelPar_given_ccfp1,
-AdmsSensFadType & modelPar_cbfp1,
-bool modelPar_given_cbfp1,
-AdmsSensFadType & modelPar_vx0fp1,
-bool modelPar_given_vx0fp1,
-AdmsSensFadType & modelPar_mu0fp1,
-bool modelPar_given_mu0fp1,
-AdmsSensFadType & modelPar_betafp1,
-bool modelPar_given_betafp1,
-AdmsSensFadType & modelPar_delta1fp1,
-bool modelPar_given_delta1fp1,
-AdmsSensFadType & modelPar_sfp1,
-bool modelPar_given_sfp1,
-AdmsSensFadType & modelPar_ndfp1,
-bool modelPar_given_ndfp1,
-AdmsSensFadType & modelPar_vthetafp1,
-bool modelPar_given_vthetafp1,
-AdmsSensFadType & modelPar_mthetafp1,
-bool modelPar_given_mthetafp1,
-AdmsSensFadType & modelPar_alphafp1,
-bool modelPar_given_alphafp1,
-AdmsSensFadType & modelPar_lgfp2,
-bool modelPar_given_lgfp2,
-AdmsSensFadType & modelPar_vtofp2,
-bool modelPar_given_vtofp2,
-AdmsSensFadType & modelPar_cgfp2,
-bool modelPar_given_cgfp2,
-AdmsSensFadType & modelPar_cfp2s,
-bool modelPar_given_cfp2s,
-AdmsSensFadType & modelPar_ccfp2,
-bool modelPar_given_ccfp2,
-AdmsSensFadType & modelPar_cbfp2,
-bool modelPar_given_cbfp2,
-AdmsSensFadType & modelPar_vx0fp2,
-bool modelPar_given_vx0fp2,
-AdmsSensFadType & modelPar_mu0fp2,
-bool modelPar_given_mu0fp2,
-AdmsSensFadType & modelPar_betafp2,
-bool modelPar_given_betafp2,
-AdmsSensFadType & modelPar_delta1fp2,
-bool modelPar_given_delta1fp2,
-AdmsSensFadType & modelPar_sfp2,
-bool modelPar_given_sfp2,
-AdmsSensFadType & modelPar_ndfp2,
-bool modelPar_given_ndfp2,
-AdmsSensFadType & modelPar_vthetafp2,
-bool modelPar_given_vthetafp2,
-AdmsSensFadType & modelPar_mthetafp2,
-bool modelPar_given_mthetafp2,
-AdmsSensFadType & modelPar_alphafp2,
-bool modelPar_given_alphafp2,
-AdmsSensFadType & modelPar_lgfp3,
-bool modelPar_given_lgfp3,
-AdmsSensFadType & modelPar_vtofp3,
-bool modelPar_given_vtofp3,
-AdmsSensFadType & modelPar_cgfp3,
-bool modelPar_given_cgfp3,
-AdmsSensFadType & modelPar_cfp3s,
-bool modelPar_given_cfp3s,
-AdmsSensFadType & modelPar_ccfp3,
-bool modelPar_given_ccfp3,
-AdmsSensFadType & modelPar_cbfp3,
-bool modelPar_given_cbfp3,
-AdmsSensFadType & modelPar_vx0fp3,
-bool modelPar_given_vx0fp3,
-AdmsSensFadType & modelPar_mu0fp3,
-bool modelPar_given_mu0fp3,
-AdmsSensFadType & modelPar_betafp3,
-bool modelPar_given_betafp3,
-AdmsSensFadType & modelPar_delta1fp3,
-bool modelPar_given_delta1fp3,
-AdmsSensFadType & modelPar_sfp3,
-bool modelPar_given_sfp3,
-AdmsSensFadType & modelPar_ndfp3,
-bool modelPar_given_ndfp3,
-AdmsSensFadType & modelPar_vthetafp3,
-bool modelPar_given_vthetafp3,
-AdmsSensFadType & modelPar_mthetafp3,
-bool modelPar_given_mthetafp3,
-AdmsSensFadType & modelPar_alphafp3,
-bool modelPar_given_alphafp3,
-AdmsSensFadType & modelPar_lgfp4,
-bool modelPar_given_lgfp4,
-AdmsSensFadType & modelPar_vtofp4,
-bool modelPar_given_vtofp4,
-AdmsSensFadType & modelPar_cgfp4,
-bool modelPar_given_cgfp4,
-AdmsSensFadType & modelPar_cfp4s,
-bool modelPar_given_cfp4s,
-AdmsSensFadType & modelPar_ccfp4,
-bool modelPar_given_ccfp4,
-AdmsSensFadType & modelPar_cbfp4,
-bool modelPar_given_cbfp4,
-AdmsSensFadType & modelPar_vx0fp4,
-bool modelPar_given_vx0fp4,
-AdmsSensFadType & modelPar_mu0fp4,
-bool modelPar_given_mu0fp4,
-AdmsSensFadType & modelPar_betafp4,
-bool modelPar_given_betafp4,
-AdmsSensFadType & modelPar_delta1fp4,
-bool modelPar_given_delta1fp4,
-AdmsSensFadType & modelPar_sfp4,
-bool modelPar_given_sfp4,
-AdmsSensFadType & modelPar_ndfp4,
-bool modelPar_given_ndfp4,
-AdmsSensFadType & modelPar_vthetafp4,
-bool modelPar_given_vthetafp4,
-AdmsSensFadType & modelPar_mthetafp4,
-bool modelPar_given_mthetafp4,
-AdmsSensFadType & modelPar_alphafp4,
-bool modelPar_given_alphafp4,
-AdmsSensFadType & modelPar_rgsp,
-bool modelPar_given_rgsp,
-AdmsSensFadType & modelPar_vjg,
-bool modelPar_given_vjg,
-AdmsSensFadType & modelPar_pg_param1,
-bool modelPar_given_pg_param1,
-AdmsSensFadType & modelPar_pg_params,
-bool modelPar_given_pg_params,
-AdmsSensFadType & modelPar_ijs,
-bool modelPar_given_ijs,
-AdmsSensFadType & modelPar_vgsats,
-bool modelPar_given_vgsats,
-AdmsSensFadType & modelPar_fracs,
-bool modelPar_given_fracs,
-AdmsSensFadType & modelPar_alphags,
-bool modelPar_given_alphags,
-AdmsSensFadType & modelPar_pg_paramd,
-bool modelPar_given_pg_paramd,
-AdmsSensFadType & modelPar_ijd,
-bool modelPar_given_ijd,
-AdmsSensFadType & modelPar_vgsatd,
-bool modelPar_given_vgsatd,
-AdmsSensFadType & modelPar_fracd,
-bool modelPar_given_fracd,
-AdmsSensFadType & modelPar_alphagd,
-bool modelPar_given_alphagd,
-AdmsSensFadType & modelPar_pgsrecs,
-bool modelPar_given_pgsrecs,
-AdmsSensFadType & modelPar_irecs,
-bool modelPar_given_irecs,
-AdmsSensFadType & modelPar_vgsatqs,
-bool modelPar_given_vgsatqs,
-AdmsSensFadType & modelPar_vbdgs,
-bool modelPar_given_vbdgs,
-AdmsSensFadType & modelPar_pbdgs,
-bool modelPar_given_pbdgs,
-AdmsSensFadType & modelPar_betarecs,
-bool modelPar_given_betarecs,
-AdmsSensFadType & modelPar_kbdgates,
-bool modelPar_given_kbdgates,
-AdmsSensFadType & modelPar_pgsrecd,
-bool modelPar_given_pgsrecd,
-AdmsSensFadType & modelPar_irecd,
-bool modelPar_given_irecd,
-AdmsSensFadType & modelPar_vgsatqd,
-bool modelPar_given_vgsatqd,
-AdmsSensFadType & modelPar_vbdgd,
-bool modelPar_given_vbdgd,
-AdmsSensFadType & modelPar_pbdgd,
-bool modelPar_given_pbdgd,
-AdmsSensFadType & modelPar_betarecd,
-bool modelPar_given_betarecd,
-AdmsSensFadType & modelPar_kbdgated,
-bool modelPar_given_kbdgated,
-AdmsSensFadType & modelPar_rth,
-bool modelPar_given_rth,
-AdmsSensFadType & modelPar_cth,
-bool modelPar_given_cth,
-AdmsSensFadType & modelPar_taugmrf,
-bool modelPar_given_taugmrf,
-AdmsSensFadType & modelPar_ctrap,
-bool modelPar_given_ctrap,
-AdmsSensFadType & modelPar_vttrap,
-bool modelPar_given_vttrap,
-AdmsSensFadType & modelPar_taut,
-bool modelPar_given_taut,
-AdmsSensFadType & modelPar_alphat1,
-bool modelPar_given_alphat1,
-AdmsSensFadType & modelPar_alphat2,
-bool modelPar_given_alphat2,
-AdmsSensFadType & modelPar_tempt,
-bool modelPar_given_tempt,
-AdmsSensFadType & modelPar_shs,
-bool modelPar_given_shs,
-AdmsSensFadType & modelPar_shd,
-bool modelPar_given_shd,
-AdmsSensFadType & modelPar_kf,
-bool modelPar_given_kf,
-AdmsSensFadType & modelPar_af,
-bool modelPar_given_af,
-AdmsSensFadType & modelPar_ffe,
-bool modelPar_given_ffe,
-AdmsSensFadType & modelPar_minr,
-bool modelPar_given_minr,
-AdmsSensFadType & modelPar_minl,
-bool modelPar_given_minl,
-AdmsSensFadType & modelPar_minc,
-bool modelPar_given_minc,
-AdmsSensFadType & modelPar_LMIN,
-bool modelPar_given_LMIN,
-AdmsSensFadType & modelPar_WMIN,
-bool modelPar_given_WMIN,
-AdmsSensFadType & modelPar_LMAX,
-bool modelPar_given_LMAX,
-AdmsSensFadType & modelPar_WMAX,
-bool modelPar_given_WMAX,
-// non-reals (including hidden)
-int modelPar_type,
-bool modelPar_given_type,
-int modelPar_flagres,
-bool modelPar_given_flagres,
-int modelPar_flagfp1,
-bool modelPar_given_flagfp1,
-int modelPar_flagfp1s,
-bool modelPar_given_flagfp1s,
-int modelPar_flagfp2,
-bool modelPar_given_flagfp2,
-int modelPar_flagfp2s,
-bool modelPar_given_flagfp2s,
-int modelPar_flagfp3,
-bool modelPar_given_flagfp3,
-int modelPar_flagfp3s,
-bool modelPar_given_flagfp3s,
-int modelPar_flagfp4,
-bool modelPar_given_flagfp4,
-int modelPar_flagfp4s,
-bool modelPar_given_flagfp4s,
-int modelPar_igmod,
-bool modelPar_given_igmod,
-int modelPar_gmdisp,
-bool modelPar_given_gmdisp,
-int modelPar_trapselect,
-bool modelPar_given_trapselect,
-int modelPar_noisemod,
-bool modelPar_given_noisemod,
+modelSensStruct & modelStruct,
  double admsTemperature, double ADMSgmin_arg, const Instance & theInstance)
 {
 }
@@ -27527,986 +26771,817 @@ const int admsNodeID_tr1,
 const int admsNodeID_xt1,
 const int admsNodeID_xt2,
 const int admsNodeID_dt,
-// instance parameters
-// reals
-AdmsSensFadType & instancePar_w,
-bool instancePar_given_w,
-AdmsSensFadType & instancePar_l,
-bool instancePar_given_l,
-AdmsSensFadType & instancePar_dtemp,
-bool instancePar_given_dtemp,
-// non-reals(including hidden)
-int instancePar_ngf,
-bool instancePar_given_ngf,
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_rcs_w,
-AdmsSensFadType & instanceVar_rcd_w,
-AdmsSensFadType & instanceVar_rg,
-double & instanceVar_vgisi,
-double & instanceVar_vdisi,
-AdmsSensFadType & instanceVar_vti,
-AdmsSensFadType & instanceVar_vdsati,
-AdmsSensFadType & instanceVar_pdc,
-AdmsSensFadType & instanceVar_idisi,
-AdmsSensFadType & instanceVar_igs,
-AdmsSensFadType & instanceVar_igd,
-AdmsSensFadType & instanceVar_qgi,
-AdmsSensFadType & instanceVar_qdi,
-AdmsSensFadType & instanceVar_qsi,
-double & instanceVar_qbi,
-AdmsSensFadType & instanceVar_gmi,
-AdmsSensFadType & instanceVar_gdsi,
-AdmsSensFadType & instanceVar_gmbsi,
-AdmsSensFadType & instanceVar_cggi,
-AdmsSensFadType & instanceVar_cgdi,
-AdmsSensFadType & instanceVar_cgsi,
-AdmsSensFadType & instanceVar_cgbi,
-AdmsSensFadType & instanceVar_cdgi,
-AdmsSensFadType & instanceVar_cddi,
-AdmsSensFadType & instanceVar_cdsi,
-AdmsSensFadType & instanceVar_cdbi,
-AdmsSensFadType & instanceVar_csgi,
-AdmsSensFadType & instanceVar_csdi,
-AdmsSensFadType & instanceVar_cssi,
-AdmsSensFadType & instanceVar_csbi,
-double & instanceVar_cbgi,
-double & instanceVar_cbdi,
-double & instanceVar_cbsi,
-double & instanceVar_cbbi,
-AdmsSensFadType & instanceVar_cgs,
-AdmsSensFadType & instanceVar_cgd,
-AdmsSensFadType & instanceVar_t_total_k,
-AdmsSensFadType & instanceVar_t_total_c,
-double & instanceVar_t_delta_sh,
-AdmsSensFadType & instanceVar_rs,
-AdmsSensFadType & instanceVar_rd,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_version,
-bool modelPar_given_version,
-AdmsSensFadType & modelPar_tnom,
-bool modelPar_given_tnom,
-AdmsSensFadType & modelPar_cg,
-bool modelPar_given_cg,
-AdmsSensFadType & modelPar_cofsm,
-bool modelPar_given_cofsm,
-AdmsSensFadType & modelPar_cofdm,
-bool modelPar_given_cofdm,
-AdmsSensFadType & modelPar_cofdsm,
-bool modelPar_given_cofdsm,
-AdmsSensFadType & modelPar_cofdsubm,
-bool modelPar_given_cofdsubm,
-AdmsSensFadType & modelPar_cofssubm,
-bool modelPar_given_cofssubm,
-AdmsSensFadType & modelPar_cofgsubm,
-bool modelPar_given_cofgsubm,
-AdmsSensFadType & modelPar_rsh,
-bool modelPar_given_rsh,
-AdmsSensFadType & modelPar_rcs,
-bool modelPar_given_rcs,
-AdmsSensFadType & modelPar_rcd,
-bool modelPar_given_rcd,
-AdmsSensFadType & modelPar_vx0,
-bool modelPar_given_vx0,
-AdmsSensFadType & modelPar_mu0,
-bool modelPar_given_mu0,
-AdmsSensFadType & modelPar_beta,
-bool modelPar_given_beta,
-AdmsSensFadType & modelPar_vto,
-bool modelPar_given_vto,
-AdmsSensFadType & modelPar_ss,
-bool modelPar_given_ss,
-AdmsSensFadType & modelPar_delta1,
-bool modelPar_given_delta1,
-AdmsSensFadType & modelPar_delta2,
-bool modelPar_given_delta2,
-AdmsSensFadType & modelPar_dibsat,
-bool modelPar_given_dibsat,
-AdmsSensFadType & modelPar_nd,
-bool modelPar_given_nd,
-AdmsSensFadType & modelPar_alpha,
-bool modelPar_given_alpha,
-AdmsSensFadType & modelPar_lambda,
-bool modelPar_given_lambda,
-AdmsSensFadType & modelPar_vtheta,
-bool modelPar_given_vtheta,
-AdmsSensFadType & modelPar_mtheta,
-bool modelPar_given_mtheta,
-AdmsSensFadType & modelPar_vzeta,
-bool modelPar_given_vzeta,
-AdmsSensFadType & modelPar_vtzeta,
-bool modelPar_given_vtzeta,
-AdmsSensFadType & modelPar_epsilon,
-bool modelPar_given_epsilon,
-AdmsSensFadType & modelPar_rct1,
-bool modelPar_given_rct1,
-AdmsSensFadType & modelPar_rct2,
-bool modelPar_given_rct2,
-AdmsSensFadType & modelPar_lgs,
-bool modelPar_given_lgs,
-AdmsSensFadType & modelPar_vtors,
-bool modelPar_given_vtors,
-AdmsSensFadType & modelPar_cgrs,
-bool modelPar_given_cgrs,
-AdmsSensFadType & modelPar_vx0rs,
-bool modelPar_given_vx0rs,
-AdmsSensFadType & modelPar_mu0rs,
-bool modelPar_given_mu0rs,
-AdmsSensFadType & modelPar_betars,
-bool modelPar_given_betars,
-AdmsSensFadType & modelPar_delta1rs,
-bool modelPar_given_delta1rs,
-AdmsSensFadType & modelPar_srs,
-bool modelPar_given_srs,
-AdmsSensFadType & modelPar_ndrs,
-bool modelPar_given_ndrs,
-AdmsSensFadType & modelPar_vthetars,
-bool modelPar_given_vthetars,
-AdmsSensFadType & modelPar_mthetars,
-bool modelPar_given_mthetars,
-AdmsSensFadType & modelPar_alphars,
-bool modelPar_given_alphars,
-AdmsSensFadType & modelPar_lgd,
-bool modelPar_given_lgd,
-AdmsSensFadType & modelPar_vtord,
-bool modelPar_given_vtord,
-AdmsSensFadType & modelPar_cgrd,
-bool modelPar_given_cgrd,
-AdmsSensFadType & modelPar_vx0rd,
-bool modelPar_given_vx0rd,
-AdmsSensFadType & modelPar_mu0rd,
-bool modelPar_given_mu0rd,
-AdmsSensFadType & modelPar_betard,
-bool modelPar_given_betard,
-AdmsSensFadType & modelPar_delta1rd,
-bool modelPar_given_delta1rd,
-AdmsSensFadType & modelPar_srd,
-bool modelPar_given_srd,
-AdmsSensFadType & modelPar_ndrd,
-bool modelPar_given_ndrd,
-AdmsSensFadType & modelPar_vthetard,
-bool modelPar_given_vthetard,
-AdmsSensFadType & modelPar_mthetard,
-bool modelPar_given_mthetard,
-AdmsSensFadType & modelPar_alphard,
-bool modelPar_given_alphard,
-AdmsSensFadType & modelPar_lgfp1,
-bool modelPar_given_lgfp1,
-AdmsSensFadType & modelPar_vtofp1,
-bool modelPar_given_vtofp1,
-AdmsSensFadType & modelPar_cgfp1,
-bool modelPar_given_cgfp1,
-AdmsSensFadType & modelPar_cfp1s,
-bool modelPar_given_cfp1s,
-AdmsSensFadType & modelPar_ccfp1,
-bool modelPar_given_ccfp1,
-AdmsSensFadType & modelPar_cbfp1,
-bool modelPar_given_cbfp1,
-AdmsSensFadType & modelPar_vx0fp1,
-bool modelPar_given_vx0fp1,
-AdmsSensFadType & modelPar_mu0fp1,
-bool modelPar_given_mu0fp1,
-AdmsSensFadType & modelPar_betafp1,
-bool modelPar_given_betafp1,
-AdmsSensFadType & modelPar_delta1fp1,
-bool modelPar_given_delta1fp1,
-AdmsSensFadType & modelPar_sfp1,
-bool modelPar_given_sfp1,
-AdmsSensFadType & modelPar_ndfp1,
-bool modelPar_given_ndfp1,
-AdmsSensFadType & modelPar_vthetafp1,
-bool modelPar_given_vthetafp1,
-AdmsSensFadType & modelPar_mthetafp1,
-bool modelPar_given_mthetafp1,
-AdmsSensFadType & modelPar_alphafp1,
-bool modelPar_given_alphafp1,
-AdmsSensFadType & modelPar_lgfp2,
-bool modelPar_given_lgfp2,
-AdmsSensFadType & modelPar_vtofp2,
-bool modelPar_given_vtofp2,
-AdmsSensFadType & modelPar_cgfp2,
-bool modelPar_given_cgfp2,
-AdmsSensFadType & modelPar_cfp2s,
-bool modelPar_given_cfp2s,
-AdmsSensFadType & modelPar_ccfp2,
-bool modelPar_given_ccfp2,
-AdmsSensFadType & modelPar_cbfp2,
-bool modelPar_given_cbfp2,
-AdmsSensFadType & modelPar_vx0fp2,
-bool modelPar_given_vx0fp2,
-AdmsSensFadType & modelPar_mu0fp2,
-bool modelPar_given_mu0fp2,
-AdmsSensFadType & modelPar_betafp2,
-bool modelPar_given_betafp2,
-AdmsSensFadType & modelPar_delta1fp2,
-bool modelPar_given_delta1fp2,
-AdmsSensFadType & modelPar_sfp2,
-bool modelPar_given_sfp2,
-AdmsSensFadType & modelPar_ndfp2,
-bool modelPar_given_ndfp2,
-AdmsSensFadType & modelPar_vthetafp2,
-bool modelPar_given_vthetafp2,
-AdmsSensFadType & modelPar_mthetafp2,
-bool modelPar_given_mthetafp2,
-AdmsSensFadType & modelPar_alphafp2,
-bool modelPar_given_alphafp2,
-AdmsSensFadType & modelPar_lgfp3,
-bool modelPar_given_lgfp3,
-AdmsSensFadType & modelPar_vtofp3,
-bool modelPar_given_vtofp3,
-AdmsSensFadType & modelPar_cgfp3,
-bool modelPar_given_cgfp3,
-AdmsSensFadType & modelPar_cfp3s,
-bool modelPar_given_cfp3s,
-AdmsSensFadType & modelPar_ccfp3,
-bool modelPar_given_ccfp3,
-AdmsSensFadType & modelPar_cbfp3,
-bool modelPar_given_cbfp3,
-AdmsSensFadType & modelPar_vx0fp3,
-bool modelPar_given_vx0fp3,
-AdmsSensFadType & modelPar_mu0fp3,
-bool modelPar_given_mu0fp3,
-AdmsSensFadType & modelPar_betafp3,
-bool modelPar_given_betafp3,
-AdmsSensFadType & modelPar_delta1fp3,
-bool modelPar_given_delta1fp3,
-AdmsSensFadType & modelPar_sfp3,
-bool modelPar_given_sfp3,
-AdmsSensFadType & modelPar_ndfp3,
-bool modelPar_given_ndfp3,
-AdmsSensFadType & modelPar_vthetafp3,
-bool modelPar_given_vthetafp3,
-AdmsSensFadType & modelPar_mthetafp3,
-bool modelPar_given_mthetafp3,
-AdmsSensFadType & modelPar_alphafp3,
-bool modelPar_given_alphafp3,
-AdmsSensFadType & modelPar_lgfp4,
-bool modelPar_given_lgfp4,
-AdmsSensFadType & modelPar_vtofp4,
-bool modelPar_given_vtofp4,
-AdmsSensFadType & modelPar_cgfp4,
-bool modelPar_given_cgfp4,
-AdmsSensFadType & modelPar_cfp4s,
-bool modelPar_given_cfp4s,
-AdmsSensFadType & modelPar_ccfp4,
-bool modelPar_given_ccfp4,
-AdmsSensFadType & modelPar_cbfp4,
-bool modelPar_given_cbfp4,
-AdmsSensFadType & modelPar_vx0fp4,
-bool modelPar_given_vx0fp4,
-AdmsSensFadType & modelPar_mu0fp4,
-bool modelPar_given_mu0fp4,
-AdmsSensFadType & modelPar_betafp4,
-bool modelPar_given_betafp4,
-AdmsSensFadType & modelPar_delta1fp4,
-bool modelPar_given_delta1fp4,
-AdmsSensFadType & modelPar_sfp4,
-bool modelPar_given_sfp4,
-AdmsSensFadType & modelPar_ndfp4,
-bool modelPar_given_ndfp4,
-AdmsSensFadType & modelPar_vthetafp4,
-bool modelPar_given_vthetafp4,
-AdmsSensFadType & modelPar_mthetafp4,
-bool modelPar_given_mthetafp4,
-AdmsSensFadType & modelPar_alphafp4,
-bool modelPar_given_alphafp4,
-AdmsSensFadType & modelPar_rgsp,
-bool modelPar_given_rgsp,
-AdmsSensFadType & modelPar_vjg,
-bool modelPar_given_vjg,
-AdmsSensFadType & modelPar_pg_param1,
-bool modelPar_given_pg_param1,
-AdmsSensFadType & modelPar_pg_params,
-bool modelPar_given_pg_params,
-AdmsSensFadType & modelPar_ijs,
-bool modelPar_given_ijs,
-AdmsSensFadType & modelPar_vgsats,
-bool modelPar_given_vgsats,
-AdmsSensFadType & modelPar_fracs,
-bool modelPar_given_fracs,
-AdmsSensFadType & modelPar_alphags,
-bool modelPar_given_alphags,
-AdmsSensFadType & modelPar_pg_paramd,
-bool modelPar_given_pg_paramd,
-AdmsSensFadType & modelPar_ijd,
-bool modelPar_given_ijd,
-AdmsSensFadType & modelPar_vgsatd,
-bool modelPar_given_vgsatd,
-AdmsSensFadType & modelPar_fracd,
-bool modelPar_given_fracd,
-AdmsSensFadType & modelPar_alphagd,
-bool modelPar_given_alphagd,
-AdmsSensFadType & modelPar_pgsrecs,
-bool modelPar_given_pgsrecs,
-AdmsSensFadType & modelPar_irecs,
-bool modelPar_given_irecs,
-AdmsSensFadType & modelPar_vgsatqs,
-bool modelPar_given_vgsatqs,
-AdmsSensFadType & modelPar_vbdgs,
-bool modelPar_given_vbdgs,
-AdmsSensFadType & modelPar_pbdgs,
-bool modelPar_given_pbdgs,
-AdmsSensFadType & modelPar_betarecs,
-bool modelPar_given_betarecs,
-AdmsSensFadType & modelPar_kbdgates,
-bool modelPar_given_kbdgates,
-AdmsSensFadType & modelPar_pgsrecd,
-bool modelPar_given_pgsrecd,
-AdmsSensFadType & modelPar_irecd,
-bool modelPar_given_irecd,
-AdmsSensFadType & modelPar_vgsatqd,
-bool modelPar_given_vgsatqd,
-AdmsSensFadType & modelPar_vbdgd,
-bool modelPar_given_vbdgd,
-AdmsSensFadType & modelPar_pbdgd,
-bool modelPar_given_pbdgd,
-AdmsSensFadType & modelPar_betarecd,
-bool modelPar_given_betarecd,
-AdmsSensFadType & modelPar_kbdgated,
-bool modelPar_given_kbdgated,
-AdmsSensFadType & modelPar_rth,
-bool modelPar_given_rth,
-AdmsSensFadType & modelPar_cth,
-bool modelPar_given_cth,
-AdmsSensFadType & modelPar_taugmrf,
-bool modelPar_given_taugmrf,
-AdmsSensFadType & modelPar_ctrap,
-bool modelPar_given_ctrap,
-AdmsSensFadType & modelPar_vttrap,
-bool modelPar_given_vttrap,
-AdmsSensFadType & modelPar_taut,
-bool modelPar_given_taut,
-AdmsSensFadType & modelPar_alphat1,
-bool modelPar_given_alphat1,
-AdmsSensFadType & modelPar_alphat2,
-bool modelPar_given_alphat2,
-AdmsSensFadType & modelPar_tempt,
-bool modelPar_given_tempt,
-AdmsSensFadType & modelPar_shs,
-bool modelPar_given_shs,
-AdmsSensFadType & modelPar_shd,
-bool modelPar_given_shd,
-AdmsSensFadType & modelPar_kf,
-bool modelPar_given_kf,
-AdmsSensFadType & modelPar_af,
-bool modelPar_given_af,
-AdmsSensFadType & modelPar_ffe,
-bool modelPar_given_ffe,
-AdmsSensFadType & modelPar_minr,
-bool modelPar_given_minr,
-AdmsSensFadType & modelPar_minl,
-bool modelPar_given_minl,
-AdmsSensFadType & modelPar_minc,
-bool modelPar_given_minc,
-AdmsSensFadType & modelPar_LMIN,
-bool modelPar_given_LMIN,
-AdmsSensFadType & modelPar_WMIN,
-bool modelPar_given_WMIN,
-AdmsSensFadType & modelPar_LMAX,
-bool modelPar_given_LMAX,
-AdmsSensFadType & modelPar_WMAX,
-bool modelPar_given_WMAX,
-// non-reals (including hidden)
-int modelPar_type,
-bool modelPar_given_type,
-int modelPar_flagres,
-bool modelPar_given_flagres,
-int modelPar_flagfp1,
-bool modelPar_given_flagfp1,
-int modelPar_flagfp1s,
-bool modelPar_given_flagfp1s,
-int modelPar_flagfp2,
-bool modelPar_given_flagfp2,
-int modelPar_flagfp2s,
-bool modelPar_given_flagfp2s,
-int modelPar_flagfp3,
-bool modelPar_given_flagfp3,
-int modelPar_flagfp3s,
-bool modelPar_given_flagfp3s,
-int modelPar_flagfp4,
-bool modelPar_given_flagfp4,
-int modelPar_flagfp4s,
-bool modelPar_given_flagfp4s,
-int modelPar_igmod,
-bool modelPar_given_igmod,
-int modelPar_gmdisp,
-bool modelPar_given_gmdisp,
-int modelPar_trapselect,
-bool modelPar_given_trapselect,
-int modelPar_noisemod,
-bool modelPar_given_noisemod,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
 // basic variables
- double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance)
+ double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & d_staticContributions_dX, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance)
 {
 
   // Local variables
-  AdmsSensFadType pdiss;
-  double svc;
-  double gm;
-  AdmsSensFadType qofgsub;
-  AdmsSensFadType qofssub;
-  AdmsSensFadType qofdsub;
-  AdmsSensFadType qofds;
-  AdmsSensFadType qofd;
-  AdmsSensFadType qofs;
-  AdmsSensFadType igdrec;
-  AdmsSensFadType igsrec;
-  AdmsSensFadType igdsdio;
-  AdmsSensFadType igssdio;
-  AdmsSensFadType igdi;
-  AdmsSensFadType igsi;
-  double idsrf;
-  AdmsSensFadType vdsat1i;
-  AdmsSensFadType vtdibli;
-  AdmsSensFadType qs;
-  AdmsSensFadType qb;
-  AdmsSensFadType qc;
-  AdmsSensFadType qgd;
-  AdmsSensFadType qgs;
-  AdmsSensFadType ids;
-  AdmsSensFadType vdsatrd;
-  AdmsSensFadType vtdiblrd;
-  AdmsSensFadType qsrd;
-  AdmsSensFadType qbrd;
-  AdmsSensFadType qcrd;
-  AdmsSensFadType qgdrd;
-  AdmsSensFadType qgsrd;
-  AdmsSensFadType idsrd;
-  AdmsSensFadType vdsatrs;
-  AdmsSensFadType vtdiblrs;
-  AdmsSensFadType qsrs;
-  AdmsSensFadType qbrs;
-  AdmsSensFadType qcrs;
-  AdmsSensFadType qgdrs;
-  AdmsSensFadType qgsrs;
-  AdmsSensFadType idsrs;
-  AdmsSensFadType vdsatfp1;
-  AdmsSensFadType vtdiblfp1;
-  AdmsSensFadType qsfp1;
-  AdmsSensFadType qbfp1;
-  AdmsSensFadType qcfp1;
-  AdmsSensFadType qgdfp1;
-  AdmsSensFadType qgsfp1;
-  AdmsSensFadType idsfp1;
-  AdmsSensFadType vdsatfp2;
-  AdmsSensFadType vtdiblfp2;
-  AdmsSensFadType qsfp2;
-  AdmsSensFadType qbfp2;
-  AdmsSensFadType qcfp2;
-  AdmsSensFadType qgdfp2;
-  AdmsSensFadType qgsfp2;
-  AdmsSensFadType idsfp2;
-  AdmsSensFadType vdsatfp3;
-  AdmsSensFadType vtdiblfp3;
-  AdmsSensFadType qsfp3;
-  AdmsSensFadType qbfp3;
-  AdmsSensFadType qcfp3;
-  AdmsSensFadType qgdfp3;
-  AdmsSensFadType qgsfp3;
-  AdmsSensFadType idsfp3;
-  AdmsSensFadType vdsatfp4;
-  AdmsSensFadType vtdiblfp4;
-  AdmsSensFadType qsfp4;
-  AdmsSensFadType qbfp4;
-  AdmsSensFadType qcfp4;
-  AdmsSensFadType qgdfp4;
-  AdmsSensFadType qgsfp4;
-  AdmsSensFadType idsfp4;
-  AdmsSensFadType vbfp4;
-  AdmsSensFadType vdsfp4;
-  AdmsSensFadType vcfp4;
-  AdmsSensFadType vgsfp4;
-  AdmsSensFadType vbfp3;
-  AdmsSensFadType vdsfp3;
-  AdmsSensFadType vcfp3;
-  AdmsSensFadType vgsfp3;
-  AdmsSensFadType vbfp2;
-  AdmsSensFadType vdsfp2;
-  AdmsSensFadType vcfp2;
-  AdmsSensFadType vgsfp2;
-  AdmsSensFadType vbfp1;
-  AdmsSensFadType vdsfp1;
-  AdmsSensFadType vcfp1;
-  AdmsSensFadType vgsfp1;
-  AdmsSensFadType vgsrd;
-  AdmsSensFadType vdsrd;
-  AdmsSensFadType vigd;
-  AdmsSensFadType vdars;
-  AdmsSensFadType drsht;
-  double vtcollapse;
-  AdmsSensFadType vtcollapse0;
-  AdmsSensFadType vgsrs;
-  AdmsSensFadType vdsrs;
-  AdmsSensFadType vigs;
-  AdmsSensFadType vsars;
-  AdmsSensFadType vgsi;
-  AdmsSensFadType vdsi;
-  AdmsSensFadType ttrapfac;
-  AdmsSensFadType phit;
-  AdmsSensFadType rdi;
-  AdmsSensFadType rsi;
-  AdmsSensFadType tdut;
-  double tsh;
-  double tambk;
-  AdmsSensFadType tnomk;
-  double gmin;
+  double pdiss=0.0;
+double d_pdiss_dX=0.0;
+  double svc=0.0;
+  double gm=0.0;
+  double qofgsub=0.0;
+double d_qofgsub_dX=0.0;
+  double qofssub=0.0;
+double d_qofssub_dX=0.0;
+  double qofdsub=0.0;
+double d_qofdsub_dX=0.0;
+  double qofds=0.0;
+double d_qofds_dX=0.0;
+  double qofd=0.0;
+double d_qofd_dX=0.0;
+  double qofs=0.0;
+double d_qofs_dX=0.0;
+  double igdrec=0.0;
+double d_igdrec_dX=0.0;
+  double igsrec=0.0;
+double d_igsrec_dX=0.0;
+  double igdsdio=0.0;
+double d_igdsdio_dX=0.0;
+  double igssdio=0.0;
+double d_igssdio_dX=0.0;
+  double igdi=0.0;
+double d_igdi_dX=0.0;
+  double igsi=0.0;
+double d_igsi_dX=0.0;
+  double idsrf=0.0;
+  double vdsat1i=0.0;
+double d_vdsat1i_dX=0.0;
+  double vtdibli=0.0;
+double d_vtdibli_dX=0.0;
+  double qs=0.0;
+double d_qs_dX=0.0;
+  double qb=0.0;
+double d_qb_dX=0.0;
+  double qc=0.0;
+double d_qc_dX=0.0;
+  double qgd=0.0;
+double d_qgd_dX=0.0;
+  double qgs=0.0;
+double d_qgs_dX=0.0;
+  double ids=0.0;
+double d_ids_dX=0.0;
+  double vdsatrd=0.0;
+double d_vdsatrd_dX=0.0;
+  double vtdiblrd=0.0;
+double d_vtdiblrd_dX=0.0;
+  double qsrd=0.0;
+double d_qsrd_dX=0.0;
+  double qbrd=0.0;
+double d_qbrd_dX=0.0;
+  double qcrd=0.0;
+double d_qcrd_dX=0.0;
+  double qgdrd=0.0;
+double d_qgdrd_dX=0.0;
+  double qgsrd=0.0;
+double d_qgsrd_dX=0.0;
+  double idsrd=0.0;
+double d_idsrd_dX=0.0;
+  double vdsatrs=0.0;
+double d_vdsatrs_dX=0.0;
+  double vtdiblrs=0.0;
+double d_vtdiblrs_dX=0.0;
+  double qsrs=0.0;
+double d_qsrs_dX=0.0;
+  double qbrs=0.0;
+double d_qbrs_dX=0.0;
+  double qcrs=0.0;
+double d_qcrs_dX=0.0;
+  double qgdrs=0.0;
+double d_qgdrs_dX=0.0;
+  double qgsrs=0.0;
+double d_qgsrs_dX=0.0;
+  double idsrs=0.0;
+double d_idsrs_dX=0.0;
+  double vdsatfp1=0.0;
+double d_vdsatfp1_dX=0.0;
+  double vtdiblfp1=0.0;
+double d_vtdiblfp1_dX=0.0;
+  double qsfp1=0.0;
+double d_qsfp1_dX=0.0;
+  double qbfp1=0.0;
+double d_qbfp1_dX=0.0;
+  double qcfp1=0.0;
+double d_qcfp1_dX=0.0;
+  double qgdfp1=0.0;
+double d_qgdfp1_dX=0.0;
+  double qgsfp1=0.0;
+double d_qgsfp1_dX=0.0;
+  double idsfp1=0.0;
+double d_idsfp1_dX=0.0;
+  double vdsatfp2=0.0;
+double d_vdsatfp2_dX=0.0;
+  double vtdiblfp2=0.0;
+double d_vtdiblfp2_dX=0.0;
+  double qsfp2=0.0;
+double d_qsfp2_dX=0.0;
+  double qbfp2=0.0;
+double d_qbfp2_dX=0.0;
+  double qcfp2=0.0;
+double d_qcfp2_dX=0.0;
+  double qgdfp2=0.0;
+double d_qgdfp2_dX=0.0;
+  double qgsfp2=0.0;
+double d_qgsfp2_dX=0.0;
+  double idsfp2=0.0;
+double d_idsfp2_dX=0.0;
+  double vdsatfp3=0.0;
+double d_vdsatfp3_dX=0.0;
+  double vtdiblfp3=0.0;
+double d_vtdiblfp3_dX=0.0;
+  double qsfp3=0.0;
+double d_qsfp3_dX=0.0;
+  double qbfp3=0.0;
+double d_qbfp3_dX=0.0;
+  double qcfp3=0.0;
+double d_qcfp3_dX=0.0;
+  double qgdfp3=0.0;
+double d_qgdfp3_dX=0.0;
+  double qgsfp3=0.0;
+double d_qgsfp3_dX=0.0;
+  double idsfp3=0.0;
+double d_idsfp3_dX=0.0;
+  double vdsatfp4=0.0;
+double d_vdsatfp4_dX=0.0;
+  double vtdiblfp4=0.0;
+double d_vtdiblfp4_dX=0.0;
+  double qsfp4=0.0;
+double d_qsfp4_dX=0.0;
+  double qbfp4=0.0;
+double d_qbfp4_dX=0.0;
+  double qcfp4=0.0;
+double d_qcfp4_dX=0.0;
+  double qgdfp4=0.0;
+double d_qgdfp4_dX=0.0;
+  double qgsfp4=0.0;
+double d_qgsfp4_dX=0.0;
+  double idsfp4=0.0;
+double d_idsfp4_dX=0.0;
+  double vbfp4=0.0;
+double d_vbfp4_dX=0.0;
+  double vdsfp4=0.0;
+double d_vdsfp4_dX=0.0;
+  double vcfp4=0.0;
+double d_vcfp4_dX=0.0;
+  double vgsfp4=0.0;
+double d_vgsfp4_dX=0.0;
+  double vbfp3=0.0;
+double d_vbfp3_dX=0.0;
+  double vdsfp3=0.0;
+double d_vdsfp3_dX=0.0;
+  double vcfp3=0.0;
+double d_vcfp3_dX=0.0;
+  double vgsfp3=0.0;
+double d_vgsfp3_dX=0.0;
+  double vbfp2=0.0;
+double d_vbfp2_dX=0.0;
+  double vdsfp2=0.0;
+double d_vdsfp2_dX=0.0;
+  double vcfp2=0.0;
+double d_vcfp2_dX=0.0;
+  double vgsfp2=0.0;
+double d_vgsfp2_dX=0.0;
+  double vbfp1=0.0;
+double d_vbfp1_dX=0.0;
+  double vdsfp1=0.0;
+double d_vdsfp1_dX=0.0;
+  double vcfp1=0.0;
+double d_vcfp1_dX=0.0;
+  double vgsfp1=0.0;
+double d_vgsfp1_dX=0.0;
+  double vgsrd=0.0;
+double d_vgsrd_dX=0.0;
+  double vdsrd=0.0;
+double d_vdsrd_dX=0.0;
+  double vigd=0.0;
+double d_vigd_dX=0.0;
+  double vdars=0.0;
+double d_vdars_dX=0.0;
+  double drsht=0.0;
+double d_drsht_dX=0.0;
+  double vtcollapse=0.0;
+  double vtcollapse0=0.0;
+double d_vtcollapse0_dX=0.0;
+  double vgsrs=0.0;
+double d_vgsrs_dX=0.0;
+  double vdsrs=0.0;
+double d_vdsrs_dX=0.0;
+  double vigs=0.0;
+double d_vigs_dX=0.0;
+  double vsars=0.0;
+double d_vsars_dX=0.0;
+  double vgsi=0.0;
+double d_vgsi_dX=0.0;
+  double vdsi=0.0;
+double d_vdsi_dX=0.0;
+  double ttrapfac=0.0;
+double d_ttrapfac_dX=0.0;
+  double phit=0.0;
+double d_phit_dX=0.0;
+  double rdi=0.0;
+double d_rdi_dX=0.0;
+  double rsi=0.0;
+double d_rsi_dX=0.0;
+  double tdut=0.0;
+double d_tdut_dX=0.0;
+  double tsh=0.0;
+  double tambk=0.0;
+  double tnomk=0.0;
+double d_tnomk_dX=0.0;
+  double gmin=0.0;
 
 
   // -- code converted from analog/code block
 gmin = ADMSgmin_arg;
-tnomk = (modelPar_tnom+273.15);
+d_tnomk_dX = modelStruct.d_modelPar_tnom_dX;
+tnomk = (modelStruct.modelPar_tnom+273.15);
 tambk = admsTemperature;
 tsh = (probeVars[admsProbeID_Temp_dt_GND]);
-tdut = ((tambk+instancePar_dtemp)+tsh);
+d_tdut_dX = instanceStruct.d_instancePar_dtemp_dX;
+tdut = ((tambk+instanceStruct.instancePar_dtemp)+tsh);
 if ((tdut<((-270.0)+273.15)))
 {
+d_tdut_dX = 0.0;
 tdut = ((-270.0)+273.15);
 }
 else
 {
 if ((tdut>(1500+273.15)))
 {
+d_tdut_dX = 0.0;
 tdut = (1500+273.15);
 }
 }
+d_rsi_dX = 0.0;
 rsi = 0;
+d_rdi_dX = 0.0;
 rdi = 0;
-if ((instanceVar_rcs_w>=modelPar_minr))
+if ((instanceStruct.instanceVar_rcs_w>=modelStruct.modelPar_minr))
 {
-rsi = (instanceVar_rcs_w*((1.0+(modelPar_rct1*(tdut-tnomk)))+((modelPar_rct2*(tdut-tnomk))*(tdut-tnomk))));
-if ((rsi<(0.1*instanceVar_rcs_w)))
+d_rsi_dX = (instanceStruct.instanceVar_rcs_w*((modelStruct.modelPar_rct1*(d_tdut_dX-d_tnomk_dX)+modelStruct.d_modelPar_rct1_dX*(tdut-tnomk))+((modelStruct.modelPar_rct2*(tdut-tnomk))*(d_tdut_dX-d_tnomk_dX)+(modelStruct.modelPar_rct2*(d_tdut_dX-d_tnomk_dX)+modelStruct.d_modelPar_rct2_dX*(tdut-tnomk))*(tdut-tnomk)))+instanceStruct.d_instanceVar_rcs_w_dX*((1.0+(modelStruct.modelPar_rct1*(tdut-tnomk)))+((modelStruct.modelPar_rct2*(tdut-tnomk))*(tdut-tnomk))));
+rsi = (instanceStruct.instanceVar_rcs_w*((1.0+(modelStruct.modelPar_rct1*(tdut-tnomk)))+((modelStruct.modelPar_rct2*(tdut-tnomk))*(tdut-tnomk))));
+if ((rsi<(0.1*instanceStruct.instanceVar_rcs_w)))
 {
-rsi = (0.1*instanceVar_rcs_w);
+d_rsi_dX = 0.1*instanceStruct.d_instanceVar_rcs_w_dX;
+rsi = (0.1*instanceStruct.instanceVar_rcs_w);
 }
 }
 else
 {
+d_rsi_dX = 0.0;
 rsi = 0;
 }
-if ((instanceVar_rcd_w>=modelPar_minr))
+if ((instanceStruct.instanceVar_rcd_w>=modelStruct.modelPar_minr))
 {
-rdi = (instanceVar_rcd_w*((1.0+(modelPar_rct1*(tdut-tnomk)))+((modelPar_rct2*(tdut-tnomk))*(tdut-tnomk))));
-if ((rdi<(0.1*instanceVar_rcd_w)))
+d_rdi_dX = (instanceStruct.instanceVar_rcd_w*((modelStruct.modelPar_rct1*(d_tdut_dX-d_tnomk_dX)+modelStruct.d_modelPar_rct1_dX*(tdut-tnomk))+((modelStruct.modelPar_rct2*(tdut-tnomk))*(d_tdut_dX-d_tnomk_dX)+(modelStruct.modelPar_rct2*(d_tdut_dX-d_tnomk_dX)+modelStruct.d_modelPar_rct2_dX*(tdut-tnomk))*(tdut-tnomk)))+instanceStruct.d_instanceVar_rcd_w_dX*((1.0+(modelStruct.modelPar_rct1*(tdut-tnomk)))+((modelStruct.modelPar_rct2*(tdut-tnomk))*(tdut-tnomk))));
+rdi = (instanceStruct.instanceVar_rcd_w*((1.0+(modelStruct.modelPar_rct1*(tdut-tnomk)))+((modelStruct.modelPar_rct2*(tdut-tnomk))*(tdut-tnomk))));
+if ((rdi<(0.1*instanceStruct.instanceVar_rcd_w)))
 {
-rdi = (0.1*instanceVar_rcd_w);
+d_rdi_dX = 0.1*instanceStruct.d_instanceVar_rcd_w_dX;
+rdi = (0.1*instanceStruct.instanceVar_rcd_w);
 }
 }
 else
 {
+d_rdi_dX = 0.0;
 rdi = 0;
 }
+d_phit_dX = (1.38062e-23*d_tdut_dX/1.60219e-19);
 phit = ((1.38062e-23*tdut)/1.60219e-19);
-ttrapfac = (1.0+(modelPar_tempt*(tdut-tnomk)));
-vdsi = (modelPar_type*(probeVars[admsProbeID_V_di_si]));
-vgsi = (modelPar_type*(probeVars[admsProbeID_V_gi_si]));
-if (((modelPar_type*(probeVars[admsProbeID_V_src_d]))<=(modelPar_type*(probeVars[admsProbeID_V_src_s]))))
+d_ttrapfac_dX = (modelStruct.modelPar_tempt*(d_tdut_dX-d_tnomk_dX)+modelStruct.d_modelPar_tempt_dX*(tdut-tnomk));
+ttrapfac = (1.0+(modelStruct.modelPar_tempt*(tdut-tnomk)));
+d_vdsi_dX = 0.0;
+vdsi = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_di_si]));
+d_vgsi_dX = 0.0;
+vgsi = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_gi_si]));
+if (((modelStruct.modelPar_type*(probeVars[admsProbeID_V_src_d]))<=(modelStruct.modelPar_type*(probeVars[admsProbeID_V_src_s]))))
 {
-vsars = (modelPar_type*(probeVars[admsProbeID_V_src_s]));
+d_vsars_dX = 0.0;
+vsars = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_src_s]));
 }
 else
 {
-vsars = (modelPar_type*(probeVars[admsProbeID_V_src_d]));
+d_vsars_dX = 0.0;
+vsars = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_src_d]));
 }
-vigs = (modelPar_vtors+(1.0/((modelPar_rsh*modelPar_cgrs)*modelPar_mu0)));
-vdsrs = (modelPar_type*(probeVars[admsProbeID_V_si_src]));
+d_vigs_dX = (modelStruct.d_modelPar_vtors_dX+(-((modelStruct.modelPar_rsh*modelStruct.modelPar_cgrs)*modelStruct.d_modelPar_mu0_dX+(modelStruct.modelPar_rsh*modelStruct.d_modelPar_cgrs_dX+modelStruct.d_modelPar_rsh_dX*modelStruct.modelPar_cgrs)*modelStruct.modelPar_mu0)/((modelStruct.modelPar_rsh*modelStruct.modelPar_cgrs)*modelStruct.modelPar_mu0)/((modelStruct.modelPar_rsh*modelStruct.modelPar_cgrs)*modelStruct.modelPar_mu0)));
+vigs = (modelStruct.modelPar_vtors+(1.0/((modelStruct.modelPar_rsh*modelStruct.modelPar_cgrs)*modelStruct.modelPar_mu0)));
+d_vdsrs_dX = 0.0;
+vdsrs = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_si_src]));
+d_vgsrs_dX = (d_vigs_dX-d_vsars_dX);
 vgsrs = (vigs-vsars);
-if ((modelPar_trapselect!=0))
+if ((modelStruct.modelPar_trapselect!=0))
 {
-vtcollapse0 = ((modelPar_alphat1*fabs((probeVars[admsProbeID_V_d_g])))+AnalogFunctions::explim<AdmsSensFadType>((((probeVars[admsProbeID_V_d_g])-modelPar_vttrap)/modelPar_alphat2)));
+{
+double value_fabs_0 = fabs((probeVars[admsProbeID_V_d_g]));
+AnalogFunctions::explimEvaluator evaluator_explim_1((((probeVars[admsProbeID_V_d_g])-modelStruct.modelPar_vttrap)/modelStruct.modelPar_alphat2));
+double  deriv_fabs_0_d0 = ((((probeVars[admsProbeID_V_d_g]))>=0)?(+1.0):(-1.0));
+d_vtcollapse0_dX = (modelStruct.d_modelPar_alphat1_dX*value_fabs_0+evaluator_explim_1.getDerivs((((probeVars[admsProbeID_V_d_g])-modelStruct.modelPar_vttrap)/modelStruct.modelPar_alphat2),((modelStruct.modelPar_alphat2*(-modelStruct.d_modelPar_vttrap_dX)-((probeVars[admsProbeID_V_d_g])-modelStruct.modelPar_vttrap)*modelStruct.d_modelPar_alphat2_dX)/modelStruct.modelPar_alphat2/modelStruct.modelPar_alphat2)));
+vtcollapse0 = ((modelStruct.modelPar_alphat1*value_fabs_0)+evaluator_explim_1.getValues((((probeVars[admsProbeID_V_d_g])-modelStruct.modelPar_vttrap)/modelStruct.modelPar_alphat2)));
+}
 // I(tr1,GND) <+ ((-vtcollapse0))
-staticContributions[admsNodeID_tr1] += (-vtcollapse0);
+d_staticContributions_dX[admsNodeID_tr1]+= (-d_vtcollapse0_dX);
 // I(tr1,tr) <+ (ddt((ctrap*V(tr1,tr))))
-dynamicContributions[admsNodeID_tr1] += ((modelPar_ctrap*(probeVars[admsProbeID_V_tr1_tr])));
-dynamicContributions[admsNodeID_tr] -= ((modelPar_ctrap*(probeVars[admsProbeID_V_tr1_tr])));
+d_dynamicContributions_dX[admsNodeID_tr1]+= (modelStruct.d_modelPar_ctrap_dX*(probeVars[admsProbeID_V_tr1_tr]));
+d_dynamicContributions_dX[(admsNodeID_tr)]-= (modelStruct.d_modelPar_ctrap_dX*(probeVars[admsProbeID_V_tr1_tr]));
 // I(tr,GND) <+ (ddt((taut*V(tr,GND))))
-dynamicContributions[admsNodeID_tr] += ((modelPar_taut*(probeVars[admsProbeID_V_tr_GND])));
+d_dynamicContributions_dX[admsNodeID_tr]+= (modelStruct.d_modelPar_taut_dX*(probeVars[admsProbeID_V_tr_GND]));
 // I(tr,GND) <+ (V(tr,GND))
-staticContributions[admsNodeID_tr] += (probeVars[admsProbeID_V_tr_GND]);
+d_staticContributions_dX[admsNodeID_tr]+= 0.0;
 vtcollapse = (probeVars[admsProbeID_V_tr_GND]);
+d_drsht_dX = vtcollapse*d_ttrapfac_dX;
 drsht = (1.0+(vtcollapse*ttrapfac));
 }
 else
 {
+d_vtcollapse0_dX = 0.0;
 vtcollapse0 = 0;
 vtcollapse = 0;
 // V(tr1,GND) <+ (0)
 // do nothing at all
 // V(tr,GND) <+ (0)
 // do nothing at all
+d_drsht_dX = 0.0;
 drsht = 1.0;
 }
-if (((modelPar_type*(probeVars[admsProbeID_V_fp4_d]))<=(modelPar_type*(probeVars[admsProbeID_V_fp4_s]))))
+if (((modelStruct.modelPar_type*(probeVars[admsProbeID_V_fp4_d]))<=(modelStruct.modelPar_type*(probeVars[admsProbeID_V_fp4_s]))))
 {
-vdars = (modelPar_type*(probeVars[admsProbeID_V_fp4_s]));
+d_vdars_dX = 0.0;
+vdars = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_fp4_s]));
 }
 else
 {
-vdars = (modelPar_type*(probeVars[admsProbeID_V_fp4_d]));
+d_vdars_dX = 0.0;
+vdars = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_fp4_d]));
 }
-vigd = (modelPar_vtord+(1.0/(((drsht*modelPar_rsh)*modelPar_cgrd)*modelPar_mu0)));
-vdsrd = (modelPar_type*(probeVars[admsProbeID_V_drc_fp4]));
+d_vigd_dX = (modelStruct.d_modelPar_vtord_dX+(-(((drsht*modelStruct.modelPar_rsh)*modelStruct.modelPar_cgrd)*modelStruct.d_modelPar_mu0_dX+((drsht*modelStruct.modelPar_rsh)*modelStruct.d_modelPar_cgrd_dX+(drsht*modelStruct.d_modelPar_rsh_dX+d_drsht_dX*modelStruct.modelPar_rsh)*modelStruct.modelPar_cgrd)*modelStruct.modelPar_mu0)/(((drsht*modelStruct.modelPar_rsh)*modelStruct.modelPar_cgrd)*modelStruct.modelPar_mu0)/(((drsht*modelStruct.modelPar_rsh)*modelStruct.modelPar_cgrd)*modelStruct.modelPar_mu0)));
+vigd = (modelStruct.modelPar_vtord+(1.0/(((drsht*modelStruct.modelPar_rsh)*modelStruct.modelPar_cgrd)*modelStruct.modelPar_mu0)));
+d_vdsrd_dX = 0.0;
+vdsrd = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_drc_fp4]));
+d_vgsrd_dX = (d_vigd_dX-d_vdars_dX);
 vgsrd = (vigd-vdars);
-if ((modelPar_flagfp1==1))
+if ((modelStruct.modelPar_flagfp1==1))
 {
-vgsfp1 = (modelPar_type*(probeVars[admsProbeID_V_gi_di]));
-vcfp1 = (modelPar_type*(probeVars[admsProbeID_V_s_di]));
+d_vgsfp1_dX = 0.0;
+vgsfp1 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_gi_di]));
+d_vcfp1_dX = 0.0;
+vcfp1 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_s_di]));
 }
 else
 {
-vgsfp1 = (modelPar_type*(probeVars[admsProbeID_V_s_di]));
-vcfp1 = (modelPar_type*(probeVars[admsProbeID_V_gi_di]));
+d_vgsfp1_dX = 0.0;
+vgsfp1 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_s_di]));
+d_vcfp1_dX = 0.0;
+vcfp1 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_gi_di]));
 }
-vdsfp1 = (modelPar_type*(probeVars[admsProbeID_V_fp1_di]));
-vbfp1 = (modelPar_type*(probeVars[admsProbeID_V_b_di]));
-if ((modelPar_flagfp2==1))
+d_vdsfp1_dX = 0.0;
+vdsfp1 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_fp1_di]));
+d_vbfp1_dX = 0.0;
+vbfp1 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_b_di]));
+if ((modelStruct.modelPar_flagfp2==1))
 {
-vgsfp2 = (modelPar_type*(probeVars[admsProbeID_V_gi_fp1]));
-vcfp2 = (modelPar_type*(probeVars[admsProbeID_V_s_fp1]));
+d_vgsfp2_dX = 0.0;
+vgsfp2 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_gi_fp1]));
+d_vcfp2_dX = 0.0;
+vcfp2 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_s_fp1]));
 }
 else
 {
-vgsfp2 = (modelPar_type*(probeVars[admsProbeID_V_s_fp1]));
-vcfp2 = (modelPar_type*(probeVars[admsProbeID_V_gi_fp1]));
+d_vgsfp2_dX = 0.0;
+vgsfp2 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_s_fp1]));
+d_vcfp2_dX = 0.0;
+vcfp2 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_gi_fp1]));
 }
-vdsfp2 = (modelPar_type*(probeVars[admsProbeID_V_fp2_fp1]));
-vbfp2 = (modelPar_type*(probeVars[admsProbeID_V_b_fp1]));
-if ((modelPar_flagfp3==1))
+d_vdsfp2_dX = 0.0;
+vdsfp2 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_fp2_fp1]));
+d_vbfp2_dX = 0.0;
+vbfp2 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_b_fp1]));
+if ((modelStruct.modelPar_flagfp3==1))
 {
-vgsfp3 = (modelPar_type*(probeVars[admsProbeID_V_gi_fp2]));
-vcfp3 = (modelPar_type*(probeVars[admsProbeID_V_s_fp2]));
+d_vgsfp3_dX = 0.0;
+vgsfp3 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_gi_fp2]));
+d_vcfp3_dX = 0.0;
+vcfp3 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_s_fp2]));
 }
 else
 {
-vgsfp3 = (modelPar_type*(probeVars[admsProbeID_V_s_fp2]));
-vcfp3 = (modelPar_type*(probeVars[admsProbeID_V_gi_fp2]));
+d_vgsfp3_dX = 0.0;
+vgsfp3 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_s_fp2]));
+d_vcfp3_dX = 0.0;
+vcfp3 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_gi_fp2]));
 }
-vdsfp3 = (modelPar_type*(probeVars[admsProbeID_V_fp3_fp2]));
-vbfp3 = (modelPar_type*(probeVars[admsProbeID_V_b_fp2]));
-if ((modelPar_flagfp4==1))
+d_vdsfp3_dX = 0.0;
+vdsfp3 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_fp3_fp2]));
+d_vbfp3_dX = 0.0;
+vbfp3 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_b_fp2]));
+if ((modelStruct.modelPar_flagfp4==1))
 {
-vgsfp4 = (modelPar_type*(probeVars[admsProbeID_V_gi_fp3]));
-vcfp4 = (modelPar_type*(probeVars[admsProbeID_V_s_fp3]));
+d_vgsfp4_dX = 0.0;
+vgsfp4 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_gi_fp3]));
+d_vcfp4_dX = 0.0;
+vcfp4 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_s_fp3]));
 }
 else
 {
-vgsfp4 = (modelPar_type*(probeVars[admsProbeID_V_s_fp3]));
-vcfp4 = (modelPar_type*(probeVars[admsProbeID_V_gi_fp3]));
+d_vgsfp4_dX = 0.0;
+vgsfp4 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_s_fp3]));
+d_vcfp4_dX = 0.0;
+vcfp4 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_gi_fp3]));
 }
-vdsfp4 = (modelPar_type*(probeVars[admsProbeID_V_fp4_fp3]));
-vbfp4 = (modelPar_type*(probeVars[admsProbeID_V_b_fp3]));
+d_vdsfp4_dX = 0.0;
+vdsfp4 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_fp4_fp3]));
+d_vbfp4_dX = 0.0;
+vbfp4 = (modelStruct.modelPar_type*(probeVars[admsProbeID_V_b_fp3]));
+d_idsfp4_dX = 0.0;
 idsfp4 = 0;
+d_qgsfp4_dX = 0.0;
 qgsfp4 = 0;
+d_qgdfp4_dX = 0.0;
 qgdfp4 = 0;
+d_qcfp4_dX = 0.0;
 qcfp4 = 0;
+d_qbfp4_dX = 0.0;
 qbfp4 = 0;
+d_qsfp4_dX = 0.0;
 qsfp4 = 0;
+d_vtdiblfp4_dX = 0.0;
 vtdiblfp4 = 0;
+d_vdsatfp4_dX = 0.0;
 vdsatfp4 = 0;
-if ((modelPar_lgfp4>modelPar_minl))
+if ((modelStruct.modelPar_lgfp4>modelStruct.modelPar_minl))
 {
-idsfp4 = AnalogFunctions::calc_iq<AdmsSensFadType>(idsfp4,qgsfp4,qgdfp4,qcfp4,qbfp4,qsfp4,vtdiblfp4,vdsatfp4,vgsfp4,vdsfp4,1,vcfp4,vbfp4,modelPar_flagfp4s,tdut,tnomk,phit,instancePar_w,modelPar_lgfp4,modelPar_cgfp4,modelPar_cfp4s,modelPar_ccfp4,modelPar_cbfp4,modelPar_vtofp4,modelPar_sfp4,modelPar_delta1fp4,0.0,modelPar_ndfp4,modelPar_alphafp4,modelPar_vx0fp4,modelPar_mu0fp4,modelPar_betafp4,modelPar_mthetafp4,modelPar_vthetafp4,modelPar_vtzeta,modelPar_dibsat,modelPar_epsilon,modelPar_vzeta,modelPar_lambda,instancePar_ngf,modelPar_type);
+{
+AnalogFunctions::calc_iqEvaluator evaluator_calc_iq_0(idsfp4,qgsfp4,qgdfp4,qcfp4,qbfp4,qsfp4,vtdiblfp4,vdsatfp4,vgsfp4,vdsfp4,1,vcfp4,vbfp4,modelStruct.modelPar_flagfp4s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp4,modelStruct.modelPar_cgfp4,modelStruct.modelPar_cfp4s,modelStruct.modelPar_ccfp4,modelStruct.modelPar_cbfp4,modelStruct.modelPar_vtofp4,modelStruct.modelPar_sfp4,modelStruct.modelPar_delta1fp4,0.0,modelStruct.modelPar_ndfp4,modelStruct.modelPar_alphafp4,modelStruct.modelPar_vx0fp4,modelStruct.modelPar_mu0fp4,modelStruct.modelPar_betafp4,modelStruct.modelPar_mthetafp4,modelStruct.modelPar_vthetafp4,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+d_idsfp4_dX = evaluator_calc_iq_0.getDerivs(idsfp4,qgsfp4,qgdfp4,qcfp4,qbfp4,qsfp4,vtdiblfp4,vdsatfp4,vgsfp4,vdsfp4,1,vcfp4,vbfp4,modelStruct.modelPar_flagfp4s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp4,modelStruct.modelPar_cgfp4,modelStruct.modelPar_cfp4s,modelStruct.modelPar_ccfp4,modelStruct.modelPar_cbfp4,modelStruct.modelPar_vtofp4,modelStruct.modelPar_sfp4,modelStruct.modelPar_delta1fp4,0.0,modelStruct.modelPar_ndfp4,modelStruct.modelPar_alphafp4,modelStruct.modelPar_vx0fp4,modelStruct.modelPar_mu0fp4,modelStruct.modelPar_betafp4,modelStruct.modelPar_mthetafp4,modelStruct.modelPar_vthetafp4,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type,d_idsfp4_dX,d_qgsfp4_dX,d_qgdfp4_dX,d_qcfp4_dX,d_qbfp4_dX,d_qsfp4_dX,d_vtdiblfp4_dX,d_vdsatfp4_dX,d_vgsfp4_dX,d_vdsfp4_dX,0.0,d_vcfp4_dX,d_vbfp4_dX,0.0,d_tdut_dX,d_tnomk_dX,d_phit_dX,instanceStruct.d_instancePar_w_dX,modelStruct.d_modelPar_lgfp4_dX,modelStruct.d_modelPar_cgfp4_dX,modelStruct.d_modelPar_cfp4s_dX,modelStruct.d_modelPar_ccfp4_dX,modelStruct.d_modelPar_cbfp4_dX,modelStruct.d_modelPar_vtofp4_dX,modelStruct.d_modelPar_sfp4_dX,modelStruct.d_modelPar_delta1fp4_dX,0.0,modelStruct.d_modelPar_ndfp4_dX,modelStruct.d_modelPar_alphafp4_dX,modelStruct.d_modelPar_vx0fp4_dX,modelStruct.d_modelPar_mu0fp4_dX,modelStruct.d_modelPar_betafp4_dX,modelStruct.d_modelPar_mthetafp4_dX,modelStruct.d_modelPar_vthetafp4_dX,modelStruct.d_modelPar_vtzeta_dX,modelStruct.d_modelPar_dibsat_dX,modelStruct.d_modelPar_epsilon_dX,modelStruct.d_modelPar_vzeta_dX,modelStruct.d_modelPar_lambda_dX,0.0,0.0);
+idsfp4 = evaluator_calc_iq_0.getValues(idsfp4,qgsfp4,qgdfp4,qcfp4,qbfp4,qsfp4,vtdiblfp4,vdsatfp4,vgsfp4,vdsfp4,1,vcfp4,vbfp4,modelStruct.modelPar_flagfp4s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp4,modelStruct.modelPar_cgfp4,modelStruct.modelPar_cfp4s,modelStruct.modelPar_ccfp4,modelStruct.modelPar_cbfp4,modelStruct.modelPar_vtofp4,modelStruct.modelPar_sfp4,modelStruct.modelPar_delta1fp4,0.0,modelStruct.modelPar_ndfp4,modelStruct.modelPar_alphafp4,modelStruct.modelPar_vx0fp4,modelStruct.modelPar_mu0fp4,modelStruct.modelPar_betafp4,modelStruct.modelPar_mthetafp4,modelStruct.modelPar_vthetafp4,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+}
 // I(fp4,fp3) <+ ((idsfp4+(gmin*V(fp4,fp3))))
-staticContributions[admsNodeID_fp4] += (idsfp4+(gmin*(probeVars[admsProbeID_V_fp4_fp3])));
-staticContributions[admsNodeID_fp3] -= (idsfp4+(gmin*(probeVars[admsProbeID_V_fp4_fp3])));
+d_staticContributions_dX[admsNodeID_fp4]+= d_idsfp4_dX;
+d_staticContributions_dX[(admsNodeID_fp3)]-= d_idsfp4_dX;
 }
 else
 {
 // V(fp4,fp3) <+ (0)
 // do nothing at all
 }
-if ((modelPar_flagfp4==1))
+if ((modelStruct.modelPar_flagfp4==1))
 {
 // I(gi,fp3) <+ ((ddt(qgsfp4)+ddt((minc*V(gi,fp3)))))
-dynamicContributions[admsNodeID_gi] += ((qgsfp4)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp3]))));
-dynamicContributions[admsNodeID_fp3] -= ((qgsfp4)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp3]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgsfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp3])));
+d_dynamicContributions_dX[(admsNodeID_fp3)]-= ((d_qgsfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp3])));
 // I(gi,fp4) <+ ((ddt(qgdfp4)+ddt((minc*V(gi,fp4)))))
-dynamicContributions[admsNodeID_gi] += ((qgdfp4)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp4]))));
-dynamicContributions[admsNodeID_fp4] -= ((qgdfp4)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp4]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgdfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp4])));
+d_dynamicContributions_dX[(admsNodeID_fp4)]-= ((d_qgdfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp4])));
 // I(s,fp3) <+ ((ddt(qcfp4)+ddt((minc*V(s,fp3)))))
-dynamicContributions[admsNodeID_s] += ((qcfp4)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp3]))));
-dynamicContributions[admsNodeID_fp3] -= ((qcfp4)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp3]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qcfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp3])));
+d_dynamicContributions_dX[(admsNodeID_fp3)]-= ((d_qcfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp3])));
 // I(s,fp4) <+ (0)
-staticContributions[admsNodeID_s] += 0;
-staticContributions[admsNodeID_fp4] -= 0;
+d_staticContributions_dX[admsNodeID_s]+= 0.0;
+d_staticContributions_dX[(admsNodeID_fp4)]-= 0.0;
 // I(gi,si) <+ ((ddt(qsfp4)+ddt((minc*V(gi,si)))))
-dynamicContributions[admsNodeID_gi] += ((qsfp4)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
-dynamicContributions[admsNodeID_si] -= ((qsfp4)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qsfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
+d_dynamicContributions_dX[(admsNodeID_si)]-= ((d_qsfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
 }
 else
 {
 // I(s,fp3) <+ ((ddt(qgsfp4)+ddt((minc*V(s,fp3)))))
-dynamicContributions[admsNodeID_s] += ((qgsfp4)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp3]))));
-dynamicContributions[admsNodeID_fp3] -= ((qgsfp4)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp3]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qgsfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp3])));
+d_dynamicContributions_dX[(admsNodeID_fp3)]-= ((d_qgsfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp3])));
 // I(s,fp4) <+ ((ddt(qgdfp4)+ddt((minc*V(s,fp4)))))
-dynamicContributions[admsNodeID_s] += ((qgdfp4)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp4]))));
-dynamicContributions[admsNodeID_fp4] -= ((qgdfp4)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp4]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qgdfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp4])));
+d_dynamicContributions_dX[(admsNodeID_fp4)]-= ((d_qgdfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp4])));
 // I(gi,fp3) <+ ((ddt(qcfp4)+ddt((minc*V(gi,fp3)))))
-dynamicContributions[admsNodeID_gi] += ((qcfp4)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp3]))));
-dynamicContributions[admsNodeID_fp3] -= ((qcfp4)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp3]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qcfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp3])));
+d_dynamicContributions_dX[(admsNodeID_fp3)]-= ((d_qcfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp3])));
 // I(gi,fp4) <+ (0)
-staticContributions[admsNodeID_gi] += 0;
-staticContributions[admsNodeID_fp4] -= 0;
+d_staticContributions_dX[admsNodeID_gi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_fp4)]-= 0.0;
 // I(gi,si) <+ (0)
-staticContributions[admsNodeID_gi] += 0;
-staticContributions[admsNodeID_si] -= 0;
+d_staticContributions_dX[admsNodeID_gi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_si)]-= 0.0;
 }
 // I(b,fp3) <+ ((ddt(qbfp4)+ddt((minc*V(b,fp3)))))
-dynamicContributions[admsNodeID_b] += ((qbfp4)+((modelPar_minc*(probeVars[admsProbeID_V_b_fp3]))));
-dynamicContributions[admsNodeID_fp3] -= ((qbfp4)+((modelPar_minc*(probeVars[admsProbeID_V_b_fp3]))));
+d_dynamicContributions_dX[admsNodeID_b]+= ((d_qbfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_b_fp3])));
+d_dynamicContributions_dX[(admsNodeID_fp3)]-= ((d_qbfp4_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_b_fp3])));
+d_idsfp3_dX = 0.0;
 idsfp3 = 0;
+d_qgsfp3_dX = 0.0;
 qgsfp3 = 0;
+d_qgdfp3_dX = 0.0;
 qgdfp3 = 0;
+d_qcfp3_dX = 0.0;
 qcfp3 = 0;
+d_qbfp3_dX = 0.0;
 qbfp3 = 0;
+d_qsfp3_dX = 0.0;
 qsfp3 = 0;
+d_vtdiblfp3_dX = 0.0;
 vtdiblfp3 = 0;
+d_vdsatfp3_dX = 0.0;
 vdsatfp3 = 0;
-if ((modelPar_lgfp3>modelPar_minl))
+if ((modelStruct.modelPar_lgfp3>modelStruct.modelPar_minl))
 {
-idsfp3 = AnalogFunctions::calc_iq<AdmsSensFadType>(idsfp3,qgsfp3,qgdfp3,qcfp3,qbfp3,qsfp3,vtdiblfp3,vdsatfp3,vgsfp3,vdsfp3,1,vcfp3,vbfp3,modelPar_flagfp3s,tdut,tnomk,phit,instancePar_w,modelPar_lgfp3,modelPar_cgfp3,modelPar_cfp3s,modelPar_ccfp3,modelPar_cbfp3,modelPar_vtofp3,modelPar_sfp3,modelPar_delta1fp3,0.0,modelPar_ndfp3,modelPar_alphafp3,modelPar_vx0fp3,modelPar_mu0fp3,modelPar_betafp3,modelPar_mthetafp3,modelPar_vthetafp3,modelPar_vtzeta,modelPar_dibsat,modelPar_epsilon,modelPar_vzeta,modelPar_lambda,instancePar_ngf,modelPar_type);
+{
+AnalogFunctions::calc_iqEvaluator evaluator_calc_iq_0(idsfp3,qgsfp3,qgdfp3,qcfp3,qbfp3,qsfp3,vtdiblfp3,vdsatfp3,vgsfp3,vdsfp3,1,vcfp3,vbfp3,modelStruct.modelPar_flagfp3s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp3,modelStruct.modelPar_cgfp3,modelStruct.modelPar_cfp3s,modelStruct.modelPar_ccfp3,modelStruct.modelPar_cbfp3,modelStruct.modelPar_vtofp3,modelStruct.modelPar_sfp3,modelStruct.modelPar_delta1fp3,0.0,modelStruct.modelPar_ndfp3,modelStruct.modelPar_alphafp3,modelStruct.modelPar_vx0fp3,modelStruct.modelPar_mu0fp3,modelStruct.modelPar_betafp3,modelStruct.modelPar_mthetafp3,modelStruct.modelPar_vthetafp3,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+d_idsfp3_dX = evaluator_calc_iq_0.getDerivs(idsfp3,qgsfp3,qgdfp3,qcfp3,qbfp3,qsfp3,vtdiblfp3,vdsatfp3,vgsfp3,vdsfp3,1,vcfp3,vbfp3,modelStruct.modelPar_flagfp3s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp3,modelStruct.modelPar_cgfp3,modelStruct.modelPar_cfp3s,modelStruct.modelPar_ccfp3,modelStruct.modelPar_cbfp3,modelStruct.modelPar_vtofp3,modelStruct.modelPar_sfp3,modelStruct.modelPar_delta1fp3,0.0,modelStruct.modelPar_ndfp3,modelStruct.modelPar_alphafp3,modelStruct.modelPar_vx0fp3,modelStruct.modelPar_mu0fp3,modelStruct.modelPar_betafp3,modelStruct.modelPar_mthetafp3,modelStruct.modelPar_vthetafp3,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type,d_idsfp3_dX,d_qgsfp3_dX,d_qgdfp3_dX,d_qcfp3_dX,d_qbfp3_dX,d_qsfp3_dX,d_vtdiblfp3_dX,d_vdsatfp3_dX,d_vgsfp3_dX,d_vdsfp3_dX,0.0,d_vcfp3_dX,d_vbfp3_dX,0.0,d_tdut_dX,d_tnomk_dX,d_phit_dX,instanceStruct.d_instancePar_w_dX,modelStruct.d_modelPar_lgfp3_dX,modelStruct.d_modelPar_cgfp3_dX,modelStruct.d_modelPar_cfp3s_dX,modelStruct.d_modelPar_ccfp3_dX,modelStruct.d_modelPar_cbfp3_dX,modelStruct.d_modelPar_vtofp3_dX,modelStruct.d_modelPar_sfp3_dX,modelStruct.d_modelPar_delta1fp3_dX,0.0,modelStruct.d_modelPar_ndfp3_dX,modelStruct.d_modelPar_alphafp3_dX,modelStruct.d_modelPar_vx0fp3_dX,modelStruct.d_modelPar_mu0fp3_dX,modelStruct.d_modelPar_betafp3_dX,modelStruct.d_modelPar_mthetafp3_dX,modelStruct.d_modelPar_vthetafp3_dX,modelStruct.d_modelPar_vtzeta_dX,modelStruct.d_modelPar_dibsat_dX,modelStruct.d_modelPar_epsilon_dX,modelStruct.d_modelPar_vzeta_dX,modelStruct.d_modelPar_lambda_dX,0.0,0.0);
+idsfp3 = evaluator_calc_iq_0.getValues(idsfp3,qgsfp3,qgdfp3,qcfp3,qbfp3,qsfp3,vtdiblfp3,vdsatfp3,vgsfp3,vdsfp3,1,vcfp3,vbfp3,modelStruct.modelPar_flagfp3s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp3,modelStruct.modelPar_cgfp3,modelStruct.modelPar_cfp3s,modelStruct.modelPar_ccfp3,modelStruct.modelPar_cbfp3,modelStruct.modelPar_vtofp3,modelStruct.modelPar_sfp3,modelStruct.modelPar_delta1fp3,0.0,modelStruct.modelPar_ndfp3,modelStruct.modelPar_alphafp3,modelStruct.modelPar_vx0fp3,modelStruct.modelPar_mu0fp3,modelStruct.modelPar_betafp3,modelStruct.modelPar_mthetafp3,modelStruct.modelPar_vthetafp3,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+}
 // I(fp3,fp2) <+ ((idsfp3+(gmin*V(fp3,fp2))))
-staticContributions[admsNodeID_fp3] += (idsfp3+(gmin*(probeVars[admsProbeID_V_fp3_fp2])));
-staticContributions[admsNodeID_fp2] -= (idsfp3+(gmin*(probeVars[admsProbeID_V_fp3_fp2])));
+d_staticContributions_dX[admsNodeID_fp3]+= d_idsfp3_dX;
+d_staticContributions_dX[(admsNodeID_fp2)]-= d_idsfp3_dX;
 }
 else
 {
 // V(fp3,fp2) <+ (0)
 // do nothing at all
 }
-if ((modelPar_flagfp3==1))
+if ((modelStruct.modelPar_flagfp3==1))
 {
 // I(gi,fp2) <+ ((ddt(qgsfp3)+ddt((minc*V(gi,fp2)))))
-dynamicContributions[admsNodeID_gi] += ((qgsfp3)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp2]))));
-dynamicContributions[admsNodeID_fp2] -= ((qgsfp3)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp2]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgsfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp2])));
+d_dynamicContributions_dX[(admsNodeID_fp2)]-= ((d_qgsfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp2])));
 // I(gi,fp3) <+ ((ddt(qgdfp3)+ddt((minc*V(gi,fp3)))))
-dynamicContributions[admsNodeID_gi] += ((qgdfp3)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp3]))));
-dynamicContributions[admsNodeID_fp3] -= ((qgdfp3)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp3]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgdfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp3])));
+d_dynamicContributions_dX[(admsNodeID_fp3)]-= ((d_qgdfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp3])));
 // I(s,fp2) <+ ((ddt(qcfp3)+ddt((minc*V(s,fp2)))))
-dynamicContributions[admsNodeID_s] += ((qcfp3)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp2]))));
-dynamicContributions[admsNodeID_fp2] -= ((qcfp3)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp2]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qcfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp2])));
+d_dynamicContributions_dX[(admsNodeID_fp2)]-= ((d_qcfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp2])));
 // I(s,fp3) <+ (0)
-staticContributions[admsNodeID_s] += 0;
-staticContributions[admsNodeID_fp3] -= 0;
+d_staticContributions_dX[admsNodeID_s]+= 0.0;
+d_staticContributions_dX[(admsNodeID_fp3)]-= 0.0;
 // I(gi,si) <+ ((ddt(qsfp3)+ddt((minc*V(gi,si)))))
-dynamicContributions[admsNodeID_gi] += ((qsfp3)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
-dynamicContributions[admsNodeID_si] -= ((qsfp3)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qsfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
+d_dynamicContributions_dX[(admsNodeID_si)]-= ((d_qsfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
 }
 else
 {
 // I(s,fp2) <+ ((ddt(qgsfp3)+ddt((minc*V(s,fp2)))))
-dynamicContributions[admsNodeID_s] += ((qgsfp3)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp2]))));
-dynamicContributions[admsNodeID_fp2] -= ((qgsfp3)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp2]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qgsfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp2])));
+d_dynamicContributions_dX[(admsNodeID_fp2)]-= ((d_qgsfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp2])));
 // I(s,fp3) <+ ((ddt(qgdfp3)+ddt((minc*V(s,fp3)))))
-dynamicContributions[admsNodeID_s] += ((qgdfp3)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp3]))));
-dynamicContributions[admsNodeID_fp3] -= ((qgdfp3)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp3]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qgdfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp3])));
+d_dynamicContributions_dX[(admsNodeID_fp3)]-= ((d_qgdfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp3])));
 // I(gi,fp2) <+ ((ddt(qcfp3)+ddt((minc*V(gi,fp2)))))
-dynamicContributions[admsNodeID_gi] += ((qcfp3)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp2]))));
-dynamicContributions[admsNodeID_fp2] -= ((qcfp3)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp2]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qcfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp2])));
+d_dynamicContributions_dX[(admsNodeID_fp2)]-= ((d_qcfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp2])));
 // I(gi,fp3) <+ (0)
-staticContributions[admsNodeID_gi] += 0;
-staticContributions[admsNodeID_fp3] -= 0;
+d_staticContributions_dX[admsNodeID_gi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_fp3)]-= 0.0;
 // I(gi,si) <+ (0)
-staticContributions[admsNodeID_gi] += 0;
-staticContributions[admsNodeID_si] -= 0;
+d_staticContributions_dX[admsNodeID_gi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_si)]-= 0.0;
 }
 // I(b,fp2) <+ ((ddt(qbfp3)+ddt((minc*V(b,fp2)))))
-dynamicContributions[admsNodeID_b] += ((qbfp3)+((modelPar_minc*(probeVars[admsProbeID_V_b_fp2]))));
-dynamicContributions[admsNodeID_fp2] -= ((qbfp3)+((modelPar_minc*(probeVars[admsProbeID_V_b_fp2]))));
+d_dynamicContributions_dX[admsNodeID_b]+= ((d_qbfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_b_fp2])));
+d_dynamicContributions_dX[(admsNodeID_fp2)]-= ((d_qbfp3_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_b_fp2])));
+d_idsfp2_dX = 0.0;
 idsfp2 = 0;
+d_qgsfp2_dX = 0.0;
 qgsfp2 = 0;
+d_qgdfp2_dX = 0.0;
 qgdfp2 = 0;
+d_qcfp2_dX = 0.0;
 qcfp2 = 0;
+d_qbfp2_dX = 0.0;
 qbfp2 = 0;
+d_qsfp2_dX = 0.0;
 qsfp2 = 0;
+d_vtdiblfp2_dX = 0.0;
 vtdiblfp2 = 0;
+d_vdsatfp2_dX = 0.0;
 vdsatfp2 = 0;
-if ((modelPar_lgfp2>modelPar_minl))
+if ((modelStruct.modelPar_lgfp2>modelStruct.modelPar_minl))
 {
-idsfp2 = AnalogFunctions::calc_iq<AdmsSensFadType>(idsfp2,qgsfp2,qgdfp2,qcfp2,qbfp2,qsfp2,vtdiblfp2,vdsatfp2,vgsfp2,vdsfp2,1,vcfp2,vbfp2,modelPar_flagfp2s,tdut,tnomk,phit,instancePar_w,modelPar_lgfp2,modelPar_cgfp2,modelPar_cfp2s,modelPar_ccfp2,modelPar_cbfp2,modelPar_vtofp2,modelPar_sfp2,modelPar_delta1fp2,0.0,modelPar_ndfp2,modelPar_alphafp2,modelPar_vx0fp2,modelPar_mu0fp2,modelPar_betafp2,modelPar_mthetafp2,modelPar_vthetafp2,modelPar_vtzeta,modelPar_dibsat,modelPar_epsilon,modelPar_vzeta,modelPar_lambda,instancePar_ngf,modelPar_type);
+{
+AnalogFunctions::calc_iqEvaluator evaluator_calc_iq_0(idsfp2,qgsfp2,qgdfp2,qcfp2,qbfp2,qsfp2,vtdiblfp2,vdsatfp2,vgsfp2,vdsfp2,1,vcfp2,vbfp2,modelStruct.modelPar_flagfp2s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp2,modelStruct.modelPar_cgfp2,modelStruct.modelPar_cfp2s,modelStruct.modelPar_ccfp2,modelStruct.modelPar_cbfp2,modelStruct.modelPar_vtofp2,modelStruct.modelPar_sfp2,modelStruct.modelPar_delta1fp2,0.0,modelStruct.modelPar_ndfp2,modelStruct.modelPar_alphafp2,modelStruct.modelPar_vx0fp2,modelStruct.modelPar_mu0fp2,modelStruct.modelPar_betafp2,modelStruct.modelPar_mthetafp2,modelStruct.modelPar_vthetafp2,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+d_idsfp2_dX = evaluator_calc_iq_0.getDerivs(idsfp2,qgsfp2,qgdfp2,qcfp2,qbfp2,qsfp2,vtdiblfp2,vdsatfp2,vgsfp2,vdsfp2,1,vcfp2,vbfp2,modelStruct.modelPar_flagfp2s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp2,modelStruct.modelPar_cgfp2,modelStruct.modelPar_cfp2s,modelStruct.modelPar_ccfp2,modelStruct.modelPar_cbfp2,modelStruct.modelPar_vtofp2,modelStruct.modelPar_sfp2,modelStruct.modelPar_delta1fp2,0.0,modelStruct.modelPar_ndfp2,modelStruct.modelPar_alphafp2,modelStruct.modelPar_vx0fp2,modelStruct.modelPar_mu0fp2,modelStruct.modelPar_betafp2,modelStruct.modelPar_mthetafp2,modelStruct.modelPar_vthetafp2,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type,d_idsfp2_dX,d_qgsfp2_dX,d_qgdfp2_dX,d_qcfp2_dX,d_qbfp2_dX,d_qsfp2_dX,d_vtdiblfp2_dX,d_vdsatfp2_dX,d_vgsfp2_dX,d_vdsfp2_dX,0.0,d_vcfp2_dX,d_vbfp2_dX,0.0,d_tdut_dX,d_tnomk_dX,d_phit_dX,instanceStruct.d_instancePar_w_dX,modelStruct.d_modelPar_lgfp2_dX,modelStruct.d_modelPar_cgfp2_dX,modelStruct.d_modelPar_cfp2s_dX,modelStruct.d_modelPar_ccfp2_dX,modelStruct.d_modelPar_cbfp2_dX,modelStruct.d_modelPar_vtofp2_dX,modelStruct.d_modelPar_sfp2_dX,modelStruct.d_modelPar_delta1fp2_dX,0.0,modelStruct.d_modelPar_ndfp2_dX,modelStruct.d_modelPar_alphafp2_dX,modelStruct.d_modelPar_vx0fp2_dX,modelStruct.d_modelPar_mu0fp2_dX,modelStruct.d_modelPar_betafp2_dX,modelStruct.d_modelPar_mthetafp2_dX,modelStruct.d_modelPar_vthetafp2_dX,modelStruct.d_modelPar_vtzeta_dX,modelStruct.d_modelPar_dibsat_dX,modelStruct.d_modelPar_epsilon_dX,modelStruct.d_modelPar_vzeta_dX,modelStruct.d_modelPar_lambda_dX,0.0,0.0);
+idsfp2 = evaluator_calc_iq_0.getValues(idsfp2,qgsfp2,qgdfp2,qcfp2,qbfp2,qsfp2,vtdiblfp2,vdsatfp2,vgsfp2,vdsfp2,1,vcfp2,vbfp2,modelStruct.modelPar_flagfp2s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp2,modelStruct.modelPar_cgfp2,modelStruct.modelPar_cfp2s,modelStruct.modelPar_ccfp2,modelStruct.modelPar_cbfp2,modelStruct.modelPar_vtofp2,modelStruct.modelPar_sfp2,modelStruct.modelPar_delta1fp2,0.0,modelStruct.modelPar_ndfp2,modelStruct.modelPar_alphafp2,modelStruct.modelPar_vx0fp2,modelStruct.modelPar_mu0fp2,modelStruct.modelPar_betafp2,modelStruct.modelPar_mthetafp2,modelStruct.modelPar_vthetafp2,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+}
 // I(fp2,fp1) <+ ((idsfp2+(gmin*V(fp2,fp1))))
-staticContributions[admsNodeID_fp2] += (idsfp2+(gmin*(probeVars[admsProbeID_V_fp2_fp1])));
-staticContributions[admsNodeID_fp1] -= (idsfp2+(gmin*(probeVars[admsProbeID_V_fp2_fp1])));
+d_staticContributions_dX[admsNodeID_fp2]+= d_idsfp2_dX;
+d_staticContributions_dX[(admsNodeID_fp1)]-= d_idsfp2_dX;
 }
 else
 {
 // V(fp2,fp1) <+ (0)
 // do nothing at all
 }
-if ((modelPar_flagfp2==1))
+if ((modelStruct.modelPar_flagfp2==1))
 {
 // I(gi,fp1) <+ ((ddt(qgsfp2)+ddt((minc*V(gi,fp1)))))
-dynamicContributions[admsNodeID_gi] += ((qgsfp2)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp1]))));
-dynamicContributions[admsNodeID_fp1] -= ((qgsfp2)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp1]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgsfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp1])));
+d_dynamicContributions_dX[(admsNodeID_fp1)]-= ((d_qgsfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp1])));
 // I(gi,fp2) <+ ((ddt(qgdfp2)+ddt((minc*V(gi,fp2)))))
-dynamicContributions[admsNodeID_gi] += ((qgdfp2)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp2]))));
-dynamicContributions[admsNodeID_fp2] -= ((qgdfp2)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp2]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgdfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp2])));
+d_dynamicContributions_dX[(admsNodeID_fp2)]-= ((d_qgdfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp2])));
 // I(s,fp1) <+ ((ddt(qcfp2)+ddt((minc*V(s,fp1)))))
-dynamicContributions[admsNodeID_s] += ((qcfp2)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp1]))));
-dynamicContributions[admsNodeID_fp1] -= ((qcfp2)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp1]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qcfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp1])));
+d_dynamicContributions_dX[(admsNodeID_fp1)]-= ((d_qcfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp1])));
 // I(s,fp2) <+ (0)
-staticContributions[admsNodeID_s] += 0;
-staticContributions[admsNodeID_fp2] -= 0;
+d_staticContributions_dX[admsNodeID_s]+= 0.0;
+d_staticContributions_dX[(admsNodeID_fp2)]-= 0.0;
 // I(gi,si) <+ ((ddt(qsfp2)+ddt((minc*V(gi,si)))))
-dynamicContributions[admsNodeID_gi] += ((qsfp2)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
-dynamicContributions[admsNodeID_si] -= ((qsfp2)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qsfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
+d_dynamicContributions_dX[(admsNodeID_si)]-= ((d_qsfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
 }
 else
 {
 // I(s,fp1) <+ ((ddt(qgsfp2)+ddt((minc*V(s,fp1)))))
-dynamicContributions[admsNodeID_s] += ((qgsfp2)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp1]))));
-dynamicContributions[admsNodeID_fp1] -= ((qgsfp2)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp1]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qgsfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp1])));
+d_dynamicContributions_dX[(admsNodeID_fp1)]-= ((d_qgsfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp1])));
 // I(s,fp2) <+ ((ddt(qgdfp2)+ddt((minc*V(s,fp2)))))
-dynamicContributions[admsNodeID_s] += ((qgdfp2)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp2]))));
-dynamicContributions[admsNodeID_fp2] -= ((qgdfp2)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp2]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qgdfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp2])));
+d_dynamicContributions_dX[(admsNodeID_fp2)]-= ((d_qgdfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp2])));
 // I(gi,fp1) <+ ((ddt(qcfp2)+ddt((minc*V(gi,fp1)))))
-dynamicContributions[admsNodeID_gi] += ((qcfp2)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp1]))));
-dynamicContributions[admsNodeID_fp1] -= ((qcfp2)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp1]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qcfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp1])));
+d_dynamicContributions_dX[(admsNodeID_fp1)]-= ((d_qcfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp1])));
 // I(gi,fp2) <+ (0)
-staticContributions[admsNodeID_gi] += 0;
-staticContributions[admsNodeID_fp2] -= 0;
+d_staticContributions_dX[admsNodeID_gi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_fp2)]-= 0.0;
 // I(gi,si) <+ (0)
-staticContributions[admsNodeID_gi] += 0;
-staticContributions[admsNodeID_si] -= 0;
+d_staticContributions_dX[admsNodeID_gi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_si)]-= 0.0;
 }
 // I(b,fp1) <+ ((ddt(qbfp2)+ddt((minc*V(b,fp1)))))
-dynamicContributions[admsNodeID_b] += ((qbfp2)+((modelPar_minc*(probeVars[admsProbeID_V_b_fp1]))));
-dynamicContributions[admsNodeID_fp1] -= ((qbfp2)+((modelPar_minc*(probeVars[admsProbeID_V_b_fp1]))));
+d_dynamicContributions_dX[admsNodeID_b]+= ((d_qbfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_b_fp1])));
+d_dynamicContributions_dX[(admsNodeID_fp1)]-= ((d_qbfp2_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_b_fp1])));
+d_idsfp1_dX = 0.0;
 idsfp1 = 0;
+d_qgsfp1_dX = 0.0;
 qgsfp1 = 0;
+d_qgdfp1_dX = 0.0;
 qgdfp1 = 0;
+d_qcfp1_dX = 0.0;
 qcfp1 = 0;
+d_qbfp1_dX = 0.0;
 qbfp1 = 0;
+d_qsfp1_dX = 0.0;
 qsfp1 = 0;
+d_vtdiblfp1_dX = 0.0;
 vtdiblfp1 = 0;
+d_vdsatfp1_dX = 0.0;
 vdsatfp1 = 0;
-if ((modelPar_lgfp1>modelPar_minl))
+if ((modelStruct.modelPar_lgfp1>modelStruct.modelPar_minl))
 {
-idsfp1 = AnalogFunctions::calc_iq<AdmsSensFadType>(idsfp1,qgsfp1,qgdfp1,qcfp1,qbfp1,qsfp1,vtdiblfp1,vdsatfp1,vgsfp1,vdsfp1,1,vcfp1,vbfp1,modelPar_flagfp1s,tdut,tnomk,phit,instancePar_w,modelPar_lgfp1,modelPar_cgfp1,modelPar_cfp1s,modelPar_ccfp1,modelPar_cbfp1,modelPar_vtofp1,modelPar_sfp1,modelPar_delta1fp1,0.0,modelPar_ndfp1,modelPar_alphafp1,modelPar_vx0fp1,modelPar_mu0fp1,modelPar_betafp1,modelPar_mthetafp1,modelPar_vthetafp1,modelPar_vtzeta,modelPar_dibsat,modelPar_epsilon,modelPar_vzeta,modelPar_lambda,instancePar_ngf,modelPar_type);
+{
+AnalogFunctions::calc_iqEvaluator evaluator_calc_iq_0(idsfp1,qgsfp1,qgdfp1,qcfp1,qbfp1,qsfp1,vtdiblfp1,vdsatfp1,vgsfp1,vdsfp1,1,vcfp1,vbfp1,modelStruct.modelPar_flagfp1s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp1,modelStruct.modelPar_cgfp1,modelStruct.modelPar_cfp1s,modelStruct.modelPar_ccfp1,modelStruct.modelPar_cbfp1,modelStruct.modelPar_vtofp1,modelStruct.modelPar_sfp1,modelStruct.modelPar_delta1fp1,0.0,modelStruct.modelPar_ndfp1,modelStruct.modelPar_alphafp1,modelStruct.modelPar_vx0fp1,modelStruct.modelPar_mu0fp1,modelStruct.modelPar_betafp1,modelStruct.modelPar_mthetafp1,modelStruct.modelPar_vthetafp1,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+d_idsfp1_dX = evaluator_calc_iq_0.getDerivs(idsfp1,qgsfp1,qgdfp1,qcfp1,qbfp1,qsfp1,vtdiblfp1,vdsatfp1,vgsfp1,vdsfp1,1,vcfp1,vbfp1,modelStruct.modelPar_flagfp1s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp1,modelStruct.modelPar_cgfp1,modelStruct.modelPar_cfp1s,modelStruct.modelPar_ccfp1,modelStruct.modelPar_cbfp1,modelStruct.modelPar_vtofp1,modelStruct.modelPar_sfp1,modelStruct.modelPar_delta1fp1,0.0,modelStruct.modelPar_ndfp1,modelStruct.modelPar_alphafp1,modelStruct.modelPar_vx0fp1,modelStruct.modelPar_mu0fp1,modelStruct.modelPar_betafp1,modelStruct.modelPar_mthetafp1,modelStruct.modelPar_vthetafp1,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type,d_idsfp1_dX,d_qgsfp1_dX,d_qgdfp1_dX,d_qcfp1_dX,d_qbfp1_dX,d_qsfp1_dX,d_vtdiblfp1_dX,d_vdsatfp1_dX,d_vgsfp1_dX,d_vdsfp1_dX,0.0,d_vcfp1_dX,d_vbfp1_dX,0.0,d_tdut_dX,d_tnomk_dX,d_phit_dX,instanceStruct.d_instancePar_w_dX,modelStruct.d_modelPar_lgfp1_dX,modelStruct.d_modelPar_cgfp1_dX,modelStruct.d_modelPar_cfp1s_dX,modelStruct.d_modelPar_ccfp1_dX,modelStruct.d_modelPar_cbfp1_dX,modelStruct.d_modelPar_vtofp1_dX,modelStruct.d_modelPar_sfp1_dX,modelStruct.d_modelPar_delta1fp1_dX,0.0,modelStruct.d_modelPar_ndfp1_dX,modelStruct.d_modelPar_alphafp1_dX,modelStruct.d_modelPar_vx0fp1_dX,modelStruct.d_modelPar_mu0fp1_dX,modelStruct.d_modelPar_betafp1_dX,modelStruct.d_modelPar_mthetafp1_dX,modelStruct.d_modelPar_vthetafp1_dX,modelStruct.d_modelPar_vtzeta_dX,modelStruct.d_modelPar_dibsat_dX,modelStruct.d_modelPar_epsilon_dX,modelStruct.d_modelPar_vzeta_dX,modelStruct.d_modelPar_lambda_dX,0.0,0.0);
+idsfp1 = evaluator_calc_iq_0.getValues(idsfp1,qgsfp1,qgdfp1,qcfp1,qbfp1,qsfp1,vtdiblfp1,vdsatfp1,vgsfp1,vdsfp1,1,vcfp1,vbfp1,modelStruct.modelPar_flagfp1s,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgfp1,modelStruct.modelPar_cgfp1,modelStruct.modelPar_cfp1s,modelStruct.modelPar_ccfp1,modelStruct.modelPar_cbfp1,modelStruct.modelPar_vtofp1,modelStruct.modelPar_sfp1,modelStruct.modelPar_delta1fp1,0.0,modelStruct.modelPar_ndfp1,modelStruct.modelPar_alphafp1,modelStruct.modelPar_vx0fp1,modelStruct.modelPar_mu0fp1,modelStruct.modelPar_betafp1,modelStruct.modelPar_mthetafp1,modelStruct.modelPar_vthetafp1,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+}
 // I(fp1,di) <+ ((idsfp1+(gmin*V(fp1,di))))
-staticContributions[admsNodeID_fp1] += (idsfp1+(gmin*(probeVars[admsProbeID_V_fp1_di])));
-staticContributions[admsNodeID_di] -= (idsfp1+(gmin*(probeVars[admsProbeID_V_fp1_di])));
+d_staticContributions_dX[admsNodeID_fp1]+= d_idsfp1_dX;
+d_staticContributions_dX[(admsNodeID_di)]-= d_idsfp1_dX;
 }
 else
 {
 // V(fp1,di) <+ (0)
 // do nothing at all
 }
-if ((modelPar_flagfp1==1))
+if ((modelStruct.modelPar_flagfp1==1))
 {
 // I(gi,di) <+ ((ddt(qgsfp1)+ddt((minc*V(gi,di)))))
-dynamicContributions[admsNodeID_gi] += ((qgsfp1)+((modelPar_minc*(probeVars[admsProbeID_V_gi_di]))));
-dynamicContributions[admsNodeID_di] -= ((qgsfp1)+((modelPar_minc*(probeVars[admsProbeID_V_gi_di]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgsfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_di])));
+d_dynamicContributions_dX[(admsNodeID_di)]-= ((d_qgsfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_di])));
 // I(gi,fp1) <+ ((ddt(qgdfp1)+ddt((minc*V(gi,fp1)))))
-dynamicContributions[admsNodeID_gi] += ((qgdfp1)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp1]))));
-dynamicContributions[admsNodeID_fp1] -= ((qgdfp1)+((modelPar_minc*(probeVars[admsProbeID_V_gi_fp1]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgdfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp1])));
+d_dynamicContributions_dX[(admsNodeID_fp1)]-= ((d_qgdfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_fp1])));
 // I(s,di) <+ ((ddt(qcfp1)+ddt((minc*V(s,di)))))
-dynamicContributions[admsNodeID_s] += ((qcfp1)+((modelPar_minc*(probeVars[admsProbeID_V_s_di]))));
-dynamicContributions[admsNodeID_di] -= ((qcfp1)+((modelPar_minc*(probeVars[admsProbeID_V_s_di]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qcfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_di])));
+d_dynamicContributions_dX[(admsNodeID_di)]-= ((d_qcfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_di])));
 // I(s,fp1) <+ (0)
-staticContributions[admsNodeID_s] += 0;
-staticContributions[admsNodeID_fp1] -= 0;
+d_staticContributions_dX[admsNodeID_s]+= 0.0;
+d_staticContributions_dX[(admsNodeID_fp1)]-= 0.0;
 // I(gi,si) <+ ((ddt(qsfp1)+ddt((minc*V(gi,si)))))
-dynamicContributions[admsNodeID_gi] += ((qsfp1)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
-dynamicContributions[admsNodeID_si] -= ((qsfp1)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qsfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
+d_dynamicContributions_dX[(admsNodeID_si)]-= ((d_qsfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
 }
 else
 {
 // I(s,di) <+ ((ddt(qgsfp1)+ddt((minc*V(s,di)))))
-dynamicContributions[admsNodeID_s] += ((qgsfp1)+((modelPar_minc*(probeVars[admsProbeID_V_s_di]))));
-dynamicContributions[admsNodeID_di] -= ((qgsfp1)+((modelPar_minc*(probeVars[admsProbeID_V_s_di]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qgsfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_di])));
+d_dynamicContributions_dX[(admsNodeID_di)]-= ((d_qgsfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_di])));
 // I(s,fp1) <+ ((ddt(qgdfp1)+ddt((minc*V(s,fp1)))))
-dynamicContributions[admsNodeID_s] += ((qgdfp1)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp1]))));
-dynamicContributions[admsNodeID_fp1] -= ((qgdfp1)+((modelPar_minc*(probeVars[admsProbeID_V_s_fp1]))));
+d_dynamicContributions_dX[admsNodeID_s]+= ((d_qgdfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp1])));
+d_dynamicContributions_dX[(admsNodeID_fp1)]-= ((d_qgdfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_s_fp1])));
 // I(gi,di) <+ ((ddt(qcfp1)+ddt((minc*V(gi,di)))))
-dynamicContributions[admsNodeID_gi] += ((qcfp1)+((modelPar_minc*(probeVars[admsProbeID_V_gi_di]))));
-dynamicContributions[admsNodeID_di] -= ((qcfp1)+((modelPar_minc*(probeVars[admsProbeID_V_gi_di]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qcfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_di])));
+d_dynamicContributions_dX[(admsNodeID_di)]-= ((d_qcfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_di])));
 // I(gi,fp1) <+ (0)
-staticContributions[admsNodeID_gi] += 0;
-staticContributions[admsNodeID_fp1] -= 0;
+d_staticContributions_dX[admsNodeID_gi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_fp1)]-= 0.0;
 // I(gi,si) <+ (0)
-staticContributions[admsNodeID_gi] += 0;
-staticContributions[admsNodeID_si] -= 0;
+d_staticContributions_dX[admsNodeID_gi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_si)]-= 0.0;
 }
 // I(b,di) <+ ((ddt(qbfp1)+ddt((minc*V(b,di)))))
-dynamicContributions[admsNodeID_b] += ((qbfp1)+((modelPar_minc*(probeVars[admsProbeID_V_b_di]))));
-dynamicContributions[admsNodeID_di] -= ((qbfp1)+((modelPar_minc*(probeVars[admsProbeID_V_b_di]))));
+d_dynamicContributions_dX[admsNodeID_b]+= ((d_qbfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_b_di])));
+d_dynamicContributions_dX[(admsNodeID_di)]-= ((d_qbfp1_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_b_di])));
+d_idsrs_dX = 0.0;
 idsrs = 0;
-if (((modelPar_flagres==0)&&(modelPar_lgs>modelPar_minl)))
+if (((modelStruct.modelPar_flagres==0)&&(modelStruct.modelPar_lgs>modelStruct.modelPar_minl)))
 {
-idsrs = AnalogFunctions::calc_iq<AdmsSensFadType>(idsrs,qgsrs,qgdrs,qcrs,qbrs,qsrs,vtdiblrs,vdsatrs,vgsrs,vdsrs,0,0,0,0,tdut,tnomk,phit,instancePar_w,modelPar_lgs,modelPar_cgrs,0,0,0,modelPar_vtors,modelPar_srs,modelPar_delta1rs,0.0,modelPar_ndrs,modelPar_alphars,modelPar_vx0rs,modelPar_mu0rs,modelPar_betars,modelPar_mthetars,modelPar_vthetars,modelPar_vtzeta,modelPar_dibsat,modelPar_epsilon,modelPar_vzeta,modelPar_lambda,instancePar_ngf,modelPar_type);
+{
+AnalogFunctions::calc_iqEvaluator evaluator_calc_iq_0(idsrs,qgsrs,qgdrs,qcrs,qbrs,qsrs,vtdiblrs,vdsatrs,vgsrs,vdsrs,0,0,0,0,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgs,modelStruct.modelPar_cgrs,0,0,0,modelStruct.modelPar_vtors,modelStruct.modelPar_srs,modelStruct.modelPar_delta1rs,0.0,modelStruct.modelPar_ndrs,modelStruct.modelPar_alphars,modelStruct.modelPar_vx0rs,modelStruct.modelPar_mu0rs,modelStruct.modelPar_betars,modelStruct.modelPar_mthetars,modelStruct.modelPar_vthetars,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+d_idsrs_dX = evaluator_calc_iq_0.getDerivs(idsrs,qgsrs,qgdrs,qcrs,qbrs,qsrs,vtdiblrs,vdsatrs,vgsrs,vdsrs,0,0,0,0,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgs,modelStruct.modelPar_cgrs,0,0,0,modelStruct.modelPar_vtors,modelStruct.modelPar_srs,modelStruct.modelPar_delta1rs,0.0,modelStruct.modelPar_ndrs,modelStruct.modelPar_alphars,modelStruct.modelPar_vx0rs,modelStruct.modelPar_mu0rs,modelStruct.modelPar_betars,modelStruct.modelPar_mthetars,modelStruct.modelPar_vthetars,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type,d_idsrs_dX,d_qgsrs_dX,d_qgdrs_dX,d_qcrs_dX,d_qbrs_dX,d_qsrs_dX,d_vtdiblrs_dX,d_vdsatrs_dX,d_vgsrs_dX,d_vdsrs_dX,0.0,0.0,0.0,0.0,d_tdut_dX,d_tnomk_dX,d_phit_dX,instanceStruct.d_instancePar_w_dX,modelStruct.d_modelPar_lgs_dX,modelStruct.d_modelPar_cgrs_dX,0.0,0.0,0.0,modelStruct.d_modelPar_vtors_dX,modelStruct.d_modelPar_srs_dX,modelStruct.d_modelPar_delta1rs_dX,0.0,modelStruct.d_modelPar_ndrs_dX,modelStruct.d_modelPar_alphars_dX,modelStruct.d_modelPar_vx0rs_dX,modelStruct.d_modelPar_mu0rs_dX,modelStruct.d_modelPar_betars_dX,modelStruct.d_modelPar_mthetars_dX,modelStruct.d_modelPar_vthetars_dX,modelStruct.d_modelPar_vtzeta_dX,modelStruct.d_modelPar_dibsat_dX,modelStruct.d_modelPar_epsilon_dX,modelStruct.d_modelPar_vzeta_dX,modelStruct.d_modelPar_lambda_dX,0.0,0.0);
+idsrs = evaluator_calc_iq_0.getValues(idsrs,qgsrs,qgdrs,qcrs,qbrs,qsrs,vtdiblrs,vdsatrs,vgsrs,vdsrs,0,0,0,0,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgs,modelStruct.modelPar_cgrs,0,0,0,modelStruct.modelPar_vtors,modelStruct.modelPar_srs,modelStruct.modelPar_delta1rs,0.0,modelStruct.modelPar_ndrs,modelStruct.modelPar_alphars,modelStruct.modelPar_vx0rs,modelStruct.modelPar_mu0rs,modelStruct.modelPar_betars,modelStruct.modelPar_mthetars,modelStruct.modelPar_vthetars,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+}
 // I(si,src) <+ ((idsrs+(gmin*V(si,src))))
-staticContributions[admsNodeID_si] += (idsrs+(gmin*(probeVars[admsProbeID_V_si_src])));
-staticContributions[admsNodeID_src] -= (idsrs+(gmin*(probeVars[admsProbeID_V_si_src])));
+d_staticContributions_dX[admsNodeID_si]+= d_idsrs_dX;
+d_staticContributions_dX[(admsNodeID_src)]-= d_idsrs_dX;
 }
 else
 {
 // V(src,si) <+ (0)
 // do nothing at all
 }
+d_idsrd_dX = 0.0;
 idsrd = 0;
-if (((modelPar_flagres==0)&&(modelPar_lgd>modelPar_minl)))
+if (((modelStruct.modelPar_flagres==0)&&(modelStruct.modelPar_lgd>modelStruct.modelPar_minl)))
 {
-idsrd = AnalogFunctions::calc_iq<AdmsSensFadType>(idsrd,qgsrd,qgdrd,qcrd,qbrd,qsrd,vtdiblrd,vdsatrd,vgsrd,vdsrd,0,0,0,0,tdut,tnomk,phit,instancePar_w,modelPar_lgd,modelPar_cgrd,0,0,0,modelPar_vtord,modelPar_srd,modelPar_delta1rd,0.0,modelPar_ndrd,modelPar_alphard,modelPar_vx0rd,modelPar_mu0rd,modelPar_betard,modelPar_mthetard,modelPar_vthetard,modelPar_vtzeta,modelPar_dibsat,modelPar_epsilon,modelPar_vzeta,modelPar_lambda,instancePar_ngf,modelPar_type);
+{
+AnalogFunctions::calc_iqEvaluator evaluator_calc_iq_0(idsrd,qgsrd,qgdrd,qcrd,qbrd,qsrd,vtdiblrd,vdsatrd,vgsrd,vdsrd,0,0,0,0,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgd,modelStruct.modelPar_cgrd,0,0,0,modelStruct.modelPar_vtord,modelStruct.modelPar_srd,modelStruct.modelPar_delta1rd,0.0,modelStruct.modelPar_ndrd,modelStruct.modelPar_alphard,modelStruct.modelPar_vx0rd,modelStruct.modelPar_mu0rd,modelStruct.modelPar_betard,modelStruct.modelPar_mthetard,modelStruct.modelPar_vthetard,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+d_idsrd_dX = evaluator_calc_iq_0.getDerivs(idsrd,qgsrd,qgdrd,qcrd,qbrd,qsrd,vtdiblrd,vdsatrd,vgsrd,vdsrd,0,0,0,0,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgd,modelStruct.modelPar_cgrd,0,0,0,modelStruct.modelPar_vtord,modelStruct.modelPar_srd,modelStruct.modelPar_delta1rd,0.0,modelStruct.modelPar_ndrd,modelStruct.modelPar_alphard,modelStruct.modelPar_vx0rd,modelStruct.modelPar_mu0rd,modelStruct.modelPar_betard,modelStruct.modelPar_mthetard,modelStruct.modelPar_vthetard,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type,d_idsrd_dX,d_qgsrd_dX,d_qgdrd_dX,d_qcrd_dX,d_qbrd_dX,d_qsrd_dX,d_vtdiblrd_dX,d_vdsatrd_dX,d_vgsrd_dX,d_vdsrd_dX,0.0,0.0,0.0,0.0,d_tdut_dX,d_tnomk_dX,d_phit_dX,instanceStruct.d_instancePar_w_dX,modelStruct.d_modelPar_lgd_dX,modelStruct.d_modelPar_cgrd_dX,0.0,0.0,0.0,modelStruct.d_modelPar_vtord_dX,modelStruct.d_modelPar_srd_dX,modelStruct.d_modelPar_delta1rd_dX,0.0,modelStruct.d_modelPar_ndrd_dX,modelStruct.d_modelPar_alphard_dX,modelStruct.d_modelPar_vx0rd_dX,modelStruct.d_modelPar_mu0rd_dX,modelStruct.d_modelPar_betard_dX,modelStruct.d_modelPar_mthetard_dX,modelStruct.d_modelPar_vthetard_dX,modelStruct.d_modelPar_vtzeta_dX,modelStruct.d_modelPar_dibsat_dX,modelStruct.d_modelPar_epsilon_dX,modelStruct.d_modelPar_vzeta_dX,modelStruct.d_modelPar_lambda_dX,0.0,0.0);
+idsrd = evaluator_calc_iq_0.getValues(idsrd,qgsrd,qgdrd,qcrd,qbrd,qsrd,vtdiblrd,vdsatrd,vgsrd,vdsrd,0,0,0,0,tdut,tnomk,phit,instanceStruct.instancePar_w,modelStruct.modelPar_lgd,modelStruct.modelPar_cgrd,0,0,0,modelStruct.modelPar_vtord,modelStruct.modelPar_srd,modelStruct.modelPar_delta1rd,0.0,modelStruct.modelPar_ndrd,modelStruct.modelPar_alphard,modelStruct.modelPar_vx0rd,modelStruct.modelPar_mu0rd,modelStruct.modelPar_betard,modelStruct.modelPar_mthetard,modelStruct.modelPar_vthetard,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+}
 // I(drc,fp4) <+ ((idsrd+(gmin*V(drc,fp4))))
-staticContributions[admsNodeID_drc] += (idsrd+(gmin*(probeVars[admsProbeID_V_drc_fp4])));
-staticContributions[admsNodeID_fp4] -= (idsrd+(gmin*(probeVars[admsProbeID_V_drc_fp4])));
+d_staticContributions_dX[admsNodeID_drc]+= d_idsrd_dX;
+d_staticContributions_dX[(admsNodeID_fp4)]-= d_idsrd_dX;
 }
 else
 {
 // V(drc,fp4) <+ (0)
 // do nothing at all
 }
-ids = AnalogFunctions::calc_iq<AdmsSensFadType>(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,instancePar_w,instancePar_l,modelPar_cg,0,0,0,modelPar_vto,modelPar_ss,modelPar_delta1,modelPar_delta2,modelPar_nd,modelPar_alpha,modelPar_vx0,modelPar_mu0,modelPar_beta,modelPar_mtheta,modelPar_vtheta,modelPar_vtzeta,modelPar_dibsat,modelPar_epsilon,modelPar_vzeta,modelPar_lambda,instancePar_ngf,modelPar_type);
+{
+AnalogFunctions::calc_iqEvaluator evaluator_calc_iq_0(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,instanceStruct.instancePar_w,instanceStruct.instancePar_l,modelStruct.modelPar_cg,0,0,0,modelStruct.modelPar_vto,modelStruct.modelPar_ss,modelStruct.modelPar_delta1,modelStruct.modelPar_delta2,modelStruct.modelPar_nd,modelStruct.modelPar_alpha,modelStruct.modelPar_vx0,modelStruct.modelPar_mu0,modelStruct.modelPar_beta,modelStruct.modelPar_mtheta,modelStruct.modelPar_vtheta,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+d_ids_dX = evaluator_calc_iq_0.getDerivs(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,instanceStruct.instancePar_w,instanceStruct.instancePar_l,modelStruct.modelPar_cg,0,0,0,modelStruct.modelPar_vto,modelStruct.modelPar_ss,modelStruct.modelPar_delta1,modelStruct.modelPar_delta2,modelStruct.modelPar_nd,modelStruct.modelPar_alpha,modelStruct.modelPar_vx0,modelStruct.modelPar_mu0,modelStruct.modelPar_beta,modelStruct.modelPar_mtheta,modelStruct.modelPar_vtheta,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type,d_ids_dX,d_qgs_dX,d_qgd_dX,d_qc_dX,d_qb_dX,d_qs_dX,d_vtdibli_dX,d_vdsat1i_dX,d_vgsi_dX,d_vdsi_dX,0.0,0.0,0.0,0.0,d_tdut_dX,d_tnomk_dX,d_phit_dX,instanceStruct.d_instancePar_w_dX,instanceStruct.d_instancePar_l_dX,modelStruct.d_modelPar_cg_dX,0.0,0.0,0.0,modelStruct.d_modelPar_vto_dX,modelStruct.d_modelPar_ss_dX,modelStruct.d_modelPar_delta1_dX,modelStruct.d_modelPar_delta2_dX,modelStruct.d_modelPar_nd_dX,modelStruct.d_modelPar_alpha_dX,modelStruct.d_modelPar_vx0_dX,modelStruct.d_modelPar_mu0_dX,modelStruct.d_modelPar_beta_dX,modelStruct.d_modelPar_mtheta_dX,modelStruct.d_modelPar_vtheta_dX,modelStruct.d_modelPar_vtzeta_dX,modelStruct.d_modelPar_dibsat_dX,modelStruct.d_modelPar_epsilon_dX,modelStruct.d_modelPar_vzeta_dX,modelStruct.d_modelPar_lambda_dX,0.0,0.0);
+ids = evaluator_calc_iq_0.getValues(ids,qgs,qgd,qc,qb,qs,vtdibli,vdsat1i,vgsi,vdsi,0,0,0,0,tdut,tnomk,phit,instanceStruct.instancePar_w,instanceStruct.instancePar_l,modelStruct.modelPar_cg,0,0,0,modelStruct.modelPar_vto,modelStruct.modelPar_ss,modelStruct.modelPar_delta1,modelStruct.modelPar_delta2,modelStruct.modelPar_nd,modelStruct.modelPar_alpha,modelStruct.modelPar_vx0,modelStruct.modelPar_mu0,modelStruct.modelPar_beta,modelStruct.modelPar_mtheta,modelStruct.modelPar_vtheta,modelStruct.modelPar_vtzeta,modelStruct.modelPar_dibsat,modelStruct.modelPar_epsilon,modelStruct.modelPar_vzeta,modelStruct.modelPar_lambda,instanceStruct.instancePar_ngf,modelStruct.modelPar_type);
+}
 idsrf = (probeVars[admsProbeID_V_xt2_GND]);
-if ((modelPar_gmdisp==0))
+if ((modelStruct.modelPar_gmdisp==0))
 {
 // V(xt1,GND) <+ (0)
 // do nothing at all
 // V(xt2,GND) <+ (0)
 // do nothing at all
 // I(di,si) <+ ((ids+(gmin*V(di,si))))
-staticContributions[admsNodeID_di] += (ids+(gmin*(probeVars[admsProbeID_V_di_si])));
-staticContributions[admsNodeID_si] -= (ids+(gmin*(probeVars[admsProbeID_V_di_si])));
+d_staticContributions_dX[admsNodeID_di]+= d_ids_dX;
+d_staticContributions_dX[(admsNodeID_si)]-= d_ids_dX;
 }
 else
 {
 // I(xt1,GND) <+ ((ids-V(xt2,GND)))
-staticContributions[admsNodeID_xt1] += (ids-(probeVars[admsProbeID_V_xt2_GND]));
+d_staticContributions_dX[admsNodeID_xt1]+= d_ids_dX;
 // I(xt1,GND) <+ ((-ddt((taugmrf*V(xt1,GND)))))
-dynamicContributions[admsNodeID_xt1] += (-((modelPar_taugmrf*(probeVars[admsProbeID_V_xt1_GND]))));
+d_dynamicContributions_dX[admsNodeID_xt1]+= (-(modelStruct.d_modelPar_taugmrf_dX*(probeVars[admsProbeID_V_xt1_GND])));
 // I(xt2,GND) <+ ((V(xt1,GND)-V(xt2,GND)))
-staticContributions[admsNodeID_xt2] += ((probeVars[admsProbeID_V_xt1_GND])-(probeVars[admsProbeID_V_xt2_GND]));
+d_staticContributions_dX[admsNodeID_xt2]+= 0.0;
 // I(xt2,GND) <+ ((-ddt(((taugmrf/3.0)*V(xt2,GND)))))
-dynamicContributions[admsNodeID_xt2] += (-(((modelPar_taugmrf/3.0)*(probeVars[admsProbeID_V_xt2_GND]))));
+d_dynamicContributions_dX[admsNodeID_xt2]+= (-((modelStruct.d_modelPar_taugmrf_dX/3.0)*(probeVars[admsProbeID_V_xt2_GND])));
 // I(di,si) <+ ((idsrf+(gmin*V(di,si))))
-staticContributions[admsNodeID_di] += (idsrf+(gmin*(probeVars[admsProbeID_V_di_si])));
-staticContributions[admsNodeID_si] -= (idsrf+(gmin*(probeVars[admsProbeID_V_di_si])));
+d_staticContributions_dX[admsNodeID_di]+= 0.0;
+d_staticContributions_dX[(admsNodeID_si)]-= 0.0;
 }
 // I(gi,si) <+ ((ddt(qgs)+ddt((minc*V(gi,si)))))
-dynamicContributions[admsNodeID_gi] += ((qgs)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
-dynamicContributions[admsNodeID_si] -= ((qgs)+((modelPar_minc*(probeVars[admsProbeID_V_gi_si]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgs_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
+d_dynamicContributions_dX[(admsNodeID_si)]-= ((d_qgs_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_si])));
 // I(gi,di) <+ ((ddt(qgd)+ddt((minc*V(gi,di)))))
-dynamicContributions[admsNodeID_gi] += ((qgd)+((modelPar_minc*(probeVars[admsProbeID_V_gi_di]))));
-dynamicContributions[admsNodeID_di] -= ((qgd)+((modelPar_minc*(probeVars[admsProbeID_V_gi_di]))));
+d_dynamicContributions_dX[admsNodeID_gi]+= ((d_qgd_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_di])));
+d_dynamicContributions_dX[(admsNodeID_di)]-= ((d_qgd_dX)+(modelStruct.d_modelPar_minc_dX*(probeVars[admsProbeID_V_gi_di])));
+d_igsi_dX = 0.0;
 igsi = 0;
+d_igdi_dX = 0.0;
 igdi = 0;
+d_igssdio_dX = 0.0;
 igssdio = 0;
+d_igdsdio_dX = 0.0;
 igdsdio = 0;
+d_igsrec_dX = 0.0;
 igsrec = 0;
+d_igdrec_dX = 0.0;
 igdrec = 0;
-if ((modelPar_igmod==1))
+if ((modelStruct.modelPar_igmod==1))
 {
-igsi = AnalogFunctions::calc_ig<AdmsSensFadType>(igssdio,igsrec,vgsi,phit,modelPar_vgsats,modelPar_alphags,modelPar_fracs,modelPar_pg_params,modelPar_pbdgs,modelPar_vbdgs,tdut,tnomk,instancePar_w,instancePar_ngf,modelPar_ijs,modelPar_kbdgates,modelPar_vgsatqs,modelPar_betarecs,modelPar_irecs,modelPar_pgsrecs,modelPar_pg_param1,modelPar_vjg,modelPar_type);
-igdi = AnalogFunctions::calc_ig<AdmsSensFadType>(igdsdio,igdrec,(vgsi-vdsi),phit,modelPar_vgsatd,modelPar_alphagd,modelPar_fracd,modelPar_pg_paramd,modelPar_pbdgd,modelPar_vbdgd,tdut,tnomk,instancePar_w,instancePar_ngf,modelPar_ijd,modelPar_kbdgated,modelPar_vgsatqd,modelPar_betarecd,modelPar_irecd,modelPar_pgsrecd,modelPar_pg_param1,modelPar_vjg,modelPar_type);
-// I(gi,si) <+ ((igsi+(gmin*V(gi,si))))
-staticContributions[admsNodeID_gi] += (igsi+(gmin*(probeVars[admsProbeID_V_gi_si])));
-staticContributions[admsNodeID_si] -= (igsi+(gmin*(probeVars[admsProbeID_V_gi_si])));
-// I(gi,di) <+ ((igdi+(gmin*V(gi,di))))
-staticContributions[admsNodeID_gi] += (igdi+(gmin*(probeVars[admsProbeID_V_gi_di])));
-staticContributions[admsNodeID_di] -= (igdi+(gmin*(probeVars[admsProbeID_V_gi_di])));
+{
+AnalogFunctions::calc_igEvaluator evaluator_calc_ig_0(igssdio,igsrec,vgsi,phit,modelStruct.modelPar_vgsats,modelStruct.modelPar_alphags,modelStruct.modelPar_fracs,modelStruct.modelPar_pg_params,modelStruct.modelPar_pbdgs,modelStruct.modelPar_vbdgs,tdut,tnomk,instanceStruct.instancePar_w,instanceStruct.instancePar_ngf,modelStruct.modelPar_ijs,modelStruct.modelPar_kbdgates,modelStruct.modelPar_vgsatqs,modelStruct.modelPar_betarecs,modelStruct.modelPar_irecs,modelStruct.modelPar_pgsrecs,modelStruct.modelPar_pg_param1,modelStruct.modelPar_vjg,modelStruct.modelPar_type);
+d_igsi_dX = evaluator_calc_ig_0.getDerivs(igssdio,igsrec,vgsi,phit,modelStruct.modelPar_vgsats,modelStruct.modelPar_alphags,modelStruct.modelPar_fracs,modelStruct.modelPar_pg_params,modelStruct.modelPar_pbdgs,modelStruct.modelPar_vbdgs,tdut,tnomk,instanceStruct.instancePar_w,instanceStruct.instancePar_ngf,modelStruct.modelPar_ijs,modelStruct.modelPar_kbdgates,modelStruct.modelPar_vgsatqs,modelStruct.modelPar_betarecs,modelStruct.modelPar_irecs,modelStruct.modelPar_pgsrecs,modelStruct.modelPar_pg_param1,modelStruct.modelPar_vjg,modelStruct.modelPar_type,d_igssdio_dX,d_igsrec_dX,d_vgsi_dX,d_phit_dX,modelStruct.d_modelPar_vgsats_dX,modelStruct.d_modelPar_alphags_dX,modelStruct.d_modelPar_fracs_dX,modelStruct.d_modelPar_pg_params_dX,modelStruct.d_modelPar_pbdgs_dX,modelStruct.d_modelPar_vbdgs_dX,d_tdut_dX,d_tnomk_dX,instanceStruct.d_instancePar_w_dX,0.0,modelStruct.d_modelPar_ijs_dX,modelStruct.d_modelPar_kbdgates_dX,modelStruct.d_modelPar_vgsatqs_dX,modelStruct.d_modelPar_betarecs_dX,modelStruct.d_modelPar_irecs_dX,modelStruct.d_modelPar_pgsrecs_dX,modelStruct.d_modelPar_pg_param1_dX,modelStruct.d_modelPar_vjg_dX,0.0);
+igsi = evaluator_calc_ig_0.getValues(igssdio,igsrec,vgsi,phit,modelStruct.modelPar_vgsats,modelStruct.modelPar_alphags,modelStruct.modelPar_fracs,modelStruct.modelPar_pg_params,modelStruct.modelPar_pbdgs,modelStruct.modelPar_vbdgs,tdut,tnomk,instanceStruct.instancePar_w,instanceStruct.instancePar_ngf,modelStruct.modelPar_ijs,modelStruct.modelPar_kbdgates,modelStruct.modelPar_vgsatqs,modelStruct.modelPar_betarecs,modelStruct.modelPar_irecs,modelStruct.modelPar_pgsrecs,modelStruct.modelPar_pg_param1,modelStruct.modelPar_vjg,modelStruct.modelPar_type);
 }
-if ((instanceVar_rcd_w<=modelPar_minr))
+{
+AnalogFunctions::calc_igEvaluator evaluator_calc_ig_0(igdsdio,igdrec,(vgsi-vdsi),phit,modelStruct.modelPar_vgsatd,modelStruct.modelPar_alphagd,modelStruct.modelPar_fracd,modelStruct.modelPar_pg_paramd,modelStruct.modelPar_pbdgd,modelStruct.modelPar_vbdgd,tdut,tnomk,instanceStruct.instancePar_w,instanceStruct.instancePar_ngf,modelStruct.modelPar_ijd,modelStruct.modelPar_kbdgated,modelStruct.modelPar_vgsatqd,modelStruct.modelPar_betarecd,modelStruct.modelPar_irecd,modelStruct.modelPar_pgsrecd,modelStruct.modelPar_pg_param1,modelStruct.modelPar_vjg,modelStruct.modelPar_type);
+d_igdi_dX = evaluator_calc_ig_0.getDerivs(igdsdio,igdrec,(vgsi-vdsi),phit,modelStruct.modelPar_vgsatd,modelStruct.modelPar_alphagd,modelStruct.modelPar_fracd,modelStruct.modelPar_pg_paramd,modelStruct.modelPar_pbdgd,modelStruct.modelPar_vbdgd,tdut,tnomk,instanceStruct.instancePar_w,instanceStruct.instancePar_ngf,modelStruct.modelPar_ijd,modelStruct.modelPar_kbdgated,modelStruct.modelPar_vgsatqd,modelStruct.modelPar_betarecd,modelStruct.modelPar_irecd,modelStruct.modelPar_pgsrecd,modelStruct.modelPar_pg_param1,modelStruct.modelPar_vjg,modelStruct.modelPar_type,d_igdsdio_dX,d_igdrec_dX,(d_vgsi_dX-d_vdsi_dX),d_phit_dX,modelStruct.d_modelPar_vgsatd_dX,modelStruct.d_modelPar_alphagd_dX,modelStruct.d_modelPar_fracd_dX,modelStruct.d_modelPar_pg_paramd_dX,modelStruct.d_modelPar_pbdgd_dX,modelStruct.d_modelPar_vbdgd_dX,d_tdut_dX,d_tnomk_dX,instanceStruct.d_instancePar_w_dX,0.0,modelStruct.d_modelPar_ijd_dX,modelStruct.d_modelPar_kbdgated_dX,modelStruct.d_modelPar_vgsatqd_dX,modelStruct.d_modelPar_betarecd_dX,modelStruct.d_modelPar_irecd_dX,modelStruct.d_modelPar_pgsrecd_dX,modelStruct.d_modelPar_pg_param1_dX,modelStruct.d_modelPar_vjg_dX,0.0);
+igdi = evaluator_calc_ig_0.getValues(igdsdio,igdrec,(vgsi-vdsi),phit,modelStruct.modelPar_vgsatd,modelStruct.modelPar_alphagd,modelStruct.modelPar_fracd,modelStruct.modelPar_pg_paramd,modelStruct.modelPar_pbdgd,modelStruct.modelPar_vbdgd,tdut,tnomk,instanceStruct.instancePar_w,instanceStruct.instancePar_ngf,modelStruct.modelPar_ijd,modelStruct.modelPar_kbdgated,modelStruct.modelPar_vgsatqd,modelStruct.modelPar_betarecd,modelStruct.modelPar_irecd,modelStruct.modelPar_pgsrecd,modelStruct.modelPar_pg_param1,modelStruct.modelPar_vjg,modelStruct.modelPar_type);
+}
+// I(gi,si) <+ ((igsi+(gmin*V(gi,si))))
+d_staticContributions_dX[admsNodeID_gi]+= d_igsi_dX;
+d_staticContributions_dX[(admsNodeID_si)]-= d_igsi_dX;
+// I(gi,di) <+ ((igdi+(gmin*V(gi,di))))
+d_staticContributions_dX[admsNodeID_gi]+= d_igdi_dX;
+d_staticContributions_dX[(admsNodeID_di)]-= d_igdi_dX;
+}
+if ((instanceStruct.instanceVar_rcd_w<=modelStruct.modelPar_minr))
 {
 // V(d,drc) <+ (0)
 // do nothing at all
@@ -28514,10 +27589,10 @@ if ((instanceVar_rcd_w<=modelPar_minr))
 else
 {
 // I(d,drc) <+ ((V(d,drc)/rdi))
-staticContributions[admsNodeID_d] += ((probeVars[admsProbeID_V_d_drc])/rdi);
-staticContributions[admsNodeID_drc] -= ((probeVars[admsProbeID_V_d_drc])/rdi);
+d_staticContributions_dX[admsNodeID_d]+= (-(probeVars[admsProbeID_V_d_drc])*d_rdi_dX/rdi/rdi);
+d_staticContributions_dX[(admsNodeID_drc)]-= (-(probeVars[admsProbeID_V_d_drc])*d_rdi_dX/rdi/rdi);
 }
-if ((instanceVar_rcs_w<=modelPar_minr))
+if ((instanceStruct.instanceVar_rcs_w<=modelStruct.modelPar_minr))
 {
 // V(src,s) <+ (0)
 // do nothing at all
@@ -28525,10 +27600,10 @@ if ((instanceVar_rcs_w<=modelPar_minr))
 else
 {
 // I(src,s) <+ ((V(src,s)/rsi))
-staticContributions[admsNodeID_src] += ((probeVars[admsProbeID_V_src_s])/rsi);
-staticContributions[admsNodeID_s] -= ((probeVars[admsProbeID_V_src_s])/rsi);
+d_staticContributions_dX[admsNodeID_src]+= (-(probeVars[admsProbeID_V_src_s])*d_rsi_dX/rsi/rsi);
+d_staticContributions_dX[(admsNodeID_s)]-= (-(probeVars[admsProbeID_V_src_s])*d_rsi_dX/rsi/rsi);
 }
-if ((instanceVar_rg<=modelPar_minr))
+if ((instanceStruct.instanceVar_rg<=modelStruct.modelPar_minr))
 {
 // V(g,gi) <+ (0)
 // do nothing at all
@@ -28536,100 +27611,71 @@ if ((instanceVar_rg<=modelPar_minr))
 else
 {
 // I(g,gi) <+ ((V(g,gi)/rg))
-staticContributions[admsNodeID_g] += ((probeVars[admsProbeID_V_g_gi])/instanceVar_rg);
-staticContributions[admsNodeID_gi] -= ((probeVars[admsProbeID_V_g_gi])/instanceVar_rg);
+d_staticContributions_dX[admsNodeID_g]+= (-(probeVars[admsProbeID_V_g_gi])*instanceStruct.d_instanceVar_rg_dX/instanceStruct.instanceVar_rg/instanceStruct.instanceVar_rg);
+d_staticContributions_dX[(admsNodeID_gi)]-= (-(probeVars[admsProbeID_V_g_gi])*instanceStruct.d_instanceVar_rg_dX/instanceStruct.instanceVar_rg/instanceStruct.instanceVar_rg);
 }
-qofs = (((instancePar_w*instancePar_ngf)*modelPar_cofsm)*(probeVars[admsProbeID_V_gi_s]));
+d_qofs_dX = ((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.d_modelPar_cofsm_dX+instanceStruct.d_instancePar_w_dX*instanceStruct.instancePar_ngf*modelStruct.modelPar_cofsm)*(probeVars[admsProbeID_V_gi_s]);
+qofs = (((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.modelPar_cofsm)*(probeVars[admsProbeID_V_gi_s]));
 // I(gi,s) <+ (ddt(qofs))
-dynamicContributions[admsNodeID_gi] += (qofs);
-dynamicContributions[admsNodeID_s] -= (qofs);
-qofd = (((instancePar_w*instancePar_ngf)*modelPar_cofdm)*(probeVars[admsProbeID_V_gi_d]));
+d_dynamicContributions_dX[admsNodeID_gi]+= (d_qofs_dX);
+d_dynamicContributions_dX[(admsNodeID_s)]-= (d_qofs_dX);
+d_qofd_dX = ((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.d_modelPar_cofdm_dX+instanceStruct.d_instancePar_w_dX*instanceStruct.instancePar_ngf*modelStruct.modelPar_cofdm)*(probeVars[admsProbeID_V_gi_d]);
+qofd = (((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.modelPar_cofdm)*(probeVars[admsProbeID_V_gi_d]));
 // I(gi,d) <+ (ddt(qofd))
-dynamicContributions[admsNodeID_gi] += (qofd);
-dynamicContributions[admsNodeID_d] -= (qofd);
-qofds = (((instancePar_w*instancePar_ngf)*modelPar_cofdsm)*(probeVars[admsProbeID_V_d_s]));
+d_dynamicContributions_dX[admsNodeID_gi]+= (d_qofd_dX);
+d_dynamicContributions_dX[(admsNodeID_d)]-= (d_qofd_dX);
+d_qofds_dX = ((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.d_modelPar_cofdsm_dX+instanceStruct.d_instancePar_w_dX*instanceStruct.instancePar_ngf*modelStruct.modelPar_cofdsm)*(probeVars[admsProbeID_V_d_s]);
+qofds = (((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.modelPar_cofdsm)*(probeVars[admsProbeID_V_d_s]));
 // I(d,s) <+ (ddt(qofds))
-dynamicContributions[admsNodeID_d] += (qofds);
-dynamicContributions[admsNodeID_s] -= (qofds);
-qofdsub = (((instancePar_w*instancePar_ngf)*modelPar_cofdsubm)*(probeVars[admsProbeID_V_d_b]));
+d_dynamicContributions_dX[admsNodeID_d]+= (d_qofds_dX);
+d_dynamicContributions_dX[(admsNodeID_s)]-= (d_qofds_dX);
+d_qofdsub_dX = ((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.d_modelPar_cofdsubm_dX+instanceStruct.d_instancePar_w_dX*instanceStruct.instancePar_ngf*modelStruct.modelPar_cofdsubm)*(probeVars[admsProbeID_V_d_b]);
+qofdsub = (((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.modelPar_cofdsubm)*(probeVars[admsProbeID_V_d_b]));
 // I(d,b) <+ (ddt(qofdsub))
-dynamicContributions[admsNodeID_d] += (qofdsub);
-dynamicContributions[admsNodeID_b] -= (qofdsub);
-qofssub = (((instancePar_w*instancePar_ngf)*modelPar_cofssubm)*(probeVars[admsProbeID_V_s_b]));
+d_dynamicContributions_dX[admsNodeID_d]+= (d_qofdsub_dX);
+d_dynamicContributions_dX[(admsNodeID_b)]-= (d_qofdsub_dX);
+d_qofssub_dX = ((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.d_modelPar_cofssubm_dX+instanceStruct.d_instancePar_w_dX*instanceStruct.instancePar_ngf*modelStruct.modelPar_cofssubm)*(probeVars[admsProbeID_V_s_b]);
+qofssub = (((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.modelPar_cofssubm)*(probeVars[admsProbeID_V_s_b]));
 // I(s,b) <+ (ddt(qofssub))
-dynamicContributions[admsNodeID_s] += (qofssub);
-dynamicContributions[admsNodeID_b] -= (qofssub);
-qofgsub = (((instancePar_w*instancePar_ngf)*modelPar_cofgsubm)*(probeVars[admsProbeID_V_gi_b]));
+d_dynamicContributions_dX[admsNodeID_s]+= (d_qofssub_dX);
+d_dynamicContributions_dX[(admsNodeID_b)]-= (d_qofssub_dX);
+d_qofgsub_dX = ((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.d_modelPar_cofgsubm_dX+instanceStruct.d_instancePar_w_dX*instanceStruct.instancePar_ngf*modelStruct.modelPar_cofgsubm)*(probeVars[admsProbeID_V_gi_b]);
+qofgsub = (((instanceStruct.instancePar_w*instanceStruct.instancePar_ngf)*modelStruct.modelPar_cofgsubm)*(probeVars[admsProbeID_V_gi_b]));
 // I(gi,b) <+ (ddt(qofgsub))
-dynamicContributions[admsNodeID_gi] += (qofgsub);
-dynamicContributions[admsNodeID_b] -= (qofgsub);
+d_dynamicContributions_dX[admsNodeID_gi]+= (d_qofgsub_dX);
+d_dynamicContributions_dX[(admsNodeID_b)]-= (d_qofgsub_dX);
 gm = 0;
 svc = 0;
-if ((modelPar_noisemod==1))
+if ((modelStruct.modelPar_noisemod==1))
 {
  UserError(theInstance) << "$finish called." << std::endl; 
 }
+d_pdiss_dX = ((((((d_ids_dX*(probeVars[admsProbeID_V_di_si])+d_idsrd_dX*(probeVars[admsProbeID_V_drc_fp4]))+d_idsrs_dX*(probeVars[admsProbeID_V_si_src]))+d_idsfp1_dX*(probeVars[admsProbeID_V_fp1_di]))+d_idsfp2_dX*(probeVars[admsProbeID_V_fp2_fp1]))+d_idsfp3_dX*(probeVars[admsProbeID_V_fp3_fp2]))+d_idsfp4_dX*(probeVars[admsProbeID_V_fp4_fp3]));
 pdiss = (((((((ids*(probeVars[admsProbeID_V_di_si]))+(idsrd*(probeVars[admsProbeID_V_drc_fp4])))+(idsrs*(probeVars[admsProbeID_V_si_src])))+(idsfp1*(probeVars[admsProbeID_V_fp1_di])))+(idsfp2*(probeVars[admsProbeID_V_fp2_fp1])))+(idsfp3*(probeVars[admsProbeID_V_fp3_fp2])))+(idsfp4*(probeVars[admsProbeID_V_fp4_fp3])));
 if ((rdi!=0))
 {
+d_pdiss_dX = (d_pdiss_dX+(-((probeVars[admsProbeID_V_drc_d])*(probeVars[admsProbeID_V_drc_d]))*d_rdi_dX/rdi/rdi));
 pdiss = (pdiss+(((probeVars[admsProbeID_V_drc_d])*(probeVars[admsProbeID_V_drc_d]))/rdi));
 }
 if ((rsi!=0))
 {
+d_pdiss_dX = (d_pdiss_dX+(-((probeVars[admsProbeID_V_src_s])*(probeVars[admsProbeID_V_src_s]))*d_rsi_dX/rsi/rsi));
 pdiss = (pdiss+(((probeVars[admsProbeID_V_src_s])*(probeVars[admsProbeID_V_src_s]))/rsi));
 }
-if ((modelPar_rth>0))
+if ((modelStruct.modelPar_rth>0))
 {
 // Pwr(dt,GND) <+ (ddt((cth*Temp(dt,GND))))
-dynamicContributions[admsNodeID_dt] += ((modelPar_cth*(probeVars[admsProbeID_Temp_dt_GND])));
+d_dynamicContributions_dX[admsNodeID_dt]+= (modelStruct.d_modelPar_cth_dX*(probeVars[admsProbeID_Temp_dt_GND]));
 // Pwr(dt,GND) <+ ((-pdiss))
-staticContributions[admsNodeID_dt] += (-pdiss);
+d_staticContributions_dX[admsNodeID_dt]+= (-d_pdiss_dX);
 // Pwr(dt,GND) <+ ((Temp(dt,GND)/rth))
-staticContributions[admsNodeID_dt] += ((probeVars[admsProbeID_Temp_dt_GND])/modelPar_rth);
+d_staticContributions_dX[admsNodeID_dt]+= (-(probeVars[admsProbeID_Temp_dt_GND])*modelStruct.d_modelPar_rth_dX/modelStruct.modelPar_rth/modelStruct.modelPar_rth);
 }
 else
 {
 // Temp(dt,GND) <+ (0.0)
 // do nothing at all
 }
-instanceVar_vgisi = (probeVars[admsProbeID_V_gi_si]);
-instanceVar_vdisi = (probeVars[admsProbeID_V_di_si]);
-instanceVar_vti = vtdibli;
-instanceVar_vdsati = vdsat1i;
-instanceVar_pdc = pdiss;
-instanceVar_idisi = ids;
-instanceVar_igs = igsi;
-instanceVar_igd = igdi;
-instanceVar_qgi = (qgs+qgd);
-instanceVar_qdi = (-qgd);
-instanceVar_qsi = (-qgs);
-instanceVar_qbi = 0;
-instanceVar_gmi = 0.0 /*FIXME: ddx(ids,V(gi,GND)) not implemented in sensitivity context */;
-instanceVar_gdsi = 0.0 /*FIXME: ddx(ids,V(di,GND)) not implemented in sensitivity context */;
-instanceVar_gmbsi = 0.0 /*FIXME: ddx(ids,V(b,GND)) not implemented in sensitivity context */;
-instanceVar_cggi = 0.0 /*FIXME: ddx(qgi,V(gi,GND)) not implemented in sensitivity context */;
-instanceVar_cgdi = 0.0 /*FIXME: ddx(qgi,V(di,GND)) not implemented in sensitivity context */;
-instanceVar_cgsi = 0.0 /*FIXME: ddx(qgi,V(si,GND)) not implemented in sensitivity context */;
-instanceVar_cgbi = 0.0 /*FIXME: ddx(qgi,V(b,GND)) not implemented in sensitivity context */;
-instanceVar_cdgi = 0.0 /*FIXME: ddx(qdi,V(gi,GND)) not implemented in sensitivity context */;
-instanceVar_cddi = 0.0 /*FIXME: ddx(qdi,V(di,GND)) not implemented in sensitivity context */;
-instanceVar_cdsi = 0.0 /*FIXME: ddx(qdi,V(si,GND)) not implemented in sensitivity context */;
-instanceVar_cdbi = 0.0 /*FIXME: ddx(qdi,V(b,GND)) not implemented in sensitivity context */;
-instanceVar_csgi = 0.0 /*FIXME: ddx(qsi,V(gi,GND)) not implemented in sensitivity context */;
-instanceVar_csdi = 0.0 /*FIXME: ddx(qsi,V(di,GND)) not implemented in sensitivity context */;
-instanceVar_cssi = 0.0 /*FIXME: ddx(qsi,V(si,GND)) not implemented in sensitivity context */;
-instanceVar_csbi = 0.0 /*FIXME: ddx(qsi,V(b,GND)) not implemented in sensitivity context */;
-instanceVar_cbgi = 0.0 /*FIXME: ddx(qbi,V(gi,GND)) not implemented in sensitivity context */;
-instanceVar_cbdi = 0.0 /*FIXME: ddx(qbi,V(di,GND)) not implemented in sensitivity context */;
-instanceVar_cbsi = 0.0 /*FIXME: ddx(qbi,V(si,GND)) not implemented in sensitivity context */;
-instanceVar_cbbi = 0.0 /*FIXME: ddx(qbi,V(b,GND)) not implemented in sensitivity context */;
-instanceVar_cgs = ((instancePar_w*instancePar_ngf)*modelPar_cofsm);
-instanceVar_cgd = ((instancePar_w*instancePar_ngf)*modelPar_cofdm);
-instanceVar_t_total_k = tdut;
-instanceVar_t_total_c = (tdut-273.15);
-instanceVar_t_delta_sh = tsh;
-instanceVar_rs = (((modelPar_rsh*modelPar_lgs)/instancePar_w)/instancePar_ngf);
-instanceVar_rd = (((modelPar_rsh*modelPar_lgd)/instancePar_w)/instancePar_ngf);
 }
 
 
@@ -28678,456 +27724,588 @@ Findices.resize(18+0);
 Qindices.resize(18+0);
 
 std::vector <double> probeVars(45);
-std::vector <AdmsSensFadType> staticContributions(18+0);
-std::vector <AdmsSensFadType> dynamicContributions(18+0);
+std::vector <double> d_staticContributions_dX(18+0);
+std::vector <double> d_dynamicContributions_dX(18+0);
 
 
 // initialize contributions to zero (automatically sets derivatives to zero)
 for (int i=0; i < 18+0 ; ++i)
 {
-   staticContributions[i]=0;
-   dynamicContributions[i]=0;
+   d_staticContributions_dX[i]=0;
+   d_dynamicContributions_dX[i]=0;
 }
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 //reals
-AdmsSensFadType modelPar_version=mod.version;
-bool modelPar_given_version=mod.given("version");
-AdmsSensFadType modelPar_tnom=mod.tnom;
-bool modelPar_given_tnom=mod.given("tnom");
-AdmsSensFadType modelPar_cg=mod.cg;
-bool modelPar_given_cg=mod.given("cg");
-AdmsSensFadType modelPar_cofsm=mod.cofsm;
-bool modelPar_given_cofsm=mod.given("cofsm");
-AdmsSensFadType modelPar_cofdm=mod.cofdm;
-bool modelPar_given_cofdm=mod.given("cofdm");
-AdmsSensFadType modelPar_cofdsm=mod.cofdsm;
-bool modelPar_given_cofdsm=mod.given("cofdsm");
-AdmsSensFadType modelPar_cofdsubm=mod.cofdsubm;
-bool modelPar_given_cofdsubm=mod.given("cofdsubm");
-AdmsSensFadType modelPar_cofssubm=mod.cofssubm;
-bool modelPar_given_cofssubm=mod.given("cofssubm");
-AdmsSensFadType modelPar_cofgsubm=mod.cofgsubm;
-bool modelPar_given_cofgsubm=mod.given("cofgsubm");
-AdmsSensFadType modelPar_rsh=mod.rsh;
-bool modelPar_given_rsh=mod.given("rsh");
-AdmsSensFadType modelPar_rcs=mod.rcs;
-bool modelPar_given_rcs=mod.given("rcs");
-AdmsSensFadType modelPar_rcd=mod.rcd;
-bool modelPar_given_rcd=mod.given("rcd");
-AdmsSensFadType modelPar_vx0=mod.vx0;
-bool modelPar_given_vx0=mod.given("vx0");
-AdmsSensFadType modelPar_mu0=mod.mu0;
-bool modelPar_given_mu0=mod.given("mu0");
-AdmsSensFadType modelPar_beta=mod.beta;
-bool modelPar_given_beta=mod.given("beta");
-AdmsSensFadType modelPar_vto=mod.vto;
-bool modelPar_given_vto=mod.given("vto");
-AdmsSensFadType modelPar_ss=mod.ss;
-bool modelPar_given_ss=mod.given("ss");
-AdmsSensFadType modelPar_delta1=mod.delta1;
-bool modelPar_given_delta1=mod.given("delta1");
-AdmsSensFadType modelPar_delta2=mod.delta2;
-bool modelPar_given_delta2=mod.given("delta2");
-AdmsSensFadType modelPar_dibsat=mod.dibsat;
-bool modelPar_given_dibsat=mod.given("dibsat");
-AdmsSensFadType modelPar_nd=mod.nd;
-bool modelPar_given_nd=mod.given("nd");
-AdmsSensFadType modelPar_alpha=mod.alpha;
-bool modelPar_given_alpha=mod.given("alpha");
-AdmsSensFadType modelPar_lambda=mod.lambda;
-bool modelPar_given_lambda=mod.given("lambda");
-AdmsSensFadType modelPar_vtheta=mod.vtheta;
-bool modelPar_given_vtheta=mod.given("vtheta");
-AdmsSensFadType modelPar_mtheta=mod.mtheta;
-bool modelPar_given_mtheta=mod.given("mtheta");
-AdmsSensFadType modelPar_vzeta=mod.vzeta;
-bool modelPar_given_vzeta=mod.given("vzeta");
-AdmsSensFadType modelPar_vtzeta=mod.vtzeta;
-bool modelPar_given_vtzeta=mod.given("vtzeta");
-AdmsSensFadType modelPar_epsilon=mod.epsilon;
-bool modelPar_given_epsilon=mod.given("epsilon");
-AdmsSensFadType modelPar_rct1=mod.rct1;
-bool modelPar_given_rct1=mod.given("rct1");
-AdmsSensFadType modelPar_rct2=mod.rct2;
-bool modelPar_given_rct2=mod.given("rct2");
-AdmsSensFadType modelPar_lgs=mod.lgs;
-bool modelPar_given_lgs=mod.given("lgs");
-AdmsSensFadType modelPar_vtors=mod.vtors;
-bool modelPar_given_vtors=mod.given("vtors");
-AdmsSensFadType modelPar_cgrs=mod.cgrs;
-bool modelPar_given_cgrs=mod.given("cgrs");
-AdmsSensFadType modelPar_vx0rs=mod.vx0rs;
-bool modelPar_given_vx0rs=mod.given("vx0rs");
-AdmsSensFadType modelPar_mu0rs=mod.mu0rs;
-bool modelPar_given_mu0rs=mod.given("mu0rs");
-AdmsSensFadType modelPar_betars=mod.betars;
-bool modelPar_given_betars=mod.given("betars");
-AdmsSensFadType modelPar_delta1rs=mod.delta1rs;
-bool modelPar_given_delta1rs=mod.given("delta1rs");
-AdmsSensFadType modelPar_srs=mod.srs;
-bool modelPar_given_srs=mod.given("srs");
-AdmsSensFadType modelPar_ndrs=mod.ndrs;
-bool modelPar_given_ndrs=mod.given("ndrs");
-AdmsSensFadType modelPar_vthetars=mod.vthetars;
-bool modelPar_given_vthetars=mod.given("vthetars");
-AdmsSensFadType modelPar_mthetars=mod.mthetars;
-bool modelPar_given_mthetars=mod.given("mthetars");
-AdmsSensFadType modelPar_alphars=mod.alphars;
-bool modelPar_given_alphars=mod.given("alphars");
-AdmsSensFadType modelPar_lgd=mod.lgd;
-bool modelPar_given_lgd=mod.given("lgd");
-AdmsSensFadType modelPar_vtord=mod.vtord;
-bool modelPar_given_vtord=mod.given("vtord");
-AdmsSensFadType modelPar_cgrd=mod.cgrd;
-bool modelPar_given_cgrd=mod.given("cgrd");
-AdmsSensFadType modelPar_vx0rd=mod.vx0rd;
-bool modelPar_given_vx0rd=mod.given("vx0rd");
-AdmsSensFadType modelPar_mu0rd=mod.mu0rd;
-bool modelPar_given_mu0rd=mod.given("mu0rd");
-AdmsSensFadType modelPar_betard=mod.betard;
-bool modelPar_given_betard=mod.given("betard");
-AdmsSensFadType modelPar_delta1rd=mod.delta1rd;
-bool modelPar_given_delta1rd=mod.given("delta1rd");
-AdmsSensFadType modelPar_srd=mod.srd;
-bool modelPar_given_srd=mod.given("srd");
-AdmsSensFadType modelPar_ndrd=mod.ndrd;
-bool modelPar_given_ndrd=mod.given("ndrd");
-AdmsSensFadType modelPar_vthetard=mod.vthetard;
-bool modelPar_given_vthetard=mod.given("vthetard");
-AdmsSensFadType modelPar_mthetard=mod.mthetard;
-bool modelPar_given_mthetard=mod.given("mthetard");
-AdmsSensFadType modelPar_alphard=mod.alphard;
-bool modelPar_given_alphard=mod.given("alphard");
-AdmsSensFadType modelPar_lgfp1=mod.lgfp1;
-bool modelPar_given_lgfp1=mod.given("lgfp1");
-AdmsSensFadType modelPar_vtofp1=mod.vtofp1;
-bool modelPar_given_vtofp1=mod.given("vtofp1");
-AdmsSensFadType modelPar_cgfp1=mod.cgfp1;
-bool modelPar_given_cgfp1=mod.given("cgfp1");
-AdmsSensFadType modelPar_cfp1s=mod.cfp1s;
-bool modelPar_given_cfp1s=mod.given("cfp1s");
-AdmsSensFadType modelPar_ccfp1=mod.ccfp1;
-bool modelPar_given_ccfp1=mod.given("ccfp1");
-AdmsSensFadType modelPar_cbfp1=mod.cbfp1;
-bool modelPar_given_cbfp1=mod.given("cbfp1");
-AdmsSensFadType modelPar_vx0fp1=mod.vx0fp1;
-bool modelPar_given_vx0fp1=mod.given("vx0fp1");
-AdmsSensFadType modelPar_mu0fp1=mod.mu0fp1;
-bool modelPar_given_mu0fp1=mod.given("mu0fp1");
-AdmsSensFadType modelPar_betafp1=mod.betafp1;
-bool modelPar_given_betafp1=mod.given("betafp1");
-AdmsSensFadType modelPar_delta1fp1=mod.delta1fp1;
-bool modelPar_given_delta1fp1=mod.given("delta1fp1");
-AdmsSensFadType modelPar_sfp1=mod.sfp1;
-bool modelPar_given_sfp1=mod.given("sfp1");
-AdmsSensFadType modelPar_ndfp1=mod.ndfp1;
-bool modelPar_given_ndfp1=mod.given("ndfp1");
-AdmsSensFadType modelPar_vthetafp1=mod.vthetafp1;
-bool modelPar_given_vthetafp1=mod.given("vthetafp1");
-AdmsSensFadType modelPar_mthetafp1=mod.mthetafp1;
-bool modelPar_given_mthetafp1=mod.given("mthetafp1");
-AdmsSensFadType modelPar_alphafp1=mod.alphafp1;
-bool modelPar_given_alphafp1=mod.given("alphafp1");
-AdmsSensFadType modelPar_lgfp2=mod.lgfp2;
-bool modelPar_given_lgfp2=mod.given("lgfp2");
-AdmsSensFadType modelPar_vtofp2=mod.vtofp2;
-bool modelPar_given_vtofp2=mod.given("vtofp2");
-AdmsSensFadType modelPar_cgfp2=mod.cgfp2;
-bool modelPar_given_cgfp2=mod.given("cgfp2");
-AdmsSensFadType modelPar_cfp2s=mod.cfp2s;
-bool modelPar_given_cfp2s=mod.given("cfp2s");
-AdmsSensFadType modelPar_ccfp2=mod.ccfp2;
-bool modelPar_given_ccfp2=mod.given("ccfp2");
-AdmsSensFadType modelPar_cbfp2=mod.cbfp2;
-bool modelPar_given_cbfp2=mod.given("cbfp2");
-AdmsSensFadType modelPar_vx0fp2=mod.vx0fp2;
-bool modelPar_given_vx0fp2=mod.given("vx0fp2");
-AdmsSensFadType modelPar_mu0fp2=mod.mu0fp2;
-bool modelPar_given_mu0fp2=mod.given("mu0fp2");
-AdmsSensFadType modelPar_betafp2=mod.betafp2;
-bool modelPar_given_betafp2=mod.given("betafp2");
-AdmsSensFadType modelPar_delta1fp2=mod.delta1fp2;
-bool modelPar_given_delta1fp2=mod.given("delta1fp2");
-AdmsSensFadType modelPar_sfp2=mod.sfp2;
-bool modelPar_given_sfp2=mod.given("sfp2");
-AdmsSensFadType modelPar_ndfp2=mod.ndfp2;
-bool modelPar_given_ndfp2=mod.given("ndfp2");
-AdmsSensFadType modelPar_vthetafp2=mod.vthetafp2;
-bool modelPar_given_vthetafp2=mod.given("vthetafp2");
-AdmsSensFadType modelPar_mthetafp2=mod.mthetafp2;
-bool modelPar_given_mthetafp2=mod.given("mthetafp2");
-AdmsSensFadType modelPar_alphafp2=mod.alphafp2;
-bool modelPar_given_alphafp2=mod.given("alphafp2");
-AdmsSensFadType modelPar_lgfp3=mod.lgfp3;
-bool modelPar_given_lgfp3=mod.given("lgfp3");
-AdmsSensFadType modelPar_vtofp3=mod.vtofp3;
-bool modelPar_given_vtofp3=mod.given("vtofp3");
-AdmsSensFadType modelPar_cgfp3=mod.cgfp3;
-bool modelPar_given_cgfp3=mod.given("cgfp3");
-AdmsSensFadType modelPar_cfp3s=mod.cfp3s;
-bool modelPar_given_cfp3s=mod.given("cfp3s");
-AdmsSensFadType modelPar_ccfp3=mod.ccfp3;
-bool modelPar_given_ccfp3=mod.given("ccfp3");
-AdmsSensFadType modelPar_cbfp3=mod.cbfp3;
-bool modelPar_given_cbfp3=mod.given("cbfp3");
-AdmsSensFadType modelPar_vx0fp3=mod.vx0fp3;
-bool modelPar_given_vx0fp3=mod.given("vx0fp3");
-AdmsSensFadType modelPar_mu0fp3=mod.mu0fp3;
-bool modelPar_given_mu0fp3=mod.given("mu0fp3");
-AdmsSensFadType modelPar_betafp3=mod.betafp3;
-bool modelPar_given_betafp3=mod.given("betafp3");
-AdmsSensFadType modelPar_delta1fp3=mod.delta1fp3;
-bool modelPar_given_delta1fp3=mod.given("delta1fp3");
-AdmsSensFadType modelPar_sfp3=mod.sfp3;
-bool modelPar_given_sfp3=mod.given("sfp3");
-AdmsSensFadType modelPar_ndfp3=mod.ndfp3;
-bool modelPar_given_ndfp3=mod.given("ndfp3");
-AdmsSensFadType modelPar_vthetafp3=mod.vthetafp3;
-bool modelPar_given_vthetafp3=mod.given("vthetafp3");
-AdmsSensFadType modelPar_mthetafp3=mod.mthetafp3;
-bool modelPar_given_mthetafp3=mod.given("mthetafp3");
-AdmsSensFadType modelPar_alphafp3=mod.alphafp3;
-bool modelPar_given_alphafp3=mod.given("alphafp3");
-AdmsSensFadType modelPar_lgfp4=mod.lgfp4;
-bool modelPar_given_lgfp4=mod.given("lgfp4");
-AdmsSensFadType modelPar_vtofp4=mod.vtofp4;
-bool modelPar_given_vtofp4=mod.given("vtofp4");
-AdmsSensFadType modelPar_cgfp4=mod.cgfp4;
-bool modelPar_given_cgfp4=mod.given("cgfp4");
-AdmsSensFadType modelPar_cfp4s=mod.cfp4s;
-bool modelPar_given_cfp4s=mod.given("cfp4s");
-AdmsSensFadType modelPar_ccfp4=mod.ccfp4;
-bool modelPar_given_ccfp4=mod.given("ccfp4");
-AdmsSensFadType modelPar_cbfp4=mod.cbfp4;
-bool modelPar_given_cbfp4=mod.given("cbfp4");
-AdmsSensFadType modelPar_vx0fp4=mod.vx0fp4;
-bool modelPar_given_vx0fp4=mod.given("vx0fp4");
-AdmsSensFadType modelPar_mu0fp4=mod.mu0fp4;
-bool modelPar_given_mu0fp4=mod.given("mu0fp4");
-AdmsSensFadType modelPar_betafp4=mod.betafp4;
-bool modelPar_given_betafp4=mod.given("betafp4");
-AdmsSensFadType modelPar_delta1fp4=mod.delta1fp4;
-bool modelPar_given_delta1fp4=mod.given("delta1fp4");
-AdmsSensFadType modelPar_sfp4=mod.sfp4;
-bool modelPar_given_sfp4=mod.given("sfp4");
-AdmsSensFadType modelPar_ndfp4=mod.ndfp4;
-bool modelPar_given_ndfp4=mod.given("ndfp4");
-AdmsSensFadType modelPar_vthetafp4=mod.vthetafp4;
-bool modelPar_given_vthetafp4=mod.given("vthetafp4");
-AdmsSensFadType modelPar_mthetafp4=mod.mthetafp4;
-bool modelPar_given_mthetafp4=mod.given("mthetafp4");
-AdmsSensFadType modelPar_alphafp4=mod.alphafp4;
-bool modelPar_given_alphafp4=mod.given("alphafp4");
-AdmsSensFadType modelPar_rgsp=mod.rgsp;
-bool modelPar_given_rgsp=mod.given("rgsp");
-AdmsSensFadType modelPar_vjg=mod.vjg;
-bool modelPar_given_vjg=mod.given("vjg");
-AdmsSensFadType modelPar_pg_param1=mod.pg_param1;
-bool modelPar_given_pg_param1=mod.given("pg_param1");
-AdmsSensFadType modelPar_pg_params=mod.pg_params;
-bool modelPar_given_pg_params=mod.given("pg_params");
-AdmsSensFadType modelPar_ijs=mod.ijs;
-bool modelPar_given_ijs=mod.given("ijs");
-AdmsSensFadType modelPar_vgsats=mod.vgsats;
-bool modelPar_given_vgsats=mod.given("vgsats");
-AdmsSensFadType modelPar_fracs=mod.fracs;
-bool modelPar_given_fracs=mod.given("fracs");
-AdmsSensFadType modelPar_alphags=mod.alphags;
-bool modelPar_given_alphags=mod.given("alphags");
-AdmsSensFadType modelPar_pg_paramd=mod.pg_paramd;
-bool modelPar_given_pg_paramd=mod.given("pg_paramd");
-AdmsSensFadType modelPar_ijd=mod.ijd;
-bool modelPar_given_ijd=mod.given("ijd");
-AdmsSensFadType modelPar_vgsatd=mod.vgsatd;
-bool modelPar_given_vgsatd=mod.given("vgsatd");
-AdmsSensFadType modelPar_fracd=mod.fracd;
-bool modelPar_given_fracd=mod.given("fracd");
-AdmsSensFadType modelPar_alphagd=mod.alphagd;
-bool modelPar_given_alphagd=mod.given("alphagd");
-AdmsSensFadType modelPar_pgsrecs=mod.pgsrecs;
-bool modelPar_given_pgsrecs=mod.given("pgsrecs");
-AdmsSensFadType modelPar_irecs=mod.irecs;
-bool modelPar_given_irecs=mod.given("irecs");
-AdmsSensFadType modelPar_vgsatqs=mod.vgsatqs;
-bool modelPar_given_vgsatqs=mod.given("vgsatqs");
-AdmsSensFadType modelPar_vbdgs=mod.vbdgs;
-bool modelPar_given_vbdgs=mod.given("vbdgs");
-AdmsSensFadType modelPar_pbdgs=mod.pbdgs;
-bool modelPar_given_pbdgs=mod.given("pbdgs");
-AdmsSensFadType modelPar_betarecs=mod.betarecs;
-bool modelPar_given_betarecs=mod.given("betarecs");
-AdmsSensFadType modelPar_kbdgates=mod.kbdgates;
-bool modelPar_given_kbdgates=mod.given("kbdgates");
-AdmsSensFadType modelPar_pgsrecd=mod.pgsrecd;
-bool modelPar_given_pgsrecd=mod.given("pgsrecd");
-AdmsSensFadType modelPar_irecd=mod.irecd;
-bool modelPar_given_irecd=mod.given("irecd");
-AdmsSensFadType modelPar_vgsatqd=mod.vgsatqd;
-bool modelPar_given_vgsatqd=mod.given("vgsatqd");
-AdmsSensFadType modelPar_vbdgd=mod.vbdgd;
-bool modelPar_given_vbdgd=mod.given("vbdgd");
-AdmsSensFadType modelPar_pbdgd=mod.pbdgd;
-bool modelPar_given_pbdgd=mod.given("pbdgd");
-AdmsSensFadType modelPar_betarecd=mod.betarecd;
-bool modelPar_given_betarecd=mod.given("betarecd");
-AdmsSensFadType modelPar_kbdgated=mod.kbdgated;
-bool modelPar_given_kbdgated=mod.given("kbdgated");
-AdmsSensFadType modelPar_rth=mod.rth;
-bool modelPar_given_rth=mod.given("rth");
-AdmsSensFadType modelPar_cth=mod.cth;
-bool modelPar_given_cth=mod.given("cth");
-AdmsSensFadType modelPar_taugmrf=mod.taugmrf;
-bool modelPar_given_taugmrf=mod.given("taugmrf");
-AdmsSensFadType modelPar_ctrap=mod.ctrap;
-bool modelPar_given_ctrap=mod.given("ctrap");
-AdmsSensFadType modelPar_vttrap=mod.vttrap;
-bool modelPar_given_vttrap=mod.given("vttrap");
-AdmsSensFadType modelPar_taut=mod.taut;
-bool modelPar_given_taut=mod.given("taut");
-AdmsSensFadType modelPar_alphat1=mod.alphat1;
-bool modelPar_given_alphat1=mod.given("alphat1");
-AdmsSensFadType modelPar_alphat2=mod.alphat2;
-bool modelPar_given_alphat2=mod.given("alphat2");
-AdmsSensFadType modelPar_tempt=mod.tempt;
-bool modelPar_given_tempt=mod.given("tempt");
-AdmsSensFadType modelPar_shs=mod.shs;
-bool modelPar_given_shs=mod.given("shs");
-AdmsSensFadType modelPar_shd=mod.shd;
-bool modelPar_given_shd=mod.given("shd");
-AdmsSensFadType modelPar_kf=mod.kf;
-bool modelPar_given_kf=mod.given("kf");
-AdmsSensFadType modelPar_af=mod.af;
-bool modelPar_given_af=mod.given("af");
-AdmsSensFadType modelPar_ffe=mod.ffe;
-bool modelPar_given_ffe=mod.given("ffe");
-AdmsSensFadType modelPar_minr=mod.minr;
-bool modelPar_given_minr=mod.given("minr");
-AdmsSensFadType modelPar_minl=mod.minl;
-bool modelPar_given_minl=mod.given("minl");
-AdmsSensFadType modelPar_minc=mod.minc;
-bool modelPar_given_minc=mod.given("minc");
-AdmsSensFadType modelPar_LMIN=mod.LMIN;
-bool modelPar_given_LMIN=mod.given("LMIN");
-AdmsSensFadType modelPar_WMIN=mod.WMIN;
-bool modelPar_given_WMIN=mod.given("WMIN");
-AdmsSensFadType modelPar_LMAX=mod.LMAX;
-bool modelPar_given_LMAX=mod.given("LMAX");
-AdmsSensFadType modelPar_WMAX=mod.WMAX;
-bool modelPar_given_WMAX=mod.given("WMAX");
+modelStruct.modelPar_version=mod.version;
+modelStruct.d_modelPar_version_dX=0.0;
+modelStruct.modelPar_given_version=mod.given("version");
+modelStruct.modelPar_tnom=mod.tnom;
+modelStruct.d_modelPar_tnom_dX=0.0;
+modelStruct.modelPar_given_tnom=mod.given("tnom");
+modelStruct.modelPar_cg=mod.cg;
+modelStruct.d_modelPar_cg_dX=0.0;
+modelStruct.modelPar_given_cg=mod.given("cg");
+modelStruct.modelPar_cofsm=mod.cofsm;
+modelStruct.d_modelPar_cofsm_dX=0.0;
+modelStruct.modelPar_given_cofsm=mod.given("cofsm");
+modelStruct.modelPar_cofdm=mod.cofdm;
+modelStruct.d_modelPar_cofdm_dX=0.0;
+modelStruct.modelPar_given_cofdm=mod.given("cofdm");
+modelStruct.modelPar_cofdsm=mod.cofdsm;
+modelStruct.d_modelPar_cofdsm_dX=0.0;
+modelStruct.modelPar_given_cofdsm=mod.given("cofdsm");
+modelStruct.modelPar_cofdsubm=mod.cofdsubm;
+modelStruct.d_modelPar_cofdsubm_dX=0.0;
+modelStruct.modelPar_given_cofdsubm=mod.given("cofdsubm");
+modelStruct.modelPar_cofssubm=mod.cofssubm;
+modelStruct.d_modelPar_cofssubm_dX=0.0;
+modelStruct.modelPar_given_cofssubm=mod.given("cofssubm");
+modelStruct.modelPar_cofgsubm=mod.cofgsubm;
+modelStruct.d_modelPar_cofgsubm_dX=0.0;
+modelStruct.modelPar_given_cofgsubm=mod.given("cofgsubm");
+modelStruct.modelPar_rsh=mod.rsh;
+modelStruct.d_modelPar_rsh_dX=0.0;
+modelStruct.modelPar_given_rsh=mod.given("rsh");
+modelStruct.modelPar_rcs=mod.rcs;
+modelStruct.d_modelPar_rcs_dX=0.0;
+modelStruct.modelPar_given_rcs=mod.given("rcs");
+modelStruct.modelPar_rcd=mod.rcd;
+modelStruct.d_modelPar_rcd_dX=0.0;
+modelStruct.modelPar_given_rcd=mod.given("rcd");
+modelStruct.modelPar_vx0=mod.vx0;
+modelStruct.d_modelPar_vx0_dX=0.0;
+modelStruct.modelPar_given_vx0=mod.given("vx0");
+modelStruct.modelPar_mu0=mod.mu0;
+modelStruct.d_modelPar_mu0_dX=0.0;
+modelStruct.modelPar_given_mu0=mod.given("mu0");
+modelStruct.modelPar_beta=mod.beta;
+modelStruct.d_modelPar_beta_dX=0.0;
+modelStruct.modelPar_given_beta=mod.given("beta");
+modelStruct.modelPar_vto=mod.vto;
+modelStruct.d_modelPar_vto_dX=0.0;
+modelStruct.modelPar_given_vto=mod.given("vto");
+modelStruct.modelPar_ss=mod.ss;
+modelStruct.d_modelPar_ss_dX=0.0;
+modelStruct.modelPar_given_ss=mod.given("ss");
+modelStruct.modelPar_delta1=mod.delta1;
+modelStruct.d_modelPar_delta1_dX=0.0;
+modelStruct.modelPar_given_delta1=mod.given("delta1");
+modelStruct.modelPar_delta2=mod.delta2;
+modelStruct.d_modelPar_delta2_dX=0.0;
+modelStruct.modelPar_given_delta2=mod.given("delta2");
+modelStruct.modelPar_dibsat=mod.dibsat;
+modelStruct.d_modelPar_dibsat_dX=0.0;
+modelStruct.modelPar_given_dibsat=mod.given("dibsat");
+modelStruct.modelPar_nd=mod.nd;
+modelStruct.d_modelPar_nd_dX=0.0;
+modelStruct.modelPar_given_nd=mod.given("nd");
+modelStruct.modelPar_alpha=mod.alpha;
+modelStruct.d_modelPar_alpha_dX=0.0;
+modelStruct.modelPar_given_alpha=mod.given("alpha");
+modelStruct.modelPar_lambda=mod.lambda;
+modelStruct.d_modelPar_lambda_dX=0.0;
+modelStruct.modelPar_given_lambda=mod.given("lambda");
+modelStruct.modelPar_vtheta=mod.vtheta;
+modelStruct.d_modelPar_vtheta_dX=0.0;
+modelStruct.modelPar_given_vtheta=mod.given("vtheta");
+modelStruct.modelPar_mtheta=mod.mtheta;
+modelStruct.d_modelPar_mtheta_dX=0.0;
+modelStruct.modelPar_given_mtheta=mod.given("mtheta");
+modelStruct.modelPar_vzeta=mod.vzeta;
+modelStruct.d_modelPar_vzeta_dX=0.0;
+modelStruct.modelPar_given_vzeta=mod.given("vzeta");
+modelStruct.modelPar_vtzeta=mod.vtzeta;
+modelStruct.d_modelPar_vtzeta_dX=0.0;
+modelStruct.modelPar_given_vtzeta=mod.given("vtzeta");
+modelStruct.modelPar_epsilon=mod.epsilon;
+modelStruct.d_modelPar_epsilon_dX=0.0;
+modelStruct.modelPar_given_epsilon=mod.given("epsilon");
+modelStruct.modelPar_rct1=mod.rct1;
+modelStruct.d_modelPar_rct1_dX=0.0;
+modelStruct.modelPar_given_rct1=mod.given("rct1");
+modelStruct.modelPar_rct2=mod.rct2;
+modelStruct.d_modelPar_rct2_dX=0.0;
+modelStruct.modelPar_given_rct2=mod.given("rct2");
+modelStruct.modelPar_lgs=mod.lgs;
+modelStruct.d_modelPar_lgs_dX=0.0;
+modelStruct.modelPar_given_lgs=mod.given("lgs");
+modelStruct.modelPar_vtors=mod.vtors;
+modelStruct.d_modelPar_vtors_dX=0.0;
+modelStruct.modelPar_given_vtors=mod.given("vtors");
+modelStruct.modelPar_cgrs=mod.cgrs;
+modelStruct.d_modelPar_cgrs_dX=0.0;
+modelStruct.modelPar_given_cgrs=mod.given("cgrs");
+modelStruct.modelPar_vx0rs=mod.vx0rs;
+modelStruct.d_modelPar_vx0rs_dX=0.0;
+modelStruct.modelPar_given_vx0rs=mod.given("vx0rs");
+modelStruct.modelPar_mu0rs=mod.mu0rs;
+modelStruct.d_modelPar_mu0rs_dX=0.0;
+modelStruct.modelPar_given_mu0rs=mod.given("mu0rs");
+modelStruct.modelPar_betars=mod.betars;
+modelStruct.d_modelPar_betars_dX=0.0;
+modelStruct.modelPar_given_betars=mod.given("betars");
+modelStruct.modelPar_delta1rs=mod.delta1rs;
+modelStruct.d_modelPar_delta1rs_dX=0.0;
+modelStruct.modelPar_given_delta1rs=mod.given("delta1rs");
+modelStruct.modelPar_srs=mod.srs;
+modelStruct.d_modelPar_srs_dX=0.0;
+modelStruct.modelPar_given_srs=mod.given("srs");
+modelStruct.modelPar_ndrs=mod.ndrs;
+modelStruct.d_modelPar_ndrs_dX=0.0;
+modelStruct.modelPar_given_ndrs=mod.given("ndrs");
+modelStruct.modelPar_vthetars=mod.vthetars;
+modelStruct.d_modelPar_vthetars_dX=0.0;
+modelStruct.modelPar_given_vthetars=mod.given("vthetars");
+modelStruct.modelPar_mthetars=mod.mthetars;
+modelStruct.d_modelPar_mthetars_dX=0.0;
+modelStruct.modelPar_given_mthetars=mod.given("mthetars");
+modelStruct.modelPar_alphars=mod.alphars;
+modelStruct.d_modelPar_alphars_dX=0.0;
+modelStruct.modelPar_given_alphars=mod.given("alphars");
+modelStruct.modelPar_lgd=mod.lgd;
+modelStruct.d_modelPar_lgd_dX=0.0;
+modelStruct.modelPar_given_lgd=mod.given("lgd");
+modelStruct.modelPar_vtord=mod.vtord;
+modelStruct.d_modelPar_vtord_dX=0.0;
+modelStruct.modelPar_given_vtord=mod.given("vtord");
+modelStruct.modelPar_cgrd=mod.cgrd;
+modelStruct.d_modelPar_cgrd_dX=0.0;
+modelStruct.modelPar_given_cgrd=mod.given("cgrd");
+modelStruct.modelPar_vx0rd=mod.vx0rd;
+modelStruct.d_modelPar_vx0rd_dX=0.0;
+modelStruct.modelPar_given_vx0rd=mod.given("vx0rd");
+modelStruct.modelPar_mu0rd=mod.mu0rd;
+modelStruct.d_modelPar_mu0rd_dX=0.0;
+modelStruct.modelPar_given_mu0rd=mod.given("mu0rd");
+modelStruct.modelPar_betard=mod.betard;
+modelStruct.d_modelPar_betard_dX=0.0;
+modelStruct.modelPar_given_betard=mod.given("betard");
+modelStruct.modelPar_delta1rd=mod.delta1rd;
+modelStruct.d_modelPar_delta1rd_dX=0.0;
+modelStruct.modelPar_given_delta1rd=mod.given("delta1rd");
+modelStruct.modelPar_srd=mod.srd;
+modelStruct.d_modelPar_srd_dX=0.0;
+modelStruct.modelPar_given_srd=mod.given("srd");
+modelStruct.modelPar_ndrd=mod.ndrd;
+modelStruct.d_modelPar_ndrd_dX=0.0;
+modelStruct.modelPar_given_ndrd=mod.given("ndrd");
+modelStruct.modelPar_vthetard=mod.vthetard;
+modelStruct.d_modelPar_vthetard_dX=0.0;
+modelStruct.modelPar_given_vthetard=mod.given("vthetard");
+modelStruct.modelPar_mthetard=mod.mthetard;
+modelStruct.d_modelPar_mthetard_dX=0.0;
+modelStruct.modelPar_given_mthetard=mod.given("mthetard");
+modelStruct.modelPar_alphard=mod.alphard;
+modelStruct.d_modelPar_alphard_dX=0.0;
+modelStruct.modelPar_given_alphard=mod.given("alphard");
+modelStruct.modelPar_lgfp1=mod.lgfp1;
+modelStruct.d_modelPar_lgfp1_dX=0.0;
+modelStruct.modelPar_given_lgfp1=mod.given("lgfp1");
+modelStruct.modelPar_vtofp1=mod.vtofp1;
+modelStruct.d_modelPar_vtofp1_dX=0.0;
+modelStruct.modelPar_given_vtofp1=mod.given("vtofp1");
+modelStruct.modelPar_cgfp1=mod.cgfp1;
+modelStruct.d_modelPar_cgfp1_dX=0.0;
+modelStruct.modelPar_given_cgfp1=mod.given("cgfp1");
+modelStruct.modelPar_cfp1s=mod.cfp1s;
+modelStruct.d_modelPar_cfp1s_dX=0.0;
+modelStruct.modelPar_given_cfp1s=mod.given("cfp1s");
+modelStruct.modelPar_ccfp1=mod.ccfp1;
+modelStruct.d_modelPar_ccfp1_dX=0.0;
+modelStruct.modelPar_given_ccfp1=mod.given("ccfp1");
+modelStruct.modelPar_cbfp1=mod.cbfp1;
+modelStruct.d_modelPar_cbfp1_dX=0.0;
+modelStruct.modelPar_given_cbfp1=mod.given("cbfp1");
+modelStruct.modelPar_vx0fp1=mod.vx0fp1;
+modelStruct.d_modelPar_vx0fp1_dX=0.0;
+modelStruct.modelPar_given_vx0fp1=mod.given("vx0fp1");
+modelStruct.modelPar_mu0fp1=mod.mu0fp1;
+modelStruct.d_modelPar_mu0fp1_dX=0.0;
+modelStruct.modelPar_given_mu0fp1=mod.given("mu0fp1");
+modelStruct.modelPar_betafp1=mod.betafp1;
+modelStruct.d_modelPar_betafp1_dX=0.0;
+modelStruct.modelPar_given_betafp1=mod.given("betafp1");
+modelStruct.modelPar_delta1fp1=mod.delta1fp1;
+modelStruct.d_modelPar_delta1fp1_dX=0.0;
+modelStruct.modelPar_given_delta1fp1=mod.given("delta1fp1");
+modelStruct.modelPar_sfp1=mod.sfp1;
+modelStruct.d_modelPar_sfp1_dX=0.0;
+modelStruct.modelPar_given_sfp1=mod.given("sfp1");
+modelStruct.modelPar_ndfp1=mod.ndfp1;
+modelStruct.d_modelPar_ndfp1_dX=0.0;
+modelStruct.modelPar_given_ndfp1=mod.given("ndfp1");
+modelStruct.modelPar_vthetafp1=mod.vthetafp1;
+modelStruct.d_modelPar_vthetafp1_dX=0.0;
+modelStruct.modelPar_given_vthetafp1=mod.given("vthetafp1");
+modelStruct.modelPar_mthetafp1=mod.mthetafp1;
+modelStruct.d_modelPar_mthetafp1_dX=0.0;
+modelStruct.modelPar_given_mthetafp1=mod.given("mthetafp1");
+modelStruct.modelPar_alphafp1=mod.alphafp1;
+modelStruct.d_modelPar_alphafp1_dX=0.0;
+modelStruct.modelPar_given_alphafp1=mod.given("alphafp1");
+modelStruct.modelPar_lgfp2=mod.lgfp2;
+modelStruct.d_modelPar_lgfp2_dX=0.0;
+modelStruct.modelPar_given_lgfp2=mod.given("lgfp2");
+modelStruct.modelPar_vtofp2=mod.vtofp2;
+modelStruct.d_modelPar_vtofp2_dX=0.0;
+modelStruct.modelPar_given_vtofp2=mod.given("vtofp2");
+modelStruct.modelPar_cgfp2=mod.cgfp2;
+modelStruct.d_modelPar_cgfp2_dX=0.0;
+modelStruct.modelPar_given_cgfp2=mod.given("cgfp2");
+modelStruct.modelPar_cfp2s=mod.cfp2s;
+modelStruct.d_modelPar_cfp2s_dX=0.0;
+modelStruct.modelPar_given_cfp2s=mod.given("cfp2s");
+modelStruct.modelPar_ccfp2=mod.ccfp2;
+modelStruct.d_modelPar_ccfp2_dX=0.0;
+modelStruct.modelPar_given_ccfp2=mod.given("ccfp2");
+modelStruct.modelPar_cbfp2=mod.cbfp2;
+modelStruct.d_modelPar_cbfp2_dX=0.0;
+modelStruct.modelPar_given_cbfp2=mod.given("cbfp2");
+modelStruct.modelPar_vx0fp2=mod.vx0fp2;
+modelStruct.d_modelPar_vx0fp2_dX=0.0;
+modelStruct.modelPar_given_vx0fp2=mod.given("vx0fp2");
+modelStruct.modelPar_mu0fp2=mod.mu0fp2;
+modelStruct.d_modelPar_mu0fp2_dX=0.0;
+modelStruct.modelPar_given_mu0fp2=mod.given("mu0fp2");
+modelStruct.modelPar_betafp2=mod.betafp2;
+modelStruct.d_modelPar_betafp2_dX=0.0;
+modelStruct.modelPar_given_betafp2=mod.given("betafp2");
+modelStruct.modelPar_delta1fp2=mod.delta1fp2;
+modelStruct.d_modelPar_delta1fp2_dX=0.0;
+modelStruct.modelPar_given_delta1fp2=mod.given("delta1fp2");
+modelStruct.modelPar_sfp2=mod.sfp2;
+modelStruct.d_modelPar_sfp2_dX=0.0;
+modelStruct.modelPar_given_sfp2=mod.given("sfp2");
+modelStruct.modelPar_ndfp2=mod.ndfp2;
+modelStruct.d_modelPar_ndfp2_dX=0.0;
+modelStruct.modelPar_given_ndfp2=mod.given("ndfp2");
+modelStruct.modelPar_vthetafp2=mod.vthetafp2;
+modelStruct.d_modelPar_vthetafp2_dX=0.0;
+modelStruct.modelPar_given_vthetafp2=mod.given("vthetafp2");
+modelStruct.modelPar_mthetafp2=mod.mthetafp2;
+modelStruct.d_modelPar_mthetafp2_dX=0.0;
+modelStruct.modelPar_given_mthetafp2=mod.given("mthetafp2");
+modelStruct.modelPar_alphafp2=mod.alphafp2;
+modelStruct.d_modelPar_alphafp2_dX=0.0;
+modelStruct.modelPar_given_alphafp2=mod.given("alphafp2");
+modelStruct.modelPar_lgfp3=mod.lgfp3;
+modelStruct.d_modelPar_lgfp3_dX=0.0;
+modelStruct.modelPar_given_lgfp3=mod.given("lgfp3");
+modelStruct.modelPar_vtofp3=mod.vtofp3;
+modelStruct.d_modelPar_vtofp3_dX=0.0;
+modelStruct.modelPar_given_vtofp3=mod.given("vtofp3");
+modelStruct.modelPar_cgfp3=mod.cgfp3;
+modelStruct.d_modelPar_cgfp3_dX=0.0;
+modelStruct.modelPar_given_cgfp3=mod.given("cgfp3");
+modelStruct.modelPar_cfp3s=mod.cfp3s;
+modelStruct.d_modelPar_cfp3s_dX=0.0;
+modelStruct.modelPar_given_cfp3s=mod.given("cfp3s");
+modelStruct.modelPar_ccfp3=mod.ccfp3;
+modelStruct.d_modelPar_ccfp3_dX=0.0;
+modelStruct.modelPar_given_ccfp3=mod.given("ccfp3");
+modelStruct.modelPar_cbfp3=mod.cbfp3;
+modelStruct.d_modelPar_cbfp3_dX=0.0;
+modelStruct.modelPar_given_cbfp3=mod.given("cbfp3");
+modelStruct.modelPar_vx0fp3=mod.vx0fp3;
+modelStruct.d_modelPar_vx0fp3_dX=0.0;
+modelStruct.modelPar_given_vx0fp3=mod.given("vx0fp3");
+modelStruct.modelPar_mu0fp3=mod.mu0fp3;
+modelStruct.d_modelPar_mu0fp3_dX=0.0;
+modelStruct.modelPar_given_mu0fp3=mod.given("mu0fp3");
+modelStruct.modelPar_betafp3=mod.betafp3;
+modelStruct.d_modelPar_betafp3_dX=0.0;
+modelStruct.modelPar_given_betafp3=mod.given("betafp3");
+modelStruct.modelPar_delta1fp3=mod.delta1fp3;
+modelStruct.d_modelPar_delta1fp3_dX=0.0;
+modelStruct.modelPar_given_delta1fp3=mod.given("delta1fp3");
+modelStruct.modelPar_sfp3=mod.sfp3;
+modelStruct.d_modelPar_sfp3_dX=0.0;
+modelStruct.modelPar_given_sfp3=mod.given("sfp3");
+modelStruct.modelPar_ndfp3=mod.ndfp3;
+modelStruct.d_modelPar_ndfp3_dX=0.0;
+modelStruct.modelPar_given_ndfp3=mod.given("ndfp3");
+modelStruct.modelPar_vthetafp3=mod.vthetafp3;
+modelStruct.d_modelPar_vthetafp3_dX=0.0;
+modelStruct.modelPar_given_vthetafp3=mod.given("vthetafp3");
+modelStruct.modelPar_mthetafp3=mod.mthetafp3;
+modelStruct.d_modelPar_mthetafp3_dX=0.0;
+modelStruct.modelPar_given_mthetafp3=mod.given("mthetafp3");
+modelStruct.modelPar_alphafp3=mod.alphafp3;
+modelStruct.d_modelPar_alphafp3_dX=0.0;
+modelStruct.modelPar_given_alphafp3=mod.given("alphafp3");
+modelStruct.modelPar_lgfp4=mod.lgfp4;
+modelStruct.d_modelPar_lgfp4_dX=0.0;
+modelStruct.modelPar_given_lgfp4=mod.given("lgfp4");
+modelStruct.modelPar_vtofp4=mod.vtofp4;
+modelStruct.d_modelPar_vtofp4_dX=0.0;
+modelStruct.modelPar_given_vtofp4=mod.given("vtofp4");
+modelStruct.modelPar_cgfp4=mod.cgfp4;
+modelStruct.d_modelPar_cgfp4_dX=0.0;
+modelStruct.modelPar_given_cgfp4=mod.given("cgfp4");
+modelStruct.modelPar_cfp4s=mod.cfp4s;
+modelStruct.d_modelPar_cfp4s_dX=0.0;
+modelStruct.modelPar_given_cfp4s=mod.given("cfp4s");
+modelStruct.modelPar_ccfp4=mod.ccfp4;
+modelStruct.d_modelPar_ccfp4_dX=0.0;
+modelStruct.modelPar_given_ccfp4=mod.given("ccfp4");
+modelStruct.modelPar_cbfp4=mod.cbfp4;
+modelStruct.d_modelPar_cbfp4_dX=0.0;
+modelStruct.modelPar_given_cbfp4=mod.given("cbfp4");
+modelStruct.modelPar_vx0fp4=mod.vx0fp4;
+modelStruct.d_modelPar_vx0fp4_dX=0.0;
+modelStruct.modelPar_given_vx0fp4=mod.given("vx0fp4");
+modelStruct.modelPar_mu0fp4=mod.mu0fp4;
+modelStruct.d_modelPar_mu0fp4_dX=0.0;
+modelStruct.modelPar_given_mu0fp4=mod.given("mu0fp4");
+modelStruct.modelPar_betafp4=mod.betafp4;
+modelStruct.d_modelPar_betafp4_dX=0.0;
+modelStruct.modelPar_given_betafp4=mod.given("betafp4");
+modelStruct.modelPar_delta1fp4=mod.delta1fp4;
+modelStruct.d_modelPar_delta1fp4_dX=0.0;
+modelStruct.modelPar_given_delta1fp4=mod.given("delta1fp4");
+modelStruct.modelPar_sfp4=mod.sfp4;
+modelStruct.d_modelPar_sfp4_dX=0.0;
+modelStruct.modelPar_given_sfp4=mod.given("sfp4");
+modelStruct.modelPar_ndfp4=mod.ndfp4;
+modelStruct.d_modelPar_ndfp4_dX=0.0;
+modelStruct.modelPar_given_ndfp4=mod.given("ndfp4");
+modelStruct.modelPar_vthetafp4=mod.vthetafp4;
+modelStruct.d_modelPar_vthetafp4_dX=0.0;
+modelStruct.modelPar_given_vthetafp4=mod.given("vthetafp4");
+modelStruct.modelPar_mthetafp4=mod.mthetafp4;
+modelStruct.d_modelPar_mthetafp4_dX=0.0;
+modelStruct.modelPar_given_mthetafp4=mod.given("mthetafp4");
+modelStruct.modelPar_alphafp4=mod.alphafp4;
+modelStruct.d_modelPar_alphafp4_dX=0.0;
+modelStruct.modelPar_given_alphafp4=mod.given("alphafp4");
+modelStruct.modelPar_rgsp=mod.rgsp;
+modelStruct.d_modelPar_rgsp_dX=0.0;
+modelStruct.modelPar_given_rgsp=mod.given("rgsp");
+modelStruct.modelPar_vjg=mod.vjg;
+modelStruct.d_modelPar_vjg_dX=0.0;
+modelStruct.modelPar_given_vjg=mod.given("vjg");
+modelStruct.modelPar_pg_param1=mod.pg_param1;
+modelStruct.d_modelPar_pg_param1_dX=0.0;
+modelStruct.modelPar_given_pg_param1=mod.given("pg_param1");
+modelStruct.modelPar_pg_params=mod.pg_params;
+modelStruct.d_modelPar_pg_params_dX=0.0;
+modelStruct.modelPar_given_pg_params=mod.given("pg_params");
+modelStruct.modelPar_ijs=mod.ijs;
+modelStruct.d_modelPar_ijs_dX=0.0;
+modelStruct.modelPar_given_ijs=mod.given("ijs");
+modelStruct.modelPar_vgsats=mod.vgsats;
+modelStruct.d_modelPar_vgsats_dX=0.0;
+modelStruct.modelPar_given_vgsats=mod.given("vgsats");
+modelStruct.modelPar_fracs=mod.fracs;
+modelStruct.d_modelPar_fracs_dX=0.0;
+modelStruct.modelPar_given_fracs=mod.given("fracs");
+modelStruct.modelPar_alphags=mod.alphags;
+modelStruct.d_modelPar_alphags_dX=0.0;
+modelStruct.modelPar_given_alphags=mod.given("alphags");
+modelStruct.modelPar_pg_paramd=mod.pg_paramd;
+modelStruct.d_modelPar_pg_paramd_dX=0.0;
+modelStruct.modelPar_given_pg_paramd=mod.given("pg_paramd");
+modelStruct.modelPar_ijd=mod.ijd;
+modelStruct.d_modelPar_ijd_dX=0.0;
+modelStruct.modelPar_given_ijd=mod.given("ijd");
+modelStruct.modelPar_vgsatd=mod.vgsatd;
+modelStruct.d_modelPar_vgsatd_dX=0.0;
+modelStruct.modelPar_given_vgsatd=mod.given("vgsatd");
+modelStruct.modelPar_fracd=mod.fracd;
+modelStruct.d_modelPar_fracd_dX=0.0;
+modelStruct.modelPar_given_fracd=mod.given("fracd");
+modelStruct.modelPar_alphagd=mod.alphagd;
+modelStruct.d_modelPar_alphagd_dX=0.0;
+modelStruct.modelPar_given_alphagd=mod.given("alphagd");
+modelStruct.modelPar_pgsrecs=mod.pgsrecs;
+modelStruct.d_modelPar_pgsrecs_dX=0.0;
+modelStruct.modelPar_given_pgsrecs=mod.given("pgsrecs");
+modelStruct.modelPar_irecs=mod.irecs;
+modelStruct.d_modelPar_irecs_dX=0.0;
+modelStruct.modelPar_given_irecs=mod.given("irecs");
+modelStruct.modelPar_vgsatqs=mod.vgsatqs;
+modelStruct.d_modelPar_vgsatqs_dX=0.0;
+modelStruct.modelPar_given_vgsatqs=mod.given("vgsatqs");
+modelStruct.modelPar_vbdgs=mod.vbdgs;
+modelStruct.d_modelPar_vbdgs_dX=0.0;
+modelStruct.modelPar_given_vbdgs=mod.given("vbdgs");
+modelStruct.modelPar_pbdgs=mod.pbdgs;
+modelStruct.d_modelPar_pbdgs_dX=0.0;
+modelStruct.modelPar_given_pbdgs=mod.given("pbdgs");
+modelStruct.modelPar_betarecs=mod.betarecs;
+modelStruct.d_modelPar_betarecs_dX=0.0;
+modelStruct.modelPar_given_betarecs=mod.given("betarecs");
+modelStruct.modelPar_kbdgates=mod.kbdgates;
+modelStruct.d_modelPar_kbdgates_dX=0.0;
+modelStruct.modelPar_given_kbdgates=mod.given("kbdgates");
+modelStruct.modelPar_pgsrecd=mod.pgsrecd;
+modelStruct.d_modelPar_pgsrecd_dX=0.0;
+modelStruct.modelPar_given_pgsrecd=mod.given("pgsrecd");
+modelStruct.modelPar_irecd=mod.irecd;
+modelStruct.d_modelPar_irecd_dX=0.0;
+modelStruct.modelPar_given_irecd=mod.given("irecd");
+modelStruct.modelPar_vgsatqd=mod.vgsatqd;
+modelStruct.d_modelPar_vgsatqd_dX=0.0;
+modelStruct.modelPar_given_vgsatqd=mod.given("vgsatqd");
+modelStruct.modelPar_vbdgd=mod.vbdgd;
+modelStruct.d_modelPar_vbdgd_dX=0.0;
+modelStruct.modelPar_given_vbdgd=mod.given("vbdgd");
+modelStruct.modelPar_pbdgd=mod.pbdgd;
+modelStruct.d_modelPar_pbdgd_dX=0.0;
+modelStruct.modelPar_given_pbdgd=mod.given("pbdgd");
+modelStruct.modelPar_betarecd=mod.betarecd;
+modelStruct.d_modelPar_betarecd_dX=0.0;
+modelStruct.modelPar_given_betarecd=mod.given("betarecd");
+modelStruct.modelPar_kbdgated=mod.kbdgated;
+modelStruct.d_modelPar_kbdgated_dX=0.0;
+modelStruct.modelPar_given_kbdgated=mod.given("kbdgated");
+modelStruct.modelPar_rth=mod.rth;
+modelStruct.d_modelPar_rth_dX=0.0;
+modelStruct.modelPar_given_rth=mod.given("rth");
+modelStruct.modelPar_cth=mod.cth;
+modelStruct.d_modelPar_cth_dX=0.0;
+modelStruct.modelPar_given_cth=mod.given("cth");
+modelStruct.modelPar_taugmrf=mod.taugmrf;
+modelStruct.d_modelPar_taugmrf_dX=0.0;
+modelStruct.modelPar_given_taugmrf=mod.given("taugmrf");
+modelStruct.modelPar_ctrap=mod.ctrap;
+modelStruct.d_modelPar_ctrap_dX=0.0;
+modelStruct.modelPar_given_ctrap=mod.given("ctrap");
+modelStruct.modelPar_vttrap=mod.vttrap;
+modelStruct.d_modelPar_vttrap_dX=0.0;
+modelStruct.modelPar_given_vttrap=mod.given("vttrap");
+modelStruct.modelPar_taut=mod.taut;
+modelStruct.d_modelPar_taut_dX=0.0;
+modelStruct.modelPar_given_taut=mod.given("taut");
+modelStruct.modelPar_alphat1=mod.alphat1;
+modelStruct.d_modelPar_alphat1_dX=0.0;
+modelStruct.modelPar_given_alphat1=mod.given("alphat1");
+modelStruct.modelPar_alphat2=mod.alphat2;
+modelStruct.d_modelPar_alphat2_dX=0.0;
+modelStruct.modelPar_given_alphat2=mod.given("alphat2");
+modelStruct.modelPar_tempt=mod.tempt;
+modelStruct.d_modelPar_tempt_dX=0.0;
+modelStruct.modelPar_given_tempt=mod.given("tempt");
+modelStruct.modelPar_shs=mod.shs;
+modelStruct.d_modelPar_shs_dX=0.0;
+modelStruct.modelPar_given_shs=mod.given("shs");
+modelStruct.modelPar_shd=mod.shd;
+modelStruct.d_modelPar_shd_dX=0.0;
+modelStruct.modelPar_given_shd=mod.given("shd");
+modelStruct.modelPar_kf=mod.kf;
+modelStruct.d_modelPar_kf_dX=0.0;
+modelStruct.modelPar_given_kf=mod.given("kf");
+modelStruct.modelPar_af=mod.af;
+modelStruct.d_modelPar_af_dX=0.0;
+modelStruct.modelPar_given_af=mod.given("af");
+modelStruct.modelPar_ffe=mod.ffe;
+modelStruct.d_modelPar_ffe_dX=0.0;
+modelStruct.modelPar_given_ffe=mod.given("ffe");
+modelStruct.modelPar_minr=mod.minr;
+modelStruct.d_modelPar_minr_dX=0.0;
+modelStruct.modelPar_given_minr=mod.given("minr");
+modelStruct.modelPar_minl=mod.minl;
+modelStruct.d_modelPar_minl_dX=0.0;
+modelStruct.modelPar_given_minl=mod.given("minl");
+modelStruct.modelPar_minc=mod.minc;
+modelStruct.d_modelPar_minc_dX=0.0;
+modelStruct.modelPar_given_minc=mod.given("minc");
+modelStruct.modelPar_LMIN=mod.LMIN;
+modelStruct.d_modelPar_LMIN_dX=0.0;
+modelStruct.modelPar_given_LMIN=mod.given("LMIN");
+modelStruct.modelPar_WMIN=mod.WMIN;
+modelStruct.d_modelPar_WMIN_dX=0.0;
+modelStruct.modelPar_given_WMIN=mod.given("WMIN");
+modelStruct.modelPar_LMAX=mod.LMAX;
+modelStruct.d_modelPar_LMAX_dX=0.0;
+modelStruct.modelPar_given_LMAX=mod.given("LMAX");
+modelStruct.modelPar_WMAX=mod.WMAX;
+modelStruct.d_modelPar_WMAX_dX=0.0;
+modelStruct.modelPar_given_WMAX=mod.given("WMAX");
 
 
 // hidden reals
 
 
 // non-reals (including hiddens)
-int modelPar_type=mod.type;
-bool modelPar_given_type=mod.given("type");
-int modelPar_flagres=mod.flagres;
-bool modelPar_given_flagres=mod.given("flagres");
-int modelPar_flagfp1=mod.flagfp1;
-bool modelPar_given_flagfp1=mod.given("flagfp1");
-int modelPar_flagfp1s=mod.flagfp1s;
-bool modelPar_given_flagfp1s=mod.given("flagfp1s");
-int modelPar_flagfp2=mod.flagfp2;
-bool modelPar_given_flagfp2=mod.given("flagfp2");
-int modelPar_flagfp2s=mod.flagfp2s;
-bool modelPar_given_flagfp2s=mod.given("flagfp2s");
-int modelPar_flagfp3=mod.flagfp3;
-bool modelPar_given_flagfp3=mod.given("flagfp3");
-int modelPar_flagfp3s=mod.flagfp3s;
-bool modelPar_given_flagfp3s=mod.given("flagfp3s");
-int modelPar_flagfp4=mod.flagfp4;
-bool modelPar_given_flagfp4=mod.given("flagfp4");
-int modelPar_flagfp4s=mod.flagfp4s;
-bool modelPar_given_flagfp4s=mod.given("flagfp4s");
-int modelPar_igmod=mod.igmod;
-bool modelPar_given_igmod=mod.given("igmod");
-int modelPar_gmdisp=mod.gmdisp;
-bool modelPar_given_gmdisp=mod.given("gmdisp");
-int modelPar_trapselect=mod.trapselect;
-bool modelPar_given_trapselect=mod.given("trapselect");
-int modelPar_noisemod=mod.noisemod;
-bool modelPar_given_noisemod=mod.given("noisemod");
+modelStruct.modelPar_type=mod.type;
+modelStruct.modelPar_given_type=mod.given("type");
+modelStruct.modelPar_flagres=mod.flagres;
+modelStruct.modelPar_given_flagres=mod.given("flagres");
+modelStruct.modelPar_flagfp1=mod.flagfp1;
+modelStruct.modelPar_given_flagfp1=mod.given("flagfp1");
+modelStruct.modelPar_flagfp1s=mod.flagfp1s;
+modelStruct.modelPar_given_flagfp1s=mod.given("flagfp1s");
+modelStruct.modelPar_flagfp2=mod.flagfp2;
+modelStruct.modelPar_given_flagfp2=mod.given("flagfp2");
+modelStruct.modelPar_flagfp2s=mod.flagfp2s;
+modelStruct.modelPar_given_flagfp2s=mod.given("flagfp2s");
+modelStruct.modelPar_flagfp3=mod.flagfp3;
+modelStruct.modelPar_given_flagfp3=mod.given("flagfp3");
+modelStruct.modelPar_flagfp3s=mod.flagfp3s;
+modelStruct.modelPar_given_flagfp3s=mod.given("flagfp3s");
+modelStruct.modelPar_flagfp4=mod.flagfp4;
+modelStruct.modelPar_given_flagfp4=mod.given("flagfp4");
+modelStruct.modelPar_flagfp4s=mod.flagfp4s;
+modelStruct.modelPar_given_flagfp4s=mod.given("flagfp4s");
+modelStruct.modelPar_igmod=mod.igmod;
+modelStruct.modelPar_given_igmod=mod.given("igmod");
+modelStruct.modelPar_gmdisp=mod.gmdisp;
+modelStruct.modelPar_given_gmdisp=mod.given("gmdisp");
+modelStruct.modelPar_trapselect=mod.trapselect;
+modelStruct.modelPar_given_trapselect=mod.given("trapselect");
+modelStruct.modelPar_noisemod=mod.noisemod;
+modelStruct.modelPar_given_noisemod=mod.given("noisemod");
 
 
 
-// Copy out all the instance parameters (doubles) into FAD types
+// Copy out all the instance parameters (doubles) into local struct
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly "if/else" block just to find the
 // one parameter we're doing sensitivities on.
-unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> inParamMap;
-
+unordered_map <std::string,double*,HashNoCase,EqualNoCase> inParamMap;
+instanceSensStruct instanceStruct;
 // reals
-AdmsSensFadType instancePar_w=in.w;
-bool instancePar_given_w=in.given("w");
-inParamMap["w"] = &instancePar_w;
-AdmsSensFadType instancePar_l=in.l;
-bool instancePar_given_l=in.given("l");
-inParamMap["l"] = &instancePar_l;
-AdmsSensFadType instancePar_dtemp=in.dtemp;
-bool instancePar_given_dtemp=in.given("dtemp");
-inParamMap["dtemp"] = &instancePar_dtemp;
+instanceStruct.instancePar_w=in.w;
+instanceStruct.d_instancePar_w_dX=0.0;
+instanceStruct.instancePar_given_w=in.given("w");
+inParamMap["w"] = &(instanceStruct.d_instancePar_w_dX);
+instanceStruct.instancePar_l=in.l;
+instanceStruct.d_instancePar_l_dX=0.0;
+instanceStruct.instancePar_given_l=in.given("l");
+inParamMap["l"] = &(instanceStruct.d_instancePar_l_dX);
+instanceStruct.instancePar_dtemp=in.dtemp;
+instanceStruct.d_instancePar_dtemp_dX=0.0;
+instanceStruct.instancePar_given_dtemp=in.given("dtemp");
+inParamMap["dtemp"] = &(instanceStruct.d_instancePar_dtemp_dX);
 
 
-// Copy all the real hidden instance params into fad types
+// Copy all the real hidden instance params into local struct
 
 
 
 // Copy all the non-real instance params into vars of their appropriate type:
-int instancePar_ngf=in.ngf;
-bool instancePar_given_ngf=in.given("ngf");
+instanceStruct.instancePar_ngf=in.ngf;
+instanceStruct.instancePar_given_ngf=in.given("ngf");
 
 
 // Set the one parameter whose name was passed in to be the independent
 // variable for Sacado purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check the name first, otherwise segfault on invalid name!
-inParamMap[name]->diff(0,1);
+*(inParamMap[name])=1.0;
 
 //make local copies of all instance vars
 //reals
-AdmsSensFadType instanceVar_rcs_w=in.rcs_w;
-AdmsSensFadType instanceVar_rcd_w=in.rcd_w;
-AdmsSensFadType instanceVar_rg=in.rg;
-double instanceVar_vgisi=in.vgisi;
-double instanceVar_vdisi=in.vdisi;
-AdmsSensFadType instanceVar_vti=in.vti;
-AdmsSensFadType instanceVar_vdsati=in.vdsati;
-AdmsSensFadType instanceVar_pdc=in.pdc;
-AdmsSensFadType instanceVar_idisi=in.idisi;
-AdmsSensFadType instanceVar_igs=in.igs;
-AdmsSensFadType instanceVar_igd=in.igd;
-AdmsSensFadType instanceVar_qgi=in.qgi;
-AdmsSensFadType instanceVar_qdi=in.qdi;
-AdmsSensFadType instanceVar_qsi=in.qsi;
-double instanceVar_qbi=in.qbi;
-AdmsSensFadType instanceVar_gmi=in.gmi;
-AdmsSensFadType instanceVar_gdsi=in.gdsi;
-AdmsSensFadType instanceVar_gmbsi=in.gmbsi;
-AdmsSensFadType instanceVar_cggi=in.cggi;
-AdmsSensFadType instanceVar_cgdi=in.cgdi;
-AdmsSensFadType instanceVar_cgsi=in.cgsi;
-AdmsSensFadType instanceVar_cgbi=in.cgbi;
-AdmsSensFadType instanceVar_cdgi=in.cdgi;
-AdmsSensFadType instanceVar_cddi=in.cddi;
-AdmsSensFadType instanceVar_cdsi=in.cdsi;
-AdmsSensFadType instanceVar_cdbi=in.cdbi;
-AdmsSensFadType instanceVar_csgi=in.csgi;
-AdmsSensFadType instanceVar_csdi=in.csdi;
-AdmsSensFadType instanceVar_cssi=in.cssi;
-AdmsSensFadType instanceVar_csbi=in.csbi;
-double instanceVar_cbgi=in.cbgi;
-double instanceVar_cbdi=in.cbdi;
-double instanceVar_cbsi=in.cbsi;
-double instanceVar_cbbi=in.cbbi;
-AdmsSensFadType instanceVar_cgs=in.cgs;
-AdmsSensFadType instanceVar_cgd=in.cgd;
-AdmsSensFadType instanceVar_t_total_k=in.t_total_k;
-AdmsSensFadType instanceVar_t_total_c=in.t_total_c;
-double instanceVar_t_delta_sh=in.t_delta_sh;
-AdmsSensFadType instanceVar_rs=in.rs;
-AdmsSensFadType instanceVar_rd=in.rd;
+instanceStruct.instanceVar_rcs_w=in.rcs_w;
+instanceStruct.d_instanceVar_rcs_w_dX=0.0;
+instanceStruct.instanceVar_rcd_w=in.rcd_w;
+instanceStruct.d_instanceVar_rcd_w_dX=0.0;
+instanceStruct.instanceVar_rg=in.rg;
+instanceStruct.d_instanceVar_rg_dX=0.0;
 
 
 //non-reals
@@ -29143,7 +28321,7 @@ AdmsSensFadType instanceVar_rd=in.rd;
 
 Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-// extract solution variables and set as Fad independent variables.
+// extract solution variables
 probeVars[in.admsProbeID_V_si_GND] = (*solVectorPtr)[in.li_si];
 probeVars[in.admsProbeID_V_b_GND] = (*solVectorPtr)[in.li_b];
 probeVars[in.admsProbeID_V_di_GND] = (*solVectorPtr)[in.li_di];
@@ -29192,415 +28370,8 @@ probeVars[in.admsProbeID_Temp_dt_GND] = (in.collapseNode_dt)?(0):((*solVectorPtr
 
 
 evaluateInitialInstance(
-// instance parameters
-// reals
-instancePar_w,
-instancePar_given_w,
-instancePar_l,
-instancePar_given_l,
-instancePar_dtemp,
-instancePar_given_dtemp,
-// non-reals(including hidden)
- instancePar_ngf,
-instancePar_given_ngf,
-// instance variables
-// reals
-instanceVar_rcs_w,
-instanceVar_rcd_w,
-instanceVar_rg,
-instanceVar_vgisi,
-instanceVar_vdisi,
-instanceVar_vti,
-instanceVar_vdsati,
-instanceVar_pdc,
-instanceVar_idisi,
-instanceVar_igs,
-instanceVar_igd,
-instanceVar_qgi,
-instanceVar_qdi,
-instanceVar_qsi,
-instanceVar_qbi,
-instanceVar_gmi,
-instanceVar_gdsi,
-instanceVar_gmbsi,
-instanceVar_cggi,
-instanceVar_cgdi,
-instanceVar_cgsi,
-instanceVar_cgbi,
-instanceVar_cdgi,
-instanceVar_cddi,
-instanceVar_cdsi,
-instanceVar_cdbi,
-instanceVar_csgi,
-instanceVar_csdi,
-instanceVar_cssi,
-instanceVar_csbi,
-instanceVar_cbgi,
-instanceVar_cbdi,
-instanceVar_cbsi,
-instanceVar_cbbi,
-instanceVar_cgs,
-instanceVar_cgd,
-instanceVar_t_total_k,
-instanceVar_t_total_c,
-instanceVar_t_delta_sh,
-instanceVar_rs,
-instanceVar_rd,
-// model parameters
-// reals
-modelPar_version,
-modelPar_given_version,
-modelPar_tnom,
-modelPar_given_tnom,
-modelPar_cg,
-modelPar_given_cg,
-modelPar_cofsm,
-modelPar_given_cofsm,
-modelPar_cofdm,
-modelPar_given_cofdm,
-modelPar_cofdsm,
-modelPar_given_cofdsm,
-modelPar_cofdsubm,
-modelPar_given_cofdsubm,
-modelPar_cofssubm,
-modelPar_given_cofssubm,
-modelPar_cofgsubm,
-modelPar_given_cofgsubm,
-modelPar_rsh,
-modelPar_given_rsh,
-modelPar_rcs,
-modelPar_given_rcs,
-modelPar_rcd,
-modelPar_given_rcd,
-modelPar_vx0,
-modelPar_given_vx0,
-modelPar_mu0,
-modelPar_given_mu0,
-modelPar_beta,
-modelPar_given_beta,
-modelPar_vto,
-modelPar_given_vto,
-modelPar_ss,
-modelPar_given_ss,
-modelPar_delta1,
-modelPar_given_delta1,
-modelPar_delta2,
-modelPar_given_delta2,
-modelPar_dibsat,
-modelPar_given_dibsat,
-modelPar_nd,
-modelPar_given_nd,
-modelPar_alpha,
-modelPar_given_alpha,
-modelPar_lambda,
-modelPar_given_lambda,
-modelPar_vtheta,
-modelPar_given_vtheta,
-modelPar_mtheta,
-modelPar_given_mtheta,
-modelPar_vzeta,
-modelPar_given_vzeta,
-modelPar_vtzeta,
-modelPar_given_vtzeta,
-modelPar_epsilon,
-modelPar_given_epsilon,
-modelPar_rct1,
-modelPar_given_rct1,
-modelPar_rct2,
-modelPar_given_rct2,
-modelPar_lgs,
-modelPar_given_lgs,
-modelPar_vtors,
-modelPar_given_vtors,
-modelPar_cgrs,
-modelPar_given_cgrs,
-modelPar_vx0rs,
-modelPar_given_vx0rs,
-modelPar_mu0rs,
-modelPar_given_mu0rs,
-modelPar_betars,
-modelPar_given_betars,
-modelPar_delta1rs,
-modelPar_given_delta1rs,
-modelPar_srs,
-modelPar_given_srs,
-modelPar_ndrs,
-modelPar_given_ndrs,
-modelPar_vthetars,
-modelPar_given_vthetars,
-modelPar_mthetars,
-modelPar_given_mthetars,
-modelPar_alphars,
-modelPar_given_alphars,
-modelPar_lgd,
-modelPar_given_lgd,
-modelPar_vtord,
-modelPar_given_vtord,
-modelPar_cgrd,
-modelPar_given_cgrd,
-modelPar_vx0rd,
-modelPar_given_vx0rd,
-modelPar_mu0rd,
-modelPar_given_mu0rd,
-modelPar_betard,
-modelPar_given_betard,
-modelPar_delta1rd,
-modelPar_given_delta1rd,
-modelPar_srd,
-modelPar_given_srd,
-modelPar_ndrd,
-modelPar_given_ndrd,
-modelPar_vthetard,
-modelPar_given_vthetard,
-modelPar_mthetard,
-modelPar_given_mthetard,
-modelPar_alphard,
-modelPar_given_alphard,
-modelPar_lgfp1,
-modelPar_given_lgfp1,
-modelPar_vtofp1,
-modelPar_given_vtofp1,
-modelPar_cgfp1,
-modelPar_given_cgfp1,
-modelPar_cfp1s,
-modelPar_given_cfp1s,
-modelPar_ccfp1,
-modelPar_given_ccfp1,
-modelPar_cbfp1,
-modelPar_given_cbfp1,
-modelPar_vx0fp1,
-modelPar_given_vx0fp1,
-modelPar_mu0fp1,
-modelPar_given_mu0fp1,
-modelPar_betafp1,
-modelPar_given_betafp1,
-modelPar_delta1fp1,
-modelPar_given_delta1fp1,
-modelPar_sfp1,
-modelPar_given_sfp1,
-modelPar_ndfp1,
-modelPar_given_ndfp1,
-modelPar_vthetafp1,
-modelPar_given_vthetafp1,
-modelPar_mthetafp1,
-modelPar_given_mthetafp1,
-modelPar_alphafp1,
-modelPar_given_alphafp1,
-modelPar_lgfp2,
-modelPar_given_lgfp2,
-modelPar_vtofp2,
-modelPar_given_vtofp2,
-modelPar_cgfp2,
-modelPar_given_cgfp2,
-modelPar_cfp2s,
-modelPar_given_cfp2s,
-modelPar_ccfp2,
-modelPar_given_ccfp2,
-modelPar_cbfp2,
-modelPar_given_cbfp2,
-modelPar_vx0fp2,
-modelPar_given_vx0fp2,
-modelPar_mu0fp2,
-modelPar_given_mu0fp2,
-modelPar_betafp2,
-modelPar_given_betafp2,
-modelPar_delta1fp2,
-modelPar_given_delta1fp2,
-modelPar_sfp2,
-modelPar_given_sfp2,
-modelPar_ndfp2,
-modelPar_given_ndfp2,
-modelPar_vthetafp2,
-modelPar_given_vthetafp2,
-modelPar_mthetafp2,
-modelPar_given_mthetafp2,
-modelPar_alphafp2,
-modelPar_given_alphafp2,
-modelPar_lgfp3,
-modelPar_given_lgfp3,
-modelPar_vtofp3,
-modelPar_given_vtofp3,
-modelPar_cgfp3,
-modelPar_given_cgfp3,
-modelPar_cfp3s,
-modelPar_given_cfp3s,
-modelPar_ccfp3,
-modelPar_given_ccfp3,
-modelPar_cbfp3,
-modelPar_given_cbfp3,
-modelPar_vx0fp3,
-modelPar_given_vx0fp3,
-modelPar_mu0fp3,
-modelPar_given_mu0fp3,
-modelPar_betafp3,
-modelPar_given_betafp3,
-modelPar_delta1fp3,
-modelPar_given_delta1fp3,
-modelPar_sfp3,
-modelPar_given_sfp3,
-modelPar_ndfp3,
-modelPar_given_ndfp3,
-modelPar_vthetafp3,
-modelPar_given_vthetafp3,
-modelPar_mthetafp3,
-modelPar_given_mthetafp3,
-modelPar_alphafp3,
-modelPar_given_alphafp3,
-modelPar_lgfp4,
-modelPar_given_lgfp4,
-modelPar_vtofp4,
-modelPar_given_vtofp4,
-modelPar_cgfp4,
-modelPar_given_cgfp4,
-modelPar_cfp4s,
-modelPar_given_cfp4s,
-modelPar_ccfp4,
-modelPar_given_ccfp4,
-modelPar_cbfp4,
-modelPar_given_cbfp4,
-modelPar_vx0fp4,
-modelPar_given_vx0fp4,
-modelPar_mu0fp4,
-modelPar_given_mu0fp4,
-modelPar_betafp4,
-modelPar_given_betafp4,
-modelPar_delta1fp4,
-modelPar_given_delta1fp4,
-modelPar_sfp4,
-modelPar_given_sfp4,
-modelPar_ndfp4,
-modelPar_given_ndfp4,
-modelPar_vthetafp4,
-modelPar_given_vthetafp4,
-modelPar_mthetafp4,
-modelPar_given_mthetafp4,
-modelPar_alphafp4,
-modelPar_given_alphafp4,
-modelPar_rgsp,
-modelPar_given_rgsp,
-modelPar_vjg,
-modelPar_given_vjg,
-modelPar_pg_param1,
-modelPar_given_pg_param1,
-modelPar_pg_params,
-modelPar_given_pg_params,
-modelPar_ijs,
-modelPar_given_ijs,
-modelPar_vgsats,
-modelPar_given_vgsats,
-modelPar_fracs,
-modelPar_given_fracs,
-modelPar_alphags,
-modelPar_given_alphags,
-modelPar_pg_paramd,
-modelPar_given_pg_paramd,
-modelPar_ijd,
-modelPar_given_ijd,
-modelPar_vgsatd,
-modelPar_given_vgsatd,
-modelPar_fracd,
-modelPar_given_fracd,
-modelPar_alphagd,
-modelPar_given_alphagd,
-modelPar_pgsrecs,
-modelPar_given_pgsrecs,
-modelPar_irecs,
-modelPar_given_irecs,
-modelPar_vgsatqs,
-modelPar_given_vgsatqs,
-modelPar_vbdgs,
-modelPar_given_vbdgs,
-modelPar_pbdgs,
-modelPar_given_pbdgs,
-modelPar_betarecs,
-modelPar_given_betarecs,
-modelPar_kbdgates,
-modelPar_given_kbdgates,
-modelPar_pgsrecd,
-modelPar_given_pgsrecd,
-modelPar_irecd,
-modelPar_given_irecd,
-modelPar_vgsatqd,
-modelPar_given_vgsatqd,
-modelPar_vbdgd,
-modelPar_given_vbdgd,
-modelPar_pbdgd,
-modelPar_given_pbdgd,
-modelPar_betarecd,
-modelPar_given_betarecd,
-modelPar_kbdgated,
-modelPar_given_kbdgated,
-modelPar_rth,
-modelPar_given_rth,
-modelPar_cth,
-modelPar_given_cth,
-modelPar_taugmrf,
-modelPar_given_taugmrf,
-modelPar_ctrap,
-modelPar_given_ctrap,
-modelPar_vttrap,
-modelPar_given_vttrap,
-modelPar_taut,
-modelPar_given_taut,
-modelPar_alphat1,
-modelPar_given_alphat1,
-modelPar_alphat2,
-modelPar_given_alphat2,
-modelPar_tempt,
-modelPar_given_tempt,
-modelPar_shs,
-modelPar_given_shs,
-modelPar_shd,
-modelPar_given_shd,
-modelPar_kf,
-modelPar_given_kf,
-modelPar_af,
-modelPar_given_af,
-modelPar_ffe,
-modelPar_given_ffe,
-modelPar_minr,
-modelPar_given_minr,
-modelPar_minl,
-modelPar_given_minl,
-modelPar_minc,
-modelPar_given_minc,
-modelPar_LMIN,
-modelPar_given_LMIN,
-modelPar_WMIN,
-modelPar_given_WMIN,
-modelPar_LMAX,
-modelPar_given_LMAX,
-modelPar_WMAX,
-modelPar_given_WMAX,
-// non-reals (including hidden)
- modelPar_type,
-modelPar_given_type,
- modelPar_flagres,
-modelPar_given_flagres,
- modelPar_flagfp1,
-modelPar_given_flagfp1,
- modelPar_flagfp1s,
-modelPar_given_flagfp1s,
- modelPar_flagfp2,
-modelPar_given_flagfp2,
- modelPar_flagfp2s,
-modelPar_given_flagfp2s,
- modelPar_flagfp3,
-modelPar_given_flagfp3,
- modelPar_flagfp3s,
-modelPar_given_flagfp3s,
- modelPar_flagfp4,
-modelPar_given_flagfp4,
- modelPar_flagfp4s,
-modelPar_given_flagfp4s,
- modelPar_igmod,
-modelPar_given_igmod,
- modelPar_gmdisp,
-modelPar_given_gmdisp,
- modelPar_trapselect,
-modelPar_given_trapselect,
- modelPar_noisemod,
-modelPar_given_noisemod,
+instanceStruct,
+modelStruct,
 in.admsTemperature,in.adms_vt_nom,in.getDeviceOptions().gmin,in);
 
 
@@ -29673,495 +28444,88 @@ in.admsNodeID_tr1,
 in.admsNodeID_xt1,
 in.admsNodeID_xt2,
 in.admsNodeID_dt,
-// instance parameters
-// reals
-instancePar_w,
-instancePar_given_w,
-instancePar_l,
-instancePar_given_l,
-instancePar_dtemp,
-instancePar_given_dtemp,
-// non-reals(including hidden)
- instancePar_ngf,
-instancePar_given_ngf,
-// instance variables
-// reals
-instanceVar_rcs_w,
-instanceVar_rcd_w,
-instanceVar_rg,
-instanceVar_vgisi,
-instanceVar_vdisi,
-instanceVar_vti,
-instanceVar_vdsati,
-instanceVar_pdc,
-instanceVar_idisi,
-instanceVar_igs,
-instanceVar_igd,
-instanceVar_qgi,
-instanceVar_qdi,
-instanceVar_qsi,
-instanceVar_qbi,
-instanceVar_gmi,
-instanceVar_gdsi,
-instanceVar_gmbsi,
-instanceVar_cggi,
-instanceVar_cgdi,
-instanceVar_cgsi,
-instanceVar_cgbi,
-instanceVar_cdgi,
-instanceVar_cddi,
-instanceVar_cdsi,
-instanceVar_cdbi,
-instanceVar_csgi,
-instanceVar_csdi,
-instanceVar_cssi,
-instanceVar_csbi,
-instanceVar_cbgi,
-instanceVar_cbdi,
-instanceVar_cbsi,
-instanceVar_cbbi,
-instanceVar_cgs,
-instanceVar_cgd,
-instanceVar_t_total_k,
-instanceVar_t_total_c,
-instanceVar_t_delta_sh,
-instanceVar_rs,
-instanceVar_rd,
-// model parameters
-// reals
-modelPar_version,
-modelPar_given_version,
-modelPar_tnom,
-modelPar_given_tnom,
-modelPar_cg,
-modelPar_given_cg,
-modelPar_cofsm,
-modelPar_given_cofsm,
-modelPar_cofdm,
-modelPar_given_cofdm,
-modelPar_cofdsm,
-modelPar_given_cofdsm,
-modelPar_cofdsubm,
-modelPar_given_cofdsubm,
-modelPar_cofssubm,
-modelPar_given_cofssubm,
-modelPar_cofgsubm,
-modelPar_given_cofgsubm,
-modelPar_rsh,
-modelPar_given_rsh,
-modelPar_rcs,
-modelPar_given_rcs,
-modelPar_rcd,
-modelPar_given_rcd,
-modelPar_vx0,
-modelPar_given_vx0,
-modelPar_mu0,
-modelPar_given_mu0,
-modelPar_beta,
-modelPar_given_beta,
-modelPar_vto,
-modelPar_given_vto,
-modelPar_ss,
-modelPar_given_ss,
-modelPar_delta1,
-modelPar_given_delta1,
-modelPar_delta2,
-modelPar_given_delta2,
-modelPar_dibsat,
-modelPar_given_dibsat,
-modelPar_nd,
-modelPar_given_nd,
-modelPar_alpha,
-modelPar_given_alpha,
-modelPar_lambda,
-modelPar_given_lambda,
-modelPar_vtheta,
-modelPar_given_vtheta,
-modelPar_mtheta,
-modelPar_given_mtheta,
-modelPar_vzeta,
-modelPar_given_vzeta,
-modelPar_vtzeta,
-modelPar_given_vtzeta,
-modelPar_epsilon,
-modelPar_given_epsilon,
-modelPar_rct1,
-modelPar_given_rct1,
-modelPar_rct2,
-modelPar_given_rct2,
-modelPar_lgs,
-modelPar_given_lgs,
-modelPar_vtors,
-modelPar_given_vtors,
-modelPar_cgrs,
-modelPar_given_cgrs,
-modelPar_vx0rs,
-modelPar_given_vx0rs,
-modelPar_mu0rs,
-modelPar_given_mu0rs,
-modelPar_betars,
-modelPar_given_betars,
-modelPar_delta1rs,
-modelPar_given_delta1rs,
-modelPar_srs,
-modelPar_given_srs,
-modelPar_ndrs,
-modelPar_given_ndrs,
-modelPar_vthetars,
-modelPar_given_vthetars,
-modelPar_mthetars,
-modelPar_given_mthetars,
-modelPar_alphars,
-modelPar_given_alphars,
-modelPar_lgd,
-modelPar_given_lgd,
-modelPar_vtord,
-modelPar_given_vtord,
-modelPar_cgrd,
-modelPar_given_cgrd,
-modelPar_vx0rd,
-modelPar_given_vx0rd,
-modelPar_mu0rd,
-modelPar_given_mu0rd,
-modelPar_betard,
-modelPar_given_betard,
-modelPar_delta1rd,
-modelPar_given_delta1rd,
-modelPar_srd,
-modelPar_given_srd,
-modelPar_ndrd,
-modelPar_given_ndrd,
-modelPar_vthetard,
-modelPar_given_vthetard,
-modelPar_mthetard,
-modelPar_given_mthetard,
-modelPar_alphard,
-modelPar_given_alphard,
-modelPar_lgfp1,
-modelPar_given_lgfp1,
-modelPar_vtofp1,
-modelPar_given_vtofp1,
-modelPar_cgfp1,
-modelPar_given_cgfp1,
-modelPar_cfp1s,
-modelPar_given_cfp1s,
-modelPar_ccfp1,
-modelPar_given_ccfp1,
-modelPar_cbfp1,
-modelPar_given_cbfp1,
-modelPar_vx0fp1,
-modelPar_given_vx0fp1,
-modelPar_mu0fp1,
-modelPar_given_mu0fp1,
-modelPar_betafp1,
-modelPar_given_betafp1,
-modelPar_delta1fp1,
-modelPar_given_delta1fp1,
-modelPar_sfp1,
-modelPar_given_sfp1,
-modelPar_ndfp1,
-modelPar_given_ndfp1,
-modelPar_vthetafp1,
-modelPar_given_vthetafp1,
-modelPar_mthetafp1,
-modelPar_given_mthetafp1,
-modelPar_alphafp1,
-modelPar_given_alphafp1,
-modelPar_lgfp2,
-modelPar_given_lgfp2,
-modelPar_vtofp2,
-modelPar_given_vtofp2,
-modelPar_cgfp2,
-modelPar_given_cgfp2,
-modelPar_cfp2s,
-modelPar_given_cfp2s,
-modelPar_ccfp2,
-modelPar_given_ccfp2,
-modelPar_cbfp2,
-modelPar_given_cbfp2,
-modelPar_vx0fp2,
-modelPar_given_vx0fp2,
-modelPar_mu0fp2,
-modelPar_given_mu0fp2,
-modelPar_betafp2,
-modelPar_given_betafp2,
-modelPar_delta1fp2,
-modelPar_given_delta1fp2,
-modelPar_sfp2,
-modelPar_given_sfp2,
-modelPar_ndfp2,
-modelPar_given_ndfp2,
-modelPar_vthetafp2,
-modelPar_given_vthetafp2,
-modelPar_mthetafp2,
-modelPar_given_mthetafp2,
-modelPar_alphafp2,
-modelPar_given_alphafp2,
-modelPar_lgfp3,
-modelPar_given_lgfp3,
-modelPar_vtofp3,
-modelPar_given_vtofp3,
-modelPar_cgfp3,
-modelPar_given_cgfp3,
-modelPar_cfp3s,
-modelPar_given_cfp3s,
-modelPar_ccfp3,
-modelPar_given_ccfp3,
-modelPar_cbfp3,
-modelPar_given_cbfp3,
-modelPar_vx0fp3,
-modelPar_given_vx0fp3,
-modelPar_mu0fp3,
-modelPar_given_mu0fp3,
-modelPar_betafp3,
-modelPar_given_betafp3,
-modelPar_delta1fp3,
-modelPar_given_delta1fp3,
-modelPar_sfp3,
-modelPar_given_sfp3,
-modelPar_ndfp3,
-modelPar_given_ndfp3,
-modelPar_vthetafp3,
-modelPar_given_vthetafp3,
-modelPar_mthetafp3,
-modelPar_given_mthetafp3,
-modelPar_alphafp3,
-modelPar_given_alphafp3,
-modelPar_lgfp4,
-modelPar_given_lgfp4,
-modelPar_vtofp4,
-modelPar_given_vtofp4,
-modelPar_cgfp4,
-modelPar_given_cgfp4,
-modelPar_cfp4s,
-modelPar_given_cfp4s,
-modelPar_ccfp4,
-modelPar_given_ccfp4,
-modelPar_cbfp4,
-modelPar_given_cbfp4,
-modelPar_vx0fp4,
-modelPar_given_vx0fp4,
-modelPar_mu0fp4,
-modelPar_given_mu0fp4,
-modelPar_betafp4,
-modelPar_given_betafp4,
-modelPar_delta1fp4,
-modelPar_given_delta1fp4,
-modelPar_sfp4,
-modelPar_given_sfp4,
-modelPar_ndfp4,
-modelPar_given_ndfp4,
-modelPar_vthetafp4,
-modelPar_given_vthetafp4,
-modelPar_mthetafp4,
-modelPar_given_mthetafp4,
-modelPar_alphafp4,
-modelPar_given_alphafp4,
-modelPar_rgsp,
-modelPar_given_rgsp,
-modelPar_vjg,
-modelPar_given_vjg,
-modelPar_pg_param1,
-modelPar_given_pg_param1,
-modelPar_pg_params,
-modelPar_given_pg_params,
-modelPar_ijs,
-modelPar_given_ijs,
-modelPar_vgsats,
-modelPar_given_vgsats,
-modelPar_fracs,
-modelPar_given_fracs,
-modelPar_alphags,
-modelPar_given_alphags,
-modelPar_pg_paramd,
-modelPar_given_pg_paramd,
-modelPar_ijd,
-modelPar_given_ijd,
-modelPar_vgsatd,
-modelPar_given_vgsatd,
-modelPar_fracd,
-modelPar_given_fracd,
-modelPar_alphagd,
-modelPar_given_alphagd,
-modelPar_pgsrecs,
-modelPar_given_pgsrecs,
-modelPar_irecs,
-modelPar_given_irecs,
-modelPar_vgsatqs,
-modelPar_given_vgsatqs,
-modelPar_vbdgs,
-modelPar_given_vbdgs,
-modelPar_pbdgs,
-modelPar_given_pbdgs,
-modelPar_betarecs,
-modelPar_given_betarecs,
-modelPar_kbdgates,
-modelPar_given_kbdgates,
-modelPar_pgsrecd,
-modelPar_given_pgsrecd,
-modelPar_irecd,
-modelPar_given_irecd,
-modelPar_vgsatqd,
-modelPar_given_vgsatqd,
-modelPar_vbdgd,
-modelPar_given_vbdgd,
-modelPar_pbdgd,
-modelPar_given_pbdgd,
-modelPar_betarecd,
-modelPar_given_betarecd,
-modelPar_kbdgated,
-modelPar_given_kbdgated,
-modelPar_rth,
-modelPar_given_rth,
-modelPar_cth,
-modelPar_given_cth,
-modelPar_taugmrf,
-modelPar_given_taugmrf,
-modelPar_ctrap,
-modelPar_given_ctrap,
-modelPar_vttrap,
-modelPar_given_vttrap,
-modelPar_taut,
-modelPar_given_taut,
-modelPar_alphat1,
-modelPar_given_alphat1,
-modelPar_alphat2,
-modelPar_given_alphat2,
-modelPar_tempt,
-modelPar_given_tempt,
-modelPar_shs,
-modelPar_given_shs,
-modelPar_shd,
-modelPar_given_shd,
-modelPar_kf,
-modelPar_given_kf,
-modelPar_af,
-modelPar_given_af,
-modelPar_ffe,
-modelPar_given_ffe,
-modelPar_minr,
-modelPar_given_minr,
-modelPar_minl,
-modelPar_given_minl,
-modelPar_minc,
-modelPar_given_minc,
-modelPar_LMIN,
-modelPar_given_LMIN,
-modelPar_WMIN,
-modelPar_given_WMIN,
-modelPar_LMAX,
-modelPar_given_LMAX,
-modelPar_WMAX,
-modelPar_given_WMAX,
-// non-reals (including hidden)
- modelPar_type,
-modelPar_given_type,
- modelPar_flagres,
-modelPar_given_flagres,
- modelPar_flagfp1,
-modelPar_given_flagfp1,
- modelPar_flagfp1s,
-modelPar_given_flagfp1s,
- modelPar_flagfp2,
-modelPar_given_flagfp2,
- modelPar_flagfp2s,
-modelPar_given_flagfp2s,
- modelPar_flagfp3,
-modelPar_given_flagfp3,
- modelPar_flagfp3s,
-modelPar_given_flagfp3s,
- modelPar_flagfp4,
-modelPar_given_flagfp4,
- modelPar_flagfp4s,
-modelPar_given_flagfp4s,
- modelPar_igmod,
-modelPar_given_igmod,
- modelPar_gmdisp,
-modelPar_given_gmdisp,
- modelPar_trapselect,
-modelPar_given_trapselect,
- modelPar_noisemod,
-modelPar_given_noisemod,
+instanceStruct,
+modelStruct,
  in.admsTemperature,
  in.adms_vt_nom,
  in.getDeviceOptions().gmin,
- staticContributions,
- dynamicContributions,
+ d_staticContributions_dX,
+ d_dynamicContributions_dX,
  in);
 
 
 // We now have the F and Q vector stuff, populate the dependencies:
 
-    dfdp[in.admsNodeID_d] += staticContributions[in.admsNodeID_d].dx(0);
-    dqdp[in.admsNodeID_d] += dynamicContributions[in.admsNodeID_d].dx(0);
+    dfdp[in.admsNodeID_d] += d_staticContributions_dX[in.admsNodeID_d];
+    dqdp[in.admsNodeID_d] += d_dynamicContributions_dX[in.admsNodeID_d];
     Findices[in.admsNodeID_d] = in.li_d;
     Qindices[in.admsNodeID_d] = in.li_d;
-    dfdp[in.admsNodeID_g] += staticContributions[in.admsNodeID_g].dx(0);
-    dqdp[in.admsNodeID_g] += dynamicContributions[in.admsNodeID_g].dx(0);
+    dfdp[in.admsNodeID_g] += d_staticContributions_dX[in.admsNodeID_g];
+    dqdp[in.admsNodeID_g] += d_dynamicContributions_dX[in.admsNodeID_g];
     Findices[in.admsNodeID_g] = in.li_g;
     Qindices[in.admsNodeID_g] = in.li_g;
-    dfdp[in.admsNodeID_s] += staticContributions[in.admsNodeID_s].dx(0);
-    dqdp[in.admsNodeID_s] += dynamicContributions[in.admsNodeID_s].dx(0);
+    dfdp[in.admsNodeID_s] += d_staticContributions_dX[in.admsNodeID_s];
+    dqdp[in.admsNodeID_s] += d_dynamicContributions_dX[in.admsNodeID_s];
     Findices[in.admsNodeID_s] = in.li_s;
     Qindices[in.admsNodeID_s] = in.li_s;
-    dfdp[in.admsNodeID_b] += staticContributions[in.admsNodeID_b].dx(0);
-    dqdp[in.admsNodeID_b] += dynamicContributions[in.admsNodeID_b].dx(0);
+    dfdp[in.admsNodeID_b] += d_staticContributions_dX[in.admsNodeID_b];
+    dqdp[in.admsNodeID_b] += d_dynamicContributions_dX[in.admsNodeID_b];
     Findices[in.admsNodeID_b] = in.li_b;
     Qindices[in.admsNodeID_b] = in.li_b;
-    dfdp[in.admsNodeID_di] += staticContributions[in.admsNodeID_di].dx(0);
-    dqdp[in.admsNodeID_di] += dynamicContributions[in.admsNodeID_di].dx(0);
+    dfdp[in.admsNodeID_di] += d_staticContributions_dX[in.admsNodeID_di];
+    dqdp[in.admsNodeID_di] += d_dynamicContributions_dX[in.admsNodeID_di];
     Findices[in.admsNodeID_di] = in.li_di;
     Qindices[in.admsNodeID_di] = in.li_di;
-    dfdp[in.admsNodeID_gi] += staticContributions[in.admsNodeID_gi].dx(0);
-    dqdp[in.admsNodeID_gi] += dynamicContributions[in.admsNodeID_gi].dx(0);
+    dfdp[in.admsNodeID_gi] += d_staticContributions_dX[in.admsNodeID_gi];
+    dqdp[in.admsNodeID_gi] += d_dynamicContributions_dX[in.admsNodeID_gi];
     Findices[in.admsNodeID_gi] = in.li_gi;
     Qindices[in.admsNodeID_gi] = in.li_gi;
-    dfdp[in.admsNodeID_si] += staticContributions[in.admsNodeID_si].dx(0);
-    dqdp[in.admsNodeID_si] += dynamicContributions[in.admsNodeID_si].dx(0);
+    dfdp[in.admsNodeID_si] += d_staticContributions_dX[in.admsNodeID_si];
+    dqdp[in.admsNodeID_si] += d_dynamicContributions_dX[in.admsNodeID_si];
     Findices[in.admsNodeID_si] = in.li_si;
     Qindices[in.admsNodeID_si] = in.li_si;
-    dfdp[in.admsNodeID_fp1] += staticContributions[in.admsNodeID_fp1].dx(0);
-    dqdp[in.admsNodeID_fp1] += dynamicContributions[in.admsNodeID_fp1].dx(0);
+    dfdp[in.admsNodeID_fp1] += d_staticContributions_dX[in.admsNodeID_fp1];
+    dqdp[in.admsNodeID_fp1] += d_dynamicContributions_dX[in.admsNodeID_fp1];
     Findices[in.admsNodeID_fp1] = in.li_fp1;
     Qindices[in.admsNodeID_fp1] = in.li_fp1;
-    dfdp[in.admsNodeID_fp2] += staticContributions[in.admsNodeID_fp2].dx(0);
-    dqdp[in.admsNodeID_fp2] += dynamicContributions[in.admsNodeID_fp2].dx(0);
+    dfdp[in.admsNodeID_fp2] += d_staticContributions_dX[in.admsNodeID_fp2];
+    dqdp[in.admsNodeID_fp2] += d_dynamicContributions_dX[in.admsNodeID_fp2];
     Findices[in.admsNodeID_fp2] = in.li_fp2;
     Qindices[in.admsNodeID_fp2] = in.li_fp2;
-    dfdp[in.admsNodeID_fp3] += staticContributions[in.admsNodeID_fp3].dx(0);
-    dqdp[in.admsNodeID_fp3] += dynamicContributions[in.admsNodeID_fp3].dx(0);
+    dfdp[in.admsNodeID_fp3] += d_staticContributions_dX[in.admsNodeID_fp3];
+    dqdp[in.admsNodeID_fp3] += d_dynamicContributions_dX[in.admsNodeID_fp3];
     Findices[in.admsNodeID_fp3] = in.li_fp3;
     Qindices[in.admsNodeID_fp3] = in.li_fp3;
-    dfdp[in.admsNodeID_fp4] += staticContributions[in.admsNodeID_fp4].dx(0);
-    dqdp[in.admsNodeID_fp4] += dynamicContributions[in.admsNodeID_fp4].dx(0);
+    dfdp[in.admsNodeID_fp4] += d_staticContributions_dX[in.admsNodeID_fp4];
+    dqdp[in.admsNodeID_fp4] += d_dynamicContributions_dX[in.admsNodeID_fp4];
     Findices[in.admsNodeID_fp4] = in.li_fp4;
     Qindices[in.admsNodeID_fp4] = in.li_fp4;
-    dfdp[in.admsNodeID_drc] += staticContributions[in.admsNodeID_drc].dx(0);
-    dqdp[in.admsNodeID_drc] += dynamicContributions[in.admsNodeID_drc].dx(0);
+    dfdp[in.admsNodeID_drc] += d_staticContributions_dX[in.admsNodeID_drc];
+    dqdp[in.admsNodeID_drc] += d_dynamicContributions_dX[in.admsNodeID_drc];
     Findices[in.admsNodeID_drc] = in.li_drc;
     Qindices[in.admsNodeID_drc] = in.li_drc;
-    dfdp[in.admsNodeID_src] += staticContributions[in.admsNodeID_src].dx(0);
-    dqdp[in.admsNodeID_src] += dynamicContributions[in.admsNodeID_src].dx(0);
+    dfdp[in.admsNodeID_src] += d_staticContributions_dX[in.admsNodeID_src];
+    dqdp[in.admsNodeID_src] += d_dynamicContributions_dX[in.admsNodeID_src];
     Findices[in.admsNodeID_src] = in.li_src;
     Qindices[in.admsNodeID_src] = in.li_src;
-    dfdp[in.admsNodeID_tr] += staticContributions[in.admsNodeID_tr].dx(0);
-    dqdp[in.admsNodeID_tr] += dynamicContributions[in.admsNodeID_tr].dx(0);
+    dfdp[in.admsNodeID_tr] += d_staticContributions_dX[in.admsNodeID_tr];
+    dqdp[in.admsNodeID_tr] += d_dynamicContributions_dX[in.admsNodeID_tr];
     Findices[in.admsNodeID_tr] = in.li_tr;
     Qindices[in.admsNodeID_tr] = in.li_tr;
-    dfdp[in.admsNodeID_tr1] += staticContributions[in.admsNodeID_tr1].dx(0);
-    dqdp[in.admsNodeID_tr1] += dynamicContributions[in.admsNodeID_tr1].dx(0);
+    dfdp[in.admsNodeID_tr1] += d_staticContributions_dX[in.admsNodeID_tr1];
+    dqdp[in.admsNodeID_tr1] += d_dynamicContributions_dX[in.admsNodeID_tr1];
     Findices[in.admsNodeID_tr1] = in.li_tr1;
     Qindices[in.admsNodeID_tr1] = in.li_tr1;
-    dfdp[in.admsNodeID_xt1] += staticContributions[in.admsNodeID_xt1].dx(0);
-    dqdp[in.admsNodeID_xt1] += dynamicContributions[in.admsNodeID_xt1].dx(0);
+    dfdp[in.admsNodeID_xt1] += d_staticContributions_dX[in.admsNodeID_xt1];
+    dqdp[in.admsNodeID_xt1] += d_dynamicContributions_dX[in.admsNodeID_xt1];
     Findices[in.admsNodeID_xt1] = in.li_xt1;
     Qindices[in.admsNodeID_xt1] = in.li_xt1;
-    dfdp[in.admsNodeID_xt2] += staticContributions[in.admsNodeID_xt2].dx(0);
-    dqdp[in.admsNodeID_xt2] += dynamicContributions[in.admsNodeID_xt2].dx(0);
+    dfdp[in.admsNodeID_xt2] += d_staticContributions_dX[in.admsNodeID_xt2];
+    dqdp[in.admsNodeID_xt2] += d_dynamicContributions_dX[in.admsNodeID_xt2];
     Findices[in.admsNodeID_xt2] = in.li_xt2;
     Qindices[in.admsNodeID_xt2] = in.li_xt2;
-    dfdp[in.admsNodeID_dt] += staticContributions[in.admsNodeID_dt].dx(0);
-    dqdp[in.admsNodeID_dt] += dynamicContributions[in.admsNodeID_dt].dx(0);
+    dfdp[in.admsNodeID_dt] += d_staticContributions_dX[in.admsNodeID_dt];
+    dqdp[in.admsNodeID_dt] += d_dynamicContributions_dX[in.admsNodeID_dt];
     Findices[in.admsNodeID_dt] = in.li_dt;
     Qindices[in.admsNodeID_dt] = in.li_dt;
 
@@ -30212,544 +28576,708 @@ Findices.resize((18+0)*sizeInstance);
 Qindices.resize((18+0)*sizeInstance);
 
 std::vector <double> probeVars(45);
-std::vector <AdmsSensFadType> staticContributions(18+0);
-std::vector <AdmsSensFadType> dynamicContributions(18+0);
+std::vector <double> d_staticContributions_dX(18+0);
+std::vector <double> d_dynamicContributions_dX(18+0);
 
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly "if/else" block just to find the
 // one parameter we're doing sensitivities on.
-unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> modParamMap;
+unordered_map <std::string,double*,HashNoCase,EqualNoCase> modParamMap;
 
 // reals
-AdmsSensFadType modelPar_version=mod.version;
-bool modelPar_given_version=mod.given("version");
-modParamMap["version"] = &modelPar_version;
-AdmsSensFadType modelPar_tnom=mod.tnom;
-bool modelPar_given_tnom=mod.given("tnom");
-modParamMap["tnom"] = &modelPar_tnom;
-AdmsSensFadType modelPar_cg=mod.cg;
-bool modelPar_given_cg=mod.given("cg");
-modParamMap["cg"] = &modelPar_cg;
-AdmsSensFadType modelPar_cofsm=mod.cofsm;
-bool modelPar_given_cofsm=mod.given("cofsm");
-modParamMap["cofsm"] = &modelPar_cofsm;
-AdmsSensFadType modelPar_cofdm=mod.cofdm;
-bool modelPar_given_cofdm=mod.given("cofdm");
-modParamMap["cofdm"] = &modelPar_cofdm;
-AdmsSensFadType modelPar_cofdsm=mod.cofdsm;
-bool modelPar_given_cofdsm=mod.given("cofdsm");
-modParamMap["cofdsm"] = &modelPar_cofdsm;
-AdmsSensFadType modelPar_cofdsubm=mod.cofdsubm;
-bool modelPar_given_cofdsubm=mod.given("cofdsubm");
-modParamMap["cofdsubm"] = &modelPar_cofdsubm;
-AdmsSensFadType modelPar_cofssubm=mod.cofssubm;
-bool modelPar_given_cofssubm=mod.given("cofssubm");
-modParamMap["cofssubm"] = &modelPar_cofssubm;
-AdmsSensFadType modelPar_cofgsubm=mod.cofgsubm;
-bool modelPar_given_cofgsubm=mod.given("cofgsubm");
-modParamMap["cofgsubm"] = &modelPar_cofgsubm;
-AdmsSensFadType modelPar_rsh=mod.rsh;
-bool modelPar_given_rsh=mod.given("rsh");
-modParamMap["rsh"] = &modelPar_rsh;
-AdmsSensFadType modelPar_rcs=mod.rcs;
-bool modelPar_given_rcs=mod.given("rcs");
-modParamMap["rcs"] = &modelPar_rcs;
-AdmsSensFadType modelPar_rcd=mod.rcd;
-bool modelPar_given_rcd=mod.given("rcd");
-modParamMap["rcd"] = &modelPar_rcd;
-AdmsSensFadType modelPar_vx0=mod.vx0;
-bool modelPar_given_vx0=mod.given("vx0");
-modParamMap["vx0"] = &modelPar_vx0;
-AdmsSensFadType modelPar_mu0=mod.mu0;
-bool modelPar_given_mu0=mod.given("mu0");
-modParamMap["mu0"] = &modelPar_mu0;
-AdmsSensFadType modelPar_beta=mod.beta;
-bool modelPar_given_beta=mod.given("beta");
-modParamMap["beta"] = &modelPar_beta;
-AdmsSensFadType modelPar_vto=mod.vto;
-bool modelPar_given_vto=mod.given("vto");
-modParamMap["vto"] = &modelPar_vto;
-AdmsSensFadType modelPar_ss=mod.ss;
-bool modelPar_given_ss=mod.given("ss");
-modParamMap["ss"] = &modelPar_ss;
-AdmsSensFadType modelPar_delta1=mod.delta1;
-bool modelPar_given_delta1=mod.given("delta1");
-modParamMap["delta1"] = &modelPar_delta1;
-AdmsSensFadType modelPar_delta2=mod.delta2;
-bool modelPar_given_delta2=mod.given("delta2");
-modParamMap["delta2"] = &modelPar_delta2;
-AdmsSensFadType modelPar_dibsat=mod.dibsat;
-bool modelPar_given_dibsat=mod.given("dibsat");
-modParamMap["dibsat"] = &modelPar_dibsat;
-AdmsSensFadType modelPar_nd=mod.nd;
-bool modelPar_given_nd=mod.given("nd");
-modParamMap["nd"] = &modelPar_nd;
-AdmsSensFadType modelPar_alpha=mod.alpha;
-bool modelPar_given_alpha=mod.given("alpha");
-modParamMap["alpha"] = &modelPar_alpha;
-AdmsSensFadType modelPar_lambda=mod.lambda;
-bool modelPar_given_lambda=mod.given("lambda");
-modParamMap["lambda"] = &modelPar_lambda;
-AdmsSensFadType modelPar_vtheta=mod.vtheta;
-bool modelPar_given_vtheta=mod.given("vtheta");
-modParamMap["vtheta"] = &modelPar_vtheta;
-AdmsSensFadType modelPar_mtheta=mod.mtheta;
-bool modelPar_given_mtheta=mod.given("mtheta");
-modParamMap["mtheta"] = &modelPar_mtheta;
-AdmsSensFadType modelPar_vzeta=mod.vzeta;
-bool modelPar_given_vzeta=mod.given("vzeta");
-modParamMap["vzeta"] = &modelPar_vzeta;
-AdmsSensFadType modelPar_vtzeta=mod.vtzeta;
-bool modelPar_given_vtzeta=mod.given("vtzeta");
-modParamMap["vtzeta"] = &modelPar_vtzeta;
-AdmsSensFadType modelPar_epsilon=mod.epsilon;
-bool modelPar_given_epsilon=mod.given("epsilon");
-modParamMap["epsilon"] = &modelPar_epsilon;
-AdmsSensFadType modelPar_rct1=mod.rct1;
-bool modelPar_given_rct1=mod.given("rct1");
-modParamMap["rct1"] = &modelPar_rct1;
-AdmsSensFadType modelPar_rct2=mod.rct2;
-bool modelPar_given_rct2=mod.given("rct2");
-modParamMap["rct2"] = &modelPar_rct2;
-AdmsSensFadType modelPar_lgs=mod.lgs;
-bool modelPar_given_lgs=mod.given("lgs");
-modParamMap["lgs"] = &modelPar_lgs;
-AdmsSensFadType modelPar_vtors=mod.vtors;
-bool modelPar_given_vtors=mod.given("vtors");
-modParamMap["vtors"] = &modelPar_vtors;
-AdmsSensFadType modelPar_cgrs=mod.cgrs;
-bool modelPar_given_cgrs=mod.given("cgrs");
-modParamMap["cgrs"] = &modelPar_cgrs;
-AdmsSensFadType modelPar_vx0rs=mod.vx0rs;
-bool modelPar_given_vx0rs=mod.given("vx0rs");
-modParamMap["vx0rs"] = &modelPar_vx0rs;
-AdmsSensFadType modelPar_mu0rs=mod.mu0rs;
-bool modelPar_given_mu0rs=mod.given("mu0rs");
-modParamMap["mu0rs"] = &modelPar_mu0rs;
-AdmsSensFadType modelPar_betars=mod.betars;
-bool modelPar_given_betars=mod.given("betars");
-modParamMap["betars"] = &modelPar_betars;
-AdmsSensFadType modelPar_delta1rs=mod.delta1rs;
-bool modelPar_given_delta1rs=mod.given("delta1rs");
-modParamMap["delta1rs"] = &modelPar_delta1rs;
-AdmsSensFadType modelPar_srs=mod.srs;
-bool modelPar_given_srs=mod.given("srs");
-modParamMap["srs"] = &modelPar_srs;
-AdmsSensFadType modelPar_ndrs=mod.ndrs;
-bool modelPar_given_ndrs=mod.given("ndrs");
-modParamMap["ndrs"] = &modelPar_ndrs;
-AdmsSensFadType modelPar_vthetars=mod.vthetars;
-bool modelPar_given_vthetars=mod.given("vthetars");
-modParamMap["vthetars"] = &modelPar_vthetars;
-AdmsSensFadType modelPar_mthetars=mod.mthetars;
-bool modelPar_given_mthetars=mod.given("mthetars");
-modParamMap["mthetars"] = &modelPar_mthetars;
-AdmsSensFadType modelPar_alphars=mod.alphars;
-bool modelPar_given_alphars=mod.given("alphars");
-modParamMap["alphars"] = &modelPar_alphars;
-AdmsSensFadType modelPar_lgd=mod.lgd;
-bool modelPar_given_lgd=mod.given("lgd");
-modParamMap["lgd"] = &modelPar_lgd;
-AdmsSensFadType modelPar_vtord=mod.vtord;
-bool modelPar_given_vtord=mod.given("vtord");
-modParamMap["vtord"] = &modelPar_vtord;
-AdmsSensFadType modelPar_cgrd=mod.cgrd;
-bool modelPar_given_cgrd=mod.given("cgrd");
-modParamMap["cgrd"] = &modelPar_cgrd;
-AdmsSensFadType modelPar_vx0rd=mod.vx0rd;
-bool modelPar_given_vx0rd=mod.given("vx0rd");
-modParamMap["vx0rd"] = &modelPar_vx0rd;
-AdmsSensFadType modelPar_mu0rd=mod.mu0rd;
-bool modelPar_given_mu0rd=mod.given("mu0rd");
-modParamMap["mu0rd"] = &modelPar_mu0rd;
-AdmsSensFadType modelPar_betard=mod.betard;
-bool modelPar_given_betard=mod.given("betard");
-modParamMap["betard"] = &modelPar_betard;
-AdmsSensFadType modelPar_delta1rd=mod.delta1rd;
-bool modelPar_given_delta1rd=mod.given("delta1rd");
-modParamMap["delta1rd"] = &modelPar_delta1rd;
-AdmsSensFadType modelPar_srd=mod.srd;
-bool modelPar_given_srd=mod.given("srd");
-modParamMap["srd"] = &modelPar_srd;
-AdmsSensFadType modelPar_ndrd=mod.ndrd;
-bool modelPar_given_ndrd=mod.given("ndrd");
-modParamMap["ndrd"] = &modelPar_ndrd;
-AdmsSensFadType modelPar_vthetard=mod.vthetard;
-bool modelPar_given_vthetard=mod.given("vthetard");
-modParamMap["vthetard"] = &modelPar_vthetard;
-AdmsSensFadType modelPar_mthetard=mod.mthetard;
-bool modelPar_given_mthetard=mod.given("mthetard");
-modParamMap["mthetard"] = &modelPar_mthetard;
-AdmsSensFadType modelPar_alphard=mod.alphard;
-bool modelPar_given_alphard=mod.given("alphard");
-modParamMap["alphard"] = &modelPar_alphard;
-AdmsSensFadType modelPar_lgfp1=mod.lgfp1;
-bool modelPar_given_lgfp1=mod.given("lgfp1");
-modParamMap["lgfp1"] = &modelPar_lgfp1;
-AdmsSensFadType modelPar_vtofp1=mod.vtofp1;
-bool modelPar_given_vtofp1=mod.given("vtofp1");
-modParamMap["vtofp1"] = &modelPar_vtofp1;
-AdmsSensFadType modelPar_cgfp1=mod.cgfp1;
-bool modelPar_given_cgfp1=mod.given("cgfp1");
-modParamMap["cgfp1"] = &modelPar_cgfp1;
-AdmsSensFadType modelPar_cfp1s=mod.cfp1s;
-bool modelPar_given_cfp1s=mod.given("cfp1s");
-modParamMap["cfp1s"] = &modelPar_cfp1s;
-AdmsSensFadType modelPar_ccfp1=mod.ccfp1;
-bool modelPar_given_ccfp1=mod.given("ccfp1");
-modParamMap["ccfp1"] = &modelPar_ccfp1;
-AdmsSensFadType modelPar_cbfp1=mod.cbfp1;
-bool modelPar_given_cbfp1=mod.given("cbfp1");
-modParamMap["cbfp1"] = &modelPar_cbfp1;
-AdmsSensFadType modelPar_vx0fp1=mod.vx0fp1;
-bool modelPar_given_vx0fp1=mod.given("vx0fp1");
-modParamMap["vx0fp1"] = &modelPar_vx0fp1;
-AdmsSensFadType modelPar_mu0fp1=mod.mu0fp1;
-bool modelPar_given_mu0fp1=mod.given("mu0fp1");
-modParamMap["mu0fp1"] = &modelPar_mu0fp1;
-AdmsSensFadType modelPar_betafp1=mod.betafp1;
-bool modelPar_given_betafp1=mod.given("betafp1");
-modParamMap["betafp1"] = &modelPar_betafp1;
-AdmsSensFadType modelPar_delta1fp1=mod.delta1fp1;
-bool modelPar_given_delta1fp1=mod.given("delta1fp1");
-modParamMap["delta1fp1"] = &modelPar_delta1fp1;
-AdmsSensFadType modelPar_sfp1=mod.sfp1;
-bool modelPar_given_sfp1=mod.given("sfp1");
-modParamMap["sfp1"] = &modelPar_sfp1;
-AdmsSensFadType modelPar_ndfp1=mod.ndfp1;
-bool modelPar_given_ndfp1=mod.given("ndfp1");
-modParamMap["ndfp1"] = &modelPar_ndfp1;
-AdmsSensFadType modelPar_vthetafp1=mod.vthetafp1;
-bool modelPar_given_vthetafp1=mod.given("vthetafp1");
-modParamMap["vthetafp1"] = &modelPar_vthetafp1;
-AdmsSensFadType modelPar_mthetafp1=mod.mthetafp1;
-bool modelPar_given_mthetafp1=mod.given("mthetafp1");
-modParamMap["mthetafp1"] = &modelPar_mthetafp1;
-AdmsSensFadType modelPar_alphafp1=mod.alphafp1;
-bool modelPar_given_alphafp1=mod.given("alphafp1");
-modParamMap["alphafp1"] = &modelPar_alphafp1;
-AdmsSensFadType modelPar_lgfp2=mod.lgfp2;
-bool modelPar_given_lgfp2=mod.given("lgfp2");
-modParamMap["lgfp2"] = &modelPar_lgfp2;
-AdmsSensFadType modelPar_vtofp2=mod.vtofp2;
-bool modelPar_given_vtofp2=mod.given("vtofp2");
-modParamMap["vtofp2"] = &modelPar_vtofp2;
-AdmsSensFadType modelPar_cgfp2=mod.cgfp2;
-bool modelPar_given_cgfp2=mod.given("cgfp2");
-modParamMap["cgfp2"] = &modelPar_cgfp2;
-AdmsSensFadType modelPar_cfp2s=mod.cfp2s;
-bool modelPar_given_cfp2s=mod.given("cfp2s");
-modParamMap["cfp2s"] = &modelPar_cfp2s;
-AdmsSensFadType modelPar_ccfp2=mod.ccfp2;
-bool modelPar_given_ccfp2=mod.given("ccfp2");
-modParamMap["ccfp2"] = &modelPar_ccfp2;
-AdmsSensFadType modelPar_cbfp2=mod.cbfp2;
-bool modelPar_given_cbfp2=mod.given("cbfp2");
-modParamMap["cbfp2"] = &modelPar_cbfp2;
-AdmsSensFadType modelPar_vx0fp2=mod.vx0fp2;
-bool modelPar_given_vx0fp2=mod.given("vx0fp2");
-modParamMap["vx0fp2"] = &modelPar_vx0fp2;
-AdmsSensFadType modelPar_mu0fp2=mod.mu0fp2;
-bool modelPar_given_mu0fp2=mod.given("mu0fp2");
-modParamMap["mu0fp2"] = &modelPar_mu0fp2;
-AdmsSensFadType modelPar_betafp2=mod.betafp2;
-bool modelPar_given_betafp2=mod.given("betafp2");
-modParamMap["betafp2"] = &modelPar_betafp2;
-AdmsSensFadType modelPar_delta1fp2=mod.delta1fp2;
-bool modelPar_given_delta1fp2=mod.given("delta1fp2");
-modParamMap["delta1fp2"] = &modelPar_delta1fp2;
-AdmsSensFadType modelPar_sfp2=mod.sfp2;
-bool modelPar_given_sfp2=mod.given("sfp2");
-modParamMap["sfp2"] = &modelPar_sfp2;
-AdmsSensFadType modelPar_ndfp2=mod.ndfp2;
-bool modelPar_given_ndfp2=mod.given("ndfp2");
-modParamMap["ndfp2"] = &modelPar_ndfp2;
-AdmsSensFadType modelPar_vthetafp2=mod.vthetafp2;
-bool modelPar_given_vthetafp2=mod.given("vthetafp2");
-modParamMap["vthetafp2"] = &modelPar_vthetafp2;
-AdmsSensFadType modelPar_mthetafp2=mod.mthetafp2;
-bool modelPar_given_mthetafp2=mod.given("mthetafp2");
-modParamMap["mthetafp2"] = &modelPar_mthetafp2;
-AdmsSensFadType modelPar_alphafp2=mod.alphafp2;
-bool modelPar_given_alphafp2=mod.given("alphafp2");
-modParamMap["alphafp2"] = &modelPar_alphafp2;
-AdmsSensFadType modelPar_lgfp3=mod.lgfp3;
-bool modelPar_given_lgfp3=mod.given("lgfp3");
-modParamMap["lgfp3"] = &modelPar_lgfp3;
-AdmsSensFadType modelPar_vtofp3=mod.vtofp3;
-bool modelPar_given_vtofp3=mod.given("vtofp3");
-modParamMap["vtofp3"] = &modelPar_vtofp3;
-AdmsSensFadType modelPar_cgfp3=mod.cgfp3;
-bool modelPar_given_cgfp3=mod.given("cgfp3");
-modParamMap["cgfp3"] = &modelPar_cgfp3;
-AdmsSensFadType modelPar_cfp3s=mod.cfp3s;
-bool modelPar_given_cfp3s=mod.given("cfp3s");
-modParamMap["cfp3s"] = &modelPar_cfp3s;
-AdmsSensFadType modelPar_ccfp3=mod.ccfp3;
-bool modelPar_given_ccfp3=mod.given("ccfp3");
-modParamMap["ccfp3"] = &modelPar_ccfp3;
-AdmsSensFadType modelPar_cbfp3=mod.cbfp3;
-bool modelPar_given_cbfp3=mod.given("cbfp3");
-modParamMap["cbfp3"] = &modelPar_cbfp3;
-AdmsSensFadType modelPar_vx0fp3=mod.vx0fp3;
-bool modelPar_given_vx0fp3=mod.given("vx0fp3");
-modParamMap["vx0fp3"] = &modelPar_vx0fp3;
-AdmsSensFadType modelPar_mu0fp3=mod.mu0fp3;
-bool modelPar_given_mu0fp3=mod.given("mu0fp3");
-modParamMap["mu0fp3"] = &modelPar_mu0fp3;
-AdmsSensFadType modelPar_betafp3=mod.betafp3;
-bool modelPar_given_betafp3=mod.given("betafp3");
-modParamMap["betafp3"] = &modelPar_betafp3;
-AdmsSensFadType modelPar_delta1fp3=mod.delta1fp3;
-bool modelPar_given_delta1fp3=mod.given("delta1fp3");
-modParamMap["delta1fp3"] = &modelPar_delta1fp3;
-AdmsSensFadType modelPar_sfp3=mod.sfp3;
-bool modelPar_given_sfp3=mod.given("sfp3");
-modParamMap["sfp3"] = &modelPar_sfp3;
-AdmsSensFadType modelPar_ndfp3=mod.ndfp3;
-bool modelPar_given_ndfp3=mod.given("ndfp3");
-modParamMap["ndfp3"] = &modelPar_ndfp3;
-AdmsSensFadType modelPar_vthetafp3=mod.vthetafp3;
-bool modelPar_given_vthetafp3=mod.given("vthetafp3");
-modParamMap["vthetafp3"] = &modelPar_vthetafp3;
-AdmsSensFadType modelPar_mthetafp3=mod.mthetafp3;
-bool modelPar_given_mthetafp3=mod.given("mthetafp3");
-modParamMap["mthetafp3"] = &modelPar_mthetafp3;
-AdmsSensFadType modelPar_alphafp3=mod.alphafp3;
-bool modelPar_given_alphafp3=mod.given("alphafp3");
-modParamMap["alphafp3"] = &modelPar_alphafp3;
-AdmsSensFadType modelPar_lgfp4=mod.lgfp4;
-bool modelPar_given_lgfp4=mod.given("lgfp4");
-modParamMap["lgfp4"] = &modelPar_lgfp4;
-AdmsSensFadType modelPar_vtofp4=mod.vtofp4;
-bool modelPar_given_vtofp4=mod.given("vtofp4");
-modParamMap["vtofp4"] = &modelPar_vtofp4;
-AdmsSensFadType modelPar_cgfp4=mod.cgfp4;
-bool modelPar_given_cgfp4=mod.given("cgfp4");
-modParamMap["cgfp4"] = &modelPar_cgfp4;
-AdmsSensFadType modelPar_cfp4s=mod.cfp4s;
-bool modelPar_given_cfp4s=mod.given("cfp4s");
-modParamMap["cfp4s"] = &modelPar_cfp4s;
-AdmsSensFadType modelPar_ccfp4=mod.ccfp4;
-bool modelPar_given_ccfp4=mod.given("ccfp4");
-modParamMap["ccfp4"] = &modelPar_ccfp4;
-AdmsSensFadType modelPar_cbfp4=mod.cbfp4;
-bool modelPar_given_cbfp4=mod.given("cbfp4");
-modParamMap["cbfp4"] = &modelPar_cbfp4;
-AdmsSensFadType modelPar_vx0fp4=mod.vx0fp4;
-bool modelPar_given_vx0fp4=mod.given("vx0fp4");
-modParamMap["vx0fp4"] = &modelPar_vx0fp4;
-AdmsSensFadType modelPar_mu0fp4=mod.mu0fp4;
-bool modelPar_given_mu0fp4=mod.given("mu0fp4");
-modParamMap["mu0fp4"] = &modelPar_mu0fp4;
-AdmsSensFadType modelPar_betafp4=mod.betafp4;
-bool modelPar_given_betafp4=mod.given("betafp4");
-modParamMap["betafp4"] = &modelPar_betafp4;
-AdmsSensFadType modelPar_delta1fp4=mod.delta1fp4;
-bool modelPar_given_delta1fp4=mod.given("delta1fp4");
-modParamMap["delta1fp4"] = &modelPar_delta1fp4;
-AdmsSensFadType modelPar_sfp4=mod.sfp4;
-bool modelPar_given_sfp4=mod.given("sfp4");
-modParamMap["sfp4"] = &modelPar_sfp4;
-AdmsSensFadType modelPar_ndfp4=mod.ndfp4;
-bool modelPar_given_ndfp4=mod.given("ndfp4");
-modParamMap["ndfp4"] = &modelPar_ndfp4;
-AdmsSensFadType modelPar_vthetafp4=mod.vthetafp4;
-bool modelPar_given_vthetafp4=mod.given("vthetafp4");
-modParamMap["vthetafp4"] = &modelPar_vthetafp4;
-AdmsSensFadType modelPar_mthetafp4=mod.mthetafp4;
-bool modelPar_given_mthetafp4=mod.given("mthetafp4");
-modParamMap["mthetafp4"] = &modelPar_mthetafp4;
-AdmsSensFadType modelPar_alphafp4=mod.alphafp4;
-bool modelPar_given_alphafp4=mod.given("alphafp4");
-modParamMap["alphafp4"] = &modelPar_alphafp4;
-AdmsSensFadType modelPar_rgsp=mod.rgsp;
-bool modelPar_given_rgsp=mod.given("rgsp");
-modParamMap["rgsp"] = &modelPar_rgsp;
-AdmsSensFadType modelPar_vjg=mod.vjg;
-bool modelPar_given_vjg=mod.given("vjg");
-modParamMap["vjg"] = &modelPar_vjg;
-AdmsSensFadType modelPar_pg_param1=mod.pg_param1;
-bool modelPar_given_pg_param1=mod.given("pg_param1");
-modParamMap["pg_param1"] = &modelPar_pg_param1;
-AdmsSensFadType modelPar_pg_params=mod.pg_params;
-bool modelPar_given_pg_params=mod.given("pg_params");
-modParamMap["pg_params"] = &modelPar_pg_params;
-AdmsSensFadType modelPar_ijs=mod.ijs;
-bool modelPar_given_ijs=mod.given("ijs");
-modParamMap["ijs"] = &modelPar_ijs;
-AdmsSensFadType modelPar_vgsats=mod.vgsats;
-bool modelPar_given_vgsats=mod.given("vgsats");
-modParamMap["vgsats"] = &modelPar_vgsats;
-AdmsSensFadType modelPar_fracs=mod.fracs;
-bool modelPar_given_fracs=mod.given("fracs");
-modParamMap["fracs"] = &modelPar_fracs;
-AdmsSensFadType modelPar_alphags=mod.alphags;
-bool modelPar_given_alphags=mod.given("alphags");
-modParamMap["alphags"] = &modelPar_alphags;
-AdmsSensFadType modelPar_pg_paramd=mod.pg_paramd;
-bool modelPar_given_pg_paramd=mod.given("pg_paramd");
-modParamMap["pg_paramd"] = &modelPar_pg_paramd;
-AdmsSensFadType modelPar_ijd=mod.ijd;
-bool modelPar_given_ijd=mod.given("ijd");
-modParamMap["ijd"] = &modelPar_ijd;
-AdmsSensFadType modelPar_vgsatd=mod.vgsatd;
-bool modelPar_given_vgsatd=mod.given("vgsatd");
-modParamMap["vgsatd"] = &modelPar_vgsatd;
-AdmsSensFadType modelPar_fracd=mod.fracd;
-bool modelPar_given_fracd=mod.given("fracd");
-modParamMap["fracd"] = &modelPar_fracd;
-AdmsSensFadType modelPar_alphagd=mod.alphagd;
-bool modelPar_given_alphagd=mod.given("alphagd");
-modParamMap["alphagd"] = &modelPar_alphagd;
-AdmsSensFadType modelPar_pgsrecs=mod.pgsrecs;
-bool modelPar_given_pgsrecs=mod.given("pgsrecs");
-modParamMap["pgsrecs"] = &modelPar_pgsrecs;
-AdmsSensFadType modelPar_irecs=mod.irecs;
-bool modelPar_given_irecs=mod.given("irecs");
-modParamMap["irecs"] = &modelPar_irecs;
-AdmsSensFadType modelPar_vgsatqs=mod.vgsatqs;
-bool modelPar_given_vgsatqs=mod.given("vgsatqs");
-modParamMap["vgsatqs"] = &modelPar_vgsatqs;
-AdmsSensFadType modelPar_vbdgs=mod.vbdgs;
-bool modelPar_given_vbdgs=mod.given("vbdgs");
-modParamMap["vbdgs"] = &modelPar_vbdgs;
-AdmsSensFadType modelPar_pbdgs=mod.pbdgs;
-bool modelPar_given_pbdgs=mod.given("pbdgs");
-modParamMap["pbdgs"] = &modelPar_pbdgs;
-AdmsSensFadType modelPar_betarecs=mod.betarecs;
-bool modelPar_given_betarecs=mod.given("betarecs");
-modParamMap["betarecs"] = &modelPar_betarecs;
-AdmsSensFadType modelPar_kbdgates=mod.kbdgates;
-bool modelPar_given_kbdgates=mod.given("kbdgates");
-modParamMap["kbdgates"] = &modelPar_kbdgates;
-AdmsSensFadType modelPar_pgsrecd=mod.pgsrecd;
-bool modelPar_given_pgsrecd=mod.given("pgsrecd");
-modParamMap["pgsrecd"] = &modelPar_pgsrecd;
-AdmsSensFadType modelPar_irecd=mod.irecd;
-bool modelPar_given_irecd=mod.given("irecd");
-modParamMap["irecd"] = &modelPar_irecd;
-AdmsSensFadType modelPar_vgsatqd=mod.vgsatqd;
-bool modelPar_given_vgsatqd=mod.given("vgsatqd");
-modParamMap["vgsatqd"] = &modelPar_vgsatqd;
-AdmsSensFadType modelPar_vbdgd=mod.vbdgd;
-bool modelPar_given_vbdgd=mod.given("vbdgd");
-modParamMap["vbdgd"] = &modelPar_vbdgd;
-AdmsSensFadType modelPar_pbdgd=mod.pbdgd;
-bool modelPar_given_pbdgd=mod.given("pbdgd");
-modParamMap["pbdgd"] = &modelPar_pbdgd;
-AdmsSensFadType modelPar_betarecd=mod.betarecd;
-bool modelPar_given_betarecd=mod.given("betarecd");
-modParamMap["betarecd"] = &modelPar_betarecd;
-AdmsSensFadType modelPar_kbdgated=mod.kbdgated;
-bool modelPar_given_kbdgated=mod.given("kbdgated");
-modParamMap["kbdgated"] = &modelPar_kbdgated;
-AdmsSensFadType modelPar_rth=mod.rth;
-bool modelPar_given_rth=mod.given("rth");
-modParamMap["rth"] = &modelPar_rth;
-AdmsSensFadType modelPar_cth=mod.cth;
-bool modelPar_given_cth=mod.given("cth");
-modParamMap["cth"] = &modelPar_cth;
-AdmsSensFadType modelPar_taugmrf=mod.taugmrf;
-bool modelPar_given_taugmrf=mod.given("taugmrf");
-modParamMap["taugmrf"] = &modelPar_taugmrf;
-AdmsSensFadType modelPar_ctrap=mod.ctrap;
-bool modelPar_given_ctrap=mod.given("ctrap");
-modParamMap["ctrap"] = &modelPar_ctrap;
-AdmsSensFadType modelPar_vttrap=mod.vttrap;
-bool modelPar_given_vttrap=mod.given("vttrap");
-modParamMap["vttrap"] = &modelPar_vttrap;
-AdmsSensFadType modelPar_taut=mod.taut;
-bool modelPar_given_taut=mod.given("taut");
-modParamMap["taut"] = &modelPar_taut;
-AdmsSensFadType modelPar_alphat1=mod.alphat1;
-bool modelPar_given_alphat1=mod.given("alphat1");
-modParamMap["alphat1"] = &modelPar_alphat1;
-AdmsSensFadType modelPar_alphat2=mod.alphat2;
-bool modelPar_given_alphat2=mod.given("alphat2");
-modParamMap["alphat2"] = &modelPar_alphat2;
-AdmsSensFadType modelPar_tempt=mod.tempt;
-bool modelPar_given_tempt=mod.given("tempt");
-modParamMap["tempt"] = &modelPar_tempt;
-AdmsSensFadType modelPar_shs=mod.shs;
-bool modelPar_given_shs=mod.given("shs");
-modParamMap["shs"] = &modelPar_shs;
-AdmsSensFadType modelPar_shd=mod.shd;
-bool modelPar_given_shd=mod.given("shd");
-modParamMap["shd"] = &modelPar_shd;
-AdmsSensFadType modelPar_kf=mod.kf;
-bool modelPar_given_kf=mod.given("kf");
-modParamMap["kf"] = &modelPar_kf;
-AdmsSensFadType modelPar_af=mod.af;
-bool modelPar_given_af=mod.given("af");
-modParamMap["af"] = &modelPar_af;
-AdmsSensFadType modelPar_ffe=mod.ffe;
-bool modelPar_given_ffe=mod.given("ffe");
-modParamMap["ffe"] = &modelPar_ffe;
-AdmsSensFadType modelPar_minr=mod.minr;
-bool modelPar_given_minr=mod.given("minr");
-modParamMap["minr"] = &modelPar_minr;
-AdmsSensFadType modelPar_minl=mod.minl;
-bool modelPar_given_minl=mod.given("minl");
-modParamMap["minl"] = &modelPar_minl;
-AdmsSensFadType modelPar_minc=mod.minc;
-bool modelPar_given_minc=mod.given("minc");
-modParamMap["minc"] = &modelPar_minc;
-AdmsSensFadType modelPar_LMIN=mod.LMIN;
-bool modelPar_given_LMIN=mod.given("LMIN");
-modParamMap["LMIN"] = &modelPar_LMIN;
-AdmsSensFadType modelPar_WMIN=mod.WMIN;
-bool modelPar_given_WMIN=mod.given("WMIN");
-modParamMap["WMIN"] = &modelPar_WMIN;
-AdmsSensFadType modelPar_LMAX=mod.LMAX;
-bool modelPar_given_LMAX=mod.given("LMAX");
-modParamMap["LMAX"] = &modelPar_LMAX;
-AdmsSensFadType modelPar_WMAX=mod.WMAX;
-bool modelPar_given_WMAX=mod.given("WMAX");
-modParamMap["WMAX"] = &modelPar_WMAX;
+modelStruct.modelPar_version=mod.version;
+modelStruct.d_modelPar_version_dX=0.0;
+modelStruct.modelPar_given_version=mod.given("version");
+modParamMap["version"] = &(modelStruct.d_modelPar_version_dX);
+modelStruct.modelPar_tnom=mod.tnom;
+modelStruct.d_modelPar_tnom_dX=0.0;
+modelStruct.modelPar_given_tnom=mod.given("tnom");
+modParamMap["tnom"] = &(modelStruct.d_modelPar_tnom_dX);
+modelStruct.modelPar_cg=mod.cg;
+modelStruct.d_modelPar_cg_dX=0.0;
+modelStruct.modelPar_given_cg=mod.given("cg");
+modParamMap["cg"] = &(modelStruct.d_modelPar_cg_dX);
+modelStruct.modelPar_cofsm=mod.cofsm;
+modelStruct.d_modelPar_cofsm_dX=0.0;
+modelStruct.modelPar_given_cofsm=mod.given("cofsm");
+modParamMap["cofsm"] = &(modelStruct.d_modelPar_cofsm_dX);
+modelStruct.modelPar_cofdm=mod.cofdm;
+modelStruct.d_modelPar_cofdm_dX=0.0;
+modelStruct.modelPar_given_cofdm=mod.given("cofdm");
+modParamMap["cofdm"] = &(modelStruct.d_modelPar_cofdm_dX);
+modelStruct.modelPar_cofdsm=mod.cofdsm;
+modelStruct.d_modelPar_cofdsm_dX=0.0;
+modelStruct.modelPar_given_cofdsm=mod.given("cofdsm");
+modParamMap["cofdsm"] = &(modelStruct.d_modelPar_cofdsm_dX);
+modelStruct.modelPar_cofdsubm=mod.cofdsubm;
+modelStruct.d_modelPar_cofdsubm_dX=0.0;
+modelStruct.modelPar_given_cofdsubm=mod.given("cofdsubm");
+modParamMap["cofdsubm"] = &(modelStruct.d_modelPar_cofdsubm_dX);
+modelStruct.modelPar_cofssubm=mod.cofssubm;
+modelStruct.d_modelPar_cofssubm_dX=0.0;
+modelStruct.modelPar_given_cofssubm=mod.given("cofssubm");
+modParamMap["cofssubm"] = &(modelStruct.d_modelPar_cofssubm_dX);
+modelStruct.modelPar_cofgsubm=mod.cofgsubm;
+modelStruct.d_modelPar_cofgsubm_dX=0.0;
+modelStruct.modelPar_given_cofgsubm=mod.given("cofgsubm");
+modParamMap["cofgsubm"] = &(modelStruct.d_modelPar_cofgsubm_dX);
+modelStruct.modelPar_rsh=mod.rsh;
+modelStruct.d_modelPar_rsh_dX=0.0;
+modelStruct.modelPar_given_rsh=mod.given("rsh");
+modParamMap["rsh"] = &(modelStruct.d_modelPar_rsh_dX);
+modelStruct.modelPar_rcs=mod.rcs;
+modelStruct.d_modelPar_rcs_dX=0.0;
+modelStruct.modelPar_given_rcs=mod.given("rcs");
+modParamMap["rcs"] = &(modelStruct.d_modelPar_rcs_dX);
+modelStruct.modelPar_rcd=mod.rcd;
+modelStruct.d_modelPar_rcd_dX=0.0;
+modelStruct.modelPar_given_rcd=mod.given("rcd");
+modParamMap["rcd"] = &(modelStruct.d_modelPar_rcd_dX);
+modelStruct.modelPar_vx0=mod.vx0;
+modelStruct.d_modelPar_vx0_dX=0.0;
+modelStruct.modelPar_given_vx0=mod.given("vx0");
+modParamMap["vx0"] = &(modelStruct.d_modelPar_vx0_dX);
+modelStruct.modelPar_mu0=mod.mu0;
+modelStruct.d_modelPar_mu0_dX=0.0;
+modelStruct.modelPar_given_mu0=mod.given("mu0");
+modParamMap["mu0"] = &(modelStruct.d_modelPar_mu0_dX);
+modelStruct.modelPar_beta=mod.beta;
+modelStruct.d_modelPar_beta_dX=0.0;
+modelStruct.modelPar_given_beta=mod.given("beta");
+modParamMap["beta"] = &(modelStruct.d_modelPar_beta_dX);
+modelStruct.modelPar_vto=mod.vto;
+modelStruct.d_modelPar_vto_dX=0.0;
+modelStruct.modelPar_given_vto=mod.given("vto");
+modParamMap["vto"] = &(modelStruct.d_modelPar_vto_dX);
+modelStruct.modelPar_ss=mod.ss;
+modelStruct.d_modelPar_ss_dX=0.0;
+modelStruct.modelPar_given_ss=mod.given("ss");
+modParamMap["ss"] = &(modelStruct.d_modelPar_ss_dX);
+modelStruct.modelPar_delta1=mod.delta1;
+modelStruct.d_modelPar_delta1_dX=0.0;
+modelStruct.modelPar_given_delta1=mod.given("delta1");
+modParamMap["delta1"] = &(modelStruct.d_modelPar_delta1_dX);
+modelStruct.modelPar_delta2=mod.delta2;
+modelStruct.d_modelPar_delta2_dX=0.0;
+modelStruct.modelPar_given_delta2=mod.given("delta2");
+modParamMap["delta2"] = &(modelStruct.d_modelPar_delta2_dX);
+modelStruct.modelPar_dibsat=mod.dibsat;
+modelStruct.d_modelPar_dibsat_dX=0.0;
+modelStruct.modelPar_given_dibsat=mod.given("dibsat");
+modParamMap["dibsat"] = &(modelStruct.d_modelPar_dibsat_dX);
+modelStruct.modelPar_nd=mod.nd;
+modelStruct.d_modelPar_nd_dX=0.0;
+modelStruct.modelPar_given_nd=mod.given("nd");
+modParamMap["nd"] = &(modelStruct.d_modelPar_nd_dX);
+modelStruct.modelPar_alpha=mod.alpha;
+modelStruct.d_modelPar_alpha_dX=0.0;
+modelStruct.modelPar_given_alpha=mod.given("alpha");
+modParamMap["alpha"] = &(modelStruct.d_modelPar_alpha_dX);
+modelStruct.modelPar_lambda=mod.lambda;
+modelStruct.d_modelPar_lambda_dX=0.0;
+modelStruct.modelPar_given_lambda=mod.given("lambda");
+modParamMap["lambda"] = &(modelStruct.d_modelPar_lambda_dX);
+modelStruct.modelPar_vtheta=mod.vtheta;
+modelStruct.d_modelPar_vtheta_dX=0.0;
+modelStruct.modelPar_given_vtheta=mod.given("vtheta");
+modParamMap["vtheta"] = &(modelStruct.d_modelPar_vtheta_dX);
+modelStruct.modelPar_mtheta=mod.mtheta;
+modelStruct.d_modelPar_mtheta_dX=0.0;
+modelStruct.modelPar_given_mtheta=mod.given("mtheta");
+modParamMap["mtheta"] = &(modelStruct.d_modelPar_mtheta_dX);
+modelStruct.modelPar_vzeta=mod.vzeta;
+modelStruct.d_modelPar_vzeta_dX=0.0;
+modelStruct.modelPar_given_vzeta=mod.given("vzeta");
+modParamMap["vzeta"] = &(modelStruct.d_modelPar_vzeta_dX);
+modelStruct.modelPar_vtzeta=mod.vtzeta;
+modelStruct.d_modelPar_vtzeta_dX=0.0;
+modelStruct.modelPar_given_vtzeta=mod.given("vtzeta");
+modParamMap["vtzeta"] = &(modelStruct.d_modelPar_vtzeta_dX);
+modelStruct.modelPar_epsilon=mod.epsilon;
+modelStruct.d_modelPar_epsilon_dX=0.0;
+modelStruct.modelPar_given_epsilon=mod.given("epsilon");
+modParamMap["epsilon"] = &(modelStruct.d_modelPar_epsilon_dX);
+modelStruct.modelPar_rct1=mod.rct1;
+modelStruct.d_modelPar_rct1_dX=0.0;
+modelStruct.modelPar_given_rct1=mod.given("rct1");
+modParamMap["rct1"] = &(modelStruct.d_modelPar_rct1_dX);
+modelStruct.modelPar_rct2=mod.rct2;
+modelStruct.d_modelPar_rct2_dX=0.0;
+modelStruct.modelPar_given_rct2=mod.given("rct2");
+modParamMap["rct2"] = &(modelStruct.d_modelPar_rct2_dX);
+modelStruct.modelPar_lgs=mod.lgs;
+modelStruct.d_modelPar_lgs_dX=0.0;
+modelStruct.modelPar_given_lgs=mod.given("lgs");
+modParamMap["lgs"] = &(modelStruct.d_modelPar_lgs_dX);
+modelStruct.modelPar_vtors=mod.vtors;
+modelStruct.d_modelPar_vtors_dX=0.0;
+modelStruct.modelPar_given_vtors=mod.given("vtors");
+modParamMap["vtors"] = &(modelStruct.d_modelPar_vtors_dX);
+modelStruct.modelPar_cgrs=mod.cgrs;
+modelStruct.d_modelPar_cgrs_dX=0.0;
+modelStruct.modelPar_given_cgrs=mod.given("cgrs");
+modParamMap["cgrs"] = &(modelStruct.d_modelPar_cgrs_dX);
+modelStruct.modelPar_vx0rs=mod.vx0rs;
+modelStruct.d_modelPar_vx0rs_dX=0.0;
+modelStruct.modelPar_given_vx0rs=mod.given("vx0rs");
+modParamMap["vx0rs"] = &(modelStruct.d_modelPar_vx0rs_dX);
+modelStruct.modelPar_mu0rs=mod.mu0rs;
+modelStruct.d_modelPar_mu0rs_dX=0.0;
+modelStruct.modelPar_given_mu0rs=mod.given("mu0rs");
+modParamMap["mu0rs"] = &(modelStruct.d_modelPar_mu0rs_dX);
+modelStruct.modelPar_betars=mod.betars;
+modelStruct.d_modelPar_betars_dX=0.0;
+modelStruct.modelPar_given_betars=mod.given("betars");
+modParamMap["betars"] = &(modelStruct.d_modelPar_betars_dX);
+modelStruct.modelPar_delta1rs=mod.delta1rs;
+modelStruct.d_modelPar_delta1rs_dX=0.0;
+modelStruct.modelPar_given_delta1rs=mod.given("delta1rs");
+modParamMap["delta1rs"] = &(modelStruct.d_modelPar_delta1rs_dX);
+modelStruct.modelPar_srs=mod.srs;
+modelStruct.d_modelPar_srs_dX=0.0;
+modelStruct.modelPar_given_srs=mod.given("srs");
+modParamMap["srs"] = &(modelStruct.d_modelPar_srs_dX);
+modelStruct.modelPar_ndrs=mod.ndrs;
+modelStruct.d_modelPar_ndrs_dX=0.0;
+modelStruct.modelPar_given_ndrs=mod.given("ndrs");
+modParamMap["ndrs"] = &(modelStruct.d_modelPar_ndrs_dX);
+modelStruct.modelPar_vthetars=mod.vthetars;
+modelStruct.d_modelPar_vthetars_dX=0.0;
+modelStruct.modelPar_given_vthetars=mod.given("vthetars");
+modParamMap["vthetars"] = &(modelStruct.d_modelPar_vthetars_dX);
+modelStruct.modelPar_mthetars=mod.mthetars;
+modelStruct.d_modelPar_mthetars_dX=0.0;
+modelStruct.modelPar_given_mthetars=mod.given("mthetars");
+modParamMap["mthetars"] = &(modelStruct.d_modelPar_mthetars_dX);
+modelStruct.modelPar_alphars=mod.alphars;
+modelStruct.d_modelPar_alphars_dX=0.0;
+modelStruct.modelPar_given_alphars=mod.given("alphars");
+modParamMap["alphars"] = &(modelStruct.d_modelPar_alphars_dX);
+modelStruct.modelPar_lgd=mod.lgd;
+modelStruct.d_modelPar_lgd_dX=0.0;
+modelStruct.modelPar_given_lgd=mod.given("lgd");
+modParamMap["lgd"] = &(modelStruct.d_modelPar_lgd_dX);
+modelStruct.modelPar_vtord=mod.vtord;
+modelStruct.d_modelPar_vtord_dX=0.0;
+modelStruct.modelPar_given_vtord=mod.given("vtord");
+modParamMap["vtord"] = &(modelStruct.d_modelPar_vtord_dX);
+modelStruct.modelPar_cgrd=mod.cgrd;
+modelStruct.d_modelPar_cgrd_dX=0.0;
+modelStruct.modelPar_given_cgrd=mod.given("cgrd");
+modParamMap["cgrd"] = &(modelStruct.d_modelPar_cgrd_dX);
+modelStruct.modelPar_vx0rd=mod.vx0rd;
+modelStruct.d_modelPar_vx0rd_dX=0.0;
+modelStruct.modelPar_given_vx0rd=mod.given("vx0rd");
+modParamMap["vx0rd"] = &(modelStruct.d_modelPar_vx0rd_dX);
+modelStruct.modelPar_mu0rd=mod.mu0rd;
+modelStruct.d_modelPar_mu0rd_dX=0.0;
+modelStruct.modelPar_given_mu0rd=mod.given("mu0rd");
+modParamMap["mu0rd"] = &(modelStruct.d_modelPar_mu0rd_dX);
+modelStruct.modelPar_betard=mod.betard;
+modelStruct.d_modelPar_betard_dX=0.0;
+modelStruct.modelPar_given_betard=mod.given("betard");
+modParamMap["betard"] = &(modelStruct.d_modelPar_betard_dX);
+modelStruct.modelPar_delta1rd=mod.delta1rd;
+modelStruct.d_modelPar_delta1rd_dX=0.0;
+modelStruct.modelPar_given_delta1rd=mod.given("delta1rd");
+modParamMap["delta1rd"] = &(modelStruct.d_modelPar_delta1rd_dX);
+modelStruct.modelPar_srd=mod.srd;
+modelStruct.d_modelPar_srd_dX=0.0;
+modelStruct.modelPar_given_srd=mod.given("srd");
+modParamMap["srd"] = &(modelStruct.d_modelPar_srd_dX);
+modelStruct.modelPar_ndrd=mod.ndrd;
+modelStruct.d_modelPar_ndrd_dX=0.0;
+modelStruct.modelPar_given_ndrd=mod.given("ndrd");
+modParamMap["ndrd"] = &(modelStruct.d_modelPar_ndrd_dX);
+modelStruct.modelPar_vthetard=mod.vthetard;
+modelStruct.d_modelPar_vthetard_dX=0.0;
+modelStruct.modelPar_given_vthetard=mod.given("vthetard");
+modParamMap["vthetard"] = &(modelStruct.d_modelPar_vthetard_dX);
+modelStruct.modelPar_mthetard=mod.mthetard;
+modelStruct.d_modelPar_mthetard_dX=0.0;
+modelStruct.modelPar_given_mthetard=mod.given("mthetard");
+modParamMap["mthetard"] = &(modelStruct.d_modelPar_mthetard_dX);
+modelStruct.modelPar_alphard=mod.alphard;
+modelStruct.d_modelPar_alphard_dX=0.0;
+modelStruct.modelPar_given_alphard=mod.given("alphard");
+modParamMap["alphard"] = &(modelStruct.d_modelPar_alphard_dX);
+modelStruct.modelPar_lgfp1=mod.lgfp1;
+modelStruct.d_modelPar_lgfp1_dX=0.0;
+modelStruct.modelPar_given_lgfp1=mod.given("lgfp1");
+modParamMap["lgfp1"] = &(modelStruct.d_modelPar_lgfp1_dX);
+modelStruct.modelPar_vtofp1=mod.vtofp1;
+modelStruct.d_modelPar_vtofp1_dX=0.0;
+modelStruct.modelPar_given_vtofp1=mod.given("vtofp1");
+modParamMap["vtofp1"] = &(modelStruct.d_modelPar_vtofp1_dX);
+modelStruct.modelPar_cgfp1=mod.cgfp1;
+modelStruct.d_modelPar_cgfp1_dX=0.0;
+modelStruct.modelPar_given_cgfp1=mod.given("cgfp1");
+modParamMap["cgfp1"] = &(modelStruct.d_modelPar_cgfp1_dX);
+modelStruct.modelPar_cfp1s=mod.cfp1s;
+modelStruct.d_modelPar_cfp1s_dX=0.0;
+modelStruct.modelPar_given_cfp1s=mod.given("cfp1s");
+modParamMap["cfp1s"] = &(modelStruct.d_modelPar_cfp1s_dX);
+modelStruct.modelPar_ccfp1=mod.ccfp1;
+modelStruct.d_modelPar_ccfp1_dX=0.0;
+modelStruct.modelPar_given_ccfp1=mod.given("ccfp1");
+modParamMap["ccfp1"] = &(modelStruct.d_modelPar_ccfp1_dX);
+modelStruct.modelPar_cbfp1=mod.cbfp1;
+modelStruct.d_modelPar_cbfp1_dX=0.0;
+modelStruct.modelPar_given_cbfp1=mod.given("cbfp1");
+modParamMap["cbfp1"] = &(modelStruct.d_modelPar_cbfp1_dX);
+modelStruct.modelPar_vx0fp1=mod.vx0fp1;
+modelStruct.d_modelPar_vx0fp1_dX=0.0;
+modelStruct.modelPar_given_vx0fp1=mod.given("vx0fp1");
+modParamMap["vx0fp1"] = &(modelStruct.d_modelPar_vx0fp1_dX);
+modelStruct.modelPar_mu0fp1=mod.mu0fp1;
+modelStruct.d_modelPar_mu0fp1_dX=0.0;
+modelStruct.modelPar_given_mu0fp1=mod.given("mu0fp1");
+modParamMap["mu0fp1"] = &(modelStruct.d_modelPar_mu0fp1_dX);
+modelStruct.modelPar_betafp1=mod.betafp1;
+modelStruct.d_modelPar_betafp1_dX=0.0;
+modelStruct.modelPar_given_betafp1=mod.given("betafp1");
+modParamMap["betafp1"] = &(modelStruct.d_modelPar_betafp1_dX);
+modelStruct.modelPar_delta1fp1=mod.delta1fp1;
+modelStruct.d_modelPar_delta1fp1_dX=0.0;
+modelStruct.modelPar_given_delta1fp1=mod.given("delta1fp1");
+modParamMap["delta1fp1"] = &(modelStruct.d_modelPar_delta1fp1_dX);
+modelStruct.modelPar_sfp1=mod.sfp1;
+modelStruct.d_modelPar_sfp1_dX=0.0;
+modelStruct.modelPar_given_sfp1=mod.given("sfp1");
+modParamMap["sfp1"] = &(modelStruct.d_modelPar_sfp1_dX);
+modelStruct.modelPar_ndfp1=mod.ndfp1;
+modelStruct.d_modelPar_ndfp1_dX=0.0;
+modelStruct.modelPar_given_ndfp1=mod.given("ndfp1");
+modParamMap["ndfp1"] = &(modelStruct.d_modelPar_ndfp1_dX);
+modelStruct.modelPar_vthetafp1=mod.vthetafp1;
+modelStruct.d_modelPar_vthetafp1_dX=0.0;
+modelStruct.modelPar_given_vthetafp1=mod.given("vthetafp1");
+modParamMap["vthetafp1"] = &(modelStruct.d_modelPar_vthetafp1_dX);
+modelStruct.modelPar_mthetafp1=mod.mthetafp1;
+modelStruct.d_modelPar_mthetafp1_dX=0.0;
+modelStruct.modelPar_given_mthetafp1=mod.given("mthetafp1");
+modParamMap["mthetafp1"] = &(modelStruct.d_modelPar_mthetafp1_dX);
+modelStruct.modelPar_alphafp1=mod.alphafp1;
+modelStruct.d_modelPar_alphafp1_dX=0.0;
+modelStruct.modelPar_given_alphafp1=mod.given("alphafp1");
+modParamMap["alphafp1"] = &(modelStruct.d_modelPar_alphafp1_dX);
+modelStruct.modelPar_lgfp2=mod.lgfp2;
+modelStruct.d_modelPar_lgfp2_dX=0.0;
+modelStruct.modelPar_given_lgfp2=mod.given("lgfp2");
+modParamMap["lgfp2"] = &(modelStruct.d_modelPar_lgfp2_dX);
+modelStruct.modelPar_vtofp2=mod.vtofp2;
+modelStruct.d_modelPar_vtofp2_dX=0.0;
+modelStruct.modelPar_given_vtofp2=mod.given("vtofp2");
+modParamMap["vtofp2"] = &(modelStruct.d_modelPar_vtofp2_dX);
+modelStruct.modelPar_cgfp2=mod.cgfp2;
+modelStruct.d_modelPar_cgfp2_dX=0.0;
+modelStruct.modelPar_given_cgfp2=mod.given("cgfp2");
+modParamMap["cgfp2"] = &(modelStruct.d_modelPar_cgfp2_dX);
+modelStruct.modelPar_cfp2s=mod.cfp2s;
+modelStruct.d_modelPar_cfp2s_dX=0.0;
+modelStruct.modelPar_given_cfp2s=mod.given("cfp2s");
+modParamMap["cfp2s"] = &(modelStruct.d_modelPar_cfp2s_dX);
+modelStruct.modelPar_ccfp2=mod.ccfp2;
+modelStruct.d_modelPar_ccfp2_dX=0.0;
+modelStruct.modelPar_given_ccfp2=mod.given("ccfp2");
+modParamMap["ccfp2"] = &(modelStruct.d_modelPar_ccfp2_dX);
+modelStruct.modelPar_cbfp2=mod.cbfp2;
+modelStruct.d_modelPar_cbfp2_dX=0.0;
+modelStruct.modelPar_given_cbfp2=mod.given("cbfp2");
+modParamMap["cbfp2"] = &(modelStruct.d_modelPar_cbfp2_dX);
+modelStruct.modelPar_vx0fp2=mod.vx0fp2;
+modelStruct.d_modelPar_vx0fp2_dX=0.0;
+modelStruct.modelPar_given_vx0fp2=mod.given("vx0fp2");
+modParamMap["vx0fp2"] = &(modelStruct.d_modelPar_vx0fp2_dX);
+modelStruct.modelPar_mu0fp2=mod.mu0fp2;
+modelStruct.d_modelPar_mu0fp2_dX=0.0;
+modelStruct.modelPar_given_mu0fp2=mod.given("mu0fp2");
+modParamMap["mu0fp2"] = &(modelStruct.d_modelPar_mu0fp2_dX);
+modelStruct.modelPar_betafp2=mod.betafp2;
+modelStruct.d_modelPar_betafp2_dX=0.0;
+modelStruct.modelPar_given_betafp2=mod.given("betafp2");
+modParamMap["betafp2"] = &(modelStruct.d_modelPar_betafp2_dX);
+modelStruct.modelPar_delta1fp2=mod.delta1fp2;
+modelStruct.d_modelPar_delta1fp2_dX=0.0;
+modelStruct.modelPar_given_delta1fp2=mod.given("delta1fp2");
+modParamMap["delta1fp2"] = &(modelStruct.d_modelPar_delta1fp2_dX);
+modelStruct.modelPar_sfp2=mod.sfp2;
+modelStruct.d_modelPar_sfp2_dX=0.0;
+modelStruct.modelPar_given_sfp2=mod.given("sfp2");
+modParamMap["sfp2"] = &(modelStruct.d_modelPar_sfp2_dX);
+modelStruct.modelPar_ndfp2=mod.ndfp2;
+modelStruct.d_modelPar_ndfp2_dX=0.0;
+modelStruct.modelPar_given_ndfp2=mod.given("ndfp2");
+modParamMap["ndfp2"] = &(modelStruct.d_modelPar_ndfp2_dX);
+modelStruct.modelPar_vthetafp2=mod.vthetafp2;
+modelStruct.d_modelPar_vthetafp2_dX=0.0;
+modelStruct.modelPar_given_vthetafp2=mod.given("vthetafp2");
+modParamMap["vthetafp2"] = &(modelStruct.d_modelPar_vthetafp2_dX);
+modelStruct.modelPar_mthetafp2=mod.mthetafp2;
+modelStruct.d_modelPar_mthetafp2_dX=0.0;
+modelStruct.modelPar_given_mthetafp2=mod.given("mthetafp2");
+modParamMap["mthetafp2"] = &(modelStruct.d_modelPar_mthetafp2_dX);
+modelStruct.modelPar_alphafp2=mod.alphafp2;
+modelStruct.d_modelPar_alphafp2_dX=0.0;
+modelStruct.modelPar_given_alphafp2=mod.given("alphafp2");
+modParamMap["alphafp2"] = &(modelStruct.d_modelPar_alphafp2_dX);
+modelStruct.modelPar_lgfp3=mod.lgfp3;
+modelStruct.d_modelPar_lgfp3_dX=0.0;
+modelStruct.modelPar_given_lgfp3=mod.given("lgfp3");
+modParamMap["lgfp3"] = &(modelStruct.d_modelPar_lgfp3_dX);
+modelStruct.modelPar_vtofp3=mod.vtofp3;
+modelStruct.d_modelPar_vtofp3_dX=0.0;
+modelStruct.modelPar_given_vtofp3=mod.given("vtofp3");
+modParamMap["vtofp3"] = &(modelStruct.d_modelPar_vtofp3_dX);
+modelStruct.modelPar_cgfp3=mod.cgfp3;
+modelStruct.d_modelPar_cgfp3_dX=0.0;
+modelStruct.modelPar_given_cgfp3=mod.given("cgfp3");
+modParamMap["cgfp3"] = &(modelStruct.d_modelPar_cgfp3_dX);
+modelStruct.modelPar_cfp3s=mod.cfp3s;
+modelStruct.d_modelPar_cfp3s_dX=0.0;
+modelStruct.modelPar_given_cfp3s=mod.given("cfp3s");
+modParamMap["cfp3s"] = &(modelStruct.d_modelPar_cfp3s_dX);
+modelStruct.modelPar_ccfp3=mod.ccfp3;
+modelStruct.d_modelPar_ccfp3_dX=0.0;
+modelStruct.modelPar_given_ccfp3=mod.given("ccfp3");
+modParamMap["ccfp3"] = &(modelStruct.d_modelPar_ccfp3_dX);
+modelStruct.modelPar_cbfp3=mod.cbfp3;
+modelStruct.d_modelPar_cbfp3_dX=0.0;
+modelStruct.modelPar_given_cbfp3=mod.given("cbfp3");
+modParamMap["cbfp3"] = &(modelStruct.d_modelPar_cbfp3_dX);
+modelStruct.modelPar_vx0fp3=mod.vx0fp3;
+modelStruct.d_modelPar_vx0fp3_dX=0.0;
+modelStruct.modelPar_given_vx0fp3=mod.given("vx0fp3");
+modParamMap["vx0fp3"] = &(modelStruct.d_modelPar_vx0fp3_dX);
+modelStruct.modelPar_mu0fp3=mod.mu0fp3;
+modelStruct.d_modelPar_mu0fp3_dX=0.0;
+modelStruct.modelPar_given_mu0fp3=mod.given("mu0fp3");
+modParamMap["mu0fp3"] = &(modelStruct.d_modelPar_mu0fp3_dX);
+modelStruct.modelPar_betafp3=mod.betafp3;
+modelStruct.d_modelPar_betafp3_dX=0.0;
+modelStruct.modelPar_given_betafp3=mod.given("betafp3");
+modParamMap["betafp3"] = &(modelStruct.d_modelPar_betafp3_dX);
+modelStruct.modelPar_delta1fp3=mod.delta1fp3;
+modelStruct.d_modelPar_delta1fp3_dX=0.0;
+modelStruct.modelPar_given_delta1fp3=mod.given("delta1fp3");
+modParamMap["delta1fp3"] = &(modelStruct.d_modelPar_delta1fp3_dX);
+modelStruct.modelPar_sfp3=mod.sfp3;
+modelStruct.d_modelPar_sfp3_dX=0.0;
+modelStruct.modelPar_given_sfp3=mod.given("sfp3");
+modParamMap["sfp3"] = &(modelStruct.d_modelPar_sfp3_dX);
+modelStruct.modelPar_ndfp3=mod.ndfp3;
+modelStruct.d_modelPar_ndfp3_dX=0.0;
+modelStruct.modelPar_given_ndfp3=mod.given("ndfp3");
+modParamMap["ndfp3"] = &(modelStruct.d_modelPar_ndfp3_dX);
+modelStruct.modelPar_vthetafp3=mod.vthetafp3;
+modelStruct.d_modelPar_vthetafp3_dX=0.0;
+modelStruct.modelPar_given_vthetafp3=mod.given("vthetafp3");
+modParamMap["vthetafp3"] = &(modelStruct.d_modelPar_vthetafp3_dX);
+modelStruct.modelPar_mthetafp3=mod.mthetafp3;
+modelStruct.d_modelPar_mthetafp3_dX=0.0;
+modelStruct.modelPar_given_mthetafp3=mod.given("mthetafp3");
+modParamMap["mthetafp3"] = &(modelStruct.d_modelPar_mthetafp3_dX);
+modelStruct.modelPar_alphafp3=mod.alphafp3;
+modelStruct.d_modelPar_alphafp3_dX=0.0;
+modelStruct.modelPar_given_alphafp3=mod.given("alphafp3");
+modParamMap["alphafp3"] = &(modelStruct.d_modelPar_alphafp3_dX);
+modelStruct.modelPar_lgfp4=mod.lgfp4;
+modelStruct.d_modelPar_lgfp4_dX=0.0;
+modelStruct.modelPar_given_lgfp4=mod.given("lgfp4");
+modParamMap["lgfp4"] = &(modelStruct.d_modelPar_lgfp4_dX);
+modelStruct.modelPar_vtofp4=mod.vtofp4;
+modelStruct.d_modelPar_vtofp4_dX=0.0;
+modelStruct.modelPar_given_vtofp4=mod.given("vtofp4");
+modParamMap["vtofp4"] = &(modelStruct.d_modelPar_vtofp4_dX);
+modelStruct.modelPar_cgfp4=mod.cgfp4;
+modelStruct.d_modelPar_cgfp4_dX=0.0;
+modelStruct.modelPar_given_cgfp4=mod.given("cgfp4");
+modParamMap["cgfp4"] = &(modelStruct.d_modelPar_cgfp4_dX);
+modelStruct.modelPar_cfp4s=mod.cfp4s;
+modelStruct.d_modelPar_cfp4s_dX=0.0;
+modelStruct.modelPar_given_cfp4s=mod.given("cfp4s");
+modParamMap["cfp4s"] = &(modelStruct.d_modelPar_cfp4s_dX);
+modelStruct.modelPar_ccfp4=mod.ccfp4;
+modelStruct.d_modelPar_ccfp4_dX=0.0;
+modelStruct.modelPar_given_ccfp4=mod.given("ccfp4");
+modParamMap["ccfp4"] = &(modelStruct.d_modelPar_ccfp4_dX);
+modelStruct.modelPar_cbfp4=mod.cbfp4;
+modelStruct.d_modelPar_cbfp4_dX=0.0;
+modelStruct.modelPar_given_cbfp4=mod.given("cbfp4");
+modParamMap["cbfp4"] = &(modelStruct.d_modelPar_cbfp4_dX);
+modelStruct.modelPar_vx0fp4=mod.vx0fp4;
+modelStruct.d_modelPar_vx0fp4_dX=0.0;
+modelStruct.modelPar_given_vx0fp4=mod.given("vx0fp4");
+modParamMap["vx0fp4"] = &(modelStruct.d_modelPar_vx0fp4_dX);
+modelStruct.modelPar_mu0fp4=mod.mu0fp4;
+modelStruct.d_modelPar_mu0fp4_dX=0.0;
+modelStruct.modelPar_given_mu0fp4=mod.given("mu0fp4");
+modParamMap["mu0fp4"] = &(modelStruct.d_modelPar_mu0fp4_dX);
+modelStruct.modelPar_betafp4=mod.betafp4;
+modelStruct.d_modelPar_betafp4_dX=0.0;
+modelStruct.modelPar_given_betafp4=mod.given("betafp4");
+modParamMap["betafp4"] = &(modelStruct.d_modelPar_betafp4_dX);
+modelStruct.modelPar_delta1fp4=mod.delta1fp4;
+modelStruct.d_modelPar_delta1fp4_dX=0.0;
+modelStruct.modelPar_given_delta1fp4=mod.given("delta1fp4");
+modParamMap["delta1fp4"] = &(modelStruct.d_modelPar_delta1fp4_dX);
+modelStruct.modelPar_sfp4=mod.sfp4;
+modelStruct.d_modelPar_sfp4_dX=0.0;
+modelStruct.modelPar_given_sfp4=mod.given("sfp4");
+modParamMap["sfp4"] = &(modelStruct.d_modelPar_sfp4_dX);
+modelStruct.modelPar_ndfp4=mod.ndfp4;
+modelStruct.d_modelPar_ndfp4_dX=0.0;
+modelStruct.modelPar_given_ndfp4=mod.given("ndfp4");
+modParamMap["ndfp4"] = &(modelStruct.d_modelPar_ndfp4_dX);
+modelStruct.modelPar_vthetafp4=mod.vthetafp4;
+modelStruct.d_modelPar_vthetafp4_dX=0.0;
+modelStruct.modelPar_given_vthetafp4=mod.given("vthetafp4");
+modParamMap["vthetafp4"] = &(modelStruct.d_modelPar_vthetafp4_dX);
+modelStruct.modelPar_mthetafp4=mod.mthetafp4;
+modelStruct.d_modelPar_mthetafp4_dX=0.0;
+modelStruct.modelPar_given_mthetafp4=mod.given("mthetafp4");
+modParamMap["mthetafp4"] = &(modelStruct.d_modelPar_mthetafp4_dX);
+modelStruct.modelPar_alphafp4=mod.alphafp4;
+modelStruct.d_modelPar_alphafp4_dX=0.0;
+modelStruct.modelPar_given_alphafp4=mod.given("alphafp4");
+modParamMap["alphafp4"] = &(modelStruct.d_modelPar_alphafp4_dX);
+modelStruct.modelPar_rgsp=mod.rgsp;
+modelStruct.d_modelPar_rgsp_dX=0.0;
+modelStruct.modelPar_given_rgsp=mod.given("rgsp");
+modParamMap["rgsp"] = &(modelStruct.d_modelPar_rgsp_dX);
+modelStruct.modelPar_vjg=mod.vjg;
+modelStruct.d_modelPar_vjg_dX=0.0;
+modelStruct.modelPar_given_vjg=mod.given("vjg");
+modParamMap["vjg"] = &(modelStruct.d_modelPar_vjg_dX);
+modelStruct.modelPar_pg_param1=mod.pg_param1;
+modelStruct.d_modelPar_pg_param1_dX=0.0;
+modelStruct.modelPar_given_pg_param1=mod.given("pg_param1");
+modParamMap["pg_param1"] = &(modelStruct.d_modelPar_pg_param1_dX);
+modelStruct.modelPar_pg_params=mod.pg_params;
+modelStruct.d_modelPar_pg_params_dX=0.0;
+modelStruct.modelPar_given_pg_params=mod.given("pg_params");
+modParamMap["pg_params"] = &(modelStruct.d_modelPar_pg_params_dX);
+modelStruct.modelPar_ijs=mod.ijs;
+modelStruct.d_modelPar_ijs_dX=0.0;
+modelStruct.modelPar_given_ijs=mod.given("ijs");
+modParamMap["ijs"] = &(modelStruct.d_modelPar_ijs_dX);
+modelStruct.modelPar_vgsats=mod.vgsats;
+modelStruct.d_modelPar_vgsats_dX=0.0;
+modelStruct.modelPar_given_vgsats=mod.given("vgsats");
+modParamMap["vgsats"] = &(modelStruct.d_modelPar_vgsats_dX);
+modelStruct.modelPar_fracs=mod.fracs;
+modelStruct.d_modelPar_fracs_dX=0.0;
+modelStruct.modelPar_given_fracs=mod.given("fracs");
+modParamMap["fracs"] = &(modelStruct.d_modelPar_fracs_dX);
+modelStruct.modelPar_alphags=mod.alphags;
+modelStruct.d_modelPar_alphags_dX=0.0;
+modelStruct.modelPar_given_alphags=mod.given("alphags");
+modParamMap["alphags"] = &(modelStruct.d_modelPar_alphags_dX);
+modelStruct.modelPar_pg_paramd=mod.pg_paramd;
+modelStruct.d_modelPar_pg_paramd_dX=0.0;
+modelStruct.modelPar_given_pg_paramd=mod.given("pg_paramd");
+modParamMap["pg_paramd"] = &(modelStruct.d_modelPar_pg_paramd_dX);
+modelStruct.modelPar_ijd=mod.ijd;
+modelStruct.d_modelPar_ijd_dX=0.0;
+modelStruct.modelPar_given_ijd=mod.given("ijd");
+modParamMap["ijd"] = &(modelStruct.d_modelPar_ijd_dX);
+modelStruct.modelPar_vgsatd=mod.vgsatd;
+modelStruct.d_modelPar_vgsatd_dX=0.0;
+modelStruct.modelPar_given_vgsatd=mod.given("vgsatd");
+modParamMap["vgsatd"] = &(modelStruct.d_modelPar_vgsatd_dX);
+modelStruct.modelPar_fracd=mod.fracd;
+modelStruct.d_modelPar_fracd_dX=0.0;
+modelStruct.modelPar_given_fracd=mod.given("fracd");
+modParamMap["fracd"] = &(modelStruct.d_modelPar_fracd_dX);
+modelStruct.modelPar_alphagd=mod.alphagd;
+modelStruct.d_modelPar_alphagd_dX=0.0;
+modelStruct.modelPar_given_alphagd=mod.given("alphagd");
+modParamMap["alphagd"] = &(modelStruct.d_modelPar_alphagd_dX);
+modelStruct.modelPar_pgsrecs=mod.pgsrecs;
+modelStruct.d_modelPar_pgsrecs_dX=0.0;
+modelStruct.modelPar_given_pgsrecs=mod.given("pgsrecs");
+modParamMap["pgsrecs"] = &(modelStruct.d_modelPar_pgsrecs_dX);
+modelStruct.modelPar_irecs=mod.irecs;
+modelStruct.d_modelPar_irecs_dX=0.0;
+modelStruct.modelPar_given_irecs=mod.given("irecs");
+modParamMap["irecs"] = &(modelStruct.d_modelPar_irecs_dX);
+modelStruct.modelPar_vgsatqs=mod.vgsatqs;
+modelStruct.d_modelPar_vgsatqs_dX=0.0;
+modelStruct.modelPar_given_vgsatqs=mod.given("vgsatqs");
+modParamMap["vgsatqs"] = &(modelStruct.d_modelPar_vgsatqs_dX);
+modelStruct.modelPar_vbdgs=mod.vbdgs;
+modelStruct.d_modelPar_vbdgs_dX=0.0;
+modelStruct.modelPar_given_vbdgs=mod.given("vbdgs");
+modParamMap["vbdgs"] = &(modelStruct.d_modelPar_vbdgs_dX);
+modelStruct.modelPar_pbdgs=mod.pbdgs;
+modelStruct.d_modelPar_pbdgs_dX=0.0;
+modelStruct.modelPar_given_pbdgs=mod.given("pbdgs");
+modParamMap["pbdgs"] = &(modelStruct.d_modelPar_pbdgs_dX);
+modelStruct.modelPar_betarecs=mod.betarecs;
+modelStruct.d_modelPar_betarecs_dX=0.0;
+modelStruct.modelPar_given_betarecs=mod.given("betarecs");
+modParamMap["betarecs"] = &(modelStruct.d_modelPar_betarecs_dX);
+modelStruct.modelPar_kbdgates=mod.kbdgates;
+modelStruct.d_modelPar_kbdgates_dX=0.0;
+modelStruct.modelPar_given_kbdgates=mod.given("kbdgates");
+modParamMap["kbdgates"] = &(modelStruct.d_modelPar_kbdgates_dX);
+modelStruct.modelPar_pgsrecd=mod.pgsrecd;
+modelStruct.d_modelPar_pgsrecd_dX=0.0;
+modelStruct.modelPar_given_pgsrecd=mod.given("pgsrecd");
+modParamMap["pgsrecd"] = &(modelStruct.d_modelPar_pgsrecd_dX);
+modelStruct.modelPar_irecd=mod.irecd;
+modelStruct.d_modelPar_irecd_dX=0.0;
+modelStruct.modelPar_given_irecd=mod.given("irecd");
+modParamMap["irecd"] = &(modelStruct.d_modelPar_irecd_dX);
+modelStruct.modelPar_vgsatqd=mod.vgsatqd;
+modelStruct.d_modelPar_vgsatqd_dX=0.0;
+modelStruct.modelPar_given_vgsatqd=mod.given("vgsatqd");
+modParamMap["vgsatqd"] = &(modelStruct.d_modelPar_vgsatqd_dX);
+modelStruct.modelPar_vbdgd=mod.vbdgd;
+modelStruct.d_modelPar_vbdgd_dX=0.0;
+modelStruct.modelPar_given_vbdgd=mod.given("vbdgd");
+modParamMap["vbdgd"] = &(modelStruct.d_modelPar_vbdgd_dX);
+modelStruct.modelPar_pbdgd=mod.pbdgd;
+modelStruct.d_modelPar_pbdgd_dX=0.0;
+modelStruct.modelPar_given_pbdgd=mod.given("pbdgd");
+modParamMap["pbdgd"] = &(modelStruct.d_modelPar_pbdgd_dX);
+modelStruct.modelPar_betarecd=mod.betarecd;
+modelStruct.d_modelPar_betarecd_dX=0.0;
+modelStruct.modelPar_given_betarecd=mod.given("betarecd");
+modParamMap["betarecd"] = &(modelStruct.d_modelPar_betarecd_dX);
+modelStruct.modelPar_kbdgated=mod.kbdgated;
+modelStruct.d_modelPar_kbdgated_dX=0.0;
+modelStruct.modelPar_given_kbdgated=mod.given("kbdgated");
+modParamMap["kbdgated"] = &(modelStruct.d_modelPar_kbdgated_dX);
+modelStruct.modelPar_rth=mod.rth;
+modelStruct.d_modelPar_rth_dX=0.0;
+modelStruct.modelPar_given_rth=mod.given("rth");
+modParamMap["rth"] = &(modelStruct.d_modelPar_rth_dX);
+modelStruct.modelPar_cth=mod.cth;
+modelStruct.d_modelPar_cth_dX=0.0;
+modelStruct.modelPar_given_cth=mod.given("cth");
+modParamMap["cth"] = &(modelStruct.d_modelPar_cth_dX);
+modelStruct.modelPar_taugmrf=mod.taugmrf;
+modelStruct.d_modelPar_taugmrf_dX=0.0;
+modelStruct.modelPar_given_taugmrf=mod.given("taugmrf");
+modParamMap["taugmrf"] = &(modelStruct.d_modelPar_taugmrf_dX);
+modelStruct.modelPar_ctrap=mod.ctrap;
+modelStruct.d_modelPar_ctrap_dX=0.0;
+modelStruct.modelPar_given_ctrap=mod.given("ctrap");
+modParamMap["ctrap"] = &(modelStruct.d_modelPar_ctrap_dX);
+modelStruct.modelPar_vttrap=mod.vttrap;
+modelStruct.d_modelPar_vttrap_dX=0.0;
+modelStruct.modelPar_given_vttrap=mod.given("vttrap");
+modParamMap["vttrap"] = &(modelStruct.d_modelPar_vttrap_dX);
+modelStruct.modelPar_taut=mod.taut;
+modelStruct.d_modelPar_taut_dX=0.0;
+modelStruct.modelPar_given_taut=mod.given("taut");
+modParamMap["taut"] = &(modelStruct.d_modelPar_taut_dX);
+modelStruct.modelPar_alphat1=mod.alphat1;
+modelStruct.d_modelPar_alphat1_dX=0.0;
+modelStruct.modelPar_given_alphat1=mod.given("alphat1");
+modParamMap["alphat1"] = &(modelStruct.d_modelPar_alphat1_dX);
+modelStruct.modelPar_alphat2=mod.alphat2;
+modelStruct.d_modelPar_alphat2_dX=0.0;
+modelStruct.modelPar_given_alphat2=mod.given("alphat2");
+modParamMap["alphat2"] = &(modelStruct.d_modelPar_alphat2_dX);
+modelStruct.modelPar_tempt=mod.tempt;
+modelStruct.d_modelPar_tempt_dX=0.0;
+modelStruct.modelPar_given_tempt=mod.given("tempt");
+modParamMap["tempt"] = &(modelStruct.d_modelPar_tempt_dX);
+modelStruct.modelPar_shs=mod.shs;
+modelStruct.d_modelPar_shs_dX=0.0;
+modelStruct.modelPar_given_shs=mod.given("shs");
+modParamMap["shs"] = &(modelStruct.d_modelPar_shs_dX);
+modelStruct.modelPar_shd=mod.shd;
+modelStruct.d_modelPar_shd_dX=0.0;
+modelStruct.modelPar_given_shd=mod.given("shd");
+modParamMap["shd"] = &(modelStruct.d_modelPar_shd_dX);
+modelStruct.modelPar_kf=mod.kf;
+modelStruct.d_modelPar_kf_dX=0.0;
+modelStruct.modelPar_given_kf=mod.given("kf");
+modParamMap["kf"] = &(modelStruct.d_modelPar_kf_dX);
+modelStruct.modelPar_af=mod.af;
+modelStruct.d_modelPar_af_dX=0.0;
+modelStruct.modelPar_given_af=mod.given("af");
+modParamMap["af"] = &(modelStruct.d_modelPar_af_dX);
+modelStruct.modelPar_ffe=mod.ffe;
+modelStruct.d_modelPar_ffe_dX=0.0;
+modelStruct.modelPar_given_ffe=mod.given("ffe");
+modParamMap["ffe"] = &(modelStruct.d_modelPar_ffe_dX);
+modelStruct.modelPar_minr=mod.minr;
+modelStruct.d_modelPar_minr_dX=0.0;
+modelStruct.modelPar_given_minr=mod.given("minr");
+modParamMap["minr"] = &(modelStruct.d_modelPar_minr_dX);
+modelStruct.modelPar_minl=mod.minl;
+modelStruct.d_modelPar_minl_dX=0.0;
+modelStruct.modelPar_given_minl=mod.given("minl");
+modParamMap["minl"] = &(modelStruct.d_modelPar_minl_dX);
+modelStruct.modelPar_minc=mod.minc;
+modelStruct.d_modelPar_minc_dX=0.0;
+modelStruct.modelPar_given_minc=mod.given("minc");
+modParamMap["minc"] = &(modelStruct.d_modelPar_minc_dX);
+modelStruct.modelPar_LMIN=mod.LMIN;
+modelStruct.d_modelPar_LMIN_dX=0.0;
+modelStruct.modelPar_given_LMIN=mod.given("LMIN");
+modParamMap["LMIN"] = &(modelStruct.d_modelPar_LMIN_dX);
+modelStruct.modelPar_WMIN=mod.WMIN;
+modelStruct.d_modelPar_WMIN_dX=0.0;
+modelStruct.modelPar_given_WMIN=mod.given("WMIN");
+modParamMap["WMIN"] = &(modelStruct.d_modelPar_WMIN_dX);
+modelStruct.modelPar_LMAX=mod.LMAX;
+modelStruct.d_modelPar_LMAX_dX=0.0;
+modelStruct.modelPar_given_LMAX=mod.given("LMAX");
+modParamMap["LMAX"] = &(modelStruct.d_modelPar_LMAX_dX);
+modelStruct.modelPar_WMAX=mod.WMAX;
+modelStruct.d_modelPar_WMAX_dX=0.0;
+modelStruct.modelPar_given_WMAX=mod.given("WMAX");
+modParamMap["WMAX"] = &(modelStruct.d_modelPar_WMAX_dX);
 
 
 // hidden reals
 
 
 // non-reals (including hiddens)
-int modelPar_type=mod.type;
-bool modelPar_given_type=mod.given("type");
-int modelPar_flagres=mod.flagres;
-bool modelPar_given_flagres=mod.given("flagres");
-int modelPar_flagfp1=mod.flagfp1;
-bool modelPar_given_flagfp1=mod.given("flagfp1");
-int modelPar_flagfp1s=mod.flagfp1s;
-bool modelPar_given_flagfp1s=mod.given("flagfp1s");
-int modelPar_flagfp2=mod.flagfp2;
-bool modelPar_given_flagfp2=mod.given("flagfp2");
-int modelPar_flagfp2s=mod.flagfp2s;
-bool modelPar_given_flagfp2s=mod.given("flagfp2s");
-int modelPar_flagfp3=mod.flagfp3;
-bool modelPar_given_flagfp3=mod.given("flagfp3");
-int modelPar_flagfp3s=mod.flagfp3s;
-bool modelPar_given_flagfp3s=mod.given("flagfp3s");
-int modelPar_flagfp4=mod.flagfp4;
-bool modelPar_given_flagfp4=mod.given("flagfp4");
-int modelPar_flagfp4s=mod.flagfp4s;
-bool modelPar_given_flagfp4s=mod.given("flagfp4s");
-int modelPar_igmod=mod.igmod;
-bool modelPar_given_igmod=mod.given("igmod");
-int modelPar_gmdisp=mod.gmdisp;
-bool modelPar_given_gmdisp=mod.given("gmdisp");
-int modelPar_trapselect=mod.trapselect;
-bool modelPar_given_trapselect=mod.given("trapselect");
-int modelPar_noisemod=mod.noisemod;
-bool modelPar_given_noisemod=mod.given("noisemod");
+modelStruct.modelPar_type=mod.type;
+modelStruct.modelPar_given_type=mod.given("type");
+modelStruct.modelPar_flagres=mod.flagres;
+modelStruct.modelPar_given_flagres=mod.given("flagres");
+modelStruct.modelPar_flagfp1=mod.flagfp1;
+modelStruct.modelPar_given_flagfp1=mod.given("flagfp1");
+modelStruct.modelPar_flagfp1s=mod.flagfp1s;
+modelStruct.modelPar_given_flagfp1s=mod.given("flagfp1s");
+modelStruct.modelPar_flagfp2=mod.flagfp2;
+modelStruct.modelPar_given_flagfp2=mod.given("flagfp2");
+modelStruct.modelPar_flagfp2s=mod.flagfp2s;
+modelStruct.modelPar_given_flagfp2s=mod.given("flagfp2s");
+modelStruct.modelPar_flagfp3=mod.flagfp3;
+modelStruct.modelPar_given_flagfp3=mod.given("flagfp3");
+modelStruct.modelPar_flagfp3s=mod.flagfp3s;
+modelStruct.modelPar_given_flagfp3s=mod.given("flagfp3s");
+modelStruct.modelPar_flagfp4=mod.flagfp4;
+modelStruct.modelPar_given_flagfp4=mod.given("flagfp4");
+modelStruct.modelPar_flagfp4s=mod.flagfp4s;
+modelStruct.modelPar_given_flagfp4s=mod.given("flagfp4s");
+modelStruct.modelPar_igmod=mod.igmod;
+modelStruct.modelPar_given_igmod=mod.given("igmod");
+modelStruct.modelPar_gmdisp=mod.gmdisp;
+modelStruct.modelPar_given_gmdisp=mod.given("gmdisp");
+modelStruct.modelPar_trapselect=mod.trapselect;
+modelStruct.modelPar_given_trapselect=mod.given("trapselect");
+modelStruct.modelPar_noisemod=mod.noisemod;
+modelStruct.modelPar_given_noisemod=mod.given("noisemod");
 
 
 // Set the one parameter whose name was passed in to be the independent
 // variable for Sacado purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check name for presence first!  Segfault on invalid.
-modParamMap[name]->diff(0,1);
+*(modParamMap[name])=1.0;
 
 //make local copies of all model vars
 //reals
@@ -30768,28 +29296,33 @@ for (std::vector<Instance*>::const_iterator in_it=mod.instanceContainer.begin();
   // initialize contributions to zero (automatically sets derivatives to zero)
   for (int i=0; i < 18+0 ; ++i)
   {
-  staticContributions[i]=0;
-  dynamicContributions[i]=0;
+  d_staticContributions_dX[i]=0;
+  d_dynamicContributions_dX[i]=0;
   }
 
 
 
-  // Copy out all the instance parameters (doubles) into FAD types
-  // reals
-AdmsSensFadType instancePar_w=in.w;
-bool instancePar_given_w=in.given("w");
-AdmsSensFadType instancePar_l=in.l;
-bool instancePar_given_l=in.given("l");
-AdmsSensFadType instancePar_dtemp=in.dtemp;
-bool instancePar_given_dtemp=in.given("dtemp");
+  // Copy out all the instance parameters (doubles) into local struct
+ instanceSensStruct instanceStruct;
+
+ // reals
+instanceStruct.instancePar_w=in.w;
+instanceStruct.d_instancePar_w_dX=0.0;
+instanceStruct.instancePar_given_w=in.given("w");
+instanceStruct.instancePar_l=in.l;
+instanceStruct.d_instancePar_l_dX=0.0;
+instanceStruct.instancePar_given_l=in.given("l");
+instanceStruct.instancePar_dtemp=in.dtemp;
+instanceStruct.d_instancePar_dtemp_dX=0.0;
+instanceStruct.instancePar_given_dtemp=in.given("dtemp");
 
 
   // real hidden instance
 
 
   // Copy all the non-real instance params into vars of their appropriate type:
-int instancePar_ngf=in.ngf;
-bool instancePar_given_ngf=in.given("ngf");
+instanceStruct.instancePar_ngf=in.ngf;
+instanceStruct.instancePar_given_ngf=in.given("ngf");
 
 
 
@@ -30803,47 +29336,12 @@ bool instancePar_given_ngf=in.given("ngf");
 
   //make local copies of all instance vars
   //reals
-AdmsSensFadType instanceVar_rcs_w=in.rcs_w;
-AdmsSensFadType instanceVar_rcd_w=in.rcd_w;
-AdmsSensFadType instanceVar_rg=in.rg;
-double instanceVar_vgisi=in.vgisi;
-double instanceVar_vdisi=in.vdisi;
-AdmsSensFadType instanceVar_vti=in.vti;
-AdmsSensFadType instanceVar_vdsati=in.vdsati;
-AdmsSensFadType instanceVar_pdc=in.pdc;
-AdmsSensFadType instanceVar_idisi=in.idisi;
-AdmsSensFadType instanceVar_igs=in.igs;
-AdmsSensFadType instanceVar_igd=in.igd;
-AdmsSensFadType instanceVar_qgi=in.qgi;
-AdmsSensFadType instanceVar_qdi=in.qdi;
-AdmsSensFadType instanceVar_qsi=in.qsi;
-double instanceVar_qbi=in.qbi;
-AdmsSensFadType instanceVar_gmi=in.gmi;
-AdmsSensFadType instanceVar_gdsi=in.gdsi;
-AdmsSensFadType instanceVar_gmbsi=in.gmbsi;
-AdmsSensFadType instanceVar_cggi=in.cggi;
-AdmsSensFadType instanceVar_cgdi=in.cgdi;
-AdmsSensFadType instanceVar_cgsi=in.cgsi;
-AdmsSensFadType instanceVar_cgbi=in.cgbi;
-AdmsSensFadType instanceVar_cdgi=in.cdgi;
-AdmsSensFadType instanceVar_cddi=in.cddi;
-AdmsSensFadType instanceVar_cdsi=in.cdsi;
-AdmsSensFadType instanceVar_cdbi=in.cdbi;
-AdmsSensFadType instanceVar_csgi=in.csgi;
-AdmsSensFadType instanceVar_csdi=in.csdi;
-AdmsSensFadType instanceVar_cssi=in.cssi;
-AdmsSensFadType instanceVar_csbi=in.csbi;
-double instanceVar_cbgi=in.cbgi;
-double instanceVar_cbdi=in.cbdi;
-double instanceVar_cbsi=in.cbsi;
-double instanceVar_cbbi=in.cbbi;
-AdmsSensFadType instanceVar_cgs=in.cgs;
-AdmsSensFadType instanceVar_cgd=in.cgd;
-AdmsSensFadType instanceVar_t_total_k=in.t_total_k;
-AdmsSensFadType instanceVar_t_total_c=in.t_total_c;
-double instanceVar_t_delta_sh=in.t_delta_sh;
-AdmsSensFadType instanceVar_rs=in.rs;
-AdmsSensFadType instanceVar_rd=in.rd;
+instanceStruct.instanceVar_rcs_w=in.rcs_w;
+instanceStruct.d_instanceVar_rcs_w_dX=0.0;
+instanceStruct.instanceVar_rcd_w=in.rcd_w;
+instanceStruct.d_instanceVar_rcd_w_dX=0.0;
+instanceStruct.instanceVar_rg=in.rg;
+instanceStruct.d_instanceVar_rg_dX=0.0;
 
 
   //non-reals
@@ -30852,7 +29350,7 @@ AdmsSensFadType instanceVar_rd=in.rd;
 
   Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-  // extract solution variables and set as Fad independent variables.
+  // extract solution variables
 probeVars[in.admsProbeID_V_si_GND] = (*solVectorPtr)[in.li_si];
 probeVars[in.admsProbeID_V_b_GND] = (*solVectorPtr)[in.li_b];
 probeVars[in.admsProbeID_V_di_GND] = (*solVectorPtr)[in.li_di];
@@ -30901,415 +29399,8 @@ probeVars[in.admsProbeID_Temp_dt_GND] = (in.collapseNode_dt)?(0):((*solVectorPtr
 
 
 evaluateInitialInstance(
-// instance parameters
-// reals
-instancePar_w,
-instancePar_given_w,
-instancePar_l,
-instancePar_given_l,
-instancePar_dtemp,
-instancePar_given_dtemp,
-// non-reals(including hidden)
- instancePar_ngf,
-instancePar_given_ngf,
-// instance variables
-// reals
-instanceVar_rcs_w,
-instanceVar_rcd_w,
-instanceVar_rg,
-instanceVar_vgisi,
-instanceVar_vdisi,
-instanceVar_vti,
-instanceVar_vdsati,
-instanceVar_pdc,
-instanceVar_idisi,
-instanceVar_igs,
-instanceVar_igd,
-instanceVar_qgi,
-instanceVar_qdi,
-instanceVar_qsi,
-instanceVar_qbi,
-instanceVar_gmi,
-instanceVar_gdsi,
-instanceVar_gmbsi,
-instanceVar_cggi,
-instanceVar_cgdi,
-instanceVar_cgsi,
-instanceVar_cgbi,
-instanceVar_cdgi,
-instanceVar_cddi,
-instanceVar_cdsi,
-instanceVar_cdbi,
-instanceVar_csgi,
-instanceVar_csdi,
-instanceVar_cssi,
-instanceVar_csbi,
-instanceVar_cbgi,
-instanceVar_cbdi,
-instanceVar_cbsi,
-instanceVar_cbbi,
-instanceVar_cgs,
-instanceVar_cgd,
-instanceVar_t_total_k,
-instanceVar_t_total_c,
-instanceVar_t_delta_sh,
-instanceVar_rs,
-instanceVar_rd,
-// model parameters
-// reals
-modelPar_version,
-modelPar_given_version,
-modelPar_tnom,
-modelPar_given_tnom,
-modelPar_cg,
-modelPar_given_cg,
-modelPar_cofsm,
-modelPar_given_cofsm,
-modelPar_cofdm,
-modelPar_given_cofdm,
-modelPar_cofdsm,
-modelPar_given_cofdsm,
-modelPar_cofdsubm,
-modelPar_given_cofdsubm,
-modelPar_cofssubm,
-modelPar_given_cofssubm,
-modelPar_cofgsubm,
-modelPar_given_cofgsubm,
-modelPar_rsh,
-modelPar_given_rsh,
-modelPar_rcs,
-modelPar_given_rcs,
-modelPar_rcd,
-modelPar_given_rcd,
-modelPar_vx0,
-modelPar_given_vx0,
-modelPar_mu0,
-modelPar_given_mu0,
-modelPar_beta,
-modelPar_given_beta,
-modelPar_vto,
-modelPar_given_vto,
-modelPar_ss,
-modelPar_given_ss,
-modelPar_delta1,
-modelPar_given_delta1,
-modelPar_delta2,
-modelPar_given_delta2,
-modelPar_dibsat,
-modelPar_given_dibsat,
-modelPar_nd,
-modelPar_given_nd,
-modelPar_alpha,
-modelPar_given_alpha,
-modelPar_lambda,
-modelPar_given_lambda,
-modelPar_vtheta,
-modelPar_given_vtheta,
-modelPar_mtheta,
-modelPar_given_mtheta,
-modelPar_vzeta,
-modelPar_given_vzeta,
-modelPar_vtzeta,
-modelPar_given_vtzeta,
-modelPar_epsilon,
-modelPar_given_epsilon,
-modelPar_rct1,
-modelPar_given_rct1,
-modelPar_rct2,
-modelPar_given_rct2,
-modelPar_lgs,
-modelPar_given_lgs,
-modelPar_vtors,
-modelPar_given_vtors,
-modelPar_cgrs,
-modelPar_given_cgrs,
-modelPar_vx0rs,
-modelPar_given_vx0rs,
-modelPar_mu0rs,
-modelPar_given_mu0rs,
-modelPar_betars,
-modelPar_given_betars,
-modelPar_delta1rs,
-modelPar_given_delta1rs,
-modelPar_srs,
-modelPar_given_srs,
-modelPar_ndrs,
-modelPar_given_ndrs,
-modelPar_vthetars,
-modelPar_given_vthetars,
-modelPar_mthetars,
-modelPar_given_mthetars,
-modelPar_alphars,
-modelPar_given_alphars,
-modelPar_lgd,
-modelPar_given_lgd,
-modelPar_vtord,
-modelPar_given_vtord,
-modelPar_cgrd,
-modelPar_given_cgrd,
-modelPar_vx0rd,
-modelPar_given_vx0rd,
-modelPar_mu0rd,
-modelPar_given_mu0rd,
-modelPar_betard,
-modelPar_given_betard,
-modelPar_delta1rd,
-modelPar_given_delta1rd,
-modelPar_srd,
-modelPar_given_srd,
-modelPar_ndrd,
-modelPar_given_ndrd,
-modelPar_vthetard,
-modelPar_given_vthetard,
-modelPar_mthetard,
-modelPar_given_mthetard,
-modelPar_alphard,
-modelPar_given_alphard,
-modelPar_lgfp1,
-modelPar_given_lgfp1,
-modelPar_vtofp1,
-modelPar_given_vtofp1,
-modelPar_cgfp1,
-modelPar_given_cgfp1,
-modelPar_cfp1s,
-modelPar_given_cfp1s,
-modelPar_ccfp1,
-modelPar_given_ccfp1,
-modelPar_cbfp1,
-modelPar_given_cbfp1,
-modelPar_vx0fp1,
-modelPar_given_vx0fp1,
-modelPar_mu0fp1,
-modelPar_given_mu0fp1,
-modelPar_betafp1,
-modelPar_given_betafp1,
-modelPar_delta1fp1,
-modelPar_given_delta1fp1,
-modelPar_sfp1,
-modelPar_given_sfp1,
-modelPar_ndfp1,
-modelPar_given_ndfp1,
-modelPar_vthetafp1,
-modelPar_given_vthetafp1,
-modelPar_mthetafp1,
-modelPar_given_mthetafp1,
-modelPar_alphafp1,
-modelPar_given_alphafp1,
-modelPar_lgfp2,
-modelPar_given_lgfp2,
-modelPar_vtofp2,
-modelPar_given_vtofp2,
-modelPar_cgfp2,
-modelPar_given_cgfp2,
-modelPar_cfp2s,
-modelPar_given_cfp2s,
-modelPar_ccfp2,
-modelPar_given_ccfp2,
-modelPar_cbfp2,
-modelPar_given_cbfp2,
-modelPar_vx0fp2,
-modelPar_given_vx0fp2,
-modelPar_mu0fp2,
-modelPar_given_mu0fp2,
-modelPar_betafp2,
-modelPar_given_betafp2,
-modelPar_delta1fp2,
-modelPar_given_delta1fp2,
-modelPar_sfp2,
-modelPar_given_sfp2,
-modelPar_ndfp2,
-modelPar_given_ndfp2,
-modelPar_vthetafp2,
-modelPar_given_vthetafp2,
-modelPar_mthetafp2,
-modelPar_given_mthetafp2,
-modelPar_alphafp2,
-modelPar_given_alphafp2,
-modelPar_lgfp3,
-modelPar_given_lgfp3,
-modelPar_vtofp3,
-modelPar_given_vtofp3,
-modelPar_cgfp3,
-modelPar_given_cgfp3,
-modelPar_cfp3s,
-modelPar_given_cfp3s,
-modelPar_ccfp3,
-modelPar_given_ccfp3,
-modelPar_cbfp3,
-modelPar_given_cbfp3,
-modelPar_vx0fp3,
-modelPar_given_vx0fp3,
-modelPar_mu0fp3,
-modelPar_given_mu0fp3,
-modelPar_betafp3,
-modelPar_given_betafp3,
-modelPar_delta1fp3,
-modelPar_given_delta1fp3,
-modelPar_sfp3,
-modelPar_given_sfp3,
-modelPar_ndfp3,
-modelPar_given_ndfp3,
-modelPar_vthetafp3,
-modelPar_given_vthetafp3,
-modelPar_mthetafp3,
-modelPar_given_mthetafp3,
-modelPar_alphafp3,
-modelPar_given_alphafp3,
-modelPar_lgfp4,
-modelPar_given_lgfp4,
-modelPar_vtofp4,
-modelPar_given_vtofp4,
-modelPar_cgfp4,
-modelPar_given_cgfp4,
-modelPar_cfp4s,
-modelPar_given_cfp4s,
-modelPar_ccfp4,
-modelPar_given_ccfp4,
-modelPar_cbfp4,
-modelPar_given_cbfp4,
-modelPar_vx0fp4,
-modelPar_given_vx0fp4,
-modelPar_mu0fp4,
-modelPar_given_mu0fp4,
-modelPar_betafp4,
-modelPar_given_betafp4,
-modelPar_delta1fp4,
-modelPar_given_delta1fp4,
-modelPar_sfp4,
-modelPar_given_sfp4,
-modelPar_ndfp4,
-modelPar_given_ndfp4,
-modelPar_vthetafp4,
-modelPar_given_vthetafp4,
-modelPar_mthetafp4,
-modelPar_given_mthetafp4,
-modelPar_alphafp4,
-modelPar_given_alphafp4,
-modelPar_rgsp,
-modelPar_given_rgsp,
-modelPar_vjg,
-modelPar_given_vjg,
-modelPar_pg_param1,
-modelPar_given_pg_param1,
-modelPar_pg_params,
-modelPar_given_pg_params,
-modelPar_ijs,
-modelPar_given_ijs,
-modelPar_vgsats,
-modelPar_given_vgsats,
-modelPar_fracs,
-modelPar_given_fracs,
-modelPar_alphags,
-modelPar_given_alphags,
-modelPar_pg_paramd,
-modelPar_given_pg_paramd,
-modelPar_ijd,
-modelPar_given_ijd,
-modelPar_vgsatd,
-modelPar_given_vgsatd,
-modelPar_fracd,
-modelPar_given_fracd,
-modelPar_alphagd,
-modelPar_given_alphagd,
-modelPar_pgsrecs,
-modelPar_given_pgsrecs,
-modelPar_irecs,
-modelPar_given_irecs,
-modelPar_vgsatqs,
-modelPar_given_vgsatqs,
-modelPar_vbdgs,
-modelPar_given_vbdgs,
-modelPar_pbdgs,
-modelPar_given_pbdgs,
-modelPar_betarecs,
-modelPar_given_betarecs,
-modelPar_kbdgates,
-modelPar_given_kbdgates,
-modelPar_pgsrecd,
-modelPar_given_pgsrecd,
-modelPar_irecd,
-modelPar_given_irecd,
-modelPar_vgsatqd,
-modelPar_given_vgsatqd,
-modelPar_vbdgd,
-modelPar_given_vbdgd,
-modelPar_pbdgd,
-modelPar_given_pbdgd,
-modelPar_betarecd,
-modelPar_given_betarecd,
-modelPar_kbdgated,
-modelPar_given_kbdgated,
-modelPar_rth,
-modelPar_given_rth,
-modelPar_cth,
-modelPar_given_cth,
-modelPar_taugmrf,
-modelPar_given_taugmrf,
-modelPar_ctrap,
-modelPar_given_ctrap,
-modelPar_vttrap,
-modelPar_given_vttrap,
-modelPar_taut,
-modelPar_given_taut,
-modelPar_alphat1,
-modelPar_given_alphat1,
-modelPar_alphat2,
-modelPar_given_alphat2,
-modelPar_tempt,
-modelPar_given_tempt,
-modelPar_shs,
-modelPar_given_shs,
-modelPar_shd,
-modelPar_given_shd,
-modelPar_kf,
-modelPar_given_kf,
-modelPar_af,
-modelPar_given_af,
-modelPar_ffe,
-modelPar_given_ffe,
-modelPar_minr,
-modelPar_given_minr,
-modelPar_minl,
-modelPar_given_minl,
-modelPar_minc,
-modelPar_given_minc,
-modelPar_LMIN,
-modelPar_given_LMIN,
-modelPar_WMIN,
-modelPar_given_WMIN,
-modelPar_LMAX,
-modelPar_given_LMAX,
-modelPar_WMAX,
-modelPar_given_WMAX,
-// non-reals (including hidden)
- modelPar_type,
-modelPar_given_type,
- modelPar_flagres,
-modelPar_given_flagres,
- modelPar_flagfp1,
-modelPar_given_flagfp1,
- modelPar_flagfp1s,
-modelPar_given_flagfp1s,
- modelPar_flagfp2,
-modelPar_given_flagfp2,
- modelPar_flagfp2s,
-modelPar_given_flagfp2s,
- modelPar_flagfp3,
-modelPar_given_flagfp3,
- modelPar_flagfp3s,
-modelPar_given_flagfp3s,
- modelPar_flagfp4,
-modelPar_given_flagfp4,
- modelPar_flagfp4s,
-modelPar_given_flagfp4s,
- modelPar_igmod,
-modelPar_given_igmod,
- modelPar_gmdisp,
-modelPar_given_gmdisp,
- modelPar_trapselect,
-modelPar_given_trapselect,
- modelPar_noisemod,
-modelPar_given_noisemod,
+instanceStruct,
+modelStruct,
 in.admsTemperature, in.adms_vt_nom,in.getDeviceOptions().gmin,in);
 
 
@@ -31383,495 +29474,88 @@ in.admsNodeID_tr1,
 in.admsNodeID_xt1,
 in.admsNodeID_xt2,
 in.admsNodeID_dt,
-// instance parameters
-// reals
-instancePar_w,
-instancePar_given_w,
-instancePar_l,
-instancePar_given_l,
-instancePar_dtemp,
-instancePar_given_dtemp,
-// non-reals(including hidden)
- instancePar_ngf,
-instancePar_given_ngf,
-// instance variables
-// reals
-instanceVar_rcs_w,
-instanceVar_rcd_w,
-instanceVar_rg,
-instanceVar_vgisi,
-instanceVar_vdisi,
-instanceVar_vti,
-instanceVar_vdsati,
-instanceVar_pdc,
-instanceVar_idisi,
-instanceVar_igs,
-instanceVar_igd,
-instanceVar_qgi,
-instanceVar_qdi,
-instanceVar_qsi,
-instanceVar_qbi,
-instanceVar_gmi,
-instanceVar_gdsi,
-instanceVar_gmbsi,
-instanceVar_cggi,
-instanceVar_cgdi,
-instanceVar_cgsi,
-instanceVar_cgbi,
-instanceVar_cdgi,
-instanceVar_cddi,
-instanceVar_cdsi,
-instanceVar_cdbi,
-instanceVar_csgi,
-instanceVar_csdi,
-instanceVar_cssi,
-instanceVar_csbi,
-instanceVar_cbgi,
-instanceVar_cbdi,
-instanceVar_cbsi,
-instanceVar_cbbi,
-instanceVar_cgs,
-instanceVar_cgd,
-instanceVar_t_total_k,
-instanceVar_t_total_c,
-instanceVar_t_delta_sh,
-instanceVar_rs,
-instanceVar_rd,
-// model parameters
-// reals
-modelPar_version,
-modelPar_given_version,
-modelPar_tnom,
-modelPar_given_tnom,
-modelPar_cg,
-modelPar_given_cg,
-modelPar_cofsm,
-modelPar_given_cofsm,
-modelPar_cofdm,
-modelPar_given_cofdm,
-modelPar_cofdsm,
-modelPar_given_cofdsm,
-modelPar_cofdsubm,
-modelPar_given_cofdsubm,
-modelPar_cofssubm,
-modelPar_given_cofssubm,
-modelPar_cofgsubm,
-modelPar_given_cofgsubm,
-modelPar_rsh,
-modelPar_given_rsh,
-modelPar_rcs,
-modelPar_given_rcs,
-modelPar_rcd,
-modelPar_given_rcd,
-modelPar_vx0,
-modelPar_given_vx0,
-modelPar_mu0,
-modelPar_given_mu0,
-modelPar_beta,
-modelPar_given_beta,
-modelPar_vto,
-modelPar_given_vto,
-modelPar_ss,
-modelPar_given_ss,
-modelPar_delta1,
-modelPar_given_delta1,
-modelPar_delta2,
-modelPar_given_delta2,
-modelPar_dibsat,
-modelPar_given_dibsat,
-modelPar_nd,
-modelPar_given_nd,
-modelPar_alpha,
-modelPar_given_alpha,
-modelPar_lambda,
-modelPar_given_lambda,
-modelPar_vtheta,
-modelPar_given_vtheta,
-modelPar_mtheta,
-modelPar_given_mtheta,
-modelPar_vzeta,
-modelPar_given_vzeta,
-modelPar_vtzeta,
-modelPar_given_vtzeta,
-modelPar_epsilon,
-modelPar_given_epsilon,
-modelPar_rct1,
-modelPar_given_rct1,
-modelPar_rct2,
-modelPar_given_rct2,
-modelPar_lgs,
-modelPar_given_lgs,
-modelPar_vtors,
-modelPar_given_vtors,
-modelPar_cgrs,
-modelPar_given_cgrs,
-modelPar_vx0rs,
-modelPar_given_vx0rs,
-modelPar_mu0rs,
-modelPar_given_mu0rs,
-modelPar_betars,
-modelPar_given_betars,
-modelPar_delta1rs,
-modelPar_given_delta1rs,
-modelPar_srs,
-modelPar_given_srs,
-modelPar_ndrs,
-modelPar_given_ndrs,
-modelPar_vthetars,
-modelPar_given_vthetars,
-modelPar_mthetars,
-modelPar_given_mthetars,
-modelPar_alphars,
-modelPar_given_alphars,
-modelPar_lgd,
-modelPar_given_lgd,
-modelPar_vtord,
-modelPar_given_vtord,
-modelPar_cgrd,
-modelPar_given_cgrd,
-modelPar_vx0rd,
-modelPar_given_vx0rd,
-modelPar_mu0rd,
-modelPar_given_mu0rd,
-modelPar_betard,
-modelPar_given_betard,
-modelPar_delta1rd,
-modelPar_given_delta1rd,
-modelPar_srd,
-modelPar_given_srd,
-modelPar_ndrd,
-modelPar_given_ndrd,
-modelPar_vthetard,
-modelPar_given_vthetard,
-modelPar_mthetard,
-modelPar_given_mthetard,
-modelPar_alphard,
-modelPar_given_alphard,
-modelPar_lgfp1,
-modelPar_given_lgfp1,
-modelPar_vtofp1,
-modelPar_given_vtofp1,
-modelPar_cgfp1,
-modelPar_given_cgfp1,
-modelPar_cfp1s,
-modelPar_given_cfp1s,
-modelPar_ccfp1,
-modelPar_given_ccfp1,
-modelPar_cbfp1,
-modelPar_given_cbfp1,
-modelPar_vx0fp1,
-modelPar_given_vx0fp1,
-modelPar_mu0fp1,
-modelPar_given_mu0fp1,
-modelPar_betafp1,
-modelPar_given_betafp1,
-modelPar_delta1fp1,
-modelPar_given_delta1fp1,
-modelPar_sfp1,
-modelPar_given_sfp1,
-modelPar_ndfp1,
-modelPar_given_ndfp1,
-modelPar_vthetafp1,
-modelPar_given_vthetafp1,
-modelPar_mthetafp1,
-modelPar_given_mthetafp1,
-modelPar_alphafp1,
-modelPar_given_alphafp1,
-modelPar_lgfp2,
-modelPar_given_lgfp2,
-modelPar_vtofp2,
-modelPar_given_vtofp2,
-modelPar_cgfp2,
-modelPar_given_cgfp2,
-modelPar_cfp2s,
-modelPar_given_cfp2s,
-modelPar_ccfp2,
-modelPar_given_ccfp2,
-modelPar_cbfp2,
-modelPar_given_cbfp2,
-modelPar_vx0fp2,
-modelPar_given_vx0fp2,
-modelPar_mu0fp2,
-modelPar_given_mu0fp2,
-modelPar_betafp2,
-modelPar_given_betafp2,
-modelPar_delta1fp2,
-modelPar_given_delta1fp2,
-modelPar_sfp2,
-modelPar_given_sfp2,
-modelPar_ndfp2,
-modelPar_given_ndfp2,
-modelPar_vthetafp2,
-modelPar_given_vthetafp2,
-modelPar_mthetafp2,
-modelPar_given_mthetafp2,
-modelPar_alphafp2,
-modelPar_given_alphafp2,
-modelPar_lgfp3,
-modelPar_given_lgfp3,
-modelPar_vtofp3,
-modelPar_given_vtofp3,
-modelPar_cgfp3,
-modelPar_given_cgfp3,
-modelPar_cfp3s,
-modelPar_given_cfp3s,
-modelPar_ccfp3,
-modelPar_given_ccfp3,
-modelPar_cbfp3,
-modelPar_given_cbfp3,
-modelPar_vx0fp3,
-modelPar_given_vx0fp3,
-modelPar_mu0fp3,
-modelPar_given_mu0fp3,
-modelPar_betafp3,
-modelPar_given_betafp3,
-modelPar_delta1fp3,
-modelPar_given_delta1fp3,
-modelPar_sfp3,
-modelPar_given_sfp3,
-modelPar_ndfp3,
-modelPar_given_ndfp3,
-modelPar_vthetafp3,
-modelPar_given_vthetafp3,
-modelPar_mthetafp3,
-modelPar_given_mthetafp3,
-modelPar_alphafp3,
-modelPar_given_alphafp3,
-modelPar_lgfp4,
-modelPar_given_lgfp4,
-modelPar_vtofp4,
-modelPar_given_vtofp4,
-modelPar_cgfp4,
-modelPar_given_cgfp4,
-modelPar_cfp4s,
-modelPar_given_cfp4s,
-modelPar_ccfp4,
-modelPar_given_ccfp4,
-modelPar_cbfp4,
-modelPar_given_cbfp4,
-modelPar_vx0fp4,
-modelPar_given_vx0fp4,
-modelPar_mu0fp4,
-modelPar_given_mu0fp4,
-modelPar_betafp4,
-modelPar_given_betafp4,
-modelPar_delta1fp4,
-modelPar_given_delta1fp4,
-modelPar_sfp4,
-modelPar_given_sfp4,
-modelPar_ndfp4,
-modelPar_given_ndfp4,
-modelPar_vthetafp4,
-modelPar_given_vthetafp4,
-modelPar_mthetafp4,
-modelPar_given_mthetafp4,
-modelPar_alphafp4,
-modelPar_given_alphafp4,
-modelPar_rgsp,
-modelPar_given_rgsp,
-modelPar_vjg,
-modelPar_given_vjg,
-modelPar_pg_param1,
-modelPar_given_pg_param1,
-modelPar_pg_params,
-modelPar_given_pg_params,
-modelPar_ijs,
-modelPar_given_ijs,
-modelPar_vgsats,
-modelPar_given_vgsats,
-modelPar_fracs,
-modelPar_given_fracs,
-modelPar_alphags,
-modelPar_given_alphags,
-modelPar_pg_paramd,
-modelPar_given_pg_paramd,
-modelPar_ijd,
-modelPar_given_ijd,
-modelPar_vgsatd,
-modelPar_given_vgsatd,
-modelPar_fracd,
-modelPar_given_fracd,
-modelPar_alphagd,
-modelPar_given_alphagd,
-modelPar_pgsrecs,
-modelPar_given_pgsrecs,
-modelPar_irecs,
-modelPar_given_irecs,
-modelPar_vgsatqs,
-modelPar_given_vgsatqs,
-modelPar_vbdgs,
-modelPar_given_vbdgs,
-modelPar_pbdgs,
-modelPar_given_pbdgs,
-modelPar_betarecs,
-modelPar_given_betarecs,
-modelPar_kbdgates,
-modelPar_given_kbdgates,
-modelPar_pgsrecd,
-modelPar_given_pgsrecd,
-modelPar_irecd,
-modelPar_given_irecd,
-modelPar_vgsatqd,
-modelPar_given_vgsatqd,
-modelPar_vbdgd,
-modelPar_given_vbdgd,
-modelPar_pbdgd,
-modelPar_given_pbdgd,
-modelPar_betarecd,
-modelPar_given_betarecd,
-modelPar_kbdgated,
-modelPar_given_kbdgated,
-modelPar_rth,
-modelPar_given_rth,
-modelPar_cth,
-modelPar_given_cth,
-modelPar_taugmrf,
-modelPar_given_taugmrf,
-modelPar_ctrap,
-modelPar_given_ctrap,
-modelPar_vttrap,
-modelPar_given_vttrap,
-modelPar_taut,
-modelPar_given_taut,
-modelPar_alphat1,
-modelPar_given_alphat1,
-modelPar_alphat2,
-modelPar_given_alphat2,
-modelPar_tempt,
-modelPar_given_tempt,
-modelPar_shs,
-modelPar_given_shs,
-modelPar_shd,
-modelPar_given_shd,
-modelPar_kf,
-modelPar_given_kf,
-modelPar_af,
-modelPar_given_af,
-modelPar_ffe,
-modelPar_given_ffe,
-modelPar_minr,
-modelPar_given_minr,
-modelPar_minl,
-modelPar_given_minl,
-modelPar_minc,
-modelPar_given_minc,
-modelPar_LMIN,
-modelPar_given_LMIN,
-modelPar_WMIN,
-modelPar_given_WMIN,
-modelPar_LMAX,
-modelPar_given_LMAX,
-modelPar_WMAX,
-modelPar_given_WMAX,
-// non-reals (including hidden)
- modelPar_type,
-modelPar_given_type,
- modelPar_flagres,
-modelPar_given_flagres,
- modelPar_flagfp1,
-modelPar_given_flagfp1,
- modelPar_flagfp1s,
-modelPar_given_flagfp1s,
- modelPar_flagfp2,
-modelPar_given_flagfp2,
- modelPar_flagfp2s,
-modelPar_given_flagfp2s,
- modelPar_flagfp3,
-modelPar_given_flagfp3,
- modelPar_flagfp3s,
-modelPar_given_flagfp3s,
- modelPar_flagfp4,
-modelPar_given_flagfp4,
- modelPar_flagfp4s,
-modelPar_given_flagfp4s,
- modelPar_igmod,
-modelPar_given_igmod,
- modelPar_gmdisp,
-modelPar_given_gmdisp,
- modelPar_trapselect,
-modelPar_given_trapselect,
- modelPar_noisemod,
-modelPar_given_noisemod,
+instanceStruct,
+modelStruct,
  in.admsTemperature,
  in.adms_vt_nom,
  in.getDeviceOptions().gmin,
- staticContributions,
- dynamicContributions,
+ d_staticContributions_dX,
+ d_dynamicContributions_dX,
  in);
 
 
   // We now have the F and Q vector stuff, populate the dependencies:
 
-    dfdp[in.admsNodeID_d+inst*(18+0)] += staticContributions[in.admsNodeID_d].dx(0);
-    dqdp[in.admsNodeID_d+inst*(18+0)] += dynamicContributions[in.admsNodeID_d].dx(0);
+    dfdp[in.admsNodeID_d+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_d];
+    dqdp[in.admsNodeID_d+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_d];
     Findices[in.admsNodeID_d+inst*(18+0)] = in.li_d;
     Qindices[in.admsNodeID_d+inst*(18+0)] = in.li_d;
-    dfdp[in.admsNodeID_g+inst*(18+0)] += staticContributions[in.admsNodeID_g].dx(0);
-    dqdp[in.admsNodeID_g+inst*(18+0)] += dynamicContributions[in.admsNodeID_g].dx(0);
+    dfdp[in.admsNodeID_g+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_g];
+    dqdp[in.admsNodeID_g+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_g];
     Findices[in.admsNodeID_g+inst*(18+0)] = in.li_g;
     Qindices[in.admsNodeID_g+inst*(18+0)] = in.li_g;
-    dfdp[in.admsNodeID_s+inst*(18+0)] += staticContributions[in.admsNodeID_s].dx(0);
-    dqdp[in.admsNodeID_s+inst*(18+0)] += dynamicContributions[in.admsNodeID_s].dx(0);
+    dfdp[in.admsNodeID_s+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_s];
+    dqdp[in.admsNodeID_s+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_s];
     Findices[in.admsNodeID_s+inst*(18+0)] = in.li_s;
     Qindices[in.admsNodeID_s+inst*(18+0)] = in.li_s;
-    dfdp[in.admsNodeID_b+inst*(18+0)] += staticContributions[in.admsNodeID_b].dx(0);
-    dqdp[in.admsNodeID_b+inst*(18+0)] += dynamicContributions[in.admsNodeID_b].dx(0);
+    dfdp[in.admsNodeID_b+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_b];
+    dqdp[in.admsNodeID_b+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_b];
     Findices[in.admsNodeID_b+inst*(18+0)] = in.li_b;
     Qindices[in.admsNodeID_b+inst*(18+0)] = in.li_b;
-    dfdp[in.admsNodeID_di+inst*(18+0)] += staticContributions[in.admsNodeID_di].dx(0);
-    dqdp[in.admsNodeID_di+inst*(18+0)] += dynamicContributions[in.admsNodeID_di].dx(0);
+    dfdp[in.admsNodeID_di+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_di];
+    dqdp[in.admsNodeID_di+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_di];
     Findices[in.admsNodeID_di+inst*(18+0)] = in.li_di;
     Qindices[in.admsNodeID_di+inst*(18+0)] = in.li_di;
-    dfdp[in.admsNodeID_gi+inst*(18+0)] += staticContributions[in.admsNodeID_gi].dx(0);
-    dqdp[in.admsNodeID_gi+inst*(18+0)] += dynamicContributions[in.admsNodeID_gi].dx(0);
+    dfdp[in.admsNodeID_gi+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_gi];
+    dqdp[in.admsNodeID_gi+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_gi];
     Findices[in.admsNodeID_gi+inst*(18+0)] = in.li_gi;
     Qindices[in.admsNodeID_gi+inst*(18+0)] = in.li_gi;
-    dfdp[in.admsNodeID_si+inst*(18+0)] += staticContributions[in.admsNodeID_si].dx(0);
-    dqdp[in.admsNodeID_si+inst*(18+0)] += dynamicContributions[in.admsNodeID_si].dx(0);
+    dfdp[in.admsNodeID_si+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_si];
+    dqdp[in.admsNodeID_si+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_si];
     Findices[in.admsNodeID_si+inst*(18+0)] = in.li_si;
     Qindices[in.admsNodeID_si+inst*(18+0)] = in.li_si;
-    dfdp[in.admsNodeID_fp1+inst*(18+0)] += staticContributions[in.admsNodeID_fp1].dx(0);
-    dqdp[in.admsNodeID_fp1+inst*(18+0)] += dynamicContributions[in.admsNodeID_fp1].dx(0);
+    dfdp[in.admsNodeID_fp1+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_fp1];
+    dqdp[in.admsNodeID_fp1+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_fp1];
     Findices[in.admsNodeID_fp1+inst*(18+0)] = in.li_fp1;
     Qindices[in.admsNodeID_fp1+inst*(18+0)] = in.li_fp1;
-    dfdp[in.admsNodeID_fp2+inst*(18+0)] += staticContributions[in.admsNodeID_fp2].dx(0);
-    dqdp[in.admsNodeID_fp2+inst*(18+0)] += dynamicContributions[in.admsNodeID_fp2].dx(0);
+    dfdp[in.admsNodeID_fp2+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_fp2];
+    dqdp[in.admsNodeID_fp2+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_fp2];
     Findices[in.admsNodeID_fp2+inst*(18+0)] = in.li_fp2;
     Qindices[in.admsNodeID_fp2+inst*(18+0)] = in.li_fp2;
-    dfdp[in.admsNodeID_fp3+inst*(18+0)] += staticContributions[in.admsNodeID_fp3].dx(0);
-    dqdp[in.admsNodeID_fp3+inst*(18+0)] += dynamicContributions[in.admsNodeID_fp3].dx(0);
+    dfdp[in.admsNodeID_fp3+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_fp3];
+    dqdp[in.admsNodeID_fp3+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_fp3];
     Findices[in.admsNodeID_fp3+inst*(18+0)] = in.li_fp3;
     Qindices[in.admsNodeID_fp3+inst*(18+0)] = in.li_fp3;
-    dfdp[in.admsNodeID_fp4+inst*(18+0)] += staticContributions[in.admsNodeID_fp4].dx(0);
-    dqdp[in.admsNodeID_fp4+inst*(18+0)] += dynamicContributions[in.admsNodeID_fp4].dx(0);
+    dfdp[in.admsNodeID_fp4+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_fp4];
+    dqdp[in.admsNodeID_fp4+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_fp4];
     Findices[in.admsNodeID_fp4+inst*(18+0)] = in.li_fp4;
     Qindices[in.admsNodeID_fp4+inst*(18+0)] = in.li_fp4;
-    dfdp[in.admsNodeID_drc+inst*(18+0)] += staticContributions[in.admsNodeID_drc].dx(0);
-    dqdp[in.admsNodeID_drc+inst*(18+0)] += dynamicContributions[in.admsNodeID_drc].dx(0);
+    dfdp[in.admsNodeID_drc+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_drc];
+    dqdp[in.admsNodeID_drc+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_drc];
     Findices[in.admsNodeID_drc+inst*(18+0)] = in.li_drc;
     Qindices[in.admsNodeID_drc+inst*(18+0)] = in.li_drc;
-    dfdp[in.admsNodeID_src+inst*(18+0)] += staticContributions[in.admsNodeID_src].dx(0);
-    dqdp[in.admsNodeID_src+inst*(18+0)] += dynamicContributions[in.admsNodeID_src].dx(0);
+    dfdp[in.admsNodeID_src+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_src];
+    dqdp[in.admsNodeID_src+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_src];
     Findices[in.admsNodeID_src+inst*(18+0)] = in.li_src;
     Qindices[in.admsNodeID_src+inst*(18+0)] = in.li_src;
-    dfdp[in.admsNodeID_tr+inst*(18+0)] += staticContributions[in.admsNodeID_tr].dx(0);
-    dqdp[in.admsNodeID_tr+inst*(18+0)] += dynamicContributions[in.admsNodeID_tr].dx(0);
+    dfdp[in.admsNodeID_tr+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_tr];
+    dqdp[in.admsNodeID_tr+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_tr];
     Findices[in.admsNodeID_tr+inst*(18+0)] = in.li_tr;
     Qindices[in.admsNodeID_tr+inst*(18+0)] = in.li_tr;
-    dfdp[in.admsNodeID_tr1+inst*(18+0)] += staticContributions[in.admsNodeID_tr1].dx(0);
-    dqdp[in.admsNodeID_tr1+inst*(18+0)] += dynamicContributions[in.admsNodeID_tr1].dx(0);
+    dfdp[in.admsNodeID_tr1+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_tr1];
+    dqdp[in.admsNodeID_tr1+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_tr1];
     Findices[in.admsNodeID_tr1+inst*(18+0)] = in.li_tr1;
     Qindices[in.admsNodeID_tr1+inst*(18+0)] = in.li_tr1;
-    dfdp[in.admsNodeID_xt1+inst*(18+0)] += staticContributions[in.admsNodeID_xt1].dx(0);
-    dqdp[in.admsNodeID_xt1+inst*(18+0)] += dynamicContributions[in.admsNodeID_xt1].dx(0);
+    dfdp[in.admsNodeID_xt1+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_xt1];
+    dqdp[in.admsNodeID_xt1+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_xt1];
     Findices[in.admsNodeID_xt1+inst*(18+0)] = in.li_xt1;
     Qindices[in.admsNodeID_xt1+inst*(18+0)] = in.li_xt1;
-    dfdp[in.admsNodeID_xt2+inst*(18+0)] += staticContributions[in.admsNodeID_xt2].dx(0);
-    dqdp[in.admsNodeID_xt2+inst*(18+0)] += dynamicContributions[in.admsNodeID_xt2].dx(0);
+    dfdp[in.admsNodeID_xt2+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_xt2];
+    dqdp[in.admsNodeID_xt2+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_xt2];
     Findices[in.admsNodeID_xt2+inst*(18+0)] = in.li_xt2;
     Qindices[in.admsNodeID_xt2+inst*(18+0)] = in.li_xt2;
-    dfdp[in.admsNodeID_dt+inst*(18+0)] += staticContributions[in.admsNodeID_dt].dx(0);
-    dqdp[in.admsNodeID_dt+inst*(18+0)] += dynamicContributions[in.admsNodeID_dt].dx(0);
+    dfdp[in.admsNodeID_dt+inst*(18+0)] += d_staticContributions_dX[in.admsNodeID_dt];
+    dqdp[in.admsNodeID_dt+inst*(18+0)] += d_dynamicContributions_dX[in.admsNodeID_dt];
     Findices[in.admsNodeID_dt+inst*(18+0)] = in.li_dt;
     Qindices[in.admsNodeID_dt+inst*(18+0)] = in.li_dt;
 }
