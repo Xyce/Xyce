@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 31 Mar 2020 09:29:14
+// Creation Date  : Thu, 09 Apr 2020 12:01:05
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -605,95 +605,95 @@ bool Instance::processParams()
 
   // and of course, this routine is where we should put the initial_instance
   // stuff
-  double I5;
-  double I4;
-  double I3;
-  double I2;
-  double I1;
-  double ijungat;
-  double ijunsti;
-  double ijunbot;
-  double V5;
-  double V4;
-  double V3;
-  double V2;
-  double V1;
-  double FRACI;
-  double FRACNB;
-  double FRACNA;
-  double qjungat;
-  double qjunsti;
-  double qjunbot;
-  double fbreakdown;
-  double Fmaxr;
-  double ibbt;
-  double gammamax;
-  double erfctimesexpmtat;
-  double xerfc;
-  double mtat;
-  double ltat;
-  double ktat;
-  double wtat;
-  double wgamma;
-  double umaxpoweronepointfive;
-  double sqrtumax;
-  double umax;
-  double umaxbeforelimiting;
-  double twoatatoverthreebtat;
-  double btat;
-  double itat;
-  double asrh;
-  double wdep;
-  double wsrh;
-  double dwsrh;
-  double wsrhstep;
-  double vbi_minus_vjsrh;
-  double isrh;
-  double id;
-  double tmp;
-  double vav;
-  double vbbt;
-  double vjsrh;
-  double vjlim;
-  double two_psistar;
-  double zinv;
-  double z;
-  double vj;
-  double idmult;
-  double h5;
-  double h4;
-  double h3;
-  double h2d;
-  double h2;
-  double h1;
-  double erfcpos;
-  double terfc;
-  double ysq;
-  double alphaje;
-  double zfrac;
-  double tt2;
-  double tt1;
-  double tt0;
-  double I5_cor;
-  double I4_cor;
-  double I3_cor;
-  double I2_cor;
-  double I1_cor;
-  double mcor_rev;
-  double m0_rev;
-  double pmax;
-  double vbigat2r;
-  double vbisti2r;
-  double vbibot2r;
-  double pgat2;
-  double psti2;
-  double pbot2;
-  double vbigat2;
-  double vbisti2;
-  double vbibot2;
-  double vmaxgat;
-  double vmaxsti;
-  double vmaxbot;
+  double I5=0.0;
+  double I4=0.0;
+  double I3=0.0;
+  double I2=0.0;
+  double I1=0.0;
+  double ijungat=0.0;
+  double ijunsti=0.0;
+  double ijunbot=0.0;
+  double V5=0.0;
+  double V4=0.0;
+  double V3=0.0;
+  double V2=0.0;
+  double V1=0.0;
+  double FRACI=0.0;
+  double FRACNB=0.0;
+  double FRACNA=0.0;
+  double qjungat=0.0;
+  double qjunsti=0.0;
+  double qjunbot=0.0;
+  double fbreakdown=0.0;
+  double Fmaxr=0.0;
+  double ibbt=0.0;
+  double gammamax=0.0;
+  double erfctimesexpmtat=0.0;
+  double xerfc=0.0;
+  double mtat=0.0;
+  double ltat=0.0;
+  double ktat=0.0;
+  double wtat=0.0;
+  double wgamma=0.0;
+  double umaxpoweronepointfive=0.0;
+  double sqrtumax=0.0;
+  double umax=0.0;
+  double umaxbeforelimiting=0.0;
+  double twoatatoverthreebtat=0.0;
+  double btat=0.0;
+  double itat=0.0;
+  double asrh=0.0;
+  double wdep=0.0;
+  double wsrh=0.0;
+  double dwsrh=0.0;
+  double wsrhstep=0.0;
+  double vbi_minus_vjsrh=0.0;
+  double isrh=0.0;
+  double id=0.0;
+  double tmp=0.0;
+  double vav=0.0;
+  double vbbt=0.0;
+  double vjsrh=0.0;
+  double vjlim=0.0;
+  double two_psistar=0.0;
+  double zinv=0.0;
+  double z=0.0;
+  double vj=0.0;
+  double idmult=0.0;
+  double h5=0.0;
+  double h4=0.0;
+  double h3=0.0;
+  double h2d=0.0;
+  double h2=0.0;
+  double h1=0.0;
+  double erfcpos=0.0;
+  double terfc=0.0;
+  double ysq=0.0;
+  double alphaje=0.0;
+  double zfrac=0.0;
+  double tt2=0.0;
+  double tt1=0.0;
+  double tt0=0.0;
+  double I5_cor=0.0;
+  double I4_cor=0.0;
+  double I3_cor=0.0;
+  double I2_cor=0.0;
+  double I1_cor=0.0;
+  double mcor_rev=0.0;
+  double m0_rev=0.0;
+  double pmax=0.0;
+  double vbigat2r=0.0;
+  double vbisti2r=0.0;
+  double vbibot2r=0.0;
+  double pgat2=0.0;
+  double psti2=0.0;
+  double pbot2=0.0;
+  double vbigat2=0.0;
+  double vbisti2=0.0;
+  double vbibot2=0.0;
+  double vmaxgat=0.0;
+  double vmaxsti=0.0;
+  double vmaxbot=0.0;
 //Begin block initial_instance
 {
 AB_i = ((AB>0.0)?AB:0.0);
@@ -736,8 +736,8 @@ vmaxgat = 1.0e8;
 }
 {
 double value_min_0 = std::min(vmaxbot,vmaxsti);
-double value_min_1 = std::min(value_min_0,vmaxgat);
-VMAX = value_min_1;
+double value_min_1 = std::min(std::min(vmaxbot,vmaxsti),vmaxgat);
+VMAX = std::min(std::min(vmaxbot,vmaxsti),vmaxgat);
 }
 if ((fabs((VMAX*(model_.phitdinv)))<2.3025850929940458e+02))
 {
@@ -771,7 +771,7 @@ if ((AB_i==0.0))
 vbibot2 = ((model_.vbisti)+(model_.vbigat));
 {
 double value_min_0 = std::min((model_.PSTI_i),(model_.PGAT_i));
-pbot2 = (0.9*value_min_0);
+pbot2 = (0.9*std::min((model_.PSTI_i),(model_.PGAT_i)));
 }
 vbibot2r = ((model_.VBIRSTI_i)+(model_.VBIRGAT_i));
 }
@@ -780,7 +780,7 @@ if ((LS_i==0.0))
 vbisti2 = ((model_.vbibot)+(model_.vbigat));
 {
 double value_min_0 = std::min((model_.PBOT_i),(model_.PGAT_i));
-psti2 = (0.9*value_min_0);
+psti2 = (0.9*std::min((model_.PBOT_i),(model_.PGAT_i)));
 }
 vbisti2r = ((model_.VBIRBOT_i)+(model_.VBIRGAT_i));
 }
@@ -789,14 +789,14 @@ if ((LG_i==0.0))
 vbigat2 = ((model_.vbibot)+(model_.vbisti));
 {
 double value_min_0 = std::min((model_.PBOT_i),(model_.PSTI_i));
-pgat2 = (0.9*value_min_0);
+pgat2 = (0.9*std::min((model_.PBOT_i),(model_.PSTI_i)));
 }
 vbigat2r = ((model_.VBIRBOT_i)+(model_.VBIRSTI_i));
 }
 {
 double value_min_0 = std::min(vbibot2,vbisti2);
-double value_min_1 = std::min(value_min_0,vbigat2);
-vbimin = value_min_1;
+double value_min_1 = std::min(std::min(vbibot2,vbisti2),vbigat2);
+vbimin = std::min(std::min(vbibot2,vbisti2),vbigat2);
 }
 vch = (vbimin*0.1);
 {
@@ -810,8 +810,8 @@ vfmin = (vbimin*(1.0-value_pow_0));
 }
 {
 double value_min_0 = std::min(vbibot2r,vbisti2r);
-double value_min_1 = std::min(value_min_0,vbigat2r);
-vbbtlim = (value_min_1-5.0e-2);
+double value_min_1 = std::min(std::min(vbibot2r,vbisti2r),vbigat2r);
+vbbtlim = (std::min(std::min(vbibot2r,vbisti2r),vbigat2r)-5.0e-2);
 }
 ISATFOR1 = 0.0;
 MFOR1 = 1.0;
@@ -845,75 +845,75 @@ if (((model_.SWJUNEXP_i)==1.0))
 //Begin block JUNCAPexpressInit
 {
 //Block-local variables for block JUNCAPexpressInit
-double ysq;
-double terfc;
-double erfcpos;
+double ysq=0.0;
+double terfc=0.0;
+double erfcpos=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-double h1;
-double h2;
-double h2d;
-double h3;
-double h4;
-double h5;
+double h1=0.0;
+double h2=0.0;
+double h2d=0.0;
+double h3=0.0;
+double h4=0.0;
+double h5=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-double idmult;
-double vj;
-double z;
-double zinv;
-double two_psistar;
-double vjlim;
-double vjsrh;
-double vbbt;
-double vav;
+double idmult=0.0;
+double vj=0.0;
+double z=0.0;
+double zinv=0.0;
+double two_psistar=0.0;
+double vjlim=0.0;
+double vjsrh=0.0;
+double vbbt=0.0;
+double vav=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-double tmp;
-double id;
+double tmp=0.0;
+double id=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-double isrh;
-double vbi_minus_vjsrh;
-double wsrhstep;
-double dwsrh;
-double wsrh;
-double wdep;
-double asrh;
+double isrh=0.0;
+double vbi_minus_vjsrh=0.0;
+double wsrhstep=0.0;
+double dwsrh=0.0;
+double wsrh=0.0;
+double wdep=0.0;
+double asrh=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-double itat;
-double btat;
-double twoatatoverthreebtat;
-double umaxbeforelimiting;
-double umax;
-double sqrtumax;
-double umaxpoweronepointfive;
+double itat=0.0;
+double btat=0.0;
+double twoatatoverthreebtat=0.0;
+double umaxbeforelimiting=0.0;
+double umax=0.0;
+double sqrtumax=0.0;
+double umaxpoweronepointfive=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-double wgamma;
-double wtat;
-double ktat;
-double ltat;
-double mtat;
-double xerfc;
-double erfctimesexpmtat;
-double gammamax;
+double wgamma=0.0;
+double wtat=0.0;
+double ktat=0.0;
+double ltat=0.0;
+double mtat=0.0;
+double xerfc=0.0;
+double erfctimesexpmtat=0.0;
+double gammamax=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-double ibbt;
-double Fmaxr;
+double ibbt=0.0;
+double Fmaxr=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-double fbreakdown;
+double fbreakdown=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-double ijunbot;
-double ijunsti;
-double ijungat;
-double qjunbot;
-double qjunsti;
-double qjungat;
+double ijunbot=0.0;
+double ijunsti=0.0;
+double ijungat=0.0;
+double qjunbot=0.0;
+double qjunsti=0.0;
+double qjungat=0.0;
 //End of Block-local variables
 ysq = 0.0;
 terfc = 0.0;
@@ -4691,7 +4691,7 @@ xhighr = value_log_1;
 }
 {
 double value_min_0 = std::min(xhighf1,static_cast<double>(2.3025850929940458e+02));
-xhighf1 = value_min_0;
+xhighf1 = std::min(xhighf1,static_cast<double>(2.3025850929940458e+02));
 }
 {
 double value_exp_0 = exp(xhighf1);
@@ -4699,7 +4699,7 @@ expxhf1 = value_exp_0;
 }
 {
 double value_min_0 = std::min(xhighf2,static_cast<double>(2.3025850929940458e+02));
-xhighf2 = value_min_0;
+xhighf2 = std::min(xhighf2,static_cast<double>(2.3025850929940458e+02));
 }
 {
 double value_exp_0 = exp(xhighf2);
@@ -4707,7 +4707,7 @@ expxhf2 = value_exp_0;
 }
 {
 double value_min_0 = std::min(xhighr,static_cast<double>(2.3025850929940458e+02));
-xhighr = value_min_0;
+xhighr = std::min(xhighr,static_cast<double>(2.3025850929940458e+02));
 }
 {
 double value_exp_0 = exp(xhighr);
@@ -4890,7 +4890,7 @@ Instance::~Instance()
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerLIDs
-// Purpose       : function for registering, and setting up, local ID's.
+// Purpose       : function for registering, and setting up, local IDs.
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
@@ -4975,7 +4975,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addStoreNode(symbol_table, li_store_vbisbot, getName().getEncodedName() + ":vbisbot");
     addStoreNode(symbol_table, li_store_vbissti, getName().getEncodedName() + ":vbissti");
     addStoreNode(symbol_table, li_store_vbisgat, getName().getEncodedName() + ":vbisgat");
-  
+
   if (loadLeadCurrent)
   {
       addBranchDataNode( symbol_table, li_branch_iA, getName(), "BRANCH_D");
@@ -5043,7 +5043,7 @@ void Instance::registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef)
 //-----------------------------------------------------------------------------
 // Function      : Instance::jacobianStamp
 // Purpose       :
-// Special Notes : In initial version, we won't support mapping away nodes
+// Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
@@ -5250,132 +5250,132 @@ bool Instance::updateIntermediateVars()
   }
 
   // Local variables
-  double h1;
-  double h2;
-  double h2d;
-     double d_h2d_dV_A_K;
-     double d_h2d_dV_A_K_dV_A_K;
-  double h3;
-     double d_h3_dV_A_K;
-     double d_h3_dV_A_K_dV_A_K;
-  double h4;
-     double d_h4_dV_A_K;
-     double d_h4_dV_A_K_dV_A_K;
-  double h5;
-     double d_h5_dV_A_K;
-     double d_h5_dV_A_K_dV_A_K;
-  double ijunrev;
-     double d_ijunrev_dV_A_K;
-  double ijunfor2;
-     double d_ijunfor2_dV_A_K;
-  double ijunfor1;
-     double d_ijunfor1_dV_A_K;
-  double tm1;
-     double d_tm1_dV_A_K;
-  double tm0;
-     double d_tm0_dV_A_K;
-  double fbreakdown;
-     double d_fbreakdown_dV_A_K;
-  double ibbt;
-     double d_ibbt_dV_A_K;
-  double Fmaxr;
-     double d_Fmaxr_dV_A_K;
-     double d_Fmaxr_dV_A_K_dV_A_K;
-  double itat;
-     double d_itat_dV_A_K;
-  double gammamax;
-     double d_gammamax_dV_A_K;
-  double erfctimesexpmtat;
-     double d_erfctimesexpmtat_dV_A_K;
-  double erfcpos;
-     double d_erfcpos_dV_A_K;
-  double terfc;
-     double d_terfc_dV_A_K;
-  double ysq;
-     double d_ysq_dV_A_K;
-     double d_ysq_dV_A_K_dV_A_K;
-  double xerfc;
-     double d_xerfc_dV_A_K;
-     double d_xerfc_dV_A_K_dV_A_K;
-  double mtat;
-     double d_mtat_dV_A_K;
-     double d_mtat_dV_A_K_dV_A_K;
-  double ltat;
-     double d_ltat_dV_A_K;
-     double d_ltat_dV_A_K_dV_A_K;
-  double ktat;
-     double d_ktat_dV_A_K;
-     double d_ktat_dV_A_K_dV_A_K;
-  double wtat;
-     double d_wtat_dV_A_K;
-  double wgamma;
-     double d_wgamma_dV_A_K;
-  double umaxpoweronepointfive;
-     double d_umaxpoweronepointfive_dV_A_K;
-     double d_umaxpoweronepointfive_dV_A_K_dV_A_K;
-  double sqrtumax;
-     double d_sqrtumax_dV_A_K;
-     double d_sqrtumax_dV_A_K_dV_A_K;
-  double umax;
-     double d_umax_dV_A_K;
-     double d_umax_dV_A_K_dV_A_K;
-  double umaxbeforelimiting;
-     double d_umaxbeforelimiting_dV_A_K;
-     double d_umaxbeforelimiting_dV_A_K_dV_A_K;
-  double twoatatoverthreebtat;
-     double d_twoatatoverthreebtat_dV_A_K;
-     double d_twoatatoverthreebtat_dV_A_K_dV_A_K;
-  double btat;
-     double d_btat_dV_A_K;
-     double d_btat_dV_A_K_dV_A_K;
-  double isrh;
-     double d_isrh_dV_A_K;
-  double asrh;
-     double d_asrh_dV_A_K;
-  double wdep;
-     double d_wdep_dV_A_K;
-     double d_wdep_dV_A_K_dV_A_K;
-  double wsrh;
-     double d_wsrh_dV_A_K;
-  double dwsrh;
-     double d_dwsrh_dV_A_K;
-  double wsrhstep;
-     double d_wsrhstep_dV_A_K;
-  double vbi_minus_vjsrh;
-     double d_vbi_minus_vjsrh_dV_A_K;
-     double d_vbi_minus_vjsrh_dV_A_K_dV_A_K;
-  double id;
-     double d_id_dV_A_K;
-  double tmp;
-     double d_tmp_dV_A_K;
-     double d_tmp_dV_A_K_dV_A_K;
-  double vav;
-     double d_vav_dV_A_K;
-     double d_vav_dV_A_K_dV_A_K;
-  double vjsrh;
-     double d_vjsrh_dV_A_K;
-     double d_vjsrh_dV_A_K_dV_A_K;
-  double vjlim;
-     double d_vjlim_dV_A_K;
-     double d_vjlim_dV_A_K_dV_A_K;
-  double z;
-     double d_z_dV_A_K;
-     double d_z_dV_A_K_dV_A_K;
-  double idmult;
-     double d_idmult_dV_A_K;
-     double d_idmult_dV_A_K_dV_A_K;
-  double zinv;
-     double d_zinv_dV_A_K;
-     double d_zinv_dV_A_K_dV_A_K;
-  double vj;
-     double d_vj_dV_A_K;
-     double d_vj_dV_A_K_dV_A_K;
-  double two_psistar;
-     double d_two_psistar_dV_A_K;
-     double d_two_psistar_dV_A_K_dV_A_K;
-  double vbbt;
-     double d_vbbt_dV_A_K;
-     double d_vbbt_dV_A_K_dV_A_K;
+  double h1=0.0;
+  double h2=0.0;
+  double h2d=0.0;
+     double d_h2d_dV_A_K=0.0;
+     double d_h2d_dV_A_K_dV_A_K=0.0;
+  double h3=0.0;
+     double d_h3_dV_A_K=0.0;
+     double d_h3_dV_A_K_dV_A_K=0.0;
+  double h4=0.0;
+     double d_h4_dV_A_K=0.0;
+     double d_h4_dV_A_K_dV_A_K=0.0;
+  double h5=0.0;
+     double d_h5_dV_A_K=0.0;
+     double d_h5_dV_A_K_dV_A_K=0.0;
+  double ijunrev=0.0;
+     double d_ijunrev_dV_A_K=0.0;
+  double ijunfor2=0.0;
+     double d_ijunfor2_dV_A_K=0.0;
+  double ijunfor1=0.0;
+     double d_ijunfor1_dV_A_K=0.0;
+  double tm1=0.0;
+     double d_tm1_dV_A_K=0.0;
+  double tm0=0.0;
+     double d_tm0_dV_A_K=0.0;
+  double fbreakdown=0.0;
+     double d_fbreakdown_dV_A_K=0.0;
+  double ibbt=0.0;
+     double d_ibbt_dV_A_K=0.0;
+  double Fmaxr=0.0;
+     double d_Fmaxr_dV_A_K=0.0;
+     double d_Fmaxr_dV_A_K_dV_A_K=0.0;
+  double itat=0.0;
+     double d_itat_dV_A_K=0.0;
+  double gammamax=0.0;
+     double d_gammamax_dV_A_K=0.0;
+  double erfctimesexpmtat=0.0;
+     double d_erfctimesexpmtat_dV_A_K=0.0;
+  double erfcpos=0.0;
+     double d_erfcpos_dV_A_K=0.0;
+  double terfc=0.0;
+     double d_terfc_dV_A_K=0.0;
+  double ysq=0.0;
+     double d_ysq_dV_A_K=0.0;
+     double d_ysq_dV_A_K_dV_A_K=0.0;
+  double xerfc=0.0;
+     double d_xerfc_dV_A_K=0.0;
+     double d_xerfc_dV_A_K_dV_A_K=0.0;
+  double mtat=0.0;
+     double d_mtat_dV_A_K=0.0;
+     double d_mtat_dV_A_K_dV_A_K=0.0;
+  double ltat=0.0;
+     double d_ltat_dV_A_K=0.0;
+     double d_ltat_dV_A_K_dV_A_K=0.0;
+  double ktat=0.0;
+     double d_ktat_dV_A_K=0.0;
+     double d_ktat_dV_A_K_dV_A_K=0.0;
+  double wtat=0.0;
+     double d_wtat_dV_A_K=0.0;
+  double wgamma=0.0;
+     double d_wgamma_dV_A_K=0.0;
+  double umaxpoweronepointfive=0.0;
+     double d_umaxpoweronepointfive_dV_A_K=0.0;
+     double d_umaxpoweronepointfive_dV_A_K_dV_A_K=0.0;
+  double sqrtumax=0.0;
+     double d_sqrtumax_dV_A_K=0.0;
+     double d_sqrtumax_dV_A_K_dV_A_K=0.0;
+  double umax=0.0;
+     double d_umax_dV_A_K=0.0;
+     double d_umax_dV_A_K_dV_A_K=0.0;
+  double umaxbeforelimiting=0.0;
+     double d_umaxbeforelimiting_dV_A_K=0.0;
+     double d_umaxbeforelimiting_dV_A_K_dV_A_K=0.0;
+  double twoatatoverthreebtat=0.0;
+     double d_twoatatoverthreebtat_dV_A_K=0.0;
+     double d_twoatatoverthreebtat_dV_A_K_dV_A_K=0.0;
+  double btat=0.0;
+     double d_btat_dV_A_K=0.0;
+     double d_btat_dV_A_K_dV_A_K=0.0;
+  double isrh=0.0;
+     double d_isrh_dV_A_K=0.0;
+  double asrh=0.0;
+     double d_asrh_dV_A_K=0.0;
+  double wdep=0.0;
+     double d_wdep_dV_A_K=0.0;
+     double d_wdep_dV_A_K_dV_A_K=0.0;
+  double wsrh=0.0;
+     double d_wsrh_dV_A_K=0.0;
+  double dwsrh=0.0;
+     double d_dwsrh_dV_A_K=0.0;
+  double wsrhstep=0.0;
+     double d_wsrhstep_dV_A_K=0.0;
+  double vbi_minus_vjsrh=0.0;
+     double d_vbi_minus_vjsrh_dV_A_K=0.0;
+     double d_vbi_minus_vjsrh_dV_A_K_dV_A_K=0.0;
+  double id=0.0;
+     double d_id_dV_A_K=0.0;
+  double tmp=0.0;
+     double d_tmp_dV_A_K=0.0;
+     double d_tmp_dV_A_K_dV_A_K=0.0;
+  double vav=0.0;
+     double d_vav_dV_A_K=0.0;
+     double d_vav_dV_A_K_dV_A_K=0.0;
+  double vjsrh=0.0;
+     double d_vjsrh_dV_A_K=0.0;
+     double d_vjsrh_dV_A_K_dV_A_K=0.0;
+  double vjlim=0.0;
+     double d_vjlim_dV_A_K=0.0;
+     double d_vjlim_dV_A_K_dV_A_K=0.0;
+  double z=0.0;
+     double d_z_dV_A_K=0.0;
+     double d_z_dV_A_K_dV_A_K=0.0;
+  double idmult=0.0;
+     double d_idmult_dV_A_K=0.0;
+     double d_idmult_dV_A_K_dV_A_K=0.0;
+  double zinv=0.0;
+     double d_zinv_dV_A_K=0.0;
+     double d_zinv_dV_A_K_dV_A_K=0.0;
+  double vj=0.0;
+     double d_vj_dV_A_K=0.0;
+     double d_vj_dV_A_K_dV_A_K=0.0;
+  double two_psistar=0.0;
+     double d_two_psistar_dV_A_K=0.0;
+     double d_two_psistar_dV_A_K_dV_A_K=0.0;
+  double vbbt=0.0;
+     double d_vbbt_dV_A_K=0.0;
+     double d_vbbt_dV_A_K_dV_A_K=0.0;
 
 
   // set the sizes of the Fad arrays:
@@ -5423,30 +5423,30 @@ d_probeVars[admsProbeID_V_A_K][admsProbeID_V_A_K] = 1.0;
 //Begin block evaluateblock
 {
 //Block-local variables for block evaluateblock
-double ijunbot;
-     double d_ijunbot_dV_A_K;
-double qjunbot;
-     double d_qjunbot_dV_A_K;
-     double d_qjunbot_dV_A_K_dV_A_K;
-double ijunsti;
-     double d_ijunsti_dV_A_K;
-double qjunsti;
-     double d_qjunsti_dV_A_K;
-     double d_qjunsti_dV_A_K_dV_A_K;
-double ijungat;
-     double d_ijungat_dV_A_K;
-double qjungat;
-     double d_qjungat_dV_A_K;
-     double d_qjungat_dV_A_K_dV_A_K;
-double ijun;
-     double d_ijun_dV_A_K;
-double qjun;
-     double d_qjun_dV_A_K;
-double jnoise;
-     double d_jnoise_dV_A_K;
-double VAK;
-     double d_VAK_dV_A_K;
-     double d_VAK_dV_A_K_dV_A_K;
+double ijunbot=0.0;
+     double d_ijunbot_dV_A_K=0.0;
+double qjunbot=0.0;
+     double d_qjunbot_dV_A_K=0.0;
+     double d_qjunbot_dV_A_K_dV_A_K=0.0;
+double ijunsti=0.0;
+     double d_ijunsti_dV_A_K=0.0;
+double qjunsti=0.0;
+     double d_qjunsti_dV_A_K=0.0;
+     double d_qjunsti_dV_A_K_dV_A_K=0.0;
+double ijungat=0.0;
+     double d_ijungat_dV_A_K=0.0;
+double qjungat=0.0;
+     double d_qjungat_dV_A_K=0.0;
+     double d_qjungat_dV_A_K_dV_A_K=0.0;
+double ijun=0.0;
+     double d_ijun_dV_A_K=0.0;
+double qjun=0.0;
+     double d_qjun_dV_A_K=0.0;
+double jnoise=0.0;
+     double d_jnoise_dV_A_K=0.0;
+double VAK=0.0;
+     double d_VAK_dV_A_K=0.0;
+     double d_VAK_dV_A_K_dV_A_K=0.0;
 //End of Block-local variables
 
 d_ijun_dV_A_K =  0.0;
@@ -5525,12 +5525,12 @@ ijun = ((ijunfor1+ijunfor2)+ijunrev);
 //Begin block evaluateDynamic
 {
 //Block-local variables for block evaluateDynamic
-double tmpv;
-     double d_tmpv_dV_A_K;
-     double d_tmpv_dV_A_K_dV_A_K;
-double vjv;
-     double d_vjv_dV_A_K;
-     double d_vjv_dV_A_K_dV_A_K;
+double tmpv=0.0;
+     double d_tmpv_dV_A_K=0.0;
+     double d_tmpv_dV_A_K_dV_A_K=0.0;
+double vjv=0.0;
+     double d_vjv_dV_A_K=0.0;
+     double d_vjv_dV_A_K_dV_A_K=0.0;
 //End of Block-local variables
 
 d_tmpv_dV_A_K = d_tmpv_dV_A_K_dV_A_K =  0.0;
@@ -7456,48 +7456,48 @@ bool Model::processParams()
 
   // and of course, this routine is where we should put the initial_model
   // stuff
-  double deltaEgat;
-  double deltaEsti;
-  double deltaEbot;
-  double ubigat;
-  double ubisti;
-  double ubibot;
-  double phigdgat;
-  double phigdsti;
-  double phigdbot;
-  double deltaphigd;
-  double phigrgat;
-  double phigrsti;
-  double phigrbot;
-  double deltaphigr;
-  double phitrinv;
-  double KBOL_over_QELE;
-  double auxt;
-  double tkd;
-  double tkr;
-  double STFBBTGAT_i;
-  double STFBBTSTI_i;
-  double STFBBTBOT_i;
-  double FBBTRGAT_i;
-  double FBBTRSTI_i;
-  double FBBTRBOT_i;
-  double MEFFTATGAT_i;
-  double MEFFTATSTI_i;
-  double MEFFTATBOT_i;
-  double XJUNGAT_i;
-  double XJUNSTI_i;
-  double IDSATRGAT_i;
-  double IDSATRSTI_i;
-  double IDSATRBOT_i;
-  double PHIGGAT_i;
-  double PHIGSTI_i;
-  double PHIGBOT_i;
-  double CJORGAT_i;
-  double CJORSTI_i;
-  double CJORBOT_i;
-  double FREV_i;
-  double TRJ_i;
-  double EPSSI;
+  double deltaEgat=0.0;
+  double deltaEsti=0.0;
+  double deltaEbot=0.0;
+  double ubigat=0.0;
+  double ubisti=0.0;
+  double ubibot=0.0;
+  double phigdgat=0.0;
+  double phigdsti=0.0;
+  double phigdbot=0.0;
+  double deltaphigd=0.0;
+  double phigrgat=0.0;
+  double phigrsti=0.0;
+  double phigrbot=0.0;
+  double deltaphigr=0.0;
+  double phitrinv=0.0;
+  double KBOL_over_QELE=0.0;
+  double auxt=0.0;
+  double tkd=0.0;
+  double tkr=0.0;
+  double STFBBTGAT_i=0.0;
+  double STFBBTSTI_i=0.0;
+  double STFBBTBOT_i=0.0;
+  double FBBTRGAT_i=0.0;
+  double FBBTRSTI_i=0.0;
+  double FBBTRBOT_i=0.0;
+  double MEFFTATGAT_i=0.0;
+  double MEFFTATSTI_i=0.0;
+  double MEFFTATBOT_i=0.0;
+  double XJUNGAT_i=0.0;
+  double XJUNSTI_i=0.0;
+  double IDSATRGAT_i=0.0;
+  double IDSATRSTI_i=0.0;
+  double IDSATRBOT_i=0.0;
+  double PHIGGAT_i=0.0;
+  double PHIGSTI_i=0.0;
+  double PHIGBOT_i=0.0;
+  double CJORGAT_i=0.0;
+  double CJORSTI_i=0.0;
+  double CJORBOT_i=0.0;
+  double FREV_i=0.0;
+  double TRJ_i=0.0;
+  double EPSSI=0.0;
 //Begin block initial_model
 {
 EPSSI = (8.8541878176E-12*11.8);
@@ -8025,3380 +8025,5811 @@ Diode::registerDevice();
 // Creation Date :
 //-----------------------------------------------------------------------------
 void evaluateInitialInstance(
-// instance parameters
-// reals
-AdmsSensFadType & instancePar_AB,
-bool instancePar_given_AB,
-AdmsSensFadType & instancePar_LS,
-bool instancePar_given_LS,
-AdmsSensFadType & instancePar_LG,
-bool instancePar_given_LG,
-AdmsSensFadType & instancePar_MULT,
-bool instancePar_given_MULT,
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_MULT_i,
-AdmsSensFadType & instanceVar_AB_i,
-AdmsSensFadType & instanceVar_LS_i,
-AdmsSensFadType & instanceVar_LG_i,
-double & instanceVar_zflagbot,
-double & instanceVar_zflagsti,
-double & instanceVar_zflaggat,
-AdmsSensFadType & instanceVar_VMAX,
-AdmsSensFadType & instanceVar_exp_VMAX_over_phitd,
-AdmsSensFadType & instanceVar_vbimin,
-AdmsSensFadType & instanceVar_vch,
-AdmsSensFadType & instanceVar_vfmin,
-AdmsSensFadType & instanceVar_vbbtlim,
-AdmsSensFadType & instanceVar_xhighf1,
-AdmsSensFadType & instanceVar_expxhf1,
-AdmsSensFadType & instanceVar_xhighf2,
-AdmsSensFadType & instanceVar_expxhf2,
-AdmsSensFadType & instanceVar_xhighr,
-AdmsSensFadType & instanceVar_expxhr,
-AdmsSensFadType & instanceVar_ISATFOR1,
-double & instanceVar_MFOR1,
-AdmsSensFadType & instanceVar_ISATFOR2,
-AdmsSensFadType & instanceVar_MFOR2,
-AdmsSensFadType & instanceVar_ISATREV,
-AdmsSensFadType & instanceVar_MREV,
-double & instanceVar_m0flag,
-AdmsSensFadType & instanceVar_vak,
-AdmsSensFadType & instanceVar_cj,
-AdmsSensFadType & instanceVar_cjbot,
-AdmsSensFadType & instanceVar_cjgat,
-AdmsSensFadType & instanceVar_cjsti,
-AdmsSensFadType & instanceVar_ij,
-AdmsSensFadType & instanceVar_ijbot,
-AdmsSensFadType & instanceVar_ijgat,
-AdmsSensFadType & instanceVar_ijsti,
-AdmsSensFadType & instanceVar_si,
-AdmsSensFadType & instanceVar_idsatsbot,
-AdmsSensFadType & instanceVar_idsatssti,
-AdmsSensFadType & instanceVar_idsatsgat,
-AdmsSensFadType & instanceVar_cjosbot,
-AdmsSensFadType & instanceVar_cjossti,
-AdmsSensFadType & instanceVar_cjosgat,
-AdmsSensFadType & instanceVar_vbisbot,
-AdmsSensFadType & instanceVar_vbissti,
-AdmsSensFadType & instanceVar_vbisgat,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_DTA,
-bool modelPar_given_DTA,
-AdmsSensFadType & modelPar_IMAX,
-bool modelPar_given_IMAX,
-AdmsSensFadType & modelPar_TRJ,
-bool modelPar_given_TRJ,
-AdmsSensFadType & modelPar_FREV,
-bool modelPar_given_FREV,
-AdmsSensFadType & modelPar_CJORBOT,
-bool modelPar_given_CJORBOT,
-AdmsSensFadType & modelPar_CJORSTI,
-bool modelPar_given_CJORSTI,
-AdmsSensFadType & modelPar_CJORGAT,
-bool modelPar_given_CJORGAT,
-AdmsSensFadType & modelPar_VBIRBOT,
-bool modelPar_given_VBIRBOT,
-AdmsSensFadType & modelPar_VBIRSTI,
-bool modelPar_given_VBIRSTI,
-AdmsSensFadType & modelPar_VBIRGAT,
-bool modelPar_given_VBIRGAT,
-AdmsSensFadType & modelPar_PBOT,
-bool modelPar_given_PBOT,
-AdmsSensFadType & modelPar_PSTI,
-bool modelPar_given_PSTI,
-AdmsSensFadType & modelPar_PGAT,
-bool modelPar_given_PGAT,
-AdmsSensFadType & modelPar_PHIGBOT,
-bool modelPar_given_PHIGBOT,
-AdmsSensFadType & modelPar_PHIGSTI,
-bool modelPar_given_PHIGSTI,
-AdmsSensFadType & modelPar_PHIGGAT,
-bool modelPar_given_PHIGGAT,
-AdmsSensFadType & modelPar_IDSATRBOT,
-bool modelPar_given_IDSATRBOT,
-AdmsSensFadType & modelPar_IDSATRSTI,
-bool modelPar_given_IDSATRSTI,
-AdmsSensFadType & modelPar_IDSATRGAT,
-bool modelPar_given_IDSATRGAT,
-AdmsSensFadType & modelPar_CSRHBOT,
-bool modelPar_given_CSRHBOT,
-AdmsSensFadType & modelPar_CSRHSTI,
-bool modelPar_given_CSRHSTI,
-AdmsSensFadType & modelPar_CSRHGAT,
-bool modelPar_given_CSRHGAT,
-AdmsSensFadType & modelPar_XJUNSTI,
-bool modelPar_given_XJUNSTI,
-AdmsSensFadType & modelPar_XJUNGAT,
-bool modelPar_given_XJUNGAT,
-AdmsSensFadType & modelPar_CTATBOT,
-bool modelPar_given_CTATBOT,
-AdmsSensFadType & modelPar_CTATSTI,
-bool modelPar_given_CTATSTI,
-AdmsSensFadType & modelPar_CTATGAT,
-bool modelPar_given_CTATGAT,
-AdmsSensFadType & modelPar_MEFFTATBOT,
-bool modelPar_given_MEFFTATBOT,
-AdmsSensFadType & modelPar_MEFFTATSTI,
-bool modelPar_given_MEFFTATSTI,
-AdmsSensFadType & modelPar_MEFFTATGAT,
-bool modelPar_given_MEFFTATGAT,
-AdmsSensFadType & modelPar_CBBTBOT,
-bool modelPar_given_CBBTBOT,
-AdmsSensFadType & modelPar_CBBTSTI,
-bool modelPar_given_CBBTSTI,
-AdmsSensFadType & modelPar_CBBTGAT,
-bool modelPar_given_CBBTGAT,
-AdmsSensFadType & modelPar_FBBTRBOT,
-bool modelPar_given_FBBTRBOT,
-AdmsSensFadType & modelPar_FBBTRSTI,
-bool modelPar_given_FBBTRSTI,
-AdmsSensFadType & modelPar_FBBTRGAT,
-bool modelPar_given_FBBTRGAT,
-AdmsSensFadType & modelPar_STFBBTBOT,
-bool modelPar_given_STFBBTBOT,
-AdmsSensFadType & modelPar_STFBBTSTI,
-bool modelPar_given_STFBBTSTI,
-AdmsSensFadType & modelPar_STFBBTGAT,
-bool modelPar_given_STFBBTGAT,
-AdmsSensFadType & modelPar_VBRBOT,
-bool modelPar_given_VBRBOT,
-AdmsSensFadType & modelPar_VBRSTI,
-bool modelPar_given_VBRSTI,
-AdmsSensFadType & modelPar_VBRGAT,
-bool modelPar_given_VBRGAT,
-AdmsSensFadType & modelPar_PBRBOT,
-bool modelPar_given_PBRBOT,
-AdmsSensFadType & modelPar_PBRSTI,
-bool modelPar_given_PBRSTI,
-AdmsSensFadType & modelPar_PBRGAT,
-bool modelPar_given_PBRGAT,
-AdmsSensFadType & modelPar_SWJUNEXP,
-bool modelPar_given_SWJUNEXP,
-AdmsSensFadType & modelPar_VJUNREF,
-bool modelPar_given_VJUNREF,
-AdmsSensFadType & modelPar_FJUNQ,
-bool modelPar_given_FJUNQ,
-// non-reals (including hidden)
-int modelPar_LEVEL,
-bool modelPar_given_LEVEL,
-int modelPar_TYPE,
-bool modelPar_given_TYPE// model variables
-,
-// reals
-AdmsSensFadType & modelVar_IMAX_i,
-AdmsSensFadType & modelVar_VBIRBOT_i,
-AdmsSensFadType & modelVar_VBIRSTI_i,
-AdmsSensFadType & modelVar_VBIRGAT_i,
-AdmsSensFadType & modelVar_PBOT_i,
-AdmsSensFadType & modelVar_PSTI_i,
-AdmsSensFadType & modelVar_PGAT_i,
-AdmsSensFadType & modelVar_CSRHBOT_i,
-AdmsSensFadType & modelVar_CSRHSTI_i,
-AdmsSensFadType & modelVar_CSRHGAT_i,
-AdmsSensFadType & modelVar_CTATBOT_i,
-AdmsSensFadType & modelVar_CTATSTI_i,
-AdmsSensFadType & modelVar_CTATGAT_i,
-AdmsSensFadType & modelVar_CBBTBOT_i,
-AdmsSensFadType & modelVar_CBBTSTI_i,
-AdmsSensFadType & modelVar_CBBTGAT_i,
-AdmsSensFadType & modelVar_VBRBOT_i,
-AdmsSensFadType & modelVar_VBRSTI_i,
-AdmsSensFadType & modelVar_VBRGAT_i,
-AdmsSensFadType & modelVar_PBRBOT_i,
-AdmsSensFadType & modelVar_PBRSTI_i,
-AdmsSensFadType & modelVar_PBRGAT_i,
-double & modelVar_SWJUNEXP_i,
-AdmsSensFadType & modelVar_VJUNREF_i,
-AdmsSensFadType & modelVar_FJUNQ_i,
-AdmsSensFadType & modelVar_phitr,
-AdmsSensFadType & modelVar_phitd,
-AdmsSensFadType & modelVar_phitdinv,
-double & modelVar_perfc,
-double & modelVar_berfc,
-double & modelVar_cerfc,
-AdmsSensFadType & modelVar_ftdbot,
-AdmsSensFadType & modelVar_ftdsti,
-AdmsSensFadType & modelVar_ftdgat,
-AdmsSensFadType & modelVar_idsatbot,
-AdmsSensFadType & modelVar_idsatsti,
-AdmsSensFadType & modelVar_idsatgat,
-AdmsSensFadType & modelVar_vbibot,
-AdmsSensFadType & modelVar_vbisti,
-AdmsSensFadType & modelVar_vbigat,
-AdmsSensFadType & modelVar_vbiinvbot,
-AdmsSensFadType & modelVar_vbiinvsti,
-AdmsSensFadType & modelVar_vbiinvgat,
-AdmsSensFadType & modelVar_one_minus_PBOT,
-AdmsSensFadType & modelVar_one_minus_PSTI,
-AdmsSensFadType & modelVar_one_minus_PGAT,
-AdmsSensFadType & modelVar_one_over_one_minus_PBOT,
-AdmsSensFadType & modelVar_one_over_one_minus_PSTI,
-AdmsSensFadType & modelVar_one_over_one_minus_PGAT,
-AdmsSensFadType & modelVar_cjobot,
-AdmsSensFadType & modelVar_cjosti,
-AdmsSensFadType & modelVar_cjogat,
-AdmsSensFadType & modelVar_qprefbot,
-AdmsSensFadType & modelVar_qprefsti,
-AdmsSensFadType & modelVar_qprefgat,
-AdmsSensFadType & modelVar_qpref2bot,
-AdmsSensFadType & modelVar_qpref2sti,
-AdmsSensFadType & modelVar_qpref2gat,
-AdmsSensFadType & modelVar_wdepnulrbot,
-AdmsSensFadType & modelVar_wdepnulrsti,
-AdmsSensFadType & modelVar_wdepnulrgat,
-AdmsSensFadType & modelVar_wdepnulrinvbot,
-AdmsSensFadType & modelVar_wdepnulrinvsti,
-AdmsSensFadType & modelVar_wdepnulrinvgat,
-AdmsSensFadType & modelVar_VBIRBOTinv,
-AdmsSensFadType & modelVar_VBIRSTIinv,
-AdmsSensFadType & modelVar_VBIRGATinv,
-AdmsSensFadType & modelVar_atatbot,
-AdmsSensFadType & modelVar_atatsti,
-AdmsSensFadType & modelVar_atatgat,
-AdmsSensFadType & modelVar_btatpartbot,
-AdmsSensFadType & modelVar_btatpartsti,
-AdmsSensFadType & modelVar_btatpartgat,
-AdmsSensFadType & modelVar_fbbtbot,
-AdmsSensFadType & modelVar_fbbtsti,
-AdmsSensFadType & modelVar_fbbtgat,
-AdmsSensFadType & modelVar_alphaav,
-AdmsSensFadType & modelVar_fstopbot,
-AdmsSensFadType & modelVar_fstopsti,
-AdmsSensFadType & modelVar_fstopgat,
-AdmsSensFadType & modelVar_VBRinvbot,
-AdmsSensFadType & modelVar_VBRinvsti,
-AdmsSensFadType & modelVar_VBRinvgat,
-AdmsSensFadType & modelVar_slopebot,
-AdmsSensFadType & modelVar_slopesti,
-AdmsSensFadType & modelVar_slopegat,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
  double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance)
 {
-  AdmsSensFadType I5;
-  AdmsSensFadType I4;
-  AdmsSensFadType I3;
-  AdmsSensFadType I2;
-  AdmsSensFadType I1;
-  AdmsSensFadType ijungat;
-  AdmsSensFadType ijunsti;
-  AdmsSensFadType ijunbot;
-  double V5;
-  double V4;
-  AdmsSensFadType V3;
-  AdmsSensFadType V2;
-  AdmsSensFadType V1;
-  double FRACI;
-  double FRACNB;
-  double FRACNA;
-  AdmsSensFadType qjungat;
-  AdmsSensFadType qjunsti;
-  AdmsSensFadType qjunbot;
-  AdmsSensFadType fbreakdown;
-  AdmsSensFadType Fmaxr;
-  AdmsSensFadType ibbt;
-  AdmsSensFadType gammamax;
-  AdmsSensFadType erfctimesexpmtat;
-  AdmsSensFadType xerfc;
-  AdmsSensFadType mtat;
-  AdmsSensFadType ltat;
-  AdmsSensFadType ktat;
-  AdmsSensFadType wtat;
-  AdmsSensFadType wgamma;
-  AdmsSensFadType umaxpoweronepointfive;
-  AdmsSensFadType sqrtumax;
-  AdmsSensFadType umax;
-  AdmsSensFadType umaxbeforelimiting;
-  AdmsSensFadType twoatatoverthreebtat;
-  AdmsSensFadType btat;
-  AdmsSensFadType itat;
-  AdmsSensFadType asrh;
-  AdmsSensFadType wdep;
-  AdmsSensFadType wsrh;
-  AdmsSensFadType dwsrh;
-  AdmsSensFadType wsrhstep;
-  AdmsSensFadType vbi_minus_vjsrh;
-  AdmsSensFadType isrh;
-  AdmsSensFadType id;
-  AdmsSensFadType tmp;
-  AdmsSensFadType vav;
-  AdmsSensFadType vbbt;
-  AdmsSensFadType vjsrh;
-  AdmsSensFadType vjlim;
-  AdmsSensFadType two_psistar;
-  AdmsSensFadType zinv;
-  AdmsSensFadType z;
-  AdmsSensFadType vj;
-  AdmsSensFadType idmult;
-  AdmsSensFadType h5;
-  AdmsSensFadType h4;
-  AdmsSensFadType h3;
-  AdmsSensFadType h2d;
-  AdmsSensFadType h2;
-  AdmsSensFadType h1;
-  AdmsSensFadType erfcpos;
-  AdmsSensFadType terfc;
-  AdmsSensFadType ysq;
-  AdmsSensFadType alphaje;
-  AdmsSensFadType zfrac;
-  AdmsSensFadType tt2;
-  AdmsSensFadType tt1;
-  AdmsSensFadType tt0;
-  AdmsSensFadType I5_cor;
-  AdmsSensFadType I4_cor;
-  AdmsSensFadType I3_cor;
-  AdmsSensFadType I2_cor;
-  AdmsSensFadType I1_cor;
-  AdmsSensFadType mcor_rev;
-  AdmsSensFadType m0_rev;
-  AdmsSensFadType pmax;
-  AdmsSensFadType vbigat2r;
-  AdmsSensFadType vbisti2r;
-  AdmsSensFadType vbibot2r;
-  AdmsSensFadType pgat2;
-  AdmsSensFadType psti2;
-  AdmsSensFadType pbot2;
-  AdmsSensFadType vbigat2;
-  AdmsSensFadType vbisti2;
-  AdmsSensFadType vbibot2;
-  AdmsSensFadType vmaxgat;
-  AdmsSensFadType vmaxsti;
-  AdmsSensFadType vmaxbot;
+  double I5=0.0;
+double d_I5_dX=0.0;
+  double I4=0.0;
+double d_I4_dX=0.0;
+  double I3=0.0;
+double d_I3_dX=0.0;
+  double I2=0.0;
+double d_I2_dX=0.0;
+  double I1=0.0;
+double d_I1_dX=0.0;
+  double ijungat=0.0;
+double d_ijungat_dX=0.0;
+  double ijunsti=0.0;
+double d_ijunsti_dX=0.0;
+  double ijunbot=0.0;
+double d_ijunbot_dX=0.0;
+  double V5=0.0;
+  double V4=0.0;
+  double V3=0.0;
+double d_V3_dX=0.0;
+  double V2=0.0;
+double d_V2_dX=0.0;
+  double V1=0.0;
+double d_V1_dX=0.0;
+  double FRACI=0.0;
+  double FRACNB=0.0;
+  double FRACNA=0.0;
+  double qjungat=0.0;
+double d_qjungat_dX=0.0;
+  double qjunsti=0.0;
+double d_qjunsti_dX=0.0;
+  double qjunbot=0.0;
+double d_qjunbot_dX=0.0;
+  double fbreakdown=0.0;
+double d_fbreakdown_dX=0.0;
+  double Fmaxr=0.0;
+double d_Fmaxr_dX=0.0;
+  double ibbt=0.0;
+double d_ibbt_dX=0.0;
+  double gammamax=0.0;
+double d_gammamax_dX=0.0;
+  double erfctimesexpmtat=0.0;
+double d_erfctimesexpmtat_dX=0.0;
+  double xerfc=0.0;
+double d_xerfc_dX=0.0;
+  double mtat=0.0;
+double d_mtat_dX=0.0;
+  double ltat=0.0;
+double d_ltat_dX=0.0;
+  double ktat=0.0;
+double d_ktat_dX=0.0;
+  double wtat=0.0;
+double d_wtat_dX=0.0;
+  double wgamma=0.0;
+double d_wgamma_dX=0.0;
+  double umaxpoweronepointfive=0.0;
+double d_umaxpoweronepointfive_dX=0.0;
+  double sqrtumax=0.0;
+double d_sqrtumax_dX=0.0;
+  double umax=0.0;
+double d_umax_dX=0.0;
+  double umaxbeforelimiting=0.0;
+double d_umaxbeforelimiting_dX=0.0;
+  double twoatatoverthreebtat=0.0;
+double d_twoatatoverthreebtat_dX=0.0;
+  double btat=0.0;
+double d_btat_dX=0.0;
+  double itat=0.0;
+double d_itat_dX=0.0;
+  double asrh=0.0;
+double d_asrh_dX=0.0;
+  double wdep=0.0;
+double d_wdep_dX=0.0;
+  double wsrh=0.0;
+double d_wsrh_dX=0.0;
+  double dwsrh=0.0;
+double d_dwsrh_dX=0.0;
+  double wsrhstep=0.0;
+double d_wsrhstep_dX=0.0;
+  double vbi_minus_vjsrh=0.0;
+double d_vbi_minus_vjsrh_dX=0.0;
+  double isrh=0.0;
+double d_isrh_dX=0.0;
+  double id=0.0;
+double d_id_dX=0.0;
+  double tmp=0.0;
+double d_tmp_dX=0.0;
+  double vav=0.0;
+double d_vav_dX=0.0;
+  double vbbt=0.0;
+double d_vbbt_dX=0.0;
+  double vjsrh=0.0;
+double d_vjsrh_dX=0.0;
+  double vjlim=0.0;
+double d_vjlim_dX=0.0;
+  double two_psistar=0.0;
+double d_two_psistar_dX=0.0;
+  double zinv=0.0;
+double d_zinv_dX=0.0;
+  double z=0.0;
+double d_z_dX=0.0;
+  double vj=0.0;
+double d_vj_dX=0.0;
+  double idmult=0.0;
+double d_idmult_dX=0.0;
+  double h5=0.0;
+double d_h5_dX=0.0;
+  double h4=0.0;
+double d_h4_dX=0.0;
+  double h3=0.0;
+double d_h3_dX=0.0;
+  double h2d=0.0;
+double d_h2d_dX=0.0;
+  double h2=0.0;
+double d_h2_dX=0.0;
+  double h1=0.0;
+double d_h1_dX=0.0;
+  double erfcpos=0.0;
+double d_erfcpos_dX=0.0;
+  double terfc=0.0;
+double d_terfc_dX=0.0;
+  double ysq=0.0;
+double d_ysq_dX=0.0;
+  double alphaje=0.0;
+double d_alphaje_dX=0.0;
+  double zfrac=0.0;
+double d_zfrac_dX=0.0;
+  double tt2=0.0;
+double d_tt2_dX=0.0;
+  double tt1=0.0;
+double d_tt1_dX=0.0;
+  double tt0=0.0;
+double d_tt0_dX=0.0;
+  double I5_cor=0.0;
+double d_I5_cor_dX=0.0;
+  double I4_cor=0.0;
+double d_I4_cor_dX=0.0;
+  double I3_cor=0.0;
+double d_I3_cor_dX=0.0;
+  double I2_cor=0.0;
+double d_I2_cor_dX=0.0;
+  double I1_cor=0.0;
+double d_I1_cor_dX=0.0;
+  double mcor_rev=0.0;
+double d_mcor_rev_dX=0.0;
+  double m0_rev=0.0;
+double d_m0_rev_dX=0.0;
+  double pmax=0.0;
+double d_pmax_dX=0.0;
+  double vbigat2r=0.0;
+double d_vbigat2r_dX=0.0;
+  double vbisti2r=0.0;
+double d_vbisti2r_dX=0.0;
+  double vbibot2r=0.0;
+double d_vbibot2r_dX=0.0;
+  double pgat2=0.0;
+double d_pgat2_dX=0.0;
+  double psti2=0.0;
+double d_psti2_dX=0.0;
+  double pbot2=0.0;
+double d_pbot2_dX=0.0;
+  double vbigat2=0.0;
+double d_vbigat2_dX=0.0;
+  double vbisti2=0.0;
+double d_vbisti2_dX=0.0;
+  double vbibot2=0.0;
+double d_vbibot2_dX=0.0;
+  double vmaxgat=0.0;
+double d_vmaxgat_dX=0.0;
+  double vmaxsti=0.0;
+double d_vmaxsti_dX=0.0;
+  double vmaxbot=0.0;
+double d_vmaxbot_dX=0.0;
 //Begin block initial_instance
 {
-instanceVar_AB_i = adms_ternary_op<AdmsSensFadType>((instancePar_AB>0.0),instancePar_AB,0.0);
-instanceVar_LS_i = adms_ternary_op<AdmsSensFadType>((instancePar_LS>0.0),instancePar_LS,0.0);
-instanceVar_LG_i = adms_ternary_op<AdmsSensFadType>((instancePar_LG>0.0),instancePar_LG,0.0);
-instanceVar_MULT_i = adms_ternary_op<AdmsSensFadType>((instancePar_MULT>0.0),instancePar_MULT,0.0);
-instanceVar_exp_VMAX_over_phitd = 0.0;
-if (((modelVar_idsatbot*instanceVar_AB_i)>0.0))
+instanceStruct.d_instanceVar_AB_i_dX = ((instanceStruct.instancePar_AB>0.0)?instanceStruct.d_instancePar_AB_dX:0.0);
+instanceStruct.instanceVar_AB_i = ((instanceStruct.instancePar_AB>0.0)?instanceStruct.instancePar_AB:0.0);
+instanceStruct.d_instanceVar_LS_i_dX = ((instanceStruct.instancePar_LS>0.0)?instanceStruct.d_instancePar_LS_dX:0.0);
+instanceStruct.instanceVar_LS_i = ((instanceStruct.instancePar_LS>0.0)?instanceStruct.instancePar_LS:0.0);
+instanceStruct.d_instanceVar_LG_i_dX = ((instanceStruct.instancePar_LG>0.0)?instanceStruct.d_instancePar_LG_dX:0.0);
+instanceStruct.instanceVar_LG_i = ((instanceStruct.instancePar_LG>0.0)?instanceStruct.instancePar_LG:0.0);
+instanceStruct.d_instanceVar_MULT_i_dX = ((instanceStruct.instancePar_MULT>0.0)?instanceStruct.d_instancePar_MULT_dX:0.0);
+instanceStruct.instanceVar_MULT_i = ((instanceStruct.instancePar_MULT>0.0)?instanceStruct.instancePar_MULT:0.0);
+instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX = 0.0;
+instanceStruct.instanceVar_exp_VMAX_over_phitd = 0.0;
+if (((modelStruct.modelVar_idsatbot*instanceStruct.instanceVar_AB_i)>0.0))
 {
-vmaxbot = (modelVar_phitd*log(((modelVar_IMAX_i/(modelVar_idsatbot*instanceVar_AB_i))+1.0)));
+{
+double value_log_0 = log(((modelStruct.modelVar_IMAX_i/(modelStruct.modelVar_idsatbot*instanceStruct.instanceVar_AB_i))+1.0));
+double  deriv_log_0_d0 = (1.0/((modelStruct.modelVar_IMAX_i/(modelStruct.modelVar_idsatbot*instanceStruct.instanceVar_AB_i))+1.0));
+d_vmaxbot_dX = (modelStruct.modelVar_phitd*deriv_log_0_d0*((((modelStruct.modelVar_idsatbot*instanceStruct.instanceVar_AB_i)*modelStruct.d_modelVar_IMAX_i_dX-modelStruct.modelVar_IMAX_i*(modelStruct.modelVar_idsatbot*instanceStruct.d_instanceVar_AB_i_dX+modelStruct.d_modelVar_idsatbot_dX*instanceStruct.instanceVar_AB_i))/(modelStruct.modelVar_idsatbot*instanceStruct.instanceVar_AB_i)/(modelStruct.modelVar_idsatbot*instanceStruct.instanceVar_AB_i)))+modelStruct.d_modelVar_phitd_dX*value_log_0);
+vmaxbot = (modelStruct.modelVar_phitd*value_log_0);
+}
 }
 else
 {
+d_vmaxbot_dX = 0.0;
 vmaxbot = 1.0e8;
 }
-if (((modelVar_idsatsti*instanceVar_LS_i)>0.0))
+if (((modelStruct.modelVar_idsatsti*instanceStruct.instanceVar_LS_i)>0.0))
 {
-vmaxsti = (modelVar_phitd*log(((modelVar_IMAX_i/(modelVar_idsatsti*instanceVar_LS_i))+1.0)));
+{
+double value_log_0 = log(((modelStruct.modelVar_IMAX_i/(modelStruct.modelVar_idsatsti*instanceStruct.instanceVar_LS_i))+1.0));
+double  deriv_log_0_d0 = (1.0/((modelStruct.modelVar_IMAX_i/(modelStruct.modelVar_idsatsti*instanceStruct.instanceVar_LS_i))+1.0));
+d_vmaxsti_dX = (modelStruct.modelVar_phitd*deriv_log_0_d0*((((modelStruct.modelVar_idsatsti*instanceStruct.instanceVar_LS_i)*modelStruct.d_modelVar_IMAX_i_dX-modelStruct.modelVar_IMAX_i*(modelStruct.modelVar_idsatsti*instanceStruct.d_instanceVar_LS_i_dX+modelStruct.d_modelVar_idsatsti_dX*instanceStruct.instanceVar_LS_i))/(modelStruct.modelVar_idsatsti*instanceStruct.instanceVar_LS_i)/(modelStruct.modelVar_idsatsti*instanceStruct.instanceVar_LS_i)))+modelStruct.d_modelVar_phitd_dX*value_log_0);
+vmaxsti = (modelStruct.modelVar_phitd*value_log_0);
+}
 }
 else
 {
+d_vmaxsti_dX = 0.0;
 vmaxsti = 1.0e8;
 }
-if (((modelVar_idsatgat*instanceVar_LG_i)>0.0))
+if (((modelStruct.modelVar_idsatgat*instanceStruct.instanceVar_LG_i)>0.0))
 {
-vmaxgat = (modelVar_phitd*log(((modelVar_IMAX_i/(modelVar_idsatgat*instanceVar_LG_i))+1.0)));
+{
+double value_log_0 = log(((modelStruct.modelVar_IMAX_i/(modelStruct.modelVar_idsatgat*instanceStruct.instanceVar_LG_i))+1.0));
+double  deriv_log_0_d0 = (1.0/((modelStruct.modelVar_IMAX_i/(modelStruct.modelVar_idsatgat*instanceStruct.instanceVar_LG_i))+1.0));
+d_vmaxgat_dX = (modelStruct.modelVar_phitd*deriv_log_0_d0*((((modelStruct.modelVar_idsatgat*instanceStruct.instanceVar_LG_i)*modelStruct.d_modelVar_IMAX_i_dX-modelStruct.modelVar_IMAX_i*(modelStruct.modelVar_idsatgat*instanceStruct.d_instanceVar_LG_i_dX+modelStruct.d_modelVar_idsatgat_dX*instanceStruct.instanceVar_LG_i))/(modelStruct.modelVar_idsatgat*instanceStruct.instanceVar_LG_i)/(modelStruct.modelVar_idsatgat*instanceStruct.instanceVar_LG_i)))+modelStruct.d_modelVar_phitd_dX*value_log_0);
+vmaxgat = (modelStruct.modelVar_phitd*value_log_0);
+}
 }
 else
 {
+d_vmaxgat_dX = 0.0;
 vmaxgat = 1.0e8;
 }
-instanceVar_VMAX = min(min(vmaxbot,vmaxsti),vmaxgat);
-if ((fabs((instanceVar_VMAX*modelVar_phitdinv))<2.3025850929940458e+02))
 {
-instanceVar_exp_VMAX_over_phitd = exp((instanceVar_VMAX*modelVar_phitdinv));
+double value_min_0 = std::min(vmaxbot,vmaxsti);
+double value_min_1 = std::min(std::min(vmaxbot,vmaxsti),vmaxgat);
+double  deriv_min_0_d0 = ((vmaxbot<=vmaxsti)?1.0:0.0);
+double  deriv_min_0_d1 = ((vmaxbot<=vmaxsti)?0.0:1.0);
+double  deriv_min_1_d0 = ((std::min(vmaxbot,vmaxsti)<=vmaxgat)?1.0:0.0);
+double  deriv_min_1_d1 = ((std::min(vmaxbot,vmaxsti)<=vmaxgat)?0.0:1.0);
+instanceStruct.d_instanceVar_VMAX_dX = 0.0;
+instanceStruct.instanceVar_VMAX = std::min(std::min(vmaxbot,vmaxsti),vmaxgat);
+}
+if ((fabs((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv));
+double  deriv_exp_0_d0 = value_exp_0;
+instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX = deriv_exp_0_d0*((instanceStruct.instanceVar_VMAX*modelStruct.d_modelVar_phitdinv_dX+instanceStruct.d_instanceVar_VMAX_dX*modelStruct.modelVar_phitdinv));
+instanceStruct.instanceVar_exp_VMAX_over_phitd = value_exp_0;
+}
 }
 else
 {
-if (((instanceVar_VMAX*modelVar_phitdinv)<0.0))
+if (((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv)<0.0))
 {
-instanceVar_exp_VMAX_over_phitd = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(instanceVar_VMAX*modelVar_phitdinv))*(1.0+(0.5*(((-2.3025850929940458e+02)-(instanceVar_VMAX*modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(instanceVar_VMAX*modelVar_phitdinv))*3.3333333333333333e-01))))))));
+instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX = (-1.0e-100*(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*0.5*(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*(-(instanceStruct.instanceVar_VMAX*modelStruct.d_modelVar_phitdinv_dX+instanceStruct.d_instanceVar_VMAX_dX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01+(-(instanceStruct.instanceVar_VMAX*modelStruct.d_modelVar_phitdinv_dX+instanceStruct.d_instanceVar_VMAX_dX*modelStruct.modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01)))+(-(instanceStruct.instanceVar_VMAX*modelStruct.d_modelVar_phitdinv_dX+instanceStruct.d_instanceVar_VMAX_dX*modelStruct.modelVar_phitdinv))*(1.0+(0.5*(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*(1.0+(0.5*(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*(1.0+(0.5*(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01))))))));
+instanceStruct.instanceVar_exp_VMAX_over_phitd = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*(1.0+(0.5*(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01))))))));
 }
 else
 {
-instanceVar_exp_VMAX_over_phitd = (1.0e100*(1.0+(((instanceVar_VMAX*modelVar_phitdinv)-2.3025850929940458e+02)*(1.0+(0.5*(((instanceVar_VMAX*modelVar_phitdinv)-2.3025850929940458e+02)*(1.0+(((instanceVar_VMAX*modelVar_phitdinv)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX = 1.0e100*(((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv)-2.3025850929940458e+02)*0.5*(((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv)-2.3025850929940458e+02)*(instanceStruct.instanceVar_VMAX*modelStruct.d_modelVar_phitdinv_dX+instanceStruct.d_instanceVar_VMAX_dX*modelStruct.modelVar_phitdinv)*3.3333333333333333e-01+(instanceStruct.instanceVar_VMAX*modelStruct.d_modelVar_phitdinv_dX+instanceStruct.d_instanceVar_VMAX_dX*modelStruct.modelVar_phitdinv)*(1.0+(((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv)-2.3025850929940458e+02)*3.3333333333333333e-01)))+(instanceStruct.instanceVar_VMAX*modelStruct.d_modelVar_phitdinv_dX+instanceStruct.d_instanceVar_VMAX_dX*modelStruct.modelVar_phitdinv)*(1.0+(0.5*(((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv)-2.3025850929940458e+02)*(1.0+(((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+instanceStruct.instanceVar_exp_VMAX_over_phitd = (1.0e100*(1.0+(((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv)-2.3025850929940458e+02)*(1.0+(0.5*(((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv)-2.3025850929940458e+02)*(1.0+(((instanceStruct.instanceVar_VMAX*modelStruct.modelVar_phitdinv)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-vbibot2 = modelVar_vbibot;
-vbisti2 = modelVar_vbisti;
-vbigat2 = modelVar_vbigat;
-pbot2 = modelVar_PBOT_i;
-psti2 = modelVar_PSTI_i;
-pgat2 = modelVar_PGAT_i;
-vbibot2r = modelVar_VBIRBOT_i;
-vbisti2r = modelVar_VBIRSTI_i;
-vbigat2r = modelVar_VBIRGAT_i;
-if ((instanceVar_AB_i==0.0))
+d_vbibot2_dX = modelStruct.d_modelVar_vbibot_dX;
+vbibot2 = modelStruct.modelVar_vbibot;
+d_vbisti2_dX = modelStruct.d_modelVar_vbisti_dX;
+vbisti2 = modelStruct.modelVar_vbisti;
+d_vbigat2_dX = modelStruct.d_modelVar_vbigat_dX;
+vbigat2 = modelStruct.modelVar_vbigat;
+d_pbot2_dX = modelStruct.d_modelVar_PBOT_i_dX;
+pbot2 = modelStruct.modelVar_PBOT_i;
+d_psti2_dX = modelStruct.d_modelVar_PSTI_i_dX;
+psti2 = modelStruct.modelVar_PSTI_i;
+d_pgat2_dX = modelStruct.d_modelVar_PGAT_i_dX;
+pgat2 = modelStruct.modelVar_PGAT_i;
+d_vbibot2r_dX = modelStruct.d_modelVar_VBIRBOT_i_dX;
+vbibot2r = modelStruct.modelVar_VBIRBOT_i;
+d_vbisti2r_dX = modelStruct.d_modelVar_VBIRSTI_i_dX;
+vbisti2r = modelStruct.modelVar_VBIRSTI_i;
+d_vbigat2r_dX = modelStruct.d_modelVar_VBIRGAT_i_dX;
+vbigat2r = modelStruct.modelVar_VBIRGAT_i;
+if ((instanceStruct.instanceVar_AB_i==0.0))
 {
-vbibot2 = (modelVar_vbisti+modelVar_vbigat);
-pbot2 = (0.9*min(modelVar_PSTI_i,modelVar_PGAT_i));
-vbibot2r = (modelVar_VBIRSTI_i+modelVar_VBIRGAT_i);
-}
-if ((instanceVar_LS_i==0.0))
+d_vbibot2_dX = (modelStruct.d_modelVar_vbisti_dX+modelStruct.d_modelVar_vbigat_dX);
+vbibot2 = (modelStruct.modelVar_vbisti+modelStruct.modelVar_vbigat);
 {
-vbisti2 = (modelVar_vbibot+modelVar_vbigat);
-psti2 = (0.9*min(modelVar_PBOT_i,modelVar_PGAT_i));
-vbisti2r = (modelVar_VBIRBOT_i+modelVar_VBIRGAT_i);
+double value_min_0 = std::min(modelStruct.modelVar_PSTI_i,modelStruct.modelVar_PGAT_i);
+double  deriv_min_0_d0 = ((modelStruct.modelVar_PSTI_i<=modelStruct.modelVar_PGAT_i)?1.0:0.0);
+double  deriv_min_0_d1 = ((modelStruct.modelVar_PSTI_i<=modelStruct.modelVar_PGAT_i)?0.0:1.0);
+d_pbot2_dX = 0.0;
+pbot2 = (0.9*std::min(modelStruct.modelVar_PSTI_i,modelStruct.modelVar_PGAT_i));
 }
-if ((instanceVar_LG_i==0.0))
+d_vbibot2r_dX = (modelStruct.d_modelVar_VBIRSTI_i_dX+modelStruct.d_modelVar_VBIRGAT_i_dX);
+vbibot2r = (modelStruct.modelVar_VBIRSTI_i+modelStruct.modelVar_VBIRGAT_i);
+}
+if ((instanceStruct.instanceVar_LS_i==0.0))
 {
-vbigat2 = (modelVar_vbibot+modelVar_vbisti);
-pgat2 = (0.9*min(modelVar_PBOT_i,modelVar_PSTI_i));
-vbigat2r = (modelVar_VBIRBOT_i+modelVar_VBIRSTI_i);
+d_vbisti2_dX = (modelStruct.d_modelVar_vbibot_dX+modelStruct.d_modelVar_vbigat_dX);
+vbisti2 = (modelStruct.modelVar_vbibot+modelStruct.modelVar_vbigat);
+{
+double value_min_0 = std::min(modelStruct.modelVar_PBOT_i,modelStruct.modelVar_PGAT_i);
+double  deriv_min_0_d0 = ((modelStruct.modelVar_PBOT_i<=modelStruct.modelVar_PGAT_i)?1.0:0.0);
+double  deriv_min_0_d1 = ((modelStruct.modelVar_PBOT_i<=modelStruct.modelVar_PGAT_i)?0.0:1.0);
+d_psti2_dX = 0.0;
+psti2 = (0.9*std::min(modelStruct.modelVar_PBOT_i,modelStruct.modelVar_PGAT_i));
 }
-instanceVar_vbimin = min(min(vbibot2,vbisti2),vbigat2);
-instanceVar_vch = (instanceVar_vbimin*0.1);
-pmax = max(max(pbot2,psti2),pgat2);
-instanceVar_vfmin = (instanceVar_vbimin*(1.0-pow(2.0,((-1.0)/pmax))));
-instanceVar_vbbtlim = (min(min(vbibot2r,vbisti2r),vbigat2r)-5.0e-2);
-instanceVar_ISATFOR1 = 0.0;
-instanceVar_MFOR1 = 1.0;
-instanceVar_MFOR2 = 1.0;
-instanceVar_ISATFOR2 = 0.0;
-instanceVar_MREV = 1.0;
-instanceVar_ISATREV = 0.0;
-instanceVar_m0flag = 0.0;
-instanceVar_xhighf1 = 0.0;
-instanceVar_expxhf1 = 0.0;
-instanceVar_xhighf2 = 0.0;
-instanceVar_expxhf2 = 0.0;
-instanceVar_xhighr = 0.0;
-instanceVar_expxhr = 0.0;
+d_vbisti2r_dX = (modelStruct.d_modelVar_VBIRBOT_i_dX+modelStruct.d_modelVar_VBIRGAT_i_dX);
+vbisti2r = (modelStruct.modelVar_VBIRBOT_i+modelStruct.modelVar_VBIRGAT_i);
+}
+if ((instanceStruct.instanceVar_LG_i==0.0))
+{
+d_vbigat2_dX = (modelStruct.d_modelVar_vbibot_dX+modelStruct.d_modelVar_vbisti_dX);
+vbigat2 = (modelStruct.modelVar_vbibot+modelStruct.modelVar_vbisti);
+{
+double value_min_0 = std::min(modelStruct.modelVar_PBOT_i,modelStruct.modelVar_PSTI_i);
+double  deriv_min_0_d0 = ((modelStruct.modelVar_PBOT_i<=modelStruct.modelVar_PSTI_i)?1.0:0.0);
+double  deriv_min_0_d1 = ((modelStruct.modelVar_PBOT_i<=modelStruct.modelVar_PSTI_i)?0.0:1.0);
+d_pgat2_dX = 0.0;
+pgat2 = (0.9*std::min(modelStruct.modelVar_PBOT_i,modelStruct.modelVar_PSTI_i));
+}
+d_vbigat2r_dX = (modelStruct.d_modelVar_VBIRBOT_i_dX+modelStruct.d_modelVar_VBIRSTI_i_dX);
+vbigat2r = (modelStruct.modelVar_VBIRBOT_i+modelStruct.modelVar_VBIRSTI_i);
+}
+{
+double value_min_0 = std::min(vbibot2,vbisti2);
+double value_min_1 = std::min(std::min(vbibot2,vbisti2),vbigat2);
+double  deriv_min_0_d0 = ((vbibot2<=vbisti2)?1.0:0.0);
+double  deriv_min_0_d1 = ((vbibot2<=vbisti2)?0.0:1.0);
+double  deriv_min_1_d0 = ((std::min(vbibot2,vbisti2)<=vbigat2)?1.0:0.0);
+double  deriv_min_1_d1 = ((std::min(vbibot2,vbisti2)<=vbigat2)?0.0:1.0);
+instanceStruct.d_instanceVar_vbimin_dX = 0.0;
+instanceStruct.instanceVar_vbimin = std::min(std::min(vbibot2,vbisti2),vbigat2);
+}
+instanceStruct.d_instanceVar_vch_dX = instanceStruct.d_instanceVar_vbimin_dX*0.1;
+instanceStruct.instanceVar_vch = (instanceStruct.instanceVar_vbimin*0.1);
+{
+double value_max_0 = std::max(pbot2,psti2);
+double value_max_1 = std::max(value_max_0,pgat2);
+double  deriv_max_0_d0 = ((pbot2>=psti2)?1.0:0.0);
+double  deriv_max_0_d1 = ((pbot2>=psti2)?0.0:1.0);
+double  deriv_max_1_d0 = ((value_max_0>=pgat2)?1.0:0.0);
+double  deriv_max_1_d1 = ((value_max_0>=pgat2)?0.0:1.0);
+d_pmax_dX = ((deriv_max_1_d0*(((deriv_max_0_d0*(d_pbot2_dX))+(deriv_max_0_d1*(d_psti2_dX)))))+(deriv_max_1_d1*(d_pgat2_dX)));
+pmax = value_max_1;
+}
+{
+double value_pow_0 = pow(2.0,((-1.0)/pmax));
+double  deriv_pow_0_d1 = (2.0 == 0.0)?0.0:(log(2.0)*value_pow_0);
+instanceStruct.d_instanceVar_vfmin_dX = (instanceStruct.instanceVar_vbimin*(-(deriv_pow_0_d1*((-(-1.0)*d_pmax_dX/pmax/pmax))))+instanceStruct.d_instanceVar_vbimin_dX*(1.0-value_pow_0));
+instanceStruct.instanceVar_vfmin = (instanceStruct.instanceVar_vbimin*(1.0-value_pow_0));
+}
+{
+double value_min_0 = std::min(vbibot2r,vbisti2r);
+double value_min_1 = std::min(std::min(vbibot2r,vbisti2r),vbigat2r);
+double  deriv_min_0_d0 = ((vbibot2r<=vbisti2r)?1.0:0.0);
+double  deriv_min_0_d1 = ((vbibot2r<=vbisti2r)?0.0:1.0);
+double  deriv_min_1_d0 = ((std::min(vbibot2r,vbisti2r)<=vbigat2r)?1.0:0.0);
+double  deriv_min_1_d1 = ((std::min(vbibot2r,vbisti2r)<=vbigat2r)?0.0:1.0);
+instanceStruct.d_instanceVar_vbbtlim_dX = 0.0;
+instanceStruct.instanceVar_vbbtlim = (std::min(std::min(vbibot2r,vbisti2r),vbigat2r)-5.0e-2);
+}
+instanceStruct.d_instanceVar_ISATFOR1_dX = 0.0;
+instanceStruct.instanceVar_ISATFOR1 = 0.0;
+instanceStruct.instanceVar_MFOR1 = 1.0;
+instanceStruct.d_instanceVar_MFOR2_dX = 0.0;
+instanceStruct.instanceVar_MFOR2 = 1.0;
+instanceStruct.d_instanceVar_ISATFOR2_dX = 0.0;
+instanceStruct.instanceVar_ISATFOR2 = 0.0;
+instanceStruct.d_instanceVar_MREV_dX = 0.0;
+instanceStruct.instanceVar_MREV = 1.0;
+instanceStruct.d_instanceVar_ISATREV_dX = 0.0;
+instanceStruct.instanceVar_ISATREV = 0.0;
+instanceStruct.instanceVar_m0flag = 0.0;
+instanceStruct.d_instanceVar_xhighf1_dX = 0.0;
+instanceStruct.instanceVar_xhighf1 = 0.0;
+instanceStruct.d_instanceVar_expxhf1_dX = 0.0;
+instanceStruct.instanceVar_expxhf1 = 0.0;
+instanceStruct.d_instanceVar_xhighf2_dX = 0.0;
+instanceStruct.instanceVar_xhighf2 = 0.0;
+instanceStruct.d_instanceVar_expxhf2_dX = 0.0;
+instanceStruct.instanceVar_expxhf2 = 0.0;
+instanceStruct.d_instanceVar_xhighr_dX = 0.0;
+instanceStruct.instanceVar_xhighr = 0.0;
+instanceStruct.d_instanceVar_expxhr_dX = 0.0;
+instanceStruct.instanceVar_expxhr = 0.0;
+d_m0_rev_dX = 0.0;
 m0_rev = 0.0;
+d_mcor_rev_dX = 0.0;
 mcor_rev = 0.0;
+d_I1_cor_dX = 0.0;
 I1_cor = 0.0;
+d_I2_cor_dX = 0.0;
 I2_cor = 0.0;
+d_I3_cor_dX = 0.0;
 I3_cor = 0.0;
+d_I4_cor_dX = 0.0;
 I4_cor = 0.0;
+d_I5_cor_dX = 0.0;
 I5_cor = 0.0;
+d_tt0_dX = 0.0;
 tt0 = 0.0;
+d_tt1_dX = 0.0;
 tt1 = 0.0;
+d_tt2_dX = 0.0;
 tt2 = 0.0;
+d_zfrac_dX = 0.0;
 zfrac = 0.0;
-instanceVar_zflagbot = 1.0;
-instanceVar_zflagsti = 1.0;
-instanceVar_zflaggat = 1.0;
+instanceStruct.instanceVar_zflagbot = 1.0;
+instanceStruct.instanceVar_zflagsti = 1.0;
+instanceStruct.instanceVar_zflaggat = 1.0;
+d_alphaje_dX = 0.0;
 alphaje = 0.0;
-if ((modelVar_SWJUNEXP_i==1.0))
+if ((modelStruct.modelVar_SWJUNEXP_i==1.0))
 //Begin block JUNCAPexpressInit
 {
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType ysq;
-AdmsSensFadType terfc;
-AdmsSensFadType erfcpos;
+double ysq=0.0;
+double d_ysq_dX=0.0;
+double terfc=0.0;
+double d_terfc_dX=0.0;
+double erfcpos=0.0;
+double d_erfcpos_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType h1;
-AdmsSensFadType h2;
-AdmsSensFadType h2d;
-AdmsSensFadType h3;
-AdmsSensFadType h4;
-AdmsSensFadType h5;
+double h1=0.0;
+double d_h1_dX=0.0;
+double h2=0.0;
+double d_h2_dX=0.0;
+double h2d=0.0;
+double d_h2d_dX=0.0;
+double h3=0.0;
+double d_h3_dX=0.0;
+double h4=0.0;
+double d_h4_dX=0.0;
+double h5=0.0;
+double d_h5_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType idmult;
-AdmsSensFadType vj;
-AdmsSensFadType z;
-AdmsSensFadType zinv;
-AdmsSensFadType two_psistar;
-AdmsSensFadType vjlim;
-AdmsSensFadType vjsrh;
-AdmsSensFadType vbbt;
-AdmsSensFadType vav;
+double idmult=0.0;
+double d_idmult_dX=0.0;
+double vj=0.0;
+double d_vj_dX=0.0;
+double z=0.0;
+double d_z_dX=0.0;
+double zinv=0.0;
+double d_zinv_dX=0.0;
+double two_psistar=0.0;
+double d_two_psistar_dX=0.0;
+double vjlim=0.0;
+double d_vjlim_dX=0.0;
+double vjsrh=0.0;
+double d_vjsrh_dX=0.0;
+double vbbt=0.0;
+double d_vbbt_dX=0.0;
+double vav=0.0;
+double d_vav_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType tmp;
-AdmsSensFadType id;
+double tmp=0.0;
+double d_tmp_dX=0.0;
+double id=0.0;
+double d_id_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType isrh;
-AdmsSensFadType vbi_minus_vjsrh;
-AdmsSensFadType wsrhstep;
-AdmsSensFadType dwsrh;
-AdmsSensFadType wsrh;
-AdmsSensFadType wdep;
-AdmsSensFadType asrh;
+double isrh=0.0;
+double d_isrh_dX=0.0;
+double vbi_minus_vjsrh=0.0;
+double d_vbi_minus_vjsrh_dX=0.0;
+double wsrhstep=0.0;
+double d_wsrhstep_dX=0.0;
+double dwsrh=0.0;
+double d_dwsrh_dX=0.0;
+double wsrh=0.0;
+double d_wsrh_dX=0.0;
+double wdep=0.0;
+double d_wdep_dX=0.0;
+double asrh=0.0;
+double d_asrh_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType itat;
-AdmsSensFadType btat;
-AdmsSensFadType twoatatoverthreebtat;
-AdmsSensFadType umaxbeforelimiting;
-AdmsSensFadType umax;
-AdmsSensFadType sqrtumax;
-AdmsSensFadType umaxpoweronepointfive;
+double itat=0.0;
+double d_itat_dX=0.0;
+double btat=0.0;
+double d_btat_dX=0.0;
+double twoatatoverthreebtat=0.0;
+double d_twoatatoverthreebtat_dX=0.0;
+double umaxbeforelimiting=0.0;
+double d_umaxbeforelimiting_dX=0.0;
+double umax=0.0;
+double d_umax_dX=0.0;
+double sqrtumax=0.0;
+double d_sqrtumax_dX=0.0;
+double umaxpoweronepointfive=0.0;
+double d_umaxpoweronepointfive_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType wgamma;
-AdmsSensFadType wtat;
-AdmsSensFadType ktat;
-AdmsSensFadType ltat;
-AdmsSensFadType mtat;
-AdmsSensFadType xerfc;
-AdmsSensFadType erfctimesexpmtat;
-AdmsSensFadType gammamax;
+double wgamma=0.0;
+double d_wgamma_dX=0.0;
+double wtat=0.0;
+double d_wtat_dX=0.0;
+double ktat=0.0;
+double d_ktat_dX=0.0;
+double ltat=0.0;
+double d_ltat_dX=0.0;
+double mtat=0.0;
+double d_mtat_dX=0.0;
+double xerfc=0.0;
+double d_xerfc_dX=0.0;
+double erfctimesexpmtat=0.0;
+double d_erfctimesexpmtat_dX=0.0;
+double gammamax=0.0;
+double d_gammamax_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType ibbt;
-AdmsSensFadType Fmaxr;
+double ibbt=0.0;
+double d_ibbt_dX=0.0;
+double Fmaxr=0.0;
+double d_Fmaxr_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType fbreakdown;
+double fbreakdown=0.0;
+double d_fbreakdown_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block JUNCAPexpressInit
-AdmsSensFadType ijunbot;
-AdmsSensFadType ijunsti;
-AdmsSensFadType ijungat;
-AdmsSensFadType qjunbot;
-AdmsSensFadType qjunsti;
-AdmsSensFadType qjungat;
+double ijunbot=0.0;
+double d_ijunbot_dX=0.0;
+double ijunsti=0.0;
+double d_ijunsti_dX=0.0;
+double ijungat=0.0;
+double d_ijungat_dX=0.0;
+double qjunbot=0.0;
+double d_qjunbot_dX=0.0;
+double qjunsti=0.0;
+double d_qjunsti_dX=0.0;
+double qjungat=0.0;
+double d_qjungat_dX=0.0;
 //End of Block-local variables
+d_ysq_dX = 0.0;
 ysq = 0.0;
+d_terfc_dX = 0.0;
 terfc = 0.0;
+d_erfcpos_dX = 0.0;
 erfcpos = 0.0;
+d_h1_dX = 0.0;
 h1 = 0.0;
+d_h2_dX = 0.0;
 h2 = 0.0;
+d_h2d_dX = 0.0;
 h2d = 0.0;
+d_h3_dX = 0.0;
 h3 = 0.0;
+d_h4_dX = 0.0;
 h4 = 0.0;
+d_h5_dX = 0.0;
 h5 = 0.0;
+d_idmult_dX = 0.0;
 idmult = 0.0;
+d_vj_dX = 0.0;
 vj = 0.0;
+d_z_dX = 0.0;
 z = 0.0;
+d_zinv_dX = 0.0;
 zinv = 0.0;
+d_two_psistar_dX = 0.0;
 two_psistar = 0.0;
+d_vjlim_dX = 0.0;
 vjlim = 0.0;
+d_vjsrh_dX = 0.0;
 vjsrh = 0.0;
+d_vbbt_dX = 0.0;
 vbbt = 0.0;
+d_vav_dX = 0.0;
 vav = 0.0;
+d_tmp_dX = 0.0;
 tmp = 0.0;
+d_id_dX = 0.0;
 id = 0.0;
+d_isrh_dX = 0.0;
 isrh = 0.0;
+d_vbi_minus_vjsrh_dX = 0.0;
 vbi_minus_vjsrh = 0.0;
+d_wsrhstep_dX = 0.0;
 wsrhstep = 0.0;
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
+d_wsrh_dX = 0.0;
 wsrh = 0.0;
+d_wdep_dX = 0.0;
 wdep = 0.0;
+d_asrh_dX = 0.0;
 asrh = 0.0;
+d_itat_dX = 0.0;
 itat = 0.0;
+d_btat_dX = 0.0;
 btat = 0.0;
+d_twoatatoverthreebtat_dX = 0.0;
 twoatatoverthreebtat = 0.0;
+d_umaxbeforelimiting_dX = 0.0;
 umaxbeforelimiting = 0.0;
+d_umax_dX = 0.0;
 umax = 0.0;
+d_sqrtumax_dX = 0.0;
 sqrtumax = 0.0;
+d_umaxpoweronepointfive_dX = 0.0;
 umaxpoweronepointfive = 0.0;
+d_wgamma_dX = 0.0;
 wgamma = 0.0;
+d_wtat_dX = 0.0;
 wtat = 0.0;
+d_ktat_dX = 0.0;
 ktat = 0.0;
+d_ltat_dX = 0.0;
 ltat = 0.0;
+d_mtat_dX = 0.0;
 mtat = 0.0;
+d_xerfc_dX = 0.0;
 xerfc = 0.0;
+d_erfctimesexpmtat_dX = 0.0;
 erfctimesexpmtat = 0.0;
+d_gammamax_dX = 0.0;
 gammamax = 0.0;
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
+d_Fmaxr_dX = 0.0;
 Fmaxr = 0.0;
+d_fbreakdown_dX = 0.0;
 fbreakdown = 0.0;
+d_qjunbot_dX = 0.0;
 qjunbot = 0.0;
+d_qjunsti_dX = 0.0;
 qjunsti = 0.0;
+d_qjungat_dX = 0.0;
 qjungat = 0.0;
 FRACNA = 0.4;
 FRACNB = 0.65;
 FRACI = 0.8;
-V1 = ((-FRACNA)*modelVar_VJUNREF_i);
-V2 = ((-FRACNB)*modelVar_VJUNREF_i);
-V3 = ((-FRACI)*modelVar_VJUNREF_i);
+d_V1_dX = (-FRACNA)*modelStruct.d_modelVar_VJUNREF_i_dX;
+V1 = ((-FRACNA)*modelStruct.modelVar_VJUNREF_i);
+d_V2_dX = (-FRACNB)*modelStruct.d_modelVar_VJUNREF_i_dX;
+V2 = ((-FRACNB)*modelStruct.modelVar_VJUNREF_i);
+d_V3_dX = (-FRACI)*modelStruct.d_modelVar_VJUNREF_i_dX;
+V3 = ((-FRACI)*modelStruct.modelVar_VJUNREF_i);
 V4 = 0.1;
 V5 = 0.2;
+d_vbbt_dX = 0.0;
 vbbt = 0.0;
+d_two_psistar_dX = 0.0;
 two_psistar = 0.0;
-if ((!(((instanceVar_AB_i==0.0)&&(instanceVar_LS_i==0.0))&&(instanceVar_LG_i==0.0))))
+if ((!(((instanceStruct.instanceVar_AB_i==0.0)&&(instanceStruct.instanceVar_LS_i==0.0))&&(instanceStruct.instanceVar_LG_i==0.0))))
 {
-h1 = ((4.0*instanceVar_vch)*instanceVar_vch);
-h2 = (instanceVar_vch/instanceVar_vfmin);
-h2d = (V1+(instanceVar_vch*h2));
-h3 = (instanceVar_vfmin+h2d);
-h4 = (instanceVar_vfmin-h2d);
-h5 = sqrt(((h4*h4)+h1));
-vj = (2.0*((V1*instanceVar_vfmin)/(h3+h5)));
-if ((V1<instanceVar_VMAX))
+d_h1_dX = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.d_instanceVar_vch_dX+4.0*instanceStruct.d_instanceVar_vch_dX*instanceStruct.instanceVar_vch);
+h1 = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.instanceVar_vch);
+d_h2_dX = ((instanceStruct.instanceVar_vfmin*instanceStruct.d_instanceVar_vch_dX-instanceStruct.instanceVar_vch*instanceStruct.d_instanceVar_vfmin_dX)/instanceStruct.instanceVar_vfmin/instanceStruct.instanceVar_vfmin);
+h2 = (instanceStruct.instanceVar_vch/instanceStruct.instanceVar_vfmin);
+d_h2d_dX = (d_V1_dX+(instanceStruct.instanceVar_vch*d_h2_dX+instanceStruct.d_instanceVar_vch_dX*h2));
+h2d = (V1+(instanceStruct.instanceVar_vch*h2));
+d_h3_dX = (instanceStruct.d_instanceVar_vfmin_dX+d_h2d_dX);
+h3 = (instanceStruct.instanceVar_vfmin+h2d);
+d_h4_dX = (instanceStruct.d_instanceVar_vfmin_dX-d_h2d_dX);
+h4 = (instanceStruct.instanceVar_vfmin-h2d);
 {
-if ((fabs((0.5*(V1*modelVar_phitdinv)))<2.3025850929940458e+02))
+double value_sqrt_0 = sqrt(((h4*h4)+h1));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_h5_dX = deriv_sqrt_0_d0*(((h4*d_h4_dX+d_h4_dX*h4)+d_h1_dX));
+h5 = value_sqrt_0;
+}
+d_vj_dX = 2.0*(((h3+h5)*(V1*instanceStruct.d_instanceVar_vfmin_dX+d_V1_dX*instanceStruct.instanceVar_vfmin)-(V1*instanceStruct.instanceVar_vfmin)*(d_h3_dX+d_h5_dX))/(h3+h5)/(h3+h5));
+vj = (2.0*((V1*instanceStruct.instanceVar_vfmin)/(h3+h5)));
+if ((V1<instanceStruct.instanceVar_VMAX))
 {
-zinv = exp((0.5*(V1*modelVar_phitdinv)));
+if ((fabs((0.5*(V1*modelStruct.modelVar_phitdinv)))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp((0.5*(V1*modelStruct.modelVar_phitdinv)));
+double  deriv_exp_0_d0 = value_exp_0;
+d_zinv_dX = deriv_exp_0_d0*(0.5*(V1*modelStruct.d_modelVar_phitdinv_dX+d_V1_dX*modelStruct.modelVar_phitdinv));
+zinv = value_exp_0;
+}
 }
 else
 {
-if (((0.5*(V1*modelVar_phitdinv))<0.0))
+if (((0.5*(V1*modelStruct.modelVar_phitdinv))<0.0))
 {
-zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V1*modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+d_zinv_dX = (-1.0e-100*(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*0.5*(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*(-0.5*(V1*modelStruct.d_modelVar_phitdinv_dX+d_V1_dX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01+(-0.5*(V1*modelStruct.d_modelVar_phitdinv_dX+d_V1_dX*modelStruct.modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))+(-0.5*(V1*modelStruct.d_modelVar_phitdinv_dX+d_V1_dX*modelStruct.modelVar_phitdinv))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V1*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
 }
 else
 {
-zinv = (1.0e100*(1.0+(((0.5*(V1*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V1*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V1*modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_zinv_dX = 1.0e100*(((0.5*(V1*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(((0.5*(V1*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(V1*modelStruct.d_modelVar_phitdinv_dX+d_V1_dX*modelStruct.modelVar_phitdinv)*3.3333333333333333e-01+0.5*(V1*modelStruct.d_modelVar_phitdinv_dX+d_V1_dX*modelStruct.modelVar_phitdinv)*(1.0+(((0.5*(V1*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01)))+0.5*(V1*modelStruct.d_modelVar_phitdinv_dX+d_V1_dX*modelStruct.modelVar_phitdinv)*(1.0+(0.5*(((0.5*(V1*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V1*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+zinv = (1.0e100*(1.0+(((0.5*(V1*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V1*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V1*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
+d_idmult_dX = (zinv*d_zinv_dX+d_zinv_dX*zinv);
 idmult = (zinv*zinv);
 }
 else
 {
-idmult = ((1.0+((V1-instanceVar_VMAX)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd);
-zinv = sqrt(idmult);
+d_idmult_dX = ((1.0+((V1-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX+((V1-instanceStruct.instanceVar_VMAX)*modelStruct.d_modelVar_phitdinv_dX+(d_V1_dX-instanceStruct.d_instanceVar_VMAX_dX)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+idmult = ((1.0+((V1-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+{
+double value_sqrt_0 = sqrt(idmult);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_zinv_dX = deriv_sqrt_0_d0*(d_idmult_dX);
+zinv = value_sqrt_0;
+}
 }
 idmult = (idmult-1.0);
+d_z_dX = (-d_zinv_dX/zinv/zinv);
 z = (1.0/zinv);
 if ((V1>0.0))
 {
-two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
+{
+double value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
+double value_log_1 = log(((2.0+z)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/((2.0+z)+value_sqrt_0));
+d_two_psistar_dX = 2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((d_z_dX+deriv_sqrt_0_d0*(((z+1.0)*d_z_dX+d_z_dX*(z+3.0)))))+modelStruct.d_modelVar_phitd_dX*value_log_1);
+two_psistar = (2.0*(modelStruct.modelVar_phitd*value_log_1));
+}
 }
 else
 {
-two_psistar = ((-V1)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)*(1.0+(3.0*zinv)))))))));
-}
-vjlim = (instanceVar_vbimin-two_psistar);
-vjsrh = (0.5*((V1+vjlim)-sqrt((((V1-vjlim)*(V1-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
-vbbt = (0.5*((V1+instanceVar_vbbtlim)-sqrt((((V1-instanceVar_vbbtlim)*(V1-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*(V1-sqrt((((V1)*(V1))+((4.0*1.0e-6)*1.0e-6)))));
-}
-if ((instanceVar_AB_i==0.0))
 {
+double value_sqrt_0 = sqrt(((1.0+zinv)*(1.0+(3.0*zinv))));
+double value_log_1 = log((((2.0*zinv)+1.0)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/(((2.0*zinv)+1.0)+value_sqrt_0));
+d_two_psistar_dX = ((-d_V1_dX)+2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((2.0*d_zinv_dX+deriv_sqrt_0_d0*(((1.0+zinv)*3.0*d_zinv_dX+d_zinv_dX*(1.0+(3.0*zinv))))))+modelStruct.d_modelVar_phitd_dX*value_log_1));
+two_psistar = ((-V1)+(2.0*(modelStruct.modelVar_phitd*value_log_1)));
+}
+}
+d_vjlim_dX = (instanceStruct.d_instanceVar_vbimin_dX-d_two_psistar_dX);
+vjlim = (instanceStruct.instanceVar_vbimin-two_psistar);
+{
+double value_sqrt_0 = sqrt((((V1-vjlim)*(V1-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.modelVar_phitd)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vjsrh_dX = 0.5*((d_V1_dX+d_vjlim_dX)-deriv_sqrt_0_d0*((((V1-vjlim)*(d_V1_dX-d_vjlim_dX)+(d_V1_dX-d_vjlim_dX)*(V1-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.d_modelVar_phitd_dX+4.0*modelStruct.d_modelVar_phitd_dX*modelStruct.modelVar_phitd))));
+vjsrh = (0.5*((V1+vjlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V1-instanceStruct.instanceVar_vbbtlim)*(V1-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.modelVar_phitr)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vbbt_dX = 0.5*((d_V1_dX+instanceStruct.d_instanceVar_vbbtlim_dX)-deriv_sqrt_0_d0*((((V1-instanceStruct.instanceVar_vbbtlim)*(d_V1_dX-instanceStruct.d_instanceVar_vbbtlim_dX)+(d_V1_dX-instanceStruct.d_instanceVar_vbbtlim_dX)*(V1-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.d_modelVar_phitr_dX+4.0*modelStruct.d_modelVar_phitr_dX*modelStruct.modelVar_phitr))));
+vbbt = (0.5*((V1+instanceStruct.instanceVar_vbbtlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V1)*(V1))+((4.0*1.0e-6)*1.0e-6)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vav_dX = 0.5*(d_V1_dX-deriv_sqrt_0_d0*(((V1)*d_V1_dX+d_V1_dX*(V1))));
+vav = (0.5*(V1-value_sqrt_0));
+}
+}
+if ((instanceStruct.instanceVar_AB_i==0.0))
+{
+d_ijunbot_dX = 0.0;
 ijunbot = 0.0;
+d_qjunbot_dX = 0.0;
 qjunbot = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PBOT==0.5))
+if ((modelStruct.modelVar_one_minus_PBOT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvbot)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvbot)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-}
-qjunbot = ((modelVar_qprefbot*(1.0-tmp))+(modelVar_qpref2bot*(V1-vj)));
-id = (modelVar_idsatbot*idmult);
-if (((modelVar_CSRHBOT_i==0.0)&&(modelVar_CTATBOT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvbot)),modelStruct.modelVar_one_minus_PBOT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PBOT/(1.0-(vj*modelStruct.modelVar_vbiinvbot))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvbot)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PBOT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunbot_dX = ((modelStruct.modelVar_qprefbot*(-d_tmp_dX)+modelStruct.d_modelVar_qprefbot_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(d_V1_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2bot_dX*(V1-vj)));
+qjunbot = ((modelStruct.modelVar_qprefbot*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(V1-vj)));
+d_id_dX = (modelStruct.modelVar_idsatbot*d_idmult_dX+modelStruct.d_modelVar_idsatbot_dX*idmult);
+id = (modelStruct.modelVar_idsatbot*idmult);
+if (((modelStruct.modelVar_CSRHBOT_i==0.0)&&(modelStruct.modelVar_CTATBOT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PBOT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbibot_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbibot-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PBOT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PBOT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PBOT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-wdep = (modelVar_wdepnulrbot*tmp);
-asrh = (modelVar_ftdbot*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHBOT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATBOT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrbot*d_tmp_dX+modelStruct.d_modelVar_wdepnulrbot_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrbot*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdbot*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdbot_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdbot*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHBOT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHBOT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHBOT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATBOT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartbot*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PBOT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PBOT)-(wdep*modelStruct.modelVar_one_minus_PBOT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartbot_dX*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartbot*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatbot_dX-(0.666666666666667*modelStruct.modelVar_atatbot)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatbot)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PBOT_i)*modelStruct.d_modelVar_one_over_one_minus_PBOT_dX+(-modelStruct.d_modelVar_PBOT_i_dX)*modelStruct.modelVar_one_over_one_minus_PBOT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatbot*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatbot_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*d_umax_dX+modelStruct.d_modelVar_atatbot_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatbot*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatbot*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatbot_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatbot*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatbot*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATBOT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTBOT_i==0.0))
+if ((modelStruct.modelVar_CBBTBOT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PBOT_i==0.5))
+if ((modelStruct.modelVar_PBOT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
-if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PBOT*((tmp*((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvbot_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvbot)-((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PBOT_dX*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PBOT*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtbot)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtbot)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtbot)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTBOT_i*(((V1*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTBOT_i*(((V1*Fmaxr)*Fmaxr)*d_tmp_dX+((V1*Fmaxr)*d_Fmaxr_dX+(V1*d_Fmaxr_dX+d_V1_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTBOT_i_dX*(((V1*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTBOT_i*(((V1*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRBOT_i>1.0e3))
+if ((modelStruct.modelVar_VBRBOT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRBOT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRBOT_i)))
 {
-if ((modelVar_PBRBOT_i==4.0))
+if ((modelStruct.modelVar_PBRBOT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvbot)*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
+tmp = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvbot));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRBOT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvbot))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRBOT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRBOT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopbot+((vav+(modelVar_alphaav*modelVar_VBRBOT_i))*modelVar_slopebot));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopbot_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.d_modelVar_slopebot_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRBOT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
+fbreakdown = (modelStruct.modelVar_fstopbot+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
 }
 }
+d_ijunbot_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunbot = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LS_i==0.0))
+if ((instanceStruct.instanceVar_LS_i==0.0))
 {
+d_ijunsti_dX = 0.0;
 ijunsti = 0.0;
+d_qjunsti_dX = 0.0;
 qjunsti = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PSTI==0.5))
+if ((modelStruct.modelVar_one_minus_PSTI==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvsti)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvsti)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-}
-qjunsti = ((modelVar_qprefsti*(1.0-tmp))+(modelVar_qpref2sti*(V1-vj)));
-id = (modelVar_idsatsti*idmult);
-if (((modelVar_CSRHSTI_i==0.0)&&(modelVar_CTATSTI_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvsti)),modelStruct.modelVar_one_minus_PSTI);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PSTI/(1.0-(vj*modelStruct.modelVar_vbiinvsti))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvsti)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PSTI_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunsti_dX = ((modelStruct.modelVar_qprefsti*(-d_tmp_dX)+modelStruct.d_modelVar_qprefsti_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(d_V1_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2sti_dX*(V1-vj)));
+qjunsti = ((modelStruct.modelVar_qprefsti*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(V1-vj)));
+d_id_dX = (modelStruct.modelVar_idsatsti*d_idmult_dX+modelStruct.d_modelVar_idsatsti_dX*idmult);
+id = (modelStruct.modelVar_idsatsti*idmult);
+if (((modelStruct.modelVar_CSRHSTI_i==0.0)&&(modelStruct.modelVar_CTATSTI_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PSTI_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbisti_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbisti-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PSTI_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PSTI_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PSTI_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-wdep = (modelVar_wdepnulrsti*tmp);
-asrh = (modelVar_ftdsti*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHSTI_i*(asrh*wsrh));
-}
-if ((modelVar_CTATSTI_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrsti*d_tmp_dX+modelStruct.d_modelVar_wdepnulrsti_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrsti*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdsti*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdsti_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdsti*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHSTI_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHSTI_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHSTI_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATSTI_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartsti*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PSTI_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PSTI)-(wdep*modelStruct.modelVar_one_minus_PSTI)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartsti_dX*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartsti*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatsti_dX-(0.666666666666667*modelStruct.modelVar_atatsti)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatsti)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PSTI_i)*modelStruct.d_modelVar_one_over_one_minus_PSTI_dX+(-modelStruct.d_modelVar_PSTI_i_dX)*modelStruct.modelVar_one_over_one_minus_PSTI))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatsti*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatsti_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*d_umax_dX+modelStruct.d_modelVar_atatsti_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatsti*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatsti*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatsti_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatsti*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatsti*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATSTI_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTSTI_i==0.0))
+if ((modelStruct.modelVar_CBBTSTI_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PSTI_i==0.5))
+if ((modelStruct.modelVar_PSTI_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
-if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PSTI*((tmp*((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvsti_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvsti)-((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PSTI_dX*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PSTI*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtsti)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtsti)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtsti)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTSTI_i*(((V1*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTSTI_i*(((V1*Fmaxr)*Fmaxr)*d_tmp_dX+((V1*Fmaxr)*d_Fmaxr_dX+(V1*d_Fmaxr_dX+d_V1_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTSTI_i_dX*(((V1*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTSTI_i*(((V1*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRSTI_i>1.0e3))
+if ((modelStruct.modelVar_VBRSTI_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRSTI_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRSTI_i)))
 {
-if ((modelVar_PBRSTI_i==4.0))
+if ((modelStruct.modelVar_PBRSTI_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvsti)*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
+tmp = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvsti));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRSTI_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvsti))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRSTI_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRSTI_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopsti+((vav+(modelVar_alphaav*modelVar_VBRSTI_i))*modelVar_slopesti));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopsti_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.d_modelVar_slopesti_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRSTI_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
+fbreakdown = (modelStruct.modelVar_fstopsti+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
 }
 }
+d_ijunsti_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunsti = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LG_i==0.0))
+if ((instanceStruct.instanceVar_LG_i==0.0))
 {
+d_ijungat_dX = 0.0;
 ijungat = 0.0;
+d_qjungat_dX = 0.0;
 qjungat = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PGAT==0.5))
+if ((modelStruct.modelVar_one_minus_PGAT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvgat)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvgat)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-}
-qjungat = ((modelVar_qprefgat*(1.0-tmp))+(modelVar_qpref2gat*(V1-vj)));
-id = (modelVar_idsatgat*idmult);
-if (((modelVar_CSRHGAT_i==0.0)&&(modelVar_CTATGAT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvgat)),modelStruct.modelVar_one_minus_PGAT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PGAT/(1.0-(vj*modelStruct.modelVar_vbiinvgat))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvgat)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PGAT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjungat_dX = ((modelStruct.modelVar_qprefgat*(-d_tmp_dX)+modelStruct.d_modelVar_qprefgat_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(d_V1_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2gat_dX*(V1-vj)));
+qjungat = ((modelStruct.modelVar_qprefgat*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(V1-vj)));
+d_id_dX = (modelStruct.modelVar_idsatgat*d_idmult_dX+modelStruct.d_modelVar_idsatgat_dX*idmult);
+id = (modelStruct.modelVar_idsatgat*idmult);
+if (((modelStruct.modelVar_CSRHGAT_i==0.0)&&(modelStruct.modelVar_CTATGAT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PGAT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbigat_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbigat-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PGAT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PGAT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PGAT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-wdep = (modelVar_wdepnulrgat*tmp);
-asrh = (modelVar_ftdgat*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHGAT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATGAT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrgat*d_tmp_dX+modelStruct.d_modelVar_wdepnulrgat_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrgat*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdgat*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdgat_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdgat*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHGAT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHGAT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHGAT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATGAT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartgat*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PGAT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PGAT)-(wdep*modelStruct.modelVar_one_minus_PGAT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartgat_dX*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartgat*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatgat_dX-(0.666666666666667*modelStruct.modelVar_atatgat)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatgat)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PGAT_i)*modelStruct.d_modelVar_one_over_one_minus_PGAT_dX+(-modelStruct.d_modelVar_PGAT_i_dX)*modelStruct.modelVar_one_over_one_minus_PGAT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatgat*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatgat_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*d_umax_dX+modelStruct.d_modelVar_atatgat_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatgat*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatgat*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatgat_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatgat*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatgat*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATGAT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTGAT_i==0.0))
+if ((modelStruct.modelVar_CBBTGAT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PGAT_i==0.5))
+if ((modelStruct.modelVar_PGAT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
-if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PGAT*((tmp*((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvgat_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvgat)-((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PGAT_dX*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PGAT*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtgat)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtgat)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtgat)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTGAT_i*(((V1*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTGAT_i*(((V1*Fmaxr)*Fmaxr)*d_tmp_dX+((V1*Fmaxr)*d_Fmaxr_dX+(V1*d_Fmaxr_dX+d_V1_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTGAT_i_dX*(((V1*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTGAT_i*(((V1*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRGAT_i>1.0e3))
+if ((modelStruct.modelVar_VBRGAT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRGAT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRGAT_i)))
 {
-if ((modelVar_PBRGAT_i==4.0))
+if ((modelStruct.modelVar_PBRGAT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvgat)*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
+tmp = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvgat));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRGAT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvgat))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRGAT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRGAT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopgat+((vav+(modelVar_alphaav*modelVar_VBRGAT_i))*modelVar_slopegat));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopgat_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.d_modelVar_slopegat_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRGAT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
+fbreakdown = (modelStruct.modelVar_fstopgat+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
 }
 }
+d_ijungat_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijungat = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-I1 = (((instanceVar_AB_i*ijunbot)+(instanceVar_LS_i*ijunsti))+(instanceVar_LG_i*ijungat));
+d_I1_dX = (((instanceStruct.instanceVar_AB_i*d_ijunbot_dX+instanceStruct.d_instanceVar_AB_i_dX*ijunbot)+(instanceStruct.instanceVar_LS_i*d_ijunsti_dX+instanceStruct.d_instanceVar_LS_i_dX*ijunsti))+(instanceStruct.instanceVar_LG_i*d_ijungat_dX+instanceStruct.d_instanceVar_LG_i_dX*ijungat));
+I1 = (((instanceStruct.instanceVar_AB_i*ijunbot)+(instanceStruct.instanceVar_LS_i*ijunsti))+(instanceStruct.instanceVar_LG_i*ijungat));
+d_vbbt_dX = 0.0;
 vbbt = 0.0;
+d_two_psistar_dX = 0.0;
 two_psistar = 0.0;
-if ((!(((instanceVar_AB_i==0.0)&&(instanceVar_LS_i==0.0))&&(instanceVar_LG_i==0.0))))
+if ((!(((instanceStruct.instanceVar_AB_i==0.0)&&(instanceStruct.instanceVar_LS_i==0.0))&&(instanceStruct.instanceVar_LG_i==0.0))))
 {
-h1 = ((4.0*instanceVar_vch)*instanceVar_vch);
-h2 = (instanceVar_vch/instanceVar_vfmin);
-h2d = (V2+(instanceVar_vch*h2));
-h3 = (instanceVar_vfmin+h2d);
-h4 = (instanceVar_vfmin-h2d);
-h5 = sqrt(((h4*h4)+h1));
-vj = (2.0*((V2*instanceVar_vfmin)/(h3+h5)));
-if ((V2<instanceVar_VMAX))
+d_h1_dX = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.d_instanceVar_vch_dX+4.0*instanceStruct.d_instanceVar_vch_dX*instanceStruct.instanceVar_vch);
+h1 = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.instanceVar_vch);
+d_h2_dX = ((instanceStruct.instanceVar_vfmin*instanceStruct.d_instanceVar_vch_dX-instanceStruct.instanceVar_vch*instanceStruct.d_instanceVar_vfmin_dX)/instanceStruct.instanceVar_vfmin/instanceStruct.instanceVar_vfmin);
+h2 = (instanceStruct.instanceVar_vch/instanceStruct.instanceVar_vfmin);
+d_h2d_dX = (d_V2_dX+(instanceStruct.instanceVar_vch*d_h2_dX+instanceStruct.d_instanceVar_vch_dX*h2));
+h2d = (V2+(instanceStruct.instanceVar_vch*h2));
+d_h3_dX = (instanceStruct.d_instanceVar_vfmin_dX+d_h2d_dX);
+h3 = (instanceStruct.instanceVar_vfmin+h2d);
+d_h4_dX = (instanceStruct.d_instanceVar_vfmin_dX-d_h2d_dX);
+h4 = (instanceStruct.instanceVar_vfmin-h2d);
 {
-if ((fabs((0.5*(V2*modelVar_phitdinv)))<2.3025850929940458e+02))
+double value_sqrt_0 = sqrt(((h4*h4)+h1));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_h5_dX = deriv_sqrt_0_d0*(((h4*d_h4_dX+d_h4_dX*h4)+d_h1_dX));
+h5 = value_sqrt_0;
+}
+d_vj_dX = 2.0*(((h3+h5)*(V2*instanceStruct.d_instanceVar_vfmin_dX+d_V2_dX*instanceStruct.instanceVar_vfmin)-(V2*instanceStruct.instanceVar_vfmin)*(d_h3_dX+d_h5_dX))/(h3+h5)/(h3+h5));
+vj = (2.0*((V2*instanceStruct.instanceVar_vfmin)/(h3+h5)));
+if ((V2<instanceStruct.instanceVar_VMAX))
 {
-zinv = exp((0.5*(V2*modelVar_phitdinv)));
+if ((fabs((0.5*(V2*modelStruct.modelVar_phitdinv)))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp((0.5*(V2*modelStruct.modelVar_phitdinv)));
+double  deriv_exp_0_d0 = value_exp_0;
+d_zinv_dX = deriv_exp_0_d0*(0.5*(V2*modelStruct.d_modelVar_phitdinv_dX+d_V2_dX*modelStruct.modelVar_phitdinv));
+zinv = value_exp_0;
+}
 }
 else
 {
-if (((0.5*(V2*modelVar_phitdinv))<0.0))
+if (((0.5*(V2*modelStruct.modelVar_phitdinv))<0.0))
 {
-zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V2*modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+d_zinv_dX = (-1.0e-100*(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*0.5*(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*(-0.5*(V2*modelStruct.d_modelVar_phitdinv_dX+d_V2_dX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01+(-0.5*(V2*modelStruct.d_modelVar_phitdinv_dX+d_V2_dX*modelStruct.modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))+(-0.5*(V2*modelStruct.d_modelVar_phitdinv_dX+d_V2_dX*modelStruct.modelVar_phitdinv))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V2*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
 }
 else
 {
-zinv = (1.0e100*(1.0+(((0.5*(V2*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V2*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V2*modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_zinv_dX = 1.0e100*(((0.5*(V2*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(((0.5*(V2*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(V2*modelStruct.d_modelVar_phitdinv_dX+d_V2_dX*modelStruct.modelVar_phitdinv)*3.3333333333333333e-01+0.5*(V2*modelStruct.d_modelVar_phitdinv_dX+d_V2_dX*modelStruct.modelVar_phitdinv)*(1.0+(((0.5*(V2*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01)))+0.5*(V2*modelStruct.d_modelVar_phitdinv_dX+d_V2_dX*modelStruct.modelVar_phitdinv)*(1.0+(0.5*(((0.5*(V2*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V2*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+zinv = (1.0e100*(1.0+(((0.5*(V2*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V2*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V2*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
+d_idmult_dX = (zinv*d_zinv_dX+d_zinv_dX*zinv);
 idmult = (zinv*zinv);
 }
 else
 {
-idmult = ((1.0+((V2-instanceVar_VMAX)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd);
-zinv = sqrt(idmult);
+d_idmult_dX = ((1.0+((V2-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX+((V2-instanceStruct.instanceVar_VMAX)*modelStruct.d_modelVar_phitdinv_dX+(d_V2_dX-instanceStruct.d_instanceVar_VMAX_dX)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+idmult = ((1.0+((V2-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+{
+double value_sqrt_0 = sqrt(idmult);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_zinv_dX = deriv_sqrt_0_d0*(d_idmult_dX);
+zinv = value_sqrt_0;
+}
 }
 idmult = (idmult-1.0);
+d_z_dX = (-d_zinv_dX/zinv/zinv);
 z = (1.0/zinv);
 if ((V2>0.0))
 {
-two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
+{
+double value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
+double value_log_1 = log(((2.0+z)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/((2.0+z)+value_sqrt_0));
+d_two_psistar_dX = 2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((d_z_dX+deriv_sqrt_0_d0*(((z+1.0)*d_z_dX+d_z_dX*(z+3.0)))))+modelStruct.d_modelVar_phitd_dX*value_log_1);
+two_psistar = (2.0*(modelStruct.modelVar_phitd*value_log_1));
+}
 }
 else
 {
-two_psistar = ((-V2)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)*(1.0+(3.0*zinv)))))))));
-}
-vjlim = (instanceVar_vbimin-two_psistar);
-vjsrh = (0.5*((V2+vjlim)-sqrt((((V2-vjlim)*(V2-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
-vbbt = (0.5*((V2+instanceVar_vbbtlim)-sqrt((((V2-instanceVar_vbbtlim)*(V2-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*(V2-sqrt((((V2)*(V2))+((4.0*1.0e-6)*1.0e-6)))));
-}
-if ((instanceVar_AB_i==0.0))
 {
+double value_sqrt_0 = sqrt(((1.0+zinv)*(1.0+(3.0*zinv))));
+double value_log_1 = log((((2.0*zinv)+1.0)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/(((2.0*zinv)+1.0)+value_sqrt_0));
+d_two_psistar_dX = ((-d_V2_dX)+2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((2.0*d_zinv_dX+deriv_sqrt_0_d0*(((1.0+zinv)*3.0*d_zinv_dX+d_zinv_dX*(1.0+(3.0*zinv))))))+modelStruct.d_modelVar_phitd_dX*value_log_1));
+two_psistar = ((-V2)+(2.0*(modelStruct.modelVar_phitd*value_log_1)));
+}
+}
+d_vjlim_dX = (instanceStruct.d_instanceVar_vbimin_dX-d_two_psistar_dX);
+vjlim = (instanceStruct.instanceVar_vbimin-two_psistar);
+{
+double value_sqrt_0 = sqrt((((V2-vjlim)*(V2-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.modelVar_phitd)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vjsrh_dX = 0.5*((d_V2_dX+d_vjlim_dX)-deriv_sqrt_0_d0*((((V2-vjlim)*(d_V2_dX-d_vjlim_dX)+(d_V2_dX-d_vjlim_dX)*(V2-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.d_modelVar_phitd_dX+4.0*modelStruct.d_modelVar_phitd_dX*modelStruct.modelVar_phitd))));
+vjsrh = (0.5*((V2+vjlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V2-instanceStruct.instanceVar_vbbtlim)*(V2-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.modelVar_phitr)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vbbt_dX = 0.5*((d_V2_dX+instanceStruct.d_instanceVar_vbbtlim_dX)-deriv_sqrt_0_d0*((((V2-instanceStruct.instanceVar_vbbtlim)*(d_V2_dX-instanceStruct.d_instanceVar_vbbtlim_dX)+(d_V2_dX-instanceStruct.d_instanceVar_vbbtlim_dX)*(V2-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.d_modelVar_phitr_dX+4.0*modelStruct.d_modelVar_phitr_dX*modelStruct.modelVar_phitr))));
+vbbt = (0.5*((V2+instanceStruct.instanceVar_vbbtlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V2)*(V2))+((4.0*1.0e-6)*1.0e-6)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vav_dX = 0.5*(d_V2_dX-deriv_sqrt_0_d0*(((V2)*d_V2_dX+d_V2_dX*(V2))));
+vav = (0.5*(V2-value_sqrt_0));
+}
+}
+if ((instanceStruct.instanceVar_AB_i==0.0))
+{
+d_ijunbot_dX = 0.0;
 ijunbot = 0.0;
+d_qjunbot_dX = 0.0;
 qjunbot = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PBOT==0.5))
+if ((modelStruct.modelVar_one_minus_PBOT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvbot)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvbot)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-}
-qjunbot = ((modelVar_qprefbot*(1.0-tmp))+(modelVar_qpref2bot*(V2-vj)));
-id = (modelVar_idsatbot*idmult);
-if (((modelVar_CSRHBOT_i==0.0)&&(modelVar_CTATBOT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvbot)),modelStruct.modelVar_one_minus_PBOT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PBOT/(1.0-(vj*modelStruct.modelVar_vbiinvbot))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvbot)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PBOT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunbot_dX = ((modelStruct.modelVar_qprefbot*(-d_tmp_dX)+modelStruct.d_modelVar_qprefbot_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(d_V2_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2bot_dX*(V2-vj)));
+qjunbot = ((modelStruct.modelVar_qprefbot*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(V2-vj)));
+d_id_dX = (modelStruct.modelVar_idsatbot*d_idmult_dX+modelStruct.d_modelVar_idsatbot_dX*idmult);
+id = (modelStruct.modelVar_idsatbot*idmult);
+if (((modelStruct.modelVar_CSRHBOT_i==0.0)&&(modelStruct.modelVar_CTATBOT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PBOT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbibot_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbibot-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PBOT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PBOT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PBOT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-wdep = (modelVar_wdepnulrbot*tmp);
-asrh = (modelVar_ftdbot*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHBOT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATBOT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrbot*d_tmp_dX+modelStruct.d_modelVar_wdepnulrbot_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrbot*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdbot*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdbot_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdbot*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHBOT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHBOT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHBOT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATBOT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartbot*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PBOT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PBOT)-(wdep*modelStruct.modelVar_one_minus_PBOT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartbot_dX*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartbot*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatbot_dX-(0.666666666666667*modelStruct.modelVar_atatbot)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatbot)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PBOT_i)*modelStruct.d_modelVar_one_over_one_minus_PBOT_dX+(-modelStruct.d_modelVar_PBOT_i_dX)*modelStruct.modelVar_one_over_one_minus_PBOT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatbot*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatbot_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*d_umax_dX+modelStruct.d_modelVar_atatbot_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatbot*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatbot*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatbot_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatbot*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatbot*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATBOT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTBOT_i==0.0))
+if ((modelStruct.modelVar_CBBTBOT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PBOT_i==0.5))
+if ((modelStruct.modelVar_PBOT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
-if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PBOT*((tmp*((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvbot_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvbot)-((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PBOT_dX*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PBOT*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtbot)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtbot)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtbot)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTBOT_i*(((V2*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTBOT_i*(((V2*Fmaxr)*Fmaxr)*d_tmp_dX+((V2*Fmaxr)*d_Fmaxr_dX+(V2*d_Fmaxr_dX+d_V2_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTBOT_i_dX*(((V2*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTBOT_i*(((V2*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRBOT_i>1.0e3))
+if ((modelStruct.modelVar_VBRBOT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRBOT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRBOT_i)))
 {
-if ((modelVar_PBRBOT_i==4.0))
+if ((modelStruct.modelVar_PBRBOT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvbot)*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
+tmp = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvbot));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRBOT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvbot))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRBOT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRBOT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopbot+((vav+(modelVar_alphaav*modelVar_VBRBOT_i))*modelVar_slopebot));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopbot_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.d_modelVar_slopebot_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRBOT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
+fbreakdown = (modelStruct.modelVar_fstopbot+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
 }
 }
+d_ijunbot_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunbot = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LS_i==0.0))
+if ((instanceStruct.instanceVar_LS_i==0.0))
 {
+d_ijunsti_dX = 0.0;
 ijunsti = 0.0;
+d_qjunsti_dX = 0.0;
 qjunsti = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PSTI==0.5))
+if ((modelStruct.modelVar_one_minus_PSTI==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvsti)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvsti)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-}
-qjunsti = ((modelVar_qprefsti*(1.0-tmp))+(modelVar_qpref2sti*(V2-vj)));
-id = (modelVar_idsatsti*idmult);
-if (((modelVar_CSRHSTI_i==0.0)&&(modelVar_CTATSTI_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvsti)),modelStruct.modelVar_one_minus_PSTI);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PSTI/(1.0-(vj*modelStruct.modelVar_vbiinvsti))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvsti)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PSTI_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunsti_dX = ((modelStruct.modelVar_qprefsti*(-d_tmp_dX)+modelStruct.d_modelVar_qprefsti_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(d_V2_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2sti_dX*(V2-vj)));
+qjunsti = ((modelStruct.modelVar_qprefsti*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(V2-vj)));
+d_id_dX = (modelStruct.modelVar_idsatsti*d_idmult_dX+modelStruct.d_modelVar_idsatsti_dX*idmult);
+id = (modelStruct.modelVar_idsatsti*idmult);
+if (((modelStruct.modelVar_CSRHSTI_i==0.0)&&(modelStruct.modelVar_CTATSTI_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PSTI_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbisti_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbisti-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PSTI_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PSTI_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PSTI_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-wdep = (modelVar_wdepnulrsti*tmp);
-asrh = (modelVar_ftdsti*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHSTI_i*(asrh*wsrh));
-}
-if ((modelVar_CTATSTI_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrsti*d_tmp_dX+modelStruct.d_modelVar_wdepnulrsti_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrsti*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdsti*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdsti_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdsti*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHSTI_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHSTI_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHSTI_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATSTI_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartsti*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PSTI_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PSTI)-(wdep*modelStruct.modelVar_one_minus_PSTI)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartsti_dX*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartsti*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatsti_dX-(0.666666666666667*modelStruct.modelVar_atatsti)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatsti)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PSTI_i)*modelStruct.d_modelVar_one_over_one_minus_PSTI_dX+(-modelStruct.d_modelVar_PSTI_i_dX)*modelStruct.modelVar_one_over_one_minus_PSTI))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatsti*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatsti_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*d_umax_dX+modelStruct.d_modelVar_atatsti_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatsti*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatsti*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatsti_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatsti*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatsti*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATSTI_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTSTI_i==0.0))
+if ((modelStruct.modelVar_CBBTSTI_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PSTI_i==0.5))
+if ((modelStruct.modelVar_PSTI_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
-if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PSTI*((tmp*((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvsti_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvsti)-((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PSTI_dX*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PSTI*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtsti)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtsti)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtsti)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTSTI_i*(((V2*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTSTI_i*(((V2*Fmaxr)*Fmaxr)*d_tmp_dX+((V2*Fmaxr)*d_Fmaxr_dX+(V2*d_Fmaxr_dX+d_V2_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTSTI_i_dX*(((V2*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTSTI_i*(((V2*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRSTI_i>1.0e3))
+if ((modelStruct.modelVar_VBRSTI_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRSTI_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRSTI_i)))
 {
-if ((modelVar_PBRSTI_i==4.0))
+if ((modelStruct.modelVar_PBRSTI_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvsti)*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
+tmp = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvsti));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRSTI_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvsti))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRSTI_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRSTI_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopsti+((vav+(modelVar_alphaav*modelVar_VBRSTI_i))*modelVar_slopesti));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopsti_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.d_modelVar_slopesti_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRSTI_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
+fbreakdown = (modelStruct.modelVar_fstopsti+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
 }
 }
+d_ijunsti_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunsti = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LG_i==0.0))
+if ((instanceStruct.instanceVar_LG_i==0.0))
 {
+d_ijungat_dX = 0.0;
 ijungat = 0.0;
+d_qjungat_dX = 0.0;
 qjungat = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PGAT==0.5))
+if ((modelStruct.modelVar_one_minus_PGAT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvgat)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvgat)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-}
-qjungat = ((modelVar_qprefgat*(1.0-tmp))+(modelVar_qpref2gat*(V2-vj)));
-id = (modelVar_idsatgat*idmult);
-if (((modelVar_CSRHGAT_i==0.0)&&(modelVar_CTATGAT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvgat)),modelStruct.modelVar_one_minus_PGAT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PGAT/(1.0-(vj*modelStruct.modelVar_vbiinvgat))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvgat)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PGAT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjungat_dX = ((modelStruct.modelVar_qprefgat*(-d_tmp_dX)+modelStruct.d_modelVar_qprefgat_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(d_V2_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2gat_dX*(V2-vj)));
+qjungat = ((modelStruct.modelVar_qprefgat*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(V2-vj)));
+d_id_dX = (modelStruct.modelVar_idsatgat*d_idmult_dX+modelStruct.d_modelVar_idsatgat_dX*idmult);
+id = (modelStruct.modelVar_idsatgat*idmult);
+if (((modelStruct.modelVar_CSRHGAT_i==0.0)&&(modelStruct.modelVar_CTATGAT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PGAT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbigat_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbigat-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PGAT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PGAT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PGAT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-wdep = (modelVar_wdepnulrgat*tmp);
-asrh = (modelVar_ftdgat*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHGAT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATGAT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrgat*d_tmp_dX+modelStruct.d_modelVar_wdepnulrgat_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrgat*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdgat*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdgat_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdgat*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHGAT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHGAT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHGAT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATGAT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartgat*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PGAT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PGAT)-(wdep*modelStruct.modelVar_one_minus_PGAT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartgat_dX*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartgat*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatgat_dX-(0.666666666666667*modelStruct.modelVar_atatgat)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatgat)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PGAT_i)*modelStruct.d_modelVar_one_over_one_minus_PGAT_dX+(-modelStruct.d_modelVar_PGAT_i_dX)*modelStruct.modelVar_one_over_one_minus_PGAT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatgat*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatgat_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*d_umax_dX+modelStruct.d_modelVar_atatgat_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatgat*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatgat*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatgat_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatgat*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatgat*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATGAT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTGAT_i==0.0))
+if ((modelStruct.modelVar_CBBTGAT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PGAT_i==0.5))
+if ((modelStruct.modelVar_PGAT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
-if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PGAT*((tmp*((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvgat_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvgat)-((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PGAT_dX*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PGAT*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtgat)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtgat)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtgat)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTGAT_i*(((V2*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTGAT_i*(((V2*Fmaxr)*Fmaxr)*d_tmp_dX+((V2*Fmaxr)*d_Fmaxr_dX+(V2*d_Fmaxr_dX+d_V2_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTGAT_i_dX*(((V2*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTGAT_i*(((V2*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRGAT_i>1.0e3))
+if ((modelStruct.modelVar_VBRGAT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRGAT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRGAT_i)))
 {
-if ((modelVar_PBRGAT_i==4.0))
+if ((modelStruct.modelVar_PBRGAT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvgat)*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
+tmp = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvgat));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRGAT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvgat))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRGAT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRGAT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopgat+((vav+(modelVar_alphaav*modelVar_VBRGAT_i))*modelVar_slopegat));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopgat_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.d_modelVar_slopegat_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRGAT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
+fbreakdown = (modelStruct.modelVar_fstopgat+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
 }
 }
+d_ijungat_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijungat = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-I2 = (((instanceVar_AB_i*ijunbot)+(instanceVar_LS_i*ijunsti))+(instanceVar_LG_i*ijungat));
+d_I2_dX = (((instanceStruct.instanceVar_AB_i*d_ijunbot_dX+instanceStruct.d_instanceVar_AB_i_dX*ijunbot)+(instanceStruct.instanceVar_LS_i*d_ijunsti_dX+instanceStruct.d_instanceVar_LS_i_dX*ijunsti))+(instanceStruct.instanceVar_LG_i*d_ijungat_dX+instanceStruct.d_instanceVar_LG_i_dX*ijungat));
+I2 = (((instanceStruct.instanceVar_AB_i*ijunbot)+(instanceStruct.instanceVar_LS_i*ijunsti))+(instanceStruct.instanceVar_LG_i*ijungat));
+d_vbbt_dX = 0.0;
 vbbt = 0.0;
+d_two_psistar_dX = 0.0;
 two_psistar = 0.0;
-if ((!(((instanceVar_AB_i==0.0)&&(instanceVar_LS_i==0.0))&&(instanceVar_LG_i==0.0))))
+if ((!(((instanceStruct.instanceVar_AB_i==0.0)&&(instanceStruct.instanceVar_LS_i==0.0))&&(instanceStruct.instanceVar_LG_i==0.0))))
 {
-h1 = ((4.0*instanceVar_vch)*instanceVar_vch);
-h2 = (instanceVar_vch/instanceVar_vfmin);
-h2d = (V3+(instanceVar_vch*h2));
-h3 = (instanceVar_vfmin+h2d);
-h4 = (instanceVar_vfmin-h2d);
-h5 = sqrt(((h4*h4)+h1));
-vj = (2.0*((V3*instanceVar_vfmin)/(h3+h5)));
-if ((V3<instanceVar_VMAX))
+d_h1_dX = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.d_instanceVar_vch_dX+4.0*instanceStruct.d_instanceVar_vch_dX*instanceStruct.instanceVar_vch);
+h1 = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.instanceVar_vch);
+d_h2_dX = ((instanceStruct.instanceVar_vfmin*instanceStruct.d_instanceVar_vch_dX-instanceStruct.instanceVar_vch*instanceStruct.d_instanceVar_vfmin_dX)/instanceStruct.instanceVar_vfmin/instanceStruct.instanceVar_vfmin);
+h2 = (instanceStruct.instanceVar_vch/instanceStruct.instanceVar_vfmin);
+d_h2d_dX = (d_V3_dX+(instanceStruct.instanceVar_vch*d_h2_dX+instanceStruct.d_instanceVar_vch_dX*h2));
+h2d = (V3+(instanceStruct.instanceVar_vch*h2));
+d_h3_dX = (instanceStruct.d_instanceVar_vfmin_dX+d_h2d_dX);
+h3 = (instanceStruct.instanceVar_vfmin+h2d);
+d_h4_dX = (instanceStruct.d_instanceVar_vfmin_dX-d_h2d_dX);
+h4 = (instanceStruct.instanceVar_vfmin-h2d);
 {
-if ((fabs((0.5*(V3*modelVar_phitdinv)))<2.3025850929940458e+02))
+double value_sqrt_0 = sqrt(((h4*h4)+h1));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_h5_dX = deriv_sqrt_0_d0*(((h4*d_h4_dX+d_h4_dX*h4)+d_h1_dX));
+h5 = value_sqrt_0;
+}
+d_vj_dX = 2.0*(((h3+h5)*(V3*instanceStruct.d_instanceVar_vfmin_dX+d_V3_dX*instanceStruct.instanceVar_vfmin)-(V3*instanceStruct.instanceVar_vfmin)*(d_h3_dX+d_h5_dX))/(h3+h5)/(h3+h5));
+vj = (2.0*((V3*instanceStruct.instanceVar_vfmin)/(h3+h5)));
+if ((V3<instanceStruct.instanceVar_VMAX))
 {
-zinv = exp((0.5*(V3*modelVar_phitdinv)));
+if ((fabs((0.5*(V3*modelStruct.modelVar_phitdinv)))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp((0.5*(V3*modelStruct.modelVar_phitdinv)));
+double  deriv_exp_0_d0 = value_exp_0;
+d_zinv_dX = deriv_exp_0_d0*(0.5*(V3*modelStruct.d_modelVar_phitdinv_dX+d_V3_dX*modelStruct.modelVar_phitdinv));
+zinv = value_exp_0;
+}
 }
 else
 {
-if (((0.5*(V3*modelVar_phitdinv))<0.0))
+if (((0.5*(V3*modelStruct.modelVar_phitdinv))<0.0))
 {
-zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V3*modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+d_zinv_dX = (-1.0e-100*(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*0.5*(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*(-0.5*(V3*modelStruct.d_modelVar_phitdinv_dX+d_V3_dX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01+(-0.5*(V3*modelStruct.d_modelVar_phitdinv_dX+d_V3_dX*modelStruct.modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))+(-0.5*(V3*modelStruct.d_modelVar_phitdinv_dX+d_V3_dX*modelStruct.modelVar_phitdinv))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V3*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
 }
 else
 {
-zinv = (1.0e100*(1.0+(((0.5*(V3*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V3*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V3*modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_zinv_dX = 1.0e100*(((0.5*(V3*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(((0.5*(V3*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(V3*modelStruct.d_modelVar_phitdinv_dX+d_V3_dX*modelStruct.modelVar_phitdinv)*3.3333333333333333e-01+0.5*(V3*modelStruct.d_modelVar_phitdinv_dX+d_V3_dX*modelStruct.modelVar_phitdinv)*(1.0+(((0.5*(V3*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01)))+0.5*(V3*modelStruct.d_modelVar_phitdinv_dX+d_V3_dX*modelStruct.modelVar_phitdinv)*(1.0+(0.5*(((0.5*(V3*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V3*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+zinv = (1.0e100*(1.0+(((0.5*(V3*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V3*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V3*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
+d_idmult_dX = (zinv*d_zinv_dX+d_zinv_dX*zinv);
 idmult = (zinv*zinv);
 }
 else
 {
-idmult = ((1.0+((V3-instanceVar_VMAX)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd);
-zinv = sqrt(idmult);
+d_idmult_dX = ((1.0+((V3-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX+((V3-instanceStruct.instanceVar_VMAX)*modelStruct.d_modelVar_phitdinv_dX+(d_V3_dX-instanceStruct.d_instanceVar_VMAX_dX)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+idmult = ((1.0+((V3-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+{
+double value_sqrt_0 = sqrt(idmult);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_zinv_dX = deriv_sqrt_0_d0*(d_idmult_dX);
+zinv = value_sqrt_0;
+}
 }
 idmult = (idmult-1.0);
+d_z_dX = (-d_zinv_dX/zinv/zinv);
 z = (1.0/zinv);
 if ((V3>0.0))
 {
-two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
+{
+double value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
+double value_log_1 = log(((2.0+z)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/((2.0+z)+value_sqrt_0));
+d_two_psistar_dX = 2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((d_z_dX+deriv_sqrt_0_d0*(((z+1.0)*d_z_dX+d_z_dX*(z+3.0)))))+modelStruct.d_modelVar_phitd_dX*value_log_1);
+two_psistar = (2.0*(modelStruct.modelVar_phitd*value_log_1));
+}
 }
 else
 {
-two_psistar = ((-V3)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)*(1.0+(3.0*zinv)))))))));
-}
-vjlim = (instanceVar_vbimin-two_psistar);
-vjsrh = (0.5*((V3+vjlim)-sqrt((((V3-vjlim)*(V3-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
-vbbt = (0.5*((V3+instanceVar_vbbtlim)-sqrt((((V3-instanceVar_vbbtlim)*(V3-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*(V3-sqrt((((V3)*(V3))+((4.0*1.0e-6)*1.0e-6)))));
-}
-if ((instanceVar_AB_i==0.0))
 {
+double value_sqrt_0 = sqrt(((1.0+zinv)*(1.0+(3.0*zinv))));
+double value_log_1 = log((((2.0*zinv)+1.0)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/(((2.0*zinv)+1.0)+value_sqrt_0));
+d_two_psistar_dX = ((-d_V3_dX)+2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((2.0*d_zinv_dX+deriv_sqrt_0_d0*(((1.0+zinv)*3.0*d_zinv_dX+d_zinv_dX*(1.0+(3.0*zinv))))))+modelStruct.d_modelVar_phitd_dX*value_log_1));
+two_psistar = ((-V3)+(2.0*(modelStruct.modelVar_phitd*value_log_1)));
+}
+}
+d_vjlim_dX = (instanceStruct.d_instanceVar_vbimin_dX-d_two_psistar_dX);
+vjlim = (instanceStruct.instanceVar_vbimin-two_psistar);
+{
+double value_sqrt_0 = sqrt((((V3-vjlim)*(V3-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.modelVar_phitd)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vjsrh_dX = 0.5*((d_V3_dX+d_vjlim_dX)-deriv_sqrt_0_d0*((((V3-vjlim)*(d_V3_dX-d_vjlim_dX)+(d_V3_dX-d_vjlim_dX)*(V3-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.d_modelVar_phitd_dX+4.0*modelStruct.d_modelVar_phitd_dX*modelStruct.modelVar_phitd))));
+vjsrh = (0.5*((V3+vjlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V3-instanceStruct.instanceVar_vbbtlim)*(V3-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.modelVar_phitr)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vbbt_dX = 0.5*((d_V3_dX+instanceStruct.d_instanceVar_vbbtlim_dX)-deriv_sqrt_0_d0*((((V3-instanceStruct.instanceVar_vbbtlim)*(d_V3_dX-instanceStruct.d_instanceVar_vbbtlim_dX)+(d_V3_dX-instanceStruct.d_instanceVar_vbbtlim_dX)*(V3-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.d_modelVar_phitr_dX+4.0*modelStruct.d_modelVar_phitr_dX*modelStruct.modelVar_phitr))));
+vbbt = (0.5*((V3+instanceStruct.instanceVar_vbbtlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V3)*(V3))+((4.0*1.0e-6)*1.0e-6)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vav_dX = 0.5*(d_V3_dX-deriv_sqrt_0_d0*(((V3)*d_V3_dX+d_V3_dX*(V3))));
+vav = (0.5*(V3-value_sqrt_0));
+}
+}
+if ((instanceStruct.instanceVar_AB_i==0.0))
+{
+d_ijunbot_dX = 0.0;
 ijunbot = 0.0;
+d_qjunbot_dX = 0.0;
 qjunbot = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PBOT==0.5))
+if ((modelStruct.modelVar_one_minus_PBOT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvbot)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvbot)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-}
-qjunbot = ((modelVar_qprefbot*(1.0-tmp))+(modelVar_qpref2bot*(V3-vj)));
-id = (modelVar_idsatbot*idmult);
-if (((modelVar_CSRHBOT_i==0.0)&&(modelVar_CTATBOT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvbot)),modelStruct.modelVar_one_minus_PBOT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PBOT/(1.0-(vj*modelStruct.modelVar_vbiinvbot))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvbot)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PBOT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunbot_dX = ((modelStruct.modelVar_qprefbot*(-d_tmp_dX)+modelStruct.d_modelVar_qprefbot_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(d_V3_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2bot_dX*(V3-vj)));
+qjunbot = ((modelStruct.modelVar_qprefbot*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(V3-vj)));
+d_id_dX = (modelStruct.modelVar_idsatbot*d_idmult_dX+modelStruct.d_modelVar_idsatbot_dX*idmult);
+id = (modelStruct.modelVar_idsatbot*idmult);
+if (((modelStruct.modelVar_CSRHBOT_i==0.0)&&(modelStruct.modelVar_CTATBOT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PBOT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbibot_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbibot-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PBOT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PBOT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PBOT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-wdep = (modelVar_wdepnulrbot*tmp);
-asrh = (modelVar_ftdbot*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHBOT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATBOT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrbot*d_tmp_dX+modelStruct.d_modelVar_wdepnulrbot_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrbot*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdbot*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdbot_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdbot*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHBOT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHBOT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHBOT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATBOT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartbot*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PBOT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PBOT)-(wdep*modelStruct.modelVar_one_minus_PBOT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartbot_dX*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartbot*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatbot_dX-(0.666666666666667*modelStruct.modelVar_atatbot)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatbot)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PBOT_i)*modelStruct.d_modelVar_one_over_one_minus_PBOT_dX+(-modelStruct.d_modelVar_PBOT_i_dX)*modelStruct.modelVar_one_over_one_minus_PBOT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatbot*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatbot_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*d_umax_dX+modelStruct.d_modelVar_atatbot_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatbot*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatbot*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatbot_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatbot*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatbot*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATBOT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTBOT_i==0.0))
+if ((modelStruct.modelVar_CBBTBOT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PBOT_i==0.5))
+if ((modelStruct.modelVar_PBOT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
-if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PBOT*((tmp*((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvbot_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvbot)-((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PBOT_dX*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PBOT*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtbot)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtbot)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtbot)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTBOT_i*(((V3*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTBOT_i*(((V3*Fmaxr)*Fmaxr)*d_tmp_dX+((V3*Fmaxr)*d_Fmaxr_dX+(V3*d_Fmaxr_dX+d_V3_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTBOT_i_dX*(((V3*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTBOT_i*(((V3*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRBOT_i>1.0e3))
+if ((modelStruct.modelVar_VBRBOT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRBOT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRBOT_i)))
 {
-if ((modelVar_PBRBOT_i==4.0))
+if ((modelStruct.modelVar_PBRBOT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvbot)*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
+tmp = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvbot));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRBOT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvbot))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRBOT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRBOT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopbot+((vav+(modelVar_alphaav*modelVar_VBRBOT_i))*modelVar_slopebot));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopbot_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.d_modelVar_slopebot_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRBOT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
+fbreakdown = (modelStruct.modelVar_fstopbot+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
 }
 }
+d_ijunbot_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunbot = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LS_i==0.0))
+if ((instanceStruct.instanceVar_LS_i==0.0))
 {
+d_ijunsti_dX = 0.0;
 ijunsti = 0.0;
+d_qjunsti_dX = 0.0;
 qjunsti = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PSTI==0.5))
+if ((modelStruct.modelVar_one_minus_PSTI==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvsti)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvsti)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-}
-qjunsti = ((modelVar_qprefsti*(1.0-tmp))+(modelVar_qpref2sti*(V3-vj)));
-id = (modelVar_idsatsti*idmult);
-if (((modelVar_CSRHSTI_i==0.0)&&(modelVar_CTATSTI_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvsti)),modelStruct.modelVar_one_minus_PSTI);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PSTI/(1.0-(vj*modelStruct.modelVar_vbiinvsti))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvsti)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PSTI_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunsti_dX = ((modelStruct.modelVar_qprefsti*(-d_tmp_dX)+modelStruct.d_modelVar_qprefsti_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(d_V3_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2sti_dX*(V3-vj)));
+qjunsti = ((modelStruct.modelVar_qprefsti*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(V3-vj)));
+d_id_dX = (modelStruct.modelVar_idsatsti*d_idmult_dX+modelStruct.d_modelVar_idsatsti_dX*idmult);
+id = (modelStruct.modelVar_idsatsti*idmult);
+if (((modelStruct.modelVar_CSRHSTI_i==0.0)&&(modelStruct.modelVar_CTATSTI_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PSTI_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbisti_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbisti-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PSTI_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PSTI_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PSTI_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-wdep = (modelVar_wdepnulrsti*tmp);
-asrh = (modelVar_ftdsti*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHSTI_i*(asrh*wsrh));
-}
-if ((modelVar_CTATSTI_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrsti*d_tmp_dX+modelStruct.d_modelVar_wdepnulrsti_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrsti*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdsti*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdsti_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdsti*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHSTI_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHSTI_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHSTI_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATSTI_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartsti*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PSTI_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PSTI)-(wdep*modelStruct.modelVar_one_minus_PSTI)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartsti_dX*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartsti*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatsti_dX-(0.666666666666667*modelStruct.modelVar_atatsti)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatsti)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PSTI_i)*modelStruct.d_modelVar_one_over_one_minus_PSTI_dX+(-modelStruct.d_modelVar_PSTI_i_dX)*modelStruct.modelVar_one_over_one_minus_PSTI))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatsti*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatsti_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*d_umax_dX+modelStruct.d_modelVar_atatsti_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatsti*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatsti*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatsti_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatsti*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatsti*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATSTI_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTSTI_i==0.0))
+if ((modelStruct.modelVar_CBBTSTI_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PSTI_i==0.5))
+if ((modelStruct.modelVar_PSTI_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
-if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PSTI*((tmp*((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvsti_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvsti)-((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PSTI_dX*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PSTI*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtsti)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtsti)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtsti)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTSTI_i*(((V3*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTSTI_i*(((V3*Fmaxr)*Fmaxr)*d_tmp_dX+((V3*Fmaxr)*d_Fmaxr_dX+(V3*d_Fmaxr_dX+d_V3_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTSTI_i_dX*(((V3*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTSTI_i*(((V3*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRSTI_i>1.0e3))
+if ((modelStruct.modelVar_VBRSTI_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRSTI_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRSTI_i)))
 {
-if ((modelVar_PBRSTI_i==4.0))
+if ((modelStruct.modelVar_PBRSTI_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvsti)*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
+tmp = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvsti));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRSTI_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvsti))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRSTI_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRSTI_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopsti+((vav+(modelVar_alphaav*modelVar_VBRSTI_i))*modelVar_slopesti));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopsti_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.d_modelVar_slopesti_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRSTI_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
+fbreakdown = (modelStruct.modelVar_fstopsti+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
 }
 }
+d_ijunsti_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunsti = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LG_i==0.0))
+if ((instanceStruct.instanceVar_LG_i==0.0))
 {
+d_ijungat_dX = 0.0;
 ijungat = 0.0;
+d_qjungat_dX = 0.0;
 qjungat = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PGAT==0.5))
+if ((modelStruct.modelVar_one_minus_PGAT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvgat)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvgat)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-}
-qjungat = ((modelVar_qprefgat*(1.0-tmp))+(modelVar_qpref2gat*(V3-vj)));
-id = (modelVar_idsatgat*idmult);
-if (((modelVar_CSRHGAT_i==0.0)&&(modelVar_CTATGAT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvgat)),modelStruct.modelVar_one_minus_PGAT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PGAT/(1.0-(vj*modelStruct.modelVar_vbiinvgat))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvgat)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PGAT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjungat_dX = ((modelStruct.modelVar_qprefgat*(-d_tmp_dX)+modelStruct.d_modelVar_qprefgat_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(d_V3_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2gat_dX*(V3-vj)));
+qjungat = ((modelStruct.modelVar_qprefgat*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(V3-vj)));
+d_id_dX = (modelStruct.modelVar_idsatgat*d_idmult_dX+modelStruct.d_modelVar_idsatgat_dX*idmult);
+id = (modelStruct.modelVar_idsatgat*idmult);
+if (((modelStruct.modelVar_CSRHGAT_i==0.0)&&(modelStruct.modelVar_CTATGAT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PGAT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbigat_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbigat-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PGAT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PGAT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PGAT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-wdep = (modelVar_wdepnulrgat*tmp);
-asrh = (modelVar_ftdgat*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHGAT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATGAT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrgat*d_tmp_dX+modelStruct.d_modelVar_wdepnulrgat_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrgat*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdgat*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdgat_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdgat*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHGAT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHGAT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHGAT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATGAT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartgat*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PGAT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PGAT)-(wdep*modelStruct.modelVar_one_minus_PGAT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartgat_dX*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartgat*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatgat_dX-(0.666666666666667*modelStruct.modelVar_atatgat)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatgat)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PGAT_i)*modelStruct.d_modelVar_one_over_one_minus_PGAT_dX+(-modelStruct.d_modelVar_PGAT_i_dX)*modelStruct.modelVar_one_over_one_minus_PGAT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatgat*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatgat_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*d_umax_dX+modelStruct.d_modelVar_atatgat_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatgat*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatgat*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatgat_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatgat*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatgat*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATGAT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTGAT_i==0.0))
+if ((modelStruct.modelVar_CBBTGAT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PGAT_i==0.5))
+if ((modelStruct.modelVar_PGAT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
-if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PGAT*((tmp*((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvgat_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvgat)-((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PGAT_dX*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PGAT*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtgat)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtgat)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtgat)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTGAT_i*(((V3*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTGAT_i*(((V3*Fmaxr)*Fmaxr)*d_tmp_dX+((V3*Fmaxr)*d_Fmaxr_dX+(V3*d_Fmaxr_dX+d_V3_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTGAT_i_dX*(((V3*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTGAT_i*(((V3*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRGAT_i>1.0e3))
+if ((modelStruct.modelVar_VBRGAT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRGAT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRGAT_i)))
 {
-if ((modelVar_PBRGAT_i==4.0))
+if ((modelStruct.modelVar_PBRGAT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvgat)*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
+tmp = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvgat));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRGAT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvgat))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRGAT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRGAT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopgat+((vav+(modelVar_alphaav*modelVar_VBRGAT_i))*modelVar_slopegat));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopgat_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.d_modelVar_slopegat_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRGAT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
+fbreakdown = (modelStruct.modelVar_fstopgat+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
 }
 }
+d_ijungat_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijungat = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-I3 = (((instanceVar_AB_i*ijunbot)+(instanceVar_LS_i*ijunsti))+(instanceVar_LG_i*ijungat));
+d_I3_dX = (((instanceStruct.instanceVar_AB_i*d_ijunbot_dX+instanceStruct.d_instanceVar_AB_i_dX*ijunbot)+(instanceStruct.instanceVar_LS_i*d_ijunsti_dX+instanceStruct.d_instanceVar_LS_i_dX*ijunsti))+(instanceStruct.instanceVar_LG_i*d_ijungat_dX+instanceStruct.d_instanceVar_LG_i_dX*ijungat));
+I3 = (((instanceStruct.instanceVar_AB_i*ijunbot)+(instanceStruct.instanceVar_LS_i*ijunsti))+(instanceStruct.instanceVar_LG_i*ijungat));
+d_vbbt_dX = 0.0;
 vbbt = 0.0;
+d_two_psistar_dX = 0.0;
 two_psistar = 0.0;
-if ((!(((instanceVar_AB_i==0.0)&&(instanceVar_LS_i==0.0))&&(instanceVar_LG_i==0.0))))
+if ((!(((instanceStruct.instanceVar_AB_i==0.0)&&(instanceStruct.instanceVar_LS_i==0.0))&&(instanceStruct.instanceVar_LG_i==0.0))))
 {
-h1 = ((4.0*instanceVar_vch)*instanceVar_vch);
-h2 = (instanceVar_vch/instanceVar_vfmin);
-h2d = (V4+(instanceVar_vch*h2));
-h3 = (instanceVar_vfmin+h2d);
-h4 = (instanceVar_vfmin-h2d);
-h5 = sqrt(((h4*h4)+h1));
-vj = (2.0*((V4*instanceVar_vfmin)/(h3+h5)));
-if ((V4<instanceVar_VMAX))
+d_h1_dX = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.d_instanceVar_vch_dX+4.0*instanceStruct.d_instanceVar_vch_dX*instanceStruct.instanceVar_vch);
+h1 = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.instanceVar_vch);
+d_h2_dX = ((instanceStruct.instanceVar_vfmin*instanceStruct.d_instanceVar_vch_dX-instanceStruct.instanceVar_vch*instanceStruct.d_instanceVar_vfmin_dX)/instanceStruct.instanceVar_vfmin/instanceStruct.instanceVar_vfmin);
+h2 = (instanceStruct.instanceVar_vch/instanceStruct.instanceVar_vfmin);
+d_h2d_dX = (instanceStruct.instanceVar_vch*d_h2_dX+instanceStruct.d_instanceVar_vch_dX*h2);
+h2d = (V4+(instanceStruct.instanceVar_vch*h2));
+d_h3_dX = (instanceStruct.d_instanceVar_vfmin_dX+d_h2d_dX);
+h3 = (instanceStruct.instanceVar_vfmin+h2d);
+d_h4_dX = (instanceStruct.d_instanceVar_vfmin_dX-d_h2d_dX);
+h4 = (instanceStruct.instanceVar_vfmin-h2d);
 {
-if ((fabs((0.5*(V4*modelVar_phitdinv)))<2.3025850929940458e+02))
+double value_sqrt_0 = sqrt(((h4*h4)+h1));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_h5_dX = deriv_sqrt_0_d0*(((h4*d_h4_dX+d_h4_dX*h4)+d_h1_dX));
+h5 = value_sqrt_0;
+}
+d_vj_dX = 2.0*(((h3+h5)*V4*instanceStruct.d_instanceVar_vfmin_dX-(V4*instanceStruct.instanceVar_vfmin)*(d_h3_dX+d_h5_dX))/(h3+h5)/(h3+h5));
+vj = (2.0*((V4*instanceStruct.instanceVar_vfmin)/(h3+h5)));
+if ((V4<instanceStruct.instanceVar_VMAX))
 {
-zinv = exp((0.5*(V4*modelVar_phitdinv)));
+if ((fabs((0.5*(V4*modelStruct.modelVar_phitdinv)))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp((0.5*(V4*modelStruct.modelVar_phitdinv)));
+double  deriv_exp_0_d0 = value_exp_0;
+d_zinv_dX = deriv_exp_0_d0*(0.5*V4*modelStruct.d_modelVar_phitdinv_dX);
+zinv = value_exp_0;
+}
 }
 else
 {
-if (((0.5*(V4*modelVar_phitdinv))<0.0))
+if (((0.5*(V4*modelStruct.modelVar_phitdinv))<0.0))
 {
-zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V4*modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+d_zinv_dX = (-1.0e-100*(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*0.5*(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*(-0.5*V4*modelStruct.d_modelVar_phitdinv_dX)*3.3333333333333333e-01+(-0.5*V4*modelStruct.d_modelVar_phitdinv_dX)*(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))+(-0.5*V4*modelStruct.d_modelVar_phitdinv_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V4*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
 }
 else
 {
-zinv = (1.0e100*(1.0+(((0.5*(V4*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V4*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V4*modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_zinv_dX = 1.0e100*(((0.5*(V4*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(((0.5*(V4*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*V4*modelStruct.d_modelVar_phitdinv_dX*3.3333333333333333e-01+0.5*V4*modelStruct.d_modelVar_phitdinv_dX*(1.0+(((0.5*(V4*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01)))+0.5*V4*modelStruct.d_modelVar_phitdinv_dX*(1.0+(0.5*(((0.5*(V4*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V4*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+zinv = (1.0e100*(1.0+(((0.5*(V4*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V4*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V4*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
+d_idmult_dX = (zinv*d_zinv_dX+d_zinv_dX*zinv);
 idmult = (zinv*zinv);
 }
 else
 {
-idmult = ((1.0+((V4-instanceVar_VMAX)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd);
-zinv = sqrt(idmult);
+d_idmult_dX = ((1.0+((V4-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX+((V4-instanceStruct.instanceVar_VMAX)*modelStruct.d_modelVar_phitdinv_dX+(-instanceStruct.d_instanceVar_VMAX_dX)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+idmult = ((1.0+((V4-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+{
+double value_sqrt_0 = sqrt(idmult);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_zinv_dX = deriv_sqrt_0_d0*(d_idmult_dX);
+zinv = value_sqrt_0;
+}
 }
 idmult = (idmult-1.0);
+d_z_dX = (-d_zinv_dX/zinv/zinv);
 z = (1.0/zinv);
 if ((V4>0.0))
 {
-two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
+{
+double value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
+double value_log_1 = log(((2.0+z)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/((2.0+z)+value_sqrt_0));
+d_two_psistar_dX = 2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((d_z_dX+deriv_sqrt_0_d0*(((z+1.0)*d_z_dX+d_z_dX*(z+3.0)))))+modelStruct.d_modelVar_phitd_dX*value_log_1);
+two_psistar = (2.0*(modelStruct.modelVar_phitd*value_log_1));
+}
 }
 else
 {
-two_psistar = ((-V4)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)*(1.0+(3.0*zinv)))))))));
-}
-vjlim = (instanceVar_vbimin-two_psistar);
-vjsrh = (0.5*((V4+vjlim)-sqrt((((V4-vjlim)*(V4-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
-vbbt = (0.5*((V4+instanceVar_vbbtlim)-sqrt((((V4-instanceVar_vbbtlim)*(V4-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*(V4-sqrt((((V4)*(V4))+((4.0*1.0e-6)*1.0e-6)))));
-}
-if ((instanceVar_AB_i==0.0))
 {
+double value_sqrt_0 = sqrt(((1.0+zinv)*(1.0+(3.0*zinv))));
+double value_log_1 = log((((2.0*zinv)+1.0)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/(((2.0*zinv)+1.0)+value_sqrt_0));
+d_two_psistar_dX = 2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((2.0*d_zinv_dX+deriv_sqrt_0_d0*(((1.0+zinv)*3.0*d_zinv_dX+d_zinv_dX*(1.0+(3.0*zinv))))))+modelStruct.d_modelVar_phitd_dX*value_log_1);
+two_psistar = ((-V4)+(2.0*(modelStruct.modelVar_phitd*value_log_1)));
+}
+}
+d_vjlim_dX = (instanceStruct.d_instanceVar_vbimin_dX-d_two_psistar_dX);
+vjlim = (instanceStruct.instanceVar_vbimin-two_psistar);
+{
+double value_sqrt_0 = sqrt((((V4-vjlim)*(V4-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.modelVar_phitd)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vjsrh_dX = 0.5*(d_vjlim_dX-deriv_sqrt_0_d0*((((V4-vjlim)*(-d_vjlim_dX)+(-d_vjlim_dX)*(V4-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.d_modelVar_phitd_dX+4.0*modelStruct.d_modelVar_phitd_dX*modelStruct.modelVar_phitd))));
+vjsrh = (0.5*((V4+vjlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V4-instanceStruct.instanceVar_vbbtlim)*(V4-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.modelVar_phitr)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vbbt_dX = 0.5*(instanceStruct.d_instanceVar_vbbtlim_dX-deriv_sqrt_0_d0*((((V4-instanceStruct.instanceVar_vbbtlim)*(-instanceStruct.d_instanceVar_vbbtlim_dX)+(-instanceStruct.d_instanceVar_vbbtlim_dX)*(V4-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.d_modelVar_phitr_dX+4.0*modelStruct.d_modelVar_phitr_dX*modelStruct.modelVar_phitr))));
+vbbt = (0.5*((V4+instanceStruct.instanceVar_vbbtlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V4)*(V4))+((4.0*1.0e-6)*1.0e-6)));
+d_vav_dX = 0.0;
+vav = (0.5*(V4-value_sqrt_0));
+}
+}
+if ((instanceStruct.instanceVar_AB_i==0.0))
+{
+d_ijunbot_dX = 0.0;
 ijunbot = 0.0;
+d_qjunbot_dX = 0.0;
 qjunbot = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PBOT==0.5))
+if ((modelStruct.modelVar_one_minus_PBOT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvbot)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvbot)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-}
-qjunbot = ((modelVar_qprefbot*(1.0-tmp))+(modelVar_qpref2bot*(V4-vj)));
-id = (modelVar_idsatbot*idmult);
-if (((modelVar_CSRHBOT_i==0.0)&&(modelVar_CTATBOT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvbot)),modelStruct.modelVar_one_minus_PBOT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PBOT/(1.0-(vj*modelStruct.modelVar_vbiinvbot))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvbot)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PBOT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunbot_dX = ((modelStruct.modelVar_qprefbot*(-d_tmp_dX)+modelStruct.d_modelVar_qprefbot_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(-d_vj_dX)+modelStruct.d_modelVar_qpref2bot_dX*(V4-vj)));
+qjunbot = ((modelStruct.modelVar_qprefbot*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(V4-vj)));
+d_id_dX = (modelStruct.modelVar_idsatbot*d_idmult_dX+modelStruct.d_modelVar_idsatbot_dX*idmult);
+id = (modelStruct.modelVar_idsatbot*idmult);
+if (((modelStruct.modelVar_CSRHBOT_i==0.0)&&(modelStruct.modelVar_CTATBOT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PBOT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbibot_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbibot-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PBOT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PBOT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PBOT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-wdep = (modelVar_wdepnulrbot*tmp);
-asrh = (modelVar_ftdbot*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHBOT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATBOT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrbot*d_tmp_dX+modelStruct.d_modelVar_wdepnulrbot_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrbot*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdbot*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdbot_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdbot*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHBOT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHBOT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHBOT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATBOT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartbot*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PBOT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PBOT)-(wdep*modelStruct.modelVar_one_minus_PBOT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartbot_dX*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartbot*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatbot_dX-(0.666666666666667*modelStruct.modelVar_atatbot)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatbot)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PBOT_i)*modelStruct.d_modelVar_one_over_one_minus_PBOT_dX+(-modelStruct.d_modelVar_PBOT_i_dX)*modelStruct.modelVar_one_over_one_minus_PBOT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatbot*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatbot_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*d_umax_dX+modelStruct.d_modelVar_atatbot_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatbot*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatbot*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatbot_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatbot*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatbot*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATBOT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTBOT_i==0.0))
+if ((modelStruct.modelVar_CBBTBOT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PBOT_i==0.5))
+if ((modelStruct.modelVar_PBOT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
-if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PBOT*((tmp*((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvbot_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvbot)-((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PBOT_dX*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PBOT*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtbot)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtbot)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtbot)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTBOT_i*(((V4*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTBOT_i*(((V4*Fmaxr)*Fmaxr)*d_tmp_dX+((V4*Fmaxr)*d_Fmaxr_dX+V4*d_Fmaxr_dX*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTBOT_i_dX*(((V4*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTBOT_i*(((V4*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRBOT_i>1.0e3))
+if ((modelStruct.modelVar_VBRBOT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRBOT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRBOT_i)))
 {
-if ((modelVar_PBRBOT_i==4.0))
+if ((modelStruct.modelVar_PBRBOT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvbot)*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
+tmp = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvbot));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRBOT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvbot))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRBOT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRBOT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopbot+((vav+(modelVar_alphaav*modelVar_VBRBOT_i))*modelVar_slopebot));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopbot_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.d_modelVar_slopebot_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRBOT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
+fbreakdown = (modelStruct.modelVar_fstopbot+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
 }
 }
+d_ijunbot_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunbot = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LS_i==0.0))
+if ((instanceStruct.instanceVar_LS_i==0.0))
 {
+d_ijunsti_dX = 0.0;
 ijunsti = 0.0;
+d_qjunsti_dX = 0.0;
 qjunsti = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PSTI==0.5))
+if ((modelStruct.modelVar_one_minus_PSTI==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvsti)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvsti)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-}
-qjunsti = ((modelVar_qprefsti*(1.0-tmp))+(modelVar_qpref2sti*(V4-vj)));
-id = (modelVar_idsatsti*idmult);
-if (((modelVar_CSRHSTI_i==0.0)&&(modelVar_CTATSTI_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvsti)),modelStruct.modelVar_one_minus_PSTI);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PSTI/(1.0-(vj*modelStruct.modelVar_vbiinvsti))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvsti)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PSTI_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunsti_dX = ((modelStruct.modelVar_qprefsti*(-d_tmp_dX)+modelStruct.d_modelVar_qprefsti_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(-d_vj_dX)+modelStruct.d_modelVar_qpref2sti_dX*(V4-vj)));
+qjunsti = ((modelStruct.modelVar_qprefsti*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(V4-vj)));
+d_id_dX = (modelStruct.modelVar_idsatsti*d_idmult_dX+modelStruct.d_modelVar_idsatsti_dX*idmult);
+id = (modelStruct.modelVar_idsatsti*idmult);
+if (((modelStruct.modelVar_CSRHSTI_i==0.0)&&(modelStruct.modelVar_CTATSTI_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PSTI_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbisti_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbisti-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PSTI_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PSTI_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PSTI_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-wdep = (modelVar_wdepnulrsti*tmp);
-asrh = (modelVar_ftdsti*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHSTI_i*(asrh*wsrh));
-}
-if ((modelVar_CTATSTI_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrsti*d_tmp_dX+modelStruct.d_modelVar_wdepnulrsti_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrsti*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdsti*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdsti_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdsti*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHSTI_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHSTI_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHSTI_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATSTI_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartsti*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PSTI_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PSTI)-(wdep*modelStruct.modelVar_one_minus_PSTI)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartsti_dX*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartsti*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatsti_dX-(0.666666666666667*modelStruct.modelVar_atatsti)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatsti)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PSTI_i)*modelStruct.d_modelVar_one_over_one_minus_PSTI_dX+(-modelStruct.d_modelVar_PSTI_i_dX)*modelStruct.modelVar_one_over_one_minus_PSTI))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatsti*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatsti_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*d_umax_dX+modelStruct.d_modelVar_atatsti_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatsti*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatsti*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatsti_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatsti*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatsti*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATSTI_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTSTI_i==0.0))
+if ((modelStruct.modelVar_CBBTSTI_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PSTI_i==0.5))
+if ((modelStruct.modelVar_PSTI_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
-if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PSTI*((tmp*((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvsti_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvsti)-((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PSTI_dX*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PSTI*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtsti)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtsti)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtsti)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTSTI_i*(((V4*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTSTI_i*(((V4*Fmaxr)*Fmaxr)*d_tmp_dX+((V4*Fmaxr)*d_Fmaxr_dX+V4*d_Fmaxr_dX*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTSTI_i_dX*(((V4*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTSTI_i*(((V4*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRSTI_i>1.0e3))
+if ((modelStruct.modelVar_VBRSTI_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRSTI_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRSTI_i)))
 {
-if ((modelVar_PBRSTI_i==4.0))
+if ((modelStruct.modelVar_PBRSTI_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvsti)*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
+tmp = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvsti));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRSTI_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvsti))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRSTI_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRSTI_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopsti+((vav+(modelVar_alphaav*modelVar_VBRSTI_i))*modelVar_slopesti));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopsti_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.d_modelVar_slopesti_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRSTI_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
+fbreakdown = (modelStruct.modelVar_fstopsti+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
 }
 }
+d_ijunsti_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunsti = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LG_i==0.0))
+if ((instanceStruct.instanceVar_LG_i==0.0))
 {
+d_ijungat_dX = 0.0;
 ijungat = 0.0;
+d_qjungat_dX = 0.0;
 qjungat = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PGAT==0.5))
+if ((modelStruct.modelVar_one_minus_PGAT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvgat)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvgat)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-}
-qjungat = ((modelVar_qprefgat*(1.0-tmp))+(modelVar_qpref2gat*(V4-vj)));
-id = (modelVar_idsatgat*idmult);
-if (((modelVar_CSRHGAT_i==0.0)&&(modelVar_CTATGAT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvgat)),modelStruct.modelVar_one_minus_PGAT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PGAT/(1.0-(vj*modelStruct.modelVar_vbiinvgat))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvgat)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PGAT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjungat_dX = ((modelStruct.modelVar_qprefgat*(-d_tmp_dX)+modelStruct.d_modelVar_qprefgat_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(-d_vj_dX)+modelStruct.d_modelVar_qpref2gat_dX*(V4-vj)));
+qjungat = ((modelStruct.modelVar_qprefgat*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(V4-vj)));
+d_id_dX = (modelStruct.modelVar_idsatgat*d_idmult_dX+modelStruct.d_modelVar_idsatgat_dX*idmult);
+id = (modelStruct.modelVar_idsatgat*idmult);
+if (((modelStruct.modelVar_CSRHGAT_i==0.0)&&(modelStruct.modelVar_CTATGAT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PGAT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbigat_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbigat-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PGAT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PGAT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PGAT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-wdep = (modelVar_wdepnulrgat*tmp);
-asrh = (modelVar_ftdgat*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHGAT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATGAT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrgat*d_tmp_dX+modelStruct.d_modelVar_wdepnulrgat_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrgat*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdgat*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdgat_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdgat*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHGAT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHGAT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHGAT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATGAT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartgat*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PGAT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PGAT)-(wdep*modelStruct.modelVar_one_minus_PGAT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartgat_dX*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartgat*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatgat_dX-(0.666666666666667*modelStruct.modelVar_atatgat)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatgat)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PGAT_i)*modelStruct.d_modelVar_one_over_one_minus_PGAT_dX+(-modelStruct.d_modelVar_PGAT_i_dX)*modelStruct.modelVar_one_over_one_minus_PGAT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatgat*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatgat_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*d_umax_dX+modelStruct.d_modelVar_atatgat_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatgat*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatgat*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatgat_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatgat*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatgat*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATGAT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTGAT_i==0.0))
+if ((modelStruct.modelVar_CBBTGAT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PGAT_i==0.5))
+if ((modelStruct.modelVar_PGAT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
-if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PGAT*((tmp*((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvgat_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvgat)-((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PGAT_dX*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PGAT*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtgat)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtgat)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtgat)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTGAT_i*(((V4*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTGAT_i*(((V4*Fmaxr)*Fmaxr)*d_tmp_dX+((V4*Fmaxr)*d_Fmaxr_dX+V4*d_Fmaxr_dX*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTGAT_i_dX*(((V4*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTGAT_i*(((V4*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRGAT_i>1.0e3))
+if ((modelStruct.modelVar_VBRGAT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRGAT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRGAT_i)))
 {
-if ((modelVar_PBRGAT_i==4.0))
+if ((modelStruct.modelVar_PBRGAT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvgat)*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
+tmp = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvgat));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRGAT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvgat))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRGAT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRGAT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopgat+((vav+(modelVar_alphaav*modelVar_VBRGAT_i))*modelVar_slopegat));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopgat_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.d_modelVar_slopegat_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRGAT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
+fbreakdown = (modelStruct.modelVar_fstopgat+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
 }
 }
+d_ijungat_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijungat = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-I4 = (((instanceVar_AB_i*ijunbot)+(instanceVar_LS_i*ijunsti))+(instanceVar_LG_i*ijungat));
+d_I4_dX = (((instanceStruct.instanceVar_AB_i*d_ijunbot_dX+instanceStruct.d_instanceVar_AB_i_dX*ijunbot)+(instanceStruct.instanceVar_LS_i*d_ijunsti_dX+instanceStruct.d_instanceVar_LS_i_dX*ijunsti))+(instanceStruct.instanceVar_LG_i*d_ijungat_dX+instanceStruct.d_instanceVar_LG_i_dX*ijungat));
+I4 = (((instanceStruct.instanceVar_AB_i*ijunbot)+(instanceStruct.instanceVar_LS_i*ijunsti))+(instanceStruct.instanceVar_LG_i*ijungat));
+d_vbbt_dX = 0.0;
 vbbt = 0.0;
+d_two_psistar_dX = 0.0;
 two_psistar = 0.0;
-if ((!(((instanceVar_AB_i==0.0)&&(instanceVar_LS_i==0.0))&&(instanceVar_LG_i==0.0))))
+if ((!(((instanceStruct.instanceVar_AB_i==0.0)&&(instanceStruct.instanceVar_LS_i==0.0))&&(instanceStruct.instanceVar_LG_i==0.0))))
 {
-h1 = ((4.0*instanceVar_vch)*instanceVar_vch);
-h2 = (instanceVar_vch/instanceVar_vfmin);
-h2d = (V5+(instanceVar_vch*h2));
-h3 = (instanceVar_vfmin+h2d);
-h4 = (instanceVar_vfmin-h2d);
-h5 = sqrt(((h4*h4)+h1));
-vj = (2.0*((V5*instanceVar_vfmin)/(h3+h5)));
-if ((V5<instanceVar_VMAX))
+d_h1_dX = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.d_instanceVar_vch_dX+4.0*instanceStruct.d_instanceVar_vch_dX*instanceStruct.instanceVar_vch);
+h1 = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.instanceVar_vch);
+d_h2_dX = ((instanceStruct.instanceVar_vfmin*instanceStruct.d_instanceVar_vch_dX-instanceStruct.instanceVar_vch*instanceStruct.d_instanceVar_vfmin_dX)/instanceStruct.instanceVar_vfmin/instanceStruct.instanceVar_vfmin);
+h2 = (instanceStruct.instanceVar_vch/instanceStruct.instanceVar_vfmin);
+d_h2d_dX = (instanceStruct.instanceVar_vch*d_h2_dX+instanceStruct.d_instanceVar_vch_dX*h2);
+h2d = (V5+(instanceStruct.instanceVar_vch*h2));
+d_h3_dX = (instanceStruct.d_instanceVar_vfmin_dX+d_h2d_dX);
+h3 = (instanceStruct.instanceVar_vfmin+h2d);
+d_h4_dX = (instanceStruct.d_instanceVar_vfmin_dX-d_h2d_dX);
+h4 = (instanceStruct.instanceVar_vfmin-h2d);
 {
-if ((fabs((0.5*(V5*modelVar_phitdinv)))<2.3025850929940458e+02))
+double value_sqrt_0 = sqrt(((h4*h4)+h1));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_h5_dX = deriv_sqrt_0_d0*(((h4*d_h4_dX+d_h4_dX*h4)+d_h1_dX));
+h5 = value_sqrt_0;
+}
+d_vj_dX = 2.0*(((h3+h5)*V5*instanceStruct.d_instanceVar_vfmin_dX-(V5*instanceStruct.instanceVar_vfmin)*(d_h3_dX+d_h5_dX))/(h3+h5)/(h3+h5));
+vj = (2.0*((V5*instanceStruct.instanceVar_vfmin)/(h3+h5)));
+if ((V5<instanceStruct.instanceVar_VMAX))
 {
-zinv = exp((0.5*(V5*modelVar_phitdinv)));
+if ((fabs((0.5*(V5*modelStruct.modelVar_phitdinv)))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp((0.5*(V5*modelStruct.modelVar_phitdinv)));
+double  deriv_exp_0_d0 = value_exp_0;
+d_zinv_dX = deriv_exp_0_d0*(0.5*V5*modelStruct.d_modelVar_phitdinv_dX);
+zinv = value_exp_0;
+}
 }
 else
 {
-if (((0.5*(V5*modelVar_phitdinv))<0.0))
+if (((0.5*(V5*modelStruct.modelVar_phitdinv))<0.0))
 {
-zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V5*modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+d_zinv_dX = (-1.0e-100*(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*0.5*(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*(-0.5*V5*modelStruct.d_modelVar_phitdinv_dX)*3.3333333333333333e-01+(-0.5*V5*modelStruct.d_modelVar_phitdinv_dX)*(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))+(-0.5*V5*modelStruct.d_modelVar_phitdinv_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(V5*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
 }
 else
 {
-zinv = (1.0e100*(1.0+(((0.5*(V5*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V5*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V5*modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_zinv_dX = 1.0e100*(((0.5*(V5*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(((0.5*(V5*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*V5*modelStruct.d_modelVar_phitdinv_dX*3.3333333333333333e-01+0.5*V5*modelStruct.d_modelVar_phitdinv_dX*(1.0+(((0.5*(V5*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01)))+0.5*V5*modelStruct.d_modelVar_phitdinv_dX*(1.0+(0.5*(((0.5*(V5*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V5*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+zinv = (1.0e100*(1.0+(((0.5*(V5*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(V5*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(V5*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
+d_idmult_dX = (zinv*d_zinv_dX+d_zinv_dX*zinv);
 idmult = (zinv*zinv);
 }
 else
 {
-idmult = ((1.0+((V5-instanceVar_VMAX)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd);
-zinv = sqrt(idmult);
+d_idmult_dX = ((1.0+((V5-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX+((V5-instanceStruct.instanceVar_VMAX)*modelStruct.d_modelVar_phitdinv_dX+(-instanceStruct.d_instanceVar_VMAX_dX)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+idmult = ((1.0+((V5-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+{
+double value_sqrt_0 = sqrt(idmult);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_zinv_dX = deriv_sqrt_0_d0*(d_idmult_dX);
+zinv = value_sqrt_0;
+}
 }
 idmult = (idmult-1.0);
+d_z_dX = (-d_zinv_dX/zinv/zinv);
 z = (1.0/zinv);
 if ((V5>0.0))
 {
-two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
+{
+double value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
+double value_log_1 = log(((2.0+z)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/((2.0+z)+value_sqrt_0));
+d_two_psistar_dX = 2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((d_z_dX+deriv_sqrt_0_d0*(((z+1.0)*d_z_dX+d_z_dX*(z+3.0)))))+modelStruct.d_modelVar_phitd_dX*value_log_1);
+two_psistar = (2.0*(modelStruct.modelVar_phitd*value_log_1));
+}
 }
 else
 {
-two_psistar = ((-V5)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)*(1.0+(3.0*zinv)))))))));
-}
-vjlim = (instanceVar_vbimin-two_psistar);
-vjsrh = (0.5*((V5+vjlim)-sqrt((((V5-vjlim)*(V5-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
-vbbt = (0.5*((V5+instanceVar_vbbtlim)-sqrt((((V5-instanceVar_vbbtlim)*(V5-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*(V5-sqrt((((V5)*(V5))+((4.0*1.0e-6)*1.0e-6)))));
-}
-if ((instanceVar_AB_i==0.0))
 {
+double value_sqrt_0 = sqrt(((1.0+zinv)*(1.0+(3.0*zinv))));
+double value_log_1 = log((((2.0*zinv)+1.0)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/(((2.0*zinv)+1.0)+value_sqrt_0));
+d_two_psistar_dX = 2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((2.0*d_zinv_dX+deriv_sqrt_0_d0*(((1.0+zinv)*3.0*d_zinv_dX+d_zinv_dX*(1.0+(3.0*zinv))))))+modelStruct.d_modelVar_phitd_dX*value_log_1);
+two_psistar = ((-V5)+(2.0*(modelStruct.modelVar_phitd*value_log_1)));
+}
+}
+d_vjlim_dX = (instanceStruct.d_instanceVar_vbimin_dX-d_two_psistar_dX);
+vjlim = (instanceStruct.instanceVar_vbimin-two_psistar);
+{
+double value_sqrt_0 = sqrt((((V5-vjlim)*(V5-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.modelVar_phitd)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vjsrh_dX = 0.5*(d_vjlim_dX-deriv_sqrt_0_d0*((((V5-vjlim)*(-d_vjlim_dX)+(-d_vjlim_dX)*(V5-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.d_modelVar_phitd_dX+4.0*modelStruct.d_modelVar_phitd_dX*modelStruct.modelVar_phitd))));
+vjsrh = (0.5*((V5+vjlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V5-instanceStruct.instanceVar_vbbtlim)*(V5-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.modelVar_phitr)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vbbt_dX = 0.5*(instanceStruct.d_instanceVar_vbbtlim_dX-deriv_sqrt_0_d0*((((V5-instanceStruct.instanceVar_vbbtlim)*(-instanceStruct.d_instanceVar_vbbtlim_dX)+(-instanceStruct.d_instanceVar_vbbtlim_dX)*(V5-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.d_modelVar_phitr_dX+4.0*modelStruct.d_modelVar_phitr_dX*modelStruct.modelVar_phitr))));
+vbbt = (0.5*((V5+instanceStruct.instanceVar_vbbtlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((V5)*(V5))+((4.0*1.0e-6)*1.0e-6)));
+d_vav_dX = 0.0;
+vav = (0.5*(V5-value_sqrt_0));
+}
+}
+if ((instanceStruct.instanceVar_AB_i==0.0))
+{
+d_ijunbot_dX = 0.0;
 ijunbot = 0.0;
+d_qjunbot_dX = 0.0;
 qjunbot = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PBOT==0.5))
+if ((modelStruct.modelVar_one_minus_PBOT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvbot)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvbot)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-}
-qjunbot = ((modelVar_qprefbot*(1.0-tmp))+(modelVar_qpref2bot*(V5-vj)));
-id = (modelVar_idsatbot*idmult);
-if (((modelVar_CSRHBOT_i==0.0)&&(modelVar_CTATBOT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvbot)),modelStruct.modelVar_one_minus_PBOT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PBOT/(1.0-(vj*modelStruct.modelVar_vbiinvbot))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvbot)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PBOT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunbot_dX = ((modelStruct.modelVar_qprefbot*(-d_tmp_dX)+modelStruct.d_modelVar_qprefbot_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(-d_vj_dX)+modelStruct.d_modelVar_qpref2bot_dX*(V5-vj)));
+qjunbot = ((modelStruct.modelVar_qprefbot*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(V5-vj)));
+d_id_dX = (modelStruct.modelVar_idsatbot*d_idmult_dX+modelStruct.d_modelVar_idsatbot_dX*idmult);
+id = (modelStruct.modelVar_idsatbot*idmult);
+if (((modelStruct.modelVar_CSRHBOT_i==0.0)&&(modelStruct.modelVar_CTATBOT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PBOT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbibot_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbibot-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PBOT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PBOT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PBOT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-wdep = (modelVar_wdepnulrbot*tmp);
-asrh = (modelVar_ftdbot*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHBOT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATBOT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrbot*d_tmp_dX+modelStruct.d_modelVar_wdepnulrbot_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrbot*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdbot*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdbot_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdbot*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHBOT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHBOT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHBOT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATBOT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartbot*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PBOT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PBOT)-(wdep*modelStruct.modelVar_one_minus_PBOT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartbot_dX*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartbot*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatbot_dX-(0.666666666666667*modelStruct.modelVar_atatbot)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatbot)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PBOT_i)*modelStruct.d_modelVar_one_over_one_minus_PBOT_dX+(-modelStruct.d_modelVar_PBOT_i_dX)*modelStruct.modelVar_one_over_one_minus_PBOT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatbot*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatbot_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*d_umax_dX+modelStruct.d_modelVar_atatbot_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatbot*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatbot*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatbot_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatbot*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatbot*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATBOT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTBOT_i==0.0))
+if ((modelStruct.modelVar_CBBTBOT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PBOT_i==0.5))
+if ((modelStruct.modelVar_PBOT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
-if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PBOT*((tmp*((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvbot_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvbot)-((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PBOT_dX*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PBOT*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtbot)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtbot)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtbot)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTBOT_i*(((V5*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTBOT_i*(((V5*Fmaxr)*Fmaxr)*d_tmp_dX+((V5*Fmaxr)*d_Fmaxr_dX+V5*d_Fmaxr_dX*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTBOT_i_dX*(((V5*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTBOT_i*(((V5*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRBOT_i>1.0e3))
+if ((modelStruct.modelVar_VBRBOT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRBOT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRBOT_i)))
 {
-if ((modelVar_PBRBOT_i==4.0))
+if ((modelStruct.modelVar_PBRBOT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvbot)*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
+tmp = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvbot));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRBOT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvbot))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRBOT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRBOT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopbot+((vav+(modelVar_alphaav*modelVar_VBRBOT_i))*modelVar_slopebot));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopbot_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.d_modelVar_slopebot_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRBOT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
+fbreakdown = (modelStruct.modelVar_fstopbot+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
 }
 }
+d_ijunbot_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunbot = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LS_i==0.0))
+if ((instanceStruct.instanceVar_LS_i==0.0))
 {
+d_ijunsti_dX = 0.0;
 ijunsti = 0.0;
+d_qjunsti_dX = 0.0;
 qjunsti = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PSTI==0.5))
+if ((modelStruct.modelVar_one_minus_PSTI==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvsti)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvsti)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-}
-qjunsti = ((modelVar_qprefsti*(1.0-tmp))+(modelVar_qpref2sti*(V5-vj)));
-id = (modelVar_idsatsti*idmult);
-if (((modelVar_CSRHSTI_i==0.0)&&(modelVar_CTATSTI_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvsti)),modelStruct.modelVar_one_minus_PSTI);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PSTI/(1.0-(vj*modelStruct.modelVar_vbiinvsti))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvsti)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PSTI_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunsti_dX = ((modelStruct.modelVar_qprefsti*(-d_tmp_dX)+modelStruct.d_modelVar_qprefsti_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(-d_vj_dX)+modelStruct.d_modelVar_qpref2sti_dX*(V5-vj)));
+qjunsti = ((modelStruct.modelVar_qprefsti*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(V5-vj)));
+d_id_dX = (modelStruct.modelVar_idsatsti*d_idmult_dX+modelStruct.d_modelVar_idsatsti_dX*idmult);
+id = (modelStruct.modelVar_idsatsti*idmult);
+if (((modelStruct.modelVar_CSRHSTI_i==0.0)&&(modelStruct.modelVar_CTATSTI_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PSTI_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbisti_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbisti-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PSTI_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PSTI_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PSTI_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-wdep = (modelVar_wdepnulrsti*tmp);
-asrh = (modelVar_ftdsti*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHSTI_i*(asrh*wsrh));
-}
-if ((modelVar_CTATSTI_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrsti*d_tmp_dX+modelStruct.d_modelVar_wdepnulrsti_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrsti*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdsti*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdsti_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdsti*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHSTI_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHSTI_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHSTI_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATSTI_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartsti*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PSTI_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PSTI)-(wdep*modelStruct.modelVar_one_minus_PSTI)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartsti_dX*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartsti*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatsti_dX-(0.666666666666667*modelStruct.modelVar_atatsti)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatsti)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PSTI_i)*modelStruct.d_modelVar_one_over_one_minus_PSTI_dX+(-modelStruct.d_modelVar_PSTI_i_dX)*modelStruct.modelVar_one_over_one_minus_PSTI))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatsti*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatsti_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*d_umax_dX+modelStruct.d_modelVar_atatsti_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatsti*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatsti*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatsti_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatsti*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatsti*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATSTI_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTSTI_i==0.0))
+if ((modelStruct.modelVar_CBBTSTI_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PSTI_i==0.5))
+if ((modelStruct.modelVar_PSTI_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
-if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PSTI*((tmp*((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvsti_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvsti)-((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PSTI_dX*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PSTI*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtsti)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtsti)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtsti)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTSTI_i*(((V5*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTSTI_i*(((V5*Fmaxr)*Fmaxr)*d_tmp_dX+((V5*Fmaxr)*d_Fmaxr_dX+V5*d_Fmaxr_dX*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTSTI_i_dX*(((V5*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTSTI_i*(((V5*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRSTI_i>1.0e3))
+if ((modelStruct.modelVar_VBRSTI_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRSTI_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRSTI_i)))
 {
-if ((modelVar_PBRSTI_i==4.0))
+if ((modelStruct.modelVar_PBRSTI_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvsti)*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
+tmp = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvsti));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRSTI_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvsti))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRSTI_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRSTI_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopsti+((vav+(modelVar_alphaav*modelVar_VBRSTI_i))*modelVar_slopesti));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopsti_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.d_modelVar_slopesti_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRSTI_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
+fbreakdown = (modelStruct.modelVar_fstopsti+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
 }
 }
+d_ijunsti_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunsti = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LG_i==0.0))
+if ((instanceStruct.instanceVar_LG_i==0.0))
 {
+d_ijungat_dX = 0.0;
 ijungat = 0.0;
+d_qjungat_dX = 0.0;
 qjungat = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PGAT==0.5))
+if ((modelStruct.modelVar_one_minus_PGAT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvgat)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvgat)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-}
-qjungat = ((modelVar_qprefgat*(1.0-tmp))+(modelVar_qpref2gat*(V5-vj)));
-id = (modelVar_idsatgat*idmult);
-if (((modelVar_CSRHGAT_i==0.0)&&(modelVar_CTATGAT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvgat)),modelStruct.modelVar_one_minus_PGAT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PGAT/(1.0-(vj*modelStruct.modelVar_vbiinvgat))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvgat)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PGAT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjungat_dX = ((modelStruct.modelVar_qprefgat*(-d_tmp_dX)+modelStruct.d_modelVar_qprefgat_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(-d_vj_dX)+modelStruct.d_modelVar_qpref2gat_dX*(V5-vj)));
+qjungat = ((modelStruct.modelVar_qprefgat*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(V5-vj)));
+d_id_dX = (modelStruct.modelVar_idsatgat*d_idmult_dX+modelStruct.d_modelVar_idsatgat_dX*idmult);
+id = (modelStruct.modelVar_idsatgat*idmult);
+if (((modelStruct.modelVar_CSRHGAT_i==0.0)&&(modelStruct.modelVar_CTATGAT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PGAT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbigat_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbigat-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PGAT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PGAT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PGAT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-wdep = (modelVar_wdepnulrgat*tmp);
-asrh = (modelVar_ftdgat*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHGAT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATGAT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrgat*d_tmp_dX+modelStruct.d_modelVar_wdepnulrgat_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrgat*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdgat*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdgat_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdgat*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHGAT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHGAT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHGAT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATGAT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartgat*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PGAT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PGAT)-(wdep*modelStruct.modelVar_one_minus_PGAT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartgat_dX*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartgat*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatgat_dX-(0.666666666666667*modelStruct.modelVar_atatgat)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatgat)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PGAT_i)*modelStruct.d_modelVar_one_over_one_minus_PGAT_dX+(-modelStruct.d_modelVar_PGAT_i_dX)*modelStruct.modelVar_one_over_one_minus_PGAT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatgat*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatgat_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*d_umax_dX+modelStruct.d_modelVar_atatgat_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatgat*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatgat*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatgat_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatgat*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatgat*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATGAT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTGAT_i==0.0))
+if ((modelStruct.modelVar_CBBTGAT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PGAT_i==0.5))
+if ((modelStruct.modelVar_PGAT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
-if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PGAT*((tmp*((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvgat_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvgat)-((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PGAT_dX*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PGAT*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtgat)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtgat)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtgat)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTGAT_i*(((V5*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTGAT_i*(((V5*Fmaxr)*Fmaxr)*d_tmp_dX+((V5*Fmaxr)*d_Fmaxr_dX+V5*d_Fmaxr_dX*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTGAT_i_dX*(((V5*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTGAT_i*(((V5*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRGAT_i>1.0e3))
+if ((modelStruct.modelVar_VBRGAT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRGAT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRGAT_i)))
 {
-if ((modelVar_PBRGAT_i==4.0))
+if ((modelStruct.modelVar_PBRGAT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvgat)*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
+tmp = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvgat));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRGAT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvgat))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRGAT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRGAT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopgat+((vav+(modelVar_alphaav*modelVar_VBRGAT_i))*modelVar_slopegat));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopgat_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.d_modelVar_slopegat_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRGAT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
+fbreakdown = (modelStruct.modelVar_fstopgat+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
 }
 }
+d_ijungat_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijungat = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-I5 = (((instanceVar_AB_i*ijunbot)+(instanceVar_LS_i*ijunsti))+(instanceVar_LG_i*ijungat));
-instanceVar_ISATFOR1 = (((instanceVar_AB_i*modelVar_idsatbot)+(instanceVar_LS_i*modelVar_idsatsti))+(instanceVar_LG_i*modelVar_idsatgat));
-I4_cor = (I4-(instanceVar_ISATFOR1*(exp(((V4*modelVar_phitdinv)*instanceVar_MFOR1))-1.0)));
-I5_cor = (I5-(instanceVar_ISATFOR1*(exp(((V5*modelVar_phitdinv)*instanceVar_MFOR1))-1.0)));
-if ((!(((instanceVar_AB_i==0.0)&&(instanceVar_LS_i==0.0))&&(instanceVar_LG_i==0.0))))
+d_I5_dX = (((instanceStruct.instanceVar_AB_i*d_ijunbot_dX+instanceStruct.d_instanceVar_AB_i_dX*ijunbot)+(instanceStruct.instanceVar_LS_i*d_ijunsti_dX+instanceStruct.d_instanceVar_LS_i_dX*ijunsti))+(instanceStruct.instanceVar_LG_i*d_ijungat_dX+instanceStruct.d_instanceVar_LG_i_dX*ijungat));
+I5 = (((instanceStruct.instanceVar_AB_i*ijunbot)+(instanceStruct.instanceVar_LS_i*ijunsti))+(instanceStruct.instanceVar_LG_i*ijungat));
+instanceStruct.d_instanceVar_ISATFOR1_dX = (((instanceStruct.instanceVar_AB_i*modelStruct.d_modelVar_idsatbot_dX+instanceStruct.d_instanceVar_AB_i_dX*modelStruct.modelVar_idsatbot)+(instanceStruct.instanceVar_LS_i*modelStruct.d_modelVar_idsatsti_dX+instanceStruct.d_instanceVar_LS_i_dX*modelStruct.modelVar_idsatsti))+(instanceStruct.instanceVar_LG_i*modelStruct.d_modelVar_idsatgat_dX+instanceStruct.d_instanceVar_LG_i_dX*modelStruct.modelVar_idsatgat));
+instanceStruct.instanceVar_ISATFOR1 = (((instanceStruct.instanceVar_AB_i*modelStruct.modelVar_idsatbot)+(instanceStruct.instanceVar_LS_i*modelStruct.modelVar_idsatsti))+(instanceStruct.instanceVar_LG_i*modelStruct.modelVar_idsatgat));
+{
+double value_exp_0 = exp(((V4*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1));
+double  deriv_exp_0_d0 = value_exp_0;
+d_I4_cor_dX = (d_I4_dX-(instanceStruct.instanceVar_ISATFOR1*deriv_exp_0_d0*(V4*modelStruct.d_modelVar_phitdinv_dX*instanceStruct.instanceVar_MFOR1)+instanceStruct.d_instanceVar_ISATFOR1_dX*(value_exp_0-1.0)));
+I4_cor = (I4-(instanceStruct.instanceVar_ISATFOR1*(value_exp_0-1.0)));
+}
+{
+double value_exp_0 = exp(((V5*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1));
+double  deriv_exp_0_d0 = value_exp_0;
+d_I5_cor_dX = (d_I5_dX-(instanceStruct.instanceVar_ISATFOR1*deriv_exp_0_d0*(V5*modelStruct.d_modelVar_phitdinv_dX*instanceStruct.instanceVar_MFOR1)+instanceStruct.d_instanceVar_ISATFOR1_dX*(value_exp_0-1.0)));
+I5_cor = (I5-(instanceStruct.instanceVar_ISATFOR1*(value_exp_0-1.0)));
+}
+if ((!(((instanceStruct.instanceVar_AB_i==0.0)&&(instanceStruct.instanceVar_LS_i==0.0))&&(instanceStruct.instanceVar_LG_i==0.0))))
 {
 if (((I4>0.0)&&(I5>0.0)))
 {
 if ((((((I4_cor/I4)>1.0e-3)||((I5_cor/I5)>1.0e-3))&&(I4_cor>0.0))&&(I5_cor>0.0)))
 {
+d_alphaje_dX = ((I5_cor*d_I4_cor_dX-I4_cor*d_I5_cor_dX)/I5_cor/I5_cor);
 alphaje = (I4_cor/I5_cor);
-instanceVar_MFOR2 = ((modelVar_phitd*log(alphaje))/(V4-V5));
-instanceVar_ISATFOR2 = (I4_cor/(exp(((V4*modelVar_phitdinv)*instanceVar_MFOR2))-1.0));
+{
+double value_log_0 = log(alphaje);
+double  deriv_log_0_d0 = (1.0/alphaje);
+instanceStruct.d_instanceVar_MFOR2_dX = ((modelStruct.modelVar_phitd*deriv_log_0_d0*(d_alphaje_dX)+modelStruct.d_modelVar_phitd_dX*value_log_0)/(V4-V5));
+instanceStruct.instanceVar_MFOR2 = ((modelStruct.modelVar_phitd*value_log_0)/(V4-V5));
+}
+{
+double value_exp_0 = exp(((V4*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR2));
+double  deriv_exp_0_d0 = value_exp_0;
+instanceStruct.d_instanceVar_ISATFOR2_dX = (((value_exp_0-1.0)*d_I4_cor_dX-I4_cor*deriv_exp_0_d0*(((V4*modelStruct.modelVar_phitdinv)*instanceStruct.d_instanceVar_MFOR2_dX+V4*modelStruct.d_modelVar_phitdinv_dX*instanceStruct.instanceVar_MFOR2)))/(value_exp_0-1.0)/(value_exp_0-1.0));
+instanceStruct.instanceVar_ISATFOR2 = (I4_cor/(value_exp_0-1.0));
 }
 }
-I1_cor = ((I1-(instanceVar_ISATFOR1*(exp(((V1*modelVar_phitdinv)*instanceVar_MFOR1))-1.0)))-(instanceVar_ISATFOR2*(exp(((V1*modelVar_phitdinv)*instanceVar_MFOR2))-1.0)));
-I2_cor = ((I2-(instanceVar_ISATFOR1*(exp(((V2*modelVar_phitdinv)*instanceVar_MFOR1))-1.0)))-(instanceVar_ISATFOR2*(exp(((V2*modelVar_phitdinv)*instanceVar_MFOR2))-1.0)));
-I3_cor = ((I3-(instanceVar_ISATFOR1*(exp(((V3*modelVar_phitdinv)*instanceVar_MFOR1))-1.0)))-(instanceVar_ISATFOR2*(exp(((V3*modelVar_phitdinv)*instanceVar_MFOR2))-1.0)));
+}
+{
+double value_exp_0 = exp(((V1*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1));
+double value_exp_1 = exp(((V1*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR2));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+d_I1_cor_dX = ((d_I1_dX-(instanceStruct.instanceVar_ISATFOR1*deriv_exp_0_d0*((V1*modelStruct.d_modelVar_phitdinv_dX+d_V1_dX*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1)+instanceStruct.d_instanceVar_ISATFOR1_dX*(value_exp_0-1.0)))-(instanceStruct.instanceVar_ISATFOR2*deriv_exp_1_d0*(((V1*modelStruct.modelVar_phitdinv)*instanceStruct.d_instanceVar_MFOR2_dX+(V1*modelStruct.d_modelVar_phitdinv_dX+d_V1_dX*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR2))+instanceStruct.d_instanceVar_ISATFOR2_dX*(value_exp_1-1.0)));
+I1_cor = ((I1-(instanceStruct.instanceVar_ISATFOR1*(value_exp_0-1.0)))-(instanceStruct.instanceVar_ISATFOR2*(value_exp_1-1.0)));
+}
+{
+double value_exp_0 = exp(((V2*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1));
+double value_exp_1 = exp(((V2*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR2));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+d_I2_cor_dX = ((d_I2_dX-(instanceStruct.instanceVar_ISATFOR1*deriv_exp_0_d0*((V2*modelStruct.d_modelVar_phitdinv_dX+d_V2_dX*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1)+instanceStruct.d_instanceVar_ISATFOR1_dX*(value_exp_0-1.0)))-(instanceStruct.instanceVar_ISATFOR2*deriv_exp_1_d0*(((V2*modelStruct.modelVar_phitdinv)*instanceStruct.d_instanceVar_MFOR2_dX+(V2*modelStruct.d_modelVar_phitdinv_dX+d_V2_dX*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR2))+instanceStruct.d_instanceVar_ISATFOR2_dX*(value_exp_1-1.0)));
+I2_cor = ((I2-(instanceStruct.instanceVar_ISATFOR1*(value_exp_0-1.0)))-(instanceStruct.instanceVar_ISATFOR2*(value_exp_1-1.0)));
+}
+{
+double value_exp_0 = exp(((V3*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1));
+double value_exp_1 = exp(((V3*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR2));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+d_I3_cor_dX = ((d_I3_dX-(instanceStruct.instanceVar_ISATFOR1*deriv_exp_0_d0*((V3*modelStruct.d_modelVar_phitdinv_dX+d_V3_dX*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1)+instanceStruct.d_instanceVar_ISATFOR1_dX*(value_exp_0-1.0)))-(instanceStruct.instanceVar_ISATFOR2*deriv_exp_1_d0*(((V3*modelStruct.modelVar_phitdinv)*instanceStruct.d_instanceVar_MFOR2_dX+(V3*modelStruct.d_modelVar_phitdinv_dX+d_V3_dX*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR2))+instanceStruct.d_instanceVar_ISATFOR2_dX*(value_exp_1-1.0)));
+I3_cor = ((I3-(instanceStruct.instanceVar_ISATFOR1*(value_exp_0-1.0)))-(instanceStruct.instanceVar_ISATFOR2*(value_exp_1-1.0)));
+}
 if ((((I1<0.0)&&(I2<0.0))&&(I3<0.0)))
 {
 if ((((((((I1_cor/I1)>1.0e-3)||((I2_cor/I2)>1.0e-3))||((I3_cor/I3)>1.0e-3))&&(I1_cor<0.0))&&(I2_cor<0.0))&&(I3_cor<0.0)))
 {
+d_alphaje_dX = ((I2_cor*d_I1_cor_dX-I1_cor*d_I2_cor_dX)/I2_cor/I2_cor);
 alphaje = (I1_cor/I2_cor);
-m0_rev = (((-modelVar_phitd)*log(alphaje))/(V1-V2));
-tt0 = (V2/(V2-V1));
-tt1 = ((modelVar_phitd*(alphaje-1.0))*(pow(alphaje,tt0)-1.0));
-tt0 = (V1/(V1-V2));
-tt2 = (((pow(alphaje,tt0)*(V2-V1))+(alphaje*V1))-V2);
-mcor_rev = (tt1/tt2);
-instanceVar_MREV = (m0_rev+mcor_rev);
-if ((fabs(((V3*modelVar_phitdinv)*instanceVar_MREV))<1.0e-6))
 {
-instanceVar_m0flag = 1.0;
-instanceVar_ISATREV = (I3_cor*((1.0/V3)+((0.5*modelVar_phitdinv)*instanceVar_MREV)));
-instanceVar_MREV = (((((-0.5)*I3_cor)*instanceVar_MREV)*modelVar_phitdinv)/V3);
+double value_log_0 = log(alphaje);
+double  deriv_log_0_d0 = (1.0/alphaje);
+d_m0_rev_dX = (((V1-V2)*((-modelStruct.modelVar_phitd)*deriv_log_0_d0*(d_alphaje_dX)+(-modelStruct.d_modelVar_phitd_dX)*value_log_0)-((-modelStruct.modelVar_phitd)*value_log_0)*(d_V1_dX-d_V2_dX))/(V1-V2)/(V1-V2));
+m0_rev = (((-modelStruct.modelVar_phitd)*value_log_0)/(V1-V2));
+}
+d_tt0_dX = (((V2-V1)*d_V2_dX-V2*(d_V2_dX-d_V1_dX))/(V2-V1)/(V2-V1));
+tt0 = (V2/(V2-V1));
+{
+double value_pow_0 = pow(alphaje,tt0);
+double  deriv_pow_0_d0 = ((alphaje == 0.0)?0.0:(value_pow_0*tt0/alphaje));
+double  deriv_pow_0_d1 = (alphaje == 0.0)?0.0:(log(alphaje)*value_pow_0);
+d_tt1_dX = ((modelStruct.modelVar_phitd*(alphaje-1.0))*((deriv_pow_0_d0*(d_alphaje_dX))+(deriv_pow_0_d1*(d_tt0_dX)))+(modelStruct.modelVar_phitd*d_alphaje_dX+modelStruct.d_modelVar_phitd_dX*(alphaje-1.0))*(value_pow_0-1.0));
+tt1 = ((modelStruct.modelVar_phitd*(alphaje-1.0))*(value_pow_0-1.0));
+}
+d_tt0_dX = (((V1-V2)*d_V1_dX-V1*(d_V1_dX-d_V2_dX))/(V1-V2)/(V1-V2));
+tt0 = (V1/(V1-V2));
+{
+double value_pow_0 = pow(alphaje,tt0);
+double  deriv_pow_0_d0 = ((alphaje == 0.0)?0.0:(value_pow_0*tt0/alphaje));
+double  deriv_pow_0_d1 = (alphaje == 0.0)?0.0:(log(alphaje)*value_pow_0);
+d_tt2_dX = (((value_pow_0*(d_V2_dX-d_V1_dX)+((deriv_pow_0_d0*(d_alphaje_dX))+(deriv_pow_0_d1*(d_tt0_dX)))*(V2-V1))+(alphaje*d_V1_dX+d_alphaje_dX*V1))-d_V2_dX);
+tt2 = (((value_pow_0*(V2-V1))+(alphaje*V1))-V2);
+}
+d_mcor_rev_dX = ((tt2*d_tt1_dX-tt1*d_tt2_dX)/tt2/tt2);
+mcor_rev = (tt1/tt2);
+instanceStruct.d_instanceVar_MREV_dX = (d_m0_rev_dX+d_mcor_rev_dX);
+instanceStruct.instanceVar_MREV = (m0_rev+mcor_rev);
+if ((fabs(((V3*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MREV))<1.0e-6))
+{
+instanceStruct.instanceVar_m0flag = 1.0;
+instanceStruct.d_instanceVar_ISATREV_dX = (I3_cor*((-d_V3_dX/V3/V3)+((0.5*modelStruct.modelVar_phitdinv)*instanceStruct.d_instanceVar_MREV_dX+0.5*modelStruct.d_modelVar_phitdinv_dX*instanceStruct.instanceVar_MREV))+d_I3_cor_dX*((1.0/V3)+((0.5*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MREV)));
+instanceStruct.instanceVar_ISATREV = (I3_cor*((1.0/V3)+((0.5*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MREV)));
+instanceStruct.d_instanceVar_MREV_dX = ((V3*((((-0.5)*I3_cor)*instanceStruct.instanceVar_MREV)*modelStruct.d_modelVar_phitdinv_dX+(((-0.5)*I3_cor)*instanceStruct.d_instanceVar_MREV_dX+(-0.5)*d_I3_cor_dX*instanceStruct.instanceVar_MREV)*modelStruct.modelVar_phitdinv)-((((-0.5)*I3_cor)*instanceStruct.instanceVar_MREV)*modelStruct.modelVar_phitdinv)*d_V3_dX)/V3/V3);
+instanceStruct.instanceVar_MREV = (((((-0.5)*I3_cor)*instanceStruct.instanceVar_MREV)*modelStruct.modelVar_phitdinv)/V3);
 }
 else
 {
-instanceVar_m0flag = 0.0;
-instanceVar_ISATREV = ((-I3_cor)/(exp((((-V3)*modelVar_phitdinv)*instanceVar_MREV))-1.0));
-}
-}
-}
-}
-zfrac = (modelVar_FJUNQ_i*(((instanceVar_AB_i*modelVar_cjobot)+(instanceVar_LS_i*modelVar_cjosti))+(instanceVar_LG_i*modelVar_cjogat)));
-if (((instanceVar_AB_i*modelVar_cjobot)<=zfrac))
+instanceStruct.instanceVar_m0flag = 0.0;
 {
-instanceVar_zflagbot = 0.0;
+double value_exp_0 = exp((((-V3)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MREV));
+double  deriv_exp_0_d0 = value_exp_0;
+instanceStruct.d_instanceVar_ISATREV_dX = (((value_exp_0-1.0)*(-d_I3_cor_dX)-(-I3_cor)*deriv_exp_0_d0*((((-V3)*modelStruct.modelVar_phitdinv)*instanceStruct.d_instanceVar_MREV_dX+((-V3)*modelStruct.d_modelVar_phitdinv_dX+(-d_V3_dX)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MREV)))/(value_exp_0-1.0)/(value_exp_0-1.0));
+instanceStruct.instanceVar_ISATREV = ((-I3_cor)/(value_exp_0-1.0));
 }
-if (((instanceVar_LS_i*modelVar_cjosti)<=zfrac))
+}
+}
+}
+}
+d_zfrac_dX = (modelStruct.modelVar_FJUNQ_i*(((instanceStruct.instanceVar_AB_i*modelStruct.d_modelVar_cjobot_dX+instanceStruct.d_instanceVar_AB_i_dX*modelStruct.modelVar_cjobot)+(instanceStruct.instanceVar_LS_i*modelStruct.d_modelVar_cjosti_dX+instanceStruct.d_instanceVar_LS_i_dX*modelStruct.modelVar_cjosti))+(instanceStruct.instanceVar_LG_i*modelStruct.d_modelVar_cjogat_dX+instanceStruct.d_instanceVar_LG_i_dX*modelStruct.modelVar_cjogat))+modelStruct.d_modelVar_FJUNQ_i_dX*(((instanceStruct.instanceVar_AB_i*modelStruct.modelVar_cjobot)+(instanceStruct.instanceVar_LS_i*modelStruct.modelVar_cjosti))+(instanceStruct.instanceVar_LG_i*modelStruct.modelVar_cjogat)));
+zfrac = (modelStruct.modelVar_FJUNQ_i*(((instanceStruct.instanceVar_AB_i*modelStruct.modelVar_cjobot)+(instanceStruct.instanceVar_LS_i*modelStruct.modelVar_cjosti))+(instanceStruct.instanceVar_LG_i*modelStruct.modelVar_cjogat)));
+if (((instanceStruct.instanceVar_AB_i*modelStruct.modelVar_cjobot)<=zfrac))
 {
-instanceVar_zflagsti = 0.0;
+instanceStruct.instanceVar_zflagbot = 0.0;
 }
-if (((instanceVar_LG_i*modelVar_cjogat)<=zfrac))
+if (((instanceStruct.instanceVar_LS_i*modelStruct.modelVar_cjosti)<=zfrac))
 {
-instanceVar_zflaggat = 0.0;
+instanceStruct.instanceVar_zflagsti = 0.0;
 }
-if ((!(((instanceVar_AB_i==0.0)&&(instanceVar_LS_i==0.0))&&(instanceVar_LG_i==0.0))))
+if (((instanceStruct.instanceVar_LG_i*modelStruct.modelVar_cjogat)<=zfrac))
 {
-instanceVar_xhighf1 = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR1+1.0e-21)));
-instanceVar_xhighf2 = log(((0.5*modelVar_IMAX_i)/(instanceVar_ISATFOR2+1.0e-21)));
-instanceVar_xhighr = log(((0.5*modelVar_IMAX_i)/(fabs(instanceVar_ISATREV)+1.0e-21)));
+instanceStruct.instanceVar_zflaggat = 0.0;
 }
-instanceVar_xhighf1 = min(instanceVar_xhighf1,static_cast<double>(2.3025850929940458e+02));
-instanceVar_expxhf1 = exp(instanceVar_xhighf1);
-instanceVar_xhighf2 = min(instanceVar_xhighf2,static_cast<double>(2.3025850929940458e+02));
-instanceVar_expxhf2 = exp(instanceVar_xhighf2);
-instanceVar_xhighr = min(instanceVar_xhighr,static_cast<double>(2.3025850929940458e+02));
-instanceVar_expxhr = exp(instanceVar_xhighr);
+if ((!(((instanceStruct.instanceVar_AB_i==0.0)&&(instanceStruct.instanceVar_LS_i==0.0))&&(instanceStruct.instanceVar_LG_i==0.0))))
+{
+{
+double value_log_0 = log(((0.5*modelStruct.modelVar_IMAX_i)/(instanceStruct.instanceVar_ISATFOR1+1.0e-21)));
+double  deriv_log_0_d0 = (1.0/((0.5*modelStruct.modelVar_IMAX_i)/(instanceStruct.instanceVar_ISATFOR1+1.0e-21)));
+instanceStruct.d_instanceVar_xhighf1_dX = deriv_log_0_d0*((((instanceStruct.instanceVar_ISATFOR1+1.0e-21)*0.5*modelStruct.d_modelVar_IMAX_i_dX-(0.5*modelStruct.modelVar_IMAX_i)*instanceStruct.d_instanceVar_ISATFOR1_dX)/(instanceStruct.instanceVar_ISATFOR1+1.0e-21)/(instanceStruct.instanceVar_ISATFOR1+1.0e-21)));
+instanceStruct.instanceVar_xhighf1 = value_log_0;
+}
+{
+double value_log_0 = log(((0.5*modelStruct.modelVar_IMAX_i)/(instanceStruct.instanceVar_ISATFOR2+1.0e-21)));
+double  deriv_log_0_d0 = (1.0/((0.5*modelStruct.modelVar_IMAX_i)/(instanceStruct.instanceVar_ISATFOR2+1.0e-21)));
+instanceStruct.d_instanceVar_xhighf2_dX = deriv_log_0_d0*((((instanceStruct.instanceVar_ISATFOR2+1.0e-21)*0.5*modelStruct.d_modelVar_IMAX_i_dX-(0.5*modelStruct.modelVar_IMAX_i)*instanceStruct.d_instanceVar_ISATFOR2_dX)/(instanceStruct.instanceVar_ISATFOR2+1.0e-21)/(instanceStruct.instanceVar_ISATFOR2+1.0e-21)));
+instanceStruct.instanceVar_xhighf2 = value_log_0;
+}
+{
+double value_fabs_0 = fabs(instanceStruct.instanceVar_ISATREV);
+double value_log_1 = log(((0.5*modelStruct.modelVar_IMAX_i)/(value_fabs_0+1.0e-21)));
+double  deriv_fabs_0_d0 = (((instanceStruct.instanceVar_ISATREV)>=0)?(+1.0):(-1.0));
+double  deriv_log_1_d0 = (1.0/((0.5*modelStruct.modelVar_IMAX_i)/(value_fabs_0+1.0e-21)));
+instanceStruct.d_instanceVar_xhighr_dX = deriv_log_1_d0*((((value_fabs_0+1.0e-21)*0.5*modelStruct.d_modelVar_IMAX_i_dX-(0.5*modelStruct.modelVar_IMAX_i)*deriv_fabs_0_d0*(instanceStruct.d_instanceVar_ISATREV_dX))/(value_fabs_0+1.0e-21)/(value_fabs_0+1.0e-21)));
+instanceStruct.instanceVar_xhighr = value_log_1;
+}
+}
+{
+double value_min_0 = std::min(instanceStruct.instanceVar_xhighf1,static_cast<double>(2.3025850929940458e+02));
+double  deriv_min_0_d0 = ((instanceStruct.instanceVar_xhighf1<=2.3025850929940458e+02)?1.0:0.0);
+instanceStruct.d_instanceVar_xhighf1_dX = 0.0;
+instanceStruct.instanceVar_xhighf1 = std::min(instanceStruct.instanceVar_xhighf1,static_cast<double>(2.3025850929940458e+02));
+}
+{
+double value_exp_0 = exp(instanceStruct.instanceVar_xhighf1);
+double  deriv_exp_0_d0 = value_exp_0;
+instanceStruct.d_instanceVar_expxhf1_dX = deriv_exp_0_d0*(instanceStruct.d_instanceVar_xhighf1_dX);
+instanceStruct.instanceVar_expxhf1 = value_exp_0;
+}
+{
+double value_min_0 = std::min(instanceStruct.instanceVar_xhighf2,static_cast<double>(2.3025850929940458e+02));
+double  deriv_min_0_d0 = ((instanceStruct.instanceVar_xhighf2<=2.3025850929940458e+02)?1.0:0.0);
+instanceStruct.d_instanceVar_xhighf2_dX = 0.0;
+instanceStruct.instanceVar_xhighf2 = std::min(instanceStruct.instanceVar_xhighf2,static_cast<double>(2.3025850929940458e+02));
+}
+{
+double value_exp_0 = exp(instanceStruct.instanceVar_xhighf2);
+double  deriv_exp_0_d0 = value_exp_0;
+instanceStruct.d_instanceVar_expxhf2_dX = deriv_exp_0_d0*(instanceStruct.d_instanceVar_xhighf2_dX);
+instanceStruct.instanceVar_expxhf2 = value_exp_0;
+}
+{
+double value_min_0 = std::min(instanceStruct.instanceVar_xhighr,static_cast<double>(2.3025850929940458e+02));
+double  deriv_min_0_d0 = ((instanceStruct.instanceVar_xhighr<=2.3025850929940458e+02)?1.0:0.0);
+instanceStruct.d_instanceVar_xhighr_dX = 0.0;
+instanceStruct.instanceVar_xhighr = std::min(instanceStruct.instanceVar_xhighr,static_cast<double>(2.3025850929940458e+02));
+}
+{
+double value_exp_0 = exp(instanceStruct.instanceVar_xhighr);
+double  deriv_exp_0_d0 = value_exp_0;
+instanceStruct.d_instanceVar_expxhr_dX = deriv_exp_0_d0*(instanceStruct.d_instanceVar_xhighr_dX);
+instanceStruct.instanceVar_expxhr = value_exp_0;
+}
 }
 // End block JUNCAPexpressInit
 }
@@ -11416,382 +13847,484 @@ instanceVar_expxhr = exp(instanceVar_xhighr);
 // Creation Date :
 //-----------------------------------------------------------------------------
 void evaluateInitialModel(
-// model parameters
-// reals
-AdmsSensFadType & modelPar_DTA,
-bool modelPar_given_DTA,
-AdmsSensFadType & modelPar_IMAX,
-bool modelPar_given_IMAX,
-AdmsSensFadType & modelPar_TRJ,
-bool modelPar_given_TRJ,
-AdmsSensFadType & modelPar_FREV,
-bool modelPar_given_FREV,
-AdmsSensFadType & modelPar_CJORBOT,
-bool modelPar_given_CJORBOT,
-AdmsSensFadType & modelPar_CJORSTI,
-bool modelPar_given_CJORSTI,
-AdmsSensFadType & modelPar_CJORGAT,
-bool modelPar_given_CJORGAT,
-AdmsSensFadType & modelPar_VBIRBOT,
-bool modelPar_given_VBIRBOT,
-AdmsSensFadType & modelPar_VBIRSTI,
-bool modelPar_given_VBIRSTI,
-AdmsSensFadType & modelPar_VBIRGAT,
-bool modelPar_given_VBIRGAT,
-AdmsSensFadType & modelPar_PBOT,
-bool modelPar_given_PBOT,
-AdmsSensFadType & modelPar_PSTI,
-bool modelPar_given_PSTI,
-AdmsSensFadType & modelPar_PGAT,
-bool modelPar_given_PGAT,
-AdmsSensFadType & modelPar_PHIGBOT,
-bool modelPar_given_PHIGBOT,
-AdmsSensFadType & modelPar_PHIGSTI,
-bool modelPar_given_PHIGSTI,
-AdmsSensFadType & modelPar_PHIGGAT,
-bool modelPar_given_PHIGGAT,
-AdmsSensFadType & modelPar_IDSATRBOT,
-bool modelPar_given_IDSATRBOT,
-AdmsSensFadType & modelPar_IDSATRSTI,
-bool modelPar_given_IDSATRSTI,
-AdmsSensFadType & modelPar_IDSATRGAT,
-bool modelPar_given_IDSATRGAT,
-AdmsSensFadType & modelPar_CSRHBOT,
-bool modelPar_given_CSRHBOT,
-AdmsSensFadType & modelPar_CSRHSTI,
-bool modelPar_given_CSRHSTI,
-AdmsSensFadType & modelPar_CSRHGAT,
-bool modelPar_given_CSRHGAT,
-AdmsSensFadType & modelPar_XJUNSTI,
-bool modelPar_given_XJUNSTI,
-AdmsSensFadType & modelPar_XJUNGAT,
-bool modelPar_given_XJUNGAT,
-AdmsSensFadType & modelPar_CTATBOT,
-bool modelPar_given_CTATBOT,
-AdmsSensFadType & modelPar_CTATSTI,
-bool modelPar_given_CTATSTI,
-AdmsSensFadType & modelPar_CTATGAT,
-bool modelPar_given_CTATGAT,
-AdmsSensFadType & modelPar_MEFFTATBOT,
-bool modelPar_given_MEFFTATBOT,
-AdmsSensFadType & modelPar_MEFFTATSTI,
-bool modelPar_given_MEFFTATSTI,
-AdmsSensFadType & modelPar_MEFFTATGAT,
-bool modelPar_given_MEFFTATGAT,
-AdmsSensFadType & modelPar_CBBTBOT,
-bool modelPar_given_CBBTBOT,
-AdmsSensFadType & modelPar_CBBTSTI,
-bool modelPar_given_CBBTSTI,
-AdmsSensFadType & modelPar_CBBTGAT,
-bool modelPar_given_CBBTGAT,
-AdmsSensFadType & modelPar_FBBTRBOT,
-bool modelPar_given_FBBTRBOT,
-AdmsSensFadType & modelPar_FBBTRSTI,
-bool modelPar_given_FBBTRSTI,
-AdmsSensFadType & modelPar_FBBTRGAT,
-bool modelPar_given_FBBTRGAT,
-AdmsSensFadType & modelPar_STFBBTBOT,
-bool modelPar_given_STFBBTBOT,
-AdmsSensFadType & modelPar_STFBBTSTI,
-bool modelPar_given_STFBBTSTI,
-AdmsSensFadType & modelPar_STFBBTGAT,
-bool modelPar_given_STFBBTGAT,
-AdmsSensFadType & modelPar_VBRBOT,
-bool modelPar_given_VBRBOT,
-AdmsSensFadType & modelPar_VBRSTI,
-bool modelPar_given_VBRSTI,
-AdmsSensFadType & modelPar_VBRGAT,
-bool modelPar_given_VBRGAT,
-AdmsSensFadType & modelPar_PBRBOT,
-bool modelPar_given_PBRBOT,
-AdmsSensFadType & modelPar_PBRSTI,
-bool modelPar_given_PBRSTI,
-AdmsSensFadType & modelPar_PBRGAT,
-bool modelPar_given_PBRGAT,
-AdmsSensFadType & modelPar_SWJUNEXP,
-bool modelPar_given_SWJUNEXP,
-AdmsSensFadType & modelPar_VJUNREF,
-bool modelPar_given_VJUNREF,
-AdmsSensFadType & modelPar_FJUNQ,
-bool modelPar_given_FJUNQ,
-// non-reals (including hidden)
-int modelPar_LEVEL,
-bool modelPar_given_LEVEL,
-int modelPar_TYPE,
-bool modelPar_given_TYPE// model variables
-,
-// reals
-AdmsSensFadType & modelVar_IMAX_i,
-AdmsSensFadType & modelVar_VBIRBOT_i,
-AdmsSensFadType & modelVar_VBIRSTI_i,
-AdmsSensFadType & modelVar_VBIRGAT_i,
-AdmsSensFadType & modelVar_PBOT_i,
-AdmsSensFadType & modelVar_PSTI_i,
-AdmsSensFadType & modelVar_PGAT_i,
-AdmsSensFadType & modelVar_CSRHBOT_i,
-AdmsSensFadType & modelVar_CSRHSTI_i,
-AdmsSensFadType & modelVar_CSRHGAT_i,
-AdmsSensFadType & modelVar_CTATBOT_i,
-AdmsSensFadType & modelVar_CTATSTI_i,
-AdmsSensFadType & modelVar_CTATGAT_i,
-AdmsSensFadType & modelVar_CBBTBOT_i,
-AdmsSensFadType & modelVar_CBBTSTI_i,
-AdmsSensFadType & modelVar_CBBTGAT_i,
-AdmsSensFadType & modelVar_VBRBOT_i,
-AdmsSensFadType & modelVar_VBRSTI_i,
-AdmsSensFadType & modelVar_VBRGAT_i,
-AdmsSensFadType & modelVar_PBRBOT_i,
-AdmsSensFadType & modelVar_PBRSTI_i,
-AdmsSensFadType & modelVar_PBRGAT_i,
-double & modelVar_SWJUNEXP_i,
-AdmsSensFadType & modelVar_VJUNREF_i,
-AdmsSensFadType & modelVar_FJUNQ_i,
-AdmsSensFadType & modelVar_phitr,
-AdmsSensFadType & modelVar_phitd,
-AdmsSensFadType & modelVar_phitdinv,
-double & modelVar_perfc,
-double & modelVar_berfc,
-double & modelVar_cerfc,
-AdmsSensFadType & modelVar_ftdbot,
-AdmsSensFadType & modelVar_ftdsti,
-AdmsSensFadType & modelVar_ftdgat,
-AdmsSensFadType & modelVar_idsatbot,
-AdmsSensFadType & modelVar_idsatsti,
-AdmsSensFadType & modelVar_idsatgat,
-AdmsSensFadType & modelVar_vbibot,
-AdmsSensFadType & modelVar_vbisti,
-AdmsSensFadType & modelVar_vbigat,
-AdmsSensFadType & modelVar_vbiinvbot,
-AdmsSensFadType & modelVar_vbiinvsti,
-AdmsSensFadType & modelVar_vbiinvgat,
-AdmsSensFadType & modelVar_one_minus_PBOT,
-AdmsSensFadType & modelVar_one_minus_PSTI,
-AdmsSensFadType & modelVar_one_minus_PGAT,
-AdmsSensFadType & modelVar_one_over_one_minus_PBOT,
-AdmsSensFadType & modelVar_one_over_one_minus_PSTI,
-AdmsSensFadType & modelVar_one_over_one_minus_PGAT,
-AdmsSensFadType & modelVar_cjobot,
-AdmsSensFadType & modelVar_cjosti,
-AdmsSensFadType & modelVar_cjogat,
-AdmsSensFadType & modelVar_qprefbot,
-AdmsSensFadType & modelVar_qprefsti,
-AdmsSensFadType & modelVar_qprefgat,
-AdmsSensFadType & modelVar_qpref2bot,
-AdmsSensFadType & modelVar_qpref2sti,
-AdmsSensFadType & modelVar_qpref2gat,
-AdmsSensFadType & modelVar_wdepnulrbot,
-AdmsSensFadType & modelVar_wdepnulrsti,
-AdmsSensFadType & modelVar_wdepnulrgat,
-AdmsSensFadType & modelVar_wdepnulrinvbot,
-AdmsSensFadType & modelVar_wdepnulrinvsti,
-AdmsSensFadType & modelVar_wdepnulrinvgat,
-AdmsSensFadType & modelVar_VBIRBOTinv,
-AdmsSensFadType & modelVar_VBIRSTIinv,
-AdmsSensFadType & modelVar_VBIRGATinv,
-AdmsSensFadType & modelVar_atatbot,
-AdmsSensFadType & modelVar_atatsti,
-AdmsSensFadType & modelVar_atatgat,
-AdmsSensFadType & modelVar_btatpartbot,
-AdmsSensFadType & modelVar_btatpartsti,
-AdmsSensFadType & modelVar_btatpartgat,
-AdmsSensFadType & modelVar_fbbtbot,
-AdmsSensFadType & modelVar_fbbtsti,
-AdmsSensFadType & modelVar_fbbtgat,
-AdmsSensFadType & modelVar_alphaav,
-AdmsSensFadType & modelVar_fstopbot,
-AdmsSensFadType & modelVar_fstopsti,
-AdmsSensFadType & modelVar_fstopgat,
-AdmsSensFadType & modelVar_VBRinvbot,
-AdmsSensFadType & modelVar_VBRinvsti,
-AdmsSensFadType & modelVar_VBRinvgat,
-AdmsSensFadType & modelVar_slopebot,
-AdmsSensFadType & modelVar_slopesti,
-AdmsSensFadType & modelVar_slopegat,
+modelSensStruct & modelStruct,
  double admsTemperature, double ADMSgmin_arg, const Instance & theInstance)
 {
-  AdmsSensFadType deltaEgat;
-  AdmsSensFadType deltaEsti;
-  AdmsSensFadType deltaEbot;
-  AdmsSensFadType ubigat;
-  AdmsSensFadType ubisti;
-  AdmsSensFadType ubibot;
-  AdmsSensFadType phigdgat;
-  AdmsSensFadType phigdsti;
-  AdmsSensFadType phigdbot;
-  AdmsSensFadType deltaphigd;
-  AdmsSensFadType phigrgat;
-  AdmsSensFadType phigrsti;
-  AdmsSensFadType phigrbot;
-  AdmsSensFadType deltaphigr;
-  AdmsSensFadType phitrinv;
-  double KBOL_over_QELE;
-  AdmsSensFadType auxt;
-  AdmsSensFadType tkd;
-  AdmsSensFadType tkr;
-  AdmsSensFadType STFBBTGAT_i;
-  AdmsSensFadType STFBBTSTI_i;
-  AdmsSensFadType STFBBTBOT_i;
-  AdmsSensFadType FBBTRGAT_i;
-  AdmsSensFadType FBBTRSTI_i;
-  AdmsSensFadType FBBTRBOT_i;
-  AdmsSensFadType MEFFTATGAT_i;
-  AdmsSensFadType MEFFTATSTI_i;
-  AdmsSensFadType MEFFTATBOT_i;
-  AdmsSensFadType XJUNGAT_i;
-  AdmsSensFadType XJUNSTI_i;
-  AdmsSensFadType IDSATRGAT_i;
-  AdmsSensFadType IDSATRSTI_i;
-  AdmsSensFadType IDSATRBOT_i;
-  AdmsSensFadType PHIGGAT_i;
-  AdmsSensFadType PHIGSTI_i;
-  AdmsSensFadType PHIGBOT_i;
-  AdmsSensFadType CJORGAT_i;
-  AdmsSensFadType CJORSTI_i;
-  AdmsSensFadType CJORBOT_i;
-  AdmsSensFadType FREV_i;
-  AdmsSensFadType TRJ_i;
-  double EPSSI;
+  double deltaEgat=0.0;
+double d_deltaEgat_dX=0.0;
+  double deltaEsti=0.0;
+double d_deltaEsti_dX=0.0;
+  double deltaEbot=0.0;
+double d_deltaEbot_dX=0.0;
+  double ubigat=0.0;
+double d_ubigat_dX=0.0;
+  double ubisti=0.0;
+double d_ubisti_dX=0.0;
+  double ubibot=0.0;
+double d_ubibot_dX=0.0;
+  double phigdgat=0.0;
+double d_phigdgat_dX=0.0;
+  double phigdsti=0.0;
+double d_phigdsti_dX=0.0;
+  double phigdbot=0.0;
+double d_phigdbot_dX=0.0;
+  double deltaphigd=0.0;
+double d_deltaphigd_dX=0.0;
+  double phigrgat=0.0;
+double d_phigrgat_dX=0.0;
+  double phigrsti=0.0;
+double d_phigrsti_dX=0.0;
+  double phigrbot=0.0;
+double d_phigrbot_dX=0.0;
+  double deltaphigr=0.0;
+double d_deltaphigr_dX=0.0;
+  double phitrinv=0.0;
+double d_phitrinv_dX=0.0;
+  double KBOL_over_QELE=0.0;
+  double auxt=0.0;
+double d_auxt_dX=0.0;
+  double tkd=0.0;
+double d_tkd_dX=0.0;
+  double tkr=0.0;
+double d_tkr_dX=0.0;
+  double STFBBTGAT_i=0.0;
+double d_STFBBTGAT_i_dX=0.0;
+  double STFBBTSTI_i=0.0;
+double d_STFBBTSTI_i_dX=0.0;
+  double STFBBTBOT_i=0.0;
+double d_STFBBTBOT_i_dX=0.0;
+  double FBBTRGAT_i=0.0;
+double d_FBBTRGAT_i_dX=0.0;
+  double FBBTRSTI_i=0.0;
+double d_FBBTRSTI_i_dX=0.0;
+  double FBBTRBOT_i=0.0;
+double d_FBBTRBOT_i_dX=0.0;
+  double MEFFTATGAT_i=0.0;
+double d_MEFFTATGAT_i_dX=0.0;
+  double MEFFTATSTI_i=0.0;
+double d_MEFFTATSTI_i_dX=0.0;
+  double MEFFTATBOT_i=0.0;
+double d_MEFFTATBOT_i_dX=0.0;
+  double XJUNGAT_i=0.0;
+double d_XJUNGAT_i_dX=0.0;
+  double XJUNSTI_i=0.0;
+double d_XJUNSTI_i_dX=0.0;
+  double IDSATRGAT_i=0.0;
+double d_IDSATRGAT_i_dX=0.0;
+  double IDSATRSTI_i=0.0;
+double d_IDSATRSTI_i_dX=0.0;
+  double IDSATRBOT_i=0.0;
+double d_IDSATRBOT_i_dX=0.0;
+  double PHIGGAT_i=0.0;
+double d_PHIGGAT_i_dX=0.0;
+  double PHIGSTI_i=0.0;
+double d_PHIGSTI_i_dX=0.0;
+  double PHIGBOT_i=0.0;
+double d_PHIGBOT_i_dX=0.0;
+  double CJORGAT_i=0.0;
+double d_CJORGAT_i_dX=0.0;
+  double CJORSTI_i=0.0;
+double d_CJORSTI_i_dX=0.0;
+  double CJORBOT_i=0.0;
+double d_CJORBOT_i_dX=0.0;
+  double FREV_i=0.0;
+double d_FREV_i_dX=0.0;
+  double TRJ_i=0.0;
+double d_TRJ_i_dX=0.0;
+  double EPSSI=0.0;
 //Begin block initial_model
 {
 EPSSI = (8.8541878176E-12*11.8);
-TRJ_i = adms_ternary_op<AdmsSensFadType>((modelPar_TRJ>(-2.5e2)),modelPar_TRJ,(-2.5e2));
-modelVar_IMAX_i = adms_ternary_op<AdmsSensFadType>((modelPar_IMAX>1.0e-12),modelPar_IMAX,1.0e-12);
-FREV_i = adms_ternary_op<AdmsSensFadType>((modelPar_FREV>1.0e1),adms_ternary_op<AdmsSensFadType>((modelPar_FREV<1.0e10),modelPar_FREV,1.0e10),1.0e1);
-CJORBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_CJORBOT>1.0e-12),modelPar_CJORBOT,1.0e-12);
-CJORSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_CJORSTI>1.0e-18),modelPar_CJORSTI,1.0e-18);
-CJORGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_CJORGAT>1.0e-18),modelPar_CJORGAT,1.0e-18);
-modelVar_VBIRBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_VBIRBOT>5.0e-2),modelPar_VBIRBOT,5.0e-2);
-modelVar_VBIRSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_VBIRSTI>5.0e-2),modelPar_VBIRSTI,5.0e-2);
-modelVar_VBIRGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_VBIRGAT>5.0e-2),modelPar_VBIRGAT,5.0e-2);
-modelVar_PBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_PBOT>5.0e-2),adms_ternary_op<AdmsSensFadType>((modelPar_PBOT<0.95),modelPar_PBOT,0.95),5.0e-2);
-modelVar_PSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_PSTI>5.0e-2),adms_ternary_op<AdmsSensFadType>((modelPar_PSTI<0.95),modelPar_PSTI,0.95),5.0e-2);
-modelVar_PGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_PGAT>5.0e-2),adms_ternary_op<AdmsSensFadType>((modelPar_PGAT<0.95),modelPar_PGAT,0.95),5.0e-2);
-PHIGBOT_i = modelPar_PHIGBOT;
-PHIGSTI_i = modelPar_PHIGSTI;
-PHIGGAT_i = modelPar_PHIGGAT;
-IDSATRBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_IDSATRBOT>0.0),modelPar_IDSATRBOT,0.0);
-IDSATRSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_IDSATRSTI>0.0),modelPar_IDSATRSTI,0.0);
-IDSATRGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_IDSATRGAT>0.0),modelPar_IDSATRGAT,0.0);
-modelVar_CSRHBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_CSRHBOT>0.0),modelPar_CSRHBOT,0.0);
-modelVar_CSRHSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_CSRHSTI>0.0),modelPar_CSRHSTI,0.0);
-modelVar_CSRHGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_CSRHGAT>0.0),modelPar_CSRHGAT,0.0);
-XJUNSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_XJUNSTI>1.0e-9),modelPar_XJUNSTI,1.0e-9);
-XJUNGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_XJUNGAT>1.0e-9),modelPar_XJUNGAT,1.0e-9);
-modelVar_CTATBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_CTATBOT>0.0),modelPar_CTATBOT,0.0);
-modelVar_CTATSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_CTATSTI>0.0),modelPar_CTATSTI,0.0);
-modelVar_CTATGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_CTATGAT>0.0),modelPar_CTATGAT,0.0);
-MEFFTATBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_MEFFTATBOT>1.0e-2),modelPar_MEFFTATBOT,1.0e-2);
-MEFFTATSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_MEFFTATSTI>1.0e-2),modelPar_MEFFTATSTI,1.0e-2);
-MEFFTATGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_MEFFTATGAT>1.0e-2),modelPar_MEFFTATGAT,1.0e-2);
-modelVar_CBBTBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_CBBTBOT>0.0),modelPar_CBBTBOT,0.0);
-modelVar_CBBTSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_CBBTSTI>0.0),modelPar_CBBTSTI,0.0);
-modelVar_CBBTGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_CBBTGAT>0.0),modelPar_CBBTGAT,0.0);
-FBBTRBOT_i = modelPar_FBBTRBOT;
-FBBTRSTI_i = modelPar_FBBTRSTI;
-FBBTRGAT_i = modelPar_FBBTRGAT;
-STFBBTBOT_i = modelPar_STFBBTBOT;
-STFBBTSTI_i = modelPar_STFBBTSTI;
-STFBBTGAT_i = modelPar_STFBBTGAT;
-modelVar_VBRBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_VBRBOT>0.1),modelPar_VBRBOT,0.1);
-modelVar_VBRSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_VBRSTI>0.1),modelPar_VBRSTI,0.1);
-modelVar_VBRGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_VBRGAT>0.1),modelPar_VBRGAT,0.1);
-modelVar_PBRBOT_i = adms_ternary_op<AdmsSensFadType>((modelPar_PBRBOT>0.1),modelPar_PBRBOT,0.1);
-modelVar_PBRSTI_i = adms_ternary_op<AdmsSensFadType>((modelPar_PBRSTI>0.1),modelPar_PBRSTI,0.1);
-modelVar_PBRGAT_i = adms_ternary_op<AdmsSensFadType>((modelPar_PBRGAT>0.1),modelPar_PBRGAT,0.1);
-modelVar_SWJUNEXP_i = 0.0;
-if ((modelPar_SWJUNEXP>0.5))
+d_TRJ_i_dX = ((modelStruct.modelPar_TRJ>(-2.5e2))?modelStruct.d_modelPar_TRJ_dX:0.0);
+TRJ_i = ((modelStruct.modelPar_TRJ>(-2.5e2))?modelStruct.modelPar_TRJ:(-2.5e2));
+modelStruct.d_modelVar_IMAX_i_dX = ((modelStruct.modelPar_IMAX>1.0e-12)?modelStruct.d_modelPar_IMAX_dX:0.0);
+modelStruct.modelVar_IMAX_i = ((modelStruct.modelPar_IMAX>1.0e-12)?modelStruct.modelPar_IMAX:1.0e-12);
+d_FREV_i_dX = ((modelStruct.modelPar_FREV>1.0e1)?((modelStruct.modelPar_FREV<1.0e10)?modelStruct.d_modelPar_FREV_dX:0.0):0.0);
+FREV_i = ((modelStruct.modelPar_FREV>1.0e1)?((modelStruct.modelPar_FREV<1.0e10)?modelStruct.modelPar_FREV:1.0e10):1.0e1);
+d_CJORBOT_i_dX = ((modelStruct.modelPar_CJORBOT>1.0e-12)?modelStruct.d_modelPar_CJORBOT_dX:0.0);
+CJORBOT_i = ((modelStruct.modelPar_CJORBOT>1.0e-12)?modelStruct.modelPar_CJORBOT:1.0e-12);
+d_CJORSTI_i_dX = ((modelStruct.modelPar_CJORSTI>1.0e-18)?modelStruct.d_modelPar_CJORSTI_dX:0.0);
+CJORSTI_i = ((modelStruct.modelPar_CJORSTI>1.0e-18)?modelStruct.modelPar_CJORSTI:1.0e-18);
+d_CJORGAT_i_dX = ((modelStruct.modelPar_CJORGAT>1.0e-18)?modelStruct.d_modelPar_CJORGAT_dX:0.0);
+CJORGAT_i = ((modelStruct.modelPar_CJORGAT>1.0e-18)?modelStruct.modelPar_CJORGAT:1.0e-18);
+modelStruct.d_modelVar_VBIRBOT_i_dX = ((modelStruct.modelPar_VBIRBOT>5.0e-2)?modelStruct.d_modelPar_VBIRBOT_dX:0.0);
+modelStruct.modelVar_VBIRBOT_i = ((modelStruct.modelPar_VBIRBOT>5.0e-2)?modelStruct.modelPar_VBIRBOT:5.0e-2);
+modelStruct.d_modelVar_VBIRSTI_i_dX = ((modelStruct.modelPar_VBIRSTI>5.0e-2)?modelStruct.d_modelPar_VBIRSTI_dX:0.0);
+modelStruct.modelVar_VBIRSTI_i = ((modelStruct.modelPar_VBIRSTI>5.0e-2)?modelStruct.modelPar_VBIRSTI:5.0e-2);
+modelStruct.d_modelVar_VBIRGAT_i_dX = ((modelStruct.modelPar_VBIRGAT>5.0e-2)?modelStruct.d_modelPar_VBIRGAT_dX:0.0);
+modelStruct.modelVar_VBIRGAT_i = ((modelStruct.modelPar_VBIRGAT>5.0e-2)?modelStruct.modelPar_VBIRGAT:5.0e-2);
+modelStruct.d_modelVar_PBOT_i_dX = ((modelStruct.modelPar_PBOT>5.0e-2)?((modelStruct.modelPar_PBOT<0.95)?modelStruct.d_modelPar_PBOT_dX:0.0):0.0);
+modelStruct.modelVar_PBOT_i = ((modelStruct.modelPar_PBOT>5.0e-2)?((modelStruct.modelPar_PBOT<0.95)?modelStruct.modelPar_PBOT:0.95):5.0e-2);
+modelStruct.d_modelVar_PSTI_i_dX = ((modelStruct.modelPar_PSTI>5.0e-2)?((modelStruct.modelPar_PSTI<0.95)?modelStruct.d_modelPar_PSTI_dX:0.0):0.0);
+modelStruct.modelVar_PSTI_i = ((modelStruct.modelPar_PSTI>5.0e-2)?((modelStruct.modelPar_PSTI<0.95)?modelStruct.modelPar_PSTI:0.95):5.0e-2);
+modelStruct.d_modelVar_PGAT_i_dX = ((modelStruct.modelPar_PGAT>5.0e-2)?((modelStruct.modelPar_PGAT<0.95)?modelStruct.d_modelPar_PGAT_dX:0.0):0.0);
+modelStruct.modelVar_PGAT_i = ((modelStruct.modelPar_PGAT>5.0e-2)?((modelStruct.modelPar_PGAT<0.95)?modelStruct.modelPar_PGAT:0.95):5.0e-2);
+d_PHIGBOT_i_dX = modelStruct.d_modelPar_PHIGBOT_dX;
+PHIGBOT_i = modelStruct.modelPar_PHIGBOT;
+d_PHIGSTI_i_dX = modelStruct.d_modelPar_PHIGSTI_dX;
+PHIGSTI_i = modelStruct.modelPar_PHIGSTI;
+d_PHIGGAT_i_dX = modelStruct.d_modelPar_PHIGGAT_dX;
+PHIGGAT_i = modelStruct.modelPar_PHIGGAT;
+d_IDSATRBOT_i_dX = ((modelStruct.modelPar_IDSATRBOT>0.0)?modelStruct.d_modelPar_IDSATRBOT_dX:0.0);
+IDSATRBOT_i = ((modelStruct.modelPar_IDSATRBOT>0.0)?modelStruct.modelPar_IDSATRBOT:0.0);
+d_IDSATRSTI_i_dX = ((modelStruct.modelPar_IDSATRSTI>0.0)?modelStruct.d_modelPar_IDSATRSTI_dX:0.0);
+IDSATRSTI_i = ((modelStruct.modelPar_IDSATRSTI>0.0)?modelStruct.modelPar_IDSATRSTI:0.0);
+d_IDSATRGAT_i_dX = ((modelStruct.modelPar_IDSATRGAT>0.0)?modelStruct.d_modelPar_IDSATRGAT_dX:0.0);
+IDSATRGAT_i = ((modelStruct.modelPar_IDSATRGAT>0.0)?modelStruct.modelPar_IDSATRGAT:0.0);
+modelStruct.d_modelVar_CSRHBOT_i_dX = ((modelStruct.modelPar_CSRHBOT>0.0)?modelStruct.d_modelPar_CSRHBOT_dX:0.0);
+modelStruct.modelVar_CSRHBOT_i = ((modelStruct.modelPar_CSRHBOT>0.0)?modelStruct.modelPar_CSRHBOT:0.0);
+modelStruct.d_modelVar_CSRHSTI_i_dX = ((modelStruct.modelPar_CSRHSTI>0.0)?modelStruct.d_modelPar_CSRHSTI_dX:0.0);
+modelStruct.modelVar_CSRHSTI_i = ((modelStruct.modelPar_CSRHSTI>0.0)?modelStruct.modelPar_CSRHSTI:0.0);
+modelStruct.d_modelVar_CSRHGAT_i_dX = ((modelStruct.modelPar_CSRHGAT>0.0)?modelStruct.d_modelPar_CSRHGAT_dX:0.0);
+modelStruct.modelVar_CSRHGAT_i = ((modelStruct.modelPar_CSRHGAT>0.0)?modelStruct.modelPar_CSRHGAT:0.0);
+d_XJUNSTI_i_dX = ((modelStruct.modelPar_XJUNSTI>1.0e-9)?modelStruct.d_modelPar_XJUNSTI_dX:0.0);
+XJUNSTI_i = ((modelStruct.modelPar_XJUNSTI>1.0e-9)?modelStruct.modelPar_XJUNSTI:1.0e-9);
+d_XJUNGAT_i_dX = ((modelStruct.modelPar_XJUNGAT>1.0e-9)?modelStruct.d_modelPar_XJUNGAT_dX:0.0);
+XJUNGAT_i = ((modelStruct.modelPar_XJUNGAT>1.0e-9)?modelStruct.modelPar_XJUNGAT:1.0e-9);
+modelStruct.d_modelVar_CTATBOT_i_dX = ((modelStruct.modelPar_CTATBOT>0.0)?modelStruct.d_modelPar_CTATBOT_dX:0.0);
+modelStruct.modelVar_CTATBOT_i = ((modelStruct.modelPar_CTATBOT>0.0)?modelStruct.modelPar_CTATBOT:0.0);
+modelStruct.d_modelVar_CTATSTI_i_dX = ((modelStruct.modelPar_CTATSTI>0.0)?modelStruct.d_modelPar_CTATSTI_dX:0.0);
+modelStruct.modelVar_CTATSTI_i = ((modelStruct.modelPar_CTATSTI>0.0)?modelStruct.modelPar_CTATSTI:0.0);
+modelStruct.d_modelVar_CTATGAT_i_dX = ((modelStruct.modelPar_CTATGAT>0.0)?modelStruct.d_modelPar_CTATGAT_dX:0.0);
+modelStruct.modelVar_CTATGAT_i = ((modelStruct.modelPar_CTATGAT>0.0)?modelStruct.modelPar_CTATGAT:0.0);
+d_MEFFTATBOT_i_dX = ((modelStruct.modelPar_MEFFTATBOT>1.0e-2)?modelStruct.d_modelPar_MEFFTATBOT_dX:0.0);
+MEFFTATBOT_i = ((modelStruct.modelPar_MEFFTATBOT>1.0e-2)?modelStruct.modelPar_MEFFTATBOT:1.0e-2);
+d_MEFFTATSTI_i_dX = ((modelStruct.modelPar_MEFFTATSTI>1.0e-2)?modelStruct.d_modelPar_MEFFTATSTI_dX:0.0);
+MEFFTATSTI_i = ((modelStruct.modelPar_MEFFTATSTI>1.0e-2)?modelStruct.modelPar_MEFFTATSTI:1.0e-2);
+d_MEFFTATGAT_i_dX = ((modelStruct.modelPar_MEFFTATGAT>1.0e-2)?modelStruct.d_modelPar_MEFFTATGAT_dX:0.0);
+MEFFTATGAT_i = ((modelStruct.modelPar_MEFFTATGAT>1.0e-2)?modelStruct.modelPar_MEFFTATGAT:1.0e-2);
+modelStruct.d_modelVar_CBBTBOT_i_dX = ((modelStruct.modelPar_CBBTBOT>0.0)?modelStruct.d_modelPar_CBBTBOT_dX:0.0);
+modelStruct.modelVar_CBBTBOT_i = ((modelStruct.modelPar_CBBTBOT>0.0)?modelStruct.modelPar_CBBTBOT:0.0);
+modelStruct.d_modelVar_CBBTSTI_i_dX = ((modelStruct.modelPar_CBBTSTI>0.0)?modelStruct.d_modelPar_CBBTSTI_dX:0.0);
+modelStruct.modelVar_CBBTSTI_i = ((modelStruct.modelPar_CBBTSTI>0.0)?modelStruct.modelPar_CBBTSTI:0.0);
+modelStruct.d_modelVar_CBBTGAT_i_dX = ((modelStruct.modelPar_CBBTGAT>0.0)?modelStruct.d_modelPar_CBBTGAT_dX:0.0);
+modelStruct.modelVar_CBBTGAT_i = ((modelStruct.modelPar_CBBTGAT>0.0)?modelStruct.modelPar_CBBTGAT:0.0);
+d_FBBTRBOT_i_dX = modelStruct.d_modelPar_FBBTRBOT_dX;
+FBBTRBOT_i = modelStruct.modelPar_FBBTRBOT;
+d_FBBTRSTI_i_dX = modelStruct.d_modelPar_FBBTRSTI_dX;
+FBBTRSTI_i = modelStruct.modelPar_FBBTRSTI;
+d_FBBTRGAT_i_dX = modelStruct.d_modelPar_FBBTRGAT_dX;
+FBBTRGAT_i = modelStruct.modelPar_FBBTRGAT;
+d_STFBBTBOT_i_dX = modelStruct.d_modelPar_STFBBTBOT_dX;
+STFBBTBOT_i = modelStruct.modelPar_STFBBTBOT;
+d_STFBBTSTI_i_dX = modelStruct.d_modelPar_STFBBTSTI_dX;
+STFBBTSTI_i = modelStruct.modelPar_STFBBTSTI;
+d_STFBBTGAT_i_dX = modelStruct.d_modelPar_STFBBTGAT_dX;
+STFBBTGAT_i = modelStruct.modelPar_STFBBTGAT;
+modelStruct.d_modelVar_VBRBOT_i_dX = ((modelStruct.modelPar_VBRBOT>0.1)?modelStruct.d_modelPar_VBRBOT_dX:0.0);
+modelStruct.modelVar_VBRBOT_i = ((modelStruct.modelPar_VBRBOT>0.1)?modelStruct.modelPar_VBRBOT:0.1);
+modelStruct.d_modelVar_VBRSTI_i_dX = ((modelStruct.modelPar_VBRSTI>0.1)?modelStruct.d_modelPar_VBRSTI_dX:0.0);
+modelStruct.modelVar_VBRSTI_i = ((modelStruct.modelPar_VBRSTI>0.1)?modelStruct.modelPar_VBRSTI:0.1);
+modelStruct.d_modelVar_VBRGAT_i_dX = ((modelStruct.modelPar_VBRGAT>0.1)?modelStruct.d_modelPar_VBRGAT_dX:0.0);
+modelStruct.modelVar_VBRGAT_i = ((modelStruct.modelPar_VBRGAT>0.1)?modelStruct.modelPar_VBRGAT:0.1);
+modelStruct.d_modelVar_PBRBOT_i_dX = ((modelStruct.modelPar_PBRBOT>0.1)?modelStruct.d_modelPar_PBRBOT_dX:0.0);
+modelStruct.modelVar_PBRBOT_i = ((modelStruct.modelPar_PBRBOT>0.1)?modelStruct.modelPar_PBRBOT:0.1);
+modelStruct.d_modelVar_PBRSTI_i_dX = ((modelStruct.modelPar_PBRSTI>0.1)?modelStruct.d_modelPar_PBRSTI_dX:0.0);
+modelStruct.modelVar_PBRSTI_i = ((modelStruct.modelPar_PBRSTI>0.1)?modelStruct.modelPar_PBRSTI:0.1);
+modelStruct.d_modelVar_PBRGAT_i_dX = ((modelStruct.modelPar_PBRGAT>0.1)?modelStruct.d_modelPar_PBRGAT_dX:0.0);
+modelStruct.modelVar_PBRGAT_i = ((modelStruct.modelPar_PBRGAT>0.1)?modelStruct.modelPar_PBRGAT:0.1);
+modelStruct.modelVar_SWJUNEXP_i = 0.0;
+if ((modelStruct.modelPar_SWJUNEXP>0.5))
 {
-modelVar_SWJUNEXP_i = 1.0;
+modelStruct.modelVar_SWJUNEXP_i = 1.0;
 }
 else
 {
-modelVar_SWJUNEXP_i = 0.0;
+modelStruct.modelVar_SWJUNEXP_i = 0.0;
 }
-modelVar_VJUNREF_i = adms_ternary_op<AdmsSensFadType>((modelPar_VJUNREF>0.5),modelPar_VJUNREF,0.5);
-modelVar_FJUNQ_i = adms_ternary_op<AdmsSensFadType>((modelPar_FJUNQ>0.0),modelPar_FJUNQ,0.0);
+modelStruct.d_modelVar_VJUNREF_i_dX = ((modelStruct.modelPar_VJUNREF>0.5)?modelStruct.d_modelPar_VJUNREF_dX:0.0);
+modelStruct.modelVar_VJUNREF_i = ((modelStruct.modelPar_VJUNREF>0.5)?modelStruct.modelPar_VJUNREF:0.5);
+modelStruct.d_modelVar_FJUNQ_i_dX = ((modelStruct.modelPar_FJUNQ>0.0)?modelStruct.d_modelPar_FJUNQ_dX:0.0);
+modelStruct.modelVar_FJUNQ_i = ((modelStruct.modelPar_FJUNQ>0.0)?modelStruct.modelPar_FJUNQ:0.0);
+d_tkr_dX = d_TRJ_i_dX;
 tkr = (273.15+TRJ_i);
-tkd = max((admsTemperature+modelPar_DTA),(273.15+(-2.5e2)));
+{
+double value_max_0 = std::max((admsTemperature+modelStruct.modelPar_DTA),(273.15+(-2.5e2)));
+double  deriv_max_0_d0 = (((admsTemperature+modelStruct.modelPar_DTA)>=(273.15+(-2.5e2)))?1.0:0.0);
+d_tkd_dX = (deriv_max_0_d0*(modelStruct.d_modelPar_DTA_dX));
+tkd = value_max_0;
+}
+d_auxt_dX = ((tkr*d_tkd_dX-tkd*d_tkr_dX)/tkr/tkr);
 auxt = (tkd/tkr);
 KBOL_over_QELE = (1.3806505E-23/1.6021918E-19);
-modelVar_phitr = (KBOL_over_QELE*tkr);
-phitrinv = (1.0/modelVar_phitr);
-modelVar_phitd = (KBOL_over_QELE*tkd);
-modelVar_phitdinv = (1.0/modelVar_phitd);
+modelStruct.d_modelVar_phitr_dX = KBOL_over_QELE*d_tkr_dX;
+modelStruct.modelVar_phitr = (KBOL_over_QELE*tkr);
+d_phitrinv_dX = (-modelStruct.d_modelVar_phitr_dX/modelStruct.modelVar_phitr/modelStruct.modelVar_phitr);
+phitrinv = (1.0/modelStruct.modelVar_phitr);
+modelStruct.d_modelVar_phitd_dX = KBOL_over_QELE*d_tkd_dX;
+modelStruct.modelVar_phitd = (KBOL_over_QELE*tkd);
+modelStruct.d_modelVar_phitdinv_dX = (-modelStruct.d_modelVar_phitd_dX/modelStruct.modelVar_phitd/modelStruct.modelVar_phitd);
+modelStruct.modelVar_phitdinv = (1.0/modelStruct.modelVar_phitd);
+d_deltaphigr_dX = (((1108.0+tkr)*(-((7.02e-4*tkr)*d_tkr_dX+7.02e-4*d_tkr_dX*tkr))-(-((7.02e-4*tkr)*tkr))*d_tkr_dX)/(1108.0+tkr)/(1108.0+tkr));
 deltaphigr = ((-((7.02e-4*tkr)*tkr))/(1108.0+tkr));
+d_phigrbot_dX = (d_PHIGBOT_i_dX+d_deltaphigr_dX);
 phigrbot = (PHIGBOT_i+deltaphigr);
+d_phigrsti_dX = (d_PHIGSTI_i_dX+d_deltaphigr_dX);
 phigrsti = (PHIGSTI_i+deltaphigr);
+d_phigrgat_dX = (d_PHIGGAT_i_dX+d_deltaphigr_dX);
 phigrgat = (PHIGGAT_i+deltaphigr);
+d_deltaphigd_dX = (((1108.0+tkd)*(-((7.02e-4*tkd)*d_tkd_dX+7.02e-4*d_tkd_dX*tkd))-(-((7.02e-4*tkd)*tkd))*d_tkd_dX)/(1108.0+tkd)/(1108.0+tkd));
 deltaphigd = ((-((7.02e-4*tkd)*tkd))/(1108.0+tkd));
+d_phigdbot_dX = (d_PHIGBOT_i_dX+d_deltaphigd_dX);
 phigdbot = (PHIGBOT_i+deltaphigd);
+d_phigdsti_dX = (d_PHIGSTI_i_dX+d_deltaphigd_dX);
 phigdsti = (PHIGSTI_i+deltaphigd);
+d_phigdgat_dX = (d_PHIGGAT_i_dX+d_deltaphigd_dX);
 phigdgat = (PHIGGAT_i+deltaphigd);
-modelVar_ftdbot = (pow(auxt,1.5)*exp((0.5*((phigrbot*phitrinv)-(phigdbot*modelVar_phitdinv)))));
-modelVar_ftdsti = (pow(auxt,1.5)*exp((0.5*((phigrsti*phitrinv)-(phigdsti*modelVar_phitdinv)))));
-modelVar_ftdgat = (pow(auxt,1.5)*exp((0.5*((phigrgat*phitrinv)-(phigdgat*modelVar_phitdinv)))));
-modelVar_idsatbot = ((IDSATRBOT_i*modelVar_ftdbot)*modelVar_ftdbot);
-modelVar_idsatsti = ((IDSATRSTI_i*modelVar_ftdsti)*modelVar_ftdsti);
-modelVar_idsatgat = ((IDSATRGAT_i*modelVar_ftdgat)*modelVar_ftdgat);
-ubibot = ((modelVar_VBIRBOT_i*auxt)-((2.0*modelVar_phitd)*log(modelVar_ftdbot)));
-ubisti = ((modelVar_VBIRSTI_i*auxt)-((2.0*modelVar_phitd)*log(modelVar_ftdsti)));
-ubigat = ((modelVar_VBIRGAT_i*auxt)-((2.0*modelVar_phitd)*log(modelVar_ftdgat)));
-modelVar_vbibot = (ubibot+(modelVar_phitd*log((1+exp(((5.0e-2-ubibot)*modelVar_phitdinv))))));
-modelVar_vbisti = (ubisti+(modelVar_phitd*log((1+exp(((5.0e-2-ubisti)*modelVar_phitdinv))))));
-modelVar_vbigat = (ubigat+(modelVar_phitd*log((1+exp(((5.0e-2-ubigat)*modelVar_phitdinv))))));
-modelVar_vbiinvbot = (1.0/modelVar_vbibot);
-modelVar_vbiinvsti = (1.0/modelVar_vbisti);
-modelVar_vbiinvgat = (1.0/modelVar_vbigat);
-modelVar_one_minus_PBOT = (1.0-modelVar_PBOT_i);
-modelVar_one_minus_PSTI = (1.0-modelVar_PSTI_i);
-modelVar_one_minus_PGAT = (1.0-modelVar_PGAT_i);
-modelVar_one_over_one_minus_PBOT = (1.0/modelVar_one_minus_PBOT);
-modelVar_one_over_one_minus_PSTI = (1.0/modelVar_one_minus_PSTI);
-modelVar_one_over_one_minus_PGAT = (1.0/modelVar_one_minus_PGAT);
-modelVar_cjobot = (CJORBOT_i*pow((modelVar_VBIRBOT_i*modelVar_vbiinvbot),modelVar_PBOT_i));
-modelVar_cjosti = (CJORSTI_i*pow((modelVar_VBIRSTI_i*modelVar_vbiinvsti),modelVar_PSTI_i));
-modelVar_cjogat = (CJORGAT_i*pow((modelVar_VBIRGAT_i*modelVar_vbiinvgat),modelVar_PGAT_i));
-modelVar_qprefbot = ((modelVar_cjobot*modelVar_vbibot)*modelVar_one_over_one_minus_PBOT);
-modelVar_qprefsti = ((modelVar_cjosti*modelVar_vbisti)*modelVar_one_over_one_minus_PSTI);
-modelVar_qprefgat = ((modelVar_cjogat*modelVar_vbigat)*modelVar_one_over_one_minus_PGAT);
-modelVar_qpref2bot = (2.0*modelVar_cjobot);
-modelVar_qpref2sti = (2.0*modelVar_cjosti);
-modelVar_qpref2gat = (2.0*modelVar_cjogat);
-modelVar_wdepnulrbot = (EPSSI/CJORBOT_i);
-modelVar_wdepnulrsti = ((XJUNSTI_i*EPSSI)/CJORSTI_i);
-modelVar_wdepnulrgat = ((XJUNGAT_i*EPSSI)/CJORGAT_i);
-modelVar_wdepnulrinvbot = (1.0/modelVar_wdepnulrbot);
-modelVar_wdepnulrinvsti = (1.0/modelVar_wdepnulrsti);
-modelVar_wdepnulrinvgat = (1.0/modelVar_wdepnulrgat);
-modelVar_VBIRBOTinv = (1.0/modelVar_VBIRBOT_i);
-modelVar_VBIRSTIinv = (1.0/modelVar_VBIRSTI_i);
-modelVar_VBIRGATinv = (1.0/modelVar_VBIRGAT_i);
-modelVar_perfc = (1.77245385090551603*0.29214664);
-modelVar_berfc = (((((-5.0)*0.29214664)+6.0)-pow(modelVar_perfc,(-2.0)))/3.0);
-modelVar_cerfc = ((1.0-0.29214664)-modelVar_berfc);
-deltaEbot = max((0.5*phigdbot),modelVar_phitd);
-deltaEsti = max((0.5*phigdsti),modelVar_phitd);
-deltaEgat = max((0.5*phigdgat),modelVar_phitd);
-modelVar_atatbot = (deltaEbot*modelVar_phitdinv);
-modelVar_atatsti = (deltaEsti*modelVar_phitdinv);
-modelVar_atatgat = (deltaEgat*modelVar_phitdinv);
-modelVar_btatpartbot = (sqrt(((((32.0*MEFFTATBOT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEbot*deltaEbot)*deltaEbot)))/(3.0*1.05457168E-34));
-modelVar_btatpartsti = (sqrt(((((32.0*MEFFTATSTI_i)*9.1093826E-31)*1.6021918E-19)*((deltaEsti*deltaEsti)*deltaEsti)))/(3.0*1.05457168E-34));
-modelVar_btatpartgat = (sqrt(((((32.0*MEFFTATGAT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEgat*deltaEgat)*deltaEgat)))/(3.0*1.05457168E-34));
-modelVar_fbbtbot = (FBBTRBOT_i*(1.0+(STFBBTBOT_i*(tkd-tkr))));
-modelVar_fbbtsti = (FBBTRSTI_i*(1.0+(STFBBTSTI_i*(tkd-tkr))));
-modelVar_fbbtgat = (FBBTRGAT_i*(1.0+(STFBBTGAT_i*(tkd-tkr))));
-modelVar_fbbtbot = adms_ternary_op<AdmsSensFadType>((modelVar_fbbtbot>0.0),modelVar_fbbtbot,0.0);
-modelVar_fbbtsti = adms_ternary_op<AdmsSensFadType>((modelVar_fbbtsti>0.0),modelVar_fbbtsti,0.0);
-modelVar_fbbtgat = adms_ternary_op<AdmsSensFadType>((modelVar_fbbtgat>0.0),modelVar_fbbtgat,0.0);
-modelVar_alphaav = (1.0-(1.0/FREV_i));
-modelVar_fstopbot = (1.0/(1.0-pow(modelVar_alphaav,modelVar_PBRBOT_i)));
-modelVar_fstopsti = (1.0/(1.0-pow(modelVar_alphaav,modelVar_PBRSTI_i)));
-modelVar_fstopgat = (1.0/(1.0-pow(modelVar_alphaav,modelVar_PBRGAT_i)));
-modelVar_VBRinvbot = (1.0/modelVar_VBRBOT_i);
-modelVar_VBRinvsti = (1.0/modelVar_VBRSTI_i);
-modelVar_VBRinvgat = (1.0/modelVar_VBRGAT_i);
-modelVar_slopebot = (((-((modelVar_fstopbot*modelVar_fstopbot)*pow(modelVar_alphaav,(modelVar_PBRBOT_i-1.0))))*modelVar_PBRBOT_i)*modelVar_VBRinvbot);
-modelVar_slopesti = (((-((modelVar_fstopsti*modelVar_fstopsti)*pow(modelVar_alphaav,(modelVar_PBRSTI_i-1.0))))*modelVar_PBRSTI_i)*modelVar_VBRinvsti);
-modelVar_slopegat = (((-((modelVar_fstopgat*modelVar_fstopgat)*pow(modelVar_alphaav,(modelVar_PBRGAT_i-1.0))))*modelVar_PBRGAT_i)*modelVar_VBRinvgat);
+{
+double value_pow_0 = pow(auxt,1.5);
+double value_exp_1 = exp((0.5*((phigrbot*phitrinv)-(phigdbot*modelStruct.modelVar_phitdinv))));
+double  deriv_pow_0_d0 = ((auxt == 0.0)?0.0:(value_pow_0*1.5/auxt));
+double  deriv_exp_1_d0 = value_exp_1;
+modelStruct.d_modelVar_ftdbot_dX = (value_pow_0*deriv_exp_1_d0*(0.5*((phigrbot*d_phitrinv_dX+d_phigrbot_dX*phitrinv)-(phigdbot*modelStruct.d_modelVar_phitdinv_dX+d_phigdbot_dX*modelStruct.modelVar_phitdinv)))+(deriv_pow_0_d0*(d_auxt_dX))*value_exp_1);
+modelStruct.modelVar_ftdbot = (value_pow_0*value_exp_1);
+}
+{
+double value_pow_0 = pow(auxt,1.5);
+double value_exp_1 = exp((0.5*((phigrsti*phitrinv)-(phigdsti*modelStruct.modelVar_phitdinv))));
+double  deriv_pow_0_d0 = ((auxt == 0.0)?0.0:(value_pow_0*1.5/auxt));
+double  deriv_exp_1_d0 = value_exp_1;
+modelStruct.d_modelVar_ftdsti_dX = (value_pow_0*deriv_exp_1_d0*(0.5*((phigrsti*d_phitrinv_dX+d_phigrsti_dX*phitrinv)-(phigdsti*modelStruct.d_modelVar_phitdinv_dX+d_phigdsti_dX*modelStruct.modelVar_phitdinv)))+(deriv_pow_0_d0*(d_auxt_dX))*value_exp_1);
+modelStruct.modelVar_ftdsti = (value_pow_0*value_exp_1);
+}
+{
+double value_pow_0 = pow(auxt,1.5);
+double value_exp_1 = exp((0.5*((phigrgat*phitrinv)-(phigdgat*modelStruct.modelVar_phitdinv))));
+double  deriv_pow_0_d0 = ((auxt == 0.0)?0.0:(value_pow_0*1.5/auxt));
+double  deriv_exp_1_d0 = value_exp_1;
+modelStruct.d_modelVar_ftdgat_dX = (value_pow_0*deriv_exp_1_d0*(0.5*((phigrgat*d_phitrinv_dX+d_phigrgat_dX*phitrinv)-(phigdgat*modelStruct.d_modelVar_phitdinv_dX+d_phigdgat_dX*modelStruct.modelVar_phitdinv)))+(deriv_pow_0_d0*(d_auxt_dX))*value_exp_1);
+modelStruct.modelVar_ftdgat = (value_pow_0*value_exp_1);
+}
+modelStruct.d_modelVar_idsatbot_dX = ((IDSATRBOT_i*modelStruct.modelVar_ftdbot)*modelStruct.d_modelVar_ftdbot_dX+(IDSATRBOT_i*modelStruct.d_modelVar_ftdbot_dX+d_IDSATRBOT_i_dX*modelStruct.modelVar_ftdbot)*modelStruct.modelVar_ftdbot);
+modelStruct.modelVar_idsatbot = ((IDSATRBOT_i*modelStruct.modelVar_ftdbot)*modelStruct.modelVar_ftdbot);
+modelStruct.d_modelVar_idsatsti_dX = ((IDSATRSTI_i*modelStruct.modelVar_ftdsti)*modelStruct.d_modelVar_ftdsti_dX+(IDSATRSTI_i*modelStruct.d_modelVar_ftdsti_dX+d_IDSATRSTI_i_dX*modelStruct.modelVar_ftdsti)*modelStruct.modelVar_ftdsti);
+modelStruct.modelVar_idsatsti = ((IDSATRSTI_i*modelStruct.modelVar_ftdsti)*modelStruct.modelVar_ftdsti);
+modelStruct.d_modelVar_idsatgat_dX = ((IDSATRGAT_i*modelStruct.modelVar_ftdgat)*modelStruct.d_modelVar_ftdgat_dX+(IDSATRGAT_i*modelStruct.d_modelVar_ftdgat_dX+d_IDSATRGAT_i_dX*modelStruct.modelVar_ftdgat)*modelStruct.modelVar_ftdgat);
+modelStruct.modelVar_idsatgat = ((IDSATRGAT_i*modelStruct.modelVar_ftdgat)*modelStruct.modelVar_ftdgat);
+{
+double value_log_0 = log(modelStruct.modelVar_ftdbot);
+double  deriv_log_0_d0 = (1.0/modelStruct.modelVar_ftdbot);
+d_ubibot_dX = ((modelStruct.modelVar_VBIRBOT_i*d_auxt_dX+modelStruct.d_modelVar_VBIRBOT_i_dX*auxt)-((2.0*modelStruct.modelVar_phitd)*deriv_log_0_d0*(modelStruct.d_modelVar_ftdbot_dX)+2.0*modelStruct.d_modelVar_phitd_dX*value_log_0));
+ubibot = ((modelStruct.modelVar_VBIRBOT_i*auxt)-((2.0*modelStruct.modelVar_phitd)*value_log_0));
+}
+{
+double value_log_0 = log(modelStruct.modelVar_ftdsti);
+double  deriv_log_0_d0 = (1.0/modelStruct.modelVar_ftdsti);
+d_ubisti_dX = ((modelStruct.modelVar_VBIRSTI_i*d_auxt_dX+modelStruct.d_modelVar_VBIRSTI_i_dX*auxt)-((2.0*modelStruct.modelVar_phitd)*deriv_log_0_d0*(modelStruct.d_modelVar_ftdsti_dX)+2.0*modelStruct.d_modelVar_phitd_dX*value_log_0));
+ubisti = ((modelStruct.modelVar_VBIRSTI_i*auxt)-((2.0*modelStruct.modelVar_phitd)*value_log_0));
+}
+{
+double value_log_0 = log(modelStruct.modelVar_ftdgat);
+double  deriv_log_0_d0 = (1.0/modelStruct.modelVar_ftdgat);
+d_ubigat_dX = ((modelStruct.modelVar_VBIRGAT_i*d_auxt_dX+modelStruct.d_modelVar_VBIRGAT_i_dX*auxt)-((2.0*modelStruct.modelVar_phitd)*deriv_log_0_d0*(modelStruct.d_modelVar_ftdgat_dX)+2.0*modelStruct.d_modelVar_phitd_dX*value_log_0));
+ubigat = ((modelStruct.modelVar_VBIRGAT_i*auxt)-((2.0*modelStruct.modelVar_phitd)*value_log_0));
+}
+{
+double value_exp_0 = exp(((5.0e-2-ubibot)*modelStruct.modelVar_phitdinv));
+double value_log_1 = log((1+value_exp_0));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_log_1_d0 = (1.0/(1+value_exp_0));
+modelStruct.d_modelVar_vbibot_dX = (d_ubibot_dX+(modelStruct.modelVar_phitd*deriv_log_1_d0*(deriv_exp_0_d0*(((5.0e-2-ubibot)*modelStruct.d_modelVar_phitdinv_dX+(-d_ubibot_dX)*modelStruct.modelVar_phitdinv)))+modelStruct.d_modelVar_phitd_dX*value_log_1));
+modelStruct.modelVar_vbibot = (ubibot+(modelStruct.modelVar_phitd*value_log_1));
+}
+{
+double value_exp_0 = exp(((5.0e-2-ubisti)*modelStruct.modelVar_phitdinv));
+double value_log_1 = log((1+value_exp_0));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_log_1_d0 = (1.0/(1+value_exp_0));
+modelStruct.d_modelVar_vbisti_dX = (d_ubisti_dX+(modelStruct.modelVar_phitd*deriv_log_1_d0*(deriv_exp_0_d0*(((5.0e-2-ubisti)*modelStruct.d_modelVar_phitdinv_dX+(-d_ubisti_dX)*modelStruct.modelVar_phitdinv)))+modelStruct.d_modelVar_phitd_dX*value_log_1));
+modelStruct.modelVar_vbisti = (ubisti+(modelStruct.modelVar_phitd*value_log_1));
+}
+{
+double value_exp_0 = exp(((5.0e-2-ubigat)*modelStruct.modelVar_phitdinv));
+double value_log_1 = log((1+value_exp_0));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_log_1_d0 = (1.0/(1+value_exp_0));
+modelStruct.d_modelVar_vbigat_dX = (d_ubigat_dX+(modelStruct.modelVar_phitd*deriv_log_1_d0*(deriv_exp_0_d0*(((5.0e-2-ubigat)*modelStruct.d_modelVar_phitdinv_dX+(-d_ubigat_dX)*modelStruct.modelVar_phitdinv)))+modelStruct.d_modelVar_phitd_dX*value_log_1));
+modelStruct.modelVar_vbigat = (ubigat+(modelStruct.modelVar_phitd*value_log_1));
+}
+modelStruct.d_modelVar_vbiinvbot_dX = (-modelStruct.d_modelVar_vbibot_dX/modelStruct.modelVar_vbibot/modelStruct.modelVar_vbibot);
+modelStruct.modelVar_vbiinvbot = (1.0/modelStruct.modelVar_vbibot);
+modelStruct.d_modelVar_vbiinvsti_dX = (-modelStruct.d_modelVar_vbisti_dX/modelStruct.modelVar_vbisti/modelStruct.modelVar_vbisti);
+modelStruct.modelVar_vbiinvsti = (1.0/modelStruct.modelVar_vbisti);
+modelStruct.d_modelVar_vbiinvgat_dX = (-modelStruct.d_modelVar_vbigat_dX/modelStruct.modelVar_vbigat/modelStruct.modelVar_vbigat);
+modelStruct.modelVar_vbiinvgat = (1.0/modelStruct.modelVar_vbigat);
+modelStruct.d_modelVar_one_minus_PBOT_dX = (-modelStruct.d_modelVar_PBOT_i_dX);
+modelStruct.modelVar_one_minus_PBOT = (1.0-modelStruct.modelVar_PBOT_i);
+modelStruct.d_modelVar_one_minus_PSTI_dX = (-modelStruct.d_modelVar_PSTI_i_dX);
+modelStruct.modelVar_one_minus_PSTI = (1.0-modelStruct.modelVar_PSTI_i);
+modelStruct.d_modelVar_one_minus_PGAT_dX = (-modelStruct.d_modelVar_PGAT_i_dX);
+modelStruct.modelVar_one_minus_PGAT = (1.0-modelStruct.modelVar_PGAT_i);
+modelStruct.d_modelVar_one_over_one_minus_PBOT_dX = (-modelStruct.d_modelVar_one_minus_PBOT_dX/modelStruct.modelVar_one_minus_PBOT/modelStruct.modelVar_one_minus_PBOT);
+modelStruct.modelVar_one_over_one_minus_PBOT = (1.0/modelStruct.modelVar_one_minus_PBOT);
+modelStruct.d_modelVar_one_over_one_minus_PSTI_dX = (-modelStruct.d_modelVar_one_minus_PSTI_dX/modelStruct.modelVar_one_minus_PSTI/modelStruct.modelVar_one_minus_PSTI);
+modelStruct.modelVar_one_over_one_minus_PSTI = (1.0/modelStruct.modelVar_one_minus_PSTI);
+modelStruct.d_modelVar_one_over_one_minus_PGAT_dX = (-modelStruct.d_modelVar_one_minus_PGAT_dX/modelStruct.modelVar_one_minus_PGAT/modelStruct.modelVar_one_minus_PGAT);
+modelStruct.modelVar_one_over_one_minus_PGAT = (1.0/modelStruct.modelVar_one_minus_PGAT);
+{
+double value_pow_0 = pow((modelStruct.modelVar_VBIRBOT_i*modelStruct.modelVar_vbiinvbot),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = (((modelStruct.modelVar_VBIRBOT_i*modelStruct.modelVar_vbiinvbot) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/(modelStruct.modelVar_VBIRBOT_i*modelStruct.modelVar_vbiinvbot)));
+double  deriv_pow_0_d1 = ((modelStruct.modelVar_VBIRBOT_i*modelStruct.modelVar_vbiinvbot) == 0.0)?0.0:(log((modelStruct.modelVar_VBIRBOT_i*modelStruct.modelVar_vbiinvbot))*value_pow_0);
+modelStruct.d_modelVar_cjobot_dX = (CJORBOT_i*((deriv_pow_0_d0*((modelStruct.modelVar_VBIRBOT_i*modelStruct.d_modelVar_vbiinvbot_dX+modelStruct.d_modelVar_VBIRBOT_i_dX*modelStruct.modelVar_vbiinvbot)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)))+d_CJORBOT_i_dX*value_pow_0);
+modelStruct.modelVar_cjobot = (CJORBOT_i*value_pow_0);
+}
+{
+double value_pow_0 = pow((modelStruct.modelVar_VBIRSTI_i*modelStruct.modelVar_vbiinvsti),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = (((modelStruct.modelVar_VBIRSTI_i*modelStruct.modelVar_vbiinvsti) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/(modelStruct.modelVar_VBIRSTI_i*modelStruct.modelVar_vbiinvsti)));
+double  deriv_pow_0_d1 = ((modelStruct.modelVar_VBIRSTI_i*modelStruct.modelVar_vbiinvsti) == 0.0)?0.0:(log((modelStruct.modelVar_VBIRSTI_i*modelStruct.modelVar_vbiinvsti))*value_pow_0);
+modelStruct.d_modelVar_cjosti_dX = (CJORSTI_i*((deriv_pow_0_d0*((modelStruct.modelVar_VBIRSTI_i*modelStruct.d_modelVar_vbiinvsti_dX+modelStruct.d_modelVar_VBIRSTI_i_dX*modelStruct.modelVar_vbiinvsti)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)))+d_CJORSTI_i_dX*value_pow_0);
+modelStruct.modelVar_cjosti = (CJORSTI_i*value_pow_0);
+}
+{
+double value_pow_0 = pow((modelStruct.modelVar_VBIRGAT_i*modelStruct.modelVar_vbiinvgat),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = (((modelStruct.modelVar_VBIRGAT_i*modelStruct.modelVar_vbiinvgat) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/(modelStruct.modelVar_VBIRGAT_i*modelStruct.modelVar_vbiinvgat)));
+double  deriv_pow_0_d1 = ((modelStruct.modelVar_VBIRGAT_i*modelStruct.modelVar_vbiinvgat) == 0.0)?0.0:(log((modelStruct.modelVar_VBIRGAT_i*modelStruct.modelVar_vbiinvgat))*value_pow_0);
+modelStruct.d_modelVar_cjogat_dX = (CJORGAT_i*((deriv_pow_0_d0*((modelStruct.modelVar_VBIRGAT_i*modelStruct.d_modelVar_vbiinvgat_dX+modelStruct.d_modelVar_VBIRGAT_i_dX*modelStruct.modelVar_vbiinvgat)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)))+d_CJORGAT_i_dX*value_pow_0);
+modelStruct.modelVar_cjogat = (CJORGAT_i*value_pow_0);
+}
+modelStruct.d_modelVar_qprefbot_dX = ((modelStruct.modelVar_cjobot*modelStruct.modelVar_vbibot)*modelStruct.d_modelVar_one_over_one_minus_PBOT_dX+(modelStruct.modelVar_cjobot*modelStruct.d_modelVar_vbibot_dX+modelStruct.d_modelVar_cjobot_dX*modelStruct.modelVar_vbibot)*modelStruct.modelVar_one_over_one_minus_PBOT);
+modelStruct.modelVar_qprefbot = ((modelStruct.modelVar_cjobot*modelStruct.modelVar_vbibot)*modelStruct.modelVar_one_over_one_minus_PBOT);
+modelStruct.d_modelVar_qprefsti_dX = ((modelStruct.modelVar_cjosti*modelStruct.modelVar_vbisti)*modelStruct.d_modelVar_one_over_one_minus_PSTI_dX+(modelStruct.modelVar_cjosti*modelStruct.d_modelVar_vbisti_dX+modelStruct.d_modelVar_cjosti_dX*modelStruct.modelVar_vbisti)*modelStruct.modelVar_one_over_one_minus_PSTI);
+modelStruct.modelVar_qprefsti = ((modelStruct.modelVar_cjosti*modelStruct.modelVar_vbisti)*modelStruct.modelVar_one_over_one_minus_PSTI);
+modelStruct.d_modelVar_qprefgat_dX = ((modelStruct.modelVar_cjogat*modelStruct.modelVar_vbigat)*modelStruct.d_modelVar_one_over_one_minus_PGAT_dX+(modelStruct.modelVar_cjogat*modelStruct.d_modelVar_vbigat_dX+modelStruct.d_modelVar_cjogat_dX*modelStruct.modelVar_vbigat)*modelStruct.modelVar_one_over_one_minus_PGAT);
+modelStruct.modelVar_qprefgat = ((modelStruct.modelVar_cjogat*modelStruct.modelVar_vbigat)*modelStruct.modelVar_one_over_one_minus_PGAT);
+modelStruct.d_modelVar_qpref2bot_dX = 2.0*modelStruct.d_modelVar_cjobot_dX;
+modelStruct.modelVar_qpref2bot = (2.0*modelStruct.modelVar_cjobot);
+modelStruct.d_modelVar_qpref2sti_dX = 2.0*modelStruct.d_modelVar_cjosti_dX;
+modelStruct.modelVar_qpref2sti = (2.0*modelStruct.modelVar_cjosti);
+modelStruct.d_modelVar_qpref2gat_dX = 2.0*modelStruct.d_modelVar_cjogat_dX;
+modelStruct.modelVar_qpref2gat = (2.0*modelStruct.modelVar_cjogat);
+modelStruct.d_modelVar_wdepnulrbot_dX = (-EPSSI*d_CJORBOT_i_dX/CJORBOT_i/CJORBOT_i);
+modelStruct.modelVar_wdepnulrbot = (EPSSI/CJORBOT_i);
+modelStruct.d_modelVar_wdepnulrsti_dX = ((CJORSTI_i*d_XJUNSTI_i_dX*EPSSI-(XJUNSTI_i*EPSSI)*d_CJORSTI_i_dX)/CJORSTI_i/CJORSTI_i);
+modelStruct.modelVar_wdepnulrsti = ((XJUNSTI_i*EPSSI)/CJORSTI_i);
+modelStruct.d_modelVar_wdepnulrgat_dX = ((CJORGAT_i*d_XJUNGAT_i_dX*EPSSI-(XJUNGAT_i*EPSSI)*d_CJORGAT_i_dX)/CJORGAT_i/CJORGAT_i);
+modelStruct.modelVar_wdepnulrgat = ((XJUNGAT_i*EPSSI)/CJORGAT_i);
+modelStruct.d_modelVar_wdepnulrinvbot_dX = (-modelStruct.d_modelVar_wdepnulrbot_dX/modelStruct.modelVar_wdepnulrbot/modelStruct.modelVar_wdepnulrbot);
+modelStruct.modelVar_wdepnulrinvbot = (1.0/modelStruct.modelVar_wdepnulrbot);
+modelStruct.d_modelVar_wdepnulrinvsti_dX = (-modelStruct.d_modelVar_wdepnulrsti_dX/modelStruct.modelVar_wdepnulrsti/modelStruct.modelVar_wdepnulrsti);
+modelStruct.modelVar_wdepnulrinvsti = (1.0/modelStruct.modelVar_wdepnulrsti);
+modelStruct.d_modelVar_wdepnulrinvgat_dX = (-modelStruct.d_modelVar_wdepnulrgat_dX/modelStruct.modelVar_wdepnulrgat/modelStruct.modelVar_wdepnulrgat);
+modelStruct.modelVar_wdepnulrinvgat = (1.0/modelStruct.modelVar_wdepnulrgat);
+modelStruct.d_modelVar_VBIRBOTinv_dX = (-modelStruct.d_modelVar_VBIRBOT_i_dX/modelStruct.modelVar_VBIRBOT_i/modelStruct.modelVar_VBIRBOT_i);
+modelStruct.modelVar_VBIRBOTinv = (1.0/modelStruct.modelVar_VBIRBOT_i);
+modelStruct.d_modelVar_VBIRSTIinv_dX = (-modelStruct.d_modelVar_VBIRSTI_i_dX/modelStruct.modelVar_VBIRSTI_i/modelStruct.modelVar_VBIRSTI_i);
+modelStruct.modelVar_VBIRSTIinv = (1.0/modelStruct.modelVar_VBIRSTI_i);
+modelStruct.d_modelVar_VBIRGATinv_dX = (-modelStruct.d_modelVar_VBIRGAT_i_dX/modelStruct.modelVar_VBIRGAT_i/modelStruct.modelVar_VBIRGAT_i);
+modelStruct.modelVar_VBIRGATinv = (1.0/modelStruct.modelVar_VBIRGAT_i);
+modelStruct.modelVar_perfc = (1.77245385090551603*0.29214664);
+{
+double value_pow_0 = pow(modelStruct.modelVar_perfc,(-2.0));
+modelStruct.modelVar_berfc = (((((-5.0)*0.29214664)+6.0)-value_pow_0)/3.0);
+}
+modelStruct.modelVar_cerfc = ((1.0-0.29214664)-modelStruct.modelVar_berfc);
+{
+double value_max_0 = std::max((0.5*phigdbot),modelStruct.modelVar_phitd);
+double  deriv_max_0_d0 = (((0.5*phigdbot)>=modelStruct.modelVar_phitd)?1.0:0.0);
+double  deriv_max_0_d1 = (((0.5*phigdbot)>=modelStruct.modelVar_phitd)?0.0:1.0);
+d_deltaEbot_dX = ((deriv_max_0_d0*(0.5*d_phigdbot_dX))+(deriv_max_0_d1*(modelStruct.d_modelVar_phitd_dX)));
+deltaEbot = value_max_0;
+}
+{
+double value_max_0 = std::max((0.5*phigdsti),modelStruct.modelVar_phitd);
+double  deriv_max_0_d0 = (((0.5*phigdsti)>=modelStruct.modelVar_phitd)?1.0:0.0);
+double  deriv_max_0_d1 = (((0.5*phigdsti)>=modelStruct.modelVar_phitd)?0.0:1.0);
+d_deltaEsti_dX = ((deriv_max_0_d0*(0.5*d_phigdsti_dX))+(deriv_max_0_d1*(modelStruct.d_modelVar_phitd_dX)));
+deltaEsti = value_max_0;
+}
+{
+double value_max_0 = std::max((0.5*phigdgat),modelStruct.modelVar_phitd);
+double  deriv_max_0_d0 = (((0.5*phigdgat)>=modelStruct.modelVar_phitd)?1.0:0.0);
+double  deriv_max_0_d1 = (((0.5*phigdgat)>=modelStruct.modelVar_phitd)?0.0:1.0);
+d_deltaEgat_dX = ((deriv_max_0_d0*(0.5*d_phigdgat_dX))+(deriv_max_0_d1*(modelStruct.d_modelVar_phitd_dX)));
+deltaEgat = value_max_0;
+}
+modelStruct.d_modelVar_atatbot_dX = (deltaEbot*modelStruct.d_modelVar_phitdinv_dX+d_deltaEbot_dX*modelStruct.modelVar_phitdinv);
+modelStruct.modelVar_atatbot = (deltaEbot*modelStruct.modelVar_phitdinv);
+modelStruct.d_modelVar_atatsti_dX = (deltaEsti*modelStruct.d_modelVar_phitdinv_dX+d_deltaEsti_dX*modelStruct.modelVar_phitdinv);
+modelStruct.modelVar_atatsti = (deltaEsti*modelStruct.modelVar_phitdinv);
+modelStruct.d_modelVar_atatgat_dX = (deltaEgat*modelStruct.d_modelVar_phitdinv_dX+d_deltaEgat_dX*modelStruct.modelVar_phitdinv);
+modelStruct.modelVar_atatgat = (deltaEgat*modelStruct.modelVar_phitdinv);
+{
+double value_sqrt_0 = sqrt(((((32.0*MEFFTATBOT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEbot*deltaEbot)*deltaEbot)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+modelStruct.d_modelVar_btatpartbot_dX = (deriv_sqrt_0_d0*(((((32.0*MEFFTATBOT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEbot*deltaEbot)*d_deltaEbot_dX+(deltaEbot*d_deltaEbot_dX+d_deltaEbot_dX*deltaEbot)*deltaEbot)+32.0*d_MEFFTATBOT_i_dX*9.1093826E-31*1.6021918E-19*((deltaEbot*deltaEbot)*deltaEbot)))/(3.0*1.05457168E-34));
+modelStruct.modelVar_btatpartbot = (value_sqrt_0/(3.0*1.05457168E-34));
+}
+{
+double value_sqrt_0 = sqrt(((((32.0*MEFFTATSTI_i)*9.1093826E-31)*1.6021918E-19)*((deltaEsti*deltaEsti)*deltaEsti)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+modelStruct.d_modelVar_btatpartsti_dX = (deriv_sqrt_0_d0*(((((32.0*MEFFTATSTI_i)*9.1093826E-31)*1.6021918E-19)*((deltaEsti*deltaEsti)*d_deltaEsti_dX+(deltaEsti*d_deltaEsti_dX+d_deltaEsti_dX*deltaEsti)*deltaEsti)+32.0*d_MEFFTATSTI_i_dX*9.1093826E-31*1.6021918E-19*((deltaEsti*deltaEsti)*deltaEsti)))/(3.0*1.05457168E-34));
+modelStruct.modelVar_btatpartsti = (value_sqrt_0/(3.0*1.05457168E-34));
+}
+{
+double value_sqrt_0 = sqrt(((((32.0*MEFFTATGAT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEgat*deltaEgat)*deltaEgat)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+modelStruct.d_modelVar_btatpartgat_dX = (deriv_sqrt_0_d0*(((((32.0*MEFFTATGAT_i)*9.1093826E-31)*1.6021918E-19)*((deltaEgat*deltaEgat)*d_deltaEgat_dX+(deltaEgat*d_deltaEgat_dX+d_deltaEgat_dX*deltaEgat)*deltaEgat)+32.0*d_MEFFTATGAT_i_dX*9.1093826E-31*1.6021918E-19*((deltaEgat*deltaEgat)*deltaEgat)))/(3.0*1.05457168E-34));
+modelStruct.modelVar_btatpartgat = (value_sqrt_0/(3.0*1.05457168E-34));
+}
+modelStruct.d_modelVar_fbbtbot_dX = (FBBTRBOT_i*(STFBBTBOT_i*(d_tkd_dX-d_tkr_dX)+d_STFBBTBOT_i_dX*(tkd-tkr))+d_FBBTRBOT_i_dX*(1.0+(STFBBTBOT_i*(tkd-tkr))));
+modelStruct.modelVar_fbbtbot = (FBBTRBOT_i*(1.0+(STFBBTBOT_i*(tkd-tkr))));
+modelStruct.d_modelVar_fbbtsti_dX = (FBBTRSTI_i*(STFBBTSTI_i*(d_tkd_dX-d_tkr_dX)+d_STFBBTSTI_i_dX*(tkd-tkr))+d_FBBTRSTI_i_dX*(1.0+(STFBBTSTI_i*(tkd-tkr))));
+modelStruct.modelVar_fbbtsti = (FBBTRSTI_i*(1.0+(STFBBTSTI_i*(tkd-tkr))));
+modelStruct.d_modelVar_fbbtgat_dX = (FBBTRGAT_i*(STFBBTGAT_i*(d_tkd_dX-d_tkr_dX)+d_STFBBTGAT_i_dX*(tkd-tkr))+d_FBBTRGAT_i_dX*(1.0+(STFBBTGAT_i*(tkd-tkr))));
+modelStruct.modelVar_fbbtgat = (FBBTRGAT_i*(1.0+(STFBBTGAT_i*(tkd-tkr))));
+modelStruct.d_modelVar_fbbtbot_dX = ((modelStruct.modelVar_fbbtbot>0.0)?modelStruct.d_modelVar_fbbtbot_dX:0.0);
+modelStruct.modelVar_fbbtbot = ((modelStruct.modelVar_fbbtbot>0.0)?modelStruct.modelVar_fbbtbot:0.0);
+modelStruct.d_modelVar_fbbtsti_dX = ((modelStruct.modelVar_fbbtsti>0.0)?modelStruct.d_modelVar_fbbtsti_dX:0.0);
+modelStruct.modelVar_fbbtsti = ((modelStruct.modelVar_fbbtsti>0.0)?modelStruct.modelVar_fbbtsti:0.0);
+modelStruct.d_modelVar_fbbtgat_dX = ((modelStruct.modelVar_fbbtgat>0.0)?modelStruct.d_modelVar_fbbtgat_dX:0.0);
+modelStruct.modelVar_fbbtgat = ((modelStruct.modelVar_fbbtgat>0.0)?modelStruct.modelVar_fbbtgat:0.0);
+modelStruct.d_modelVar_alphaav_dX = (-(-d_FREV_i_dX/FREV_i/FREV_i));
+modelStruct.modelVar_alphaav = (1.0-(1.0/FREV_i));
+{
+double value_pow_0 = pow(modelStruct.modelVar_alphaav,modelStruct.modelVar_PBRBOT_i);
+double  deriv_pow_0_d0 = ((modelStruct.modelVar_alphaav == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBRBOT_i/modelStruct.modelVar_alphaav));
+double  deriv_pow_0_d1 = (modelStruct.modelVar_alphaav == 0.0)?0.0:(log(modelStruct.modelVar_alphaav)*value_pow_0);
+modelStruct.d_modelVar_fstopbot_dX = (-(-((deriv_pow_0_d0*(modelStruct.d_modelVar_alphaav_dX))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBRBOT_i_dX))))/(1.0-value_pow_0)/(1.0-value_pow_0));
+modelStruct.modelVar_fstopbot = (1.0/(1.0-value_pow_0));
+}
+{
+double value_pow_0 = pow(modelStruct.modelVar_alphaav,modelStruct.modelVar_PBRSTI_i);
+double  deriv_pow_0_d0 = ((modelStruct.modelVar_alphaav == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBRSTI_i/modelStruct.modelVar_alphaav));
+double  deriv_pow_0_d1 = (modelStruct.modelVar_alphaav == 0.0)?0.0:(log(modelStruct.modelVar_alphaav)*value_pow_0);
+modelStruct.d_modelVar_fstopsti_dX = (-(-((deriv_pow_0_d0*(modelStruct.d_modelVar_alphaav_dX))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBRSTI_i_dX))))/(1.0-value_pow_0)/(1.0-value_pow_0));
+modelStruct.modelVar_fstopsti = (1.0/(1.0-value_pow_0));
+}
+{
+double value_pow_0 = pow(modelStruct.modelVar_alphaav,modelStruct.modelVar_PBRGAT_i);
+double  deriv_pow_0_d0 = ((modelStruct.modelVar_alphaav == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBRGAT_i/modelStruct.modelVar_alphaav));
+double  deriv_pow_0_d1 = (modelStruct.modelVar_alphaav == 0.0)?0.0:(log(modelStruct.modelVar_alphaav)*value_pow_0);
+modelStruct.d_modelVar_fstopgat_dX = (-(-((deriv_pow_0_d0*(modelStruct.d_modelVar_alphaav_dX))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBRGAT_i_dX))))/(1.0-value_pow_0)/(1.0-value_pow_0));
+modelStruct.modelVar_fstopgat = (1.0/(1.0-value_pow_0));
+}
+modelStruct.d_modelVar_VBRinvbot_dX = (-modelStruct.d_modelVar_VBRBOT_i_dX/modelStruct.modelVar_VBRBOT_i/modelStruct.modelVar_VBRBOT_i);
+modelStruct.modelVar_VBRinvbot = (1.0/modelStruct.modelVar_VBRBOT_i);
+modelStruct.d_modelVar_VBRinvsti_dX = (-modelStruct.d_modelVar_VBRSTI_i_dX/modelStruct.modelVar_VBRSTI_i/modelStruct.modelVar_VBRSTI_i);
+modelStruct.modelVar_VBRinvsti = (1.0/modelStruct.modelVar_VBRSTI_i);
+modelStruct.d_modelVar_VBRinvgat_dX = (-modelStruct.d_modelVar_VBRGAT_i_dX/modelStruct.modelVar_VBRGAT_i/modelStruct.modelVar_VBRGAT_i);
+modelStruct.modelVar_VBRinvgat = (1.0/modelStruct.modelVar_VBRGAT_i);
+{
+double value_pow_0 = pow(modelStruct.modelVar_alphaav,(modelStruct.modelVar_PBRBOT_i-1.0));
+double  deriv_pow_0_d0 = ((modelStruct.modelVar_alphaav == 0.0)?0.0:(value_pow_0*(modelStruct.modelVar_PBRBOT_i-1.0)/modelStruct.modelVar_alphaav));
+double  deriv_pow_0_d1 = (modelStruct.modelVar_alphaav == 0.0)?0.0:(log(modelStruct.modelVar_alphaav)*value_pow_0);
+modelStruct.d_modelVar_slopebot_dX = (((-((modelStruct.modelVar_fstopbot*modelStruct.modelVar_fstopbot)*value_pow_0))*modelStruct.modelVar_PBRBOT_i)*modelStruct.d_modelVar_VBRinvbot_dX+((-((modelStruct.modelVar_fstopbot*modelStruct.modelVar_fstopbot)*value_pow_0))*modelStruct.d_modelVar_PBRBOT_i_dX+(-((modelStruct.modelVar_fstopbot*modelStruct.modelVar_fstopbot)*((deriv_pow_0_d0*(modelStruct.d_modelVar_alphaav_dX))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBRBOT_i_dX)))+(modelStruct.modelVar_fstopbot*modelStruct.d_modelVar_fstopbot_dX+modelStruct.d_modelVar_fstopbot_dX*modelStruct.modelVar_fstopbot)*value_pow_0))*modelStruct.modelVar_PBRBOT_i)*modelStruct.modelVar_VBRinvbot);
+modelStruct.modelVar_slopebot = (((-((modelStruct.modelVar_fstopbot*modelStruct.modelVar_fstopbot)*value_pow_0))*modelStruct.modelVar_PBRBOT_i)*modelStruct.modelVar_VBRinvbot);
+}
+{
+double value_pow_0 = pow(modelStruct.modelVar_alphaav,(modelStruct.modelVar_PBRSTI_i-1.0));
+double  deriv_pow_0_d0 = ((modelStruct.modelVar_alphaav == 0.0)?0.0:(value_pow_0*(modelStruct.modelVar_PBRSTI_i-1.0)/modelStruct.modelVar_alphaav));
+double  deriv_pow_0_d1 = (modelStruct.modelVar_alphaav == 0.0)?0.0:(log(modelStruct.modelVar_alphaav)*value_pow_0);
+modelStruct.d_modelVar_slopesti_dX = (((-((modelStruct.modelVar_fstopsti*modelStruct.modelVar_fstopsti)*value_pow_0))*modelStruct.modelVar_PBRSTI_i)*modelStruct.d_modelVar_VBRinvsti_dX+((-((modelStruct.modelVar_fstopsti*modelStruct.modelVar_fstopsti)*value_pow_0))*modelStruct.d_modelVar_PBRSTI_i_dX+(-((modelStruct.modelVar_fstopsti*modelStruct.modelVar_fstopsti)*((deriv_pow_0_d0*(modelStruct.d_modelVar_alphaav_dX))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBRSTI_i_dX)))+(modelStruct.modelVar_fstopsti*modelStruct.d_modelVar_fstopsti_dX+modelStruct.d_modelVar_fstopsti_dX*modelStruct.modelVar_fstopsti)*value_pow_0))*modelStruct.modelVar_PBRSTI_i)*modelStruct.modelVar_VBRinvsti);
+modelStruct.modelVar_slopesti = (((-((modelStruct.modelVar_fstopsti*modelStruct.modelVar_fstopsti)*value_pow_0))*modelStruct.modelVar_PBRSTI_i)*modelStruct.modelVar_VBRinvsti);
+}
+{
+double value_pow_0 = pow(modelStruct.modelVar_alphaav,(modelStruct.modelVar_PBRGAT_i-1.0));
+double  deriv_pow_0_d0 = ((modelStruct.modelVar_alphaav == 0.0)?0.0:(value_pow_0*(modelStruct.modelVar_PBRGAT_i-1.0)/modelStruct.modelVar_alphaav));
+double  deriv_pow_0_d1 = (modelStruct.modelVar_alphaav == 0.0)?0.0:(log(modelStruct.modelVar_alphaav)*value_pow_0);
+modelStruct.d_modelVar_slopegat_dX = (((-((modelStruct.modelVar_fstopgat*modelStruct.modelVar_fstopgat)*value_pow_0))*modelStruct.modelVar_PBRGAT_i)*modelStruct.d_modelVar_VBRinvgat_dX+((-((modelStruct.modelVar_fstopgat*modelStruct.modelVar_fstopgat)*value_pow_0))*modelStruct.d_modelVar_PBRGAT_i_dX+(-((modelStruct.modelVar_fstopgat*modelStruct.modelVar_fstopgat)*((deriv_pow_0_d0*(modelStruct.d_modelVar_alphaav_dX))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBRGAT_i_dX)))+(modelStruct.modelVar_fstopgat*modelStruct.d_modelVar_fstopgat_dX+modelStruct.d_modelVar_fstopgat_dX*modelStruct.modelVar_fstopgat)*value_pow_0))*modelStruct.modelVar_PBRGAT_i)*modelStruct.modelVar_VBRinvgat);
+modelStruct.modelVar_slopegat = (((-((modelStruct.modelVar_fstopgat*modelStruct.modelVar_fstopgat)*value_pow_0))*modelStruct.modelVar_PBRGAT_i)*modelStruct.modelVar_VBRinvgat);
+}
 }
 // End block initial_model
 }
@@ -11817,1012 +14350,1336 @@ const int admsProbeID_V_A_K,
 // node constants
 const int admsNodeID_A,
 const int admsNodeID_K,
-// instance parameters
-// reals
-AdmsSensFadType & instancePar_AB,
-bool instancePar_given_AB,
-AdmsSensFadType & instancePar_LS,
-bool instancePar_given_LS,
-AdmsSensFadType & instancePar_LG,
-bool instancePar_given_LG,
-AdmsSensFadType & instancePar_MULT,
-bool instancePar_given_MULT,
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_MULT_i,
-AdmsSensFadType & instanceVar_AB_i,
-AdmsSensFadType & instanceVar_LS_i,
-AdmsSensFadType & instanceVar_LG_i,
-double & instanceVar_zflagbot,
-double & instanceVar_zflagsti,
-double & instanceVar_zflaggat,
-AdmsSensFadType & instanceVar_VMAX,
-AdmsSensFadType & instanceVar_exp_VMAX_over_phitd,
-AdmsSensFadType & instanceVar_vbimin,
-AdmsSensFadType & instanceVar_vch,
-AdmsSensFadType & instanceVar_vfmin,
-AdmsSensFadType & instanceVar_vbbtlim,
-AdmsSensFadType & instanceVar_xhighf1,
-AdmsSensFadType & instanceVar_expxhf1,
-AdmsSensFadType & instanceVar_xhighf2,
-AdmsSensFadType & instanceVar_expxhf2,
-AdmsSensFadType & instanceVar_xhighr,
-AdmsSensFadType & instanceVar_expxhr,
-AdmsSensFadType & instanceVar_ISATFOR1,
-double & instanceVar_MFOR1,
-AdmsSensFadType & instanceVar_ISATFOR2,
-AdmsSensFadType & instanceVar_MFOR2,
-AdmsSensFadType & instanceVar_ISATREV,
-AdmsSensFadType & instanceVar_MREV,
-double & instanceVar_m0flag,
-AdmsSensFadType & instanceVar_vak,
-AdmsSensFadType & instanceVar_cj,
-AdmsSensFadType & instanceVar_cjbot,
-AdmsSensFadType & instanceVar_cjgat,
-AdmsSensFadType & instanceVar_cjsti,
-AdmsSensFadType & instanceVar_ij,
-AdmsSensFadType & instanceVar_ijbot,
-AdmsSensFadType & instanceVar_ijgat,
-AdmsSensFadType & instanceVar_ijsti,
-AdmsSensFadType & instanceVar_si,
-AdmsSensFadType & instanceVar_idsatsbot,
-AdmsSensFadType & instanceVar_idsatssti,
-AdmsSensFadType & instanceVar_idsatsgat,
-AdmsSensFadType & instanceVar_cjosbot,
-AdmsSensFadType & instanceVar_cjossti,
-AdmsSensFadType & instanceVar_cjosgat,
-AdmsSensFadType & instanceVar_vbisbot,
-AdmsSensFadType & instanceVar_vbissti,
-AdmsSensFadType & instanceVar_vbisgat,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_DTA,
-bool modelPar_given_DTA,
-AdmsSensFadType & modelPar_IMAX,
-bool modelPar_given_IMAX,
-AdmsSensFadType & modelPar_TRJ,
-bool modelPar_given_TRJ,
-AdmsSensFadType & modelPar_FREV,
-bool modelPar_given_FREV,
-AdmsSensFadType & modelPar_CJORBOT,
-bool modelPar_given_CJORBOT,
-AdmsSensFadType & modelPar_CJORSTI,
-bool modelPar_given_CJORSTI,
-AdmsSensFadType & modelPar_CJORGAT,
-bool modelPar_given_CJORGAT,
-AdmsSensFadType & modelPar_VBIRBOT,
-bool modelPar_given_VBIRBOT,
-AdmsSensFadType & modelPar_VBIRSTI,
-bool modelPar_given_VBIRSTI,
-AdmsSensFadType & modelPar_VBIRGAT,
-bool modelPar_given_VBIRGAT,
-AdmsSensFadType & modelPar_PBOT,
-bool modelPar_given_PBOT,
-AdmsSensFadType & modelPar_PSTI,
-bool modelPar_given_PSTI,
-AdmsSensFadType & modelPar_PGAT,
-bool modelPar_given_PGAT,
-AdmsSensFadType & modelPar_PHIGBOT,
-bool modelPar_given_PHIGBOT,
-AdmsSensFadType & modelPar_PHIGSTI,
-bool modelPar_given_PHIGSTI,
-AdmsSensFadType & modelPar_PHIGGAT,
-bool modelPar_given_PHIGGAT,
-AdmsSensFadType & modelPar_IDSATRBOT,
-bool modelPar_given_IDSATRBOT,
-AdmsSensFadType & modelPar_IDSATRSTI,
-bool modelPar_given_IDSATRSTI,
-AdmsSensFadType & modelPar_IDSATRGAT,
-bool modelPar_given_IDSATRGAT,
-AdmsSensFadType & modelPar_CSRHBOT,
-bool modelPar_given_CSRHBOT,
-AdmsSensFadType & modelPar_CSRHSTI,
-bool modelPar_given_CSRHSTI,
-AdmsSensFadType & modelPar_CSRHGAT,
-bool modelPar_given_CSRHGAT,
-AdmsSensFadType & modelPar_XJUNSTI,
-bool modelPar_given_XJUNSTI,
-AdmsSensFadType & modelPar_XJUNGAT,
-bool modelPar_given_XJUNGAT,
-AdmsSensFadType & modelPar_CTATBOT,
-bool modelPar_given_CTATBOT,
-AdmsSensFadType & modelPar_CTATSTI,
-bool modelPar_given_CTATSTI,
-AdmsSensFadType & modelPar_CTATGAT,
-bool modelPar_given_CTATGAT,
-AdmsSensFadType & modelPar_MEFFTATBOT,
-bool modelPar_given_MEFFTATBOT,
-AdmsSensFadType & modelPar_MEFFTATSTI,
-bool modelPar_given_MEFFTATSTI,
-AdmsSensFadType & modelPar_MEFFTATGAT,
-bool modelPar_given_MEFFTATGAT,
-AdmsSensFadType & modelPar_CBBTBOT,
-bool modelPar_given_CBBTBOT,
-AdmsSensFadType & modelPar_CBBTSTI,
-bool modelPar_given_CBBTSTI,
-AdmsSensFadType & modelPar_CBBTGAT,
-bool modelPar_given_CBBTGAT,
-AdmsSensFadType & modelPar_FBBTRBOT,
-bool modelPar_given_FBBTRBOT,
-AdmsSensFadType & modelPar_FBBTRSTI,
-bool modelPar_given_FBBTRSTI,
-AdmsSensFadType & modelPar_FBBTRGAT,
-bool modelPar_given_FBBTRGAT,
-AdmsSensFadType & modelPar_STFBBTBOT,
-bool modelPar_given_STFBBTBOT,
-AdmsSensFadType & modelPar_STFBBTSTI,
-bool modelPar_given_STFBBTSTI,
-AdmsSensFadType & modelPar_STFBBTGAT,
-bool modelPar_given_STFBBTGAT,
-AdmsSensFadType & modelPar_VBRBOT,
-bool modelPar_given_VBRBOT,
-AdmsSensFadType & modelPar_VBRSTI,
-bool modelPar_given_VBRSTI,
-AdmsSensFadType & modelPar_VBRGAT,
-bool modelPar_given_VBRGAT,
-AdmsSensFadType & modelPar_PBRBOT,
-bool modelPar_given_PBRBOT,
-AdmsSensFadType & modelPar_PBRSTI,
-bool modelPar_given_PBRSTI,
-AdmsSensFadType & modelPar_PBRGAT,
-bool modelPar_given_PBRGAT,
-AdmsSensFadType & modelPar_SWJUNEXP,
-bool modelPar_given_SWJUNEXP,
-AdmsSensFadType & modelPar_VJUNREF,
-bool modelPar_given_VJUNREF,
-AdmsSensFadType & modelPar_FJUNQ,
-bool modelPar_given_FJUNQ,
-// non-reals (including hidden)
-int modelPar_LEVEL,
-bool modelPar_given_LEVEL,
-int modelPar_TYPE,
-bool modelPar_given_TYPE// model variables
-,
-// reals
-AdmsSensFadType & modelVar_IMAX_i,
-AdmsSensFadType & modelVar_VBIRBOT_i,
-AdmsSensFadType & modelVar_VBIRSTI_i,
-AdmsSensFadType & modelVar_VBIRGAT_i,
-AdmsSensFadType & modelVar_PBOT_i,
-AdmsSensFadType & modelVar_PSTI_i,
-AdmsSensFadType & modelVar_PGAT_i,
-AdmsSensFadType & modelVar_CSRHBOT_i,
-AdmsSensFadType & modelVar_CSRHSTI_i,
-AdmsSensFadType & modelVar_CSRHGAT_i,
-AdmsSensFadType & modelVar_CTATBOT_i,
-AdmsSensFadType & modelVar_CTATSTI_i,
-AdmsSensFadType & modelVar_CTATGAT_i,
-AdmsSensFadType & modelVar_CBBTBOT_i,
-AdmsSensFadType & modelVar_CBBTSTI_i,
-AdmsSensFadType & modelVar_CBBTGAT_i,
-AdmsSensFadType & modelVar_VBRBOT_i,
-AdmsSensFadType & modelVar_VBRSTI_i,
-AdmsSensFadType & modelVar_VBRGAT_i,
-AdmsSensFadType & modelVar_PBRBOT_i,
-AdmsSensFadType & modelVar_PBRSTI_i,
-AdmsSensFadType & modelVar_PBRGAT_i,
-double & modelVar_SWJUNEXP_i,
-AdmsSensFadType & modelVar_VJUNREF_i,
-AdmsSensFadType & modelVar_FJUNQ_i,
-AdmsSensFadType & modelVar_phitr,
-AdmsSensFadType & modelVar_phitd,
-AdmsSensFadType & modelVar_phitdinv,
-double & modelVar_perfc,
-double & modelVar_berfc,
-double & modelVar_cerfc,
-AdmsSensFadType & modelVar_ftdbot,
-AdmsSensFadType & modelVar_ftdsti,
-AdmsSensFadType & modelVar_ftdgat,
-AdmsSensFadType & modelVar_idsatbot,
-AdmsSensFadType & modelVar_idsatsti,
-AdmsSensFadType & modelVar_idsatgat,
-AdmsSensFadType & modelVar_vbibot,
-AdmsSensFadType & modelVar_vbisti,
-AdmsSensFadType & modelVar_vbigat,
-AdmsSensFadType & modelVar_vbiinvbot,
-AdmsSensFadType & modelVar_vbiinvsti,
-AdmsSensFadType & modelVar_vbiinvgat,
-AdmsSensFadType & modelVar_one_minus_PBOT,
-AdmsSensFadType & modelVar_one_minus_PSTI,
-AdmsSensFadType & modelVar_one_minus_PGAT,
-AdmsSensFadType & modelVar_one_over_one_minus_PBOT,
-AdmsSensFadType & modelVar_one_over_one_minus_PSTI,
-AdmsSensFadType & modelVar_one_over_one_minus_PGAT,
-AdmsSensFadType & modelVar_cjobot,
-AdmsSensFadType & modelVar_cjosti,
-AdmsSensFadType & modelVar_cjogat,
-AdmsSensFadType & modelVar_qprefbot,
-AdmsSensFadType & modelVar_qprefsti,
-AdmsSensFadType & modelVar_qprefgat,
-AdmsSensFadType & modelVar_qpref2bot,
-AdmsSensFadType & modelVar_qpref2sti,
-AdmsSensFadType & modelVar_qpref2gat,
-AdmsSensFadType & modelVar_wdepnulrbot,
-AdmsSensFadType & modelVar_wdepnulrsti,
-AdmsSensFadType & modelVar_wdepnulrgat,
-AdmsSensFadType & modelVar_wdepnulrinvbot,
-AdmsSensFadType & modelVar_wdepnulrinvsti,
-AdmsSensFadType & modelVar_wdepnulrinvgat,
-AdmsSensFadType & modelVar_VBIRBOTinv,
-AdmsSensFadType & modelVar_VBIRSTIinv,
-AdmsSensFadType & modelVar_VBIRGATinv,
-AdmsSensFadType & modelVar_atatbot,
-AdmsSensFadType & modelVar_atatsti,
-AdmsSensFadType & modelVar_atatgat,
-AdmsSensFadType & modelVar_btatpartbot,
-AdmsSensFadType & modelVar_btatpartsti,
-AdmsSensFadType & modelVar_btatpartgat,
-AdmsSensFadType & modelVar_fbbtbot,
-AdmsSensFadType & modelVar_fbbtsti,
-AdmsSensFadType & modelVar_fbbtgat,
-AdmsSensFadType & modelVar_alphaav,
-AdmsSensFadType & modelVar_fstopbot,
-AdmsSensFadType & modelVar_fstopsti,
-AdmsSensFadType & modelVar_fstopgat,
-AdmsSensFadType & modelVar_VBRinvbot,
-AdmsSensFadType & modelVar_VBRinvsti,
-AdmsSensFadType & modelVar_VBRinvgat,
-AdmsSensFadType & modelVar_slopebot,
-AdmsSensFadType & modelVar_slopesti,
-AdmsSensFadType & modelVar_slopegat,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
 // basic variables
- double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance)
+ double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & d_staticContributions_dX, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance)
 {
 
   // Local variables
-  AdmsSensFadType h1;
-  AdmsSensFadType h2;
-  AdmsSensFadType h2d;
-  AdmsSensFadType h3;
-  AdmsSensFadType h4;
-  AdmsSensFadType h5;
-  AdmsSensFadType ijunrev;
-  AdmsSensFadType ijunfor2;
-  AdmsSensFadType ijunfor1;
-  AdmsSensFadType tm1;
-  AdmsSensFadType tm0;
-  AdmsSensFadType fbreakdown;
-  AdmsSensFadType ibbt;
-  AdmsSensFadType Fmaxr;
-  AdmsSensFadType itat;
-  AdmsSensFadType gammamax;
-  AdmsSensFadType erfctimesexpmtat;
-  AdmsSensFadType erfcpos;
-  AdmsSensFadType terfc;
-  AdmsSensFadType ysq;
-  AdmsSensFadType xerfc;
-  AdmsSensFadType mtat;
-  AdmsSensFadType ltat;
-  AdmsSensFadType ktat;
-  AdmsSensFadType wtat;
-  AdmsSensFadType wgamma;
-  AdmsSensFadType umaxpoweronepointfive;
-  AdmsSensFadType sqrtumax;
-  AdmsSensFadType umax;
-  AdmsSensFadType umaxbeforelimiting;
-  AdmsSensFadType twoatatoverthreebtat;
-  AdmsSensFadType btat;
-  AdmsSensFadType isrh;
-  AdmsSensFadType asrh;
-  AdmsSensFadType wdep;
-  AdmsSensFadType wsrh;
-  AdmsSensFadType dwsrh;
-  AdmsSensFadType wsrhstep;
-  AdmsSensFadType vbi_minus_vjsrh;
-  AdmsSensFadType id;
-  AdmsSensFadType tmp;
-  AdmsSensFadType vav;
-  AdmsSensFadType vjsrh;
-  AdmsSensFadType vjlim;
-  AdmsSensFadType z;
-  AdmsSensFadType idmult;
-  AdmsSensFadType zinv;
-  AdmsSensFadType vj;
-  AdmsSensFadType two_psistar;
-  AdmsSensFadType vbbt;
+  double h1=0.0;
+double d_h1_dX=0.0;
+  double h2=0.0;
+double d_h2_dX=0.0;
+  double h2d=0.0;
+double d_h2d_dX=0.0;
+  double h3=0.0;
+double d_h3_dX=0.0;
+  double h4=0.0;
+double d_h4_dX=0.0;
+  double h5=0.0;
+double d_h5_dX=0.0;
+  double ijunrev=0.0;
+double d_ijunrev_dX=0.0;
+  double ijunfor2=0.0;
+double d_ijunfor2_dX=0.0;
+  double ijunfor1=0.0;
+double d_ijunfor1_dX=0.0;
+  double tm1=0.0;
+double d_tm1_dX=0.0;
+  double tm0=0.0;
+double d_tm0_dX=0.0;
+  double fbreakdown=0.0;
+double d_fbreakdown_dX=0.0;
+  double ibbt=0.0;
+double d_ibbt_dX=0.0;
+  double Fmaxr=0.0;
+double d_Fmaxr_dX=0.0;
+  double itat=0.0;
+double d_itat_dX=0.0;
+  double gammamax=0.0;
+double d_gammamax_dX=0.0;
+  double erfctimesexpmtat=0.0;
+double d_erfctimesexpmtat_dX=0.0;
+  double erfcpos=0.0;
+double d_erfcpos_dX=0.0;
+  double terfc=0.0;
+double d_terfc_dX=0.0;
+  double ysq=0.0;
+double d_ysq_dX=0.0;
+  double xerfc=0.0;
+double d_xerfc_dX=0.0;
+  double mtat=0.0;
+double d_mtat_dX=0.0;
+  double ltat=0.0;
+double d_ltat_dX=0.0;
+  double ktat=0.0;
+double d_ktat_dX=0.0;
+  double wtat=0.0;
+double d_wtat_dX=0.0;
+  double wgamma=0.0;
+double d_wgamma_dX=0.0;
+  double umaxpoweronepointfive=0.0;
+double d_umaxpoweronepointfive_dX=0.0;
+  double sqrtumax=0.0;
+double d_sqrtumax_dX=0.0;
+  double umax=0.0;
+double d_umax_dX=0.0;
+  double umaxbeforelimiting=0.0;
+double d_umaxbeforelimiting_dX=0.0;
+  double twoatatoverthreebtat=0.0;
+double d_twoatatoverthreebtat_dX=0.0;
+  double btat=0.0;
+double d_btat_dX=0.0;
+  double isrh=0.0;
+double d_isrh_dX=0.0;
+  double asrh=0.0;
+double d_asrh_dX=0.0;
+  double wdep=0.0;
+double d_wdep_dX=0.0;
+  double wsrh=0.0;
+double d_wsrh_dX=0.0;
+  double dwsrh=0.0;
+double d_dwsrh_dX=0.0;
+  double wsrhstep=0.0;
+double d_wsrhstep_dX=0.0;
+  double vbi_minus_vjsrh=0.0;
+double d_vbi_minus_vjsrh_dX=0.0;
+  double id=0.0;
+double d_id_dX=0.0;
+  double tmp=0.0;
+double d_tmp_dX=0.0;
+  double vav=0.0;
+double d_vav_dX=0.0;
+  double vjsrh=0.0;
+double d_vjsrh_dX=0.0;
+  double vjlim=0.0;
+double d_vjlim_dX=0.0;
+  double z=0.0;
+double d_z_dX=0.0;
+  double idmult=0.0;
+double d_idmult_dX=0.0;
+  double zinv=0.0;
+double d_zinv_dX=0.0;
+  double vj=0.0;
+double d_vj_dX=0.0;
+  double two_psistar=0.0;
+double d_two_psistar_dX=0.0;
+  double vbbt=0.0;
+double d_vbbt_dX=0.0;
 
 
   // -- code converted from analog/code block
 //Begin block evaluateblock
 {
 //Block-local variables for block evaluateblock
-AdmsSensFadType ijunbot;
-AdmsSensFadType qjunbot;
-AdmsSensFadType ijunsti;
-AdmsSensFadType qjunsti;
-AdmsSensFadType ijungat;
-AdmsSensFadType qjungat;
-AdmsSensFadType ijun;
-AdmsSensFadType qjun;
-AdmsSensFadType jnoise;
-AdmsSensFadType VAK;
+double ijunbot=0.0;
+double d_ijunbot_dX=0.0;
+double qjunbot=0.0;
+double d_qjunbot_dX=0.0;
+double ijunsti=0.0;
+double d_ijunsti_dX=0.0;
+double qjunsti=0.0;
+double d_qjunsti_dX=0.0;
+double ijungat=0.0;
+double d_ijungat_dX=0.0;
+double qjungat=0.0;
+double d_qjungat_dX=0.0;
+double ijun=0.0;
+double d_ijun_dX=0.0;
+double qjun=0.0;
+double d_qjun_dX=0.0;
+double jnoise=0.0;
+double d_jnoise_dX=0.0;
+double VAK=0.0;
+double d_VAK_dX=0.0;
 //End of Block-local variables
+d_ijun_dX = 0.0;
 ijun = 0.0;
+d_ijunbot_dX = 0.0;
 ijunbot = 0.0;
+d_ijunsti_dX = 0.0;
 ijunsti = 0.0;
+d_ijungat_dX = 0.0;
 ijungat = 0.0;
 //Begin block evaluateStaticDynamic
 {
-VAK = (modelPar_TYPE*(probeVars[admsProbeID_V_A_K]));
-if ((modelVar_SWJUNEXP_i==1.0))
+d_VAK_dX = 0.0;
+VAK = (modelStruct.modelPar_TYPE*(probeVars[admsProbeID_V_A_K]));
+if ((modelStruct.modelVar_SWJUNEXP_i==1.0))
 {
-tm0 = ((VAK*modelVar_phitdinv)*instanceVar_MFOR1);
-tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1.0)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf1),(instanceVar_expxhf1*((tm0-instanceVar_xhighf1)+1.0)),exp(tm0)));
-ijunfor1 = (instanceVar_ISATFOR1*(tm1-1.0));
-tm0 = ((VAK*modelVar_phitdinv)*instanceVar_MFOR2);
-tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1.0)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighf2),(instanceVar_expxhf2*((tm0-instanceVar_xhighf2)+1.0)),exp(tm0)));
-ijunfor2 = (instanceVar_ISATFOR2*(tm1-1.0));
+d_tm0_dX = (VAK*modelStruct.d_modelVar_phitdinv_dX+d_VAK_dX*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1;
+tm0 = ((VAK*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR1);
+{
+double value_exp_0 = exp(tm0);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tm1_dX = ((tm0<(-2.3025850929940458e+02))?(-1.0e-100*(-d_tm0_dX)/(((-2.3025850929940458e+02)-tm0)+1.0)/(((-2.3025850929940458e+02)-tm0)+1.0)):((tm0>instanceStruct.instanceVar_xhighf1)?(instanceStruct.instanceVar_expxhf1*(d_tm0_dX-instanceStruct.d_instanceVar_xhighf1_dX)+instanceStruct.d_instanceVar_expxhf1_dX*((tm0-instanceStruct.instanceVar_xhighf1)+1.0)):deriv_exp_0_d0*(d_tm0_dX)));
+tm1 = ((tm0<(-2.3025850929940458e+02))?(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1.0)):((tm0>instanceStruct.instanceVar_xhighf1)?(instanceStruct.instanceVar_expxhf1*((tm0-instanceStruct.instanceVar_xhighf1)+1.0)):value_exp_0));
+}
+d_ijunfor1_dX = (instanceStruct.instanceVar_ISATFOR1*d_tm1_dX+instanceStruct.d_instanceVar_ISATFOR1_dX*(tm1-1.0));
+ijunfor1 = (instanceStruct.instanceVar_ISATFOR1*(tm1-1.0));
+d_tm0_dX = ((VAK*modelStruct.modelVar_phitdinv)*instanceStruct.d_instanceVar_MFOR2_dX+(VAK*modelStruct.d_modelVar_phitdinv_dX+d_VAK_dX*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR2);
+tm0 = ((VAK*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MFOR2);
+{
+double value_exp_0 = exp(tm0);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tm1_dX = ((tm0<(-2.3025850929940458e+02))?(-1.0e-100*(-d_tm0_dX)/(((-2.3025850929940458e+02)-tm0)+1.0)/(((-2.3025850929940458e+02)-tm0)+1.0)):((tm0>instanceStruct.instanceVar_xhighf2)?(instanceStruct.instanceVar_expxhf2*(d_tm0_dX-instanceStruct.d_instanceVar_xhighf2_dX)+instanceStruct.d_instanceVar_expxhf2_dX*((tm0-instanceStruct.instanceVar_xhighf2)+1.0)):deriv_exp_0_d0*(d_tm0_dX)));
+tm1 = ((tm0<(-2.3025850929940458e+02))?(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1.0)):((tm0>instanceStruct.instanceVar_xhighf2)?(instanceStruct.instanceVar_expxhf2*((tm0-instanceStruct.instanceVar_xhighf2)+1.0)):value_exp_0));
+}
+d_ijunfor2_dX = (instanceStruct.instanceVar_ISATFOR2*d_tm1_dX+instanceStruct.d_instanceVar_ISATFOR2_dX*(tm1-1.0));
+ijunfor2 = (instanceStruct.instanceVar_ISATFOR2*(tm1-1.0));
+d_ijunrev_dX = 0.0;
 ijunrev = 0.0;
-if ((instanceVar_m0flag>0.0))
+if ((instanceStruct.instanceVar_m0flag>0.0))
 {
-ijunrev = (VAK*(instanceVar_ISATREV+(VAK*instanceVar_MREV)));
+d_ijunrev_dX = (VAK*(instanceStruct.d_instanceVar_ISATREV_dX+(VAK*instanceStruct.d_instanceVar_MREV_dX+d_VAK_dX*instanceStruct.instanceVar_MREV))+d_VAK_dX*(instanceStruct.instanceVar_ISATREV+(VAK*instanceStruct.instanceVar_MREV)));
+ijunrev = (VAK*(instanceStruct.instanceVar_ISATREV+(VAK*instanceStruct.instanceVar_MREV)));
 }
 else
 {
-tm0 = (((-VAK)*modelVar_phitdinv)*instanceVar_MREV);
-tm1 = adms_ternary_op<AdmsSensFadType>((tm0<(-2.3025850929940458e+02)),(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1.0)),adms_ternary_op<AdmsSensFadType>((tm0>instanceVar_xhighr),(instanceVar_expxhr*((tm0-instanceVar_xhighr)+1.0)),exp(tm0)));
-ijunrev = ((-instanceVar_ISATREV)*(tm1-1.0));
+d_tm0_dX = (((-VAK)*modelStruct.modelVar_phitdinv)*instanceStruct.d_instanceVar_MREV_dX+((-VAK)*modelStruct.d_modelVar_phitdinv_dX+(-d_VAK_dX)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MREV);
+tm0 = (((-VAK)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_MREV);
+{
+double value_exp_0 = exp(tm0);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tm1_dX = ((tm0<(-2.3025850929940458e+02))?(-1.0e-100*(-d_tm0_dX)/(((-2.3025850929940458e+02)-tm0)+1.0)/(((-2.3025850929940458e+02)-tm0)+1.0)):((tm0>instanceStruct.instanceVar_xhighr)?(instanceStruct.instanceVar_expxhr*(d_tm0_dX-instanceStruct.d_instanceVar_xhighr_dX)+instanceStruct.d_instanceVar_expxhr_dX*((tm0-instanceStruct.instanceVar_xhighr)+1.0)):deriv_exp_0_d0*(d_tm0_dX)));
+tm1 = ((tm0<(-2.3025850929940458e+02))?(1.0e-100/(((-2.3025850929940458e+02)-tm0)+1.0)):((tm0>instanceStruct.instanceVar_xhighr)?(instanceStruct.instanceVar_expxhr*((tm0-instanceStruct.instanceVar_xhighr)+1.0)):value_exp_0));
 }
+d_ijunrev_dX = ((-instanceStruct.instanceVar_ISATREV)*d_tm1_dX+(-instanceStruct.d_instanceVar_ISATREV_dX)*(tm1-1.0));
+ijunrev = ((-instanceStruct.instanceVar_ISATREV)*(tm1-1.0));
+}
+d_ijun_dX = ((d_ijunfor1_dX+d_ijunfor2_dX)+d_ijunrev_dX);
 ijun = ((ijunfor1+ijunfor2)+ijunrev);
 //Begin block evaluateDynamic
 {
 //Block-local variables for block evaluateDynamic
-AdmsSensFadType tmpv;
-AdmsSensFadType vjv;
+double tmpv=0.0;
+double d_tmpv_dX=0.0;
+double vjv=0.0;
+double d_vjv_dX=0.0;
 //End of Block-local variables
+d_tmpv_dX = 0.0;
 tmpv = 0.0;
+d_vjv_dX = 0.0;
 vjv = 0.0;
-h1 = ((4.0*instanceVar_vch)*instanceVar_vch);
-h2 = (instanceVar_vch/instanceVar_vfmin);
-h2d = (VAK+(instanceVar_vch*h2));
-h3 = (instanceVar_vfmin+h2d);
-h4 = (instanceVar_vfmin-h2d);
-h5 = sqrt(((h4*h4)+h1));
-vjv = (2.0*((VAK*instanceVar_vfmin)/(h3+h5)));
-if ((instanceVar_zflagbot>0.5))
+d_h1_dX = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.d_instanceVar_vch_dX+4.0*instanceStruct.d_instanceVar_vch_dX*instanceStruct.instanceVar_vch);
+h1 = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.instanceVar_vch);
+d_h2_dX = ((instanceStruct.instanceVar_vfmin*instanceStruct.d_instanceVar_vch_dX-instanceStruct.instanceVar_vch*instanceStruct.d_instanceVar_vfmin_dX)/instanceStruct.instanceVar_vfmin/instanceStruct.instanceVar_vfmin);
+h2 = (instanceStruct.instanceVar_vch/instanceStruct.instanceVar_vfmin);
+d_h2d_dX = (d_VAK_dX+(instanceStruct.instanceVar_vch*d_h2_dX+instanceStruct.d_instanceVar_vch_dX*h2));
+h2d = (VAK+(instanceStruct.instanceVar_vch*h2));
+d_h3_dX = (instanceStruct.d_instanceVar_vfmin_dX+d_h2d_dX);
+h3 = (instanceStruct.instanceVar_vfmin+h2d);
+d_h4_dX = (instanceStruct.d_instanceVar_vfmin_dX-d_h2d_dX);
+h4 = (instanceStruct.instanceVar_vfmin-h2d);
 {
-if ((modelVar_one_minus_PBOT==0.5))
+double value_sqrt_0 = sqrt(((h4*h4)+h1));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_h5_dX = deriv_sqrt_0_d0*(((h4*d_h4_dX+d_h4_dX*h4)+d_h1_dX));
+h5 = value_sqrt_0;
+}
+d_vjv_dX = 2.0*(((h3+h5)*(VAK*instanceStruct.d_instanceVar_vfmin_dX+d_VAK_dX*instanceStruct.instanceVar_vfmin)-(VAK*instanceStruct.instanceVar_vfmin)*(d_h3_dX+d_h5_dX))/(h3+h5)/(h3+h5));
+vjv = (2.0*((VAK*instanceStruct.instanceVar_vfmin)/(h3+h5)));
+if ((instanceStruct.instanceVar_zflagbot>0.5))
 {
-tmpv = sqrt((1.0-(vjv*modelVar_vbiinvbot)));
+if ((modelStruct.modelVar_one_minus_PBOT==0.5))
+{
+{
+double value_sqrt_0 = sqrt((1.0-(vjv*modelStruct.modelVar_vbiinvbot)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmpv_dX = deriv_sqrt_0_d0*((-(vjv*modelStruct.d_modelVar_vbiinvbot_dX+d_vjv_dX*modelStruct.modelVar_vbiinvbot)));
+tmpv = value_sqrt_0;
+}
 }
 else
 {
-tmpv = pow((1.0-(vjv*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-}
-qjunbot = ((modelVar_qprefbot*(1.0-tmpv))+(modelVar_qpref2bot*(VAK-vjv)));
-}
-if ((instanceVar_zflagsti>0.5))
 {
-if ((modelVar_one_minus_PSTI==0.5))
+double value_pow_0 = pow((1.0-(vjv*modelStruct.modelVar_vbiinvbot)),modelStruct.modelVar_one_minus_PBOT);
+double  deriv_pow_0_d0 = (((1.0-(vjv*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PBOT/(1.0-(vjv*modelStruct.modelVar_vbiinvbot))));
+double  deriv_pow_0_d1 = ((1.0-(vjv*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(log((1.0-(vjv*modelStruct.modelVar_vbiinvbot)))*value_pow_0);
+d_tmpv_dX = ((deriv_pow_0_d0*((-(vjv*modelStruct.d_modelVar_vbiinvbot_dX+d_vjv_dX*modelStruct.modelVar_vbiinvbot))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PBOT_dX)));
+tmpv = value_pow_0;
+}
+}
+d_qjunbot_dX = ((modelStruct.modelVar_qprefbot*(-d_tmpv_dX)+modelStruct.d_modelVar_qprefbot_dX*(1.0-tmpv))+(modelStruct.modelVar_qpref2bot*(d_VAK_dX-d_vjv_dX)+modelStruct.d_modelVar_qpref2bot_dX*(VAK-vjv)));
+qjunbot = ((modelStruct.modelVar_qprefbot*(1.0-tmpv))+(modelStruct.modelVar_qpref2bot*(VAK-vjv)));
+}
+if ((instanceStruct.instanceVar_zflagsti>0.5))
 {
-tmpv = sqrt((1.0-(vjv*modelVar_vbiinvsti)));
+if ((modelStruct.modelVar_one_minus_PSTI==0.5))
+{
+{
+double value_sqrt_0 = sqrt((1.0-(vjv*modelStruct.modelVar_vbiinvsti)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmpv_dX = deriv_sqrt_0_d0*((-(vjv*modelStruct.d_modelVar_vbiinvsti_dX+d_vjv_dX*modelStruct.modelVar_vbiinvsti)));
+tmpv = value_sqrt_0;
+}
 }
 else
 {
-tmpv = pow((1.0-(vjv*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-}
-qjunsti = ((modelVar_qprefsti*(1.0-tmpv))+(modelVar_qpref2sti*(VAK-vjv)));
-}
-if ((instanceVar_zflaggat>0.5))
 {
-if ((modelVar_one_minus_PGAT==0.5))
+double value_pow_0 = pow((1.0-(vjv*modelStruct.modelVar_vbiinvsti)),modelStruct.modelVar_one_minus_PSTI);
+double  deriv_pow_0_d0 = (((1.0-(vjv*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PSTI/(1.0-(vjv*modelStruct.modelVar_vbiinvsti))));
+double  deriv_pow_0_d1 = ((1.0-(vjv*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(log((1.0-(vjv*modelStruct.modelVar_vbiinvsti)))*value_pow_0);
+d_tmpv_dX = ((deriv_pow_0_d0*((-(vjv*modelStruct.d_modelVar_vbiinvsti_dX+d_vjv_dX*modelStruct.modelVar_vbiinvsti))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PSTI_dX)));
+tmpv = value_pow_0;
+}
+}
+d_qjunsti_dX = ((modelStruct.modelVar_qprefsti*(-d_tmpv_dX)+modelStruct.d_modelVar_qprefsti_dX*(1.0-tmpv))+(modelStruct.modelVar_qpref2sti*(d_VAK_dX-d_vjv_dX)+modelStruct.d_modelVar_qpref2sti_dX*(VAK-vjv)));
+qjunsti = ((modelStruct.modelVar_qprefsti*(1.0-tmpv))+(modelStruct.modelVar_qpref2sti*(VAK-vjv)));
+}
+if ((instanceStruct.instanceVar_zflaggat>0.5))
 {
-tmpv = sqrt((1.0-(vjv*modelVar_vbiinvgat)));
+if ((modelStruct.modelVar_one_minus_PGAT==0.5))
+{
+{
+double value_sqrt_0 = sqrt((1.0-(vjv*modelStruct.modelVar_vbiinvgat)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmpv_dX = deriv_sqrt_0_d0*((-(vjv*modelStruct.d_modelVar_vbiinvgat_dX+d_vjv_dX*modelStruct.modelVar_vbiinvgat)));
+tmpv = value_sqrt_0;
+}
 }
 else
 {
-tmpv = pow((1.0-(vjv*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
+{
+double value_pow_0 = pow((1.0-(vjv*modelStruct.modelVar_vbiinvgat)),modelStruct.modelVar_one_minus_PGAT);
+double  deriv_pow_0_d0 = (((1.0-(vjv*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PGAT/(1.0-(vjv*modelStruct.modelVar_vbiinvgat))));
+double  deriv_pow_0_d1 = ((1.0-(vjv*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(log((1.0-(vjv*modelStruct.modelVar_vbiinvgat)))*value_pow_0);
+d_tmpv_dX = ((deriv_pow_0_d0*((-(vjv*modelStruct.d_modelVar_vbiinvgat_dX+d_vjv_dX*modelStruct.modelVar_vbiinvgat))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PGAT_dX)));
+tmpv = value_pow_0;
 }
-qjungat = ((modelVar_qprefgat*(1.0-tmpv))+(modelVar_qpref2gat*(VAK-vjv)));
+}
+d_qjungat_dX = ((modelStruct.modelVar_qprefgat*(-d_tmpv_dX)+modelStruct.d_modelVar_qprefgat_dX*(1.0-tmpv))+(modelStruct.modelVar_qpref2gat*(d_VAK_dX-d_vjv_dX)+modelStruct.d_modelVar_qpref2gat_dX*(VAK-vjv)));
+qjungat = ((modelStruct.modelVar_qprefgat*(1.0-tmpv))+(modelStruct.modelVar_qpref2gat*(VAK-vjv)));
 }
 }
 // End block evaluateDynamic
 }
 else
 {
+d_vbbt_dX = 0.0;
 vbbt = 0.0;
+d_two_psistar_dX = 0.0;
 two_psistar = 0.0;
-if ((!(((instanceVar_AB_i==0.0)&&(instanceVar_LS_i==0.0))&&(instanceVar_LG_i==0.0))))
+if ((!(((instanceStruct.instanceVar_AB_i==0.0)&&(instanceStruct.instanceVar_LS_i==0.0))&&(instanceStruct.instanceVar_LG_i==0.0))))
 {
-h1 = ((4.0*instanceVar_vch)*instanceVar_vch);
-h2 = (instanceVar_vch/instanceVar_vfmin);
-h2d = (VAK+(instanceVar_vch*h2));
-h3 = (instanceVar_vfmin+h2d);
-h4 = (instanceVar_vfmin-h2d);
-h5 = sqrt(((h4*h4)+h1));
-vj = (2.0*((VAK*instanceVar_vfmin)/(h3+h5)));
-if ((VAK<instanceVar_VMAX))
+d_h1_dX = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.d_instanceVar_vch_dX+4.0*instanceStruct.d_instanceVar_vch_dX*instanceStruct.instanceVar_vch);
+h1 = ((4.0*instanceStruct.instanceVar_vch)*instanceStruct.instanceVar_vch);
+d_h2_dX = ((instanceStruct.instanceVar_vfmin*instanceStruct.d_instanceVar_vch_dX-instanceStruct.instanceVar_vch*instanceStruct.d_instanceVar_vfmin_dX)/instanceStruct.instanceVar_vfmin/instanceStruct.instanceVar_vfmin);
+h2 = (instanceStruct.instanceVar_vch/instanceStruct.instanceVar_vfmin);
+d_h2d_dX = (d_VAK_dX+(instanceStruct.instanceVar_vch*d_h2_dX+instanceStruct.d_instanceVar_vch_dX*h2));
+h2d = (VAK+(instanceStruct.instanceVar_vch*h2));
+d_h3_dX = (instanceStruct.d_instanceVar_vfmin_dX+d_h2d_dX);
+h3 = (instanceStruct.instanceVar_vfmin+h2d);
+d_h4_dX = (instanceStruct.d_instanceVar_vfmin_dX-d_h2d_dX);
+h4 = (instanceStruct.instanceVar_vfmin-h2d);
 {
-if ((fabs((0.5*(VAK*modelVar_phitdinv)))<2.3025850929940458e+02))
+double value_sqrt_0 = sqrt(((h4*h4)+h1));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_h5_dX = deriv_sqrt_0_d0*(((h4*d_h4_dX+d_h4_dX*h4)+d_h1_dX));
+h5 = value_sqrt_0;
+}
+d_vj_dX = 2.0*(((h3+h5)*(VAK*instanceStruct.d_instanceVar_vfmin_dX+d_VAK_dX*instanceStruct.instanceVar_vfmin)-(VAK*instanceStruct.instanceVar_vfmin)*(d_h3_dX+d_h5_dX))/(h3+h5)/(h3+h5));
+vj = (2.0*((VAK*instanceStruct.instanceVar_vfmin)/(h3+h5)));
+if ((VAK<instanceStruct.instanceVar_VMAX))
 {
-zinv = exp((0.5*(VAK*modelVar_phitdinv)));
+if ((fabs((0.5*(VAK*modelStruct.modelVar_phitdinv)))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp((0.5*(VAK*modelStruct.modelVar_phitdinv)));
+double  deriv_exp_0_d0 = value_exp_0;
+d_zinv_dX = deriv_exp_0_d0*(0.5*(VAK*modelStruct.d_modelVar_phitdinv_dX+d_VAK_dX*modelStruct.modelVar_phitdinv));
+zinv = value_exp_0;
+}
 }
 else
 {
-if (((0.5*(VAK*modelVar_phitdinv))<0.0))
+if (((0.5*(VAK*modelStruct.modelVar_phitdinv))<0.0))
 {
-zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(VAK*modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+d_zinv_dX = (-1.0e-100*(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*0.5*(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*(-0.5*(VAK*modelStruct.d_modelVar_phitdinv_dX+d_VAK_dX*modelStruct.modelVar_phitdinv))*3.3333333333333333e-01+(-0.5*(VAK*modelStruct.d_modelVar_phitdinv_dX+d_VAK_dX*modelStruct.modelVar_phitdinv))*(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))+(-0.5*(VAK*modelStruct.d_modelVar_phitdinv_dX+d_VAK_dX*modelStruct.modelVar_phitdinv))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
+zinv = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*(1.0+(0.5*(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*(1.0+(((-2.3025850929940458e+02)-(0.5*(VAK*modelStruct.modelVar_phitdinv)))*3.3333333333333333e-01))))))));
 }
 else
 {
-zinv = (1.0e100*(1.0+(((0.5*(VAK*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(VAK*modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(VAK*modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_zinv_dX = 1.0e100*(((0.5*(VAK*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(((0.5*(VAK*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*0.5*(VAK*modelStruct.d_modelVar_phitdinv_dX+d_VAK_dX*modelStruct.modelVar_phitdinv)*3.3333333333333333e-01+0.5*(VAK*modelStruct.d_modelVar_phitdinv_dX+d_VAK_dX*modelStruct.modelVar_phitdinv)*(1.0+(((0.5*(VAK*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01)))+0.5*(VAK*modelStruct.d_modelVar_phitdinv_dX+d_VAK_dX*modelStruct.modelVar_phitdinv)*(1.0+(0.5*(((0.5*(VAK*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(VAK*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+zinv = (1.0e100*(1.0+(((0.5*(VAK*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(0.5*(((0.5*(VAK*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*(1.0+(((0.5*(VAK*modelStruct.modelVar_phitdinv))-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
+d_idmult_dX = (zinv*d_zinv_dX+d_zinv_dX*zinv);
 idmult = (zinv*zinv);
 }
 else
 {
-idmult = ((1.0+((VAK-instanceVar_VMAX)*modelVar_phitdinv))*instanceVar_exp_VMAX_over_phitd);
-zinv = sqrt(idmult);
+d_idmult_dX = ((1.0+((VAK-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX+((VAK-instanceStruct.instanceVar_VMAX)*modelStruct.d_modelVar_phitdinv_dX+(d_VAK_dX-instanceStruct.d_instanceVar_VMAX_dX)*modelStruct.modelVar_phitdinv)*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+idmult = ((1.0+((VAK-instanceStruct.instanceVar_VMAX)*modelStruct.modelVar_phitdinv))*instanceStruct.instanceVar_exp_VMAX_over_phitd);
+{
+double value_sqrt_0 = sqrt(idmult);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_zinv_dX = deriv_sqrt_0_d0*(d_idmult_dX);
+zinv = value_sqrt_0;
+}
 }
 idmult = (idmult-1.0);
+d_z_dX = (-d_zinv_dX/zinv/zinv);
 z = (1.0/zinv);
 if ((VAK>0.0))
 {
-two_psistar = (2.0*(modelVar_phitd*log(((2.0+z)+sqrt(((z+1.0)*(z+3.0)))))));
+{
+double value_sqrt_0 = sqrt(((z+1.0)*(z+3.0)));
+double value_log_1 = log(((2.0+z)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/((2.0+z)+value_sqrt_0));
+d_two_psistar_dX = 2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((d_z_dX+deriv_sqrt_0_d0*(((z+1.0)*d_z_dX+d_z_dX*(z+3.0)))))+modelStruct.d_modelVar_phitd_dX*value_log_1);
+two_psistar = (2.0*(modelStruct.modelVar_phitd*value_log_1));
+}
 }
 else
 {
-two_psistar = ((-VAK)+(2.0*(modelVar_phitd*log((((2.0*zinv)+1.0)+sqrt(((1.0+zinv)*(1.0+(3.0*zinv)))))))));
-}
-vjlim = (instanceVar_vbimin-two_psistar);
-vjsrh = (0.5*((VAK+vjlim)-sqrt((((VAK-vjlim)*(VAK-vjlim))+((4.0*modelVar_phitd)*modelVar_phitd)))));
-vbbt = (0.5*((VAK+instanceVar_vbbtlim)-sqrt((((VAK-instanceVar_vbbtlim)*(VAK-instanceVar_vbbtlim))+((4.0*modelVar_phitr)*modelVar_phitr)))));
-vav = (0.5*(VAK-sqrt((((VAK)*(VAK))+((4.0*1.0e-6)*1.0e-6)))));
-}
-if ((instanceVar_AB_i==0.0))
 {
+double value_sqrt_0 = sqrt(((1.0+zinv)*(1.0+(3.0*zinv))));
+double value_log_1 = log((((2.0*zinv)+1.0)+value_sqrt_0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_log_1_d0 = (1.0/(((2.0*zinv)+1.0)+value_sqrt_0));
+d_two_psistar_dX = ((-d_VAK_dX)+2.0*(modelStruct.modelVar_phitd*deriv_log_1_d0*((2.0*d_zinv_dX+deriv_sqrt_0_d0*(((1.0+zinv)*3.0*d_zinv_dX+d_zinv_dX*(1.0+(3.0*zinv))))))+modelStruct.d_modelVar_phitd_dX*value_log_1));
+two_psistar = ((-VAK)+(2.0*(modelStruct.modelVar_phitd*value_log_1)));
+}
+}
+d_vjlim_dX = (instanceStruct.d_instanceVar_vbimin_dX-d_two_psistar_dX);
+vjlim = (instanceStruct.instanceVar_vbimin-two_psistar);
+{
+double value_sqrt_0 = sqrt((((VAK-vjlim)*(VAK-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.modelVar_phitd)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vjsrh_dX = 0.5*((d_VAK_dX+d_vjlim_dX)-deriv_sqrt_0_d0*((((VAK-vjlim)*(d_VAK_dX-d_vjlim_dX)+(d_VAK_dX-d_vjlim_dX)*(VAK-vjlim))+((4.0*modelStruct.modelVar_phitd)*modelStruct.d_modelVar_phitd_dX+4.0*modelStruct.d_modelVar_phitd_dX*modelStruct.modelVar_phitd))));
+vjsrh = (0.5*((VAK+vjlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((VAK-instanceStruct.instanceVar_vbbtlim)*(VAK-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.modelVar_phitr)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vbbt_dX = 0.5*((d_VAK_dX+instanceStruct.d_instanceVar_vbbtlim_dX)-deriv_sqrt_0_d0*((((VAK-instanceStruct.instanceVar_vbbtlim)*(d_VAK_dX-instanceStruct.d_instanceVar_vbbtlim_dX)+(d_VAK_dX-instanceStruct.d_instanceVar_vbbtlim_dX)*(VAK-instanceStruct.instanceVar_vbbtlim))+((4.0*modelStruct.modelVar_phitr)*modelStruct.d_modelVar_phitr_dX+4.0*modelStruct.d_modelVar_phitr_dX*modelStruct.modelVar_phitr))));
+vbbt = (0.5*((VAK+instanceStruct.instanceVar_vbbtlim)-value_sqrt_0));
+}
+{
+double value_sqrt_0 = sqrt((((VAK)*(VAK))+((4.0*1.0e-6)*1.0e-6)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vav_dX = 0.5*(d_VAK_dX-deriv_sqrt_0_d0*(((VAK)*d_VAK_dX+d_VAK_dX*(VAK))));
+vav = (0.5*(VAK-value_sqrt_0));
+}
+}
+if ((instanceStruct.instanceVar_AB_i==0.0))
+{
+d_ijunbot_dX = 0.0;
 ijunbot = 0.0;
+d_qjunbot_dX = 0.0;
 qjunbot = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PBOT==0.5))
+if ((modelStruct.modelVar_one_minus_PBOT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvbot)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvbot)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvbot)),modelVar_one_minus_PBOT);
-}
-qjunbot = ((modelVar_qprefbot*(1.0-tmp))+(modelVar_qpref2bot*(VAK-vj)));
-id = (modelVar_idsatbot*idmult);
-if (((modelVar_CSRHBOT_i==0.0)&&(modelVar_CTATBOT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvbot)),modelStruct.modelVar_one_minus_PBOT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PBOT/(1.0-(vj*modelStruct.modelVar_vbiinvbot))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvbot)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvbot)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvbot_dX+d_vj_dX*modelStruct.modelVar_vbiinvbot))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PBOT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunbot_dX = ((modelStruct.modelVar_qprefbot*(-d_tmp_dX)+modelStruct.d_modelVar_qprefbot_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(d_VAK_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2bot_dX*(VAK-vj)));
+qjunbot = ((modelStruct.modelVar_qprefbot*(1.0-tmp))+(modelStruct.modelVar_qpref2bot*(VAK-vj)));
+d_id_dX = (modelStruct.modelVar_idsatbot*d_idmult_dX+modelStruct.d_modelVar_idsatbot_dX*idmult);
+id = (modelStruct.modelVar_idsatbot*idmult);
+if (((modelStruct.modelVar_CSRHBOT_i==0.0)&&(modelStruct.modelVar_CTATBOT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbibot-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PBOT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbibot_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbibot-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PBOT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PBOT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRBOTinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PBOT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PBOT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PBOT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-wdep = (modelVar_wdepnulrbot*tmp);
-asrh = (modelVar_ftdbot*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHBOT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATBOT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRBOTinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrbot*d_tmp_dX+modelStruct.d_modelVar_wdepnulrbot_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrbot*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdbot*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdbot_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdbot*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHBOT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHBOT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHBOT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATBOT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartbot*((wdep*modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatbot)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartbot*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PBOT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PBOT)-(wdep*modelStruct.modelVar_one_minus_PBOT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartbot_dX*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartbot*((wdep*modelStruct.modelVar_one_minus_PBOT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatbot_dX-(0.666666666666667*modelStruct.modelVar_atatbot)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatbot)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PBOT_i)*modelVar_one_over_one_minus_PBOT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PBOT_i)*modelStruct.modelVar_one_over_one_minus_PBOT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PBOT_i)*modelStruct.d_modelVar_one_over_one_minus_PBOT_dX+(-modelStruct.d_modelVar_PBOT_i_dX)*modelStruct.modelVar_one_over_one_minus_PBOT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatbot*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatbot_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*d_umax_dX+modelStruct.d_modelVar_atatbot_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatbot*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatbot*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatbot*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatbot*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatbot_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatbot*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatbot*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATBOT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATBOT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTBOT_i==0.0))
+if ((modelStruct.modelVar_CBBTBOT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PBOT_i==0.5))
+if ((modelStruct.modelVar_PBOT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRBOT_i-vbbt)*modelVar_VBIRBOTinv),modelVar_PBOT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PBOT*(((modelVar_VBIRBOT_i-vbbt)*modelVar_wdepnulrinvbot)/tmp));
-if ((fabs(((-modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtbot)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv),modelStruct.modelVar_PBOT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PBOT_i/((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_VBIRBOTinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_VBIRBOTinv_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRBOTinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PBOT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PBOT*((tmp*((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvbot_dX+(modelStruct.d_modelVar_VBIRBOT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvbot)-((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PBOT_dX*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PBOT*(((modelStruct.modelVar_VBIRBOT_i-vbbt)*modelStruct.modelVar_wdepnulrinvbot)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtbot)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtbot)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtbot)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtbot)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtbot)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtbot_dX)-(-modelStruct.modelVar_fbbtbot)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtbot)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTBOT_i*(((VAK*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTBOT_i*(((VAK*Fmaxr)*Fmaxr)*d_tmp_dX+((VAK*Fmaxr)*d_Fmaxr_dX+(VAK*d_Fmaxr_dX+d_VAK_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTBOT_i_dX*(((VAK*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTBOT_i*(((VAK*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRBOT_i>1.0e3))
+if ((modelStruct.modelVar_VBRBOT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRBOT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRBOT_i)))
 {
-if ((modelVar_PBRBOT_i==4.0))
+if ((modelStruct.modelVar_PBRBOT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvbot)*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot))*(vav*modelVar_VBRinvbot));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)+(vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
+tmp = ((((vav*modelStruct.modelVar_VBRinvbot)*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot))*(vav*modelStruct.modelVar_VBRinvbot));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvbot)),modelVar_PBRBOT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvbot));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRBOT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvbot))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRBOT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvbot_dX+d_vav_dX*modelStruct.modelVar_VBRinvbot))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRBOT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopbot+((vav+(modelVar_alphaav*modelVar_VBRBOT_i))*modelVar_slopebot));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopbot_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.d_modelVar_slopebot_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRBOT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
+fbreakdown = (modelStruct.modelVar_fstopbot+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRBOT_i))*modelStruct.modelVar_slopebot));
 }
 }
+d_ijunbot_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunbot = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LS_i==0.0))
+if ((instanceStruct.instanceVar_LS_i==0.0))
 {
+d_ijunsti_dX = 0.0;
 ijunsti = 0.0;
+d_qjunsti_dX = 0.0;
 qjunsti = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PSTI==0.5))
+if ((modelStruct.modelVar_one_minus_PSTI==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvsti)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvsti)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvsti)),modelVar_one_minus_PSTI);
-}
-qjunsti = ((modelVar_qprefsti*(1.0-tmp))+(modelVar_qpref2sti*(VAK-vj)));
-id = (modelVar_idsatsti*idmult);
-if (((modelVar_CSRHSTI_i==0.0)&&(modelVar_CTATSTI_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvsti)),modelStruct.modelVar_one_minus_PSTI);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PSTI/(1.0-(vj*modelStruct.modelVar_vbiinvsti))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvsti)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvsti)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvsti_dX+d_vj_dX*modelStruct.modelVar_vbiinvsti))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PSTI_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjunsti_dX = ((modelStruct.modelVar_qprefsti*(-d_tmp_dX)+modelStruct.d_modelVar_qprefsti_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(d_VAK_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2sti_dX*(VAK-vj)));
+qjunsti = ((modelStruct.modelVar_qprefsti*(1.0-tmp))+(modelStruct.modelVar_qpref2sti*(VAK-vj)));
+d_id_dX = (modelStruct.modelVar_idsatsti*d_idmult_dX+modelStruct.d_modelVar_idsatsti_dX*idmult);
+id = (modelStruct.modelVar_idsatsti*idmult);
+if (((modelStruct.modelVar_CSRHSTI_i==0.0)&&(modelStruct.modelVar_CTATSTI_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbisti-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PSTI_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbisti_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbisti-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PSTI_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PSTI_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRSTIinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PSTI_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PSTI_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PSTI_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-wdep = (modelVar_wdepnulrsti*tmp);
-asrh = (modelVar_ftdsti*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHSTI_i*(asrh*wsrh));
-}
-if ((modelVar_CTATSTI_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRSTIinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrsti*d_tmp_dX+modelStruct.d_modelVar_wdepnulrsti_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrsti*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdsti*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdsti_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdsti*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHSTI_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHSTI_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHSTI_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATSTI_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartsti*((wdep*modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatsti)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartsti*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PSTI_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PSTI)-(wdep*modelStruct.modelVar_one_minus_PSTI)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartsti_dX*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartsti*((wdep*modelStruct.modelVar_one_minus_PSTI)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatsti_dX-(0.666666666666667*modelStruct.modelVar_atatsti)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatsti)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PSTI_i)*modelVar_one_over_one_minus_PSTI));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PSTI_i)*modelStruct.modelVar_one_over_one_minus_PSTI)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PSTI_i)*modelStruct.d_modelVar_one_over_one_minus_PSTI_dX+(-modelStruct.d_modelVar_PSTI_i_dX)*modelStruct.modelVar_one_over_one_minus_PSTI))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatsti*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatsti_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*d_umax_dX+modelStruct.d_modelVar_atatsti_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatsti*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatsti*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatsti*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatsti*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatsti_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatsti*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatsti*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATSTI_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATSTI_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTSTI_i==0.0))
+if ((modelStruct.modelVar_CBBTSTI_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PSTI_i==0.5))
+if ((modelStruct.modelVar_PSTI_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRSTI_i-vbbt)*modelVar_VBIRSTIinv),modelVar_PSTI_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PSTI*(((modelVar_VBIRSTI_i-vbbt)*modelVar_wdepnulrinvsti)/tmp));
-if ((fabs(((-modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtsti)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv),modelStruct.modelVar_PSTI_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PSTI_i/((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_VBIRSTIinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_VBIRSTIinv_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRSTIinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PSTI_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PSTI*((tmp*((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvsti_dX+(modelStruct.d_modelVar_VBIRSTI_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvsti)-((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PSTI_dX*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PSTI*(((modelStruct.modelVar_VBIRSTI_i-vbbt)*modelStruct.modelVar_wdepnulrinvsti)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtsti)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtsti)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtsti)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtsti)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtsti)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtsti_dX)-(-modelStruct.modelVar_fbbtsti)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtsti)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTSTI_i*(((VAK*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTSTI_i*(((VAK*Fmaxr)*Fmaxr)*d_tmp_dX+((VAK*Fmaxr)*d_Fmaxr_dX+(VAK*d_Fmaxr_dX+d_VAK_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTSTI_i_dX*(((VAK*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTSTI_i*(((VAK*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRSTI_i>1.0e3))
+if ((modelStruct.modelVar_VBRSTI_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRSTI_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRSTI_i)))
 {
-if ((modelVar_PBRSTI_i==4.0))
+if ((modelStruct.modelVar_PBRSTI_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvsti)*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti))*(vav*modelVar_VBRinvsti));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)+(vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
+tmp = ((((vav*modelStruct.modelVar_VBRinvsti)*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti))*(vav*modelStruct.modelVar_VBRinvsti));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvsti)),modelVar_PBRSTI_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvsti));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRSTI_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvsti))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRSTI_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvsti_dX+d_vav_dX*modelStruct.modelVar_VBRinvsti))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRSTI_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopsti+((vav+(modelVar_alphaav*modelVar_VBRSTI_i))*modelVar_slopesti));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopsti_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.d_modelVar_slopesti_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRSTI_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
+fbreakdown = (modelStruct.modelVar_fstopsti+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRSTI_i))*modelStruct.modelVar_slopesti));
 }
 }
+d_ijunsti_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijunsti = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-if ((instanceVar_LG_i==0.0))
+if ((instanceStruct.instanceVar_LG_i==0.0))
 {
+d_ijungat_dX = 0.0;
 ijungat = 0.0;
+d_qjungat_dX = 0.0;
 qjungat = 0.0;
 }
 else
 {
-if ((modelVar_one_minus_PGAT==0.5))
+if ((modelStruct.modelVar_one_minus_PGAT==0.5))
 {
-tmp = sqrt((1.0-(vj*modelVar_vbiinvgat)));
+{
+double value_sqrt_0 = sqrt((1.0-(vj*modelStruct.modelVar_vbiinvgat)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat)));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((1.0-(vj*modelVar_vbiinvgat)),modelVar_one_minus_PGAT);
-}
-qjungat = ((modelVar_qprefgat*(1.0-tmp))+(modelVar_qpref2gat*(VAK-vj)));
-id = (modelVar_idsatgat*idmult);
-if (((modelVar_CSRHGAT_i==0.0)&&(modelVar_CTATGAT_i==0.0)))
 {
+double value_pow_0 = pow((1.0-(vj*modelStruct.modelVar_vbiinvgat)),modelStruct.modelVar_one_minus_PGAT);
+double  deriv_pow_0_d0 = (((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_one_minus_PGAT/(1.0-(vj*modelStruct.modelVar_vbiinvgat))));
+double  deriv_pow_0_d1 = ((1.0-(vj*modelStruct.modelVar_vbiinvgat)) == 0.0)?0.0:(log((1.0-(vj*modelStruct.modelVar_vbiinvgat)))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((-(vj*modelStruct.d_modelVar_vbiinvgat_dX+d_vj_dX*modelStruct.modelVar_vbiinvgat))))+(deriv_pow_0_d1*(modelStruct.d_modelVar_one_minus_PGAT_dX)));
+tmp = value_pow_0;
+}
+}
+d_qjungat_dX = ((modelStruct.modelVar_qprefgat*(-d_tmp_dX)+modelStruct.d_modelVar_qprefgat_dX*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(d_VAK_dX-d_vj_dX)+modelStruct.d_modelVar_qpref2gat_dX*(VAK-vj)));
+qjungat = ((modelStruct.modelVar_qprefgat*(1.0-tmp))+(modelStruct.modelVar_qpref2gat*(VAK-vj)));
+d_id_dX = (modelStruct.modelVar_idsatgat*d_idmult_dX+modelStruct.d_modelVar_idsatgat_dX*idmult);
+id = (modelStruct.modelVar_idsatgat*idmult);
+if (((modelStruct.modelVar_CSRHGAT_i==0.0)&&(modelStruct.modelVar_CTATGAT_i==0.0)))
+{
+d_isrh_dX = 0.0;
 isrh = 0.0;
 }
 else
 {
-vbi_minus_vjsrh = (modelVar_vbigat-vjsrh);
-wsrhstep = (1.0-sqrt((1.0-(two_psistar/vbi_minus_vjsrh))));
-if ((modelVar_PGAT_i==0.5))
+d_vbi_minus_vjsrh_dX = (modelStruct.d_modelVar_vbigat_dX-d_vjsrh_dX);
+vbi_minus_vjsrh = (modelStruct.modelVar_vbigat-vjsrh);
 {
+double value_sqrt_0 = sqrt((1.0-(two_psistar/vbi_minus_vjsrh)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wsrhstep_dX = (-deriv_sqrt_0_d0*((-((vbi_minus_vjsrh*d_two_psistar_dX-two_psistar*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh))));
+wsrhstep = (1.0-value_sqrt_0);
+}
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+d_dwsrh_dX = 0.0;
 dwsrh = 0.0;
 }
 else
 {
-dwsrh = (((((wsrhstep*wsrhstep)*log(wsrhstep))/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelVar_PGAT_i)));
-}
-wsrh = (wsrhstep+dwsrh);
-if ((modelVar_PGAT_i==0.5))
 {
-tmp = sqrt((vbi_minus_vjsrh*modelVar_VBIRGATinv));
+double value_log_0 = log(wsrhstep);
+double  deriv_log_0_d0 = (1.0/wsrhstep);
+d_dwsrh_dX = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(-2.0*modelStruct.d_modelVar_PGAT_i_dX)+((((1.0-wsrhstep)*((wsrhstep*wsrhstep)*deriv_log_0_d0*(d_wsrhstep_dX)+(wsrhstep*d_wsrhstep_dX+d_wsrhstep_dX*wsrhstep)*value_log_0)-((wsrhstep*wsrhstep)*value_log_0)*(-d_wsrhstep_dX))/(1.0-wsrhstep)/(1.0-wsrhstep))+d_wsrhstep_dX)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+dwsrh = (((((wsrhstep*wsrhstep)*value_log_0)/(1.0-wsrhstep))+wsrhstep)*(1.0-(2.0*modelStruct.modelVar_PGAT_i)));
+}
+}
+d_wsrh_dX = (d_wsrhstep_dX+d_dwsrh_dX);
+wsrh = (wsrhstep+dwsrh);
+if ((modelStruct.modelVar_PGAT_i==0.5))
+{
+{
+double value_sqrt_0 = sqrt((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow((vbi_minus_vjsrh*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-wdep = (modelVar_wdepnulrgat*tmp);
-asrh = (modelVar_ftdgat*((zinv-1.0)*wdep));
-isrh = (modelVar_CSRHGAT_i*(asrh*wsrh));
-}
-if ((modelVar_CTATGAT_i==0.0))
 {
+double value_pow_0 = pow((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = (((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/(vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = ((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log((vbi_minus_vjsrh*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*((vbi_minus_vjsrh*modelStruct.d_modelVar_VBIRGATinv_dX+d_vbi_minus_vjsrh_dX*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_wdep_dX = (modelStruct.modelVar_wdepnulrgat*d_tmp_dX+modelStruct.d_modelVar_wdepnulrgat_dX*tmp);
+wdep = (modelStruct.modelVar_wdepnulrgat*tmp);
+d_asrh_dX = (modelStruct.modelVar_ftdgat*((zinv-1.0)*d_wdep_dX+d_zinv_dX*wdep)+modelStruct.d_modelVar_ftdgat_dX*((zinv-1.0)*wdep));
+asrh = (modelStruct.modelVar_ftdgat*((zinv-1.0)*wdep));
+d_isrh_dX = (modelStruct.modelVar_CSRHGAT_i*(asrh*d_wsrh_dX+d_asrh_dX*wsrh)+modelStruct.d_modelVar_CSRHGAT_i_dX*(asrh*wsrh));
+isrh = (modelStruct.modelVar_CSRHGAT_i*(asrh*wsrh));
+}
+if ((modelStruct.modelVar_CTATGAT_i==0.0))
+{
+d_itat_dX = 0.0;
 itat = 0.0;
 }
 else
 {
-btat = (modelVar_btatpartgat*((wdep*modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
-twoatatoverthreebtat = ((0.666666666666667*modelVar_atatgat)/btat);
+d_btat_dX = (modelStruct.modelVar_btatpartgat*((vbi_minus_vjsrh*(wdep*modelStruct.d_modelVar_one_minus_PGAT_dX+d_wdep_dX*modelStruct.modelVar_one_minus_PGAT)-(wdep*modelStruct.modelVar_one_minus_PGAT)*d_vbi_minus_vjsrh_dX)/vbi_minus_vjsrh/vbi_minus_vjsrh)+modelStruct.d_modelVar_btatpartgat_dX*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+btat = (modelStruct.modelVar_btatpartgat*((wdep*modelStruct.modelVar_one_minus_PGAT)/vbi_minus_vjsrh));
+d_twoatatoverthreebtat_dX = ((btat*0.666666666666667*modelStruct.d_modelVar_atatgat_dX-(0.666666666666667*modelStruct.modelVar_atatgat)*d_btat_dX)/btat/btat);
+twoatatoverthreebtat = ((0.666666666666667*modelStruct.modelVar_atatgat)/btat);
+d_umaxbeforelimiting_dX = (twoatatoverthreebtat*d_twoatatoverthreebtat_dX+d_twoatatoverthreebtat_dX*twoatatoverthreebtat);
 umaxbeforelimiting = (twoatatoverthreebtat*twoatatoverthreebtat);
-umax = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
-sqrtumax = sqrt(fabs(umax));
-umaxpoweronepointfive = (umax*sqrtumax);
-if ((((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT)==(-1.0)))
 {
+double value_sqrt_0 = sqrt(((umaxbeforelimiting*umaxbeforelimiting)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_umax_dX = deriv_sqrt_0_d0*(((((umaxbeforelimiting*umaxbeforelimiting)+1.0)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting)-(umaxbeforelimiting*umaxbeforelimiting)*(umaxbeforelimiting*d_umaxbeforelimiting_dX+d_umaxbeforelimiting_dX*umaxbeforelimiting))/((umaxbeforelimiting*umaxbeforelimiting)+1.0)/((umaxbeforelimiting*umaxbeforelimiting)+1.0)));
+umax = value_sqrt_0;
+}
+{
+double value_fabs_0 = fabs(umax);
+double value_sqrt_1 = sqrt(value_fabs_0);
+double  deriv_fabs_0_d0 = (((umax)>=0)?(+1.0):(-1.0));
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_sqrtumax_dX = deriv_sqrt_1_d0*(deriv_fabs_0_d0*(d_umax_dX));
+sqrtumax = value_sqrt_1;
+}
+d_umaxpoweronepointfive_dX = (umax*d_sqrtumax_dX+d_umax_dX*sqrtumax);
+umaxpoweronepointfive = (umax*sqrtumax);
+if ((((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)==(-1.0)))
+{
+d_wgamma_dX = (-(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)/(1.0+(btat*umaxpoweronepointfive))/(1.0+(btat*umaxpoweronepointfive)));
 wgamma = (1.0/(1.0+(btat*umaxpoweronepointfive)));
 }
 else
 {
-wgamma = pow((1.0+(btat*umaxpoweronepointfive)),((-modelVar_PGAT_i)*modelVar_one_over_one_minus_PGAT));
+{
+double value_pow_0 = pow((1.0+(btat*umaxpoweronepointfive)),((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT));
+double  deriv_pow_0_d0 = (((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(value_pow_0*((-modelStruct.modelVar_PGAT_i)*modelStruct.modelVar_one_over_one_minus_PGAT)/(1.0+(btat*umaxpoweronepointfive))));
+double  deriv_pow_0_d1 = ((1.0+(btat*umaxpoweronepointfive)) == 0.0)?0.0:(log((1.0+(btat*umaxpoweronepointfive)))*value_pow_0);
+d_wgamma_dX = ((deriv_pow_0_d0*((btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive)))+(deriv_pow_0_d1*(((-modelStruct.modelVar_PGAT_i)*modelStruct.d_modelVar_one_over_one_minus_PGAT_dX+(-modelStruct.d_modelVar_PGAT_i_dX)*modelStruct.modelVar_one_over_one_minus_PGAT))));
+wgamma = value_pow_0;
 }
+}
+d_wtat_dX = (((wsrh+wgamma)*(wsrh*d_wgamma_dX+d_wsrh_dX*wgamma)-(wsrh*wgamma)*(d_wsrh_dX+d_wgamma_dX))/(wsrh+wgamma)/(wsrh+wgamma));
 wtat = ((wsrh*wgamma)/(wsrh+wgamma));
-ktat = sqrt((0.375*(btat/sqrtumax)));
+{
+double value_sqrt_0 = sqrt((0.375*(btat/sqrtumax)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_ktat_dX = deriv_sqrt_0_d0*(0.375*((sqrtumax*d_btat_dX-btat*d_sqrtumax_dX)/sqrtumax/sqrtumax));
+ktat = value_sqrt_0;
+}
+d_ltat_dX = (2.0*(twoatatoverthreebtat*d_sqrtumax_dX+d_twoatatoverthreebtat_dX*sqrtumax)-d_umax_dX);
 ltat = ((2.0*(twoatatoverthreebtat*sqrtumax))-umax);
-mtat = ((((modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_mtat_dX = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*d_sqrtumax_dX+(modelStruct.modelVar_atatgat*d_twoatatoverthreebtat_dX+modelStruct.d_modelVar_atatgat_dX*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*d_umax_dX+modelStruct.d_modelVar_atatgat_dX*umax))+0.5*(btat*d_umaxpoweronepointfive_dX+d_btat_dX*umaxpoweronepointfive));
+mtat = ((((modelStruct.modelVar_atatgat*twoatatoverthreebtat)*sqrtumax)-(modelStruct.modelVar_atatgat*umax))+(0.5*(btat*umaxpoweronepointfive)));
+d_xerfc_dX = ((ltat-1.0)*d_ktat_dX+d_ltat_dX*ktat);
 xerfc = ((ltat-1.0)*ktat);
+d_ysq_dX = (xerfc*d_xerfc_dX+d_xerfc_dX*xerfc);
 ysq = (xerfc*xerfc);
 if ((xerfc>0.0))
 {
-terfc = (1.0/(1.0+(modelVar_perfc*xerfc)));
+d_terfc_dX = (-modelStruct.modelVar_perfc*d_xerfc_dX/(1.0+(modelStruct.modelVar_perfc*xerfc))/(1.0+(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0+(modelStruct.modelVar_perfc*xerfc)));
 }
 else
 {
-terfc = (1.0/(1.0-(modelVar_perfc*xerfc)));
+d_terfc_dX = (-(-modelStruct.modelVar_perfc*d_xerfc_dX)/(1.0-(modelStruct.modelVar_perfc*xerfc))/(1.0-(modelStruct.modelVar_perfc*xerfc)));
+terfc = (1.0/(1.0-(modelStruct.modelVar_perfc*xerfc)));
 }
 if ((((-ysq)+mtat)>(-2.3025850929940458e+02)))
 {
-tmp = exp(((-ysq)+mtat));
+{
+double value_exp_0 = exp(((-ysq)+mtat));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((-d_ysq_dX)+d_mtat_dX));
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-ysq)+mtat))*0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(-((-d_ysq_dX)+d_mtat_dX))*3.3333333333333333e-01+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))+(-((-d_ysq_dX)+d_mtat_dX))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-ysq)+mtat))*(1.0+(((-2.3025850929940458e+02)-((-ysq)+mtat))*3.3333333333333333e-01))))))));
 }
-erfcpos = ((((0.29214664*terfc)+(modelVar_berfc*(terfc*terfc)))+(modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
+d_erfcpos_dX = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*d_tmp_dX+((0.29214664*d_terfc_dX+modelStruct.modelVar_berfc*(terfc*d_terfc_dX+d_terfc_dX*terfc))+modelStruct.modelVar_cerfc*((terfc*terfc)*d_terfc_dX+(terfc*d_terfc_dX+d_terfc_dX*terfc)*terfc))*tmp);
+erfcpos = ((((0.29214664*terfc)+(modelStruct.modelVar_berfc*(terfc*terfc)))+(modelStruct.modelVar_cerfc*((terfc*terfc)*terfc)))*tmp);
 if ((xerfc>0.0))
 {
+d_erfctimesexpmtat_dX = d_erfcpos_dX;
 erfctimesexpmtat = erfcpos;
 }
 else
 {
 if ((mtat>(-2.3025850929940458e+02)))
 {
-tmp = exp(mtat);
+{
+double value_exp_0 = exp(mtat);
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(d_mtat_dX);
+tmp = value_exp_0;
+}
 }
 else
 {
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-mtat)*0.5*(((-2.3025850929940458e+02)-mtat)*(-d_mtat_dX)*3.3333333333333333e-01+(-d_mtat_dX)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))+(-d_mtat_dX)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-mtat)*(1.0+(0.5*(((-2.3025850929940458e+02)-mtat)*(1.0+(((-2.3025850929940458e+02)-mtat)*3.3333333333333333e-01))))))));
 }
+d_erfctimesexpmtat_dX = (2.0*d_tmp_dX-d_erfcpos_dX);
 erfctimesexpmtat = ((2.0*tmp)-erfcpos);
 }
-gammamax = ((1.77245385090551603*0.5)*((modelVar_atatgat*erfctimesexpmtat)/ktat));
-itat = (modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
+d_gammamax_dX = (1.77245385090551603*0.5)*((ktat*(modelStruct.modelVar_atatgat*d_erfctimesexpmtat_dX+modelStruct.d_modelVar_atatgat_dX*erfctimesexpmtat)-(modelStruct.modelVar_atatgat*erfctimesexpmtat)*d_ktat_dX)/ktat/ktat);
+gammamax = ((1.77245385090551603*0.5)*((modelStruct.modelVar_atatgat*erfctimesexpmtat)/ktat));
+d_itat_dX = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*d_wtat_dX+(asrh*d_gammamax_dX+d_asrh_dX*gammamax)*wtat)+modelStruct.d_modelVar_CTATGAT_i_dX*((asrh*gammamax)*wtat));
+itat = (modelStruct.modelVar_CTATGAT_i*((asrh*gammamax)*wtat));
 }
-if ((modelVar_CBBTGAT_i==0.0))
+if ((modelStruct.modelVar_CBBTGAT_i==0.0))
 {
+d_ibbt_dX = 0.0;
 ibbt = 0.0;
 }
 else
 {
-if ((modelVar_PGAT_i==0.5))
+if ((modelStruct.modelVar_PGAT_i==0.5))
 {
-tmp = sqrt(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv));
+{
+double value_sqrt_0 = sqrt(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = deriv_sqrt_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv));
+tmp = value_sqrt_0;
+}
 }
 else
 {
-tmp = pow(((modelVar_VBIRGAT_i-vbbt)*modelVar_VBIRGATinv),modelVar_PGAT_i);
-}
-Fmaxr = (modelVar_one_over_one_minus_PGAT*(((modelVar_VBIRGAT_i-vbbt)*modelVar_wdepnulrinvgat)/tmp));
-if ((fabs(((-modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
 {
-tmp = exp(((-modelVar_fbbtgat)/Fmaxr));
+double value_pow_0 = pow(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv),modelStruct.modelVar_PGAT_i);
+double  deriv_pow_0_d0 = ((((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(value_pow_0*modelStruct.modelVar_PGAT_i/((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv)));
+double  deriv_pow_0_d1 = (((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv) == 0.0)?0.0:(log(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_VBIRGATinv))*value_pow_0);
+d_tmp_dX = ((deriv_pow_0_d0*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_VBIRGATinv_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_VBIRGATinv)))+(deriv_pow_0_d1*(modelStruct.d_modelVar_PGAT_i_dX)));
+tmp = value_pow_0;
+}
+}
+d_Fmaxr_dX = (modelStruct.modelVar_one_over_one_minus_PGAT*((tmp*((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.d_modelVar_wdepnulrinvgat_dX+(modelStruct.d_modelVar_VBIRGAT_i_dX-d_vbbt_dX)*modelStruct.modelVar_wdepnulrinvgat)-((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)*d_tmp_dX)/tmp/tmp)+modelStruct.d_modelVar_one_over_one_minus_PGAT_dX*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+Fmaxr = (modelStruct.modelVar_one_over_one_minus_PGAT*(((modelStruct.modelVar_VBIRGAT_i-vbbt)*modelStruct.modelVar_wdepnulrinvgat)/tmp));
+if ((fabs(((-modelStruct.modelVar_fbbtgat)/Fmaxr))<2.3025850929940458e+02))
+{
+{
+double value_exp_0 = exp(((-modelStruct.modelVar_fbbtgat)/Fmaxr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tmp_dX = deriv_exp_0_d0*(((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr));
+tmp = value_exp_0;
+}
 }
 else
 {
-if ((((-modelVar_fbbtgat)/Fmaxr)<0.0))
+if ((((-modelStruct.modelVar_fbbtgat)/Fmaxr)<0.0))
 {
-tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+d_tmp_dX = (-1.0e-100*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*3.3333333333333333e-01+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))+(-((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01)))))))/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
+tmp = (1.0e-100/(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(0.5*(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*(1.0+(((-2.3025850929940458e+02)-((-modelStruct.modelVar_fbbtgat)/Fmaxr))*3.3333333333333333e-01))))))));
 }
 else
 {
-tmp = (1.0e100*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
+d_tmp_dX = 1.0e100*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*3.3333333333333333e-01+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01)))+((Fmaxr*(-modelStruct.d_modelVar_fbbtgat_dX)-(-modelStruct.modelVar_fbbtgat)*d_Fmaxr_dX)/Fmaxr/Fmaxr)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))));
+tmp = (1.0e100*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+(0.5*((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*(1.0+((((-modelStruct.modelVar_fbbtgat)/Fmaxr)-2.3025850929940458e+02)*3.3333333333333333e-01))))))));
 }
 }
-ibbt = (modelVar_CBBTGAT_i*(((VAK*Fmaxr)*Fmaxr)*tmp));
+d_ibbt_dX = (modelStruct.modelVar_CBBTGAT_i*(((VAK*Fmaxr)*Fmaxr)*d_tmp_dX+((VAK*Fmaxr)*d_Fmaxr_dX+(VAK*d_Fmaxr_dX+d_VAK_dX*Fmaxr)*Fmaxr)*tmp)+modelStruct.d_modelVar_CBBTGAT_i_dX*(((VAK*Fmaxr)*Fmaxr)*tmp));
+ibbt = (modelStruct.modelVar_CBBTGAT_i*(((VAK*Fmaxr)*Fmaxr)*tmp));
 }
-if ((modelVar_VBRGAT_i>1.0e3))
+if ((modelStruct.modelVar_VBRGAT_i>1.0e3))
 {
+d_fbreakdown_dX = 0.0;
 fbreakdown = 1.0;
 }
 else
 {
-if ((vav>((-modelVar_alphaav)*modelVar_VBRGAT_i)))
+if ((vav>((-modelStruct.modelVar_alphaav)*modelStruct.modelVar_VBRGAT_i)))
 {
-if ((modelVar_PBRGAT_i==4.0))
+if ((modelStruct.modelVar_PBRGAT_i==4.0))
 {
-tmp = ((((vav*modelVar_VBRinvgat)*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat))*(vav*modelVar_VBRinvgat));
+d_tmp_dX = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)+(vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
+tmp = ((((vav*modelStruct.modelVar_VBRinvgat)*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat))*(vav*modelStruct.modelVar_VBRinvgat));
 }
 else
 {
-tmp = pow(fabs((vav*modelVar_VBRinvgat)),modelVar_PBRGAT_i);
+{
+double value_fabs_0 = fabs((vav*modelStruct.modelVar_VBRinvgat));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelVar_PBRGAT_i);
+double  deriv_fabs_0_d0 = ((((vav*modelStruct.modelVar_VBRinvgat))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelVar_PBRGAT_i/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_tmp_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*((vav*modelStruct.d_modelVar_VBRinvgat_dX+d_vav_dX*modelStruct.modelVar_VBRinvgat))))+(deriv_pow_1_d1*(modelStruct.d_modelVar_PBRGAT_i_dX)));
+tmp = value_pow_1;
 }
+}
+d_fbreakdown_dX = (-(-d_tmp_dX)/(1.0-tmp)/(1.0-tmp));
 fbreakdown = (1.0/(1.0-tmp));
 }
 else
 {
-fbreakdown = (modelVar_fstopgat+((vav+(modelVar_alphaav*modelVar_VBRGAT_i))*modelVar_slopegat));
+d_fbreakdown_dX = (modelStruct.d_modelVar_fstopgat_dX+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.d_modelVar_slopegat_dX+(d_vav_dX+(modelStruct.modelVar_alphaav*modelStruct.d_modelVar_VBRGAT_i_dX+modelStruct.d_modelVar_alphaav_dX*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
+fbreakdown = (modelStruct.modelVar_fstopgat+((vav+(modelStruct.modelVar_alphaav*modelStruct.modelVar_VBRGAT_i))*modelStruct.modelVar_slopegat));
 }
 }
+d_ijungat_dX = ((((id+isrh)+itat)+ibbt)*d_fbreakdown_dX+(((d_id_dX+d_isrh_dX)+d_itat_dX)+d_ibbt_dX)*fbreakdown);
 ijungat = ((((id+isrh)+itat)+ibbt)*fbreakdown);
 }
-ijun = (((instanceVar_AB_i*ijunbot)+(instanceVar_LS_i*ijunsti))+(instanceVar_LG_i*ijungat));
+d_ijun_dX = (((instanceStruct.instanceVar_AB_i*d_ijunbot_dX+instanceStruct.d_instanceVar_AB_i_dX*ijunbot)+(instanceStruct.instanceVar_LS_i*d_ijunsti_dX+instanceStruct.d_instanceVar_LS_i_dX*ijunsti))+(instanceStruct.instanceVar_LG_i*d_ijungat_dX+instanceStruct.d_instanceVar_LG_i_dX*ijungat));
+ijun = (((instanceStruct.instanceVar_AB_i*ijunbot)+(instanceStruct.instanceVar_LS_i*ijunsti))+(instanceStruct.instanceVar_LG_i*ijungat));
 }
-qjun = (((instanceVar_AB_i*qjunbot)+(instanceVar_LS_i*qjunsti))+(instanceVar_LG_i*qjungat));
+d_qjun_dX = (((instanceStruct.instanceVar_AB_i*d_qjunbot_dX+instanceStruct.d_instanceVar_AB_i_dX*qjunbot)+(instanceStruct.instanceVar_LS_i*d_qjunsti_dX+instanceStruct.d_instanceVar_LS_i_dX*qjunsti))+(instanceStruct.instanceVar_LG_i*d_qjungat_dX+instanceStruct.d_instanceVar_LG_i_dX*qjungat));
+qjun = (((instanceStruct.instanceVar_AB_i*qjunbot)+(instanceStruct.instanceVar_LS_i*qjunsti))+(instanceStruct.instanceVar_LG_i*qjungat));
 }
 // End block evaluateStaticDynamic
 //Begin block loadStatic
 {
 // I(A,K) <+ (((TYPE*MULT_i)*ijun))
-staticContributions[admsNodeID_A] += ((modelPar_TYPE*instanceVar_MULT_i)*ijun);
-staticContributions[admsNodeID_K] -= ((modelPar_TYPE*instanceVar_MULT_i)*ijun);
+d_staticContributions_dX[admsNodeID_A]+= ((modelStruct.modelPar_TYPE*instanceStruct.instanceVar_MULT_i)*d_ijun_dX+modelStruct.modelPar_TYPE*instanceStruct.d_instanceVar_MULT_i_dX*ijun);
+d_staticContributions_dX[(admsNodeID_K)]-= ((modelStruct.modelPar_TYPE*instanceStruct.instanceVar_MULT_i)*d_ijun_dX+modelStruct.modelPar_TYPE*instanceStruct.d_instanceVar_MULT_i_dX*ijun);
 }
 // End block loadStatic
 //Begin block loadDynamic
 {
 // I(A,K) <+ (ddt(((TYPE*MULT_i)*qjun)))
-dynamicContributions[admsNodeID_A] += (((modelPar_TYPE*instanceVar_MULT_i)*qjun));
-dynamicContributions[admsNodeID_K] -= (((modelPar_TYPE*instanceVar_MULT_i)*qjun));
+d_dynamicContributions_dX[admsNodeID_A]+= (((modelStruct.modelPar_TYPE*instanceStruct.instanceVar_MULT_i)*d_qjun_dX+modelStruct.modelPar_TYPE*instanceStruct.d_instanceVar_MULT_i_dX*qjun));
+d_dynamicContributions_dX[(admsNodeID_K)]-= (((modelStruct.modelPar_TYPE*instanceStruct.instanceVar_MULT_i)*d_qjun_dX+modelStruct.modelPar_TYPE*instanceStruct.d_instanceVar_MULT_i_dX*qjun));
 }
 // End block loadDynamic
 //Begin block noise
 {
-jnoise = ((2*1.6021918E-19)*fabs(ijun));
+{
+double value_fabs_0 = fabs(ijun);
+double  deriv_fabs_0_d0 = (((ijun)>=0)?(+1.0):(-1.0));
+d_jnoise_dX = (2*1.6021918E-19)*deriv_fabs_0_d0*(d_ijun_dX);
+jnoise = ((2*1.6021918E-19)*value_fabs_0);
+}
 // I(A,K) <+ (white_noise((MULT_i*jnoise),"shot"))
 }
 // End block noise
 //Begin block OPinfo
 {
-instanceVar_vak = VAK;
-instanceVar_cjbot = (((modelPar_TYPE*instanceVar_MULT_i)*instanceVar_AB_i)*0.0 /*FIXME: ddx(qjunbot,V(A,GND)) not implemented in sensitivity context */);
-instanceVar_cjgat = (((modelPar_TYPE*instanceVar_MULT_i)*instanceVar_LG_i)*0.0 /*FIXME: ddx(qjungat,V(A,GND)) not implemented in sensitivity context */);
-instanceVar_cjsti = (((modelPar_TYPE*instanceVar_MULT_i)*instanceVar_LS_i)*0.0 /*FIXME: ddx(qjunsti,V(A,GND)) not implemented in sensitivity context */);
-instanceVar_cj = ((instanceVar_cjbot+instanceVar_cjgat)+instanceVar_cjsti);
-if ((modelVar_SWJUNEXP_i==1.0))
+if ((modelStruct.modelVar_SWJUNEXP_i==1.0))
 {
-instanceVar_ijbot = 0.0;
-instanceVar_ijgat = 0.0;
-instanceVar_ijsti = 0.0;
-instanceVar_idsatsbot = 0.0;
-instanceVar_idsatssti = 0.0;
-instanceVar_idsatsgat = 0.0;
 }
 else
 {
-instanceVar_ijbot = ((instanceVar_MULT_i*instanceVar_AB_i)*ijunbot);
-instanceVar_ijgat = ((instanceVar_MULT_i*instanceVar_LG_i)*ijungat);
-instanceVar_ijsti = ((instanceVar_MULT_i*instanceVar_LS_i)*ijunsti);
-instanceVar_idsatsbot = ((instanceVar_MULT_i*instanceVar_AB_i)*modelVar_idsatbot);
-instanceVar_idsatssti = ((instanceVar_MULT_i*instanceVar_LS_i)*modelVar_idsatsti);
-instanceVar_idsatsgat = ((instanceVar_MULT_i*instanceVar_LG_i)*modelVar_idsatgat);
 }
-instanceVar_ij = (instanceVar_MULT_i*ijun);
-instanceVar_si = (instanceVar_MULT_i*jnoise);
-instanceVar_cjosbot = ((instanceVar_MULT_i*instanceVar_AB_i)*modelVar_cjobot);
-instanceVar_cjossti = ((instanceVar_MULT_i*instanceVar_LS_i)*modelVar_cjosti);
-instanceVar_cjosgat = ((instanceVar_MULT_i*instanceVar_LG_i)*modelVar_cjogat);
-instanceVar_vbisbot = modelVar_vbibot;
-instanceVar_vbissti = modelVar_vbisti;
-instanceVar_vbisgat = modelVar_vbigat;
 }
 // End block OPinfo
 }
@@ -12875,150 +15732,204 @@ Findices.resize(2+0);
 Qindices.resize(2+0);
 
 std::vector <double> probeVars(2);
-std::vector <AdmsSensFadType> staticContributions(2+0);
-std::vector <AdmsSensFadType> dynamicContributions(2+0);
+std::vector <double> d_staticContributions_dX(2+0);
+std::vector <double> d_dynamicContributions_dX(2+0);
 
 
 // initialize contributions to zero (automatically sets derivatives to zero)
 for (int i=0; i < 2+0 ; ++i)
 {
-   staticContributions[i]=0;
-   dynamicContributions[i]=0;
+   d_staticContributions_dX[i]=0;
+   d_dynamicContributions_dX[i]=0;
 }
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 //reals
-AdmsSensFadType modelPar_DTA=mod.DTA;
-bool modelPar_given_DTA=mod.given("DTA");
-AdmsSensFadType modelPar_IMAX=mod.IMAX;
-bool modelPar_given_IMAX=mod.given("IMAX");
-AdmsSensFadType modelPar_TRJ=mod.TRJ;
-bool modelPar_given_TRJ=mod.given("TRJ");
-AdmsSensFadType modelPar_FREV=mod.FREV;
-bool modelPar_given_FREV=mod.given("FREV");
-AdmsSensFadType modelPar_CJORBOT=mod.CJORBOT;
-bool modelPar_given_CJORBOT=mod.given("CJORBOT");
-AdmsSensFadType modelPar_CJORSTI=mod.CJORSTI;
-bool modelPar_given_CJORSTI=mod.given("CJORSTI");
-AdmsSensFadType modelPar_CJORGAT=mod.CJORGAT;
-bool modelPar_given_CJORGAT=mod.given("CJORGAT");
-AdmsSensFadType modelPar_VBIRBOT=mod.VBIRBOT;
-bool modelPar_given_VBIRBOT=mod.given("VBIRBOT");
-AdmsSensFadType modelPar_VBIRSTI=mod.VBIRSTI;
-bool modelPar_given_VBIRSTI=mod.given("VBIRSTI");
-AdmsSensFadType modelPar_VBIRGAT=mod.VBIRGAT;
-bool modelPar_given_VBIRGAT=mod.given("VBIRGAT");
-AdmsSensFadType modelPar_PBOT=mod.PBOT;
-bool modelPar_given_PBOT=mod.given("PBOT");
-AdmsSensFadType modelPar_PSTI=mod.PSTI;
-bool modelPar_given_PSTI=mod.given("PSTI");
-AdmsSensFadType modelPar_PGAT=mod.PGAT;
-bool modelPar_given_PGAT=mod.given("PGAT");
-AdmsSensFadType modelPar_PHIGBOT=mod.PHIGBOT;
-bool modelPar_given_PHIGBOT=mod.given("PHIGBOT");
-AdmsSensFadType modelPar_PHIGSTI=mod.PHIGSTI;
-bool modelPar_given_PHIGSTI=mod.given("PHIGSTI");
-AdmsSensFadType modelPar_PHIGGAT=mod.PHIGGAT;
-bool modelPar_given_PHIGGAT=mod.given("PHIGGAT");
-AdmsSensFadType modelPar_IDSATRBOT=mod.IDSATRBOT;
-bool modelPar_given_IDSATRBOT=mod.given("IDSATRBOT");
-AdmsSensFadType modelPar_IDSATRSTI=mod.IDSATRSTI;
-bool modelPar_given_IDSATRSTI=mod.given("IDSATRSTI");
-AdmsSensFadType modelPar_IDSATRGAT=mod.IDSATRGAT;
-bool modelPar_given_IDSATRGAT=mod.given("IDSATRGAT");
-AdmsSensFadType modelPar_CSRHBOT=mod.CSRHBOT;
-bool modelPar_given_CSRHBOT=mod.given("CSRHBOT");
-AdmsSensFadType modelPar_CSRHSTI=mod.CSRHSTI;
-bool modelPar_given_CSRHSTI=mod.given("CSRHSTI");
-AdmsSensFadType modelPar_CSRHGAT=mod.CSRHGAT;
-bool modelPar_given_CSRHGAT=mod.given("CSRHGAT");
-AdmsSensFadType modelPar_XJUNSTI=mod.XJUNSTI;
-bool modelPar_given_XJUNSTI=mod.given("XJUNSTI");
-AdmsSensFadType modelPar_XJUNGAT=mod.XJUNGAT;
-bool modelPar_given_XJUNGAT=mod.given("XJUNGAT");
-AdmsSensFadType modelPar_CTATBOT=mod.CTATBOT;
-bool modelPar_given_CTATBOT=mod.given("CTATBOT");
-AdmsSensFadType modelPar_CTATSTI=mod.CTATSTI;
-bool modelPar_given_CTATSTI=mod.given("CTATSTI");
-AdmsSensFadType modelPar_CTATGAT=mod.CTATGAT;
-bool modelPar_given_CTATGAT=mod.given("CTATGAT");
-AdmsSensFadType modelPar_MEFFTATBOT=mod.MEFFTATBOT;
-bool modelPar_given_MEFFTATBOT=mod.given("MEFFTATBOT");
-AdmsSensFadType modelPar_MEFFTATSTI=mod.MEFFTATSTI;
-bool modelPar_given_MEFFTATSTI=mod.given("MEFFTATSTI");
-AdmsSensFadType modelPar_MEFFTATGAT=mod.MEFFTATGAT;
-bool modelPar_given_MEFFTATGAT=mod.given("MEFFTATGAT");
-AdmsSensFadType modelPar_CBBTBOT=mod.CBBTBOT;
-bool modelPar_given_CBBTBOT=mod.given("CBBTBOT");
-AdmsSensFadType modelPar_CBBTSTI=mod.CBBTSTI;
-bool modelPar_given_CBBTSTI=mod.given("CBBTSTI");
-AdmsSensFadType modelPar_CBBTGAT=mod.CBBTGAT;
-bool modelPar_given_CBBTGAT=mod.given("CBBTGAT");
-AdmsSensFadType modelPar_FBBTRBOT=mod.FBBTRBOT;
-bool modelPar_given_FBBTRBOT=mod.given("FBBTRBOT");
-AdmsSensFadType modelPar_FBBTRSTI=mod.FBBTRSTI;
-bool modelPar_given_FBBTRSTI=mod.given("FBBTRSTI");
-AdmsSensFadType modelPar_FBBTRGAT=mod.FBBTRGAT;
-bool modelPar_given_FBBTRGAT=mod.given("FBBTRGAT");
-AdmsSensFadType modelPar_STFBBTBOT=mod.STFBBTBOT;
-bool modelPar_given_STFBBTBOT=mod.given("STFBBTBOT");
-AdmsSensFadType modelPar_STFBBTSTI=mod.STFBBTSTI;
-bool modelPar_given_STFBBTSTI=mod.given("STFBBTSTI");
-AdmsSensFadType modelPar_STFBBTGAT=mod.STFBBTGAT;
-bool modelPar_given_STFBBTGAT=mod.given("STFBBTGAT");
-AdmsSensFadType modelPar_VBRBOT=mod.VBRBOT;
-bool modelPar_given_VBRBOT=mod.given("VBRBOT");
-AdmsSensFadType modelPar_VBRSTI=mod.VBRSTI;
-bool modelPar_given_VBRSTI=mod.given("VBRSTI");
-AdmsSensFadType modelPar_VBRGAT=mod.VBRGAT;
-bool modelPar_given_VBRGAT=mod.given("VBRGAT");
-AdmsSensFadType modelPar_PBRBOT=mod.PBRBOT;
-bool modelPar_given_PBRBOT=mod.given("PBRBOT");
-AdmsSensFadType modelPar_PBRSTI=mod.PBRSTI;
-bool modelPar_given_PBRSTI=mod.given("PBRSTI");
-AdmsSensFadType modelPar_PBRGAT=mod.PBRGAT;
-bool modelPar_given_PBRGAT=mod.given("PBRGAT");
-AdmsSensFadType modelPar_SWJUNEXP=mod.SWJUNEXP;
-bool modelPar_given_SWJUNEXP=mod.given("SWJUNEXP");
-AdmsSensFadType modelPar_VJUNREF=mod.VJUNREF;
-bool modelPar_given_VJUNREF=mod.given("VJUNREF");
-AdmsSensFadType modelPar_FJUNQ=mod.FJUNQ;
-bool modelPar_given_FJUNQ=mod.given("FJUNQ");
+modelStruct.modelPar_DTA=mod.DTA;
+modelStruct.d_modelPar_DTA_dX=0.0;
+modelStruct.modelPar_given_DTA=mod.given("DTA");
+modelStruct.modelPar_IMAX=mod.IMAX;
+modelStruct.d_modelPar_IMAX_dX=0.0;
+modelStruct.modelPar_given_IMAX=mod.given("IMAX");
+modelStruct.modelPar_TRJ=mod.TRJ;
+modelStruct.d_modelPar_TRJ_dX=0.0;
+modelStruct.modelPar_given_TRJ=mod.given("TRJ");
+modelStruct.modelPar_FREV=mod.FREV;
+modelStruct.d_modelPar_FREV_dX=0.0;
+modelStruct.modelPar_given_FREV=mod.given("FREV");
+modelStruct.modelPar_CJORBOT=mod.CJORBOT;
+modelStruct.d_modelPar_CJORBOT_dX=0.0;
+modelStruct.modelPar_given_CJORBOT=mod.given("CJORBOT");
+modelStruct.modelPar_CJORSTI=mod.CJORSTI;
+modelStruct.d_modelPar_CJORSTI_dX=0.0;
+modelStruct.modelPar_given_CJORSTI=mod.given("CJORSTI");
+modelStruct.modelPar_CJORGAT=mod.CJORGAT;
+modelStruct.d_modelPar_CJORGAT_dX=0.0;
+modelStruct.modelPar_given_CJORGAT=mod.given("CJORGAT");
+modelStruct.modelPar_VBIRBOT=mod.VBIRBOT;
+modelStruct.d_modelPar_VBIRBOT_dX=0.0;
+modelStruct.modelPar_given_VBIRBOT=mod.given("VBIRBOT");
+modelStruct.modelPar_VBIRSTI=mod.VBIRSTI;
+modelStruct.d_modelPar_VBIRSTI_dX=0.0;
+modelStruct.modelPar_given_VBIRSTI=mod.given("VBIRSTI");
+modelStruct.modelPar_VBIRGAT=mod.VBIRGAT;
+modelStruct.d_modelPar_VBIRGAT_dX=0.0;
+modelStruct.modelPar_given_VBIRGAT=mod.given("VBIRGAT");
+modelStruct.modelPar_PBOT=mod.PBOT;
+modelStruct.d_modelPar_PBOT_dX=0.0;
+modelStruct.modelPar_given_PBOT=mod.given("PBOT");
+modelStruct.modelPar_PSTI=mod.PSTI;
+modelStruct.d_modelPar_PSTI_dX=0.0;
+modelStruct.modelPar_given_PSTI=mod.given("PSTI");
+modelStruct.modelPar_PGAT=mod.PGAT;
+modelStruct.d_modelPar_PGAT_dX=0.0;
+modelStruct.modelPar_given_PGAT=mod.given("PGAT");
+modelStruct.modelPar_PHIGBOT=mod.PHIGBOT;
+modelStruct.d_modelPar_PHIGBOT_dX=0.0;
+modelStruct.modelPar_given_PHIGBOT=mod.given("PHIGBOT");
+modelStruct.modelPar_PHIGSTI=mod.PHIGSTI;
+modelStruct.d_modelPar_PHIGSTI_dX=0.0;
+modelStruct.modelPar_given_PHIGSTI=mod.given("PHIGSTI");
+modelStruct.modelPar_PHIGGAT=mod.PHIGGAT;
+modelStruct.d_modelPar_PHIGGAT_dX=0.0;
+modelStruct.modelPar_given_PHIGGAT=mod.given("PHIGGAT");
+modelStruct.modelPar_IDSATRBOT=mod.IDSATRBOT;
+modelStruct.d_modelPar_IDSATRBOT_dX=0.0;
+modelStruct.modelPar_given_IDSATRBOT=mod.given("IDSATRBOT");
+modelStruct.modelPar_IDSATRSTI=mod.IDSATRSTI;
+modelStruct.d_modelPar_IDSATRSTI_dX=0.0;
+modelStruct.modelPar_given_IDSATRSTI=mod.given("IDSATRSTI");
+modelStruct.modelPar_IDSATRGAT=mod.IDSATRGAT;
+modelStruct.d_modelPar_IDSATRGAT_dX=0.0;
+modelStruct.modelPar_given_IDSATRGAT=mod.given("IDSATRGAT");
+modelStruct.modelPar_CSRHBOT=mod.CSRHBOT;
+modelStruct.d_modelPar_CSRHBOT_dX=0.0;
+modelStruct.modelPar_given_CSRHBOT=mod.given("CSRHBOT");
+modelStruct.modelPar_CSRHSTI=mod.CSRHSTI;
+modelStruct.d_modelPar_CSRHSTI_dX=0.0;
+modelStruct.modelPar_given_CSRHSTI=mod.given("CSRHSTI");
+modelStruct.modelPar_CSRHGAT=mod.CSRHGAT;
+modelStruct.d_modelPar_CSRHGAT_dX=0.0;
+modelStruct.modelPar_given_CSRHGAT=mod.given("CSRHGAT");
+modelStruct.modelPar_XJUNSTI=mod.XJUNSTI;
+modelStruct.d_modelPar_XJUNSTI_dX=0.0;
+modelStruct.modelPar_given_XJUNSTI=mod.given("XJUNSTI");
+modelStruct.modelPar_XJUNGAT=mod.XJUNGAT;
+modelStruct.d_modelPar_XJUNGAT_dX=0.0;
+modelStruct.modelPar_given_XJUNGAT=mod.given("XJUNGAT");
+modelStruct.modelPar_CTATBOT=mod.CTATBOT;
+modelStruct.d_modelPar_CTATBOT_dX=0.0;
+modelStruct.modelPar_given_CTATBOT=mod.given("CTATBOT");
+modelStruct.modelPar_CTATSTI=mod.CTATSTI;
+modelStruct.d_modelPar_CTATSTI_dX=0.0;
+modelStruct.modelPar_given_CTATSTI=mod.given("CTATSTI");
+modelStruct.modelPar_CTATGAT=mod.CTATGAT;
+modelStruct.d_modelPar_CTATGAT_dX=0.0;
+modelStruct.modelPar_given_CTATGAT=mod.given("CTATGAT");
+modelStruct.modelPar_MEFFTATBOT=mod.MEFFTATBOT;
+modelStruct.d_modelPar_MEFFTATBOT_dX=0.0;
+modelStruct.modelPar_given_MEFFTATBOT=mod.given("MEFFTATBOT");
+modelStruct.modelPar_MEFFTATSTI=mod.MEFFTATSTI;
+modelStruct.d_modelPar_MEFFTATSTI_dX=0.0;
+modelStruct.modelPar_given_MEFFTATSTI=mod.given("MEFFTATSTI");
+modelStruct.modelPar_MEFFTATGAT=mod.MEFFTATGAT;
+modelStruct.d_modelPar_MEFFTATGAT_dX=0.0;
+modelStruct.modelPar_given_MEFFTATGAT=mod.given("MEFFTATGAT");
+modelStruct.modelPar_CBBTBOT=mod.CBBTBOT;
+modelStruct.d_modelPar_CBBTBOT_dX=0.0;
+modelStruct.modelPar_given_CBBTBOT=mod.given("CBBTBOT");
+modelStruct.modelPar_CBBTSTI=mod.CBBTSTI;
+modelStruct.d_modelPar_CBBTSTI_dX=0.0;
+modelStruct.modelPar_given_CBBTSTI=mod.given("CBBTSTI");
+modelStruct.modelPar_CBBTGAT=mod.CBBTGAT;
+modelStruct.d_modelPar_CBBTGAT_dX=0.0;
+modelStruct.modelPar_given_CBBTGAT=mod.given("CBBTGAT");
+modelStruct.modelPar_FBBTRBOT=mod.FBBTRBOT;
+modelStruct.d_modelPar_FBBTRBOT_dX=0.0;
+modelStruct.modelPar_given_FBBTRBOT=mod.given("FBBTRBOT");
+modelStruct.modelPar_FBBTRSTI=mod.FBBTRSTI;
+modelStruct.d_modelPar_FBBTRSTI_dX=0.0;
+modelStruct.modelPar_given_FBBTRSTI=mod.given("FBBTRSTI");
+modelStruct.modelPar_FBBTRGAT=mod.FBBTRGAT;
+modelStruct.d_modelPar_FBBTRGAT_dX=0.0;
+modelStruct.modelPar_given_FBBTRGAT=mod.given("FBBTRGAT");
+modelStruct.modelPar_STFBBTBOT=mod.STFBBTBOT;
+modelStruct.d_modelPar_STFBBTBOT_dX=0.0;
+modelStruct.modelPar_given_STFBBTBOT=mod.given("STFBBTBOT");
+modelStruct.modelPar_STFBBTSTI=mod.STFBBTSTI;
+modelStruct.d_modelPar_STFBBTSTI_dX=0.0;
+modelStruct.modelPar_given_STFBBTSTI=mod.given("STFBBTSTI");
+modelStruct.modelPar_STFBBTGAT=mod.STFBBTGAT;
+modelStruct.d_modelPar_STFBBTGAT_dX=0.0;
+modelStruct.modelPar_given_STFBBTGAT=mod.given("STFBBTGAT");
+modelStruct.modelPar_VBRBOT=mod.VBRBOT;
+modelStruct.d_modelPar_VBRBOT_dX=0.0;
+modelStruct.modelPar_given_VBRBOT=mod.given("VBRBOT");
+modelStruct.modelPar_VBRSTI=mod.VBRSTI;
+modelStruct.d_modelPar_VBRSTI_dX=0.0;
+modelStruct.modelPar_given_VBRSTI=mod.given("VBRSTI");
+modelStruct.modelPar_VBRGAT=mod.VBRGAT;
+modelStruct.d_modelPar_VBRGAT_dX=0.0;
+modelStruct.modelPar_given_VBRGAT=mod.given("VBRGAT");
+modelStruct.modelPar_PBRBOT=mod.PBRBOT;
+modelStruct.d_modelPar_PBRBOT_dX=0.0;
+modelStruct.modelPar_given_PBRBOT=mod.given("PBRBOT");
+modelStruct.modelPar_PBRSTI=mod.PBRSTI;
+modelStruct.d_modelPar_PBRSTI_dX=0.0;
+modelStruct.modelPar_given_PBRSTI=mod.given("PBRSTI");
+modelStruct.modelPar_PBRGAT=mod.PBRGAT;
+modelStruct.d_modelPar_PBRGAT_dX=0.0;
+modelStruct.modelPar_given_PBRGAT=mod.given("PBRGAT");
+modelStruct.modelPar_SWJUNEXP=mod.SWJUNEXP;
+modelStruct.d_modelPar_SWJUNEXP_dX=0.0;
+modelStruct.modelPar_given_SWJUNEXP=mod.given("SWJUNEXP");
+modelStruct.modelPar_VJUNREF=mod.VJUNREF;
+modelStruct.d_modelPar_VJUNREF_dX=0.0;
+modelStruct.modelPar_given_VJUNREF=mod.given("VJUNREF");
+modelStruct.modelPar_FJUNQ=mod.FJUNQ;
+modelStruct.d_modelPar_FJUNQ_dX=0.0;
+modelStruct.modelPar_given_FJUNQ=mod.given("FJUNQ");
 
 
 // hidden reals
 
 
 // non-reals (including hiddens)
-int modelPar_LEVEL=mod.LEVEL;
-bool modelPar_given_LEVEL=mod.given("LEVEL");
-int modelPar_TYPE=mod.TYPE;
-bool modelPar_given_TYPE=mod.given("TYPE");
+modelStruct.modelPar_LEVEL=mod.LEVEL;
+modelStruct.modelPar_given_LEVEL=mod.given("LEVEL");
+modelStruct.modelPar_TYPE=mod.TYPE;
+modelStruct.modelPar_given_TYPE=mod.given("TYPE");
 
 
 
-// Copy out all the instance parameters (doubles) into FAD types
+// Copy out all the instance parameters (doubles) into local struct
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly "if/else" block just to find the
 // one parameter we're doing sensitivities on.
-unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> inParamMap;
-
+unordered_map <std::string,double*,HashNoCase,EqualNoCase> inParamMap;
+instanceSensStruct instanceStruct;
 // reals
-AdmsSensFadType instancePar_AB=in.AB;
-bool instancePar_given_AB=in.given("AB");
-inParamMap["AB"] = &instancePar_AB;
-AdmsSensFadType instancePar_LS=in.LS;
-bool instancePar_given_LS=in.given("LS");
-inParamMap["LS"] = &instancePar_LS;
-AdmsSensFadType instancePar_LG=in.LG;
-bool instancePar_given_LG=in.given("LG");
-inParamMap["LG"] = &instancePar_LG;
-AdmsSensFadType instancePar_MULT=in.MULT;
-bool instancePar_given_MULT=in.given("MULT");
-inParamMap["MULT"] = &instancePar_MULT;
+instanceStruct.instancePar_AB=in.AB;
+instanceStruct.d_instancePar_AB_dX=0.0;
+instanceStruct.instancePar_given_AB=in.given("AB");
+inParamMap["AB"] = &(instanceStruct.d_instancePar_AB_dX);
+instanceStruct.instancePar_LS=in.LS;
+instanceStruct.d_instancePar_LS_dX=0.0;
+instanceStruct.instancePar_given_LS=in.given("LS");
+inParamMap["LS"] = &(instanceStruct.d_instancePar_LS_dX);
+instanceStruct.instancePar_LG=in.LG;
+instanceStruct.d_instancePar_LG_dX=0.0;
+instanceStruct.instancePar_given_LG=in.given("LG");
+inParamMap["LG"] = &(instanceStruct.d_instancePar_LG_dX);
+instanceStruct.instancePar_MULT=in.MULT;
+instanceStruct.d_instancePar_MULT_dX=0.0;
+instanceStruct.instancePar_given_MULT=in.given("MULT");
+inParamMap["MULT"] = &(instanceStruct.d_instancePar_MULT_dX);
 
 
-// Copy all the real hidden instance params into fad types
+// Copy all the real hidden instance params into local struct
 
 
 
@@ -13026,58 +15937,60 @@ inParamMap["MULT"] = &instancePar_MULT;
 
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check the name first, otherwise segfault on invalid name!
-inParamMap[name]->diff(0,1);
+*(inParamMap[name])=1.0;
 
 //make local copies of all instance vars
 //reals
-AdmsSensFadType instanceVar_MULT_i=in.MULT_i;
-AdmsSensFadType instanceVar_AB_i=in.AB_i;
-AdmsSensFadType instanceVar_LS_i=in.LS_i;
-AdmsSensFadType instanceVar_LG_i=in.LG_i;
-double instanceVar_zflagbot=in.zflagbot;
-double instanceVar_zflagsti=in.zflagsti;
-double instanceVar_zflaggat=in.zflaggat;
-AdmsSensFadType instanceVar_VMAX=in.VMAX;
-AdmsSensFadType instanceVar_exp_VMAX_over_phitd=in.exp_VMAX_over_phitd;
-AdmsSensFadType instanceVar_vbimin=in.vbimin;
-AdmsSensFadType instanceVar_vch=in.vch;
-AdmsSensFadType instanceVar_vfmin=in.vfmin;
-AdmsSensFadType instanceVar_vbbtlim=in.vbbtlim;
-AdmsSensFadType instanceVar_xhighf1=in.xhighf1;
-AdmsSensFadType instanceVar_expxhf1=in.expxhf1;
-AdmsSensFadType instanceVar_xhighf2=in.xhighf2;
-AdmsSensFadType instanceVar_expxhf2=in.expxhf2;
-AdmsSensFadType instanceVar_xhighr=in.xhighr;
-AdmsSensFadType instanceVar_expxhr=in.expxhr;
-AdmsSensFadType instanceVar_ISATFOR1=in.ISATFOR1;
-double instanceVar_MFOR1=in.MFOR1;
-AdmsSensFadType instanceVar_ISATFOR2=in.ISATFOR2;
-AdmsSensFadType instanceVar_MFOR2=in.MFOR2;
-AdmsSensFadType instanceVar_ISATREV=in.ISATREV;
-AdmsSensFadType instanceVar_MREV=in.MREV;
-double instanceVar_m0flag=in.m0flag;
-AdmsSensFadType instanceVar_vak=in.vak;
-AdmsSensFadType instanceVar_cj=in.cj;
-AdmsSensFadType instanceVar_cjbot=in.cjbot;
-AdmsSensFadType instanceVar_cjgat=in.cjgat;
-AdmsSensFadType instanceVar_cjsti=in.cjsti;
-AdmsSensFadType instanceVar_ij=in.ij;
-AdmsSensFadType instanceVar_ijbot=in.ijbot;
-AdmsSensFadType instanceVar_ijgat=in.ijgat;
-AdmsSensFadType instanceVar_ijsti=in.ijsti;
-AdmsSensFadType instanceVar_si=in.si;
-AdmsSensFadType instanceVar_idsatsbot=in.idsatsbot;
-AdmsSensFadType instanceVar_idsatssti=in.idsatssti;
-AdmsSensFadType instanceVar_idsatsgat=in.idsatsgat;
-AdmsSensFadType instanceVar_cjosbot=in.cjosbot;
-AdmsSensFadType instanceVar_cjossti=in.cjossti;
-AdmsSensFadType instanceVar_cjosgat=in.cjosgat;
-AdmsSensFadType instanceVar_vbisbot=in.vbisbot;
-AdmsSensFadType instanceVar_vbissti=in.vbissti;
-AdmsSensFadType instanceVar_vbisgat=in.vbisgat;
+instanceStruct.instanceVar_MULT_i=in.MULT_i;
+instanceStruct.d_instanceVar_MULT_i_dX=0.0;
+instanceStruct.instanceVar_AB_i=in.AB_i;
+instanceStruct.d_instanceVar_AB_i_dX=0.0;
+instanceStruct.instanceVar_LS_i=in.LS_i;
+instanceStruct.d_instanceVar_LS_i_dX=0.0;
+instanceStruct.instanceVar_LG_i=in.LG_i;
+instanceStruct.d_instanceVar_LG_i_dX=0.0;
+instanceStruct.instanceVar_zflagbot=in.zflagbot;
+instanceStruct.instanceVar_zflagsti=in.zflagsti;
+instanceStruct.instanceVar_zflaggat=in.zflaggat;
+instanceStruct.instanceVar_VMAX=in.VMAX;
+instanceStruct.d_instanceVar_VMAX_dX=0.0;
+instanceStruct.instanceVar_exp_VMAX_over_phitd=in.exp_VMAX_over_phitd;
+instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX=0.0;
+instanceStruct.instanceVar_vbimin=in.vbimin;
+instanceStruct.d_instanceVar_vbimin_dX=0.0;
+instanceStruct.instanceVar_vch=in.vch;
+instanceStruct.d_instanceVar_vch_dX=0.0;
+instanceStruct.instanceVar_vfmin=in.vfmin;
+instanceStruct.d_instanceVar_vfmin_dX=0.0;
+instanceStruct.instanceVar_vbbtlim=in.vbbtlim;
+instanceStruct.d_instanceVar_vbbtlim_dX=0.0;
+instanceStruct.instanceVar_xhighf1=in.xhighf1;
+instanceStruct.d_instanceVar_xhighf1_dX=0.0;
+instanceStruct.instanceVar_expxhf1=in.expxhf1;
+instanceStruct.d_instanceVar_expxhf1_dX=0.0;
+instanceStruct.instanceVar_xhighf2=in.xhighf2;
+instanceStruct.d_instanceVar_xhighf2_dX=0.0;
+instanceStruct.instanceVar_expxhf2=in.expxhf2;
+instanceStruct.d_instanceVar_expxhf2_dX=0.0;
+instanceStruct.instanceVar_xhighr=in.xhighr;
+instanceStruct.d_instanceVar_xhighr_dX=0.0;
+instanceStruct.instanceVar_expxhr=in.expxhr;
+instanceStruct.d_instanceVar_expxhr_dX=0.0;
+instanceStruct.instanceVar_ISATFOR1=in.ISATFOR1;
+instanceStruct.d_instanceVar_ISATFOR1_dX=0.0;
+instanceStruct.instanceVar_MFOR1=in.MFOR1;
+instanceStruct.instanceVar_ISATFOR2=in.ISATFOR2;
+instanceStruct.d_instanceVar_ISATFOR2_dX=0.0;
+instanceStruct.instanceVar_MFOR2=in.MFOR2;
+instanceStruct.d_instanceVar_MFOR2_dX=0.0;
+instanceStruct.instanceVar_ISATREV=in.ISATREV;
+instanceStruct.d_instanceVar_ISATREV_dX=0.0;
+instanceStruct.instanceVar_MREV=in.MREV;
+instanceStruct.d_instanceVar_MREV_dX=0.0;
+instanceStruct.instanceVar_m0flag=in.m0flag;
 
 
 //non-reals
@@ -13085,92 +15998,174 @@ AdmsSensFadType instanceVar_vbisgat=in.vbisgat;
 
 //make local copies of all model vars
 //reals
-AdmsSensFadType modelVar_IMAX_i=mod.IMAX_i;
-AdmsSensFadType modelVar_VBIRBOT_i=mod.VBIRBOT_i;
-AdmsSensFadType modelVar_VBIRSTI_i=mod.VBIRSTI_i;
-AdmsSensFadType modelVar_VBIRGAT_i=mod.VBIRGAT_i;
-AdmsSensFadType modelVar_PBOT_i=mod.PBOT_i;
-AdmsSensFadType modelVar_PSTI_i=mod.PSTI_i;
-AdmsSensFadType modelVar_PGAT_i=mod.PGAT_i;
-AdmsSensFadType modelVar_CSRHBOT_i=mod.CSRHBOT_i;
-AdmsSensFadType modelVar_CSRHSTI_i=mod.CSRHSTI_i;
-AdmsSensFadType modelVar_CSRHGAT_i=mod.CSRHGAT_i;
-AdmsSensFadType modelVar_CTATBOT_i=mod.CTATBOT_i;
-AdmsSensFadType modelVar_CTATSTI_i=mod.CTATSTI_i;
-AdmsSensFadType modelVar_CTATGAT_i=mod.CTATGAT_i;
-AdmsSensFadType modelVar_CBBTBOT_i=mod.CBBTBOT_i;
-AdmsSensFadType modelVar_CBBTSTI_i=mod.CBBTSTI_i;
-AdmsSensFadType modelVar_CBBTGAT_i=mod.CBBTGAT_i;
-AdmsSensFadType modelVar_VBRBOT_i=mod.VBRBOT_i;
-AdmsSensFadType modelVar_VBRSTI_i=mod.VBRSTI_i;
-AdmsSensFadType modelVar_VBRGAT_i=mod.VBRGAT_i;
-AdmsSensFadType modelVar_PBRBOT_i=mod.PBRBOT_i;
-AdmsSensFadType modelVar_PBRSTI_i=mod.PBRSTI_i;
-AdmsSensFadType modelVar_PBRGAT_i=mod.PBRGAT_i;
-double modelVar_SWJUNEXP_i=mod.SWJUNEXP_i;
-AdmsSensFadType modelVar_VJUNREF_i=mod.VJUNREF_i;
-AdmsSensFadType modelVar_FJUNQ_i=mod.FJUNQ_i;
-AdmsSensFadType modelVar_phitr=mod.phitr;
-AdmsSensFadType modelVar_phitd=mod.phitd;
-AdmsSensFadType modelVar_phitdinv=mod.phitdinv;
-double modelVar_perfc=mod.perfc;
-double modelVar_berfc=mod.berfc;
-double modelVar_cerfc=mod.cerfc;
-AdmsSensFadType modelVar_ftdbot=mod.ftdbot;
-AdmsSensFadType modelVar_ftdsti=mod.ftdsti;
-AdmsSensFadType modelVar_ftdgat=mod.ftdgat;
-AdmsSensFadType modelVar_idsatbot=mod.idsatbot;
-AdmsSensFadType modelVar_idsatsti=mod.idsatsti;
-AdmsSensFadType modelVar_idsatgat=mod.idsatgat;
-AdmsSensFadType modelVar_vbibot=mod.vbibot;
-AdmsSensFadType modelVar_vbisti=mod.vbisti;
-AdmsSensFadType modelVar_vbigat=mod.vbigat;
-AdmsSensFadType modelVar_vbiinvbot=mod.vbiinvbot;
-AdmsSensFadType modelVar_vbiinvsti=mod.vbiinvsti;
-AdmsSensFadType modelVar_vbiinvgat=mod.vbiinvgat;
-AdmsSensFadType modelVar_one_minus_PBOT=mod.one_minus_PBOT;
-AdmsSensFadType modelVar_one_minus_PSTI=mod.one_minus_PSTI;
-AdmsSensFadType modelVar_one_minus_PGAT=mod.one_minus_PGAT;
-AdmsSensFadType modelVar_one_over_one_minus_PBOT=mod.one_over_one_minus_PBOT;
-AdmsSensFadType modelVar_one_over_one_minus_PSTI=mod.one_over_one_minus_PSTI;
-AdmsSensFadType modelVar_one_over_one_minus_PGAT=mod.one_over_one_minus_PGAT;
-AdmsSensFadType modelVar_cjobot=mod.cjobot;
-AdmsSensFadType modelVar_cjosti=mod.cjosti;
-AdmsSensFadType modelVar_cjogat=mod.cjogat;
-AdmsSensFadType modelVar_qprefbot=mod.qprefbot;
-AdmsSensFadType modelVar_qprefsti=mod.qprefsti;
-AdmsSensFadType modelVar_qprefgat=mod.qprefgat;
-AdmsSensFadType modelVar_qpref2bot=mod.qpref2bot;
-AdmsSensFadType modelVar_qpref2sti=mod.qpref2sti;
-AdmsSensFadType modelVar_qpref2gat=mod.qpref2gat;
-AdmsSensFadType modelVar_wdepnulrbot=mod.wdepnulrbot;
-AdmsSensFadType modelVar_wdepnulrsti=mod.wdepnulrsti;
-AdmsSensFadType modelVar_wdepnulrgat=mod.wdepnulrgat;
-AdmsSensFadType modelVar_wdepnulrinvbot=mod.wdepnulrinvbot;
-AdmsSensFadType modelVar_wdepnulrinvsti=mod.wdepnulrinvsti;
-AdmsSensFadType modelVar_wdepnulrinvgat=mod.wdepnulrinvgat;
-AdmsSensFadType modelVar_VBIRBOTinv=mod.VBIRBOTinv;
-AdmsSensFadType modelVar_VBIRSTIinv=mod.VBIRSTIinv;
-AdmsSensFadType modelVar_VBIRGATinv=mod.VBIRGATinv;
-AdmsSensFadType modelVar_atatbot=mod.atatbot;
-AdmsSensFadType modelVar_atatsti=mod.atatsti;
-AdmsSensFadType modelVar_atatgat=mod.atatgat;
-AdmsSensFadType modelVar_btatpartbot=mod.btatpartbot;
-AdmsSensFadType modelVar_btatpartsti=mod.btatpartsti;
-AdmsSensFadType modelVar_btatpartgat=mod.btatpartgat;
-AdmsSensFadType modelVar_fbbtbot=mod.fbbtbot;
-AdmsSensFadType modelVar_fbbtsti=mod.fbbtsti;
-AdmsSensFadType modelVar_fbbtgat=mod.fbbtgat;
-AdmsSensFadType modelVar_alphaav=mod.alphaav;
-AdmsSensFadType modelVar_fstopbot=mod.fstopbot;
-AdmsSensFadType modelVar_fstopsti=mod.fstopsti;
-AdmsSensFadType modelVar_fstopgat=mod.fstopgat;
-AdmsSensFadType modelVar_VBRinvbot=mod.VBRinvbot;
-AdmsSensFadType modelVar_VBRinvsti=mod.VBRinvsti;
-AdmsSensFadType modelVar_VBRinvgat=mod.VBRinvgat;
-AdmsSensFadType modelVar_slopebot=mod.slopebot;
-AdmsSensFadType modelVar_slopesti=mod.slopesti;
-AdmsSensFadType modelVar_slopegat=mod.slopegat;
+modelStruct.modelVar_IMAX_i=mod.IMAX_i;
+modelStruct.d_modelVar_IMAX_i_dX=0.0;
+modelStruct.modelVar_VBIRBOT_i=mod.VBIRBOT_i;
+modelStruct.d_modelVar_VBIRBOT_i_dX=0.0;
+modelStruct.modelVar_VBIRSTI_i=mod.VBIRSTI_i;
+modelStruct.d_modelVar_VBIRSTI_i_dX=0.0;
+modelStruct.modelVar_VBIRGAT_i=mod.VBIRGAT_i;
+modelStruct.d_modelVar_VBIRGAT_i_dX=0.0;
+modelStruct.modelVar_PBOT_i=mod.PBOT_i;
+modelStruct.d_modelVar_PBOT_i_dX=0.0;
+modelStruct.modelVar_PSTI_i=mod.PSTI_i;
+modelStruct.d_modelVar_PSTI_i_dX=0.0;
+modelStruct.modelVar_PGAT_i=mod.PGAT_i;
+modelStruct.d_modelVar_PGAT_i_dX=0.0;
+modelStruct.modelVar_CSRHBOT_i=mod.CSRHBOT_i;
+modelStruct.d_modelVar_CSRHBOT_i_dX=0.0;
+modelStruct.modelVar_CSRHSTI_i=mod.CSRHSTI_i;
+modelStruct.d_modelVar_CSRHSTI_i_dX=0.0;
+modelStruct.modelVar_CSRHGAT_i=mod.CSRHGAT_i;
+modelStruct.d_modelVar_CSRHGAT_i_dX=0.0;
+modelStruct.modelVar_CTATBOT_i=mod.CTATBOT_i;
+modelStruct.d_modelVar_CTATBOT_i_dX=0.0;
+modelStruct.modelVar_CTATSTI_i=mod.CTATSTI_i;
+modelStruct.d_modelVar_CTATSTI_i_dX=0.0;
+modelStruct.modelVar_CTATGAT_i=mod.CTATGAT_i;
+modelStruct.d_modelVar_CTATGAT_i_dX=0.0;
+modelStruct.modelVar_CBBTBOT_i=mod.CBBTBOT_i;
+modelStruct.d_modelVar_CBBTBOT_i_dX=0.0;
+modelStruct.modelVar_CBBTSTI_i=mod.CBBTSTI_i;
+modelStruct.d_modelVar_CBBTSTI_i_dX=0.0;
+modelStruct.modelVar_CBBTGAT_i=mod.CBBTGAT_i;
+modelStruct.d_modelVar_CBBTGAT_i_dX=0.0;
+modelStruct.modelVar_VBRBOT_i=mod.VBRBOT_i;
+modelStruct.d_modelVar_VBRBOT_i_dX=0.0;
+modelStruct.modelVar_VBRSTI_i=mod.VBRSTI_i;
+modelStruct.d_modelVar_VBRSTI_i_dX=0.0;
+modelStruct.modelVar_VBRGAT_i=mod.VBRGAT_i;
+modelStruct.d_modelVar_VBRGAT_i_dX=0.0;
+modelStruct.modelVar_PBRBOT_i=mod.PBRBOT_i;
+modelStruct.d_modelVar_PBRBOT_i_dX=0.0;
+modelStruct.modelVar_PBRSTI_i=mod.PBRSTI_i;
+modelStruct.d_modelVar_PBRSTI_i_dX=0.0;
+modelStruct.modelVar_PBRGAT_i=mod.PBRGAT_i;
+modelStruct.d_modelVar_PBRGAT_i_dX=0.0;
+modelStruct.modelVar_SWJUNEXP_i=mod.SWJUNEXP_i;
+modelStruct.modelVar_VJUNREF_i=mod.VJUNREF_i;
+modelStruct.d_modelVar_VJUNREF_i_dX=0.0;
+modelStruct.modelVar_FJUNQ_i=mod.FJUNQ_i;
+modelStruct.d_modelVar_FJUNQ_i_dX=0.0;
+modelStruct.modelVar_phitr=mod.phitr;
+modelStruct.d_modelVar_phitr_dX=0.0;
+modelStruct.modelVar_phitd=mod.phitd;
+modelStruct.d_modelVar_phitd_dX=0.0;
+modelStruct.modelVar_phitdinv=mod.phitdinv;
+modelStruct.d_modelVar_phitdinv_dX=0.0;
+modelStruct.modelVar_perfc=mod.perfc;
+modelStruct.modelVar_berfc=mod.berfc;
+modelStruct.modelVar_cerfc=mod.cerfc;
+modelStruct.modelVar_ftdbot=mod.ftdbot;
+modelStruct.d_modelVar_ftdbot_dX=0.0;
+modelStruct.modelVar_ftdsti=mod.ftdsti;
+modelStruct.d_modelVar_ftdsti_dX=0.0;
+modelStruct.modelVar_ftdgat=mod.ftdgat;
+modelStruct.d_modelVar_ftdgat_dX=0.0;
+modelStruct.modelVar_idsatbot=mod.idsatbot;
+modelStruct.d_modelVar_idsatbot_dX=0.0;
+modelStruct.modelVar_idsatsti=mod.idsatsti;
+modelStruct.d_modelVar_idsatsti_dX=0.0;
+modelStruct.modelVar_idsatgat=mod.idsatgat;
+modelStruct.d_modelVar_idsatgat_dX=0.0;
+modelStruct.modelVar_vbibot=mod.vbibot;
+modelStruct.d_modelVar_vbibot_dX=0.0;
+modelStruct.modelVar_vbisti=mod.vbisti;
+modelStruct.d_modelVar_vbisti_dX=0.0;
+modelStruct.modelVar_vbigat=mod.vbigat;
+modelStruct.d_modelVar_vbigat_dX=0.0;
+modelStruct.modelVar_vbiinvbot=mod.vbiinvbot;
+modelStruct.d_modelVar_vbiinvbot_dX=0.0;
+modelStruct.modelVar_vbiinvsti=mod.vbiinvsti;
+modelStruct.d_modelVar_vbiinvsti_dX=0.0;
+modelStruct.modelVar_vbiinvgat=mod.vbiinvgat;
+modelStruct.d_modelVar_vbiinvgat_dX=0.0;
+modelStruct.modelVar_one_minus_PBOT=mod.one_minus_PBOT;
+modelStruct.d_modelVar_one_minus_PBOT_dX=0.0;
+modelStruct.modelVar_one_minus_PSTI=mod.one_minus_PSTI;
+modelStruct.d_modelVar_one_minus_PSTI_dX=0.0;
+modelStruct.modelVar_one_minus_PGAT=mod.one_minus_PGAT;
+modelStruct.d_modelVar_one_minus_PGAT_dX=0.0;
+modelStruct.modelVar_one_over_one_minus_PBOT=mod.one_over_one_minus_PBOT;
+modelStruct.d_modelVar_one_over_one_minus_PBOT_dX=0.0;
+modelStruct.modelVar_one_over_one_minus_PSTI=mod.one_over_one_minus_PSTI;
+modelStruct.d_modelVar_one_over_one_minus_PSTI_dX=0.0;
+modelStruct.modelVar_one_over_one_minus_PGAT=mod.one_over_one_minus_PGAT;
+modelStruct.d_modelVar_one_over_one_minus_PGAT_dX=0.0;
+modelStruct.modelVar_cjobot=mod.cjobot;
+modelStruct.d_modelVar_cjobot_dX=0.0;
+modelStruct.modelVar_cjosti=mod.cjosti;
+modelStruct.d_modelVar_cjosti_dX=0.0;
+modelStruct.modelVar_cjogat=mod.cjogat;
+modelStruct.d_modelVar_cjogat_dX=0.0;
+modelStruct.modelVar_qprefbot=mod.qprefbot;
+modelStruct.d_modelVar_qprefbot_dX=0.0;
+modelStruct.modelVar_qprefsti=mod.qprefsti;
+modelStruct.d_modelVar_qprefsti_dX=0.0;
+modelStruct.modelVar_qprefgat=mod.qprefgat;
+modelStruct.d_modelVar_qprefgat_dX=0.0;
+modelStruct.modelVar_qpref2bot=mod.qpref2bot;
+modelStruct.d_modelVar_qpref2bot_dX=0.0;
+modelStruct.modelVar_qpref2sti=mod.qpref2sti;
+modelStruct.d_modelVar_qpref2sti_dX=0.0;
+modelStruct.modelVar_qpref2gat=mod.qpref2gat;
+modelStruct.d_modelVar_qpref2gat_dX=0.0;
+modelStruct.modelVar_wdepnulrbot=mod.wdepnulrbot;
+modelStruct.d_modelVar_wdepnulrbot_dX=0.0;
+modelStruct.modelVar_wdepnulrsti=mod.wdepnulrsti;
+modelStruct.d_modelVar_wdepnulrsti_dX=0.0;
+modelStruct.modelVar_wdepnulrgat=mod.wdepnulrgat;
+modelStruct.d_modelVar_wdepnulrgat_dX=0.0;
+modelStruct.modelVar_wdepnulrinvbot=mod.wdepnulrinvbot;
+modelStruct.d_modelVar_wdepnulrinvbot_dX=0.0;
+modelStruct.modelVar_wdepnulrinvsti=mod.wdepnulrinvsti;
+modelStruct.d_modelVar_wdepnulrinvsti_dX=0.0;
+modelStruct.modelVar_wdepnulrinvgat=mod.wdepnulrinvgat;
+modelStruct.d_modelVar_wdepnulrinvgat_dX=0.0;
+modelStruct.modelVar_VBIRBOTinv=mod.VBIRBOTinv;
+modelStruct.d_modelVar_VBIRBOTinv_dX=0.0;
+modelStruct.modelVar_VBIRSTIinv=mod.VBIRSTIinv;
+modelStruct.d_modelVar_VBIRSTIinv_dX=0.0;
+modelStruct.modelVar_VBIRGATinv=mod.VBIRGATinv;
+modelStruct.d_modelVar_VBIRGATinv_dX=0.0;
+modelStruct.modelVar_atatbot=mod.atatbot;
+modelStruct.d_modelVar_atatbot_dX=0.0;
+modelStruct.modelVar_atatsti=mod.atatsti;
+modelStruct.d_modelVar_atatsti_dX=0.0;
+modelStruct.modelVar_atatgat=mod.atatgat;
+modelStruct.d_modelVar_atatgat_dX=0.0;
+modelStruct.modelVar_btatpartbot=mod.btatpartbot;
+modelStruct.d_modelVar_btatpartbot_dX=0.0;
+modelStruct.modelVar_btatpartsti=mod.btatpartsti;
+modelStruct.d_modelVar_btatpartsti_dX=0.0;
+modelStruct.modelVar_btatpartgat=mod.btatpartgat;
+modelStruct.d_modelVar_btatpartgat_dX=0.0;
+modelStruct.modelVar_fbbtbot=mod.fbbtbot;
+modelStruct.d_modelVar_fbbtbot_dX=0.0;
+modelStruct.modelVar_fbbtsti=mod.fbbtsti;
+modelStruct.d_modelVar_fbbtsti_dX=0.0;
+modelStruct.modelVar_fbbtgat=mod.fbbtgat;
+modelStruct.d_modelVar_fbbtgat_dX=0.0;
+modelStruct.modelVar_alphaav=mod.alphaav;
+modelStruct.d_modelVar_alphaav_dX=0.0;
+modelStruct.modelVar_fstopbot=mod.fstopbot;
+modelStruct.d_modelVar_fstopbot_dX=0.0;
+modelStruct.modelVar_fstopsti=mod.fstopsti;
+modelStruct.d_modelVar_fstopsti_dX=0.0;
+modelStruct.modelVar_fstopgat=mod.fstopgat;
+modelStruct.d_modelVar_fstopgat_dX=0.0;
+modelStruct.modelVar_VBRinvbot=mod.VBRinvbot;
+modelStruct.d_modelVar_VBRinvbot_dX=0.0;
+modelStruct.modelVar_VBRinvsti=mod.VBRinvsti;
+modelStruct.d_modelVar_VBRinvsti_dX=0.0;
+modelStruct.modelVar_VBRinvgat=mod.VBRinvgat;
+modelStruct.d_modelVar_VBRinvgat_dX=0.0;
+modelStruct.modelVar_slopebot=mod.slopebot;
+modelStruct.d_modelVar_slopebot_dX=0.0;
+modelStruct.modelVar_slopesti=mod.slopesti;
+modelStruct.d_modelVar_slopesti_dX=0.0;
+modelStruct.modelVar_slopegat=mod.slopegat;
+modelStruct.d_modelVar_slopegat_dX=0.0;
 
 
 // non-reals
@@ -13179,7 +16174,7 @@ AdmsSensFadType modelVar_slopegat=mod.slopegat;
 
 Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-// extract solution variables and set as Fad independent variables.
+// extract solution variables
 probeVars[in.admsProbeID_V_A_GND] = (*solVectorPtr)[in.li_A];
 probeVars[in.admsProbeID_V_A_K] = (*solVectorPtr)[in.li_A]- (*solVectorPtr)[in.li_K];
 
@@ -13190,447 +16185,11 @@ probeVars[in.admsProbeID_V_A_K] = (*solVectorPtr)[in.li_A]- (*solVectorPtr)[in.l
   // instance and model vars, and local copies of instance and model
   // params.
 evaluateInitialModel(
-// model parameters
-// reals
-modelPar_DTA,
-modelPar_given_DTA,
-modelPar_IMAX,
-modelPar_given_IMAX,
-modelPar_TRJ,
-modelPar_given_TRJ,
-modelPar_FREV,
-modelPar_given_FREV,
-modelPar_CJORBOT,
-modelPar_given_CJORBOT,
-modelPar_CJORSTI,
-modelPar_given_CJORSTI,
-modelPar_CJORGAT,
-modelPar_given_CJORGAT,
-modelPar_VBIRBOT,
-modelPar_given_VBIRBOT,
-modelPar_VBIRSTI,
-modelPar_given_VBIRSTI,
-modelPar_VBIRGAT,
-modelPar_given_VBIRGAT,
-modelPar_PBOT,
-modelPar_given_PBOT,
-modelPar_PSTI,
-modelPar_given_PSTI,
-modelPar_PGAT,
-modelPar_given_PGAT,
-modelPar_PHIGBOT,
-modelPar_given_PHIGBOT,
-modelPar_PHIGSTI,
-modelPar_given_PHIGSTI,
-modelPar_PHIGGAT,
-modelPar_given_PHIGGAT,
-modelPar_IDSATRBOT,
-modelPar_given_IDSATRBOT,
-modelPar_IDSATRSTI,
-modelPar_given_IDSATRSTI,
-modelPar_IDSATRGAT,
-modelPar_given_IDSATRGAT,
-modelPar_CSRHBOT,
-modelPar_given_CSRHBOT,
-modelPar_CSRHSTI,
-modelPar_given_CSRHSTI,
-modelPar_CSRHGAT,
-modelPar_given_CSRHGAT,
-modelPar_XJUNSTI,
-modelPar_given_XJUNSTI,
-modelPar_XJUNGAT,
-modelPar_given_XJUNGAT,
-modelPar_CTATBOT,
-modelPar_given_CTATBOT,
-modelPar_CTATSTI,
-modelPar_given_CTATSTI,
-modelPar_CTATGAT,
-modelPar_given_CTATGAT,
-modelPar_MEFFTATBOT,
-modelPar_given_MEFFTATBOT,
-modelPar_MEFFTATSTI,
-modelPar_given_MEFFTATSTI,
-modelPar_MEFFTATGAT,
-modelPar_given_MEFFTATGAT,
-modelPar_CBBTBOT,
-modelPar_given_CBBTBOT,
-modelPar_CBBTSTI,
-modelPar_given_CBBTSTI,
-modelPar_CBBTGAT,
-modelPar_given_CBBTGAT,
-modelPar_FBBTRBOT,
-modelPar_given_FBBTRBOT,
-modelPar_FBBTRSTI,
-modelPar_given_FBBTRSTI,
-modelPar_FBBTRGAT,
-modelPar_given_FBBTRGAT,
-modelPar_STFBBTBOT,
-modelPar_given_STFBBTBOT,
-modelPar_STFBBTSTI,
-modelPar_given_STFBBTSTI,
-modelPar_STFBBTGAT,
-modelPar_given_STFBBTGAT,
-modelPar_VBRBOT,
-modelPar_given_VBRBOT,
-modelPar_VBRSTI,
-modelPar_given_VBRSTI,
-modelPar_VBRGAT,
-modelPar_given_VBRGAT,
-modelPar_PBRBOT,
-modelPar_given_PBRBOT,
-modelPar_PBRSTI,
-modelPar_given_PBRSTI,
-modelPar_PBRGAT,
-modelPar_given_PBRGAT,
-modelPar_SWJUNEXP,
-modelPar_given_SWJUNEXP,
-modelPar_VJUNREF,
-modelPar_given_VJUNREF,
-modelPar_FJUNQ,
-modelPar_given_FJUNQ,
-// non-reals (including hidden)
- modelPar_LEVEL,
-modelPar_given_LEVEL,
- modelPar_TYPE,
-modelPar_given_TYPE// model variables
-,
-// reals
-modelVar_IMAX_i,
-modelVar_VBIRBOT_i,
-modelVar_VBIRSTI_i,
-modelVar_VBIRGAT_i,
-modelVar_PBOT_i,
-modelVar_PSTI_i,
-modelVar_PGAT_i,
-modelVar_CSRHBOT_i,
-modelVar_CSRHSTI_i,
-modelVar_CSRHGAT_i,
-modelVar_CTATBOT_i,
-modelVar_CTATSTI_i,
-modelVar_CTATGAT_i,
-modelVar_CBBTBOT_i,
-modelVar_CBBTSTI_i,
-modelVar_CBBTGAT_i,
-modelVar_VBRBOT_i,
-modelVar_VBRSTI_i,
-modelVar_VBRGAT_i,
-modelVar_PBRBOT_i,
-modelVar_PBRSTI_i,
-modelVar_PBRGAT_i,
-modelVar_SWJUNEXP_i,
-modelVar_VJUNREF_i,
-modelVar_FJUNQ_i,
-modelVar_phitr,
-modelVar_phitd,
-modelVar_phitdinv,
-modelVar_perfc,
-modelVar_berfc,
-modelVar_cerfc,
-modelVar_ftdbot,
-modelVar_ftdsti,
-modelVar_ftdgat,
-modelVar_idsatbot,
-modelVar_idsatsti,
-modelVar_idsatgat,
-modelVar_vbibot,
-modelVar_vbisti,
-modelVar_vbigat,
-modelVar_vbiinvbot,
-modelVar_vbiinvsti,
-modelVar_vbiinvgat,
-modelVar_one_minus_PBOT,
-modelVar_one_minus_PSTI,
-modelVar_one_minus_PGAT,
-modelVar_one_over_one_minus_PBOT,
-modelVar_one_over_one_minus_PSTI,
-modelVar_one_over_one_minus_PGAT,
-modelVar_cjobot,
-modelVar_cjosti,
-modelVar_cjogat,
-modelVar_qprefbot,
-modelVar_qprefsti,
-modelVar_qprefgat,
-modelVar_qpref2bot,
-modelVar_qpref2sti,
-modelVar_qpref2gat,
-modelVar_wdepnulrbot,
-modelVar_wdepnulrsti,
-modelVar_wdepnulrgat,
-modelVar_wdepnulrinvbot,
-modelVar_wdepnulrinvsti,
-modelVar_wdepnulrinvgat,
-modelVar_VBIRBOTinv,
-modelVar_VBIRSTIinv,
-modelVar_VBIRGATinv,
-modelVar_atatbot,
-modelVar_atatsti,
-modelVar_atatgat,
-modelVar_btatpartbot,
-modelVar_btatpartsti,
-modelVar_btatpartgat,
-modelVar_fbbtbot,
-modelVar_fbbtsti,
-modelVar_fbbtgat,
-modelVar_alphaav,
-modelVar_fstopbot,
-modelVar_fstopsti,
-modelVar_fstopgat,
-modelVar_VBRinvbot,
-modelVar_VBRinvsti,
-modelVar_VBRinvgat,
-modelVar_slopebot,
-modelVar_slopesti,
-modelVar_slopegat,
+modelStruct,
  mod.admsModTemp,in.getDeviceOptions().gmin,in);
 evaluateInitialInstance(
-// instance parameters
-// reals
-instancePar_AB,
-instancePar_given_AB,
-instancePar_LS,
-instancePar_given_LS,
-instancePar_LG,
-instancePar_given_LG,
-instancePar_MULT,
-instancePar_given_MULT,
-// instance variables
-// reals
-instanceVar_MULT_i,
-instanceVar_AB_i,
-instanceVar_LS_i,
-instanceVar_LG_i,
-instanceVar_zflagbot,
-instanceVar_zflagsti,
-instanceVar_zflaggat,
-instanceVar_VMAX,
-instanceVar_exp_VMAX_over_phitd,
-instanceVar_vbimin,
-instanceVar_vch,
-instanceVar_vfmin,
-instanceVar_vbbtlim,
-instanceVar_xhighf1,
-instanceVar_expxhf1,
-instanceVar_xhighf2,
-instanceVar_expxhf2,
-instanceVar_xhighr,
-instanceVar_expxhr,
-instanceVar_ISATFOR1,
-instanceVar_MFOR1,
-instanceVar_ISATFOR2,
-instanceVar_MFOR2,
-instanceVar_ISATREV,
-instanceVar_MREV,
-instanceVar_m0flag,
-instanceVar_vak,
-instanceVar_cj,
-instanceVar_cjbot,
-instanceVar_cjgat,
-instanceVar_cjsti,
-instanceVar_ij,
-instanceVar_ijbot,
-instanceVar_ijgat,
-instanceVar_ijsti,
-instanceVar_si,
-instanceVar_idsatsbot,
-instanceVar_idsatssti,
-instanceVar_idsatsgat,
-instanceVar_cjosbot,
-instanceVar_cjossti,
-instanceVar_cjosgat,
-instanceVar_vbisbot,
-instanceVar_vbissti,
-instanceVar_vbisgat,
-// model parameters
-// reals
-modelPar_DTA,
-modelPar_given_DTA,
-modelPar_IMAX,
-modelPar_given_IMAX,
-modelPar_TRJ,
-modelPar_given_TRJ,
-modelPar_FREV,
-modelPar_given_FREV,
-modelPar_CJORBOT,
-modelPar_given_CJORBOT,
-modelPar_CJORSTI,
-modelPar_given_CJORSTI,
-modelPar_CJORGAT,
-modelPar_given_CJORGAT,
-modelPar_VBIRBOT,
-modelPar_given_VBIRBOT,
-modelPar_VBIRSTI,
-modelPar_given_VBIRSTI,
-modelPar_VBIRGAT,
-modelPar_given_VBIRGAT,
-modelPar_PBOT,
-modelPar_given_PBOT,
-modelPar_PSTI,
-modelPar_given_PSTI,
-modelPar_PGAT,
-modelPar_given_PGAT,
-modelPar_PHIGBOT,
-modelPar_given_PHIGBOT,
-modelPar_PHIGSTI,
-modelPar_given_PHIGSTI,
-modelPar_PHIGGAT,
-modelPar_given_PHIGGAT,
-modelPar_IDSATRBOT,
-modelPar_given_IDSATRBOT,
-modelPar_IDSATRSTI,
-modelPar_given_IDSATRSTI,
-modelPar_IDSATRGAT,
-modelPar_given_IDSATRGAT,
-modelPar_CSRHBOT,
-modelPar_given_CSRHBOT,
-modelPar_CSRHSTI,
-modelPar_given_CSRHSTI,
-modelPar_CSRHGAT,
-modelPar_given_CSRHGAT,
-modelPar_XJUNSTI,
-modelPar_given_XJUNSTI,
-modelPar_XJUNGAT,
-modelPar_given_XJUNGAT,
-modelPar_CTATBOT,
-modelPar_given_CTATBOT,
-modelPar_CTATSTI,
-modelPar_given_CTATSTI,
-modelPar_CTATGAT,
-modelPar_given_CTATGAT,
-modelPar_MEFFTATBOT,
-modelPar_given_MEFFTATBOT,
-modelPar_MEFFTATSTI,
-modelPar_given_MEFFTATSTI,
-modelPar_MEFFTATGAT,
-modelPar_given_MEFFTATGAT,
-modelPar_CBBTBOT,
-modelPar_given_CBBTBOT,
-modelPar_CBBTSTI,
-modelPar_given_CBBTSTI,
-modelPar_CBBTGAT,
-modelPar_given_CBBTGAT,
-modelPar_FBBTRBOT,
-modelPar_given_FBBTRBOT,
-modelPar_FBBTRSTI,
-modelPar_given_FBBTRSTI,
-modelPar_FBBTRGAT,
-modelPar_given_FBBTRGAT,
-modelPar_STFBBTBOT,
-modelPar_given_STFBBTBOT,
-modelPar_STFBBTSTI,
-modelPar_given_STFBBTSTI,
-modelPar_STFBBTGAT,
-modelPar_given_STFBBTGAT,
-modelPar_VBRBOT,
-modelPar_given_VBRBOT,
-modelPar_VBRSTI,
-modelPar_given_VBRSTI,
-modelPar_VBRGAT,
-modelPar_given_VBRGAT,
-modelPar_PBRBOT,
-modelPar_given_PBRBOT,
-modelPar_PBRSTI,
-modelPar_given_PBRSTI,
-modelPar_PBRGAT,
-modelPar_given_PBRGAT,
-modelPar_SWJUNEXP,
-modelPar_given_SWJUNEXP,
-modelPar_VJUNREF,
-modelPar_given_VJUNREF,
-modelPar_FJUNQ,
-modelPar_given_FJUNQ,
-// non-reals (including hidden)
- modelPar_LEVEL,
-modelPar_given_LEVEL,
- modelPar_TYPE,
-modelPar_given_TYPE// model variables
-,
-// reals
-modelVar_IMAX_i,
-modelVar_VBIRBOT_i,
-modelVar_VBIRSTI_i,
-modelVar_VBIRGAT_i,
-modelVar_PBOT_i,
-modelVar_PSTI_i,
-modelVar_PGAT_i,
-modelVar_CSRHBOT_i,
-modelVar_CSRHSTI_i,
-modelVar_CSRHGAT_i,
-modelVar_CTATBOT_i,
-modelVar_CTATSTI_i,
-modelVar_CTATGAT_i,
-modelVar_CBBTBOT_i,
-modelVar_CBBTSTI_i,
-modelVar_CBBTGAT_i,
-modelVar_VBRBOT_i,
-modelVar_VBRSTI_i,
-modelVar_VBRGAT_i,
-modelVar_PBRBOT_i,
-modelVar_PBRSTI_i,
-modelVar_PBRGAT_i,
-modelVar_SWJUNEXP_i,
-modelVar_VJUNREF_i,
-modelVar_FJUNQ_i,
-modelVar_phitr,
-modelVar_phitd,
-modelVar_phitdinv,
-modelVar_perfc,
-modelVar_berfc,
-modelVar_cerfc,
-modelVar_ftdbot,
-modelVar_ftdsti,
-modelVar_ftdgat,
-modelVar_idsatbot,
-modelVar_idsatsti,
-modelVar_idsatgat,
-modelVar_vbibot,
-modelVar_vbisti,
-modelVar_vbigat,
-modelVar_vbiinvbot,
-modelVar_vbiinvsti,
-modelVar_vbiinvgat,
-modelVar_one_minus_PBOT,
-modelVar_one_minus_PSTI,
-modelVar_one_minus_PGAT,
-modelVar_one_over_one_minus_PBOT,
-modelVar_one_over_one_minus_PSTI,
-modelVar_one_over_one_minus_PGAT,
-modelVar_cjobot,
-modelVar_cjosti,
-modelVar_cjogat,
-modelVar_qprefbot,
-modelVar_qprefsti,
-modelVar_qprefgat,
-modelVar_qpref2bot,
-modelVar_qpref2sti,
-modelVar_qpref2gat,
-modelVar_wdepnulrbot,
-modelVar_wdepnulrsti,
-modelVar_wdepnulrgat,
-modelVar_wdepnulrinvbot,
-modelVar_wdepnulrinvsti,
-modelVar_wdepnulrinvgat,
-modelVar_VBIRBOTinv,
-modelVar_VBIRSTIinv,
-modelVar_VBIRGATinv,
-modelVar_atatbot,
-modelVar_atatsti,
-modelVar_atatgat,
-modelVar_btatpartbot,
-modelVar_btatpartsti,
-modelVar_btatpartgat,
-modelVar_fbbtbot,
-modelVar_fbbtsti,
-modelVar_fbbtgat,
-modelVar_alphaav,
-modelVar_fstopbot,
-modelVar_fstopsti,
-modelVar_fstopgat,
-modelVar_VBRinvbot,
-modelVar_VBRinvsti,
-modelVar_VBRinvgat,
-modelVar_slopebot,
-modelVar_slopesti,
-modelVar_slopegat,
+instanceStruct,
+modelStruct,
 in.admsTemperature,in.adms_vt_nom,in.getDeviceOptions().gmin,in);
 
 
@@ -13644,270 +16203,24 @@ in.admsProbeID_V_A_K,
 // node constants
 in.admsNodeID_A,
 in.admsNodeID_K,
-// instance parameters
-// reals
-instancePar_AB,
-instancePar_given_AB,
-instancePar_LS,
-instancePar_given_LS,
-instancePar_LG,
-instancePar_given_LG,
-instancePar_MULT,
-instancePar_given_MULT,
-// instance variables
-// reals
-instanceVar_MULT_i,
-instanceVar_AB_i,
-instanceVar_LS_i,
-instanceVar_LG_i,
-instanceVar_zflagbot,
-instanceVar_zflagsti,
-instanceVar_zflaggat,
-instanceVar_VMAX,
-instanceVar_exp_VMAX_over_phitd,
-instanceVar_vbimin,
-instanceVar_vch,
-instanceVar_vfmin,
-instanceVar_vbbtlim,
-instanceVar_xhighf1,
-instanceVar_expxhf1,
-instanceVar_xhighf2,
-instanceVar_expxhf2,
-instanceVar_xhighr,
-instanceVar_expxhr,
-instanceVar_ISATFOR1,
-instanceVar_MFOR1,
-instanceVar_ISATFOR2,
-instanceVar_MFOR2,
-instanceVar_ISATREV,
-instanceVar_MREV,
-instanceVar_m0flag,
-instanceVar_vak,
-instanceVar_cj,
-instanceVar_cjbot,
-instanceVar_cjgat,
-instanceVar_cjsti,
-instanceVar_ij,
-instanceVar_ijbot,
-instanceVar_ijgat,
-instanceVar_ijsti,
-instanceVar_si,
-instanceVar_idsatsbot,
-instanceVar_idsatssti,
-instanceVar_idsatsgat,
-instanceVar_cjosbot,
-instanceVar_cjossti,
-instanceVar_cjosgat,
-instanceVar_vbisbot,
-instanceVar_vbissti,
-instanceVar_vbisgat,
-// model parameters
-// reals
-modelPar_DTA,
-modelPar_given_DTA,
-modelPar_IMAX,
-modelPar_given_IMAX,
-modelPar_TRJ,
-modelPar_given_TRJ,
-modelPar_FREV,
-modelPar_given_FREV,
-modelPar_CJORBOT,
-modelPar_given_CJORBOT,
-modelPar_CJORSTI,
-modelPar_given_CJORSTI,
-modelPar_CJORGAT,
-modelPar_given_CJORGAT,
-modelPar_VBIRBOT,
-modelPar_given_VBIRBOT,
-modelPar_VBIRSTI,
-modelPar_given_VBIRSTI,
-modelPar_VBIRGAT,
-modelPar_given_VBIRGAT,
-modelPar_PBOT,
-modelPar_given_PBOT,
-modelPar_PSTI,
-modelPar_given_PSTI,
-modelPar_PGAT,
-modelPar_given_PGAT,
-modelPar_PHIGBOT,
-modelPar_given_PHIGBOT,
-modelPar_PHIGSTI,
-modelPar_given_PHIGSTI,
-modelPar_PHIGGAT,
-modelPar_given_PHIGGAT,
-modelPar_IDSATRBOT,
-modelPar_given_IDSATRBOT,
-modelPar_IDSATRSTI,
-modelPar_given_IDSATRSTI,
-modelPar_IDSATRGAT,
-modelPar_given_IDSATRGAT,
-modelPar_CSRHBOT,
-modelPar_given_CSRHBOT,
-modelPar_CSRHSTI,
-modelPar_given_CSRHSTI,
-modelPar_CSRHGAT,
-modelPar_given_CSRHGAT,
-modelPar_XJUNSTI,
-modelPar_given_XJUNSTI,
-modelPar_XJUNGAT,
-modelPar_given_XJUNGAT,
-modelPar_CTATBOT,
-modelPar_given_CTATBOT,
-modelPar_CTATSTI,
-modelPar_given_CTATSTI,
-modelPar_CTATGAT,
-modelPar_given_CTATGAT,
-modelPar_MEFFTATBOT,
-modelPar_given_MEFFTATBOT,
-modelPar_MEFFTATSTI,
-modelPar_given_MEFFTATSTI,
-modelPar_MEFFTATGAT,
-modelPar_given_MEFFTATGAT,
-modelPar_CBBTBOT,
-modelPar_given_CBBTBOT,
-modelPar_CBBTSTI,
-modelPar_given_CBBTSTI,
-modelPar_CBBTGAT,
-modelPar_given_CBBTGAT,
-modelPar_FBBTRBOT,
-modelPar_given_FBBTRBOT,
-modelPar_FBBTRSTI,
-modelPar_given_FBBTRSTI,
-modelPar_FBBTRGAT,
-modelPar_given_FBBTRGAT,
-modelPar_STFBBTBOT,
-modelPar_given_STFBBTBOT,
-modelPar_STFBBTSTI,
-modelPar_given_STFBBTSTI,
-modelPar_STFBBTGAT,
-modelPar_given_STFBBTGAT,
-modelPar_VBRBOT,
-modelPar_given_VBRBOT,
-modelPar_VBRSTI,
-modelPar_given_VBRSTI,
-modelPar_VBRGAT,
-modelPar_given_VBRGAT,
-modelPar_PBRBOT,
-modelPar_given_PBRBOT,
-modelPar_PBRSTI,
-modelPar_given_PBRSTI,
-modelPar_PBRGAT,
-modelPar_given_PBRGAT,
-modelPar_SWJUNEXP,
-modelPar_given_SWJUNEXP,
-modelPar_VJUNREF,
-modelPar_given_VJUNREF,
-modelPar_FJUNQ,
-modelPar_given_FJUNQ,
-// non-reals (including hidden)
- modelPar_LEVEL,
-modelPar_given_LEVEL,
- modelPar_TYPE,
-modelPar_given_TYPE// model variables
-,
-// reals
-modelVar_IMAX_i,
-modelVar_VBIRBOT_i,
-modelVar_VBIRSTI_i,
-modelVar_VBIRGAT_i,
-modelVar_PBOT_i,
-modelVar_PSTI_i,
-modelVar_PGAT_i,
-modelVar_CSRHBOT_i,
-modelVar_CSRHSTI_i,
-modelVar_CSRHGAT_i,
-modelVar_CTATBOT_i,
-modelVar_CTATSTI_i,
-modelVar_CTATGAT_i,
-modelVar_CBBTBOT_i,
-modelVar_CBBTSTI_i,
-modelVar_CBBTGAT_i,
-modelVar_VBRBOT_i,
-modelVar_VBRSTI_i,
-modelVar_VBRGAT_i,
-modelVar_PBRBOT_i,
-modelVar_PBRSTI_i,
-modelVar_PBRGAT_i,
-modelVar_SWJUNEXP_i,
-modelVar_VJUNREF_i,
-modelVar_FJUNQ_i,
-modelVar_phitr,
-modelVar_phitd,
-modelVar_phitdinv,
-modelVar_perfc,
-modelVar_berfc,
-modelVar_cerfc,
-modelVar_ftdbot,
-modelVar_ftdsti,
-modelVar_ftdgat,
-modelVar_idsatbot,
-modelVar_idsatsti,
-modelVar_idsatgat,
-modelVar_vbibot,
-modelVar_vbisti,
-modelVar_vbigat,
-modelVar_vbiinvbot,
-modelVar_vbiinvsti,
-modelVar_vbiinvgat,
-modelVar_one_minus_PBOT,
-modelVar_one_minus_PSTI,
-modelVar_one_minus_PGAT,
-modelVar_one_over_one_minus_PBOT,
-modelVar_one_over_one_minus_PSTI,
-modelVar_one_over_one_minus_PGAT,
-modelVar_cjobot,
-modelVar_cjosti,
-modelVar_cjogat,
-modelVar_qprefbot,
-modelVar_qprefsti,
-modelVar_qprefgat,
-modelVar_qpref2bot,
-modelVar_qpref2sti,
-modelVar_qpref2gat,
-modelVar_wdepnulrbot,
-modelVar_wdepnulrsti,
-modelVar_wdepnulrgat,
-modelVar_wdepnulrinvbot,
-modelVar_wdepnulrinvsti,
-modelVar_wdepnulrinvgat,
-modelVar_VBIRBOTinv,
-modelVar_VBIRSTIinv,
-modelVar_VBIRGATinv,
-modelVar_atatbot,
-modelVar_atatsti,
-modelVar_atatgat,
-modelVar_btatpartbot,
-modelVar_btatpartsti,
-modelVar_btatpartgat,
-modelVar_fbbtbot,
-modelVar_fbbtsti,
-modelVar_fbbtgat,
-modelVar_alphaav,
-modelVar_fstopbot,
-modelVar_fstopsti,
-modelVar_fstopgat,
-modelVar_VBRinvbot,
-modelVar_VBRinvsti,
-modelVar_VBRinvgat,
-modelVar_slopebot,
-modelVar_slopesti,
-modelVar_slopegat,
+instanceStruct,
+modelStruct,
  in.admsTemperature,
  in.adms_vt_nom,
  in.getDeviceOptions().gmin,
- staticContributions,
- dynamicContributions,
+ d_staticContributions_dX,
+ d_dynamicContributions_dX,
  in);
 
 
 // We now have the F and Q vector stuff, populate the dependencies:
 
-    dfdp[in.admsNodeID_A] += staticContributions[in.admsNodeID_A].dx(0);
-    dqdp[in.admsNodeID_A] += dynamicContributions[in.admsNodeID_A].dx(0);
+    dfdp[in.admsNodeID_A] += d_staticContributions_dX[in.admsNodeID_A];
+    dqdp[in.admsNodeID_A] += d_dynamicContributions_dX[in.admsNodeID_A];
     Findices[in.admsNodeID_A] = in.li_A;
     Qindices[in.admsNodeID_A] = in.li_A;
-    dfdp[in.admsNodeID_K] += staticContributions[in.admsNodeID_K].dx(0);
-    dqdp[in.admsNodeID_K] += dynamicContributions[in.admsNodeID_K].dx(0);
+    dfdp[in.admsNodeID_K] += d_staticContributions_dX[in.admsNodeID_K];
+    dqdp[in.admsNodeID_K] += d_dynamicContributions_dX[in.admsNodeID_K];
     Findices[in.admsNodeID_K] = in.li_K;
     Qindices[in.admsNodeID_K] = in.li_K;
 
@@ -13958,267 +16271,399 @@ Findices.resize((2+0)*sizeInstance);
 Qindices.resize((2+0)*sizeInstance);
 
 std::vector <double> probeVars(2);
-std::vector <AdmsSensFadType> staticContributions(2+0);
-std::vector <AdmsSensFadType> dynamicContributions(2+0);
+std::vector <double> d_staticContributions_dX(2+0);
+std::vector <double> d_dynamicContributions_dX(2+0);
 
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly "if/else" block just to find the
 // one parameter we're doing sensitivities on.
-unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> modParamMap;
+unordered_map <std::string,double*,HashNoCase,EqualNoCase> modParamMap;
 
 // reals
-AdmsSensFadType modelPar_DTA=mod.DTA;
-bool modelPar_given_DTA=mod.given("DTA");
-modParamMap["DTA"] = &modelPar_DTA;
-AdmsSensFadType modelPar_IMAX=mod.IMAX;
-bool modelPar_given_IMAX=mod.given("IMAX");
-modParamMap["IMAX"] = &modelPar_IMAX;
-AdmsSensFadType modelPar_TRJ=mod.TRJ;
-bool modelPar_given_TRJ=mod.given("TRJ");
-modParamMap["TRJ"] = &modelPar_TRJ;
-AdmsSensFadType modelPar_FREV=mod.FREV;
-bool modelPar_given_FREV=mod.given("FREV");
-modParamMap["FREV"] = &modelPar_FREV;
-AdmsSensFadType modelPar_CJORBOT=mod.CJORBOT;
-bool modelPar_given_CJORBOT=mod.given("CJORBOT");
-modParamMap["CJORBOT"] = &modelPar_CJORBOT;
-AdmsSensFadType modelPar_CJORSTI=mod.CJORSTI;
-bool modelPar_given_CJORSTI=mod.given("CJORSTI");
-modParamMap["CJORSTI"] = &modelPar_CJORSTI;
-AdmsSensFadType modelPar_CJORGAT=mod.CJORGAT;
-bool modelPar_given_CJORGAT=mod.given("CJORGAT");
-modParamMap["CJORGAT"] = &modelPar_CJORGAT;
-AdmsSensFadType modelPar_VBIRBOT=mod.VBIRBOT;
-bool modelPar_given_VBIRBOT=mod.given("VBIRBOT");
-modParamMap["VBIRBOT"] = &modelPar_VBIRBOT;
-AdmsSensFadType modelPar_VBIRSTI=mod.VBIRSTI;
-bool modelPar_given_VBIRSTI=mod.given("VBIRSTI");
-modParamMap["VBIRSTI"] = &modelPar_VBIRSTI;
-AdmsSensFadType modelPar_VBIRGAT=mod.VBIRGAT;
-bool modelPar_given_VBIRGAT=mod.given("VBIRGAT");
-modParamMap["VBIRGAT"] = &modelPar_VBIRGAT;
-AdmsSensFadType modelPar_PBOT=mod.PBOT;
-bool modelPar_given_PBOT=mod.given("PBOT");
-modParamMap["PBOT"] = &modelPar_PBOT;
-AdmsSensFadType modelPar_PSTI=mod.PSTI;
-bool modelPar_given_PSTI=mod.given("PSTI");
-modParamMap["PSTI"] = &modelPar_PSTI;
-AdmsSensFadType modelPar_PGAT=mod.PGAT;
-bool modelPar_given_PGAT=mod.given("PGAT");
-modParamMap["PGAT"] = &modelPar_PGAT;
-AdmsSensFadType modelPar_PHIGBOT=mod.PHIGBOT;
-bool modelPar_given_PHIGBOT=mod.given("PHIGBOT");
-modParamMap["PHIGBOT"] = &modelPar_PHIGBOT;
-AdmsSensFadType modelPar_PHIGSTI=mod.PHIGSTI;
-bool modelPar_given_PHIGSTI=mod.given("PHIGSTI");
-modParamMap["PHIGSTI"] = &modelPar_PHIGSTI;
-AdmsSensFadType modelPar_PHIGGAT=mod.PHIGGAT;
-bool modelPar_given_PHIGGAT=mod.given("PHIGGAT");
-modParamMap["PHIGGAT"] = &modelPar_PHIGGAT;
-AdmsSensFadType modelPar_IDSATRBOT=mod.IDSATRBOT;
-bool modelPar_given_IDSATRBOT=mod.given("IDSATRBOT");
-modParamMap["IDSATRBOT"] = &modelPar_IDSATRBOT;
-AdmsSensFadType modelPar_IDSATRSTI=mod.IDSATRSTI;
-bool modelPar_given_IDSATRSTI=mod.given("IDSATRSTI");
-modParamMap["IDSATRSTI"] = &modelPar_IDSATRSTI;
-AdmsSensFadType modelPar_IDSATRGAT=mod.IDSATRGAT;
-bool modelPar_given_IDSATRGAT=mod.given("IDSATRGAT");
-modParamMap["IDSATRGAT"] = &modelPar_IDSATRGAT;
-AdmsSensFadType modelPar_CSRHBOT=mod.CSRHBOT;
-bool modelPar_given_CSRHBOT=mod.given("CSRHBOT");
-modParamMap["CSRHBOT"] = &modelPar_CSRHBOT;
-AdmsSensFadType modelPar_CSRHSTI=mod.CSRHSTI;
-bool modelPar_given_CSRHSTI=mod.given("CSRHSTI");
-modParamMap["CSRHSTI"] = &modelPar_CSRHSTI;
-AdmsSensFadType modelPar_CSRHGAT=mod.CSRHGAT;
-bool modelPar_given_CSRHGAT=mod.given("CSRHGAT");
-modParamMap["CSRHGAT"] = &modelPar_CSRHGAT;
-AdmsSensFadType modelPar_XJUNSTI=mod.XJUNSTI;
-bool modelPar_given_XJUNSTI=mod.given("XJUNSTI");
-modParamMap["XJUNSTI"] = &modelPar_XJUNSTI;
-AdmsSensFadType modelPar_XJUNGAT=mod.XJUNGAT;
-bool modelPar_given_XJUNGAT=mod.given("XJUNGAT");
-modParamMap["XJUNGAT"] = &modelPar_XJUNGAT;
-AdmsSensFadType modelPar_CTATBOT=mod.CTATBOT;
-bool modelPar_given_CTATBOT=mod.given("CTATBOT");
-modParamMap["CTATBOT"] = &modelPar_CTATBOT;
-AdmsSensFadType modelPar_CTATSTI=mod.CTATSTI;
-bool modelPar_given_CTATSTI=mod.given("CTATSTI");
-modParamMap["CTATSTI"] = &modelPar_CTATSTI;
-AdmsSensFadType modelPar_CTATGAT=mod.CTATGAT;
-bool modelPar_given_CTATGAT=mod.given("CTATGAT");
-modParamMap["CTATGAT"] = &modelPar_CTATGAT;
-AdmsSensFadType modelPar_MEFFTATBOT=mod.MEFFTATBOT;
-bool modelPar_given_MEFFTATBOT=mod.given("MEFFTATBOT");
-modParamMap["MEFFTATBOT"] = &modelPar_MEFFTATBOT;
-AdmsSensFadType modelPar_MEFFTATSTI=mod.MEFFTATSTI;
-bool modelPar_given_MEFFTATSTI=mod.given("MEFFTATSTI");
-modParamMap["MEFFTATSTI"] = &modelPar_MEFFTATSTI;
-AdmsSensFadType modelPar_MEFFTATGAT=mod.MEFFTATGAT;
-bool modelPar_given_MEFFTATGAT=mod.given("MEFFTATGAT");
-modParamMap["MEFFTATGAT"] = &modelPar_MEFFTATGAT;
-AdmsSensFadType modelPar_CBBTBOT=mod.CBBTBOT;
-bool modelPar_given_CBBTBOT=mod.given("CBBTBOT");
-modParamMap["CBBTBOT"] = &modelPar_CBBTBOT;
-AdmsSensFadType modelPar_CBBTSTI=mod.CBBTSTI;
-bool modelPar_given_CBBTSTI=mod.given("CBBTSTI");
-modParamMap["CBBTSTI"] = &modelPar_CBBTSTI;
-AdmsSensFadType modelPar_CBBTGAT=mod.CBBTGAT;
-bool modelPar_given_CBBTGAT=mod.given("CBBTGAT");
-modParamMap["CBBTGAT"] = &modelPar_CBBTGAT;
-AdmsSensFadType modelPar_FBBTRBOT=mod.FBBTRBOT;
-bool modelPar_given_FBBTRBOT=mod.given("FBBTRBOT");
-modParamMap["FBBTRBOT"] = &modelPar_FBBTRBOT;
-AdmsSensFadType modelPar_FBBTRSTI=mod.FBBTRSTI;
-bool modelPar_given_FBBTRSTI=mod.given("FBBTRSTI");
-modParamMap["FBBTRSTI"] = &modelPar_FBBTRSTI;
-AdmsSensFadType modelPar_FBBTRGAT=mod.FBBTRGAT;
-bool modelPar_given_FBBTRGAT=mod.given("FBBTRGAT");
-modParamMap["FBBTRGAT"] = &modelPar_FBBTRGAT;
-AdmsSensFadType modelPar_STFBBTBOT=mod.STFBBTBOT;
-bool modelPar_given_STFBBTBOT=mod.given("STFBBTBOT");
-modParamMap["STFBBTBOT"] = &modelPar_STFBBTBOT;
-AdmsSensFadType modelPar_STFBBTSTI=mod.STFBBTSTI;
-bool modelPar_given_STFBBTSTI=mod.given("STFBBTSTI");
-modParamMap["STFBBTSTI"] = &modelPar_STFBBTSTI;
-AdmsSensFadType modelPar_STFBBTGAT=mod.STFBBTGAT;
-bool modelPar_given_STFBBTGAT=mod.given("STFBBTGAT");
-modParamMap["STFBBTGAT"] = &modelPar_STFBBTGAT;
-AdmsSensFadType modelPar_VBRBOT=mod.VBRBOT;
-bool modelPar_given_VBRBOT=mod.given("VBRBOT");
-modParamMap["VBRBOT"] = &modelPar_VBRBOT;
-AdmsSensFadType modelPar_VBRSTI=mod.VBRSTI;
-bool modelPar_given_VBRSTI=mod.given("VBRSTI");
-modParamMap["VBRSTI"] = &modelPar_VBRSTI;
-AdmsSensFadType modelPar_VBRGAT=mod.VBRGAT;
-bool modelPar_given_VBRGAT=mod.given("VBRGAT");
-modParamMap["VBRGAT"] = &modelPar_VBRGAT;
-AdmsSensFadType modelPar_PBRBOT=mod.PBRBOT;
-bool modelPar_given_PBRBOT=mod.given("PBRBOT");
-modParamMap["PBRBOT"] = &modelPar_PBRBOT;
-AdmsSensFadType modelPar_PBRSTI=mod.PBRSTI;
-bool modelPar_given_PBRSTI=mod.given("PBRSTI");
-modParamMap["PBRSTI"] = &modelPar_PBRSTI;
-AdmsSensFadType modelPar_PBRGAT=mod.PBRGAT;
-bool modelPar_given_PBRGAT=mod.given("PBRGAT");
-modParamMap["PBRGAT"] = &modelPar_PBRGAT;
-AdmsSensFadType modelPar_SWJUNEXP=mod.SWJUNEXP;
-bool modelPar_given_SWJUNEXP=mod.given("SWJUNEXP");
-modParamMap["SWJUNEXP"] = &modelPar_SWJUNEXP;
-AdmsSensFadType modelPar_VJUNREF=mod.VJUNREF;
-bool modelPar_given_VJUNREF=mod.given("VJUNREF");
-modParamMap["VJUNREF"] = &modelPar_VJUNREF;
-AdmsSensFadType modelPar_FJUNQ=mod.FJUNQ;
-bool modelPar_given_FJUNQ=mod.given("FJUNQ");
-modParamMap["FJUNQ"] = &modelPar_FJUNQ;
+modelStruct.modelPar_DTA=mod.DTA;
+modelStruct.d_modelPar_DTA_dX=0.0;
+modelStruct.modelPar_given_DTA=mod.given("DTA");
+modParamMap["DTA"] = &(modelStruct.d_modelPar_DTA_dX);
+modelStruct.modelPar_IMAX=mod.IMAX;
+modelStruct.d_modelPar_IMAX_dX=0.0;
+modelStruct.modelPar_given_IMAX=mod.given("IMAX");
+modParamMap["IMAX"] = &(modelStruct.d_modelPar_IMAX_dX);
+modelStruct.modelPar_TRJ=mod.TRJ;
+modelStruct.d_modelPar_TRJ_dX=0.0;
+modelStruct.modelPar_given_TRJ=mod.given("TRJ");
+modParamMap["TRJ"] = &(modelStruct.d_modelPar_TRJ_dX);
+modelStruct.modelPar_FREV=mod.FREV;
+modelStruct.d_modelPar_FREV_dX=0.0;
+modelStruct.modelPar_given_FREV=mod.given("FREV");
+modParamMap["FREV"] = &(modelStruct.d_modelPar_FREV_dX);
+modelStruct.modelPar_CJORBOT=mod.CJORBOT;
+modelStruct.d_modelPar_CJORBOT_dX=0.0;
+modelStruct.modelPar_given_CJORBOT=mod.given("CJORBOT");
+modParamMap["CJORBOT"] = &(modelStruct.d_modelPar_CJORBOT_dX);
+modelStruct.modelPar_CJORSTI=mod.CJORSTI;
+modelStruct.d_modelPar_CJORSTI_dX=0.0;
+modelStruct.modelPar_given_CJORSTI=mod.given("CJORSTI");
+modParamMap["CJORSTI"] = &(modelStruct.d_modelPar_CJORSTI_dX);
+modelStruct.modelPar_CJORGAT=mod.CJORGAT;
+modelStruct.d_modelPar_CJORGAT_dX=0.0;
+modelStruct.modelPar_given_CJORGAT=mod.given("CJORGAT");
+modParamMap["CJORGAT"] = &(modelStruct.d_modelPar_CJORGAT_dX);
+modelStruct.modelPar_VBIRBOT=mod.VBIRBOT;
+modelStruct.d_modelPar_VBIRBOT_dX=0.0;
+modelStruct.modelPar_given_VBIRBOT=mod.given("VBIRBOT");
+modParamMap["VBIRBOT"] = &(modelStruct.d_modelPar_VBIRBOT_dX);
+modelStruct.modelPar_VBIRSTI=mod.VBIRSTI;
+modelStruct.d_modelPar_VBIRSTI_dX=0.0;
+modelStruct.modelPar_given_VBIRSTI=mod.given("VBIRSTI");
+modParamMap["VBIRSTI"] = &(modelStruct.d_modelPar_VBIRSTI_dX);
+modelStruct.modelPar_VBIRGAT=mod.VBIRGAT;
+modelStruct.d_modelPar_VBIRGAT_dX=0.0;
+modelStruct.modelPar_given_VBIRGAT=mod.given("VBIRGAT");
+modParamMap["VBIRGAT"] = &(modelStruct.d_modelPar_VBIRGAT_dX);
+modelStruct.modelPar_PBOT=mod.PBOT;
+modelStruct.d_modelPar_PBOT_dX=0.0;
+modelStruct.modelPar_given_PBOT=mod.given("PBOT");
+modParamMap["PBOT"] = &(modelStruct.d_modelPar_PBOT_dX);
+modelStruct.modelPar_PSTI=mod.PSTI;
+modelStruct.d_modelPar_PSTI_dX=0.0;
+modelStruct.modelPar_given_PSTI=mod.given("PSTI");
+modParamMap["PSTI"] = &(modelStruct.d_modelPar_PSTI_dX);
+modelStruct.modelPar_PGAT=mod.PGAT;
+modelStruct.d_modelPar_PGAT_dX=0.0;
+modelStruct.modelPar_given_PGAT=mod.given("PGAT");
+modParamMap["PGAT"] = &(modelStruct.d_modelPar_PGAT_dX);
+modelStruct.modelPar_PHIGBOT=mod.PHIGBOT;
+modelStruct.d_modelPar_PHIGBOT_dX=0.0;
+modelStruct.modelPar_given_PHIGBOT=mod.given("PHIGBOT");
+modParamMap["PHIGBOT"] = &(modelStruct.d_modelPar_PHIGBOT_dX);
+modelStruct.modelPar_PHIGSTI=mod.PHIGSTI;
+modelStruct.d_modelPar_PHIGSTI_dX=0.0;
+modelStruct.modelPar_given_PHIGSTI=mod.given("PHIGSTI");
+modParamMap["PHIGSTI"] = &(modelStruct.d_modelPar_PHIGSTI_dX);
+modelStruct.modelPar_PHIGGAT=mod.PHIGGAT;
+modelStruct.d_modelPar_PHIGGAT_dX=0.0;
+modelStruct.modelPar_given_PHIGGAT=mod.given("PHIGGAT");
+modParamMap["PHIGGAT"] = &(modelStruct.d_modelPar_PHIGGAT_dX);
+modelStruct.modelPar_IDSATRBOT=mod.IDSATRBOT;
+modelStruct.d_modelPar_IDSATRBOT_dX=0.0;
+modelStruct.modelPar_given_IDSATRBOT=mod.given("IDSATRBOT");
+modParamMap["IDSATRBOT"] = &(modelStruct.d_modelPar_IDSATRBOT_dX);
+modelStruct.modelPar_IDSATRSTI=mod.IDSATRSTI;
+modelStruct.d_modelPar_IDSATRSTI_dX=0.0;
+modelStruct.modelPar_given_IDSATRSTI=mod.given("IDSATRSTI");
+modParamMap["IDSATRSTI"] = &(modelStruct.d_modelPar_IDSATRSTI_dX);
+modelStruct.modelPar_IDSATRGAT=mod.IDSATRGAT;
+modelStruct.d_modelPar_IDSATRGAT_dX=0.0;
+modelStruct.modelPar_given_IDSATRGAT=mod.given("IDSATRGAT");
+modParamMap["IDSATRGAT"] = &(modelStruct.d_modelPar_IDSATRGAT_dX);
+modelStruct.modelPar_CSRHBOT=mod.CSRHBOT;
+modelStruct.d_modelPar_CSRHBOT_dX=0.0;
+modelStruct.modelPar_given_CSRHBOT=mod.given("CSRHBOT");
+modParamMap["CSRHBOT"] = &(modelStruct.d_modelPar_CSRHBOT_dX);
+modelStruct.modelPar_CSRHSTI=mod.CSRHSTI;
+modelStruct.d_modelPar_CSRHSTI_dX=0.0;
+modelStruct.modelPar_given_CSRHSTI=mod.given("CSRHSTI");
+modParamMap["CSRHSTI"] = &(modelStruct.d_modelPar_CSRHSTI_dX);
+modelStruct.modelPar_CSRHGAT=mod.CSRHGAT;
+modelStruct.d_modelPar_CSRHGAT_dX=0.0;
+modelStruct.modelPar_given_CSRHGAT=mod.given("CSRHGAT");
+modParamMap["CSRHGAT"] = &(modelStruct.d_modelPar_CSRHGAT_dX);
+modelStruct.modelPar_XJUNSTI=mod.XJUNSTI;
+modelStruct.d_modelPar_XJUNSTI_dX=0.0;
+modelStruct.modelPar_given_XJUNSTI=mod.given("XJUNSTI");
+modParamMap["XJUNSTI"] = &(modelStruct.d_modelPar_XJUNSTI_dX);
+modelStruct.modelPar_XJUNGAT=mod.XJUNGAT;
+modelStruct.d_modelPar_XJUNGAT_dX=0.0;
+modelStruct.modelPar_given_XJUNGAT=mod.given("XJUNGAT");
+modParamMap["XJUNGAT"] = &(modelStruct.d_modelPar_XJUNGAT_dX);
+modelStruct.modelPar_CTATBOT=mod.CTATBOT;
+modelStruct.d_modelPar_CTATBOT_dX=0.0;
+modelStruct.modelPar_given_CTATBOT=mod.given("CTATBOT");
+modParamMap["CTATBOT"] = &(modelStruct.d_modelPar_CTATBOT_dX);
+modelStruct.modelPar_CTATSTI=mod.CTATSTI;
+modelStruct.d_modelPar_CTATSTI_dX=0.0;
+modelStruct.modelPar_given_CTATSTI=mod.given("CTATSTI");
+modParamMap["CTATSTI"] = &(modelStruct.d_modelPar_CTATSTI_dX);
+modelStruct.modelPar_CTATGAT=mod.CTATGAT;
+modelStruct.d_modelPar_CTATGAT_dX=0.0;
+modelStruct.modelPar_given_CTATGAT=mod.given("CTATGAT");
+modParamMap["CTATGAT"] = &(modelStruct.d_modelPar_CTATGAT_dX);
+modelStruct.modelPar_MEFFTATBOT=mod.MEFFTATBOT;
+modelStruct.d_modelPar_MEFFTATBOT_dX=0.0;
+modelStruct.modelPar_given_MEFFTATBOT=mod.given("MEFFTATBOT");
+modParamMap["MEFFTATBOT"] = &(modelStruct.d_modelPar_MEFFTATBOT_dX);
+modelStruct.modelPar_MEFFTATSTI=mod.MEFFTATSTI;
+modelStruct.d_modelPar_MEFFTATSTI_dX=0.0;
+modelStruct.modelPar_given_MEFFTATSTI=mod.given("MEFFTATSTI");
+modParamMap["MEFFTATSTI"] = &(modelStruct.d_modelPar_MEFFTATSTI_dX);
+modelStruct.modelPar_MEFFTATGAT=mod.MEFFTATGAT;
+modelStruct.d_modelPar_MEFFTATGAT_dX=0.0;
+modelStruct.modelPar_given_MEFFTATGAT=mod.given("MEFFTATGAT");
+modParamMap["MEFFTATGAT"] = &(modelStruct.d_modelPar_MEFFTATGAT_dX);
+modelStruct.modelPar_CBBTBOT=mod.CBBTBOT;
+modelStruct.d_modelPar_CBBTBOT_dX=0.0;
+modelStruct.modelPar_given_CBBTBOT=mod.given("CBBTBOT");
+modParamMap["CBBTBOT"] = &(modelStruct.d_modelPar_CBBTBOT_dX);
+modelStruct.modelPar_CBBTSTI=mod.CBBTSTI;
+modelStruct.d_modelPar_CBBTSTI_dX=0.0;
+modelStruct.modelPar_given_CBBTSTI=mod.given("CBBTSTI");
+modParamMap["CBBTSTI"] = &(modelStruct.d_modelPar_CBBTSTI_dX);
+modelStruct.modelPar_CBBTGAT=mod.CBBTGAT;
+modelStruct.d_modelPar_CBBTGAT_dX=0.0;
+modelStruct.modelPar_given_CBBTGAT=mod.given("CBBTGAT");
+modParamMap["CBBTGAT"] = &(modelStruct.d_modelPar_CBBTGAT_dX);
+modelStruct.modelPar_FBBTRBOT=mod.FBBTRBOT;
+modelStruct.d_modelPar_FBBTRBOT_dX=0.0;
+modelStruct.modelPar_given_FBBTRBOT=mod.given("FBBTRBOT");
+modParamMap["FBBTRBOT"] = &(modelStruct.d_modelPar_FBBTRBOT_dX);
+modelStruct.modelPar_FBBTRSTI=mod.FBBTRSTI;
+modelStruct.d_modelPar_FBBTRSTI_dX=0.0;
+modelStruct.modelPar_given_FBBTRSTI=mod.given("FBBTRSTI");
+modParamMap["FBBTRSTI"] = &(modelStruct.d_modelPar_FBBTRSTI_dX);
+modelStruct.modelPar_FBBTRGAT=mod.FBBTRGAT;
+modelStruct.d_modelPar_FBBTRGAT_dX=0.0;
+modelStruct.modelPar_given_FBBTRGAT=mod.given("FBBTRGAT");
+modParamMap["FBBTRGAT"] = &(modelStruct.d_modelPar_FBBTRGAT_dX);
+modelStruct.modelPar_STFBBTBOT=mod.STFBBTBOT;
+modelStruct.d_modelPar_STFBBTBOT_dX=0.0;
+modelStruct.modelPar_given_STFBBTBOT=mod.given("STFBBTBOT");
+modParamMap["STFBBTBOT"] = &(modelStruct.d_modelPar_STFBBTBOT_dX);
+modelStruct.modelPar_STFBBTSTI=mod.STFBBTSTI;
+modelStruct.d_modelPar_STFBBTSTI_dX=0.0;
+modelStruct.modelPar_given_STFBBTSTI=mod.given("STFBBTSTI");
+modParamMap["STFBBTSTI"] = &(modelStruct.d_modelPar_STFBBTSTI_dX);
+modelStruct.modelPar_STFBBTGAT=mod.STFBBTGAT;
+modelStruct.d_modelPar_STFBBTGAT_dX=0.0;
+modelStruct.modelPar_given_STFBBTGAT=mod.given("STFBBTGAT");
+modParamMap["STFBBTGAT"] = &(modelStruct.d_modelPar_STFBBTGAT_dX);
+modelStruct.modelPar_VBRBOT=mod.VBRBOT;
+modelStruct.d_modelPar_VBRBOT_dX=0.0;
+modelStruct.modelPar_given_VBRBOT=mod.given("VBRBOT");
+modParamMap["VBRBOT"] = &(modelStruct.d_modelPar_VBRBOT_dX);
+modelStruct.modelPar_VBRSTI=mod.VBRSTI;
+modelStruct.d_modelPar_VBRSTI_dX=0.0;
+modelStruct.modelPar_given_VBRSTI=mod.given("VBRSTI");
+modParamMap["VBRSTI"] = &(modelStruct.d_modelPar_VBRSTI_dX);
+modelStruct.modelPar_VBRGAT=mod.VBRGAT;
+modelStruct.d_modelPar_VBRGAT_dX=0.0;
+modelStruct.modelPar_given_VBRGAT=mod.given("VBRGAT");
+modParamMap["VBRGAT"] = &(modelStruct.d_modelPar_VBRGAT_dX);
+modelStruct.modelPar_PBRBOT=mod.PBRBOT;
+modelStruct.d_modelPar_PBRBOT_dX=0.0;
+modelStruct.modelPar_given_PBRBOT=mod.given("PBRBOT");
+modParamMap["PBRBOT"] = &(modelStruct.d_modelPar_PBRBOT_dX);
+modelStruct.modelPar_PBRSTI=mod.PBRSTI;
+modelStruct.d_modelPar_PBRSTI_dX=0.0;
+modelStruct.modelPar_given_PBRSTI=mod.given("PBRSTI");
+modParamMap["PBRSTI"] = &(modelStruct.d_modelPar_PBRSTI_dX);
+modelStruct.modelPar_PBRGAT=mod.PBRGAT;
+modelStruct.d_modelPar_PBRGAT_dX=0.0;
+modelStruct.modelPar_given_PBRGAT=mod.given("PBRGAT");
+modParamMap["PBRGAT"] = &(modelStruct.d_modelPar_PBRGAT_dX);
+modelStruct.modelPar_SWJUNEXP=mod.SWJUNEXP;
+modelStruct.d_modelPar_SWJUNEXP_dX=0.0;
+modelStruct.modelPar_given_SWJUNEXP=mod.given("SWJUNEXP");
+modParamMap["SWJUNEXP"] = &(modelStruct.d_modelPar_SWJUNEXP_dX);
+modelStruct.modelPar_VJUNREF=mod.VJUNREF;
+modelStruct.d_modelPar_VJUNREF_dX=0.0;
+modelStruct.modelPar_given_VJUNREF=mod.given("VJUNREF");
+modParamMap["VJUNREF"] = &(modelStruct.d_modelPar_VJUNREF_dX);
+modelStruct.modelPar_FJUNQ=mod.FJUNQ;
+modelStruct.d_modelPar_FJUNQ_dX=0.0;
+modelStruct.modelPar_given_FJUNQ=mod.given("FJUNQ");
+modParamMap["FJUNQ"] = &(modelStruct.d_modelPar_FJUNQ_dX);
 
 
 // hidden reals
 
 
 // non-reals (including hiddens)
-int modelPar_LEVEL=mod.LEVEL;
-bool modelPar_given_LEVEL=mod.given("LEVEL");
-int modelPar_TYPE=mod.TYPE;
-bool modelPar_given_TYPE=mod.given("TYPE");
+modelStruct.modelPar_LEVEL=mod.LEVEL;
+modelStruct.modelPar_given_LEVEL=mod.given("LEVEL");
+modelStruct.modelPar_TYPE=mod.TYPE;
+modelStruct.modelPar_given_TYPE=mod.given("TYPE");
 
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check name for presence first!  Segfault on invalid.
-modParamMap[name]->diff(0,1);
+*(modParamMap[name])=1.0;
 
 //make local copies of all model vars
 //reals
-AdmsSensFadType modelVar_IMAX_i=mod.IMAX_i;
-AdmsSensFadType modelVar_VBIRBOT_i=mod.VBIRBOT_i;
-AdmsSensFadType modelVar_VBIRSTI_i=mod.VBIRSTI_i;
-AdmsSensFadType modelVar_VBIRGAT_i=mod.VBIRGAT_i;
-AdmsSensFadType modelVar_PBOT_i=mod.PBOT_i;
-AdmsSensFadType modelVar_PSTI_i=mod.PSTI_i;
-AdmsSensFadType modelVar_PGAT_i=mod.PGAT_i;
-AdmsSensFadType modelVar_CSRHBOT_i=mod.CSRHBOT_i;
-AdmsSensFadType modelVar_CSRHSTI_i=mod.CSRHSTI_i;
-AdmsSensFadType modelVar_CSRHGAT_i=mod.CSRHGAT_i;
-AdmsSensFadType modelVar_CTATBOT_i=mod.CTATBOT_i;
-AdmsSensFadType modelVar_CTATSTI_i=mod.CTATSTI_i;
-AdmsSensFadType modelVar_CTATGAT_i=mod.CTATGAT_i;
-AdmsSensFadType modelVar_CBBTBOT_i=mod.CBBTBOT_i;
-AdmsSensFadType modelVar_CBBTSTI_i=mod.CBBTSTI_i;
-AdmsSensFadType modelVar_CBBTGAT_i=mod.CBBTGAT_i;
-AdmsSensFadType modelVar_VBRBOT_i=mod.VBRBOT_i;
-AdmsSensFadType modelVar_VBRSTI_i=mod.VBRSTI_i;
-AdmsSensFadType modelVar_VBRGAT_i=mod.VBRGAT_i;
-AdmsSensFadType modelVar_PBRBOT_i=mod.PBRBOT_i;
-AdmsSensFadType modelVar_PBRSTI_i=mod.PBRSTI_i;
-AdmsSensFadType modelVar_PBRGAT_i=mod.PBRGAT_i;
-double modelVar_SWJUNEXP_i=mod.SWJUNEXP_i;
-AdmsSensFadType modelVar_VJUNREF_i=mod.VJUNREF_i;
-AdmsSensFadType modelVar_FJUNQ_i=mod.FJUNQ_i;
-AdmsSensFadType modelVar_phitr=mod.phitr;
-AdmsSensFadType modelVar_phitd=mod.phitd;
-AdmsSensFadType modelVar_phitdinv=mod.phitdinv;
-double modelVar_perfc=mod.perfc;
-double modelVar_berfc=mod.berfc;
-double modelVar_cerfc=mod.cerfc;
-AdmsSensFadType modelVar_ftdbot=mod.ftdbot;
-AdmsSensFadType modelVar_ftdsti=mod.ftdsti;
-AdmsSensFadType modelVar_ftdgat=mod.ftdgat;
-AdmsSensFadType modelVar_idsatbot=mod.idsatbot;
-AdmsSensFadType modelVar_idsatsti=mod.idsatsti;
-AdmsSensFadType modelVar_idsatgat=mod.idsatgat;
-AdmsSensFadType modelVar_vbibot=mod.vbibot;
-AdmsSensFadType modelVar_vbisti=mod.vbisti;
-AdmsSensFadType modelVar_vbigat=mod.vbigat;
-AdmsSensFadType modelVar_vbiinvbot=mod.vbiinvbot;
-AdmsSensFadType modelVar_vbiinvsti=mod.vbiinvsti;
-AdmsSensFadType modelVar_vbiinvgat=mod.vbiinvgat;
-AdmsSensFadType modelVar_one_minus_PBOT=mod.one_minus_PBOT;
-AdmsSensFadType modelVar_one_minus_PSTI=mod.one_minus_PSTI;
-AdmsSensFadType modelVar_one_minus_PGAT=mod.one_minus_PGAT;
-AdmsSensFadType modelVar_one_over_one_minus_PBOT=mod.one_over_one_minus_PBOT;
-AdmsSensFadType modelVar_one_over_one_minus_PSTI=mod.one_over_one_minus_PSTI;
-AdmsSensFadType modelVar_one_over_one_minus_PGAT=mod.one_over_one_minus_PGAT;
-AdmsSensFadType modelVar_cjobot=mod.cjobot;
-AdmsSensFadType modelVar_cjosti=mod.cjosti;
-AdmsSensFadType modelVar_cjogat=mod.cjogat;
-AdmsSensFadType modelVar_qprefbot=mod.qprefbot;
-AdmsSensFadType modelVar_qprefsti=mod.qprefsti;
-AdmsSensFadType modelVar_qprefgat=mod.qprefgat;
-AdmsSensFadType modelVar_qpref2bot=mod.qpref2bot;
-AdmsSensFadType modelVar_qpref2sti=mod.qpref2sti;
-AdmsSensFadType modelVar_qpref2gat=mod.qpref2gat;
-AdmsSensFadType modelVar_wdepnulrbot=mod.wdepnulrbot;
-AdmsSensFadType modelVar_wdepnulrsti=mod.wdepnulrsti;
-AdmsSensFadType modelVar_wdepnulrgat=mod.wdepnulrgat;
-AdmsSensFadType modelVar_wdepnulrinvbot=mod.wdepnulrinvbot;
-AdmsSensFadType modelVar_wdepnulrinvsti=mod.wdepnulrinvsti;
-AdmsSensFadType modelVar_wdepnulrinvgat=mod.wdepnulrinvgat;
-AdmsSensFadType modelVar_VBIRBOTinv=mod.VBIRBOTinv;
-AdmsSensFadType modelVar_VBIRSTIinv=mod.VBIRSTIinv;
-AdmsSensFadType modelVar_VBIRGATinv=mod.VBIRGATinv;
-AdmsSensFadType modelVar_atatbot=mod.atatbot;
-AdmsSensFadType modelVar_atatsti=mod.atatsti;
-AdmsSensFadType modelVar_atatgat=mod.atatgat;
-AdmsSensFadType modelVar_btatpartbot=mod.btatpartbot;
-AdmsSensFadType modelVar_btatpartsti=mod.btatpartsti;
-AdmsSensFadType modelVar_btatpartgat=mod.btatpartgat;
-AdmsSensFadType modelVar_fbbtbot=mod.fbbtbot;
-AdmsSensFadType modelVar_fbbtsti=mod.fbbtsti;
-AdmsSensFadType modelVar_fbbtgat=mod.fbbtgat;
-AdmsSensFadType modelVar_alphaav=mod.alphaav;
-AdmsSensFadType modelVar_fstopbot=mod.fstopbot;
-AdmsSensFadType modelVar_fstopsti=mod.fstopsti;
-AdmsSensFadType modelVar_fstopgat=mod.fstopgat;
-AdmsSensFadType modelVar_VBRinvbot=mod.VBRinvbot;
-AdmsSensFadType modelVar_VBRinvsti=mod.VBRinvsti;
-AdmsSensFadType modelVar_VBRinvgat=mod.VBRinvgat;
-AdmsSensFadType modelVar_slopebot=mod.slopebot;
-AdmsSensFadType modelVar_slopesti=mod.slopesti;
-AdmsSensFadType modelVar_slopegat=mod.slopegat;
+modelStruct.modelVar_IMAX_i=mod.IMAX_i;
+modelStruct.d_modelVar_IMAX_i_dX=0.0;
+modelStruct.modelVar_VBIRBOT_i=mod.VBIRBOT_i;
+modelStruct.d_modelVar_VBIRBOT_i_dX=0.0;
+modelStruct.modelVar_VBIRSTI_i=mod.VBIRSTI_i;
+modelStruct.d_modelVar_VBIRSTI_i_dX=0.0;
+modelStruct.modelVar_VBIRGAT_i=mod.VBIRGAT_i;
+modelStruct.d_modelVar_VBIRGAT_i_dX=0.0;
+modelStruct.modelVar_PBOT_i=mod.PBOT_i;
+modelStruct.d_modelVar_PBOT_i_dX=0.0;
+modelStruct.modelVar_PSTI_i=mod.PSTI_i;
+modelStruct.d_modelVar_PSTI_i_dX=0.0;
+modelStruct.modelVar_PGAT_i=mod.PGAT_i;
+modelStruct.d_modelVar_PGAT_i_dX=0.0;
+modelStruct.modelVar_CSRHBOT_i=mod.CSRHBOT_i;
+modelStruct.d_modelVar_CSRHBOT_i_dX=0.0;
+modelStruct.modelVar_CSRHSTI_i=mod.CSRHSTI_i;
+modelStruct.d_modelVar_CSRHSTI_i_dX=0.0;
+modelStruct.modelVar_CSRHGAT_i=mod.CSRHGAT_i;
+modelStruct.d_modelVar_CSRHGAT_i_dX=0.0;
+modelStruct.modelVar_CTATBOT_i=mod.CTATBOT_i;
+modelStruct.d_modelVar_CTATBOT_i_dX=0.0;
+modelStruct.modelVar_CTATSTI_i=mod.CTATSTI_i;
+modelStruct.d_modelVar_CTATSTI_i_dX=0.0;
+modelStruct.modelVar_CTATGAT_i=mod.CTATGAT_i;
+modelStruct.d_modelVar_CTATGAT_i_dX=0.0;
+modelStruct.modelVar_CBBTBOT_i=mod.CBBTBOT_i;
+modelStruct.d_modelVar_CBBTBOT_i_dX=0.0;
+modelStruct.modelVar_CBBTSTI_i=mod.CBBTSTI_i;
+modelStruct.d_modelVar_CBBTSTI_i_dX=0.0;
+modelStruct.modelVar_CBBTGAT_i=mod.CBBTGAT_i;
+modelStruct.d_modelVar_CBBTGAT_i_dX=0.0;
+modelStruct.modelVar_VBRBOT_i=mod.VBRBOT_i;
+modelStruct.d_modelVar_VBRBOT_i_dX=0.0;
+modelStruct.modelVar_VBRSTI_i=mod.VBRSTI_i;
+modelStruct.d_modelVar_VBRSTI_i_dX=0.0;
+modelStruct.modelVar_VBRGAT_i=mod.VBRGAT_i;
+modelStruct.d_modelVar_VBRGAT_i_dX=0.0;
+modelStruct.modelVar_PBRBOT_i=mod.PBRBOT_i;
+modelStruct.d_modelVar_PBRBOT_i_dX=0.0;
+modelStruct.modelVar_PBRSTI_i=mod.PBRSTI_i;
+modelStruct.d_modelVar_PBRSTI_i_dX=0.0;
+modelStruct.modelVar_PBRGAT_i=mod.PBRGAT_i;
+modelStruct.d_modelVar_PBRGAT_i_dX=0.0;
+modelStruct.modelVar_SWJUNEXP_i=mod.SWJUNEXP_i;
+modelStruct.modelVar_VJUNREF_i=mod.VJUNREF_i;
+modelStruct.d_modelVar_VJUNREF_i_dX=0.0;
+modelStruct.modelVar_FJUNQ_i=mod.FJUNQ_i;
+modelStruct.d_modelVar_FJUNQ_i_dX=0.0;
+modelStruct.modelVar_phitr=mod.phitr;
+modelStruct.d_modelVar_phitr_dX=0.0;
+modelStruct.modelVar_phitd=mod.phitd;
+modelStruct.d_modelVar_phitd_dX=0.0;
+modelStruct.modelVar_phitdinv=mod.phitdinv;
+modelStruct.d_modelVar_phitdinv_dX=0.0;
+modelStruct.modelVar_perfc=mod.perfc;
+modelStruct.modelVar_berfc=mod.berfc;
+modelStruct.modelVar_cerfc=mod.cerfc;
+modelStruct.modelVar_ftdbot=mod.ftdbot;
+modelStruct.d_modelVar_ftdbot_dX=0.0;
+modelStruct.modelVar_ftdsti=mod.ftdsti;
+modelStruct.d_modelVar_ftdsti_dX=0.0;
+modelStruct.modelVar_ftdgat=mod.ftdgat;
+modelStruct.d_modelVar_ftdgat_dX=0.0;
+modelStruct.modelVar_idsatbot=mod.idsatbot;
+modelStruct.d_modelVar_idsatbot_dX=0.0;
+modelStruct.modelVar_idsatsti=mod.idsatsti;
+modelStruct.d_modelVar_idsatsti_dX=0.0;
+modelStruct.modelVar_idsatgat=mod.idsatgat;
+modelStruct.d_modelVar_idsatgat_dX=0.0;
+modelStruct.modelVar_vbibot=mod.vbibot;
+modelStruct.d_modelVar_vbibot_dX=0.0;
+modelStruct.modelVar_vbisti=mod.vbisti;
+modelStruct.d_modelVar_vbisti_dX=0.0;
+modelStruct.modelVar_vbigat=mod.vbigat;
+modelStruct.d_modelVar_vbigat_dX=0.0;
+modelStruct.modelVar_vbiinvbot=mod.vbiinvbot;
+modelStruct.d_modelVar_vbiinvbot_dX=0.0;
+modelStruct.modelVar_vbiinvsti=mod.vbiinvsti;
+modelStruct.d_modelVar_vbiinvsti_dX=0.0;
+modelStruct.modelVar_vbiinvgat=mod.vbiinvgat;
+modelStruct.d_modelVar_vbiinvgat_dX=0.0;
+modelStruct.modelVar_one_minus_PBOT=mod.one_minus_PBOT;
+modelStruct.d_modelVar_one_minus_PBOT_dX=0.0;
+modelStruct.modelVar_one_minus_PSTI=mod.one_minus_PSTI;
+modelStruct.d_modelVar_one_minus_PSTI_dX=0.0;
+modelStruct.modelVar_one_minus_PGAT=mod.one_minus_PGAT;
+modelStruct.d_modelVar_one_minus_PGAT_dX=0.0;
+modelStruct.modelVar_one_over_one_minus_PBOT=mod.one_over_one_minus_PBOT;
+modelStruct.d_modelVar_one_over_one_minus_PBOT_dX=0.0;
+modelStruct.modelVar_one_over_one_minus_PSTI=mod.one_over_one_minus_PSTI;
+modelStruct.d_modelVar_one_over_one_minus_PSTI_dX=0.0;
+modelStruct.modelVar_one_over_one_minus_PGAT=mod.one_over_one_minus_PGAT;
+modelStruct.d_modelVar_one_over_one_minus_PGAT_dX=0.0;
+modelStruct.modelVar_cjobot=mod.cjobot;
+modelStruct.d_modelVar_cjobot_dX=0.0;
+modelStruct.modelVar_cjosti=mod.cjosti;
+modelStruct.d_modelVar_cjosti_dX=0.0;
+modelStruct.modelVar_cjogat=mod.cjogat;
+modelStruct.d_modelVar_cjogat_dX=0.0;
+modelStruct.modelVar_qprefbot=mod.qprefbot;
+modelStruct.d_modelVar_qprefbot_dX=0.0;
+modelStruct.modelVar_qprefsti=mod.qprefsti;
+modelStruct.d_modelVar_qprefsti_dX=0.0;
+modelStruct.modelVar_qprefgat=mod.qprefgat;
+modelStruct.d_modelVar_qprefgat_dX=0.0;
+modelStruct.modelVar_qpref2bot=mod.qpref2bot;
+modelStruct.d_modelVar_qpref2bot_dX=0.0;
+modelStruct.modelVar_qpref2sti=mod.qpref2sti;
+modelStruct.d_modelVar_qpref2sti_dX=0.0;
+modelStruct.modelVar_qpref2gat=mod.qpref2gat;
+modelStruct.d_modelVar_qpref2gat_dX=0.0;
+modelStruct.modelVar_wdepnulrbot=mod.wdepnulrbot;
+modelStruct.d_modelVar_wdepnulrbot_dX=0.0;
+modelStruct.modelVar_wdepnulrsti=mod.wdepnulrsti;
+modelStruct.d_modelVar_wdepnulrsti_dX=0.0;
+modelStruct.modelVar_wdepnulrgat=mod.wdepnulrgat;
+modelStruct.d_modelVar_wdepnulrgat_dX=0.0;
+modelStruct.modelVar_wdepnulrinvbot=mod.wdepnulrinvbot;
+modelStruct.d_modelVar_wdepnulrinvbot_dX=0.0;
+modelStruct.modelVar_wdepnulrinvsti=mod.wdepnulrinvsti;
+modelStruct.d_modelVar_wdepnulrinvsti_dX=0.0;
+modelStruct.modelVar_wdepnulrinvgat=mod.wdepnulrinvgat;
+modelStruct.d_modelVar_wdepnulrinvgat_dX=0.0;
+modelStruct.modelVar_VBIRBOTinv=mod.VBIRBOTinv;
+modelStruct.d_modelVar_VBIRBOTinv_dX=0.0;
+modelStruct.modelVar_VBIRSTIinv=mod.VBIRSTIinv;
+modelStruct.d_modelVar_VBIRSTIinv_dX=0.0;
+modelStruct.modelVar_VBIRGATinv=mod.VBIRGATinv;
+modelStruct.d_modelVar_VBIRGATinv_dX=0.0;
+modelStruct.modelVar_atatbot=mod.atatbot;
+modelStruct.d_modelVar_atatbot_dX=0.0;
+modelStruct.modelVar_atatsti=mod.atatsti;
+modelStruct.d_modelVar_atatsti_dX=0.0;
+modelStruct.modelVar_atatgat=mod.atatgat;
+modelStruct.d_modelVar_atatgat_dX=0.0;
+modelStruct.modelVar_btatpartbot=mod.btatpartbot;
+modelStruct.d_modelVar_btatpartbot_dX=0.0;
+modelStruct.modelVar_btatpartsti=mod.btatpartsti;
+modelStruct.d_modelVar_btatpartsti_dX=0.0;
+modelStruct.modelVar_btatpartgat=mod.btatpartgat;
+modelStruct.d_modelVar_btatpartgat_dX=0.0;
+modelStruct.modelVar_fbbtbot=mod.fbbtbot;
+modelStruct.d_modelVar_fbbtbot_dX=0.0;
+modelStruct.modelVar_fbbtsti=mod.fbbtsti;
+modelStruct.d_modelVar_fbbtsti_dX=0.0;
+modelStruct.modelVar_fbbtgat=mod.fbbtgat;
+modelStruct.d_modelVar_fbbtgat_dX=0.0;
+modelStruct.modelVar_alphaav=mod.alphaav;
+modelStruct.d_modelVar_alphaav_dX=0.0;
+modelStruct.modelVar_fstopbot=mod.fstopbot;
+modelStruct.d_modelVar_fstopbot_dX=0.0;
+modelStruct.modelVar_fstopsti=mod.fstopsti;
+modelStruct.d_modelVar_fstopsti_dX=0.0;
+modelStruct.modelVar_fstopgat=mod.fstopgat;
+modelStruct.d_modelVar_fstopgat_dX=0.0;
+modelStruct.modelVar_VBRinvbot=mod.VBRinvbot;
+modelStruct.d_modelVar_VBRinvbot_dX=0.0;
+modelStruct.modelVar_VBRinvsti=mod.VBRinvsti;
+modelStruct.d_modelVar_VBRinvsti_dX=0.0;
+modelStruct.modelVar_VBRinvgat=mod.VBRinvgat;
+modelStruct.d_modelVar_VBRinvgat_dX=0.0;
+modelStruct.modelVar_slopebot=mod.slopebot;
+modelStruct.d_modelVar_slopebot_dX=0.0;
+modelStruct.modelVar_slopesti=mod.slopesti;
+modelStruct.d_modelVar_slopesti_dX=0.0;
+modelStruct.modelVar_slopegat=mod.slopegat;
+modelStruct.d_modelVar_slopegat_dX=0.0;
 
 
 // non-reals
@@ -14234,22 +16679,28 @@ for (std::vector<Instance*>::const_iterator in_it=mod.instanceContainer.begin();
   // initialize contributions to zero (automatically sets derivatives to zero)
   for (int i=0; i < 2+0 ; ++i)
   {
-  staticContributions[i]=0;
-  dynamicContributions[i]=0;
+  d_staticContributions_dX[i]=0;
+  d_dynamicContributions_dX[i]=0;
   }
 
 
 
-  // Copy out all the instance parameters (doubles) into FAD types
-  // reals
-AdmsSensFadType instancePar_AB=in.AB;
-bool instancePar_given_AB=in.given("AB");
-AdmsSensFadType instancePar_LS=in.LS;
-bool instancePar_given_LS=in.given("LS");
-AdmsSensFadType instancePar_LG=in.LG;
-bool instancePar_given_LG=in.given("LG");
-AdmsSensFadType instancePar_MULT=in.MULT;
-bool instancePar_given_MULT=in.given("MULT");
+  // Copy out all the instance parameters (doubles) into local struct
+ instanceSensStruct instanceStruct;
+
+ // reals
+instanceStruct.instancePar_AB=in.AB;
+instanceStruct.d_instancePar_AB_dX=0.0;
+instanceStruct.instancePar_given_AB=in.given("AB");
+instanceStruct.instancePar_LS=in.LS;
+instanceStruct.d_instancePar_LS_dX=0.0;
+instanceStruct.instancePar_given_LS=in.given("LS");
+instanceStruct.instancePar_LG=in.LG;
+instanceStruct.d_instancePar_LG_dX=0.0;
+instanceStruct.instancePar_given_LG=in.given("LG");
+instanceStruct.instancePar_MULT=in.MULT;
+instanceStruct.d_instancePar_MULT_dX=0.0;
+instanceStruct.instancePar_given_MULT=in.given("MULT");
 
 
   // real hidden instance
@@ -14269,51 +16720,53 @@ bool instancePar_given_MULT=in.given("MULT");
 
   //make local copies of all instance vars
   //reals
-AdmsSensFadType instanceVar_MULT_i=in.MULT_i;
-AdmsSensFadType instanceVar_AB_i=in.AB_i;
-AdmsSensFadType instanceVar_LS_i=in.LS_i;
-AdmsSensFadType instanceVar_LG_i=in.LG_i;
-double instanceVar_zflagbot=in.zflagbot;
-double instanceVar_zflagsti=in.zflagsti;
-double instanceVar_zflaggat=in.zflaggat;
-AdmsSensFadType instanceVar_VMAX=in.VMAX;
-AdmsSensFadType instanceVar_exp_VMAX_over_phitd=in.exp_VMAX_over_phitd;
-AdmsSensFadType instanceVar_vbimin=in.vbimin;
-AdmsSensFadType instanceVar_vch=in.vch;
-AdmsSensFadType instanceVar_vfmin=in.vfmin;
-AdmsSensFadType instanceVar_vbbtlim=in.vbbtlim;
-AdmsSensFadType instanceVar_xhighf1=in.xhighf1;
-AdmsSensFadType instanceVar_expxhf1=in.expxhf1;
-AdmsSensFadType instanceVar_xhighf2=in.xhighf2;
-AdmsSensFadType instanceVar_expxhf2=in.expxhf2;
-AdmsSensFadType instanceVar_xhighr=in.xhighr;
-AdmsSensFadType instanceVar_expxhr=in.expxhr;
-AdmsSensFadType instanceVar_ISATFOR1=in.ISATFOR1;
-double instanceVar_MFOR1=in.MFOR1;
-AdmsSensFadType instanceVar_ISATFOR2=in.ISATFOR2;
-AdmsSensFadType instanceVar_MFOR2=in.MFOR2;
-AdmsSensFadType instanceVar_ISATREV=in.ISATREV;
-AdmsSensFadType instanceVar_MREV=in.MREV;
-double instanceVar_m0flag=in.m0flag;
-AdmsSensFadType instanceVar_vak=in.vak;
-AdmsSensFadType instanceVar_cj=in.cj;
-AdmsSensFadType instanceVar_cjbot=in.cjbot;
-AdmsSensFadType instanceVar_cjgat=in.cjgat;
-AdmsSensFadType instanceVar_cjsti=in.cjsti;
-AdmsSensFadType instanceVar_ij=in.ij;
-AdmsSensFadType instanceVar_ijbot=in.ijbot;
-AdmsSensFadType instanceVar_ijgat=in.ijgat;
-AdmsSensFadType instanceVar_ijsti=in.ijsti;
-AdmsSensFadType instanceVar_si=in.si;
-AdmsSensFadType instanceVar_idsatsbot=in.idsatsbot;
-AdmsSensFadType instanceVar_idsatssti=in.idsatssti;
-AdmsSensFadType instanceVar_idsatsgat=in.idsatsgat;
-AdmsSensFadType instanceVar_cjosbot=in.cjosbot;
-AdmsSensFadType instanceVar_cjossti=in.cjossti;
-AdmsSensFadType instanceVar_cjosgat=in.cjosgat;
-AdmsSensFadType instanceVar_vbisbot=in.vbisbot;
-AdmsSensFadType instanceVar_vbissti=in.vbissti;
-AdmsSensFadType instanceVar_vbisgat=in.vbisgat;
+instanceStruct.instanceVar_MULT_i=in.MULT_i;
+instanceStruct.d_instanceVar_MULT_i_dX=0.0;
+instanceStruct.instanceVar_AB_i=in.AB_i;
+instanceStruct.d_instanceVar_AB_i_dX=0.0;
+instanceStruct.instanceVar_LS_i=in.LS_i;
+instanceStruct.d_instanceVar_LS_i_dX=0.0;
+instanceStruct.instanceVar_LG_i=in.LG_i;
+instanceStruct.d_instanceVar_LG_i_dX=0.0;
+instanceStruct.instanceVar_zflagbot=in.zflagbot;
+instanceStruct.instanceVar_zflagsti=in.zflagsti;
+instanceStruct.instanceVar_zflaggat=in.zflaggat;
+instanceStruct.instanceVar_VMAX=in.VMAX;
+instanceStruct.d_instanceVar_VMAX_dX=0.0;
+instanceStruct.instanceVar_exp_VMAX_over_phitd=in.exp_VMAX_over_phitd;
+instanceStruct.d_instanceVar_exp_VMAX_over_phitd_dX=0.0;
+instanceStruct.instanceVar_vbimin=in.vbimin;
+instanceStruct.d_instanceVar_vbimin_dX=0.0;
+instanceStruct.instanceVar_vch=in.vch;
+instanceStruct.d_instanceVar_vch_dX=0.0;
+instanceStruct.instanceVar_vfmin=in.vfmin;
+instanceStruct.d_instanceVar_vfmin_dX=0.0;
+instanceStruct.instanceVar_vbbtlim=in.vbbtlim;
+instanceStruct.d_instanceVar_vbbtlim_dX=0.0;
+instanceStruct.instanceVar_xhighf1=in.xhighf1;
+instanceStruct.d_instanceVar_xhighf1_dX=0.0;
+instanceStruct.instanceVar_expxhf1=in.expxhf1;
+instanceStruct.d_instanceVar_expxhf1_dX=0.0;
+instanceStruct.instanceVar_xhighf2=in.xhighf2;
+instanceStruct.d_instanceVar_xhighf2_dX=0.0;
+instanceStruct.instanceVar_expxhf2=in.expxhf2;
+instanceStruct.d_instanceVar_expxhf2_dX=0.0;
+instanceStruct.instanceVar_xhighr=in.xhighr;
+instanceStruct.d_instanceVar_xhighr_dX=0.0;
+instanceStruct.instanceVar_expxhr=in.expxhr;
+instanceStruct.d_instanceVar_expxhr_dX=0.0;
+instanceStruct.instanceVar_ISATFOR1=in.ISATFOR1;
+instanceStruct.d_instanceVar_ISATFOR1_dX=0.0;
+instanceStruct.instanceVar_MFOR1=in.MFOR1;
+instanceStruct.instanceVar_ISATFOR2=in.ISATFOR2;
+instanceStruct.d_instanceVar_ISATFOR2_dX=0.0;
+instanceStruct.instanceVar_MFOR2=in.MFOR2;
+instanceStruct.d_instanceVar_MFOR2_dX=0.0;
+instanceStruct.instanceVar_ISATREV=in.ISATREV;
+instanceStruct.d_instanceVar_ISATREV_dX=0.0;
+instanceStruct.instanceVar_MREV=in.MREV;
+instanceStruct.d_instanceVar_MREV_dX=0.0;
+instanceStruct.instanceVar_m0flag=in.m0flag;
 
 
   //non-reals
@@ -14322,7 +16775,7 @@ AdmsSensFadType instanceVar_vbisgat=in.vbisgat;
 
   Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-  // extract solution variables and set as Fad independent variables.
+  // extract solution variables
 probeVars[in.admsProbeID_V_A_GND] = (*solVectorPtr)[in.li_A];
 probeVars[in.admsProbeID_V_A_K] = (*solVectorPtr)[in.li_A] - (*solVectorPtr)[in.li_K];
 
@@ -14333,447 +16786,11 @@ probeVars[in.admsProbeID_V_A_K] = (*solVectorPtr)[in.li_A] - (*solVectorPtr)[in.
     //  model vars, and local copies of model
     // params.
 evaluateInitialModel(
-// model parameters
-// reals
-modelPar_DTA,
-modelPar_given_DTA,
-modelPar_IMAX,
-modelPar_given_IMAX,
-modelPar_TRJ,
-modelPar_given_TRJ,
-modelPar_FREV,
-modelPar_given_FREV,
-modelPar_CJORBOT,
-modelPar_given_CJORBOT,
-modelPar_CJORSTI,
-modelPar_given_CJORSTI,
-modelPar_CJORGAT,
-modelPar_given_CJORGAT,
-modelPar_VBIRBOT,
-modelPar_given_VBIRBOT,
-modelPar_VBIRSTI,
-modelPar_given_VBIRSTI,
-modelPar_VBIRGAT,
-modelPar_given_VBIRGAT,
-modelPar_PBOT,
-modelPar_given_PBOT,
-modelPar_PSTI,
-modelPar_given_PSTI,
-modelPar_PGAT,
-modelPar_given_PGAT,
-modelPar_PHIGBOT,
-modelPar_given_PHIGBOT,
-modelPar_PHIGSTI,
-modelPar_given_PHIGSTI,
-modelPar_PHIGGAT,
-modelPar_given_PHIGGAT,
-modelPar_IDSATRBOT,
-modelPar_given_IDSATRBOT,
-modelPar_IDSATRSTI,
-modelPar_given_IDSATRSTI,
-modelPar_IDSATRGAT,
-modelPar_given_IDSATRGAT,
-modelPar_CSRHBOT,
-modelPar_given_CSRHBOT,
-modelPar_CSRHSTI,
-modelPar_given_CSRHSTI,
-modelPar_CSRHGAT,
-modelPar_given_CSRHGAT,
-modelPar_XJUNSTI,
-modelPar_given_XJUNSTI,
-modelPar_XJUNGAT,
-modelPar_given_XJUNGAT,
-modelPar_CTATBOT,
-modelPar_given_CTATBOT,
-modelPar_CTATSTI,
-modelPar_given_CTATSTI,
-modelPar_CTATGAT,
-modelPar_given_CTATGAT,
-modelPar_MEFFTATBOT,
-modelPar_given_MEFFTATBOT,
-modelPar_MEFFTATSTI,
-modelPar_given_MEFFTATSTI,
-modelPar_MEFFTATGAT,
-modelPar_given_MEFFTATGAT,
-modelPar_CBBTBOT,
-modelPar_given_CBBTBOT,
-modelPar_CBBTSTI,
-modelPar_given_CBBTSTI,
-modelPar_CBBTGAT,
-modelPar_given_CBBTGAT,
-modelPar_FBBTRBOT,
-modelPar_given_FBBTRBOT,
-modelPar_FBBTRSTI,
-modelPar_given_FBBTRSTI,
-modelPar_FBBTRGAT,
-modelPar_given_FBBTRGAT,
-modelPar_STFBBTBOT,
-modelPar_given_STFBBTBOT,
-modelPar_STFBBTSTI,
-modelPar_given_STFBBTSTI,
-modelPar_STFBBTGAT,
-modelPar_given_STFBBTGAT,
-modelPar_VBRBOT,
-modelPar_given_VBRBOT,
-modelPar_VBRSTI,
-modelPar_given_VBRSTI,
-modelPar_VBRGAT,
-modelPar_given_VBRGAT,
-modelPar_PBRBOT,
-modelPar_given_PBRBOT,
-modelPar_PBRSTI,
-modelPar_given_PBRSTI,
-modelPar_PBRGAT,
-modelPar_given_PBRGAT,
-modelPar_SWJUNEXP,
-modelPar_given_SWJUNEXP,
-modelPar_VJUNREF,
-modelPar_given_VJUNREF,
-modelPar_FJUNQ,
-modelPar_given_FJUNQ,
-// non-reals (including hidden)
- modelPar_LEVEL,
-modelPar_given_LEVEL,
- modelPar_TYPE,
-modelPar_given_TYPE// model variables
-,
-// reals
-modelVar_IMAX_i,
-modelVar_VBIRBOT_i,
-modelVar_VBIRSTI_i,
-modelVar_VBIRGAT_i,
-modelVar_PBOT_i,
-modelVar_PSTI_i,
-modelVar_PGAT_i,
-modelVar_CSRHBOT_i,
-modelVar_CSRHSTI_i,
-modelVar_CSRHGAT_i,
-modelVar_CTATBOT_i,
-modelVar_CTATSTI_i,
-modelVar_CTATGAT_i,
-modelVar_CBBTBOT_i,
-modelVar_CBBTSTI_i,
-modelVar_CBBTGAT_i,
-modelVar_VBRBOT_i,
-modelVar_VBRSTI_i,
-modelVar_VBRGAT_i,
-modelVar_PBRBOT_i,
-modelVar_PBRSTI_i,
-modelVar_PBRGAT_i,
-modelVar_SWJUNEXP_i,
-modelVar_VJUNREF_i,
-modelVar_FJUNQ_i,
-modelVar_phitr,
-modelVar_phitd,
-modelVar_phitdinv,
-modelVar_perfc,
-modelVar_berfc,
-modelVar_cerfc,
-modelVar_ftdbot,
-modelVar_ftdsti,
-modelVar_ftdgat,
-modelVar_idsatbot,
-modelVar_idsatsti,
-modelVar_idsatgat,
-modelVar_vbibot,
-modelVar_vbisti,
-modelVar_vbigat,
-modelVar_vbiinvbot,
-modelVar_vbiinvsti,
-modelVar_vbiinvgat,
-modelVar_one_minus_PBOT,
-modelVar_one_minus_PSTI,
-modelVar_one_minus_PGAT,
-modelVar_one_over_one_minus_PBOT,
-modelVar_one_over_one_minus_PSTI,
-modelVar_one_over_one_minus_PGAT,
-modelVar_cjobot,
-modelVar_cjosti,
-modelVar_cjogat,
-modelVar_qprefbot,
-modelVar_qprefsti,
-modelVar_qprefgat,
-modelVar_qpref2bot,
-modelVar_qpref2sti,
-modelVar_qpref2gat,
-modelVar_wdepnulrbot,
-modelVar_wdepnulrsti,
-modelVar_wdepnulrgat,
-modelVar_wdepnulrinvbot,
-modelVar_wdepnulrinvsti,
-modelVar_wdepnulrinvgat,
-modelVar_VBIRBOTinv,
-modelVar_VBIRSTIinv,
-modelVar_VBIRGATinv,
-modelVar_atatbot,
-modelVar_atatsti,
-modelVar_atatgat,
-modelVar_btatpartbot,
-modelVar_btatpartsti,
-modelVar_btatpartgat,
-modelVar_fbbtbot,
-modelVar_fbbtsti,
-modelVar_fbbtgat,
-modelVar_alphaav,
-modelVar_fstopbot,
-modelVar_fstopsti,
-modelVar_fstopgat,
-modelVar_VBRinvbot,
-modelVar_VBRinvsti,
-modelVar_VBRinvgat,
-modelVar_slopebot,
-modelVar_slopesti,
-modelVar_slopegat,
+modelStruct,
  mod.admsModTemp,in.getDeviceOptions().gmin,in);
 evaluateInitialInstance(
-// instance parameters
-// reals
-instancePar_AB,
-instancePar_given_AB,
-instancePar_LS,
-instancePar_given_LS,
-instancePar_LG,
-instancePar_given_LG,
-instancePar_MULT,
-instancePar_given_MULT,
-// instance variables
-// reals
-instanceVar_MULT_i,
-instanceVar_AB_i,
-instanceVar_LS_i,
-instanceVar_LG_i,
-instanceVar_zflagbot,
-instanceVar_zflagsti,
-instanceVar_zflaggat,
-instanceVar_VMAX,
-instanceVar_exp_VMAX_over_phitd,
-instanceVar_vbimin,
-instanceVar_vch,
-instanceVar_vfmin,
-instanceVar_vbbtlim,
-instanceVar_xhighf1,
-instanceVar_expxhf1,
-instanceVar_xhighf2,
-instanceVar_expxhf2,
-instanceVar_xhighr,
-instanceVar_expxhr,
-instanceVar_ISATFOR1,
-instanceVar_MFOR1,
-instanceVar_ISATFOR2,
-instanceVar_MFOR2,
-instanceVar_ISATREV,
-instanceVar_MREV,
-instanceVar_m0flag,
-instanceVar_vak,
-instanceVar_cj,
-instanceVar_cjbot,
-instanceVar_cjgat,
-instanceVar_cjsti,
-instanceVar_ij,
-instanceVar_ijbot,
-instanceVar_ijgat,
-instanceVar_ijsti,
-instanceVar_si,
-instanceVar_idsatsbot,
-instanceVar_idsatssti,
-instanceVar_idsatsgat,
-instanceVar_cjosbot,
-instanceVar_cjossti,
-instanceVar_cjosgat,
-instanceVar_vbisbot,
-instanceVar_vbissti,
-instanceVar_vbisgat,
-// model parameters
-// reals
-modelPar_DTA,
-modelPar_given_DTA,
-modelPar_IMAX,
-modelPar_given_IMAX,
-modelPar_TRJ,
-modelPar_given_TRJ,
-modelPar_FREV,
-modelPar_given_FREV,
-modelPar_CJORBOT,
-modelPar_given_CJORBOT,
-modelPar_CJORSTI,
-modelPar_given_CJORSTI,
-modelPar_CJORGAT,
-modelPar_given_CJORGAT,
-modelPar_VBIRBOT,
-modelPar_given_VBIRBOT,
-modelPar_VBIRSTI,
-modelPar_given_VBIRSTI,
-modelPar_VBIRGAT,
-modelPar_given_VBIRGAT,
-modelPar_PBOT,
-modelPar_given_PBOT,
-modelPar_PSTI,
-modelPar_given_PSTI,
-modelPar_PGAT,
-modelPar_given_PGAT,
-modelPar_PHIGBOT,
-modelPar_given_PHIGBOT,
-modelPar_PHIGSTI,
-modelPar_given_PHIGSTI,
-modelPar_PHIGGAT,
-modelPar_given_PHIGGAT,
-modelPar_IDSATRBOT,
-modelPar_given_IDSATRBOT,
-modelPar_IDSATRSTI,
-modelPar_given_IDSATRSTI,
-modelPar_IDSATRGAT,
-modelPar_given_IDSATRGAT,
-modelPar_CSRHBOT,
-modelPar_given_CSRHBOT,
-modelPar_CSRHSTI,
-modelPar_given_CSRHSTI,
-modelPar_CSRHGAT,
-modelPar_given_CSRHGAT,
-modelPar_XJUNSTI,
-modelPar_given_XJUNSTI,
-modelPar_XJUNGAT,
-modelPar_given_XJUNGAT,
-modelPar_CTATBOT,
-modelPar_given_CTATBOT,
-modelPar_CTATSTI,
-modelPar_given_CTATSTI,
-modelPar_CTATGAT,
-modelPar_given_CTATGAT,
-modelPar_MEFFTATBOT,
-modelPar_given_MEFFTATBOT,
-modelPar_MEFFTATSTI,
-modelPar_given_MEFFTATSTI,
-modelPar_MEFFTATGAT,
-modelPar_given_MEFFTATGAT,
-modelPar_CBBTBOT,
-modelPar_given_CBBTBOT,
-modelPar_CBBTSTI,
-modelPar_given_CBBTSTI,
-modelPar_CBBTGAT,
-modelPar_given_CBBTGAT,
-modelPar_FBBTRBOT,
-modelPar_given_FBBTRBOT,
-modelPar_FBBTRSTI,
-modelPar_given_FBBTRSTI,
-modelPar_FBBTRGAT,
-modelPar_given_FBBTRGAT,
-modelPar_STFBBTBOT,
-modelPar_given_STFBBTBOT,
-modelPar_STFBBTSTI,
-modelPar_given_STFBBTSTI,
-modelPar_STFBBTGAT,
-modelPar_given_STFBBTGAT,
-modelPar_VBRBOT,
-modelPar_given_VBRBOT,
-modelPar_VBRSTI,
-modelPar_given_VBRSTI,
-modelPar_VBRGAT,
-modelPar_given_VBRGAT,
-modelPar_PBRBOT,
-modelPar_given_PBRBOT,
-modelPar_PBRSTI,
-modelPar_given_PBRSTI,
-modelPar_PBRGAT,
-modelPar_given_PBRGAT,
-modelPar_SWJUNEXP,
-modelPar_given_SWJUNEXP,
-modelPar_VJUNREF,
-modelPar_given_VJUNREF,
-modelPar_FJUNQ,
-modelPar_given_FJUNQ,
-// non-reals (including hidden)
- modelPar_LEVEL,
-modelPar_given_LEVEL,
- modelPar_TYPE,
-modelPar_given_TYPE// model variables
-,
-// reals
-modelVar_IMAX_i,
-modelVar_VBIRBOT_i,
-modelVar_VBIRSTI_i,
-modelVar_VBIRGAT_i,
-modelVar_PBOT_i,
-modelVar_PSTI_i,
-modelVar_PGAT_i,
-modelVar_CSRHBOT_i,
-modelVar_CSRHSTI_i,
-modelVar_CSRHGAT_i,
-modelVar_CTATBOT_i,
-modelVar_CTATSTI_i,
-modelVar_CTATGAT_i,
-modelVar_CBBTBOT_i,
-modelVar_CBBTSTI_i,
-modelVar_CBBTGAT_i,
-modelVar_VBRBOT_i,
-modelVar_VBRSTI_i,
-modelVar_VBRGAT_i,
-modelVar_PBRBOT_i,
-modelVar_PBRSTI_i,
-modelVar_PBRGAT_i,
-modelVar_SWJUNEXP_i,
-modelVar_VJUNREF_i,
-modelVar_FJUNQ_i,
-modelVar_phitr,
-modelVar_phitd,
-modelVar_phitdinv,
-modelVar_perfc,
-modelVar_berfc,
-modelVar_cerfc,
-modelVar_ftdbot,
-modelVar_ftdsti,
-modelVar_ftdgat,
-modelVar_idsatbot,
-modelVar_idsatsti,
-modelVar_idsatgat,
-modelVar_vbibot,
-modelVar_vbisti,
-modelVar_vbigat,
-modelVar_vbiinvbot,
-modelVar_vbiinvsti,
-modelVar_vbiinvgat,
-modelVar_one_minus_PBOT,
-modelVar_one_minus_PSTI,
-modelVar_one_minus_PGAT,
-modelVar_one_over_one_minus_PBOT,
-modelVar_one_over_one_minus_PSTI,
-modelVar_one_over_one_minus_PGAT,
-modelVar_cjobot,
-modelVar_cjosti,
-modelVar_cjogat,
-modelVar_qprefbot,
-modelVar_qprefsti,
-modelVar_qprefgat,
-modelVar_qpref2bot,
-modelVar_qpref2sti,
-modelVar_qpref2gat,
-modelVar_wdepnulrbot,
-modelVar_wdepnulrsti,
-modelVar_wdepnulrgat,
-modelVar_wdepnulrinvbot,
-modelVar_wdepnulrinvsti,
-modelVar_wdepnulrinvgat,
-modelVar_VBIRBOTinv,
-modelVar_VBIRSTIinv,
-modelVar_VBIRGATinv,
-modelVar_atatbot,
-modelVar_atatsti,
-modelVar_atatgat,
-modelVar_btatpartbot,
-modelVar_btatpartsti,
-modelVar_btatpartgat,
-modelVar_fbbtbot,
-modelVar_fbbtsti,
-modelVar_fbbtgat,
-modelVar_alphaav,
-modelVar_fstopbot,
-modelVar_fstopsti,
-modelVar_fstopgat,
-modelVar_VBRinvbot,
-modelVar_VBRinvsti,
-modelVar_VBRinvgat,
-modelVar_slopebot,
-modelVar_slopesti,
-modelVar_slopegat,
+instanceStruct,
+modelStruct,
 in.admsTemperature, in.adms_vt_nom,in.getDeviceOptions().gmin,in);
 
 
@@ -14788,270 +16805,24 @@ in.admsProbeID_V_A_K,
 // node constants
 in.admsNodeID_A,
 in.admsNodeID_K,
-// instance parameters
-// reals
-instancePar_AB,
-instancePar_given_AB,
-instancePar_LS,
-instancePar_given_LS,
-instancePar_LG,
-instancePar_given_LG,
-instancePar_MULT,
-instancePar_given_MULT,
-// instance variables
-// reals
-instanceVar_MULT_i,
-instanceVar_AB_i,
-instanceVar_LS_i,
-instanceVar_LG_i,
-instanceVar_zflagbot,
-instanceVar_zflagsti,
-instanceVar_zflaggat,
-instanceVar_VMAX,
-instanceVar_exp_VMAX_over_phitd,
-instanceVar_vbimin,
-instanceVar_vch,
-instanceVar_vfmin,
-instanceVar_vbbtlim,
-instanceVar_xhighf1,
-instanceVar_expxhf1,
-instanceVar_xhighf2,
-instanceVar_expxhf2,
-instanceVar_xhighr,
-instanceVar_expxhr,
-instanceVar_ISATFOR1,
-instanceVar_MFOR1,
-instanceVar_ISATFOR2,
-instanceVar_MFOR2,
-instanceVar_ISATREV,
-instanceVar_MREV,
-instanceVar_m0flag,
-instanceVar_vak,
-instanceVar_cj,
-instanceVar_cjbot,
-instanceVar_cjgat,
-instanceVar_cjsti,
-instanceVar_ij,
-instanceVar_ijbot,
-instanceVar_ijgat,
-instanceVar_ijsti,
-instanceVar_si,
-instanceVar_idsatsbot,
-instanceVar_idsatssti,
-instanceVar_idsatsgat,
-instanceVar_cjosbot,
-instanceVar_cjossti,
-instanceVar_cjosgat,
-instanceVar_vbisbot,
-instanceVar_vbissti,
-instanceVar_vbisgat,
-// model parameters
-// reals
-modelPar_DTA,
-modelPar_given_DTA,
-modelPar_IMAX,
-modelPar_given_IMAX,
-modelPar_TRJ,
-modelPar_given_TRJ,
-modelPar_FREV,
-modelPar_given_FREV,
-modelPar_CJORBOT,
-modelPar_given_CJORBOT,
-modelPar_CJORSTI,
-modelPar_given_CJORSTI,
-modelPar_CJORGAT,
-modelPar_given_CJORGAT,
-modelPar_VBIRBOT,
-modelPar_given_VBIRBOT,
-modelPar_VBIRSTI,
-modelPar_given_VBIRSTI,
-modelPar_VBIRGAT,
-modelPar_given_VBIRGAT,
-modelPar_PBOT,
-modelPar_given_PBOT,
-modelPar_PSTI,
-modelPar_given_PSTI,
-modelPar_PGAT,
-modelPar_given_PGAT,
-modelPar_PHIGBOT,
-modelPar_given_PHIGBOT,
-modelPar_PHIGSTI,
-modelPar_given_PHIGSTI,
-modelPar_PHIGGAT,
-modelPar_given_PHIGGAT,
-modelPar_IDSATRBOT,
-modelPar_given_IDSATRBOT,
-modelPar_IDSATRSTI,
-modelPar_given_IDSATRSTI,
-modelPar_IDSATRGAT,
-modelPar_given_IDSATRGAT,
-modelPar_CSRHBOT,
-modelPar_given_CSRHBOT,
-modelPar_CSRHSTI,
-modelPar_given_CSRHSTI,
-modelPar_CSRHGAT,
-modelPar_given_CSRHGAT,
-modelPar_XJUNSTI,
-modelPar_given_XJUNSTI,
-modelPar_XJUNGAT,
-modelPar_given_XJUNGAT,
-modelPar_CTATBOT,
-modelPar_given_CTATBOT,
-modelPar_CTATSTI,
-modelPar_given_CTATSTI,
-modelPar_CTATGAT,
-modelPar_given_CTATGAT,
-modelPar_MEFFTATBOT,
-modelPar_given_MEFFTATBOT,
-modelPar_MEFFTATSTI,
-modelPar_given_MEFFTATSTI,
-modelPar_MEFFTATGAT,
-modelPar_given_MEFFTATGAT,
-modelPar_CBBTBOT,
-modelPar_given_CBBTBOT,
-modelPar_CBBTSTI,
-modelPar_given_CBBTSTI,
-modelPar_CBBTGAT,
-modelPar_given_CBBTGAT,
-modelPar_FBBTRBOT,
-modelPar_given_FBBTRBOT,
-modelPar_FBBTRSTI,
-modelPar_given_FBBTRSTI,
-modelPar_FBBTRGAT,
-modelPar_given_FBBTRGAT,
-modelPar_STFBBTBOT,
-modelPar_given_STFBBTBOT,
-modelPar_STFBBTSTI,
-modelPar_given_STFBBTSTI,
-modelPar_STFBBTGAT,
-modelPar_given_STFBBTGAT,
-modelPar_VBRBOT,
-modelPar_given_VBRBOT,
-modelPar_VBRSTI,
-modelPar_given_VBRSTI,
-modelPar_VBRGAT,
-modelPar_given_VBRGAT,
-modelPar_PBRBOT,
-modelPar_given_PBRBOT,
-modelPar_PBRSTI,
-modelPar_given_PBRSTI,
-modelPar_PBRGAT,
-modelPar_given_PBRGAT,
-modelPar_SWJUNEXP,
-modelPar_given_SWJUNEXP,
-modelPar_VJUNREF,
-modelPar_given_VJUNREF,
-modelPar_FJUNQ,
-modelPar_given_FJUNQ,
-// non-reals (including hidden)
- modelPar_LEVEL,
-modelPar_given_LEVEL,
- modelPar_TYPE,
-modelPar_given_TYPE// model variables
-,
-// reals
-modelVar_IMAX_i,
-modelVar_VBIRBOT_i,
-modelVar_VBIRSTI_i,
-modelVar_VBIRGAT_i,
-modelVar_PBOT_i,
-modelVar_PSTI_i,
-modelVar_PGAT_i,
-modelVar_CSRHBOT_i,
-modelVar_CSRHSTI_i,
-modelVar_CSRHGAT_i,
-modelVar_CTATBOT_i,
-modelVar_CTATSTI_i,
-modelVar_CTATGAT_i,
-modelVar_CBBTBOT_i,
-modelVar_CBBTSTI_i,
-modelVar_CBBTGAT_i,
-modelVar_VBRBOT_i,
-modelVar_VBRSTI_i,
-modelVar_VBRGAT_i,
-modelVar_PBRBOT_i,
-modelVar_PBRSTI_i,
-modelVar_PBRGAT_i,
-modelVar_SWJUNEXP_i,
-modelVar_VJUNREF_i,
-modelVar_FJUNQ_i,
-modelVar_phitr,
-modelVar_phitd,
-modelVar_phitdinv,
-modelVar_perfc,
-modelVar_berfc,
-modelVar_cerfc,
-modelVar_ftdbot,
-modelVar_ftdsti,
-modelVar_ftdgat,
-modelVar_idsatbot,
-modelVar_idsatsti,
-modelVar_idsatgat,
-modelVar_vbibot,
-modelVar_vbisti,
-modelVar_vbigat,
-modelVar_vbiinvbot,
-modelVar_vbiinvsti,
-modelVar_vbiinvgat,
-modelVar_one_minus_PBOT,
-modelVar_one_minus_PSTI,
-modelVar_one_minus_PGAT,
-modelVar_one_over_one_minus_PBOT,
-modelVar_one_over_one_minus_PSTI,
-modelVar_one_over_one_minus_PGAT,
-modelVar_cjobot,
-modelVar_cjosti,
-modelVar_cjogat,
-modelVar_qprefbot,
-modelVar_qprefsti,
-modelVar_qprefgat,
-modelVar_qpref2bot,
-modelVar_qpref2sti,
-modelVar_qpref2gat,
-modelVar_wdepnulrbot,
-modelVar_wdepnulrsti,
-modelVar_wdepnulrgat,
-modelVar_wdepnulrinvbot,
-modelVar_wdepnulrinvsti,
-modelVar_wdepnulrinvgat,
-modelVar_VBIRBOTinv,
-modelVar_VBIRSTIinv,
-modelVar_VBIRGATinv,
-modelVar_atatbot,
-modelVar_atatsti,
-modelVar_atatgat,
-modelVar_btatpartbot,
-modelVar_btatpartsti,
-modelVar_btatpartgat,
-modelVar_fbbtbot,
-modelVar_fbbtsti,
-modelVar_fbbtgat,
-modelVar_alphaav,
-modelVar_fstopbot,
-modelVar_fstopsti,
-modelVar_fstopgat,
-modelVar_VBRinvbot,
-modelVar_VBRinvsti,
-modelVar_VBRinvgat,
-modelVar_slopebot,
-modelVar_slopesti,
-modelVar_slopegat,
+instanceStruct,
+modelStruct,
  in.admsTemperature,
  in.adms_vt_nom,
  in.getDeviceOptions().gmin,
- staticContributions,
- dynamicContributions,
+ d_staticContributions_dX,
+ d_dynamicContributions_dX,
  in);
 
 
   // We now have the F and Q vector stuff, populate the dependencies:
 
-    dfdp[in.admsNodeID_A+inst*(2+0)] += staticContributions[in.admsNodeID_A].dx(0);
-    dqdp[in.admsNodeID_A+inst*(2+0)] += dynamicContributions[in.admsNodeID_A].dx(0);
+    dfdp[in.admsNodeID_A+inst*(2+0)] += d_staticContributions_dX[in.admsNodeID_A];
+    dqdp[in.admsNodeID_A+inst*(2+0)] += d_dynamicContributions_dX[in.admsNodeID_A];
     Findices[in.admsNodeID_A+inst*(2+0)] = in.li_A;
     Qindices[in.admsNodeID_A+inst*(2+0)] = in.li_A;
-    dfdp[in.admsNodeID_K+inst*(2+0)] += staticContributions[in.admsNodeID_K].dx(0);
-    dqdp[in.admsNodeID_K+inst*(2+0)] += dynamicContributions[in.admsNodeID_K].dx(0);
+    dfdp[in.admsNodeID_K+inst*(2+0)] += d_staticContributions_dX[in.admsNodeID_K];
+    dqdp[in.admsNodeID_K+inst*(2+0)] += d_dynamicContributions_dX[in.admsNodeID_K];
     Findices[in.admsNodeID_K+inst*(2+0)] = in.li_K;
     Qindices[in.admsNodeID_K+inst*(2+0)] = in.li_K;
 }

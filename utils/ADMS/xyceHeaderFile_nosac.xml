@@ -111,8 +111,6 @@
   </admst:apply-templates>
   <admst:text format="#ifndef $guardSymbol\n#define $guardSymbol\n"/>
 
-#include &lt;Sacado_No_Kokkos.hpp&gt;
-
 #include &lt;N_DEV_Configuration.h&gt;
 #include &lt;N_DEV_Const.h&gt;
 #include &lt;N_DEV_DeviceBlock.h&gt;
@@ -124,10 +122,6 @@
 namespace Xyce {
 namespace Device {
 namespace <admst:text format="%($nameSpace)"/> {
-
-// This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad&lt;double,%(xyceNumberProbes(.))&gt; AdmsFadType;
-  typedef Sacado::Fad::SFad&lt;double,1&gt; AdmsSensFadType;
 
 class Model;
 class Instance;
@@ -242,6 +236,14 @@ return ifFalse;
 
 #ifdef Xyce_ADMS_SENSITIVITIES
 //-----------------------------------------------------------------------------
+// "structs" to hold instance and model param/variable copies
+//-----------------------------------------------------------------------------
+
+<admst:apply-templates select="." match="generateInstanceStruct"/>
+
+<admst:apply-templates select="." match="generateModelStruct"/>
+
+//-----------------------------------------------------------------------------
 // Free functions used by sensitivity
 //
 //-----------------------------------------------------------------------------
@@ -252,17 +254,12 @@ return ifFalse;
 <admst:text format=");\n\n"/>
 
 <admst:text format="void evaluateInitialInstance(\n"/>
-<admst:variable name="globalDeclareVars" select="yes"/>
-<admst:apply-templates select="." match="generateInstanceAndModelArgs"/>
+<admst:text format="instanceSensStruct &amp; instanceStruct,\n"/>
+<admst:text format="modelSensStruct &amp; modelStruct,\n"/>
 <admst:text format=" double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance &amp; theInstance);\n\n"/>
 
 <admst:text format="void evaluateInitialModel(\n"/>
-<admst:variable name="globalDeclareVars" select="yes"/>
-<admst:apply-templates select="." match="generateModelArgs">
-  <admst:if test="[returned('iGeneratedArgs')/value = 'yes']">
-    <admst:text format=",\n"/>
-  </admst:if>
-</admst:apply-templates>
+<admst:text format="modelSensStruct &amp; modelStruct,\n"/>
 <admst:text format=" double admsTemperature, double ADMSgmin_arg, const Instance &amp; theInstance);\n"/>
 #endif // Xyce_ADMS_SENSITIVITIES
 
@@ -277,23 +274,6 @@ T limexp(const T &amp;x)
   return (exp(x));
   else
   return (exp(80.0)*(x-79.0));
-}
-
-// Maybe this will do as a substitute for a sacado-provided "floor" and "ceil"?
-// It is wrong to try to propagate the Sacado derivatives to the return
-// value, as the floor and ceil functions have zero derivative w.r.t. any
-// of the variables in the argument, except when X is an integer at which
-// point the derivative is undefined.
-template &lt;typename T&gt;
-double ADMSfloor(const T &amp; x)
-{
-return (floor(x.val()));
-}
-
-template &lt;typename T&gt;
-double ADMSceil(const T &amp; x)
-{
-return (ceil(x.val()));
 }
 
 

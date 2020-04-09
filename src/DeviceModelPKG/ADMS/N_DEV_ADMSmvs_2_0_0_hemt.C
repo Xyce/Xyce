@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 31 Mar 2020 09:29:14
+// Creation Date  : Thu, 09 Apr 2020 12:01:05
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -464,7 +464,7 @@ Instance::~Instance()
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerLIDs
-// Purpose       : function for registering, and setting up, local ID's.
+// Purpose       : function for registering, and setting up, local IDs.
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
@@ -544,7 +544,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addInternalNode(symbol_table, li_si, getName(), "si");
     addInternalNode(symbol_table, li_sf, getName(), "sf");
     addInternalNode(symbol_table, li_BRA_sf_GND, getName(), "sf_GND_branch");
-  
+
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_id, getName(), "BRANCH_DD");
@@ -590,7 +590,7 @@ void Instance::registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef)
 //-----------------------------------------------------------------------------
 // Function      : Instance::jacobianStamp
 // Purpose       :
-// Special Notes : In initial version, we won't support mapping away nodes
+// Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
@@ -856,185 +856,185 @@ bool Instance::updateIntermediateVars()
   }
 
   // Local variables
-  double Rd;
-     double d_Rd_dV_sf_GND;
-     double d_Rd_dV_di_GND;
-     double d_Rd_dV_si_GND;
-  double Rs;
-     double d_Rs_dV_sf_GND;
-     double d_Rs_dV_di_GND;
-     double d_Rs_dV_si_GND;
-  double Idsatbeta;
-     double d_Idsatbeta_dV_sf_GND;
-     double d_Idsatbeta_dV_di_GND;
-     double d_Idsatbeta_dV_si_GND;
-  double Id_sat;
-  double Qacc;
-  double Id;
-     double d_Id_dV_sf_GND;
-     double d_Id_dV_di_GND;
-     double d_Id_dV_si_GND;
-  double vx0;
-     double d_vx0_dV_sf_GND;
-  double Fsat;
-     double d_Fsat_dV_di_GND;
-     double d_Fsat_dV_si_GND;
-     double d_Fsat_dV_sf_GND;
-  double Vdsatbeta;
-     double d_Vdsatbeta_dV_di_GND;
-     double d_Vdsatbeta_dV_si_GND;
-     double d_Vdsatbeta_dV_sf_GND;
-  double Vdsat;
-     double d_Vdsat_dV_sf_GND;
-     double d_Vdsat_dV_di_GND;
-     double d_Vdsat_dV_si_GND;
-  double f1;
-     double d_f1_dV_sf_GND;
-     double d_f1_dV_di_GND;
-     double d_f1_dV_si_GND;
-  double n;
-     double d_n_dV_di_GND;
-     double d_n_dV_si_GND;
-  double Cgc;
-     double d_Cgc_dV_sf_GND;
-     double d_Cgc_dV_di_GND;
-     double d_Cgc_dV_si_GND;
-  double Cstern;
-     double d_Cstern_dV_sf_GND;
-     double d_Cstern_dV_di_GND;
-     double d_Cstern_dV_si_GND;
-  double xav;
-     double d_xav_dV_sf_GND;
-     double d_xav_dV_di_GND;
-     double d_xav_dV_si_GND;
-  double QB;
-  double Qx0;
-     double d_Qx0_dV_sf_GND;
-     double d_Qx0_dV_di_GND;
-     double d_Qx0_dV_si_GND;
-  double Tx;
-     double d_Tx_dV_sf_GND;
-     double d_Tx_dV_di_GND;
-     double d_Tx_dV_si_GND;
-  double Lcrit;
-     double d_Lcrit_dV_di_GND;
-     double d_Lcrit_dV_si_GND;
-  double Lcrit_sat;
-  double Lcrit_lin;
-  double f2;
-     double d_f2_dV_di_GND;
-     double d_f2_dV_si_GND;
-  double Vdsatbeta2;
-     double d_Vdsatbeta2_dV_di_GND;
-     double d_Vdsatbeta2_dV_si_GND;
-  double Vdsat2;
-  double vT_acc;
-  double extr_coef_acc;
-  double FDhalfs_acc;
-  double c1_acc;
-  double den1_acc;
-  double A1_acc;
-  double expMeta_acc;
-  double expu_acc;
-  double exp_eta_acc;
-  double eta_acc;
-  double vT;
-     double d_vT_dV_sf_GND;
-  double lambda;
-     double d_lambda_dV_sf_GND;
-  double dgen_lambda;
-     double d_dgen_lambda_dV_sf_GND;
-  double FDminushalfs;
-     double d_FDminushalfs_dV_sf_GND;
-  double t2_fd1;
-     double d_t2_fd1_dV_sf_GND;
-  double den_t1_fd1;
-     double d_den_t1_fd1_dV_sf_GND;
-  double aterm1;
-     double d_aterm1_dV_sf_GND;
-  double num_t1_fd1;
-  double c_pow1;
-  double b_pow1;
-  double a_pow1;
-  double j_pow1;
-  double u1;
-     double d_u1_dV_sf_GND;
-  double extr_coef;
-     double d_extr_coef_dV_sf_GND;
-  double FDhalfs;
-     double d_FDhalfs_dV_sf_GND;
-  double c1;
-     double d_c1_dV_sf_GND;
-  double den1;
-     double d_den1_dV_sf_GND;
-  double A1;
-     double d_A1_dV_sf_GND;
-  double expMeta;
-     double d_expMeta_dV_sf_GND;
-  double NP_fac_velocity;
-     double d_NP_fac_velocity_dV_sf_GND;
-  double NP_fac_lambda;
-     double d_NP_fac_lambda_dV_sf_GND;
-  double meff_np;
-     double d_meff_np_dV_sf_GND;
-  double Fd;
-     double d_Fd_dV_sf_GND;
-     double d_Fd_dV_di_GND;
-     double d_Fd_dV_si_GND;
-  double Ed_sq;
-     double d_Ed_sq_dV_sf_GND;
-     double d_Ed_sq_dV_di_GND;
-     double d_Ed_sq_dV_si_GND;
-  double ffd;
-     double d_ffd_dV_sf_GND;
-     double d_ffd_dV_di_GND;
-     double d_ffd_dV_si_GND;
-  double expEd;
-     double d_expEd_dV_sf_GND;
-     double d_expEd_dV_di_GND;
-     double d_expEd_dV_si_GND;
-  double sign_Ed;
-  double Ed;
-     double d_Ed_dV_sf_GND;
-     double d_Ed_dV_di_GND;
-     double d_Ed_dV_si_GND;
-  double Fs;
-     double d_Fs_dV_sf_GND;
-  double Es_sq;
-     double d_Es_sq_dV_sf_GND;
-  double ffs;
-     double d_ffs_dV_sf_GND;
-  double expEs;
-     double d_expEs_dV_sf_GND;
-  double sign_Es;
-  double Es;
-     double d_Es_dV_sf_GND;
-  double N2D;
-  double lambda_int;
-  double vT_int;
-  double mD0;
-  double sqrt_pi;
-  double hbar;
-  double kT;
-  double phit;
-  double Rc;
-  double Leff;
-  double dir;
-  double Vgsi;
-     double d_Vgsi_dV_di_GND;
-     double d_Vgsi_dV_g_GND;
-     double d_Vgsi_dV_si_GND;
-  double Vdsi;
-     double d_Vdsi_dV_di_GND;
-     double d_Vdsi_dV_si_GND;
-  double Vgs;
-  double Vds;
-  double Vgdraw;
-     double d_Vgdraw_dV_g_GND;
-     double d_Vgdraw_dV_di_GND;
-  double Vgsraw;
-     double d_Vgsraw_dV_g_GND;
-     double d_Vgsraw_dV_si_GND;
+  double Rd=0.0;
+     double d_Rd_dV_sf_GND=0.0;
+     double d_Rd_dV_di_GND=0.0;
+     double d_Rd_dV_si_GND=0.0;
+  double Rs=0.0;
+     double d_Rs_dV_sf_GND=0.0;
+     double d_Rs_dV_di_GND=0.0;
+     double d_Rs_dV_si_GND=0.0;
+  double Idsatbeta=0.0;
+     double d_Idsatbeta_dV_sf_GND=0.0;
+     double d_Idsatbeta_dV_di_GND=0.0;
+     double d_Idsatbeta_dV_si_GND=0.0;
+  double Id_sat=0.0;
+  double Qacc=0.0;
+  double Id=0.0;
+     double d_Id_dV_sf_GND=0.0;
+     double d_Id_dV_di_GND=0.0;
+     double d_Id_dV_si_GND=0.0;
+  double vx0=0.0;
+     double d_vx0_dV_sf_GND=0.0;
+  double Fsat=0.0;
+     double d_Fsat_dV_di_GND=0.0;
+     double d_Fsat_dV_si_GND=0.0;
+     double d_Fsat_dV_sf_GND=0.0;
+  double Vdsatbeta=0.0;
+     double d_Vdsatbeta_dV_di_GND=0.0;
+     double d_Vdsatbeta_dV_si_GND=0.0;
+     double d_Vdsatbeta_dV_sf_GND=0.0;
+  double Vdsat=0.0;
+     double d_Vdsat_dV_sf_GND=0.0;
+     double d_Vdsat_dV_di_GND=0.0;
+     double d_Vdsat_dV_si_GND=0.0;
+  double f1=0.0;
+     double d_f1_dV_sf_GND=0.0;
+     double d_f1_dV_di_GND=0.0;
+     double d_f1_dV_si_GND=0.0;
+  double n=0.0;
+     double d_n_dV_di_GND=0.0;
+     double d_n_dV_si_GND=0.0;
+  double Cgc=0.0;
+     double d_Cgc_dV_sf_GND=0.0;
+     double d_Cgc_dV_di_GND=0.0;
+     double d_Cgc_dV_si_GND=0.0;
+  double Cstern=0.0;
+     double d_Cstern_dV_sf_GND=0.0;
+     double d_Cstern_dV_di_GND=0.0;
+     double d_Cstern_dV_si_GND=0.0;
+  double xav=0.0;
+     double d_xav_dV_sf_GND=0.0;
+     double d_xav_dV_di_GND=0.0;
+     double d_xav_dV_si_GND=0.0;
+  double QB=0.0;
+  double Qx0=0.0;
+     double d_Qx0_dV_sf_GND=0.0;
+     double d_Qx0_dV_di_GND=0.0;
+     double d_Qx0_dV_si_GND=0.0;
+  double Tx=0.0;
+     double d_Tx_dV_sf_GND=0.0;
+     double d_Tx_dV_di_GND=0.0;
+     double d_Tx_dV_si_GND=0.0;
+  double Lcrit=0.0;
+     double d_Lcrit_dV_di_GND=0.0;
+     double d_Lcrit_dV_si_GND=0.0;
+  double Lcrit_sat=0.0;
+  double Lcrit_lin=0.0;
+  double f2=0.0;
+     double d_f2_dV_di_GND=0.0;
+     double d_f2_dV_si_GND=0.0;
+  double Vdsatbeta2=0.0;
+     double d_Vdsatbeta2_dV_di_GND=0.0;
+     double d_Vdsatbeta2_dV_si_GND=0.0;
+  double Vdsat2=0.0;
+  double vT_acc=0.0;
+  double extr_coef_acc=0.0;
+  double FDhalfs_acc=0.0;
+  double c1_acc=0.0;
+  double den1_acc=0.0;
+  double A1_acc=0.0;
+  double expMeta_acc=0.0;
+  double expu_acc=0.0;
+  double exp_eta_acc=0.0;
+  double eta_acc=0.0;
+  double vT=0.0;
+     double d_vT_dV_sf_GND=0.0;
+  double lambda=0.0;
+     double d_lambda_dV_sf_GND=0.0;
+  double dgen_lambda=0.0;
+     double d_dgen_lambda_dV_sf_GND=0.0;
+  double FDminushalfs=0.0;
+     double d_FDminushalfs_dV_sf_GND=0.0;
+  double t2_fd1=0.0;
+     double d_t2_fd1_dV_sf_GND=0.0;
+  double den_t1_fd1=0.0;
+     double d_den_t1_fd1_dV_sf_GND=0.0;
+  double aterm1=0.0;
+     double d_aterm1_dV_sf_GND=0.0;
+  double num_t1_fd1=0.0;
+  double c_pow1=0.0;
+  double b_pow1=0.0;
+  double a_pow1=0.0;
+  double j_pow1=0.0;
+  double u1=0.0;
+     double d_u1_dV_sf_GND=0.0;
+  double extr_coef=0.0;
+     double d_extr_coef_dV_sf_GND=0.0;
+  double FDhalfs=0.0;
+     double d_FDhalfs_dV_sf_GND=0.0;
+  double c1=0.0;
+     double d_c1_dV_sf_GND=0.0;
+  double den1=0.0;
+     double d_den1_dV_sf_GND=0.0;
+  double A1=0.0;
+     double d_A1_dV_sf_GND=0.0;
+  double expMeta=0.0;
+     double d_expMeta_dV_sf_GND=0.0;
+  double NP_fac_velocity=0.0;
+     double d_NP_fac_velocity_dV_sf_GND=0.0;
+  double NP_fac_lambda=0.0;
+     double d_NP_fac_lambda_dV_sf_GND=0.0;
+  double meff_np=0.0;
+     double d_meff_np_dV_sf_GND=0.0;
+  double Fd=0.0;
+     double d_Fd_dV_sf_GND=0.0;
+     double d_Fd_dV_di_GND=0.0;
+     double d_Fd_dV_si_GND=0.0;
+  double Ed_sq=0.0;
+     double d_Ed_sq_dV_sf_GND=0.0;
+     double d_Ed_sq_dV_di_GND=0.0;
+     double d_Ed_sq_dV_si_GND=0.0;
+  double ffd=0.0;
+     double d_ffd_dV_sf_GND=0.0;
+     double d_ffd_dV_di_GND=0.0;
+     double d_ffd_dV_si_GND=0.0;
+  double expEd=0.0;
+     double d_expEd_dV_sf_GND=0.0;
+     double d_expEd_dV_di_GND=0.0;
+     double d_expEd_dV_si_GND=0.0;
+  double sign_Ed=0.0;
+  double Ed=0.0;
+     double d_Ed_dV_sf_GND=0.0;
+     double d_Ed_dV_di_GND=0.0;
+     double d_Ed_dV_si_GND=0.0;
+  double Fs=0.0;
+     double d_Fs_dV_sf_GND=0.0;
+  double Es_sq=0.0;
+     double d_Es_sq_dV_sf_GND=0.0;
+  double ffs=0.0;
+     double d_ffs_dV_sf_GND=0.0;
+  double expEs=0.0;
+     double d_expEs_dV_sf_GND=0.0;
+  double sign_Es=0.0;
+  double Es=0.0;
+     double d_Es_dV_sf_GND=0.0;
+  double N2D=0.0;
+  double lambda_int=0.0;
+  double vT_int=0.0;
+  double mD0=0.0;
+  double sqrt_pi=0.0;
+  double hbar=0.0;
+  double kT=0.0;
+  double phit=0.0;
+  double Rc=0.0;
+  double Leff=0.0;
+  double dir=0.0;
+  double Vgsi=0.0;
+     double d_Vgsi_dV_di_GND=0.0;
+     double d_Vgsi_dV_g_GND=0.0;
+     double d_Vgsi_dV_si_GND=0.0;
+  double Vdsi=0.0;
+     double d_Vdsi_dV_di_GND=0.0;
+     double d_Vdsi_dV_si_GND=0.0;
+  double Vgs=0.0;
+  double Vds=0.0;
+  double Vgdraw=0.0;
+     double d_Vgdraw_dV_g_GND=0.0;
+     double d_Vgdraw_dV_di_GND=0.0;
+  double Vgsraw=0.0;
+     double d_Vgsraw_dV_g_GND=0.0;
+     double d_Vgsraw_dV_si_GND=0.0;
 
 
   // set the sizes of the Fad arrays:
@@ -1474,11 +1474,11 @@ d_n_dV_di_GND = (deriv_fabs_0_d0*((model_.nd)*d_Vdsi_dV_di_GND));
 n = ((model_.n0)+value_fabs_0);
 }
 // V(sf,GND) <+ ((((Vgsi+(delta*Vdsi))+(Qx0/Cgc))/n))
-staticContributions[admsBRA_ID_sf_GND] += (((Vgsi+((model_.delta)*Vdsi))+(Qx0/Cgc))/n);
 d_staticContributions[admsBRA_ID_sf_GND][admsProbeID_V_sf_GND] += (((Cgc*d_Qx0_dV_sf_GND-Qx0*d_Cgc_dV_sf_GND)/Cgc/Cgc)/n);
 d_staticContributions[admsBRA_ID_sf_GND][admsProbeID_V_si_GND] += ((n*((d_Vgsi_dV_si_GND+(model_.delta)*d_Vdsi_dV_si_GND)+((Cgc*d_Qx0_dV_si_GND-Qx0*d_Cgc_dV_si_GND)/Cgc/Cgc))-((Vgsi+((model_.delta)*Vdsi))+(Qx0/Cgc))*d_n_dV_si_GND)/n/n);
 d_staticContributions[admsBRA_ID_sf_GND][admsProbeID_V_g_GND] += (d_Vgsi_dV_g_GND/n);
 d_staticContributions[admsBRA_ID_sf_GND][admsProbeID_V_di_GND] += ((n*((d_Vgsi_dV_di_GND+(model_.delta)*d_Vdsi_dV_di_GND)+((Cgc*d_Qx0_dV_di_GND-Qx0*d_Cgc_dV_di_GND)/Cgc/Cgc))-((Vgsi+((model_.delta)*Vdsi))+(Qx0/Cgc))*d_n_dV_di_GND)/n/n);
+staticContributions[admsBRA_ID_sf_GND] += (((Vgsi+((model_.delta)*Vdsi))+(Qx0/Cgc))/n);
 
 d_f1_dV_si_GND = (((-d_Tx_dV_si_GND)*Fs+(Tx*d_Fd_dV_si_GND+d_Tx_dV_si_GND*Fd))/(2.0*Fs));
 d_f1_dV_di_GND = (((-d_Tx_dV_di_GND)*Fs+(Tx*d_Fd_dV_di_GND+d_Tx_dV_di_GND*Fd))/(2.0*Fs));
@@ -2217,53 +2217,8 @@ MOSFET1::registerDevice();
 // Creation Date :
 //-----------------------------------------------------------------------------
 void evaluateInitialInstance(
-// model parameters
-// reals
-AdmsSensFadType & modelPar_version,
-bool modelPar_given_version,
-AdmsSensFadType & modelPar_W,
-bool modelPar_given_W,
-AdmsSensFadType & modelPar_Lgdr,
-bool modelPar_given_Lgdr,
-AdmsSensFadType & modelPar_dLg,
-bool modelPar_given_dLg,
-AdmsSensFadType & modelPar_Cins,
-bool modelPar_given_Cins,
-AdmsSensFadType & modelPar_Tjun,
-bool modelPar_given_Tjun,
-AdmsSensFadType & modelPar_energy_diff_volt,
-bool modelPar_given_energy_diff_volt,
-AdmsSensFadType & modelPar_delta,
-bool modelPar_given_delta,
-AdmsSensFadType & modelPar_n0,
-bool modelPar_given_n0,
-AdmsSensFadType & modelPar_Rc0,
-bool modelPar_given_Rc0,
-AdmsSensFadType & modelPar_nacc,
-bool modelPar_given_nacc,
-AdmsSensFadType & modelPar_meff,
-bool modelPar_given_meff,
-AdmsSensFadType & modelPar_np_mass,
-bool modelPar_given_np_mass,
-AdmsSensFadType & modelPar_mu_eff,
-bool modelPar_given_mu_eff,
-AdmsSensFadType & modelPar_ksee,
-bool modelPar_given_ksee,
-AdmsSensFadType & modelPar_B,
-bool modelPar_given_B,
-AdmsSensFadType & modelPar_dqm0,
-bool modelPar_given_dqm0,
-AdmsSensFadType & modelPar_eps,
-bool modelPar_given_eps,
-AdmsSensFadType & modelPar_theta,
-bool modelPar_given_theta,
-AdmsSensFadType & modelPar_beta,
-bool modelPar_given_beta,
-AdmsSensFadType & modelPar_nd,
-bool modelPar_given_nd,
-// non-reals (including hidden)
-int modelPar_type,
-bool modelPar_given_type,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
  double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance)
 {
 }
@@ -2279,53 +2234,7 @@ bool modelPar_given_type,
 // Creation Date :
 //-----------------------------------------------------------------------------
 void evaluateInitialModel(
-// model parameters
-// reals
-AdmsSensFadType & modelPar_version,
-bool modelPar_given_version,
-AdmsSensFadType & modelPar_W,
-bool modelPar_given_W,
-AdmsSensFadType & modelPar_Lgdr,
-bool modelPar_given_Lgdr,
-AdmsSensFadType & modelPar_dLg,
-bool modelPar_given_dLg,
-AdmsSensFadType & modelPar_Cins,
-bool modelPar_given_Cins,
-AdmsSensFadType & modelPar_Tjun,
-bool modelPar_given_Tjun,
-AdmsSensFadType & modelPar_energy_diff_volt,
-bool modelPar_given_energy_diff_volt,
-AdmsSensFadType & modelPar_delta,
-bool modelPar_given_delta,
-AdmsSensFadType & modelPar_n0,
-bool modelPar_given_n0,
-AdmsSensFadType & modelPar_Rc0,
-bool modelPar_given_Rc0,
-AdmsSensFadType & modelPar_nacc,
-bool modelPar_given_nacc,
-AdmsSensFadType & modelPar_meff,
-bool modelPar_given_meff,
-AdmsSensFadType & modelPar_np_mass,
-bool modelPar_given_np_mass,
-AdmsSensFadType & modelPar_mu_eff,
-bool modelPar_given_mu_eff,
-AdmsSensFadType & modelPar_ksee,
-bool modelPar_given_ksee,
-AdmsSensFadType & modelPar_B,
-bool modelPar_given_B,
-AdmsSensFadType & modelPar_dqm0,
-bool modelPar_given_dqm0,
-AdmsSensFadType & modelPar_eps,
-bool modelPar_given_eps,
-AdmsSensFadType & modelPar_theta,
-bool modelPar_given_theta,
-AdmsSensFadType & modelPar_beta,
-bool modelPar_given_beta,
-AdmsSensFadType & modelPar_nd,
-bool modelPar_given_nd,
-// non-reals (including hidden)
-int modelPar_type,
-bool modelPar_given_type,
+modelSensStruct & modelStruct,
  double admsTemperature, double ADMSgmin_arg, const Instance & theInstance)
 {
 }
@@ -2361,175 +2270,231 @@ const int admsNodeID_di,
 const int admsNodeID_si,
 const int admsNodeID_sf,
 const int admsBRA_ID_sf_GND,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_version,
-bool modelPar_given_version,
-AdmsSensFadType & modelPar_W,
-bool modelPar_given_W,
-AdmsSensFadType & modelPar_Lgdr,
-bool modelPar_given_Lgdr,
-AdmsSensFadType & modelPar_dLg,
-bool modelPar_given_dLg,
-AdmsSensFadType & modelPar_Cins,
-bool modelPar_given_Cins,
-AdmsSensFadType & modelPar_Tjun,
-bool modelPar_given_Tjun,
-AdmsSensFadType & modelPar_energy_diff_volt,
-bool modelPar_given_energy_diff_volt,
-AdmsSensFadType & modelPar_delta,
-bool modelPar_given_delta,
-AdmsSensFadType & modelPar_n0,
-bool modelPar_given_n0,
-AdmsSensFadType & modelPar_Rc0,
-bool modelPar_given_Rc0,
-AdmsSensFadType & modelPar_nacc,
-bool modelPar_given_nacc,
-AdmsSensFadType & modelPar_meff,
-bool modelPar_given_meff,
-AdmsSensFadType & modelPar_np_mass,
-bool modelPar_given_np_mass,
-AdmsSensFadType & modelPar_mu_eff,
-bool modelPar_given_mu_eff,
-AdmsSensFadType & modelPar_ksee,
-bool modelPar_given_ksee,
-AdmsSensFadType & modelPar_B,
-bool modelPar_given_B,
-AdmsSensFadType & modelPar_dqm0,
-bool modelPar_given_dqm0,
-AdmsSensFadType & modelPar_eps,
-bool modelPar_given_eps,
-AdmsSensFadType & modelPar_theta,
-bool modelPar_given_theta,
-AdmsSensFadType & modelPar_beta,
-bool modelPar_given_beta,
-AdmsSensFadType & modelPar_nd,
-bool modelPar_given_nd,
-// non-reals (including hidden)
-int modelPar_type,
-bool modelPar_given_type,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
 // basic variables
- double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance)
+ double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & d_staticContributions_dX, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance)
 {
 
   // Local variables
-  AdmsSensFadType Rd;
-  AdmsSensFadType Rs;
-  AdmsSensFadType Idsatbeta;
-  AdmsSensFadType Id_sat;
-  AdmsSensFadType Qacc;
-  AdmsSensFadType Id;
-  AdmsSensFadType vx0;
-  AdmsSensFadType Fsat;
-  AdmsSensFadType Vdsatbeta;
-  AdmsSensFadType Vdsat;
-  AdmsSensFadType f1;
-  AdmsSensFadType n;
-  AdmsSensFadType Cgc;
-  AdmsSensFadType Cstern;
-  AdmsSensFadType xav;
-  AdmsSensFadType QB;
-  AdmsSensFadType Qx0;
-  AdmsSensFadType Tx;
-  AdmsSensFadType Lcrit;
-  AdmsSensFadType Lcrit_sat;
-  AdmsSensFadType Lcrit_lin;
-  AdmsSensFadType f2;
-  AdmsSensFadType Vdsatbeta2;
-  AdmsSensFadType Vdsat2;
-  AdmsSensFadType vT_acc;
-  AdmsSensFadType extr_coef_acc;
-  AdmsSensFadType FDhalfs_acc;
-  AdmsSensFadType c1_acc;
-  AdmsSensFadType den1_acc;
-  AdmsSensFadType A1_acc;
-  AdmsSensFadType expMeta_acc;
-  AdmsSensFadType expu_acc;
-  AdmsSensFadType exp_eta_acc;
-  AdmsSensFadType eta_acc;
-  AdmsSensFadType vT;
-  AdmsSensFadType lambda;
-  AdmsSensFadType dgen_lambda;
-  AdmsSensFadType FDminushalfs;
-  AdmsSensFadType t2_fd1;
-  AdmsSensFadType den_t1_fd1;
-  AdmsSensFadType aterm1;
-  double num_t1_fd1;
-  double c_pow1;
-  double b_pow1;
-  double a_pow1;
-  double j_pow1;
-  AdmsSensFadType u1;
-  AdmsSensFadType extr_coef;
-  AdmsSensFadType FDhalfs;
-  AdmsSensFadType c1;
-  AdmsSensFadType den1;
-  AdmsSensFadType A1;
-  AdmsSensFadType expMeta;
-  AdmsSensFadType NP_fac_velocity;
-  AdmsSensFadType NP_fac_lambda;
-  AdmsSensFadType meff_np;
-  AdmsSensFadType Fd;
-  AdmsSensFadType Ed_sq;
-  AdmsSensFadType ffd;
-  AdmsSensFadType expEd;
-  double sign_Ed;
-  AdmsSensFadType Ed;
-  AdmsSensFadType Fs;
-  AdmsSensFadType Es_sq;
-  AdmsSensFadType ffs;
-  AdmsSensFadType expEs;
-  double sign_Es;
-  AdmsSensFadType Es;
-  AdmsSensFadType N2D;
-  AdmsSensFadType lambda_int;
-  AdmsSensFadType vT_int;
-  AdmsSensFadType mD0;
-  double sqrt_pi;
-  double hbar;
-  AdmsSensFadType kT;
-  AdmsSensFadType phit;
-  AdmsSensFadType Rc;
-  AdmsSensFadType Leff;
-  double dir;
-  AdmsSensFadType Vgsi;
-  AdmsSensFadType Vdsi;
-  AdmsSensFadType Vgs;
-  AdmsSensFadType Vds;
-  AdmsSensFadType Vgdraw;
-  AdmsSensFadType Vgsraw;
+  double Rd=0.0;
+double d_Rd_dX=0.0;
+  double Rs=0.0;
+double d_Rs_dX=0.0;
+  double Idsatbeta=0.0;
+double d_Idsatbeta_dX=0.0;
+  double Id_sat=0.0;
+double d_Id_sat_dX=0.0;
+  double Qacc=0.0;
+double d_Qacc_dX=0.0;
+  double Id=0.0;
+double d_Id_dX=0.0;
+  double vx0=0.0;
+double d_vx0_dX=0.0;
+  double Fsat=0.0;
+double d_Fsat_dX=0.0;
+  double Vdsatbeta=0.0;
+double d_Vdsatbeta_dX=0.0;
+  double Vdsat=0.0;
+double d_Vdsat_dX=0.0;
+  double f1=0.0;
+double d_f1_dX=0.0;
+  double n=0.0;
+double d_n_dX=0.0;
+  double Cgc=0.0;
+double d_Cgc_dX=0.0;
+  double Cstern=0.0;
+double d_Cstern_dX=0.0;
+  double xav=0.0;
+double d_xav_dX=0.0;
+  double QB=0.0;
+double d_QB_dX=0.0;
+  double Qx0=0.0;
+double d_Qx0_dX=0.0;
+  double Tx=0.0;
+double d_Tx_dX=0.0;
+  double Lcrit=0.0;
+double d_Lcrit_dX=0.0;
+  double Lcrit_sat=0.0;
+double d_Lcrit_sat_dX=0.0;
+  double Lcrit_lin=0.0;
+double d_Lcrit_lin_dX=0.0;
+  double f2=0.0;
+double d_f2_dX=0.0;
+  double Vdsatbeta2=0.0;
+double d_Vdsatbeta2_dX=0.0;
+  double Vdsat2=0.0;
+double d_Vdsat2_dX=0.0;
+  double vT_acc=0.0;
+double d_vT_acc_dX=0.0;
+  double extr_coef_acc=0.0;
+double d_extr_coef_acc_dX=0.0;
+  double FDhalfs_acc=0.0;
+double d_FDhalfs_acc_dX=0.0;
+  double c1_acc=0.0;
+double d_c1_acc_dX=0.0;
+  double den1_acc=0.0;
+double d_den1_acc_dX=0.0;
+  double A1_acc=0.0;
+double d_A1_acc_dX=0.0;
+  double expMeta_acc=0.0;
+double d_expMeta_acc_dX=0.0;
+  double expu_acc=0.0;
+double d_expu_acc_dX=0.0;
+  double exp_eta_acc=0.0;
+double d_exp_eta_acc_dX=0.0;
+  double eta_acc=0.0;
+double d_eta_acc_dX=0.0;
+  double vT=0.0;
+double d_vT_dX=0.0;
+  double lambda=0.0;
+double d_lambda_dX=0.0;
+  double dgen_lambda=0.0;
+double d_dgen_lambda_dX=0.0;
+  double FDminushalfs=0.0;
+double d_FDminushalfs_dX=0.0;
+  double t2_fd1=0.0;
+double d_t2_fd1_dX=0.0;
+  double den_t1_fd1=0.0;
+double d_den_t1_fd1_dX=0.0;
+  double aterm1=0.0;
+double d_aterm1_dX=0.0;
+  double num_t1_fd1=0.0;
+  double c_pow1=0.0;
+  double b_pow1=0.0;
+  double a_pow1=0.0;
+  double j_pow1=0.0;
+  double u1=0.0;
+double d_u1_dX=0.0;
+  double extr_coef=0.0;
+double d_extr_coef_dX=0.0;
+  double FDhalfs=0.0;
+double d_FDhalfs_dX=0.0;
+  double c1=0.0;
+double d_c1_dX=0.0;
+  double den1=0.0;
+double d_den1_dX=0.0;
+  double A1=0.0;
+double d_A1_dX=0.0;
+  double expMeta=0.0;
+double d_expMeta_dX=0.0;
+  double NP_fac_velocity=0.0;
+double d_NP_fac_velocity_dX=0.0;
+  double NP_fac_lambda=0.0;
+double d_NP_fac_lambda_dX=0.0;
+  double meff_np=0.0;
+double d_meff_np_dX=0.0;
+  double Fd=0.0;
+double d_Fd_dX=0.0;
+  double Ed_sq=0.0;
+double d_Ed_sq_dX=0.0;
+  double ffd=0.0;
+double d_ffd_dX=0.0;
+  double expEd=0.0;
+double d_expEd_dX=0.0;
+  double sign_Ed=0.0;
+  double Ed=0.0;
+double d_Ed_dX=0.0;
+  double Fs=0.0;
+double d_Fs_dX=0.0;
+  double Es_sq=0.0;
+double d_Es_sq_dX=0.0;
+  double ffs=0.0;
+double d_ffs_dX=0.0;
+  double expEs=0.0;
+double d_expEs_dX=0.0;
+  double sign_Es=0.0;
+  double Es=0.0;
+double d_Es_dX=0.0;
+  double N2D=0.0;
+double d_N2D_dX=0.0;
+  double lambda_int=0.0;
+double d_lambda_int_dX=0.0;
+  double vT_int=0.0;
+double d_vT_int_dX=0.0;
+  double mD0=0.0;
+double d_mD0_dX=0.0;
+  double sqrt_pi=0.0;
+  double hbar=0.0;
+  double kT=0.0;
+double d_kT_dX=0.0;
+  double phit=0.0;
+double d_phit_dX=0.0;
+  double Rc=0.0;
+double d_Rc_dX=0.0;
+  double Leff=0.0;
+double d_Leff_dX=0.0;
+  double dir=0.0;
+  double Vgsi=0.0;
+double d_Vgsi_dX=0.0;
+  double Vdsi=0.0;
+double d_Vdsi_dX=0.0;
+  double Vgs=0.0;
+double d_Vgs_dX=0.0;
+  double Vds=0.0;
+double d_Vds_dX=0.0;
+  double Vgdraw=0.0;
+double d_Vgdraw_dX=0.0;
+  double Vgsraw=0.0;
+double d_Vgsraw_dX=0.0;
 
 
   // -- code converted from analog/code block
-Vgsraw = (modelPar_type*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_si_GND])));
-Vgdraw = (modelPar_type*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_di_GND])));
+d_Vgsraw_dX = 0.0;
+Vgsraw = (modelStruct.modelPar_type*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_si_GND])));
+d_Vgdraw_dX = 0.0;
+Vgdraw = (modelStruct.modelPar_type*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_di_GND])));
 if ((Vgsraw>=Vgdraw))
 {
-Vds = (modelPar_type*((probeVars[admsProbeID_V_d_GND])-(probeVars[admsProbeID_V_s_GND])));
-Vgs = (modelPar_type*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_s_GND])));
-Vdsi = (modelPar_type*((probeVars[admsProbeID_V_di_GND])-(probeVars[admsProbeID_V_si_GND])));
+d_Vds_dX = 0.0;
+Vds = (modelStruct.modelPar_type*((probeVars[admsProbeID_V_d_GND])-(probeVars[admsProbeID_V_s_GND])));
+d_Vgs_dX = 0.0;
+Vgs = (modelStruct.modelPar_type*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_s_GND])));
+d_Vdsi_dX = 0.0;
+Vdsi = (modelStruct.modelPar_type*((probeVars[admsProbeID_V_di_GND])-(probeVars[admsProbeID_V_si_GND])));
+d_Vgsi_dX = d_Vgsraw_dX;
 Vgsi = Vgsraw;
 dir = 1;
 }
 else
 {
-Vds = (modelPar_type*((probeVars[admsProbeID_V_s_GND])-(probeVars[admsProbeID_V_d_GND])));
-Vgs = (modelPar_type*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_d_GND])));
-Vdsi = (modelPar_type*((probeVars[admsProbeID_V_si_GND])-(probeVars[admsProbeID_V_di_GND])));
+d_Vds_dX = 0.0;
+Vds = (modelStruct.modelPar_type*((probeVars[admsProbeID_V_s_GND])-(probeVars[admsProbeID_V_d_GND])));
+d_Vgs_dX = 0.0;
+Vgs = (modelStruct.modelPar_type*((probeVars[admsProbeID_V_g_GND])-(probeVars[admsProbeID_V_d_GND])));
+d_Vdsi_dX = 0.0;
+Vdsi = (modelStruct.modelPar_type*((probeVars[admsProbeID_V_si_GND])-(probeVars[admsProbeID_V_di_GND])));
+d_Vgsi_dX = d_Vgdraw_dX;
 Vgsi = Vgdraw;
 dir = (-1);
 }
-Leff = (modelPar_Lgdr-modelPar_dLg);
-Rc = (modelPar_Rc0/modelPar_W);
-phit = ((1.3806503e-23*modelPar_Tjun)/1.6021766208e-19);
-kT = (1.3806503e-23*modelPar_Tjun);
+d_Leff_dX = (modelStruct.d_modelPar_Lgdr_dX-modelStruct.d_modelPar_dLg_dX);
+Leff = (modelStruct.modelPar_Lgdr-modelStruct.modelPar_dLg);
+d_Rc_dX = ((modelStruct.modelPar_W*modelStruct.d_modelPar_Rc0_dX-modelStruct.modelPar_Rc0*modelStruct.d_modelPar_W_dX)/modelStruct.modelPar_W/modelStruct.modelPar_W);
+Rc = (modelStruct.modelPar_Rc0/modelStruct.modelPar_W);
+d_phit_dX = (1.3806503e-23*modelStruct.d_modelPar_Tjun_dX/1.6021766208e-19);
+phit = ((1.3806503e-23*modelStruct.modelPar_Tjun)/1.6021766208e-19);
+d_kT_dX = 1.3806503e-23*modelStruct.d_modelPar_Tjun_dX;
+kT = (1.3806503e-23*modelStruct.modelPar_Tjun);
 hbar = (6.62607004081e-34/(2.0*3.14159265358979323846));
-sqrt_pi = sqrt(static_cast<double>(3.14159265358979323846));
-mD0 = (modelPar_meff*9.10938215e-31);
-vT_int = sqrt(((((2.0*kT)/3.14159265358979323846)*1.0)/mD0));
-lambda_int = (((2.0*phit)*modelPar_mu_eff)/vT_int);
+{
+double value_sqrt_0 = sqrt(static_cast<double>(3.14159265358979323846));
+sqrt_pi = value_sqrt_0;
+}
+d_mD0_dX = modelStruct.d_modelPar_meff_dX*9.10938215e-31;
+mD0 = (modelStruct.modelPar_meff*9.10938215e-31);
+{
+double value_sqrt_0 = sqrt(((((2.0*kT)/3.14159265358979323846)*1.0)/mD0));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vT_int_dX = deriv_sqrt_0_d0*(((mD0*(2.0*d_kT_dX/3.14159265358979323846)*1.0-(((2.0*kT)/3.14159265358979323846)*1.0)*d_mD0_dX)/mD0/mD0));
+vT_int = value_sqrt_0;
+}
+d_lambda_int_dX = ((vT_int*((2.0*phit)*modelStruct.d_modelPar_mu_eff_dX+2.0*d_phit_dX*modelStruct.modelPar_mu_eff)-((2.0*phit)*modelStruct.modelPar_mu_eff)*d_vT_int_dX)/vT_int/vT_int);
+lambda_int = (((2.0*phit)*modelStruct.modelPar_mu_eff)/vT_int);
+d_N2D_dX = ((mD0/((3.14159265358979323846*hbar)*hbar))*d_kT_dX+(d_mD0_dX/((3.14159265358979323846*hbar)*hbar))*kT);
 N2D = ((mD0/((3.14159265358979323846*hbar)*hbar))*kT);
-Es = ((modelPar_energy_diff_volt+(probeVars[admsProbeID_V_sf_GND]))/phit);
+d_Es_dX = ((phit*modelStruct.d_modelPar_energy_diff_volt_dX-(modelStruct.modelPar_energy_diff_volt+(probeVars[admsProbeID_V_sf_GND]))*d_phit_dX)/phit/phit);
+Es = ((modelStruct.modelPar_energy_diff_volt+(probeVars[admsProbeID_V_sf_GND]))/phit);
 if ((Es>0))
 {
 sign_Es = 1.0;
@@ -2548,18 +2513,32 @@ sign_Es = (-1.0);
 }
 }
 }
-expEs = exp(Es);
+{
+double value_exp_0 = exp(Es);
+double  deriv_exp_0_d0 = value_exp_0;
+d_expEs_dX = deriv_exp_0_d0*(d_Es_dX);
+expEs = value_exp_0;
+}
 if ((Es>=40))
 {
+d_ffs_dX = 0.0;
 ffs = 0;
 }
 else
 {
+d_ffs_dX = (-d_expEs_dX*0.6/(1.0+(expEs*0.6))/(1.0+(expEs*0.6)));
 ffs = (1.0/(1.0+(expEs*0.6)));
 }
+d_Es_sq_dX = ((((1.0+sign_Es)*Es)*d_Es_dX+(1.0+sign_Es)*d_Es_dX*Es)/4.0);
 Es_sq = ((((1.0+sign_Es)*Es)*Es)/4.0);
-Fs = (log((1.0+expEs))+((modelPar_np_mass*phit)*((ffs*expEs)+((1-ffs)*Es_sq))));
-Ed = (((modelPar_energy_diff_volt+(probeVars[admsProbeID_V_sf_GND]))-Vdsi)/phit);
+{
+double value_log_0 = log((1.0+expEs));
+double  deriv_log_0_d0 = (1.0/(1.0+expEs));
+d_Fs_dX = (deriv_log_0_d0*(d_expEs_dX)+((modelStruct.modelPar_np_mass*phit)*((ffs*d_expEs_dX+d_ffs_dX*expEs)+((1-ffs)*d_Es_sq_dX+(-d_ffs_dX)*Es_sq))+(modelStruct.modelPar_np_mass*d_phit_dX+modelStruct.d_modelPar_np_mass_dX*phit)*((ffs*expEs)+((1-ffs)*Es_sq))));
+Fs = (value_log_0+((modelStruct.modelPar_np_mass*phit)*((ffs*expEs)+((1-ffs)*Es_sq))));
+}
+d_Ed_dX = ((phit*(modelStruct.d_modelPar_energy_diff_volt_dX-d_Vdsi_dX)-((modelStruct.modelPar_energy_diff_volt+(probeVars[admsProbeID_V_sf_GND]))-Vdsi)*d_phit_dX)/phit/phit);
+Ed = (((modelStruct.modelPar_energy_diff_volt+(probeVars[admsProbeID_V_sf_GND]))-Vdsi)/phit);
 if ((Ed>0))
 {
 sign_Ed = 1.0;
@@ -2578,91 +2557,299 @@ sign_Ed = (-1.0);
 }
 }
 }
-expEd = exp(Ed);
+{
+double value_exp_0 = exp(Ed);
+double  deriv_exp_0_d0 = value_exp_0;
+d_expEd_dX = deriv_exp_0_d0*(d_Ed_dX);
+expEd = value_exp_0;
+}
 if ((Ed>=40))
 {
+d_ffd_dX = 0.0;
 ffd = 0;
 }
 else
 {
+d_ffd_dX = (-d_expEd_dX*0.6/(1.0+(expEd*0.6))/(1.0+(expEd*0.6)));
 ffd = (1.0/(1.0+(expEd*0.6)));
 }
+d_Ed_sq_dX = ((((1.0+sign_Ed)*Ed)*d_Ed_dX+(1.0+sign_Ed)*d_Ed_dX*Ed)/4.0);
 Ed_sq = ((((1.0+sign_Ed)*Ed)*Ed)/4.0);
-Fd = (log((1.0+expEd))+((modelPar_np_mass*phit)*((ffd*expEd)+((1.0-ffd)*Ed_sq))));
+{
+double value_log_0 = log((1.0+expEd));
+double  deriv_log_0_d0 = (1.0/(1.0+expEd));
+d_Fd_dX = (deriv_log_0_d0*(d_expEd_dX)+((modelStruct.modelPar_np_mass*phit)*((ffd*d_expEd_dX+d_ffd_dX*expEd)+((1.0-ffd)*d_Ed_sq_dX+(-d_ffd_dX)*Ed_sq))+(modelStruct.modelPar_np_mass*d_phit_dX+modelStruct.d_modelPar_np_mass_dX*phit)*((ffd*expEd)+((1.0-ffd)*Ed_sq))));
+Fd = (value_log_0+((modelStruct.modelPar_np_mass*phit)*((ffd*expEd)+((1.0-ffd)*Ed_sq))));
+}
 if ((Es>=40))
 {
+d_meff_np_dX = ((expEs*d_Fs_dX-Fs*d_expEs_dX)/expEs/expEs);
 meff_np = (Fs/expEs);
 }
 else
 {
-meff_np = (Fs/log((1.0+expEs)));
+{
+double value_log_0 = log((1.0+expEs));
+double  deriv_log_0_d0 = (1.0/(1.0+expEs));
+d_meff_np_dX = ((value_log_0*d_Fs_dX-Fs*deriv_log_0_d0*(d_expEs_dX))/value_log_0/value_log_0);
+meff_np = (Fs/value_log_0);
 }
-NP_fac_lambda = sqrt(meff_np);
+}
+{
+double value_sqrt_0 = sqrt(meff_np);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_NP_fac_lambda_dX = deriv_sqrt_0_d0*(d_meff_np_dX);
+NP_fac_lambda = value_sqrt_0;
+}
+d_NP_fac_velocity_dX = (-d_NP_fac_lambda_dX/NP_fac_lambda/NP_fac_lambda);
 NP_fac_velocity = (1.0/NP_fac_lambda);
+d_expMeta_dX = (-d_expEs_dX/expEs/expEs);
 expMeta = (1.0/expEs);
-A1 = ((50.0+pow(Es,4.0))+((33.6*Es)*(1-(0.68*exp((((-0.17)*(1.0+Es))*(1.0+Es)))))));
-den1 = pow(A1,(3.0/8.0));
+{
+double value_pow_0 = pow(Es,4.0);
+double value_exp_1 = exp((((-0.17)*(1.0+Es))*(1.0+Es)));
+double  deriv_pow_0_d0 = ((Es == 0.0)?0.0:(value_pow_0*4.0/Es));
+double  deriv_exp_1_d0 = value_exp_1;
+d_A1_dX = ((deriv_pow_0_d0*(d_Es_dX))+((33.6*Es)*(-0.68*deriv_exp_1_d0*((((-0.17)*(1.0+Es))*d_Es_dX+(-0.17)*d_Es_dX*(1.0+Es))))+33.6*d_Es_dX*(1-(0.68*value_exp_1))));
+A1 = ((50.0+value_pow_0)+((33.6*Es)*(1-(0.68*value_exp_1))));
+}
+{
+double value_pow_0 = pow(A1,(3.0/8.0));
+double  deriv_pow_0_d0 = ((A1 == 0.0)?0.0:(value_pow_0*(3.0/8.0)/A1));
+d_den1_dX = (deriv_pow_0_d0*(d_A1_dX));
+den1 = value_pow_0;
+}
+d_c1_dX = (-((3.0/4.0)*sqrt_pi)*d_den1_dX/den1/den1);
 c1 = (((3.0/4.0)*sqrt_pi)/den1);
+d_FDhalfs_dX = (-(d_c1_dX+d_expMeta_dX)/(c1+expMeta)/(c1+expMeta));
 FDhalfs = (1.0/(c1+expMeta));
-extr_coef = (FDhalfs/log((1.0+expEs)));
+{
+double value_log_0 = log((1.0+expEs));
+double  deriv_log_0_d0 = (1.0/(1.0+expEs));
+d_extr_coef_dX = ((value_log_0*d_FDhalfs_dX-FDhalfs*deriv_log_0_d0*(d_expEs_dX))/value_log_0/value_log_0);
+extr_coef = (FDhalfs/value_log_0);
+}
+d_u1_dX = d_Es_dX;
 u1 = Es;
 j_pow1 = (-0.5);
-a_pow1 = sqrt(((1.0+((15.0/4.0)*(j_pow1+1.0)))+(((1.0/40.0)*(j_pow1+1.0))*(j_pow1+1.0))));
+{
+double value_sqrt_0 = sqrt(((1.0+((15.0/4.0)*(j_pow1+1.0)))+(((1.0/40.0)*(j_pow1+1.0))*(j_pow1+1.0))));
+a_pow1 = value_sqrt_0;
+}
 b_pow1 = (1.8+(0.61*j_pow1));
-c_pow1 = (2.0+((2.0-sqrt(static_cast<double>(2.0)))*pow(2.0,(-j_pow1))));
-num_t1_fd1 = ((j_pow1+1.0)*pow(2.0,(1.0+j_pow1)));
-aterm1 = pow((((b_pow1+u1)+pow(a_pow1,c_pow1))+pow(fabs((u1-b_pow1)),c_pow1)),(1.0/c_pow1));
-den_t1_fd1 = pow(aterm1,(1.0+j_pow1));
-t2_fd1 = (exp((-u1))/sqrt(static_cast<double>(3.14159265358979323846)));
-FDminushalfs = ((1.0/sqrt(static_cast<double>(3.14159265358979323846)))*pow(((num_t1_fd1/den_t1_fd1)+t2_fd1),(-1.0)));
-dgen_lambda = (log((1.0+expEs))/FDminushalfs);
+{
+double value_sqrt_0 = sqrt(static_cast<double>(2.0));
+double value_pow_1 = pow(2.0,(-j_pow1));
+c_pow1 = (2.0+((2.0-value_sqrt_0)*value_pow_1));
+}
+{
+double value_pow_0 = pow(2.0,(1.0+j_pow1));
+num_t1_fd1 = ((j_pow1+1.0)*value_pow_0);
+}
+{
+double value_pow_0 = pow(a_pow1,c_pow1);
+double value_fabs_1 = fabs((u1-b_pow1));
+double value_pow_2 = pow(value_fabs_1,c_pow1);
+double value_pow_3 = pow((((b_pow1+u1)+value_pow_0)+value_pow_2),(1.0/c_pow1));
+double  deriv_fabs_1_d0 = ((((u1-b_pow1))>=0)?(+1.0):(-1.0));
+double  deriv_pow_2_d0 = ((value_fabs_1 == 0.0)?0.0:(value_pow_2*c_pow1/value_fabs_1));
+double  deriv_pow_3_d0 = (((((b_pow1+u1)+value_pow_0)+value_pow_2) == 0.0)?0.0:(value_pow_3*(1.0/c_pow1)/(((b_pow1+u1)+value_pow_0)+value_pow_2)));
+d_aterm1_dX = (deriv_pow_3_d0*((d_u1_dX+(deriv_pow_2_d0*(deriv_fabs_1_d0*(d_u1_dX))))));
+aterm1 = value_pow_3;
+}
+{
+double value_pow_0 = pow(aterm1,(1.0+j_pow1));
+double  deriv_pow_0_d0 = ((aterm1 == 0.0)?0.0:(value_pow_0*(1.0+j_pow1)/aterm1));
+d_den_t1_fd1_dX = (deriv_pow_0_d0*(d_aterm1_dX));
+den_t1_fd1 = value_pow_0;
+}
+{
+double value_exp_0 = exp((-u1));
+double value_sqrt_1 = sqrt(static_cast<double>(3.14159265358979323846));
+double  deriv_exp_0_d0 = value_exp_0;
+d_t2_fd1_dX = (deriv_exp_0_d0*((-d_u1_dX))/value_sqrt_1);
+t2_fd1 = (value_exp_0/value_sqrt_1);
+}
+{
+double value_sqrt_0 = sqrt(static_cast<double>(3.14159265358979323846));
+double value_pow_1 = pow(((num_t1_fd1/den_t1_fd1)+t2_fd1),(-1.0));
+double  deriv_pow_1_d0 = ((((num_t1_fd1/den_t1_fd1)+t2_fd1) == 0.0)?0.0:(value_pow_1*(-1.0)/((num_t1_fd1/den_t1_fd1)+t2_fd1)));
+d_FDminushalfs_dX = (1.0/value_sqrt_0)*(deriv_pow_1_d0*(((-num_t1_fd1*d_den_t1_fd1_dX/den_t1_fd1/den_t1_fd1)+d_t2_fd1_dX)));
+FDminushalfs = ((1.0/value_sqrt_0)*value_pow_1);
+}
+{
+double value_log_0 = log((1.0+expEs));
+double  deriv_log_0_d0 = (1.0/(1.0+expEs));
+d_dgen_lambda_dX = ((FDminushalfs*deriv_log_0_d0*(d_expEs_dX)-value_log_0*d_FDminushalfs_dX)/FDminushalfs/FDminushalfs);
+dgen_lambda = (value_log_0/FDminushalfs);
+}
+d_lambda_dX = ((lambda_int*NP_fac_lambda)*d_dgen_lambda_dX+(lambda_int*d_NP_fac_lambda_dX+d_lambda_int_dX*NP_fac_lambda)*dgen_lambda);
 lambda = ((lambda_int*NP_fac_lambda)*dgen_lambda);
+d_vT_dX = ((vT_int*NP_fac_velocity)*d_extr_coef_dX+(vT_int*d_NP_fac_velocity_dX+d_vT_int_dX*NP_fac_velocity)*extr_coef);
 vT = ((vT_int*NP_fac_velocity)*extr_coef);
-eta_acc = log((exp((modelPar_nacc/N2D))-1.0));
-exp_eta_acc = (exp((modelPar_nacc/N2D))-1.0);
+{
+double value_exp_0 = exp((modelStruct.modelPar_nacc/N2D));
+double value_log_1 = log((value_exp_0-1.0));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_log_1_d0 = (1.0/(value_exp_0-1.0));
+d_eta_acc_dX = deriv_log_1_d0*(deriv_exp_0_d0*(((N2D*modelStruct.d_modelPar_nacc_dX-modelStruct.modelPar_nacc*d_N2D_dX)/N2D/N2D)));
+eta_acc = value_log_1;
+}
+{
+double value_exp_0 = exp((modelStruct.modelPar_nacc/N2D));
+double  deriv_exp_0_d0 = value_exp_0;
+d_exp_eta_acc_dX = deriv_exp_0_d0*(((N2D*modelStruct.d_modelPar_nacc_dX-modelStruct.modelPar_nacc*d_N2D_dX)/N2D/N2D));
+exp_eta_acc = (value_exp_0-1.0);
+}
+d_expu_acc_dX = d_exp_eta_acc_dX;
 expu_acc = exp_eta_acc;
+d_expMeta_acc_dX = (-d_expu_acc_dX/expu_acc/expu_acc);
 expMeta_acc = (1.0/expu_acc);
-A1_acc = ((50.0+pow(eta_acc,4.0))+((33.6*eta_acc)*(1-(0.68*exp((((-0.17)*(1.0+eta_acc))*(1.0+eta_acc)))))));
-den1_acc = pow(A1_acc,(3.0/8.0));
+{
+double value_pow_0 = pow(eta_acc,4.0);
+double value_exp_1 = exp((((-0.17)*(1.0+eta_acc))*(1.0+eta_acc)));
+double  deriv_pow_0_d0 = ((eta_acc == 0.0)?0.0:(value_pow_0*4.0/eta_acc));
+double  deriv_exp_1_d0 = value_exp_1;
+d_A1_acc_dX = ((deriv_pow_0_d0*(d_eta_acc_dX))+((33.6*eta_acc)*(-0.68*deriv_exp_1_d0*((((-0.17)*(1.0+eta_acc))*d_eta_acc_dX+(-0.17)*d_eta_acc_dX*(1.0+eta_acc))))+33.6*d_eta_acc_dX*(1-(0.68*value_exp_1))));
+A1_acc = ((50.0+value_pow_0)+((33.6*eta_acc)*(1-(0.68*value_exp_1))));
+}
+{
+double value_pow_0 = pow(A1_acc,(3.0/8.0));
+double  deriv_pow_0_d0 = ((A1_acc == 0.0)?0.0:(value_pow_0*(3.0/8.0)/A1_acc));
+d_den1_acc_dX = (deriv_pow_0_d0*(d_A1_acc_dX));
+den1_acc = value_pow_0;
+}
+d_c1_acc_dX = (-((3.0/4.0)*sqrt_pi)*d_den1_acc_dX/den1_acc/den1_acc);
 c1_acc = (((3.0/4.0)*sqrt_pi)/den1_acc);
+d_FDhalfs_acc_dX = (-(d_c1_acc_dX+d_expMeta_acc_dX)/(c1_acc+expMeta_acc)/(c1_acc+expMeta_acc));
 FDhalfs_acc = (1.0/(c1_acc+expMeta_acc));
-extr_coef_acc = (FDhalfs_acc/log((1.0+exp_eta_acc)));
+{
+double value_log_0 = log((1.0+exp_eta_acc));
+double  deriv_log_0_d0 = (1.0/(1.0+exp_eta_acc));
+d_extr_coef_acc_dX = ((value_log_0*d_FDhalfs_acc_dX-FDhalfs_acc*deriv_log_0_d0*(d_exp_eta_acc_dX))/value_log_0/value_log_0);
+extr_coef_acc = (FDhalfs_acc/value_log_0);
+}
+d_vT_acc_dX = (vT_int*d_extr_coef_acc_dX+d_vT_int_dX*extr_coef_acc);
 vT_acc = (vT_int*extr_coef_acc);
-Vdsat2 = (modelPar_theta*phit);
-Vdsatbeta2 = pow(fabs((Vdsi/Vdsat2)),modelPar_beta);
-f2 = (fabs((Vdsi/Vdsat2))/pow((1.0+Vdsatbeta2),(1.0/modelPar_beta)));
+d_Vdsat2_dX = (modelStruct.modelPar_theta*d_phit_dX+modelStruct.d_modelPar_theta_dX*phit);
+Vdsat2 = (modelStruct.modelPar_theta*phit);
+{
+double value_fabs_0 = fabs((Vdsi/Vdsat2));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelPar_beta);
+double  deriv_fabs_0_d0 = ((((Vdsi/Vdsat2))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelPar_beta/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_Vdsatbeta2_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*(((Vdsat2*d_Vdsi_dX-Vdsi*d_Vdsat2_dX)/Vdsat2/Vdsat2))))+(deriv_pow_1_d1*(modelStruct.d_modelPar_beta_dX)));
+Vdsatbeta2 = value_pow_1;
+}
+{
+double value_fabs_0 = fabs((Vdsi/Vdsat2));
+double value_pow_1 = pow((1.0+Vdsatbeta2),(1.0/modelStruct.modelPar_beta));
+double  deriv_fabs_0_d0 = ((((Vdsi/Vdsat2))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = (((1.0+Vdsatbeta2) == 0.0)?0.0:(value_pow_1*(1.0/modelStruct.modelPar_beta)/(1.0+Vdsatbeta2)));
+double  deriv_pow_1_d1 = ((1.0+Vdsatbeta2) == 0.0)?0.0:(log((1.0+Vdsatbeta2))*value_pow_1);
+d_f2_dX = ((value_pow_1*deriv_fabs_0_d0*(((Vdsat2*d_Vdsi_dX-Vdsi*d_Vdsat2_dX)/Vdsat2/Vdsat2))-value_fabs_0*((deriv_pow_1_d0*(d_Vdsatbeta2_dX))+(deriv_pow_1_d1*((-modelStruct.d_modelPar_beta_dX/modelStruct.modelPar_beta/modelStruct.modelPar_beta)))))/value_pow_1/value_pow_1);
+f2 = (value_fabs_0/value_pow_1);
+}
+d_Lcrit_lin_dX = d_Leff_dX;
 Lcrit_lin = Leff;
-Lcrit_sat = (modelPar_ksee*Leff);
+d_Lcrit_sat_dX = (modelStruct.modelPar_ksee*d_Leff_dX+modelStruct.d_modelPar_ksee_dX*Leff);
+Lcrit_sat = (modelStruct.modelPar_ksee*Leff);
+d_Lcrit_dX = (((1.0-f2)*d_Lcrit_lin_dX+(-d_f2_dX)*Lcrit_lin)+(f2*d_Lcrit_sat_dX+d_f2_dX*Lcrit_sat));
 Lcrit = (((1.0-f2)*Lcrit_lin)+(f2*Lcrit_sat));
+d_Tx_dX = (((lambda+Lcrit)*d_lambda_dX-lambda*(d_lambda_dX+d_Lcrit_dX))/(lambda+Lcrit)/(lambda+Lcrit));
 Tx = (lambda/(lambda+Lcrit));
+d_Qx0_dX = ((((-1.6021766208e-19)*N2D)/2.0)*((Fs*(-d_Tx_dX)+d_Fs_dX*(2.0-Tx))+(Fd*d_Tx_dX+d_Fd_dX*Tx))+((-1.6021766208e-19)*d_N2D_dX/2.0)*((Fs*(2.0-Tx))+(Fd*Tx)));
 Qx0 = ((((-1.6021766208e-19)*N2D)/2.0)*((Fs*(2.0-Tx))+(Fd*Tx)));
-QB = pow(fabs((modelPar_B/modelPar_dqm0)),3.0);
-xav = (modelPar_B/pow((QB+((11.0/32.0)*fabs(Qx0))),(1/3.0)));
-Cstern = ((modelPar_eps*8.854187817e-12)/xav);
-Cgc = ((modelPar_Cins*Cstern)/(modelPar_Cins+Cstern));
-n = (modelPar_n0+fabs((modelPar_nd*Vdsi)));
+{
+double value_fabs_0 = fabs((modelStruct.modelPar_B/modelStruct.modelPar_dqm0));
+double value_pow_1 = pow(value_fabs_0,3.0);
+double  deriv_fabs_0_d0 = ((((modelStruct.modelPar_B/modelStruct.modelPar_dqm0))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*3.0/value_fabs_0));
+d_QB_dX = (deriv_pow_1_d0*(deriv_fabs_0_d0*(((modelStruct.modelPar_dqm0*modelStruct.d_modelPar_B_dX-modelStruct.modelPar_B*modelStruct.d_modelPar_dqm0_dX)/modelStruct.modelPar_dqm0/modelStruct.modelPar_dqm0))));
+QB = value_pow_1;
+}
+{
+double value_fabs_0 = fabs(Qx0);
+double value_pow_1 = pow((QB+((11.0/32.0)*value_fabs_0)),(1/3.0));
+double  deriv_fabs_0_d0 = (((Qx0)>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = (((QB+((11.0/32.0)*value_fabs_0)) == 0.0)?0.0:(value_pow_1*(1/3.0)/(QB+((11.0/32.0)*value_fabs_0))));
+d_xav_dX = ((value_pow_1*modelStruct.d_modelPar_B_dX-modelStruct.modelPar_B*(deriv_pow_1_d0*((d_QB_dX+(11.0/32.0)*deriv_fabs_0_d0*(d_Qx0_dX)))))/value_pow_1/value_pow_1);
+xav = (modelStruct.modelPar_B/value_pow_1);
+}
+d_Cstern_dX = ((xav*modelStruct.d_modelPar_eps_dX*8.854187817e-12-(modelStruct.modelPar_eps*8.854187817e-12)*d_xav_dX)/xav/xav);
+Cstern = ((modelStruct.modelPar_eps*8.854187817e-12)/xav);
+d_Cgc_dX = (((modelStruct.modelPar_Cins+Cstern)*(modelStruct.modelPar_Cins*d_Cstern_dX+modelStruct.d_modelPar_Cins_dX*Cstern)-(modelStruct.modelPar_Cins*Cstern)*(modelStruct.d_modelPar_Cins_dX+d_Cstern_dX))/(modelStruct.modelPar_Cins+Cstern)/(modelStruct.modelPar_Cins+Cstern));
+Cgc = ((modelStruct.modelPar_Cins*Cstern)/(modelStruct.modelPar_Cins+Cstern));
+{
+double value_fabs_0 = fabs((modelStruct.modelPar_nd*Vdsi));
+double  deriv_fabs_0_d0 = ((((modelStruct.modelPar_nd*Vdsi))>=0)?(+1.0):(-1.0));
+d_n_dX = (modelStruct.d_modelPar_n0_dX+deriv_fabs_0_d0*((modelStruct.modelPar_nd*d_Vdsi_dX+modelStruct.d_modelPar_nd_dX*Vdsi)));
+n = (modelStruct.modelPar_n0+value_fabs_0);
+}
 // V(sf,GND) <+ ((((Vgsi+(delta*Vdsi))+(Qx0/Cgc))/n))
-staticContributions[admsBRA_ID_sf_GND] += (((Vgsi+(modelPar_delta*Vdsi))+(Qx0/Cgc))/n);
+d_staticContributions_dX[admsBRA_ID_sf_GND] += ((n*((d_Vgsi_dX+(modelStruct.modelPar_delta*d_Vdsi_dX+modelStruct.d_modelPar_delta_dX*Vdsi))+((Cgc*d_Qx0_dX-Qx0*d_Cgc_dX)/Cgc/Cgc))-((Vgsi+(modelStruct.modelPar_delta*Vdsi))+(Qx0/Cgc))*d_n_dX)/n/n);
+d_f1_dX = (((2.0*Fs)*(((2.0-Tx)*d_Fs_dX+(-d_Tx_dX)*Fs)+(Tx*d_Fd_dX+d_Tx_dX*Fd))-(((2.0-Tx)*Fs)+(Tx*Fd))*2.0*d_Fs_dX)/(2.0*Fs)/(2.0*Fs));
 f1 = ((((2.0-Tx)*Fs)+(Tx*Fd))/(2.0*Fs));
-Vdsat = ((((2.0*phit)*(lambda+Leff))/(lambda+((2.0*modelPar_ksee)*Leff)))*f1);
-Vdsatbeta = pow(fabs((Vdsi/Vdsat)),modelPar_beta);
-Fsat = (fabs((Vdsi/Vdsat))/pow((1.0+Vdsatbeta),(1.0/modelPar_beta)));
-vx0 = ((vT*lambda)/(lambda+((2.0*modelPar_ksee)*Leff)));
-Id = (((fabs(Qx0)*Fsat)*vx0)*modelPar_W);
-Qacc = (1.6021766208e-19*modelPar_nacc);
-Id_sat = ((modelPar_W*Qacc)*vT_acc);
-Idsatbeta = pow(fabs((Id/Id_sat)),modelPar_beta);
-Rs = (Rc/pow((1-Idsatbeta),(1.0/modelPar_beta)));
+d_Vdsat_dX = ((((2.0*phit)*(lambda+Leff))/(lambda+((2.0*modelStruct.modelPar_ksee)*Leff)))*d_f1_dX+(((lambda+((2.0*modelStruct.modelPar_ksee)*Leff))*((2.0*phit)*(d_lambda_dX+d_Leff_dX)+2.0*d_phit_dX*(lambda+Leff))-((2.0*phit)*(lambda+Leff))*(d_lambda_dX+((2.0*modelStruct.modelPar_ksee)*d_Leff_dX+2.0*modelStruct.d_modelPar_ksee_dX*Leff)))/(lambda+((2.0*modelStruct.modelPar_ksee)*Leff))/(lambda+((2.0*modelStruct.modelPar_ksee)*Leff)))*f1);
+Vdsat = ((((2.0*phit)*(lambda+Leff))/(lambda+((2.0*modelStruct.modelPar_ksee)*Leff)))*f1);
+{
+double value_fabs_0 = fabs((Vdsi/Vdsat));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelPar_beta);
+double  deriv_fabs_0_d0 = ((((Vdsi/Vdsat))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelPar_beta/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_Vdsatbeta_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*(((Vdsat*d_Vdsi_dX-Vdsi*d_Vdsat_dX)/Vdsat/Vdsat))))+(deriv_pow_1_d1*(modelStruct.d_modelPar_beta_dX)));
+Vdsatbeta = value_pow_1;
+}
+{
+double value_fabs_0 = fabs((Vdsi/Vdsat));
+double value_pow_1 = pow((1.0+Vdsatbeta),(1.0/modelStruct.modelPar_beta));
+double  deriv_fabs_0_d0 = ((((Vdsi/Vdsat))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = (((1.0+Vdsatbeta) == 0.0)?0.0:(value_pow_1*(1.0/modelStruct.modelPar_beta)/(1.0+Vdsatbeta)));
+double  deriv_pow_1_d1 = ((1.0+Vdsatbeta) == 0.0)?0.0:(log((1.0+Vdsatbeta))*value_pow_1);
+d_Fsat_dX = ((value_pow_1*deriv_fabs_0_d0*(((Vdsat*d_Vdsi_dX-Vdsi*d_Vdsat_dX)/Vdsat/Vdsat))-value_fabs_0*((deriv_pow_1_d0*(d_Vdsatbeta_dX))+(deriv_pow_1_d1*((-modelStruct.d_modelPar_beta_dX/modelStruct.modelPar_beta/modelStruct.modelPar_beta)))))/value_pow_1/value_pow_1);
+Fsat = (value_fabs_0/value_pow_1);
+}
+d_vx0_dX = (((lambda+((2.0*modelStruct.modelPar_ksee)*Leff))*(vT*d_lambda_dX+d_vT_dX*lambda)-(vT*lambda)*(d_lambda_dX+((2.0*modelStruct.modelPar_ksee)*d_Leff_dX+2.0*modelStruct.d_modelPar_ksee_dX*Leff)))/(lambda+((2.0*modelStruct.modelPar_ksee)*Leff))/(lambda+((2.0*modelStruct.modelPar_ksee)*Leff)));
+vx0 = ((vT*lambda)/(lambda+((2.0*modelStruct.modelPar_ksee)*Leff)));
+{
+double value_fabs_0 = fabs(Qx0);
+double  deriv_fabs_0_d0 = (((Qx0)>=0)?(+1.0):(-1.0));
+d_Id_dX = (((value_fabs_0*Fsat)*vx0)*modelStruct.d_modelPar_W_dX+((value_fabs_0*Fsat)*d_vx0_dX+(value_fabs_0*d_Fsat_dX+deriv_fabs_0_d0*(d_Qx0_dX)*Fsat)*vx0)*modelStruct.modelPar_W);
+Id = (((value_fabs_0*Fsat)*vx0)*modelStruct.modelPar_W);
+}
+d_Qacc_dX = 1.6021766208e-19*modelStruct.d_modelPar_nacc_dX;
+Qacc = (1.6021766208e-19*modelStruct.modelPar_nacc);
+d_Id_sat_dX = ((modelStruct.modelPar_W*Qacc)*d_vT_acc_dX+(modelStruct.modelPar_W*d_Qacc_dX+modelStruct.d_modelPar_W_dX*Qacc)*vT_acc);
+Id_sat = ((modelStruct.modelPar_W*Qacc)*vT_acc);
+{
+double value_fabs_0 = fabs((Id/Id_sat));
+double value_pow_1 = pow(value_fabs_0,modelStruct.modelPar_beta);
+double  deriv_fabs_0_d0 = ((((Id/Id_sat))>=0)?(+1.0):(-1.0));
+double  deriv_pow_1_d0 = ((value_fabs_0 == 0.0)?0.0:(value_pow_1*modelStruct.modelPar_beta/value_fabs_0));
+double  deriv_pow_1_d1 = (value_fabs_0 == 0.0)?0.0:(log(value_fabs_0)*value_pow_1);
+d_Idsatbeta_dX = ((deriv_pow_1_d0*(deriv_fabs_0_d0*(((Id_sat*d_Id_dX-Id*d_Id_sat_dX)/Id_sat/Id_sat))))+(deriv_pow_1_d1*(modelStruct.d_modelPar_beta_dX)));
+Idsatbeta = value_pow_1;
+}
+{
+double value_pow_0 = pow((1-Idsatbeta),(1.0/modelStruct.modelPar_beta));
+double  deriv_pow_0_d0 = (((1-Idsatbeta) == 0.0)?0.0:(value_pow_0*(1.0/modelStruct.modelPar_beta)/(1-Idsatbeta)));
+double  deriv_pow_0_d1 = ((1-Idsatbeta) == 0.0)?0.0:(log((1-Idsatbeta))*value_pow_0);
+d_Rs_dX = ((value_pow_0*d_Rc_dX-Rc*((deriv_pow_0_d0*((-d_Idsatbeta_dX)))+(deriv_pow_0_d1*((-modelStruct.d_modelPar_beta_dX/modelStruct.modelPar_beta/modelStruct.modelPar_beta)))))/value_pow_0/value_pow_0);
+Rs = (Rc/value_pow_0);
+}
+d_Rd_dX = d_Rs_dX;
 Rd = Rs;
 // I(di,si) <+ (((type*dir)*Id))
-staticContributions[admsNodeID_di] += ((modelPar_type*dir)*Id);
-staticContributions[admsNodeID_si] -= ((modelPar_type*dir)*Id);
+d_staticContributions_dX[admsNodeID_di]+= (modelStruct.modelPar_type*dir)*d_Id_dX;
+d_staticContributions_dX[(admsNodeID_si)]-= (modelStruct.modelPar_type*dir)*d_Id_dX;
 // I(d,di) <+ (((V(d,GND)-V(di,GND))/Rd))
-staticContributions[admsNodeID_d] += (((probeVars[admsProbeID_V_d_GND])-(probeVars[admsProbeID_V_di_GND]))/Rd);
-staticContributions[admsNodeID_di] -= (((probeVars[admsProbeID_V_d_GND])-(probeVars[admsProbeID_V_di_GND]))/Rd);
+d_staticContributions_dX[admsNodeID_d]+= (-((probeVars[admsProbeID_V_d_GND])-(probeVars[admsProbeID_V_di_GND]))*d_Rd_dX/Rd/Rd);
+d_staticContributions_dX[(admsNodeID_di)]-= (-((probeVars[admsProbeID_V_d_GND])-(probeVars[admsProbeID_V_di_GND]))*d_Rd_dX/Rd/Rd);
 // I(si,s) <+ (((V(si,GND)-V(s,GND))/Rs))
-staticContributions[admsNodeID_si] += (((probeVars[admsProbeID_V_si_GND])-(probeVars[admsProbeID_V_s_GND]))/Rs);
-staticContributions[admsNodeID_s] -= (((probeVars[admsProbeID_V_si_GND])-(probeVars[admsProbeID_V_s_GND]))/Rs);
+d_staticContributions_dX[admsNodeID_si]+= (-((probeVars[admsProbeID_V_si_GND])-(probeVars[admsProbeID_V_s_GND]))*d_Rs_dX/Rs/Rs);
+d_staticContributions_dX[(admsNodeID_s)]-= (-((probeVars[admsProbeID_V_si_GND])-(probeVars[admsProbeID_V_s_GND]))*d_Rs_dX/Rs/Rs);
 }
 
 
@@ -2711,82 +2898,105 @@ Findices.resize(6+1);
 Qindices.resize(6+1);
 
 std::vector <double> probeVars(7);
-std::vector <AdmsSensFadType> staticContributions(6+1);
-std::vector <AdmsSensFadType> dynamicContributions(6+1);
+std::vector <double> d_staticContributions_dX(6+1);
+std::vector <double> d_dynamicContributions_dX(6+1);
 
 
 // initialize contributions to zero (automatically sets derivatives to zero)
 for (int i=0; i < 6+1 ; ++i)
 {
-   staticContributions[i]=0;
-   dynamicContributions[i]=0;
+   d_staticContributions_dX[i]=0;
+   d_dynamicContributions_dX[i]=0;
 }
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 //reals
-AdmsSensFadType modelPar_version=mod.version;
-bool modelPar_given_version=mod.given("version");
-AdmsSensFadType modelPar_W=mod.W;
-bool modelPar_given_W=mod.given("W");
-AdmsSensFadType modelPar_Lgdr=mod.Lgdr;
-bool modelPar_given_Lgdr=mod.given("Lgdr");
-AdmsSensFadType modelPar_dLg=mod.dLg;
-bool modelPar_given_dLg=mod.given("dLg");
-AdmsSensFadType modelPar_Cins=mod.Cins;
-bool modelPar_given_Cins=mod.given("Cins");
-AdmsSensFadType modelPar_Tjun=mod.Tjun;
-bool modelPar_given_Tjun=mod.given("Tjun");
-AdmsSensFadType modelPar_energy_diff_volt=mod.energy_diff_volt;
-bool modelPar_given_energy_diff_volt=mod.given("energy_diff_volt");
-AdmsSensFadType modelPar_delta=mod.delta;
-bool modelPar_given_delta=mod.given("delta");
-AdmsSensFadType modelPar_n0=mod.n0;
-bool modelPar_given_n0=mod.given("n0");
-AdmsSensFadType modelPar_Rc0=mod.Rc0;
-bool modelPar_given_Rc0=mod.given("Rc0");
-AdmsSensFadType modelPar_nacc=mod.nacc;
-bool modelPar_given_nacc=mod.given("nacc");
-AdmsSensFadType modelPar_meff=mod.meff;
-bool modelPar_given_meff=mod.given("meff");
-AdmsSensFadType modelPar_np_mass=mod.np_mass;
-bool modelPar_given_np_mass=mod.given("np_mass");
-AdmsSensFadType modelPar_mu_eff=mod.mu_eff;
-bool modelPar_given_mu_eff=mod.given("mu_eff");
-AdmsSensFadType modelPar_ksee=mod.ksee;
-bool modelPar_given_ksee=mod.given("ksee");
-AdmsSensFadType modelPar_B=mod.B;
-bool modelPar_given_B=mod.given("B");
-AdmsSensFadType modelPar_dqm0=mod.dqm0;
-bool modelPar_given_dqm0=mod.given("dqm0");
-AdmsSensFadType modelPar_eps=mod.eps;
-bool modelPar_given_eps=mod.given("eps");
-AdmsSensFadType modelPar_theta=mod.theta;
-bool modelPar_given_theta=mod.given("theta");
-AdmsSensFadType modelPar_beta=mod.beta;
-bool modelPar_given_beta=mod.given("beta");
-AdmsSensFadType modelPar_nd=mod.nd;
-bool modelPar_given_nd=mod.given("nd");
+modelStruct.modelPar_version=mod.version;
+modelStruct.d_modelPar_version_dX=0.0;
+modelStruct.modelPar_given_version=mod.given("version");
+modelStruct.modelPar_W=mod.W;
+modelStruct.d_modelPar_W_dX=0.0;
+modelStruct.modelPar_given_W=mod.given("W");
+modelStruct.modelPar_Lgdr=mod.Lgdr;
+modelStruct.d_modelPar_Lgdr_dX=0.0;
+modelStruct.modelPar_given_Lgdr=mod.given("Lgdr");
+modelStruct.modelPar_dLg=mod.dLg;
+modelStruct.d_modelPar_dLg_dX=0.0;
+modelStruct.modelPar_given_dLg=mod.given("dLg");
+modelStruct.modelPar_Cins=mod.Cins;
+modelStruct.d_modelPar_Cins_dX=0.0;
+modelStruct.modelPar_given_Cins=mod.given("Cins");
+modelStruct.modelPar_Tjun=mod.Tjun;
+modelStruct.d_modelPar_Tjun_dX=0.0;
+modelStruct.modelPar_given_Tjun=mod.given("Tjun");
+modelStruct.modelPar_energy_diff_volt=mod.energy_diff_volt;
+modelStruct.d_modelPar_energy_diff_volt_dX=0.0;
+modelStruct.modelPar_given_energy_diff_volt=mod.given("energy_diff_volt");
+modelStruct.modelPar_delta=mod.delta;
+modelStruct.d_modelPar_delta_dX=0.0;
+modelStruct.modelPar_given_delta=mod.given("delta");
+modelStruct.modelPar_n0=mod.n0;
+modelStruct.d_modelPar_n0_dX=0.0;
+modelStruct.modelPar_given_n0=mod.given("n0");
+modelStruct.modelPar_Rc0=mod.Rc0;
+modelStruct.d_modelPar_Rc0_dX=0.0;
+modelStruct.modelPar_given_Rc0=mod.given("Rc0");
+modelStruct.modelPar_nacc=mod.nacc;
+modelStruct.d_modelPar_nacc_dX=0.0;
+modelStruct.modelPar_given_nacc=mod.given("nacc");
+modelStruct.modelPar_meff=mod.meff;
+modelStruct.d_modelPar_meff_dX=0.0;
+modelStruct.modelPar_given_meff=mod.given("meff");
+modelStruct.modelPar_np_mass=mod.np_mass;
+modelStruct.d_modelPar_np_mass_dX=0.0;
+modelStruct.modelPar_given_np_mass=mod.given("np_mass");
+modelStruct.modelPar_mu_eff=mod.mu_eff;
+modelStruct.d_modelPar_mu_eff_dX=0.0;
+modelStruct.modelPar_given_mu_eff=mod.given("mu_eff");
+modelStruct.modelPar_ksee=mod.ksee;
+modelStruct.d_modelPar_ksee_dX=0.0;
+modelStruct.modelPar_given_ksee=mod.given("ksee");
+modelStruct.modelPar_B=mod.B;
+modelStruct.d_modelPar_B_dX=0.0;
+modelStruct.modelPar_given_B=mod.given("B");
+modelStruct.modelPar_dqm0=mod.dqm0;
+modelStruct.d_modelPar_dqm0_dX=0.0;
+modelStruct.modelPar_given_dqm0=mod.given("dqm0");
+modelStruct.modelPar_eps=mod.eps;
+modelStruct.d_modelPar_eps_dX=0.0;
+modelStruct.modelPar_given_eps=mod.given("eps");
+modelStruct.modelPar_theta=mod.theta;
+modelStruct.d_modelPar_theta_dX=0.0;
+modelStruct.modelPar_given_theta=mod.given("theta");
+modelStruct.modelPar_beta=mod.beta;
+modelStruct.d_modelPar_beta_dX=0.0;
+modelStruct.modelPar_given_beta=mod.given("beta");
+modelStruct.modelPar_nd=mod.nd;
+modelStruct.d_modelPar_nd_dX=0.0;
+modelStruct.modelPar_given_nd=mod.given("nd");
 
 
 // hidden reals
 
 
 // non-reals (including hiddens)
-int modelPar_type=mod.type;
-bool modelPar_given_type=mod.given("type");
+modelStruct.modelPar_type=mod.type;
+modelStruct.modelPar_given_type=mod.given("type");
 
 
 
-// Copy out all the instance parameters (doubles) into FAD types
+// Copy out all the instance parameters (doubles) into local struct
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly "if/else" block just to find the
 // one parameter we're doing sensitivities on.
-unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> inParamMap;
-
+unordered_map <std::string,double*,HashNoCase,EqualNoCase> inParamMap;
+instanceSensStruct instanceStruct;
 // reals
 
 
-// Copy all the real hidden instance params into fad types
+// Copy all the real hidden instance params into local struct
 
 
 
@@ -2794,10 +3004,10 @@ unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> inParamMap;
 
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check the name first, otherwise segfault on invalid name!
-inParamMap[name]->diff(0,1);
+*(inParamMap[name])=1.0;
 
 //make local copies of all instance vars
 //reals
@@ -2816,7 +3026,7 @@ inParamMap[name]->diff(0,1);
 
 Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-// extract solution variables and set as Fad independent variables.
+// extract solution variables
 probeVars[in.admsProbeID_V_sf_GND] = (*solVectorPtr)[in.li_sf];
 probeVars[in.admsProbeID_V_s_GND] = (*solVectorPtr)[in.li_s];
 probeVars[in.admsProbeID_V_d_GND] = (*solVectorPtr)[in.li_d];
@@ -2848,89 +3058,44 @@ in.admsNodeID_di,
 in.admsNodeID_si,
 in.admsNodeID_sf,
 in.admsBRA_ID_sf_GND,
-// model parameters
-// reals
-modelPar_version,
-modelPar_given_version,
-modelPar_W,
-modelPar_given_W,
-modelPar_Lgdr,
-modelPar_given_Lgdr,
-modelPar_dLg,
-modelPar_given_dLg,
-modelPar_Cins,
-modelPar_given_Cins,
-modelPar_Tjun,
-modelPar_given_Tjun,
-modelPar_energy_diff_volt,
-modelPar_given_energy_diff_volt,
-modelPar_delta,
-modelPar_given_delta,
-modelPar_n0,
-modelPar_given_n0,
-modelPar_Rc0,
-modelPar_given_Rc0,
-modelPar_nacc,
-modelPar_given_nacc,
-modelPar_meff,
-modelPar_given_meff,
-modelPar_np_mass,
-modelPar_given_np_mass,
-modelPar_mu_eff,
-modelPar_given_mu_eff,
-modelPar_ksee,
-modelPar_given_ksee,
-modelPar_B,
-modelPar_given_B,
-modelPar_dqm0,
-modelPar_given_dqm0,
-modelPar_eps,
-modelPar_given_eps,
-modelPar_theta,
-modelPar_given_theta,
-modelPar_beta,
-modelPar_given_beta,
-modelPar_nd,
-modelPar_given_nd,
-// non-reals (including hidden)
- modelPar_type,
-modelPar_given_type,
+instanceStruct,
+modelStruct,
  in.admsTemperature,
  in.adms_vt_nom,
  in.getDeviceOptions().gmin,
- staticContributions,
- dynamicContributions,
+ d_staticContributions_dX,
+ d_dynamicContributions_dX,
  in);
 
 
 // We now have the F and Q vector stuff, populate the dependencies:
 
-    dfdp[in.admsNodeID_d] += staticContributions[in.admsNodeID_d].dx(0);
-    dqdp[in.admsNodeID_d] += dynamicContributions[in.admsNodeID_d].dx(0);
+    dfdp[in.admsNodeID_d] += d_staticContributions_dX[in.admsNodeID_d];
+    dqdp[in.admsNodeID_d] += d_dynamicContributions_dX[in.admsNodeID_d];
     Findices[in.admsNodeID_d] = in.li_d;
     Qindices[in.admsNodeID_d] = in.li_d;
-    dfdp[in.admsNodeID_g] += staticContributions[in.admsNodeID_g].dx(0);
-    dqdp[in.admsNodeID_g] += dynamicContributions[in.admsNodeID_g].dx(0);
+    dfdp[in.admsNodeID_g] += d_staticContributions_dX[in.admsNodeID_g];
+    dqdp[in.admsNodeID_g] += d_dynamicContributions_dX[in.admsNodeID_g];
     Findices[in.admsNodeID_g] = in.li_g;
     Qindices[in.admsNodeID_g] = in.li_g;
-    dfdp[in.admsNodeID_s] += staticContributions[in.admsNodeID_s].dx(0);
-    dqdp[in.admsNodeID_s] += dynamicContributions[in.admsNodeID_s].dx(0);
+    dfdp[in.admsNodeID_s] += d_staticContributions_dX[in.admsNodeID_s];
+    dqdp[in.admsNodeID_s] += d_dynamicContributions_dX[in.admsNodeID_s];
     Findices[in.admsNodeID_s] = in.li_s;
     Qindices[in.admsNodeID_s] = in.li_s;
-    dfdp[in.admsNodeID_di] += staticContributions[in.admsNodeID_di].dx(0);
-    dqdp[in.admsNodeID_di] += dynamicContributions[in.admsNodeID_di].dx(0);
+    dfdp[in.admsNodeID_di] += d_staticContributions_dX[in.admsNodeID_di];
+    dqdp[in.admsNodeID_di] += d_dynamicContributions_dX[in.admsNodeID_di];
     Findices[in.admsNodeID_di] = in.li_di;
     Qindices[in.admsNodeID_di] = in.li_di;
-    dfdp[in.admsNodeID_si] += staticContributions[in.admsNodeID_si].dx(0);
-    dqdp[in.admsNodeID_si] += dynamicContributions[in.admsNodeID_si].dx(0);
+    dfdp[in.admsNodeID_si] += d_staticContributions_dX[in.admsNodeID_si];
+    dqdp[in.admsNodeID_si] += d_dynamicContributions_dX[in.admsNodeID_si];
     Findices[in.admsNodeID_si] = in.li_si;
     Qindices[in.admsNodeID_si] = in.li_si;
-    dfdp[in.admsNodeID_sf] += staticContributions[in.admsNodeID_sf].dx(0);
-    dqdp[in.admsNodeID_sf] += dynamicContributions[in.admsNodeID_sf].dx(0);
+    dfdp[in.admsNodeID_sf] += d_staticContributions_dX[in.admsNodeID_sf];
+    dqdp[in.admsNodeID_sf] += d_dynamicContributions_dX[in.admsNodeID_sf];
     Findices[in.admsNodeID_sf] = in.li_sf;
     Qindices[in.admsNodeID_sf] = in.li_sf;
-  dfdp[in.admsBRA_ID_sf_GND] += staticContributions[in.admsBRA_ID_sf_GND].dx(0);
-  dqdp[in.admsBRA_ID_sf_GND] += dynamicContributions[in.admsBRA_ID_sf_GND].dx(0);
+  dfdp[in.admsBRA_ID_sf_GND] += d_staticContributions_dX[in.admsBRA_ID_sf_GND];
+  dqdp[in.admsBRA_ID_sf_GND] += d_dynamicContributions_dX[in.admsBRA_ID_sf_GND];
   Findices[in.admsBRA_ID_sf_GND] = in.li_BRA_sf_GND;
   Qindices[in.admsBRA_ID_sf_GND] = in.li_BRA_sf_GND;
 
@@ -2981,95 +3146,118 @@ Findices.resize((6+1)*sizeInstance);
 Qindices.resize((6+1)*sizeInstance);
 
 std::vector <double> probeVars(7);
-std::vector <AdmsSensFadType> staticContributions(6+1);
-std::vector <AdmsSensFadType> dynamicContributions(6+1);
+std::vector <double> d_staticContributions_dX(6+1);
+std::vector <double> d_dynamicContributions_dX(6+1);
 
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly "if/else" block just to find the
 // one parameter we're doing sensitivities on.
-unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> modParamMap;
+unordered_map <std::string,double*,HashNoCase,EqualNoCase> modParamMap;
 
 // reals
-AdmsSensFadType modelPar_version=mod.version;
-bool modelPar_given_version=mod.given("version");
-modParamMap["version"] = &modelPar_version;
-AdmsSensFadType modelPar_W=mod.W;
-bool modelPar_given_W=mod.given("W");
-modParamMap["W"] = &modelPar_W;
-AdmsSensFadType modelPar_Lgdr=mod.Lgdr;
-bool modelPar_given_Lgdr=mod.given("Lgdr");
-modParamMap["Lgdr"] = &modelPar_Lgdr;
-AdmsSensFadType modelPar_dLg=mod.dLg;
-bool modelPar_given_dLg=mod.given("dLg");
-modParamMap["dLg"] = &modelPar_dLg;
-AdmsSensFadType modelPar_Cins=mod.Cins;
-bool modelPar_given_Cins=mod.given("Cins");
-modParamMap["Cins"] = &modelPar_Cins;
-AdmsSensFadType modelPar_Tjun=mod.Tjun;
-bool modelPar_given_Tjun=mod.given("Tjun");
-modParamMap["Tjun"] = &modelPar_Tjun;
-AdmsSensFadType modelPar_energy_diff_volt=mod.energy_diff_volt;
-bool modelPar_given_energy_diff_volt=mod.given("energy_diff_volt");
-modParamMap["energy_diff_volt"] = &modelPar_energy_diff_volt;
-AdmsSensFadType modelPar_delta=mod.delta;
-bool modelPar_given_delta=mod.given("delta");
-modParamMap["delta"] = &modelPar_delta;
-AdmsSensFadType modelPar_n0=mod.n0;
-bool modelPar_given_n0=mod.given("n0");
-modParamMap["n0"] = &modelPar_n0;
-AdmsSensFadType modelPar_Rc0=mod.Rc0;
-bool modelPar_given_Rc0=mod.given("Rc0");
-modParamMap["Rc0"] = &modelPar_Rc0;
-AdmsSensFadType modelPar_nacc=mod.nacc;
-bool modelPar_given_nacc=mod.given("nacc");
-modParamMap["nacc"] = &modelPar_nacc;
-AdmsSensFadType modelPar_meff=mod.meff;
-bool modelPar_given_meff=mod.given("meff");
-modParamMap["meff"] = &modelPar_meff;
-AdmsSensFadType modelPar_np_mass=mod.np_mass;
-bool modelPar_given_np_mass=mod.given("np_mass");
-modParamMap["np_mass"] = &modelPar_np_mass;
-AdmsSensFadType modelPar_mu_eff=mod.mu_eff;
-bool modelPar_given_mu_eff=mod.given("mu_eff");
-modParamMap["mu_eff"] = &modelPar_mu_eff;
-AdmsSensFadType modelPar_ksee=mod.ksee;
-bool modelPar_given_ksee=mod.given("ksee");
-modParamMap["ksee"] = &modelPar_ksee;
-AdmsSensFadType modelPar_B=mod.B;
-bool modelPar_given_B=mod.given("B");
-modParamMap["B"] = &modelPar_B;
-AdmsSensFadType modelPar_dqm0=mod.dqm0;
-bool modelPar_given_dqm0=mod.given("dqm0");
-modParamMap["dqm0"] = &modelPar_dqm0;
-AdmsSensFadType modelPar_eps=mod.eps;
-bool modelPar_given_eps=mod.given("eps");
-modParamMap["eps"] = &modelPar_eps;
-AdmsSensFadType modelPar_theta=mod.theta;
-bool modelPar_given_theta=mod.given("theta");
-modParamMap["theta"] = &modelPar_theta;
-AdmsSensFadType modelPar_beta=mod.beta;
-bool modelPar_given_beta=mod.given("beta");
-modParamMap["beta"] = &modelPar_beta;
-AdmsSensFadType modelPar_nd=mod.nd;
-bool modelPar_given_nd=mod.given("nd");
-modParamMap["nd"] = &modelPar_nd;
+modelStruct.modelPar_version=mod.version;
+modelStruct.d_modelPar_version_dX=0.0;
+modelStruct.modelPar_given_version=mod.given("version");
+modParamMap["version"] = &(modelStruct.d_modelPar_version_dX);
+modelStruct.modelPar_W=mod.W;
+modelStruct.d_modelPar_W_dX=0.0;
+modelStruct.modelPar_given_W=mod.given("W");
+modParamMap["W"] = &(modelStruct.d_modelPar_W_dX);
+modelStruct.modelPar_Lgdr=mod.Lgdr;
+modelStruct.d_modelPar_Lgdr_dX=0.0;
+modelStruct.modelPar_given_Lgdr=mod.given("Lgdr");
+modParamMap["Lgdr"] = &(modelStruct.d_modelPar_Lgdr_dX);
+modelStruct.modelPar_dLg=mod.dLg;
+modelStruct.d_modelPar_dLg_dX=0.0;
+modelStruct.modelPar_given_dLg=mod.given("dLg");
+modParamMap["dLg"] = &(modelStruct.d_modelPar_dLg_dX);
+modelStruct.modelPar_Cins=mod.Cins;
+modelStruct.d_modelPar_Cins_dX=0.0;
+modelStruct.modelPar_given_Cins=mod.given("Cins");
+modParamMap["Cins"] = &(modelStruct.d_modelPar_Cins_dX);
+modelStruct.modelPar_Tjun=mod.Tjun;
+modelStruct.d_modelPar_Tjun_dX=0.0;
+modelStruct.modelPar_given_Tjun=mod.given("Tjun");
+modParamMap["Tjun"] = &(modelStruct.d_modelPar_Tjun_dX);
+modelStruct.modelPar_energy_diff_volt=mod.energy_diff_volt;
+modelStruct.d_modelPar_energy_diff_volt_dX=0.0;
+modelStruct.modelPar_given_energy_diff_volt=mod.given("energy_diff_volt");
+modParamMap["energy_diff_volt"] = &(modelStruct.d_modelPar_energy_diff_volt_dX);
+modelStruct.modelPar_delta=mod.delta;
+modelStruct.d_modelPar_delta_dX=0.0;
+modelStruct.modelPar_given_delta=mod.given("delta");
+modParamMap["delta"] = &(modelStruct.d_modelPar_delta_dX);
+modelStruct.modelPar_n0=mod.n0;
+modelStruct.d_modelPar_n0_dX=0.0;
+modelStruct.modelPar_given_n0=mod.given("n0");
+modParamMap["n0"] = &(modelStruct.d_modelPar_n0_dX);
+modelStruct.modelPar_Rc0=mod.Rc0;
+modelStruct.d_modelPar_Rc0_dX=0.0;
+modelStruct.modelPar_given_Rc0=mod.given("Rc0");
+modParamMap["Rc0"] = &(modelStruct.d_modelPar_Rc0_dX);
+modelStruct.modelPar_nacc=mod.nacc;
+modelStruct.d_modelPar_nacc_dX=0.0;
+modelStruct.modelPar_given_nacc=mod.given("nacc");
+modParamMap["nacc"] = &(modelStruct.d_modelPar_nacc_dX);
+modelStruct.modelPar_meff=mod.meff;
+modelStruct.d_modelPar_meff_dX=0.0;
+modelStruct.modelPar_given_meff=mod.given("meff");
+modParamMap["meff"] = &(modelStruct.d_modelPar_meff_dX);
+modelStruct.modelPar_np_mass=mod.np_mass;
+modelStruct.d_modelPar_np_mass_dX=0.0;
+modelStruct.modelPar_given_np_mass=mod.given("np_mass");
+modParamMap["np_mass"] = &(modelStruct.d_modelPar_np_mass_dX);
+modelStruct.modelPar_mu_eff=mod.mu_eff;
+modelStruct.d_modelPar_mu_eff_dX=0.0;
+modelStruct.modelPar_given_mu_eff=mod.given("mu_eff");
+modParamMap["mu_eff"] = &(modelStruct.d_modelPar_mu_eff_dX);
+modelStruct.modelPar_ksee=mod.ksee;
+modelStruct.d_modelPar_ksee_dX=0.0;
+modelStruct.modelPar_given_ksee=mod.given("ksee");
+modParamMap["ksee"] = &(modelStruct.d_modelPar_ksee_dX);
+modelStruct.modelPar_B=mod.B;
+modelStruct.d_modelPar_B_dX=0.0;
+modelStruct.modelPar_given_B=mod.given("B");
+modParamMap["B"] = &(modelStruct.d_modelPar_B_dX);
+modelStruct.modelPar_dqm0=mod.dqm0;
+modelStruct.d_modelPar_dqm0_dX=0.0;
+modelStruct.modelPar_given_dqm0=mod.given("dqm0");
+modParamMap["dqm0"] = &(modelStruct.d_modelPar_dqm0_dX);
+modelStruct.modelPar_eps=mod.eps;
+modelStruct.d_modelPar_eps_dX=0.0;
+modelStruct.modelPar_given_eps=mod.given("eps");
+modParamMap["eps"] = &(modelStruct.d_modelPar_eps_dX);
+modelStruct.modelPar_theta=mod.theta;
+modelStruct.d_modelPar_theta_dX=0.0;
+modelStruct.modelPar_given_theta=mod.given("theta");
+modParamMap["theta"] = &(modelStruct.d_modelPar_theta_dX);
+modelStruct.modelPar_beta=mod.beta;
+modelStruct.d_modelPar_beta_dX=0.0;
+modelStruct.modelPar_given_beta=mod.given("beta");
+modParamMap["beta"] = &(modelStruct.d_modelPar_beta_dX);
+modelStruct.modelPar_nd=mod.nd;
+modelStruct.d_modelPar_nd_dX=0.0;
+modelStruct.modelPar_given_nd=mod.given("nd");
+modParamMap["nd"] = &(modelStruct.d_modelPar_nd_dX);
 
 
 // hidden reals
 
 
 // non-reals (including hiddens)
-int modelPar_type=mod.type;
-bool modelPar_given_type=mod.given("type");
+modelStruct.modelPar_type=mod.type;
+modelStruct.modelPar_given_type=mod.given("type");
 
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check name for presence first!  Segfault on invalid.
-modParamMap[name]->diff(0,1);
+*(modParamMap[name])=1.0;
 
 //make local copies of all model vars
 //reals
@@ -3088,14 +3276,16 @@ for (std::vector<Instance*>::const_iterator in_it=mod.instanceContainer.begin();
   // initialize contributions to zero (automatically sets derivatives to zero)
   for (int i=0; i < 6+1 ; ++i)
   {
-  staticContributions[i]=0;
-  dynamicContributions[i]=0;
+  d_staticContributions_dX[i]=0;
+  d_dynamicContributions_dX[i]=0;
   }
 
 
 
-  // Copy out all the instance parameters (doubles) into FAD types
-  // reals
+  // Copy out all the instance parameters (doubles) into local struct
+ instanceSensStruct instanceStruct;
+
+ // reals
 
 
   // real hidden instance
@@ -3123,7 +3313,7 @@ for (std::vector<Instance*>::const_iterator in_it=mod.instanceContainer.begin();
 
   Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-  // extract solution variables and set as Fad independent variables.
+  // extract solution variables
 probeVars[in.admsProbeID_V_sf_GND] = (*solVectorPtr)[in.li_sf];
 probeVars[in.admsProbeID_V_s_GND] = (*solVectorPtr)[in.li_s];
 probeVars[in.admsProbeID_V_d_GND] = (*solVectorPtr)[in.li_d];
@@ -3156,89 +3346,44 @@ in.admsNodeID_di,
 in.admsNodeID_si,
 in.admsNodeID_sf,
 in.admsBRA_ID_sf_GND,
-// model parameters
-// reals
-modelPar_version,
-modelPar_given_version,
-modelPar_W,
-modelPar_given_W,
-modelPar_Lgdr,
-modelPar_given_Lgdr,
-modelPar_dLg,
-modelPar_given_dLg,
-modelPar_Cins,
-modelPar_given_Cins,
-modelPar_Tjun,
-modelPar_given_Tjun,
-modelPar_energy_diff_volt,
-modelPar_given_energy_diff_volt,
-modelPar_delta,
-modelPar_given_delta,
-modelPar_n0,
-modelPar_given_n0,
-modelPar_Rc0,
-modelPar_given_Rc0,
-modelPar_nacc,
-modelPar_given_nacc,
-modelPar_meff,
-modelPar_given_meff,
-modelPar_np_mass,
-modelPar_given_np_mass,
-modelPar_mu_eff,
-modelPar_given_mu_eff,
-modelPar_ksee,
-modelPar_given_ksee,
-modelPar_B,
-modelPar_given_B,
-modelPar_dqm0,
-modelPar_given_dqm0,
-modelPar_eps,
-modelPar_given_eps,
-modelPar_theta,
-modelPar_given_theta,
-modelPar_beta,
-modelPar_given_beta,
-modelPar_nd,
-modelPar_given_nd,
-// non-reals (including hidden)
- modelPar_type,
-modelPar_given_type,
+instanceStruct,
+modelStruct,
  in.admsTemperature,
  in.adms_vt_nom,
  in.getDeviceOptions().gmin,
- staticContributions,
- dynamicContributions,
+ d_staticContributions_dX,
+ d_dynamicContributions_dX,
  in);
 
 
   // We now have the F and Q vector stuff, populate the dependencies:
 
-    dfdp[in.admsNodeID_d+inst*(6+1)] += staticContributions[in.admsNodeID_d].dx(0);
-    dqdp[in.admsNodeID_d+inst*(6+1)] += dynamicContributions[in.admsNodeID_d].dx(0);
+    dfdp[in.admsNodeID_d+inst*(6+1)] += d_staticContributions_dX[in.admsNodeID_d];
+    dqdp[in.admsNodeID_d+inst*(6+1)] += d_dynamicContributions_dX[in.admsNodeID_d];
     Findices[in.admsNodeID_d+inst*(6+1)] = in.li_d;
     Qindices[in.admsNodeID_d+inst*(6+1)] = in.li_d;
-    dfdp[in.admsNodeID_g+inst*(6+1)] += staticContributions[in.admsNodeID_g].dx(0);
-    dqdp[in.admsNodeID_g+inst*(6+1)] += dynamicContributions[in.admsNodeID_g].dx(0);
+    dfdp[in.admsNodeID_g+inst*(6+1)] += d_staticContributions_dX[in.admsNodeID_g];
+    dqdp[in.admsNodeID_g+inst*(6+1)] += d_dynamicContributions_dX[in.admsNodeID_g];
     Findices[in.admsNodeID_g+inst*(6+1)] = in.li_g;
     Qindices[in.admsNodeID_g+inst*(6+1)] = in.li_g;
-    dfdp[in.admsNodeID_s+inst*(6+1)] += staticContributions[in.admsNodeID_s].dx(0);
-    dqdp[in.admsNodeID_s+inst*(6+1)] += dynamicContributions[in.admsNodeID_s].dx(0);
+    dfdp[in.admsNodeID_s+inst*(6+1)] += d_staticContributions_dX[in.admsNodeID_s];
+    dqdp[in.admsNodeID_s+inst*(6+1)] += d_dynamicContributions_dX[in.admsNodeID_s];
     Findices[in.admsNodeID_s+inst*(6+1)] = in.li_s;
     Qindices[in.admsNodeID_s+inst*(6+1)] = in.li_s;
-    dfdp[in.admsNodeID_di+inst*(6+1)] += staticContributions[in.admsNodeID_di].dx(0);
-    dqdp[in.admsNodeID_di+inst*(6+1)] += dynamicContributions[in.admsNodeID_di].dx(0);
+    dfdp[in.admsNodeID_di+inst*(6+1)] += d_staticContributions_dX[in.admsNodeID_di];
+    dqdp[in.admsNodeID_di+inst*(6+1)] += d_dynamicContributions_dX[in.admsNodeID_di];
     Findices[in.admsNodeID_di+inst*(6+1)] = in.li_di;
     Qindices[in.admsNodeID_di+inst*(6+1)] = in.li_di;
-    dfdp[in.admsNodeID_si+inst*(6+1)] += staticContributions[in.admsNodeID_si].dx(0);
-    dqdp[in.admsNodeID_si+inst*(6+1)] += dynamicContributions[in.admsNodeID_si].dx(0);
+    dfdp[in.admsNodeID_si+inst*(6+1)] += d_staticContributions_dX[in.admsNodeID_si];
+    dqdp[in.admsNodeID_si+inst*(6+1)] += d_dynamicContributions_dX[in.admsNodeID_si];
     Findices[in.admsNodeID_si+inst*(6+1)] = in.li_si;
     Qindices[in.admsNodeID_si+inst*(6+1)] = in.li_si;
-    dfdp[in.admsNodeID_sf+inst*(6+1)] += staticContributions[in.admsNodeID_sf].dx(0);
-    dqdp[in.admsNodeID_sf+inst*(6+1)] += dynamicContributions[in.admsNodeID_sf].dx(0);
+    dfdp[in.admsNodeID_sf+inst*(6+1)] += d_staticContributions_dX[in.admsNodeID_sf];
+    dqdp[in.admsNodeID_sf+inst*(6+1)] += d_dynamicContributions_dX[in.admsNodeID_sf];
     Findices[in.admsNodeID_sf+inst*(6+1)] = in.li_sf;
     Qindices[in.admsNodeID_sf+inst*(6+1)] = in.li_sf;
-    dfdp[in.admsBRA_ID_sf_GND+inst*(6+1)] += staticContributions[in.admsBRA_ID_sf_GND].dx(0);
-    dqdp[in.admsBRA_ID_sf_GND+inst*(6+1)] += dynamicContributions[in.admsBRA_ID_sf_GND].dx(0);
+    dfdp[in.admsBRA_ID_sf_GND+inst*(6+1)] += d_staticContributions_dX[in.admsBRA_ID_sf_GND];
+    dqdp[in.admsBRA_ID_sf_GND+inst*(6+1)] += d_dynamicContributions_dX[in.admsBRA_ID_sf_GND];
     Findices[in.admsBRA_ID_sf_GND+inst*(6+1)] = in.li_BRA_sf_GND;
     Qindices[in.admsBRA_ID_sf_GND+inst*(6+1)] = in.li_BRA_sf_GND;
 }

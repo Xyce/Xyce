@@ -97,19 +97,19 @@
    addInternalNode(symbol_table, li_si, getName(), "si");
    addInternalNode(symbol_table, li_xf1, getName(), "xf1");
 @@ -3044,6 +3105,16 @@
-     dt_et_old = ((*extData.nextStoVectorPtr))[li_store_admsProbeID_Temp_dt_GND];
-   }
-   // -- code converted from analog/code block
+      dt_et_old = ((*extData.nextStoVectorPtr))[li_store_admsProbeID_Temp_dt_GND];
+ }
+ // -- code converted from analog/code block
 +
-+  // Manually inserted code for voltage drop initialization
-+  if (getSolverState().newtonIter == 0 && getSolverState().initJctFlag_ && getDeviceOptions().voltageLimiterFlag)
-+  {
-+    Vbci_limited = Vbcx_limited = Vbxcx_limited = Vbep_limited = 0;
-+    Vbe_limited = Vbei_limited = Vbex_limited = tVCrit;
-+    dt_et_limited = 0;
-+    origFlag = false;
-+  }        
-+          
-   //Begin block evaluateStatic
-   {
++// Manually inserted code for voltage drop initialization
++if (getSolverState().newtonIter == 0 && getSolverState().initJctFlag_ && getDeviceOptions().voltageLimiterFlag)
++{
++  Vbci_limited = Vbcx_limited = Vbxcx_limited = Vbep_limited = 0;
++  Vbe_limited = Vbei_limited = Vbex_limited = tVCrit;
++  dt_et_limited = 0;
++  origFlag = false;
++}
++
+ //Begin block evaluateStatic
+ {
  

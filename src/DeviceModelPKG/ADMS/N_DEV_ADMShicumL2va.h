@@ -32,14 +32,12 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 31 Mar 2020 09:29:14
+// Creation Date  : Thu, 09 Apr 2020 12:01:05
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMShicumL2va_h
 #define Xyce_N_DEV_ADMShicumL2va_h
 
-
-#include <Sacado_No_Kokkos.hpp>
 
 #include <N_DEV_Configuration.h>
 #include <N_DEV_Const.h>
@@ -52,10 +50,6 @@
 namespace Xyce {
 namespace Device {
 namespace ADMShicumL2va {
-
-// This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad<double,27> AdmsFadType;
-  typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
 class Instance;
@@ -166,6 +160,631 @@ return ifFalse;
 
 #ifdef Xyce_ADMS_SENSITIVITIES
 //-----------------------------------------------------------------------------
+// "structs" to hold instance and model param/variable copies
+//-----------------------------------------------------------------------------
+class instanceSensStruct
+{
+public:
+// instance variables
+// reals
+double instanceVar_VT;
+double d_instanceVar_VT_dX;
+double instanceVar_Tdev;
+double d_instanceVar_Tdev_dX;
+double instanceVar_qtt0;
+double d_instanceVar_qtt0_dX;
+double instanceVar_ln_qtt0;
+double d_instanceVar_ln_qtt0_dX;
+double instanceVar_r_VgVT;
+double d_instanceVar_r_VgVT_dX;
+double instanceVar_V_gT;
+double d_instanceVar_V_gT_dX;
+double instanceVar_dT;
+double d_instanceVar_dT_dX;
+double instanceVar_k;
+double d_instanceVar_k_dX;
+double instanceVar_ireis_t;
+double d_instanceVar_ireis_t_dX;
+double instanceVar_ibeis_t;
+double d_instanceVar_ibeis_t_dX;
+double instanceVar_ibcxs_t;
+double d_instanceVar_ibcxs_t_dX;
+double instanceVar_ibcis_t;
+double d_instanceVar_ibcis_t_dX;
+double instanceVar_iscs_t;
+double d_instanceVar_iscs_t_dX;
+double instanceVar_cjci0_t;
+double d_instanceVar_cjci0_t_dX;
+double instanceVar_cjs0_t;
+double d_instanceVar_cjs0_t_dX;
+double instanceVar_cscp0_t;
+double d_instanceVar_cscp0_t_dX;
+double instanceVar_rci0_t;
+double d_instanceVar_rci0_t_dX;
+double instanceVar_vlim_t;
+double d_instanceVar_vlim_t_dX;
+double instanceVar_vces_t;
+double d_instanceVar_vces_t_dX;
+double instanceVar_thcs_t;
+double d_instanceVar_thcs_t_dX;
+double instanceVar_tef0_t;
+double d_instanceVar_tef0_t_dX;
+double instanceVar_rbi0_t;
+double d_instanceVar_rbi0_t_dX;
+double instanceVar_t0_t;
+double d_instanceVar_t0_t_dX;
+double instanceVar_vdei_t;
+double d_instanceVar_vdei_t_dX;
+double instanceVar_vdci_t;
+double d_instanceVar_vdci_t_dX;
+double instanceVar_vpts_t;
+double d_instanceVar_vpts_t_dX;
+double instanceVar_vptsp_t;
+double d_instanceVar_vptsp_t_dX;
+double instanceVar_itss_t;
+double d_instanceVar_itss_t_dX;
+double instanceVar_tsf_t;
+double d_instanceVar_tsf_t_dX;
+double instanceVar_c10_t;
+double d_instanceVar_c10_t_dX;
+double instanceVar_cjei0_t;
+double d_instanceVar_cjei0_t_dX;
+double instanceVar_qp0_t;
+double d_instanceVar_qp0_t_dX;
+double instanceVar_vdcx_t;
+double d_instanceVar_vdcx_t_dX;
+double instanceVar_vptcx_t;
+double d_instanceVar_vptcx_t_dX;
+double instanceVar_cjcx01_t;
+double d_instanceVar_cjcx01_t_dX;
+double instanceVar_cjcx02_t;
+double d_instanceVar_cjcx02_t_dX;
+double instanceVar_cratio_t;
+double d_instanceVar_cratio_t_dX;
+double instanceVar_ibeps_t;
+double d_instanceVar_ibeps_t_dX;
+double instanceVar_ireps_t;
+double d_instanceVar_ireps_t_dX;
+double instanceVar_cjep0_t;
+double d_instanceVar_cjep0_t_dX;
+double instanceVar_ajei_t;
+double d_instanceVar_ajei_t_dX;
+double instanceVar_qavl_t;
+double d_instanceVar_qavl_t_dX;
+double instanceVar_favl_t;
+double d_instanceVar_favl_t_dX;
+double instanceVar_kavl_t;
+double d_instanceVar_kavl_t_dX;
+double instanceVar_ibets_t;
+double d_instanceVar_ibets_t_dX;
+double instanceVar_abet_t;
+double d_instanceVar_abet_t_dX;
+double instanceVar_vptci_t;
+double d_instanceVar_vptci_t_dX;
+double instanceVar_vdep_t;
+double d_instanceVar_vdep_t_dX;
+double instanceVar_ajep_t;
+double d_instanceVar_ajep_t_dX;
+double instanceVar_zetatef;
+double d_instanceVar_zetatef_dX;
+double instanceVar_k1;
+double d_instanceVar_k1_dX;
+double instanceVar_k2;
+double d_instanceVar_k2_dX;
+double instanceVar_dvg0;
+double d_instanceVar_dvg0_dX;
+double instanceVar_vge_t;
+double d_instanceVar_vge_t_dX;
+double instanceVar_vgb_t;
+double d_instanceVar_vgb_t_dX;
+double instanceVar_vgbe_t;
+double d_instanceVar_vgbe_t_dX;
+double instanceVar_vds_t;
+double d_instanceVar_vds_t_dX;
+double instanceVar_vdsp_t;
+double d_instanceVar_vdsp_t_dX;
+double instanceVar_vt0;
+double d_instanceVar_vt0_dX;
+double instanceVar_Tnom;
+double d_instanceVar_Tnom_dX;
+double instanceVar_Tamb;
+double instanceVar_a;
+double d_instanceVar_a_dX;
+double instanceVar_avs;
+double d_instanceVar_avs_dX;
+double instanceVar_zetabci;
+double d_instanceVar_zetabci_dX;
+double instanceVar_zetabcxt;
+double d_instanceVar_zetabcxt_dX;
+double instanceVar_zetasct;
+double d_instanceVar_zetasct_dX;
+double instanceVar_vgbe0;
+double d_instanceVar_vgbe0_dX;
+double instanceVar_mg;
+double d_instanceVar_mg_dX;
+double instanceVar_vgbe_t0;
+double d_instanceVar_vgbe_t0_dX;
+double instanceVar_vgbc0;
+double d_instanceVar_vgbc0_dX;
+double instanceVar_vgsc0;
+double d_instanceVar_vgsc0_dX;
+double instanceVar_cbcpar1;
+double d_instanceVar_cbcpar1_dX;
+double instanceVar_cbcpar2;
+double d_instanceVar_cbcpar2_dX;
+double instanceVar_cbepar2;
+double d_instanceVar_cbepar2_dX;
+double instanceVar_cbepar1;
+double d_instanceVar_cbepar1_dX;
+double instanceVar_Oich;
+double d_instanceVar_Oich_dX;
+double instanceVar_Otbhrec;
+double d_instanceVar_Otbhrec_dX;
+double instanceVar_it;
+double d_instanceVar_it_dX;
+double instanceVar_ibei;
+double d_instanceVar_ibei_dX;
+double instanceVar_ibci;
+double d_instanceVar_ibci_dX;
+double instanceVar_ibep;
+double d_instanceVar_ibep_dX;
+double instanceVar_iavl;
+double d_instanceVar_iavl_dX;
+double instanceVar_ijbcx;
+double d_instanceVar_ijbcx_dX;
+double instanceVar_ijsc;
+double d_instanceVar_ijsc_dX;
+double instanceVar_rth_t;
+double d_instanceVar_rth_t_dX;
+double instanceVar_vdj0;
+double d_instanceVar_vdj0_dX;
+double instanceVar_vdjt;
+double d_instanceVar_vdjt_dX;
+double instanceVar_vdt;
+double d_instanceVar_vdt_dX;
+double instanceVar_Tf;
+double d_instanceVar_Tf_dX;
+double instanceVar_cjcx01;
+double d_instanceVar_cjcx01_dX;
+double instanceVar_cjcx02;
+double d_instanceVar_cjcx02_dX;
+double instanceVar_betadc;
+double d_instanceVar_betadc_dX;
+double instanceVar_hjei0_t;
+double d_instanceVar_hjei0_t_dX;
+double instanceVar_ahjei_t;
+double d_instanceVar_ahjei_t_dX;
+double instanceVar_hf0_t;
+double d_instanceVar_hf0_t_dX;
+double instanceVar_hfe_t;
+double d_instanceVar_hfe_t_dX;
+double instanceVar_hfc_t;
+double d_instanceVar_hfc_t_dX;
+double instanceVar_rbx_t;
+double d_instanceVar_rbx_t_dX;
+double instanceVar_rcx_t;
+double d_instanceVar_rcx_t_dX;
+double instanceVar_re_t;
+double d_instanceVar_re_t_dX;
+double instanceVar_rbi;
+double d_instanceVar_rbi_dX;
+// non-reals
+int instanceVar_use_aval;
+};
+
+class modelSensStruct
+{
+public:
+// model parameters
+// reals
+double modelPar_c10;
+double d_modelPar_c10_dX;
+bool modelPar_given_c10;
+double modelPar_qp0;
+double d_modelPar_qp0_dX;
+bool modelPar_given_qp0;
+double modelPar_ich;
+double d_modelPar_ich_dX;
+bool modelPar_given_ich;
+double modelPar_hf0;
+double d_modelPar_hf0_dX;
+bool modelPar_given_hf0;
+double modelPar_hfe;
+double d_modelPar_hfe_dX;
+bool modelPar_given_hfe;
+double modelPar_hfc;
+double d_modelPar_hfc_dX;
+bool modelPar_given_hfc;
+double modelPar_hjei;
+double d_modelPar_hjei_dX;
+bool modelPar_given_hjei;
+double modelPar_ahjei;
+double d_modelPar_ahjei_dX;
+bool modelPar_given_ahjei;
+double modelPar_rhjei;
+double d_modelPar_rhjei_dX;
+bool modelPar_given_rhjei;
+double modelPar_hjci;
+double d_modelPar_hjci_dX;
+bool modelPar_given_hjci;
+double modelPar_ibeis;
+double d_modelPar_ibeis_dX;
+bool modelPar_given_ibeis;
+double modelPar_mbei;
+double d_modelPar_mbei_dX;
+bool modelPar_given_mbei;
+double modelPar_ireis;
+double d_modelPar_ireis_dX;
+bool modelPar_given_ireis;
+double modelPar_mrei;
+double d_modelPar_mrei_dX;
+bool modelPar_given_mrei;
+double modelPar_ibeps;
+double d_modelPar_ibeps_dX;
+bool modelPar_given_ibeps;
+double modelPar_mbep;
+double d_modelPar_mbep_dX;
+bool modelPar_given_mbep;
+double modelPar_ireps;
+double d_modelPar_ireps_dX;
+bool modelPar_given_ireps;
+double modelPar_mrep;
+double d_modelPar_mrep_dX;
+bool modelPar_given_mrep;
+double modelPar_mcf;
+double d_modelPar_mcf_dX;
+bool modelPar_given_mcf;
+double modelPar_tbhrec;
+double d_modelPar_tbhrec_dX;
+bool modelPar_given_tbhrec;
+double modelPar_ibcis;
+double d_modelPar_ibcis_dX;
+bool modelPar_given_ibcis;
+double modelPar_mbci;
+double d_modelPar_mbci_dX;
+bool modelPar_given_mbci;
+double modelPar_ibcxs;
+double d_modelPar_ibcxs_dX;
+bool modelPar_given_ibcxs;
+double modelPar_mbcx;
+double d_modelPar_mbcx_dX;
+bool modelPar_given_mbcx;
+double modelPar_ibets;
+double d_modelPar_ibets_dX;
+bool modelPar_given_ibets;
+double modelPar_abet;
+double d_modelPar_abet_dX;
+bool modelPar_given_abet;
+double modelPar_favl;
+double d_modelPar_favl_dX;
+bool modelPar_given_favl;
+double modelPar_qavl;
+double d_modelPar_qavl_dX;
+bool modelPar_given_qavl;
+double modelPar_kavl;
+double d_modelPar_kavl_dX;
+bool modelPar_given_kavl;
+double modelPar_alfav;
+double d_modelPar_alfav_dX;
+bool modelPar_given_alfav;
+double modelPar_alqav;
+double d_modelPar_alqav_dX;
+bool modelPar_given_alqav;
+double modelPar_alkav;
+double d_modelPar_alkav_dX;
+bool modelPar_given_alkav;
+double modelPar_rbi0;
+double d_modelPar_rbi0_dX;
+bool modelPar_given_rbi0;
+double modelPar_rbx;
+double d_modelPar_rbx_dX;
+bool modelPar_given_rbx;
+double modelPar_fgeo;
+double d_modelPar_fgeo_dX;
+bool modelPar_given_fgeo;
+double modelPar_fdqr0;
+double d_modelPar_fdqr0_dX;
+bool modelPar_given_fdqr0;
+double modelPar_fcrbi;
+double d_modelPar_fcrbi_dX;
+bool modelPar_given_fcrbi;
+double modelPar_fqi;
+double d_modelPar_fqi_dX;
+bool modelPar_given_fqi;
+double modelPar_re;
+double d_modelPar_re_dX;
+bool modelPar_given_re;
+double modelPar_rcx;
+double d_modelPar_rcx_dX;
+bool modelPar_given_rcx;
+double modelPar_itss;
+double d_modelPar_itss_dX;
+bool modelPar_given_itss;
+double modelPar_msf;
+double d_modelPar_msf_dX;
+bool modelPar_given_msf;
+double modelPar_iscs;
+double d_modelPar_iscs_dX;
+bool modelPar_given_iscs;
+double modelPar_msc;
+double d_modelPar_msc_dX;
+bool modelPar_given_msc;
+double modelPar_tsf;
+double d_modelPar_tsf_dX;
+bool modelPar_given_tsf;
+double modelPar_rsu;
+double d_modelPar_rsu_dX;
+bool modelPar_given_rsu;
+double modelPar_csu;
+double d_modelPar_csu_dX;
+bool modelPar_given_csu;
+double modelPar_cjei0;
+double d_modelPar_cjei0_dX;
+bool modelPar_given_cjei0;
+double modelPar_vdei;
+double d_modelPar_vdei_dX;
+bool modelPar_given_vdei;
+double modelPar_zei;
+double d_modelPar_zei_dX;
+bool modelPar_given_zei;
+double modelPar_ajei;
+double d_modelPar_ajei_dX;
+bool modelPar_given_ajei;
+double modelPar_cjep0;
+double d_modelPar_cjep0_dX;
+bool modelPar_given_cjep0;
+double modelPar_vdep;
+double d_modelPar_vdep_dX;
+bool modelPar_given_vdep;
+double modelPar_zep;
+double d_modelPar_zep_dX;
+bool modelPar_given_zep;
+double modelPar_ajep;
+double d_modelPar_ajep_dX;
+bool modelPar_given_ajep;
+double modelPar_cjci0;
+double d_modelPar_cjci0_dX;
+bool modelPar_given_cjci0;
+double modelPar_vdci;
+double d_modelPar_vdci_dX;
+bool modelPar_given_vdci;
+double modelPar_zci;
+double d_modelPar_zci_dX;
+bool modelPar_given_zci;
+double modelPar_vptci;
+double d_modelPar_vptci_dX;
+bool modelPar_given_vptci;
+double modelPar_cjcx0;
+double d_modelPar_cjcx0_dX;
+bool modelPar_given_cjcx0;
+double modelPar_vdcx;
+double d_modelPar_vdcx_dX;
+bool modelPar_given_vdcx;
+double modelPar_zcx;
+double d_modelPar_zcx_dX;
+bool modelPar_given_zcx;
+double modelPar_vptcx;
+double d_modelPar_vptcx_dX;
+bool modelPar_given_vptcx;
+double modelPar_fbcpar;
+double d_modelPar_fbcpar_dX;
+bool modelPar_given_fbcpar;
+double modelPar_fbepar;
+double d_modelPar_fbepar_dX;
+bool modelPar_given_fbepar;
+double modelPar_cjs0;
+double d_modelPar_cjs0_dX;
+bool modelPar_given_cjs0;
+double modelPar_vds;
+double d_modelPar_vds_dX;
+bool modelPar_given_vds;
+double modelPar_zs;
+double d_modelPar_zs_dX;
+bool modelPar_given_zs;
+double modelPar_vpts;
+double d_modelPar_vpts_dX;
+bool modelPar_given_vpts;
+double modelPar_cscp0;
+double d_modelPar_cscp0_dX;
+bool modelPar_given_cscp0;
+double modelPar_vdsp;
+double d_modelPar_vdsp_dX;
+bool modelPar_given_vdsp;
+double modelPar_zsp;
+double d_modelPar_zsp_dX;
+bool modelPar_given_zsp;
+double modelPar_vptsp;
+double d_modelPar_vptsp_dX;
+bool modelPar_given_vptsp;
+double modelPar_t0;
+double d_modelPar_t0_dX;
+bool modelPar_given_t0;
+double modelPar_dt0h;
+double d_modelPar_dt0h_dX;
+bool modelPar_given_dt0h;
+double modelPar_tbvl;
+double d_modelPar_tbvl_dX;
+bool modelPar_given_tbvl;
+double modelPar_tef0;
+double d_modelPar_tef0_dX;
+bool modelPar_given_tef0;
+double modelPar_gtfe;
+double d_modelPar_gtfe_dX;
+bool modelPar_given_gtfe;
+double modelPar_thcs;
+double d_modelPar_thcs_dX;
+bool modelPar_given_thcs;
+double modelPar_ahc;
+double d_modelPar_ahc_dX;
+bool modelPar_given_ahc;
+double modelPar_fthc;
+double d_modelPar_fthc_dX;
+bool modelPar_given_fthc;
+double modelPar_rci0;
+double d_modelPar_rci0_dX;
+bool modelPar_given_rci0;
+double modelPar_vlim;
+double d_modelPar_vlim_dX;
+bool modelPar_given_vlim;
+double modelPar_vces;
+double d_modelPar_vces_dX;
+bool modelPar_given_vces;
+double modelPar_vpt;
+double d_modelPar_vpt_dX;
+bool modelPar_given_vpt;
+double modelPar_aick;
+double d_modelPar_aick_dX;
+bool modelPar_given_aick;
+double modelPar_delck;
+double d_modelPar_delck_dX;
+bool modelPar_given_delck;
+double modelPar_tr;
+double d_modelPar_tr_dX;
+bool modelPar_given_tr;
+double modelPar_vcbar;
+double d_modelPar_vcbar_dX;
+bool modelPar_given_vcbar;
+double modelPar_icbar;
+double d_modelPar_icbar_dX;
+bool modelPar_given_icbar;
+double modelPar_acbar;
+double d_modelPar_acbar_dX;
+bool modelPar_given_acbar;
+double modelPar_cbepar;
+double d_modelPar_cbepar_dX;
+bool modelPar_given_cbepar;
+double modelPar_cbcpar;
+double d_modelPar_cbcpar_dX;
+bool modelPar_given_cbcpar;
+double modelPar_alqf;
+double d_modelPar_alqf_dX;
+bool modelPar_given_alqf;
+double modelPar_alit;
+double d_modelPar_alit_dX;
+bool modelPar_given_alit;
+double modelPar_kf;
+double d_modelPar_kf_dX;
+bool modelPar_given_kf;
+double modelPar_af;
+double d_modelPar_af_dX;
+bool modelPar_given_af;
+double modelPar_kfre;
+double d_modelPar_kfre_dX;
+bool modelPar_given_kfre;
+double modelPar_afre;
+double d_modelPar_afre_dX;
+bool modelPar_given_afre;
+double modelPar_latb;
+double d_modelPar_latb_dX;
+bool modelPar_given_latb;
+double modelPar_latl;
+double d_modelPar_latl_dX;
+bool modelPar_given_latl;
+double modelPar_vgb;
+double d_modelPar_vgb_dX;
+bool modelPar_given_vgb;
+double modelPar_alt0;
+double d_modelPar_alt0_dX;
+bool modelPar_given_alt0;
+double modelPar_kt0;
+double d_modelPar_kt0_dX;
+bool modelPar_given_kt0;
+double modelPar_zetaci;
+double d_modelPar_zetaci_dX;
+bool modelPar_given_zetaci;
+double modelPar_alvs;
+double d_modelPar_alvs_dX;
+bool modelPar_given_alvs;
+double modelPar_alces;
+double d_modelPar_alces_dX;
+bool modelPar_given_alces;
+double modelPar_zetarbi;
+double d_modelPar_zetarbi_dX;
+bool modelPar_given_zetarbi;
+double modelPar_zetarbx;
+double d_modelPar_zetarbx_dX;
+bool modelPar_given_zetarbx;
+double modelPar_zetarcx;
+double d_modelPar_zetarcx_dX;
+bool modelPar_given_zetarcx;
+double modelPar_zetare;
+double d_modelPar_zetare_dX;
+bool modelPar_given_zetare;
+double modelPar_zetacx;
+double d_modelPar_zetacx_dX;
+bool modelPar_given_zetacx;
+double modelPar_vge;
+double d_modelPar_vge_dX;
+bool modelPar_given_vge;
+double modelPar_vgc;
+double d_modelPar_vgc_dX;
+bool modelPar_given_vgc;
+double modelPar_vgs;
+double d_modelPar_vgs_dX;
+bool modelPar_given_vgs;
+double modelPar_f1vg;
+double d_modelPar_f1vg_dX;
+bool modelPar_given_f1vg;
+double modelPar_f2vg;
+double d_modelPar_f2vg_dX;
+bool modelPar_given_f2vg;
+double modelPar_zetact;
+double d_modelPar_zetact_dX;
+bool modelPar_given_zetact;
+double modelPar_zetabet;
+double d_modelPar_zetabet_dX;
+bool modelPar_given_zetabet;
+double modelPar_alb;
+double d_modelPar_alb_dX;
+bool modelPar_given_alb;
+double modelPar_dvgbe;
+double d_modelPar_dvgbe_dX;
+bool modelPar_given_dvgbe;
+double modelPar_zetahjei;
+double d_modelPar_zetahjei_dX;
+bool modelPar_given_zetahjei;
+double modelPar_zetavgbe;
+double d_modelPar_zetavgbe_dX;
+bool modelPar_given_zetavgbe;
+double modelPar_rth;
+double d_modelPar_rth_dX;
+bool modelPar_given_rth;
+double modelPar_zetarth;
+double d_modelPar_zetarth_dX;
+bool modelPar_given_zetarth;
+double modelPar_alrth;
+double d_modelPar_alrth_dX;
+bool modelPar_given_alrth;
+double modelPar_cth;
+double d_modelPar_cth_dX;
+bool modelPar_given_cth;
+double modelPar_flcomp;
+double d_modelPar_flcomp_dX;
+bool modelPar_given_flcomp;
+double modelPar_tnom;
+double d_modelPar_tnom_dX;
+bool modelPar_given_tnom;
+double modelPar_dt;
+double d_modelPar_dt_dX;
+bool modelPar_given_dt;
+// non-reals (including hidden)
+int modelPar_tunode;
+bool modelPar_given_tunode;
+int modelPar_flnqs;
+bool modelPar_given_flnqs;
+int modelPar_cfbe;
+bool modelPar_given_cfbe;
+int modelPar_flcono;
+bool modelPar_given_flcono;
+int modelPar_flsh;
+bool modelPar_given_flsh;
+int modelPar_type;
+bool modelPar_given_type;
+};
+
+
+
+//-----------------------------------------------------------------------------
 // Free functions used by sensitivity
 //
 //-----------------------------------------------------------------------------
@@ -215,1096 +834,18 @@ const int admsNodeID_xf2,
 const int admsNodeID_xf,
 const int admsNodeID_n1,
 const int admsNodeID_n2,
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_VT,
-AdmsSensFadType & instanceVar_Tdev,
-AdmsSensFadType & instanceVar_qtt0,
-AdmsSensFadType & instanceVar_ln_qtt0,
-AdmsSensFadType & instanceVar_r_VgVT,
-AdmsSensFadType & instanceVar_V_gT,
-AdmsSensFadType & instanceVar_dT,
-AdmsSensFadType & instanceVar_k,
-AdmsSensFadType & instanceVar_ireis_t,
-AdmsSensFadType & instanceVar_ibeis_t,
-AdmsSensFadType & instanceVar_ibcxs_t,
-AdmsSensFadType & instanceVar_ibcis_t,
-AdmsSensFadType & instanceVar_iscs_t,
-AdmsSensFadType & instanceVar_cjci0_t,
-AdmsSensFadType & instanceVar_cjs0_t,
-AdmsSensFadType & instanceVar_cscp0_t,
-AdmsSensFadType & instanceVar_rci0_t,
-AdmsSensFadType & instanceVar_vlim_t,
-AdmsSensFadType & instanceVar_vces_t,
-AdmsSensFadType & instanceVar_thcs_t,
-AdmsSensFadType & instanceVar_tef0_t,
-AdmsSensFadType & instanceVar_rbi0_t,
-AdmsSensFadType & instanceVar_t0_t,
-AdmsSensFadType & instanceVar_vdei_t,
-AdmsSensFadType & instanceVar_vdci_t,
-AdmsSensFadType & instanceVar_vpts_t,
-AdmsSensFadType & instanceVar_vptsp_t,
-AdmsSensFadType & instanceVar_itss_t,
-AdmsSensFadType & instanceVar_tsf_t,
-AdmsSensFadType & instanceVar_c10_t,
-AdmsSensFadType & instanceVar_cjei0_t,
-AdmsSensFadType & instanceVar_qp0_t,
-AdmsSensFadType & instanceVar_vdcx_t,
-AdmsSensFadType & instanceVar_vptcx_t,
-AdmsSensFadType & instanceVar_cjcx01_t,
-AdmsSensFadType & instanceVar_cjcx02_t,
-AdmsSensFadType & instanceVar_cratio_t,
-AdmsSensFadType & instanceVar_ibeps_t,
-AdmsSensFadType & instanceVar_ireps_t,
-AdmsSensFadType & instanceVar_cjep0_t,
-AdmsSensFadType & instanceVar_ajei_t,
-AdmsSensFadType & instanceVar_qavl_t,
-AdmsSensFadType & instanceVar_favl_t,
-AdmsSensFadType & instanceVar_kavl_t,
-AdmsSensFadType & instanceVar_ibets_t,
-AdmsSensFadType & instanceVar_abet_t,
-AdmsSensFadType & instanceVar_vptci_t,
-AdmsSensFadType & instanceVar_vdep_t,
-AdmsSensFadType & instanceVar_ajep_t,
-AdmsSensFadType & instanceVar_zetatef,
-AdmsSensFadType & instanceVar_k1,
-AdmsSensFadType & instanceVar_k2,
-AdmsSensFadType & instanceVar_dvg0,
-AdmsSensFadType & instanceVar_vge_t,
-AdmsSensFadType & instanceVar_vgb_t,
-AdmsSensFadType & instanceVar_vgbe_t,
-AdmsSensFadType & instanceVar_vds_t,
-AdmsSensFadType & instanceVar_vdsp_t,
-AdmsSensFadType & instanceVar_vt0,
-AdmsSensFadType & instanceVar_Tnom,
-double & instanceVar_Tamb,
-AdmsSensFadType & instanceVar_a,
-AdmsSensFadType & instanceVar_avs,
-AdmsSensFadType & instanceVar_zetabci,
-AdmsSensFadType & instanceVar_zetabcxt,
-AdmsSensFadType & instanceVar_zetasct,
-AdmsSensFadType & instanceVar_vgbe0,
-AdmsSensFadType & instanceVar_mg,
-AdmsSensFadType & instanceVar_vgbe_t0,
-AdmsSensFadType & instanceVar_vgbc0,
-AdmsSensFadType & instanceVar_vgsc0,
-AdmsSensFadType & instanceVar_cbcpar1,
-AdmsSensFadType & instanceVar_cbcpar2,
-AdmsSensFadType & instanceVar_cbepar2,
-AdmsSensFadType & instanceVar_cbepar1,
-AdmsSensFadType & instanceVar_Oich,
-AdmsSensFadType & instanceVar_Otbhrec,
-AdmsSensFadType & instanceVar_it,
-AdmsSensFadType & instanceVar_ibei,
-AdmsSensFadType & instanceVar_ibci,
-AdmsSensFadType & instanceVar_ibep,
-AdmsSensFadType & instanceVar_iavl,
-AdmsSensFadType & instanceVar_ijbcx,
-AdmsSensFadType & instanceVar_ijsc,
-AdmsSensFadType & instanceVar_rth_t,
-AdmsSensFadType & instanceVar_vdj0,
-AdmsSensFadType & instanceVar_vdjt,
-AdmsSensFadType & instanceVar_vdt,
-AdmsSensFadType & instanceVar_Tf,
-AdmsSensFadType & instanceVar_cjcx01,
-AdmsSensFadType & instanceVar_cjcx02,
-AdmsSensFadType & instanceVar_betadc,
-AdmsSensFadType & instanceVar_hjei0_t,
-AdmsSensFadType & instanceVar_ahjei_t,
-AdmsSensFadType & instanceVar_hf0_t,
-AdmsSensFadType & instanceVar_hfe_t,
-AdmsSensFadType & instanceVar_hfc_t,
-AdmsSensFadType & instanceVar_rbx_t,
-AdmsSensFadType & instanceVar_rcx_t,
-AdmsSensFadType & instanceVar_re_t,
-AdmsSensFadType & instanceVar_rbi,
-AdmsSensFadType & instanceVar_rb,
-AdmsSensFadType & instanceVar_IAVL,
-double & instanceVar_VBE,
-double & instanceVar_VBC,
-double & instanceVar_VCE,
-double & instanceVar_VSC,
-AdmsSensFadType & instanceVar_GMi,
-AdmsSensFadType & instanceVar_GMS,
-AdmsSensFadType & instanceVar_RPIi,
-AdmsSensFadType & instanceVar_RPIx,
-AdmsSensFadType & instanceVar_RMUi,
-AdmsSensFadType & instanceVar_RMUx,
-AdmsSensFadType & instanceVar_ROi,
-AdmsSensFadType & instanceVar_CPIi,
-AdmsSensFadType & instanceVar_CPIx,
-AdmsSensFadType & instanceVar_CMUi,
-AdmsSensFadType & instanceVar_CMUx,
-AdmsSensFadType & instanceVar_CCS,
-AdmsSensFadType & instanceVar_BETAAC,
-AdmsSensFadType & instanceVar_CRBI,
-AdmsSensFadType & instanceVar_TF,
-AdmsSensFadType & instanceVar_FT,
-AdmsSensFadType & instanceVar_TK,
-double & instanceVar_DTSH,
-// non-reals
-int instanceVar_use_aval,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_c10,
-bool modelPar_given_c10,
-AdmsSensFadType & modelPar_qp0,
-bool modelPar_given_qp0,
-AdmsSensFadType & modelPar_ich,
-bool modelPar_given_ich,
-AdmsSensFadType & modelPar_hf0,
-bool modelPar_given_hf0,
-AdmsSensFadType & modelPar_hfe,
-bool modelPar_given_hfe,
-AdmsSensFadType & modelPar_hfc,
-bool modelPar_given_hfc,
-AdmsSensFadType & modelPar_hjei,
-bool modelPar_given_hjei,
-AdmsSensFadType & modelPar_ahjei,
-bool modelPar_given_ahjei,
-AdmsSensFadType & modelPar_rhjei,
-bool modelPar_given_rhjei,
-AdmsSensFadType & modelPar_hjci,
-bool modelPar_given_hjci,
-AdmsSensFadType & modelPar_ibeis,
-bool modelPar_given_ibeis,
-AdmsSensFadType & modelPar_mbei,
-bool modelPar_given_mbei,
-AdmsSensFadType & modelPar_ireis,
-bool modelPar_given_ireis,
-AdmsSensFadType & modelPar_mrei,
-bool modelPar_given_mrei,
-AdmsSensFadType & modelPar_ibeps,
-bool modelPar_given_ibeps,
-AdmsSensFadType & modelPar_mbep,
-bool modelPar_given_mbep,
-AdmsSensFadType & modelPar_ireps,
-bool modelPar_given_ireps,
-AdmsSensFadType & modelPar_mrep,
-bool modelPar_given_mrep,
-AdmsSensFadType & modelPar_mcf,
-bool modelPar_given_mcf,
-AdmsSensFadType & modelPar_tbhrec,
-bool modelPar_given_tbhrec,
-AdmsSensFadType & modelPar_ibcis,
-bool modelPar_given_ibcis,
-AdmsSensFadType & modelPar_mbci,
-bool modelPar_given_mbci,
-AdmsSensFadType & modelPar_ibcxs,
-bool modelPar_given_ibcxs,
-AdmsSensFadType & modelPar_mbcx,
-bool modelPar_given_mbcx,
-AdmsSensFadType & modelPar_ibets,
-bool modelPar_given_ibets,
-AdmsSensFadType & modelPar_abet,
-bool modelPar_given_abet,
-AdmsSensFadType & modelPar_favl,
-bool modelPar_given_favl,
-AdmsSensFadType & modelPar_qavl,
-bool modelPar_given_qavl,
-AdmsSensFadType & modelPar_kavl,
-bool modelPar_given_kavl,
-AdmsSensFadType & modelPar_alfav,
-bool modelPar_given_alfav,
-AdmsSensFadType & modelPar_alqav,
-bool modelPar_given_alqav,
-AdmsSensFadType & modelPar_alkav,
-bool modelPar_given_alkav,
-AdmsSensFadType & modelPar_rbi0,
-bool modelPar_given_rbi0,
-AdmsSensFadType & modelPar_rbx,
-bool modelPar_given_rbx,
-AdmsSensFadType & modelPar_fgeo,
-bool modelPar_given_fgeo,
-AdmsSensFadType & modelPar_fdqr0,
-bool modelPar_given_fdqr0,
-AdmsSensFadType & modelPar_fcrbi,
-bool modelPar_given_fcrbi,
-AdmsSensFadType & modelPar_fqi,
-bool modelPar_given_fqi,
-AdmsSensFadType & modelPar_re,
-bool modelPar_given_re,
-AdmsSensFadType & modelPar_rcx,
-bool modelPar_given_rcx,
-AdmsSensFadType & modelPar_itss,
-bool modelPar_given_itss,
-AdmsSensFadType & modelPar_msf,
-bool modelPar_given_msf,
-AdmsSensFadType & modelPar_iscs,
-bool modelPar_given_iscs,
-AdmsSensFadType & modelPar_msc,
-bool modelPar_given_msc,
-AdmsSensFadType & modelPar_tsf,
-bool modelPar_given_tsf,
-AdmsSensFadType & modelPar_rsu,
-bool modelPar_given_rsu,
-AdmsSensFadType & modelPar_csu,
-bool modelPar_given_csu,
-AdmsSensFadType & modelPar_cjei0,
-bool modelPar_given_cjei0,
-AdmsSensFadType & modelPar_vdei,
-bool modelPar_given_vdei,
-AdmsSensFadType & modelPar_zei,
-bool modelPar_given_zei,
-AdmsSensFadType & modelPar_ajei,
-bool modelPar_given_ajei,
-AdmsSensFadType & modelPar_cjep0,
-bool modelPar_given_cjep0,
-AdmsSensFadType & modelPar_vdep,
-bool modelPar_given_vdep,
-AdmsSensFadType & modelPar_zep,
-bool modelPar_given_zep,
-AdmsSensFadType & modelPar_ajep,
-bool modelPar_given_ajep,
-AdmsSensFadType & modelPar_cjci0,
-bool modelPar_given_cjci0,
-AdmsSensFadType & modelPar_vdci,
-bool modelPar_given_vdci,
-AdmsSensFadType & modelPar_zci,
-bool modelPar_given_zci,
-AdmsSensFadType & modelPar_vptci,
-bool modelPar_given_vptci,
-AdmsSensFadType & modelPar_cjcx0,
-bool modelPar_given_cjcx0,
-AdmsSensFadType & modelPar_vdcx,
-bool modelPar_given_vdcx,
-AdmsSensFadType & modelPar_zcx,
-bool modelPar_given_zcx,
-AdmsSensFadType & modelPar_vptcx,
-bool modelPar_given_vptcx,
-AdmsSensFadType & modelPar_fbcpar,
-bool modelPar_given_fbcpar,
-AdmsSensFadType & modelPar_fbepar,
-bool modelPar_given_fbepar,
-AdmsSensFadType & modelPar_cjs0,
-bool modelPar_given_cjs0,
-AdmsSensFadType & modelPar_vds,
-bool modelPar_given_vds,
-AdmsSensFadType & modelPar_zs,
-bool modelPar_given_zs,
-AdmsSensFadType & modelPar_vpts,
-bool modelPar_given_vpts,
-AdmsSensFadType & modelPar_cscp0,
-bool modelPar_given_cscp0,
-AdmsSensFadType & modelPar_vdsp,
-bool modelPar_given_vdsp,
-AdmsSensFadType & modelPar_zsp,
-bool modelPar_given_zsp,
-AdmsSensFadType & modelPar_vptsp,
-bool modelPar_given_vptsp,
-AdmsSensFadType & modelPar_t0,
-bool modelPar_given_t0,
-AdmsSensFadType & modelPar_dt0h,
-bool modelPar_given_dt0h,
-AdmsSensFadType & modelPar_tbvl,
-bool modelPar_given_tbvl,
-AdmsSensFadType & modelPar_tef0,
-bool modelPar_given_tef0,
-AdmsSensFadType & modelPar_gtfe,
-bool modelPar_given_gtfe,
-AdmsSensFadType & modelPar_thcs,
-bool modelPar_given_thcs,
-AdmsSensFadType & modelPar_ahc,
-bool modelPar_given_ahc,
-AdmsSensFadType & modelPar_fthc,
-bool modelPar_given_fthc,
-AdmsSensFadType & modelPar_rci0,
-bool modelPar_given_rci0,
-AdmsSensFadType & modelPar_vlim,
-bool modelPar_given_vlim,
-AdmsSensFadType & modelPar_vces,
-bool modelPar_given_vces,
-AdmsSensFadType & modelPar_vpt,
-bool modelPar_given_vpt,
-AdmsSensFadType & modelPar_aick,
-bool modelPar_given_aick,
-AdmsSensFadType & modelPar_delck,
-bool modelPar_given_delck,
-AdmsSensFadType & modelPar_tr,
-bool modelPar_given_tr,
-AdmsSensFadType & modelPar_vcbar,
-bool modelPar_given_vcbar,
-AdmsSensFadType & modelPar_icbar,
-bool modelPar_given_icbar,
-AdmsSensFadType & modelPar_acbar,
-bool modelPar_given_acbar,
-AdmsSensFadType & modelPar_cbepar,
-bool modelPar_given_cbepar,
-AdmsSensFadType & modelPar_cbcpar,
-bool modelPar_given_cbcpar,
-AdmsSensFadType & modelPar_alqf,
-bool modelPar_given_alqf,
-AdmsSensFadType & modelPar_alit,
-bool modelPar_given_alit,
-AdmsSensFadType & modelPar_kf,
-bool modelPar_given_kf,
-AdmsSensFadType & modelPar_af,
-bool modelPar_given_af,
-AdmsSensFadType & modelPar_kfre,
-bool modelPar_given_kfre,
-AdmsSensFadType & modelPar_afre,
-bool modelPar_given_afre,
-AdmsSensFadType & modelPar_latb,
-bool modelPar_given_latb,
-AdmsSensFadType & modelPar_latl,
-bool modelPar_given_latl,
-AdmsSensFadType & modelPar_vgb,
-bool modelPar_given_vgb,
-AdmsSensFadType & modelPar_alt0,
-bool modelPar_given_alt0,
-AdmsSensFadType & modelPar_kt0,
-bool modelPar_given_kt0,
-AdmsSensFadType & modelPar_zetaci,
-bool modelPar_given_zetaci,
-AdmsSensFadType & modelPar_alvs,
-bool modelPar_given_alvs,
-AdmsSensFadType & modelPar_alces,
-bool modelPar_given_alces,
-AdmsSensFadType & modelPar_zetarbi,
-bool modelPar_given_zetarbi,
-AdmsSensFadType & modelPar_zetarbx,
-bool modelPar_given_zetarbx,
-AdmsSensFadType & modelPar_zetarcx,
-bool modelPar_given_zetarcx,
-AdmsSensFadType & modelPar_zetare,
-bool modelPar_given_zetare,
-AdmsSensFadType & modelPar_zetacx,
-bool modelPar_given_zetacx,
-AdmsSensFadType & modelPar_vge,
-bool modelPar_given_vge,
-AdmsSensFadType & modelPar_vgc,
-bool modelPar_given_vgc,
-AdmsSensFadType & modelPar_vgs,
-bool modelPar_given_vgs,
-AdmsSensFadType & modelPar_f1vg,
-bool modelPar_given_f1vg,
-AdmsSensFadType & modelPar_f2vg,
-bool modelPar_given_f2vg,
-AdmsSensFadType & modelPar_zetact,
-bool modelPar_given_zetact,
-AdmsSensFadType & modelPar_zetabet,
-bool modelPar_given_zetabet,
-AdmsSensFadType & modelPar_alb,
-bool modelPar_given_alb,
-AdmsSensFadType & modelPar_dvgbe,
-bool modelPar_given_dvgbe,
-AdmsSensFadType & modelPar_zetahjei,
-bool modelPar_given_zetahjei,
-AdmsSensFadType & modelPar_zetavgbe,
-bool modelPar_given_zetavgbe,
-AdmsSensFadType & modelPar_rth,
-bool modelPar_given_rth,
-AdmsSensFadType & modelPar_zetarth,
-bool modelPar_given_zetarth,
-AdmsSensFadType & modelPar_alrth,
-bool modelPar_given_alrth,
-AdmsSensFadType & modelPar_cth,
-bool modelPar_given_cth,
-AdmsSensFadType & modelPar_flcomp,
-bool modelPar_given_flcomp,
-AdmsSensFadType & modelPar_tnom,
-bool modelPar_given_tnom,
-AdmsSensFadType & modelPar_dt,
-bool modelPar_given_dt,
-// non-reals (including hidden)
-int modelPar_tunode,
-bool modelPar_given_tunode,
-int modelPar_flnqs,
-bool modelPar_given_flnqs,
-int modelPar_cfbe,
-bool modelPar_given_cfbe,
-int modelPar_flcono,
-bool modelPar_given_flcono,
-int modelPar_flsh,
-bool modelPar_given_flsh,
-int modelPar_type,
-bool modelPar_given_type,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
 // basic variables
- double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance);
+ double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & d_staticContributions_dX, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance);
 
 void evaluateInitialInstance(
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_VT,
-AdmsSensFadType & instanceVar_Tdev,
-AdmsSensFadType & instanceVar_qtt0,
-AdmsSensFadType & instanceVar_ln_qtt0,
-AdmsSensFadType & instanceVar_r_VgVT,
-AdmsSensFadType & instanceVar_V_gT,
-AdmsSensFadType & instanceVar_dT,
-AdmsSensFadType & instanceVar_k,
-AdmsSensFadType & instanceVar_ireis_t,
-AdmsSensFadType & instanceVar_ibeis_t,
-AdmsSensFadType & instanceVar_ibcxs_t,
-AdmsSensFadType & instanceVar_ibcis_t,
-AdmsSensFadType & instanceVar_iscs_t,
-AdmsSensFadType & instanceVar_cjci0_t,
-AdmsSensFadType & instanceVar_cjs0_t,
-AdmsSensFadType & instanceVar_cscp0_t,
-AdmsSensFadType & instanceVar_rci0_t,
-AdmsSensFadType & instanceVar_vlim_t,
-AdmsSensFadType & instanceVar_vces_t,
-AdmsSensFadType & instanceVar_thcs_t,
-AdmsSensFadType & instanceVar_tef0_t,
-AdmsSensFadType & instanceVar_rbi0_t,
-AdmsSensFadType & instanceVar_t0_t,
-AdmsSensFadType & instanceVar_vdei_t,
-AdmsSensFadType & instanceVar_vdci_t,
-AdmsSensFadType & instanceVar_vpts_t,
-AdmsSensFadType & instanceVar_vptsp_t,
-AdmsSensFadType & instanceVar_itss_t,
-AdmsSensFadType & instanceVar_tsf_t,
-AdmsSensFadType & instanceVar_c10_t,
-AdmsSensFadType & instanceVar_cjei0_t,
-AdmsSensFadType & instanceVar_qp0_t,
-AdmsSensFadType & instanceVar_vdcx_t,
-AdmsSensFadType & instanceVar_vptcx_t,
-AdmsSensFadType & instanceVar_cjcx01_t,
-AdmsSensFadType & instanceVar_cjcx02_t,
-AdmsSensFadType & instanceVar_cratio_t,
-AdmsSensFadType & instanceVar_ibeps_t,
-AdmsSensFadType & instanceVar_ireps_t,
-AdmsSensFadType & instanceVar_cjep0_t,
-AdmsSensFadType & instanceVar_ajei_t,
-AdmsSensFadType & instanceVar_qavl_t,
-AdmsSensFadType & instanceVar_favl_t,
-AdmsSensFadType & instanceVar_kavl_t,
-AdmsSensFadType & instanceVar_ibets_t,
-AdmsSensFadType & instanceVar_abet_t,
-AdmsSensFadType & instanceVar_vptci_t,
-AdmsSensFadType & instanceVar_vdep_t,
-AdmsSensFadType & instanceVar_ajep_t,
-AdmsSensFadType & instanceVar_zetatef,
-AdmsSensFadType & instanceVar_k1,
-AdmsSensFadType & instanceVar_k2,
-AdmsSensFadType & instanceVar_dvg0,
-AdmsSensFadType & instanceVar_vge_t,
-AdmsSensFadType & instanceVar_vgb_t,
-AdmsSensFadType & instanceVar_vgbe_t,
-AdmsSensFadType & instanceVar_vds_t,
-AdmsSensFadType & instanceVar_vdsp_t,
-AdmsSensFadType & instanceVar_vt0,
-AdmsSensFadType & instanceVar_Tnom,
-double & instanceVar_Tamb,
-AdmsSensFadType & instanceVar_a,
-AdmsSensFadType & instanceVar_avs,
-AdmsSensFadType & instanceVar_zetabci,
-AdmsSensFadType & instanceVar_zetabcxt,
-AdmsSensFadType & instanceVar_zetasct,
-AdmsSensFadType & instanceVar_vgbe0,
-AdmsSensFadType & instanceVar_mg,
-AdmsSensFadType & instanceVar_vgbe_t0,
-AdmsSensFadType & instanceVar_vgbc0,
-AdmsSensFadType & instanceVar_vgsc0,
-AdmsSensFadType & instanceVar_cbcpar1,
-AdmsSensFadType & instanceVar_cbcpar2,
-AdmsSensFadType & instanceVar_cbepar2,
-AdmsSensFadType & instanceVar_cbepar1,
-AdmsSensFadType & instanceVar_Oich,
-AdmsSensFadType & instanceVar_Otbhrec,
-AdmsSensFadType & instanceVar_it,
-AdmsSensFadType & instanceVar_ibei,
-AdmsSensFadType & instanceVar_ibci,
-AdmsSensFadType & instanceVar_ibep,
-AdmsSensFadType & instanceVar_iavl,
-AdmsSensFadType & instanceVar_ijbcx,
-AdmsSensFadType & instanceVar_ijsc,
-AdmsSensFadType & instanceVar_rth_t,
-AdmsSensFadType & instanceVar_vdj0,
-AdmsSensFadType & instanceVar_vdjt,
-AdmsSensFadType & instanceVar_vdt,
-AdmsSensFadType & instanceVar_Tf,
-AdmsSensFadType & instanceVar_cjcx01,
-AdmsSensFadType & instanceVar_cjcx02,
-AdmsSensFadType & instanceVar_betadc,
-AdmsSensFadType & instanceVar_hjei0_t,
-AdmsSensFadType & instanceVar_ahjei_t,
-AdmsSensFadType & instanceVar_hf0_t,
-AdmsSensFadType & instanceVar_hfe_t,
-AdmsSensFadType & instanceVar_hfc_t,
-AdmsSensFadType & instanceVar_rbx_t,
-AdmsSensFadType & instanceVar_rcx_t,
-AdmsSensFadType & instanceVar_re_t,
-AdmsSensFadType & instanceVar_rbi,
-AdmsSensFadType & instanceVar_rb,
-AdmsSensFadType & instanceVar_IAVL,
-double & instanceVar_VBE,
-double & instanceVar_VBC,
-double & instanceVar_VCE,
-double & instanceVar_VSC,
-AdmsSensFadType & instanceVar_GMi,
-AdmsSensFadType & instanceVar_GMS,
-AdmsSensFadType & instanceVar_RPIi,
-AdmsSensFadType & instanceVar_RPIx,
-AdmsSensFadType & instanceVar_RMUi,
-AdmsSensFadType & instanceVar_RMUx,
-AdmsSensFadType & instanceVar_ROi,
-AdmsSensFadType & instanceVar_CPIi,
-AdmsSensFadType & instanceVar_CPIx,
-AdmsSensFadType & instanceVar_CMUi,
-AdmsSensFadType & instanceVar_CMUx,
-AdmsSensFadType & instanceVar_CCS,
-AdmsSensFadType & instanceVar_BETAAC,
-AdmsSensFadType & instanceVar_CRBI,
-AdmsSensFadType & instanceVar_TF,
-AdmsSensFadType & instanceVar_FT,
-AdmsSensFadType & instanceVar_TK,
-double & instanceVar_DTSH,
-// non-reals
-int instanceVar_use_aval,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_c10,
-bool modelPar_given_c10,
-AdmsSensFadType & modelPar_qp0,
-bool modelPar_given_qp0,
-AdmsSensFadType & modelPar_ich,
-bool modelPar_given_ich,
-AdmsSensFadType & modelPar_hf0,
-bool modelPar_given_hf0,
-AdmsSensFadType & modelPar_hfe,
-bool modelPar_given_hfe,
-AdmsSensFadType & modelPar_hfc,
-bool modelPar_given_hfc,
-AdmsSensFadType & modelPar_hjei,
-bool modelPar_given_hjei,
-AdmsSensFadType & modelPar_ahjei,
-bool modelPar_given_ahjei,
-AdmsSensFadType & modelPar_rhjei,
-bool modelPar_given_rhjei,
-AdmsSensFadType & modelPar_hjci,
-bool modelPar_given_hjci,
-AdmsSensFadType & modelPar_ibeis,
-bool modelPar_given_ibeis,
-AdmsSensFadType & modelPar_mbei,
-bool modelPar_given_mbei,
-AdmsSensFadType & modelPar_ireis,
-bool modelPar_given_ireis,
-AdmsSensFadType & modelPar_mrei,
-bool modelPar_given_mrei,
-AdmsSensFadType & modelPar_ibeps,
-bool modelPar_given_ibeps,
-AdmsSensFadType & modelPar_mbep,
-bool modelPar_given_mbep,
-AdmsSensFadType & modelPar_ireps,
-bool modelPar_given_ireps,
-AdmsSensFadType & modelPar_mrep,
-bool modelPar_given_mrep,
-AdmsSensFadType & modelPar_mcf,
-bool modelPar_given_mcf,
-AdmsSensFadType & modelPar_tbhrec,
-bool modelPar_given_tbhrec,
-AdmsSensFadType & modelPar_ibcis,
-bool modelPar_given_ibcis,
-AdmsSensFadType & modelPar_mbci,
-bool modelPar_given_mbci,
-AdmsSensFadType & modelPar_ibcxs,
-bool modelPar_given_ibcxs,
-AdmsSensFadType & modelPar_mbcx,
-bool modelPar_given_mbcx,
-AdmsSensFadType & modelPar_ibets,
-bool modelPar_given_ibets,
-AdmsSensFadType & modelPar_abet,
-bool modelPar_given_abet,
-AdmsSensFadType & modelPar_favl,
-bool modelPar_given_favl,
-AdmsSensFadType & modelPar_qavl,
-bool modelPar_given_qavl,
-AdmsSensFadType & modelPar_kavl,
-bool modelPar_given_kavl,
-AdmsSensFadType & modelPar_alfav,
-bool modelPar_given_alfav,
-AdmsSensFadType & modelPar_alqav,
-bool modelPar_given_alqav,
-AdmsSensFadType & modelPar_alkav,
-bool modelPar_given_alkav,
-AdmsSensFadType & modelPar_rbi0,
-bool modelPar_given_rbi0,
-AdmsSensFadType & modelPar_rbx,
-bool modelPar_given_rbx,
-AdmsSensFadType & modelPar_fgeo,
-bool modelPar_given_fgeo,
-AdmsSensFadType & modelPar_fdqr0,
-bool modelPar_given_fdqr0,
-AdmsSensFadType & modelPar_fcrbi,
-bool modelPar_given_fcrbi,
-AdmsSensFadType & modelPar_fqi,
-bool modelPar_given_fqi,
-AdmsSensFadType & modelPar_re,
-bool modelPar_given_re,
-AdmsSensFadType & modelPar_rcx,
-bool modelPar_given_rcx,
-AdmsSensFadType & modelPar_itss,
-bool modelPar_given_itss,
-AdmsSensFadType & modelPar_msf,
-bool modelPar_given_msf,
-AdmsSensFadType & modelPar_iscs,
-bool modelPar_given_iscs,
-AdmsSensFadType & modelPar_msc,
-bool modelPar_given_msc,
-AdmsSensFadType & modelPar_tsf,
-bool modelPar_given_tsf,
-AdmsSensFadType & modelPar_rsu,
-bool modelPar_given_rsu,
-AdmsSensFadType & modelPar_csu,
-bool modelPar_given_csu,
-AdmsSensFadType & modelPar_cjei0,
-bool modelPar_given_cjei0,
-AdmsSensFadType & modelPar_vdei,
-bool modelPar_given_vdei,
-AdmsSensFadType & modelPar_zei,
-bool modelPar_given_zei,
-AdmsSensFadType & modelPar_ajei,
-bool modelPar_given_ajei,
-AdmsSensFadType & modelPar_cjep0,
-bool modelPar_given_cjep0,
-AdmsSensFadType & modelPar_vdep,
-bool modelPar_given_vdep,
-AdmsSensFadType & modelPar_zep,
-bool modelPar_given_zep,
-AdmsSensFadType & modelPar_ajep,
-bool modelPar_given_ajep,
-AdmsSensFadType & modelPar_cjci0,
-bool modelPar_given_cjci0,
-AdmsSensFadType & modelPar_vdci,
-bool modelPar_given_vdci,
-AdmsSensFadType & modelPar_zci,
-bool modelPar_given_zci,
-AdmsSensFadType & modelPar_vptci,
-bool modelPar_given_vptci,
-AdmsSensFadType & modelPar_cjcx0,
-bool modelPar_given_cjcx0,
-AdmsSensFadType & modelPar_vdcx,
-bool modelPar_given_vdcx,
-AdmsSensFadType & modelPar_zcx,
-bool modelPar_given_zcx,
-AdmsSensFadType & modelPar_vptcx,
-bool modelPar_given_vptcx,
-AdmsSensFadType & modelPar_fbcpar,
-bool modelPar_given_fbcpar,
-AdmsSensFadType & modelPar_fbepar,
-bool modelPar_given_fbepar,
-AdmsSensFadType & modelPar_cjs0,
-bool modelPar_given_cjs0,
-AdmsSensFadType & modelPar_vds,
-bool modelPar_given_vds,
-AdmsSensFadType & modelPar_zs,
-bool modelPar_given_zs,
-AdmsSensFadType & modelPar_vpts,
-bool modelPar_given_vpts,
-AdmsSensFadType & modelPar_cscp0,
-bool modelPar_given_cscp0,
-AdmsSensFadType & modelPar_vdsp,
-bool modelPar_given_vdsp,
-AdmsSensFadType & modelPar_zsp,
-bool modelPar_given_zsp,
-AdmsSensFadType & modelPar_vptsp,
-bool modelPar_given_vptsp,
-AdmsSensFadType & modelPar_t0,
-bool modelPar_given_t0,
-AdmsSensFadType & modelPar_dt0h,
-bool modelPar_given_dt0h,
-AdmsSensFadType & modelPar_tbvl,
-bool modelPar_given_tbvl,
-AdmsSensFadType & modelPar_tef0,
-bool modelPar_given_tef0,
-AdmsSensFadType & modelPar_gtfe,
-bool modelPar_given_gtfe,
-AdmsSensFadType & modelPar_thcs,
-bool modelPar_given_thcs,
-AdmsSensFadType & modelPar_ahc,
-bool modelPar_given_ahc,
-AdmsSensFadType & modelPar_fthc,
-bool modelPar_given_fthc,
-AdmsSensFadType & modelPar_rci0,
-bool modelPar_given_rci0,
-AdmsSensFadType & modelPar_vlim,
-bool modelPar_given_vlim,
-AdmsSensFadType & modelPar_vces,
-bool modelPar_given_vces,
-AdmsSensFadType & modelPar_vpt,
-bool modelPar_given_vpt,
-AdmsSensFadType & modelPar_aick,
-bool modelPar_given_aick,
-AdmsSensFadType & modelPar_delck,
-bool modelPar_given_delck,
-AdmsSensFadType & modelPar_tr,
-bool modelPar_given_tr,
-AdmsSensFadType & modelPar_vcbar,
-bool modelPar_given_vcbar,
-AdmsSensFadType & modelPar_icbar,
-bool modelPar_given_icbar,
-AdmsSensFadType & modelPar_acbar,
-bool modelPar_given_acbar,
-AdmsSensFadType & modelPar_cbepar,
-bool modelPar_given_cbepar,
-AdmsSensFadType & modelPar_cbcpar,
-bool modelPar_given_cbcpar,
-AdmsSensFadType & modelPar_alqf,
-bool modelPar_given_alqf,
-AdmsSensFadType & modelPar_alit,
-bool modelPar_given_alit,
-AdmsSensFadType & modelPar_kf,
-bool modelPar_given_kf,
-AdmsSensFadType & modelPar_af,
-bool modelPar_given_af,
-AdmsSensFadType & modelPar_kfre,
-bool modelPar_given_kfre,
-AdmsSensFadType & modelPar_afre,
-bool modelPar_given_afre,
-AdmsSensFadType & modelPar_latb,
-bool modelPar_given_latb,
-AdmsSensFadType & modelPar_latl,
-bool modelPar_given_latl,
-AdmsSensFadType & modelPar_vgb,
-bool modelPar_given_vgb,
-AdmsSensFadType & modelPar_alt0,
-bool modelPar_given_alt0,
-AdmsSensFadType & modelPar_kt0,
-bool modelPar_given_kt0,
-AdmsSensFadType & modelPar_zetaci,
-bool modelPar_given_zetaci,
-AdmsSensFadType & modelPar_alvs,
-bool modelPar_given_alvs,
-AdmsSensFadType & modelPar_alces,
-bool modelPar_given_alces,
-AdmsSensFadType & modelPar_zetarbi,
-bool modelPar_given_zetarbi,
-AdmsSensFadType & modelPar_zetarbx,
-bool modelPar_given_zetarbx,
-AdmsSensFadType & modelPar_zetarcx,
-bool modelPar_given_zetarcx,
-AdmsSensFadType & modelPar_zetare,
-bool modelPar_given_zetare,
-AdmsSensFadType & modelPar_zetacx,
-bool modelPar_given_zetacx,
-AdmsSensFadType & modelPar_vge,
-bool modelPar_given_vge,
-AdmsSensFadType & modelPar_vgc,
-bool modelPar_given_vgc,
-AdmsSensFadType & modelPar_vgs,
-bool modelPar_given_vgs,
-AdmsSensFadType & modelPar_f1vg,
-bool modelPar_given_f1vg,
-AdmsSensFadType & modelPar_f2vg,
-bool modelPar_given_f2vg,
-AdmsSensFadType & modelPar_zetact,
-bool modelPar_given_zetact,
-AdmsSensFadType & modelPar_zetabet,
-bool modelPar_given_zetabet,
-AdmsSensFadType & modelPar_alb,
-bool modelPar_given_alb,
-AdmsSensFadType & modelPar_dvgbe,
-bool modelPar_given_dvgbe,
-AdmsSensFadType & modelPar_zetahjei,
-bool modelPar_given_zetahjei,
-AdmsSensFadType & modelPar_zetavgbe,
-bool modelPar_given_zetavgbe,
-AdmsSensFadType & modelPar_rth,
-bool modelPar_given_rth,
-AdmsSensFadType & modelPar_zetarth,
-bool modelPar_given_zetarth,
-AdmsSensFadType & modelPar_alrth,
-bool modelPar_given_alrth,
-AdmsSensFadType & modelPar_cth,
-bool modelPar_given_cth,
-AdmsSensFadType & modelPar_flcomp,
-bool modelPar_given_flcomp,
-AdmsSensFadType & modelPar_tnom,
-bool modelPar_given_tnom,
-AdmsSensFadType & modelPar_dt,
-bool modelPar_given_dt,
-// non-reals (including hidden)
-int modelPar_tunode,
-bool modelPar_given_tunode,
-int modelPar_flnqs,
-bool modelPar_given_flnqs,
-int modelPar_cfbe,
-bool modelPar_given_cfbe,
-int modelPar_flcono,
-bool modelPar_given_flcono,
-int modelPar_flsh,
-bool modelPar_given_flsh,
-int modelPar_type,
-bool modelPar_given_type,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
  double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance);
 
 void evaluateInitialModel(
-// model parameters
-// reals
-AdmsSensFadType & modelPar_c10,
-bool modelPar_given_c10,
-AdmsSensFadType & modelPar_qp0,
-bool modelPar_given_qp0,
-AdmsSensFadType & modelPar_ich,
-bool modelPar_given_ich,
-AdmsSensFadType & modelPar_hf0,
-bool modelPar_given_hf0,
-AdmsSensFadType & modelPar_hfe,
-bool modelPar_given_hfe,
-AdmsSensFadType & modelPar_hfc,
-bool modelPar_given_hfc,
-AdmsSensFadType & modelPar_hjei,
-bool modelPar_given_hjei,
-AdmsSensFadType & modelPar_ahjei,
-bool modelPar_given_ahjei,
-AdmsSensFadType & modelPar_rhjei,
-bool modelPar_given_rhjei,
-AdmsSensFadType & modelPar_hjci,
-bool modelPar_given_hjci,
-AdmsSensFadType & modelPar_ibeis,
-bool modelPar_given_ibeis,
-AdmsSensFadType & modelPar_mbei,
-bool modelPar_given_mbei,
-AdmsSensFadType & modelPar_ireis,
-bool modelPar_given_ireis,
-AdmsSensFadType & modelPar_mrei,
-bool modelPar_given_mrei,
-AdmsSensFadType & modelPar_ibeps,
-bool modelPar_given_ibeps,
-AdmsSensFadType & modelPar_mbep,
-bool modelPar_given_mbep,
-AdmsSensFadType & modelPar_ireps,
-bool modelPar_given_ireps,
-AdmsSensFadType & modelPar_mrep,
-bool modelPar_given_mrep,
-AdmsSensFadType & modelPar_mcf,
-bool modelPar_given_mcf,
-AdmsSensFadType & modelPar_tbhrec,
-bool modelPar_given_tbhrec,
-AdmsSensFadType & modelPar_ibcis,
-bool modelPar_given_ibcis,
-AdmsSensFadType & modelPar_mbci,
-bool modelPar_given_mbci,
-AdmsSensFadType & modelPar_ibcxs,
-bool modelPar_given_ibcxs,
-AdmsSensFadType & modelPar_mbcx,
-bool modelPar_given_mbcx,
-AdmsSensFadType & modelPar_ibets,
-bool modelPar_given_ibets,
-AdmsSensFadType & modelPar_abet,
-bool modelPar_given_abet,
-AdmsSensFadType & modelPar_favl,
-bool modelPar_given_favl,
-AdmsSensFadType & modelPar_qavl,
-bool modelPar_given_qavl,
-AdmsSensFadType & modelPar_kavl,
-bool modelPar_given_kavl,
-AdmsSensFadType & modelPar_alfav,
-bool modelPar_given_alfav,
-AdmsSensFadType & modelPar_alqav,
-bool modelPar_given_alqav,
-AdmsSensFadType & modelPar_alkav,
-bool modelPar_given_alkav,
-AdmsSensFadType & modelPar_rbi0,
-bool modelPar_given_rbi0,
-AdmsSensFadType & modelPar_rbx,
-bool modelPar_given_rbx,
-AdmsSensFadType & modelPar_fgeo,
-bool modelPar_given_fgeo,
-AdmsSensFadType & modelPar_fdqr0,
-bool modelPar_given_fdqr0,
-AdmsSensFadType & modelPar_fcrbi,
-bool modelPar_given_fcrbi,
-AdmsSensFadType & modelPar_fqi,
-bool modelPar_given_fqi,
-AdmsSensFadType & modelPar_re,
-bool modelPar_given_re,
-AdmsSensFadType & modelPar_rcx,
-bool modelPar_given_rcx,
-AdmsSensFadType & modelPar_itss,
-bool modelPar_given_itss,
-AdmsSensFadType & modelPar_msf,
-bool modelPar_given_msf,
-AdmsSensFadType & modelPar_iscs,
-bool modelPar_given_iscs,
-AdmsSensFadType & modelPar_msc,
-bool modelPar_given_msc,
-AdmsSensFadType & modelPar_tsf,
-bool modelPar_given_tsf,
-AdmsSensFadType & modelPar_rsu,
-bool modelPar_given_rsu,
-AdmsSensFadType & modelPar_csu,
-bool modelPar_given_csu,
-AdmsSensFadType & modelPar_cjei0,
-bool modelPar_given_cjei0,
-AdmsSensFadType & modelPar_vdei,
-bool modelPar_given_vdei,
-AdmsSensFadType & modelPar_zei,
-bool modelPar_given_zei,
-AdmsSensFadType & modelPar_ajei,
-bool modelPar_given_ajei,
-AdmsSensFadType & modelPar_cjep0,
-bool modelPar_given_cjep0,
-AdmsSensFadType & modelPar_vdep,
-bool modelPar_given_vdep,
-AdmsSensFadType & modelPar_zep,
-bool modelPar_given_zep,
-AdmsSensFadType & modelPar_ajep,
-bool modelPar_given_ajep,
-AdmsSensFadType & modelPar_cjci0,
-bool modelPar_given_cjci0,
-AdmsSensFadType & modelPar_vdci,
-bool modelPar_given_vdci,
-AdmsSensFadType & modelPar_zci,
-bool modelPar_given_zci,
-AdmsSensFadType & modelPar_vptci,
-bool modelPar_given_vptci,
-AdmsSensFadType & modelPar_cjcx0,
-bool modelPar_given_cjcx0,
-AdmsSensFadType & modelPar_vdcx,
-bool modelPar_given_vdcx,
-AdmsSensFadType & modelPar_zcx,
-bool modelPar_given_zcx,
-AdmsSensFadType & modelPar_vptcx,
-bool modelPar_given_vptcx,
-AdmsSensFadType & modelPar_fbcpar,
-bool modelPar_given_fbcpar,
-AdmsSensFadType & modelPar_fbepar,
-bool modelPar_given_fbepar,
-AdmsSensFadType & modelPar_cjs0,
-bool modelPar_given_cjs0,
-AdmsSensFadType & modelPar_vds,
-bool modelPar_given_vds,
-AdmsSensFadType & modelPar_zs,
-bool modelPar_given_zs,
-AdmsSensFadType & modelPar_vpts,
-bool modelPar_given_vpts,
-AdmsSensFadType & modelPar_cscp0,
-bool modelPar_given_cscp0,
-AdmsSensFadType & modelPar_vdsp,
-bool modelPar_given_vdsp,
-AdmsSensFadType & modelPar_zsp,
-bool modelPar_given_zsp,
-AdmsSensFadType & modelPar_vptsp,
-bool modelPar_given_vptsp,
-AdmsSensFadType & modelPar_t0,
-bool modelPar_given_t0,
-AdmsSensFadType & modelPar_dt0h,
-bool modelPar_given_dt0h,
-AdmsSensFadType & modelPar_tbvl,
-bool modelPar_given_tbvl,
-AdmsSensFadType & modelPar_tef0,
-bool modelPar_given_tef0,
-AdmsSensFadType & modelPar_gtfe,
-bool modelPar_given_gtfe,
-AdmsSensFadType & modelPar_thcs,
-bool modelPar_given_thcs,
-AdmsSensFadType & modelPar_ahc,
-bool modelPar_given_ahc,
-AdmsSensFadType & modelPar_fthc,
-bool modelPar_given_fthc,
-AdmsSensFadType & modelPar_rci0,
-bool modelPar_given_rci0,
-AdmsSensFadType & modelPar_vlim,
-bool modelPar_given_vlim,
-AdmsSensFadType & modelPar_vces,
-bool modelPar_given_vces,
-AdmsSensFadType & modelPar_vpt,
-bool modelPar_given_vpt,
-AdmsSensFadType & modelPar_aick,
-bool modelPar_given_aick,
-AdmsSensFadType & modelPar_delck,
-bool modelPar_given_delck,
-AdmsSensFadType & modelPar_tr,
-bool modelPar_given_tr,
-AdmsSensFadType & modelPar_vcbar,
-bool modelPar_given_vcbar,
-AdmsSensFadType & modelPar_icbar,
-bool modelPar_given_icbar,
-AdmsSensFadType & modelPar_acbar,
-bool modelPar_given_acbar,
-AdmsSensFadType & modelPar_cbepar,
-bool modelPar_given_cbepar,
-AdmsSensFadType & modelPar_cbcpar,
-bool modelPar_given_cbcpar,
-AdmsSensFadType & modelPar_alqf,
-bool modelPar_given_alqf,
-AdmsSensFadType & modelPar_alit,
-bool modelPar_given_alit,
-AdmsSensFadType & modelPar_kf,
-bool modelPar_given_kf,
-AdmsSensFadType & modelPar_af,
-bool modelPar_given_af,
-AdmsSensFadType & modelPar_kfre,
-bool modelPar_given_kfre,
-AdmsSensFadType & modelPar_afre,
-bool modelPar_given_afre,
-AdmsSensFadType & modelPar_latb,
-bool modelPar_given_latb,
-AdmsSensFadType & modelPar_latl,
-bool modelPar_given_latl,
-AdmsSensFadType & modelPar_vgb,
-bool modelPar_given_vgb,
-AdmsSensFadType & modelPar_alt0,
-bool modelPar_given_alt0,
-AdmsSensFadType & modelPar_kt0,
-bool modelPar_given_kt0,
-AdmsSensFadType & modelPar_zetaci,
-bool modelPar_given_zetaci,
-AdmsSensFadType & modelPar_alvs,
-bool modelPar_given_alvs,
-AdmsSensFadType & modelPar_alces,
-bool modelPar_given_alces,
-AdmsSensFadType & modelPar_zetarbi,
-bool modelPar_given_zetarbi,
-AdmsSensFadType & modelPar_zetarbx,
-bool modelPar_given_zetarbx,
-AdmsSensFadType & modelPar_zetarcx,
-bool modelPar_given_zetarcx,
-AdmsSensFadType & modelPar_zetare,
-bool modelPar_given_zetare,
-AdmsSensFadType & modelPar_zetacx,
-bool modelPar_given_zetacx,
-AdmsSensFadType & modelPar_vge,
-bool modelPar_given_vge,
-AdmsSensFadType & modelPar_vgc,
-bool modelPar_given_vgc,
-AdmsSensFadType & modelPar_vgs,
-bool modelPar_given_vgs,
-AdmsSensFadType & modelPar_f1vg,
-bool modelPar_given_f1vg,
-AdmsSensFadType & modelPar_f2vg,
-bool modelPar_given_f2vg,
-AdmsSensFadType & modelPar_zetact,
-bool modelPar_given_zetact,
-AdmsSensFadType & modelPar_zetabet,
-bool modelPar_given_zetabet,
-AdmsSensFadType & modelPar_alb,
-bool modelPar_given_alb,
-AdmsSensFadType & modelPar_dvgbe,
-bool modelPar_given_dvgbe,
-AdmsSensFadType & modelPar_zetahjei,
-bool modelPar_given_zetahjei,
-AdmsSensFadType & modelPar_zetavgbe,
-bool modelPar_given_zetavgbe,
-AdmsSensFadType & modelPar_rth,
-bool modelPar_given_rth,
-AdmsSensFadType & modelPar_zetarth,
-bool modelPar_given_zetarth,
-AdmsSensFadType & modelPar_alrth,
-bool modelPar_given_alrth,
-AdmsSensFadType & modelPar_cth,
-bool modelPar_given_cth,
-AdmsSensFadType & modelPar_flcomp,
-bool modelPar_given_flcomp,
-AdmsSensFadType & modelPar_tnom,
-bool modelPar_given_tnom,
-AdmsSensFadType & modelPar_dt,
-bool modelPar_given_dt,
-// non-reals (including hidden)
-int modelPar_tunode,
-bool modelPar_given_tunode,
-int modelPar_flnqs,
-bool modelPar_given_flnqs,
-int modelPar_cfbe,
-bool modelPar_given_cfbe,
-int modelPar_flcono,
-bool modelPar_given_flcono,
-int modelPar_flsh,
-bool modelPar_given_flsh,
-int modelPar_type,
-bool modelPar_given_type,
+modelSensStruct & modelStruct,
  double admsTemperature, double ADMSgmin_arg, const Instance & theInstance);
 
 #endif // Xyce_ADMS_SENSITIVITIES
@@ -1320,23 +861,6 @@ T limexp(const T &x)
   return (exp(x));
   else
   return (exp(80.0)*(x-79.0));
-}
-
-// Maybe this will do as a substitute for a sacado-provided "floor" and "ceil"?
-// It is wrong to try to propagate the Sacado derivatives to the return
-// value, as the floor and ceil functions have zero derivative w.r.t. any
-// of the variables in the argument, except when X is an integer at which
-// point the derivative is undefined.
-template <typename T>
-double ADMSfloor(const T & x)
-{
-return (floor(x.val()));
-}
-
-template <typename T>
-double ADMSceil(const T & x)
-{
-return (ceil(x.val()));
 }
 
 
@@ -1438,277 +962,277 @@ public:
     // Begin verilog Instance Variables
     //   Instance Parameters
     //  Variables of global_instance scope
-    double VT;
-     double d_VT_dV_tnode_GND;
-    double Tdev;
-     double d_Tdev_dV_tnode_GND;
-    double qtt0;
-     double d_qtt0_dV_tnode_GND;
-    double ln_qtt0;
-     double d_ln_qtt0_dV_tnode_GND;
-    double r_VgVT;
-     double d_r_VgVT_dV_tnode_GND;
-    double V_gT;
-     double d_V_gT_dV_tnode_GND;
-    double dT;
-     double d_dT_dV_tnode_GND;
-    double k;
-     double d_k_dV_tnode_GND;
-    double ireis_t;
-     double d_ireis_t_dV_tnode_GND;
-    double ibeis_t;
-     double d_ibeis_t_dV_tnode_GND;
-    double ibcxs_t;
-     double d_ibcxs_t_dV_tnode_GND;
-    double ibcis_t;
-     double d_ibcis_t_dV_tnode_GND;
-    double iscs_t;
-     double d_iscs_t_dV_tnode_GND;
-    double cjci0_t;
-     double d_cjci0_t_dV_tnode_GND;
-    double cjs0_t;
-     double d_cjs0_t_dV_tnode_GND;
-    double cscp0_t;
-     double d_cscp0_t_dV_tnode_GND;
-    double rci0_t;
-     double d_rci0_t_dV_tnode_GND;
-    double vlim_t;
-     double d_vlim_t_dV_tnode_GND;
-    double vces_t;
-     double d_vces_t_dV_tnode_GND;
-    double thcs_t;
-     double d_thcs_t_dV_tnode_GND;
-    double tef0_t;
-     double d_tef0_t_dV_tnode_GND;
-    double rbi0_t;
-     double d_rbi0_t_dV_tnode_GND;
-    double t0_t;
-     double d_t0_t_dV_tnode_GND;
-    double vdei_t;
-     double d_vdei_t_dV_tnode_GND;
-    double vdci_t;
-     double d_vdci_t_dV_tnode_GND;
-    double vpts_t;
-     double d_vpts_t_dV_tnode_GND;
-    double vptsp_t;
-     double d_vptsp_t_dV_tnode_GND;
-    double itss_t;
-     double d_itss_t_dV_tnode_GND;
-    double tsf_t;
-     double d_tsf_t_dV_tnode_GND;
-    double c10_t;
-     double d_c10_t_dV_tnode_GND;
-    double cjei0_t;
-     double d_cjei0_t_dV_tnode_GND;
-    double qp0_t;
-     double d_qp0_t_dV_tnode_GND;
-    double vdcx_t;
-     double d_vdcx_t_dV_tnode_GND;
-    double vptcx_t;
-     double d_vptcx_t_dV_tnode_GND;
-    double cjcx01_t;
-     double d_cjcx01_t_dV_tnode_GND;
-    double cjcx02_t;
-     double d_cjcx02_t_dV_tnode_GND;
-    double cratio_t;
-     double d_cratio_t_dV_tnode_GND;
-    double ibeps_t;
-     double d_ibeps_t_dV_tnode_GND;
-    double ireps_t;
-     double d_ireps_t_dV_tnode_GND;
-    double cjep0_t;
-     double d_cjep0_t_dV_tnode_GND;
-    double ajei_t;
-     double d_ajei_t_dV_tnode_GND;
-    double qavl_t;
-     double d_qavl_t_dV_tnode_GND;
-    double favl_t;
-     double d_favl_t_dV_tnode_GND;
-    double kavl_t;
-     double d_kavl_t_dV_tnode_GND;
-    double ibets_t;
-     double d_ibets_t_dV_tnode_GND;
-    double abet_t;
-     double d_abet_t_dV_tnode_GND;
-    double vptci_t;
-     double d_vptci_t_dV_tnode_GND;
-    double vdep_t;
-     double d_vdep_t_dV_tnode_GND;
-    double ajep_t;
-     double d_ajep_t_dV_tnode_GND;
-    double zetatef;
-    double k1;
-     double d_k1_dV_tnode_GND;
-    double k2;
-     double d_k2_dV_tnode_GND;
-    double dvg0;
-    double vge_t;
-     double d_vge_t_dV_tnode_GND;
-    double vgb_t;
-     double d_vgb_t_dV_tnode_GND;
-    double vgbe_t;
-     double d_vgbe_t_dV_tnode_GND;
-    double vds_t;
-     double d_vds_t_dV_tnode_GND;
-    double vdsp_t;
-     double d_vdsp_t_dV_tnode_GND;
-    double vt0;
-    double Tnom;
-    double Tamb;
-    double a;
-     double d_a_dV_bi_ei;
-     double d_a_dV_bi_ei_dV_bi_ei;
-     double d_a_dV_bi_ei_dV_bi_ci;
-     double d_a_dV_bi_ei_dV_tnode_GND;
-     double d_a_dV_bi_ci;
-     double d_a_dV_bi_ci_dV_bi_ei;
-     double d_a_dV_bi_ci_dV_bi_ci;
-     double d_a_dV_bi_ci_dV_tnode_GND;
-     double d_a_dV_tnode_GND;
-    double avs;
-    double zetabci;
-    double zetabcxt;
-    double zetasct;
-    double vgbe0;
-    double mg;
-    double vgbe_t0;
-    double vgbc0;
-    double vgsc0;
-    double cbcpar1;
-    double cbcpar2;
-    double cbepar2;
-    double cbepar1;
-    double Oich;
-    double Otbhrec;
-    double it;
-     double d_it_dV_tnode_GND;
-     double d_it_dV_bi_ei;
-     double d_it_dV_bi_ei_dV_tnode_GND;
-     double d_it_dV_bi_ei_dV_bi_ei;
-     double d_it_dV_bi_ei_dV_bi_ci;
-     double d_it_dV_bi_ci;
-     double d_it_dV_bi_ci_dV_tnode_GND;
-     double d_it_dV_bi_ci_dV_bi_ei;
-     double d_it_dV_bi_ci_dV_bi_ci;
-    double ibei;
-     double d_ibei_dV_tnode_GND;
-     double d_ibei_dV_bi_ei;
-     double d_ibei_dV_bi_ei_dV_tnode_GND;
-     double d_ibei_dV_bi_ei_dV_bi_ei;
-    double ibci;
-     double d_ibci_dV_tnode_GND;
-     double d_ibci_dV_bi_ci;
-     double d_ibci_dV_bi_ci_dV_tnode_GND;
-     double d_ibci_dV_bi_ci_dV_bi_ci;
-     double d_ibci_dV_bi_ci_dV_bi_ei;
-     double d_ibci_dV_bi_ei;
-    double ibep;
-     double d_ibep_dV_tnode_GND;
-     double d_ibep_dV_bp_ei;
-     double d_ibep_dV_bp_ei_dV_tnode_GND;
-     double d_ibep_dV_bp_ei_dV_bp_ei;
-     double d_ibep_dV_bp_ei_dV_bi_ci;
-     double d_ibep_dV_bp_ei_dV_bi_ei;
-     double d_ibep_dV_bi_ci;
-     double d_ibep_dV_bi_ei;
-    double iavl;
-     double d_iavl_dV_tnode_GND;
-     double d_iavl_dV_bi_ei;
-     double d_iavl_dV_bi_ci;
-     double d_iavl_dV_bi_ci_dV_tnode_GND;
-     double d_iavl_dV_bi_ci_dV_bi_ei;
-     double d_iavl_dV_bi_ci_dV_bi_ci;
-    double ijbcx;
-     double d_ijbcx_dV_tnode_GND;
-     double d_ijbcx_dV_bp_ci;
-     double d_ijbcx_dV_bp_ci_dV_tnode_GND;
-     double d_ijbcx_dV_bp_ci_dV_bp_ci;
-     double d_ijbcx_dV_bp_ci_dV_bp_ei;
-     double d_ijbcx_dV_bp_ci_dV_bi_ci;
-     double d_ijbcx_dV_bp_ci_dV_bi_ei;
-     double d_ijbcx_dV_bp_ei;
-     double d_ijbcx_dV_bi_ci;
-     double d_ijbcx_dV_bi_ci_dV_tnode_GND;
-     double d_ijbcx_dV_bi_ci_dV_bp_ci;
-     double d_ijbcx_dV_bi_ci_dV_bp_ei;
-     double d_ijbcx_dV_bi_ci_dV_bi_ci;
-     double d_ijbcx_dV_bi_ci_dV_bi_ei;
-     double d_ijbcx_dV_bi_ei;
-    double ijsc;
-     double d_ijsc_dV_tnode_GND;
-     double d_ijsc_dV_si_ci;
-     double d_ijsc_dV_bp_ci;
-     double d_ijsc_dV_bp_ei;
-     double d_ijsc_dV_bi_ci;
-     double d_ijsc_dV_bi_ei;
-    double rth_t;
-     double d_rth_t_dV_tnode_GND;
-    double vdj0;
-    double vdjt;
-     double d_vdjt_dV_tnode_GND;
-    double vdt;
-     double d_vdt_dV_tnode_GND;
-    double Tf;
-     double d_Tf_dV_bi_ei;
-     double d_Tf_dV_bi_ei_dV_bi_ei;
-     double d_Tf_dV_bi_ei_dV_tnode_GND;
-     double d_Tf_dV_bi_ei_dV_bi_ci;
-     double d_Tf_dV_tnode_GND;
-     double d_Tf_dV_bi_ci;
-     double d_Tf_dV_bi_ci_dV_bi_ei;
-     double d_Tf_dV_bi_ci_dV_tnode_GND;
-     double d_Tf_dV_bi_ci_dV_bi_ci;
-    double cjcx01;
-    double cjcx02;
-    double betadc;
-     double d_betadc_dV_tnode_GND;
-     double d_betadc_dV_bi_ei;
-     double d_betadc_dV_bi_ci;
-    double hjei0_t;
-     double d_hjei0_t_dV_tnode_GND;
-    double ahjei_t;
-     double d_ahjei_t_dV_tnode_GND;
-    double hf0_t;
-     double d_hf0_t_dV_tnode_GND;
-    double hfe_t;
-     double d_hfe_t_dV_tnode_GND;
-    double hfc_t;
-     double d_hfc_t_dV_tnode_GND;
-    int use_aval;
-    double rbx_t;
-     double d_rbx_t_dV_tnode_GND;
-    double rcx_t;
-     double d_rcx_t_dV_tnode_GND;
-    double re_t;
-     double d_re_t_dV_tnode_GND;
-    double rbi;
-     double d_rbi_dV_tnode_GND;
-     double d_rbi_dV_bi_ei;
-     double d_rbi_dV_bi_ci;
-    double rb;
-    double IAVL;
-    double VBE;
-    double VBC;
-    double VCE;
-    double VSC;
-    double GMi;
-    double GMS;
-    double RPIi;
-    double RPIx;
-    double RMUi;
-    double RMUx;
-    double ROi;
-    double CPIi;
-    double CPIx;
-    double CMUi;
-    double CMUx;
-    double CCS;
-    double BETAAC;
-    double CRBI;
-    double TF;
-    double FT;
-    double TK;
-    double DTSH;
+    double VT=0.0;
+     double d_VT_dV_tnode_GND=0.0;
+    double Tdev=0.0;
+     double d_Tdev_dV_tnode_GND=0.0;
+    double qtt0=0.0;
+     double d_qtt0_dV_tnode_GND=0.0;
+    double ln_qtt0=0.0;
+     double d_ln_qtt0_dV_tnode_GND=0.0;
+    double r_VgVT=0.0;
+     double d_r_VgVT_dV_tnode_GND=0.0;
+    double V_gT=0.0;
+     double d_V_gT_dV_tnode_GND=0.0;
+    double dT=0.0;
+     double d_dT_dV_tnode_GND=0.0;
+    double k=0.0;
+     double d_k_dV_tnode_GND=0.0;
+    double ireis_t=0.0;
+     double d_ireis_t_dV_tnode_GND=0.0;
+    double ibeis_t=0.0;
+     double d_ibeis_t_dV_tnode_GND=0.0;
+    double ibcxs_t=0.0;
+     double d_ibcxs_t_dV_tnode_GND=0.0;
+    double ibcis_t=0.0;
+     double d_ibcis_t_dV_tnode_GND=0.0;
+    double iscs_t=0.0;
+     double d_iscs_t_dV_tnode_GND=0.0;
+    double cjci0_t=0.0;
+     double d_cjci0_t_dV_tnode_GND=0.0;
+    double cjs0_t=0.0;
+     double d_cjs0_t_dV_tnode_GND=0.0;
+    double cscp0_t=0.0;
+     double d_cscp0_t_dV_tnode_GND=0.0;
+    double rci0_t=0.0;
+     double d_rci0_t_dV_tnode_GND=0.0;
+    double vlim_t=0.0;
+     double d_vlim_t_dV_tnode_GND=0.0;
+    double vces_t=0.0;
+     double d_vces_t_dV_tnode_GND=0.0;
+    double thcs_t=0.0;
+     double d_thcs_t_dV_tnode_GND=0.0;
+    double tef0_t=0.0;
+     double d_tef0_t_dV_tnode_GND=0.0;
+    double rbi0_t=0.0;
+     double d_rbi0_t_dV_tnode_GND=0.0;
+    double t0_t=0.0;
+     double d_t0_t_dV_tnode_GND=0.0;
+    double vdei_t=0.0;
+     double d_vdei_t_dV_tnode_GND=0.0;
+    double vdci_t=0.0;
+     double d_vdci_t_dV_tnode_GND=0.0;
+    double vpts_t=0.0;
+     double d_vpts_t_dV_tnode_GND=0.0;
+    double vptsp_t=0.0;
+     double d_vptsp_t_dV_tnode_GND=0.0;
+    double itss_t=0.0;
+     double d_itss_t_dV_tnode_GND=0.0;
+    double tsf_t=0.0;
+     double d_tsf_t_dV_tnode_GND=0.0;
+    double c10_t=0.0;
+     double d_c10_t_dV_tnode_GND=0.0;
+    double cjei0_t=0.0;
+     double d_cjei0_t_dV_tnode_GND=0.0;
+    double qp0_t=0.0;
+     double d_qp0_t_dV_tnode_GND=0.0;
+    double vdcx_t=0.0;
+     double d_vdcx_t_dV_tnode_GND=0.0;
+    double vptcx_t=0.0;
+     double d_vptcx_t_dV_tnode_GND=0.0;
+    double cjcx01_t=0.0;
+     double d_cjcx01_t_dV_tnode_GND=0.0;
+    double cjcx02_t=0.0;
+     double d_cjcx02_t_dV_tnode_GND=0.0;
+    double cratio_t=0.0;
+     double d_cratio_t_dV_tnode_GND=0.0;
+    double ibeps_t=0.0;
+     double d_ibeps_t_dV_tnode_GND=0.0;
+    double ireps_t=0.0;
+     double d_ireps_t_dV_tnode_GND=0.0;
+    double cjep0_t=0.0;
+     double d_cjep0_t_dV_tnode_GND=0.0;
+    double ajei_t=0.0;
+     double d_ajei_t_dV_tnode_GND=0.0;
+    double qavl_t=0.0;
+     double d_qavl_t_dV_tnode_GND=0.0;
+    double favl_t=0.0;
+     double d_favl_t_dV_tnode_GND=0.0;
+    double kavl_t=0.0;
+     double d_kavl_t_dV_tnode_GND=0.0;
+    double ibets_t=0.0;
+     double d_ibets_t_dV_tnode_GND=0.0;
+    double abet_t=0.0;
+     double d_abet_t_dV_tnode_GND=0.0;
+    double vptci_t=0.0;
+     double d_vptci_t_dV_tnode_GND=0.0;
+    double vdep_t=0.0;
+     double d_vdep_t_dV_tnode_GND=0.0;
+    double ajep_t=0.0;
+     double d_ajep_t_dV_tnode_GND=0.0;
+    double zetatef=0.0;
+    double k1=0.0;
+     double d_k1_dV_tnode_GND=0.0;
+    double k2=0.0;
+     double d_k2_dV_tnode_GND=0.0;
+    double dvg0=0.0;
+    double vge_t=0.0;
+     double d_vge_t_dV_tnode_GND=0.0;
+    double vgb_t=0.0;
+     double d_vgb_t_dV_tnode_GND=0.0;
+    double vgbe_t=0.0;
+     double d_vgbe_t_dV_tnode_GND=0.0;
+    double vds_t=0.0;
+     double d_vds_t_dV_tnode_GND=0.0;
+    double vdsp_t=0.0;
+     double d_vdsp_t_dV_tnode_GND=0.0;
+    double vt0=0.0;
+    double Tnom=0.0;
+    double Tamb=0.0;
+    double a=0.0;
+     double d_a_dV_bi_ei=0.0;
+     double d_a_dV_bi_ei_dV_bi_ei=0.0;
+     double d_a_dV_bi_ei_dV_bi_ci=0.0;
+     double d_a_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_a_dV_bi_ci=0.0;
+     double d_a_dV_bi_ci_dV_bi_ei=0.0;
+     double d_a_dV_bi_ci_dV_bi_ci=0.0;
+     double d_a_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_a_dV_tnode_GND=0.0;
+    double avs=0.0;
+    double zetabci=0.0;
+    double zetabcxt=0.0;
+    double zetasct=0.0;
+    double vgbe0=0.0;
+    double mg=0.0;
+    double vgbe_t0=0.0;
+    double vgbc0=0.0;
+    double vgsc0=0.0;
+    double cbcpar1=0.0;
+    double cbcpar2=0.0;
+    double cbepar2=0.0;
+    double cbepar1=0.0;
+    double Oich=0.0;
+    double Otbhrec=0.0;
+    double it=0.0;
+     double d_it_dV_tnode_GND=0.0;
+     double d_it_dV_bi_ei=0.0;
+     double d_it_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_it_dV_bi_ei_dV_bi_ei=0.0;
+     double d_it_dV_bi_ei_dV_bi_ci=0.0;
+     double d_it_dV_bi_ci=0.0;
+     double d_it_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_it_dV_bi_ci_dV_bi_ei=0.0;
+     double d_it_dV_bi_ci_dV_bi_ci=0.0;
+    double ibei=0.0;
+     double d_ibei_dV_tnode_GND=0.0;
+     double d_ibei_dV_bi_ei=0.0;
+     double d_ibei_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_ibei_dV_bi_ei_dV_bi_ei=0.0;
+    double ibci=0.0;
+     double d_ibci_dV_tnode_GND=0.0;
+     double d_ibci_dV_bi_ci=0.0;
+     double d_ibci_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_ibci_dV_bi_ci_dV_bi_ci=0.0;
+     double d_ibci_dV_bi_ci_dV_bi_ei=0.0;
+     double d_ibci_dV_bi_ei=0.0;
+    double ibep=0.0;
+     double d_ibep_dV_tnode_GND=0.0;
+     double d_ibep_dV_bp_ei=0.0;
+     double d_ibep_dV_bp_ei_dV_tnode_GND=0.0;
+     double d_ibep_dV_bp_ei_dV_bp_ei=0.0;
+     double d_ibep_dV_bp_ei_dV_bi_ci=0.0;
+     double d_ibep_dV_bp_ei_dV_bi_ei=0.0;
+     double d_ibep_dV_bi_ci=0.0;
+     double d_ibep_dV_bi_ei=0.0;
+    double iavl=0.0;
+     double d_iavl_dV_tnode_GND=0.0;
+     double d_iavl_dV_bi_ei=0.0;
+     double d_iavl_dV_bi_ci=0.0;
+     double d_iavl_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_iavl_dV_bi_ci_dV_bi_ei=0.0;
+     double d_iavl_dV_bi_ci_dV_bi_ci=0.0;
+    double ijbcx=0.0;
+     double d_ijbcx_dV_tnode_GND=0.0;
+     double d_ijbcx_dV_bp_ci=0.0;
+     double d_ijbcx_dV_bp_ci_dV_tnode_GND=0.0;
+     double d_ijbcx_dV_bp_ci_dV_bp_ci=0.0;
+     double d_ijbcx_dV_bp_ci_dV_bp_ei=0.0;
+     double d_ijbcx_dV_bp_ci_dV_bi_ci=0.0;
+     double d_ijbcx_dV_bp_ci_dV_bi_ei=0.0;
+     double d_ijbcx_dV_bp_ei=0.0;
+     double d_ijbcx_dV_bi_ci=0.0;
+     double d_ijbcx_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_ijbcx_dV_bi_ci_dV_bp_ci=0.0;
+     double d_ijbcx_dV_bi_ci_dV_bp_ei=0.0;
+     double d_ijbcx_dV_bi_ci_dV_bi_ci=0.0;
+     double d_ijbcx_dV_bi_ci_dV_bi_ei=0.0;
+     double d_ijbcx_dV_bi_ei=0.0;
+    double ijsc=0.0;
+     double d_ijsc_dV_tnode_GND=0.0;
+     double d_ijsc_dV_si_ci=0.0;
+     double d_ijsc_dV_bp_ci=0.0;
+     double d_ijsc_dV_bp_ei=0.0;
+     double d_ijsc_dV_bi_ci=0.0;
+     double d_ijsc_dV_bi_ei=0.0;
+    double rth_t=0.0;
+     double d_rth_t_dV_tnode_GND=0.0;
+    double vdj0=0.0;
+    double vdjt=0.0;
+     double d_vdjt_dV_tnode_GND=0.0;
+    double vdt=0.0;
+     double d_vdt_dV_tnode_GND=0.0;
+    double Tf=0.0;
+     double d_Tf_dV_bi_ei=0.0;
+     double d_Tf_dV_bi_ei_dV_bi_ei=0.0;
+     double d_Tf_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_Tf_dV_bi_ei_dV_bi_ci=0.0;
+     double d_Tf_dV_tnode_GND=0.0;
+     double d_Tf_dV_bi_ci=0.0;
+     double d_Tf_dV_bi_ci_dV_bi_ei=0.0;
+     double d_Tf_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_Tf_dV_bi_ci_dV_bi_ci=0.0;
+    double cjcx01=0.0;
+    double cjcx02=0.0;
+    double betadc=0.0;
+     double d_betadc_dV_tnode_GND=0.0;
+     double d_betadc_dV_bi_ei=0.0;
+     double d_betadc_dV_bi_ci=0.0;
+    double hjei0_t=0.0;
+     double d_hjei0_t_dV_tnode_GND=0.0;
+    double ahjei_t=0.0;
+     double d_ahjei_t_dV_tnode_GND=0.0;
+    double hf0_t=0.0;
+     double d_hf0_t_dV_tnode_GND=0.0;
+    double hfe_t=0.0;
+     double d_hfe_t_dV_tnode_GND=0.0;
+    double hfc_t=0.0;
+     double d_hfc_t_dV_tnode_GND=0.0;
+    int use_aval=0.0;
+    double rbx_t=0.0;
+     double d_rbx_t_dV_tnode_GND=0.0;
+    double rcx_t=0.0;
+     double d_rcx_t_dV_tnode_GND=0.0;
+    double re_t=0.0;
+     double d_re_t_dV_tnode_GND=0.0;
+    double rbi=0.0;
+     double d_rbi_dV_tnode_GND=0.0;
+     double d_rbi_dV_bi_ei=0.0;
+     double d_rbi_dV_bi_ci=0.0;
+    double rb=0.0;
+    double IAVL=0.0;
+    double VBE=0.0;
+    double VBC=0.0;
+    double VCE=0.0;
+    double VSC=0.0;
+    double GMi=0.0;
+    double GMS=0.0;
+    double RPIi=0.0;
+    double RPIx=0.0;
+    double RMUi=0.0;
+    double RMUx=0.0;
+    double ROi=0.0;
+    double CPIi=0.0;
+    double CPIx=0.0;
+    double CMUi=0.0;
+    double CMUx=0.0;
+    double CCS=0.0;
+    double BETAAC=0.0;
+    double CRBI=0.0;
+    double TF=0.0;
+    double FT=0.0;
+    double TK=0.0;
+    double DTSH=0.0;
     // end verilog Instance Variables=====
     // Nodal LID Variables
     int li_c;
