@@ -406,7 +406,7 @@ void Manager::updateTranMeasures(
   {
     (*it)->updateTran(comm, circuitTime, solnVec, stateVec, storeVec, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector);
   }
-  activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fun(&Measure::Base::finishedCalculation)),
+  activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fn(&Measure::Base::finishedCalculation)),
                             activeMeasuresList_.end());
 }
 
@@ -434,7 +434,7 @@ void Manager::updateDCMeasures(
   {
     (*it)->updateDC(comm, dcParamsVec, solnVec, stateVec, storeVec, lead_current_vector, junction_voltage_vector, lead_current_dqdt_vector);
   }
-  activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fun(&Measure::Base::finishedCalculation)),
+  activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fn(&Measure::Base::finishedCalculation)),
                             activeMeasuresList_.end());
 }
 
@@ -458,7 +458,7 @@ void Manager::updateACMeasures(
   {
     (*it)->updateAC(comm, frequency, real_solution_vector, imaginary_solution_vector, RFparams);
   }
-  activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fun(&Measure::Base::finishedCalculation)),
+  activeMeasuresList_.erase(std::remove_if(activeMeasuresList_.begin(), activeMeasuresList_.end(), std::mem_fn(&Measure::Base::finishedCalculation)),
                             activeMeasuresList_.end()); }
 
 //-----------------------------------------------------------------------------
