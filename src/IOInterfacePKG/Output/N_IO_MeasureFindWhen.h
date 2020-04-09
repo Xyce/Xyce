@@ -89,6 +89,7 @@ public:
     const Linear::Vector *imaginaryVec,
     const Util::Op::RFparamsData *RFparams);
 
+  std::ostream& printMeasureWindow(std::ostream& os, const double endSimTime);
   std::ostream& printMeasureResult(std::ostream& os, bool printVerbose=false);
   std::ostream& printRFCWindow(std::ostream& os);
 
