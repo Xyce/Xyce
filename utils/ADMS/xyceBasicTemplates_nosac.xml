@@ -43,6 +43,7 @@
      differentiating -->
 <admst:variable name="derivProbe"/>
 <admst:variable name="derivProbe2"/>
+<admst:variable name="initializeOnDeclare" select="yes"/>
   <!--
    =================================================================-
    xyceNumberNodes
@@ -267,7 +268,11 @@
         <admst:apply-templates select="." match="verilog2CXXtype"/>
       </admst:otherwise>
     </admst:choose>
-    <admst:text format=" %(name)=0.0;\n"/>
+    <admst:text format=" %(name)"/>
+    <admst:if test="[$initializeOnDeclare='yes']">
+      <admst:text format="=0.0"/>
+    </admst:if>
+    <admst:text format=";\n"/>
     <admst:if test="[type='real' and $globalCurrentScope='sensitivity' and exists(#Pdependent)]">
         <admst:text format="double d_%(name)_dX=0.0;\n"/>
     </admst:if>
@@ -276,14 +281,22 @@
       <admst:for-each select="probe">
         <admst:variable name="myprobe" path="."/>
         <admst:text format="    "/>
-        <admst:text format=" double d_%($myVar/name)_d%(nature)_%(branch/pnode)_%(branch/nnode)=0.0;\n"/>
+        <admst:text format=" double d_%($myVar/name)_d%(nature)_%(branch/pnode)_%(branch/nnode)"/>
+        <admst:if test="[$initializeOnDeclare='yes']">
+          <admst:text format="=0.0"/>
+        </admst:if>
+        <admst:text format=";\n"/>
         <admst:if test="[../insource='yes']">
           <!-- this looks fishy to me and presupposes that all ddxprobes are of form V(X,GND), 
                and never V(X,Y) but the former is pretty much what all ddx() usage is in the wild.  -->
           <admst:if test="[exists($myVar/ddxprobe/branch/pnode[.=$myprobe/branch/pnode or .=$myprobe/branch/nnode])]">
             <admst:for-each select="$myVar/probe">
               <admst:text format="    "/>
-              <admst:text format=" double d_%($myVar/name)_d%($myprobe/nature)_%($myprobe/branch/pnode)_%($myprobe/branch/nnode)_d%(./nature)_%(./branch/pnode)_%(./branch/nnode)=0.0;\n"/>
+              <admst:text format=" double d_%($myVar/name)_d%($myprobe/nature)_%($myprobe/branch/pnode)_%($myprobe/branch/nnode)_d%(./nature)_%(./branch/pnode)_%(./branch/nnode)"/>
+              <admst:if test="[$initializeOnDeclare='yes']">
+                <admst:text format="=0.0"/>
+              </admst:if>
+              <admst:text format=";\n"/>
             </admst:for-each>
           </admst:if>
         </admst:if>

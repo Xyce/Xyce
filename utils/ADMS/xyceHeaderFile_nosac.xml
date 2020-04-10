@@ -38,6 +38,8 @@
      templates, forcing it to fall back to the version that doesn't
      try to insert precomputed function variables -->
 <admst:variable name="skipFunctionPrecomp" select="y"/>
+<!-- C++98 hates initializers on non-const variables in class declarations -->
+<admst:variable name="initializeOnDeclare" select="no"/>
 
 <admst:for-each select="/module">
   <admst:variable name="thisModule" select="%(.)"/>
@@ -544,4 +546,6 @@ void registerDevice(const DeviceCountMap&amp; deviceMap = DeviceCountMap(),
 
 
 </admst:for-each>
+<!-- now set this back so that this template file can be used in any order -->
+<admst:variable name="initializeOnDeclare" select="yes"/>
 </admst>

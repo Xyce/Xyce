@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 09 Apr 2020 12:01:05
+// Creation Date  : Thu, 09 Apr 2020 18:37:52
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSmvsg_cmc_h
@@ -913,56 +913,56 @@ public:
     int ngf;
     double dtemp;
     //  Variables of global_instance scope
-    double rcs_w=0.0;
-    double rcd_w=0.0;
-    double rg=0.0;
-    double vgisi=0.0;
-    double vdisi=0.0;
-    double vti=0.0;
-    double vdsati=0.0;
-    double pdc=0.0;
-    double idisi=0.0;
-    double igs=0.0;
-    double igd=0.0;
-    double qgi=0.0;
-     double d_qgi_dV_gi_si=0.0;
-     double d_qgi_dV_di_si=0.0;
-     double d_qgi_dTemp_dt_GND=0.0;
-    double qdi=0.0;
-     double d_qdi_dV_gi_si=0.0;
-     double d_qdi_dV_di_si=0.0;
-     double d_qdi_dTemp_dt_GND=0.0;
-    double qsi=0.0;
-     double d_qsi_dV_gi_si=0.0;
-     double d_qsi_dV_di_si=0.0;
-     double d_qsi_dTemp_dt_GND=0.0;
-    double qbi=0.0;
-    double gmi=0.0;
-    double gdsi=0.0;
-    double gmbsi=0.0;
-    double cggi=0.0;
-    double cgdi=0.0;
-    double cgsi=0.0;
-    double cgbi=0.0;
-    double cdgi=0.0;
-    double cddi=0.0;
-    double cdsi=0.0;
-    double cdbi=0.0;
-    double csgi=0.0;
-    double csdi=0.0;
-    double cssi=0.0;
-    double csbi=0.0;
-    double cbgi=0.0;
-    double cbdi=0.0;
-    double cbsi=0.0;
-    double cbbi=0.0;
-    double cgs=0.0;
-    double cgd=0.0;
-    double t_total_k=0.0;
-    double t_total_c=0.0;
-    double t_delta_sh=0.0;
-    double rs=0.0;
-    double rd=0.0;
+    double rcs_w;
+    double rcd_w;
+    double rg;
+    double vgisi;
+    double vdisi;
+    double vti;
+    double vdsati;
+    double pdc;
+    double idisi;
+    double igs;
+    double igd;
+    double qgi;
+     double d_qgi_dV_gi_si;
+     double d_qgi_dV_di_si;
+     double d_qgi_dTemp_dt_GND;
+    double qdi;
+     double d_qdi_dV_gi_si;
+     double d_qdi_dV_di_si;
+     double d_qdi_dTemp_dt_GND;
+    double qsi;
+     double d_qsi_dV_gi_si;
+     double d_qsi_dV_di_si;
+     double d_qsi_dTemp_dt_GND;
+    double qbi;
+    double gmi;
+    double gdsi;
+    double gmbsi;
+    double cggi;
+    double cgdi;
+    double cgsi;
+    double cgbi;
+    double cdgi;
+    double cddi;
+    double cdsi;
+    double cdbi;
+    double csgi;
+    double csdi;
+    double cssi;
+    double csbi;
+    double cbgi;
+    double cbdi;
+    double cbsi;
+    double cbbi;
+    double cgs;
+    double cgd;
+    double t_total_k;
+    double t_total_c;
+    double t_delta_sh;
+    double rs;
+    double rd;
     // end verilog Instance Variables=====
     // Nodal LID Variables
     int li_d;
