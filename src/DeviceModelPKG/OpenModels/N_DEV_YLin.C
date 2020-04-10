@@ -1506,23 +1506,12 @@ bool Master::loadFreqDAEVectors(double frequency, std::complex<double>* solVec,
     Teuchos::SerialDenseVector<int,std::complex<double> > Fvec( inst.model_.numPorts_ );
     Teuchos::SerialDenseVector<int,std::complex<double> > Xvec( Teuchos::View, &port_vals[0], inst.model_.numPorts_ );
 
-
     inst.model_.interpLin( frequency,  inst.yvals, inst.Iscvals );
                                     
-/*    int freqIndex;
-    for (int i=0; i<inst.model_.numFreq_ ;  i++ )   
-    { 
-      if (frequency == inst.model_.freqVec_[i] )
-        freqIndex = i;
-
-    }  */
 
     Fvec.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, Teuchos::ScalarTraits<std::complex<double> >::one(),
                    inst.yvals, Xvec, Teuchos::ScalarTraits<std::complex<double> >::zero() );   
 
-
-//    Fvec.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, Teuchos::ScalarTraits<std::complex<double> >::one(),
-//                                inst.model_.inputNetworkDataVec_[freqIndex], Xvec, Teuchos::ScalarTraits<std::complex<double> >::zero() );
 
     for (size_t i = 0; i < inst.extLIDVec.size(); i += 2)
     {
@@ -1568,15 +1557,6 @@ bool Master::loadFreqDAEMatrices(double frequency, std::complex<double>* solVec,
   for ( ; it != end; ++it )
   {
     Instance & inst = *(*it);
-
-               
-    int freqIndex;
-    for (int i=0; i<inst.model_.numFreq_ ;  i++ )   
-    { 
-      if (frequency == inst.model_.freqVec_[i] )
-        freqIndex = i;
-
-    }
 
     for (int i=0; i< inst.model_.numPorts_ ; i++)
     {
