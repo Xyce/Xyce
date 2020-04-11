@@ -1520,21 +1520,10 @@ bool Master::loadFreqDAEVectors(double frequency, std::complex<double>* solVec,
       tmpEntry.lid = inst.extLIDVec[i];   
       fVec.push_back(tmpEntry);
 
-      tmpEntry.val = inst.Iscvals[i/2];
-      tmpEntry.lid = inst.extLIDVec[i];   
-      bVec.push_back(tmpEntry);
-
-
       // Add RHS vector element for the negative circuit node KCL equ.
       tmpEntry.val = -Fvec[i/2];
       tmpEntry.lid = inst.extLIDVec[i+1];
       fVec.push_back(tmpEntry);
-
-
-      tmpEntry.val = -inst.Iscvals[i/2];
-      tmpEntry.lid = inst.extLIDVec[i+1];   
-      bVec.push_back(tmpEntry);
-
     }
 
 
