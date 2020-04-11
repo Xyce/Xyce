@@ -60,6 +60,8 @@ public:
     derivsSetup_(false),
     astArraysSetup_(false),
     expressionResolved_(false),
+    expressionFunctionsResolved_(false),
+    expressionParametersResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -83,6 +85,8 @@ public:
     derivsSetup_(false),
     astArraysSetup_(false),
     expressionResolved_(false),
+    expressionFunctionsResolved_(false),
+    expressionParametersResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -131,6 +135,8 @@ public:
     derivsSetup_(false),
     astArraysSetup_(false),
     expressionResolved_(false),
+    expressionFunctionsResolved_(false),
+    expressionParametersResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -169,6 +175,8 @@ public:
     derivsSetup_(false),
     astArraysSetup_(false),
     expressionResolved_(false),
+    expressionFunctionsResolved_(false),
+    expressionParametersResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -237,6 +245,8 @@ public:
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
     expressionResolved_(right.expressionResolved_),
+    expressionFunctionsResolved_(right.expressionFunctionsResolved_),
+    expressionParametersResolved_(right.expressionParametersResolved_),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     functionArgStringVec_(right.functionArgStringVec_),
@@ -305,6 +315,8 @@ public:
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
     expressionResolved_ = right.expressionResolved_;
+    expressionFunctionsResolved_ = right.expressionFunctionsResolved_;
+    expressionParametersResolved_ = right.expressionParametersResolved_;
     astNodePtrPtr_ = NULL;
     tableNodePtrPtr_ = NULL;
     functionArgStringVec_ = right.functionArgStringVec_;
@@ -397,6 +409,8 @@ public:
   bool lexAndParseExpression();
 
   bool resolveExpression();
+  bool attachFunctionNode(const std::string & funcName, Teuchos::RCP<Xyce::Util::newExpression> expPtr);
+  bool attachParameterNode(const std::string & paramName, Teuchos::RCP<Xyce::Util::newExpression> expPtr);
 
   void clear(); // reset expression to the state it should be before lexAndParseExpression
 
@@ -421,6 +435,9 @@ public:
       }
     }
   };
+
+  // added this accessor to allow the possibility of external resolution, rather than via the group.
+  void setExpressionResolved (bool res) { expressionResolved_ = res; }
 
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 
@@ -453,12 +470,15 @@ public:
 
   std::vector< Teuchos::RCP<astNode<usedType> > > & getFunctionArgOpVec() { return functionArgOpVec_; };
 
-  std::vector<std::string> & getParamNameVec () { return paramNameVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getParamOpVec () { return paramOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedParamOpVector() {  return unresolvedParamOpVec_; };
+  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getParamOpMap () { return paramOpMap_; };
+  std::vector<std::string> & getParamNameVec () { return paramNameVec_; };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getFuncOpVec () { return funcOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedFuncOpVec() { return unresolvedFuncOpVec_; };
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getFuncOpMap () { return funcOpMap_; };
+  std::vector< std::string > & getFuncNameVec () { return funcNameVec_; };
 
   std::vector<Teuchos::RCP<astNode<usedType> > > & getVoltOpVec () { return voltOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
@@ -528,6 +548,7 @@ public:
   }
 
   // when parsing the function prototype, the function name is needed as well.
+  // Note; this was needed by the OLD API.  May not be needed now.
   void getFuncPrototypeName ( std::string & prototypeName) 
   {
     if (!expressionResolved_) { resolveExpression(); }
@@ -548,6 +569,9 @@ private:
   bool derivsSetup_;
   bool astArraysSetup_;
   bool expressionResolved_;
+  bool expressionFunctionsResolved_;
+  bool expressionParametersResolved_;
+
   Teuchos::RCP<astNode<usedType> > astNodePtr_;
   Teuchos::RCP<astNode<usedType> > * astNodePtrPtr_;
   Teuchos::RCP<tableOp<usedType> > * tableNodePtrPtr_;
@@ -562,9 +586,12 @@ private:
   std::vector<std::string> paramNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > paramOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedParamOpVec_;
+  //std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > paramOpMap_; 
 
+  std::vector<std::string> funcNameVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > funcOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedFuncOpVec_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > funcOpMap_; 
 
   std::vector<Teuchos::RCP<astNode<usedType> > > voltOpVec_;
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedVoltOpVec_;

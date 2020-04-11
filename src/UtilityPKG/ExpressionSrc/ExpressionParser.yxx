@@ -224,6 +224,9 @@ exp:
   | TOK_WORD
       {
         // ensures that each parameter and/or function argument  has a single, unique astNode allocated for it
+        //
+        // note that maps are not used here, intentionally, so as to preseve the original order of params.
+        // using a std::vector for the names and a separate vector for the paramOps keeps them in order user specified.
         std::vector<std::string> & paramNameVec = newExp.getParamNameVec ();
         std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExp.getParamOpVec ();
         std::vector<std::string>::iterator nameIter = std::find(paramNameVec.begin(),paramNameVec.end(), *$1);
@@ -376,9 +379,25 @@ exp:
      {
         Teuchos::RCP<funcOp<usedType> > funcPtr = Teuchos::rcp(new funcOp<usedType>(*$1,$3));
         newExp.getFuncOpVec().push_back(funcPtr);
+        newExp.getFuncNameVec().push_back(*$1);
+
+        std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & funcOpMap 
+          = newExp.getFuncOpMap();
 
         Teuchos::RCP<astNode<usedType> > * tmpPtr2 = new Teuchos::RCP<astNode<usedType> >(funcPtr); // implicit cast
         newExp.getMasterNodeVec().push_back(tmpPtr2);
+
+        if (funcOpMap.find(*$1) == funcOpMap.end())
+        {
+          std::vector<Teuchos::RCP<astNode<usedType> > > vec;//(1,tmpPtr2);
+          vec.push_back(*tmpPtr2);
+          funcOpMap[*$1] = vec;
+        }
+        else
+        {
+          funcOpMap[*$1].push_back(*tmpPtr2);
+        }
+
         $$ = tmpPtr2;
         delete $1;
         delete $3;

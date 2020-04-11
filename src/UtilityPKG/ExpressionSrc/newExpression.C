@@ -204,83 +204,164 @@ bool newExpression::resolveExpression ()
   // Attempt to resolve the unresolved functions. Get them from the group,
   // which is the newExpression class connection to other expressions
   // and then assign the node pointer to the symbol.
-  int funcOpSize = funcOpVec_.size();
-  for (int ii=0;ii<funcOpSize;++ii)
+  if (!expressionFunctionsResolved_)
   {
-    Teuchos::RCP<Xyce::Util::newExpression> exp;
-    if ( group_->getFunction(funcOpVec_[ii]->getName(),exp) ) // found it
+    int funcOpSize = funcOpVec_.size();
+    for (int ii=0;ii<funcOpSize;++ii)
     {
-      funcOpVec_[ii]->setNode(exp->getAst());
-      externalDependencies_ = true;
-
-      if ( !(exp->expressionResolved()) )
+      Teuchos::RCP<Xyce::Util::newExpression> exp;
+      if ( group_->getFunction(funcOpVec_[ii]->getName(),exp) ) // found it
       {
-        if ( !(exp->resolveExpression()) )
+        funcOpVec_[ii]->setNode(exp->getAst());
+        externalDependencies_ = true;
+
+        Teuchos::RCP<funcOp<usedType> > tmpPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec_[ii]);
+        if ( !(Teuchos::is_null(tmpPtr)) )
+        {
+          tmpPtr->setFuncArgs(  exp->getFunctionArgOpVec() );
+        }
+        else
         {
           retval = false;
         }
       }
-
-      Teuchos::RCP<funcOp<usedType> > tmpPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec_[ii]);
-      if ( !(Teuchos::is_null(tmpPtr)) )
-      {
-        tmpPtr->setFuncArgs(  exp->getFunctionArgOpVec() );
-      }
       else
       {
+        unresolvedFuncOpVec_.push_back(funcOpVec_[ii]);
         retval = false;
       }
     }
-    else
-    {
-      unresolvedFuncOpVec_.push_back(funcOpVec_[ii]);
-      retval = false;
-    }
+    expressionFunctionsResolved_=true;
+  }
+  else
+  {
+    externalDependencies_ = true;
   }
 
   //---------------------------------------------------------------------------
   // Attempt to resolve the unresolved params and global parameters, using the
   // same approach.
-  int paramOpVec_Size = paramOpVec_.size();
-  for (int ii=0;ii<paramOpVec_Size;++ii)
+  if (!expressionParametersResolved_)
   {
-    Teuchos::RCP<Xyce::Util::newExpression> exp;
-    if ( group_->getParam(paramOpVec_[ii]->getName(),exp) ) // found it
+    int paramOpVec_Size = paramOpVec_.size();
+    for (int ii=0;ii<paramOpVec_Size;++ii)
     {
-      paramOpVec_[ii]->setNode(exp->getAst());
-      externalDependencies_ = true;
-
-      if ( !(exp->expressionResolved()) )
+      Teuchos::RCP<Xyce::Util::newExpression> exp;
+      if ( group_->getParam(paramOpVec_[ii]->getName(),exp) ) // found it
       {
-        if ( !(exp->resolveExpression()) )
+        paramOpVec_[ii]->setNode(exp->getAst());
+        externalDependencies_ = true;
+      }
+      else
+      {
+        if (group_->getGlobalParam(paramOpVec_[ii]->getName(),exp)) // found it
         {
+          paramOpVec_[ii]->setNode(exp->getAst());
+          externalDependencies_ = true;
+        }
+        else
+        {
+          unresolvedParamOpVec_.push_back(paramOpVec_[ii]);
           retval = false;
         }
       }
     }
-    else
-    {
-      if (group_->getGlobalParam(paramOpVec_[ii]->getName(),exp)) // found it
-      {
-        paramOpVec_[ii]->setNode(exp->getAst());
-        externalDependencies_ = true;
-
-        if ( !(exp->expressionResolved()) )
-        {
-          if ( !(exp->resolveExpression()) )
-          {
-            retval = false;
-          }
-        }
-      }
-      else
-      {
-        unresolvedParamOpVec_.push_back(paramOpVec_[ii]);
-        retval = false;
-      }
-    }
+    expressionParametersResolved_ = true;
   }
+  else
+  {
+    externalDependencies_ = true;
+  }
+
   expressionResolved_ = true;
+  return retval;
+}
+
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::attachFunctionNode
+//
+// Purpose       : resolve external functions.  This function is to provide a 
+//                 different method for function resolution, which doesn't rely on 
+//                 the group.  Instead, the calling code is responsible for finding
+//                 the expression that must be associated with this function name, 
+//                 and then passing both in.  This function then performs the attachment.
+//
+// This must be a separate phase from the setup in lexAndParseExpression function, as
+// *all* the relevant expressions must be allocated and have gone thru their initial
+// set up before the group can perform the next phase.
+//
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/10/2020
+//-------------------------------------------------------------------------------
+bool newExpression::attachFunctionNode(const std::string & funcName, Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+{
+  bool retval=true;
+
+  // should I use upper?
+  std::string funcNameUpper=funcName;
+  Xyce::Util::toUpper(funcNameUpper);
+
+  if (funcOpMap_.find(funcNameUpper) != funcOpMap_.end())
+  {
+    std::vector<Teuchos::RCP<astNode<usedType> > > & tmpVec = funcOpMap_[funcNameUpper];
+    for (int ii=0;ii<tmpVec.size();++ii) 
+    { 
+      if ( !(Teuchos::is_null(tmpVec[ii])) ) 
+      {
+        tmpVec[ii]->setNode(expPtr->getAst()); 
+      }
+      else { retval=false; }
+
+      Teuchos::RCP<funcOp<usedType> > castedFuncPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (tmpVec[ii]);
+      if ( !(Teuchos::is_null(castedFuncPtr)) )
+      {
+        castedFuncPtr->setFuncArgs( expPtr->getFunctionArgOpVec() ); 
+      }
+      else { retval=false; }
+    }
+    expressionFunctionsResolved_ = true;
+    externalDependencies_ = true;
+  }
+  else { retval=false; }
+  return retval;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::attachParameterNode
+//
+// Purpose       : resolve external parameters.  This function is to provide a 
+//                 different method for parameter resolution, which doesn't rely on 
+//                 the group.  Instead, the calling code is responsible for finding
+//                 the expression that must be associated with this parameter name, 
+//                 and then passing both in.  This function then performs the attachment.
+//
+// This must be a separate phase from the setup in lexAndParseExpression function, as
+// *all* the relevant expressions must be allocated and have gone thru their initial
+// set up before the group can perform the next phase.
+//
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/10/2020
+//-------------------------------------------------------------------------------
+bool newExpression::attachParameterNode(const std::string & paramName, Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+{
+  bool retval=true;
+  std::string paramNameUpper=paramName;
+  Xyce::Util::toUpper(paramNameUpper);
+  std::vector<std::string>::iterator nameIter = std::find(paramNameVec_.begin(),paramNameVec_.end(), paramNameUpper);
+  if ( nameIter != paramNameVec_.end() )
+  {
+    int index = std::distance(paramNameVec_.begin(),nameIter);
+    Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
+    parOp->setNode(expPtr->getAst());
+    expressionParametersResolved_=true;
+    externalDependencies_ = true;
+  }
+  else { retval=false; }
   return retval;
 }
 
@@ -556,6 +637,16 @@ void newExpression::setupDerivatives_ ()
   derivsSetup_ = true;
 }
 
+
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::setupVariousAstArrays_
+// Purpose       : see below
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 12/26/2019
+//-------------------------------------------------------------------------------
 // ERK.  12/26/2019. This may be refactored away later.
 // This is not the best way to do this.
 // But, I needed it for several parserUnitTests to pass,
@@ -655,10 +746,31 @@ void newExpression::setupVariousAstArrays_()
       }
 
       astNodePtr_->getInterestingOps(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_);
-      // this won't work with RCP
-      //std::sort (paramOpVec_.begin(), paramOpVec_.end());
-      //std::unique (paramOpVec_.begin(), paramOpVec_.end());
     }
+
+#if 0
+    funcNameVec_.clear();
+    //funcOpMap_.clear();
+    for (int ii=0;ii<funcOpVec_.size();++ii)
+    {
+      Teuchos::RCP<funcOp<usedType> > functionOp = Teuchos::rcp_static_cast<funcOp<usedType> > (funcOpVec_[ii]);
+      std::string tmp = functionOp->getName();
+      Xyce::Util::toUpper(tmp);
+      //funcOpMap_[tmp].push_back(funcOpVec_[ii]);
+      funcNameVec_.push_back(tmp);
+    }
+    
+    //paramNameVec_.clear();
+    //paramOpMap_.clear();
+    for (int ii=0;ii<paramOpVec_.size();++ii)
+    {
+      Teuchos::RCP<paramOp<usedType> > parameterOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
+      std::string tmp = parameterOp->getName();
+      Xyce::Util::toUpper(tmp);
+      //paramOpMap_[tmp].push_back(paramOpVec_[ii]);
+      //paramNameVec_.push_back(tmp);
+    }
+#endif
 
     for (int ii=0;ii<voltOpVec_.size();++ii)
     {
@@ -726,6 +838,15 @@ void newExpression::setupVariousAstArrays_()
 //-------------------------------------------------------------------------------
 // these two functions return int error codes in the original expression library
 //-------------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::evaluate
+// Purpose       : evaluates the expression, including derivatives
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
 int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 {
   int retVal=0;
@@ -736,7 +857,6 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
       if (!resolveExpression())
       {
         std::cout << "ERROR. Expression not resolvable" << std::endl;
-        //exit(0);
       }
     }
 
@@ -787,6 +907,12 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
 };
 
 //-------------------------------------------------------------------------------
+// Function      : newExpression::evaluateFunction
+// Purpose       : evaluates the expression without derivatives
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
 //-------------------------------------------------------------------------------
 int newExpression::evaluateFunction (usedType &result)
 {
@@ -798,7 +924,6 @@ int newExpression::evaluateFunction (usedType &result)
       if (!resolveExpression())
       {
         std::cout << "ERROR. Expression not resolvable" << std::endl;
-        //exit(0);
       }
     }
 
@@ -895,8 +1020,14 @@ int newExpression::evaluateFunction (usedType &result)
   return retVal;
 };
 
-
-// some of the parameter and function objects are stored in multiple containers.
+//-------------------------------------------------------------------------------
+// Function      : newExpression::setFunctionArgStringVec
+// Purpose       : 
+// Special Notes : some of the parameter and function objects are stored in multiple containers.
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
 void newExpression::setFunctionArgStringVec (const std::vector<std::string> & args)
 {
   functionArgStringVec_ = args;
@@ -906,5 +1037,6 @@ void newExpression::setFunctionArgStringVec (const std::vector<std::string> & ar
     Xyce::Util::toUpper(functionArgStringVec_[ii]);
   }
 };
+
 }
 }
