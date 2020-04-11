@@ -65,8 +65,8 @@ FindWhen::FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureB
   // The default values of whenIdx_=0 works for WHEN measures.  For a FIND-WHEN
   // measure, the variable for the FIND clause is in outVarValues_[0], while the
   // variable for the WHEN clause is in outVarValues_[1].
-  if (findGiven_) 
-  { 
+  if (findGiven_ && !atGiven_)
+  {
     whenIdx_ = 1;
   }
 }
@@ -82,8 +82,16 @@ FindWhen::FindWhen(const Manager &measureMgr, const Util::OptionBlock & measureB
 //-----------------------------------------------------------------------------
 void FindWhen::prepareOutputVariables() 
 {
-  // this measurement can involve up to three solution variables
+  // This measurement can involve up to three solution variables.
+  // However, if the AT keyword is given then numOutVars should only have one entry
   numOutVars_ = outputVars_.size();
+
+  if ( (numOutVars_ > 1) && atGiven_ )
+  {
+    std::string msg = "Too many dependent variables for FIND-AT measure, \"" + name_ + "\"";
+    Report::UserError0() << msg;
+  }
+
   outVarValues_.resize( numOutVars_, 0.0 );
 }
 
@@ -179,7 +187,29 @@ void FindWhen::updateTran(
     
     // for the FIND-WHEN and WHEN measures, the rfc level used is either the target value
     // of the WHEN clause, or the value of the RFC_LEVEL qualifier if one is specified.
-    if( (type_ == "WHEN") &&  withinRiseFallCrossWindow( outVarValues_[whenIdx_], 
+    if (atGiven_)
+    {
+      // check and see if last point and this point bound the target point
+      double backDiff    = lastIndepVarValue_ - at_;
+      double forwardDiff = circuitTime - at_;
+
+      // if we bound the frequency target then either
+      //  (backDiff < 0) && (forwardDiff > 0)
+      //   OR
+      //  (backDiff > 0) && (forwardDiff < 0)
+      // or more simply sgn( backDiff ) = - sgn( forwardDiff )
+      //
+      // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
+      if ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
+	     (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) )
+      {
+        calculationResult_= outVarValues_[0] - (circuitTime - at_)*
+	        ( (outVarValues_[0] - lastOutputVarValue_)/(circuitTime - lastIndepVarValue_) );
+        calculationDone_ = true;
+        resultFound_ = true;
+      }
+    }
+    else if( (type_ == "WHEN") &&  withinRiseFallCrossWindow( outVarValues_[whenIdx_], 
                                      (rfcLevelGiven_ ? rfcLevel_ : targVal) ) )
     {
       // If LAST was specified then this is done
@@ -357,7 +387,29 @@ void FindWhen::updateDC(
        doneIfFound=true;
       }
 
-      if (type_ == "WHEN")
+      if (atGiven_)
+      {
+        // check and see if last point and this point bound the target point
+        double backDiff    = lastIndepVarValue_ - at_;
+        double forwardDiff = dcSweepVal - at_;
+
+        // if we bound the frequency target then either
+        //  (backDiff < 0) && (forwardDiff > 0)
+        //   OR
+        //  (backDiff > 0) && (forwardDiff < 0)
+        // or more simply sgn( backDiff ) = - sgn( forwardDiff )
+        //
+        // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
+        if ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
+	     (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) )
+        {
+          calculationResult_= outVarValues_[0] - (dcSweepVal - at_)*
+	        ( (outVarValues_[0] - lastOutputVarValue_)/(dcSweepVal - lastIndepVarValue_) );
+          calculationDone_ = true;
+          resultFound_ = true;
+        }
+      }
+      else if (type_ == "WHEN")
       {
         if (!resultFound_)
         {
@@ -494,7 +546,29 @@ void FindWhen::updateAC(
       doneIfFound=true;
     }
 
-    if (type_ == "WHEN")
+    if (atGiven_)
+    {
+      // check and see if last point and this point bound the target point
+      double backDiff    = lastIndepVarValue_ - at_;
+      double forwardDiff = frequency - at_;
+
+      // if we bound the frequency target then either
+      //  (backDiff < 0) && (forwardDiff > 0)
+      //   OR
+      //  (backDiff > 0) && (forwardDiff < 0)
+      // or more simply sgn( backDiff ) = - sgn( forwardDiff )
+      //
+      // Also test for equality, to within the minval_ tolerance, as with the WHEN syntax.
+      if ( ((backDiff < 0.0) && (forwardDiff > 0.0)) || ((backDiff > 0.0) && (forwardDiff < 0.0)) ||
+	     (((abs(backDiff) < minval_) || (abs(forwardDiff) < minval_))) )
+      {
+        calculationResult_= outVarValues_[0] - (frequency - at_)*
+	        ( (outVarValues_[0] - lastOutputVarValue_)/(frequency - lastIndepVarValue_) );
+        calculationDone_ = true;
+        resultFound_ = true;
+      }
+    }
+    else if (type_ == "WHEN")
     {
       if (!resultFound_)
       {
@@ -585,7 +659,11 @@ std::ostream& FindWhen::printMeasureResult(std::ostream& os, bool printVerbose)
     if (calculationDone_ || ( measureLastRFC_ && resultFound_ ) )
     {
       os << name_ << " = " << this->getMeasureResult() ;
-      if (findGiven_)
+      if (atGiven_)
+      {
+        os << " for AT = " << at_;
+      }
+      else if (findGiven_)
       {
         // modeStr is "time" for TRAN mode, "freq" for AC mode and
         // "<sweep variable> value" for DC mode.
@@ -596,12 +674,39 @@ std::ostream& FindWhen::printMeasureResult(std::ostream& os, bool printVerbose)
     else
     { 
       os << name_ << " = FAILED";
+      if (atGiven_)
+      {
+        os << " for AT = " << at_;
+      }
     }
     os << std::endl;
   } 
 
   return os;
 }
+
+//-----------------------------------------------------------------------------
+// Function      : FindWhen::printMeasureWindow
+// Purpose       : prints information related to measure window
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/8/2020
+//-----------------------------------------------------------------------------
+std::ostream& FindWhen::printMeasureWindow(std::ostream& os, const double endSimTime)
+{
+  if (!atGiven_)
+  {
+    Base::printMeasureWindow(os,endSimTime);
+  }
+  else
+  {
+    // no op if AT keyword was given
+  }
+
+  return os;
+}
+
 
 //-----------------------------------------------------------------------------
 // Function      : FindWhen::checkMeasureLine
@@ -617,7 +722,7 @@ bool FindWhen::checkMeasureLine()
   bool bsuccess = true;
   // incorrect number of dependent solution variables will cause core dumps in
   // updateTran() function
-  if (numDepSolVars_ <= 1 && findGiven_)
+  if (numDepSolVars_ <= 1 && findGiven_ && !atGiven_)
   {
     // FIND-WHEN
     bsuccess = false;

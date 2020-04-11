@@ -32,14 +32,12 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 31 Mar 2020 09:29:14
+// Creation Date  : Thu, 09 Apr 2020 18:37:52
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSmvs_2_0_0_hemt_h
 #define Xyce_N_DEV_ADMSmvs_2_0_0_hemt_h
 
-
-#include <Sacado_No_Kokkos.hpp>
 
 #include <N_DEV_Configuration.h>
 #include <N_DEV_Const.h>
@@ -52,10 +50,6 @@
 namespace Xyce {
 namespace Device {
 namespace ADMSmvs_2_0_0_hemt {
-
-// This typedef is for our automatic differentiation:
-  typedef Sacado::Fad::SFad<double,7> AdmsFadType;
-  typedef Sacado::Fad::SFad<double,1> AdmsSensFadType;
 
 class Model;
 class Instance;
@@ -166,6 +160,89 @@ return ifFalse;
 
 #ifdef Xyce_ADMS_SENSITIVITIES
 //-----------------------------------------------------------------------------
+// "structs" to hold instance and model param/variable copies
+//-----------------------------------------------------------------------------
+class instanceSensStruct
+{
+public:
+};
+
+class modelSensStruct
+{
+public:
+// model parameters
+// reals
+double modelPar_version;
+double d_modelPar_version_dX;
+bool modelPar_given_version;
+double modelPar_W;
+double d_modelPar_W_dX;
+bool modelPar_given_W;
+double modelPar_Lgdr;
+double d_modelPar_Lgdr_dX;
+bool modelPar_given_Lgdr;
+double modelPar_dLg;
+double d_modelPar_dLg_dX;
+bool modelPar_given_dLg;
+double modelPar_Cins;
+double d_modelPar_Cins_dX;
+bool modelPar_given_Cins;
+double modelPar_Tjun;
+double d_modelPar_Tjun_dX;
+bool modelPar_given_Tjun;
+double modelPar_energy_diff_volt;
+double d_modelPar_energy_diff_volt_dX;
+bool modelPar_given_energy_diff_volt;
+double modelPar_delta;
+double d_modelPar_delta_dX;
+bool modelPar_given_delta;
+double modelPar_n0;
+double d_modelPar_n0_dX;
+bool modelPar_given_n0;
+double modelPar_Rc0;
+double d_modelPar_Rc0_dX;
+bool modelPar_given_Rc0;
+double modelPar_nacc;
+double d_modelPar_nacc_dX;
+bool modelPar_given_nacc;
+double modelPar_meff;
+double d_modelPar_meff_dX;
+bool modelPar_given_meff;
+double modelPar_np_mass;
+double d_modelPar_np_mass_dX;
+bool modelPar_given_np_mass;
+double modelPar_mu_eff;
+double d_modelPar_mu_eff_dX;
+bool modelPar_given_mu_eff;
+double modelPar_ksee;
+double d_modelPar_ksee_dX;
+bool modelPar_given_ksee;
+double modelPar_B;
+double d_modelPar_B_dX;
+bool modelPar_given_B;
+double modelPar_dqm0;
+double d_modelPar_dqm0_dX;
+bool modelPar_given_dqm0;
+double modelPar_eps;
+double d_modelPar_eps_dX;
+bool modelPar_given_eps;
+double modelPar_theta;
+double d_modelPar_theta_dX;
+bool modelPar_given_theta;
+double modelPar_beta;
+double d_modelPar_beta_dX;
+bool modelPar_given_beta;
+double modelPar_nd;
+double d_modelPar_nd_dX;
+bool modelPar_given_nd;
+// non-reals (including hidden)
+int modelPar_type;
+bool modelPar_given_type;
+};
+
+
+
+//-----------------------------------------------------------------------------
 // Free functions used by sensitivity
 //
 //-----------------------------------------------------------------------------
@@ -187,154 +264,18 @@ const int admsNodeID_di,
 const int admsNodeID_si,
 const int admsNodeID_sf,
 const int admsBRA_ID_sf_GND,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_version,
-bool modelPar_given_version,
-AdmsSensFadType & modelPar_W,
-bool modelPar_given_W,
-AdmsSensFadType & modelPar_Lgdr,
-bool modelPar_given_Lgdr,
-AdmsSensFadType & modelPar_dLg,
-bool modelPar_given_dLg,
-AdmsSensFadType & modelPar_Cins,
-bool modelPar_given_Cins,
-AdmsSensFadType & modelPar_Tjun,
-bool modelPar_given_Tjun,
-AdmsSensFadType & modelPar_energy_diff_volt,
-bool modelPar_given_energy_diff_volt,
-AdmsSensFadType & modelPar_delta,
-bool modelPar_given_delta,
-AdmsSensFadType & modelPar_n0,
-bool modelPar_given_n0,
-AdmsSensFadType & modelPar_Rc0,
-bool modelPar_given_Rc0,
-AdmsSensFadType & modelPar_nacc,
-bool modelPar_given_nacc,
-AdmsSensFadType & modelPar_meff,
-bool modelPar_given_meff,
-AdmsSensFadType & modelPar_np_mass,
-bool modelPar_given_np_mass,
-AdmsSensFadType & modelPar_mu_eff,
-bool modelPar_given_mu_eff,
-AdmsSensFadType & modelPar_ksee,
-bool modelPar_given_ksee,
-AdmsSensFadType & modelPar_B,
-bool modelPar_given_B,
-AdmsSensFadType & modelPar_dqm0,
-bool modelPar_given_dqm0,
-AdmsSensFadType & modelPar_eps,
-bool modelPar_given_eps,
-AdmsSensFadType & modelPar_theta,
-bool modelPar_given_theta,
-AdmsSensFadType & modelPar_beta,
-bool modelPar_given_beta,
-AdmsSensFadType & modelPar_nd,
-bool modelPar_given_nd,
-// non-reals (including hidden)
-int modelPar_type,
-bool modelPar_given_type,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
 // basic variables
- double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance);
+ double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & d_staticContributions_dX, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance);
 
 void evaluateInitialInstance(
-// model parameters
-// reals
-AdmsSensFadType & modelPar_version,
-bool modelPar_given_version,
-AdmsSensFadType & modelPar_W,
-bool modelPar_given_W,
-AdmsSensFadType & modelPar_Lgdr,
-bool modelPar_given_Lgdr,
-AdmsSensFadType & modelPar_dLg,
-bool modelPar_given_dLg,
-AdmsSensFadType & modelPar_Cins,
-bool modelPar_given_Cins,
-AdmsSensFadType & modelPar_Tjun,
-bool modelPar_given_Tjun,
-AdmsSensFadType & modelPar_energy_diff_volt,
-bool modelPar_given_energy_diff_volt,
-AdmsSensFadType & modelPar_delta,
-bool modelPar_given_delta,
-AdmsSensFadType & modelPar_n0,
-bool modelPar_given_n0,
-AdmsSensFadType & modelPar_Rc0,
-bool modelPar_given_Rc0,
-AdmsSensFadType & modelPar_nacc,
-bool modelPar_given_nacc,
-AdmsSensFadType & modelPar_meff,
-bool modelPar_given_meff,
-AdmsSensFadType & modelPar_np_mass,
-bool modelPar_given_np_mass,
-AdmsSensFadType & modelPar_mu_eff,
-bool modelPar_given_mu_eff,
-AdmsSensFadType & modelPar_ksee,
-bool modelPar_given_ksee,
-AdmsSensFadType & modelPar_B,
-bool modelPar_given_B,
-AdmsSensFadType & modelPar_dqm0,
-bool modelPar_given_dqm0,
-AdmsSensFadType & modelPar_eps,
-bool modelPar_given_eps,
-AdmsSensFadType & modelPar_theta,
-bool modelPar_given_theta,
-AdmsSensFadType & modelPar_beta,
-bool modelPar_given_beta,
-AdmsSensFadType & modelPar_nd,
-bool modelPar_given_nd,
-// non-reals (including hidden)
-int modelPar_type,
-bool modelPar_given_type,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
  double admsTemperature,double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance);
 
 void evaluateInitialModel(
-// model parameters
-// reals
-AdmsSensFadType & modelPar_version,
-bool modelPar_given_version,
-AdmsSensFadType & modelPar_W,
-bool modelPar_given_W,
-AdmsSensFadType & modelPar_Lgdr,
-bool modelPar_given_Lgdr,
-AdmsSensFadType & modelPar_dLg,
-bool modelPar_given_dLg,
-AdmsSensFadType & modelPar_Cins,
-bool modelPar_given_Cins,
-AdmsSensFadType & modelPar_Tjun,
-bool modelPar_given_Tjun,
-AdmsSensFadType & modelPar_energy_diff_volt,
-bool modelPar_given_energy_diff_volt,
-AdmsSensFadType & modelPar_delta,
-bool modelPar_given_delta,
-AdmsSensFadType & modelPar_n0,
-bool modelPar_given_n0,
-AdmsSensFadType & modelPar_Rc0,
-bool modelPar_given_Rc0,
-AdmsSensFadType & modelPar_nacc,
-bool modelPar_given_nacc,
-AdmsSensFadType & modelPar_meff,
-bool modelPar_given_meff,
-AdmsSensFadType & modelPar_np_mass,
-bool modelPar_given_np_mass,
-AdmsSensFadType & modelPar_mu_eff,
-bool modelPar_given_mu_eff,
-AdmsSensFadType & modelPar_ksee,
-bool modelPar_given_ksee,
-AdmsSensFadType & modelPar_B,
-bool modelPar_given_B,
-AdmsSensFadType & modelPar_dqm0,
-bool modelPar_given_dqm0,
-AdmsSensFadType & modelPar_eps,
-bool modelPar_given_eps,
-AdmsSensFadType & modelPar_theta,
-bool modelPar_given_theta,
-AdmsSensFadType & modelPar_beta,
-bool modelPar_given_beta,
-AdmsSensFadType & modelPar_nd,
-bool modelPar_given_nd,
-// non-reals (including hidden)
-int modelPar_type,
-bool modelPar_given_type,
+modelSensStruct & modelStruct,
  double admsTemperature, double ADMSgmin_arg, const Instance & theInstance);
 
 #endif // Xyce_ADMS_SENSITIVITIES
@@ -350,23 +291,6 @@ T limexp(const T &x)
   return (exp(x));
   else
   return (exp(80.0)*(x-79.0));
-}
-
-// Maybe this will do as a substitute for a sacado-provided "floor" and "ceil"?
-// It is wrong to try to propagate the Sacado derivatives to the return
-// value, as the floor and ceil functions have zero derivative w.r.t. any
-// of the variables in the argument, except when X is an integer at which
-// point the derivative is undefined.
-template <typename T>
-double ADMSfloor(const T & x)
-{
-return (floor(x.val()));
-}
-
-template <typename T>
-double ADMSceil(const T & x)
-{
-return (ceil(x.val()));
 }
 
 

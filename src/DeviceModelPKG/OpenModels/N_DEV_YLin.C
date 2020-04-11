@@ -1308,7 +1308,7 @@ void Model::forEachInstance(DeviceInstanceOp &op) const /* override */
 
              
 
-void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::complex<double> > & result)
+void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::complex<double> > & result, std::vector<std::complex<double> >  & Iscvals  )
 {
 //  std::vector<std::complex<double> > 
 //  result.resize ( freqData[0].yth_.size());
@@ -1316,6 +1316,12 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 //  int fsize = freqData.size();
 
   // Perform linear interpolation or extrapolation
+
+         
+  if (Iscvals.empty())
+    Iscvals.resize(numPorts_ );
+
+
   double fmin = freqVec_[0];
   double fmax = freqVec_[numFreq_ - 1];
 
@@ -1335,6 +1341,10 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 //    n1 = 1;
 
     result = inputNetworkDataVec_[0];
+
+    if (Isc_)
+      Iscvals = inputIscVec_[0];
+
     return;
   }
   else
@@ -1345,6 +1355,11 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 //      n1 = fsize - 1;
 
       result = inputNetworkDataVec_[numFreq_ - 1];
+
+
+      if (Isc_)
+        Iscvals = inputIscVec_[numFreq_ - 1];
+
       return;
 
     }
@@ -1367,9 +1382,7 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
   f0 = freqVec_[n0];
   f1 = freqVec_[n1];
 
-
   std::complex<double> y0, y1;
-    
 
   for (int i=0; i< numPorts_ ; i++)
   {
@@ -1380,6 +1393,13 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
       y1 = (inputNetworkDataVec_[n1])(i, j);
       result(i, j)= y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
 
+    }
+
+    if (Isc_)
+    {
+      y0 = inputIscVec_[n0][i];
+      y1 = inputIscVec_[n1][i];
+      Iscvals[i] = y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
     }
   }
 
@@ -1486,23 +1506,12 @@ bool Master::loadFreqDAEVectors(double frequency, std::complex<double>* solVec,
     Teuchos::SerialDenseVector<int,std::complex<double> > Fvec( inst.model_.numPorts_ );
     Teuchos::SerialDenseVector<int,std::complex<double> > Xvec( Teuchos::View, &port_vals[0], inst.model_.numPorts_ );
 
-
-    inst.model_.interpLin( frequency,  inst.yvals);
+    inst.model_.interpLin( frequency,  inst.yvals, inst.Iscvals );
                                     
-/*    int freqIndex;
-    for (int i=0; i<inst.model_.numFreq_ ;  i++ )   
-    { 
-      if (frequency == inst.model_.freqVec_[i] )
-        freqIndex = i;
-
-    }  */
 
     Fvec.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, Teuchos::ScalarTraits<std::complex<double> >::one(),
                    inst.yvals, Xvec, Teuchos::ScalarTraits<std::complex<double> >::zero() );   
 
-
-//    Fvec.multiply( Teuchos::NO_TRANS, Teuchos::NO_TRANS, Teuchos::ScalarTraits<std::complex<double> >::one(),
-//                                inst.model_.inputNetworkDataVec_[freqIndex], Xvec, Teuchos::ScalarTraits<std::complex<double> >::zero() );
 
     for (size_t i = 0; i < inst.extLIDVec.size(); i += 2)
     {
@@ -1537,15 +1546,6 @@ bool Master::loadFreqDAEMatrices(double frequency, std::complex<double>* solVec,
   for ( ; it != end; ++it )
   {
     Instance & inst = *(*it);
-
-               
-    int freqIndex;
-    for (int i=0; i<inst.model_.numFreq_ ;  i++ )   
-    { 
-      if (frequency == inst.model_.freqVec_[i] )
-        freqIndex = i;
-
-    }
 
     for (int i=0; i< inst.model_.numPorts_ ; i++)
     {

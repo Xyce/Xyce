@@ -151,6 +151,8 @@ private:
 
   ///<   NOT used, only here for compatibility in parsing
   ///<   netlist from simulators that support it
+  std::vector<std::complex<double> >  Iscvals;   
+
   double      dtemp;                  ///<Temp difference between instance and circuit, in C.
   bool        dtempGiven;             ///< Temp difference given in netlist
 
@@ -280,7 +282,7 @@ private:
   // in freqVec_
   std::vector<Teuchos::SerialDenseMatrix<int, std::complex<double> > > inputNetworkDataVec_;
 
-  void interpLin( double freq, Teuchos::SerialDenseMatrix<int, std::complex<double> > & result);
+  void interpLin( double freq, Teuchos::SerialDenseMatrix<int, std::complex<double> > & result,  std::vector<std::complex<double> >  & Iscvals );
 };
 
 

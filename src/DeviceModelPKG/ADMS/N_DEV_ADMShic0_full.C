@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Tue, 31 Mar 2020 09:29:14
+// Creation Date  : Thu, 09 Apr 2020 18:37:52
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -1398,7 +1398,7 @@ Instance::~Instance()
 
 //-----------------------------------------------------------------------------
 // Function      : Instance::registerLIDs
-// Purpose       : function for registering, and setting up, local ID's.
+// Purpose       : function for registering, and setting up, local IDs.
 // Special Notes :
 // Scope         : public
 // Creator       : admsXml
@@ -1525,7 +1525,7 @@ void Instance::loadNodeSymbols(Util::SymbolTable &symbol_table) const
     addStoreNode(symbol_table, li_store_BETAAC, getName().getEncodedName() + ":BETAAC");
     addStoreNode(symbol_table, li_store_TF, getName().getEncodedName() + ":TF");
     addStoreNode(symbol_table, li_store_FT, getName().getEncodedName() + ":FT");
-  
+
   if (loadLeadCurrent)
   {
               addBranchDataNode( symbol_table, li_branch_ic, getName(), "BRANCH_DC");
@@ -1611,7 +1611,7 @@ void Instance::registerBranchDataLIDs(const std::vector<int> & branchLIDVecRef)
 //-----------------------------------------------------------------------------
 // Function      : Instance::jacobianStamp
 // Purpose       :
-// Special Notes : In initial version, we won't support mapping away nodes
+// Special Notes :
 // Scope         : public
 // Creator       : admsXml
 // Creation Date :
@@ -2118,1985 +2118,1985 @@ bool Instance::updateIntermediateVars()
   }
 
   // Local variables
-  double flicker_Pwr;
-     double d_flicker_Pwr_dV_tnode_GND;
-     double d_flicker_Pwr_dV_bi_ei;
-  double twoq;
-  double fourkt;
-     double d_fourkt_dV_tnode_GND;
-  double it_wop;
-     double d_it_wop_dV_tnode_GND;
-     double d_it_wop_dV_bi_ei;
-     double d_it_wop_dV_bi_ci;
-     double d_it_wop_dV_b_ci;
-     double d_it_wop_dV_ci_ei;
-  double Qbiei;
-     double d_Qbiei_dV_tnode_GND;
-     double d_Qbiei_dV_ci_ei;
-     double d_Qbiei_dV_bi_ei;
-     double d_Qbiei_dV_bi_ci;
-     double d_Qbiei_dV_b_ci;
-     double d_Qbiei_dV_xf_GND;
-  double Qbici;
-     double d_Qbici_dV_bi_ci;
-     double d_Qbici_dV_tnode_GND;
-     double d_Qbici_dV_b_ci;
-     double d_Qbici_dV_bi_ei;
-     double d_Qbici_dV_ci_ei;
-  double Qbe;
-     double d_Qbe_dV_b_e;
-  double Qbci;
-     double d_Qbci_dV_b_ci;
-  double Qxf;
-     double d_Qxf_dV_xf_GND;
-  double Ixf;
-     double d_Ixf_dV_xf_GND;
-     double d_Ixf_dV_tnode_GND;
-     double d_Ixf_dV_bi_ci;
-     double d_Ixf_dV_b_ci;
-     double d_Ixf_dV_bi_ei;
-     double d_Ixf_dV_ci_ei;
-  double fact;
-     double d_fact_dV_tnode_GND;
-     double d_fact_dV_bi_ci;
-     double d_fact_dV_b_ci;
-     double d_fact_dV_ci_ei;
-     double d_fact_dV_bi_ei;
-  double Vxf;
-     double d_Vxf_dV_xf_GND;
-  double Qxf2;
-     double d_Qxf2_dV_xf2_GND;
-  double Qxf1;
-     double d_Qxf1_dV_xf1_GND;
-  double Ixf2;
-     double d_Ixf2_dV_xf2_GND;
-     double d_Ixf2_dV_xf1_GND;
-     double d_Ixf2_dV_tnode_GND;
-     double d_Ixf2_dV_bi_ci;
-     double d_Ixf2_dV_b_ci;
-     double d_Ixf2_dV_ci_ei;
-     double d_Ixf2_dV_bi_ei;
-  double Ixf1;
-     double d_Ixf1_dV_xf1_GND;
-     double d_Ixf1_dV_xf2_GND;
-     double d_Ixf1_dV_tnode_GND;
-     double d_Ixf1_dV_bi_ei;
-     double d_Ixf1_dV_bi_ci;
-     double d_Ixf1_dV_b_ci;
-     double d_Ixf1_dV_ci_ei;
-  double Vxf2;
-     double d_Vxf2_dV_xf2_GND;
-  double Vxf1;
-     double d_Vxf1_dV_xf1_GND;
-  double Qdeix;
-     double d_Qdeix_dV_xf_GND;
-     double d_Qdeix_dV_tnode_GND;
-     double d_Qdeix_dV_bi_ci;
-     double d_Qdeix_dV_b_ci;
-     double d_Qdeix_dV_bi_ei;
-     double d_Qdeix_dV_ci_ei;
-  double Itxf;
-     double d_Itxf_dV_xf2_GND;
-     double d_Itxf_dV_tnode_GND;
-     double d_Itxf_dV_bi_ei;
-     double d_Itxf_dV_bi_ci;
-     double d_Itxf_dV_b_ci;
-     double d_Itxf_dV_ci_ei;
-  double pterm;
-     double d_pterm_dV_ci_c;
-     double d_pterm_dV_ei_e;
-     double d_pterm_dV_b_bi;
-     double d_pterm_dV_s_ci;
-     double d_pterm_dV_tnode_GND;
-     double d_pterm_dV_bi_ei;
-     double d_pterm_dV_bi_ci;
-     double d_pterm_dV_b_ci;
-     double d_pterm_dV_ci_ei;
-  double qjs;
-     double d_qjs_dV_ci_ei;
-     double d_qjs_dV_bi_ei;
-     double d_qjs_dV_s_ci;
-     double d_qjs_dV_s_ci_dV_ci_ei;
-     double d_qjs_dV_s_ci_dV_bi_ei;
-     double d_qjs_dV_s_ci_dV_s_ci;
-     double d_qjs_dV_s_ci_dV_bi_ci;
-     double d_qjs_dV_s_ci_dV_tnode_GND;
-     double d_qjs_dV_s_ci_dV_b_ci;
-     double d_qjs_dV_bi_ci;
-     double d_qjs_dV_tnode_GND;
-     double d_qjs_dV_b_ci;
-  double HSI_Tsu;
-     double d_HSI_Tsu_dV_tnode_GND;
-     double d_HSI_Tsu_dV_b_ci;
-     double d_HSI_Tsu_dV_s_ci;
-  double HSb;
-     double d_HSb_dV_s_ci;
-     double d_HSb_dV_tnode_GND;
-  double HSa;
-     double d_HSa_dV_b_ci;
-     double d_HSa_dV_tnode_GND;
-  double HSUM;
-     double d_HSUM_dV_tnode_GND;
-  double rb;
-     double d_rb_dV_tnode_GND;
-     double d_rb_dV_bi_ei;
-     double d_rb_dV_ci_ei;
-     double d_rb_dV_bi_ci;
-     double d_rb_dV_b_ci;
-  double eta;
-     double d_eta_dV_tnode_GND;
-     double d_eta_dV_bi_ei;
-     double d_eta_dV_ci_ei;
-     double d_eta_dV_bi_ci;
-     double d_eta_dV_b_ci;
-  double rbi;
-     double d_rbi_dV_tnode_GND;
-     double d_rbi_dV_bi_ei;
-     double d_rbi_dV_ci_ei;
-     double d_rbi_dV_bi_ci;
-     double d_rbi_dV_b_ci;
-  double fQz;
-     double d_fQz_dV_tnode_GND;
-     double d_fQz_dV_bi_ei;
-     double d_fQz_dV_ci_ei;
-     double d_fQz_dV_bi_ci;
-     double d_fQz_dV_b_ci;
-  double Qz_nom;
-     double d_Qz_nom_dV_tnode_GND;
-     double d_Qz_nom_dV_bi_ei;
-     double d_Qz_nom_dV_ci_ei;
-     double d_Qz_nom_dV_bi_ci;
-     double d_Qz_nom_dV_b_ci;
-  double a_iavl;
-     double d_a_iavl_dV_tnode_GND;
-     double d_a_iavl_dV_bi_ci;
-     double d_a_iavl_dV_bi_ci_dV_tnode_GND;
-     double d_a_iavl_dV_bi_ci_dV_bi_ci;
-     double d_a_iavl_dV_bi_ci_dV_b_ci;
-     double d_a_iavl_dV_b_ci;
-     double d_a_iavl_dV_b_ci_dV_tnode_GND;
-     double d_a_iavl_dV_b_ci_dV_bi_ci;
-     double d_a_iavl_dV_b_ci_dV_b_ci;
-  double lncc;
-     double d_lncc_dV_tnode_GND;
-     double d_lncc_dV_bi_ci;
-     double d_lncc_dV_bi_ci_dV_tnode_GND;
-     double d_lncc_dV_bi_ci_dV_bi_ci;
-     double d_lncc_dV_bi_ci_dV_b_ci;
-     double d_lncc_dV_b_ci;
-     double d_lncc_dV_b_ci_dV_tnode_GND;
-     double d_lncc_dV_b_ci_dV_bi_ci;
-     double d_lncc_dV_b_ci_dV_b_ci;
-  double v_bord;
-     double d_v_bord_dV_tnode_GND;
-  double ibi;
-     double d_ibi_dV_tnode_GND;
-     double d_ibi_dV_bi_ei;
-     double d_ibi_dV_bi_ci;
-  double ire;
-     double d_ire_dV_tnode_GND;
-     double d_ire_dV_bi_ei;
-     double d_ire_dV_bi_ei_dV_tnode_GND;
-     double d_ire_dV_bi_ei_dV_bi_ei;
-  double ibe;
-     double d_ibe_dV_tnode_GND;
-     double d_ibe_dV_bi_ei;
-     double d_ibe_dV_bi_ei_dV_tnode_GND;
-     double d_ibe_dV_bi_ei_dV_bi_ei;
-  double le;
-     double d_le_dV_s_ci;
-     double d_le_dV_s_ci_dV_s_ci;
-     double d_le_dV_s_ci_dV_bi_ci;
-     double d_le_dV_s_ci_dV_bi_ei;
-     double d_le_dV_s_ci_dV_tnode_GND;
-     double d_le_dV_bi_ci;
-     double d_le_dV_bi_ci_dV_s_ci;
-     double d_le_dV_bi_ci_dV_bi_ci;
-     double d_le_dV_bi_ci_dV_bi_ei;
-     double d_le_dV_bi_ci_dV_tnode_GND;
-     double d_le_dV_bi_ei;
-     double d_le_dV_bi_ei_dV_s_ci;
-     double d_le_dV_bi_ei_dV_bi_ci;
-     double d_le_dV_bi_ei_dV_bi_ei;
-     double d_le_dV_bi_ei_dV_tnode_GND;
-     double d_le_dV_tnode_GND;
-  double DIOY;
-     double d_DIOY_dV_s_ci;
-     double d_DIOY_dV_s_ci_dV_s_ci;
-     double d_DIOY_dV_s_ci_dV_bi_ci;
-     double d_DIOY_dV_s_ci_dV_bi_ei;
-     double d_DIOY_dV_s_ci_dV_tnode_GND;
-     double d_DIOY_dV_bi_ci;
-     double d_DIOY_dV_bi_ci_dV_s_ci;
-     double d_DIOY_dV_bi_ci_dV_bi_ci;
-     double d_DIOY_dV_bi_ci_dV_bi_ei;
-     double d_DIOY_dV_bi_ci_dV_tnode_GND;
-     double d_DIOY_dV_bi_ei;
-     double d_DIOY_dV_bi_ei_dV_s_ci;
-     double d_DIOY_dV_bi_ei_dV_bi_ci;
-     double d_DIOY_dV_bi_ei_dV_bi_ei;
-     double d_DIOY_dV_bi_ei_dV_tnode_GND;
-     double d_DIOY_dV_tnode_GND;
-  double qr;
-     double d_qr_dV_tnode_GND;
-     double d_qr_dV_bi_ci;
-     double d_qr_dV_bi_ci_dV_tnode_GND;
-     double d_qr_dV_bi_ci_dV_bi_ci;
-     double d_qr_dV_bi_ci_dV_b_ci;
-     double d_qr_dV_bi_ci_dV_bi_ei;
-     double d_qr_dV_bi_ci_dV_ci_ei;
-     double d_qr_dV_b_ci;
-     double d_qr_dV_b_ci_dV_tnode_GND;
-     double d_qr_dV_b_ci_dV_bi_ci;
-     double d_qr_dV_b_ci_dV_b_ci;
-     double d_qr_dV_b_ci_dV_bi_ei;
-     double d_qr_dV_b_ci_dV_ci_ei;
-     double d_qr_dV_bi_ei;
-     double d_qr_dV_ci_ei;
-     double d_qr_dV_ci_ei_dV_tnode_GND;
-     double d_qr_dV_ci_ei_dV_bi_ci;
-     double d_qr_dV_ci_ei_dV_b_ci;
-     double d_qr_dV_ci_ei_dV_bi_ei;
-     double d_qr_dV_ci_ei_dV_ci_ei;
-  double tf;
-     double d_tf_dV_tnode_GND;
-     double d_tf_dV_bi_ci;
-     double d_tf_dV_b_ci;
-     double d_tf_dV_ci_ei;
-     double d_tf_dV_bi_ei;
-  double qf;
-     double d_qf_dV_tnode_GND;
-     double d_qf_dV_bi_ci;
-     double d_qf_dV_b_ci;
-     double d_qf_dV_bi_ei;
-     double d_qf_dV_bi_ei_dV_tnode_GND;
-     double d_qf_dV_bi_ei_dV_bi_ci;
-     double d_qf_dV_bi_ei_dV_b_ci;
-     double d_qf_dV_bi_ei_dV_bi_ei;
-     double d_qf_dV_bi_ei_dV_ci_ei;
-     double d_qf_dV_ci_ei;
-     double d_qf_dV_ci_ei_dV_tnode_GND;
-     double d_qf_dV_ci_ei_dV_bi_ci;
-     double d_qf_dV_ci_ei_dV_b_ci;
-     double d_qf_dV_ci_ei_dV_bi_ei;
-     double d_qf_dV_ci_ei_dV_ci_ei;
-  double dqef;
-     double d_dqef_dV_tnode_GND;
-     double d_dqef_dV_bi_ei;
-     double d_dqef_dV_bi_ei_dV_tnode_GND;
-     double d_dqef_dV_bi_ei_dV_bi_ei;
-     double d_dqef_dV_bi_ei_dV_bi_ci;
-     double d_dqef_dV_bi_ei_dV_b_ci;
-     double d_dqef_dV_bi_ei_dV_ci_ei;
-     double d_dqef_dV_bi_ci;
-     double d_dqef_dV_b_ci;
-     double d_dqef_dV_ci_ei;
-     double d_dqef_dV_ci_ei_dV_tnode_GND;
-     double d_dqef_dV_ci_ei_dV_bi_ei;
-     double d_dqef_dV_ci_ei_dV_bi_ci;
-     double d_dqef_dV_ci_ei_dV_b_ci;
-     double d_dqef_dV_ci_ei_dV_ci_ei;
-  double dtef;
-     double d_dtef_dV_tnode_GND;
-     double d_dtef_dV_bi_ei;
-     double d_dtef_dV_bi_ei_dV_tnode_GND;
-     double d_dtef_dV_bi_ei_dV_bi_ei;
-     double d_dtef_dV_bi_ei_dV_bi_ci;
-     double d_dtef_dV_bi_ei_dV_b_ci;
-     double d_dtef_dV_bi_ei_dV_ci_ei;
-     double d_dtef_dV_bi_ci;
-     double d_dtef_dV_b_ci;
-     double d_dtef_dV_ci_ei;
-     double d_dtef_dV_ci_ei_dV_tnode_GND;
-     double d_dtef_dV_ci_ei_dV_bi_ei;
-     double d_dtef_dV_ci_ei_dV_bi_ci;
-     double d_dtef_dV_ci_ei_dV_b_ci;
-     double d_dtef_dV_ci_ei_dV_ci_ei;
-  double dtfh;
-     double d_dtfh_dV_tnode_GND;
-     double d_dtfh_dV_ci_ei;
-     double d_dtfh_dV_bi_ei;
-     double d_dtfh_dV_bi_ci;
-     double d_dtfh_dV_b_ci;
-  double dqfh;
-     double d_dqfh_dV_tnode_GND;
-     double d_dqfh_dV_ci_ei;
-     double d_dqfh_dV_ci_ei_dV_tnode_GND;
-     double d_dqfh_dV_ci_ei_dV_ci_ei;
-     double d_dqfh_dV_ci_ei_dV_bi_ei;
-     double d_dqfh_dV_ci_ei_dV_bi_ci;
-     double d_dqfh_dV_ci_ei_dV_b_ci;
-     double d_dqfh_dV_bi_ei;
-     double d_dqfh_dV_bi_ei_dV_tnode_GND;
-     double d_dqfh_dV_bi_ei_dV_ci_ei;
-     double d_dqfh_dV_bi_ei_dV_bi_ei;
-     double d_dqfh_dV_bi_ei_dV_bi_ci;
-     double d_dqfh_dV_bi_ei_dV_b_ci;
-     double d_dqfh_dV_bi_ci;
-     double d_dqfh_dV_b_ci;
-  double tww;
-     double d_tww_dV_tnode_GND;
-     double d_tww_dV_ci_ei;
-     double d_tww_dV_ci_ei_dV_tnode_GND;
-     double d_tww_dV_ci_ei_dV_ci_ei;
-     double d_tww_dV_ci_ei_dV_bi_ei;
-     double d_tww_dV_ci_ei_dV_bi_ci;
-     double d_tww_dV_ci_ei_dV_b_ci;
-     double d_tww_dV_bi_ei;
-     double d_tww_dV_bi_ei_dV_tnode_GND;
-     double d_tww_dV_bi_ei_dV_ci_ei;
-     double d_tww_dV_bi_ei_dV_bi_ei;
-     double d_tww_dV_bi_ei_dV_bi_ci;
-     double d_tww_dV_bi_ei_dV_b_ci;
-     double d_tww_dV_bi_ci;
-     double d_tww_dV_b_ci;
-  double w;
-     double d_w_dV_ci_ei;
-     double d_w_dV_ci_ei_dV_ci_ei;
-     double d_w_dV_ci_ei_dV_bi_ei;
-     double d_w_dV_ci_ei_dV_bi_ci;
-     double d_w_dV_ci_ei_dV_b_ci;
-     double d_w_dV_ci_ei_dV_tnode_GND;
-     double d_w_dV_bi_ei;
-     double d_w_dV_bi_ei_dV_ci_ei;
-     double d_w_dV_bi_ei_dV_bi_ei;
-     double d_w_dV_bi_ei_dV_bi_ci;
-     double d_w_dV_bi_ei_dV_b_ci;
-     double d_w_dV_bi_ei_dV_tnode_GND;
-     double d_w_dV_bi_ci;
-     double d_w_dV_b_ci;
-     double d_w_dV_tnode_GND;
-  double s3;
-     double d_s3_dV_ci_ei;
-     double d_s3_dV_ci_ei_dV_ci_ei;
-     double d_s3_dV_ci_ei_dV_bi_ei;
-     double d_s3_dV_ci_ei_dV_bi_ci;
-     double d_s3_dV_ci_ei_dV_b_ci;
-     double d_s3_dV_ci_ei_dV_tnode_GND;
-     double d_s3_dV_bi_ei;
-     double d_s3_dV_bi_ei_dV_ci_ei;
-     double d_s3_dV_bi_ei_dV_bi_ei;
-     double d_s3_dV_bi_ei_dV_bi_ci;
-     double d_s3_dV_bi_ei_dV_b_ci;
-     double d_s3_dV_bi_ei_dV_tnode_GND;
-     double d_s3_dV_bi_ci;
-     double d_s3_dV_b_ci;
-     double d_s3_dV_tnode_GND;
-  double qf0;
-     double d_qf0_dV_tnode_GND;
-     double d_qf0_dV_bi_ci;
-     double d_qf0_dV_b_ci;
-     double d_qf0_dV_bi_ei;
-     double d_qf0_dV_bi_ei_dV_tnode_GND;
-     double d_qf0_dV_bi_ei_dV_bi_ci;
-     double d_qf0_dV_bi_ei_dV_b_ci;
-     double d_qf0_dV_bi_ei_dV_bi_ei;
-     double d_qf0_dV_bi_ei_dV_ci_ei;
-     double d_qf0_dV_ci_ei;
-     double d_qf0_dV_ci_ei_dV_tnode_GND;
-     double d_qf0_dV_ci_ei_dV_bi_ci;
-     double d_qf0_dV_ci_ei_dV_b_ci;
-     double d_qf0_dV_ci_ei_dV_bi_ei;
-     double d_qf0_dV_ci_ei_dV_ci_ei;
-  double itr;
-     double d_itr_dV_tnode_GND;
-     double d_itr_dV_bi_ci;
-     double d_itr_dV_bi_ci_dV_tnode_GND;
-     double d_itr_dV_bi_ci_dV_bi_ci;
-     double d_itr_dV_bi_ci_dV_b_ci;
-     double d_itr_dV_bi_ci_dV_bi_ei;
-     double d_itr_dV_bi_ci_dV_ci_ei;
-     double d_itr_dV_b_ci;
-     double d_itr_dV_b_ci_dV_tnode_GND;
-     double d_itr_dV_b_ci_dV_bi_ci;
-     double d_itr_dV_b_ci_dV_b_ci;
-     double d_itr_dV_b_ci_dV_bi_ei;
-     double d_itr_dV_b_ci_dV_ci_ei;
-     double d_itr_dV_bi_ei;
-     double d_itr_dV_bi_ei_dV_tnode_GND;
-     double d_itr_dV_bi_ei_dV_bi_ci;
-     double d_itr_dV_bi_ei_dV_b_ci;
-     double d_itr_dV_bi_ei_dV_bi_ei;
-     double d_itr_dV_bi_ei_dV_ci_ei;
-     double d_itr_dV_ci_ei;
-     double d_itr_dV_ci_ei_dV_tnode_GND;
-     double d_itr_dV_ci_ei_dV_bi_ci;
-     double d_itr_dV_ci_ei_dV_b_ci;
-     double d_itr_dV_ci_ei_dV_bi_ei;
-     double d_itr_dV_ci_ei_dV_ci_ei;
-  double itf;
-     double d_itf_dV_tnode_GND;
-     double d_itf_dV_bi_ei;
-     double d_itf_dV_bi_ei_dV_tnode_GND;
-     double d_itf_dV_bi_ei_dV_bi_ei;
-     double d_itf_dV_bi_ei_dV_bi_ci;
-     double d_itf_dV_bi_ei_dV_b_ci;
-     double d_itf_dV_bi_ei_dV_ci_ei;
-     double d_itf_dV_bi_ci;
-     double d_itf_dV_bi_ci_dV_tnode_GND;
-     double d_itf_dV_bi_ci_dV_bi_ei;
-     double d_itf_dV_bi_ci_dV_bi_ci;
-     double d_itf_dV_bi_ci_dV_b_ci;
-     double d_itf_dV_bi_ci_dV_ci_ei;
-     double d_itf_dV_b_ci;
-     double d_itf_dV_b_ci_dV_tnode_GND;
-     double d_itf_dV_b_ci_dV_bi_ei;
-     double d_itf_dV_b_ci_dV_bi_ci;
-     double d_itf_dV_b_ci_dV_b_ci;
-     double d_itf_dV_b_ci_dV_ci_ei;
-     double d_itf_dV_ci_ei;
-     double d_itf_dV_ci_ei_dV_tnode_GND;
-     double d_itf_dV_ci_ei_dV_bi_ei;
-     double d_itf_dV_ci_ei_dV_bi_ci;
-     double d_itf_dV_ci_ei_dV_b_ci;
-     double d_itf_dV_ci_ei_dV_ci_ei;
-  double qpt;
-     double d_qpt_dV_bi_ci;
-     double d_qpt_dV_bi_ci_dV_bi_ci;
-     double d_qpt_dV_bi_ci_dV_tnode_GND;
-     double d_qpt_dV_bi_ci_dV_b_ci;
-     double d_qpt_dV_bi_ci_dV_bi_ei;
-     double d_qpt_dV_bi_ci_dV_ci_ei;
-     double d_qpt_dV_tnode_GND;
-     double d_qpt_dV_b_ci;
-     double d_qpt_dV_b_ci_dV_bi_ci;
-     double d_qpt_dV_b_ci_dV_tnode_GND;
-     double d_qpt_dV_b_ci_dV_b_ci;
-     double d_qpt_dV_b_ci_dV_bi_ei;
-     double d_qpt_dV_b_ci_dV_ci_ei;
-     double d_qpt_dV_bi_ei;
-     double d_qpt_dV_bi_ei_dV_bi_ci;
-     double d_qpt_dV_bi_ei_dV_tnode_GND;
-     double d_qpt_dV_bi_ei_dV_b_ci;
-     double d_qpt_dV_bi_ei_dV_bi_ei;
-     double d_qpt_dV_bi_ei_dV_ci_ei;
-     double d_qpt_dV_ci_ei;
-     double d_qpt_dV_ci_ei_dV_bi_ci;
-     double d_qpt_dV_ci_ei_dV_tnode_GND;
-     double d_qpt_dV_ci_ei_dV_b_ci;
-     double d_qpt_dV_ci_ei_dV_bi_ei;
-     double d_qpt_dV_ci_ei_dV_ci_ei;
-  double qm;
-     double d_qm_dV_tnode_GND;
-     double d_qm_dV_bi_ei;
-     double d_qm_dV_bi_ei_dV_tnode_GND;
-     double d_qm_dV_bi_ei_dV_bi_ei;
-     double d_qm_dV_bi_ei_dV_bi_ci;
-     double d_qm_dV_bi_ei_dV_b_ci;
-     double d_qm_dV_bi_ei_dV_ci_ei;
-     double d_qm_dV_bi_ci;
-     double d_qm_dV_bi_ci_dV_tnode_GND;
-     double d_qm_dV_bi_ci_dV_bi_ei;
-     double d_qm_dV_bi_ci_dV_bi_ci;
-     double d_qm_dV_bi_ci_dV_b_ci;
-     double d_qm_dV_bi_ci_dV_ci_ei;
-     double d_qm_dV_b_ci;
-     double d_qm_dV_b_ci_dV_tnode_GND;
-     double d_qm_dV_b_ci_dV_bi_ei;
-     double d_qm_dV_b_ci_dV_bi_ci;
-     double d_qm_dV_b_ci_dV_b_ci;
-     double d_qm_dV_b_ci_dV_ci_ei;
-     double d_qm_dV_ci_ei;
-     double d_qm_dV_ci_ei_dV_tnode_GND;
-     double d_qm_dV_ci_ei_dV_bi_ei;
-     double d_qm_dV_ci_ei_dV_bi_ci;
-     double d_qm_dV_ci_ei_dV_b_ci;
-     double d_qm_dV_ci_ei_dV_ci_ei;
-  double q_p3;
-     double d_q_p3_dV_bi_ci;
-     double d_q_p3_dV_bi_ci_dV_bi_ci;
-     double d_q_p3_dV_bi_ci_dV_tnode_GND;
-     double d_q_p3_dV_bi_ci_dV_b_ci;
-     double d_q_p3_dV_bi_ci_dV_bi_ei;
-     double d_q_p3_dV_bi_ci_dV_ci_ei;
-     double d_q_p3_dV_tnode_GND;
-     double d_q_p3_dV_b_ci;
-     double d_q_p3_dV_b_ci_dV_bi_ci;
-     double d_q_p3_dV_b_ci_dV_tnode_GND;
-     double d_q_p3_dV_b_ci_dV_b_ci;
-     double d_q_p3_dV_b_ci_dV_bi_ei;
-     double d_q_p3_dV_b_ci_dV_ci_ei;
-     double d_q_p3_dV_bi_ei;
-     double d_q_p3_dV_bi_ei_dV_bi_ci;
-     double d_q_p3_dV_bi_ei_dV_tnode_GND;
-     double d_q_p3_dV_bi_ei_dV_b_ci;
-     double d_q_p3_dV_bi_ei_dV_bi_ei;
-     double d_q_p3_dV_bi_ei_dV_ci_ei;
-     double d_q_p3_dV_ci_ei;
-     double d_q_p3_dV_ci_ei_dV_bi_ci;
-     double d_q_p3_dV_ci_ei_dV_tnode_GND;
-     double d_q_p3_dV_ci_ei_dV_b_ci;
-     double d_q_p3_dV_ci_ei_dV_bi_ei;
-     double d_q_p3_dV_ci_ei_dV_ci_ei;
-  double tmp2;
-     double d_tmp2_dV_bi_ci;
-     double d_tmp2_dV_bi_ci_dV_bi_ci;
-     double d_tmp2_dV_bi_ci_dV_tnode_GND;
-     double d_tmp2_dV_bi_ci_dV_b_ci;
-     double d_tmp2_dV_bi_ci_dV_bi_ei;
-     double d_tmp2_dV_bi_ci_dV_ci_ei;
-     double d_tmp2_dV_tnode_GND;
-     double d_tmp2_dV_b_ci;
-     double d_tmp2_dV_b_ci_dV_bi_ci;
-     double d_tmp2_dV_b_ci_dV_tnode_GND;
-     double d_tmp2_dV_b_ci_dV_b_ci;
-     double d_tmp2_dV_b_ci_dV_bi_ei;
-     double d_tmp2_dV_b_ci_dV_ci_ei;
-     double d_tmp2_dV_bi_ei;
-     double d_tmp2_dV_bi_ei_dV_bi_ci;
-     double d_tmp2_dV_bi_ei_dV_tnode_GND;
-     double d_tmp2_dV_bi_ei_dV_b_ci;
-     double d_tmp2_dV_bi_ei_dV_bi_ei;
-     double d_tmp2_dV_bi_ei_dV_ci_ei;
-     double d_tmp2_dV_ci_ei;
-     double d_tmp2_dV_ci_ei_dV_bi_ci;
-     double d_tmp2_dV_ci_ei_dV_tnode_GND;
-     double d_tmp2_dV_ci_ei_dV_b_ci;
-     double d_tmp2_dV_ci_ei_dV_bi_ei;
-     double d_tmp2_dV_ci_ei_dV_ci_ei;
-  double tmp3;
-     double d_tmp3_dV_bi_ci;
-     double d_tmp3_dV_bi_ci_dV_bi_ci;
-     double d_tmp3_dV_bi_ci_dV_tnode_GND;
-     double d_tmp3_dV_bi_ci_dV_b_ci;
-     double d_tmp3_dV_bi_ci_dV_bi_ei;
-     double d_tmp3_dV_bi_ci_dV_ci_ei;
-     double d_tmp3_dV_tnode_GND;
-     double d_tmp3_dV_b_ci;
-     double d_tmp3_dV_b_ci_dV_bi_ci;
-     double d_tmp3_dV_b_ci_dV_tnode_GND;
-     double d_tmp3_dV_b_ci_dV_b_ci;
-     double d_tmp3_dV_b_ci_dV_bi_ei;
-     double d_tmp3_dV_b_ci_dV_ci_ei;
-     double d_tmp3_dV_bi_ei;
-     double d_tmp3_dV_bi_ei_dV_bi_ci;
-     double d_tmp3_dV_bi_ei_dV_tnode_GND;
-     double d_tmp3_dV_bi_ei_dV_b_ci;
-     double d_tmp3_dV_bi_ei_dV_bi_ei;
-     double d_tmp3_dV_bi_ei_dV_ci_ei;
-     double d_tmp3_dV_ci_ei;
-     double d_tmp3_dV_ci_ei_dV_bi_ci;
-     double d_tmp3_dV_ci_ei_dV_tnode_GND;
-     double d_tmp3_dV_ci_ei_dV_b_ci;
-     double d_tmp3_dV_ci_ei_dV_bi_ei;
-     double d_tmp3_dV_ci_ei_dV_ci_ei;
-  double p2_u;
-     double d_p2_u_dV_bi_ci;
-     double d_p2_u_dV_bi_ci_dV_bi_ci;
-     double d_p2_u_dV_bi_ci_dV_tnode_GND;
-     double d_p2_u_dV_bi_ci_dV_b_ci;
-     double d_p2_u_dV_bi_ci_dV_bi_ei;
-     double d_p2_u_dV_bi_ci_dV_ci_ei;
-     double d_p2_u_dV_tnode_GND;
-     double d_p2_u_dV_b_ci;
-     double d_p2_u_dV_b_ci_dV_bi_ci;
-     double d_p2_u_dV_b_ci_dV_tnode_GND;
-     double d_p2_u_dV_b_ci_dV_b_ci;
-     double d_p2_u_dV_b_ci_dV_bi_ei;
-     double d_p2_u_dV_b_ci_dV_ci_ei;
-     double d_p2_u_dV_bi_ei;
-     double d_p2_u_dV_bi_ei_dV_bi_ci;
-     double d_p2_u_dV_bi_ei_dV_tnode_GND;
-     double d_p2_u_dV_bi_ei_dV_b_ci;
-     double d_p2_u_dV_bi_ei_dV_bi_ei;
-     double d_p2_u_dV_bi_ei_dV_ci_ei;
-     double d_p2_u_dV_ci_ei;
-     double d_p2_u_dV_ci_ei_dV_bi_ci;
-     double d_p2_u_dV_ci_ei_dV_tnode_GND;
-     double d_p2_u_dV_ci_ei_dV_b_ci;
-     double d_p2_u_dV_ci_ei_dV_bi_ei;
-     double d_p2_u_dV_ci_ei_dV_ci_ei;
-  double p2_v;
-     double d_p2_v_dV_bi_ci;
-     double d_p2_v_dV_bi_ci_dV_bi_ci;
-     double d_p2_v_dV_bi_ci_dV_tnode_GND;
-     double d_p2_v_dV_bi_ci_dV_b_ci;
-     double d_p2_v_dV_bi_ci_dV_bi_ei;
-     double d_p2_v_dV_bi_ci_dV_ci_ei;
-     double d_p2_v_dV_tnode_GND;
-     double d_p2_v_dV_b_ci;
-     double d_p2_v_dV_b_ci_dV_bi_ci;
-     double d_p2_v_dV_b_ci_dV_tnode_GND;
-     double d_p2_v_dV_b_ci_dV_b_ci;
-     double d_p2_v_dV_b_ci_dV_bi_ei;
-     double d_p2_v_dV_b_ci_dV_ci_ei;
-     double d_p2_v_dV_bi_ei;
-     double d_p2_v_dV_bi_ei_dV_bi_ci;
-     double d_p2_v_dV_bi_ei_dV_tnode_GND;
-     double d_p2_v_dV_bi_ei_dV_b_ci;
-     double d_p2_v_dV_bi_ei_dV_bi_ei;
-     double d_p2_v_dV_bi_ei_dV_ci_ei;
-     double d_p2_v_dV_ci_ei;
-     double d_p2_v_dV_ci_ei_dV_bi_ci;
-     double d_p2_v_dV_ci_ei_dV_tnode_GND;
-     double d_p2_v_dV_ci_ei_dV_b_ci;
-     double d_p2_v_dV_ci_ei_dV_bi_ei;
-     double d_p2_v_dV_ci_ei_dV_ci_ei;
-  double p2_D;
-     double d_p2_D_dV_bi_ci;
-     double d_p2_D_dV_bi_ci_dV_bi_ci;
-     double d_p2_D_dV_bi_ci_dV_tnode_GND;
-     double d_p2_D_dV_bi_ci_dV_b_ci;
-     double d_p2_D_dV_bi_ci_dV_bi_ei;
-     double d_p2_D_dV_bi_ci_dV_ci_ei;
-     double d_p2_D_dV_tnode_GND;
-     double d_p2_D_dV_b_ci;
-     double d_p2_D_dV_b_ci_dV_bi_ci;
-     double d_p2_D_dV_b_ci_dV_tnode_GND;
-     double d_p2_D_dV_b_ci_dV_b_ci;
-     double d_p2_D_dV_b_ci_dV_bi_ei;
-     double d_p2_D_dV_b_ci_dV_ci_ei;
-     double d_p2_D_dV_bi_ei;
-     double d_p2_D_dV_bi_ei_dV_bi_ci;
-     double d_p2_D_dV_bi_ei_dV_tnode_GND;
-     double d_p2_D_dV_bi_ei_dV_b_ci;
-     double d_p2_D_dV_bi_ei_dV_bi_ei;
-     double d_p2_D_dV_bi_ei_dV_ci_ei;
-     double d_p2_D_dV_ci_ei;
-     double d_p2_D_dV_ci_ei_dV_bi_ci;
-     double d_p2_D_dV_ci_ei_dV_tnode_GND;
-     double d_p2_D_dV_ci_ei_dV_b_ci;
-     double d_p2_D_dV_ci_ei_dV_bi_ei;
-     double d_p2_D_dV_ci_ei_dV_ci_ei;
-  double p2_q;
-     double d_p2_q_dV_bi_ci;
-     double d_p2_q_dV_bi_ci_dV_bi_ci;
-     double d_p2_q_dV_bi_ci_dV_tnode_GND;
-     double d_p2_q_dV_bi_ci_dV_b_ci;
-     double d_p2_q_dV_bi_ci_dV_bi_ei;
-     double d_p2_q_dV_bi_ci_dV_ci_ei;
-     double d_p2_q_dV_tnode_GND;
-     double d_p2_q_dV_b_ci;
-     double d_p2_q_dV_b_ci_dV_bi_ci;
-     double d_p2_q_dV_b_ci_dV_tnode_GND;
-     double d_p2_q_dV_b_ci_dV_b_ci;
-     double d_p2_q_dV_b_ci_dV_bi_ei;
-     double d_p2_q_dV_b_ci_dV_ci_ei;
-     double d_p2_q_dV_bi_ei;
-     double d_p2_q_dV_bi_ei_dV_bi_ci;
-     double d_p2_q_dV_bi_ei_dV_tnode_GND;
-     double d_p2_q_dV_bi_ei_dV_b_ci;
-     double d_p2_q_dV_bi_ei_dV_bi_ei;
-     double d_p2_q_dV_bi_ei_dV_ci_ei;
-     double d_p2_q_dV_ci_ei;
-     double d_p2_q_dV_ci_ei_dV_bi_ci;
-     double d_p2_q_dV_ci_ei_dV_tnode_GND;
-     double d_p2_q_dV_ci_ei_dV_b_ci;
-     double d_p2_q_dV_ci_ei_dV_bi_ei;
-     double d_p2_q_dV_ci_ei_dV_ci_ei;
-  double p2_p;
-     double d_p2_p_dV_tnode_GND;
-     double d_p2_p_dV_bi_ei;
-     double d_p2_p_dV_bi_ei_dV_tnode_GND;
-     double d_p2_p_dV_bi_ei_dV_bi_ei;
-     double d_p2_p_dV_bi_ei_dV_bi_ci;
-     double d_p2_p_dV_bi_ei_dV_b_ci;
-     double d_p2_p_dV_bi_ei_dV_ci_ei;
-     double d_p2_p_dV_bi_ci;
-     double d_p2_p_dV_bi_ci_dV_tnode_GND;
-     double d_p2_p_dV_bi_ci_dV_bi_ei;
-     double d_p2_p_dV_bi_ci_dV_bi_ci;
-     double d_p2_p_dV_bi_ci_dV_b_ci;
-     double d_p2_p_dV_bi_ci_dV_ci_ei;
-     double d_p2_p_dV_b_ci;
-     double d_p2_p_dV_b_ci_dV_tnode_GND;
-     double d_p2_p_dV_b_ci_dV_bi_ei;
-     double d_p2_p_dV_b_ci_dV_bi_ci;
-     double d_p2_p_dV_b_ci_dV_b_ci;
-     double d_p2_p_dV_b_ci_dV_ci_ei;
-     double d_p2_p_dV_ci_ei;
-     double d_p2_p_dV_ci_ei_dV_tnode_GND;
-     double d_p2_p_dV_ci_ei_dV_bi_ei;
-     double d_p2_p_dV_ci_ei_dV_bi_ci;
-     double d_p2_p_dV_ci_ei_dV_b_ci;
-     double d_p2_p_dV_ci_ei_dV_ci_ei;
-  double tmp;
-     double d_tmp_dV_bi_ci;
-     double d_tmp_dV_bi_ci_dV_bi_ci;
-     double d_tmp_dV_bi_ci_dV_tnode_GND;
-     double d_tmp_dV_bi_ci_dV_b_ci;
-     double d_tmp_dV_bi_ci_dV_bi_ei;
-     double d_tmp_dV_bi_ci_dV_ci_ei;
-     double d_tmp_dV_tnode_GND;
-     double d_tmp_dV_b_ci;
-     double d_tmp_dV_b_ci_dV_bi_ci;
-     double d_tmp_dV_b_ci_dV_tnode_GND;
-     double d_tmp_dV_b_ci_dV_b_ci;
-     double d_tmp_dV_b_ci_dV_bi_ei;
-     double d_tmp_dV_b_ci_dV_ci_ei;
-     double d_tmp_dV_bi_ei;
-     double d_tmp_dV_bi_ei_dV_bi_ci;
-     double d_tmp_dV_bi_ei_dV_tnode_GND;
-     double d_tmp_dV_bi_ei_dV_b_ci;
-     double d_tmp_dV_bi_ei_dV_bi_ei;
-     double d_tmp_dV_bi_ei_dV_ci_ei;
-     double d_tmp_dV_ci_ei;
-     double d_tmp_dV_ci_ei_dV_bi_ci;
-     double d_tmp_dV_ci_ei_dV_tnode_GND;
-     double d_tmp_dV_ci_ei_dV_b_ci;
-     double d_tmp_dV_ci_ei_dV_bi_ei;
-     double d_tmp_dV_ci_ei_dV_ci_ei;
-  double p2_c;
-     double d_p2_c_dV_tnode_GND;
-     double d_p2_c_dV_bi_ei;
-     double d_p2_c_dV_bi_ei_dV_tnode_GND;
-     double d_p2_c_dV_bi_ei_dV_bi_ei;
-     double d_p2_c_dV_bi_ei_dV_ci_ei;
-     double d_p2_c_dV_ci_ei;
-     double d_p2_c_dV_ci_ei_dV_tnode_GND;
-     double d_p2_c_dV_ci_ei_dV_bi_ei;
-     double d_p2_c_dV_ci_ei_dV_ci_ei;
-  double p2_b;
-     double d_p2_b_dV_tnode_GND;
-     double d_p2_b_dV_bi_ei;
-     double d_p2_b_dV_bi_ei_dV_tnode_GND;
-     double d_p2_b_dV_bi_ei_dV_bi_ei;
-     double d_p2_b_dV_bi_ei_dV_bi_ci;
-     double d_p2_b_dV_bi_ei_dV_b_ci;
-     double d_p2_b_dV_bi_ei_dV_ci_ei;
-     double d_p2_b_dV_bi_ci;
-     double d_p2_b_dV_bi_ci_dV_tnode_GND;
-     double d_p2_b_dV_bi_ci_dV_bi_ei;
-     double d_p2_b_dV_bi_ci_dV_bi_ci;
-     double d_p2_b_dV_bi_ci_dV_b_ci;
-     double d_p2_b_dV_bi_ci_dV_ci_ei;
-     double d_p2_b_dV_b_ci;
-     double d_p2_b_dV_b_ci_dV_tnode_GND;
-     double d_p2_b_dV_b_ci_dV_bi_ei;
-     double d_p2_b_dV_b_ci_dV_bi_ci;
-     double d_p2_b_dV_b_ci_dV_b_ci;
-     double d_p2_b_dV_b_ci_dV_ci_ei;
-     double d_p2_b_dV_ci_ei;
-     double d_p2_b_dV_ci_ei_dV_tnode_GND;
-     double d_p2_b_dV_ci_ei_dV_bi_ei;
-     double d_p2_b_dV_ci_ei_dV_bi_ci;
-     double d_p2_b_dV_ci_ei_dV_b_ci;
-     double d_p2_b_dV_ci_ei_dV_ci_ei;
-  double p2_a;
-     double d_p2_a_dV_bi_ci;
-     double d_p2_a_dV_bi_ci_dV_bi_ci;
-     double d_p2_a_dV_bi_ci_dV_tnode_GND;
-     double d_p2_a_dV_bi_ci_dV_b_ci;
-     double d_p2_a_dV_bi_ci_dV_bi_ei;
-     double d_p2_a_dV_bi_ci_dV_ci_ei;
-     double d_p2_a_dV_tnode_GND;
-     double d_p2_a_dV_b_ci;
-     double d_p2_a_dV_b_ci_dV_bi_ci;
-     double d_p2_a_dV_b_ci_dV_tnode_GND;
-     double d_p2_a_dV_b_ci_dV_b_ci;
-     double d_p2_a_dV_b_ci_dV_bi_ei;
-     double d_p2_a_dV_b_ci_dV_ci_ei;
-     double d_p2_a_dV_bi_ei;
-     double d_p2_a_dV_bi_ei_dV_bi_ci;
-     double d_p2_a_dV_bi_ei_dV_tnode_GND;
-     double d_p2_a_dV_bi_ei_dV_b_ci;
-     double d_p2_a_dV_bi_ei_dV_bi_ei;
-     double d_p2_a_dV_bi_ei_dV_ci_ei;
-     double d_p2_a_dV_ci_ei;
-     double d_p2_a_dV_ci_ei_dV_bi_ci;
-     double d_p2_a_dV_ci_ei_dV_tnode_GND;
-     double d_p2_a_dV_ci_ei_dV_b_ci;
-     double d_p2_a_dV_ci_ei_dV_bi_ei;
-     double d_p2_a_dV_ci_ei_dV_ci_ei;
-  double o3;
-  double wdc;
-     double d_wdc_dV_tnode_GND;
-     double d_wdc_dV_ci_ei;
-     double d_wdc_dV_ci_ei_dV_tnode_GND;
-     double d_wdc_dV_ci_ei_dV_ci_ei;
-     double d_wdc_dV_ci_ei_dV_bi_ei;
-     double d_wdc_dV_ci_ei_dV_bi_ci;
-     double d_wdc_dV_ci_ei_dV_b_ci;
-     double d_wdc_dV_bi_ei;
-     double d_wdc_dV_bi_ei_dV_tnode_GND;
-     double d_wdc_dV_bi_ei_dV_ci_ei;
-     double d_wdc_dV_bi_ei_dV_bi_ei;
-     double d_wdc_dV_bi_ei_dV_bi_ci;
-     double d_wdc_dV_bi_ei_dV_b_ci;
-     double d_wdc_dV_bi_ci;
-     double d_wdc_dV_bi_ci_dV_tnode_GND;
-     double d_wdc_dV_bi_ci_dV_ci_ei;
-     double d_wdc_dV_bi_ci_dV_bi_ei;
-     double d_wdc_dV_bi_ci_dV_bi_ci;
-     double d_wdc_dV_bi_ci_dV_b_ci;
-     double d_wdc_dV_b_ci;
-     double d_wdc_dV_b_ci_dV_tnode_GND;
-     double d_wdc_dV_b_ci_dV_ci_ei;
-     double d_wdc_dV_b_ci_dV_bi_ei;
-     double d_wdc_dV_b_ci_dV_bi_ci;
-     double d_wdc_dV_b_ci_dV_b_ci;
-  double aa;
-     double d_aa_dV_tnode_GND;
-     double d_aa_dV_ci_ei;
-     double d_aa_dV_ci_ei_dV_tnode_GND;
-     double d_aa_dV_ci_ei_dV_ci_ei;
-     double d_aa_dV_ci_ei_dV_bi_ei;
-     double d_aa_dV_ci_ei_dV_bi_ci;
-     double d_aa_dV_ci_ei_dV_b_ci;
-     double d_aa_dV_bi_ei;
-     double d_aa_dV_bi_ei_dV_tnode_GND;
-     double d_aa_dV_bi_ei_dV_ci_ei;
-     double d_aa_dV_bi_ei_dV_bi_ei;
-     double d_aa_dV_bi_ei_dV_bi_ci;
-     double d_aa_dV_bi_ei_dV_b_ci;
-     double d_aa_dV_bi_ci;
-     double d_aa_dV_bi_ci_dV_tnode_GND;
-     double d_aa_dV_bi_ci_dV_ci_ei;
-     double d_aa_dV_bi_ci_dV_bi_ei;
-     double d_aa_dV_bi_ci_dV_bi_ci;
-     double d_aa_dV_bi_ci_dV_b_ci;
-     double d_aa_dV_b_ci;
-     double d_aa_dV_b_ci_dV_tnode_GND;
-     double d_aa_dV_b_ci_dV_ci_ei;
-     double d_aa_dV_b_ci_dV_bi_ei;
-     double d_aa_dV_b_ci_dV_bi_ci;
-     double d_aa_dV_b_ci_dV_b_ci;
-  double a2;
-     double d_a2_dV_tnode_GND;
-     double d_a2_dV_ci_ei;
-     double d_a2_dV_ci_ei_dV_tnode_GND;
-     double d_a2_dV_ci_ei_dV_ci_ei;
-     double d_a2_dV_ci_ei_dV_bi_ei;
-     double d_a2_dV_ci_ei_dV_bi_ci;
-     double d_a2_dV_ci_ei_dV_b_ci;
-     double d_a2_dV_bi_ei;
-     double d_a2_dV_bi_ei_dV_tnode_GND;
-     double d_a2_dV_bi_ei_dV_ci_ei;
-     double d_a2_dV_bi_ei_dV_bi_ei;
-     double d_a2_dV_bi_ei_dV_bi_ci;
-     double d_a2_dV_bi_ei_dV_b_ci;
-     double d_a2_dV_bi_ci;
-     double d_a2_dV_bi_ci_dV_tnode_GND;
-     double d_a2_dV_bi_ci_dV_ci_ei;
-     double d_a2_dV_bi_ci_dV_bi_ei;
-     double d_a2_dV_bi_ci_dV_bi_ci;
-     double d_a2_dV_bi_ci_dV_b_ci;
-     double d_a2_dV_b_ci;
-     double d_a2_dV_b_ci_dV_tnode_GND;
-     double d_a2_dV_b_ci_dV_ci_ei;
-     double d_a2_dV_b_ci_dV_bi_ei;
-     double d_a2_dV_b_ci_dV_bi_ci;
-     double d_a2_dV_b_ci_dV_b_ci;
-  double a1;
-     double d_a1_dV_tnode_GND;
-     double d_a1_dV_ci_ei;
-     double d_a1_dV_ci_ei_dV_tnode_GND;
-     double d_a1_dV_ci_ei_dV_ci_ei;
-     double d_a1_dV_ci_ei_dV_bi_ei;
-     double d_a1_dV_ci_ei_dV_bi_ci;
-     double d_a1_dV_ci_ei_dV_b_ci;
-     double d_a1_dV_bi_ei;
-     double d_a1_dV_bi_ei_dV_tnode_GND;
-     double d_a1_dV_bi_ei_dV_ci_ei;
-     double d_a1_dV_bi_ei_dV_bi_ei;
-     double d_a1_dV_bi_ei_dV_bi_ci;
-     double d_a1_dV_bi_ei_dV_b_ci;
-     double d_a1_dV_bi_ci;
-     double d_a1_dV_bi_ci_dV_tnode_GND;
-     double d_a1_dV_bi_ci_dV_ci_ei;
-     double d_a1_dV_bi_ci_dV_bi_ei;
-     double d_a1_dV_bi_ci_dV_bi_ci;
-     double d_a1_dV_bi_ci_dV_b_ci;
-     double d_a1_dV_b_ci;
-     double d_a1_dV_b_ci_dV_tnode_GND;
-     double d_a1_dV_b_ci_dV_ci_ei;
-     double d_a1_dV_b_ci_dV_bi_ei;
-     double d_a1_dV_b_ci_dV_bi_ci;
-     double d_a1_dV_b_ci_dV_b_ci;
-  double diff_q;
-     double d_diff_q_dV_tnode_GND;
-     double d_diff_q_dV_bi_ei;
-     double d_diff_q_dV_bi_ci;
-     double d_diff_q_dV_b_ci;
-     double d_diff_q_dV_ci_ei;
-  double qpt_h;
-     double d_qpt_h_dV_bi_ci;
-     double d_qpt_h_dV_bi_ci_dV_bi_ci;
-     double d_qpt_h_dV_bi_ci_dV_tnode_GND;
-     double d_qpt_h_dV_bi_ci_dV_b_ci;
-     double d_qpt_h_dV_bi_ci_dV_bi_ei;
-     double d_qpt_h_dV_bi_ci_dV_ci_ei;
-     double d_qpt_h_dV_tnode_GND;
-     double d_qpt_h_dV_b_ci;
-     double d_qpt_h_dV_b_ci_dV_bi_ci;
-     double d_qpt_h_dV_b_ci_dV_tnode_GND;
-     double d_qpt_h_dV_b_ci_dV_b_ci;
-     double d_qpt_h_dV_b_ci_dV_bi_ei;
-     double d_qpt_h_dV_b_ci_dV_ci_ei;
-     double d_qpt_h_dV_bi_ei;
-     double d_qpt_h_dV_bi_ei_dV_bi_ci;
-     double d_qpt_h_dV_bi_ei_dV_tnode_GND;
-     double d_qpt_h_dV_bi_ei_dV_b_ci;
-     double d_qpt_h_dV_bi_ei_dV_bi_ei;
-     double d_qpt_h_dV_bi_ei_dV_ci_ei;
-     double d_qpt_h_dV_ci_ei;
-     double d_qpt_h_dV_ci_ei_dV_bi_ci;
-     double d_qpt_h_dV_ci_ei_dV_tnode_GND;
-     double d_qpt_h_dV_ci_ei_dV_b_ci;
-     double d_qpt_h_dV_ci_ei_dV_bi_ei;
-     double d_qpt_h_dV_ci_ei_dV_ci_ei;
-  double qpt_l;
-     double d_qpt_l_dV_bi_ci;
-     double d_qpt_l_dV_bi_ci_dV_bi_ci;
-     double d_qpt_l_dV_bi_ci_dV_tnode_GND;
-     double d_qpt_l_dV_bi_ci_dV_b_ci;
-     double d_qpt_l_dV_bi_ci_dV_bi_ei;
-     double d_qpt_l_dV_bi_ci_dV_ci_ei;
-     double d_qpt_l_dV_tnode_GND;
-     double d_qpt_l_dV_b_ci;
-     double d_qpt_l_dV_b_ci_dV_bi_ci;
-     double d_qpt_l_dV_b_ci_dV_tnode_GND;
-     double d_qpt_l_dV_b_ci_dV_b_ci;
-     double d_qpt_l_dV_b_ci_dV_bi_ei;
-     double d_qpt_l_dV_b_ci_dV_ci_ei;
-     double d_qpt_l_dV_bi_ei;
-     double d_qpt_l_dV_bi_ei_dV_bi_ci;
-     double d_qpt_l_dV_bi_ei_dV_tnode_GND;
-     double d_qpt_l_dV_bi_ei_dV_b_ci;
-     double d_qpt_l_dV_bi_ei_dV_bi_ei;
-     double d_qpt_l_dV_bi_ei_dV_ci_ei;
-     double d_qpt_l_dV_ci_ei;
-     double d_qpt_l_dV_ci_ei_dV_bi_ci;
-     double d_qpt_l_dV_ci_ei_dV_tnode_GND;
-     double d_qpt_l_dV_ci_ei_dV_b_ci;
-     double d_qpt_l_dV_ci_ei_dV_bi_ei;
-     double d_qpt_l_dV_ci_ei_dV_ci_ei;
-  double qmh;
-     double d_qmh_dV_tnode_GND;
-     double d_qmh_dV_bi_ei;
-     double d_qmh_dV_bi_ei_dV_tnode_GND;
-     double d_qmh_dV_bi_ei_dV_bi_ei;
-     double d_qmh_dV_bi_ei_dV_bi_ci;
-     double d_qmh_dV_bi_ei_dV_b_ci;
-     double d_qmh_dV_bi_ei_dV_ci_ei;
-     double d_qmh_dV_bi_ci;
-     double d_qmh_dV_bi_ci_dV_tnode_GND;
-     double d_qmh_dV_bi_ci_dV_bi_ei;
-     double d_qmh_dV_bi_ci_dV_bi_ci;
-     double d_qmh_dV_bi_ci_dV_b_ci;
-     double d_qmh_dV_bi_ci_dV_ci_ei;
-     double d_qmh_dV_b_ci;
-     double d_qmh_dV_b_ci_dV_tnode_GND;
-     double d_qmh_dV_b_ci_dV_bi_ei;
-     double d_qmh_dV_b_ci_dV_bi_ci;
-     double d_qmh_dV_b_ci_dV_b_ci;
-     double d_qmh_dV_b_ci_dV_ci_ei;
-     double d_qmh_dV_ci_ei;
-     double d_qmh_dV_ci_ei_dV_tnode_GND;
-     double d_qmh_dV_ci_ei_dV_bi_ei;
-     double d_qmh_dV_ci_ei_dV_bi_ci;
-     double d_qmh_dV_ci_ei_dV_b_ci;
-     double d_qmh_dV_ci_ei_dV_ci_ei;
-  double qml;
-     double d_qml_dV_tnode_GND;
-     double d_qml_dV_bi_ei;
-     double d_qml_dV_bi_ei_dV_tnode_GND;
-     double d_qml_dV_bi_ei_dV_bi_ei;
-     double d_qml_dV_bi_ei_dV_bi_ci;
-     double d_qml_dV_bi_ei_dV_b_ci;
-     double d_qml_dV_bi_ei_dV_ci_ei;
-     double d_qml_dV_bi_ci;
-     double d_qml_dV_bi_ci_dV_tnode_GND;
-     double d_qml_dV_bi_ci_dV_bi_ei;
-     double d_qml_dV_bi_ci_dV_bi_ci;
-     double d_qml_dV_bi_ci_dV_b_ci;
-     double d_qml_dV_bi_ci_dV_ci_ei;
-     double d_qml_dV_b_ci;
-     double d_qml_dV_b_ci_dV_tnode_GND;
-     double d_qml_dV_b_ci_dV_bi_ei;
-     double d_qml_dV_b_ci_dV_bi_ci;
-     double d_qml_dV_b_ci_dV_b_ci;
-     double d_qml_dV_b_ci_dV_ci_ei;
-     double d_qml_dV_ci_ei;
-     double d_qml_dV_ci_ei_dV_tnode_GND;
-     double d_qml_dV_ci_ei_dV_bi_ei;
-     double d_qml_dV_ci_ei_dV_bi_ci;
-     double d_qml_dV_ci_ei_dV_b_ci;
-     double d_qml_dV_ci_ei_dV_ci_ei;
-  double itri;
-     double d_itri_dV_tnode_GND;
-     double d_itri_dV_bi_ci;
-     double d_itri_dV_bi_ci_dV_tnode_GND;
-     double d_itri_dV_bi_ci_dV_bi_ci;
-  double le2;
-     double d_le2_dV_bi_ci;
-     double d_le2_dV_bi_ci_dV_bi_ci;
-     double d_le2_dV_bi_ci_dV_tnode_GND;
-     double d_le2_dV_tnode_GND;
-  double arg2;
-     double d_arg2_dV_bi_ci;
-     double d_arg2_dV_bi_ci_dV_bi_ci;
-     double d_arg2_dV_bi_ci_dV_tnode_GND;
-     double d_arg2_dV_tnode_GND;
-  double itfi;
-     double d_itfi_dV_tnode_GND;
-     double d_itfi_dV_bi_ei;
-     double d_itfi_dV_bi_ei_dV_tnode_GND;
-     double d_itfi_dV_bi_ei_dV_bi_ei;
-  double le1;
-     double d_le1_dV_bi_ei;
-     double d_le1_dV_bi_ei_dV_bi_ei;
-     double d_le1_dV_bi_ei_dV_tnode_GND;
-     double d_le1_dV_tnode_GND;
-  double arg1;
-     double d_arg1_dV_bi_ei;
-     double d_arg1_dV_bi_ei_dV_bi_ei;
-     double d_arg1_dV_bi_ei_dV_tnode_GND;
-     double d_arg1_dV_tnode_GND;
-  double ickr;
-  double ickf;
-     double d_ickf_dV_tnode_GND;
-     double d_ickf_dV_bi_ci;
-     double d_ickf_dV_bi_ci_dV_tnode_GND;
-     double d_ickf_dV_bi_ci_dV_bi_ci;
-     double d_ickf_dV_bi_ci_dV_b_ci;
-     double d_ickf_dV_b_ci;
-     double d_ickf_dV_b_ci_dV_tnode_GND;
-     double d_ickf_dV_b_ci_dV_bi_ci;
-     double d_ickf_dV_b_ci_dV_b_ci;
-  double denom_iqf;
-     double d_denom_iqf_dV_tnode_GND;
-     double d_denom_iqf_dV_bi_ci;
-     double d_denom_iqf_dV_bi_ci_dV_tnode_GND;
-     double d_denom_iqf_dV_bi_ci_dV_bi_ci;
-     double d_denom_iqf_dV_bi_ci_dV_b_ci;
-     double d_denom_iqf_dV_b_ci;
-     double d_denom_iqf_dV_b_ci_dV_tnode_GND;
-     double d_denom_iqf_dV_b_ci_dV_bi_ci;
-     double d_denom_iqf_dV_b_ci_dV_b_ci;
-  double tf0;
-     double d_tf0_dV_tnode_GND;
-     double d_tf0_dV_bi_ci;
-     double d_tf0_dV_bi_ci_dV_tnode_GND;
-     double d_tf0_dV_bi_ci_dV_bi_ci;
-     double d_tf0_dV_bi_ci_dV_b_ci;
-     double d_tf0_dV_b_ci;
-     double d_tf0_dV_b_ci_dV_tnode_GND;
-     double d_tf0_dV_b_ci_dV_bi_ci;
-     double d_tf0_dV_b_ci_dV_b_ci;
-  double qj_2;
-     double d_qj_2_dV_bi_ci;
-     double d_qj_2_dV_bi_ci_dV_bi_ci;
-     double d_qj_2_dV_bi_ci_dV_tnode_GND;
-     double d_qj_2_dV_bi_ci_dV_b_ci;
-     double d_qj_2_dV_bi_ci_dV_bi_ei;
-     double d_qj_2_dV_bi_ci_dV_ci_ei;
-     double d_qj_2_dV_tnode_GND;
-     double d_qj_2_dV_b_ci;
-     double d_qj_2_dV_b_ci_dV_bi_ci;
-     double d_qj_2_dV_b_ci_dV_tnode_GND;
-     double d_qj_2_dV_b_ci_dV_b_ci;
-     double d_qj_2_dV_b_ci_dV_bi_ei;
-     double d_qj_2_dV_b_ci_dV_ci_ei;
-     double d_qj_2_dV_bi_ei;
-     double d_qj_2_dV_bi_ei_dV_bi_ci;
-     double d_qj_2_dV_bi_ei_dV_tnode_GND;
-     double d_qj_2_dV_bi_ei_dV_b_ci;
-     double d_qj_2_dV_bi_ei_dV_bi_ei;
-     double d_qj_2_dV_bi_ei_dV_ci_ei;
-     double d_qj_2_dV_ci_ei;
-     double d_qj_2_dV_ci_ei_dV_bi_ci;
-     double d_qj_2_dV_ci_ei_dV_tnode_GND;
-     double d_qj_2_dV_ci_ei_dV_b_ci;
-     double d_qj_2_dV_ci_ei_dV_bi_ei;
-     double d_qj_2_dV_ci_ei_dV_ci_ei;
-  double b_q;
-     double d_b_q_dV_bi_ci;
-     double d_b_q_dV_bi_ci_dV_bi_ci;
-     double d_b_q_dV_bi_ci_dV_tnode_GND;
-     double d_b_q_dV_bi_ci_dV_b_ci;
-     double d_b_q_dV_bi_ci_dV_bi_ei;
-     double d_b_q_dV_bi_ci_dV_ci_ei;
-     double d_b_q_dV_tnode_GND;
-     double d_b_q_dV_b_ci;
-     double d_b_q_dV_b_ci_dV_bi_ci;
-     double d_b_q_dV_b_ci_dV_tnode_GND;
-     double d_b_q_dV_b_ci_dV_b_ci;
-     double d_b_q_dV_b_ci_dV_bi_ei;
-     double d_b_q_dV_b_ci_dV_ci_ei;
-     double d_b_q_dV_bi_ei;
-     double d_b_q_dV_bi_ei_dV_bi_ci;
-     double d_b_q_dV_bi_ei_dV_tnode_GND;
-     double d_b_q_dV_bi_ei_dV_b_ci;
-     double d_b_q_dV_bi_ei_dV_bi_ei;
-     double d_b_q_dV_bi_ei_dV_ci_ei;
-     double d_b_q_dV_ci_ei;
-     double d_b_q_dV_ci_ei_dV_bi_ci;
-     double d_b_q_dV_ci_ei_dV_tnode_GND;
-     double d_b_q_dV_ci_ei_dV_b_ci;
-     double d_b_q_dV_ci_ei_dV_bi_ei;
-     double d_b_q_dV_ci_ei_dV_ci_ei;
-  double qj;
-     double d_qj_dV_bi_ci;
-     double d_qj_dV_bi_ci_dV_bi_ci;
-     double d_qj_dV_bi_ci_dV_tnode_GND;
-     double d_qj_dV_bi_ci_dV_b_ci;
-     double d_qj_dV_bi_ci_dV_bi_ei;
-     double d_qj_dV_bi_ci_dV_ci_ei;
-     double d_qj_dV_tnode_GND;
-     double d_qj_dV_b_ci;
-     double d_qj_dV_b_ci_dV_bi_ci;
-     double d_qj_dV_b_ci_dV_tnode_GND;
-     double d_qj_dV_b_ci_dV_b_ci;
-     double d_qj_dV_b_ci_dV_bi_ei;
-     double d_qj_dV_b_ci_dV_ci_ei;
-     double d_qj_dV_bi_ei;
-     double d_qj_dV_bi_ei_dV_bi_ci;
-     double d_qj_dV_bi_ei_dV_tnode_GND;
-     double d_qj_dV_bi_ei_dV_b_ci;
-     double d_qj_dV_bi_ei_dV_bi_ei;
-     double d_qj_dV_bi_ei_dV_ci_ei;
-     double d_qj_dV_ci_ei;
-     double d_qj_dV_ci_ei_dV_bi_ci;
-     double d_qj_dV_ci_ei_dV_tnode_GND;
-     double d_qj_dV_ci_ei_dV_b_ci;
-     double d_qj_dV_ci_ei_dV_bi_ei;
-     double d_qj_dV_ci_ei_dV_ci_ei;
-  double qje;
-     double d_qje_dV_tnode_GND;
-     double d_qje_dV_bi_ei;
-     double d_qje_dV_bi_ei_dV_tnode_GND;
-     double d_qje_dV_bi_ei_dV_bi_ei;
-     double d_qje_dV_bi_ei_dV_ci_ei;
-     double d_qje_dV_bi_ei_dV_bi_ci;
-     double d_qje_dV_bi_ei_dV_b_ci;
-     double d_qje_dV_ci_ei;
-     double d_qje_dV_ci_ei_dV_tnode_GND;
-     double d_qje_dV_ci_ei_dV_bi_ei;
-     double d_qje_dV_ci_ei_dV_ci_ei;
-     double d_qje_dV_ci_ei_dV_bi_ci;
-     double d_qje_dV_ci_ei_dV_b_ci;
-     double d_qje_dV_bi_ci;
-     double d_qje_dV_bi_ci_dV_tnode_GND;
-     double d_qje_dV_bi_ci_dV_bi_ei;
-     double d_qje_dV_bi_ci_dV_ci_ei;
-     double d_qje_dV_bi_ci_dV_bi_ci;
-     double d_qje_dV_bi_ci_dV_b_ci;
-     double d_qje_dV_b_ci;
-     double d_qje_dV_b_ci_dV_tnode_GND;
-     double d_qje_dV_b_ci_dV_bi_ei;
-     double d_qje_dV_b_ci_dV_ci_ei;
-     double d_qje_dV_b_ci_dV_bi_ci;
-     double d_qje_dV_b_ci_dV_b_ci;
-  double h_vbe;
-     double d_h_vbe_dV_tnode_GND;
-     double d_h_vbe_dV_bi_ei;
-     double d_h_vbe_dV_bi_ei_dV_tnode_GND;
-     double d_h_vbe_dV_bi_ei_dV_bi_ei;
-  double vj_z;
-     double d_vj_z_dV_tnode_GND;
-     double d_vj_z_dV_bi_ei;
-     double d_vj_z_dV_bi_ei_dV_tnode_GND;
-     double d_vj_z_dV_bi_ei_dV_bi_ei;
-  double vjh;
-     double d_vjh_dV_tnode_GND;
-     double d_vjh_dV_bi_ei;
-     double d_vjh_dV_bi_ei_dV_tnode_GND;
-     double d_vjh_dV_bi_ei_dV_bi_ei;
-  double cc;
-     double d_cc_dV_tnode_GND;
-     double d_cc_dV_bi_ci;
-     double d_cc_dV_bi_ci_dV_tnode_GND;
-     double d_cc_dV_bi_ci_dV_bi_ci;
-     double d_cc_dV_bi_ci_dV_b_ci;
-     double d_cc_dV_b_ci;
-     double d_cc_dV_b_ci_dV_tnode_GND;
-     double d_cc_dV_b_ci_dV_bi_ci;
-     double d_cc_dV_b_ci_dV_b_ci;
-  double ick;
-     double d_ick_dV_tnode_GND;
-     double d_ick_dV_ci_ei;
-     double d_ick_dV_ci_ei_dV_tnode_GND;
-     double d_ick_dV_ci_ei_dV_ci_ei;
-  double vceff;
-     double d_vceff_dV_tnode_GND;
-     double d_vceff_dV_ci_ei;
-     double d_vceff_dV_ci_ei_dV_tnode_GND;
-     double d_vceff_dV_ci_ei_dV_ci_ei;
-  double uvc;
-     double d_uvc_dV_ci_ei;
-     double d_uvc_dV_ci_ei_dV_ci_ei;
-     double d_uvc_dV_ci_ei_dV_tnode_GND;
-     double d_uvc_dV_tnode_GND;
-  double vc;
-     double d_vc_dV_ci_ei;
-     double d_vc_dV_ci_ei_dV_ci_ei;
-     double d_vc_dV_ci_ei_dV_tnode_GND;
-     double d_vc_dV_tnode_GND;
-  double cjcii;
-     double d_cjcii_dV_tnode_GND;
-     double d_cjcii_dV_bi_ci;
-     double d_cjcii_dV_bi_ci_dV_tnode_GND;
-     double d_cjcii_dV_bi_ci_dV_bi_ci;
-     double d_cjcii_dV_bi_ci_dV_b_ci;
-     double d_cjcii_dV_b_ci;
-     double d_cjcii_dV_b_ci_dV_tnode_GND;
-     double d_cjcii_dV_b_ci_dV_bi_ci;
-     double d_cjcii_dV_b_ci_dV_b_ci;
-  double dvj;
-     double d_dvj_dV_bi_ci;
-     double d_dvj_dV_bi_ci_dV_bi_ci;
-     double d_dvj_dV_bi_ci_dV_tnode_GND;
-     double d_dvj_dV_bi_ci_dV_b_ci;
-     double d_dvj_dV_tnode_GND;
-     double d_dvj_dV_b_ci;
-     double d_dvj_dV_b_ci_dV_bi_ci;
-     double d_dvj_dV_b_ci_dV_tnode_GND;
-     double d_dvj_dV_b_ci_dV_b_ci;
-  double qjcii;
-     double d_qjcii_dV_bi_ci;
-     double d_qjcii_dV_tnode_GND;
-     double d_qjcii_dV_b_ci;
-  double qjci_int;
-     double d_qjci_int_dV_bi_ci;
-     double d_qjci_int_dV_tnode_GND;
-     double d_qjci_int_dV_b_ci;
-  double qjcx;
-     double d_qjcx_dV_bi_ci;
-     double d_qjcx_dV_tnode_GND;
-     double d_qjcx_dV_b_ci;
-  double qj3;
-     double d_qj3_dV_ci_ei;
-     double d_qj3_dV_ci_ei_dV_ci_ei;
-     double d_qj3_dV_ci_ei_dV_bi_ei;
-     double d_qj3_dV_ci_ei_dV_s_ci;
-     double d_qj3_dV_ci_ei_dV_bi_ci;
-     double d_qj3_dV_ci_ei_dV_tnode_GND;
-     double d_qj3_dV_ci_ei_dV_b_ci;
-     double d_qj3_dV_bi_ei;
-     double d_qj3_dV_bi_ei_dV_ci_ei;
-     double d_qj3_dV_bi_ei_dV_bi_ei;
-     double d_qj3_dV_bi_ei_dV_s_ci;
-     double d_qj3_dV_bi_ei_dV_bi_ci;
-     double d_qj3_dV_bi_ei_dV_tnode_GND;
-     double d_qj3_dV_bi_ei_dV_b_ci;
-     double d_qj3_dV_s_ci;
-     double d_qj3_dV_s_ci_dV_ci_ei;
-     double d_qj3_dV_s_ci_dV_bi_ei;
-     double d_qj3_dV_s_ci_dV_s_ci;
-     double d_qj3_dV_s_ci_dV_bi_ci;
-     double d_qj3_dV_s_ci_dV_tnode_GND;
-     double d_qj3_dV_s_ci_dV_b_ci;
-     double d_qj3_dV_bi_ci;
-     double d_qj3_dV_bi_ci_dV_ci_ei;
-     double d_qj3_dV_bi_ci_dV_bi_ei;
-     double d_qj3_dV_bi_ci_dV_s_ci;
-     double d_qj3_dV_bi_ci_dV_bi_ci;
-     double d_qj3_dV_bi_ci_dV_tnode_GND;
-     double d_qj3_dV_bi_ci_dV_b_ci;
-     double d_qj3_dV_tnode_GND;
-     double d_qj3_dV_b_ci;
-     double d_qj3_dV_b_ci_dV_ci_ei;
-     double d_qj3_dV_b_ci_dV_bi_ei;
-     double d_qj3_dV_b_ci_dV_s_ci;
-     double d_qj3_dV_b_ci_dV_bi_ci;
-     double d_qj3_dV_b_ci_dV_tnode_GND;
-     double d_qj3_dV_b_ci_dV_b_ci;
-  double qj2;
-     double d_qj2_dV_ci_ei;
-     double d_qj2_dV_ci_ei_dV_ci_ei;
-     double d_qj2_dV_ci_ei_dV_bi_ei;
-     double d_qj2_dV_ci_ei_dV_s_ci;
-     double d_qj2_dV_ci_ei_dV_bi_ci;
-     double d_qj2_dV_ci_ei_dV_tnode_GND;
-     double d_qj2_dV_ci_ei_dV_b_ci;
-     double d_qj2_dV_bi_ei;
-     double d_qj2_dV_bi_ei_dV_ci_ei;
-     double d_qj2_dV_bi_ei_dV_bi_ei;
-     double d_qj2_dV_bi_ei_dV_s_ci;
-     double d_qj2_dV_bi_ei_dV_bi_ci;
-     double d_qj2_dV_bi_ei_dV_tnode_GND;
-     double d_qj2_dV_bi_ei_dV_b_ci;
-     double d_qj2_dV_s_ci;
-     double d_qj2_dV_s_ci_dV_ci_ei;
-     double d_qj2_dV_s_ci_dV_bi_ei;
-     double d_qj2_dV_s_ci_dV_s_ci;
-     double d_qj2_dV_s_ci_dV_bi_ci;
-     double d_qj2_dV_s_ci_dV_tnode_GND;
-     double d_qj2_dV_s_ci_dV_b_ci;
-     double d_qj2_dV_bi_ci;
-     double d_qj2_dV_bi_ci_dV_ci_ei;
-     double d_qj2_dV_bi_ci_dV_bi_ei;
-     double d_qj2_dV_bi_ci_dV_s_ci;
-     double d_qj2_dV_bi_ci_dV_bi_ci;
-     double d_qj2_dV_bi_ci_dV_tnode_GND;
-     double d_qj2_dV_bi_ci_dV_b_ci;
-     double d_qj2_dV_tnode_GND;
-     double d_qj2_dV_b_ci;
-     double d_qj2_dV_b_ci_dV_ci_ei;
-     double d_qj2_dV_b_ci_dV_bi_ei;
-     double d_qj2_dV_b_ci_dV_s_ci;
-     double d_qj2_dV_b_ci_dV_bi_ci;
-     double d_qj2_dV_b_ci_dV_tnode_GND;
-     double d_qj2_dV_b_ci_dV_b_ci;
-  double qj1;
-     double d_qj1_dV_ci_ei;
-     double d_qj1_dV_ci_ei_dV_ci_ei;
-     double d_qj1_dV_ci_ei_dV_bi_ei;
-     double d_qj1_dV_ci_ei_dV_s_ci;
-     double d_qj1_dV_ci_ei_dV_bi_ci;
-     double d_qj1_dV_ci_ei_dV_tnode_GND;
-     double d_qj1_dV_ci_ei_dV_b_ci;
-     double d_qj1_dV_bi_ei;
-     double d_qj1_dV_bi_ei_dV_ci_ei;
-     double d_qj1_dV_bi_ei_dV_bi_ei;
-     double d_qj1_dV_bi_ei_dV_s_ci;
-     double d_qj1_dV_bi_ei_dV_bi_ci;
-     double d_qj1_dV_bi_ei_dV_tnode_GND;
-     double d_qj1_dV_bi_ei_dV_b_ci;
-     double d_qj1_dV_s_ci;
-     double d_qj1_dV_s_ci_dV_ci_ei;
-     double d_qj1_dV_s_ci_dV_bi_ei;
-     double d_qj1_dV_s_ci_dV_s_ci;
-     double d_qj1_dV_s_ci_dV_bi_ci;
-     double d_qj1_dV_s_ci_dV_tnode_GND;
-     double d_qj1_dV_s_ci_dV_b_ci;
-     double d_qj1_dV_bi_ci;
-     double d_qj1_dV_bi_ci_dV_ci_ei;
-     double d_qj1_dV_bi_ci_dV_bi_ei;
-     double d_qj1_dV_bi_ci_dV_s_ci;
-     double d_qj1_dV_bi_ci_dV_bi_ci;
-     double d_qj1_dV_bi_ci_dV_tnode_GND;
-     double d_qj1_dV_bi_ci_dV_b_ci;
-     double d_qj1_dV_tnode_GND;
-     double d_qj1_dV_b_ci;
-     double d_qj1_dV_b_ci_dV_ci_ei;
-     double d_qj1_dV_b_ci_dV_bi_ei;
-     double d_qj1_dV_b_ci_dV_s_ci;
-     double d_qj1_dV_b_ci_dV_bi_ci;
-     double d_qj1_dV_b_ci_dV_tnode_GND;
-     double d_qj1_dV_b_ci_dV_b_ci;
-  double vdj2;
-     double d_vdj2_dV_ci_ei;
-     double d_vdj2_dV_ci_ei_dV_ci_ei;
-     double d_vdj2_dV_ci_ei_dV_bi_ei;
-     double d_vdj2_dV_ci_ei_dV_s_ci;
-     double d_vdj2_dV_ci_ei_dV_bi_ci;
-     double d_vdj2_dV_ci_ei_dV_tnode_GND;
-     double d_vdj2_dV_ci_ei_dV_b_ci;
-     double d_vdj2_dV_bi_ei;
-     double d_vdj2_dV_bi_ei_dV_ci_ei;
-     double d_vdj2_dV_bi_ei_dV_bi_ei;
-     double d_vdj2_dV_bi_ei_dV_s_ci;
-     double d_vdj2_dV_bi_ei_dV_bi_ci;
-     double d_vdj2_dV_bi_ei_dV_tnode_GND;
-     double d_vdj2_dV_bi_ei_dV_b_ci;
-     double d_vdj2_dV_s_ci;
-     double d_vdj2_dV_s_ci_dV_ci_ei;
-     double d_vdj2_dV_s_ci_dV_bi_ei;
-     double d_vdj2_dV_s_ci_dV_s_ci;
-     double d_vdj2_dV_s_ci_dV_bi_ci;
-     double d_vdj2_dV_s_ci_dV_tnode_GND;
-     double d_vdj2_dV_s_ci_dV_b_ci;
-     double d_vdj2_dV_bi_ci;
-     double d_vdj2_dV_bi_ci_dV_ci_ei;
-     double d_vdj2_dV_bi_ci_dV_bi_ei;
-     double d_vdj2_dV_bi_ci_dV_s_ci;
-     double d_vdj2_dV_bi_ci_dV_bi_ci;
-     double d_vdj2_dV_bi_ci_dV_tnode_GND;
-     double d_vdj2_dV_bi_ci_dV_b_ci;
-     double d_vdj2_dV_tnode_GND;
-     double d_vdj2_dV_b_ci;
-     double d_vdj2_dV_b_ci_dV_ci_ei;
-     double d_vdj2_dV_b_ci_dV_bi_ei;
-     double d_vdj2_dV_b_ci_dV_s_ci;
-     double d_vdj2_dV_b_ci_dV_bi_ci;
-     double d_vdj2_dV_b_ci_dV_tnode_GND;
-     double d_vdj2_dV_b_ci_dV_b_ci;
-  double vdj1;
-     double d_vdj1_dV_ci_ei;
-     double d_vdj1_dV_ci_ei_dV_ci_ei;
-     double d_vdj1_dV_ci_ei_dV_bi_ei;
-     double d_vdj1_dV_ci_ei_dV_s_ci;
-     double d_vdj1_dV_ci_ei_dV_bi_ci;
-     double d_vdj1_dV_ci_ei_dV_tnode_GND;
-     double d_vdj1_dV_ci_ei_dV_b_ci;
-     double d_vdj1_dV_bi_ei;
-     double d_vdj1_dV_bi_ei_dV_ci_ei;
-     double d_vdj1_dV_bi_ei_dV_bi_ei;
-     double d_vdj1_dV_bi_ei_dV_s_ci;
-     double d_vdj1_dV_bi_ei_dV_bi_ci;
-     double d_vdj1_dV_bi_ei_dV_tnode_GND;
-     double d_vdj1_dV_bi_ei_dV_b_ci;
-     double d_vdj1_dV_s_ci;
-     double d_vdj1_dV_s_ci_dV_ci_ei;
-     double d_vdj1_dV_s_ci_dV_bi_ei;
-     double d_vdj1_dV_s_ci_dV_s_ci;
-     double d_vdj1_dV_s_ci_dV_bi_ci;
-     double d_vdj1_dV_s_ci_dV_tnode_GND;
-     double d_vdj1_dV_s_ci_dV_b_ci;
-     double d_vdj1_dV_bi_ci;
-     double d_vdj1_dV_bi_ci_dV_ci_ei;
-     double d_vdj1_dV_bi_ci_dV_bi_ei;
-     double d_vdj1_dV_bi_ci_dV_s_ci;
-     double d_vdj1_dV_bi_ci_dV_bi_ci;
-     double d_vdj1_dV_bi_ci_dV_tnode_GND;
-     double d_vdj1_dV_bi_ci_dV_b_ci;
-     double d_vdj1_dV_tnode_GND;
-     double d_vdj1_dV_b_ci;
-     double d_vdj1_dV_b_ci_dV_ci_ei;
-     double d_vdj1_dV_b_ci_dV_bi_ei;
-     double d_vdj1_dV_b_ci_dV_s_ci;
-     double d_vdj1_dV_b_ci_dV_bi_ci;
-     double d_vdj1_dV_b_ci_dV_tnode_GND;
-     double d_vdj1_dV_b_ci_dV_b_ci;
-  double ezr;
-  double ez;
-  double vj4;
-     double d_vj4_dV_s_ci;
-     double d_vj4_dV_s_ci_dV_s_ci;
-     double d_vj4_dV_s_ci_dV_ci_ei;
-     double d_vj4_dV_s_ci_dV_bi_ei;
-     double d_vj4_dV_s_ci_dV_bi_ci;
-     double d_vj4_dV_s_ci_dV_b_ci;
-     double d_vj4_dV_s_ci_dV_tnode_GND;
-     double d_vj4_dV_ci_ei;
-     double d_vj4_dV_ci_ei_dV_s_ci;
-     double d_vj4_dV_ci_ei_dV_ci_ei;
-     double d_vj4_dV_ci_ei_dV_bi_ei;
-     double d_vj4_dV_ci_ei_dV_bi_ci;
-     double d_vj4_dV_ci_ei_dV_b_ci;
-     double d_vj4_dV_ci_ei_dV_tnode_GND;
-     double d_vj4_dV_bi_ei;
-     double d_vj4_dV_bi_ei_dV_s_ci;
-     double d_vj4_dV_bi_ei_dV_ci_ei;
-     double d_vj4_dV_bi_ei_dV_bi_ei;
-     double d_vj4_dV_bi_ei_dV_bi_ci;
-     double d_vj4_dV_bi_ei_dV_b_ci;
-     double d_vj4_dV_bi_ei_dV_tnode_GND;
-     double d_vj4_dV_bi_ci;
-     double d_vj4_dV_bi_ci_dV_s_ci;
-     double d_vj4_dV_bi_ci_dV_ci_ei;
-     double d_vj4_dV_bi_ci_dV_bi_ei;
-     double d_vj4_dV_bi_ci_dV_bi_ci;
-     double d_vj4_dV_bi_ci_dV_b_ci;
-     double d_vj4_dV_bi_ci_dV_tnode_GND;
-     double d_vj4_dV_b_ci;
-     double d_vj4_dV_b_ci_dV_s_ci;
-     double d_vj4_dV_b_ci_dV_ci_ei;
-     double d_vj4_dV_b_ci_dV_bi_ei;
-     double d_vj4_dV_b_ci_dV_bi_ci;
-     double d_vj4_dV_b_ci_dV_b_ci;
-     double d_vj4_dV_b_ci_dV_tnode_GND;
-     double d_vj4_dV_tnode_GND;
-  double vj2;
-     double d_vj2_dV_ci_ei;
-     double d_vj2_dV_ci_ei_dV_ci_ei;
-     double d_vj2_dV_ci_ei_dV_bi_ei;
-     double d_vj2_dV_ci_ei_dV_s_ci;
-     double d_vj2_dV_ci_ei_dV_bi_ci;
-     double d_vj2_dV_ci_ei_dV_tnode_GND;
-     double d_vj2_dV_ci_ei_dV_b_ci;
-     double d_vj2_dV_bi_ei;
-     double d_vj2_dV_bi_ei_dV_ci_ei;
-     double d_vj2_dV_bi_ei_dV_bi_ei;
-     double d_vj2_dV_bi_ei_dV_s_ci;
-     double d_vj2_dV_bi_ei_dV_bi_ci;
-     double d_vj2_dV_bi_ei_dV_tnode_GND;
-     double d_vj2_dV_bi_ei_dV_b_ci;
-     double d_vj2_dV_s_ci;
-     double d_vj2_dV_s_ci_dV_ci_ei;
-     double d_vj2_dV_s_ci_dV_bi_ei;
-     double d_vj2_dV_s_ci_dV_s_ci;
-     double d_vj2_dV_s_ci_dV_bi_ci;
-     double d_vj2_dV_s_ci_dV_tnode_GND;
-     double d_vj2_dV_s_ci_dV_b_ci;
-     double d_vj2_dV_bi_ci;
-     double d_vj2_dV_bi_ci_dV_ci_ei;
-     double d_vj2_dV_bi_ci_dV_bi_ei;
-     double d_vj2_dV_bi_ci_dV_s_ci;
-     double d_vj2_dV_bi_ci_dV_bi_ci;
-     double d_vj2_dV_bi_ci_dV_tnode_GND;
-     double d_vj2_dV_bi_ci_dV_b_ci;
-     double d_vj2_dV_tnode_GND;
-     double d_vj2_dV_b_ci;
-     double d_vj2_dV_b_ci_dV_ci_ei;
-     double d_vj2_dV_b_ci_dV_bi_ei;
-     double d_vj2_dV_b_ci_dV_s_ci;
-     double d_vj2_dV_b_ci_dV_bi_ci;
-     double d_vj2_dV_b_ci_dV_tnode_GND;
-     double d_vj2_dV_b_ci_dV_b_ci;
-  double vr;
-     double d_vr_dV_ci_ei;
-     double d_vr_dV_ci_ei_dV_ci_ei;
-     double d_vr_dV_ci_ei_dV_bi_ei;
-     double d_vr_dV_ci_ei_dV_s_ci;
-     double d_vr_dV_ci_ei_dV_bi_ci;
-     double d_vr_dV_ci_ei_dV_tnode_GND;
-     double d_vr_dV_ci_ei_dV_b_ci;
-     double d_vr_dV_bi_ei;
-     double d_vr_dV_bi_ei_dV_ci_ei;
-     double d_vr_dV_bi_ei_dV_bi_ei;
-     double d_vr_dV_bi_ei_dV_s_ci;
-     double d_vr_dV_bi_ei_dV_bi_ci;
-     double d_vr_dV_bi_ei_dV_tnode_GND;
-     double d_vr_dV_bi_ei_dV_b_ci;
-     double d_vr_dV_s_ci;
-     double d_vr_dV_s_ci_dV_ci_ei;
-     double d_vr_dV_s_ci_dV_bi_ei;
-     double d_vr_dV_s_ci_dV_s_ci;
-     double d_vr_dV_s_ci_dV_bi_ci;
-     double d_vr_dV_s_ci_dV_tnode_GND;
-     double d_vr_dV_s_ci_dV_b_ci;
-     double d_vr_dV_bi_ci;
-     double d_vr_dV_bi_ci_dV_ci_ei;
-     double d_vr_dV_bi_ci_dV_bi_ei;
-     double d_vr_dV_bi_ci_dV_s_ci;
-     double d_vr_dV_bi_ci_dV_bi_ci;
-     double d_vr_dV_bi_ci_dV_tnode_GND;
-     double d_vr_dV_bi_ci_dV_b_ci;
-     double d_vr_dV_tnode_GND;
-     double d_vr_dV_b_ci;
-     double d_vr_dV_b_ci_dV_ci_ei;
-     double d_vr_dV_b_ci_dV_bi_ei;
-     double d_vr_dV_b_ci_dV_s_ci;
-     double d_vr_dV_b_ci_dV_bi_ci;
-     double d_vr_dV_b_ci_dV_tnode_GND;
-     double d_vr_dV_b_ci_dV_b_ci;
-  double vj1;
-     double d_vj1_dV_ci_ei;
-     double d_vj1_dV_ci_ei_dV_ci_ei;
-     double d_vj1_dV_ci_ei_dV_bi_ei;
-     double d_vj1_dV_ci_ei_dV_s_ci;
-     double d_vj1_dV_ci_ei_dV_bi_ci;
-     double d_vj1_dV_ci_ei_dV_tnode_GND;
-     double d_vj1_dV_ci_ei_dV_b_ci;
-     double d_vj1_dV_bi_ei;
-     double d_vj1_dV_bi_ei_dV_ci_ei;
-     double d_vj1_dV_bi_ei_dV_bi_ei;
-     double d_vj1_dV_bi_ei_dV_s_ci;
-     double d_vj1_dV_bi_ei_dV_bi_ci;
-     double d_vj1_dV_bi_ei_dV_tnode_GND;
-     double d_vj1_dV_bi_ei_dV_b_ci;
-     double d_vj1_dV_s_ci;
-     double d_vj1_dV_s_ci_dV_ci_ei;
-     double d_vj1_dV_s_ci_dV_bi_ei;
-     double d_vj1_dV_s_ci_dV_s_ci;
-     double d_vj1_dV_s_ci_dV_bi_ci;
-     double d_vj1_dV_s_ci_dV_tnode_GND;
-     double d_vj1_dV_s_ci_dV_b_ci;
-     double d_vj1_dV_bi_ci;
-     double d_vj1_dV_bi_ci_dV_ci_ei;
-     double d_vj1_dV_bi_ci_dV_bi_ei;
-     double d_vj1_dV_bi_ci_dV_s_ci;
-     double d_vj1_dV_bi_ci_dV_bi_ci;
-     double d_vj1_dV_bi_ci_dV_tnode_GND;
-     double d_vj1_dV_bi_ci_dV_b_ci;
-     double d_vj1_dV_tnode_GND;
-     double d_vj1_dV_b_ci;
-     double d_vj1_dV_b_ci_dV_ci_ei;
-     double d_vj1_dV_b_ci_dV_bi_ei;
-     double d_vj1_dV_b_ci_dV_s_ci;
-     double d_vj1_dV_b_ci_dV_bi_ci;
-     double d_vj1_dV_b_ci_dV_tnode_GND;
-     double d_vj1_dV_b_ci_dV_b_ci;
-  double ee1;
-     double d_ee1_dV_s_ci;
-     double d_ee1_dV_s_ci_dV_s_ci;
-     double d_ee1_dV_s_ci_dV_ci_ei;
-     double d_ee1_dV_s_ci_dV_bi_ei;
-     double d_ee1_dV_s_ci_dV_bi_ci;
-     double d_ee1_dV_s_ci_dV_tnode_GND;
-     double d_ee1_dV_s_ci_dV_b_ci;
-     double d_ee1_dV_ci_ei;
-     double d_ee1_dV_ci_ei_dV_s_ci;
-     double d_ee1_dV_ci_ei_dV_ci_ei;
-     double d_ee1_dV_ci_ei_dV_bi_ei;
-     double d_ee1_dV_ci_ei_dV_bi_ci;
-     double d_ee1_dV_ci_ei_dV_tnode_GND;
-     double d_ee1_dV_ci_ei_dV_b_ci;
-     double d_ee1_dV_bi_ei;
-     double d_ee1_dV_bi_ei_dV_s_ci;
-     double d_ee1_dV_bi_ei_dV_ci_ei;
-     double d_ee1_dV_bi_ei_dV_bi_ei;
-     double d_ee1_dV_bi_ei_dV_bi_ci;
-     double d_ee1_dV_bi_ei_dV_tnode_GND;
-     double d_ee1_dV_bi_ei_dV_b_ci;
-     double d_ee1_dV_bi_ci;
-     double d_ee1_dV_bi_ci_dV_s_ci;
-     double d_ee1_dV_bi_ci_dV_ci_ei;
-     double d_ee1_dV_bi_ci_dV_bi_ei;
-     double d_ee1_dV_bi_ci_dV_bi_ci;
-     double d_ee1_dV_bi_ci_dV_tnode_GND;
-     double d_ee1_dV_bi_ci_dV_b_ci;
-     double d_ee1_dV_tnode_GND;
-     double d_ee1_dV_b_ci;
-     double d_ee1_dV_b_ci_dV_s_ci;
-     double d_ee1_dV_b_ci_dV_ci_ei;
-     double d_ee1_dV_b_ci_dV_bi_ei;
-     double d_ee1_dV_b_ci_dV_bi_ci;
-     double d_ee1_dV_b_ci_dV_tnode_GND;
-     double d_ee1_dV_b_ci_dV_b_ci;
-  double ex1;
-     double d_ex1_dV_s_ci;
-     double d_ex1_dV_s_ci_dV_s_ci;
-     double d_ex1_dV_s_ci_dV_ci_ei;
-     double d_ex1_dV_s_ci_dV_bi_ei;
-     double d_ex1_dV_s_ci_dV_bi_ci;
-     double d_ex1_dV_s_ci_dV_tnode_GND;
-     double d_ex1_dV_s_ci_dV_b_ci;
-     double d_ex1_dV_ci_ei;
-     double d_ex1_dV_ci_ei_dV_s_ci;
-     double d_ex1_dV_ci_ei_dV_ci_ei;
-     double d_ex1_dV_ci_ei_dV_bi_ei;
-     double d_ex1_dV_ci_ei_dV_bi_ci;
-     double d_ex1_dV_ci_ei_dV_tnode_GND;
-     double d_ex1_dV_ci_ei_dV_b_ci;
-     double d_ex1_dV_bi_ei;
-     double d_ex1_dV_bi_ei_dV_s_ci;
-     double d_ex1_dV_bi_ei_dV_ci_ei;
-     double d_ex1_dV_bi_ei_dV_bi_ei;
-     double d_ex1_dV_bi_ei_dV_bi_ci;
-     double d_ex1_dV_bi_ei_dV_tnode_GND;
-     double d_ex1_dV_bi_ei_dV_b_ci;
-     double d_ex1_dV_bi_ci;
-     double d_ex1_dV_bi_ci_dV_s_ci;
-     double d_ex1_dV_bi_ci_dV_ci_ei;
-     double d_ex1_dV_bi_ci_dV_bi_ei;
-     double d_ex1_dV_bi_ci_dV_bi_ci;
-     double d_ex1_dV_bi_ci_dV_tnode_GND;
-     double d_ex1_dV_bi_ci_dV_b_ci;
-     double d_ex1_dV_tnode_GND;
-     double d_ex1_dV_b_ci;
-     double d_ex1_dV_b_ci_dV_s_ci;
-     double d_ex1_dV_b_ci_dV_ci_ei;
-     double d_ex1_dV_b_ci_dV_bi_ei;
-     double d_ex1_dV_b_ci_dV_bi_ci;
-     double d_ex1_dV_b_ci_dV_tnode_GND;
-     double d_ex1_dV_b_ci_dV_b_ci;
-  double ve;
-     double d_ve_dV_s_ci;
-     double d_ve_dV_s_ci_dV_s_ci;
-     double d_ve_dV_s_ci_dV_ci_ei;
-     double d_ve_dV_s_ci_dV_bi_ei;
-     double d_ve_dV_s_ci_dV_bi_ci;
-     double d_ve_dV_s_ci_dV_tnode_GND;
-     double d_ve_dV_s_ci_dV_b_ci;
-     double d_ve_dV_ci_ei;
-     double d_ve_dV_ci_ei_dV_s_ci;
-     double d_ve_dV_ci_ei_dV_ci_ei;
-     double d_ve_dV_ci_ei_dV_bi_ei;
-     double d_ve_dV_ci_ei_dV_bi_ci;
-     double d_ve_dV_ci_ei_dV_tnode_GND;
-     double d_ve_dV_ci_ei_dV_b_ci;
-     double d_ve_dV_bi_ei;
-     double d_ve_dV_bi_ei_dV_s_ci;
-     double d_ve_dV_bi_ei_dV_ci_ei;
-     double d_ve_dV_bi_ei_dV_bi_ei;
-     double d_ve_dV_bi_ei_dV_bi_ci;
-     double d_ve_dV_bi_ei_dV_tnode_GND;
-     double d_ve_dV_bi_ei_dV_b_ci;
-     double d_ve_dV_bi_ci;
-     double d_ve_dV_bi_ci_dV_s_ci;
-     double d_ve_dV_bi_ci_dV_ci_ei;
-     double d_ve_dV_bi_ci_dV_bi_ei;
-     double d_ve_dV_bi_ci_dV_bi_ci;
-     double d_ve_dV_bi_ci_dV_tnode_GND;
-     double d_ve_dV_bi_ci_dV_b_ci;
-     double d_ve_dV_tnode_GND;
-     double d_ve_dV_b_ci;
-     double d_ve_dV_b_ci_dV_s_ci;
-     double d_ve_dV_b_ci_dV_ci_ei;
-     double d_ve_dV_b_ci_dV_bi_ei;
-     double d_ve_dV_b_ci_dV_bi_ci;
-     double d_ve_dV_b_ci_dV_tnode_GND;
-     double d_ve_dV_b_ci_dV_b_ci;
-  double a;
-     double d_a_dV_ci_ei;
-     double d_a_dV_ci_ei_dV_ci_ei;
-     double d_a_dV_ci_ei_dV_bi_ei;
-     double d_a_dV_ci_ei_dV_bi_ci;
-     double d_a_dV_ci_ei_dV_b_ci;
-     double d_a_dV_ci_ei_dV_tnode_GND;
-     double d_a_dV_bi_ei;
-     double d_a_dV_bi_ei_dV_ci_ei;
-     double d_a_dV_bi_ei_dV_bi_ei;
-     double d_a_dV_bi_ei_dV_bi_ci;
-     double d_a_dV_bi_ei_dV_b_ci;
-     double d_a_dV_bi_ei_dV_tnode_GND;
-     double d_a_dV_bi_ci;
-     double d_a_dV_bi_ci_dV_ci_ei;
-     double d_a_dV_bi_ci_dV_bi_ei;
-     double d_a_dV_bi_ci_dV_bi_ci;
-     double d_a_dV_bi_ci_dV_b_ci;
-     double d_a_dV_bi_ci_dV_tnode_GND;
-     double d_a_dV_b_ci;
-     double d_a_dV_b_ci_dV_ci_ei;
-     double d_a_dV_b_ci_dV_bi_ei;
-     double d_a_dV_b_ci_dV_bi_ci;
-     double d_a_dV_b_ci_dV_b_ci;
-     double d_a_dV_b_ci_dV_tnode_GND;
-     double d_a_dV_tnode_GND;
-  double cr;
-     double d_cr_dV_tnode_GND;
-  double cmax;
-     double d_cmax_dV_tnode_GND;
-  double vf;
-     double d_vf_dV_tnode_GND;
-  double vp;
-     double d_vp_dV_tnode_GND;
-  double zr;
-  double y;
-     double d_y_dV_s_ci;
-     double d_y_dV_s_ci_dV_s_ci;
-     double d_y_dV_s_ci_dV_ci_ei;
-     double d_y_dV_s_ci_dV_bi_ei;
-     double d_y_dV_s_ci_dV_bi_ci;
-     double d_y_dV_s_ci_dV_tnode_GND;
-     double d_y_dV_s_ci_dV_b_ci;
-     double d_y_dV_ci_ei;
-     double d_y_dV_ci_ei_dV_s_ci;
-     double d_y_dV_ci_ei_dV_ci_ei;
-     double d_y_dV_ci_ei_dV_bi_ei;
-     double d_y_dV_ci_ei_dV_bi_ci;
-     double d_y_dV_ci_ei_dV_tnode_GND;
-     double d_y_dV_ci_ei_dV_b_ci;
-     double d_y_dV_bi_ei;
-     double d_y_dV_bi_ei_dV_s_ci;
-     double d_y_dV_bi_ei_dV_ci_ei;
-     double d_y_dV_bi_ei_dV_bi_ei;
-     double d_y_dV_bi_ei_dV_bi_ci;
-     double d_y_dV_bi_ei_dV_tnode_GND;
-     double d_y_dV_bi_ei_dV_b_ci;
-     double d_y_dV_bi_ci;
-     double d_y_dV_bi_ci_dV_s_ci;
-     double d_y_dV_bi_ci_dV_ci_ei;
-     double d_y_dV_bi_ci_dV_bi_ei;
-     double d_y_dV_bi_ci_dV_bi_ci;
-     double d_y_dV_bi_ci_dV_tnode_GND;
-     double d_y_dV_bi_ci_dV_b_ci;
-     double d_y_dV_tnode_GND;
-     double d_y_dV_b_ci;
-     double d_y_dV_b_ci_dV_s_ci;
-     double d_y_dV_b_ci_dV_ci_ei;
-     double d_y_dV_b_ci_dV_bi_ei;
-     double d_y_dV_b_ci_dV_bi_ci;
-     double d_y_dV_b_ci_dV_tnode_GND;
-     double d_y_dV_b_ci_dV_b_ci;
-  double x;
-     double d_x_dV_tnode_GND;
-     double d_x_dV_ci_ei;
-     double d_x_dV_ci_ei_dV_tnode_GND;
-     double d_x_dV_ci_ei_dV_ci_ei;
-  double v_j;
-     double d_v_j_dV_s_ci;
-     double d_v_j_dV_s_ci_dV_s_ci;
-     double d_v_j_dV_s_ci_dV_bi_ei;
-     double d_v_j_dV_s_ci_dV_bi_ci;
-     double d_v_j_dV_s_ci_dV_tnode_GND;
-     double d_v_j_dV_s_ci_dV_b_ci;
-     double d_v_j_dV_bi_ei;
-     double d_v_j_dV_bi_ei_dV_s_ci;
-     double d_v_j_dV_bi_ei_dV_bi_ei;
-     double d_v_j_dV_bi_ei_dV_bi_ci;
-     double d_v_j_dV_bi_ei_dV_tnode_GND;
-     double d_v_j_dV_bi_ei_dV_b_ci;
-     double d_v_j_dV_bi_ci;
-     double d_v_j_dV_bi_ci_dV_s_ci;
-     double d_v_j_dV_bi_ci_dV_bi_ei;
-     double d_v_j_dV_bi_ci_dV_bi_ci;
-     double d_v_j_dV_bi_ci_dV_tnode_GND;
-     double d_v_j_dV_bi_ci_dV_b_ci;
-     double d_v_j_dV_tnode_GND;
-     double d_v_j_dV_b_ci;
-     double d_v_j_dV_b_ci_dV_s_ci;
-     double d_v_j_dV_b_ci_dV_bi_ei;
-     double d_v_j_dV_b_ci_dV_bi_ci;
-     double d_v_j_dV_b_ci_dV_tnode_GND;
-     double d_v_j_dV_b_ci_dV_b_ci;
-  double xvf2;
-     double d_xvf2_dV_s_ci;
-     double d_xvf2_dV_s_ci_dV_s_ci;
-     double d_xvf2_dV_s_ci_dV_bi_ei;
-     double d_xvf2_dV_s_ci_dV_bi_ci;
-     double d_xvf2_dV_s_ci_dV_tnode_GND;
-     double d_xvf2_dV_s_ci_dV_b_ci;
-     double d_xvf2_dV_bi_ei;
-     double d_xvf2_dV_bi_ei_dV_s_ci;
-     double d_xvf2_dV_bi_ei_dV_bi_ei;
-     double d_xvf2_dV_bi_ei_dV_bi_ci;
-     double d_xvf2_dV_bi_ei_dV_tnode_GND;
-     double d_xvf2_dV_bi_ei_dV_b_ci;
-     double d_xvf2_dV_bi_ci;
-     double d_xvf2_dV_bi_ci_dV_s_ci;
-     double d_xvf2_dV_bi_ci_dV_bi_ei;
-     double d_xvf2_dV_bi_ci_dV_bi_ci;
-     double d_xvf2_dV_bi_ci_dV_tnode_GND;
-     double d_xvf2_dV_bi_ci_dV_b_ci;
-     double d_xvf2_dV_tnode_GND;
-     double d_xvf2_dV_b_ci;
-     double d_xvf2_dV_b_ci_dV_s_ci;
-     double d_xvf2_dV_b_ci_dV_bi_ei;
-     double d_xvf2_dV_b_ci_dV_bi_ci;
-     double d_xvf2_dV_b_ci_dV_tnode_GND;
-     double d_xvf2_dV_b_ci_dV_b_ci;
-  double xvf;
-     double d_xvf_dV_s_ci;
-     double d_xvf_dV_s_ci_dV_s_ci;
-     double d_xvf_dV_s_ci_dV_bi_ei;
-     double d_xvf_dV_s_ci_dV_bi_ci;
-     double d_xvf_dV_s_ci_dV_tnode_GND;
-     double d_xvf_dV_s_ci_dV_b_ci;
-     double d_xvf_dV_bi_ei;
-     double d_xvf_dV_bi_ei_dV_s_ci;
-     double d_xvf_dV_bi_ei_dV_bi_ei;
-     double d_xvf_dV_bi_ei_dV_bi_ci;
-     double d_xvf_dV_bi_ei_dV_tnode_GND;
-     double d_xvf_dV_bi_ei_dV_b_ci;
-     double d_xvf_dV_bi_ci;
-     double d_xvf_dV_bi_ci_dV_s_ci;
-     double d_xvf_dV_bi_ci_dV_bi_ei;
-     double d_xvf_dV_bi_ci_dV_bi_ci;
-     double d_xvf_dV_bi_ci_dV_tnode_GND;
-     double d_xvf_dV_bi_ci_dV_b_ci;
-     double d_xvf_dV_tnode_GND;
-     double d_xvf_dV_b_ci;
-     double d_xvf_dV_b_ci_dV_s_ci;
-     double d_xvf_dV_b_ci_dV_bi_ei;
-     double d_xvf_dV_b_ci_dV_bi_ci;
-     double d_xvf_dV_b_ci_dV_tnode_GND;
-     double d_xvf_dV_b_ci_dV_b_ci;
-  double cjcx0_t_i;
-     double d_cjcx0_t_i_dV_tnode_GND;
-  double qjcxi;
-     double d_qjcxi_dV_bi_ci;
-     double d_qjcxi_dV_bi_ci_dV_bi_ci;
-     double d_qjcxi_dV_bi_ci_dV_tnode_GND;
-     double d_qjcxi_dV_bi_ci_dV_b_ci;
-     double d_qjcxi_dV_tnode_GND;
-     double d_qjcxi_dV_b_ci;
-     double d_qjcxi_dV_b_ci_dV_bi_ci;
-     double d_qjcxi_dV_b_ci_dV_tnode_GND;
-     double d_qjcxi_dV_b_ci_dV_b_ci;
-  double cjci0_t_ii;
-     double d_cjci0_t_ii_dV_tnode_GND;
-  double cjcx0_t_ii;
-     double d_cjcx0_t_ii_dV_tnode_GND;
-  double ahq_t;
-  double tfh_t;
-     double d_tfh_t_dV_tnode_GND;
-  double iqfh_t;
-     double d_iqfh_t_dV_tnode_GND;
-  double ver_t;
-     double d_ver_t_dV_tnode_GND;
-  double aver_t;
-     double d_aver_t_dV_tnode_GND;
-  double rth_t;
-  double kavl_t;
-     double d_kavl_t_dV_tnode_GND;
-  double eavl_t;
-     double d_eavl_t_dV_tnode_GND;
-  double re_t;
-     double d_re_t_dV_tnode_GND;
-  double rbi0_t;
-     double d_rbi0_t_dV_tnode_GND;
-  double rcx_t;
-     double d_rcx_t_dV_tnode_GND;
-  double rbx_t;
-     double d_rbx_t_dV_tnode_GND;
-  double tef0_t;
-     double d_tef0_t_dV_tnode_GND;
-  double dvg;
-  double zetatef;
-  double thcs_t;
-     double d_thcs_t_dV_tnode_GND;
-  double t0_t;
-     double d_t0_t_dV_tnode_GND;
-  double vces_t;
-     double d_vces_t_dV_tnode_GND;
-  double vlim_t;
-     double d_vlim_t_dV_tnode_GND;
-  double rci0_t;
-     double d_rci0_t_dV_tnode_GND;
-  double iqf_t;
-     double d_iqf_t_dV_tnode_GND;
-  double cjs0_t;
-     double d_cjs0_t_dV_tnode_GND;
-  double vds_t;
-     double d_vds_t_dV_tnode_GND;
-  double cjcx0_t;
-     double d_cjcx0_t_dV_tnode_GND;
-  double vdcx_t;
-     double d_vdcx_t_dV_tnode_GND;
-  double cjci0_t;
-     double d_cjci0_t_dV_tnode_GND;
-  double vdci_t;
-     double d_vdci_t_dV_tnode_GND;
-  double ajedc_t;
-     double d_ajedc_t_dV_tnode_GND;
-  double aje_t;
-     double d_aje_t_dV_tnode_GND;
-  double cje0_dc_t;
-     double d_cje0_dc_t_dV_tnode_GND;
-  double vdedc_t;
-     double d_vdedc_t_dV_tnode_GND;
-  double cje0_dc;
-  double cje0_t;
-     double d_cje0_t_dV_tnode_GND;
-  double vde_t;
-     double d_vde_t_dV_tnode_GND;
-  double vdjt;
-     double d_vdjt_dV_tnode_GND;
-  double vdj0;
-  double arg;
-  double iscs_t;
-     double d_iscs_t_dV_tnode_GND;
-  double itss_t;
-     double d_itss_t_dV_tnode_GND;
-  double ibcs_t;
-     double d_ibcs_t_dV_tnode_GND;
-  double ires_t;
-     double d_ires_t_dV_tnode_GND;
-  double ibes_t;
-     double d_ibes_t_dV_tnode_GND;
-  double is_t;
-     double d_is_t_dV_tnode_GND;
-  double zetasct;
-  double zetabci;
-  double mg;
-  double vgsc;
-  double vgbc;
-  double vgbe;
-  double avs;
-  double ln_qtt0;
-     double d_ln_qtt0_dV_tnode_GND;
-  double qtt0;
-     double d_qtt0_dV_tnode_GND;
-  double dT;
-     double d_dT_dV_tnode_GND;
-  double VT;
-     double d_VT_dV_tnode_GND;
-  double vt0;
-  double Tdev;
-     double d_Tdev_dV_tnode_GND;
-  double Tamb;
-  double Tnom;
-  double Vrth;
-     double d_Vrth_dV_tnode_GND;
-  double Vbe;
-     double d_Vbe_dV_b_e;
-  double Vbbi;
-     double d_Vbbi_dV_b_bi;
-  double Vcic;
-     double d_Vcic_dV_ci_c;
-  double Veie;
-     double d_Veie_dV_ei_e;
-  double Vsci;
-     double d_Vsci_dV_s_ci;
-     double d_Vsci_dV_s_ci_dV_s_ci;
-  double Vciei;
-     double d_Vciei_dV_ci_ei;
-     double d_Vciei_dV_ci_ei_dV_ci_ei;
-  double Vbiei;
-     double d_Vbiei_dV_bi_ei;
-     double d_Vbiei_dV_bi_ei_dV_bi_ei;
-  double Vbici;
-     double d_Vbici_dV_bi_ci;
-     double d_Vbici_dV_bi_ci_dV_bi_ci;
-  double Vbci;
-     double d_Vbci_dV_b_ci;
-     double d_Vbci_dV_b_ci_dV_b_ci;
-  double HICUMtype;
+  double flicker_Pwr=0.0;
+     double d_flicker_Pwr_dV_tnode_GND=0.0;
+     double d_flicker_Pwr_dV_bi_ei=0.0;
+  double twoq=0.0;
+  double fourkt=0.0;
+     double d_fourkt_dV_tnode_GND=0.0;
+  double it_wop=0.0;
+     double d_it_wop_dV_tnode_GND=0.0;
+     double d_it_wop_dV_bi_ei=0.0;
+     double d_it_wop_dV_bi_ci=0.0;
+     double d_it_wop_dV_b_ci=0.0;
+     double d_it_wop_dV_ci_ei=0.0;
+  double Qbiei=0.0;
+     double d_Qbiei_dV_tnode_GND=0.0;
+     double d_Qbiei_dV_ci_ei=0.0;
+     double d_Qbiei_dV_bi_ei=0.0;
+     double d_Qbiei_dV_bi_ci=0.0;
+     double d_Qbiei_dV_b_ci=0.0;
+     double d_Qbiei_dV_xf_GND=0.0;
+  double Qbici=0.0;
+     double d_Qbici_dV_bi_ci=0.0;
+     double d_Qbici_dV_tnode_GND=0.0;
+     double d_Qbici_dV_b_ci=0.0;
+     double d_Qbici_dV_bi_ei=0.0;
+     double d_Qbici_dV_ci_ei=0.0;
+  double Qbe=0.0;
+     double d_Qbe_dV_b_e=0.0;
+  double Qbci=0.0;
+     double d_Qbci_dV_b_ci=0.0;
+  double Qxf=0.0;
+     double d_Qxf_dV_xf_GND=0.0;
+  double Ixf=0.0;
+     double d_Ixf_dV_xf_GND=0.0;
+     double d_Ixf_dV_tnode_GND=0.0;
+     double d_Ixf_dV_bi_ci=0.0;
+     double d_Ixf_dV_b_ci=0.0;
+     double d_Ixf_dV_bi_ei=0.0;
+     double d_Ixf_dV_ci_ei=0.0;
+  double fact=0.0;
+     double d_fact_dV_tnode_GND=0.0;
+     double d_fact_dV_bi_ci=0.0;
+     double d_fact_dV_b_ci=0.0;
+     double d_fact_dV_ci_ei=0.0;
+     double d_fact_dV_bi_ei=0.0;
+  double Vxf=0.0;
+     double d_Vxf_dV_xf_GND=0.0;
+  double Qxf2=0.0;
+     double d_Qxf2_dV_xf2_GND=0.0;
+  double Qxf1=0.0;
+     double d_Qxf1_dV_xf1_GND=0.0;
+  double Ixf2=0.0;
+     double d_Ixf2_dV_xf2_GND=0.0;
+     double d_Ixf2_dV_xf1_GND=0.0;
+     double d_Ixf2_dV_tnode_GND=0.0;
+     double d_Ixf2_dV_bi_ci=0.0;
+     double d_Ixf2_dV_b_ci=0.0;
+     double d_Ixf2_dV_ci_ei=0.0;
+     double d_Ixf2_dV_bi_ei=0.0;
+  double Ixf1=0.0;
+     double d_Ixf1_dV_xf1_GND=0.0;
+     double d_Ixf1_dV_xf2_GND=0.0;
+     double d_Ixf1_dV_tnode_GND=0.0;
+     double d_Ixf1_dV_bi_ei=0.0;
+     double d_Ixf1_dV_bi_ci=0.0;
+     double d_Ixf1_dV_b_ci=0.0;
+     double d_Ixf1_dV_ci_ei=0.0;
+  double Vxf2=0.0;
+     double d_Vxf2_dV_xf2_GND=0.0;
+  double Vxf1=0.0;
+     double d_Vxf1_dV_xf1_GND=0.0;
+  double Qdeix=0.0;
+     double d_Qdeix_dV_xf_GND=0.0;
+     double d_Qdeix_dV_tnode_GND=0.0;
+     double d_Qdeix_dV_bi_ci=0.0;
+     double d_Qdeix_dV_b_ci=0.0;
+     double d_Qdeix_dV_bi_ei=0.0;
+     double d_Qdeix_dV_ci_ei=0.0;
+  double Itxf=0.0;
+     double d_Itxf_dV_xf2_GND=0.0;
+     double d_Itxf_dV_tnode_GND=0.0;
+     double d_Itxf_dV_bi_ei=0.0;
+     double d_Itxf_dV_bi_ci=0.0;
+     double d_Itxf_dV_b_ci=0.0;
+     double d_Itxf_dV_ci_ei=0.0;
+  double pterm=0.0;
+     double d_pterm_dV_ci_c=0.0;
+     double d_pterm_dV_ei_e=0.0;
+     double d_pterm_dV_b_bi=0.0;
+     double d_pterm_dV_s_ci=0.0;
+     double d_pterm_dV_tnode_GND=0.0;
+     double d_pterm_dV_bi_ei=0.0;
+     double d_pterm_dV_bi_ci=0.0;
+     double d_pterm_dV_b_ci=0.0;
+     double d_pterm_dV_ci_ei=0.0;
+  double qjs=0.0;
+     double d_qjs_dV_ci_ei=0.0;
+     double d_qjs_dV_bi_ei=0.0;
+     double d_qjs_dV_s_ci=0.0;
+     double d_qjs_dV_s_ci_dV_ci_ei=0.0;
+     double d_qjs_dV_s_ci_dV_bi_ei=0.0;
+     double d_qjs_dV_s_ci_dV_s_ci=0.0;
+     double d_qjs_dV_s_ci_dV_bi_ci=0.0;
+     double d_qjs_dV_s_ci_dV_tnode_GND=0.0;
+     double d_qjs_dV_s_ci_dV_b_ci=0.0;
+     double d_qjs_dV_bi_ci=0.0;
+     double d_qjs_dV_tnode_GND=0.0;
+     double d_qjs_dV_b_ci=0.0;
+  double HSI_Tsu=0.0;
+     double d_HSI_Tsu_dV_tnode_GND=0.0;
+     double d_HSI_Tsu_dV_b_ci=0.0;
+     double d_HSI_Tsu_dV_s_ci=0.0;
+  double HSb=0.0;
+     double d_HSb_dV_s_ci=0.0;
+     double d_HSb_dV_tnode_GND=0.0;
+  double HSa=0.0;
+     double d_HSa_dV_b_ci=0.0;
+     double d_HSa_dV_tnode_GND=0.0;
+  double HSUM=0.0;
+     double d_HSUM_dV_tnode_GND=0.0;
+  double rb=0.0;
+     double d_rb_dV_tnode_GND=0.0;
+     double d_rb_dV_bi_ei=0.0;
+     double d_rb_dV_ci_ei=0.0;
+     double d_rb_dV_bi_ci=0.0;
+     double d_rb_dV_b_ci=0.0;
+  double eta=0.0;
+     double d_eta_dV_tnode_GND=0.0;
+     double d_eta_dV_bi_ei=0.0;
+     double d_eta_dV_ci_ei=0.0;
+     double d_eta_dV_bi_ci=0.0;
+     double d_eta_dV_b_ci=0.0;
+  double rbi=0.0;
+     double d_rbi_dV_tnode_GND=0.0;
+     double d_rbi_dV_bi_ei=0.0;
+     double d_rbi_dV_ci_ei=0.0;
+     double d_rbi_dV_bi_ci=0.0;
+     double d_rbi_dV_b_ci=0.0;
+  double fQz=0.0;
+     double d_fQz_dV_tnode_GND=0.0;
+     double d_fQz_dV_bi_ei=0.0;
+     double d_fQz_dV_ci_ei=0.0;
+     double d_fQz_dV_bi_ci=0.0;
+     double d_fQz_dV_b_ci=0.0;
+  double Qz_nom=0.0;
+     double d_Qz_nom_dV_tnode_GND=0.0;
+     double d_Qz_nom_dV_bi_ei=0.0;
+     double d_Qz_nom_dV_ci_ei=0.0;
+     double d_Qz_nom_dV_bi_ci=0.0;
+     double d_Qz_nom_dV_b_ci=0.0;
+  double a_iavl=0.0;
+     double d_a_iavl_dV_tnode_GND=0.0;
+     double d_a_iavl_dV_bi_ci=0.0;
+     double d_a_iavl_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_a_iavl_dV_bi_ci_dV_bi_ci=0.0;
+     double d_a_iavl_dV_bi_ci_dV_b_ci=0.0;
+     double d_a_iavl_dV_b_ci=0.0;
+     double d_a_iavl_dV_b_ci_dV_tnode_GND=0.0;
+     double d_a_iavl_dV_b_ci_dV_bi_ci=0.0;
+     double d_a_iavl_dV_b_ci_dV_b_ci=0.0;
+  double lncc=0.0;
+     double d_lncc_dV_tnode_GND=0.0;
+     double d_lncc_dV_bi_ci=0.0;
+     double d_lncc_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_lncc_dV_bi_ci_dV_bi_ci=0.0;
+     double d_lncc_dV_bi_ci_dV_b_ci=0.0;
+     double d_lncc_dV_b_ci=0.0;
+     double d_lncc_dV_b_ci_dV_tnode_GND=0.0;
+     double d_lncc_dV_b_ci_dV_bi_ci=0.0;
+     double d_lncc_dV_b_ci_dV_b_ci=0.0;
+  double v_bord=0.0;
+     double d_v_bord_dV_tnode_GND=0.0;
+  double ibi=0.0;
+     double d_ibi_dV_tnode_GND=0.0;
+     double d_ibi_dV_bi_ei=0.0;
+     double d_ibi_dV_bi_ci=0.0;
+  double ire=0.0;
+     double d_ire_dV_tnode_GND=0.0;
+     double d_ire_dV_bi_ei=0.0;
+     double d_ire_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_ire_dV_bi_ei_dV_bi_ei=0.0;
+  double ibe=0.0;
+     double d_ibe_dV_tnode_GND=0.0;
+     double d_ibe_dV_bi_ei=0.0;
+     double d_ibe_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_ibe_dV_bi_ei_dV_bi_ei=0.0;
+  double le=0.0;
+     double d_le_dV_s_ci=0.0;
+     double d_le_dV_s_ci_dV_s_ci=0.0;
+     double d_le_dV_s_ci_dV_bi_ci=0.0;
+     double d_le_dV_s_ci_dV_bi_ei=0.0;
+     double d_le_dV_s_ci_dV_tnode_GND=0.0;
+     double d_le_dV_bi_ci=0.0;
+     double d_le_dV_bi_ci_dV_s_ci=0.0;
+     double d_le_dV_bi_ci_dV_bi_ci=0.0;
+     double d_le_dV_bi_ci_dV_bi_ei=0.0;
+     double d_le_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_le_dV_bi_ei=0.0;
+     double d_le_dV_bi_ei_dV_s_ci=0.0;
+     double d_le_dV_bi_ei_dV_bi_ci=0.0;
+     double d_le_dV_bi_ei_dV_bi_ei=0.0;
+     double d_le_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_le_dV_tnode_GND=0.0;
+  double DIOY=0.0;
+     double d_DIOY_dV_s_ci=0.0;
+     double d_DIOY_dV_s_ci_dV_s_ci=0.0;
+     double d_DIOY_dV_s_ci_dV_bi_ci=0.0;
+     double d_DIOY_dV_s_ci_dV_bi_ei=0.0;
+     double d_DIOY_dV_s_ci_dV_tnode_GND=0.0;
+     double d_DIOY_dV_bi_ci=0.0;
+     double d_DIOY_dV_bi_ci_dV_s_ci=0.0;
+     double d_DIOY_dV_bi_ci_dV_bi_ci=0.0;
+     double d_DIOY_dV_bi_ci_dV_bi_ei=0.0;
+     double d_DIOY_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_DIOY_dV_bi_ei=0.0;
+     double d_DIOY_dV_bi_ei_dV_s_ci=0.0;
+     double d_DIOY_dV_bi_ei_dV_bi_ci=0.0;
+     double d_DIOY_dV_bi_ei_dV_bi_ei=0.0;
+     double d_DIOY_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_DIOY_dV_tnode_GND=0.0;
+  double qr=0.0;
+     double d_qr_dV_tnode_GND=0.0;
+     double d_qr_dV_bi_ci=0.0;
+     double d_qr_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qr_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qr_dV_bi_ci_dV_b_ci=0.0;
+     double d_qr_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qr_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qr_dV_b_ci=0.0;
+     double d_qr_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qr_dV_b_ci_dV_bi_ci=0.0;
+     double d_qr_dV_b_ci_dV_b_ci=0.0;
+     double d_qr_dV_b_ci_dV_bi_ei=0.0;
+     double d_qr_dV_b_ci_dV_ci_ei=0.0;
+     double d_qr_dV_bi_ei=0.0;
+     double d_qr_dV_ci_ei=0.0;
+     double d_qr_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qr_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qr_dV_ci_ei_dV_b_ci=0.0;
+     double d_qr_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qr_dV_ci_ei_dV_ci_ei=0.0;
+  double tf=0.0;
+     double d_tf_dV_tnode_GND=0.0;
+     double d_tf_dV_bi_ci=0.0;
+     double d_tf_dV_b_ci=0.0;
+     double d_tf_dV_ci_ei=0.0;
+     double d_tf_dV_bi_ei=0.0;
+  double qf=0.0;
+     double d_qf_dV_tnode_GND=0.0;
+     double d_qf_dV_bi_ci=0.0;
+     double d_qf_dV_b_ci=0.0;
+     double d_qf_dV_bi_ei=0.0;
+     double d_qf_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qf_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qf_dV_bi_ei_dV_b_ci=0.0;
+     double d_qf_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qf_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qf_dV_ci_ei=0.0;
+     double d_qf_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qf_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qf_dV_ci_ei_dV_b_ci=0.0;
+     double d_qf_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qf_dV_ci_ei_dV_ci_ei=0.0;
+  double dqef=0.0;
+     double d_dqef_dV_tnode_GND=0.0;
+     double d_dqef_dV_bi_ei=0.0;
+     double d_dqef_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_dqef_dV_bi_ei_dV_bi_ei=0.0;
+     double d_dqef_dV_bi_ei_dV_bi_ci=0.0;
+     double d_dqef_dV_bi_ei_dV_b_ci=0.0;
+     double d_dqef_dV_bi_ei_dV_ci_ei=0.0;
+     double d_dqef_dV_bi_ci=0.0;
+     double d_dqef_dV_b_ci=0.0;
+     double d_dqef_dV_ci_ei=0.0;
+     double d_dqef_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_dqef_dV_ci_ei_dV_bi_ei=0.0;
+     double d_dqef_dV_ci_ei_dV_bi_ci=0.0;
+     double d_dqef_dV_ci_ei_dV_b_ci=0.0;
+     double d_dqef_dV_ci_ei_dV_ci_ei=0.0;
+  double dtef=0.0;
+     double d_dtef_dV_tnode_GND=0.0;
+     double d_dtef_dV_bi_ei=0.0;
+     double d_dtef_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_dtef_dV_bi_ei_dV_bi_ei=0.0;
+     double d_dtef_dV_bi_ei_dV_bi_ci=0.0;
+     double d_dtef_dV_bi_ei_dV_b_ci=0.0;
+     double d_dtef_dV_bi_ei_dV_ci_ei=0.0;
+     double d_dtef_dV_bi_ci=0.0;
+     double d_dtef_dV_b_ci=0.0;
+     double d_dtef_dV_ci_ei=0.0;
+     double d_dtef_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_dtef_dV_ci_ei_dV_bi_ei=0.0;
+     double d_dtef_dV_ci_ei_dV_bi_ci=0.0;
+     double d_dtef_dV_ci_ei_dV_b_ci=0.0;
+     double d_dtef_dV_ci_ei_dV_ci_ei=0.0;
+  double dtfh=0.0;
+     double d_dtfh_dV_tnode_GND=0.0;
+     double d_dtfh_dV_ci_ei=0.0;
+     double d_dtfh_dV_bi_ei=0.0;
+     double d_dtfh_dV_bi_ci=0.0;
+     double d_dtfh_dV_b_ci=0.0;
+  double dqfh=0.0;
+     double d_dqfh_dV_tnode_GND=0.0;
+     double d_dqfh_dV_ci_ei=0.0;
+     double d_dqfh_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_dqfh_dV_ci_ei_dV_ci_ei=0.0;
+     double d_dqfh_dV_ci_ei_dV_bi_ei=0.0;
+     double d_dqfh_dV_ci_ei_dV_bi_ci=0.0;
+     double d_dqfh_dV_ci_ei_dV_b_ci=0.0;
+     double d_dqfh_dV_bi_ei=0.0;
+     double d_dqfh_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_dqfh_dV_bi_ei_dV_ci_ei=0.0;
+     double d_dqfh_dV_bi_ei_dV_bi_ei=0.0;
+     double d_dqfh_dV_bi_ei_dV_bi_ci=0.0;
+     double d_dqfh_dV_bi_ei_dV_b_ci=0.0;
+     double d_dqfh_dV_bi_ci=0.0;
+     double d_dqfh_dV_b_ci=0.0;
+  double tww=0.0;
+     double d_tww_dV_tnode_GND=0.0;
+     double d_tww_dV_ci_ei=0.0;
+     double d_tww_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_tww_dV_ci_ei_dV_ci_ei=0.0;
+     double d_tww_dV_ci_ei_dV_bi_ei=0.0;
+     double d_tww_dV_ci_ei_dV_bi_ci=0.0;
+     double d_tww_dV_ci_ei_dV_b_ci=0.0;
+     double d_tww_dV_bi_ei=0.0;
+     double d_tww_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_tww_dV_bi_ei_dV_ci_ei=0.0;
+     double d_tww_dV_bi_ei_dV_bi_ei=0.0;
+     double d_tww_dV_bi_ei_dV_bi_ci=0.0;
+     double d_tww_dV_bi_ei_dV_b_ci=0.0;
+     double d_tww_dV_bi_ci=0.0;
+     double d_tww_dV_b_ci=0.0;
+  double w=0.0;
+     double d_w_dV_ci_ei=0.0;
+     double d_w_dV_ci_ei_dV_ci_ei=0.0;
+     double d_w_dV_ci_ei_dV_bi_ei=0.0;
+     double d_w_dV_ci_ei_dV_bi_ci=0.0;
+     double d_w_dV_ci_ei_dV_b_ci=0.0;
+     double d_w_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_w_dV_bi_ei=0.0;
+     double d_w_dV_bi_ei_dV_ci_ei=0.0;
+     double d_w_dV_bi_ei_dV_bi_ei=0.0;
+     double d_w_dV_bi_ei_dV_bi_ci=0.0;
+     double d_w_dV_bi_ei_dV_b_ci=0.0;
+     double d_w_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_w_dV_bi_ci=0.0;
+     double d_w_dV_b_ci=0.0;
+     double d_w_dV_tnode_GND=0.0;
+  double s3=0.0;
+     double d_s3_dV_ci_ei=0.0;
+     double d_s3_dV_ci_ei_dV_ci_ei=0.0;
+     double d_s3_dV_ci_ei_dV_bi_ei=0.0;
+     double d_s3_dV_ci_ei_dV_bi_ci=0.0;
+     double d_s3_dV_ci_ei_dV_b_ci=0.0;
+     double d_s3_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_s3_dV_bi_ei=0.0;
+     double d_s3_dV_bi_ei_dV_ci_ei=0.0;
+     double d_s3_dV_bi_ei_dV_bi_ei=0.0;
+     double d_s3_dV_bi_ei_dV_bi_ci=0.0;
+     double d_s3_dV_bi_ei_dV_b_ci=0.0;
+     double d_s3_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_s3_dV_bi_ci=0.0;
+     double d_s3_dV_b_ci=0.0;
+     double d_s3_dV_tnode_GND=0.0;
+  double qf0=0.0;
+     double d_qf0_dV_tnode_GND=0.0;
+     double d_qf0_dV_bi_ci=0.0;
+     double d_qf0_dV_b_ci=0.0;
+     double d_qf0_dV_bi_ei=0.0;
+     double d_qf0_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qf0_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qf0_dV_bi_ei_dV_b_ci=0.0;
+     double d_qf0_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qf0_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qf0_dV_ci_ei=0.0;
+     double d_qf0_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qf0_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qf0_dV_ci_ei_dV_b_ci=0.0;
+     double d_qf0_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qf0_dV_ci_ei_dV_ci_ei=0.0;
+  double itr=0.0;
+     double d_itr_dV_tnode_GND=0.0;
+     double d_itr_dV_bi_ci=0.0;
+     double d_itr_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_itr_dV_bi_ci_dV_bi_ci=0.0;
+     double d_itr_dV_bi_ci_dV_b_ci=0.0;
+     double d_itr_dV_bi_ci_dV_bi_ei=0.0;
+     double d_itr_dV_bi_ci_dV_ci_ei=0.0;
+     double d_itr_dV_b_ci=0.0;
+     double d_itr_dV_b_ci_dV_tnode_GND=0.0;
+     double d_itr_dV_b_ci_dV_bi_ci=0.0;
+     double d_itr_dV_b_ci_dV_b_ci=0.0;
+     double d_itr_dV_b_ci_dV_bi_ei=0.0;
+     double d_itr_dV_b_ci_dV_ci_ei=0.0;
+     double d_itr_dV_bi_ei=0.0;
+     double d_itr_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_itr_dV_bi_ei_dV_bi_ci=0.0;
+     double d_itr_dV_bi_ei_dV_b_ci=0.0;
+     double d_itr_dV_bi_ei_dV_bi_ei=0.0;
+     double d_itr_dV_bi_ei_dV_ci_ei=0.0;
+     double d_itr_dV_ci_ei=0.0;
+     double d_itr_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_itr_dV_ci_ei_dV_bi_ci=0.0;
+     double d_itr_dV_ci_ei_dV_b_ci=0.0;
+     double d_itr_dV_ci_ei_dV_bi_ei=0.0;
+     double d_itr_dV_ci_ei_dV_ci_ei=0.0;
+  double itf=0.0;
+     double d_itf_dV_tnode_GND=0.0;
+     double d_itf_dV_bi_ei=0.0;
+     double d_itf_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_itf_dV_bi_ei_dV_bi_ei=0.0;
+     double d_itf_dV_bi_ei_dV_bi_ci=0.0;
+     double d_itf_dV_bi_ei_dV_b_ci=0.0;
+     double d_itf_dV_bi_ei_dV_ci_ei=0.0;
+     double d_itf_dV_bi_ci=0.0;
+     double d_itf_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_itf_dV_bi_ci_dV_bi_ei=0.0;
+     double d_itf_dV_bi_ci_dV_bi_ci=0.0;
+     double d_itf_dV_bi_ci_dV_b_ci=0.0;
+     double d_itf_dV_bi_ci_dV_ci_ei=0.0;
+     double d_itf_dV_b_ci=0.0;
+     double d_itf_dV_b_ci_dV_tnode_GND=0.0;
+     double d_itf_dV_b_ci_dV_bi_ei=0.0;
+     double d_itf_dV_b_ci_dV_bi_ci=0.0;
+     double d_itf_dV_b_ci_dV_b_ci=0.0;
+     double d_itf_dV_b_ci_dV_ci_ei=0.0;
+     double d_itf_dV_ci_ei=0.0;
+     double d_itf_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_itf_dV_ci_ei_dV_bi_ei=0.0;
+     double d_itf_dV_ci_ei_dV_bi_ci=0.0;
+     double d_itf_dV_ci_ei_dV_b_ci=0.0;
+     double d_itf_dV_ci_ei_dV_ci_ei=0.0;
+  double qpt=0.0;
+     double d_qpt_dV_bi_ci=0.0;
+     double d_qpt_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qpt_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qpt_dV_bi_ci_dV_b_ci=0.0;
+     double d_qpt_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qpt_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qpt_dV_tnode_GND=0.0;
+     double d_qpt_dV_b_ci=0.0;
+     double d_qpt_dV_b_ci_dV_bi_ci=0.0;
+     double d_qpt_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qpt_dV_b_ci_dV_b_ci=0.0;
+     double d_qpt_dV_b_ci_dV_bi_ei=0.0;
+     double d_qpt_dV_b_ci_dV_ci_ei=0.0;
+     double d_qpt_dV_bi_ei=0.0;
+     double d_qpt_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qpt_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qpt_dV_bi_ei_dV_b_ci=0.0;
+     double d_qpt_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qpt_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qpt_dV_ci_ei=0.0;
+     double d_qpt_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qpt_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qpt_dV_ci_ei_dV_b_ci=0.0;
+     double d_qpt_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qpt_dV_ci_ei_dV_ci_ei=0.0;
+  double qm=0.0;
+     double d_qm_dV_tnode_GND=0.0;
+     double d_qm_dV_bi_ei=0.0;
+     double d_qm_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qm_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qm_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qm_dV_bi_ei_dV_b_ci=0.0;
+     double d_qm_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qm_dV_bi_ci=0.0;
+     double d_qm_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qm_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qm_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qm_dV_bi_ci_dV_b_ci=0.0;
+     double d_qm_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qm_dV_b_ci=0.0;
+     double d_qm_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qm_dV_b_ci_dV_bi_ei=0.0;
+     double d_qm_dV_b_ci_dV_bi_ci=0.0;
+     double d_qm_dV_b_ci_dV_b_ci=0.0;
+     double d_qm_dV_b_ci_dV_ci_ei=0.0;
+     double d_qm_dV_ci_ei=0.0;
+     double d_qm_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qm_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qm_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qm_dV_ci_ei_dV_b_ci=0.0;
+     double d_qm_dV_ci_ei_dV_ci_ei=0.0;
+  double q_p3=0.0;
+     double d_q_p3_dV_bi_ci=0.0;
+     double d_q_p3_dV_bi_ci_dV_bi_ci=0.0;
+     double d_q_p3_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_q_p3_dV_bi_ci_dV_b_ci=0.0;
+     double d_q_p3_dV_bi_ci_dV_bi_ei=0.0;
+     double d_q_p3_dV_bi_ci_dV_ci_ei=0.0;
+     double d_q_p3_dV_tnode_GND=0.0;
+     double d_q_p3_dV_b_ci=0.0;
+     double d_q_p3_dV_b_ci_dV_bi_ci=0.0;
+     double d_q_p3_dV_b_ci_dV_tnode_GND=0.0;
+     double d_q_p3_dV_b_ci_dV_b_ci=0.0;
+     double d_q_p3_dV_b_ci_dV_bi_ei=0.0;
+     double d_q_p3_dV_b_ci_dV_ci_ei=0.0;
+     double d_q_p3_dV_bi_ei=0.0;
+     double d_q_p3_dV_bi_ei_dV_bi_ci=0.0;
+     double d_q_p3_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_q_p3_dV_bi_ei_dV_b_ci=0.0;
+     double d_q_p3_dV_bi_ei_dV_bi_ei=0.0;
+     double d_q_p3_dV_bi_ei_dV_ci_ei=0.0;
+     double d_q_p3_dV_ci_ei=0.0;
+     double d_q_p3_dV_ci_ei_dV_bi_ci=0.0;
+     double d_q_p3_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_q_p3_dV_ci_ei_dV_b_ci=0.0;
+     double d_q_p3_dV_ci_ei_dV_bi_ei=0.0;
+     double d_q_p3_dV_ci_ei_dV_ci_ei=0.0;
+  double tmp2=0.0;
+     double d_tmp2_dV_bi_ci=0.0;
+     double d_tmp2_dV_bi_ci_dV_bi_ci=0.0;
+     double d_tmp2_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_tmp2_dV_bi_ci_dV_b_ci=0.0;
+     double d_tmp2_dV_bi_ci_dV_bi_ei=0.0;
+     double d_tmp2_dV_bi_ci_dV_ci_ei=0.0;
+     double d_tmp2_dV_tnode_GND=0.0;
+     double d_tmp2_dV_b_ci=0.0;
+     double d_tmp2_dV_b_ci_dV_bi_ci=0.0;
+     double d_tmp2_dV_b_ci_dV_tnode_GND=0.0;
+     double d_tmp2_dV_b_ci_dV_b_ci=0.0;
+     double d_tmp2_dV_b_ci_dV_bi_ei=0.0;
+     double d_tmp2_dV_b_ci_dV_ci_ei=0.0;
+     double d_tmp2_dV_bi_ei=0.0;
+     double d_tmp2_dV_bi_ei_dV_bi_ci=0.0;
+     double d_tmp2_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_tmp2_dV_bi_ei_dV_b_ci=0.0;
+     double d_tmp2_dV_bi_ei_dV_bi_ei=0.0;
+     double d_tmp2_dV_bi_ei_dV_ci_ei=0.0;
+     double d_tmp2_dV_ci_ei=0.0;
+     double d_tmp2_dV_ci_ei_dV_bi_ci=0.0;
+     double d_tmp2_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_tmp2_dV_ci_ei_dV_b_ci=0.0;
+     double d_tmp2_dV_ci_ei_dV_bi_ei=0.0;
+     double d_tmp2_dV_ci_ei_dV_ci_ei=0.0;
+  double tmp3=0.0;
+     double d_tmp3_dV_bi_ci=0.0;
+     double d_tmp3_dV_bi_ci_dV_bi_ci=0.0;
+     double d_tmp3_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_tmp3_dV_bi_ci_dV_b_ci=0.0;
+     double d_tmp3_dV_bi_ci_dV_bi_ei=0.0;
+     double d_tmp3_dV_bi_ci_dV_ci_ei=0.0;
+     double d_tmp3_dV_tnode_GND=0.0;
+     double d_tmp3_dV_b_ci=0.0;
+     double d_tmp3_dV_b_ci_dV_bi_ci=0.0;
+     double d_tmp3_dV_b_ci_dV_tnode_GND=0.0;
+     double d_tmp3_dV_b_ci_dV_b_ci=0.0;
+     double d_tmp3_dV_b_ci_dV_bi_ei=0.0;
+     double d_tmp3_dV_b_ci_dV_ci_ei=0.0;
+     double d_tmp3_dV_bi_ei=0.0;
+     double d_tmp3_dV_bi_ei_dV_bi_ci=0.0;
+     double d_tmp3_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_tmp3_dV_bi_ei_dV_b_ci=0.0;
+     double d_tmp3_dV_bi_ei_dV_bi_ei=0.0;
+     double d_tmp3_dV_bi_ei_dV_ci_ei=0.0;
+     double d_tmp3_dV_ci_ei=0.0;
+     double d_tmp3_dV_ci_ei_dV_bi_ci=0.0;
+     double d_tmp3_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_tmp3_dV_ci_ei_dV_b_ci=0.0;
+     double d_tmp3_dV_ci_ei_dV_bi_ei=0.0;
+     double d_tmp3_dV_ci_ei_dV_ci_ei=0.0;
+  double p2_u=0.0;
+     double d_p2_u_dV_bi_ci=0.0;
+     double d_p2_u_dV_bi_ci_dV_bi_ci=0.0;
+     double d_p2_u_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_p2_u_dV_bi_ci_dV_b_ci=0.0;
+     double d_p2_u_dV_bi_ci_dV_bi_ei=0.0;
+     double d_p2_u_dV_bi_ci_dV_ci_ei=0.0;
+     double d_p2_u_dV_tnode_GND=0.0;
+     double d_p2_u_dV_b_ci=0.0;
+     double d_p2_u_dV_b_ci_dV_bi_ci=0.0;
+     double d_p2_u_dV_b_ci_dV_tnode_GND=0.0;
+     double d_p2_u_dV_b_ci_dV_b_ci=0.0;
+     double d_p2_u_dV_b_ci_dV_bi_ei=0.0;
+     double d_p2_u_dV_b_ci_dV_ci_ei=0.0;
+     double d_p2_u_dV_bi_ei=0.0;
+     double d_p2_u_dV_bi_ei_dV_bi_ci=0.0;
+     double d_p2_u_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_p2_u_dV_bi_ei_dV_b_ci=0.0;
+     double d_p2_u_dV_bi_ei_dV_bi_ei=0.0;
+     double d_p2_u_dV_bi_ei_dV_ci_ei=0.0;
+     double d_p2_u_dV_ci_ei=0.0;
+     double d_p2_u_dV_ci_ei_dV_bi_ci=0.0;
+     double d_p2_u_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_p2_u_dV_ci_ei_dV_b_ci=0.0;
+     double d_p2_u_dV_ci_ei_dV_bi_ei=0.0;
+     double d_p2_u_dV_ci_ei_dV_ci_ei=0.0;
+  double p2_v=0.0;
+     double d_p2_v_dV_bi_ci=0.0;
+     double d_p2_v_dV_bi_ci_dV_bi_ci=0.0;
+     double d_p2_v_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_p2_v_dV_bi_ci_dV_b_ci=0.0;
+     double d_p2_v_dV_bi_ci_dV_bi_ei=0.0;
+     double d_p2_v_dV_bi_ci_dV_ci_ei=0.0;
+     double d_p2_v_dV_tnode_GND=0.0;
+     double d_p2_v_dV_b_ci=0.0;
+     double d_p2_v_dV_b_ci_dV_bi_ci=0.0;
+     double d_p2_v_dV_b_ci_dV_tnode_GND=0.0;
+     double d_p2_v_dV_b_ci_dV_b_ci=0.0;
+     double d_p2_v_dV_b_ci_dV_bi_ei=0.0;
+     double d_p2_v_dV_b_ci_dV_ci_ei=0.0;
+     double d_p2_v_dV_bi_ei=0.0;
+     double d_p2_v_dV_bi_ei_dV_bi_ci=0.0;
+     double d_p2_v_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_p2_v_dV_bi_ei_dV_b_ci=0.0;
+     double d_p2_v_dV_bi_ei_dV_bi_ei=0.0;
+     double d_p2_v_dV_bi_ei_dV_ci_ei=0.0;
+     double d_p2_v_dV_ci_ei=0.0;
+     double d_p2_v_dV_ci_ei_dV_bi_ci=0.0;
+     double d_p2_v_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_p2_v_dV_ci_ei_dV_b_ci=0.0;
+     double d_p2_v_dV_ci_ei_dV_bi_ei=0.0;
+     double d_p2_v_dV_ci_ei_dV_ci_ei=0.0;
+  double p2_D=0.0;
+     double d_p2_D_dV_bi_ci=0.0;
+     double d_p2_D_dV_bi_ci_dV_bi_ci=0.0;
+     double d_p2_D_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_p2_D_dV_bi_ci_dV_b_ci=0.0;
+     double d_p2_D_dV_bi_ci_dV_bi_ei=0.0;
+     double d_p2_D_dV_bi_ci_dV_ci_ei=0.0;
+     double d_p2_D_dV_tnode_GND=0.0;
+     double d_p2_D_dV_b_ci=0.0;
+     double d_p2_D_dV_b_ci_dV_bi_ci=0.0;
+     double d_p2_D_dV_b_ci_dV_tnode_GND=0.0;
+     double d_p2_D_dV_b_ci_dV_b_ci=0.0;
+     double d_p2_D_dV_b_ci_dV_bi_ei=0.0;
+     double d_p2_D_dV_b_ci_dV_ci_ei=0.0;
+     double d_p2_D_dV_bi_ei=0.0;
+     double d_p2_D_dV_bi_ei_dV_bi_ci=0.0;
+     double d_p2_D_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_p2_D_dV_bi_ei_dV_b_ci=0.0;
+     double d_p2_D_dV_bi_ei_dV_bi_ei=0.0;
+     double d_p2_D_dV_bi_ei_dV_ci_ei=0.0;
+     double d_p2_D_dV_ci_ei=0.0;
+     double d_p2_D_dV_ci_ei_dV_bi_ci=0.0;
+     double d_p2_D_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_p2_D_dV_ci_ei_dV_b_ci=0.0;
+     double d_p2_D_dV_ci_ei_dV_bi_ei=0.0;
+     double d_p2_D_dV_ci_ei_dV_ci_ei=0.0;
+  double p2_q=0.0;
+     double d_p2_q_dV_bi_ci=0.0;
+     double d_p2_q_dV_bi_ci_dV_bi_ci=0.0;
+     double d_p2_q_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_p2_q_dV_bi_ci_dV_b_ci=0.0;
+     double d_p2_q_dV_bi_ci_dV_bi_ei=0.0;
+     double d_p2_q_dV_bi_ci_dV_ci_ei=0.0;
+     double d_p2_q_dV_tnode_GND=0.0;
+     double d_p2_q_dV_b_ci=0.0;
+     double d_p2_q_dV_b_ci_dV_bi_ci=0.0;
+     double d_p2_q_dV_b_ci_dV_tnode_GND=0.0;
+     double d_p2_q_dV_b_ci_dV_b_ci=0.0;
+     double d_p2_q_dV_b_ci_dV_bi_ei=0.0;
+     double d_p2_q_dV_b_ci_dV_ci_ei=0.0;
+     double d_p2_q_dV_bi_ei=0.0;
+     double d_p2_q_dV_bi_ei_dV_bi_ci=0.0;
+     double d_p2_q_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_p2_q_dV_bi_ei_dV_b_ci=0.0;
+     double d_p2_q_dV_bi_ei_dV_bi_ei=0.0;
+     double d_p2_q_dV_bi_ei_dV_ci_ei=0.0;
+     double d_p2_q_dV_ci_ei=0.0;
+     double d_p2_q_dV_ci_ei_dV_bi_ci=0.0;
+     double d_p2_q_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_p2_q_dV_ci_ei_dV_b_ci=0.0;
+     double d_p2_q_dV_ci_ei_dV_bi_ei=0.0;
+     double d_p2_q_dV_ci_ei_dV_ci_ei=0.0;
+  double p2_p=0.0;
+     double d_p2_p_dV_tnode_GND=0.0;
+     double d_p2_p_dV_bi_ei=0.0;
+     double d_p2_p_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_p2_p_dV_bi_ei_dV_bi_ei=0.0;
+     double d_p2_p_dV_bi_ei_dV_bi_ci=0.0;
+     double d_p2_p_dV_bi_ei_dV_b_ci=0.0;
+     double d_p2_p_dV_bi_ei_dV_ci_ei=0.0;
+     double d_p2_p_dV_bi_ci=0.0;
+     double d_p2_p_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_p2_p_dV_bi_ci_dV_bi_ei=0.0;
+     double d_p2_p_dV_bi_ci_dV_bi_ci=0.0;
+     double d_p2_p_dV_bi_ci_dV_b_ci=0.0;
+     double d_p2_p_dV_bi_ci_dV_ci_ei=0.0;
+     double d_p2_p_dV_b_ci=0.0;
+     double d_p2_p_dV_b_ci_dV_tnode_GND=0.0;
+     double d_p2_p_dV_b_ci_dV_bi_ei=0.0;
+     double d_p2_p_dV_b_ci_dV_bi_ci=0.0;
+     double d_p2_p_dV_b_ci_dV_b_ci=0.0;
+     double d_p2_p_dV_b_ci_dV_ci_ei=0.0;
+     double d_p2_p_dV_ci_ei=0.0;
+     double d_p2_p_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_p2_p_dV_ci_ei_dV_bi_ei=0.0;
+     double d_p2_p_dV_ci_ei_dV_bi_ci=0.0;
+     double d_p2_p_dV_ci_ei_dV_b_ci=0.0;
+     double d_p2_p_dV_ci_ei_dV_ci_ei=0.0;
+  double tmp=0.0;
+     double d_tmp_dV_bi_ci=0.0;
+     double d_tmp_dV_bi_ci_dV_bi_ci=0.0;
+     double d_tmp_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_tmp_dV_bi_ci_dV_b_ci=0.0;
+     double d_tmp_dV_bi_ci_dV_bi_ei=0.0;
+     double d_tmp_dV_bi_ci_dV_ci_ei=0.0;
+     double d_tmp_dV_tnode_GND=0.0;
+     double d_tmp_dV_b_ci=0.0;
+     double d_tmp_dV_b_ci_dV_bi_ci=0.0;
+     double d_tmp_dV_b_ci_dV_tnode_GND=0.0;
+     double d_tmp_dV_b_ci_dV_b_ci=0.0;
+     double d_tmp_dV_b_ci_dV_bi_ei=0.0;
+     double d_tmp_dV_b_ci_dV_ci_ei=0.0;
+     double d_tmp_dV_bi_ei=0.0;
+     double d_tmp_dV_bi_ei_dV_bi_ci=0.0;
+     double d_tmp_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_tmp_dV_bi_ei_dV_b_ci=0.0;
+     double d_tmp_dV_bi_ei_dV_bi_ei=0.0;
+     double d_tmp_dV_bi_ei_dV_ci_ei=0.0;
+     double d_tmp_dV_ci_ei=0.0;
+     double d_tmp_dV_ci_ei_dV_bi_ci=0.0;
+     double d_tmp_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_tmp_dV_ci_ei_dV_b_ci=0.0;
+     double d_tmp_dV_ci_ei_dV_bi_ei=0.0;
+     double d_tmp_dV_ci_ei_dV_ci_ei=0.0;
+  double p2_c=0.0;
+     double d_p2_c_dV_tnode_GND=0.0;
+     double d_p2_c_dV_bi_ei=0.0;
+     double d_p2_c_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_p2_c_dV_bi_ei_dV_bi_ei=0.0;
+     double d_p2_c_dV_bi_ei_dV_ci_ei=0.0;
+     double d_p2_c_dV_ci_ei=0.0;
+     double d_p2_c_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_p2_c_dV_ci_ei_dV_bi_ei=0.0;
+     double d_p2_c_dV_ci_ei_dV_ci_ei=0.0;
+  double p2_b=0.0;
+     double d_p2_b_dV_tnode_GND=0.0;
+     double d_p2_b_dV_bi_ei=0.0;
+     double d_p2_b_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_p2_b_dV_bi_ei_dV_bi_ei=0.0;
+     double d_p2_b_dV_bi_ei_dV_bi_ci=0.0;
+     double d_p2_b_dV_bi_ei_dV_b_ci=0.0;
+     double d_p2_b_dV_bi_ei_dV_ci_ei=0.0;
+     double d_p2_b_dV_bi_ci=0.0;
+     double d_p2_b_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_p2_b_dV_bi_ci_dV_bi_ei=0.0;
+     double d_p2_b_dV_bi_ci_dV_bi_ci=0.0;
+     double d_p2_b_dV_bi_ci_dV_b_ci=0.0;
+     double d_p2_b_dV_bi_ci_dV_ci_ei=0.0;
+     double d_p2_b_dV_b_ci=0.0;
+     double d_p2_b_dV_b_ci_dV_tnode_GND=0.0;
+     double d_p2_b_dV_b_ci_dV_bi_ei=0.0;
+     double d_p2_b_dV_b_ci_dV_bi_ci=0.0;
+     double d_p2_b_dV_b_ci_dV_b_ci=0.0;
+     double d_p2_b_dV_b_ci_dV_ci_ei=0.0;
+     double d_p2_b_dV_ci_ei=0.0;
+     double d_p2_b_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_p2_b_dV_ci_ei_dV_bi_ei=0.0;
+     double d_p2_b_dV_ci_ei_dV_bi_ci=0.0;
+     double d_p2_b_dV_ci_ei_dV_b_ci=0.0;
+     double d_p2_b_dV_ci_ei_dV_ci_ei=0.0;
+  double p2_a=0.0;
+     double d_p2_a_dV_bi_ci=0.0;
+     double d_p2_a_dV_bi_ci_dV_bi_ci=0.0;
+     double d_p2_a_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_p2_a_dV_bi_ci_dV_b_ci=0.0;
+     double d_p2_a_dV_bi_ci_dV_bi_ei=0.0;
+     double d_p2_a_dV_bi_ci_dV_ci_ei=0.0;
+     double d_p2_a_dV_tnode_GND=0.0;
+     double d_p2_a_dV_b_ci=0.0;
+     double d_p2_a_dV_b_ci_dV_bi_ci=0.0;
+     double d_p2_a_dV_b_ci_dV_tnode_GND=0.0;
+     double d_p2_a_dV_b_ci_dV_b_ci=0.0;
+     double d_p2_a_dV_b_ci_dV_bi_ei=0.0;
+     double d_p2_a_dV_b_ci_dV_ci_ei=0.0;
+     double d_p2_a_dV_bi_ei=0.0;
+     double d_p2_a_dV_bi_ei_dV_bi_ci=0.0;
+     double d_p2_a_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_p2_a_dV_bi_ei_dV_b_ci=0.0;
+     double d_p2_a_dV_bi_ei_dV_bi_ei=0.0;
+     double d_p2_a_dV_bi_ei_dV_ci_ei=0.0;
+     double d_p2_a_dV_ci_ei=0.0;
+     double d_p2_a_dV_ci_ei_dV_bi_ci=0.0;
+     double d_p2_a_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_p2_a_dV_ci_ei_dV_b_ci=0.0;
+     double d_p2_a_dV_ci_ei_dV_bi_ei=0.0;
+     double d_p2_a_dV_ci_ei_dV_ci_ei=0.0;
+  double o3=0.0;
+  double wdc=0.0;
+     double d_wdc_dV_tnode_GND=0.0;
+     double d_wdc_dV_ci_ei=0.0;
+     double d_wdc_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_wdc_dV_ci_ei_dV_ci_ei=0.0;
+     double d_wdc_dV_ci_ei_dV_bi_ei=0.0;
+     double d_wdc_dV_ci_ei_dV_bi_ci=0.0;
+     double d_wdc_dV_ci_ei_dV_b_ci=0.0;
+     double d_wdc_dV_bi_ei=0.0;
+     double d_wdc_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_wdc_dV_bi_ei_dV_ci_ei=0.0;
+     double d_wdc_dV_bi_ei_dV_bi_ei=0.0;
+     double d_wdc_dV_bi_ei_dV_bi_ci=0.0;
+     double d_wdc_dV_bi_ei_dV_b_ci=0.0;
+     double d_wdc_dV_bi_ci=0.0;
+     double d_wdc_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_wdc_dV_bi_ci_dV_ci_ei=0.0;
+     double d_wdc_dV_bi_ci_dV_bi_ei=0.0;
+     double d_wdc_dV_bi_ci_dV_bi_ci=0.0;
+     double d_wdc_dV_bi_ci_dV_b_ci=0.0;
+     double d_wdc_dV_b_ci=0.0;
+     double d_wdc_dV_b_ci_dV_tnode_GND=0.0;
+     double d_wdc_dV_b_ci_dV_ci_ei=0.0;
+     double d_wdc_dV_b_ci_dV_bi_ei=0.0;
+     double d_wdc_dV_b_ci_dV_bi_ci=0.0;
+     double d_wdc_dV_b_ci_dV_b_ci=0.0;
+  double aa=0.0;
+     double d_aa_dV_tnode_GND=0.0;
+     double d_aa_dV_ci_ei=0.0;
+     double d_aa_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_aa_dV_ci_ei_dV_ci_ei=0.0;
+     double d_aa_dV_ci_ei_dV_bi_ei=0.0;
+     double d_aa_dV_ci_ei_dV_bi_ci=0.0;
+     double d_aa_dV_ci_ei_dV_b_ci=0.0;
+     double d_aa_dV_bi_ei=0.0;
+     double d_aa_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_aa_dV_bi_ei_dV_ci_ei=0.0;
+     double d_aa_dV_bi_ei_dV_bi_ei=0.0;
+     double d_aa_dV_bi_ei_dV_bi_ci=0.0;
+     double d_aa_dV_bi_ei_dV_b_ci=0.0;
+     double d_aa_dV_bi_ci=0.0;
+     double d_aa_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_aa_dV_bi_ci_dV_ci_ei=0.0;
+     double d_aa_dV_bi_ci_dV_bi_ei=0.0;
+     double d_aa_dV_bi_ci_dV_bi_ci=0.0;
+     double d_aa_dV_bi_ci_dV_b_ci=0.0;
+     double d_aa_dV_b_ci=0.0;
+     double d_aa_dV_b_ci_dV_tnode_GND=0.0;
+     double d_aa_dV_b_ci_dV_ci_ei=0.0;
+     double d_aa_dV_b_ci_dV_bi_ei=0.0;
+     double d_aa_dV_b_ci_dV_bi_ci=0.0;
+     double d_aa_dV_b_ci_dV_b_ci=0.0;
+  double a2=0.0;
+     double d_a2_dV_tnode_GND=0.0;
+     double d_a2_dV_ci_ei=0.0;
+     double d_a2_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_a2_dV_ci_ei_dV_ci_ei=0.0;
+     double d_a2_dV_ci_ei_dV_bi_ei=0.0;
+     double d_a2_dV_ci_ei_dV_bi_ci=0.0;
+     double d_a2_dV_ci_ei_dV_b_ci=0.0;
+     double d_a2_dV_bi_ei=0.0;
+     double d_a2_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_a2_dV_bi_ei_dV_ci_ei=0.0;
+     double d_a2_dV_bi_ei_dV_bi_ei=0.0;
+     double d_a2_dV_bi_ei_dV_bi_ci=0.0;
+     double d_a2_dV_bi_ei_dV_b_ci=0.0;
+     double d_a2_dV_bi_ci=0.0;
+     double d_a2_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_a2_dV_bi_ci_dV_ci_ei=0.0;
+     double d_a2_dV_bi_ci_dV_bi_ei=0.0;
+     double d_a2_dV_bi_ci_dV_bi_ci=0.0;
+     double d_a2_dV_bi_ci_dV_b_ci=0.0;
+     double d_a2_dV_b_ci=0.0;
+     double d_a2_dV_b_ci_dV_tnode_GND=0.0;
+     double d_a2_dV_b_ci_dV_ci_ei=0.0;
+     double d_a2_dV_b_ci_dV_bi_ei=0.0;
+     double d_a2_dV_b_ci_dV_bi_ci=0.0;
+     double d_a2_dV_b_ci_dV_b_ci=0.0;
+  double a1=0.0;
+     double d_a1_dV_tnode_GND=0.0;
+     double d_a1_dV_ci_ei=0.0;
+     double d_a1_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_a1_dV_ci_ei_dV_ci_ei=0.0;
+     double d_a1_dV_ci_ei_dV_bi_ei=0.0;
+     double d_a1_dV_ci_ei_dV_bi_ci=0.0;
+     double d_a1_dV_ci_ei_dV_b_ci=0.0;
+     double d_a1_dV_bi_ei=0.0;
+     double d_a1_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_a1_dV_bi_ei_dV_ci_ei=0.0;
+     double d_a1_dV_bi_ei_dV_bi_ei=0.0;
+     double d_a1_dV_bi_ei_dV_bi_ci=0.0;
+     double d_a1_dV_bi_ei_dV_b_ci=0.0;
+     double d_a1_dV_bi_ci=0.0;
+     double d_a1_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_a1_dV_bi_ci_dV_ci_ei=0.0;
+     double d_a1_dV_bi_ci_dV_bi_ei=0.0;
+     double d_a1_dV_bi_ci_dV_bi_ci=0.0;
+     double d_a1_dV_bi_ci_dV_b_ci=0.0;
+     double d_a1_dV_b_ci=0.0;
+     double d_a1_dV_b_ci_dV_tnode_GND=0.0;
+     double d_a1_dV_b_ci_dV_ci_ei=0.0;
+     double d_a1_dV_b_ci_dV_bi_ei=0.0;
+     double d_a1_dV_b_ci_dV_bi_ci=0.0;
+     double d_a1_dV_b_ci_dV_b_ci=0.0;
+  double diff_q=0.0;
+     double d_diff_q_dV_tnode_GND=0.0;
+     double d_diff_q_dV_bi_ei=0.0;
+     double d_diff_q_dV_bi_ci=0.0;
+     double d_diff_q_dV_b_ci=0.0;
+     double d_diff_q_dV_ci_ei=0.0;
+  double qpt_h=0.0;
+     double d_qpt_h_dV_bi_ci=0.0;
+     double d_qpt_h_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qpt_h_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qpt_h_dV_bi_ci_dV_b_ci=0.0;
+     double d_qpt_h_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qpt_h_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qpt_h_dV_tnode_GND=0.0;
+     double d_qpt_h_dV_b_ci=0.0;
+     double d_qpt_h_dV_b_ci_dV_bi_ci=0.0;
+     double d_qpt_h_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qpt_h_dV_b_ci_dV_b_ci=0.0;
+     double d_qpt_h_dV_b_ci_dV_bi_ei=0.0;
+     double d_qpt_h_dV_b_ci_dV_ci_ei=0.0;
+     double d_qpt_h_dV_bi_ei=0.0;
+     double d_qpt_h_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qpt_h_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qpt_h_dV_bi_ei_dV_b_ci=0.0;
+     double d_qpt_h_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qpt_h_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qpt_h_dV_ci_ei=0.0;
+     double d_qpt_h_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qpt_h_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qpt_h_dV_ci_ei_dV_b_ci=0.0;
+     double d_qpt_h_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qpt_h_dV_ci_ei_dV_ci_ei=0.0;
+  double qpt_l=0.0;
+     double d_qpt_l_dV_bi_ci=0.0;
+     double d_qpt_l_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qpt_l_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qpt_l_dV_bi_ci_dV_b_ci=0.0;
+     double d_qpt_l_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qpt_l_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qpt_l_dV_tnode_GND=0.0;
+     double d_qpt_l_dV_b_ci=0.0;
+     double d_qpt_l_dV_b_ci_dV_bi_ci=0.0;
+     double d_qpt_l_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qpt_l_dV_b_ci_dV_b_ci=0.0;
+     double d_qpt_l_dV_b_ci_dV_bi_ei=0.0;
+     double d_qpt_l_dV_b_ci_dV_ci_ei=0.0;
+     double d_qpt_l_dV_bi_ei=0.0;
+     double d_qpt_l_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qpt_l_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qpt_l_dV_bi_ei_dV_b_ci=0.0;
+     double d_qpt_l_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qpt_l_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qpt_l_dV_ci_ei=0.0;
+     double d_qpt_l_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qpt_l_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qpt_l_dV_ci_ei_dV_b_ci=0.0;
+     double d_qpt_l_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qpt_l_dV_ci_ei_dV_ci_ei=0.0;
+  double qmh=0.0;
+     double d_qmh_dV_tnode_GND=0.0;
+     double d_qmh_dV_bi_ei=0.0;
+     double d_qmh_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qmh_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qmh_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qmh_dV_bi_ei_dV_b_ci=0.0;
+     double d_qmh_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qmh_dV_bi_ci=0.0;
+     double d_qmh_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qmh_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qmh_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qmh_dV_bi_ci_dV_b_ci=0.0;
+     double d_qmh_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qmh_dV_b_ci=0.0;
+     double d_qmh_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qmh_dV_b_ci_dV_bi_ei=0.0;
+     double d_qmh_dV_b_ci_dV_bi_ci=0.0;
+     double d_qmh_dV_b_ci_dV_b_ci=0.0;
+     double d_qmh_dV_b_ci_dV_ci_ei=0.0;
+     double d_qmh_dV_ci_ei=0.0;
+     double d_qmh_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qmh_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qmh_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qmh_dV_ci_ei_dV_b_ci=0.0;
+     double d_qmh_dV_ci_ei_dV_ci_ei=0.0;
+  double qml=0.0;
+     double d_qml_dV_tnode_GND=0.0;
+     double d_qml_dV_bi_ei=0.0;
+     double d_qml_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qml_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qml_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qml_dV_bi_ei_dV_b_ci=0.0;
+     double d_qml_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qml_dV_bi_ci=0.0;
+     double d_qml_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qml_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qml_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qml_dV_bi_ci_dV_b_ci=0.0;
+     double d_qml_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qml_dV_b_ci=0.0;
+     double d_qml_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qml_dV_b_ci_dV_bi_ei=0.0;
+     double d_qml_dV_b_ci_dV_bi_ci=0.0;
+     double d_qml_dV_b_ci_dV_b_ci=0.0;
+     double d_qml_dV_b_ci_dV_ci_ei=0.0;
+     double d_qml_dV_ci_ei=0.0;
+     double d_qml_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qml_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qml_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qml_dV_ci_ei_dV_b_ci=0.0;
+     double d_qml_dV_ci_ei_dV_ci_ei=0.0;
+  double itri=0.0;
+     double d_itri_dV_tnode_GND=0.0;
+     double d_itri_dV_bi_ci=0.0;
+     double d_itri_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_itri_dV_bi_ci_dV_bi_ci=0.0;
+  double le2=0.0;
+     double d_le2_dV_bi_ci=0.0;
+     double d_le2_dV_bi_ci_dV_bi_ci=0.0;
+     double d_le2_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_le2_dV_tnode_GND=0.0;
+  double arg2=0.0;
+     double d_arg2_dV_bi_ci=0.0;
+     double d_arg2_dV_bi_ci_dV_bi_ci=0.0;
+     double d_arg2_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_arg2_dV_tnode_GND=0.0;
+  double itfi=0.0;
+     double d_itfi_dV_tnode_GND=0.0;
+     double d_itfi_dV_bi_ei=0.0;
+     double d_itfi_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_itfi_dV_bi_ei_dV_bi_ei=0.0;
+  double le1=0.0;
+     double d_le1_dV_bi_ei=0.0;
+     double d_le1_dV_bi_ei_dV_bi_ei=0.0;
+     double d_le1_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_le1_dV_tnode_GND=0.0;
+  double arg1=0.0;
+     double d_arg1_dV_bi_ei=0.0;
+     double d_arg1_dV_bi_ei_dV_bi_ei=0.0;
+     double d_arg1_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_arg1_dV_tnode_GND=0.0;
+  double ickr=0.0;
+  double ickf=0.0;
+     double d_ickf_dV_tnode_GND=0.0;
+     double d_ickf_dV_bi_ci=0.0;
+     double d_ickf_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_ickf_dV_bi_ci_dV_bi_ci=0.0;
+     double d_ickf_dV_bi_ci_dV_b_ci=0.0;
+     double d_ickf_dV_b_ci=0.0;
+     double d_ickf_dV_b_ci_dV_tnode_GND=0.0;
+     double d_ickf_dV_b_ci_dV_bi_ci=0.0;
+     double d_ickf_dV_b_ci_dV_b_ci=0.0;
+  double denom_iqf=0.0;
+     double d_denom_iqf_dV_tnode_GND=0.0;
+     double d_denom_iqf_dV_bi_ci=0.0;
+     double d_denom_iqf_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_denom_iqf_dV_bi_ci_dV_bi_ci=0.0;
+     double d_denom_iqf_dV_bi_ci_dV_b_ci=0.0;
+     double d_denom_iqf_dV_b_ci=0.0;
+     double d_denom_iqf_dV_b_ci_dV_tnode_GND=0.0;
+     double d_denom_iqf_dV_b_ci_dV_bi_ci=0.0;
+     double d_denom_iqf_dV_b_ci_dV_b_ci=0.0;
+  double tf0=0.0;
+     double d_tf0_dV_tnode_GND=0.0;
+     double d_tf0_dV_bi_ci=0.0;
+     double d_tf0_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_tf0_dV_bi_ci_dV_bi_ci=0.0;
+     double d_tf0_dV_bi_ci_dV_b_ci=0.0;
+     double d_tf0_dV_b_ci=0.0;
+     double d_tf0_dV_b_ci_dV_tnode_GND=0.0;
+     double d_tf0_dV_b_ci_dV_bi_ci=0.0;
+     double d_tf0_dV_b_ci_dV_b_ci=0.0;
+  double qj_2=0.0;
+     double d_qj_2_dV_bi_ci=0.0;
+     double d_qj_2_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qj_2_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qj_2_dV_bi_ci_dV_b_ci=0.0;
+     double d_qj_2_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qj_2_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qj_2_dV_tnode_GND=0.0;
+     double d_qj_2_dV_b_ci=0.0;
+     double d_qj_2_dV_b_ci_dV_bi_ci=0.0;
+     double d_qj_2_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qj_2_dV_b_ci_dV_b_ci=0.0;
+     double d_qj_2_dV_b_ci_dV_bi_ei=0.0;
+     double d_qj_2_dV_b_ci_dV_ci_ei=0.0;
+     double d_qj_2_dV_bi_ei=0.0;
+     double d_qj_2_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qj_2_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qj_2_dV_bi_ei_dV_b_ci=0.0;
+     double d_qj_2_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qj_2_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qj_2_dV_ci_ei=0.0;
+     double d_qj_2_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qj_2_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qj_2_dV_ci_ei_dV_b_ci=0.0;
+     double d_qj_2_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qj_2_dV_ci_ei_dV_ci_ei=0.0;
+  double b_q=0.0;
+     double d_b_q_dV_bi_ci=0.0;
+     double d_b_q_dV_bi_ci_dV_bi_ci=0.0;
+     double d_b_q_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_b_q_dV_bi_ci_dV_b_ci=0.0;
+     double d_b_q_dV_bi_ci_dV_bi_ei=0.0;
+     double d_b_q_dV_bi_ci_dV_ci_ei=0.0;
+     double d_b_q_dV_tnode_GND=0.0;
+     double d_b_q_dV_b_ci=0.0;
+     double d_b_q_dV_b_ci_dV_bi_ci=0.0;
+     double d_b_q_dV_b_ci_dV_tnode_GND=0.0;
+     double d_b_q_dV_b_ci_dV_b_ci=0.0;
+     double d_b_q_dV_b_ci_dV_bi_ei=0.0;
+     double d_b_q_dV_b_ci_dV_ci_ei=0.0;
+     double d_b_q_dV_bi_ei=0.0;
+     double d_b_q_dV_bi_ei_dV_bi_ci=0.0;
+     double d_b_q_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_b_q_dV_bi_ei_dV_b_ci=0.0;
+     double d_b_q_dV_bi_ei_dV_bi_ei=0.0;
+     double d_b_q_dV_bi_ei_dV_ci_ei=0.0;
+     double d_b_q_dV_ci_ei=0.0;
+     double d_b_q_dV_ci_ei_dV_bi_ci=0.0;
+     double d_b_q_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_b_q_dV_ci_ei_dV_b_ci=0.0;
+     double d_b_q_dV_ci_ei_dV_bi_ei=0.0;
+     double d_b_q_dV_ci_ei_dV_ci_ei=0.0;
+  double qj=0.0;
+     double d_qj_dV_bi_ci=0.0;
+     double d_qj_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qj_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qj_dV_bi_ci_dV_b_ci=0.0;
+     double d_qj_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qj_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qj_dV_tnode_GND=0.0;
+     double d_qj_dV_b_ci=0.0;
+     double d_qj_dV_b_ci_dV_bi_ci=0.0;
+     double d_qj_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qj_dV_b_ci_dV_b_ci=0.0;
+     double d_qj_dV_b_ci_dV_bi_ei=0.0;
+     double d_qj_dV_b_ci_dV_ci_ei=0.0;
+     double d_qj_dV_bi_ei=0.0;
+     double d_qj_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qj_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qj_dV_bi_ei_dV_b_ci=0.0;
+     double d_qj_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qj_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qj_dV_ci_ei=0.0;
+     double d_qj_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qj_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qj_dV_ci_ei_dV_b_ci=0.0;
+     double d_qj_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qj_dV_ci_ei_dV_ci_ei=0.0;
+  double qje=0.0;
+     double d_qje_dV_tnode_GND=0.0;
+     double d_qje_dV_bi_ei=0.0;
+     double d_qje_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qje_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qje_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qje_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qje_dV_bi_ei_dV_b_ci=0.0;
+     double d_qje_dV_ci_ei=0.0;
+     double d_qje_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qje_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qje_dV_ci_ei_dV_ci_ei=0.0;
+     double d_qje_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qje_dV_ci_ei_dV_b_ci=0.0;
+     double d_qje_dV_bi_ci=0.0;
+     double d_qje_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qje_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qje_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qje_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qje_dV_bi_ci_dV_b_ci=0.0;
+     double d_qje_dV_b_ci=0.0;
+     double d_qje_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qje_dV_b_ci_dV_bi_ei=0.0;
+     double d_qje_dV_b_ci_dV_ci_ei=0.0;
+     double d_qje_dV_b_ci_dV_bi_ci=0.0;
+     double d_qje_dV_b_ci_dV_b_ci=0.0;
+  double h_vbe=0.0;
+     double d_h_vbe_dV_tnode_GND=0.0;
+     double d_h_vbe_dV_bi_ei=0.0;
+     double d_h_vbe_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_h_vbe_dV_bi_ei_dV_bi_ei=0.0;
+  double vj_z=0.0;
+     double d_vj_z_dV_tnode_GND=0.0;
+     double d_vj_z_dV_bi_ei=0.0;
+     double d_vj_z_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_vj_z_dV_bi_ei_dV_bi_ei=0.0;
+  double vjh=0.0;
+     double d_vjh_dV_tnode_GND=0.0;
+     double d_vjh_dV_bi_ei=0.0;
+     double d_vjh_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_vjh_dV_bi_ei_dV_bi_ei=0.0;
+  double cc=0.0;
+     double d_cc_dV_tnode_GND=0.0;
+     double d_cc_dV_bi_ci=0.0;
+     double d_cc_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_cc_dV_bi_ci_dV_bi_ci=0.0;
+     double d_cc_dV_bi_ci_dV_b_ci=0.0;
+     double d_cc_dV_b_ci=0.0;
+     double d_cc_dV_b_ci_dV_tnode_GND=0.0;
+     double d_cc_dV_b_ci_dV_bi_ci=0.0;
+     double d_cc_dV_b_ci_dV_b_ci=0.0;
+  double ick=0.0;
+     double d_ick_dV_tnode_GND=0.0;
+     double d_ick_dV_ci_ei=0.0;
+     double d_ick_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_ick_dV_ci_ei_dV_ci_ei=0.0;
+  double vceff=0.0;
+     double d_vceff_dV_tnode_GND=0.0;
+     double d_vceff_dV_ci_ei=0.0;
+     double d_vceff_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_vceff_dV_ci_ei_dV_ci_ei=0.0;
+  double uvc=0.0;
+     double d_uvc_dV_ci_ei=0.0;
+     double d_uvc_dV_ci_ei_dV_ci_ei=0.0;
+     double d_uvc_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_uvc_dV_tnode_GND=0.0;
+  double vc=0.0;
+     double d_vc_dV_ci_ei=0.0;
+     double d_vc_dV_ci_ei_dV_ci_ei=0.0;
+     double d_vc_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_vc_dV_tnode_GND=0.0;
+  double cjcii=0.0;
+     double d_cjcii_dV_tnode_GND=0.0;
+     double d_cjcii_dV_bi_ci=0.0;
+     double d_cjcii_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_cjcii_dV_bi_ci_dV_bi_ci=0.0;
+     double d_cjcii_dV_bi_ci_dV_b_ci=0.0;
+     double d_cjcii_dV_b_ci=0.0;
+     double d_cjcii_dV_b_ci_dV_tnode_GND=0.0;
+     double d_cjcii_dV_b_ci_dV_bi_ci=0.0;
+     double d_cjcii_dV_b_ci_dV_b_ci=0.0;
+  double dvj=0.0;
+     double d_dvj_dV_bi_ci=0.0;
+     double d_dvj_dV_bi_ci_dV_bi_ci=0.0;
+     double d_dvj_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_dvj_dV_bi_ci_dV_b_ci=0.0;
+     double d_dvj_dV_tnode_GND=0.0;
+     double d_dvj_dV_b_ci=0.0;
+     double d_dvj_dV_b_ci_dV_bi_ci=0.0;
+     double d_dvj_dV_b_ci_dV_tnode_GND=0.0;
+     double d_dvj_dV_b_ci_dV_b_ci=0.0;
+  double qjcii=0.0;
+     double d_qjcii_dV_bi_ci=0.0;
+     double d_qjcii_dV_tnode_GND=0.0;
+     double d_qjcii_dV_b_ci=0.0;
+  double qjci_int=0.0;
+     double d_qjci_int_dV_bi_ci=0.0;
+     double d_qjci_int_dV_tnode_GND=0.0;
+     double d_qjci_int_dV_b_ci=0.0;
+  double qjcx=0.0;
+     double d_qjcx_dV_bi_ci=0.0;
+     double d_qjcx_dV_tnode_GND=0.0;
+     double d_qjcx_dV_b_ci=0.0;
+  double qj3=0.0;
+     double d_qj3_dV_ci_ei=0.0;
+     double d_qj3_dV_ci_ei_dV_ci_ei=0.0;
+     double d_qj3_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qj3_dV_ci_ei_dV_s_ci=0.0;
+     double d_qj3_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qj3_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qj3_dV_ci_ei_dV_b_ci=0.0;
+     double d_qj3_dV_bi_ei=0.0;
+     double d_qj3_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qj3_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qj3_dV_bi_ei_dV_s_ci=0.0;
+     double d_qj3_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qj3_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qj3_dV_bi_ei_dV_b_ci=0.0;
+     double d_qj3_dV_s_ci=0.0;
+     double d_qj3_dV_s_ci_dV_ci_ei=0.0;
+     double d_qj3_dV_s_ci_dV_bi_ei=0.0;
+     double d_qj3_dV_s_ci_dV_s_ci=0.0;
+     double d_qj3_dV_s_ci_dV_bi_ci=0.0;
+     double d_qj3_dV_s_ci_dV_tnode_GND=0.0;
+     double d_qj3_dV_s_ci_dV_b_ci=0.0;
+     double d_qj3_dV_bi_ci=0.0;
+     double d_qj3_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qj3_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qj3_dV_bi_ci_dV_s_ci=0.0;
+     double d_qj3_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qj3_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qj3_dV_bi_ci_dV_b_ci=0.0;
+     double d_qj3_dV_tnode_GND=0.0;
+     double d_qj3_dV_b_ci=0.0;
+     double d_qj3_dV_b_ci_dV_ci_ei=0.0;
+     double d_qj3_dV_b_ci_dV_bi_ei=0.0;
+     double d_qj3_dV_b_ci_dV_s_ci=0.0;
+     double d_qj3_dV_b_ci_dV_bi_ci=0.0;
+     double d_qj3_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qj3_dV_b_ci_dV_b_ci=0.0;
+  double qj2=0.0;
+     double d_qj2_dV_ci_ei=0.0;
+     double d_qj2_dV_ci_ei_dV_ci_ei=0.0;
+     double d_qj2_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qj2_dV_ci_ei_dV_s_ci=0.0;
+     double d_qj2_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qj2_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qj2_dV_ci_ei_dV_b_ci=0.0;
+     double d_qj2_dV_bi_ei=0.0;
+     double d_qj2_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qj2_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qj2_dV_bi_ei_dV_s_ci=0.0;
+     double d_qj2_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qj2_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qj2_dV_bi_ei_dV_b_ci=0.0;
+     double d_qj2_dV_s_ci=0.0;
+     double d_qj2_dV_s_ci_dV_ci_ei=0.0;
+     double d_qj2_dV_s_ci_dV_bi_ei=0.0;
+     double d_qj2_dV_s_ci_dV_s_ci=0.0;
+     double d_qj2_dV_s_ci_dV_bi_ci=0.0;
+     double d_qj2_dV_s_ci_dV_tnode_GND=0.0;
+     double d_qj2_dV_s_ci_dV_b_ci=0.0;
+     double d_qj2_dV_bi_ci=0.0;
+     double d_qj2_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qj2_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qj2_dV_bi_ci_dV_s_ci=0.0;
+     double d_qj2_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qj2_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qj2_dV_bi_ci_dV_b_ci=0.0;
+     double d_qj2_dV_tnode_GND=0.0;
+     double d_qj2_dV_b_ci=0.0;
+     double d_qj2_dV_b_ci_dV_ci_ei=0.0;
+     double d_qj2_dV_b_ci_dV_bi_ei=0.0;
+     double d_qj2_dV_b_ci_dV_s_ci=0.0;
+     double d_qj2_dV_b_ci_dV_bi_ci=0.0;
+     double d_qj2_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qj2_dV_b_ci_dV_b_ci=0.0;
+  double qj1=0.0;
+     double d_qj1_dV_ci_ei=0.0;
+     double d_qj1_dV_ci_ei_dV_ci_ei=0.0;
+     double d_qj1_dV_ci_ei_dV_bi_ei=0.0;
+     double d_qj1_dV_ci_ei_dV_s_ci=0.0;
+     double d_qj1_dV_ci_ei_dV_bi_ci=0.0;
+     double d_qj1_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_qj1_dV_ci_ei_dV_b_ci=0.0;
+     double d_qj1_dV_bi_ei=0.0;
+     double d_qj1_dV_bi_ei_dV_ci_ei=0.0;
+     double d_qj1_dV_bi_ei_dV_bi_ei=0.0;
+     double d_qj1_dV_bi_ei_dV_s_ci=0.0;
+     double d_qj1_dV_bi_ei_dV_bi_ci=0.0;
+     double d_qj1_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_qj1_dV_bi_ei_dV_b_ci=0.0;
+     double d_qj1_dV_s_ci=0.0;
+     double d_qj1_dV_s_ci_dV_ci_ei=0.0;
+     double d_qj1_dV_s_ci_dV_bi_ei=0.0;
+     double d_qj1_dV_s_ci_dV_s_ci=0.0;
+     double d_qj1_dV_s_ci_dV_bi_ci=0.0;
+     double d_qj1_dV_s_ci_dV_tnode_GND=0.0;
+     double d_qj1_dV_s_ci_dV_b_ci=0.0;
+     double d_qj1_dV_bi_ci=0.0;
+     double d_qj1_dV_bi_ci_dV_ci_ei=0.0;
+     double d_qj1_dV_bi_ci_dV_bi_ei=0.0;
+     double d_qj1_dV_bi_ci_dV_s_ci=0.0;
+     double d_qj1_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qj1_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qj1_dV_bi_ci_dV_b_ci=0.0;
+     double d_qj1_dV_tnode_GND=0.0;
+     double d_qj1_dV_b_ci=0.0;
+     double d_qj1_dV_b_ci_dV_ci_ei=0.0;
+     double d_qj1_dV_b_ci_dV_bi_ei=0.0;
+     double d_qj1_dV_b_ci_dV_s_ci=0.0;
+     double d_qj1_dV_b_ci_dV_bi_ci=0.0;
+     double d_qj1_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qj1_dV_b_ci_dV_b_ci=0.0;
+  double vdj2=0.0;
+     double d_vdj2_dV_ci_ei=0.0;
+     double d_vdj2_dV_ci_ei_dV_ci_ei=0.0;
+     double d_vdj2_dV_ci_ei_dV_bi_ei=0.0;
+     double d_vdj2_dV_ci_ei_dV_s_ci=0.0;
+     double d_vdj2_dV_ci_ei_dV_bi_ci=0.0;
+     double d_vdj2_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_vdj2_dV_ci_ei_dV_b_ci=0.0;
+     double d_vdj2_dV_bi_ei=0.0;
+     double d_vdj2_dV_bi_ei_dV_ci_ei=0.0;
+     double d_vdj2_dV_bi_ei_dV_bi_ei=0.0;
+     double d_vdj2_dV_bi_ei_dV_s_ci=0.0;
+     double d_vdj2_dV_bi_ei_dV_bi_ci=0.0;
+     double d_vdj2_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_vdj2_dV_bi_ei_dV_b_ci=0.0;
+     double d_vdj2_dV_s_ci=0.0;
+     double d_vdj2_dV_s_ci_dV_ci_ei=0.0;
+     double d_vdj2_dV_s_ci_dV_bi_ei=0.0;
+     double d_vdj2_dV_s_ci_dV_s_ci=0.0;
+     double d_vdj2_dV_s_ci_dV_bi_ci=0.0;
+     double d_vdj2_dV_s_ci_dV_tnode_GND=0.0;
+     double d_vdj2_dV_s_ci_dV_b_ci=0.0;
+     double d_vdj2_dV_bi_ci=0.0;
+     double d_vdj2_dV_bi_ci_dV_ci_ei=0.0;
+     double d_vdj2_dV_bi_ci_dV_bi_ei=0.0;
+     double d_vdj2_dV_bi_ci_dV_s_ci=0.0;
+     double d_vdj2_dV_bi_ci_dV_bi_ci=0.0;
+     double d_vdj2_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_vdj2_dV_bi_ci_dV_b_ci=0.0;
+     double d_vdj2_dV_tnode_GND=0.0;
+     double d_vdj2_dV_b_ci=0.0;
+     double d_vdj2_dV_b_ci_dV_ci_ei=0.0;
+     double d_vdj2_dV_b_ci_dV_bi_ei=0.0;
+     double d_vdj2_dV_b_ci_dV_s_ci=0.0;
+     double d_vdj2_dV_b_ci_dV_bi_ci=0.0;
+     double d_vdj2_dV_b_ci_dV_tnode_GND=0.0;
+     double d_vdj2_dV_b_ci_dV_b_ci=0.0;
+  double vdj1=0.0;
+     double d_vdj1_dV_ci_ei=0.0;
+     double d_vdj1_dV_ci_ei_dV_ci_ei=0.0;
+     double d_vdj1_dV_ci_ei_dV_bi_ei=0.0;
+     double d_vdj1_dV_ci_ei_dV_s_ci=0.0;
+     double d_vdj1_dV_ci_ei_dV_bi_ci=0.0;
+     double d_vdj1_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_vdj1_dV_ci_ei_dV_b_ci=0.0;
+     double d_vdj1_dV_bi_ei=0.0;
+     double d_vdj1_dV_bi_ei_dV_ci_ei=0.0;
+     double d_vdj1_dV_bi_ei_dV_bi_ei=0.0;
+     double d_vdj1_dV_bi_ei_dV_s_ci=0.0;
+     double d_vdj1_dV_bi_ei_dV_bi_ci=0.0;
+     double d_vdj1_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_vdj1_dV_bi_ei_dV_b_ci=0.0;
+     double d_vdj1_dV_s_ci=0.0;
+     double d_vdj1_dV_s_ci_dV_ci_ei=0.0;
+     double d_vdj1_dV_s_ci_dV_bi_ei=0.0;
+     double d_vdj1_dV_s_ci_dV_s_ci=0.0;
+     double d_vdj1_dV_s_ci_dV_bi_ci=0.0;
+     double d_vdj1_dV_s_ci_dV_tnode_GND=0.0;
+     double d_vdj1_dV_s_ci_dV_b_ci=0.0;
+     double d_vdj1_dV_bi_ci=0.0;
+     double d_vdj1_dV_bi_ci_dV_ci_ei=0.0;
+     double d_vdj1_dV_bi_ci_dV_bi_ei=0.0;
+     double d_vdj1_dV_bi_ci_dV_s_ci=0.0;
+     double d_vdj1_dV_bi_ci_dV_bi_ci=0.0;
+     double d_vdj1_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_vdj1_dV_bi_ci_dV_b_ci=0.0;
+     double d_vdj1_dV_tnode_GND=0.0;
+     double d_vdj1_dV_b_ci=0.0;
+     double d_vdj1_dV_b_ci_dV_ci_ei=0.0;
+     double d_vdj1_dV_b_ci_dV_bi_ei=0.0;
+     double d_vdj1_dV_b_ci_dV_s_ci=0.0;
+     double d_vdj1_dV_b_ci_dV_bi_ci=0.0;
+     double d_vdj1_dV_b_ci_dV_tnode_GND=0.0;
+     double d_vdj1_dV_b_ci_dV_b_ci=0.0;
+  double ezr=0.0;
+  double ez=0.0;
+  double vj4=0.0;
+     double d_vj4_dV_s_ci=0.0;
+     double d_vj4_dV_s_ci_dV_s_ci=0.0;
+     double d_vj4_dV_s_ci_dV_ci_ei=0.0;
+     double d_vj4_dV_s_ci_dV_bi_ei=0.0;
+     double d_vj4_dV_s_ci_dV_bi_ci=0.0;
+     double d_vj4_dV_s_ci_dV_b_ci=0.0;
+     double d_vj4_dV_s_ci_dV_tnode_GND=0.0;
+     double d_vj4_dV_ci_ei=0.0;
+     double d_vj4_dV_ci_ei_dV_s_ci=0.0;
+     double d_vj4_dV_ci_ei_dV_ci_ei=0.0;
+     double d_vj4_dV_ci_ei_dV_bi_ei=0.0;
+     double d_vj4_dV_ci_ei_dV_bi_ci=0.0;
+     double d_vj4_dV_ci_ei_dV_b_ci=0.0;
+     double d_vj4_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_vj4_dV_bi_ei=0.0;
+     double d_vj4_dV_bi_ei_dV_s_ci=0.0;
+     double d_vj4_dV_bi_ei_dV_ci_ei=0.0;
+     double d_vj4_dV_bi_ei_dV_bi_ei=0.0;
+     double d_vj4_dV_bi_ei_dV_bi_ci=0.0;
+     double d_vj4_dV_bi_ei_dV_b_ci=0.0;
+     double d_vj4_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_vj4_dV_bi_ci=0.0;
+     double d_vj4_dV_bi_ci_dV_s_ci=0.0;
+     double d_vj4_dV_bi_ci_dV_ci_ei=0.0;
+     double d_vj4_dV_bi_ci_dV_bi_ei=0.0;
+     double d_vj4_dV_bi_ci_dV_bi_ci=0.0;
+     double d_vj4_dV_bi_ci_dV_b_ci=0.0;
+     double d_vj4_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_vj4_dV_b_ci=0.0;
+     double d_vj4_dV_b_ci_dV_s_ci=0.0;
+     double d_vj4_dV_b_ci_dV_ci_ei=0.0;
+     double d_vj4_dV_b_ci_dV_bi_ei=0.0;
+     double d_vj4_dV_b_ci_dV_bi_ci=0.0;
+     double d_vj4_dV_b_ci_dV_b_ci=0.0;
+     double d_vj4_dV_b_ci_dV_tnode_GND=0.0;
+     double d_vj4_dV_tnode_GND=0.0;
+  double vj2=0.0;
+     double d_vj2_dV_ci_ei=0.0;
+     double d_vj2_dV_ci_ei_dV_ci_ei=0.0;
+     double d_vj2_dV_ci_ei_dV_bi_ei=0.0;
+     double d_vj2_dV_ci_ei_dV_s_ci=0.0;
+     double d_vj2_dV_ci_ei_dV_bi_ci=0.0;
+     double d_vj2_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_vj2_dV_ci_ei_dV_b_ci=0.0;
+     double d_vj2_dV_bi_ei=0.0;
+     double d_vj2_dV_bi_ei_dV_ci_ei=0.0;
+     double d_vj2_dV_bi_ei_dV_bi_ei=0.0;
+     double d_vj2_dV_bi_ei_dV_s_ci=0.0;
+     double d_vj2_dV_bi_ei_dV_bi_ci=0.0;
+     double d_vj2_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_vj2_dV_bi_ei_dV_b_ci=0.0;
+     double d_vj2_dV_s_ci=0.0;
+     double d_vj2_dV_s_ci_dV_ci_ei=0.0;
+     double d_vj2_dV_s_ci_dV_bi_ei=0.0;
+     double d_vj2_dV_s_ci_dV_s_ci=0.0;
+     double d_vj2_dV_s_ci_dV_bi_ci=0.0;
+     double d_vj2_dV_s_ci_dV_tnode_GND=0.0;
+     double d_vj2_dV_s_ci_dV_b_ci=0.0;
+     double d_vj2_dV_bi_ci=0.0;
+     double d_vj2_dV_bi_ci_dV_ci_ei=0.0;
+     double d_vj2_dV_bi_ci_dV_bi_ei=0.0;
+     double d_vj2_dV_bi_ci_dV_s_ci=0.0;
+     double d_vj2_dV_bi_ci_dV_bi_ci=0.0;
+     double d_vj2_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_vj2_dV_bi_ci_dV_b_ci=0.0;
+     double d_vj2_dV_tnode_GND=0.0;
+     double d_vj2_dV_b_ci=0.0;
+     double d_vj2_dV_b_ci_dV_ci_ei=0.0;
+     double d_vj2_dV_b_ci_dV_bi_ei=0.0;
+     double d_vj2_dV_b_ci_dV_s_ci=0.0;
+     double d_vj2_dV_b_ci_dV_bi_ci=0.0;
+     double d_vj2_dV_b_ci_dV_tnode_GND=0.0;
+     double d_vj2_dV_b_ci_dV_b_ci=0.0;
+  double vr=0.0;
+     double d_vr_dV_ci_ei=0.0;
+     double d_vr_dV_ci_ei_dV_ci_ei=0.0;
+     double d_vr_dV_ci_ei_dV_bi_ei=0.0;
+     double d_vr_dV_ci_ei_dV_s_ci=0.0;
+     double d_vr_dV_ci_ei_dV_bi_ci=0.0;
+     double d_vr_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_vr_dV_ci_ei_dV_b_ci=0.0;
+     double d_vr_dV_bi_ei=0.0;
+     double d_vr_dV_bi_ei_dV_ci_ei=0.0;
+     double d_vr_dV_bi_ei_dV_bi_ei=0.0;
+     double d_vr_dV_bi_ei_dV_s_ci=0.0;
+     double d_vr_dV_bi_ei_dV_bi_ci=0.0;
+     double d_vr_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_vr_dV_bi_ei_dV_b_ci=0.0;
+     double d_vr_dV_s_ci=0.0;
+     double d_vr_dV_s_ci_dV_ci_ei=0.0;
+     double d_vr_dV_s_ci_dV_bi_ei=0.0;
+     double d_vr_dV_s_ci_dV_s_ci=0.0;
+     double d_vr_dV_s_ci_dV_bi_ci=0.0;
+     double d_vr_dV_s_ci_dV_tnode_GND=0.0;
+     double d_vr_dV_s_ci_dV_b_ci=0.0;
+     double d_vr_dV_bi_ci=0.0;
+     double d_vr_dV_bi_ci_dV_ci_ei=0.0;
+     double d_vr_dV_bi_ci_dV_bi_ei=0.0;
+     double d_vr_dV_bi_ci_dV_s_ci=0.0;
+     double d_vr_dV_bi_ci_dV_bi_ci=0.0;
+     double d_vr_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_vr_dV_bi_ci_dV_b_ci=0.0;
+     double d_vr_dV_tnode_GND=0.0;
+     double d_vr_dV_b_ci=0.0;
+     double d_vr_dV_b_ci_dV_ci_ei=0.0;
+     double d_vr_dV_b_ci_dV_bi_ei=0.0;
+     double d_vr_dV_b_ci_dV_s_ci=0.0;
+     double d_vr_dV_b_ci_dV_bi_ci=0.0;
+     double d_vr_dV_b_ci_dV_tnode_GND=0.0;
+     double d_vr_dV_b_ci_dV_b_ci=0.0;
+  double vj1=0.0;
+     double d_vj1_dV_ci_ei=0.0;
+     double d_vj1_dV_ci_ei_dV_ci_ei=0.0;
+     double d_vj1_dV_ci_ei_dV_bi_ei=0.0;
+     double d_vj1_dV_ci_ei_dV_s_ci=0.0;
+     double d_vj1_dV_ci_ei_dV_bi_ci=0.0;
+     double d_vj1_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_vj1_dV_ci_ei_dV_b_ci=0.0;
+     double d_vj1_dV_bi_ei=0.0;
+     double d_vj1_dV_bi_ei_dV_ci_ei=0.0;
+     double d_vj1_dV_bi_ei_dV_bi_ei=0.0;
+     double d_vj1_dV_bi_ei_dV_s_ci=0.0;
+     double d_vj1_dV_bi_ei_dV_bi_ci=0.0;
+     double d_vj1_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_vj1_dV_bi_ei_dV_b_ci=0.0;
+     double d_vj1_dV_s_ci=0.0;
+     double d_vj1_dV_s_ci_dV_ci_ei=0.0;
+     double d_vj1_dV_s_ci_dV_bi_ei=0.0;
+     double d_vj1_dV_s_ci_dV_s_ci=0.0;
+     double d_vj1_dV_s_ci_dV_bi_ci=0.0;
+     double d_vj1_dV_s_ci_dV_tnode_GND=0.0;
+     double d_vj1_dV_s_ci_dV_b_ci=0.0;
+     double d_vj1_dV_bi_ci=0.0;
+     double d_vj1_dV_bi_ci_dV_ci_ei=0.0;
+     double d_vj1_dV_bi_ci_dV_bi_ei=0.0;
+     double d_vj1_dV_bi_ci_dV_s_ci=0.0;
+     double d_vj1_dV_bi_ci_dV_bi_ci=0.0;
+     double d_vj1_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_vj1_dV_bi_ci_dV_b_ci=0.0;
+     double d_vj1_dV_tnode_GND=0.0;
+     double d_vj1_dV_b_ci=0.0;
+     double d_vj1_dV_b_ci_dV_ci_ei=0.0;
+     double d_vj1_dV_b_ci_dV_bi_ei=0.0;
+     double d_vj1_dV_b_ci_dV_s_ci=0.0;
+     double d_vj1_dV_b_ci_dV_bi_ci=0.0;
+     double d_vj1_dV_b_ci_dV_tnode_GND=0.0;
+     double d_vj1_dV_b_ci_dV_b_ci=0.0;
+  double ee1=0.0;
+     double d_ee1_dV_s_ci=0.0;
+     double d_ee1_dV_s_ci_dV_s_ci=0.0;
+     double d_ee1_dV_s_ci_dV_ci_ei=0.0;
+     double d_ee1_dV_s_ci_dV_bi_ei=0.0;
+     double d_ee1_dV_s_ci_dV_bi_ci=0.0;
+     double d_ee1_dV_s_ci_dV_tnode_GND=0.0;
+     double d_ee1_dV_s_ci_dV_b_ci=0.0;
+     double d_ee1_dV_ci_ei=0.0;
+     double d_ee1_dV_ci_ei_dV_s_ci=0.0;
+     double d_ee1_dV_ci_ei_dV_ci_ei=0.0;
+     double d_ee1_dV_ci_ei_dV_bi_ei=0.0;
+     double d_ee1_dV_ci_ei_dV_bi_ci=0.0;
+     double d_ee1_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_ee1_dV_ci_ei_dV_b_ci=0.0;
+     double d_ee1_dV_bi_ei=0.0;
+     double d_ee1_dV_bi_ei_dV_s_ci=0.0;
+     double d_ee1_dV_bi_ei_dV_ci_ei=0.0;
+     double d_ee1_dV_bi_ei_dV_bi_ei=0.0;
+     double d_ee1_dV_bi_ei_dV_bi_ci=0.0;
+     double d_ee1_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_ee1_dV_bi_ei_dV_b_ci=0.0;
+     double d_ee1_dV_bi_ci=0.0;
+     double d_ee1_dV_bi_ci_dV_s_ci=0.0;
+     double d_ee1_dV_bi_ci_dV_ci_ei=0.0;
+     double d_ee1_dV_bi_ci_dV_bi_ei=0.0;
+     double d_ee1_dV_bi_ci_dV_bi_ci=0.0;
+     double d_ee1_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_ee1_dV_bi_ci_dV_b_ci=0.0;
+     double d_ee1_dV_tnode_GND=0.0;
+     double d_ee1_dV_b_ci=0.0;
+     double d_ee1_dV_b_ci_dV_s_ci=0.0;
+     double d_ee1_dV_b_ci_dV_ci_ei=0.0;
+     double d_ee1_dV_b_ci_dV_bi_ei=0.0;
+     double d_ee1_dV_b_ci_dV_bi_ci=0.0;
+     double d_ee1_dV_b_ci_dV_tnode_GND=0.0;
+     double d_ee1_dV_b_ci_dV_b_ci=0.0;
+  double ex1=0.0;
+     double d_ex1_dV_s_ci=0.0;
+     double d_ex1_dV_s_ci_dV_s_ci=0.0;
+     double d_ex1_dV_s_ci_dV_ci_ei=0.0;
+     double d_ex1_dV_s_ci_dV_bi_ei=0.0;
+     double d_ex1_dV_s_ci_dV_bi_ci=0.0;
+     double d_ex1_dV_s_ci_dV_tnode_GND=0.0;
+     double d_ex1_dV_s_ci_dV_b_ci=0.0;
+     double d_ex1_dV_ci_ei=0.0;
+     double d_ex1_dV_ci_ei_dV_s_ci=0.0;
+     double d_ex1_dV_ci_ei_dV_ci_ei=0.0;
+     double d_ex1_dV_ci_ei_dV_bi_ei=0.0;
+     double d_ex1_dV_ci_ei_dV_bi_ci=0.0;
+     double d_ex1_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_ex1_dV_ci_ei_dV_b_ci=0.0;
+     double d_ex1_dV_bi_ei=0.0;
+     double d_ex1_dV_bi_ei_dV_s_ci=0.0;
+     double d_ex1_dV_bi_ei_dV_ci_ei=0.0;
+     double d_ex1_dV_bi_ei_dV_bi_ei=0.0;
+     double d_ex1_dV_bi_ei_dV_bi_ci=0.0;
+     double d_ex1_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_ex1_dV_bi_ei_dV_b_ci=0.0;
+     double d_ex1_dV_bi_ci=0.0;
+     double d_ex1_dV_bi_ci_dV_s_ci=0.0;
+     double d_ex1_dV_bi_ci_dV_ci_ei=0.0;
+     double d_ex1_dV_bi_ci_dV_bi_ei=0.0;
+     double d_ex1_dV_bi_ci_dV_bi_ci=0.0;
+     double d_ex1_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_ex1_dV_bi_ci_dV_b_ci=0.0;
+     double d_ex1_dV_tnode_GND=0.0;
+     double d_ex1_dV_b_ci=0.0;
+     double d_ex1_dV_b_ci_dV_s_ci=0.0;
+     double d_ex1_dV_b_ci_dV_ci_ei=0.0;
+     double d_ex1_dV_b_ci_dV_bi_ei=0.0;
+     double d_ex1_dV_b_ci_dV_bi_ci=0.0;
+     double d_ex1_dV_b_ci_dV_tnode_GND=0.0;
+     double d_ex1_dV_b_ci_dV_b_ci=0.0;
+  double ve=0.0;
+     double d_ve_dV_s_ci=0.0;
+     double d_ve_dV_s_ci_dV_s_ci=0.0;
+     double d_ve_dV_s_ci_dV_ci_ei=0.0;
+     double d_ve_dV_s_ci_dV_bi_ei=0.0;
+     double d_ve_dV_s_ci_dV_bi_ci=0.0;
+     double d_ve_dV_s_ci_dV_tnode_GND=0.0;
+     double d_ve_dV_s_ci_dV_b_ci=0.0;
+     double d_ve_dV_ci_ei=0.0;
+     double d_ve_dV_ci_ei_dV_s_ci=0.0;
+     double d_ve_dV_ci_ei_dV_ci_ei=0.0;
+     double d_ve_dV_ci_ei_dV_bi_ei=0.0;
+     double d_ve_dV_ci_ei_dV_bi_ci=0.0;
+     double d_ve_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_ve_dV_ci_ei_dV_b_ci=0.0;
+     double d_ve_dV_bi_ei=0.0;
+     double d_ve_dV_bi_ei_dV_s_ci=0.0;
+     double d_ve_dV_bi_ei_dV_ci_ei=0.0;
+     double d_ve_dV_bi_ei_dV_bi_ei=0.0;
+     double d_ve_dV_bi_ei_dV_bi_ci=0.0;
+     double d_ve_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_ve_dV_bi_ei_dV_b_ci=0.0;
+     double d_ve_dV_bi_ci=0.0;
+     double d_ve_dV_bi_ci_dV_s_ci=0.0;
+     double d_ve_dV_bi_ci_dV_ci_ei=0.0;
+     double d_ve_dV_bi_ci_dV_bi_ei=0.0;
+     double d_ve_dV_bi_ci_dV_bi_ci=0.0;
+     double d_ve_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_ve_dV_bi_ci_dV_b_ci=0.0;
+     double d_ve_dV_tnode_GND=0.0;
+     double d_ve_dV_b_ci=0.0;
+     double d_ve_dV_b_ci_dV_s_ci=0.0;
+     double d_ve_dV_b_ci_dV_ci_ei=0.0;
+     double d_ve_dV_b_ci_dV_bi_ei=0.0;
+     double d_ve_dV_b_ci_dV_bi_ci=0.0;
+     double d_ve_dV_b_ci_dV_tnode_GND=0.0;
+     double d_ve_dV_b_ci_dV_b_ci=0.0;
+  double a=0.0;
+     double d_a_dV_ci_ei=0.0;
+     double d_a_dV_ci_ei_dV_ci_ei=0.0;
+     double d_a_dV_ci_ei_dV_bi_ei=0.0;
+     double d_a_dV_ci_ei_dV_bi_ci=0.0;
+     double d_a_dV_ci_ei_dV_b_ci=0.0;
+     double d_a_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_a_dV_bi_ei=0.0;
+     double d_a_dV_bi_ei_dV_ci_ei=0.0;
+     double d_a_dV_bi_ei_dV_bi_ei=0.0;
+     double d_a_dV_bi_ei_dV_bi_ci=0.0;
+     double d_a_dV_bi_ei_dV_b_ci=0.0;
+     double d_a_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_a_dV_bi_ci=0.0;
+     double d_a_dV_bi_ci_dV_ci_ei=0.0;
+     double d_a_dV_bi_ci_dV_bi_ei=0.0;
+     double d_a_dV_bi_ci_dV_bi_ci=0.0;
+     double d_a_dV_bi_ci_dV_b_ci=0.0;
+     double d_a_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_a_dV_b_ci=0.0;
+     double d_a_dV_b_ci_dV_ci_ei=0.0;
+     double d_a_dV_b_ci_dV_bi_ei=0.0;
+     double d_a_dV_b_ci_dV_bi_ci=0.0;
+     double d_a_dV_b_ci_dV_b_ci=0.0;
+     double d_a_dV_b_ci_dV_tnode_GND=0.0;
+     double d_a_dV_tnode_GND=0.0;
+  double cr=0.0;
+     double d_cr_dV_tnode_GND=0.0;
+  double cmax=0.0;
+     double d_cmax_dV_tnode_GND=0.0;
+  double vf=0.0;
+     double d_vf_dV_tnode_GND=0.0;
+  double vp=0.0;
+     double d_vp_dV_tnode_GND=0.0;
+  double zr=0.0;
+  double y=0.0;
+     double d_y_dV_s_ci=0.0;
+     double d_y_dV_s_ci_dV_s_ci=0.0;
+     double d_y_dV_s_ci_dV_ci_ei=0.0;
+     double d_y_dV_s_ci_dV_bi_ei=0.0;
+     double d_y_dV_s_ci_dV_bi_ci=0.0;
+     double d_y_dV_s_ci_dV_tnode_GND=0.0;
+     double d_y_dV_s_ci_dV_b_ci=0.0;
+     double d_y_dV_ci_ei=0.0;
+     double d_y_dV_ci_ei_dV_s_ci=0.0;
+     double d_y_dV_ci_ei_dV_ci_ei=0.0;
+     double d_y_dV_ci_ei_dV_bi_ei=0.0;
+     double d_y_dV_ci_ei_dV_bi_ci=0.0;
+     double d_y_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_y_dV_ci_ei_dV_b_ci=0.0;
+     double d_y_dV_bi_ei=0.0;
+     double d_y_dV_bi_ei_dV_s_ci=0.0;
+     double d_y_dV_bi_ei_dV_ci_ei=0.0;
+     double d_y_dV_bi_ei_dV_bi_ei=0.0;
+     double d_y_dV_bi_ei_dV_bi_ci=0.0;
+     double d_y_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_y_dV_bi_ei_dV_b_ci=0.0;
+     double d_y_dV_bi_ci=0.0;
+     double d_y_dV_bi_ci_dV_s_ci=0.0;
+     double d_y_dV_bi_ci_dV_ci_ei=0.0;
+     double d_y_dV_bi_ci_dV_bi_ei=0.0;
+     double d_y_dV_bi_ci_dV_bi_ci=0.0;
+     double d_y_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_y_dV_bi_ci_dV_b_ci=0.0;
+     double d_y_dV_tnode_GND=0.0;
+     double d_y_dV_b_ci=0.0;
+     double d_y_dV_b_ci_dV_s_ci=0.0;
+     double d_y_dV_b_ci_dV_ci_ei=0.0;
+     double d_y_dV_b_ci_dV_bi_ei=0.0;
+     double d_y_dV_b_ci_dV_bi_ci=0.0;
+     double d_y_dV_b_ci_dV_tnode_GND=0.0;
+     double d_y_dV_b_ci_dV_b_ci=0.0;
+  double x=0.0;
+     double d_x_dV_tnode_GND=0.0;
+     double d_x_dV_ci_ei=0.0;
+     double d_x_dV_ci_ei_dV_tnode_GND=0.0;
+     double d_x_dV_ci_ei_dV_ci_ei=0.0;
+  double v_j=0.0;
+     double d_v_j_dV_s_ci=0.0;
+     double d_v_j_dV_s_ci_dV_s_ci=0.0;
+     double d_v_j_dV_s_ci_dV_bi_ei=0.0;
+     double d_v_j_dV_s_ci_dV_bi_ci=0.0;
+     double d_v_j_dV_s_ci_dV_tnode_GND=0.0;
+     double d_v_j_dV_s_ci_dV_b_ci=0.0;
+     double d_v_j_dV_bi_ei=0.0;
+     double d_v_j_dV_bi_ei_dV_s_ci=0.0;
+     double d_v_j_dV_bi_ei_dV_bi_ei=0.0;
+     double d_v_j_dV_bi_ei_dV_bi_ci=0.0;
+     double d_v_j_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_v_j_dV_bi_ei_dV_b_ci=0.0;
+     double d_v_j_dV_bi_ci=0.0;
+     double d_v_j_dV_bi_ci_dV_s_ci=0.0;
+     double d_v_j_dV_bi_ci_dV_bi_ei=0.0;
+     double d_v_j_dV_bi_ci_dV_bi_ci=0.0;
+     double d_v_j_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_v_j_dV_bi_ci_dV_b_ci=0.0;
+     double d_v_j_dV_tnode_GND=0.0;
+     double d_v_j_dV_b_ci=0.0;
+     double d_v_j_dV_b_ci_dV_s_ci=0.0;
+     double d_v_j_dV_b_ci_dV_bi_ei=0.0;
+     double d_v_j_dV_b_ci_dV_bi_ci=0.0;
+     double d_v_j_dV_b_ci_dV_tnode_GND=0.0;
+     double d_v_j_dV_b_ci_dV_b_ci=0.0;
+  double xvf2=0.0;
+     double d_xvf2_dV_s_ci=0.0;
+     double d_xvf2_dV_s_ci_dV_s_ci=0.0;
+     double d_xvf2_dV_s_ci_dV_bi_ei=0.0;
+     double d_xvf2_dV_s_ci_dV_bi_ci=0.0;
+     double d_xvf2_dV_s_ci_dV_tnode_GND=0.0;
+     double d_xvf2_dV_s_ci_dV_b_ci=0.0;
+     double d_xvf2_dV_bi_ei=0.0;
+     double d_xvf2_dV_bi_ei_dV_s_ci=0.0;
+     double d_xvf2_dV_bi_ei_dV_bi_ei=0.0;
+     double d_xvf2_dV_bi_ei_dV_bi_ci=0.0;
+     double d_xvf2_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_xvf2_dV_bi_ei_dV_b_ci=0.0;
+     double d_xvf2_dV_bi_ci=0.0;
+     double d_xvf2_dV_bi_ci_dV_s_ci=0.0;
+     double d_xvf2_dV_bi_ci_dV_bi_ei=0.0;
+     double d_xvf2_dV_bi_ci_dV_bi_ci=0.0;
+     double d_xvf2_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_xvf2_dV_bi_ci_dV_b_ci=0.0;
+     double d_xvf2_dV_tnode_GND=0.0;
+     double d_xvf2_dV_b_ci=0.0;
+     double d_xvf2_dV_b_ci_dV_s_ci=0.0;
+     double d_xvf2_dV_b_ci_dV_bi_ei=0.0;
+     double d_xvf2_dV_b_ci_dV_bi_ci=0.0;
+     double d_xvf2_dV_b_ci_dV_tnode_GND=0.0;
+     double d_xvf2_dV_b_ci_dV_b_ci=0.0;
+  double xvf=0.0;
+     double d_xvf_dV_s_ci=0.0;
+     double d_xvf_dV_s_ci_dV_s_ci=0.0;
+     double d_xvf_dV_s_ci_dV_bi_ei=0.0;
+     double d_xvf_dV_s_ci_dV_bi_ci=0.0;
+     double d_xvf_dV_s_ci_dV_tnode_GND=0.0;
+     double d_xvf_dV_s_ci_dV_b_ci=0.0;
+     double d_xvf_dV_bi_ei=0.0;
+     double d_xvf_dV_bi_ei_dV_s_ci=0.0;
+     double d_xvf_dV_bi_ei_dV_bi_ei=0.0;
+     double d_xvf_dV_bi_ei_dV_bi_ci=0.0;
+     double d_xvf_dV_bi_ei_dV_tnode_GND=0.0;
+     double d_xvf_dV_bi_ei_dV_b_ci=0.0;
+     double d_xvf_dV_bi_ci=0.0;
+     double d_xvf_dV_bi_ci_dV_s_ci=0.0;
+     double d_xvf_dV_bi_ci_dV_bi_ei=0.0;
+     double d_xvf_dV_bi_ci_dV_bi_ci=0.0;
+     double d_xvf_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_xvf_dV_bi_ci_dV_b_ci=0.0;
+     double d_xvf_dV_tnode_GND=0.0;
+     double d_xvf_dV_b_ci=0.0;
+     double d_xvf_dV_b_ci_dV_s_ci=0.0;
+     double d_xvf_dV_b_ci_dV_bi_ei=0.0;
+     double d_xvf_dV_b_ci_dV_bi_ci=0.0;
+     double d_xvf_dV_b_ci_dV_tnode_GND=0.0;
+     double d_xvf_dV_b_ci_dV_b_ci=0.0;
+  double cjcx0_t_i=0.0;
+     double d_cjcx0_t_i_dV_tnode_GND=0.0;
+  double qjcxi=0.0;
+     double d_qjcxi_dV_bi_ci=0.0;
+     double d_qjcxi_dV_bi_ci_dV_bi_ci=0.0;
+     double d_qjcxi_dV_bi_ci_dV_tnode_GND=0.0;
+     double d_qjcxi_dV_bi_ci_dV_b_ci=0.0;
+     double d_qjcxi_dV_tnode_GND=0.0;
+     double d_qjcxi_dV_b_ci=0.0;
+     double d_qjcxi_dV_b_ci_dV_bi_ci=0.0;
+     double d_qjcxi_dV_b_ci_dV_tnode_GND=0.0;
+     double d_qjcxi_dV_b_ci_dV_b_ci=0.0;
+  double cjci0_t_ii=0.0;
+     double d_cjci0_t_ii_dV_tnode_GND=0.0;
+  double cjcx0_t_ii=0.0;
+     double d_cjcx0_t_ii_dV_tnode_GND=0.0;
+  double ahq_t=0.0;
+  double tfh_t=0.0;
+     double d_tfh_t_dV_tnode_GND=0.0;
+  double iqfh_t=0.0;
+     double d_iqfh_t_dV_tnode_GND=0.0;
+  double ver_t=0.0;
+     double d_ver_t_dV_tnode_GND=0.0;
+  double aver_t=0.0;
+     double d_aver_t_dV_tnode_GND=0.0;
+  double rth_t=0.0;
+  double kavl_t=0.0;
+     double d_kavl_t_dV_tnode_GND=0.0;
+  double eavl_t=0.0;
+     double d_eavl_t_dV_tnode_GND=0.0;
+  double re_t=0.0;
+     double d_re_t_dV_tnode_GND=0.0;
+  double rbi0_t=0.0;
+     double d_rbi0_t_dV_tnode_GND=0.0;
+  double rcx_t=0.0;
+     double d_rcx_t_dV_tnode_GND=0.0;
+  double rbx_t=0.0;
+     double d_rbx_t_dV_tnode_GND=0.0;
+  double tef0_t=0.0;
+     double d_tef0_t_dV_tnode_GND=0.0;
+  double dvg=0.0;
+  double zetatef=0.0;
+  double thcs_t=0.0;
+     double d_thcs_t_dV_tnode_GND=0.0;
+  double t0_t=0.0;
+     double d_t0_t_dV_tnode_GND=0.0;
+  double vces_t=0.0;
+     double d_vces_t_dV_tnode_GND=0.0;
+  double vlim_t=0.0;
+     double d_vlim_t_dV_tnode_GND=0.0;
+  double rci0_t=0.0;
+     double d_rci0_t_dV_tnode_GND=0.0;
+  double iqf_t=0.0;
+     double d_iqf_t_dV_tnode_GND=0.0;
+  double cjs0_t=0.0;
+     double d_cjs0_t_dV_tnode_GND=0.0;
+  double vds_t=0.0;
+     double d_vds_t_dV_tnode_GND=0.0;
+  double cjcx0_t=0.0;
+     double d_cjcx0_t_dV_tnode_GND=0.0;
+  double vdcx_t=0.0;
+     double d_vdcx_t_dV_tnode_GND=0.0;
+  double cjci0_t=0.0;
+     double d_cjci0_t_dV_tnode_GND=0.0;
+  double vdci_t=0.0;
+     double d_vdci_t_dV_tnode_GND=0.0;
+  double ajedc_t=0.0;
+     double d_ajedc_t_dV_tnode_GND=0.0;
+  double aje_t=0.0;
+     double d_aje_t_dV_tnode_GND=0.0;
+  double cje0_dc_t=0.0;
+     double d_cje0_dc_t_dV_tnode_GND=0.0;
+  double vdedc_t=0.0;
+     double d_vdedc_t_dV_tnode_GND=0.0;
+  double cje0_dc=0.0;
+  double cje0_t=0.0;
+     double d_cje0_t_dV_tnode_GND=0.0;
+  double vde_t=0.0;
+     double d_vde_t_dV_tnode_GND=0.0;
+  double vdjt=0.0;
+     double d_vdjt_dV_tnode_GND=0.0;
+  double vdj0=0.0;
+  double arg=0.0;
+  double iscs_t=0.0;
+     double d_iscs_t_dV_tnode_GND=0.0;
+  double itss_t=0.0;
+     double d_itss_t_dV_tnode_GND=0.0;
+  double ibcs_t=0.0;
+     double d_ibcs_t_dV_tnode_GND=0.0;
+  double ires_t=0.0;
+     double d_ires_t_dV_tnode_GND=0.0;
+  double ibes_t=0.0;
+     double d_ibes_t_dV_tnode_GND=0.0;
+  double is_t=0.0;
+     double d_is_t_dV_tnode_GND=0.0;
+  double zetasct=0.0;
+  double zetabci=0.0;
+  double mg=0.0;
+  double vgsc=0.0;
+  double vgbc=0.0;
+  double vgbe=0.0;
+  double avs=0.0;
+  double ln_qtt0=0.0;
+     double d_ln_qtt0_dV_tnode_GND=0.0;
+  double qtt0=0.0;
+     double d_qtt0_dV_tnode_GND=0.0;
+  double dT=0.0;
+     double d_dT_dV_tnode_GND=0.0;
+  double VT=0.0;
+     double d_VT_dV_tnode_GND=0.0;
+  double vt0=0.0;
+  double Tdev=0.0;
+     double d_Tdev_dV_tnode_GND=0.0;
+  double Tamb=0.0;
+  double Tnom=0.0;
+  double Vrth=0.0;
+     double d_Vrth_dV_tnode_GND=0.0;
+  double Vbe=0.0;
+     double d_Vbe_dV_b_e=0.0;
+  double Vbbi=0.0;
+     double d_Vbbi_dV_b_bi=0.0;
+  double Vcic=0.0;
+     double d_Vcic_dV_ci_c=0.0;
+  double Veie=0.0;
+     double d_Veie_dV_ei_e=0.0;
+  double Vsci=0.0;
+     double d_Vsci_dV_s_ci=0.0;
+     double d_Vsci_dV_s_ci_dV_s_ci=0.0;
+  double Vciei=0.0;
+     double d_Vciei_dV_ci_ei=0.0;
+     double d_Vciei_dV_ci_ei_dV_ci_ei=0.0;
+  double Vbiei=0.0;
+     double d_Vbiei_dV_bi_ei=0.0;
+     double d_Vbiei_dV_bi_ei_dV_bi_ei=0.0;
+  double Vbici=0.0;
+     double d_Vbici_dV_bi_ci=0.0;
+     double d_Vbici_dV_bi_ci_dV_bi_ci=0.0;
+  double Vbci=0.0;
+     double d_Vbci_dV_b_ci=0.0;
+     double d_Vbci_dV_b_ci_dV_b_ci=0.0;
+  double HICUMtype=0.0;
 
 
   // set the sizes of the Fad arrays:
@@ -4555,6 +4555,8 @@ if (((model_.zetarth)!=0))
 {
 double value_log_0 = log((Tdev/Tnom));
 double value_exp_1 = exp(((model_.zetarth)*value_log_0));
+double  deriv_log_0_d0 = (1.0/(Tdev/Tnom));
+double  deriv_exp_1_d0 = value_exp_1;
 rth_t = ((model_.rth)*value_exp_1);
 }
 }
@@ -10604,21 +10606,21 @@ if (getSolverState().noiseFlag)
 //Begin block OP_calculation
 {
 //Block-local variables for block OP_calculation
-double oRPIi;
-double oRMUi;
-double oROi;
-double gAVL;
+double oRPIi=0.0;
+double oRMUi=0.0;
+double oROi=0.0;
+double gAVL=0.0;
 //End of Block-local variables
 //Block-local variables for block OP_calculation
-double Cdei;
-double Cdci;
-double Cjei;
-double Cjci;
-double Cjcx;
-double CBC;
+double Cdei=0.0;
+double Cdci=0.0;
+double Cjei=0.0;
+double Cjci=0.0;
+double Cjcx=0.0;
+double CBC=0.0;
 //End of Block-local variables
 //Block-local variables for block OP_calculation
-double R_tot;
+double R_tot=0.0;
 //End of Block-local variables
 IAVL = iavl;
 VBE = (probeVars[admsProbeID_V_b_e]);
@@ -12320,249 +12322,8 @@ BJT::registerDevice();
 // Creation Date :
 //-----------------------------------------------------------------------------
 void evaluateInitialInstance(
-// instance parameters
-// reals
-AdmsSensFadType & instancePar_dt,
-bool instancePar_given_dt,
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_qjci,
-AdmsSensFadType & instanceVar_qjei,
-AdmsSensFadType & instanceVar_it,
-AdmsSensFadType & instanceVar_ijbc,
-AdmsSensFadType & instanceVar_iavl,
-AdmsSensFadType & instanceVar_ijsc,
-AdmsSensFadType & instanceVar_Ibici,
-AdmsSensFadType & instanceVar_ijbe,
-AdmsSensFadType & instanceVar_IAVL,
-double & instanceVar_VBE,
-double & instanceVar_VBC,
-double & instanceVar_VCE,
-double & instanceVar_VSC,
-AdmsSensFadType & instanceVar_GMi,
-AdmsSensFadType & instanceVar_RPIi,
-AdmsSensFadType & instanceVar_RMUi,
-AdmsSensFadType & instanceVar_ROi,
-AdmsSensFadType & instanceVar_CPIi,
-AdmsSensFadType & instanceVar_CMUi,
-AdmsSensFadType & instanceVar_CBCX,
-AdmsSensFadType & instanceVar_CCS,
-AdmsSensFadType & instanceVar_RBi,
-AdmsSensFadType & instanceVar_RB,
-AdmsSensFadType & instanceVar_RCX,
-AdmsSensFadType & instanceVar_RE,
-AdmsSensFadType & instanceVar_BETAAC,
-AdmsSensFadType & instanceVar_TF,
-AdmsSensFadType & instanceVar_FT,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_is,
-bool modelPar_given_is,
-AdmsSensFadType & modelPar_mcf,
-bool modelPar_given_mcf,
-AdmsSensFadType & modelPar_mcr,
-bool modelPar_given_mcr,
-AdmsSensFadType & modelPar_vef,
-bool modelPar_given_vef,
-AdmsSensFadType & modelPar_ver,
-bool modelPar_given_ver,
-AdmsSensFadType & modelPar_aver,
-bool modelPar_given_aver,
-AdmsSensFadType & modelPar_iqf,
-bool modelPar_given_iqf,
-AdmsSensFadType & modelPar_fiqf,
-bool modelPar_given_fiqf,
-AdmsSensFadType & modelPar_iqr,
-bool modelPar_given_iqr,
-AdmsSensFadType & modelPar_iqfh,
-bool modelPar_given_iqfh,
-AdmsSensFadType & modelPar_tfh,
-bool modelPar_given_tfh,
-AdmsSensFadType & modelPar_ahq,
-bool modelPar_given_ahq,
-AdmsSensFadType & modelPar_ibes,
-bool modelPar_given_ibes,
-AdmsSensFadType & modelPar_mbe,
-bool modelPar_given_mbe,
-AdmsSensFadType & modelPar_ires,
-bool modelPar_given_ires,
-AdmsSensFadType & modelPar_mre,
-bool modelPar_given_mre,
-AdmsSensFadType & modelPar_ibcs,
-bool modelPar_given_ibcs,
-AdmsSensFadType & modelPar_mbc,
-bool modelPar_given_mbc,
-AdmsSensFadType & modelPar_cje0,
-bool modelPar_given_cje0,
-AdmsSensFadType & modelPar_vde,
-bool modelPar_given_vde,
-AdmsSensFadType & modelPar_ze,
-bool modelPar_given_ze,
-AdmsSensFadType & modelPar_aje,
-bool modelPar_given_aje,
-AdmsSensFadType & modelPar_vdedc,
-bool modelPar_given_vdedc,
-AdmsSensFadType & modelPar_zedc,
-bool modelPar_given_zedc,
-AdmsSensFadType & modelPar_ajedc,
-bool modelPar_given_ajedc,
-AdmsSensFadType & modelPar_t0,
-bool modelPar_given_t0,
-AdmsSensFadType & modelPar_dt0h,
-bool modelPar_given_dt0h,
-AdmsSensFadType & modelPar_tbvl,
-bool modelPar_given_tbvl,
-AdmsSensFadType & modelPar_tef0,
-bool modelPar_given_tef0,
-AdmsSensFadType & modelPar_gte,
-bool modelPar_given_gte,
-AdmsSensFadType & modelPar_thcs,
-bool modelPar_given_thcs,
-AdmsSensFadType & modelPar_ahc,
-bool modelPar_given_ahc,
-AdmsSensFadType & modelPar_tr,
-bool modelPar_given_tr,
-AdmsSensFadType & modelPar_rci0,
-bool modelPar_given_rci0,
-AdmsSensFadType & modelPar_vlim,
-bool modelPar_given_vlim,
-AdmsSensFadType & modelPar_vpt,
-bool modelPar_given_vpt,
-AdmsSensFadType & modelPar_vces,
-bool modelPar_given_vces,
-AdmsSensFadType & modelPar_cjci0,
-bool modelPar_given_cjci0,
-AdmsSensFadType & modelPar_vdci,
-bool modelPar_given_vdci,
-AdmsSensFadType & modelPar_zci,
-bool modelPar_given_zci,
-AdmsSensFadType & modelPar_vptci,
-bool modelPar_given_vptci,
-AdmsSensFadType & modelPar_cjcx0,
-bool modelPar_given_cjcx0,
-AdmsSensFadType & modelPar_vdcx,
-bool modelPar_given_vdcx,
-AdmsSensFadType & modelPar_zcx,
-bool modelPar_given_zcx,
-AdmsSensFadType & modelPar_vptcx,
-bool modelPar_given_vptcx,
-AdmsSensFadType & modelPar_fbc,
-bool modelPar_given_fbc,
-AdmsSensFadType & modelPar_rbi0,
-bool modelPar_given_rbi0,
-AdmsSensFadType & modelPar_vr0e,
-bool modelPar_given_vr0e,
-AdmsSensFadType & modelPar_vr0c,
-bool modelPar_given_vr0c,
-AdmsSensFadType & modelPar_fgeo,
-bool modelPar_given_fgeo,
-AdmsSensFadType & modelPar_rbx,
-bool modelPar_given_rbx,
-AdmsSensFadType & modelPar_rcx,
-bool modelPar_given_rcx,
-AdmsSensFadType & modelPar_re,
-bool modelPar_given_re,
-AdmsSensFadType & modelPar_itss,
-bool modelPar_given_itss,
-AdmsSensFadType & modelPar_msf,
-bool modelPar_given_msf,
-AdmsSensFadType & modelPar_iscs,
-bool modelPar_given_iscs,
-AdmsSensFadType & modelPar_msc,
-bool modelPar_given_msc,
-AdmsSensFadType & modelPar_cjs0,
-bool modelPar_given_cjs0,
-AdmsSensFadType & modelPar_vds,
-bool modelPar_given_vds,
-AdmsSensFadType & modelPar_zs,
-bool modelPar_given_zs,
-AdmsSensFadType & modelPar_vpts,
-bool modelPar_given_vpts,
-AdmsSensFadType & modelPar_cbcpar,
-bool modelPar_given_cbcpar,
-AdmsSensFadType & modelPar_cbepar,
-bool modelPar_given_cbepar,
-AdmsSensFadType & modelPar_eavl,
-bool modelPar_given_eavl,
-AdmsSensFadType & modelPar_kavl,
-bool modelPar_given_kavl,
-AdmsSensFadType & modelPar_kf,
-bool modelPar_given_kf,
-AdmsSensFadType & modelPar_af,
-bool modelPar_given_af,
-AdmsSensFadType & modelPar_alqf,
-bool modelPar_given_alqf,
-AdmsSensFadType & modelPar_alit,
-bool modelPar_given_alit,
-AdmsSensFadType & modelPar_vgb,
-bool modelPar_given_vgb,
-AdmsSensFadType & modelPar_vge,
-bool modelPar_given_vge,
-AdmsSensFadType & modelPar_vgc,
-bool modelPar_given_vgc,
-AdmsSensFadType & modelPar_vgs,
-bool modelPar_given_vgs,
-AdmsSensFadType & modelPar_f1vg,
-bool modelPar_given_f1vg,
-AdmsSensFadType & modelPar_f2vg,
-bool modelPar_given_f2vg,
-AdmsSensFadType & modelPar_alt0,
-bool modelPar_given_alt0,
-AdmsSensFadType & modelPar_kt0,
-bool modelPar_given_kt0,
-AdmsSensFadType & modelPar_zetact,
-bool modelPar_given_zetact,
-AdmsSensFadType & modelPar_zetabet,
-bool modelPar_given_zetabet,
-AdmsSensFadType & modelPar_zetaci,
-bool modelPar_given_zetaci,
-AdmsSensFadType & modelPar_alvs,
-bool modelPar_given_alvs,
-AdmsSensFadType & modelPar_alces,
-bool modelPar_given_alces,
-AdmsSensFadType & modelPar_zetarbi,
-bool modelPar_given_zetarbi,
-AdmsSensFadType & modelPar_zetarbx,
-bool modelPar_given_zetarbx,
-AdmsSensFadType & modelPar_zetarcx,
-bool modelPar_given_zetarcx,
-AdmsSensFadType & modelPar_zetare,
-bool modelPar_given_zetare,
-AdmsSensFadType & modelPar_zetaiqf,
-bool modelPar_given_zetaiqf,
-AdmsSensFadType & modelPar_alkav,
-bool modelPar_given_alkav,
-AdmsSensFadType & modelPar_aleav,
-bool modelPar_given_aleav,
-AdmsSensFadType & modelPar_zetarth,
-bool modelPar_given_zetarth,
-AdmsSensFadType & modelPar_zetaver,
-bool modelPar_given_zetaver,
-AdmsSensFadType & modelPar_zetavgbe,
-bool modelPar_given_zetavgbe,
-AdmsSensFadType & modelPar_dvgbe,
-bool modelPar_given_dvgbe,
-AdmsSensFadType & modelPar_aliqfh,
-bool modelPar_given_aliqfh,
-AdmsSensFadType & modelPar_kiqfh,
-bool modelPar_given_kiqfh,
-AdmsSensFadType & modelPar_rth,
-bool modelPar_given_rth,
-AdmsSensFadType & modelPar_cth,
-bool modelPar_given_cth,
-AdmsSensFadType & modelPar_tnom,
-bool modelPar_given_tnom,
-// non-reals (including hidden)
-int modelPar_it_mod,
-bool modelPar_given_it_mod,
-int modelPar_flnqs,
-bool modelPar_given_flnqs,
-int modelPar_tef_temp,
-bool modelPar_given_tef_temp,
-int modelPar_flsh,
-bool modelPar_given_flsh,
-int modelPar_type,
-bool modelPar_given_type,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
  double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, const Instance & theInstance)
 {
 }
@@ -12578,215 +12339,7 @@ bool modelPar_given_type,
 // Creation Date :
 //-----------------------------------------------------------------------------
 void evaluateInitialModel(
-// model parameters
-// reals
-AdmsSensFadType & modelPar_is,
-bool modelPar_given_is,
-AdmsSensFadType & modelPar_mcf,
-bool modelPar_given_mcf,
-AdmsSensFadType & modelPar_mcr,
-bool modelPar_given_mcr,
-AdmsSensFadType & modelPar_vef,
-bool modelPar_given_vef,
-AdmsSensFadType & modelPar_ver,
-bool modelPar_given_ver,
-AdmsSensFadType & modelPar_aver,
-bool modelPar_given_aver,
-AdmsSensFadType & modelPar_iqf,
-bool modelPar_given_iqf,
-AdmsSensFadType & modelPar_fiqf,
-bool modelPar_given_fiqf,
-AdmsSensFadType & modelPar_iqr,
-bool modelPar_given_iqr,
-AdmsSensFadType & modelPar_iqfh,
-bool modelPar_given_iqfh,
-AdmsSensFadType & modelPar_tfh,
-bool modelPar_given_tfh,
-AdmsSensFadType & modelPar_ahq,
-bool modelPar_given_ahq,
-AdmsSensFadType & modelPar_ibes,
-bool modelPar_given_ibes,
-AdmsSensFadType & modelPar_mbe,
-bool modelPar_given_mbe,
-AdmsSensFadType & modelPar_ires,
-bool modelPar_given_ires,
-AdmsSensFadType & modelPar_mre,
-bool modelPar_given_mre,
-AdmsSensFadType & modelPar_ibcs,
-bool modelPar_given_ibcs,
-AdmsSensFadType & modelPar_mbc,
-bool modelPar_given_mbc,
-AdmsSensFadType & modelPar_cje0,
-bool modelPar_given_cje0,
-AdmsSensFadType & modelPar_vde,
-bool modelPar_given_vde,
-AdmsSensFadType & modelPar_ze,
-bool modelPar_given_ze,
-AdmsSensFadType & modelPar_aje,
-bool modelPar_given_aje,
-AdmsSensFadType & modelPar_vdedc,
-bool modelPar_given_vdedc,
-AdmsSensFadType & modelPar_zedc,
-bool modelPar_given_zedc,
-AdmsSensFadType & modelPar_ajedc,
-bool modelPar_given_ajedc,
-AdmsSensFadType & modelPar_t0,
-bool modelPar_given_t0,
-AdmsSensFadType & modelPar_dt0h,
-bool modelPar_given_dt0h,
-AdmsSensFadType & modelPar_tbvl,
-bool modelPar_given_tbvl,
-AdmsSensFadType & modelPar_tef0,
-bool modelPar_given_tef0,
-AdmsSensFadType & modelPar_gte,
-bool modelPar_given_gte,
-AdmsSensFadType & modelPar_thcs,
-bool modelPar_given_thcs,
-AdmsSensFadType & modelPar_ahc,
-bool modelPar_given_ahc,
-AdmsSensFadType & modelPar_tr,
-bool modelPar_given_tr,
-AdmsSensFadType & modelPar_rci0,
-bool modelPar_given_rci0,
-AdmsSensFadType & modelPar_vlim,
-bool modelPar_given_vlim,
-AdmsSensFadType & modelPar_vpt,
-bool modelPar_given_vpt,
-AdmsSensFadType & modelPar_vces,
-bool modelPar_given_vces,
-AdmsSensFadType & modelPar_cjci0,
-bool modelPar_given_cjci0,
-AdmsSensFadType & modelPar_vdci,
-bool modelPar_given_vdci,
-AdmsSensFadType & modelPar_zci,
-bool modelPar_given_zci,
-AdmsSensFadType & modelPar_vptci,
-bool modelPar_given_vptci,
-AdmsSensFadType & modelPar_cjcx0,
-bool modelPar_given_cjcx0,
-AdmsSensFadType & modelPar_vdcx,
-bool modelPar_given_vdcx,
-AdmsSensFadType & modelPar_zcx,
-bool modelPar_given_zcx,
-AdmsSensFadType & modelPar_vptcx,
-bool modelPar_given_vptcx,
-AdmsSensFadType & modelPar_fbc,
-bool modelPar_given_fbc,
-AdmsSensFadType & modelPar_rbi0,
-bool modelPar_given_rbi0,
-AdmsSensFadType & modelPar_vr0e,
-bool modelPar_given_vr0e,
-AdmsSensFadType & modelPar_vr0c,
-bool modelPar_given_vr0c,
-AdmsSensFadType & modelPar_fgeo,
-bool modelPar_given_fgeo,
-AdmsSensFadType & modelPar_rbx,
-bool modelPar_given_rbx,
-AdmsSensFadType & modelPar_rcx,
-bool modelPar_given_rcx,
-AdmsSensFadType & modelPar_re,
-bool modelPar_given_re,
-AdmsSensFadType & modelPar_itss,
-bool modelPar_given_itss,
-AdmsSensFadType & modelPar_msf,
-bool modelPar_given_msf,
-AdmsSensFadType & modelPar_iscs,
-bool modelPar_given_iscs,
-AdmsSensFadType & modelPar_msc,
-bool modelPar_given_msc,
-AdmsSensFadType & modelPar_cjs0,
-bool modelPar_given_cjs0,
-AdmsSensFadType & modelPar_vds,
-bool modelPar_given_vds,
-AdmsSensFadType & modelPar_zs,
-bool modelPar_given_zs,
-AdmsSensFadType & modelPar_vpts,
-bool modelPar_given_vpts,
-AdmsSensFadType & modelPar_cbcpar,
-bool modelPar_given_cbcpar,
-AdmsSensFadType & modelPar_cbepar,
-bool modelPar_given_cbepar,
-AdmsSensFadType & modelPar_eavl,
-bool modelPar_given_eavl,
-AdmsSensFadType & modelPar_kavl,
-bool modelPar_given_kavl,
-AdmsSensFadType & modelPar_kf,
-bool modelPar_given_kf,
-AdmsSensFadType & modelPar_af,
-bool modelPar_given_af,
-AdmsSensFadType & modelPar_alqf,
-bool modelPar_given_alqf,
-AdmsSensFadType & modelPar_alit,
-bool modelPar_given_alit,
-AdmsSensFadType & modelPar_vgb,
-bool modelPar_given_vgb,
-AdmsSensFadType & modelPar_vge,
-bool modelPar_given_vge,
-AdmsSensFadType & modelPar_vgc,
-bool modelPar_given_vgc,
-AdmsSensFadType & modelPar_vgs,
-bool modelPar_given_vgs,
-AdmsSensFadType & modelPar_f1vg,
-bool modelPar_given_f1vg,
-AdmsSensFadType & modelPar_f2vg,
-bool modelPar_given_f2vg,
-AdmsSensFadType & modelPar_alt0,
-bool modelPar_given_alt0,
-AdmsSensFadType & modelPar_kt0,
-bool modelPar_given_kt0,
-AdmsSensFadType & modelPar_zetact,
-bool modelPar_given_zetact,
-AdmsSensFadType & modelPar_zetabet,
-bool modelPar_given_zetabet,
-AdmsSensFadType & modelPar_zetaci,
-bool modelPar_given_zetaci,
-AdmsSensFadType & modelPar_alvs,
-bool modelPar_given_alvs,
-AdmsSensFadType & modelPar_alces,
-bool modelPar_given_alces,
-AdmsSensFadType & modelPar_zetarbi,
-bool modelPar_given_zetarbi,
-AdmsSensFadType & modelPar_zetarbx,
-bool modelPar_given_zetarbx,
-AdmsSensFadType & modelPar_zetarcx,
-bool modelPar_given_zetarcx,
-AdmsSensFadType & modelPar_zetare,
-bool modelPar_given_zetare,
-AdmsSensFadType & modelPar_zetaiqf,
-bool modelPar_given_zetaiqf,
-AdmsSensFadType & modelPar_alkav,
-bool modelPar_given_alkav,
-AdmsSensFadType & modelPar_aleav,
-bool modelPar_given_aleav,
-AdmsSensFadType & modelPar_zetarth,
-bool modelPar_given_zetarth,
-AdmsSensFadType & modelPar_zetaver,
-bool modelPar_given_zetaver,
-AdmsSensFadType & modelPar_zetavgbe,
-bool modelPar_given_zetavgbe,
-AdmsSensFadType & modelPar_dvgbe,
-bool modelPar_given_dvgbe,
-AdmsSensFadType & modelPar_aliqfh,
-bool modelPar_given_aliqfh,
-AdmsSensFadType & modelPar_kiqfh,
-bool modelPar_given_kiqfh,
-AdmsSensFadType & modelPar_rth,
-bool modelPar_given_rth,
-AdmsSensFadType & modelPar_cth,
-bool modelPar_given_cth,
-AdmsSensFadType & modelPar_tnom,
-bool modelPar_given_tnom,
-// non-reals (including hidden)
-int modelPar_it_mod,
-bool modelPar_given_it_mod,
-int modelPar_flnqs,
-bool modelPar_given_flnqs,
-int modelPar_tef_temp,
-bool modelPar_given_tef_temp,
-int modelPar_flsh,
-bool modelPar_given_flsh,
-int modelPar_type,
-bool modelPar_given_type,
+modelSensStruct & modelStruct,
  double admsTemperature, double ADMSgmin_arg, const Instance & theInstance)
 {
 }
@@ -12839,614 +12392,923 @@ const int admsNodeID_ei,
 const int admsNodeID_xf1,
 const int admsNodeID_xf2,
 const int admsNodeID_xf,
-// instance parameters
-// reals
-AdmsSensFadType & instancePar_dt,
-bool instancePar_given_dt,
-// instance variables
-// reals
-AdmsSensFadType & instanceVar_qjci,
-AdmsSensFadType & instanceVar_qjei,
-AdmsSensFadType & instanceVar_it,
-AdmsSensFadType & instanceVar_ijbc,
-AdmsSensFadType & instanceVar_iavl,
-AdmsSensFadType & instanceVar_ijsc,
-AdmsSensFadType & instanceVar_Ibici,
-AdmsSensFadType & instanceVar_ijbe,
-AdmsSensFadType & instanceVar_IAVL,
-double & instanceVar_VBE,
-double & instanceVar_VBC,
-double & instanceVar_VCE,
-double & instanceVar_VSC,
-AdmsSensFadType & instanceVar_GMi,
-AdmsSensFadType & instanceVar_RPIi,
-AdmsSensFadType & instanceVar_RMUi,
-AdmsSensFadType & instanceVar_ROi,
-AdmsSensFadType & instanceVar_CPIi,
-AdmsSensFadType & instanceVar_CMUi,
-AdmsSensFadType & instanceVar_CBCX,
-AdmsSensFadType & instanceVar_CCS,
-AdmsSensFadType & instanceVar_RBi,
-AdmsSensFadType & instanceVar_RB,
-AdmsSensFadType & instanceVar_RCX,
-AdmsSensFadType & instanceVar_RE,
-AdmsSensFadType & instanceVar_BETAAC,
-AdmsSensFadType & instanceVar_TF,
-AdmsSensFadType & instanceVar_FT,
-// model parameters
-// reals
-AdmsSensFadType & modelPar_is,
-bool modelPar_given_is,
-AdmsSensFadType & modelPar_mcf,
-bool modelPar_given_mcf,
-AdmsSensFadType & modelPar_mcr,
-bool modelPar_given_mcr,
-AdmsSensFadType & modelPar_vef,
-bool modelPar_given_vef,
-AdmsSensFadType & modelPar_ver,
-bool modelPar_given_ver,
-AdmsSensFadType & modelPar_aver,
-bool modelPar_given_aver,
-AdmsSensFadType & modelPar_iqf,
-bool modelPar_given_iqf,
-AdmsSensFadType & modelPar_fiqf,
-bool modelPar_given_fiqf,
-AdmsSensFadType & modelPar_iqr,
-bool modelPar_given_iqr,
-AdmsSensFadType & modelPar_iqfh,
-bool modelPar_given_iqfh,
-AdmsSensFadType & modelPar_tfh,
-bool modelPar_given_tfh,
-AdmsSensFadType & modelPar_ahq,
-bool modelPar_given_ahq,
-AdmsSensFadType & modelPar_ibes,
-bool modelPar_given_ibes,
-AdmsSensFadType & modelPar_mbe,
-bool modelPar_given_mbe,
-AdmsSensFadType & modelPar_ires,
-bool modelPar_given_ires,
-AdmsSensFadType & modelPar_mre,
-bool modelPar_given_mre,
-AdmsSensFadType & modelPar_ibcs,
-bool modelPar_given_ibcs,
-AdmsSensFadType & modelPar_mbc,
-bool modelPar_given_mbc,
-AdmsSensFadType & modelPar_cje0,
-bool modelPar_given_cje0,
-AdmsSensFadType & modelPar_vde,
-bool modelPar_given_vde,
-AdmsSensFadType & modelPar_ze,
-bool modelPar_given_ze,
-AdmsSensFadType & modelPar_aje,
-bool modelPar_given_aje,
-AdmsSensFadType & modelPar_vdedc,
-bool modelPar_given_vdedc,
-AdmsSensFadType & modelPar_zedc,
-bool modelPar_given_zedc,
-AdmsSensFadType & modelPar_ajedc,
-bool modelPar_given_ajedc,
-AdmsSensFadType & modelPar_t0,
-bool modelPar_given_t0,
-AdmsSensFadType & modelPar_dt0h,
-bool modelPar_given_dt0h,
-AdmsSensFadType & modelPar_tbvl,
-bool modelPar_given_tbvl,
-AdmsSensFadType & modelPar_tef0,
-bool modelPar_given_tef0,
-AdmsSensFadType & modelPar_gte,
-bool modelPar_given_gte,
-AdmsSensFadType & modelPar_thcs,
-bool modelPar_given_thcs,
-AdmsSensFadType & modelPar_ahc,
-bool modelPar_given_ahc,
-AdmsSensFadType & modelPar_tr,
-bool modelPar_given_tr,
-AdmsSensFadType & modelPar_rci0,
-bool modelPar_given_rci0,
-AdmsSensFadType & modelPar_vlim,
-bool modelPar_given_vlim,
-AdmsSensFadType & modelPar_vpt,
-bool modelPar_given_vpt,
-AdmsSensFadType & modelPar_vces,
-bool modelPar_given_vces,
-AdmsSensFadType & modelPar_cjci0,
-bool modelPar_given_cjci0,
-AdmsSensFadType & modelPar_vdci,
-bool modelPar_given_vdci,
-AdmsSensFadType & modelPar_zci,
-bool modelPar_given_zci,
-AdmsSensFadType & modelPar_vptci,
-bool modelPar_given_vptci,
-AdmsSensFadType & modelPar_cjcx0,
-bool modelPar_given_cjcx0,
-AdmsSensFadType & modelPar_vdcx,
-bool modelPar_given_vdcx,
-AdmsSensFadType & modelPar_zcx,
-bool modelPar_given_zcx,
-AdmsSensFadType & modelPar_vptcx,
-bool modelPar_given_vptcx,
-AdmsSensFadType & modelPar_fbc,
-bool modelPar_given_fbc,
-AdmsSensFadType & modelPar_rbi0,
-bool modelPar_given_rbi0,
-AdmsSensFadType & modelPar_vr0e,
-bool modelPar_given_vr0e,
-AdmsSensFadType & modelPar_vr0c,
-bool modelPar_given_vr0c,
-AdmsSensFadType & modelPar_fgeo,
-bool modelPar_given_fgeo,
-AdmsSensFadType & modelPar_rbx,
-bool modelPar_given_rbx,
-AdmsSensFadType & modelPar_rcx,
-bool modelPar_given_rcx,
-AdmsSensFadType & modelPar_re,
-bool modelPar_given_re,
-AdmsSensFadType & modelPar_itss,
-bool modelPar_given_itss,
-AdmsSensFadType & modelPar_msf,
-bool modelPar_given_msf,
-AdmsSensFadType & modelPar_iscs,
-bool modelPar_given_iscs,
-AdmsSensFadType & modelPar_msc,
-bool modelPar_given_msc,
-AdmsSensFadType & modelPar_cjs0,
-bool modelPar_given_cjs0,
-AdmsSensFadType & modelPar_vds,
-bool modelPar_given_vds,
-AdmsSensFadType & modelPar_zs,
-bool modelPar_given_zs,
-AdmsSensFadType & modelPar_vpts,
-bool modelPar_given_vpts,
-AdmsSensFadType & modelPar_cbcpar,
-bool modelPar_given_cbcpar,
-AdmsSensFadType & modelPar_cbepar,
-bool modelPar_given_cbepar,
-AdmsSensFadType & modelPar_eavl,
-bool modelPar_given_eavl,
-AdmsSensFadType & modelPar_kavl,
-bool modelPar_given_kavl,
-AdmsSensFadType & modelPar_kf,
-bool modelPar_given_kf,
-AdmsSensFadType & modelPar_af,
-bool modelPar_given_af,
-AdmsSensFadType & modelPar_alqf,
-bool modelPar_given_alqf,
-AdmsSensFadType & modelPar_alit,
-bool modelPar_given_alit,
-AdmsSensFadType & modelPar_vgb,
-bool modelPar_given_vgb,
-AdmsSensFadType & modelPar_vge,
-bool modelPar_given_vge,
-AdmsSensFadType & modelPar_vgc,
-bool modelPar_given_vgc,
-AdmsSensFadType & modelPar_vgs,
-bool modelPar_given_vgs,
-AdmsSensFadType & modelPar_f1vg,
-bool modelPar_given_f1vg,
-AdmsSensFadType & modelPar_f2vg,
-bool modelPar_given_f2vg,
-AdmsSensFadType & modelPar_alt0,
-bool modelPar_given_alt0,
-AdmsSensFadType & modelPar_kt0,
-bool modelPar_given_kt0,
-AdmsSensFadType & modelPar_zetact,
-bool modelPar_given_zetact,
-AdmsSensFadType & modelPar_zetabet,
-bool modelPar_given_zetabet,
-AdmsSensFadType & modelPar_zetaci,
-bool modelPar_given_zetaci,
-AdmsSensFadType & modelPar_alvs,
-bool modelPar_given_alvs,
-AdmsSensFadType & modelPar_alces,
-bool modelPar_given_alces,
-AdmsSensFadType & modelPar_zetarbi,
-bool modelPar_given_zetarbi,
-AdmsSensFadType & modelPar_zetarbx,
-bool modelPar_given_zetarbx,
-AdmsSensFadType & modelPar_zetarcx,
-bool modelPar_given_zetarcx,
-AdmsSensFadType & modelPar_zetare,
-bool modelPar_given_zetare,
-AdmsSensFadType & modelPar_zetaiqf,
-bool modelPar_given_zetaiqf,
-AdmsSensFadType & modelPar_alkav,
-bool modelPar_given_alkav,
-AdmsSensFadType & modelPar_aleav,
-bool modelPar_given_aleav,
-AdmsSensFadType & modelPar_zetarth,
-bool modelPar_given_zetarth,
-AdmsSensFadType & modelPar_zetaver,
-bool modelPar_given_zetaver,
-AdmsSensFadType & modelPar_zetavgbe,
-bool modelPar_given_zetavgbe,
-AdmsSensFadType & modelPar_dvgbe,
-bool modelPar_given_dvgbe,
-AdmsSensFadType & modelPar_aliqfh,
-bool modelPar_given_aliqfh,
-AdmsSensFadType & modelPar_kiqfh,
-bool modelPar_given_kiqfh,
-AdmsSensFadType & modelPar_rth,
-bool modelPar_given_rth,
-AdmsSensFadType & modelPar_cth,
-bool modelPar_given_cth,
-AdmsSensFadType & modelPar_tnom,
-bool modelPar_given_tnom,
-// non-reals (including hidden)
-int modelPar_it_mod,
-bool modelPar_given_it_mod,
-int modelPar_flnqs,
-bool modelPar_given_flnqs,
-int modelPar_tef_temp,
-bool modelPar_given_tef_temp,
-int modelPar_flsh,
-bool modelPar_given_flsh,
-int modelPar_type,
-bool modelPar_given_type,
+instanceSensStruct & instanceStruct,
+modelSensStruct & modelStruct,
 // basic variables
- double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <AdmsSensFadType> & staticContributions, std::vector <AdmsSensFadType> & dynamicContributions, const Instance & theInstance)
+ double admsTemperature, double adms_vt_nom, double ADMSgmin_arg, std::vector <double> & d_staticContributions_dX, std::vector <double> & d_dynamicContributions_dX, const Instance & theInstance)
 {
 
   // Local variables
-  AdmsSensFadType flicker_Pwr;
-  double twoq;
-  AdmsSensFadType fourkt;
-  AdmsSensFadType it_wop;
-  AdmsSensFadType Qbiei;
-  AdmsSensFadType Qbici;
-  AdmsSensFadType Qbe;
-  AdmsSensFadType Qbci;
-  AdmsSensFadType Qxf;
-  AdmsSensFadType Ixf;
-  AdmsSensFadType fact;
-  double Vxf;
-  AdmsSensFadType Qxf2;
-  AdmsSensFadType Qxf1;
-  AdmsSensFadType Ixf2;
-  AdmsSensFadType Ixf1;
-  double Vxf2;
-  double Vxf1;
-  AdmsSensFadType Qdeix;
-  AdmsSensFadType Itxf;
-  AdmsSensFadType pterm;
-  AdmsSensFadType qjs;
-  AdmsSensFadType HSI_Tsu;
-  AdmsSensFadType HSb;
-  AdmsSensFadType HSa;
-  AdmsSensFadType HSUM;
-  AdmsSensFadType rb;
-  AdmsSensFadType eta;
-  AdmsSensFadType rbi;
-  AdmsSensFadType fQz;
-  AdmsSensFadType Qz_nom;
-  AdmsSensFadType a_iavl;
-  AdmsSensFadType lncc;
-  AdmsSensFadType v_bord;
-  AdmsSensFadType ibi;
-  AdmsSensFadType ire;
-  AdmsSensFadType ibe;
-  AdmsSensFadType le;
-  AdmsSensFadType DIOY;
-  AdmsSensFadType qr;
-  AdmsSensFadType tf;
-  AdmsSensFadType qf;
-  AdmsSensFadType dqef;
-  AdmsSensFadType dtef;
-  AdmsSensFadType dtfh;
-  AdmsSensFadType dqfh;
-  AdmsSensFadType tww;
-  AdmsSensFadType w;
-  AdmsSensFadType s3;
-  AdmsSensFadType qf0;
-  AdmsSensFadType itr;
-  AdmsSensFadType itf;
-  AdmsSensFadType qpt;
-  AdmsSensFadType qm;
-  AdmsSensFadType q_p3;
-  AdmsSensFadType tmp2;
-  AdmsSensFadType tmp3;
-  AdmsSensFadType p2_u;
-  AdmsSensFadType p2_v;
-  AdmsSensFadType p2_D;
-  AdmsSensFadType p2_q;
-  AdmsSensFadType p2_p;
-  AdmsSensFadType tmp;
-  AdmsSensFadType p2_c;
-  AdmsSensFadType p2_b;
-  AdmsSensFadType p2_a;
-  double o3;
-  AdmsSensFadType wdc;
-  AdmsSensFadType aa;
-  AdmsSensFadType a2;
-  AdmsSensFadType a1;
-  AdmsSensFadType diff_q;
-  AdmsSensFadType qpt_h;
-  AdmsSensFadType qpt_l;
-  AdmsSensFadType qmh;
-  AdmsSensFadType qml;
-  AdmsSensFadType itri;
-  AdmsSensFadType le2;
-  AdmsSensFadType arg2;
-  AdmsSensFadType itfi;
-  AdmsSensFadType le1;
-  AdmsSensFadType arg1;
-  AdmsSensFadType ickr;
-  AdmsSensFadType ickf;
-  AdmsSensFadType denom_iqf;
-  AdmsSensFadType tf0;
-  AdmsSensFadType qj_2;
-  AdmsSensFadType b_q;
-  AdmsSensFadType qj;
-  AdmsSensFadType qje;
-  AdmsSensFadType h_vbe;
-  AdmsSensFadType vj_z;
-  AdmsSensFadType vjh;
-  AdmsSensFadType cc;
-  AdmsSensFadType ick;
-  AdmsSensFadType vceff;
-  AdmsSensFadType uvc;
-  AdmsSensFadType vc;
-  AdmsSensFadType cjcii;
-  AdmsSensFadType dvj;
-  AdmsSensFadType qjcii;
-  AdmsSensFadType qjci_int;
-  AdmsSensFadType qjcx;
-  AdmsSensFadType qj3;
-  AdmsSensFadType qj2;
-  AdmsSensFadType qj1;
-  AdmsSensFadType vdj2;
-  AdmsSensFadType vdj1;
-  AdmsSensFadType ezr;
-  AdmsSensFadType ez;
-  AdmsSensFadType vj4;
-  AdmsSensFadType vj2;
-  AdmsSensFadType vr;
-  AdmsSensFadType vj1;
-  AdmsSensFadType ee1;
-  AdmsSensFadType ex1;
-  AdmsSensFadType ve;
-  AdmsSensFadType a;
-  AdmsSensFadType cr;
-  AdmsSensFadType cmax;
-  AdmsSensFadType vf;
-  AdmsSensFadType vp;
-  AdmsSensFadType zr;
-  AdmsSensFadType y;
-  AdmsSensFadType x;
-  AdmsSensFadType v_j;
-  AdmsSensFadType xvf2;
-  AdmsSensFadType xvf;
-  AdmsSensFadType cjcx0_t_i;
-  AdmsSensFadType qjcxi;
-  AdmsSensFadType cjci0_t_ii;
-  AdmsSensFadType cjcx0_t_ii;
-  AdmsSensFadType ahq_t;
-  AdmsSensFadType tfh_t;
-  AdmsSensFadType iqfh_t;
-  AdmsSensFadType ver_t;
-  AdmsSensFadType aver_t;
-  AdmsSensFadType rth_t;
-  AdmsSensFadType kavl_t;
-  AdmsSensFadType eavl_t;
-  AdmsSensFadType re_t;
-  AdmsSensFadType rbi0_t;
-  AdmsSensFadType rcx_t;
-  AdmsSensFadType rbx_t;
-  AdmsSensFadType tef0_t;
-  AdmsSensFadType dvg;
-  AdmsSensFadType zetatef;
-  AdmsSensFadType thcs_t;
-  AdmsSensFadType t0_t;
-  AdmsSensFadType vces_t;
-  AdmsSensFadType vlim_t;
-  AdmsSensFadType rci0_t;
-  AdmsSensFadType iqf_t;
-  AdmsSensFadType cjs0_t;
-  AdmsSensFadType vds_t;
-  AdmsSensFadType cjcx0_t;
-  AdmsSensFadType vdcx_t;
-  AdmsSensFadType cjci0_t;
-  AdmsSensFadType vdci_t;
-  AdmsSensFadType ajedc_t;
-  AdmsSensFadType aje_t;
-  AdmsSensFadType cje0_dc_t;
-  AdmsSensFadType vdedc_t;
-  AdmsSensFadType cje0_dc;
-  AdmsSensFadType cje0_t;
-  AdmsSensFadType vde_t;
-  AdmsSensFadType vdjt;
-  AdmsSensFadType vdj0;
-  AdmsSensFadType arg;
-  AdmsSensFadType iscs_t;
-  AdmsSensFadType itss_t;
-  AdmsSensFadType ibcs_t;
-  AdmsSensFadType ires_t;
-  AdmsSensFadType ibes_t;
-  AdmsSensFadType is_t;
-  AdmsSensFadType zetasct;
-  AdmsSensFadType zetabci;
-  AdmsSensFadType mg;
-  AdmsSensFadType vgsc;
-  AdmsSensFadType vgbc;
-  AdmsSensFadType vgbe;
-  AdmsSensFadType avs;
-  AdmsSensFadType ln_qtt0;
-  AdmsSensFadType qtt0;
-  AdmsSensFadType dT;
-  AdmsSensFadType VT;
-  AdmsSensFadType vt0;
-  AdmsSensFadType Tdev;
-  double Tamb;
-  AdmsSensFadType Tnom;
-  double Vrth;
-  AdmsSensFadType Vbe;
-  double Vbbi;
-  double Vcic;
-  double Veie;
-  AdmsSensFadType Vsci;
-  AdmsSensFadType Vciei;
-  AdmsSensFadType Vbiei;
-  AdmsSensFadType Vbici;
-  AdmsSensFadType Vbci;
-  AdmsSensFadType HICUMtype;
+  double flicker_Pwr=0.0;
+double d_flicker_Pwr_dX=0.0;
+  double twoq=0.0;
+  double fourkt=0.0;
+double d_fourkt_dX=0.0;
+  double it_wop=0.0;
+double d_it_wop_dX=0.0;
+  double Qbiei=0.0;
+double d_Qbiei_dX=0.0;
+  double Qbici=0.0;
+double d_Qbici_dX=0.0;
+  double Qbe=0.0;
+double d_Qbe_dX=0.0;
+  double Qbci=0.0;
+double d_Qbci_dX=0.0;
+  double Qxf=0.0;
+double d_Qxf_dX=0.0;
+  double Ixf=0.0;
+double d_Ixf_dX=0.0;
+  double fact=0.0;
+double d_fact_dX=0.0;
+  double Vxf=0.0;
+  double Qxf2=0.0;
+double d_Qxf2_dX=0.0;
+  double Qxf1=0.0;
+double d_Qxf1_dX=0.0;
+  double Ixf2=0.0;
+double d_Ixf2_dX=0.0;
+  double Ixf1=0.0;
+double d_Ixf1_dX=0.0;
+  double Vxf2=0.0;
+  double Vxf1=0.0;
+  double Qdeix=0.0;
+double d_Qdeix_dX=0.0;
+  double Itxf=0.0;
+double d_Itxf_dX=0.0;
+  double pterm=0.0;
+double d_pterm_dX=0.0;
+  double qjs=0.0;
+double d_qjs_dX=0.0;
+  double HSI_Tsu=0.0;
+double d_HSI_Tsu_dX=0.0;
+  double HSb=0.0;
+double d_HSb_dX=0.0;
+  double HSa=0.0;
+double d_HSa_dX=0.0;
+  double HSUM=0.0;
+double d_HSUM_dX=0.0;
+  double rb=0.0;
+double d_rb_dX=0.0;
+  double eta=0.0;
+double d_eta_dX=0.0;
+  double rbi=0.0;
+double d_rbi_dX=0.0;
+  double fQz=0.0;
+double d_fQz_dX=0.0;
+  double Qz_nom=0.0;
+double d_Qz_nom_dX=0.0;
+  double a_iavl=0.0;
+double d_a_iavl_dX=0.0;
+  double lncc=0.0;
+double d_lncc_dX=0.0;
+  double v_bord=0.0;
+double d_v_bord_dX=0.0;
+  double ibi=0.0;
+double d_ibi_dX=0.0;
+  double ire=0.0;
+double d_ire_dX=0.0;
+  double ibe=0.0;
+double d_ibe_dX=0.0;
+  double le=0.0;
+double d_le_dX=0.0;
+  double DIOY=0.0;
+double d_DIOY_dX=0.0;
+  double qr=0.0;
+double d_qr_dX=0.0;
+  double tf=0.0;
+double d_tf_dX=0.0;
+  double qf=0.0;
+double d_qf_dX=0.0;
+  double dqef=0.0;
+double d_dqef_dX=0.0;
+  double dtef=0.0;
+double d_dtef_dX=0.0;
+  double dtfh=0.0;
+double d_dtfh_dX=0.0;
+  double dqfh=0.0;
+double d_dqfh_dX=0.0;
+  double tww=0.0;
+double d_tww_dX=0.0;
+  double w=0.0;
+double d_w_dX=0.0;
+  double s3=0.0;
+double d_s3_dX=0.0;
+  double qf0=0.0;
+double d_qf0_dX=0.0;
+  double itr=0.0;
+double d_itr_dX=0.0;
+  double itf=0.0;
+double d_itf_dX=0.0;
+  double qpt=0.0;
+double d_qpt_dX=0.0;
+  double qm=0.0;
+double d_qm_dX=0.0;
+  double q_p3=0.0;
+double d_q_p3_dX=0.0;
+  double tmp2=0.0;
+double d_tmp2_dX=0.0;
+  double tmp3=0.0;
+double d_tmp3_dX=0.0;
+  double p2_u=0.0;
+double d_p2_u_dX=0.0;
+  double p2_v=0.0;
+double d_p2_v_dX=0.0;
+  double p2_D=0.0;
+double d_p2_D_dX=0.0;
+  double p2_q=0.0;
+double d_p2_q_dX=0.0;
+  double p2_p=0.0;
+double d_p2_p_dX=0.0;
+  double tmp=0.0;
+double d_tmp_dX=0.0;
+  double p2_c=0.0;
+double d_p2_c_dX=0.0;
+  double p2_b=0.0;
+double d_p2_b_dX=0.0;
+  double p2_a=0.0;
+double d_p2_a_dX=0.0;
+  double o3=0.0;
+  double wdc=0.0;
+double d_wdc_dX=0.0;
+  double aa=0.0;
+double d_aa_dX=0.0;
+  double a2=0.0;
+double d_a2_dX=0.0;
+  double a1=0.0;
+double d_a1_dX=0.0;
+  double diff_q=0.0;
+double d_diff_q_dX=0.0;
+  double qpt_h=0.0;
+double d_qpt_h_dX=0.0;
+  double qpt_l=0.0;
+double d_qpt_l_dX=0.0;
+  double qmh=0.0;
+double d_qmh_dX=0.0;
+  double qml=0.0;
+double d_qml_dX=0.0;
+  double itri=0.0;
+double d_itri_dX=0.0;
+  double le2=0.0;
+double d_le2_dX=0.0;
+  double arg2=0.0;
+double d_arg2_dX=0.0;
+  double itfi=0.0;
+double d_itfi_dX=0.0;
+  double le1=0.0;
+double d_le1_dX=0.0;
+  double arg1=0.0;
+double d_arg1_dX=0.0;
+  double ickr=0.0;
+double d_ickr_dX=0.0;
+  double ickf=0.0;
+double d_ickf_dX=0.0;
+  double denom_iqf=0.0;
+double d_denom_iqf_dX=0.0;
+  double tf0=0.0;
+double d_tf0_dX=0.0;
+  double qj_2=0.0;
+double d_qj_2_dX=0.0;
+  double b_q=0.0;
+double d_b_q_dX=0.0;
+  double qj=0.0;
+double d_qj_dX=0.0;
+  double qje=0.0;
+double d_qje_dX=0.0;
+  double h_vbe=0.0;
+double d_h_vbe_dX=0.0;
+  double vj_z=0.0;
+double d_vj_z_dX=0.0;
+  double vjh=0.0;
+double d_vjh_dX=0.0;
+  double cc=0.0;
+double d_cc_dX=0.0;
+  double ick=0.0;
+double d_ick_dX=0.0;
+  double vceff=0.0;
+double d_vceff_dX=0.0;
+  double uvc=0.0;
+double d_uvc_dX=0.0;
+  double vc=0.0;
+double d_vc_dX=0.0;
+  double cjcii=0.0;
+double d_cjcii_dX=0.0;
+  double dvj=0.0;
+double d_dvj_dX=0.0;
+  double qjcii=0.0;
+double d_qjcii_dX=0.0;
+  double qjci_int=0.0;
+double d_qjci_int_dX=0.0;
+  double qjcx=0.0;
+double d_qjcx_dX=0.0;
+  double qj3=0.0;
+double d_qj3_dX=0.0;
+  double qj2=0.0;
+double d_qj2_dX=0.0;
+  double qj1=0.0;
+double d_qj1_dX=0.0;
+  double vdj2=0.0;
+double d_vdj2_dX=0.0;
+  double vdj1=0.0;
+double d_vdj1_dX=0.0;
+  double ezr=0.0;
+double d_ezr_dX=0.0;
+  double ez=0.0;
+double d_ez_dX=0.0;
+  double vj4=0.0;
+double d_vj4_dX=0.0;
+  double vj2=0.0;
+double d_vj2_dX=0.0;
+  double vr=0.0;
+double d_vr_dX=0.0;
+  double vj1=0.0;
+double d_vj1_dX=0.0;
+  double ee1=0.0;
+double d_ee1_dX=0.0;
+  double ex1=0.0;
+double d_ex1_dX=0.0;
+  double ve=0.0;
+double d_ve_dX=0.0;
+  double a=0.0;
+double d_a_dX=0.0;
+  double cr=0.0;
+double d_cr_dX=0.0;
+  double cmax=0.0;
+double d_cmax_dX=0.0;
+  double vf=0.0;
+double d_vf_dX=0.0;
+  double vp=0.0;
+double d_vp_dX=0.0;
+  double zr=0.0;
+double d_zr_dX=0.0;
+  double y=0.0;
+double d_y_dX=0.0;
+  double x=0.0;
+double d_x_dX=0.0;
+  double v_j=0.0;
+double d_v_j_dX=0.0;
+  double xvf2=0.0;
+double d_xvf2_dX=0.0;
+  double xvf=0.0;
+double d_xvf_dX=0.0;
+  double cjcx0_t_i=0.0;
+double d_cjcx0_t_i_dX=0.0;
+  double qjcxi=0.0;
+double d_qjcxi_dX=0.0;
+  double cjci0_t_ii=0.0;
+double d_cjci0_t_ii_dX=0.0;
+  double cjcx0_t_ii=0.0;
+double d_cjcx0_t_ii_dX=0.0;
+  double ahq_t=0.0;
+double d_ahq_t_dX=0.0;
+  double tfh_t=0.0;
+double d_tfh_t_dX=0.0;
+  double iqfh_t=0.0;
+double d_iqfh_t_dX=0.0;
+  double ver_t=0.0;
+double d_ver_t_dX=0.0;
+  double aver_t=0.0;
+double d_aver_t_dX=0.0;
+  double rth_t=0.0;
+double d_rth_t_dX=0.0;
+  double kavl_t=0.0;
+double d_kavl_t_dX=0.0;
+  double eavl_t=0.0;
+double d_eavl_t_dX=0.0;
+  double re_t=0.0;
+double d_re_t_dX=0.0;
+  double rbi0_t=0.0;
+double d_rbi0_t_dX=0.0;
+  double rcx_t=0.0;
+double d_rcx_t_dX=0.0;
+  double rbx_t=0.0;
+double d_rbx_t_dX=0.0;
+  double tef0_t=0.0;
+double d_tef0_t_dX=0.0;
+  double dvg=0.0;
+double d_dvg_dX=0.0;
+  double zetatef=0.0;
+double d_zetatef_dX=0.0;
+  double thcs_t=0.0;
+double d_thcs_t_dX=0.0;
+  double t0_t=0.0;
+double d_t0_t_dX=0.0;
+  double vces_t=0.0;
+double d_vces_t_dX=0.0;
+  double vlim_t=0.0;
+double d_vlim_t_dX=0.0;
+  double rci0_t=0.0;
+double d_rci0_t_dX=0.0;
+  double iqf_t=0.0;
+double d_iqf_t_dX=0.0;
+  double cjs0_t=0.0;
+double d_cjs0_t_dX=0.0;
+  double vds_t=0.0;
+double d_vds_t_dX=0.0;
+  double cjcx0_t=0.0;
+double d_cjcx0_t_dX=0.0;
+  double vdcx_t=0.0;
+double d_vdcx_t_dX=0.0;
+  double cjci0_t=0.0;
+double d_cjci0_t_dX=0.0;
+  double vdci_t=0.0;
+double d_vdci_t_dX=0.0;
+  double ajedc_t=0.0;
+double d_ajedc_t_dX=0.0;
+  double aje_t=0.0;
+double d_aje_t_dX=0.0;
+  double cje0_dc_t=0.0;
+double d_cje0_dc_t_dX=0.0;
+  double vdedc_t=0.0;
+double d_vdedc_t_dX=0.0;
+  double cje0_dc=0.0;
+double d_cje0_dc_dX=0.0;
+  double cje0_t=0.0;
+double d_cje0_t_dX=0.0;
+  double vde_t=0.0;
+double d_vde_t_dX=0.0;
+  double vdjt=0.0;
+double d_vdjt_dX=0.0;
+  double vdj0=0.0;
+double d_vdj0_dX=0.0;
+  double arg=0.0;
+double d_arg_dX=0.0;
+  double iscs_t=0.0;
+double d_iscs_t_dX=0.0;
+  double itss_t=0.0;
+double d_itss_t_dX=0.0;
+  double ibcs_t=0.0;
+double d_ibcs_t_dX=0.0;
+  double ires_t=0.0;
+double d_ires_t_dX=0.0;
+  double ibes_t=0.0;
+double d_ibes_t_dX=0.0;
+  double is_t=0.0;
+double d_is_t_dX=0.0;
+  double zetasct=0.0;
+double d_zetasct_dX=0.0;
+  double zetabci=0.0;
+double d_zetabci_dX=0.0;
+  double mg=0.0;
+double d_mg_dX=0.0;
+  double vgsc=0.0;
+double d_vgsc_dX=0.0;
+  double vgbc=0.0;
+double d_vgbc_dX=0.0;
+  double vgbe=0.0;
+double d_vgbe_dX=0.0;
+  double avs=0.0;
+double d_avs_dX=0.0;
+  double ln_qtt0=0.0;
+double d_ln_qtt0_dX=0.0;
+  double qtt0=0.0;
+double d_qtt0_dX=0.0;
+  double dT=0.0;
+double d_dT_dX=0.0;
+  double VT=0.0;
+double d_VT_dX=0.0;
+  double vt0=0.0;
+double d_vt0_dX=0.0;
+  double Tdev=0.0;
+double d_Tdev_dX=0.0;
+  double Tamb=0.0;
+  double Tnom=0.0;
+double d_Tnom_dX=0.0;
+  double Vrth=0.0;
+  double Vbe=0.0;
+double d_Vbe_dX=0.0;
+  double Vbbi=0.0;
+  double Vcic=0.0;
+  double Veie=0.0;
+  double Vsci=0.0;
+double d_Vsci_dX=0.0;
+  double Vciei=0.0;
+double d_Vciei_dX=0.0;
+  double Vbiei=0.0;
+double d_Vbiei_dX=0.0;
+  double Vbici=0.0;
+double d_Vbici_dX=0.0;
+  double Vbci=0.0;
+double d_Vbci_dX=0.0;
+  double HICUMtype=0.0;
+double d_HICUMtype_dX=0.0;
 
 
   // -- code converted from analog/code block
-HICUMtype = modelPar_type;
+d_HICUMtype_dX = 0.0;
+HICUMtype = modelStruct.modelPar_type;
+d_Vbci_dX = d_HICUMtype_dX*(probeVars[admsProbeID_V_b_ci]);
 Vbci = (HICUMtype*(probeVars[admsProbeID_V_b_ci]));
+d_Vbici_dX = d_HICUMtype_dX*(probeVars[admsProbeID_V_bi_ci]);
 Vbici = (HICUMtype*(probeVars[admsProbeID_V_bi_ci]));
+d_Vbiei_dX = d_HICUMtype_dX*(probeVars[admsProbeID_V_bi_ei]);
 Vbiei = (HICUMtype*(probeVars[admsProbeID_V_bi_ei]));
+d_Vciei_dX = d_HICUMtype_dX*(probeVars[admsProbeID_V_ci_ei]);
 Vciei = (HICUMtype*(probeVars[admsProbeID_V_ci_ei]));
+d_Vsci_dX = d_HICUMtype_dX*(probeVars[admsProbeID_V_s_ci]);
 Vsci = (HICUMtype*(probeVars[admsProbeID_V_s_ci]));
 Veie = (probeVars[admsProbeID_V_ei_e]);
 Vcic = (probeVars[admsProbeID_V_ci_c]);
 Vbbi = (probeVars[admsProbeID_V_b_bi]);
+d_Vbe_dX = d_HICUMtype_dX*(probeVars[admsProbeID_V_b_e]);
 Vbe = (HICUMtype*(probeVars[admsProbeID_V_b_e]));
 Vrth = (probeVars[admsProbeID_V_tnode_GND]);
-Tnom = (modelPar_tnom+273.15);
+d_Tnom_dX = modelStruct.d_modelPar_tnom_dX;
+Tnom = (modelStruct.modelPar_tnom+273.15);
 Tamb = admsTemperature;
-Tdev = ((Tamb+instancePar_dt)+Vrth);
+d_Tdev_dX = instanceStruct.d_instancePar_dt_dX;
+Tdev = ((Tamb+instanceStruct.instancePar_dt)+Vrth);
 if ((Tdev<((-100.00)+273.15)))
 {
+d_Tdev_dX = 0.0;
 Tdev = ((-100.00)+273.15);
 }
 else
 {
 if ((Tdev>(326.85+273.15)))
 {
+d_Tdev_dX = 0.0;
 Tdev = (326.85+273.15);
 }
 }
+d_vt0_dX = (1.3806503e-23*d_Tnom_dX/1.6021766208e-19);
 vt0 = ((1.3806503e-23*Tnom)/1.6021766208e-19);
+d_VT_dX = (1.3806503e-23*d_Tdev_dX/1.6021766208e-19);
 VT = ((1.3806503e-23*Tdev)/1.6021766208e-19);
+d_dT_dX = (d_Tdev_dX-d_Tnom_dX);
 dT = (Tdev-Tnom);
+d_qtt0_dX = ((Tnom*d_Tdev_dX-Tdev*d_Tnom_dX)/Tnom/Tnom);
 qtt0 = (Tdev/Tnom);
-ln_qtt0 = log(qtt0);
-avs = (modelPar_alvs*Tnom);
-vgbe = ((modelPar_vgb+modelPar_vge)/2);
-vgbc = ((modelPar_vgb+modelPar_vgc)/2);
-vgsc = ((modelPar_vgs+modelPar_vgc)/2);
-mg = (3-((1.6021766208e-19*modelPar_f1vg)/1.3806503e-23));
-zetabci = ((mg+1)-modelPar_zetaci);
+{
+double value_log_0 = log(qtt0);
+double  deriv_log_0_d0 = (1.0/qtt0);
+d_ln_qtt0_dX = deriv_log_0_d0*(d_qtt0_dX);
+ln_qtt0 = value_log_0;
+}
+d_avs_dX = (modelStruct.modelPar_alvs*d_Tnom_dX+modelStruct.d_modelPar_alvs_dX*Tnom);
+avs = (modelStruct.modelPar_alvs*Tnom);
+d_vgbe_dX = ((modelStruct.d_modelPar_vgb_dX+modelStruct.d_modelPar_vge_dX)/2);
+vgbe = ((modelStruct.modelPar_vgb+modelStruct.modelPar_vge)/2);
+d_vgbc_dX = ((modelStruct.d_modelPar_vgb_dX+modelStruct.d_modelPar_vgc_dX)/2);
+vgbc = ((modelStruct.modelPar_vgb+modelStruct.modelPar_vgc)/2);
+d_vgsc_dX = ((modelStruct.d_modelPar_vgs_dX+modelStruct.d_modelPar_vgc_dX)/2);
+vgsc = ((modelStruct.modelPar_vgs+modelStruct.modelPar_vgc)/2);
+d_mg_dX = (-(1.6021766208e-19*modelStruct.d_modelPar_f1vg_dX/1.3806503e-23));
+mg = (3-((1.6021766208e-19*modelStruct.modelPar_f1vg)/1.3806503e-23));
+d_zetabci_dX = (d_mg_dX-modelStruct.d_modelPar_zetaci_dX);
+zetabci = ((mg+1)-modelStruct.modelPar_zetaci);
+d_zetasct_dX = d_mg_dX;
 zetasct = (mg-1.5);
-is_t = (modelPar_is*exp(((modelPar_zetact*ln_qtt0)+((modelPar_vgb/VT)*(qtt0-1)))));
-ibes_t = (modelPar_ibes*exp(((modelPar_zetabet*ln_qtt0)+((modelPar_vge/VT)*(qtt0-1)))));
-ires_t = (modelPar_ires*exp((((0.5*mg)*ln_qtt0)+(((0.5*vgbe)/VT)*(qtt0-1)))));
-ibcs_t = (modelPar_ibcs*exp(((zetabci*ln_qtt0)+((modelPar_vgc/VT)*(qtt0-1)))));
-itss_t = (modelPar_itss*exp(((zetasct*ln_qtt0)+((modelPar_vgc/VT)*(qtt0-1)))));
-iscs_t = (modelPar_iscs*exp(((zetasct*ln_qtt0)+((modelPar_vgs/VT)*(qtt0-1)))));
-arg = ((0.5*modelPar_vde)/vt0);
-vdj0 = ((2*vt0)*log((exp(arg)-exp((-arg)))));
+{
+double value_exp_0 = exp(((modelStruct.modelPar_zetact*ln_qtt0)+((modelStruct.modelPar_vgb/VT)*(qtt0-1))));
+double  deriv_exp_0_d0 = value_exp_0;
+d_is_t_dX = (modelStruct.modelPar_is*deriv_exp_0_d0*(((modelStruct.modelPar_zetact*d_ln_qtt0_dX+modelStruct.d_modelPar_zetact_dX*ln_qtt0)+((modelStruct.modelPar_vgb/VT)*d_qtt0_dX+((VT*modelStruct.d_modelPar_vgb_dX-modelStruct.modelPar_vgb*d_VT_dX)/VT/VT)*(qtt0-1))))+modelStruct.d_modelPar_is_dX*value_exp_0);
+is_t = (modelStruct.modelPar_is*value_exp_0);
+}
+{
+double value_exp_0 = exp(((modelStruct.modelPar_zetabet*ln_qtt0)+((modelStruct.modelPar_vge/VT)*(qtt0-1))));
+double  deriv_exp_0_d0 = value_exp_0;
+d_ibes_t_dX = (modelStruct.modelPar_ibes*deriv_exp_0_d0*(((modelStruct.modelPar_zetabet*d_ln_qtt0_dX+modelStruct.d_modelPar_zetabet_dX*ln_qtt0)+((modelStruct.modelPar_vge/VT)*d_qtt0_dX+((VT*modelStruct.d_modelPar_vge_dX-modelStruct.modelPar_vge*d_VT_dX)/VT/VT)*(qtt0-1))))+modelStruct.d_modelPar_ibes_dX*value_exp_0);
+ibes_t = (modelStruct.modelPar_ibes*value_exp_0);
+}
+{
+double value_exp_0 = exp((((0.5*mg)*ln_qtt0)+(((0.5*vgbe)/VT)*(qtt0-1))));
+double  deriv_exp_0_d0 = value_exp_0;
+d_ires_t_dX = (modelStruct.modelPar_ires*deriv_exp_0_d0*((((0.5*mg)*d_ln_qtt0_dX+0.5*d_mg_dX*ln_qtt0)+(((0.5*vgbe)/VT)*d_qtt0_dX+((VT*0.5*d_vgbe_dX-(0.5*vgbe)*d_VT_dX)/VT/VT)*(qtt0-1))))+modelStruct.d_modelPar_ires_dX*value_exp_0);
+ires_t = (modelStruct.modelPar_ires*value_exp_0);
+}
+{
+double value_exp_0 = exp(((zetabci*ln_qtt0)+((modelStruct.modelPar_vgc/VT)*(qtt0-1))));
+double  deriv_exp_0_d0 = value_exp_0;
+d_ibcs_t_dX = (modelStruct.modelPar_ibcs*deriv_exp_0_d0*(((zetabci*d_ln_qtt0_dX+d_zetabci_dX*ln_qtt0)+((modelStruct.modelPar_vgc/VT)*d_qtt0_dX+((VT*modelStruct.d_modelPar_vgc_dX-modelStruct.modelPar_vgc*d_VT_dX)/VT/VT)*(qtt0-1))))+modelStruct.d_modelPar_ibcs_dX*value_exp_0);
+ibcs_t = (modelStruct.modelPar_ibcs*value_exp_0);
+}
+{
+double value_exp_0 = exp(((zetasct*ln_qtt0)+((modelStruct.modelPar_vgc/VT)*(qtt0-1))));
+double  deriv_exp_0_d0 = value_exp_0;
+d_itss_t_dX = (modelStruct.modelPar_itss*deriv_exp_0_d0*(((zetasct*d_ln_qtt0_dX+d_zetasct_dX*ln_qtt0)+((modelStruct.modelPar_vgc/VT)*d_qtt0_dX+((VT*modelStruct.d_modelPar_vgc_dX-modelStruct.modelPar_vgc*d_VT_dX)/VT/VT)*(qtt0-1))))+modelStruct.d_modelPar_itss_dX*value_exp_0);
+itss_t = (modelStruct.modelPar_itss*value_exp_0);
+}
+{
+double value_exp_0 = exp(((zetasct*ln_qtt0)+((modelStruct.modelPar_vgs/VT)*(qtt0-1))));
+double  deriv_exp_0_d0 = value_exp_0;
+d_iscs_t_dX = (modelStruct.modelPar_iscs*deriv_exp_0_d0*(((zetasct*d_ln_qtt0_dX+d_zetasct_dX*ln_qtt0)+((modelStruct.modelPar_vgs/VT)*d_qtt0_dX+((VT*modelStruct.d_modelPar_vgs_dX-modelStruct.modelPar_vgs*d_VT_dX)/VT/VT)*(qtt0-1))))+modelStruct.d_modelPar_iscs_dX*value_exp_0);
+iscs_t = (modelStruct.modelPar_iscs*value_exp_0);
+}
+d_arg_dX = ((vt0*0.5*modelStruct.d_modelPar_vde_dX-(0.5*modelStruct.modelPar_vde)*d_vt0_dX)/vt0/vt0);
+arg = ((0.5*modelStruct.modelPar_vde)/vt0);
+{
+double value_exp_0 = exp(arg);
+double value_exp_1 = exp((-arg));
+double value_log_2 = log((value_exp_0-value_exp_1));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
+d_vdj0_dX = ((2*vt0)*deriv_log_2_d0*((deriv_exp_0_d0*(d_arg_dX)-deriv_exp_1_d0*((-d_arg_dX))))+2*d_vt0_dX*value_log_2);
+vdj0 = ((2*vt0)*value_log_2);
+}
+d_vdjt_dX = (((vdj0*d_qtt0_dX+d_vdj0_dX*qtt0)+(vgbe*(-d_qtt0_dX)+d_vgbe_dX*(1-qtt0)))-((mg*VT)*d_ln_qtt0_dX+(mg*d_VT_dX+d_mg_dX*VT)*ln_qtt0));
 vdjt = (((vdj0*qtt0)+(vgbe*(1-qtt0)))-((mg*VT)*ln_qtt0));
-vde_t = (vdjt+((2*VT)*log((0.5*(1+sqrt((1+(4*exp(((-vdjt)/VT))))))))));
-cje0_t = (modelPar_cje0*exp((modelPar_ze*log((modelPar_vde/vde_t)))));
-cje0_dc = modelPar_cje0;
-arg = ((0.5*modelPar_vdedc)/vt0);
-vdj0 = ((2*vt0)*log((exp(arg)-exp((-arg)))));
+{
+double value_exp_0 = exp(((-vdjt)/VT));
+double value_sqrt_1 = sqrt((1+(4*value_exp_0)));
+double value_log_2 = log((0.5*(1+value_sqrt_1)));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+double  deriv_log_2_d0 = (1.0/(0.5*(1+value_sqrt_1)));
+d_vde_t_dX = (d_vdjt_dX+((2*VT)*deriv_log_2_d0*(0.5*deriv_sqrt_1_d0*(4*deriv_exp_0_d0*(((VT*(-d_vdjt_dX)-(-vdjt)*d_VT_dX)/VT/VT))))+2*d_VT_dX*value_log_2));
+vde_t = (vdjt+((2*VT)*value_log_2));
+}
+{
+double value_log_0 = log((modelStruct.modelPar_vde/vde_t));
+double value_exp_1 = exp((modelStruct.modelPar_ze*value_log_0));
+double  deriv_log_0_d0 = (1.0/(modelStruct.modelPar_vde/vde_t));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cje0_t_dX = (modelStruct.modelPar_cje0*deriv_exp_1_d0*((modelStruct.modelPar_ze*deriv_log_0_d0*(((vde_t*modelStruct.d_modelPar_vde_dX-modelStruct.modelPar_vde*d_vde_t_dX)/vde_t/vde_t))+modelStruct.d_modelPar_ze_dX*value_log_0))+modelStruct.d_modelPar_cje0_dX*value_exp_1);
+cje0_t = (modelStruct.modelPar_cje0*value_exp_1);
+}
+d_cje0_dc_dX = modelStruct.d_modelPar_cje0_dX;
+cje0_dc = modelStruct.modelPar_cje0;
+d_arg_dX = ((vt0*0.5*modelStruct.d_modelPar_vdedc_dX-(0.5*modelStruct.modelPar_vdedc)*d_vt0_dX)/vt0/vt0);
+arg = ((0.5*modelStruct.modelPar_vdedc)/vt0);
+{
+double value_exp_0 = exp(arg);
+double value_exp_1 = exp((-arg));
+double value_log_2 = log((value_exp_0-value_exp_1));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
+d_vdj0_dX = ((2*vt0)*deriv_log_2_d0*((deriv_exp_0_d0*(d_arg_dX)-deriv_exp_1_d0*((-d_arg_dX))))+2*d_vt0_dX*value_log_2);
+vdj0 = ((2*vt0)*value_log_2);
+}
+d_vdjt_dX = (((vdj0*d_qtt0_dX+d_vdj0_dX*qtt0)+(vgbe*(-d_qtt0_dX)+d_vgbe_dX*(1-qtt0)))-((mg*VT)*d_ln_qtt0_dX+(mg*d_VT_dX+d_mg_dX*VT)*ln_qtt0));
 vdjt = (((vdj0*qtt0)+(vgbe*(1-qtt0)))-((mg*VT)*ln_qtt0));
-vdedc_t = (vdjt+((2*VT)*log((0.5*(1+sqrt((1+(4*exp(((-vdjt)/VT))))))))));
-cje0_dc_t = (cje0_dc*exp((modelPar_zedc*log((modelPar_vdedc/vdedc_t)))));
-aje_t = ((modelPar_aje*vde_t)/modelPar_vde);
-ajedc_t = ((modelPar_ajedc*vdedc_t)/modelPar_vdedc);
-arg = ((0.5*modelPar_vdci)/vt0);
-vdj0 = ((2*vt0)*log((exp(arg)-exp((-arg)))));
+{
+double value_exp_0 = exp(((-vdjt)/VT));
+double value_sqrt_1 = sqrt((1+(4*value_exp_0)));
+double value_log_2 = log((0.5*(1+value_sqrt_1)));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+double  deriv_log_2_d0 = (1.0/(0.5*(1+value_sqrt_1)));
+d_vdedc_t_dX = (d_vdjt_dX+((2*VT)*deriv_log_2_d0*(0.5*deriv_sqrt_1_d0*(4*deriv_exp_0_d0*(((VT*(-d_vdjt_dX)-(-vdjt)*d_VT_dX)/VT/VT))))+2*d_VT_dX*value_log_2));
+vdedc_t = (vdjt+((2*VT)*value_log_2));
+}
+{
+double value_log_0 = log((modelStruct.modelPar_vdedc/vdedc_t));
+double value_exp_1 = exp((modelStruct.modelPar_zedc*value_log_0));
+double  deriv_log_0_d0 = (1.0/(modelStruct.modelPar_vdedc/vdedc_t));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cje0_dc_t_dX = (cje0_dc*deriv_exp_1_d0*((modelStruct.modelPar_zedc*deriv_log_0_d0*(((vdedc_t*modelStruct.d_modelPar_vdedc_dX-modelStruct.modelPar_vdedc*d_vdedc_t_dX)/vdedc_t/vdedc_t))+modelStruct.d_modelPar_zedc_dX*value_log_0))+d_cje0_dc_dX*value_exp_1);
+cje0_dc_t = (cje0_dc*value_exp_1);
+}
+d_aje_t_dX = ((modelStruct.modelPar_vde*(modelStruct.modelPar_aje*d_vde_t_dX+modelStruct.d_modelPar_aje_dX*vde_t)-(modelStruct.modelPar_aje*vde_t)*modelStruct.d_modelPar_vde_dX)/modelStruct.modelPar_vde/modelStruct.modelPar_vde);
+aje_t = ((modelStruct.modelPar_aje*vde_t)/modelStruct.modelPar_vde);
+d_ajedc_t_dX = ((modelStruct.modelPar_vdedc*(modelStruct.modelPar_ajedc*d_vdedc_t_dX+modelStruct.d_modelPar_ajedc_dX*vdedc_t)-(modelStruct.modelPar_ajedc*vdedc_t)*modelStruct.d_modelPar_vdedc_dX)/modelStruct.modelPar_vdedc/modelStruct.modelPar_vdedc);
+ajedc_t = ((modelStruct.modelPar_ajedc*vdedc_t)/modelStruct.modelPar_vdedc);
+d_arg_dX = ((vt0*0.5*modelStruct.d_modelPar_vdci_dX-(0.5*modelStruct.modelPar_vdci)*d_vt0_dX)/vt0/vt0);
+arg = ((0.5*modelStruct.modelPar_vdci)/vt0);
+{
+double value_exp_0 = exp(arg);
+double value_exp_1 = exp((-arg));
+double value_log_2 = log((value_exp_0-value_exp_1));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
+d_vdj0_dX = ((2*vt0)*deriv_log_2_d0*((deriv_exp_0_d0*(d_arg_dX)-deriv_exp_1_d0*((-d_arg_dX))))+2*d_vt0_dX*value_log_2);
+vdj0 = ((2*vt0)*value_log_2);
+}
+d_vdjt_dX = (((vdj0*d_qtt0_dX+d_vdj0_dX*qtt0)+(vgbc*(-d_qtt0_dX)+d_vgbc_dX*(1-qtt0)))-((mg*VT)*d_ln_qtt0_dX+(mg*d_VT_dX+d_mg_dX*VT)*ln_qtt0));
 vdjt = (((vdj0*qtt0)+(vgbc*(1-qtt0)))-((mg*VT)*ln_qtt0));
-vdci_t = (vdjt+((2*VT)*log((0.5*(1+sqrt((1+(4*exp(((-vdjt)/VT))))))))));
-cjci0_t = (modelPar_cjci0*exp((modelPar_zci*log((modelPar_vdci/vdci_t)))));
-arg = ((0.5*modelPar_vdcx)/vt0);
-vdj0 = ((2*vt0)*log((exp(arg)-exp((-arg)))));
+{
+double value_exp_0 = exp(((-vdjt)/VT));
+double value_sqrt_1 = sqrt((1+(4*value_exp_0)));
+double value_log_2 = log((0.5*(1+value_sqrt_1)));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+double  deriv_log_2_d0 = (1.0/(0.5*(1+value_sqrt_1)));
+d_vdci_t_dX = (d_vdjt_dX+((2*VT)*deriv_log_2_d0*(0.5*deriv_sqrt_1_d0*(4*deriv_exp_0_d0*(((VT*(-d_vdjt_dX)-(-vdjt)*d_VT_dX)/VT/VT))))+2*d_VT_dX*value_log_2));
+vdci_t = (vdjt+((2*VT)*value_log_2));
+}
+{
+double value_log_0 = log((modelStruct.modelPar_vdci/vdci_t));
+double value_exp_1 = exp((modelStruct.modelPar_zci*value_log_0));
+double  deriv_log_0_d0 = (1.0/(modelStruct.modelPar_vdci/vdci_t));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cjci0_t_dX = (modelStruct.modelPar_cjci0*deriv_exp_1_d0*((modelStruct.modelPar_zci*deriv_log_0_d0*(((vdci_t*modelStruct.d_modelPar_vdci_dX-modelStruct.modelPar_vdci*d_vdci_t_dX)/vdci_t/vdci_t))+modelStruct.d_modelPar_zci_dX*value_log_0))+modelStruct.d_modelPar_cjci0_dX*value_exp_1);
+cjci0_t = (modelStruct.modelPar_cjci0*value_exp_1);
+}
+d_arg_dX = ((vt0*0.5*modelStruct.d_modelPar_vdcx_dX-(0.5*modelStruct.modelPar_vdcx)*d_vt0_dX)/vt0/vt0);
+arg = ((0.5*modelStruct.modelPar_vdcx)/vt0);
+{
+double value_exp_0 = exp(arg);
+double value_exp_1 = exp((-arg));
+double value_log_2 = log((value_exp_0-value_exp_1));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
+d_vdj0_dX = ((2*vt0)*deriv_log_2_d0*((deriv_exp_0_d0*(d_arg_dX)-deriv_exp_1_d0*((-d_arg_dX))))+2*d_vt0_dX*value_log_2);
+vdj0 = ((2*vt0)*value_log_2);
+}
+d_vdjt_dX = (((vdj0*d_qtt0_dX+d_vdj0_dX*qtt0)+(vgbc*(-d_qtt0_dX)+d_vgbc_dX*(1-qtt0)))-((mg*VT)*d_ln_qtt0_dX+(mg*d_VT_dX+d_mg_dX*VT)*ln_qtt0));
 vdjt = (((vdj0*qtt0)+(vgbc*(1-qtt0)))-((mg*VT)*ln_qtt0));
-vdcx_t = (vdjt+((2*VT)*log((0.5*(1+sqrt((1+(4*exp(((-vdjt)/VT))))))))));
-cjcx0_t = (modelPar_cjcx0*exp((modelPar_zcx*log((modelPar_vdcx/vdcx_t)))));
-arg = ((0.5*modelPar_vds)/vt0);
-vdj0 = ((2*vt0)*log((exp(arg)-exp((-arg)))));
+{
+double value_exp_0 = exp(((-vdjt)/VT));
+double value_sqrt_1 = sqrt((1+(4*value_exp_0)));
+double value_log_2 = log((0.5*(1+value_sqrt_1)));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+double  deriv_log_2_d0 = (1.0/(0.5*(1+value_sqrt_1)));
+d_vdcx_t_dX = (d_vdjt_dX+((2*VT)*deriv_log_2_d0*(0.5*deriv_sqrt_1_d0*(4*deriv_exp_0_d0*(((VT*(-d_vdjt_dX)-(-vdjt)*d_VT_dX)/VT/VT))))+2*d_VT_dX*value_log_2));
+vdcx_t = (vdjt+((2*VT)*value_log_2));
+}
+{
+double value_log_0 = log((modelStruct.modelPar_vdcx/vdcx_t));
+double value_exp_1 = exp((modelStruct.modelPar_zcx*value_log_0));
+double  deriv_log_0_d0 = (1.0/(modelStruct.modelPar_vdcx/vdcx_t));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cjcx0_t_dX = (modelStruct.modelPar_cjcx0*deriv_exp_1_d0*((modelStruct.modelPar_zcx*deriv_log_0_d0*(((vdcx_t*modelStruct.d_modelPar_vdcx_dX-modelStruct.modelPar_vdcx*d_vdcx_t_dX)/vdcx_t/vdcx_t))+modelStruct.d_modelPar_zcx_dX*value_log_0))+modelStruct.d_modelPar_cjcx0_dX*value_exp_1);
+cjcx0_t = (modelStruct.modelPar_cjcx0*value_exp_1);
+}
+d_arg_dX = ((vt0*0.5*modelStruct.d_modelPar_vds_dX-(0.5*modelStruct.modelPar_vds)*d_vt0_dX)/vt0/vt0);
+arg = ((0.5*modelStruct.modelPar_vds)/vt0);
+{
+double value_exp_0 = exp(arg);
+double value_exp_1 = exp((-arg));
+double value_log_2 = log((value_exp_0-value_exp_1));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+double  deriv_log_2_d0 = (1.0/(value_exp_0-value_exp_1));
+d_vdj0_dX = ((2*vt0)*deriv_log_2_d0*((deriv_exp_0_d0*(d_arg_dX)-deriv_exp_1_d0*((-d_arg_dX))))+2*d_vt0_dX*value_log_2);
+vdj0 = ((2*vt0)*value_log_2);
+}
+d_vdjt_dX = (((vdj0*d_qtt0_dX+d_vdj0_dX*qtt0)+(vgsc*(-d_qtt0_dX)+d_vgsc_dX*(1-qtt0)))-((mg*VT)*d_ln_qtt0_dX+(mg*d_VT_dX+d_mg_dX*VT)*ln_qtt0));
 vdjt = (((vdj0*qtt0)+(vgsc*(1-qtt0)))-((mg*VT)*ln_qtt0));
-vds_t = (vdjt+((2*VT)*log((0.5*(1+sqrt((1+(4*exp(((-vdjt)/VT))))))))));
-cjs0_t = (modelPar_cjs0*exp((modelPar_zs*log((modelPar_vds/vds_t)))));
-iqf_t = (modelPar_iqf*exp(((modelPar_zetaiqf*ln_qtt0)-((modelPar_dvgbe/VT)*(qtt0-1)))));
-rci0_t = (modelPar_rci0*exp((modelPar_zetaci*ln_qtt0)));
-vlim_t = (modelPar_vlim*exp(((modelPar_zetaci-avs)*ln_qtt0)));
-vces_t = (modelPar_vces*(1+(modelPar_alces*dT)));
-t0_t = (modelPar_t0*((1+(modelPar_alt0*dT))+((modelPar_kt0*dT)*dT)));
-thcs_t = (modelPar_thcs*exp(((modelPar_zetaci-1)*ln_qtt0)));
-zetatef = ((modelPar_zetabet-modelPar_zetact)-0.5);
-dvg = (modelPar_vgb-modelPar_vge);
-if ((modelPar_tef_temp==1))
 {
-tef0_t = (modelPar_tef0*exp(((zetatef*ln_qtt0)-((dvg/VT)*(qtt0-1)))));
+double value_exp_0 = exp(((-vdjt)/VT));
+double value_sqrt_1 = sqrt((1+(4*value_exp_0)));
+double value_log_2 = log((0.5*(1+value_sqrt_1)));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+double  deriv_log_2_d0 = (1.0/(0.5*(1+value_sqrt_1)));
+d_vds_t_dX = (d_vdjt_dX+((2*VT)*deriv_log_2_d0*(0.5*deriv_sqrt_1_d0*(4*deriv_exp_0_d0*(((VT*(-d_vdjt_dX)-(-vdjt)*d_VT_dX)/VT/VT))))+2*d_VT_dX*value_log_2));
+vds_t = (vdjt+((2*VT)*value_log_2));
+}
+{
+double value_log_0 = log((modelStruct.modelPar_vds/vds_t));
+double value_exp_1 = exp((modelStruct.modelPar_zs*value_log_0));
+double  deriv_log_0_d0 = (1.0/(modelStruct.modelPar_vds/vds_t));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cjs0_t_dX = (modelStruct.modelPar_cjs0*deriv_exp_1_d0*((modelStruct.modelPar_zs*deriv_log_0_d0*(((vds_t*modelStruct.d_modelPar_vds_dX-modelStruct.modelPar_vds*d_vds_t_dX)/vds_t/vds_t))+modelStruct.d_modelPar_zs_dX*value_log_0))+modelStruct.d_modelPar_cjs0_dX*value_exp_1);
+cjs0_t = (modelStruct.modelPar_cjs0*value_exp_1);
+}
+{
+double value_exp_0 = exp(((modelStruct.modelPar_zetaiqf*ln_qtt0)-((modelStruct.modelPar_dvgbe/VT)*(qtt0-1))));
+double  deriv_exp_0_d0 = value_exp_0;
+d_iqf_t_dX = (modelStruct.modelPar_iqf*deriv_exp_0_d0*(((modelStruct.modelPar_zetaiqf*d_ln_qtt0_dX+modelStruct.d_modelPar_zetaiqf_dX*ln_qtt0)-((modelStruct.modelPar_dvgbe/VT)*d_qtt0_dX+((VT*modelStruct.d_modelPar_dvgbe_dX-modelStruct.modelPar_dvgbe*d_VT_dX)/VT/VT)*(qtt0-1))))+modelStruct.d_modelPar_iqf_dX*value_exp_0);
+iqf_t = (modelStruct.modelPar_iqf*value_exp_0);
+}
+{
+double value_exp_0 = exp((modelStruct.modelPar_zetaci*ln_qtt0));
+double  deriv_exp_0_d0 = value_exp_0;
+d_rci0_t_dX = (modelStruct.modelPar_rci0*deriv_exp_0_d0*((modelStruct.modelPar_zetaci*d_ln_qtt0_dX+modelStruct.d_modelPar_zetaci_dX*ln_qtt0))+modelStruct.d_modelPar_rci0_dX*value_exp_0);
+rci0_t = (modelStruct.modelPar_rci0*value_exp_0);
+}
+{
+double value_exp_0 = exp(((modelStruct.modelPar_zetaci-avs)*ln_qtt0));
+double  deriv_exp_0_d0 = value_exp_0;
+d_vlim_t_dX = (modelStruct.modelPar_vlim*deriv_exp_0_d0*(((modelStruct.modelPar_zetaci-avs)*d_ln_qtt0_dX+(modelStruct.d_modelPar_zetaci_dX-d_avs_dX)*ln_qtt0))+modelStruct.d_modelPar_vlim_dX*value_exp_0);
+vlim_t = (modelStruct.modelPar_vlim*value_exp_0);
+}
+d_vces_t_dX = (modelStruct.modelPar_vces*(modelStruct.modelPar_alces*d_dT_dX+modelStruct.d_modelPar_alces_dX*dT)+modelStruct.d_modelPar_vces_dX*(1+(modelStruct.modelPar_alces*dT)));
+vces_t = (modelStruct.modelPar_vces*(1+(modelStruct.modelPar_alces*dT)));
+d_t0_t_dX = (modelStruct.modelPar_t0*((modelStruct.modelPar_alt0*d_dT_dX+modelStruct.d_modelPar_alt0_dX*dT)+((modelStruct.modelPar_kt0*dT)*d_dT_dX+(modelStruct.modelPar_kt0*d_dT_dX+modelStruct.d_modelPar_kt0_dX*dT)*dT))+modelStruct.d_modelPar_t0_dX*((1+(modelStruct.modelPar_alt0*dT))+((modelStruct.modelPar_kt0*dT)*dT)));
+t0_t = (modelStruct.modelPar_t0*((1+(modelStruct.modelPar_alt0*dT))+((modelStruct.modelPar_kt0*dT)*dT)));
+{
+double value_exp_0 = exp(((modelStruct.modelPar_zetaci-1)*ln_qtt0));
+double  deriv_exp_0_d0 = value_exp_0;
+d_thcs_t_dX = (modelStruct.modelPar_thcs*deriv_exp_0_d0*(((modelStruct.modelPar_zetaci-1)*d_ln_qtt0_dX+modelStruct.d_modelPar_zetaci_dX*ln_qtt0))+modelStruct.d_modelPar_thcs_dX*value_exp_0);
+thcs_t = (modelStruct.modelPar_thcs*value_exp_0);
+}
+d_zetatef_dX = (modelStruct.d_modelPar_zetabet_dX-modelStruct.d_modelPar_zetact_dX);
+zetatef = ((modelStruct.modelPar_zetabet-modelStruct.modelPar_zetact)-0.5);
+d_dvg_dX = (modelStruct.d_modelPar_vgb_dX-modelStruct.d_modelPar_vge_dX);
+dvg = (modelStruct.modelPar_vgb-modelStruct.modelPar_vge);
+if ((modelStruct.modelPar_tef_temp==1))
+{
+{
+double value_exp_0 = exp(((zetatef*ln_qtt0)-((dvg/VT)*(qtt0-1))));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tef0_t_dX = (modelStruct.modelPar_tef0*deriv_exp_0_d0*(((zetatef*d_ln_qtt0_dX+d_zetatef_dX*ln_qtt0)-((dvg/VT)*d_qtt0_dX+((VT*d_dvg_dX-dvg*d_VT_dX)/VT/VT)*(qtt0-1))))+modelStruct.d_modelPar_tef0_dX*value_exp_0);
+tef0_t = (modelStruct.modelPar_tef0*value_exp_0);
+}
 }
 else
 {
-tef0_t = modelPar_tef0;
+d_tef0_t_dX = modelStruct.d_modelPar_tef0_dX;
+tef0_t = modelStruct.modelPar_tef0;
 }
-rbx_t = (modelPar_rbx*exp((modelPar_zetarbx*ln_qtt0)));
-rcx_t = (modelPar_rcx*exp((modelPar_zetarcx*ln_qtt0)));
-rbi0_t = (modelPar_rbi0*exp((modelPar_zetarbi*ln_qtt0)));
-re_t = (modelPar_re*exp((modelPar_zetare*ln_qtt0)));
-eavl_t = (modelPar_eavl*exp((modelPar_aleav*dT)));
-kavl_t = (modelPar_kavl*exp((modelPar_alkav*dT)));
-if ((modelPar_zetarth!=0))
 {
-rth_t = (modelPar_rth*exp((modelPar_zetarth*log((Tdev/Tnom)))));
+double value_exp_0 = exp((modelStruct.modelPar_zetarbx*ln_qtt0));
+double  deriv_exp_0_d0 = value_exp_0;
+d_rbx_t_dX = (modelStruct.modelPar_rbx*deriv_exp_0_d0*((modelStruct.modelPar_zetarbx*d_ln_qtt0_dX+modelStruct.d_modelPar_zetarbx_dX*ln_qtt0))+modelStruct.d_modelPar_rbx_dX*value_exp_0);
+rbx_t = (modelStruct.modelPar_rbx*value_exp_0);
+}
+{
+double value_exp_0 = exp((modelStruct.modelPar_zetarcx*ln_qtt0));
+double  deriv_exp_0_d0 = value_exp_0;
+d_rcx_t_dX = (modelStruct.modelPar_rcx*deriv_exp_0_d0*((modelStruct.modelPar_zetarcx*d_ln_qtt0_dX+modelStruct.d_modelPar_zetarcx_dX*ln_qtt0))+modelStruct.d_modelPar_rcx_dX*value_exp_0);
+rcx_t = (modelStruct.modelPar_rcx*value_exp_0);
+}
+{
+double value_exp_0 = exp((modelStruct.modelPar_zetarbi*ln_qtt0));
+double  deriv_exp_0_d0 = value_exp_0;
+d_rbi0_t_dX = (modelStruct.modelPar_rbi0*deriv_exp_0_d0*((modelStruct.modelPar_zetarbi*d_ln_qtt0_dX+modelStruct.d_modelPar_zetarbi_dX*ln_qtt0))+modelStruct.d_modelPar_rbi0_dX*value_exp_0);
+rbi0_t = (modelStruct.modelPar_rbi0*value_exp_0);
+}
+{
+double value_exp_0 = exp((modelStruct.modelPar_zetare*ln_qtt0));
+double  deriv_exp_0_d0 = value_exp_0;
+d_re_t_dX = (modelStruct.modelPar_re*deriv_exp_0_d0*((modelStruct.modelPar_zetare*d_ln_qtt0_dX+modelStruct.d_modelPar_zetare_dX*ln_qtt0))+modelStruct.d_modelPar_re_dX*value_exp_0);
+re_t = (modelStruct.modelPar_re*value_exp_0);
+}
+{
+double value_exp_0 = exp((modelStruct.modelPar_aleav*dT));
+double  deriv_exp_0_d0 = value_exp_0;
+d_eavl_t_dX = (modelStruct.modelPar_eavl*deriv_exp_0_d0*((modelStruct.modelPar_aleav*d_dT_dX+modelStruct.d_modelPar_aleav_dX*dT))+modelStruct.d_modelPar_eavl_dX*value_exp_0);
+eavl_t = (modelStruct.modelPar_eavl*value_exp_0);
+}
+{
+double value_exp_0 = exp((modelStruct.modelPar_alkav*dT));
+double  deriv_exp_0_d0 = value_exp_0;
+d_kavl_t_dX = (modelStruct.modelPar_kavl*deriv_exp_0_d0*((modelStruct.modelPar_alkav*d_dT_dX+modelStruct.d_modelPar_alkav_dX*dT))+modelStruct.d_modelPar_kavl_dX*value_exp_0);
+kavl_t = (modelStruct.modelPar_kavl*value_exp_0);
+}
+if ((modelStruct.modelPar_zetarth!=0))
+{
+{
+double value_log_0 = log((Tdev/Tnom));
+double value_exp_1 = exp((modelStruct.modelPar_zetarth*value_log_0));
+double  deriv_log_0_d0 = (1.0/(Tdev/Tnom));
+double  deriv_exp_1_d0 = value_exp_1;
+d_rth_t_dX = (modelStruct.modelPar_rth*deriv_exp_1_d0*((modelStruct.modelPar_zetarth*deriv_log_0_d0*(((Tnom*d_Tdev_dX-Tdev*d_Tnom_dX)/Tnom/Tnom))+modelStruct.d_modelPar_zetarth_dX*value_log_0))+modelStruct.d_modelPar_rth_dX*value_exp_1);
+rth_t = (modelStruct.modelPar_rth*value_exp_1);
+}
 }
 else
 {
-rth_t = modelPar_rth;
+d_rth_t_dX = modelStruct.d_modelPar_rth_dX;
+rth_t = modelStruct.modelPar_rth;
 }
-aver_t = (modelPar_aver*exp((modelPar_zetaver*ln_qtt0)));
-ver_t = (modelPar_ver/exp(((modelPar_dvgbe/VT)*(exp((modelPar_zetavgbe*ln_qtt0))-1))));
-iqfh_t = (modelPar_iqfh*((1+(modelPar_aliqfh*dT))+((modelPar_kiqfh*dT)*dT)));
-tfh_t = ((modelPar_tfh*((1+(modelPar_aliqfh*dT))+((modelPar_kiqfh*dT)*dT)))*exp((((modelPar_vgb-modelPar_vge)/VT)*(qtt0-1))));
-ahq_t = modelPar_ahq;
+{
+double value_exp_0 = exp((modelStruct.modelPar_zetaver*ln_qtt0));
+double  deriv_exp_0_d0 = value_exp_0;
+d_aver_t_dX = (modelStruct.modelPar_aver*deriv_exp_0_d0*((modelStruct.modelPar_zetaver*d_ln_qtt0_dX+modelStruct.d_modelPar_zetaver_dX*ln_qtt0))+modelStruct.d_modelPar_aver_dX*value_exp_0);
+aver_t = (modelStruct.modelPar_aver*value_exp_0);
+}
+{
+double value_exp_0 = exp((modelStruct.modelPar_zetavgbe*ln_qtt0));
+double value_exp_1 = exp(((modelStruct.modelPar_dvgbe/VT)*(value_exp_0-1)));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+d_ver_t_dX = ((value_exp_1*modelStruct.d_modelPar_ver_dX-modelStruct.modelPar_ver*deriv_exp_1_d0*(((modelStruct.modelPar_dvgbe/VT)*deriv_exp_0_d0*((modelStruct.modelPar_zetavgbe*d_ln_qtt0_dX+modelStruct.d_modelPar_zetavgbe_dX*ln_qtt0))+((VT*modelStruct.d_modelPar_dvgbe_dX-modelStruct.modelPar_dvgbe*d_VT_dX)/VT/VT)*(value_exp_0-1))))/value_exp_1/value_exp_1);
+ver_t = (modelStruct.modelPar_ver/value_exp_1);
+}
+d_iqfh_t_dX = (modelStruct.modelPar_iqfh*((modelStruct.modelPar_aliqfh*d_dT_dX+modelStruct.d_modelPar_aliqfh_dX*dT)+((modelStruct.modelPar_kiqfh*dT)*d_dT_dX+(modelStruct.modelPar_kiqfh*d_dT_dX+modelStruct.d_modelPar_kiqfh_dX*dT)*dT))+modelStruct.d_modelPar_iqfh_dX*((1+(modelStruct.modelPar_aliqfh*dT))+((modelStruct.modelPar_kiqfh*dT)*dT)));
+iqfh_t = (modelStruct.modelPar_iqfh*((1+(modelStruct.modelPar_aliqfh*dT))+((modelStruct.modelPar_kiqfh*dT)*dT)));
+{
+double value_exp_0 = exp((((modelStruct.modelPar_vgb-modelStruct.modelPar_vge)/VT)*(qtt0-1)));
+double  deriv_exp_0_d0 = value_exp_0;
+d_tfh_t_dX = ((modelStruct.modelPar_tfh*((1+(modelStruct.modelPar_aliqfh*dT))+((modelStruct.modelPar_kiqfh*dT)*dT)))*deriv_exp_0_d0*((((modelStruct.modelPar_vgb-modelStruct.modelPar_vge)/VT)*d_qtt0_dX+((VT*(modelStruct.d_modelPar_vgb_dX-modelStruct.d_modelPar_vge_dX)-(modelStruct.modelPar_vgb-modelStruct.modelPar_vge)*d_VT_dX)/VT/VT)*(qtt0-1)))+(modelStruct.modelPar_tfh*((modelStruct.modelPar_aliqfh*d_dT_dX+modelStruct.d_modelPar_aliqfh_dX*dT)+((modelStruct.modelPar_kiqfh*dT)*d_dT_dX+(modelStruct.modelPar_kiqfh*d_dT_dX+modelStruct.d_modelPar_kiqfh_dX*dT)*dT))+modelStruct.d_modelPar_tfh_dX*((1+(modelStruct.modelPar_aliqfh*dT))+((modelStruct.modelPar_kiqfh*dT)*dT)))*value_exp_0);
+tfh_t = ((modelStruct.modelPar_tfh*((1+(modelStruct.modelPar_aliqfh*dT))+((modelStruct.modelPar_kiqfh*dT)*dT)))*value_exp_0);
+}
+d_ahq_t_dX = modelStruct.d_modelPar_ahq_dX;
+ahq_t = modelStruct.modelPar_ahq;
 if ((cjcx0_t==0))
 {
-cjci0_t_ii = (cjci0_t*modelPar_fbc);
+d_cjci0_t_ii_dX = (cjci0_t*modelStruct.d_modelPar_fbc_dX+d_cjci0_t_dX*modelStruct.modelPar_fbc);
+cjci0_t_ii = (cjci0_t*modelStruct.modelPar_fbc);
+d_qjcxi_dX = 0.0;
 qjcxi = 0;
-cjcx0_t_i = (cjci0_t*(1-modelPar_fbc));
-if ((modelPar_vptci<1.0e2))
+d_cjcx0_t_i_dX = (cjci0_t*(-modelStruct.d_modelPar_fbc_dX)+d_cjci0_t_dX*(1-modelStruct.modelPar_fbc));
+cjcx0_t_i = (cjci0_t*(1-modelStruct.modelPar_fbc));
+if ((modelStruct.modelPar_vptci<1.0e2))
 {
 if ((cjcx0_t_i>0.0))
 {
-zr = (modelPar_zci/4.0);
-vp = (modelPar_vptci-vdci_t);
-vf = (vdci_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zci))));
+d_zr_dX = (modelStruct.d_modelPar_zci_dX/4.0);
+zr = (modelStruct.modelPar_zci/4.0);
+d_vp_dX = (modelStruct.d_modelPar_vptci_dX-d_vdci_t_dX);
+vp = (modelStruct.modelPar_vptci-vdci_t);
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zci));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdci_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zci_dX/modelStruct.modelPar_zci/modelStruct.modelPar_zci)))+d_vdci_t_dX*(1.0-value_exp_1));
+vf = (vdci_t*(1.0-value_exp_1));
+}
+d_cmax_dX = 2.4*d_cjcx0_t_i_dX;
 cmax = (2.4*cjcx0_t_i);
-cr = (cjcx0_t_i*exp(((modelPar_zci-zr)*log((vdci_t/modelPar_vptci)))));
+{
+double value_log_0 = log((vdci_t/modelStruct.modelPar_vptci));
+double value_exp_1 = exp(((modelStruct.modelPar_zci-zr)*value_log_0));
+double  deriv_log_0_d0 = (1.0/(vdci_t/modelStruct.modelPar_vptci));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cr_dX = (cjcx0_t_i*deriv_exp_1_d0*(((modelStruct.modelPar_zci-zr)*deriv_log_0_d0*(((modelStruct.modelPar_vptci*d_vdci_t_dX-vdci_t*modelStruct.d_modelPar_vptci_dX)/modelStruct.modelPar_vptci/modelStruct.modelPar_vptci))+(modelStruct.d_modelPar_zci_dX-d_zr_dX)*value_log_0))+d_cjcx0_t_i_dX*value_exp_1);
+cr = (cjcx0_t_i*value_exp_1);
+}
+d_a_dX = d_VT_dX;
 a = VT;
+d_ve_dX = ((a*(d_vf_dX-d_Vbci_dX)-(vf-Vbci)*d_a_dX)/a/a);
 ve = ((vf-Vbci)/a);
 if ((ve<=80.0))
 {
-ex1 = exp(ve);
+{
+double value_exp_0 = exp(ve);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_ve_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj1 = (vf-(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj1_dX = (d_vf_dX-(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj1 = (vf-(a*value_log_0));
+}
 }
 else
 {
+d_vj1_dX = d_Vbci_dX;
 vj1 = Vbci;
 }
+d_a_dX = (0.1*d_vp_dX+4.0*d_VT_dX);
 a = ((0.1*vp)+(4.0*VT));
+d_vr_dX = ((a*(d_vp_dX+d_vj1_dX)-(vp+vj1)*d_a_dX)/a/a);
 vr = ((vp+vj1)/a);
 if ((vr<=80.0))
 {
-ex1 = exp(vr);
+{
+double value_exp_0 = exp(vr);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_vr_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj2 = ((-vp)+(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj2_dX = ((-d_vp_dX)+(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj2 = ((-vp)+(a*value_log_0));
+}
 }
 else
 {
+d_vj2_dX = d_vj1_dX;
 vj2 = vj1;
 }
+d_vj4_dX = (d_Vbci_dX-d_vj1_dX);
 vj4 = (Vbci-vj1);
-ez = (1.0-modelPar_zci);
+d_ez_dX = (-modelStruct.d_modelPar_zci_dX);
+ez = (1.0-modelStruct.modelPar_zci);
+d_ezr_dX = (-d_zr_dX);
 ezr = (1.0-zr);
-vdj1 = log((1.0-(vj1/vdci_t)));
-vdj2 = log((1.0-(vj2/vdci_t)));
-qj1 = ((cjcx0_t_i*(1.0-exp((vdj2*ez))))/ez);
-qj2 = ((cr*(1.0-exp((vdj1*ezr))))/ezr);
-qj3 = ((cr*(1.0-exp((vdj2*ezr))))/ezr);
+{
+double value_log_0 = log((1.0-(vj1/vdci_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj1/vdci_t)));
+d_vdj1_dX = deriv_log_0_d0*((-((vdci_t*d_vj1_dX-vj1*d_vdci_t_dX)/vdci_t/vdci_t)));
+vdj1 = value_log_0;
+}
+{
+double value_log_0 = log((1.0-(vj2/vdci_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj2/vdci_t)));
+d_vdj2_dX = deriv_log_0_d0*((-((vdci_t*d_vj2_dX-vj2*d_vdci_t_dX)/vdci_t/vdci_t)));
+vdj2 = value_log_0;
+}
+{
+double value_exp_0 = exp((vdj2*ez));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj1_dX = ((ez*(cjcx0_t_i*(-deriv_exp_0_d0*((vdj2*d_ez_dX+d_vdj2_dX*ez)))+d_cjcx0_t_i_dX*(1.0-value_exp_0))-(cjcx0_t_i*(1.0-value_exp_0))*d_ez_dX)/ez/ez);
+qj1 = ((cjcx0_t_i*(1.0-value_exp_0))/ez);
+}
+{
+double value_exp_0 = exp((vdj1*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj2_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj1*d_ezr_dX+d_vdj1_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj2 = ((cr*(1.0-value_exp_0))/ezr);
+}
+{
+double value_exp_0 = exp((vdj2*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj3_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj2*d_ezr_dX+d_vdj2_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj3 = ((cr*(1.0-value_exp_0))/ezr);
+}
+d_qjcx_dX = ((((qj1+qj2)-qj3)*d_vdci_t_dX+((d_qj1_dX+d_qj2_dX)-d_qj3_dX)*vdci_t)+(cmax*d_vj4_dX+d_cmax_dX*vj4));
 qjcx = ((((qj1+qj2)-qj3)*vdci_t)+(cmax*vj4));
 }
 else
 {
+d_qjcx_dX = 0.0;
 qjcx = 0.0;
 }
 }
@@ -13454,69 +13316,168 @@ else
 {
 if ((cjcx0_t_i>0.0))
 {
-vf = (vdci_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zci))));
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zci));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdci_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zci_dX/modelStruct.modelPar_zci/modelStruct.modelPar_zci)))+d_vdci_t_dX*(1.0-value_exp_1));
+vf = (vdci_t*(1.0-value_exp_1));
+}
+d_xvf_dX = ((VT*(d_vf_dX-d_Vbci_dX)-(vf-Vbci)*d_VT_dX)/VT/VT);
 xvf = ((vf-Vbci)/VT);
-xvf2 = sqrt(((xvf*xvf)+1.921812));
+{
+double value_sqrt_0 = sqrt(((xvf*xvf)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_xvf2_dX = deriv_sqrt_0_d0*((xvf*d_xvf_dX+d_xvf_dX*xvf));
+xvf2 = value_sqrt_0;
+}
+d_v_j_dX = (d_vf_dX-(VT*(d_xvf_dX+d_xvf2_dX)+d_VT_dX*(xvf+xvf2))*0.5);
 v_j = (vf-((VT*(xvf+xvf2))*0.5));
-x = (1.0-modelPar_zci);
-y = (1.0-exp((x*log((1.0-(v_j/vdci_t))))));
+d_x_dX = (-modelStruct.d_modelPar_zci_dX);
+x = (1.0-modelStruct.modelPar_zci);
+{
+double value_log_0 = log((1.0-(v_j/vdci_t)));
+double value_exp_1 = exp((x*value_log_0));
+double  deriv_log_0_d0 = (1.0/(1.0-(v_j/vdci_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_y_dX = (-deriv_exp_1_d0*((x*deriv_log_0_d0*((-((vdci_t*d_v_j_dX-v_j*d_vdci_t_dX)/vdci_t/vdci_t)))+d_x_dX*value_log_0)));
+y = (1.0-value_exp_1);
+}
+d_qjcx_dX = (((x*((cjcx0_t_i*vdci_t)*d_y_dX+(cjcx0_t_i*d_vdci_t_dX+d_cjcx0_t_i_dX*vdci_t)*y)-((cjcx0_t_i*vdci_t)*y)*d_x_dX)/x/x)+((2.4*cjcx0_t_i)*(d_Vbci_dX-d_v_j_dX)+2.4*d_cjcx0_t_i_dX*(Vbci-v_j)));
 qjcx = ((((cjcx0_t_i*vdci_t)*y)/x)+((2.4*cjcx0_t_i)*(Vbci-v_j)));
 }
 else
 {
+d_qjcx_dX = 0.0;
 qjcx = 0.00;
 }
 }
 }
 else
 {
+d_cjci0_t_ii_dX = d_cjci0_t_dX;
 cjci0_t_ii = cjci0_t;
-cjcx0_t_ii = (cjcx0_t*modelPar_fbc);
-if ((modelPar_vptcx<1.0e2))
+d_cjcx0_t_ii_dX = (cjcx0_t*modelStruct.d_modelPar_fbc_dX+d_cjcx0_t_dX*modelStruct.modelPar_fbc);
+cjcx0_t_ii = (cjcx0_t*modelStruct.modelPar_fbc);
+if ((modelStruct.modelPar_vptcx<1.0e2))
 {
 if ((cjcx0_t_ii>0.0))
 {
-zr = (modelPar_zcx/4.0);
-vp = (modelPar_vptcx-vdcx_t);
-vf = (vdcx_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zcx))));
+d_zr_dX = (modelStruct.d_modelPar_zcx_dX/4.0);
+zr = (modelStruct.modelPar_zcx/4.0);
+d_vp_dX = (modelStruct.d_modelPar_vptcx_dX-d_vdcx_t_dX);
+vp = (modelStruct.modelPar_vptcx-vdcx_t);
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zcx));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdcx_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zcx_dX/modelStruct.modelPar_zcx/modelStruct.modelPar_zcx)))+d_vdcx_t_dX*(1.0-value_exp_1));
+vf = (vdcx_t*(1.0-value_exp_1));
+}
+d_cmax_dX = 2.4*d_cjcx0_t_ii_dX;
 cmax = (2.4*cjcx0_t_ii);
-cr = (cjcx0_t_ii*exp(((modelPar_zcx-zr)*log((vdcx_t/modelPar_vptcx)))));
+{
+double value_log_0 = log((vdcx_t/modelStruct.modelPar_vptcx));
+double value_exp_1 = exp(((modelStruct.modelPar_zcx-zr)*value_log_0));
+double  deriv_log_0_d0 = (1.0/(vdcx_t/modelStruct.modelPar_vptcx));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cr_dX = (cjcx0_t_ii*deriv_exp_1_d0*(((modelStruct.modelPar_zcx-zr)*deriv_log_0_d0*(((modelStruct.modelPar_vptcx*d_vdcx_t_dX-vdcx_t*modelStruct.d_modelPar_vptcx_dX)/modelStruct.modelPar_vptcx/modelStruct.modelPar_vptcx))+(modelStruct.d_modelPar_zcx_dX-d_zr_dX)*value_log_0))+d_cjcx0_t_ii_dX*value_exp_1);
+cr = (cjcx0_t_ii*value_exp_1);
+}
+d_a_dX = d_VT_dX;
 a = VT;
+d_ve_dX = ((a*(d_vf_dX-d_Vbici_dX)-(vf-Vbici)*d_a_dX)/a/a);
 ve = ((vf-Vbici)/a);
 if ((ve<=80.0))
 {
-ex1 = exp(ve);
+{
+double value_exp_0 = exp(ve);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_ve_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj1 = (vf-(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj1_dX = (d_vf_dX-(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj1 = (vf-(a*value_log_0));
+}
 }
 else
 {
+d_vj1_dX = d_Vbici_dX;
 vj1 = Vbici;
 }
+d_a_dX = (0.1*d_vp_dX+4.0*d_VT_dX);
 a = ((0.1*vp)+(4.0*VT));
+d_vr_dX = ((a*(d_vp_dX+d_vj1_dX)-(vp+vj1)*d_a_dX)/a/a);
 vr = ((vp+vj1)/a);
 if ((vr<=80.0))
 {
-ex1 = exp(vr);
+{
+double value_exp_0 = exp(vr);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_vr_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj2 = ((-vp)+(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj2_dX = ((-d_vp_dX)+(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj2 = ((-vp)+(a*value_log_0));
+}
 }
 else
 {
+d_vj2_dX = d_vj1_dX;
 vj2 = vj1;
 }
+d_vj4_dX = (d_Vbici_dX-d_vj1_dX);
 vj4 = (Vbici-vj1);
-ez = (1.0-modelPar_zcx);
+d_ez_dX = (-modelStruct.d_modelPar_zcx_dX);
+ez = (1.0-modelStruct.modelPar_zcx);
+d_ezr_dX = (-d_zr_dX);
 ezr = (1.0-zr);
-vdj1 = log((1.0-(vj1/vdcx_t)));
-vdj2 = log((1.0-(vj2/vdcx_t)));
-qj1 = ((cjcx0_t_ii*(1.0-exp((vdj2*ez))))/ez);
-qj2 = ((cr*(1.0-exp((vdj1*ezr))))/ezr);
-qj3 = ((cr*(1.0-exp((vdj2*ezr))))/ezr);
+{
+double value_log_0 = log((1.0-(vj1/vdcx_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj1/vdcx_t)));
+d_vdj1_dX = deriv_log_0_d0*((-((vdcx_t*d_vj1_dX-vj1*d_vdcx_t_dX)/vdcx_t/vdcx_t)));
+vdj1 = value_log_0;
+}
+{
+double value_log_0 = log((1.0-(vj2/vdcx_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj2/vdcx_t)));
+d_vdj2_dX = deriv_log_0_d0*((-((vdcx_t*d_vj2_dX-vj2*d_vdcx_t_dX)/vdcx_t/vdcx_t)));
+vdj2 = value_log_0;
+}
+{
+double value_exp_0 = exp((vdj2*ez));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj1_dX = ((ez*(cjcx0_t_ii*(-deriv_exp_0_d0*((vdj2*d_ez_dX+d_vdj2_dX*ez)))+d_cjcx0_t_ii_dX*(1.0-value_exp_0))-(cjcx0_t_ii*(1.0-value_exp_0))*d_ez_dX)/ez/ez);
+qj1 = ((cjcx0_t_ii*(1.0-value_exp_0))/ez);
+}
+{
+double value_exp_0 = exp((vdj1*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj2_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj1*d_ezr_dX+d_vdj1_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj2 = ((cr*(1.0-value_exp_0))/ezr);
+}
+{
+double value_exp_0 = exp((vdj2*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj3_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj2*d_ezr_dX+d_vdj2_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj3 = ((cr*(1.0-value_exp_0))/ezr);
+}
+d_qjcxi_dX = ((((qj1+qj2)-qj3)*d_vdcx_t_dX+((d_qj1_dX+d_qj2_dX)-d_qj3_dX)*vdcx_t)+(cmax*d_vj4_dX+d_cmax_dX*vj4));
 qjcxi = ((((qj1+qj2)-qj3)*vdcx_t)+(cmax*vj4));
 }
 else
 {
+d_qjcxi_dX = 0.0;
 qjcxi = 0.0;
 }
 }
@@ -13524,65 +13485,163 @@ else
 {
 if ((cjcx0_t_ii>0.0))
 {
-vf = (vdcx_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zcx))));
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zcx));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdcx_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zcx_dX/modelStruct.modelPar_zcx/modelStruct.modelPar_zcx)))+d_vdcx_t_dX*(1.0-value_exp_1));
+vf = (vdcx_t*(1.0-value_exp_1));
+}
+d_xvf_dX = ((VT*(d_vf_dX-d_Vbici_dX)-(vf-Vbici)*d_VT_dX)/VT/VT);
 xvf = ((vf-Vbici)/VT);
-xvf2 = sqrt(((xvf*xvf)+1.921812));
+{
+double value_sqrt_0 = sqrt(((xvf*xvf)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_xvf2_dX = deriv_sqrt_0_d0*((xvf*d_xvf_dX+d_xvf_dX*xvf));
+xvf2 = value_sqrt_0;
+}
+d_v_j_dX = (d_vf_dX-(VT*(d_xvf_dX+d_xvf2_dX)+d_VT_dX*(xvf+xvf2))*0.5);
 v_j = (vf-((VT*(xvf+xvf2))*0.5));
-x = (1.0-modelPar_zcx);
-y = (1.0-exp((x*log((1.0-(v_j/vdcx_t))))));
+d_x_dX = (-modelStruct.d_modelPar_zcx_dX);
+x = (1.0-modelStruct.modelPar_zcx);
+{
+double value_log_0 = log((1.0-(v_j/vdcx_t)));
+double value_exp_1 = exp((x*value_log_0));
+double  deriv_log_0_d0 = (1.0/(1.0-(v_j/vdcx_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_y_dX = (-deriv_exp_1_d0*((x*deriv_log_0_d0*((-((vdcx_t*d_v_j_dX-v_j*d_vdcx_t_dX)/vdcx_t/vdcx_t)))+d_x_dX*value_log_0)));
+y = (1.0-value_exp_1);
+}
+d_qjcxi_dX = (((x*((cjcx0_t_ii*vdcx_t)*d_y_dX+(cjcx0_t_ii*d_vdcx_t_dX+d_cjcx0_t_ii_dX*vdcx_t)*y)-((cjcx0_t_ii*vdcx_t)*y)*d_x_dX)/x/x)+((2.4*cjcx0_t_ii)*(d_Vbici_dX-d_v_j_dX)+2.4*d_cjcx0_t_ii_dX*(Vbici-v_j)));
 qjcxi = ((((cjcx0_t_ii*vdcx_t)*y)/x)+((2.4*cjcx0_t_ii)*(Vbici-v_j)));
 }
 else
 {
+d_qjcxi_dX = 0.0;
 qjcxi = 0.00;
 }
 }
-cjcx0_t_i = (cjcx0_t*(1-modelPar_fbc));
-if ((modelPar_vptcx<1.0e2))
+d_cjcx0_t_i_dX = (cjcx0_t*(-modelStruct.d_modelPar_fbc_dX)+d_cjcx0_t_dX*(1-modelStruct.modelPar_fbc));
+cjcx0_t_i = (cjcx0_t*(1-modelStruct.modelPar_fbc));
+if ((modelStruct.modelPar_vptcx<1.0e2))
 {
 if ((cjcx0_t_i>0.0))
 {
-zr = (modelPar_zcx/4.0);
-vp = (modelPar_vptcx-vdcx_t);
-vf = (vdcx_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zcx))));
+d_zr_dX = (modelStruct.d_modelPar_zcx_dX/4.0);
+zr = (modelStruct.modelPar_zcx/4.0);
+d_vp_dX = (modelStruct.d_modelPar_vptcx_dX-d_vdcx_t_dX);
+vp = (modelStruct.modelPar_vptcx-vdcx_t);
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zcx));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdcx_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zcx_dX/modelStruct.modelPar_zcx/modelStruct.modelPar_zcx)))+d_vdcx_t_dX*(1.0-value_exp_1));
+vf = (vdcx_t*(1.0-value_exp_1));
+}
+d_cmax_dX = 2.4*d_cjcx0_t_i_dX;
 cmax = (2.4*cjcx0_t_i);
-cr = (cjcx0_t_i*exp(((modelPar_zcx-zr)*log((vdcx_t/modelPar_vptcx)))));
+{
+double value_log_0 = log((vdcx_t/modelStruct.modelPar_vptcx));
+double value_exp_1 = exp(((modelStruct.modelPar_zcx-zr)*value_log_0));
+double  deriv_log_0_d0 = (1.0/(vdcx_t/modelStruct.modelPar_vptcx));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cr_dX = (cjcx0_t_i*deriv_exp_1_d0*(((modelStruct.modelPar_zcx-zr)*deriv_log_0_d0*(((modelStruct.modelPar_vptcx*d_vdcx_t_dX-vdcx_t*modelStruct.d_modelPar_vptcx_dX)/modelStruct.modelPar_vptcx/modelStruct.modelPar_vptcx))+(modelStruct.d_modelPar_zcx_dX-d_zr_dX)*value_log_0))+d_cjcx0_t_i_dX*value_exp_1);
+cr = (cjcx0_t_i*value_exp_1);
+}
+d_a_dX = d_VT_dX;
 a = VT;
+d_ve_dX = ((a*(d_vf_dX-d_Vbci_dX)-(vf-Vbci)*d_a_dX)/a/a);
 ve = ((vf-Vbci)/a);
 if ((ve<=80.0))
 {
-ex1 = exp(ve);
+{
+double value_exp_0 = exp(ve);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_ve_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj1 = (vf-(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj1_dX = (d_vf_dX-(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj1 = (vf-(a*value_log_0));
+}
 }
 else
 {
+d_vj1_dX = d_Vbci_dX;
 vj1 = Vbci;
 }
+d_a_dX = (0.1*d_vp_dX+4.0*d_VT_dX);
 a = ((0.1*vp)+(4.0*VT));
+d_vr_dX = ((a*(d_vp_dX+d_vj1_dX)-(vp+vj1)*d_a_dX)/a/a);
 vr = ((vp+vj1)/a);
 if ((vr<=80.0))
 {
-ex1 = exp(vr);
+{
+double value_exp_0 = exp(vr);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_vr_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj2 = ((-vp)+(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj2_dX = ((-d_vp_dX)+(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj2 = ((-vp)+(a*value_log_0));
+}
 }
 else
 {
+d_vj2_dX = d_vj1_dX;
 vj2 = vj1;
 }
+d_vj4_dX = (d_Vbci_dX-d_vj1_dX);
 vj4 = (Vbci-vj1);
-ez = (1.0-modelPar_zcx);
+d_ez_dX = (-modelStruct.d_modelPar_zcx_dX);
+ez = (1.0-modelStruct.modelPar_zcx);
+d_ezr_dX = (-d_zr_dX);
 ezr = (1.0-zr);
-vdj1 = log((1.0-(vj1/vdcx_t)));
-vdj2 = log((1.0-(vj2/vdcx_t)));
-qj1 = ((cjcx0_t_i*(1.0-exp((vdj2*ez))))/ez);
-qj2 = ((cr*(1.0-exp((vdj1*ezr))))/ezr);
-qj3 = ((cr*(1.0-exp((vdj2*ezr))))/ezr);
+{
+double value_log_0 = log((1.0-(vj1/vdcx_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj1/vdcx_t)));
+d_vdj1_dX = deriv_log_0_d0*((-((vdcx_t*d_vj1_dX-vj1*d_vdcx_t_dX)/vdcx_t/vdcx_t)));
+vdj1 = value_log_0;
+}
+{
+double value_log_0 = log((1.0-(vj2/vdcx_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj2/vdcx_t)));
+d_vdj2_dX = deriv_log_0_d0*((-((vdcx_t*d_vj2_dX-vj2*d_vdcx_t_dX)/vdcx_t/vdcx_t)));
+vdj2 = value_log_0;
+}
+{
+double value_exp_0 = exp((vdj2*ez));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj1_dX = ((ez*(cjcx0_t_i*(-deriv_exp_0_d0*((vdj2*d_ez_dX+d_vdj2_dX*ez)))+d_cjcx0_t_i_dX*(1.0-value_exp_0))-(cjcx0_t_i*(1.0-value_exp_0))*d_ez_dX)/ez/ez);
+qj1 = ((cjcx0_t_i*(1.0-value_exp_0))/ez);
+}
+{
+double value_exp_0 = exp((vdj1*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj2_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj1*d_ezr_dX+d_vdj1_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj2 = ((cr*(1.0-value_exp_0))/ezr);
+}
+{
+double value_exp_0 = exp((vdj2*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj3_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj2*d_ezr_dX+d_vdj2_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj3 = ((cr*(1.0-value_exp_0))/ezr);
+}
+d_qjcx_dX = ((((qj1+qj2)-qj3)*d_vdcx_t_dX+((d_qj1_dX+d_qj2_dX)-d_qj3_dX)*vdcx_t)+(cmax*d_vj4_dX+d_cmax_dX*vj4));
 qjcx = ((((qj1+qj2)-qj3)*vdcx_t)+(cmax*vj4));
 }
 else
 {
+d_qjcx_dX = 0.0;
 qjcx = 0.0;
 }
 }
@@ -13590,517 +13649,1116 @@ else
 {
 if ((cjcx0_t_i>0.0))
 {
-vf = (vdcx_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zcx))));
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zcx));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdcx_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zcx_dX/modelStruct.modelPar_zcx/modelStruct.modelPar_zcx)))+d_vdcx_t_dX*(1.0-value_exp_1));
+vf = (vdcx_t*(1.0-value_exp_1));
+}
+d_xvf_dX = ((VT*(d_vf_dX-d_Vbci_dX)-(vf-Vbci)*d_VT_dX)/VT/VT);
 xvf = ((vf-Vbci)/VT);
-xvf2 = sqrt(((xvf*xvf)+1.921812));
+{
+double value_sqrt_0 = sqrt(((xvf*xvf)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_xvf2_dX = deriv_sqrt_0_d0*((xvf*d_xvf_dX+d_xvf_dX*xvf));
+xvf2 = value_sqrt_0;
+}
+d_v_j_dX = (d_vf_dX-(VT*(d_xvf_dX+d_xvf2_dX)+d_VT_dX*(xvf+xvf2))*0.5);
 v_j = (vf-((VT*(xvf+xvf2))*0.5));
-x = (1.0-modelPar_zcx);
-y = (1.0-exp((x*log((1.0-(v_j/vdcx_t))))));
+d_x_dX = (-modelStruct.d_modelPar_zcx_dX);
+x = (1.0-modelStruct.modelPar_zcx);
+{
+double value_log_0 = log((1.0-(v_j/vdcx_t)));
+double value_exp_1 = exp((x*value_log_0));
+double  deriv_log_0_d0 = (1.0/(1.0-(v_j/vdcx_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_y_dX = (-deriv_exp_1_d0*((x*deriv_log_0_d0*((-((vdcx_t*d_v_j_dX-v_j*d_vdcx_t_dX)/vdcx_t/vdcx_t)))+d_x_dX*value_log_0)));
+y = (1.0-value_exp_1);
+}
+d_qjcx_dX = (((x*((cjcx0_t_i*vdcx_t)*d_y_dX+(cjcx0_t_i*d_vdcx_t_dX+d_cjcx0_t_i_dX*vdcx_t)*y)-((cjcx0_t_i*vdcx_t)*y)*d_x_dX)/x/x)+((2.4*cjcx0_t_i)*(d_Vbci_dX-d_v_j_dX)+2.4*d_cjcx0_t_i_dX*(Vbci-v_j)));
 qjcx = ((((cjcx0_t_i*vdcx_t)*y)/x)+((2.4*cjcx0_t_i)*(Vbci-v_j)));
 }
 else
 {
+d_qjcx_dX = 0.0;
 qjcx = 0.00;
 }
 }
 }
-if ((modelPar_vptci<1.0e2))
+if ((modelStruct.modelPar_vptci<1.0e2))
 {
 if ((cjci0_t_ii>0.0))
 {
-zr = (modelPar_zci/4.0);
-vp = (modelPar_vptci-vdci_t);
-vf = (vdci_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zci))));
+d_zr_dX = (modelStruct.d_modelPar_zci_dX/4.0);
+zr = (modelStruct.modelPar_zci/4.0);
+d_vp_dX = (modelStruct.d_modelPar_vptci_dX-d_vdci_t_dX);
+vp = (modelStruct.modelPar_vptci-vdci_t);
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zci));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdci_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zci_dX/modelStruct.modelPar_zci/modelStruct.modelPar_zci)))+d_vdci_t_dX*(1.0-value_exp_1));
+vf = (vdci_t*(1.0-value_exp_1));
+}
+d_cmax_dX = 2.4*d_cjci0_t_ii_dX;
 cmax = (2.4*cjci0_t_ii);
-cr = (cjci0_t_ii*exp(((modelPar_zci-zr)*log((vdci_t/modelPar_vptci)))));
+{
+double value_log_0 = log((vdci_t/modelStruct.modelPar_vptci));
+double value_exp_1 = exp(((modelStruct.modelPar_zci-zr)*value_log_0));
+double  deriv_log_0_d0 = (1.0/(vdci_t/modelStruct.modelPar_vptci));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cr_dX = (cjci0_t_ii*deriv_exp_1_d0*(((modelStruct.modelPar_zci-zr)*deriv_log_0_d0*(((modelStruct.modelPar_vptci*d_vdci_t_dX-vdci_t*modelStruct.d_modelPar_vptci_dX)/modelStruct.modelPar_vptci/modelStruct.modelPar_vptci))+(modelStruct.d_modelPar_zci_dX-d_zr_dX)*value_log_0))+d_cjci0_t_ii_dX*value_exp_1);
+cr = (cjci0_t_ii*value_exp_1);
+}
+d_a_dX = d_VT_dX;
 a = VT;
+d_ve_dX = ((a*(d_vf_dX-d_Vbici_dX)-(vf-Vbici)*d_a_dX)/a/a);
 ve = ((vf-Vbici)/a);
 if ((ve<=80.0))
 {
-ex1 = exp(ve);
+{
+double value_exp_0 = exp(ve);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_ve_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj1 = (vf-(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj1_dX = (d_vf_dX-(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj1 = (vf-(a*value_log_0));
+}
 }
 else
 {
+d_vj1_dX = d_Vbici_dX;
 vj1 = Vbici;
 }
+d_a_dX = (0.1*d_vp_dX+4.0*d_VT_dX);
 a = ((0.1*vp)+(4.0*VT));
+d_vr_dX = ((a*(d_vp_dX+d_vj1_dX)-(vp+vj1)*d_a_dX)/a/a);
 vr = ((vp+vj1)/a);
 if ((vr<=80.0))
 {
-ex1 = exp(vr);
+{
+double value_exp_0 = exp(vr);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_vr_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj2 = ((-vp)+(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj2_dX = ((-d_vp_dX)+(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj2 = ((-vp)+(a*value_log_0));
+}
 }
 else
 {
+d_vj2_dX = d_vj1_dX;
 vj2 = vj1;
 }
+d_vj4_dX = (d_Vbici_dX-d_vj1_dX);
 vj4 = (Vbici-vj1);
-ez = (1.0-modelPar_zci);
+d_ez_dX = (-modelStruct.d_modelPar_zci_dX);
+ez = (1.0-modelStruct.modelPar_zci);
+d_ezr_dX = (-d_zr_dX);
 ezr = (1.0-zr);
-vdj1 = log((1.0-(vj1/vdci_t)));
-vdj2 = log((1.0-(vj2/vdci_t)));
-qj1 = ((cjci0_t_ii*(1.0-exp((vdj2*ez))))/ez);
-qj2 = ((cr*(1.0-exp((vdj1*ezr))))/ezr);
-qj3 = ((cr*(1.0-exp((vdj2*ezr))))/ezr);
-instanceVar_qjci = ((((qj1+qj2)-qj3)*vdci_t)+(cmax*vj4));
+{
+double value_log_0 = log((1.0-(vj1/vdci_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj1/vdci_t)));
+d_vdj1_dX = deriv_log_0_d0*((-((vdci_t*d_vj1_dX-vj1*d_vdci_t_dX)/vdci_t/vdci_t)));
+vdj1 = value_log_0;
+}
+{
+double value_log_0 = log((1.0-(vj2/vdci_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj2/vdci_t)));
+d_vdj2_dX = deriv_log_0_d0*((-((vdci_t*d_vj2_dX-vj2*d_vdci_t_dX)/vdci_t/vdci_t)));
+vdj2 = value_log_0;
+}
+{
+double value_exp_0 = exp((vdj2*ez));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj1_dX = ((ez*(cjci0_t_ii*(-deriv_exp_0_d0*((vdj2*d_ez_dX+d_vdj2_dX*ez)))+d_cjci0_t_ii_dX*(1.0-value_exp_0))-(cjci0_t_ii*(1.0-value_exp_0))*d_ez_dX)/ez/ez);
+qj1 = ((cjci0_t_ii*(1.0-value_exp_0))/ez);
+}
+{
+double value_exp_0 = exp((vdj1*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj2_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj1*d_ezr_dX+d_vdj1_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj2 = ((cr*(1.0-value_exp_0))/ezr);
+}
+{
+double value_exp_0 = exp((vdj2*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj3_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj2*d_ezr_dX+d_vdj2_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj3 = ((cr*(1.0-value_exp_0))/ezr);
+}
+instanceStruct.d_instanceVar_qjci_dX = ((((qj1+qj2)-qj3)*d_vdci_t_dX+((d_qj1_dX+d_qj2_dX)-d_qj3_dX)*vdci_t)+(cmax*d_vj4_dX+d_cmax_dX*vj4));
+instanceStruct.instanceVar_qjci = ((((qj1+qj2)-qj3)*vdci_t)+(cmax*vj4));
 }
 else
 {
-instanceVar_qjci = 0.0;
+instanceStruct.d_instanceVar_qjci_dX = 0.0;
+instanceStruct.instanceVar_qjci = 0.0;
 }
 }
 else
 {
 if ((cjci0_t_ii>0.0))
 {
-vf = (vdci_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zci))));
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zci));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdci_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zci_dX/modelStruct.modelPar_zci/modelStruct.modelPar_zci)))+d_vdci_t_dX*(1.0-value_exp_1));
+vf = (vdci_t*(1.0-value_exp_1));
+}
+d_xvf_dX = ((VT*(d_vf_dX-d_Vbici_dX)-(vf-Vbici)*d_VT_dX)/VT/VT);
 xvf = ((vf-Vbici)/VT);
-xvf2 = sqrt(((xvf*xvf)+1.921812));
+{
+double value_sqrt_0 = sqrt(((xvf*xvf)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_xvf2_dX = deriv_sqrt_0_d0*((xvf*d_xvf_dX+d_xvf_dX*xvf));
+xvf2 = value_sqrt_0;
+}
+d_v_j_dX = (d_vf_dX-(VT*(d_xvf_dX+d_xvf2_dX)+d_VT_dX*(xvf+xvf2))*0.5);
 v_j = (vf-((VT*(xvf+xvf2))*0.5));
-x = (1.0-modelPar_zci);
-y = (1.0-exp((x*log((1.0-(v_j/vdci_t))))));
-instanceVar_qjci = ((((cjci0_t_ii*vdci_t)*y)/x)+((2.4*cjci0_t_ii)*(Vbici-v_j)));
+d_x_dX = (-modelStruct.d_modelPar_zci_dX);
+x = (1.0-modelStruct.modelPar_zci);
+{
+double value_log_0 = log((1.0-(v_j/vdci_t)));
+double value_exp_1 = exp((x*value_log_0));
+double  deriv_log_0_d0 = (1.0/(1.0-(v_j/vdci_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_y_dX = (-deriv_exp_1_d0*((x*deriv_log_0_d0*((-((vdci_t*d_v_j_dX-v_j*d_vdci_t_dX)/vdci_t/vdci_t)))+d_x_dX*value_log_0)));
+y = (1.0-value_exp_1);
+}
+instanceStruct.d_instanceVar_qjci_dX = (((x*((cjci0_t_ii*vdci_t)*d_y_dX+(cjci0_t_ii*d_vdci_t_dX+d_cjci0_t_ii_dX*vdci_t)*y)-((cjci0_t_ii*vdci_t)*y)*d_x_dX)/x/x)+((2.4*cjci0_t_ii)*(d_Vbici_dX-d_v_j_dX)+2.4*d_cjci0_t_ii_dX*(Vbici-v_j)));
+instanceStruct.instanceVar_qjci = ((((cjci0_t_ii*vdci_t)*y)/x)+((2.4*cjci0_t_ii)*(Vbici-v_j)));
 }
 else
 {
-instanceVar_qjci = 0.00;
+instanceStruct.d_instanceVar_qjci_dX = 0.0;
+instanceStruct.instanceVar_qjci = 0.00;
 }
 }
-qjci_int = instanceVar_qjci;
-qjcii = (instanceVar_qjci+qjcxi);
+d_qjci_int_dX = instanceStruct.d_instanceVar_qjci_dX;
+qjci_int = instanceStruct.instanceVar_qjci;
+d_qjcii_dX = (instanceStruct.d_instanceVar_qjci_dX+d_qjcxi_dX);
+qjcii = (instanceStruct.instanceVar_qjci+qjcxi);
 if ((cjci0_t_ii>0.0))
 {
-vf = (vdci_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zci))));
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zci));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdci_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zci_dX/modelStruct.modelPar_zci/modelStruct.modelPar_zci)))+d_vdci_t_dX*(1.0-value_exp_1));
+vf = (vdci_t*(1.0-value_exp_1));
+}
+d_xvf_dX = ((VT*(d_vf_dX-d_Vbici_dX)-(vf-Vbici)*d_VT_dX)/VT/VT);
 xvf = ((vf-Vbici)/VT);
-xvf2 = sqrt(((xvf*xvf)+1.921812));
+{
+double value_sqrt_0 = sqrt(((xvf*xvf)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_xvf2_dX = deriv_sqrt_0_d0*((xvf*d_xvf_dX+d_xvf_dX*xvf));
+xvf2 = value_sqrt_0;
+}
+d_v_j_dX = (d_vf_dX-(VT*(d_xvf_dX+d_xvf2_dX)+d_VT_dX*(xvf+xvf2))*0.5);
 v_j = (vf-((VT*(xvf+xvf2))*0.5));
+d_dvj_dX = ((xvf2*0.5*(d_xvf_dX+d_xvf2_dX)-(0.5*(xvf+xvf2))*d_xvf2_dX)/xvf2/xvf2);
 dvj = ((0.5*(xvf+xvf2))/xvf2);
-cjcii = (((cjci0_t_ii*exp(((-modelPar_zci)*log((1-(v_j/vdci_t))))))*dvj)+((2.4*cjci0_t_ii)*(1-dvj)));
+{
+double value_log_0 = log((1-(v_j/vdci_t)));
+double value_exp_1 = exp(((-modelStruct.modelPar_zci)*value_log_0));
+double  deriv_log_0_d0 = (1.0/(1-(v_j/vdci_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cjcii_dX = (((cjci0_t_ii*value_exp_1)*d_dvj_dX+(cjci0_t_ii*deriv_exp_1_d0*(((-modelStruct.modelPar_zci)*deriv_log_0_d0*((-((vdci_t*d_v_j_dX-v_j*d_vdci_t_dX)/vdci_t/vdci_t)))+(-modelStruct.d_modelPar_zci_dX)*value_log_0))+d_cjci0_t_ii_dX*value_exp_1)*dvj)+((2.4*cjci0_t_ii)*(-d_dvj_dX)+2.4*d_cjci0_t_ii_dX*(1-dvj)));
+cjcii = (((cjci0_t_ii*value_exp_1)*dvj)+((2.4*cjci0_t_ii)*(1-dvj)));
+}
 }
 else
 {
+d_cjcii_dX = 0.0;
 cjcii = 0.0;
 }
+d_vc_dX = (d_Vciei_dX-d_vces_t_dX);
 vc = (Vciei-vces_t);
+d_uvc_dX = ((VT*d_vc_dX-vc*d_VT_dX)/VT/VT);
 uvc = ((vc/VT)-1);
-vceff = (VT*(1+(0.5*(uvc+sqrt(((uvc*uvc)+1.921812))))));
-x = ((vceff-vlim_t)/modelPar_vpt);
-ick = (((vceff*(1+(0.5*(x+sqrt(((x*x)+1e-3))))))/rci0_t)/sqrt((1+(((vceff*vceff)/vlim_t)/vlim_t))));
+{
+double value_sqrt_0 = sqrt(((uvc*uvc)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vceff_dX = (VT*0.5*(d_uvc_dX+deriv_sqrt_0_d0*((uvc*d_uvc_dX+d_uvc_dX*uvc)))+d_VT_dX*(1+(0.5*(uvc+value_sqrt_0))));
+vceff = (VT*(1+(0.5*(uvc+value_sqrt_0))));
+}
+d_x_dX = ((modelStruct.modelPar_vpt*(d_vceff_dX-d_vlim_t_dX)-(vceff-vlim_t)*modelStruct.d_modelPar_vpt_dX)/modelStruct.modelPar_vpt/modelStruct.modelPar_vpt);
+x = ((vceff-vlim_t)/modelStruct.modelPar_vpt);
+{
+double value_sqrt_0 = sqrt(((x*x)+1e-3));
+double value_sqrt_1 = sqrt((1+(((vceff*vceff)/vlim_t)/vlim_t)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_sqrt_1_d0 = (0.5/value_sqrt_1);
+d_ick_dX = ((value_sqrt_1*((rci0_t*(vceff*0.5*(d_x_dX+deriv_sqrt_0_d0*((x*d_x_dX+d_x_dX*x)))+d_vceff_dX*(1+(0.5*(x+value_sqrt_0))))-(vceff*(1+(0.5*(x+value_sqrt_0))))*d_rci0_t_dX)/rci0_t/rci0_t)-((vceff*(1+(0.5*(x+value_sqrt_0))))/rci0_t)*deriv_sqrt_1_d0*(((vlim_t*((vlim_t*(vceff*d_vceff_dX+d_vceff_dX*vceff)-(vceff*vceff)*d_vlim_t_dX)/vlim_t/vlim_t)-((vceff*vceff)/vlim_t)*d_vlim_t_dX)/vlim_t/vlim_t)))/value_sqrt_1/value_sqrt_1);
+ick = (((vceff*(1+(0.5*(x+value_sqrt_0))))/rci0_t)/value_sqrt_1);
+}
 if (((cjcii>0.0)&&(cjci0_t_ii>0.0)))
 {
+d_cc_dX = ((cjcii*d_cjci0_t_ii_dX-cjci0_t_ii*d_cjcii_dX)/cjcii/cjcii);
 cc = (cjci0_t_ii/cjcii);
-instanceVar_qjci = (instanceVar_qjci/cjci0_t_ii);
+instanceStruct.d_instanceVar_qjci_dX = ((cjci0_t_ii*instanceStruct.d_instanceVar_qjci_dX-instanceStruct.instanceVar_qjci*d_cjci0_t_ii_dX)/cjci0_t_ii/cjci0_t_ii);
+instanceStruct.instanceVar_qjci = (instanceStruct.instanceVar_qjci/cjci0_t_ii);
 }
 else
 {
+d_cc_dX = 0.0;
 cc = 1.0;
-instanceVar_qjci = 0;
+instanceStruct.d_instanceVar_qjci_dX = 0.0;
+instanceStruct.instanceVar_qjci = 0;
 }
 if ((cje0_dc_t>0.0))
 {
-vf = (vdedc_t*(1.0-exp(((-log(ajedc_t))/modelPar_zedc))));
+{
+double value_log_0 = log(ajedc_t);
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zedc));
+double  deriv_log_0_d0 = (1.0/ajedc_t);
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vdedc_t*(-deriv_exp_1_d0*(((modelStruct.modelPar_zedc*(-deriv_log_0_d0*(d_ajedc_t_dX))-(-value_log_0)*modelStruct.d_modelPar_zedc_dX)/modelStruct.modelPar_zedc/modelStruct.modelPar_zedc)))+d_vdedc_t_dX*(1.0-value_exp_1));
+vf = (vdedc_t*(1.0-value_exp_1));
+}
+d_xvf_dX = ((VT*(d_vf_dX-d_Vbiei_dX)-(vf-Vbiei)*d_VT_dX)/VT/VT);
 xvf = ((vf-Vbiei)/VT);
-xvf2 = sqrt(((xvf*xvf)+1.921812));
+{
+double value_sqrt_0 = sqrt(((xvf*xvf)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_xvf2_dX = deriv_sqrt_0_d0*((xvf*d_xvf_dX+d_xvf_dX*xvf));
+xvf2 = value_sqrt_0;
+}
+d_v_j_dX = (d_vf_dX-(VT*(d_xvf_dX+d_xvf2_dX)+d_VT_dX*(xvf+xvf2))*0.5);
 v_j = (vf-((VT*(xvf+xvf2))*0.5));
-x = (1.0-modelPar_zedc);
-y = (1.0-exp((x*log((1.0-(v_j/vdedc_t))))));
-instanceVar_qjei = ((((cje0_dc_t*vdedc_t)*y)/x)+((ajedc_t*cje0_dc_t)*(Vbiei-v_j)));
+d_x_dX = (-modelStruct.d_modelPar_zedc_dX);
+x = (1.0-modelStruct.modelPar_zedc);
+{
+double value_log_0 = log((1.0-(v_j/vdedc_t)));
+double value_exp_1 = exp((x*value_log_0));
+double  deriv_log_0_d0 = (1.0/(1.0-(v_j/vdedc_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_y_dX = (-deriv_exp_1_d0*((x*deriv_log_0_d0*((-((vdedc_t*d_v_j_dX-v_j*d_vdedc_t_dX)/vdedc_t/vdedc_t)))+d_x_dX*value_log_0)));
+y = (1.0-value_exp_1);
+}
+instanceStruct.d_instanceVar_qjei_dX = (((x*((cje0_dc_t*vdedc_t)*d_y_dX+(cje0_dc_t*d_vdedc_t_dX+d_cje0_dc_t_dX*vdedc_t)*y)-((cje0_dc_t*vdedc_t)*y)*d_x_dX)/x/x)+((ajedc_t*cje0_dc_t)*(d_Vbiei_dX-d_v_j_dX)+(ajedc_t*d_cje0_dc_t_dX+d_ajedc_t_dX*cje0_dc_t)*(Vbiei-v_j)));
+instanceStruct.instanceVar_qjei = ((((cje0_dc_t*vdedc_t)*y)/x)+((ajedc_t*cje0_dc_t)*(Vbiei-v_j)));
 }
 else
 {
-instanceVar_qjei = 0.00;
+instanceStruct.d_instanceVar_qjei_dX = 0.0;
+instanceStruct.instanceVar_qjei = 0.00;
 }
-if ((modelPar_aver==0.0))
+if ((modelStruct.modelPar_aver==0.0))
 {
+d_h_vbe_dX = 0.0;
 h_vbe = 1;
 }
 else
 {
+d_vjh_dX = (((2.0*VT)*(d_vdedc_t_dX-d_Vbiei_dX)-(vdedc_t-Vbiei)*2.0*d_VT_dX)/(2.0*VT)/(2.0*VT));
 vjh = ((vdedc_t-Vbiei)/(2.0*VT));
-vjh = (vdedc_t-(((2.0*VT)*(vjh+sqrt(((vjh*vjh)+1.921812))))*0.5));
-vjh = ((vjh-VT)/VT);
-vjh = (VT*(1.0+((vjh+sqrt(((vjh*vjh)+1.921812)))*0.5)));
-vj_z = ((1.0-exp((modelPar_zedc*log((1.0-(vjh/vdedc_t))))))*aver_t);
-h_vbe = ((exp(vj_z)-1.0)/vj_z);
-}
-qje = ((h_vbe*instanceVar_qjei)/cje0_dc_t);
-qj = ((1+(instanceVar_qjci/modelPar_vef))+(qje/ver_t));
-b_q = ((20*qj)-1);
-qj_2 = (0.025*(1+((b_q+sqrt(((b_q*b_q)+1.921812)))/2)));
-tf0 = ((t0_t+(modelPar_dt0h*(cc-1)))+(modelPar_tbvl*((1/cc)-1)));
-if ((modelPar_fiqf==1))
 {
-denom_iqf = (modelPar_fiqf*((tf0/t0_t)-1));
+double value_sqrt_0 = sqrt(((vjh*vjh)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vjh_dX = (d_vdedc_t_dX-((2.0*VT)*(d_vjh_dX+deriv_sqrt_0_d0*((vjh*d_vjh_dX+d_vjh_dX*vjh)))+2.0*d_VT_dX*(vjh+value_sqrt_0))*0.5);
+vjh = (vdedc_t-(((2.0*VT)*(vjh+value_sqrt_0))*0.5));
+}
+d_vjh_dX = ((VT*(d_vjh_dX-d_VT_dX)-(vjh-VT)*d_VT_dX)/VT/VT);
+vjh = ((vjh-VT)/VT);
+{
+double value_sqrt_0 = sqrt(((vjh*vjh)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_vjh_dX = (VT*(d_vjh_dX+deriv_sqrt_0_d0*((vjh*d_vjh_dX+d_vjh_dX*vjh)))*0.5+d_VT_dX*(1.0+((vjh+value_sqrt_0)*0.5)));
+vjh = (VT*(1.0+((vjh+value_sqrt_0)*0.5)));
+}
+{
+double value_log_0 = log((1.0-(vjh/vdedc_t)));
+double value_exp_1 = exp((modelStruct.modelPar_zedc*value_log_0));
+double  deriv_log_0_d0 = (1.0/(1.0-(vjh/vdedc_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vj_z_dX = ((1.0-value_exp_1)*d_aver_t_dX+(-deriv_exp_1_d0*((modelStruct.modelPar_zedc*deriv_log_0_d0*((-((vdedc_t*d_vjh_dX-vjh*d_vdedc_t_dX)/vdedc_t/vdedc_t)))+modelStruct.d_modelPar_zedc_dX*value_log_0)))*aver_t);
+vj_z = ((1.0-value_exp_1)*aver_t);
+}
+{
+double value_exp_0 = exp(vj_z);
+double  deriv_exp_0_d0 = value_exp_0;
+d_h_vbe_dX = ((vj_z*deriv_exp_0_d0*(d_vj_z_dX)-(value_exp_0-1.0)*d_vj_z_dX)/vj_z/vj_z);
+h_vbe = ((value_exp_0-1.0)/vj_z);
+}
+}
+d_qje_dX = ((cje0_dc_t*(h_vbe*instanceStruct.d_instanceVar_qjei_dX+d_h_vbe_dX*instanceStruct.instanceVar_qjei)-(h_vbe*instanceStruct.instanceVar_qjei)*d_cje0_dc_t_dX)/cje0_dc_t/cje0_dc_t);
+qje = ((h_vbe*instanceStruct.instanceVar_qjei)/cje0_dc_t);
+d_qj_dX = (((modelStruct.modelPar_vef*instanceStruct.d_instanceVar_qjci_dX-instanceStruct.instanceVar_qjci*modelStruct.d_modelPar_vef_dX)/modelStruct.modelPar_vef/modelStruct.modelPar_vef)+((ver_t*d_qje_dX-qje*d_ver_t_dX)/ver_t/ver_t));
+qj = ((1+(instanceStruct.instanceVar_qjci/modelStruct.modelPar_vef))+(qje/ver_t));
+d_b_q_dX = 20*d_qj_dX;
+b_q = ((20*qj)-1);
+{
+double value_sqrt_0 = sqrt(((b_q*b_q)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_qj_2_dX = 0.025*((d_b_q_dX+deriv_sqrt_0_d0*((b_q*d_b_q_dX+d_b_q_dX*b_q)))/2);
+qj_2 = (0.025*(1+((b_q+value_sqrt_0)/2)));
+}
+d_tf0_dX = ((d_t0_t_dX+(modelStruct.modelPar_dt0h*d_cc_dX+modelStruct.d_modelPar_dt0h_dX*(cc-1)))+(modelStruct.modelPar_tbvl*(-1*d_cc_dX/cc/cc)+modelStruct.d_modelPar_tbvl_dX*((1/cc)-1)));
+tf0 = ((t0_t+(modelStruct.modelPar_dt0h*(cc-1)))+(modelStruct.modelPar_tbvl*((1/cc)-1)));
+if ((modelStruct.modelPar_fiqf==1))
+{
+d_denom_iqf_dX = (modelStruct.modelPar_fiqf*((t0_t*d_tf0_dX-tf0*d_t0_t_dX)/t0_t/t0_t)+modelStruct.d_modelPar_fiqf_dX*((tf0/t0_t)-1));
+denom_iqf = (modelStruct.modelPar_fiqf*((tf0/t0_t)-1));
+d_ickf_dX = (((1+denom_iqf)*d_iqf_t_dX-iqf_t*d_denom_iqf_dX)/(1+denom_iqf)/(1+denom_iqf));
 ickf = (iqf_t/(1+denom_iqf));
 }
 else
 {
+d_ickf_dX = d_iqf_t_dX;
 ickf = iqf_t;
 }
-ickr = modelPar_iqr;
-arg1 = (Vbiei/(modelPar_mcf*VT));
+d_ickr_dX = modelStruct.d_modelPar_iqr_dX;
+ickr = modelStruct.modelPar_iqr;
+d_arg1_dX = (((modelStruct.modelPar_mcf*VT)*d_Vbiei_dX-Vbiei*(modelStruct.modelPar_mcf*d_VT_dX+modelStruct.d_modelPar_mcf_dX*VT))/(modelStruct.modelPar_mcf*VT)/(modelStruct.modelPar_mcf*VT));
+arg1 = (Vbiei/(modelStruct.modelPar_mcf*VT));
 if ((arg1>80))
 {
+d_le1_dX = d_arg1_dX;
 le1 = (1+(arg1-80));
+d_arg1_dX = 0.0;
 arg1 = 80;
 }
 else
 {
+d_le1_dX = 0.0;
 le1 = 1;
 }
-le1 = (le1*limexp<AdmsSensFadType>(arg1));
+{
+double value_limexp_0 = limexp(arg1);
+double  deriv_limexp_0_d0 = (((arg1)<80)?(value_limexp_0):exp(80.0));
+d_le1_dX = (le1*deriv_limexp_0_d0*(d_arg1_dX)+d_le1_dX*value_limexp_0);
+le1 = (le1*value_limexp_0);
+}
+d_itfi_dX = (is_t*d_le1_dX+d_is_t_dX*le1);
 itfi = (is_t*le1);
-arg2 = (Vbici/(modelPar_mcr*VT));
+d_arg2_dX = (((modelStruct.modelPar_mcr*VT)*d_Vbici_dX-Vbici*(modelStruct.modelPar_mcr*d_VT_dX+modelStruct.d_modelPar_mcr_dX*VT))/(modelStruct.modelPar_mcr*VT)/(modelStruct.modelPar_mcr*VT));
+arg2 = (Vbici/(modelStruct.modelPar_mcr*VT));
 if ((arg2>80))
 {
+d_le2_dX = d_arg2_dX;
 le2 = (1+(arg2-80));
+d_arg2_dX = 0.0;
 arg2 = 80;
 }
 else
 {
+d_le2_dX = 0.0;
 le2 = 1;
 }
-le2 = (le2*limexp<AdmsSensFadType>(arg2));
-itri = (is_t*le2);
-if ((modelPar_tfh!=0))
 {
-qml = (((itfi/ickf)+(itri/ickr))+exp((0.6666*log(((itfi*(itfi/ick))*(tfh_t/iqfh_t))))));
-qmh = ((((itfi/ickf)+(itri/ickr))+(itfi/iqfh_t))+exp((0.6666*log(((itfi*(itfi/ick))*(tfh_t/iqfh_t))))));
+double value_limexp_0 = limexp(arg2);
+double  deriv_limexp_0_d0 = (((arg2)<80)?(value_limexp_0):exp(80.0));
+d_le2_dX = (le2*deriv_limexp_0_d0*(d_arg2_dX)+d_le2_dX*value_limexp_0);
+le2 = (le2*value_limexp_0);
+}
+d_itri_dX = (is_t*d_le2_dX+d_is_t_dX*le2);
+itri = (is_t*le2);
+if ((modelStruct.modelPar_tfh!=0))
+{
+{
+double value_log_0 = log(((itfi*(itfi/ick))*(tfh_t/iqfh_t)));
+double value_exp_1 = exp((0.6666*value_log_0));
+double  deriv_log_0_d0 = (1.0/((itfi*(itfi/ick))*(tfh_t/iqfh_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_qml_dX = ((((ickf*d_itfi_dX-itfi*d_ickf_dX)/ickf/ickf)+((ickr*d_itri_dX-itri*d_ickr_dX)/ickr/ickr))+deriv_exp_1_d0*(0.6666*deriv_log_0_d0*(((itfi*(itfi/ick))*((iqfh_t*d_tfh_t_dX-tfh_t*d_iqfh_t_dX)/iqfh_t/iqfh_t)+(itfi*((ick*d_itfi_dX-itfi*d_ick_dX)/ick/ick)+d_itfi_dX*(itfi/ick))*(tfh_t/iqfh_t)))));
+qml = (((itfi/ickf)+(itri/ickr))+value_exp_1);
+}
+{
+double value_log_0 = log(((itfi*(itfi/ick))*(tfh_t/iqfh_t)));
+double value_exp_1 = exp((0.6666*value_log_0));
+double  deriv_log_0_d0 = (1.0/((itfi*(itfi/ick))*(tfh_t/iqfh_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_qmh_dX = (((((ickf*d_itfi_dX-itfi*d_ickf_dX)/ickf/ickf)+((ickr*d_itri_dX-itri*d_ickr_dX)/ickr/ickr))+((iqfh_t*d_itfi_dX-itfi*d_iqfh_t_dX)/iqfh_t/iqfh_t))+deriv_exp_1_d0*(0.6666*deriv_log_0_d0*(((itfi*(itfi/ick))*((iqfh_t*d_tfh_t_dX-tfh_t*d_iqfh_t_dX)/iqfh_t/iqfh_t)+(itfi*((ick*d_itfi_dX-itfi*d_ick_dX)/ick/ick)+d_itfi_dX*(itfi/ick))*(tfh_t/iqfh_t)))));
+qmh = ((((itfi/ickf)+(itri/ickr))+(itfi/iqfh_t))+value_exp_1);
+}
 }
 else
 {
+d_qml_dX = (((ickf*d_itfi_dX-itfi*d_ickf_dX)/ickf/ickf)+((ickr*d_itri_dX-itri*d_ickr_dX)/ickr/ickr));
 qml = ((itfi/ickf)+(itri/ickr));
+d_qmh_dX = ((((ickf*d_itfi_dX-itfi*d_ickf_dX)/ickf/ickf)+((ickr*d_itri_dX-itri*d_ickr_dX)/ickr/ickr))+((iqfh_t*d_itfi_dX-itfi*d_iqfh_t_dX)/iqfh_t/iqfh_t));
 qmh = (((itfi/ickf)+(itri/ickr))+(itfi/iqfh_t));
 }
-qpt_l = (qj_2+sqrt(((qj_2*qj_2)+qml)));
-qpt_h = (qj_2+sqrt(((qj_2*qj_2)+qmh)));
+{
+double value_sqrt_0 = sqrt(((qj_2*qj_2)+qml));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_qpt_l_dX = (d_qj_2_dX+deriv_sqrt_0_d0*(((qj_2*d_qj_2_dX+d_qj_2_dX*qj_2)+d_qml_dX)));
+qpt_l = (qj_2+value_sqrt_0);
+}
+{
+double value_sqrt_0 = sqrt(((qj_2*qj_2)+qmh));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_qpt_h_dX = (d_qj_2_dX+deriv_sqrt_0_d0*(((qj_2*d_qj_2_dX+d_qj_2_dX*qj_2)+d_qmh_dX)));
+qpt_h = (qj_2+value_sqrt_0);
+}
+d_diff_q_dX = (d_qmh_dX-d_qml_dX);
 diff_q = (qmh-qml);
 if ((fabs(diff_q)>1e-8))
 {
+d_a1_dX = (-(((ick/(1+ahq_t))/itfi)*d_qpt_l_dX+((itfi*(((1+ahq_t)*d_ick_dX-ick*d_ahq_t_dX)/(1+ahq_t)/(1+ahq_t))-(ick/(1+ahq_t))*d_itfi_dX)/itfi/itfi)*qpt_l));
 a1 = (1-(((ick/(1+ahq_t))/itfi)*qpt_l));
+d_a2_dX = (((ick/(1+ahq_t))/itfi)*(d_qpt_h_dX-d_qpt_l_dX)+((itfi*(((1+ahq_t)*d_ick_dX-ick*d_ahq_t_dX)/(1+ahq_t)/(1+ahq_t))-(ick/(1+ahq_t))*d_itfi_dX)/itfi/itfi)*(qpt_h-qpt_l));
 a2 = (1+(((ick/(1+ahq_t))/itfi)*(qpt_h-qpt_l)));
+d_aa_dX = ((a2*d_a1_dX-a1*d_a2_dX)/a2/a2);
 aa = (a1/a2);
-wdc = ((sqrt(((aa*aa)+0.01))+aa)/(1+sqrt((1+0.01))));
+{
+double value_sqrt_0 = sqrt(((aa*aa)+0.01));
+double value_sqrt_1 = sqrt((1+0.01));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_wdc_dX = ((deriv_sqrt_0_d0*((aa*d_aa_dX+d_aa_dX*aa))+d_aa_dX)/(1+value_sqrt_1));
+wdc = ((value_sqrt_0+aa)/(1+value_sqrt_1));
+}
 }
 else
 {
+d_wdc_dX = 0.0;
 wdc = 0;
 }
-if ((modelPar_it_mod==0))
+if ((modelStruct.modelPar_it_mod==0))
 {
-if ((modelPar_tfh!=0))
+if ((modelStruct.modelPar_tfh!=0))
 {
-qm = ((((itfi/ickf)+(itri/ickr))+(((itfi/iqfh_t)*wdc)*wdc))+exp((0.6666*log(((itfi*(itfi/ick))*(tfh_t/iqfh_t))))));
+{
+double value_log_0 = log(((itfi*(itfi/ick))*(tfh_t/iqfh_t)));
+double value_exp_1 = exp((0.6666*value_log_0));
+double  deriv_log_0_d0 = (1.0/((itfi*(itfi/ick))*(tfh_t/iqfh_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_qm_dX = (((((ickf*d_itfi_dX-itfi*d_ickf_dX)/ickf/ickf)+((ickr*d_itri_dX-itri*d_ickr_dX)/ickr/ickr))+(((itfi/iqfh_t)*wdc)*d_wdc_dX+((itfi/iqfh_t)*d_wdc_dX+((iqfh_t*d_itfi_dX-itfi*d_iqfh_t_dX)/iqfh_t/iqfh_t)*wdc)*wdc))+deriv_exp_1_d0*(0.6666*deriv_log_0_d0*(((itfi*(itfi/ick))*((iqfh_t*d_tfh_t_dX-tfh_t*d_iqfh_t_dX)/iqfh_t/iqfh_t)+(itfi*((ick*d_itfi_dX-itfi*d_ick_dX)/ick/ick)+d_itfi_dX*(itfi/ick))*(tfh_t/iqfh_t)))));
+qm = ((((itfi/ickf)+(itri/ickr))+(((itfi/iqfh_t)*wdc)*wdc))+value_exp_1);
+}
 }
 else
 {
+d_qm_dX = ((((ickf*d_itfi_dX-itfi*d_ickf_dX)/ickf/ickf)+((ickr*d_itri_dX-itri*d_ickr_dX)/ickr/ickr))+(((itfi/iqfh_t)*wdc)*d_wdc_dX+((itfi/iqfh_t)*d_wdc_dX+((iqfh_t*d_itfi_dX-itfi*d_iqfh_t_dX)/iqfh_t/iqfh_t)*wdc)*wdc));
 qm = (((itfi/ickf)+(itri/ickr))+(((itfi/iqfh_t)*wdc)*wdc));
 }
-qpt = (qj_2+sqrt(((qj_2*qj_2)+qm)));
+{
+double value_sqrt_0 = sqrt(((qj_2*qj_2)+qm));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_qpt_dX = (d_qj_2_dX+deriv_sqrt_0_d0*(((qj_2*d_qj_2_dX+d_qj_2_dX*qj_2)+d_qm_dX)));
+qpt = (qj_2+value_sqrt_0);
+}
 }
 else
 {
 o3 = (1.0/3);
+d_p2_a_dX = (-2)*d_qj_2_dX;
 p2_a = ((-2)*qj_2);
-if (((modelPar_iqf==1.0e6)&&(modelPar_iqfh==1.0e6)))
+if (((modelStruct.modelPar_iqf==1.0e6)&&(modelStruct.modelPar_iqfh==1.0e6)))
 {
+d_p2_b_dX = 0.0;
 p2_b = 0;
 }
 else
 {
+d_p2_b_dX = (-((((ickf*d_itfi_dX-itfi*d_ickf_dX)/ickf/ickf)+((ickr*d_itri_dX-itri*d_ickr_dX)/ickr/ickr))+(((itfi/iqfh_t)*wdc)*d_wdc_dX+((itfi/iqfh_t)*d_wdc_dX+((iqfh_t*d_itfi_dX-itfi*d_iqfh_t_dX)/iqfh_t/iqfh_t)*wdc)*wdc)));
 p2_b = (-(((itfi/ickf)+(itri/ickr))+(((itfi/iqfh_t)*wdc)*wdc)));
 }
+d_p2_c_dX = ((iqfh_t*((((-itfi)*itfi)/ick)*d_tfh_t_dX+((ick*((-itfi)*d_itfi_dX+(-d_itfi_dX)*itfi)-((-itfi)*itfi)*d_ick_dX)/ick/ick)*tfh_t)-((((-itfi)*itfi)/ick)*tfh_t)*d_iqfh_t_dX)/iqfh_t/iqfh_t);
 p2_c = (((((-itfi)*itfi)/ick)*tfh_t)/iqfh_t);
+d_tmp_dX = (p2_a*d_p2_a_dX+d_p2_a_dX*p2_a);
 tmp = (p2_a*p2_a);
+d_p2_p_dX = (d_p2_b_dX-d_tmp_dX*o3);
 p2_p = (p2_b-(tmp*o3));
+d_p2_q_dX = (((((2*p2_a)*d_tmp_dX+2*d_p2_a_dX*tmp)/27)-(p2_a*d_p2_b_dX+d_p2_a_dX*p2_b)*o3)+d_p2_c_dX);
 p2_q = (((((2*p2_a)*tmp)/27)-((p2_a*p2_b)*o3))+p2_c);
+d_p2_D_dX = ((p2_q*d_p2_q_dX+d_p2_q_dX*p2_q)*0.25+(((p2_p*p2_p)*d_p2_p_dX+(p2_p*d_p2_p_dX+d_p2_p_dX*p2_p)*p2_p)/27));
 p2_D = (((p2_q*p2_q)*0.25)+(((p2_p*p2_p)*p2_p)/27));
 if ((fabs(p2_D)<1e-10))
 {
+d_q_p3_dX = (((p2_p*3*d_p2_q_dX-(3*p2_q)*d_p2_p_dX)/p2_p/p2_p)-d_p2_a_dX*o3);
 q_p3 = (((3*p2_q)/p2_p)-(p2_a*o3));
 }
 else
 {
 if ((p2_D>0))
 {
+d_tmp2_dX = (-d_p2_q_dX)*0.5;
 tmp2 = ((-p2_q)*0.5);
-tmp3 = sqrt(p2_D);
+{
+double value_sqrt_0 = sqrt(p2_D);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp3_dX = deriv_sqrt_0_d0*(d_p2_D_dX);
+tmp3 = value_sqrt_0;
+}
+d_tmp_dX = (d_tmp2_dX+d_tmp3_dX);
 tmp = (tmp2+tmp3);
 if ((tmp>0))
 {
-p2_u = exp((o3*log(tmp)));
+{
+double value_log_0 = log(tmp);
+double value_exp_1 = exp((o3*value_log_0));
+double  deriv_log_0_d0 = (1.0/tmp);
+double  deriv_exp_1_d0 = value_exp_1;
+d_p2_u_dX = deriv_exp_1_d0*(o3*deriv_log_0_d0*(d_tmp_dX));
+p2_u = value_exp_1;
+}
 }
 else
 {
-p2_u = (-exp((o3*log((-tmp)))));
+{
+double value_log_0 = log((-tmp));
+double value_exp_1 = exp((o3*value_log_0));
+double  deriv_log_0_d0 = (1.0/(-tmp));
+double  deriv_exp_1_d0 = value_exp_1;
+d_p2_u_dX = (-deriv_exp_1_d0*(o3*deriv_log_0_d0*((-d_tmp_dX))));
+p2_u = (-value_exp_1);
 }
+}
+d_tmp_dX = (d_tmp2_dX-d_tmp3_dX);
 tmp = (tmp2-tmp3);
 if ((tmp>0))
 {
-p2_v = exp((o3*log(tmp)));
+{
+double value_log_0 = log(tmp);
+double value_exp_1 = exp((o3*value_log_0));
+double  deriv_log_0_d0 = (1.0/tmp);
+double  deriv_exp_1_d0 = value_exp_1;
+d_p2_v_dX = deriv_exp_1_d0*(o3*deriv_log_0_d0*(d_tmp_dX));
+p2_v = value_exp_1;
+}
 }
 else
 {
-p2_v = (-exp((o3*log((-tmp)))));
+{
+double value_log_0 = log((-tmp));
+double value_exp_1 = exp((o3*value_log_0));
+double  deriv_log_0_d0 = (1.0/(-tmp));
+double  deriv_exp_1_d0 = value_exp_1;
+d_p2_v_dX = (-deriv_exp_1_d0*(o3*deriv_log_0_d0*((-d_tmp_dX))));
+p2_v = (-value_exp_1);
 }
+}
+d_q_p3_dX = ((d_p2_u_dX+d_p2_v_dX)-d_p2_a_dX*o3);
 q_p3 = ((p2_u+p2_v)-(p2_a*o3));
 }
 else
 {
-tmp = (((-p2_q)*0.5)*sqrt(((-27.0)/((p2_p*p2_p)*p2_p))));
+{
+double value_sqrt_0 = sqrt(((-27.0)/((p2_p*p2_p)*p2_p)));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_tmp_dX = (((-p2_q)*0.5)*deriv_sqrt_0_d0*((-(-27.0)*((p2_p*p2_p)*d_p2_p_dX+(p2_p*d_p2_p_dX+d_p2_p_dX*p2_p)*p2_p)/((p2_p*p2_p)*p2_p)/((p2_p*p2_p)*p2_p)))+(-d_p2_q_dX)*0.5*value_sqrt_0);
+tmp = (((-p2_q)*0.5)*value_sqrt_0);
+}
+d_tmp2_dX = (tmp*d_tmp_dX+d_tmp_dX*tmp);
 tmp2 = (tmp*tmp);
 if ((tmp>=0))
 {
-tmp = ((3.14159265358979323846/2)-atan(sqrt((tmp2/(1-tmp2)))));
+{
+double value_sqrt_0 = sqrt((tmp2/(1-tmp2)));
+double value_atan_1 = atan(value_sqrt_0);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_atan_1_d0 = (+1.0/(1+value_sqrt_0*value_sqrt_0));
+d_tmp_dX = (-deriv_atan_1_d0*(deriv_sqrt_0_d0*((((1-tmp2)*d_tmp2_dX-tmp2*(-d_tmp2_dX))/(1-tmp2)/(1-tmp2)))));
+tmp = ((3.14159265358979323846/2)-value_atan_1);
+}
 }
 else
 {
-tmp = ((3.14159265358979323846/2)+atan(sqrt((tmp2/(1-tmp2)))));
+{
+double value_sqrt_0 = sqrt((tmp2/(1-tmp2)));
+double value_atan_1 = atan(value_sqrt_0);
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_atan_1_d0 = (+1.0/(1+value_sqrt_0*value_sqrt_0));
+d_tmp_dX = deriv_atan_1_d0*(deriv_sqrt_0_d0*((((1-tmp2)*d_tmp2_dX-tmp2*(-d_tmp2_dX))/(1-tmp2)/(1-tmp2))));
+tmp = ((3.14159265358979323846/2)+value_atan_1);
 }
-tmp = ((sqrt((((-4)*p2_p)*o3))*cos((o3*tmp)))-(p2_a*o3));
+}
+{
+double value_sqrt_0 = sqrt((((-4)*p2_p)*o3));
+double value_cos_1 = cos((o3*tmp));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+double  deriv_cos_1_d0 = (-sin((o3*tmp)));
+d_tmp_dX = ((value_sqrt_0*deriv_cos_1_d0*(o3*d_tmp_dX)+deriv_sqrt_0_d0*((-4)*d_p2_p_dX*o3)*value_cos_1)-d_p2_a_dX*o3);
+tmp = ((value_sqrt_0*value_cos_1)-(p2_a*o3));
+}
+d_q_p3_dX = d_tmp_dX;
 q_p3 = tmp;
 }
 }
+d_qpt_dX = d_q_p3_dX;
 qpt = q_p3;
 }
 if ((qpt<=1e-20))
 {
+d_qpt_dX = 0.0;
 qpt = 1e-20;
 }
+d_itf_dX = ((qpt*d_itfi_dX-itfi*d_qpt_dX)/qpt/qpt);
 itf = (itfi/qpt);
+d_itr_dX = ((qpt*d_itri_dX-itri*d_qpt_dX)/qpt/qpt);
 itr = (itri/qpt);
 if ((itf<=1e-20))
 {
+d_itf_dX = 0.0;
 itf = 1e-20;
 }
-instanceVar_it = (itf-itr);
+instanceStruct.d_instanceVar_it_dX = (d_itf_dX-d_itr_dX);
+instanceStruct.instanceVar_it = (itf-itr);
+d_qf0_dX = (tf0*d_itf_dX+d_tf0_dX*itf);
 qf0 = (tf0*itf);
+d_a_dX = (-((itf*d_ick_dX-ick*d_itf_dX)/itf/itf));
 a = (1-(ick/itf));
-s3 = sqrt(((a*a)+modelPar_ahc));
-w = ((a+s3)/(1+sqrt((1+modelPar_ahc))));
+{
+double value_sqrt_0 = sqrt(((a*a)+modelStruct.modelPar_ahc));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_s3_dX = deriv_sqrt_0_d0*(((a*d_a_dX+d_a_dX*a)+modelStruct.d_modelPar_ahc_dX));
+s3 = value_sqrt_0;
+}
+{
+double value_sqrt_0 = sqrt((1+modelStruct.modelPar_ahc));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_w_dX = (((1+value_sqrt_0)*(d_a_dX+d_s3_dX)-(a+s3)*deriv_sqrt_0_d0*(modelStruct.d_modelPar_ahc_dX))/(1+value_sqrt_0)/(1+value_sqrt_0));
+w = ((a+s3)/(1+value_sqrt_0));
+}
+d_tww_dX = ((thcs_t*w)*d_w_dX+(thcs_t*d_w_dX+d_thcs_t_dX*w)*w);
 tww = ((thcs_t*w)*w);
+d_dqfh_dX = (tww*d_itf_dX+d_tww_dX*itf);
 dqfh = (tww*itf);
+d_dtfh_dX = (tww*((s3*((itf*2*d_ick_dX-(2*ick)*d_itf_dX)/itf/itf)-((2*ick)/itf)*d_s3_dX)/s3/s3)+d_tww_dX*(1+(((2*ick)/itf)/s3)));
 dtfh = (tww*(1+(((2*ick)/itf)/s3)));
-dtef = (tef0_t*exp((modelPar_gte*log((itf/ick)))));
-dqef = ((dtef*itf)/(modelPar_gte+1.0));
+{
+double value_log_0 = log((itf/ick));
+double value_exp_1 = exp((modelStruct.modelPar_gte*value_log_0));
+double  deriv_log_0_d0 = (1.0/(itf/ick));
+double  deriv_exp_1_d0 = value_exp_1;
+d_dtef_dX = (tef0_t*deriv_exp_1_d0*((modelStruct.modelPar_gte*deriv_log_0_d0*(((ick*d_itf_dX-itf*d_ick_dX)/ick/ick))+modelStruct.d_modelPar_gte_dX*value_log_0))+d_tef0_t_dX*value_exp_1);
+dtef = (tef0_t*value_exp_1);
+}
+d_dqef_dX = (((modelStruct.modelPar_gte+1.0)*(dtef*d_itf_dX+d_dtef_dX*itf)-(dtef*itf)*modelStruct.d_modelPar_gte_dX)/(modelStruct.modelPar_gte+1.0)/(modelStruct.modelPar_gte+1.0));
+dqef = ((dtef*itf)/(modelStruct.modelPar_gte+1.0));
+d_qf_dX = ((d_qf0_dX+d_dqef_dX)+d_dqfh_dX);
 qf = ((qf0+dqef)+dqfh);
+d_tf_dX = ((d_tf0_dX+d_dtfh_dX)+d_dtef_dX);
 tf = ((tf0+dtfh)+dtef);
-qr = (modelPar_tr*itr);
-DIOY = (Vbiei/(modelPar_mbe*VT));
-if ((modelPar_ibes>0.0))
+d_qr_dX = (modelStruct.modelPar_tr*d_itr_dX+modelStruct.d_modelPar_tr_dX*itr);
+qr = (modelStruct.modelPar_tr*itr);
+d_DIOY_dX = (((modelStruct.modelPar_mbe*VT)*d_Vbiei_dX-Vbiei*(modelStruct.modelPar_mbe*d_VT_dX+modelStruct.d_modelPar_mbe_dX*VT))/(modelStruct.modelPar_mbe*VT)/(modelStruct.modelPar_mbe*VT));
+DIOY = (Vbiei/(modelStruct.modelPar_mbe*VT));
+if ((modelStruct.modelPar_ibes>0.0))
 {
 if ((DIOY>80))
 {
+d_le_dX = d_DIOY_dX;
 le = (1+(DIOY-80));
+d_DIOY_dX = 0.0;
 DIOY = 80;
 }
 else
 {
+d_le_dX = 0.0;
 le = 1;
 }
-le = (le*limexp<AdmsSensFadType>(DIOY));
+{
+double value_limexp_0 = limexp(DIOY);
+double  deriv_limexp_0_d0 = (((DIOY)<80)?(value_limexp_0):exp(80.0));
+d_le_dX = (le*deriv_limexp_0_d0*(d_DIOY_dX)+d_le_dX*value_limexp_0);
+le = (le*value_limexp_0);
+}
+d_ibe_dX = (ibes_t*d_le_dX+d_ibes_t_dX*(le-1.0));
 ibe = (ibes_t*(le-1.0));
 if ((DIOY<=(-14.0)))
 {
+d_ibe_dX = (-d_ibes_t_dX);
 ibe = (-ibes_t);
 }
 }
 else
 {
+d_ibe_dX = 0.0;
 ibe = 0.0;
 }
-DIOY = (Vbiei/(modelPar_mre*VT));
-if ((modelPar_ires>0.0))
+d_DIOY_dX = (((modelStruct.modelPar_mre*VT)*d_Vbiei_dX-Vbiei*(modelStruct.modelPar_mre*d_VT_dX+modelStruct.d_modelPar_mre_dX*VT))/(modelStruct.modelPar_mre*VT)/(modelStruct.modelPar_mre*VT));
+DIOY = (Vbiei/(modelStruct.modelPar_mre*VT));
+if ((modelStruct.modelPar_ires>0.0))
 {
 if ((DIOY>80))
 {
+d_le_dX = d_DIOY_dX;
 le = (1+(DIOY-80));
+d_DIOY_dX = 0.0;
 DIOY = 80;
 }
 else
 {
+d_le_dX = 0.0;
 le = 1;
 }
-le = (le*limexp<AdmsSensFadType>(DIOY));
+{
+double value_limexp_0 = limexp(DIOY);
+double  deriv_limexp_0_d0 = (((DIOY)<80)?(value_limexp_0):exp(80.0));
+d_le_dX = (le*deriv_limexp_0_d0*(d_DIOY_dX)+d_le_dX*value_limexp_0);
+le = (le*value_limexp_0);
+}
+d_ire_dX = (ires_t*d_le_dX+d_ires_t_dX*(le-1.0));
 ire = (ires_t*(le-1.0));
 if ((DIOY<=(-14.0)))
 {
+d_ire_dX = (-d_ires_t_dX);
 ire = (-ires_t);
 }
 }
 else
 {
+d_ire_dX = 0.0;
 ire = 0.0;
 }
-instanceVar_ijbe = (ibe+ire);
-DIOY = (Vbici/(modelPar_mbc*VT));
-if ((modelPar_ibcs>0.0))
+instanceStruct.d_instanceVar_ijbe_dX = (d_ibe_dX+d_ire_dX);
+instanceStruct.instanceVar_ijbe = (ibe+ire);
+d_DIOY_dX = (((modelStruct.modelPar_mbc*VT)*d_Vbici_dX-Vbici*(modelStruct.modelPar_mbc*d_VT_dX+modelStruct.d_modelPar_mbc_dX*VT))/(modelStruct.modelPar_mbc*VT)/(modelStruct.modelPar_mbc*VT));
+DIOY = (Vbici/(modelStruct.modelPar_mbc*VT));
+if ((modelStruct.modelPar_ibcs>0.0))
 {
 if ((DIOY>80))
 {
+d_le_dX = d_DIOY_dX;
 le = (1+(DIOY-80));
+d_DIOY_dX = 0.0;
 DIOY = 80;
 }
 else
 {
+d_le_dX = 0.0;
 le = 1;
 }
-le = (le*limexp<AdmsSensFadType>(DIOY));
-instanceVar_ijbc = (ibcs_t*(le-1.0));
+{
+double value_limexp_0 = limexp(DIOY);
+double  deriv_limexp_0_d0 = (((DIOY)<80)?(value_limexp_0):exp(80.0));
+d_le_dX = (le*deriv_limexp_0_d0*(d_DIOY_dX)+d_le_dX*value_limexp_0);
+le = (le*value_limexp_0);
+}
+instanceStruct.d_instanceVar_ijbc_dX = (ibcs_t*d_le_dX+d_ibcs_t_dX*(le-1.0));
+instanceStruct.instanceVar_ijbc = (ibcs_t*(le-1.0));
 if ((DIOY<=(-14.0)))
 {
-instanceVar_ijbc = (-ibcs_t);
+instanceStruct.d_instanceVar_ijbc_dX = (-d_ibcs_t_dX);
+instanceStruct.instanceVar_ijbc = (-ibcs_t);
 }
 }
 else
 {
-instanceVar_ijbc = 0.0;
+instanceStruct.d_instanceVar_ijbc_dX = 0.0;
+instanceStruct.instanceVar_ijbc = 0.0;
 }
-ibi = (instanceVar_ijbe+instanceVar_ijbc);
+d_ibi_dX = (instanceStruct.d_instanceVar_ijbe_dX+instanceStruct.d_instanceVar_ijbc_dX);
+ibi = (instanceStruct.instanceVar_ijbe+instanceStruct.instanceVar_ijbc);
 if ((Vbici<0))
 //Begin block HICAVL
 {
+d_v_bord_dX = (eavl_t*d_vdci_t_dX+d_eavl_t_dX*vdci_t);
 v_bord = (eavl_t*vdci_t);
 if (((vdci_t-Vbici)>v_bord))
 {
-a_iavl = ((kavl_t/vdci_t)*exp((-cc)));
-instanceVar_iavl = ((itf*a_iavl)*(v_bord+((1+cc)*((vdci_t-Vbici)-v_bord))));
+{
+double value_exp_0 = exp((-cc));
+double  deriv_exp_0_d0 = value_exp_0;
+d_a_iavl_dX = ((kavl_t/vdci_t)*deriv_exp_0_d0*((-d_cc_dX))+((vdci_t*d_kavl_t_dX-kavl_t*d_vdci_t_dX)/vdci_t/vdci_t)*value_exp_0);
+a_iavl = ((kavl_t/vdci_t)*value_exp_0);
+}
+instanceStruct.d_instanceVar_iavl_dX = ((itf*a_iavl)*(d_v_bord_dX+((1+cc)*((d_vdci_t_dX-d_Vbici_dX)-d_v_bord_dX)+d_cc_dX*((vdci_t-Vbici)-v_bord)))+(itf*d_a_iavl_dX+d_itf_dX*a_iavl)*(v_bord+((1+cc)*((vdci_t-Vbici)-v_bord))));
+instanceStruct.instanceVar_iavl = ((itf*a_iavl)*(v_bord+((1+cc)*((vdci_t-Vbici)-v_bord))));
 }
 else
 {
-lncc = log((1/cc));
-instanceVar_iavl = ((kavl_t*itf)*exp(((((-1)/modelPar_zci)*lncc)-(eavl_t*exp((((1/modelPar_zci)-1)*lncc))))));
+{
+double value_log_0 = log((1/cc));
+double  deriv_log_0_d0 = (1.0/(1/cc));
+d_lncc_dX = deriv_log_0_d0*((-1*d_cc_dX/cc/cc));
+lncc = value_log_0;
+}
+{
+double value_exp_0 = exp((((1/modelStruct.modelPar_zci)-1)*lncc));
+double value_exp_1 = exp(((((-1)/modelStruct.modelPar_zci)*lncc)-(eavl_t*value_exp_0)));
+double  deriv_exp_0_d0 = value_exp_0;
+double  deriv_exp_1_d0 = value_exp_1;
+instanceStruct.d_instanceVar_iavl_dX = ((kavl_t*itf)*deriv_exp_1_d0*(((((-1)/modelStruct.modelPar_zci)*d_lncc_dX+(-(-1)*modelStruct.d_modelPar_zci_dX/modelStruct.modelPar_zci/modelStruct.modelPar_zci)*lncc)-(eavl_t*deriv_exp_0_d0*((((1/modelStruct.modelPar_zci)-1)*d_lncc_dX+(-1*modelStruct.d_modelPar_zci_dX/modelStruct.modelPar_zci/modelStruct.modelPar_zci)*lncc))+d_eavl_t_dX*value_exp_0)))+(kavl_t*d_itf_dX+d_kavl_t_dX*itf)*value_exp_1);
+instanceStruct.instanceVar_iavl = ((kavl_t*itf)*value_exp_1);
+}
 }
 }
 // End block HICAVL
 else
 {
-instanceVar_iavl = 0;
+instanceStruct.d_instanceVar_iavl_dX = 0.0;
+instanceStruct.instanceVar_iavl = 0;
 }
 if ((cje0_t>0.0))
 {
-vf = (vde_t*(1.0-exp(((-log(aje_t))/modelPar_ze))));
+{
+double value_log_0 = log(aje_t);
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_ze));
+double  deriv_log_0_d0 = (1.0/aje_t);
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vde_t*(-deriv_exp_1_d0*(((modelStruct.modelPar_ze*(-deriv_log_0_d0*(d_aje_t_dX))-(-value_log_0)*modelStruct.d_modelPar_ze_dX)/modelStruct.modelPar_ze/modelStruct.modelPar_ze)))+d_vde_t_dX*(1.0-value_exp_1));
+vf = (vde_t*(1.0-value_exp_1));
+}
+d_xvf_dX = ((VT*(d_vf_dX-d_Vbiei_dX)-(vf-Vbiei)*d_VT_dX)/VT/VT);
 xvf = ((vf-Vbiei)/VT);
-xvf2 = sqrt(((xvf*xvf)+1.921812));
+{
+double value_sqrt_0 = sqrt(((xvf*xvf)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_xvf2_dX = deriv_sqrt_0_d0*((xvf*d_xvf_dX+d_xvf_dX*xvf));
+xvf2 = value_sqrt_0;
+}
+d_v_j_dX = (d_vf_dX-(VT*(d_xvf_dX+d_xvf2_dX)+d_VT_dX*(xvf+xvf2))*0.5);
 v_j = (vf-((VT*(xvf+xvf2))*0.5));
-x = (1.0-modelPar_ze);
-y = (1.0-exp((x*log((1.0-(v_j/vde_t))))));
-instanceVar_qjei = ((((cje0_t*vde_t)*y)/x)+((aje_t*cje0_t)*(Vbiei-v_j)));
+d_x_dX = (-modelStruct.d_modelPar_ze_dX);
+x = (1.0-modelStruct.modelPar_ze);
+{
+double value_log_0 = log((1.0-(v_j/vde_t)));
+double value_exp_1 = exp((x*value_log_0));
+double  deriv_log_0_d0 = (1.0/(1.0-(v_j/vde_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_y_dX = (-deriv_exp_1_d0*((x*deriv_log_0_d0*((-((vde_t*d_v_j_dX-v_j*d_vde_t_dX)/vde_t/vde_t)))+d_x_dX*value_log_0)));
+y = (1.0-value_exp_1);
+}
+instanceStruct.d_instanceVar_qjei_dX = (((x*((cje0_t*vde_t)*d_y_dX+(cje0_t*d_vde_t_dX+d_cje0_t_dX*vde_t)*y)-((cje0_t*vde_t)*y)*d_x_dX)/x/x)+((aje_t*cje0_t)*(d_Vbiei_dX-d_v_j_dX)+(aje_t*d_cje0_t_dX+d_aje_t_dX*cje0_t)*(Vbiei-v_j)));
+instanceStruct.instanceVar_qjei = ((((cje0_t*vde_t)*y)/x)+((aje_t*cje0_t)*(Vbiei-v_j)));
 }
 else
 {
-instanceVar_qjei = 0.00;
+instanceStruct.d_instanceVar_qjei_dX = 0.0;
+instanceStruct.instanceVar_qjei = 0.00;
 }
-qje = (instanceVar_qjei/cje0_t);
+d_qje_dX = ((cje0_t*instanceStruct.d_instanceVar_qjei_dX-instanceStruct.instanceVar_qjei*d_cje0_t_dX)/cje0_t/cje0_t);
+qje = (instanceStruct.instanceVar_qjei/cje0_t);
 if ((rbi0_t>0.0))
 //Begin block HICRBI
 {
-Qz_nom = ((((1+(qje/modelPar_vr0e))+(instanceVar_qjci/modelPar_vr0c))+(itf/ickf))+(itr/ickr));
-fQz = (0.5*(Qz_nom+sqrt(((Qz_nom*Qz_nom)+0.01))));
+d_Qz_nom_dX = (((((modelStruct.modelPar_vr0e*d_qje_dX-qje*modelStruct.d_modelPar_vr0e_dX)/modelStruct.modelPar_vr0e/modelStruct.modelPar_vr0e)+((modelStruct.modelPar_vr0c*instanceStruct.d_instanceVar_qjci_dX-instanceStruct.instanceVar_qjci*modelStruct.d_modelPar_vr0c_dX)/modelStruct.modelPar_vr0c/modelStruct.modelPar_vr0c))+((ickf*d_itf_dX-itf*d_ickf_dX)/ickf/ickf))+((ickr*d_itr_dX-itr*d_ickr_dX)/ickr/ickr));
+Qz_nom = ((((1+(qje/modelStruct.modelPar_vr0e))+(instanceStruct.instanceVar_qjci/modelStruct.modelPar_vr0c))+(itf/ickf))+(itr/ickr));
+{
+double value_sqrt_0 = sqrt(((Qz_nom*Qz_nom)+0.01));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_fQz_dX = 0.5*(d_Qz_nom_dX+deriv_sqrt_0_d0*((Qz_nom*d_Qz_nom_dX+d_Qz_nom_dX*Qz_nom)));
+fQz = (0.5*(Qz_nom+value_sqrt_0));
+}
+d_rbi_dX = ((fQz*d_rbi0_t_dX-rbi0_t*d_fQz_dX)/fQz/fQz);
 rbi = (rbi0_t/fQz);
 if ((ibi>0.0))
 {
-eta = (((modelPar_fgeo*rbi)*ibi)/VT);
+d_eta_dX = ((VT*((modelStruct.modelPar_fgeo*rbi)*d_ibi_dX+(modelStruct.modelPar_fgeo*d_rbi_dX+modelStruct.d_modelPar_fgeo_dX*rbi)*ibi)-((modelStruct.modelPar_fgeo*rbi)*ibi)*d_VT_dX)/VT/VT);
+eta = (((modelStruct.modelPar_fgeo*rbi)*ibi)/VT);
 if ((eta<1e-6))
 {
+d_rbi_dX = (rbi*(-0.5*d_eta_dX)+d_rbi_dX*(1-(0.5*eta)));
 rbi = (rbi*(1-(0.5*eta)));
 }
 else
 {
-rbi = ((rbi*log((eta+1)))/eta);
+{
+double value_log_0 = log((eta+1));
+double  deriv_log_0_d0 = (1.0/(eta+1));
+d_rbi_dX = ((eta*(rbi*deriv_log_0_d0*(d_eta_dX)+d_rbi_dX*value_log_0)-(rbi*value_log_0)*d_eta_dX)/eta/eta);
+rbi = ((rbi*value_log_0)/eta);
+}
 }
 }
 }
 // End block HICRBI
 else
 {
+d_rbi_dX = 0.0;
 rbi = 0.0;
 }
+d_rb_dX = (d_rbi_dX+d_rbx_t_dX);
 rb = (rbi+rbx_t);
-if ((modelPar_itss>0.0))
+if ((modelStruct.modelPar_itss>0.0))
 //Begin block Sub_Transfer
 {
-HSUM = (modelPar_msf*VT);
-HSa = limexp<AdmsSensFadType>((Vbci/HSUM));
-HSb = limexp<AdmsSensFadType>((Vsci/HSUM));
+d_HSUM_dX = (modelStruct.modelPar_msf*d_VT_dX+modelStruct.d_modelPar_msf_dX*VT);
+HSUM = (modelStruct.modelPar_msf*VT);
+{
+double value_limexp_0 = limexp((Vbci/HSUM));
+double  deriv_limexp_0_d0 = ((((Vbci/HSUM))<80)?(value_limexp_0):exp(80.0));
+d_HSa_dX = deriv_limexp_0_d0*(((HSUM*d_Vbci_dX-Vbci*d_HSUM_dX)/HSUM/HSUM));
+HSa = value_limexp_0;
+}
+{
+double value_limexp_0 = limexp((Vsci/HSUM));
+double  deriv_limexp_0_d0 = ((((Vsci/HSUM))<80)?(value_limexp_0):exp(80.0));
+d_HSb_dX = deriv_limexp_0_d0*(((HSUM*d_Vsci_dX-Vsci*d_HSUM_dX)/HSUM/HSUM));
+HSb = value_limexp_0;
+}
+d_HSI_Tsu_dX = (itss_t*(d_HSa_dX-d_HSb_dX)+d_itss_t_dX*(HSa-HSb));
 HSI_Tsu = (itss_t*(HSa-HSb));
 }
 // End block Sub_Transfer
 else
 {
+d_HSI_Tsu_dX = 0.0;
 HSI_Tsu = 0.0;
 }
-DIOY = (Vsci/(modelPar_msc*VT));
-if ((modelPar_iscs>0.0))
+d_DIOY_dX = (((modelStruct.modelPar_msc*VT)*d_Vsci_dX-Vsci*(modelStruct.modelPar_msc*d_VT_dX+modelStruct.d_modelPar_msc_dX*VT))/(modelStruct.modelPar_msc*VT)/(modelStruct.modelPar_msc*VT));
+DIOY = (Vsci/(modelStruct.modelPar_msc*VT));
+if ((modelStruct.modelPar_iscs>0.0))
 {
 if ((DIOY>80))
 {
+d_le_dX = d_DIOY_dX;
 le = (1+(DIOY-80));
+d_DIOY_dX = 0.0;
 DIOY = 80;
 }
 else
 {
+d_le_dX = 0.0;
 le = 1;
 }
-le = (le*limexp<AdmsSensFadType>(DIOY));
-instanceVar_ijsc = (iscs_t*(le-1.0));
+{
+double value_limexp_0 = limexp(DIOY);
+double  deriv_limexp_0_d0 = (((DIOY)<80)?(value_limexp_0):exp(80.0));
+d_le_dX = (le*deriv_limexp_0_d0*(d_DIOY_dX)+d_le_dX*value_limexp_0);
+le = (le*value_limexp_0);
+}
+instanceStruct.d_instanceVar_ijsc_dX = (iscs_t*d_le_dX+d_iscs_t_dX*(le-1.0));
+instanceStruct.instanceVar_ijsc = (iscs_t*(le-1.0));
 if ((DIOY<=(-14.0)))
 {
-instanceVar_ijsc = (-iscs_t);
+instanceStruct.d_instanceVar_ijsc_dX = (-d_iscs_t_dX);
+instanceStruct.instanceVar_ijsc = (-iscs_t);
 }
 }
 else
 {
-instanceVar_ijsc = 0.0;
+instanceStruct.d_instanceVar_ijsc_dX = 0.0;
+instanceStruct.instanceVar_ijsc = 0.0;
 }
-if ((modelPar_vpts<1.0e2))
+if ((modelStruct.modelPar_vpts<1.0e2))
 {
 if ((cjs0_t>0.0))
 {
-zr = (modelPar_zs/4.0);
-vp = (modelPar_vpts-vds_t);
-vf = (vds_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zs))));
+d_zr_dX = (modelStruct.d_modelPar_zs_dX/4.0);
+zr = (modelStruct.modelPar_zs/4.0);
+d_vp_dX = (modelStruct.d_modelPar_vpts_dX-d_vds_t_dX);
+vp = (modelStruct.modelPar_vpts-vds_t);
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zs));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vds_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zs_dX/modelStruct.modelPar_zs/modelStruct.modelPar_zs)))+d_vds_t_dX*(1.0-value_exp_1));
+vf = (vds_t*(1.0-value_exp_1));
+}
+d_cmax_dX = 2.4*d_cjs0_t_dX;
 cmax = (2.4*cjs0_t);
-cr = (cjs0_t*exp(((modelPar_zs-zr)*log((vds_t/modelPar_vpts)))));
+{
+double value_log_0 = log((vds_t/modelStruct.modelPar_vpts));
+double value_exp_1 = exp(((modelStruct.modelPar_zs-zr)*value_log_0));
+double  deriv_log_0_d0 = (1.0/(vds_t/modelStruct.modelPar_vpts));
+double  deriv_exp_1_d0 = value_exp_1;
+d_cr_dX = (cjs0_t*deriv_exp_1_d0*(((modelStruct.modelPar_zs-zr)*deriv_log_0_d0*(((modelStruct.modelPar_vpts*d_vds_t_dX-vds_t*modelStruct.d_modelPar_vpts_dX)/modelStruct.modelPar_vpts/modelStruct.modelPar_vpts))+(modelStruct.d_modelPar_zs_dX-d_zr_dX)*value_log_0))+d_cjs0_t_dX*value_exp_1);
+cr = (cjs0_t*value_exp_1);
+}
+d_a_dX = d_VT_dX;
 a = VT;
+d_ve_dX = ((a*(d_vf_dX-d_Vsci_dX)-(vf-Vsci)*d_a_dX)/a/a);
 ve = ((vf-Vsci)/a);
 if ((ve<=80.0))
 {
-ex1 = exp(ve);
+{
+double value_exp_0 = exp(ve);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_ve_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj1 = (vf-(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj1_dX = (d_vf_dX-(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj1 = (vf-(a*value_log_0));
+}
 }
 else
 {
+d_vj1_dX = d_Vsci_dX;
 vj1 = Vsci;
 }
+d_a_dX = (0.1*d_vp_dX+4.0*d_VT_dX);
 a = ((0.1*vp)+(4.0*VT));
+d_vr_dX = ((a*(d_vp_dX+d_vj1_dX)-(vp+vj1)*d_a_dX)/a/a);
 vr = ((vp+vj1)/a);
 if ((vr<=80.0))
 {
-ex1 = exp(vr);
+{
+double value_exp_0 = exp(vr);
+double  deriv_exp_0_d0 = value_exp_0;
+d_ex1_dX = deriv_exp_0_d0*(d_vr_dX);
+ex1 = value_exp_0;
+}
+d_ee1_dX = d_ex1_dX;
 ee1 = (1.0+ex1);
-vj2 = ((-vp)+(a*log(ee1)));
+{
+double value_log_0 = log(ee1);
+double  deriv_log_0_d0 = (1.0/ee1);
+d_vj2_dX = ((-d_vp_dX)+(a*deriv_log_0_d0*(d_ee1_dX)+d_a_dX*value_log_0));
+vj2 = ((-vp)+(a*value_log_0));
+}
 }
 else
 {
+d_vj2_dX = d_vj1_dX;
 vj2 = vj1;
 }
+d_vj4_dX = (d_Vsci_dX-d_vj1_dX);
 vj4 = (Vsci-vj1);
-ez = (1.0-modelPar_zs);
+d_ez_dX = (-modelStruct.d_modelPar_zs_dX);
+ez = (1.0-modelStruct.modelPar_zs);
+d_ezr_dX = (-d_zr_dX);
 ezr = (1.0-zr);
-vdj1 = log((1.0-(vj1/vds_t)));
-vdj2 = log((1.0-(vj2/vds_t)));
-qj1 = ((cjs0_t*(1.0-exp((vdj2*ez))))/ez);
-qj2 = ((cr*(1.0-exp((vdj1*ezr))))/ezr);
-qj3 = ((cr*(1.0-exp((vdj2*ezr))))/ezr);
+{
+double value_log_0 = log((1.0-(vj1/vds_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj1/vds_t)));
+d_vdj1_dX = deriv_log_0_d0*((-((vds_t*d_vj1_dX-vj1*d_vds_t_dX)/vds_t/vds_t)));
+vdj1 = value_log_0;
+}
+{
+double value_log_0 = log((1.0-(vj2/vds_t)));
+double  deriv_log_0_d0 = (1.0/(1.0-(vj2/vds_t)));
+d_vdj2_dX = deriv_log_0_d0*((-((vds_t*d_vj2_dX-vj2*d_vds_t_dX)/vds_t/vds_t)));
+vdj2 = value_log_0;
+}
+{
+double value_exp_0 = exp((vdj2*ez));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj1_dX = ((ez*(cjs0_t*(-deriv_exp_0_d0*((vdj2*d_ez_dX+d_vdj2_dX*ez)))+d_cjs0_t_dX*(1.0-value_exp_0))-(cjs0_t*(1.0-value_exp_0))*d_ez_dX)/ez/ez);
+qj1 = ((cjs0_t*(1.0-value_exp_0))/ez);
+}
+{
+double value_exp_0 = exp((vdj1*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj2_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj1*d_ezr_dX+d_vdj1_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj2 = ((cr*(1.0-value_exp_0))/ezr);
+}
+{
+double value_exp_0 = exp((vdj2*ezr));
+double  deriv_exp_0_d0 = value_exp_0;
+d_qj3_dX = ((ezr*(cr*(-deriv_exp_0_d0*((vdj2*d_ezr_dX+d_vdj2_dX*ezr)))+d_cr_dX*(1.0-value_exp_0))-(cr*(1.0-value_exp_0))*d_ezr_dX)/ezr/ezr);
+qj3 = ((cr*(1.0-value_exp_0))/ezr);
+}
+d_qjs_dX = ((((qj1+qj2)-qj3)*d_vds_t_dX+((d_qj1_dX+d_qj2_dX)-d_qj3_dX)*vds_t)+(cmax*d_vj4_dX+d_cmax_dX*vj4));
 qjs = ((((qj1+qj2)-qj3)*vds_t)+(cmax*vj4));
 }
 else
 {
+d_qjs_dX = 0.0;
 qjs = 0.0;
 }
 }
@@ -14108,140 +14766,203 @@ else
 {
 if ((cjs0_t>0.0))
 {
-vf = (vds_t*(1.0-exp(((-log(static_cast<double>(2.4)))/modelPar_zs))));
+{
+double value_log_0 = log(static_cast<double>(2.4));
+double value_exp_1 = exp(((-value_log_0)/modelStruct.modelPar_zs));
+double  deriv_exp_1_d0 = value_exp_1;
+d_vf_dX = (vds_t*(-deriv_exp_1_d0*((-(-value_log_0)*modelStruct.d_modelPar_zs_dX/modelStruct.modelPar_zs/modelStruct.modelPar_zs)))+d_vds_t_dX*(1.0-value_exp_1));
+vf = (vds_t*(1.0-value_exp_1));
+}
+d_xvf_dX = ((VT*(d_vf_dX-d_Vsci_dX)-(vf-Vsci)*d_VT_dX)/VT/VT);
 xvf = ((vf-Vsci)/VT);
-xvf2 = sqrt(((xvf*xvf)+1.921812));
+{
+double value_sqrt_0 = sqrt(((xvf*xvf)+1.921812));
+double  deriv_sqrt_0_d0 = (0.5/value_sqrt_0);
+d_xvf2_dX = deriv_sqrt_0_d0*((xvf*d_xvf_dX+d_xvf_dX*xvf));
+xvf2 = value_sqrt_0;
+}
+d_v_j_dX = (d_vf_dX-(VT*(d_xvf_dX+d_xvf2_dX)+d_VT_dX*(xvf+xvf2))*0.5);
 v_j = (vf-((VT*(xvf+xvf2))*0.5));
-x = (1.0-modelPar_zs);
-y = (1.0-exp((x*log((1.0-(v_j/vds_t))))));
+d_x_dX = (-modelStruct.d_modelPar_zs_dX);
+x = (1.0-modelStruct.modelPar_zs);
+{
+double value_log_0 = log((1.0-(v_j/vds_t)));
+double value_exp_1 = exp((x*value_log_0));
+double  deriv_log_0_d0 = (1.0/(1.0-(v_j/vds_t)));
+double  deriv_exp_1_d0 = value_exp_1;
+d_y_dX = (-deriv_exp_1_d0*((x*deriv_log_0_d0*((-((vds_t*d_v_j_dX-v_j*d_vds_t_dX)/vds_t/vds_t)))+d_x_dX*value_log_0)));
+y = (1.0-value_exp_1);
+}
+d_qjs_dX = (((x*((cjs0_t*vds_t)*d_y_dX+(cjs0_t*d_vds_t_dX+d_cjs0_t_dX*vds_t)*y)-((cjs0_t*vds_t)*y)*d_x_dX)/x/x)+((2.4*cjs0_t)*(d_Vsci_dX-d_v_j_dX)+2.4*d_cjs0_t_dX*(Vsci-v_j)));
 qjs = ((((cjs0_t*vds_t)*y)/x)+((2.4*cjs0_t)*(Vsci-v_j)));
 }
 else
 {
+d_qjs_dX = 0.0;
 qjs = 0.00;
 }
 }
+d_pterm_dX = 0.0;
 pterm = 0;
-if (((modelPar_flsh==1)&&(modelPar_rth>=0.001)))
+if (((modelStruct.modelPar_flsh==1)&&(modelStruct.modelPar_rth>=0.001)))
 {
-pterm = ((instanceVar_it*Vciei)+(instanceVar_iavl*(vdci_t-Vbici)));
+d_pterm_dX = ((instanceStruct.instanceVar_it*d_Vciei_dX+instanceStruct.d_instanceVar_it_dX*Vciei)+(instanceStruct.instanceVar_iavl*(d_vdci_t_dX-d_Vbici_dX)+instanceStruct.d_instanceVar_iavl_dX*(vdci_t-Vbici)));
+pterm = ((instanceStruct.instanceVar_it*Vciei)+(instanceStruct.instanceVar_iavl*(vdci_t-Vbici)));
 }
 else
 {
-if (((modelPar_flsh==2)&&(modelPar_rth>=0.001)))
+if (((modelStruct.modelPar_flsh==2)&&(modelStruct.modelPar_rth>=0.001)))
 {
-pterm = (((((Vciei*instanceVar_it)+((vdci_t-Vbici)*instanceVar_iavl))+(instanceVar_ijbe*Vbiei))+(instanceVar_ijbc*Vbici))+(instanceVar_ijsc*Vsci));
+d_pterm_dX = (((((Vciei*instanceStruct.d_instanceVar_it_dX+d_Vciei_dX*instanceStruct.instanceVar_it)+((vdci_t-Vbici)*instanceStruct.d_instanceVar_iavl_dX+(d_vdci_t_dX-d_Vbici_dX)*instanceStruct.instanceVar_iavl))+(instanceStruct.instanceVar_ijbe*d_Vbiei_dX+instanceStruct.d_instanceVar_ijbe_dX*Vbiei))+(instanceStruct.instanceVar_ijbc*d_Vbici_dX+instanceStruct.d_instanceVar_ijbc_dX*Vbici))+(instanceStruct.instanceVar_ijsc*d_Vsci_dX+instanceStruct.d_instanceVar_ijsc_dX*Vsci));
+pterm = (((((Vciei*instanceStruct.instanceVar_it)+((vdci_t-Vbici)*instanceStruct.instanceVar_iavl))+(instanceStruct.instanceVar_ijbe*Vbiei))+(instanceStruct.instanceVar_ijbc*Vbici))+(instanceStruct.instanceVar_ijsc*Vsci));
 if ((rb>=0.001))
 {
+d_pterm_dX = (d_pterm_dX+(-(Vbbi*Vbbi)*d_rb_dX/rb/rb));
 pterm = (pterm+((Vbbi*Vbbi)/rb));
 }
-if ((modelPar_re>=0.001))
+if ((modelStruct.modelPar_re>=0.001))
 {
+d_pterm_dX = (d_pterm_dX+(-(Veie*Veie)*d_re_t_dX/re_t/re_t));
 pterm = (pterm+((Veie*Veie)/re_t));
 }
-if ((modelPar_rcx>=0.001))
+if ((modelStruct.modelPar_rcx>=0.001))
 {
+d_pterm_dX = (d_pterm_dX+(-(Vcic*Vcic)*d_rcx_t_dX/rcx_t/rcx_t));
 pterm = (pterm+((Vcic*Vcic)/rcx_t));
 }
 }
 }
+d_Itxf_dX = d_itf_dX;
 Itxf = itf;
+d_Qdeix_dX = d_qf_dX;
 Qdeix = qf;
-if (((modelPar_flnqs!=0)&&(tf!=0)))
+if (((modelStruct.modelPar_flnqs!=0)&&(tf!=0)))
 {
 Vxf1 = (probeVars[admsProbeID_V_xf1_GND]);
 Vxf2 = (probeVars[admsProbeID_V_xf2_GND]);
-Ixf1 = (((Vxf2-itf)/tf)*modelPar_t0);
-Ixf2 = (((Vxf2-Vxf1)/tf)*modelPar_t0);
-Qxf1 = ((modelPar_alit*Vxf1)*modelPar_t0);
-Qxf2 = (((modelPar_alit*Vxf2)/3)*modelPar_t0);
+d_Ixf1_dX = (((Vxf2-itf)/tf)*modelStruct.d_modelPar_t0_dX+((tf*(-d_itf_dX)-(Vxf2-itf)*d_tf_dX)/tf/tf)*modelStruct.modelPar_t0);
+Ixf1 = (((Vxf2-itf)/tf)*modelStruct.modelPar_t0);
+d_Ixf2_dX = (((Vxf2-Vxf1)/tf)*modelStruct.d_modelPar_t0_dX+(-(Vxf2-Vxf1)*d_tf_dX/tf/tf)*modelStruct.modelPar_t0);
+Ixf2 = (((Vxf2-Vxf1)/tf)*modelStruct.modelPar_t0);
+d_Qxf1_dX = ((modelStruct.modelPar_alit*Vxf1)*modelStruct.d_modelPar_t0_dX+modelStruct.d_modelPar_alit_dX*Vxf1*modelStruct.modelPar_t0);
+Qxf1 = ((modelStruct.modelPar_alit*Vxf1)*modelStruct.modelPar_t0);
+d_Qxf2_dX = (((modelStruct.modelPar_alit*Vxf2)/3)*modelStruct.d_modelPar_t0_dX+(modelStruct.d_modelPar_alit_dX*Vxf2/3)*modelStruct.modelPar_t0);
+Qxf2 = (((modelStruct.modelPar_alit*Vxf2)/3)*modelStruct.modelPar_t0);
+d_Itxf_dX = 0.0;
 Itxf = Vxf2;
 Vxf = (probeVars[admsProbeID_V_xf_GND]);
-fact = (modelPar_t0/tf);
+d_fact_dX = ((tf*modelStruct.d_modelPar_t0_dX-modelStruct.modelPar_t0*d_tf_dX)/tf/tf);
+fact = (modelStruct.modelPar_t0/tf);
+d_Ixf_dX = ((Vxf-qf)*d_fact_dX+(-d_qf_dX)*fact);
 Ixf = ((Vxf-qf)*fact);
-Qxf = ((modelPar_alqf*Vxf)*modelPar_t0);
+d_Qxf_dX = ((modelStruct.modelPar_alqf*Vxf)*modelStruct.d_modelPar_t0_dX+modelStruct.d_modelPar_alqf_dX*Vxf*modelStruct.modelPar_t0);
+Qxf = ((modelStruct.modelPar_alqf*Vxf)*modelStruct.modelPar_t0);
+d_Qdeix_dX = 0.0;
 Qdeix = Vxf;
 }
 else
 {
+d_Ixf1_dX = 0.0;
 Ixf1 = (probeVars[admsProbeID_V_xf1_GND]);
+d_Ixf2_dX = 0.0;
 Ixf2 = (probeVars[admsProbeID_V_xf2_GND]);
+d_Qxf1_dX = 0.0;
 Qxf1 = 0;
+d_Qxf2_dX = 0.0;
 Qxf2 = 0;
+d_Ixf_dX = 0.0;
 Ixf = (probeVars[admsProbeID_V_xf_GND]);
+d_Qxf_dX = 0.0;
 Qxf = 0;
 }
-instanceVar_Ibici = (instanceVar_ijbc-instanceVar_iavl);
-Qbci = (modelPar_cbcpar*Vbci);
-Qbe = (modelPar_cbepar*Vbe);
+instanceStruct.d_instanceVar_Ibici_dX = (instanceStruct.d_instanceVar_ijbc_dX-instanceStruct.d_instanceVar_iavl_dX);
+instanceStruct.instanceVar_Ibici = (instanceStruct.instanceVar_ijbc-instanceStruct.instanceVar_iavl);
+d_Qbci_dX = (modelStruct.modelPar_cbcpar*d_Vbci_dX+modelStruct.d_modelPar_cbcpar_dX*Vbci);
+Qbci = (modelStruct.modelPar_cbcpar*Vbci);
+d_Qbe_dX = (modelStruct.modelPar_cbepar*d_Vbe_dX+modelStruct.d_modelPar_cbepar_dX*Vbe);
+Qbe = (modelStruct.modelPar_cbepar*Vbe);
+d_Qbici_dX = (d_qjcii_dX+d_qr_dX);
 Qbici = (qjcii+qr);
-Qbiei = (instanceVar_qjei+Qdeix);
-instanceVar_ijsc = (HICUMtype*instanceVar_ijsc);
+d_Qbiei_dX = (instanceStruct.d_instanceVar_qjei_dX+d_Qdeix_dX);
+Qbiei = (instanceStruct.instanceVar_qjei+Qdeix);
+instanceStruct.d_instanceVar_ijsc_dX = (HICUMtype*instanceStruct.d_instanceVar_ijsc_dX+d_HICUMtype_dX*instanceStruct.instanceVar_ijsc);
+instanceStruct.instanceVar_ijsc = (HICUMtype*instanceStruct.instanceVar_ijsc);
+d_qjs_dX = (HICUMtype*d_qjs_dX+d_HICUMtype_dX*qjs);
 qjs = (HICUMtype*qjs);
+d_qjcx_dX = (HICUMtype*d_qjcx_dX+d_HICUMtype_dX*qjcx);
 qjcx = (HICUMtype*qjcx);
+d_Qbci_dX = (HICUMtype*d_Qbci_dX+d_HICUMtype_dX*Qbci);
 Qbci = (HICUMtype*Qbci);
+d_Qbe_dX = (HICUMtype*d_Qbe_dX+d_HICUMtype_dX*Qbe);
 Qbe = (HICUMtype*Qbe);
-instanceVar_Ibici = (HICUMtype*instanceVar_Ibici);
+instanceStruct.d_instanceVar_Ibici_dX = (HICUMtype*instanceStruct.d_instanceVar_Ibici_dX+d_HICUMtype_dX*instanceStruct.instanceVar_Ibici);
+instanceStruct.instanceVar_Ibici = (HICUMtype*instanceStruct.instanceVar_Ibici);
+d_Qbici_dX = (HICUMtype*d_Qbici_dX+d_HICUMtype_dX*Qbici);
 Qbici = (HICUMtype*Qbici);
-instanceVar_ijbe = (HICUMtype*instanceVar_ijbe);
+instanceStruct.d_instanceVar_ijbe_dX = (HICUMtype*instanceStruct.d_instanceVar_ijbe_dX+d_HICUMtype_dX*instanceStruct.instanceVar_ijbe);
+instanceStruct.instanceVar_ijbe = (HICUMtype*instanceStruct.instanceVar_ijbe);
+d_Qbiei_dX = (HICUMtype*d_Qbiei_dX+d_HICUMtype_dX*Qbiei);
 Qbiei = (HICUMtype*Qbiei);
-it_wop = (HICUMtype*instanceVar_it);
-instanceVar_it = (HICUMtype*(Itxf-itr));
-instanceVar_iavl = (HICUMtype*instanceVar_iavl);
+d_it_wop_dX = (HICUMtype*instanceStruct.d_instanceVar_it_dX+d_HICUMtype_dX*instanceStruct.instanceVar_it);
+it_wop = (HICUMtype*instanceStruct.instanceVar_it);
+instanceStruct.d_instanceVar_it_dX = (HICUMtype*(d_Itxf_dX-d_itr_dX)+d_HICUMtype_dX*(Itxf-itr));
+instanceStruct.instanceVar_it = (HICUMtype*(Itxf-itr));
+instanceStruct.d_instanceVar_iavl_dX = (HICUMtype*instanceStruct.d_instanceVar_iavl_dX+d_HICUMtype_dX*instanceStruct.instanceVar_iavl);
+instanceStruct.instanceVar_iavl = (HICUMtype*instanceStruct.instanceVar_iavl);
 // I(bi,ei) <+ (($simparam("gmin",1e-12)*V(bi,ei)))
-staticContributions[admsNodeID_bi] += (ADMSgmin_arg*(probeVars[admsProbeID_V_bi_ei]));
-staticContributions[admsNodeID_ei] -= (ADMSgmin_arg*(probeVars[admsProbeID_V_bi_ei]));
+d_staticContributions_dX[admsNodeID_bi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_ei)]-= 0.0;
 // I(bi,ci) <+ (($simparam("gmin",1e-12)*V(bi,ci)))
-staticContributions[admsNodeID_bi] += (ADMSgmin_arg*(probeVars[admsProbeID_V_bi_ci]));
-staticContributions[admsNodeID_ci] -= (ADMSgmin_arg*(probeVars[admsProbeID_V_bi_ci]));
+d_staticContributions_dX[admsNodeID_bi]+= 0.0;
+d_staticContributions_dX[(admsNodeID_ci)]-= 0.0;
 // I(ci,ei) <+ (($simparam("gmin",1e-12)*V(ci,ei)))
-staticContributions[admsNodeID_ci] += (ADMSgmin_arg*(probeVars[admsProbeID_V_ci_ei]));
-staticContributions[admsNodeID_ei] -= (ADMSgmin_arg*(probeVars[admsProbeID_V_ci_ei]));
+d_staticContributions_dX[admsNodeID_ci]+= 0.0;
+d_staticContributions_dX[(admsNodeID_ei)]-= 0.0;
 // I(b,s) <+ ((HICUMtype*HSI_Tsu))
-staticContributions[admsNodeID_b] += (HICUMtype*HSI_Tsu);
-staticContributions[admsNodeID_s] -= (HICUMtype*HSI_Tsu);
+d_staticContributions_dX[admsNodeID_b]+= (HICUMtype*d_HSI_Tsu_dX+d_HICUMtype_dX*HSI_Tsu);
+d_staticContributions_dX[(admsNodeID_s)]-= (HICUMtype*d_HSI_Tsu_dX+d_HICUMtype_dX*HSI_Tsu);
 // I(s,ci) <+ (ijsc)
-staticContributions[admsNodeID_s] += instanceVar_ijsc;
-staticContributions[admsNodeID_ci] -= instanceVar_ijsc;
+d_staticContributions_dX[admsNodeID_s]+= instanceStruct.d_instanceVar_ijsc_dX;
+d_staticContributions_dX[(admsNodeID_ci)]-= instanceStruct.d_instanceVar_ijsc_dX;
 // I(s,ci) <+ (ddt(qjs))
-dynamicContributions[admsNodeID_s] += (qjs);
-dynamicContributions[admsNodeID_ci] -= (qjs);
+d_dynamicContributions_dX[admsNodeID_s]+= (d_qjs_dX);
+d_dynamicContributions_dX[(admsNodeID_ci)]-= (d_qjs_dX);
 // I(b,ci) <+ (ddt(qjcx))
-dynamicContributions[admsNodeID_b] += (qjcx);
-dynamicContributions[admsNodeID_ci] -= (qjcx);
+d_dynamicContributions_dX[admsNodeID_b]+= (d_qjcx_dX);
+d_dynamicContributions_dX[(admsNodeID_ci)]-= (d_qjcx_dX);
 // I(b,ci) <+ (ddt(Qbci))
-dynamicContributions[admsNodeID_b] += (Qbci);
-dynamicContributions[admsNodeID_ci] -= (Qbci);
+d_dynamicContributions_dX[admsNodeID_b]+= (d_Qbci_dX);
+d_dynamicContributions_dX[(admsNodeID_ci)]-= (d_Qbci_dX);
 // I(b,e) <+ (ddt(Qbe))
-dynamicContributions[admsNodeID_b] += (Qbe);
-dynamicContributions[admsNodeID_e] -= (Qbe);
-if ((modelPar_re>=0.001))
+d_dynamicContributions_dX[admsNodeID_b]+= (d_Qbe_dX);
+d_dynamicContributions_dX[(admsNodeID_e)]-= (d_Qbe_dX);
+if ((modelStruct.modelPar_re>=0.001))
 {
 // I(ei,e) <+ ((Veie/re_t))
-staticContributions[admsNodeID_ei] += (Veie/re_t);
-staticContributions[admsNodeID_e] -= (Veie/re_t);
+d_staticContributions_dX[admsNodeID_ei]+= (-Veie*d_re_t_dX/re_t/re_t);
+d_staticContributions_dX[(admsNodeID_e)]-= (-Veie*d_re_t_dX/re_t/re_t);
 }
 else
 {
 // V(ei,e) <+ (0.0)
 // do nothing at all
 }
-if ((modelPar_rcx>=0.001))
+if ((modelStruct.modelPar_rcx>=0.001))
 {
 // I(ci,c) <+ ((Vcic/rcx_t))
-staticContributions[admsNodeID_ci] += (Vcic/rcx_t);
-staticContributions[admsNodeID_c] -= (Vcic/rcx_t);
+d_staticContributions_dX[admsNodeID_ci]+= (-Vcic*d_rcx_t_dX/rcx_t/rcx_t);
+d_staticContributions_dX[(admsNodeID_c)]-= (-Vcic*d_rcx_t_dX/rcx_t/rcx_t);
 }
 else
 {
 // V(ci,c) <+ (0.0)
 // do nothing at all
 }
-if (((modelPar_rbi0>=0.001)||(modelPar_rbx>=0.001)))
+if (((modelStruct.modelPar_rbi0>=0.001)||(modelStruct.modelPar_rbx>=0.001)))
 {
 // I(b,bi) <+ ((Vbbi/rb))
-staticContributions[admsNodeID_b] += (Vbbi/rb);
-staticContributions[admsNodeID_bi] -= (Vbbi/rb);
+d_staticContributions_dX[admsNodeID_b]+= (-Vbbi*d_rb_dX/rb/rb);
+d_staticContributions_dX[(admsNodeID_bi)]-= (-Vbbi*d_rb_dX/rb/rb);
 }
 else
 {
@@ -14249,112 +14970,121 @@ else
 // do nothing at all
 }
 // I(bi,ci) <+ (Ibici)
-staticContributions[admsNodeID_bi] += instanceVar_Ibici;
-staticContributions[admsNodeID_ci] -= instanceVar_Ibici;
+d_staticContributions_dX[admsNodeID_bi]+= instanceStruct.d_instanceVar_Ibici_dX;
+d_staticContributions_dX[(admsNodeID_ci)]-= instanceStruct.d_instanceVar_Ibici_dX;
 // I(bi,ci) <+ (ddt(Qbici))
-dynamicContributions[admsNodeID_bi] += (Qbici);
-dynamicContributions[admsNodeID_ci] -= (Qbici);
+d_dynamicContributions_dX[admsNodeID_bi]+= (d_Qbici_dX);
+d_dynamicContributions_dX[(admsNodeID_ci)]-= (d_Qbici_dX);
 // I(bi,ei) <+ (ijbe)
-staticContributions[admsNodeID_bi] += instanceVar_ijbe;
-staticContributions[admsNodeID_ei] -= instanceVar_ijbe;
+d_staticContributions_dX[admsNodeID_bi]+= instanceStruct.d_instanceVar_ijbe_dX;
+d_staticContributions_dX[(admsNodeID_ei)]-= instanceStruct.d_instanceVar_ijbe_dX;
 // I(bi,ei) <+ (ddt(Qbiei))
-dynamicContributions[admsNodeID_bi] += (Qbiei);
-dynamicContributions[admsNodeID_ei] -= (Qbiei);
+d_dynamicContributions_dX[admsNodeID_bi]+= (d_Qbiei_dX);
+d_dynamicContributions_dX[(admsNodeID_ei)]-= (d_Qbiei_dX);
 // I(ci,ei) <+ (it)
-staticContributions[admsNodeID_ci] += instanceVar_it;
-staticContributions[admsNodeID_ei] -= instanceVar_it;
-if (((modelPar_flsh==0)||(modelPar_rth<0.001)))
+d_staticContributions_dX[admsNodeID_ci]+= instanceStruct.d_instanceVar_it_dX;
+d_staticContributions_dX[(admsNodeID_ei)]-= instanceStruct.d_instanceVar_it_dX;
+if (((modelStruct.modelPar_flsh==0)||(modelStruct.modelPar_rth<0.001)))
 {
 // I(tnode,GND) <+ ((Vrth/0.001))
-staticContributions[admsNodeID_tnode] += (Vrth/0.001);
+d_staticContributions_dX[admsNodeID_tnode]+= 0.0;
 }
 else
 {
 // I(tnode,GND) <+ (((Vrth/rth)-pterm))
-staticContributions[admsNodeID_tnode] += ((Vrth/modelPar_rth)-pterm);
+d_staticContributions_dX[admsNodeID_tnode]+= ((-Vrth*modelStruct.d_modelPar_rth_dX/modelStruct.modelPar_rth/modelStruct.modelPar_rth)-d_pterm_dX);
 // I(tnode,GND) <+ (ddt((cth*Vrth)))
-dynamicContributions[admsNodeID_tnode] += ((modelPar_cth*Vrth));
+d_dynamicContributions_dX[admsNodeID_tnode]+= (modelStruct.d_modelPar_cth_dX*Vrth);
 }
 // I(xf1,GND) <+ (Ixf1)
-staticContributions[admsNodeID_xf1] += Ixf1;
+d_staticContributions_dX[admsNodeID_xf1]+= d_Ixf1_dX;
 // I(xf1,GND) <+ (ddt(Qxf1))
-dynamicContributions[admsNodeID_xf1] += (Qxf1);
+d_dynamicContributions_dX[admsNodeID_xf1]+= (d_Qxf1_dX);
 // I(xf2,GND) <+ (Ixf2)
-staticContributions[admsNodeID_xf2] += Ixf2;
+d_staticContributions_dX[admsNodeID_xf2]+= d_Ixf2_dX;
 // I(xf2,GND) <+ (ddt(Qxf2))
-dynamicContributions[admsNodeID_xf2] += (Qxf2);
+d_dynamicContributions_dX[admsNodeID_xf2]+= (d_Qxf2_dX);
 // I(xf,GND) <+ (Ixf)
-staticContributions[admsNodeID_xf] += Ixf;
+d_staticContributions_dX[admsNodeID_xf]+= d_Ixf_dX;
 // I(xf,GND) <+ (ddt(Qxf))
-dynamicContributions[admsNodeID_xf] += (Qxf);
+d_dynamicContributions_dX[admsNodeID_xf]+= (d_Qxf_dX);
+d_fourkt_dX = (4.0*1.3806503e-23)*d_Tdev_dX;
 fourkt = ((4.0*1.3806503e-23)*Tdev);
-if (((modelPar_rbx>=0.001)||(modelPar_rbi0>=0.001)))
+if (((modelStruct.modelPar_rbx>=0.001)||(modelStruct.modelPar_rbi0>=0.001)))
 {
 // I(b,bi) <+ (white_noise((fourkt/rb)))
 }
-if ((modelPar_rcx>=0.001))
+if ((modelStruct.modelPar_rcx>=0.001))
 {
 // I(ci,c) <+ (white_noise((fourkt/rcx_t)))
 }
-if ((modelPar_re>=0.001))
+if ((modelStruct.modelPar_re>=0.001))
 {
 // I(ei,e) <+ (white_noise((fourkt/re_t)))
 }
 twoq = (2.0*1.6021766208e-19);
 // I(bi,ei) <+ (white_noise((twoq*ijbe)))
 // I(ci,ei) <+ (white_noise((twoq*it)))
-flicker_Pwr = (modelPar_kf*pow(instanceVar_ijbe,modelPar_af));
+{
+double value_pow_0 = pow(instanceStruct.instanceVar_ijbe,modelStruct.modelPar_af);
+double  deriv_pow_0_d0 = ((instanceStruct.instanceVar_ijbe == 0.0)?0.0:(value_pow_0*modelStruct.modelPar_af/instanceStruct.instanceVar_ijbe));
+double  deriv_pow_0_d1 = (instanceStruct.instanceVar_ijbe == 0.0)?0.0:(log(instanceStruct.instanceVar_ijbe)*value_pow_0);
+d_flicker_Pwr_dX = (modelStruct.modelPar_kf*((deriv_pow_0_d0*(instanceStruct.d_instanceVar_ijbe_dX))+(deriv_pow_0_d1*(modelStruct.d_modelPar_af_dX)))+modelStruct.d_modelPar_kf_dX*value_pow_0);
+flicker_Pwr = (modelStruct.modelPar_kf*value_pow_0);
+}
 // I(bi,ei) <+ (flicker_noise(flicker_Pwr,1.0))
 //Begin block OP_calculation
 {
 //Block-local variables for block OP_calculation
-AdmsSensFadType oRPIi;
-AdmsSensFadType oRMUi;
-AdmsSensFadType oROi;
-AdmsSensFadType gAVL;
+double oRPIi=0.0;
+double d_oRPIi_dX=0.0;
+double oRMUi=0.0;
+double d_oRMUi_dX=0.0;
+double oROi=0.0;
+double d_oROi_dX=0.0;
+double gAVL=0.0;
+double d_gAVL_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block OP_calculation
-AdmsSensFadType Cdei;
-AdmsSensFadType Cdci;
-AdmsSensFadType Cjei;
-AdmsSensFadType Cjci;
-AdmsSensFadType Cjcx;
-AdmsSensFadType CBC;
+double Cdei=0.0;
+double d_Cdei_dX=0.0;
+double Cdci=0.0;
+double d_Cdci_dX=0.0;
+double Cjei=0.0;
+double d_Cjei_dX=0.0;
+double Cjci=0.0;
+double d_Cjci_dX=0.0;
+double Cjcx=0.0;
+double d_Cjcx_dX=0.0;
+double CBC=0.0;
+double d_CBC_dX=0.0;
 //End of Block-local variables
 //Block-local variables for block OP_calculation
-AdmsSensFadType R_tot;
+double R_tot=0.0;
+double d_R_tot_dX=0.0;
 //End of Block-local variables
-instanceVar_IAVL = instanceVar_iavl;
-instanceVar_VBE = (probeVars[admsProbeID_V_b_e]);
-instanceVar_VBC = (probeVars[admsProbeID_V_b_c]);
-instanceVar_VCE = (probeVars[admsProbeID_V_c_e]);
-instanceVar_VSC = (probeVars[admsProbeID_V_s_c]);
-instanceVar_GMi = 0.0 /*FIXME: ddx(it_wop,V(bi,GND)) not implemented in sensitivity context */;
+d_oRPIi_dX = 0.0;
 oRPIi = 0.0 /*FIXME: ddx(ijbe,V(bi,GND)) not implemented in sensitivity context */;
-instanceVar_RPIi = (1.0/(oRPIi+1e-12));
+d_oRMUi_dX = 0.0;
 oRMUi = ((-1)*0.0 /*FIXME: ddx(Ibici,V(ci,GND)) not implemented in sensitivity context */);
-instanceVar_RMUi = (1.0/(oRMUi+1e-12));
+d_gAVL_dX = d_HICUMtype_dX*0.0 /*FIXME: ddx(iavl,V(ci,GND)) not implemented in sensitivity context */;
 gAVL = (HICUMtype*0.0 /*FIXME: ddx(iavl,V(ci,GND)) not implemented in sensitivity context */);
+d_oROi_dX = 0.0;
 oROi = 0.0 /*FIXME: ddx(it_wop,V(ci,GND)) not implemented in sensitivity context */;
-instanceVar_ROi = (1.0/((oROi+gAVL)+1e-12));
+d_Cdei_dX = (-1)*d_HICUMtype_dX*0.0 /*FIXME: ddx(qf,V(ei,GND)) not implemented in sensitivity context */;
 Cdei = (((-1)*HICUMtype)*0.0 /*FIXME: ddx(qf,V(ei,GND)) not implemented in sensitivity context */);
+d_Cjei_dX = 0.0;
 Cjei = 0.0 /*FIXME: ddx(qjei,V(bi,GND)) not implemented in sensitivity context */;
-instanceVar_CPIi = ((Cjei+Cdei)+modelPar_cbepar);
+d_Cdci_dX = (-1)*d_HICUMtype_dX*0.0 /*FIXME: ddx(qr,V(ci,GND)) not implemented in sensitivity context */;
 Cdci = (((-1)*HICUMtype)*0.0 /*FIXME: ddx(qr,V(ci,GND)) not implemented in sensitivity context */);
+d_Cjci_dX = 0.0;
 Cjci = 0.0 /*FIXME: ddx(qjci_int,V(bi,GND)) not implemented in sensitivity context */;
-instanceVar_CMUi = (Cjci+Cdci);
+d_Cjcx_dX = 0.0;
 Cjcx = ((-1)*0.0 /*FIXME: ddx(qjcxi,V(ci,GND)) not implemented in sensitivity context */);
-instanceVar_CBCX = (Cjcx+modelPar_cbcpar);
-instanceVar_CCS = 0.0 /*FIXME: ddx(qjs,V(s,GND)) not implemented in sensitivity context */;
-instanceVar_RBi = rbi;
-instanceVar_RB = rb;
-instanceVar_RCX = rcx_t;
-instanceVar_RE = re_t;
-instanceVar_BETAAC = (instanceVar_GMi*instanceVar_RPIi);
-R_tot = ((instanceVar_RCX+instanceVar_RE)+((instanceVar_RB+instanceVar_RE)/instanceVar_BETAAC));
-instanceVar_TF = tf;
-CBC = (instanceVar_CMUi+instanceVar_CBCX);
-instanceVar_FT = (instanceVar_GMi/((2*3.14159265358979323846)*((instanceVar_CPIi+CBC)+((R_tot*CBC)*instanceVar_GMi))));
+d_R_tot_dX = 0.0;
+R_tot = 0.0;
+d_CBC_dX = 0.0;
+CBC = 0.0;
 }
 // End block OP_calculation
 }
@@ -14405,247 +15135,348 @@ Findices.resize(11+0);
 Qindices.resize(11+0);
 
 std::vector <double> probeVars(20);
-std::vector <AdmsSensFadType> staticContributions(11+0);
-std::vector <AdmsSensFadType> dynamicContributions(11+0);
+std::vector <double> d_staticContributions_dX(11+0);
+std::vector <double> d_dynamicContributions_dX(11+0);
 
 
 // initialize contributions to zero (automatically sets derivatives to zero)
 for (int i=0; i < 11+0 ; ++i)
 {
-   staticContributions[i]=0;
-   dynamicContributions[i]=0;
+   d_staticContributions_dX[i]=0;
+   d_dynamicContributions_dX[i]=0;
 }
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 //reals
-AdmsSensFadType modelPar_is=mod.is;
-bool modelPar_given_is=mod.given("is");
-AdmsSensFadType modelPar_mcf=mod.mcf;
-bool modelPar_given_mcf=mod.given("mcf");
-AdmsSensFadType modelPar_mcr=mod.mcr;
-bool modelPar_given_mcr=mod.given("mcr");
-AdmsSensFadType modelPar_vef=mod.vef;
-bool modelPar_given_vef=mod.given("vef");
-AdmsSensFadType modelPar_ver=mod.ver;
-bool modelPar_given_ver=mod.given("ver");
-AdmsSensFadType modelPar_aver=mod.aver;
-bool modelPar_given_aver=mod.given("aver");
-AdmsSensFadType modelPar_iqf=mod.iqf;
-bool modelPar_given_iqf=mod.given("iqf");
-AdmsSensFadType modelPar_fiqf=mod.fiqf;
-bool modelPar_given_fiqf=mod.given("fiqf");
-AdmsSensFadType modelPar_iqr=mod.iqr;
-bool modelPar_given_iqr=mod.given("iqr");
-AdmsSensFadType modelPar_iqfh=mod.iqfh;
-bool modelPar_given_iqfh=mod.given("iqfh");
-AdmsSensFadType modelPar_tfh=mod.tfh;
-bool modelPar_given_tfh=mod.given("tfh");
-AdmsSensFadType modelPar_ahq=mod.ahq;
-bool modelPar_given_ahq=mod.given("ahq");
-AdmsSensFadType modelPar_ibes=mod.ibes;
-bool modelPar_given_ibes=mod.given("ibes");
-AdmsSensFadType modelPar_mbe=mod.mbe;
-bool modelPar_given_mbe=mod.given("mbe");
-AdmsSensFadType modelPar_ires=mod.ires;
-bool modelPar_given_ires=mod.given("ires");
-AdmsSensFadType modelPar_mre=mod.mre;
-bool modelPar_given_mre=mod.given("mre");
-AdmsSensFadType modelPar_ibcs=mod.ibcs;
-bool modelPar_given_ibcs=mod.given("ibcs");
-AdmsSensFadType modelPar_mbc=mod.mbc;
-bool modelPar_given_mbc=mod.given("mbc");
-AdmsSensFadType modelPar_cje0=mod.cje0;
-bool modelPar_given_cje0=mod.given("cje0");
-AdmsSensFadType modelPar_vde=mod.vde;
-bool modelPar_given_vde=mod.given("vde");
-AdmsSensFadType modelPar_ze=mod.ze;
-bool modelPar_given_ze=mod.given("ze");
-AdmsSensFadType modelPar_aje=mod.aje;
-bool modelPar_given_aje=mod.given("aje");
-AdmsSensFadType modelPar_vdedc=mod.vdedc;
-bool modelPar_given_vdedc=mod.given("vdedc");
-AdmsSensFadType modelPar_zedc=mod.zedc;
-bool modelPar_given_zedc=mod.given("zedc");
-AdmsSensFadType modelPar_ajedc=mod.ajedc;
-bool modelPar_given_ajedc=mod.given("ajedc");
-AdmsSensFadType modelPar_t0=mod.t0;
-bool modelPar_given_t0=mod.given("t0");
-AdmsSensFadType modelPar_dt0h=mod.dt0h;
-bool modelPar_given_dt0h=mod.given("dt0h");
-AdmsSensFadType modelPar_tbvl=mod.tbvl;
-bool modelPar_given_tbvl=mod.given("tbvl");
-AdmsSensFadType modelPar_tef0=mod.tef0;
-bool modelPar_given_tef0=mod.given("tef0");
-AdmsSensFadType modelPar_gte=mod.gte;
-bool modelPar_given_gte=mod.given("gte");
-AdmsSensFadType modelPar_thcs=mod.thcs;
-bool modelPar_given_thcs=mod.given("thcs");
-AdmsSensFadType modelPar_ahc=mod.ahc;
-bool modelPar_given_ahc=mod.given("ahc");
-AdmsSensFadType modelPar_tr=mod.tr;
-bool modelPar_given_tr=mod.given("tr");
-AdmsSensFadType modelPar_rci0=mod.rci0;
-bool modelPar_given_rci0=mod.given("rci0");
-AdmsSensFadType modelPar_vlim=mod.vlim;
-bool modelPar_given_vlim=mod.given("vlim");
-AdmsSensFadType modelPar_vpt=mod.vpt;
-bool modelPar_given_vpt=mod.given("vpt");
-AdmsSensFadType modelPar_vces=mod.vces;
-bool modelPar_given_vces=mod.given("vces");
-AdmsSensFadType modelPar_cjci0=mod.cjci0;
-bool modelPar_given_cjci0=mod.given("cjci0");
-AdmsSensFadType modelPar_vdci=mod.vdci;
-bool modelPar_given_vdci=mod.given("vdci");
-AdmsSensFadType modelPar_zci=mod.zci;
-bool modelPar_given_zci=mod.given("zci");
-AdmsSensFadType modelPar_vptci=mod.vptci;
-bool modelPar_given_vptci=mod.given("vptci");
-AdmsSensFadType modelPar_cjcx0=mod.cjcx0;
-bool modelPar_given_cjcx0=mod.given("cjcx0");
-AdmsSensFadType modelPar_vdcx=mod.vdcx;
-bool modelPar_given_vdcx=mod.given("vdcx");
-AdmsSensFadType modelPar_zcx=mod.zcx;
-bool modelPar_given_zcx=mod.given("zcx");
-AdmsSensFadType modelPar_vptcx=mod.vptcx;
-bool modelPar_given_vptcx=mod.given("vptcx");
-AdmsSensFadType modelPar_fbc=mod.fbc;
-bool modelPar_given_fbc=mod.given("fbc");
-AdmsSensFadType modelPar_rbi0=mod.rbi0;
-bool modelPar_given_rbi0=mod.given("rbi0");
-AdmsSensFadType modelPar_vr0e=mod.vr0e;
-bool modelPar_given_vr0e=mod.given("vr0e");
-AdmsSensFadType modelPar_vr0c=mod.vr0c;
-bool modelPar_given_vr0c=mod.given("vr0c");
-AdmsSensFadType modelPar_fgeo=mod.fgeo;
-bool modelPar_given_fgeo=mod.given("fgeo");
-AdmsSensFadType modelPar_rbx=mod.rbx;
-bool modelPar_given_rbx=mod.given("rbx");
-AdmsSensFadType modelPar_rcx=mod.rcx;
-bool modelPar_given_rcx=mod.given("rcx");
-AdmsSensFadType modelPar_re=mod.re;
-bool modelPar_given_re=mod.given("re");
-AdmsSensFadType modelPar_itss=mod.itss;
-bool modelPar_given_itss=mod.given("itss");
-AdmsSensFadType modelPar_msf=mod.msf;
-bool modelPar_given_msf=mod.given("msf");
-AdmsSensFadType modelPar_iscs=mod.iscs;
-bool modelPar_given_iscs=mod.given("iscs");
-AdmsSensFadType modelPar_msc=mod.msc;
-bool modelPar_given_msc=mod.given("msc");
-AdmsSensFadType modelPar_cjs0=mod.cjs0;
-bool modelPar_given_cjs0=mod.given("cjs0");
-AdmsSensFadType modelPar_vds=mod.vds;
-bool modelPar_given_vds=mod.given("vds");
-AdmsSensFadType modelPar_zs=mod.zs;
-bool modelPar_given_zs=mod.given("zs");
-AdmsSensFadType modelPar_vpts=mod.vpts;
-bool modelPar_given_vpts=mod.given("vpts");
-AdmsSensFadType modelPar_cbcpar=mod.cbcpar;
-bool modelPar_given_cbcpar=mod.given("cbcpar");
-AdmsSensFadType modelPar_cbepar=mod.cbepar;
-bool modelPar_given_cbepar=mod.given("cbepar");
-AdmsSensFadType modelPar_eavl=mod.eavl;
-bool modelPar_given_eavl=mod.given("eavl");
-AdmsSensFadType modelPar_kavl=mod.kavl;
-bool modelPar_given_kavl=mod.given("kavl");
-AdmsSensFadType modelPar_kf=mod.kf;
-bool modelPar_given_kf=mod.given("kf");
-AdmsSensFadType modelPar_af=mod.af;
-bool modelPar_given_af=mod.given("af");
-AdmsSensFadType modelPar_alqf=mod.alqf;
-bool modelPar_given_alqf=mod.given("alqf");
-AdmsSensFadType modelPar_alit=mod.alit;
-bool modelPar_given_alit=mod.given("alit");
-AdmsSensFadType modelPar_vgb=mod.vgb;
-bool modelPar_given_vgb=mod.given("vgb");
-AdmsSensFadType modelPar_vge=mod.vge;
-bool modelPar_given_vge=mod.given("vge");
-AdmsSensFadType modelPar_vgc=mod.vgc;
-bool modelPar_given_vgc=mod.given("vgc");
-AdmsSensFadType modelPar_vgs=mod.vgs;
-bool modelPar_given_vgs=mod.given("vgs");
-AdmsSensFadType modelPar_f1vg=mod.f1vg;
-bool modelPar_given_f1vg=mod.given("f1vg");
-AdmsSensFadType modelPar_f2vg=mod.f2vg;
-bool modelPar_given_f2vg=mod.given("f2vg");
-AdmsSensFadType modelPar_alt0=mod.alt0;
-bool modelPar_given_alt0=mod.given("alt0");
-AdmsSensFadType modelPar_kt0=mod.kt0;
-bool modelPar_given_kt0=mod.given("kt0");
-AdmsSensFadType modelPar_zetact=mod.zetact;
-bool modelPar_given_zetact=mod.given("zetact");
-AdmsSensFadType modelPar_zetabet=mod.zetabet;
-bool modelPar_given_zetabet=mod.given("zetabet");
-AdmsSensFadType modelPar_zetaci=mod.zetaci;
-bool modelPar_given_zetaci=mod.given("zetaci");
-AdmsSensFadType modelPar_alvs=mod.alvs;
-bool modelPar_given_alvs=mod.given("alvs");
-AdmsSensFadType modelPar_alces=mod.alces;
-bool modelPar_given_alces=mod.given("alces");
-AdmsSensFadType modelPar_zetarbi=mod.zetarbi;
-bool modelPar_given_zetarbi=mod.given("zetarbi");
-AdmsSensFadType modelPar_zetarbx=mod.zetarbx;
-bool modelPar_given_zetarbx=mod.given("zetarbx");
-AdmsSensFadType modelPar_zetarcx=mod.zetarcx;
-bool modelPar_given_zetarcx=mod.given("zetarcx");
-AdmsSensFadType modelPar_zetare=mod.zetare;
-bool modelPar_given_zetare=mod.given("zetare");
-AdmsSensFadType modelPar_zetaiqf=mod.zetaiqf;
-bool modelPar_given_zetaiqf=mod.given("zetaiqf");
-AdmsSensFadType modelPar_alkav=mod.alkav;
-bool modelPar_given_alkav=mod.given("alkav");
-AdmsSensFadType modelPar_aleav=mod.aleav;
-bool modelPar_given_aleav=mod.given("aleav");
-AdmsSensFadType modelPar_zetarth=mod.zetarth;
-bool modelPar_given_zetarth=mod.given("zetarth");
-AdmsSensFadType modelPar_zetaver=mod.zetaver;
-bool modelPar_given_zetaver=mod.given("zetaver");
-AdmsSensFadType modelPar_zetavgbe=mod.zetavgbe;
-bool modelPar_given_zetavgbe=mod.given("zetavgbe");
-AdmsSensFadType modelPar_dvgbe=mod.dvgbe;
-bool modelPar_given_dvgbe=mod.given("dvgbe");
-AdmsSensFadType modelPar_aliqfh=mod.aliqfh;
-bool modelPar_given_aliqfh=mod.given("aliqfh");
-AdmsSensFadType modelPar_kiqfh=mod.kiqfh;
-bool modelPar_given_kiqfh=mod.given("kiqfh");
-AdmsSensFadType modelPar_rth=mod.rth;
-bool modelPar_given_rth=mod.given("rth");
-AdmsSensFadType modelPar_cth=mod.cth;
-bool modelPar_given_cth=mod.given("cth");
-AdmsSensFadType modelPar_tnom=mod.tnom;
-bool modelPar_given_tnom=mod.given("tnom");
+modelStruct.modelPar_is=mod.is;
+modelStruct.d_modelPar_is_dX=0.0;
+modelStruct.modelPar_given_is=mod.given("is");
+modelStruct.modelPar_mcf=mod.mcf;
+modelStruct.d_modelPar_mcf_dX=0.0;
+modelStruct.modelPar_given_mcf=mod.given("mcf");
+modelStruct.modelPar_mcr=mod.mcr;
+modelStruct.d_modelPar_mcr_dX=0.0;
+modelStruct.modelPar_given_mcr=mod.given("mcr");
+modelStruct.modelPar_vef=mod.vef;
+modelStruct.d_modelPar_vef_dX=0.0;
+modelStruct.modelPar_given_vef=mod.given("vef");
+modelStruct.modelPar_ver=mod.ver;
+modelStruct.d_modelPar_ver_dX=0.0;
+modelStruct.modelPar_given_ver=mod.given("ver");
+modelStruct.modelPar_aver=mod.aver;
+modelStruct.d_modelPar_aver_dX=0.0;
+modelStruct.modelPar_given_aver=mod.given("aver");
+modelStruct.modelPar_iqf=mod.iqf;
+modelStruct.d_modelPar_iqf_dX=0.0;
+modelStruct.modelPar_given_iqf=mod.given("iqf");
+modelStruct.modelPar_fiqf=mod.fiqf;
+modelStruct.d_modelPar_fiqf_dX=0.0;
+modelStruct.modelPar_given_fiqf=mod.given("fiqf");
+modelStruct.modelPar_iqr=mod.iqr;
+modelStruct.d_modelPar_iqr_dX=0.0;
+modelStruct.modelPar_given_iqr=mod.given("iqr");
+modelStruct.modelPar_iqfh=mod.iqfh;
+modelStruct.d_modelPar_iqfh_dX=0.0;
+modelStruct.modelPar_given_iqfh=mod.given("iqfh");
+modelStruct.modelPar_tfh=mod.tfh;
+modelStruct.d_modelPar_tfh_dX=0.0;
+modelStruct.modelPar_given_tfh=mod.given("tfh");
+modelStruct.modelPar_ahq=mod.ahq;
+modelStruct.d_modelPar_ahq_dX=0.0;
+modelStruct.modelPar_given_ahq=mod.given("ahq");
+modelStruct.modelPar_ibes=mod.ibes;
+modelStruct.d_modelPar_ibes_dX=0.0;
+modelStruct.modelPar_given_ibes=mod.given("ibes");
+modelStruct.modelPar_mbe=mod.mbe;
+modelStruct.d_modelPar_mbe_dX=0.0;
+modelStruct.modelPar_given_mbe=mod.given("mbe");
+modelStruct.modelPar_ires=mod.ires;
+modelStruct.d_modelPar_ires_dX=0.0;
+modelStruct.modelPar_given_ires=mod.given("ires");
+modelStruct.modelPar_mre=mod.mre;
+modelStruct.d_modelPar_mre_dX=0.0;
+modelStruct.modelPar_given_mre=mod.given("mre");
+modelStruct.modelPar_ibcs=mod.ibcs;
+modelStruct.d_modelPar_ibcs_dX=0.0;
+modelStruct.modelPar_given_ibcs=mod.given("ibcs");
+modelStruct.modelPar_mbc=mod.mbc;
+modelStruct.d_modelPar_mbc_dX=0.0;
+modelStruct.modelPar_given_mbc=mod.given("mbc");
+modelStruct.modelPar_cje0=mod.cje0;
+modelStruct.d_modelPar_cje0_dX=0.0;
+modelStruct.modelPar_given_cje0=mod.given("cje0");
+modelStruct.modelPar_vde=mod.vde;
+modelStruct.d_modelPar_vde_dX=0.0;
+modelStruct.modelPar_given_vde=mod.given("vde");
+modelStruct.modelPar_ze=mod.ze;
+modelStruct.d_modelPar_ze_dX=0.0;
+modelStruct.modelPar_given_ze=mod.given("ze");
+modelStruct.modelPar_aje=mod.aje;
+modelStruct.d_modelPar_aje_dX=0.0;
+modelStruct.modelPar_given_aje=mod.given("aje");
+modelStruct.modelPar_vdedc=mod.vdedc;
+modelStruct.d_modelPar_vdedc_dX=0.0;
+modelStruct.modelPar_given_vdedc=mod.given("vdedc");
+modelStruct.modelPar_zedc=mod.zedc;
+modelStruct.d_modelPar_zedc_dX=0.0;
+modelStruct.modelPar_given_zedc=mod.given("zedc");
+modelStruct.modelPar_ajedc=mod.ajedc;
+modelStruct.d_modelPar_ajedc_dX=0.0;
+modelStruct.modelPar_given_ajedc=mod.given("ajedc");
+modelStruct.modelPar_t0=mod.t0;
+modelStruct.d_modelPar_t0_dX=0.0;
+modelStruct.modelPar_given_t0=mod.given("t0");
+modelStruct.modelPar_dt0h=mod.dt0h;
+modelStruct.d_modelPar_dt0h_dX=0.0;
+modelStruct.modelPar_given_dt0h=mod.given("dt0h");
+modelStruct.modelPar_tbvl=mod.tbvl;
+modelStruct.d_modelPar_tbvl_dX=0.0;
+modelStruct.modelPar_given_tbvl=mod.given("tbvl");
+modelStruct.modelPar_tef0=mod.tef0;
+modelStruct.d_modelPar_tef0_dX=0.0;
+modelStruct.modelPar_given_tef0=mod.given("tef0");
+modelStruct.modelPar_gte=mod.gte;
+modelStruct.d_modelPar_gte_dX=0.0;
+modelStruct.modelPar_given_gte=mod.given("gte");
+modelStruct.modelPar_thcs=mod.thcs;
+modelStruct.d_modelPar_thcs_dX=0.0;
+modelStruct.modelPar_given_thcs=mod.given("thcs");
+modelStruct.modelPar_ahc=mod.ahc;
+modelStruct.d_modelPar_ahc_dX=0.0;
+modelStruct.modelPar_given_ahc=mod.given("ahc");
+modelStruct.modelPar_tr=mod.tr;
+modelStruct.d_modelPar_tr_dX=0.0;
+modelStruct.modelPar_given_tr=mod.given("tr");
+modelStruct.modelPar_rci0=mod.rci0;
+modelStruct.d_modelPar_rci0_dX=0.0;
+modelStruct.modelPar_given_rci0=mod.given("rci0");
+modelStruct.modelPar_vlim=mod.vlim;
+modelStruct.d_modelPar_vlim_dX=0.0;
+modelStruct.modelPar_given_vlim=mod.given("vlim");
+modelStruct.modelPar_vpt=mod.vpt;
+modelStruct.d_modelPar_vpt_dX=0.0;
+modelStruct.modelPar_given_vpt=mod.given("vpt");
+modelStruct.modelPar_vces=mod.vces;
+modelStruct.d_modelPar_vces_dX=0.0;
+modelStruct.modelPar_given_vces=mod.given("vces");
+modelStruct.modelPar_cjci0=mod.cjci0;
+modelStruct.d_modelPar_cjci0_dX=0.0;
+modelStruct.modelPar_given_cjci0=mod.given("cjci0");
+modelStruct.modelPar_vdci=mod.vdci;
+modelStruct.d_modelPar_vdci_dX=0.0;
+modelStruct.modelPar_given_vdci=mod.given("vdci");
+modelStruct.modelPar_zci=mod.zci;
+modelStruct.d_modelPar_zci_dX=0.0;
+modelStruct.modelPar_given_zci=mod.given("zci");
+modelStruct.modelPar_vptci=mod.vptci;
+modelStruct.d_modelPar_vptci_dX=0.0;
+modelStruct.modelPar_given_vptci=mod.given("vptci");
+modelStruct.modelPar_cjcx0=mod.cjcx0;
+modelStruct.d_modelPar_cjcx0_dX=0.0;
+modelStruct.modelPar_given_cjcx0=mod.given("cjcx0");
+modelStruct.modelPar_vdcx=mod.vdcx;
+modelStruct.d_modelPar_vdcx_dX=0.0;
+modelStruct.modelPar_given_vdcx=mod.given("vdcx");
+modelStruct.modelPar_zcx=mod.zcx;
+modelStruct.d_modelPar_zcx_dX=0.0;
+modelStruct.modelPar_given_zcx=mod.given("zcx");
+modelStruct.modelPar_vptcx=mod.vptcx;
+modelStruct.d_modelPar_vptcx_dX=0.0;
+modelStruct.modelPar_given_vptcx=mod.given("vptcx");
+modelStruct.modelPar_fbc=mod.fbc;
+modelStruct.d_modelPar_fbc_dX=0.0;
+modelStruct.modelPar_given_fbc=mod.given("fbc");
+modelStruct.modelPar_rbi0=mod.rbi0;
+modelStruct.d_modelPar_rbi0_dX=0.0;
+modelStruct.modelPar_given_rbi0=mod.given("rbi0");
+modelStruct.modelPar_vr0e=mod.vr0e;
+modelStruct.d_modelPar_vr0e_dX=0.0;
+modelStruct.modelPar_given_vr0e=mod.given("vr0e");
+modelStruct.modelPar_vr0c=mod.vr0c;
+modelStruct.d_modelPar_vr0c_dX=0.0;
+modelStruct.modelPar_given_vr0c=mod.given("vr0c");
+modelStruct.modelPar_fgeo=mod.fgeo;
+modelStruct.d_modelPar_fgeo_dX=0.0;
+modelStruct.modelPar_given_fgeo=mod.given("fgeo");
+modelStruct.modelPar_rbx=mod.rbx;
+modelStruct.d_modelPar_rbx_dX=0.0;
+modelStruct.modelPar_given_rbx=mod.given("rbx");
+modelStruct.modelPar_rcx=mod.rcx;
+modelStruct.d_modelPar_rcx_dX=0.0;
+modelStruct.modelPar_given_rcx=mod.given("rcx");
+modelStruct.modelPar_re=mod.re;
+modelStruct.d_modelPar_re_dX=0.0;
+modelStruct.modelPar_given_re=mod.given("re");
+modelStruct.modelPar_itss=mod.itss;
+modelStruct.d_modelPar_itss_dX=0.0;
+modelStruct.modelPar_given_itss=mod.given("itss");
+modelStruct.modelPar_msf=mod.msf;
+modelStruct.d_modelPar_msf_dX=0.0;
+modelStruct.modelPar_given_msf=mod.given("msf");
+modelStruct.modelPar_iscs=mod.iscs;
+modelStruct.d_modelPar_iscs_dX=0.0;
+modelStruct.modelPar_given_iscs=mod.given("iscs");
+modelStruct.modelPar_msc=mod.msc;
+modelStruct.d_modelPar_msc_dX=0.0;
+modelStruct.modelPar_given_msc=mod.given("msc");
+modelStruct.modelPar_cjs0=mod.cjs0;
+modelStruct.d_modelPar_cjs0_dX=0.0;
+modelStruct.modelPar_given_cjs0=mod.given("cjs0");
+modelStruct.modelPar_vds=mod.vds;
+modelStruct.d_modelPar_vds_dX=0.0;
+modelStruct.modelPar_given_vds=mod.given("vds");
+modelStruct.modelPar_zs=mod.zs;
+modelStruct.d_modelPar_zs_dX=0.0;
+modelStruct.modelPar_given_zs=mod.given("zs");
+modelStruct.modelPar_vpts=mod.vpts;
+modelStruct.d_modelPar_vpts_dX=0.0;
+modelStruct.modelPar_given_vpts=mod.given("vpts");
+modelStruct.modelPar_cbcpar=mod.cbcpar;
+modelStruct.d_modelPar_cbcpar_dX=0.0;
+modelStruct.modelPar_given_cbcpar=mod.given("cbcpar");
+modelStruct.modelPar_cbepar=mod.cbepar;
+modelStruct.d_modelPar_cbepar_dX=0.0;
+modelStruct.modelPar_given_cbepar=mod.given("cbepar");
+modelStruct.modelPar_eavl=mod.eavl;
+modelStruct.d_modelPar_eavl_dX=0.0;
+modelStruct.modelPar_given_eavl=mod.given("eavl");
+modelStruct.modelPar_kavl=mod.kavl;
+modelStruct.d_modelPar_kavl_dX=0.0;
+modelStruct.modelPar_given_kavl=mod.given("kavl");
+modelStruct.modelPar_kf=mod.kf;
+modelStruct.d_modelPar_kf_dX=0.0;
+modelStruct.modelPar_given_kf=mod.given("kf");
+modelStruct.modelPar_af=mod.af;
+modelStruct.d_modelPar_af_dX=0.0;
+modelStruct.modelPar_given_af=mod.given("af");
+modelStruct.modelPar_alqf=mod.alqf;
+modelStruct.d_modelPar_alqf_dX=0.0;
+modelStruct.modelPar_given_alqf=mod.given("alqf");
+modelStruct.modelPar_alit=mod.alit;
+modelStruct.d_modelPar_alit_dX=0.0;
+modelStruct.modelPar_given_alit=mod.given("alit");
+modelStruct.modelPar_vgb=mod.vgb;
+modelStruct.d_modelPar_vgb_dX=0.0;
+modelStruct.modelPar_given_vgb=mod.given("vgb");
+modelStruct.modelPar_vge=mod.vge;
+modelStruct.d_modelPar_vge_dX=0.0;
+modelStruct.modelPar_given_vge=mod.given("vge");
+modelStruct.modelPar_vgc=mod.vgc;
+modelStruct.d_modelPar_vgc_dX=0.0;
+modelStruct.modelPar_given_vgc=mod.given("vgc");
+modelStruct.modelPar_vgs=mod.vgs;
+modelStruct.d_modelPar_vgs_dX=0.0;
+modelStruct.modelPar_given_vgs=mod.given("vgs");
+modelStruct.modelPar_f1vg=mod.f1vg;
+modelStruct.d_modelPar_f1vg_dX=0.0;
+modelStruct.modelPar_given_f1vg=mod.given("f1vg");
+modelStruct.modelPar_f2vg=mod.f2vg;
+modelStruct.d_modelPar_f2vg_dX=0.0;
+modelStruct.modelPar_given_f2vg=mod.given("f2vg");
+modelStruct.modelPar_alt0=mod.alt0;
+modelStruct.d_modelPar_alt0_dX=0.0;
+modelStruct.modelPar_given_alt0=mod.given("alt0");
+modelStruct.modelPar_kt0=mod.kt0;
+modelStruct.d_modelPar_kt0_dX=0.0;
+modelStruct.modelPar_given_kt0=mod.given("kt0");
+modelStruct.modelPar_zetact=mod.zetact;
+modelStruct.d_modelPar_zetact_dX=0.0;
+modelStruct.modelPar_given_zetact=mod.given("zetact");
+modelStruct.modelPar_zetabet=mod.zetabet;
+modelStruct.d_modelPar_zetabet_dX=0.0;
+modelStruct.modelPar_given_zetabet=mod.given("zetabet");
+modelStruct.modelPar_zetaci=mod.zetaci;
+modelStruct.d_modelPar_zetaci_dX=0.0;
+modelStruct.modelPar_given_zetaci=mod.given("zetaci");
+modelStruct.modelPar_alvs=mod.alvs;
+modelStruct.d_modelPar_alvs_dX=0.0;
+modelStruct.modelPar_given_alvs=mod.given("alvs");
+modelStruct.modelPar_alces=mod.alces;
+modelStruct.d_modelPar_alces_dX=0.0;
+modelStruct.modelPar_given_alces=mod.given("alces");
+modelStruct.modelPar_zetarbi=mod.zetarbi;
+modelStruct.d_modelPar_zetarbi_dX=0.0;
+modelStruct.modelPar_given_zetarbi=mod.given("zetarbi");
+modelStruct.modelPar_zetarbx=mod.zetarbx;
+modelStruct.d_modelPar_zetarbx_dX=0.0;
+modelStruct.modelPar_given_zetarbx=mod.given("zetarbx");
+modelStruct.modelPar_zetarcx=mod.zetarcx;
+modelStruct.d_modelPar_zetarcx_dX=0.0;
+modelStruct.modelPar_given_zetarcx=mod.given("zetarcx");
+modelStruct.modelPar_zetare=mod.zetare;
+modelStruct.d_modelPar_zetare_dX=0.0;
+modelStruct.modelPar_given_zetare=mod.given("zetare");
+modelStruct.modelPar_zetaiqf=mod.zetaiqf;
+modelStruct.d_modelPar_zetaiqf_dX=0.0;
+modelStruct.modelPar_given_zetaiqf=mod.given("zetaiqf");
+modelStruct.modelPar_alkav=mod.alkav;
+modelStruct.d_modelPar_alkav_dX=0.0;
+modelStruct.modelPar_given_alkav=mod.given("alkav");
+modelStruct.modelPar_aleav=mod.aleav;
+modelStruct.d_modelPar_aleav_dX=0.0;
+modelStruct.modelPar_given_aleav=mod.given("aleav");
+modelStruct.modelPar_zetarth=mod.zetarth;
+modelStruct.d_modelPar_zetarth_dX=0.0;
+modelStruct.modelPar_given_zetarth=mod.given("zetarth");
+modelStruct.modelPar_zetaver=mod.zetaver;
+modelStruct.d_modelPar_zetaver_dX=0.0;
+modelStruct.modelPar_given_zetaver=mod.given("zetaver");
+modelStruct.modelPar_zetavgbe=mod.zetavgbe;
+modelStruct.d_modelPar_zetavgbe_dX=0.0;
+modelStruct.modelPar_given_zetavgbe=mod.given("zetavgbe");
+modelStruct.modelPar_dvgbe=mod.dvgbe;
+modelStruct.d_modelPar_dvgbe_dX=0.0;
+modelStruct.modelPar_given_dvgbe=mod.given("dvgbe");
+modelStruct.modelPar_aliqfh=mod.aliqfh;
+modelStruct.d_modelPar_aliqfh_dX=0.0;
+modelStruct.modelPar_given_aliqfh=mod.given("aliqfh");
+modelStruct.modelPar_kiqfh=mod.kiqfh;
+modelStruct.d_modelPar_kiqfh_dX=0.0;
+modelStruct.modelPar_given_kiqfh=mod.given("kiqfh");
+modelStruct.modelPar_rth=mod.rth;
+modelStruct.d_modelPar_rth_dX=0.0;
+modelStruct.modelPar_given_rth=mod.given("rth");
+modelStruct.modelPar_cth=mod.cth;
+modelStruct.d_modelPar_cth_dX=0.0;
+modelStruct.modelPar_given_cth=mod.given("cth");
+modelStruct.modelPar_tnom=mod.tnom;
+modelStruct.d_modelPar_tnom_dX=0.0;
+modelStruct.modelPar_given_tnom=mod.given("tnom");
 
 
 // hidden reals
 
 
 // non-reals (including hiddens)
-int modelPar_it_mod=mod.it_mod;
-bool modelPar_given_it_mod=mod.given("it_mod");
-int modelPar_flnqs=mod.flnqs;
-bool modelPar_given_flnqs=mod.given("flnqs");
-int modelPar_tef_temp=mod.tef_temp;
-bool modelPar_given_tef_temp=mod.given("tef_temp");
-int modelPar_flsh=mod.flsh;
-bool modelPar_given_flsh=mod.given("flsh");
-int modelPar_type=mod.type;
-bool modelPar_given_type=mod.given("type");
+modelStruct.modelPar_it_mod=mod.it_mod;
+modelStruct.modelPar_given_it_mod=mod.given("it_mod");
+modelStruct.modelPar_flnqs=mod.flnqs;
+modelStruct.modelPar_given_flnqs=mod.given("flnqs");
+modelStruct.modelPar_tef_temp=mod.tef_temp;
+modelStruct.modelPar_given_tef_temp=mod.given("tef_temp");
+modelStruct.modelPar_flsh=mod.flsh;
+modelStruct.modelPar_given_flsh=mod.given("flsh");
+modelStruct.modelPar_type=mod.type;
+modelStruct.modelPar_given_type=mod.given("type");
 
 
 
-// Copy out all the instance parameters (doubles) into FAD types
+// Copy out all the instance parameters (doubles) into local struct
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly "if/else" block just to find the
 // one parameter we're doing sensitivities on.
-unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> inParamMap;
-
+unordered_map <std::string,double*,HashNoCase,EqualNoCase> inParamMap;
+instanceSensStruct instanceStruct;
 // reals
-AdmsSensFadType instancePar_dt=in.dt;
-bool instancePar_given_dt=in.given("dt");
-inParamMap["dt"] = &instancePar_dt;
+instanceStruct.instancePar_dt=in.dt;
+instanceStruct.d_instancePar_dt_dX=0.0;
+instanceStruct.instancePar_given_dt=in.given("dt");
+inParamMap["dt"] = &(instanceStruct.d_instancePar_dt_dX);
 
 
-// Copy all the real hidden instance params into fad types
+// Copy all the real hidden instance params into local struct
 
 
 
@@ -14653,41 +15484,29 @@ inParamMap["dt"] = &instancePar_dt;
 
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check the name first, otherwise segfault on invalid name!
-inParamMap[name]->diff(0,1);
+*(inParamMap[name])=1.0;
 
 //make local copies of all instance vars
 //reals
-AdmsSensFadType instanceVar_qjci=in.qjci;
-AdmsSensFadType instanceVar_qjei=in.qjei;
-AdmsSensFadType instanceVar_it=in.it;
-AdmsSensFadType instanceVar_ijbc=in.ijbc;
-AdmsSensFadType instanceVar_iavl=in.iavl;
-AdmsSensFadType instanceVar_ijsc=in.ijsc;
-AdmsSensFadType instanceVar_Ibici=in.Ibici;
-AdmsSensFadType instanceVar_ijbe=in.ijbe;
-AdmsSensFadType instanceVar_IAVL=in.IAVL;
-double instanceVar_VBE=in.VBE;
-double instanceVar_VBC=in.VBC;
-double instanceVar_VCE=in.VCE;
-double instanceVar_VSC=in.VSC;
-AdmsSensFadType instanceVar_GMi=in.GMi;
-AdmsSensFadType instanceVar_RPIi=in.RPIi;
-AdmsSensFadType instanceVar_RMUi=in.RMUi;
-AdmsSensFadType instanceVar_ROi=in.ROi;
-AdmsSensFadType instanceVar_CPIi=in.CPIi;
-AdmsSensFadType instanceVar_CMUi=in.CMUi;
-AdmsSensFadType instanceVar_CBCX=in.CBCX;
-AdmsSensFadType instanceVar_CCS=in.CCS;
-AdmsSensFadType instanceVar_RBi=in.RBi;
-AdmsSensFadType instanceVar_RB=in.RB;
-AdmsSensFadType instanceVar_RCX=in.RCX;
-AdmsSensFadType instanceVar_RE=in.RE;
-AdmsSensFadType instanceVar_BETAAC=in.BETAAC;
-AdmsSensFadType instanceVar_TF=in.TF;
-AdmsSensFadType instanceVar_FT=in.FT;
+instanceStruct.instanceVar_qjci=in.qjci;
+instanceStruct.d_instanceVar_qjci_dX=0.0;
+instanceStruct.instanceVar_qjei=in.qjei;
+instanceStruct.d_instanceVar_qjei_dX=0.0;
+instanceStruct.instanceVar_it=in.it;
+instanceStruct.d_instanceVar_it_dX=0.0;
+instanceStruct.instanceVar_ijbc=in.ijbc;
+instanceStruct.d_instanceVar_ijbc_dX=0.0;
+instanceStruct.instanceVar_iavl=in.iavl;
+instanceStruct.d_instanceVar_iavl_dX=0.0;
+instanceStruct.instanceVar_ijsc=in.ijsc;
+instanceStruct.d_instanceVar_ijsc_dX=0.0;
+instanceStruct.instanceVar_Ibici=in.Ibici;
+instanceStruct.d_instanceVar_Ibici_dX=0.0;
+instanceStruct.instanceVar_ijbe=in.ijbe;
+instanceStruct.d_instanceVar_ijbe_dX=0.0;
 
 
 //non-reals
@@ -14703,7 +15522,7 @@ AdmsSensFadType instanceVar_FT=in.FT;
 
 Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-// extract solution variables and set as Fad independent variables.
+// extract solution variables
 probeVars[in.admsProbeID_V_s_GND] = (*solVectorPtr)[in.li_s];
 probeVars[in.admsProbeID_V_ei_GND] = (*solVectorPtr)[in.li_ei];
 probeVars[in.admsProbeID_V_ci_GND] = (*solVectorPtr)[in.li_ci];
@@ -14765,301 +15584,60 @@ in.admsNodeID_ei,
 in.admsNodeID_xf1,
 in.admsNodeID_xf2,
 in.admsNodeID_xf,
-// instance parameters
-// reals
-instancePar_dt,
-instancePar_given_dt,
-// instance variables
-// reals
-instanceVar_qjci,
-instanceVar_qjei,
-instanceVar_it,
-instanceVar_ijbc,
-instanceVar_iavl,
-instanceVar_ijsc,
-instanceVar_Ibici,
-instanceVar_ijbe,
-instanceVar_IAVL,
-instanceVar_VBE,
-instanceVar_VBC,
-instanceVar_VCE,
-instanceVar_VSC,
-instanceVar_GMi,
-instanceVar_RPIi,
-instanceVar_RMUi,
-instanceVar_ROi,
-instanceVar_CPIi,
-instanceVar_CMUi,
-instanceVar_CBCX,
-instanceVar_CCS,
-instanceVar_RBi,
-instanceVar_RB,
-instanceVar_RCX,
-instanceVar_RE,
-instanceVar_BETAAC,
-instanceVar_TF,
-instanceVar_FT,
-// model parameters
-// reals
-modelPar_is,
-modelPar_given_is,
-modelPar_mcf,
-modelPar_given_mcf,
-modelPar_mcr,
-modelPar_given_mcr,
-modelPar_vef,
-modelPar_given_vef,
-modelPar_ver,
-modelPar_given_ver,
-modelPar_aver,
-modelPar_given_aver,
-modelPar_iqf,
-modelPar_given_iqf,
-modelPar_fiqf,
-modelPar_given_fiqf,
-modelPar_iqr,
-modelPar_given_iqr,
-modelPar_iqfh,
-modelPar_given_iqfh,
-modelPar_tfh,
-modelPar_given_tfh,
-modelPar_ahq,
-modelPar_given_ahq,
-modelPar_ibes,
-modelPar_given_ibes,
-modelPar_mbe,
-modelPar_given_mbe,
-modelPar_ires,
-modelPar_given_ires,
-modelPar_mre,
-modelPar_given_mre,
-modelPar_ibcs,
-modelPar_given_ibcs,
-modelPar_mbc,
-modelPar_given_mbc,
-modelPar_cje0,
-modelPar_given_cje0,
-modelPar_vde,
-modelPar_given_vde,
-modelPar_ze,
-modelPar_given_ze,
-modelPar_aje,
-modelPar_given_aje,
-modelPar_vdedc,
-modelPar_given_vdedc,
-modelPar_zedc,
-modelPar_given_zedc,
-modelPar_ajedc,
-modelPar_given_ajedc,
-modelPar_t0,
-modelPar_given_t0,
-modelPar_dt0h,
-modelPar_given_dt0h,
-modelPar_tbvl,
-modelPar_given_tbvl,
-modelPar_tef0,
-modelPar_given_tef0,
-modelPar_gte,
-modelPar_given_gte,
-modelPar_thcs,
-modelPar_given_thcs,
-modelPar_ahc,
-modelPar_given_ahc,
-modelPar_tr,
-modelPar_given_tr,
-modelPar_rci0,
-modelPar_given_rci0,
-modelPar_vlim,
-modelPar_given_vlim,
-modelPar_vpt,
-modelPar_given_vpt,
-modelPar_vces,
-modelPar_given_vces,
-modelPar_cjci0,
-modelPar_given_cjci0,
-modelPar_vdci,
-modelPar_given_vdci,
-modelPar_zci,
-modelPar_given_zci,
-modelPar_vptci,
-modelPar_given_vptci,
-modelPar_cjcx0,
-modelPar_given_cjcx0,
-modelPar_vdcx,
-modelPar_given_vdcx,
-modelPar_zcx,
-modelPar_given_zcx,
-modelPar_vptcx,
-modelPar_given_vptcx,
-modelPar_fbc,
-modelPar_given_fbc,
-modelPar_rbi0,
-modelPar_given_rbi0,
-modelPar_vr0e,
-modelPar_given_vr0e,
-modelPar_vr0c,
-modelPar_given_vr0c,
-modelPar_fgeo,
-modelPar_given_fgeo,
-modelPar_rbx,
-modelPar_given_rbx,
-modelPar_rcx,
-modelPar_given_rcx,
-modelPar_re,
-modelPar_given_re,
-modelPar_itss,
-modelPar_given_itss,
-modelPar_msf,
-modelPar_given_msf,
-modelPar_iscs,
-modelPar_given_iscs,
-modelPar_msc,
-modelPar_given_msc,
-modelPar_cjs0,
-modelPar_given_cjs0,
-modelPar_vds,
-modelPar_given_vds,
-modelPar_zs,
-modelPar_given_zs,
-modelPar_vpts,
-modelPar_given_vpts,
-modelPar_cbcpar,
-modelPar_given_cbcpar,
-modelPar_cbepar,
-modelPar_given_cbepar,
-modelPar_eavl,
-modelPar_given_eavl,
-modelPar_kavl,
-modelPar_given_kavl,
-modelPar_kf,
-modelPar_given_kf,
-modelPar_af,
-modelPar_given_af,
-modelPar_alqf,
-modelPar_given_alqf,
-modelPar_alit,
-modelPar_given_alit,
-modelPar_vgb,
-modelPar_given_vgb,
-modelPar_vge,
-modelPar_given_vge,
-modelPar_vgc,
-modelPar_given_vgc,
-modelPar_vgs,
-modelPar_given_vgs,
-modelPar_f1vg,
-modelPar_given_f1vg,
-modelPar_f2vg,
-modelPar_given_f2vg,
-modelPar_alt0,
-modelPar_given_alt0,
-modelPar_kt0,
-modelPar_given_kt0,
-modelPar_zetact,
-modelPar_given_zetact,
-modelPar_zetabet,
-modelPar_given_zetabet,
-modelPar_zetaci,
-modelPar_given_zetaci,
-modelPar_alvs,
-modelPar_given_alvs,
-modelPar_alces,
-modelPar_given_alces,
-modelPar_zetarbi,
-modelPar_given_zetarbi,
-modelPar_zetarbx,
-modelPar_given_zetarbx,
-modelPar_zetarcx,
-modelPar_given_zetarcx,
-modelPar_zetare,
-modelPar_given_zetare,
-modelPar_zetaiqf,
-modelPar_given_zetaiqf,
-modelPar_alkav,
-modelPar_given_alkav,
-modelPar_aleav,
-modelPar_given_aleav,
-modelPar_zetarth,
-modelPar_given_zetarth,
-modelPar_zetaver,
-modelPar_given_zetaver,
-modelPar_zetavgbe,
-modelPar_given_zetavgbe,
-modelPar_dvgbe,
-modelPar_given_dvgbe,
-modelPar_aliqfh,
-modelPar_given_aliqfh,
-modelPar_kiqfh,
-modelPar_given_kiqfh,
-modelPar_rth,
-modelPar_given_rth,
-modelPar_cth,
-modelPar_given_cth,
-modelPar_tnom,
-modelPar_given_tnom,
-// non-reals (including hidden)
- modelPar_it_mod,
-modelPar_given_it_mod,
- modelPar_flnqs,
-modelPar_given_flnqs,
- modelPar_tef_temp,
-modelPar_given_tef_temp,
- modelPar_flsh,
-modelPar_given_flsh,
- modelPar_type,
-modelPar_given_type,
+instanceStruct,
+modelStruct,
  in.admsTemperature,
  in.adms_vt_nom,
  in.getDeviceOptions().gmin,
- staticContributions,
- dynamicContributions,
+ d_staticContributions_dX,
+ d_dynamicContributions_dX,
  in);
 
 
 // We now have the F and Q vector stuff, populate the dependencies:
 
-    dfdp[in.admsNodeID_c] += staticContributions[in.admsNodeID_c].dx(0);
-    dqdp[in.admsNodeID_c] += dynamicContributions[in.admsNodeID_c].dx(0);
+    dfdp[in.admsNodeID_c] += d_staticContributions_dX[in.admsNodeID_c];
+    dqdp[in.admsNodeID_c] += d_dynamicContributions_dX[in.admsNodeID_c];
     Findices[in.admsNodeID_c] = in.li_c;
     Qindices[in.admsNodeID_c] = in.li_c;
-    dfdp[in.admsNodeID_b] += staticContributions[in.admsNodeID_b].dx(0);
-    dqdp[in.admsNodeID_b] += dynamicContributions[in.admsNodeID_b].dx(0);
+    dfdp[in.admsNodeID_b] += d_staticContributions_dX[in.admsNodeID_b];
+    dqdp[in.admsNodeID_b] += d_dynamicContributions_dX[in.admsNodeID_b];
     Findices[in.admsNodeID_b] = in.li_b;
     Qindices[in.admsNodeID_b] = in.li_b;
-    dfdp[in.admsNodeID_e] += staticContributions[in.admsNodeID_e].dx(0);
-    dqdp[in.admsNodeID_e] += dynamicContributions[in.admsNodeID_e].dx(0);
+    dfdp[in.admsNodeID_e] += d_staticContributions_dX[in.admsNodeID_e];
+    dqdp[in.admsNodeID_e] += d_dynamicContributions_dX[in.admsNodeID_e];
     Findices[in.admsNodeID_e] = in.li_e;
     Qindices[in.admsNodeID_e] = in.li_e;
-    dfdp[in.admsNodeID_s] += staticContributions[in.admsNodeID_s].dx(0);
-    dqdp[in.admsNodeID_s] += dynamicContributions[in.admsNodeID_s].dx(0);
+    dfdp[in.admsNodeID_s] += d_staticContributions_dX[in.admsNodeID_s];
+    dqdp[in.admsNodeID_s] += d_dynamicContributions_dX[in.admsNodeID_s];
     Findices[in.admsNodeID_s] = in.li_s;
     Qindices[in.admsNodeID_s] = in.li_s;
-    dfdp[in.admsNodeID_tnode] += staticContributions[in.admsNodeID_tnode].dx(0);
-    dqdp[in.admsNodeID_tnode] += dynamicContributions[in.admsNodeID_tnode].dx(0);
+    dfdp[in.admsNodeID_tnode] += d_staticContributions_dX[in.admsNodeID_tnode];
+    dqdp[in.admsNodeID_tnode] += d_dynamicContributions_dX[in.admsNodeID_tnode];
     Findices[in.admsNodeID_tnode] = in.li_tnode;
     Qindices[in.admsNodeID_tnode] = in.li_tnode;
-    dfdp[in.admsNodeID_ci] += staticContributions[in.admsNodeID_ci].dx(0);
-    dqdp[in.admsNodeID_ci] += dynamicContributions[in.admsNodeID_ci].dx(0);
+    dfdp[in.admsNodeID_ci] += d_staticContributions_dX[in.admsNodeID_ci];
+    dqdp[in.admsNodeID_ci] += d_dynamicContributions_dX[in.admsNodeID_ci];
     Findices[in.admsNodeID_ci] = in.li_ci;
     Qindices[in.admsNodeID_ci] = in.li_ci;
-    dfdp[in.admsNodeID_bi] += staticContributions[in.admsNodeID_bi].dx(0);
-    dqdp[in.admsNodeID_bi] += dynamicContributions[in.admsNodeID_bi].dx(0);
+    dfdp[in.admsNodeID_bi] += d_staticContributions_dX[in.admsNodeID_bi];
+    dqdp[in.admsNodeID_bi] += d_dynamicContributions_dX[in.admsNodeID_bi];
     Findices[in.admsNodeID_bi] = in.li_bi;
     Qindices[in.admsNodeID_bi] = in.li_bi;
-    dfdp[in.admsNodeID_ei] += staticContributions[in.admsNodeID_ei].dx(0);
-    dqdp[in.admsNodeID_ei] += dynamicContributions[in.admsNodeID_ei].dx(0);
+    dfdp[in.admsNodeID_ei] += d_staticContributions_dX[in.admsNodeID_ei];
+    dqdp[in.admsNodeID_ei] += d_dynamicContributions_dX[in.admsNodeID_ei];
     Findices[in.admsNodeID_ei] = in.li_ei;
     Qindices[in.admsNodeID_ei] = in.li_ei;
-    dfdp[in.admsNodeID_xf1] += staticContributions[in.admsNodeID_xf1].dx(0);
-    dqdp[in.admsNodeID_xf1] += dynamicContributions[in.admsNodeID_xf1].dx(0);
+    dfdp[in.admsNodeID_xf1] += d_staticContributions_dX[in.admsNodeID_xf1];
+    dqdp[in.admsNodeID_xf1] += d_dynamicContributions_dX[in.admsNodeID_xf1];
     Findices[in.admsNodeID_xf1] = in.li_xf1;
     Qindices[in.admsNodeID_xf1] = in.li_xf1;
-    dfdp[in.admsNodeID_xf2] += staticContributions[in.admsNodeID_xf2].dx(0);
-    dqdp[in.admsNodeID_xf2] += dynamicContributions[in.admsNodeID_xf2].dx(0);
+    dfdp[in.admsNodeID_xf2] += d_staticContributions_dX[in.admsNodeID_xf2];
+    dqdp[in.admsNodeID_xf2] += d_dynamicContributions_dX[in.admsNodeID_xf2];
     Findices[in.admsNodeID_xf2] = in.li_xf2;
     Qindices[in.admsNodeID_xf2] = in.li_xf2;
-    dfdp[in.admsNodeID_xf] += staticContributions[in.admsNodeID_xf].dx(0);
-    dqdp[in.admsNodeID_xf] += dynamicContributions[in.admsNodeID_xf].dx(0);
+    dfdp[in.admsNodeID_xf] += d_staticContributions_dX[in.admsNodeID_xf];
+    dqdp[in.admsNodeID_xf] += d_dynamicContributions_dX[in.admsNodeID_xf];
     Findices[in.admsNodeID_xf] = in.li_xf;
     Qindices[in.admsNodeID_xf] = in.li_xf;
 
@@ -15110,334 +15688,434 @@ Findices.resize((11+0)*sizeInstance);
 Qindices.resize((11+0)*sizeInstance);
 
 std::vector <double> probeVars(20);
-std::vector <AdmsSensFadType> staticContributions(11+0);
-std::vector <AdmsSensFadType> dynamicContributions(11+0);
+std::vector <double> d_staticContributions_dX(11+0);
+std::vector <double> d_dynamicContributions_dX(11+0);
 
 
-// Copy out all the model parameters (doubles) into FAD types
+// Copy out all the model parameters (doubles) into local structure
+modelSensStruct modelStruct;
+
 // Keep a map so we can set the right one to the independent variable
 // We do this solely to avoid a big ugly "if/else" block just to find the
 // one parameter we're doing sensitivities on.
-unordered_map <std::string,AdmsSensFadType*,HashNoCase,EqualNoCase> modParamMap;
+unordered_map <std::string,double*,HashNoCase,EqualNoCase> modParamMap;
 
 // reals
-AdmsSensFadType modelPar_is=mod.is;
-bool modelPar_given_is=mod.given("is");
-modParamMap["is"] = &modelPar_is;
-AdmsSensFadType modelPar_mcf=mod.mcf;
-bool modelPar_given_mcf=mod.given("mcf");
-modParamMap["mcf"] = &modelPar_mcf;
-AdmsSensFadType modelPar_mcr=mod.mcr;
-bool modelPar_given_mcr=mod.given("mcr");
-modParamMap["mcr"] = &modelPar_mcr;
-AdmsSensFadType modelPar_vef=mod.vef;
-bool modelPar_given_vef=mod.given("vef");
-modParamMap["vef"] = &modelPar_vef;
-AdmsSensFadType modelPar_ver=mod.ver;
-bool modelPar_given_ver=mod.given("ver");
-modParamMap["ver"] = &modelPar_ver;
-AdmsSensFadType modelPar_aver=mod.aver;
-bool modelPar_given_aver=mod.given("aver");
-modParamMap["aver"] = &modelPar_aver;
-AdmsSensFadType modelPar_iqf=mod.iqf;
-bool modelPar_given_iqf=mod.given("iqf");
-modParamMap["iqf"] = &modelPar_iqf;
-AdmsSensFadType modelPar_fiqf=mod.fiqf;
-bool modelPar_given_fiqf=mod.given("fiqf");
-modParamMap["fiqf"] = &modelPar_fiqf;
-AdmsSensFadType modelPar_iqr=mod.iqr;
-bool modelPar_given_iqr=mod.given("iqr");
-modParamMap["iqr"] = &modelPar_iqr;
-AdmsSensFadType modelPar_iqfh=mod.iqfh;
-bool modelPar_given_iqfh=mod.given("iqfh");
-modParamMap["iqfh"] = &modelPar_iqfh;
-AdmsSensFadType modelPar_tfh=mod.tfh;
-bool modelPar_given_tfh=mod.given("tfh");
-modParamMap["tfh"] = &modelPar_tfh;
-AdmsSensFadType modelPar_ahq=mod.ahq;
-bool modelPar_given_ahq=mod.given("ahq");
-modParamMap["ahq"] = &modelPar_ahq;
-AdmsSensFadType modelPar_ibes=mod.ibes;
-bool modelPar_given_ibes=mod.given("ibes");
-modParamMap["ibes"] = &modelPar_ibes;
-AdmsSensFadType modelPar_mbe=mod.mbe;
-bool modelPar_given_mbe=mod.given("mbe");
-modParamMap["mbe"] = &modelPar_mbe;
-AdmsSensFadType modelPar_ires=mod.ires;
-bool modelPar_given_ires=mod.given("ires");
-modParamMap["ires"] = &modelPar_ires;
-AdmsSensFadType modelPar_mre=mod.mre;
-bool modelPar_given_mre=mod.given("mre");
-modParamMap["mre"] = &modelPar_mre;
-AdmsSensFadType modelPar_ibcs=mod.ibcs;
-bool modelPar_given_ibcs=mod.given("ibcs");
-modParamMap["ibcs"] = &modelPar_ibcs;
-AdmsSensFadType modelPar_mbc=mod.mbc;
-bool modelPar_given_mbc=mod.given("mbc");
-modParamMap["mbc"] = &modelPar_mbc;
-AdmsSensFadType modelPar_cje0=mod.cje0;
-bool modelPar_given_cje0=mod.given("cje0");
-modParamMap["cje0"] = &modelPar_cje0;
-AdmsSensFadType modelPar_vde=mod.vde;
-bool modelPar_given_vde=mod.given("vde");
-modParamMap["vde"] = &modelPar_vde;
-AdmsSensFadType modelPar_ze=mod.ze;
-bool modelPar_given_ze=mod.given("ze");
-modParamMap["ze"] = &modelPar_ze;
-AdmsSensFadType modelPar_aje=mod.aje;
-bool modelPar_given_aje=mod.given("aje");
-modParamMap["aje"] = &modelPar_aje;
-AdmsSensFadType modelPar_vdedc=mod.vdedc;
-bool modelPar_given_vdedc=mod.given("vdedc");
-modParamMap["vdedc"] = &modelPar_vdedc;
-AdmsSensFadType modelPar_zedc=mod.zedc;
-bool modelPar_given_zedc=mod.given("zedc");
-modParamMap["zedc"] = &modelPar_zedc;
-AdmsSensFadType modelPar_ajedc=mod.ajedc;
-bool modelPar_given_ajedc=mod.given("ajedc");
-modParamMap["ajedc"] = &modelPar_ajedc;
-AdmsSensFadType modelPar_t0=mod.t0;
-bool modelPar_given_t0=mod.given("t0");
-modParamMap["t0"] = &modelPar_t0;
-AdmsSensFadType modelPar_dt0h=mod.dt0h;
-bool modelPar_given_dt0h=mod.given("dt0h");
-modParamMap["dt0h"] = &modelPar_dt0h;
-AdmsSensFadType modelPar_tbvl=mod.tbvl;
-bool modelPar_given_tbvl=mod.given("tbvl");
-modParamMap["tbvl"] = &modelPar_tbvl;
-AdmsSensFadType modelPar_tef0=mod.tef0;
-bool modelPar_given_tef0=mod.given("tef0");
-modParamMap["tef0"] = &modelPar_tef0;
-AdmsSensFadType modelPar_gte=mod.gte;
-bool modelPar_given_gte=mod.given("gte");
-modParamMap["gte"] = &modelPar_gte;
-AdmsSensFadType modelPar_thcs=mod.thcs;
-bool modelPar_given_thcs=mod.given("thcs");
-modParamMap["thcs"] = &modelPar_thcs;
-AdmsSensFadType modelPar_ahc=mod.ahc;
-bool modelPar_given_ahc=mod.given("ahc");
-modParamMap["ahc"] = &modelPar_ahc;
-AdmsSensFadType modelPar_tr=mod.tr;
-bool modelPar_given_tr=mod.given("tr");
-modParamMap["tr"] = &modelPar_tr;
-AdmsSensFadType modelPar_rci0=mod.rci0;
-bool modelPar_given_rci0=mod.given("rci0");
-modParamMap["rci0"] = &modelPar_rci0;
-AdmsSensFadType modelPar_vlim=mod.vlim;
-bool modelPar_given_vlim=mod.given("vlim");
-modParamMap["vlim"] = &modelPar_vlim;
-AdmsSensFadType modelPar_vpt=mod.vpt;
-bool modelPar_given_vpt=mod.given("vpt");
-modParamMap["vpt"] = &modelPar_vpt;
-AdmsSensFadType modelPar_vces=mod.vces;
-bool modelPar_given_vces=mod.given("vces");
-modParamMap["vces"] = &modelPar_vces;
-AdmsSensFadType modelPar_cjci0=mod.cjci0;
-bool modelPar_given_cjci0=mod.given("cjci0");
-modParamMap["cjci0"] = &modelPar_cjci0;
-AdmsSensFadType modelPar_vdci=mod.vdci;
-bool modelPar_given_vdci=mod.given("vdci");
-modParamMap["vdci"] = &modelPar_vdci;
-AdmsSensFadType modelPar_zci=mod.zci;
-bool modelPar_given_zci=mod.given("zci");
-modParamMap["zci"] = &modelPar_zci;
-AdmsSensFadType modelPar_vptci=mod.vptci;
-bool modelPar_given_vptci=mod.given("vptci");
-modParamMap["vptci"] = &modelPar_vptci;
-AdmsSensFadType modelPar_cjcx0=mod.cjcx0;
-bool modelPar_given_cjcx0=mod.given("cjcx0");
-modParamMap["cjcx0"] = &modelPar_cjcx0;
-AdmsSensFadType modelPar_vdcx=mod.vdcx;
-bool modelPar_given_vdcx=mod.given("vdcx");
-modParamMap["vdcx"] = &modelPar_vdcx;
-AdmsSensFadType modelPar_zcx=mod.zcx;
-bool modelPar_given_zcx=mod.given("zcx");
-modParamMap["zcx"] = &modelPar_zcx;
-AdmsSensFadType modelPar_vptcx=mod.vptcx;
-bool modelPar_given_vptcx=mod.given("vptcx");
-modParamMap["vptcx"] = &modelPar_vptcx;
-AdmsSensFadType modelPar_fbc=mod.fbc;
-bool modelPar_given_fbc=mod.given("fbc");
-modParamMap["fbc"] = &modelPar_fbc;
-AdmsSensFadType modelPar_rbi0=mod.rbi0;
-bool modelPar_given_rbi0=mod.given("rbi0");
-modParamMap["rbi0"] = &modelPar_rbi0;
-AdmsSensFadType modelPar_vr0e=mod.vr0e;
-bool modelPar_given_vr0e=mod.given("vr0e");
-modParamMap["vr0e"] = &modelPar_vr0e;
-AdmsSensFadType modelPar_vr0c=mod.vr0c;
-bool modelPar_given_vr0c=mod.given("vr0c");
-modParamMap["vr0c"] = &modelPar_vr0c;
-AdmsSensFadType modelPar_fgeo=mod.fgeo;
-bool modelPar_given_fgeo=mod.given("fgeo");
-modParamMap["fgeo"] = &modelPar_fgeo;
-AdmsSensFadType modelPar_rbx=mod.rbx;
-bool modelPar_given_rbx=mod.given("rbx");
-modParamMap["rbx"] = &modelPar_rbx;
-AdmsSensFadType modelPar_rcx=mod.rcx;
-bool modelPar_given_rcx=mod.given("rcx");
-modParamMap["rcx"] = &modelPar_rcx;
-AdmsSensFadType modelPar_re=mod.re;
-bool modelPar_given_re=mod.given("re");
-modParamMap["re"] = &modelPar_re;
-AdmsSensFadType modelPar_itss=mod.itss;
-bool modelPar_given_itss=mod.given("itss");
-modParamMap["itss"] = &modelPar_itss;
-AdmsSensFadType modelPar_msf=mod.msf;
-bool modelPar_given_msf=mod.given("msf");
-modParamMap["msf"] = &modelPar_msf;
-AdmsSensFadType modelPar_iscs=mod.iscs;
-bool modelPar_given_iscs=mod.given("iscs");
-modParamMap["iscs"] = &modelPar_iscs;
-AdmsSensFadType modelPar_msc=mod.msc;
-bool modelPar_given_msc=mod.given("msc");
-modParamMap["msc"] = &modelPar_msc;
-AdmsSensFadType modelPar_cjs0=mod.cjs0;
-bool modelPar_given_cjs0=mod.given("cjs0");
-modParamMap["cjs0"] = &modelPar_cjs0;
-AdmsSensFadType modelPar_vds=mod.vds;
-bool modelPar_given_vds=mod.given("vds");
-modParamMap["vds"] = &modelPar_vds;
-AdmsSensFadType modelPar_zs=mod.zs;
-bool modelPar_given_zs=mod.given("zs");
-modParamMap["zs"] = &modelPar_zs;
-AdmsSensFadType modelPar_vpts=mod.vpts;
-bool modelPar_given_vpts=mod.given("vpts");
-modParamMap["vpts"] = &modelPar_vpts;
-AdmsSensFadType modelPar_cbcpar=mod.cbcpar;
-bool modelPar_given_cbcpar=mod.given("cbcpar");
-modParamMap["cbcpar"] = &modelPar_cbcpar;
-AdmsSensFadType modelPar_cbepar=mod.cbepar;
-bool modelPar_given_cbepar=mod.given("cbepar");
-modParamMap["cbepar"] = &modelPar_cbepar;
-AdmsSensFadType modelPar_eavl=mod.eavl;
-bool modelPar_given_eavl=mod.given("eavl");
-modParamMap["eavl"] = &modelPar_eavl;
-AdmsSensFadType modelPar_kavl=mod.kavl;
-bool modelPar_given_kavl=mod.given("kavl");
-modParamMap["kavl"] = &modelPar_kavl;
-AdmsSensFadType modelPar_kf=mod.kf;
-bool modelPar_given_kf=mod.given("kf");
-modParamMap["kf"] = &modelPar_kf;
-AdmsSensFadType modelPar_af=mod.af;
-bool modelPar_given_af=mod.given("af");
-modParamMap["af"] = &modelPar_af;
-AdmsSensFadType modelPar_alqf=mod.alqf;
-bool modelPar_given_alqf=mod.given("alqf");
-modParamMap["alqf"] = &modelPar_alqf;
-AdmsSensFadType modelPar_alit=mod.alit;
-bool modelPar_given_alit=mod.given("alit");
-modParamMap["alit"] = &modelPar_alit;
-AdmsSensFadType modelPar_vgb=mod.vgb;
-bool modelPar_given_vgb=mod.given("vgb");
-modParamMap["vgb"] = &modelPar_vgb;
-AdmsSensFadType modelPar_vge=mod.vge;
-bool modelPar_given_vge=mod.given("vge");
-modParamMap["vge"] = &modelPar_vge;
-AdmsSensFadType modelPar_vgc=mod.vgc;
-bool modelPar_given_vgc=mod.given("vgc");
-modParamMap["vgc"] = &modelPar_vgc;
-AdmsSensFadType modelPar_vgs=mod.vgs;
-bool modelPar_given_vgs=mod.given("vgs");
-modParamMap["vgs"] = &modelPar_vgs;
-AdmsSensFadType modelPar_f1vg=mod.f1vg;
-bool modelPar_given_f1vg=mod.given("f1vg");
-modParamMap["f1vg"] = &modelPar_f1vg;
-AdmsSensFadType modelPar_f2vg=mod.f2vg;
-bool modelPar_given_f2vg=mod.given("f2vg");
-modParamMap["f2vg"] = &modelPar_f2vg;
-AdmsSensFadType modelPar_alt0=mod.alt0;
-bool modelPar_given_alt0=mod.given("alt0");
-modParamMap["alt0"] = &modelPar_alt0;
-AdmsSensFadType modelPar_kt0=mod.kt0;
-bool modelPar_given_kt0=mod.given("kt0");
-modParamMap["kt0"] = &modelPar_kt0;
-AdmsSensFadType modelPar_zetact=mod.zetact;
-bool modelPar_given_zetact=mod.given("zetact");
-modParamMap["zetact"] = &modelPar_zetact;
-AdmsSensFadType modelPar_zetabet=mod.zetabet;
-bool modelPar_given_zetabet=mod.given("zetabet");
-modParamMap["zetabet"] = &modelPar_zetabet;
-AdmsSensFadType modelPar_zetaci=mod.zetaci;
-bool modelPar_given_zetaci=mod.given("zetaci");
-modParamMap["zetaci"] = &modelPar_zetaci;
-AdmsSensFadType modelPar_alvs=mod.alvs;
-bool modelPar_given_alvs=mod.given("alvs");
-modParamMap["alvs"] = &modelPar_alvs;
-AdmsSensFadType modelPar_alces=mod.alces;
-bool modelPar_given_alces=mod.given("alces");
-modParamMap["alces"] = &modelPar_alces;
-AdmsSensFadType modelPar_zetarbi=mod.zetarbi;
-bool modelPar_given_zetarbi=mod.given("zetarbi");
-modParamMap["zetarbi"] = &modelPar_zetarbi;
-AdmsSensFadType modelPar_zetarbx=mod.zetarbx;
-bool modelPar_given_zetarbx=mod.given("zetarbx");
-modParamMap["zetarbx"] = &modelPar_zetarbx;
-AdmsSensFadType modelPar_zetarcx=mod.zetarcx;
-bool modelPar_given_zetarcx=mod.given("zetarcx");
-modParamMap["zetarcx"] = &modelPar_zetarcx;
-AdmsSensFadType modelPar_zetare=mod.zetare;
-bool modelPar_given_zetare=mod.given("zetare");
-modParamMap["zetare"] = &modelPar_zetare;
-AdmsSensFadType modelPar_zetaiqf=mod.zetaiqf;
-bool modelPar_given_zetaiqf=mod.given("zetaiqf");
-modParamMap["zetaiqf"] = &modelPar_zetaiqf;
-AdmsSensFadType modelPar_alkav=mod.alkav;
-bool modelPar_given_alkav=mod.given("alkav");
-modParamMap["alkav"] = &modelPar_alkav;
-AdmsSensFadType modelPar_aleav=mod.aleav;
-bool modelPar_given_aleav=mod.given("aleav");
-modParamMap["aleav"] = &modelPar_aleav;
-AdmsSensFadType modelPar_zetarth=mod.zetarth;
-bool modelPar_given_zetarth=mod.given("zetarth");
-modParamMap["zetarth"] = &modelPar_zetarth;
-AdmsSensFadType modelPar_zetaver=mod.zetaver;
-bool modelPar_given_zetaver=mod.given("zetaver");
-modParamMap["zetaver"] = &modelPar_zetaver;
-AdmsSensFadType modelPar_zetavgbe=mod.zetavgbe;
-bool modelPar_given_zetavgbe=mod.given("zetavgbe");
-modParamMap["zetavgbe"] = &modelPar_zetavgbe;
-AdmsSensFadType modelPar_dvgbe=mod.dvgbe;
-bool modelPar_given_dvgbe=mod.given("dvgbe");
-modParamMap["dvgbe"] = &modelPar_dvgbe;
-AdmsSensFadType modelPar_aliqfh=mod.aliqfh;
-bool modelPar_given_aliqfh=mod.given("aliqfh");
-modParamMap["aliqfh"] = &modelPar_aliqfh;
-AdmsSensFadType modelPar_kiqfh=mod.kiqfh;
-bool modelPar_given_kiqfh=mod.given("kiqfh");
-modParamMap["kiqfh"] = &modelPar_kiqfh;
-AdmsSensFadType modelPar_rth=mod.rth;
-bool modelPar_given_rth=mod.given("rth");
-modParamMap["rth"] = &modelPar_rth;
-AdmsSensFadType modelPar_cth=mod.cth;
-bool modelPar_given_cth=mod.given("cth");
-modParamMap["cth"] = &modelPar_cth;
-AdmsSensFadType modelPar_tnom=mod.tnom;
-bool modelPar_given_tnom=mod.given("tnom");
-modParamMap["tnom"] = &modelPar_tnom;
+modelStruct.modelPar_is=mod.is;
+modelStruct.d_modelPar_is_dX=0.0;
+modelStruct.modelPar_given_is=mod.given("is");
+modParamMap["is"] = &(modelStruct.d_modelPar_is_dX);
+modelStruct.modelPar_mcf=mod.mcf;
+modelStruct.d_modelPar_mcf_dX=0.0;
+modelStruct.modelPar_given_mcf=mod.given("mcf");
+modParamMap["mcf"] = &(modelStruct.d_modelPar_mcf_dX);
+modelStruct.modelPar_mcr=mod.mcr;
+modelStruct.d_modelPar_mcr_dX=0.0;
+modelStruct.modelPar_given_mcr=mod.given("mcr");
+modParamMap["mcr"] = &(modelStruct.d_modelPar_mcr_dX);
+modelStruct.modelPar_vef=mod.vef;
+modelStruct.d_modelPar_vef_dX=0.0;
+modelStruct.modelPar_given_vef=mod.given("vef");
+modParamMap["vef"] = &(modelStruct.d_modelPar_vef_dX);
+modelStruct.modelPar_ver=mod.ver;
+modelStruct.d_modelPar_ver_dX=0.0;
+modelStruct.modelPar_given_ver=mod.given("ver");
+modParamMap["ver"] = &(modelStruct.d_modelPar_ver_dX);
+modelStruct.modelPar_aver=mod.aver;
+modelStruct.d_modelPar_aver_dX=0.0;
+modelStruct.modelPar_given_aver=mod.given("aver");
+modParamMap["aver"] = &(modelStruct.d_modelPar_aver_dX);
+modelStruct.modelPar_iqf=mod.iqf;
+modelStruct.d_modelPar_iqf_dX=0.0;
+modelStruct.modelPar_given_iqf=mod.given("iqf");
+modParamMap["iqf"] = &(modelStruct.d_modelPar_iqf_dX);
+modelStruct.modelPar_fiqf=mod.fiqf;
+modelStruct.d_modelPar_fiqf_dX=0.0;
+modelStruct.modelPar_given_fiqf=mod.given("fiqf");
+modParamMap["fiqf"] = &(modelStruct.d_modelPar_fiqf_dX);
+modelStruct.modelPar_iqr=mod.iqr;
+modelStruct.d_modelPar_iqr_dX=0.0;
+modelStruct.modelPar_given_iqr=mod.given("iqr");
+modParamMap["iqr"] = &(modelStruct.d_modelPar_iqr_dX);
+modelStruct.modelPar_iqfh=mod.iqfh;
+modelStruct.d_modelPar_iqfh_dX=0.0;
+modelStruct.modelPar_given_iqfh=mod.given("iqfh");
+modParamMap["iqfh"] = &(modelStruct.d_modelPar_iqfh_dX);
+modelStruct.modelPar_tfh=mod.tfh;
+modelStruct.d_modelPar_tfh_dX=0.0;
+modelStruct.modelPar_given_tfh=mod.given("tfh");
+modParamMap["tfh"] = &(modelStruct.d_modelPar_tfh_dX);
+modelStruct.modelPar_ahq=mod.ahq;
+modelStruct.d_modelPar_ahq_dX=0.0;
+modelStruct.modelPar_given_ahq=mod.given("ahq");
+modParamMap["ahq"] = &(modelStruct.d_modelPar_ahq_dX);
+modelStruct.modelPar_ibes=mod.ibes;
+modelStruct.d_modelPar_ibes_dX=0.0;
+modelStruct.modelPar_given_ibes=mod.given("ibes");
+modParamMap["ibes"] = &(modelStruct.d_modelPar_ibes_dX);
+modelStruct.modelPar_mbe=mod.mbe;
+modelStruct.d_modelPar_mbe_dX=0.0;
+modelStruct.modelPar_given_mbe=mod.given("mbe");
+modParamMap["mbe"] = &(modelStruct.d_modelPar_mbe_dX);
+modelStruct.modelPar_ires=mod.ires;
+modelStruct.d_modelPar_ires_dX=0.0;
+modelStruct.modelPar_given_ires=mod.given("ires");
+modParamMap["ires"] = &(modelStruct.d_modelPar_ires_dX);
+modelStruct.modelPar_mre=mod.mre;
+modelStruct.d_modelPar_mre_dX=0.0;
+modelStruct.modelPar_given_mre=mod.given("mre");
+modParamMap["mre"] = &(modelStruct.d_modelPar_mre_dX);
+modelStruct.modelPar_ibcs=mod.ibcs;
+modelStruct.d_modelPar_ibcs_dX=0.0;
+modelStruct.modelPar_given_ibcs=mod.given("ibcs");
+modParamMap["ibcs"] = &(modelStruct.d_modelPar_ibcs_dX);
+modelStruct.modelPar_mbc=mod.mbc;
+modelStruct.d_modelPar_mbc_dX=0.0;
+modelStruct.modelPar_given_mbc=mod.given("mbc");
+modParamMap["mbc"] = &(modelStruct.d_modelPar_mbc_dX);
+modelStruct.modelPar_cje0=mod.cje0;
+modelStruct.d_modelPar_cje0_dX=0.0;
+modelStruct.modelPar_given_cje0=mod.given("cje0");
+modParamMap["cje0"] = &(modelStruct.d_modelPar_cje0_dX);
+modelStruct.modelPar_vde=mod.vde;
+modelStruct.d_modelPar_vde_dX=0.0;
+modelStruct.modelPar_given_vde=mod.given("vde");
+modParamMap["vde"] = &(modelStruct.d_modelPar_vde_dX);
+modelStruct.modelPar_ze=mod.ze;
+modelStruct.d_modelPar_ze_dX=0.0;
+modelStruct.modelPar_given_ze=mod.given("ze");
+modParamMap["ze"] = &(modelStruct.d_modelPar_ze_dX);
+modelStruct.modelPar_aje=mod.aje;
+modelStruct.d_modelPar_aje_dX=0.0;
+modelStruct.modelPar_given_aje=mod.given("aje");
+modParamMap["aje"] = &(modelStruct.d_modelPar_aje_dX);
+modelStruct.modelPar_vdedc=mod.vdedc;
+modelStruct.d_modelPar_vdedc_dX=0.0;
+modelStruct.modelPar_given_vdedc=mod.given("vdedc");
+modParamMap["vdedc"] = &(modelStruct.d_modelPar_vdedc_dX);
+modelStruct.modelPar_zedc=mod.zedc;
+modelStruct.d_modelPar_zedc_dX=0.0;
+modelStruct.modelPar_given_zedc=mod.given("zedc");
+modParamMap["zedc"] = &(modelStruct.d_modelPar_zedc_dX);
+modelStruct.modelPar_ajedc=mod.ajedc;
+modelStruct.d_modelPar_ajedc_dX=0.0;
+modelStruct.modelPar_given_ajedc=mod.given("ajedc");
+modParamMap["ajedc"] = &(modelStruct.d_modelPar_ajedc_dX);
+modelStruct.modelPar_t0=mod.t0;
+modelStruct.d_modelPar_t0_dX=0.0;
+modelStruct.modelPar_given_t0=mod.given("t0");
+modParamMap["t0"] = &(modelStruct.d_modelPar_t0_dX);
+modelStruct.modelPar_dt0h=mod.dt0h;
+modelStruct.d_modelPar_dt0h_dX=0.0;
+modelStruct.modelPar_given_dt0h=mod.given("dt0h");
+modParamMap["dt0h"] = &(modelStruct.d_modelPar_dt0h_dX);
+modelStruct.modelPar_tbvl=mod.tbvl;
+modelStruct.d_modelPar_tbvl_dX=0.0;
+modelStruct.modelPar_given_tbvl=mod.given("tbvl");
+modParamMap["tbvl"] = &(modelStruct.d_modelPar_tbvl_dX);
+modelStruct.modelPar_tef0=mod.tef0;
+modelStruct.d_modelPar_tef0_dX=0.0;
+modelStruct.modelPar_given_tef0=mod.given("tef0");
+modParamMap["tef0"] = &(modelStruct.d_modelPar_tef0_dX);
+modelStruct.modelPar_gte=mod.gte;
+modelStruct.d_modelPar_gte_dX=0.0;
+modelStruct.modelPar_given_gte=mod.given("gte");
+modParamMap["gte"] = &(modelStruct.d_modelPar_gte_dX);
+modelStruct.modelPar_thcs=mod.thcs;
+modelStruct.d_modelPar_thcs_dX=0.0;
+modelStruct.modelPar_given_thcs=mod.given("thcs");
+modParamMap["thcs"] = &(modelStruct.d_modelPar_thcs_dX);
+modelStruct.modelPar_ahc=mod.ahc;
+modelStruct.d_modelPar_ahc_dX=0.0;
+modelStruct.modelPar_given_ahc=mod.given("ahc");
+modParamMap["ahc"] = &(modelStruct.d_modelPar_ahc_dX);
+modelStruct.modelPar_tr=mod.tr;
+modelStruct.d_modelPar_tr_dX=0.0;
+modelStruct.modelPar_given_tr=mod.given("tr");
+modParamMap["tr"] = &(modelStruct.d_modelPar_tr_dX);
+modelStruct.modelPar_rci0=mod.rci0;
+modelStruct.d_modelPar_rci0_dX=0.0;
+modelStruct.modelPar_given_rci0=mod.given("rci0");
+modParamMap["rci0"] = &(modelStruct.d_modelPar_rci0_dX);
+modelStruct.modelPar_vlim=mod.vlim;
+modelStruct.d_modelPar_vlim_dX=0.0;
+modelStruct.modelPar_given_vlim=mod.given("vlim");
+modParamMap["vlim"] = &(modelStruct.d_modelPar_vlim_dX);
+modelStruct.modelPar_vpt=mod.vpt;
+modelStruct.d_modelPar_vpt_dX=0.0;
+modelStruct.modelPar_given_vpt=mod.given("vpt");
+modParamMap["vpt"] = &(modelStruct.d_modelPar_vpt_dX);
+modelStruct.modelPar_vces=mod.vces;
+modelStruct.d_modelPar_vces_dX=0.0;
+modelStruct.modelPar_given_vces=mod.given("vces");
+modParamMap["vces"] = &(modelStruct.d_modelPar_vces_dX);
+modelStruct.modelPar_cjci0=mod.cjci0;
+modelStruct.d_modelPar_cjci0_dX=0.0;
+modelStruct.modelPar_given_cjci0=mod.given("cjci0");
+modParamMap["cjci0"] = &(modelStruct.d_modelPar_cjci0_dX);
+modelStruct.modelPar_vdci=mod.vdci;
+modelStruct.d_modelPar_vdci_dX=0.0;
+modelStruct.modelPar_given_vdci=mod.given("vdci");
+modParamMap["vdci"] = &(modelStruct.d_modelPar_vdci_dX);
+modelStruct.modelPar_zci=mod.zci;
+modelStruct.d_modelPar_zci_dX=0.0;
+modelStruct.modelPar_given_zci=mod.given("zci");
+modParamMap["zci"] = &(modelStruct.d_modelPar_zci_dX);
+modelStruct.modelPar_vptci=mod.vptci;
+modelStruct.d_modelPar_vptci_dX=0.0;
+modelStruct.modelPar_given_vptci=mod.given("vptci");
+modParamMap["vptci"] = &(modelStruct.d_modelPar_vptci_dX);
+modelStruct.modelPar_cjcx0=mod.cjcx0;
+modelStruct.d_modelPar_cjcx0_dX=0.0;
+modelStruct.modelPar_given_cjcx0=mod.given("cjcx0");
+modParamMap["cjcx0"] = &(modelStruct.d_modelPar_cjcx0_dX);
+modelStruct.modelPar_vdcx=mod.vdcx;
+modelStruct.d_modelPar_vdcx_dX=0.0;
+modelStruct.modelPar_given_vdcx=mod.given("vdcx");
+modParamMap["vdcx"] = &(modelStruct.d_modelPar_vdcx_dX);
+modelStruct.modelPar_zcx=mod.zcx;
+modelStruct.d_modelPar_zcx_dX=0.0;
+modelStruct.modelPar_given_zcx=mod.given("zcx");
+modParamMap["zcx"] = &(modelStruct.d_modelPar_zcx_dX);
+modelStruct.modelPar_vptcx=mod.vptcx;
+modelStruct.d_modelPar_vptcx_dX=0.0;
+modelStruct.modelPar_given_vptcx=mod.given("vptcx");
+modParamMap["vptcx"] = &(modelStruct.d_modelPar_vptcx_dX);
+modelStruct.modelPar_fbc=mod.fbc;
+modelStruct.d_modelPar_fbc_dX=0.0;
+modelStruct.modelPar_given_fbc=mod.given("fbc");
+modParamMap["fbc"] = &(modelStruct.d_modelPar_fbc_dX);
+modelStruct.modelPar_rbi0=mod.rbi0;
+modelStruct.d_modelPar_rbi0_dX=0.0;
+modelStruct.modelPar_given_rbi0=mod.given("rbi0");
+modParamMap["rbi0"] = &(modelStruct.d_modelPar_rbi0_dX);
+modelStruct.modelPar_vr0e=mod.vr0e;
+modelStruct.d_modelPar_vr0e_dX=0.0;
+modelStruct.modelPar_given_vr0e=mod.given("vr0e");
+modParamMap["vr0e"] = &(modelStruct.d_modelPar_vr0e_dX);
+modelStruct.modelPar_vr0c=mod.vr0c;
+modelStruct.d_modelPar_vr0c_dX=0.0;
+modelStruct.modelPar_given_vr0c=mod.given("vr0c");
+modParamMap["vr0c"] = &(modelStruct.d_modelPar_vr0c_dX);
+modelStruct.modelPar_fgeo=mod.fgeo;
+modelStruct.d_modelPar_fgeo_dX=0.0;
+modelStruct.modelPar_given_fgeo=mod.given("fgeo");
+modParamMap["fgeo"] = &(modelStruct.d_modelPar_fgeo_dX);
+modelStruct.modelPar_rbx=mod.rbx;
+modelStruct.d_modelPar_rbx_dX=0.0;
+modelStruct.modelPar_given_rbx=mod.given("rbx");
+modParamMap["rbx"] = &(modelStruct.d_modelPar_rbx_dX);
+modelStruct.modelPar_rcx=mod.rcx;
+modelStruct.d_modelPar_rcx_dX=0.0;
+modelStruct.modelPar_given_rcx=mod.given("rcx");
+modParamMap["rcx"] = &(modelStruct.d_modelPar_rcx_dX);
+modelStruct.modelPar_re=mod.re;
+modelStruct.d_modelPar_re_dX=0.0;
+modelStruct.modelPar_given_re=mod.given("re");
+modParamMap["re"] = &(modelStruct.d_modelPar_re_dX);
+modelStruct.modelPar_itss=mod.itss;
+modelStruct.d_modelPar_itss_dX=0.0;
+modelStruct.modelPar_given_itss=mod.given("itss");
+modParamMap["itss"] = &(modelStruct.d_modelPar_itss_dX);
+modelStruct.modelPar_msf=mod.msf;
+modelStruct.d_modelPar_msf_dX=0.0;
+modelStruct.modelPar_given_msf=mod.given("msf");
+modParamMap["msf"] = &(modelStruct.d_modelPar_msf_dX);
+modelStruct.modelPar_iscs=mod.iscs;
+modelStruct.d_modelPar_iscs_dX=0.0;
+modelStruct.modelPar_given_iscs=mod.given("iscs");
+modParamMap["iscs"] = &(modelStruct.d_modelPar_iscs_dX);
+modelStruct.modelPar_msc=mod.msc;
+modelStruct.d_modelPar_msc_dX=0.0;
+modelStruct.modelPar_given_msc=mod.given("msc");
+modParamMap["msc"] = &(modelStruct.d_modelPar_msc_dX);
+modelStruct.modelPar_cjs0=mod.cjs0;
+modelStruct.d_modelPar_cjs0_dX=0.0;
+modelStruct.modelPar_given_cjs0=mod.given("cjs0");
+modParamMap["cjs0"] = &(modelStruct.d_modelPar_cjs0_dX);
+modelStruct.modelPar_vds=mod.vds;
+modelStruct.d_modelPar_vds_dX=0.0;
+modelStruct.modelPar_given_vds=mod.given("vds");
+modParamMap["vds"] = &(modelStruct.d_modelPar_vds_dX);
+modelStruct.modelPar_zs=mod.zs;
+modelStruct.d_modelPar_zs_dX=0.0;
+modelStruct.modelPar_given_zs=mod.given("zs");
+modParamMap["zs"] = &(modelStruct.d_modelPar_zs_dX);
+modelStruct.modelPar_vpts=mod.vpts;
+modelStruct.d_modelPar_vpts_dX=0.0;
+modelStruct.modelPar_given_vpts=mod.given("vpts");
+modParamMap["vpts"] = &(modelStruct.d_modelPar_vpts_dX);
+modelStruct.modelPar_cbcpar=mod.cbcpar;
+modelStruct.d_modelPar_cbcpar_dX=0.0;
+modelStruct.modelPar_given_cbcpar=mod.given("cbcpar");
+modParamMap["cbcpar"] = &(modelStruct.d_modelPar_cbcpar_dX);
+modelStruct.modelPar_cbepar=mod.cbepar;
+modelStruct.d_modelPar_cbepar_dX=0.0;
+modelStruct.modelPar_given_cbepar=mod.given("cbepar");
+modParamMap["cbepar"] = &(modelStruct.d_modelPar_cbepar_dX);
+modelStruct.modelPar_eavl=mod.eavl;
+modelStruct.d_modelPar_eavl_dX=0.0;
+modelStruct.modelPar_given_eavl=mod.given("eavl");
+modParamMap["eavl"] = &(modelStruct.d_modelPar_eavl_dX);
+modelStruct.modelPar_kavl=mod.kavl;
+modelStruct.d_modelPar_kavl_dX=0.0;
+modelStruct.modelPar_given_kavl=mod.given("kavl");
+modParamMap["kavl"] = &(modelStruct.d_modelPar_kavl_dX);
+modelStruct.modelPar_kf=mod.kf;
+modelStruct.d_modelPar_kf_dX=0.0;
+modelStruct.modelPar_given_kf=mod.given("kf");
+modParamMap["kf"] = &(modelStruct.d_modelPar_kf_dX);
+modelStruct.modelPar_af=mod.af;
+modelStruct.d_modelPar_af_dX=0.0;
+modelStruct.modelPar_given_af=mod.given("af");
+modParamMap["af"] = &(modelStruct.d_modelPar_af_dX);
+modelStruct.modelPar_alqf=mod.alqf;
+modelStruct.d_modelPar_alqf_dX=0.0;
+modelStruct.modelPar_given_alqf=mod.given("alqf");
+modParamMap["alqf"] = &(modelStruct.d_modelPar_alqf_dX);
+modelStruct.modelPar_alit=mod.alit;
+modelStruct.d_modelPar_alit_dX=0.0;
+modelStruct.modelPar_given_alit=mod.given("alit");
+modParamMap["alit"] = &(modelStruct.d_modelPar_alit_dX);
+modelStruct.modelPar_vgb=mod.vgb;
+modelStruct.d_modelPar_vgb_dX=0.0;
+modelStruct.modelPar_given_vgb=mod.given("vgb");
+modParamMap["vgb"] = &(modelStruct.d_modelPar_vgb_dX);
+modelStruct.modelPar_vge=mod.vge;
+modelStruct.d_modelPar_vge_dX=0.0;
+modelStruct.modelPar_given_vge=mod.given("vge");
+modParamMap["vge"] = &(modelStruct.d_modelPar_vge_dX);
+modelStruct.modelPar_vgc=mod.vgc;
+modelStruct.d_modelPar_vgc_dX=0.0;
+modelStruct.modelPar_given_vgc=mod.given("vgc");
+modParamMap["vgc"] = &(modelStruct.d_modelPar_vgc_dX);
+modelStruct.modelPar_vgs=mod.vgs;
+modelStruct.d_modelPar_vgs_dX=0.0;
+modelStruct.modelPar_given_vgs=mod.given("vgs");
+modParamMap["vgs"] = &(modelStruct.d_modelPar_vgs_dX);
+modelStruct.modelPar_f1vg=mod.f1vg;
+modelStruct.d_modelPar_f1vg_dX=0.0;
+modelStruct.modelPar_given_f1vg=mod.given("f1vg");
+modParamMap["f1vg"] = &(modelStruct.d_modelPar_f1vg_dX);
+modelStruct.modelPar_f2vg=mod.f2vg;
+modelStruct.d_modelPar_f2vg_dX=0.0;
+modelStruct.modelPar_given_f2vg=mod.given("f2vg");
+modParamMap["f2vg"] = &(modelStruct.d_modelPar_f2vg_dX);
+modelStruct.modelPar_alt0=mod.alt0;
+modelStruct.d_modelPar_alt0_dX=0.0;
+modelStruct.modelPar_given_alt0=mod.given("alt0");
+modParamMap["alt0"] = &(modelStruct.d_modelPar_alt0_dX);
+modelStruct.modelPar_kt0=mod.kt0;
+modelStruct.d_modelPar_kt0_dX=0.0;
+modelStruct.modelPar_given_kt0=mod.given("kt0");
+modParamMap["kt0"] = &(modelStruct.d_modelPar_kt0_dX);
+modelStruct.modelPar_zetact=mod.zetact;
+modelStruct.d_modelPar_zetact_dX=0.0;
+modelStruct.modelPar_given_zetact=mod.given("zetact");
+modParamMap["zetact"] = &(modelStruct.d_modelPar_zetact_dX);
+modelStruct.modelPar_zetabet=mod.zetabet;
+modelStruct.d_modelPar_zetabet_dX=0.0;
+modelStruct.modelPar_given_zetabet=mod.given("zetabet");
+modParamMap["zetabet"] = &(modelStruct.d_modelPar_zetabet_dX);
+modelStruct.modelPar_zetaci=mod.zetaci;
+modelStruct.d_modelPar_zetaci_dX=0.0;
+modelStruct.modelPar_given_zetaci=mod.given("zetaci");
+modParamMap["zetaci"] = &(modelStruct.d_modelPar_zetaci_dX);
+modelStruct.modelPar_alvs=mod.alvs;
+modelStruct.d_modelPar_alvs_dX=0.0;
+modelStruct.modelPar_given_alvs=mod.given("alvs");
+modParamMap["alvs"] = &(modelStruct.d_modelPar_alvs_dX);
+modelStruct.modelPar_alces=mod.alces;
+modelStruct.d_modelPar_alces_dX=0.0;
+modelStruct.modelPar_given_alces=mod.given("alces");
+modParamMap["alces"] = &(modelStruct.d_modelPar_alces_dX);
+modelStruct.modelPar_zetarbi=mod.zetarbi;
+modelStruct.d_modelPar_zetarbi_dX=0.0;
+modelStruct.modelPar_given_zetarbi=mod.given("zetarbi");
+modParamMap["zetarbi"] = &(modelStruct.d_modelPar_zetarbi_dX);
+modelStruct.modelPar_zetarbx=mod.zetarbx;
+modelStruct.d_modelPar_zetarbx_dX=0.0;
+modelStruct.modelPar_given_zetarbx=mod.given("zetarbx");
+modParamMap["zetarbx"] = &(modelStruct.d_modelPar_zetarbx_dX);
+modelStruct.modelPar_zetarcx=mod.zetarcx;
+modelStruct.d_modelPar_zetarcx_dX=0.0;
+modelStruct.modelPar_given_zetarcx=mod.given("zetarcx");
+modParamMap["zetarcx"] = &(modelStruct.d_modelPar_zetarcx_dX);
+modelStruct.modelPar_zetare=mod.zetare;
+modelStruct.d_modelPar_zetare_dX=0.0;
+modelStruct.modelPar_given_zetare=mod.given("zetare");
+modParamMap["zetare"] = &(modelStruct.d_modelPar_zetare_dX);
+modelStruct.modelPar_zetaiqf=mod.zetaiqf;
+modelStruct.d_modelPar_zetaiqf_dX=0.0;
+modelStruct.modelPar_given_zetaiqf=mod.given("zetaiqf");
+modParamMap["zetaiqf"] = &(modelStruct.d_modelPar_zetaiqf_dX);
+modelStruct.modelPar_alkav=mod.alkav;
+modelStruct.d_modelPar_alkav_dX=0.0;
+modelStruct.modelPar_given_alkav=mod.given("alkav");
+modParamMap["alkav"] = &(modelStruct.d_modelPar_alkav_dX);
+modelStruct.modelPar_aleav=mod.aleav;
+modelStruct.d_modelPar_aleav_dX=0.0;
+modelStruct.modelPar_given_aleav=mod.given("aleav");
+modParamMap["aleav"] = &(modelStruct.d_modelPar_aleav_dX);
+modelStruct.modelPar_zetarth=mod.zetarth;
+modelStruct.d_modelPar_zetarth_dX=0.0;
+modelStruct.modelPar_given_zetarth=mod.given("zetarth");
+modParamMap["zetarth"] = &(modelStruct.d_modelPar_zetarth_dX);
+modelStruct.modelPar_zetaver=mod.zetaver;
+modelStruct.d_modelPar_zetaver_dX=0.0;
+modelStruct.modelPar_given_zetaver=mod.given("zetaver");
+modParamMap["zetaver"] = &(modelStruct.d_modelPar_zetaver_dX);
+modelStruct.modelPar_zetavgbe=mod.zetavgbe;
+modelStruct.d_modelPar_zetavgbe_dX=0.0;
+modelStruct.modelPar_given_zetavgbe=mod.given("zetavgbe");
+modParamMap["zetavgbe"] = &(modelStruct.d_modelPar_zetavgbe_dX);
+modelStruct.modelPar_dvgbe=mod.dvgbe;
+modelStruct.d_modelPar_dvgbe_dX=0.0;
+modelStruct.modelPar_given_dvgbe=mod.given("dvgbe");
+modParamMap["dvgbe"] = &(modelStruct.d_modelPar_dvgbe_dX);
+modelStruct.modelPar_aliqfh=mod.aliqfh;
+modelStruct.d_modelPar_aliqfh_dX=0.0;
+modelStruct.modelPar_given_aliqfh=mod.given("aliqfh");
+modParamMap["aliqfh"] = &(modelStruct.d_modelPar_aliqfh_dX);
+modelStruct.modelPar_kiqfh=mod.kiqfh;
+modelStruct.d_modelPar_kiqfh_dX=0.0;
+modelStruct.modelPar_given_kiqfh=mod.given("kiqfh");
+modParamMap["kiqfh"] = &(modelStruct.d_modelPar_kiqfh_dX);
+modelStruct.modelPar_rth=mod.rth;
+modelStruct.d_modelPar_rth_dX=0.0;
+modelStruct.modelPar_given_rth=mod.given("rth");
+modParamMap["rth"] = &(modelStruct.d_modelPar_rth_dX);
+modelStruct.modelPar_cth=mod.cth;
+modelStruct.d_modelPar_cth_dX=0.0;
+modelStruct.modelPar_given_cth=mod.given("cth");
+modParamMap["cth"] = &(modelStruct.d_modelPar_cth_dX);
+modelStruct.modelPar_tnom=mod.tnom;
+modelStruct.d_modelPar_tnom_dX=0.0;
+modelStruct.modelPar_given_tnom=mod.given("tnom");
+modParamMap["tnom"] = &(modelStruct.d_modelPar_tnom_dX);
 
 
 // hidden reals
 
 
 // non-reals (including hiddens)
-int modelPar_it_mod=mod.it_mod;
-bool modelPar_given_it_mod=mod.given("it_mod");
-int modelPar_flnqs=mod.flnqs;
-bool modelPar_given_flnqs=mod.given("flnqs");
-int modelPar_tef_temp=mod.tef_temp;
-bool modelPar_given_tef_temp=mod.given("tef_temp");
-int modelPar_flsh=mod.flsh;
-bool modelPar_given_flsh=mod.given("flsh");
-int modelPar_type=mod.type;
-bool modelPar_given_type=mod.given("type");
+modelStruct.modelPar_it_mod=mod.it_mod;
+modelStruct.modelPar_given_it_mod=mod.given("it_mod");
+modelStruct.modelPar_flnqs=mod.flnqs;
+modelStruct.modelPar_given_flnqs=mod.given("flnqs");
+modelStruct.modelPar_tef_temp=mod.tef_temp;
+modelStruct.modelPar_given_tef_temp=mod.given("tef_temp");
+modelStruct.modelPar_flsh=mod.flsh;
+modelStruct.modelPar_given_flsh=mod.given("flsh");
+modelStruct.modelPar_type=mod.type;
+modelStruct.modelPar_given_type=mod.given("type");
 
 
 // Set the one parameter whose name was passed in to be the independent
-// variable for Sacado purposes.  Since we stored variable pointers, this
+// variable for differentiation purposes.  Since we stored variable pointers, this
 // makes sure that that ONE variable gets set right.
 // FIXME: make this check name for presence first!  Segfault on invalid.
-modParamMap[name]->diff(0,1);
+*(modParamMap[name])=1.0;
 
 //make local copies of all model vars
 //reals
@@ -15456,16 +16134,19 @@ for (std::vector<Instance*>::const_iterator in_it=mod.instanceContainer.begin();
   // initialize contributions to zero (automatically sets derivatives to zero)
   for (int i=0; i < 11+0 ; ++i)
   {
-  staticContributions[i]=0;
-  dynamicContributions[i]=0;
+  d_staticContributions_dX[i]=0;
+  d_dynamicContributions_dX[i]=0;
   }
 
 
 
-  // Copy out all the instance parameters (doubles) into FAD types
-  // reals
-AdmsSensFadType instancePar_dt=in.dt;
-bool instancePar_given_dt=in.given("dt");
+  // Copy out all the instance parameters (doubles) into local struct
+ instanceSensStruct instanceStruct;
+
+ // reals
+instanceStruct.instancePar_dt=in.dt;
+instanceStruct.d_instancePar_dt_dX=0.0;
+instanceStruct.instancePar_given_dt=in.given("dt");
 
 
   // real hidden instance
@@ -15485,34 +16166,22 @@ bool instancePar_given_dt=in.given("dt");
 
   //make local copies of all instance vars
   //reals
-AdmsSensFadType instanceVar_qjci=in.qjci;
-AdmsSensFadType instanceVar_qjei=in.qjei;
-AdmsSensFadType instanceVar_it=in.it;
-AdmsSensFadType instanceVar_ijbc=in.ijbc;
-AdmsSensFadType instanceVar_iavl=in.iavl;
-AdmsSensFadType instanceVar_ijsc=in.ijsc;
-AdmsSensFadType instanceVar_Ibici=in.Ibici;
-AdmsSensFadType instanceVar_ijbe=in.ijbe;
-AdmsSensFadType instanceVar_IAVL=in.IAVL;
-double instanceVar_VBE=in.VBE;
-double instanceVar_VBC=in.VBC;
-double instanceVar_VCE=in.VCE;
-double instanceVar_VSC=in.VSC;
-AdmsSensFadType instanceVar_GMi=in.GMi;
-AdmsSensFadType instanceVar_RPIi=in.RPIi;
-AdmsSensFadType instanceVar_RMUi=in.RMUi;
-AdmsSensFadType instanceVar_ROi=in.ROi;
-AdmsSensFadType instanceVar_CPIi=in.CPIi;
-AdmsSensFadType instanceVar_CMUi=in.CMUi;
-AdmsSensFadType instanceVar_CBCX=in.CBCX;
-AdmsSensFadType instanceVar_CCS=in.CCS;
-AdmsSensFadType instanceVar_RBi=in.RBi;
-AdmsSensFadType instanceVar_RB=in.RB;
-AdmsSensFadType instanceVar_RCX=in.RCX;
-AdmsSensFadType instanceVar_RE=in.RE;
-AdmsSensFadType instanceVar_BETAAC=in.BETAAC;
-AdmsSensFadType instanceVar_TF=in.TF;
-AdmsSensFadType instanceVar_FT=in.FT;
+instanceStruct.instanceVar_qjci=in.qjci;
+instanceStruct.d_instanceVar_qjci_dX=0.0;
+instanceStruct.instanceVar_qjei=in.qjei;
+instanceStruct.d_instanceVar_qjei_dX=0.0;
+instanceStruct.instanceVar_it=in.it;
+instanceStruct.d_instanceVar_it_dX=0.0;
+instanceStruct.instanceVar_ijbc=in.ijbc;
+instanceStruct.d_instanceVar_ijbc_dX=0.0;
+instanceStruct.instanceVar_iavl=in.iavl;
+instanceStruct.d_instanceVar_iavl_dX=0.0;
+instanceStruct.instanceVar_ijsc=in.ijsc;
+instanceStruct.d_instanceVar_ijsc_dX=0.0;
+instanceStruct.instanceVar_Ibici=in.Ibici;
+instanceStruct.d_instanceVar_Ibici_dX=0.0;
+instanceStruct.instanceVar_ijbe=in.ijbe;
+instanceStruct.d_instanceVar_ijbe_dX=0.0;
 
 
   //non-reals
@@ -15521,7 +16190,7 @@ AdmsSensFadType instanceVar_FT=in.FT;
 
   Linear::Vector * solVectorPtr = in.extData.nextSolVectorPtr;
 
-  // extract solution variables and set as Fad independent variables.
+  // extract solution variables
 probeVars[in.admsProbeID_V_s_GND] = (*solVectorPtr)[in.li_s];
 probeVars[in.admsProbeID_V_ei_GND] = (*solVectorPtr)[in.li_ei];
 probeVars[in.admsProbeID_V_ci_GND] = (*solVectorPtr)[in.li_ci];
@@ -15584,301 +16253,60 @@ in.admsNodeID_ei,
 in.admsNodeID_xf1,
 in.admsNodeID_xf2,
 in.admsNodeID_xf,
-// instance parameters
-// reals
-instancePar_dt,
-instancePar_given_dt,
-// instance variables
-// reals
-instanceVar_qjci,
-instanceVar_qjei,
-instanceVar_it,
-instanceVar_ijbc,
-instanceVar_iavl,
-instanceVar_ijsc,
-instanceVar_Ibici,
-instanceVar_ijbe,
-instanceVar_IAVL,
-instanceVar_VBE,
-instanceVar_VBC,
-instanceVar_VCE,
-instanceVar_VSC,
-instanceVar_GMi,
-instanceVar_RPIi,
-instanceVar_RMUi,
-instanceVar_ROi,
-instanceVar_CPIi,
-instanceVar_CMUi,
-instanceVar_CBCX,
-instanceVar_CCS,
-instanceVar_RBi,
-instanceVar_RB,
-instanceVar_RCX,
-instanceVar_RE,
-instanceVar_BETAAC,
-instanceVar_TF,
-instanceVar_FT,
-// model parameters
-// reals
-modelPar_is,
-modelPar_given_is,
-modelPar_mcf,
-modelPar_given_mcf,
-modelPar_mcr,
-modelPar_given_mcr,
-modelPar_vef,
-modelPar_given_vef,
-modelPar_ver,
-modelPar_given_ver,
-modelPar_aver,
-modelPar_given_aver,
-modelPar_iqf,
-modelPar_given_iqf,
-modelPar_fiqf,
-modelPar_given_fiqf,
-modelPar_iqr,
-modelPar_given_iqr,
-modelPar_iqfh,
-modelPar_given_iqfh,
-modelPar_tfh,
-modelPar_given_tfh,
-modelPar_ahq,
-modelPar_given_ahq,
-modelPar_ibes,
-modelPar_given_ibes,
-modelPar_mbe,
-modelPar_given_mbe,
-modelPar_ires,
-modelPar_given_ires,
-modelPar_mre,
-modelPar_given_mre,
-modelPar_ibcs,
-modelPar_given_ibcs,
-modelPar_mbc,
-modelPar_given_mbc,
-modelPar_cje0,
-modelPar_given_cje0,
-modelPar_vde,
-modelPar_given_vde,
-modelPar_ze,
-modelPar_given_ze,
-modelPar_aje,
-modelPar_given_aje,
-modelPar_vdedc,
-modelPar_given_vdedc,
-modelPar_zedc,
-modelPar_given_zedc,
-modelPar_ajedc,
-modelPar_given_ajedc,
-modelPar_t0,
-modelPar_given_t0,
-modelPar_dt0h,
-modelPar_given_dt0h,
-modelPar_tbvl,
-modelPar_given_tbvl,
-modelPar_tef0,
-modelPar_given_tef0,
-modelPar_gte,
-modelPar_given_gte,
-modelPar_thcs,
-modelPar_given_thcs,
-modelPar_ahc,
-modelPar_given_ahc,
-modelPar_tr,
-modelPar_given_tr,
-modelPar_rci0,
-modelPar_given_rci0,
-modelPar_vlim,
-modelPar_given_vlim,
-modelPar_vpt,
-modelPar_given_vpt,
-modelPar_vces,
-modelPar_given_vces,
-modelPar_cjci0,
-modelPar_given_cjci0,
-modelPar_vdci,
-modelPar_given_vdci,
-modelPar_zci,
-modelPar_given_zci,
-modelPar_vptci,
-modelPar_given_vptci,
-modelPar_cjcx0,
-modelPar_given_cjcx0,
-modelPar_vdcx,
-modelPar_given_vdcx,
-modelPar_zcx,
-modelPar_given_zcx,
-modelPar_vptcx,
-modelPar_given_vptcx,
-modelPar_fbc,
-modelPar_given_fbc,
-modelPar_rbi0,
-modelPar_given_rbi0,
-modelPar_vr0e,
-modelPar_given_vr0e,
-modelPar_vr0c,
-modelPar_given_vr0c,
-modelPar_fgeo,
-modelPar_given_fgeo,
-modelPar_rbx,
-modelPar_given_rbx,
-modelPar_rcx,
-modelPar_given_rcx,
-modelPar_re,
-modelPar_given_re,
-modelPar_itss,
-modelPar_given_itss,
-modelPar_msf,
-modelPar_given_msf,
-modelPar_iscs,
-modelPar_given_iscs,
-modelPar_msc,
-modelPar_given_msc,
-modelPar_cjs0,
-modelPar_given_cjs0,
-modelPar_vds,
-modelPar_given_vds,
-modelPar_zs,
-modelPar_given_zs,
-modelPar_vpts,
-modelPar_given_vpts,
-modelPar_cbcpar,
-modelPar_given_cbcpar,
-modelPar_cbepar,
-modelPar_given_cbepar,
-modelPar_eavl,
-modelPar_given_eavl,
-modelPar_kavl,
-modelPar_given_kavl,
-modelPar_kf,
-modelPar_given_kf,
-modelPar_af,
-modelPar_given_af,
-modelPar_alqf,
-modelPar_given_alqf,
-modelPar_alit,
-modelPar_given_alit,
-modelPar_vgb,
-modelPar_given_vgb,
-modelPar_vge,
-modelPar_given_vge,
-modelPar_vgc,
-modelPar_given_vgc,
-modelPar_vgs,
-modelPar_given_vgs,
-modelPar_f1vg,
-modelPar_given_f1vg,
-modelPar_f2vg,
-modelPar_given_f2vg,
-modelPar_alt0,
-modelPar_given_alt0,
-modelPar_kt0,
-modelPar_given_kt0,
-modelPar_zetact,
-modelPar_given_zetact,
-modelPar_zetabet,
-modelPar_given_zetabet,
-modelPar_zetaci,
-modelPar_given_zetaci,
-modelPar_alvs,
-modelPar_given_alvs,
-modelPar_alces,
-modelPar_given_alces,
-modelPar_zetarbi,
-modelPar_given_zetarbi,
-modelPar_zetarbx,
-modelPar_given_zetarbx,
-modelPar_zetarcx,
-modelPar_given_zetarcx,
-modelPar_zetare,
-modelPar_given_zetare,
-modelPar_zetaiqf,
-modelPar_given_zetaiqf,
-modelPar_alkav,
-modelPar_given_alkav,
-modelPar_aleav,
-modelPar_given_aleav,
-modelPar_zetarth,
-modelPar_given_zetarth,
-modelPar_zetaver,
-modelPar_given_zetaver,
-modelPar_zetavgbe,
-modelPar_given_zetavgbe,
-modelPar_dvgbe,
-modelPar_given_dvgbe,
-modelPar_aliqfh,
-modelPar_given_aliqfh,
-modelPar_kiqfh,
-modelPar_given_kiqfh,
-modelPar_rth,
-modelPar_given_rth,
-modelPar_cth,
-modelPar_given_cth,
-modelPar_tnom,
-modelPar_given_tnom,
-// non-reals (including hidden)
- modelPar_it_mod,
-modelPar_given_it_mod,
- modelPar_flnqs,
-modelPar_given_flnqs,
- modelPar_tef_temp,
-modelPar_given_tef_temp,
- modelPar_flsh,
-modelPar_given_flsh,
- modelPar_type,
-modelPar_given_type,
+instanceStruct,
+modelStruct,
  in.admsTemperature,
  in.adms_vt_nom,
  in.getDeviceOptions().gmin,
- staticContributions,
- dynamicContributions,
+ d_staticContributions_dX,
+ d_dynamicContributions_dX,
  in);
 
 
   // We now have the F and Q vector stuff, populate the dependencies:
 
-    dfdp[in.admsNodeID_c+inst*(11+0)] += staticContributions[in.admsNodeID_c].dx(0);
-    dqdp[in.admsNodeID_c+inst*(11+0)] += dynamicContributions[in.admsNodeID_c].dx(0);
+    dfdp[in.admsNodeID_c+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_c];
+    dqdp[in.admsNodeID_c+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_c];
     Findices[in.admsNodeID_c+inst*(11+0)] = in.li_c;
     Qindices[in.admsNodeID_c+inst*(11+0)] = in.li_c;
-    dfdp[in.admsNodeID_b+inst*(11+0)] += staticContributions[in.admsNodeID_b].dx(0);
-    dqdp[in.admsNodeID_b+inst*(11+0)] += dynamicContributions[in.admsNodeID_b].dx(0);
+    dfdp[in.admsNodeID_b+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_b];
+    dqdp[in.admsNodeID_b+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_b];
     Findices[in.admsNodeID_b+inst*(11+0)] = in.li_b;
     Qindices[in.admsNodeID_b+inst*(11+0)] = in.li_b;
-    dfdp[in.admsNodeID_e+inst*(11+0)] += staticContributions[in.admsNodeID_e].dx(0);
-    dqdp[in.admsNodeID_e+inst*(11+0)] += dynamicContributions[in.admsNodeID_e].dx(0);
+    dfdp[in.admsNodeID_e+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_e];
+    dqdp[in.admsNodeID_e+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_e];
     Findices[in.admsNodeID_e+inst*(11+0)] = in.li_e;
     Qindices[in.admsNodeID_e+inst*(11+0)] = in.li_e;
-    dfdp[in.admsNodeID_s+inst*(11+0)] += staticContributions[in.admsNodeID_s].dx(0);
-    dqdp[in.admsNodeID_s+inst*(11+0)] += dynamicContributions[in.admsNodeID_s].dx(0);
+    dfdp[in.admsNodeID_s+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_s];
+    dqdp[in.admsNodeID_s+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_s];
     Findices[in.admsNodeID_s+inst*(11+0)] = in.li_s;
     Qindices[in.admsNodeID_s+inst*(11+0)] = in.li_s;
-    dfdp[in.admsNodeID_tnode+inst*(11+0)] += staticContributions[in.admsNodeID_tnode].dx(0);
-    dqdp[in.admsNodeID_tnode+inst*(11+0)] += dynamicContributions[in.admsNodeID_tnode].dx(0);
+    dfdp[in.admsNodeID_tnode+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_tnode];
+    dqdp[in.admsNodeID_tnode+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_tnode];
     Findices[in.admsNodeID_tnode+inst*(11+0)] = in.li_tnode;
     Qindices[in.admsNodeID_tnode+inst*(11+0)] = in.li_tnode;
-    dfdp[in.admsNodeID_ci+inst*(11+0)] += staticContributions[in.admsNodeID_ci].dx(0);
-    dqdp[in.admsNodeID_ci+inst*(11+0)] += dynamicContributions[in.admsNodeID_ci].dx(0);
+    dfdp[in.admsNodeID_ci+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_ci];
+    dqdp[in.admsNodeID_ci+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_ci];
     Findices[in.admsNodeID_ci+inst*(11+0)] = in.li_ci;
     Qindices[in.admsNodeID_ci+inst*(11+0)] = in.li_ci;
-    dfdp[in.admsNodeID_bi+inst*(11+0)] += staticContributions[in.admsNodeID_bi].dx(0);
-    dqdp[in.admsNodeID_bi+inst*(11+0)] += dynamicContributions[in.admsNodeID_bi].dx(0);
+    dfdp[in.admsNodeID_bi+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_bi];
+    dqdp[in.admsNodeID_bi+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_bi];
     Findices[in.admsNodeID_bi+inst*(11+0)] = in.li_bi;
     Qindices[in.admsNodeID_bi+inst*(11+0)] = in.li_bi;
-    dfdp[in.admsNodeID_ei+inst*(11+0)] += staticContributions[in.admsNodeID_ei].dx(0);
-    dqdp[in.admsNodeID_ei+inst*(11+0)] += dynamicContributions[in.admsNodeID_ei].dx(0);
+    dfdp[in.admsNodeID_ei+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_ei];
+    dqdp[in.admsNodeID_ei+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_ei];
     Findices[in.admsNodeID_ei+inst*(11+0)] = in.li_ei;
     Qindices[in.admsNodeID_ei+inst*(11+0)] = in.li_ei;
-    dfdp[in.admsNodeID_xf1+inst*(11+0)] += staticContributions[in.admsNodeID_xf1].dx(0);
-    dqdp[in.admsNodeID_xf1+inst*(11+0)] += dynamicContributions[in.admsNodeID_xf1].dx(0);
+    dfdp[in.admsNodeID_xf1+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_xf1];
+    dqdp[in.admsNodeID_xf1+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_xf1];
     Findices[in.admsNodeID_xf1+inst*(11+0)] = in.li_xf1;
     Qindices[in.admsNodeID_xf1+inst*(11+0)] = in.li_xf1;
-    dfdp[in.admsNodeID_xf2+inst*(11+0)] += staticContributions[in.admsNodeID_xf2].dx(0);
-    dqdp[in.admsNodeID_xf2+inst*(11+0)] += dynamicContributions[in.admsNodeID_xf2].dx(0);
+    dfdp[in.admsNodeID_xf2+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_xf2];
+    dqdp[in.admsNodeID_xf2+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_xf2];
     Findices[in.admsNodeID_xf2+inst*(11+0)] = in.li_xf2;
     Qindices[in.admsNodeID_xf2+inst*(11+0)] = in.li_xf2;
-    dfdp[in.admsNodeID_xf+inst*(11+0)] += staticContributions[in.admsNodeID_xf].dx(0);
-    dqdp[in.admsNodeID_xf+inst*(11+0)] += dynamicContributions[in.admsNodeID_xf].dx(0);
+    dfdp[in.admsNodeID_xf+inst*(11+0)] += d_staticContributions_dX[in.admsNodeID_xf];
+    dqdp[in.admsNodeID_xf+inst*(11+0)] += d_dynamicContributions_dX[in.admsNodeID_xf];
     Findices[in.admsNodeID_xf+inst*(11+0)] = in.li_xf;
     Qindices[in.admsNodeID_xf+inst*(11+0)] = in.li_xf;
 }
