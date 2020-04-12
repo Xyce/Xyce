@@ -89,7 +89,7 @@ namespace Util {
 bool newExpression::lexAndParseExpression()
 {
   
-#if 1
+#if 0
   std::cout << "lexAndParseExpression for " << expressionString_ <<std::endl;
 #endif
 
@@ -326,7 +326,7 @@ bool newExpression::attachFunctionNode(const std::string & funcName, Teuchos::RC
     { 
       if ( !(Teuchos::is_null(tmpVec[ii])) ) 
       {
-#if 1
+#if 0
         std::cout << "newExpression::attachFunctionNode. Attaching " << funcName << " to " << expressionString_ <<std::endl;
 #endif
         tmpVec[ii]->setNode(expPtr->getAst()); 
