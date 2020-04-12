@@ -1000,10 +1000,10 @@ class funcOp: public astNode<ScalarT>
         if (funcArgs_.size() != dummyFuncArgs_.size())
         {
           std::vector<std::string> errStr;
-          errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
+          errStr.push_back(std::string("funcOp::val() FuncOp Function Args sizes don't match for: "));
           errStr.push_back(funcName_);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
-          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
+          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
           yyerror(errStr);
         }
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->setNode( funcArgs_[ii] ); }
@@ -1025,10 +1025,10 @@ class funcOp: public astNode<ScalarT>
       {
         if (funcArgs_.size() != dummyFuncArgs_.size())
         {
-          std::string tmp = "FuncOp Function Args sizes don't match for " + funcName_;
+          std::string tmp = "funcOp::dx() FuncOp Function Args sizes don't match for " + funcName_;
           std::vector<std::string> errStr(1,tmp);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
-          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
+          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
           yyerror(errStr);
         }
 
@@ -1098,7 +1098,7 @@ class funcOp: public astNode<ScalarT>
         if (funcArgs_.size() != dummyFuncArgs_.size())
         {
           std::vector<std::string> errStr;
-          errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
+          errStr.push_back(std::string("funcOp::output() FuncOp Function Args sizes don't match for: "));
           errStr.push_back(funcName_);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
           errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
@@ -1186,7 +1186,7 @@ class funcOp: public astNode<ScalarT>
           errStr.push_back(std::string("FuncOp Function Args sizes don't match for: "));
           errStr.push_back(funcName_);
           errStr.push_back(std::string("funcArgs size = ") + std::to_string(funcArgs_.size()) );
-          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(funcArgs_.size()));
+          errStr.push_back(std::string("dummyFuncArgs size = ") + std::to_string(dummyFuncArgs_.size()));
           yyerror(errStr);
         }
 

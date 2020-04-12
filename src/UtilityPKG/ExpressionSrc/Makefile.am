@@ -15,6 +15,7 @@ CLEANFILES= $(BUILT_SOURCES)
 libExpressionSrc_la_SOURCES = \
   expressionGroup.C \
   newExpression.C \
+  mainXyceExpressionGroup.C \
   xyceExpressionGroup.C \
   ExpressionLexer.h \
   ExpressionType.h \
@@ -25,6 +26,7 @@ libExpressionSrc_la_SOURCES = \
   astfuncs.h \
   expressionGroup.h \
   newExpression.h \
+  mainXyceExpressionGroup.h \
   xyceExpressionGroup.h 
 
 # these can't be in "SOURCES" above or automake screams about YACC.

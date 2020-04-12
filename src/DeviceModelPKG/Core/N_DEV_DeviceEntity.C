@@ -933,6 +933,7 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   }
   else
   {
+    // ERK.  Why do we need to copy construct this?
     dependentParam.expr = new Util::Expression (par.getValue<Util::Expression>());
   }
 

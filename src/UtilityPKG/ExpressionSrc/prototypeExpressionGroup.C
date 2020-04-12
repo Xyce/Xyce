@@ -53,6 +53,7 @@ prototypeExpressionGroup::prototypeExpressionGroup
   }
 }
 
+#if 0
 //-------------------------------------------------------------------------------
 // Function      : prototypeExpressionGroup::resolveExpression
 //
@@ -121,6 +122,7 @@ bool prototypeExpressionGroup::resolveExpression (Teuchos::RCP<Xyce::Util::newEx
 
   return true;
 }
+#endif
 
 //-------------------------------------------------------------------------------
 // Function      : prototypeExpressionGroup::getFunction

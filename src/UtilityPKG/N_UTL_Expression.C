@@ -69,7 +69,10 @@ namespace Util {
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-Expression::Expression( const std::string & exp, bool useNew )
+Expression::Expression( 
+    const std::string & exp, 
+    const std::vector<std::string> & functionArgStringVec,
+    bool useNew )
   :
    useNewExpressionLibrary_(useNew),
    namesSet_(false),
@@ -95,6 +98,12 @@ Expression::Expression( const std::string & exp, bool useNew )
     }
 
     newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy,grp_) );
+
+    if (!(functionArgStringVec.empty()))
+    {
+      newExpPtr_->setFunctionArgStringVec(functionArgStringVec);
+    }
+
     newExpPtr_->lexAndParseExpression();
   }
   else
@@ -183,6 +192,12 @@ Expression::~Expression ()
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::parsed
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 
 //-----------------------------------------------------------------------------
 bool Expression::parsed() const 
 {
@@ -196,6 +211,111 @@ bool Expression::parsed() const
   }
 }
 
+//-----------------------------------------------------------------------------
+// Function      : Expression::getFuncSize
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/9/2020
+//-----------------------------------------------------------------------------
+int Expression::getFuncSize()
+{
+  if(useNewExpressionLibrary_)
+  {
+    return newExpPtr_->getFuncOpVec().size();
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::getFuncSize called on old expression library." <<std::endl;
+    return 0; 
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getFuncNames
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/9/2020
+//-----------------------------------------------------------------------------
+void Expression::getFuncNames (std::vector<std::string> & funcNames)
+{
+  if(useNewExpressionLibrary_)
+  {
+    funcNames = newExpPtr_-> getFuncNameVec ();
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::getFuncNames called on old expression library." <<std::endl;
+    return; 
+  }
+}
+
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::attachFunctionNode
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/9/2020
+//-----------------------------------------------------------------------------
+void Expression::getFuncPrototypeArgStrings(std::vector<std::string> & arguments)
+{
+  if(useNewExpressionLibrary_)
+  {
+    newExpPtr_->getFuncPrototypeArgStrings(arguments);
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::getFuncPrototypeArgStrings called on old expression library." <<std::endl;
+    return; 
+  }
+} 
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::attachFunctionNode
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/9/2020
+//-----------------------------------------------------------------------------
+void Expression::attachFunctionNode (std::string & funcName, Expression & exp)
+{
+  if(useNewExpressionLibrary_)
+  {
+    newExpPtr_->attachFunctionNode(funcName,exp.newExpPtr_);
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::attachFunctionNode called on old expression library." <<std::endl;
+    return; 
+  }
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::attachParameterNode
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/9/2020
+//-----------------------------------------------------------------------------
+void Expression::attachParameterNode (std::string & paramName, Expression & exp)
+{
+  if(useNewExpressionLibrary_)
+  {
+    newExpPtr_->attachFunctionNode(paramName,exp.newExpPtr_);
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::attachParameterNode called on old expression library." <<std::endl;
+    return; 
+  }
+}
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::set
@@ -586,7 +706,7 @@ int Expression::get_type ( const std::string & var )
     else
     {
       newExpPtr_->dumpParseTree(std::cout);
-      std::cout << "Error. Xyce::Util::newExpression::get_type.  Cannot find type for " << var << std::endl;
+      std::cout << "Error. Xyce::Util::Expression::get_type.  Cannot find type for " << var << std::endl;
     }
   }
   else
@@ -1259,9 +1379,9 @@ void Expression::setFunctionMap ( const Xyce::Util::ParamMap & context_function_
 
       if ( tmpPar.hasExpressionValue() )
       {
-        const Xyce::Util::Expression & expression = tmpPar.getValue<Util::Expression>();
+        Xyce::Util::Expression & expression = const_cast<Expression &>(tmpPar.getValue<Util::Expression>());
         // this line can't compile b/c of const.
-        //xyceGroup->addFunction (mapIter->first , expression.newExpPtr_ );
+        xyceGroup->addFunction (mapIter->first , expression.newExpPtr_ );
       }
       else
       {
@@ -1282,6 +1402,30 @@ void Expression::setFunctionMap ( const Xyce::Util::ParamMap & context_function_
 //-----------------------------------------------------------------------------
 void Expression::setParamMap       ( const Xyce::Util::ParamMap & context_param_map )
 {
+  if(useNewExpressionLibrary_)
+  {
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+
+    // add the functions to the group
+    Xyce::Util::ParamMap::const_iterator mapIter;
+
+    mapIter = context_param_map.begin();
+    for (; mapIter != context_param_map.end(); ++mapIter)
+    {
+      const Xyce::Util::Param & tmpPar = mapIter->second;
+
+      if ( tmpPar.hasExpressionValue() )
+      {
+        Xyce::Util::Expression & expression = const_cast<Expression &>(tmpPar.getValue<Util::Expression>());
+        // this line can't compile b/c of const.
+        xyceGroup->addParam (mapIter->first , expression.newExpPtr_ );
+      }
+      else
+      {
+        std::cout << "Expression::setGlobalParamMap.  ACK!!  parameter in the function map does not have an expression value!! " <<std::endl;
+      }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1293,8 +1437,32 @@ void Expression::setParamMap       ( const Xyce::Util::ParamMap & context_param_
 // Creator       : Eric Keiter, SNL
 // Creation Date : 03/16/2020
 //-----------------------------------------------------------------------------
-void Expression::setGlobalParamMap ( const Xyce::Util::ParamMap & context_param_map )
+void Expression::setGlobalParamMap ( const Xyce::Util::ParamMap & context_gParam_map )
 {
+  if(useNewExpressionLibrary_)
+  {
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+
+    // add the functions to the group
+    Xyce::Util::ParamMap::const_iterator mapIter;
+
+    mapIter = context_gParam_map.begin();
+    for (; mapIter != context_gParam_map.end(); ++mapIter)
+    {
+      const Xyce::Util::Param & tmpPar = mapIter->second;
+
+      if ( tmpPar.hasExpressionValue() ) // is this the best conditional?  what about getType()==Xyce::Util::EXPR ?
+      {
+        Xyce::Util::Expression & expression = const_cast<Expression &>(tmpPar.getValue<Util::Expression>());
+        // this line can't compile b/c of const.
+        xyceGroup->addGlobalParam (mapIter->first , expression.newExpPtr_ );
+      }
+      else
+      {
+        std::cout << "Expression::setGlobalParamMap.  ACK!!  parameter in the function map does not have an expression value!! " <<std::endl;
+      }
+    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1312,7 +1480,10 @@ int Expression::order_names(std::vector<std::string> const & new_names)
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+#if 0
+    // now this is a bad idea ...
     newExpPtr_->setFunctionArgStringVec ( new_names );
+#endif
   }
   else
   {
@@ -1342,17 +1513,12 @@ int Expression::replace_func (std::string const & func_name,
   if(useNewExpressionLibrary_)
   {
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-#if 0
-    Xyce::Util::newExpression funcExpr = *(func_def.newExpPtr_) ; // copy construction
-    funcExpr.lexAndParseExpression();
-    xyceGroup->addFunction(func_name, funcExpr);
-#else
     if (!(func_def.newExpPtr_->parsed()))
     {
       func_def.newExpPtr_->lexAndParseExpression();
     }
     xyceGroup->addFunction(func_name, func_def.newExpPtr_);
-#endif
+
     return numArgs;
   }
   else

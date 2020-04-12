@@ -550,7 +550,7 @@ inline void setParam(Param &param, const std::string &tag, const T &t)
 
 //-----------------------------------------------------------------------------
 // Function      : hasExpressionTag
-// Purpose       : Determine if the Param value is an expression.
+// Purpose       : Determine if the Param tag is an expression.
 // Special Notes : This checks the tag.
 // Scope         :
 // Creator       : Eric Keiter, SNL, Computational Sciences

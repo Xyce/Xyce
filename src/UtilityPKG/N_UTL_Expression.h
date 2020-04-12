@@ -47,6 +47,7 @@
 
 #include <expressionGroup.h>
 
+
 #include <N_UTL_NoCase.h>
 
 namespace Xyce {
@@ -55,6 +56,8 @@ namespace Util {
 class Param;
 typedef unordered_map<std::string, Param, Xyce::HashNoCase, Xyce::EqualNoCase> ParamMap;
 
+class mainXyceExpressionGroup;
+class parserExpressionGroup;
 class newExpression;
 class ExpressionInternals;
 
@@ -67,12 +70,15 @@ class ExpressionInternals;
 //-----------------------------------------------------------------------------
 class Expression
 {
-  friend Expression;
+  // note, only probably need one of these... they are both experiments
+  friend mainXyceExpressionGroup;
+  friend parserExpressionGroup;
 
 public:
+  Expression (std::string const & exp = std::string(), 
+      const std::vector<std::string> & functionArgStringVec = std::vector<std::string>(), 
+      bool useNew=true);
 
-  //Expression (std::string const & exp = std::string(), bool useNew=false);
-  Expression (std::string const & exp = std::string(), bool useNew=true);
   Expression (const Expression &);
 #ifdef NEW_EXPRESSION
   Expression& operator=(const Expression& right) ; 
@@ -80,7 +86,15 @@ public:
   ~Expression (void);
 
   bool parsed() const;
- 
+
+  // ERK new expression stuff
+  int getFuncSize();
+  void getFuncNames (std::vector<std::string> & funcNames);
+  void getFuncPrototypeArgStrings(std::vector<std::string> & arguments);
+  void attachFunctionNode (std::string & funcName, Expression & exp); 
+  void attachParameterNode (std::string & paramName, Expression & exp); 
+
+  // ERK old expressionstuff
   bool set (std::string const & exp);
   void getSymbolTable (std::vector< ExpressionSymbolTableEntry > & names) const;
   void get_names (int const & type, std::vector< std::string > & names) const;
@@ -114,7 +128,7 @@ public:
 
   void setFunctionMap    ( const Util::ParamMap & context_function_map );
   void setParamMap       ( const Util::ParamMap & context_param_map );
-  void setGlobalParamMap ( const Util::ParamMap & context_param_map );
+  void setGlobalParamMap ( const Util::ParamMap & context_gParam_map );
 
   int order_names (std::vector< std::string > const & new_names);
   int replace_func (std::string const & func_name, Expression & func_def, int numArgs);
@@ -130,6 +144,9 @@ public:
   void dumpParseTree();
 
   static void seedRandom(long seed);
+
+  //Teuchos::RCP<Xyce::Util::newExpression> getNewExpRCP() { return newExpPtr_; }
+
 private:
 
   bool useNewExpressionLibrary_;

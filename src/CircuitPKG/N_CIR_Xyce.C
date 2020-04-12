@@ -138,6 +138,7 @@
 #include <N_UTL_BreakPoint.h>
 
 #include <N_DEV_DeviceSupport.h>
+#include <mainXyceExpressionGroup.h>
 
 namespace Xyce {
 namespace Circuit {
@@ -970,6 +971,16 @@ Simulator::RunStatus Simulator::initializeEarly(
       if (run_status != SUCCESS)
         return run_status;
     }
+
+    // ERK.  Set up the main expression group
+    mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
+      *parallelManager_->getPDSComm(),
+      *topology_,
+      outputManager_->getMainContextParamMap() ,
+      outputManager_->getMainContextGlobalParamMap(),
+      outputManager_->getMainContextFunctionMap(),
+      netlist_import_tool.getAliasNodeMap()
+          ));
 
     // if "-remeasure" was on the command line, then we don't need to
     // instantiate the devices.  We do need to partially allocate the

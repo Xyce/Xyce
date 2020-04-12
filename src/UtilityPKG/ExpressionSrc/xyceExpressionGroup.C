@@ -25,76 +25,6 @@ xyceExpressionGroup::xyceExpressionGroup () :
 }
 
 //-------------------------------------------------------------------------------
-// Function      : xyceExpressionGroup::resolveExpression
-//
-// Purpose       : This function attempts to resolve as many of the 
-//                 symbols in the expression as possible.
-//
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 11/4/2019
-//-------------------------------------------------------------------------------
-bool xyceExpressionGroup::resolveExpression (Xyce::Util::newExpression & exp)
-{
-  std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVector = exp.getParamOpVec();
-
-  //---------------------------------------------------------------------------
-  // get the unresolved functions
-  std::vector<Teuchos::RCP<astNode<usedType> > > & funcOpVector = exp.getFuncOpVec ();
-  std::vector<Teuchos::RCP<astNode<usedType> > > & unresolvedFuncOpVector = exp.getUnresolvedFuncOpVec();
-
-  //---------------------------------------------------------------------------
-  // Attempt to resolve the unresolved functions (i.e., find them in the functions container, 
-  // and then assign the node pointer to the symbol)
-  int funcOpSize = funcOpVector.size();
-  for (int ii=0;ii<funcOpSize;++ii)
-  {
-    Teuchos::RCP<Xyce::Util::newExpression> externalExp;
-    if ( getFunction(funcOpVector[ii]->getName(),externalExp) ) // found it
-    {
-      funcOpVector[ii]->setNode(externalExp->getAst());
-
-      Teuchos::RCP<funcOp<usedType> > tmpPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVector[ii]);
-      tmpPtr->setFuncArgs(  externalExp->getFunctionArgOpVec() );
-    }
-    else
-    {
-      unresolvedFuncOpVector.push_back(funcOpVector[ii]);
-    }
-  }
-
-  //---------------------------------------------------------------------------
-  // Attempt to resolve the unresolved params and global parameters 
-  // (i.e., find them in the params/global_params containers, and then 
-  // assign the node pointer to the symbol)
-  std::vector<Teuchos::RCP<astNode<usedType> > > & unresolvedParamOpVector = exp.getUnresolvedParamOpVector();
-  int paramOpVectorSize = paramOpVector.size();
-  for (int ii=0;ii<paramOpVectorSize;++ii)
-  {
-    Teuchos::RCP<Xyce::Util::newExpression> externalExp;
-    if ( getParam(paramOpVector[ii]->getName(),externalExp) ) // found it
-    {
-      paramOpVector[ii]->setNode(externalExp->getAst());
-    }
-    else
-    {
-      if (getGlobalParam(paramOpVector[ii]->getName(),externalExp)) // found it
-      {
-        paramOpVector[ii]->setNode(externalExp->getAst());
-      }
-      else
-      {
-        unresolvedParamOpVector.push_back(paramOpVector[ii]);
-      }
-    }
-  }
-
-  return true;
-}
-
-
-//-------------------------------------------------------------------------------
 // Function      : xyceExpressionGroup::getSolutionVal
 // Purpose       : This was added to attempt to support the old API.  I hate it.
 // Special Notes :
@@ -195,6 +125,42 @@ void xyceExpressionGroup::addFunction (const std::string & name, Teuchos::RCP<Xy
   std::string upperName = name;
   Xyce::Util::toUpper(upperName);
   functions_[upperName] = exp;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : xyceExpressionGroup::addGlobalParam
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/4/2020
+//-------------------------------------------------------------------------------
+void xyceExpressionGroup::addGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
+{
+#if 1
+  std::cout << "xyceExpressionGroup::addFunction name = " << name <<std::endl;
+#endif
+  std::string upperName = name;
+  Xyce::Util::toUpper(upperName);
+  globalParams_[upperName] = exp;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : xyceExpressionGroup::addParam
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/4/2020
+//-------------------------------------------------------------------------------
+void xyceExpressionGroup::addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
+{
+#if 1
+  std::cout << "xyceExpressionGroup::addFunction name = " << name <<std::endl;
+#endif
+  std::string upperName = name;
+  Xyce::Util::toUpper(upperName);
+  params_[upperName] = exp;
 }
 
 //-------------------------------------------------------------------------------

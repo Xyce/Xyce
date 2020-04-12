@@ -88,6 +88,11 @@ namespace Util {
 //-------------------------------------------------------------------------------
 bool newExpression::lexAndParseExpression()
 {
+  
+#if 1
+  std::cout << "lexAndParseExpression for " << expressionString_ <<std::endl;
+#endif
+
   if (traditionalParse_)
   {
     std::string fileName("bogusTestFile");
@@ -104,8 +109,8 @@ bool newExpression::lexAndParseExpression()
 
   // pull the function arguments (if they are present) out of the parameter vector
   {
-    // The paramOpMap_ was set up during parsing (see the ExpressionParser.yxx file and the
-    // ExpressionParser.cxx file.  All the code for setting up the paramOpMap_ is there)
+    // The paramOpVec_ was set up during parsing (see the ExpressionParser.yxx file and the
+    // ExpressionParser.cxx file.  All the code for setting up the paramOpVec_ is there)
     //
     // The functionArgStringVec was hopefully set right after the expression was allocated.
     // (if not, code below won't work).  The functionArgStringVec contains the "prototype"
@@ -116,10 +121,10 @@ bool newExpression::lexAndParseExpression()
     // Note, if using the flex/bison NetlistParser,
     // when each .func statement is processed, a functionData object is created, and different
     // fields are populated, including "args_", which is where functionArgStringVec comes from
-    // (it gets copied over in ExpressionTest).  So, anyway, paramOpMap comes from expression
+    // (it gets copied over in ExpressionTest).  So, anyway, paramOpVec comes from expression
     // parsing, but functionArgStringVec comes from Netlist parsing.
     //
-    // the paramOpMap_, immediately after parsing will contain
+    // the paramOpVec_, immediately after parsing will contain
     // both regular params and function arguments.  It cannot tell the difference yet.  This
     // next bit of code is designed to pull them apart.  When finished, the elements of
     // the param container should contain ONLY parameters and no function arguments.
@@ -200,12 +205,20 @@ bool newExpression::lexAndParseExpression()
 bool newExpression::resolveExpression ()
 {
   bool retval = true;
+
+#if 1
+  std::cout << "newExpression::resolveExpression. for " << expressionString_ <<std::endl;
+#endif
+
   //---------------------------------------------------------------------------
   // Attempt to resolve the unresolved functions. Get them from the group,
   // which is the newExpression class connection to other expressions
   // and then assign the node pointer to the symbol.
   if (!expressionFunctionsResolved_)
   {
+#if 1
+    std::cout << "newExpression::resolveExpression. expressionFunctionsResolved_ = false for " << expressionString_ << " so resolving" << std::endl;
+#endif
     int funcOpSize = funcOpVec_.size();
     for (int ii=0;ii<funcOpSize;++ii)
     {
@@ -311,6 +324,9 @@ bool newExpression::attachFunctionNode(const std::string & funcName, Teuchos::RC
     { 
       if ( !(Teuchos::is_null(tmpVec[ii])) ) 
       {
+#if 1
+        std::cout << "newExpression::attachFunctionNode. Attaching " << funcName << " to " << expressionString_ <<std::endl;
+#endif
         tmpVec[ii]->setNode(expPtr->getAst()); 
       }
       else { retval=false; }
@@ -400,18 +416,26 @@ void newExpression::clear ()
   {
     delete srcAstNodeVec_[ii];
   }
-  masterAstNodeVec_.clear();
-
+  srcAstNodeVec_.clear();
 
   expressionString_ = std::string("");
   parsed_ = false;
   derivsSetup_ = false;
   astArraysSetup_ = false;
-  astNodePtrPtr_ = NULL;
-  tableNodePtrPtr_ = NULL;
+  expressionResolved_ = false;
+  expressionFunctionsResolved_ = false;
+  expressionParametersResolved_ = false;
+  bpTol_ = 0.0;
+  timeStep_ = 0.0;
+  timeStepAlpha_ = 0.0;
+  timeStepPrefac_ = 0.0;
   numDerivs_ = 0;
   traditionalParse_ = true;
   externalDependencies_ = false;
+  isTimeDepdendent_ = false;
+  isTempDepdendent_ = false;
+  isVTDepdendent_ = false;
+  isFreqDepdendent_ = false;
 
   functionArgStringVec_.clear();
   functionArgOpVec_.clear();
@@ -430,11 +454,6 @@ void newExpression::clear ()
   currentOpVec_.clear();
   unresolvedCurrentOpVec_.clear();
   currentOpNames_.clear();
-
-  bpTol_ = 0.0;
-  timeStep_ = 0.0;
-  timeStepAlpha_ = 0.0;
-  timeStepPrefac_ = 0.0;
 
   derivIndexVec_.clear();
 
@@ -852,6 +871,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   int retVal=0;
   if (parsed_)
   {
+#if 0
     if (!expressionResolved_) 
     { 
       if (!resolveExpression())
@@ -859,6 +879,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
         std::cout << "ERROR. Expression not resolvable" << std::endl;
       }
     }
+#endif
 
     if (!astArraysSetup_)
     {
@@ -919,6 +940,7 @@ int newExpression::evaluateFunction (usedType &result)
   int retVal=0;
   if (parsed_)
   {
+#if 0
     if (!expressionResolved_) 
     { 
       if (!resolveExpression())
@@ -926,6 +948,7 @@ int newExpression::evaluateFunction (usedType &result)
         std::cout << "ERROR. Expression not resolvable" << std::endl;
       }
     }
+#endif
 
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
 
@@ -1023,7 +1046,7 @@ int newExpression::evaluateFunction (usedType &result)
 //-------------------------------------------------------------------------------
 // Function      : newExpression::setFunctionArgStringVec
 // Purpose       : 
-// Special Notes : some of the parameter and function objects are stored in multiple containers.
+// Special Notes : this must be set prior to lexAndParseExpression.
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 

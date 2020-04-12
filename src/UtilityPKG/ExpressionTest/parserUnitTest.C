@@ -1026,6 +1026,65 @@ TEST ( Double_Parser_Func_Test, test1)
   OUTPUT_MACRO(Double_Parser_Func_Test, test1)
 }
 
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_Func_Test, test1_multipleLexParse)
+{
+  Teuchos::RCP<testExpressionGroupWithFuncSupport> funcGroup = Teuchos::rcp(new testExpressionGroupWithFuncSupport() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  // this expression will use the .func f1.
+  Xyce::Util::newExpression testExpression(std::string("F1(2,3)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  // this expression is the RHS of a .func statement:  .func F1(A,B) {A+B}
+  Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("A+B"), testGroup) );
+
+  // I originally had this set up so that the calling code would manually set the 
+  // vector of prototype function arguments, as well as the name of the function 
+  // itself.  But in a code like Xyce, that isn't how it is likely to work. The 
+  // function prototype F1(A,B) has to be parsed, and the appropriate information 
+  // pulled out of it.  In Xyce, the old expression library is used to parse the 
+  // prototype(LHS), so attempting same here.
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A,B)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+
+  std::vector<std::string> f1ArgStrings ;
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
+
+// testing to see if I can do this twice, once b4 and once after the setting of function args.  (maybe not, maybe needs a clear)
+  f1Expression->lexAndParseExpression();
+
+  f1Expression->setFunctionArgStringVec (f1ArgStrings);
+  // during lex/parse, this vector of arg strings will be compared to any
+  // param classes.  If it finds them, then they will be placed in the
+  // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
+  f1Expression->lexAndParseExpression();
+
+  // now parse the function name from the prototype
+  //std::string f1Name = "F1";
+  std::string f1Name; 
+  f1_LHS.getFuncPrototypeName(f1Name);
+
+  funcGroup->addFunction( f1Name ,  f1Expression);
+  testExpression.resolveExpression(); // this *does* do something, unlike other calls in this file
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result;
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
+  OUTPUT_MACRO(Double_Parser_Func_Test, test1)
+}
+
+
+
 // tests are taken from the "ternary_precedence.cir" Xyce regression test
 TEST ( Double_Parser_ternary_precedence, simple)
 {
@@ -4617,8 +4676,6 @@ TEST ( Double_Parser_NestedFunc_Test, func_cir_newResolution2)
 
   OUTPUT_MACRO3(Double_Parser_NestedFunc_Test, func_cir)
 }
-
-
 
 int main (int argc, char **argv)
 {

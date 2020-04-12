@@ -380,6 +380,7 @@ public:
     return *this;
   };
 
+  // destructor
   ~newExpression ()
   {
     // pointers to RCP's. use constructors
@@ -403,7 +404,7 @@ public:
     {
       delete srcAstNodeVec_[ii];
     }
-    masterAstNodeVec_.clear();
+    srcAstNodeVec_.clear();
   };
 
   bool lexAndParseExpression();

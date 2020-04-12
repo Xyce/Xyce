@@ -215,8 +215,16 @@ public:
 
   // If the input paramter has an expression value, replace replace the
   // parameters and functions in the expression with their actual values.
+#if 0 
   bool resolveParameter(Util::Param& parameter,
                         std::vector<std::string> exceptionStrings = std::vector<std::string>()) const;
+#else
+  // ERK. new version, with no exceptions.
+  bool resolveParameter(Util::Param& parameter) const;
+#endif
+
+  // ERK. new function for new expression.
+  bool resolveParameterThatIsAdotFunc(Util::Param& parameter, std::vector<std::string> funcArgs) const; 
 
   // Determine if expressionString has any unresolved strings and
   // resolve appropriately. Return true if all strings are resolved

@@ -52,7 +52,6 @@ public:
 
   xyceExpressionGroup ();
   ~xyceExpressionGroup () {};
-  virtual bool resolveExpression (Xyce::Util::newExpression & exp);
 
   virtual bool isOption (const std::string & optionStr)
   {
@@ -149,6 +148,8 @@ public:
   }
 
   void addFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
+  void addGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
+  void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
 
   const std::vector<std::string> & getNames() { return names_; }
 
@@ -160,6 +161,7 @@ private:
   std::vector< std::complex<double> > cvals_;
 
   std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  params_;
+  std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  globalParams_;
   std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  functions_;
 
   double time_, temp_, VT_, freq_;

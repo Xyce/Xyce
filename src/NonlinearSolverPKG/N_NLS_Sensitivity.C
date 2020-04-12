@@ -227,6 +227,7 @@ void setupObjectiveFunctions
 
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
+#if 0
     bool useNewExprLib=true;
     if(exprType == "OLD") 
     {
@@ -238,8 +239,10 @@ void setupObjectiveFunctions
       useNewExprLib=true;
       std::cout << "USING NEW EXPRESSION LIBRARY FOR OBJFUNC" << std::endl;
     }
+#endif
 
-    objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString, useNewExprLib);
+    //objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString, useNewExprLib);
+    objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString);
 
     if (!(objVec[iobj]->expPtr->parsed()))
     {
@@ -280,10 +283,12 @@ void setupObjectiveFunctions
       // create an expression from the function definition and
       // order its names from that list. Finally, replace the
       // function in the expression to be resolved.
-      Util::Expression prototypeExression(functionPrototype, useNewExprLib);
+      //Util::Expression prototypeExression(functionPrototype, useNewExprLib);
+      Util::Expression prototypeExression(functionPrototype);
       std::vector<std::string> arguments;
       prototypeExression.get_names(XEXP_STRING, arguments);
-      Util::Expression functionExpression(functionBody, useNewExprLib);
+      //Util::Expression functionExpression(functionBody, useNewExprLib);
+      Util::Expression functionExpression(functionBody);
       functionExpression.order_names(arguments); 
 
       if (objVec[iobj]->expPtr->replace_func(*it, functionExpression, static_cast<int>(arguments.size())) < 0)

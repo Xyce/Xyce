@@ -823,13 +823,13 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         // parameters are supposed to be constant and the user can (for example)
         // .STEP over specials like TEMP.
         if (parameter.getType() ==  Xyce::Util::EXPR)
-	{
+	      {
           std::vector<std::string> specials;
           parameter.getValue<Util::Expression>().get_names(XEXP_SPECIAL, specials);
           if (!specials.empty())
-	  {
-	    Report::UserError0() << "TIME, FREQ, TEMP and VT are not allowed in .PARAM statements: " << parameter.uTag();
-	  }
+	        {
+	          Report::UserError0() << "TIME, FREQ, TEMP and VT are not allowed in .PARAM statements: " << parameter.uTag();
+	        }
         }
         currentContextPtr_->resolvedParams_.insert(parameter);
         resolvedSomethingThisLoop=true;
@@ -940,6 +940,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
     retryParams.clear();
 
     // Resolve functions in the current context.
+    // ERK.  new expression code to follow.
     int numFunctions = asYetUnresolvedFunctions.size();
     for ( i = 0; i < numFunctions; ++i )
     {
@@ -953,7 +954,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
         asYetUnresolvedFunctions[i].functionArgs;
       Util::Param functionParameter(functionNameAndArgs, functionBody);
       // this is only an error if we have no parameters left to resolve
-      if (!resolveParameter(functionParameter, functionArgs))
+      if (!resolveParameterThatIsAdotFunc(functionParameter, functionArgs))
       {
         retryFunctions.push_back(asYetUnresolvedFunctions[i]);
         somethingLeftToDo=true;
@@ -985,11 +986,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
 
         if (canResolveAll)
         {
-          // Reset the function body.
-          functionBody = functionParameter.stringValue();
-
-          currentContextPtr_->resolvedFunctions_[functionName] =
-            Util::Param(functionNameAndArgs, functionBody);
+          currentContextPtr_->resolvedFunctions_[functionName] = functionParameter;
           resolvedSomethingThisLoop=true;
         }
       }
@@ -1022,7 +1019,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       const std::vector<std::string> &functionArgs = (*func_it).functionArgs;
 
       Util::Param functionParameter(functionNameAndArgs, functionBody);
-      if (!resolveParameter(functionParameter, (*func_it).functionArgs))
+      if (!resolveParameterThatIsAdotFunc(functionParameter, (*func_it).functionArgs))
       {
         Report::UserError0() << functionNameAndArgs << " contains an undefined parameter or function.";
       }
@@ -1195,6 +1192,7 @@ bool CircuitContext::globalNode (const std::string &nodeName) const
   return stat;
 }
 
+#if 0
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveParameter
 // Purpose        : Parameter whose value may be an expression that must be
@@ -1253,7 +1251,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter,
       resolveStrings(expression, exceptionStrings);
     }
 
-    if (expression.get_num( XEXP_LEAD ) > 0)
+    if (expression.get_num( XEXP_LEAD ) > 0) // ERK how does this make sense?
     {
       parameter.setVal(expression);
       return false;
@@ -1389,6 +1387,421 @@ bool CircuitContext::resolveParameter(Util::Param& parameter,
 
   }
  
+  // Handle quoted parameters e.g. "filename" (which get turned into
+  // TABLEs)
+  resolveQuote(parameter);
+  resolveTableFileType(parameter);
+  resolveStringType(parameter);
+
+  // The parameter does not have an expression value and does not need
+  // resolving.
+  return true;
+}
+#else
+//----------------------------------------------------------------------------
+// Function       : CircuitContext::resolveParameter
+// Purpose        : Simpler version, excluding exception strings.
+// Special Notes  :
+// Scope          : public
+// Creator        : Lon Waters/Eric Keiter
+// Creation Date  : 02/10/2003; 4/11/2020
+//----------------------------------------------------------------------------
+bool CircuitContext::resolveParameter(Util::Param& parameter) const
+{
+  if (hasExpressionTag(parameter) || parameter.hasExpressionValue() )
+  {
+    if (DEBUG_IO)
+    {
+      Xyce::dout() << "CircuitContext::resolveParameter parameter " << parameter.uTag()
+                   << " has expression value ";
+    }
+
+    // Extract the expression from the parameter value by stripping off
+    // the enclosing braces.  Only strip if it's there!
+    std::string expressionString;
+    if (parameter.stringValue()[0] == '{')
+    {
+      expressionString = parameter.stringValue().substr(1, parameter.stringValue().size()-2);
+    }
+    else
+    {
+      expressionString = parameter.stringValue();
+    }
+
+    // Parse the expression:
+    Util::Expression expression(expressionString);
+
+    if (!expression.parsed())
+    {
+      return false;
+    }
+
+    // Resolve the strings in the expression. Unresolved strings
+    // may be parameters defined in a .PARAM statement or global
+    // parameters defined in .GLOBAL_PARAM statement or may
+    // be due to function arguments if the expression is the
+    // body of a function defined in a .FUNC statement.
+    //bool stringsResolved = resolveStrings(expression, exceptionStrings);
+    bool stringsResolved = resolveStrings(expression);
+
+    // Resolve functions in the expression.
+    bool functionsResolved = resolveFunctions(expression);
+
+    // resolve variables in the function body
+    if ( expression.get_num(XEXP_STRING) > 0 )
+    {
+      //resolveStrings(expression, exceptionStrings);
+      resolveStrings(expression);
+    }
+
+    if (expression.get_num( XEXP_LEAD ) > 0) // ERK how does this make sense?
+    {
+      parameter.setVal(expression);
+      return false;
+    }
+
+    if (stringsResolved && functionsResolved)
+    {
+      // Check the expression for nodes or instance (probably a B-source
+      // expression, in which case the parameter value should be
+      // expressionString. Also check for "specials", the only special
+      // allowed is "time" for time dependent parameters.
+      std::vector<std::string> nodes, instances, leads, variables, specials, nodecomps;
+      expression.get_names(XEXP_NODE, nodes);
+      expression.get_names(XEXP_INSTANCE, instances);
+      expression.get_names(XEXP_LEAD, leads);
+      expression.get_names(XEXP_VARIABLE, variables);
+      expression.get_names(XEXP_SPECIAL, specials);
+      expression.get_names(XEXP_NODAL_COMPUTATION, nodecomps);
+
+      if (!nodes.empty() || !instances.empty() || !leads.empty() ||
+          !variables.empty() || !specials.empty() || !nodecomps.empty())
+      {
+        if (DEBUG_IO)
+        {
+          Xyce::dout() << "CircuitContext::resolveParameter:  nodes, instances, leads, variables or specials not empty. " << std::endl;
+          if (!nodes.empty())
+          {
+            Xyce::dout() << " Nodes: " << std::endl;
+            for (unsigned int foo=0; foo<nodes.size(); ++foo)
+              Xyce::dout() << foo << " : " << nodes[foo] << std::endl;
+          }
+          if (!instances.empty())
+          {
+            Xyce::dout() << " Instances: " << std::endl;
+            for (unsigned int foo=0; foo<instances.size(); ++foo)
+              Xyce::dout() << foo << " : " << instances[foo] << std::endl;
+          }
+          if (!leads.empty())
+          {
+            Xyce::dout() << " Leads: " << std::endl;
+            for (unsigned int foo=0; foo<leads.size(); ++foo)
+              Xyce::dout() << foo << " : " << leads[foo] << std::endl;
+          }
+          if (!variables.empty())
+          {
+            Xyce::dout() << " Variables: " << std::endl;
+            for (unsigned int foo=0; foo<variables.size(); ++foo)
+              Xyce::dout() << foo << " : " << variables[foo] << std::endl;
+          }
+          if (!specials.empty())
+          {
+            Xyce::dout() << " Specials: " << std::endl;
+            for (unsigned int foo=0; foo<specials.size(); ++foo)
+              Xyce::dout() << foo << " : " << specials[foo] << std::endl;
+          }
+        }
+
+        parameter.setVal(expression);
+        if (DEBUG_IO)
+        {
+          Xyce::dout() << "CircuitContext::resolveParameter: After all expression handling, get_expression returns "
+                       << expression.get_expression() << std::endl;
+          Xyce::dout() << " after setting the parameter " << parameter.uTag() << ", its type is " << parameter.getType() << std::endl;
+          Xyce::dout() << " and its value is ";
+          switch (parameter.getType()) {
+            case Xyce::Util::STR:
+              Xyce::dout() << parameter.stringValue();
+              break;
+            case Xyce::Util::DBLE:
+              Xyce::dout() << parameter.getImmutableValue<double>();
+              break;
+            case Xyce::Util::EXPR:
+              Xyce::dout() << parameter.getValue<Util::Expression>().get_expression();
+              break;
+            default:
+              Xyce::dout() << parameter.stringValue();
+          }
+          Xyce::dout() << std::endl;
+        }
+      }
+      else
+      {
+        parameter.setVal( expression );
+      }
+    }
+    else
+    {
+      // Reset the parameter value to the value of the expression with
+      // as much resolution as could be achieved.
+      parameter.setVal(expression);
+    }
+
+    if (DEBUG_IO)
+    {
+      Xyce::dout() << "CircuitContext::resolveParameter: right before returns "
+                   << std::endl;
+      Xyce::dout() << " after setting the parameter " << parameter.uTag() << ", its type is " << parameter.getType() << std::endl;
+      Xyce::dout() << " and its value is ";
+      switch (parameter.getType()) {
+        case Xyce::Util::STR:
+          Xyce::dout() << parameter.stringValue();
+          break;
+        case Xyce::Util::DBLE:
+          Xyce::dout() << parameter.getImmutableValue<double>();
+          break;
+        case Xyce::Util::EXPR:
+          Xyce::dout() << parameter.getValue<Util::Expression>().get_expression();
+          break;
+        default:
+          Xyce::dout() << parameter.stringValue();
+      }
+      Xyce::dout() << std::endl;
+    }
+
+    return stringsResolved && functionsResolved;
+
+  }
+  // Handle quoted parameters e.g. "filename" (which get turned into
+  // TABLEs)
+  resolveQuote(parameter);
+  resolveTableFileType(parameter);
+  resolveStringType(parameter);
+
+  // The parameter does not have an expression value and does not need
+  // resolving.
+  return true;
+}
+#endif
+
+//----------------------------------------------------------------------------
+// Function       : CircuitContext::resolveParameterThatIsAdotFunc
+// Purpose        : Parameters that are .funcs need special treatment
+// Special Notes  :
+// Scope          : public
+// Creator        : Eric Keiter
+// Creation Date  : 04/11/2020
+//----------------------------------------------------------------------------
+bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
+                                      std::vector<std::string> funcArgs) const
+{
+  if (hasExpressionTag(parameter) || parameter.hasExpressionValue() )
+  {
+    if (DEBUG_IO)
+    {
+      Xyce::dout() << "CircuitContext::resolveParameter parameter " << parameter.uTag()
+                   << " has expression value ";
+    }
+
+    // Extract the expression from the parameter value by stripping off
+    // the enclosing braces.  Only strip if it's there!
+    std::string expressionString;
+    if (parameter.stringValue()[0] == '{')
+    {
+      expressionString = parameter.stringValue().substr(1, parameter.stringValue().size()-2);
+    }
+    else
+    {
+      expressionString = parameter.stringValue();
+    }
+
+    // Parse the expression:
+    Util::Expression expression(expressionString,funcArgs);
+
+    if (!expression.parsed())
+    {
+      return false;
+    }
+
+    // Resolve the strings in the expression. Unresolved strings
+    // may be parameters defined in a .PARAM statement or global
+    // parameters defined in .GLOBAL_PARAM statement or may
+    // be due to function arguments if the expression is the
+    // body of a function defined in a .FUNC statement.
+    bool stringsResolved = resolveStrings(expression, funcArgs);
+
+    // Resolve functions in the expression.
+    bool functionsResolved = resolveFunctions(expression);
+
+    // resolve variables in the function body
+    if ( expression.get_num(XEXP_STRING) > 0 )
+    {
+      resolveStrings(expression, funcArgs);
+    }
+
+    if (expression.get_num( XEXP_LEAD ) > 0) // ERK how does this make sense?
+    {
+      parameter.setVal(expression);
+      return false;
+    }
+
+    if (stringsResolved && functionsResolved)
+    {
+      // Check the expression for nodes or instance (probably a B-source
+      // expression, in which case the parameter value should be
+      // expressionString. Also check for "specials", the only special
+      // allowed is "time" for time dependent parameters.
+      std::vector<std::string> nodes, instances, leads, variables, specials, nodecomps;
+      expression.get_names(XEXP_NODE, nodes);
+      expression.get_names(XEXP_INSTANCE, instances);
+      expression.get_names(XEXP_LEAD, leads);
+      expression.get_names(XEXP_VARIABLE, variables);
+      expression.get_names(XEXP_SPECIAL, specials);
+      expression.get_names(XEXP_NODAL_COMPUTATION, nodecomps);
+
+      if (!nodes.empty() || !instances.empty() || !leads.empty() ||
+          !variables.empty() || !specials.empty() || !nodecomps.empty())
+      {
+        if (DEBUG_IO)
+        {
+          Xyce::dout() << "CircuitContext::resolveParameter:  nodes, instances, leads, variables or specials not empty. " << std::endl;
+          if (!nodes.empty())
+          {
+            Xyce::dout() << " Nodes: " << std::endl;
+            for (unsigned int foo=0; foo<nodes.size(); ++foo)
+              Xyce::dout() << foo << " : " << nodes[foo] << std::endl;
+          }
+          if (!instances.empty())
+          {
+            Xyce::dout() << " Instances: " << std::endl;
+            for (unsigned int foo=0; foo<instances.size(); ++foo)
+              Xyce::dout() << foo << " : " << instances[foo] << std::endl;
+          }
+          if (!leads.empty())
+          {
+            Xyce::dout() << " Leads: " << std::endl;
+            for (unsigned int foo=0; foo<leads.size(); ++foo)
+              Xyce::dout() << foo << " : " << leads[foo] << std::endl;
+          }
+          if (!variables.empty())
+          {
+            Xyce::dout() << " Variables: " << std::endl;
+            for (unsigned int foo=0; foo<variables.size(); ++foo)
+              Xyce::dout() << foo << " : " << variables[foo] << std::endl;
+          }
+          if (!specials.empty())
+          {
+            Xyce::dout() << " Specials: " << std::endl;
+            for (unsigned int foo=0; foo<specials.size(); ++foo)
+              Xyce::dout() << foo << " : " << specials[foo] << std::endl;
+          }
+        }
+
+        parameter.setVal(expression);
+
+        if (DEBUG_IO)
+        {
+          Xyce::dout() << "CircuitContext::resolveParameter: After all expression handling, get_expression returns "
+                       << expression.get_expression() << std::endl;
+          Xyce::dout() << " after setting the parameter " << parameter.uTag() << ", its type is " << parameter.getType() << std::endl;
+          Xyce::dout() << " and its value is ";
+          switch (parameter.getType()) {
+            case Xyce::Util::STR:
+              Xyce::dout() << parameter.stringValue();
+              break;
+            case Xyce::Util::DBLE:
+              Xyce::dout() << parameter.getImmutableValue<double>();
+              break;
+            case Xyce::Util::EXPR:
+              Xyce::dout() << parameter.getValue<Util::Expression>().get_expression();
+              break;
+            default:
+              Xyce::dout() << parameter.stringValue();
+          }
+          Xyce::dout() << std::endl;
+        }
+      }
+      else
+      {
+        if (funcArgs.empty())
+        {
+          // Reset the parameter value to the value of the expression.
+          double value(0.0);
+          expression.evaluateFunction ( value );
+          parameter.setVal( value );
+
+
+          // we have resolved the context so set it and the constant value to 
+          // make later look ups easier.
+          // parameter.addOp(Util::CONSTANT, new IO::ConstantOp(parameter.tag(), value));
+          if (DEBUG_IO)
+          {
+            Xyce::dout() << " CircuitContext::resolveParameter --  Resetting parameter value from " << expressionString << " to " << value << " because funcArgs empty." << std::endl;
+          }
+        }
+        else
+        {
+          parameter.setVal( expression );
+
+#if 0
+          std::cout  << "Just (maybe) set  function args for " << parameter.getValue<Util::Expression>().get_expression() << std::endl;
+          for (int ii=0;ii<funcArgs.size();ii++) { std::cout << "funcArgs["<<ii<<"] = " << funcArgs[ii]<<std::endl; }
+          std::vector<std::string> testFuncArgs = expression.getFunctionArgOpVec();
+          for (int ii=0;ii<testFuncArgs.size();ii++) { std::cout << "testFuncArgs["<<ii<<"] = " << testFuncArgs[ii]<<std::endl; }
+
+#endif
+
+          {
+            switch (parameter.getType()) 
+            {
+              case Xyce::Util::STR:
+                std::cout <<"It is STR type: " <<  parameter.stringValue();
+                break;
+              case Xyce::Util::DBLE:
+                std::cout <<"It is DBLE type: " <<  parameter.getImmutableValue<double>();
+                break;
+              case Xyce::Util::EXPR:
+                std::cout <<"It is EXPR type: " << parameter.getValue<Util::Expression>().get_expression();
+                break;
+              default:
+                std::cout <<"It is default type (whatever that is): " << parameter.stringValue();
+            }
+          }
+        }
+      }
+    }
+    else
+    {
+      // Reset the parameter value to the value of the expression with
+      // as much resolution as could be achieved.
+      parameter.setVal(expression);
+    }
+
+    if (DEBUG_IO)
+    {
+      Xyce::dout() << "CircuitContext::resolveParameter: right before returns "
+                   << std::endl;
+      Xyce::dout() << " after setting the parameter " << parameter.uTag() << ", its type is " << parameter.getType() << std::endl;
+      Xyce::dout() << " and its value is ";
+      switch (parameter.getType()) {
+        case Xyce::Util::STR:
+          Xyce::dout() << parameter.stringValue();
+          break;
+        case Xyce::Util::DBLE:
+          Xyce::dout() << parameter.getImmutableValue<double>();
+          break;
+        case Xyce::Util::EXPR:
+          Xyce::dout() << parameter.getValue<Util::Expression>().get_expression();
+          break;
+        default:
+          Xyce::dout() << parameter.stringValue();
+      }
+      Xyce::dout() << std::endl;
+    }
+
+    return stringsResolved && functionsResolved;
+
+  }
   // Handle quoted parameters e.g. "filename" (which get turned into
   // TABLEs)
   resolveQuote(parameter);
@@ -1572,7 +1985,11 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
 // Purpose        : Determine if expression has any unresolved functions
 //                  and resolve appropriately. Return true if all functions
 //                  are resolved otherwise return false.
-// Special Notes  :
+//
+// Special Notes  : ERK:
+//                  This function must be a lot different for newExpression 
+//                  to work.
+//
 // Scope          :
 // Creator        : Lon Waters
 // Creation Date  : 02/11/2003
@@ -1582,6 +1999,76 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
   // Functions in the expression must be previously defined functions
   // that appear in resolvedFunctions_ else there is an error.
   bool unresolvedFunctions = false;
+#if 1
+  // new way
+  // do I want to expose the innards? how much?
+
+  std::vector<std::string> funcNames;
+  expression.getFuncNames(funcNames);
+  if ( funcNames.size() > 0 )
+  {
+    for (int ii = 0; ii < funcNames.size(); ++ii)
+    {
+      // Look for the function in resolvedFunctions_.
+      Util::Param functionParameter(funcNames[ii], "");
+      bool functionfound = getResolvedFunction(functionParameter);
+      if (functionfound)
+      {
+        // in the parameter we found, pull out the RHS expression and attach
+        if(functionParameter.getType() == Xyce::Util::EXPR)
+        {
+        Util::Expression & expToBeAttached 
+          = functionParameter.getValue<Util::Expression>();//.get_expression();
+
+        // attach the node
+        expression.attachFunctionNode(funcNames[ii], expToBeAttached);
+        }
+        else
+        {
+          std::cout << "functionParameter is not EXPR type!!!" <<std::endl;
+
+          switch (functionParameter.getType()) 
+          {
+            case Xyce::Util::STR:
+              std::cout <<"It is STR type: " <<  functionParameter.stringValue();
+              break;
+            case Xyce::Util::DBLE:
+              std::cout <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
+              break;
+            case Xyce::Util::EXPR:
+              std::cout <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
+              break;
+            default:
+              std::cout <<"It is default type (whatever that is): " << functionParameter.stringValue();
+
+          }
+
+          std::cout << std::endl;
+
+          exit(0);
+        }
+#if 0
+        // Figure out the function arguments, if necessary.
+        // this part does not need to be here.  If this function 
+        // is "resolved" then it should already know about its arguments.  
+        // They should not need to be set up here, as this should have 
+        // been part of the resolution.
+        std::string functionPrototype(functionParameter.tag());
+        Util::Expression prototypeExpression(functionPrototype);
+        std::vector<std::string> arguments;
+        prototypeExpression.getFuncPrototypeArgStrings(arguments);
+        expToBeAttached.setFunctionArgStringVec(arguments);
+#endif
+      }
+      else
+      {
+        unresolvedFunctions = true;
+      }
+
+    }
+  }
+#else
+  // old way
   if ( expression.get_num(XEXP_FUNCTION) > 0)
   {
     // Get the list of strings in the expression.
@@ -1599,7 +2086,8 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
       if (functionfound)
       {
         std::string functionPrototype(functionParameter.tag());
-        std::string functionBody(functionParameter.stringValue());
+        //std::string functionBody(functionParameter.stringValue());
+        functionParameter.getValue<Util::Expression>().get_expression();
 
         // The function prototype is defined here as a string whose
         // value is the  function name together with its parenthese
@@ -1610,10 +2098,11 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
         // order its names from that list. Finally, replace the
         // function in the expression to be resolved.
         Util::Expression prototypeExpression(functionPrototype);
-        std::vector<std::string> arguments;
-        prototypeExpression.get_names(XEXP_STRING, arguments);
-        Util::Expression functionExpression(functionBody);
-        functionExpression.order_names(arguments);
+
+        //std::vector<std::string> arguments;
+        //prototypeExpression.get_names(XEXP_STRING, arguments);
+        //Util::Expression functionExpression(functionBody);
+        //functionExpression.order_names(arguments);
 
         if (expression.replace_func(functions[i], functionExpression,
                                     static_cast<int>(arguments.size())) < 0)
@@ -1634,6 +2123,7 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
       }
     }
   }
+#endif
 
   return !unresolvedFunctions;
 }

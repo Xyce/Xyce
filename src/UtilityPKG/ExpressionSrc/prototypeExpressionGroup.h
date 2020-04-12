@@ -36,7 +36,9 @@ public:
 
   ~prototypeExpressionGroup () {};
 
+#if 0
   virtual bool resolveExpression (Teuchos::RCP<Xyce::Util::newExpression> exp);
+#endif
 
   virtual bool isOption (const std::string & optionStr)
   {
@@ -123,15 +125,9 @@ public:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
   virtual double getBpTol() { return 0.0; }
 
-#if 0
-  virtual bool getFunction    (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression > & exp);
-  virtual bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression > & exp);
-  virtual bool getGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression > & exp);
-#else
   virtual bool getFunction    (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> exp);
   virtual bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> exp);
   virtual bool getGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> exp);
-#endif
 
 private:
   Xyce::Util::netlistData & nd_;
