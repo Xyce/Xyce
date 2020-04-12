@@ -185,6 +185,7 @@ bool newExpression::lexAndParseExpression()
   return parsed_;
 }
 
+#if 0
 //-------------------------------------------------------------------------------
 // Function      : newExpression::resolveExpression
 // Purpose       : resolve parameters, and external functions.
@@ -289,6 +290,7 @@ bool newExpression::resolveExpression ()
   expressionResolved_ = true;
   return retval;
 }
+#endif
 
 
 //-------------------------------------------------------------------------------

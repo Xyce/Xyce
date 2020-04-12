@@ -409,7 +409,7 @@ public:
 
   bool lexAndParseExpression();
 
-  bool resolveExpression();
+  //bool resolveExpression();
   bool attachFunctionNode(const std::string & funcName, Teuchos::RCP<Xyce::Util::newExpression> expPtr);
   bool attachParameterNode(const std::string & paramName, Teuchos::RCP<Xyce::Util::newExpression> expPtr);
 
@@ -485,7 +485,7 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getVoltOpNames ()
   {
-    if (!expressionResolved_) { resolveExpression(); }
+    //if (!expressionResolved_) { resolveExpression(); }
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
     return voltOpNames_;
   };
@@ -494,7 +494,7 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
   {
-    if (!expressionResolved_) { resolveExpression(); }
+    //if (!expressionResolved_) { resolveExpression(); }
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
     return currentOpNames_;
   };
@@ -533,7 +533,7 @@ public:
   // the same order as the paramOpMap)
   void getFuncPrototypeArgStrings ( std::vector< std::string > & funcArgStrings )
   {
-    if (!expressionResolved_) { resolveExpression(); }
+    //if (!expressionResolved_) { resolveExpression(); }
 
     funcArgStrings.clear();
     if(!(funcOpVec_.empty()))
@@ -552,7 +552,7 @@ public:
   // Note; this was needed by the OLD API.  May not be needed now.
   void getFuncPrototypeName ( std::string & prototypeName) 
   {
-    if (!expressionResolved_) { resolveExpression(); }
+    //if (!expressionResolved_) { resolveExpression(); }
 
     if(!(funcOpVec_.empty()))
     {
