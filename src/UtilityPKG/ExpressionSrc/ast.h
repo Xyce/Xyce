@@ -1046,8 +1046,6 @@ class funcOp: public astNode<ScalarT>
         number_ = functionNode_->dx(i);
         for (int ii=0;ii<dummyFuncArgs_.size();++ii) { dummyFuncArgs_[ii]->unsetNode(); } // restore
 
-        //std::cout << "number_ = " << number_ << std::endl;
-
         // phase 2:  f′(g(x)) * g′(x) = df/dp * dp/dx
         //
         // g(x) = funcArg->val().  This should be evaluated inside of dx call.
@@ -1066,12 +1064,14 @@ class funcOp: public astNode<ScalarT>
           dummyFuncArgs_[ii]->setDerivIndex ( index );
         }
 
+        // This can be a big slowdown, for nested function calls.  num1 (functionNode_->dx) is the problem.
         for (int ii=0;ii<dummyFuncArgs_.size();++ii)  // loop over args (p).  ii = p index, i = x index
         {
           int index=-ii-1;
-          ScalarT delta = functionNode_->dx(index) *  funcArgs_[ii]->dx(i);
-          number_ += delta; // functionNode_->dx(index) *  funcArgs_[ii]->dx(i);
-          //std::cout << "ii="<< ii << "  functionNode_->dx(-ii-1) = " << functionNode_->dx(index) << "  funcArgs_[ii]->dx(i) = " << funcArgs_[ii]->dx(i) << "  delta = " << delta << " number_ = " << number_ << std::endl;
+          ScalarT delta = 0.0;
+          ScalarT num2 = funcArgs_[ii]->dx(i); // usually zero ...
+          if (num2 != 0.0) { delta = num2 * functionNode_->dx(index); } // slow poke. do not evaluate if not needed.
+          number_ += delta; 
         }
 
         for (int ii=0;ii<dummyFuncArgs_.size();++ii)
@@ -1079,7 +1079,6 @@ class funcOp: public astNode<ScalarT>
           dummyFuncArgs_[ii]->unsetValue ();
           dummyFuncArgs_[ii]->unsetDerivIndex ();
         } // restore
-
       }
       return number_;
     }
