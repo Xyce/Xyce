@@ -202,6 +202,7 @@ xml_DATA= $(top_srcdir)/utils/ADMS/adms.implicit.xml \
 	$(top_srcdir)/utils/ADMS/xyceBasicTemplates_nosac.xml \
 	$(top_srcdir)/utils/ADMS/xyceAnalogFunction_nosac.xml \
 	$(top_srcdir)/utils/ADMS/xyceImplementationFile_nosac.xml \
+	$(top_srcdir)/utils/ADMS/xyceOutVarsDoc.xml \
 	$(top_srcdir)/utils/ADMS/xyceHeaderFile_nosac.xml \
 	$(top_srcdir)/utils/ADMS/xyceMakefile.am.xml \
 	$(top_srcdir)/utils/ADMS/xyceBootstrapFile.xml \
