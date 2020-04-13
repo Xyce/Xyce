@@ -44,6 +44,7 @@
 <admst:variable name="derivProbe"/>
 <admst:variable name="derivProbe2"/>
 <admst:variable name="initializeOnDeclare" select="yes"/>
+<admst:variable name="probeList"/>
   <!--
    =================================================================-
    xyceNumberNodes
@@ -2179,112 +2180,38 @@ other variables does not get propagated into a variable's
 <!--
  =================================================================-
  recursiveDetectProbeDependence
- Given any node, try to determine if the expression it represents has
- dependence on any parameters
+ Given any node, recursively populate $probeList (a path to an @
+ var) with the probes it depends on.
  =================================================================-
  -->
 <admst:template match="recursiveDetectProbeDependence">
-  <admst:variable name="isDependent" value="no"/>
   <admst:choose>
-    <admst:when test="[datatypename='number']">
-      <!-- no changie da value.  -->
-    </admst:when>
-    <admst:when test="[datatypename='variable' or datatypename='variableprototype']">
-      <admst:choose>
-        <!-- This variable explicitly depends on one or more parameters -->
-        <admst:when test="[exists(probe)]">
-          <admst:variable name="isDependent" value="yes"/>
-        </admst:when>
-        <!-- This variable does not explicitly depend on one or more parameters,
-             but does depend on one or more non-parameter variables-->
-        <admst:when test="[count(variable[name!=./name]) > 0]">
-          <admst:apply-templates select="variable" match="recursiveDetectProbeDependence">
-            <admst:variable name="isDependent1" value="%(returned('isDependent')/value)"/>
-            <admst:if test="[$isDependent1='yes']">
-              <admst:variable name="isDependent" value="yes"/>
-            </admst:if>
-          </admst:apply-templates>
-        </admst:when>
-        <!-- This variable does not explicitly depend on one or more parameters,
-             and does not depend other non-parameter variables-->
-        <admst:otherwise>
-        </admst:otherwise>
-      </admst:choose>
-    </admst:when>
-    <admst:when test="[datatypename='expression']">
-      <admst:apply-templates select="tree" match="recursiveDetectProbeDependence">
-        <admst:variable name="isDependent1" value="%(returned('isDependent')/value)"/>
-        <admst:if test="[$isDependent1='yes']">
-          <admst:variable name="isDependent" value="yes"/>
-        </admst:if>
-      </admst:apply-templates>
+    <!-- if this is one of the datatypes that has its own probe list stored by
+         ADMS itself, just copy that and be done-->
+    <admst:when test="[datatypename='variable' or datatypename='expression']">
+      <admst:if test="[not(nilled(probe))]">
+        <admst:push into="$probeList" select="probe" onduplicate="ignore"/>
+      </admst:if>
     </admst:when>
     <admst:when test="[datatypename='mapply_unary']">
-      <admst:apply-templates select="arg1" match="recursiveDetectProbeDependence">
-        <admst:variable name="isDependent1" value="%(returned('isDependent')/value)"/>
-        <admst:if test="[$isDependent1='yes']">
-          <admst:variable name="isDependent" value="yes"/>
-        </admst:if>
-      </admst:apply-templates>
+      <admst:apply-templates select="arg1" match="recursiveDetectProbeDependence"/>
     </admst:when>
     <admst:when test="[datatypename='mapply_binary']">
-      <admst:apply-templates select="arg1" match="recursiveDetectProbeDependence">
-        <admst:variable name="isDependent1" value="%(returned('isDependent')/value)"/>
-      </admst:apply-templates>
-      <admst:apply-templates select="arg2" match="recursiveDetectProbeDependence">
-        <admst:variable name="isDependent2" value="%(returned('isDependent')/value)"/>
-      </admst:apply-templates>
-      <admst:choose>
-        <admst:when test="[$isDependent1='yes' or $isDependent2='yes']">
-          <admst:variable name="isDependent" value="yes"/>
-        </admst:when>
-        <admst:otherwise>
-          <!-- no changie da value -->
-        </admst:otherwise>
-      </admst:choose>
+      <admst:apply-templates select="arg1" match="recursiveDetectProbeDependence"/>
+      <admst:apply-templates select="arg2" match="recursiveDetectProbeDependence"/>
     </admst:when>
     <admst:when test="[datatypename='mapply_ternary']">
-      <admst:apply-templates select="arg1" match="recursiveDetectProbeDependence">
-        <admst:variable name="isDependent1" value="%(returned('isDependent')/value)"/>
-      </admst:apply-templates>
-      <admst:apply-templates select="arg2" match="recursiveDetectProbeDependence">
-        <admst:variable name="isDependent2" value="%(returned('isDependent')/value)"/>
-      </admst:apply-templates>
-      <admst:apply-templates select="arg3" match="recursiveDetectProbeDependence">
-        <admst:variable name="isDependent3" value="%(returned('isDependent')/value)"/>
-      </admst:apply-templates>
-      <admst:choose>
-        <admst:when test="[$isDependent1='yes' or $isDependent2='yes' or $isDependent3='yes']">
-          <admst:variable name="isDependent" value="yes"/>
-        </admst:when>
-        <admst:otherwise>
-          <!-- just leave isDependent where it is -->
-        </admst:otherwise>
-      </admst:choose>
+      <admst:apply-templates select="arg1" match="recursiveDetectProbeDependence"/>
+      <admst:apply-templates select="arg2" match="recursiveDetectProbeDependence"/>
+      <admst:apply-templates select="arg3" match="recursiveDetectProbeDependence"/>
     </admst:when>
     <admst:when test="[datatypename='function']">
-      <admst:choose>
-        <admst:when test="[name='\$simparam']">
-          <admst:variable name="isDependent" value="yes"/>
-        </admst:when>
-        <admst:otherwise>
-          <admst:variable name="isFuncDependent" value="no"/>
-          <admst:apply-templates select="arguments" match="recursiveDetectProbeDependence">
-            <admst:if test="[returned('isDependent')/value = 'yes']">
-              <admst:variable name="isFuncDependent" value="yes"/>
-            </admst:if>
-          </admst:apply-templates>
-          <admst:if test="[$isFuncDependent='yes']">
-            <admst:variable name="isDependent" value="yes"/>
-          </admst:if>
-        </admst:otherwise>
-      </admst:choose>
+      <admst:apply-templates select="arguments" match="recursiveDetectProbeDependence"/>
     </admst:when>
     <admst:otherwise>
-      <admst:message format=" recursiveDetectProbeDependence on %(.) unimplemented datatype %(adms/datatypename)\n"/>
+      <!-- do nothing -->
     </admst:otherwise>
   </admst:choose>
-  <admst:return name="isDependent" value="$isDependent"/>
 </admst:template>
 
  <!--
@@ -5424,62 +5351,64 @@ other variables does not get propagated into a variable's
         <admst:assert test="arguments[count(.)=2]" format="%(name): should have two arguments exactly\n"/>
         <admst:assert test="arguments[2]/adms[datatypename='probe']" format="%(name): second argument is not a probe\n"/>
         <admst:assert test="arguments[2]/branch/nnode[grounded='yes']" format="%(name): probe argument has non-ground negative node [Xyce/ADMS limitation]\n"/>
-        <admst:assert test="arguments[1]/adms[datatypename='variable' or datatypename='expression']" format="%(name): expression argument %(arguments[1]) is not of type variable or expression (it is type %(arguments[1]/adms/datatypename)) [Xyce/ADMS limitation]\n"/>
-          <admst:choose>
-            <admst:when test="[$globalCurrentScope='sensitivity']">
-              <admst:variable name="expression" select="0.0 /*FIXME: ddx(%(arguments[1]),%(arguments[2])) not implemented in sensitivity context */"/>
-            </admst:when>
-            <admst:otherwise>
-              <!-- save any "derivProbe" value because we're monkeying with it -->
-              <admst:variable name="savedDerivProbe" path="$derivProbe" />
-              <admst:variable name="savedDerivProbe2" path="$derivProbe2" />
-              <admst:variable name="expressionToDDX" path="arguments[1]"/>
-              <admst:variable name="theDDXProbe" path="arguments[2]"/>
-              <admst:variable name="expression" select=""/>
-              <admst:variable name="expressionDeriv" select=""/>
-              <admst:for-each select="$expressionToDDX/probe">
-                <admst:variable name="derivProbe" path="."/>
-                <admst:variable name="derivProbe2" path="$savedDerivProbe"/>
-                <admst:choose>
-                  <admst:when test="$derivProbe/branch/pnode[.=$theDDXProbe/branch/pnode]">
-                    <admst:apply-templates select="$expressionToDDX" match="processTerm">
-                      <admst:variable name="exprPartialDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
-                      <admst:variable name="exprPartialDeriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
-                    </admst:apply-templates>
-                    <admst:variable name="expression" select="$expression+$exprPartialDeriv"/>
-                    <admst:variable name="expressionDeriv" select="$expressionDeriv+$exprPartialDeriv12"/>
-                  </admst:when>
-                  <admst:when test="$derivProbe/branch/nnode[.=$theDDXProbe/branch/pnode]">
-                    <admst:apply-templates select="$expressionToDDX" match="processTerm">
-                      <admst:variable name="exprPartialDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
-                      <admst:variable name="exprPartialDeriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
-                    </admst:apply-templates>
-                    <admst:variable name="expression" select="$expression-$exprPartialDeriv"/>
-                    <admst:variable name="expressionDeriv" select="$expressionDeriv-$exprPartialDeriv12"/>
-                  </admst:when>
-                </admst:choose>
-              </admst:for-each>
+        <admst:choose>
+          <admst:when test="[$globalCurrentScope='sensitivity']">
+            <admst:variable name="expression" select="0.0 /*FIXME: ddx(%(arguments[1]),%(arguments[2])) not implemented in sensitivity context */"/>
+          </admst:when>
+          <admst:otherwise>
+            <!-- save any "derivProbe" value because we're monkeying with it -->
+            <admst:variable name="savedDerivProbe" path="$derivProbe" />
+            <admst:variable name="savedDerivProbe2" path="$derivProbe2" />
+            <admst:variable name="expressionToDDX" path="arguments[1]"/>
+            <admst:variable name="theDDXProbe" path="arguments[2]"/>
+            <admst:variable name="expression" select=""/>
+            <admst:variable name="expressionDeriv" select=""/>
+            <admst:reset select="$expressionToDDX/@probe"/>
+            <admst:variable name="probeList" path="$expressionToDDX/@probe"/>
+            <admst:apply-templates match="recursiveDetectProbeDependence" select="$expressionToDDX"/>
+            <admst:for-each select="$probeList">
+              <admst:variable name="derivProbe" path="."/>
+              <admst:variable name="derivProbe2" path="$savedDerivProbe"/>
               <admst:choose>
-                <admst:when test="[not($expression = '')]">
-                  <admst:variable name="expression" select="($expression)"/>
+                <admst:when test="$derivProbe/branch/pnode[.=$theDDXProbe/branch/pnode]">
+                  <admst:apply-templates select="$expressionToDDX" match="processTerm">
+                    <admst:variable name="exprPartialDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+                    <admst:variable name="exprPartialDeriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
+                  </admst:apply-templates>
+                  <admst:variable name="expression" select="$expression+$exprPartialDeriv"/>
+                  <admst:variable name="expressionDeriv" select="$expressionDeriv+$exprPartialDeriv12"/>
                 </admst:when>
-                <admst:otherwise>
-                  <admst:variable name="expression" select="0.0"/>
-                </admst:otherwise>
-              </admst:choose>
-              <admst:choose>
-                <admst:when test="[not($expressionDeriv = '')]">
-                  <admst:variable name="expressionDeriv" select="($expressionDeriv)"/>
+                <admst:when test="$derivProbe/branch/nnode[.=$theDDXProbe/branch/pnode]">
+                  <admst:apply-templates select="$expressionToDDX" match="processTerm">
+                    <admst:variable name="exprPartialDeriv" select="%(returned('returnedExpressionDeriv')/value)"/>
+                    <admst:variable name="exprPartialDeriv12" select="%(returned('returnedExpressionDeriv12')/value)"/>
+                  </admst:apply-templates>
+                  <admst:variable name="expression" select="$expression-$exprPartialDeriv"/>
+                  <admst:variable name="expressionDeriv" select="$expressionDeriv-$exprPartialDeriv12"/>
                 </admst:when>
-                <admst:otherwise>
-                  <admst:variable name="expressionDeriv" select="0.0"/>
-                </admst:otherwise>
               </admst:choose>
-              <!-- restore original "derivProbe"  -->
-              <admst:variable name="derivProbe" path="$savedDerivProbe" />
-              <admst:variable name="derivProbe2" path="$savedDerivProbe2" />
-            </admst:otherwise>
-          </admst:choose>
+            </admst:for-each>
+            <admst:choose>
+              <admst:when test="[not($expression = '')]">
+                <admst:variable name="expression" select="($expression)"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expression" select="0.0"/>
+              </admst:otherwise>
+            </admst:choose>
+            <admst:choose>
+              <admst:when test="[not($expressionDeriv = '')]">
+                <admst:variable name="expressionDeriv" select="($expressionDeriv)"/>
+              </admst:when>
+              <admst:otherwise>
+                <admst:variable name="expressionDeriv" select="0.0"/>
+              </admst:otherwise>
+            </admst:choose>
+            <!-- restore original "derivProbe"  -->
+            <admst:variable name="derivProbe" path="$savedDerivProbe" />
+            <admst:variable name="derivProbe2" path="$savedDerivProbe2" />
+          </admst:otherwise>
+        </admst:choose>
       </admst:when>
       <admst:when test="[name='floor']">
         <admst:assert test="arguments[count(.)=1]" format="%(name): should have one argument exactly\n"/>
@@ -5511,7 +5440,7 @@ other variables does not get propagated into a variable's
           </admst:when>
           <admst:otherwise>
             <admst:assert test="arguments[count(.)=2]" format="Unrecognized simparam %(arguments[1]) and no expression provided.\n"/>
-           <admst:apply-templates select="arguments[2]" match="processTerm">
+            <admst:apply-templates select="arguments[2]" match="processTerm">
               <admst:variable name="expression" select="%(returned('returnedExpression')/value)"/>
             </admst:apply-templates>
           </admst:otherwise>
