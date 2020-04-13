@@ -109,22 +109,42 @@ bool newExpression::lexAndParseExpression()
 
   // pull the function arguments (if they are present) out of the parameter vector
   {
-    // The paramOpVec_ was set up during parsing (see the ExpressionParser.yxx file and the
-    // ExpressionParser.cxx file.  All the code for setting up the paramOpVec_ is there)
+    // The following comments are pertainent to the RHS of .func expressions.  For example,
+    // if the netlist has the following function: .func f(x,y) {2*x+3*y}, I am calling:
     //
-    // The functionArgStringVec was hopefully set right after the expression was allocated.
-    // (if not, code below won't work).  The functionArgStringVec contains the "prototype"
-    // ie. for .func f(x,y) {2*x+3*y}, "x" and "y" would be found in the
-    // functionArgStringVec object.  Since they are passed into the function, they should
-    // not be considered as params or global_params.
+    // LHS ->  f(x,y) 
+    // RHS ->  {2*x+3*y}
     //
-    // Note, if using the flex/bison NetlistParser,
-    // when each .func statement is processed, a functionData object is created, and different
-    // fields are populated, including "args_", which is where functionArgStringVec comes from
-    // (it gets copied over in ExpressionTest).  So, anyway, paramOpVec comes from expression
-    // parsing, but functionArgStringVec comes from Netlist parsing.
+    // Xyce processes the LHS and RHS of a .func declaration separately, but the 
+    // RHS needs to know information from the LHS to do it right.  The following 
+    // comments and code below are all about how to correctly handle "x" and "y" 
+    // in the RHS expression {2*x+3*y}.  They need to be treated differently 
+    // than params.
     //
-    // the paramOpVec_, immediately after parsing will contain
+    // The paramOpVec_ was set up during parsing of the RHS. See the ExpressionParser.yxx 
+    // file and the Bison-produced ExpressionParser.cxx file.  All the code for 
+    // setting up the paramOpVec_ is there.
+    //
+    // The functionArgStringVec is not set up during RHS parsing, as just parsing the 
+    // RHS of an expression doesn't have enough information to know which things 
+    // are function arguments and which things are parameters.  So, functionArgStringVec
+    // should be set up and passed into newExpression BEFORE ::lexAndParseExpression 
+    // is called, probably right after the expression was allocated.  If not, then
+    // the code below will not work.  The functionArgStringVec contains the "prototype"
+    // arguments for a function.  It must come from parsing of the LHS of the 
+    // .func declaration.  This code (newExpression) doesn't care how this parsing is 
+    // done, of course.  But note that the Xyce IO package actually uses the 
+    // expression library to determine functionArgStringVec, but it does so by 
+    // allocating a completely different expression object of the LHS "f(x,y)" 
+    // and parsing it.
+    //
+    // In the example .func f(x,y) {2*x+3*y}, the functionArgStringVec object would contain
+    // "x" and "y".  Since they are passed into the function, they should
+    // not be considered as params or global_params, and excluded from any operations
+    // that are specific to params/global_params.  As noted, however, at parse time 
+    // for the RHS it is impossible to tell the difference.
+    //
+    // Anyway, the paramOpVec_, immediately after parsing the RHS will contain
     // both regular params and function arguments.  It cannot tell the difference yet.  This
     // next bit of code is designed to pull them apart.  When finished, the elements of
     // the param container should contain ONLY parameters and no function arguments.
@@ -159,6 +179,7 @@ bool newExpression::lexAndParseExpression()
     }
   }
 
+  // set up names vectors for voltage and current nodes.
   {
     for (int ii=0;ii<voltOpVec_.size();++ii)
     {
