@@ -4742,7 +4742,7 @@ TEST ( Double_Parser_NestedFunc_Test, func_cir_newResolution2)
 
 //-------------------------------------------------------------------------------
 // The point of these next tests is to test out large numbers of 
-// nested function calls.  
+// nested function calls, or global_params
 //
 // This is the simplest list of function calls you could imagine, as
 // all but one are pass-thrus.
@@ -4763,8 +4763,8 @@ TEST ( Double_Parser_NestedFunc_Test, 1000nest_no_deriv)
   int numFuncs=1000;
 
   // this expression will use the .func f.
-  std::string testExprFunctionCallName = std::string("f") + std::to_string(numFuncs-1) + std::string("(V(A))");
-  Teuchos::RCP<Xyce::Util::newExpression> testExpression  = Teuchos::rcp(new Xyce::Util::newExpression( testExprFunctionCallName , testGroup));
+  std::string testExprFunctionString = std::string("f") + std::to_string(numFuncs-1) + std::string("(V(A))");
+  Teuchos::RCP<Xyce::Util::newExpression> testExpression  = Teuchos::rcp(new Xyce::Util::newExpression( testExprFunctionString , testGroup));
   testExpression->lexAndParseExpression();
 
 
@@ -4775,10 +4775,6 @@ TEST ( Double_Parser_NestedFunc_Test, 1000nest_no_deriv)
   
   std::string fnName = "F" + std::to_string(0);
   std::vector<std::string> fnArgStrings = {"X"} ;
-
-  //std::cout << "fnName = " << fnName ;
-  //for(int ii=0;ii<fnArgStrings.size();ii++) { std::cout << "  arg["<<ii<<"]=" << fnArgStrings[ii]; }
-  //std::cout << std::endl;
 
   Teuchos::RCP<Xyce::Util::newExpression> fnExpression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2*x"), testGroup) );
   fnExpression->setFunctionArgStringVec (fnArgStrings);
@@ -4793,10 +4789,6 @@ TEST ( Double_Parser_NestedFunc_Test, 1000nest_no_deriv)
     // set up the func
     std::string fnName = "F" + std::to_string(ii);
     std::vector<std::string> fnArgStrings = {"X"} ;
-
-    //std::cout << "fnName = " << fnName ;
-    //for(int ii=0;ii<fnArgStrings.size();ii++) { std::cout << "  arg["<<ii<<"]=" << fnArgStrings[ii]; }
-    //std::cout << std::endl;
 
     std::string rhsFname = std::string("f") + std::to_string(ii-1) + std::string("(x)");
     Teuchos::RCP<Xyce::Util::newExpression> fnExpression  = Teuchos::rcp(new Xyce::Util::newExpression(rhsFname, testGroup));
@@ -4826,21 +4818,21 @@ TEST ( Double_Parser_NestedFunc_Test, 1000nest_no_deriv)
   double refresult = 10.0;
   testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
 
-  OUTPUT_MACRO3(Double_Parser_NestedFunc_Test, func_cir)
+  OUTPUT_MACRO3 ( Double_Parser_NestedFunc_Test, 1000nest_no_deriv)
 }
 
 //-------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------
-TEST ( Double_Parser_NestedFunc_Test, 500nest_with_deriv)
+TEST ( Double_Parser_NestedFunc_Test, 200nest_with_deriv)
 {
   Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
 
-  int numFuncs=500;
+  int numFuncs=200;
 
   // this expression will use the .func f.
-  std::string testExprFunctionCallName = std::string("f") + std::to_string(numFuncs-1) + std::string("(V(A))");
-  Teuchos::RCP<Xyce::Util::newExpression> testExpression  = Teuchos::rcp(new Xyce::Util::newExpression( testExprFunctionCallName , testGroup));
+  std::string testExprFunctionString = std::string("f") + std::to_string(numFuncs-1) + std::string("(V(A))");
+  Teuchos::RCP<Xyce::Util::newExpression> testExpression  = Teuchos::rcp(new Xyce::Util::newExpression( testExprFunctionString, testGroup));
   testExpression->lexAndParseExpression();
 
 
@@ -4851,10 +4843,6 @@ TEST ( Double_Parser_NestedFunc_Test, 500nest_with_deriv)
   
   std::string fnName = "F" + std::to_string(0);
   std::vector<std::string> fnArgStrings = {"X"} ;
-
-  //std::cout << "fnName = " << fnName ;
-  //for(int ii=0;ii<fnArgStrings.size();ii++) { std::cout << "  arg["<<ii<<"]=" << fnArgStrings[ii]; }
-  //std::cout << std::endl;
 
   Teuchos::RCP<Xyce::Util::newExpression> fnExpression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2*x"), testGroup) );
   fnExpression->setFunctionArgStringVec (fnArgStrings);
@@ -4869,10 +4857,6 @@ TEST ( Double_Parser_NestedFunc_Test, 500nest_with_deriv)
     // set up the func
     std::string fnName = "F" + std::to_string(ii);
     std::vector<std::string> fnArgStrings = {"X"} ;
-
-    //std::cout << "fnName = " << fnName ;
-    //for(int ii=0;ii<fnArgStrings.size();ii++) { std::cout << "  arg["<<ii<<"]=" << fnArgStrings[ii]; }
-    //std::cout << std::endl;
 
     std::string rhsFname = std::string("f") + std::to_string(ii-1) + std::string("(x)");
     Teuchos::RCP<Xyce::Util::newExpression> fnExpression  = Teuchos::rcp(new Xyce::Util::newExpression(rhsFname, testGroup));
@@ -4906,7 +4890,68 @@ TEST ( Double_Parser_NestedFunc_Test, 500nest_with_deriv)
   EXPECT_EQ( result, refresult );
   EXPECT_EQ( derivs, refderivs);
 
-  OUTPUT_MACRO3(Double_Parser_NestedFunc_Test, func_cir)
+  OUTPUT_MACRO3(Double_Parser_NestedFunc_Test, 200nest_with_deriv)
+}
+
+//-------------------------------------------------------------------------------
+TEST ( Double_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
+{
+  Teuchos::RCP<solnAndFuncExpressionGroup> funcGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = funcGroup;
+
+  int numParams=1000;
+
+  // this expression will use the parameter p1.
+  std::string testExprFunctionString = std::string("p") + std::to_string(numParams-1) + std::string("*V(A)");
+  Teuchos::RCP<Xyce::Util::newExpression> testExpression  = Teuchos::rcp(new Xyce::Util::newExpression( testExprFunctionString , testGroup));
+  testExpression->lexAndParseExpression();
+
+  // need to set up vector of global parameter
+  // this expression is the RHS of .global_param p0 {2.0}
+  std::vector< std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > >  dotGlobalParamVector;
+  // set up the first param in the list (which will be the final one evaluated)  
+  
+  std::string parName = "P" + std::to_string(0);
+
+  Teuchos::RCP<Xyce::Util::newExpression> parExpression  = Teuchos::rcp(new Xyce::Util::newExpression(std::string("2.0"), testGroup) );
+  parExpression->lexAndParseExpression();
+  std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > parPair(parName,parExpression);
+  dotGlobalParamVector.push_back(parPair);
+
+  // need to set up vector of parameters:
+  for (int ii=1;ii<numParams;ii++)
+  {
+    // set up the func
+    std::string parName = "P" + std::to_string(ii);
+
+    std::string rhsFname = std::string("p") + std::to_string(ii-1);
+    Teuchos::RCP<Xyce::Util::newExpression> parExpression  = Teuchos::rcp(new Xyce::Util::newExpression(rhsFname, testGroup));
+    parExpression->lexAndParseExpression();
+
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > parPair(parName,parExpression);
+    dotGlobalParamVector.push_back(parPair);
+  }
+
+  // do all the attachments
+  for (int ii=1;ii<numParams;ii++)
+  {
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > parPairM1 = dotGlobalParamVector[ii-1];
+    std::pair<std::string, Teuchos::RCP<Xyce::Util::newExpression> > parPair   = dotGlobalParamVector[ii];
+
+    parPair.second->attachParameterNode(parPairM1.first, parPairM1.second);
+  }
+
+  testExpression->attachParameterNode(dotGlobalParamVector[numParams-1].first, dotGlobalParamVector[numParams-1].second);
+
+  double result=0.0, Aval=5.0;
+  funcGroup->setSoln(std::string("A"),Aval);
+
+  std::vector<double> derivs;
+  std::vector<double> refderivs = {2.0};
+  double refresult = 10.0;
+  testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
+
+  OUTPUT_MACRO3(Double_Parser_NestedGlobalParam_Test, 1000nest_no_deriv)
 }
 
 int main (int argc, char **argv)
