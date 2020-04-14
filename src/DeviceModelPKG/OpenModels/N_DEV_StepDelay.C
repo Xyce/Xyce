@@ -387,10 +387,6 @@ void Instance::acceptStep()
   double * solVec = extData.nextSolVectorRawPtr;
   double * stoVec = extData.nextStoVectorRawPtr;
 
-  Xyce::dout() << "Accept step called at time " << getSolverState().currTime_ << std::endl;
-  Xyce::dout() << "   control pos: " << solVec[li_ContPos] << std::endl;
-  Xyce::dout() << "   control neg: " << solVec[li_ContNeg] << std::endl;
-  Xyce::dout() << "   control drop: " << solVec[li_ContPos] << std::endl;
   stoVec[li_storeVold]=solVec[li_ContPos]-solVec[li_ContNeg];
 
 }
@@ -416,7 +412,6 @@ bool Instance::loadDAEFVector ()
   double v_neg = solVec[li_Neg];
 
   double i_bra = solVec[li_Bra];
-  Xyce::dout() << " loadDAEFVector getting branch current " << i_bra << std::endl;
 
   double * stoVec = extData.currStoVectorRawPtr;
   double v_drop=0.0;
