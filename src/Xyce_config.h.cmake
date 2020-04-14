@@ -38,6 +38,7 @@
 
 // Enable usage tracking
 #cmakedefine Xyce_USE_CURL
+#cmakedefine Xyce_TRACKING_URL "@Xyce_TRACKING_URL@"
 
 // Dakota coupling
 #cmakedefine Xyce_Dakota
@@ -53,6 +54,16 @@
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_SYS_RESOURCE_H
 #cmakedefine HAVE_SYS_STAT_H
+#cmakedefine HAVE_MALLOC_H
+#cmakedefine HAVE_MALLINFO
+#cmakedefine HAVE_PWD_H
+#cmakedefine HAVE_GETPWUID
+#cmakedefine HAVE_GETHOSTNAME
+#cmakedefine HAVE_GETDOMAINNAME
+#cmakedefine HAVE_SYSCONF
+#cmakedefine HAVE_SYS_UTSNAME_H
+#cmakedefine HAVE_UNAME
+#cmakedefine HAVE__PROC_SELF_STAT
 
 // Reaction parser
 #cmakedefine Xyce_REACTION_PARSER

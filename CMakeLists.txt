@@ -14,8 +14,21 @@ find_package(Trilinos 12.12
 message(STATUS "Looking for required Trilinos packages - found")
 
 # Set the compilers, so "project" finds the right ones
-set( CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
-set( CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
+# if the trilinos ones don't exist fall back on 
+# environment defaults
+if( DEFINED CMAKE_CXX_COMPILER )
+  message( "Using user defined CXX ${CMAKE_CXX_COMPILER}" )
+else( DEFINED CMAKE_CXX_COMPILER )
+  message( "Using Trilinos CXX compiler" )
+  set( CMAKE_CXX_COMPILER ${Trilinos_CXX_COMPILER} )
+endif( DEFINED CMAKE_CXX_COMPILER )
+
+if( DEFINED CMAKE_C_COMPILER )
+  message( "Using user defined CC ${CMAKE_C_COMPILER}" )
+else( DEFINED CMAKE_C_COMPILER )
+  message( "Using Trilinos C compiler" )
+  set( CMAKE_C_COMPILER ${Trilinos_C_COMPILER} )
+endif( DEFINED CMAKE_C_COMPILER )
 
 project(Xyce VERSION 8.0.0 LANGUAGES CXX C)
 

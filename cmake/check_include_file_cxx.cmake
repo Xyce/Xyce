@@ -21,6 +21,24 @@ check_include_file_cxx( "sys/resource.h" HAVE_SYS_RESOURCE_H )
 # Gives informations about files:
 check_include_file_cxx( "sys/stat.h" HAVE_SYS_STAT_H )
 
+# Check for headers and functions needed in stat reporting
+check_include_file_cxx( "malloc.h" HAVE_MALLOC_H )
+check_include_file_cxx( "pwd.h" HAVE_PWD_H )
+check_include_file_cxx( "sys/utsname.h" HAVE_SYS_UTSNAME_H)
+#if( HAVE_MALLOC_H )
+#  set( HAVE_MALLINFO TRUE )
+#else( HAVE_MALLOC_H )
+
+check_cxx_symbol_exists(mallinfo "malloc.h" HAVE_MALLINFO)
+check_cxx_symbol_exists(getpwuid "pwd.h" HAVE_GETPWUID)
+check_cxx_symbol_exists(gethostname "unistd.h" HAVE_GETHOSTNAME)
+check_cxx_symbol_exists(getdomainname "unistd.h" HAVE_GETDOMAINNAME)
+check_cxx_symbol_exists(uname "sys/utsname.h" HAVE_UNAME)
+check_cxx_symbol_exists(sysconf "unistd.h" HAVE_SYSCONF)
+if(EXISTS /proc/self/stat)
+  set( HAVE__PROC_SELF_STAT TRUE )
+endif(EXISTS /proc/self/stat)
+
 # see `src/UtilityPKG/N_UTL_CheckIfValidFile.C` for more stuff about
 # HAVE_SYS_STAT_H that should be here.
 

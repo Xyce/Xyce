@@ -57,6 +57,10 @@ target_include_directories(XyceStatic PUBLIC ${XYCE_INCLUDE_DIRECTORIES}
      ${Boost_INCLUDE_DIRS})
 target_link_libraries(XyceStatic PUBLIC ${FFT} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES} ${CMAKE_DL_LIBS})
 
+if(Xyce_USE_CURL)
+  target_link_libraries(XyceStatic PUBLIC ${CURL_LIBRARY})
+endif(Xyce_USE_CURL)
+
 add_executable(Xyce Xyce.C)
 target_include_directories (Xyce PRIVATE ${XYCE_INCLUDE_DIRECTORIES})
 target_link_libraries(Xyce XyceStatic) 

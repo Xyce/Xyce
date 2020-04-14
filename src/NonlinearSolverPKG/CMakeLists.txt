@@ -29,6 +29,7 @@ set ( NonlinearSolver_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_Vector.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_NOX_XyceTests.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_ParamMgr.C 
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_ReturnCodes.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_Sensitivity.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_SensitivityResiduals.C 
       ${CMAKE_CURRENT_SOURCE_DIR}/N_NLS_TwoLevelNewton.C 

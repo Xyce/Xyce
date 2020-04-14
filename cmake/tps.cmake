@@ -54,6 +54,45 @@ LIST(REVERSE Trilinos_TPL_LIBRARIES)
 LIST(REMOVE_DUPLICATES Trilinos_TPL_LIBRARIES)
 LIST(REVERSE Trilinos_TPL_LIBRARIES)
 
+#
+# some libraries imported as dependencies from Trilinos
+# may exist in other locations for this build.
+# scan the list for libraries given with an absolute path
+# and if found try to find them again (without the absolute path)
+#
+# foreach( TPL ${Trilinos_TPL_LIBRARIES})
+#   message( "TPLs BEFORE abs path removal ${TPL}")
+# endforeach()
+# 
+# foreach( TPL ${Trilinos_TPL_LIBRARIES})
+#   if(IS_ABSOLUTE ${TPL})
+#     #LIST(REMOVE_ITEM Trilinos_TPL_LIBRARIES ${TPL})
+#     get_filename_component( LIBNAME ${TPL} NAME_WE)
+#     string(REGEX REPLACE "^lib" "" LIBNAME ${LIBNAME} "" )
+#     message( "extracted name is ${LIBNAME}" )
+#     #string( CONCAT MKLLIBDIR $ENV{MKLROOT} "/lib/intel64")
+#     #find_library( LIBFOUND NAMES ${LIBNAME} HINTS ${MKLLIBDIR} ) 
+#     find_library( LIBFOUND NAMES ${LIBNAME} HINTS $ENV{MKLROOT} PATH_SUFFIXES "lib" "lib/intel64" ) 
+#     if( LIBFOUND STREQUAL "LIBFOUND-NOTFOUND" )
+#       message( "Cound not find library ${TPL} ${LIBNAME}" )
+#     else( LIBFOUND STREQUAL "LIBFOUND-NOTFOUND" )
+#       message( "Found absolute path library and it's real location ${TPL} ${LIBNAME} ${LIBFOUND}" )
+#       LIST(REMOVE_ITEM Trilinos_TPL_LIBRARIES ${TPL})
+#       LIST(APPEND Trilinos_TPL_LIBRARIES ${LIBNAME})
+#       unset( LIBFOUND CACHE )
+#     endif( LIBFOUND STREQUAL "LIBFOUND-NOTFOUND" )
+#     #if( EXISTS ${TPL} )
+#     #  message( "TPL found ${TPL}" )
+#     #else( EXISTS ${TPL} )
+#     #  message( "TPL NOT found  ${TPL}" )
+#     #endif( EXISTS ${TPL} )
+#   endif(IS_ABSOLUTE ${TPL})
+##  endforeach()
+# 
+# foreach( TPL ${Trilinos_TPL_LIBRARIES})
+#   message( "AFTER abs path removal ${TPL}")
+# endforeach()
+set( Xyce_TPL_LIBRARIES ${Trilinos_TPL_LIBRARIES} CACHE STRING "TPLs for Xyce")
 add_library(trilinos INTERFACE IMPORTED GLOBAL)
 
 # MPI check
