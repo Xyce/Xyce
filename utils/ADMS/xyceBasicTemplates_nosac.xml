@@ -4140,6 +4140,13 @@ other variables does not get propagated into a variable's
             <admst:variable name="expressionDeriv12" select="0.0"/>
             <admst:variable name="expressionDerivX" select="0.0"/>
           </admst:when>
+          <admst:when test="[$a2='1.0']">
+            <admst:variable name="expression" select="$a1"/>
+            <admst:variable name="expressionDeriv" select="$a1Deriv"/>
+            <admst:variable name="expressionDeriv2" select="$a1Deriv2"/>
+            <admst:variable name="expressionDeriv12" select="$a1Deriv12"/>
+            <admst:variable name="expressionDerivX" select="$a1DerivX"/>
+          </admst:when>
           <admst:otherwise>
             <admst:variable name="expression" select="($a1/$a2)"/>
             <admst:choose>
@@ -5122,7 +5129,7 @@ other variables does not get propagated into a variable's
                 <!-- But we are explicitly skipping assignments and declarations of those variables, so we better not try to use them! -->
                 <admst:choose>
                   <admst:when test="[insource='no' and output='yes']">
-                    <admst:variable name="expression" select="0.0"/>
+                    <admst:variable name="expression" select="1.0"/>
                     <admst:variable name="expressionDerivX" select="0.0"/>
                   </admst:when>
                   <admst:otherwise>

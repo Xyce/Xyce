@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 13 Apr 2020 12:27:18
+// Creation Date  : Wed, 15 Apr 2020 17:33:19
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -15082,9 +15082,9 @@ Cjci = 0.0 /*FIXME: ddx(qjci_int,V(bi,GND)) not implemented in sensitivity conte
 d_Cjcx_dX = 0.0;
 Cjcx = ((-1)*0.0 /*FIXME: ddx(qjcxi,V(ci,GND)) not implemented in sensitivity context */);
 d_R_tot_dX = 0.0;
-R_tot = 0.0;
+R_tot = ((1.0+1.0)+(1.0+1.0));
 d_CBC_dX = 0.0;
-CBC = 0.0;
+CBC = (1.0+1.0);
 }
 // End block OP_calculation
 }

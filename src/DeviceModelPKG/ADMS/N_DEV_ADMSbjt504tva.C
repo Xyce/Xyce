@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 13 Apr 2020 12:31:11
+// Creation Date  : Wed, 15 Apr 2020 17:33:19
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -22572,43 +22572,43 @@ else
 }
 {
 d_dydx_dX = 0.0;
-dydx = 0.0;
+dydx = ((1.0-1.0)/((1.0+1.0)-1.0));
 d_dydz_dX = 0.0;
-dydz = 0.0;
-d_gpi_dX = 0.0;
-gpi = 0.0;
+dydz = (((1.0-1.0)-1.0)/((1.0+1.0)-1.0));
+d_gpi_dX = (1.0+1.0)*(d_dydx_dX+d_dydz_dX);
+gpi = (((((1.0+1.0)+1.0)+1.0)+1.0)+((1.0+1.0)*(dydx+dydz)));
 d_gammax_dX = 0.0;
-gammax = 0.0;
+gammax = (((1.0+1.0)-1.0)*1.0);
 d_gammay_dX = 0.0;
-gammay = 0.0;
+gammay = (((1.0+1.0)-1.0)*1.0);
 d_gammaz_dX = 0.0;
-gammaz = 0.0;
-d_gbfx_dX = 0.0;
-gbfx = 0.0;
-d_gbfy_dX = 0.0;
-gbfy = 0.0;
-d_gbfz_dX = 0.0;
-gbfz = 0.0;
-d_alpha_ft_dX = ((((1.0)-((gbfz+(gbfy*dydz))*RE_TM))*((gbfx+(gbfy*dydx))*d_RE_TM_dX+(d_gbfx_dX+(gbfy*d_dydx_dX+d_gbfy_dX*dydx))*RE_TM)-(1.0+((gbfx+(gbfy*dydx))*RE_TM))*(-((gbfz+(gbfy*dydz))*d_RE_TM_dX+(d_gbfz_dX+(gbfy*d_dydz_dX+d_gbfy_dX*dydz))*RE_TM)))/((1.0)-((gbfz+(gbfy*dydz))*RE_TM))/((1.0)-((gbfz+(gbfy*dydz))*RE_TM)));
-alpha_ft = ((1.0+((gbfx+(gbfy*dydx))*RE_TM))/((1.0)-((gbfz+(gbfy*dydz))*RE_TM)));
+gammaz = (((1.0+1.0)-1.0)*1.0);
+d_gbfx_dX = 1.0*d_gammax_dX;
+gbfx = (1.0+(1.0*(1.0+gammax)));
+d_gbfy_dX = 1.0*d_gammay_dX;
+gbfy = (1.0+(1.0*gammay));
+d_gbfz_dX = 1.0*d_gammaz_dX;
+gbfz = (1.0+(1.0*gammaz));
+d_alpha_ft_dX = ((((1.0-((1.0+(1.0*dydz))*1.0))-(((1.0+gbfz)+((1.0+gbfy)*dydz))*RE_TM))*(1.0*d_dydx_dX*1.0+(((1.0+gbfx)+((1.0+gbfy)*dydx))*d_RE_TM_dX+(d_gbfx_dX+((1.0+gbfy)*d_dydx_dX+d_gbfy_dX*dydx))*RE_TM))-((1.0+((1.0*dydx)*1.0))+(((1.0+gbfx)+((1.0+gbfy)*dydx))*RE_TM))*((-1.0*d_dydz_dX*1.0)-(((1.0+gbfz)+((1.0+gbfy)*dydz))*d_RE_TM_dX+(d_gbfz_dX+((1.0+gbfy)*d_dydz_dX+d_gbfy_dX*dydz))*RE_TM)))/((1.0-((1.0+(1.0*dydz))*1.0))-(((1.0+gbfz)+((1.0+gbfy)*dydz))*RE_TM))/((1.0-((1.0+(1.0*dydz))*1.0))-(((1.0+gbfz)+((1.0+gbfy)*dydz))*RE_TM)));
+alpha_ft = (((1.0+((1.0*dydx)*1.0))+(((1.0+gbfx)+((1.0+gbfy)*dydx))*RE_TM))/((1.0-((1.0+(1.0*dydz))*1.0))-(((1.0+gbfz)+((1.0+gbfy)*dydz))*RE_TM)));
 {
-double value_pow_0 = pow(0.0,(-1));
-double  deriv_pow_0_d0 = ((0.0 == 0.0)?0.0:(value_pow_0*(-1)/0.0));
-d_rx_dX = 0.0;
+double value_pow_0 = pow(((1.0*dydx)+(alpha_ft*(1.0+(1.0*dydz)))),(-1));
+double  deriv_pow_0_d0 = ((((1.0*dydx)+(alpha_ft*(1.0+(1.0*dydz)))) == 0.0)?0.0:(value_pow_0*(-1)/((1.0*dydx)+(alpha_ft*(1.0+(1.0*dydz))))));
+d_rx_dX = (deriv_pow_0_d0*((1.0*d_dydx_dX+(alpha_ft*1.0*d_dydz_dX+d_alpha_ft_dX*(1.0+(1.0*dydz))))));
 rx = value_pow_0;
 }
 d_rz_dX = (alpha_ft*d_rx_dX+d_alpha_ft_dX*rx);
 rz = (alpha_ft*rx);
-d_ry_dX = 0.0;
-ry = ((1.0)/0.0);
+d_ry_dX = (-1.0*d_rz_dX);
+ry = (1.0-(1.0*rz));
 d_rb1b2_dX = (((gammax*d_rx_dX+d_gammax_dX*rx)+(gammay*d_ry_dX+d_gammay_dX*ry))+(gammaz*d_rz_dX+d_gammaz_dX*rz));
 rb1b2 = (((gammax*rx)+(gammay*ry))+(gammaz*rz));
 d_rex_dX = (d_rz_dX+d_rb1b2_dX);
-rex = ((rz+rb1b2));
-d_xrex_dX = ((d_rz_dX+d_rb1b2_dX)+(RBC_TM*(((gbfx*d_rx_dX+d_gbfx_dX*rx)+(gbfy*d_ry_dX+d_gbfy_dX*ry))+(gbfz*d_rz_dX+d_gbfz_dX*rz))+d_RBC_TM_dX*(((gbfx*rx)+(gbfy*ry))+(gbfz*rz))));
-xrex = ((((rz+rb1b2)+(RBC_TM*(((gbfx*rx)+(gbfy*ry))+(gbfz*rz))))));
-d_taut_dX = ((instanceStruct.instanceVar_CBEO_M+instanceStruct.instanceVar_CBCO_M)*(d_xrex_dX-d_RCCxx_TM_dX)+(instanceStruct.d_instanceVar_CBEO_M_dX+instanceStruct.d_instanceVar_CBCO_M_dX)*(xrex-RCCxx_TM));
-taut = ((instanceStruct.instanceVar_CBEO_M+instanceStruct.instanceVar_CBCO_M)*(xrex-RCCxx_TM));
+rex = ((rz+rb1b2)-1.0);
+d_xrex_dX = ((d_rz_dX+d_rb1b2_dX)+(RBC_TM*((((gbfx+1.0)*d_rx_dX+d_gbfx_dX*rx)+((gbfy+1.0)*d_ry_dX+d_gbfy_dX*ry))+((gbfz+1.0)*d_rz_dX+d_gbfz_dX*rz))+d_RBC_TM_dX*((((gbfx+1.0)*rx)+((gbfy+1.0)*ry))+((gbfz+1.0)*rz))));
+xrex = ((((rz+rb1b2)+(RBC_TM*((((gbfx+1.0)*rx)+((gbfy+1.0)*ry))+((gbfz+1.0)*rz))))-1.0)-1.0);
+d_taut_dX = ((((((1.0*(d_rx_dX+d_rb1b2_dX)+(1.0+1.0)*d_rx_dX)+(1.0+1.0)*d_ry_dX)+(1.0+1.0)*d_rz_dX)+1.0*d_rex_dX)+1.0*d_xrex_dX)+((instanceStruct.instanceVar_CBEO_M+instanceStruct.instanceVar_CBCO_M)*(d_xrex_dX-d_RCCxx_TM_dX)+(instanceStruct.d_instanceVar_CBEO_M_dX+instanceStruct.d_instanceVar_CBCO_M_dX)*(xrex-RCCxx_TM)));
+taut = (((((((1.0*(rx+rb1b2))+((1.0+1.0)*rx))+((1.0+1.0)*ry))+((1.0+1.0)*rz))+(1.0*rex))+(1.0*xrex))+((instanceStruct.instanceVar_CBEO_M+instanceStruct.instanceVar_CBCO_M)*(xrex-RCCxx_TM)));
 }
 }
 
