@@ -101,8 +101,7 @@ Instance::Instance(
     f_BraEquContPosNodePtr(0),
     f_BraEquContNegNodePtr(0),
     f_PosEquBraVarPtr(0),
-    f_NegEquBraVarPtr(0),
-    convergedFlag_(true)
+    f_NegEquBraVarPtr(0)
 {
   numIntVars   = 1;
   numExtVars   = 4;
@@ -425,13 +424,6 @@ bool Instance::loadDAEFVector ()
 
   double src = (v_pos - v_neg) -v_drop ;
   fVec[li_Bra] += src;
-
-  // This was just a test to see if *anything* could force this device to do more
-  // than to take one step and then stop half way to the correct solution.
-  // It didn't work --- we don't do anything at all on the subsequent steps.  Why?
-  //  convergedFlag_=false;
-  //  if (getSolverState().newtonIter >= 3)
-  //    convergedFlag_=true;
 
   if( loadLeadCurrent )
   {

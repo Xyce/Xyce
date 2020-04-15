@@ -22,13 +22,13 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Voltage  contolled current source classes.
+// Purpose        : Step Delay element classes
 //
 // Special Notes  :
 //
-// Creator        : Eric R. Keiter, SNL, Parallel Computational Sciences
+// Creator        : Tom Russo
 //
-// Creation Date  : 02/28/00
+// Creation Date  : 14 Apr 2020
 //
 //
 //
@@ -68,8 +68,8 @@ struct Traits : public DeviceTraits<Model, Instance>
 // Class         : Instance
 // Purpose       :
 // Special Notes :
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 3/16/00
+// Creator       : Tom Russo
+// Creation Date : 14 Apr 2020
 //-----------------------------------------------------------------------------
 class Instance : public DeviceInstance
 {
@@ -130,7 +130,6 @@ public:
   void setupPointers();
 
   void varTypes( std::vector<char> & varTypeVec );
-  inline bool isConverged() {return convergedFlag_;};
 
 public:
   // iterator reference to the vcvs model which owns this instance.
@@ -177,15 +176,14 @@ private:
   double * f_PosEquBraVarPtr;
   double * f_NegEquBraVarPtr;
 
-  bool convergedFlag_;
 };
 
 //-----------------------------------------------------------------------------
 // Class         : Model
 // Purpose       :
 // Special Notes :
-// Creator       : Eric Keiter, SNL, Parallel Computational Sciences
-// Creation Date : 3/16/00
+// Creator       : Tom Russo
+// Creation Date : 14 Apr 2020
 //-----------------------------------------------------------------------------
 class Model : public DeviceModel
 {
