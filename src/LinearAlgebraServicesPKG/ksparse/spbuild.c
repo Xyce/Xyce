@@ -4,7 +4,7 @@ University of California and is under the Spice 3f5 BSD Copyright.
 
 All additions and changes are under the following:
 //-------------------------------------------------------------------------
-//   Copyright 2002-2020 National Technology & Engineering Solutions of
+//   Copyright 2002-2019 National Technology & Engineering Solutions of
 //   Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 //   NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -87,7 +87,6 @@ static char RCSid[] =
 
 
 
-
 /*
  *  IMPORTS
  *
@@ -113,13 +112,18 @@ static char RCSid[] =
  *  Function declarations
  */
 
-static void Translate( MatrixPtr, int*, int* );
+/*static void Translate(MatrixPtr, int*, int*) */
+
 static void EnlargeMatrix( MatrixPtr, int );
 static void ExpandTranslationArrays( MatrixPtr, int );
 extern int f_ind(MatrixPtr, int, int);
 void add_fast_col_index (MatrixPtr, int, int, ElementPtr);
 void add_fast_row_index (MatrixPtr, int, int, ElementPtr);
 
+/* define functions used later */
+void spSetIndex(MatrixPtr Matrix);
+void spColInd(MatrixPtr Matrix, int Col);
+void spRowInd(MatrixPtr Matrix, int Row);
 
 
 /*
