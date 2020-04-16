@@ -4563,8 +4563,8 @@ other variables does not get propagated into a variable's
   -->
   <admst:template match="assignment">
     <admst:assert test="adms[datatypename='assignment']" format="assignment template called with something that is not an assignment\n"/>
-    <!-- Try skipping assignments to output variables (only) in sensitivity context -->
-    <admst:if test="[$globalCurrentScope != 'sensitivity' or ($globalCurrentScope='sensitivity' and not(lhs/insource='no' and lhs/output='yes'))]">
+    <!-- Try skipping assignments to output variables (only) in sensitivity context, and assignments where the RHS contains output variables -->
+    <admst:if test="[$globalCurrentScope != 'sensitivity' or ($globalCurrentScope='sensitivity' and not((lhs/insource='no' and lhs/output='yes') or (lhs/insource='no' and exists(rhs/variable[output='yes' and insource='no' and input='no']))))]">
       <admst:choose>
         <admst:when test="[nilled(rhs/function/[name='\$limit'])]">
           <admst:variable name="saveTemplateUse" select="$globalMustUseTemplate"/>
