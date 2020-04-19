@@ -16,17 +16,20 @@ to other simulation values.  The \texttt{.MEASURE} statement is supported for
 in all three cases.  For HSPICE compatibility, \texttt{.MEAS} is an allowed
 synonym for \texttt{.MEASURE}.
 
-The syntaxes for the \texttt{.MEASURE} statements are as follows.  All of these
-measure types are supported for \texttt{.TRAN} analyses.  For \texttt{.DC} analyses,
-only the \texttt{AVG}, \texttt{DERIV}, \texttt{ERROR}, \texttt{EQN}, \texttt{FIND-WHEN},
-\texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP}, \texttt{RMS} and \texttt{WHEN}
-measures are supported.  For \texttt{.AC} analyses, only the \texttt{AVG}, \texttt{DERIV},
-\texttt{EQN}, \texttt{FIND-WHEN}, \texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP},
-\texttt{RMS} and \texttt{WHEN} measures are supported.  Also, note that
-each measure type (e.g., \texttt{MAX}) may be listed thrice, once for each supported
-``measure mode'' (\texttt{TRAN}, \texttt{DC} and \texttt{AC}). This is because only 
-a subset of the allowed ``qualifiers'' (e.g., \texttt{FROM} and \texttt{TO}) may be 
-supported for the \texttt{DC} and \texttt{AC} measure modes. 
+The syntaxes for the \texttt{.MEASURE} statements are shown below.  The \texttt{AVG},
+\texttt{DERIV}, \texttt{EQN},   \texttt{ERR},  \texttt{ERR1}, \texttt{ERR2}, \texttt{FIND-AT},
+\texttt{FIND-WHEN}, \texttt{INTEG}, \texttt{MIN}, \texttt{MAX}, \texttt{PP}, \texttt{RMS}
+and \texttt{WHEN} measures are supported for all three ``measure modes'' (\texttt{TRAN},
+\texttt{DC} and \texttt{AC}).  The \texttt{TRIG-TARG} measure is only supported for
+\texttt{TRAN} measure mode.  Note that each measure type (e.g., \texttt{MAX}) may be listed
+thrice, once for each supported measure mode. This is because only a subset of the allowed
+``qualifiers'' (e.g., \texttt{FROM} and \texttt{TO}) may be supported for the \texttt{DC}
+and \texttt{AC} measure modes.
+
+The \texttt{ERROR} measure is \Xyce{}-specific, and is only supported for \texttt{TRAN} and
+\texttt{DC} measure modes.  The \texttt{DUTY}, \texttt{FREQ}, \texttt{FOUR}, \texttt{OFF\_TIME}
+and \texttt{ON\_TIME} measures are also \Xyce{}-specific, and are  only supported for
+\texttt{TRAN} measure mode.
 
 \begin{Command}
 \format
@@ -57,9 +60,18 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 + [FROM=<value>] [TO=<value>] [TD=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
+.MEASURE TRAN <result name> <ERR|ERR1|ERR2>
++ <variable\(\sb{1}\)> <variable\(\sb{2}\)> [FROM=<value>] [TO=<value>]
++ [MINVAL=<value>] [IGNOR|YMIN=<value>] [YMAX=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
 .MEASURE TRAN <result name> ERROR <variable> FILE=<value>
 + INDEPVARCOL=<value> DEPVARCOL=<value> [COMP_FUNCTION=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE TRAN <result name> FIND <variable> AT=<value>
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE TRAN <result name> FIND <variable>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
@@ -151,9 +163,18 @@ supported for the \texttt{DC} and \texttt{AC} measure modes.
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
 
+.MEASURE DC <result name> <ERR|ERR1|ERR2>
++ <variable\(\sb{1}\)> <variable\(\sb{2}\)> [FROM=<value>] [TO=<value>]
++ [MINVAL=<value>] [IGNOR|YMIN=<value>] [YMAX=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
 .MEASURE DC <result name> ERROR <variable> FILE=<value>
 + [DEPVARCOL=<value>] [COMP_FUNCTION=<value>]
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE DC <result name> FIND <variable> AT=<value>
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE DC <result name> FIND <variable>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
@@ -204,6 +225,15 @@ MEASURE DC <result name> WHEN <variable>=<variable\(\sb{2}\)>|<value>
 .MEASURE AC <result name> EQN <expression> 
 + [FROM=<value>] [TO=<value>] 
 + [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE AC <result name> <ERR|ERR1|ERR2>
++ <variable\(\sb{1}\)> <variable\(\sb{2}\)> [FROM=<value>] [TO=<value>]
++ [MINVAL=<value>] [IGNOR|YMIN=<value>] [YMAX=<value>]
++ [DEFAULT_VAL=<value>] [PRECISION=<value>] [PRINT=<value>]
+
+.MEASURE AC <result name> FIND <variable> AT=<value>
++ [MINVAL=<value>] [DEFAULT_VAL=<value>]
++ [PRECISION=<value>] [PRINT=<value>]
 
 .MEASURE AC <result name> FIND <variable>
 + WHEN <variable>=<variable\(\sb{2}\)>|<value>
@@ -271,7 +301,7 @@ name>} must be a legal \Xyce{} character string.  For
 
 \argument{measure type}
 
-\texttt{AVG, DERIV, DUTY, EQN, ERROR, FREQ, FOUR, INTEG, MAX, MIN, OFF\_TIME, ON\_TIME, PP, RMS, WHEN, TRIG, TARG}
+\texttt{AVG, DERIV, DUTY, EQN, ERR, ERR1, ERR2, ERROR, FIND, FREQ, FOUR, INTEG, MAX, MIN, OFF\_TIME, ON\_TIME, PP, RMS, WHEN, TRIG, TARG}
 
 The third argument specifies the type of measurement or calculation to
 be done. The only exception is the {\tt TARG} clause which comes later
@@ -320,9 +350,20 @@ The supported measure types and their definitions are:
     ``Additional Examples'' subsection, the expression can use the
     results of other measure statements.
 
+\item[\tt ERRx] Calculates the error between two simulation variables, where
+    the {\tt ERR1} and {\tt ERR2} functions (and the use of the {\tt MINVAL},
+    {\tt YMIN} and {\tt YMAX} qualifiers in those functions) are defined further
+    in the ``Error Functions (ERR1 and ERR2)'' subsection.  The {\tt ERR} measure
+    type is a synonym for  the {\tt ERR1} measure type.  The measurement
+    window can be limited  with the qualifiers {\tt FROM} and {\tt TO}.
+
   \item[\tt ERROR] Calculates the norm between the measured waveform and a
    ``comparison waveform'' specified in a file.  The supported norms are
     L1, L2 and INFNORM.  The default norm is the L2 norm.
+
+  \item[\tt FIND-AT] Returns the value of {\tt <variable>} at the
+    time when the {\tt AT} clause is satisfied.  The {\tt AT}
+    clause is described in more detail later in this list.
 
   \item[\tt FIND-WHEN] Returns the value of {\tt <variable>} at the
     time when the {\tt WHEN} clause is satisfied.  The {\tt WHEN}
@@ -440,7 +481,7 @@ example is {\tt V(1)=0.75}
 
 \argument{AT=value}
 A time {\em at which} the measurement calculation will occur.  This is
-used by the {\tt DERIV} measure and the {\tt TRIG} clause.  Note that
+used by the {\tt DERIV} and {\tt FIND} measures and the {\tt TRIG} clause.  Note that
 ill-considered use of the {\tt FROM}, {\tt TO}, {\tt TD} and {\tt AT}
 qualifiers in the same {\tt TRIG-TARG} measure statement can cause an
 empty measurement window, and thus a failed measure.
@@ -508,13 +549,28 @@ FIND-WHEN}, {\tt INTEG}, {\tt MAX}, {\tt MIN}, {\tt PP}, {\tt RMS} and
 
 \argument{MINVAL=value}
 
-An allowed difference between \texttt{outVal} and the variable to
-which it is being compared.  This has a default value of 1.0e-12.  One
-may need to specify a larger value to avoid missing the test condition
-in a transient run.  {\tt MINVAL} is used by the {\tt DERIV}, {\tt
-DUTY}, {\tt FREQ}, {\tt OFF\_TIME} and {\tt ON\_TIME} and {\tt WHEN}
-measures.  The descriptions of those measures detail how {\tt MINVAL}
-is used by each measure.
+For the {\tt DERIV}, {\tt DUTY}, {\tt FIND}, {\tt FREQ}, {\tt OFF\_TIME},
+{\tt ON\_TIME} and {\tt WHEN} measures, this is allowed difference between
+\texttt{outVal} and the variable to  which it is being compared.  This has
+a default value of 1.0e-12.  One may need to specify a larger value to avoid
+missing the test condition in a transient run.  The descriptions of those
+seven measures detail how {\tt MINVAL} is used by each measure.  For the
+{\tt ERR1} and {\tt ERR2} measures, if the absolute value of
+{\tt <variable\(\sb{1}\)>} is less than {\tt MINVAL}, then {\tt MINVAL} replaces
+the value of the denominator of the {\tt ERR1} or {\tt ERR2} expression.
+
+\argument{YMIN=value}
+
+If the absolute value of {\tt <variable\(\sb{1}\)>} in {\tt ERR1} or
+{\tt ERR2} measure is less than the {\tt YMIN} value then the {\tt ERR1} or
+{\tt ERR2} calculation does not consider that point. The default is 1.0e-15.
+{\tt IGNOR} and {\tt IGNORE} are synonyms for {\tt YMIN}.
+
+\argument{YMAX=value}
+
+If the absolute value of {\tt <variable\(\sb{1}\)>} in {\tt ERR1} or
+{\tt ERR2} measure is greater than {\tt YMAX} value then the {\tt ERR1} or
+{\tt ERR2} calculation does not consider that point. The default is 1.0e15.
 
 \argument{FRAC\_MAX=value}
 
@@ -1061,11 +1117,39 @@ See Section \ref{Options_Reference} for more details.  If given, this
 option takes precedence over the \texttt{MEASPRINT} option setting.
 However, it is also ignored during remeasure.
 
+\subsubsection{ERROR Functions (ERR1 and ERR2)}
+\label{Measure_Error_Functions}
+\index{measure! err1 measure}
+\index{measure! err2 measure}
+This subsection defines the calculation functions for the \texttt{ERR1} and
+\texttt{ERR2} measure types.  For the \texttt{ERR1} measure, the measure
+value is calculated as follows, where $M_i$ and $C_i$ are the first and
+second variables on the measure line and N is the number of time, frequency
+or DC sweep values included in the measure calculation:
+\begin{equation}
+ERR1 = \sqrt{ \frac{1}{N}\sum_{i=1}^{N} \left(\frac{M_i - C_i}{max(MINVAL,\mid M_i \mid)}\right)^2}
+\end{equation}
+
+For the \texttt{ERR2} measure, the value is:
+\begin{equation}
+ERR2 = \frac{1}{N}\sum_{i=1}^{N} \left|\frac{M_i - C_i}{max(MINVAL,\mid M_i \mid)}\right|
+\end{equation}
+
+For both measures, if the absolute value of $M_i$ is less than the
+\texttt{YMIN} value or greater than the \texttt{YMAX} value then the
+{\tt ERR1} or {\tt ERR2} calculation does not consider that point. The
+default for \texttt{YMIN} is 1.0-e15.  The default for \texttt{YMAX}
+is 1.0e15.
+
 \subsubsection{ERROR Measure}
 \label{Measure_Error_Measure}
 \index{measure! error measure}
-This subsection lists some important caveats with the use of the \texttt{ERROR}
-measure.
+The \Xyce{} ERROR measure is not the functional equivalent of the \texttt{ERR1}
+or \texttt{ERR2} measures.  It is intended to solve a different problem, namely
+the comparison of data in multiple simulation runs to an assumed ``gold standard''
+read in from a file.  It also uses different comparision functions then the
+\texttt{ERR1} and \texttt{ERR2} measures..  This  subsection lists some important
+caveats with the use of the \texttt{ERROR} measure.
 \begin{XyceItemize}
 
   \item The comparison file, specified with the {\tt FILE} qualifier,

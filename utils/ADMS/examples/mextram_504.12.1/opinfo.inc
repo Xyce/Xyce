@@ -108,11 +108,7 @@ OP_gz     = - ddx(In, V(c1));      // Reverse transconductance
 
 OP_sgpi   = - ddx(Ib1_s, V(e))
             - ddx(Ib1_s, V(e1));   // Conductance sidewal b-e junction
-`ifdef __ORIG_DDX_EXPR__
 OP_gpix   = - ddx(Ib1+Ib2, V(e1)); // Conductance floor b-e junction
-`else
-OP_gpix   = - ddx(Ib1, V(e1))+ddx(Ib2, V(e1)); // Conductance floor b-e junction
-`endif
 
 OP_gpiy   = - ddx(Ib1, V(c2));  // Early effect on recombination base current
 OP_gpiz   = - ddx(Ib1, V(c1));  // Early effect on recombination base current
@@ -122,19 +118,11 @@ OP_gmuy   =  ddx( Iavl, V(c2)); // Conductance of avalanche current
 OP_gmuz   =  ddx( Iavl, V(c1));   // Conductance of avalanche current
 
 // Conductance extrinsic b-c current :
-`ifdef __ORIG_DDX_EXPR__
 OP_gmuex  =   ddx(Iex+Ib3, V(e))
             + ddx(Iex+Ib3, V(b1))
             + ddx(Iex+Ib3, V(b2))
             + ddx(Iex+Ib3, V(e1))
             + ddx(Iex+Ib3, V(c2));
-`else
- OP_gmuex  =   ddx(Iex, V(e))+ddx(Ib3, V(e))
-            + ddx(Iex, V(b1))+ddx(Ib3, V(b1))
-            + ddx(Iex, V(b2))+ddx(Ib3, V(b2))
-            + ddx(Iex, V(e1))+ddx(Ib3, V(e1))
-            + ddx(Iex, V(c2))+ddx(Ib3, V(c2));
-`endif // !`ifdef __ORIG_DDX_EXPR__
 
 OP_xgmuex = ddx(XIex, V(b)) ; // Conductance extrinsic b-c current
 
@@ -166,11 +154,7 @@ OP_gsf    = ddx(Isf, V(s)) ;   // Conductance substrate-collector current
 // Small signal equivalent circuit capacitances
 OP_scbe   = - ddx(Qte_s, V(e)) - ddx(Qte_s, V(e1)); // Capacitance sidewall b-e junction
 
-`ifdef __ORIG_DDX_EXPR__
 OP_cbex   = - ddx(Qte + Qbe + Qe, V(e1)) ;           // Capacitance floor b-e junction
-`else
-OP_cbex   = - (ddx(Qte, V(e1)) + ddx(Qbe, V(e1)) + ddx(Qe, V(e1))) ;           // Capacitance floor b-e junction
-`endif
 
 OP_cbey   = - ddx(Qbe, V(c2)); // Early effect on b-e diffusion junction
 
@@ -179,7 +163,6 @@ OP_cbez   = - ddx(Qbe, V(c1)); // Early effect on b-e diffusion junction
 OP_cbcx   = - ddx(Qbc, V(e)) - ddx(Qbc, V(e1)); // Early effect on b-c diffusion junction
 
 
-`ifdef __ORIG_DDX_EXPR__
 OP_cbcy   =  - ddx(Qtc + Qbc + Qepi, V(c2)); // Capacitance floor b-c junction
 OP_cbcz   =  - ddx(Qtc + Qbc + Qepi, V(c1)); // Capacitance floor b-c junction
 
@@ -192,20 +175,6 @@ OP_cbcex  =   ddx(Qtex + Qex,V(e))
  
 // Capacitance extrinsic b-c junction :
 OP_xcbcex =  ddx(XQtex + XQex, V(b)) ;
-`else // !`ifdef __ORIG_DDX_EXPR__
-OP_cbcy   =  - (ddx(Qtc, V(c2)) + ddx(Qbc, V(c2)) + ddx(Qepi, V(c2))); // Capacitance floor b-c junction
-OP_cbcz   =  - (ddx(Qtc, V(c1)) + ddx(Qbc, V(c1)) + ddx(Qepi, V(c1))); // Capacitance floor b-c junction
-
-// Capacitance extrinsic b-c junction :
-OP_cbcex  =   ddx(Qtex,V(e))   + ddx(Qex,V(e))
-            + ddx(Qtex,V(b1))  + ddx(Qex,V(b1))
-            + ddx(Qtex,V(b2))  + ddx(Qex,V(b2))
-            + ddx(Qtex,V(e1))  + ddx(Qex,V(e1))
-            + ddx(Qtex,V(c2))  + ddx(Qex,V(c2)) ;
- 
-// Capacitance extrinsic b-c junction :
-OP_xcbcex =  ddx(XQtex, V(b)) + ddx(XQex, V(b)) ;
-`endif // !`ifdef __ORIG_DDX_EXPR__
 
 OP_cb1b2  = - ddx(Qb1b2, V(b2)) - ddx(Qb1b2, V(c2));  // Capacitance AC current crowding
 

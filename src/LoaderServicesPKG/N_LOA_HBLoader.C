@@ -86,6 +86,7 @@ HBLoader::HBLoader(
     freqLoadAnalysisDone_(false),
     numGlobalFreqRows_(0),
     totalNZOffProcRows_(0),
+    totalOffProcBVecLIDs_(0),
     builder_(builder)
 {
   // Now initialize all the time domain working vectors.
@@ -930,12 +931,11 @@ bool HBLoader::loadDAEVectors( Linear::Vector * Xf,
       // NOTE:  This method will remove the row entries associated with the ground node. 
       if ( i == 0 )
       {
-        compNZRowsAndCommPIDs( tmpFreqFVector );
+        compNZRowsAndCommPIDs( tmpFreqFVector, freqBVector_[i] );
       }
 
       // Load entries of DFDX matrix in frequency domain.
       Teuchos::rcp_dynamic_cast<CktLoader>(appLoaderPtr_)->loadFreqDAEMatrices( freq, &Xf_complex[0], freqDFDXMatrix_[i] );
-
 
       // Consolidate DFDX matrix entries not owned by this processor for this harmonic.
       std::vector< Util::FreqMatEntry > offProcFreqDFDXMatrix, newFreqDFDXMatrix;
@@ -1471,10 +1471,83 @@ void HBLoader::sendReceiveMatrixEntries( const std::vector< Util::FreqMatEntry >
 // Creator       : Heidi Thornquist
 // Creation Date : 8/21/2017
 //---------------------------------------------------------------------------
-void HBLoader::compNZRowsAndCommPIDs( const std::vector< Util::FreqVecEntry >& vectorEntries )
+void HBLoader::compNZRowsAndCommPIDs( const std::vector< Util::FreqVecEntry >& vectorEntries,
+                                      const std::vector< Util::FreqVecEntry >& bVecEntries )
 {
+  int numProcs = appVecPtr_->pmap()->pdsComm().numProc();
+  int myProc = appVecPtr_->pmap()->pdsComm().procID();
+
   int row_groundID = appVecPtr_->omap()->globalToLocalIndex( -1 );
-  std::vector< Util::FreqVecEntry >::const_iterator vE_it = vectorEntries.begin();
+
+  // Collect all of the off processor ids in the b vector
+  std::vector< Util::FreqVecEntry >::const_iterator vE_it = bVecEntries.begin();
+  for (; vE_it != bVecEntries.end(); vE_it++)
+  {
+    if ( (appVecPtr_->pmap()->localToGlobalIndex( vE_it->lid ) == -1) && (vE_it->lid != row_groundID) )
+      offProcBVecLIDs_.push_back( vE_it->lid ); 
+  }
+  std::sort( offProcBVecLIDs_.begin(), offProcBVecLIDs_.end() );
+  offProcBVecLIDs_.erase( std::unique( offProcBVecLIDs_.begin(), offProcBVecLIDs_.end() ), offProcBVecLIDs_.end() ); 
+
+  std::vector<int> numOffProcBVecLIDs( numProcs ), sumOffProcBVecLIDs( numProcs );
+  numOffProcBVecLIDs[ myProc ] = offProcBVecLIDs_.size();
+  appVecPtr_->pmap()->pdsComm().sumAll( &numOffProcBVecLIDs[0], &sumOffProcBVecLIDs[0], numProcs );
+
+  // Collect all the GIDs being communicated for the b vector load 
+  totalOffProcBVecLIDs_ = std::accumulate( sumOffProcBVecLIDs.begin(), sumOffProcBVecLIDs.end(), 0 );
+  std::vector<int> tmpOffProcGIDs( totalOffProcBVecLIDs_, 0 ), allOffProcGIDs( totalOffProcBVecLIDs_, 0 );
+  for ( int p=0, ptr=0; p<numProcs; ++p )
+  {
+    if ( myProc == p )
+    {
+      for ( int idx=0; idx<sumOffProcBVecLIDs[p]; ++idx, ++ptr )
+        tmpOffProcGIDs[ ptr ] = appVecPtr_->omap()->localToGlobalIndex( offProcBVecLIDs_[idx] );
+    }
+    else
+      ptr += sumOffProcBVecLIDs[p];
+   
+    if ( p > 0 )
+      sumOffProcBVecLIDs[p] += sumOffProcBVecLIDs[p-1];
+  } 
+  appVecPtr_->pmap()->pdsComm().sumAll( &tmpOffProcGIDs[0], &allOffProcGIDs[0], totalOffProcBVecLIDs_ );
+
+  // Convert the GIDs being communicated to the PIDs that own them
+  // Store the PIDs that b vector information needs to be received from.
+  std::vector<int> tmpOffProcPIDs( totalOffProcBVecLIDs_, 0 ), allOffProcPIDs( totalOffProcBVecLIDs_, 0 );
+
+  for ( int p=0; p<numProcs; ++p )
+  {
+    int idx = 0;
+    if ( p > 0 )
+      idx = sumOffProcBVecLIDs[ p-1 ];
+    for ( ; idx < sumOffProcBVecLIDs[ p ]; ++idx )
+    {
+      int lid = appVecPtr_->pmap()->globalToLocalIndex( allOffProcGIDs[idx] );
+      if ( lid > -1 )  
+      {
+        tmpOffProcPIDs[ idx ] = myProc;
+        offProcBVecSendPIDs_.push_back( p );
+        offProcBVecSendLIDs_.push_back( lid );
+      }
+    } 
+  }
+  appVecPtr_->pmap()->pdsComm().sumAll( &tmpOffProcPIDs[0], &allOffProcPIDs[0], totalOffProcBVecLIDs_ );
+
+  // Resize the processors we are receiving the data from.
+  offProcBVecPIDs_.resize( offProcBVecLIDs_.size() );
+
+  // Store the PIDs that need to be sent to.
+  int gidPtr = 0;
+  if ( myProc > 0 )
+    gidPtr = sumOffProcBVecLIDs[ myProc-1 ];
+
+  for ( int idx=0; idx<offProcBVecLIDs_.size(); ++idx )
+  { 
+    offProcBVecPIDs_[ idx ] = allOffProcPIDs[ gidPtr + idx ];
+  }
+
+  // Now set up off-processor communication for the f vector and Jacobian. 
+  vE_it = vectorEntries.begin();
   for (; vE_it != vectorEntries.end(); vE_it++)
   {
     if ( appVecPtr_->pmap()->localToGlobalIndex( vE_it->lid ) != -1 )
@@ -1486,8 +1559,6 @@ void HBLoader::compNZRowsAndCommPIDs( const std::vector< Util::FreqVecEntry >& v
   offProcLocalRows_.erase( std::unique( offProcLocalRows_.begin(), offProcLocalRows_.end() ), offProcLocalRows_.end() ); 
 
   // Now communicate the number off processor rows that need to be sent after loadFreqDAEMatrices
-  int numProcs = appVecPtr_->pmap()->pdsComm().numProc();
-  int myProc = appVecPtr_->pmap()->pdsComm().procID();
   std::vector<int> numNZOffProcRows( numProcs ), sumNZOffProcRows( numProcs );
   numNZOffProcRows[ myProc ] = offProcLocalRows_.size(); 
   appVecPtr_->pmap()->pdsComm().sumAll( &numNZOffProcRows[0], &sumNZOffProcRows[0], numProcs );
@@ -1596,17 +1667,93 @@ void HBLoader::compNZRowsAndCommPIDs( const std::vector< Util::FreqVecEntry >& v
 
 }
 
-void HBLoader::createPermFreqBVector( const std::vector< std::vector< Util::FreqVecEntry > >& vectorEntries,
+void HBLoader::createPermFreqBVector( std::vector< std::vector< Util::FreqVecEntry > >& vectorEntries,
                                       Teuchos::RCP<Linear::BlockVector>& blockVector )
 {
   int numharms = bVtPtr_->blockCount();
   Linear::Vector freqB( *(hbBuilderPtr_->getSolutionMap()) );
 
+  int myProc = appVecPtr_->pmap()->pdsComm().procID();
+  int numProcs = appVecPtr_->pmap()->pdsComm().numProc();
+
   // Filtering out local ground node entries.
   // In parallel, entries to nonlocal nodes must be migrated to the necessary processor.
   int local_gnd_id = appVecPtr_->omap()->globalToLocalIndex( -1 );
 
-  bool isBZero = true;
+  if ( totalOffProcBVecLIDs_ )
+  {
+    // Send / receive vector entries
+    for ( int p = 0; p < numProcs; ++p )
+    {
+      // Sending processor is p
+      if ( p == myProc && offProcBVecPIDs_.size() )
+      {
+        for ( int recvp = 0; recvp < numProcs; ++recvp )
+        {
+          int totalData = 0;
+          std::vector<int> gidVecs;
+          std::vector<double> valVecs;
+
+          std::vector<int>::iterator it = std::find( offProcBVecPIDs_.begin(), offProcBVecPIDs_.end(), recvp );
+          while ( it != offProcBVecPIDs_.end() )
+          {
+            int idx = std::distance( offProcBVecPIDs_.begin(), it );
+            for( int i = 0; i < (numharms + 1)/2; ++i )
+            {
+              for (unsigned j = 0; j < vectorEntries[i].size(); j++)
+              {
+                const Util::FreqVecEntry& currEntry = vectorEntries[i][j];
+
+                // Check if this entry is on this processor.
+                if ( currEntry.lid == offProcBVecLIDs_[idx] )
+                {
+                  totalData++;
+                  gidVecs.push_back( i );
+                  gidVecs.push_back( appVecPtr_->omap()->localToGlobalIndex( currEntry.lid ) );
+                  valVecs.push_back( currEntry.val.real() );       
+                  valVecs.push_back( currEntry.val.imag() );       
+                }
+              }
+            }
+
+            it++;
+            it = std::find( it, offProcBVecPIDs_.end(), recvp );
+          }
+
+          // Send vector entries to processor recvp 
+          if (totalData)
+          {
+            appVecPtr_->pmap()->pdsComm().send( &totalData, 1, recvp);
+            appVecPtr_->pmap()->pdsComm().send( &gidVecs[0], 2*totalData, recvp);
+            appVecPtr_->pmap()->pdsComm().send( &valVecs[0], 2*totalData, recvp);
+          }
+        }
+      }
+      // Otherwise wait to receive data from p
+      else if ( std::find(offProcBVecSendPIDs_.begin(), offProcBVecSendPIDs_.end(), p ) != offProcBVecSendPIDs_.end() )
+      {
+        Util::FreqVecEntry tmpEntry;
+
+        int totalData = 0;
+        appVecPtr_->pmap()->pdsComm().recv( &totalData, 1, p);
+        std::vector<int> gidVecs( 2*totalData );
+        std::vector<double> valVecs( 2*totalData );
+        appVecPtr_->pmap()->pdsComm().recv( &gidVecs[0], 2*totalData, p);
+        appVecPtr_->pmap()->pdsComm().recv( &valVecs[0], 2*totalData, p);
+
+        // Process the vector entries sent from p
+        for (int i=0; i<totalData; ++i)
+        {
+          int lid = appVecPtr_->pmap()->globalToLocalIndex( gidVecs[2*i+1] );
+          tmpEntry.lid = appVecPtr_->pmap()->globalToLocalIndex( gidVecs[2*i+1] );
+          tmpEntry.val = std::complex<double>( valVecs[2*i], valVecs[2*i+1] );
+          vectorEntries[ gidVecs[2*i] ].push_back( tmpEntry );        
+        }
+      }
+    }
+  }
+
+  int addFreqB = 0;
   for( int i = 0; i < (numharms + 1)/2; ++i )
   {
     for (unsigned j = 0; j < vectorEntries[i].size(); j++)
@@ -1614,19 +1761,27 @@ void HBLoader::createPermFreqBVector( const std::vector< std::vector< Util::Freq
       const Util::FreqVecEntry& currEntry = vectorEntries[i][j];
       if (currEntry.lid != local_gnd_id)
       {
-        freqB[currEntry.lid*2*numharms + 2*i] = currEntry.val.real();
-        freqB[currEntry.lid*2*numharms + 2*i+1] = currEntry.val.imag();
-        if (i > 0)
+        // Check if this entry is on this processor.
+        std::vector<int>::iterator it = std::find(offProcBVecLIDs_.begin(),offProcBVecLIDs_.end(),currEntry.lid);
+        if ( it  == offProcBVecLIDs_.end() )
         {
-          freqB[currEntry.lid*2*numharms + 2*(numharms-i)] = currEntry.val.real();
-          freqB[currEntry.lid*2*numharms + 2*(numharms-i)+1] = -currEntry.val.imag();
+          freqB[currEntry.lid*2*numharms + 2*i] += currEntry.val.real();
+          freqB[currEntry.lid*2*numharms + 2*i+1] += currEntry.val.imag();
+          if (i > 0)
+          {
+            freqB[currEntry.lid*2*numharms + 2*(numharms-i)] += currEntry.val.real();
+            freqB[currEntry.lid*2*numharms + 2*(numharms-i)+1] += -currEntry.val.imag();
+          }
+          addFreqB = 1;
         }
-        isBZero = false;
       }
     }
   }
 
-  if (!isBZero)
+  int globalFreqB = 0;
+  appVecPtr_->pmap()->pdsComm().maxAll( &addFreqB, &globalFreqB, 1 );
+
+  if (globalFreqB)
   {
     blockVector = hbBuilderPtr_->createExpandedRealFormTransposeBlockVector();
     blockVector->update( 1.0, freqB, 0.0 );

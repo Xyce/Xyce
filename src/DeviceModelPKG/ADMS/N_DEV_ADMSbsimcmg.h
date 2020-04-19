@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 09 Apr 2020 18:37:52
+// Creation Date  : Mon, 13 Apr 2020 12:05:44
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsimcmg_h
@@ -3271,21 +3271,7 @@ public:
     double CES;
     double CEE;
     double CGSEXT;
-     double d_CGSEXT_dV_g_s;
-     double d_CGSEXT_dV_g_di;
-     double d_CGSEXT_dV_e_si;
-     double d_CGSEXT_dV_e_di;
-     double d_CGSEXT_dV_g_e;
-     double d_CGSEXT_dV_g_si;
-     double d_CGSEXT_dV_di_si;
     double CGDEXT;
-     double d_CGDEXT_dV_g_d;
-     double d_CGDEXT_dV_g_di;
-     double d_CGDEXT_dV_e_si;
-     double d_CGDEXT_dV_e_di;
-     double d_CGDEXT_dV_g_e;
-     double d_CGDEXT_dV_g_si;
-     double d_CGDEXT_dV_di_si;
     double CGBOV;
     double CJST;
     double CJDT;

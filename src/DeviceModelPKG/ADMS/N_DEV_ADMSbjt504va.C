@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 09 Apr 2020 18:38:02
+// Creation Date  : Wed, 15 Apr 2020 21:05:18
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -14885,44 +14885,44 @@ OP_qex = Qex;
 OP_xqex = XQex;
 OP_qts = Qts;
 OP_gx = (-(-d_In_dV_b2_e1));
-OP_gy = (-(-d_In_dV_b2_c2-d_In_dV_c1_c2));
-OP_gz = (-(-d_In_dV_b2_c1+d_In_dV_c1_c2));
+OP_gy = (-(-d_In_dV_c1_c2-d_In_dV_b2_c2));
+OP_gz = (-(+d_In_dV_c1_c2-d_In_dV_b2_c1));
 OP_sgpi = ((-0.0)-(-d_Ib1_s_dV_b1_e1));
-OP_gpix = ((-(-d_Ib1_dV_b2_e1))+(-d_Ib2_dV_b2_e1));
-OP_gpiy = (-(-d_Ib1_dV_b2_c2-d_Ib1_dV_c1_c2));
-OP_gpiz = (-(-d_Ib1_dV_b2_c1+d_Ib1_dV_c1_c2));
+OP_gpix = (-(-(d_Ib1_dV_b2_e1+d_Ib2_dV_b2_e1)));
+OP_gpiy = (-(-d_Ib1_dV_c1_c2-d_Ib1_dV_b2_c2));
+OP_gpiz = (-(+d_Ib1_dV_c1_c2-d_Ib1_dV_b2_c1));
 OP_gmux = (-d_Iavl_dV_b2_e1);
-OP_gmuy = (-d_Iavl_dV_b2_c2-d_Iavl_dV_c1_c2);
-OP_gmuz = (-d_Iavl_dV_b2_c1+d_Iavl_dV_c1_c2-d_Iavl_dV_c4_c1-d_Iavl_dV_c3_c1);
-OP_gmuex = (((((((+d_Iex_dV_b1_b2)+(+d_Ib3_dV_b1_b2))+(-d_Iex_dV_b1_b2+d_Iex_dV_b2_c2))+(-d_Ib3_dV_b1_b2+d_Ib3_dV_b2_c2+d_Ib3_dV_b2_e1))+(-d_Ib3_dV_b2_e1))+(-d_Iex_dV_b2_c2-d_Iex_dV_c1_c2))+(-d_Ib3_dV_b2_c2-d_Ib3_dV_c1_c2));
-OP_xgmuex = (+d_XIex_dV_b_c+d_XIex_dV_b_b1);
-OP_grcvy = (-(-d_Ic1c2_dV_b2_c2-d_Ic1c2_dV_c1_c2));
-OP_grcvz = (-(-d_Ic1c2_dV_b2_c1+d_Ic1c2_dV_c1_c2));
-OP_rbv = (1.0/((-(-d_Ib1b2_dV_b1_b2+d_Ib1b2_dV_b2_e1+d_Ib1b2_dV_b2_c2+d_Ib1b2_dV_b2_c1))-(-d_Ib1b2_dV_b2_c2-d_Ib1b2_dV_c1_c2)));
+OP_gmuy = (-d_Iavl_dV_c1_c2-d_Iavl_dV_b2_c2);
+OP_gmuz = (-d_Iavl_dV_c3_c1-d_Iavl_dV_c4_c1+d_Iavl_dV_c1_c2-d_Iavl_dV_b2_c1);
+OP_gmuex = ((((+(d_Iex_dV_b1_b2+d_Ib3_dV_b1_b2))+(+d_Ib3_dV_b2_e1+(d_Iex_dV_b2_c2+d_Ib3_dV_b2_c2)-(d_Iex_dV_b1_b2+d_Ib3_dV_b1_b2)))+(-d_Ib3_dV_b2_e1))+(-(d_Iex_dV_c1_c2+d_Ib3_dV_c1_c2)-(d_Iex_dV_b2_c2+d_Ib3_dV_b2_c2)));
+OP_xgmuex = (+d_XIex_dV_b_b1+d_XIex_dV_b_c);
+OP_grcvy = (-(-d_Ic1c2_dV_c1_c2-d_Ic1c2_dV_b2_c2));
+OP_grcvz = (-(+d_Ic1c2_dV_c1_c2-d_Ic1c2_dV_b2_c1));
+OP_rbv = (1.0/((-(+d_Ib1b2_dV_b2_c1+d_Ib1b2_dV_b2_c2+d_Ib1b2_dV_b2_e1-d_Ib1b2_dV_b1_b2))-(-d_Ib1b2_dV_c1_c2-d_Ib1b2_dV_b2_c2)));
 OP_grbvx = ((-0.0)-(-d_Ib1b2_dV_b2_e1));
-OP_grbvy = (-(-d_Ib1b2_dV_b2_c2-d_Ib1b2_dV_c1_c2));
-OP_grbvz = (-(-d_Ib1b2_dV_c4_c1-d_Ib1b2_dV_c3_c1-d_Ib1b2_dV_b2_c1+d_Ib1b2_dV_c1_c2));
+OP_grbvy = (-(-d_Ib1b2_dV_c1_c2-d_Ib1b2_dV_b2_c2));
+OP_grbvz = (-(+d_Ib1b2_dV_c1_c2-d_Ib1b2_dV_b2_c1-d_Ib1b2_dV_c3_c1-d_Ib1b2_dV_c4_c1));
 OP_re = RE_TM;
 OP_rbc = RBC_TM;
 OP_rcc = RCCxx_TM;
 OP_rcblx = RCCex_TM;
 OP_rcbli = RCCin_TM;
 OP_gs = (+d_Isub_dV_b1_b2);
-OP_xgs = (+d_XIsub_dV_b_c+d_XIsub_dV_b_b1);
+OP_xgs = (+d_XIsub_dV_b_b1+d_XIsub_dV_b_c);
 OP_gsf = (+d_Isf_dV_s_c1);
-OP_scbe = ((-0.0)-(-d_Qte_s_dV_b1_e1-d_Qte_s_dV_b2_e1));
-OP_cbex = (-(((-d_Qte_dV_b2_e1)+(-d_Qbe_dV_b2_e1))+(-d_Qe_dV_b2_e1)));
-OP_cbey = (-(-d_Qbe_dV_b2_c2-d_Qbe_dV_c1_c2));
-OP_cbez = (-(-d_Qbe_dV_c4_c1-d_Qbe_dV_c3_c1-d_Qbe_dV_b2_c1+d_Qbe_dV_c1_c2));
+OP_scbe = ((-0.0)-(-d_Qte_s_dV_b2_e1-d_Qte_s_dV_b1_e1));
+OP_cbex = (-(-((d_Qte_dV_b2_e1+d_Qbe_dV_b2_e1)+d_Qe_dV_b2_e1)));
+OP_cbey = (-(-d_Qbe_dV_c1_c2-d_Qbe_dV_b2_c2));
+OP_cbez = (-(+d_Qbe_dV_c1_c2-d_Qbe_dV_b2_c1-d_Qbe_dV_c3_c1-d_Qbe_dV_c4_c1));
 OP_cbcx = ((-0.0)-(-d_Qbc_dV_b2_e1));
-OP_cbcy = (-(((-d_Qtc_dV_b2_c2-d_Qtc_dV_c1_c2)+(-d_Qbc_dV_b2_c2-d_Qbc_dV_c1_c2))+(-d_Qepi_dV_b2_c2-d_Qepi_dV_c1_c2)));
-OP_cbcz = (-(((-d_Qtc_dV_b2_c1+d_Qtc_dV_c1_c2)+(-d_Qbc_dV_c4_c1-d_Qbc_dV_c3_c1-d_Qbc_dV_b2_c1+d_Qbc_dV_c1_c2))+(-d_Qepi_dV_b2_c1+d_Qepi_dV_c1_c2)));
-OP_cbcex = (((((((+d_Qtex_dV_b1_b2+d_Qtex_dV_b1_e1)+(+d_Qex_dV_b1_b2))+(-d_Qtex_dV_b1_b2+d_Qtex_dV_b2_c2+d_Qtex_dV_b2_e1+d_Qtex_dV_b2_c1))+(-d_Qex_dV_b1_b2+d_Qex_dV_b2_c2))+(-d_Qtex_dV_b1_e1-d_Qtex_dV_b2_e1))+(-d_Qtex_dV_b2_c2-d_Qtex_dV_c1_c2))+(-d_Qex_dV_b2_c2-d_Qex_dV_c1_c2));
-OP_xcbcex = ((+d_XQtex_dV_b_c+d_XQtex_dV_b_b1)+(+d_XQex_dV_b_c+d_XQex_dV_b_b1));
-OP_cb1b2 = ((-(-d_Qb1b2_dV_b1_b2+d_Qb1b2_dV_b2_e1+d_Qb1b2_dV_b2_c2+d_Qb1b2_dV_b2_c1))-(-d_Qb1b2_dV_b2_c2-d_Qb1b2_dV_c1_c2));
+OP_cbcy = (-(-((d_Qtc_dV_c1_c2+d_Qbc_dV_c1_c2)+d_Qepi_dV_c1_c2)-((d_Qtc_dV_b2_c2+d_Qbc_dV_b2_c2)+d_Qepi_dV_b2_c2)));
+OP_cbcz = (-(-d_Qbc_dV_c3_c1-d_Qbc_dV_c4_c1+((d_Qtc_dV_c1_c2+d_Qbc_dV_c1_c2)+d_Qepi_dV_c1_c2)-((d_Qtc_dV_b2_c1+d_Qbc_dV_b2_c1)+d_Qepi_dV_b2_c1)));
+OP_cbcex = ((((+d_Qtex_dV_b1_e1+(d_Qtex_dV_b1_b2+d_Qex_dV_b1_b2))+(+d_Qtex_dV_b2_c1+d_Qtex_dV_b2_e1+(d_Qtex_dV_b2_c2+d_Qex_dV_b2_c2)-(d_Qtex_dV_b1_b2+d_Qex_dV_b1_b2)))+(-d_Qtex_dV_b2_e1-d_Qtex_dV_b1_e1))+(-(d_Qtex_dV_c1_c2+d_Qex_dV_c1_c2)-(d_Qtex_dV_b2_c2+d_Qex_dV_b2_c2)));
+OP_xcbcex = (+(d_XQtex_dV_b_b1+d_XQex_dV_b_b1)+(d_XQtex_dV_b_c+d_XQex_dV_b_c));
+OP_cb1b2 = ((-(+d_Qb1b2_dV_b2_c1+d_Qb1b2_dV_b2_c2+d_Qb1b2_dV_b2_e1-d_Qb1b2_dV_b1_b2))-(-d_Qb1b2_dV_c1_c2-d_Qb1b2_dV_b2_c2));
 OP_cb1b2x = ((-0.0)-(-d_Qb1b2_dV_b2_e1));
-OP_cb1b2y = (-(-d_Qb1b2_dV_b2_c2-d_Qb1b2_dV_c1_c2));
-OP_cb1b2z = (-(-d_Qb1b2_dV_b2_c1+d_Qb1b2_dV_c1_c2-d_Qb1b2_dV_c4_c1-d_Qb1b2_dV_c3_c1));
+OP_cb1b2y = (-(-d_Qb1b2_dV_c1_c2-d_Qb1b2_dV_b2_c2));
+OP_cb1b2z = (-(-d_Qb1b2_dV_c3_c1-d_Qb1b2_dV_c4_c1+d_Qb1b2_dV_c1_c2-d_Qb1b2_dV_b2_c1));
 OP_cts = (+d_Qts_dV_s_c1);
 dydx = ((OP_gx-OP_gmux)/((OP_grcvy+OP_gmuy)-OP_gy));
 dydz = (((OP_gz-OP_grcvz)-OP_gmuz)/((OP_grcvy+OP_gmuy)-OP_gy));
@@ -20008,44 +20008,10 @@ else
 }
 }
 {
-d_dydx_dX = 0.0;
-dydx = 0.0;
-d_dydz_dX = 0.0;
-dydz = 0.0;
-d_gpi_dX = 0.0;
-gpi = 0.0;
-d_gammax_dX = 0.0;
-gammax = 0.0;
-d_gammay_dX = 0.0;
-gammay = 0.0;
-d_gammaz_dX = 0.0;
-gammaz = 0.0;
-d_gbfx_dX = 0.0;
-gbfx = 0.0;
-d_gbfy_dX = 0.0;
-gbfy = 0.0;
-d_gbfz_dX = 0.0;
-gbfz = 0.0;
-d_alpha_ft_dX = ((((1.0)-((gbfz+(gbfy*dydz))*instanceStruct.instanceVar_RE_TM))*((gbfx+(gbfy*dydx))*instanceStruct.d_instanceVar_RE_TM_dX+(d_gbfx_dX+(gbfy*d_dydx_dX+d_gbfy_dX*dydx))*instanceStruct.instanceVar_RE_TM)-(1.0+((gbfx+(gbfy*dydx))*instanceStruct.instanceVar_RE_TM))*(-((gbfz+(gbfy*dydz))*instanceStruct.d_instanceVar_RE_TM_dX+(d_gbfz_dX+(gbfy*d_dydz_dX+d_gbfy_dX*dydz))*instanceStruct.instanceVar_RE_TM)))/((1.0)-((gbfz+(gbfy*dydz))*instanceStruct.instanceVar_RE_TM))/((1.0)-((gbfz+(gbfy*dydz))*instanceStruct.instanceVar_RE_TM)));
-alpha_ft = ((1.0+((gbfx+(gbfy*dydx))*instanceStruct.instanceVar_RE_TM))/((1.0)-((gbfz+(gbfy*dydz))*instanceStruct.instanceVar_RE_TM)));
-{
-double value_pow_0 = pow(0.0,(-1));
-double  deriv_pow_0_d0 = ((0.0 == 0.0)?0.0:(value_pow_0*(-1)/0.0));
-d_rx_dX = 0.0;
-rx = value_pow_0;
-}
 d_rz_dX = (alpha_ft*d_rx_dX+d_alpha_ft_dX*rx);
 rz = (alpha_ft*rx);
-d_ry_dX = 0.0;
-ry = ((1.0)/0.0);
 d_rb1b2_dX = (((gammax*d_rx_dX+d_gammax_dX*rx)+(gammay*d_ry_dX+d_gammay_dX*ry))+(gammaz*d_rz_dX+d_gammaz_dX*rz));
 rb1b2 = (((gammax*rx)+(gammay*ry))+(gammaz*rz));
-d_rex_dX = (d_rz_dX+d_rb1b2_dX);
-rex = ((rz+rb1b2));
-d_xrex_dX = ((d_rz_dX+d_rb1b2_dX)+(instanceStruct.instanceVar_RBC_TM*(((gbfx*d_rx_dX+d_gbfx_dX*rx)+(gbfy*d_ry_dX+d_gbfy_dX*ry))+(gbfz*d_rz_dX+d_gbfz_dX*rz))+instanceStruct.d_instanceVar_RBC_TM_dX*(((gbfx*rx)+(gbfy*ry))+(gbfz*rz))));
-xrex = ((((rz+rb1b2)+(instanceStruct.instanceVar_RBC_TM*(((gbfx*rx)+(gbfy*ry))+(gbfz*rz))))));
-d_taut_dX = ((instanceStruct.instanceVar_CBEO_M+instanceStruct.instanceVar_CBCO_M)*(d_xrex_dX-instanceStruct.d_instanceVar_RCCxx_TM_dX)+(instanceStruct.d_instanceVar_CBEO_M_dX+instanceStruct.d_instanceVar_CBCO_M_dX)*(xrex-instanceStruct.instanceVar_RCCxx_TM));
-taut = ((instanceStruct.instanceVar_CBEO_M+instanceStruct.instanceVar_CBCO_M)*(xrex-instanceStruct.instanceVar_RCCxx_TM));
 }
 }
 

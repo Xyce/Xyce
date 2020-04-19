@@ -18,7 +18,3 @@ from the original in the following ways:
     templatized function could not be found.  These integer "0" were
     replaced with "0.0".
 
-  - In two instances, uses of ddx() that are not supported by Xyce/ADMS
-    have been recast into equivalent expressions that are supported.
-    The original expressions are inside an ifdef selected by the
-    macro __ORIG_DDX_EXPRESSIONS__.

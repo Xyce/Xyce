@@ -642,7 +642,15 @@ bool extractICData(
 
   const std::string& subcktName = circuit_block.getName();
 
+  bool addBlock = true;
   int numFields = parsed_line.size();
+
+  if ( numFields < 2 )
+  {
+    Report::UserWarning().at(netlist_filename, parsed_line[0].lineNumber_)
+      << "Ignored .IC and/or .DCVOLT, no arguments provided.";
+    addBlock = false;
+  }
 
   if (DEBUG_IO)
   {
@@ -652,7 +660,6 @@ bool extractICData(
     }
   }
 
-  bool addBlock = true;
   std::ostringstream msg;
   Util::Param parameter;
   ExtendedString field("");
@@ -853,7 +860,15 @@ extractNodeSetData(
 
   const std::string& subcktName = circuit_block.getName();
 
+  bool addBlock = true;
   int numFields = parsed_line.size();
+
+  if ( numFields < 2 )
+  {
+    Report::UserWarning().at(netlist_filename, parsed_line[0].lineNumber_)
+      << "Ignored .NODESET, no arguments provided.";
+    addBlock = false;
+  }
 
   if (DEBUG_IO)
   {
@@ -863,7 +878,6 @@ extractNodeSetData(
     }
   }
 
-  bool addBlock = true;
   std::ostringstream msg;
   Util::Param parameter;
   ExtendedString field("");
@@ -872,8 +886,8 @@ extractNodeSetData(
   int position = parameterStartPos;
 
   // .NODESET can have two formats:
-  //   (1)   .ic  V(a)=1.0   V(2)=2.0
-  //   (2)   .ic  a 1.0   2 2.0
+  //   (1)   .nodeset  V(a)=1.0   V(2)=2.0
+  //   (2)   .nodeset  a 1.0   2 2.0
   // Check for case 1 by looking for = in the line.
   bool formatOne(false);
 

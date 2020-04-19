@@ -51,6 +51,7 @@ libOpenModels_la_SOURCES = \
   N_DEV_PowerGridBusShunt.C \
   N_DEV_PowerGridGenBus.C \
   N_DEV_AntiWindupLimiter.C \
+  N_DEV_StepDelay.C \
   N_DEV_TransLine.C \
   N_DEV_YLin.C \
   N_DEV_ACC.h \
@@ -101,4 +102,5 @@ libOpenModels_la_SOURCES = \
   N_DEV_PowerGridTransformer.h \
   N_DEV_PowerGridBusShunt.h \
   N_DEV_PowerGridGenBus.h \
-  N_DEV_AntiWindupLimiter.h
+  N_DEV_AntiWindupLimiter.h \
+  N_DEV_StepDelay.h

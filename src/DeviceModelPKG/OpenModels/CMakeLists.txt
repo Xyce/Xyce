@@ -2,7 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-set ( OpenModels_SOURCES   
+set ( OpenModels_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_RegisterOpenDevices.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ArtificialParameters.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ACC.C
@@ -12,8 +12,8 @@ set ( OpenModels_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_DAC.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ADC.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Bsrc.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Diode.C 
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_GeneralExternal.C 
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Diode.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_GeneralExternal.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_ISRC.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_Inductor.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_JFET.C
@@ -21,7 +21,7 @@ set ( OpenModels_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MemristorPEM.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MemristorTEAM.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MemristorYakopcic.C
-      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MESFET.C 
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MESFET.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET1.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET2.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_MOSFET3.C
@@ -53,16 +53,17 @@ set ( OpenModels_SOURCES
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridGenBus.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_PowerGridTransformer.C
       ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_AntiWindupLimiter.C
+      ${CMAKE_CURRENT_SOURCE_DIR}/N_DEV_StepDelay.C
       CACHE INTERNAL "X_S" )
-  
+
 
 # add header files to project
-set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES} 
+set ( XYCE_INCLUDE_DIRECTORIES ${XYCE_INCLUDE_DIRECTORIES}
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${REACTION_PARSER_INC}
       CACHE INTERNAL "X_I" )
 
 # -- build requested libraries -----------------------------------------------
-set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES} 
+set ( XYCE_PACKAGE_LIBRARIES ${XYCE_PACKAGE_LIBRARIES}
       OpenModels
       CACHE INTERNAL "X_L" )

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 09 Apr 2020 18:37:52
+// Creation Date  : Mon, 13 Apr 2020 12:23:16
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -19301,8 +19301,8 @@ VBE = (probeVars[admsProbeID_V_b_e]);
 VBC = (probeVars[admsProbeID_V_b_c]);
 VCE = (probeVars[admsProbeID_V_c_e]);
 VSC = (probeVars[admsProbeID_V_s_c]);
-GMi = (((model_.type)*(+d_it_dV_bi_ei+d_it_dV_bi_ci))+getDeviceOptions().gmin);
-GMS = (((-(model_.type))*(-d_HSI_Tsu_dV_bp_ci-d_HSI_Tsu_dV_si_ci))+getDeviceOptions().gmin);
+GMi = (((model_.type)*(+d_it_dV_bi_ci+d_it_dV_bi_ei))+getDeviceOptions().gmin);
+GMS = (((-(model_.type))*(-d_HSI_Tsu_dV_si_ci-d_HSI_Tsu_dV_bp_ci))+getDeviceOptions().gmin);
 gPIi = ((((model_.type)*(+d_ibei_dV_bi_ei))+((model_.type)*(+d_irei_dV_bi_ei)))+getDeviceOptions().gmin);
 gPIx = ((((model_.type)*(+d_ibep_dV_bp_ei))+((model_.type)*(+d_irep_dV_bp_ei)))+getDeviceOptions().gmin);
 if (((model_.tunode)==1))
@@ -19313,12 +19313,12 @@ RPIx = (1.0/(gPIx-gBt));
 }
 else
 {
-gBt = ((model_.type)*(+d_ibet_dV_bi_ci+d_ibet_dV_bi_ei));
+gBt = ((model_.type)*(+d_ibet_dV_bi_ei+d_ibet_dV_bi_ci));
 RPIi = (1.0/(gPIi-gBt));
 RPIx = (1.0/gPIx);
 }
 gMUi = (((-(model_.type))*(-d_ibci_dV_bi_ci))+getDeviceOptions().gmin);
-gMUx = (((-(model_.type))*(-d_ijbcx_dV_bp_ci-d_ijbcx_dV_bi_ci))+getDeviceOptions().gmin);
+gMUx = (((-(model_.type))*(-d_ijbcx_dV_bi_ci-d_ijbcx_dV_bp_ci))+getDeviceOptions().gmin);
 gAVL = (((model_.type)*(-d_iavl_dV_bi_ci))+getDeviceOptions().gmin);
 RMUi = (1/(gMUi-gAVL));
 RMUx = (1/gMUx);

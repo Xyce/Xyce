@@ -239,7 +239,8 @@ public:
 private:
 
   // Helper functions for frequency-domain loading
-  void compNZRowsAndCommPIDs( const std::vector< Util::FreqVecEntry >& vectorEntries );
+  void compNZRowsAndCommPIDs( const std::vector< Util::FreqVecEntry >& vectorEntries,
+                              const std::vector< Util::FreqVecEntry >& bVecEntries );
 
   void consolidateMatrixEntries( const std::vector<int>& nzRows,
                                  const std::vector< Util::FreqMatEntry >& matrixEntries,
@@ -249,7 +250,7 @@ private:
   void sendReceiveMatrixEntries( const std::vector< Util::FreqMatEntry >& sendMatrixEntries,
                                  std::vector< Util::FreqMatEntry >& recvMatrixEntries );
 
-  void createPermFreqBVector( const std::vector< std::vector< Util::FreqVecEntry > >& vectorEntries,
+  void createPermFreqBVector( std::vector< std::vector< Util::FreqVecEntry > >& vectorEntries,
                               Teuchos::RCP<Linear::BlockVector>& blockVector );
 
   //Fast Time Scale Points
@@ -287,11 +288,12 @@ private:
 
   // Frequency domain loading objects.
   bool freqLoadAnalysisDone_;
-  int numGlobalFreqRows_, totalNZOffProcRows_; 
+  int numGlobalFreqRows_, totalNZOffProcRows_, totalOffProcBVecLIDs_; 
   std::vector<int> freqNZLocalRows_;
   std::map<int,int> freqNZLocalRowsMap_;
   std::vector< std::vector< Util::FreqVecEntry > > freqBVector_;
   std::vector< std::vector< Util::FreqMatEntry > > freqDFDXMatrix_;
+  std::vector<int> offProcBVecLIDs_, offProcBVecSendLIDs_, offProcBVecSendPIDs_, offProcBVecPIDs_;
   std::vector<int> offProcLocalRows_, offProcLocalRowsRecvPIDs_;
   std::vector<int> offProcNonlocalRows_, offProcNonlocalRowsSendPIDs_;
   Teuchos::RCP<N_PDS_ParMap> overlapMap_;

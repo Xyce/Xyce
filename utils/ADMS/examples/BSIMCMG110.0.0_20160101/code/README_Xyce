@@ -77,8 +77,3 @@ it work with Xyce/ADMS.
   already present in the BSIM-CMG 110 Verilog-A source code.  These are
   inside an ifdef __XYCE__ block.  VDSAT is a duplicate of the VDSSAT
   variable originally present.
-
-- A few ddx() expressions in the original source are not yet supported in
-  Xyce/ADMS, and so these were rewritten to equivalent expressions that
-  use only supported ddx() usage.  The original expressions are enclosed
-  in an ifndef __XYCE__ block.

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Thu, 09 Apr 2020 18:37:52
+// Creation Date  : Wed, 15 Apr 2020 21:05:04
 //
 //-------------------------------------------------------------------------
 // Shut up clang's warnings about extraneous parentheses
@@ -10627,21 +10627,21 @@ VBE = (probeVars[admsProbeID_V_b_e]);
 VBC = (probeVars[admsProbeID_V_b_c]);
 VCE = (probeVars[admsProbeID_V_c_e]);
 VSC = (probeVars[admsProbeID_V_s_c]);
-GMi = (+d_it_wop_dV_bi_ei+d_it_wop_dV_bi_ci);
+GMi = (+d_it_wop_dV_bi_ci+d_it_wop_dV_bi_ei);
 oRPIi = (+d_ijbe_dV_bi_ei);
 RPIi = (1.0/(oRPIi+1e-12));
-oRMUi = ((-1)*(-d_Ibici_dV_bi_ci-d_Ibici_dV_b_ci+d_Ibici_dV_ci_ei));
+oRMUi = ((-1)*(+d_Ibici_dV_ci_ei-d_Ibici_dV_b_ci-d_Ibici_dV_bi_ci));
 RMUi = (1.0/(oRMUi+1e-12));
-gAVL = (HICUMtype*(-d_iavl_dV_bi_ci-d_iavl_dV_b_ci+d_iavl_dV_ci_ei));
-oROi = (-d_it_wop_dV_bi_ci-d_it_wop_dV_b_ci+d_it_wop_dV_ci_ei);
+gAVL = (HICUMtype*(+d_iavl_dV_ci_ei-d_iavl_dV_b_ci-d_iavl_dV_bi_ci));
+oROi = (+d_it_wop_dV_ci_ei-d_it_wop_dV_b_ci-d_it_wop_dV_bi_ci);
 ROi = (1.0/((oROi+gAVL)+1e-12));
-Cdei = (((-1)*HICUMtype)*(-d_qf_dV_bi_ei-d_qf_dV_ci_ei));
-Cjei = (+d_qjei_dV_bi_ei+d_qjei_dV_bi_ci);
+Cdei = (((-1)*HICUMtype)*(-d_qf_dV_ci_ei-d_qf_dV_bi_ei));
+Cjei = (+d_qjei_dV_bi_ci+d_qjei_dV_bi_ei);
 CPIi = ((Cjei+Cdei)+(model_.cbepar));
-Cdci = (((-1)*HICUMtype)*(-d_qr_dV_bi_ci-d_qr_dV_b_ci+d_qr_dV_ci_ei));
+Cdci = (((-1)*HICUMtype)*(+d_qr_dV_ci_ei-d_qr_dV_b_ci-d_qr_dV_bi_ci));
 Cjci = (+d_qjci_int_dV_bi_ci);
 CMUi = (Cjci+Cdci);
-Cjcx = ((-1)*(-d_qjcxi_dV_bi_ci-d_qjcxi_dV_b_ci));
+Cjcx = ((-1)*(-d_qjcxi_dV_b_ci-d_qjcxi_dV_bi_ci));
 CBCX = (Cjcx+(model_.cbcpar));
 CCS = (+d_qjs_dV_s_ci);
 RBi = rbi;
@@ -15081,10 +15081,6 @@ d_Cjci_dX = 0.0;
 Cjci = 0.0 /*FIXME: ddx(qjci_int,V(bi,GND)) not implemented in sensitivity context */;
 d_Cjcx_dX = 0.0;
 Cjcx = ((-1)*0.0 /*FIXME: ddx(qjcxi,V(ci,GND)) not implemented in sensitivity context */);
-d_R_tot_dX = 0.0;
-R_tot = 0.0;
-d_CBC_dX = 0.0;
-CBC = 0.0;
 }
 // End block OP_calculation
 }
