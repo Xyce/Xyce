@@ -2600,8 +2600,11 @@ bool DeviceMgr::updateDependentParameters_()
     std::vector<std::string>::iterator vs_end = geVariables.end();
     for ( ; vsIter != vs_end; ++vsIter)
     {
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
       if (globalExprIter->set_var(*vsIter, globalParamMap[*vsIter]))
         changed = true;
+#endif
     }
 
     if (changed)
@@ -4572,7 +4575,10 @@ void addGlobalParameter(
     std::vector<std::string>::const_iterator end = variables.end();
     for ( ; it != end ; ++it)
     {
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
       expression.set_var(*it, globals.global_params[*it]);
+#endif
     }
 
     double val;

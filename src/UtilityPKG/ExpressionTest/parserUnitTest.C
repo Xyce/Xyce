@@ -4508,7 +4508,6 @@ void resolveFunctions (
     Teuchos::RCP<Xyce::Util::newExpression> & expToResolve
     )
 {
-  bool allResolved=true;
   std::vector<Teuchos::RCP<astNode<usedType> > > & funcOpVec = expToResolve->getFuncOpVec ();
   for (int ii=0;ii<funcOpVec.size();++ii)
   {
@@ -4528,17 +4527,7 @@ void resolveFunctions (
       {
         tmpPtr->setFuncArgs(  exp->getFunctionArgOpVec() );
       }
-      else
-      {
-        allResolved=false;
-      }
     }
-    else
-    {
-      allResolved=false;
-    }
-
-    if (allResolved) expToResolve->setExpressionResolved (true);
   }
 }
 
@@ -4638,7 +4627,6 @@ void newResolveFunctions (
     Teuchos::RCP<Xyce::Util::newExpression> & expToResolve
     )
 {
-  bool allResolved=true;
   std::vector<Teuchos::RCP<astNode<usedType> > > & funcOpVec = expToResolve->getFuncOpVec ();
   for (int ii=0;ii<funcOpVec.size();++ii)
   {
@@ -4652,12 +4640,6 @@ void newResolveFunctions (
       exp = functions_[upperName];
       expToResolve->attachFunctionNode(upperName, exp);
     }
-    else
-    {
-      allResolved=false;
-    }
-
-    if (allResolved) expToResolve->setExpressionResolved (true);
   }
 }
 

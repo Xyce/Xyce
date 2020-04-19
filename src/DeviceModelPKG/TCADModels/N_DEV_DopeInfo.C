@@ -349,7 +349,10 @@ void DopeInfo::setupInfo(
       {
         double dopeValue(0.0);
 
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
         expr.set_var(std::string("#X"), xVec[i]);
+#endif
         expr.evaluateFunction (dopeValue);
         CVec[i] += sign*dopeValue;
         interpolatedDopeVec[i] = dopeValue;
@@ -1082,7 +1085,10 @@ void DopeInfo::setupInfo(
       {
         double dopeValue(0.0);
 
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
         expr.set_var(std::string("#X"), xVec[i]);
+#endif
         expr.evaluateFunction (dopeValue);
         CVec[i] += sign*dopeValue;
         interpolatedDopeVec[i] = dopeValue;

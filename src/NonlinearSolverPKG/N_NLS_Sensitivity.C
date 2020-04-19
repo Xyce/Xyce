@@ -162,10 +162,17 @@ bool evaluateObjFuncs (
   //get expression value and partial derivatives
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     objVec[iobj]->expPtr->evaluate( 
         objVec[iobj]->expVal, 
         objVec[iobj]->expVarDerivs, 
         objVec[iobj]->expVarVals );
+#else
+    objVec[iobj]->expPtr->evaluate( 
+        objVec[iobj]->expVal, 
+        objVec[iobj]->expVarDerivs); 
+#endif
 
     objVec[iobj]->objFuncEval = objVec[iobj]->expVal;
     objVec[iobj]->dOdXVectorPtr->putScalar(0.0);
@@ -254,11 +261,14 @@ void setupObjectiveFunctions
     // resolve user-defined functions first
     {
     std::vector<std::string> global_function_names;
-    objVec[iobj]->expPtr->get_names(XEXP_FUNCTION, global_function_names);
+    //objVec[iobj]->expPtr->get_names(XEXP_FUNCTION, global_function_names);
+    objVec[iobj]->expPtr->getFuncNames(global_function_names);
+ 
     std::vector<std::string>::iterator it = global_function_names.begin();
     std::vector<std::string>::iterator end = global_function_names.end();
     const Util::ParamMap & context_function_map = output_manager.getMainContextFunctionMap();
-    objVec[iobj]->expPtr->setFunctionMap(context_function_map);
+    //objVec[iobj]->expPtr->setFunctionMap(context_function_map);
+    //
     for ( ; it != end; ++it)
     {
       Util::ParamMap::const_iterator paramMapIter = context_function_map.find(*it);
@@ -283,19 +293,50 @@ void setupObjectiveFunctions
       // create an expression from the function definition and
       // order its names from that list. Finally, replace the
       // function in the expression to be resolved.
-      //Util::Expression prototypeExression(functionPrototype, useNewExprLib);
       Util::Expression prototypeExression(functionPrototype);
+#if 0
       std::vector<std::string> arguments;
       prototypeExression.get_names(XEXP_STRING, arguments);
-      //Util::Expression functionExpression(functionBody, useNewExprLib);
+#endif
+      std::vector<std::string> arguments = prototypeExression.getFunctionArgStringVec ();
+#if 0
       Util::Expression functionExpression(functionBody);
       functionExpression.order_names(arguments); 
-
       if (objVec[iobj]->expPtr->replace_func(*it, functionExpression, static_cast<int>(arguments.size())) < 0)
       {
         Report::UserError0() << "Wrong number of arguments for user defined function " 
           << functionPrototype << " in expression " << objVec[iobj]->expPtr->get_expression();
       }
+#else
+      // in the parameter we found, pull out the RHS expression and attach
+      if(functionParameter.getType() == Xyce::Util::EXPR)
+      {
+        Util::Expression & expToBeAttached 
+          = const_cast<Util::Expression &> (functionParameter.getValue<Util::Expression>());
+
+        // attach the node
+        objVec[iobj]->expPtr->attachFunctionNode(*it, expToBeAttached);
+      }
+      else
+      {
+        std::cout << "functionParameter is not EXPR type!!!" <<std::endl;
+
+        switch (functionParameter.getType()) 
+        {
+          case Xyce::Util::STR:
+            std::cout <<"It is STR type: " <<  functionParameter.stringValue();
+            break;
+          case Xyce::Util::DBLE:
+            std::cout <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
+            break;
+          case Xyce::Util::EXPR:
+            std::cout <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
+            break;
+          default:
+            std::cout <<"It is default type (whatever that is): " << functionParameter.stringValue();
+        }
+      }
+#endif
     }
     }
 
@@ -312,9 +353,15 @@ void setupObjectiveFunctions
     objVec[iobj]->expVarNames.clear();
 
     std::vector<std::string> nodes;
-    objVec[iobj]->expPtr->get_names(XEXP_NODE, nodes);
     std::vector<std::string> instances;
+
+#if 0
+    objVec[iobj]->expPtr->get_names(XEXP_NODE, nodes);
     objVec[iobj]->expPtr->get_names(XEXP_INSTANCE, instances);
+#else
+    objVec[iobj]->expPtr->getVoltageNodes(nodes);
+    objVec[iobj]->expPtr->getDeviceCurrents(instances);
+#endif
 
 
     // Make the current (instance) strings all upper case.
@@ -338,8 +385,8 @@ void setupObjectiveFunctions
 
     const Util::ParamMap & context_param_map = output_manager.getMainContextParamMap();
     const Util::ParamMap & context_global_param_map = output_manager.getMainContextGlobalParamMap();
-    objVec[iobj]->expPtr->setParamMap(context_param_map);
-    objVec[iobj]->expPtr->setGlobalParamMap(context_global_param_map);
+    //objVec[iobj]->expPtr->setParamMap(context_param_map);
+    //objVec[iobj]->expPtr->setGlobalParamMap(context_global_param_map);
     for (int istring=0;istring<strings.size();istring++)
     {
       Util::ParamMap::const_iterator param_it = context_param_map.find(strings[istring]);
@@ -417,10 +464,38 @@ void setupObjectiveFunctions
         if (param_it != context_global_param_map.end())
         {
           globalParams.push_back(strings[istring]);
+#if 0
           if (!objVec[iobj]->expPtr->make_var(strings[istring]))
           {
             Report::UserWarning0() << "Problem setting global parameter " << strings[istring];
           }
+#else
+
+          if(param_it->second.getType() == Xyce::Util::EXPR)
+          {
+          Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
+          objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
+          }
+          else
+          {
+            std::cout << "global parameter is not EXPR type!!!" <<std::endl;
+
+            switch (param_it->second.getType()) 
+            {
+              case Xyce::Util::STR:
+                std::cout <<"It is STR type: " <<  param_it->second.stringValue();
+                break;
+              case Xyce::Util::DBLE:
+                std::cout <<"It is DBLE type: " <<  param_it->second.getImmutableValue<double>();
+                break;
+              case Xyce::Util::EXPR:
+                std::cout <<"It is EXPR type: " << param_it->second.getValue<Util::Expression>().get_expression();
+                break;
+              default:
+                std::cout <<"It is default type (whatever that is): " << param_it->second.stringValue();
+            }
+          }
+#endif
         }
         else
         {
@@ -432,12 +507,14 @@ void setupObjectiveFunctions
 
     objVec[iobj]->expVarNames.insert(objVec[iobj]->expVarNames.end(), globalParams.begin(), globalParams.end());
 
+#if 0
     // Order the names in the expression so that it agrees with the order
     // in expVarNames.
     if ( !(objVec[iobj]->expVarNames.empty()) ) // this seems pointless as "order_names" is mainly for function arguments.  Otherwise, these names just came from the expression, so they should be in this order already.
     {
       objVec[iobj]->expPtr->order_names( objVec[iobj]->expVarNames );
     }
+#endif
 
     objVec[iobj]->numExpVars = objVec[iobj]->expVarNames.size();
 

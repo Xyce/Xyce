@@ -1616,10 +1616,27 @@ bool Transient::processSuccessfulDCOP()
   // needs to happen before dcopFlag_ is set to false.
   loader_.acceptStep();
 
+#if 0
+  // ERK.  with the new expression library, this call shouldn't be necessary.   
+  // This call to "set_accepted_time" can be performed on a random expression 
+  // like this b/c it operates on static data.  Therefore, it affects all 
+  // expressions.
+  //
+  // The new expression library will use a singleton "mainXyceExpressionGroup" 
+  // class to get its information from Xyce.  The correct thing to do will be to
+  // call a "set accepted time" (or equivalent) on that group.
+  //
+  // But in reality, that group will probably just have access to the 
+  // stepErrorControl class directly, so it can just pull the "nextTime" value.
+  //
+  // So, then, no need for this.
+  //
+  // ERK: Old way.
   // communicate to the expression library that a new step has been accepted.
   // Like with the device notification, needs to happen before anything is updated.
   Util::Expression expr(std::string("0"));
   expr.set_accepted_time(analysisManager_.getStepErrorControl().nextTime);
+#endif
 
   // Reset some settings (to switch from DCOP to transient, if not the
   // first step of a "double" DCOP.
@@ -1767,10 +1784,28 @@ bool Transient::doProcessSuccessfulStep()
   // solution so it can save history.
   loader_.acceptStep();
 
+#if 0
+  // ERK.  with the new expression library, this call shouldn't be necessary.   
+  // This call to "set_accepted_time" can be performed on a random expression 
+  // like this b/c it operates on static data.  Therefore, it affects all 
+  // expressions.
+  //
+  // The new expression library will use a singleton "mainXyceExpressionGroup" 
+  // class to get its information from Xyce.  The correct thing to do will be to
+  // call a "set accepted time" (or equivalent) on that group.
+  //
+  // But in reality, that group will probably just have access to the 
+  // stepErrorControl class directly, so it can just pull the "nextTime" value.
+  //
+  // So, then, no need for this.
+  //
+  // ERK: Old way.
+
   // communicate to the expression library that a new step has been accepted.
   // Like with the device notification, needs to happen before anything is updated.
   Util::Expression expr(std::string("0"));
   expr.set_accepted_time(analysisManager_.getStepErrorControl().nextTime);
+#endif
 
   // current time will get updated in completeStep().  We'll save its value
   // for the moment so it can be saved if needed with the rest of the

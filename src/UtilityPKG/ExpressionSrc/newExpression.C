@@ -206,114 +206,6 @@ bool newExpression::lexAndParseExpression()
   return parsed_;
 }
 
-#if 0
-//-------------------------------------------------------------------------------
-// Function      : newExpression::resolveExpression
-// Purpose       : resolve parameters, and external functions.
-//
-// This must be a separate phase from the setup in lexAndParseExpression function, as
-// *all* the relevant expressions must be allocated and have gone thru their initial
-// set up before the group can perform the next phase.
-//
-// The role of the "group_" is to provide a lookup for external .func,
-// .param and .global_param expressions, that must be used to resolve them in
-// this expression.
-//
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 11/5/2019
-//-------------------------------------------------------------------------------
-bool newExpression::resolveExpression ()
-{
-  bool retval = true;
-
-#if 1
-  std::cout << "newExpression::resolveExpression. for " << expressionString_ <<std::endl;
-#endif
-
-  //---------------------------------------------------------------------------
-  // Attempt to resolve the unresolved functions. Get them from the group,
-  // which is the newExpression class connection to other expressions
-  // and then assign the node pointer to the symbol.
-  if (!expressionFunctionsResolved_)
-  {
-#if 1
-    std::cout << "newExpression::resolveExpression. expressionFunctionsResolved_ = false for " << expressionString_ << " so resolving" << std::endl;
-#endif
-    int funcOpSize = funcOpVec_.size();
-    for (int ii=0;ii<funcOpSize;++ii)
-    {
-      Teuchos::RCP<Xyce::Util::newExpression> exp;
-      if ( group_->getFunction(funcOpVec_[ii]->getName(),exp) ) // found it
-      {
-        funcOpVec_[ii]->setNode(exp->getAst());
-        externalDependencies_ = true;
-
-        Teuchos::RCP<funcOp<usedType> > tmpPtr = Teuchos::rcp_dynamic_cast<funcOp<usedType> > (funcOpVec_[ii]);
-        if ( !(Teuchos::is_null(tmpPtr)) )
-        {
-          tmpPtr->setFuncArgs(  exp->getFunctionArgOpVec() );
-        }
-        else
-        {
-          retval = false;
-        }
-      }
-      else
-      {
-        unresolvedFuncOpVec_.push_back(funcOpVec_[ii]);
-        retval = false;
-      }
-    }
-    expressionFunctionsResolved_=true;
-  }
-  else
-  {
-    externalDependencies_ = true;
-  }
-
-  //---------------------------------------------------------------------------
-  // Attempt to resolve the unresolved params and global parameters, using the
-  // same approach.
-  if (!expressionParametersResolved_)
-  {
-    int paramOpVec_Size = paramOpVec_.size();
-    for (int ii=0;ii<paramOpVec_Size;++ii)
-    {
-      Teuchos::RCP<Xyce::Util::newExpression> exp;
-      if ( group_->getParam(paramOpVec_[ii]->getName(),exp) ) // found it
-      {
-        paramOpVec_[ii]->setNode(exp->getAst());
-        externalDependencies_ = true;
-      }
-      else
-      {
-        if (group_->getGlobalParam(paramOpVec_[ii]->getName(),exp)) // found it
-        {
-          paramOpVec_[ii]->setNode(exp->getAst());
-          externalDependencies_ = true;
-        }
-        else
-        {
-          unresolvedParamOpVec_.push_back(paramOpVec_[ii]);
-          retval = false;
-        }
-      }
-    }
-    expressionParametersResolved_ = true;
-  }
-  else
-  {
-    externalDependencies_ = true;
-  }
-
-  expressionResolved_ = true;
-  return retval;
-}
-#endif
-
-
 //-------------------------------------------------------------------------------
 // Function      : newExpression::attachFunctionNode
 //
@@ -361,7 +253,6 @@ bool newExpression::attachFunctionNode(const std::string & funcName, Teuchos::RC
       }
       else { retval=false; }
     }
-    expressionFunctionsResolved_ = true;
     externalDependencies_ = true;
   }
   else { retval=false; }
@@ -397,7 +288,6 @@ bool newExpression::attachParameterNode(const std::string & paramName, Teuchos::
     int index = std::distance(paramNameVec_.begin(),nameIter);
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->setNode(expPtr->getAst());
-    expressionParametersResolved_=true;
     externalDependencies_ = true;
   }
   else { retval=false; }
@@ -445,9 +335,6 @@ void newExpression::clear ()
   parsed_ = false;
   derivsSetup_ = false;
   astArraysSetup_ = false;
-  expressionResolved_ = false;
-  expressionFunctionsResolved_ = false;
-  expressionParametersResolved_ = false;
   bpTol_ = 0.0;
   timeStep_ = 0.0;
   timeStepAlpha_ = 0.0;
@@ -547,8 +434,9 @@ bool newExpression::make_var (std::string const & var)
 // Function      : newExpression::setupDerivatives_
 //
 // Purpose       : this is yet another phase in setup, which must be called after
-//                 the "resolveExpression" calls (above) for all relevant expressions
-//                 have been completed first.  If they are not, then there
+//                 external entities (if they exist) have been resolved.
+//
+//                 If they are not, then there
 //                 will be some NULL pointers in the AST tree, which will cause
 //                 seg faults.
 // Special Notes :
@@ -894,16 +782,6 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   int retVal=0;
   if (parsed_)
   {
-#if 0
-    if (!expressionResolved_) 
-    { 
-      if (!resolveExpression())
-      {
-        std::cout << "ERROR. Expression not resolvable" << std::endl;
-      }
-    }
-#endif
-
     if (!astArraysSetup_)
     {
       setupVariousAstArrays_ ();
@@ -963,16 +841,6 @@ int newExpression::evaluateFunction (usedType &result)
   int retVal=0;
   if (parsed_)
   {
-#if 0
-    if (!expressionResolved_) 
-    { 
-      if (!resolveExpression())
-      {
-        std::cout << "ERROR. Expression not resolvable" << std::endl;
-      }
-    }
-#endif
-
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
 
 

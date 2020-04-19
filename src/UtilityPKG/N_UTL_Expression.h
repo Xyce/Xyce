@@ -45,10 +45,10 @@
 #include <N_UTL_Interface_Enum_Types.h>
 #include <N_UTL_ExpressionSymbolTable.h>
 
-#include <expressionGroup.h>
-
-
 #include <N_UTL_NoCase.h>
+
+#include <Teuchos_RCP.hpp>
+
 
 namespace Xyce {
 namespace Util {
@@ -57,9 +57,9 @@ class Param;
 typedef unordered_map<std::string, Param, Xyce::HashNoCase, Xyce::EqualNoCase> ParamMap;
 
 class mainXyceExpressionGroup;
-class parserExpressionGroup;
 class newExpression;
 class ExpressionInternals;
+class baseExpressionGroup;
 
 //-----------------------------------------------------------------------------
 // Class         : Expression
@@ -70,12 +70,12 @@ class ExpressionInternals;
 //-----------------------------------------------------------------------------
 class Expression
 {
-  // note, only probably need one of these... they are both experiments
   friend mainXyceExpressionGroup;
-  friend parserExpressionGroup;
 
 public:
-  Expression (std::string const & exp = std::string(), 
+  Expression (
+      //Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
+      std::string const & exp = std::string(), 
       const std::vector<std::string> & functionArgStringVec = std::vector<std::string>(), 
       bool useNew=true);
 
@@ -94,7 +94,15 @@ public:
   void attachFunctionNode (std::string & funcName, Expression & exp); 
   void attachParameterNode (std::string & paramName, Expression & exp); 
 
-  // ERK old expressionstuff
+  const std::vector<std::string> & getFunctionArgStringVec ();
+
+  // ERK old expressionstuff.  Many of these need to be removed.
+  // The entire "var" approach, in which the stuff being set comes 
+  // thru a single double-precision vector is bad.
+  //
+  // It makes the code needlessly complex and confusing, for what is fundamentally
+  // a very simple operation.
+  //
   bool set (std::string const & exp);
   void getSymbolTable (std::vector< ExpressionSymbolTableEntry > & names) const;
   void get_names (int const & type, std::vector< std::string > & names) const;
@@ -102,17 +110,42 @@ public:
   bool make_constant (std::string const & var, double const & val);
   bool make_var (std::string const & var);
 
+
+  // ERK new expression stuff:
+  void getParams         (std::vector<std::string> & params) const;
+  void getVoltageNodes   (std::vector<std::string> & nodes) const;
+  void getDeviceCurrents (std::vector<std::string> & devices) const;
+  void getLeadCurrents   (std::vector<std::string> & leads) const;
+  void getFunctions      (std::vector<std::string> & funcs) const;
+
   int differentiate();
 
+#if 0
+  // ERK set_var and set_vars need to go, and replaced with the functions 
+  // such as "setVoltageNode" that I have set up below.
   bool set_var (const std::string &, const double &);
   bool set_vars (const std::vector< double > &);
+#endif
+
+  // ERK new expression stuff, where external dependencies are set in separate 
+  // calls.  This is better than set_var/s, but not best.  Best would be to
+  // have an all-powerful group that can "pull" these values, rather than
+  // have them be set.  These are appropriate only if I continue to use the 
+  // lightweight group, and that is not my long term plan.
+  //
+  bool setParam         (const std::string &, const double &);
+  bool setVoltageNode   (const std::string &, const double &);
+  bool setDeviceCurrent (const std::string &, const double &);
+  bool setLeadCurrent   (const std::string &, const double &);
 
   std::string get_expression (void) const;
   std::string get_derivative(std::string const & var);
   int get_num(int const & type);
 
+#if 0
   int evaluate (double &result, std::vector< double > &derivs, std::vector< double > &vals);
   int evaluateFunction (double &result, std::vector< double > &vals);
+#endif
 
   int evaluate (double &result, std::vector< double > &derivs);
   int evaluateFunction (double &result);
@@ -122,14 +155,27 @@ public:
   bool set_temp (double const & temp);
   bool set_sim_freq (double dt);
   void set_accepted_time (double const time);
+
+  // ERK these two functions should also be removed and replaced with
+  // a traditional "getBreakPoints" function call, which is used every
+  // where else in Xyce.
   double get_break_time (void);
   double get_break_time_i (void);
+
   const std::string & get_input (void);
 
+#if 0
+  // ERK.  Not sure if these will be needed or not.  
+  // I recently added them as an experiment, that hasn't concluded yet.
+  // They are the lookups that most parts of Xyce (outside IO) use to
+  // find parameters, globalParameteres and dot Funcs.
   void setFunctionMap    ( const Util::ParamMap & context_function_map );
   void setParamMap       ( const Util::ParamMap & context_param_map );
   void setGlobalParamMap ( const Util::ParamMap & context_gParam_map );
+#endif
 
+  // ERK.  Many of the functions below, here need to go.  Probably not all, but many.
+  // order_names and replace_func will definitely be gone.
   int order_names (std::vector< std::string > const & new_names);
   int replace_func (std::string const & func_name, Expression & func_def, int numArgs);
   bool replace_name (const std::string & old_name, const std::string & new_name);
@@ -139,6 +185,9 @@ public:
   void getDdtVals (std::vector<double> &);
   void setDdtDerivs (std::vector<double> &);
   int num_vars() const;
+
+
+  // ERK.  these are fine
   bool isTimeDependent() const;
   bool isRandomDependent() const;
   void dumpParseTree();

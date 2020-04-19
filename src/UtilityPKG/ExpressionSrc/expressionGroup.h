@@ -61,10 +61,6 @@ public:
 
   virtual double getBpTol() { return 0.0; }
 
-  virtual bool getFunction    (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp) {return false;};
-  virtual bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp) {return false;};
-  virtual bool getGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp) {return false;};
-
 private:
 
 };

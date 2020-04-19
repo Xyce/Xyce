@@ -149,8 +149,13 @@ double ExpressionData::evaluate(
       expression_->set_sim_time(current_circuit_time);
       expression_->set_sim_dt(current_circuit_dt);
 
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
       // now get expression value (don't need derivs)
       expression_->evaluateFunction(value, variableValues_);
+#else
+      expression_->evaluateFunction(value);
+#endif
     }
   }
 
@@ -199,8 +204,13 @@ double ExpressionData::evaluate(
     expression_->set_sim_time(current_circuit_time);
     expression_->set_sim_dt(current_circuit_dt);
 
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     // now get expression value (don't need derivs)
     expression_->evaluateFunction(value, variableValues_);
+#else
+    expression_->evaluateFunction(value);
+#endif
   }
 
   return value;
@@ -250,8 +260,13 @@ void ExpressionData::evaluate(
     expression_->set_sim_time(current_circuit_time);
     expression_->set_sim_dt(current_circuit_dt);
 
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     // now get expression value (don't need derivs)
     expression_->evaluate( result, derivs, variableValues_);
+#else
+    expression_->evaluate( result, derivs);
+#endif
   }
 
   return;

@@ -1939,10 +1939,17 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
 
         if (parameterFound)
         {
+#if 0
           if (!expression.make_var(strings[i]))
           {
             Report::UserWarning0() << "Problem converting parameter " << parameterName <<" to its value";
           }
+#else
+          // ERK right thing to do, but won't work until set_vars/order_vars, etc are removed, 
+          // and a better group is set up.
+          Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
+          expression.attachParameterNode(strings[i], expToBeAttached);
+#endif
         }
         else
         {
@@ -2017,11 +2024,11 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
         // in the parameter we found, pull out the RHS expression and attach
         if(functionParameter.getType() == Xyce::Util::EXPR)
         {
-        Util::Expression & expToBeAttached 
-          = functionParameter.getValue<Util::Expression>();//.get_expression();
+          Util::Expression & expToBeAttached 
+            = functionParameter.getValue<Util::Expression>();//.get_expression();
 
-        // attach the node
-        expression.attachFunctionNode(funcNames[ii], expToBeAttached);
+          // attach the node
+          expression.attachFunctionNode(funcNames[ii], expToBeAttached);
         }
         else
         {

@@ -12,8 +12,7 @@
 #include <N_PDS_fwd.h>
 #include <N_TOP_fwd.h>
 #include <N_IO_fwd.h>
-
-#include <N_UTL_Param.h>
+#include <N_TIA_fwd.h>
 
 #include<newExpression.h>
 #include <ExpressionType.h>
@@ -53,15 +52,11 @@ public:
 
   mainXyceExpressionGroup ( 
       N_PDS_Comm & comm, Topo::Topology & top,
-      const Util::ParamMap & pars, 
-      const Util::ParamMap & gPars, 
-      const Util::ParamMap & funcs, 
+      TimeIntg::DataStore & dataStore,
       const IO::AliasNodeMap & aliasNM) :
     comm_(comm),
     top_(top),
-    params_(pars),
-    globalParams_(gPars),
-    functions_(funcs),
+    dataStore_(dataStore),
     aliasNodeMap_(aliasNM),
   time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
   {};
@@ -117,20 +112,11 @@ public:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
   virtual double getBpTol() { return 0.0; }
 
-  virtual bool getFunction    (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
-  virtual bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
-  virtual bool getGlobalParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp);
-
 private:
 
   N_PDS_Comm & comm_;
   Topo::Topology & top_;
-  // these come from various parts of the IO package.
-  // The params, globalParams and functions cannot be const.
-  // Alias node map probably can be const.
-  const Util::ParamMap & params_; // = output_manager.getMainContextParamMap();
-  const Util::ParamMap & globalParams_;// = output_manager.getMainContextGlobalParamMap();
-  const Util::ParamMap & functions_; // = output_manager.getMainContextFunctionMap();
+  TimeIntg::DataStore & dataStore_;
   const IO::AliasNodeMap & aliasNodeMap_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
 
   double time_, temp_, VT_, freq_;

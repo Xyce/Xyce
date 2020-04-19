@@ -1026,7 +1026,10 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
     zeros.resize(dependentParam.n_vars);
     for (int i=0 ; i<dependentParam.n_vars ; ++i)
       zeros[i] = 0;
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     dependentParam.expr->set_vars(zeros);
+#endif
   }
 
   dependentParam.global_params.clear();
@@ -1040,7 +1043,10 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
         UserError(*this) << "Global parameter " << *iterS << " not found";
       }
       else {
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
         dependentParam.expr->set_var(*iterS, (*global_param_it).second);
+#endif
         dependentParam.global_params.push_back(*iterS);
       }
     }
@@ -1084,8 +1090,11 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
         expVarVals[i] = vars[expVarLIDs[i]];
         eVarVals[i-dpIter->lo_var] = expVarVals[i];
       }
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
       if (dpIter->expr->set_vars(eVarVals))
         changed = true;
+#endif
     }
     if (changed)
     {
@@ -1131,8 +1140,11 @@ bool DeviceEntity::updateGlobalParameters(GlobalParameterMap & global_map)
         {
           DevelFatal(*this).in("DeviceEntity::updateGlobalParameters") << "Failed to find global parameter " << *gp;
         }
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
         if (dpIter->expr->set_var(*gp, global_map[*gp]))
           changed = true;
+#endif
       }
     }
   }

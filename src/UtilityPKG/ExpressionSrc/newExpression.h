@@ -59,9 +59,6 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
-    expressionResolved_(false),
-    expressionFunctionsResolved_(false),
-    expressionParametersResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -84,9 +81,6 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
-    expressionResolved_(false),
-    expressionFunctionsResolved_(false),
-    expressionParametersResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -134,9 +128,6 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
-    expressionResolved_(false),
-    expressionFunctionsResolved_(false),
-    expressionParametersResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -174,9 +165,6 @@ public:
     parsed_(false),
     derivsSetup_(false),
     astArraysSetup_(false),
-    expressionResolved_(false),
-    expressionFunctionsResolved_(false),
-    expressionParametersResolved_(false),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     bpTol_(0.0),
@@ -244,9 +232,6 @@ public:
     parsed_(right.parsed_),
     derivsSetup_(right.derivsSetup_),
     astArraysSetup_(right.astArraysSetup_),
-    expressionResolved_(right.expressionResolved_),
-    expressionFunctionsResolved_(right.expressionFunctionsResolved_),
-    expressionParametersResolved_(right.expressionParametersResolved_),
     astNodePtrPtr_(NULL),
     tableNodePtrPtr_(NULL),
     functionArgStringVec_(right.functionArgStringVec_),
@@ -314,9 +299,6 @@ public:
     parsed_ = right.parsed_;
     derivsSetup_ = right.derivsSetup_;
     astArraysSetup_ = right.astArraysSetup_;
-    expressionResolved_ = right.expressionResolved_;
-    expressionFunctionsResolved_ = right.expressionFunctionsResolved_;
-    expressionParametersResolved_ = right.expressionParametersResolved_;
     astNodePtrPtr_ = NULL;
     tableNodePtrPtr_ = NULL;
     functionArgStringVec_ = right.functionArgStringVec_;
@@ -409,7 +391,6 @@ public:
 
   bool lexAndParseExpression();
 
-  //bool resolveExpression();
   bool attachFunctionNode(const std::string & funcName, Teuchos::RCP<Xyce::Util::newExpression> expPtr);
   bool attachParameterNode(const std::string & paramName, Teuchos::RCP<Xyce::Util::newExpression> expPtr);
 
@@ -418,7 +399,6 @@ public:
   bool parsed() const { return parsed_; };
   bool derivsSetup () const { return derivsSetup_; };
   bool astArraysSetup () const { return astArraysSetup_; }
-  bool expressionResolved() const {return expressionResolved_; }
 
   void setExpressionString (std::string const & exp)  { expressionString_ = exp; }
 
@@ -436,9 +416,6 @@ public:
       }
     }
   };
-
-  // added this accessor to allow the possibility of external resolution, rather than via the group.
-  void setExpressionResolved (bool res) { expressionResolved_ = res; }
 
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 
@@ -467,7 +444,7 @@ public:
   // some of the parameter and function objects are stored in multiple containers.
   void setFunctionArgStringVec (const std::vector<std::string> & args);
 
-  std::vector<std::string> & getFunctionArgStringVec () { return functionArgStringVec_; };
+  const std::vector<std::string> & getFunctionArgStringVec () { return functionArgStringVec_; };
 
   std::vector< Teuchos::RCP<astNode<usedType> > > & getFunctionArgOpVec() { return functionArgOpVec_; };
 
@@ -485,7 +462,6 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedVoltOpVec() { return unresolvedVoltOpVec_; };
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getVoltOpNames ()
   {
-    //if (!expressionResolved_) { resolveExpression(); }
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
     return voltOpNames_;
   };
@@ -494,7 +470,6 @@ public:
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
   {
-    //if (!expressionResolved_) { resolveExpression(); }
     if (!astArraysSetup_) { setupVariousAstArrays_ (); }
     return currentOpNames_;
   };
@@ -533,8 +508,6 @@ public:
   // the same order as the paramOpMap)
   void getFuncPrototypeArgStrings ( std::vector< std::string > & funcArgStrings )
   {
-    //if (!expressionResolved_) { resolveExpression(); }
-
     funcArgStrings.clear();
     if(!(funcOpVec_.empty()))
     {
@@ -552,8 +525,6 @@ public:
   // Note; this was needed by the OLD API.  May not be needed now.
   void getFuncPrototypeName ( std::string & prototypeName) 
   {
-    //if (!expressionResolved_) { resolveExpression(); }
-
     if(!(funcOpVec_.empty()))
     {
       prototypeName = funcOpVec_[0]->getName();
@@ -569,9 +540,6 @@ private:
   bool parsed_;
   bool derivsSetup_;
   bool astArraysSetup_;
-  bool expressionResolved_;
-  bool expressionFunctionsResolved_;
-  bool expressionParametersResolved_;
 
   Teuchos::RCP<astNode<usedType> > astNodePtr_;
   Teuchos::RCP<astNode<usedType> > * astNodePtrPtr_;

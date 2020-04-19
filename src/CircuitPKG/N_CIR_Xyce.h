@@ -367,7 +367,6 @@ class Simulator
   Util::Timer *                         ElapsedTimerPtr_;               ///< Elapsed time from beginning of run
 
   Teuchos::RCP<Util::mainXyceExpressionGroup>  mainExprGroup_;
-  Teuchos::RCP<Util::parserExpressionGroup>  parserExprGroup_;
 
   IO::CmdParse                          commandLine_;
   IO::HangingResistor                   hangingResistor_;

@@ -911,6 +911,13 @@ Simulator::RunStatus Simulator::initializeEarly(
 
   IO::registerPkgOptionsMgr(netlist_import_tool, *optionsManager_);
 
+  // ERK.  Set up the main expression group
+  mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
+    *parallelManager_->getPDSComm(),
+    *topology_,
+    *analysisManager_->getDataStore(),
+    netlist_import_tool.getAliasNodeMap()));
+
   runState_ = PARSE_NETLIST;
   Xyce::lout() << "***** Reading and parsing netlist..." << std::endl;
 
@@ -971,16 +978,6 @@ Simulator::RunStatus Simulator::initializeEarly(
       if (run_status != SUCCESS)
         return run_status;
     }
-
-    // ERK.  Set up the main expression group
-    mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
-      *parallelManager_->getPDSComm(),
-      *topology_,
-      outputManager_->getMainContextParamMap() ,
-      outputManager_->getMainContextGlobalParamMap(),
-      outputManager_->getMainContextFunctionMap(),
-      netlist_import_tool.getAliasNodeMap()
-          ));
 
     // if "-remeasure" was on the command line, then we don't need to
     // instantiate the devices.  We do need to partially allocate the

@@ -274,7 +274,12 @@ void MembraneUserDefined::loadDAEQVector( int segmentNumber,
     }
     // evaluate the expression
     double resultValue=0.0;
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     qEqsExpRCP_[i]->evaluateFunction( resultValue, qEqsEqusVarValues_[i] );
+#else
+    qEqsExpRCP_[i]->evaluateFunction( resultValue);
+#endif
 
     // add it to the Q vector
     // cew not sure about my change here; do we know that vars are in order?
@@ -327,7 +332,12 @@ void MembraneUserDefined::loadDAEFVector( int segmentNumber,
     }
     // evaluate the expression
     double resultValue=0.0;
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     currentEqusExpRCP_[i]->evaluateFunction( resultValue, currentEqusVarValues_[i] );
+#else
+    currentEqusExpRCP_[i]->evaluateFunction( resultValue );
+#endif
     Xyce::dout() << "Segment " << segmentNumber << " current equ F = " << resultValue << std::endl;
 
     // add it to the F vector
@@ -349,7 +359,12 @@ void MembraneUserDefined::loadDAEFVector( int segmentNumber,
     }
     // evaluate the expression
     double resultValue=0.0;
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     fEqsExpRCP_[i]->evaluateFunction( resultValue, fEqsEqusVarValues_[i] );
+#else
+    fEqsExpRCP_[i]->evaluateFunction( resultValue );
+#endif
 
     // add it to the F vector
     //int lidIndexVectorIndex = index + numCurrentExp + i;
@@ -412,7 +427,12 @@ void MembraneUserDefined::loadDAEdQdx( int segmentNumber, int vOffset,
     double resultValue=0.0;
     std::vector<double> derivValues;
     derivValues.resize( numvars );
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     qEqsExpRCP_[i]->evaluate( resultValue, derivValues, qEqsEqusVarValues_[i] );
+#else
+    qEqsExpRCP_[i]->evaluate( resultValue, derivValues );
+#endif
     Xyce::dout() << "expression result:  " << resultValue << std::endl;
 
     // add it to the dQdx matrix
@@ -479,7 +499,12 @@ void MembraneUserDefined::loadDAEdFdx( int segmentNumber, int vOffset,
     double resultValue=0.0;
     std::vector<double> derivValues;
     derivValues.resize( numvars );
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     currentEqusExpRCP_[i]->evaluate( resultValue, derivValues, currentEqusVarValues_[i] );
+#else
+    currentEqusExpRCP_[i]->evaluate( resultValue, derivValues );
+#endif
 
     // now we have the derivValues[] but the order is determined by currentEqusVarNames_.  We
     // need to convert variable names to the appropriate indices into jacobianOffsets
@@ -513,7 +538,12 @@ void MembraneUserDefined::loadDAEdFdx( int segmentNumber, int vOffset,
     double resultValue=0.0;
     std::vector<double> derivValues;
     derivValues.resize( numvars );
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     fEqsExpRCP_[i]->evaluate( resultValue, derivValues, fEqsEqusVarValues_[i] );
+#else
+    fEqsExpRCP_[i]->evaluate( resultValue, derivValues );
+#endif
 
     // add it to the F vector
     for( int j=0; j<numvars; j++)	// this loops through variables AS THEY APPEAR in F eqn i
@@ -643,8 +673,14 @@ void MembraneUserDefined::consolidateExpressions()
     double fval=0, qval=0;
     std::vector<double> fargs, qargs;
     fargs.push_back(0.2); fargs.push_back(-0.015);  qargs.push_back(0.2);
+#if 0
+    // ERK.  FIX THIS!   commenting out so this will compile
     fEqsExpRCP_.at(i)->evaluateFunction(fval, fargs);
     qEqsExpRCP_.at(i)->evaluateFunction(qval, qargs);
+#else
+    fEqsExpRCP_.at(i)->evaluateFunction(fval);
+    qEqsExpRCP_.at(i)->evaluateFunction(qval);
+#endif
     Xyce::dout() << "F(V=-0.015,n/m/h=0.2) = " << fval << " Q(V=-0.015,n/m/h=0.2) = " << qval << std::endl;
   }
 

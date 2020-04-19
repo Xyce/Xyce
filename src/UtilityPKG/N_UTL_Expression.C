@@ -56,6 +56,7 @@
 
 #include <newExpression.h>
 #include <xyceExpressionGroup.h>
+#include <mainXyceExpressionGroup.h>
 #include <N_UTL_ExpressionInternals.h>
 
 namespace Xyce {
@@ -70,6 +71,7 @@ namespace Util {
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 Expression::Expression( 
+    //Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
     const std::string & exp, 
     const std::vector<std::string> & functionArgStringVec,
     bool useNew )
@@ -317,6 +319,25 @@ void Expression::attachParameterNode (std::string & paramName, Expression & exp)
   }
 }
 
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getFunctionArgStringVec
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+const std::vector<std::string> & Expression::getFunctionArgStringVec ()
+{
+  if(!useNewExpressionLibrary_)
+  {
+    std::cout << "Error. Xyce::Util::Expression::attachParameterNode called on old expression library." <<std::endl;
+  }
+
+  return newExpPtr_->getFunctionArgStringVec();
+}
+
 //-----------------------------------------------------------------------------
 // Function      : Expression::set
 // Purpose       : Set the value of the expression to a string
@@ -558,35 +579,15 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         break;
 
       case XEXP_NODE:
-        for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
-        {
-          int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
-
-          for (int jj=0;jj<size;jj++)
-          {
-            std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
-            std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
-            if (it == names.end())
-            {
-              names.push_back( tmpName );
-            }
-          }
-        }
+        getVoltageNodes(names);
         break;
 
       case XEXP_INSTANCE:
-        for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
-        {
-          std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
-          std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
-          if (it == names.end())
-          {
-            names.push_back( tmpName );
-          }
-        }
+        getDeviceCurrents(names);
         break;
 
       case XEXP_LEAD: // ERK.  I haven't figured this out yet, but need to.
+        getLeadCurrents(names);
         break;
 
       case XEXP_STRING: // unresolved strings.  
@@ -615,15 +616,7 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         // already know that x,y are the arguments, if it has already executed use case (1), 
         // above.
         //
-        for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
-        {
-          std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
-          std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
-          if (it == names.end())
-          {
-            names.push_back( tmpName );
-          }
-        }
+        getParams(names);
         break;
 
       case XEXP_SPECIAL: // ERK.  This doesn't yet track external specials dependencies
@@ -638,15 +631,7 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         break;
 
       case XEXP_FUNCTION:
-        for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
-        {
-          std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
-          std::vector<std::string>::iterator it = std::find(names.begin(), names.end(), tmpName);
-          if (it == names.end())
-          {
-            names.push_back( tmpName );
-          }
-        }
+        getFunctions(names);
         break;
 
       case XEXP_NODAL_COMPUTATION:
@@ -797,6 +782,119 @@ bool Expression::make_var (std::string const & var)
 }
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void Expression::getParams (std::vector<std::string> & params) const
+{
+  if(useNewExpressionLibrary_)
+  {
+    for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
+    {
+      std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
+      std::vector<std::string>::iterator it = std::find(params.begin(), params.end(), tmpName);
+      if (it == params.end())
+      {
+        params.push_back( tmpName );
+      }
+    }
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
+    exit(0);
+  }
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
+{
+  if(useNewExpressionLibrary_)
+  {
+    for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
+    {
+      int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
+
+      for (int jj=0;jj<size;jj++)
+      {
+        std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
+        std::vector<std::string>::iterator it = std::find(nodes.begin(), nodes.end(), tmpName);
+        if (it == nodes.end())
+        {
+          nodes.push_back( tmpName );
+        }
+      }
+    }
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
+    exit(0);
+  }  
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
+{
+  if(useNewExpressionLibrary_)
+  {
+    for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
+    {
+      std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
+      std::vector<std::string>::iterator it = std::find(devices.begin(), devices.end(), tmpName);
+      if (it == devices.end())
+      {
+        devices.push_back( tmpName );
+      }
+    }
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
+    exit(0);
+  }  
+}
+
+//-----------------------------------------------------------------------------
+// ERK.  I haven't figured this out yet, but need to.
+//-----------------------------------------------------------------------------
+void Expression::getLeadCurrents   (std::vector<std::string> & leads) const
+{
+  if(useNewExpressionLibrary_)
+  {
+    //params = newExpPtr_->
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
+    exit(0);
+  }
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void Expression::getFunctions (std::vector<std::string> & funcs) const
+{
+  if(useNewExpressionLibrary_)
+  {
+    for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
+    {
+      std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
+      std::vector<std::string>::iterator it = std::find(funcs.begin(), funcs.end(), tmpName);
+      if (it == funcs.end())
+      {
+        funcs.push_back( tmpName );
+      }
+    }
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
+    exit(0);
+  }  
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Expression::differentiate
 // Purpose       : Form the analytic derivative trees for all variables
 // Special Notes :
@@ -820,6 +918,7 @@ int Expression::differentiate ()
   return retVal;
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : Expression::set_var
 // Purpose       : Sets the value of an input quantity
@@ -851,7 +950,7 @@ bool Expression::set_var ( const std::string & var, const double & val)
 //-----------------------------------------------------------------------------
 // Function      : Expression::set_vars
 // Purpose       : Sets the values of all input quantities
-// Special Notes :
+// Special Notes : ERK.  This function has got to go.
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
@@ -874,8 +973,8 @@ bool Expression::set_vars ( const std::vector<double> & vals )
     if (!namesSet_) // kludge
     {
       std::vector<std::string> names;
-      get_names( XEXP_NODE, names); // for now just nodes. make XEXP_ALL later
-      get_names( XEXP_INSTANCE, names); // for now just nodes. make XEXP_ALL later
+      getVoltageNodes(names);
+      getDeviceCurrents(names);
       xyceGroup->setNames ( names );
       namesSet_ = true;
 
@@ -892,6 +991,7 @@ bool Expression::set_vars ( const std::vector<double> & vals )
   }
   return retVal;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_expression
@@ -1005,6 +1105,7 @@ int Expression::get_num(int const & type)
   return retVal;
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : Expression::evaluate
 // Purpose       : Evaluate expression and derivatives using provided input values
@@ -1025,8 +1126,8 @@ int Expression::evaluate ( double & exp_r,
     if (!namesSet_) // kludge
     {
       std::vector<std::string> names;
-      get_names( XEXP_NODE, names); // for now just nodes. make XEXP_ALL later
-      get_names( XEXP_INSTANCE, names); // for now just nodes. make XEXP_ALL later
+      getVoltageNodes(names);
+      getDeviceCurrents(names);
 
       // get the global param names.
       newExpPtr_->getGlobalParamNames ( names );
@@ -1064,8 +1165,8 @@ int Expression::evaluateFunction ( double & exp_r, std::vector<double> & vals )
     if (!namesSet_) // kludge
     {
       std::vector<std::string> names;
-      get_names( XEXP_NODE, names); // for now just nodes. make XEXP_ALL later
-      get_names( XEXP_INSTANCE, names); // for now just nodes. make XEXP_ALL later
+      getVoltageNodes(names); // for now just nodes. make XEXP_ALL later
+      getDeviceCurrents(names); // for now just nodes. make XEXP_ALL later
       xyceGroup->setNames ( names );
       namesSet_ = true;
     }
@@ -1079,6 +1180,7 @@ int Expression::evaluateFunction ( double & exp_r, std::vector<double> & vals )
   }
   return retVal;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::evaluate
@@ -1354,6 +1456,7 @@ const std::string & Expression::get_input ()
   }
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : Expression::setFunctionMap
 // Purpose       : 
@@ -1464,6 +1567,7 @@ void Expression::setGlobalParamMap ( const Xyce::Util::ParamMap & context_gParam
     }
   }
 }
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::order_names
