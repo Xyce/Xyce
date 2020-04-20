@@ -588,6 +588,16 @@
 `define IPIoo_BOTH(nam,def,uni,lwr,upr,des) `IPIoo(nam,def,uni,lwr,upr,des);
 `endif // __XYCE__
 
+// Implicit mfactor is often assumed by models, but Xyce requires it explicit.
+// Define and use the standard CMC macros to do this.
+`ifdef __XYCE__
+   `define IPM                         (*units="" , type="instance",  desc="multiplicity factor"*) parameter real m=1.0 from(0.0:inf) ;
+   `define MFACTOR_USE m
+`else
+   `define IPM
+   `define MFACTOR_USE 1.0
+`endif
+
 //`define __THERMAL_NODE__
 `ifdef __THERMAL_NODE__
 	module bsim6(d, g, s, b, t) (* xyceModelGroup="MOSFET" xyceLevelNumber="78" xyceDeviceName="BSIM6" xyceTypeVariable="TYPE" *);
@@ -1752,6 +1762,12 @@ endfunction
 `MPRnb( LMAX           ,100.0            ,"m"                                                           ,"Maximum length for which this model should be used")
 `MPRnb( WMAX           ,0.0            ,"m"                                                             ,"Maximum width for which this model should be used")
 `endif
+
+// XYCE MOD:  add multiplicity factor declaration
+// It is not OK to assume implicit mfactor
+// NOTE:  Every contribution has also been modified to use the multiplicity factor!
+`IPM
+
 // ***********************************
 //   Variables
 // ***********************************
@@ -1926,7 +1942,7 @@ real Rint, Rend;
 //VTH variables
 real q_vth, psip_th;
 
- 
+
 // Self Heating
 `ifdef __SHMOD__
 	real gth, cth;
@@ -4008,7 +4024,7 @@ DevTemp = $temperature + DTEMP;
 		FNPowerAt1Hz = 0.0;
 	end
 
-	I(`IntrinsicDrain,`IntrinsicSource) <+ flicker_noise(FNPowerAt1Hz, EF, "1overf");
+	I(`IntrinsicDrain,`IntrinsicSource) <+ flicker_noise(`MFACTOR_USE*FNPowerAt1Hz, EF, "1overf");
 
 `ifdef __TNOISW__
 	T0 = qia/Esatnoi/Leff;
@@ -4029,7 +4045,7 @@ DevTemp = $temperature + DTEMP;
 		T1 = T0 * Rdsi + Leff * Leff;
 		Gtnoi = (T0 / T1) * NTNOI;
 		sidn = Nt * Gtnoi;
-		I(`IntrinsicDrain, `IntrinsicSource) <+ white_noise(sidn, "id");
+		I(`IntrinsicDrain, `IntrinsicSource) <+ white_noise(`MFACTOR_USE*sidn, "id");
 `ifdef __TNOISW__
 	end
 	1: begin
@@ -4062,19 +4078,19 @@ DevTemp = $temperature + DTEMP;
 			end
 		end
 
-		I(N2)   <+  white_noise(cm_igid, "corl");
-		I(NI)   <+  white_noise(sqig * sqig * (1.0 - cm_igid), "corl");
-		I(NI)   <+  -sqig * V(N2);
-		I(NC)   <+  ddt(mig * Cox * Weff * NF * Leff * V(NC));
-		I(`IntrinsicDrain,`IntrinsicSource)  <+  white_noise(sqid * sqid * (1.0 - cm_igid), "id");
-		I(`IntrinsicDrain,`IntrinsicSource)  <+  sqid * V(N2);
-		I(`IntrinsicGate,`IntrinsicSource)  <+  ddt(0.5 * ((1.0 + sigvds) * mig * Cox * Weff * NF * Leff * V(NC)));
-		I(`IntrinsicGate,`IntrinsicDrain)  <+  ddt(0.5 * ((1.0 - sigvds) * mig * Cox * Weff * NF * Leff * V(NC)));
+		I(N2)   <+  white_noise(`MFACTOR_USE*cm_igid, "corl");
+		I(NI)   <+  white_noise(`MFACTOR_USE*sqig * sqig * (1.0 - cm_igid), "corl");
+		I(NI)   <+  `MFACTOR_USE*(-sqig * V(N2));
+		I(NC)   <+  ddt(`MFACTOR_USE*mig * Cox * Weff * NF * Leff * V(NC));
+		I(`IntrinsicDrain,`IntrinsicSource)  <+  white_noise(`MFACTOR_USE*sqid * sqid * (1.0 - cm_igid), "id");
+		I(`IntrinsicDrain,`IntrinsicSource)  <+  `MFACTOR_USE*sqid * V(N2);
+		I(`IntrinsicGate,`IntrinsicSource)  <+  ddt(`MFACTOR_USE*0.5 * ((1.0 + sigvds) * mig * Cox * Weff * NF * Leff * V(NC)));
+		I(`IntrinsicGate,`IntrinsicDrain)  <+  ddt(`MFACTOR_USE*0.5 * ((1.0 - sigvds) * mig * Cox * Weff * NF * Leff * V(NC)));
 	end
 	endcase
 
-	I(N2)   <+  V(N2);
-	I(NR)   <+  V(NR);
+	I(N2)   <+  `MFACTOR_USE*V(N2);
+	I(NR)   <+  `MFACTOR_USE*V(NR);
 `else
 	if(TNOIMOD != 0)
 		$strobe("[BSIM6] Although the model selector TNOIMOD is set to 1, the correlated thermal noise model was not activated when the Verilog-A code was compiled.  Please uncomment \"`define __TNOISW__\" in the beginning of the Verilog-A code.");
@@ -4082,11 +4098,11 @@ DevTemp = $temperature + DTEMP;
 
 	// Gate current shot noise
 	if(IGCMOD != 0) begin
-		I(`IntrinsicGate, `IntrinsicSource)	<+ white_noise(2.0 * `q * abs(igcs + igs), "igs");
-		I(`IntrinsicGate, `IntrinsicDrain)	<+ white_noise(2.0 * `q * abs(igcd + igd), "igd");
+		I(`IntrinsicGate, `IntrinsicSource)	<+ white_noise(`MFACTOR_USE*2.0 * `q * abs(igcs + igs), "igs");
+		I(`IntrinsicGate, `IntrinsicDrain)	<+ white_noise(`MFACTOR_USE*2.0 * `q * abs(igcd + igd), "igd");
 	end
 
-	if(IGBMOD != 0) I(`IntrinsicGate, `IntrinsicBody) <+ white_noise(2.0 * `q * abs(igb), "igb");
+	if(IGBMOD != 0) I(`IntrinsicGate, `IntrinsicBody) <+ white_noise(`MFACTOR_USE*2.0 * `q * abs(igb), "igb");
 
 	//*********************************
 	//C-V Model
@@ -4383,40 +4399,20 @@ end
 	CGS = -ddx(QG,V(`IntrinsicSource));
 	CGD = -ddx(QG,V(`IntrinsicDrain));
 	CGB = -ddx(QG,V(`IntrinsicBody));
-`ifndef __XYCE__
         CGG = CGGI + ddx(devsign*Qovg,V(`GateEdgeNode));
-`else
-        CGG = CGGI + devsign*ddx(Qovg,V(`GateEdgeNode));
-`endif
-   
 	CSS = ddx(QS,V(`IntrinsicSource));
 	CSD = -ddx(QS,V(`IntrinsicDrain));
-`ifndef __XYCE__
 	CSB = CSBI - ddx((QS-QSI),V(sbulk));
 	CSG = CSGI - ddx((QS-QSI),V(`GateEdgeNode));
-`else
-	CSB = CSBI - ddx(QS,V(sbulk))+ddx(QSI,V(sbulk));
-	CSG = CSGI - ddx(QS,V(`GateEdgeNode))+ddx(QSI,V(`GateEdgeNode));
-`endif
 
 	CDS = -ddx(QD,V(`IntrinsicSource));
 	CDD = ddx(QD,V(`IntrinsicDrain));
-`ifndef __XYCE__
 	CDB = CDBI - ddx((QD-QDI),V(dbulk));
 	CDG = CDGI - ddx((QD-QDI),V(`GateEdgeNode));
-`else
-   	CDB = CDBI - ddx(QD,V(dbulk))+ddx(QDI,V(dbulk));
-	CDG = CDGI - ddx(QD,V(`GateEdgeNode))+ddx(QDI,V(`GateEdgeNode));
-`endif
 	CBS = -ddx(QB,V(`IntrinsicSource));
 	CBD = -ddx(QB,V(`IntrinsicDrain));
- `ifndef __XYCE__
 	CBB = CBBI + ddx(QB,V(sbulk)) + ddx(QB,V(dbulk)) + ddx((devsign * Qovb), V( `IntrinsicBody));
 	CBG = -ddx(QB,V(`IntrinsicGate)) - ddx((devsign * Qovb), V(`GateEdgeNode));
-`else
-	CBB = CBBI + ddx(QB,V(sbulk)) + ddx(QB,V(dbulk)) + devsign*ddx(Qovb, V( `IntrinsicBody));
-	CBG = -ddx(QB,V(`IntrinsicGate)) - devsign*ddx(Qovb, V(`GateEdgeNode));
-`endif
 
 	//Total extrinsic capacitance
 	CGSEXT 	= - devsign * ddx(Qovg,V(`IntrinsicSource));//Gate-Source Overlap + outer fringing
@@ -4458,30 +4454,30 @@ end
 	GDS		= ddx(IDS,V(`IntrinsicDrain));//Output conductance
 
 	// Loading variables
-	I(`IntrinsicGate, `IntrinsicBody)	<+ ddt(QGI);
-	I(`IntrinsicSource, `IntrinsicBody)	<+ ddt(QSI);
-	I(`IntrinsicDrain, `IntrinsicBody)	<+ ddt(QDI);
+	I(`IntrinsicGate, `IntrinsicBody)	<+ ddt(`MFACTOR_USE*QGI);
+	I(`IntrinsicSource, `IntrinsicBody)	<+ ddt(`MFACTOR_USE*QSI);
+	I(`IntrinsicDrain, `IntrinsicBody)	<+ ddt(`MFACTOR_USE*QDI);
 
-	I(`GateEdgeNode, `IntrinsicSource)	<+ ddt(-devsign * Qovs );
-	I(`GateEdgeNode, `IntrinsicDrain) 	<+ ddt(-devsign * Qovd );
-	I(`GateEdgeNode, `IntrinsicBody)	<+ ddt(-devsign * Qovb);
+	I(`GateEdgeNode, `IntrinsicSource)	<+ ddt(`MFACTOR_USE*(-devsign * Qovs));
+	I(`GateEdgeNode, `IntrinsicDrain) 	<+ ddt(`MFACTOR_USE*(-devsign * Qovd));
+	I(`GateEdgeNode, `IntrinsicBody)	<+ ddt(`MFACTOR_USE*(-devsign * Qovb));
 
 	//Drain to Source Current
-	I(`IntrinsicDrain, `IntrinsicSource)	<+ devsign * sigvds * ids;
+	I(`IntrinsicDrain, `IntrinsicSource)	<+ `MFACTOR_USE*devsign * sigvds * ids;
 
 	if(IGBMOD != 0)
-		I(`IntrinsicGate, `IntrinsicBody)	<+ IGB;
+		I(`IntrinsicGate, `IntrinsicBody)	<+ `MFACTOR_USE*IGB;
 	if(IGCMOD != 0) begin
-		I(`IntrinsicGate, `IntrinsicSource)	<+ (IGS + IGCS);
-		I(`IntrinsicGate, `IntrinsicDrain)	<+ (IGD + IGCD);
+		I(`IntrinsicGate, `IntrinsicSource)	<+ `MFACTOR_USE*(IGS + IGCS);
+		I(`IntrinsicGate, `IntrinsicDrain)	<+ `MFACTOR_USE*(IGD + IGCD);
 	end
 
 	if (sigvds>0) begin
-		I(`IntrinsicDrain, `IntrinsicBody)	<+ ISUB + IGIDL;
-		I(`IntrinsicSource, `IntrinsicBody)	<+ IGISL;
+		I(`IntrinsicDrain, `IntrinsicBody)	<+ `MFACTOR_USE*(ISUB + IGIDL);
+		I(`IntrinsicSource, `IntrinsicBody)	<+ `MFACTOR_USE*IGISL;
 	end else begin
-		I(`IntrinsicDrain, `IntrinsicBody)	<+ IGIDL;
-		I(`IntrinsicSource, `IntrinsicBody)	<+ ISUB + IGISL;
+		I(`IntrinsicDrain, `IntrinsicBody)	<+ `MFACTOR_USE*IGIDL;
+		I(`IntrinsicSource, `IntrinsicBody)	<+ `MFACTOR_USE*(ISUB + IGISL);
 	end
 
 	// External S/D Resistance
@@ -4490,10 +4486,10 @@ end
 	if(RDSMOD != 2) begin
 		gdpr = 1.0 / Rdrain; /* Note: gdpr considers all fingers */
 		gspr = 1.0 / Rsource; /* Note: gspr considers all fingers */
-		I(d, di) <+ V(d, di) * gdpr;
-		I(s, si) <+ V(s, si) * gspr;
-		I(d,di) <+ white_noise(Nt * gdpr, "rd");
-		I(s,si) <+ white_noise(Nt * gspr, "rs");
+		I(d, di) <+ `MFACTOR_USE*V(d, di) * gdpr;
+		I(s, si) <+ `MFACTOR_USE*V(s, si) * gspr;
+		I(d,di) <+ white_noise(`MFACTOR_USE*Nt * gdpr, "rd");
+		I(s,si) <+ white_noise(`MFACTOR_USE*Nt * gspr, "rs");
 	end else begin
 		V(d, di) <+ 0;
 		V(s, si) <+ 0;
@@ -4512,12 +4508,12 @@ end
 			Ggate = Grgeltd;
 			Gnoise = Grgeltd;
 		end
-		I(g, gm) <+ V(g, gm) * Ggate;
-		I(g, gm) <+ white_noise( Nt * Gnoise, "rg");
+		I(g, gm) <+ `MFACTOR_USE*V(g, gm) * Ggate;
+		I(g, gm) <+ white_noise( `MFACTOR_USE*Nt * Gnoise, "rg");
 	end
 
 	if (RGATEMOD == 3) begin
-		I(gm,gi) <+ V(gm,gi) * Gcrg;
+		I(gm,gi) <+ `MFACTOR_USE*V(gm,gi) * Gcrg;
 	end else begin
 		V(gm,gi) <+ 0;
 	end
@@ -4526,11 +4522,11 @@ end
 `ifdef __SHMOD__
 	if (SHMOD !=0 && RTH0 > 0) begin
 		if (RDSMOD != 2) begin
-			Pwr(t) <+ -(devsign * sigvds * ids * V(`IntrinsicDrain, `IntrinsicSource) + V(d,`IntrinsicDrain) * V(d,`IntrinsicDrain) / Rdrain + V(s,`IntrinsicSource) * V(s,`IntrinsicSource) / Rsource) + delTemp1 * gth;
-                        Pwr(t) <+ ddt(delTemp1 * cth);
+			Pwr(t) <+ `MFACTOR_USE*(-(devsign * sigvds * ids * V(`IntrinsicDrain, `IntrinsicSource) + V(d,`IntrinsicDrain) * V(d,`IntrinsicDrain) / Rdrain + V(s,`IntrinsicSource) * V(s,`IntrinsicSource) / Rsource) + delTemp1 * gth);
+                        Pwr(t) <+ ddt(`MFACTOR_USE*delTemp1 * cth);
 		end else begin
-			Pwr(t) <+ -(devsign * sigvds * ids * V(`IntrinsicDrain, `IntrinsicSource)) + delTemp1 * gth;
-                        Pwr(t) <+ ddt(delTemp1 * cth);
+			Pwr(t) <+ `MFACTOR_USE*(-(devsign * sigvds * ids * V(`IntrinsicDrain, `IntrinsicSource)) + delTemp1 * gth);
+                        Pwr(t) <+ ddt(`MFACTOR_USE*delTemp1 * cth);
 		end
 	end else begin
                 Temp(t) <+ 0;
@@ -4539,16 +4535,16 @@ end
 
 `ifdef __RBODYMOD__
 	if(RBODYMOD != 0) begin
-		I(bi,sbulk) <+ V(bi,sbulk) * Grbps;
-		I(b,sbulk)  <+ V(b,sbulk)  * Grbsb;
-		I(b,bi)     <+ V(b,bi)     * Grbpb;
-		I(b,dbulk)  <+ V(b,dbulk)  * Grbdb;
-		I(bi,dbulk) <+ V(bi,dbulk) * Grbpd;
-		I(sbulk,bi) <+ white_noise(Nt * Grbps, "rbps");
-		I(sbulk,b)  <+ white_noise(Nt * Grbsb, "rbsb");
-		I(b,bi)     <+ white_noise(Nt * Grbpb, "rbpb");
-		I(dbulk,bi) <+ white_noise(Nt * Grbpd, "rbpd");
-		I(dbulk,b)  <+ white_noise(Nt * Grbdb, "rbdb");
+		I(bi,sbulk) <+ `MFACTOR_USE*V(bi,sbulk) * Grbps;
+		I(b,sbulk)  <+ `MFACTOR_USE*V(b,sbulk)  * Grbsb;
+		I(b,bi)     <+ `MFACTOR_USE*V(b,bi)     * Grbpb;
+		I(b,dbulk)  <+ `MFACTOR_USE*V(b,dbulk)  * Grbdb;
+		I(bi,dbulk) <+ `MFACTOR_USE*V(bi,dbulk) * Grbpd;
+		I(sbulk,bi) <+ white_noise(`MFACTOR_USE*Nt * Grbps, "rbps");
+		I(sbulk,b)  <+ white_noise(`MFACTOR_USE*Nt * Grbsb, "rbsb");
+		I(b,bi)     <+ white_noise(`MFACTOR_USE*Nt * Grbpb, "rbpb");
+		I(dbulk,bi) <+ white_noise(`MFACTOR_USE*Nt * Grbpd, "rbpd");
+		I(dbulk,b)  <+ white_noise(`MFACTOR_USE*Nt * Grbdb, "rbdb");
 	end else begin
 		V(b,sbulk)  <+ 0;
 		V(b,bi)     <+ 0;
@@ -4559,16 +4555,16 @@ end
 	// Diode Current and Capacitance
 `ifdef __RBODYMOD__
 	if(RBODYMOD != 0) begin
-		I(sbulk, `IntrinsicSource) <+ devsign * Ibs;
-		I(dbulk, `IntrinsicDrain)  <+ devsign * Ibd;
-		I(sbulk, `IntrinsicSource) <+ devsign * ddt(Qbs);
-		I(dbulk, `IntrinsicDrain)  <+ devsign * ddt(Qbd);
+		I(sbulk, `IntrinsicSource) <+ `MFACTOR_USE*devsign * Ibs;
+		I(dbulk, `IntrinsicDrain)  <+ `MFACTOR_USE*devsign * Ibd;
+		I(sbulk, `IntrinsicSource) <+ `MFACTOR_USE*devsign * ddt(Qbs);
+		I(dbulk, `IntrinsicDrain)  <+ `MFACTOR_USE*devsign * ddt(Qbd);
 	end else begin
 `endif
-		I(`IntrinsicBody, `IntrinsicSource) <+ devsign * Ibs;
-		I(`IntrinsicBody, `IntrinsicDrain)  <+ devsign * Ibd;
-		I(`IntrinsicBody, `IntrinsicSource) <+ devsign * ddt(Qbs);
-		I(`IntrinsicBody, `IntrinsicDrain)  <+ devsign * ddt(Qbd);
+		I(`IntrinsicBody, `IntrinsicSource) <+ `MFACTOR_USE*devsign * Ibs;
+		I(`IntrinsicBody, `IntrinsicDrain)  <+ `MFACTOR_USE*devsign * Ibd;
+		I(`IntrinsicBody, `IntrinsicSource) <+ `MFACTOR_USE*devsign * ddt(Qbs);
+		I(`IntrinsicBody, `IntrinsicDrain)  <+ `MFACTOR_USE*devsign * ddt(Qbd);
 `ifdef __RBODYMOD__
 	end
 `endif
