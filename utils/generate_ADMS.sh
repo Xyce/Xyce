@@ -8,6 +8,7 @@
 (cd utils/ADMS/examples/BSIMCMG108.0.0_20140822/code &&  make all-source) &
 (cd utils/ADMS/examples/BSIMCMG110.0.0_20160101/code &&  make all-source)&
 (cd utils/ADMS/examples/BSIM6.1.1/code &&  make all-source)&
+(cd utils/ADMS/examples/b4soi/code &&  make all-source)&
 (cd utils/ADMS/examples/psp102 &&  make all-source)&
 (cd utils/ADMS/examples/psp103 &&  make all-source)&
 (cd utils/ADMS/examples/mextram_504.12.1 &&  make all-source)&
@@ -34,6 +35,8 @@ diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.h utils/ADMS/examp
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimcmg_110.C utils/ADMS/examples/BSIMCMG110.0.0_20160101/code/N_DEV_ADMSbsimcmg_110.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsim6.h utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.h
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsim6.C utils/ADMS/examples/BSIM6.1.1/code/N_DEV_ADMSbsim6.C
+diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimsoi.h utils/ADMS/examples/b4soi/code/N_DEV_ADMSbsimsoi.h
+diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSbsimsoi.C utils/ADMS/examples/b4soi/code/N_DEV_ADMSbsimsoi.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSPSP102VA.h utils/ADMS/examples/psp102/N_DEV_ADMSPSP102VA.h
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSPSP102VA.C utils/ADMS/examples/psp102/N_DEV_ADMSPSP102VA.C
 diff -u -w -Bb  src/DeviceModelPKG/ADMS/N_DEV_ADMSPSP103VA.h utils/ADMS/examples/psp103/N_DEV_ADMSPSP103VA.h

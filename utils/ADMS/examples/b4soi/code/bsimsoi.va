@@ -114,6 +114,9 @@
 `include "disciplines.vams"
 `include "constants.vams"
 
+// DEFINE THIS IF IN XYCE!
+`define __XYCE__
+
 // These constants are part of the model
 `define Kb 1.3806226e-23
 `define KboQ 8.617087e-5  /* Kb / q  where q = 1.60219e-19 */
@@ -210,14 +213,46 @@
 
 `define BPIcc(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des*) parameter integer nam=def from[lwr:upr] ;
 
+`ifdef __XYCE__
+// These macros should be used where BSIM-SOI defines a parameter as instance,
+// but the manual describes them as being both model and instance
+`define IPRcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def from[lwr:upr] ;
+`define IPRco_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def from[lwr:upr) ;
+`define IPRcz_BOTH(nam,def,uni,        des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def from[  0:inf);
+`define IPRoz_BOTH(nam,def,uni,        des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def from(  0:inf);
+`define IPIco_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr) ;
+`define IPIcc_BOTH(nam,def,uni,lwr,upr,des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter integer nam=def from[lwr:upr] ;
+`define IPRnb_BOTH(nam,def,uni,        des) (*units=uni, type="instance",  desc=des xyceAlsoModel="yes"*) parameter real    nam=def ;
+`else
+`define IPRcc_BOTH(nam,def,uni,lwr,upr,des) `IPRcc(nam,def,uni,lwr,upr,des)
+`define IPRco_BOTH(nam,def,uni,lwr,upr,des) `IPRco(nam,def,uni,lwr,upr,des)
+`define IPRcz_BOTH(nam,def,uni,        des) `IPRcz(nam,def,uni,        des)
+`define IPRoz_BOTH(nam,def,uni,        des) `IPRoz(nam,def,uni,        des)
+`define IPIco_BOTH(nam,def,uni,lwr,upr,des) `IPIco(nam,def,uni,lwr,upr,des)
+`define IPIcc_BOTH(nam,def,uni,lwr,upr,des) `IPIcc(nam,def,uni,lwr,upr,des)
+`define IPRnb_BOTH(nam,def,uni,        des) `IPRnb(nam,def,uni,        des)
+`endif
+
+`ifdef __XYCE__
+   `define IPM                         (*units="" , type="instance",  desc="multiplicity factor"*) parameter real m=1.0 from(0.0:inf) ;
+   `define MFACTOR_USE m
+`else
+   `define IPM
+   `define MFACTOR_USE 1.0
+`endif
+
+// Do not define PORT_CONNECTED for Xyce
+`ifndef __XYCE__
 `define PORT_CONNECTED
+`endif
+
 `ifdef PORT_CONNECTED
 
     module bsimsoi(d, g, s, e, p, b, t);
     inout      g, d, s, e, p, b, t;
 `else
 
-    module bsimsoi(d, g, s, e);
+    module bsimsoi(d, g, s, e) (* xyceModelGroup="MOSFET" xyceLevelNumber="70" xyceDeviceName="BSIM-SOI 4.6.1" xyceTypeVariable="TYPE" *);
     inout      g, d, s, e;
 `endif
 
@@ -255,37 +290,37 @@ endfunction
 /*  Instance Parameters    */
 /***************************/
 `IPRnb( DTEMP          ,0.0            ,""                                 ,"device temperature offset from ambient" ) /* Changed to instance parameter in v4.6 */
-`IPRoz( L              ,5e-6           ,"m"                                ,"Length" )
-`IPRoz( W              ,5e-6           ,"m"                                ,"Width" )
-`IPIco( NF             ,1            ,""          ,1          ,inf       ,"Number of fingers" )
-`IPRcz( SA             ,0.0            ,"m"                                ,"distance between  OD edge to poly of one side" )
-`IPRcz( SB             ,0.0            ,"m"                                ,"distance between  OD edge to poly of the other side" )
-`IPRcz( SD             ,0.0            ,"m"                                ,"distance between neighbor fingers" )
-`IPRcz( AD             ,0.0            ,"m^2"                              ,"Drain area" )
-`IPRcz( AS             ,0.0            ,"m^2"                              ,"Source area" )
-`IPRcz( PD             ,0.0            ,"m"                                ,"Drain perimeter" )
-`IPRcz( PS             ,0.0            ,"m"                                ,"Source perimeter" )
-`IPRcz( NRD            ,1.0            ,""                                 ,"Number of squares in drain" )
-`IPRcz( NRS            ,1.0            ,""                                 ,"Number of squares in source" )
-`IPIcc( OFF            ,0              ,""          ,0          ,1         ,"Device is initially off" )
-`IPIcc( BJTOFF         ,0              ,""          ,0          ,1         ,"BJT on/off flag" )
+`IPRoz_BOTH( L              ,5e-6           ,"m"                                ,"Length" )
+`IPRoz_BOTH( W              ,5e-6           ,"m"                                ,"Width" )
+`IPIco_BOTH( NF             ,1            ,""          ,1          ,inf       ,"Number of fingers" )
+`IPRcz_BOTH( SA             ,0.0            ,"m"                                ,"distance between  OD edge to poly of one side" )
+`IPRcz_BOTH( SB             ,0.0            ,"m"                                ,"distance between  OD edge to poly of the other side" )
+`IPRcz_BOTH( SD             ,0.0            ,"m"                                ,"distance between neighbor fingers" )
+`IPRcz_BOTH( AD             ,0.0            ,"m^2"                              ,"Drain area" )
+`IPRcz_BOTH( AS             ,0.0            ,"m^2"                              ,"Source area" )
+`IPRcz_BOTH( PD             ,0.0            ,"m"                                ,"Drain perimeter" )
+`IPRcz_BOTH( PS             ,0.0            ,"m"                                ,"Source perimeter" )
+`IPRcz_BOTH( NRD            ,1.0            ,""                                 ,"Number of squares in drain" )
+`IPRcz_BOTH( NRS            ,1.0            ,""                                 ,"Number of squares in source" )
+`IPIcc_BOTH( OFF            ,0              ,""          ,0          ,1         ,"Device is initially off" )
+`IPIcc_BOTH( BJTOFF         ,0              ,""          ,0          ,1         ,"BJT on/off flag" )
 `IPIcc( DEBUG          ,0              ,""          ,0          ,1         ,"DEBUG on/off flag" )
-`IPRcz( RTH0           ,0.0            ,"ohm"                              ,"Instance Thermal Resistance" )
-`IPRcz( CTH0           ,1e-5           ,"Ws/mK"                                                    ,"Instance Thermal Capacitance" )
-`IPRnb( NRB            ,1.0            ,""                                 ,"Number of squares in body" )
-`IPRnb( FRBODY         ,1.0            ,""                                 ,"layout dependent body-resistance coefficient" )
-`IPRcz( RBDB           ,50.0           ,"ohm"                              ,"Body resistance" )
-`IPRcz( RBSB           ,50.0           ,"ohm"                              ,"Body resistance" )
-`IPRnb( DELVTO         ,0.0            ,"V"                                ,"Zero bias threshold voltage variation" )
-`IPIcc( SOIMOD         ,0              ,""          ,0          ,3         ,"Instance model selector for PD/FD operation /* v3.2 " )
-`IPRnb( NBC            ,0.0            ,""                                 ,"Number of body contact isolation edge" )
-`IPRnb( NSEG           ,1              ,""                                 ,"Number segments for width partitioning" )
-`IPRnb( PDBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at drain side" )
-`IPRnb( PSBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at source side" )
-`IPRnb( AGBCP          ,0.0            ,"m^2"                              ,"Gate to body overlap area for bc parasitics" )
-`IPRnb( AGBCP2         ,0.0            ,"m^2"                              ,"Parasitic Gate to body overlap area for bc parasitics /* v4.1 improvement on BC " )
-`IPRnb( AGBCPD         ,AGBCP          ,"m^2"                              ,"Gate to body overlap area for bc parasitics in DC" )
-`IPRnb( AEBCP          ,0.0            ,"m^2"                              ,"Substrate to body overlap area for bc parasitics" )
+`IPRcz_BOTH( RTH0           ,0.0            ,"ohm"                              ,"Instance Thermal Resistance" )
+`IPRcz_BOTH( CTH0           ,1e-5           ,"Ws/mK"                                                    ,"Instance Thermal Capacitance" )
+`IPRnb_BOTH( NRB            ,1.0            ,""                                 ,"Number of squares in body" )
+`IPRnb_BOTH( FRBODY         ,1.0            ,""                                 ,"layout dependent body-resistance coefficient" )
+`IPRcz_BOTH( RBDB           ,50.0           ,"ohm"                              ,"Body resistance" )
+`IPRcz_BOTH( RBSB           ,50.0           ,"ohm"                              ,"Body resistance" )
+`IPRnb_BOTH( DELVTO         ,0.0            ,"V"                                ,"Zero bias threshold voltage variation" )
+`IPIcc_BOTH( SOIMOD         ,0              ,""          ,0          ,3         ,"Instance model selector for PD/FD operation /* v3.2 " )
+`IPRnb_BOTH( NBC            ,0.0            ,""                                 ,"Number of body contact isolation edge" )
+`IPRnb_BOTH( NSEG           ,1              ,""                                 ,"Number segments for width partitioning" )
+`IPRnb_BOTH( PDBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at drain side" )
+`IPRnb_BOTH( PSBCP          ,0.0            ,"m"                                ,"Perimeter length for bc parasitics at source side" )
+`IPRnb_BOTH( AGBCP          ,0.0            ,"m^2"                              ,"Gate to body overlap area for bc parasitics" )
+`IPRnb_BOTH( AGBCP2         ,0.0            ,"m^2"                              ,"Parasitic Gate to body overlap area for bc parasitics /* v4.1 improvement on BC " )
+`IPRnb_BOTH( AGBCPD         ,AGBCP          ,"m^2"                              ,"Gate to body overlap area for bc parasitics in DC" )
+`IPRnb_BOTH( AEBCP          ,0.0            ,"m^2"                              ,"Substrate to body overlap area for bc parasitics" )
 `IPIcc( TNODEOUT       ,0              ,""          ,0          ,1         ,"Flag indicating external temp node" ) /* Changed to instance parameter in v4.6 */
 `BPIcc( SHMOD          ,0              ,""          ,0          ,1         ,"Self heating mode selector" )
 /************************/
@@ -1268,6 +1303,11 @@ endfunction
 `MPRnb( BGBC2P         ,7.4567e11      ,""                                  ,"PMOS 'B' for tunneling current model" )
 `MPRnb( VTM00          ,0.026          ,"V"                                 ,"Hard coded 25 degC thermal voltage" )
 
+// XYCE MOD:  Add multiplicity factor declaration
+// It is not OK to assume implicit mfactor
+// NOTE:  Every contribution has also been modified to use the multiplicity factor!
+`IPM
+
 // Output variables
 `OPP( VDSAT             , "V"           , "")
 `OPP( VTH               , "V"           , "Threshold Voltage")
@@ -1306,7 +1346,9 @@ endfunction
 `OPP( T_TOTAL_C         , "K"           , "")
 `OPP( T_DELTA_SH        , "K"           , "")
 
+`ifndef __XYCE__
 analog begin : the_module
+`endif
     integer B4SOItype;
     real B4SOIl;
     real B4SOIw;
@@ -2061,7 +2103,14 @@ analog begin : the_module
 
     real QOV, QGI, qov, qgi; // overlap and intrinsic gate charges
 
+`ifdef __XYCE__
+analog begin : the_module
+`endif
 
+`ifdef __XYCE__
+@(initial_instance)
+    begin: initialize_instance
+`endif
     DevTemp = $temperature + DTEMP;
 
     B4SOItype = TYPE;
@@ -3919,6 +3968,9 @@ analog begin : the_module
         end // }
 
     end // b4soi_temp // }
+`ifdef __XYCE__
+    end // initialize_instance
+`endif
 
     begin : b4soi_check // {
         integer Fatal_Flag;
@@ -7769,7 +7821,7 @@ analog begin : the_module
           thermalNoiseContrib = B4SOIntnoi * B4SOIueff*abs(B4SOIqinv/(pParam_B4SOIleff*pParam_B4SOIleff+B4SOIueff*abs(B4SOIqinv)
           *B4SOIrds) );
 
-          I(di,si) <+ white_noise(abs(fourkt * thermalNoiseContrib), "id");
+          I(di,si) <+ white_noise(`MFACTOR_USE * abs(fourkt * thermalNoiseContrib), "id");
 
          end
          1: begin
@@ -7799,7 +7851,7 @@ analog begin : the_module
                     gdnoise = gdnoise * (1.0 + npart_theta * npart_theta
                                                 * gdnoise / B4SOIidovVds);
 
-               I(di,si) <+ white_noise(abs(fourkt * thermalNoiseContrib), "id");
+               I(di,si) <+ white_noise(`MFACTOR_USE * abs(fourkt * thermalNoiseContrib), "id");
           end
 
          3: begin
@@ -7843,13 +7895,13 @@ analog begin : the_module
         //sigrat      = C0 / B4SOInoiGd0 * sqrt(delta / gamma);
         sf = (B4SOInoiGd0+1e-15)/sqrt(delta/gamma);
 
-        I(di,si) <+  white_noise(sid*abs(1.0-ctnoi * ctnoi), "id");
-        I(N)     <+  V(N) * sf * SCALEN;
-        I(N)     <+  white_noise(sid/(sf*sf*SCALEN*SCALEN), "corl");
+        I(di,si) <+  white_noise(`MFACTOR_USE * sid*abs(1.0-ctnoi * ctnoi), "id");
+        I(N)     <+  `MFACTOR_USE * V(N) * sf * SCALEN;
+        I(N)     <+  white_noise(`MFACTOR_USE * sid/(sf*sf*SCALEN*SCALEN), "corl");
 
-        I(di,si) <+  ctnoi * V(N)*sf*SCALEN ;
-        I(gi,si) <+  ddt(0.5 * C0 * SCALEN * V(N));
-        I(gi,di) <+  ddt(0.5 * C0 * SCALEN * V(N));
+        I(di,si) <+  `MFACTOR_USE * ctnoi * V(N)*sf*SCALEN ;
+        I(gi,si) <+  `MFACTOR_USE * ddt(0.5 * C0 * SCALEN * V(N));
+        I(gi,di) <+  `MFACTOR_USE * ddt(0.5 * C0 * SCALEN * V(N));
 `else
         $strobe("[BSIMSOI] Although the model selector TNOIMOD is set to 3, the new correlated thermal noise model is not activated in the Verilog-A code.  Please uncomment \"`define _TNOIMOD3_\" in the beginning of the Verilog-A code.");
 
@@ -7859,7 +7911,7 @@ analog begin : the_module
         2: begin
 
          thermalNoiseContrib = 2.0/3.0 * B4SOIntnoi*abs(B4SOIgm + B4SOIgds + B4SOIgmbs);
-         I(di,si) <+ white_noise(abs(fourkt * thermalNoiseContrib), "id");
+         I(di,si) <+ white_noise(`MFACTOR_USE * abs(fourkt * thermalNoiseContrib), "id");
       end
       endcase
 
@@ -7945,7 +7997,7 @@ analog begin : the_module
 
             end // }
 
-            I(di,si) <+ flicker_noise(flickerNoiseContrib, B4SOIef, "flicker");
+            I(di,si) <+ flicker_noise(`MFACTOR_USE * flickerNoiseContrib, B4SOIef, "flicker");
 
       end // noise // }
 
@@ -7954,18 +8006,18 @@ analog begin : the_module
        /* Absolute values of fourkt * gdnoise and fourkt * gsnoise used by Pankaj in May 2012*/
 
         if (B4SOIrdsMod != 2) begin                      /* 2013.enh5, 2015.enh1 */ /* v4.6 */
-            I(d, di) <+ V(d,di) / Rd ;
-            I(d, di) <+ white_noise( abs(fourkt * gdnoise), "rd");
-            I(s, si) <+ V(s,si) / Rs ;
-            I(s, si) <+ white_noise( abs(fourkt * gsnoise), "rs");
+            I(d, di) <+ `MFACTOR_USE * V(d,di) / Rd ;
+            I(d, di) <+ white_noise( `MFACTOR_USE * abs(fourkt * gdnoise), "rd");
+            I(s, si) <+ `MFACTOR_USE * V(s,si) / Rs ;
+            I(s, si) <+ white_noise( `MFACTOR_USE * abs(fourkt * gsnoise), "rs");
         end else begin
             V(d, di) <+ 0.0;
             V(s, si) <+ 0.0;
         end
 
         if (B4SOImode > 0) begin
-            I(di,si)  <+ B4SOItype * (Ids + Ic);
-            I(di,b)   <+ B4SOItype * Iii;
+            I(di,si)  <+ `MFACTOR_USE * B4SOItype * (Ids + Ic);
+            I(di,b)   <+ `MFACTOR_USE * B4SOItype * Iii;
             B4SOIigidl = B4SOItype * Igidl;
             B4SOIigisl = B4SOItype * Igisl;
             B4SOIIgcd  = B4SOItype * Igcd;
@@ -7973,8 +8025,8 @@ analog begin : the_module
             B4SOIqdrn  = B4SOItype * qdrn;
             B4SOIqsrc  = B4SOItype * qsrc;
         end else begin
-            I(si,di)  <+ B4SOItype * (Ids - Ic);
-            I(si,b)   <+ B4SOItype * Iii;
+            I(si,di)  <+ `MFACTOR_USE * B4SOItype * (Ids - Ic);
+            I(si,b)   <+ `MFACTOR_USE * B4SOItype * Iii;
             B4SOIigisl = B4SOItype * Igidl;
             B4SOIigidl = B4SOItype * Igisl;
             B4SOIIgcs  = B4SOItype * Igcd;
@@ -7985,81 +8037,81 @@ analog begin : the_module
         B4SOIIgd = B4SOItype * Igd;
         B4SOIIgs = B4SOItype * Igs;
 
-        I(di,b)  <+ B4SOIigidl;
-        I(si,b)  <+ B4SOIigisl;
-        I(db,di) <+ B4SOItype * Ibd;
-        I(sb,si) <+ B4SOItype * Ibs;
-        I(gi,di) <+ B4SOIIgd + B4SOIIgcd;
-        I(gi,si) <+ B4SOIIgs + B4SOIIgcs;
-        I(gi,b)  <+ B4SOIig;
-        I(gi,p)  <+ B4SOIigp;
+        I(di,b)  <+ `MFACTOR_USE * B4SOIigidl;
+        I(si,b)  <+ `MFACTOR_USE * B4SOIigisl;
+        I(db,di) <+ `MFACTOR_USE * B4SOItype * Ibd;
+        I(sb,si) <+ `MFACTOR_USE * B4SOItype * Ibs;
+        I(gi,di) <+ `MFACTOR_USE * (B4SOIIgd + B4SOIIgcd);
+        I(gi,si) <+ `MFACTOR_USE * (B4SOIIgs + B4SOIIgcs);
+        I(gi,b)  <+ `MFACTOR_USE * B4SOIig;
+        I(gi,p)  <+ `MFACTOR_USE * B4SOIigp;
         if ((B4SOIbodyMod == 0) || (B4SOIbodyMod == 2))
             V(b, p)  <+ 0;
         else
             begin
-                I(b, p)  <+ B4SOItype * Ibp;
-                I(b, p)  <+ white_noise(fourkt*abs(Ibp)/(abs(vbp)+1.0e-9), "rbp");
+                I(b, p)  <+ `MFACTOR_USE * B4SOItype * Ibp;
+                I(b, p)  <+ white_noise(`MFACTOR_USE * fourkt*abs(Ibp)/(abs(vbp)+1.0e-9), "rbp");
             end
 
         /* Low frequency excess noise due to FBE */
         /* Absolute values of Ibd, Ibs, (B4SOIIgd + B4SOIIgcd), (B4SOIIgs + B4SOIIgcs), and B4SOIig used by Pankaj in May 2012 */
 
-        I(db,di) <+ white_noise( 2 * `Charge_q * B4SOInoif * abs(Ibd), "ibd");
-        I(sb,si) <+ white_noise( 2 * `Charge_q * B4SOInoif * abs(Ibs), "ibs");
+        I(db,di) <+ white_noise( `MFACTOR_USE * 2 * `Charge_q * B4SOInoif * abs(Ibd), "ibd");
+        I(sb,si) <+ white_noise( `MFACTOR_USE * 2 * `Charge_q * B4SOInoif * abs(Ibs), "ibs");
 
         /* v3.2 for gate tunneling shot noise */
-        I(gi,di) <+ white_noise( 2 * `Charge_q * abs(B4SOIIgd + B4SOIIgcd), "igd");
-        I(gi,si) <+ white_noise( 2 * `Charge_q * abs(B4SOIIgs + B4SOIIgcs), "igs");
-        I(gi,b)  <+ white_noise( 2 * `Charge_q * abs(B4SOIig), "igb");
+        I(gi,di) <+ white_noise( `MFACTOR_USE * 2 * `Charge_q * abs(B4SOIIgd + B4SOIIgcd), "igd");
+        I(gi,si) <+ white_noise( `MFACTOR_USE * 2 * `Charge_q * abs(B4SOIIgs + B4SOIIgcs), "igs");
+        I(gi,b)  <+ white_noise( `MFACTOR_USE * 2 * `Charge_q * abs(B4SOIig), "igb");
 
-        I(di,b)  <+ ddt(B4SOIqdrn);
-        I(si,b)  <+ ddt(B4SOIqsrc);
-        I(gi,b)  <+ B4SOItype * ddt(qgate);
-        I(e, b)  <+ B4SOItype * ddt(qsub);
-        //I(b, b)  <+ B4SOItype * ddt(qbody);
+        I(di,b)  <+ `MFACTOR_USE * ddt(B4SOIqdrn);
+        I(si,b)  <+ `MFACTOR_USE * ddt(B4SOIqsrc);
+        I(gi,b)  <+ `MFACTOR_USE * B4SOItype * ddt(qgate);
+        I(e, b)  <+ `MFACTOR_USE * B4SOItype * ddt(qsub);
+        //I(b, b)  <+ `MFACTOR_USE * B4SOItype * ddt(qbody);
 
-        I(db,di) <+ B4SOItype * ddt(qjd);
-        I(sb,si) <+ B4SOItype * ddt(qjs);
+        I(db,di) <+ `MFACTOR_USE * B4SOItype * ddt(qjd);
+        I(sb,si) <+ `MFACTOR_USE * B4SOItype * ddt(qjs);
 
         if (RGATEMOD == 3) begin
-            I(gm,di) <+ B4SOItype * ddt(qgdo);
-            I(gm,si) <+ B4SOItype * ddt(qgso);
-            I(gm, e) <+ ddt(V(gm,e) * pParam_B4SOIcgeo);
+            I(gm,di) <+ `MFACTOR_USE * B4SOItype * ddt(qgdo);
+            I(gm,si) <+ `MFACTOR_USE * B4SOItype * ddt(qgso);
+            I(gm, e) <+ `MFACTOR_USE * ddt(V(gm,e) * pParam_B4SOIcgeo);
         end else begin
-            I(gi,di) <+ B4SOItype * ddt(qgdo);
-            I(gi,si) <+ B4SOItype * ddt(qgso);
-            I(gi, e) <+ ddt(V(gi,e) * pParam_B4SOIcgeo);
+            I(gi,di) <+ `MFACTOR_USE * B4SOItype * ddt(qgdo);
+            I(gi,si) <+ `MFACTOR_USE * B4SOItype * ddt(qgso);
+            I(gi, e) <+ `MFACTOR_USE * ddt(V(gi,e) * pParam_B4SOIcgeo);
         end
-        I(di,e)  <+ ddt(B4SOIqde);
-        I(si,e)  <+ ddt(B4SOIqse);
+        I(di,e)  <+ `MFACTOR_USE * ddt(B4SOIqde);
+        I(si,e)  <+ `MFACTOR_USE * ddt(B4SOIqse);
 
         if (RGATEMOD == 0 || RGATEMOD == 2) begin
             V(g, gm) <+ 0;
         end else begin
-            I(g, gm) <+ V(g, gm) * B4SOIgrgeltd;
+            I(g, gm) <+ `MFACTOR_USE * V(g, gm) * B4SOIgrgeltd;
             /* Absolute value of fourkt * B4SOIgrgeltd used by Pankaj in May 2012 */
-            I(g, gm) <+ white_noise( abs(fourkt * B4SOIgrgeltd), "rg");
+            I(g, gm) <+ white_noise( `MFACTOR_USE * abs(fourkt * B4SOIgrgeltd), "rg");
         end
 
         if (RGATEMOD == 0 || RGATEMOD == 1) begin
             V(gm,gi) <+ 0;
         end else begin
-            I(gm,gi) <+ V(gm,gi) * B4SOIgcrg;
+            I(gm,gi) <+ `MFACTOR_USE * V(gm,gi) * B4SOIgcrg;
 
             if (RGATEMOD == 2) begin : rgate2
                 real T0;
                 T0 = 1.0 + B4SOIgrgeltd / B4SOIgcrg;
                 /* Absolute value of fourkt * B4SOIgrgeltd / (T0 * T0) used by Pankaj in May 2012 */
-                I(gm,gi) <+ white_noise( abs(fourkt * B4SOIgrgeltd / (T0 * T0)), "rg");
+                I(gm,gi) <+ white_noise( `MFACTOR_USE * abs(fourkt * B4SOIgrgeltd / (T0 * T0)), "rg");
             end
         end
 
         if (B4SOIrbodyMod) begin
-            I(b, db) <+ V(b, db) * B4SOIgrbdb;
-            I(b, sb) <+ V(b, sb) * B4SOIgrbsb;
+            I(b, db) <+ `MFACTOR_USE * V(b, db) * B4SOIgrbdb;
+            I(b, sb) <+ `MFACTOR_USE * V(b, sb) * B4SOIgrbsb;
             /* Absolute values of fourkt * B4SOIgrbdb and fourkt * B4SOIgrbsb used by Pankaj in May 2012 */
-            I(b, db) <+ white_noise( abs(fourkt * B4SOIgrbdb), "rbdb");
-            I(b, sb) <+ white_noise( abs(fourkt * B4SOIgrbsb), "rbsb");
+            I(b, db) <+ white_noise( `MFACTOR_USE * abs(fourkt * B4SOIgrbdb), "rbdb");
+            I(b, sb) <+ white_noise( `MFACTOR_USE * abs(fourkt * B4SOIgrbsb), "rbsb");
         end else begin
             V(b, db) <+ 0;
             V(b, sb) <+ 0;
@@ -8097,7 +8149,7 @@ analog begin : the_module
         end
 `else
         if ((SHMOD == 1) && (RTH0 != 0.0))
-            Pwr(t) <+ -Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth;
+            Pwr(t) <+ `MFACTOR_USE * (-Ids * Vds + ddt(delTemp * pParam_B4SOIcth) + delTemp / pParam_B4SOIrth);
         else
             Temp(t) <+ 0;
 `endif
