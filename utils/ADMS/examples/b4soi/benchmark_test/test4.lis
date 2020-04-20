@@ -1,0 +1,403 @@
+ ****** HSPICE -- L-2016.03 linux64 (Feb 24 2016) ******                        
+  Copyright (c) 1986 - 2017 by Synopsys, Inc. All Rights Reserved.              
+  This software and the associated documentation are proprietary
+  to Synopsys, Inc. This software may only be used in accordance
+  with the terms and conditions of a written license agreement with
+  Synopsys, Inc. All other use, reproduction, or distribution of
+  this software is strictly prohibited.
+  Input File: test4.sp                                                          
+  Command line options: /tools/synopsys/hspice/L-2016.03/hspice/linux64/hspice -hdlpath ../code -i test4.sp -o test4
+ lic:  
+ lic: FLEXlm: v11.2.1 
+ lic: USER:   huanlin              HOSTNAME: bwrcr720-5.eecs.berkeley.edu 
+ lic: HOSTID: "c81f66efdbed"       PID:      48446 
+ lic: Using FLEXlm license file: 
+ lic: 1701@sunv40z-1.eecs.berkeley.edu 
+ lic: Checkout 1 hspice 
+ lic: License/Maintenance for hspice will expire on 19-dec-2017/2016.06 
+ lic: 1(in_use)/50(total) FLOATING license(s) on SERVER 1701@sunv40z-1.eecs.berkeley.edu 
+ lic:   
+ **info** *pvaI* current limit stacksize=10485760, set new limit stacksize=62914560
+
+ **info** *pvaI* Module (bsimsoi): 7 unexpanded port, 0 init, 4082 behav, 72 contrib, 39/3050 expr(s)
+
+ **info** *pvaI*        Has DIS(DT PC), 2/48 afCount, 0 MT, dlg, 6 node(s) maybe reduced, IO(0/0/1/1)
+
+ **info** *pvaI*        0 const-G and 0 const-C, Has switchBranch, 22 bypassOpt, 0 bus2scalar
+
+ **warning** *pvaW*        variable 'VDSAT' initialized but not used in RHS, deleted (../code/bsimsoi.va:5983)
+
+ **warning** *pvaW*        variable 'VTH' initialized but not used in RHS, deleted (../code/bsimsoi.va:5522)
+
+ **warning** *pvaW*        variable 'IDS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8105)
+
+ **warning** *pvaW*        variable 'GM' initialized but not used in RHS, deleted (../code/bsimsoi.va:8106)
+
+ **warning** *pvaW*        variable 'GDS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8107)
+
+ **warning** *pvaW*        variable 'GMBS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8108)
+
+ **warning** *pvaW*        variable 'IC' initialized but not used in RHS, deleted (../code/bsimsoi.va:8109)
+
+ **warning** *pvaW*        variable 'IBD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8111)
+
+ **warning** *pvaW*        variable 'IBS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8110)
+
+ **warning** *pvaW*        variable 'IGIDL' initialized but not used in RHS, deleted (../code/bsimsoi.va:8112)
+
+ **warning** *pvaW*        variable 'IGISL' initialized but not used in RHS, deleted (../code/bsimsoi.va:8113)
+
+ **warning** *pvaW*        variable 'IGS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8114)
+
+ **warning** *pvaW*        variable 'IGD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8115)
+
+ **warning** *pvaW*        variable 'IGB' initialized but not used in RHS, deleted (../code/bsimsoi.va:8116)
+
+ **warning** *pvaW*        variable 'IGCS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8117)
+
+ **warning** *pvaW*        variable 'IGCD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8118)
+
+ **warning** *pvaW*        variable 'CGG' initialized but not used in RHS, deleted (../code/bsimsoi.va:8129)
+
+ **warning** *pvaW*        variable 'CGS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8132)
+
+ **warning** *pvaW*        variable 'CGD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8133)
+
+ **warning** *pvaW*        variable 'CBG' initialized but not used in RHS, deleted (../code/bsimsoi.va:8134)
+
+ **warning** *pvaW*        variable 'CBS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8136)
+
+ **warning** *pvaW*        variable 'CBD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8135)
+
+ **warning** *pvaW*        variable 'CDG' initialized but not used in RHS, deleted (../code/bsimsoi.va:8137)
+
+ **warning** *pvaW*        variable 'CDD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8138)
+
+ **warning** *pvaW*        variable 'CDS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8139)
+
+ **warning** *pvaW*        variable 'CAPBD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8142)
+
+ **warning** *pvaW*        variable 'CAPBS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8143)
+
+ **warning** *pvaW*        variable 'QS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8124)
+
+ **warning** *pvaW*        variable 'T_TOTAL_K' initialized but not used in RHS, deleted (../code/bsimsoi.va:4417)
+
+ **warning** *pvaW*        variable 'T_TOTAL_C' initialized but not used in RHS, deleted (../code/bsimsoi.va:4418)
+
+ **warning** *pvaW*        variable 'T_DELTA_SH' initialized but not used in RHS, deleted (../code/bsimsoi.va:4419)
+
+ **info** *pvaI*        generated 5 flow node(s) during compilation.
+
+ **info** *pvaI* #### Total 565 line-size(s), 39/3050 expr(s), 72 contr(s), 0 init(s), 4082 behav(s), 7 port(s)
+
+ Loading pVA library test4.pvadir/pvaRTL_linux64.so...
+1****** HSPICE -- L-2016.03 linux64 (Feb 24 2016) ******                        
+ ******  
+ *id-vd characteristics for nmos
+
+ ****** circuit name directory
+ circuit number to circuit name directory
+   number circuitname                     definition         multiplier
+        0 main circuit
+        1 x1.                             bsimsoi(va)        1.00 
+ **info** *pvaI* Creating VA module (bsimsoi) for instance X1
+
+ **info** *pvaI* Module (bsimsoi): node 'db' shorted with port 'b' (../code/bsimsoi.va:8064)
+
+ **info** *pvaI* Module (bsimsoi): node 'gi' shorted with port 'gm' (../code/bsimsoi.va:8045)
+
+ **info** *pvaI* Module (bsimsoi): node 'gm' shorted with port 'g' (../code/bsimsoi.va:8037)
+
+ **info** *pvaI* Module (bsimsoi): node 'sb' shorted with port 'b' (../code/bsimsoi.va:8065)
+
+ **info** *pvaI*  4           nodes and 6 branches eliminated for module 'bsimsoi'
+
+ **info** *pvaI*   3 port(s) not connected
+
+ **info** *pvaI*        termCount=18 diwSize=368 probeSize=2287 Qsize=15 Isize=27
+
+ End of GMD creation on Tue Nov 14 11:19:23 2017	GTM/In-use: 23.5000/21.1809 MB
+
+
+  
+      
+ *****************************************************************
+ ******  option summary
+ ******
+ runlvl  = 3         bypass  = 2.0000    
+  Opening plot unit= 15
+ file=test4.pa0
+
+ ******
+ *id-vd characteristics for nmos
+
+ ****** dc transfer curves tnom=  25.000 temp=  25.000 ******
+  *** parameter 0:vd  =   5.000e-02       ***
+  
+x
+
+ volt         current   
+             vd         
+  0.         -1.990e-13 
+  2.0000e-02 -3.340e-13 
+  4.0000e-02 -5.542e-13 
+  6.0000e-02 -9.166e-13 
+  8.0000e-02 -1.528e-12 
+  0.1000     -2.551e-12 
+  0.1200     -4.249e-12 
+  0.1400     -7.084e-12 
+  0.1600     -1.176e-11 
+  0.1800     -1.955e-11 
+  0.2000     -3.244e-11 
+  0.2200     -5.379e-11 
+  0.2400     -8.909e-11 
+  0.2600     -1.473e-10 
+  0.2800     -2.433e-10 
+  0.3000     -4.012e-10 
+  0.3200     -6.601e-10 
+  0.3400     -1.083e-09 
+  0.3600     -1.773e-09 
+  0.3800     -2.891e-09 
+  0.4000     -4.694e-09 
+  0.4200     -7.585e-09 
+  0.4400     -1.218e-08 
+  0.4600     -1.944e-08 
+  0.4800     -3.076e-08 
+  0.5000     -4.826e-08 
+  0.5200     -7.498e-08 
+  0.5400     -1.153e-07 
+  0.5600     -1.751e-07 
+  0.5800     -2.628e-07 
+  0.6000     -3.889e-07 
+  0.6200     -5.663e-07 
+  0.6400     -8.093e-07 
+  0.6600     -1.132e-06 
+  0.6800     -1.544e-06 
+  0.7000     -2.052e-06 
+  0.7200     -2.656e-06 
+  0.7400     -3.351e-06 
+  0.7600     -4.126e-06 
+  0.7800     -4.971e-06 
+  0.8000     -5.875e-06 
+  0.8200     -6.828e-06 
+  0.8400     -7.821e-06 
+  0.8600     -8.846e-06 
+  0.8800     -9.899e-06 
+  0.9000     -1.097e-05 
+  0.9200     -1.206e-05 
+  0.9400     -1.315e-05 
+  0.9600     -1.424e-05 
+  0.9800     -1.532e-05 
+  1.0000     -1.640e-05 
+  1.0200     -1.746e-05 
+  1.0400     -1.851e-05 
+  1.0600     -1.954e-05 
+  1.0800     -2.056e-05 
+  1.1000     -2.156e-05 
+  1.1200     -2.254e-05 
+  1.1400     -2.351e-05 
+  1.1600     -2.445e-05 
+  1.1800     -2.538e-05 
+  1.2000     -2.629e-05 
+y
+ ******
+ *id-vd characteristics for nmos
+
+ ****** dc transfer curves tnom=  25.000 temp=  25.000 ******
+  *** parameter 0:vd  =   0.550       ***
+  
+x
+
+ volt         current   
+             vd         
+  0.         -2.046e-12 
+  2.0000e-02 -3.070e-12 
+  4.0000e-02 -5.116e-12 
+  6.0000e-02 -8.185e-12 
+  8.0000e-02 -1.296e-11 
+  0.1000     -2.149e-11 
+  0.1200     -3.479e-11 
+  0.1400     -5.696e-11 
+  0.1600     -9.277e-11 
+  0.1800     -1.514e-10 
+  0.2000     -2.467e-10 
+  0.2200     -4.017e-10 
+  0.2400     -6.526e-10 
+  0.2600     -1.059e-09 
+  0.2800     -1.714e-09 
+  0.3000     -2.767e-09 
+  0.3200     -4.453e-09 
+  0.3400     -7.139e-09 
+  0.3600     -1.140e-08 
+  0.3800     -1.810e-08 
+  0.4000     -2.858e-08 
+  0.4200     -4.483e-08 
+  0.4400     -6.980e-08 
+  0.4600     -1.078e-07 
+  0.4800     -1.652e-07 
+  0.5000     -2.511e-07 
+  0.5200     -3.782e-07 
+  0.5400     -5.647e-07 
+  0.5600     -8.349e-07 
+  0.5800     -1.221e-06 
+  0.6000     -1.763e-06 
+  0.6200     -2.506e-06 
+  0.6400     -3.501e-06 
+  0.6600     -4.796e-06 
+  0.6800     -6.435e-06 
+  0.7000     -8.450e-06 
+  0.7200     -1.086e-05 
+  0.7400     -1.368e-05 
+  0.7600     -1.689e-05 
+  0.7800     -2.049e-05 
+  0.8000     -2.445e-05 
+  0.8200     -2.874e-05 
+  0.8400     -3.335e-05 
+  0.8600     -3.823e-05 
+  0.8800     -4.337e-05 
+  0.9000     -4.874e-05 
+  0.9200     -5.432e-05 
+  0.9400     -6.009e-05 
+  0.9600     -6.604e-05 
+  0.9800     -7.215e-05 
+  1.0000     -7.843e-05 
+  1.0200     -8.486e-05 
+  1.0400     -9.144e-05 
+  1.0600     -9.817e-05 
+  1.0800     -1.051e-04 
+  1.1000     -1.121e-04 
+  1.1200     -1.194e-04 
+  1.1400     -1.268e-04 
+  1.1600     -1.343e-04 
+  1.1800     -1.421e-04 
+  1.2000     -1.499e-04 
+y
+ ******
+ *id-vd characteristics for nmos
+
+ ****** dc transfer curves tnom=  25.000 temp=  25.000 ******
+  *** parameter 0:vd  =   1.050       ***
+  
+x
+
+ volt         current   
+             vd         
+  0.         -1.114e-11 
+  2.0000e-02 -1.592e-11 
+  4.0000e-02 -2.387e-11 
+  6.0000e-02 -3.683e-11 
+  8.0000e-02 -5.753e-11 
+  0.1000     -9.095e-11 
+  0.1200     -1.451e-10 
+  0.1400     -2.319e-10 
+  0.1600     -3.720e-10 
+  0.1800     -5.962e-10 
+  0.2000     -9.566e-10 
+  0.2200     -1.532e-09 
+  0.2400     -2.450e-09 
+  0.2600     -3.910e-09 
+  0.2800     -6.222e-09 
+  0.3000     -9.867e-09 
+  0.3200     -1.559e-08 
+  0.3400     -2.450e-08 
+  0.3600     -3.831e-08 
+  0.3800     -5.953e-08 
+  0.4000     -9.191e-08 
+  0.4200     -1.409e-07 
+  0.4400     -2.144e-07 
+  0.4600     -3.238e-07 
+  0.4800     -4.852e-07 
+  0.5000     -7.213e-07 
+  0.5200     -1.063e-06 
+  0.5400     -1.551e-06 
+  0.5600     -2.237e-06 
+  0.5800     -3.179e-06 
+  0.6000     -4.443e-06 
+  0.6200     -6.090e-06 
+  0.6400     -8.175e-06 
+  0.6600     -1.073e-05 
+  0.6800     -1.379e-05 
+  0.7000     -1.733e-05 
+  0.7200     -2.135e-05 
+  0.7400     -2.582e-05 
+  0.7600     -3.070e-05 
+  0.7800     -3.595e-05 
+  0.8000     -4.153e-05 
+  0.8200     -4.741e-05 
+  0.8400     -5.355e-05 
+  0.8600     -5.993e-05 
+  0.8800     -6.651e-05 
+  0.9000     -7.329e-05 
+  0.9200     -8.023e-05 
+  0.9400     -8.733e-05 
+  0.9600     -9.456e-05 
+  0.9800     -1.019e-04 
+  1.0000     -1.094e-04 
+  1.0200     -1.170e-04 
+  1.0400     -1.247e-04 
+  1.0600     -1.324e-04 
+  1.0800     -1.403e-04 
+  1.1000     -1.482e-04 
+  1.1200     -1.562e-04 
+  1.1400     -1.643e-04 
+  1.1600     -1.725e-04 
+  1.1800     -1.807e-04 
+  1.2000     -1.890e-04 
+y
+
+          ***** job concluded
+ ******  
+ *id-vd characteristics for nmos
+
+ ****** job statistics summary tnom=  25.000 temp=  25.000 ******
+  
+  
+ ******  Machine Information  ******
+ CPU:
+ model name	: Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz
+ cpu MHz	: 2499.925
+  
+ OS:
+ Linux version 2.6.32-696.6.3.el6.x86_64 (mockbuild@x86-042.build.eng.bos.redhat.com) (gcc version 4.4.7 20120313 (Red Hat 4.4.7-18) (GCC) ) #1 SMP Fri Jun 30 13:24:18 EDT 2017
+
+
+  ******  HSPICE Threads Information  ******
+
+  Command Line Threads Count :     1
+  Available CPU Count        :    40
+  Actual Threads Count       :     1
+
+
+  ******  Circuit Statistics  ******
+  # nodes       =      14 # elements   =       5
+  # resistors   =       0 # capacitors =       0 # inductors   =       0
+  # mutual_inds =       0 # vccs       =       0 # vcvs        =       0
+  # cccs        =       0 # ccvs       =       0 # volt_srcs   =       4
+  # curr_srcs   =       0 # diodes     =       0 # bjts        =       0
+  # jfets       =       0 # mosfets    =       0 # U elements  =       0
+  # T elements  =       0 # W elements =       0 # B elements  =       0
+  # S elements  =       0 # P elements =       0 # va device   =       1
+  # vector_srcs =       0 # N elements =       0
+
+
+  ******  Runtime Statistics (seconds)  ******
+
+  analysis           time    # points   tot. iter  conv.iter
+  op point           0.00           1           0
+  dc sweep           0.02         183         436
+  readin             4.26
+  errchk             0.02
+  setup              0.00
+  output             0.00
+
+
+           peak memory used        225.71 megabytes
+           total cpu time            4.30 seconds
+           total elapsed time       16.33 seconds
+           job started at     11:19:07 11/14/2017
+           job ended   at     11:19:24 11/14/2017
+
+
+ lic: Release hspice token(s) 
+ lic: total license checkout elapse time:        0.23(s)
