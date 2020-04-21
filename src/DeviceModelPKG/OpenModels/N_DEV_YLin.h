@@ -253,12 +253,18 @@ public:
   void splitTouchStoneFileLine(const std::string& aLine, IO::TokenVector & parsedLine);
   void readTouchStoneFileLine(std::istream & in, std::string& line, int& lineNum);
 
+  void readISC_TD_File();
+
 private:
   InstanceVector      instanceContainer;            ///< List of owned YLIN device instances
 
   // variables specific to the YLIN model
   std::string            TSFileName_;       ///< Name of the Touchstone file
   bool                   TSFileNameGiven_;
+  std::string            ISC_TD_FileName_;  ///< Name of file with time-domain ISC data
+  bool                   ISC_TD_FileNameGiven_;
+  std::string            ISC_TD_FileFormat_;  ///< Format of file with time-domain ISC data
+  bool                   ISC_TD_FileFormatGiven_;
   char                   TSCommentChar_;    ///< This is the ! character
   std::string            TSVersion_;        ///< Touchstone file format.  We only support "2.0".
   std::string            freqUnit_;         ///< Frequency unit in input Network Data.  Legal
@@ -275,8 +281,12 @@ private:
   std::vector<double>    Z0Vec_;            ///< vector of impedances (for S-parameters)
   std::vector<double>    freqVec_;          ///< vector of the frequencies in the input Network Data
 
-  bool                                                Isc_;          ///< Touchstone file contains short-circuit current data
-  std::vector< std::vector<std::complex<double> > >   inputIscVec_;  ///< Vector of vectors of per-port short-circuit currents
+  bool                                                IscFD_;          ///< Touchstone file contains frequency-doman short-circuit current data
+  std::vector< std::vector<std::complex<double> > >   inputIscFDVec_;  ///< Vector of vectors of per-port frequency-doman short-circuit currents
+
+  bool IscTD_;                                        ///< per-port time-domain short-circuit currents are given
+  std::vector<double>                iscTDTimeVec_;   ///< Vector of times at which per-port time-domain short-circuit currents are given
+  std::vector< std::vector<double> > inputIscTDVec_;  ///< Vector of vectors of per-port time-domain short-circuit currents.
 
   // store a separate matrix (that will be Y-parameters in RI-format) for each frequency
   // in freqVec_

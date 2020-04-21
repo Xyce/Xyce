@@ -42,13 +42,15 @@
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_Message.h>
+#include <N_IO_OutputFileBase.h>
+#include <N_IO_OutputPrn.h>
 #include <N_IO_ParsingHelpers.h>
 #include <N_LAS_Matrix.h>
+#include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_AssemblyTypes.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_RFparams.h>
-
 
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_SerialDenseVector.hpp>
@@ -121,10 +123,22 @@ void Traits::loadModelParameters(ParametricData<YLin::Model> &p)
     .setCategory(CAT_NONE)
     .setDescription("Touchstone File Name");
 
-  p.addPar("ISC", false, &YLin::Model::Isc_)
+  p.addPar("ISC_FD", false, &YLin::Model::IscFD_)
     .setUnit(U_LOGIC)
     .setCategory(CAT_NONE)
-    .setDescription("Touchstone file contains short-circuit current data");
+    .setDescription("Touchstone file contains frequency-domain short-circuit current data");
+
+  p.addPar("ISC_TD_FILE", "", &YLin::Model::ISC_TD_FileName_)
+    .setGivenMember(&YLin::Model::ISC_TD_FileNameGiven_)
+    .setUnit(U_NONE)
+    .setCategory(CAT_NONE)
+    .setDescription("ISC Time Domain File Name");
+
+  p.addPar("ISC_TD_FILE_FORMAT", "STD", &YLin::Model::ISC_TD_FileFormat_)
+    .setGivenMember(&YLin::Model::ISC_TD_FileFormatGiven_)
+    .setUnit(U_NONE)
+    .setCategory(CAT_NONE)
+    .setDescription("Format of ISC Time Domain File");
 }
 
 //-----------------------------------------------------------------------------
@@ -849,7 +863,7 @@ bool Model::readTouchStoneFile()
 
         // expected number of data elements on each line, assuming "Full" format
         expectedNumElementsPerNetworkDataLine = 2*(numPorts_*numPorts_)+ 1;
-        if (Isc_)
+        if (IscFD_)
           expectedNumElementsPerNetworkDataLine += 2*numPorts_;
 
         parsedLine.clear();
@@ -946,7 +960,7 @@ bool Model::readTouchStoneFile()
 
             // Handle optional Isc data. There are two additional columns for
 	    // each port added to each row, if that data is included.
-            if (Isc_)
+            if (IscFD_)
 	    {
               inputIscData.clear();
               for (int i=2*numPorts_*numPorts_+1, pIdx=1; i < expectedNumElementsPerNetworkDataLine; i=i+2, pIdx++)
@@ -978,7 +992,7 @@ bool Model::readTouchStoneFile()
                 }
 
               }
-              inputIscVec_.push_back(inputIscData);
+              inputIscFDVec_.push_back(inputIscData);
 	    }
 
             // clear parsedLine here, to support parsing network data that
@@ -1108,6 +1122,139 @@ void Model::readTouchStoneFileLine(std::istream & inputFile, std::string& aLine,
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Model::readISC_TD_File
+// Purpose       : Read in file with time-domain short-circuit current data
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/10/2020
+//-----------------------------------------------------------------------------
+void Model::readISC_TD_File()
+{
+  // Some error checking on the file name specified by ISC_TD_FILE
+  if ( !(Util::checkIfValidFile(ISC_TD_FileName_)) )
+  {
+    Report::UserError() << "ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model "
+                        << getName() << " could not be found.";
+    return;
+  }
+
+  // check the ISC_TD_FILE_FORMAT model parameter, if given
+  if ( ISC_TD_FileFormatGiven_ &&
+       !((ISC_TD_FileFormat_ == "STD") || (ISC_TD_FileFormat_ == "NOINDEX") || (ISC_TD_FileFormat_ == "CSV")) )
+  {
+    Report::UserError() << "ISC_TD_FILE_FORMAT for model " << getName()
+                        << " must be STD, NOINDEX or CSV.";
+    return;
+  }
+
+  // Use the same functions for reading the .PRN and .CSV files as re-measure does.
+  IO::OutputFileBase* inputFile;
+  inputFile = new IO::OutputPrn();
+
+  ExtendedString fileExt(ISC_TD_FileName_.substr(ISC_TD_FileName_.length()-4));
+  int timeColumn;  // column with the time variable
+
+  // Set the position of the TIME column, and also auto-sense .prn or .csv files
+  // is the ISC_TD_FILE_FORMAT model parameter is not given.
+  if (ISC_TD_FileFormatGiven_)
+  {
+    if (ISC_TD_FileFormat_ == "STD")
+      timeColumn = 1;
+    else if ( (ISC_TD_FileFormat_ == "CSV") || (ISC_TD_FileFormat_ == "NOINDEX") )
+      timeColumn = 0;
+  }
+  else if (!ISC_TD_FileFormatGiven_)
+  {
+    if (fileExt.toUpper() == ".PRN")
+    {
+      ISC_TD_FileFormat_ = "STD";
+      timeColumn = 1;
+    }
+    else if (fileExt.toUpper() == ".CSV")
+    {
+      ISC_TD_FileFormat_ = "CSV";
+      timeColumn = 0;
+    }
+    else
+    {
+      Report::UserError() << "Problem determining ISC_TD_FILE_FORMAT for file \"" << ISC_TD_FileName_
+                        << "\" for model " << getName();
+      return;
+    }
+  }
+
+  if (!inputFile->openFileForRead(ISC_TD_FileName_))
+  {
+    // open failed.  Report error and exit.
+    Report::UserError() << "Could not open ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model " << getName();
+    return;
+  }
+
+  // load data-names, as a way of reading and discarding the first row in the input file
+  std::vector<std::string> fileVarNames;
+  if (!(inputFile->getOutputVarNames(fileVarNames)))
+  {
+    // reading var names failed
+    Report::UserError() << "Problem reading variable names in ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model " << getName();
+    return;
+  }
+
+  // This code section run though the lines in the input file, and makes the
+  // the vectors for the time values and per-port short-circuit current values.
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+  {
+    Xyce::dout() << "For ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model " << getName() << std::endl;
+  }
+  int reading=1;
+  std::vector<double> varValuesVec;
+  inputIscTDVec_.resize(numPorts_);
+
+  while (reading==1)
+  {
+    reading = inputFile->getOutputNextVarValuesSerial(&varValuesVec);
+
+    if( reading == 1 )
+    {
+      // number of entries on each line should be (number of ports)+1 (plus possibly the INDEX column)
+      if ( ((ISC_TD_FileFormat_ == "STD") && (varValuesVec.size() != numPorts_+2)) ||
+           (((ISC_TD_FileFormat_ == "CSV") || (ISC_TD_FileFormat_ == "NOINDEX")) && (varValuesVec.size() != numPorts_+1)) )
+      {
+        Report::UserError() << "Incorrect number of entries found in ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model " << getName();
+        return;
+      }
+
+      iscTDTimeVec_.push_back(varValuesVec[timeColumn]);
+      // inputIscTDVec_ will have one vector for each port.  Each of those vectors contains the short-circuit
+      // current values for each time point for that port.
+      for (int i=0; i<numPorts_; i++)
+        inputIscTDVec_[i].push_back(varValuesVec[timeColumn+1+i]);
+
+      varValuesVec.clear();
+    }
+  }
+
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+  {
+    for (int i=0; i<iscTDTimeVec_.size(); i++)
+    {
+      Xyce::dout() << "  For Time " <<  iscTDTimeVec_[i] << " Isc =";
+      for (int j=0; j<numPorts_; j++)
+        Xyce::dout() << " " << inputIscTDVec_[j][i];
+
+      Xyce::dout() << std::endl;
+    }
+  }
+
+  // clean up file object, which is local to this function
+  inputFile->closeFileForRead();
+  delete inputFile;
+  inputFile = 0;
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
 // Function      : Xyce::Device::YLin::Model::processParams
 // Purpose       :
 // Special Notes :
@@ -1190,7 +1337,8 @@ Model::Model(
     twoPortDataOrder_(""),
     numFreq_(0),
     Z0Vec_(0),
-    freqVec_(0)
+    freqVec_(0),
+    IscTD_(false)
 {
   // Set params to constant default values.
   setDefaultParams();
@@ -1211,6 +1359,12 @@ Model::Model(
   else
     UserError(*this) << "No Touchstone input file given for model " << getName();
 
+  // read time-domain ISC data, if given
+  if ( ISC_TD_FileNameGiven_ && (numPorts_ > 0) )
+  {
+    readISC_TD_File();
+    IscTD_ = true;
+  }
 
   // it the file was successfully converted it is in Y-parameters and RI format
   if (TouchstoneFileRead)
@@ -1342,8 +1496,8 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 
     result = inputNetworkDataVec_[0];
 
-    if (Isc_)
-      Iscvals = inputIscVec_[0];
+    if (IscFD_)
+      Iscvals = inputIscFDVec_[0];
 
     return;
   }
@@ -1357,8 +1511,8 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
       result = inputNetworkDataVec_[numFreq_ - 1];
 
 
-      if (Isc_)
-        Iscvals = inputIscVec_[numFreq_ - 1];
+      if (IscFD_)
+        Iscvals = inputIscFDVec_[numFreq_ - 1];
 
       return;
 
@@ -1395,10 +1549,10 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 
     }
 
-    if (Isc_)
+    if (IscFD_)
     {
-      y0 = inputIscVec_[n0][i];
-      y1 = inputIscVec_[n1][i];
+      y0 = inputIscFDVec_[n0][i];
+      y1 = inputIscFDVec_[n1][i];
       Iscvals[i] = y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
     }
   }
