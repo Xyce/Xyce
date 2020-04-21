@@ -67,7 +67,10 @@ class ExpressionData
 public:
   enum State {NOT_SETUP, PARSE_FAILED, UNRESOLVED_SYMBOL, READY};
 
-  ExpressionData (const std::string &expression);
+  ExpressionData (
+      const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
+      const std::string &expression);
+
   ~ExpressionData();
 
   const std::string &getExpression() const 
@@ -120,6 +123,8 @@ private:
   Op::OpList                    expressionOps_;                 ///< Ops to compute variables
   mutable std::vector<double>   variableValues_;                ///< Cache of computed variables
   bool                          sensitivitiesPossible_;
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
 } // namespace Util

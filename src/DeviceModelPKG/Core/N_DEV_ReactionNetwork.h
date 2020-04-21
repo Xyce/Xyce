@@ -68,7 +68,10 @@ class ReactionNetwork
 {
 public:
 
-  ReactionNetwork(const std::string &name = "NoName");
+  ReactionNetwork(
+      const SolverState & solver_state,
+      const std::string &name = "NoName");
+
   ReactionNetwork(const ReactionNetwork & right);
   virtual ~ReactionNetwork();
 
@@ -239,6 +242,8 @@ private:
   bool variableRateCoeffs;
 
   bool applySources;
+
+  const SolverState & solState_;
 };
 
 //-----------------------------------------------------------------------------

@@ -85,6 +85,7 @@ Region::Region(
     variablesScaledFlag(false),
     rateConstantsScaledFlag(false),
     callsOTEC(0),
+    theReactions(solst),
     baseReactionIndex(-1),
     x0(0.0),
     a0(0.0),

@@ -75,6 +75,8 @@
 #include <N_UTL_Op.h>
 #include <N_UTL_OpBuilder.h>
 
+#include <expressionGroup.h>
+
 // These are slowly being removed as DeviceMgr should not depend on Devices.  Devices should plug in to DeviceMgr.
 #include <N_DEV_Bsrc.h>
 #include <N_DEV_ISRC.h>
@@ -238,6 +240,21 @@ bool DeviceMgr::registerAnalysisManager(Analysis::AnalysisManager * analysis_man
   analysisManager_ = analysis_manager;
 
   return analysisManager_ != 0;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : DeviceMgr::registerExpressionGroup
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 4/19/2020
+//-----------------------------------------------------------------------------
+bool DeviceMgr::registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
+{
+  expressionGroup_ = group;
+  solState_.registerExpressionGroup(expressionGroup_);
+  return (!(Teuchos::is_null(expressionGroup_)));
 }
 
 //-----------------------------------------------------------------------------

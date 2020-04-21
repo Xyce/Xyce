@@ -69,6 +69,8 @@
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_OptionBlock.h>
 
+#include <expressionGroup.h>
+
 namespace Xyce {
 namespace Nonlinear {
 

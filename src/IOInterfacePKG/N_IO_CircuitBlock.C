@@ -65,6 +65,8 @@
 
 #include <N_IO_fwd.h>
 
+#include <expressionGroup.h>
+
 namespace Xyce {
 namespace IO {
 
@@ -1764,7 +1766,7 @@ void CircuitBlock::updateAliasNodeMapHelper()
     // Turn the string in expStrings into an expression, and parse it
     std::string expressionString;
     expressionString = (*it).substr(1, (*it).size()-2);
-    Util::Expression expression(expressionString);
+    Util::Expression expression(expressionGroup_,expressionString);
 
     if (expression.parsed())
     {

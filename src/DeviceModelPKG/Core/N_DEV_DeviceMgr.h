@@ -73,6 +73,8 @@ using std::tr1::unordered_map;
 #include <N_UTL_Listener.h>
 #include <N_UTL_Op.h>
 
+class expressionGroup;
+
 namespace Xyce {
 namespace Device {
 
@@ -121,6 +123,8 @@ public:
   void notify(const Analysis::StepEvent &event);
 
   bool registerAnalysisManager(Analysis::AnalysisManager *analysis_manager);
+
+  bool registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group);
 
   bool registerNonlinearSolver (Nonlinear::Manager * tmp_nlsMgrPtr)
   {
@@ -544,6 +548,8 @@ private:
   bool                          externalStateFlag_;
 
   Analysis::AnalysisManager *   analysisManager_;       ///< To search for non-device parameters.  This needs to be removed
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
+
   // IO::Measure::Manager *        measureManager_;        ///< To search for non-device parameters.  This needs to be removed
   ArtificialParameterMap        artificialParameterMap_; ///< Specially named parameters.  This needs to be removed
   PassthroughParameterSet       passthroughParameterSet_;  ///< Parameters to pass through to external devices when set

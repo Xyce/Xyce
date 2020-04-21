@@ -465,6 +465,7 @@ bool Simulator::doRegistrations_()
   bs1 = Nonlinear::registerPkgOptionsMgr(*nonlinearManager_, *optionsManager_ ); bsuccess = bsuccess && bs1;
 
   // Device Manager registrations
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroupCast = mainExprGroup_;
   bs1 = deviceManager_->registerNonlinearSolver(nonlinearManager_); bsuccess = bsuccess && bs1;
   bs1 = deviceManager_->registerAnalysisManager(analysisManager_);  bsuccess = bsuccess && bs1;
   // bs1 = deviceManager_->registerMeasureMgr(measureManager_);       bsuccess = bsuccess && bs1;
@@ -472,6 +473,7 @@ bool Simulator::doRegistrations_()
   // Analysis manager registrations:
   bs1 = analysisManager_->registerParallelServices(parallelManager_); bsuccess = bsuccess && bs1;
   bs1 = analysisManager_->registerElapsedTimer(ElapsedTimerPtr_); bsuccess = bsuccess && bs1;
+  //bs1 = analysisManager_->registerExpressionGroup(baseGroupCast);    bsuccess = bsuccess && bs1;
 
   // Linear Solver registrations:
   bs1 = linearSystem_->registerPDSManager(parallelManager_);    bsuccess = bsuccess && bs1;
@@ -907,16 +909,24 @@ Simulator::RunStatus Simulator::initializeEarly(
   if (DEBUG_CIRCUIT)
     dout() << "Registration was successful" << std::endl;
 
-  IO::NetlistImportTool netlist_import_tool(*opBuilderManager_, *parsingManager_);
 
-  IO::registerPkgOptionsMgr(netlist_import_tool, *optionsManager_);
 
-  // ERK.  Set up the main expression group
+  // ERK.  Allocate up the main expression group
   mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
     *parallelManager_->getPDSComm(),
-    *topology_,
-    *analysisManager_->getDataStore(),
-    netlist_import_tool.getAliasNodeMap()));
+    *topology_, *analysisManager_));
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroupCast = mainExprGroup_;
+  IO::NetlistImportTool netlist_import_tool(*opBuilderManager_, *parsingManager_, baseGroupCast);
+  IO::registerPkgOptionsMgr(netlist_import_tool, *optionsManager_);
+
+  mainExprGroup_->setAliasNodeMap( netlist_import_tool.getAliasNodeMap() );
+
+  // ERK. these could be in "doRegistrations" but the mainXyceGroup must be allocated after netlist_import_tool, which happens after ...
+  bool bs1=deviceManager_->registerExpressionGroup(baseGroupCast);
+  bool bs2=analysisManager_->registerExpressionGroup(baseGroupCast);
+  bool bs3=measureManager_->registerExpressionGroup(baseGroupCast);
+  bool bs4=nonlinearManager_->registerExpressionGroup(baseGroupCast);
 
   runState_ = PARSE_NETLIST;
   Xyce::lout() << "***** Reading and parsing netlist..." << std::endl;

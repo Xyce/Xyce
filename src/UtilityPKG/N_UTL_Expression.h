@@ -74,7 +74,7 @@ class Expression
 
 public:
   Expression (
-      //Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
+      const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
       std::string const & exp = std::string(), 
       const std::vector<std::string> & functionArgStringVec = std::vector<std::string>(), 
       bool useNew=true);
@@ -120,13 +120,6 @@ public:
 
   int differentiate();
 
-#if 0
-  // ERK set_var and set_vars need to go, and replaced with the functions 
-  // such as "setVoltageNode" that I have set up below.
-  bool set_var (const std::string &, const double &);
-  bool set_vars (const std::vector< double > &);
-#endif
-
   // ERK new expression stuff, where external dependencies are set in separate 
   // calls.  This is better than set_var/s, but not best.  Best would be to
   // have an all-powerful group that can "pull" these values, rather than
@@ -141,11 +134,6 @@ public:
   std::string get_expression (void) const;
   std::string get_derivative(std::string const & var);
   int get_num(int const & type);
-
-#if 0
-  int evaluate (double &result, std::vector< double > &derivs, std::vector< double > &vals);
-  int evaluateFunction (double &result, std::vector< double > &vals);
-#endif
 
   int evaluate (double &result, std::vector< double > &derivs);
   int evaluateFunction (double &result);
@@ -163,16 +151,6 @@ public:
   double get_break_time_i (void);
 
   const std::string & get_input (void);
-
-#if 0
-  // ERK.  Not sure if these will be needed or not.  
-  // I recently added them as an experiment, that hasn't concluded yet.
-  // They are the lookups that most parts of Xyce (outside IO) use to
-  // find parameters, globalParameteres and dot Funcs.
-  void setFunctionMap    ( const Util::ParamMap & context_function_map );
-  void setParamMap       ( const Util::ParamMap & context_param_map );
-  void setGlobalParamMap ( const Util::ParamMap & context_gParam_map );
-#endif
 
   // ERK.  Many of the functions below, here need to go.  Probably not all, but many.
   // order_names and replace_func will definitely be gone.

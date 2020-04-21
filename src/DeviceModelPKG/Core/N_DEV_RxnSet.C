@@ -433,8 +433,8 @@ void Instance::allocateRegions ()
       // Allocate a single reaction network class, and use it to parse the reactions
       // file.  This reaction network will then be copied into each reaction region
       // as it is constructed.
-      ReactionNetwork tmpReactions1;
-      ReactionNetwork tmpReactions2;
+      ReactionNetwork tmpReactions1(getSolverState());
+      ReactionNetwork tmpReactions2(getSolverState());
 
       tmpReactions1.setApplySources(true);
       tmpReactions1.setReactionNetworkFromFile(netlistLocation(), model_.rxnFileName);
@@ -2266,7 +2266,7 @@ CompositeParam *Model::constructComposite(const std::string & cName, const std::
 {
   if (cName == "DOPINGPROFILES" || cName == "REGION")
   {
-    DopeInfo *doping = new DopeInfo();
+    DopeInfo *doping = new DopeInfo(getSolverState());
     dopeInfoMap[pName] = doping;
     return (static_cast<CompositeParam *> (doping));
   }

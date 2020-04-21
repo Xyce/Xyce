@@ -1806,9 +1806,14 @@ complex MeasureOp::get(const MeasureOp &op, const Util::Op::OpData &op_data)
 // Creator       : David Baur, Raytheon
 // Creation Date : 11/15/2013
 //-----------------------------------------------------------------------------
-ExpressionOp::ExpressionOp(const std::string &name, const std::string &expression, Parallel::Machine comm, const OutputMgr &output_manager)
+ExpressionOp::ExpressionOp(
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp, 
+    const std::string &name, 
+    const std::string &expression, 
+    Parallel::Machine comm, 
+    const OutputMgr &output_manager)
   : Base(name),
-    expressionData_(expression),
+    expressionData_(grp, expression),
     comm_(comm),
     outputMgr_(output_manager)
 {

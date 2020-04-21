@@ -63,6 +63,7 @@ namespace IO {
 // Creation Date  : 01/21/2003
 //----------------------------------------------------------------------------
 CircuitContext::CircuitContext(
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
   Util::Op::BuilderManager &    op_builder_manager,
   std::list<CircuitContext*> &  context_list,
   CircuitContext *&             current_context_pointer)
@@ -77,7 +78,8 @@ CircuitContext::CircuitContext(
     subcircuitPrefix_(""),
     resolved_(false),
     resolvedParams_(),
-    resolvedGlobalParams_()
+    resolvedGlobalParams_(),
+    expressionGroup_(group)
 {
   if (currentContextPtr_ == NULL)
   {
@@ -178,7 +180,7 @@ bool CircuitContext::beginSubcircuitContext(
 
   // Create a new circuit context for the subcircuit.
   CircuitContext* subcircuitContextPtr =
-    new CircuitContext(opBuilderManager_, contextList_, currentContextPtr_);
+    new CircuitContext(expressionGroup_, opBuilderManager_, contextList_, currentContextPtr_);
 
   // Set the parent context, save the current context and reset it to the
   // newly created context.
@@ -494,7 +496,8 @@ void CircuitContext::resolveQuote(Util::Param & parameter) const
 
     table += ")";
 
-    parameter.setVal( Util::Expression(table) );
+    // ERK.  Change this to use the new method for tables in the newExpression library.
+    parameter.setVal( Util::Expression(expressionGroup_,table) );
     return;
   }
 }
@@ -578,7 +581,7 @@ void CircuitContext::resolveTableFileType(Util::Param & parameter) const
 
     table += ")";
 
-    parameter.setVal( Util::Expression(table) );
+    parameter.setVal( Util::Expression(expressionGroup_, table) );
     return;
   }
 }
@@ -963,7 +966,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       {
         // After resolution, the only strings allowed in the function
         // are the function arguments, check that this holds.
-        Util::Expression functionBodyExpression( functionParameter.stringValue() );
+        Util::Expression functionBodyExpression(expressionGroup_,  functionParameter.stringValue() );
         std::vector<std::string> strings;
         bool canResolveAll=true;
 
@@ -1027,7 +1030,7 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       {
         std::vector<std::string> strings;
 
-        Util::Expression functionBodyExpression(functionParameter.stringValue());
+        Util::Expression functionBodyExpression(expressionGroup_, functionParameter.stringValue());
         functionBodyExpression.get_names(XEXP_STRING, strings);
         for (std::vector<std::string>::const_iterator it = strings.begin(); it != strings.end(); ++it)
         {
@@ -1429,7 +1432,7 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
     }
 
     // Parse the expression:
-    Util::Expression expression(expressionString);
+    Util::Expression expression(expressionGroup_, expressionString);
 
     if (!expression.parsed())
     {
@@ -1616,7 +1619,7 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
     }
 
     // Parse the expression:
-    Util::Expression expression(expressionString,funcArgs);
+    Util::Expression expression(expressionGroup_, expressionString,funcArgs);
 
     if (!expression.parsed())
     {
@@ -3476,7 +3479,7 @@ Pack<IO::CircuitContext>::unpack(
       circuit_context.circuitContextTable_.insert(
         std::pair< std::string, IO::CircuitContext *>(
           tmp,
-          new IO::CircuitContext( circuit_context.opBuilderManager_, circuit_context.contextList_, circuit_context.currentContextPtr_ ) ) );
+          new IO::CircuitContext(circuit_context.expressionGroup_, circuit_context.opBuilderManager_, circuit_context.contextList_, circuit_context.currentContextPtr_ ) ) );
 
     // set the parent context of my children to me
     p.first->second->setParentContextPtr( &circuit_context );

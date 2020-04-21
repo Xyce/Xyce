@@ -576,7 +576,7 @@ void MembraneUserDefined::convertStringsToExpression( std::vector< std::string >
   for( int i=0; i<numStrings; i++ )
   {
     //Xyce::dout() << "Making expression from :" << stringInput.at(i) << std::endl;
-    expRCPOut.push_back( rcp( new Util::Expression( stringInput.at(i) ) ) );
+    expRCPOut.push_back( rcp( new Util::Expression( solState.expressionGroup_, stringInput.at(i) ) ) );
     /*
     int type=0;
     std::vector<string> names;

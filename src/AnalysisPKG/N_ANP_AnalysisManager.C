@@ -78,6 +78,8 @@
 
 #include <N_PDS_Comm.h>
 
+#include <expressionGroup.h>
+
 namespace Xyce {
 namespace Analysis {
 
@@ -1199,7 +1201,6 @@ int AnalysisManager::getDoubleDCOPStep() const
 bool AnalysisManager::updateDerivs()
 {
   workingIntgMethod_->obtainCorrectorDeriv();
-
   return true;
 }
 
@@ -1214,8 +1215,21 @@ bool AnalysisManager::updateDerivs()
 bool AnalysisManager::registerElapsedTimer(Util::Timer * et)
 {
   elapsedTimerPtr_ = et;
-
   return true;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : AnalysisManager::registerExpressionGroup
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 04/19/2020
+//-----------------------------------------------------------------------------
+bool AnalysisManager::registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
+{
+  expressionGroup_ = group;
+  return (!(Teuchos::is_null(expressionGroup_)));
 }
 
 //-----------------------------------------------------------------------------

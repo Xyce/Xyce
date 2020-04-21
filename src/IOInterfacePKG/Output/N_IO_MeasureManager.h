@@ -57,6 +57,8 @@
 #include <N_UTL_NodeSymbols.h>
 #include <N_UTL_Op.h>
 
+class expressionGroup;
+
 namespace Xyce {
 namespace IO {
 namespace Measure {
@@ -177,6 +179,12 @@ public:
   //added to help register lead currents with device manager
   std::set<std::string> getDevicesNeedingLeadCurrents() { return devicesNeedingLeadCurrents_; }
 
+  bool registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
+  {
+    expressionGroup_ = group;
+    return (!(Teuchos::is_null(expressionGroup_)));
+  }
+
 private:
   std::string           netlistFilename_;
   std::string           measureOutputFileSuffix_;
@@ -208,6 +216,8 @@ private:
 
   //added to help register lead currents with device manager
   std::set<std::string> devicesNeedingLeadCurrents_;   
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
 bool registerPkgOptionsMgr(Manager &manager, PkgOptionsMgr &options_manager);

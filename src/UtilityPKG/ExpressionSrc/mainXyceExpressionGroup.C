@@ -15,6 +15,8 @@
 #include <N_PDS_Manager.h>
 #include <N_PDS_Serial.h>
 
+#include <N_ANP_AnalysisManager.h>
+
 namespace Xyce {
 namespace Util {
 
@@ -68,9 +70,11 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, doubl
     if (!found && !found2)
     {
       //IO::AliasNodeMap::const_iterator alias_it = output_manager.getAliasNodeMap().find( nodeNameUpper );
-      IO::AliasNodeMap::const_iterator alias_it = aliasNodeMap_.find( nodeNameUpper );
+      //IO::AliasNodeMap::const_iterator alias_it = aliasNodeMap_.find( nodeNameUpper );
+      IO::AliasNodeMap::const_iterator alias_it = aliasNodeMapPtr_->find( nodeNameUpper );
       //if (alias_it != output_manager.getAliasNodeMap().end())
-      if (alias_it != aliasNodeMap_.end())
+      //if (alias_it != aliasNodeMap_.end())
+      if (alias_it != aliasNodeMapPtr_->end())
       {      
         foundAliasNodeLocal = top_.getNodeSVarGIDs(NodeID((*alias_it).second, Xyce::_VNODE), svGIDList1, dummyList, type1);
       }
@@ -87,6 +91,7 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, doubl
 
   if (tmpGID >= 0)
   {
+    const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
     retval = dataStore_.nextSolutionPtr->getElementByGlobalIndex(tmpGID, 0);
   }
   else 

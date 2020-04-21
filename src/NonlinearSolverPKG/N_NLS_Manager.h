@@ -56,6 +56,8 @@
 #include <N_NLS_ReturnCodes.h>
 #include <N_NLS_NonLinearSolver.h>
 
+class expressionGroup;
+
 namespace Xyce {
 namespace Nonlinear {
 
@@ -104,6 +106,12 @@ public:
   {
     lasPrecPtr_ = preconditioner_factory;
     return lasPrecPtr_;
+  }
+
+  bool registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
+  {
+    expressionGroup_ = group;
+    return ( !(Teuchos::is_null(expressionGroup_)) );
   }
 
   void setReturnCodes (const ReturnCodes & retCodeTmp);
@@ -209,7 +217,9 @@ private:
   OptionBlockMap                        optionBlockMap_;                /// netlist option blocks until we know which
   bool                                  initializeAllFlag_;
   ReturnCodes                           retCodes_;                      /// Return Codes.
-  Util::Expression *                    exprPtr_;
+  //Util::Expression *                    exprPtr_; //ERK. why is this here?
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
 bool registerPkgOptionsMgr(Manager &manager, IO::PkgOptionsMgr &options_manager);

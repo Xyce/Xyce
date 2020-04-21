@@ -97,8 +97,9 @@ Manager::Manager(
     noxFlagTransient_(false),
     optionBlockMap_(),
     initializeAllFlag_(false),
-    retCodes_(),
-    exprPtr_(0)
+    retCodes_()
+    //,
+    //exprPtr_(0) // ERK. why?
 {}
 
 
@@ -116,7 +117,7 @@ Manager::~Manager()
   delete nonlinearSolver_;
   delete nlsSensitivityPtr_;
   delete conductanceExtractorPtr_;
-  delete exprPtr_;
+  //delete exprPtr_;
 }
 
 //-----------------------------------------------------------------------------
@@ -904,6 +905,7 @@ bool Manager::setupSensitivity(
   bool bs1 = true;
 
   nlsSensitivityPtr_ = new Sensitivity(nonlinearSolver_, topology, commandLine_,sec);
+  bs1 = nlsSensitivityPtr_->registerExpressionGroup(expressionGroup_); bsuccess = bsuccess && bs1;
   bs1 = nlsSensitivityPtr_->registerParallelMgr(&parallel_manager); bsuccess = bsuccess && bs1;
   bs1 = nlsSensitivityPtr_->registerTIADataStore(&data_store); bsuccess = bsuccess && bs1;
   bs1 = nlsSensitivityPtr_->registerOutputMgr(&output_manager); bsuccess = bsuccess && bs1;

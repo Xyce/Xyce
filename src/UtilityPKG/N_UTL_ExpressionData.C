@@ -63,11 +63,13 @@ namespace Util {
 // Creation Date : 08/09/04
 //-----------------------------------------------------------------------------
 ExpressionData::ExpressionData (
-  const std::string &   expression)
+      const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
+      const std::string &   expression)
   : expression_(0),
     expressionString_(expression),
     state_(NOT_SETUP),
-    sensitivitiesPossible_(true)
+    sensitivitiesPossible_(true),
+    expressionGroup_(group)
 {}
 
 //-----------------------------------------------------------------------------
@@ -310,7 +312,7 @@ ExpressionData::setup(
   // allocate expression pointer if we need to
   if( expression_ == NULL )
   {
-    expression_ = new Expression(expressionString_);
+    expression_ = new Expression(expressionGroup_, expressionString_);
   }
 
   if (!expression_->parsed())
@@ -349,10 +351,10 @@ ExpressionData::setup(
     // create an expression from the function definition and
     // order its names from that list. Finally, replace the
     // function in the expression to be resolved.
-    Util::Expression prototypeExression(functionPrototype);
+    Util::Expression prototypeExression(expressionGroup_, functionPrototype);
     std::vector<std::string> arguments;
     prototypeExression.get_names(XEXP_STRING, arguments);
-    Util::Expression functionExpression(functionBody);
+    Util::Expression functionExpression(expressionGroup_, functionBody);
     functionExpression.order_names(arguments);
 
     if (expression_->replace_func(*it, functionExpression, static_cast<int>(arguments.size())) < 0)

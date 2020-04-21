@@ -916,7 +916,8 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   if (isTempParam(par.tag()) && param.getAutoConvertTemperature())
   {
     //User input for temperature is in degrees C.  Devices use degrees K internally.
-    dependentParam.expr = new Util::Expression ("(" + par.stringValue() + ")+CONSTCtoK");
+    dependentParam.expr = new Util::Expression (
+        solState_.expressionGroup_, "(" + par.stringValue() + ")+CONSTCtoK"); 
 
     // Need to get the string names of the variables that are in par's expression,
     // and then use that vector of string names to make them variables in the

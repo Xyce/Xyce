@@ -63,6 +63,8 @@
 #include <N_UTL_Stats.h>
 #include <N_UTL_Timer.h>
 
+class expressionGroup;
+
 namespace Xyce {
 namespace Analysis {
 
@@ -292,6 +294,9 @@ public:
 
   // Registers the elapsed time timer
   bool registerElapsedTimer(Util::Timer *);
+
+  // Register the expression group
+  bool registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group);
 
   // Writes-out the restart data.
   bool dumpRestartData(char * buf, int bsize, int & pos, Parallel::Communicator * comm, bool pack);
@@ -526,6 +531,10 @@ public:
 
   void setRFParamsRequested(const std::string & type);
 
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & getExpressionGroup()
+  {
+    return expressionGroup_;
+  }
 
 private:
   const IO::CmdParse &                  commandLine_;                   ///< Command line object
@@ -559,6 +568,8 @@ private:
 
   Util::Timer           xyceTranTimerPtr_;              /// Xyce timing utility for timing the transient simulation CPU time.
   Util::Timer *         elapsedTimerPtr_;               /// Xyce timing utility for timing elapsed run time
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; /// expression group, required for all expressions
 
   double                solverStartTime_;
 

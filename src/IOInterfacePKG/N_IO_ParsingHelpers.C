@@ -718,7 +718,7 @@ bool extractParamData(
 
     if (parsed_line[linePosition].string_[0] == '{')
     {
-      Util::Expression expPtr(parsed_line[linePosition].string_);
+      Util::Expression expPtr(circuit_block.getExpressionGroup(), parsed_line[linePosition].string_);
 
       std::vector<std::string> junk;
       std::string msg;
@@ -843,7 +843,7 @@ bool extractGlobalParamData(
 
     if (parsed_line[linePosition].string_[0] == '{')
     { 
-      Util::Expression expPtr(parsed_line[linePosition].string_);
+      Util::Expression expPtr(circuit_block.getExpressionGroup(), parsed_line[linePosition].string_);
       
       std::vector<std::string> junk;
       std::string msg;

@@ -1654,7 +1654,12 @@ public:
 class ExpressionOp : public Util::Op::Op<ExpressionOp, Util::Op::ReduceNone, Util::Op::EvalNoop>
 {
 public:
-  ExpressionOp(const std::string &name, const std::string &expression, Parallel::Machine comm, const OutputMgr &output_manager);
+  ExpressionOp(
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & grp, 
+    const std::string &name, 
+    const std::string &expression, 
+    Parallel::Machine comm, 
+    const OutputMgr &output_manager);
 
   virtual ~ExpressionOp()
   {}

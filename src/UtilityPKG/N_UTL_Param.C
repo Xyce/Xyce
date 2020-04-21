@@ -665,8 +665,12 @@ void Param::setTimeDependent( bool timeDependent )
   }
   if (!timeDependent)
     return;
+
   exp = getValue<std::string>();
+#if 0
+  // ERK.  This is broken!  It needs a group argument.  I don't have one at moment, so commenting out.
   setVal(Expression(exp));
+#endif
 }
 
 //----------------------------------------------------------------------------
@@ -846,7 +850,10 @@ Pack<Util::Param>::unpack(Util::Param &param, char * pB, int bsize, int & pos, N
 
     case Util::EXPR:
       comm->unpack( pB, bsize, pos, &length, 1 );
+#if 0
+      // ERK.  This is broken!  It needs a group argument.
       param.setVal(Util::Expression(std::string( (pB+pos), length )));
+#endif
       pos += length;
       break;
 

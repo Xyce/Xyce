@@ -1525,9 +1525,12 @@ private:
 //--------------------------------------------------------------------------
 struct ExpressionOpBuilder : public Util::Op::Builder
 {
-  ExpressionOpBuilder(Parallel::Machine comm, const OutputMgr & output_manager)
+  ExpressionOpBuilder(
+     const Teuchos::RCP<Xyce::Util::baseExpressionGroup> &grp,
+      Parallel::Machine comm, const OutputMgr & output_manager)
     : comm_(comm),
-      outputManager_(output_manager)
+      outputManager_(output_manager),
+      expressionGroup_(grp)
   {}
 
   virtual ~ExpressionOpBuilder()
@@ -1547,7 +1550,7 @@ struct ExpressionOpBuilder : public Util::Op::Builder
 
     if (Util::hasExpressionTag(*it))
     {
-      new_op = new ExpressionOp(param_tag, param_tag, comm_, outputManager_);
+      new_op = new ExpressionOp(expressionGroup_, param_tag, param_tag, comm_, outputManager_);
     }
 
     return new_op;
@@ -1556,6 +1559,7 @@ struct ExpressionOpBuilder : public Util::Op::Builder
 private:
   const Parallel::Machine       comm_;
   const OutputMgr &             outputManager_;
+  const Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_;
 };
 
 //--------------------------------------------------------------------------
@@ -1787,8 +1791,11 @@ struct TransientAdjointOpBuilder : public Util::Op::Builder
 // Creator       : Dave Baur
 // Creation Date : 08/04/14
 //--------------------------------------------------------------------------
-void registerOpBuilders(Util::Op::BuilderManager &op_builder_manager, Parallel::Machine comm, OutputMgr &output_manager,
-                        Analysis::AnalysisManager &analysis_manager)
+void registerOpBuilders(
+    Util::Op::BuilderManager &op_builder_manager, 
+    Parallel::Machine comm, 
+    OutputMgr &output_manager,
+    Analysis::AnalysisManager &analysis_manager)
 {
   op_builder_manager.addBuilder(new CircuitTemperatureOpBuilder(output_manager));
   op_builder_manager.addBuilder(new CircuitTimeOpBuilder(output_manager));
@@ -1799,7 +1806,7 @@ void registerOpBuilders(Util::Op::BuilderManager &op_builder_manager, Parallel::
   op_builder_manager.addBuilder(new CircuitIndexOpBuilder());
   op_builder_manager.addBuilder(new SensitivityOpBuilder());
   op_builder_manager.addBuilder(new TransientAdjointOpBuilder());
-  op_builder_manager.addBuilder(new ExpressionOpBuilder(comm, output_manager));
+  op_builder_manager.addBuilder(new ExpressionOpBuilder(analysis_manager.getExpressionGroup(), comm, output_manager));
 //  op_builder_manager.addBuilder(new StepSweepOpBuilder(output_manager));
   op_builder_manager.addBuilder(new DCSweepOpBuilder(output_manager));
   op_builder_manager.addBuilder(new DCSweepCurrentValueOpBuilder(output_manager));

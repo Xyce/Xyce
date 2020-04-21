@@ -63,6 +63,8 @@
 #include <N_PDS_MPI.h>
 #include <N_PDS_Serial.h>
 
+#include <expressionGroup.h>
+
 namespace Xyce {
 
 namespace Util {
@@ -277,14 +279,16 @@ bool registerPkgOptionsMgr(NetlistImportTool &netlist_import_tool, PkgOptionsMgr
 //-------------------------------------------------------------------------
 NetlistImportTool::NetlistImportTool(
   Util::Op::BuilderManager &    op_builder_manager,
-  const ParsingMgr &            parsing_manager)
+  const ParsingMgr &            parsing_manager,
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
   : parsing_manager(parsing_manager),
     mainCircuitBlock_(NULL),
     distributionTool_(NULL),
     currentContextPtr_(NULL),
     metadata_(),
-    circuitContext_(op_builder_manager, contextList_, currentContextPtr_),
-    useMOR_(false)
+    circuitContext_(group, op_builder_manager, contextList_, currentContextPtr_),
+    useMOR_(false),
+    expressionGroup_(group)
 {}
 
 //-------------------------------------------------------------------------
@@ -1224,7 +1228,11 @@ void getLeadCurrentDevices(const Util::ParamList &variable_list, std::set<std::s
     {
       std::vector<std::string> leads;
 
-      Util::Expression exp;
+      // this is a do-nothing group
+      Teuchos::RCP<Xyce::Util::baseExpressionGroup> exprGroup = 
+        Teuchos::rcp(new Xyce::Util::baseExpressionGroup());
+
+      Util::Expression exp(exprGroup);
       exp.set(iterParam->tag());
       exp.get_names(XEXP_LEAD, leads);
 

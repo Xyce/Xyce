@@ -106,10 +106,12 @@ bool evaluateObjFuncs (
     TimeIntg::StepErrorControl & sec,
     std::string & netlistFilename);
 
-void setupObjectiveFunctions (std::vector<objectiveFunctionData*> & objVec,
-   IO::OutputMgr & output_manager, Linear::System & lasSys,
-  const IO::CmdParse &cp,
-  bool checkTimeDeriv=true);
+void setupObjectiveFunctions (
+    Teuchos::RCP<Xyce::Util::baseExpressionGroup> & exprGroup,
+    std::vector<objectiveFunctionData*> & objVec,
+    IO::OutputMgr & output_manager, Linear::System & lasSys,
+    const IO::CmdParse &cp,
+    bool checkTimeDeriv=true);
 
 void setupObjectiveFuncGIDs (std::vector<objectiveFunctionData*> & objVec, N_PDS_Comm & comm, 
     Topo::Topology & top, IO::OutputMgr & output_manager);

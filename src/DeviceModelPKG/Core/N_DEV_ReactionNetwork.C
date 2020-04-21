@@ -52,6 +52,7 @@
 #include <N_DEV_ReactionNetwork.h>
 #include <N_DEV_MaterialLayer.h>
 
+#include <N_DEV_SolverState.h>
 
 #ifdef Xyce_REACTION_PARSER
 // Grrrr.  Stupid bison 2.4 stopped putting the pre-prologue into the header.
@@ -102,13 +103,16 @@ namespace Device {
 // Creator       : Tom Russo, SNL, Electrical and Microsystems Modeling
 // Creation Date : 03/20/06
 //-----------------------------------------------------------------------------
-ReactionNetwork::ReactionNetwork(const std::string &name)
+ReactionNetwork::ReactionNetwork(
+    const SolverState & solver_state,
+    const std::string &name)
   : myName(name),
     sourceScaleFac(1.0),
     C0(1.0),
     t0(1.0),
     x0(1.0),
-    applySources(true)
+    applySources(true), 
+    solState_(solver_state)
 {
   theReactions.reserve(10); // try to cut down on copies
 }
@@ -141,7 +145,8 @@ ReactionNetwork::ReactionNetwork(
     t0(right.t0),
     x0(right.x0),
     material(right.material),
-    applySources(right.applySources)
+    applySources(right.applySources),
+    solState_(right.solState_)
 {
 
   // Can't just copy the vector of source terms, coz those are pointers.
@@ -870,7 +875,7 @@ void ReactionNetwork::addSourceTerm(const std::string &speciesName, const std::s
     int speciesNum=getSpeciesNum(speciesName);
     if (speciesNum >= 0) // the species exists
     {
-      Util::Expression *foo= new Util::Expression(expressionStr);
+      Util::Expression *foo= new Util::Expression(solState_.expressionGroup_,expressionStr);
       theSourceTerms.push_back( std::pair<int,Util::Expression *>(speciesNum, foo));
     }
   }

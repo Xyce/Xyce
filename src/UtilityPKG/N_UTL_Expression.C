@@ -52,7 +52,8 @@
 #include <N_UTL_Expression.h>
 
 // ERK.  Adding this (utl param) may be more trouble than I want ...
-#include <N_UTL_Param.h>
+// ERK.  Don't need it ...
+// #include <N_UTL_Param.h>
 
 #include <newExpression.h>
 #include <xyceExpressionGroup.h>
@@ -71,7 +72,7 @@ namespace Util {
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
 Expression::Expression( 
-    //Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
+    const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
     const std::string & exp, 
     const std::vector<std::string> & functionArgStringVec,
     bool useNew )
@@ -79,13 +80,16 @@ Expression::Expression(
    useNewExpressionLibrary_(useNew),
    namesSet_(false),
    newExpPtr_(NULL),
-   expPtr_(NULL)
+   expPtr_(NULL),
+   grp_(baseGrp_)
 {
 
   if(useNewExpressionLibrary_)
   {
+#if 0
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
     grp_ = xyceGroup;
+#endif
 
     // ERK; removing the beginning and ending brace should really be handled by flex/bison, 
     // but I was in a hurry today.
@@ -370,8 +374,10 @@ bool Expression::set ( const std::string & exp )
     }
     else
     {
+#if 0
       Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
       grp_ = xyceGroup;
+#endif
       //newExpPtr_ = new Xyce::Util::newExpression(expCopy, grp_);
       newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy, grp_) );
     }
@@ -463,7 +469,7 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
 
     // VARIABLE is a global parameter that needs to be updated at each call.
     var_type = XEXP_VARIABLE;
-#if 1
+#if 0
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
     const std::vector<std::string> & names = xyceGroup->getNames();
     int nameSize = names.size();
@@ -571,7 +577,7 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
 {
   if(useNewExpressionLibrary_)
   {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
 
     switch (type)
     {
@@ -627,7 +633,7 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         break;
 
       case XEXP_VARIABLE:
-        names.insert(names.end(),(xyceGroup->getNames()).begin(), (xyceGroup->getNames()).end());
+        //names.insert(names.end(),(xyceGroup->getNames()).begin(), (xyceGroup->getNames()).end());
         break;
 
       case XEXP_FUNCTION:
@@ -1054,7 +1060,6 @@ int Expression::get_num(int const & type)
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
 
     switch (type)
     {
@@ -1104,83 +1109,6 @@ int Expression::get_num(int const & type)
   std::cout << "Expression::get_num(int const & type) type = " << type << " num = " << retVal << std::endl;
   return retVal;
 }
-
-#if 0
-//-----------------------------------------------------------------------------
-// Function      : Expression::evaluate
-// Purpose       : Evaluate expression and derivatives using provided input values
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::evaluate ( double & exp_r,
-                           std::vector<double> & deriv_r,
-                           std::vector<double> & vals )
-{
-  int retVal=0; 
-  if(useNewExpressionLibrary_)
-  {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-
-    if (!namesSet_) // kludge
-    {
-      std::vector<std::string> names;
-      getVoltageNodes(names);
-      getDeviceCurrents(names);
-
-      // get the global param names.
-      newExpPtr_->getGlobalParamNames ( names );
-
-      xyceGroup->setNames ( names );
-      namesSet_ = true;
-    }
-
-    xyceGroup->setVals ( vals );
-    retVal = newExpPtr_->evaluate( exp_r, deriv_r);
-  }
-  else
-  {
-    retVal = expPtr_->evaluate ( exp_r, deriv_r, vals );
-  }
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::evaluateFunction
-// Purpose       : Evaluate expression using provided input values.  
-// Special Notes : This is for cases in which the user does not need 
-//                 the derivatives.
-// Scope         : public
-// Creator       : Eric Keiter, SNL
-// Creation Date : 04/14/08
-//-----------------------------------------------------------------------------
-int Expression::evaluateFunction ( double & exp_r, std::vector<double> & vals )
-{
-  int retVal=0;
-  if(useNewExpressionLibrary_)
-  {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-
-    if (!namesSet_) // kludge
-    {
-      std::vector<std::string> names;
-      getVoltageNodes(names); // for now just nodes. make XEXP_ALL later
-      getDeviceCurrents(names); // for now just nodes. make XEXP_ALL later
-      xyceGroup->setNames ( names );
-      namesSet_ = true;
-    }
-
-    xyceGroup->setVals ( vals );
-    retVal = newExpPtr_->evaluateFunction ( exp_r );
-  }
-  else
-  {
-    retVal = expPtr_->evaluateFunction ( exp_r, vals );
-  }
-  return retVal;
-}
-#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::evaluate
@@ -1238,8 +1166,8 @@ bool Expression::set_sim_time(double time)
 {
   if(useNewExpressionLibrary_)
   {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    xyceGroup->setTime(time);
+    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    //xyceGroup->setTime(time);
     return true;
   }
   else
@@ -1261,8 +1189,9 @@ bool Expression::set_sim_dt(double dt)
 {
   if(useNewExpressionLibrary_)
   {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    return xyceGroup->setTimeStep(dt);
+    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    //return xyceGroup->setTimeStep(dt);
+    return true;
   }
   else
   {
@@ -1283,8 +1212,9 @@ bool Expression::set_temp(double const & tempIn)
   bool retVal=false;
   if(useNewExpressionLibrary_)
   {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    return xyceGroup->setTemp(tempIn);
+    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    //return xyceGroup->setTemp(tempIn);
+    return true;
   }
   else
   {
@@ -1305,8 +1235,9 @@ bool Expression::set_sim_freq(double freq)
 {
   if(useNewExpressionLibrary_)
   {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    return xyceGroup->setFreq(freq);
+    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    //return xyceGroup->setFreq(freq);
+    return true;
   }
   else
   {
@@ -1456,119 +1387,6 @@ const std::string & Expression::get_input ()
   }
 }
 
-#if 0
-//-----------------------------------------------------------------------------
-// Function      : Expression::setFunctionMap
-// Purpose       : 
-//
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter, SNL
-// Creation Date : 03/16/2020
-//-----------------------------------------------------------------------------
-void Expression::setFunctionMap ( const Xyce::Util::ParamMap & context_function_map )
-{
-  if(useNewExpressionLibrary_)
-  {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-
-    // add the functions to the group
-    Xyce::Util::ParamMap::const_iterator mapIter;
-
-    mapIter = context_function_map.begin();
-    for (; mapIter != context_function_map.end(); ++mapIter)
-    {
-      const Xyce::Util::Param & tmpPar = mapIter->second;
-
-      if ( tmpPar.hasExpressionValue() )
-      {
-        Xyce::Util::Expression & expression = const_cast<Expression &>(tmpPar.getValue<Util::Expression>());
-        // this line can't compile b/c of const.
-        xyceGroup->addFunction (mapIter->first , expression.newExpPtr_ );
-      }
-      else
-      {
-        std::cout << "Expression::setFunctionMap.  ACK!!  parameter in the function map does not have an expression value!! " <<std::endl;
-      }
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::setParamMap
-// Purpose       :
-//
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter, SNL
-// Creation Date : 03/16/2020
-//-----------------------------------------------------------------------------
-void Expression::setParamMap       ( const Xyce::Util::ParamMap & context_param_map )
-{
-  if(useNewExpressionLibrary_)
-  {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-
-    // add the functions to the group
-    Xyce::Util::ParamMap::const_iterator mapIter;
-
-    mapIter = context_param_map.begin();
-    for (; mapIter != context_param_map.end(); ++mapIter)
-    {
-      const Xyce::Util::Param & tmpPar = mapIter->second;
-
-      if ( tmpPar.hasExpressionValue() )
-      {
-        Xyce::Util::Expression & expression = const_cast<Expression &>(tmpPar.getValue<Util::Expression>());
-        // this line can't compile b/c of const.
-        xyceGroup->addParam (mapIter->first , expression.newExpPtr_ );
-      }
-      else
-      {
-        std::cout << "Expression::setGlobalParamMap.  ACK!!  parameter in the function map does not have an expression value!! " <<std::endl;
-      }
-    }
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::setGlobalParamMap
-// Purpose       : 
-//
-// Special Notes : 
-// Scope         :
-// Creator       : Eric Keiter, SNL
-// Creation Date : 03/16/2020
-//-----------------------------------------------------------------------------
-void Expression::setGlobalParamMap ( const Xyce::Util::ParamMap & context_gParam_map )
-{
-  if(useNewExpressionLibrary_)
-  {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-
-    // add the functions to the group
-    Xyce::Util::ParamMap::const_iterator mapIter;
-
-    mapIter = context_gParam_map.begin();
-    for (; mapIter != context_gParam_map.end(); ++mapIter)
-    {
-      const Xyce::Util::Param & tmpPar = mapIter->second;
-
-      if ( tmpPar.hasExpressionValue() ) // is this the best conditional?  what about getType()==Xyce::Util::EXPR ?
-      {
-        Xyce::Util::Expression & expression = const_cast<Expression &>(tmpPar.getValue<Util::Expression>());
-        // this line can't compile b/c of const.
-        xyceGroup->addGlobalParam (mapIter->first , expression.newExpPtr_ );
-      }
-      else
-      {
-        std::cout << "Expression::setGlobalParamMap.  ACK!!  parameter in the function map does not have an expression value!! " <<std::endl;
-      }
-    }
-  }
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Function      : Expression::order_names
 // Purpose       : Put input quantity names in a particular order (used for
@@ -1616,13 +1434,14 @@ int Expression::replace_func (std::string const & func_name,
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+#if 0
     Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
     if (!(func_def.newExpPtr_->parsed()))
     {
       func_def.newExpPtr_->lexAndParseExpression();
     }
     xyceGroup->addFunction(func_name, func_def.newExpPtr_);
-
+#endif
     return numArgs;
   }
   else

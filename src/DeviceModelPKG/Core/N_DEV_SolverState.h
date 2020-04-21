@@ -57,6 +57,9 @@
 #include <N_NLS_TwoLevelEnum.h>
 #include <N_NLS_fwd.h>
 
+#include <Teuchos_RCP.hpp>
+
+#include <expressionGroup.h>
 
 namespace Xyce {
 namespace Device {
@@ -87,6 +90,11 @@ public:
   Globals &getGlobals() const
   {
     return const_cast<Globals &>(globals_);
+  }
+
+  void registerExpressionGroup(Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group)
+  {
+    expressionGroup_ = group;
   }
 
 public:
@@ -188,6 +196,8 @@ public:
   Globals               globals_;
 
   double                currFreq_;              ///< current frequency
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
 bool setupSolverInfo(

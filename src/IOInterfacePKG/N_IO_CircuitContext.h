@@ -104,6 +104,7 @@ public:
 
   // Constructors.
   CircuitContext(
+    Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group,
     Util::Op::BuilderManager &          op_builder_manager,
     std::list<CircuitContext*> &        context_list,
     CircuitContext *&                   current_circuit_context);
@@ -443,6 +444,8 @@ private:
   Util::UParamList resolvedParams_;
   Util::ParamList resolvedGlobalParams_;
   Util::ParamMap  resolvedFunctions_;
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 };
 
 //----------------------------------------------------------------------------

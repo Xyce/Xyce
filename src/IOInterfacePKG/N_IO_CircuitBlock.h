@@ -54,6 +54,8 @@
 #include <N_IO_DeviceBlock.h>
 #include <N_UTL_OptionBlock.h>
 
+class expressionGroup;
+
 namespace Xyce {
 namespace IO {
 
@@ -295,6 +297,8 @@ public:
     return levelSet_;
   }
   
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & getExpressionGroup() { return expressionGroup_; }
+
 public:
 
   // Lookup table for initial conditions
@@ -378,6 +382,8 @@ private:
 
   Topo::Topology &              topology_;
   Device::DeviceMgr  &          deviceManager_;
+
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_; ///< required for setting up expressions
 
   //This function preprocesses the netlist file to provide the user the
   //option of removing "redundant" devices (devices where all the nodes are

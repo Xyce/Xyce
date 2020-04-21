@@ -79,6 +79,7 @@
 #include <N_UTL_OptionBlock.h>
 #include <N_UTL_SaveIOSState.h>
 
+#include <expressionGroup.h>
 #include <newExpression.h>
 
 // ----------   Static Declarations ----------
@@ -220,9 +221,10 @@ bool evaluateObjFuncs (
 // Creator       : Eric Keiter, SNL, Parallel Computational Sciences
 // Creation Date : 03/25/2019
 //-----------------------------------------------------------------------------
-void setupObjectiveFunctions
-  (std::vector<objectiveFunctionData*> & objVec,
-   IO::OutputMgr & output_manager,
+void setupObjectiveFunctions(
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> & exprGroup,
+  std::vector<objectiveFunctionData*> & objVec,
+  IO::OutputMgr & output_manager,
   Linear::System & lasSys,
   const IO::CmdParse &cp,
   bool checkTimeDeriv
@@ -234,22 +236,7 @@ void setupObjectiveFunctions
 
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
-#if 0
-    bool useNewExprLib=true;
-    if(exprType == "OLD") 
-    {
-      useNewExprLib=false;
-      std::cout << "USING OLD EXPRESSION LIBRARY FOR OBJFUNC" << std::endl;
-    }
-    else
-    {
-      useNewExprLib=true;
-      std::cout << "USING NEW EXPRESSION LIBRARY FOR OBJFUNC" << std::endl;
-    }
-#endif
-
-    //objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString, useNewExprLib);
-    objVec[iobj]->expPtr = new Util::Expression(objVec[iobj]->objFuncString);
+    objVec[iobj]->expPtr = new Util::Expression(exprGroup, objVec[iobj]->objFuncString);
 
     if (!(objVec[iobj]->expPtr->parsed()))
     {
@@ -293,7 +280,7 @@ void setupObjectiveFunctions
       // create an expression from the function definition and
       // order its names from that list. Finally, replace the
       // function in the expression to be resolved.
-      Util::Expression prototypeExression(functionPrototype);
+      Util::Expression prototypeExression(exprGroup, functionPrototype);
 #if 0
       std::vector<std::string> arguments;
       prototypeExression.get_names(XEXP_STRING, arguments);
@@ -1362,7 +1349,7 @@ bool Sensitivity::calcObjFuncTimeDerivs ()
     }
 
     bool checkTimeDeriv=false;
-    setupObjectiveFunctions(objFuncTimeDerivDataVec_, *outMgrPtr_, *lasSysPtr_, commandLine_, checkTimeDeriv);
+    setupObjectiveFunctions(expressionGroup_, objFuncTimeDerivDataVec_, *outMgrPtr_, *lasSysPtr_, commandLine_, checkTimeDeriv);
     timeDerivsSetup_ = true;
   }
 
@@ -1811,7 +1798,7 @@ bool Sensitivity::setOptions(const Util::OptionBlock& OB)
   // up early in the simulation.
   if (objFuncGiven_)
   {
-    setupObjectiveFunctions(objFuncDataVec_, *outMgrPtr_, *lasSysPtr_, commandLine_);
+    setupObjectiveFunctions(expressionGroup_, objFuncDataVec_, *outMgrPtr_, *lasSysPtr_, commandLine_);
   }
 
   if (DEBUG_NONLINEAR && isActive(Diag::SENS_SOLVER))

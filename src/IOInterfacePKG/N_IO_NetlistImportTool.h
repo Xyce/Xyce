@@ -56,6 +56,8 @@
 #include <N_UTL_Stats.h>
 #include <N_PDS_Comm.h>
 
+class expressionGroup;
+
 namespace Xyce {
 namespace IO {
 
@@ -129,7 +131,9 @@ class NetlistImportTool
 public:
   
   NetlistImportTool(Util::Op::BuilderManager &op_builder_manager,
-                    const ParsingMgr &parsing_manager);
+                    const ParsingMgr &parsing_manager,
+                    Teuchos::RCP<Xyce::Util::baseExpressionGroup> & group
+                    );
 
   ~NetlistImportTool();
 
@@ -231,6 +235,7 @@ private:
   CircuitContext                        circuitContext_;
   unordered_set<std::string>            modelNames_;
   bool                                  useMOR_;
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_;
 };
 
 bool registerPkgOptionsMgr(NetlistImportTool &netlist_import_tool, PkgOptionsMgr &options_manager);

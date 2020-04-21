@@ -13,6 +13,7 @@
 #include <N_TOP_fwd.h>
 #include <N_IO_fwd.h>
 #include <N_TIA_fwd.h>
+#include <N_ANP_fwd.h>
 
 #include<newExpression.h>
 #include <ExpressionType.h>
@@ -52,12 +53,11 @@ public:
 
   mainXyceExpressionGroup ( 
       N_PDS_Comm & comm, Topo::Topology & top,
-      TimeIntg::DataStore & dataStore,
-      const IO::AliasNodeMap & aliasNM) :
+      Analysis::AnalysisManager &analysis_manager
+      ) :
     comm_(comm),
     top_(top),
-    dataStore_(dataStore),
-    aliasNodeMap_(aliasNM),
+    analysisManager_(analysis_manager),
   time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
   {};
 
@@ -112,12 +112,18 @@ public:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
   virtual double getBpTol() { return 0.0; }
 
+  void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMapPtr_ = &anm; }
+
 private:
 
   N_PDS_Comm & comm_;
   Topo::Topology & top_;
-  TimeIntg::DataStore & dataStore_;
-  const IO::AliasNodeMap & aliasNodeMap_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
+  //const TimeIntg::DataStore & dataStore_;
+  //const TimeIntg::StepErrorControl & secControl_;
+
+  Analysis::AnalysisManager & analysisManager_;
+
+  const IO::AliasNodeMap * aliasNodeMapPtr_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
 
   double time_, temp_, VT_, freq_;
   double dt_, alpha_;

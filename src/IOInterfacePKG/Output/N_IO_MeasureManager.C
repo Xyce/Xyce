@@ -76,6 +76,8 @@
 #include <N_UTL_NoCase.h>
 #include <N_UTL_OptionBlock.h>
 
+#include <expressionGroup.h>
+
 namespace Xyce {
 namespace IO {
 namespace Measure {
@@ -343,7 +345,9 @@ bool Manager::addMeasure(const Manager &measureMgr, const Util::OptionBlock & me
     getLeadCurrentDevices(theMeasureObject->depSolVarIterVector_, devicesNeedingLeadCurrents_);
   }
   else
+  {
     delete theMeasureObject;
+  }
 
   return true;
 }
@@ -1669,7 +1673,7 @@ extractMEASUREData(
         if( (value[0]=='{') && (value[value.size()-1]=='}') )
         {
           // value is an expression, in the preferred Xyce syntax
-          parameter.set(currentWord, Util::Expression(value));
+          parameter.set(currentWord, Util::Expression(circuit_block.getExpressionGroup(),value));
         }
         else if ( (value == "PAR") && ((position + 3) < numFields ) && 
                   (parsed_line[position+1].string_ == "(") &&
@@ -1679,7 +1683,7 @@ extractMEASUREData(
           std::string possExp = parsed_line[position+2].string_;
           if ( (possExp[0]=='{') && (possExp[possExp.size()-1]=='}') )
           {
-            parameter.set(currentWord, Util::Expression(possExp));
+            parameter.set(currentWord, Util::Expression(circuit_block.getExpressionGroup(),possExp));
             option_block.addParam(parameter);
             position += 3;
           }
@@ -1691,7 +1695,7 @@ extractMEASUREData(
           std::string possExp = parsed_line[position+1].string_;
 	  if ( (possExp[0]=='{') && (possExp[possExp.size()-1]=='}') )
 	  {
-            parameter.set(currentWord, Util::Expression(possExp));
+            parameter.set(currentWord, Util::Expression(circuit_block.getExpressionGroup(),possExp));
             option_block.addParam(parameter);
             position += 2;
           } 
@@ -1901,7 +1905,7 @@ extractMEASUREData(
         {
           // value is an expression
           std::string objValue( "OBJVAL");
-          parameter.set(objValue, Util::Expression(nextWord));
+          parameter.set(objValue, Util::Expression(circuit_block.getExpressionGroup(),nextWord));
           option_block.addParam( parameter );
         }
         else if ( (nextWord == "PAR") && ((position + 3) < numFields ) && 
@@ -1913,7 +1917,7 @@ extractMEASUREData(
           if ( (possExp[0]=='{') && (possExp[possExp.size()-1]=='}') )
           {
             std::string objValue( "OBJVAL");
-            parameter.set(objValue, Util::Expression(possExp));
+            parameter.set(objValue, Util::Expression(circuit_block.getExpressionGroup(),possExp));
             option_block.addParam(parameter);
             position += 3;
           }
@@ -1926,7 +1930,7 @@ extractMEASUREData(
 	  if ( (possExp[0]=='{') && (possExp[possExp.size()-1]=='}') )
 	  {
             std::string objValue( "OBJVAL");
-            parameter.set(objValue, Util::Expression(possExp));
+            parameter.set(objValue, Util::Expression(circuit_block.getExpressionGroup(),possExp));
             option_block.addParam(parameter);
             position += 2;
           } 

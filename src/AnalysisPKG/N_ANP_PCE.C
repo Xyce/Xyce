@@ -630,7 +630,9 @@ bool PCE::setPCEOptions(const Util::OptionBlock & option_block)
   {
     for (int iout=0;iout<outFuncDataVec_.size();++iout)
     {
-      outFuncDataVec_[iout]->expDataPtr = new Util::ExpressionData(outFuncDataVec_[iout]->outFuncString);
+      outFuncDataVec_[iout]->expDataPtr = new Util::ExpressionData(
+          analysisManager_.getExpressionGroup(),
+          outFuncDataVec_[iout]->outFuncString);
     }
   }
   else if (measuresGiven_)

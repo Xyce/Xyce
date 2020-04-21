@@ -305,7 +305,9 @@ bool Transient::setAnalysisParams(
     // set-up expression object for getting a user specified, time dependent max time step value
     delete maxTimeStepExpression_;
 
-    maxTimeStepExpression_ = new Util::ExpressionData(maxTimeStepExpressionString_);
+    maxTimeStepExpression_ = new Util::ExpressionData(
+          analysisManager_.getExpressionGroup(),
+        maxTimeStepExpressionString_);
   }
 
   // historySize_ should can be set from the .options timeint line.  Use default in tiaParams
