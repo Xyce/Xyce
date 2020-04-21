@@ -261,7 +261,7 @@ void Expression::getFuncNames (std::vector<std::string> & funcNames)
 
 
 //-----------------------------------------------------------------------------
-// Function      : Expression::attachFunctionNode
+// Function      : Expression::getFuncPrototypeArgStrings
 // Purpose       : 
 // Special Notes :
 // Scope         :
@@ -289,7 +289,7 @@ void Expression::getFuncPrototypeArgStrings(std::vector<std::string> & arguments
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 4/9/2020
 //-----------------------------------------------------------------------------
-void Expression::attachFunctionNode (std::string & funcName, Expression & exp)
+void Expression::attachFunctionNode (const std::string & funcName, const Expression & exp)
 {
   if(useNewExpressionLibrary_)
   {
@@ -310,11 +310,11 @@ void Expression::attachFunctionNode (std::string & funcName, Expression & exp)
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 4/9/2020
 //-----------------------------------------------------------------------------
-void Expression::attachParameterNode (std::string & paramName, Expression & exp)
+void Expression::attachParameterNode (const std::string & paramName, const Expression & exp)
 {
   if(useNewExpressionLibrary_)
   {
-    newExpPtr_->attachFunctionNode(paramName,exp.newExpPtr_);
+    newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_);
   }
   else
   {
@@ -336,7 +336,7 @@ const std::vector<std::string> & Expression::getFunctionArgStringVec ()
 {
   if(!useNewExpressionLibrary_)
   {
-    std::cout << "Error. Xyce::Util::Expression::attachParameterNode called on old expression library." <<std::endl;
+    std::cout << "Error. Xyce::Util::Expression::getFunctionArgStringVec called on old expression library." <<std::endl;
   }
 
   return newExpPtr_->getFunctionArgStringVec();
@@ -622,7 +622,9 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
         // already know that x,y are the arguments, if it has already executed use case (1), 
         // above.
         //
-        getParams(names);
+        // Note, for this to work, it cannot return any param names (strings) that have 
+        // previously had "set_constant" or "set_var" called on them.
+        getUnresolvedParams(names);
         break;
 
       case XEXP_SPECIAL: // ERK.  This doesn't yet track external specials dependencies
@@ -785,6 +787,35 @@ bool Expression::make_var (std::string const & var)
   }
   std::cout << "Expression::make_var (std::string const & var)  var = " << var << std::endl;
   return retVal;
+}
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+void Expression::getUnresolvedParams (std::vector<std::string> & params) const
+{
+  if(useNewExpressionLibrary_)
+  {
+    std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
+    for (int ii=0;ii<paramOpVec.size();ii++)
+    {
+      Teuchos::RCP<paramOp<usedType> > parPtr = Teuchos::rcp_dynamic_cast<paramOp<usedType> > (paramOpVec[ii]);
+
+      if( !(parPtr->getIsConstant())  && !(parPtr->getIsVar())  && !(parPtr->getIsAttached()) ) 
+      {
+        std::string tmpName = paramOpVec[ii]->getName();
+        std::vector<std::string>::iterator it = std::find(params.begin(), params.end(), tmpName);
+        if (it == params.end())
+        {
+          params.push_back( tmpName );
+        }
+      }
+    }
+  }
+  else
+  {
+    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
+    exit(0);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1060,6 +1091,7 @@ int Expression::get_num(int const & type)
   int retVal=0; 
   if(useNewExpressionLibrary_)
   {
+    std::vector<std::string> tmpNames;
 
     switch (type)
     {
@@ -1079,7 +1111,8 @@ int Expression::get_num(int const & type)
         break;
 
       case XEXP_STRING: 
-        retVal = newExpPtr_->getParamOpVec().size();
+        getUnresolvedParams(tmpNames);
+        retVal = tmpNames.size();
         break;
 
       case XEXP_SPECIAL:
@@ -1101,12 +1134,26 @@ int Expression::get_num(int const & type)
       default:
         break;
     }
+
+    {
+      std::map<int, std::string>  typeMap;
+      typeMap[0] = std::string( "ALL");
+      typeMap[1] = std::string( "NODE");
+      typeMap[2] = std::string( "INSTANCE");
+      typeMap[3] = std::string( "LEAD");
+      typeMap[4] = std::string( "STRING");
+      typeMap[5] = std::string( "SPECIAL");
+      typeMap[6] = std::string( "VARIABLE");
+      typeMap[7] = std::string( "FUNCTION");
+      typeMap[8] = std::string( "NODAL_COMPUTATION");
+
+      std::cout << "Expression::get_num(int const & type) for " << newExpPtr_->getExpressionString() << " type[" << type << "]="<<typeMap[type] << " num = " << retVal << std::endl;
+    }
   }
   else
   {
     retVal = expPtr_->get_num(type);
   }
-  std::cout << "Expression::get_num(int const & type) type = " << type << " num = " << retVal << std::endl;
   return retVal;
 }
 
@@ -1469,6 +1516,18 @@ int Expression::replace_func (std::string const & func_name,
 //                 Note that parameters,etc that need this step will probably 
 //                 fail to be resolved in my early "resolveExpression" functions.
 //
+//                 ERK. 4/21/2020.  Addendum.  This is about more than what 
+//                 I describe above.  This is also for dealing with parameters 
+//                 that are not simply numerical values, but are expressions. 
+//                 If the RHS of a global_param is an expression, it isn't 
+//                 really correct to call "make_constant" on it,and it also 
+//                 isn't correct to call "make_var".  So, instead, this function
+//                 is called in this case.
+//
+//                 This is a perfect candidate for using the "attachParameterNode" 
+//                 function.
+//
+//
 // Scope         :
 // Creator       : Thomas Russo, SNL
 // Creation Date : 08/10/2010
@@ -1481,6 +1540,7 @@ int Expression::replace_var(
   if(useNewExpressionLibrary_)
   {
     std::cout << "NOTE:  replace_var (expr version) just got called on " << var_name <<std::endl;
+    attachParameterNode (var_name, subexpr);
   }
   else
   {
@@ -1507,6 +1567,8 @@ int Expression::replace_var (std::string const & var_name,
   if(useNewExpressionLibrary_)
   {
     std::cout << "NOTE:  replace_var (op version) just got called on " << var_name <<std::endl;
+    std::cout << "replace_var (op version) is not implemented yet for newExpression" <<std::endl;
+    exit(0);
   }
   else
   {

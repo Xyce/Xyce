@@ -91,8 +91,8 @@ public:
   int getFuncSize();
   void getFuncNames (std::vector<std::string> & funcNames);
   void getFuncPrototypeArgStrings(std::vector<std::string> & arguments);
-  void attachFunctionNode (std::string & funcName, Expression & exp); 
-  void attachParameterNode (std::string & paramName, Expression & exp); 
+  void attachFunctionNode (const std::string & funcName, const Expression & exp); 
+  void attachParameterNode (const std::string & paramName, const Expression & exp); 
 
   const std::vector<std::string> & getFunctionArgStringVec ();
 
@@ -112,11 +112,12 @@ public:
 
 
   // ERK new expression stuff:
-  void getParams         (std::vector<std::string> & params) const;
-  void getVoltageNodes   (std::vector<std::string> & nodes) const;
-  void getDeviceCurrents (std::vector<std::string> & devices) const;
-  void getLeadCurrents   (std::vector<std::string> & leads) const;
-  void getFunctions      (std::vector<std::string> & funcs) const;
+  void getParams           (std::vector<std::string> & params) const;
+  void getUnresolvedParams (std::vector<std::string> & params) const;
+  void getVoltageNodes     (std::vector<std::string> & nodes) const;
+  void getDeviceCurrents   (std::vector<std::string> & devices) const;
+  void getLeadCurrents     (std::vector<std::string> & leads) const;
+  void getFunctions        (std::vector<std::string> & funcs) const;
 
   int differentiate();
 

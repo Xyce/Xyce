@@ -39,14 +39,12 @@ public:
   virtual bool getSolutionSdt (const std::string & nodeName, double & retval ) { retval=0.0; return false; }
   virtual bool getSolutionVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; }
 
-  // should this become obsolete eventually? 
-  virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; } 
 
   virtual bool getSolutionDdt (const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
   virtual bool getSolutionSdt (const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
 
-  // should this become obsolete eventually? 
+  virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; } 
   virtual bool getGlobalParameterVal (const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; } 
 
   virtual double getTimeStep () { return 0.0; }

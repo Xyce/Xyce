@@ -1526,11 +1526,12 @@ private:
 struct ExpressionOpBuilder : public Util::Op::Builder
 {
   ExpressionOpBuilder(
-     const Teuchos::RCP<Xyce::Util::baseExpressionGroup> &grp,
-      Parallel::Machine comm, const OutputMgr & output_manager)
+     Analysis::AnalysisManager & analysis_manager,
+      Parallel::Machine comm, 
+      const OutputMgr & output_manager)
     : comm_(comm),
       outputManager_(output_manager),
-      expressionGroup_(grp)
+      analysisManager_(analysis_manager)
   {}
 
   virtual ~ExpressionOpBuilder()
@@ -1550,7 +1551,7 @@ struct ExpressionOpBuilder : public Util::Op::Builder
 
     if (Util::hasExpressionTag(*it))
     {
-      new_op = new ExpressionOp(expressionGroup_, param_tag, param_tag, comm_, outputManager_);
+      new_op = new ExpressionOp(analysisManager_.getExpressionGroup(), param_tag, param_tag, comm_, outputManager_);
     }
 
     return new_op;
@@ -1559,6 +1560,7 @@ struct ExpressionOpBuilder : public Util::Op::Builder
 private:
   const Parallel::Machine       comm_;
   const OutputMgr &             outputManager_;
+  Analysis::AnalysisManager &    analysisManager_;
   const Teuchos::RCP<Xyce::Util::baseExpressionGroup> expressionGroup_;
 };
 
@@ -1806,7 +1808,7 @@ void registerOpBuilders(
   op_builder_manager.addBuilder(new CircuitIndexOpBuilder());
   op_builder_manager.addBuilder(new SensitivityOpBuilder());
   op_builder_manager.addBuilder(new TransientAdjointOpBuilder());
-  op_builder_manager.addBuilder(new ExpressionOpBuilder(analysis_manager.getExpressionGroup(), comm, output_manager));
+  op_builder_manager.addBuilder(new ExpressionOpBuilder(analysis_manager, comm, output_manager));
 //  op_builder_manager.addBuilder(new StepSweepOpBuilder(output_manager));
   op_builder_manager.addBuilder(new DCSweepOpBuilder(output_manager));
   op_builder_manager.addBuilder(new DCSweepCurrentValueOpBuilder(output_manager));

@@ -89,6 +89,10 @@ public:
 
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
 
+  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
+
+  virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
+
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }
   virtual double getTimeStepPrefac () { return (getTimeStepAlpha() / getTimeStep ()) ; } // FIX

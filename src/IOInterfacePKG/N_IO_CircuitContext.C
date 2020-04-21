@@ -961,31 +961,52 @@ bool CircuitContext::resolve( std::vector<Device::Param> const& subcircuitInstan
       {
         retryFunctions.push_back(asYetUnresolvedFunctions[i]);
         somethingLeftToDo=true;
+        Xyce::dout() << "pushing back onto retryFunctions(1).  size = " << retryFunctions.size() <<std::endl;
       }
       else
       {
         // After resolution, the only strings allowed in the function
         // are the function arguments, check that this holds.
-        Util::Expression functionBodyExpression(expressionGroup_,  functionParameter.stringValue() );
-        std::vector<std::string> strings;
+        //
+        // ERK.  This whole section seems useless, and is causing problems for newExpression. See the explanation below.
+        //
+        // wait a minute.  Why are we creating a whole new expression (functionBodyExpression)?  If we keep creating new expressions, this can never be resolved, as it will always return the same list of unresolved strings.
+
+        // I just realized what is going on.  Arrgh.  The code below is an artificact of the old way of doing things, where functions are string-substituted in, rather than attaching the expression tree node.  So, if the strings were substituted, then the old string is different; all the resolved strings have been replaced with numbers and other expressions.  So, if you then use that same modified string to create a new expression, then you can use the expression library to double-check that the remaining unresolved strings are the same as the function arguments.
+        //
+        // But in the new way of doing things, all of this is unneccessary and doesn't make sense to do it.  I don't do string substitution, and don't want to.  That is an improvement over the old library.  
         bool canResolveAll=true;
+#if 0
+        Util::Expression functionBodyExpression(expressionGroup_,  functionParameter.stringValue() );  
+        std::vector<std::string> strings;
 
         functionBodyExpression.get_names(XEXP_STRING, strings);
 
         int numStrings = strings.size();
         for (int j = 0; j < numStrings; ++j)
         {
+          Xyce::dout() << "Attempting to find " << strings[j] << " in the unresolved function: " << asYetUnresolvedFunctions[i].functionName << " functionArgs = " ;
+          for (int ii=0;ii< asYetUnresolvedFunctions[i].functionArgs.size();ii++) { Xyce::dout() << "  " << asYetUnresolvedFunctions[i].functionArgs[ii] ; }
+            
+          Xyce::dout() <<std::endl;
           // Look for string in functionArgs.
           std::vector<std::string>::iterator stringIter =
             find(functionArgs.begin(), functionArgs.end(), strings[j]);
           if (stringIter == functionArgs.end()
               && findParameter(currentContextPtr_->resolvedGlobalParams_.begin(), currentContextPtr_->resolvedGlobalParams_.end(), strings[j]) == NULL)
           {
-            retryFunctions.push_back(asYetUnresolvedFunctions[j]);
+            retryFunctions.push_back(asYetUnresolvedFunctions[i]);
             somethingLeftToDo=true;
             canResolveAll=false;
+            Xyce::dout() << "pushing back onto retryFunctions(2).  size = " << retryFunctions.size() << "  The problem string is " << strings[j] <<std::endl;
+            Xyce::dout() << "Did NOT find " << strings[j] << " in the unresolved function: " << asYetUnresolvedFunctions[i].functionName <<std::endl;
+          }
+          else
+          {
+            Xyce::dout() << "Did     find " << strings[j] << " in the unresolved function: " << asYetUnresolvedFunctions[i].functionName <<std::endl;
           }
         }
+#endif
 
         if (canResolveAll)
         {
@@ -1590,7 +1611,8 @@ bool CircuitContext::resolveParameter(Util::Param& parameter) const
 //----------------------------------------------------------------------------
 // Function       : CircuitContext::resolveParameterThatIsAdotFunc
 // Purpose        : Parameters that are .funcs need special treatment
-// Special Notes  :
+// Special Notes  : ERK.  Maybe make the return boolean more meaningful, 
+//                  so downstream error checking is less necessary.
 // Scope          : public
 // Creator        : Eric Keiter
 // Creation Date  : 04/11/2020
@@ -1747,27 +1769,44 @@ bool CircuitContext::resolveParameterThatIsAdotFunc(Util::Param& parameter,
           parameter.setVal( expression );
 
 #if 0
-          std::cout  << "Just (maybe) set  function args for " << parameter.getValue<Util::Expression>().get_expression() << std::endl;
-          for (int ii=0;ii<funcArgs.size();ii++) { std::cout << "funcArgs["<<ii<<"] = " << funcArgs[ii]<<std::endl; }
+          Xyce::dout()  << "Just (maybe) set  function args for " << parameter.getValue<Util::Expression>().get_expression() << std::endl;
+          for (int ii=0;ii<funcArgs.size();ii++) { Xyce::dout() << "funcArgs["<<ii<<"] = " << funcArgs[ii]<<std::endl; }
           std::vector<std::string> testFuncArgs = expression.getFunctionArgOpVec();
-          for (int ii=0;ii<testFuncArgs.size();ii++) { std::cout << "testFuncArgs["<<ii<<"] = " << testFuncArgs[ii]<<std::endl; }
-
+          for (int ii=0;ii<testFuncArgs.size();ii++) { Xyce::dout() << "testFuncArgs["<<ii<<"] = " << testFuncArgs[ii]<<std::endl; }
 #endif
 
           {
             switch (parameter.getType()) 
             {
               case Xyce::Util::STR:
-                std::cout <<"It is STR type: " <<  parameter.stringValue();
+                Xyce::dout() <<"It is STR type: " <<  parameter.stringValue();
                 break;
               case Xyce::Util::DBLE:
-                std::cout <<"It is DBLE type: " <<  parameter.getImmutableValue<double>();
+                Xyce::dout() <<"It is DBLE type: " <<  parameter.getImmutableValue<double>();
                 break;
               case Xyce::Util::EXPR:
-                std::cout <<"It is EXPR type: " << parameter.getValue<Util::Expression>().get_expression();
+                Xyce::dout() <<"It is EXPR type: " << parameter.getValue<Util::Expression>().get_expression();
+                break;
+              case Xyce::Util::BOOL:
+                Xyce::dout() <<"It is BOOL type: " << parameter.stringValue();
+                break;
+              case Xyce::Util::STR_VEC:
+                Xyce::dout() <<"It is STR_VEC type: " << parameter.stringValue();
+                break;
+              case Xyce::Util::INT_VEC:
+                Xyce::dout() <<"It is INT_VEC type: " << parameter.stringValue();
+                break;
+              case Xyce::Util::DBLE_VEC:
+                Xyce::dout() <<"It is DBLE_VEC type: " << parameter.stringValue();
+                break;
+              case Xyce::Util::DBLE_VEC_IND:
+                Xyce::dout() <<"It is DBLE_VEC_IND type: " << parameter.stringValue();
+                break;
+              case Xyce::Util::COMPOSITE:
+                Xyce::dout() <<"It is COMPOSITE type: " << parameter.stringValue();
                 break;
               default:
-                std::cout <<"It is default type (whatever that is): " << parameter.stringValue();
+                Xyce::dout() <<"It is default type (whatever that is): " << parameter.stringValue();
             }
           }
         }
@@ -1942,17 +1981,27 @@ bool CircuitContext::resolveStrings( Util::Expression & expression,
 
         if (parameterFound)
         {
-#if 0
-          if (!expression.make_var(strings[i]))
-          {
-            Report::UserWarning0() << "Problem converting parameter " << parameterName <<" to its value";
-          }
-#else
           // ERK right thing to do, but won't work until set_vars/order_vars, etc are removed, 
           // and a better group is set up.
-          Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
-          expression.attachParameterNode(strings[i], expToBeAttached);
-#endif
+          if (expressionParameter.getType() == Xyce::Util::EXPR)
+          {
+            Xyce::dout() << "CircuitContext::resolveStrings. About to attach this parameter: " 
+              << expressionParameter.tag() << std::endl;
+
+            Util::Expression & expToBeAttached = expressionParameter.getValue<Util::Expression>();
+            expression.attachParameterNode(strings[i], expToBeAttached);
+          }
+          else
+          {
+            Xyce::dout() << "CircuitContext::resolveStrings. About to make_var this parameter: " 
+              << expressionParameter.tag() << std::endl;
+
+            if (!expression.make_var(strings[i]))
+            {
+              Report::UserWarning0() << "Problem converting parameter " << parameterName <<" to its value";
+            }
+          }
+
         }
         else
         {
@@ -2035,25 +2084,46 @@ bool CircuitContext::resolveFunctions(Util::Expression & expression) const
         }
         else
         {
-          std::cout << "functionParameter is not EXPR type!!!" <<std::endl;
+          Xyce::dout() << "functionParameter is not EXPR type!!!" <<std::endl;
 
           switch (functionParameter.getType()) 
           {
             case Xyce::Util::STR:
-              std::cout <<"It is STR type: " <<  functionParameter.stringValue();
+              Xyce::dout() <<"It is STR type: " <<  functionParameter.stringValue();
               break;
             case Xyce::Util::DBLE:
-              std::cout <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
+              Xyce::dout() <<"It is DBLE type: " <<  functionParameter.getImmutableValue<double>();
               break;
             case Xyce::Util::EXPR:
-              std::cout <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
+              Xyce::dout() <<"It is EXPR type: " << functionParameter.getValue<Util::Expression>().get_expression();
               break;
+
+            case Xyce::Util::BOOL:
+              Xyce::dout() <<"It is BOOL type: " << functionParameter.stringValue();
+              break;
+            case Xyce::Util::STR_VEC:
+              Xyce::dout() <<"It is STR_VEC type: " << functionParameter.stringValue();
+              break;
+            case Xyce::Util::INT_VEC:
+              Xyce::dout() <<"It is INT_VEC type: " << functionParameter.stringValue();
+              break;
+            case Xyce::Util::DBLE_VEC:
+              Xyce::dout() <<"It is DBLE_VEC type: " << functionParameter.stringValue();
+              break;
+            case Xyce::Util::DBLE_VEC_IND:
+              Xyce::dout() <<"It is DBLE_VEC_IND type: " << functionParameter.stringValue();
+              break;
+            case Xyce::Util::COMPOSITE:
+              Xyce::dout() <<"It is COMPOSITE type: " << functionParameter.stringValue();
+              break;
+
+
             default:
-              std::cout <<"It is default type (whatever that is): " << functionParameter.stringValue();
+              Xyce::dout() <<"It is default type (whatever that is): " << functionParameter.stringValue();
 
           }
 
-          std::cout << std::endl;
+          Xyce::dout() << std::endl;
 
           exit(0);
         }

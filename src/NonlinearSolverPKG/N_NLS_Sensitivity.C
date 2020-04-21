@@ -460,11 +460,16 @@ void setupObjectiveFunctions(
 
           if(param_it->second.getType() == Xyce::Util::EXPR)
           {
-          Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
-          objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
+            Util::Expression & expToBeAttached = const_cast<Util::Expression &> (param_it->second.getValue<Util::Expression>());
+            objVec[iobj]->expPtr->attachParameterNode(strings[istring], expToBeAttached);
           }
           else
           {
+            if (!objVec[iobj]->expPtr->make_var(strings[istring]))
+            {
+              Report::UserWarning0() << "Problem setting global parameter " << strings[istring];
+            }
+#if 0
             std::cout << "global parameter is not EXPR type!!!" <<std::endl;
 
             switch (param_it->second.getType()) 
@@ -481,6 +486,7 @@ void setupObjectiveFunctions(
               default:
                 std::cout <<"It is default type (whatever that is): " << param_it->second.stringValue();
             }
+#endif
           }
 #endif
         }

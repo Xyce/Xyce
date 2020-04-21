@@ -672,6 +672,8 @@ class paramOp: public astNode<ScalarT>
       savedParamNode_(tmpNode),
       thisIsAFunctionArgument_(false),
       isVar(false),
+      isConstant(false),
+      isAttached(false),
       derivIndex_(-1)
   {
     numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
@@ -779,9 +781,17 @@ class paramOp: public astNode<ScalarT>
     // If true, it means that this parameter is one of the variables included
     // in the "vars" array that is passed into the functions expression::evalauate
     // and expression::evaluateFunction.
-    void setVar() { isVar = true; }
-    void unsetVar() { isVar = false; }
-    bool getVar() { return isVar; }
+    void setIsVar() { isVar = true; }
+    void unsetIsVar() { isVar = false; }
+    bool getIsVar() { return isVar; }
+
+    void setIsConstant() { isConstant = true; }
+    void unsetIsConstant() { isConstant = false; }
+    bool getIsConstant() { return isConstant; }
+
+    void setIsAttached() { isAttached = true; }
+    void unsetIsAttached() { isAttached = false; }
+    bool getIsAttached() { return isAttached; }
 
   private:
     // data:
@@ -794,6 +804,8 @@ class paramOp: public astNode<ScalarT>
     bool thisIsAFunctionArgument_;
 
     bool isVar;
+    bool isConstant;
+    bool isAttached;
 
     int derivIndex_;
 };

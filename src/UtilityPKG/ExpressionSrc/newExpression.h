@@ -391,8 +391,8 @@ public:
 
   bool lexAndParseExpression();
 
-  bool attachFunctionNode(const std::string & funcName, Teuchos::RCP<Xyce::Util::newExpression> expPtr);
-  bool attachParameterNode(const std::string & paramName, Teuchos::RCP<Xyce::Util::newExpression> expPtr);
+  bool attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
+  bool attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr);
 
   void clear(); // reset expression to the state it should be before lexAndParseExpression
 

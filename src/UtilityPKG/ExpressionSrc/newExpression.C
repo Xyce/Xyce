@@ -224,7 +224,7 @@ bool newExpression::lexAndParseExpression()
 // Creator       : Eric Keiter
 // Creation Date : 4/10/2020
 //-------------------------------------------------------------------------------
-bool newExpression::attachFunctionNode(const std::string & funcName, Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+bool newExpression::attachFunctionNode(const std::string & funcName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
 {
   bool retval=true;
 
@@ -277,7 +277,7 @@ bool newExpression::attachFunctionNode(const std::string & funcName, Teuchos::RC
 // Creator       : Eric Keiter
 // Creation Date : 4/10/2020
 //-------------------------------------------------------------------------------
-bool newExpression::attachParameterNode(const std::string & paramName, Teuchos::RCP<Xyce::Util::newExpression> expPtr)
+bool newExpression::attachParameterNode(const std::string & paramName, const Teuchos::RCP<Xyce::Util::newExpression> expPtr)
 {
   bool retval=true;
   std::string paramNameUpper=paramName;
@@ -288,6 +288,7 @@ bool newExpression::attachParameterNode(const std::string & paramName, Teuchos::
     int index = std::distance(paramNameVec_.begin(),nameIter);
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->setNode(expPtr->getAst());
+    parOp->setIsAttached();
     externalDependencies_ = true;
   }
   else { retval=false; }
@@ -392,7 +393,12 @@ bool newExpression::make_constant (std::string const & var, usedType const & val
     int index = std::distance(paramNameVec_.begin(),paramIter);
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->setValue(val);
+    parOp->setIsConstant();
     retval=true;
+  }
+  else
+  {
+    std::cout << "newExpression::make_constant  ERROR.  Could not find parameter " << tmpParName <<std::endl;
   }
 
   return retval;
@@ -423,8 +429,12 @@ bool newExpression::make_var (std::string const & var)
     int index = std::distance(paramNameVec_.begin(),paramIter);
     Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[index]);
     parOp->unsetValue(); // just to be safe "unset" the value
-    parOp->setVar();
+    parOp->setIsVar();
     retval = true; // just means we found it
+  }
+  else
+  {
+    std::cout << "newExpression::make_var  ERROR.  Could not find parameter " << tmpParName <<std::endl;
   }
 
   return retval;
@@ -509,13 +519,13 @@ void newExpression::setupDerivatives_ ()
     // that are set to simple numerical values.  That would mean
     // that for the above set of expressions, I only would do x and y.
     //
-    // Solution: only differentiate params that have their "setVar" boolean set to true.
+    // Solution: only differentiate params that have their "setIsVar" boolean set to true.
     //
 
     for (int ii=0;ii<paramOpVec_.size();ii++)
     {
       Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      if (parOp->getVar())
+      if (parOp->getIsVar())
       {
         std::string tmp = parOp->getName();
         Xyce::Util::toUpper(tmp);
@@ -895,7 +905,7 @@ int newExpression::evaluateFunction (usedType &result)
         // This vector includes both
         //
         //
-        if ( parOp->getVar() )
+        if ( parOp->getIsVar() )
         {
           usedType val;
           group_->getGlobalParameterVal(parOp->getName(),val);

@@ -24,7 +24,6 @@
 namespace Xyce {
 namespace Util {
 
-
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 
 // Purpose       : constructor
@@ -60,91 +59,6 @@ mainXyceExpressionGroup::~mainXyceExpressionGroup ()
 {
   delete tempOp_;
 }
-
-//-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getTimeStep
-// Purpose       : 
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 
-//-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getTimeStep ()
-{
-  dt_ = deviceManager_.getSolverState().currTimeStep_;
-  return dt_;
-}
-
-//-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getTime
-// Purpose       : 
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 
-//-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getTime() 
-{ 
-  // I would have preferred to use this but as the code is currently written it
-  // is not safe.  The earliest call I would need to make to getTime happens before 
-  // the stepErrorControl class has been allocated.  Unfortunately, the analysis
-  // manager accessor returns an invalid reference in that case, which I can't 
-  // really test for.
-  //
-  //const TimeIntg::StepErrorControl & secControl_ = (analysisManager_.getStepErrorControl());
-  //time_ = secControl_.nextTime;
-  
-  time_ = deviceManager_.getSolverState().currTime_;
-  return time_;
-} 
-
-//-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::getTemp
-// Purpose       : 
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 
-//-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getTemp() 
-{ 
-#if 0
-  // may not need to bother with the tempOp.  I copied it from the OutputMgrAdapter
-  Util::Op::OpData op_data;
-  temp_ = (*tempOp_)(comm_.comm(), op_data).real();
-#else
-  temp_ = deviceManager_.getDeviceOptions().temp.getImmutableValue<double>();
-#endif
-  return temp_;
-} 
-
-//-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
-// Purpose       : 
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 
-//-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getVT  () 
-{ 
-  VT_ = (deviceManager_.getDeviceOptions().temp.getImmutableValue<double>())*CONSTKoverQ;
-  return VT_;
-} 
-
-//-------------------------------------------------------------------------------
-// Function      : mainXyceExpressionGroup::
-// Purpose       : 
-// Special Notes :
-// Scope         :
-// Creator       : Eric Keiter
-// Creation Date : 
-//-------------------------------------------------------------------------------
-double mainXyceExpressionGroup::getFreq() 
-{ 
-  freq_ = deviceManager_.getSolverState().currFreq_;
-  return freq_;
-} 
 
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getSolutionVal
@@ -229,5 +143,129 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, doubl
   return success; // FIX THIS
 }
 
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getGlobalParameterVal
+//
+// Purpose       : retrieve the value of a parameter that has been 
+//                 declared to be a "var" via the make_var function.
+//
+// Special Notes : double precision version
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName, double & retval)
+{
+  bool success=true;
+  Device::getParamAndReduce(comm_.comm(), deviceManager_, paramName, retval);
+  return success;
 }
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getGlobalParameterVal
+//
+// Purpose       : retrieve the value of a parameter that has been 
+//                 declared to be a "var" via the make_var function.
+//
+// Special Notes : std::complex<double> version
+//
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval)
+{
+  bool success=true;
+  std::cout << "Complex number version of mainXyceExpressionGroup::getGlobalParameterVal not implemented  yet!" <<std::endl;
+  return success;
 }
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getTimeStep
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getTimeStep ()
+{
+  dt_ = deviceManager_.getSolverState().currTimeStep_;
+  return dt_;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getTime
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getTime() 
+{ 
+  // I would have preferred to use this but as the code is currently written it
+  // is not safe.  The earliest call I would need to make to getTime happens before 
+  // the stepErrorControl class has been allocated.  Unfortunately, the analysis
+  // manager accessor returns an invalid reference in that case, which I can't 
+  // really test for.
+  //
+  //const TimeIntg::StepErrorControl & secControl_ = (analysisManager_.getStepErrorControl());
+  //time_ = secControl_.nextTime;
+  
+  time_ = deviceManager_.getSolverState().currTime_;
+  return time_;
+} 
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getTemp
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getTemp() 
+{ 
+#if 0
+  // may not need to bother with the tempOp.  I copied it from the OutputMgrAdapter
+  Util::Op::OpData op_data;
+  temp_ = (*tempOp_)(comm_.comm(), op_data).real();
+#else
+  temp_ = deviceManager_.getDeviceOptions().temp.getImmutableValue<double>();
+#endif
+  return temp_;
+} 
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getVT  () 
+{ 
+  VT_ = (deviceManager_.getDeviceOptions().temp.getImmutableValue<double>())*CONSTKoverQ;
+  return VT_;
+} 
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getFreq() 
+{ 
+  freq_ = deviceManager_.getSolverState().currFreq_;
+  return freq_;
+} 
+
+
+} // Util
+} // Xyce
