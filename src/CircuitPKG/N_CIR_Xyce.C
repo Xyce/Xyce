@@ -914,7 +914,7 @@ Simulator::RunStatus Simulator::initializeEarly(
   // ERK.  Allocate up the main expression group
   mainExprGroup_ =  Teuchos::rcp(new Xyce::Util::mainXyceExpressionGroup (
     *parallelManager_->getPDSComm(),
-    *topology_, *analysisManager_));
+    *topology_, *analysisManager_, *deviceManager_));
 
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> baseGroupCast = mainExprGroup_;
   IO::NetlistImportTool netlist_import_tool(*opBuilderManager_, *parsingManager_, baseGroupCast);

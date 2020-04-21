@@ -8,6 +8,7 @@
 #include <newExpression.h>
 
 #include <N_TIA_DataStore.h>
+#include <N_TIA_StepErrorControl.h>
 #include <N_TOP_Topology.h>
 #include <N_LAS_Vector.h>
 #include <N_PDS_Comm.h>
@@ -16,9 +17,134 @@
 #include <N_PDS_Serial.h>
 
 #include <N_ANP_AnalysisManager.h>
+#include <N_DEV_DeviceMgr.h>
+#include <N_DEV_Op.h>
+#include <N_DEV_Const.h>
 
 namespace Xyce {
 namespace Util {
+
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 
+// Purpose       : constructor
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+mainXyceExpressionGroup::mainXyceExpressionGroup ( 
+ N_PDS_Comm & comm, Topo::Topology & top,
+ Analysis::AnalysisManager &analysis_manager,
+ Device::DeviceMgr & device_manager
+ ) :
+ comm_(comm),
+ top_(top),
+ analysisManager_(analysis_manager),
+ deviceManager_(device_manager),
+ tempOp_(new Device::ArtificialParameterOp("TEMP", deviceManager_, *(*deviceManager_.getArtificialParameterMap().find("TEMP")).second, "TEMP")),
+ time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
+{
+
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::mainXyceExpressionGroup 
+// Purpose       : destructor
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+mainXyceExpressionGroup::~mainXyceExpressionGroup ()
+{
+  delete tempOp_;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getTimeStep
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getTimeStep ()
+{
+  dt_ = deviceManager_.getSolverState().currTimeStep_;
+  return dt_;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getTime
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getTime() 
+{ 
+  // I would have preferred to use this but as the code is currently written it
+  // is not safe.  The earliest call I would need to make to getTime happens before 
+  // the stepErrorControl class has been allocated.  Unfortunately, the analysis
+  // manager accessor returns an invalid reference in that case, which I can't 
+  // really test for.
+  //
+  //const TimeIntg::StepErrorControl & secControl_ = (analysisManager_.getStepErrorControl());
+  //time_ = secControl_.nextTime;
+  
+  time_ = deviceManager_.getSolverState().currTime_;
+  return time_;
+} 
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getTemp
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getTemp() 
+{ 
+#if 0
+  // may not need to bother with the tempOp.  I copied it from the OutputMgrAdapter
+  Util::Op::OpData op_data;
+  temp_ = (*tempOp_)(comm_.comm(), op_data).real();
+#else
+  temp_ = deviceManager_.getDeviceOptions().temp.getImmutableValue<double>();
+#endif
+  return temp_;
+} 
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getVT  () 
+{ 
+  VT_ = (deviceManager_.getDeviceOptions().temp.getImmutableValue<double>())*CONSTKoverQ;
+  return VT_;
+} 
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getFreq() 
+{ 
+  freq_ = deviceManager_.getSolverState().currFreq_;
+  return freq_;
+} 
 
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getSolutionVal

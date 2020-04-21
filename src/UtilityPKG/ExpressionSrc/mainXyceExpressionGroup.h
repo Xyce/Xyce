@@ -9,11 +9,14 @@
 #include<unordered_map>
 
 #include <N_UTL_fwd.h>
+#include <N_DEV_fwd.h>
 #include <N_PDS_fwd.h>
 #include <N_TOP_fwd.h>
 #include <N_IO_fwd.h>
 #include <N_TIA_fwd.h>
 #include <N_ANP_fwd.h>
+
+#include <N_UTL_Op.h>
 
 #include<newExpression.h>
 #include <ExpressionType.h>
@@ -53,15 +56,11 @@ public:
 
   mainXyceExpressionGroup ( 
       N_PDS_Comm & comm, Topo::Topology & top,
-      Analysis::AnalysisManager &analysis_manager
-      ) :
-    comm_(comm),
-    top_(top),
-    analysisManager_(analysis_manager),
-  time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
-  {};
+      Analysis::AnalysisManager &analysis_manager,
+      Device::DeviceMgr & device_manager
+      ) ;
 
-  ~mainXyceExpressionGroup () {};
+  ~mainXyceExpressionGroup ();
 
   virtual bool isOption (const std::string & optionStr)
   {
@@ -88,25 +87,16 @@ public:
     return success; // FIX THIS
   }
 
-
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
 
-  virtual bool setTimeStep (double dt) { dt_ = dt; return true; } // WAG
-  virtual bool setTimeStepAlpha (double a) { alpha_ = a; return true; }
-
-  virtual double getTimeStep () { return dt_; } // WAG
+  virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }
   virtual double getTimeStepPrefac () { return (getTimeStepAlpha() / getTimeStep ()) ; } // FIX
 
-  virtual bool setTime(double t) { time_ = t; return true; } 
-  virtual bool setTemp(double t) { temp_ = t; return true; } 
-  virtual bool setVT  (double v) { VT_ = v; return true; } 
-  virtual bool setFreq(double f) { freq_ = f; return true; } 
-
-  virtual double getTime() { return time_;} 
-  virtual double getTemp() { return temp_;} 
-  virtual double getVT  () { return VT_;} 
-  virtual double getFreq() { return freq_;} 
+  virtual double getTime();
+  virtual double getTemp();
+  virtual double getVT  ();
+  virtual double getFreq();
 
   // in a real Xyce group, need something like this:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
@@ -118,12 +108,13 @@ private:
 
   N_PDS_Comm & comm_;
   Topo::Topology & top_;
-  //const TimeIntg::DataStore & dataStore_;
-  //const TimeIntg::StepErrorControl & secControl_;
 
   Analysis::AnalysisManager & analysisManager_;
+  Device::DeviceMgr & deviceManager_;
 
   const IO::AliasNodeMap * aliasNodeMapPtr_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
+
+  Util::Op::Operator * tempOp_;
 
   double time_, temp_, VT_, freq_;
   double dt_, alpha_;
