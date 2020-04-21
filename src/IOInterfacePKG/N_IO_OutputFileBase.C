@@ -21,7 +21,7 @@
 //-------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : Base class measure functions.
+// Purpose       : Base class for re-reading Xyce file output of simulation results
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 12/5/2012

@@ -21,7 +21,8 @@
 //-------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : Base class measure functions.
+// Purpose       : Class for re-reading Xyce file output, of simulation results,
+//                 that is in HDF5 format.
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 12/06/2012
@@ -38,7 +39,6 @@
 
 namespace Xyce {
 namespace IO {
-namespace Measure {
 
 OutputHDF5::OutputHDF5() 
 {
@@ -48,6 +48,5 @@ OutputHDF5::~OutputHDF5()
 {
 }
 
-} // namespace Measure
 } // namespace IO
 } // namespace Xyce

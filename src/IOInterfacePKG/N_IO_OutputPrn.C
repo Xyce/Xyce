@@ -21,7 +21,8 @@
 //-------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : Base class measure functions.
+// Purpose       : Class for re-reading Xyce file output, of simulation results,
+//                 that is in FORMAT=<STD|CSV|NOINDEX>
 // Special Notes :
 // Creator       : Richard Schiek, SNL, Electrical and Microsystem Modeling
 // Creation Date : 12/06/2012
@@ -35,7 +36,6 @@
 
 namespace Xyce {
 namespace IO {
-namespace Measure {
 
 //-----------------------------------------------------------------------------
 // Function      : OutputPrn::OutputPrn() 
@@ -355,6 +355,5 @@ int OutputPrn::getOutputNextVarValuesSerial( std::vector<double> * varValues )
   return retVal;
 }
 
-} // namespace Measure
 } // namespace IO
 } // namespace Xyce

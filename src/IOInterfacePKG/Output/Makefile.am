@@ -4,14 +4,6 @@ AM_CPPFLAGS = @Xyce_INCS@
 noinst_LTLIBRARIES = libOutput.la
 
 libOutput_la_SOURCES = \
-  N_IO_OutputFileBase.C \
-  N_IO_OutputFileBase.h \
-  N_IO_OutputPrn.C \
-  N_IO_OutputPrn.h \
-  N_IO_OutputCsd.C \
-  N_IO_OutputCsd.h \
-  N_IO_OutputHDF5.C \
-  N_IO_OutputHDF5.h \
   N_IO_Measure_fwd.h  \
   N_IO_MeasureManager.C  \
   N_IO_MeasureManager.h  \

@@ -22,7 +22,7 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Base class for handling file output of simulation results.
+// Purpose        : Base class for re-reading Xyce file output of simulation results.
 //
 // Special Notes  :
 //
