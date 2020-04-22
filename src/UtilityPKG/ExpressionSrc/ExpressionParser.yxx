@@ -404,13 +404,13 @@ exp:
     }
   | TOK_WORD nonempty_voltagenodelist
     {
-      std::vector<std::string> voltageNodes = *$2;
-
+      std::vector<std::string> voltageNodes = *$2; 
+      Teuchos::RCP<astNode<usedType> > * tmpPtr;
+      Teuchos::RCP<astNode<usedType> > * returnPtr;
       if (voltageNodes.size() == 1)
       {
         Teuchos::RCP<voltageOp<usedType> > * voltPtr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(*$2));
-        Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
-        $$ = tmpPtr;
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(*voltPtr);
         newExp.getMasterNodeVec().push_back(tmpPtr);
         newExp.getVoltOpVec ().push_back(*voltPtr);
         delete voltPtr;
@@ -429,8 +429,7 @@ exp:
         Teuchos::RCP<voltageOp<usedType> > * volt2Ptr = new Teuchos::RCP<voltageOp<usedType> >(new voltageOp<usedType>(nodes2));
         Teuchos::RCP<astNode<usedType> > * tmp1Ptr = new Teuchos::RCP<astNode<usedType> >(*volt1Ptr);
         Teuchos::RCP<astNode<usedType> > * tmp2Ptr = new Teuchos::RCP<astNode<usedType> >(*volt2Ptr);
-        Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new binaryMinusOp<usedType>  (*tmp1Ptr,*tmp2Ptr));
-        $$ = tmpPtr;
+        tmpPtr = new Teuchos::RCP<astNode<usedType> >(new binaryMinusOp<usedType>  (*tmp1Ptr,*tmp2Ptr));
         newExp.getMasterNodeVec().push_back(tmp1Ptr);
         newExp.getMasterNodeVec().push_back(tmp2Ptr);
         newExp.getMasterNodeVec().push_back(tmpPtr);
@@ -439,16 +438,102 @@ exp:
         delete volt1Ptr;
         delete volt2Ptr;
       }
+
+      // adjust for complex number variants
+      // remove whitespace from the first argument
+      std::string firstArg = (*$1);
+      firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+      if (firstArg.size() == 1)
+      {
+        returnPtr = tmpPtr;
+      }
+      else if (firstArg.size() >= 2)
+      {
+         if ( firstArg == std::string("VR") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+         else if ( firstArg == std::string("VI") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+         else if ( firstArg == std::string("VM") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+         else if ( firstArg == std::string("VP") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
+          newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+      }
+      else if (firstArg.size() == 3) // do decibels here
+      {
+         if ( firstArg == std::string("VDB") )
+         {
+           // ERK FIX THIS!   Units are wrong.  This needs to be the mag in decibels
+           Teuchos::RCP<astNode<usedType> > * returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+      }
+
+      $$ = returnPtr;
       delete $1;
       delete $2;
     }
   | TOK_WORD TOK_CURRENTDEV
     {
+      Teuchos::RCP<astNode<usedType> > * returnPtr;
+
       Teuchos::RCP<currentOp<usedType> > * currentPtr = new Teuchos::RCP<currentOp<usedType> >(new currentOp<usedType>(*$2));
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*currentPtr);
-      $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getCurrentOpVec().push_back(*currentPtr);
+
+      // adjust for complex number variants
+      std::string firstArg = (*$1);
+      firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+      if (firstArg.size() == 1)
+      {
+        returnPtr = tmpPtr;
+      }
+      else if (firstArg.size() == 2)
+      {
+         if ( firstArg == std::string("IR") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+         else if ( firstArg == std::string("II") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+         else if ( firstArg == std::string("IM") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+         else if ( firstArg == std::string("IP") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+      }
+      else if (firstArg.size() == 3) // do decibels here
+      {
+         if ( firstArg == std::string("IDB") )
+         {
+           // ERK FIX THIS!   Units are wrong.  This needs to be the mag in decibels
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+      }
+
+      $$ = returnPtr;
       delete currentPtr;
       delete $1;
       delete $2;

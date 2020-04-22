@@ -163,13 +163,63 @@ NODE [a-zA-Z0-9_:]*
 <INITIAL>">="    { return XyceExpression::ExpressionParser::token::TOK_GE; }
 <INITIAL>"<="    { return XyceExpression::ExpressionParser::token::TOK_LE; }
 
+ /* variants on voltage node ops */
+ /* Should combine these via regex later */
 <INITIAL>"V"     {
   lvalp->sval=new std::string(YYText());
   return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
-<INITIAL>"V""("     {
-  BEGIN(voltagenodedef); 
+<INITIAL>"VR"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"VI"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"VM"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"VP"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"V"[ \t]*"("     {
+  BEGIN(voltagenodedef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"VR"[ \t]*"("     {
+  BEGIN(voltagenodedef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"VI"[ \t]*"("     {
+  BEGIN(voltagenodedef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"VM"[ \t]*"("     {
+  BEGIN(voltagenodedef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"VP"[ \t]*"("     {
+  BEGIN(voltagenodedef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
   return XyceExpression::ExpressionParser::token::TOK_WORD;
@@ -195,7 +245,55 @@ NODE [a-zA-Z0-9_:]*
   return XyceExpression::ExpressionParser::token::TOK_WORD;
 }
 
-<INITIAL>"I""("    {
+<INITIAL>"IR"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"II"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"IM"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"IP"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"I"[ \t]*"("    {
+  BEGIN(currentdevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"IR"[ \t]*"("    {
+  BEGIN(currentdevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"II"[ \t]*"("    {
+  BEGIN(currentdevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"IM"[ \t]*"("    {
+  BEGIN(currentdevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"IP"[ \t]*"("    {
   BEGIN(currentdevdef);
   lvalp->sval=new std::string(YYText());
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
@@ -208,14 +306,14 @@ NODE [a-zA-Z0-9_:]*
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
-  }
+}
 
  /* built in functions */
 <INITIAL>"P"[ \t]*"("    { return XyceExpression::ExpressionParser::token::TOK_PHASE; }
 
 <INITIAL>"R"[ \t]*"("     { return XyceExpression::ExpressionParser::token::TOK_REAL; }
 <INITIAL>"Re""("    { return XyceExpression::ExpressionParser::token::TOK_REAL; }
-<INITIAL>"Im"    { return XyceExpression::ExpressionParser::token::TOK_IMAG; }
+ /* <INITIAL>"Im"    { return XyceExpression::ExpressionParser::token::TOK_IMAG; } */   /* cannot support this and also IM for imaginary currents */
 <INITIAL>"Img"   { return XyceExpression::ExpressionParser::token::TOK_IMAG; }
 
 <INITIAL>"max"   { return XyceExpression::ExpressionParser::token::TOK_MAX; }

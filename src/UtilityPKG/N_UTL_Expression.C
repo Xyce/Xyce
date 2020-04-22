@@ -1406,6 +1406,7 @@ double Expression::get_break_time_i()
   double retVal=0.0; 
   if(useNewExpressionLibrary_)
   {
+    // ERK.  I don't understand this yet.
   }
   else
   {

@@ -213,7 +213,8 @@ PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, unaryMinus, "-2.0", (-2.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, phase, "P(1.0)", std::arg(1.0) )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, real1, "Re(1.0)", 1.0 )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, real2, "R(1.0)", 1.0 )
-PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, imag1, "Im(1.0)", 0.0 )
+// Im cannot work along with IM for imaginary current.  disabling
+//PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, imag1, "Im(1.0)", 0.0 )
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, imag2, "Img(1.0)", 0.0 )
 
 PARSER_SIMPLE_TEST_MACRO ( Double_Parser_Test, int1, "int(11.2423)", 11)
@@ -724,6 +725,57 @@ TEST ( Double_Parser_VoltSoln_Test, test2)
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
   OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test2)
 }
+
+// testing out the complex operators.  As this file tests the use case where the 
+// default type is "double" rather than "std::complex<double>" these operators don't 
+// do much.  But they do something, and need to be included.
+TEST ( Double_Parser_VoltSoln_Test, vr_test0)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("Vr (A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=3.0;
+  double refRes = std::real(Aval);
+  solnGroup->setSoln(std::string("A"),Aval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+}
+
+TEST ( Double_Parser_VoltSoln_Test, vi_test0)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("vI (A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=3.0;
+  double refRes = std::imag(3.0);
+  solnGroup->setSoln(std::string("A"),Aval);
+
+#if 1
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+}
+
+
 
 TEST ( Double_Parser_VoltDeriv_Test, test1)
 {
