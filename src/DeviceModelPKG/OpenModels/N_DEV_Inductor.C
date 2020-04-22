@@ -231,6 +231,9 @@ Instance::Instance(
     qBraEquBraVarPtr(0)
 #endif
 {
+  Xyce::dout() << "(((((((((((((((((((((((())))))))))))))))))))))))" << std::endl;
+  Xyce::dout() << "Inductor IB " << instance_block << std::endl;
+  Xyce::dout() << "(((((((((((((((((((((((())))))))))))))))))))))))" << std::endl;
   numExtVars   = 2;
   numIntVars   = 1;
   numStateVars = 1;

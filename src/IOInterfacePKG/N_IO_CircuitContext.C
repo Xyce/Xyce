@@ -2248,6 +2248,7 @@ int CircuitContext::totalMutualInductanceCount()
 //-----------------------------------------------------------------------------
 CircuitContext::MutualInductance::MutualInductance( DeviceBlock & device )
 {
+  Xyce::dout() << "In MutualInductance constructor with DeviceBlock " << device.getInstanceName() << std::endl;
   int numParameters = device.getNumberOfInstanceParameters();
   Device::Param parameter;
   bool first = true;
@@ -2295,6 +2296,7 @@ void CircuitContext::bundleMIs()
 
   // retrieve number of K lines in this (sub)circuit
   mTableSize = currentContextPtr_->allIndexedMIs_.size();
+  Xyce::dout() << "In BundleMI's and mTableSize is " << mTableSize << std::endl;
 
   for( i = 0; i < mTableSize; ++i )
   {

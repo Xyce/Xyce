@@ -197,6 +197,9 @@ Instance::Instance(
     tempGiven(false),
     scalingRHS(1.0)
 {
+  Xyce::dout() << "(((((((((((((((((((((((())))))))))))))))))))))))" << std::endl;
+  Xyce::dout() << "Linear mutual inductor IB " << IB << std::endl;
+  Xyce::dout() << "(((((((((((((((((((((((())))))))))))))))))))))))" << std::endl;
   scalingRHS = 1.0;
 
   // set some default values.  May be changed by processParams
