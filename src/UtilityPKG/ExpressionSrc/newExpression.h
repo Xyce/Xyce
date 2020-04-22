@@ -405,17 +405,20 @@ public:
   bool make_constant (std::string const & var, usedType const & val);
   bool make_var (std::string const & var);
 
+#if 0
+  // ERK.  This doesn't seem to be needed anymore but leaving for now ...
   void getGlobalParamNames ( std::vector<std::string> & names )
   {
     for (int ii=0;ii<paramOpVec_.size();++ii)
     {
       Teuchos::RCP<paramOp<usedType> > parOp = Teuchos::rcp_static_cast<paramOp<usedType> > (paramOpVec_[ii]);
-      if ( parOp->getVar() )
+      if ( parOp->getIsVar() )
       {
         names.push_back( parOp->getName() );
       }
     }
   };
+#endif
 
   void setAstPtr(Teuchos::RCP<astNode<usedType> > & astNodePtr) { astNodePtr_ = astNodePtr; };
 

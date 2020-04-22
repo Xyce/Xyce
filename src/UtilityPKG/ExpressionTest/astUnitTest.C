@@ -433,8 +433,8 @@ TEST ( Double_Ast_Deriv_Test, test1)
   // derivs
   arg1->setDerivIndex(0);  
   arg2->setDerivIndex(1);
-  arg1->setVar();
-  arg2->setVar();
+  arg1->setIsVar();
+  arg2->setIsVar();
   EXPECT_EQ(binaryAddOp_1->dx(0),1.0);
   EXPECT_EQ(binaryAddOp_1->dx(1),1.0);
 }
@@ -450,8 +450,8 @@ TEST ( NAME, OP ) \
   EXPECT_EQ(OP_1->val(),(VAL1 CPPOP VAL2)); \
   arg1->setDerivIndex(0); \
   arg2->setDerivIndex(1); \
-  arg1->setVar(); \
-  arg2->setVar(); \
+  arg1->setIsVar(); \
+  arg2->setIsVar(); \
   EXPECT_EQ(OP_1->dx(0),D1); \
   EXPECT_EQ(OP_1->dx(1),D2); \
 }  
@@ -476,7 +476,7 @@ TEST ( NAME, OP ) \
   RCP<astNode<TYPE> > OP_1 = rcp(new OP<TYPE> (arg1)); \
   EXPECT_EQ(OP_1->val(),CPPFUNC(VAL1)); \
   arg1->setDerivIndex(0); \
-  arg1->setVar(); \
+  arg1->setIsVar(); \
   EXPECT_EQ( (OP_1->dx(0)-D1), 0.0); \
 } 
 
@@ -535,7 +535,7 @@ TEST ( Double_UnaryDeriv_Ast_Ops , coshOp_ascth_test )
   RCP<astNode<double> > cosh_1 = rcp(new coshOp<double> (arg1));
   EXPECT_EQ(cosh_1->val(), std::cosh(-10.0)); 
   arg1->setDerivIndex(0);
-  arg1->setVar();
+  arg1->setIsVar();
   EXPECT_EQ( (cosh_1->dx(0)-std::sinh(-10.0)), 0.0);
 }
 
@@ -548,7 +548,7 @@ TEST ( Double_UnaryDeriv_Ast_Ops , acoshOp_ascth_test )
   RCP<astNode<double> > acosh_1 = rcp(new acoshOp<double> (arg1));
   EXPECT_EQ(acosh_1->val(), std::acosh(input)); 
   arg1->setDerivIndex(0);
-  arg1->setVar();
+  arg1->setIsVar();
   double deriv = 1.0/(std::sqrt( (input-1) * (input+1) ));
   EXPECT_EQ( (acosh_1->dx(0)-deriv), 0.0 );
 }
@@ -571,8 +571,8 @@ TEST ( Double_Ast_Deriv_Test, powOp )
   // derivative
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
-  arg1->setVar();
-  arg2->setVar();
+  arg1->setIsVar();
+  arg2->setIsVar();
   EXPECT_EQ(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
   EXPECT_EQ(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
 }
@@ -593,8 +593,8 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp )
   // derivative
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
-  arg1->setVar();
-  arg2->setVar();
+  arg1->setIsVar();
+  arg2->setIsVar();
   EXPECT_EQ(testPwrs->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
   EXPECT_EQ(testPwrs->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
 }
@@ -615,8 +615,8 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp2 )
   // derivative
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
-  arg1->setVar();
-  arg2->setVar();
+  arg1->setIsVar();
+  arg2->setIsVar();
   EXPECT_EQ(testPwrs->dx(0)-0.0, 0.0 );
   EXPECT_EQ(testPwrs->dx(1)-0.0, 0.0 );
 }
@@ -646,9 +646,9 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp3 )
   negarg1->setDerivIndex(0);
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
-  negarg1->setVar();
-  arg1->setVar();
-  arg2->setVar();
+  negarg1->setIsVar();
+  arg1->setIsVar();
+  arg2->setIsVar();
   EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
   EXPECT_EQ(testPwrs->dx(1),negPow->dx(1));
 }
@@ -676,8 +676,8 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp4 )
   // derivative
   negarg1->setDerivIndex(0);
   arg1->setDerivIndex(0);
-  negarg1->setVar();
-  arg1->setVar();
+  negarg1->setIsVar();
+  arg1->setIsVar();
   EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
 }
 
@@ -704,8 +704,8 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp5 )
   // derivative
   negarg1->setDerivIndex(0);
   arg1->setDerivIndex(0);
-  negarg1->setVar();
-  arg1->setVar();
+  negarg1->setIsVar();
+  arg1->setIsVar();
   EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
 }
 
@@ -730,7 +730,7 @@ TEST ( Double_Ast_Deriv_Test, pwrsOp6 )
 
   // derivative
   arg2->setDerivIndex(0);
-  arg2->setVar();
+  arg2->setIsVar();
   EXPECT_EQ(testPwrs->dx(0),negPow->dx(0));
 }
 
@@ -761,8 +761,8 @@ TEST ( Complex_Ast_Deriv_Test, powOp )
   // derivative
   arg1->setDerivIndex(0);
   arg2->setDerivIndex(1);
-  arg1->setVar();
-  arg2->setVar();
+  arg1->setIsVar();
+  arg2->setIsVar();
   EXPECT_EQ(testPow->dx(0)-((B/A)*std::pow(A,(B))), 0.0 );
   EXPECT_EQ(testPow->dx(1)-(std::log(A))*std::pow(A,B), 0.0 );
 }

@@ -70,10 +70,10 @@ class astNode
     virtual void setValue(ScalarT val) {}; // supports specialsOp, and paramOp. otherwise no-op
     virtual void unsetValue() {};          // supports specialsOp, and paramOp. otherwise no-op
 
-    // base class no-ops.  Derived functions only in paramOp, only called from ddx.
-    virtual void setVar() {};
-    virtual void unsetVar() {};
-    virtual bool getVar() { return false; }
+    // base class no-ops.  Derived functions only in paramOp, base class version only called from ddx.
+    virtual void setIsVar() {};
+    virtual void unsetIsVar() {};
+    virtual bool getIsVar() { return false; }
 
     virtual bool numvalType()      { return false; };
     virtual bool paramType()       { return false; };
@@ -2760,10 +2760,10 @@ class ddxOp : public astNode<ScalarT>
       if( !(Teuchos::is_null( astNodeX_)))
       {
         astNodeX_->setDerivIndex(0);
-        astNodeX_->setVar();
+        astNodeX_->setIsVar();
         ret = this->leftAst_->dx(0);
         astNodeX_->unsetDerivIndex();
-        astNodeX_->unsetVar();
+        astNodeX_->unsetIsVar();
       }
       return ret;
     };
@@ -2779,7 +2779,7 @@ class ddxOp : public astNode<ScalarT>
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
-      os << "ddx (time integral) operator " << std::endl;
+      os << "ddx (derivative) operator " << std::endl;
       ++indent;
       this->leftAst_->output(os,indent+1);
     }
