@@ -12,8 +12,4 @@ typedef std::complex<basicType> usedType ;
 typedef double usedType ;
 #endif
 
-//typedef Sacado::Fad::SFad<basicType,1> fadType;
-//typedef Sacado::Fad::DFad<basicType> fadType;
-//typedef fadType usedType ;
-
 #endif
