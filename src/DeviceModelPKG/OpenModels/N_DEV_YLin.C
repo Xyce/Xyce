@@ -800,20 +800,27 @@ bool Model::readTouchStoneFile()
         {
           Report::UserError() << "Invalid [Matrix Format] line(s) in file " << TSFileName_
              << " for model " << getName() << " at line " << lineNum;
-          psuccess = false;
+          return false;
         }
         else
 	{
-	  std::string matrixFormat(parsedLine[2].string_);
-          if ( matrixFormat != "Full" )
+	  matrixFormat_ = parsedLine[2].string_;
+          if (IscFD_ && (matrixFormat_ != "Full"))
+	  {
+            Report::UserError() << "Only [Matrix Format] = Full is supported when ISC=TRUE is used for YLIN model";
+	    return false;
+          }
+          else if ( !((matrixFormat_ == "Full") || (matrixFormat_ == "Upper") || (matrixFormat_ == "Lower")) )
           {
-            Report::UserError() << "Only [Matrix Format] = Full is supported";
-            psuccess = false;
+            // standard Touchstone 2 file, without frequency-domain ISC data
+            Report::UserError() << "File " << TSFileName_ << " for model " << getName()
+               << " had invalid value on [Matrix Format] line";
+            return false;
           }
 
           if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
           {
-            Xyce::dout() << "Found matrix format = " << matrixFormat << " at lineNum " << lineNum << std::endl;
+            Xyce::dout() << "Found matrix format = " << matrixFormat_ << " at lineNum " << lineNum << std::endl;
           }
         }
 
@@ -861,14 +868,20 @@ bool Model::readTouchStoneFile()
         Teuchos::SerialDenseMatrix<int, std::complex<double> > inputNetworkData;
         inputNetworkData.shape(numPorts_, numPorts_);
 
-        // expected number of data elements on each line, assuming "Full" format
-        expectedNumElementsPerNetworkDataLine = 2*(numPorts_*numPorts_)+ 1;
+        // Set expected number of data elements on first line, assuming "Full", "Upper" or
+        // "Lower" formats
+        if (matrixFormat_ == "Full")
+          expectedNumElementsPerNetworkDataLine = 2*(numPorts_*numPorts_) + 1;
+        else
+          expectedNumElementsPerNetworkDataLine = numPorts_*(numPorts_+1) + 1;
+
+        // only format "Full" is supported if frequency-domain ISC data is given
         if (IscFD_)
           expectedNumElementsPerNetworkDataLine += 2*numPorts_;
 
         parsedLine.clear();
 
-	// now populate the matrix assuming the input is in "Full" format
+	// now populate the matrix
 	while ( (!inputFile.eof()) && ( aLine[0] !='[') )
 	{
           // account for Touchstone 2 files where each row of network data may
@@ -881,7 +894,7 @@ bool Model::readTouchStoneFile()
             parsedLine.insert(parsedLine.end(),tempParsedLine.begin(),tempParsedLine.end());
           }
 
-          // We have a full line of network data if this conditional is true
+          // We have a complete line of network data if this conditional is true
           if (parsedLine.size() == expectedNumElementsPerNetworkDataLine)
 	  {
             ++numDataLinesFound;
@@ -889,15 +902,29 @@ bool Model::readTouchStoneFile()
             ExtendedString freqStr(parsedLine[0].string_);
             freqVec_.push_back(freqMultiplier_*freqStr.Value());
 
+            // Offset into parsedLine, for the data values.  The frequency value is at offset=0
+            int offset=1;
+
+            // These values work, for Full format, for the inner (column index) loop below
+            int startIdx=0;
+            int endIdx=numPorts_-1;
+
             // for 2-port networks, this assumes [Two-Port Data Order] = "12_21"
-	    for (int i=0; i<numPorts_; ++i)
+	    for (int i=0; i<=numPorts_-1; ++i)
 	    {
-              for (int j=0; j<numPorts_; ++j)
+              // adjust the starting or ending column index, in the inner loop, for Upper or
+              // Lower format respectively
+              if (matrixFormat_ == "Upper")
+                startIdx = i;
+              else if (matrixFormat_ == "Lower")
+                endIdx = i;
+
+              for (int j=startIdx; j<=endIdx; ++j)
 	      {
                 // data will be converted to RI format for internal use in
                 // YLin model
-                ExtendedString Str1(parsedLine[2*(i*numPorts_+j)+1].string_);
-	        ExtendedString Str2(parsedLine[2*(i*numPorts_+j)+2].string_);
+                ExtendedString Str1(parsedLine[offset].string_);
+	        ExtendedString Str2(parsedLine[offset+1].string_);
                 if (dataFormat_ == "RI")
 		{
                   // Use inputNetworkData(i,j) format for accessing, in
@@ -926,6 +953,14 @@ bool Model::readTouchStoneFile()
                     << TSFileName_ << " for model " << getName();
                   return false;
                 }
+
+                // move offset to start of next pair of real/imaginary values
+                offset += 2;
+
+                // internally, the data is stored in Full format.  So, populate the values
+                // on the other side of the diagonal
+                if ( (i!=j) && ((matrixFormat_ == "Upper") || (matrixFormat_ == "Lower")) )
+                  inputNetworkData(j,i) = inputNetworkData(i,j);
               }
             }
 
@@ -959,7 +994,8 @@ bool Model::readTouchStoneFile()
             }
 
             // Handle optional Isc data. There are two additional columns for
-	    // each port added to each row, if that data is included.
+	    // each port added to each row, if that data is included.  This code only
+            // only works for Full matrix format.
             if (IscFD_)
 	    {
               inputIscData.clear();
@@ -1332,6 +1368,7 @@ Model::Model(
     freqUnit_("GHZ"),
     freqMultiplier_(1.0e9),
     paramType_('S'),
+    matrixFormat_("Full"),
     dataFormat_("MA"),
     numPorts_(0),
     twoPortDataOrder_(""),
