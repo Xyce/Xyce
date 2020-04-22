@@ -792,7 +792,7 @@ bool Model::readTouchStoneFile()
       {
         // This line is optional.  If included, it must appear after the [Number of Ports] line
         // and before the [Network Data] line.  It has the allowed string values of
-        // "Full", "Lower" or "Upper".  This parsing only supports "Full" now.
+        // "FULL", "LOWER" or "UPPER".  This parsing only supports "FULL" now.
         ++numMatrixFormatLinesFound;
         splitTouchStoneFileLine(aLine,parsedLine);
 
@@ -804,13 +804,14 @@ bool Model::readTouchStoneFile()
         }
         else
 	{
-	  matrixFormat_ = parsedLine[2].string_;
-          if (IscFD_ && (matrixFormat_ != "Full"))
+          ExtendedString tokenStr(parsedLine[2].string_);
+	  matrixFormat_ = tokenStr.toUpper();
+          if (IscFD_ && (matrixFormat_ != "FULL"))
 	  {
-            Report::UserError() << "Only [Matrix Format] = Full is supported when ISC=TRUE is used for YLIN model";
+            Report::UserError() << "Only [Matrix Format] = FULL is supported when ISC=TRUE is used for YLIN model";
 	    return false;
           }
-          else if ( !((matrixFormat_ == "Full") || (matrixFormat_ == "Upper") || (matrixFormat_ == "Lower")) )
+          else if ( !((matrixFormat_ == "FULL") || (matrixFormat_ == "UPPER") || (matrixFormat_ == "LOWER")) )
           {
             // standard Touchstone 2 file, without frequency-domain ISC data
             Report::UserError() << "File " << TSFileName_ << " for model " << getName()
@@ -868,14 +869,14 @@ bool Model::readTouchStoneFile()
         Teuchos::SerialDenseMatrix<int, std::complex<double> > inputNetworkData;
         inputNetworkData.shape(numPorts_, numPorts_);
 
-        // Set expected number of data elements on first line, assuming "Full", "Upper" or
-        // "Lower" formats
-        if (matrixFormat_ == "Full")
+        // Set expected number of data elements on first line, assuming "FULL", "UPPER" or
+        // "LOWER" formats
+        if (matrixFormat_ == "FULL")
           expectedNumElementsPerNetworkDataLine = 2*(numPorts_*numPorts_) + 1;
         else
           expectedNumElementsPerNetworkDataLine = numPorts_*(numPorts_+1) + 1;
 
-        // only format "Full" is supported if frequency-domain ISC data is given
+        // only format "FULL" is supported if frequency-domain ISC data is given
         if (IscFD_)
           expectedNumElementsPerNetworkDataLine += 2*numPorts_;
 
@@ -905,18 +906,18 @@ bool Model::readTouchStoneFile()
             // Offset into parsedLine, for the data values.  The frequency value is at offset=0
             int offset=1;
 
-            // These values work, for Full format, for the inner (column index) loop below
+            // These values work, for FULL format, for the inner (column index) loop below
             int startIdx=0;
             int endIdx=numPorts_-1;
 
             // for 2-port networks, this assumes [Two-Port Data Order] = "12_21"
 	    for (int i=0; i<=numPorts_-1; ++i)
 	    {
-              // adjust the starting or ending column index, in the inner loop, for Upper or
-              // Lower format respectively
-              if (matrixFormat_ == "Upper")
+              // adjust the starting or ending column index, in the inner loop, for UPPER or
+              // LOWER format respectively
+              if (matrixFormat_ == "UPPER")
                 startIdx = i;
-              else if (matrixFormat_ == "Lower")
+              else if (matrixFormat_ == "LOWER")
                 endIdx = i;
 
               for (int j=startIdx; j<=endIdx; ++j)
@@ -959,7 +960,7 @@ bool Model::readTouchStoneFile()
 
                 // internally, the data is stored in Full format.  So, populate the values
                 // on the other side of the diagonal
-                if ( (i!=j) && ((matrixFormat_ == "Upper") || (matrixFormat_ == "Lower")) )
+                if ( (i!=j) && ((matrixFormat_ == "UPPER") || (matrixFormat_ == "LOWER")) )
                   inputNetworkData(j,i) = inputNetworkData(i,j);
               }
             }
@@ -1368,7 +1369,7 @@ Model::Model(
     freqUnit_("GHZ"),
     freqMultiplier_(1.0e9),
     paramType_('S'),
-    matrixFormat_("Full"),
+    matrixFormat_("FULL"),
     dataFormat_("MA"),
     numPorts_(0),
     twoPortDataOrder_(""),

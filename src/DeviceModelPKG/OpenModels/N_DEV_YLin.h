@@ -272,7 +272,7 @@ private:
                                             ///< value is GHz.
   double                 freqMultiplier_;
   char                   paramType_;        ///< 'S', Y' or 'Z'.  The default is 'S'
-  std::string            matrixFormat_;     ///< Legal values are "Full", "Upper" or "Lower". Default is "Full".
+  std::string            matrixFormat_;     ///< Legal values are "FULL", "UPPER" or "LOWER". Default is "FULL".
   std::string            dataFormat_;       ///< Format of the input network data.  Legal values
                                             ///< are: "RI", 'MA" or "DB".  The default is "MA".
   int                    numPorts_;         ///< Number of ports
