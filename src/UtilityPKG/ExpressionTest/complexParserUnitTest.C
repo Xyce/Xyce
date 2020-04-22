@@ -3788,7 +3788,7 @@ TEST ( Complex_Parser_NestedFunc_Test, func_cir_newResolution)
   // refresult = -5+16;
   // refresult = 11;
   std::complex<double>  refresult = 11;
-  testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
+  testExpression->evaluateFunction(result);   EXPECT_FLOAT_EQ( std::real(result), std::real(refresult) );
 
   OUTPUT_MACRO3(Complex_Parser_NestedFunc_Test, func_cir)
 }
@@ -3891,7 +3891,7 @@ TEST ( Complex_Parser_NestedFunc_Test, func_cir_newResolution2)
   // refresult = -5+16;
   // refresult = 11;
   std::complex<double>  refresult = 11;
-  testExpression->evaluateFunction(result);   EXPECT_EQ( result, refresult );
+  testExpression->evaluateFunction(result);   EXPECT_FLOAT_EQ( std::real(result), std::real(refresult) );
 
   OUTPUT_MACRO3(Complex_Parser_NestedFunc_Test, func_cir)
 }
