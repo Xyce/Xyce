@@ -38,15 +38,27 @@ class ExpressionLexer;
 %name-prefix="XyceExpression"
 %require "3.2"
 
+// ERK:  4/22/2020.  Below, in the union I am using pointers to RCP's.
+// I needed to use RCP's because expressions in Xyce get copied all
+// over the place, and rather than create copy constructors for the
+// entire AST tree, it is much easier to just copy
+// over the RCP (kind of like a what happens in a move constructor).
+//
+// The pointers are used b/c the union below only supports basic data
+// types like int, double, etc.  And pointers.
+//
+// However, it turns out that the C++ version of Bison has something called
+// Variants.  They are documented for Bison 3.5 here:
+//
+//  http://www.gnu.org/software/bison/manual/bison.html#C_002b_002b-Variants
+//
+// I had not realized that when I wrote the code, below.  Variants
+// are an alternative to the union, and permit other sorts of data types
+// include STL, etc.  So I probably could have used RCP's without 
+// having to use pointers to them.  This could be a future refactor.
 
 %union
 {
-// comparison ops placeholder
-  double cmp; // placeholder
-
-  //astNode<usedType> *astNodePtr;
-  //std::vector< astNode<usedType> * > * nodeVecPtr;
-
   Teuchos::RCP<astNode<usedType> > * astNodePtr;
   std::vector< Teuchos::RCP<astNode<usedType> > > * nodeVecPtr;
 

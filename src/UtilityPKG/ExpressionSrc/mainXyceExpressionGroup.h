@@ -78,6 +78,12 @@ public:
     return success; // FIX THIS
   }
 
+  virtual bool getSolutionDdt (const std::string & nodeName, std::complex<double> & retval ) 
+  { 
+    retval=std::complex<double>(0.0,0.0);
+    return false; 
+  }
+
   virtual bool getSolutionDdt(const std::string & nodeName, double & retval )
   {
     bool success=true;
@@ -87,7 +93,15 @@ public:
     return success; // FIX THIS
   }
 
+  virtual bool getSolutionSdt (const std::string & nodeName, std::complex<double> & retval ) 
+  { 
+    retval=std::complex<double>(0.0,0.0);
+    return false; 
+  }
+
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
+
+  virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
 
   virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
 
@@ -110,6 +124,8 @@ public:
 
 private:
 
+  int getSolutionGID_(const std::string & nodeName);
+
   N_PDS_Comm & comm_;
   Topo::Topology & top_;
 
@@ -118,7 +134,7 @@ private:
 
   const IO::AliasNodeMap * aliasNodeMapPtr_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
 
-  Util::Op::Operator * tempOp_;
+  //Util::Op::Operator * tempOp_;
 
   double time_, temp_, VT_, freq_;
   double dt_, alpha_;

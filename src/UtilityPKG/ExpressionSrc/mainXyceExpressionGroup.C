@@ -41,7 +41,7 @@ mainXyceExpressionGroup::mainXyceExpressionGroup (
  top_(top),
  analysisManager_(analysis_manager),
  deviceManager_(device_manager),
- tempOp_(new Device::ArtificialParameterOp("TEMP", deviceManager_, *(*deviceManager_.getArtificialParameterMap().find("TEMP")).second, "TEMP")),
+ //tempOp_(new Device::ArtificialParameterOp("TEMP", deviceManager_, *(*deviceManager_.getArtificialParameterMap().find("TEMP")).second, "TEMP")),
  time_(0.0), temp_(0.0), VT_(0.0), freq_(0.0), dt_(0.0), alpha_(0.0)
 {
 
@@ -57,22 +57,85 @@ mainXyceExpressionGroup::mainXyceExpressionGroup (
 //-------------------------------------------------------------------------------
 mainXyceExpressionGroup::~mainXyceExpressionGroup ()
 {
-  delete tempOp_;
+  //delete tempOp_;
+}
+
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getSolutionGID_
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020
+//-------------------------------------------------------------------------------
+int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
+{
+  int tmpGID=-1;
+  std::vector<int> svGIDList1, dummyList;
+  char type1;
+
+  std::string nodeNameUpper = nodeName;
+  Xyce::Util::toUpper(nodeNameUpper);
+
+  bool foundLocal = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_VNODE), svGIDList1, dummyList, type1);
+  bool found = static_cast<int>(foundLocal);
+  Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found, 1);
+
+  // if looking for this as a voltage node failed, try a "device" (i.e. current) node.  I(Vsrc)
+  bool foundLocal2 = false;
+  if (!found)
+  {
+    foundLocal2 = top_.getNodeSVarGIDs(NodeID(nodeNameUpper, Xyce::_DNODE), svGIDList1, dummyList, type1);
+  }
+  bool found2 = static_cast<int>(foundLocal2);
+  Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &found2, 1);
+
+  // Check if this is a subcircuit interface node name, which would be found in the aliasNodeMap.
+  // If it is then get the GID for the corresponding "real node name". See SRN Bug 1962 for 
+  // more details but, as an example, these netlist lines:
+  //
+  //   X1 1 2 MYSUB
+  //   .SUBCKT MYSUB a c 
+  //   R1   a b 0.5
+  //   R2   b c 0.5
+  //  .ENDS
+  //
+  // would produce key-value pairs of <"X1:C","2"> and <"X1:A","1"> in the aliasNodeMap 
+  bool foundAliasNodeLocal = false;
+  if (!found && !found2)
+  {
+    //IO::AliasNodeMap::const_iterator alias_it = output_manager.getAliasNodeMap().find( nodeNameUpper );
+    //IO::AliasNodeMap::const_iterator alias_it = aliasNodeMap_.find( nodeNameUpper );
+    IO::AliasNodeMap::const_iterator alias_it = aliasNodeMapPtr_->find( nodeNameUpper );
+    //if (alias_it != output_manager.getAliasNodeMap().end())
+    //if (alias_it != aliasNodeMap_.end())
+    if (alias_it != aliasNodeMapPtr_->end())
+    {      
+      foundAliasNodeLocal = top_.getNodeSVarGIDs(NodeID((*alias_it).second, Xyce::_VNODE), svGIDList1, dummyList, type1);
+    }
+  }
+  bool foundAliasNode = static_cast<int>(foundAliasNodeLocal);
+  Xyce::Parallel::AllReduce(comm_.comm(), MPI_LOR, &foundAliasNode, 1);
+
+  if(svGIDList1.size()==1)
+  {
+    tmpGID = svGIDList1.front();
+  }
+
+  return tmpGID;
 }
 
 //-------------------------------------------------------------------------------
 // Function      : mainXyceExpressionGroup::getSolutionVal
 // Purpose       : 
-// Special Notes :
+// Special Notes : double precision version
 // Scope         :
 // Creator       : Eric Keiter
 // Creation Date : 3/20/2020
 //-------------------------------------------------------------------------------
 bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, double & retval )
 {
-  bool success=true;
-  int tmpGID=-1;
-  retval = 0.0;
+#if 0
   std::string nodeNameUpper = nodeName;
   Xyce::Util::toUpper(nodeNameUpper);
 
@@ -115,7 +178,7 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, doubl
       //if (alias_it != output_manager.getAliasNodeMap().end())
       //if (alias_it != aliasNodeMap_.end())
       if (alias_it != aliasNodeMapPtr_->end())
-      {      
+      {
         foundAliasNodeLocal = top_.getNodeSVarGIDs(NodeID((*alias_it).second, Xyce::_VNODE), svGIDList1, dummyList, type1);
       }
     }
@@ -128,19 +191,52 @@ bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, doubl
       tmpGID = svGIDList1.front();
     }
   }
+#else
+  int tmpGID = getSolutionGID_(nodeName);
+#endif
 
+  retval = 0.0;
   if (tmpGID >= 0)
   {
     const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
     retval = dataStore_.nextSolutionPtr->getElementByGlobalIndex(tmpGID, 0);
   }
-  else 
-  {
-    retval = 0.0;
-  }
   Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &retval, 1);
+  return (tmpGID>=0);
+}
 
-  return success; // FIX THIS
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::getSolutionVal
+// Purpose       : 
+// Special Notes : std::complex<double> precision version
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 3/20/2020
+//-------------------------------------------------------------------------------
+bool mainXyceExpressionGroup::getSolutionVal(const std::string & nodeName, std::complex<double> & retval)
+{
+  int tmpGID = getSolutionGID_(nodeName);
+
+  double real_val=0.0;
+  double imag_val=0.0;
+  if (tmpGID >= 0)
+  {
+    const TimeIntg::DataStore & dataStore_ = *(analysisManager_.getDataStore());
+    real_val = dataStore_.nextSolutionPtr->getElementByGlobalIndex(tmpGID, 0);
+  }
+
+  Xyce::Parallel::AllReduce(comm_.comm(), MPI_SUM, &real_val, 1);
+
+  // ERK.  To Do:
+  // need to add logic to see if this is frequency domain situation or not.
+  // If not, don't bother getting the imaginary part.
+  //
+  // Xyce currently uses a real equivalent form for everything, rather than std::complex.
+  //
+  // For now, however, just set imag to zero.
+
+  retval = std::complex<double>(real_val,imag_val);
+  return (tmpGID>=0);
 }
 
 //-------------------------------------------------------------------------------
@@ -177,7 +273,9 @@ bool mainXyceExpressionGroup::getGlobalParameterVal(const std::string &paramName
 bool mainXyceExpressionGroup::getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval)
 {
   bool success=true;
-  std::cout << "Complex number version of mainXyceExpressionGroup::getGlobalParameterVal not implemented  yet!" <<std::endl;
+  double tmpval;
+  Device::getParamAndReduce(comm_.comm(), deviceManager_, paramName, tmpval);
+  retval = std::complex<double>(tmpval,0.0);
   return success;
 }
 

@@ -76,13 +76,10 @@ public:
   Expression (
       const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
       std::string const & exp = std::string(), 
-      const std::vector<std::string> & functionArgStringVec = std::vector<std::string>(), 
-      bool useNew=true);
+      const std::vector<std::string> & functionArgStringVec = std::vector<std::string>());
 
   Expression (const Expression &);
-#ifdef NEW_EXPRESSION
   Expression& operator=(const Expression& right) ; 
-#endif
   ~Expression (void);
 
   bool parsed() const;
@@ -119,8 +116,6 @@ public:
   void getLeadCurrents     (std::vector<std::string> & leads) const;
   void getFunctions        (std::vector<std::string> & funcs) const;
 
-  int differentiate();
-
   // ERK new expression stuff, where external dependencies are set in separate 
   // calls.  This is better than set_var/s, but not best.  Best would be to
   // have an all-powerful group that can "pull" these values, rather than
@@ -133,8 +128,10 @@ public:
   bool setLeadCurrent   (const std::string &, const double &);
 
   std::string get_expression (void) const;
-  std::string get_derivative(std::string const & var);
   int get_num(int const & type);
+
+  int evaluate (std::complex<double> &result, std::vector< std::complex<double> > &derivs);
+  int evaluateFunction (std::complex<double> &result);
 
   int evaluate (double &result, std::vector< double > &derivs);
   int evaluateFunction (double &result);
@@ -151,7 +148,7 @@ public:
   double get_break_time (void);
   double get_break_time_i (void);
 
-  const std::string & get_input (void);
+  const std::string & get_input (void) const;
 
   // ERK.  Many of the functions below, here need to go.  Probably not all, but many.
   // order_names and replace_func will definitely be gone.
@@ -177,12 +174,8 @@ public:
 
 private:
 
-  bool useNewExpressionLibrary_;
-  bool namesSet_;
   Teuchos::RCP<Xyce::Util::newExpression> newExpPtr_;
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> grp_;
-  ExpressionInternals *expPtr_;
-
 };
 
 } // namespace Util

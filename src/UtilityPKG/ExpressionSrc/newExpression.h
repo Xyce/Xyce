@@ -609,6 +609,9 @@ private:
   bool isTempDepdendent_;
   bool isVTDepdendent_;
   bool isFreqDepdendent_;
+
+  //usedType result_;
+  //std::vector<usedType> derivs_;
 };
 
 }

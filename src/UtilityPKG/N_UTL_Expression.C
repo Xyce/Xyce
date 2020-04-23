@@ -51,10 +51,6 @@
 // ----------   Xyce Includes   ----------
 #include <N_UTL_Expression.h>
 
-// ERK.  Adding this (utl param) may be more trouble than I want ...
-// ERK.  Don't need it ...
-// #include <N_UTL_Param.h>
-
 #include <newExpression.h>
 #include <xyceExpressionGroup.h>
 #include <mainXyceExpressionGroup.h>
@@ -74,48 +70,31 @@ namespace Util {
 Expression::Expression( 
     const Teuchos::RCP<Xyce::Util::baseExpressionGroup> & baseGrp_,
     const std::string & exp, 
-    const std::vector<std::string> & functionArgStringVec,
-    bool useNew )
+    const std::vector<std::string> & functionArgStringVec)
   :
-   useNewExpressionLibrary_(useNew),
-   namesSet_(false),
    newExpPtr_(NULL),
-   expPtr_(NULL),
    grp_(baseGrp_)
 {
-
-  if(useNewExpressionLibrary_)
+  // ERK; removing the beginning and ending brace should really be handled by flex/bison, 
+  // but I was in a hurry today.
+  std::string expCopy = exp;
+  if ( !(expCopy.empty()))
   {
-#if 0
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
-    grp_ = xyceGroup;
-#endif
-
-    // ERK; removing the beginning and ending brace should really be handled by flex/bison, 
-    // but I was in a hurry today.
-    std::string expCopy = exp;
-    if ( !(expCopy.empty()))
+    if (expCopy[0]== '{' && expCopy[expCopy.size()-1]=='}')
     {
-      if (expCopy[0]== '{' && expCopy[expCopy.size()-1]=='}')
-      {
-        expCopy.erase(0,1);// lop off open curly brace
-        expCopy.erase(expCopy.length()-1); // lop off close curly brace
-      }
+      expCopy.erase(0,1);// lop off open curly brace
+      expCopy.erase(expCopy.length()-1); // lop off close curly brace
     }
-
-    newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy,grp_) );
-
-    if (!(functionArgStringVec.empty()))
-    {
-      newExpPtr_->setFunctionArgStringVec(functionArgStringVec);
-    }
-
-    newExpPtr_->lexAndParseExpression();
   }
-  else
+
+  newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy,grp_) );
+
+  if (!(functionArgStringVec.empty()))
   {
-    expPtr_ = new ExpressionInternals(exp);
+    newExpPtr_->setFunctionArgStringVec(functionArgStringVec);
   }
+
+  newExpPtr_->lexAndParseExpression();
 }
 
 //-----------------------------------------------------------------------------
@@ -128,53 +107,27 @@ Expression::Expression(
 //-----------------------------------------------------------------------------
 Expression::Expression( const Expression & right)
   :
-   useNewExpressionLibrary_(right.useNewExpressionLibrary_),
-   namesSet_(right.namesSet_),
    newExpPtr_(right.newExpPtr_),
-   grp_(right.grp_),
-   expPtr_(NULL)
+   grp_(right.grp_)
 {
-  if(useNewExpressionLibrary_)
-  {
-    //newExpPtr_ = new Xyce::Util::newExpression( *(right.newExpPtr_));
-  }
-  else
-  {
-    expPtr_ = new ExpressionInternals( *(right.expPtr_));
-  }
   return;
 }
 
-#ifdef NEW_EXPRESSION
 //-----------------------------------------------------------------------------
 // Function      : Expression::operator=
 // Purpose       : assignment operator
-// Special Notes :
+// Special Notes : 
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 1/7/2019
 //-----------------------------------------------------------------------------
 Expression& Expression::operator=(const Expression& right) 
 {
-  useNewExpressionLibrary_ = right.useNewExpressionLibrary_;
-  namesSet_ = right.namesSet_;
   grp_ = right.grp_;
-
-  if(useNewExpressionLibrary_)
-  {
-    //newExpPtr_ = new Xyce::Util::newExpression( *(right.newExpPtr_) );
-    //newExpPtr_->lexAndParseExpression();
-    newExpPtr_ = right.newExpPtr_;
-    if (*(newExpPtr_.parsed())) newExpPtr_->lexAndParseExpression();
-  }
-  else
-  {
-    expPtr_ = new ExpressionInternals( *(right.expPtr_));
-  }
-
+  newExpPtr_ = right.newExpPtr_;
+  //if (*(newExpPtr_->parsed())) newExpPtr_->lexAndParseExpression();
   return *this;
 }
-#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::~Expression
@@ -186,14 +139,6 @@ Expression& Expression::operator=(const Expression& right)
 //-----------------------------------------------------------------------------
 Expression::~Expression ()
 {
-  if(useNewExpressionLibrary_)
-  {
-    //delete newExpPtr_;
-  }
-  else
-  {
-    delete expPtr_;
-  }
   return;
 }
 
@@ -207,14 +152,7 @@ Expression::~Expression ()
 //-----------------------------------------------------------------------------
 bool Expression::parsed() const 
 {
-  if(useNewExpressionLibrary_)
-  {
-    return newExpPtr_->parsed();
-  }
-  else
-  {
-    return expPtr_->parsed();
-  }
+  return newExpPtr_->parsed();
 }
 
 //-----------------------------------------------------------------------------
@@ -227,15 +165,7 @@ bool Expression::parsed() const
 //-----------------------------------------------------------------------------
 int Expression::getFuncSize()
 {
-  if(useNewExpressionLibrary_)
-  {
-    return newExpPtr_->getFuncOpVec().size();
-  }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::getFuncSize called on old expression library." <<std::endl;
-    return 0; 
-  }
+  return newExpPtr_->getFuncOpVec().size();
 }
 
 //-----------------------------------------------------------------------------
@@ -248,15 +178,7 @@ int Expression::getFuncSize()
 //-----------------------------------------------------------------------------
 void Expression::getFuncNames (std::vector<std::string> & funcNames)
 {
-  if(useNewExpressionLibrary_)
-  {
-    funcNames = newExpPtr_-> getFuncNameVec ();
-  }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::getFuncNames called on old expression library." <<std::endl;
-    return; 
-  }
+  funcNames = newExpPtr_-> getFuncNameVec ();
 }
 
 
@@ -270,15 +192,7 @@ void Expression::getFuncNames (std::vector<std::string> & funcNames)
 //-----------------------------------------------------------------------------
 void Expression::getFuncPrototypeArgStrings(std::vector<std::string> & arguments)
 {
-  if(useNewExpressionLibrary_)
-  {
-    newExpPtr_->getFuncPrototypeArgStrings(arguments);
-  }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::getFuncPrototypeArgStrings called on old expression library." <<std::endl;
-    return; 
-  }
+  newExpPtr_->getFuncPrototypeArgStrings(arguments);
 } 
 
 //-----------------------------------------------------------------------------
@@ -291,15 +205,7 @@ void Expression::getFuncPrototypeArgStrings(std::vector<std::string> & arguments
 //-----------------------------------------------------------------------------
 void Expression::attachFunctionNode (const std::string & funcName, const Expression & exp)
 {
-  if(useNewExpressionLibrary_)
-  {
-    newExpPtr_->attachFunctionNode(funcName,exp.newExpPtr_);
-  }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::attachFunctionNode called on old expression library." <<std::endl;
-    return; 
-  }
+  newExpPtr_->attachFunctionNode(funcName,exp.newExpPtr_);
 }
 
 //-----------------------------------------------------------------------------
@@ -312,15 +218,7 @@ void Expression::attachFunctionNode (const std::string & funcName, const Express
 //-----------------------------------------------------------------------------
 void Expression::attachParameterNode (const std::string & paramName, const Expression & exp)
 {
-  if(useNewExpressionLibrary_)
-  {
-    newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_);
-  }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::attachParameterNode called on old expression library." <<std::endl;
-    return; 
-  }
+  newExpPtr_->attachParameterNode(paramName,exp.newExpPtr_);
 }
 
 
@@ -334,18 +232,13 @@ void Expression::attachParameterNode (const std::string & paramName, const Expre
 //-----------------------------------------------------------------------------
 const std::vector<std::string> & Expression::getFunctionArgStringVec ()
 {
-  if(!useNewExpressionLibrary_)
-  {
-    std::cout << "Error. Xyce::Util::Expression::getFunctionArgStringVec called on old expression library." <<std::endl;
-  }
-
   return newExpPtr_->getFunctionArgStringVec();
 }
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::set
 // Purpose       : Set the value of the expression to a string
-// Special Notes :
+// Special Notes : ERK: is this needed?  Does anyone call it?
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
@@ -354,39 +247,32 @@ bool Expression::set ( const std::string & exp )
 {
   bool retVal = false; 
 
-  if(useNewExpressionLibrary_)
+  std::string expCopy = exp;
+
+  if ( !(expCopy.empty()))
   {
-    std::string expCopy = exp;
+    if (expCopy[0]== '{' && expCopy[expCopy.size()-1]=='}')
+    {
+      expCopy.erase(0,1);// lop off open curly brace
+      expCopy.erase(expCopy.length()-1); // lop off close curly brace
+    }
+  }
 
-    if ( !(expCopy.empty()))
-    {
-      if (expCopy[0]== '{' && expCopy[expCopy.size()-1]=='}')
-      {
-        expCopy.erase(0,1);// lop off open curly brace
-        expCopy.erase(expCopy.length()-1); // lop off close curly brace
-      }
-    }
-
-    if ( !(Teuchos::is_null(newExpPtr_)) )
-    {
-      newExpPtr_->clear();
-      newExpPtr_->setExpressionString (expCopy);
-    }
-    else
-    {
-#if 0
-      Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
-      grp_ = xyceGroup;
-#endif
-      //newExpPtr_ = new Xyce::Util::newExpression(expCopy, grp_);
-      newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy, grp_) );
-    }
-    newExpPtr_->lexAndParseExpression();
+  if ( !(Teuchos::is_null(newExpPtr_)) )
+  {
+    newExpPtr_->clear();
+    newExpPtr_->setExpressionString (expCopy);
   }
   else
   {
-    retVal = expPtr_->set (exp);
+#if 0
+    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp(new xyceExpressionGroup() );
+    grp_ = xyceGroup;
+#endif
+    //newExpPtr_ = new Xyce::Util::newExpression(expCopy, grp_);
+    newExpPtr_ = Teuchos::rcp(new Xyce::Util::newExpression(expCopy, grp_) );
   }
+  newExpPtr_->lexAndParseExpression();
 
   return retVal;
 }
@@ -394,48 +280,32 @@ bool Expression::set ( const std::string & exp )
 //-----------------------------------------------------------------------------
 // Function      : Expression::getSymbolTable
 // Purpose       : Returns the symbol table
-// Special Notes :
+// Special Notes : ERK.  The need for this may go away by the time I'm done implementing newExpression
 // Scope         :
 // Creator       : Tom Russo, SNL
 // Creation Date : 08/19/2016
 //-----------------------------------------------------------------------------
 void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theSymbolTable ) const
 { 
-  if(useNewExpressionLibrary_)
+  //ERK.  Like with everything else, stuff that is old-expression specific I am 
+  //handling here, rather than in Xyce::Util::newExpression.
+
+  //  local versions of these
+  //  set them up, and then go thru a similar loop as the getSymbolTable function in N_UTL_ExpressionInternals
+  std::vector<int> varTypes;            ///< array of types of variables
+  std::vector<std::string> varValues;   ///< array of values of variables
+  std::string leadDesignator;           ///< lead designator for current variables
+
+  theSymbolTable.clear();
+
+  int var_type = XEXP_NODE;
+  for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
   {
-    //ERK.  Like with everything else, stuff that is old-expression specific I am 
-    //handling here, rather than in Xyce::Util::newExpression.
+    int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
 
-    //  local versions of these
-    //  set them up, and then go thru a similar loop as the getSymbolTable function in N_UTL_ExpressionInternals
-    std::vector<int> varTypes;            ///< array of types of variables
-    std::vector<std::string> varValues;   ///< array of values of variables
-    std::string leadDesignator;           ///< lead designator for current variables
-
-    theSymbolTable.clear();
-
-    int var_type = XEXP_NODE;
-    for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
+    for (int jj=0;jj<size;jj++)
     {
-      int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
-
-      for (int jj=0;jj<size;jj++)
-      {
-        std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
-        std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
-        if (it == varValues.end())
-        {
-          varValues.push_back( tmpName );
-          varTypes.push_back(var_type);
-          leadDesignator.push_back(' ');
-        }
-      }
-    }
-
-    var_type = XEXP_INSTANCE;
-    for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
-    {
-      std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
+      std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
       std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
       if (it == varValues.end())
       {
@@ -444,68 +314,78 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
         leadDesignator.push_back(' ');
       }
     }
+  }
 
-    var_type = XEXP_LEAD; // ERK.  I haven't figured this out yet, but need to.
-
-
-    var_type = XEXP_STRING; // for some mysterious reason, this means params and global_params
-    for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
+  var_type = XEXP_INSTANCE;
+  for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
+  {
+    std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
+    if (it == varValues.end())
     {
-      std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
-      std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
-      if (it == varValues.end())
-      {
-        varValues.push_back( tmpName );
-        varTypes.push_back(var_type);
-        leadDesignator.push_back(' ');
-      }
-    }
-
-    var_type = XEXP_SPECIAL; // ERK.  This doesn't yet track external specials dependencies
-    if (newExpPtr_->getTimeDependent()) { varValues.push_back(std::string("TIME")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
-    if (newExpPtr_->getTempDependent()) { varValues.push_back(std::string("TEMP")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
-    if (newExpPtr_->getVTDependent()) { varValues.push_back(std::string("VT")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
-    if (newExpPtr_->getFreqDependent()) { varValues.push_back(std::string("FREQ")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
-
-    // VARIABLE is a global parameter that needs to be updated at each call.
-    var_type = XEXP_VARIABLE;
-#if 0
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    const std::vector<std::string> & names = xyceGroup->getNames();
-    int nameSize = names.size();
-    for (int ii=0;ii<nameSize;++ii)
-    {
-      varValues.push_back(names[ii]);
+      varValues.push_back( tmpName );
       varTypes.push_back(var_type);
       leadDesignator.push_back(' ');
     }
+  }
+
+  var_type = XEXP_LEAD; // ERK.  I haven't figured this out yet, but need to.
+
+
+  var_type = XEXP_STRING; // for some mysterious reason, this means params and global_params
+  for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
+  {
+    std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
+    if (it == varValues.end())
+    {
+      varValues.push_back( tmpName );
+      varTypes.push_back(var_type);
+      leadDesignator.push_back(' ');
+    }
+  }
+
+  var_type = XEXP_SPECIAL; // ERK.  This doesn't yet track external specials dependencies
+  if (newExpPtr_->getTimeDependent()) { varValues.push_back(std::string("TIME")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
+  if (newExpPtr_->getTempDependent()) { varValues.push_back(std::string("TEMP")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
+  if (newExpPtr_->getVTDependent()) { varValues.push_back(std::string("VT")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
+  if (newExpPtr_->getFreqDependent()) { varValues.push_back(std::string("FREQ")); varTypes.push_back(var_type); leadDesignator.push_back(' '); }
+
+  // VARIABLE is a global parameter that needs to be updated at each call.
+  var_type = XEXP_VARIABLE;
+#if 0
+  Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+  const std::vector<std::string> & names = xyceGroup->getNames();
+  int nameSize = names.size();
+  for (int ii=0;ii<nameSize;++ii)
+  {
+    varValues.push_back(names[ii]);
+    varTypes.push_back(var_type);
+    leadDesignator.push_back(' ');
+  }
 #endif
 
-    var_type = XEXP_FUNCTION;
-    for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
-    {
-      std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
-      std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
-      if (it == varValues.end())
-      {
-        varValues.push_back( tmpName );
-        varTypes.push_back(var_type);
-        leadDesignator.push_back(' ');
-      }
-    }
-
-    var_type = XEXP_NODAL_COMPUTATION; // haven't figure this out yet
-
-    int size = varValues.size();
-    for (int ii=0;ii<size;++ii)
-    {
-      theSymbolTable.push_back(ExpressionSymbolTableEntry(varValues[ii],varTypes[ii],leadDesignator[ii]));
-    }
-  }
-  else
+  var_type = XEXP_FUNCTION;
+  for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
   {
-    expPtr_->getSymbolTable(theSymbolTable);
+    std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(varValues.begin(), varValues.end(), tmpName);
+    if (it == varValues.end())
+    {
+      varValues.push_back( tmpName );
+      varTypes.push_back(var_type);
+      leadDesignator.push_back(' ');
+    }
   }
+
+  var_type = XEXP_NODAL_COMPUTATION; // haven't figure this out yet
+
+  int size = varValues.size();
+  for (int ii=0;ii<size;++ii)
+  {
+    theSymbolTable.push_back(ExpressionSymbolTableEntry(varValues[ii],varTypes[ii],leadDesignator[ii]));
+  }
+  
   return;
 }
 
@@ -575,97 +455,88 @@ void Expression::getSymbolTable(std::vector< ExpressionSymbolTableEntry > & theS
 //-----------------------------------------------------------------------------
 void Expression::get_names(int const & type, std::vector<std::string> & names ) const
 {
-  if(useNewExpressionLibrary_)
+  switch (type)
   {
-    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+    case XEXP_ALL:  // ERK.  I don't think this one gets called by anyone
+      break;
 
-    switch (type)
-    {
-      case XEXP_ALL:  // ERK.  I don't think this one gets called by anyone
-        break;
+    case XEXP_NODE:
+      getVoltageNodes(names);
+      break;
 
-      case XEXP_NODE:
-        getVoltageNodes(names);
-        break;
+    case XEXP_INSTANCE:
+      getDeviceCurrents(names);
+      break;
 
-      case XEXP_INSTANCE:
-        getDeviceCurrents(names);
-        break;
+    case XEXP_LEAD: // ERK.  I haven't figured this out yet, but need to.
+      getLeadCurrents(names);
+      break;
 
-      case XEXP_LEAD: // ERK.  I haven't figured this out yet, but need to.
-        getLeadCurrents(names);
-        break;
+    case XEXP_STRING: // unresolved strings.  
+      // This is called in a few use cases:
+      //
+      // (1) to obtain the function arguments specified in the function definition.  
+      // ie, if you have:
+      //
+      // .func abc(x,y)
+      //
+      // the old Xyce code creates an expression (probably called "functionPrototype") from 
+      // the string "abc(x,y)" and then requests the "strings" back, which will be x,y.  
+      // For it to work properly, the string vector needs to be in the same order as 
+      // they were specified in the prototype.
+      //
+      // (2) to obtain what are probably function arguments in a function body.  
+      // ie, if you have:
+      //
+      // .param a=2.0
+      // .func abc(x,y) {x+y+5*a}
+      //
+      // Then the function body is {x+y+5*a}.  A "resolution" will figure out that "a" 
+      // is a .param, and mark it accordingly, but it will NOT find x and y, as they are 
+      // not .params or .global_params.  As a result, x and y will still be in the list 
+      // of "strings". (I think.  check this).  This seems a bit backward - the code should
+      // already know that x,y are the arguments, if it has already executed use case (1), 
+      // above.
+      //
+      // Note, for this to work, it cannot return any param names (strings) that have 
+      // previously had "set_constant" or "set_var" called on them.
+      getUnresolvedParams(names);
+      break;
 
-      case XEXP_STRING: // unresolved strings.  
-        // This is called in a few use cases:
-        //
-        // (1) to obtain the function arguments specified in the function definition.  
-        // ie, if you have:
-        //
-        // .func abc(x,y)
-        //
-        // the old Xyce code creates an expression (probably called "functionPrototype") from 
-        // the string "abc(x,y)" and then requests the "strings" back, which will be x,y.  
-        // For it to work properly, the string vector needs to be in the same order as 
-        // they were specified in the prototype.
-        //
-        // (2) to obtain what are probably function arguments in a function body.  
-        // ie, if you have:
-        //
-        // .param a=2.0
-        // .func abc(x,y) {x+y+5*a}
-        //
-        // Then the function body is {x+y+5*a}.  A "resolution" will figure out that "a" 
-        // is a .param, and mark it accordingly, but it will NOT find x and y, as they are 
-        // not .params or .global_params.  As a result, x and y will still be in the list 
-        // of "strings". (I think.  check this).  This seems a bit backward - the code should
-        // already know that x,y are the arguments, if it has already executed use case (1), 
-        // above.
-        //
-        // Note, for this to work, it cannot return any param names (strings) that have 
-        // previously had "set_constant" or "set_var" called on them.
-        getUnresolvedParams(names);
-        break;
+    case XEXP_SPECIAL: // ERK.  This doesn't yet track external specials dependencies
+      if (newExpPtr_->getTimeDependent()) { names.push_back(std::string("TIME")); }
+      if (newExpPtr_->getTempDependent()) { names.push_back(std::string("TEMP")); }
+      if (newExpPtr_->getVTDependent()) { names.push_back(std::string("VT")); }
+      if (newExpPtr_->getFreqDependent()) { names.push_back(std::string("FREQ")); }
+      break;
 
-      case XEXP_SPECIAL: // ERK.  This doesn't yet track external specials dependencies
-        if (newExpPtr_->getTimeDependent()) { names.push_back(std::string("TIME")); }
-        if (newExpPtr_->getTempDependent()) { names.push_back(std::string("TEMP")); }
-        if (newExpPtr_->getVTDependent()) { names.push_back(std::string("VT")); }
-        if (newExpPtr_->getFreqDependent()) { names.push_back(std::string("FREQ")); }
-        break;
+    case XEXP_VARIABLE:
+      //names.insert(names.end(),(xyceGroup->getNames()).begin(), (xyceGroup->getNames()).end());
+      break;
 
-      case XEXP_VARIABLE:
-        //names.insert(names.end(),(xyceGroup->getNames()).begin(), (xyceGroup->getNames()).end());
-        break;
+    case XEXP_FUNCTION:
+      getFunctions(names);
+      break;
 
-      case XEXP_FUNCTION:
-        getFunctions(names);
-        break;
+    case XEXP_NODAL_COMPUTATION:
+      break;
 
-      case XEXP_NODAL_COMPUTATION:
-        break;
+    case XEXP_COUNT:
+      break;
 
-      case XEXP_COUNT:
-        break;
+    default:
+      break;
 
-      default:
-        break;
-
-    }
+  }
 
 #if 0
-    for(int ii=0;ii<names.size();++ii)
-    {
-      std::cout << "N_UTL_Expression::get_names:  names["<<ii<<"] = " << names[ii] << std::endl;
-    }
+  for(int ii=0;ii<names.size();++ii)
+  {
+    std::cout << "N_UTL_Expression::get_names:  names["<<ii<<"] = " << names[ii] << std::endl;
+  }
 #endif
 
-  }
-  else
-  {
-    expPtr_->get_names(type,names);
-  }
-  std::cout << "Expression::get_names(int const & type, std::vector<std::string> & names ) const " << std::endl;
+  //std::cout << "Expression::get_names(int const & type, std::vector<std::string> & names ) const " << std::endl;
   return;
 }
 
@@ -680,32 +551,27 @@ void Expression::get_names(int const & type, std::vector<std::string> & names ) 
 int Expression::get_type ( const std::string & var )
 {
   int retVal=0; 
-  if(useNewExpressionLibrary_)
+
+  std::string tmpName = var;
+  Xyce::Util::toUpper(tmpName);
+
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
+  const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
+
+  if ( voltMap.find(tmpName) != voltMap.end() )
   {
-    std::string tmpName = var;
-    Xyce::Util::toUpper(tmpName);
-
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
-    const std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
-
-    if ( voltMap.find(tmpName) != voltMap.end() )
-    {
-      retVal = XEXP_NODE;
-    }
-    else if ( currMap.find(tmpName) != currMap.end() )
-    {
-      retVal = XEXP_INSTANCE;
-    }
-    else
-    {
-      newExpPtr_->dumpParseTree(std::cout);
-      std::cout << "Error. Xyce::Util::Expression::get_type.  Cannot find type for " << var << std::endl;
-    }
+    retVal = XEXP_NODE;
+  }
+  else if ( currMap.find(tmpName) != currMap.end() )
+  {
+    retVal = XEXP_INSTANCE;
   }
   else
   {
-    retVal = expPtr_->get_type (var);
+    newExpPtr_->dumpParseTree(std::cout);
+    std::cout << "Error. Xyce::Util::Expression::get_type.  Cannot find type for " << var << std::endl;
   }
+
   std::cout << "Expression::get_type ( const std::string & var ) " << std::endl;
   return retVal;
 }
@@ -720,16 +586,9 @@ int Expression::get_type ( const std::string & var )
 //-----------------------------------------------------------------------------
 bool Expression::make_constant (const std::string & var, const double & val)
 {
-  bool retVal=false; 
-  if(useNewExpressionLibrary_)
-  {
-    retVal = newExpPtr_->make_constant (var,val);
-  }
-  else
-  {
-    retVal = expPtr_->make_constant (var,val);
-  }
-  std::cout << "Expression::make_constant (const std::string & var, const double & val).   var = " << var << "  val = " << val << std::endl;
+  bool retVal=false; // ERK.  check this.
+  retVal = newExpPtr_->make_constant (var,val);
+  //std::cout << "Expression::make_constant (const std::string & var, const double & val).   var = " << var << "  val = " << val << std::endl;
   return retVal;
 }
 
@@ -763,70 +622,29 @@ bool Expression::make_constant (const std::string & var, const double & val)
 bool Expression::make_var (std::string const & var)
 {
   bool retVal=false; 
-  if(useNewExpressionLibrary_)
-  {
-#if 0
-    std::string tmpParName = var;
-    Xyce::Util::toUpper(tmpParName);
-    //std::unordered_map<std::string,Teuchos::RCP<astNode<usedType> > > & paramOpMap = 
-
-   //   newExpPtr_->getParamOpMap () ;
-
-    if (newExpPtr_->getParamOpMap().find(tmpParName) != newExpPtr_->getParamOpMap().end())
-    {
-      newExpPtr_->getParamOpMap()[tmpParName].setVar();
-    }
-#endif
-
-    //newExpPtr_->setVar(var);
-    retVal = newExpPtr_->make_var(var);
-  }
-  else
-  {
-    retVal = expPtr_->make_var(var);
-  }
-  std::cout << "Expression::make_var (std::string const & var)  var = " << var << std::endl;
+  retVal = newExpPtr_->make_var(var);
+  //std::cout << "Expression::make_var (std::string const & var)  var = " << var << std::endl;
   return retVal;
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getUnresolvedParams
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 4/20/2020
 //-----------------------------------------------------------------------------
 void Expression::getUnresolvedParams (std::vector<std::string> & params) const
 {
-  if(useNewExpressionLibrary_)
+  std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
+  for (int ii=0;ii<paramOpVec.size();ii++)
   {
-    std::vector<Teuchos::RCP<astNode<usedType> > > & paramOpVec = newExpPtr_->getParamOpVec();
-    for (int ii=0;ii<paramOpVec.size();ii++)
-    {
-      Teuchos::RCP<paramOp<usedType> > parPtr = Teuchos::rcp_dynamic_cast<paramOp<usedType> > (paramOpVec[ii]);
+    Teuchos::RCP<paramOp<usedType> > parPtr = Teuchos::rcp_dynamic_cast<paramOp<usedType> > (paramOpVec[ii]);
 
-      if( !(parPtr->getIsConstant())  && !(parPtr->getIsVar())  && !(parPtr->getIsAttached()) ) 
-      {
-        std::string tmpName = paramOpVec[ii]->getName();
-        std::vector<std::string>::iterator it = std::find(params.begin(), params.end(), tmpName);
-        if (it == params.end())
-        {
-          params.push_back( tmpName );
-        }
-      }
-    }
-  }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
-    exit(0);
-  }
-}
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-void Expression::getParams (std::vector<std::string> & params) const
-{
-  if(useNewExpressionLibrary_)
-  {
-    for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
+    if( !(parPtr->getIsConstant())  && !(parPtr->getIsVar())  && !(parPtr->getIsAttached()) ) 
     {
-      std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
+      std::string tmpName = paramOpVec[ii]->getName();
       std::vector<std::string>::iterator it = std::find(params.begin(), params.end(), tmpName);
       if (it == params.end())
       {
@@ -834,248 +652,152 @@ void Expression::getParams (std::vector<std::string> & params) const
       }
     }
   }
-  else
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::getParams
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
+//-----------------------------------------------------------------------------
+void Expression::getParams (std::vector<std::string> & params) const
+{
+  for (int ii=0;ii<newExpPtr_->getParamOpVec().size();ii++)
   {
-    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
-    exit(0);
+    std::string tmpName = newExpPtr_->getParamOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(params.begin(), params.end(), tmpName);
+    if (it == params.end())
+    {
+      params.push_back( tmpName );
+    }
   }
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getVoltageNodes
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
 //-----------------------------------------------------------------------------
 void Expression::getVoltageNodes   (std::vector<std::string> & nodes) const
 {
-  if(useNewExpressionLibrary_)
+  for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
   {
-    for (int ii=0;ii<newExpPtr_->getVoltOpVec().size();ii++)
-    {
-      int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
+    int size = newExpPtr_->getVoltOpVec()[ii]->getNodeNames().size();
 
-      for (int jj=0;jj<size;jj++)
+    for (int jj=0;jj<size;jj++)
+    {
+      std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
+      std::vector<std::string>::iterator it = std::find(nodes.begin(), nodes.end(), tmpName);
+      if (it == nodes.end())
       {
-        std::string tmpName = newExpPtr_->getVoltOpVec()[ii]->getNodeNames()[jj] ;
-        std::vector<std::string>::iterator it = std::find(nodes.begin(), nodes.end(), tmpName);
-        if (it == nodes.end())
-        {
-          nodes.push_back( tmpName );
-        }
+        nodes.push_back( tmpName );
       }
     }
   }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
-    exit(0);
-  }  
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getVoltageNodes
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
 //-----------------------------------------------------------------------------
 void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
 {
-  if(useNewExpressionLibrary_)
+  for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
   {
-    for (int ii=0;ii<newExpPtr_->getCurrentOpVec().size();ii++)
+    std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(devices.begin(), devices.end(), tmpName);
+    if (it == devices.end())
     {
-      std::string tmpName = newExpPtr_->getCurrentOpVec()[ii]->getName();
-      std::vector<std::string>::iterator it = std::find(devices.begin(), devices.end(), tmpName);
-      if (it == devices.end())
-      {
-        devices.push_back( tmpName );
-      }
+      devices.push_back( tmpName );
     }
   }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
-    exit(0);
-  }  
 }
 
 //-----------------------------------------------------------------------------
-// ERK.  I haven't figured this out yet, but need to.
+// Function      : Expression::getVoltageNodes
+// Purpose       : 
+// Special Notes : ERK.  I haven't figured this out yet, but need to.
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
 //-----------------------------------------------------------------------------
 void Expression::getLeadCurrents   (std::vector<std::string> & leads) const
 {
-  if(useNewExpressionLibrary_)
-  {
-    //params = newExpPtr_->
-  }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
-    exit(0);
-  }
+  //params = newExpPtr_->
+  std::cout << "Error. Xyce::Util::Expression::getLeadCurrents not yet implemented." <<std::endl;
 }
 
 //-----------------------------------------------------------------------------
+// Function      : Expression::getVoltageNodes
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 2020
 //-----------------------------------------------------------------------------
 void Expression::getFunctions (std::vector<std::string> & funcs) const
 {
-  if(useNewExpressionLibrary_)
+  for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
   {
-    for (int ii=0;ii<newExpPtr_->getFuncOpVec().size();ii++)
+    std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
+    std::vector<std::string>::iterator it = std::find(funcs.begin(), funcs.end(), tmpName);
+    if (it == funcs.end())
     {
-      std::string tmpName = newExpPtr_->getFuncOpVec()[ii]->getName();
-      std::vector<std::string>::iterator it = std::find(funcs.begin(), funcs.end(), tmpName);
-      if (it == funcs.end())
-      {
-        funcs.push_back( tmpName );
-      }
+      funcs.push_back( tmpName );
     }
   }
-  else
-  {
-    std::cout << "Error. Xyce::Util::Expression::getParams called on old expression library." <<std::endl;
-    exit(0);
-  }  
 }
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::differentiate
-// Purpose       : Form the analytic derivative trees for all variables
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-int Expression::differentiate ()
-{
-  int retVal=0; 
-  if(useNewExpressionLibrary_)
-  {
-    // do nothing in this case.  newExpression forms these trees automatically
-    //retVal = newExpPtr_->differentiate ();
-  }
-  else
-  {
-    retVal = expPtr_->differentiate ();
-  }
-  std::cout << "Expression::differentiate() " << std::endl;
-  return retVal;
-}
-
-#if 0
-//-----------------------------------------------------------------------------
-// Function      : Expression::set_var
-// Purpose       : Sets the value of an input quantity
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-bool Expression::set_var ( const std::string & var, const double & val)
-{
-  std::cout << "Expression::set_var ( const std::string & var, const double & val) var = " << var << " val = " << val << std::endl;
-
-  if(useNewExpressionLibrary_)
-  {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    xyceGroup->setSolutionVal( var, val );
-    return true;
-  }
-  else
-  {
-    bool retVal=false; 
-    {
-      retVal = expPtr_->set_var (var, val);
-    }
-    return retVal;
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::set_vars
-// Purpose       : Sets the values of all input quantities
-// Special Notes : ERK.  This function has got to go.
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-bool Expression::set_vars ( const std::vector<double> & vals )
-{
-  bool retVal=false; 
-  std::cout << "Expression::set_vars ( const std::vector<double> & vals ) " <<std::endl;
-  for(int ii=0;ii<vals.size();++ii)
-  {
-    std::cout << "vals["<<ii<<"] = " << vals[ii] <<std::endl;
-  }
-
-  if(useNewExpressionLibrary_)
-  {
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-
-    std::cout << "Expression::set_vars" << std::endl;
-
-    if (!namesSet_) // kludge
-    {
-      std::vector<std::string> names;
-      getVoltageNodes(names);
-      getDeviceCurrents(names);
-      xyceGroup->setNames ( names );
-      namesSet_ = true;
-
-      for (int ii=0;ii<names.size();++ii) { std::cout << "names["<<ii<<"] = " << names[ii] << std::endl; }
-    }
-
-    for (int ii=0;ii<vals.size();++ii) { std::cout << "vals["<<ii<<"] = " << vals[ii] << std::endl; }
-
-    xyceGroup->setVals ( vals );
-  }
-  else
-  {
-    retVal = expPtr_->set_vars ( vals );
-  }
-  return retVal;
-}
-#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_expression
-// Purpose       : Returns a string of the expression
-// Special Notes :
+// Purpose       : Returns a string of the expression, post replacements
+//
+//                 This is primarily used as a diagnostic.  
+//
+// Special Notes : In the old expression library, the returned string was 
+//                 potentially modified, as part of its process for resolving
+//                 functions and parameters.  So it wasn't necessarily the same
+//                 string as was originally passed into the expression library.
+//
+//                 In the new expression library that is not the case.  In the
+//                 new expression library functions and parameters are not 
+//                 resolved via string substitution.  They are resolved by 
+//                 attaching nodes to the AST.  So nowadays, this function
+//                 returns 100% the same thing as the function "get_input".
+//
+//                 There maybe a few use cases where this would be useful 
+//                 in the newExpression library.  Adding a feature to it where
+//                 it created a new expression string from the AST would not 
+//                 be too hard; it would be akin to what is already done for 
+//                 dumping the expression tree but in a more compact form.
+//
+//                 One use case where it would still be useful would be for 
+//                 params that are *not* attached (like const params), 
+//                 and also for node aliases. 
+//
+//                 But setting this up is not a high priority at the moment.
+//
+//                 The function should probably have a more descriptive name.
+//                 From the name alone, it was hard for me to understand the
+//                 difference between this and get_input. (which is part of why
+//                 they are for now equivalent)
+//
 // Scope         :
 // Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
+// Creation Date : 
 //-----------------------------------------------------------------------------
 std::string Expression::get_expression () const
 {
-  std::string retVal; 
-  if(useNewExpressionLibrary_)
-  {
-    //std::cout << "Expression::get_expression not implemented for Xyce::Util::newExpression library yet" <<std::endl;
-    //exit(0);
-    retVal = newExpPtr_->getExpressionString(); // note, for new expression, this is not a reconstruction
-  }
-  else
-  {
-    retVal = expPtr_->get_expression ();
-  }
-  std::cout << "Expression::get_expression () const " << std::endl;
-  return retVal;
-}
-
-//-----------------------------------------------------------------------------
-// Function      : Expression::get_derivative
-// Purpose       : Returns a string of a derivative
-// Special Notes :
-// Scope         :
-// Creator       : Eric R. Keiter, SNL
-// Creation Date : 04/17/08
-//-----------------------------------------------------------------------------
-std::string Expression::get_derivative ( std::string const & var )
-{
-  std::string retVal; 
-  if(useNewExpressionLibrary_)
-  {
-    std::cout << "Expression::get_derivative not implemented for Xyce::Util::newExpression library yet" <<std::endl;
-    exit(0);
-  }
-  else
-  {
-    retVal = expPtr_->get_derivative ( var );
-  }
-  return retVal;
+  return newExpPtr_->getExpressionString();
 }
 
 //-----------------------------------------------------------------------------
@@ -1089,71 +811,110 @@ std::string Expression::get_derivative ( std::string const & var )
 int Expression::get_num(int const & type)
 {
   int retVal=0; 
-  if(useNewExpressionLibrary_)
+
+  std::vector<std::string> tmpNames;
+
+  switch (type)
   {
-    std::vector<std::string> tmpNames;
+    case XEXP_ALL:
+      retVal = newExpPtr_->getVoltOpVec().size() + newExpPtr_->getCurrentOpVec().size() + newExpPtr_->getParamOpVec().size();
+      break;
 
-    switch (type)
-    {
-      case XEXP_ALL:
-        retVal = newExpPtr_->getVoltOpVec().size() + newExpPtr_->getCurrentOpVec().size() + newExpPtr_->getParamOpVec().size();
-        break;
+    case XEXP_NODE:
+      retVal = newExpPtr_->getVoltOpVec().size();
+      break;
 
-      case XEXP_NODE:
-        retVal = newExpPtr_->getVoltOpVec().size();
-        break;
+    case XEXP_INSTANCE:
+      retVal = newExpPtr_->getCurrentOpVec().size();
+      break;
 
-      case XEXP_INSTANCE:
-        retVal = newExpPtr_->getCurrentOpVec().size();
-        break;
+    case XEXP_LEAD:
+      break;
 
-      case XEXP_LEAD:
-        break;
+    case XEXP_STRING: 
+      getUnresolvedParams(tmpNames);
+      retVal = tmpNames.size();
+      break;
 
-      case XEXP_STRING: 
-        getUnresolvedParams(tmpNames);
-        retVal = tmpNames.size();
-        break;
+    case XEXP_SPECIAL:
+      break;
 
-      case XEXP_SPECIAL:
-        break;
+    case XEXP_VARIABLE:
+      break;
 
-      case XEXP_VARIABLE:
-        break;
+    case XEXP_FUNCTION:
+      retVal = newExpPtr_->getFuncOpVec().size();
+      break;
 
-      case XEXP_FUNCTION:
-        retVal = newExpPtr_->getFuncOpVec().size();
-        break;
+    case XEXP_NODAL_COMPUTATION:
+      break;
 
-      case XEXP_NODAL_COMPUTATION:
-        break;
+    case XEXP_COUNT:
+      break;
 
-      case XEXP_COUNT:
-        break;
-
-      default:
-        break;
-    }
-
-    {
-      std::map<int, std::string>  typeMap;
-      typeMap[0] = std::string( "ALL");
-      typeMap[1] = std::string( "NODE");
-      typeMap[2] = std::string( "INSTANCE");
-      typeMap[3] = std::string( "LEAD");
-      typeMap[4] = std::string( "STRING");
-      typeMap[5] = std::string( "SPECIAL");
-      typeMap[6] = std::string( "VARIABLE");
-      typeMap[7] = std::string( "FUNCTION");
-      typeMap[8] = std::string( "NODAL_COMPUTATION");
-
-      std::cout << "Expression::get_num(int const & type) for " << newExpPtr_->getExpressionString() << " type[" << type << "]="<<typeMap[type] << " num = " << retVal << std::endl;
-    }
+    default:
+      break;
   }
-  else
+
   {
-    retVal = expPtr_->get_num(type);
+    std::map<int, std::string>  typeMap;
+    typeMap[0] = std::string( "ALL");
+    typeMap[1] = std::string( "NODE");
+    typeMap[2] = std::string( "INSTANCE");
+    typeMap[3] = std::string( "LEAD");
+    typeMap[4] = std::string( "STRING");
+    typeMap[5] = std::string( "SPECIAL");
+    typeMap[6] = std::string( "VARIABLE");
+    typeMap[7] = std::string( "FUNCTION");
+    typeMap[8] = std::string( "NODAL_COMPUTATION");
+
+    std::cout << "Expression::get_num(int const & type) for " << newExpPtr_->getExpressionString() << " type[" << type << "]="<<typeMap[type] << " num = " << retVal << std::endl;
   }
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::evaluate
+// Purpose       : Evaluate expression and derivatives using stored input values
+// Special Notes : 
+// Scope         : private
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 04/17/08
+//-----------------------------------------------------------------------------
+int Expression::evaluate ( std::complex<double> & exp_r, std::vector< std::complex<double> > & deriv_r)
+{
+  int retVal=0;
+#ifdef USE_TYPE_COMPLEX
+  retVal = newExpPtr_->evaluate( exp_r, deriv_r );
+#else
+  double result;
+  std::vector<double> derivs;
+  retVal = newExpPtr_->evaluate( result, derivs );
+  exp_r = std::complex<double>(result,0.0);
+  deriv_r.resize(derivs.size(),0.0);
+  for(int ii=0;ii<derivs.size();ii++) { deriv_r[ii] = std::complex<double>(derivs[ii],0.0); } // could use a lambda here
+#endif
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Expression::evaluateFunction
+// Purpose       : Evaluate expression using stored input values
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 04/17/08
+//-----------------------------------------------------------------------------
+int Expression::evaluateFunction ( std::complex<double> & exp_r )
+{
+  int retVal=0; 
+#ifdef USE_TYPE_COMPLEX
+  retVal = newExpPtr_->evaluateFunction ( exp_r );
+#else
+  double result;
+  retVal = newExpPtr_->evaluateFunction( result );
+  exp_r = std::complex<double>(result,0.0);
+#endif
   return retVal;
 }
 
@@ -1168,14 +929,17 @@ int Expression::get_num(int const & type)
 int Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 {
   int retVal=0;
-  if(useNewExpressionLibrary_)
-  {
-    retVal = newExpPtr_->evaluate( exp_r, deriv_r );
-  }
-  else
-  {
-    retVal = expPtr_->evaluate( exp_r, deriv_r );
-  }
+#ifdef USE_TYPE_COMPLEX
+  std::complex<double> result;
+  std::vector<std::complex<double> > derivs;
+  retVal = newExpPtr_->evaluate( result, derivs );
+
+  exp_r = std::real(result);
+  deriv_r.resize(derivs.size(),0.0);
+  for(int ii=0;ii<derivs.size();ii++) {  deriv_r[ii] = std::real(derivs[ii]); } // could use a lambda here
+#else
+  retVal = newExpPtr_->evaluate( exp_r, deriv_r );
+#endif
   return retVal;
 }
 
@@ -1190,14 +954,13 @@ int Expression::evaluate ( double & exp_r, std::vector<double> & deriv_r)
 int Expression::evaluateFunction ( double & exp_r )
 {
   int retVal=0; 
-  if(useNewExpressionLibrary_)
-  {
-    retVal = newExpPtr_->evaluateFunction ( exp_r );
-  }
-  else
-  {
-    retVal = expPtr_->evaluateFunction ( exp_r );
-  }
+#ifdef USE_TYPE_COMPLEX
+  std::complex<double> result;
+  retVal = newExpPtr_->evaluateFunction ( result );
+  exp_r = std::real(result);
+#else
+  retVal = newExpPtr_->evaluateFunction ( exp_r );
+#endif
   return retVal;
 }
 
@@ -1211,16 +974,8 @@ int Expression::evaluateFunction ( double & exp_r )
 //-----------------------------------------------------------------------------
 bool Expression::set_sim_time(double time)
 {
-  if(useNewExpressionLibrary_)
-  {
-    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    //xyceGroup->setTime(time);
-    return true;
-  }
-  else
-  {
-    return expPtr_->set_sim_time(time);
-  }
+  // ERK.  this can go.
+  return true;
 }
 
 
@@ -1234,16 +989,8 @@ bool Expression::set_sim_time(double time)
 //-----------------------------------------------------------------------------
 bool Expression::set_sim_dt(double dt)
 {
-  if(useNewExpressionLibrary_)
-  {
-    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    //return xyceGroup->setTimeStep(dt);
-    return true;
-  }
-  else
-  {
-    return expPtr_->set_sim_dt(dt);
-  }
+  // ERK.  this can go.
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1256,18 +1003,8 @@ bool Expression::set_sim_dt(double dt)
 //-----------------------------------------------------------------------------
 bool Expression::set_temp(double const & tempIn)
 {
-  bool retVal=false;
-  if(useNewExpressionLibrary_)
-  {
-    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    //return xyceGroup->setTemp(tempIn);
-    return true;
-  }
-  else
-  {
-    retVal = expPtr_->set_temp(tempIn);
-  }
-  return retVal;
+  // ERK.  this can go.
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1280,16 +1017,8 @@ bool Expression::set_temp(double const & tempIn)
 //-----------------------------------------------------------------------------
 bool Expression::set_sim_freq(double freq)
 {
-  if(useNewExpressionLibrary_)
-  {
-    //Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    //return xyceGroup->setFreq(freq);
-    return true;
-  }
-  else
-  {
-    return expPtr_->set_sim_freq(freq);
-  }
+  // ERK.  this can go.
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1302,13 +1031,7 @@ bool Expression::set_sim_freq(double freq)
 //-----------------------------------------------------------------------------
 void Expression::set_accepted_time(double const time)
 { 
-  if(useNewExpressionLibrary_)
-  {
-  }
-  else
-  {
-    expPtr_->set_accepted_time(time);
-  }
+  // ERK.  this can go.
   return;
 }
 
@@ -1323,72 +1046,65 @@ void Expression::set_accepted_time(double const time)
 double Expression::get_break_time()
 {
   double retVal=0.0; 
-  if(useNewExpressionLibrary_)
-  {
-    //newExpPtr_->evaluate
-    // ERK. Note, I shouldn't have to process this list of BP at all, if the API was any good.
-    // The API should simply request this vector of breakpoints, and I should return it.
-    std::vector<Xyce::Util::BreakPoint> breakPointTimes;
-    newExpPtr_->getBreakPoints ( breakPointTimes );
+  //newExpPtr_->evaluate
+  // ERK. Note, I shouldn't have to process this list of BP at all, if the API was any good.
+  // The API should simply request this vector of breakpoints, and I should return it.
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  newExpPtr_->getBreakPoints ( breakPointTimes );
 #if 0
-    Xyce::Util::BreakPointLess breakPointLess_ = Xyce::Util::BreakPoint::defaultTolerance_;
-    std::sort ( breakPointTimes.begin(), breakPointTimes.end(), breakPointLess_ );
-    std::vector<Xyce::Util::BreakPoint>::iterator it = std::unique ( breakPointTimes.begin(), breakPointTimes.end());
-    breakPointTimes.resize( std::distance (breakPointTimes.begin(), it ));
+  Xyce::Util::BreakPointLess breakPointLess_ = Xyce::Util::BreakPoint::defaultTolerance_;
+  std::sort ( breakPointTimes.begin(), breakPointTimes.end(), breakPointLess_ );
+  std::vector<Xyce::Util::BreakPoint>::iterator it = std::unique ( breakPointTimes.begin(), breakPointTimes.end());
+  breakPointTimes.resize( std::distance (breakPointTimes.begin(), it ));
 #endif
 
-    // ERK. This is a total kludge.  This really should just be 
-    // replaced by a "getBreakPoints(std::vector<breakpoint> & bpVec)" 
-    // call that follows the same patterns as all the other getBreakPoints calls 
-    // throughout Xyce (especially in device package).
-    //
-    // Having logic here to pull out a single BP is silly.  There is better logic 
-    // for that sort of thing in the time integrator.
-    //
-    // Part of the reason for this (bad) structure is that the old expression library
-    // doesn't setup breakpoints in a smart way.  There are no sources in the old
-    // library that have precomputed formula for breakpoints. (unlike the spice 
-    // sources in the device package).  Instead, it "solves" for when the next 
-    // breakpoint should be, using a Newton-ish loop.  It does this for *all* 
-    // time-dependent expressions, no matter what the nature of their 
-    // time dependence.  It does have the benefit of identifying discontinuities 
-    // in functions like "STP" (the step function) which do not have set breakpoint times.
-    // But it is silly to apply it to things like the PWL or PULSE source, which are sources
-    // with known, fixed breakpoints.
-    //
-    // I should probably attempt to apply the Newton-ish loop to functions like STP, 
-    // however.  I had not considered that.
-    //
-    // Another issue; for time-dependent expressions that do *not* have any 
-    // solution variable dependence, Bsrc's have some hidden (weird) behavior.
-    // In the Bsrc, if the numExtVars==0, then the evaluate function is not called
-    // on the primary expression.  At all.    But, somehow, mysteriously, it gets 
-    // updated.  
-    //
-    // Follow up: I think I just figured this out.  The Bsrc has 2 expression-dependent parameters: V and I.
-    // If the core expression does NOT depend on solution variables, then the expression value is simply 
-    // set to V or I (depending our src type).   V and/or I are updated during the more 
-    // global "updateDependentParams" call, using an "evaluateFunction" call.  If there are no solution vars,
-    // then this is sufficient.  However, if there *are* solution vars, then derivatives are needed,
-    // so, then device takes over and calls "evaluate" prior to and/or during the load functions.
-    //
-    double simTime = newExpPtr_->getTime();
-    int size = breakPointTimes.size();
-    double min = 1.0e+99;
-    for (int ii=0;ii<size;++ii)
-    {
-      double bpTime = breakPointTimes[ii].value();
-      double delta = bpTime-simTime;
-      if (delta > 0.0 && delta < min)
-      {
-        min = delta;
-        retVal = bpTime;
-      }
-    }
-  }
-  else
+  // ERK. This is a total kludge.  This really should just be 
+  // replaced by a "getBreakPoints(std::vector<breakpoint> & bpVec)" 
+  // call that follows the same patterns as all the other getBreakPoints calls 
+  // throughout Xyce (especially in device package).
+  //
+  // Having logic here to pull out a single BP is silly.  There is better logic 
+  // for that sort of thing in the time integrator.
+  //
+  // Part of the reason for this (bad) structure is that the old expression library
+  // doesn't setup breakpoints in a smart way.  There are no sources in the old
+  // library that have precomputed formula for breakpoints. (unlike the spice 
+  // sources in the device package).  Instead, it "solves" for when the next 
+  // breakpoint should be, using a Newton-ish loop.  It does this for *all* 
+  // time-dependent expressions, no matter what the nature of their 
+  // time dependence.  It does have the benefit of identifying discontinuities 
+  // in functions like "STP" (the step function) which do not have set breakpoint times.
+  // But it is silly to apply it to things like the PWL or PULSE source, which are sources
+  // with known, fixed breakpoints.
+  //
+  // I should probably attempt to apply the Newton-ish loop to functions like STP, 
+  // however.  I had not considered that.
+  //
+  // Another issue; for time-dependent expressions that do *not* have any 
+  // solution variable dependence, Bsrc's have some hidden (weird) behavior.
+  // In the Bsrc, if the numExtVars==0, then the evaluate function is not called
+  // on the primary expression.  At all.    But, somehow, mysteriously, it gets 
+  // updated.  
+  //
+  // Follow up: I think I just figured this out.  The Bsrc has 2 expression-dependent parameters: V and I.
+  // If the core expression does NOT depend on solution variables, then the expression value is simply 
+  // set to V or I (depending our src type).   V and/or I are updated during the more 
+  // global "updateDependentParams" call, using an "evaluateFunction" call.  If there are no solution vars,
+  // then this is sufficient.  However, if there *are* solution vars, then derivatives are needed,
+  // so, then device takes over and calls "evaluate" prior to and/or during the load functions.
+  //
+  double simTime = newExpPtr_->getTime();
+  int size = breakPointTimes.size();
+  double min = 1.0e+99;
+  for (int ii=0;ii<size;++ii)
   {
-    retVal = expPtr_->get_break_time();
+    double bpTime = breakPointTimes[ii].value();
+    double delta = bpTime-simTime;
+    if (delta > 0.0 && delta < min)
+    {
+      min = delta;
+      retVal = bpTime;
+    }
   }
   return retVal;
 }
@@ -1404,14 +1120,7 @@ double Expression::get_break_time()
 double Expression::get_break_time_i()
 {
   double retVal=0.0; 
-  if(useNewExpressionLibrary_)
-  {
-    // ERK.  I don't understand this yet.
-  }
-  else
-  {
-    retVal = expPtr_->get_break_time_i();
-  }
+  // ERK.  I don't understand this yet.  Do we need it?
   return retVal;
 }
 
@@ -1423,16 +1132,9 @@ double Expression::get_break_time_i()
 // Creator       : Eric R. Keiter, SNL
 // Creation Date : 04/17/08
 //-----------------------------------------------------------------------------
-const std::string & Expression::get_input ()
+const std::string & Expression::get_input () const
 {
-  if(useNewExpressionLibrary_)
-  {
-    return newExpPtr_->getExpressionString();
-  }
-  else
-  {
-    return expPtr_->get_input ();
-  }
+  return newExpPtr_->getExpressionString();
 }
 
 //-----------------------------------------------------------------------------
@@ -1447,19 +1149,8 @@ const std::string & Expression::get_input ()
 //-----------------------------------------------------------------------------
 int Expression::order_names(std::vector<std::string> const & new_names)
 {
-  int retVal=0; 
-  if(useNewExpressionLibrary_)
-  {
-#if 0
-    // now this is a bad idea ...
-    newExpPtr_->setFunctionArgStringVec ( new_names );
-#endif
-  }
-  else
-  {
-    retVal = expPtr_->order_names(new_names);
-  }
-  return retVal;
+  // ERK. this can go.
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1479,24 +1170,18 @@ int Expression::replace_func (std::string const & func_name,
                                    Expression & func_def,
                                    int numArgs)
 {
+
+  // ERK. This can go.
   int retVal=0; 
-  if(useNewExpressionLibrary_)
-  {
 #if 0
-    Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
-    if (!(func_def.newExpPtr_->parsed()))
-    {
-      func_def.newExpPtr_->lexAndParseExpression();
-    }
-    xyceGroup->addFunction(func_name, func_def.newExpPtr_);
-#endif
-    return numArgs;
-  }
-  else
+  Teuchos::RCP<xyceExpressionGroup> xyceGroup = Teuchos::rcp_static_cast<xyceExpressionGroup>(grp_);
+  if (!(func_def.newExpPtr_->parsed()))
   {
-    retVal = expPtr_->replace_func (func_name, *(func_def.expPtr_), numArgs);
+    func_def.newExpPtr_->lexAndParseExpression();
   }
-  return retVal;
+  xyceGroup->addFunction(func_name, func_def.newExpPtr_);
+#endif
+  return numArgs;
 }
 
 //-----------------------------------------------------------------------------
@@ -1538,15 +1223,8 @@ int Expression::replace_var(
   const Expression &    subexpr)
 {
   int retVal=0; 
-  if(useNewExpressionLibrary_)
-  {
-    std::cout << "NOTE:  replace_var (expr version) just got called on " << var_name <<std::endl;
-    attachParameterNode (var_name, subexpr);
-  }
-  else
-  {
-    retVal = expPtr_->replace_var (var_name, *(subexpr.expPtr_));
-  }
+  //std::cout << "NOTE:  replace_var (expr version) just got called on " << var_name <<std::endl;
+  attachParameterNode (var_name, subexpr);
   return retVal;
 }
 
@@ -1565,15 +1243,10 @@ int Expression::replace_var (std::string const & var_name,
                              Op::Operator *op )
 {
   int retVal=0; 
-  if(useNewExpressionLibrary_)
   {
-    std::cout << "NOTE:  replace_var (op version) just got called on " << var_name <<std::endl;
-    std::cout << "replace_var (op version) is not implemented yet for newExpression" <<std::endl;
-    exit(0);
-  }
-  else
-  {
-    retVal = expPtr_->replace_var (var_name, op);
+  std::cout << "NOTE:  replace_var (op version) just got called on " << var_name <<std::endl;
+  std::cout << "replace_var (op version) is not implemented yet for newExpression" <<std::endl;
+  exit(0);
   }
   return retVal;
 }
@@ -1608,12 +1281,10 @@ bool Expression::replace_name ( const std::string & old_name,
                                 const std::string & new_name)
 {
   bool retVal=false; 
-  if(useNewExpressionLibrary_)
-  {
-    std::cout << "NOTE:  replace_name just got called on " << old_name << " to now be " << new_name <<std::endl;
+  //std::cout << "NOTE:  replace_name just got called on " << old_name << " to now be " << new_name <<std::endl;
 
-    bool found=false;
-    {
+  bool found=false;
+  {
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & voltMap = newExpPtr_->getVoltOpNames ();
 
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = voltMap.find(old_name);
@@ -1638,10 +1309,10 @@ bool Expression::replace_name ( const std::string & old_name,
       voltMap.erase(old_name);
       found=true;
     }
-    }
+  }
 
-    if(!found)
-    {
+  if(!found)
+  {
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & currMap = newExpPtr_->getCurrentOpNames ();
     std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > >::iterator iter = currMap.find(old_name);
 
@@ -1659,12 +1330,8 @@ bool Expression::replace_name ( const std::string & old_name,
       currMap.erase(old_name);
       found=true;
     }
-    }
   }
-  else
-  {
-    retVal = expPtr_->replace_name ( old_name, new_name);
-  }
+  
   return retVal;
 }
 
@@ -1678,14 +1345,8 @@ bool Expression::replace_name ( const std::string & old_name,
 //-----------------------------------------------------------------------------
 int Expression::getNumDdt ()
 {
+  // ERK. Not done.  Might not need it.
   int retVal=0; 
-  if(useNewExpressionLibrary_)
-  {
-  }
-  else
-  {
-    retVal = expPtr_-> getNumDdt ();
-  }
   return retVal;
 }
 
@@ -1699,13 +1360,7 @@ int Expression::getNumDdt ()
 //-----------------------------------------------------------------------------
 void Expression::getDdtVals ( std::vector<double> & vals )
 { 
-  if(useNewExpressionLibrary_)
-  {
-  }
-  else
-  {
-    expPtr_-> getDdtVals ( vals );
-  }
+  // ERK. Not done.  Might not need it.
   return;
 }
 
@@ -1720,13 +1375,7 @@ void Expression::getDdtVals ( std::vector<double> & vals )
 //-----------------------------------------------------------------------------
 void Expression::setDdtDerivs ( std::vector<double> & vals )
 { 
-  if(useNewExpressionLibrary_)
-  {
-  }
-  else
-  {
-    expPtr_->setDdtDerivs ( vals );
-  }
+  // ERK. Not done.  Might not need it.
   return;
 }
 
@@ -1740,14 +1389,8 @@ void Expression::setDdtDerivs ( std::vector<double> & vals )
 //-----------------------------------------------------------------------------
 int Expression::num_vars() const
 {
+  // ERK. Not done.  Might not need it.
   int retVal=0; 
-  if(useNewExpressionLibrary_)
-  {
-  }
-  else
-  {
-    retVal = expPtr_->num_vars();
-  }
   return retVal;
 }
 
@@ -1768,23 +1411,9 @@ int Expression::num_vars() const
 //-----------------------------------------------------------------------------
 bool Expression::isTimeDependent() const
 {
-  if(useNewExpressionLibrary_)
-  {
-    //return false;
-    return true;
-  }
-  else
-  {
-    bool implicitTimeDep = expPtr_->isImplicitTimeDepedent();
-    bool explicitTimeDep = false;
-    std::vector<std::string> specials;
-    expPtr_->get_names(XEXP_SPECIAL, specials);
-    if (!specials.empty())
-    {
-      explicitTimeDep=(std::find(specials.begin(), specials.end(), "TIME") != specials.end());
-    }
-    return (implicitTimeDep || explicitTimeDep);
-  }
+  // ERK. Not done.  Probably do need this.
+  //return false;
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -1797,14 +1426,8 @@ bool Expression::isTimeDependent() const
 //-----------------------------------------------------------------------------
 bool Expression::isRandomDependent() const
 {
-  if(useNewExpressionLibrary_)
-  {
-    return false;
-  }
-  else
-  {
-    return ( expPtr_->isRandomDepedent() );
-  }
+  // ERK. Not done.  Probably do need this.
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -1817,14 +1440,7 @@ bool Expression::isRandomDependent() const
 //-----------------------------------------------------------------------------
 void Expression::dumpParseTree()
 {
-  if(useNewExpressionLibrary_)
-  {
-    newExpPtr_->dumpParseTree(std::cout);
-  }
-  else
-  {
-    expPtr_->dumpParseTree();
-  }
+  newExpPtr_->dumpParseTree(std::cout);
 }
 
 //-----------------------------------------------------------------------------
@@ -1847,7 +1463,7 @@ void Expression::seedRandom(long seed)
   //}
   //else
   {
-    ExpressionInternals::seedRandom(seed);
+    //ExpressionInternals::seedRandom(seed);
   }
 }
 
