@@ -3652,9 +3652,9 @@ TEST ( Double_Parser_Param_Test, I )
   std::string resName = "RES";
 
   Xyce::Util::newExpression testExpression(std::string("RES*I*I"), testGroup);
+  testExpression.lexAndParseExpression();
   testExpression.attachParameterNode(iName,iExpression);
   testExpression.attachParameterNode(resName,resExpression);
-  testExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copy_testExpression(testExpression); 
   Xyce::Util::newExpression assign_testExpression; 
@@ -3683,9 +3683,9 @@ TEST ( Double_Parser_Param_Test, V )
   std::string resName = "RES";
 
   Xyce::Util::newExpression testExpression(std::string("RES*V*V"), testGroup);
+  testExpression.lexAndParseExpression();
   testExpression.attachParameterNode(vName,vExpression);
   testExpression.attachParameterNode(resName,resExpression);
-  testExpression.lexAndParseExpression();
 
   Xyce::Util::newExpression copy_testExpression(testExpression); 
   Xyce::Util::newExpression assign_testExpression; 
