@@ -572,7 +572,7 @@ int Expression::get_type ( const std::string & var )
     std::cout << "Error. Xyce::Util::Expression::get_type.  Cannot find type for " << var << std::endl;
   }
 
-  std::cout << "Expression::get_type ( const std::string & var ) " << std::endl;
+  //std::cout << "Expression::get_type ( const std::string & var ) " << std::endl;
   return retVal;
 }
 
@@ -733,7 +733,7 @@ void Expression::getDeviceCurrents (std::vector<std::string> & devices) const
 void Expression::getLeadCurrents   (std::vector<std::string> & leads) const
 {
   //params = newExpPtr_->
-  std::cout << "Error. Xyce::Util::Expression::getLeadCurrents not yet implemented." <<std::endl;
+  //std::cout << "Error. Xyce::Util::Expression::getLeadCurrents not yet implemented." <<std::endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -868,7 +868,7 @@ int Expression::get_num(int const & type)
     typeMap[7] = std::string( "FUNCTION");
     typeMap[8] = std::string( "NODAL_COMPUTATION");
 
-    std::cout << "Expression::get_num(int const & type) for " << newExpPtr_->getExpressionString() << " type[" << type << "]="<<typeMap[type] << " num = " << retVal << std::endl;
+    //std::cout << "Expression::get_num(int const & type) for " << newExpPtr_->getExpressionString() << " type[" << type << "]="<<typeMap[type] << " num = " << retVal << std::endl;
   }
   return retVal;
 }
