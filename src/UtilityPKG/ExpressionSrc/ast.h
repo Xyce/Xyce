@@ -658,6 +658,8 @@ class paramOp: public astNode<ScalarT>
       paramName_(par),
       thisIsAFunctionArgument_(false),
       isVar(false),
+      isConstant(false),
+      isAttached(false),
       derivIndex_(-1)
   {
     numvalNode_ = Teuchos::rcp(new numval<ScalarT> (0.0));
