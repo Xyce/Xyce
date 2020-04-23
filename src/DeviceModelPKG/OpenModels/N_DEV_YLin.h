@@ -49,6 +49,11 @@ namespace Xyce {
 namespace Device {
 namespace YLin {
 
+// enums associated with information in Touchstone 2 input file
+enum DataFormat {RI, MA, DB};
+enum MatrixFormat {FULL, LOWER, UPPER};
+enum ParamType {S, Y, Z};
+
 class Model;
 class Instance;
 
@@ -250,8 +255,8 @@ public:
   virtual bool processInstanceParams() /* override */;
 
   bool readTouchStoneFile();
-  void splitTouchStoneFileLine(const std::string& aLine, IO::TokenVector & parsedLine);
-  void readTouchStoneFileLine(std::istream & in, std::string& line, int& lineNum);
+  void splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector & parsedLine);
+  void readAndUpperCaseTouchStoneFileLine(std::istream & in, ExtendedString& line, int& lineNum);
 
   void readISC_TD_File();
 
@@ -271,10 +276,10 @@ private:
                                             ///< values are Hz, kHz, MHz, and GHz. The default
                                             ///< value is GHz.
   double                 freqMultiplier_;
-  char                   paramType_;        ///< 'S', Y' or 'Z'.  The default is 'S'
-  std::string            matrixFormat_;     ///< Legal values are "FULL", "UPPER" or "LOWER". Default is "FULL".
-  std::string            dataFormat_;       ///< Format of the input network data.  Legal values
-                                            ///< are: "RI", 'MA" or "DB".  The default is "MA".
+  ParamType              paramType_;        ///< S, Y or Z.  The default is S
+  MatrixFormat           matrixFormat_;     ///< Legal values are FULL, UPPER or LOWER. Default is FULL.
+  DataFormat             dataFormat_;       ///< Format of the input network data.  Legal values
+                                            ///< are: RI, MA or DB.  The default is MA.
   int                    numPorts_;         ///< Number of ports
   std::string            twoPortDataOrder_; ///< This is used for 2-port networks.
                                             ///< It is either "12_21 or "21_12"
