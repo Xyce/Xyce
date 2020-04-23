@@ -1243,10 +1243,10 @@ long getTheSeed(
   long theSeed;
   if (commandLine.argExists("-randseed"))
   {
-    long cmdSeed;
+    unsigned long cmdSeed;
     std::stringstream iss(commandLine.getArgumentValue("-randseed"));
     iss >> cmdSeed;
-    theSeed = cmdSeed;
+    theSeed = (long)cmdSeed;
   }
   else
   {
@@ -1291,7 +1291,7 @@ long getTheSeed(
   }
 
 #if __cplusplus>=201103L
-  Xyce::lout() << "Seeding random number generator with " << theSeed << std::endl;
+  Xyce::lout() << "Seeding random number generator with " << ((unsigned long)theSeed) << std::endl;
 #endif
 
   return theSeed;
