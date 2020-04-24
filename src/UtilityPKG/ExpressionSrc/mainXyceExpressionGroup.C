@@ -104,12 +104,8 @@ int mainXyceExpressionGroup::getSolutionGID_(const std::string & nodeName)
   bool foundAliasNodeLocal = false;
   if (!found && !found2)
   {
-    //IO::AliasNodeMap::const_iterator alias_it = output_manager.getAliasNodeMap().find( nodeNameUpper );
-    //IO::AliasNodeMap::const_iterator alias_it = aliasNodeMap_.find( nodeNameUpper );
-    IO::AliasNodeMap::const_iterator alias_it = aliasNodeMapPtr_->find( nodeNameUpper );
-    //if (alias_it != output_manager.getAliasNodeMap().end())
-    //if (alias_it != aliasNodeMap_.end())
-    if (alias_it != aliasNodeMapPtr_->end())
+    IO::AliasNodeMap::const_iterator alias_it = aliasNodeMap_.find( nodeNameUpper );
+    if (alias_it != aliasNodeMap_.end())
     {      
       foundAliasNodeLocal = top_.getNodeSVarGIDs(NodeID((*alias_it).second, Xyce::_VNODE), svGIDList1, dummyList, type1);
     }

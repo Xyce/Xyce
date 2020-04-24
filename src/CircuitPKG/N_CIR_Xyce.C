@@ -920,8 +920,6 @@ Simulator::RunStatus Simulator::initializeEarly(
   IO::NetlistImportTool netlist_import_tool(*opBuilderManager_, *parsingManager_, baseGroupCast);
   IO::registerPkgOptionsMgr(netlist_import_tool, *optionsManager_);
 
-  mainExprGroup_->setAliasNodeMap( netlist_import_tool.getAliasNodeMap() );
-
   // ERK. these could be in "doRegistrations" but the mainXyceGroup must be allocated after netlist_import_tool, which happens after ...
   bool bs1=deviceManager_->registerExpressionGroup(baseGroupCast);
   bool bs2=analysisManager_->registerExpressionGroup(baseGroupCast);
@@ -973,6 +971,7 @@ Simulator::RunStatus Simulator::initializeEarly(
       return DONE;
     }
 
+    mainExprGroup_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
     outputManager_->setAliasNodeMap(netlist_import_tool.getAliasNodeMap());
     outputManager_->setMainContextFunctionMap(netlist_import_tool.getMainContextFunctions());
     outputManager_->setMainContextParamMap(netlist_import_tool.getMainContextParams().begin(), netlist_import_tool.getMainContextParams().end());

@@ -120,7 +120,7 @@ public:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
   virtual double getBpTol();
 
-  void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMapPtr_ = &anm; }
+  void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMap_ = anm; }
 
 private:
 
@@ -132,7 +132,7 @@ private:
   Analysis::AnalysisManager & analysisManager_;
   Device::DeviceMgr & deviceManager_;
 
-  const IO::AliasNodeMap * aliasNodeMapPtr_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
+  IO::AliasNodeMap aliasNodeMap_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
 
   //Util::Op::Operator * tempOp_;
 
