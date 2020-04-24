@@ -499,6 +499,27 @@ TEST ( Double_Parser_SourceFunc_Test, pulse)
   OUTPUT_MACRO(Double_Parser_SourceFunc_Test,pulse)
 }
 
+TEST ( Double_Parser_SourceFunc_Test, pulse_breakpoints)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+  Xyce::Util::newExpression testExpression(std::string("spice_pulse(0.0,1.0,0.0,10e-6,10e-6,0.1e-6,20.1e-6)"), testGroup);
+  testExpression.lexAndParseExpression();
+  double result(0.0);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( (result-(0.0)), 0.0);
+
+  double tr=10.0e-6, pw=0.1e-6;
+  timeDepGroup->setTime(tr+0.5*pw);
+  testExpression.evaluateFunction(result);
+  EXPECT_EQ( (result-(1.0)), 0.0);
+
+  std::vector<Xyce::Util::BreakPoint> breakPointTimes;
+  testExpression.getBreakPoints(breakPointTimes);
+
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,pulse_breakpoints)
+}
+
 TEST ( Double_Parser_SourceFunc_Test, sin)
 {
   Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
@@ -523,6 +544,97 @@ TEST ( Double_Parser_SourceFunc_Test, sin)
     assignExpression.evaluateFunction(assignResult[ii]);
     refRes[ii] = v0 + va * std::sin(2.0*M_PI*((freq)*time + (phase)/360)) * std::exp( -(time*(theta)));
   }
+  EXPECT_EQ( result, refRes);
+  EXPECT_EQ( copyResult, refRes);
+  EXPECT_EQ( assignResult, refRes);
+
+  OUTPUT_MACRO(Double_Parser_SourceFunc_Test,sin)
+}
+
+// This test is taken from the sources.cir Xyce regression test.  This is the "B2" source in that test.
+// The test runs with Xyce if I comment out the B2 source.  So I created this unit test to track down the problem.
+//
+// The problem is that (as of this writing 4/23/2020) is that I wrote the spice 
+// sources in the new expression library to have a hardwired number of comma-separated arguments.
+// For the spice_sin source, the hardwired number is 6.   In the regression test, only 5 arguments
+// are given.  if I add the 6th (for phase) it runs fine and appears to give the right answer.
+//
+// I know how to modify the spice sources to have a variable number of args.  That is now on my to-do list.
+//
+// This means that I need to modify the spice sources so they can have a variable number of arguments.
+// I know how to do this;  I did it with POLY for example.
+TEST ( Double_Parser_SourceFunc_Test, sin2)
+{
+  Teuchos::RCP<timeDepExpressionGroup> timeDepGroup = Teuchos::rcp(new timeDepExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = timeDepGroup;
+
+  // Note that the original test used a parameter named "v2" for va. So, doing that here.
+  //Xyce::Util::newExpression testExpression(std::string("spice_sin(v0,v2,frequency,td,theta)-2mv"), testGroup);  // original, without phase
+  Xyce::Util::newExpression testExpression(std::string("spice_sin(v0,v2,frequency,td,theta,phase)-2mv"), testGroup); // works, but must have all 6 args
+  testExpression.lexAndParseExpression();
+
+  // setup the parameters
+  Teuchos::RCP<Xyce::Util::newExpression> v0Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("-0.5"), testGroup));
+  v0Expression->lexAndParseExpression();
+  std::string v0Name = "V0";
+  testExpression.attachParameterNode(v0Name,v0Expression);
+
+  Teuchos::RCP<Xyce::Util::newExpression> v2Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2"), testGroup));
+  v2Expression->lexAndParseExpression();
+  std::string v2Name = "V2";
+  testExpression.attachParameterNode(v2Name,v2Expression);
+
+  Teuchos::RCP<Xyce::Util::newExpression> freqExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("3.4e+7"), testGroup));
+  freqExpression->lexAndParseExpression();
+  std::string freqName = "FREQUENCY";
+  testExpression.attachParameterNode(freqName,freqExpression);
+
+  Teuchos::RCP<Xyce::Util::newExpression> tdExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.5ns"), testGroup));
+  tdExpression->lexAndParseExpression();
+  std::string tdName = "TD";
+  testExpression.attachParameterNode(tdName,tdExpression);
+
+  Teuchos::RCP<Xyce::Util::newExpression> thetaExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.1"), testGroup));
+  thetaExpression->lexAndParseExpression();
+  std::string thetaName = "THETA";
+  testExpression.attachParameterNode(thetaName,thetaExpression);
+
+  // not part of the original:
+  Teuchos::RCP<Xyce::Util::newExpression> phaseExpression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("0.0"), testGroup));
+  phaseExpression->lexAndParseExpression();
+  std::string phaseName = "PHASE";
+  testExpression.attachParameterNode(phaseName,phaseExpression);
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  int numpoints=100;
+  double v0(-0.5), va(2.0), freq(3.4e+7), td(0.5e-9), theta(0.1), phase(0.0),time(0.0);
+
+  double maxtime = 100e-9;
+  double dt=maxtime * (1.0/static_cast<double>(numpoints));
+
+  std::vector<double> refRes(numpoints), result(numpoints);
+  std::vector<double> copyResult(numpoints), assignResult(numpoints);
+  for (int ii=0;ii<numpoints;ii++,time+=dt)
+  {
+    timeDepGroup->setTime(time); 
+    testExpression.evaluateFunction(result[ii]);
+    copyExpression.evaluateFunction(copyResult[ii]);
+    assignExpression.evaluateFunction(assignResult[ii]);
+    double time2=time-td;
+    if (time2<=0.0)
+    {
+      refRes[ii] = v0 + va * std::sin (2.0*M_PI*((std::real(phase))/360)) ;
+    }
+    else
+    {
+      refRes[ii] = v0 + va * std::sin(2.0*M_PI*((freq)*(time2) + (phase)/360)) * std::exp( -((time2)*(theta)));
+    }
+    refRes[ii] -= 2.0e-3;
+  }
+
   EXPECT_EQ( result, refRes);
   EXPECT_EQ( copyResult, refRes);
   EXPECT_EQ( assignResult, refRes);
@@ -765,7 +877,7 @@ TEST ( Double_Parser_VoltSoln_Test, vi_test0)
   double refRes = std::imag(3.0);
   solnGroup->setSoln(std::string("A"),Aval);
 
-#if 1
+#if 0
   testExpression.dumpParseTree(std::cout);
 #endif
 
@@ -781,7 +893,6 @@ TEST ( Double_Parser_VoltDeriv_Test, test1)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("12.3*V(A)*V(B)+7.5"), testGroup);
   testExpression.lexAndParseExpression();
-  //testExpression.resolveExpression(); // this won't do anything, but is the proper order
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -808,7 +919,6 @@ TEST ( Double_Parser_VoltDeriv_Test, test2)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*V(A)**2.0+7.5"), testGroup);
   testExpression.lexAndParseExpression();
-  //testExpression.resolveExpression(); // this won't do anything, but is the proper order
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -833,7 +943,6 @@ TEST ( Double_Parser_VoltDeriv_Test, test3)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*V(A)*V(A)+7.5"), testGroup);
   testExpression.lexAndParseExpression();
-  //testExpression.resolveExpression(); // this won't do anything, but is the proper order
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -857,7 +966,6 @@ TEST ( Double_Parser_VoltDeriv_Test, test4)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*V(A)*V(A)+7.5*V(A)"), testGroup);
   testExpression.lexAndParseExpression();
-  //testExpression.resolveExpression(); // this won't do anything, but is the proper order
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -881,7 +989,6 @@ TEST ( Double_Parser_VoltDeriv_Test, test5)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*(V(A)**3.0)+7.5*V(A)"), testGroup);
   testExpression.lexAndParseExpression();
-  //testExpression.resolveExpression(); // this won't do anything, but is the proper order
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -905,7 +1012,6 @@ TEST ( Double_Parser_VoltDeriv_Test, test6)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*V(A)*V(A)*V(A)+7.5*V(A)"), testGroup);
   testExpression.lexAndParseExpression();
-  //testExpression.resolveExpression(); // this won't do anything, but is the proper order
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -950,7 +1056,6 @@ TEST ( Double_Parser_CurrDeriv_Test, test1)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("17.2*I(R1)+8.5"), testGroup);
   testExpression.lexAndParseExpression();
-  //testExpression.resolveExpression(); // this won't do anything, but is the proper order
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -975,7 +1080,6 @@ TEST ( Double_Parser_CurrDeriv_Test, test2)
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
   Xyce::Util::newExpression testExpression(std::string("20.0*I(R1)*I(R1)*I(R1)+7.5*I(R1)"), testGroup);
   testExpression.lexAndParseExpression();
-  //testExpression.resolveExpression(); // this won't do anything, but is the proper order
 
   Xyce::Util::newExpression copyExpression(testExpression); 
   Xyce::Util::newExpression assignExpression; 
@@ -1064,8 +1168,6 @@ TEST ( Double_Parser_Func_Test, test1)
   std::string f1Name; 
   f1_LHS.getFuncPrototypeName(f1Name);
 
-  //funcGroup->addFunction( f1Name ,  f1Expression);
-  //testExpression.resolveExpression(); // this *does* do something, unlike other calls in this file
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
 #if 0
@@ -1122,8 +1224,6 @@ TEST ( Double_Parser_Func_Test, test1_multipleLexParse)
   std::string f1Name; 
   f1_LHS.getFuncPrototypeName(f1Name);
 
-  //funcGroup->addFunction( f1Name ,  f1Expression);
-  //testExpression.resolveExpression(); // this *does* do something, unlike other calls in this file
   testExpression.attachFunctionNode(f1Name, f1Expression);
 
 #if 0
@@ -1613,7 +1713,6 @@ TEST ( Double_Parser_ifstatement, ifmin_ifmax_func)
   {
     Xyce::Util::newExpression e3(std::string("ifmax(ifmin(-I(B2), 2.5), 1.5)"), baseGroup);
     e3.lexAndParseExpression();
-    //e3.resolveExpression();
     e3.attachFunctionNode(ifmaxName, ifmax);
     e3.attachFunctionNode(ifminName, ifmin);
 
@@ -2570,62 +2669,64 @@ TEST ( Double_Parser_table_Test, Bsrc_C1_pureArray)
   }
 }
 
-#if 0
-//-------------------------------------------------------------------------------
-// .param tests
-class testExpressionGroupWithParamSupport : public Xyce::Util::baseExpressionGroup
+TEST ( Double_Parser_table_Test, Bsrc_C1_pairsWithParens)
 {
-  public:
-    testExpressionGroupWithParamSupport () : Xyce::Util::baseExpressionGroup()  {};
-    ~testExpressionGroupWithParamSupport () {};
+  Teuchos::RCP<Bsrc_C1_ExpressionGroup> bsrc_C1_grp = Teuchos::rcp(new Bsrc_C1_ExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup>  grp = bsrc_C1_grp;
+  {
+    // this is a nice test b/c it has curly braces around the first expression, which is one of the supported formats
+    Xyce::Util::newExpression BE_Dig(std::string("TABLE { V(2) * (V(1) + 30) / 60 }  (0.0000000, 0)  (0.0312500, 0)  (0.0312813, 1)  (0.0625000, 1)  (0.0625313, 2)  (0.0937500, 2)  (0.0937813, 3)  (0.1250000, 3)  (0.1250313, 4)  (0.1562500, 4)  (0.1562813, 5)  (0.1875000, 5)  (0.1875313, 6)  (0.2187500, 6)  (0.2187813, 7)  (0.2500000, 7)  (0.2500313, 8)  (0.2812500, 8)  (0.2812813, 9)  (0.3125000, 9)  (0.3125313, 10)  (0.3437500, 10)  (0.3437813, 11)  (0.3750000, 11)  (0.3750313, 12)  (0.4062500, 12)  (0.4062813, 13)  (0.4375000, 13)  (0.4375313, 14)  (0.4687500, 14)  (0.4687813, 15)  (0.5000000, 15)  (0.5000313, 16)  (0.5312500, 16)  (0.5312813, 17)  (0.5625000, 17)  (0.5625313, 18)  (0.5937500, 18)  (0.5937813, 19)  (0.6250000, 19)  (0.6250313, 20)  (0.6562500, 20)  (0.6562813, 21)  (0.6875000, 21)  (0.6875313, 22)  (0.7187500, 22)  (0.7187813, 23)  (0.7500000, 23)  (0.7500313, 24)  (0.7812500, 24)  (0.7812813, 25)  (0.8125000, 25)  (0.8125313, 26)  (0.8437500, 26)  (0.8437813, 27)  (0.8750000, 27)  (0.8750313, 28)  (0.9062500, 28)  (0.9062813, 29)  (0.9375000, 29)  (0.9375313, 30)  (0.9687500, 30)  (0.9687813, 31)  (1.0000000, 31)"), grp);
+    BE_Dig.lexAndParseExpression();
 
-    void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
+    Xyce::Util::newExpression copy_BE_Dig(BE_Dig); 
+    Xyce::Util::newExpression assign_BE_Dig; 
+    assign_BE_Dig = BE_Dig; 
+
+    Xyce::Util::newExpression BE_Dig_leftArg(std::string("V(2) * (V(1) + 30) / 60"),grp);
+    BE_Dig_leftArg.lexAndParseExpression();
+
+    std::vector<double> xa = { 0.0000000, 0.0312500, 0.0312813, 0.0625000, 0.0625313, 0.0937500, 0.0937813, 0.1250000, 0.1250313, 0.1562500, 0.1562813, 0.1875000, 0.1875313, 0.2187500, 0.2187813, 0.2500000, 0.2500313, 0.2812500, 0.2812813, 0.3125000, 0.3125313, 0.3437500, 0.3437813, 0.3750000, 0.3750313, 0.4062500, 0.4062813, 0.4375000, 0.4375313, 0.4687500, 0.4687813, 0.5000000, 0.5000313, 0.5312500, 0.5312813, 0.5625000, 0.5625313, 0.5937500, 0.5937813, 0.6250000, 0.6250313, 0.6562500, 0.6562813, 0.6875000, 0.6875313, 0.7187500, 0.7187813, 0.7500000, 0.7500313, 0.7812500, 0.7812813, 0.8125000, 0.8125313, 0.8437500, 0.8437813, 0.8750000, 0.8750313, 0.9062500, 0.9062813, 0.9375000, 0.9375313, 0.9687500, 0.9687813, 1.0000000 };
+
+    std::vector<double> ya = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31 };
+
+    Xyce::Util::newExpression BE_Dig_pureArray(BE_Dig_leftArg.getAst(),xa,ya,grp);
+    BE_Dig_pureArray.lexAndParseExpression();
+
+    Xyce::Util::newExpression v1exp(std::string("spice_sin(0, 20, 1k, -.25e-3, 0, 0)" ), grp); v1exp.lexAndParseExpression();
+    Xyce::Util::newExpression v2exp(std::string("spice_pulse(0, 1, 0, 0.5us, 0.5us, 2us, 20us) " ), grp); v2exp.lexAndParseExpression();
+
+    // in the original test,
+    // V(1) is a sinewave that goes between +20 and -20
+    // V(2) is a pulsed source that goes between 0 and 1.  PW is short.
+    // The expression, V(2) * (V(1) + 30) / 60  has roughly the scaled shape of V(1) but is spiked/digitized.
+    // When V(2) is zero, so is the expression.  When V(2) is 1, then expression is (V(1)+30)/60  max = 50/60, min=10/60
+    //
+    // The table itself is a digitized signal; like stairsteps, with 64 points.  It goes from 0 to 31 in increments of 1
+    // The result is that the interpolated final output is really similar to the expression.
+    int numpoints=10;
+    double tfinal = 0.0005;
+    double dt = tfinal/(numpoints-1), time=0.0;
+    std::vector<double> refRes(numpoints), result(numpoints);
+    std::vector<double> copyResult(numpoints), assignResult(numpoints);
+    for (int ii=0;ii<numpoints;ii++,time+=dt)
     {
-      std::string lowerName = name;
-      Xyce::Util::toLower(lowerName);
-
-      parameters_[lowerName] = exp;
-    };
-
-    bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-    {
-      bool retval=true;
-      std::string lowerName = name;
-      Xyce::Util::toLower(lowerName);
-      if (parameters_.find(lowerName) != parameters_.end()) { exp = parameters_[lowerName]; }
-      else { retval = false; }
-      return retval;
+      bsrc_C1_grp->setTime(time);
+      double v1Value(0.0),v2Value(0.0);
+      v1exp.evaluateFunction(v1Value);
+      v2exp.evaluateFunction(v2Value);
+      bsrc_C1_grp->setSoln(std::string("1"),v1Value);
+      bsrc_C1_grp->setSoln(std::string("2"),v2Value);
+      BE_Dig.evaluateFunction(result[ii]);
+      copy_BE_Dig.evaluateFunction(copyResult[ii]);
+      assign_BE_Dig.evaluateFunction(assignResult[ii]);
+      BE_Dig_pureArray.evaluateFunction(refRes[ii]);
     }
 
-  private:
-    std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
-};
-
-TEST ( Double_Parser_Param_Test, test1)
-{
-  Teuchos::RCP<testExpressionGroup> paramGroup = Teuchos::rcp(new testExpressionGroup() );
-  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = paramGroup;
-
-  Teuchos::RCP<Xyce::Util::newExpression> p1Expression = Teuchos::rcp(new Xyce::Util::newExpression (std::string("2+3"), testGroup));
-  p1Expression->lexAndParseExpression();
-  std::string p1Name = "p1";
-  paramGroup->addParam(p1Name,p1Expression);
-
-  Xyce::Util::newExpression testExpression(std::string("p1"), testGroup);
-  testExpression.lexAndParseExpression();
-  testExpression.resolveExpression();
-
-  Xyce::Util::newExpression copy_testExpression(testExpression); 
-  Xyce::Util::newExpression assign_testExpression; 
-  assign_testExpression = testExpression; 
-
-  double result;
-  testExpression.evaluateFunction(result);        EXPECT_EQ( result, 5.0 );
-  copy_testExpression.evaluateFunction(result);   EXPECT_EQ( result, 5.0 );
-  assign_testExpression.evaluateFunction(result); EXPECT_EQ( result, 5.0 );
-  OUTPUT_MACRO(Double_Parser_Param_Test, test1)
+    EXPECT_EQ(refRes,result);
+    EXPECT_EQ(refRes,copyResult);
+    EXPECT_EQ(refRes,assignResult);
+  }
 }
-#endif
 
 // this form of test1 doesn't rely on the group to resolve the parameter.
 // Instead, it allows the user to attach it.
@@ -3321,7 +3422,6 @@ TEST ( Double_Parser_calculus, derivsThruFuncs5 )
   Xyce::Util::newExpression derivFuncTestExpr1(std::string("F1(V(A),V(B))"), testGroup); 
 
   derivFuncTestExpr1.lexAndParseExpression();
-  //derivFuncTestExpr1.resolveExpression(); 
   derivFuncTestExpr1.attachFunctionNode(std::string("F1"), f1Expression);
 
   //derivFuncTestExpr1.dumpParseTree(std::cout);
@@ -3416,7 +3516,6 @@ TEST ( Double_Parser_calculus, derivsThruParams1 )
 
   Xyce::Util::newExpression derivParamTestExpr(std::string("0.5*P1"), testGroup); 
   derivParamTestExpr.lexAndParseExpression();
-  //derivParamTestExpr.resolveExpression(); 
   derivParamTestExpr.attachParameterNode(p1Name , p1Expression);
 
   Xyce::Util::newExpression copy_derivParamTestExpr(derivParamTestExpr); 

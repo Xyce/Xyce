@@ -147,9 +147,11 @@ double ExpressionData::evaluate(
 
     if (expression_)
     {
+#if 0
       // support SDT and DDT, among other things.
       expression_->set_sim_time(current_circuit_time);
       expression_->set_sim_dt(current_circuit_dt);
+#endif
 
 #if 0
     // ERK.  FIX THIS!   commenting out so this will compile
@@ -202,9 +204,11 @@ double ExpressionData::evaluate(
 
   if (expression_)
   {
+#if 0
     // support SDT and DDT, among other things.
     expression_->set_sim_time(current_circuit_time);
     expression_->set_sim_dt(current_circuit_dt);
+#endif
 
 #if 0
     // ERK.  FIX THIS!   commenting out so this will compile
@@ -258,9 +262,11 @@ void ExpressionData::evaluate(
 
   if (expression_)
   {
+#if 0
     // support SDT and DDT, among other things.
     expression_->set_sim_time(current_circuit_time);
     expression_->set_sim_dt(current_circuit_dt);
+#endif
 
 #if 0
     // ERK.  FIX THIS!   commenting out so this will compile

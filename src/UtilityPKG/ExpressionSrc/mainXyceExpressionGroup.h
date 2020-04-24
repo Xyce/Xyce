@@ -118,7 +118,7 @@ public:
 
   // in a real Xyce group, need something like this:
   //solver_state.bpTol_ = analysis_manager.getStepErrorControl().getBreakPointLess().tolerance_;
-  virtual double getBpTol() { return 0.0; }
+  virtual double getBpTol();
 
   void setAliasNodeMap( const IO::AliasNodeMap & anm ) { aliasNodeMapPtr_ = &anm; }
 

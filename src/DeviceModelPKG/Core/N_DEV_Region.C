@@ -905,6 +905,7 @@ bool Region::getDoNothingFlag ()
   return regData.doNothing;
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : Region::getBreakTime
 // Purpose       : Return next breakpoint time from reaction network
@@ -919,6 +920,22 @@ double Region::getBreakTime()
 {
   return (theReactions.getBreakpointTime());
 }
+#else
+//-----------------------------------------------------------------------------
+// Function      : Region::getBreakPoints
+// Purpose       : 
+// Special Notes :
+//
+//
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool Region::getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes)
+{
+  return theReactions.getBreakPoints(breakPointTimes);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Region::updateIntermediateVars
@@ -951,9 +968,13 @@ void Region::updateIntermediateVars
 
     // Now update the imposed time-dependent generation rates:
     double scalar= ((variablesScaledFlag)?(t0/C0):(1.0));
+#if 0
     theReactions.setSimTime(time);
+#endif
     double step = solState.currTimeStep_;
+#if 0
     theReactions.setSimDT(step);
+#endif
     theReactions.setSourceScaleFac(scalar);
 
     // Now compute ddt and jac for later use in the various loads

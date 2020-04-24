@@ -2604,12 +2604,16 @@ bool DeviceMgr::updateDependentParameters_()
   for ( ; globalExprIter != globalExprEnd; ++globalExprIter)
   {
     bool changed = false;
+#if 0
     if (globalExprIter->set_sim_time(solState_.currTime_))
       changed = true;
     if (globalExprIter->set_sim_freq(solState_.currFreq_))
       changed = true;
     if (globalExprIter->set_temp(getDeviceOptions().temp.getImmutableValue<double>()))
       changed = true;
+#else
+    changed = true;
+#endif
 
     std::vector<std::string> geVariables;
     globalExprIter->get_names(XEXP_VARIABLE, geVariables);
@@ -3178,9 +3182,13 @@ bool DeviceMgr::getBreakPoints (std::vector<Util::BreakPoint> & breakPointTimes,
   std::vector<Util::Expression>::iterator globalExp_end = globals_.global_expressions.end();
   for (; globalExp_i != globalExp_end; ++globalExp_i)
   {
+#if 0
     double bTime = globalExp_i->get_break_time();
     if (bTime > solState_.currTime_)
       breakPointTimes.push_back(bTime);
+#else
+    double bTime = globalExp_i->getBreakPoints(breakPointTimes);
+#endif
   }
 
   if (!breakPointInstancesInitialized)
@@ -3569,6 +3577,9 @@ bool DeviceMgr::updateTemperature (double val)
   // variable is false.  This should be in Kelvin.
   devOptions_.temp.setVal(Ktemp);
 
+#if 0
+  // ERK:  double-check this.
+
   // Update the global parameters, since some of them may depend on TEMP
   // or VT.  Do this before updating the individual model or device parameters.
   std::vector<Util::Expression> & ge = globals_.global_expressions;
@@ -3578,6 +3589,7 @@ bool DeviceMgr::updateTemperature (double val)
     Util::Expression &expression = *g_i;
     expression.set_temp(Ktemp);
   }
+#endif
 
   {
     // loop over the bsim3 models and delete the size dep params.
@@ -4580,6 +4592,8 @@ void addGlobalParameter(
     expression.get_names(XEXP_VARIABLE, variables);
     std::vector<std::string> specials;
     expression.get_names(XEXP_SPECIAL, specials);
+
+#if 0
     if (!specials.empty())
     {
       expression.set_sim_time(solver_state.currTime_);
@@ -4587,6 +4601,7 @@ void addGlobalParameter(
       expression.set_sim_freq(solver_state.currFreq_);
       expression.set_temp(temp);
     }
+#endif
 
     std::vector<std::string>::const_iterator it = variables.begin();
     std::vector<std::string>::const_iterator end = variables.end();

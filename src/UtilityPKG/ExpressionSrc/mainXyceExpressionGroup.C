@@ -364,6 +364,18 @@ double mainXyceExpressionGroup::getFreq()
   return freq_;
 } 
 
+//-------------------------------------------------------------------------------
+// Function      : mainXyceExpressionGroup::
+// Purpose       : 
+// Special Notes :
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/20/2020 
+//-------------------------------------------------------------------------------
+double mainXyceExpressionGroup::getBpTol()
+{
+  return deviceManager_.getSolverState().bpTol_;
+}
 
 } // Util
 } // Xyce

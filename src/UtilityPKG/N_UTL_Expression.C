@@ -964,6 +964,7 @@ int Expression::evaluateFunction ( double & exp_r )
   return retVal;
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : Expression::set_sim_time
 // Purpose       : Set 'time' special variable in expression
@@ -1034,7 +1035,9 @@ void Expression::set_accepted_time(double const time)
   // ERK.  this can go.
   return;
 }
+#endif
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_break_time
 // Purpose       : Returns next breakpoint time
@@ -1123,6 +1126,20 @@ double Expression::get_break_time_i()
   // ERK.  I don't understand this yet.  Do we need it?
   return retVal;
 }
+#else
+//-----------------------------------------------------------------------------
+// Function      : Expression::getBreakPoints
+// Purpose       : Returns next breakpoint time
+// Special Notes :
+// Scope         :
+// Creator       : Eric R. Keiter, SNL
+// Creation Date : 04/17/08
+//-----------------------------------------------------------------------------
+bool Expression::getBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes)
+{
+  return newExpPtr_->getBreakPoints(breakPointTimes);
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : Expression::get_input

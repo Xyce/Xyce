@@ -153,12 +153,14 @@ bool evaluateObjFuncs (
     }
   }
 
+#if 0
   // set the sim times, dt's 
   for (int iobj=0;iobj<objVec.size();++iobj)
   {
     objVec[iobj]->expPtr->set_sim_time(sec.nextTime);
     objVec[iobj]->expPtr->set_sim_dt(sec.currentTimeStep);
   }
+#endif
 
   //get expression value and partial derivatives
   for (int iobj=0;iobj<objVec.size();++iobj)

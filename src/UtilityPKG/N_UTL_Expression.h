@@ -46,6 +46,7 @@
 #include <N_UTL_ExpressionSymbolTable.h>
 
 #include <N_UTL_NoCase.h>
+#include <N_UTL_BreakPoint.h>
 
 #include <Teuchos_RCP.hpp>
 
@@ -136,17 +137,23 @@ public:
   int evaluate (double &result, std::vector< double > &derivs);
   int evaluateFunction (double &result);
 
+#if 0
   bool set_sim_time (double time);
   bool set_sim_dt (double dt);
   bool set_temp (double const & temp);
   bool set_sim_freq (double dt);
   void set_accepted_time (double const time);
+#endif
 
+#if 0
   // ERK these two functions should also be removed and replaced with
   // a traditional "getBreakPoints" function call, which is used every
   // where else in Xyce.
   double get_break_time (void);
   double get_break_time_i (void);
+#else
+  bool getBreakPoints(std::vector<Util::BreakPoint> &breakPointTimes);
+#endif
 
   const std::string & get_input (void) const;
 

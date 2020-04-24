@@ -818,10 +818,10 @@ exp:
   | TOK_SPICE_PULSE TOK_LEFTPAREN exp ',' exp ',' exp ',' exp ',' exp ',' exp ',' exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > tmpPtr2 = newExp.getTimeNode();
-      //newExp.getSrcNodeVec().push_back(tmp);
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new spicePulseOp<usedType>(*$3, *$5, *$7, *$9, *$11, *$13, *$15, tmpPtr2 ));
       $$ = tmpPtr;
       newExp.getMasterNodeVec().push_back(tmpPtr);
+      newExp.getSrcNodeVec().push_back(tmpPtr);
       newExp.setTimeDependent(true);
     }
  /* sin (v0,va,frequency,td,theta,phase) */
@@ -974,5 +974,5 @@ XyceExpression::ExpressionParser::error(
   const std::string &                               message)
 {
   //Xyce::Report::UserError().at(theLexer->netlistLocation_)
- std::cout << "ERROR!!! " << message << std::endl;
+ std::cout << "ERROR!!! " << message << " in expression " << newExp.getExpressionString() << std::endl;
 }

@@ -54,6 +54,8 @@
 
 #include <N_DEV_SolverState.h>
 
+#include <N_UTL_BreakPoint.h>
+
 #ifdef Xyce_REACTION_PARSER
 // Grrrr.  Stupid bison 2.4 stopped putting the pre-prologue into the header.
 // need this forward declaration
@@ -921,6 +923,7 @@ void ReactionNetwork::addMasterSourceTerm(const std::string &speciesName)
   }
 }
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : ReactionNetwork::setSimTime
 // Purpose       : set internal "time" variable for all source terms
@@ -962,7 +965,9 @@ void ReactionNetwork::setSimDT(double step)
     (iterSource->second)->set_sim_dt(step);
   }
 }
+#endif
 
+#if 0
 //-----------------------------------------------------------------------------
 // Function      : ReactionNetwork::getBreakpointTime
 // Purpose       : return the next time at which any source will have a
@@ -999,6 +1004,29 @@ double ReactionNetwork::getBreakpointTime()
 
   return (breaktime);
 }
+#else
+//-----------------------------------------------------------------------------
+// Function      : ReactionNetwork::getBreakPoints
+// Purpose       :
+// Special Notes :
+// Scope         : public
+// Creator       : Eric Keiter, SNL
+// Creation Date : 
+//-----------------------------------------------------------------------------
+bool ReactionNetwork::getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes)
+{
+  std::vector< std::pair<int,Util::Expression *> >::iterator iterSource=
+    theSourceTerms.begin();
+  std::vector< std::pair<int,Util::Expression *> >::iterator source_end=
+    theSourceTerms.end();
+
+  for (;iterSource != source_end; ++iterSource)
+  {
+    (iterSource->second)->getBreakPoints(breakPointTimes);
+  }
+  return true;
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // Function      : ReactionNetwork::getDdt

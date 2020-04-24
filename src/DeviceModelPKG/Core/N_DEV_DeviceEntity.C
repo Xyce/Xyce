@@ -799,10 +799,12 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   double rval;
   dependentParam.expr->evaluateFunction (rval);
+#if 0
   dependentParam.expr->set_sim_time(getSolverState().currTime_);
   dependentParam.expr->set_sim_dt(getSolverState().currTimeStep_);
   dependentParam.expr->set_sim_freq(getSolverState().currFreq_);
   dependentParam.expr->set_temp(devOptions_.temp.getImmutableValue<double>());
+#endif
 
   return rval;
 }
@@ -867,10 +869,13 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   double rval;
   dependentParam.expr->evaluateFunction (rval);
+#if 0
+  // ERK.  Why set it after evaluateFunction?  why not b4?
   dependentParam.expr->set_sim_time(getSolverState().currTime_);
   dependentParam.expr->set_sim_dt(getSolverState().currTimeStep_);
   dependentParam.expr->set_sim_freq(getSolverState().currFreq_);
   dependentParam.expr->set_temp(devOptions_.temp.getImmutableValue<double>());
+#endif
 
   return rval;
 }
@@ -1070,6 +1075,7 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
 
   for ( ; dpIter != end ; ++dpIter)
   {
+#if 0
     if (dpIter->expr->set_sim_time(getSolverState().currTime_))
       changed = true;
     if (dpIter->expr->set_sim_dt(getSolverState().currTimeStep_))
@@ -1082,6 +1088,9 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
       // experiment with doing nothing....
       changed = true;
     }
+#else
+    changed = true;
+#endif
     eVarVals.resize(dpIter->n_vars);
     if (dpIter->n_vars > 0)
     {
@@ -1170,6 +1179,7 @@ bool DeviceEntity::updateDependentParameters()
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
+#if 0
     if (dpIter->expr->set_sim_time( getSolverState().currTime_))
       changed = true;
     if (dpIter->expr->set_sim_dt(getSolverState().currTimeStep_))
@@ -1182,6 +1192,9 @@ bool DeviceEntity::updateDependentParameters()
       // try doing nothing
       changed = true;
     }
+#else
+    changed = true;
+#endif
 
     dpIter->expr->evaluateFunction (rval);
     if (dpIter->vectorIndex == -1)
@@ -1211,6 +1224,7 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
+#if 0
     if (dpIter->expr->set_sim_time( getSolverState().currTime_ ) || dpIter->expr->set_temp(tempIn))
       changed = true;
     if (dpIter->expr->set_sim_dt(getSolverState().currTimeStep_))
@@ -1223,6 +1237,9 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
       // experiment with doing nothing
       changed = true;
     }
+#else
+    changed = true;
+#endif
     dpIter->expr->evaluateFunction (rval);
     if (dpIter->vectorIndex == -1)
       *(dpIter->resultU.result) = rval;
@@ -1250,9 +1267,13 @@ bool DeviceEntity::getParamBreakpoints( std::vector<Util::BreakPoint> & breakPoi
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
+#if 0
     bTime = dpIter->expr->get_break_time();
     if (bTime > getSolverState().currTime_)
       breakPointTimes.push_back(Util::BreakPoint(bTime));
+#else
+    bTime = dpIter->expr->getBreakPoints(breakPointTimes);
+#endif
   }
 
   return true;

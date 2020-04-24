@@ -2218,14 +2218,20 @@ bool Instance::getInstanceBreakPoints(
   std::vector<Util::BreakPoint> &breakPointTimes)
 {
   int numRegions = regVec.size();
+  bool retval=true;
   double junk;
   for (int ireg=0;ireg<numRegions;++ireg)
   {
+#if 0
     regVec[ireg]->setSimTime(getSolverState().currTime_);
     junk=regVec[ireg]->getBreakTime();
     breakPointTimes.push_back(junk);
+#else
+    bool tmp = regVec[ireg]->getBreakPoints(breakPointTimes);
+    retval = retval && tmp;
+#endif
   }
-  return true;
+  return retval;
 }
 
 

@@ -137,9 +137,13 @@ public:
   std::pair<std::string,double> getInitialCondition(int i);
   int getNumInitialConditions();
 
+#if 0
   void setSimTime(double time);
   void setSimDT(double step);
   double getBreakpointTime();
+#else
+  bool getBreakPoints(std::vector<Util::BreakPoint> & breakPointTimes);
+#endif
   inline void setSourceScaleFac(double scf) {sourceScaleFac=scf;};
   inline void setMasterSourceValue(double msv) {masterSourceValue=msv;};
 
