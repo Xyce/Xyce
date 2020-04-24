@@ -819,6 +819,7 @@ int newExpression::evaluate (usedType &result, std::vector< usedType > &derivs)
   else
   {
     std::cout << "Error.  Expression " << expressionString_ << " is not parsed yet" << std::endl;
+    exit(0);
   }
 
   // fix these properly for std::complex later.
@@ -920,6 +921,13 @@ int newExpression::evaluateFunction (usedType &result)
     freqNodePtr_->setValue(group_->getFreq());
 
     bpTol_ = group_->getBpTol();
+
+    int srcSize = srcAstNodeVec_.size();
+    for (int ii=0;ii< srcSize; ii++) 
+    { 
+      (*(srcAstNodeVec_[ii]))->setBreakPointTol(bpTol_); 
+    }
+
     timeStep_ = group_->getTimeStep ();
     timeStepAlpha_ = group_->getTimeStepAlpha ();
     timeStepPrefac_ = group_->getTimeStepPrefac ();
@@ -939,10 +947,41 @@ int newExpression::evaluateFunction (usedType &result)
   else
   {
     std::cout << "Error.  Expression " << expressionString_ << " is not parsed yet" << std::endl;
+    exit(0);
   }
 
   return retVal;
 };
+
+//-------------------------------------------------------------------------------
+// Function      : newExpression::getBreakPoints
+// Purpose       : 
+// Special Notes : 
+// Scope         :
+// Creator       : Eric Keiter
+// Creation Date : 4/23/2020
+//-------------------------------------------------------------------------------
+bool newExpression::getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes )
+{
+  int srcSize = srcAstNodeVec_.size();
+  for (int ii=0;ii< srcSize; ii++) 
+  { 
+    (*(srcAstNodeVec_[ii]))->getBreakPoints(breakPointTimes); 
+  }
+
+#if 0
+  if (srcSize>0)
+  {
+    std::cout << "newExpression::getBreakPoints. Expression " << expressionString_ << "  Number of breakpoints = " << breakPointTimes.size() <<std::endl;
+    for (int ii=0;ii<breakPointTimes.size();ii++)
+    {
+      std::cout << "bp["<<ii<<"] = " << breakPointTimes[ii].value() <<std::endl;
+    }
+  }
+#endif
+
+  return true;
+}
 
 //-------------------------------------------------------------------------------
 // Function      : newExpression::setFunctionArgStringVec

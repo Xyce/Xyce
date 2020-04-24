@@ -37,7 +37,7 @@ class spicePulseOp : public astNode<ScalarT>
         Teuchos::RCP<astNode<ScalarT> > &tr, Teuchos::RCP<astNode<ScalarT> > &tf, Teuchos::RCP<astNode<ScalarT> > &pw,
         Teuchos::RCP<astNode<ScalarT> > &per, Teuchos::RCP<astNode<ScalarT> > &time
         ):
-      astNode<ScalarT>(), v1_(v1), v2_(v2), td_(td), tr_(tr), tf_(tf), pw_(pw), per_(per), time_(time)
+      astNode<ScalarT>(), v1_(v1), v2_(v2), td_(td), tr_(tr), tf_(tf), pw_(pw), per_(per), time_(time), bpTol(0.0)
   {};
 
     virtual ScalarT val()
@@ -77,7 +77,6 @@ class spicePulseOp : public astNode<ScalarT>
       //  time > X                            time>X && fabs(time-x)>bptol
       //  time <= X                           time<X || fabs(time-x)<bptol
 
-      ScalarT bpTol = 0.0; // this needs to come from the group
       ScalarT SourceValue = 0.0;
 
       if (std::real(time) <= 0 || (std::real(time) > (std::real(TR) + std::real(PW) + std::real(TF)) &&
@@ -171,6 +170,12 @@ class spicePulseOp : public astNode<ScalarT>
       return true;
     }
 
+    virtual void setBreakPointTol(double tol)
+    {
+      bpTol = tol;
+      return;
+    }
+
     virtual void output(std::ostream & os, int indent=0)
     {
       os << std::setw(indent) << " ";
@@ -239,6 +244,8 @@ AST_GET_CURRENT_OPS(per_) AST_GET_CURRENT_OPS(time_)
 
   private:
     Teuchos::RCP<astNode<ScalarT> > v1_, v2_, td_, tr_, tf_, pw_, per_, time_;
+
+    double bpTol;
 };
 
 //-------------------------------------------------------------------------------

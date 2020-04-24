@@ -63,6 +63,7 @@ class astNode
     virtual void setFuncArgs(std::vector< Teuchos::RCP<astNode<ScalarT> > > & tmpArgVec ) {};
 
     virtual bool getBreakPoints(std::vector<Xyce::Util::BreakPoint> & breakPointTimes) { return true;}
+    virtual void setBreakPointTol(double tol){return;};
 
     virtual void setDerivIndex(int i) {};
     virtual void unsetDerivIndex() {};

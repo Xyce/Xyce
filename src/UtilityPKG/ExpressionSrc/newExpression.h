@@ -381,12 +381,6 @@ public:
       delete masterAstNodeVec_[ii];
     }
     masterAstNodeVec_.clear();
-
-    for (int ii=0;ii<srcAstNodeVec_.size();ii++)
-    {
-      delete srcAstNodeVec_[ii];
-    }
-    srcAstNodeVec_.clear();
   };
 
   bool lexAndParseExpression();
@@ -428,11 +422,7 @@ public:
 
   void dumpParseTree(std::ostream & os) { if ( !(Teuchos::is_null(astNodePtr_)) ){astNodePtr_->output(os); }}
 
-  bool getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes )
-  {
-    for (int ii=0;ii< srcAstNodeVec_.size(); ii++) { (*(srcAstNodeVec_[ii]))->getBreakPoints(breakPointTimes); }
-    return true;
-  }
+  bool getBreakPoints (std::vector<Xyce::Util::BreakPoint> & breakPointTimes );
 
   Teuchos::RCP<astNode<usedType> > & getAst() {return astNodePtr_;}
 
