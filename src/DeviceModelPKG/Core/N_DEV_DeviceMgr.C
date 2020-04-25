@@ -2603,17 +2603,19 @@ bool DeviceMgr::updateDependentParameters_()
   std::vector<Util::Expression>::iterator globalExprEnd  = globalExpressionsVec.end();
   for ( ; globalExprIter != globalExprEnd; ++globalExprIter)
   {
-    bool changed = false;
-#if 0
-    if (globalExprIter->set_sim_time(solState_.currTime_))
-      changed = true;
-    if (globalExprIter->set_sim_freq(solState_.currFreq_))
-      changed = true;
-    if (globalExprIter->set_temp(getDeviceOptions().temp.getImmutableValue<double>()))
-      changed = true;
-#else
-    changed = true;
-#endif
+    // ERK.  4/24/2020. This (the changed bool) was conditionally true/false 
+    // depending on various calls such as set_sim_time, which let each expression 
+    // report back if its internal time variable (or temp, or freq, etc) had changed.
+    //
+    // Those function calls don't exist anymore due to the new expression refactor.
+    //
+    // This logic should maybe be updated to use the same logic that devices do w.r.t things like
+    // limiting.  If on a new time step, time changes, otherwise not.  Etc.  
+    // If this isn't changed, then a lot of "processParam" function calls are going 
+    // to be called unneccessarily.
+    //
+    // But that will have to come later.
+    bool changed = true;
 
     std::vector<std::string> geVariables;
     globalExprIter->get_names(XEXP_VARIABLE, geVariables);
@@ -2623,6 +2625,14 @@ bool DeviceMgr::updateDependentParameters_()
     {
 #if 0
     // ERK.  FIX THIS!   commenting out so this will compile
+    //
+    // what is a "geVariable" ??? "global expression variable"?
+    //
+    // I suspect that this is a block of code that is not needed with new Expression, 
+    // but need to double check.  It appears to update global variables in 
+    // the expression pointed to by globalExprIter, if they exist.  But the new 
+    // expression library handles this automatically.
+    //
       if (globalExprIter->set_var(*vsIter, globalParamMap[*vsIter]))
         changed = true;
 #endif
@@ -3182,13 +3192,7 @@ bool DeviceMgr::getBreakPoints (std::vector<Util::BreakPoint> & breakPointTimes,
   std::vector<Util::Expression>::iterator globalExp_end = globals_.global_expressions.end();
   for (; globalExp_i != globalExp_end; ++globalExp_i)
   {
-#if 0
-    double bTime = globalExp_i->get_break_time();
-    if (bTime > solState_.currTime_)
-      breakPointTimes.push_back(bTime);
-#else
     double bTime = globalExp_i->getBreakPoints(breakPointTimes);
-#endif
   }
 
   if (!breakPointInstancesInitialized)
@@ -4592,16 +4596,6 @@ void addGlobalParameter(
     expression.get_names(XEXP_VARIABLE, variables);
     std::vector<std::string> specials;
     expression.get_names(XEXP_SPECIAL, specials);
-
-#if 0
-    if (!specials.empty())
-    {
-      expression.set_sim_time(solver_state.currTime_);
-      expression.set_sim_dt(solver_state.currTimeStep_);
-      expression.set_sim_freq(solver_state.currFreq_);
-      expression.set_temp(temp);
-    }
-#endif
 
     std::vector<std::string>::const_iterator it = variables.begin();
     std::vector<std::string>::const_iterator end = variables.end();

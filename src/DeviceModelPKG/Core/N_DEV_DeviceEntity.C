@@ -799,12 +799,6 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   double rval;
   dependentParam.expr->evaluateFunction (rval);
-#if 0
-  dependentParam.expr->set_sim_time(getSolverState().currTime_);
-  dependentParam.expr->set_sim_dt(getSolverState().currTimeStep_);
-  dependentParam.expr->set_sim_freq(getSolverState().currFreq_);
-  dependentParam.expr->set_temp(devOptions_.temp.getImmutableValue<double>());
-#endif
 
   return rval;
 }
@@ -869,13 +863,6 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 
   double rval;
   dependentParam.expr->evaluateFunction (rval);
-#if 0
-  // ERK.  Why set it after evaluateFunction?  why not b4?
-  dependentParam.expr->set_sim_time(getSolverState().currTime_);
-  dependentParam.expr->set_sim_dt(getSolverState().currTimeStep_);
-  dependentParam.expr->set_sim_freq(getSolverState().currFreq_);
-  dependentParam.expr->set_temp(devOptions_.temp.getImmutableValue<double>());
-#endif
 
   return rval;
 }
@@ -908,6 +895,9 @@ double DeviceEntity::setDependentParameter (Util::Param & par,
 ///
 /// @author Dave Shirley, PSSI
 /// @date 11/18/04
+///
+/// ERK. 4/24/2020.  A lot of this function isn't needed anymore with the 
+/// new expression library.
 ///
 void DeviceEntity::setDependentParameter (Util::Param & par,
                                           Depend & dependentParam,
@@ -1026,17 +1016,19 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
   for (int i=0 ; i<dependentParam.n_vars ; ++i)
     expVarNames.push_back(names[i]);
 
+#if 0
+  // ERK.  FIX THIS!   commenting out so this will compile
+  // Is this needed?
   if (dependentParam.n_vars > 0)
   {
     std::vector<double> zeros;
     zeros.resize(dependentParam.n_vars);
     for (int i=0 ; i<dependentParam.n_vars ; ++i)
       zeros[i] = 0;
-#if 0
-    // ERK.  FIX THIS!   commenting out so this will compile
+
     dependentParam.expr->set_vars(zeros);
-#endif
   }
+#endif
 
   dependentParam.global_params.clear();
   if (!variables.empty())
@@ -1048,7 +1040,8 @@ void DeviceEntity::setDependentParameter (Util::Param & par,
       {
         UserError(*this) << "Global parameter " << *iterS << " not found";
       }
-      else {
+      else 
+      {
 #if 0
     // ERK.  FIX THIS!   commenting out so this will compile
         dependentParam.expr->set_var(*iterS, (*global_param_it).second);
@@ -1075,22 +1068,20 @@ bool DeviceEntity::updateDependentParameters(const Linear::Vector & vars, bool c
 
   for ( ; dpIter != end ; ++dpIter)
   {
-#if 0
-    if (dpIter->expr->set_sim_time(getSolverState().currTime_))
-      changed = true;
-    if (dpIter->expr->set_sim_dt(getSolverState().currTimeStep_))
-    {
-      // experiment with doing nothing....
-      changed = true;
-    }
-    if (dpIter->expr->set_sim_freq(getSolverState().currFreq_))
-    {
-      // experiment with doing nothing....
-      changed = true;
-    }
-#else
+    // ERK.  4/24/2020. This (the changed bool) was conditionally true/false 
+    // depending on various calls such as set_sim_time, which let each expression 
+    // report back if its internal time variable (or temp, or freq, etc) had changed.
+    //
+    // Those function calls don't exist anymore due to the new expression refactor.
+    //
+    // This logic should maybe be updated to use the same logic that devices do w.r.t things like
+    // limiting.  If on a new time step, time changes, otherwise not.  Etc.  
+    // If this isn't changed, then a lot of "processParam" function calls are going 
+    // to be called unneccessarily.
+    //
+    // But that will have to come later.
     changed = true;
-#endif
+
     eVarVals.resize(dpIter->n_vars);
     if (dpIter->n_vars > 0)
     {
@@ -1179,22 +1170,19 @@ bool DeviceEntity::updateDependentParameters()
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
-#if 0
-    if (dpIter->expr->set_sim_time( getSolverState().currTime_))
-      changed = true;
-    if (dpIter->expr->set_sim_dt(getSolverState().currTimeStep_))
-    {
-      // try doing nothing
-      changed = true;
-    }
-    if (dpIter->expr->set_sim_freq(getSolverState().currFreq_))
-    {
-      // try doing nothing
-      changed = true;
-    }
-#else
+    // ERK.  4/24/2020. This (the changed bool) was conditionally true/false 
+    // depending on various calls such as set_sim_time, which let each expression 
+    // report back if its internal time variable (or temp, or freq, etc) had changed.
+    //
+    // Those function calls don't exist anymore due to the new expression refactor.
+    //
+    // This logic should maybe be updated to use the same logic that devices do w.r.t things like
+    // limiting.  If on a new time step, time changes, otherwise not.  Etc.  
+    // If this isn't changed, then a lot of "processParam" function calls are going 
+    // to be called unneccessarily.
+    //
+    // But that will have to come later.
     changed = true;
-#endif
 
     dpIter->expr->evaluateFunction (rval);
     if (dpIter->vectorIndex == -1)
@@ -1224,22 +1212,20 @@ bool DeviceEntity::updateDependentParameters(double tempIn)
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
-#if 0
-    if (dpIter->expr->set_sim_time( getSolverState().currTime_ ) || dpIter->expr->set_temp(tempIn))
-      changed = true;
-    if (dpIter->expr->set_sim_dt(getSolverState().currTimeStep_))
-    {
-      // experiment with doing nothing
-      changed = true;
-    }
-    if (dpIter->expr->set_sim_freq(getSolverState().currFreq_))
-    {
-      // experiment with doing nothing
-      changed = true;
-    }
-#else
+    // ERK.  4/24/2020. This (the changed bool) was conditionally true/false 
+    // depending on various calls such as set_sim_time, which let each expression 
+    // report back if its internal time variable (or temp, or freq, etc) had changed.
+    //
+    // Those function calls don't exist anymore due to the new expression refactor.
+    //
+    // This logic should maybe be updated to use the same logic that devices do w.r.t things like
+    // limiting.  If on a new time step, time changes, otherwise not.  Etc.  
+    // If this isn't changed, then a lot of "processParam" function calls are going 
+    // to be called unneccessarily.
+    //
+    // But that will have to come later.
     changed = true;
-#endif
+
     dpIter->expr->evaluateFunction (rval);
     if (dpIter->vectorIndex == -1)
       *(dpIter->resultU.result) = rval;
@@ -1267,13 +1253,7 @@ bool DeviceEntity::getParamBreakpoints( std::vector<Util::BreakPoint> & breakPoi
   std::vector<Depend>::iterator end = dependentParams_.end();
   for ( ; dpIter != end; ++dpIter)
   {
-#if 0
-    bTime = dpIter->expr->get_break_time();
-    if (bTime > getSolverState().currTime_)
-      breakPointTimes.push_back(Util::BreakPoint(bTime));
-#else
     bTime = dpIter->expr->getBreakPoints(breakPointTimes);
-#endif
   }
 
   return true;
