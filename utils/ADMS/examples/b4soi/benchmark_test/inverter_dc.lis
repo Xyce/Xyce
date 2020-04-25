@@ -1,0 +1,247 @@
+ ****** HSPICE -- L-2016.03 linux64 (Feb 24 2016) ******                        
+  Copyright (c) 1986 - 2017 by Synopsys, Inc. All Rights Reserved.              
+  This software and the associated documentation are proprietary
+  to Synopsys, Inc. This software may only be used in accordance
+  with the terms and conditions of a written license agreement with
+  Synopsys, Inc. All other use, reproduction, or distribution of
+  this software is strictly prohibited.
+  Input File: inverter_dc.sp                                                    
+  Command line options: /tools/synopsys/hspice/L-2016.03/hspice/linux64/hspice -hdlpath ../code -i inverter_dc.sp -o inverter_dc
+ lic:  
+ lic: FLEXlm: v11.2.1 
+ lic: USER:   huanlin              HOSTNAME: bwrcr720-5.eecs.berkeley.edu 
+ lic: HOSTID: "c81f66efdbed"       PID:      48653 
+ lic: Using FLEXlm license file: 
+ lic: 1701@sunv40z-1.eecs.berkeley.edu 
+ lic: Checkout 1 hspice 
+ lic: License/Maintenance for hspice will expire on 19-dec-2017/2016.06 
+ lic: 1(in_use)/50(total) FLOATING license(s) on SERVER 1701@sunv40z-1.eecs.berkeley.edu 
+ lic:   
+ **info** *pvaI* current limit stacksize=10485760, set new limit stacksize=62914560
+
+ **info** *pvaI* Module (bsimsoi): 7 unexpanded port, 0 init, 4082 behav, 72 contrib, 39/3050 expr(s)
+
+ **info** *pvaI*        Has DIS(DT PC), 2/48 afCount, 0 MT, dlg, 6 node(s) maybe reduced, IO(0/0/1/1)
+
+ **info** *pvaI*        0 const-G and 0 const-C, Has switchBranch, 22 bypassOpt, 0 bus2scalar
+
+ **warning** *pvaW*        variable 'VDSAT' initialized but not used in RHS, deleted (../code/bsimsoi.va:5983)
+
+ **warning** *pvaW*        variable 'VTH' initialized but not used in RHS, deleted (../code/bsimsoi.va:5522)
+
+ **warning** *pvaW*        variable 'IDS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8105)
+
+ **warning** *pvaW*        variable 'GM' initialized but not used in RHS, deleted (../code/bsimsoi.va:8106)
+
+ **warning** *pvaW*        variable 'GDS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8107)
+
+ **warning** *pvaW*        variable 'GMBS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8108)
+
+ **warning** *pvaW*        variable 'IC' initialized but not used in RHS, deleted (../code/bsimsoi.va:8109)
+
+ **warning** *pvaW*        variable 'IBD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8111)
+
+ **warning** *pvaW*        variable 'IBS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8110)
+
+ **warning** *pvaW*        variable 'IGIDL' initialized but not used in RHS, deleted (../code/bsimsoi.va:8112)
+
+ **warning** *pvaW*        variable 'IGISL' initialized but not used in RHS, deleted (../code/bsimsoi.va:8113)
+
+ **warning** *pvaW*        variable 'IGS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8114)
+
+ **warning** *pvaW*        variable 'IGD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8115)
+
+ **warning** *pvaW*        variable 'IGB' initialized but not used in RHS, deleted (../code/bsimsoi.va:8116)
+
+ **warning** *pvaW*        variable 'IGCS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8117)
+
+ **warning** *pvaW*        variable 'IGCD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8118)
+
+ **warning** *pvaW*        variable 'CGG' initialized but not used in RHS, deleted (../code/bsimsoi.va:8129)
+
+ **warning** *pvaW*        variable 'CGS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8132)
+
+ **warning** *pvaW*        variable 'CGD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8133)
+
+ **warning** *pvaW*        variable 'CBG' initialized but not used in RHS, deleted (../code/bsimsoi.va:8134)
+
+ **warning** *pvaW*        variable 'CBS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8136)
+
+ **warning** *pvaW*        variable 'CBD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8135)
+
+ **warning** *pvaW*        variable 'CDG' initialized but not used in RHS, deleted (../code/bsimsoi.va:8137)
+
+ **warning** *pvaW*        variable 'CDD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8138)
+
+ **warning** *pvaW*        variable 'CDS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8139)
+
+ **warning** *pvaW*        variable 'CAPBD' initialized but not used in RHS, deleted (../code/bsimsoi.va:8142)
+
+ **warning** *pvaW*        variable 'CAPBS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8143)
+
+ **warning** *pvaW*        variable 'QS' initialized but not used in RHS, deleted (../code/bsimsoi.va:8124)
+
+ **warning** *pvaW*        variable 'T_TOTAL_K' initialized but not used in RHS, deleted (../code/bsimsoi.va:4417)
+
+ **warning** *pvaW*        variable 'T_TOTAL_C' initialized but not used in RHS, deleted (../code/bsimsoi.va:4418)
+
+ **warning** *pvaW*        variable 'T_DELTA_SH' initialized but not used in RHS, deleted (../code/bsimsoi.va:4419)
+
+ **info** *pvaI*        generated 5 flow node(s) during compilation.
+
+ **info** *pvaI* #### Total 565 line-size(s), 39/3050 expr(s), 72 contr(s), 0 init(s), 4082 behav(s), 7 port(s)
+
+ Loading pVA library inverter_dc.pvadir/pvaRTL_linux64.so...
+1****** HSPICE -- L-2016.03 linux64 (Feb 24 2016) ******                        
+ ******  
+ *sample netlist for bsimsoi
+
+ ****** circuit name directory
+ circuit number to circuit name directory
+   number circuitname                     definition         multiplier
+        0 main circuit
+        1 xn0.                            bsimsoi(va)        1.00 
+        2 xp0.                            bsimsoi(va)        1.00 
+ **info** *pvaI* Creating VA module (bsimsoi) for instance XP0
+
+ **info** *pvaI* Module (bsimsoi): node 'db' shorted with port 'b' (../code/bsimsoi.va:8064)
+
+ **info** *pvaI* Module (bsimsoi): node 'gi' shorted with port 'gm' (../code/bsimsoi.va:8045)
+
+ **info** *pvaI* Module (bsimsoi): node 'gm' shorted with port 'g' (../code/bsimsoi.va:8037)
+
+ **info** *pvaI* Module (bsimsoi): node 'sb' shorted with port 'b' (../code/bsimsoi.va:8065)
+
+ **info** *pvaI*  4           nodes and 6 branches eliminated for module 'bsimsoi'
+
+ **info** *pvaI*   3 port(s) not connected
+
+ **info** *pvaI*        termCount=18 diwSize=368 probeSize=2287 Qsize=15 Isize=27
+
+ End of GMD creation on Tue Nov 14 11:20:46 2017	GTM/In-use: 23.5000/21.1810 MB
+
+
+ **info** *pvaI* Creating VA module (bsimsoi) for instance XN0
+
+ **info** *pvaI* Module (bsimsoi): node 'db' shorted with port 'b' (../code/bsimsoi.va:8064)
+
+ **info** *pvaI* Module (bsimsoi): node 'gi' shorted with port 'gm' (../code/bsimsoi.va:8045)
+
+ **info** *pvaI* Module (bsimsoi): node 'gm' shorted with port 'g' (../code/bsimsoi.va:8037)
+
+ **info** *pvaI* Module (bsimsoi): node 'sb' shorted with port 'b' (../code/bsimsoi.va:8065)
+
+ **info** *pvaI*  4           nodes and 6 branches eliminated for module 'bsimsoi'
+
+ **info** *pvaI*   3 port(s) not connected
+
+ **info** *pvaI*        termCount=18 diwSize=368 probeSize=0 Qsize=15 Isize=27
+
+ End of GMD creation on Tue Nov 14 11:20:46 2017	GTM/In-use: 23.5000/21.1929 MB
+
+
+  
+      
+ *****************************************************************
+ ******  option summary
+ ******
+ runlvl  = 3         bypass  = 2.0000    
+  Opening plot unit= 15
+ file=inverter_dc.pa0
+
+ ******
+ *sample netlist for bsimsoi
+
+ ****** dc transfer curves tnom=  25.000 temp=  25.000 ******
+x
+
+ volt         voltage   
+             out        
+    0.          1.5000  
+   50.00000m    1.5000  
+  100.00000m    1.5000  
+  150.00000m    1.5000  
+  200.00000m    1.5000  
+  250.00000m    1.5000  
+  300.00000m    1.5000  
+  350.00000m    1.4999  
+  400.00000m    1.4998  
+  450.00000m    1.4994  
+  500.00000m    1.4982  
+  550.00000m    1.4944  
+  600.00000m    1.4839  
+  650.00000m    1.4577  
+  700.00000m    1.3810  
+  750.00000m    1.0489  
+  800.00000m  614.0158m 
+  850.00000m  201.7672m 
+  900.00000m   64.0760m 
+  950.00000m   22.2120m 
+    1.00000     7.2128m 
+    1.05000     2.2594m 
+    1.10000   699.7580u 
+    1.15000   214.1255u 
+    1.20000    64.6178u 
+    1.25000    19.3235u 
+    1.30000     5.7965u 
+    1.35000     1.7945u 
+    1.40000   615.7066n 
+    1.45000   268.7923n 
+    1.50000   166.7627n 
+y
+
+          ***** job concluded
+ ******  
+ *sample netlist for bsimsoi
+
+ ****** job statistics summary tnom=  25.000 temp=  25.000 ******
+  
+  
+ ******  Machine Information  ******
+ CPU:
+ model name	: Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz
+ cpu MHz	: 2499.925
+  
+ OS:
+ Linux version 2.6.32-696.6.3.el6.x86_64 (mockbuild@x86-042.build.eng.bos.redhat.com) (gcc version 4.4.7 20120313 (Red Hat 4.4.7-18) (GCC) ) #1 SMP Fri Jun 30 13:24:18 EDT 2017
+
+
+  ******  HSPICE Threads Information  ******
+
+  Command Line Threads Count :     1
+  Available CPU Count        :    40
+  Actual Threads Count       :     1
+
+
+  ******  Circuit Statistics  ******
+  # nodes       =      23 # elements   =       5
+  # resistors   =       0 # capacitors =       0 # inductors   =       0
+  # mutual_inds =       0 # vccs       =       0 # vcvs        =       0
+  # cccs        =       0 # ccvs       =       0 # volt_srcs   =       3
+  # curr_srcs   =       0 # diodes     =       0 # bjts        =       0
+  # jfets       =       0 # mosfets    =       0 # U elements  =       0
+  # T elements  =       0 # W elements =       0 # B elements  =       0
+  # S elements  =       0 # P elements =       0 # va device   =       2
+  # vector_srcs =       0 # N elements =       0
+
+
+  ******  Runtime Statistics (seconds)  ******
+
+  analysis           time    # points   tot. iter  conv.iter
+  op point           0.00           1           0
+  dc sweep           0.01          31         157
+  readin             4.31
+  errchk             0.03
+  setup              0.00
+  output             0.00
+
+
+           peak memory used        225.71 megabytes
+           total cpu time            4.35 seconds
+           total elapsed time       16.20 seconds
+           job started at     11:20:29 11/14/2017
+           job ended   at     11:20:46 11/14/2017
+
+
+ lic: Release hspice token(s) 
+ lic: total license checkout elapse time:        0.24(s)

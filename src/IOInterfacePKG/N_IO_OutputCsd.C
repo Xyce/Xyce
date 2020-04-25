@@ -21,7 +21,8 @@
 //-------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Purpose       : Base class measure functions.
+// Purpose       : Class for re-reading Xyce file output, of simulation results,
+//                 that is in FORMAT=PROBE.
 // Special Notes :
 // Creator       : Pete Sholander, SNL, Electrical and Microsystem Modeling
 // Creation Date : 12/10/2015
@@ -36,7 +37,6 @@
 
 namespace Xyce {
 namespace IO {
-namespace Measure {
 
 //-----------------------------------------------------------------------------
 // Function      : OutputCsd::OutputCsd() 
@@ -572,6 +572,5 @@ bool OutputCsd::handleEndOfCsdFileDataBlock(std::vector<std::string>& parsedLine
   return retVal;
 }
 
-} // namespace Measure
 } // namespace IO
 } // namespace Xyce

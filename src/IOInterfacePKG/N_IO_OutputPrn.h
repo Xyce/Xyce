@@ -22,7 +22,8 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Base class for handling file output of simulation results.
+// Purpose        : Class for re-reading Xyce file output, of simulation results,
+//                  that is in FORMAT=<STD|CSV|NOINDEX>
 //
 // Special Notes  :
 //
@@ -48,7 +49,6 @@
 
 namespace Xyce {
 namespace IO {
-namespace Measure {
 
 class OutputPrn : public OutputFileBase
 {
@@ -116,7 +116,6 @@ class OutputPrn : public OutputFileBase
     {}
 };
 
-} // namespace Measure
 } // namespace IO
 } // namespace Xyce
 

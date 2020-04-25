@@ -22,7 +22,8 @@
 
 //-----------------------------------------------------------------------------
 //
-// Purpose        : Base class for handling file output of simulation results.
+// Purpose        : Class for re-reading Xyce file output, of simulation results,
+//                  that is in HDF5 format.
 //
 // Special Notes  :
 //
@@ -48,7 +49,6 @@
 
 namespace Xyce {
 namespace IO {
-namespace Measure {
 
 class OutputHDF5 : public OutputFileBase
 {
@@ -58,7 +58,6 @@ class OutputHDF5 : public OutputFileBase
 
 };
 
-} // namespace Measure
 } // namespace IO
 } // namespace Xyce
 

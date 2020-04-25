@@ -33,6 +33,42 @@
      \rowcolor{XyceDarkBlue} \color{white}\textbf{Defect} & \color{white}\textbf{Description} \\ \hline
      \endhead
 
+\textbf{203-SON}: Add BSIM 4 SOI model to Xyce &
+The BSIM SOI version 4.6.1 has been added as the level 70 MOSFET.
+\\ \hline
+
+\textbf{1296-SON}: Add multiplicity factor to BSIM 6 &
+The BSIM 6 in Xyce prior to this release did not support a
+multiplicity factor (``M'' instance parameter).  Support for
+multiplicity in the BSIM 6 has been added in this release.
+\\ \hline
+
+\textbf{788-SON}: Support output variables from Verilog-A models &
+The Verilog-A Language Reference Manual (LRM) states that module
+scoped variables that have ``desc'' or ``units'' attributes should be
+considered output variables, and users should have access to these
+values during simulation.  \Xyce{} now supports this usage, and
+Xyce/ADMS will generate appropriate code so that these output
+variables may be printed with the ``N()'' notation on \texttt{.PRINT}
+lines. \\ \hline
+
+\textbf{410-SON}: Implement ddx() in Xyce/ADMS Verilog-A compiler &
+Xyce/ADMS did not support use of the Verilog-A construct ``ddx()'',
+which provides symbolic differentiation capabilities.  ddx() is now
+supported with minor limitations that impact no published Verilog-A
+models we have encountered.  See the Xyce/ADMS Users' Guide for more
+details. \\ \hline
+
+\textbf{1284-SON}: Rewrite Xyce/ADMS to generate code that does not use Sacado  at all &
+With release 6.11 of \Xyce{}, Xyce/ADMS was rewritten to require
+Sacado only for the functions that are used during sensitivity
+analysis, resulting in a dramatic performance improvement for all
+analyses other than sensitivity.  This effort has concluded in release
+7.1 by implementing sensitivity code without Sacado as well.  This
+change has little impact on performance of sensitivity analysis, but
+does significantly reduce memory requirements at compile
+time. \\ \hline
+
 \textbf{1283-SON}: Make RMS measure results more compliant with the HSPICE method &
 The \Xyce{} method for calculating the results of \texttt{RMS} measures, for \texttt{AC},
 \texttt{DC} and \texttt{TRAN} measure modes, now matches the HSPICE approach of using the

@@ -42,13 +42,15 @@
 #include <N_DEV_DeviceMgr.h>
 #include <N_DEV_ExternData.h>
 #include <N_DEV_Message.h>
+#include <N_IO_OutputFileBase.h>
+#include <N_IO_OutputPrn.h>
 #include <N_IO_ParsingHelpers.h>
 #include <N_LAS_Matrix.h>
+#include <N_UTL_CheckIfValidFile.h>
 #include <N_UTL_FeatureTest.h>
 #include <N_UTL_AssemblyTypes.h>
 #include <N_UTL_ExtendedString.h>
 #include <N_UTL_RFparams.h>
-
 
 #include <Teuchos_SerialDenseMatrix.hpp>
 #include <Teuchos_SerialDenseVector.hpp>
@@ -121,10 +123,22 @@ void Traits::loadModelParameters(ParametricData<YLin::Model> &p)
     .setCategory(CAT_NONE)
     .setDescription("Touchstone File Name");
 
-  p.addPar("ISC", false, &YLin::Model::Isc_)
+  p.addPar("ISC_FD", false, &YLin::Model::IscFD_)
     .setUnit(U_LOGIC)
     .setCategory(CAT_NONE)
-    .setDescription("Touchstone file contains short-circuit current data");
+    .setDescription("Touchstone file contains frequency-domain short-circuit current data");
+
+  p.addPar("ISC_TD_FILE", "", &YLin::Model::ISC_TD_FileName_)
+    .setGivenMember(&YLin::Model::ISC_TD_FileNameGiven_)
+    .setUnit(U_NONE)
+    .setCategory(CAT_NONE)
+    .setDescription("ISC Time Domain File Name");
+
+  p.addPar("ISC_TD_FILE_FORMAT", "STD", &YLin::Model::ISC_TD_FileFormat_)
+    .setGivenMember(&YLin::Model::ISC_TD_FileFormatGiven_)
+    .setUnit(U_NONE)
+    .setCategory(CAT_NONE)
+    .setDescription("Format of ISC Time Domain File");
 }
 
 //-----------------------------------------------------------------------------
@@ -469,11 +483,11 @@ bool Model::readTouchStoneFile()
   }
 
   // parse the file
-  std::string aLine;
+  ExtendedString aLine("");
   IO::TokenVector parsedLine;
-  readTouchStoneFileLine(inputFile,aLine,lineNum);
+  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
 
-  while( (!inputFile.eof()) || (aLine.substr(0,5) == "[End]") )
+  while( (!inputFile.eof()) || (aLine.substr(0,5) == "[END]") )
   {
     if ( aLine[0] != TSCommentChar_ )
     {
@@ -481,7 +495,7 @@ bool Model::readTouchStoneFile()
       // a Touchstone 2 formatted file.  This parser assumes a version 2.0 file.
       // So, the option line must be the next non-comment line after the [Version]
       // line.
-      if (aLine.substr(0,9) == "[Version]")
+      if (aLine.substr(0,9) == "[VERSION]")
       {
         if (!firstLineFound)
 	{
@@ -494,7 +508,7 @@ bool Model::readTouchStoneFile()
           ++numVersionLinesFound;
           splitTouchStoneFileLine(aLine,parsedLine);
 
-           if ( parsedLine.size() < 2 )
+          if ( parsedLine.size() < 2 )
           {
             Report::UserError() << "Invalid [Version] line in file " << TSFileName_
 	      << " for model " << getName() << " at line " << lineNum;
@@ -524,11 +538,11 @@ bool Model::readTouchStoneFile()
         // skip over any comment lines
         if (!inputFile.eof())
         {
-	  readTouchStoneFileLine(inputFile,aLine,lineNum);
+	  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
         while( (!inputFile.eof()) && ( aLine[0] == TSCommentChar_) )
 	{
-          readTouchStoneFileLine(inputFile,aLine,lineNum);
+          readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
 
         // now parse the Option line, which starts with #
@@ -555,29 +569,45 @@ bool Model::readTouchStoneFile()
           for (int i=1; i<parsedLine.size(); ++i)
 	  {
             ExtendedString tokenStr(parsedLine[i].string_);
-            if ( (tokenStr == "S") || (tokenStr == "Y") || (tokenStr == "Z") )
-	    {
-              paramType_ = tokenStr[0];
+            if (tokenStr == "S")
+            {
+              paramType_ = ParamType::S;
             }
-            else if ( (tokenStr == "RI") || (tokenStr == "MA") || ( tokenStr == "DB") )
-	    {
-              dataFormat_ = tokenStr;
+            else if (tokenStr == "Y")
+            {
+              paramType_ = ParamType::Y;
             }
-            else if (tokenStr.toUpper() == "HZ")
+            else if (tokenStr == "Z")
+	    {
+              paramType_ = ParamType::Z;
+            }
+            else if (tokenStr == "RI")
+	    {
+              dataFormat_ = DataFormat::RI;
+            }
+            else if (tokenStr == "MA")
+	    {
+              dataFormat_ = DataFormat::MA;
+	    }
+            else if (tokenStr == "DB")
+	    {
+              dataFormat_ = DataFormat::DB;
+            }
+            else if (tokenStr == "HZ")
 	    {
               // There are four allowed frequency multipliers.  So, explicitly
               // check for each one and hard-code the conversion.
 	      freqMultiplier_ = 1.0;
             }
-            else if (tokenStr.toUpper() == "KHZ")
+            else if (tokenStr == "KHZ")
             {
 	      freqMultiplier_ = 1.0e+3;
             }
-            else if (tokenStr.toUpper() == "MHZ")
+            else if (tokenStr == "MHZ")
             {
 	      freqMultiplier_ = 1.0e+6;
             }
-            else if (tokenStr.toUpper() == "GHZ")
+            else if (tokenStr == "GHZ")
 	    {
               freqMultiplier_ = 1.0e+9;
             }
@@ -616,7 +646,7 @@ bool Model::readTouchStoneFile()
           }
         }
       }
-      else if (aLine.substr(0,17) == "[Number of Ports]")
+      else if (aLine.substr(0,17) == "[NUMBER OF PORTS]")
       {
         // This line is required and may only appear once.  It must have an
         // integer value > 0.
@@ -645,7 +675,7 @@ bool Model::readTouchStoneFile()
           }
         }
       }
-      else if (aLine.substr(0,21) == "[Two-Port Data Order]")
+      else if (aLine.substr(0,21) == "[TWO-PORT DATA ORDER]")
       {
         // This line is required if numPorts=2.  It is forbidden otherwise.
         // If required then it must appear after the [Number of Ports] line
@@ -676,7 +706,7 @@ bool Model::readTouchStoneFile()
           }
         }
       }
-      else if (aLine.substr(0,23) ==  "[Number of Frequencies]")
+      else if (aLine.substr(0,23) ==  "[NUMBER OF FREQUENCIES]")
       {
         // This line is required and may only appear once.  It must have an
         // integer value > 0.  It must appear after the [Number of Ports] line
@@ -713,7 +743,7 @@ bool Model::readTouchStoneFile()
           }
         }
       }
-      else if (aLine.substr(0,11) ==  "[Reference]")
+      else if (aLine.substr(0,11) ==  "[REFERENCE]")
       {
         // this line type needs to look ahead at the next line
         skipReadNextLine = true;
@@ -733,7 +763,7 @@ bool Model::readTouchStoneFile()
         else
 	{
           Z0Vec_.clear();
-          // Handle line 1 of [Reference} line block
+          // Handle line 1 of [Reference] line block
           for (int i=1; i<parsedLine.size(); ++i)
 	  {
             ExtendedString z0Str(parsedLine[i].string_);
@@ -743,7 +773,7 @@ bool Model::readTouchStoneFile()
           // read next line to see if the [Reference] block spans multiple lines
           if (!inputFile.eof())
           {
-	     readTouchStoneFileLine(inputFile,aLine,lineNum);
+	     readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
           }
 
           // this a continuation of the [Reference] block
@@ -755,7 +785,7 @@ bool Model::readTouchStoneFile()
               ExtendedString z0Str(parsedLine[i].string_);
               Z0Vec_.push_back(z0Str.Value());
             }
-            readTouchStoneFileLine(inputFile,aLine,lineNum);
+            readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
           }
 
           if ( Z0Vec_.size() != numPorts_ )
@@ -774,11 +804,11 @@ bool Model::readTouchStoneFile()
           }
         }
       }
-      else if (aLine.substr(0,15) ==  "[Matrix Format]")
+      else if (aLine.substr(0,15) ==  "[MATRIX FORMAT]")
       {
         // This line is optional.  If included, it must appear after the [Number of Ports] line
         // and before the [Network Data] line.  It has the allowed string values of
-        // "Full", "Lower" or "Upper".  This parsing only supports "Full" now.
+        // "FULL", "LOWER" or "UPPER".  This parsing only supports "FULL" now.
         ++numMatrixFormatLinesFound;
         splitTouchStoneFileLine(aLine,parsedLine);
 
@@ -786,25 +816,44 @@ bool Model::readTouchStoneFile()
         {
           Report::UserError() << "Invalid [Matrix Format] line(s) in file " << TSFileName_
              << " for model " << getName() << " at line " << lineNum;
-          psuccess = false;
+          return false;
         }
         else
 	{
-	  std::string matrixFormat(parsedLine[2].string_);
-          if ( matrixFormat != "Full" )
+          ExtendedString tokenStr(parsedLine[2].string_);
+          if (IscFD_ && (tokenStr != "FULL"))
+	  {
+            Report::UserError() << "Only [Matrix Format] = FULL is supported when ISC=TRUE is used for YLIN model";
+	    return false;
+          }
+          else if (tokenStr == "FULL")
+	  {
+	    matrixFormat_ = MatrixFormat::FULL;
+	  }
+          else if (tokenStr == "UPPER")
+	  {
+	    matrixFormat_ = MatrixFormat::UPPER;
+	  }
+          else if (tokenStr == "LOWER")
           {
-            Report::UserError() << "Only [Matrix Format] = Full is supported";
-            psuccess = false;
+	    matrixFormat_ = MatrixFormat::LOWER;
+	  }
+          else
+          {
+            // standard Touchstone 2 file, without frequency-domain ISC data
+            Report::UserError() << "File " << TSFileName_ << " for model " << getName()
+               << " had invalid value on [Matrix Format] line";
+            return false;
           }
 
           if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
           {
-            Xyce::dout() << "Found matrix format = " << matrixFormat << " at lineNum " << lineNum << std::endl;
+            Xyce::dout() << "Found matrix format = " << matrixFormat_ << " at lineNum " << lineNum << std::endl;
           }
         }
 
       }
-      else if (aLine.substr(0,23) ==  "[Network Data]")
+      else if (aLine.substr(0,23) ==  "[NETWORK DATA]")
       {
         if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
         {
@@ -836,25 +885,31 @@ bool Model::readTouchStoneFile()
         // skip over any comment lines
         if (!inputFile.eof())
 	{
-	  readTouchStoneFileLine(inputFile,aLine,lineNum);
+	  readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
         while( (!inputFile.eof()) && ( aLine[0] == TSCommentChar_) )
 	{
-          readTouchStoneFileLine(inputFile,aLine,lineNum);
+          readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
 
         std::vector<std::complex<double> > inputIscData;
         Teuchos::SerialDenseMatrix<int, std::complex<double> > inputNetworkData;
         inputNetworkData.shape(numPorts_, numPorts_);
 
-        // expected number of data elements on each line, assuming "Full" format
-        expectedNumElementsPerNetworkDataLine = 2*(numPorts_*numPorts_)+ 1;
-        if (Isc_)
+        // Set expected number of data elements on first line, assuming "FULL", "UPPER" or
+        // "LOWER" formats
+        if (matrixFormat_ == MatrixFormat::FULL)
+          expectedNumElementsPerNetworkDataLine = 2*(numPorts_*numPorts_) + 1;
+        else
+          expectedNumElementsPerNetworkDataLine = numPorts_*(numPorts_+1) + 1;
+
+        // only format "FULL" is supported if frequency-domain ISC data is given
+        if (IscFD_)
           expectedNumElementsPerNetworkDataLine += 2*numPorts_;
 
         parsedLine.clear();
 
-	// now populate the matrix assuming the input is in "Full" format
+	// now populate the matrix
 	while ( (!inputFile.eof()) && ( aLine[0] !='[') )
 	{
           // account for Touchstone 2 files where each row of network data may
@@ -867,7 +922,7 @@ bool Model::readTouchStoneFile()
             parsedLine.insert(parsedLine.end(),tempParsedLine.begin(),tempParsedLine.end());
           }
 
-          // We have a full line of network data if this conditional is true
+          // We have a complete line of network data if this conditional is true
           if (parsedLine.size() == expectedNumElementsPerNetworkDataLine)
 	  {
             ++numDataLinesFound;
@@ -875,16 +930,30 @@ bool Model::readTouchStoneFile()
             ExtendedString freqStr(parsedLine[0].string_);
             freqVec_.push_back(freqMultiplier_*freqStr.Value());
 
+            // Offset into parsedLine, for the data values.  The frequency value is at offset=0
+            int offset=1;
+
+            // These values work, for FULL format, for the inner (column index) loop below
+            int startIdx=0;
+            int endIdx=numPorts_-1;
+
             // for 2-port networks, this assumes [Two-Port Data Order] = "12_21"
-	    for (int i=0; i<numPorts_; ++i)
+	    for (int i=0; i<=numPorts_-1; ++i)
 	    {
-              for (int j=0; j<numPorts_; ++j)
+              // adjust the starting or ending column index, in the inner loop, for UPPER or
+              // LOWER format respectively
+              if (matrixFormat_ == MatrixFormat::UPPER)
+                startIdx = i;
+              else if (matrixFormat_ == MatrixFormat::LOWER)
+                endIdx = i;
+
+              for (int j=startIdx; j<=endIdx; ++j)
 	      {
                 // data will be converted to RI format for internal use in
                 // YLin model
-                ExtendedString Str1(parsedLine[2*(i*numPorts_+j)+1].string_);
-	        ExtendedString Str2(parsedLine[2*(i*numPorts_+j)+2].string_);
-                if (dataFormat_ == "RI")
+                ExtendedString Str1(parsedLine[offset].string_);
+	        ExtendedString Str2(parsedLine[offset+1].string_);
+                if (dataFormat_ == DataFormat::RI)
 		{
                   // Use inputNetworkData(i,j) format for accessing, in
                   // order to use row-column indexing.  Also, indexing
@@ -892,14 +961,14 @@ bool Model::readTouchStoneFile()
                   inputNetworkData(i,j).real(Str1.Value());
                   inputNetworkData(i,j).imag(Str2.Value());
                 }
-                else if (dataFormat_ == "MA")
+                else if (dataFormat_ == DataFormat::MA)
 		{
                   double mag = Str1.Value();
                   double angle = M_PI*Str2.Value()/180.0;
                   inputNetworkData(i,j).real(mag*cos(angle));
                   inputNetworkData(i,j).imag(mag*sin(angle));
                 }
-                else if (dataFormat_ == "DB")
+                else if (dataFormat_ == DataFormat::DB)
 		{
                   double mag = pow(10.0,0.05*Str1.Value());
                   double angle = M_PI*Str2.Value()/180.0;
@@ -912,6 +981,14 @@ bool Model::readTouchStoneFile()
                     << TSFileName_ << " for model " << getName();
                   return false;
                 }
+
+                // move offset to start of next pair of real/imaginary values
+                offset += 2;
+
+                // internally, the data is stored in Full format.  So, populate the values
+                // on the other side of the diagonal
+                if ( (i!=j) && ((matrixFormat_ == MatrixFormat::UPPER) || (matrixFormat_ == MatrixFormat::LOWER)) )
+                  inputNetworkData(j,i) = inputNetworkData(i,j);
               }
             }
 
@@ -924,14 +1001,14 @@ bool Model::readTouchStoneFile()
 	    }
 
             // YLin model will use Y-parameter format internally
-            if (paramType_=='S')
+            if (paramType_== ParamType::S)
 	    {
               Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
               YParams.shape(numPorts_, numPorts_);
 	      Util::stoy(inputNetworkData,YParams,Z0Vec_);
               inputNetworkDataVec_.push_back(YParams);
             }
-            else if (paramType_=='Z')
+            else if (paramType_== ParamType::Z)
 	    {
               Teuchos::SerialDenseMatrix<int, std::complex<double> > YParams;
               YParams.shape(numPorts_, numPorts_);
@@ -945,25 +1022,26 @@ bool Model::readTouchStoneFile()
             }
 
             // Handle optional Isc data. There are two additional columns for
-	    // each port added to each row, if that data is included.
-            if (Isc_)
+	    // each port added to each row, if that data is included.  This code only
+            // only works for Full matrix format.
+            if (IscFD_)
 	    {
               inputIscData.clear();
               for (int i=2*numPorts_*numPorts_+1, pIdx=1; i < expectedNumElementsPerNetworkDataLine; i=i+2, pIdx++)
 	      {
                 ExtendedString Str1(parsedLine[i].string_);
                 ExtendedString Str2(parsedLine[i+1].string_);
-                if (dataFormat_ == "RI")
+                if (dataFormat_ == DataFormat::RI)
 		{
                   inputIscData.push_back(std::complex<double>(Str1.Value(), Str2.Value()));
                  }
-                else if (dataFormat_ == "MA")
+                else if (dataFormat_ == DataFormat::MA)
 		{
                   double mag = Str1.Value();
                   double angle = M_PI*Str2.Value()/180.0;
                   inputIscData.push_back(std::complex<double>(mag*cos(angle), mag*sin(angle)));
                 }
-                else if (dataFormat_ == "DB")
+                else if (dataFormat_ == DataFormat::DB)
 		{
                   double mag = pow(10.0,0.05*Str1.Value());
                   double angle = M_PI*Str2.Value()/180.0;
@@ -978,7 +1056,7 @@ bool Model::readTouchStoneFile()
                 }
 
               }
-              inputIscVec_.push_back(inputIscData);
+              inputIscFDVec_.push_back(inputIscData);
 	    }
 
             // clear parsedLine here, to support parsing network data that
@@ -987,7 +1065,7 @@ bool Model::readTouchStoneFile()
           }
 
           // read in next line
-          readTouchStoneFileLine(inputFile,aLine,lineNum);
+          readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
         }
 
         if ( numDataLinesFound != numFreq_)
@@ -1001,7 +1079,7 @@ bool Model::readTouchStoneFile()
 
     // Some line types (like [Reference]) used look-ahead to already read the next line
     if (!skipReadNextLine)
-      readTouchStoneFileLine(inputFile,aLine,lineNum);
+      readAndUpperCaseTouchStoneFileLine(inputFile,aLine,lineNum);
     else
       skipReadNextLine=false;
   }
@@ -1076,7 +1154,7 @@ bool Model::readTouchStoneFile()
 // Creator       : Pete Sholander, SNL, Electrical Models & Simulation
 // Creation Date : 08/20/2019
 //-----------------------------------------------------------------------------
-void Model::splitTouchStoneFileLine(const std::string& aLine, IO::TokenVector & parsedLine)
+void Model::splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector & parsedLine)
 {
   // trim off any in-line comments
   std::string trimmedLine(aLine);
@@ -1091,18 +1169,152 @@ void Model::splitTouchStoneFileLine(const std::string& aLine, IO::TokenVector & 
 }
 
 //-----------------------------------------------------------------------------
-// Function      : Model::readTouchStoneFileLine
-// Purpose       : Read in a line from a Touchstone 2 formatted file, and
-//                 also increment the lineNum counter
-// Special Notes :
+// Function      : Model::readAndUpperCaseTouchStoneFileLine
+// Purpose       : Read in a line from a Touchstone 2 formatted file, upper-case
+//                 it, and then also increment the lineNum counter.
+// Special Notes : 
 // Scope         : public
 // Creator       : Pete Sholander, SNL, Electrical Models & Simulation
 // Creation Date : 08/20/2019
 //-----------------------------------------------------------------------------
-void Model::readTouchStoneFileLine(std::istream & inputFile, std::string& aLine, int& lineNum)
+  void Model::readAndUpperCaseTouchStoneFileLine(std::istream & inputFile, ExtendedString& aLine, int& lineNum)
 {
   IO::readLine(inputFile,aLine);
+  aLine.toUpper();
   lineNum++;
+
+  return;
+}
+
+//-----------------------------------------------------------------------------
+// Function      : Model::readISC_TD_File
+// Purpose       : Read in file with time-domain short-circuit current data
+// Special Notes :
+// Scope         : public
+// Creator       : Pete Sholander, SNL
+// Creation Date : 04/10/2020
+//-----------------------------------------------------------------------------
+void Model::readISC_TD_File()
+{
+  // Some error checking on the file name specified by ISC_TD_FILE
+  if ( !(Util::checkIfValidFile(ISC_TD_FileName_)) )
+  {
+    Report::UserError() << "ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model "
+                        << getName() << " could not be found.";
+    return;
+  }
+
+  // check the ISC_TD_FILE_FORMAT model parameter, if given
+  if ( ISC_TD_FileFormatGiven_ &&
+       !((ISC_TD_FileFormat_ == "STD") || (ISC_TD_FileFormat_ == "NOINDEX") || (ISC_TD_FileFormat_ == "CSV")) )
+  {
+    Report::UserError() << "ISC_TD_FILE_FORMAT for model " << getName()
+                        << " must be STD, NOINDEX or CSV.";
+    return;
+  }
+
+  // Use the same functions for reading the .PRN and .CSV files as re-measure does.
+  IO::OutputFileBase* inputFile;
+  inputFile = new IO::OutputPrn();
+
+  ExtendedString fileExt(ISC_TD_FileName_.substr(ISC_TD_FileName_.length()-4));
+  int timeColumn;  // column with the time variable
+
+  // Set the position of the TIME column, and also auto-sense .prn or .csv files
+  // is the ISC_TD_FILE_FORMAT model parameter is not given.
+  if (ISC_TD_FileFormatGiven_)
+  {
+    if (ISC_TD_FileFormat_ == "STD")
+      timeColumn = 1;
+    else if ( (ISC_TD_FileFormat_ == "CSV") || (ISC_TD_FileFormat_ == "NOINDEX") )
+      timeColumn = 0;
+  }
+  else if (!ISC_TD_FileFormatGiven_)
+  {
+    if (fileExt.toUpper() == ".PRN")
+    {
+      ISC_TD_FileFormat_ = "STD";
+      timeColumn = 1;
+    }
+    else if (fileExt.toUpper() == ".CSV")
+    {
+      ISC_TD_FileFormat_ = "CSV";
+      timeColumn = 0;
+    }
+    else
+    {
+      Report::UserError() << "Problem determining ISC_TD_FILE_FORMAT for file \"" << ISC_TD_FileName_
+                        << "\" for model " << getName();
+      return;
+    }
+  }
+
+  if (!inputFile->openFileForRead(ISC_TD_FileName_))
+  {
+    // open failed.  Report error and exit.
+    Report::UserError() << "Could not open ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model " << getName();
+    return;
+  }
+
+  // load data-names, as a way of reading and discarding the first row in the input file
+  std::vector<std::string> fileVarNames;
+  if (!(inputFile->getOutputVarNames(fileVarNames)))
+  {
+    // reading var names failed
+    Report::UserError() << "Problem reading variable names in ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model " << getName();
+    return;
+  }
+
+  // This code section run though the lines in the input file, and makes the
+  // the vectors for the time values and per-port short-circuit current values.
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+  {
+    Xyce::dout() << "For ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model " << getName() << std::endl;
+  }
+  int reading=1;
+  std::vector<double> varValuesVec;
+  inputIscTDVec_.resize(numPorts_);
+
+  while (reading==1)
+  {
+    reading = inputFile->getOutputNextVarValuesSerial(&varValuesVec);
+
+    if( reading == 1 )
+    {
+      // number of entries on each line should be (number of ports)+1 (plus possibly the INDEX column)
+      if ( ((ISC_TD_FileFormat_ == "STD") && (varValuesVec.size() != numPorts_+2)) ||
+           (((ISC_TD_FileFormat_ == "CSV") || (ISC_TD_FileFormat_ == "NOINDEX")) && (varValuesVec.size() != numPorts_+1)) )
+      {
+        Report::UserError() << "Incorrect number of entries found in ISC_TD_FILE \"" << ISC_TD_FileName_ << "\" for model " << getName();
+        return;
+      }
+
+      iscTDTimeVec_.push_back(varValuesVec[timeColumn]);
+      // inputIscTDVec_ will have one vector for each port.  Each of those vectors contains the short-circuit
+      // current values for each time point for that port.
+      for (int i=0; i<numPorts_; i++)
+        inputIscTDVec_[i].push_back(varValuesVec[timeColumn+1+i]);
+
+      varValuesVec.clear();
+    }
+  }
+
+  if (DEBUG_DEVICE && isActive(Diag::DEVICE_PARAMETERS))
+  {
+    for (int i=0; i<iscTDTimeVec_.size(); i++)
+    {
+      Xyce::dout() << "  For Time " <<  iscTDTimeVec_[i] << " Isc =";
+      for (int j=0; j<numPorts_; j++)
+        Xyce::dout() << " " << inputIscTDVec_[j][i];
+
+      Xyce::dout() << std::endl;
+    }
+  }
+
+  // clean up file object, which is local to this function
+  inputFile->closeFileForRead();
+  delete inputFile;
+  inputFile = 0;
 
   return;
 }
@@ -1184,13 +1396,15 @@ Model::Model(
     TSVersion_(""),
     freqUnit_("GHZ"),
     freqMultiplier_(1.0e9),
-    paramType_('S'),
-    dataFormat_("MA"),
+    paramType_(ParamType::S),
+    matrixFormat_(MatrixFormat::FULL),
+    dataFormat_(DataFormat::MA),
     numPorts_(0),
     twoPortDataOrder_(""),
     numFreq_(0),
     Z0Vec_(0),
-    freqVec_(0)
+    freqVec_(0),
+    IscTD_(false)
 {
   // Set params to constant default values.
   setDefaultParams();
@@ -1211,12 +1425,18 @@ Model::Model(
   else
     UserError(*this) << "No Touchstone input file given for model " << getName();
 
+  // read time-domain ISC data, if given
+  if ( ISC_TD_FileNameGiven_ && (numPorts_ > 0) )
+  {
+    readISC_TD_File();
+    IscTD_ = true;
+  }
 
   // it the file was successfully converted it is in Y-parameters and RI format
   if (TouchstoneFileRead)
   {
-    paramType_='Y';
-    dataFormat_="RI";
+    paramType_= ParamType::Y;
+    dataFormat_= DataFormat::RI;
   }
 }
 
@@ -1342,8 +1562,8 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 
     result = inputNetworkDataVec_[0];
 
-    if (Isc_)
-      Iscvals = inputIscVec_[0];
+    if (IscFD_)
+      Iscvals = inputIscFDVec_[0];
 
     return;
   }
@@ -1357,8 +1577,8 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
       result = inputNetworkDataVec_[numFreq_ - 1];
 
 
-      if (Isc_)
-        Iscvals = inputIscVec_[numFreq_ - 1];
+      if (IscFD_)
+        Iscvals = inputIscFDVec_[numFreq_ - 1];
 
       return;
 
@@ -1395,10 +1615,10 @@ void Model::interpLin( double freq,  Teuchos::SerialDenseMatrix<int, std::comple
 
     }
 
-    if (Isc_)
+    if (IscFD_)
     {
-      y0 = inputIscVec_[n0][i];
-      y1 = inputIscVec_[n1][i];
+      y0 = inputIscFDVec_[n0][i];
+      y1 = inputIscFDVec_[n1][i];
       Iscvals[i] = y0 + (y1 - y0)*(freq - f0) / (f1 - f0);
     }
   }

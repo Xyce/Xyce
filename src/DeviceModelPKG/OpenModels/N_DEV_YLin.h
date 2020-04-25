@@ -49,6 +49,11 @@ namespace Xyce {
 namespace Device {
 namespace YLin {
 
+// enums associated with information in Touchstone 2 input file
+enum DataFormat {RI, MA, DB};
+enum MatrixFormat {FULL, LOWER, UPPER};
+enum ParamType {S, Y, Z};
+
 class Model;
 class Instance;
 
@@ -250,8 +255,10 @@ public:
   virtual bool processInstanceParams() /* override */;
 
   bool readTouchStoneFile();
-  void splitTouchStoneFileLine(const std::string& aLine, IO::TokenVector & parsedLine);
-  void readTouchStoneFileLine(std::istream & in, std::string& line, int& lineNum);
+  void splitTouchStoneFileLine(const ExtendedString& aLine, IO::TokenVector & parsedLine);
+  void readAndUpperCaseTouchStoneFileLine(std::istream & in, ExtendedString& line, int& lineNum);
+
+  void readISC_TD_File();
 
 private:
   InstanceVector      instanceContainer;            ///< List of owned YLIN device instances
@@ -259,15 +266,20 @@ private:
   // variables specific to the YLIN model
   std::string            TSFileName_;       ///< Name of the Touchstone file
   bool                   TSFileNameGiven_;
+  std::string            ISC_TD_FileName_;  ///< Name of file with time-domain ISC data
+  bool                   ISC_TD_FileNameGiven_;
+  std::string            ISC_TD_FileFormat_;  ///< Format of file with time-domain ISC data
+  bool                   ISC_TD_FileFormatGiven_;
   char                   TSCommentChar_;    ///< This is the ! character
   std::string            TSVersion_;        ///< Touchstone file format.  We only support "2.0".
   std::string            freqUnit_;         ///< Frequency unit in input Network Data.  Legal
                                             ///< values are Hz, kHz, MHz, and GHz. The default
                                             ///< value is GHz.
   double                 freqMultiplier_;
-  char                   paramType_;        ///< 'S', Y' or 'Z'.  The default is 'S'
-  std::string            dataFormat_;       ///< Format of the input network data.  Legal values
-                                            ///< are: "RI", 'MA" or "DB".  The default is "MA".
+  ParamType              paramType_;        ///< S, Y or Z.  The default is S
+  MatrixFormat           matrixFormat_;     ///< Legal values are FULL, UPPER or LOWER. Default is FULL.
+  DataFormat             dataFormat_;       ///< Format of the input network data.  Legal values
+                                            ///< are: RI, MA or DB.  The default is MA.
   int                    numPorts_;         ///< Number of ports
   std::string            twoPortDataOrder_; ///< This is used for 2-port networks.
                                             ///< It is either "12_21 or "21_12"
@@ -275,8 +287,12 @@ private:
   std::vector<double>    Z0Vec_;            ///< vector of impedances (for S-parameters)
   std::vector<double>    freqVec_;          ///< vector of the frequencies in the input Network Data
 
-  bool                                                Isc_;          ///< Touchstone file contains short-circuit current data
-  std::vector< std::vector<std::complex<double> > >   inputIscVec_;  ///< Vector of vectors of per-port short-circuit currents
+  bool                                                IscFD_;          ///< Touchstone file contains frequency-doman short-circuit current data
+  std::vector< std::vector<std::complex<double> > >   inputIscFDVec_;  ///< Vector of vectors of per-port frequency-doman short-circuit currents
+
+  bool IscTD_;                                        ///< per-port time-domain short-circuit currents are given
+  std::vector<double>                iscTDTimeVec_;   ///< Vector of times at which per-port time-domain short-circuit currents are given
+  std::vector< std::vector<double> > inputIscTDVec_;  ///< Vector of vectors of per-port time-domain short-circuit currents.
 
   // store a separate matrix (that will be Y-parameters in RI-format) for each frequency
   // in freqVec_

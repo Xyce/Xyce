@@ -5,13 +5,13 @@ the model imported into Xyce and to run without error.
 The modifications are:
  (1) The macro "DISABLE_STROBE" has been commented out.  This turns off
     unnecessary output and improves performance.
-    
+
  (2) Several parameters are noted in the technical manual as being both
     instance and model parameters.  It was necessary to add several
     macros (IPRoz_BOTH, IPRcz_BOTH, IPRnb_BOTH, IPIcc_BOTH, and IPIoo_BOTH)
     to allow this to work in Xyce.  Unlike some other simulators, Xyce
     does not automatically make instance parameters also be model parameters.
-    
+
  (3) Attributes have been added to the module statements to allow the model to
     be imported into Xyce as MOSFET level 77.
 
@@ -29,31 +29,17 @@ The modifications are:
      BSIM 6.1.1.  Without it, Xyce/ADMS will produce inefficent C++ code.
 
      The begin/end statements are ifdef'd with the macro "__XYCE__"
-     
+
      The block has also been marked with "@(initial_instance)", ifdef'd with
      "insideADMS", as the @(initial_instance) "event" is an ADMS extension
      to the verilog language.
 
-     (6) The block of code that computes variables used only for output of
-         operating point data has been ifdef'd out with "__OPStuff".  Xyce/ADMS
-         has no way at present of causing this information to be output, nor
-         does it yet support the ddx operator.
-     (6b) This change was undone, as Xyce/ADMS now supports ddx() in a limited sense.
-          However, because Xyce does not yet fully support ddx(), a few expressions
-          in the BSIM6 source code had to be modified.  The modifications
-          simply rewrite ddx() expressions into an equivalent form that uses
-          only supported ddx() calls.  For example, ddx(constant*variable,probe)
-          has been rewritten as constant*ddx(variable,probe).
-          These original expressions are all wrapped in "ifndef __XYCE__"
-          conditions.  The modified conditions are in the "else" block of that
-          "ifndef".
-
- (7) Contributions to Pwr(t) have been broken up into separate static and
+ (6) Contributions to Pwr(t) have been broken up into separate static and
      dynamic (ddt) contributions.  ADMS is ill-equipped to handle contributions
      that mix static and dynamic terms, and Xyce/ADMS will generate incorrect
      code for such mixed contributions.
 
- (8) An "else" block was added to the "if ((SHMOD != 0) && (RTH0 > 0))"
+ (7) An "else" block was added to the "if ((SHMOD != 0) && (RTH0 > 0))"
      block near line 2764.  Without this else block, nothing was being
      contributed to the t branch, and therefore nothing was being loaded into
      the various jacobian matrix elements associated with the t node.  This
@@ -61,6 +47,10 @@ The modifications are:
 
      The else clause simply adds the contribution "Temp(t) <+ 0;", which causes
      the t node to collapse to ground if SHMOD=0 or RTH0=0.
+
+ (8) The code was augmented with explicit multiplicity factors ("M"
+     instance parameter).  Xyce does not support implicit multiplicity
+     and requires that each device implement it expliciitly.
 
 Xyce cannot at present support the BSIM6 model with "__THERMAL_NODE__"
 defined.  This model has an optional external "t" node.  The level 77

@@ -32,7 +32,7 @@
 //
 // Creator        : admsXml-2.3.6
 //
-// Creation Date  : Mon, 13 Apr 2020 11:55:20
+// Creation Date  : Mon, 20 Apr 2020 09:52:29
 //
 //-----------------------------------------------------------------------------
 #ifndef Xyce_N_DEV_ADMSbsim6_h
@@ -221,6 +221,9 @@ bool instancePar_given_PS;
 double instancePar_PD;
 double d_instancePar_PD_dX;
 bool instancePar_given_PD;
+double instancePar_m;
+double d_instancePar_m_dX;
+bool instancePar_given_m;
 // non-reals(including hidden)
 int instancePar_NF;
 bool instancePar_given_NF;
@@ -3460,6 +3463,7 @@ public:
     double AD;
     double PS;
     double PD;
+    double m;
     //  Variables of global_instance scope
     double T0;
      double d_T0_dV_gm_di;

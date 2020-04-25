@@ -875,10 +875,10 @@ Simulator::RunStatus Simulator::initializeEarly(
 
   if (commandLine_.argExists("-randseed"))
   {
-    long theSeed;
+    unsigned long theSeed;
     std::stringstream iss(commandLine_.getArgumentValue("-randseed"));
     iss >> theSeed;
-    Xyce::Util::Expression::seedRandom(theSeed);
+    Xyce::Util::Expression::seedRandom((long)theSeed);
   }
       
   Report::safeBarrier(comm_);

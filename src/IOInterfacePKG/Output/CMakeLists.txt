@@ -2,11 +2,7 @@
 # -- process files for this library ------------------------------------------
 
 # class source list
-set ( OutputInterface_SOURCES  
-     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputFileBase.C
-     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputPrn.C
-     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputCsd.C
-     ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_OutputHDF5.C
+set ( OutputInterface_SOURCES
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureManager.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureBase.C
      ${CMAKE_CURRENT_SOURCE_DIR}/N_IO_MeasureRiseFallDelay.C

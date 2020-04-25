@@ -154,7 +154,7 @@ void RandomNumbers::seedRandom(long seed, bool output)
 
   if (output)
   {
-    Xyce::lout() << "Seeding random number generator with " << seed << std::endl;
+    Xyce::lout() << "Seeding random number generator with " << ((unsigned long)seed) << std::endl;
   }
   
 #ifdef HAVE_DRAND48
