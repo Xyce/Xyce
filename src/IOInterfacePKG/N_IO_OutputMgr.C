@@ -3589,8 +3589,6 @@ void OutputMgr::outputAC(
   const Linear::Vector &  imaginary_solution_vector,
   const Util::Op::RFparamsData & RFparams)
 {
-  outputState_.circuitFrequency_ = frequency;
-
   if (!activeOutputterStack_.empty())
   {
     std::vector<Outputter::Interface *>::const_iterator it = 
