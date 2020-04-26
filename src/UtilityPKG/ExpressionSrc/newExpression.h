@@ -25,7 +25,6 @@
 namespace Xyce {
 namespace Util {
 
-
 #if 0
 static struct constant {
     const char *name;
@@ -71,7 +70,8 @@ public:
     isTimeDepdendent_(false),
     isTempDepdendent_(false),
     isVTDepdendent_(false),
-    isFreqDepdendent_(false)
+    isFreqDepdendent_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
   {};
 
   // primary constructor
@@ -93,7 +93,8 @@ public:
     isTimeDepdendent_(false),
     isTempDepdendent_(false),
     isVTDepdendent_(false),
-    isFreqDepdendent_(false)
+    isFreqDepdendent_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
   {
     // The bison file is officially case-insensitive.  So converting the
     // input string to all upper case is not necessary for it to work.
@@ -140,7 +141,8 @@ public:
     isTimeDepdendent_(false),
     isTempDepdendent_(false),
     isVTDepdendent_(false),
-    isFreqDepdendent_(false)
+    isFreqDepdendent_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -177,7 +179,8 @@ public:
     isTimeDepdendent_(false),
     isTempDepdendent_(false),
     isVTDepdendent_(false),
-    isFreqDepdendent_(false)
+    isFreqDepdendent_(false),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
   {
     garbageParamOpPtr_ = Teuchos::rcp(new paramOp<usedType> (std::string("GARBAGE")));
 
@@ -197,7 +200,8 @@ public:
       if (left->funcType())    { funcOpVec_.push_back(left); }
       if (left->voltageType()) { voltOpVec_.push_back(left); }
       if (left->currentType()) { currentOpVec_.push_back(left); }
-      left->getInterestingOps(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_);
+      if (left->internalDeviceVarType()) { internalDevVarOpVec_.push_back(left); }
+      left->getInterestingOps( opVectors_  );
 
 #if 0
       paramNameVec_.clear();
@@ -258,7 +262,8 @@ public:
     isTimeDepdendent_(right.isTimeDepdendent_),
     isTempDepdendent_(right.isTempDepdendent_),
     isVTDepdendent_(right.isVTDepdendent_),
-    isFreqDepdendent_(right.isFreqDepdendent_)
+    isFreqDepdendent_(right.isFreqDepdendent_),
+    opVectors_(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_, internalDevVarOpVec_)
   {
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -329,6 +334,8 @@ public:
     isTempDepdendent_ = right.isTempDepdendent_;
     isVTDepdendent_ = right.isVTDepdendent_;
     isFreqDepdendent_ = right.isFreqDepdendent_;
+
+    //opVectors_ = right.opVectors_; // this can't work and shouldn't
 
     garbageParamOpPtr_ = right.garbageParamOpPtr_;
     timeNodePtr_ = right.timeNodePtr_;
@@ -459,6 +466,8 @@ public:
     return voltOpNames_;
   };
 
+  std::vector<Teuchos::RCP<astNode<usedType> > > & getInternalDevVarOpVec_() { return internalDevVarOpVec_; }
+
   std::vector<Teuchos::RCP<astNode<usedType> > > & getCurrentOpVec () { return currentOpVec_; };
   std::vector<Teuchos::RCP<astNode<usedType> > > & getUnresolvedCurrentOpVec() { return unresolvedCurrentOpVec_; };
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > & getCurrentOpNames ()
@@ -563,6 +572,10 @@ private:
   std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedCurrentOpVec_;
   std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > currentOpNames_;
 
+  std::vector<Teuchos::RCP<astNode<usedType> > > internalDevVarOpVec_;
+  std::vector<Teuchos::RCP<astNode<usedType> > > unresolvedInternalDevVarOpVec_;
+  std::unordered_map<std::string,std::vector<Teuchos::RCP<astNode<usedType> > > > internalDevVarOpNames_;
+
   // master vector of nodes.  This is only used for deleting the ast tree in
   // the destructor.  The tree should be deleted by marching down the
   // branches of the tree, as some of the nodes use the same pointer.
@@ -600,8 +613,7 @@ private:
   bool isVTDepdendent_;
   bool isFreqDepdendent_;
 
-  //usedType result_;
-  //std::vector<usedType> derivs_;
+  opVectorContainers<usedType> opVectors_;
 };
 
 }

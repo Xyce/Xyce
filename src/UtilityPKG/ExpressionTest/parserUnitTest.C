@@ -3258,6 +3258,10 @@ TEST ( Double_Parser_calculus, derivsThruFuncs1 )
   double refRes = 1.25e-01; 
   std::vector<double> refderivs = { -0.5 };
 
+#if 0
+  derivFuncTestExpr.dumpParseTree(std::cout);
+#endif
+
   derivFuncTestExpr.evaluate(result,derivs);        EXPECT_EQ( derivs, refderivs );
   copy_derivFuncTestExpr.evaluate(result,derivs);   EXPECT_EQ( derivs, refderivs );
   assign_derivFuncTestExpr.evaluate(result,derivs); EXPECT_EQ( derivs, refderivs );
@@ -3340,6 +3344,11 @@ TEST ( Double_Parser_calculus, derivsThruFuncs2 )
     refderivs = { dExp_dA, dExp_dB };
   }
 
+#if 0
+  derivFuncTestExpr1.dumpParseTree(std::cout);
+  derivFuncTestExpr2.dumpParseTree(std::cout);
+#endif
+
   derivFuncTestExpr1.evaluate(result,derivs);        
   derivFuncTestExpr2.evaluate(result2,derivs2);        
   EXPECT_EQ( result, result2 );
@@ -3371,19 +3380,29 @@ TEST ( Double_Parser_calculus, derivsThruFuncs3 )
   Teuchos::RCP<solnAndFuncExpressionGroup> solnFuncGroup = Teuchos::rcp(new solnAndFuncExpressionGroup() );
   Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnFuncGroup;
 
+  // this expression is the RHS of a .func statement:  .func F1(A,B) {A-B}
   Teuchos::RCP<Xyce::Util::newExpression> f1Expression  = Teuchos::rcp(new Xyce::Util::newExpression (std::string("A*B"), testGroup));
-  std::vector<std::string> f1ArgStrings = { std::string("A"), std::string("B") };
+  std::vector<std::string> f1ArgStrings;
+
+  Xyce::Util::newExpression f1_LHS (std::string("F1(A,B)"), testGroup);
+  f1_LHS.lexAndParseExpression();
+  f1_LHS.getFuncPrototypeArgStrings(f1ArgStrings);
   f1Expression->setFunctionArgStringVec ( f1ArgStrings );
+  // during lex/parse, this vector of arg strings will be compared to any
+  // param classes.  If it finds them, then they will be placed in the
+  // functionArgOpVec object, which is used below, in the call to "setFuncArgs".
   f1Expression->lexAndParseExpression();
 
-  Xyce::Util::newExpression derivFuncTestExpr1(std::string("V(A)*F1(V(A),V(B)*V(B))+3.0*V(B)"), testGroup); 
+  std::string f1Name;// = "F1";
+  f1_LHS.getFuncPrototypeName(f1Name);
 
-  derivFuncTestExpr1.lexAndParseExpression();
-  derivFuncTestExpr1.attachFunctionNode(std::string("F1"), f1Expression);
+  Xyce::Util::newExpression derivFuncTestExpr(std::string("V(A)*F1(V(A),V(B)*V(B))+3.0*V(B)"), testGroup); 
+  derivFuncTestExpr.lexAndParseExpression();
+  derivFuncTestExpr.attachFunctionNode(f1Name, f1Expression);
 
-  Xyce::Util::newExpression copy_derivFuncTestExpr1(derivFuncTestExpr1); 
-  Xyce::Util::newExpression assign_derivFuncTestExpr1; 
-  assign_derivFuncTestExpr1 = derivFuncTestExpr1; 
+  Xyce::Util::newExpression copy_derivFuncTestExpr(derivFuncTestExpr); 
+  Xyce::Util::newExpression assign_derivFuncTestExpr; 
+  assign_derivFuncTestExpr = derivFuncTestExpr; 
 
   double Aval=1.0;
   double Bval=2.0;
@@ -3392,7 +3411,9 @@ TEST ( Double_Parser_calculus, derivsThruFuncs3 )
   double result;
   std::vector<double> derivs;
 
-  derivFuncTestExpr1.evaluate(result,derivs);   
+#if 0
+  derivFuncTestExpr.dumpParseTree(std::cout);
+#endif
 
   double resRef = Aval*Aval*Bval*Bval+3.0*Bval;
   double dfdA = (2.0*Aval*Bval*Bval);
@@ -3400,12 +3421,23 @@ TEST ( Double_Parser_calculus, derivsThruFuncs3 )
 
   std::vector<double> derivsRef = { dfdA, dfdB };
 
+  derivFuncTestExpr.evaluate(result,derivs);   
   EXPECT_EQ( result-resRef, 0.0 );
-
   std::vector<double> derivDiffs = { (derivs[0]-derivsRef[0]),  (derivs[1]-derivsRef[1]) };
   EXPECT_EQ( derivDiffs[0], 0.0 );
   EXPECT_EQ( derivDiffs[1], 0.0 );
 
+  copy_derivFuncTestExpr.evaluate(result,derivs);   
+  EXPECT_EQ( result-resRef, 0.0 );
+  derivDiffs = { (derivs[0]-derivsRef[0]),  (derivs[1]-derivsRef[1]) };
+  EXPECT_EQ( derivDiffs[0], 0.0 );
+  EXPECT_EQ( derivDiffs[1], 0.0 );
+
+  assign_derivFuncTestExpr.evaluate(result,derivs);   
+  EXPECT_EQ( result-resRef, 0.0 );
+  derivDiffs = { (derivs[0]-derivsRef[0]),  (derivs[1]-derivsRef[1]) };
+  EXPECT_EQ( derivDiffs[0], 0.0 );
+  EXPECT_EQ( derivDiffs[1], 0.0 );
 }
 
 TEST ( Double_Parser_calculus, derivsThruFuncs4 )

@@ -52,6 +52,7 @@ class ExpressionLexer;
 %option yyclass="Xyce::Util::ExpressionLexer"
 %s voltagenodedef
 %s currentdevdef
+%s internaldevdef
 %s polydef
 %s polyargs
 %s polyvoltagenodedef
@@ -65,7 +66,6 @@ class ExpressionLexer;
 DIGIT [0-9]
 ID [a-zA-Z][a-zA-Z0-9_:]*
 NODE [a-zA-Z0-9_:]*
-
 %{
 #define YY_USER_ACTION llocp->columns(YYLeng());
 %}
@@ -306,6 +306,26 @@ NODE [a-zA-Z0-9_:]*
   (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
   BEGIN(INITIAL);
   return XyceExpression::ExpressionParser::token::TOK_CURRENTDEV;
+}
+
+<INITIAL>"N"     {
+  lvalp->sval=new std::string(YYText());
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+<INITIAL>"N"[ \t]*"("    {
+  BEGIN(internaldevdef);
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off open paren
+  return XyceExpression::ExpressionParser::token::TOK_WORD;
+}
+
+ /* single device name by itself */
+<internaldevdef>{ID}")" {
+  lvalp->sval=new std::string(YYText());
+  (lvalp->sval)->erase((lvalp->sval)->length()-1); // lop off close paren
+  BEGIN(INITIAL);
+  return XyceExpression::ExpressionParser::token::TOK_INTERNAL_DEV_VAR;
 }
 
  /* built in functions */

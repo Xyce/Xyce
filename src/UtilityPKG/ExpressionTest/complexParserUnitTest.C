@@ -1172,6 +1172,58 @@ TEST ( Complex_Parser_CurrDeriv_Test, test2)
   assignExpression.evaluate(result,derivs); EXPECT_EQ( result, refRes); EXPECT_EQ( derivs, refDer);
 }
 
+
+//-------------------------------------------------------------------------------
+class internalDevExpressionGroup : public Xyce::Util::baseExpressionGroup
+{
+  public:
+    internalDevExpressionGroup () : Xyce::Util::baseExpressionGroup() {};
+    ~internalDevExpressionGroup () {};
+
+  void setInternalDeviceVar (const std::string & name, std::complex<double> val)
+  {
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    invernalVars_[lowerName] = val;
+  };
+
+  bool getInternalDeviceVar       (const std::string & name, std::complex<double> & val)
+  {
+    bool retval=true;
+    std::string lowerName = name;
+    Xyce::Util::toLower(lowerName);
+    if (invernalVars_.find(lowerName) != invernalVars_.end()) { val = invernalVars_[lowerName]; }
+    else { retval = false; }
+    return retval;
+  }
+
+  private:
+    std::unordered_map <std::string, std::complex<double> > invernalVars_;
+};
+
+TEST ( Double_Parser_InternalDeviceVariable_Test, test1)
+{
+  Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
+  Xyce::Util::newExpression testExpression(std::string("17.2*N(M3:GM)+8.5"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double> result=0.0; 
+  std::complex<double> M3GMval=std::complex<double>(3.0,0.0);
+  std::complex<double> refRes = 17.2*M3GMval+8.5;
+  intVarGroup->setInternalDeviceVar(std::string("M3:GM"),M3GMval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+ 
+  OUTPUT_MACRO(Double_Parser_CurrSoln_Test, test1)
+}
+
 //-------------------------------------------------------------------------------
 // .func tests
 class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGroup

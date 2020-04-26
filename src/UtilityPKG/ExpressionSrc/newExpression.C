@@ -662,6 +662,7 @@ void newExpression::setupVariousAstArrays_()
     funcOpVec_.clear();
     voltOpVec_.clear();
     currentOpVec_.clear();
+    internalDevVarOpVec_.clear();
 
     if( !(Teuchos::is_null(astNodePtr_)) )
     {
@@ -672,20 +673,12 @@ void newExpression::setupVariousAstArrays_()
           paramOpVec_.push_back(astNodePtr_);
         }
       }
-      if (astNodePtr_->funcType())
-      {
-        funcOpVec_.push_back(astNodePtr_);
-      }
-      if (astNodePtr_->voltageType())
-      {
-        voltOpVec_.push_back(astNodePtr_);
-      }
-      if (astNodePtr_->currentType())
-      {
-        currentOpVec_.push_back(astNodePtr_);
-      }
+      if (astNodePtr_->funcType()) { funcOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->voltageType()) { voltOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->currentType()) { currentOpVec_.push_back(astNodePtr_); }
+      if (astNodePtr_->internalDeviceVarType()) { internalDevVarOpVec_.push_back(astNodePtr_); }
 
-      astNodePtr_->getInterestingOps(paramOpVec_,funcOpVec_, voltOpVec_,currentOpVec_);
+      astNodePtr_->getInterestingOps( opVectors_  );
     }
 
 #if 0
@@ -883,8 +876,20 @@ int newExpression::evaluateFunction (usedType &result)
         Teuchos::RCP<currentOp<usedType> > currOp = Teuchos::rcp_static_cast<currentOp<usedType> > (currentOpVec_[ii]);
 
         usedType val;
-        group_->getSolutionVal(currOp->getCurrentDevice(),val);
+        if ( !(group_->getSolutionVal(currOp->getCurrentDevice(),val) ) ) // ERK.  reconsider the logic
+        {
+          group_->getCurrentVal(currOp->getCurrentDevice(),val);
+        }
         currOp->setCurrentVal ( val );
+      }
+
+      for (int ii=0;ii<internalDevVarOpVec_.size();ii++)
+      {
+        Teuchos::RCP<internalDevVarOp<usedType> > intVarOp = Teuchos::rcp_static_cast<internalDevVarOp<usedType> > (internalDevVarOpVec_[ii]);
+
+        usedType val;
+        group_->getInternalDeviceVar(intVarOp->getInternalVarDevice(),val);
+        intVarOp->setInteranalDeviceVar ( val );
       }
 
      // ERK. The global parameter setting here should eventually go away or be changed.

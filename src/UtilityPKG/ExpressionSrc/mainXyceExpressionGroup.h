@@ -22,6 +22,7 @@
 #include <ExpressionType.h>
 #include <expressionGroup.h>
 #include <N_UTL_ExtendedString.h>
+#include <N_IO_OutputMgr.h>
 
 namespace Xyce {
 namespace Util {
@@ -57,7 +58,8 @@ public:
   mainXyceExpressionGroup ( 
       N_PDS_Comm & comm, Topo::Topology & top,
       Analysis::AnalysisManager &analysis_manager,
-      Device::DeviceMgr & device_manager
+      Device::DeviceMgr & device_manager,
+      IO::OutputMgr &output_manager
       ) ;
 
   ~mainXyceExpressionGroup ();
@@ -100,12 +102,16 @@ public:
   }
 
   virtual bool getSolutionVal(const std::string & nodeName, double & retval );
-
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval );
 
-  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
+  virtual bool getCurrentVal(const std::string & deviceName, double & retval );
+  virtual bool getCurrentVal(const std::string & deviceName, std::complex<double> & retval );
 
+  virtual bool getGlobalParameterVal (const std::string & paramName, double & retval );
   virtual bool getGlobalParameterVal (const std::string & paramName, std::complex<double> & retval );
+
+  virtual bool getInternalDeviceVar (const std::string & deviceName, double & retval );
+  virtual bool getInternalDeviceVar (const std::string & deviceName, std::complex<double> & retval );
 
   virtual double getTimeStep ();
   virtual double getTimeStepAlpha () { return alpha_; }
@@ -133,6 +139,8 @@ private:
   Device::DeviceMgr & deviceManager_;
 
   IO::AliasNodeMap aliasNodeMap_; // = output_manager.getAliasNodeMap().find(objVec[iobj]->expVarNames[i]);
+
+  IO::OutputMgr &outputManager_;
 
   //Util::Op::Operator * tempOp_;
 

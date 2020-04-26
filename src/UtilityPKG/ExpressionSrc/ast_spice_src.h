@@ -7,11 +7,12 @@
 #define AST_CALL_SUBOUTPUT(PTR,OUTSTR)  if(  !(Teuchos::is_null(this->PTR))  ) { os << std::setw(indent) << " "; os << OUTSTR << ": " << std::endl; this->PTR->output(os,indent+1); }
 
 #define AST_GET_INTERESTING_OPS(PTR) if( !(Teuchos::is_null(this->PTR)) ) {  \
-  if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); }  \
-  if (this->PTR->funcType())    { funcOpVector.push_back(this->PTR); } \
-  if (this->PTR->voltageType()) { voltOpVector.push_back(this->PTR); } \
-  if (this->PTR->currentType()) { currentOpVector.push_back(this->PTR); } \
-  this->PTR->getInterestingOps(paramOpVector,funcOpVector,voltOpVector,currentOpVector); } 
+  if (this->PTR->paramType()) { ovc.paramOpVector.push_back(this->PTR); }  \
+  if (this->PTR->funcType())    { ovc.funcOpVector.push_back(this->PTR); } \
+  if (this->PTR->voltageType()) { ovc.voltOpVector.push_back(this->PTR); } \
+  if (this->PTR->currentType()) { ovc.currentOpVector.push_back(this->PTR); } \
+  if (this->PTR->internalDeviceVarType()) { ovc.internalDevVarOpVector.push_back(this->PTR); } \
+  this->PTR->getInterestingOps(ovc); }
 
 #define AST_GET_PARAM_OPS(PTR)  if( !(Teuchos::is_null(this->PTR)) ) { if (this->PTR->paramType()) { paramOpVector.push_back(this->PTR); } this->PTR->getParamOps(paramOpVector); }
 
@@ -196,11 +197,7 @@ class spicePulseOp : public astNode<ScalarT>
       os << "// spice_pulse codeGen function is not implemented yet" <<std::endl;
     }
 
-    virtual void getInterestingOps(
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS(v1_) AST_GET_INTERESTING_OPS(v2_) AST_GET_INTERESTING_OPS(td_)
 AST_GET_INTERESTING_OPS(tr_) AST_GET_INTERESTING_OPS(tf_) AST_GET_INTERESTING_OPS(pw_)
@@ -312,11 +309,7 @@ class spiceSinOp : public astNode<ScalarT>
       os << "// spice_sin codeGen function is not implemented yet" <<std::endl;
     }
 
-    virtual void getInterestingOps(
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS(v0_) AST_GET_INTERESTING_OPS(va_) AST_GET_INTERESTING_OPS(freq_)
 AST_GET_INTERESTING_OPS(td_) AST_GET_INTERESTING_OPS(theta_) AST_GET_INTERESTING_OPS(phase_) AST_GET_INTERESTING_OPS(time_)
@@ -429,11 +422,7 @@ class spiceExpOp : public astNode<ScalarT>
       os << "// spice_exp codeGen function is not implemented yet" <<std::endl;
     }
 
-    virtual void getInterestingOps(
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS(v1_) AST_GET_INTERESTING_OPS(v2_) AST_GET_INTERESTING_OPS(td1_)
 AST_GET_INTERESTING_OPS(tau1_) AST_GET_INTERESTING_OPS(td2_) AST_GET_INTERESTING_OPS(tau2_) AST_GET_INTERESTING_OPS(time_)
@@ -536,11 +525,7 @@ class spiceSffmOp : public astNode<ScalarT>
       os << "// spice_sffm codeGen function is not implemented yet" <<std::endl;
     }
 
-    virtual void getInterestingOps(
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & paramOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & funcOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & voltOpVector,
-      std::vector<Teuchos::RCP<astNode<ScalarT> > > & currentOpVector)
+    virtual void getInterestingOps(opVectorContainers<ScalarT> & ovc)
     {
 AST_GET_INTERESTING_OPS(v0_) AST_GET_INTERESTING_OPS(va_) AST_GET_INTERESTING_OPS(fc_)
 AST_GET_INTERESTING_OPS(mdi_) AST_GET_INTERESTING_OPS(fs_) AST_GET_INTERESTING_OPS(time_)

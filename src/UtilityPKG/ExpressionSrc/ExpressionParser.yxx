@@ -113,6 +113,7 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %token <sval> TOK_WORD "word"
 %token <sval> TOK_VOLTAGENODE "voltagenode"
 %token <sval> TOK_CURRENTDEV "currentdevice"
+%token <sval> TOK_INTERNAL_DEV_VAR "internal_device_variable"
 
 // non-value tokens from the lexer (ExpressionLexer.l)
 %token TOK_SQRT	"sqrt"
@@ -188,6 +189,7 @@ int XyceExpressionlex(XyceExpression::ExpressionParser::semantic_type *lvalp, Xy
 %destructor { delete $$; } TOK_WORD
 %destructor { delete $$; } TOK_VOLTAGENODE
 %destructor { delete $$; } TOK_CURRENTDEV
+%destructor { delete $$; } TOK_INTERNAL_DEV_VAR
 %destructor { delete $$; } nonempty_voltagenodelist
 
 
@@ -550,7 +552,17 @@ exp:
       delete $1;
       delete $2;
     }
-
+  | TOK_WORD TOK_INTERNAL_DEV_VAR
+    {
+      Teuchos::RCP<internalDevVarOp<usedType> > * internalDevVarPtr = new Teuchos::RCP<internalDevVarOp<usedType> >(new internalDevVarOp<usedType>(*$2));
+      Teuchos::RCP<astNode<usedType> > * returnPtr = new Teuchos::RCP<astNode<usedType> >(*internalDevVarPtr);
+      newExp.getMasterNodeVec().push_back(returnPtr);
+      newExp.getInternalDevVarOpVec_().push_back(*internalDevVarPtr);
+      $$ = returnPtr;
+      delete internalDevVarPtr;
+      delete $1;
+      delete $2;
+    }
   | TOK_MAX  TOK_LEFTPAREN exp ',' exp TOK_RIGHTPAREN
     {
       Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(new maxOp<usedType>(*$3,*$5));

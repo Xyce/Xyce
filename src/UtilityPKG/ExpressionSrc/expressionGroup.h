@@ -39,10 +39,16 @@ public:
   virtual bool getSolutionSdt (const std::string & nodeName, double & retval ) { retval=0.0; return false; }
   virtual bool getSolutionVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; }
 
+  virtual bool getCurrentVal  (const std::string & deviceName, double & retval ) { retval=0.0; return false; }
+
+  virtual bool getInternalDeviceVar (const std::string & deviceName, double & retval ) { retval=0.0; return false; }
+  virtual bool getInternalDeviceVar (const std::string & deviceName, std::complex<double> & retval ) {retval=std::complex<double>(0.0,0.0); return false; }
 
   virtual bool getSolutionDdt (const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
   virtual bool getSolutionSdt (const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
   virtual bool getSolutionVal(const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
+
+  virtual bool getCurrentVal(const std::string & deviceName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; }
 
   virtual bool getGlobalParameterVal (const std::string & nodeName, double & retval ) { retval=0.0; return false; } 
   virtual bool getGlobalParameterVal (const std::string & nodeName, std::complex<double> & retval ) { retval=std::complex<double>(0.0,0.0); return false; } 
