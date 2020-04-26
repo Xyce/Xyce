@@ -805,7 +805,7 @@ TEST ( Double_Parser_VoltSoln_Test, vr_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO ( Double_Parser_VoltSoln_Test, vr_test0)
 }
 
 TEST ( Double_Parser_VoltSoln_Test, vi_test0)
@@ -826,7 +826,7 @@ TEST ( Double_Parser_VoltSoln_Test, vi_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO ( Double_Parser_VoltSoln_Test, vi_test0)
 }
 
 TEST ( Double_Parser_VoltSoln_Test, vm_test0)
@@ -847,7 +847,7 @@ TEST ( Double_Parser_VoltSoln_Test, vm_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO ( Double_Parser_VoltSoln_Test, vm_test0)
 }
 
 TEST ( Double_Parser_VoltSoln_Test, vp_test0)
@@ -868,7 +868,7 @@ TEST ( Double_Parser_VoltSoln_Test, vp_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO ( Double_Parser_VoltSoln_Test, vp_test0)
 }
 
 // Test complex .PRINT operators for current
@@ -1222,6 +1222,96 @@ TEST ( Double_Parser_InternalDeviceVariable_Test, test1)
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
   OUTPUT_MACRO(Double_Parser_CurrSoln_Test, test1)
+}
+
+
+// Test complex .PRINT operators for N()
+TEST ( Double_Parser_InternalDeniceVariable_Test, nr_test0)
+{
+  Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("Nr (A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=std::complex<double>(3.0,2.0);
+  std::complex<double>  refRes = std::real(Aval);
+  intVarGroup->setInternalDeviceVar(std::string("A"),Aval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO ( Double_Parser_InternalDeniceVariable_Test, nr_test0)
+}
+
+TEST ( Double_Parser_InternalDeniceVariable_Test, ni_test0)
+{
+  Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("nI (A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=std::complex<double>(3.0,2.0);
+  double refRes = std::imag(Aval);
+  intVarGroup->setInternalDeviceVar(std::string("A"),Aval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO ( Double_Parser_InternalDeniceVariable_Test, ni_test0)
+}
+
+TEST ( Double_Parser_InternalDeniceVariable_Test, nm_test0)
+{
+  Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("nM(A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=std::complex<double>(3.0,2.0);
+  double refRes = std::abs(Aval);
+  intVarGroup->setInternalDeviceVar(std::string("A"),Aval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO ( Double_Parser_InternalDeniceVariable_Test, nm_test0)
+}
+
+TEST ( Double_Parser_InternalDeniceVariable_Test, np_test0)
+{
+  Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
+
+  Xyce::Util::newExpression testExpression(std::string("Np  (A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  std::complex<double>  result=0.0, Aval=std::complex<double>(3.0,2.0);
+  double refRes = std::arg(Aval);
+  intVarGroup->setInternalDeviceVar(std::string("A"),Aval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO ( Double_Parser_InternalDeniceVariable_Test, np_test0)
 }
 
 //-------------------------------------------------------------------------------
@@ -2173,26 +2263,6 @@ class Bsrc_C1_ExpressionGroup : public Xyce::Util::baseExpressionGroup
   virtual double getTime() { return time; };
   void setTime(double t) { time = t; };
 
-#if 0
-  void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-  {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-
-    parameters_[lowerName] = exp;
-  };
-
-  bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-  {
-    bool retval=true;
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    if (parameters_.find(lowerName) != parameters_.end()) { exp = parameters_[lowerName]; }
-    else { retval = false; }
-    return retval;
-  }
-#endif
-
   private:
     std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
     double time;
@@ -2316,28 +2386,7 @@ class testExpressionGroupWithParamSupport : public Xyce::Util::baseExpressionGro
     testExpressionGroupWithParamSupport () : Xyce::Util::baseExpressionGroup()  {};
     ~testExpressionGroupWithParamSupport () {};
 
-#if 0
-    void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-    {
-      std::string lowerName = name;
-      Xyce::Util::toLower(lowerName);
-
-      parameters_[lowerName] = exp;
-    };
-
-    bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-    {
-      bool retval=true;
-      std::string lowerName = name;
-      Xyce::Util::toLower(lowerName);
-      if (parameters_.find(lowerName) != parameters_.end()) { exp = parameters_[lowerName]; }
-      else { retval = false; }
-      return retval;
-    }
-#endif
-
   private:
-    std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
 };
 
 // this form of test1 doesn't rely on the group to resolve the parameter.

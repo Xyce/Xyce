@@ -554,10 +554,53 @@ exp:
     }
   | TOK_WORD TOK_INTERNAL_DEV_VAR
     {
+      Teuchos::RCP<astNode<usedType> > * returnPtr;
+
       Teuchos::RCP<internalDevVarOp<usedType> > * internalDevVarPtr = new Teuchos::RCP<internalDevVarOp<usedType> >(new internalDevVarOp<usedType>(*$2));
-      Teuchos::RCP<astNode<usedType> > * returnPtr = new Teuchos::RCP<astNode<usedType> >(*internalDevVarPtr);
-      newExp.getMasterNodeVec().push_back(returnPtr);
+      Teuchos::RCP<astNode<usedType> > * tmpPtr = new Teuchos::RCP<astNode<usedType> >(*internalDevVarPtr);
+      newExp.getMasterNodeVec().push_back(tmpPtr);
       newExp.getInternalDevVarOpVec_().push_back(*internalDevVarPtr);
+
+      // adjust for complex number variants
+      std::string firstArg = (*$1);
+      firstArg.erase(std::remove_if(firstArg.begin(),firstArg.end(), ::isspace), firstArg.end());
+      if (firstArg.size() == 1)
+      {
+        returnPtr = tmpPtr;
+      }
+      else if (firstArg.size() == 2)
+      {
+         if ( firstArg == std::string("NR") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new realOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+         else if ( firstArg == std::string("NI") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new imagOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+         else if ( firstArg == std::string("NM") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+         else if ( firstArg == std::string("NP") )
+         {
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new phaseOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+      }
+      else if (firstArg.size() == 3) // do decibels here
+      {
+         if ( firstArg == std::string("NDB") )
+         {
+           // ERK FIX THIS!   Units are wrong.  This needs to be the mag in decibels
+           returnPtr = new Teuchos::RCP<astNode<usedType> >(new absOp<usedType>(*tmpPtr));
+           newExp.getMasterNodeVec().push_back(returnPtr);
+         }
+      }
+
       $$ = returnPtr;
       delete internalDevVarPtr;
       delete $1;

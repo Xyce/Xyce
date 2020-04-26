@@ -749,26 +749,6 @@ class solnExpressionGroup : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("vln")) { VLNval = val; }
   }
 
-#if 0
-  void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-  {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-
-    parameters_[lowerName] = exp;
-  };
-
-  bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-  {
-    bool retval=true;
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    if (parameters_.find(lowerName) != parameters_.end()) { exp = parameters_[lowerName]; }
-    else { retval = false; }
-    return retval;
-  }
-#endif
-
   private:
     //std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
 
@@ -859,7 +839,7 @@ TEST ( Double_Parser_VoltSoln_Test, vr_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO ( Double_Parser_VoltSoln_Test, vr_test0)
 }
 
 TEST ( Double_Parser_VoltSoln_Test, vi_test0)
@@ -884,7 +864,59 @@ TEST ( Double_Parser_VoltSoln_Test, vi_test0)
   testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
   assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
-  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, test0)
+  OUTPUT_MACRO( Double_Parser_VoltSoln_Test, vi_test0)
+}
+
+TEST ( Double_Parser_VoltSoln_Test, vm_test0)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("vm (A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=3.0;
+  double refRes = std::abs(std::real(3.0));
+  //double refRes = std::imag(3.0);
+  solnGroup->setSoln(std::string("A"),Aval);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_VoltSoln_Test, vm_test0)
+}
+
+TEST ( Double_Parser_VoltSoln_Test, vp_test0)
+{
+  Teuchos::RCP<solnExpressionGroup> solnGroup = Teuchos::rcp(new solnExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = solnGroup;
+  Xyce::Util::newExpression testExpression(std::string("vP   (A)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=3.0;
+  double refRes = std::arg(std::real(3.0));
+  //double refRes = std::imag(3.0);
+  solnGroup->setSoln(std::string("A"),Aval);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO( Double_Parser_VoltSoln_Test, vp_test0)
 }
 
 TEST ( Double_Parser_VoltDeriv_Test, test1)
@@ -1147,9 +1179,57 @@ TEST ( Double_Parser_InternalDeviceVariable_Test, test1)
   //copyExpression.evaluateFunction(result); 
   //assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
  
-  OUTPUT_MACRO(Double_Parser_CurrSoln_Test, test1)
+  OUTPUT_MACRO(Double_Parser_InternalDeviceVariable_Test, test1)
 }
 
+// testing out the complex operators.  As this file tests the use case where the 
+// default type is "double" rather than "std::complex<double>" these operators don't 
+// do much.  But they do something, and need to be included.
+TEST ( Double_Parser_InternalDeviceVariable_Test, nr_test0)
+{
+  Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
+  Xyce::Util::newExpression testExpression(std::string("Nr (m3:gma)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=3.0;
+  double refRes = std::real(Aval);
+  intVarGroup->setInternalDeviceVar(std::string("M3:GMA"),Aval);
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_InternalDeviceVariable_Test, test0)
+}
+
+TEST ( Double_Parser_InternalDeviceVariable_Test, ni_test0)
+{
+  Teuchos::RCP<internalDevExpressionGroup> intVarGroup = Teuchos::rcp(new internalDevExpressionGroup() );
+  Teuchos::RCP<Xyce::Util::baseExpressionGroup> testGroup = intVarGroup;
+  Xyce::Util::newExpression testExpression(std::string("nI(M3:gM)"), testGroup);
+  testExpression.lexAndParseExpression();
+
+  Xyce::Util::newExpression copyExpression(testExpression); 
+  Xyce::Util::newExpression assignExpression; 
+  assignExpression = testExpression; 
+
+  double result=0.0, Aval=3.0;
+  double refRes = std::imag(3.0);
+  intVarGroup->setInternalDeviceVar(std::string("M3:GM"),Aval);
+
+#if 0
+  testExpression.dumpParseTree(std::cout);
+#endif
+
+  testExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  copyExpression.evaluateFunction(result);   EXPECT_EQ( result, refRes);
+  assignExpression.evaluateFunction(result); EXPECT_EQ( result, refRes);
+  OUTPUT_MACRO(Double_Parser_InternalDeviceVariable_Test, test0)
+}
 
 //-------------------------------------------------------------------------------
 // .func tests
@@ -1159,31 +1239,7 @@ class testExpressionGroupWithFuncSupport : public Xyce::Util::baseExpressionGrou
     testExpressionGroupWithFuncSupport () : Xyce::Util::baseExpressionGroup()  {};
     ~testExpressionGroupWithFuncSupport () {};
 
-#if 0
-    void addFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-    {
-      std::string lowerName = name;
-      Xyce::Util::toLower(lowerName);
-
-      functions_[lowerName] = exp;
-    };
-
-    bool getFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-    {
-      bool retval=true;
-
-      std::string lowerName = name;
-      Xyce::Util::toLower(lowerName);
-
-      if (functions_.find(lowerName) != functions_.end()) { exp = functions_[lowerName]; }
-      else { retval = false; }
-
-      return retval;
-    }
-#endif
-
   private:
-    //std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression>  >  functions_;
 };
 
 //-------------------------------------------------------------------------------
@@ -1695,31 +1751,7 @@ class ifStatementExpressionGroup : public Xyce::Util::baseExpressionGroup
       else if (tmp==std::string("7")) { v7 = val; }
     }
 
-#if 0
-    void addFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-    {
-      std::string lowerName = name;
-      Xyce::Util::toLower(lowerName);
-
-      functions_[lowerName] = exp;
-    };
-
-    bool getFunction (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-    {
-      bool retval=true;
-
-      std::string lowerName = name;
-      Xyce::Util::toLower(lowerName);
-
-      if (functions_.find(lowerName) != functions_.end()) { exp = functions_[lowerName]; }
-      else { retval = false; }
-
-      return retval;
-    }
-#endif
-
   private:
-    //std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  functions_;
 
     double time;
     double B2;
@@ -2557,32 +2589,9 @@ class Bsrc_C1_ExpressionGroup : public Xyce::Util::baseExpressionGroup
   virtual double getTime() { return time; };
   void setTime(double t) { time = t; };
 
-#if 0
-  void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-  {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-
-    parameters_[lowerName] = exp;
-  };
-
-  bool getParam       (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-  {
-    bool retval=true;
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-    if (parameters_.find(lowerName) != parameters_.end()) { exp = parameters_[lowerName]; }
-    else { retval = false; }
-    return retval;
-  }
-#endif
-
   private:
-    //std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  parameters_;
     double time, ONEval, TWOval;
 };
-
-
 
 class Bsrc_C1_ExpressionGroup_noparam : public Xyce::Util::baseExpressionGroup
 {
@@ -3543,31 +3552,7 @@ class solnExpressionGroup2 : public Xyce::Util::baseExpressionGroup
     else if (tmp==std::string("r1")) { R1val_ = val; }
   }
 
-#if 0
-  void addParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-  {
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-
-    params_[lowerName] = exp;
-  };
-
-  bool getParam (const std::string & name, Teuchos::RCP<Xyce::Util::newExpression> & exp)
-  {
-    bool retval=true;
-
-    std::string lowerName = name;
-    Xyce::Util::toLower(lowerName);
-
-    if (params_.find(lowerName) != params_.end()) { exp = params_[lowerName]; }
-    else { retval = false; }
-
-    return retval;
-  }
-#endif
-
   private:
-    //std::unordered_map <std::string, Teuchos::RCP<Xyce::Util::newExpression> >  params_;
     double Aval_, Bval_, Cval_, R1val_;
 };
 
